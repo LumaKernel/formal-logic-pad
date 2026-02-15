@@ -1,5 +1,8 @@
+export { CanvasItem } from "./CanvasItem";
+export type { CanvasItemProps } from "./CanvasItem";
 export { InfiniteCanvas } from "./InfiniteCanvas";
 export type { InfiniteCanvasProps } from "./InfiniteCanvas";
+export { worldToScreen } from "./coordinate";
 export type { GridDot, Point, Size, ViewportState } from "./types";
 export { computeGridDots, computeGridPatternParams } from "./grid";
 export { applyPanDelta, computeDelta } from "./pan";

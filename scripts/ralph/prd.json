@@ -77,7 +77,7 @@
         "Storybookでアイテム配置のストーリーを追加"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {

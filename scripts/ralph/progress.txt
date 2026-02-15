@@ -7,7 +7,9 @@
 - Prettierフォーマット: `npm run lint-fix` で適用
 - テスト: Vitest + jsdom (unit), Storybook + Playwright (browser)
 - カバレッジ: v8プロバイダ、`npx vitest run --coverage --project unit`
-- infinite-canvasライブラリ: 純粋ロジック(grid.ts, pan.ts, zoom.ts) + Reactフック(usePan.ts, useZoom.ts) + コンポーネント(InfiniteCanvas.tsx)の分離パターン
+- infinite-canvasライブラリ: 純粋ロジック(grid.ts, pan.ts, zoom.ts, coordinate.ts) + Reactフック(usePan.ts, useZoom.ts) + コンポーネント(InfiniteCanvas.tsx, CanvasItem.tsx)の分離パターン
+- CanvasItem: ワールド座標→スクリーン座標変換は `worldToScreen()` 純粋関数で、CSSのabsolute + transform scaleで配置
+- Storybookのplay関数: `storybook/test` からimport（`@storybook/test` ではない）
 - ズームロジック: `applyZoom`はカーソル中心ズーム（ワールド座標固定）、`computeScaleFromWheel`は指数的スケーリング
 - ピンチズームはPointerEventsで2ポインタを追跡、距離変化からスケール変化を算出
 - `react-hooks/refs`ルール: テストハーネスでもrefをコールバックに渡すとエラーになるので注意
@@ -89,4 +91,21 @@ Started: Sun Feb 15 21:34:16 JST 2026
   - ピンチズームは2つのPointerEventを追跡し、距離の変化率をスケール倍率に変換
   - `react-hooks/refs` ルールはテストハーネスでも適用される → テストでrefをコールバックに渡さないこと
   - `applyZoom` はクランプ後のスケールが変わらない場合に同一オブジェクトを返す → 参照等価性チェックで不要な再レンダリングを防止
+---
+
+## 2026-02-16 - US-004
+- 実装した内容:
+  - 座標変換の純粋関数 (`coordinate.ts`): `worldToScreen` - ワールド座標→スクリーン座標変換
+  - `<CanvasItem>` コンポーネント (`CanvasItem.tsx`): ワールド座標にchildrenを配置、viewport連動でスケール・位置変換
+  - ユニットテスト追加: `coordinate.test.ts` 5件、`CanvasItem.test.tsx` 9件（計85ユニットテスト全パス）
+  - Storybookストーリー (`CanvasItemPlacement.stories.tsx`): 3つのカラーノードを配置、play関数付きインタラクションテスト
+  - バレルエクスポート更新 (`index.ts`): CanvasItem, CanvasItemProps, worldToScreen を追加
+- 変更したファイル: src/lib/infinite-canvas/ (coordinate.ts, coordinate.test.ts, CanvasItem.tsx, CanvasItem.test.tsx, CanvasItemPlacement.stories.tsx 新規、index.ts 変更)
+- ベースラインカバレッジ (infinite-canvas): Stmts 99.2%, Branch 90.74%, Funcs 100%, Lines 100% → 完了後: Stmts 99.22%, Branch 90.74%, Funcs 100%, Lines 100%
+- スクリーンショット: .screenshots/US-004-canvas-item-placement-fullscreen.png
+- **今後のイテレーションへの学び:**
+  - `worldToScreen` は `x * scale + offset` で座標変換。CSSの `transform: scale()` + `transformOrigin: 0 0` で子要素もスケーリング
+  - Storybookのplay関数テストは `storybook/test` からimport（`@storybook/test` は型エラーになる）
+  - CanvasItemは `pointerEvents: "auto"` でクリック可能にする（InfiniteCanvasのSVGは `pointerEvents: "none"`）
+  - アイテム位置管理は親（ストーリー側）で `useState` で管理し、CanvasItemは描画のみ担当（controlled component パターン）
 ---
