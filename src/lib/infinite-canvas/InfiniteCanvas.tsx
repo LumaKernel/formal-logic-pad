@@ -1,7 +1,9 @@
-import { type ReactNode, useId } from "react";
+import { type ReactNode, useCallback, useId, useRef } from "react";
 import { computeGridPatternParams } from "./grid";
 import type { ViewportState } from "./types";
 import { usePan } from "./usePan";
+import { useZoom } from "./useZoom";
+import { MAX_SCALE, MIN_SCALE } from "./zoom";
 
 export interface InfiniteCanvasProps {
   /** Current viewport state (offset + scale) */
@@ -14,6 +16,10 @@ export interface InfiniteCanvasProps {
   readonly backgroundColor?: string;
   /** Callback when viewport changes (e.g. from panning) */
   readonly onViewportChange?: (viewport: ViewportState) => void;
+  /** Minimum allowed zoom scale */
+  readonly minScale?: number;
+  /** Maximum allowed zoom scale */
+  readonly maxScale?: number;
   /** Child elements to render on the canvas */
   readonly children?: ReactNode;
 }
@@ -34,9 +40,12 @@ export function InfiniteCanvas({
   dotColor = "#c0c0c0",
   backgroundColor = "#ffffff",
   onViewportChange = NOOP,
+  minScale = MIN_SCALE,
+  maxScale = MAX_SCALE,
   children,
 }: InfiniteCanvasProps) {
   const patternId = useId();
+  const containerRef = useRef<HTMLDivElement>(null);
   const { patternSize, patternOffsetX, patternOffsetY, dotRadius } =
     computeGridPatternParams(viewport, dotSpacing);
 
@@ -45,8 +54,36 @@ export function InfiniteCanvas({
     onViewportChange,
   );
 
+  const { onWheel, onPinchPointerDown, onPinchPointerMove, onPinchPointerUp } =
+    useZoom(viewport, onViewportChange, containerRef, minScale, maxScale);
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      onPinchPointerDown(e);
+      onPointerDown(e);
+    },
+    [onPinchPointerDown, onPointerDown],
+  );
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      onPinchPointerMove(e);
+      onPointerMove(e);
+    },
+    [onPinchPointerMove, onPointerMove],
+  );
+
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      onPinchPointerUp(e);
+      onPointerUp(e);
+    },
+    [onPinchPointerUp, onPointerUp],
+  );
+
   return (
     <div
+      ref={containerRef}
       data-testid="infinite-canvas"
       style={{
         width: "100%",
@@ -57,9 +94,10 @@ export function InfiniteCanvas({
         cursor: isDragging ? "grabbing" : "grab",
         touchAction: "none",
       }}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onWheel={onWheel}
     >
       <svg
         style={{

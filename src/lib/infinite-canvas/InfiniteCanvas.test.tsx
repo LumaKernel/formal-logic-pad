@@ -261,3 +261,156 @@ describe("InfiniteCanvas panning", () => {
     expect(Element.prototype.releasePointerCapture).not.toHaveBeenCalled();
   });
 });
+
+describe("InfiniteCanvas zooming", () => {
+  beforeEach(() => {
+    Element.prototype.setPointerCapture = vi.fn();
+    Element.prototype.releasePointerCapture = vi.fn();
+  });
+
+  it("calls onViewportChange on wheel scroll", () => {
+    const onViewportChange = vi.fn();
+    render(
+      <InfiniteCanvas
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onViewportChange={onViewportChange}
+      />,
+    );
+    const canvas = screen.getByTestId("infinite-canvas");
+
+    // Mock getBoundingClientRect for the container
+    vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 800,
+      bottom: 600,
+      width: 800,
+      height: 600,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    });
+
+    fireEvent.wheel(canvas, {
+      deltaY: -100,
+      clientX: 400,
+      clientY: 300,
+    });
+
+    expect(onViewportChange).toHaveBeenCalledTimes(1);
+    const newViewport = onViewportChange.mock.calls[0]![0];
+    // Scrolling up (negative deltaY) should zoom in (scale > 1)
+    expect(newViewport.scale).toBeGreaterThan(1);
+  });
+
+  it("zooms centered on cursor position", () => {
+    const onViewportChange = vi.fn();
+    render(
+      <InfiniteCanvas
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onViewportChange={onViewportChange}
+      />,
+    );
+    const canvas = screen.getByTestId("infinite-canvas");
+
+    vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 800,
+      bottom: 600,
+      width: 800,
+      height: 600,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    });
+
+    // Zoom at top-left corner
+    fireEvent.wheel(canvas, {
+      deltaY: -100,
+      clientX: 0,
+      clientY: 0,
+    });
+
+    expect(onViewportChange).toHaveBeenCalledTimes(1);
+    const newViewport = onViewportChange.mock.calls[0]![0];
+    // When zooming at origin with offset (0,0), offsets should stay at 0
+    expect(newViewport.offsetX).toBeCloseTo(0);
+    expect(newViewport.offsetY).toBeCloseTo(0);
+  });
+
+  it("respects minScale prop", () => {
+    const onViewportChange = vi.fn();
+    render(
+      <InfiniteCanvas
+        viewport={{ offsetX: 0, offsetY: 0, scale: 0.5 }}
+        onViewportChange={onViewportChange}
+        minScale={0.5}
+      />,
+    );
+    const canvas = screen.getByTestId("infinite-canvas");
+
+    vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 800,
+      bottom: 600,
+      width: 800,
+      height: 600,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    });
+
+    // Scroll down to zoom out - already at min
+    fireEvent.wheel(canvas, {
+      deltaY: 100,
+      clientX: 400,
+      clientY: 300,
+    });
+
+    // applyZoom returns the same viewport object when clamped scale equals current
+    // So onViewportChange should not be called
+    expect(onViewportChange).not.toHaveBeenCalled();
+  });
+
+  it("respects maxScale prop", () => {
+    const onViewportChange = vi.fn();
+    render(
+      <InfiniteCanvas
+        viewport={{ offsetX: 0, offsetY: 0, scale: 3 }}
+        onViewportChange={onViewportChange}
+        maxScale={3}
+      />,
+    );
+    const canvas = screen.getByTestId("infinite-canvas");
+
+    vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 800,
+      bottom: 600,
+      width: 800,
+      height: 600,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    });
+
+    // Scroll up to zoom in - already at max
+    fireEvent.wheel(canvas, {
+      deltaY: -100,
+      clientX: 400,
+      clientY: 300,
+    });
+
+    expect(onViewportChange).not.toHaveBeenCalled();
+  });
+
+  it("attaches onWheel handler to the container", () => {
+    render(<InfiniteCanvas />);
+    const canvas = screen.getByTestId("infinite-canvas");
+    // Verify wheel event doesn't crash (handler is attached)
+    fireEvent.wheel(canvas, { deltaY: 100, clientX: 0, clientY: 0 });
+  });
+});

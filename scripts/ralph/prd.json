@@ -61,7 +61,7 @@
         "Storybookで動作確認できる"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
