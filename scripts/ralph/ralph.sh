@@ -33,6 +33,27 @@ if [[ "$TOOL" != "amp" && "$TOOL" != "claude" ]]; then
   echo "Error: Invalid tool '$TOOL'. Must be 'amp' or 'claude'."
   exit 1
 fi
+
+# Validate tool and required files exist
+if [[ "$TOOL" == "amp" ]]; then
+  if ! command -v amp &> /dev/null; then
+    echo "Error: 'amp' command not found. Install amp or use --tool=claude"
+    exit 1
+  fi
+  if [ ! -f "$SCRIPT_DIR/prompt.md" ]; then
+    echo "Error: prompt.md not found at $SCRIPT_DIR/prompt.md"
+    exit 1
+  fi
+else
+  if ! command -v claude &> /dev/null; then
+    echo "Error: 'claude' command not found."
+    exit 1
+  fi
+  if [ ! -f "$SCRIPT_DIR/CLAUDE.md" ]; then
+    echo "Error: CLAUDE.md not found at $SCRIPT_DIR/CLAUDE.md"
+    exit 1
+  fi
+fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PRD_FILE="$SCRIPT_DIR/prd.json"
 PROGRESS_FILE="$SCRIPT_DIR/progress.txt"
