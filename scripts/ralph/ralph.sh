@@ -1,15 +1,27 @@
 #!/bin/bash
 # Ralph Wiggum - Long-running AI agent loop
-# Usage: ./ralph.sh [--tool amp|claude] [max_iterations]
-
 set -e
 
-# Parse arguments
-TOOL="amp"  # Default to amp for backwards compatibility
+usage() {
+  cat <<'USAGE'
+Usage: ralph.sh [OPTIONS]
+
+Options:
+  --tool <amp|claude>   Agent tool to use (default: amp)
+  -n, --iterations <N>  Max iterations (default: 10)
+  -h, --help            Show this help
+USAGE
+}
+
+TOOL="amp"
 MAX_ITERATIONS=10
 
 while [[ $# -gt 0 ]]; do
   case $1 in
+    -h|--help)
+      usage
+      exit 0
+      ;;
     --tool)
       TOOL="$2"
       shift 2
@@ -18,19 +30,29 @@ while [[ $# -gt 0 ]]; do
       TOOL="${1#*=}"
       shift
       ;;
-    *)
-      # Assume it's max_iterations if it's a number
-      if [[ "$1" =~ ^[0-9]+$ ]]; then
-        MAX_ITERATIONS="$1"
-      fi
+    -n|--iterations)
+      MAX_ITERATIONS="$2"
+      shift 2
+      ;;
+    --iterations=*)
+      MAX_ITERATIONS="${1#*=}"
       shift
+      ;;
+    *)
+      echo "Unknown option: $1"
+      usage
+      exit 1
       ;;
   esac
 done
 
-# Validate tool choice
 if [[ "$TOOL" != "amp" && "$TOOL" != "claude" ]]; then
   echo "Error: Invalid tool '$TOOL'. Must be 'amp' or 'claude'."
+  exit 1
+fi
+
+if ! [[ "$MAX_ITERATIONS" =~ ^[0-9]+$ ]] || [[ "$MAX_ITERATIONS" -lt 1 ]]; then
+  echo "Error: Iterations must be a positive integer, got '$MAX_ITERATIONS'."
   exit 1
 fi
 
