@@ -19,18 +19,16 @@
       "version": "3.13",
       "installTools": false
     },
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "overrideFeatureInstallOrder": [
     "ghcr.io/devcontainers/features/common-utils",
     "ghcr.io/devcontainers/features/git",
     "ghcr.io/devcontainers/features/node",
     "ghcr.io/devcontainers/features/python",
-    "ghcr.io/devcontainers/features/github-cli",
-    "ghcr.io/anthropics/devcontainer-features/claude-code"
+    "ghcr.io/devcontainers/features/github-cli"
   ],
-  "postCreateCommand": "bash -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)\" --unattended && npm ci",
+  "postCreateCommand": "curl -fsSL https://claude.ai/install.sh | bash && bash -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)\" --unattended && npm ci",
   "containerEnv": {
     "NODE_OPTIONS": "--max-old-space-size=4096"
   },
