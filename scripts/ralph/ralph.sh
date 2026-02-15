@@ -142,7 +142,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     OUTPUT=$(cat "$SCRIPT_DIR/prompt.md" | amp --dangerously-allow-all 2>&1 | tee /dev/stderr) || true
   else
     # Claude Code: -p for print mode (non-interactive), pass CLAUDE.md content as query
-    OUTPUT=$(claude -p --dangerously-skip-permissions "$(cat "$SCRIPT_DIR/CLAUDE.md")" 2>&1 | tee /dev/stderr) || true
+    OUTPUT=$(claude --verbose -p --output-format stream-json --dangerously-skip-permissions "$(cat "$SCRIPT_DIR/CLAUDE.md")" 2>&1 | tee /dev/stderr) || true
   fi
 
   # 完了後: テスト・カバレッジを再確認
