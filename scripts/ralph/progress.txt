@@ -1,3 +1,12 @@
 # Ralph Progress Log
-Started: Sun Feb 15 19:03:10 JST 2026
+
+## Codebase Patterns
+- Next.js 16 + React 19 + Storybook + Vitest
+- Effect.ts Schemaを論理学コアライブラリで使用（Schema.Class, TaggedClass）
+- src/lib/ にピュアなライブラリを配置
+- 関数型の手法、readonly、イミュータブル
+- "as"キーワード禁止（type guardを使用）
+
+---
+Started: Sat Feb 15 2026
 ---
