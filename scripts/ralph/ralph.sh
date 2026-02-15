@@ -142,14 +142,38 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     OUTPUT=$(cat "$SCRIPT_DIR/prompt.md" | amp --dangerously-allow-all 2>&1 | tee /dev/stderr) || true
   else
     # Claude Code: -p for print mode (non-interactive), pass CLAUDE.md content as query
-    OUTPUT=$(claude --verbose -p --output-format stream-json --dangerously-skip-permissions "$(cat "$SCRIPT_DIR/CLAUDE.md")" 2>&1 | tee >(jq -r 'select(.type == "thinking") | .thinking // empty' >&2)) || true
+    # stream-json outputs NDJSON; tee to jq to extract thinking to stderr
+    CLAUDE_EXIT=0
+    OUTPUT=$(claude --verbose -p --output-format stream-json --dangerously-skip-permissions "$(cat "$SCRIPT_DIR/CLAUDE.md")" 2>&1 | tee >(jq -r 'select(.type == "thinking") | .thinking // empty' >&2)) || CLAUDE_EXIT=$?
+  fi
+
+  # Check if claude produced any output
+  if [[ -z "$OUTPUT" || ${#OUTPUT} -lt 50 ]]; then
+    echo ""
+    echo "⚠️  Claude produced no/minimal output (exit=$CLAUDE_EXIT). Stopping to avoid empty loop."
+    echo "Output length: ${#OUTPUT}"
+    echo "Check logs above for errors."
+    exit 1
   fi
 
   # 完了後: テスト・カバレッジを再確認
   run_tests_with_coverage "完了後"
 
   # Check for completion signal
-  if echo "$OUTPUT" | grep -q "<promise>COMPLETE</promise>"; then
+  # For stream-json: search within JSON content fields
+  COMPLETE_FOUND=false
+  if [[ "$TOOL" == "amp" ]]; then
+    echo "$OUTPUT" | grep -q "<promise>COMPLETE</promise>" && COMPLETE_FOUND=true
+  else
+    # Extract text content from stream-json and search
+    echo "$OUTPUT" | jq -r 'select(.type == "content_block_delta" or .type == "result" or .type == "message") | .. | strings' 2>/dev/null | grep -q "<promise>COMPLETE</promise>" && COMPLETE_FOUND=true
+    # Fallback: raw grep in case format differs
+    if [[ "$COMPLETE_FOUND" == "false" ]]; then
+      echo "$OUTPUT" | grep -q "<promise>COMPLETE</promise>" && COMPLETE_FOUND=true
+    fi
+  fi
+
+  if [[ "$COMPLETE_FOUND" == "true" ]]; then
     echo ""
     echo "Ralph completed all tasks!"
     echo "Completed at iteration $i of $MAX_ITERATIONS"
