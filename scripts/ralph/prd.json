@@ -109,7 +109,7 @@
         "Storybookで接続線のストーリーを追加"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {

@@ -1,5 +1,13 @@
 export { CanvasItem } from "./CanvasItem";
 export type { CanvasItemProps } from "./CanvasItem";
+export { Connection } from "./Connection";
+export type { ConnectionProps } from "./Connection";
+export {
+  computeConnectionPath,
+  computeEdgePoint,
+  endpointCenter,
+} from "./connectionPath";
+export type { ConnectionEndpoint, ConnectionPathData } from "./connectionPath";
 export { InfiniteCanvas } from "./InfiniteCanvas";
 export type { InfiniteCanvasProps } from "./InfiniteCanvas";
 export { worldToScreen } from "./coordinate";

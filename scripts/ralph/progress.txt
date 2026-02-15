@@ -17,6 +17,9 @@
 - レンダーに必要な状態はuseState、イベントハンドラ内のみの状態はuseRefで管理（react-hooks/refsルール対応）
 - SVGパターンでドットグリッド描画（個別dot描画よりパフォーマンス良好）
 - jsdomテストでstyle.backgroundColorは`rgb(r, g, b)`形式で返る（hex不可）
+- macOS（大文字小文字非区別FS）では `Foo.tsx` と `foo.ts` が衝突する → 純粋ロジックとコンポーネントで同名ファイルを作らない（例: `connectionPath.ts` + `Connection.tsx`）
+- 接続線: `computeEdgePoint`（ray-box intersection）でアイテムの矩形エッジから出発点を算出、`computeConnectionPath`でベジェ曲線を生成
+- Connection: SVGのpath要素で描画、点線(strokeDasharray) + 半透明(opacity) + 背景白線で要素の後ろでも視認可能
 
 # Ralph Progress Log
 Started: Sun Feb 15 21:34:16 JST 2026
@@ -127,4 +130,22 @@ Started: Sun Feb 15 21:34:16 JST 2026
   - スクリーンデルタ→ワールドデルタ変換は `delta / scale` で行う（ズーム時にドラッグ速度が一致）
   - CanvasItemの `onPositionChange` をoptionalにすることで、ドラッグ不要な配置のみのケースも同じコンポーネントで対応
   - ドラッグ中のz-index: 1000でアイテムを前面に表示（他アイテムの上に来る）
+---
+
+## 2026-02-16 - US-006
+- 実装した内容:
+  - 接続線の純粋ロジック (`connectionPath.ts`): `endpointCenter`（矩形の中心算出）, `computeEdgePoint`（ray-box intersectionでエッジ点算出）, `computeConnectionPath`（ベジェ曲線SVGパス生成）
+  - `<Connection>` Reactコンポーネント (`Connection.tsx`): SVG path要素でベジェ曲線を描画、点線(strokeDasharray) + 半透明(opacity) + 背景白線でコントラスト確保
+  - ユニットテスト追加: `connectionPath.test.ts` 15件、`Connection.test.tsx` 11件（計152テスト全パス）
+  - Storybookストーリー (`ConnectionLines.stories.tsx`): 3つのドラッグ可能ノード間を3本の色付きベジェ曲線で接続、play関数付きインタラクションテスト
+  - バレルエクスポート更新 (`index.ts`): Connection, ConnectionProps, computeConnectionPath, computeEdgePoint, endpointCenter, ConnectionEndpoint, ConnectionPathData を追加
+- 変更したファイル: src/lib/infinite-canvas/ (connectionPath.ts, connectionPath.test.ts, Connection.tsx, Connection.test.tsx, ConnectionLines.stories.tsx 新規、index.ts 変更)
+- ベースラインカバレッジ (infinite-canvas): Stmts 99.38%, Branch 91.13%, Funcs 96.96%, Lines 100% → 完了後: Stmts 99.48%, Branch 92.3%, Funcs 97.29%, Lines 100%
+- スクリーンショット: .screenshots/US-006-connection-lines.png
+- **今後のイテレーションへの学び:**
+  - macOS（大文字小文字非区別FS）では `Connection.tsx` と `connection.ts` のように大文字小文字だけが異なるファイルを作ると、importが衝突する → `connectionPath.ts` のように別名にする
+  - `computeEdgePoint` は矩形の中心からターゲットへのray-box intersectionで、最も近いエッジ上の点を算出する
+  - ベジェ曲線のコントロールポイントは水平方向にオフセット（距離の30%または最小50px * scale）で自然なカーブを実現
+  - SVGの点線(strokeDasharray) + 半透明(opacity: 0.8) + 背景白線(opacity: 0.6)の組み合わせで、要素の後ろを通っても視認性を確保
+  - ConnectionのSVGは `pointerEvents: "none"` + `overflow: "visible"` で、クリックを透過させつつキャンバス外にはみ出す曲線も描画
 ---
