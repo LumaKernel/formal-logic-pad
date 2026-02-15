@@ -81,11 +81,36 @@ fi
 
 echo "Starting Ralph - Tool: $TOOL - Max iterations: $MAX_ITERATIONS"
 
+# Function to run tests and capture coverage
+run_tests_with_coverage() {
+  local phase="$1"
+  echo ""
+  echo "--- [$phase] テスト・カバレッジ確認 ---"
+
+  # Try common test commands (adjust as needed for your project)
+  if [ -f "package.json" ]; then
+    if npm run test -- --coverage 2>/dev/null; then
+      echo "✅ テスト通過"
+    else
+      echo "⚠️  テストコマンドが見つからないか、失敗しました"
+    fi
+  elif [ -f "Makefile" ] && grep -q "test" Makefile; then
+    make test || echo "⚠️  テスト失敗"
+  else
+    echo "ℹ️  テストコマンドが検出できませんでした"
+  fi
+  echo "--- [$phase] 確認完了 ---"
+  echo ""
+}
+
 for i in $(seq 1 $MAX_ITERATIONS); do
   echo ""
   echo "==============================================================="
   echo "  Ralph Iteration $i of $MAX_ITERATIONS ($TOOL)"
   echo "==============================================================="
+
+  # 開始前: テスト・カバレッジのベースラインを確認
+  run_tests_with_coverage "開始前"
 
   # Run the selected tool with the ralph prompt
   if [[ "$TOOL" == "amp" ]]; then
@@ -94,7 +119,10 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     # Claude Code: use --dangerously-skip-permissions for autonomous operation, --print for output
     OUTPUT=$(claude --dangerously-skip-permissions --print < "$SCRIPT_DIR/CLAUDE.md" 2>&1 | tee /dev/stderr) || true
   fi
-  
+
+  # 完了後: テスト・カバレッジを再確認
+  run_tests_with_coverage "完了後"
+
   # Check for completion signal
   if echo "$OUTPUT" | grep -q "<promise>COMPLETE</promise>"; then
     echo ""
@@ -102,7 +130,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     echo "Completed at iteration $i of $MAX_ITERATIONS"
     exit 0
   fi
-  
+
   echo "Iteration $i complete. Continuing..."
   sleep 2
 done
