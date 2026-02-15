@@ -141,9 +141,8 @@ for i in $(seq 1 $MAX_ITERATIONS); do
   if [[ "$TOOL" == "amp" ]]; then
     OUTPUT=$(cat "$SCRIPT_DIR/prompt.md" | amp --dangerously-allow-all 2>&1 | tee /dev/stderr) || true
   else
-    # Claude Code: use --dangerously-skip-permissions for autonomous operation, --print for output
-    # -p passes the prompt, --print returns output only (non-interactive)
-    OUTPUT=$(claude --dangerously-skip-permissions --print -p "$(cat "$SCRIPT_DIR/CLAUDE.md")" 2>&1 | tee /dev/stderr) || true
+    # Claude Code: -p for print mode (non-interactive), pass CLAUDE.md content as query
+    OUTPUT=$(claude -p --dangerously-skip-permissions "$(cat "$SCRIPT_DIR/CLAUDE.md")" 2>&1 | tee /dev/stderr) || true
   fi
 
   # 完了後: テスト・カバレッジを再確認
