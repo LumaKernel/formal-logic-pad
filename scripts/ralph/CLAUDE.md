@@ -1,104 +1,108 @@
-# Ralph Agent Instructions
+# Ralph エージェント指示書
 
-You are an autonomous coding agent working on a software project.
+あなたはソフトウェアプロジェクトで作業する自律型コーディングエージェントです。
 
-## Your Task
+## タスク
 
-1. Read the PRD at `prd.json` (in the same directory as this file)
-2. Read the progress log at `progress.txt` (check Codebase Patterns section first)
-3. Check you're on the correct branch from PRD `branchName`. If not, check it out or create from main.
-4. Pick the **highest priority** user story where `passes: false`
-5. Implement that single user story
-6. Run quality checks (e.g., typecheck, lint, test - use whatever your project requires)
-7. Update CLAUDE.md files if you discover reusable patterns (see below)
-8. If checks pass, commit ALL changes with message: `feat: [Story ID] - [Story Title]`
-9. Update the PRD to set `passes: true` for the completed story
-10. Append your progress to `progress.txt`
+1. このファイルと同じディレクトリにある `prd.json` の PRD を読む
+2. `progress.txt` の進捗ログを読む（最初に Codebase Patterns セクションを確認）
+3. PRD の `branchName` で指定されたブランチにいることを確認。違う場合は、チェックアウトするか main から作成する
+4. `passes: false` のユーザーストーリーの中から**最も優先度の高い**ものを選ぶ
+5. その単一のユーザーストーリーを実装する
+6. 品質チェックを実行する（typecheck, lint, test など、プロジェクトで必要なもの）
+7. 再利用可能なパターンを発見した場合は AGENTS.md ファイルを更新する（下記参照）
+8. チェックが通ったら、すべての変更をコミット。メッセージ: `feat: [Story ID] - [Story Title]`
+9. PRD を更新して、完了したストーリーの `passes: true` を設定する
+10. `progress.txt` に進捗を追記する
 
-## Progress Report Format
+## 進捗レポートのフォーマット
 
-APPEND to progress.txt (never replace, always append):
+progress.txt に追記する（上書きせず、必ず追記）:
 ```
-## [Date/Time] - [Story ID]
-- What was implemented
-- Files changed
-- **Learnings for future iterations:**
-  - Patterns discovered (e.g., "this codebase uses X for Y")
-  - Gotchas encountered (e.g., "don't forget to update Z when changing W")
-  - Useful context (e.g., "the evaluation panel is in component X")
+## [日時] - [Story ID]
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- 実装した内容
+- 変更したファイル
+- **今後のイテレーションへの学び:**
+  - 発見したパターン（例: 「このコードベースは Y に X を使用している」）
+  - 遭遇した注意点（例: 「W を変更する際は Z の更新を忘れずに」）
+  - 有用なコンテキスト（例: 「評価パネルはコンポーネント X にある」）
 ---
 ```
 
-The learnings section is critical - it helps future iterations avoid repeating mistakes and understand the codebase better.
+スレッド URL を含めることで、将来のイテレーションが必要に応じて `read_thread` ツールを使って以前の作業を参照できる。
 
-## Consolidate Patterns
+学びセクションは非常に重要 - 将来のイテレーションが同じ間違いを繰り返さず、コードベースをより良く理解するのに役立つ。
 
-If you discover a **reusable pattern** that future iterations should know, add it to the `## Codebase Patterns` section at the TOP of progress.txt (create it if it doesn't exist). This section should consolidate the most important learnings:
+## パターンの集約
+
+**再利用可能なパターン**を発見した場合、progress.txt の**先頭**にある `## Codebase Patterns` セクションに追加する（存在しない場合は作成）。このセクションには最も重要な学びを集約する:
 
 ```
 ## Codebase Patterns
-- Example: Use `sql<number>` template for aggregations
-- Example: Always use `IF NOT EXISTS` for migrations
-- Example: Export types from actions.ts for UI components
+- 例: 集計には `sql<number>` テンプレートを使用
+- 例: マイグレーションには常に `IF NOT EXISTS` を使用
+- 例: UI コンポーネント用に actions.ts から型をエクスポート
 ```
 
-Only add patterns that are **general and reusable**, not story-specific details.
+**汎用的で再利用可能な**パターンのみを追加し、ストーリー固有の詳細は含めない。
 
-## Update CLAUDE.md Files
+## AGENTS.md ファイルの更新
 
-Before committing, check if any edited files have learnings worth preserving in nearby CLAUDE.md files:
+コミット前に、編集したファイルに関連して近くの AGENTS.md ファイルに保存すべき学びがないか確認する:
 
-1. **Identify directories with edited files** - Look at which directories you modified
-2. **Check for existing CLAUDE.md** - Look for CLAUDE.md in those directories or parent directories
-3. **Add valuable learnings** - If you discovered something future developers/agents should know:
-   - API patterns or conventions specific to that module
-   - Gotchas or non-obvious requirements
-   - Dependencies between files
-   - Testing approaches for that area
-   - Configuration or environment requirements
+1. **編集したファイルのあるディレクトリを特定** - どのディレクトリを変更したか確認
+2. **既存の AGENTS.md を確認** - それらのディレクトリまたは親ディレクトリに AGENTS.md があるか確認
+3. **価値ある学びを追加** - 将来の開発者/エージェントが知るべきことを発見した場合:
+   - そのモジュール固有の API パターンや規約
+   - 注意点や非自明な要件
+   - ファイル間の依存関係
+   - その領域のテストアプローチ
+   - 設定や環境要件
 
-**Examples of good CLAUDE.md additions:**
-- "When modifying X, also update Y to keep them in sync"
-- "This module uses pattern Z for all API calls"
-- "Tests require the dev server running on PORT 3000"
-- "Field names must match the template exactly"
+**良い AGENTS.md 追加の例:**
+- 「X を変更する際は、同期を保つために Y も更新すること」
+- 「このモジュールはすべての API 呼び出しにパターン Z を使用」
+- 「テストには PORT 3000 で dev サーバーが起動している必要がある」
+- 「フィールド名はテンプレートと完全に一致する必要がある」
 
-**Do NOT add:**
-- Story-specific implementation details
-- Temporary debugging notes
-- Information already in progress.txt
+**追加しないもの:**
+- ストーリー固有の実装詳細
+- 一時的なデバッグメモ
+- progress.txt に既にある情報
 
-Only update CLAUDE.md if you have **genuinely reusable knowledge** that would help future work in that directory.
+そのディレクトリでの将来の作業に役立つ**本当に再利用可能な知識**がある場合のみ AGENTS.md を更新する。
 
-## Quality Requirements
+## 品質要件
 
-- ALL commits must pass your project's quality checks (typecheck, lint, test)
-- Do NOT commit broken code
-- Keep changes focused and minimal
-- Follow existing code patterns
+- すべてのコミットはプロジェクトの品質チェック（typecheck, lint, test）を通過すること
+- 壊れたコードをコミットしない
+- 変更は集中的かつ最小限に
+- 既存のコードパターンに従う
 
-## Browser Testing (If Available)
+## ブラウザテスト（フロントエンドストーリーで必須）
 
-For any story that changes UI, verify it works in the browser if you have browser testing tools configured (e.g., via MCP):
+UI を変更するストーリーでは、ブラウザで動作することを必ず確認する:
 
-1. Navigate to the relevant page
-2. Verify the UI changes work as expected
-3. Take a screenshot if helpful for the progress log
+1. `dev-browser` スキルをロード
+2. 関連するページに移動
+3. UI の変更が期待通りに動作することを確認
+4. 進捗ログに役立つ場合はスクリーンショットを撮る
 
-If no browser tools are available, note in your progress report that manual browser verification is needed.
+フロントエンドストーリーはブラウザ検証が通るまで完了ではない。
 
-## Stop Condition
+## 停止条件
 
-After completing a user story, check if ALL stories have `passes: true`.
+ユーザーストーリーを完了した後、すべてのストーリーが `passes: true` かどうか確認する。
 
-If ALL stories are complete and passing, reply with:
+すべてのストーリーが完了してパスしている場合、以下で返答:
 <promise>COMPLETE</promise>
 
-If there are still stories with `passes: false`, end your response normally (another iteration will pick up the next story).
+まだ `passes: false` のストーリーがある場合は、通常通りレスポンスを終了する（別のイテレーションが次のストーリーを拾う）。
 
-## Important
+## 重要事項
 
-- Work on ONE story per iteration
-- Commit frequently
-- Keep CI green
-- Read the Codebase Patterns section in progress.txt before starting
+- 1イテレーションにつき1ストーリーのみ作業
+- 頻繁にコミット
+- CI をグリーンに保つ
+- 開始前に progress.txt の Codebase Patterns セクションを読む
