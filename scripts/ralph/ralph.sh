@@ -87,15 +87,16 @@ run_tests_with_coverage() {
   echo ""
   echo "--- [$phase] テスト・カバレッジ確認 ---"
 
+  # CI=true prevents watch mode and browser opening
   # Try common test commands (adjust as needed for your project)
   if [ -f "package.json" ]; then
-    if npm run test -- --coverage 2>/dev/null; then
+    if CI=true npm run test -- --coverage 2>/dev/null; then
       echo "✅ テスト通過"
     else
       echo "⚠️  テストコマンドが見つからないか、失敗しました"
     fi
   elif [ -f "Makefile" ] && grep -q "test" Makefile; then
-    make test || echo "⚠️  テスト失敗"
+    CI=true make test || echo "⚠️  テスト失敗"
   else
     echo "ℹ️  テストコマンドが検出できませんでした"
   fi
