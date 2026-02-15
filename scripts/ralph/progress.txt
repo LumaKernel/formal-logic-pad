@@ -7,7 +7,8 @@
 - Prettierフォーマット: `npm run lint-fix` で適用
 - テスト: Vitest + jsdom (unit), Storybook + Playwright (browser)
 - カバレッジ: v8プロバイダ、`npx vitest run --coverage --project unit`
-- infinite-canvasライブラリ: 純粋ロジック(grid.ts, pan.ts, zoom.ts, coordinate.ts) + Reactフック(usePan.ts, useZoom.ts) + コンポーネント(InfiniteCanvas.tsx, CanvasItem.tsx)の分離パターン
+- infinite-canvasライブラリ: 純粋ロジック(grid.ts, pan.ts, zoom.ts, coordinate.ts, drag.ts) + Reactフック(usePan.ts, useZoom.ts, useDragItem.ts) + コンポーネント(InfiniteCanvas.tsx, CanvasItem.tsx)の分離パターン
+- アイテムドラッグ: `stopPropagation()`でキャンバスパンと区別、`useDragItem`フックでスクリーンデルタ→ワールドデルタ変換（scale除算）
 - CanvasItem: ワールド座標→スクリーン座標変換は `worldToScreen()` 純粋関数で、CSSのabsolute + transform scaleで配置
 - Storybookのplay関数: `storybook/test` からimport（`@storybook/test` ではない）
 - ズームロジック: `applyZoom`はカーソル中心ズーム（ワールド座標固定）、`computeScaleFromWheel`は指数的スケーリング
@@ -108,4 +109,22 @@ Started: Sun Feb 15 21:34:16 JST 2026
   - Storybookのplay関数テストは `storybook/test` からimport（`@storybook/test` は型エラーになる）
   - CanvasItemは `pointerEvents: "auto"` でクリック可能にする（InfiniteCanvasのSVGは `pointerEvents: "none"`）
   - アイテム位置管理は親（ストーリー側）で `useState` で管理し、CanvasItemは描画のみ担当（controlled component パターン）
+---
+
+## 2026-02-16 - US-005
+- 実装した内容:
+  - ドラッグ移動の純粋ロジック (`drag.ts`): `applyDragDelta` - スクリーンデルタをscaleで除算してワールド座標を更新
+  - Reactフック (`useDragItem.ts`): PointerEvents統合、`stopPropagation()`でキャンバスパンとの競合回避、ポインターキャプチャ
+  - `<CanvasItem>` にドラッグ統合: `onPositionChange` props（optional、渡すとドラッグ有効化）、`grab`/`grabbing`カーソル、ドラッグ中のz-index: 1000、touchAction: none
+  - ユニットテスト追加: `drag.test.ts` 5件、`useDragItem.test.tsx` 10件、`CanvasItem.test.tsx` に6件追加（計125テスト全パス）
+  - Storybookストーリー (`DraggableItems.stories.tsx`): 3つのドラッグ可能ノード、play関数付きインタラクションテスト（grabカーソル確認含む）
+  - バレルエクスポート更新 (`index.ts`): applyDragDelta, useDragItem, UseDragItemResult を追加
+- 変更したファイル: src/lib/infinite-canvas/ (drag.ts, drag.test.ts, useDragItem.ts, useDragItem.test.tsx, DraggableItems.stories.tsx 新規、CanvasItem.tsx, CanvasItem.test.tsx, index.ts 変更)
+- ベースラインカバレッジ (infinite-canvas): Stmts 99.22%, Branch 90.74%, Funcs 100%, Lines 100% → 完了後: Stmts 99.38%, Branch 91.13%, Funcs 96.96%, Lines 100%
+- スクリーンショット: .screenshots/US-005-draggable-items-fullscreen.png
+- **今後のイテレーションへの学び:**
+  - アイテムドラッグでは `e.stopPropagation()` が必須 — onPointerDown/Move/Upすべてで呼ぶことでキャンバスのパンを防止
+  - スクリーンデルタ→ワールドデルタ変換は `delta / scale` で行う（ズーム時にドラッグ速度が一致）
+  - CanvasItemの `onPositionChange` をoptionalにすることで、ドラッグ不要な配置のみのケースも同じコンポーネントで対応
+  - ドラッグ中のz-index: 1000でアイテムを前面に表示（他アイテムの上に来る）
 ---

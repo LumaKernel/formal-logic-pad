@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CanvasItem } from "./CanvasItem";
 
 describe("CanvasItem", () => {
@@ -125,5 +125,126 @@ describe("CanvasItem", () => {
     const item = screen.getByTestId("canvas-item");
     expect(item.style.left).toBe("150px");
     expect(item.style.top).toBe("170px");
+  });
+});
+
+describe("CanvasItem dragging", () => {
+  beforeEach(() => {
+    Element.prototype.setPointerCapture = vi.fn();
+    Element.prototype.releasePointerCapture = vi.fn();
+  });
+
+  it("does not show grab cursor without onPositionChange", () => {
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+    const item = screen.getByTestId("canvas-item");
+    expect(item.style.cursor).toBe("");
+  });
+
+  it("shows grab cursor when draggable", () => {
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onPositionChange={vi.fn()}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+    const item = screen.getByTestId("canvas-item");
+    expect(item.style.cursor).toBe("grab");
+  });
+
+  it("shows grabbing cursor while dragging", () => {
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onPositionChange={vi.fn()}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+    const item = screen.getByTestId("canvas-item");
+
+    fireEvent.pointerDown(item, {
+      button: 0,
+      clientX: 10,
+      clientY: 10,
+      pointerId: 1,
+    });
+
+    expect(item.style.cursor).toBe("grabbing");
+  });
+
+  it("elevates z-index while dragging", () => {
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onPositionChange={vi.fn()}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+    const item = screen.getByTestId("canvas-item");
+    expect(item.style.zIndex).toBe("");
+
+    fireEvent.pointerDown(item, {
+      button: 0,
+      clientX: 10,
+      clientY: 10,
+      pointerId: 1,
+    });
+
+    expect(item.style.zIndex).toBe("1000");
+  });
+
+  it("calls onPositionChange with new world position on drag", () => {
+    const onPositionChange = vi.fn();
+    render(
+      <CanvasItem
+        position={{ x: 100, y: 200 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onPositionChange={onPositionChange}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+    const item = screen.getByTestId("canvas-item");
+
+    fireEvent.pointerDown(item, {
+      button: 0,
+      clientX: 50,
+      clientY: 50,
+      pointerId: 1,
+    });
+    fireEvent.pointerMove(item, {
+      clientX: 70,
+      clientY: 80,
+      pointerId: 1,
+    });
+
+    expect(onPositionChange).toHaveBeenCalledWith({ x: 120, y: 230 });
+  });
+
+  it("has touchAction none when draggable", () => {
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onPositionChange={vi.fn()}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+    const item = screen.getByTestId("canvas-item");
+    expect(item.style.touchAction).toBe("none");
   });
 });
