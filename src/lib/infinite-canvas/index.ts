@@ -1,7 +1,16 @@
 export { CanvasItem } from "./CanvasItem";
 export type { CanvasItemProps } from "./CanvasItem";
+export { ContextMenuComponent } from "./ContextMenuComponent";
+export type { ContextMenuProps } from "./ContextMenuComponent";
 export { Connection } from "./Connection";
 export type { ConnectionProps } from "./Connection";
+export {
+  CONTEXT_MENU_CLOSED,
+  clampMenuPosition,
+  closeContextMenu,
+  openContextMenu,
+} from "./contextMenu";
+export type { ContextMenuItem, ContextMenuState } from "./contextMenu";
 export {
   computeConnectionPath,
   computeEdgePoint,
@@ -28,3 +37,8 @@ export {
 } from "./zoom";
 export { useZoom } from "./useZoom";
 export type { UseZoomResult } from "./useZoom";
+export { useContextMenu, useLongPress } from "./useContextMenu";
+export type {
+  UseContextMenuResult,
+  UseLongPressResult,
+} from "./useContextMenu";

@@ -1,6 +1,7 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CanvasItem } from "./CanvasItem";
+import type { ContextMenuItem } from "./contextMenu";
 
 describe("CanvasItem", () => {
   it("renders children", () => {
@@ -246,5 +247,172 @@ describe("CanvasItem dragging", () => {
     );
     const item = screen.getByTestId("canvas-item");
     expect(item.style.touchAction).toBe("none");
+  });
+});
+
+const MENU_ITEMS: readonly ContextMenuItem[] = [
+  { id: "edit", label: "Edit" },
+  { id: "delete", label: "Delete" },
+];
+
+describe("CanvasItem context menu", () => {
+  beforeEach(() => {
+    Element.prototype.setPointerCapture = vi.fn();
+    Element.prototype.releasePointerCapture = vi.fn();
+  });
+
+  it("does not show context menu without contextMenuItems", () => {
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+
+    const item = screen.getByTestId("canvas-item");
+    fireEvent.contextMenu(item, { clientX: 100, clientY: 200 });
+
+    expect(screen.queryByTestId("context-menu")).toBeNull();
+  });
+
+  it("shows context menu on right-click when items are provided", () => {
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        contextMenuItems={MENU_ITEMS}
+        onContextMenuSelect={vi.fn()}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+
+    const item = screen.getByTestId("canvas-item");
+    fireEvent.contextMenu(item, { clientX: 100, clientY: 200 });
+
+    expect(screen.getByTestId("context-menu")).toBeInTheDocument();
+    expect(screen.getByTestId("context-menu-item-edit")).toBeInTheDocument();
+    expect(screen.getByTestId("context-menu-item-delete")).toBeInTheDocument();
+  });
+
+  it("calls onContextMenuSelect when a menu item is clicked", () => {
+    const onContextMenuSelect = vi.fn();
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        contextMenuItems={MENU_ITEMS}
+        onContextMenuSelect={onContextMenuSelect}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+
+    const item = screen.getByTestId("canvas-item");
+    fireEvent.contextMenu(item, { clientX: 100, clientY: 200 });
+    fireEvent.click(screen.getByTestId("context-menu-item-edit"));
+
+    expect(onContextMenuSelect).toHaveBeenCalledWith("edit");
+  });
+
+  it("closes context menu after item selection", () => {
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        contextMenuItems={MENU_ITEMS}
+        onContextMenuSelect={vi.fn()}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+
+    const item = screen.getByTestId("canvas-item");
+    fireEvent.contextMenu(item, { clientX: 100, clientY: 200 });
+    expect(screen.getByTestId("context-menu")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("context-menu-item-edit"));
+    expect(screen.queryByTestId("context-menu")).toBeNull();
+  });
+
+  it("has touchAction none when context menu items are provided", () => {
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        contextMenuItems={MENU_ITEMS}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+    const item = screen.getByTestId("canvas-item");
+    expect(item.style.touchAction).toBe("none");
+  });
+
+  it("supports both drag and context menu on same item", () => {
+    const onPositionChange = vi.fn();
+    const onContextMenuSelect = vi.fn();
+    render(
+      <CanvasItem
+        position={{ x: 100, y: 200 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onPositionChange={onPositionChange}
+        contextMenuItems={MENU_ITEMS}
+        onContextMenuSelect={onContextMenuSelect}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+
+    const item = screen.getByTestId("canvas-item");
+
+    // Verify drag still works
+    fireEvent.pointerDown(item, {
+      button: 0,
+      clientX: 50,
+      clientY: 50,
+      pointerId: 1,
+    });
+    fireEvent.pointerMove(item, { clientX: 70, clientY: 80, pointerId: 1 });
+    fireEvent.pointerUp(item, { pointerId: 1 });
+    expect(onPositionChange).toHaveBeenCalled();
+
+    // Verify context menu still works
+    fireEvent.contextMenu(item, { clientX: 100, clientY: 200 });
+    expect(screen.getByTestId("context-menu")).toBeInTheDocument();
+  });
+
+  it("opens context menu on touch long press", () => {
+    vi.useFakeTimers();
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        contextMenuItems={MENU_ITEMS}
+        onContextMenuSelect={vi.fn()}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+
+    const item = screen.getByTestId("canvas-item");
+
+    fireEvent.pointerDown(item, {
+      pointerType: "touch",
+      clientX: 100,
+      clientY: 200,
+      button: 0,
+      pointerId: 1,
+    });
+
+    // Long press duration (500ms)
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+
+    expect(screen.getByTestId("context-menu")).toBeInTheDocument();
+    vi.useRealTimers();
   });
 });
