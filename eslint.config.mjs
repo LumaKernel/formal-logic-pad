@@ -17,6 +17,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     // Additional ignores:
+    ".trash/**",
     "coverage/**",
     "storybook-static/**",
   ]),

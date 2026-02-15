@@ -33,7 +33,9 @@ export default async function RootLayout({ children }: Props) {
 
   return (
     <html lang={locale}>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body
+        className={`${geistSans.variable satisfies string} ${geistMono.variable satisfies string}`}
+      >
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>

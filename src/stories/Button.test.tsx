@@ -6,7 +6,9 @@ import { Button } from "./Button";
 describe("Button", () => {
   it("renders with label", () => {
     render(<Button label="Click me" />);
-    expect(screen.getByRole("button", { name: "Click me" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Click me" }),
+    ).toBeInTheDocument();
   });
 
   it("calls onClick when clicked", async () => {
@@ -32,9 +34,13 @@ describe("Button", () => {
 
   it("renders different sizes", () => {
     const { rerender } = render(<Button label="Small" size="small" />);
-    expect(screen.getByRole("button").className).toContain("storybook-button--small");
+    expect(screen.getByRole("button").className).toContain(
+      "storybook-button--small",
+    );
 
     rerender(<Button label="Large" size="large" />);
-    expect(screen.getByRole("button").className).toContain("storybook-button--large");
+    expect(screen.getByRole("button").className).toContain(
+      "storybook-button--large",
+    );
   });
 });

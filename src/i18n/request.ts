@@ -2,8 +2,8 @@ import { cookies, headers } from "next/headers";
 import { getRequestConfig } from "next-intl/server";
 import { locales, defaultLocale, type Locale } from "./config";
 
-function isValidLocale(locale: string): locale is Locale {
-  return locales.includes(locale as Locale);
+function findLocale(locale: string): Locale | undefined {
+  return locales.find((l) => l === locale);
 }
 
 function parseAcceptLanguage(header: string): Locale | null {
@@ -19,8 +19,9 @@ function parseAcceptLanguage(header: string): Locale | null {
     .sort((a, b) => b.q - a.q);
 
   for (const { code } of languages) {
-    if (isValidLocale(code)) {
-      return code;
+    const found = findLocale(code);
+    if (found) {
+      return found;
     }
   }
   return null;
@@ -30,10 +31,15 @@ export default getRequestConfig(async () => {
   // 1. Check cookie (user preference)
   const cookieStore = await cookies();
   const cookieLocale = cookieStore.get("locale")?.value;
-  if (cookieLocale && isValidLocale(cookieLocale)) {
+  const validCookieLocale = cookieLocale ? findLocale(cookieLocale) : undefined;
+  if (validCookieLocale) {
     return {
-      locale: cookieLocale,
-      messages: (await import(`../../messages/${cookieLocale}.json`)).default,
+      locale: validCookieLocale,
+      messages: (
+        await import(
+          `../../messages/${validCookieLocale satisfies string}.json`
+        )
+      ).default,
     };
   }
 
@@ -45,8 +51,9 @@ export default getRequestConfig(async () => {
     if (browserLocale) {
       return {
         locale: browserLocale,
-        messages: (await import(`../../messages/${browserLocale}.json`))
-          .default,
+        messages: (
+          await import(`../../messages/${browserLocale satisfies string}.json`)
+        ).default,
       };
     }
   }
@@ -54,6 +61,8 @@ export default getRequestConfig(async () => {
   // 3. Fallback to default (English)
   return {
     locale: defaultLocale,
-    messages: (await import(`../../messages/${defaultLocale}.json`)).default,
+    messages: (
+      await import(`../../messages/${defaultLocale satisfies string}.json`)
+    ).default,
   };
 });
