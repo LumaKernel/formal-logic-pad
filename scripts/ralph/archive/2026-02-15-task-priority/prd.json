@@ -1,0 +1,146 @@
+{
+  "project": "Formal Logic Pad",
+  "branchName": "ralph/infinite-canvas",
+  "description": "InfiniteCanvas - ドラッグ&ドロップ半無限空間ライブラリ（独立内部ライブラリ）",
+  "userStories": [
+    {
+      "id": "US-000",
+      "title": "lintエラーの修正",
+      "description": "開発者として、CIが通る状態にしたい。",
+      "acceptanceCriteria": [
+        ".trash/ディレクトリをESLintの対象外にする",
+        "src/内のlintエラーをすべて修正",
+        "npm run lint が成功する",
+        "型チェックが通る"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-001",
+      "title": "基本キャンバス表示",
+      "description": "ユーザーとして、半無限の空間を表示するキャンバスを見たい。背景にはグリッド状のドットが等間隔で配置される。",
+      "acceptanceCriteria": [
+        "src/lib/infinite-canvas/にライブラリを構築",
+        "Reactコンポーネント<InfiniteCanvas>を作成",
+        "背景に等間隔のドットパターンを表示（SVGまたはCanvas）",
+        "キャンバスは親要素のサイズに合わせて表示",
+        "型チェック/lintが通る",
+        "Storybookにストーリーを追加"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "キャンバスのパン操作",
+      "description": "ユーザーとして、キャンバスをドラッグして視点を移動したい。",
+      "acceptanceCriteria": [
+        "空白部分をドラッグでキャンバスをパン（移動）できる",
+        "ドラッグ中はカーソルがgrabbing状態になる",
+        "マウス、タッチ両方に対応",
+        "型チェック/lintが通る",
+        "Storybookで動作確認できる"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "キャンバスのズーム操作",
+      "description": "ユーザーとして、ホイールやピンチでズームイン・アウトしたい。",
+      "acceptanceCriteria": [
+        "マウスホイールでズームイン・アウト",
+        "ピンチジェスチャーでズーム（タッチデバイス）",
+        "ズーム中心はカーソル/ピンチ中心点",
+        "ズーム範囲に上限・下限を設ける（例: 0.1x〜5x）",
+        "型チェック/lintが通る",
+        "Storybookで動作確認できる"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "キャンバス上にアイテムを配置",
+      "description": "ユーザーとして、キャンバス上にドラッグ可能なアイテム（ノード）を配置したい。",
+      "acceptanceCriteria": [
+        "<CanvasItem>コンポーネントを作成",
+        "アイテムはキャンバス上の任意の座標に配置可能",
+        "アイテムはchildrenとして任意のReact要素を受け取れる",
+        "アイテムの位置は状態として管理される",
+        "型チェック/lintが通る",
+        "Storybookでアイテム配置のストーリーを追加"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "アイテムのドラッグ移動",
+      "description": "ユーザーとして、配置したアイテムをドラッグして移動したい。",
+      "acceptanceCriteria": [
+        "アイテムをドラッグすると位置が変わる",
+        "ドラッグ中はアイテムが他より前面に表示される",
+        "ドラッグ中もキャンバスのパンと区別される（アイテム上ではパンしない）",
+        "移動後の位置が状態に反映される",
+        "型チェック/lintが通る",
+        "Storybookで動作確認できる"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "アイテム間の接続線",
+      "description": "ユーザーとして、2つのアイテムを線で接続したい。線は滑らかなベジェ曲線で描画され、要素をうまくよけたり後ろにいっても多少分かりやすくなるようにする。",
+      "acceptanceCriteria": [
+        "<Connection>コンポーネントを作成",
+        "2つのアイテム間をベジェ曲線で接続",
+        "アイテム移動時に線も追従する",
+        "線は要素の後ろを通っても多少見やすい（点線や半透明など）",
+        "型チェック/lintが通る",
+        "Storybookで接続線のストーリーを追加"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "アイテムのコンテキストメニュー",
+      "description": "ユーザーとして、アイテムを右クリック（またはロングタップ）してメニューを表示したい。",
+      "acceptanceCriteria": [
+        "アイテム右クリックでコンテキストメニュー表示",
+        "メニュー項目はアイテムごとにカスタマイズ可能",
+        "メニュー外クリックで閉じる",
+        "タッチデバイスではロングタップで表示",
+        "型チェック/lintが通る",
+        "Storybookで動作確認できる"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "ライブラリのStorybook統合とドキュメント",
+      "description": "開発者として、ライブラリの使い方がStorybookで分かるようにしたい。各種どういう風に使えるかストーリーで示す。",
+      "acceptanceCriteria": [
+        "各コンポーネントのストーリーが揃っている",
+        "複合的な使用例（複数アイテム＋接続線＋メニュー）のストーリー",
+        "インタラクションテストで基本動作を検証",
+        "型チェック/lintが通る"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

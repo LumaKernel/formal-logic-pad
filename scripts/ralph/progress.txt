@@ -1,16 +1,3 @@
 # Ralph Progress Log
-
-## Codebase Patterns
-- Next.js 16 + React 19 + Storybook + Vitest
-- src/lib/ にピュアなライブラリを配置
-- 関数型の手法、readonly、イミュータブル
-- "as"キーワード禁止（type guardを使用）
-- Storybookでコンポーネントの使用例を文書化
-
-## Batch Plan
-- Batch 1: InfiniteCanvas (ralph/infinite-canvas) ← 現在
-- Batch 2: Logic Core + DSL (ralph/logic-core) → batches/prd-logic-core.json
-
----
-Started: Sat Feb 15 2026
+Started: Sun Feb 15 21:34:16 JST 2026
 ---
