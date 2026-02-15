@@ -7,6 +7,9 @@
 - Prettierフォーマット: `npm run lint-fix` で適用
 - テスト: Vitest + jsdom (unit), Storybook + Playwright (browser)
 - カバレッジ: v8プロバイダ、`npx vitest run --coverage --project unit`
+- infinite-canvasライブラリ: 純粋ロジック(grid.ts) + Reactコンポーネント(InfiniteCanvas.tsx)の分離パターン
+- SVGパターンでドットグリッド描画（個別dot描画よりパフォーマンス良好）
+- jsdomテストでstyle.backgroundColorは`rgb(r, g, b)`形式で返る（hex不可）
 
 # Ralph Progress Log
 Started: Sun Feb 15 21:34:16 JST 2026
@@ -27,4 +30,22 @@ Started: Sun Feb 15 21:34:16 JST 2026
   - `no-explicit-return-is` は明示的な型述語 `locale is Locale` を禁止 → `Array.find()` で型を返すパターンに変更する
   - prettierが多くのファイルを変更するので、初回は `npm run lint-fix` でまとめてフォーマットしておくとよい
   - Storybookブラウザテストは `npx playwright install` が必要（未実行の場合エラーになる）
+---
+
+## 2026-02-15 - US-001
+- 実装した内容:
+  - `src/lib/infinite-canvas/` にライブラリの基盤を構築
+  - 純粋な型定義 (`types.ts`): Point, ViewportState, Size, GridDot
+  - 純粋なグリッド計算ロジック (`grid.ts`): computeGridDots, computeGridPatternParams
+  - `<InfiniteCanvas>` Reactコンポーネント (`InfiniteCanvas.tsx`): SVGパターンベースのドットグリッド背景
+  - ユニットテスト19件 (`grid.test.ts` + `InfiniteCanvas.test.tsx`): 全テスト100%カバレッジ
+  - Storybookストーリー7種 (`InfiniteCanvas.stories.ts`): Default, ZoomedIn/Out, Panned, CustomColors, Dense/SparseGrid
+  - バレルエクスポート (`index.ts`)
+- 変更したファイル: src/lib/infinite-canvas/ 配下の7ファイル (新規作成)
+- ベースラインカバレッジ: Statements 6.25% → 完了後: Statements 35.71% (大幅向上、新コード100%カバレッジ)
+- **今後のイテレーションへの学び:**
+  - SVGの`<pattern>`要素でドットグリッドを描画するのが個別dot描画より効率的
+  - jsdomでは `style.backgroundColor` がhex値でなく `rgb()` 形式で返る → テストではrgb形式で比較する
+  - `useId()` でSVGパターンIDを生成すると複数インスタンスの衝突を防げる
+  - `satisfies string` をテンプレートリテラル内で忘れやすいので、SVGのurl()参照等に注意
 ---
