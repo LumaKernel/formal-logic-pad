@@ -1,0 +1,20 @@
+## Codebase Patterns
+- InfiniteCanvasライブラリは `src/lib/infinite-canvas/` に配置。React + SVGベースの汎用D&Dキャンバス
+- Vitest + Testing Libraryでテスト。Storybookのplay関数はインタラクションテストとして機能
+- Storybook play関数のimportは `storybook/test` から（`@storybook/test` ではない）
+- ESLint: `@luma-dev/luma-ts/require-satisfies-in-tls` が有効
+- コミットメッセージは日本語
+- フェーズ1 (InfiniteCanvas) US-000〜US-008 は完了済み
+
+---
+
+## 2026-02-24 - 論理リファレンス US-001
+- `dev/logic-reference/01-notation.md` を作成
+- 論理結合子、量化子、等号、二項演算子、項の構成要素、メタ変数命名規則、括弧省略規則、AST型一覧を網羅
+- 変更ファイル: `dev/logic-reference/01-notation.md` (新規), `tasks/prd-logic-reference.md`, `progress.txt`, `task-processing.md`
+- ベースラインカバレッジ: Statements 90.11%（ドキュメントのみのため変化なし）
+- **今後のイテレーションへの学び:**
+  - `dev/logic-reference/` ディレクトリにリファレンスドキュメントを配置する
+  - PRDの受け入れ基準に沿って各セクションを確実にカバーする
+  - CLAUDE.md のPrettier警告は既知の問題（無視してよい）
+---
