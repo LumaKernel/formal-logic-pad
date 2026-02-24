@@ -728,3 +728,22 @@
   - `src/lib/formula-input/` が FormulaInput コンポーネント群の配置先。logic-lang に依存し、InfiniteCanvas とは独立
   - 全テスト一括実行時に ConnectorPorts/ProofTree storybook テストが timeout する問題は既知（リソース競合）。個別実行では pass する
 ---
+
+## 2026-02-25 - FormulaInput FI-002: KaTeX論理式レンダラー
+- `src/lib/formula-input/FormulaKaTeX.tsx` を作成: Formula AST → KaTeX レンダリングの React コンポーネント
+- `katex.renderToString()` で LaTeX → HTML 変換、`dangerouslySetInnerHTML` で表示
+- `displayMode` prop でインラインモード（デフォルト）とブロックモード（$$...$$相当）を切替
+- `fontSize`, `className`, `style` props でカスタマイズ対応
+- `role="math"` + `aria-label` でアクセシビリティ対応
+- katex npm パッケージをインストール、`.storybook/preview.ts` に KaTeX CSS import を追加
+- 20件のユニットテスト + 8件の Storybook play関数テスト（全パス）
+- ストーリー8種: BasicFormulas, SubscriptedVariables, PropositionalConnectives, Quantifiers, PredicatesAndEquality, ComplexFormulas, DisplayModes, CustomSizing
+- 変更ファイル: `FormulaKaTeX.tsx`, `FormulaKaTeX.test.tsx`, `FormulaKaTeX.stories.tsx`, `index.ts`, `.storybook/preview.ts`, `package.json`, `tasks/prd-formula-input-component.md`
+- カバレッジ: ベースライン ~91%（formula-input は100%維持）
+- スクリーンショット: `screenshots.local/fi002-katex-complex.png`, `screenshots.local/fi002-katex-display-modes.png`, `screenshots.local/fi002-katex-connectives.png`
+- **今後のイテレーションへの学び:**
+  - KaTeX の `renderToString` は SSR 対応で、`throwOnError: false` で無効な LaTeX でもフォールバック表示される
+  - KaTeX CSS (`katex/dist/katex.min.css`) は Storybook の `preview.ts` で import。アプリケーション側でも同様に import が必要
+  - `displayMode: true` で KaTeX がブロック表示（`.katex-display` クラス付き）になる。デフォルトはインライン
+  - `output: "htmlAndMathml"` オプションで HTML と MathML の両方を出力し、アクセシビリティと表示品質を両立
+---
