@@ -43,6 +43,27 @@
 - ゴールチェック: `goalCheckLogic.ts`（純粋ロジック）でゴール式とワークスペースノードの一致判定。`WorkspaceState`に`goalFormulaText`フィールド追加
 - テーマ管理: `src/lib/theme/` に3層アーキテクチャ（themeLogic.ts純粋ロジック + useTheme.ts hook + ThemeProvider.tsx Context）。matchMediaモックパターンに注意
 - Storybook import: `@storybook/nextjs-vite` を使用（`@storybook/react` ではなく）
+- テーマCSS変数は `globals.css` に `[data-theme="light"]` / `[data-theme="dark"]` セレクタで一元定義。CSS Modulesからはグローバル変数を参照する
+
+---
+
+## 2026-02-25 - Theme CSS変数によるテーマトークンの整備 (US-002)
+- `src/app/globals.css` を全面改修: `prefers-color-scheme` メディアクエリを `[data-theme="light"]` / `[data-theme="dark"]` セレクタに移行
+- CSS変数トークンを一元定義（20+変数）: bg, text, border, canvas, accent, button, success/error/warning, surface, badge
+- `src/app/page.module.css` も同様に移行: ハードコードされた色値をグローバルCSS変数を参照するように変更
+- ダークモード配色: 背景 `#0a0a0a`, テキスト `#e0e0e0` (WCAG AA 15.3:1), キャンバス `#1a1a2e`
+- カバレッジ変化なし: 87 files, 1806 tests, Lines 99.85%, Stmts 99.06%
+- スクリーンショット:
+  - `.screenshots/us-002-storybook-theme-demo.png`
+  - `.screenshots/us-002-main-page-light.png`
+  - `.screenshots/us-002-main-page-dark.png`
+- 変更ファイル:
+  - `src/app/globals.css` (MODIFIED)
+  - `src/app/page.module.css` (MODIFIED)
+- **今後のイテレーションへの学び:**
+  - CSS変数定義は `:root` と `[data-theme="light"]` を両方指定すると、data-themeが未設定の場合もフォールバックできる
+  - `page.module.css` のCSS Modulesスコープ内から `[data-theme]` セレクタは使えないため、グローバルCSS変数を参照する形にする
+  - ダークモードの `--foreground` が元テンプレートで `#000` だったのはバグ（lightもdarkも同じ値）。`--color-surface` に統一して修正
 
 ---
 
