@@ -2,6 +2,7 @@
   - **完了:** `tasks/prd-formula-input-component.md` にPRDを作成。FI-001〜FI-008の8ストーリーを定義。Logic Lang (US-015〜018) の実装が前提条件。
 - [x] ノード自体も、最初の公理などは編集できる対象になるので、編集できるようにしておこう。
   - **完了:** `src/lib/proof-pad/` に EditableProofNode コンポーネントを作成。FormulaEditorを内包し、公理/MP/結論ノードの編集機能を提供。proofNodeUI.ts に純粋ロジック（スタイル・ポート定義）を分離。ユニットテスト29件、Storybookストーリー2件。
-- [ ] ノート全体(infinite canvas)でundo/redoができるようになるような仕組みも必要なので、historyやキャンバス全体の編集について抽象化して管理できるようにしておこう。
+- [x] ノート全体(infinite canvas)でundo/redoができるようになるような仕組みも必要なので、historyやキャンバス全体の編集について抽象化して管理できるようにしておこう。
+  - **完了:** `src/lib/history/` に汎用undo/redo Historyライブラリを作成。純粋ロジック（history.ts: イミュータブルなHistory型と操作関数）+ React hook（useHistory.ts）。pushState/undo/redo/replacePresent/pushStateWithLimitを提供。ユニットテスト45件、Storybookストーリー1件（play関数付き）。
 - [x] ノードのひっかけるところが浮いた位置にある。storyのplayでcomputedなノードの右端とかと、丸ちょんが実際に近い位置関係にあるか、とかもテストするといいかもね。
   - **完了:** ConnectorPorts/ProofTreeストーリーにgetBoundingClientRectを使ったポート位置検証テストを追加。手動サイズ推定をDOM実測に置き換え、ポートが15px以内にあることを検証。

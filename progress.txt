@@ -28,6 +28,8 @@
 - `src/lib/proof-pad/` は ProofPad（証明ワークスペース）のUIコンポーネント群。logic-core, formula-input, infinite-canvas を統合
 - EditableProofNode: FormulaEditorを内包した編集可能な証明ノード。proofNodeUI.ts に純粋ロジック（スタイル・ポート定義）を分離
 - FormulaEditorは制御コンポーネントなので、onParsedテストには状態管理ラッパーが必要（useDeferredValueで非同期）
+- `src/lib/history/` は汎用undo/redoライブラリ。純粋ロジック（history.ts）+ React hook（useHistory.ts）。InfiniteCanvasとは独立
+- `replacePresent` はundo エントリを作らない一時的な更新用（ドラッグ中等）。`pushState` は通常のundo可能な操作用
 
 ---
 
@@ -916,4 +918,26 @@
   - KaTeX CSS (`katex/dist/katex.min.css`) は Storybook の `preview.ts` で import。アプリケーション側でも同様に import が必要
   - `displayMode: true` で KaTeX がブロック表示（`.katex-display` クラス付き）になる。デフォルトはインライン
   - `output: "htmlAndMathml"` オプションで HTML と MathML の両方を出力し、アクセシビリティと表示品質を両立
+---
+
+## 2026-02-25 - History undo/redoライブラリ
+- `src/lib/history/` モジュールを新規作成
+  - `history.ts`: 純粋ロジック（イミュータブルなHistory<S>型と操作関数: createHistory, pushState, pushStateWithLimit, undo, redo, replacePresent, clearHistory, canUndo, canRedo, undoCount, redoCount）
+  - `useHistory.ts`: React hook（useState + 純粋関数を組み合わせ、push/replace/undo/redo/reset/clearを提供）
+  - `history.test.ts`: 32テスト
+  - `useHistory.test.tsx`: 13テスト
+  - `UndoRedoDemo.stories.tsx`: 1ストーリー（play関数付きインタラクションテスト）
+  - `index.ts`: パブリックエクスポート
+  - `CLAUDE.md`: モジュールドキュメント
+- 変更ファイル:
+  - 新規: `src/lib/history/` 全7ファイル
+  - `tasks/prd-inserted-tasks.md` (タスク完了マーク)
+- カバレッジ: 全体 Stmts 93.06% (ベースライン 92.92% → +0.14%向上)
+- テスト数: 1563 (前回 1517 → 46件増加)
+- スクリーンショット: `.screenshots/history-undo-redo-demo.png`
+- **今後のイテレーションへの学び:**
+  - Historyライブラリは InfiniteCanvas/proof-pad とは完全に独立。将来の統合はuseHistoryをCanvasStateに適用するだけ
+  - `replacePresent` はドラッグ中の一時更新に最適。pushStateはドラッグ完了時に使う
+  - ESLintの `require-satisfies-in-tls` ルール: 数値をJSX内テンプレートリテラルに入れる場合、`String(n) satisfies string` とするか、先にString変換した変数を使う
+  - Storybook iframe URLへの直接アクセス時、レンダリングに数秒かかることがある（wait_forで待機が必要）
 ---
