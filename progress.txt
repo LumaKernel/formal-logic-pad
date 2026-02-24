@@ -23,6 +23,33 @@
 - FormulaInput: 制御コンポーネント、`useDeferredValue`でデバウンス、純粋関数（computeParseState等）を分離してテスタブルに
 - macOSのcase-insensitiveファイルシステムでは `FormulaEditor.tsx` と `formulaEditor.ts` が衝突する。異なるケースのファイル名は使わず、`editorLogic.ts` のように明確に異なる名前にする
 
+- CanvasItem + FormulaEditor 統合: `onModeChange` コールバック + `dragEnabled` プロパティで編集中ドラッグ無効化を実現
+- FormulaEditor内 `onPointerDown` で `stopPropagation` し、CanvasItem の PointerCapture によるclick干渉を防止
+
+---
+
+## 2026-02-25 - FormulaInput FI-008
+- InfiniteCanvasノード内FormulaEditor統合を実装
+  - FormulaEditorに `onModeChange` コールバックを追加（編集/表示モード変更を親に通知）
+  - CanvasItemに `dragEnabled` プロパティを追加（外部からドラッグの有効/無効を制御）
+  - FormulaEditorコンテナで `onPointerDown` の `stopPropagation` を追加（PointerCapture干渉防止）
+  - 統合ユニットテスト8件（FormulaNodeIntegration.test.tsx）
+  - Storybookストーリー（FormulaNodeIntegration.stories.tsx）
+- 変更ファイル:
+  - `src/lib/formula-input/FormulaEditor.tsx` (onModeChange追加, onPointerDown stopPropagation)
+  - `src/lib/formula-input/FormulaEditor.test.tsx` (onModeChangeテスト3件追加)
+  - `src/lib/infinite-canvas/CanvasItem.tsx` (dragEnabledプロパティ追加)
+  - `src/lib/infinite-canvas/CanvasItem.test.tsx` (dragEnabledテスト4件追加)
+  - `src/lib/infinite-canvas/FormulaNodeIntegration.test.tsx` (新規: 統合テスト8件)
+  - `src/lib/infinite-canvas/FormulaNodeIntegration.stories.tsx` (新規: 統合ストーリー)
+  - `tasks/prd-formula-input-component.md` → `tasks-archived/` に移動（全タスク完了）
+- カバレッジ: 全体 Stmts 92.80% (ベースライン 92.79% → 維持)
+- テスト数: 1486 (前回 1470 → 16件増加)
+- **今後のイテレーションへの学び:**
+  - CanvasItemの `useDragItem` は `setPointerCapture` を使用するため、子要素のclickイベントが干渉される。FormulaEditorなど編集可能コンポーネントを配置する場合は `onPointerDown` で `stopPropagation` が必要
+  - `dragEnabled` プロパティと `onModeChange` コールバックの組み合わせで、親コンポーネントから子の編集状態に基づいてドラッグを制御するパターンが有効
+  - Storybook vitest pluginはStorybookサーバーのindex.jsonからストーリーを発見するため、新規ストーリーファイル追加後はStorybookサーバーの再起動が必要になることがある
+  - Formula Input PRD (FI-001〜FI-008) 全タスク完了。`tasks-archived/prd-formula-input-component.md` に移動
 ---
 
 ## 2026-02-25 - FormulaInput FI-007

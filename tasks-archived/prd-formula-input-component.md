@@ -134,19 +134,19 @@
 - [x] play関数でモード切替フローを検証
 - [x] 型チェック/lintが通る
 
-#### FI-008: InfiniteCanvasノード内統合 [-]
+#### FI-008: InfiniteCanvasノード内統合 [x]
 
 **説明:** ユーザーとして、InfiniteCanvas上のノード内で論理式を編集したい。
 
 **受け入れ基準:**
 
-- [ ] FormulaEditorをCanvasItemのchildren内に配置可能
-- [ ] ノードのドラッグとテキスト編集が干渉しない
-- [ ] 編集モード中はノードのドラッグを無効化
-- [ ] ノードサイズが編集内容に合わせて調整される
-- [ ] Storybookストーリー（CanvasItem + FormulaEditor統合デモ）を追加
-- [ ] play関数でノード内編集の動作を検証
-- [ ] 型チェック/lintが通る
+- [x] FormulaEditorをCanvasItemのchildren内に配置可能
+- [x] ノードのドラッグとテキスト編集が干渉しない
+- [x] 編集モード中はノードのドラッグを無効化
+- [x] ノードサイズが編集内容に合わせて調整される
+- [x] Storybookストーリー（CanvasItem + FormulaEditor統合デモ）を追加
+- [x] play関数でノード内編集の動作を検証
+- [x] 型チェック/lintが通る
 
 ## 依存関係とフェーズの順序
 
