@@ -41,6 +41,34 @@
 
 - 公理パレット: `axiomPaletteLogic.ts`（純粋ロジック）+ `AxiomPalette.tsx`（UI）のペア。case-insensitive FS対策で`...Logic.ts`と`...ette.tsx`で名前区別
 - ゴールチェック: `goalCheckLogic.ts`（純粋ロジック）でゴール式とワークスペースノードの一致判定。`WorkspaceState`に`goalFormulaText`フィールド追加
+- テーマ管理: `src/lib/theme/` に3層アーキテクチャ（themeLogic.ts純粋ロジック + useTheme.ts hook + ThemeProvider.tsx Context）。matchMediaモックパターンに注意
+- Storybook import: `@storybook/nextjs-vite` を使用（`@storybook/react` ではなく）
+
+---
+
+## 2026-02-25 - Theme テーマコンテキストとプロバイダー (US-001)
+- `src/lib/theme/` にテーマ管理ライブラリを新規作成
+  - `themeLogic.ts`: 純粋ロジック（ResolvedTheme/ThemeMode型、resolveTheme、nextThemeMode、isThemeMode）
+  - `useTheme.ts`: React hook（localStorage永続化、matchMedia監視、useSyncExternalStore、data-theme属性同期）
+  - `ThemeProvider.tsx`: Context provider + 便利hook（useThemeContext、useResolvedTheme、useThemeMode）
+  - `ThemeDemo.stories.tsx`: Storybook ストーリー（play関数でインタラクションテスト）
+- テスト39件追加（純粋ロジック18 + hook/コンポーネント20 + Storybook 1）
+- 全体: 87 files, 1806 tests, Lines 99.88%（ベースラインと同等）
+- スクリーンショット: `.screenshots/theme-demo-default.png`, `.screenshots/theme-demo-dark.png`
+- 変更ファイル:
+  - `src/lib/theme/themeLogic.ts` (NEW)
+  - `src/lib/theme/themeLogic.test.ts` (NEW)
+  - `src/lib/theme/useTheme.ts` (NEW)
+  - `src/lib/theme/useTheme.test.tsx` (NEW)
+  - `src/lib/theme/ThemeProvider.tsx` (NEW)
+  - `src/lib/theme/ThemeDemo.stories.tsx` (NEW)
+  - `src/lib/theme/index.ts` (NEW)
+  - `src/lib/theme/CLAUDE.md` (NEW)
+- **今後のイテレーションへの学び:**
+  - `@luma-dev/luma-ts/no-explicit-return-is` があるため type guard関数で `: value is T` は書かない（TypeScriptが推論）
+  - `@luma-dev/luma-ts/no-as-unknown-as` があるため `as unknown as T` は使えない。narrow interfaceを定義して型安全にモック
+  - matchMediaのテスト: `vi.fn().mockImplementation()` + `addEventListener` コールバック収集 + `act()` 内で発火
+  - `useSyncExternalStore` がmatchMediaのリアルタイム追従に最適（useEffect + useStateより宣言的）
 
 ---
 

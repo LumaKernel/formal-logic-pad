@@ -18,23 +18,23 @@
 
 ## ユーザーストーリー
 
-### US-001: テーマコンテキストとプロバイダーの作成 [-]
+### US-001: テーマコンテキストとプロバイダーの作成 [x]
 
 **説明:** 開発者として、アプリ全体のテーマ状態をReact Contextで管理し、どのコンポーネントからでもテーマを参照・変更できるようにしたい。
 
 **受け入れ基準:**
 
-- [ ] `src/lib/theme/` にテーマ管理ライブラリを作成
-- [ ] `ThemeProvider` コンポーネントを作成し、`"light" | "dark" | "system"` の3モードを管理
-- [ ] `useTheme()` hookを作成し、現在の解決済みテーマ（`"light" | "dark"`）とモード設定（`"light" | "dark" | "system"`）と切り替え関数を返す
-- [ ] `"system"` 選択時は `matchMedia("(prefers-color-scheme: dark)")` を監視し、OS設定変更にリアルタイムで追従する
-- [ ] 選択モードをlocalStorageに保存し、初回ロード時に復元する
-- [ ] SSR/ハイドレーション時のフラッシュ（FOUC）を防ぐため、`<html>` 要素のdata属性（例: `data-theme="dark"`）をスクリプトで早期に設定する
-- [ ] ユニットテストで以下を検証:
+- [x] `src/lib/theme/` にテーマ管理ライブラリを作成
+- [x] `ThemeProvider` コンポーネントを作成し、`"light" | "dark" | "system"` の3モードを管理
+- [x] `useTheme()` hookを作成し、現在の解決済みテーマ（`"light" | "dark"`）とモード設定（`"light" | "dark" | "system"`）と切り替え関数を返す
+- [x] `"system"` 選択時は `matchMedia("(prefers-color-scheme: dark)")` を監視し、OS設定変更にリアルタイムで追従する
+- [x] 選択モードをlocalStorageに保存し、初回ロード時に復元する
+- [x] SSR/ハイドレーション時のフラッシュ（FOUC）を防ぐため、`<html>` 要素のdata属性（例: `data-theme="dark"`）をスクリプトで早期に設定する
+- [x] ユニットテストで以下を検証:
   - デフォルト（localStorage空）ではsystemモードになること
   - localStorage値の保存と復元
   - systemモード時にOS設定変更が反映されること
-- [ ] 型チェック/lintが通る
+- [x] 型チェック/lintが通る
 
 ### US-002: CSS変数によるテーマトークンの整備
 
