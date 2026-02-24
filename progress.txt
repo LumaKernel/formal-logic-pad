@@ -24,6 +24,30 @@
 
 ---
 
+## 2026-02-25 - FormulaInput FI-006
+- 入力補完・ショートカット機能を実装
+  - ASCII→Unicode変換の補完候補ポップアップ（演算子: `->` → `→`、ギリシャ文字: `phi` → `φ`、量化子: `all` → `∀`）
+  - Tab/Enter で確定、Escape でキャンセル、矢印キーで候補移動
+  - FormulaInput/TermInput の両方に統合
+- 変更ファイル:
+  - `src/lib/formula-input/inputCompletion.ts` (新規: 補完ロジック純粋関数)
+  - `src/lib/formula-input/inputCompletion.test.ts` (新規: 38テスト)
+  - `src/lib/formula-input/CompletionPopup.tsx` (新規: 候補ポップアップUI)
+  - `src/lib/formula-input/CompletionPopup.test.tsx` (新規: 16テスト)
+  - `src/lib/formula-input/useCompletion.ts` (新規: 補完状態管理フック)
+  - `src/lib/formula-input/InputCompletion.stories.tsx` (新規: 7ストーリー)
+  - `src/lib/formula-input/FormulaInput.tsx` (補完統合)
+  - `src/lib/formula-input/TermInput.tsx` (補完統合)
+  - `src/lib/formula-input/index.ts` (エクスポート追加)
+- カバレッジ: 全体 Stmts 91.05%
+- テスト数: 1365 unit + 74 storybook = 1439
+- **今後のイテレーションへの学び:**
+  - jsdom では `scrollIntoView` が未実装。`typeof el.scrollIntoView === "function"` でガードが必要
+  - 補完ロジックは完全にピュアロジック（inputCompletion.ts）として分離し、UI（CompletionPopup.tsx）と状態管理（useCompletion.ts）を3層に分けるとテストしやすい
+  - キーボードイベントは `document.addEventListener` で捕捉（input要素に直接ではなくグローバルで）。ポップアップがinput外にあるため
+  - `onMouseDown` で `e.preventDefault()` しないとinputからフォーカスが奪われる
+---
+
 ## 2026-02-25 - FormulaInput FI-004
 - 論理式テキスト入力コンポーネント（FormulaInput）を実装
   - DSLテキストで論理式を入力し、リアルタイムにパース結果をプレビュー表示
