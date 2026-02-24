@@ -173,3 +173,21 @@
   - ストーリーで複数ノードに同じポートID（例: "top"）があると `getByTestId` が衝突する。`getAllByTestId` を使うこと
   - 既存の `Connection` コンポーネントはそのまま互換維持。ポートベースの接続は新しい `PortConnection` コンポーネントで分離
 ---
+
+## 2026-02-24 - InfiniteCanvas 証明図グラフ表現ストーリー
+- `ProofTree.stories.tsx` を新規作成: φ→φ（I combinator）の証明木をInfiniteCanvasで表現
+- 5ノードの証明木構造:
+  - 葉ノード: A2インスタンス（S公理 ψ:=φ→φ, χ:=φ）、A1インスタンス(a)（K公理 ψ:=φ→φ）、A1インスタンス(b)（K公理 ψ:=φ）
+  - 内部ノード: MP₁（A2+A1(a)から導出）
+  - 結論ノード: φ→φ（MP₁+A1(b)から導出）
+- PortConnection + ConnectorPortComponent で接続線を表現
+- play関数で全ノード・接続線・凡例の存在とドラッグ可能性を検証
+- 変更ファイル: `src/lib/infinite-canvas/ProofTree.stories.tsx` (新規), `tasks/prd-inserted-tasks.md`, `task-processing.md`, `progress.txt`
+- カバレッジ: Statements 92.89% → 92.89%（ストーリーのみ追加のため変化なし）
+- スクリーンショット: `screenshots.local/proof-tree-storybook.png`, `screenshots.local/proof-tree-fullscreen.png`
+- **今後のイテレーションへの学び:**
+  - 証明木の表現にはPortConnectionが最適。各ノードに「出力(out)」と「入力(premise-left/right)」ポートを定義して接続
+  - Storybookのiframe URLでフルスクリーン表示: `/iframe.html?args=&id=story-id&viewMode=story`
+  - 証明木のレイアウトで凡例とノードが重なる場合、ドラッグ可能なので実用上問題なし
+  - ProofNodeKind（axiom/mp/conclusion）でexhaustive switchを使いノード種別ごとのポート定義を分離
+---
