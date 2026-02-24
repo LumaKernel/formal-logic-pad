@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, within } from "storybook/test";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { CanvasItem } from "./CanvasItem";
 import { type ConnectorPort, DEFAULT_PORTS } from "./connector";
 import type { ConnectorPortOnItem } from "./connector";
@@ -15,9 +15,12 @@ interface ItemData {
   readonly position: Point;
   readonly label: string;
   readonly color: string;
+  readonly ports: readonly ConnectorPort[];
+}
+
+interface ItemSize {
   readonly width: number;
   readonly height: number;
-  readonly ports: readonly ConnectorPort[];
 }
 
 interface ConnectionData {
@@ -29,17 +32,12 @@ interface ConnectionData {
   readonly color: string;
 }
 
-const ITEM_PADDING_X = 32;
-const ITEM_PADDING_Y = 24;
-
 const INITIAL_ITEMS: readonly ItemData[] = [
   {
     id: "axiom",
     position: { x: 80, y: 60 },
     label: "Axiom K",
     color: "#4a90d9",
-    width: 100 + ITEM_PADDING_X,
-    height: 20 + ITEM_PADDING_Y,
     ports: DEFAULT_PORTS,
   },
   {
@@ -47,8 +45,6 @@ const INITIAL_ITEMS: readonly ItemData[] = [
     position: { x: 350, y: 130 },
     label: "Modus Ponens",
     color: "#d9944a",
-    width: 140 + ITEM_PADDING_X,
-    height: 20 + ITEM_PADDING_Y,
     ports: [
       { id: "premise-1", edge: "left", position: 0.35 },
       { id: "premise-2", edge: "left", position: 0.65 },
@@ -62,8 +58,6 @@ const INITIAL_ITEMS: readonly ItemData[] = [
     position: { x: 620, y: 130 },
     label: "Result",
     color: "#4ad94a",
-    width: 80 + ITEM_PADDING_X,
-    height: 20 + ITEM_PADDING_Y,
     ports: DEFAULT_PORTS,
   },
 ];
@@ -103,15 +97,17 @@ function findPortInItem(
 
 function toPortOnItem(
   item: ItemData,
+  sizes: ReadonlyMap<string, ItemSize>,
   portId: string,
 ): ConnectorPortOnItem | undefined {
   const port = findPortInItem(item, portId);
-  if (!port) return undefined;
+  const size = sizes.get(item.id);
+  if (!port || !size) return undefined;
   return {
     port,
     itemPosition: item.position,
-    itemWidth: item.width,
-    itemHeight: item.height,
+    itemWidth: size.width,
+    itemHeight: size.height,
   };
 }
 
@@ -123,6 +119,9 @@ function ConnectorPortsDemo() {
   });
   const [items, setItems] = useState<readonly ItemData[]>(INITIAL_ITEMS);
   const [highlightedPort, setHighlightedPort] = useState<string | null>(null);
+  const [itemSizes, setItemSizes] = useState<ReadonlyMap<string, ItemSize>>(
+    new Map(),
+  );
 
   const handlePositionChange = (id: string, newPosition: Point) => {
     setItems((prev) =>
@@ -132,11 +131,36 @@ function ConnectorPortsDemo() {
     );
   };
 
-  const obstacles: readonly Obstacle[] = items.map((item) => ({
-    position: item.position,
-    width: item.width,
-    height: item.height,
-  }));
+  const measureItem = useCallback(
+    (id: string) => (el: HTMLDivElement | null) => {
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        const w = rect.width / viewport.scale;
+        const h = rect.height / viewport.scale;
+        setItemSizes((prev) => {
+          const existing = prev.get(id);
+          if (existing && existing.width === w && existing.height === h)
+            return prev;
+          const next = new Map(prev);
+          next.set(id, { width: w, height: h });
+          return next;
+        });
+      }
+    },
+    [viewport.scale],
+  );
+
+  const obstacles: readonly Obstacle[] = items
+    .map((item) => {
+      const size = itemSizes.get(item.id);
+      if (!size) return null;
+      return {
+        position: item.position,
+        width: size.width,
+        height: size.height,
+      };
+    })
+    .filter((o) => o !== null);
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
@@ -146,8 +170,12 @@ function ConnectorPortsDemo() {
           const fromItem = findItem(items, conn.fromItemId);
           const toItem = findItem(items, conn.toItemId);
           if (!fromItem || !toItem) return null;
-          const fromPortOnItem = toPortOnItem(fromItem, conn.fromPortId);
-          const toPortOnItem_ = toPortOnItem(toItem, conn.toPortId);
+          const fromPortOnItem = toPortOnItem(
+            fromItem,
+            itemSizes,
+            conn.fromPortId,
+          );
+          const toPortOnItem_ = toPortOnItem(toItem, itemSizes, conn.toPortId);
           if (!fromPortOnItem || !toPortOnItem_) return null;
           return (
             <PortConnection
@@ -172,6 +200,7 @@ function ConnectorPortsDemo() {
             }}
           >
             <div
+              ref={measureItem(item.id)}
               data-testid={`item-${item.id satisfies string}`}
               style={{
                 padding: "12px 16px",
@@ -192,27 +221,27 @@ function ConnectorPortsDemo() {
         ))}
 
         {/* Connector ports rendered on top of items */}
-        {items.flatMap((item) =>
-          item.ports.map((port) => (
-            <ConnectorPortComponent
-              key={`${item.id satisfies string}-${port.id satisfies string}`}
-              port={port}
-              itemPosition={item.position}
-              itemWidth={item.width}
-              itemHeight={item.height}
-              viewport={viewport}
-              highlighted={
-                highlightedPort ===
-                `${item.id satisfies string}-${port.id satisfies string}`
-              }
-              onPortClick={() => {
-                setHighlightedPort(
-                  `${item.id satisfies string}-${port.id satisfies string}`,
-                );
-              }}
-            />
-          )),
-        )}
+        {items.flatMap((item) => {
+          const size = itemSizes.get(item.id);
+          if (!size) return [];
+          return item.ports.map((port) => {
+            const uniqueId = `${item.id satisfies string}-${port.id satisfies string}`;
+            return (
+              <ConnectorPortComponent
+                key={uniqueId}
+                port={{ ...port, id: uniqueId }}
+                itemPosition={item.position}
+                itemWidth={size.width}
+                itemHeight={size.height}
+                viewport={viewport}
+                highlighted={highlightedPort === uniqueId}
+                onPortClick={() => {
+                  setHighlightedPort(uniqueId);
+                }}
+              />
+            );
+          });
+        })}
       </InfiniteCanvas>
 
       <div
@@ -255,6 +284,24 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/**
+ * Helper: get the center of a DOM element's bounding box.
+ */
+function getCenter(el: HTMLElement): {
+  readonly x: number;
+  readonly y: number;
+} {
+  const rect = el.getBoundingClientRect();
+  return { x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 };
+}
+
+/**
+ * Maximum allowed distance (px) between a connector port center and
+ * the expected edge of its parent node.  Accounts for port radius,
+ * border widths and sub-pixel rounding.
+ */
+const PORT_EDGE_TOLERANCE = 15;
+
 export const Interactive: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -267,14 +314,19 @@ export const Interactive: Story = {
     await expect(mpNode).toBeInTheDocument();
     await expect(resultNode).toBeInTheDocument();
 
-    // Verify connector ports are rendered
-    // Total ports: axiom(4) + mp(5) + result(4) = 13
-    const topPorts = canvas.getAllByTestId("connector-port-top");
-    await expect(topPorts.length).toBeGreaterThanOrEqual(2);
+    // Verify connector ports are rendered (now with item-prefixed IDs)
+    const axiomRight = canvas.getByTestId("connector-port-axiom-right");
+    const axiomTop = canvas.getByTestId("connector-port-axiom-top");
+    const axiomBottom = canvas.getByTestId("connector-port-axiom-bottom");
+    const axiomLeft = canvas.getByTestId("connector-port-axiom-left");
+    await expect(axiomRight).toBeInTheDocument();
+    await expect(axiomTop).toBeInTheDocument();
+    await expect(axiomBottom).toBeInTheDocument();
+    await expect(axiomLeft).toBeInTheDocument();
 
     // MP has unique custom ports
-    const mpPremise1 = canvas.getByTestId("connector-port-premise-1");
-    const mpConclusion = canvas.getByTestId("connector-port-conclusion");
+    const mpPremise1 = canvas.getByTestId("connector-port-mp-premise-1");
+    const mpConclusion = canvas.getByTestId("connector-port-mp-conclusion");
     await expect(mpPremise1).toBeInTheDocument();
     await expect(mpConclusion).toBeInTheDocument();
 
@@ -288,5 +340,71 @@ export const Interactive: Story = {
     // Verify items are draggable
     const canvasItemAxiom = axiomNode.closest("[data-testid='canvas-item']");
     await expect(canvasItemAxiom).toHaveStyle({ cursor: "grab" });
+
+    // --- Port position proximity tests ---
+    // Verify that connector ports are positioned near the correct edges
+    // of their parent nodes, using getBoundingClientRect for real DOM positions.
+
+    const axiomRect = axiomNode.getBoundingClientRect();
+    const mpRect = mpNode.getBoundingClientRect();
+    const resultRect = resultNode.getBoundingClientRect();
+
+    // Axiom "right" port center should be near axiom node's right edge
+    const axiomRightCenter = getCenter(axiomRight);
+    await expect(Math.abs(axiomRightCenter.x - axiomRect.right)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
+    // Y should be near the vertical center of the axiom node
+    const axiomMidY = (axiomRect.top + axiomRect.bottom) / 2;
+    await expect(Math.abs(axiomRightCenter.y - axiomMidY)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
+
+    // Axiom "top" port center should be near axiom node's top edge
+    const axiomTopCenter = getCenter(axiomTop);
+    await expect(Math.abs(axiomTopCenter.y - axiomRect.top)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
+    // X should be near the horizontal center
+    const axiomMidX = (axiomRect.left + axiomRect.right) / 2;
+    await expect(Math.abs(axiomTopCenter.x - axiomMidX)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
+
+    // Axiom "bottom" port center should be near axiom node's bottom edge
+    const axiomBottomCenter = getCenter(axiomBottom);
+    await expect(Math.abs(axiomBottomCenter.y - axiomRect.bottom)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
+
+    // Axiom "left" port center should be near axiom node's left edge
+    const axiomLeftCenter = getCenter(axiomLeft);
+    await expect(Math.abs(axiomLeftCenter.x - axiomRect.left)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
+
+    // MP "premise-1" port (left edge, position 0.35) should be near MP node's left edge
+    const mpPremise1Center = getCenter(mpPremise1);
+    await expect(Math.abs(mpPremise1Center.x - mpRect.left)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
+
+    // MP "conclusion" port (right edge, position 0.5) should be near MP node's right edge
+    const mpConclusionCenter = getCenter(mpConclusion);
+    await expect(Math.abs(mpConclusionCenter.x - mpRect.right)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
+    // Y should be near the vertical center
+    const mpMidY = (mpRect.top + mpRect.bottom) / 2;
+    await expect(Math.abs(mpConclusionCenter.y - mpMidY)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
+
+    // Result "left" port should be near result node's left edge
+    const resultLeft = canvas.getByTestId("connector-port-result-left");
+    const resultLeftCenter = getCenter(resultLeft);
+    await expect(Math.abs(resultLeftCenter.x - resultRect.left)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
   },
 };

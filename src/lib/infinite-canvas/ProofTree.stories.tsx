@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, within } from "storybook/test";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { CanvasItem } from "./CanvasItem";
 import { type ConnectorPort } from "./connector";
 import type { ConnectorPortOnItem } from "./connector";
@@ -37,9 +37,12 @@ interface ProofNode {
   readonly kind: ProofNodeKind;
   readonly label: string;
   readonly formula: string;
+  readonly ports: readonly ConnectorPort[];
+}
+
+interface NodeSize {
   readonly width: number;
   readonly height: number;
-  readonly ports: readonly ConnectorPort[];
 }
 
 interface ProofEdge {
@@ -67,11 +70,6 @@ const CONCLUSION_PORTS: readonly ConnectorPort[] = [
   { id: "premise-right", edge: "top", position: 0.7 },
 ];
 
-// --- Layout constants ---
-
-const NODE_PADDING_X = 24;
-const NODE_PADDING_Y = 16;
-
 // --- Proof data for φ→φ ---
 
 const AXIOM_COLOR = "#5b8bd9";
@@ -84,7 +82,6 @@ function makeNode(
   label: string,
   formula: string,
   position: Point,
-  textWidth: number,
 ): ProofNode {
   const ports =
     kind === "axiom"
@@ -98,37 +95,24 @@ function makeNode(
     kind,
     label,
     formula,
-    width: textWidth + NODE_PADDING_X,
-    height: 52 + NODE_PADDING_Y,
     ports,
   };
 }
 
 const INITIAL_NODES: readonly ProofNode[] = [
   // Row 1: Axiom instances (leaves)
-  makeNode(
-    "a2-inst",
-    "axiom",
-    "A2",
-    "(φ→((φ→φ)→φ)) → ((φ→(φ→φ))→(φ→φ))",
-    { x: 50, y: 60 },
-    340,
-  ),
-  makeNode(
-    "a1-inst-a",
-    "axiom",
-    "A1",
-    "φ → ((φ→φ) → φ)",
-    { x: 490, y: 60 },
-    180,
-  ),
-  makeNode("a1-inst-b", "axiom", "A1", "φ → (φ → φ)", { x: 600, y: 230 }, 150),
+  makeNode("a2-inst", "axiom", "A2", "(φ→((φ→φ)→φ)) → ((φ→(φ→φ))→(φ→φ))", {
+    x: 50,
+    y: 60,
+  }),
+  makeNode("a1-inst-a", "axiom", "A1", "φ → ((φ→φ) → φ)", { x: 490, y: 60 }),
+  makeNode("a1-inst-b", "axiom", "A1", "φ → (φ → φ)", { x: 600, y: 230 }),
 
   // Row 2: First MP application
-  makeNode("mp1", "mp", "MP", "(φ→(φ→φ)) → (φ→φ)", { x: 220, y: 230 }, 210),
+  makeNode("mp1", "mp", "MP", "(φ→(φ→φ)) → (φ→φ)", { x: 220, y: 230 }),
 
   // Row 3: Final conclusion
-  makeNode("result", "conclusion", "φ→φ", "φ → φ", { x: 370, y: 400 }, 100),
+  makeNode("result", "conclusion", "φ→φ", "φ → φ", { x: 370, y: 400 }),
 ];
 
 const INITIAL_EDGES: readonly ProofEdge[] = [
@@ -177,15 +161,17 @@ function findNode(
 
 function toPortOnItem(
   node: ProofNode,
+  sizes: ReadonlyMap<string, NodeSize>,
   portId: string,
 ): ConnectorPortOnItem | undefined {
   const port = node.ports.find((p) => p.id === portId);
-  if (!port) return undefined;
+  const size = sizes.get(node.id);
+  if (!port || !size) return undefined;
   return {
     port,
     itemPosition: node.position,
-    itemWidth: node.width,
-    itemHeight: node.height,
+    itemWidth: size.width,
+    itemHeight: size.height,
   };
 }
 
@@ -213,6 +199,9 @@ function ProofTreeDemo() {
     scale: 1,
   });
   const [nodes, setNodes] = useState<readonly ProofNode[]>(INITIAL_NODES);
+  const [nodeSizes, setNodeSizes] = useState<ReadonlyMap<string, NodeSize>>(
+    new Map(),
+  );
 
   const handlePositionChange = (id: string, newPosition: Point) => {
     setNodes((prev) =>
@@ -222,11 +211,36 @@ function ProofTreeDemo() {
     );
   };
 
-  const obstacles: readonly Obstacle[] = nodes.map((node) => ({
-    position: node.position,
-    width: node.width,
-    height: node.height,
-  }));
+  const measureNode = useCallback(
+    (id: string) => (el: HTMLDivElement | null) => {
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        const w = rect.width / viewport.scale;
+        const h = rect.height / viewport.scale;
+        setNodeSizes((prev) => {
+          const existing = prev.get(id);
+          if (existing && existing.width === w && existing.height === h)
+            return prev;
+          const next = new Map(prev);
+          next.set(id, { width: w, height: h });
+          return next;
+        });
+      }
+    },
+    [viewport.scale],
+  );
+
+  const obstacles: readonly Obstacle[] = nodes
+    .map((node) => {
+      const size = nodeSizes.get(node.id);
+      if (!size) return null;
+      return {
+        position: node.position,
+        width: size.width,
+        height: size.height,
+      };
+    })
+    .filter((o) => o !== null);
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
@@ -236,8 +250,8 @@ function ProofTreeDemo() {
           const fromNode = findNode(nodes, edge.fromNodeId);
           const toNode = findNode(nodes, edge.toNodeId);
           if (!fromNode || !toNode) return null;
-          const fromPort = toPortOnItem(fromNode, edge.fromPortId);
-          const toPort = toPortOnItem(toNode, edge.toPortId);
+          const fromPort = toPortOnItem(fromNode, nodeSizes, edge.fromPortId);
+          const toPort = toPortOnItem(toNode, nodeSizes, edge.toPortId);
           if (!fromPort || !toPort) return null;
           return (
             <PortConnection
@@ -262,6 +276,7 @@ function ProofTreeDemo() {
             }}
           >
             <div
+              ref={measureNode(node.id)}
               data-testid={`proof-node-${node.id satisfies string}`}
               style={{
                 padding: "8px 12px",
@@ -304,19 +319,24 @@ function ProofTreeDemo() {
         ))}
 
         {/* Connector ports */}
-        {nodes.flatMap((node) =>
-          node.ports.map((port) => (
-            <ConnectorPortComponent
-              key={`${node.id satisfies string}-${port.id satisfies string}`}
-              port={port}
-              itemPosition={node.position}
-              itemWidth={node.width}
-              itemHeight={node.height}
-              viewport={viewport}
-              highlighted={false}
-            />
-          )),
-        )}
+        {nodes.flatMap((node) => {
+          const size = nodeSizes.get(node.id);
+          if (!size) return [];
+          return node.ports.map((port) => {
+            const uniqueId = `${node.id satisfies string}-${port.id satisfies string}`;
+            return (
+              <ConnectorPortComponent
+                key={uniqueId}
+                port={{ ...port, id: uniqueId }}
+                itemPosition={node.position}
+                itemWidth={size.width}
+                itemHeight={size.height}
+                viewport={viewport}
+                highlighted={false}
+              />
+            );
+          });
+        })}
       </InfiniteCanvas>
 
       {/* Legend */}
@@ -399,6 +419,23 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/**
+ * Helper: get the center of a DOM element's bounding box.
+ */
+function getCenter(el: HTMLElement): {
+  readonly x: number;
+  readonly y: number;
+} {
+  const rect = el.getBoundingClientRect();
+  return { x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 };
+}
+
+/**
+ * Maximum allowed distance (px) between a connector port center and
+ * the expected edge of its parent node.
+ */
+const PORT_EDGE_TOLERANCE = 15;
+
 export const PhiImpliesPhi: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -440,5 +477,45 @@ export const PhiImpliesPhi: Story = {
     // Verify nodes are draggable
     const canvasItemA2 = a2Node.closest("[data-testid='canvas-item']");
     await expect(canvasItemA2).toHaveStyle({ cursor: "grab" });
+
+    // --- Port position proximity tests ---
+    // Verify connector ports sit near their parent node edges (not floating away)
+
+    // A2 node: "out" port (bottom edge center) should be near A2's bottom
+    const a2Rect = a2Node.getBoundingClientRect();
+    const a2OutPort = canvas.getByTestId("connector-port-a2-inst-out");
+    const a2OutCenter = getCenter(a2OutPort);
+    await expect(Math.abs(a2OutCenter.y - a2Rect.bottom)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
+    const a2MidX = (a2Rect.left + a2Rect.right) / 2;
+    await expect(Math.abs(a2OutCenter.x - a2MidX)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
+
+    // MP1 node: "premise-left" port (top edge, pos 0.3) should be near MP1's top
+    const mp1Rect = mp1Node.getBoundingClientRect();
+    const mp1PremiseLeft = canvas.getByTestId(
+      "connector-port-mp1-premise-left",
+    );
+    const mp1PLCenter = getCenter(mp1PremiseLeft);
+    await expect(Math.abs(mp1PLCenter.y - mp1Rect.top)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
+
+    // MP1 node: "out" port (bottom edge center) should be near MP1's bottom
+    const mp1Out = canvas.getByTestId("connector-port-mp1-out");
+    const mp1OutCenter = getCenter(mp1Out);
+    await expect(Math.abs(mp1OutCenter.y - mp1Rect.bottom)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
+
+    // Result node: "premise-left" port (top edge) should be near result's top
+    const resultRect = resultNode.getBoundingClientRect();
+    const resultPL = canvas.getByTestId("connector-port-result-premise-left");
+    const resultPLCenter = getCenter(resultPL);
+    await expect(Math.abs(resultPLCenter.y - resultRect.top)).toBeLessThan(
+      PORT_EDGE_TOLERANCE,
+    );
   },
 };
