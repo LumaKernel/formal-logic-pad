@@ -561,3 +561,40 @@
   - `toVisualizationData` はDFS順でフラットリストを返す。UIレイヤーは子IDの参照でツリーを再構築できる
   - フェーズ2Aのピュアロジック（US-009〜014）がすべて完了。次はフェーズ2B（Logic Lang: Lexer/Parser/Formatter）
 ---
+
+## 2026-02-24 - Logic Lang US-015: Lexer（トークン定義とトークン化）
+- `src/lib/logic-lang/` ディレクトリを新規作成、Logic Schema Language のLexerを実装
+- 新規ファイル:
+  - `token.ts`: トークン種別（TokenKind）、Position、Span、Token、LexerError、LexResult の型定義
+  - `lexer.ts`: lex() 関数 - 入力文字列をトークン列に変換
+  - `lexer.test.ts`: 107テスト
+  - `index.ts`: エクスポート
+- 対応トークン:
+  - 論理演算子: `¬`/`~`/`not`, `∧`/`/\`/`and`, `∨`/`\/`/`or`, `→`/`->`/`implies`, `↔`/`<->`/`iff`
+  - 量化子: `∀`/`all`/`forall`, `∃`/`ex`/`exists`
+  - 等号: `=`
+  - 項二項演算子: `+`, `-`/`−`, `*`/`×`, `/`/`÷`, `^`
+  - 区切り文字: `(`, `)`, `.`, `,`
+  - メタ変数: Unicode直接入力 + ASCII名入力 + 添字（数字・Unicode下付き数字・アンダースコア区切り）
+  - 識別子: UPPER_IDENT（述語）、LOWER_IDENT（変数/関数）
+  - 数字リテラル: NUMBER
+  - EOF
+- 位置情報（1-indexed行・列）を全トークンに付与
+- エラー報告: 不正文字、添字桁数超過（最大3桁）
+- `-` vs `->` 、`/` vs `/\` の先読みによる曖昧性解消
+- キーワードとの衝突回避: `existing` → LOWER_IDENT（`ex` + `isting` に分解しない）
+- ギリシャ文字ASCII名: `phi1` = `phi_1` = φ₁（同値）、`phi1` ≠ `phi01`（区別）
+- logic-core の `greekLetters.ts` を直接再利用（ギリシャ文字定義、ASCII名マップ、添字バリデーション）
+- テスト: 845 → 952（+107）
+- カバレッジ: Statements 90.68% → 91.62% ✅ 向上（+0.94%）
+- logic-lang 単体: lexer.ts Lines 100%, Functions 100%, Branch 99.06%
+- 変更ファイル: `src/lib/logic-lang/token.ts`, `lexer.ts`, `lexer.test.ts`, `index.ts`（全新規）, `tasks/prd-formal-logic-pad.md`
+- スクリーンショット: `.screenshots/us015-storybook-main.png`
+- **今後のイテレーションへの学び:**
+  - Lexerは logic-core の `greekLetterNames` を直接 import して再利用。Logic Lang は Logic Core の型定義に依存する設計
+  - `-` と `->` の曖昧性は `peekAt(1)` での1文字先読みで解決。`/` と `/\` も同様
+  - ギリシャ文字ASCII名の完全一致 vs プレフィックスマッチは2段階で処理。`phi₁`（完全一致+Unicode下付き数字）と `phi1`（プレフィックスマッチ+ASCII数字）は別のコードパスだが同じ結果
+  - `@luma-dev/luma-ts/require-satisfies-in-tls` はテンプレートリテラル式に `satisfies string` を要求。ヘルパー関数 `posStr` で位置文字列化を共通化すると良い
+  - キーワード判定は完全一致のみ（最長一致で読んだ識別子全体をキーワード表と照合）。部分一致はしないため `existing` は `ex` にならない
+  - メタ変数のvalue形式は `"φ"` (添字なし) or `"φ_01"` (添字あり) で統一。パーサーで分解する
+---
