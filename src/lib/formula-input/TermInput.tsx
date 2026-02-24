@@ -8,13 +8,15 @@
  */
 
 import type { CSSProperties } from "react";
-import { useCallback, useDeferredValue, useEffect, useMemo } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef } from "react";
 import type { Term } from "../logic-core/term";
 import type { ParseError, TermParseResult } from "../logic-lang/parser";
 import { parseTermString } from "../logic-lang/parser";
-import { TermDisplay } from "./TermDisplay";
+import { CompletionPopup } from "./CompletionPopup";
 import type { ErrorHighlight } from "./FormulaInput";
 import { computeErrorHighlights, formatErrorMessage } from "./FormulaInput";
+import { TermDisplay } from "./TermDisplay";
+import { useCompletion } from "./useCompletion";
 
 // --- パース結果の型 ---
 
@@ -139,12 +141,17 @@ export function TermInput({
   style,
   testId,
 }: TermInputProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   // useDeferredValue でパースをデバウンス
   const deferredValue = useDeferredValue(value);
   const parseState = useMemo(
     () => computeTermParseState(deferredValue),
     [deferredValue],
   );
+
+  // 入力補完
+  const comp = useCompletion(value);
 
   // パース成功時に onParsed を呼ぶ
   useEffect(() => {
@@ -155,9 +162,25 @@ export function TermInput({
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      onChange(e.target.value);
+      const newValue = e.target.value;
+      onChange(newValue);
+      const cursorPos = e.target.selectionStart ?? newValue.length;
+      comp.update(newValue, cursorPos);
     },
-    [onChange],
+    [onChange, comp],
+  );
+
+  const handleCompletionSelect = useCallback(
+    (candidate: Parameters<typeof comp.selectCandidate>[0]) => {
+      const result = comp.selectCandidate(candidate);
+      if (result) {
+        onChange(result.text);
+        requestAnimationFrame(() => {
+          inputRef.current?.setSelectionRange(result.cursorPos, result.cursorPos);
+        });
+      }
+    },
+    [comp, onChange],
   );
 
   const mergedContainerStyle: CSSProperties = useMemo(
@@ -186,7 +209,7 @@ export function TermInput({
       style={mergedContainerStyle}
       data-testid={testId}
     >
-      {/* 入力欄 + エラーハイライトオーバーレイ */}
+      {/* 入力欄 + エラーハイライトオーバーレイ + 補完ポップアップ */}
       <div style={{ position: "relative" }}>
         {/* エラーハイライト（入力欄の背後） */}
         {errorHighlights.length > 0 && (
@@ -199,6 +222,7 @@ export function TermInput({
           </div>
         )}
         <input
+          ref={inputRef}
           type="text"
           value={value}
           onChange={handleChange}
@@ -223,6 +247,17 @@ export function TermInput({
           <div style={{ visibility: "hidden", ...highlightContainerStyle }}>
             {deferredValue || placeholder}
           </div>
+        )}
+        {/* 補完ポップアップ */}
+        {comp.isOpen && (
+          <CompletionPopup
+            candidates={comp.completion.candidates}
+            selectedIndex={comp.selectedIndex}
+            onSelect={handleCompletionSelect}
+            onSelectedIndexChange={comp.setSelectedIndex}
+            onClose={comp.close}
+            testId={testId ? `${testId satisfies string}-completion` : undefined}
+          />
         )}
       </div>
 

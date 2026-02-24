@@ -10,3 +10,14 @@ export { FormulaInput } from "./FormulaInput";
 export type { FormulaInputProps, FormulaParseState } from "./FormulaInput";
 export { TermInput } from "./TermInput";
 export type { TermInputProps, TermParseState } from "./TermInput";
+export { CompletionPopup } from "./CompletionPopup";
+export type { CompletionPopupProps } from "./CompletionPopup";
+export {
+  computeCompletions,
+  applyCompletion,
+  extractTrigger,
+} from "./inputCompletion";
+export type {
+  CompletionCandidate,
+  CompletionResult,
+} from "./inputCompletion";

@@ -8,11 +8,13 @@
  */
 
 import type { CSSProperties } from "react";
-import { useCallback, useDeferredValue, useEffect, useMemo } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef } from "react";
 import type { Formula } from "../logic-core/formula";
 import type { ParseError, ParseResult } from "../logic-lang/parser";
 import { parseString } from "../logic-lang/parser";
+import { CompletionPopup } from "./CompletionPopup";
 import { FormulaDisplay } from "./FormulaDisplay";
+import { useCompletion } from "./useCompletion";
 
 // --- パース結果の型 ---
 
@@ -186,12 +188,17 @@ export function FormulaInput({
   style,
   testId,
 }: FormulaInputProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   // useDeferredValue でパースをデバウンス
   const deferredValue = useDeferredValue(value);
   const parseState = useMemo(
     () => computeParseState(deferredValue),
     [deferredValue],
   );
+
+  // 入力補完
+  const comp = useCompletion(value);
 
   // パース成功時に onParsed を呼ぶ
   useEffect(() => {
@@ -202,9 +209,27 @@ export function FormulaInput({
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      onChange(e.target.value);
+      const newValue = e.target.value;
+      onChange(newValue);
+      // 補完を更新（カーソル位置はselectionStartから取得）
+      const cursorPos = e.target.selectionStart ?? newValue.length;
+      comp.update(newValue, cursorPos);
     },
-    [onChange],
+    [onChange, comp],
+  );
+
+  const handleCompletionSelect = useCallback(
+    (candidate: Parameters<typeof comp.selectCandidate>[0]) => {
+      const result = comp.selectCandidate(candidate);
+      if (result) {
+        onChange(result.text);
+        // カーソル位置を復元
+        requestAnimationFrame(() => {
+          inputRef.current?.setSelectionRange(result.cursorPos, result.cursorPos);
+        });
+      }
+    },
+    [comp, onChange],
   );
 
   const mergedContainerStyle: CSSProperties = useMemo(
@@ -233,7 +258,7 @@ export function FormulaInput({
       style={mergedContainerStyle}
       data-testid={testId}
     >
-      {/* 入力欄 + エラーハイライトオーバーレイ */}
+      {/* 入力欄 + エラーハイライトオーバーレイ + 補完ポップアップ */}
       <div style={{ position: "relative" }}>
         {/* エラーハイライト（入力欄の背後） */}
         {errorHighlights.length > 0 && (
@@ -246,6 +271,7 @@ export function FormulaInput({
           </div>
         )}
         <input
+          ref={inputRef}
           type="text"
           value={value}
           onChange={handleChange}
@@ -270,6 +296,17 @@ export function FormulaInput({
           <div style={{ visibility: "hidden", ...highlightContainerStyle }}>
             {deferredValue || placeholder}
           </div>
+        )}
+        {/* 補完ポップアップ */}
+        {comp.isOpen && (
+          <CompletionPopup
+            candidates={comp.completion.candidates}
+            selectedIndex={comp.selectedIndex}
+            onSelect={handleCompletionSelect}
+            onSelectedIndexChange={comp.setSelectedIndex}
+            onClose={comp.close}
+            testId={testId ? `${testId satisfies string}-completion` : undefined}
+          />
         )}
       </div>
 
