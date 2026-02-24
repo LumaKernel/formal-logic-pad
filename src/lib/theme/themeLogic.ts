@@ -1,0 +1,76 @@
+/**
+ * Pure theme logic — no DOM, no React, no side effects.
+ *
+ * Types and pure functions for theme management.
+ */
+
+/** Resolved visual theme (what is actually displayed). */
+export type ResolvedTheme = "light" | "dark";
+
+/** User-selected theme mode (includes "system" option). */
+export type ThemeMode = "light" | "dark" | "system";
+
+/** All valid ThemeMode values. */
+export const THEME_MODES: readonly ThemeMode[] = [
+  "light",
+  "dark",
+  "system",
+] as const;
+
+/** localStorage key for persisting the theme mode. */
+export const THEME_STORAGE_KEY = "theme-mode";
+
+/** data attribute name on <html> element. */
+export const THEME_DATA_ATTRIBUTE = "data-theme";
+
+/**
+ * Check if a value is a valid ThemeMode.
+ */
+export function isThemeMode(value: unknown) {
+  return value === "light" || value === "dark" || value === "system";
+}
+
+/**
+ * Resolve the actual theme to display based on user mode and system preference.
+ */
+export function resolveTheme(
+  mode: ThemeMode,
+  systemPrefersDark: boolean,
+): ResolvedTheme {
+  switch (mode) {
+    case "light":
+      return "light";
+    case "dark":
+      return "dark";
+    case "system":
+      return systemPrefersDark ? "dark" : "light";
+    default: {
+      /* v8 ignore start */
+      const _exhaustive: never = mode;
+      void _exhaustive;
+      return "light";
+      /* v8 ignore stop */
+    }
+  }
+}
+
+/**
+ * Cycle to the next theme mode: light → dark → system → light.
+ */
+export function nextThemeMode(current: ThemeMode): ThemeMode {
+  switch (current) {
+    case "light":
+      return "dark";
+    case "dark":
+      return "system";
+    case "system":
+      return "light";
+    default: {
+      /* v8 ignore start */
+      const _exhaustive: never = current;
+      void _exhaustive;
+      return "light";
+      /* v8 ignore stop */
+    }
+  }
+}
