@@ -1,13 +1,13 @@
 .page {
-  --background: #fafafa;
-  --foreground: #fff;
+  --background: var(--color-bg-secondary);
+  --foreground: var(--color-surface);
 
-  --text-primary: #000;
-  --text-secondary: #666;
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
 
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
+  --button-primary-hover: var(--color-button-primary-hover);
+  --button-secondary-hover: var(--color-button-secondary-hover);
+  --button-secondary-border: var(--color-button-secondary-border);
 
   display: flex;
   min-height: 100vh;
@@ -119,23 +119,5 @@ a.secondary {
     font-size: 32px;
     line-height: 40px;
     letter-spacing: -1.92px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
-  }
-
-  .page {
-    --background: #000;
-    --foreground: #000;
-
-    --text-primary: #ededed;
-    --text-secondary: #999;
-
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
   }
 }

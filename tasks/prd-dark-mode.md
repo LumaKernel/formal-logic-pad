@@ -36,14 +36,14 @@
   - systemモード時にOS設定変更が反映されること
 - [x] 型チェック/lintが通る
 
-### US-002: CSS変数によるテーマトークンの整備
+### US-002: CSS変数によるテーマトークンの整備 [x]
 
 **説明:** 開発者として、全コンポーネントが参照するテーマトークン（CSS変数）を一元管理し、ダーク/ライト両モードで適切な値を定義したい。
 
 **受け入れ基準:**
 
-- [ ] `globals.css` の既存 `prefers-color-scheme` メディアクエリを `[data-theme="dark"]` セレクタに移行する
-- [ ] 以下のCSS変数を定義（最低限）:
+- [x] `globals.css` の既存 `prefers-color-scheme` メディアクエリを `[data-theme="dark"]` セレクタに移行する
+- [x] 以下のCSS変数を定義（最低限）:
   - `--color-bg-primary`: 主背景色
   - `--color-bg-secondary`: セカンダリ背景色
   - `--color-text-primary`: 主テキスト色
@@ -55,10 +55,10 @@
   - `--color-accent`: アクセントカラー
   - `--color-button-primary-bg`, `--color-button-primary-hover`: ボタン色
   - `--color-button-secondary-bg`, `--color-button-secondary-hover`, `--color-button-secondary-border`: セカンダリボタン色
-- [ ] `[data-theme="light"]` と `[data-theme="dark"]` の両方で値を定義
-- [ ] WCAG AA基準（コントラスト比4.5:1以上）を両モードで満たす
-- [ ] `page.module.css` の `prefers-color-scheme` メディアクエリも `[data-theme]` セレクタに移行
-- [ ] 型チェック/lintが通る
+- [x] `[data-theme="light"]` と `[data-theme="dark"]` の両方で値を定義
+- [x] WCAG AA基準（コントラスト比4.5:1以上）を両モードで満たす
+- [x] `page.module.css` の `prefers-color-scheme` メディアクエリも `[data-theme]` セレクタに移行
+- [x] 型チェック/lintが通る
 
 ### US-003: テーマ切り替えUIの作成
 

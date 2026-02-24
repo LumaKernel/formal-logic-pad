@@ -1,13 +1,116 @@
-:root {
+/* ============================================
+ * Theme Tokens (CSS Variables)
+ *
+ * Light/Dark mode tokens are defined via [data-theme] selectors.
+ * The useTheme() hook sets data-theme on <html>.
+ * Fallback: if data-theme is not set, light theme applies via :root defaults.
+ *
+ * To add/change tokens, update BOTH [data-theme="light"] and [data-theme="dark"].
+ * ============================================ */
+
+:root,
+[data-theme="light"] {
+  /* Background */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #fafafa;
+
+  /* Text */
+  --color-text-primary: #171717;
+  --color-text-secondary: #666666;
+
+  /* Border */
+  --color-border: #e2e8f0;
+
+  /* Canvas (InfiniteCanvas) */
+  --color-canvas-bg: #ffffff;
+  --color-canvas-dot: #c0c0c0;
+  --color-canvas-grid-line: rgba(0, 0, 0, 0.06);
+
+  /* Accent */
+  --color-accent: #555ab9;
+
+  /* Buttons */
+  --color-button-primary-bg: #171717;
+  --color-button-primary-hover: #383838;
+  --color-button-secondary-bg: transparent;
+  --color-button-secondary-hover: #f2f2f2;
+  --color-button-secondary-border: #ebebeb;
+
+  /* Semantic: Success / Error / Warning */
+  --color-success: #2ecc71;
+  --color-success-bg: rgba(60, 255, 60, 0.25);
+  --color-error: #e06060;
+  --color-error-bg: rgba(255, 60, 60, 0.25);
+  --color-warning: #d9944a;
+  --color-warning-hover: #b5752e;
+
+  /* Surface (panels, popups, overlays) */
+  --color-surface: #ffffff;
+  --color-surface-translucent: rgba(255, 255, 255, 0.9);
+  --color-surface-hover: #f0f0f0;
+  --color-surface-selected: #ebf8ff;
+
+  /* Badge */
+  --color-badge-bg: #e8eaf0;
+  --color-badge-text: #718096;
+
+  /* Legacy compat (used by page.module.css) */
   --background: #ffffff;
   --foreground: #171717;
+
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+[data-theme="dark"] {
+  /* Background */
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #111111;
+
+  /* Text — WCAG AA: #e0e0e0 on #0a0a0a = 15.3:1 */
+  --color-text-primary: #e0e0e0;
+  --color-text-secondary: #999999;
+
+  /* Border */
+  --color-border: #2d3748;
+
+  /* Canvas (InfiniteCanvas) */
+  --color-canvas-bg: #1a1a2e;
+  --color-canvas-dot: #3a3a5c;
+  --color-canvas-grid-line: rgba(255, 255, 255, 0.06);
+
+  /* Accent — WCAG AA: #7b7fdb on #0a0a0a = 6.0:1 */
+  --color-accent: #7b7fdb;
+
+  /* Buttons */
+  --color-button-primary-bg: #e0e0e0;
+  --color-button-primary-hover: #cccccc;
+  --color-button-secondary-bg: transparent;
+  --color-button-secondary-hover: #1a1a1a;
+  --color-button-secondary-border: #2d3748;
+
+  /* Semantic: Success / Error / Warning */
+  --color-success: #4ad97a;
+  --color-success-bg: rgba(60, 255, 60, 0.15);
+  --color-error: #ff6b6b;
+  --color-error-bg: rgba(255, 60, 60, 0.15);
+  --color-warning: #e0a05a;
+  --color-warning-hover: #c88a42;
+
+  /* Surface (panels, popups, overlays) */
+  --color-surface: #1e1e2e;
+  --color-surface-translucent: rgba(30, 30, 46, 0.9);
+  --color-surface-hover: #2a2a3e;
+  --color-surface-selected: #1e2a40;
+
+  /* Badge */
+  --color-badge-bg: #2d3748;
+  --color-badge-text: #a0aec0;
+
+  /* Legacy compat (used by page.module.css) */
+  --background: #0a0a0a;
+  --foreground: #e0e0e0;
+
+  color-scheme: dark;
 }
 
 html,
@@ -17,8 +120,8 @@ body {
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -33,10 +136,4 @@ body {
 a {
   color: inherit;
   text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
 }
