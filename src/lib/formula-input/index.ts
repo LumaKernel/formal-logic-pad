@@ -10,6 +10,10 @@ export { FormulaInput } from "./FormulaInput";
 export type { FormulaInputProps, FormulaParseState } from "./FormulaInput";
 export { TermInput } from "./TermInput";
 export type { TermInputProps, TermParseState } from "./TermInput";
+export { FormulaEditor } from "./FormulaEditor";
+export type { FormulaEditorProps } from "./FormulaEditor";
+export { canExitEditMode, computeExitAction } from "./editorLogic";
+export type { DisplayRenderer, EditorMode } from "./editorLogic";
 export { CompletionPopup } from "./CompletionPopup";
 export type { CompletionPopupProps } from "./CompletionPopup";
 export {

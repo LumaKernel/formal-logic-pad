@@ -45,6 +45,8 @@ export interface FormulaInputProps {
   readonly style?: CSSProperties;
   /** data-testid */
   readonly testId?: string;
+  /** blur時のコールバック（FormulaEditorからのモード遷移に使用） */
+  readonly onBlur?: () => void;
 }
 
 // --- 純粋関数: パース ---
@@ -187,6 +189,7 @@ export function FormulaInput({
   className,
   style,
   testId,
+  onBlur,
 }: FormulaInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -290,6 +293,7 @@ export function FormulaInput({
               ? `${testId satisfies string}-errors`
               : undefined
           }
+          onBlur={onBlur}
         />
         {/* ハイライトがないときの高さ確保（absoluteの場合は不要） */}
         {errorHighlights.length > 0 && (

@@ -1,0 +1,240 @@
+/**
+ * 編集/表示モード切替コンポーネント。
+ *
+ * 論理式を美しいレンダリングで表示しつつ、クリックで編集モードに切り替える。
+ * パースエラー時は編集モードに留まる。
+ *
+ * 変更時は FormulaEditor.test.tsx, FormulaEditor.stories.tsx, formulaEditor.ts, index.ts も同期すること。
+ */
+
+import type { CSSProperties } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import type { Formula } from "../logic-core/formula";
+import { formatFormula } from "../logic-lang/formatUnicode";
+import { FormulaDisplay } from "./FormulaDisplay";
+import {
+  computeParseState,
+  FormulaInput,
+} from "./FormulaInput";
+import { FormulaKaTeX } from "./FormulaKaTeX";
+import type { DisplayRenderer, EditorMode } from "./editorLogic";
+import { computeExitAction } from "./editorLogic";
+
+// --- Props ---
+
+export interface FormulaEditorProps {
+  /** 現在の入力テキスト */
+  readonly value: string;
+  /** テキスト変更時のコールバック */
+  readonly onChange: (value: string) => void;
+  /** パース成功時にFormula ASTを通知するコールバック */
+  readonly onParsed?: (formula: Formula) => void;
+  /** 表示レンダラーの種類 */
+  readonly displayRenderer?: DisplayRenderer;
+  /** プレースホルダーテキスト（空の場合の表示モード表示と入力欄） */
+  readonly placeholder?: string;
+  /** フォントサイズ (CSS値) */
+  readonly fontSize?: CSSProperties["fontSize"];
+  /** 追加の className */
+  readonly className?: string;
+  /** 追加のスタイル（コンテナ） */
+  readonly style?: CSSProperties;
+  /** data-testid */
+  readonly testId?: string;
+}
+
+// --- スタイル ---
+
+const containerBaseStyle: CSSProperties = {
+  position: "relative",
+  minHeight: 32,
+  cursor: "text",
+};
+
+const displayContainerStyle: CSSProperties = {
+  padding: "6px 8px",
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "transparent",
+  borderRadius: 4,
+  minHeight: 24,
+  cursor: "text",
+  transition: "opacity 0.15s ease-in-out",
+};
+
+const displayContainerHoverStyle: CSSProperties = {
+  ...displayContainerStyle,
+  borderColor: "#e2e8f0",
+  backgroundColor: "#f7fafc",
+};
+
+const placeholderStyle: CSSProperties = {
+  color: "#a0aec0",
+  fontStyle: "italic",
+};
+
+const editContainerStyle: CSSProperties = {
+  transition: "opacity 0.15s ease-in-out",
+};
+
+// --- コンポーネント ---
+
+export function FormulaEditor({
+  value,
+  onChange,
+  onParsed,
+  displayRenderer = "unicode",
+  placeholder = "クリックして論理式を入力...",
+  fontSize,
+  className,
+  style,
+  testId,
+}: FormulaEditorProps) {
+  const [mode, setMode] = useState<EditorMode>("display");
+  const [isHovered, setIsHovered] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // パース状態を計算（表示モードでのFormula取得と、editモード離脱判定の両方に使う）
+  const parseState = useMemo(() => computeParseState(value), [value]);
+
+  // 現在のFormula AST（パース成功時のみ）
+  const formula: Formula | null =
+    parseState.status === "success" ? parseState.formula : null;
+
+  // --- イベントハンドラ ---
+
+  const enterEditMode = useCallback(() => {
+    setMode("editing");
+  }, []);
+
+  const tryExitEditMode = useCallback(() => {
+    const currentParseState = computeParseState(value);
+    const result = computeExitAction(currentParseState);
+    if (result !== null) {
+      setMode(result);
+    }
+    // パースエラーの場合は何もしない（編集モードに留まる）
+  }, [value]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Escape") {
+        tryExitEditMode();
+      }
+    },
+    [tryExitEditMode],
+  );
+
+  const handleDisplayClick = useCallback(() => {
+    enterEditMode();
+  }, [enterEditMode]);
+
+  const handleDisplayKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        enterEditMode();
+      }
+    },
+    [enterEditMode],
+  );
+
+  // 編集モードに入ったらinputにフォーカス
+  useEffect(() => {
+    if (mode === "editing") {
+      const input = containerRef.current?.querySelector("input");
+      if (input) {
+        input.focus();
+        // カーソルを末尾に
+        input.setSelectionRange(input.value.length, input.value.length);
+      }
+    }
+  }, [mode]);
+
+  const mergedContainerStyle: CSSProperties = useMemo(
+    () => ({
+      ...containerBaseStyle,
+      ...style,
+      ...(fontSize !== undefined ? { fontSize } : {}),
+    }),
+    [style, fontSize],
+  );
+
+  // Unicode表示テキスト（表示モード用）
+  const displayText = useMemo(
+    () => (formula ? formatFormula(formula) : null),
+    [formula],
+  );
+
+  return (
+    <div
+      ref={containerRef}
+      className={className}
+      style={mergedContainerStyle}
+      data-testid={testId}
+      onKeyDown={mode === "editing" ? handleKeyDown : undefined}
+    >
+      {mode === "display" ? (
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={handleDisplayClick}
+          onKeyDown={handleDisplayKeyDown}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          style={isHovered ? displayContainerHoverStyle : displayContainerStyle}
+          data-testid={testId ? `${testId satisfies string}-display` : undefined}
+          aria-label={
+            displayText
+              ? `${displayText satisfies string} - クリックして編集`
+              : "クリックして論理式を入力"
+          }
+        >
+          {formula ? (
+            displayRenderer === "katex" ? (
+              <FormulaKaTeX
+                formula={formula}
+                fontSize={fontSize}
+                testId={testId ? `${testId satisfies string}-katex` : undefined}
+              />
+            ) : (
+              <FormulaDisplay
+                formula={formula}
+                fontSize={fontSize}
+                testId={testId ? `${testId satisfies string}-unicode` : undefined}
+              />
+            )
+          ) : (
+            <span
+              style={placeholderStyle}
+              data-testid={testId ? `${testId satisfies string}-placeholder` : undefined}
+            >
+              {placeholder}
+            </span>
+          )}
+        </div>
+      ) : (
+        <div
+          style={editContainerStyle}
+          data-testid={testId ? `${testId satisfies string}-edit` : undefined}
+        >
+          <FormulaInput
+            value={value}
+            onChange={onChange}
+            onParsed={onParsed}
+            placeholder={placeholder}
+            fontSize={fontSize}
+            testId={testId ? `${testId satisfies string}-input` : undefined}
+            onBlur={tryExitEditMode}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
