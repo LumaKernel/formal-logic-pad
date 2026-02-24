@@ -127,3 +127,23 @@
   - Codecov の `fail_ci_if_error: false` に設定（一時障害でCIが落ちないように）
   - CI グリーン確認済み ✅
 ---
+
+## 2026-02-24 - InfiniteCanvas コネクション線の自動配置改善
+- `computeSmartConnectionPath()` を新規実装: 方向適応型ベジェ曲線ルーティング
+- `determineConnectionDirections()`: ノードの位置関係から最適な出入り方向（上下左右）を自動決定
+- `edgeMidpoint()`: 方向に基づくエッジ中点計算
+- `segmentIntersectsRect()`: Liang-Barsky法による線分-矩形交差判定
+- 障害物回避機能: obstacles propで他ノードを渡すと接続パスが迂回
+- `Connection` コンポーネントに `obstacles` prop を追加
+- ストーリー（ConnectionLines, FullDemo）を障害物回避対応に更新
+- テスト: 45→48テスト（connectionPath）、全体194→227テスト
+- カバレッジ: Statements 90.11% → 91.17% ✅ 向上
+- 変更ファイル: `connectionPath.ts`, `Connection.tsx`, `connectionPath.test.ts`, `ConnectionLines.stories.tsx`, `FullDemo.stories.tsx`, `task-processing.md`, `tasks/prd-inserted-tasks.md`
+- スクリーンショット: `screenshots.local/smart-connection-lines-fullscreen.png`, `screenshots.local/smart-fulldemo-fullscreen.png`
+- **今後のイテレーションへの学び:**
+  - `computeSmartConnectionPath` は方向適応型。水平/垂直のギャップを計算して最適な接続方向を決定
+  - Liang-Barsky法（parametric clipping）で線分-AABB交差を高速判定。タプルの型は `readonly [number, number]`
+  - 障害物回避は1つ目の交差障害物のみ処理（パフォーマンス考慮）。複数障害物の完全回避は将来課題
+  - `Connection` は既存のシンプルなインターフェースを維持しつつ、オプションの `obstacles` で拡張可能
+  - `computeConnectionPath`（旧）は @deprecated として残し後方互換を維持
+---

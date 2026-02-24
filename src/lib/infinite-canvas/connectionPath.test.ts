@@ -2,9 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   computeConnectionPath,
   computeEdgePoint,
+  computeSmartConnectionPath,
+  determineConnectionDirections,
+  edgeMidpoint,
   endpointCenter,
+  segmentIntersectsRect,
 } from "./connectionPath";
-import type { ConnectionEndpoint } from "./connectionPath";
+import type { ConnectionEndpoint, Obstacle } from "./connectionPath";
 import type { ViewportState } from "./types";
 
 describe("endpointCenter", () => {
@@ -89,7 +93,452 @@ describe("computeEdgePoint", () => {
   });
 });
 
-describe("computeConnectionPath", () => {
+describe("edgeMidpoint", () => {
+  const ep: ConnectionEndpoint = {
+    position: { x: 100, y: 200 },
+    width: 80,
+    height: 40,
+  };
+  // center = (140, 220)
+
+  it("returns top edge midpoint", () => {
+    expect(edgeMidpoint(ep, "top")).toEqual({ x: 140, y: 200 });
+  });
+
+  it("returns bottom edge midpoint", () => {
+    expect(edgeMidpoint(ep, "bottom")).toEqual({ x: 140, y: 240 });
+  });
+
+  it("returns left edge midpoint", () => {
+    expect(edgeMidpoint(ep, "left")).toEqual({ x: 100, y: 220 });
+  });
+
+  it("returns right edge midpoint", () => {
+    expect(edgeMidpoint(ep, "right")).toEqual({ x: 180, y: 220 });
+  });
+});
+
+describe("determineConnectionDirections", () => {
+  it("chooses right-left when target is to the right with gap", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 300, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const dirs = determineConnectionDirections(from, to);
+    expect(dirs.fromDir).toBe("right");
+    expect(dirs.toDir).toBe("left");
+  });
+
+  it("chooses left-right when target is to the left with gap", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 300, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const dirs = determineConnectionDirections(from, to);
+    expect(dirs.fromDir).toBe("left");
+    expect(dirs.toDir).toBe("right");
+  });
+
+  it("chooses bottom-top when target is below with gap", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 100, y: 0 },
+      width: 50,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 100, y: 200 },
+      width: 50,
+      height: 50,
+    };
+    const dirs = determineConnectionDirections(from, to);
+    expect(dirs.fromDir).toBe("bottom");
+    expect(dirs.toDir).toBe("top");
+  });
+
+  it("chooses top-bottom when target is above with gap", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 100, y: 200 },
+      width: 50,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 100, y: 0 },
+      width: 50,
+      height: 50,
+    };
+    const dirs = determineConnectionDirections(from, to);
+    expect(dirs.fromDir).toBe("top");
+    expect(dirs.toDir).toBe("bottom");
+  });
+
+  it("chooses right-left when horizontal gap is larger than vertical", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 200, y: 80 },
+      width: 100,
+      height: 50,
+    };
+    // dx = 250, gapX = 250 - 50 - 50 = 150
+    // dy = 80+25-25 = 80, gapY = 80 - 25 - 25 = 30
+    const dirs = determineConnectionDirections(from, to);
+    expect(dirs.fromDir).toBe("right");
+    expect(dirs.toDir).toBe("left");
+  });
+
+  it("handles overlapping nodes with right bias", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 50, y: 10 },
+      width: 100,
+      height: 50,
+    };
+    const dirs = determineConnectionDirections(from, to);
+    // Overlapping: gapX and gapY are both negative
+    // dx = 50, dy = 10 => absDx > absDy => horizontal
+    expect(dirs.fromDir).toBe("right");
+    expect(dirs.toDir).toBe("left");
+  });
+
+  it("handles overlapping nodes with left bias", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 50, y: 10 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const dirs = determineConnectionDirections(from, to);
+    // Overlapping: gapX and gapY are both negative
+    // dx = -50, dy = -10 => absDx > absDy => horizontal, dx < 0 => left
+    expect(dirs.fromDir).toBe("left");
+    expect(dirs.toDir).toBe("right");
+  });
+
+  it("handles overlapping nodes with vertical dominance downward", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 10, y: 20 },
+      width: 100,
+      height: 50,
+    };
+    const dirs = determineConnectionDirections(from, to);
+    // Overlapping: dx = 10, dy = 20 => absDy > absDx => vertical
+    // gapX = 10 - 50 - 50 = -90, gapY = 20 - 25 - 25 = -30
+    // Both negative => overlapping fallback
+    // absDx(10) < absDy(20) => vertical, dy >= 0 => bottom
+    expect(dirs.fromDir).toBe("bottom");
+    expect(dirs.toDir).toBe("top");
+  });
+
+  it("handles overlapping nodes with vertical dominance upward", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 10, y: 20 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const dirs = determineConnectionDirections(from, to);
+    // dx = -10, dy = -20 => absDy > absDx => vertical, dy < 0 => top
+    expect(dirs.fromDir).toBe("top");
+    expect(dirs.toDir).toBe("bottom");
+  });
+
+  it("handles same position nodes", () => {
+    const ep: ConnectionEndpoint = {
+      position: { x: 100, y: 100 },
+      width: 50,
+      height: 50,
+    };
+    const dirs = determineConnectionDirections(ep, ep);
+    // dx = 0, dy = 0 => absDx >= absDy => right/left
+    expect(dirs.fromDir).toBe("right");
+    expect(dirs.toDir).toBe("left");
+  });
+});
+
+describe("segmentIntersectsRect", () => {
+  const rect: Obstacle = {
+    position: { x: 100, y: 100 },
+    width: 50,
+    height: 50,
+  };
+
+  it("returns true when segment passes through rect", () => {
+    expect(
+      segmentIntersectsRect({ x: 0, y: 125 }, { x: 300, y: 125 }, rect),
+    ).toBe(true);
+  });
+
+  it("returns false when segment is far from rect", () => {
+    expect(segmentIntersectsRect({ x: 0, y: 0 }, { x: 50, y: 0 }, rect)).toBe(
+      false,
+    );
+  });
+
+  it("returns true when segment touches margin around rect", () => {
+    // rect extends from (100,100) to (150,150), margin=10 extends to (90,90)-(160,160)
+    expect(
+      segmentIntersectsRect({ x: 0, y: 95 }, { x: 200, y: 95 }, rect, 10),
+    ).toBe(true);
+  });
+
+  it("returns false when segment is just outside margin", () => {
+    expect(
+      segmentIntersectsRect({ x: 0, y: 85 }, { x: 200, y: 85 }, rect, 10),
+    ).toBe(false);
+  });
+
+  it("returns true for diagonal segment through rect", () => {
+    expect(
+      segmentIntersectsRect({ x: 80, y: 80 }, { x: 170, y: 170 }, rect),
+    ).toBe(true);
+  });
+
+  it("returns true when segment starts inside rect", () => {
+    expect(
+      segmentIntersectsRect({ x: 120, y: 120 }, { x: 300, y: 300 }, rect),
+    ).toBe(true);
+  });
+
+  it("handles zero-length segment inside rect", () => {
+    expect(
+      segmentIntersectsRect({ x: 125, y: 125 }, { x: 125, y: 125 }, rect),
+    ).toBe(true);
+  });
+
+  it("handles zero-length segment outside rect", () => {
+    expect(segmentIntersectsRect({ x: 0, y: 0 }, { x: 0, y: 0 }, rect)).toBe(
+      false,
+    );
+  });
+
+  it("handles vertical segment through rect", () => {
+    expect(
+      segmentIntersectsRect({ x: 125, y: 0 }, { x: 125, y: 200 }, rect),
+    ).toBe(true);
+  });
+
+  it("handles vertical segment missing rect", () => {
+    expect(
+      segmentIntersectsRect({ x: 50, y: 0 }, { x: 50, y: 200 }, rect),
+    ).toBe(false);
+  });
+});
+
+describe("computeSmartConnectionPath", () => {
+  const viewport: ViewportState = { offsetX: 0, offsetY: 0, scale: 1 };
+
+  it("returns a valid SVG path string", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 300, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const result = computeSmartConnectionPath(from, to, viewport);
+    expect(result.d).toMatch(/^M\s/);
+    expect(result.d).toContain("C ");
+  });
+
+  it("uses right-left direction for horizontally separated nodes", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 300, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const result = computeSmartConnectionPath(from, to, viewport);
+    // Start should be at right edge midpoint of from: (100, 25)
+    expect(result.start.x).toBe(100);
+    expect(result.start.y).toBe(25);
+    // End should be at left edge midpoint of to: (300, 25)
+    expect(result.end.x).toBe(300);
+    expect(result.end.y).toBe(25);
+  });
+
+  it("uses bottom-top direction for vertically separated nodes", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 100, y: 0 },
+      width: 50,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 100, y: 200 },
+      width: 50,
+      height: 50,
+    };
+    const result = computeSmartConnectionPath(from, to, viewport);
+    // Start should be at bottom edge midpoint: (125, 50)
+    expect(result.start.x).toBe(125);
+    expect(result.start.y).toBe(50);
+    // End should be at top edge midpoint: (125, 200)
+    expect(result.end.x).toBe(125);
+    expect(result.end.y).toBe(200);
+  });
+
+  it("applies viewport offset", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 300, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const offsetViewport: ViewportState = {
+      offsetX: 50,
+      offsetY: 20,
+      scale: 1,
+    };
+    const result = computeSmartConnectionPath(from, to, offsetViewport);
+    expect(result.start.x).toBe(150);
+    expect(result.start.y).toBe(45);
+  });
+
+  it("applies viewport scale", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 300, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const scaledViewport: ViewportState = {
+      offsetX: 0,
+      offsetY: 0,
+      scale: 2,
+    };
+    const result = computeSmartConnectionPath(from, to, scaledViewport);
+    expect(result.start.x).toBe(200);
+    expect(result.start.y).toBe(50);
+    expect(result.end.x).toBe(600);
+    expect(result.end.y).toBe(50);
+  });
+
+  it("deflects path when obstacle is in the way", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 0, y: 100 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 400, y: 100 },
+      width: 100,
+      height: 50,
+    };
+    const obstacle: Obstacle = {
+      position: { x: 200, y: 100 },
+      width: 80,
+      height: 50,
+    };
+    const withoutObstacle = computeSmartConnectionPath(from, to, viewport);
+    const withObstacle = computeSmartConnectionPath(from, to, viewport, [
+      obstacle,
+    ]);
+    // The path should be different when obstacle is present
+    expect(withObstacle.d).not.toBe(withoutObstacle.d);
+  });
+
+  it("does not deflect when obstacle does not intersect path", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 300, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const farObstacle: Obstacle = {
+      position: { x: 0, y: 500 },
+      width: 80,
+      height: 50,
+    };
+    const withoutObstacle = computeSmartConnectionPath(from, to, viewport);
+    const withObstacle = computeSmartConnectionPath(from, to, viewport, [
+      farObstacle,
+    ]);
+    expect(withObstacle.d).toBe(withoutObstacle.d);
+  });
+
+  it("excludes source and target from obstacle checking", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 300, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    // Pass from and to as obstacles - they should be excluded
+    const withSelfObstacles = computeSmartConnectionPath(from, to, viewport, [
+      from,
+      to,
+    ]);
+    const withoutObstacles = computeSmartConnectionPath(from, to, viewport);
+    expect(withSelfObstacles.d).toBe(withoutObstacles.d);
+  });
+
+  it("handles same position nodes gracefully", () => {
+    const ep: ConnectionEndpoint = {
+      position: { x: 100, y: 100 },
+      width: 50,
+      height: 50,
+    };
+    const result = computeSmartConnectionPath(ep, ep, viewport);
+    expect(result.d).toMatch(/^M\s/);
+    expect(result.d).toContain("C ");
+  });
+});
+
+describe("computeConnectionPath (legacy)", () => {
   const viewport: ViewportState = { offsetX: 0, offsetY: 0, scale: 1 };
 
   it("returns a valid SVG path string", () => {
@@ -120,11 +569,8 @@ describe("computeConnectionPath", () => {
       height: 50,
     };
     const result = computeConnectionPath(from, to, viewport);
-    // from center = (50, 25), to center = (350, 25)
-    // from right edge = (100, 25)
     expect(result.start.x).toBe(100);
     expect(result.start.y).toBe(25);
-    // to left edge = (300, 25)
     expect(result.end.x).toBe(300);
     expect(result.end.y).toBe(25);
   });
@@ -146,7 +592,6 @@ describe("computeConnectionPath", () => {
       scale: 1,
     };
     const result = computeConnectionPath(from, to, offsetViewport);
-    // from edge = (100, 25) + offset → (150, 45)
     expect(result.start.x).toBe(150);
     expect(result.start.y).toBe(45);
   });
@@ -168,10 +613,8 @@ describe("computeConnectionPath", () => {
       scale: 2,
     };
     const result = computeConnectionPath(from, to, scaledViewport);
-    // from edge = (100, 25) * 2 → (200, 50)
     expect(result.start.x).toBe(200);
     expect(result.start.y).toBe(50);
-    // to edge = (300, 25) * 2 → (600, 50)
     expect(result.end.x).toBe(600);
     expect(result.end.y).toBe(50);
   });
@@ -188,7 +631,6 @@ describe("computeConnectionPath", () => {
       height: 50,
     };
     const result = computeConnectionPath(from, to, viewport);
-    // Both centers are the same, so computeEdgePoint returns center
     expect(result.start).toEqual(result.end);
   });
 
@@ -204,11 +646,9 @@ describe("computeConnectionPath", () => {
       height: 50,
     };
     const result = computeConnectionPath(from, to, viewport);
-    // from center = (125, 25), to center = (125, 225)
-    // Same x so edge points are on bottom/top edges
     expect(result.start.x).toBe(125);
-    expect(result.start.y).toBe(50); // bottom edge of from
+    expect(result.start.y).toBe(50);
     expect(result.end.x).toBe(125);
-    expect(result.end.y).toBe(200); // top edge of to
+    expect(result.end.y).toBe(200);
   });
 });

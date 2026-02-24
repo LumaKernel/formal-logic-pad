@@ -1,6 +1,7 @@
 import {
-  computeConnectionPath,
+  computeSmartConnectionPath,
   type ConnectionEndpoint,
+  type Obstacle,
 } from "./connectionPath";
 import type { ViewportState } from "./types";
 
@@ -15,10 +16,13 @@ export interface ConnectionProps {
   readonly color?: string;
   /** Stroke width in pixels */
   readonly strokeWidth?: number;
+  /** Other items on the canvas that the connection should try to avoid */
+  readonly obstacles?: readonly Obstacle[];
 }
 
 /**
  * Renders a bezier curve connection between two rectangular endpoints.
+ * Adapts exit/entry direction based on node positions and avoids obstacles.
  * Uses a dashed stroke with partial opacity so the line remains visible
  * even when passing behind other items.
  */
@@ -28,8 +32,9 @@ export function Connection({
   viewport,
   color = "#666",
   strokeWidth = 2,
+  obstacles = [],
 }: ConnectionProps) {
-  const path = computeConnectionPath(from, to, viewport);
+  const path = computeSmartConnectionPath(from, to, viewport, obstacles);
 
   return (
     <svg

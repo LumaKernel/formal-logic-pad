@@ -3,9 +3,9 @@
 
 Infinity Canvasについて。
 
-- [ ] コネクトする線はノードの移動、位置関係に応じて自動で再配置されたり、曲がりかたがかわったり、他の要素をよけるようになっていてほしい。
-  - [ ] http://localhost:13006/?path=/story/infinitecanvas-fulldemo--interactive こういうやつ
-  - [ ] http://localhost:13006/?path=/story/infinitecanvas-connectionlines--interactive こういうのも
+- [x] コネクトする線はノードの移動、位置関係に応じて自動で再配置されたり、曲がりかたがかわったり、他の要素をよけるようになっていてほしい。
+  - [x] http://localhost:13006/?path=/story/infinitecanvas-fulldemo--interactive こういうやつ
+  - [x] http://localhost:13006/?path=/story/infinitecanvas-connectionlines--interactive こういうのも
 - [ ] すべてのノードとそれを繋ぐ部分は、コネクタ(ラジオボタン的なひっかける場所)があるという前提で組んで欲しい。(そのような抽象化も一緒にする前提で)
 - [ ] あくまでもストーリーの例として、実際に証明図をグラフで表現するというのをやってみてほしい。
 - [ ] ノードをクリックしたらノードメニューが開く、というストーリーが欲しい

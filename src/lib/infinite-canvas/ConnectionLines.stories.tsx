@@ -3,7 +3,7 @@ import { expect, within } from "storybook/test";
 import { useState } from "react";
 import { CanvasItem } from "./CanvasItem";
 import { Connection } from "./Connection";
-import type { ConnectionEndpoint } from "./connectionPath";
+import type { ConnectionEndpoint, Obstacle } from "./connectionPath";
 import { InfiniteCanvas } from "./InfiniteCanvas";
 import type { Point, ViewportState } from "./types";
 
@@ -90,6 +90,12 @@ function ConnectionLinesDemo() {
     );
   };
 
+  const obstacles: readonly Obstacle[] = items.map((item) => ({
+    position: item.position,
+    width: item.width,
+    height: item.height,
+  }));
+
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
       <InfiniteCanvas viewport={viewport} onViewportChange={setViewport}>
@@ -104,6 +110,7 @@ function ConnectionLinesDemo() {
               to={toEndpoint(toItem)}
               viewport={viewport}
               color={conn.color}
+              obstacles={obstacles}
             />
           );
         })}
