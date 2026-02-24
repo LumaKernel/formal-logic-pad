@@ -7,11 +7,11 @@
 
 ## 前提条件
 
-| 依存先         | パス                       | 状態      | 必要な理由                            |
-| -------------- | -------------------------- | --------- | ------------------------------------- |
-| Logic Core     | `src/lib/logic-core/`      | ✅ 完了   | Formula/Term AST型定義                |
-| Logic Lang     | `src/lib/logic-lang/`      | ❌ 未着手 | Lexer/Parser/Formatter（US-015〜018） |
-| InfiniteCanvas | `src/lib/infinite-canvas/` | ✅ 完了   | ノード内に配置する際の統合            |
+| 依存先         | パス                       | 状態    | 必要な理由                            |
+| -------------- | -------------------------- | ------- | ------------------------------------- |
+| Logic Core     | `src/lib/logic-core/`      | ✅ 完了 | Formula/Term AST型定義                |
+| Logic Lang     | `src/lib/logic-lang/`      | ✅ 完了 | Lexer/Parser/Formatter（US-015〜018） |
+| InfiniteCanvas | `src/lib/infinite-canvas/` | ✅ 完了 | ノード内に配置する際の統合            |
 
 > **Logic Lang (US-015〜018) の実装が先行して必要。** 入力コンポーネントはLogic Langのparse/formatに依存する。
 > US-015〜018は `tasks/prd-formal-logic-pad.md` フェーズ2Bに定義済み。
@@ -28,7 +28,7 @@
 
 ### フェーズA: レンダリング層（Logic Lang完成後すぐに着手可能）
 
-#### FI-001: Unicode論理式レンダラー
+#### FI-001: Unicode論理式レンダラー [-]
 
 **説明:** 開発者として、Logic CoreのFormula ASTをUnicode文字列で美しく表示するReactコンポーネントがほしい。
 
