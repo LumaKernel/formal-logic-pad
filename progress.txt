@@ -25,6 +25,31 @@
 
 - CanvasItem + FormulaEditor 統合: `onModeChange` コールバック + `dragEnabled` プロパティで編集中ドラッグ無効化を実現
 - FormulaEditor内 `onPointerDown` で `stopPropagation` し、CanvasItem の PointerCapture によるclick干渉を防止
+- `src/lib/proof-pad/` は ProofPad（証明ワークスペース）のUIコンポーネント群。logic-core, formula-input, infinite-canvas を統合
+- EditableProofNode: FormulaEditorを内包した編集可能な証明ノード。proofNodeUI.ts に純粋ロジック（スタイル・ポート定義）を分離
+- FormulaEditorは制御コンポーネントなので、onParsedテストには状態管理ラッパーが必要（useDeferredValueで非同期）
+
+---
+
+## 2026-02-25 - ProofPad 編集可能ノード
+- `src/lib/proof-pad/` モジュールを新規作成
+  - `proofNodeUI.ts`: 証明ノードの純粋ロジック（スタイル、ポート定義、エッジカラー）
+  - `EditableProofNode.tsx`: FormulaEditorを内包した編集可能証明ノードコンポーネント
+  - `EditableProofNode.stories.tsx`: 2ストーリー（Interactive + ReadOnly）
+  - `EditableProofNode.test.tsx`: 16テスト
+  - `proofNodeUI.test.ts`: 13テスト
+  - `index.ts`: パブリックエクスポート
+  - `CLAUDE.md`: モジュールドキュメント
+- 変更ファイル:
+  - 新規: `src/lib/proof-pad/` 全7ファイル
+  - `tasks/prd-inserted-tasks.md` (タスク完了マーク)
+- カバレッジ: 全体 Stmts 92.92% (ベースライン 92.80% → 向上)
+- テスト数: 1517 (前回 1486 → 31件増加)
+- スクリーンショット: `.screenshots/editable-proof-node-iframe-attempt.png`, `.screenshots/editable-proof-node-readonly.png`, `.screenshots/editable-proof-node-editing.png`, `.screenshots/editable-proof-node-display-after-edit.png`
+- **今後のイテレーションへの学び:**
+  - FormulaEditorの表示モードスタイル（白背景ホバー）は色付きノード内では視覚的に浮く。ダークモード/テーマ対応時にFormulaEditorのスタイルをカスタマイズ可能にする検討が必要
+  - FormulaEditorは制御コンポーネントのため、onParsedコールバックのテストには状態管理ラッパー（StateWrapper）が必要。useDeferredValue + useEffect で非同期発火するため waitFor も必要
+  - proof-pad モジュールは logic-core, formula-input, infinite-canvas の統合層。各ライブラリの独立性を維持しつつ、組み合わせパターンを提供
 
 ---
 
