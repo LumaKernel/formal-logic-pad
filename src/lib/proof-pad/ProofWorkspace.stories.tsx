@@ -7,7 +7,7 @@
 
 import { useState, useCallback } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, within } from "storybook/test";
+import { expect, within, userEvent } from "storybook/test";
 import {
   lukasiewiczSystem,
   predicateLogicSystem,
@@ -99,6 +99,13 @@ export const EmptyLukasiewicz: Story = {
       "Łukasiewicz",
     );
     await expect(canvas.getByTestId("infinite-canvas")).toBeInTheDocument();
+    // Axiom palette should be visible with A1, A2, A3
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette-item-A1"),
+    ).toBeInTheDocument();
   },
 };
 
@@ -121,6 +128,32 @@ export const EmptyEqualityLogic: Story = {
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Predicate Logic with Equality",
     );
+  },
+};
+
+/** 公理パレットから公理を追加するインタラクション */
+export const AddAxiomFromPalette: Story = {
+  render: () => <LukasiewiczWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Palette should be visible
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette"),
+    ).toBeInTheDocument();
+
+    // Click A1 to add axiom node
+    const a1Item = canvas.getByTestId("workspace-axiom-palette-item-A1");
+    await userEvent.click(a1Item);
+
+    // Node should appear on canvas
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+
+    // Click A2 to add another axiom node
+    const a2Item = canvas.getByTestId("workspace-axiom-palette-item-A2");
+    await userEvent.click(a2Item);
+
+    // Second node should also appear
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
   },
 };
 

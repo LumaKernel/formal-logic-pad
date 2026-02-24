@@ -162,6 +162,107 @@ describe("ProofWorkspace", () => {
     });
   });
 
+  describe("axiom palette", () => {
+    it("renders axiom palette with available axioms for Łukasiewicz", () => {
+      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
+      expect(screen.getByTestId("workspace-axiom-palette")).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-axiom-palette-item-A1"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-axiom-palette-item-A2"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-axiom-palette-item-A3"),
+      ).toBeInTheDocument();
+    });
+
+    it("renders axiom palette for predicate logic (includes A4, A5)", () => {
+      render(
+        <ProofWorkspace system={predicateLogicSystem} testId="workspace" />,
+      );
+      expect(
+        screen.getByTestId("workspace-axiom-palette-item-A4"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-axiom-palette-item-A5"),
+      ).toBeInTheDocument();
+    });
+
+    it("adds axiom node when palette item is clicked (external state)", async () => {
+      const user = userEvent.setup();
+      const onWorkspaceChange = vi.fn();
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          onWorkspaceChange={onWorkspaceChange}
+          testId="workspace"
+        />,
+      );
+
+      await user.click(screen.getByTestId("workspace-axiom-palette-item-A1"));
+      expect(onWorkspaceChange).toHaveBeenCalledTimes(1);
+      const newState = onWorkspaceChange.mock.calls[0][0] as WorkspaceState;
+      expect(newState.nodes).toHaveLength(1);
+      expect(newState.nodes[0].kind).toBe("axiom");
+      expect(newState.nodes[0].label).toBe("A1 (K)");
+      expect(newState.nodes[0].formulaText).toBe("phi -> (psi -> phi)");
+    });
+
+    it("adds axiom node when palette item is clicked (internal state)", async () => {
+      const user = userEvent.setup();
+
+      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
+
+      // No nodes initially
+      expect(screen.queryByTestId("proof-node-node-1")).not.toBeInTheDocument();
+
+      // Click A1 to add
+      await user.click(screen.getByTestId("workspace-axiom-palette-item-A1"));
+
+      // Node should appear
+      await waitFor(() => {
+        expect(screen.getByTestId("proof-node-node-1")).toBeInTheDocument();
+      });
+    });
+
+    it("adds multiple axiom nodes with distinct ids", async () => {
+      const user = userEvent.setup();
+
+      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
+
+      await user.click(screen.getByTestId("workspace-axiom-palette-item-A1"));
+      await user.click(screen.getByTestId("workspace-axiom-palette-item-A2"));
+
+      await waitFor(() => {
+        expect(screen.getByTestId("proof-node-node-1")).toBeInTheDocument();
+        expect(screen.getByTestId("proof-node-node-2")).toBeInTheDocument();
+      });
+    });
+
+    it("sets correct dslText for equality axioms", async () => {
+      const user = userEvent.setup();
+      const onWorkspaceChange = vi.fn();
+      const ws = createEmptyWorkspace(equalityLogicSystem);
+
+      render(
+        <ProofWorkspace
+          system={equalityLogicSystem}
+          workspace={ws}
+          onWorkspaceChange={onWorkspaceChange}
+          testId="workspace"
+        />,
+      );
+
+      await user.click(screen.getByTestId("workspace-axiom-palette-item-E1"));
+      const newState = onWorkspaceChange.mock.calls[0][0] as WorkspaceState;
+      expect(newState.nodes[0].formulaText).toBe("all x. x = x");
+    });
+  });
+
   describe("node interaction callbacks", () => {
     it("updates formula text when user types in a node", async () => {
       const user = userEvent.setup();

@@ -2,9 +2,9 @@
  * 証明ワークスペースコンポーネント。
  *
  * InfiniteCanvas上に証明ノードを配置し、接続線で結ぶ証明構築画面。
- * 論理体系（LogicSystem）を設定でき、空のノートとして表示できる。
+ * 論理体系（LogicSystem）を設定でき、公理パレットから公理をキャンバスに追加できる。
  *
- * 変更時は ProofWorkspace.test.tsx, ProofWorkspace.stories.tsx, proofWorkspace.ts, index.ts も同期すること。
+ * 変更時は ProofWorkspace.test.tsx, ProofWorkspace.stories.tsx, workspaceState.ts, index.ts も同期すること。
  */
 
 import { useCallback, useMemo, useState } from "react";
@@ -18,9 +18,12 @@ import { findPort } from "../infinite-canvas/connector";
 import type { ViewportState, Point, Size } from "../infinite-canvas/types";
 import { EditableProofNode } from "./EditableProofNode";
 import { getProofNodePorts, getProofEdgeColor } from "./proofNodeUI";
+import { AxiomPalette } from "./AxiomPalette";
+import { getAvailableAxioms, type AxiomPaletteItem } from "./axiomPaletteLogic";
 import type { WorkspaceState, WorkspaceNode } from "./workspaceState";
 import {
   createEmptyWorkspace,
+  addNode,
   updateNodePosition,
   updateNodeFormulaText,
   findNode,
@@ -92,9 +95,7 @@ export function ProofWorkspace({
       if (onWorkspaceChange) {
         onWorkspaceChange(ws);
       } else {
-        /* v8 ignore start -- 内部状態更新: ノード追加UIが未実装のため現在到達不可 */
         setInternalWorkspace(ws);
-        /* v8 ignore stop */
       }
     },
     [onWorkspaceChange],
@@ -115,6 +116,34 @@ export function ProofWorkspace({
   // ドラッグ中の編集モード管理
   const [editingNodeIds, setEditingNodeIds] = useState<ReadonlySet<string>>(
     () => new Set(),
+  );
+
+  // --- 公理パレット ---
+
+  const availableAxioms = useMemo(
+    () => getAvailableAxioms(workspace.system),
+    [workspace.system],
+  );
+
+  /** 新しいノードの配置位置を計算する（ビューポート中心付近にオフセット配置） */
+  const computeNewNodePosition = useCallback(
+    (existingNodes: readonly WorkspaceNode[]): Point => {
+      const baseX = -viewport.offsetX / viewport.scale + 100;
+      const baseY = -viewport.offsetY / viewport.scale + 100;
+      const offset = existingNodes.length * 30;
+      return { x: baseX + offset, y: baseY + offset };
+    },
+    [viewport],
+  );
+
+  const handleAddAxiom = useCallback(
+    (axiom: AxiomPaletteItem) => {
+      const position = computeNewNodePosition(workspace.nodes);
+      setWorkspace(
+        addNode(workspace, "axiom", axiom.displayName, position, axiom.dslText),
+      );
+    },
+    [workspace, setWorkspace, computeNewNodePosition],
   );
 
   // --- コールバック ---
@@ -280,6 +309,13 @@ export function ProofWorkspace({
           {workspace.system.name}
         </span>
       </div>
+
+      {/* 公理パレット */}
+      <AxiomPalette
+        axioms={availableAxioms}
+        onAddAxiom={handleAddAxiom}
+        testId={testId ? `${testId satisfies string}-axiom-palette` : undefined}
+      />
 
       {/* InfiniteCanvas */}
       <InfiniteCanvas viewport={viewport} onViewportChange={setViewport}>

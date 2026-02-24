@@ -1,5 +1,9 @@
 export { EditableProofNode } from "./EditableProofNode";
 export type { EditableProofNodeProps } from "./EditableProofNode";
+export { AxiomPalette } from "./AxiomPalette";
+export type { AxiomPaletteProps } from "./AxiomPalette";
+export { getAvailableAxioms } from "./axiomPaletteLogic";
+export type { AxiomPaletteItem } from "./axiomPaletteLogic";
 export { ProofWorkspace } from "./ProofWorkspace";
 export type { ProofWorkspaceProps } from "./ProofWorkspace";
 export {
