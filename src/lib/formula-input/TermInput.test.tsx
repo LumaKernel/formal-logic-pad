@@ -325,4 +325,36 @@ describe("TermInput", () => {
       expect(screen.getByTestId("ti-term")).toHaveTextContent("τ");
     });
   });
+
+  describe("補完機能", () => {
+    it("補完候補を選択すると onChange が呼ばれる", async () => {
+      const onChange = vi.fn();
+      const { rerender } = render(
+        <TermInput value="" onChange={onChange} testId="ti" />,
+      );
+      // input要素のselectionStartを設定してから変更イベントを発火
+      const input = screen.getByTestId("ti-input") as HTMLInputElement;
+      // 値を設定してからselectionStartを正しく設定
+      Object.defineProperty(input, "selectionStart", { value: 2, writable: true });
+      fireEvent.change(input, {
+        target: { value: "ph", selectionStart: 2 },
+      });
+      // 制御コンポーネントなので、valueをrerenderで反映
+      rerender(
+        <TermInput value="ph" onChange={onChange} testId="ti" />,
+      );
+      // 補完ポップアップが表示されるのを待つ
+      await waitFor(() => {
+        expect(screen.queryByTestId("ti-completion")).toBeInTheDocument();
+      });
+      // 最初の候補をクリック
+      const popup = screen.getByTestId("ti-completion");
+      const candidateItems = popup.querySelectorAll("[role='option']");
+      expect(candidateItems.length).toBeGreaterThan(0);
+      fireEvent.mouseDown(candidateItems[0]!);
+      // onChange が追加で呼ばれることを確認（completion selectによる）
+      const callCount = onChange.mock.calls.length;
+      expect(callCount).toBeGreaterThanOrEqual(2);
+    });
+  });
 });

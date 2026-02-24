@@ -694,6 +694,19 @@ describe("Parser", () => {
       expect(errors[0]!.message).toContain("expected end of input");
     });
 
+    it("trailing LPAREN after valid formula", () => {
+      // "φ (" → φ はパース成功するが、( が残る
+      const errors = parseErr("φ (");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors[0]!.message).toContain("(");
+    });
+
+    it("comma at start is unexpected", () => {
+      const errors = parseErr(",");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors[0]!.message).toContain(",");
+    });
+
     it("meta variable with complex term without equals", () => {
       // "τ + σ" → 項はパースされるが等号がないのでエラー
       const errors = parseErr("τ + σ");
@@ -811,7 +824,9 @@ describe("parseTermString", () => {
     it("ネストした関数をパースする", () => {
       assertTermParses(
         "f(g(x))",
-        functionApplication("f", [functionApplication("g", [termVariable("x")])]),
+        functionApplication("f", [
+          functionApplication("g", [termVariable("x")]),
+        ]),
       );
     });
   });
@@ -888,6 +903,47 @@ describe("parseTermString", () => {
 
     it("レキサーエラーを返す", () => {
       const result = parseTermString("x # y");
+      expect(result.ok).toBe(false);
+    });
+
+    it("閉じ括弧なしでエラーを返す", () => {
+      const result = parseTermString("(x");
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.errors.length).toBeGreaterThan(0);
+      }
+    });
+
+    it("関数の閉じ括弧なしでエラーを返す", () => {
+      const result = parseTermString("f(x");
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.errors.length).toBeGreaterThan(0);
+      }
+    });
+
+    it("コンマ後の不完全な引数でエラーを返す", () => {
+      const result = parseTermString("f(x,)");
+      expect(result.ok).toBe(false);
+    });
+
+    it("余分な閉じ括弧でエラーを返す", () => {
+      const result = parseTermString("x)");
+      expect(result.ok).toBe(false);
+    });
+
+    it("二項演算の後に論理演算子が来るとエラーを返す", () => {
+      const result = parseTermString("x + →");
+      expect(result.ok).toBe(false);
+    });
+
+    it("ドットが項の位置に来るとエラーを返す", () => {
+      const result = parseTermString(".");
+      expect(result.ok).toBe(false);
+    });
+
+    it("カンマが項の位置に来るとエラーを返す", () => {
+      const result = parseTermString(",");
       expect(result.ok).toBe(false);
     });
   });

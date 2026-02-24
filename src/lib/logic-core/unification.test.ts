@@ -365,6 +365,18 @@ describe("unifyFormulas", () => {
       const error = expectError(result);
       expect(error.error._tag).toBe("OccursCheck");
     });
+
+    it("量化子内のoccurs check: φ = ∀x.φ", () => {
+      const result = unifyFormulas(phi, universal(x, phi));
+      const error = expectError(result);
+      expect(error.error._tag).toBe("OccursCheck");
+    });
+
+    it("存在量化子内のoccurs check: φ = ∃x.φ", () => {
+      const result = unifyFormulas(phi, existential(x, phi));
+      const error = expectError(result);
+      expect(error.error._tag).toBe("OccursCheck");
+    });
   });
 
   describe("構造不一致", () => {
@@ -529,6 +541,34 @@ describe("unifyFormulas", () => {
       expect(
         equalTerm(ok.termSubstitution.get(termMetaVariableKey(tau))!, y),
       ).toBe(true);
+    });
+
+    it("論理式メタ変数Eliminateの際に残存する項方程式がスキップされる", () => {
+      // P(τ) ∧ φ = P(x) ∧ Q(y)
+      // Decompose Conjunction → [P(τ)=P(x), φ=Q(y)]
+      // Decompose Predicate P(τ)=P(x) → [φ=Q(y), τ=x]
+      // Eliminate φ → applyFormulaSubstToEquations on [τ=x] → 項方程式なのでそのまま返す (line 166)
+      const source = conjunction(predicate("P", [tau]), phi);
+      const target = conjunction(predicate("P", [x]), predicate("Q", [y]));
+      const result = unifyFormulas(source, target);
+      verifyFormulaUnification(result, source, target);
+    });
+
+    it("項メタ変数Eliminateの際に残存する論理式方程式に代入が適用される", () => {
+      // P(τ) → (φ → ψ) = P(x) → (Q(y) → R(z))
+      // 処理順:
+      //   Decompose Implication → [P(τ)=P(x), (φ→ψ)=(Q(y)→R(z))]
+      //   Decompose Predicate  → [(φ→ψ)=(Q(y)→R(z)), τ=x]
+      //   Decompose Implication → [τ=x, φ=Q(y), ψ=R(z)]
+      //   Eliminate τ → applyTermSubstToEquations on [φ=Q(y), ψ=R(z)] → 論理式方程式に適用 (line 181)
+      const z = termVariable("z");
+      const source = implication(predicate("P", [tau]), implication(phi, psi));
+      const target = implication(
+        predicate("P", [x]),
+        implication(predicate("Q", [y]), predicate("R", [z])),
+      );
+      const result = unifyFormulas(source, target);
+      verifyFormulaUnification(result, source, target);
     });
   });
 });

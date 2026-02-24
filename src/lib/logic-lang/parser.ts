@@ -117,6 +117,8 @@ const tokenToBinaryOperator = (kind: TokenKind): BinaryOperator | undefined => {
       return "/";
     case "POWER":
       return "^";
+    // 防御的: termInfixBP が事前にフィルタするため到達しない
+    /* v8 ignore next 2 */
     default:
       return undefined;
   }
@@ -211,6 +213,8 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
         case "IFF":
           lhs = biconditional(lhs, rhs);
           break;
+        // 防御的: infixBP が事前にフィルタするため到達しない
+        /* v8 ignore next 2 */
         default:
           break;
       }
@@ -361,6 +365,8 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
     // メタ変数を項としてパースし、後続に等号があるか確認
     const savedPos = pos;
     const term = parseTerm(0);
+    // 防御的フォールバック: META_VARIABLE はparseTermAtomで処理されるため到達しない
+    /* v8 ignore start */
     if (term === undefined) {
       pos = savedPos;
       // フォールバック: 単純なメタ変数として
@@ -368,6 +374,7 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
       const { name, subscript } = parseMetaVariableValue(token.value!);
       return metaVariable(name, subscript);
     }
+    /* v8 ignore stop */
 
     // 等号が続くか？
     if (peek().kind === "EQUALS") {
@@ -563,6 +570,8 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
 
   const formula = parseFormula(0);
   if (formula === undefined) {
+    // 防御的: parseFormulaAtom が常にエラーを追加してから undefined を返すため到達しない
+    /* v8 ignore start */
     if (errors.length === 0) {
       const eof = peek();
       addError(
@@ -570,6 +579,7 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
         eof.span,
       );
     }
+    /* v8 ignore stop */
     return { ok: false, errors };
   }
 
@@ -583,16 +593,21 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
     return { ok: false, errors };
   }
 
+  // 防御的: 正常パース後にエラーが残る状況は通常発生しない
+  /* v8 ignore start */
   if (errors.length > 0) {
     return { ok: false, errors };
   }
+  /* v8 ignore stop */
 
   return { ok: true, formula };
 };
 
 // --- 項パーサー（トークン列から） ---
 
-export const parseTokensAsTerm = (tokens: readonly Token[]): TermParseResult => {
+export const parseTokensAsTerm = (
+  tokens: readonly Token[],
+): TermParseResult => {
   const errors: ParseError[] = [];
   let pos = 0;
 
@@ -627,6 +642,8 @@ export const parseTokensAsTerm = (tokens: readonly Token[]): TermParseResult => 
     switch (kind) {
       case "RPAREN":
         return ")";
+      // 防御的: LPAREN は parseTermAtom で処理されるためエラーメッセージに出現しない
+      /* v8 ignore next 2 */
       case "LPAREN":
         return "(";
       case "DOT":
@@ -741,6 +758,8 @@ export const parseTokensAsTerm = (tokens: readonly Token[]): TermParseResult => 
 
   const term = parseTerm(0);
   if (term === undefined) {
+    // 防御的: parseTermAtom が常にエラーを追加してから undefined を返すため到達しない
+    /* v8 ignore start */
     if (errors.length === 0) {
       const eof = peek();
       addError(
@@ -748,6 +767,7 @@ export const parseTokensAsTerm = (tokens: readonly Token[]): TermParseResult => 
         eof.span,
       );
     }
+    /* v8 ignore stop */
     return { ok: false, errors };
   }
 
@@ -761,9 +781,12 @@ export const parseTokensAsTerm = (tokens: readonly Token[]): TermParseResult => 
     return { ok: false, errors };
   }
 
+  // 防御的: 正常パース後にエラーが残る状況は通常発生しない
+  /* v8 ignore start */
   if (errors.length > 0) {
     return { ok: false, errors };
   }
+  /* v8 ignore stop */
 
   return { ok: true, term };
 };

@@ -6,6 +6,7 @@ import {
   matchAxiomA4,
   matchAxiomA5,
   matchEqualityAxiom,
+  matchFormulaPattern,
   applySubstitution,
   identifyAxiom,
   axiomA1Template,
@@ -315,6 +316,31 @@ describe("matchAxiomA4", () => {
     const result = matchAxiomA4(instance);
     expect(result._tag).toBe("Ok");
   });
+
+  it("should match when body contains inner quantifier shadowing the bound variable: ∀x.(P(x) ∧ ∀x.Q(x)) → (P(a) ∧ ∀x.Q(x))", () => {
+    // Inner ∀x.Q(x) shadows outer x, so it should remain unchanged
+    const qx = predicate("Q", [x]);
+    const px = predicate("P", [x]);
+    const pa = predicate("P", [a]);
+    const instance = implication(
+      universal(x, conjunction(px, universal(x, qx))),
+      conjunction(pa, universal(x, qx)),
+    );
+    const result = matchAxiomA4(instance);
+    expect(result._tag).toBe("Ok");
+  });
+
+  it("should match with existential shadowing: ∀x.(P(x) ∧ ∃x.Q(x)) → (P(a) ∧ ∃x.Q(x))", () => {
+    const qx = predicate("Q", [x]);
+    const px = predicate("P", [x]);
+    const pa = predicate("P", [a]);
+    const instance = implication(
+      universal(x, conjunction(px, existential(x, qx))),
+      conjunction(pa, existential(x, qx)),
+    );
+    const result = matchAxiomA4(instance);
+    expect(result._tag).toBe("Ok");
+  });
 });
 
 // ── A5: 全称と含意の分配 ──────────────────────────────────
@@ -588,6 +614,23 @@ describe("identifyAxiom", () => {
 
   it("should return Error for non-axiom formula", () => {
     const result = identifyAxiom(implication(phi, phi), lukasiewiczSystem);
+    expect(result._tag).toBe("Error");
+  });
+
+  it("should skip propositional axioms not in system", () => {
+    // System with no propositional axioms but predicate logic
+    const minimalSystem: import("./inferenceRule").LogicSystem = {
+      name: "minimal",
+      propositionalAxioms: new Set(),
+      predicateLogic: true,
+      equalityLogic: false,
+      generalization: false,
+    };
+    // An A1 instance should not be identified
+    const pa = predicate("P", [a]);
+    const qa = predicate("Q", [a]);
+    const a1Instance = implication(pa, implication(qa, pa));
+    const result = identifyAxiom(a1Instance, minimalSystem);
     expect(result._tag).toBe("Error");
   });
 });
@@ -1027,5 +1070,164 @@ describe("edge cases", () => {
     );
     const result = matchAxiomA4(instance);
     expect(result._tag).toBe("Error");
+  });
+
+  it("A4 with function application vs non-function in target", () => {
+    // ∀x.P(f(x)) → P(a) — body has f(x) at position, target has constant a
+    const fx = functionApplication("f", [x]);
+    const instance = implication(
+      universal(x, predicate("P", [fx])),
+      predicate("P", [a]),
+    );
+    const result = matchAxiomA4(instance);
+    // f(x) with x->a would give f(a), but target position has just a (not f(a))
+    expect(result._tag).toBe("Error");
+  });
+
+  it("A4 with function application in body and matching target (covers inferTermReplacement matchTerm)", () => {
+    // ∀x.P(f(x), x) → P(f(a), a) — body has f(x) and x, target has f(a) and a
+    const fx = functionApplication("f", [x]);
+    const fa = functionApplication("f", [a]);
+    const instance = implication(
+      universal(x, predicate("P", [fx, x])),
+      predicate("P", [fa, a]),
+    );
+    const result = matchAxiomA4(instance);
+    expect(result._tag).toBe("Ok");
+  });
+});
+
+// ── matchFormulaPattern (直接テスト) ─────────────────────────
+
+describe("matchFormulaPattern", () => {
+  describe("TermMetaVariable in template", () => {
+    it("should bind TermMetaVariable to candidate term", () => {
+      // Template: P(τ), Candidate: P(a)
+      const tau = termMetaVariable("τ");
+      const template = predicate("P", [tau]);
+      const candidate = predicate("P", [a]);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).not.toBeUndefined();
+      if (result) {
+        expect(result.termSub.size).toBe(1);
+      }
+    });
+
+    it("should check consistency of TermMetaVariable bindings", () => {
+      // Template: P(τ, τ), Candidate: P(a, b) — inconsistent
+      const tau = termMetaVariable("τ");
+      const b = constant("b");
+      const template = predicate("P", [tau, tau]);
+      const candidate = predicate("P", [a, b]);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).toBeUndefined();
+    });
+
+    it("should accept consistent TermMetaVariable bindings", () => {
+      // Template: P(τ, τ), Candidate: P(a, a) — consistent
+      const tau = termMetaVariable("τ");
+      const template = predicate("P", [tau, tau]);
+      const candidate = predicate("P", [a, a]);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).not.toBeUndefined();
+    });
+  });
+
+  describe("Constant in template term", () => {
+    it("should match identical constants", () => {
+      // Template: P(0), Candidate: P(0)
+      const zero = constant("0");
+      const template = predicate("P", [zero]);
+      const candidate = predicate("P", [zero]);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).not.toBeUndefined();
+    });
+
+    it("should reject different constants", () => {
+      // Template: P(0), Candidate: P(1)
+      const zero = constant("0");
+      const one = constant("1");
+      const template = predicate("P", [zero]);
+      const candidate = predicate("P", [one]);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe("FunctionApplication in template term", () => {
+    it("should match identical function applications", () => {
+      // Template: P(f(x)), Candidate: P(f(x))
+      const fx = functionApplication("f", [x]);
+      const template = predicate("P", [fx]);
+      const candidate = predicate("P", [fx]);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).not.toBeUndefined();
+    });
+
+    it("should reject different function names", () => {
+      // Template: P(f(x)), Candidate: P(g(x))
+      const fx = functionApplication("f", [x]);
+      const gx = functionApplication("g", [x]);
+      const template = predicate("P", [fx]);
+      const candidate = predicate("P", [gx]);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).toBeUndefined();
+    });
+
+    it("should reject different arities", () => {
+      // Template: P(f(x, y)), Candidate: P(f(x))
+      const fxy = functionApplication("f", [x, y]);
+      const fx = functionApplication("f", [x]);
+      const template = predicate("P", [fxy]);
+      const candidate = predicate("P", [fx]);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe("Predicate mismatch", () => {
+    it("should reject different predicate names", () => {
+      // Template: P(x), Candidate: Q(x)
+      const template = predicate("P", [x]);
+      const candidate = predicate("Q", [x]);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).toBeUndefined();
+    });
+
+    it("should reject different predicate arities", () => {
+      // Template: P(x, y), Candidate: P(x)
+      const template = predicate("P", [x, y]);
+      const candidate = predicate("P", [x]);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe("Term tag mismatch", () => {
+    it("should reject when template has TermVariable but candidate has Constant", () => {
+      // Template: P(x), Candidate: P(0)  — x is TermVariable not TermMetaVariable
+      const template = predicate("P", [x]);
+      const candidate = predicate("P", [constant("0")]);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe("BinaryOperation in template term", () => {
+    it("should match identical binary operations", () => {
+      // Template: x + y = z, Candidate: x + y = z
+      const template = equality(binaryOperation("+", x, y), z);
+      const candidate = equality(binaryOperation("+", x, y), z);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).not.toBeUndefined();
+    });
+
+    it("should reject different operators", () => {
+      // Template: x + y = z, Candidate: x * y = z
+      const template = equality(binaryOperation("+", x, y), z);
+      const candidate = equality(binaryOperation("*", x, y), z);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).toBeUndefined();
+    });
   });
 });

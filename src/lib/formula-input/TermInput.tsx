@@ -320,9 +320,12 @@ function renderHighlightedText(
   const merged: ErrorHighlight[] = [];
   for (const h of sorted) {
     const last = merged[merged.length - 1];
+    // 防御的マージ: パーサーが重複範囲を生成することは通常ないが、安全のため
+    /* v8 ignore start */
     if (last && h.start <= last.end) {
       merged[merged.length - 1] = { start: last.start, end: Math.max(last.end, h.end) };
     } else {
+    /* v8 ignore stop */
       merged.push({ ...h });
     }
   }

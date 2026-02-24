@@ -236,4 +236,49 @@ describe("allVariableNamesInFormula", () => {
       allVariableNamesInFormula(equality(termVariable("x"), termVariable("y"))),
     ).toEqual(new Set(["x", "y"]));
   });
+
+  test("Implication collects variables from both sides", () => {
+    const f = implication(
+      predicate("P", [termVariable("x")]),
+      predicate("Q", [termVariable("y")]),
+    );
+    expect(allVariableNamesInFormula(f)).toEqual(new Set(["x", "y"]));
+  });
+
+  test("Conjunction collects variables from both sides", () => {
+    const f = conjunction(
+      predicate("P", [termVariable("a")]),
+      predicate("Q", [termVariable("b")]),
+    );
+    expect(allVariableNamesInFormula(f)).toEqual(new Set(["a", "b"]));
+  });
+
+  test("Disjunction collects variables from both sides", () => {
+    const f = disjunction(
+      predicate("P", [termVariable("x")]),
+      predicate("Q", [termVariable("y")]),
+    );
+    expect(allVariableNamesInFormula(f)).toEqual(new Set(["x", "y"]));
+  });
+
+  test("Biconditional collects variables from both sides", () => {
+    const f = biconditional(
+      predicate("P", [termVariable("x")]),
+      predicate("Q", [termVariable("y")]),
+    );
+    expect(allVariableNamesInFormula(f)).toEqual(new Set(["x", "y"]));
+  });
+
+  test("Existential collects bound variable as well", () => {
+    const f = existential(
+      termVariable("x"),
+      predicate("P", [termVariable("x"), termVariable("y")]),
+    );
+    expect(allVariableNamesInFormula(f)).toEqual(new Set(["x", "y"]));
+  });
+
+  test("Predicate with function application", () => {
+    const f = predicate("P", [functionApplication("f", [termVariable("x")])]);
+    expect(allVariableNamesInFormula(f)).toEqual(new Set(["x"]));
+  });
 });

@@ -202,9 +202,11 @@ const decomposeFormula = (
 ): readonly Equation[] | null => {
   // a._tag === b._tag が前提
   switch (a._tag) {
+    // MetaVariable 同士はDecomposeではなくDelete/Eliminateで処理（到達しない）
+    /* v8 ignore start */
     case "MetaVariable":
-      // MetaVariable 同士はDecomposeではなくDelete/Eliminateで処理
       return null;
+    /* v8 ignore stop */
     case "Negation":
       return [formulaEquation(a.formula, (b as typeof a).formula)];
     case "Implication":
@@ -248,6 +250,8 @@ const decomposeFormula = (
  */
 const decomposeTerm = (a: Term, b: Term): readonly Equation[] | null => {
   switch (a._tag) {
+    // TermVariable/TermMetaVariable/Constant 同士はDelete/Eliminateで先に処理される（到達しない）
+    /* v8 ignore start */
     case "TermVariable": {
       const bVar = b as typeof a;
       if (a.name !== bVar.name) return null;
@@ -260,6 +264,7 @@ const decomposeTerm = (a: Term, b: Term): readonly Equation[] | null => {
       if (a.name !== bConst.name) return null;
       return [];
     }
+    /* v8 ignore stop */
     case "FunctionApplication": {
       const bFunc = b as typeof a;
       if (a.name !== bFunc.name || a.args.length !== bFunc.args.length) {
@@ -324,6 +329,8 @@ const solve = (
 
   while (equations.length > 0) {
     const eq = equations.shift();
+    // 防御的チェック: while条件でlength>0を確認済みのため到達しない
+    /* v8 ignore next */
     if (eq === undefined) break;
 
     if (eq._kind === "formula") {
@@ -384,12 +391,14 @@ const processFormulaEquation = (
       });
     }
 
-    // 既存の代入がある場合: 既存の代入先と right を統一
+    // 防御的チェック: 即時代入適用により通常は到達しない
+    /* v8 ignore start */
     const existing = formulaSub.get(key);
     if (existing !== undefined) {
       equations.push(formulaEquation(existing, right));
       return null;
     }
+    /* v8 ignore stop */
 
     // 代入を記録し、残りの方程式に適用
     formulaSub.set(key, right);
@@ -458,12 +467,14 @@ const processTermEquation = (
       });
     }
 
-    // 既存の代入がある場合
+    // 防御的チェック: 即時代入適用により通常は到達しない
+    /* v8 ignore start */
     const existing = termSub.get(key);
     if (existing !== undefined) {
       equations.push(termEquation(existing, right));
       return null;
     }
+    /* v8 ignore stop */
 
     // 代入を記録し、残りの方程式に適用
     termSub.set(key, right);

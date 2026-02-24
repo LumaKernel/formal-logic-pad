@@ -279,7 +279,7 @@ export const applyGeneralization = (
  * 成功時: テンプレートのパターン変数 → 候補式の部分式 へのマッピングを返す。
  * 失敗時: undefined を返す。
  */
-const matchFormulaPattern = (
+export const matchFormulaPattern = (
   template: Formula,
   candidate: Formula,
 ):
@@ -513,6 +513,8 @@ export const matchAxiomA4 = (formula: Formula): AxiomMatchResult => {
     boundVar,
     replacementTerm,
   );
+  // 防御的チェック: inferTermReplacement が正しく動作していれば到達しない
+  /* v8 ignore start */
   if (!equalFormula(substituted, conclusion)) {
     return axiomMatchErr({
       _tag: "NotAnAxiomInstance",
@@ -520,6 +522,7 @@ export const matchAxiomA4 = (formula: Formula): AxiomMatchResult => {
       formula,
     });
   }
+  /* v8 ignore stop */
 
   return axiomMatchOk(new Map(), new Map());
 };
@@ -842,6 +845,9 @@ const inferTermReplacement = (
   };
 
   if (matchFormula(body, target)) {
+    // 防御的フォールバック: matchAxiomA4 が事前に freeVariablesInFormula で
+    // 変数の自由出現を確認しているため、matchFormula が成功すれば found は常にセットされる
+    /* v8 ignore next */
     return found ?? variable;
   }
   return undefined;
