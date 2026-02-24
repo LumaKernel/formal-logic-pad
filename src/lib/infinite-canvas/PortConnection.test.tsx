@@ -190,4 +190,71 @@ describe("PortConnection", () => {
     hitArea.dispatchEvent(pointerEvent);
     expect(pointerEvent.stopPropagation).toHaveBeenCalled();
   });
+
+  it("does not render label when label prop is not provided", () => {
+    render(<PortConnection from={fromPort} to={toPort} viewport={viewport} />);
+    expect(
+      screen.queryByTestId("port-connection-label"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders label at the midpoint of the connection", () => {
+    render(
+      <PortConnection
+        from={fromPort}
+        to={toPort}
+        viewport={viewport}
+        label={<span>MP</span>}
+      />,
+    );
+    const label = screen.getByTestId("port-connection-label");
+    expect(label).toBeInTheDocument();
+    expect(label.textContent).toBe("MP");
+  });
+
+  it("label has absolute positioning and centering transform", () => {
+    render(
+      <PortConnection
+        from={fromPort}
+        to={toPort}
+        viewport={viewport}
+        label={<span>Test</span>}
+      />,
+    );
+    const label = screen.getByTestId("port-connection-label");
+    expect(label.style.position).toBe("absolute");
+    expect(label.style.transform).toBe("translate(-50%, -50%)");
+  });
+
+  it("label has pointer-events auto for interaction", () => {
+    render(
+      <PortConnection
+        from={fromPort}
+        to={toPort}
+        viewport={viewport}
+        label={<span>Test</span>}
+      />,
+    );
+    const label = screen.getByTestId("port-connection-label");
+    expect(label.style.pointerEvents).toBe("auto");
+  });
+
+  it("renders complex label content (parameter panel)", () => {
+    render(
+      <PortConnection
+        from={fromPort}
+        to={toPort}
+        viewport={viewport}
+        label={
+          <div data-testid="param-panel">
+            <span>σ = [φ/ψ]</span>
+            <button>Edit</button>
+          </div>
+        }
+      />,
+    );
+    expect(screen.getByTestId("param-panel")).toBeInTheDocument();
+    expect(screen.getByText("σ = [φ/ψ]")).toBeInTheDocument();
+    expect(screen.getByText("Edit")).toBeInTheDocument();
+  });
 });

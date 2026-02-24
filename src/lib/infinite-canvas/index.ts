@@ -36,9 +36,15 @@ export {
   computeConnectionPath,
   computeEdgePoint,
   computePortConnectionPath,
+  cubicBezierPoint,
   endpointCenter,
 } from "./connectionPath";
 export type { ConnectionEndpoint, ConnectionPathData } from "./connectionPath";
+export {
+  computeConnectionLabelPlacement,
+  computeLabelScreenPosition,
+} from "./connectionLabel";
+export type { ConnectionLabelPlacement } from "./connectionLabel";
 export { InfiniteCanvas } from "./InfiniteCanvas";
 export type { InfiniteCanvasProps } from "./InfiniteCanvas";
 export { worldToScreen } from "./coordinate";

@@ -1,8 +1,13 @@
+import type { ReactNode } from "react";
 import {
   computeSmartConnectionPath,
   type ConnectionEndpoint,
   type Obstacle,
 } from "./connectionPath";
+import {
+  computeConnectionLabelPlacement,
+  computeLabelScreenPosition,
+} from "./connectionLabel";
 import type { ViewportState } from "./types";
 
 export interface ConnectionProps {
@@ -21,6 +26,10 @@ export interface ConnectionProps {
   /** Callback when the connection line is clicked.
    *  Receives screen coordinates (clientX, clientY). */
   readonly onClick?: (screenX: number, screenY: number) => void;
+  /** Content to render at the midpoint of the connection line */
+  readonly label?: ReactNode;
+  /** Vertical offset for the label from the line midpoint (default: -20) */
+  readonly labelOffsetY?: number;
 }
 
 /** Width of the invisible hit area for click detection on connections. */
@@ -40,59 +49,84 @@ export function Connection({
   strokeWidth = 2,
   obstacles = [],
   onClick,
+  label,
+  labelOffsetY = -20,
 }: ConnectionProps) {
   const path = computeSmartConnectionPath(from, to, viewport, obstacles);
   const clickable = onClick !== undefined;
+  const hasLabel = label !== undefined;
+
+  const labelPos = hasLabel
+    ? computeLabelScreenPosition(
+        computeConnectionLabelPlacement(path.midpoint, labelOffsetY),
+      )
+    : undefined;
 
   return (
-    <svg
-      data-testid="connection"
-      style={{
-        position: "absolute",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        pointerEvents: "none",
-        overflow: "visible",
-      }}
-    >
-      {/* Background stroke for visibility behind items */}
-      <path
-        d={path.d}
-        fill="none"
-        stroke="white"
-        strokeWidth={strokeWidth + 2}
-        strokeDasharray="8 4"
-        opacity={0.6}
-      />
-      {/* Main stroke */}
-      <path
-        data-testid="connection-path"
-        d={path.d}
-        fill="none"
-        stroke={color}
-        strokeWidth={strokeWidth}
-        strokeDasharray="8 4"
-        opacity={0.8}
-      />
-      {/* Invisible hit area for click detection */}
-      {clickable && (
+    <>
+      <svg
+        data-testid="connection"
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
+          overflow: "visible",
+        }}
+      >
+        {/* Background stroke for visibility behind items */}
         <path
-          data-testid="connection-hit-area"
           d={path.d}
           fill="none"
-          stroke="transparent"
-          strokeWidth={HIT_AREA_WIDTH}
-          style={{ pointerEvents: "stroke", cursor: "pointer" }}
-          onPointerDown={(e) => {
-            e.stopPropagation();
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            onClick(e.clientX, e.clientY);
-          }}
+          stroke="white"
+          strokeWidth={strokeWidth + 2}
+          strokeDasharray="8 4"
+          opacity={0.6}
         />
+        {/* Main stroke */}
+        <path
+          data-testid="connection-path"
+          d={path.d}
+          fill="none"
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeDasharray="8 4"
+          opacity={0.8}
+        />
+        {/* Invisible hit area for click detection */}
+        {clickable && (
+          <path
+            data-testid="connection-hit-area"
+            d={path.d}
+            fill="none"
+            stroke="transparent"
+            strokeWidth={HIT_AREA_WIDTH}
+            style={{ pointerEvents: "stroke", cursor: "pointer" }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick(e.clientX, e.clientY);
+            }}
+          />
+        )}
+      </svg>
+      {hasLabel && labelPos !== undefined && (
+        <div
+          data-testid="connection-label"
+          style={{
+            position: "absolute",
+            left: labelPos.x,
+            top: labelPos.y,
+            transform: "translate(-50%, -50%)",
+            pointerEvents: "auto",
+          }}
+        >
+          {label}
+        </div>
       )}
-    </svg>
+    </>
   );
 }

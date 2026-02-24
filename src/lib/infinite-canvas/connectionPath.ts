@@ -21,7 +21,31 @@ export type ConnectionPathData = {
   readonly start: Point;
   /** End point in screen-space */
   readonly end: Point;
+  /** Midpoint of the bezier curve in screen-space (t=0.5) */
+  readonly midpoint: Point;
 };
+
+/**
+ * Evaluate a cubic bezier curve at parameter t.
+ * B(t) = (1-t)^3*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3
+ */
+export function cubicBezierPoint(
+  p0: Point,
+  p1: Point,
+  p2: Point,
+  p3: Point,
+  t: number,
+): Point {
+  const u = 1 - t;
+  const u2 = u * u;
+  const u3 = u2 * u;
+  const t2 = t * t;
+  const t3 = t2 * t;
+  return {
+    x: u3 * p0.x + 3 * u2 * t * p1.x + 3 * u * t2 * p2.x + t3 * p3.x,
+    y: u3 * p0.y + 3 * u2 * t * p1.y + 3 * u * t2 * p2.y + t3 * p3.y,
+  };
+}
 
 /** Cardinal direction for connection exit/entry */
 export type ConnectionDirection = "top" | "right" | "bottom" | "left";
@@ -325,7 +349,9 @@ export function computeSmartConnectionPath(
     `${String(end.x) satisfies string} ${String(end.y) satisfies string}`,
   ].join(" ");
 
-  return { d, start, end };
+  const midpoint = cubicBezierPoint(start, cp1, cp2, end, 0.5);
+
+  return { d, start, end, midpoint };
 }
 
 /**
@@ -443,7 +469,9 @@ export function computePortConnectionPath(
     `${String(end.x) satisfies string} ${String(end.y) satisfies string}`,
   ].join(" ");
 
-  return { d, start, end };
+  const midpoint = cubicBezierPoint(start, cp1, cp2, end, 0.5);
+
+  return { d, start, end, midpoint };
 }
 
 /**
@@ -481,5 +509,7 @@ export function computeConnectionPath(
     `${String(end.x) satisfies string} ${String(end.y) satisfies string}`,
   ].join(" ");
 
-  return { d, start, end };
+  const midpoint = cubicBezierPoint(start, cp1, cp2, end, 0.5);
+
+  return { d, start, end, midpoint };
 }

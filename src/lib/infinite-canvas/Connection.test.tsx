@@ -209,4 +209,69 @@ describe("Connection", () => {
     hitArea.dispatchEvent(pointerEvent);
     expect(pointerEvent.stopPropagation).toHaveBeenCalled();
   });
+
+  it("does not render label when label prop is not provided", () => {
+    render(<Connection from={from} to={to} viewport={defaultViewport} />);
+    expect(screen.queryByTestId("connection-label")).not.toBeInTheDocument();
+  });
+
+  it("renders label at the midpoint of the connection", () => {
+    render(
+      <Connection
+        from={from}
+        to={to}
+        viewport={defaultViewport}
+        label={<span>MP</span>}
+      />,
+    );
+    const label = screen.getByTestId("connection-label");
+    expect(label).toBeInTheDocument();
+    expect(label.textContent).toBe("MP");
+  });
+
+  it("label has absolute positioning and centering transform", () => {
+    render(
+      <Connection
+        from={from}
+        to={to}
+        viewport={defaultViewport}
+        label={<span>Test</span>}
+      />,
+    );
+    const label = screen.getByTestId("connection-label");
+    expect(label.style.position).toBe("absolute");
+    expect(label.style.transform).toBe("translate(-50%, -50%)");
+  });
+
+  it("label has pointer-events auto for interaction", () => {
+    render(
+      <Connection
+        from={from}
+        to={to}
+        viewport={defaultViewport}
+        label={<span>Test</span>}
+      />,
+    );
+    const label = screen.getByTestId("connection-label");
+    expect(label.style.pointerEvents).toBe("auto");
+  });
+
+  it("renders complex label content", () => {
+    render(
+      <Connection
+        from={from}
+        to={to}
+        viewport={defaultViewport}
+        label={
+          <div data-testid="custom-panel">
+            <span>Rule: MP</span>
+            <button>Apply</button>
+          </div>
+        }
+      />,
+    );
+    expect(screen.getByTestId("custom-panel")).toBeInTheDocument();
+    expect(screen.getByText("Rule: MP")).toBeInTheDocument();
+    expect(screen.getByText("Apply")).toBeInTheDocument();
+  });
 });

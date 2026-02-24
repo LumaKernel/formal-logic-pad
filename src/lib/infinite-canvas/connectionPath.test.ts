@@ -5,6 +5,7 @@ import {
   computeEdgePoint,
   computePortConnectionPath,
   computeSmartConnectionPath,
+  cubicBezierPoint,
   determineConnectionDirections,
   edgeMidpoint,
   endpointCenter,
@@ -538,6 +539,25 @@ describe("computeSmartConnectionPath", () => {
     expect(result.d).toMatch(/^M\s/);
     expect(result.d).toContain("C ");
   });
+
+  it("returns midpoint on the bezier curve", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 300, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const result = computeSmartConnectionPath(from, to, viewport);
+    // Midpoint should be between start and end
+    expect(result.midpoint.x).toBeGreaterThan(result.start.x);
+    expect(result.midpoint.x).toBeLessThan(result.end.x);
+    // For horizontal connection, y should be close to start.y
+    expect(result.midpoint.y).toBeCloseTo(result.start.y, 0);
+  });
 });
 
 describe("computePortConnectionPath", () => {
@@ -638,6 +658,12 @@ describe("computePortConnectionPath", () => {
     );
     const without = computePortConnectionPath(fromPort, toPort, viewport);
     expect(withSelf.d).toBe(without.d);
+  });
+
+  it("returns midpoint on the bezier curve", () => {
+    const result = computePortConnectionPath(fromPort, toPort, viewport);
+    expect(result.midpoint.x).toBeGreaterThan(result.start.x);
+    expect(result.midpoint.x).toBeLessThan(result.end.x);
   });
 
   it("handles custom port positions along edges", () => {
