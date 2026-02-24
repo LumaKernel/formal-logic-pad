@@ -7,13 +7,13 @@ usage() {
 Usage: ralph.sh [OPTIONS]
 
 Options:
-  --tool <amp|claude>   Agent tool to use (default: amp)
+  --tool <amp|claude>   Agent tool to use (default: claude)
   -n, --iterations <N>  Max iterations (default: 10)
   -h, --help            Show this help
 USAGE
 }
 
-TOOL="amp"
+TOOL="claude"
 MAX_ITERATIONS=10
 
 while [[ $# -gt 0 ]]; do
