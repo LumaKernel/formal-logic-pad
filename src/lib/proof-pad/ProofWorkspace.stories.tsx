@@ -20,6 +20,7 @@ import {
   addNode,
   addConnection,
   applyMPAndConnect,
+  updateGoalFormulaText,
 } from "./workspaceState";
 import type { WorkspaceState } from "./workspaceState";
 
@@ -301,5 +302,102 @@ export const MPSelectionFlow: Story = {
 
     // MP node should be created
     await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+  },
+};
+
+// --- ゴール設定・証明完了デモ ---
+
+function WorkspaceWithGoalAchieved() {
+  const initial = (() => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "A2", { x: 350, y: 50 }, "phi -> psi");
+    const result = applyMPAndConnect(ws, "node-1", "node-2", {
+      x: 200,
+      y: 250,
+    });
+    ws = updateGoalFormulaText(result.workspace, "psi");
+    return ws;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+function WorkspaceWithGoalNotAchieved() {
+  const initial = (() => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "phi");
+    ws = updateGoalFormulaText(ws, "phi -> phi");
+    return ws;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/** ゴール達成: MP適用でψを導出し、ゴール "psi" を達成 */
+export const GoalAchieved: Story = {
+  render: () => <WorkspaceWithGoalAchieved />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+    // Goal input should have "psi"
+    await expect(canvas.getByTestId("workspace-goal-input")).toHaveValue("psi");
+    // Should show achieved
+    await expect(
+      canvas.getByTestId("workspace-goal-achieved"),
+    ).toBeInTheDocument();
+    // Should show proof complete banner
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
+  },
+};
+
+/** ゴール未達成: φのみ存在し、ゴール "phi -> phi" は未達成 */
+export const GoalNotAchieved: Story = {
+  render: () => <WorkspaceWithGoalNotAchieved />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+    // Goal input should have "phi -> phi"
+    await expect(canvas.getByTestId("workspace-goal-input")).toHaveValue(
+      "phi -> phi",
+    );
+    // Should show not achieved
+    await expect(
+      canvas.getByTestId("workspace-goal-not-achieved"),
+    ).toBeInTheDocument();
+    // Should NOT show proof complete banner
+    await expect(
+      canvas.queryByTestId("workspace-proof-complete-banner"),
+    ).not.toBeInTheDocument();
   },
 };

@@ -40,6 +40,27 @@
 - `matchFormulaPattern` は公開済み。直接テストで一方向パターンマッチのすべてのケースを検証可能
 
 - 公理パレット: `axiomPaletteLogic.ts`（純粋ロジック）+ `AxiomPalette.tsx`（UI）のペア。case-insensitive FS対策で`...Logic.ts`と`...ette.tsx`で名前区別
+- ゴールチェック: `goalCheckLogic.ts`（純粋ロジック）でゴール式とワークスペースノードの一致判定。`WorkspaceState`に`goalFormulaText`フィールド追加
+
+---
+
+## 2026-02-25 - ProofPad 証明完了の判定 (US-022)
+- `src/lib/proof-pad/` に証明完了判定機能を追加
+  - `goalCheckLogic.ts`: ゴール式パース・ノードとの構造的一致判定の純粋ロジック（22テスト）
+  - `workspaceState.ts`: `goalFormulaText` フィールド追加、`updateGoalFormulaText` 関数（5テスト追加）
+  - `ProofWorkspace.tsx`: ゴール入力UI、達成状態表示（Proved!/Not yet/Invalid formula）、Proof Complete!バナー（13テスト追加）
+  - `ProofWorkspace.stories.tsx`: GoalAchieved / GoalNotAchieved ストーリー追加
+  - `index.ts`: エクスポート更新
+- カバレッジ: goalCheckLogic.ts 100%/100%、全体 Lines 100% 維持
+- テスト数: 1725 → 1767（42件追加）
+- スクリーンショット:
+  - `.screenshots/us-022-goal-achieved.png`: MP導出後のゴール達成状態（Proved! + Proof Complete!バナー）
+  - `.screenshots/us-022-goal-not-achieved.png`: ゴール未達成状態（Not yet表示）
+  - `.screenshots/us-022-empty-workspace-with-goal.png`: 空ワークスペースのゴール入力UI
+- **今後のイテレーションへの学び:**
+  - `react-hooks/set-state-in-effect` ESLintルールが有効: useEffect内でsetStateを呼ぶと怒られる。派生状態はuseMemoで直接計算する方が良い
+  - スタイルオブジェクトのスプレッド+個別プロパティオーバーライドでReact警告が出る場合がある（shorthand `border` vs `borderColor`）。shorthandを丸ごとオーバーライドする方が安全
+  - `equalFormula` はAST構造比較。DSLテキストが異なっていても（"phi" vs "φ"）、パース結果が同じなら一致する
 
 ---
 

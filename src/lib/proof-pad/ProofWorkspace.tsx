@@ -4,8 +4,9 @@
  * InfiniteCanvas上に証明ノードを配置し、接続線で結ぶ証明構築画面。
  * 論理体系（LogicSystem）を設定でき、公理パレットから公理をキャンバスに追加できる。
  * MPボタンで2つのノードを選択し、Modus Ponensを適用して新しいノードを生成する。
+ * 目標式を設定し、達成判定と完了演出を行う。
  *
- * 変更時は ProofWorkspace.test.tsx, ProofWorkspace.stories.tsx, workspaceState.ts, index.ts も同期すること。
+ * 変更時は ProofWorkspace.test.tsx, ProofWorkspace.stories.tsx, workspaceState.ts, goalCheckLogic.ts, index.ts も同期すること。
  */
 
 import { useCallback, useMemo, useState } from "react";
@@ -22,12 +23,14 @@ import { getProofNodePorts, getProofEdgeColor } from "./proofNodeUI";
 import { AxiomPalette } from "./AxiomPalette";
 import { getAvailableAxioms, type AxiomPaletteItem } from "./axiomPaletteLogic";
 import { validateMPApplication, getMPErrorMessage } from "./mpApplicationLogic";
+import { checkGoal } from "./goalCheckLogic";
 import type { WorkspaceState, WorkspaceNode } from "./workspaceState";
 import {
   createEmptyWorkspace,
   addNode,
   updateNodePosition,
   updateNodeFormulaText,
+  updateGoalFormulaText,
   findNode,
   applyMPAndConnect,
 } from "./workspaceState";
@@ -132,6 +135,62 @@ const cancelButtonStyle = {
   cursor: "pointer",
   fontSize: 11,
   fontFamily: "sans-serif",
+};
+
+// --- ゴール関連スタイル ---
+
+const goalContainerStyle = {
+  position: "absolute" as const,
+  top: 12,
+  right: 12,
+  zIndex: 10,
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  padding: "6px 12px",
+  background: "rgba(255, 255, 255, 0.9)",
+  borderRadius: 8,
+  boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+  fontSize: 13,
+  fontFamily: "sans-serif",
+  pointerEvents: "auto" as const,
+};
+
+const goalInputStyle = {
+  padding: "3px 8px",
+  border: "1px solid #ccc",
+  borderRadius: 4,
+  fontSize: 13,
+  fontFamily: "serif, 'Times New Roman', Times",
+  fontStyle: "italic" as const,
+  width: 180,
+  outline: "none",
+  background: "#fff",
+};
+
+const goalInputErrorStyle = {
+  ...goalInputStyle,
+  border: "1px solid #e06060",
+  background: "rgba(255,96,96,0.05)",
+};
+
+const proofCompleteBannerStyle = {
+  position: "absolute" as const,
+  bottom: 40,
+  left: "50%" as const,
+  transform: "translateX(-50%)",
+  zIndex: 30,
+  padding: "12px 28px",
+  background: "linear-gradient(135deg, #4ad97a, #2ecc71)",
+  color: "#fff",
+  borderRadius: 12,
+  fontSize: 18,
+  fontFamily: "sans-serif",
+  fontWeight: 700 as const,
+  boxShadow: "0 4px 20px rgba(74,217,122,0.5)",
+  pointerEvents: "none" as const,
+  textAlign: "center" as const,
+  letterSpacing: 1,
 };
 
 // --- コンポーネント ---
@@ -271,6 +330,22 @@ export function ProofWorkspace({
     }
     return validations;
   }, [workspace]);
+
+  // --- ゴールチェック ---
+
+  const goalCheckResult = useMemo(
+    () => checkGoal(workspace.goalFormulaText, workspace.nodes),
+    [workspace.goalFormulaText, workspace.nodes],
+  );
+
+  const isGoalAchieved = goalCheckResult._tag === "GoalAchieved";
+
+  const handleGoalTextChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setWorkspace(updateGoalFormulaText(workspace, e.target.value));
+    },
+    [workspace, setWorkspace],
+  );
 
   // --- コールバック ---
 
@@ -515,6 +590,72 @@ export function ProofWorkspace({
           >
             Cancel
           </button>
+        </div>
+      ) : null}
+
+      {/* ゴール入力 */}
+      <div
+        style={goalContainerStyle}
+        data-testid={testId ? `${testId satisfies string}-goal` : undefined}
+      >
+        <span>Goal:</span>
+        <input
+          type="text"
+          value={workspace.goalFormulaText}
+          onChange={handleGoalTextChange}
+          placeholder="e.g. phi -> phi"
+          style={
+            goalCheckResult._tag === "GoalParseError"
+              ? goalInputErrorStyle
+              : goalInputStyle
+          }
+          data-testid={
+            testId ? `${testId satisfies string}-goal-input` : undefined
+          }
+        />
+        {goalCheckResult._tag === "GoalAchieved" ? (
+          <span
+            style={{ color: "#2ecc71", fontWeight: 700 }}
+            data-testid={
+              testId ? `${testId satisfies string}-goal-achieved` : undefined
+            }
+          >
+            Proved!
+          </span>
+        ) : goalCheckResult._tag === "GoalNotAchieved" ? (
+          <span
+            style={{ color: "#999" }}
+            data-testid={
+              testId
+                ? `${testId satisfies string}-goal-not-achieved`
+                : undefined
+            }
+          >
+            Not yet
+          </span>
+        ) : goalCheckResult._tag === "GoalParseError" ? (
+          <span
+            style={{ color: "#e06060", fontSize: 11 }}
+            data-testid={
+              testId ? `${testId satisfies string}-goal-parse-error` : undefined
+            }
+          >
+            Invalid formula
+          </span>
+        ) : null}
+      </div>
+
+      {/* 証明完了バナー */}
+      {isGoalAchieved ? (
+        <div
+          style={proofCompleteBannerStyle}
+          data-testid={
+            testId
+              ? `${testId satisfies string}-proof-complete-banner`
+              : undefined
+          }
+        >
+          Proof Complete!
         </div>
       ) : null}
 

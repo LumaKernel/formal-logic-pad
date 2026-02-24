@@ -11,6 +11,7 @@ export {
   addNode,
   updateNodePosition,
   updateNodeFormulaText,
+  updateGoalFormulaText,
   findNode,
   removeNode,
   addConnection,
@@ -46,3 +47,11 @@ export {
   getProofEdgeColor,
 } from "./proofNodeUI";
 export type { ProofNodeKind, ProofNodeStyle } from "./proofNodeUI";
+export { parseGoalFormula, checkGoal } from "./goalCheckLogic";
+export type {
+  GoalNotSet,
+  GoalParseError,
+  GoalNotAchieved,
+  GoalAchieved,
+  GoalCheckResult,
+} from "./goalCheckLogic";
