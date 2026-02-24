@@ -18,6 +18,8 @@
 - フォーマッターの括弧判定: 左辺は `parent.leftBP > child.rightBP`、右辺は `child.leftBP <= parent.rightBP` で判定（Pratt parserの挙動を正確に反映）
 - ストーリーでノードサイズが必要な場合は callback ref + `getBoundingClientRect()` でDOM実測する（手動推定はポート位置がずれる）
 - ポートIDは `${nodeId}-${portId}` 形式でユニーク化し、play関数で `getByTestId` による一意特定を可能にする
+- Storybook: `render` を使うストーリーでも required props がある場合は `args` にダミー値が必要（TypeScript型チェック）
+- `src/lib/formula-input/` は FormulaInput コンポーネント群の配置先。logic-lang に依存、InfiniteCanvas とは独立
 
 ---
 
@@ -709,4 +711,20 @@
   - `useEffect` 内の `setState` は `react-hooks/set-state-in-effect` lint ルールに違反する。callback ref 内での `setState` は許容される
   - ポートIDを `${nodeId}-${portId}` 形式にすると、play関数で `getByTestId` で一意に特定可能。接続線計算には元のポートIDを維持
   - `filter((o): o is Type => ...)` は `no-explicit-return-is` lint ルールに違反。TypeScript 5.5+では `filter((o) => o !== null)` で型ガード推論される
+---
+
+## 2026-02-25 - FormulaInput FI-001: Unicode論理式レンダラー
+- `src/lib/formula-input/FormulaDisplay.tsx` を作成: Formula AST → Unicode表示の React コンポーネント
+- `formatFormula()` (logic-lang) を `useMemo` でラップし、`role="math"` + `aria-label` でアクセシビリティ対応
+- `fontSize`, `color`, `className`, `style`, `testId` の props をサポート
+- デフォルトスタイル: serif italic, nowrap
+- 20件のユニットテスト + 7件の Storybook play関数テスト（全パス）
+- ストーリー7種: BasicFormulas, SubscriptedVariables, PropositionalConnectives, Quantifiers, PredicatesAndEquality, ComplexFormulas, CustomStyling
+- 変更ファイル: `FormulaDisplay.tsx`, `FormulaDisplay.test.tsx`, `FormulaDisplay.stories.tsx`, `index.ts` (新規), `tasks/prd-formula-input-component.md`
+- カバレッジ: formula-input 100%、全体 91.71%→91.06%（storybook flaky timeout による見かけの変動、unit test では regression なし）
+- スクリーンショット: `screenshots.local/formula-display-basic.png`, `screenshots.local/formula-display-complex.png`, `screenshots.local/formula-display-connectives.png`
+- **今後のイテレーションへの学び:**
+  - Storybook で `render` を使うストーリーでも、required な props がある場合は `args` にダミー値が必要（TypeScript の型チェックで `args` が必須になる）
+  - `src/lib/formula-input/` が FormulaInput コンポーネント群の配置先。logic-lang に依存し、InfiniteCanvas とは独立
+  - 全テスト一括実行時に ConnectorPorts/ProofTree storybook テストが timeout する問題は既知（リソース競合）。個別実行では pass する
 ---

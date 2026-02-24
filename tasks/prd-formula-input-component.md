@@ -28,21 +28,21 @@
 
 ### フェーズA: レンダリング層（Logic Lang完成後すぐに着手可能）
 
-#### FI-001: Unicode論理式レンダラー [-]
+#### FI-001: Unicode論理式レンダラー [x]
 
 **説明:** 開発者として、Logic CoreのFormula ASTをUnicode文字列で美しく表示するReactコンポーネントがほしい。
 
 **受け入れ基準:**
 
-- [ ] `<FormulaDisplay formula={ast} />` コンポーネントを作成
-- [ ] Logic Lang の `formatUnicode()` を使用してAST→Unicode変換
-- [ ] 論理記号（→, ∧, ∨, ¬, ∀, ∃）と添字（₀₁₂...）を正しく表示
-- [ ] 等号、二項演算子、関数/述語も対応
-- [ ] 最小限の括弧のみ表示（優先順位考慮）
-- [ ] フォントサイズ・色をpropsで調整可能
-- [ ] Storybookストーリー（各種論理式パターン）を追加
-- [ ] play関数でレンダリング結果を検証
-- [ ] 型チェック/lintが通る
+- [x] `<FormulaDisplay formula={ast} />` コンポーネントを作成
+- [x] Logic Lang の `formatUnicode()` を使用してAST→Unicode変換
+- [x] 論理記号（→, ∧, ∨, ¬, ∀, ∃）と添字（₀₁₂...）を正しく表示
+- [x] 等号、二項演算子、関数/述語も対応
+- [x] 最小限の括弧のみ表示（優先順位考慮）
+- [x] フォントサイズ・色をpropsで調整可能
+- [x] Storybookストーリー（各種論理式パターン）を追加
+- [x] play関数でレンダリング結果を検証
+- [x] 型チェック/lintが通る
 
 #### FI-002: KaTeX論理式レンダラー
 
