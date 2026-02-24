@@ -282,3 +282,27 @@
   - `labelOffsetY` でラベルの垂直オフセットを調整可能（デフォルト-20px、線の上に配置）
   - `pointerEvents: "auto"` をラベルに設定することで、SVGの `pointerEvents: "none"` をオーバーライドしてインタラクション可能に
 ---
+
+## 2026-02-24 - 論理リファレンス US-006
+- `dev/logic-reference/06-dsl-specification.md` を作成
+- DSL言語仕様（Logic Schema Language）の完全な仕様書:
+  - トークン一覧（論理演算子、量化子、等号、項二項演算子、区切り文字、識別子）
+  - EBNF正式文法定義（論理式・項の両方をカバー）
+  - 識別子の命名規約と解決規則（メタ変数、述語、関数/変数/定数）
+  - 演算子の優先順位と結合性の統合表（論理式レベル + 項レベル）
+  - 入力例12個と期待されるAST出力の対応表
+  - エラーケース10個と期待されるエラーメッセージの指針
+  - Unicode出力フォーマット仕様（括弧省略規則、添字Unicode変換含む）
+  - LaTeX出力フォーマット仕様（KaTeX対応、メタ変数LaTeX対応表含む）
+  - Lexer実装指針（トークン化優先順位、位置情報のTypeScript型定義）
+  - Parser実装指針（Pratt parser推奨、等号パース戦略、メタ変数文脈依存）
+- 変更ファイル: `dev/logic-reference/06-dsl-specification.md` (新規), `tasks/prd-logic-reference.md`, `task-processing.md`, `progress.txt`
+- ベースラインカバレッジ: Statements 93.60%（ドキュメントのみのため変化なし）
+- スクリーンショット: `screenshots.local/us006-storybook-main.png`
+- **今後のイテレーションへの学び:**
+  - DSL仕様はEBNF + 具体例 + エラーケースの3層で定義すると実装者にとって参照しやすい
+  - 等号のパースは特殊: 項をまずパースし、`=` があれば等号式、なければ述語/メタ変数として扱う
+  - メタ変数は文脈依存: 論理式位置では `MetaVariable`、項位置では `TermMetaVariable`
+  - Pratt parserが推奨。優先順位と結合性を数値で表現でき、拡張が容易
+  - `phi1` と `phi_1` は同値（アンダースコアは区切り専用）。`phi01` とは異なる（添字は文字列比較）
+---
