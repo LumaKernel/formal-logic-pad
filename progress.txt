@@ -33,6 +33,8 @@
 - `src/lib/history/` は汎用undo/redoライブラリ。純粋ロジック（history.ts）+ React hook（useHistory.ts）。InfiniteCanvasとは独立
 - `replacePresent` はundo エントリを作らない一時的な更新用（ドラッグ中等）。`pushState` は通常のundo可能な操作用
 - 防御的コード（到達不能だが安全のために残す）は `/* v8 ignore start/stop */` で除外。コメントで理由を明記すること
+- MP適用ロジックは3層分離: 純粋バリデーション(`mpApplicationLogic.ts`) → 状態管理(`workspaceState.ts`) → UI(`ProofWorkspace.tsx`)
+- `formatFormula` は右結合→で最小括弧化。テスト期待値は `χ → φ → ψ → φ`（括弧なし）
 - unificationのMartelli-Montanariアルゴリズムでは即時代入適用により一部の分岐が到達不能になる
 - parserのPratt parserではinfixBPが事前フィルタするため`tokenToBinaryOperator`のdefaultケースは到達不能
 - `matchFormulaPattern` は公開済み。直接テストで一方向パターンマッチのすべてのケースを検証可能
@@ -1046,4 +1048,38 @@
   - テストで `onParsed` を発火させるには ASCII "p" ではなくギリシャ文字 "φ" を使う（パーサーの受け付ける文法に準拠）
   - ProofWorkspace の testId 命名チェーン: `proof-node-{nodeId}` → `-editor` → `-display`/`-edit`/`-input` → `-input` (actual <input>)
   - ドラッグハンドラ (handlePositionChange) は jsdom では PointerEvent シミュレーションが必要なため、v8 ignore でカバレッジ除外してブラウザテストで検証する方が合理的
+---
+
+## 2026-02-25 - ProofPad MP適用 (US-021)
+- 実装した内容:
+  - MP適用による証明ステップの構築機能を追加
+  - `mpApplicationLogic.ts`: MP適用の純粋バリデーションロジック（前提取得・パース・検証・エラーメッセージ）
+  - `workspaceState.ts`: `applyMPAndConnect()` 関数追加（MP適用 + 接続 + バリデーション一括処理）
+  - `ProofWorkspace.tsx`: MPボタン・2段階選択UI・自動バリデーション・接続線色分け・エラー/成功表示
+  - `EditableProofNode.tsx`: ステータスメッセージ表示（error/success）追加
+  - 3つの新ストーリー（ValidMPApplication, InvalidMPApplication, MPSelectionFlow）
+- 変更したファイル:
+  - src/lib/proof-pad/mpApplicationLogic.ts (NEW - 純粋ロジック)
+  - src/lib/proof-pad/mpApplicationLogic.test.ts (NEW - 28 tests)
+  - src/lib/proof-pad/workspaceState.ts (MODIFIED - applyMPAndConnect追加)
+  - src/lib/proof-pad/workspaceState.test.ts (MODIFIED - 6 tests追加)
+  - src/lib/proof-pad/EditableProofNode.tsx (MODIFIED - statusMessage/statusType)
+  - src/lib/proof-pad/EditableProofNode.test.tsx (MODIFIED - 4 tests追加)
+  - src/lib/proof-pad/ProofWorkspace.tsx (MAJOR REWRITE - MP UI)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (MODIFIED - 11 tests追加)
+  - src/lib/proof-pad/ProofWorkspace.stories.tsx (MODIFIED - 3 stories追加)
+  - src/lib/proof-pad/index.ts (MODIFIED - exports追加)
+  - tasks/prd-formal-logic-pad.md (US-021 完了)
+- カバレッジ: Stmts 99.16% → 99.12%, Lines 99.88% → 99.84% (微減、防御コードのv8 ignore適用済み)
+- テスト数: 1673 → 1725 (+52)
+- スクリーンショット:
+  - .screenshots/us-021-valid-mp.png
+  - .screenshots/us-021-invalid-mp.png
+  - .screenshots/us-021-mp-selection-flow.png
+- **今後のイテレーションへの学び:**
+  - 純粋ロジック（mpApplicationLogic.ts）→ 状態管理（workspaceState.ts）→ UI（ProofWorkspace.tsx）の3層分離パターンが効果的
+  - formatFormula は右結合の→で最小括弧化する（テスト期待値に注意: `χ → φ → ψ → φ` であって `χ → (φ → (ψ → φ))` ではない）
+  - ESM環境では `require()` は使えない。テストでも `import` を使用すること
+  - MP適用結果の `_tag` で discriminated union を使い、exhaustive check でエラー種別を網羅的に処理
+  - 接続線の色分け（緑=成功、赤=エラー）はmpValidationsメモ化で全MPノードを一括バリデーション
 ---
