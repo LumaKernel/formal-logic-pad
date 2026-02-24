@@ -306,3 +306,18 @@
   - Pratt parserが推奨。優先順位と結合性を数値で表現でき、拡張が容易
   - `phi1` と `phi_1` は同値（アンダースコアは区切り専用）。`phi01` とは異なる（添字は文字列比較）
 ---
+
+## 2026-02-24 - 論理リファレンス US-007
+- `dev/logic-reference/README.md` を作成（参考文献・索引ページ）
+- 目次: 全6ドキュメントへのリンクと概要表
+- PRDとの対応表: US-009〜US-018が参照すべきリファレンスドキュメントの対応
+- 参考文献一覧: 教科書9冊/論文、オンラインリソース2件（高崎研究室、Stanford Encyclopedia）
+- 用語索引: 基本概念、論理結合子・量化子、公理・推論規則、等号公理、代入・ユニフィケーション、DSL・実装関連、証明論の7カテゴリ、50以上の用語
+- prd-logic-reference.md の全US（001〜007）が完了したため、tasks-archived/ にアーカイブ
+- 変更ファイル: `dev/logic-reference/README.md` (新規), `tasks/prd-logic-reference.md` → `tasks-archived/`, `task-processing.md`, `progress.txt`
+- ベースラインカバレッジ: Statements 93.60%（ドキュメントのみのため変化なし）
+- スクリーンショット: `screenshots.local/us007-storybook-main.png`
+- **今後のイテレーションへの学び:**
+  - 論理リファレンス全体が完成。以後のlogic-core/logic-lang実装ではREADME.mdのPRD対応表を参照して適切なドキュメントを確認すること
+  - 用語索引は日英対応+記載箇所でクロスリファレンスとして機能する。新しい概念を追加する際はここも更新すること
+---

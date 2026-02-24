@@ -146,16 +146,16 @@
 
 **受け入れ基準:**
 
-- [ ] `dev/logic-reference/README.md` を作成
-- [ ] 各ドキュメントへのリンクと概要（目次）
-- [ ] 参考文献一覧:
+- [x] `dev/logic-reference/README.md` を作成
+- [x] 各ドキュメントへのリンクと概要（目次）
+- [x] 参考文献一覧:
   - 高崎研究室 論理学教材（https://www2.yukawa.kyoto-u.ac.jp/~kanehisa.takasaki/edu/logic/logic6.html）
   - 教科書・論文（Enderton "A Mathematical Introduction to Logic"、Mendelson "Introduction to Mathematical Logic" 等）
   - オンラインリソース（Stanford Encyclopedia of Philosophy の関連項目等）
   - 実装参考（ユニフィケーションアルゴリズムの実装例等）
-- [ ] 用語索引（日本語・英語の対応付き）
+- [x] 用語索引（日本語・英語の対応付き）
   - 例: 自由変数 / free variable、束縛変数 / bound variable、代入 / substitution
-- [ ] 本プロジェクトのPRD（`tasks/prd-formal-logic-pad.md`）との対応表（どのUSがどのドキュメントを参照すべきか）
+- [x] 本プロジェクトのPRD（`tasks/prd-formal-logic-pad.md`）との対応表（どのUSがどのドキュメントを参照すべきか）
 
 ## 機能要件
 
