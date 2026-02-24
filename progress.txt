@@ -10,6 +10,8 @@
 - コネクタ(ポート)は `connector.ts` にピュアロジック、`ConnectorPortComponent.tsx` にUI、`PortConnection.tsx` にポートベース接続を配置
 - `computePortConnectionPath` はポート指定で接続方向を明示的に決定（auto-determine不要）
 - `ConnectorPort` 型は `edge` (top/right/bottom/left) + `position` (0.0〜1.0) でエッジ上の位置を指定
+- wheel イベントは `useEffect` + `addEventListener({ passive: false })` で登録（React `onWheel` は Chrome で passive）
+- トラックパッド判定: `ctrlKey: true` → ピンチ(zoom)、`ctrlKey: false` → 2本指スクロール(pan)
 
 ---
 
@@ -230,4 +232,26 @@
   - SVG要素のクリックイベントは親のpointerDownイベントと干渉する。`onPointerDown` と `onClick` 両方で `stopPropagation()` が必要
   - `lineMenu.ts` は `nodeMenu.ts` と同じパターン。状態管理のピュアロジック + UIコンポーネントは別（ストーリー側で実装）
   - `Connection` と `PortConnection` の両方に同じ `onClick` パターンを適用。将来的に共通化も検討可能
+---
+
+## 2026-02-24 - InfiniteCanvas macOSトラックパッド対応
+- `zoom.ts` に `classifyWheelEvent()` を追加: `ctrlKey` でwheel イベントをzoom（ピンチ）vs pan（2本指スクロール）に分類
+- `useZoom.ts` の `onWheel` を `useEffect` + `addEventListener({ passive: false })` に変更
+  - React の `onWheel` は Chrome で passive になるため `preventDefault()` が効かない問題を解決
+  - `ctrlKey: false`（通常スクロール）→ `applyPanDelta` でパン
+  - `ctrlKey: true`（トラックパッドピンチ）→ `applyZoom` でズーム
+- `InfiniteCanvas.tsx` から `onWheel` React prop を削除（ネイティブリスナーに移行）
+- `UseZoomResult` 型から `onWheel` を削除
+- テスト: 306 → 312（+6テスト）
+  - `zoom.test.ts`: classifyWheelEvent の2テスト追加
+  - `useZoom.test.tsx`: trackpad pan/zoom のテスト4つ追加（ネイティブ `dispatchEvent` 使用）
+  - `InfiniteCanvas.test.tsx`: 既存zoom テストを `ctrlKey: true` に更新、trackpad pan テスト2つ追加
+- カバレッジ: Statements 93.23% → 93.44% ✅ 向上
+- 変更ファイル: `zoom.ts`, `useZoom.ts`, `InfiniteCanvas.tsx`, `index.ts`, `zoom.test.ts`, `useZoom.test.tsx`, `InfiniteCanvas.test.tsx`, `tasks/prd-inserted-tasks.md`, `task-processing.md`
+- スクリーンショット: `screenshots.local/trackpad-fulldemo.png`, `screenshots.local/trackpad-after-pan.png`, `screenshots.local/trackpad-after-pan-and-zoom.png`
+- **今後のイテレーションへの学び:**
+  - macOSトラックパッドのピンチはブラウザが `ctrlKey: true` の `WheelEvent` として発火する。`classifyWheelEvent` でこれを分類
+  - React の `onWheel` は Chrome 73+ で passive リスナーとして登録される。`preventDefault()` が必要な場合は `useEffect` + `addEventListener({ passive: false })` を使う
+  - `stateRef.current = ...` のレンダー中の直接代入は `react-hooks/refs` ESLint ルールに違反する。`useEffect` 内で更新すること
+  - テストでネイティブ `addEventListener` で登録したハンドラをテストするには、`fireEvent.wheel` でもOK（内部で `dispatchEvent` を使うため）。ただし `useZoom.test.tsx` では `dispatchEvent` を明示的に使うヘルパーを作成
 ---
