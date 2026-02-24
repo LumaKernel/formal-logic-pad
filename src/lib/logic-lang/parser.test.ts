@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseString } from "./parser";
+import { parseString, parseTermString } from "./parser";
 import type { Formula } from "../logic-core/formula";
 import { equalFormula } from "../logic-core/equality";
 import {
@@ -22,6 +22,9 @@ import {
   binaryOperation,
 } from "../logic-core/term";
 
+import type { Term } from "../logic-core/term";
+import { equalTerm } from "../logic-core/equality";
+
 // ヘルパー: 成功パース結果を取得
 const parseOk = (input: string): Formula => {
   const result = parseString(input);
@@ -31,6 +34,17 @@ const parseOk = (input: string): Formula => {
     );
   }
   return result.formula;
+};
+
+// ヘルパー: 項の成功パース結果を取得
+const parseTermOk = (input: string): Term => {
+  const result = parseTermString(input);
+  if (!result.ok) {
+    throw new Error(
+      `Parse failed: ${result.errors.map((e) => e.message).join("; ") satisfies string}`,
+    );
+  }
+  return result.term;
 };
 
 // ヘルパー: エラーパース結果を取得
@@ -748,6 +762,133 @@ describe("Parser", () => {
           termVariable("z"),
         ),
       );
+    });
+  });
+});
+
+// --- parseTermString テスト ---
+
+describe("parseTermString", () => {
+  const assertTermParses = (input: string, expected: Term): void => {
+    const result = parseTermOk(input);
+    expect(equalTerm(result, expected)).toBe(true);
+  };
+
+  describe("基本的な項", () => {
+    it("変数をパースする", () => {
+      assertTermParses("x", termVariable("x"));
+    });
+
+    it("定数をパースする", () => {
+      assertTermParses("0", constant("0"));
+    });
+
+    it("メタ変数をパースする", () => {
+      assertTermParses("τ", termMetaVariable("τ"));
+    });
+
+    it("添字付きメタ変数をパースする", () => {
+      assertTermParses("σ1", termMetaVariable("σ", "1"));
+    });
+  });
+
+  describe("関数適用", () => {
+    it("単項関数をパースする", () => {
+      assertTermParses("f(x)", functionApplication("f", [termVariable("x")]));
+    });
+
+    it("二項関数をパースする", () => {
+      assertTermParses(
+        "f(x, y)",
+        functionApplication("f", [termVariable("x"), termVariable("y")]),
+      );
+    });
+
+    it("0引数関数をパースする", () => {
+      assertTermParses("c()", functionApplication("c", []));
+    });
+
+    it("ネストした関数をパースする", () => {
+      assertTermParses(
+        "f(g(x))",
+        functionApplication("f", [functionApplication("g", [termVariable("x")])]),
+      );
+    });
+  });
+
+  describe("二項演算子", () => {
+    it("加算をパースする", () => {
+      assertTermParses(
+        "x + y",
+        binaryOperation("+", termVariable("x"), termVariable("y")),
+      );
+    });
+
+    it("乗算をパースする", () => {
+      assertTermParses(
+        "x * y",
+        binaryOperation("*", termVariable("x"), termVariable("y")),
+      );
+    });
+
+    it("べき乗をパースする", () => {
+      assertTermParses(
+        "x ^ y",
+        binaryOperation("^", termVariable("x"), termVariable("y")),
+      );
+    });
+
+    it("演算子の優先順位を正しく処理する", () => {
+      // x + y * z → x + (y * z)
+      assertTermParses(
+        "x + y * z",
+        binaryOperation(
+          "+",
+          termVariable("x"),
+          binaryOperation("*", termVariable("y"), termVariable("z")),
+        ),
+      );
+    });
+
+    it("括弧で優先順位を変更する", () => {
+      // (x + y) * z
+      assertTermParses(
+        "(x + y) * z",
+        binaryOperation(
+          "*",
+          binaryOperation("+", termVariable("x"), termVariable("y")),
+          termVariable("z"),
+        ),
+      );
+    });
+  });
+
+  describe("エラーケース", () => {
+    it("空文字列でエラーを返す", () => {
+      const result = parseTermString("");
+      expect(result.ok).toBe(false);
+    });
+
+    it("論理式を項として解析するとエラーを返す", () => {
+      // "→" は項の開始トークンではない
+      const result = parseTermString("→");
+      expect(result.ok).toBe(false);
+    });
+
+    it("不完全な式でエラーを返す", () => {
+      const result = parseTermString("x +");
+      expect(result.ok).toBe(false);
+    });
+
+    it("余分なトークンでエラーを返す", () => {
+      // "x y" は項の後に余分なトークンがある
+      const result = parseTermString("x y");
+      expect(result.ok).toBe(false);
+    });
+
+    it("レキサーエラーを返す", () => {
+      const result = parseTermString("x # y");
+      expect(result.ok).toBe(false);
     });
   });
 });

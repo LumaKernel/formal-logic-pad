@@ -46,6 +46,10 @@ export type ParseResult =
   | { readonly ok: true; readonly formula: Formula }
   | { readonly ok: false; readonly errors: readonly ParseError[] };
 
+export type TermParseResult =
+  | { readonly ok: true; readonly term: Term }
+  | { readonly ok: false; readonly errors: readonly ParseError[] };
+
 // --- メタ変数の value パース ---
 
 const parseMetaVariableValue = (
@@ -586,6 +590,184 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
   return { ok: true, formula };
 };
 
+// --- 項パーサー（トークン列から） ---
+
+export const parseTokensAsTerm = (tokens: readonly Token[]): TermParseResult => {
+  const errors: ParseError[] = [];
+  let pos = 0;
+
+  const peek = (): Token => tokens[pos] ?? tokens[tokens.length - 1]!;
+
+  const advance = (): Token => {
+    const token = peek();
+    if (pos < tokens.length - 1) pos++;
+    return token;
+  };
+
+  const expect = (kind: TokenKind): Token | undefined => {
+    const token = peek();
+    if (token.kind === kind) {
+      return advance();
+    }
+    addError(
+      `Expected '${kindToString(kind) satisfies string}' at ${posStr(token.span.start) satisfies string}`,
+      token.span,
+    );
+    return undefined;
+  };
+
+  const addError = (message: string, span: Span): void => {
+    errors.push({ message, span });
+  };
+
+  const posStr = (p: Position): string =>
+    `${String(p.line) satisfies string}:${String(p.column) satisfies string}`;
+
+  const kindToString = (kind: TokenKind): string => {
+    switch (kind) {
+      case "RPAREN":
+        return ")";
+      case "LPAREN":
+        return "(";
+      case "DOT":
+        return ".";
+      case "COMMA":
+        return ",";
+      case "EOF":
+        return "end of input";
+      default:
+        return kind;
+    }
+  };
+
+  // --- 項パース (Pratt parser) ---
+
+  const parseTerm = (minBP: number): Term | undefined => {
+    let lhs = parseTermAtom();
+    if (lhs === undefined) return undefined;
+
+    while (true) {
+      const token = peek();
+      const bp = termInfixBP(token.kind);
+      if (bp === undefined) break;
+      if (bp.leftBP < minBP) break;
+
+      advance();
+      const op = tokenToBinaryOperator(token.kind)!;
+
+      const rhs = parseTerm(bp.rightBP);
+      if (rhs === undefined) return undefined;
+
+      lhs = binaryOperation(op, lhs, rhs);
+    }
+
+    return lhs;
+  };
+
+  // --- 項のアトム ---
+
+  const parseTermAtom = (): Term | undefined => {
+    const token = peek();
+
+    // メタ変数 → TermMetaVariable（項パースモードでは束縛変数の追跡なし）
+    if (token.kind === "META_VARIABLE") {
+      advance();
+      const { name, subscript } = parseMetaVariableValue(token.value!);
+      return termMetaVariable(name, subscript);
+    }
+
+    // 小文字識別子 → 変数 or 関数
+    if (token.kind === "LOWER_IDENT") {
+      advance();
+      const name = token.value!;
+
+      // 関数適用?
+      if (peek().kind === "LPAREN") {
+        advance();
+        const args = parseTermList();
+        if (args === undefined) return undefined;
+        if (expect("RPAREN") === undefined) return undefined;
+        return functionApplication(name, args);
+      }
+
+      return termVariable(name);
+    }
+
+    // 数字 → 定数
+    if (token.kind === "NUMBER") {
+      advance();
+      return constant(token.value!);
+    }
+
+    // 括弧
+    if (token.kind === "LPAREN") {
+      advance();
+      const inner = parseTerm(0);
+      if (inner === undefined) return undefined;
+      if (expect("RPAREN") === undefined) return undefined;
+      return inner;
+    }
+
+    addError(
+      `Unexpected ${kindToString(token.kind) satisfies string} at ${posStr(token.span.start) satisfies string}: expected term`,
+      token.span,
+    );
+    return undefined;
+  };
+
+  // --- 項リスト（カンマ区切り） ---
+
+  const parseTermList = (): readonly Term[] | undefined => {
+    if (peek().kind === "RPAREN") {
+      return [];
+    }
+
+    const terms: Term[] = [];
+    const first = parseTerm(0);
+    if (first === undefined) return undefined;
+    terms.push(first);
+
+    while (peek().kind === "COMMA") {
+      advance();
+      const next = parseTerm(0);
+      if (next === undefined) return undefined;
+      terms.push(next);
+    }
+
+    return terms;
+  };
+
+  // --- メインの項パース ---
+
+  const term = parseTerm(0);
+  if (term === undefined) {
+    if (errors.length === 0) {
+      const eof = peek();
+      addError(
+        `Unexpected end of input at ${posStr(eof.span.start) satisfies string}`,
+        eof.span,
+      );
+    }
+    return { ok: false, errors };
+  }
+
+  // 入力の残りチェック
+  if (peek().kind !== "EOF") {
+    const remaining = peek();
+    addError(
+      `Unexpected ${kindToString(remaining.kind) satisfies string} at ${posStr(remaining.span.start) satisfies string}: expected end of input`,
+      remaining.span,
+    );
+    return { ok: false, errors };
+  }
+
+  if (errors.length > 0) {
+    return { ok: false, errors };
+  }
+
+  return { ok: true, term };
+};
+
 // --- 便利関数: 文字列から直接パース ---
 
 import { lex } from "./lexer";
@@ -602,4 +784,18 @@ export const parseString = (input: string): ParseResult => {
     };
   }
   return parse(lexResult.tokens);
+};
+
+export const parseTermString = (input: string): TermParseResult => {
+  const lexResult = lex(input);
+  if (!lexResult.ok) {
+    return {
+      ok: false,
+      errors: lexResult.errors.map((e) => ({
+        message: e.message,
+        span: e.span,
+      })),
+    };
+  }
+  return parseTokensAsTerm(lexResult.tokens);
 };

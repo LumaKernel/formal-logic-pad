@@ -8,3 +8,5 @@ export { TermKaTeX } from "./TermKaTeX";
 export type { TermKaTeXProps } from "./TermKaTeX";
 export { FormulaInput } from "./FormulaInput";
 export type { FormulaInputProps, FormulaParseState } from "./FormulaInput";
+export { TermInput } from "./TermInput";
+export type { TermInputProps, TermParseState } from "./TermInput";
