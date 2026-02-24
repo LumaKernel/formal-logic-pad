@@ -56,6 +56,25 @@ export function applyZoom(
   };
 }
 
+/** Wheel event input for classification. */
+export type WheelEventInput = {
+  readonly ctrlKey: boolean;
+};
+
+/** Classification result for a wheel event. */
+export type WheelAction = "zoom" | "pan";
+
+/** Classify a wheel event as zoom or pan.
+ *  On macOS, trackpad pinch-to-zoom fires wheel events with ctrlKey=true.
+ *  Regular two-finger scroll fires wheel events with ctrlKey=false.
+ *  Pure function. */
+export function classifyWheelEvent(event: WheelEventInput): WheelAction {
+  if (event.ctrlKey) {
+    return "zoom";
+  }
+  return "pan";
+}
+
 /** Compute a new scale from a wheel deltaY value.
  *  Positive deltaY = zoom out, negative deltaY = zoom in.
  *  Uses multiplicative scaling for smooth zoom behavior.

@@ -262,13 +262,13 @@ describe("InfiniteCanvas panning", () => {
   });
 });
 
-describe("InfiniteCanvas zooming", () => {
+describe("InfiniteCanvas zooming (ctrlKey=true, trackpad pinch)", () => {
   beforeEach(() => {
     Element.prototype.setPointerCapture = vi.fn();
     Element.prototype.releasePointerCapture = vi.fn();
   });
 
-  it("calls onViewportChange on wheel scroll", () => {
+  it("zooms on wheel with ctrlKey (trackpad pinch)", () => {
     const onViewportChange = vi.fn();
     render(
       <InfiniteCanvas
@@ -278,7 +278,6 @@ describe("InfiniteCanvas zooming", () => {
     );
     const canvas = screen.getByTestId("infinite-canvas");
 
-    // Mock getBoundingClientRect for the container
     vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue({
       left: 0,
       top: 0,
@@ -295,11 +294,11 @@ describe("InfiniteCanvas zooming", () => {
       deltaY: -100,
       clientX: 400,
       clientY: 300,
+      ctrlKey: true,
     });
 
     expect(onViewportChange).toHaveBeenCalledTimes(1);
     const newViewport = onViewportChange.mock.calls[0]![0];
-    // Scrolling up (negative deltaY) should zoom in (scale > 1)
     expect(newViewport.scale).toBeGreaterThan(1);
   });
 
@@ -325,16 +324,15 @@ describe("InfiniteCanvas zooming", () => {
       toJSON: () => {},
     });
 
-    // Zoom at top-left corner
     fireEvent.wheel(canvas, {
       deltaY: -100,
       clientX: 0,
       clientY: 0,
+      ctrlKey: true,
     });
 
     expect(onViewportChange).toHaveBeenCalledTimes(1);
     const newViewport = onViewportChange.mock.calls[0]![0];
-    // When zooming at origin with offset (0,0), offsets should stay at 0
     expect(newViewport.offsetX).toBeCloseTo(0);
     expect(newViewport.offsetY).toBeCloseTo(0);
   });
@@ -362,15 +360,13 @@ describe("InfiniteCanvas zooming", () => {
       toJSON: () => {},
     });
 
-    // Scroll down to zoom out - already at min
     fireEvent.wheel(canvas, {
       deltaY: 100,
       clientX: 400,
       clientY: 300,
+      ctrlKey: true,
     });
 
-    // applyZoom returns the same viewport object when clamped scale equals current
-    // So onViewportChange should not be called
     expect(onViewportChange).not.toHaveBeenCalled();
   });
 
@@ -397,11 +393,11 @@ describe("InfiniteCanvas zooming", () => {
       toJSON: () => {},
     });
 
-    // Scroll up to zoom in - already at max
     fireEvent.wheel(canvas, {
       deltaY: -100,
       clientX: 400,
       clientY: 300,
+      ctrlKey: true,
     });
 
     expect(onViewportChange).not.toHaveBeenCalled();
@@ -410,7 +406,66 @@ describe("InfiniteCanvas zooming", () => {
   it("attaches onWheel handler to the container", () => {
     render(<InfiniteCanvas />);
     const canvas = screen.getByTestId("infinite-canvas");
-    // Verify wheel event doesn't crash (handler is attached)
-    fireEvent.wheel(canvas, { deltaY: 100, clientX: 0, clientY: 0 });
+    fireEvent.wheel(canvas, {
+      deltaY: 100,
+      clientX: 0,
+      clientY: 0,
+      ctrlKey: true,
+    });
+  });
+});
+
+describe("InfiniteCanvas trackpad two-finger scroll (pan)", () => {
+  beforeEach(() => {
+    Element.prototype.setPointerCapture = vi.fn();
+    Element.prototype.releasePointerCapture = vi.fn();
+  });
+
+  it("pans on wheel without ctrlKey (two-finger scroll)", () => {
+    const onViewportChange = vi.fn();
+    render(
+      <InfiniteCanvas
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onViewportChange={onViewportChange}
+      />,
+    );
+    const canvas = screen.getByTestId("infinite-canvas");
+
+    fireEvent.wheel(canvas, {
+      deltaX: 30,
+      deltaY: 50,
+      clientX: 400,
+      clientY: 300,
+      ctrlKey: false,
+    });
+
+    expect(onViewportChange).toHaveBeenCalledTimes(1);
+    const newViewport = onViewportChange.mock.calls[0]![0];
+    expect(newViewport.scale).toBe(1);
+    expect(newViewport.offsetX).toBe(-30);
+    expect(newViewport.offsetY).toBe(-50);
+  });
+
+  it("does not zoom on regular wheel scroll", () => {
+    const onViewportChange = vi.fn();
+    render(
+      <InfiniteCanvas
+        viewport={{ offsetX: 0, offsetY: 0, scale: 2 }}
+        onViewportChange={onViewportChange}
+      />,
+    );
+    const canvas = screen.getByTestId("infinite-canvas");
+
+    fireEvent.wheel(canvas, {
+      deltaY: -100,
+      clientX: 400,
+      clientY: 300,
+      ctrlKey: false,
+    });
+
+    expect(onViewportChange).toHaveBeenCalledTimes(1);
+    const newViewport = onViewportChange.mock.calls[0]![0];
+    // Scale should remain unchanged
+    expect(newViewport.scale).toBe(2);
   });
 });

@@ -4,6 +4,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ViewportState } from "./types";
 import { useZoom } from "./useZoom";
 
+/** Helper to dispatch a native WheelEvent (since useZoom uses addEventListener, not React onWheel) */
+function dispatchWheel(target: HTMLElement, init: WheelEventInit): void {
+  const event = new WheelEvent("wheel", {
+    ...init,
+    bubbles: true,
+    cancelable: true,
+  });
+  target.dispatchEvent(event);
+}
+
 /** Test harness component that exposes useZoom result */
 function ZoomTestHarness({
   viewport,
@@ -29,7 +39,6 @@ function ZoomTestHarness({
     <div
       ref={containerRef}
       data-testid="zoom-container"
-      onWheel={result.onWheel}
       onPointerDown={result.onPinchPointerDown}
       onPointerMove={result.onPinchPointerMove}
       onPointerUp={result.onPinchPointerUp}
@@ -37,8 +46,8 @@ function ZoomTestHarness({
   );
 }
 
-describe("useZoom - wheel", () => {
-  it("calls onViewportChange on wheel event", () => {
+describe("useZoom - wheel zoom (ctrlKey=true, trackpad pinch)", () => {
+  it("zooms on wheel event with ctrlKey (trackpad pinch)", () => {
     const onViewportChange = vi.fn();
     render(
       <ZoomTestHarness
@@ -60,30 +69,89 @@ describe("useZoom - wheel", () => {
       toJSON: () => {},
     });
 
-    fireEvent.wheel(container, { deltaY: -100, clientX: 400, clientY: 300 });
+    dispatchWheel(container, {
+      deltaY: -100,
+      clientX: 400,
+      clientY: 300,
+      ctrlKey: true,
+    });
     expect(onViewportChange).toHaveBeenCalledTimes(1);
     const newVp = onViewportChange.mock.calls[0]![0];
     expect(newVp.scale).toBeGreaterThan(1);
   });
 
-  it("does not call onViewportChange if containerRef has no element", () => {
+  it("does not attach wheel listener when containerRef has no element", () => {
     const onViewportChange = vi.fn();
-    // Render without ref by using a custom harness that doesn't set ref
     function NoRefHarness() {
       const containerRef = useRef<HTMLDivElement>(null);
-      const result = useZoom(
+      useZoom(
         { offsetX: 0, offsetY: 0, scale: 1 },
         onViewportChange,
         containerRef,
       );
       // Don't assign ref to the div
-      return <div data-testid="no-ref-container" onWheel={result.onWheel} />;
+      return <div data-testid="no-ref-container" />;
     }
 
     render(<NoRefHarness />);
     const container = screen.getByTestId("no-ref-container");
-    fireEvent.wheel(container, { deltaY: -100, clientX: 100, clientY: 100 });
+    dispatchWheel(container, {
+      deltaY: -100,
+      clientX: 100,
+      clientY: 100,
+      ctrlKey: true,
+    });
     expect(onViewportChange).not.toHaveBeenCalled();
+  });
+});
+
+describe("useZoom - wheel pan (ctrlKey=false, trackpad two-finger scroll)", () => {
+  it("pans on wheel event without ctrlKey (trackpad scroll)", () => {
+    const onViewportChange = vi.fn();
+    render(
+      <ZoomTestHarness
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onViewportChange={onViewportChange}
+      />,
+    );
+    const container = screen.getByTestId("zoom-container");
+
+    dispatchWheel(container, {
+      deltaX: 50,
+      deltaY: 100,
+      clientX: 400,
+      clientY: 300,
+      ctrlKey: false,
+    });
+    expect(onViewportChange).toHaveBeenCalledTimes(1);
+    const newVp = onViewportChange.mock.calls[0]![0];
+    // Pan: offset changes, scale stays the same
+    expect(newVp.scale).toBe(1);
+    expect(newVp.offsetX).toBe(-50);
+    expect(newVp.offsetY).toBe(-100);
+  });
+
+  it("does not zoom on regular wheel scroll", () => {
+    const onViewportChange = vi.fn();
+    render(
+      <ZoomTestHarness
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onViewportChange={onViewportChange}
+      />,
+    );
+    const container = screen.getByTestId("zoom-container");
+
+    dispatchWheel(container, {
+      deltaY: -100,
+      clientX: 400,
+      clientY: 300,
+      ctrlKey: false,
+    });
+    expect(onViewportChange).toHaveBeenCalledTimes(1);
+    const newVp = onViewportChange.mock.calls[0]![0];
+    // Should pan, not zoom
+    expect(newVp.scale).toBe(1);
+    expect(newVp.offsetY).toBe(100);
   });
 });
 

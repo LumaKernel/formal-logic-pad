@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  closeLineMenu,
-  LINE_MENU_CLOSED,
-  openLineMenu,
-} from "./lineMenu";
+import { closeLineMenu, LINE_MENU_CLOSED, openLineMenu } from "./lineMenu";
 
 describe("LINE_MENU_CLOSED", () => {
   it("has open: false", () => {

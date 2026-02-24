@@ -1,10 +1,15 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { applyPanDelta } from "./pan";
 import type { ViewportState } from "./types";
-import { MAX_SCALE, MIN_SCALE, applyZoom, computeScaleFromWheel } from "./zoom";
+import {
+  MAX_SCALE,
+  MIN_SCALE,
+  applyZoom,
+  classifyWheelEvent,
+  computeScaleFromWheel,
+} from "./zoom";
 
 export type UseZoomResult = {
-  /** Attach to the container's onWheel */
-  readonly onWheel: (e: React.WheelEvent<HTMLElement>) => void;
   /** Attach to the container's onPointerDown for pinch tracking */
   readonly onPinchPointerDown: (e: React.PointerEvent<HTMLElement>) => void;
   /** Attach to the container's onPointerMove for pinch tracking */
@@ -55,34 +60,55 @@ export function useZoom(
   const pointersRef = useRef<readonly PointerEntry[]>([]);
   const lastPinchDistanceRef = useRef<number | null>(null);
 
-  const onWheel = useCallback(
-    (e: React.WheelEvent<HTMLElement>) => {
+  // Use ref to keep latest values for the native event handler
+  const stateRef = useRef({ viewport, onViewportChange, minScale, maxScale });
+  useEffect(() => {
+    stateRef.current = { viewport, onViewportChange, minScale, maxScale };
+  });
+
+  // Register wheel listener with { passive: false } to allow preventDefault().
+  // React's onWheel is passive in Chrome, which prevents preventDefault().
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
 
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (!rect) return;
+      const {
+        viewport: vp,
+        onViewportChange: onChange,
+        minScale: minS,
+        maxScale: maxS,
+      } = stateRef.current;
+      const action = classifyWheelEvent(e);
 
-      // Cursor position relative to the canvas container
+      if (action === "pan") {
+        const delta = { x: -e.deltaX, y: -e.deltaY };
+        const nextViewport = applyPanDelta(vp, delta);
+        onChange(nextViewport);
+        return;
+      }
+
+      const rect = el.getBoundingClientRect();
       const center = {
         x: e.clientX - rect.left,
         y: e.clientY - rect.top,
       };
 
-      const newScale = computeScaleFromWheel(viewport.scale, e.deltaY);
-      const nextViewport = applyZoom(
-        viewport,
-        center,
-        newScale,
-        minScale,
-        maxScale,
-      );
+      const newScale = computeScaleFromWheel(vp.scale, e.deltaY);
+      const nextViewport = applyZoom(vp, center, newScale, minS, maxS);
 
-      if (nextViewport !== viewport) {
-        onViewportChange(nextViewport);
+      if (nextViewport !== vp) {
+        onChange(nextViewport);
       }
-    },
-    [viewport, onViewportChange, containerRef, minScale, maxScale],
-  );
+    };
+
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", handleWheel);
+    };
+  }, [containerRef]);
 
   const onPinchPointerDown = useCallback(
     (e: React.PointerEvent<HTMLElement>) => {
@@ -155,7 +181,6 @@ export function useZoom(
   }, []);
 
   return {
-    onWheel,
     onPinchPointerDown,
     onPinchPointerMove,
     onPinchPointerUp,

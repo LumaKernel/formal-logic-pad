@@ -30,11 +30,7 @@ export {
   openNodeMenu,
 } from "./nodeMenu";
 export type { NodeMenuState } from "./nodeMenu";
-export {
-  LINE_MENU_CLOSED,
-  closeLineMenu,
-  openLineMenu,
-} from "./lineMenu";
+export { LINE_MENU_CLOSED, closeLineMenu, openLineMenu } from "./lineMenu";
 export type { LineMenuState } from "./lineMenu";
 export {
   computeConnectionPath,
@@ -57,10 +53,12 @@ export type { UseDragItemResult } from "./useDragItem";
 export {
   applyZoom,
   clampScale,
+  classifyWheelEvent,
   computeScaleFromWheel,
   MIN_SCALE,
   MAX_SCALE,
 } from "./zoom";
+export type { WheelAction, WheelEventInput } from "./zoom";
 export { useZoom } from "./useZoom";
 export type { UseZoomResult } from "./useZoom";
 export { useContextMenu, useLongPress } from "./useContextMenu";

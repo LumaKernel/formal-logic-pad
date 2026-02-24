@@ -4,6 +4,7 @@ import {
   MIN_SCALE,
   applyZoom,
   clampScale,
+  classifyWheelEvent,
   computeScaleFromWheel,
 } from "./zoom";
 
@@ -114,6 +115,16 @@ describe("applyZoom", () => {
     expect(result.offsetX).toBe(0);
     expect(result.offsetY).toBe(0);
     expect(result.scale).toBe(2);
+  });
+});
+
+describe("classifyWheelEvent", () => {
+  it("returns 'zoom' when ctrlKey is true (trackpad pinch)", () => {
+    expect(classifyWheelEvent({ ctrlKey: true })).toBe("zoom");
+  });
+
+  it("returns 'pan' when ctrlKey is false (trackpad two-finger scroll)", () => {
+    expect(classifyWheelEvent({ ctrlKey: false })).toBe("pan");
   });
 });
 

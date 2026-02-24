@@ -54,8 +54,13 @@ export function InfiniteCanvas({
     onViewportChange,
   );
 
-  const { onWheel, onPinchPointerDown, onPinchPointerMove, onPinchPointerUp } =
-    useZoom(viewport, onViewportChange, containerRef, minScale, maxScale);
+  const { onPinchPointerDown, onPinchPointerMove, onPinchPointerUp } = useZoom(
+    viewport,
+    onViewportChange,
+    containerRef,
+    minScale,
+    maxScale,
+  );
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLElement>) => {
@@ -97,7 +102,6 @@ export function InfiniteCanvas({
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      onWheel={onWheel}
     >
       <svg
         style={{
