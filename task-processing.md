@@ -1,14 +1,12 @@
 ## 実行中タスク
 
-**ソース:** `tasks/prd-formula-input-component.md` - FI-008
+**ソース:** `tasks/prd-inserted-tasks.md`
 
-### FI-008: InfiniteCanvasノード内統合
+> ノード自体も、最初の公理などは編集できる対象になるので、編集できるようにしておこう。
 
-**受け入れ基準:**
-- [ ] FormulaEditorをCanvasItemのchildren内に配置可能
-- [ ] ノードのドラッグとテキスト編集が干渉しない
-- [ ] 編集モード中はノードのドラッグを無効化
-- [ ] ノードサイズが編集内容に合わせて調整される
-- [ ] Storybookストーリー（CanvasItem + FormulaEditor統合デモ）を追加
-- [ ] play関数でノード内編集の動作を検証
-- [ ] 型チェック/lintが通る
+### 周辺情報
+- FI-008で FormulaEditor + CanvasItem の統合パターンは確立済み（FormulaNodeIntegration.stories.tsx）
+- 現在の ProofTree.stories.tsx は読み取り専用のデモ（文字列をそのまま表示）
+- 必要なこと: 再利用可能な ProofNode コンポーネントを作成し、FormulaEditor を使って編集可能にする
+- ProofNode は logic-core の ProofNode 型（AxiomNode, ModusPonensNode, GeneralizationNode）と連携
+- prd-formal-logic-pad.md の Phase 3 (US-019〜022) の前準備として、編集可能ノードコンポーネントを整備
