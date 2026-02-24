@@ -66,7 +66,8 @@ export function ConnectorPortComponent({
         pointerEvents: "auto",
         cursor: "crosshair",
         zIndex: 500,
-        transition: "all 0.15s ease",
+        transition:
+          "width 0.15s ease, height 0.15s ease, background-color 0.15s ease",
         boxSizing: "border-box",
       }}
       onClick={(e) => {

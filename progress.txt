@@ -391,3 +391,15 @@
   - `collectFormulaMetaVariables` と `collectTermMetaVariablesInFormula` は異なる関数。前者はFormula内のMetaVariable(論理式)、後者はFormula内のTermMetaVariable(項)を収集する
   - type predicate (`f is MetaVariable`) は `@luma-dev/luma-ts/no-explicit-return-is` により禁止。TypeScript 5.5+の推論に任せる
 ---
+
+## 2026-02-24 - InfiniteCanvas コネクタポートの遅延追従修正
+- `ConnectorPortComponent.tsx` の CSS `transition: "all 0.15s ease"` を位置プロパティ以外（width, height, background-color）のみに限定
+- 原因: `transition: all` により left/top の位置変更にもアニメーションがかかり、ドラッグ時にポートが0.15秒遅れて追従していた
+- 修正後: ホバー時のサイズ変更アニメーションは維持しつつ、位置変更は即座に反映
+- 変更ファイル: `src/lib/infinite-canvas/ConnectorPortComponent.tsx`, `tasks/prd-inserted-tasks.md`, `task-processing.md`
+- カバレッジ: Statements 93.55%（変化なし、CSS修正のみ）
+- スクリーンショット: `screenshots.local/connector-port-fix-initial.png`, `screenshots.local/connector-port-fix-fulldemo.png`
+- **今後のイテレーションへの学び:**
+  - CSS `transition: all` は位置プロパティ（left, top）にもかかるため、ドラッグ追従が遅延する。位置変更が頻繁な要素では `transition` を限定的に指定すること
+  - コネクタポートのように親ノードの移動に連動する要素では、位置にtransitionをかけてはいけない
+---
