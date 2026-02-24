@@ -386,21 +386,21 @@
 - [x] ユニットテストでラウンドトリップ（parse → format → parse）を検証
 - [x] 型チェック/lintが通る
 
-#### US-018: LaTeXフォーマッター
+#### US-018: LaTeXフォーマッター [x]
 
 **説明:** 開発者として、ASTをLaTeX文字列に変換したい（KaTeXレンダリング用）。
 
 **受け入れ基準:**
 
-- [ ] `formatLaTeX(ast)`: ASTをLaTeX文字列に変換
-- [ ] 論理記号: `\to`, `\leftrightarrow`, `\land`, `\lor`, `\lnot`, `\forall`, `\exists`
-- [ ] 等号: `=`
-- [ ] 二項演算: `+`, `-`, `\times`, `\div`, `^`
-- [ ] メタ変数: `\varphi`, `\psi`, `\chi`, ... + 添字（`_{1}`, `_{01}` など）
-- [ ] 関数・述語: `f(x, y)`, `P(a, b)` 形式で出力
-- [ ] 括弧は `\left(` `\right)` で出力
-- [ ] ユニットテストでLaTeX出力を検証
-- [ ] 型チェック/lintが通る
+- [x] `formatLaTeX(ast)`: ASTをLaTeX文字列に変換
+- [x] 論理記号: `\to`, `\leftrightarrow`, `\land`, `\lor`, `\lnot`, `\forall`, `\exists`
+- [x] 等号: `=`
+- [x] 二項演算: `+`, `-`, `\times`, `\div`, `^`
+- [x] メタ変数: `\varphi`, `\psi`, `\chi`, ... + 添字（`_{1}`, `_{01}` など）
+- [x] 関数・述語: `f(x, y)`, `P(a, b)` 形式で出力
+- [x] 括弧は `\left(` `\right)` で出力
+- [x] ユニットテストでLaTeX出力を検証
+- [x] 型チェック/lintが通る
 
 ---
 

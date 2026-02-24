@@ -662,3 +662,31 @@
   - 量化子(∀,∃)は二項演算子の子になるときのみ括弧が必要（parentBP > 0 で判定）
   - 否定(¬)の内部は、二項論理演算子・量化子の場合のみ括弧が必要（tag名ベースで判定）
 ---
+
+## 2026-02-24 - LogicLang US-018: LaTeXフォーマッター
+- `src/lib/logic-lang/formatLaTeX.ts` を新規作成
+  - `formatFormulaLaTeX(formula: Formula): string` — 論理式ASTをLaTeX文字列に変換
+  - `formatTermLaTeX(term: Term): string` — 項ASTをLaTeX文字列に変換
+  - 最小限の括弧のみ出力（`\left(` `\right(` で出力）
+  - 括弧判定はformatUnicode.tsと同じbinding powerベースのロジック
+  - 論理記号: `\to`, `\leftrightarrow`, `\land`, `\lor`, `\lnot`, `\forall`, `\exists`
+  - 等号: `=`
+  - 項の二項演算: `+`, `-`, `\times`, `\div`, `^`（べき乗はLaTeX `x^{y}` 形式）
+  - メタ変数: ギリシャ文字→LaTeXコマンド対応表（23文字）+ 添字 `_{01}` 形式
+  - 関数・述語: `f\left(x\right)` 形式
+- `src/lib/logic-lang/formatLaTeX.test.ts` — 59テスト
+  - メタ変数(添字0〜3桁+全ギリシャ文字), 否定(5種), 二項演算(4種), 優先順位・括弧(10種), 量化子(5種), 述語(3種), 等号(2種), 複合式(4種)
+  - 項フォーマット: 変数, メタ変数, 定数, 関数適用(3種), 5種の二項演算, 優先順位・括弧(8種)
+- `src/lib/logic-lang/index.ts` — `formatFormulaLaTeX`, `formatTermLaTeX` のエクスポート追加
+- テスト: 1107 → 1166（+59）
+- カバレッジ: Statements 91.74% → 91.71% ✅ 維持（差異はexhaustive checkデッドコード分岐のみ）
+- formatLaTeX.ts 単体: Statements 91.11%, Functions 100%, Branch 91.42%
+- 変更ファイル: `src/lib/logic-lang/formatLaTeX.ts`（新規）, `formatLaTeX.test.ts`（新規）, `index.ts`, `tasks/prd-formal-logic-pad.md`
+- スクリーンショット: `.screenshots/us-018-storybook-main.png`
+- **今後のイテレーションへの学び:**
+  - LaTeXフォーマッターはUnicodeフォーマッターと同じ括弧判定ロジックを共有。binding power定数も同一値
+  - べき乗（`^`）はLaTeX固有の処理が必要: 右辺を `{}` で囲む（`x^{y^{z}}`）。通常の二項演算子とは異なるフォーマット
+  - ギリシャ文字→LaTeXコマンド対応表: εは`\varepsilon`（`\epsilon`ではない）、φは`\varphi`（`\phi`ではない）
+  - `\left(` `\right)` は KaTeX でのレンダリング時にサイズ自動調整される。通常の `(` `)` より望ましい
+  - フェーズ2B（Logic Lang: Lexer/Parser/Unicode Formatter/LaTeX Formatter）がすべて完了。次はフェーズ3（ノートUI）またはprd-inserted-tasksの残タスク
+---
