@@ -1,5 +1,5 @@
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ConnectorPortOnItem } from "./connector";
 import { PortConnection } from "./PortConnection";
 import type { ViewportState } from "./types";
@@ -120,5 +120,74 @@ describe("PortConnection", () => {
     // The path should contain offset start position
     // from port right edge: world (150, 125) -> screen (250, 175)
     expect(d).toContain("M 250 175");
+  });
+
+  it("does not render hit area when onClick is not provided", () => {
+    render(<PortConnection from={fromPort} to={toPort} viewport={viewport} />);
+    expect(
+      screen.queryByTestId("port-connection-hit-area"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders hit area when onClick is provided", () => {
+    const handleClick = vi.fn();
+    render(
+      <PortConnection
+        from={fromPort}
+        to={toPort}
+        viewport={viewport}
+        onClick={handleClick}
+      />,
+    );
+    const hitArea = screen.getByTestId("port-connection-hit-area");
+    expect(hitArea).toBeInTheDocument();
+    expect(hitArea.getAttribute("stroke")).toBe("transparent");
+  });
+
+  it("calls onClick with screen coordinates when hit area is clicked", () => {
+    const handleClick = vi.fn();
+    render(
+      <PortConnection
+        from={fromPort}
+        to={toPort}
+        viewport={viewport}
+        onClick={handleClick}
+      />,
+    );
+    const hitArea = screen.getByTestId("port-connection-hit-area");
+    fireEvent.click(hitArea, { clientX: 200, clientY: 100 });
+    expect(handleClick).toHaveBeenCalledOnce();
+    expect(handleClick).toHaveBeenCalledWith(200, 100);
+  });
+
+  it("hit area has pointer cursor style", () => {
+    const handleClick = vi.fn();
+    render(
+      <PortConnection
+        from={fromPort}
+        to={toPort}
+        viewport={viewport}
+        onClick={handleClick}
+      />,
+    );
+    const hitArea = screen.getByTestId("port-connection-hit-area");
+    expect(hitArea.style.cursor).toBe("pointer");
+  });
+
+  it("hit area stops pointer event propagation", () => {
+    const handleClick = vi.fn();
+    render(
+      <PortConnection
+        from={fromPort}
+        to={toPort}
+        viewport={viewport}
+        onClick={handleClick}
+      />,
+    );
+    const hitArea = screen.getByTestId("port-connection-hit-area");
+    const pointerEvent = new PointerEvent("pointerdown", { bubbles: true });
+    vi.spyOn(pointerEvent, "stopPropagation");
+    hitArea.dispatchEvent(pointerEvent);
+    expect(pointerEvent.stopPropagation).toHaveBeenCalled();
   });
 });

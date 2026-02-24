@@ -18,7 +18,13 @@ export interface ConnectionProps {
   readonly strokeWidth?: number;
   /** Other items on the canvas that the connection should try to avoid */
   readonly obstacles?: readonly Obstacle[];
+  /** Callback when the connection line is clicked.
+   *  Receives screen coordinates (clientX, clientY). */
+  readonly onClick?: (screenX: number, screenY: number) => void;
 }
+
+/** Width of the invisible hit area for click detection on connections. */
+const HIT_AREA_WIDTH = 16;
 
 /**
  * Renders a bezier curve connection between two rectangular endpoints.
@@ -33,8 +39,10 @@ export function Connection({
   color = "#666",
   strokeWidth = 2,
   obstacles = [],
+  onClick,
 }: ConnectionProps) {
   const path = computeSmartConnectionPath(from, to, viewport, obstacles);
+  const clickable = onClick !== undefined;
 
   return (
     <svg
@@ -67,6 +75,24 @@ export function Connection({
         strokeDasharray="8 4"
         opacity={0.8}
       />
+      {/* Invisible hit area for click detection */}
+      {clickable && (
+        <path
+          data-testid="connection-hit-area"
+          d={path.d}
+          fill="none"
+          stroke="transparent"
+          strokeWidth={HIT_AREA_WIDTH}
+          style={{ pointerEvents: "stroke", cursor: "pointer" }}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick(e.clientX, e.clientY);
+          }}
+        />
+      )}
     </svg>
   );
 }

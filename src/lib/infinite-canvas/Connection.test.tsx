@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { Connection } from "./Connection";
 import type { ConnectionEndpoint } from "./connectionPath";
 import type { ViewportState } from "./types";
@@ -141,5 +141,72 @@ describe("Connection", () => {
       screen.getByTestId("connection-path").getAttribute("d") ?? "";
 
     expect(pathBefore).not.toBe(pathAfter);
+  });
+
+  it("does not render hit area when onClick is not provided", () => {
+    render(<Connection from={from} to={to} viewport={defaultViewport} />);
+    expect(screen.queryByTestId("connection-hit-area")).not.toBeInTheDocument();
+  });
+
+  it("renders hit area when onClick is provided", () => {
+    const handleClick = vi.fn();
+    render(
+      <Connection
+        from={from}
+        to={to}
+        viewport={defaultViewport}
+        onClick={handleClick}
+      />,
+    );
+    const hitArea = screen.getByTestId("connection-hit-area");
+    expect(hitArea).toBeInTheDocument();
+    expect(hitArea.getAttribute("stroke")).toBe("transparent");
+  });
+
+  it("calls onClick with screen coordinates when hit area is clicked", () => {
+    const handleClick = vi.fn();
+    render(
+      <Connection
+        from={from}
+        to={to}
+        viewport={defaultViewport}
+        onClick={handleClick}
+      />,
+    );
+    const hitArea = screen.getByTestId("connection-hit-area");
+    fireEvent.click(hitArea, { clientX: 150, clientY: 75 });
+    expect(handleClick).toHaveBeenCalledOnce();
+    expect(handleClick).toHaveBeenCalledWith(150, 75);
+  });
+
+  it("hit area has pointer cursor style", () => {
+    const handleClick = vi.fn();
+    render(
+      <Connection
+        from={from}
+        to={to}
+        viewport={defaultViewport}
+        onClick={handleClick}
+      />,
+    );
+    const hitArea = screen.getByTestId("connection-hit-area");
+    expect(hitArea.style.cursor).toBe("pointer");
+  });
+
+  it("hit area stops pointer event propagation", () => {
+    const handleClick = vi.fn();
+    render(
+      <Connection
+        from={from}
+        to={to}
+        viewport={defaultViewport}
+        onClick={handleClick}
+      />,
+    );
+    const hitArea = screen.getByTestId("connection-hit-area");
+    const pointerEvent = new PointerEvent("pointerdown", { bubbles: true });
+    vi.spyOn(pointerEvent, "stopPropagation");
+    hitArea.dispatchEvent(pointerEvent);
+    expect(pointerEvent.stopPropagation).toHaveBeenCalled();
   });
 });

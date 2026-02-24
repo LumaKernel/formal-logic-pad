@@ -31,6 +31,12 @@ export {
 } from "./nodeMenu";
 export type { NodeMenuState } from "./nodeMenu";
 export {
+  LINE_MENU_CLOSED,
+  closeLineMenu,
+  openLineMenu,
+} from "./lineMenu";
+export type { LineMenuState } from "./lineMenu";
+export {
   computeConnectionPath,
   computeEdgePoint,
   computePortConnectionPath,

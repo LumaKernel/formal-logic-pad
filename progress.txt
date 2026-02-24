@@ -210,3 +210,24 @@
   - ノードメニューは `ContextMenuComponent` とは別のUI。ノード固有のヘッダー+アクションリストのパネル形式
   - `onClick` のみ指定（draggable/contextMenu無し）でも pointer イベントが正しくバインドされるよう条件を修正
 ---
+
+## 2026-02-24 - InfiniteCanvas 線クリックメニュー
+- `lineMenu.ts` を新規作成: 線メニュー状態管理のピュアロジック（LineMenuState, openLineMenu, closeLineMenu）
+- `Connection.tsx` に `onClick` prop を追加: 透明なSVGヒット領域（strokeWidth=16）でクリック検出
+- `PortConnection.tsx` にも同様の `onClick` prop を追加
+- `LineMenu.stories.tsx` を新規作成: play関数付きインタラクティブストーリー
+  - 3ノード（Axiom K, Axiom S, MP Result）と2接続線
+  - 線クリックでメニューパネル表示、アクション選択、トグル閉じの動作を確認
+- テスト: 291 → 306（+15テスト）
+  - `lineMenu.test.ts`: 4テスト（状態管理）
+  - `Connection.test.tsx`: 11 → 16テスト（onClick、ヒット領域、stopPropagation）
+  - `PortConnection.test.tsx`: 9 → 14テスト（同上）
+- カバレッジ: Statements 93.09% → 93.23% ✅ 向上
+- 変更ファイル: `lineMenu.ts`, `lineMenu.test.ts`, `Connection.tsx`, `Connection.test.tsx`, `PortConnection.tsx`, `PortConnection.test.tsx`, `LineMenu.stories.tsx`, `index.ts`, `tasks/prd-inserted-tasks.md`, `task-processing.md`, `progress.txt`
+- スクリーンショット: `screenshots.local/line-menu-after-play.png`, `screenshots.local/line-menu-storybook.png`
+- **今後のイテレーションへの学び:**
+  - SVGパスのクリック検出は透明な太いストローク（`stroke: transparent`, `strokeWidth: 16`）+ `pointerEvents: "stroke"` で実現
+  - SVG要素のクリックイベントは親のpointerDownイベントと干渉する。`onPointerDown` と `onClick` 両方で `stopPropagation()` が必要
+  - `lineMenu.ts` は `nodeMenu.ts` と同じパターン。状態管理のピュアロジック + UIコンポーネントは別（ストーリー側で実装）
+  - `Connection` と `PortConnection` の両方に同じ `onClick` パターンを適用。将来的に共通化も検討可能
+---
