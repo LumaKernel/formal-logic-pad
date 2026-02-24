@@ -55,3 +55,23 @@ export {
   equality,
 } from "./formula";
 export type { Formula as FormulaType } from "./formula";
+
+// ── Equality (structural) ───────────────────────────────
+export { equalTerm, equalFormula } from "./equality";
+
+// ── MetaVariable utilities ──────────────────────────────
+export {
+  isFormulaMetaVariable,
+  isTermMetaVariable,
+  metaVariableKey,
+  termMetaVariableKey,
+  equalMetaVariable,
+  equalTermMetaVariable,
+  matchesMetaVariable,
+  matchesTermMetaVariable,
+  collectFormulaMetaVariables,
+  collectTermMetaVariables,
+  collectTermMetaVariablesInFormula,
+  collectUniqueFormulaMetaVariables,
+  collectUniqueTermMetaVariables,
+} from "./metaVariable";

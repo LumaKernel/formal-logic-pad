@@ -366,3 +366,28 @@
   - Formula/Term の exhaustive switch テストでは、変数宣言ではなく関数パラメータで型を受け取ること（変数宣言だとリテラル型に推論されて全caseが unreachable になる）
   - AST クラス名の `Function` はJSのグローバル `Function` と衝突するため `FunctionApplication` に改名
 ---
+
+## 2026-02-24 - Logic Core US-010: メタ変数の定義
+- `equality.ts`: Formula/Term の構造的等価性比較関数 `equalFormula`, `equalTerm` を実装
+  - 全ASTノード型に対応した再帰的比較。exhaustive switchで網羅性保証
+- `metaVariable.ts`: メタ変数の管理・パターンマッチング用ユーティリティ群を実装
+  - `isFormulaMetaVariable`, `isTermMetaVariable`: 型ガード
+  - `metaVariableKey`, `termMetaVariableKey`: Mapキー用文字列化
+  - `equalMetaVariable`, `equalTermMetaVariable`: メタ変数同士の等価性比較
+  - `matchesMetaVariable`, `matchesTermMetaVariable`: 名前+添字でのマッチング
+  - `collectFormulaMetaVariables`, `collectTermMetaVariables`: AST走査でメタ変数を収集（重複あり）
+  - `collectTermMetaVariablesInFormula`: Formula内のTermMetaVariableを収集
+  - `collectUniqueFormulaMetaVariables`, `collectUniqueTermMetaVariables`: 重複排除版
+- `index.ts` にエクスポート追加
+- テスト: 109テスト追加（equality 45, metaVariable 64）
+- 全テスト: 401 → 510（+109）
+- logic-core カバレッジ: Branch 100%, Functions 100%（Statements 93.33%はexhaustive checkのデッドコード行のみ未カバー）
+- 全体カバレッジ: Statements 93.55%（ベースライン94.1%、差分はexhaustive checkデッドコード行のみ）
+- 変更ファイル: `equality.ts`, `equality.test.ts`, `metaVariable.ts`, `metaVariable.test.ts`, `index.ts`（全新規）, `tasks/prd-formal-logic-pad.md`
+- スクリーンショット: `screenshots.local/us010-storybook-main.png`
+- **今後のイテレーションへの学び:**
+  - `equalFormula`/`equalTerm` はUS-011(代入)、US-012(ユニフィケーション)、US-014(証明検証)の基盤になる
+  - exhaustive switchの `satisfies never; return ...;` 行はV8カバレッジで到達不能と報告される。これは正常で、Branch/Functions 100%であれば問題ない
+  - `collectFormulaMetaVariables` と `collectTermMetaVariablesInFormula` は異なる関数。前者はFormula内のMetaVariable(論理式)、後者はFormula内のTermMetaVariable(項)を収集する
+  - type predicate (`f is MetaVariable`) は `@luma-dev/luma-ts/no-explicit-return-is` により禁止。TypeScript 5.5+の推論に任せる
+---
