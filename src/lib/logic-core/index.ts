@@ -107,3 +107,7 @@ export type {
   SubstitutionError,
   SubstitutionResult,
 } from "./substitution";
+
+// ── Unification ─────────────────────────────────────────────
+export { unifyFormulas, unifyTerms } from "./unification";
+export type { UnificationResult, UnificationError } from "./unification";

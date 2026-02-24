@@ -432,3 +432,38 @@
   - `freeVariablesInFormula` で量化子スコープ内の自由変数を正しく除外しないと、α変換の判定が狂う（∀y.P(y))→Q(x) のケース）
   - greekLetters.ts のGreekLetter型はUnicode文字（"φ","ψ"等）。テストでASCII名("phi","psi")を使うとSchema.TaggedClassの検証でエラーになる
 ---
+
+## 2026-02-24 - Logic Core US-012: スキーマ間のユニフィケーション
+- `unification.ts` を新規実装: Martelli-Montanariアルゴリズムによる双方向ユニフィケーション
+  - `unifyFormulas(source, target)`: 2つの論理式をユニフィケーションし、FormulaSubstitutionMapとTermMetaSubstitutionMapを返す
+  - `unifyTerms(source, target)`: 2つの項をユニフィケーション
+  - 方程式ベースのワークリスト処理: Delete, Decompose, Eliminate, Orient, Occurs Check
+  - 論理式メタ変数（MetaVariable）と項メタ変数（TermMetaVariable）の両方を統一的に処理
+  - 代入の即時適用: Eliminateで代入を追加した際、残りの方程式すべてと既存の代入マップに反映
+  - occursInFormula / occursInTerm: 循環参照検出
+  - decomposeFormula / decomposeTerm: 構造分解で子方程式を生成
+- `UnificationResult` 型: `Ok`（formulaSubstitution + termSubstitution）または `Error`（StructureMismatch / OccursCheck / TagMismatch）
+- `index.ts` にエクスポート追加
+- テスト: 62テスト追加（unification）
+  - Delete: 同一式、同一複合式、同一述語
+  - Eliminate: メタ変数←述語、Orient（逆向き）、メタ変数←複合式、メタ変数同士
+  - Decompose: 含意、否定、連言、選言、双条件、全称量化、存在量化、等号、述語
+  - リファレンス例題5つ（K公理マッチ、複数出現、構造不一致、occurs check、S公理マッチ）
+  - 双方向ユニフィケーション: 両辺メタ変数、重複メタ変数、連鎖的解決
+  - Occurs Check: 直接、間接、入れ子
+  - 構造不一致: 異なるタグ、述語名不一致、引数数不一致、束縛変数不一致
+  - 添字付きメタ変数: φ1≠φ、φ1≠φ01
+  - 項メタ変数: 変数、定数、関数適用、二項演算、複数項メタ、occurs check
+  - 混合: 論理式+項メタ変数の同時解決
+  - unifyTerms: Delete、Eliminate、Decompose、Occurs Check、構造不一致、添字付き、複数回出現、双方向
+- 全テスト: 634 → 696（+62）
+- カバレッジ: Statements 92.64% → 91.94%（差分はexhaustive checkデッドコード行のみ。Functions 100%）
+- 変更ファイル: `unification.ts`, `unification.test.ts`（全新規）, `index.ts`, `tasks/prd-formal-logic-pad.md`
+- スクリーンショット: `screenshots.local/us012-storybook-main.png`
+- **今後のイテレーションへの学び:**
+  - Martelli-Montanariの5変換規則はワークリスト方式で実装。方程式キューを処理しながら代入マップを構築
+  - 論理式メタ変数と項メタ変数は別々の代入マップで管理。項メタ変数の代入は論理式方程式の述語/等号の子要素として出現
+  - 代入のEliminateステップでは即時適用が重要: 残りの方程式と既存代入マップの値すべてに新しい代入を適用
+  - occurs checkは構造が単純（MetaVariable/TermMetaVariableのキーで判定）。`occursInFormula`はPredicate/Equalityの項部分には論理式メタ変数が含まれないため探索不要
+  - 全称/存在量化のDecomposeでは束縛変数（TermVariable）もTerm方程式として分解。束縛変数名が異なれば不一致
+---
