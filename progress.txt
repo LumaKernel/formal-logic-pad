@@ -21,7 +21,35 @@
 - Storybook: `render` を使うストーリーでも required props がある場合は `args` にダミー値が必要（TypeScript型チェック）
 - `src/lib/formula-input/` は FormulaInput コンポーネント群の配置先。logic-lang に依存、InfiniteCanvas とは独立
 - FormulaInput: 制御コンポーネント、`useDeferredValue`でデバウンス、純粋関数（computeParseState等）を分離してテスタブルに
+- macOSのcase-insensitiveファイルシステムでは `FormulaEditor.tsx` と `formulaEditor.ts` が衝突する。異なるケースのファイル名は使わず、`editorLogic.ts` のように明確に異なる名前にする
 
+---
+
+## 2026-02-25 - FormulaInput FI-007
+- 編集/表示モード切替コンポーネント（FormulaEditor）を実装
+  - 表示モード: KaTeX または Unicode で美しくレンダリング表示
+  - クリック/Enter/Spaceで編集モードに切替: FormulaInput テキスト入力欄が表示
+  - 編集完了（blur/Escape）で表示モードに戻る
+  - パースエラー時は編集モードに留まる（エラー表示継続）
+  - CSSトランジション（opacity 0.15s）によるモード切替アニメーション
+  - アクセシビリティ: role=button, tabIndex, aria-label
+  - 純粋ロジック（editorLogic.ts）としてモード遷移判定を分離
+- 変更ファイル:
+  - `src/lib/formula-input/editorLogic.ts` (新規: モード遷移純粋ロジック)
+  - `src/lib/formula-input/editorLogic.test.ts` (新規: 6テスト)
+  - `src/lib/formula-input/FormulaEditor.tsx` (新規: コンポーネント)
+  - `src/lib/formula-input/FormulaEditor.test.tsx` (新規: 18テスト)
+  - `src/lib/formula-input/FormulaEditor.stories.tsx` (新規: 7ストーリー)
+  - `src/lib/formula-input/FormulaInput.tsx` (onBlurプロパティ追加)
+  - `src/lib/formula-input/index.ts` (エクスポート追加)
+  - `tasks/prd-formula-input-component.md` (FI-007完了)
+- カバレッジ: 全体 Stmts 92.79% (ベースライン 92.64% → 向上)
+- テスト数: 1470 (前回 1439)
+- スクリーンショット: `.screenshots/formula-editor-unicode-display.png`, `.screenshots/formula-editor-mode-toggle.png`, `.screenshots/formula-editor-error-stays.png`
+- **今後のイテレーションへの学び:**
+  - macOSのcase-insensitiveファイルシステムでは `FormulaEditor.tsx` と `formulaEditor.ts` が同一ファイルとして解決される。Vite/Vitestで `import { FormulaEditor } from "./FormulaEditor"` が `formulaEditor.ts` を読み込んでundefinedエラーになった。解決策: 純粋ロジックファイルは `editorLogic.ts` のように明確に異なる名前にする
+  - FormulaInputに `onBlur` コールバックを追加することで、親コンポーネント（FormulaEditor）からblurイベントを捕捉できるようにした
+  - 編集/表示モード切替は3層で実装: 純粋ロジック（editorLogic.ts）→ コンポーネント（FormulaEditor.tsx）→ ストーリー
 ---
 
 ## 2026-02-25 - FormulaInput FI-006
