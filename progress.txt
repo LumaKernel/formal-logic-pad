@@ -62,6 +62,30 @@
 
 ---
 
+## 2026-02-25 - クエスト問題群ドキュメント作成
+- `dev/quest-problems/` にクエストモード用の練習問題群を体系的にまとめた
+- **6ファイル構成:**
+  - `README.md` - 全体構成・難易度定義・フォーマット仕様
+  - `01-propositional-basics.md` - 命題論理基礎 (Q-01〜Q-07): 恒等律、推移律、含意の交換等
+  - `02-propositional-intermediate.md` - 命題論理中級 (Q-08〜Q-14): 3段チェイン、B combinator等
+  - `03-propositional-advanced.md` - 命題論理上級 (Q-15〜Q-24): 否定、DNE、排中律、Peirce法則、De Morgan
+  - `04-predicate-basics.md` - 述語論理基礎 (Q-25〜Q-32): A4/A5/Gen、全称例化、存在導入
+  - `05-predicate-advanced.md` - 述語論理上級 (Q-33〜Q-38): 量化子の相互作用、Drinker's Paradox
+  - `06-equality.md` - 等号付き論理 (Q-39〜Q-45): E1-E3の具体化、等号チェイン
+- **計45問**: Level 1 (3問) / Level 2 (10問) / Level 3 (11問) / Level 4 (11問) / Level 5 (10問)
+- 全問にDSLテキストでのゴール式、ヒント、解法の概略を記載
+- カバレッジ: 変化なし（ドキュメントのみの変更）Stmts 99.26%, Branch 94.69%, Lines 100%
+- テスト: 2137 全パス
+- 変更ファイル:
+  - `dev/quest-problems/` 配下7ファイル（新規作成）
+  - `tasks/prd-next-tasks.md` - 問題群タスクを完了マーク
+- **今後のイテレーションへの学び:**
+  - Hilbert系での証明はステップ数が多く、問題設計時には正確なステップ数見積もりが困難。概算で記載し、解答ノート実装時に精緻化する
+  - 存在量化子(∃)の定義 `¬∀x.¬φ` を使った証明は、否定操作が多く入り難易度が上がる
+  - combinator理論(S,K,I,B,C,W)との対応は学習者のモチベーションになりうる
+  - Drinker's Paradox等の非構成的定理は難易度Level 5以上が妥当
+---
+
 ## 2026-02-25 - 編集モードUI修正 & 公理配置位置修正
 - **編集モードでFormulaInputプレビューが重複表示されるバグを修正**
   - 原因: FormulaEditorがFormulaInputを使う際、FormulaInputのプレビュー（FormulaDisplay）が不要にも関わらず表示されていた
