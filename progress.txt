@@ -55,6 +55,34 @@
 - Storybookテーマ切り替え: `globalTypes` + デコレーターで `data-theme` 属性を制御。ThemeProviderは使わず、CSS変数の `[data-theme]` セレクタに直接依存
 - Side by Sideモード: ストーリーを2回レンダリングするため、play関数のクエリが複数マッチする。テストは単一テーマ（デフォルト: light）で実行
 - FormulaEditorのホバースタイルは`currentColor`ベース。不透明な背景色はEditableProofNode内（白文字+色付き背景）でコントラスト問題を起こすため禁止
+- パーサーは `phi`, `psi`, `chi` 等のギリシャ文字名を命題変数として認識する。`p`, `q` 等の単一文字は項変数として扱われ、`=` が期待される
+
+---
+
+## 2026-02-25 - 証明フローデモストーリー追加
+- φ→φ（恒等律）の証明をŁukasiewicz公理系で構築するStorybookストーリーを2つ作成
+  - `IdentityProofCompleted`: 5ステップの完成済み証明。ゴール「φ → φ」が達成されている状態を表示
+  - `IdentityProofInteractive`: 4ノード（公理3つ + MP1つ）配置済み。play関数でMP適用して証明を完成させる
+- 証明手順:
+  1. A1: φ → ((φ→φ) → φ)
+  2. A2: (φ → ((φ→φ) → φ)) → ((φ → (φ→φ)) → (φ → φ))
+  3. MP(1,2): (φ → (φ→φ)) → (φ → φ)
+  4. A1: φ → (φ→φ)
+  5. MP(4,3): φ → φ
+- `tasks/prd-inserted-tasks.md` 完了 → `tasks-archived/prd-inserted-tasks-5.md` にアーカイブ
+- 変更ファイル:
+  - `src/lib/proof-pad/ProofFlowDemo.stories.tsx` (NEW) - 証明フローデモストーリー2件
+  - `tasks/prd-next-tasks.md` (MODIFIED) - タスク完了マーク
+  - `tasks-archived/prd-inserted-tasks-5.md` (MOVED) - inserted-tasks完了アーカイブ
+- カバレッジ: Stmts 99.4%, Branch 95.08%, Funcs 92.08%, Lines 100%（維持）
+- テスト: 2051 → 2053（+2ストーリー）
+- スクリーンショット:
+  - `.screenshots/proof-flow-identity-completed.png` (完成済み証明、Proof Complete!バナー表示)
+  - `.screenshots/proof-flow-identity-interactive.png` (インタラクティブ証明完了後)
+- **今後のイテレーションへの学び:**
+  - パーサーは `p`, `q` 等の単一英字を命題変数として認識しない。命題変数は `phi`, `psi`, `chi` 等のギリシャ文字名で記述する必要がある
+  - `applyMPAndConnect` の左前提=φ（命題）、右前提=φ→ψ（含意式）。左前提が右前提の前件と一致する必要あり
+  - ストーリーの事前状態構築には `createEmptyWorkspace` → `addNode` → `applyMPAndConnect` の組み合わせが有効。`applyMPAndConnect` は成功時に自動で結論テキストを設定する
 
 ---
 
