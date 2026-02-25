@@ -75,18 +75,18 @@
 - [x] 型チェック/lintが通る
 - [x] Playwright MCPでスクリーンショットを撮影し `.screenshots/` に保存して確認
 
-### US-004: テーマ遷移アニメーション
+### US-004: テーマ遷移アニメーション [x]
 
 **説明:** ユーザーとして、テーマ切り替え時に色がスムーズに変わる体験をしたい。
 
 **受け入れ基準:**
 
-- [ ] CSS変数のトランジション（`transition: background-color 0.3s, color 0.3s`）を主要要素に適用
-- [ ] InfiniteCanvasのSVGパターン（ドット・基準線）もスムーズに色遷移する
-- [ ] 初回ロード時にはトランジションを無効化し、FOUCを防ぐ（`data-theme-loaded` 属性等で制御）
-- [ ] `prefers-reduced-motion` メディアクエリを尊重し、設定時はトランジションを無効化する
-- [ ] 型チェック/lintが通る
-- [ ] Playwright MCPでスクリーンショットを撮影し `.screenshots/` に保存して確認
+- [x] CSS変数のトランジション（`transition: background-color 0.3s, color 0.3s`）を主要要素に適用
+- [x] InfiniteCanvasのSVGパターン（ドット・基準線）もスムーズに色遷移する
+- [x] 初回ロード時にはトランジションを無効化し、FOUCを防ぐ（`data-theme-loaded` 属性等で制御）
+- [x] `prefers-reduced-motion` メディアクエリを尊重し、設定時はトランジションを無効化する
+- [x] 型チェック/lintが通る
+- [x] Playwright MCPでスクリーンショットを撮影し `.screenshots/` に保存して確認
 
 ### US-005: InfiniteCanvasのテーマ対応
 

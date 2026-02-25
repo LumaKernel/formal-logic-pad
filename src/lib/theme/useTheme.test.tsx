@@ -5,6 +5,7 @@ import {
   loadThemeMode,
   saveThemeMode,
   applyThemeToDocument,
+  markThemeLoaded,
   useTheme,
   type ThemeDocument,
 } from "./useTheme";
@@ -14,7 +15,11 @@ import {
   useResolvedTheme,
   useThemeMode,
 } from "./ThemeProvider";
-import { THEME_STORAGE_KEY, THEME_DATA_ATTRIBUTE } from "./themeLogic";
+import {
+  THEME_STORAGE_KEY,
+  THEME_DATA_ATTRIBUTE,
+  THEME_LOADED_ATTRIBUTE,
+} from "./themeLogic";
 import type { ReactNode } from "react";
 
 // --- Pure function tests ---
@@ -72,6 +77,26 @@ describe("applyThemeToDocument", () => {
   });
 });
 
+describe("markThemeLoaded", () => {
+  it("sets data-theme-loaded attribute on documentElement", () => {
+    const doc = createMockDocument();
+    markThemeLoaded(doc);
+    expect(doc.documentElement.hasAttribute(THEME_LOADED_ATTRIBUTE)).toBe(true);
+  });
+
+  it("does not overwrite if already set", () => {
+    const doc = createMockDocument();
+    const setAttrSpy = vi.spyOn(doc.documentElement, "setAttribute");
+    markThemeLoaded(doc);
+    markThemeLoaded(doc);
+    // setAttribute should only be called once
+    const loadedCalls = setAttrSpy.mock.calls.filter(
+      ([name]) => name === THEME_LOADED_ATTRIBUTE,
+    );
+    expect(loadedCalls).toHaveLength(1);
+  });
+});
+
 // --- useTheme hook tests ---
 
 describe("useTheme", () => {
@@ -81,6 +106,7 @@ describe("useTheme", () => {
   beforeEach(() => {
     localStorage.clear();
     document.documentElement.removeAttribute(THEME_DATA_ATTRIBUTE);
+    document.documentElement.removeAttribute(THEME_LOADED_ATTRIBUTE);
     mediaListeners = [];
     originalMatchMedia = window.matchMedia;
     window.matchMedia = vi.fn().mockImplementation((query: string) => ({
@@ -161,6 +187,36 @@ describe("useTheme", () => {
     expect(document.documentElement.getAttribute(THEME_DATA_ATTRIBUTE)).toBe(
       "dark",
     );
+  });
+
+  it("sets data-theme-loaded after initial render via requestAnimationFrame", async () => {
+    const rafCallbacks: Array<FrameRequestCallback> = [];
+    const originalRaf = window.requestAnimationFrame;
+    window.requestAnimationFrame = vi.fn((cb: FrameRequestCallback) => {
+      rafCallbacks.push(cb);
+      return 0;
+    });
+
+    try {
+      render(<TestComponent />);
+      // data-theme-loaded should not be set yet (rAF hasn't fired)
+      expect(
+        document.documentElement.hasAttribute(THEME_LOADED_ATTRIBUTE),
+      ).toBe(false);
+
+      // Fire rAF callback
+      act(() => {
+        for (const cb of rafCallbacks) {
+          cb(0);
+        }
+      });
+
+      expect(
+        document.documentElement.hasAttribute(THEME_LOADED_ATTRIBUTE),
+      ).toBe(true);
+    } finally {
+      window.requestAnimationFrame = originalRaf;
+    }
   });
 
   it("reacts to system preference changes in system mode", () => {
@@ -343,6 +399,7 @@ interface MockThemeDocument extends ThemeDocument {
   readonly documentElement: {
     setAttribute(name: string, value: string): void;
     getAttribute(name: string): string | null;
+    hasAttribute(name: string): boolean;
   };
 }
 
@@ -355,6 +412,9 @@ function createMockDocument(): MockThemeDocument {
       },
       getAttribute(name: string) {
         return attrs.get(name) ?? null;
+      },
+      hasAttribute(name: string) {
+        return attrs.has(name);
       },
     },
   };

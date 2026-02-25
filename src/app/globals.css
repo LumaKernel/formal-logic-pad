@@ -113,6 +113,36 @@
   color-scheme: dark;
 }
 
+/* ============================================
+ * Theme Transition
+ *
+ * --theme-transition-duration controls the speed of theme transitions.
+ * By default it is 0s (no transitions) to prevent FOUC.
+ * When [data-theme-loaded] is set on <html> by useTheme(), it becomes 0.3s.
+ *
+ * prefers-reduced-motion overrides it to 0s.
+ * ============================================ */
+
+:root {
+  --theme-transition-duration: 0s;
+}
+
+html[data-theme-loaded] {
+  --theme-transition-duration: 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme-loaded] {
+    --theme-transition-duration: 0s;
+  }
+}
+
+body {
+  transition:
+    background-color var(--theme-transition-duration) ease,
+    color var(--theme-transition-duration) ease;
+}
+
 html,
 body {
   max-width: 100vw;

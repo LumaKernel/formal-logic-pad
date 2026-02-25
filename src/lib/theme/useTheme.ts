@@ -9,6 +9,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useSyncExternalStore,
 } from "react";
@@ -16,6 +17,7 @@ import {
   isThemeMode,
   resolveTheme,
   THEME_DATA_ATTRIBUTE,
+  THEME_LOADED_ATTRIBUTE,
   THEME_STORAGE_KEY,
   type ResolvedTheme,
   type ThemeMode,
@@ -55,6 +57,7 @@ function subscribeSystemPrefersDark(callback: () => void): () => void {
 export interface ThemeDocument {
   readonly documentElement: {
     setAttribute(name: string, value: string): void;
+    hasAttribute(name: string): boolean;
   };
 }
 
@@ -63,6 +66,16 @@ export function applyThemeToDocument(
   doc: ThemeDocument,
 ): void {
   doc.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, resolved);
+}
+
+/**
+ * Mark the document as theme-loaded, enabling CSS transitions.
+ * Should be called after the initial theme has been applied to prevent FOUC.
+ */
+export function markThemeLoaded(doc: ThemeDocument): void {
+  if (!doc.documentElement.hasAttribute(THEME_LOADED_ATTRIBUTE)) {
+    doc.documentElement.setAttribute(THEME_LOADED_ATTRIBUTE, "");
+  }
 }
 
 // --- useTheme hook ---
@@ -97,9 +110,21 @@ export function useTheme(): UseThemeResult {
     saveThemeMode(window.localStorage, mode);
   }, [mode]);
 
+  const themeLoadedRef = useRef(false);
+
   useEffect(() => {
     if (typeof document === "undefined") return;
     applyThemeToDocument(resolved, document);
+
+    // Enable CSS transitions after the initial theme is painted.
+    // Use requestAnimationFrame to ensure the first theme is rendered
+    // before transitions are enabled, preventing FOUC.
+    if (!themeLoadedRef.current) {
+      themeLoadedRef.current = true;
+      requestAnimationFrame(() => {
+        markThemeLoaded(document);
+      });
+    }
   }, [resolved]);
 
   const setMode = useCallback((newMode: ThemeMode) => {

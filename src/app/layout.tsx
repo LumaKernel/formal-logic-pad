@@ -32,7 +32,17 @@ export default async function RootLayout({ children }: Props) {
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
+      <head>
+        {/* Inline script to set data-theme before first paint, preventing FOUC.
+            Must be synchronous and in <head> to run before body renders.
+            The theme-mode key and data-theme attribute must match themeLogic.ts constants. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=localStorage.getItem("theme-mode");var d=document.documentElement;if(m==="light"||m==="dark"){d.setAttribute("data-theme",m)}else{d.setAttribute("data-theme",matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light")}}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable satisfies string} ${geistMono.variable satisfies string}`}
       >

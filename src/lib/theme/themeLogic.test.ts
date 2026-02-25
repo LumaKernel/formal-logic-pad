@@ -6,6 +6,7 @@ import {
   THEME_MODES,
   THEME_STORAGE_KEY,
   THEME_DATA_ATTRIBUTE,
+  THEME_LOADED_ATTRIBUTE,
   type ThemeMode,
   type ResolvedTheme,
 } from "./themeLogic";
@@ -22,6 +23,10 @@ describe("themeLogic", () => {
 
     it("THEME_DATA_ATTRIBUTE is a non-empty string", () => {
       expect(THEME_DATA_ATTRIBUTE).toBe("data-theme");
+    });
+
+    it("THEME_LOADED_ATTRIBUTE is a non-empty string", () => {
+      expect(THEME_LOADED_ATTRIBUTE).toBe("data-theme-loaded");
     });
   });
 

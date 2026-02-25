@@ -44,6 +44,42 @@
 - テーマ管理: `src/lib/theme/` に3層アーキテクチャ（themeLogic.ts純粋ロジック + useTheme.ts hook + ThemeProvider.tsx Context）。matchMediaモックパターンに注意
 - Storybook import: `@storybook/nextjs-vite` を使用（`@storybook/react` ではなく）
 - テーマCSS変数は `globals.css` に `[data-theme="light"]` / `[data-theme="dark"]` セレクタで一元定義。CSS Modulesからはグローバル変数を参照する
+- テーマ遷移: `--theme-transition-duration` CSS変数で一元管理。`data-theme-loaded` 属性でFOUC防止、`prefers-reduced-motion` で無効化
+- FOUC防止: `layout.tsx` の `<head>` にインラインスクリプトでlocalStorageからテーマ読み取り → `data-theme` 属性設定。React hydration前に実行
+
+---
+
+## 2026-02-25 - テーマ遷移アニメーション (US-004)
+- CSS変数トランジションを主要要素（body, .page, .main, ThemeToggle, InfiniteCanvas）に適用
+- `--theme-transition-duration` CSS変数で遷移時間を一元管理（デフォルト0s、`data-theme-loaded`設定後0.3s）
+- FOUC防止: `layout.tsx` にインラインスクリプト追加（localStorage → `data-theme` 属性設定）
+- `data-theme-loaded` 属性: useTheme hookが初回レンダリング後にrequestAnimationFrameで設定、以降のみトランジション有効化
+- `prefers-reduced-motion: reduce` メディアクエリで `--theme-transition-duration: 0s` に上書き
+- InfiniteCanvas: container div の `backgroundColor` とSVGパターン circle の `fill` にCSS変数ベースのトランジション追加
+- `themeLogic.ts` に `THEME_LOADED_ATTRIBUTE` 定数追加
+- `useTheme.ts` に `markThemeLoaded()` 関数追加、`ThemeDocument` interfaceに `hasAttribute` 追加
+- テスト追加: `markThemeLoaded` 2テスト + `data-theme-loaded` rAFテスト1テスト + `THEME_LOADED_ATTRIBUTE` 定数テスト1テスト = 4テスト
+- カバレッジ: Lines 99.88%（ベースライン維持）, Stmts 99.04%（ベースライン維持）, 1835 tests（1831 → +4）
+- スクリーンショット:
+  - `.screenshots/us-004-theme-demo-light.png`
+  - `.screenshots/us-004-theme-demo-storybook.png`
+  - `.screenshots/us-004-infinite-canvas-default.png`
+  - `.screenshots/us-004-main-page-light.png`
+- 変更ファイル:
+  - `src/app/globals.css` (MODIFIED) - CSS変数トランジション、FOUC防止
+  - `src/app/layout.tsx` (MODIFIED) - FOUC防止インラインスクリプト
+  - `src/app/page.module.css` (MODIFIED) - テーマトランジション追加
+  - `src/lib/theme/themeLogic.ts` (MODIFIED) - THEME_LOADED_ATTRIBUTE追加
+  - `src/lib/theme/themeLogic.test.ts` (MODIFIED) - THEME_LOADED_ATTRIBUTEテスト追加
+  - `src/lib/theme/useTheme.ts` (MODIFIED) - markThemeLoaded、rAFでdata-theme-loaded設定
+  - `src/lib/theme/useTheme.test.tsx` (MODIFIED) - markThemeLoaded・data-theme-loadedテスト追加
+  - `src/lib/infinite-canvas/InfiniteCanvas.tsx` (MODIFIED) - テーマトランジション追加
+  - `src/components/ThemeToggle/ThemeToggle.module.css` (MODIFIED) - テーマトランジション追加
+  - `tasks/prd-dark-mode.md` (MODIFIED) - US-004完了
+- **今後のイテレーションへの学び:**
+  - SVGパターン内の要素にCSSトランジションを適用する場合、`style` propで `transition` を設定する（CSS変数の `var()` を `transition-duration` に使用可能）
+  - FOUC防止は2段階: (1) `<head>`内インラインスクリプトで初期テーマ設定, (2) `data-theme-loaded`で遷移有効化（rAFで1フレーム待つ）
+  - `--theme-transition-duration` CSS変数による一元管理で、コンポーネントごとにハードコードせず `prefers-reduced-motion` 対応も1箇所で完結
 
 ---
 

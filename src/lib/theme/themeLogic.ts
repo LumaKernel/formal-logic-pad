@@ -23,6 +23,9 @@ export const THEME_STORAGE_KEY = "theme-mode";
 /** data attribute name on <html> element. */
 export const THEME_DATA_ATTRIBUTE = "data-theme";
 
+/** data attribute name on <html> to indicate theme has been loaded (enables transitions). */
+export const THEME_LOADED_ATTRIBUTE = "data-theme-loaded";
+
 /**
  * Check if a value is a valid ThemeMode.
  */

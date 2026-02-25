@@ -98,6 +98,8 @@ export function InfiniteCanvas({
         backgroundColor,
         cursor: isDragging ? "grabbing" : "grab",
         touchAction: "none",
+        transition:
+          "background-color var(--theme-transition-duration, 0s) ease",
       }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -127,6 +129,9 @@ export function InfiniteCanvas({
               cy={dotRadius}
               r={dotRadius}
               fill={dotColor}
+              style={{
+                transition: "fill var(--theme-transition-duration, 0s) ease",
+              }}
             />
           </pattern>
         </defs>
