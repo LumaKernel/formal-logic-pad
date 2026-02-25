@@ -162,11 +162,12 @@ describe("EditableProofNode", () => {
   });
 
   describe("editable=false", () => {
-    it("読み取り専用で表示される", () => {
+    it("読み取り専用で表示される（FormulaDisplayでUnicode表示）", () => {
       renderNode({ editable: false });
       expect(screen.getByTestId("test-node-formula")).toBeInTheDocument();
+      // formatFormulaは右結合→で最小括弧化するため括弧なし
       expect(screen.getByTestId("test-node-formula")).toHaveTextContent(
-        "φ → (ψ → φ)",
+        "φ → ψ → φ",
       );
     });
 
@@ -175,6 +176,20 @@ describe("EditableProofNode", () => {
       expect(
         screen.queryByTestId("test-node-editor-display"),
       ).not.toBeInTheDocument();
+    });
+
+    it("パース失敗時はプレーンテキストにフォールバック", () => {
+      renderNode({ editable: false, formulaText: "invalid @@@ syntax" });
+      expect(screen.getByTestId("test-node-formula")).toHaveTextContent(
+        "invalid @@@ syntax",
+      );
+    });
+
+    it("FormulaDisplay の role=math 属性が存在する（パース成功時）", () => {
+      renderNode({ editable: false, formulaText: "phi -> psi" });
+      const formulaContainer = screen.getByTestId("test-node-formula");
+      const mathEl = formulaContainer.querySelector('[role="math"]');
+      expect(mathEl).toBeInTheDocument();
     });
   });
 
@@ -393,9 +408,9 @@ describe("EditableProofNode", () => {
       });
       // FormulaEditor のtestIdが存在しない（readonlyモード）
       expect(screen.queryByTestId("test-node-editor")).not.toBeInTheDocument();
-      // formulaの読み取り専用表示が存在する
+      // formulaの読み取り専用表示が存在する（パースされてUnicode表示）
       expect(screen.getByTestId("test-node-formula")).toHaveTextContent(
-        "phi -> psi",
+        "φ → ψ",
       );
     });
 

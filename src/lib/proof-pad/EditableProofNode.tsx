@@ -11,7 +11,9 @@ import type { CSSProperties } from "react";
 import { useCallback, useMemo } from "react";
 import type { Formula } from "../logic-core/formula";
 import type { EditorMode } from "../formula-input/editorLogic";
+import { FormulaDisplay } from "../formula-input/FormulaDisplay";
 import { FormulaEditor } from "../formula-input/FormulaEditor";
+import { computeParseState } from "../formula-input/FormulaInput";
 import type { ProofNodeKind } from "./proofNodeUI";
 import { getProofNodeStyle } from "./proofNodeUI";
 import type { NodeRole, NodeClassification } from "./nodeRoleLogic";
@@ -268,6 +270,13 @@ export function EditableProofNode({
   /** 保護ノードかつ編集可能ノードの場合、編集を抑制する */
   const effectiveEditable = editable && !isProtected;
 
+  /** read-only表示用: formulaTextをパースしてFormula ASTを取得 */
+  const readonlyFormula: Formula | null = useMemo(() => {
+    if (effectiveEditable) return null;
+    const parsed = computeParseState(formulaText);
+    return parsed.status === "success" ? parsed.formula : null;
+  }, [effectiveEditable, formulaText]);
+
   return (
     <div data-testid={testId} style={containerStyle}>
       <div style={classification || isProtected || axiomName ? headerRowStyle : undefined}>
@@ -338,7 +347,11 @@ export function EditableProofNode({
             testId ? `${testId satisfies string}-formula` : undefined
           }
         >
-          {formulaText}
+          {readonlyFormula ? (
+            <FormulaDisplay formula={readonlyFormula} fontSize={13} />
+          ) : (
+            formulaText
+          )}
         </div>
       )}
       {statusMessage ? (
