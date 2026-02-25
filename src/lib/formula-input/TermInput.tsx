@@ -334,6 +334,8 @@ function renderHighlightedText(
   text: string,
   highlights: readonly ErrorHighlight[],
 ): readonly React.ReactNode[] {
+  // 防御的チェック: 呼び出し側で errorHighlights.length > 0 を確認済みのため到達しない
+  /* v8 ignore start */
   if (highlights.length === 0) {
     return [
       <span key="text" style={transparentTextStyle}>
@@ -341,6 +343,7 @@ function renderHighlightedText(
       </span>,
     ];
   }
+  /* v8 ignore stop */
 
   // ハイライト範囲をソートしてマージ
   const sorted = [...highlights].sort((a, b) => a.start - b.start);

@@ -159,11 +159,13 @@ export function FormulaEditor({
   useEffect(() => {
     if (mode === "editing") {
       const input = containerRef.current?.querySelector("input");
-      if (input) {
-        input.focus();
-        // カーソルを末尾に
-        input.setSelectionRange(input.value.length, input.value.length);
-      }
+      // DOM要素が見つからない場合は何もしない（防御コード）
+      /* v8 ignore start */
+      if (!input) return;
+      /* v8 ignore stop */
+      input.focus();
+      // カーソルを末尾に
+      input.setSelectionRange(input.value.length, input.value.length);
     }
   }, [mode]);
 

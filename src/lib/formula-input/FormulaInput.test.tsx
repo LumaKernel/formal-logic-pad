@@ -437,5 +437,25 @@ describe("FormulaInput", () => {
       const alert = container.querySelector("[role='alert']");
       expect(alert).toBeInTheDocument();
     });
+
+    it("testIdなしで補完ポップアップが表示される", async () => {
+      const onChange = vi.fn();
+      const { rerender } = render(
+        <FormulaInput value="" onChange={onChange} />,
+      );
+      const input = document.querySelector("input")!;
+      Object.defineProperty(input, "selectionStart", {
+        value: 2,
+        writable: true,
+      });
+      fireEvent.change(input, {
+        target: { value: "ph", selectionStart: 2 },
+      });
+      rerender(<FormulaInput value="ph" onChange={onChange} />);
+      await waitFor(() => {
+        const popup = document.querySelector("[role='listbox']");
+        expect(popup).toBeInTheDocument();
+      });
+    });
   });
 });

@@ -300,6 +300,36 @@ describe("TermInput", () => {
     });
   });
 
+  describe("testIdなしで補完ポップアップ", () => {
+    it("testIdなしでも補完ポップアップが表示される", async () => {
+      const onChange = vi.fn();
+      const { rerender } = render(<TermInput value="" onChange={onChange} />);
+      const input = document.querySelector("input")!;
+      Object.defineProperty(input, "selectionStart", {
+        value: 2,
+        writable: true,
+      });
+      fireEvent.change(input, {
+        target: { value: "ph", selectionStart: 2 },
+      });
+      rerender(<TermInput value="ph" onChange={onChange} />);
+      await waitFor(() => {
+        const popup = document.querySelector("[role='listbox']");
+        expect(popup).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("ハイライトのエッジケース", () => {
+    it("エラーハイライトがテキスト全体をカバーする場合", () => {
+      // 単一の不正な文字のみ → ハイライトがテキスト全体をカバー
+      render(<TermInput value="!" onChange={() => {}} testId="ti" />);
+      // エラー表示があること
+      const alert = document.querySelector("[role='alert']");
+      expect(alert).toBeInTheDocument();
+    });
+  });
+
   describe("補完機能", () => {
     it("補完候補を選択すると onChange が呼ばれる", async () => {
       const onChange = vi.fn();

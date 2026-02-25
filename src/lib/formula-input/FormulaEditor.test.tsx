@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { CSSProperties } from "react";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import type { Formula } from "../logic-core/formula";
@@ -15,6 +16,7 @@ function EditorWrapper({
   testId = "editor",
   displayRenderer,
   placeholder,
+  fontSize,
 }: {
   readonly initialValue?: string;
   readonly onParsed?: (formula: Formula) => void;
@@ -22,6 +24,7 @@ function EditorWrapper({
   readonly testId?: string;
   readonly displayRenderer?: "unicode" | "katex";
   readonly placeholder?: string;
+  readonly fontSize?: CSSProperties["fontSize"];
 }) {
   const [value, setValue] = useState(initialValue);
   return (
@@ -33,6 +36,7 @@ function EditorWrapper({
       testId={testId}
       displayRenderer={displayRenderer}
       placeholder={placeholder}
+      fontSize={fontSize}
     />
   );
 }
@@ -369,5 +373,47 @@ describe("FormulaEditor - testIdなしのレンダリング", () => {
     expect(button).toBeInTheDocument();
     fireEvent.click(button!);
     expect(container.querySelector("input")).toBeInTheDocument();
+  });
+
+  it("testIdなしで空値のプレースホルダーが表示される", () => {
+    const { container } = render(
+      <EditorWrapper initialValue="" testId={undefined} />,
+    );
+    const button = container.querySelector("[role='button']");
+    expect(button).toBeInTheDocument();
+    expect(button!.textContent).toContain("クリックして論理式を入力...");
+  });
+});
+
+// --- fontSize指定のテスト ---
+
+describe("FormulaEditor - fontSize指定", () => {
+  it("fontSizeを指定するとコンテナにfontSizeが適用される", () => {
+    render(<EditorWrapper initialValue="φ → ψ" fontSize="20px" />);
+
+    const container = screen.getByTestId("editor");
+    expect(container.style.fontSize).toBe("20px");
+  });
+
+  it("fontSizeなしでもコンテナが正常にレンダリングされる", () => {
+    render(<EditorWrapper initialValue="φ → ψ" />);
+
+    const container = screen.getByTestId("editor");
+    // fontSizeが設定されていないことを確認
+    expect(container.style.fontSize).toBe("");
+  });
+
+  it("fontSizeを指定して編集モードでも反映される", async () => {
+    render(<EditorWrapper initialValue="φ" fontSize={18} />);
+
+    fireEvent.click(screen.getByTestId("editor-display"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    });
+
+    // コンテナにfontSizeが設定されている
+    const container = screen.getByTestId("editor");
+    expect(container.style.fontSize).toBe("18px");
   });
 });

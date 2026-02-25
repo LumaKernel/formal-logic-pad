@@ -245,5 +245,37 @@ describe("EditableProofNode", () => {
       );
       expect(container.firstChild).toBeInTheDocument();
     });
+
+    it("testIdなし・readonly表示でも正常にレンダリングされる", () => {
+      const { container } = render(
+        <EditableProofNode
+          id="node-1"
+          kind="axiom"
+          label="A1"
+          formulaText="φ → ψ"
+          editable={false}
+          onFormulaTextChange={() => {}}
+        />,
+      );
+      expect(container.firstChild).toBeInTheDocument();
+      expect(container.textContent).toContain("φ → ψ");
+    });
+
+    it("testIdなし・ステータスメッセージ付きでも正常にレンダリングされる", () => {
+      const { container } = render(
+        <EditableProofNode
+          id="node-1"
+          kind="mp"
+          label="MP"
+          formulaText="ψ"
+          editable={false}
+          statusMessage="有効"
+          statusType="success"
+          onFormulaTextChange={() => {}}
+        />,
+      );
+      expect(container.firstChild).toBeInTheDocument();
+      expect(container.textContent).toContain("有効");
+    });
   });
 });

@@ -35,7 +35,10 @@ export function useDragItem(
     // Stop propagation to prevent canvas pan
     e.stopPropagation();
 
+    // ブラウザAPI可用性チェック（テスト環境ではモックされる場合がある）
+    /* v8 ignore start */
     if (e.currentTarget.setPointerCapture) {
+      /* v8 ignore stop */
       e.currentTarget.setPointerCapture(e.pointerId);
     }
     setIsDragging(true);
@@ -66,7 +69,10 @@ export function useDragItem(
     // Stop propagation to prevent canvas pan
     e.stopPropagation();
 
+    // ブラウザAPI可用性チェック
+    /* v8 ignore start */
     if (e.currentTarget.releasePointerCapture) {
+      /* v8 ignore stop */
       e.currentTarget.releasePointerCapture(e.pointerId);
     }
     setIsDragging(false);

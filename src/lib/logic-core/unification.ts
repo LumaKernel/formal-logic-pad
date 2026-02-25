@@ -330,8 +330,9 @@ const solve = (
   while (equations.length > 0) {
     const eq = equations.shift();
     // 防御的チェック: while条件でlength>0を確認済みのため到達しない
-    /* v8 ignore next */
+    /* v8 ignore start */
     if (eq === undefined) break;
+    /* v8 ignore stop */
 
     if (eq._kind === "formula") {
       const result = processFormulaEquation(
