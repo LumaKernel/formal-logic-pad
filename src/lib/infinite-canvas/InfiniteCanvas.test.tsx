@@ -545,6 +545,44 @@ describe("InfiniteCanvas zooming (ctrlKey=true, trackpad pinch)", () => {
   });
 });
 
+describe("InfiniteCanvas theme transitions", () => {
+  it("applies background-color transition to the container", () => {
+    render(<InfiniteCanvas />);
+    const canvas = screen.getByTestId("infinite-canvas");
+    expect(canvas.style.transition).toBe(
+      "background-color var(--theme-transition-duration, 0s) ease",
+    );
+  });
+
+  it("applies fill transition to dot circles", () => {
+    render(<InfiniteCanvas />);
+    const canvas = screen.getByTestId("infinite-canvas");
+    const circle = canvas.querySelector("circle");
+    expect(circle?.style.transition).toBe(
+      "fill var(--theme-transition-duration, 0s) ease",
+    );
+  });
+
+  it("applies stroke transition to grid lines", () => {
+    render(<InfiniteCanvas />);
+    const canvas = screen.getByTestId("infinite-canvas");
+    const lines = canvas.querySelectorAll("line");
+    expect(lines.length).toBe(2);
+    for (const line of lines) {
+      expect(line.style.transition).toBe(
+        "stroke var(--theme-transition-duration, 0s) ease",
+      );
+    }
+  });
+
+  it("does not apply grid line transitions when grid lines are disabled", () => {
+    render(<InfiniteCanvas majorGridEvery={0} />);
+    const canvas = screen.getByTestId("infinite-canvas");
+    const lines = canvas.querySelectorAll("line");
+    expect(lines.length).toBe(0);
+  });
+});
+
 describe("InfiniteCanvas trackpad two-finger scroll (pan)", () => {
   beforeEach(() => {
     Element.prototype.setPointerCapture = vi.fn();

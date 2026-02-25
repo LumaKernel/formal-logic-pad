@@ -55,6 +55,32 @@
 
 ---
 
+## 2026-02-25 - テーマ関連テストとアクセシビリティ検証 (prd-dark-mode US-009)
+- InfiniteCanvasにテーマトランジションテストを4件追加（背景色・ドット・グリッドライン・無効化時）
+- Storybook a11yアドオン（@storybook/addon-a11y）でテーマコンポーネントのアクセシビリティ検証を実施
+  - ThemeToggle: Violations 0, Passes 16
+  - ThemeDemo: a11y違反なし
+- Playwright MCPでダーク/ライト両モードのスクリーンショット検証
+- prd-dark-modeのUS-001〜US-009すべて完了、PRDをtasks-archivedに移動
+- 変更ファイル:
+  - `src/lib/infinite-canvas/InfiniteCanvas.test.tsx` (MODIFIED) - テーマトランジションテスト追加
+  - `tasks/prd-dark-mode.md` → `tasks-archived/prd-dark-mode.md` (MOVED) - 完了
+- カバレッジ: Stmts 99.05%（変化なし）, Lines 99.89%（変化なし）
+- スクリーンショット:
+  - `.screenshots/us-009-themedemo-light.png` (ThemeDemo ライトモード)
+  - `.screenshots/us-009-themedemo-dark.png` (ThemeDemo ダークモード)
+  - `.screenshots/us-009-themetoggle-light.png` (ThemeToggle ライトモード)
+  - `.screenshots/us-009-infinitecanvas-dark.png` (InfiniteCanvas ダークモード)
+  - `.screenshots/us-009-infinitecanvas-light.png` (InfiniteCanvas ライトモード)
+  - `.screenshots/us-009-a11y-themetoggle-passes.png` (ThemeToggle a11y結果)
+- **今後のイテレーションへの学び:**
+  - Storybook a11yアドオンの `test: "error"` モードは既存のcolor-contrast/scrollable-region違反が多数あるため、一括有効化は不可。段階的修正が必要
+  - テーマコンポーネント自体（ThemeToggle, ThemeDemo）はa11y違反ゼロ。問題はKaTeX/Formula系のcolor-contrast
+  - InfiniteCanvasのCSS変数によるテーマ連動はunit testでも検証可能（fill/stroke属性のCSS変数文字列、transition style）
+  - prd-dark-modeのUS-001〜US-009はすべて完了。テーマ基盤は整備済み
+
+---
+
 ## 2026-02-25 - Storybookのダークモード対応 (US-008)
 - `.storybook/preview.ts` にテーマ切り替えデコレーターを追加
 - ツールバーから Light / Dark / Side by Side の3モードを選択可能
