@@ -73,6 +73,28 @@
 
 ---
 
+## 2026-02-25 - クエストモード: 命題論理上級クエスト Q-20〜Q-24 を追加
+- `src/lib/quest/questDefinition.ts` を更新 - `propositional-advanced` カテゴリを新設（命題論理の挑戦問題、order=4）
+- `src/lib/quest/builtinQuests.ts` を更新 - 5問のクエストを追加（Q-20〜Q-24）
+- `src/lib/quest/builtinQuests.test.ts` を更新 - クエスト数を18→23に更新
+- `src/lib/quest/questDefinition.test.ts` を更新 - カテゴリ数を5→6に更新
+- カバレッジ: Stmts 99.2% (維持), Branch 94.35% (維持), Funcs 91.46% (↑0.07), Lines 100% (維持)
+  - ベースライン: Stmts 99.2%, Branch 94.35%, Funcs 91.39%, Lines 100%
+- テスト: 2538 全パス
+- ブラウザ確認: Playwright MCPでStorybookのQuestCatalogストーリー表示確認済み（.screenshots/quest-catalog-with-advanced-quests.png）
+- 変更ファイル:
+  - `src/lib/quest/questDefinition.ts` (MODIFIED)
+  - `src/lib/quest/questDefinition.test.ts` (MODIFIED)
+  - `src/lib/quest/builtinQuests.ts` (MODIFIED)
+  - `src/lib/quest/builtinQuests.test.ts` (MODIFIED)
+- **今後のイテレーションへの学び:**
+  - Q-20〜Q-24は選言(\/）と連言(/\）を使うゴール式を含む。パーサーが正しくサポートしていることを確認済み
+  - Q-20（排中律）のゴールは `~phi \/ phi` で、選言の定義 α∨β≡¬α→β によりDNEと同値
+  - Q-22〜Q-24のLevel 5問題は40+ステップの長い証明。新カテゴリ `propositional-advanced` に分離
+  - predicate-basics, equality-basics のorder値を5,6に繰り上げて新カテゴリのorder=4を確保
+  - 次のイテレーション候補: 述語論理クエスト（Q-25〜Q-32）の追加、またはカット除去定理関連タスク
+---
+
 ## 2026-02-25 - クエストモード: 命題論理中級クエスト Q-08〜Q-14 を追加
 - `src/lib/quest/questDefinition.ts` を更新 - `propositional-intermediate` カテゴリを新設
 - `src/lib/quest/builtinQuests.ts` を更新 - 6問のクエストを追加（Q-08, Q-10〜Q-14）
