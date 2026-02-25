@@ -2239,3 +2239,28 @@
   - `@luma-dev/luma-ts/no-date`ルールでDate.now()が禁止。eslint-disable-next-lineで対処
   - `react-hooks/preserve-manual-memoization`: useCallback内で`notebook?.questId`を直接deps配列に使うとエラー。定数に抽出してからdepsに渡す
 ---
+
+## 2026-02-25 - クエストモード: 命題論理否定クエスト Q-15〜Q-19 追加
+- 実装した内容:
+  - 否定公理 A3 を活用する命題論理クエスト5問を追加
+  - Q-15: 二重否定導入 (DNI) φ → ¬¬φ (難易度3, 15ステップ)
+  - Q-16: Modus Tollens (φ → ψ) → (¬ψ → ¬φ) (難易度3, 20ステップ)
+  - Q-17: 二重否定除去 (DNE) ¬¬φ → φ (難易度3, 18ステップ)
+  - Q-18: 爆発律 (Ex Falso) ¬φ → (φ → ψ) (難易度4, 14ステップ)
+  - Q-19: 対偶の逆 (¬ψ → ¬φ) → (φ → ψ) (難易度4, 1ステップ = A3直接)
+  - dev/quest-problems/03-propositional-advanced.md の設計・解法ドキュメントに基づいて実装
+- 変更したファイル:
+  - src/lib/quest/builtinQuests.ts - 5クエスト定義追加
+  - src/lib/quest/builtinQuests.test.ts - クエスト数 13→18 に更新
+- カバレッジ:
+  - ベースライン: Stmts 99.2%, Branch 94.35%, Funcs 91.39%, Lines 100%
+  - 完了後: Stmts 99.2%, Branch 94.35%, Funcs 91.39%, Lines 100% (変化なし)
+- テスト: 2538 passed (119 test files)
+- ブラウザテスト: Storybook QuestCatalogで否定カテゴリの表示確認
+- スクリーンショット: .screenshots/quest-catalog-negation-quests.png
+- **今後のイテレーションへの学び:**
+  - パーサーは `~` で否定をサポート済み。conjunction `/\`, disjunction `\/` もサポート
+  - Q-20〜Q-24（選言・連言の定義展開、De Morgan、排中律）は次イテレーション候補
+  - Storybook URLはstoryのtitleから決まる: "Quest/QuestCatalog" → quest-questcatalog--default
+  - クエスト追加は builtinQuests.ts への定義追加 + テストのカウント更新のみで完結する
+---
