@@ -1791,3 +1791,25 @@
   - A4公理のテストではパーサーが述語論理の全構文をサポートしない場合がある。AST constructors（`implication`, `universal`, `equality`, `constant`）で直接構築すると確実
   - axiomDisplayNames を `Readonly<Record<AxiomId, string>>` にすることで、新公理追加時のコンパイルエラーで変更漏れを防止
 ---
+
+## 2026-02-25 - クエスト練習問題の解答ノート作成
+- 全45問（Q-01〜Q-45）の解答ノートを `dev/quest-problems/solutions/` に配置
+- **新規ファイル:**
+  - `dev/quest-problems/solutions/01-propositional-basics-solutions.md` - Q-01〜Q-07 (恒等律、推移律など命題論理基礎)
+  - `dev/quest-problems/solutions/02-propositional-intermediate-solutions.md` - Q-08〜Q-14 (B combinator、含意分配など中級)
+  - `dev/quest-problems/solutions/03-propositional-advanced-solutions.md` - Q-15〜Q-24 (DNI/DNE/MT/EFQ、Peirce、De Morgan)
+  - `dev/quest-problems/solutions/04-predicate-basics-solutions.md` - Q-25〜Q-32 (A4/A5/Gen、存在導入)
+  - `dev/quest-problems/solutions/05-predicate-advanced-solutions.md` - Q-33〜Q-38 (量化子交換、Drinker's Paradox)
+  - `dev/quest-problems/solutions/06-equality-solutions.md` - Q-39〜Q-45 (E1-E3具体化、等号チェイン)
+- **変更ファイル:**
+  - `dev/quest-problems/README.md` - 解答ノートへのリンクを追加
+  - `tasks/prd-next-tasks.md` - タスク完了マーク
+- カバレッジ: 変化なし（ドキュメントのみの変更）Stmts 99.22%, Branch 94.49%, Lines 100%
+- テスト: 2154 全パス
+- **今後のイテレーションへの学び:**
+  - Lukasiewicz公理系でのDNI/DNE証明は相互依存的で非常に技巧的。DNI → DNE の順で証明する（A3のインスタンスを巧みに選ぶ）
+  - 既証補題（Id, HS, W, C, B, MT, DNI, DNE, EFQ）を部品として再利用すると証明が大幅に簡潔になる
+  - 述語論理ではGen+A5の「x ∉ FV(phi)」条件の確認が重要。束縛変数か自由変数かで適用可否が変わる
+  - 等号問題Q-44/Q-45ではE1-E3のみでは等号の代入可能性(Leibniz's law)が示せず、E4/E5が必要
+  - Level 5問題（Q-22, Q-24, Q-37, Q-38）はHilbert系での完全な形式証明が40-60ステップ以上になるため、構造と骨格を示す形式が適切
+---
