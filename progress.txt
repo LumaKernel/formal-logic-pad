@@ -58,7 +58,29 @@
 - パーサーは `phi`, `psi`, `chi` 等のギリシャ文字名を命題変数として認識する。`p`, `q` 等の単一文字は項変数として扱われ、`=` が期待される
 - コピペロジックも3層分離: `copyPasteLogic.ts`(純粋データ変換) → `workspaceState.ts`(状態統合) → `ProofWorkspace.tsx`(UI・クリップボードAPI)
 - UIオーバーレイ（バナー等）のclickにはstopPropagationが必要（コンテナのclick解除を防ぐ）
+- 補完候補の重複排除: `computeCompletions` で同じ `insertText` の候補を `Set` で重複排除する
 
+---
+
+## 2026-02-25 - 補完候補の重複表示バグ修正
+- "ex" 入力時に `∃. (exists)` が2つ表示されるバグを修正
+  - 原因: QUANTIFIER_COMPLETIONS に `trigger: "ex"` と `trigger: "exists"` が両方定義されており、"ex" 入力で完全一致と前方一致の両方がマッチしていた
+  - 修正: `computeCompletions` の最後で `insertText` をキーとした重複排除を追加
+- ストーリーテスト `ExistsNoDuplicate` を追加して回帰テスト
+- 既存の `ProofWorkspace.test.tsx` の型エラー修正（`StatefulWorkspace` に `testId` prop追加）
+- 変更ファイル:
+  - `src/lib/formula-input/inputCompletion.ts` (MODIFIED) - 重複排除ロジック追加
+  - `src/lib/formula-input/inputCompletion.test.ts` (MODIFIED) - 重複なしテスト追加
+  - `src/lib/formula-input/InputCompletion.stories.tsx` (MODIFIED) - ExistsNoDuplicate ストーリー追加
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (MODIFIED) - StatefulWrapper型修正
+- カバレッジ: Stmts 99.26%, Branch 94.58%, Lines 100%（低下なし）
+- テスト: 2132 → 2133（+1 unit, +1 storybook）
+- スクリーンショット:
+  - `.screenshots/exists-no-duplicate-completion.png` ("ex" 入力時の補完が1つだけ表示)
+  - `.screenshots/terminput-valid-input.png` (TermInput正常動作確認)
+- **今後のイテレーションへの学び:**
+  - 補完候補テーブルで同一insertTextを持つ複数のtrigger（短縮形 "ex" と完全形 "exists"）がある場合、重複排除が必要
+  - `Set` による `insertText` ベースの重複排除パターンは他の補完候補追加時にも有効
 ---
 
 ## 2026-02-25 - コピー＆ペースト機能実装

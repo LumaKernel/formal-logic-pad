@@ -230,6 +230,37 @@ export const TermInputCompletion: Story = {
 };
 
 /**
+ * "ex" 入力時に ∃ の候補が重複しないことを確認。
+ * 以前は "ex" → trigger "ex" の完全一致と trigger "exists" の前方一致で2つ表示されていた。
+ */
+export const ExistsNoDuplicate: Story = {
+  args: {
+    value: "",
+    onChange: () => {},
+    testId: "fi",
+  },
+  render: () => <FormulaCompletionWrapper testId="fi" />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByTestId("fi-input");
+
+    // "ex" を入力
+    await userEvent.type(input, "ex");
+
+    // 補完ポップアップが表示される
+    const completion = canvas.getByTestId("fi-completion");
+    await expect(completion).toBeInTheDocument();
+
+    // ∃ 候補が1つだけ表示される（重複なし）
+    const items = completion.querySelectorAll("[role=option]");
+    const existsItems = [...items].filter((el) =>
+      el.textContent?.includes("∃"),
+    );
+    await expect(existsItems.length).toBe(1);
+  },
+};
+
+/**
  * 量化子の補完。"all" と入力すると ∀ の候補が表示される。
  */
 export const QuantifierCompletion: Story = {

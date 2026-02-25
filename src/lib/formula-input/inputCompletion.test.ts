@@ -173,10 +173,15 @@ describe("computeCompletions", () => {
       expect(forall).toBeDefined();
     });
 
-    it("'ex' で ∃ 候補を返す", () => {
+    it("'ex' で ∃ 候補を返す（重複なし）", () => {
       const result = computeCompletions("ex", 2);
-      const exists = result.candidates.find((c) => c.insertText === "∃");
-      expect(exists).toBeDefined();
+      const existsCandidates = result.candidates.filter(
+        (c) => c.insertText === "∃",
+      );
+      // "ex" は trigger "ex" の完全一致と trigger "exists" の前方一致の両方にマッチするが、
+      // 重複排除により1つだけ返されるべき
+      expect(existsCandidates).toHaveLength(1);
+      expect(existsCandidates[0]?.category).toBe("quantifier");
     });
 
     it("'fo' で forall 候補を返す", () => {

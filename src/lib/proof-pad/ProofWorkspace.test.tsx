@@ -26,9 +26,11 @@ import {
 function StatefulWorkspace({
   initialWorkspace,
   onFormulaParsed,
+  testId = "workspace",
 }: {
   readonly initialWorkspace: WorkspaceState;
   readonly onFormulaParsed?: (nodeId: string, formula: Formula) => void;
+  readonly testId?: string;
 }) {
   const [workspace, setWorkspace] = useState(initialWorkspace);
   const handleChange = useCallback((ws: WorkspaceState) => {
@@ -41,7 +43,7 @@ function StatefulWorkspace({
       workspace={workspace}
       onWorkspaceChange={handleChange}
       onFormulaParsed={onFormulaParsed}
-      testId="workspace"
+      testId={testId}
     />
   );
 }

@@ -200,8 +200,19 @@ export const computeCompletions = (
     }
   }
 
+  // 同じ insertText を持つ候補を重複排除
+  // （例: "ex" → trigger "ex" の完全一致と trigger "exists" の前方一致が両方マッチする）
+  const seen = new Set<string>();
+  const deduplicated: CompletionCandidate[] = [];
+  for (const c of candidates) {
+    if (!seen.has(c.insertText)) {
+      seen.add(c.insertText);
+      deduplicated.push(c);
+    }
+  }
+
   return {
-    candidates,
+    candidates: deduplicated,
     triggerStart: start,
     triggerLength: trigger.length,
   };
