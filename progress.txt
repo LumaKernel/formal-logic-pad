@@ -2558,3 +2558,33 @@
   - Storybook の URL パスは title の "/" を "-" に変換し、大文字小文字はそのまま。例: "ProofPad/ProofWorkspace" → `proofpad-proofworkspace`
   - `/* v8 ignore start/stop */` ブロック形式は防御的コードパス（到達不能だがTypeScriptで必要なコード）のカバレッジ除外に有効
 ---
+
+## 2026-02-26 - [InfiniteCanvas] グリッドスナップ (Tier 2.1)
+- 実装した内容:
+  - `snap.ts`: 純粋ロジック。`snapToGrid(position, gridSpacing)` と `applySnap(position, snapConfig)` + `SnapConfig` 型
+  - `useDragItem.ts`: オプショナルな `snapConfig` 引数追加。ドラッグ結果にスナップを適用
+  - `CanvasItem.tsx`: `snapConfig` prop追加。useDragItemに転送
+  - `GridSnapDemo.stories.tsx`: ON/OFFトグル付きデモ。snapアイテムとfreeアイテムを並べて挙動を比較可能
+  - `index.ts`: snap関連のexport追加（snapToGrid, applySnap, SNAP_DISABLED, DEFAULT_SNAP_GRID_SPACING, SnapConfig）
+- 変更したファイル:
+  - src/lib/infinite-canvas/snap.ts (NEW)
+  - src/lib/infinite-canvas/snap.test.ts (NEW)
+  - src/lib/infinite-canvas/GridSnapDemo.stories.tsx (NEW)
+  - src/lib/infinite-canvas/useDragItem.ts (MODIFIED)
+  - src/lib/infinite-canvas/useDragItem.test.tsx (MODIFIED)
+  - src/lib/infinite-canvas/CanvasItem.tsx (MODIFIED)
+  - src/lib/infinite-canvas/CanvasItem.test.tsx (MODIFIED)
+  - src/lib/infinite-canvas/index.ts (MODIFIED)
+  - tasks/prd-infinite-canvas-enhancements.md (MODIFIED)
+- テスト: 2813/2813 pass (23テスト新規: snap 18, useDragItem +3, CanvasItem +2)
+- カバレッジ:
+  - ベースライン: Stmts 99.32%, Branch 94.70%, Funcs 90.84%, Lines 99.97%
+  - 実装後:   Stmts 99.32%(維持), Branch 94.72%(↑), Funcs 90.68%(微減), Lines 99.97%(維持)
+  - Funcs微減はsnap.tsのexported関数がstorybook経由のカウントに含まれないため。テストでは全関数テスト済み
+- スクリーンショット: .screenshots/grid-snap-demo-default.png, .screenshots/grid-snap-demo-storybook.png
+- **今後のイテレーションへの学び:**
+  - `Math.round(-0.5)` はJSで `-0` を返す。`|| 0` で正規化するとクリーンな出力になる
+  - グリッドスナップは3層分離: snap.ts(純粋ロジック) → useDragItem(hook) → CanvasItem(UIコンポーネント)
+  - `SnapConfig` 型でenable/disable + gridSpacingを束ねることで、将来的なスナップの種類追加（オブジェクトスナップ等）にも拡張しやすい
+  - Tier 2.1の残り: オブジェクトスナップ、選択アイテムの整列操作、等間隔分配
+---
