@@ -1,7 +1,7 @@
 import "katex/dist/katex.min.css";
 import "../src/app/globals.css";
 import type { Decorator, Preview } from "@storybook/nextjs-vite";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 const THEME_TOOLBAR_ITEMS = [
   { value: "light", icon: "sun", title: "Light" },
@@ -10,8 +10,72 @@ const THEME_TOOLBAR_ITEMS = [
 ];
 
 /**
+ * Wrapper component that strips data-testid from all descendant elements.
+ *
+ * Side-by-side mode renders the story twice, causing duplicate data-testid values.
+ * Play functions use `within(canvasElement).getByTestId(...)` which fails with
+ * "Found multiple elements". This wrapper strips testids from the secondary (dark)
+ * pane so play functions only find elements in the primary (light) pane.
+ */
+function TestIdStripper({ children }: { readonly children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = ref.current;
+    if (!container) return;
+
+    const stripTestIds = (root: Element) => {
+      for (const el of root.querySelectorAll("[data-testid]")) {
+        el.removeAttribute("data-testid");
+      }
+    };
+
+    // Strip existing testids
+    stripTestIds(container);
+
+    // Observe for dynamically added elements
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node instanceof Element) {
+            if (node.hasAttribute("data-testid")) {
+              node.removeAttribute("data-testid");
+            }
+            stripTestIds(node);
+          }
+        }
+        // Handle attribute changes on existing elements
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "data-testid" &&
+          mutation.target instanceof Element &&
+          mutation.target.hasAttribute("data-testid")
+        ) {
+          mutation.target.removeAttribute("data-testid");
+        }
+      }
+    });
+
+    observer.observe(container, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-testid"],
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  return React.createElement("div", { ref }, children);
+}
+
+/**
  * Theme decorator that sets data-theme attribute on a wrapper div.
  * For "side-by-side" mode, renders the story twice (light + dark) in a flex container.
+ * The dark pane's data-testid attributes are stripped to prevent duplicate testid conflicts
+ * in play function interactions.
  */
 const withTheme: Decorator = (Story, context) => {
   const theme = (context.globals["theme"] ?? "light") as string;
@@ -88,7 +152,7 @@ const withTheme: Decorator = (Story, context) => {
             },
             "Dark",
           ),
-        React.createElement(Story),
+        React.createElement(TestIdStripper, null, React.createElement(Story)),
       ),
     );
   }

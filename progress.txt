@@ -2391,3 +2391,19 @@
   - globals.css の :root/[data-theme="light"] と [data-theme="dark"] の両方に新トークンを追加する必要がある
   - fallback値付きCSS変数 `var(--color-xxx, fallback)` でダークモード未対応環境でも動作を保証
 ---
+
+## 2026-02-25 - Storybook side-by-side テーマモードでの play 関数 testid 重複修正
+- side-by-side モードでストーリーが2回レンダリングされ、data-testid が重複して play 関数の getByTestId が失敗していた
+- `.storybook/preview.ts` に `TestIdStripper` コンポーネントを追加
+  - dark pane を TestIdStripper でラップし、MutationObserver で data-testid を動的に除去
+  - 新規追加される要素や属性変更にも対応
+- play 関数や個別ストーリーファイルの変更は不要（デコレータレベルの修正）
+- 変更ファイル: .storybook/preview.ts
+- ブラウザテスト: side-by-side で NotebookList, ProofWorkspace の動作確認
+- スクリーンショット: .screenshots/notebooklist-open-action-sidebyside-fixed.png
+- テスト: 2630/2630 pass, typecheck pass
+- **今後のイテレーションへの学び:**
+  - side-by-side テーマモードでは同じストーリーが2回レンダリングされるため、data-testid が重複する
+  - MutationObserver + removeAttribute で dark pane の testid を除去することで、play 関数が light pane のみを対象にする
+  - デコレータレベルの修正は全ストーリーに一括適用されるため、個別修正より効率的
+---
