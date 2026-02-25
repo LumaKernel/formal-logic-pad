@@ -46,6 +46,32 @@
 - テーマCSS変数は `globals.css` に `[data-theme="light"]` / `[data-theme="dark"]` セレクタで一元定義。CSS Modulesからはグローバル変数を参照する
 - テーマ遷移: `--theme-transition-duration` CSS変数で一元管理。`data-theme-loaded` 属性でFOUC防止、`prefers-reduced-motion` で無効化
 - FOUC防止: `layout.tsx` の `<head>` にインラインスクリプトでlocalStorageからテーマ読み取り → `data-theme` 属性設定。React hydration前に実行
+- InfiniteCanvasのデフォルト色はCSS変数 `var(--color-canvas-bg, #ffffff)` / `var(--color-canvas-dot, #c0c0c0)` で指定。propsで上書き可能
+- Storybook iframe内でCSS変数を使うには `.storybook/preview.ts` で `globals.css` をインポートする必要がある
+
+---
+
+## 2026-02-25 - InfiniteCanvasのテーマ対応 (US-005)
+- InfiniteCanvasのデフォルト色をCSS変数（`var(--color-canvas-bg)`, `var(--color-canvas-dot)`）に変更
+- propsで明示的に色を渡した場合はpropsが優先される（既存API互換性維持）
+- `.storybook/preview.ts` に `globals.css` をインポート追加（Storybook iframe内でCSS変数を利用可能に）
+- ThemeAwareストーリーを追加し、CSS変数デフォルトの検証play関数を実装
+- テスト: デフォルトCSS変数テスト2件 + 既存のカスタムカラーテスト維持 = +3テスト（1835 → 1838）
+- カバレッジ: Lines 99.88%（維持）, Stmts 99.04%（維持）
+- スクリーンショット:
+  - `.screenshots/us-005-infinite-canvas-light-with-css-vars.png` (ライトモード)
+  - `.screenshots/us-005-infinite-canvas-dark.png` (ダークモード)
+  - `.screenshots/us-005-infinite-canvas-custom-colors.png` (カスタムカラーprops優先確認)
+- 変更ファイル:
+  - `src/lib/infinite-canvas/InfiniteCanvas.tsx` (MODIFIED) - デフォルト色をCSS変数に変更
+  - `src/lib/infinite-canvas/InfiniteCanvas.test.tsx` (MODIFIED) - CSS変数デフォルトテスト追加
+  - `src/lib/infinite-canvas/InfiniteCanvas.stories.ts` (MODIFIED) - ThemeAwareストーリー追加、Defaultストーリー更新
+  - `.storybook/preview.ts` (MODIFIED) - globals.cssインポート追加
+  - `tasks/prd-dark-mode.md` (MODIFIED) - US-005完了
+- **今後のイテレーションへの学び:**
+  - Storybook iframeでCSS変数を使うには `preview.ts` でグローバルCSSをインポートする必要がある（Next.jsアプリとは別のエントリポイント）
+  - SVGの `fill` 属性にもCSS変数 `var(--xxx)` が使える。jsdom環境ではCSS変数は解決されないが文字列としてそのまま属性に設定される
+  - InfiniteCanvasの色はデフォルトをCSS変数にしつつ、フォールバック値 `var(--xxx, fallback)` でCSS変数未定義環境でも動作する
 
 ---
 

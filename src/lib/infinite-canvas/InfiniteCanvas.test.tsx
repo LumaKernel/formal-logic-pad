@@ -27,14 +27,31 @@ describe("InfiniteCanvas", () => {
     expect(circle).not.toBeNull();
   });
 
-  it("uses custom dot color", () => {
+  it("uses CSS variable as default dot color", () => {
+    render(<InfiniteCanvas />);
+    const canvas = screen.getByTestId("infinite-canvas");
+    const circle = canvas.querySelector("circle");
+    expect(circle?.getAttribute("fill")).toBe(
+      "var(--color-canvas-dot, #c0c0c0)",
+    );
+  });
+
+  it("uses CSS variable as default background color", () => {
+    render(<InfiniteCanvas />);
+    const canvas = screen.getByTestId("infinite-canvas");
+    expect(canvas.style.backgroundColor).toBe(
+      "var(--color-canvas-bg, #ffffff)",
+    );
+  });
+
+  it("uses custom dot color when provided via props", () => {
     render(<InfiniteCanvas dotColor="#ff0000" />);
     const canvas = screen.getByTestId("infinite-canvas");
     const circle = canvas.querySelector("circle");
     expect(circle?.getAttribute("fill")).toBe("#ff0000");
   });
 
-  it("uses custom background color", () => {
+  it("uses custom background color when provided via props", () => {
     render(<InfiniteCanvas backgroundColor="rgb(0, 0, 0)" />);
     const canvas = screen.getByTestId("infinite-canvas");
     expect(canvas.style.backgroundColor).toBe("rgb(0, 0, 0)");

@@ -88,21 +88,21 @@
 - [x] 型チェック/lintが通る
 - [x] Playwright MCPでスクリーンショットを撮影し `.screenshots/` に保存して確認
 
-### US-005: InfiniteCanvasのテーマ対応
+### US-005: InfiniteCanvasのテーマ対応 [x]
 
 **説明:** ユーザーとして、ダークモード時にキャンバスの背景・ドットが暗い配色に切り替わり、見やすくなってほしい。
 
 **受け入れ基準:**
 
-- [ ] InfiniteCanvasコンポーネントのデフォルト色をCSS変数から取得する仕組みにする（`dotColor`, `backgroundColor` のデフォルト値）
-- [ ] propsで明示的に色を渡した場合はそちらを優先する（既存のAPI互換性を維持）
-- [ ] ダークモード時の配色例:
+- [x] InfiniteCanvasコンポーネントのデフォルト色をCSS変数から取得する仕組みにする（`dotColor`, `backgroundColor` のデフォルト値）
+- [x] propsで明示的に色を渡した場合はそちらを優先する（既存のAPI互換性を維持）
+- [x] ダークモード時の配色例:
   - 背景: `#1a1a2e` 系の暗い色
   - ドット: `#3a3a5c` 系の控えめな色
-- [ ] ライトモード時の配色は既存の白系を維持
-- [ ] Storybookのストーリーでダーク/ライト両方のキャンバスを確認可能
-- [ ] 型チェック/lintが通る
-- [ ] Playwright MCPでスクリーンショットを撮影し `.screenshots/` に保存して確認
+- [x] ライトモード時の配色は既存の白系を維持
+- [x] Storybookのストーリーでダーク/ライト両方のキャンバスを確認可能
+- [x] 型チェック/lintが通る
+- [x] Playwright MCPでスクリーンショットを撮影し `.screenshots/` に保存して確認
 
 ### US-006: InfiniteCanvasに基準線（メジャーグリッドライン）を追加
 

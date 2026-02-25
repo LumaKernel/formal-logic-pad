@@ -26,9 +26,13 @@ export const Default: Story = {
     const infiniteCanvas = canvas.getByTestId("infinite-canvas");
     await expect(infiniteCanvas).toBeInTheDocument();
     await expect(infiniteCanvas).toHaveStyle({
-      backgroundColor: "#ffffff",
       cursor: "grab",
     });
+    // Default uses CSS variable for theme-aware colors
+    const circle = infiniteCanvas.querySelector("circle");
+    await expect(circle?.getAttribute("fill")).toBe(
+      "var(--color-canvas-dot, #c0c0c0)",
+    );
   },
 };
 
@@ -74,5 +78,23 @@ export const DenseGrid: Story = {
 export const SparseGrid: Story = {
   args: {
     dotSpacing: 50,
+  },
+};
+
+export const ThemeAware: Story = {
+  args: {},
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const infiniteCanvas = canvas.getByTestId("infinite-canvas");
+    await expect(infiniteCanvas).toBeInTheDocument();
+
+    // Verify CSS variable defaults are applied (theme-aware)
+    await expect(infiniteCanvas.style.backgroundColor).toBe(
+      "var(--color-canvas-bg, #ffffff)",
+    );
+    const circle = infiniteCanvas.querySelector("circle");
+    await expect(circle?.getAttribute("fill")).toBe(
+      "var(--color-canvas-dot, #c0c0c0)",
+    );
   },
 };

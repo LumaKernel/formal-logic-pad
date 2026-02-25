@@ -37,8 +37,8 @@ const NOOP = () => {};
 export function InfiniteCanvas({
   viewport = DEFAULT_VIEWPORT,
   dotSpacing = 20,
-  dotColor = "#c0c0c0",
-  backgroundColor = "#ffffff",
+  dotColor = "var(--color-canvas-dot, #c0c0c0)",
+  backgroundColor = "var(--color-canvas-bg, #ffffff)",
   onViewportChange = NOOP,
   minScale = MIN_SCALE,
   maxScale = MAX_SCALE,
