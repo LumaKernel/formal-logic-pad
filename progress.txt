@@ -2150,3 +2150,26 @@
   - systemPresetsの設計: プリセットIDをキーにしてロジック層でバリデーション→UI層でプリセット検索して実際のLogicSystemを渡すパターンが安全
   - 次のイテレーション候補: クエストモード実装、ルーティング（ノート一覧→ノート詳細遷移）、ノート作成フォームとNotebookList/hookの統合
 ---
+
+## 2026-02-25 - クエスト→ノートブック統合ロジック
+- **実装内容**: クエストIDからノートブックを自動作成する統合ロジック層を作成
+- 新規ファイル:
+  - `src/lib/quest/questNotebookIntegration.ts` (NEW) - startQuestAndCreateNotebook, getQuestIdForNotebook, getNotebookIdsForQuest
+  - `src/lib/quest/questNotebookIntegration.test.ts` (NEW - 17テスト)
+- 変更ファイル:
+  - `src/lib/notebook/notebookState.ts` - Notebook型にquestIdフィールド追加、CreateQuestNotebookParamsにquestId追加
+  - `src/lib/notebook/notebookState.test.ts` - questId関連2テスト追加
+  - `src/lib/notebook/notebookSerialization.ts` - questIdのシリアライズ/デシリアライズ対応
+  - `src/lib/notebook/notebookSerialization.test.ts` - questIdラウンドトリップ2テスト追加
+  - `src/lib/notebook/useNotebookCollection.ts` - createQuestにquestIdパラメータ追加
+  - `src/lib/quest/index.ts` - 統合ロジックのエクスポート追加
+  - `tasks/prd-next-tasks.md` → `tasks-archived/prd-next-tasks.md` (全タスク完了)
+- テスト: 2492 → 2513（+21テスト）
+- カバレッジ: Stmts 99.19%（維持）, Branch 94.44%（+0.02%）, Funcs 91.37%（+0.03%）, Lines 100%（維持）
+- スクリーンショット: `.screenshots/quest-notebook-integration-catalog.png`
+- **今後のイテレーションへの学び:**
+  - Notebook型にquestIdを追加する際、シリアライゼーションの同期更新を忘れないこと（parseNotebook, serializeCollection両方）
+  - questIdはoptional stringとし、自由帳ノートではundefined。シリアライズ時もundefinedのフィールドは省略する（スプレッド演算子で条件付きプロパティ追加パターン）
+  - 統合ロジック（questNotebookIntegration.ts）はquestモジュール側に配置（quest → notebook方向の依存）
+  - prd-next-tasks.mdの全タスクが完了したため、tasks-archived/に移動した
+---
