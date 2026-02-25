@@ -15,70 +15,79 @@ const THEME_TOOLBAR_ITEMS = [
  */
 const withTheme: Decorator = (Story, context) => {
   const theme = (context.globals["theme"] ?? "light") as string;
+  const isFullscreen =
+    (context.parameters["layout"] as string | undefined) === "fullscreen";
 
   if (theme === "side-by-side") {
+    const paneStyle = isFullscreen
+      ? {
+          flex: 1,
+          backgroundColor: "var(--color-bg-primary)" as const,
+          color: "var(--color-text-primary)" as const,
+          overflow: "auto" as const,
+          height: "100%" as const,
+        }
+      : {
+          flex: 1,
+          backgroundColor: "var(--color-bg-primary)" as const,
+          color: "var(--color-text-primary)" as const,
+          padding: "16px" as const,
+          borderRadius: "8px" as const,
+          overflow: "auto" as const,
+        };
+
     return React.createElement(
       "div",
       {
         style: {
           display: "flex",
-          gap: "16px",
+          gap: isFullscreen ? "0px" : "16px",
           width: "100%",
-          minHeight: "100%",
+          ...(isFullscreen
+            ? { height: "100%" }
+            : { minHeight: "100%" }),
         },
       },
       React.createElement(
         "div",
         {
           "data-theme": "light",
-          style: {
-            flex: 1,
-            backgroundColor: "var(--color-bg-primary)",
-            color: "var(--color-text-primary)",
-            padding: "16px",
-            borderRadius: "8px",
-            overflow: "auto",
-          },
+          style: paneStyle,
         },
-        React.createElement(
-          "div",
-          {
-            style: {
-              marginBottom: "8px",
-              fontSize: "12px",
-              fontWeight: "bold",
-              opacity: 0.5,
+        !isFullscreen &&
+          React.createElement(
+            "div",
+            {
+              style: {
+                marginBottom: "8px",
+                fontSize: "12px",
+                fontWeight: "bold",
+                opacity: 0.5,
+              },
             },
-          },
-          "Light",
-        ),
+            "Light",
+          ),
         React.createElement(Story),
       ),
       React.createElement(
         "div",
         {
           "data-theme": "dark",
-          style: {
-            flex: 1,
-            backgroundColor: "var(--color-bg-primary)",
-            color: "var(--color-text-primary)",
-            padding: "16px",
-            borderRadius: "8px",
-            overflow: "auto",
-          },
+          style: paneStyle,
         },
-        React.createElement(
-          "div",
-          {
-            style: {
-              marginBottom: "8px",
-              fontSize: "12px",
-              fontWeight: "bold",
-              opacity: 0.5,
+        !isFullscreen &&
+          React.createElement(
+            "div",
+            {
+              style: {
+                marginBottom: "8px",
+                fontSize: "12px",
+                fontWeight: "bold",
+                opacity: 0.5,
+              },
             },
-          },
-          "Dark",
-        ),
+            "Dark",
+          ),
         React.createElement(Story),
       ),
     );
@@ -88,12 +97,18 @@ const withTheme: Decorator = (Story, context) => {
     "div",
     {
       "data-theme": theme,
-      style: {
-        backgroundColor: "var(--color-bg-primary)",
-        color: "var(--color-text-primary)",
-        minHeight: "100%",
-        padding: "16px",
-      },
+      style: isFullscreen
+        ? {
+            backgroundColor: "var(--color-bg-primary)",
+            color: "var(--color-text-primary)",
+            height: "100%",
+          }
+        : {
+            backgroundColor: "var(--color-bg-primary)",
+            color: "var(--color-text-primary)",
+            minHeight: "100%",
+            padding: "16px",
+          },
     },
     React.createElement(Story),
   );
