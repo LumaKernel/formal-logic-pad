@@ -2041,3 +2041,27 @@
   - `dev/cut-elimination/` のドキュメント群はUS-001〜US-005で完成。将来カット除去の実装時にはこれらを参照する
   - PRDの全ストーリー完了時は tasks-archived/ に移動する
 ---
+
+## 2026-02-25 - ノートブック管理: ノート新規作成フォームUI（モード・公理系選択）
+- `src/lib/notebook/notebookCreateLogic.ts` を新規作成 - プリセット公理系定義（Łukasiewicz/述語論理/等号付き述語論理）、フォームバリデーション
+- `src/lib/notebook/notebookCreateLogic.test.ts` を新規作成 - 26テスト
+- `src/lib/notebook/NotebookCreateFormComponent.tsx` を新規作成 - 名前入力・モード選択（自由帳/クエスト）・公理系選択カードUI
+- `src/lib/notebook/NotebookCreateFormComponent.test.tsx` を新規作成 - 22テスト
+- `src/lib/notebook/NotebookCreateFormComponent.stories.tsx` を新規作成 - 6ストーリー（全play関数付き）
+- カバレッジ: Stmts 99.11%, Branch 94.43%, Funcs 92.02%, Lines 100%
+  - ベースライン: Stmts 99.12%, Lines 100%
+  - Lines 100%維持
+- テスト: 2319 全パス（54テスト追加: 26+22+6ストーリー）
+- ブラウザ確認: Playwright MCPで.screenshots/notebook-create-form-fullscreen.png 保存済み
+- 変更ファイル:
+  - `src/lib/notebook/notebookCreateLogic.ts` (NEW)
+  - `src/lib/notebook/notebookCreateLogic.test.ts` (NEW)
+  - `src/lib/notebook/NotebookCreateFormComponent.tsx` (NEW)
+  - `src/lib/notebook/NotebookCreateFormComponent.test.tsx` (NEW)
+  - `src/lib/notebook/NotebookCreateFormComponent.stories.tsx` (NEW)
+  - `tasks/prd-logic-pad-world.md` - ノート新規作成タスク完了マーク
+- **今後のイテレーションへの学び:**
+  - CSSPropertiesでshorthand(border)とnon-shorthand(borderColor)を混在させるとReactが警告を出す。常にborderの完全指定で統一すること
+  - systemPresetsの設計: プリセットIDをキーにしてロジック層でバリデーション→UI層でプリセット検索して実際のLogicSystemを渡すパターンが安全
+  - 次のイテレーション候補: クエストモード実装、ルーティング（ノート一覧→ノート詳細遷移）、ノート作成フォームとNotebookList/hookの統合
+---
