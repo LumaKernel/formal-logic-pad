@@ -2173,3 +2173,20 @@
   - 統合ロジック（questNotebookIntegration.ts）はquestモジュール側に配置（quest → notebook方向の依存）
   - prd-next-tasks.mdの全タスクが完了したため、tasks-archived/に移動した
 ---
+
+## 2026-02-25 - クエストモード: アプリのメインページ（ハブ）とワークスペースページの統合
+- ハブページ（src/app/page.tsx + HubContent.tsx）を作成: ノートブック一覧タブ + クエストカタログタブ
+- ワークスペースページ（src/app/workspace/[id]/page.tsx + WorkspaceContent.tsx）を作成: ProofWorkspace統合
+- next/dynamic with ssr: false で hydration mismatch 回避（localStorage依存のhook群）
+- predictNextNotebookId() パターンでクエスト開始→ノートブック作成→ワークスペース遷移を確実に
+- src/lib/notebook/index.ts に NotebookCreateForm 関連のexportを追加
+- 変更ファイル: src/app/page.tsx, src/app/HubContent.tsx (new), src/app/workspace/[id]/page.tsx (new), src/app/workspace/[id]/WorkspaceContent.tsx (new), src/lib/notebook/index.ts, task-processing.md
+- カバレッジ: 変化なし（src/app/** はカバレッジ除外対象）。Stmts 99.19%, Branch 94.44%, Funcs 91.37%, Lines 100%
+- テスト: 2513 passed
+- スクリーンショット: .screenshots/hub-notebooks-tab.png, .screenshots/hub-quests-tab.png, .screenshots/workspace-quest-started.png, .screenshots/hub-after-quest-start.png
+- **今後のイテレーションへの学び:**
+  - Next.js App Router + localStorage依存hooksはSSRでhydration mismatchが起きる。`next/dynamic` with `{ ssr: false }` で回避
+  - React 19のsetState updater戻り値は信頼不可。ID予測には外部stateのnextIdを直接読む `predictNextNotebookId()` パターンを使う
+  - dev serverは port 13000 (package.json `dev` script: `next dev -p 13000`)
+  - src/app/** のページコンポーネントはカバレッジ除外。不純なフレームワーク層として分離する方針
+---

@@ -39,3 +39,18 @@ export {
 } from "./notebookListLogic";
 
 export { NotebookList, type NotebookListProps } from "./NotebookListComponent";
+
+export {
+  NotebookCreateForm,
+  type NotebookCreateFormProps,
+} from "./NotebookCreateFormComponent";
+
+export {
+  type CreateMode,
+  type CreateFormValues,
+  systemPresets,
+  defaultCreateFormValues,
+  validateCreateForm,
+  getFieldError,
+  findPresetById,
+} from "./notebookCreateLogic";
