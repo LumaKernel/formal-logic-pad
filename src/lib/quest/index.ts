@@ -45,3 +45,21 @@ export {
 } from "./questCatalog";
 
 export { builtinQuests } from "./builtinQuests";
+
+export {
+  type CompletionFilter,
+  type CatalogFilterState,
+  defaultFilterState,
+  applyFilters,
+  applyFiltersToGroups,
+  difficultyLabel,
+  difficultyShortLabel,
+  ratingLabel,
+  ratingColor,
+  categoryProgressText,
+  stepCountText,
+  completionFilterOptions,
+  difficultyFilterOptions,
+} from "./questCatalogListLogic";
+
+export { QuestCatalog, type QuestCatalogProps } from "./QuestCatalogComponent";
