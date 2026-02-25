@@ -47,6 +47,34 @@
 
 ---
 
+## 2026-02-25 - テーマ切り替えUI (US-003)
+- ThemeToggleセグメントコントロールを作成（Light/Dark/System の3モード切り替え）
+- 純粋ロジック（themeToggleLogic.ts）+ UIコンポーネント（ThemeToggle.tsx）+ CSS Modules（ThemeToggle.module.css）の3層構成
+- インラインSVGアイコン（太陽/月/モニター）、外部ライブラリ不使用
+- aria-label、role=radiogroup/radio、キーボード操作（Tab/Enter/Space）対応
+- Storybookストーリー2つ（Default + IconsOnly）、play関数付きインタラクションテスト
+- ユニットテスト: 純粋ロジック10テスト + UIコンポーネント13テスト = 25テスト追加
+- カバレッジ: Lines 99.88%（ベースライン維持）, Stmts 99.04%（99.03% → 微増）
+- スクリーンショット:
+  - `.screenshots/us-003-theme-toggle-storybook-default.png`
+  - `.screenshots/us-003-theme-toggle-icons-only.png`
+- 変更ファイル:
+  - `src/components/ThemeToggle/themeToggleLogic.ts` (NEW)
+  - `src/components/ThemeToggle/themeToggleLogic.test.ts` (NEW)
+  - `src/components/ThemeToggle/ThemeToggle.tsx` (NEW)
+  - `src/components/ThemeToggle/ThemeToggle.test.tsx` (NEW)
+  - `src/components/ThemeToggle/ThemeToggle.module.css` (NEW)
+  - `src/components/ThemeToggle/ThemeToggle.stories.tsx` (NEW)
+  - `src/components/ThemeToggle/index.ts` (NEW)
+  - `tasks/prd-dark-mode.md` (MODIFIED)
+  - `task-processing.md` (MODIFIED)
+- **今後のイテレーションへの学び:**
+  - CSS Modulesのクラス名を条件付きで結合する場合、テンプレートリテラル内のネストした三項演算子はESLintのsatisfiesルールで問題が出る。`.filter(Boolean).join(" ")`パターンが安全
+  - `src/components/`ディレクトリはUIコンポーネント（アプリケーションレベル）、`src/lib/`はライブラリ（再利用可能なロジック/UI）の棲み分け
+  - ThemeToggleは `useThemeContext()` を使うためThemeProviderが必要。Storybookストーリーではラッパー関数でThemeProviderを含める
+
+---
+
 ## 2026-02-25 - CI修復
 - Prettierフォーマッティング修正（23ファイル）: formula-input, infinite-canvas 内の多数のファイル
 - ESLint warning修正: `connectionPath.test.ts` の未使用import `cubicBezierPoint` を削除
