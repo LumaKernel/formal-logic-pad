@@ -19,6 +19,11 @@ import {
   validateGenApplication,
   type GenApplicationResult,
 } from "./genApplicationLogic";
+import {
+  buildClipboardData,
+  pasteClipboardData,
+  type ClipboardData,
+} from "./copyPasteLogic";
 
 // --- ワークスペースモード ---
 
@@ -417,4 +422,61 @@ export function applyGenAndConnect(
   }
 
   return { workspace: ws, genNodeId, validation };
+}
+
+// --- コピー＆ペースト ---
+
+/**
+ * 選択されたノードをコピーしてClipboardDataを構築する。
+ */
+export function copySelectedNodes(
+  state: WorkspaceState,
+  selectedNodeIds: ReadonlySet<string>,
+): ClipboardData {
+  return buildClipboardData(selectedNodeIds, state.nodes, state.connections);
+}
+
+/**
+ * ClipboardDataからノードと接続をワークスペースにペーストする。
+ * 新しいIDを割り当て、指定位置を中心に配置する。
+ */
+export function pasteNodes(
+  state: WorkspaceState,
+  clipboardData: ClipboardData,
+  targetCenter: Point,
+): WorkspaceState {
+  const result = pasteClipboardData(
+    clipboardData,
+    targetCenter,
+    state.nextNodeId,
+  );
+  return {
+    ...state,
+    nodes: [...state.nodes, ...result.newNodes],
+    connections: [...state.connections, ...result.newConnections],
+    nextNodeId: result.nextNodeId,
+  };
+}
+
+/**
+ * 選択されたノードを削除する（保護ノードはスキップ）。
+ * 関連する接続も自動的に削除される。
+ */
+export function removeSelectedNodes(
+  state: WorkspaceState,
+  selectedNodeIds: ReadonlySet<string>,
+): WorkspaceState {
+  // 保護ノードを除外
+  const removableIds = new Set(
+    [...selectedNodeIds].filter((id) => !isNodeProtected(state, id)),
+  );
+  if (removableIds.size === 0) return state;
+
+  return {
+    ...state,
+    nodes: state.nodes.filter((n) => !removableIds.has(n.id)),
+    connections: state.connections.filter(
+      (c) => !removableIds.has(c.fromNodeId) && !removableIds.has(c.toNodeId),
+    ),
+  };
 }

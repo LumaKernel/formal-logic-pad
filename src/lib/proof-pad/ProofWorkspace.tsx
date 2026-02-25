@@ -9,7 +9,7 @@
  * 変更時は ProofWorkspace.test.tsx, ProofWorkspace.stories.tsx, workspaceState.ts, goalCheckLogic.ts, index.ts も同期すること。
  */
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LogicSystem } from "../logic-core/inferenceRule";
 import type { Formula } from "../logic-core/formula";
 import type { EditorMode } from "../formula-input/editorLogic";
@@ -45,7 +45,18 @@ import {
   findNode,
   applyMPAndConnect,
   applyGenAndConnect,
+  copySelectedNodes,
+  pasteNodes,
+  removeSelectedNodes,
 } from "./workspaceState";
+import {
+  toggleNodeSelection,
+  selectSingleNode,
+  clearSelection,
+  serializeClipboardData,
+  deserializeClipboardData,
+} from "./copyPasteLogic";
+import type { ClipboardData } from "./copyPasteLogic";
 
 // --- Props ---
 
@@ -263,6 +274,22 @@ const convertToFreeButtonStyle = {
   fontFamily: "sans-serif",
 };
 
+const selectionBannerStyle = {
+  ...mpSelectionBannerStyle,
+  background: "rgba(59,130,246,0.95)",
+};
+
+const selectionActionButtonStyle = {
+  padding: "2px 8px",
+  background: "rgba(255,255,255,0.2)",
+  color: "#fff",
+  border: "1px solid rgba(255,255,255,0.3)",
+  borderRadius: 4,
+  cursor: "pointer",
+  fontSize: 11,
+  fontFamily: "sans-serif",
+};
+
 // --- コンポーネント ---
 
 export function ProofWorkspace({
@@ -318,6 +345,17 @@ export function ProofWorkspace({
 
   // Gen変数名入力
   const [genVariableInput, setGenVariableInput] = useState("");
+
+  // ノード選択状態（コピペ・削除用）
+  const [selectedNodeIds, setSelectedNodeIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+
+  // クリップボードデータ（内部保持用、navigator.clipboard フォールバック）
+  const clipboardRef = useRef<ClipboardData | null>(null);
+
+  // コンテナref（キーボードイベント用）
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // --- 公理パレット ---
 
@@ -537,6 +575,142 @@ export function ProofWorkspace({
     setWorkspace(convertToFreeMode(workspace));
   }, [workspace, setWorkspace]);
 
+  // --- ノード選択ハンドラ ---
+
+  const handleNodeSelect = useCallback(
+    (nodeId: string, e: React.MouseEvent) => {
+      // MP/Gen選択モード中は選択操作を行わない
+      if (mpSelection.phase !== "idle" || genSelection.phase !== "idle") return;
+      // 編集中ノードのクリックは選択しない
+      if (editingNodeIds.has(nodeId)) return;
+
+      if (e.metaKey || e.ctrlKey) {
+        // Ctrl/Cmd+クリック: トグル選択
+        setSelectedNodeIds((prev) => toggleNodeSelection(prev, nodeId));
+      } else {
+        // 通常クリック: 単一選択
+        setSelectedNodeIds(selectSingleNode(nodeId));
+      }
+    },
+    [mpSelection.phase, genSelection.phase, editingNodeIds],
+  );
+
+  const handleCanvasClick = useCallback(() => {
+    // キャンバスの空白部分クリックで選択解除
+    if (selectedNodeIds.size > 0) {
+      setSelectedNodeIds(clearSelection());
+    }
+  }, [selectedNodeIds]);
+
+  // --- コピー＆ペースト ---
+
+  const handleCopy = useCallback(() => {
+    if (selectedNodeIds.size === 0) return;
+    const data = copySelectedNodes(workspace, selectedNodeIds);
+    clipboardRef.current = data;
+    // ブラウザのクリップボードにも書き込む（非同期、失敗しても内部保持で動作）
+    const json = serializeClipboardData(data);
+    navigator.clipboard.writeText(json).catch(() => {
+      // クリップボードAPIが使えない環境でも内部保持で動作
+    });
+  }, [selectedNodeIds, workspace]);
+
+  const handlePaste = useCallback(() => {
+    // まず内部クリップボードから試行
+    const doInternalPaste = (data: ClipboardData) => {
+      const center: Point = {
+        x: -viewport.offsetX / viewport.scale + 300,
+        y: -viewport.offsetY / viewport.scale + 300,
+      };
+      const result = pasteNodes(workspace, data, center);
+      setWorkspace(result);
+      // ペースト後、新しいノードを選択状態にする
+      const newNodeIds = new Set(
+        result.nodes
+          .slice(workspace.nodes.length)
+          .map((n) => n.id),
+      );
+      setSelectedNodeIds(newNodeIds);
+    };
+
+    if (clipboardRef.current) {
+      doInternalPaste(clipboardRef.current);
+      return;
+    }
+
+    /* v8 ignore start -- ブラウザのClipboard API: JSDOMでは内部クリップボードが使われるため到達しない */
+    navigator.clipboard
+      .readText()
+      .then((text) => {
+        const data = deserializeClipboardData(text);
+        if (data) {
+          doInternalPaste(data);
+        }
+      })
+      .catch(() => {
+        // クリップボードAPIが使えない環境では何もしない
+      });
+    /* v8 ignore stop */
+  }, [workspace, viewport, setWorkspace]);
+
+  const handleDeleteSelected = useCallback(() => {
+    if (selectedNodeIds.size === 0) return;
+    const result = removeSelectedNodes(workspace, selectedNodeIds);
+    setWorkspace(result);
+    setSelectedNodeIds(clearSelection());
+  }, [selectedNodeIds, workspace, setWorkspace]);
+
+  // --- キーボードショートカット ---
+  /* v8 ignore start -- キーボードイベント: JSDOMではfocus制御が不安定なためブラウザテストで検証 */
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // 入力フィールドにフォーカスがある場合はスキップ
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+      // フォーミュラ編集中はスキップ
+      if (editingNodeIds.size > 0) return;
+
+      const isModifier = e.metaKey || e.ctrlKey;
+
+      if (isModifier && e.key === "c") {
+        e.preventDefault();
+        handleCopy();
+      } else if (isModifier && e.key === "v") {
+        e.preventDefault();
+        handlePaste();
+      } else if (isModifier && e.key === "a") {
+        e.preventDefault();
+        // Ctrl/Cmd+A: 全選択
+        setSelectedNodeIds(new Set(workspace.nodes.map((n) => n.id)));
+      } else if (e.key === "Delete" || e.key === "Backspace") {
+        e.preventDefault();
+        handleDeleteSelected();
+      } else if (e.key === "Escape") {
+        setSelectedNodeIds(clearSelection());
+      }
+    };
+
+    container.addEventListener("keydown", handleKeyDown);
+    return () => container.removeEventListener("keydown", handleKeyDown);
+  }, [
+    editingNodeIds,
+    handleCopy,
+    handlePaste,
+    handleDeleteSelected,
+    workspace.nodes,
+  ]);
+  /* v8 ignore stop */
+
   // --- コールバック ---
 
   /* v8 ignore start -- ドラッグ操作: PointerEvent シミュレーションが必要なためブラウザテストで検証 */
@@ -660,6 +834,7 @@ export function ProofWorkspace({
       const isSelectedLeft =
         mpSelection.phase === "selecting-right" &&
         mpSelection.leftNodeId === node.id;
+      const isNodeSelected = selectedNodeIds.has(node.id);
 
       // ノードの検証状態（MPまたはGen）
       const nodeValidation =
@@ -673,6 +848,15 @@ export function ProofWorkspace({
             ? "rgba(155,89,182,0.6)"
             : undefined;
 
+      // アウトラインスタイルの決定
+      const outlineStyle = isSelectedLeft
+        ? "3px solid #d9944a"
+        : isNodeSelected
+          ? "2px solid #3b82f6"
+          : isSelectionActive && selectionColor
+            ? `2px dashed ${selectionColor satisfies string}`
+            : undefined;
+
       return (
         <CanvasItem
           key={node.id}
@@ -683,21 +867,18 @@ export function ProofWorkspace({
         >
           <div
             ref={getNodeSizeRef(node.id)}
-            onClick={
-              isSelectionActive
-                ? (e) => {
-                    e.stopPropagation();
-                    handleNodeClickForSelection(node.id);
-                  }
-                : undefined
-            }
+            onClick={(e) => {
+              if (isSelectionActive) {
+                e.stopPropagation();
+                handleNodeClickForSelection(node.id);
+              } else {
+                e.stopPropagation();
+                handleNodeSelect(node.id, e);
+              }
+            }}
             style={{
               cursor: isSelectionActive ? "pointer" : undefined,
-              outline: isSelectedLeft
-                ? "3px solid #d9944a"
-                : isSelectionActive && selectionColor
-                  ? `2px dashed ${selectionColor satisfies string}`
-                  : undefined,
+              outline: outlineStyle,
               outlineOffset: 2,
               borderRadius: 10,
             }}
@@ -728,6 +909,7 @@ export function ProofWorkspace({
       viewport,
       editingNodeIds,
       isSelectionActive,
+      selectedNodeIds,
       mpSelection,
       genSelection,
       mpValidations,
@@ -740,14 +922,18 @@ export function ProofWorkspace({
       handleModeChange,
       handleRoleChange,
       handleNodeClickForSelection,
+      handleNodeSelect,
       getNodeSizeRef,
     ],
   );
 
   return (
     <div
+      ref={containerRef}
       data-testid={testId}
-      style={{ width: "100%", height: "100%", position: "relative" }}
+      style={{ width: "100%", height: "100%", position: "relative", outline: "none" }}
+      tabIndex={-1}
+      onClick={handleCanvasClick}
     >
       {/* 体系情報ヘッダー */}
       <div
@@ -882,6 +1068,58 @@ export function ProofWorkspace({
             onClick={handleCancelGenSelection}
           >
             Cancel
+          </button>
+        </div>
+      ) : null}
+
+      {/* 選択バナー */}
+      {selectedNodeIds.size > 0 && mpSelection.phase === "idle" && genSelection.phase === "idle" ? (
+        <div
+          style={selectionBannerStyle}
+          data-testid={
+            testId ? `${testId satisfies string}-selection-banner` : undefined
+          }
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span>
+            {`${String(selectedNodeIds.size) satisfies string} node${(selectedNodeIds.size > 1 ? "s" : "") satisfies string} selected`}
+          </span>
+          <button
+            type="button"
+            style={selectionActionButtonStyle}
+            onClick={handleCopy}
+            data-testid={
+              testId ? `${testId satisfies string}-copy-button` : undefined
+            }
+          >
+            Copy
+          </button>
+          <button
+            type="button"
+            style={selectionActionButtonStyle}
+            onClick={handlePaste}
+            data-testid={
+              testId ? `${testId satisfies string}-paste-button` : undefined
+            }
+          >
+            Paste
+          </button>
+          <button
+            type="button"
+            style={{ ...selectionActionButtonStyle, background: "rgba(224,96,96,0.3)" }}
+            onClick={handleDeleteSelected}
+            data-testid={
+              testId ? `${testId satisfies string}-delete-button` : undefined
+            }
+          >
+            Delete
+          </button>
+          <button
+            type="button"
+            style={cancelButtonStyle}
+            onClick={() => setSelectedNodeIds(clearSelection())}
+          >
+            Clear
           </button>
         </div>
       ) : null}

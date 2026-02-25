@@ -22,7 +22,11 @@ import {
   changeSystem,
   applyMPAndConnect,
   applyGenAndConnect,
+  copySelectedNodes,
+  pasteNodes,
+  removeSelectedNodes,
 } from "./workspaceState";
+import type { ClipboardData } from "./copyPasteLogic";
 
 describe("proofWorkspace", () => {
   describe("createEmptyWorkspace", () => {
@@ -757,6 +761,165 @@ describe("proofWorkspace", () => {
       convertToFreeMode(ws);
       expect(ws.mode).toBe("quest");
       expect(ws.nodes[0]!.protection).toBe("quest-goal");
+    });
+  });
+
+  describe("copySelectedNodes", () => {
+    it("copies selected nodes into clipboard data", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "A2", { x: 300, y: 100 }, "phi");
+      const clipboard = copySelectedNodes(ws, new Set(["node-1", "node-2"]));
+      expect(clipboard._tag).toBe("ProofPadClipboard");
+      expect(clipboard.nodes).toHaveLength(2);
+    });
+
+    it("includes connections between selected nodes only", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 300, y: 100 }, "phi -> psi");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 200,
+        y: 300,
+      });
+      ws = mpResult.workspace;
+
+      // All 3 selected: both connections included
+      const clipboard = copySelectedNodes(
+        ws,
+        new Set(["node-1", "node-2", "node-3"]),
+      );
+      expect(clipboard.connections).toHaveLength(2);
+
+      // Only 2 selected: no connections (MP node not selected)
+      const clipboardPartial = copySelectedNodes(
+        ws,
+        new Set(["node-1", "node-2"]),
+      );
+      expect(clipboardPartial.connections).toHaveLength(0);
+    });
+  });
+
+  describe("pasteNodes", () => {
+    it("pastes nodes with new IDs into workspace", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      const clipboard = copySelectedNodes(ws, new Set(["node-1"]));
+      const result = pasteNodes(ws, clipboard, { x: 500, y: 500 });
+      expect(result.nodes).toHaveLength(2);
+      expect(result.nodes[1]!.id).toBe("node-2");
+      expect(result.nodes[1]!.formulaText).toBe("phi");
+      expect(result.nextNodeId).toBe(3);
+    });
+
+    it("preserves connections between pasted nodes", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(
+        ws,
+        "axiom",
+        "A2",
+        { x: 300, y: 100 },
+        "phi -> psi",
+      );
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 200,
+        y: 300,
+      });
+      ws = mpResult.workspace;
+
+      const clipboard = copySelectedNodes(
+        ws,
+        new Set(["node-1", "node-2", "node-3"]),
+      );
+      const result = pasteNodes(ws, clipboard, { x: 600, y: 600 });
+
+      // Original 3 nodes + 3 pasted = 6
+      expect(result.nodes).toHaveLength(6);
+      // Original 2 connections + 2 pasted = 4
+      expect(result.connections).toHaveLength(4);
+      // New connections reference new IDs
+      const newConns = result.connections.filter(
+        (c) => c.fromNodeId.startsWith("node-4") || c.fromNodeId.startsWith("node-5"),
+      );
+      expect(newConns.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("does not paste protection status", () => {
+      const ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi", position: { x: 0, y: 0 } },
+      ]);
+      const clipboard = copySelectedNodes(ws, new Set(["node-1"]));
+      const result = pasteNodes(ws, clipboard, { x: 500, y: 500 });
+      expect(result.nodes[1]!.protection).toBeUndefined();
+    });
+
+    it("handles empty clipboard data", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const emptyClipboard: ClipboardData = {
+        _tag: "ProofPadClipboard",
+        version: 1,
+        nodes: [],
+        connections: [],
+      };
+      const result = pasteNodes(ws, emptyClipboard, { x: 0, y: 0 });
+      expect(result.nodes).toHaveLength(0);
+      expect(result.connections).toHaveLength(0);
+    });
+  });
+
+  describe("removeSelectedNodes", () => {
+    it("removes selected nodes and their connections", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 300, y: 100 }, "phi -> psi");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 200,
+        y: 300,
+      });
+      ws = mpResult.workspace;
+
+      // Remove node-1 and node-3
+      const result = removeSelectedNodes(ws, new Set(["node-1", "node-3"]));
+      expect(result.nodes).toHaveLength(1);
+      expect(result.nodes[0]!.id).toBe("node-2");
+      // All connections involving node-1 or node-3 should be removed
+      expect(result.connections).toHaveLength(0);
+    });
+
+    it("skips protected nodes", () => {
+      const ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi", position: { x: 0, y: 0 } },
+      ]);
+      const result = removeSelectedNodes(ws, new Set(["node-1"]));
+      // Protected node should not be removed
+      expect(result.nodes).toHaveLength(1);
+    });
+
+    it("returns unchanged state when no removable nodes", () => {
+      const ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi", position: { x: 0, y: 0 } },
+      ]);
+      const result = removeSelectedNodes(ws, new Set(["node-1"]));
+      expect(result).toBe(ws);
+    });
+
+    it("handles empty selection", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 });
+      const result = removeSelectedNodes(ws, new Set());
+      expect(result).toBe(ws);
+    });
+
+    it("removes only selected, keeps unselected", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 });
+      ws = addNode(ws, "axiom", "A2", { x: 300, y: 100 });
+      ws = addNode(ws, "axiom", "A3", { x: 500, y: 100 });
+      const result = removeSelectedNodes(ws, new Set(["node-2"]));
+      expect(result.nodes).toHaveLength(2);
+      expect(result.nodes[0]!.id).toBe("node-1");
+      expect(result.nodes[1]!.id).toBe("node-3");
     });
   });
 });

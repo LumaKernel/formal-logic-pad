@@ -24,6 +24,9 @@ export {
   changeSystem,
   applyMPAndConnect,
   applyGenAndConnect,
+  copySelectedNodes,
+  pasteNodes,
+  removeSelectedNodes,
 } from "./workspaceState";
 export type {
   WorkspaceMode,
@@ -35,6 +38,22 @@ export type {
   ApplyMPResult,
   ApplyGenResult,
 } from "./workspaceState";
+export {
+  computeCentroid,
+  buildClipboardData,
+  serializeClipboardData,
+  deserializeClipboardData,
+  pasteClipboardData,
+  toggleNodeSelection,
+  selectSingleNode,
+  clearSelection,
+} from "./copyPasteLogic";
+export type {
+  CopiedNode,
+  CopiedConnection,
+  ClipboardData,
+  PasteResult,
+} from "./copyPasteLogic";
 export {
   getMPPremises,
   parseNodeFormula,

@@ -1457,4 +1457,166 @@ describe("ProofWorkspace", () => {
       ).toHaveTextContent("A1 (K)");
     });
   });
+
+  describe("selection and copy-paste", () => {
+    it("shows selection banner when node is clicked", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi -> psi");
+
+      render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // Click on the node
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.click(node);
+
+      // Selection banner should appear
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-selection-banner"),
+        ).toHaveTextContent("1 node selected");
+      });
+    });
+
+    it("selects multiple nodes with Ctrl+click", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 300, y: 100 }, "psi");
+
+      render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // Click first node
+      const node1 = screen.getByTestId("proof-node-node-1");
+      await user.click(node1);
+
+      // Ctrl+click second node
+      const node2 = screen.getByTestId("proof-node-node-2");
+      await user.keyboard("{Control>}");
+      await user.click(node2);
+      await user.keyboard("{/Control}");
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-selection-banner"),
+        ).toHaveTextContent("2 nodes selected");
+      });
+    });
+
+    it("clears selection when canvas is clicked", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+
+      render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // Click the node to select
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.click(node);
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-selection-banner"),
+        ).toBeInTheDocument();
+      });
+
+      // Click the container to clear selection
+      const container = screen.getByTestId("workspace");
+      await user.click(container);
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-selection-banner"),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it("deletes selected nodes via delete button", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 300, y: 100 }, "psi");
+
+      render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // Select node-1
+      const node1 = screen.getByTestId("proof-node-node-1");
+      await user.click(node1);
+
+      // Click delete button
+      const deleteButton = screen.getByTestId("workspace-delete-button");
+      await user.click(deleteButton);
+
+      // node-1 should be gone, node-2 should remain
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("proof-node-node-1"),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.getByTestId("proof-node-node-2"),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("copy and paste creates new nodes", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+
+      render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // Select node
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.click(node);
+
+      // Click copy button
+      const copyButton = screen.getByTestId("workspace-copy-button");
+      await user.click(copyButton);
+
+      // Click paste button
+      const pasteButton = screen.getByTestId("workspace-paste-button");
+      await user.click(pasteButton);
+
+      // New node should appear (node-2)
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("proof-node-node-2"),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("does not delete protected nodes in quest mode", async () => {
+      const user = userEvent.setup();
+      const ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi", position: { x: 100, y: 100 } },
+      ]);
+
+      render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // Select the protected node
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.click(node);
+
+      // Click delete button
+      const deleteButton = screen.getByTestId("workspace-delete-button");
+      await user.click(deleteButton);
+
+      // Protected node should remain
+      expect(
+        screen.getByTestId("proof-node-node-1"),
+      ).toBeInTheDocument();
+    });
+  });
 });
