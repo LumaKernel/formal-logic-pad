@@ -40,6 +40,8 @@
 - unificationのMartelli-Montanariアルゴリズムでは即時代入適用により一部の分岐が到達不能になる
 - parserのPratt parserではinfixBPが事前フィルタするため`tokenToBinaryOperator`のdefaultケースは到達不能
 - `matchFormulaPattern` は公開済み。直接テストで一方向パターンマッチのすべてのケースを検証可能
+- `treeLayoutLogic.ts`: 証明ツリーの自動レイアウト純粋ロジック。カスタム実装（外部依存なし）。DAG→フォレスト→位置計算
+- `applyTreeLayout` in `workspaceState.ts`: ワークスペースノードにレイアウトを適用する統合関数
 
 - 公理パレット: `axiomPaletteLogic.ts`（純粋ロジック）+ `AxiomPalette.tsx`（UI）のペア。case-insensitive FS対策で`...Logic.ts`と`...ette.tsx`で名前区別
 - ゴールチェック: `goalCheckLogic.ts`（純粋ロジック）でゴール式とワークスペースノードの一致判定。`WorkspaceState`に`goalFormulaText`フィールド追加
@@ -2505,4 +2507,25 @@
 - スクリーンショット: .screenshots/formulanodeintegration-sidebyside-after.png
 - テスト: 2623/2623 pass, typecheck pass
 - prd-inserted-tasks.md 全タスク完了 → tasks-archived/prd-inserted-tasks-7.md にアーカイブ
+---
+
+## 2026-02-26 - 証明ツリー自動レイアウト (Tier 1.3)
+- カスタムツリーレイアウトアルゴリズムを実装（外部依存なし、d3-hierarchy/elkjs不使用）
+- 3層分離パターン: treeLayoutLogic.ts(純粋ロジック) → workspaceState.ts(統合) → TreeLayoutDemo.stories.tsx(UI)
+- 実装内容:
+  - `treeLayoutLogic.ts`: DAG→フォレスト変換、サブツリー幅計算、X/Y位置割り当て、上→下/下→上レイアウト
+  - `applyTreeLayout()` in `workspaceState.ts`: ワークスペースデータとレイアウトロジックの橋渡し
+  - `computeLayoutDiff()`: インクリメンタル再レイアウト用の差分計算
+  - `TreeLayoutDemo.stories.tsx`: デモストーリー（自動整列ボタン、方向切替、リセット）
+- 新規ファイル: treeLayoutLogic.ts, treeLayoutLogic.test.ts, TreeLayoutDemo.stories.tsx
+- 変更ファイル: workspaceState.ts, workspaceState.test.ts, index.ts, prd-infinite-canvas-enhancements.md
+- スクリーンショット: .screenshots/tree-layout-before.png, .screenshots/tree-layout-after-bottom-to-top.png
+- テスト: 2773/2773 pass (32テスト新規: treeLayoutLogic 32, workspaceState 4)
+- カバレッジ: Stmts 99.34% (→99.34%), Branch 94.92% (→94.82%), Funcs 90.58% (→90.66%), Lines 100% (→99.97%)
+  - Lines微減はtreeLayoutLogicの到達不能防御コード(line 387)のみ
+- **今後のイテレーションへの学び:**
+  - DAG→ツリー変換: 証明木はDAG（MPは2つの前提を持つ）。first-visit-wins戦略でツリーに変換
+  - immutableリファクタ: ESLintの `prefer-immutable` ルールにより、ツリー走査でもイミュータブルパターンを使う。mutateする代わりにspread + mapで新しいツリーを返す
+  - `addNode` 引数順序: `addNode(state, kind, label, position, formulaText?)` — positionとformulaTextの順序を間違えやすい
+  - ノード追加/削除時の自動再レイアウト(インクリメンタル)は未実装。computeLayoutDiffは用意済み
 ---

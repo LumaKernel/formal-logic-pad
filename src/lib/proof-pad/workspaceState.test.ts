@@ -25,6 +25,7 @@ import {
   copySelectedNodes,
   pasteNodes,
   removeSelectedNodes,
+  applyTreeLayout,
 } from "./workspaceState";
 import type { ClipboardData } from "./copyPasteLogic";
 
@@ -957,6 +958,74 @@ describe("proofWorkspace", () => {
       expect(result.connections).toHaveLength(1);
       expect(result.connections[0]!.fromNodeId).toBe("node-1");
       expect(result.connections[0]!.toNodeId).toBe("node-2");
+    });
+  });
+
+  describe("applyTreeLayout", () => {
+    it("ノードの位置がツリーレイアウトで更新される", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 0, y: 0 }, "psi");
+      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 }, "phi -> psi");
+      ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
+      ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+
+      const result = applyTreeLayout(ws, "top-to-bottom");
+
+      // ノード数は変わらない
+      expect(result.nodes).toHaveLength(3);
+      // コネクションも変わらない
+      expect(result.connections).toHaveLength(2);
+
+      const posA1 = result.nodes.find((n) => n.id === "node-1")!.position;
+      const posA2 = result.nodes.find((n) => n.id === "node-2")!.position;
+      const posMp = result.nodes.find((n) => n.id === "node-3")!.position;
+
+      // Axioms at top, MP below
+      expect(posA1.y).toBeLessThan(posMp.y);
+      expect(posA2.y).toBeLessThan(posMp.y);
+      // Axioms at same level
+      expect(posA1.y).toBe(posA2.y);
+    });
+
+    it("bottom-to-topでルートが下に配置される", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 }, "psi");
+      ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+
+      const result = applyTreeLayout(ws, "bottom-to-top");
+
+      const posA1 = result.nodes.find((n) => n.id === "node-1")!.position;
+      const posMp = result.nodes.find((n) => n.id === "node-2")!.position;
+
+      // bottom-to-top: axiom (root) is below MP (leaf)
+      expect(posA1.y).toBeGreaterThan(posMp.y);
+    });
+
+    it("ノードサイズを指定できる", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 }, "psi");
+      ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+
+      const nodeSizes = new Map([
+        ["node-1", { width: 200, height: 80 }],
+        ["node-2", { width: 150, height: 60 }],
+      ]);
+      const result = applyTreeLayout(ws, "top-to-bottom", nodeSizes);
+
+      const posA1 = result.nodes.find((n) => n.id === "node-1")!.position;
+      const posMp = result.nodes.find((n) => n.id === "node-2")!.position;
+
+      // verticalGap = 80 by default, nodeHeight = 80
+      expect(posMp.y - posA1.y).toBe(80 + 80);
+    });
+
+    it("空のワークスペースでエラーにならない", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const result = applyTreeLayout(ws, "top-to-bottom");
+      expect(result.nodes).toHaveLength(0);
     });
   });
 });

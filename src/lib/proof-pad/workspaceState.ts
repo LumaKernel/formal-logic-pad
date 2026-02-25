@@ -24,6 +24,12 @@ import {
   pasteClipboardData,
   type ClipboardData,
 } from "./copyPasteLogic";
+import {
+  computeTreeLayout,
+  type LayoutConfig,
+  type LayoutDirection,
+} from "./treeLayoutLogic";
+import type { Size } from "../infinite-canvas/types";
 
 // --- ワークスペースモード ---
 
@@ -478,5 +484,49 @@ export function removeSelectedNodes(
     connections: state.connections.filter(
       (c) => !removableIds.has(c.fromNodeId) && !removableIds.has(c.toNodeId),
     ),
+  };
+}
+
+// --- ツリー自動レイアウト ---
+
+/** デフォルトのノードサイズ（実測値が不明な場合） */
+const DEFAULT_NODE_SIZE: Size = { width: 180, height: 60 };
+
+/** ワークスペースにツリー自動レイアウトを適用する。
+ *
+ *  ノードとコネクションからツリー構造を抽出し、各ノードの位置を再計算する。
+ *  nodeSizes マップで実際のノードサイズを渡すと、より正確なレイアウトになる。
+ *
+ *  純粋関数 — 副作用なし。 */
+export function applyTreeLayout(
+  state: WorkspaceState,
+  direction: LayoutDirection,
+  nodeSizes?: ReadonlyMap<string, Size>,
+  config?: Partial<LayoutConfig>,
+): WorkspaceState {
+  const layoutNodes = state.nodes.map((node) => ({
+    id: node.id,
+    size: nodeSizes?.get(node.id) ?? DEFAULT_NODE_SIZE,
+  }));
+
+  const layoutEdges = state.connections.map((conn) => ({
+    fromNodeId: conn.fromNodeId,
+    toNodeId: conn.toNodeId,
+  }));
+
+  const layoutConfig: LayoutConfig = {
+    horizontalGap: config?.horizontalGap ?? 40,
+    verticalGap: config?.verticalGap ?? 80,
+    direction,
+  };
+
+  const positions = computeTreeLayout(layoutNodes, layoutEdges, layoutConfig);
+
+  return {
+    ...state,
+    nodes: state.nodes.map((node) => {
+      const newPos = positions.get(node.id);
+      return newPos !== undefined ? { ...node, position: newPos } : node;
+    }),
   };
 }

@@ -30,6 +30,7 @@ export {
   copySelectedNodes,
   pasteNodes,
   removeSelectedNodes,
+  applyTreeLayout,
 } from "./workspaceState";
 export type {
   WorkspaceMode,
@@ -109,3 +110,22 @@ export type {
   GoalCheckResult,
 } from "./goalCheckLogic";
 export { getNodeDependencies, getAllNodeDependencies } from "./dependencyLogic";
+export {
+  computeTreeLayout,
+  computeLayoutDiff,
+  buildAdjacencyLists,
+  buildForest,
+  findRootNodes,
+  findLeafNodes,
+  computeLevelHeights,
+  computeTotalHeight,
+  flipYPositions,
+  DEFAULT_LAYOUT_CONFIG,
+} from "./treeLayoutLogic";
+export type {
+  LayoutNode,
+  LayoutEdge,
+  LayoutDirection,
+  LayoutConfig,
+  LayoutResult,
+} from "./treeLayoutLogic";
