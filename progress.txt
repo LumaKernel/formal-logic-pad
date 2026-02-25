@@ -50,6 +50,31 @@
 - InfiniteCanvasのグリッドライン: SVGパターン重ね描画。`computeGridLinePatternParams` で純粋計算、`majorGridEvery=0` で無効化
 - Storybook iframe内でCSS変数を使うには `.storybook/preview.ts` で `globals.css` をインポートする必要がある
 
+- Storybookテーマ切り替え: `globalTypes` + デコレーターで `data-theme` 属性を制御。ThemeProviderは使わず、CSS変数の `[data-theme]` セレクタに直接依存
+- Side by Sideモード: ストーリーを2回レンダリングするため、play関数のクエリが複数マッチする。テストは単一テーマ（デフォルト: light）で実行
+
+---
+
+## 2026-02-25 - Storybookのダークモード対応 (US-008)
+- `.storybook/preview.ts` にテーマ切り替えデコレーターを追加
+- ツールバーから Light / Dark / Side by Side の3モードを選択可能
+- デコレーターが `data-theme` 属性をwrapper divに設定し、CSS変数でテーマ切り替え
+- Side by Sideモードではストーリーを2つ並べて各々にlight/darkの `data-theme` を設定
+- 変更ファイル:
+  - `.storybook/preview.ts` (MODIFIED) - globalTypes, initialGlobals, decorators追加
+  - `tasks/prd-dark-mode.md` (MODIFIED) - US-008完了
+- カバレッジ: Stmts 99.05% → 99.05%（変化なし）, Lines 99.89% → 99.89%（変化なし）
+- スクリーンショット:
+  - `.screenshots/us-008-storybook-dark-themedemo.png` (ダークモード ThemeDemo)
+  - `.screenshots/us-008-storybook-dark-formula.png` (ダークモード FormulaDisplay)
+  - `.screenshots/us-008-storybook-dark-canvas.png` (ダークモード InfiniteCanvas)
+  - `.screenshots/us-008-storybook-side-by-side.png` (Side by Side FormulaDisplay)
+  - `.screenshots/us-008-storybook-light-formula.png` (ライトモード FormulaDisplay)
+- **今後のイテレーションへの学び:**
+  - Storybookのテーマ切り替えは `globalTypes` + `decorators` で実装。`data-theme` 属性をdivに設定するだけでCSS変数が効く
+  - ThemeProviderを使わずデコレーターで直接 `data-theme` を設定する方がシンプル（ThemeProviderはlocalStorage等の副作用を含むため）
+  - Side by Sideモードでplay関数が2回実行されると「Found multiple elements」エラーが出るが、テスト時はデフォルトのlightモードで実行されるため問題なし
+
 ---
 
 ## 2026-02-25 - InfiniteCanvasミニマップ表示 (US-007)
