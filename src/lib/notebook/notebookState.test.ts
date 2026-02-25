@@ -94,6 +94,29 @@ describe("notebookState", () => {
       expect(nb.workspace.nodes).toHaveLength(1);
       expect(nb.workspace.nodes[0]!.protection).toBe("quest-goal");
     });
+
+    it("stores questId when provided", () => {
+      const col = createQuestNotebook(createEmptyCollection(), {
+        name: "Quest 1",
+        system,
+        goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+        now: now1,
+        questId: "q-01",
+      });
+
+      expect(col.notebooks[0]!.questId).toBe("q-01");
+    });
+
+    it("questId is undefined when not provided", () => {
+      const col = createQuestNotebook(createEmptyCollection(), {
+        name: "Quest 1",
+        system,
+        goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+        now: now1,
+      });
+
+      expect(col.notebooks[0]!.questId).toBeUndefined();
+    });
   });
 
   describe("findNotebook", () => {

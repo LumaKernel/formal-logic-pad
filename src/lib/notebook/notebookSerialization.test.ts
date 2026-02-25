@@ -81,6 +81,33 @@ describe("notebookSerialization", () => {
       expect(restored.notebooks[0]?.workspace.mode).toBe("quest");
       expect(restored.notebooks[0]?.workspace.nodes.length).toBe(1);
     });
+
+    it("questId付きクエストノートブックをラウンドトリップできる", () => {
+      const col = createQuestNotebook(createEmptyCollection(), {
+        name: "クエスト",
+        system: lukasiewiczSystem,
+        goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+        now: 1000,
+        questId: "prop-01",
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      expect(restored.notebooks.length).toBe(1);
+      expect(restored.notebooks[0]?.questId).toBe("prop-01");
+    });
+
+    it("questIdがないノートブックではquestIdがundefinedのまま", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "自由帳",
+        system: lukasiewiczSystem,
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      expect(restored.notebooks[0]?.questId).toBeUndefined();
+    });
   });
 
   describe("deserializeCollection の不正入力処理", () => {

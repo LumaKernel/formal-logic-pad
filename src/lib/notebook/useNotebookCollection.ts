@@ -64,6 +64,7 @@ export interface UseNotebookCollectionResult {
     name: string,
     system: LogicSystem,
     goals: readonly QuestGoalDefinition[],
+    questId?: string,
   ) => NotebookId;
   /** ノートブックを削除する */
   readonly remove: (id: NotebookId) => void;
@@ -132,11 +133,18 @@ export function useNotebookCollection(
       name: string,
       system: LogicSystem,
       goals: readonly QuestGoalDefinition[],
+      questId?: string,
     ): NotebookId => {
       const now = getNow();
       let newId: NotebookId = "";
       setCollection((prev) => {
-        const next = createQuestNotebook(prev, { name, system, goals, now });
+        const next = createQuestNotebook(prev, {
+          name,
+          system,
+          goals,
+          now,
+          questId,
+        });
         const added = next.notebooks[next.notebooks.length - 1];
         if (added !== undefined) {
           newId = added.meta.id;

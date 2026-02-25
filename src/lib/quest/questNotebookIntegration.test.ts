@@ -1,0 +1,317 @@
+import { describe, it, expect } from "vitest";
+import {
+  startQuestAndCreateNotebook,
+  getQuestIdForNotebook,
+  getNotebookIdsForQuest,
+} from "./questNotebookIntegration";
+import {
+  createEmptyCollection,
+  createNotebook,
+  createQuestNotebook,
+  findNotebook,
+} from "../notebook/notebookState";
+import type { QuestDefinition, SystemPresetId } from "./questDefinition";
+import { lukasiewiczSystem } from "../logic-core/inferenceRule";
+
+// --- テスト用クエスト定義 ---
+
+const testQuest: QuestDefinition = {
+  id: "test-quest-01",
+  category: "propositional-basics",
+  title: "恒等律",
+  description: "φ → φ を証明する",
+  difficulty: 1,
+  systemPresetId: "lukasiewicz",
+  goals: [{ formulaText: "phi -> phi", position: { x: 300, y: 0 } }],
+  hints: ["A1とA2を使う"],
+  estimatedSteps: 5,
+  learningPoint: "基本的なMP適用",
+  order: 1,
+};
+
+const testQuest2: QuestDefinition = {
+  ...testQuest,
+  id: "test-quest-02",
+  title: "推移律",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> (psi -> chi) -> (phi -> chi)",
+      position: { x: 300, y: 0 },
+    },
+  ],
+};
+
+const testQuests: readonly QuestDefinition[] = [testQuest, testQuest2];
+
+describe("startQuestAndCreateNotebook", () => {
+  it("クエストIDからノートブックを作成する", () => {
+    const collection = createEmptyCollection();
+    const result = startQuestAndCreateNotebook(
+      testQuests,
+      "test-quest-01",
+      collection,
+      1000,
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.notebookId).toBe("notebook-1");
+    expect(result.questId).toBe("test-quest-01");
+    expect(result.collection.notebooks).toHaveLength(1);
+  });
+
+  it("作成されたノートブックがクエストモードである", () => {
+    const collection = createEmptyCollection();
+    const result = startQuestAndCreateNotebook(
+      testQuests,
+      "test-quest-01",
+      collection,
+      1000,
+    );
+
+    if (!result.ok) return;
+    const nb = findNotebook(result.collection, result.notebookId);
+    expect(nb).toBeDefined();
+    expect(nb?.workspace.mode).toBe("quest");
+  });
+
+  it("ノートブックにクエストIDが紐付けられる", () => {
+    const collection = createEmptyCollection();
+    const result = startQuestAndCreateNotebook(
+      testQuests,
+      "test-quest-01",
+      collection,
+      1000,
+    );
+
+    if (!result.ok) return;
+    const nb = findNotebook(result.collection, result.notebookId);
+    expect(nb?.questId).toBe("test-quest-01");
+  });
+
+  it("ノートブック名がクエストタイトルと一致する", () => {
+    const collection = createEmptyCollection();
+    const result = startQuestAndCreateNotebook(
+      testQuests,
+      "test-quest-01",
+      collection,
+      1000,
+    );
+
+    if (!result.ok) return;
+    const nb = findNotebook(result.collection, result.notebookId);
+    expect(nb?.meta.name).toBe("恒等律");
+  });
+
+  it("ゴールノードが保護された状態で作成される", () => {
+    const collection = createEmptyCollection();
+    const result = startQuestAndCreateNotebook(
+      testQuests,
+      "test-quest-01",
+      collection,
+      1000,
+    );
+
+    if (!result.ok) return;
+    const nb = findNotebook(result.collection, result.notebookId);
+    expect(nb?.workspace.nodes).toHaveLength(1);
+    expect(nb?.workspace.nodes[0]?.protection).toBe("quest-goal");
+  });
+
+  it("既存のコレクションに追加できる", () => {
+    let collection = createEmptyCollection();
+    collection = createNotebook(collection, {
+      name: "既存ノート",
+      system: lukasiewiczSystem,
+      now: 500,
+    });
+
+    const result = startQuestAndCreateNotebook(
+      testQuests,
+      "test-quest-01",
+      collection,
+      1000,
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.collection.notebooks).toHaveLength(2);
+    expect(result.notebookId).toBe("notebook-2");
+  });
+
+  it("同じクエストで複数のノートブックを作成できる", () => {
+    const collection = createEmptyCollection();
+    const first = startQuestAndCreateNotebook(
+      testQuests,
+      "test-quest-01",
+      collection,
+      1000,
+    );
+    if (!first.ok) return;
+
+    const second = startQuestAndCreateNotebook(
+      testQuests,
+      "test-quest-01",
+      first.collection,
+      2000,
+    );
+    if (!second.ok) return;
+
+    expect(second.collection.notebooks).toHaveLength(2);
+    expect(second.notebookId).toBe("notebook-2");
+    // 両方とも同じクエストIDを持つ
+    expect(findNotebook(second.collection, "notebook-1")?.questId).toBe(
+      "test-quest-01",
+    );
+    expect(findNotebook(second.collection, "notebook-2")?.questId).toBe(
+      "test-quest-01",
+    );
+  });
+
+  it("存在しないクエストIDでquest-not-foundエラー", () => {
+    const collection = createEmptyCollection();
+    const result = startQuestAndCreateNotebook(
+      testQuests,
+      "nonexistent",
+      collection,
+      1000,
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe("quest-not-found");
+  });
+
+  it("不正なプリセットIDのクエストでpreset-not-foundエラー", () => {
+    const invalidQuests: readonly QuestDefinition[] = [
+      {
+        ...testQuest,
+        systemPresetId: "invalid" as SystemPresetId,
+      },
+    ];
+    const collection = createEmptyCollection();
+    const result = startQuestAndCreateNotebook(
+      invalidQuests,
+      "test-quest-01",
+      collection,
+      1000,
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe("preset-not-found");
+  });
+
+  it("エラー時にコレクションは変更されない", () => {
+    const collection = createEmptyCollection();
+    const result = startQuestAndCreateNotebook(
+      testQuests,
+      "nonexistent",
+      collection,
+      1000,
+    );
+
+    // エラー時はcollectionプロパティがないことを確認
+    expect(result.ok).toBe(false);
+    // 元のコレクションは不変
+    expect(collection.notebooks).toHaveLength(0);
+  });
+
+  it("時刻がメタデータに正しく設定される", () => {
+    const collection = createEmptyCollection();
+    const result = startQuestAndCreateNotebook(
+      testQuests,
+      "test-quest-01",
+      collection,
+      12345,
+    );
+
+    if (!result.ok) return;
+    const nb = findNotebook(result.collection, result.notebookId);
+    expect(nb?.meta.createdAt).toBe(12345);
+    expect(nb?.meta.updatedAt).toBe(12345);
+  });
+});
+
+describe("getQuestIdForNotebook", () => {
+  it("クエストノートブックのクエストIDを返す", () => {
+    const collection = createQuestNotebook(createEmptyCollection(), {
+      name: "Quest Note",
+      system: lukasiewiczSystem,
+      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      now: 1000,
+      questId: "q-01",
+    });
+
+    expect(getQuestIdForNotebook(collection, "notebook-1")).toBe("q-01");
+  });
+
+  it("自由帳ノートブックではundefinedを返す", () => {
+    const collection = createNotebook(createEmptyCollection(), {
+      name: "Free Note",
+      system: lukasiewiczSystem,
+      now: 1000,
+    });
+
+    expect(getQuestIdForNotebook(collection, "notebook-1")).toBeUndefined();
+  });
+
+  it("存在しないノートブックIDではundefinedを返す", () => {
+    const collection = createEmptyCollection();
+    expect(getQuestIdForNotebook(collection, "notebook-999")).toBeUndefined();
+  });
+});
+
+describe("getNotebookIdsForQuest", () => {
+  it("特定クエストに紐付けられたノートブックIDを返す", () => {
+    let collection = createEmptyCollection();
+    collection = createQuestNotebook(collection, {
+      name: "Quest 1",
+      system: lukasiewiczSystem,
+      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      now: 1000,
+      questId: "q-01",
+    });
+    collection = createQuestNotebook(collection, {
+      name: "Quest 2",
+      system: lukasiewiczSystem,
+      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      now: 2000,
+      questId: "q-02",
+    });
+    collection = createQuestNotebook(collection, {
+      name: "Quest 1 again",
+      system: lukasiewiczSystem,
+      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      now: 3000,
+      questId: "q-01",
+    });
+
+    const ids = getNotebookIdsForQuest(collection, "q-01");
+    expect(ids).toEqual(["notebook-1", "notebook-3"]);
+  });
+
+  it("紐付けのないクエストIDでは空配列を返す", () => {
+    const collection = createEmptyCollection();
+    expect(getNotebookIdsForQuest(collection, "q-99")).toEqual([]);
+  });
+
+  it("自由帳ノートブックは含まれない", () => {
+    let collection = createEmptyCollection();
+    collection = createNotebook(collection, {
+      name: "Free",
+      system: lukasiewiczSystem,
+      now: 1000,
+    });
+    collection = createQuestNotebook(collection, {
+      name: "Quest",
+      system: lukasiewiczSystem,
+      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      now: 2000,
+      questId: "q-01",
+    });
+
+    const ids = getNotebookIdsForQuest(collection, "q-01");
+    expect(ids).toEqual(["notebook-2"]);
+  });
+});

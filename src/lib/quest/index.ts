@@ -79,4 +79,13 @@ export {
   QUEST_PROGRESS_STORAGE_KEY,
 } from "./useQuestProgress";
 
+export {
+  type StartQuestResult,
+  type QuestStartSuccess,
+  type QuestStartFailure,
+  startQuestAndCreateNotebook,
+  getQuestIdForNotebook,
+  getNotebookIdsForQuest,
+} from "./questNotebookIntegration";
+
 export { QuestCatalog, type QuestCatalogProps } from "./QuestCatalogComponent";

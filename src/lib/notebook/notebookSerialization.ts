@@ -69,12 +69,17 @@ function parseNotebook(raw: unknown): Notebook | undefined {
 
   const meta = obj["meta"] as NotebookMeta;
 
+  // questId は optional string（存在しない場合はundefined）
+  const questId =
+    typeof obj["questId"] === "string" ? obj["questId"] : undefined;
+
   return {
     meta,
     workspace: {
       ...workspace,
       system,
     } as WorkspaceState,
+    ...(questId !== undefined ? { questId } : {}),
   };
 }
 
@@ -113,6 +118,7 @@ export function serializeCollection(collection: NotebookCollection): string {
           propositionalAxioms: [...n.workspace.system.propositionalAxioms],
         },
       },
+      ...(n.questId !== undefined ? { questId: n.questId } : {}),
     })),
     nextId: collection.nextId,
   };
