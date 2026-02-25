@@ -340,6 +340,132 @@ const q14DoubleImplicationDistribution: QuestDefinition = {
   order: 6,
 };
 
+// --- Level 3: 否定公理 A3 の活用 ---
+
+const q15DoubleNegationIntro: QuestDefinition = {
+  id: "prop-15",
+  category: "propositional-negation",
+  title: "二重否定導入 (DNI)",
+  description: "φ → ¬¬φ を証明せよ。否定公理 A3 を本格的に使う最初の問題。",
+  difficulty: 3,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "phi -> ~~phi",
+      label: "Goal: φ → ¬¬φ",
+      position: { x: 400, y: 600 },
+    },
+  ],
+  hints: [
+    "A3: (¬φ → ¬ψ) → (ψ → φ) を活用します。",
+    "A3 に φ=¬¬φ, ψ=φ を代入: (¬¬¬φ → ¬φ) → (φ → ¬¬φ) を得ます。",
+    "中間補題 Clavius' Law「(¬α → α) → α」を先に証明すると見通しがよくなります。",
+  ],
+  estimatedSteps: 15,
+  learningPoint:
+    "二重否定導入は古典論理の基本。A3 の使い方の典型例であり、以降の否定関連証明の出発点。",
+  order: 1,
+};
+
+const q16ModusTollens: QuestDefinition = {
+  id: "prop-16",
+  category: "propositional-negation",
+  title: "Modus Tollens",
+  description: "(φ → ψ) → (¬ψ → ¬φ) を証明せよ。対偶（否定的推論）。",
+  difficulty: 3,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> (~psi -> ~phi)",
+      label: "Goal: (φ → ψ) → (¬ψ → ¬φ)",
+      position: { x: 400, y: 600 },
+    },
+  ],
+  hints: [
+    "DNI (Q-15) を出発点にします: ψ → ¬¬ψ。",
+    "A3 に φ=¬φ, ψ=¬ψ を代入: (¬¬φ → ¬¬ψ) → (¬ψ → ¬φ)。",
+    "B combinator (Q-10) と DNE (Q-17) を使って φ → ψ を ¬¬φ → ¬¬ψ に変形します。",
+  ],
+  estimatedSteps: 20,
+  learningPoint:
+    "Modus Tollens は対偶の直接的な帰結。DNI と A3 の組合せで導出する。",
+  order: 2,
+};
+
+const q17DoubleNegationElim: QuestDefinition = {
+  id: "prop-17",
+  category: "propositional-negation",
+  title: "二重否定除去 (DNE)",
+  description: "¬¬φ → φ を証明せよ。古典論理と直観主義論理を分ける分水嶺。",
+  difficulty: 3,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "~~phi -> phi",
+      label: "Goal: ¬¬φ → φ",
+      position: { x: 400, y: 600 },
+    },
+  ],
+  hints: [
+    "DNI (Q-15) を ¬φ に適用: ¬φ → ¬¬¬φ。",
+    "A3 に φ=φ, ψ=¬¬φ を代入: (¬φ → ¬¬¬φ) → (¬¬φ → φ)。",
+    "MP で組み合わせれば 3 ステップで完成（DNI を補題として使う場合）。",
+  ],
+  estimatedSteps: 18,
+  learningPoint:
+    "DNE は古典論理と直観主義論理を分ける分水嶺。Łukasiewicz 系では A3 から DNI 経由で導出可能。",
+  order: 3,
+};
+
+const q18ExFalso: QuestDefinition = {
+  id: "prop-18",
+  category: "propositional-negation",
+  title: "爆発律 (Ex Falso Quodlibet)",
+  description: "¬φ → (φ → ψ) を証明せよ。矛盾からは何でも出る。",
+  difficulty: 4,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "~phi -> (phi -> psi)",
+      label: "Goal: ¬φ → (φ → ψ)",
+      position: { x: 400, y: 600 },
+    },
+  ],
+  hints: [
+    "A1: ¬φ → (¬ψ → ¬φ) を作ります。",
+    "A3 に φ=ψ, ψ=φ を代入: (¬ψ → ¬φ) → (φ → ψ)。",
+    "推移律 (HS) で接続すれば 3 ステップで完成。",
+  ],
+  estimatedSteps: 14,
+  learningPoint:
+    "古典論理では矛盾からはどんな命題も導出できる（爆発律）。A1 と A3 の組合せで簡潔に証明可能。",
+  order: 4,
+};
+
+const q19ConverseContraposition: QuestDefinition = {
+  id: "prop-19",
+  category: "propositional-negation",
+  title: "対偶の逆",
+  description: "(¬ψ → ¬φ) → (φ → ψ) を証明せよ。A3 そのもの。",
+  difficulty: 4,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(~psi -> ~phi) -> (phi -> psi)",
+      label: "Goal: (¬ψ → ¬φ) → (φ → ψ)",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "これはある公理のインスタンスです。",
+    "A3: (¬φ → ¬ψ) → (ψ → φ) をよく見てみましょう。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "A3 がまさにこの形であることを再確認。メタ変数への代入パターンを見抜く力が重要。",
+  order: 5,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -357,4 +483,9 @@ export const builtinQuests: readonly QuestDefinition[] = [
   q12LeftAssociation,
   q13FregeTheorem,
   q14DoubleImplicationDistribution,
+  q15DoubleNegationIntro,
+  q16ModusTollens,
+  q17DoubleNegationElim,
+  q18ExFalso,
+  q19ConverseContraposition,
 ];
