@@ -73,6 +73,28 @@
 
 ---
 
+## 2026-02-25 - クエストモード: 命題論理中級クエスト Q-08〜Q-14 を追加
+- `src/lib/quest/questDefinition.ts` を更新 - `propositional-intermediate` カテゴリを新設
+- `src/lib/quest/builtinQuests.ts` を更新 - 6問のクエストを追加（Q-08, Q-10〜Q-14）
+- `src/lib/quest/builtinQuests.test.ts` を更新 - クエスト数更新、ゴール式パース検証テスト追加
+- `src/lib/quest/questDefinition.test.ts` を更新 - カテゴリ数を4→5に更新
+- カバレッジ: Stmts 99.2% (維持), Branch 94.35% (維持), Funcs 91.39% (維持), Lines 100% (維持)
+  - ベースライン: Stmts 99.2%, Branch 94.35%, Funcs 91.39%, Lines 100%
+- テスト: 2538 全パス（+1テスト追加: ゴール式パース検証）
+- ブラウザ確認: Playwright MCPでStorybookのQuestCatalogストーリー表示確認済み（.screenshots/quest-catalog-default-with-intermediate.png）
+- 変更ファイル:
+  - `src/lib/quest/questDefinition.ts` (MODIFIED)
+  - `src/lib/quest/questDefinition.test.ts` (MODIFIED)
+  - `src/lib/quest/builtinQuests.ts` (MODIFIED)
+  - `src/lib/quest/builtinQuests.test.ts` (MODIFIED)
+- **今後のイテレーションへの学び:**
+  - Q-09とQ-06は同一ゴール（設計ドキュメントで明記済み）。重複クエストはスキップして別のレベルで再訪する方が学習価値が高い
+  - Q-11とQ-13は同一ゴール（A2のインスタンス）だが歴史的文脈（Fregeの定理）として名前が異なるため両方登録
+  - ゴール式のパース検証テストは回帰防止に効果的。新クエスト追加時に式のtypoを即座に検出できる
+  - builtinQuests.test.tsの「order順に並んでいる」テストはカテゴリ横断で壊れるため、同カテゴリ内orderチェックに修正した
+  - 次のイテレーション候補: Q-15〜Q-24（否定を含む命題論理）のクエスト追加、または述語論理クエスト
+---
+
 ## 2026-02-25 - クエストモード: クエスト開始ロジック・進捗hook層の作成
 - `src/lib/quest/questStartLogic.ts` を新規作成 - QuestDefinitionからノートブック作成パラメータへの変換、SystemPresetId→LogicSystem解決
 - `src/lib/quest/questStartLogic.test.ts` を新規作成 - 15テスト（プリセット解決、パラメータ生成、クエスト開始準備）
