@@ -62,6 +62,34 @@
 
 ---
 
+## 2026-02-25 - 編集モードUI修正 & 公理配置位置修正
+- **編集モードでFormulaInputプレビューが重複表示されるバグを修正**
+  - 原因: FormulaEditorがFormulaInputを使う際、FormulaInputのプレビュー（FormulaDisplay）が不要にも関わらず表示されていた
+  - 修正: FormulaInputに`showPreview`プロパティ追加。FormulaEditor内では`showPreview={false}`で非表示に
+  - テスト: FormulaInput +1テスト（showPreview=false）、EditableProofNode +1テスト（プレビュー非表示確認）
+- **公理パレットから追加したノードがパレットの裏に隠れるバグを修正**
+  - 原因: `computeNewNodePosition`のbaseX=100, baseY=100がパレット（left:12, top:48, minWidth:200）と重なっていた
+  - 修正: baseX=250（パレット右側）、baseY=60（ヘッダー下）に変更
+- カバレッジ: Stmts 99.26%, Branch 94.69%, Lines 100%（低下なし、Branch微増）
+- テスト: 2135 → 2137（+2）
+- 変更ファイル:
+  - `src/lib/formula-input/FormulaInput.tsx` - showPreviewプロパティ追加
+  - `src/lib/formula-input/FormulaEditor.tsx` - showPreview={false}追加
+  - `src/lib/formula-input/FormulaInput.test.tsx` - showPreview=falseテスト追加
+  - `src/lib/proof-pad/EditableProofNode.test.tsx` - プレビュー非表示テスト追加
+  - `src/lib/proof-pad/ProofWorkspace.tsx` - computeNewNodePosition位置変更
+- スクリーンショット:
+  - `.screenshots/editableproofnode-double-input-bug.png` (修正前: プレビューが表示される)
+  - `.screenshots/editableproofnode-edit-mode-fixed.png` (修正後: 入力欄のみ)
+  - `.screenshots/predicate-logic-axiom-added-behind-palette.png` (修正前: パレット裏に隠れる)
+  - `.screenshots/predicate-logic-axiom-added-fixed.png` (修正後: パレット右側に表示)
+  - `.screenshots/predicate-logic-two-axioms-added.png` (複数追加でもオフセット配置)
+- **今後のイテレーションへの学び:**
+  - FormulaInputはプレビュー付きの入力コンポーネント。FormulaEditor等の上位コンポーネントで使う場合は`showPreview={false}`でプレビューを無効にする
+  - UIオーバーレイ（パレット等）と新規ノードの配置位置が重ならないようbaseXを十分大きく取る
+  - `computeNewNodePosition`はProofWorkspace内のUI知識に依存する関数（viewportやパレット位置）
+---
+
 ## 2026-02-25 - Quest Mode数式レンダリング修正
 - Quest Modeのゴールノード等、read-onlyノードで数式がプレーンテキスト（`phi -> psi`）で表示される問題を修正
   - 原因: `EditableProofNode.tsx` のread-onlyパスが `{formulaText}` をそのまま表示していた
