@@ -63,8 +63,9 @@ const displayContainerStyle: CSSProperties = {
 
 const displayContainerHoverStyle: CSSProperties = {
   ...displayContainerStyle,
-  borderColor: "#e2e8f0",
-  backgroundColor: "#f7fafc",
+  borderColor: "currentColor",
+  borderStyle: "dashed",
+  opacity: 0.8,
 };
 
 /* v8 ignore start -- style constant */

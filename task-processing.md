@@ -1,13 +1,10 @@
-## 現在のタスク
+## 実行中タスク（tasks/prd-inserted-tasks.md より）
 
-カバレッジ改善（Branch 94.56% → 目標: さらに向上）
+- [ ] http://localhost:13006/?path=/story/proofpad-editableproofnode--interactive
+      このあたりでホバーすると、白背景に白文字で見えなくなる。コントラストチェックというか、写真で判断したり、computed values基準で色の差がちゃんとしてるかとかもチェックしよう。
 
-元: CLAUDE.md のベースラインカバレッジから判断
+### 周辺情報
 
-### 対象ファイル
-
-- `useDragItem.ts` (80% Branch) - 防御コードにv8 ignore追加
-- `useHistory.ts` (75% Branch) - テスト確認・追加
-- `FormulaEditor.tsx` (82.75% Branch) - オプショナルpropのテスト追加
-- `TermInput.tsx` (90.76% Branch) - エッジケーステスト追加
-- その他低Branchカバレッジファイル
+- EditableProofNode は `src/lib/proof-pad/EditableProofNode.tsx` に配置
+- スタイル定義は `src/lib/proof-pad/proofNodeUI.ts` に分離
+- テーマはCSS変数で管理、lightテーマで白背景・白文字のコントラスト問題の可能性
