@@ -25,9 +25,7 @@ describe("TermDisplay", () => {
     });
 
     it("添字付きメタ変数 σ₁ を表示する", () => {
-      render(
-        <TermDisplay term={termMetaVariable("σ", "1")} testId="term" />,
-      );
+      render(<TermDisplay term={termMetaVariable("σ", "1")} testId="term" />);
       expect(screen.getByTestId("term")).toHaveTextContent("σ₁");
     });
 
@@ -60,9 +58,7 @@ describe("TermDisplay", () => {
     });
 
     it("引数なしの関数適用 c() を表示する", () => {
-      render(
-        <TermDisplay term={functionApplication("c", [])} testId="term" />,
-      );
+      render(<TermDisplay term={functionApplication("c", [])} testId="term" />);
       expect(screen.getByTestId("term")).toHaveTextContent("c()");
     });
   });
@@ -152,11 +148,7 @@ describe("TermDisplay", () => {
   describe("スタイルprops", () => {
     it("fontSize を適用する", () => {
       render(
-        <TermDisplay
-          term={termVariable("x")}
-          fontSize={24}
-          testId="term"
-        />,
+        <TermDisplay term={termVariable("x")} fontSize={24} testId="term" />,
       );
       const el = screen.getByTestId("term");
       expect(el.style.fontSize).toBe("24px");
@@ -164,11 +156,7 @@ describe("TermDisplay", () => {
 
     it("color を適用する", () => {
       render(
-        <TermDisplay
-          term={termVariable("x")}
-          color="red"
-          testId="term"
-        />,
+        <TermDisplay term={termVariable("x")} color="red" testId="term" />,
       );
       const el = screen.getByTestId("term");
       expect(el.style.color).toBe("red");

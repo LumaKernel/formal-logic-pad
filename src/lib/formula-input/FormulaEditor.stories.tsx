@@ -73,9 +73,7 @@ export const UnicodeDisplay: Story = {
     onChange: () => {},
     testId: "editor",
   },
-  render: () => (
-    <FormulaEditorWrapper initialValue="φ → ψ" testId="editor" />
-  ),
+  render: () => <FormulaEditorWrapper initialValue="φ → ψ" testId="editor" />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
@@ -156,7 +154,9 @@ export const ModeToggle: Story = {
 
     // 5. 表示モードに戻る
     await expect(canvas.getByTestId("editor-display")).toBeInTheDocument();
-    await expect(canvas.getByTestId("editor-unicode")).toHaveTextContent("φ → ψ");
+    await expect(canvas.getByTestId("editor-unicode")).toHaveTextContent(
+      "φ → ψ",
+    );
   },
 };
 
@@ -224,9 +224,7 @@ export const EscapeToDisplay: Story = {
     onChange: () => {},
     testId: "editor",
   },
-  render: () => (
-    <FormulaEditorWrapper initialValue="φ → ψ" testId="editor" />
-  ),
+  render: () => <FormulaEditorWrapper initialValue="φ → ψ" testId="editor" />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 

@@ -58,10 +58,7 @@ export const BasicTerms: Story = {
             >
               {label}
             </span>
-            <TermKaTeX
-              term={term}
-              testId={`katex-${label satisfies string}`}
-            />
+            <TermKaTeX term={term} testId={`katex-${label satisfies string}`} />
           </div>
         ))}
       </div>
@@ -96,10 +93,7 @@ export const FunctionApplications: Story = {
       },
       {
         label: "二項関数",
-        term: functionApplication("g", [
-          termVariable("x"),
-          termVariable("y"),
-        ]),
+        term: functionApplication("g", [termVariable("x"), termVariable("y")]),
       },
       { label: "引数なし", term: functionApplication("c", []) },
       {
@@ -126,10 +120,7 @@ export const FunctionApplications: Story = {
             >
               {label}
             </span>
-            <TermKaTeX
-              term={term}
-              testId={`katex-${label satisfies string}`}
-            />
+            <TermKaTeX term={term} testId={`katex-${label satisfies string}`} />
           </div>
         ))}
       </div>
@@ -195,10 +186,7 @@ export const BinaryOperations: Story = {
             >
               {label}
             </span>
-            <TermKaTeX
-              term={term}
-              testId={`katex-${label satisfies string}`}
-            />
+            <TermKaTeX term={term} testId={`katex-${label satisfies string}`} />
           </div>
         ))}
       </div>
@@ -259,10 +247,7 @@ export const ComplexTerms: Story = {
             >
               {label}
             </div>
-            <TermKaTeX
-              term={term}
-              testId={`katex-${label satisfies string}`}
-            />
+            <TermKaTeX term={term} testId={`katex-${label satisfies string}`} />
           </div>
         ))}
       </div>

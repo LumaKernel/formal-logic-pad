@@ -172,10 +172,7 @@ export const ComplexFormula: Story = {
     testId: "fi",
   },
   render: () => (
-    <FormulaInputWrapper
-      initialValue="∀x. P(x) → ∃y. Q(x, y)"
-      testId="fi"
-    />
+    <FormulaInputWrapper initialValue="∀x. P(x) → ∃y. Q(x, y)" testId="fi" />
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -199,7 +196,9 @@ export const EmptyInput: Story = {
     onChange: () => {},
     testId: "fi",
   },
-  render: () => <FormulaInputWrapper testId="fi" placeholder="論理式を入力..." />,
+  render: () => (
+    <FormulaInputWrapper testId="fi" placeholder="論理式を入力..." />
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const input = canvas.getByTestId("fi-input");
@@ -220,8 +219,16 @@ export const CustomFontSize: Story = {
   },
   render: () => (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      <FormulaInputWrapper initialValue="φ → ψ" testId="fi-small" fontSize={14} />
-      <FormulaInputWrapper initialValue="φ → ψ" testId="fi-large" fontSize={24} />
+      <FormulaInputWrapper
+        initialValue="φ → ψ"
+        testId="fi-small"
+        fontSize={14}
+      />
+      <FormulaInputWrapper
+        initialValue="φ → ψ"
+        testId="fi-large"
+        fontSize={24}
+      />
     </div>
   ),
   play: async ({ canvasElement }) => {

@@ -154,7 +154,10 @@ export const computeCompletions = (
 
   // 量化子マッチ
   for (const q of QUANTIFIER_COMPLETIONS) {
-    if (q.trigger.startsWith(lowerTrigger) && q.trigger.length > lowerTrigger.length) {
+    if (
+      q.trigger.startsWith(lowerTrigger) &&
+      q.trigger.length > lowerTrigger.length
+    ) {
       candidates.push({
         label: q.label,
         insertText: q.insertText,
@@ -175,7 +178,10 @@ export const computeCompletions = (
   // ギリシャ文字マッチ（2文字以上の入力から）
   if (lowerTrigger.length >= 2) {
     for (const g of GREEK_COMPLETIONS) {
-      if (g.trigger.startsWith(lowerTrigger) && g.trigger.length > lowerTrigger.length) {
+      if (
+        g.trigger.startsWith(lowerTrigger) &&
+        g.trigger.length > lowerTrigger.length
+      ) {
         candidates.push({
           label: g.label,
           insertText: g.insertText,

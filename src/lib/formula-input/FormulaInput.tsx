@@ -8,7 +8,13 @@
  */
 
 import type { CSSProperties } from "react";
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import type { Formula } from "../logic-core/formula";
 import type { ParseError, ParseResult } from "../logic-lang/parser";
 import { parseString } from "../logic-lang/parser";
@@ -99,7 +105,10 @@ export const computeErrorHighlights = (
 
     // 入力範囲にクランプ
     const clampedStart = Math.max(0, Math.min(startOffset, input.length));
-    const clampedEnd = Math.max(clampedStart, Math.min(endOffset, input.length));
+    const clampedEnd = Math.max(
+      clampedStart,
+      Math.min(endOffset, input.length),
+    );
 
     return [{ start: clampedStart, end: clampedEnd }];
   });
@@ -228,7 +237,10 @@ export function FormulaInput({
         onChange(result.text);
         // カーソル位置を復元
         requestAnimationFrame(() => {
-          inputRef.current?.setSelectionRange(result.cursorPos, result.cursorPos);
+          inputRef.current?.setSelectionRange(
+            result.cursorPos,
+            result.cursorPos,
+          );
         });
       }
     },
@@ -268,7 +280,9 @@ export function FormulaInput({
           <div
             style={highlightContainerStyle}
             aria-hidden="true"
-            data-testid={testId ? `${testId satisfies string}-highlights` : undefined}
+            data-testid={
+              testId ? `${testId satisfies string}-highlights` : undefined
+            }
           >
             {renderHighlightedText(deferredValue, errorHighlights)}
           </div>
@@ -283,7 +297,12 @@ export function FormulaInput({
             ...currentInputStyle,
             ...(fontSize !== undefined ? { fontSize } : {}),
             ...(errorHighlights.length > 0
-              ? { position: "absolute", top: 0, left: 0, background: "transparent" }
+              ? {
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  background: "transparent",
+                }
               : {}),
           }}
           data-testid={testId ? `${testId satisfies string}-input` : undefined}
@@ -309,7 +328,9 @@ export function FormulaInput({
             onSelect={handleCompletionSelect}
             onSelectedIndexChange={comp.setSelectedIndex}
             onClose={comp.close}
-            testId={testId ? `${testId satisfies string}-completion` : undefined}
+            testId={
+              testId ? `${testId satisfies string}-completion` : undefined
+            }
           />
         )}
       </div>
@@ -318,7 +339,9 @@ export function FormulaInput({
       {parseState.status === "success" && (
         <div
           style={previewStyle}
-          data-testid={testId ? `${testId satisfies string}-preview` : undefined}
+          data-testid={
+            testId ? `${testId satisfies string}-preview` : undefined
+          }
         >
           <FormulaDisplay
             formula={parseState.formula}
@@ -342,7 +365,9 @@ export function FormulaInput({
               key={`${error.span.start.line satisfies number}:${error.span.start.column satisfies number}`}
               style={errorMessageStyle}
               data-testid={
-                testId ? `${testId satisfies string}-error-${`${i satisfies number}` satisfies string}` : undefined
+                testId
+                  ? `${testId satisfies string}-error-${`${i satisfies number}` satisfies string}`
+                  : undefined
               }
             >
               {formatErrorMessage(error)}
@@ -374,7 +399,10 @@ function renderHighlightedText(
   for (const h of sorted) {
     const last = merged[merged.length - 1];
     if (last && h.start <= last.end) {
-      merged[merged.length - 1] = { start: last.start, end: Math.max(last.end, h.end) };
+      merged[merged.length - 1] = {
+        start: last.start,
+        end: Math.max(last.end, h.end),
+      };
     } else {
       merged.push({ ...h });
     }
@@ -386,7 +414,10 @@ function renderHighlightedText(
   for (const h of merged) {
     if (pos < h.start) {
       parts.push(
-        <span key={`t-${`${pos satisfies number}` satisfies string}`} style={transparentTextStyle}>
+        <span
+          key={`t-${`${pos satisfies number}` satisfies string}`}
+          style={transparentTextStyle}
+        >
           {text.slice(pos, h.start)}
         </span>,
       );
@@ -404,7 +435,10 @@ function renderHighlightedText(
 
   if (pos < text.length) {
     parts.push(
-      <span key={`t-${`${pos satisfies number}` satisfies string}`} style={transparentTextStyle}>
+      <span
+        key={`t-${`${pos satisfies number}` satisfies string}`}
+        style={transparentTextStyle}
+      >
         {text.slice(pos)}
       </span>,
     );

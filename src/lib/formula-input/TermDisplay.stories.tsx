@@ -73,9 +73,9 @@ export const BasicTerms: Story = {
     await expect(canvas.getByTestId("term-変数")).toHaveTextContent("x");
     await expect(canvas.getByTestId("term-定数")).toHaveTextContent("0");
     await expect(canvas.getByTestId("term-メタ変数")).toHaveTextContent("τ");
-    await expect(
-      canvas.getByTestId("term-添字付きメタ変数"),
-    ).toHaveTextContent("σ₁");
+    await expect(canvas.getByTestId("term-添字付きメタ変数")).toHaveTextContent(
+      "σ₁",
+    );
   },
 };
 
@@ -98,10 +98,7 @@ export const FunctionApplications: Story = {
       },
       {
         label: "二項関数",
-        term: functionApplication("g", [
-          termVariable("x"),
-          termVariable("y"),
-        ]),
+        term: functionApplication("g", [termVariable("x"), termVariable("y")]),
       },
       { label: "引数なし", term: functionApplication("c", []) },
       {
@@ -140,9 +137,7 @@ export const FunctionApplications: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("term-単項関数")).toHaveTextContent(
-      "f(x)",
-    );
+    await expect(canvas.getByTestId("term-単項関数")).toHaveTextContent("f(x)");
     await expect(canvas.getByTestId("term-二項関数")).toHaveTextContent(
       "g(x, y)",
     );
@@ -220,9 +215,7 @@ export const BinaryOperations: Story = {
     await expect(canvas.getByTestId("term-減算")).toHaveTextContent("x − y");
     await expect(canvas.getByTestId("term-乗算")).toHaveTextContent("x × y");
     await expect(canvas.getByTestId("term-除算")).toHaveTextContent("x ÷ y");
-    await expect(canvas.getByTestId("term-べき乗")).toHaveTextContent(
-      "x ^ y",
-    );
+    await expect(canvas.getByTestId("term-べき乗")).toHaveTextContent("x ^ y");
   },
 };
 
@@ -300,12 +293,12 @@ export const ComplexTerms: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(
-      canvas.getByTestId("term-(x + y) × z"),
-    ).toHaveTextContent("(x + y) × z");
-    await expect(
-      canvas.getByTestId("term-f(x) + g(y)"),
-    ).toHaveTextContent("f(x) + g(y)");
+    await expect(canvas.getByTestId("term-(x + y) × z")).toHaveTextContent(
+      "(x + y) × z",
+    );
+    await expect(canvas.getByTestId("term-f(x) + g(y)")).toHaveTextContent(
+      "f(x) + g(y)",
+    );
   },
 };
 

@@ -181,9 +181,7 @@ describe("computeCompletions", () => {
 
     it("'fo' で forall 候補を返す", () => {
       const result = computeCompletions("fo", 2);
-      const forall = result.candidates.find(
-        (c) => c.trigger === "forall",
-      );
+      const forall = result.candidates.find((c) => c.trigger === "forall");
       expect(forall).toBeDefined();
     });
   });

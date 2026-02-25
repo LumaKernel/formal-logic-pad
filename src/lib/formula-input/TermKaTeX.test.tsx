@@ -32,9 +32,7 @@ describe("TermKaTeX", () => {
     });
 
     it("添字付きメタ変数 σ₁ を KaTeX でレンダリングする", () => {
-      render(
-        <TermKaTeX term={termMetaVariable("σ", "1")} testId="katex" />,
-      );
+      render(<TermKaTeX term={termMetaVariable("σ", "1")} testId="katex" />);
       const el = screen.getByTestId("katex");
       expect(el).toHaveAttribute("aria-label", "\\sigma_{1}");
     });
@@ -183,11 +181,7 @@ describe("TermKaTeX", () => {
   describe("スタイルprops", () => {
     it("fontSize を適用する", () => {
       render(
-        <TermKaTeX
-          term={termVariable("x")}
-          fontSize={24}
-          testId="katex"
-        />,
+        <TermKaTeX term={termVariable("x")} fontSize={24} testId="katex" />,
       );
       const el = screen.getByTestId("katex");
       expect(el.style.fontSize).toBe("24px");

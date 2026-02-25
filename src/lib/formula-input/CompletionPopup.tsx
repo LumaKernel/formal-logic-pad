@@ -158,12 +158,7 @@ export function CompletionPopup({
   }
 
   return (
-    <div
-      ref={listRef}
-      style={popupStyle}
-      role="listbox"
-      data-testid={testId}
-    >
+    <div ref={listRef} style={popupStyle} role="listbox" data-testid={testId}>
       {candidates.map((candidate, i) => (
         <div
           key={`${candidate.trigger satisfies string}-${candidate.insertText satisfies string}`}

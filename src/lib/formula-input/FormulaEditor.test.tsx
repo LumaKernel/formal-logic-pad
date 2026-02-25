@@ -52,9 +52,7 @@ describe("FormulaEditor - 表示モード", () => {
   });
 
   it("パース成功時にKaTeXレンダラーで表示する", () => {
-    render(
-      <EditorWrapper initialValue="φ → ψ" displayRenderer="katex" />,
-    );
+    render(<EditorWrapper initialValue="φ → ψ" displayRenderer="katex" />);
 
     const display = screen.getByTestId("editor-display");
     expect(display).toBeInTheDocument();
@@ -90,10 +88,7 @@ describe("FormulaEditor - 表示モード", () => {
     render(<EditorWrapper initialValue="φ → ψ" />);
 
     const display = screen.getByTestId("editor-display");
-    expect(display).toHaveAttribute(
-      "aria-label",
-      "φ → ψ - クリックして編集",
-    );
+    expect(display).toHaveAttribute("aria-label", "φ → ψ - クリックして編集");
   });
 });
 
@@ -300,9 +295,7 @@ describe("FormulaEditor - 初期表示", () => {
 describe("FormulaEditor - onModeChange", () => {
   it("編集モードに入るとonModeChangeがeditingで呼ばれる", () => {
     const onModeChange = vi.fn();
-    render(
-      <EditorWrapper initialValue="φ → ψ" onModeChange={onModeChange} />,
-    );
+    render(<EditorWrapper initialValue="φ → ψ" onModeChange={onModeChange} />);
 
     fireEvent.click(screen.getByTestId("editor-display"));
     expect(onModeChange).toHaveBeenCalledWith("editing");
@@ -310,9 +303,7 @@ describe("FormulaEditor - onModeChange", () => {
 
   it("表示モードに戻るとonModeChangeがdisplayで呼ばれる", async () => {
     const onModeChange = vi.fn();
-    render(
-      <EditorWrapper initialValue="φ → ψ" onModeChange={onModeChange} />,
-    );
+    render(<EditorWrapper initialValue="φ → ψ" onModeChange={onModeChange} />);
 
     // 編集モードに入る
     fireEvent.click(screen.getByTestId("editor-display"));
@@ -329,9 +320,7 @@ describe("FormulaEditor - onModeChange", () => {
 
   it("パースエラー時はblurしてもonModeChangeがdisplayで呼ばれない", async () => {
     const onModeChange = vi.fn();
-    render(
-      <EditorWrapper initialValue="→" onModeChange={onModeChange} />,
-    );
+    render(<EditorWrapper initialValue="→" onModeChange={onModeChange} />);
 
     // 編集モードに入る
     fireEvent.click(screen.getByTestId("editor-display"));

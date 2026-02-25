@@ -171,9 +171,7 @@ export const FunctionApplication: Story = {
     onChange: () => {},
     testId: "ti",
   },
-  render: () => (
-    <TermInputWrapper initialValue="f(x, g(y))" testId="ti" />
-  ),
+  render: () => <TermInputWrapper initialValue="f(x, g(y))" testId="ti" />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 

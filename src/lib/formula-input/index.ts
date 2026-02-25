@@ -21,7 +21,4 @@ export {
   applyCompletion,
   extractTrigger,
 } from "./inputCompletion";
-export type {
-  CompletionCandidate,
-  CompletionResult,
-} from "./inputCompletion";
+export type { CompletionCandidate, CompletionResult } from "./inputCompletion";

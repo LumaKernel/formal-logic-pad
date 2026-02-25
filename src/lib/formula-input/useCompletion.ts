@@ -8,14 +8,8 @@
  */
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import type {
-  CompletionCandidate,
-  CompletionResult,
-} from "./inputCompletion";
-import {
-  applyCompletion,
-  computeCompletions,
-} from "./inputCompletion";
+import type { CompletionCandidate, CompletionResult } from "./inputCompletion";
+import { applyCompletion, computeCompletions } from "./inputCompletion";
 
 // --- 戻り値の型 ---
 
@@ -29,10 +23,12 @@ export interface UseCompletionReturn {
   /** 選択インデックスを変更 */
   readonly setSelectedIndex: (index: number) => void;
   /** 候補を選択して適用する。新しいテキストとカーソル位置を返す */
-  readonly selectCandidate: (candidate: CompletionCandidate) => {
-    readonly text: string;
-    readonly cursorPos: number;
-  } | undefined;
+  readonly selectCandidate: (candidate: CompletionCandidate) =>
+    | {
+        readonly text: string;
+        readonly cursorPos: number;
+      }
+    | undefined;
   /** ポップアップを閉じる */
   readonly close: () => void;
   /** 入力テキストとカーソル位置を更新して補完を再計算 */
@@ -41,9 +37,7 @@ export interface UseCompletionReturn {
 
 // --- フック ---
 
-export const useCompletion = (
-  currentText: string,
-): UseCompletionReturn => {
+export const useCompletion = (currentText: string): UseCompletionReturn => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [cursorPos, setCursorPos] = useState(0);

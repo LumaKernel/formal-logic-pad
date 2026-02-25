@@ -8,20 +8,11 @@
  */
 
 import type { CSSProperties } from "react";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Formula } from "../logic-core/formula";
 import { formatFormula } from "../logic-lang/formatUnicode";
 import { FormulaDisplay } from "./FormulaDisplay";
-import {
-  computeParseState,
-  FormulaInput,
-} from "./FormulaInput";
+import { computeParseState, FormulaInput } from "./FormulaInput";
 import { FormulaKaTeX } from "./FormulaKaTeX";
 import type { DisplayRenderer, EditorMode } from "./editorLogic";
 import { computeExitAction } from "./editorLogic";
@@ -207,7 +198,9 @@ export function FormulaEditor({
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           style={isHovered ? displayContainerHoverStyle : displayContainerStyle}
-          data-testid={testId ? `${testId satisfies string}-display` : undefined}
+          data-testid={
+            testId ? `${testId satisfies string}-display` : undefined
+          }
           aria-label={
             displayText
               ? `${displayText satisfies string} - クリックして編集`
@@ -225,13 +218,17 @@ export function FormulaEditor({
               <FormulaDisplay
                 formula={formula}
                 fontSize={fontSize}
-                testId={testId ? `${testId satisfies string}-unicode` : undefined}
+                testId={
+                  testId ? `${testId satisfies string}-unicode` : undefined
+                }
               />
             )
           ) : (
             <span
               style={placeholderStyle}
-              data-testid={testId ? `${testId satisfies string}-placeholder` : undefined}
+              data-testid={
+                testId ? `${testId satisfies string}-placeholder` : undefined
+              }
             >
               {placeholder}
             </span>

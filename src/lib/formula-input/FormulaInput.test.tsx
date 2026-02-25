@@ -183,18 +183,14 @@ describe("formatErrorMessage", () => {
 describe("FormulaInput", () => {
   describe("基本的なレンダリング", () => {
     it("入力欄を表示する", () => {
-      render(
-        <FormulaInput value="" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="" onChange={() => {}} testId="fi" />);
       const input = screen.getByTestId("fi-input");
       expect(input).toBeInTheDocument();
       expect(input).toHaveAttribute("type", "text");
     });
 
     it("プレースホルダーを表示する", () => {
-      render(
-        <FormulaInput value="" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="" onChange={() => {}} testId="fi" />);
       expect(screen.getByTestId("fi-input")).toHaveAttribute(
         "placeholder",
         "φ → ψ",
@@ -217,9 +213,7 @@ describe("FormulaInput", () => {
     });
 
     it("空入力ではプレビューもエラーも表示しない", () => {
-      render(
-        <FormulaInput value="" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="" onChange={() => {}} testId="fi" />);
       expect(screen.queryByTestId("fi-preview")).not.toBeInTheDocument();
       expect(screen.queryByTestId("fi-errors")).not.toBeInTheDocument();
     });
@@ -227,33 +221,25 @@ describe("FormulaInput", () => {
 
   describe("パース成功時", () => {
     it("プレビューを表示する", () => {
-      render(
-        <FormulaInput value="φ → ψ" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="φ → ψ" onChange={() => {}} testId="fi" />);
       const preview = screen.getByTestId("fi-preview");
       expect(preview).toBeInTheDocument();
     });
 
     it("FormulaDisplayでプレビューを表示する", () => {
-      render(
-        <FormulaInput value="φ → ψ" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="φ → ψ" onChange={() => {}} testId="fi" />);
       const formula = screen.getByTestId("fi-formula");
       expect(formula).toBeInTheDocument();
       expect(formula).toHaveTextContent("φ → ψ");
     });
 
     it("エラー表示がない", () => {
-      render(
-        <FormulaInput value="φ → ψ" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="φ → ψ" onChange={() => {}} testId="fi" />);
       expect(screen.queryByTestId("fi-errors")).not.toBeInTheDocument();
     });
 
     it("aria-invalid が false", () => {
-      render(
-        <FormulaInput value="φ → ψ" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="φ → ψ" onChange={() => {}} testId="fi" />);
       expect(screen.getByTestId("fi-input")).toHaveAttribute(
         "aria-invalid",
         "false",
@@ -263,33 +249,25 @@ describe("FormulaInput", () => {
 
   describe("パースエラー時", () => {
     it("エラーメッセージを表示する", () => {
-      render(
-        <FormulaInput value="→" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="→" onChange={() => {}} testId="fi" />);
       const errors = screen.getByTestId("fi-errors");
       expect(errors).toBeInTheDocument();
     });
 
     it("エラー個別のメッセージを表示する", () => {
-      render(
-        <FormulaInput value="→" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="→" onChange={() => {}} testId="fi" />);
       const error = screen.getByTestId("fi-error-0");
       expect(error).toBeInTheDocument();
       expect(error.textContent).toMatch(/1:\d+ .+/);
     });
 
     it("プレビューを表示しない", () => {
-      render(
-        <FormulaInput value="→" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="→" onChange={() => {}} testId="fi" />);
       expect(screen.queryByTestId("fi-preview")).not.toBeInTheDocument();
     });
 
     it("aria-invalid が true", () => {
-      render(
-        <FormulaInput value="→" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="→" onChange={() => {}} testId="fi" />);
       expect(screen.getByTestId("fi-input")).toHaveAttribute(
         "aria-invalid",
         "true",
@@ -297,9 +275,7 @@ describe("FormulaInput", () => {
     });
 
     it("エラーの role=alert が設定されている", () => {
-      render(
-        <FormulaInput value="→" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="→" onChange={() => {}} testId="fi" />);
       const errors = screen.getByTestId("fi-errors");
       expect(errors).toHaveAttribute("role", "alert");
     });
@@ -308,9 +284,7 @@ describe("FormulaInput", () => {
   describe("onChange コールバック", () => {
     it("入力変更時に onChange が呼ばれる", () => {
       const onChange = vi.fn();
-      render(
-        <FormulaInput value="" onChange={onChange} testId="fi" />,
-      );
+      render(<FormulaInput value="" onChange={onChange} testId="fi" />);
       fireEvent.change(screen.getByTestId("fi-input"), {
         target: { value: "φ" },
       });
@@ -366,12 +340,7 @@ describe("FormulaInput", () => {
   describe("スタイルprops", () => {
     it("fontSize を適用する", () => {
       render(
-        <FormulaInput
-          value=""
-          onChange={() => {}}
-          fontSize={20}
-          testId="fi"
-        />,
+        <FormulaInput value="" onChange={() => {}} fontSize={20} testId="fi" />,
       );
       const container = screen.getByTestId("fi");
       expect(container.style.fontSize).toBe("20px");
@@ -405,30 +374,22 @@ describe("FormulaInput", () => {
 
   describe("エラーハイライト", () => {
     it("パースエラー時にハイライト要素が表示される", () => {
-      render(
-        <FormulaInput value="→" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="→" onChange={() => {}} testId="fi" />);
       const highlights = screen.getByTestId("fi-highlights");
       expect(highlights).toBeInTheDocument();
       expect(highlights).toHaveAttribute("aria-hidden", "true");
     });
 
     it("パース成功時にハイライト要素がない", () => {
-      render(
-        <FormulaInput value="φ" onChange={() => {}} testId="fi" />,
-      );
-      expect(
-        screen.queryByTestId("fi-highlights"),
-      ).not.toBeInTheDocument();
+      render(<FormulaInput value="φ" onChange={() => {}} testId="fi" />);
+      expect(screen.queryByTestId("fi-highlights")).not.toBeInTheDocument();
     });
   });
 
   describe("エラーハイライトの詳細", () => {
     it("エラーが入力の中間にあるとき前後のテキストがある", () => {
       // "φ → → ψ" は → → がエラーで前後にテキストがある
-      render(
-        <FormulaInput value="φ → → ψ" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="φ → → ψ" onChange={() => {}} testId="fi" />);
       const highlights = screen.getByTestId("fi-highlights");
       expect(highlights).toBeInTheDocument();
       // mark要素が存在する
@@ -438,9 +399,7 @@ describe("FormulaInput", () => {
 
     it("末尾にエラーがあるとき前にテキストがある", () => {
       // "φ →" は末尾が不完全
-      render(
-        <FormulaInput value="φ →" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="φ →" onChange={() => {}} testId="fi" />);
       const highlights = screen.getByTestId("fi-highlights");
       expect(highlights).toBeInTheDocument();
     });
@@ -448,36 +407,18 @@ describe("FormulaInput", () => {
 
   describe("複雑な入力パターン", () => {
     it("否定式のプレビューを表示する", () => {
-      render(
-        <FormulaInput value="¬φ" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="¬φ" onChange={() => {}} testId="fi" />);
       expect(screen.getByTestId("fi-formula")).toHaveTextContent("¬φ");
     });
 
     it("量化子付き論理式のプレビューを表示する", () => {
-      render(
-        <FormulaInput
-          value="∀x. P(x)"
-          onChange={() => {}}
-          testId="fi"
-        />,
-      );
-      expect(screen.getByTestId("fi-formula")).toHaveTextContent(
-        "∀x.P(x)",
-      );
+      render(<FormulaInput value="∀x. P(x)" onChange={() => {}} testId="fi" />);
+      expect(screen.getByTestId("fi-formula")).toHaveTextContent("∀x.P(x)");
     });
 
     it("等式のプレビューを表示する", () => {
-      render(
-        <FormulaInput
-          value="x = y"
-          onChange={() => {}}
-          testId="fi"
-        />,
-      );
-      expect(screen.getByTestId("fi-formula")).toHaveTextContent(
-        "x = y",
-      );
+      render(<FormulaInput value="x = y" onChange={() => {}} testId="fi" />);
+      expect(screen.getByTestId("fi-formula")).toHaveTextContent("x = y");
     });
   });
 });

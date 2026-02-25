@@ -141,10 +141,7 @@ describe("CompletionPopup", () => {
           testId="cp"
         />,
       );
-      expect(screen.getByTestId("cp-item-0")).toHaveAttribute(
-        "role",
-        "option",
-      );
+      expect(screen.getByTestId("cp-item-0")).toHaveAttribute("role", "option");
     });
   });
 

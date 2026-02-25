@@ -80,18 +80,14 @@ describe("computeTermParseState", () => {
 describe("TermInput", () => {
   describe("基本的なレンダリング", () => {
     it("入力欄を表示する", () => {
-      render(
-        <TermInput value="" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="" onChange={() => {}} testId="ti" />);
       const input = screen.getByTestId("ti-input");
       expect(input).toBeInTheDocument();
       expect(input).toHaveAttribute("type", "text");
     });
 
     it("デフォルトプレースホルダーを表示する", () => {
-      render(
-        <TermInput value="" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="" onChange={() => {}} testId="ti" />);
       expect(screen.getByTestId("ti-input")).toHaveAttribute(
         "placeholder",
         "f(x, y)",
@@ -114,9 +110,7 @@ describe("TermInput", () => {
     });
 
     it("空入力ではプレビューもエラーも表示しない", () => {
-      render(
-        <TermInput value="" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="" onChange={() => {}} testId="ti" />);
       expect(screen.queryByTestId("ti-preview")).not.toBeInTheDocument();
       expect(screen.queryByTestId("ti-errors")).not.toBeInTheDocument();
     });
@@ -124,33 +118,25 @@ describe("TermInput", () => {
 
   describe("パース成功時", () => {
     it("プレビューを表示する", () => {
-      render(
-        <TermInput value="x + y" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="x + y" onChange={() => {}} testId="ti" />);
       const preview = screen.getByTestId("ti-preview");
       expect(preview).toBeInTheDocument();
     });
 
     it("TermDisplayでプレビューを表示する", () => {
-      render(
-        <TermInput value="x + y" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="x + y" onChange={() => {}} testId="ti" />);
       const term = screen.getByTestId("ti-term");
       expect(term).toBeInTheDocument();
       expect(term).toHaveTextContent("x + y");
     });
 
     it("エラー表示がない", () => {
-      render(
-        <TermInput value="x" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="x" onChange={() => {}} testId="ti" />);
       expect(screen.queryByTestId("ti-errors")).not.toBeInTheDocument();
     });
 
     it("aria-invalid が false", () => {
-      render(
-        <TermInput value="x" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="x" onChange={() => {}} testId="ti" />);
       expect(screen.getByTestId("ti-input")).toHaveAttribute(
         "aria-invalid",
         "false",
@@ -160,33 +146,25 @@ describe("TermInput", () => {
 
   describe("パースエラー時", () => {
     it("エラーメッセージを表示する", () => {
-      render(
-        <TermInput value="→" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="→" onChange={() => {}} testId="ti" />);
       const errors = screen.getByTestId("ti-errors");
       expect(errors).toBeInTheDocument();
     });
 
     it("エラー個別のメッセージを表示する", () => {
-      render(
-        <TermInput value="→" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="→" onChange={() => {}} testId="ti" />);
       const error = screen.getByTestId("ti-error-0");
       expect(error).toBeInTheDocument();
       expect(error.textContent).toMatch(/1:\d+ .+/);
     });
 
     it("プレビューを表示しない", () => {
-      render(
-        <TermInput value="→" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="→" onChange={() => {}} testId="ti" />);
       expect(screen.queryByTestId("ti-preview")).not.toBeInTheDocument();
     });
 
     it("aria-invalid が true", () => {
-      render(
-        <TermInput value="→" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="→" onChange={() => {}} testId="ti" />);
       expect(screen.getByTestId("ti-input")).toHaveAttribute(
         "aria-invalid",
         "true",
@@ -194,17 +172,13 @@ describe("TermInput", () => {
     });
 
     it("エラーの role=alert が設定されている", () => {
-      render(
-        <TermInput value="→" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="→" onChange={() => {}} testId="ti" />);
       const errors = screen.getByTestId("ti-errors");
       expect(errors).toHaveAttribute("role", "alert");
     });
 
     it("ハイライト要素が表示される", () => {
-      render(
-        <TermInput value="→" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="→" onChange={() => {}} testId="ti" />);
       const highlights = screen.getByTestId("ti-highlights");
       expect(highlights).toBeInTheDocument();
       expect(highlights).toHaveAttribute("aria-hidden", "true");
@@ -214,9 +188,7 @@ describe("TermInput", () => {
   describe("onChange コールバック", () => {
     it("入力変更時に onChange が呼ばれる", () => {
       const onChange = vi.fn();
-      render(
-        <TermInput value="" onChange={onChange} testId="ti" />,
-      );
+      render(<TermInput value="" onChange={onChange} testId="ti" />);
       fireEvent.change(screen.getByTestId("ti-input"), {
         target: { value: "x" },
       });
@@ -272,12 +244,7 @@ describe("TermInput", () => {
   describe("スタイルprops", () => {
     it("fontSize を適用する", () => {
       render(
-        <TermInput
-          value=""
-          onChange={() => {}}
-          fontSize={20}
-          testId="ti"
-        />,
+        <TermInput value="" onChange={() => {}} fontSize={20} testId="ti" />,
       );
       const container = screen.getByTestId("ti");
       expect(container.style.fontSize).toBe("20px");
@@ -298,30 +265,22 @@ describe("TermInput", () => {
 
   describe("複雑な項パターン", () => {
     it("関数適用のプレビューを表示する", () => {
-      render(
-        <TermInput value="f(x)" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="f(x)" onChange={() => {}} testId="ti" />);
       expect(screen.getByTestId("ti-term")).toHaveTextContent("f(x)");
     });
 
     it("二項演算のプレビューを表示する", () => {
-      render(
-        <TermInput value="x * y + z" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="x * y + z" onChange={() => {}} testId="ti" />);
       expect(screen.getByTestId("ti-term")).toHaveTextContent("x × y + z");
     });
 
     it("定数のプレビューを表示する", () => {
-      render(
-        <TermInput value="0" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="0" onChange={() => {}} testId="ti" />);
       expect(screen.getByTestId("ti-term")).toHaveTextContent("0");
     });
 
     it("メタ変数のプレビューを表示する", () => {
-      render(
-        <TermInput value="τ" onChange={() => {}} testId="ti" />,
-      );
+      render(<TermInput value="τ" onChange={() => {}} testId="ti" />);
       expect(screen.getByTestId("ti-term")).toHaveTextContent("τ");
     });
   });
@@ -335,14 +294,15 @@ describe("TermInput", () => {
       // input要素のselectionStartを設定してから変更イベントを発火
       const input = screen.getByTestId("ti-input") as HTMLInputElement;
       // 値を設定してからselectionStartを正しく設定
-      Object.defineProperty(input, "selectionStart", { value: 2, writable: true });
+      Object.defineProperty(input, "selectionStart", {
+        value: 2,
+        writable: true,
+      });
       fireEvent.change(input, {
         target: { value: "ph", selectionStart: 2 },
       });
       // 制御コンポーネントなので、valueをrerenderで反映
-      rerender(
-        <TermInput value="ph" onChange={onChange} testId="ti" />,
-      );
+      rerender(<TermInput value="ph" onChange={onChange} testId="ti" />);
       // 補完ポップアップが表示されるのを待つ
       await waitFor(() => {
         expect(screen.queryByTestId("ti-completion")).toBeInTheDocument();

@@ -16,11 +16,7 @@ function FormulaCompletionWrapper({
   const [value, setValue] = useState(initialValue);
   return (
     <div style={{ width: 400 }}>
-      <FormulaInput
-        value={value}
-        onChange={setValue}
-        testId={testId}
-      />
+      <FormulaInput value={value} onChange={setValue} testId={testId} />
     </div>
   );
 }
@@ -35,11 +31,7 @@ function TermCompletionWrapper({
   const [value, setValue] = useState(initialValue);
   return (
     <div style={{ width: 400 }}>
-      <TermInput
-        value={value}
-        onChange={setValue}
-        testId={testId}
-      />
+      <TermInput value={value} onChange={setValue} testId={testId} />
     </div>
   );
 }

@@ -5,7 +5,6 @@ import {
   computeEdgePoint,
   computePortConnectionPath,
   computeSmartConnectionPath,
-  cubicBezierPoint,
   determineConnectionDirections,
   edgeMidpoint,
   endpointCenter,

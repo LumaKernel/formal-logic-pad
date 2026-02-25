@@ -48,16 +48,13 @@ function FormulaNodeDemo() {
   const [nodes, setNodes] = useState<readonly FormulaNodeData[]>(INITIAL_NODES);
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
 
-  const handlePositionChange = useCallback(
-    (id: string, newPosition: Point) => {
-      setNodes((prev) =>
-        prev.map((node) =>
-          node.id === id ? { ...node, position: newPosition } : node,
-        ),
-      );
-    },
-    [],
-  );
+  const handlePositionChange = useCallback((id: string, newPosition: Point) => {
+    setNodes((prev) =>
+      prev.map((node) =>
+        node.id === id ? { ...node, position: newPosition } : node,
+      ),
+    );
+  }, []);
 
   const handleValueChange = useCallback((id: string, newValue: string) => {
     setNodes((prev) =>
@@ -67,12 +64,9 @@ function FormulaNodeDemo() {
     );
   }, []);
 
-  const handleModeChange = useCallback(
-    (id: string, mode: EditorMode) => {
-      setEditingNodeId(mode === "editing" ? id : null);
-    },
-    [],
-  );
+  const handleModeChange = useCallback((id: string, mode: EditorMode) => {
+    setEditingNodeId(mode === "editing" ? id : null);
+  }, []);
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
@@ -139,8 +133,7 @@ function FormulaNodeDemo() {
           pointerEvents: "none",
         }}
       >
-        editing: {editingNodeId ?? "none"} | scale:{" "}
-        {viewport.scale.toFixed(2)}
+        editing: {editingNodeId ?? "none"} | scale: {viewport.scale.toFixed(2)}
       </div>
     </div>
   );

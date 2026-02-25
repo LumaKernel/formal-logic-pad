@@ -8,7 +8,13 @@
  */
 
 import type { CSSProperties } from "react";
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import type { Term } from "../logic-core/term";
 import type { ParseError, TermParseResult } from "../logic-lang/parser";
 import { parseTermString } from "../logic-lang/parser";
@@ -176,7 +182,10 @@ export function TermInput({
       if (result) {
         onChange(result.text);
         requestAnimationFrame(() => {
-          inputRef.current?.setSelectionRange(result.cursorPos, result.cursorPos);
+          inputRef.current?.setSelectionRange(
+            result.cursorPos,
+            result.cursorPos,
+          );
         });
       }
     },
@@ -216,7 +225,9 @@ export function TermInput({
           <div
             style={highlightContainerStyle}
             aria-hidden="true"
-            data-testid={testId ? `${testId satisfies string}-highlights` : undefined}
+            data-testid={
+              testId ? `${testId satisfies string}-highlights` : undefined
+            }
           >
             {renderHighlightedText(deferredValue, errorHighlights)}
           </div>
@@ -231,7 +242,12 @@ export function TermInput({
             ...currentInputStyle,
             ...(fontSize !== undefined ? { fontSize } : {}),
             ...(errorHighlights.length > 0
-              ? { position: "absolute", top: 0, left: 0, background: "transparent" }
+              ? {
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  background: "transparent",
+                }
               : {}),
           }}
           data-testid={testId ? `${testId satisfies string}-input` : undefined}
@@ -256,7 +272,9 @@ export function TermInput({
             onSelect={handleCompletionSelect}
             onSelectedIndexChange={comp.setSelectedIndex}
             onClose={comp.close}
-            testId={testId ? `${testId satisfies string}-completion` : undefined}
+            testId={
+              testId ? `${testId satisfies string}-completion` : undefined
+            }
           />
         )}
       </div>
@@ -265,7 +283,9 @@ export function TermInput({
       {parseState.status === "success" && (
         <div
           style={previewStyle}
-          data-testid={testId ? `${testId satisfies string}-preview` : undefined}
+          data-testid={
+            testId ? `${testId satisfies string}-preview` : undefined
+          }
         >
           <TermDisplay
             term={parseState.term}
@@ -289,7 +309,9 @@ export function TermInput({
               key={`${error.span.start.line satisfies number}:${error.span.start.column satisfies number}`}
               style={errorMessageStyle}
               data-testid={
-                testId ? `${testId satisfies string}-error-${`${i satisfies number}` satisfies string}` : undefined
+                testId
+                  ? `${testId satisfies string}-error-${`${i satisfies number}` satisfies string}`
+                  : undefined
               }
             >
               {formatErrorMessage(error)}
@@ -323,9 +345,12 @@ function renderHighlightedText(
     // 防御的マージ: パーサーが重複範囲を生成することは通常ないが、安全のため
     /* v8 ignore start */
     if (last && h.start <= last.end) {
-      merged[merged.length - 1] = { start: last.start, end: Math.max(last.end, h.end) };
+      merged[merged.length - 1] = {
+        start: last.start,
+        end: Math.max(last.end, h.end),
+      };
     } else {
-    /* v8 ignore stop */
+      /* v8 ignore stop */
       merged.push({ ...h });
     }
   }
@@ -336,7 +361,10 @@ function renderHighlightedText(
   for (const h of merged) {
     if (pos < h.start) {
       parts.push(
-        <span key={`t-${`${pos satisfies number}` satisfies string}`} style={transparentTextStyle}>
+        <span
+          key={`t-${`${pos satisfies number}` satisfies string}`}
+          style={transparentTextStyle}
+        >
           {text.slice(pos, h.start)}
         </span>,
       );
@@ -354,7 +382,10 @@ function renderHighlightedText(
 
   if (pos < text.length) {
     parts.push(
-      <span key={`t-${`${pos satisfies number}` satisfies string}`} style={transparentTextStyle}>
+      <span
+        key={`t-${`${pos satisfies number}` satisfies string}`}
+        style={transparentTextStyle}
+      >
         {text.slice(pos)}
       </span>,
     );

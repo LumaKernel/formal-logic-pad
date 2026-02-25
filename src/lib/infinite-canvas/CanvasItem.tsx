@@ -120,7 +120,8 @@ export function CanvasItem({
     [hasContextMenu, longPress, draggable, onPointerUp, onClick],
   );
 
-  const hasInteraction = hasDragCallback || hasContextMenu || onClick !== undefined;
+  const hasInteraction =
+    hasDragCallback || hasContextMenu || onClick !== undefined;
 
   return (
     <>
