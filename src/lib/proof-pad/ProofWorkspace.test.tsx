@@ -524,6 +524,36 @@ describe("ProofWorkspace", () => {
       });
     });
 
+    it("shows axiom dependencies on derived MP node", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <StatefulWorkspace
+          initialWorkspace={(() => {
+            let ws = createEmptyWorkspace(lukasiewiczSystem);
+            ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+            ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+            return ws;
+          })()}
+        />,
+      );
+
+      // Apply MP
+      await user.click(screen.getByTestId("workspace-mp-button"));
+      await user.click(screen.getByTestId("proof-node-node-1"));
+      await user.click(screen.getByTestId("proof-node-node-2"));
+
+      // MP node should show dependencies on axiom nodes
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("proof-node-node-3-dependencies"),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByTestId("proof-node-node-3-dependencies"),
+        ).toHaveTextContent("Depends on:");
+      });
+    });
+
     it("applies MP via onWorkspaceChange (external state)", async () => {
       const user = userEvent.setup();
       const onWorkspaceChange = vi.fn();

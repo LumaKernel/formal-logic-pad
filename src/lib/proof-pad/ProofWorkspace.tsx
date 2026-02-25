@@ -31,6 +31,8 @@ import { checkGoal } from "./goalCheckLogic";
 import { classifyAllNodes } from "./nodeRoleLogic";
 import { identifyAxiomName } from "./axiomNameLogic";
 import { parseNodeFormula } from "./mpApplicationLogic";
+import { getAllNodeDependencies } from "./dependencyLogic";
+import type { DependencyInfo } from "./EditableProofNode";
 import type { NodeRole } from "./nodeRoleLogic";
 import type { WorkspaceState, WorkspaceNode } from "./workspaceState";
 import {
@@ -559,6 +561,38 @@ export function ProofWorkspace({
     return names;
   }, [workspace.nodes, workspace.system]);
 
+  // --- 公理依存関係の計算 ---
+
+  const nodeDependencies = useMemo(
+    () => getAllNodeDependencies(workspace.nodes, workspace.connections),
+    [workspace.nodes, workspace.connections],
+  );
+
+  /**
+   * ノードIDから依存公理のDependencyInfo配列を生成する。
+   * 導出ノードのみ（自分自身以外の公理に依存するノード）に表示する。
+   */
+  const getNodeDependencyInfos = useCallback(
+    (nodeId: string): readonly DependencyInfo[] | undefined => {
+      const deps = nodeDependencies.get(nodeId);
+      if (deps === undefined) return undefined;
+      // ルートノードは自分自身のみに依存 → 表示不要
+      if (deps.size === 1 && deps.has(nodeId)) return undefined;
+      // 依存公理がない（接続が不完全など）→ 表示不要
+      if (deps.size === 0) return undefined;
+
+      return [...deps].map((depId): DependencyInfo => {
+        const axName = axiomNames.get(depId);
+        const depNode = findNode(workspace, depId);
+        return {
+          nodeId: depId,
+          displayName: axName ?? depNode?.label ?? depId,
+        };
+      });
+    },
+    [nodeDependencies, axiomNames, workspace],
+  );
+
   const handleRoleChange = useCallback(
     (nodeId: string, role: NodeRole | undefined) => {
       setWorkspace(updateNodeRole(workspace, nodeId, role));
@@ -900,6 +934,7 @@ export function ProofWorkspace({
               onRoleChange={handleRoleChange}
               isProtected={isNodeProtected(workspace, node.id)}
               axiomName={axiomNames.get(node.id)}
+              dependencies={getNodeDependencyInfos(node.id)}
               testId={`proof-node-${node.id satisfies string}`}
             />
           </div>
@@ -918,6 +953,7 @@ export function ProofWorkspace({
       genValidations,
       nodeClassifications,
       axiomNames,
+      getNodeDependencyInfos,
       handlePositionChange,
       handleFormulaTextChange,
       handleFormulaParsed,

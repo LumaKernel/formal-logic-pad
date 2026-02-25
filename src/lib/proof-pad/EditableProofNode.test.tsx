@@ -499,4 +499,38 @@ describe("EditableProofNode", () => {
       expect(container.textContent).toContain("A1 (K)");
     });
   });
+
+  describe("公理依存関係の表示", () => {
+    it("依存関係がある場合、Depends on セクションが表示される", () => {
+      renderNode({
+        dependencies: [
+          { nodeId: "axiom-1", displayName: "A1 (K)" },
+          { nodeId: "axiom-2", displayName: "A2 (S)" },
+        ],
+      });
+      expect(screen.getByText("Depends on:")).toBeInTheDocument();
+      expect(screen.getByText("A1 (K)")).toBeInTheDocument();
+      expect(screen.getByText("A2 (S)")).toBeInTheDocument();
+    });
+
+    it("依存関係がない場合（undefined）、Depends on セクションが表示されない", () => {
+      renderNode({ dependencies: undefined });
+      expect(screen.queryByText("Depends on:")).not.toBeInTheDocument();
+    });
+
+    it("依存関係が空配列の場合、Depends on セクションが表示されない", () => {
+      renderNode({ dependencies: [] });
+      expect(screen.queryByText("Depends on:")).not.toBeInTheDocument();
+    });
+
+    it("data-testidが設定される", () => {
+      renderNode({
+        dependencies: [{ nodeId: "axiom-1", displayName: "A1" }],
+        testId: "test-node",
+      });
+      expect(
+        screen.getByTestId("test-node-dependencies"),
+      ).toBeInTheDocument();
+    });
+  });
 });

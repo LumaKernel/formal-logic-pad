@@ -20,6 +20,14 @@ import type { NodeRole, NodeClassification } from "./nodeRoleLogic";
 
 // --- Props ---
 
+/** 依存する公理ノードの情報 */
+export interface DependencyInfo {
+  /** 公理ノードのID */
+  readonly nodeId: string;
+  /** 公理の表示名（自動判別された名前 or ラベル） */
+  readonly displayName: string;
+}
+
 export interface EditableProofNodeProps {
   /** ノードの一意識別子 */
   readonly id: string;
@@ -49,6 +57,8 @@ export interface EditableProofNodeProps {
   readonly isProtected?: boolean;
   /** 自動判別された公理名（例: "A1 (K)"）。undefined = 公理でない or 判別不能 */
   readonly axiomName?: string;
+  /** 依存する公理ノードのリスト（導出ノードのみ表示） */
+  readonly dependencies?: readonly DependencyInfo[];
   /** data-testid */
   readonly testId?: string;
 }
@@ -139,6 +149,34 @@ const axiomNameBadgeStyle: CSSProperties = {
   border: "1px solid rgba(255,255,255,0.3)",
 };
 
+const dependencyContainerStyle: CSSProperties = {
+  fontSize: 9,
+  fontFamily: "sans-serif",
+  fontStyle: "normal",
+  marginTop: 4,
+  padding: "3px 6px",
+  background: "rgba(255,255,255,0.1)",
+  borderRadius: 4,
+  color: "rgba(255,255,255,0.8)",
+  textAlign: "left",
+};
+
+const dependencyLabelStyle: CSSProperties = {
+  fontWeight: 600,
+  marginBottom: 2,
+  letterSpacing: 0.5,
+  opacity: 0.7,
+};
+
+const dependencyItemStyle: CSSProperties = {
+  display: "inline-block",
+  padding: "1px 4px",
+  margin: "1px 2px",
+  background: "rgba(255,255,255,0.15)",
+  borderRadius: 3,
+  fontSize: 9,
+};
+
 function getRoleBadgeStyle(classification: NodeClassification): CSSProperties {
   switch (classification) {
     case "root-axiom":
@@ -199,6 +237,7 @@ export function EditableProofNode({
   onRoleChange,
   isProtected = false,
   axiomName,
+  dependencies,
   testId,
 }: EditableProofNodeProps) {
   const nodeStyle = useMemo(() => getProofNodeStyle(kind), [kind]);
@@ -360,6 +399,23 @@ export function EditableProofNode({
           data-testid={testId ? `${testId satisfies string}-status` : undefined}
         >
           {statusMessage}
+        </div>
+      ) : null}
+      {dependencies && dependencies.length > 0 ? (
+        <div
+          style={dependencyContainerStyle}
+          data-testid={
+            testId ? `${testId satisfies string}-dependencies` : undefined
+          }
+        >
+          <div style={dependencyLabelStyle}>Depends on:</div>
+          <div>
+            {dependencies.map((dep) => (
+              <span key={dep.nodeId} style={dependencyItemStyle}>
+                {dep.displayName}
+              </span>
+            ))}
+          </div>
         </div>
       ) : null}
     </div>
