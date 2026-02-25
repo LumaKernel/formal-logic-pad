@@ -1614,3 +1614,32 @@
   - 保護ノードのUIでは `editable && !isProtected` の `effectiveEditable` パターンで既存の編集ロジックを活用
   - `convertToFreeMode` は冪等（free mode → 同じ参照を返す）で安全
 ---
+
+## 2026-02-25 - 証明フローデモストーリー（φ→φ恒等律の証明）追加 + 有名公理の自動判別と名前バッジ表示
+
+### 証明フローデモストーリー
+- ProofWorkspace.stories.tsx に `ProofFlowDemo` ストーリーを追加（φ→φの恒等律を公理A1, A2, MPで証明する完全なデモ）
+
+### 有名公理の自動判別と名前バッジ表示
+- **実装内容**: ノードの論理式が有名公理（A1/K, A2/S, A3, A4/UI, A5/∀-Dist, E1-E5）のインスタンスかを自動判定し、バッジとして表示する機能
+- 新規ファイル:
+  - `src/lib/proof-pad/axiomNameLogic.ts` (NEW) - 公理名自動判別の純粋ロジック。identifyAxiom をラップし、AxiomId→表示名マッピングを提供
+  - `src/lib/proof-pad/axiomNameLogic.test.ts` (NEW - 23テスト) - A1/A2/A3判定、非公理拒否、system依存フィルタ、等式公理E1-E3、述語論理A4、getAxiomDisplayName全ID
+- 変更ファイル:
+  - `src/lib/proof-pad/EditableProofNode.tsx` (MODIFIED) - axiomName prop追加、公理名バッジ表示（白半透明スタイル）
+  - `src/lib/proof-pad/EditableProofNode.test.tsx` (MODIFIED - +4テスト) - 公理名バッジの表示/非表示/レイアウト/testIdなしケース
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED) - useMemoでaxiomNames計算、renderNodeにaxiomName prop渡し
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (MODIFIED - +7テスト) - A1/A2/A3バッジ表示、非公理・空式・パースエラー・MP結論の各ケース
+  - `src/lib/proof-pad/index.ts` (MODIFIED) - identifyAxiomName, getAxiomDisplayName, AxiomNameResult エクスポート追加
+  - `tasks/prd-next-tasks.md` (MODIFIED) - 公理自動判別タスクを[x]完了
+- テスト: 2053 → 2087（+34テスト）
+- カバレッジ: Stmts 99.40%, Branch 95.07%, Funcs 92.32%, Lines 100%（ベースライン: 99.40%/95.08% - 実質維持）
+- スクリーンショット:
+  - `.screenshots/axiom-name-badge-proof-flow-direct.png` - ProofFlowDemoストーリーでのA1(K), A2(S)バッジ表示
+  - `.screenshots/axiom-name-badge-interactive.png` - インタラクティブストーリーでの動的バッジ表示
+- **今後のイテレーションへの学び:**
+  - `identifyAxiom` が inferenceRule.ts に既存だったため、axiomNameLogic.ts は薄いラッパー + 表示名マッピングのみで済んだ
+  - `parseNodeFormula` (mpApplicationLogic.ts) を再利用してformula text → AST変換の重複を回避
+  - A4公理のテストではパーサーが述語論理の全構文をサポートしない場合がある。AST constructors（`implication`, `universal`, `equality`, `constant`）で直接構築すると確実
+  - axiomDisplayNames を `Readonly<Record<AxiomId, string>>` にすることで、新公理追加時のコンパイルエラーで変更漏れを防止
+---
