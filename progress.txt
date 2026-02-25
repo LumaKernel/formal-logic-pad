@@ -52,6 +52,47 @@
 
 ---
 
+## 2026-02-25 - InfiniteCanvasミニマップ表示 (US-007)
+- ミニマップコンポーネントを `src/lib/infinite-canvas/` に追加
+- 3層アーキテクチャ: `minimap.ts`（純粋ロジック）+ `MinimapComponent.tsx`（UIコンポーネント）
+- 純粋関数群:
+  - `computeItemsBoundingBox`: アイテムのバウンディングボックス計算
+  - `expandBoundingBoxWithViewport`: ビューポート領域を含むバウンディングボックス拡張
+  - `computeMinimapTransform`: ワールド空間→ミニマップ空間の変換計算
+  - `computeViewportRect`: ビューポートインジケータ矩形の計算
+  - `minimapClickToViewportOffset`: ミニマップクリック→メインビューポート移動
+  - `computeMinimapPlacementStyle`: 4位置（bottom-right等）のCSS計算
+- MinimapComponentの機能:
+  - アイテムサムネイル表示（SVG rect）
+  - ビューポートインジケータ（青枠矩形）
+  - クリック/ドラッグでメインキャンバスをナビゲーション
+  - 表示位置（4方向）、サイズ、表示/非表示をpropsで制御
+  - ダーク/ライト両モードCSS変数対応
+- テスト: +48テスト（1856 → 1904）
+  - minimap.test.ts: +31テスト（純粋ロジック）
+  - MinimapComponent.test.tsx: +15テスト（UIコンポーネント）
+  - MinimapDemo.stories.tsx: +3ストーリー（Default, TopLeftPosition, HiddenMinimap）
+- カバレッジ: Lines 99.85%（99.88% → ほぼ維持）, Stmts 99.02%（99.04% → ほぼ維持）
+- スクリーンショット:
+  - `.screenshots/us-007-minimap-default.png` (デフォルト: 右下、150x100px)
+  - `.screenshots/us-007-minimap-top-left.png` (左上、200x130px)
+- 変更ファイル:
+  - `src/lib/infinite-canvas/minimap.ts` (NEW) - 純粋ロジック
+  - `src/lib/infinite-canvas/minimap.test.ts` (NEW) - 純粋ロジックテスト
+  - `src/lib/infinite-canvas/MinimapComponent.tsx` (NEW) - UIコンポーネント
+  - `src/lib/infinite-canvas/MinimapComponent.test.tsx` (NEW) - UIテスト
+  - `src/lib/infinite-canvas/MinimapDemo.stories.tsx` (NEW) - ストーリー
+  - `src/lib/infinite-canvas/index.ts` (MODIFIED) - エクスポート追加
+  - `src/app/globals.css` (MODIFIED) - ミニマップCSS変数追加
+  - `tasks/prd-dark-mode.md` (MODIFIED) - US-007完了
+- **今後のイテレーションへの学び:**
+  - ミニマップは純粋関数（座標変換ロジック）とUI（SVGレンダリング+イベント処理）の分離が有効
+  - `setPointerCapture`はjsdomで未サポート。`e.currentTarget.setPointerCapture`でガードチェックが必要（usePan.ts等の既存パターンに従う）
+  - `MinimapItem`型でアイテムの`position`と`size`を外部から受け取る設計。InfiniteCanvasの内部状態には依存しない
+  - ミニマップCSS変数は`--color-minimap-*`プレフィックスで`globals.css`に定義
+
+---
+
 ## 2026-02-25 - InfiniteCanvasに基準線追加 (US-006)
 - InfiniteCanvasにメジャーグリッドライン（基準線）を追加
 - `computeGridLinePatternParams()` 純粋関数をgrid.tsに追加（ドットパターンと同じアーキテクチャ）

@@ -72,3 +72,21 @@ export type {
   UseContextMenuResult,
   UseLongPressResult,
 } from "./useContextMenu";
+export { MinimapComponent } from "./MinimapComponent";
+export type { MinimapProps } from "./MinimapComponent";
+export {
+  computeItemsBoundingBox,
+  computeMinimapPlacementStyle,
+  computeMinimapTransform,
+  computeViewportRect,
+  expandBoundingBoxWithViewport,
+  minimapClickToViewportOffset,
+  worldToMinimap,
+} from "./minimap";
+export type {
+  BoundingBox,
+  MinimapItem,
+  MinimapPosition,
+  MinimapTransform,
+  ViewportRect,
+} from "./minimap";
