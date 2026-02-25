@@ -68,7 +68,41 @@
 - `@luma-dev/luma-ts/no-date` ルールのため、hookでは `getNow` DI パターンで Date.now() 依存を注入。テスト時はインクリメントカウンタで決定的タイムスタンプ
 - 日付フォーマットは `Intl.DateTimeFormat` を使用（`new Date()` はno-dateルール違反）
 - localStorage永続化hookパターン: useState初期化でloadし、useEffectでsave（useTheme.tsと同じ）
+- `src/lib/quest/` はクエストモード管理。questDefinition.ts(型・カテゴリ) + builtinQuests.ts(問題データ) + questProgress.ts(進捗) + questCatalog.ts(カタログ)
+- クエスト進捗のMapもJSON化不可。serialize/deserializeパターンはnotebookSerializationと同様
 
+---
+
+## 2026-02-25 - クエストモード: 純粋ロジック層の作成
+- `src/lib/quest/questDefinition.ts` を新規作成 - クエスト定義の型、カテゴリ、ソート・グループ化ユーティリティ
+- `src/lib/quest/questDefinition.test.ts` を新規作成 - 17テスト
+- `src/lib/quest/builtinQuests.ts` を新規作成 - 7つのビルトインクエスト問題（dev/quest-problems/ をコード化）
+- `src/lib/quest/builtinQuests.test.ts` を新規作成 - 13テスト（データ整合性の網羅的検証）
+- `src/lib/quest/questProgress.ts` を新規作成 - 進捗管理（完了記録、ベスト記録、シリアライズ/デシリアライズ）
+- `src/lib/quest/questProgress.test.ts` を新規作成 - 33テスト（ラウンドトリップ、不正入力含む）
+- `src/lib/quest/questCatalog.ts` を新規作成 - カタログ生成、評価計算、フィルタリング、カテゴリ別グループ化
+- `src/lib/quest/questCatalog.test.ts` を新規作成 - 22テスト
+- `src/lib/quest/index.ts` を新規作成 - 公開API
+- カバレッジ: Stmts 99.16% (↑0.03), Branch 94.53% (↑0.06), Funcs 92.33% (↑0.22), Lines 100% (維持)
+  - ベースライン: Stmts 99.13%, Branch 94.47%, Funcs 92.11%, Lines 100%
+  - quest モジュール: Stmts 100%, Branch 96.66%, Funcs 100%, Lines 100%
+- テスト: 2404 全パス（85テスト追加）
+- 変更ファイル:
+  - `src/lib/quest/questDefinition.ts` (NEW)
+  - `src/lib/quest/questDefinition.test.ts` (NEW)
+  - `src/lib/quest/builtinQuests.ts` (NEW)
+  - `src/lib/quest/builtinQuests.test.ts` (NEW)
+  - `src/lib/quest/questProgress.ts` (NEW)
+  - `src/lib/quest/questProgress.test.ts` (NEW)
+  - `src/lib/quest/questCatalog.ts` (NEW)
+  - `src/lib/quest/questCatalog.test.ts` (NEW)
+  - `src/lib/quest/index.ts` (NEW)
+  - `tasks/prd-logic-pad-world.md` - クエストモードタスク実行中マーク
+- **今後のイテレーションへの学び:**
+  - クエスト進捗のMapはJSON化不可。serializeProgress/deserializeProgressのパターンはnotebookSerialization.tsと同様
+  - QuestCategory型の網羅性はquestCategories定数と連動。新カテゴリ追加時は両方更新が必要
+  - ビルトインクエストのデータ整合性テスト（ID一意性、プリセット参照、ゴール存在）は重要なリグレッション防止策
+  - 次のイテレーション候補: クエスト一覧UI（カタログ表示）、クエスト開始→ノートブック自動作成の統合
 ---
 
 ## 2026-02-25 - ノートブック管理: ノート一覧UI・hook・シリアライズ層の作成
