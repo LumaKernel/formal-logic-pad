@@ -59,3 +59,24 @@ export function computeGridPatternParams(
     dotRadius: Math.max(0.5, viewport.scale * 1),
   };
 }
+
+/** Compute SVG pattern parameters for major grid lines.
+ *  Grid lines are drawn every `majorGridEvery` dots. */
+export function computeGridLinePatternParams(
+  viewport: ViewportState,
+  dotSpacing: number = DEFAULT_DOT_SPACING,
+  majorGridEvery: number = 5,
+): {
+  readonly patternSize: number;
+  readonly patternOffsetX: number;
+  readonly patternOffsetY: number;
+} {
+  const lineSpacing = dotSpacing * majorGridEvery * viewport.scale;
+  const safeSpacing = Math.max(lineSpacing, 1);
+
+  return {
+    patternSize: safeSpacing,
+    patternOffsetX: viewport.offsetX % safeSpacing,
+    patternOffsetY: viewport.offsetY % safeSpacing,
+  };
+}

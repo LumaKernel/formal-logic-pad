@@ -12,7 +12,12 @@ const meta = {
   argTypes: {
     dotColor: { control: "color" },
     backgroundColor: { control: "color" },
+    gridLineColor: { control: "color" },
     dotSpacing: { control: { type: "range", min: 5, max: 100, step: 1 } },
+    majorGridEvery: { control: { type: "range", min: 0, max: 20, step: 1 } },
+    gridLineWidth: {
+      control: { type: "range", min: 0.1, max: 5, step: 0.1 },
+    },
   },
 } satisfies Meta<typeof InfiniteCanvas>;
 
@@ -78,6 +83,53 @@ export const DenseGrid: Story = {
 export const SparseGrid: Story = {
   args: {
     dotSpacing: 50,
+  },
+};
+
+export const WithGridLines: Story = {
+  args: {
+    majorGridEvery: 5,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const infiniteCanvas = canvas.getByTestId("infinite-canvas");
+    await expect(infiniteCanvas).toBeInTheDocument();
+
+    // Verify grid line pattern exists (2 patterns: dot + grid line)
+    const patterns = infiniteCanvas.querySelectorAll("pattern");
+    await expect(patterns.length).toBe(2);
+
+    // Verify grid line pattern has horizontal and vertical lines
+    const gridLinePattern = patterns[1];
+    const lines = gridLinePattern?.querySelectorAll("line");
+    await expect(lines?.length).toBe(2);
+
+    // Verify CSS variable default for grid line color
+    await expect(lines?.[0]?.getAttribute("stroke")).toBe(
+      "var(--color-canvas-grid-line, rgba(0, 0, 0, 0.06))",
+    );
+  },
+};
+
+export const WithoutGridLines: Story = {
+  args: {
+    majorGridEvery: 0,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const infiniteCanvas = canvas.getByTestId("infinite-canvas");
+    await expect(infiniteCanvas).toBeInTheDocument();
+
+    // Only dot pattern, no grid line pattern
+    const patterns = infiniteCanvas.querySelectorAll("pattern");
+    await expect(patterns.length).toBe(1);
+  },
+};
+
+export const DenseGridLines: Story = {
+  args: {
+    majorGridEvery: 3,
+    gridLineWidth: 1,
   },
 };
 

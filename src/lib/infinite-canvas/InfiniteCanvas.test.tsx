@@ -94,6 +94,119 @@ describe("InfiniteCanvas", () => {
   });
 });
 
+describe("InfiniteCanvas grid lines", () => {
+  it("renders grid line pattern by default (majorGridEvery=5)", () => {
+    render(<InfiniteCanvas />);
+    const canvas = screen.getByTestId("infinite-canvas");
+    const patterns = canvas.querySelectorAll("pattern");
+    // Two patterns: dot pattern + grid line pattern
+    expect(patterns).toHaveLength(2);
+    const gridLinePattern = patterns[1];
+    const lines = gridLinePattern?.querySelectorAll("line");
+    // Two lines: horizontal + vertical
+    expect(lines).toHaveLength(2);
+  });
+
+  it("uses CSS variable as default grid line color", () => {
+    render(<InfiniteCanvas />);
+    const canvas = screen.getByTestId("infinite-canvas");
+    const patterns = canvas.querySelectorAll("pattern");
+    const gridLinePattern = patterns[1];
+    const lines = gridLinePattern?.querySelectorAll("line");
+    expect(lines?.[0]?.getAttribute("stroke")).toBe(
+      "var(--color-canvas-grid-line, rgba(0, 0, 0, 0.06))",
+    );
+    expect(lines?.[1]?.getAttribute("stroke")).toBe(
+      "var(--color-canvas-grid-line, rgba(0, 0, 0, 0.06))",
+    );
+  });
+
+  it("uses custom grid line color when provided via props", () => {
+    render(<InfiniteCanvas gridLineColor="#ff0000" />);
+    const canvas = screen.getByTestId("infinite-canvas");
+    const patterns = canvas.querySelectorAll("pattern");
+    const gridLinePattern = patterns[1];
+    const lines = gridLinePattern?.querySelectorAll("line");
+    expect(lines?.[0]?.getAttribute("stroke")).toBe("#ff0000");
+  });
+
+  it("uses custom grid line width when provided via props", () => {
+    render(<InfiniteCanvas gridLineWidth={2} />);
+    const canvas = screen.getByTestId("infinite-canvas");
+    const patterns = canvas.querySelectorAll("pattern");
+    const gridLinePattern = patterns[1];
+    const lines = gridLinePattern?.querySelectorAll("line");
+    expect(lines?.[0]?.getAttribute("stroke-width")).toBe("2");
+  });
+
+  it("sets grid line pattern size to dotSpacing * majorGridEvery * scale", () => {
+    render(
+      <InfiniteCanvas
+        dotSpacing={20}
+        majorGridEvery={5}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+      />,
+    );
+    const canvas = screen.getByTestId("infinite-canvas");
+    const patterns = canvas.querySelectorAll("pattern");
+    const gridLinePattern = patterns[1];
+    // 20 * 5 * 1 = 100
+    expect(gridLinePattern?.getAttribute("width")).toBe("100");
+    expect(gridLinePattern?.getAttribute("height")).toBe("100");
+  });
+
+  it("scales grid line pattern with viewport scale", () => {
+    render(
+      <InfiniteCanvas
+        dotSpacing={20}
+        majorGridEvery={5}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 2 }}
+      />,
+    );
+    const canvas = screen.getByTestId("infinite-canvas");
+    const patterns = canvas.querySelectorAll("pattern");
+    const gridLinePattern = patterns[1];
+    // 20 * 5 * 2 = 200
+    expect(gridLinePattern?.getAttribute("width")).toBe("200");
+    expect(gridLinePattern?.getAttribute("height")).toBe("200");
+  });
+
+  it("does not render grid lines when majorGridEvery is 0", () => {
+    render(<InfiniteCanvas majorGridEvery={0} />);
+    const canvas = screen.getByTestId("infinite-canvas");
+    const patterns = canvas.querySelectorAll("pattern");
+    // Only dot pattern, no grid line pattern
+    expect(patterns).toHaveLength(1);
+    const rects = canvas.querySelectorAll("rect");
+    // Only one rect for dot pattern
+    expect(rects).toHaveLength(1);
+  });
+
+  it("applies viewport offset to grid line pattern position", () => {
+    render(
+      <InfiniteCanvas
+        dotSpacing={20}
+        majorGridEvery={5}
+        viewport={{ offsetX: 150, offsetY: 250, scale: 1 }}
+      />,
+    );
+    const canvas = screen.getByTestId("infinite-canvas");
+    const patterns = canvas.querySelectorAll("pattern");
+    const gridLinePattern = patterns[1];
+    // 150 % 100 = 50, 250 % 100 = 50
+    expect(gridLinePattern?.getAttribute("x")).toBe("50");
+    expect(gridLinePattern?.getAttribute("y")).toBe("50");
+  });
+
+  it("renders two rect fills when grid lines are enabled", () => {
+    render(<InfiniteCanvas />);
+    const canvas = screen.getByTestId("infinite-canvas");
+    const rects = canvas.querySelectorAll("rect");
+    // Two rects: dot pattern fill + grid line pattern fill
+    expect(rects).toHaveLength(2);
+  });
+});
+
 describe("InfiniteCanvas panning", () => {
   beforeEach(() => {
     // jsdom does not implement pointer capture methods

@@ -1,5 +1,5 @@
 import { type ReactNode, useCallback, useId, useRef } from "react";
-import { computeGridPatternParams } from "./grid";
+import { computeGridLinePatternParams, computeGridPatternParams } from "./grid";
 import type { ViewportState } from "./types";
 import { usePan } from "./usePan";
 import { useZoom } from "./useZoom";
@@ -14,6 +14,12 @@ export interface InfiniteCanvasProps {
   readonly dotColor?: string;
   /** Background color of the canvas */
   readonly backgroundColor?: string;
+  /** Draw major grid lines every N dots (0 to disable) */
+  readonly majorGridEvery?: number;
+  /** Color of the major grid lines */
+  readonly gridLineColor?: string;
+  /** Width of the major grid lines in px */
+  readonly gridLineWidth?: number;
   /** Callback when viewport changes (e.g. from panning) */
   readonly onViewportChange?: (viewport: ViewportState) => void;
   /** Minimum allowed zoom scale */
@@ -39,15 +45,24 @@ export function InfiniteCanvas({
   dotSpacing = 20,
   dotColor = "var(--color-canvas-dot, #c0c0c0)",
   backgroundColor = "var(--color-canvas-bg, #ffffff)",
+  majorGridEvery = 5,
+  gridLineColor = "var(--color-canvas-grid-line, rgba(0, 0, 0, 0.06))",
+  gridLineWidth = 0.5,
   onViewportChange = NOOP,
   minScale = MIN_SCALE,
   maxScale = MAX_SCALE,
   children,
 }: InfiniteCanvasProps) {
   const patternId = useId();
+  const gridLinePatternId = `${patternId satisfies string}-gridline`;
   const containerRef = useRef<HTMLDivElement>(null);
   const { patternSize, patternOffsetX, patternOffsetY, dotRadius } =
     computeGridPatternParams(viewport, dotSpacing);
+
+  const gridLineParams =
+    majorGridEvery > 0
+      ? computeGridLinePatternParams(viewport, dotSpacing, majorGridEvery)
+      : null;
 
   const { isDragging, onPointerDown, onPointerMove, onPointerUp } = usePan(
     viewport,
@@ -134,12 +149,55 @@ export function InfiniteCanvas({
               }}
             />
           </pattern>
+          {gridLineParams != null && (
+            <pattern
+              id={gridLinePatternId}
+              data-testid="grid-line-pattern"
+              x={gridLineParams.patternOffsetX}
+              y={gridLineParams.patternOffsetY}
+              width={gridLineParams.patternSize}
+              height={gridLineParams.patternSize}
+              patternUnits="userSpaceOnUse"
+            >
+              <line
+                x1={0}
+                y1={0}
+                x2={gridLineParams.patternSize}
+                y2={0}
+                stroke={gridLineColor}
+                strokeWidth={gridLineWidth}
+                style={{
+                  transition:
+                    "stroke var(--theme-transition-duration, 0s) ease",
+                }}
+              />
+              <line
+                x1={0}
+                y1={0}
+                x2={0}
+                y2={gridLineParams.patternSize}
+                stroke={gridLineColor}
+                strokeWidth={gridLineWidth}
+                style={{
+                  transition:
+                    "stroke var(--theme-transition-duration, 0s) ease",
+                }}
+              />
+            </pattern>
+          )}
         </defs>
         <rect
           width="100%"
           height="100%"
           fill={`url(#${patternId satisfies string})`}
         />
+        {gridLineParams != null && (
+          <rect
+            width="100%"
+            height="100%"
+            fill={`url(#${gridLinePatternId satisfies string})`}
+          />
+        )}
       </svg>
       {children}
     </div>
