@@ -84,8 +84,8 @@ function FormulaNodeDemo() {
             <div
               data-testid={`node-${node.id satisfies string}`}
               style={{
-                background: "#ffffff",
-                border: "1px solid #d1d5db",
+                background: "var(--color-surface, #ffffff)",
+                border: "1px solid var(--color-border, #d1d5db)",
                 borderRadius: 8,
                 padding: "8px 12px",
                 minWidth: 200,
@@ -96,7 +96,7 @@ function FormulaNodeDemo() {
               <div
                 style={{
                   fontSize: 11,
-                  color: "#6b7280",
+                  color: "var(--color-text-secondary, #6b7280)",
                   marginBottom: 4,
                   fontFamily: "sans-serif",
                 }}

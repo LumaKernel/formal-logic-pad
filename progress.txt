@@ -2437,3 +2437,14 @@
   - UIで不要な選択肢を残さない。ドメインの制約（クエストはマップから開始）をUIに反映する
   - 型からフィールドを削除すると、コンパイラが使用箇所を全て検出してくれる（TypeScriptの型安全の利点）
 ---
+
+## 2026-02-25 - FormulaNodeIntegration ダークモードカード表示修正
+- FormulaNodeIntegration.stories.tsx のノードカードの背景・ボーダー・テキスト色をCSS変数に置き換え
+  - `background: "#ffffff"` → `var(--color-surface, #ffffff)`
+  - `border: "1px solid #d1d5db"` → `var(--color-border, #d1d5db)`
+  - `color: "#6b7280"` → `var(--color-text-secondary, #6b7280)`
+- 変更ファイル: FormulaNodeIntegration.stories.tsx
+- スクリーンショット: .screenshots/formulanodeintegration-sidebyside-after.png
+- テスト: 2623/2623 pass, typecheck pass
+- prd-inserted-tasks.md 全タスク完了 → tasks-archived/prd-inserted-tasks-7.md にアーカイブ
+---

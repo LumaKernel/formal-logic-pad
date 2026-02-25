@@ -14,5 +14,5 @@
     ダークモードでselectedなやつのタイトル部分がコントラストが悪い。
 - [x] http://localhost:13006/?path=/story/notebook-notebookcreateform--default → モード選択UIを削除、CreateFormValuesからmode除去
     クエストはあくまでもクエストのマップから選ぶときにクエストモードで自動的に開始されるというだけで、ユーザーがこのような画面で自分で選ぶものではない。
-- [ ] http://localhost:13006/?path=/story/infinitecanvas-formulanodeintegration--interactive&globals=theme:dark
+- [x] http://localhost:13006/?path=/story/infinitecanvas-formulanodeintegration--interactive&globals=theme:dark → ノードカードのCSS変数化
         文字だけ白くなるから見えにくいけど合ってるのかな？
