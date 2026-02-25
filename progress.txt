@@ -73,6 +73,33 @@
 
 ---
 
+## 2026-02-25 - クエストモード: クエストカタログ一覧UIコンポーネントの作成
+- `src/lib/quest/questCatalogListLogic.ts` を新規作成 - フィルタ状態管理、表示用テキスト生成（難易度ラベル、評価ラベル・カラー、ステップ数テキスト）
+- `src/lib/quest/questCatalogListLogic.test.ts` を新規作成 - 25テスト
+- `src/lib/quest/QuestCatalogComponent.tsx` を新規作成 - カテゴリ別グループ表示、難易度/完了フィルタ、評価バッジ、開始/再挑戦ボタン
+- `src/lib/quest/QuestCatalogComponent.test.tsx` を新規作成 - 26テスト（表示、フィルタ、クリック、キーボード、ホバー）
+- `src/lib/quest/QuestCatalogComponent.stories.tsx` を新規作成 - 6ストーリー（全play関数付き）
+- `src/lib/quest/index.ts` を更新 - 新モジュールのエクスポート追加
+- カバレッジ: Stmts 99.18% (↑0.02), Branch 94.40% (↓0.13), Funcs 91.23% (↓1.10), Lines 100% (維持)
+  - ベースライン: Stmts 99.16%, Branch 94.53%, Funcs 92.33%, Lines 100%
+  - Funcs低下はUIコンポーネント内のReactイベントハンドラ（mouseEnter等）がv8関数カウントに影響するため
+  - quest モジュール: Stmts 100%, Branch 92.85%, Lines 100%
+- テスト: 2461 全パス（57テスト追加）
+- ブラウザ確認: Playwright MCPで.screenshots/にスクリーンショット保存済み
+- 変更ファイル:
+  - `src/lib/quest/questCatalogListLogic.ts` (NEW)
+  - `src/lib/quest/questCatalogListLogic.test.ts` (NEW)
+  - `src/lib/quest/QuestCatalogComponent.tsx` (NEW)
+  - `src/lib/quest/QuestCatalogComponent.test.tsx` (NEW)
+  - `src/lib/quest/QuestCatalogComponent.stories.tsx` (NEW)
+  - `src/lib/quest/index.ts` (MODIFIED)
+  - `tasks/prd-logic-pad-world.md` - クエストモードタスク実行中マーク
+- **今後のイテレーションへの学び:**
+  - CSSの`border`ショートハンドと`borderColor`の混在はReactの警告を引き起こす。`borderWidth`+`borderStyle`+`borderColor`で分離すること
+  - questCatalog.tsの既存API（buildCatalogByCategory, filterByDifficulty等）は充実しているのでUI層は薄くできる
+  - 次のイテレーション候補: クエスト開始→ノートブック自動作成の統合、hook層の作成（useQuestProgress）
+---
+
 ## 2026-02-25 - クエストモード: 純粋ロジック層の作成
 - `src/lib/quest/questDefinition.ts` を新規作成 - クエスト定義の型、カテゴリ、ソート・グループ化ユーティリティ
 - `src/lib/quest/questDefinition.test.ts` を新規作成 - 17テスト
