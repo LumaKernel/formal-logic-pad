@@ -104,9 +104,9 @@
 
 **受け入れ基準:**
 
-- [ ] `dev/cut-elimination/README.md` を作成
-- [ ] 各ドキュメントへのリンクと概要（目次）
-- [ ] 参考文献一覧:
+- [x] `dev/cut-elimination/README.md` を作成
+- [x] 各ドキュメントへのリンクと概要（目次）
+- [x] 参考文献一覧:
   - Gentzen, G. "Untersuchungen über das logische Schließen" (1935) — 原典
   - Girard, J.-Y., Lafont, Y., Taylor, P. "Proofs and Types" (1989) — Chapter 13
   - Takeuti, G. "Proof Theory" (2nd ed., 1987)
@@ -114,7 +114,7 @@
   - Buss, S.R. "An Introduction to Proof Theory" in Handbook of Proof Theory (1998)
   - オンライン: nLab "cut elimination" (https://ncatlab.org/nlab/show/cut+elimination)
   - オンライン: Stanford Encyclopedia of Philosophy "Proof Theory" 関連項目
-- [ ] 用語索引（日本語・英語の対応付き）
+- [x] 用語索引（日本語・英語の対応付き）
   - 例: カット除去 / cut elimination、シーケント / sequent、主式 / principal formula、部分式性 / subformula property
 
 ## 機能要件
