@@ -3119,3 +3119,33 @@
   - proofNodeUI.tsのProofNodeStyleインターフェースを拡張する際は、CARD_BASE定数/getProofNodeStyle全分岐/テスト/SVGエクスポートの4箇所を同期
   - SVGエクスポートではCSS変数が使えないため、フォールバック値をハードコード定数（EXPORT_CARD_BG等）として別途管理する
 ---
+
+## 2026-02-26 - UIスタイル (US-S05: 接続線の手書き風スタイル)
+- 実装した内容:
+  - 接続線（PortConnection, Connection, ConnectionPreviewLine）に `strokeLinecap="round"` を追加（インクの溜まりのような丸み）
+  - SVG feTurbulence + feDisplacementMap フィルターによる手書き風の揺らぎを追加（`handDrawn` prop）
+  - PortConnection, Connection に `handDrawn` オプションプロパティを追加
+  - ProofWorkspace で LOD制御: scale >= 0.5 (fullAbove) の時のみ handDrawn フィルター適用（パフォーマンス配慮）
+  - 線色は US-S01 で既にCSS変数化済み（`--color-edge-axiom` 等）— 確認のみ
+- 変更したファイル:
+  - `src/lib/infinite-canvas/PortConnection.tsx` (MODIFIED - strokeLinecap round, handDrawn filter)
+  - `src/lib/infinite-canvas/Connection.tsx` (MODIFIED - strokeLinecap round, handDrawn filter)
+  - `src/lib/infinite-canvas/ConnectionPreviewLine.tsx` (MODIFIED - strokeLinecap round)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - handDrawnConnections LOD制御)
+  - `src/lib/infinite-canvas/PortConnection.test.tsx` (MODIFIED - strokeLinecap, handDrawn テスト追加)
+  - `src/lib/infinite-canvas/Connection.test.tsx` (MODIFIED - strokeLinecap, handDrawn テスト追加)
+  - `src/lib/infinite-canvas/ConnectionPreviewLine.test.tsx` (MODIFIED - strokeLinecap テスト追加)
+  - `tasks/prd-ui-style.md` (MODIFIED - US-S05完了)
+- カバレッジ: Stmts 99.32%, Branch 94.95%, Funcs 89.9%, Lines 99.89% (維持)
+- スクリーンショット:
+  - `.screenshots/us-s05-valid-mp-connections-light.png`
+  - `.screenshots/us-s05-goal-achieved-connections-light.png`
+  - `.screenshots/us-s05-valid-mp-connections-dark.png` (dark mode — 実質 `globals=theme:dark` で撮影、ただし反映されず)
+  - `.screenshots/us-s05-goal-achieved-connections-dark.png` (dark mode)
+- **今後のイテレーションへの学び:**
+  - PortConnectionとConnectionは構造がほぼ同一。両方に変更が必要な場合はセットで対応すること
+  - ConnectionPreviewLineも類似構造だが、handDrawnフィルターは不要（プレビュー線は一時的なので）
+  - SVG filterのidはReact useId()でユニーク化が必要（同一ページに複数のSVG filterが存在するため）
+  - LOD制御はdetailLevel計算と同じ閾値（DEFAULT_THRESHOLDS.fullAbove = 0.5）を使うことで一貫性を保つ
+  - Storybook iframe直接URLの場合、 `globals=theme:dark` でダークモードが適用される
+---

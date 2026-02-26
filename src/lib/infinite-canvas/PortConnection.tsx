@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useId } from "react";
 import type { ConnectorPortOnItem } from "./connector";
 import { computePortConnectionPath, type Obstacle } from "./connectionPath";
 import {
@@ -27,6 +27,8 @@ export interface PortConnectionProps {
   readonly label?: ReactNode;
   /** Vertical offset for the label from the line midpoint (default: -20) */
   readonly labelOffsetY?: number;
+  /** Enable hand-drawn style with SVG turbulence filter (optional, default false) */
+  readonly handDrawn?: boolean;
 }
 
 /** Width of the invisible hit area for click detection on port connections. */
@@ -47,10 +49,14 @@ export function PortConnection({
   onClick,
   label,
   labelOffsetY = -20,
+  handDrawn = false,
 }: PortConnectionProps) {
+  const filterId = useId();
   const path = computePortConnectionPath(from, to, viewport, obstacles);
   const clickable = onClick !== undefined;
   const hasLabel = label !== undefined;
+
+  const filterUrl = handDrawn ? `url(#${filterId satisfies string})` : undefined;
 
   const labelPos = hasLabel
     ? computeLabelScreenPosition(
@@ -71,6 +77,26 @@ export function PortConnection({
           overflow: "visible",
         }}
       >
+        {handDrawn && (
+          <defs>
+            <filter id={filterId} data-testid="hand-drawn-filter">
+              <feTurbulence
+                type="turbulence"
+                baseFrequency="0.03"
+                numOctaves={2}
+                seed={42}
+                result="turbulence"
+              />
+              <feDisplacementMap
+                in="SourceGraphic"
+                in2="turbulence"
+                scale={3}
+                xChannelSelector="R"
+                yChannelSelector="G"
+              />
+            </filter>
+          </defs>
+        )}
         {/* Background stroke for visibility behind items */}
         <path
           d={path.d}
@@ -78,7 +104,9 @@ export function PortConnection({
           stroke="white"
           strokeWidth={strokeWidth + 2}
           strokeDasharray="8 4"
+          strokeLinecap="round"
           opacity={0.6}
+          filter={filterUrl}
         />
         {/* Main stroke */}
         <path
@@ -88,7 +116,9 @@ export function PortConnection({
           stroke={color}
           strokeWidth={strokeWidth}
           strokeDasharray="8 4"
+          strokeLinecap="round"
           opacity={0.8}
+          filter={filterUrl}
         />
         {/* Invisible hit area for click detection */}
         {clickable && (

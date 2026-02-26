@@ -84,6 +84,35 @@ describe("Connection", () => {
     expect(path.getAttribute("stroke-dasharray")).toBe("8 4");
   });
 
+  it("applies stroke-linecap round on main and background paths", () => {
+    const { container } = render(
+      <Connection from={from} to={to} viewport={defaultViewport} />,
+    );
+    const paths = container.querySelectorAll("path");
+    expect(paths[0]?.getAttribute("stroke-linecap")).toBe("round");
+    expect(paths[1]?.getAttribute("stroke-linecap")).toBe("round");
+  });
+
+  it("does not render hand-drawn filter by default", () => {
+    render(<Connection from={from} to={to} viewport={defaultViewport} />);
+    expect(screen.queryByTestId("hand-drawn-filter")).not.toBeInTheDocument();
+  });
+
+  it("renders hand-drawn filter when handDrawn is true", () => {
+    render(
+      <Connection from={from} to={to} viewport={defaultViewport} handDrawn />,
+    );
+    expect(screen.getByTestId("hand-drawn-filter")).toBeInTheDocument();
+  });
+
+  it("applies filter to paths when handDrawn is true", () => {
+    render(
+      <Connection from={from} to={to} viewport={defaultViewport} handDrawn />,
+    );
+    const path = screen.getByTestId("connection-path");
+    expect(path.getAttribute("filter")).toMatch(/^url\(#/);
+  });
+
   it("renders with partial opacity", () => {
     render(<Connection from={from} to={to} viewport={defaultViewport} />);
     const path = screen.getByTestId("connection-path");

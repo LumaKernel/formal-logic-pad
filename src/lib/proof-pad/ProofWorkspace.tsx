@@ -72,7 +72,7 @@ import {
   deserializeClipboardData,
 } from "./copyPasteLogic";
 import type { ClipboardData } from "./copyPasteLogic";
-import { computeDetailLevel } from "./levelOfDetail";
+import { computeDetailLevel, DEFAULT_THRESHOLDS } from "./levelOfDetail";
 import {
   computeViewportBounds,
   isItemVisible,
@@ -1184,6 +1184,9 @@ export function ProofWorkspace({
 
   // --- 接続線のレンダリングデータ ---
 
+  // Hand-drawn filter is only applied at high zoom (full detail) for performance
+  const handDrawnConnections = viewport.scale >= DEFAULT_THRESHOLDS.fullAbove;
+
   const connectionElements = useMemo(
     () =>
       workspace.connections.map((conn) => {
@@ -1246,6 +1249,7 @@ export function ProofWorkspace({
             viewport={viewport}
             color={color}
             strokeWidth={2}
+            handDrawn={handDrawnConnections}
           />
         );
       }),
@@ -1257,6 +1261,7 @@ export function ProofWorkspace({
       viewportBounds,
       mpValidations,
       genValidations,
+      handDrawnConnections,
     ],
   );
 

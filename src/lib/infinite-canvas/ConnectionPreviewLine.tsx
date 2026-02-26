@@ -53,6 +53,7 @@ export function ConnectionPreviewLine({
         stroke="white"
         strokeWidth={strokeWidth + 2}
         strokeDasharray={style.strokeDasharray}
+        strokeLinecap="round"
         opacity={0.4}
       />
       {/* Main colored stroke */}
@@ -63,6 +64,7 @@ export function ConnectionPreviewLine({
         stroke={style.color}
         strokeWidth={strokeWidth}
         strokeDasharray={style.strokeDasharray}
+        strokeLinecap="round"
         opacity={style.opacity}
       />
       {/* Snap indicator at target when snapped */}

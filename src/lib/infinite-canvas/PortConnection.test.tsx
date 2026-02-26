@@ -75,6 +75,15 @@ describe("PortConnection", () => {
     expect(path.getAttribute("stroke-width")).toBe("2");
   });
 
+  it("applies stroke-linecap round on main and background paths", () => {
+    render(<PortConnection from={fromPort} to={toPort} viewport={viewport} />);
+
+    const svg = screen.getByTestId("port-connection");
+    const paths = svg.querySelectorAll("path");
+    expect(paths[0]?.getAttribute("stroke-linecap")).toBe("round");
+    expect(paths[1]?.getAttribute("stroke-linecap")).toBe("round");
+  });
+
   it("renders background stroke for visibility", () => {
     render(<PortConnection from={fromPort} to={toPort} viewport={viewport} />);
 
@@ -83,6 +92,36 @@ describe("PortConnection", () => {
     // 2 paths: background + main
     expect(paths).toHaveLength(2);
     expect(paths[0]?.getAttribute("stroke")).toBe("white");
+  });
+
+  it("does not render hand-drawn filter by default", () => {
+    render(<PortConnection from={fromPort} to={toPort} viewport={viewport} />);
+    expect(screen.queryByTestId("hand-drawn-filter")).not.toBeInTheDocument();
+  });
+
+  it("renders hand-drawn filter when handDrawn is true", () => {
+    render(
+      <PortConnection
+        from={fromPort}
+        to={toPort}
+        viewport={viewport}
+        handDrawn
+      />,
+    );
+    expect(screen.getByTestId("hand-drawn-filter")).toBeInTheDocument();
+  });
+
+  it("applies filter to paths when handDrawn is true", () => {
+    render(
+      <PortConnection
+        from={fromPort}
+        to={toPort}
+        viewport={viewport}
+        handDrawn
+      />,
+    );
+    const path = screen.getByTestId("port-connection-path");
+    expect(path.getAttribute("filter")).toMatch(/^url\(#/);
   });
 
   it("has pointer-events none on the SVG", () => {

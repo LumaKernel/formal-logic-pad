@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useId } from "react";
 import {
   computeSmartConnectionPath,
   type ConnectionEndpoint,
@@ -30,6 +30,8 @@ export interface ConnectionProps {
   readonly label?: ReactNode;
   /** Vertical offset for the label from the line midpoint (default: -20) */
   readonly labelOffsetY?: number;
+  /** Enable hand-drawn style with SVG turbulence filter (optional, default false) */
+  readonly handDrawn?: boolean;
 }
 
 /** Width of the invisible hit area for click detection on connections. */
@@ -51,10 +53,14 @@ export function Connection({
   onClick,
   label,
   labelOffsetY = -20,
+  handDrawn = false,
 }: ConnectionProps) {
+  const filterId = useId();
   const path = computeSmartConnectionPath(from, to, viewport, obstacles);
   const clickable = onClick !== undefined;
   const hasLabel = label !== undefined;
+
+  const filterUrl = handDrawn ? `url(#${filterId satisfies string})` : undefined;
 
   const labelPos = hasLabel
     ? computeLabelScreenPosition(
@@ -75,6 +81,26 @@ export function Connection({
           overflow: "visible",
         }}
       >
+        {handDrawn && (
+          <defs>
+            <filter id={filterId} data-testid="hand-drawn-filter">
+              <feTurbulence
+                type="turbulence"
+                baseFrequency="0.03"
+                numOctaves={2}
+                seed={42}
+                result="turbulence"
+              />
+              <feDisplacementMap
+                in="SourceGraphic"
+                in2="turbulence"
+                scale={3}
+                xChannelSelector="R"
+                yChannelSelector="G"
+              />
+            </filter>
+          </defs>
+        )}
         {/* Background stroke for visibility behind items */}
         <path
           d={path.d}
@@ -82,7 +108,9 @@ export function Connection({
           stroke="white"
           strokeWidth={strokeWidth + 2}
           strokeDasharray="8 4"
+          strokeLinecap="round"
           opacity={0.6}
+          filter={filterUrl}
         />
         {/* Main stroke */}
         <path
@@ -92,7 +120,9 @@ export function Connection({
           stroke={color}
           strokeWidth={strokeWidth}
           strokeDasharray="8 4"
+          strokeLinecap="round"
           opacity={0.8}
+          filter={filterUrl}
         />
         {/* Invisible hit area for click detection */}
         {clickable && (

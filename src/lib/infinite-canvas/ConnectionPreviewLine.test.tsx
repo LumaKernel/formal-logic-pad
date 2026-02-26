@@ -195,6 +195,24 @@ describe("ConnectionPreviewLine", () => {
     expect(d).toContain("L 230 280");
   });
 
+  it("applies stroke-linecap round on paths", () => {
+    const state: ConnectionPreviewState = {
+      sourceItemId: "source",
+      sourcePortOnItem,
+      mouseWorldPosition: { x: 200, y: 300 },
+      snappedTarget: null,
+      isValid: true,
+    };
+
+    const { container } = render(
+      <ConnectionPreviewLine state={state} viewport={defaultViewport} />,
+    );
+
+    const paths = container.querySelectorAll("path");
+    expect(paths[0]?.getAttribute("stroke-linecap")).toBe("round");
+    expect(paths[1]?.getAttribute("stroke-linecap")).toBe("round");
+  });
+
   it("has pointer-events none on the SVG", () => {
     const state: ConnectionPreviewState = {
       sourceItemId: "source",
