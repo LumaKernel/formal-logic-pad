@@ -26,6 +26,7 @@ const axiomDisplayNames: Readonly<Record<AxiomId, string>> = {
   A1: "A1 (K)",
   A2: "A2 (S)",
   A3: "A3",
+  M3: "M3",
   A4: "A4 (UI)",
   A5: "A5 (∀-Dist)",
   E1: "E1 (Refl)",

@@ -12,10 +12,12 @@ import {
   axiomA1Template,
   axiomA2Template,
   axiomA3Template,
+  axiomM3Template,
   axiomE1Template,
   axiomE2Template,
   axiomE3Template,
   lukasiewiczSystem,
+  mendelsonSystem,
   predicateLogicSystem,
   equalityLogicSystem,
 } from "./inferenceRule";
@@ -231,6 +233,44 @@ describe("matchPropositionalAxiom", () => {
         implication(psi, phi),
       );
       const result = matchPropositionalAxiom("A3", nonInstance);
+      expect(result._tag).toBe("Error");
+    });
+  });
+
+  describe("M3: 背理法 (¬φ → ¬ψ) → ((¬φ → ψ) → φ)", () => {
+    it("should match the template itself", () => {
+      const result = matchPropositionalAxiom("M3", axiomM3Template);
+      expect(result._tag).toBe("Ok");
+    });
+
+    it("should match a concrete instance", () => {
+      const p = predicate("P", []);
+      const q = predicate("Q", []);
+      // (¬P → ¬Q) → ((¬P → Q) → P)
+      const instance = implication(
+        implication(negation(p), negation(q)),
+        implication(implication(negation(p), q), p),
+      );
+      const result = matchPropositionalAxiom("M3", instance);
+      expect(result._tag).toBe("Ok");
+    });
+
+    it("should not match A3 template (A3 ≠ M3)", () => {
+      const result = matchPropositionalAxiom("M3", axiomA3Template);
+      expect(result._tag).toBe("Error");
+    });
+
+    it("A3 should not match M3 template", () => {
+      const result = matchPropositionalAxiom("A3", axiomM3Template);
+      expect(result._tag).toBe("Error");
+    });
+
+    it("should not match when structure differs", () => {
+      const nonInstance = implication(
+        implication(negation(phi), negation(psi)),
+        implication(psi, phi),
+      );
+      const result = matchPropositionalAxiom("M3", nonInstance);
       expect(result._tag).toBe("Error");
     });
   });
@@ -518,6 +558,16 @@ describe("LogicSystem", () => {
     expect(lukasiewiczSystem.generalization).toBe(false);
   });
 
+  it("Mendelson system has A1, A2, M3", () => {
+    expect(mendelsonSystem.propositionalAxioms.has("A1")).toBe(true);
+    expect(mendelsonSystem.propositionalAxioms.has("A2")).toBe(true);
+    expect(mendelsonSystem.propositionalAxioms.has("M3")).toBe(true);
+    expect(mendelsonSystem.propositionalAxioms.has("A3")).toBe(false);
+    expect(mendelsonSystem.predicateLogic).toBe(false);
+    expect(mendelsonSystem.equalityLogic).toBe(false);
+    expect(mendelsonSystem.generalization).toBe(false);
+  });
+
   it("Predicate logic system has A1-A3 + predicateLogic + Gen", () => {
     expect(predicateLogicSystem.propositionalAxioms.has("A1")).toBe(true);
     expect(predicateLogicSystem.predicateLogic).toBe(true);
@@ -560,6 +610,37 @@ describe("identifyAxiom", () => {
     expect(result._tag).toBe("Ok");
     if (result._tag === "Ok") {
       expect(result.axiomId).toBe("A3");
+    }
+  });
+
+  it("should identify M3 instance in mendelson system", () => {
+    const result = identifyAxiom(axiomM3Template, mendelsonSystem);
+    expect(result._tag).toBe("Ok");
+    if (result._tag === "Ok") {
+      expect(result.axiomId).toBe("M3");
+    }
+  });
+
+  it("should not identify M3 in lukasiewicz system", () => {
+    const result = identifyAxiom(axiomM3Template, lukasiewiczSystem);
+    expect(result._tag).toBe("Error");
+  });
+
+  it("should not identify A3 in mendelson system", () => {
+    const result = identifyAxiom(axiomA3Template, mendelsonSystem);
+    expect(result._tag).toBe("Error");
+  });
+
+  it("should identify A1 and A2 in mendelson system", () => {
+    const a1Result = identifyAxiom(axiomA1Template, mendelsonSystem);
+    expect(a1Result._tag).toBe("Ok");
+    if (a1Result._tag === "Ok") {
+      expect(a1Result.axiomId).toBe("A1");
+    }
+    const a2Result = identifyAxiom(axiomA2Template, mendelsonSystem);
+    expect(a2Result._tag).toBe("Ok");
+    if (a2Result._tag === "Ok") {
+      expect(a2Result.axiomId).toBe("A2");
     }
   });
 

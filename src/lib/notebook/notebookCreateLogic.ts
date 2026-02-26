@@ -10,6 +10,7 @@
 import type { LogicSystem } from "../logic-core/inferenceRule";
 import {
   lukasiewiczSystem,
+  mendelsonSystem,
   predicateLogicSystem,
   equalityLogicSystem,
 } from "../logic-core/inferenceRule";
@@ -31,6 +32,13 @@ export const systemPresets: readonly SystemPreset[] = [
     label: "Łukasiewicz（命題論理）",
     description: "A1, A2, A3 + Modus Ponens。命題論理の基本体系。",
     system: lukasiewiczSystem,
+  },
+  {
+    id: "mendelson",
+    label: "Mendelson（命題論理）",
+    description:
+      "A1, A2, M3 + Modus Ponens。背理法公理を使う命題論理体系。",
+    system: mendelsonSystem,
   },
   {
     id: "predicate",

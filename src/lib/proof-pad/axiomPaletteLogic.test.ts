@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { getAvailableAxioms } from "./axiomPaletteLogic";
 import {
   lukasiewiczSystem,
+  mendelsonSystem,
   predicateLogicSystem,
   equalityLogicSystem,
 } from "../logic-core/inferenceRule";
@@ -13,6 +14,25 @@ describe("axiomPalette", () => {
       const items = getAvailableAxioms(lukasiewiczSystem);
       const ids = items.map((i) => i.id);
       expect(ids).toEqual(["A1", "A2", "A3"]);
+    });
+
+    it("returns A1, A2, M3 for Mendelson system", () => {
+      const items = getAvailableAxioms(mendelsonSystem);
+      const ids = items.map((i) => i.id);
+      expect(ids).toEqual(["A1", "A2", "M3"]);
+    });
+
+    it("provides correct displayName for Mendelson axioms", () => {
+      const items = getAvailableAxioms(mendelsonSystem);
+      expect(items[0].displayName).toBe("A1 (K)");
+      expect(items[1].displayName).toBe("A2 (S)");
+      expect(items[2].displayName).toBe("M3");
+    });
+
+    it("provides dslText for M3", () => {
+      const items = getAvailableAxioms(mendelsonSystem);
+      const m3 = items.find((i) => i.id === "M3");
+      expect(m3?.dslText).toBe("(~phi -> ~psi) -> ((~phi -> psi) -> phi)");
     });
 
     it("returns A1-A5 for predicate logic system", () => {

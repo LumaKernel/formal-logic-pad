@@ -8,7 +8,10 @@ import {
   createNotebook,
   createQuestNotebook,
 } from "./notebookState";
-import { lukasiewiczSystem } from "../logic-core/inferenceRule";
+import {
+  lukasiewiczSystem,
+  mendelsonSystem,
+} from "../logic-core/inferenceRule";
 
 describe("notebookSerialization", () => {
   describe("serializeCollection / deserializeCollection ラウンドトリップ", () => {
@@ -44,6 +47,31 @@ describe("notebookSerialization", () => {
         restored.notebooks[0]?.workspace.system.propositionalAxioms.has("A3"),
       ).toBe(true);
       expect(restored.nextId).toBe(col.nextId);
+    });
+
+    it("Mendelson体系のノートブックをラウンドトリップできる", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "Mendelsonノート",
+        system: mendelsonSystem,
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      expect(restored.notebooks.length).toBe(1);
+      expect(restored.notebooks[0]?.workspace.system.name).toBe("Mendelson");
+      expect(
+        restored.notebooks[0]?.workspace.system.propositionalAxioms.has("A1"),
+      ).toBe(true);
+      expect(
+        restored.notebooks[0]?.workspace.system.propositionalAxioms.has("A2"),
+      ).toBe(true);
+      expect(
+        restored.notebooks[0]?.workspace.system.propositionalAxioms.has("M3"),
+      ).toBe(true);
+      expect(
+        restored.notebooks[0]?.workspace.system.propositionalAxioms.has("A3"),
+      ).toBe(false);
     });
 
     it("複数ノートブックを含むコレクションをラウンドトリップできる", () => {
@@ -516,6 +544,25 @@ describe("notebookSerialization", () => {
       ).toBe(true);
       expect(parsed.notebooks[0]?.workspace.system.propositionalAxioms).toEqual(
         ["A1", "A2", "A3"],
+      );
+    });
+
+    it("Mendelson体系のpropositionalAxiomsがArrayとしてシリアライズされる", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "test",
+        system: mendelsonSystem,
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const parsed = JSON.parse(json) as {
+        notebooks: readonly {
+          workspace: {
+            system: { propositionalAxioms: readonly string[] };
+          };
+        }[];
+      };
+      expect(parsed.notebooks[0]?.workspace.system.propositionalAxioms).toEqual(
+        ["A1", "A2", "M3"],
       );
     });
   });

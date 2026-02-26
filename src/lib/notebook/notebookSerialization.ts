@@ -21,7 +21,12 @@ import { createEmptyCollection } from "./notebookState";
 
 // --- バリデーション ---
 
-const VALID_AXIOM_IDS: ReadonlySet<string> = new Set(["A1", "A2", "A3"]);
+const VALID_AXIOM_IDS: ReadonlySet<string> = new Set([
+  "A1",
+  "A2",
+  "A3",
+  "M3",
+]);
 
 function validateAxiomId(value: unknown): PropositionalAxiomId | undefined {
   if (typeof value === "string" && VALID_AXIOM_IDS.has(value)) {

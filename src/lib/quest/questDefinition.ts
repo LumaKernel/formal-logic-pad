@@ -101,7 +101,11 @@ export function findCategoryById(
  * クエストが使用する公理系のプリセットID。
  * notebookCreateLogic.ts の systemPresets と一致させる。
  */
-export type SystemPresetId = "lukasiewicz" | "predicate" | "equality";
+export type SystemPresetId =
+  | "lukasiewicz"
+  | "mendelson"
+  | "predicate"
+  | "equality";
 
 // --- クエスト定義 ---
 

@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { identifyAxiomName, getAxiomDisplayName } from "./axiomNameLogic";
 import {
   lukasiewiczSystem,
+  mendelsonSystem,
   equalityLogicSystem,
 } from "../logic-core/inferenceRule";
 import type { LogicSystem } from "../logic-core/inferenceRule";
@@ -70,6 +71,25 @@ describe("axiomNameLogic", () => {
           expect(result.axiomId).toBe("A3");
           expect(result.displayName).toBe("A3");
         }
+      });
+    });
+
+    // --- M3 (背理法) ---
+    describe("M3", () => {
+      it("identifies exact M3 template in mendelson system", () => {
+        const formula = parseFormula("(~phi -> ~psi) -> ((~phi -> psi) -> phi)");
+        const result = identifyAxiomName(formula, mendelsonSystem);
+        expect(result._tag).toBe("Identified");
+        if (result._tag === "Identified") {
+          expect(result.axiomId).toBe("M3");
+          expect(result.displayName).toBe("M3");
+        }
+      });
+
+      it("does not identify M3 in lukasiewicz system", () => {
+        const formula = parseFormula("(~phi -> ~psi) -> ((~phi -> psi) -> phi)");
+        const result = identifyAxiomName(formula, lukasiewiczSystem);
+        expect(result._tag).toBe("NotIdentified");
       });
     });
 
@@ -188,6 +208,10 @@ describe("axiomNameLogic", () => {
 
     it("returns display name for A3", () => {
       expect(getAxiomDisplayName("A3")).toBe("A3");
+    });
+
+    it("returns display name for M3", () => {
+      expect(getAxiomDisplayName("M3")).toBe("M3");
     });
 
     it("returns display name for A4", () => {

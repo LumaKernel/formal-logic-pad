@@ -22,9 +22,11 @@ import {
 import { termVariable } from "./term";
 import {
   lukasiewiczSystem,
+  mendelsonSystem,
   predicateLogicSystem,
   axiomA1Template,
   axiomA2Template,
+  axiomM3Template,
   applySubstitution,
 } from "./inferenceRule";
 import { buildFormulaSubstitutionMap } from "./substitution";
@@ -253,6 +255,23 @@ describe("validateProof", () => {
       expect(result._tag).toBe("Valid");
     });
 
+    it("validates a valid M3 instance in mendelson system", () => {
+      // M3: (¬φ → ¬ψ) → ((¬φ → ψ) → φ)
+      const m3Instance = implication(
+        implication(negation(phi), negation(psi)),
+        implication(implication(negation(phi), psi), phi),
+      );
+      const proof = axiomNode(m3Instance);
+      const result = validateProof(proof, mendelsonSystem);
+      expect(result._tag).toBe("Valid");
+    });
+
+    it("rejects M3 in lukasiewicz system", () => {
+      const proof = axiomNode(axiomM3Template);
+      const result = validateProof(proof, lukasiewiczSystem);
+      expect(result._tag).toBe("Invalid");
+    });
+
     it("rejects a non-axiom formula", () => {
       const proof = axiomNode(phi);
       const result = validateProof(proof, lukasiewiczSystem);
@@ -427,6 +446,12 @@ describe("validateProof", () => {
     it("validates the complete φ→φ proof", () => {
       const proof = buildPhiImpliesPhiProof(phi);
       const result = validateProof(proof, lukasiewiczSystem);
+      expect(result._tag).toBe("Valid");
+    });
+
+    it("validates φ→φ proof in mendelson system (A1, A2 shared)", () => {
+      const proof = buildPhiImpliesPhiProof(phi);
+      const result = validateProof(proof, mendelsonSystem);
       expect(result._tag).toBe("Valid");
     });
 

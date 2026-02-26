@@ -33,9 +33,10 @@ describe("systemPresets", () => {
     }
   });
 
-  it("includes lukasiewicz, predicate, and equality presets", () => {
+  it("includes lukasiewicz, mendelson, predicate, and equality presets", () => {
     const ids = systemPresets.map((p) => p.id);
     expect(ids).toContain("lukasiewicz");
+    expect(ids).toContain("mendelson");
     expect(ids).toContain("predicate");
     expect(ids).toContain("equality");
   });
@@ -83,6 +84,12 @@ describe("validateCreateForm", () => {
 
   it("valid form returns valid: true", () => {
     expect(validateCreateForm(validValues)).toEqual({ valid: true });
+  });
+
+  it("valid form with mendelson system", () => {
+    expect(
+      validateCreateForm({ ...validValues, systemPresetId: "mendelson" }),
+    ).toEqual({ valid: true });
   });
 
   it("valid form with predicate system", () => {

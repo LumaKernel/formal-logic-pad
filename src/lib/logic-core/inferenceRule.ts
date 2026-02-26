@@ -35,8 +35,21 @@ import { freeVariablesInFormula } from "./freeVariables";
 
 /**
  * 命題論理の公理スキーマID。
+ *
+ * - A1 (K公理): φ → (ψ → φ) — 全体系共通
+ * - A2 (S公理): (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ)) — 全体系共通
+ * - A3 (対偶): (¬φ → ¬ψ) → (ψ → φ) — Łukasiewicz体系
+ * - M3 (背理法): (¬φ → ¬ψ) → ((¬φ → ψ) → φ) — Mendelson体系
+ *
+ * 新しい命題論理公理を追加する場合:
+ *   1. ここに ID を追加
+ *   2. テンプレートを追加 (axiomXXTemplate)
+ *   3. getPropositionalAxiomTemplate の switch に追加
+ *   4. axiomNameLogic.ts の axiomDisplayNames に追加
+ *   5. axiomPaletteLogic.ts の propositionalAxiomMetas に追加
+ *   6. notebookSerialization.ts の VALID_AXIOM_IDS に追加
  */
-export type PropositionalAxiomId = "A1" | "A2" | "A3";
+export type PropositionalAxiomId = "A1" | "A2" | "A3" | "M3";
 
 /**
  * 述語論理の追加公理スキーマID。
@@ -78,10 +91,21 @@ export const axiomA2Template: Formula = implication(
 
 /**
  * A3: 対偶公理 (¬φ → ¬ψ) → (ψ → φ)
+ * Łukasiewicz体系で使用
  */
 export const axiomA3Template: Formula = implication(
   implication(negation(phi), negation(psi)),
   implication(psi, phi),
+);
+
+/**
+ * M3: 背理法 (¬φ → ¬ψ) → ((¬φ → ψ) → φ)
+ * Mendelson体系で使用
+ * @see dev/logic-reference/07-axiom-systems-survey.md §3.2
+ */
+export const axiomM3Template: Formula = implication(
+  implication(negation(phi), negation(psi)),
+  implication(implication(negation(phi), psi), phi),
 );
 
 /**
@@ -150,7 +174,21 @@ export const lukasiewiczSystem: LogicSystem = {
 };
 
 /**
- * 述語論理体系: A1-A5 + MP + Gen
+ * Mendelson体系: A1, A2, M3 + MP
+ * A1, A2 はŁukasiewiczと共通。M3（背理法）はA3（対偶）の代替。
+ * 古典命題論理として等価だが、公理の形が異なる。
+ * @see dev/logic-reference/07-axiom-systems-survey.md §3.2
+ */
+export const mendelsonSystem: LogicSystem = {
+  name: "Mendelson",
+  propositionalAxioms: new Set(["A1", "A2", "M3"]),
+  predicateLogic: false,
+  equalityLogic: false,
+  generalization: false,
+};
+
+/**
+ * 述語論理体系（Łukasiewicz基盤）: A1-A5 + MP + Gen
  */
 export const predicateLogicSystem: LogicSystem = {
   name: "Predicate Logic",
@@ -417,7 +455,7 @@ const axiomMatchErr = (error: RuleApplicationError): AxiomMatchResult => ({
 });
 
 /**
- * 命題論理公理 (A1, A2, A3) のインスタンスか判定。
+ * 命題論理公理 (A1, A2, A3, M3) のインスタンスか判定。
  */
 export const matchPropositionalAxiom = (
   axiomId: PropositionalAxiomId,
@@ -441,6 +479,8 @@ const getPropositionalAxiomTemplate = (
       return axiomA2Template;
     case "A3":
       return axiomA3Template;
+    case "M3":
+      return axiomM3Template;
   }
   /* v8 ignore start */
   axiomId satisfies never;
@@ -687,7 +727,12 @@ export const identifyAxiom = (
   formula: Formula,
   system: LogicSystem,
 ): AxiomIdentificationResult => {
-  const propAxiomIds: readonly PropositionalAxiomId[] = ["A1", "A2", "A3"];
+  const propAxiomIds: readonly PropositionalAxiomId[] = [
+    "A1",
+    "A2",
+    "A3",
+    "M3",
+  ];
   for (const axiomId of propAxiomIds) {
     if (system.propositionalAxioms.has(axiomId)) {
       const result = matchPropositionalAxiom(axiomId, formula);
