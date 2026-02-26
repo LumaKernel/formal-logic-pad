@@ -100,6 +100,16 @@ export {
   getAxiomNodeIds,
 } from "./nodeRoleLogic";
 export type { NodeRole, NodeClassification } from "./nodeRoleLogic";
+export {
+  computeDetailLevel,
+  getDetailVisibility,
+  DEFAULT_THRESHOLDS,
+} from "./levelOfDetail";
+export type {
+  DetailLevel,
+  DetailLevelThresholds,
+  DetailVisibility,
+} from "./levelOfDetail";
 export { identifyAxiomName, getAxiomDisplayName } from "./axiomNameLogic";
 export type { AxiomNameResult } from "./axiomNameLogic";
 export { parseGoalFormula, checkGoal } from "./goalCheckLogic";

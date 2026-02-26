@@ -17,6 +17,8 @@ import { computeParseState } from "../formula-input/FormulaInput";
 import type { ProofNodeKind } from "./proofNodeUI";
 import { getProofNodeStyle } from "./proofNodeUI";
 import type { NodeRole, NodeClassification } from "./nodeRoleLogic";
+import type { DetailLevel } from "./levelOfDetail";
+import { getDetailVisibility } from "./levelOfDetail";
 
 // --- Props ---
 
@@ -59,6 +61,8 @@ export interface EditableProofNodeProps {
   readonly axiomName?: string;
   /** 依存する公理ノードのリスト（導出ノードのみ表示） */
   readonly dependencies?: readonly DependencyInfo[];
+  /** 表示詳細度（ズームレベルに応じた簡略表示、デフォルト: "full"） */
+  readonly detailLevel?: DetailLevel;
   /** data-testid */
   readonly testId?: string;
 }
@@ -238,9 +242,11 @@ export function EditableProofNode({
   isProtected = false,
   axiomName,
   dependencies,
+  detailLevel = "full",
   testId,
 }: EditableProofNodeProps) {
   const nodeStyle = useMemo(() => getProofNodeStyle(kind), [kind]);
+  const visibility = useMemo(() => getDetailVisibility(detailLevel), [detailLevel]);
 
   const containerStyle: CSSProperties = useMemo(
     () => ({
@@ -320,13 +326,15 @@ export function EditableProofNode({
     <div data-testid={testId} style={containerStyle}>
       <div
         style={
-          classification || isProtected || axiomName
+          (visibility.showRoleBadge && classification) ||
+          (visibility.showProtectedBadge && isProtected) ||
+          (visibility.showAxiomName && axiomName)
             ? headerRowStyle
             : undefined
         }
       >
         <div style={labelStyle}>{label}</div>
-        {axiomName ? (
+        {visibility.showAxiomName && axiomName ? (
           <div
             style={axiomNameBadgeStyle}
             title={`Identified as axiom: ${axiomName satisfies string}`}
@@ -337,7 +345,7 @@ export function EditableProofNode({
             {axiomName}
           </div>
         ) : null}
-        {isProtected ? (
+        {visibility.showProtectedBadge && isProtected ? (
           <div
             style={protectedBadgeStyle}
             title="Protected quest goal (read-only)"
@@ -348,7 +356,7 @@ export function EditableProofNode({
             QUEST
           </div>
         ) : null}
-        {classification ? (
+        {visibility.showRoleBadge && classification ? (
           <div
             style={getRoleBadgeStyle(classification)}
             onClick={
@@ -371,35 +379,37 @@ export function EditableProofNode({
           </div>
         ) : null}
       </div>
-      {effectiveEditable ? (
-        <FormulaEditor
-          value={formulaText}
-          onChange={handleFormulaChange}
-          onParsed={handleFormulaParsed}
-          onModeChange={handleModeChange}
-          displayRenderer="unicode"
-          placeholder="Click to edit formula..."
-          testId={testId ? `${testId satisfies string}-editor` : undefined}
-          style={{
-            color: nodeStyle.textColor,
-            minHeight: 20,
-          }}
-        />
-      ) : (
-        <div
-          style={formulaContainerReadonlyStyle}
-          data-testid={
-            testId ? `${testId satisfies string}-formula` : undefined
-          }
-        >
-          {readonlyFormula ? (
-            <FormulaDisplay formula={readonlyFormula} fontSize={13} />
-          ) : (
-            formulaText
-          )}
-        </div>
-      )}
-      {statusMessage ? (
+      {visibility.showFormula ? (
+        effectiveEditable ? (
+          <FormulaEditor
+            value={formulaText}
+            onChange={handleFormulaChange}
+            onParsed={handleFormulaParsed}
+            onModeChange={handleModeChange}
+            displayRenderer="unicode"
+            placeholder="Click to edit formula..."
+            testId={testId ? `${testId satisfies string}-editor` : undefined}
+            style={{
+              color: nodeStyle.textColor,
+              minHeight: 20,
+            }}
+          />
+        ) : (
+          <div
+            style={formulaContainerReadonlyStyle}
+            data-testid={
+              testId ? `${testId satisfies string}-formula` : undefined
+            }
+          >
+            {readonlyFormula ? (
+              <FormulaDisplay formula={readonlyFormula} fontSize={13} />
+            ) : (
+              formulaText
+            )}
+          </div>
+        )
+      ) : null}
+      {visibility.showStatus && statusMessage ? (
         <div
           style={statusType === "error" ? statusErrorStyle : statusSuccessStyle}
           data-testid={testId ? `${testId satisfies string}-status` : undefined}
@@ -407,7 +417,7 @@ export function EditableProofNode({
           {statusMessage}
         </div>
       ) : null}
-      {dependencies && dependencies.length > 0 ? (
+      {visibility.showDependencies && dependencies && dependencies.length > 0 ? (
         <div
           style={dependencyContainerStyle}
           data-testid={

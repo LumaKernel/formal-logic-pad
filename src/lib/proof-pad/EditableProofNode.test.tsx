@@ -531,4 +531,88 @@ describe("EditableProofNode", () => {
       expect(screen.getByTestId("test-node-dependencies")).toBeInTheDocument();
     });
   });
+
+  describe("detailLevel (Level-of-Detail)", () => {
+    const fullProps = {
+      classification: "root-axiom" as const,
+      axiomName: "A1 (K)",
+      isProtected: true,
+      statusMessage: "Valid",
+      statusType: "success" as const,
+      dependencies: [{ nodeId: "dep-1", displayName: "Dep1" }],
+    };
+
+    it("detailLevel='full'（デフォルト）ですべて表示される", () => {
+      renderNode(fullProps);
+      expect(screen.getByTestId("test-node-role-badge")).toBeInTheDocument();
+      expect(screen.getByTestId("test-node-axiom-name")).toBeInTheDocument();
+      expect(
+        screen.getByTestId("test-node-protected-badge"),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId("test-node-status")).toBeInTheDocument();
+      expect(screen.getByTestId("test-node-dependencies")).toBeInTheDocument();
+      // formula displayed (readonly because isProtected)
+      expect(screen.getByTestId("test-node-formula")).toBeInTheDocument();
+    });
+
+    it("detailLevel='compact'でバッジ・ステータス・依存を非表示、数式は表示", () => {
+      renderNode({ ...fullProps, detailLevel: "compact" });
+      expect(
+        screen.queryByTestId("test-node-role-badge"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("test-node-axiom-name"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("test-node-protected-badge"),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId("test-node-status")).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("test-node-dependencies"),
+      ).not.toBeInTheDocument();
+      // formula is still displayed
+      expect(screen.getByTestId("test-node-formula")).toBeInTheDocument();
+    });
+
+    it("detailLevel='minimal'ですべて非表示（ラベルのみ）", () => {
+      renderNode({ ...fullProps, detailLevel: "minimal" });
+      // ラベルは常に表示
+      expect(screen.getByText("A1")).toBeInTheDocument();
+      // 数式も非表示
+      expect(screen.queryByTestId("test-node-formula")).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("test-node-editor-display"),
+      ).not.toBeInTheDocument();
+      // バッジ・ステータスも非表示
+      expect(
+        screen.queryByTestId("test-node-role-badge"),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId("test-node-status")).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("test-node-dependencies"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("detailLevel='compact'で編集可能ノードの数式エディタが表示される", () => {
+      renderNode({
+        detailLevel: "compact",
+        editable: true,
+        isProtected: false,
+      });
+      expect(
+        screen.getByTestId("test-node-editor-display"),
+      ).toBeInTheDocument();
+    });
+
+    it("detailLevel='minimal'で編集可能ノードの数式エディタも非表示", () => {
+      renderNode({
+        detailLevel: "minimal",
+        editable: true,
+        isProtected: false,
+      });
+      expect(
+        screen.queryByTestId("test-node-editor-display"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });

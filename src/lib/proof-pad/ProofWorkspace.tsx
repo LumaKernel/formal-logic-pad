@@ -76,6 +76,7 @@ import {
   deserializeClipboardData,
 } from "./copyPasteLogic";
 import type { ClipboardData } from "./copyPasteLogic";
+import { computeDetailLevel } from "./levelOfDetail";
 
 // --- Props ---
 
@@ -1036,6 +1037,13 @@ export function ProofWorkspace({
     [workspace, nodeSizes, viewport, mpValidations, genValidations],
   );
 
+  // --- Level-of-Detail ---
+
+  const detailLevel = useMemo(
+    () => computeDetailLevel(viewport.scale),
+    [viewport.scale],
+  );
+
   // --- ノードのレンダリング ---
 
   const renderNode = useCallback(
@@ -1112,6 +1120,7 @@ export function ProofWorkspace({
               isProtected={isNodeProtected(workspace, node.id)}
               axiomName={axiomNames.get(node.id)}
               dependencies={getNodeDependencyInfos(node.id)}
+              detailLevel={detailLevel}
               testId={`proof-node-${node.id satisfies string}`}
             />
           </div>
@@ -1121,6 +1130,7 @@ export function ProofWorkspace({
     [
       workspace,
       viewport,
+      detailLevel,
       editingNodeIds,
       isSelectionActive,
       selectedNodeIds,

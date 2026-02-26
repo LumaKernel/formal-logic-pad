@@ -10,6 +10,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { EditableProofNode } from "./EditableProofNode";
 import type { ProofNodeKind } from "./proofNodeUI";
+import type { DetailLevel } from "./levelOfDetail";
 import { InfiniteCanvas } from "../infinite-canvas/InfiniteCanvas";
 import { CanvasItem } from "../infinite-canvas/CanvasItem";
 import type { Point, ViewportState } from "../infinite-canvas/types";
@@ -243,6 +244,128 @@ export const ReadOnly: Story = {
     // FormulaEditorのdisplayモード要素がない
     expect(
       canvas.queryByTestId("ro-axiom-editor-display"),
+    ).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * Level-of-Detail デモ。
+ * 3つのDetailLevel（full/compact/minimal）を横に並べて比較。
+ */
+export const LevelOfDetail: Story = {
+  render: () => {
+    const levels: readonly DetailLevel[] = ["full", "compact", "minimal"];
+    return (
+      <div style={{ padding: 24 }}>
+        <div style={{ display: "flex", gap: 32, alignItems: "flex-start" }}>
+          {levels.map((level) => (
+            <div key={level}>
+              <div
+                style={{
+                  fontFamily: "monospace",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  marginBottom: 12,
+                  textTransform: "uppercase",
+                }}
+              >
+                {level}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                }}
+              >
+                <EditableProofNode
+                  id={`lod-axiom-${level satisfies string}`}
+                  kind="axiom"
+                  label="A1 (K)"
+                  formulaText="φ → (ψ → φ)"
+                  onFormulaTextChange={() => {}}
+                  editable={false}
+                  classification="root-axiom"
+                  axiomName="A1 (K)"
+                  detailLevel={level}
+                  testId={`lod-axiom-${level satisfies string}`}
+                />
+                <EditableProofNode
+                  id={`lod-mp-${level satisfies string}`}
+                  kind="mp"
+                  label="MP"
+                  formulaText="(φ→(φ→φ)) → (φ→φ)"
+                  onFormulaTextChange={() => {}}
+                  editable={false}
+                  statusMessage="MP successfully applied"
+                  statusType="success"
+                  classification="derived"
+                  dependencies={[
+                    { nodeId: "a1", displayName: "A1 (K)" },
+                    { nodeId: "a2", displayName: "A2 (S)" },
+                  ]}
+                  detailLevel={level}
+                  testId={`lod-mp-${level satisfies string}`}
+                />
+                <EditableProofNode
+                  id={`lod-goal-${level satisfies string}`}
+                  kind="conclusion"
+                  label="Goal"
+                  formulaText="φ → φ"
+                  onFormulaTextChange={() => {}}
+                  editable={false}
+                  classification="root-goal"
+                  isProtected={true}
+                  detailLevel={level}
+                  testId={`lod-goal-${level satisfies string}`}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // full level shows all elements
+    await expect(
+      canvas.getByTestId("lod-axiom-full-role-badge"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("lod-axiom-full-axiom-name"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("lod-mp-full-status"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("lod-mp-full-dependencies"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("lod-goal-full-protected-badge"),
+    ).toBeInTheDocument();
+
+    // compact level hides badges/status/dependencies but shows formula
+    expect(
+      canvas.queryByTestId("lod-axiom-compact-role-badge"),
+    ).not.toBeInTheDocument();
+    expect(
+      canvas.queryByTestId("lod-mp-compact-status"),
+    ).not.toBeInTheDocument();
+    expect(
+      canvas.queryByTestId("lod-mp-compact-dependencies"),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("lod-mp-compact-formula"),
+    ).toBeInTheDocument();
+
+    // minimal level hides everything including formula
+    expect(
+      canvas.queryByTestId("lod-axiom-minimal-formula"),
+    ).not.toBeInTheDocument();
+    expect(
+      canvas.queryByTestId("lod-mp-minimal-status"),
     ).not.toBeInTheDocument();
   },
 };
