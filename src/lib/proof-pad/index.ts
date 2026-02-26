@@ -164,3 +164,15 @@ export type {
   NodeSizeMap,
   SVGExportOptions,
 } from "./workspaceImageExport";
+export {
+  defaultProofMessages,
+  getMPErrorMessageKey,
+  getGenErrorMessageKey,
+  formatMessage,
+} from "./proofMessages";
+export type { ProofMessages } from "./proofMessages";
+export {
+  ProofMessagesProvider,
+  useProofMessages,
+} from "./ProofMessagesContext";
+export type { ProofMessagesProviderProps } from "./ProofMessagesContext";

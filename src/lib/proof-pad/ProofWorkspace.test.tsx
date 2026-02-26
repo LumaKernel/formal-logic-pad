@@ -1665,7 +1665,7 @@ describe("ProofWorkspace", () => {
       await waitFor(() => {
         expect(
           screen.getByTestId("workspace-selection-banner"),
-        ).toHaveTextContent("1 node selected");
+        ).toHaveTextContent("1 node(s) selected");
       });
     });
 
@@ -1690,7 +1690,7 @@ describe("ProofWorkspace", () => {
       await waitFor(() => {
         expect(
           screen.getByTestId("workspace-selection-banner"),
-        ).toHaveTextContent("2 nodes selected");
+        ).toHaveTextContent("2 node(s) selected");
       });
     });
 
@@ -1886,7 +1886,7 @@ describe("ProofWorkspace", () => {
       await waitFor(() => {
         expect(
           screen.getByTestId("workspace-selection-banner"),
-        ).toHaveTextContent("2 nodes selected");
+        ).toHaveTextContent("2 node(s) selected");
       });
     });
 
@@ -1910,7 +1910,7 @@ describe("ProofWorkspace", () => {
       await waitFor(() => {
         expect(
           screen.getByTestId("workspace-selection-banner"),
-        ).toHaveTextContent("1 node selected");
+        ).toHaveTextContent("1 node(s) selected");
       });
     });
 

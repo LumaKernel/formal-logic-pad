@@ -529,6 +529,6 @@ export const SubtreeSelection: Story = {
     // node-1からの子孫: node-1 → node-3 → node-5 = 3ノード
     await expect(
       canvas.getByTestId("workspace-selection-banner"),
-    ).toHaveTextContent("3 nodes selected");
+    ).toHaveTextContent("3 node(s) selected");
   },
 };

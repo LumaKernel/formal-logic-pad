@@ -1,10 +1,13 @@
 "use client";
 
-import { useCallback, type CSSProperties } from "react";
+import { useCallback, useMemo, type CSSProperties } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useNotebookCollection, findNotebook } from "../../../lib/notebook";
 import { ProofWorkspace } from "../../../lib/proof-pad";
 import type { GoalAchievedInfo } from "../../../lib/proof-pad";
+import { ProofMessagesProvider } from "../../../lib/proof-pad";
+import type { ProofMessages } from "../../../lib/proof-pad";
 import type { WorkspaceState } from "../../../lib/proof-pad/workspaceState";
 import { useQuestProgress } from "../../../lib/quest";
 import { ThemeProvider } from "../../../lib/theme/ThemeProvider";
@@ -77,11 +80,66 @@ const notFoundStyle: CSSProperties = {
   color: "var(--color-text-secondary, #666)",
 };
 
+/** next-intl の翻訳から ProofMessages オブジェクトを構築するフック */
+function useProofMessagesFromIntl(): ProofMessages {
+  const t = useTranslations("ProofWorkspace");
+  return useMemo((): ProofMessages => ({
+    mpApply: t("mpApply"),
+    mpCancel: t("mpCancel"),
+    mpApplied: t("mpApplied"),
+    mpErrorBothMissing: t("mpErrorBothMissing"),
+    mpErrorLeftMissing: t("mpErrorLeftMissing"),
+    mpErrorRightMissing: t("mpErrorRightMissing"),
+    mpErrorLeftParse: t("mpErrorLeftParse"),
+    mpErrorRightParse: t("mpErrorRightParse"),
+    mpErrorNotImplication: t("mpErrorNotImplication"),
+    mpErrorPremiseMismatch: t("mpErrorPremiseMismatch"),
+    mpErrorGeneric: t("mpErrorGeneric"),
+    mpBannerSelectLeft: t("mpBannerSelectLeft"),
+    mpBannerSelectRight: t("mpBannerSelectRight"),
+    genApply: t("genApply"),
+    genCancel: t("genCancel"),
+    genApplied: t("genApplied"),
+    genErrorPremiseMissing: t("genErrorPremiseMissing"),
+    genErrorPremiseParse: t("genErrorPremiseParse"),
+    genErrorVariableEmpty: t("genErrorVariableEmpty"),
+    genErrorNotEnabled: t("genErrorNotEnabled"),
+    genErrorGeneric: t("genErrorGeneric"),
+    genBannerSelectPremise: t("genBannerSelectPremise"),
+    goalLabel: t("goalLabel"),
+    goalPlaceholder: t("goalPlaceholder"),
+    goalProved: t("goalProved"),
+    goalNotYet: t("goalNotYet"),
+    goalInvalidFormula: t("goalInvalidFormula"),
+    proofComplete: t("proofComplete"),
+    selectionCount: t("selectionCount"),
+    selectionCopy: t("selectionCopy"),
+    selectionCut: t("selectionCut"),
+    selectionPaste: t("selectionPaste"),
+    selectionDuplicate: t("selectionDuplicate"),
+    selectionDelete: t("selectionDelete"),
+    selectionClear: t("selectionClear"),
+    cancel: t("cancel"),
+    logicSystemLabel: t("logicSystemLabel"),
+    questBadge: t("questBadge"),
+    convertToFree: t("convertToFree"),
+    autoLayout: t("autoLayout"),
+    layoutTopToBottom: t("layoutTopToBottom"),
+    layoutBottomToTop: t("layoutBottomToTop"),
+    exportJSON: t("exportJSON"),
+    exportSVG: t("exportSVG"),
+    exportPNG: t("exportPNG"),
+    importJSON: t("importJSON"),
+    selectSubtree: t("selectSubtree"),
+  }), [t]);
+}
+
 function WorkspaceInner() {
   const params = useParams();
   const router = useRouter();
   const notebookCollection = useNotebookCollection();
   const questProgress = useQuestProgress();
+  const proofMessages = useProofMessagesFromIntl();
 
   const notebookId =
     typeof params.id === "string"
@@ -149,12 +207,14 @@ function WorkspaceInner() {
 
       {/* Workspace */}
       <div style={workspaceContainerStyle}>
-        <ProofWorkspace
-          system={notebook.workspace.system}
-          workspace={notebook.workspace}
-          onWorkspaceChange={handleWorkspaceChange}
-          onGoalAchieved={handleGoalAchieved}
-        />
+        <ProofMessagesProvider messages={proofMessages}>
+          <ProofWorkspace
+            system={notebook.workspace.system}
+            workspace={notebook.workspace}
+            onWorkspaceChange={handleWorkspaceChange}
+            onGoalAchieved={handleGoalAchieved}
+          />
+        </ProofMessagesProvider>
       </div>
     </div>
   );

@@ -22,11 +22,10 @@ import { EditableProofNode } from "./EditableProofNode";
 import { getProofNodePorts, getProofEdgeColor } from "./proofNodeUI";
 import { AxiomPalette } from "./AxiomPalette";
 import { getAvailableAxioms, type AxiomPaletteItem } from "./axiomPaletteLogic";
-import { validateMPApplication, getMPErrorMessage } from "./mpApplicationLogic";
-import {
-  validateGenApplication,
-  getGenErrorMessage,
-} from "./genApplicationLogic";
+import { validateMPApplication } from "./mpApplicationLogic";
+import { validateGenApplication } from "./genApplicationLogic";
+import { getMPErrorMessageKey, getGenErrorMessageKey, formatMessage } from "./proofMessages";
+import { useProofMessages } from "./ProofMessagesContext";
 import { checkGoal } from "./goalCheckLogic";
 import {
   computeStepCount,
@@ -345,6 +344,9 @@ export function ProofWorkspace({
   onGoalAchieved,
   testId,
 }: ProofWorkspaceProps) {
+  // i18nメッセージ
+  const msg = useProofMessages();
+
   // 内部状態（外部制御がない場合）
   const [internalWorkspace, setInternalWorkspace] = useState<WorkspaceState>(
     () => createEmptyWorkspace(system),
@@ -598,16 +600,17 @@ export function ProofWorkspace({
       if (node.kind !== "mp") continue;
       const result = validateMPApplication(workspace, node.id);
       if (result._tag === "Success") {
-        validations.set(node.id, { message: "MP applied", type: "success" });
+        validations.set(node.id, { message: msg.mpApplied, type: "success" });
       } else if (result._tag !== "BothPremisesMissing") {
+        const key = getMPErrorMessageKey(result);
         validations.set(node.id, {
-          message: getMPErrorMessage(result),
+          message: msg[key],
           type: "error",
         });
       }
     }
     return validations;
-  }, [workspace]);
+  }, [workspace, msg]);
 
   // --- Genノードの検証状態を計算 ---
 
@@ -621,16 +624,17 @@ export function ProofWorkspace({
       const variableName = node.genVariableName ?? "";
       const result = validateGenApplication(workspace, node.id, variableName);
       if (result._tag === "Success") {
-        validations.set(node.id, { message: "Gen applied", type: "success" });
+        validations.set(node.id, { message: msg.genApplied, type: "success" });
       } else if (result._tag !== "PremiseMissing") {
+        const key = getGenErrorMessageKey(result);
         validations.set(node.id, {
-          message: getGenErrorMessage(result),
+          message: msg[key],
           type: "error",
         });
       }
     }
     return validations;
-  }, [workspace]);
+  }, [workspace, msg]);
 
   // --- ゴールチェック（フリーモード: goalFormulaTextベース） ---
 
@@ -1366,7 +1370,7 @@ export function ProofWorkspace({
         style={headerStyle}
         data-testid={testId ? `${testId satisfies string}-header` : undefined}
       >
-        <span>Logic System:</span>
+        <span>{msg.logicSystemLabel}</span>
         <span
           style={systemBadgeStyle}
           data-testid={testId ? `${testId satisfies string}-system` : undefined}
@@ -1381,7 +1385,7 @@ export function ProofWorkspace({
                 testId ? `${testId satisfies string}-quest-badge` : undefined
               }
             >
-              Quest
+              {msg.questBadge}
             </span>
             <button
               type="button"
@@ -1393,7 +1397,7 @@ export function ProofWorkspace({
                   : undefined
               }
             >
-              Convert to Free
+              {msg.convertToFree}
             </button>
           </>
         ) : null}
@@ -1411,7 +1415,7 @@ export function ProofWorkspace({
             testId ? `${testId satisfies string}-mp-button` : undefined
           }
         >
-          {mpSelection.phase !== "idle" ? "Cancel MP" : "Apply MP"}
+          {mpSelection.phase !== "idle" ? msg.mpCancel : msg.mpApply}
         </button>
         {workspace.system.generalization ? (
           <>
@@ -1448,7 +1452,7 @@ export function ProofWorkspace({
                 testId ? `${testId satisfies string}-gen-button` : undefined
               }
             >
-              {genSelection.phase !== "idle" ? "Cancel Gen" : "Apply Gen"}
+              {genSelection.phase !== "idle" ? msg.genCancel : msg.genApply}
             </button>
           </>
         ) : null}
@@ -1487,7 +1491,7 @@ export function ProofWorkspace({
                   : undefined
               }
             />
-            Auto Layout
+            {msg.autoLayout}
           </label>
           {autoLayout ? (
             <select
@@ -1509,8 +1513,8 @@ export function ProofWorkspace({
                   : undefined
               }
             >
-              <option value="top-to-bottom">Top→Bottom</option>
-              <option value="bottom-to-top">Bottom→Top</option>
+              <option value="top-to-bottom">{msg.layoutTopToBottom}</option>
+              <option value="bottom-to-top">{msg.layoutBottomToTop}</option>
             </select>
           ) : null}
         </span>
@@ -1544,7 +1548,7 @@ export function ProofWorkspace({
                 : undefined
             }
           >
-            Export JSON
+            {msg.exportJSON}
           </button>
           <button
             type="button"
@@ -1565,7 +1569,7 @@ export function ProofWorkspace({
                 : undefined
             }
           >
-            Export SVG
+            {msg.exportSVG}
           </button>
           <button
             type="button"
@@ -1586,7 +1590,7 @@ export function ProofWorkspace({
                 : undefined
             }
           >
-            Export PNG
+            {msg.exportPNG}
           </button>
           <button
             type="button"
@@ -1607,7 +1611,7 @@ export function ProofWorkspace({
                 : undefined
             }
           >
-            Import JSON
+            {msg.importJSON}
           </button>
           <input
             ref={fileInputRef}
@@ -1632,15 +1636,15 @@ export function ProofWorkspace({
         >
           <span>
             {mpSelection.phase === "selecting-left"
-              ? "Click the left premise (φ)"
-              : "Click the right premise (φ→ψ)"}
+              ? msg.mpBannerSelectLeft
+              : msg.mpBannerSelectRight}
           </span>
           <button
             type="button"
             style={cancelButtonStyle}
             onClick={handleCancelMPSelection}
           >
-            Cancel
+            {msg.cancel}
           </button>
         </div>
       ) : null}
@@ -1654,14 +1658,16 @@ export function ProofWorkspace({
           }
         >
           <span>
-            {`Click the premise (φ) to generalize over ${genSelection.variableName satisfies string}`}
+            {formatMessage(msg.genBannerSelectPremise, {
+              variableName: genSelection.variableName,
+            })}
           </span>
           <button
             type="button"
             style={cancelButtonStyle}
             onClick={handleCancelGenSelection}
           >
-            Cancel
+            {msg.cancel}
           </button>
         </div>
       ) : null}
@@ -1678,7 +1684,9 @@ export function ProofWorkspace({
           onClick={(e) => e.stopPropagation()}
         >
           <span>
-            {`${String(selectedNodeIds.size) satisfies string} node${(selectedNodeIds.size > 1 ? "s" : "") satisfies string} selected`}
+            {formatMessage(msg.selectionCount, {
+              count: String(selectedNodeIds.size),
+            })}
           </span>
           <button
             type="button"
@@ -1688,7 +1696,7 @@ export function ProofWorkspace({
               testId ? `${testId satisfies string}-copy-button` : undefined
             }
           >
-            Copy
+            {msg.selectionCopy}
           </button>
           <button
             type="button"
@@ -1698,7 +1706,7 @@ export function ProofWorkspace({
               testId ? `${testId satisfies string}-cut-button` : undefined
             }
           >
-            Cut
+            {msg.selectionCut}
           </button>
           <button
             type="button"
@@ -1708,7 +1716,7 @@ export function ProofWorkspace({
               testId ? `${testId satisfies string}-paste-button` : undefined
             }
           >
-            Paste
+            {msg.selectionPaste}
           </button>
           <button
             type="button"
@@ -1718,7 +1726,7 @@ export function ProofWorkspace({
               testId ? `${testId satisfies string}-duplicate-button` : undefined
             }
           >
-            Duplicate
+            {msg.selectionDuplicate}
           </button>
           <button
             type="button"
@@ -1731,14 +1739,14 @@ export function ProofWorkspace({
               testId ? `${testId satisfies string}-delete-button` : undefined
             }
           >
-            Delete
+            {msg.selectionDelete}
           </button>
           <button
             type="button"
             style={cancelButtonStyle}
             onClick={() => setSelectedNodeIds(clearSelection())}
           >
-            Clear
+            {msg.selectionClear}
           </button>
         </div>
       ) : null}
@@ -1748,12 +1756,12 @@ export function ProofWorkspace({
         style={goalContainerStyle}
         data-testid={testId ? `${testId satisfies string}-goal` : undefined}
       >
-        <span>Goal:</span>
+        <span>{msg.goalLabel}</span>
         <input
           type="text"
           value={workspace.goalFormulaText}
           onChange={handleGoalTextChange}
-          placeholder="e.g. phi -> phi"
+          placeholder={msg.goalPlaceholder}
           style={
             goalCheckResult._tag === "GoalParseError"
               ? goalInputErrorStyle
@@ -1770,7 +1778,7 @@ export function ProofWorkspace({
               testId ? `${testId satisfies string}-goal-achieved` : undefined
             }
           >
-            Proved!
+            {msg.goalProved}
           </span>
         ) : goalCheckResult._tag === "GoalNotAchieved" ? (
           <span
@@ -1781,7 +1789,7 @@ export function ProofWorkspace({
                 : undefined
             }
           >
-            Not yet
+            {msg.goalNotYet}
           </span>
         ) : goalCheckResult._tag === "GoalParseError" ? (
           <span
@@ -1790,7 +1798,7 @@ export function ProofWorkspace({
               testId ? `${testId satisfies string}-goal-parse-error` : undefined
             }
           >
-            Invalid formula
+            {msg.goalInvalidFormula}
           </span>
         ) : null}
       </div>
@@ -1805,7 +1813,7 @@ export function ProofWorkspace({
               : undefined
           }
         >
-          Proof Complete!
+          {msg.proofComplete}
         </div>
       ) : null}
 
@@ -1872,7 +1880,7 @@ export function ProofWorkspace({
               lineHeight: "1.4",
             }}
           >
-            Select Subtree
+            {msg.selectSubtree}
           </button>
         </div>
       ) : null}
