@@ -110,6 +110,7 @@ export type SystemPresetId =
   | "mendelson"
   | "predicate"
   | "equality"
+  | "peano"
   | "nd-nm"
   | "nd-nj"
   | "nd-nk"

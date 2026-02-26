@@ -2,7 +2,7 @@
   - あくまもでも同じ枠組みで、公理系がセットアップされればそれができることを表現したい
   - [x] Theory(理論)抽象化: LogicSystem に非論理的公理(TheoryAxiom)の仕組みを追加
   - [x] ペアノ算術(PA)の公理テンプレートを定義・テスト
-  - [ ] UI統合: axiomPaletteLogic, notebookCreateLogic にPA体系プリセットを追加
+  - [x] UI統合: axiomPaletteLogic, notebookCreateLogic にPA体系プリセットを追加
   - [ ] これもいくつか流儀があると思うので、それぞれのためのものを用意しよう。
   - [ ] それぞれについて同様に、例題、練習問題、クエストロードマップの用意
   - [ ] storybookで実際に問題を解く動き

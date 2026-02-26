@@ -57,6 +57,7 @@ describe("systemPresets", () => {
     expect(ids).toContain("mendelson");
     expect(ids).toContain("predicate");
     expect(ids).toContain("equality");
+    expect(ids).toContain("peano");
   });
 
   it("includes all natural deduction presets", () => {
@@ -89,11 +90,21 @@ describe("systemPresets", () => {
     }
   });
 
+  it("peano preset includes theory axioms", () => {
+    const peano = systemPresets.find((p) => p.id === "peano");
+    expect(peano).toBeDefined();
+    expect(peano?.deductionSystem.style).toBe("hilbert");
+    if (peano?.deductionSystem.style === "hilbert") {
+      expect(peano.deductionSystem.system.theoryAxioms).toBeDefined();
+      expect(peano.deductionSystem.system.theoryAxioms?.length).toBe(6);
+    }
+  });
+
   it("hilbert presets have correct style", () => {
     const hilbertPresets = systemPresets.filter(
       (p) => !p.id.startsWith("nd-") && !p.id.startsWith("sc-"),
     );
-    expect(hilbertPresets.length).toBeGreaterThanOrEqual(8);
+    expect(hilbertPresets.length).toBeGreaterThanOrEqual(9);
     for (const p of hilbertPresets) {
       expect(p.deductionSystem.style).toBe("hilbert");
     }
@@ -186,6 +197,12 @@ describe("validateCreateForm", () => {
   it("valid form with equality system", () => {
     expect(
       validateCreateForm({ ...validValues, systemPresetId: "equality" }),
+    ).toEqual({ valid: true });
+  });
+
+  it("valid form with peano system", () => {
+    expect(
+      validateCreateForm({ ...validValues, systemPresetId: "peano" }),
     ).toEqual({ valid: true });
   });
 

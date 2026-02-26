@@ -14,6 +14,7 @@ import {
   mendelsonSystem,
   predicateLogicSystem,
   equalityLogicSystem,
+  peanoArithmeticSystem,
 } from "../logic-core/inferenceRule";
 import {
   nmSystem,
@@ -103,6 +104,13 @@ describe("resolveSystemPreset", () => {
     const result = resolveSystemPreset("equality");
     expect(result).toBeDefined();
     expect(result?.deductionSystem.system).toBe(equalityLogicSystem);
+  });
+
+  it("peanoプリセットを解決できる", () => {
+    const result = resolveSystemPreset("peano");
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem.style).toBe("hilbert");
+    expect(result?.deductionSystem.system).toBe(peanoArithmeticSystem);
   });
 
   it("nd-nmプリセットを解決できる", () => {

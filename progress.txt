@@ -3553,3 +3553,18 @@
   - AxiomIdentificationResultに"TheoryAxiom" variantを別途追加し、既存のAxiomIdの型安全性を維持
   - UI統合(notebookCreateLogicのPAプリセット)は次のイテレーションで対応
 ---
+
+## 2026-02-26 - PA体系UI統合
+- notebookCreateLogic.ts に「ペアノ算術（PA）」プリセットを追加
+- questDefinition.ts の SystemPresetId に "peano" を追加
+- notebookCreateLogic.test.ts にPAプリセットのバリデーションテスト・theoryAxiomsテスト追加
+- questStartLogic.test.ts にPAプリセット解決テスト追加
+- カバレッジ: Stmts 99.38%, Branch 94.92%, Funcs 90.03%, Lines 99.94% (維持)
+- テスト: 3637テスト → 新規テスト追加後も全pass
+- ブラウザ確認: Storybookのノートブック作成フォームでPAプリセットが正しく表示されることをスクリーンショットで確認
+- スクリーンショット: screenshots.local/notebook-create-form-peano-visible.png
+- **今後のイテレーションへの学び:**
+  - 新しいSystemPreset追加時の同期ポイント: notebookCreateLogic.ts, questDefinition.ts(SystemPresetId), notebookCreateLogic.test.ts, questStartLogic.test.ts の4箇所
+  - axiomPaletteLogic は theoryAxioms を自動的に処理するため、PA固有の変更は不要
+  - Hilbertプリセットのカウントテスト(greaterThanOrEqual)も更新が必要
+---

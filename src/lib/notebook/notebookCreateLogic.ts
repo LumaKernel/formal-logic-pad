@@ -28,6 +28,7 @@ import {
   mendelsonSystem,
   predicateLogicSystem,
   equalityLogicSystem,
+  peanoArithmeticSystem,
 } from "../logic-core/inferenceRule";
 
 // --- プリセット公理系 ---
@@ -122,6 +123,13 @@ export const systemPresets: readonly SystemPreset[] = [
     label: "等号付き述語論理",
     description: "Hilbert流: A1-A5 + E1-E5 + MP + Gen。等号公理を含む体系。",
     deductionSystem: hilbertDeduction(equalityLogicSystem),
+  },
+  {
+    id: "peano",
+    label: "ペアノ算術（PA）",
+    description:
+      "Hilbert流: 等号付き述語論理 + PA1-PA6（後者関数・加法・乗法の公理）。一階算術の標準的な公理系。",
+    deductionSystem: hilbertDeduction(peanoArithmeticSystem),
   },
   {
     id: "nd-nm",
