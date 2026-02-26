@@ -1772,6 +1772,54 @@ describe("ProofWorkspace", () => {
       });
     });
 
+    it("duplicate creates new nodes with offset", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Select node
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.click(node);
+
+      // Click duplicate button
+      const duplicateButton = screen.getByTestId(
+        "workspace-duplicate-button",
+      );
+      await user.click(duplicateButton);
+
+      // New node should appear (node-2)
+      await waitFor(() => {
+        expect(screen.getByTestId("proof-node-node-2")).toBeInTheDocument();
+      });
+    });
+
+    it("cut removes nodes and allows paste", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 200, y: 200 }, "psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Select node-1
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.click(node);
+
+      // Click cut button
+      const cutButton = screen.getByTestId("workspace-cut-button");
+      await user.click(cutButton);
+
+      // node-1 should be removed
+      await waitFor(() => {
+        expect(screen.queryByTestId("proof-node-node-1")).not.toBeInTheDocument();
+      });
+
+      // node-2 should remain
+      expect(screen.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+
     it("does not delete protected nodes in quest mode", async () => {
       const user = userEvent.setup();
       const ws = createQuestWorkspace(lukasiewiczSystem, [

@@ -82,6 +82,27 @@
 
 ---
 
+## 2026-02-26 - InfiniteCanvas: ノード複製・カット機能を追加
+- workspaceState.ts に `duplicateSelectedNodes` と `cutSelectedNodes` の純粋関数を追加
+- ProofWorkspace.tsx にキーボードショートカット Ctrl/Cmd+D（複製）、Ctrl/Cmd+X（カット）を追加
+- 選択バナーUIに Cut, Duplicate ボタンを追加（Copy, Cut, Paste, Duplicate, Delete, Clear の6ボタン）
+- 複製はコピー＋即ペースト（30pxオフセット付き）、カットはコピー＋削除
+- テスト: workspaceState(98), ProofWorkspace(95) 全パス。全体3100テスト通過
+- カバレッジ: Stmts 99.37%(−0.03), Branch 94.86%(−0.11), Funcs 90.8%(−0.07), Lines 99.97%(維持)
+  - ベースライン: Stmts 99.4%, Branch 94.97%, Funcs 90.87%, Lines 99.97%
+  - 微減の原因: ProofWorkspace.tsx のv8 ignoreブロック内のキーボードショートカット分岐追加
+- ブラウザ確認: .screenshots/proof-workspace-selection-banner.png, .screenshots/proof-workspace-after-duplicate.png, .screenshots/proof-workspace-after-cut.png
+- 変更ファイル:
+  - `src/lib/proof-pad/workspaceState.ts` (MODIFIED - duplicateSelectedNodes, cutSelectedNodes追加)
+  - `src/lib/proof-pad/workspaceState.test.ts` (MODIFIED - 9テスト追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - Ctrl+D/X ショートカット + UIボタン)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (MODIFIED - 2テスト追加)
+- **今後のイテレーションへの学び:**
+  - 複製(duplicate)は copy + paste の組み合わせで実装。オフセット量は定数 `DUPLICATE_OFFSET` で一元管理
+  - カット(cut)は copy + delete の組み合わせ。ClipboardDataを返してUI側でクリップボードに保持
+  - ProofWorkspace.tsx のキーボードショートカットはv8 ignoreブロック内のため、UIボタンのテストで補完
+---
+
 ## 2026-02-26 - InfiniteCanvas: ノード検索＆ナビゲーション機能を追加
 - 3層分離パターンで実装: nodeSearch.ts(純粋ロジック) → useNodeSearch.ts(hook) → NodeSearchComponent.tsx(UI)
 - Ctrl/Cmd+F でキャンバス内ノードをテキスト検索（case-insensitive）

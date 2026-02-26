@@ -21,6 +21,7 @@ import {
 } from "./genApplicationLogic";
 import {
   buildClipboardData,
+  computeCentroid,
   pasteClipboardData,
   type ClipboardData,
 } from "./copyPasteLogic";
@@ -484,6 +485,76 @@ export function removeSelectedNodes(
     connections: state.connections.filter(
       (c) => !removableIds.has(c.fromNodeId) && !removableIds.has(c.toNodeId),
     ),
+  };
+}
+
+// --- 複製＆カット ---
+
+/** 複製のオフセット量（ピクセル） */
+const DUPLICATE_OFFSET = 30;
+
+/**
+ * 選択されたノードを複製する（コピー＋即ペースト、オフセット付き）。
+ * 複製されたノードの新しいIDセットも返す。
+ */
+export type DuplicateResult = {
+  readonly workspace: WorkspaceState;
+  readonly newNodeIds: ReadonlySet<string>;
+};
+
+export function duplicateSelectedNodes(
+  state: WorkspaceState,
+  selectedNodeIds: ReadonlySet<string>,
+): DuplicateResult {
+  if (selectedNodeIds.size === 0) {
+    return { workspace: state, newNodeIds: new Set() };
+  }
+  const clipboardData = copySelectedNodes(state, selectedNodeIds);
+  if (clipboardData.nodes.length === 0) {
+    return { workspace: state, newNodeIds: new Set() };
+  }
+  // 選択ノードの中心を計算し、オフセットして配置
+  const selectedNodes = state.nodes.filter((n) => selectedNodeIds.has(n.id));
+  const centroid = computeCentroid(selectedNodes);
+  const targetCenter: Point = {
+    x: centroid.x + DUPLICATE_OFFSET,
+    y: centroid.y + DUPLICATE_OFFSET,
+  };
+  const result = pasteClipboardData(
+    clipboardData,
+    targetCenter,
+    state.nextNodeId,
+  );
+  const newNodeIds = new Set(result.newNodes.map((n) => n.id));
+  return {
+    workspace: {
+      ...state,
+      nodes: [...state.nodes, ...result.newNodes],
+      connections: [...state.connections, ...result.newConnections],
+      nextNodeId: result.nextNodeId,
+    },
+    newNodeIds,
+  };
+}
+
+/**
+ * 選択されたノードをカットする（コピー＋削除）。
+ * ClipboardDataを返す（UIでクリップボードに格納するため）。
+ */
+export type CutResult = {
+  readonly workspace: WorkspaceState;
+  readonly clipboardData: ClipboardData;
+};
+
+export function cutSelectedNodes(
+  state: WorkspaceState,
+  selectedNodeIds: ReadonlySet<string>,
+): CutResult {
+  const clipboardData = copySelectedNodes(state, selectedNodeIds);
+  const newState = removeSelectedNodes(state, selectedNodeIds);
+  return {
+    workspace: newState,
+    clipboardData,
   };
 }
 

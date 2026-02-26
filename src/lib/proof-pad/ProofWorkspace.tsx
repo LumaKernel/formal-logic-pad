@@ -63,6 +63,8 @@ import {
   copySelectedNodes,
   pasteNodes,
   removeSelectedNodes,
+  duplicateSelectedNodes,
+  cutSelectedNodes,
 } from "./workspaceState";
 import {
   toggleNodeSelection,
@@ -803,6 +805,25 @@ export function ProofWorkspace({
     /* v8 ignore stop */
   }, [workspace, viewport, setWorkspace]);
 
+  const handleCut = useCallback(() => {
+    if (selectedNodeIds.size === 0) return;
+    const result = cutSelectedNodes(workspace, selectedNodeIds);
+    clipboardRef.current = result.clipboardData;
+    const json = serializeClipboardData(result.clipboardData);
+    navigator.clipboard.writeText(json).catch(() => {
+      // クリップボードAPIが使えない環境でも内部保持で動作
+    });
+    setWorkspace(result.workspace);
+    setSelectedNodeIds(clearSelection());
+  }, [selectedNodeIds, workspace, setWorkspace]);
+
+  const handleDuplicate = useCallback(() => {
+    if (selectedNodeIds.size === 0) return;
+    const result = duplicateSelectedNodes(workspace, selectedNodeIds);
+    setWorkspace(result.workspace);
+    setSelectedNodeIds(result.newNodeIds);
+  }, [selectedNodeIds, workspace, setWorkspace]);
+
   const handleDeleteSelected = useCallback(() => {
     if (selectedNodeIds.size === 0) return;
     const result = removeSelectedNodes(workspace, selectedNodeIds);
@@ -838,6 +859,12 @@ export function ProofWorkspace({
       } else if (isModifier && e.key === "v") {
         e.preventDefault();
         handlePaste();
+      } else if (isModifier && e.key === "x") {
+        e.preventDefault();
+        handleCut();
+      } else if (isModifier && e.key === "d") {
+        e.preventDefault();
+        handleDuplicate();
       } else if (isModifier && e.key === "a") {
         e.preventDefault();
         // Ctrl/Cmd+A: 全選択
@@ -856,6 +883,8 @@ export function ProofWorkspace({
     editingNodeIds,
     handleCopy,
     handlePaste,
+    handleCut,
+    handleDuplicate,
     handleDeleteSelected,
     workspace.nodes,
   ]);
@@ -1260,12 +1289,32 @@ export function ProofWorkspace({
           <button
             type="button"
             style={selectionActionButtonStyle}
+            onClick={handleCut}
+            data-testid={
+              testId ? `${testId satisfies string}-cut-button` : undefined
+            }
+          >
+            Cut
+          </button>
+          <button
+            type="button"
+            style={selectionActionButtonStyle}
             onClick={handlePaste}
             data-testid={
               testId ? `${testId satisfies string}-paste-button` : undefined
             }
           >
             Paste
+          </button>
+          <button
+            type="button"
+            style={selectionActionButtonStyle}
+            onClick={handleDuplicate}
+            data-testid={
+              testId ? `${testId satisfies string}-duplicate-button` : undefined
+            }
+          >
+            Duplicate
           </button>
           <button
             type="button"

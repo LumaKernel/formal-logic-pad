@@ -25,6 +25,8 @@ import {
   copySelectedNodes,
   pasteNodes,
   removeSelectedNodes,
+  duplicateSelectedNodes,
+  cutSelectedNodes,
   applyTreeLayout,
 } from "./workspaceState";
 import type { ClipboardData } from "./copyPasteLogic";
@@ -1026,6 +1028,138 @@ describe("proofWorkspace", () => {
       const ws = createEmptyWorkspace(lukasiewiczSystem);
       const result = applyTreeLayout(ws, "top-to-bottom");
       expect(result.nodes).toHaveLength(0);
+    });
+  });
+
+  describe("duplicateSelectedNodes", () => {
+    it("選択ノードをオフセット付きで複製する", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi -> (psi -> phi)");
+      ws = addNode(ws, "axiom", "A2", { x: 200, y: 200 }, "psi -> phi");
+      ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+
+      const selected = new Set(["node-1", "node-2"]);
+      const result = duplicateSelectedNodes(ws, selected);
+
+      // 元のノード2つ + 複製ノード2つ = 4ノード
+      expect(result.workspace.nodes).toHaveLength(4);
+      // 元の接続1つ + 複製接続1つ = 2接続
+      expect(result.workspace.connections).toHaveLength(2);
+      // 新しいノードIDが返される
+      expect(result.newNodeIds.size).toBe(2);
+      // 新しいノードは元とは異なるIDを持つ
+      for (const id of result.newNodeIds) {
+        expect(selected.has(id)).toBe(false);
+      }
+      // 複製ノードは元の位置から30pxオフセット
+      const newNodes = result.workspace.nodes.filter((n) => result.newNodeIds.has(n.id));
+      const origNode1 = result.workspace.nodes.find((n) => n.id === "node-1")!;
+      const dupeOfNode1 = newNodes.find((n) => n.formulaText === origNode1.formulaText)!;
+      expect(dupeOfNode1.position.x - origNode1.position.x).toBe(30);
+      expect(dupeOfNode1.position.y - origNode1.position.y).toBe(30);
+    });
+
+    it("空の選択では何も変更しない", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+
+      const result = duplicateSelectedNodes(ws, new Set());
+      expect(result.workspace.nodes).toHaveLength(1);
+      expect(result.newNodeIds.size).toBe(0);
+    });
+
+    it("保護ノードはコピーされない（空のClipboardData）", () => {
+      const ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi -> phi", position: { x: 100, y: 100 } },
+      ]);
+      // 保護ノードのみ選択
+      const selected = new Set(["node-1"]);
+      const result = duplicateSelectedNodes(ws, selected);
+      // buildClipboardDataは保護ノードも含むが、pasteClipboardDataで復元される
+      // ただし保護は剥がされる
+      expect(result.workspace.nodes).toHaveLength(2);
+      expect(result.newNodeIds.size).toBe(1);
+    });
+
+    it("存在しないノードIDでは何も複製しない", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+
+      const result = duplicateSelectedNodes(ws, new Set(["nonexistent"]));
+      expect(result.workspace.nodes).toHaveLength(1);
+      expect(result.newNodeIds.size).toBe(0);
+    });
+
+    it("単一ノードの複製", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "K", { x: 50, y: 50 }, "phi -> (psi -> phi)");
+
+      const result = duplicateSelectedNodes(ws, new Set(["node-1"]));
+      expect(result.workspace.nodes).toHaveLength(2);
+      expect(result.newNodeIds.size).toBe(1);
+      const newNode = result.workspace.nodes.find((n) => result.newNodeIds.has(n.id))!;
+      expect(newNode.formulaText).toBe("phi -> (psi -> phi)");
+      expect(newNode.position.x).toBe(80); // 50 + 30
+      expect(newNode.position.y).toBe(80); // 50 + 30
+    });
+  });
+
+  describe("cutSelectedNodes", () => {
+    it("選択ノードをカットしてClipboardDataを返す", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 200, y: 200 }, "psi");
+      ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+
+      const selected = new Set(["node-1"]);
+      const result = cutSelectedNodes(ws, selected);
+
+      // node-1が削除される
+      expect(result.workspace.nodes).toHaveLength(1);
+      expect(result.workspace.nodes[0]!.id).toBe("node-2");
+      // node-1に関連する接続も削除される
+      expect(result.workspace.connections).toHaveLength(0);
+      // ClipboardDataが返される
+      expect(result.clipboardData._tag).toBe("ProofPadClipboard");
+      expect(result.clipboardData.nodes).toHaveLength(1);
+      expect(result.clipboardData.nodes[0]!.originalId).toBe("node-1");
+    });
+
+    it("保護ノードはカットされない", () => {
+      const ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi -> phi", position: { x: 100, y: 100 } },
+      ]);
+      const selected = new Set(["node-1"]);
+      const result = cutSelectedNodes(ws, selected);
+
+      // 保護ノードは削除されない
+      expect(result.workspace.nodes).toHaveLength(1);
+      // ClipboardDataにはコピーされる
+      expect(result.clipboardData.nodes).toHaveLength(1);
+    });
+
+    it("空の選択では状態を変更しない", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+
+      const result = cutSelectedNodes(ws, new Set());
+      expect(result.workspace.nodes).toHaveLength(1);
+      expect(result.clipboardData.nodes).toHaveLength(0);
+    });
+
+    it("複数ノードのカットで内部接続もClipboardDataに含まれる", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 200, y: 200 }, "psi");
+      ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+
+      const selected = new Set(["node-1", "node-2"]);
+      const result = cutSelectedNodes(ws, selected);
+
+      expect(result.workspace.nodes).toHaveLength(0);
+      expect(result.workspace.connections).toHaveLength(0);
+      expect(result.clipboardData.nodes).toHaveLength(2);
+      expect(result.clipboardData.connections).toHaveLength(1);
     });
   });
 });
