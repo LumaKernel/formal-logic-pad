@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn, expect, within, userEvent } from "storybook/test";
 import { NotebookCreateForm } from "./NotebookCreateFormComponent";
+import { allReferenceEntries } from "../reference/referenceContent";
 
 const meta = {
   title: "Notebook/NotebookCreateForm",
@@ -89,5 +90,34 @@ export const CancelAction: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByTestId("create-cancel-btn"));
     await expect(args.onCancel).toHaveBeenCalledOnce();
+  },
+};
+
+export const WithReference: Story = {
+  args: {
+    referenceEntries: allReferenceEntries,
+    locale: "ja",
+    onOpenReferenceDetail: fn(),
+    testId: "form",
+    onSubmit: fn(),
+    onCancel: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Łukasiewiczプリセットに(?)ボタンが表示される
+    await expect(
+      canvas.getByTestId("form-preset-lukasiewicz-ref-trigger"),
+    ).toBeInTheDocument();
+    // predicateプリセットには(?)が表示されない
+    await expect(
+      canvas.queryByTestId("form-preset-predicate-ref-trigger"),
+    ).not.toBeInTheDocument();
+    // (?)クリックでポップオーバーが開く
+    await userEvent.click(
+      canvas.getByTestId("form-preset-lukasiewicz-ref-trigger"),
+    );
+    await expect(
+      canvas.getByTestId("form-preset-lukasiewicz-ref-popover"),
+    ).toBeInTheDocument();
   },
 };

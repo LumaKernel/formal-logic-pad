@@ -15,10 +15,14 @@ import {
   validateCreateForm,
   getFieldError,
   findPresetById,
+  getPresetReferenceEntryId,
   type CreateFormValues,
 } from "./notebookCreateLogic";
 import type { DeductionSystem } from "../logic-core/deductionSystem";
 import { getDeductionStyleLabel } from "../logic-core/deductionSystem";
+import type { ReferenceEntry, Locale } from "../reference/referenceEntry";
+import { findEntryById } from "../reference/referenceEntry";
+import { ReferencePopover } from "../reference/ReferencePopover";
 
 // --- Props ---
 
@@ -30,6 +34,14 @@ export type NotebookCreateFormProps = {
   }) => void;
   /** キャンセル時のコールバック */
   readonly onCancel: () => void;
+  /** リファレンスエントリ一覧（指定時にポップオーバーを表示） */
+  readonly referenceEntries?: readonly ReferenceEntry[];
+  /** ロケール（リファレンスポップオーバーの表示言語） */
+  readonly locale?: Locale;
+  /** リファレンス詳細表示のコールバック */
+  readonly onOpenReferenceDetail?: (entryId: string) => void;
+  /** テスト用ID */
+  readonly testId?: string;
 };
 
 // --- Styles ---
@@ -135,6 +147,10 @@ const cancelButtonStyle: CSSProperties = {
 export function NotebookCreateForm({
   onSubmit,
   onCancel,
+  referenceEntries,
+  locale,
+  onOpenReferenceDetail,
+  testId,
 }: NotebookCreateFormProps) {
   const [values, setValues] = useState<CreateFormValues>(
     defaultCreateFormValues,
@@ -198,53 +214,84 @@ export function NotebookCreateForm({
           style={{ display: "flex", flexDirection: "column", gap: 8 }}
           data-testid="create-system-list"
         >
-          {systemPresets.map((preset) => (
-            <div
-              key={preset.id}
-              data-testid={`system-preset-${preset.id satisfies string}`}
-              style={
-                values.systemPresetId === preset.id
-                  ? systemCardSelectedStyle
-                  : systemCardStyle
-              }
-              onClick={() =>
-                setValues({ ...values, systemPresetId: preset.id })
-              }
-              role="radio"
-              aria-checked={values.systemPresetId === preset.id}
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setValues({ ...values, systemPresetId: preset.id });
+          {systemPresets.map((preset) => {
+            const refEntryId = getPresetReferenceEntryId(preset.id);
+            const refEntry =
+              refEntryId !== undefined && referenceEntries !== undefined
+                ? findEntryById(referenceEntries, refEntryId)
+                : undefined;
+            return (
+              <div
+                key={preset.id}
+                data-testid={`system-preset-${preset.id satisfies string}`}
+                style={
+                  values.systemPresetId === preset.id
+                    ? systemCardSelectedStyle
+                    : systemCardStyle
                 }
-              }}
-            >
-              <div style={systemCardLabelStyle}>
-                <span
+                onClick={() =>
+                  setValues({ ...values, systemPresetId: preset.id })
+                }
+                role="radio"
+                aria-checked={values.systemPresetId === preset.id}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setValues({ ...values, systemPresetId: preset.id });
+                  }
+                }}
+              >
+                <div
                   style={{
-                    fontSize: 10,
-                    fontWeight: 500,
-                    padding: "1px 6px",
-                    borderRadius: 4,
-                    background:
-                      preset.deductionSystem.style === "hilbert"
-                        ? "var(--color-accent-light, #e8e9f5)"
-                        : "var(--color-warning-light, #fff3e0)",
-                    color:
-                      preset.deductionSystem.style === "hilbert"
-                        ? "var(--color-accent, #555ab9)"
-                        : "var(--color-warning, #e65100)",
-                    marginRight: 6,
+                    ...systemCardLabelStyle,
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 >
-                  {getDeductionStyleLabel(preset.deductionSystem.style)}
-                </span>
-                {preset.label}
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 500,
+                      padding: "1px 6px",
+                      borderRadius: 4,
+                      background:
+                        preset.deductionSystem.style === "hilbert"
+                          ? "var(--color-accent-light, #e8e9f5)"
+                          : "var(--color-warning-light, #fff3e0)",
+                      color:
+                        preset.deductionSystem.style === "hilbert"
+                          ? "var(--color-accent, #555ab9)"
+                          : "var(--color-warning, #e65100)",
+                      marginRight: 6,
+                    }}
+                  >
+                    {getDeductionStyleLabel(preset.deductionSystem.style)}
+                  </span>
+                  {preset.label}
+                  {refEntry !== undefined && locale !== undefined && (
+                    <span
+                      role="presentation"
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ marginLeft: 4 }}
+                    >
+                      <ReferencePopover
+                        entry={refEntry}
+                        locale={locale}
+                        onOpenDetail={onOpenReferenceDetail}
+                        testId={
+                          testId !== undefined
+                            ? `${testId satisfies string}-preset-${preset.id satisfies string}-ref`
+                            : undefined
+                        }
+                      />
+                    </span>
+                  )}
+                </div>
+                <div style={systemCardDescStyle}>{preset.description}</div>
               </div>
-              <div style={systemCardDescStyle}>{preset.description}</div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         {systemError !== undefined && (
           <span style={errorTextStyle} data-testid="create-system-error">

@@ -6,6 +6,7 @@ import {
   defaultCreateFormValues,
   validateCreateForm,
   getFieldError,
+  getPresetReferenceEntryId,
   type CreateFormValues,
 } from "./notebookCreateLogic";
 
@@ -466,5 +467,105 @@ describe("getFieldError", () => {
     expect(getFieldError(validation, "systemPresetId")).toBe(
       "公理系を選択してください",
     );
+  });
+});
+
+describe("getPresetReferenceEntryId", () => {
+  it("returns system-lukasiewicz for lukasiewicz preset", () => {
+    expect(getPresetReferenceEntryId("lukasiewicz")).toBe("system-lukasiewicz");
+  });
+
+  it("returns system-mendelson for mendelson preset", () => {
+    expect(getPresetReferenceEntryId("mendelson")).toBe("system-mendelson");
+  });
+
+  it("returns system-minimal for sk preset", () => {
+    expect(getPresetReferenceEntryId("sk")).toBe("system-minimal");
+  });
+
+  it("returns system-minimal for minimal preset", () => {
+    expect(getPresetReferenceEntryId("minimal")).toBe("system-minimal");
+  });
+
+  it("returns system-intuitionistic for intuitionistic preset", () => {
+    expect(getPresetReferenceEntryId("intuitionistic")).toBe(
+      "system-intuitionistic",
+    );
+  });
+
+  it("returns system-classical for classical preset", () => {
+    expect(getPresetReferenceEntryId("classical")).toBe("system-classical");
+  });
+
+  it("returns theory-peano for peano preset", () => {
+    expect(getPresetReferenceEntryId("peano")).toBe("theory-peano");
+  });
+
+  it("returns theory-peano for robinson preset", () => {
+    expect(getPresetReferenceEntryId("robinson")).toBe("theory-peano");
+  });
+
+  it("returns theory-peano for peano-hk preset", () => {
+    expect(getPresetReferenceEntryId("peano-hk")).toBe("theory-peano");
+  });
+
+  it("returns theory-peano for peano-mendelson preset", () => {
+    expect(getPresetReferenceEntryId("peano-mendelson")).toBe("theory-peano");
+  });
+
+  it("returns theory-peano for heyting preset", () => {
+    expect(getPresetReferenceEntryId("heyting")).toBe("theory-peano");
+  });
+
+  it("returns theory-group for group-left preset", () => {
+    expect(getPresetReferenceEntryId("group-left")).toBe("theory-group");
+  });
+
+  it("returns theory-group for group-full preset", () => {
+    expect(getPresetReferenceEntryId("group-full")).toBe("theory-group");
+  });
+
+  it("returns theory-group for abelian-group preset", () => {
+    expect(getPresetReferenceEntryId("abelian-group")).toBe("theory-group");
+  });
+
+  it("returns rule-nd-overview for nd-nm preset", () => {
+    expect(getPresetReferenceEntryId("nd-nm")).toBe("rule-nd-overview");
+  });
+
+  it("returns rule-nd-overview for nd-nj preset", () => {
+    expect(getPresetReferenceEntryId("nd-nj")).toBe("rule-nd-overview");
+  });
+
+  it("returns rule-nd-overview for nd-nk preset", () => {
+    expect(getPresetReferenceEntryId("nd-nk")).toBe("rule-nd-overview");
+  });
+
+  it("returns rule-sc-overview for sc-lm preset", () => {
+    expect(getPresetReferenceEntryId("sc-lm")).toBe("rule-sc-overview");
+  });
+
+  it("returns rule-sc-overview for sc-lj preset", () => {
+    expect(getPresetReferenceEntryId("sc-lj")).toBe("rule-sc-overview");
+  });
+
+  it("returns rule-sc-overview for sc-lk preset", () => {
+    expect(getPresetReferenceEntryId("sc-lk")).toBe("rule-sc-overview");
+  });
+
+  it("returns undefined for predicate preset (no reference)", () => {
+    expect(getPresetReferenceEntryId("predicate")).toBeUndefined();
+  });
+
+  it("returns undefined for equality preset (no reference)", () => {
+    expect(getPresetReferenceEntryId("equality")).toBeUndefined();
+  });
+
+  it("returns undefined for unknown preset id", () => {
+    expect(getPresetReferenceEntryId("nonexistent")).toBeUndefined();
+  });
+
+  it("returns undefined for empty string", () => {
+    expect(getPresetReferenceEntryId("")).toBeUndefined();
   });
 });

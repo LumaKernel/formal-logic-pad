@@ -7,6 +7,7 @@ import {
   predicateLogicSystem,
 } from "../logic-core/inferenceRule";
 import { hilbertDeduction } from "../logic-core/deductionSystem";
+import { allReferenceEntries } from "../reference/referenceContent";
 
 describe("NotebookCreateForm", () => {
   const defaultProps = {
@@ -188,6 +189,109 @@ describe("NotebookCreateForm", () => {
       await user.click(screen.getByTestId("create-cancel-btn"));
 
       expect(onCancel).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe("リファレンスポップオーバー統合", () => {
+    it("referenceEntries指定時に(?)ボタンが表示される", () => {
+      renderForm({
+        referenceEntries: allReferenceEntries,
+        locale: "ja",
+        testId: "form",
+      });
+      const refTrigger = screen.getByTestId(
+        "form-preset-lukasiewicz-ref-trigger",
+      );
+      expect(refTrigger).toBeInTheDocument();
+    });
+
+    it("リファレンスのないプリセット(predicate)には(?)が表示されない", () => {
+      renderForm({
+        referenceEntries: allReferenceEntries,
+        locale: "ja",
+        testId: "form",
+      });
+      expect(
+        screen.queryByTestId("form-preset-predicate-ref-trigger"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("referenceEntries未指定時は(?)ボタンが表示されない", () => {
+      renderForm({ testId: "form" });
+      expect(
+        screen.queryByTestId("form-preset-lukasiewicz-ref-trigger"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("(?)クリックでポップオーバーが開く（体系選択は変わらない）", async () => {
+      const user = userEvent.setup();
+      renderForm({
+        referenceEntries: allReferenceEntries,
+        locale: "ja",
+        testId: "form",
+      });
+
+      // lukasiewiczがデフォルト選択
+      expect(
+        screen.getByTestId("system-preset-lukasiewicz"),
+      ).toHaveAttribute("aria-checked", "true");
+
+      await user.click(
+        screen.getByTestId("form-preset-lukasiewicz-ref-trigger"),
+      );
+
+      // ポップオーバーが開く
+      expect(
+        screen.getByTestId("form-preset-lukasiewicz-ref-popover"),
+      ).toBeInTheDocument();
+
+      // 選択状態は変わらない（stopPropagation確認）
+      expect(
+        screen.getByTestId("system-preset-lukasiewicz"),
+      ).toHaveAttribute("aria-checked", "true");
+    });
+
+    it("onOpenReferenceDetailが呼ばれる", async () => {
+      const user = userEvent.setup();
+      const handleDetail = vi.fn();
+      renderForm({
+        referenceEntries: allReferenceEntries,
+        locale: "ja",
+        onOpenReferenceDetail: handleDetail,
+        testId: "form",
+      });
+
+      await user.click(
+        screen.getByTestId("form-preset-lukasiewicz-ref-trigger"),
+      );
+      const detailBtn = screen.getByTestId(
+        "form-preset-lukasiewicz-ref-detail-btn",
+      );
+      await user.click(detailBtn);
+
+      expect(handleDetail).toHaveBeenCalledWith("system-lukasiewicz");
+    });
+
+    it("別のプリセット(peano)の(?)も表示される", () => {
+      renderForm({
+        referenceEntries: allReferenceEntries,
+        locale: "ja",
+        testId: "form",
+      });
+      expect(
+        screen.getByTestId("form-preset-peano-ref-trigger"),
+      ).toBeInTheDocument();
+    });
+
+    it("自然演繹プリセット(nd-nm)の(?)も表示される", () => {
+      renderForm({
+        referenceEntries: allReferenceEntries,
+        locale: "ja",
+        testId: "form",
+      });
+      expect(
+        screen.getByTestId("form-preset-nd-nm-ref-trigger"),
+      ).toBeInTheDocument();
     });
   });
 });

@@ -19,6 +19,7 @@ import {
   ljSystem,
   lkSystem,
 } from "../logic-core/deductionSystem";
+import type { ReferenceEntryId } from "../reference/referenceEntry";
 import {
   skSystem,
   minimalLogicSystem,
@@ -305,4 +306,57 @@ export function getFieldError(
   if (validation.valid) return undefined;
   const found = validation.errors.find((e) => e.field === field);
   return found?.message;
+}
+
+// --- プリセットID → リファレンスエントリID マッピング ---
+
+/**
+ * プリセットIDからリファレンスエントリIDへのマッピング。
+ *
+ * 各プリセットに対して最も関連の強いリファレンスエントリを1つ対応させる。
+ * - 命題論理体系プリセット → 対応する論理体系エントリ
+ * - 自然演繹プリセット → 自然演繹概要エントリ
+ * - シーケント計算プリセット → シーケント計算概要エントリ
+ * - 算術系プリセット → ペアノ算術理論エントリ
+ * - 群論系プリセット → 群論理論エントリ
+ *
+ * 新しいプリセット追加時は referenceContent.ts のエントリも確認すること。
+ */
+const presetIdToReferenceEntryId: ReadonlyMap<string, ReferenceEntryId> =
+  new Map([
+    // Hilbert流 命題論理
+    ["sk", "system-minimal"],
+    ["minimal", "system-minimal"],
+    ["intuitionistic", "system-intuitionistic"],
+    ["classical", "system-classical"],
+    ["lukasiewicz", "system-lukasiewicz"],
+    ["mendelson", "system-mendelson"],
+    // 算術系
+    ["peano", "theory-peano"],
+    ["robinson", "theory-peano"],
+    ["peano-hk", "theory-peano"],
+    ["peano-mendelson", "theory-peano"],
+    ["heyting", "theory-peano"],
+    // 群論系
+    ["group-left", "theory-group"],
+    ["group-full", "theory-group"],
+    ["abelian-group", "theory-group"],
+    // 自然演繹
+    ["nd-nm", "rule-nd-overview"],
+    ["nd-nj", "rule-nd-overview"],
+    ["nd-nk", "rule-nd-overview"],
+    // シーケント計算
+    ["sc-lm", "rule-sc-overview"],
+    ["sc-lj", "rule-sc-overview"],
+    ["sc-lk", "rule-sc-overview"],
+  ]);
+
+/**
+ * プリセットIDに対応するリファレンスエントリIDを返す。
+ * 対応するエントリがない場合はundefinedを返す。
+ */
+export function getPresetReferenceEntryId(
+  presetId: string,
+): ReferenceEntryId | undefined {
+  return presetIdToReferenceEntryId.get(presetId);
 }
