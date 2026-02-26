@@ -127,6 +127,66 @@ describe("基本表示", () => {
   });
 });
 
+// --- チャプター番号 ---
+
+describe("チャプター番号", () => {
+  it("最初のカテゴリにチャプター番号1が表示される", () => {
+    render(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    expect(screen.getByTestId("chapter-number-1")).toBeTruthy();
+    expect(screen.getByTestId("chapter-number-1").textContent).toBe("1");
+  });
+
+  it("複数カテゴリで連番のチャプター番号が表示される", () => {
+    const groups: readonly CategoryGroup[] = [
+      makeGroup(),
+      makeGroup({
+        category: {
+          id: "propositional-negation",
+          label: "否定を含む命題論理",
+          description: "否定テスト",
+          order: 2,
+        },
+        items: [
+          makeItem({
+            questOverrides: {
+              id: "q3",
+              category: "propositional-negation",
+            },
+          }),
+        ],
+      }),
+    ];
+    render(<QuestCatalog groups={groups} onStartQuest={vi.fn()} />);
+    expect(screen.getByTestId("chapter-number-1").textContent).toBe("1");
+    expect(screen.getByTestId("chapter-number-2").textContent).toBe("2");
+  });
+});
+
+// --- プログレスバー ---
+
+describe("プログレスバー", () => {
+  it("プログレスバーが表示される", () => {
+    render(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    expect(screen.getByTestId("progress-bar")).toBeTruthy();
+  });
+});
+
+// --- 難易度星 ---
+
+describe("難易度星", () => {
+  it("難易度1のクエストに星が表示される", () => {
+    render(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    const stars = screen.getAllByTestId("difficulty-stars");
+    expect(stars.length).toBeGreaterThan(0);
+  });
+
+  it("難易度バッジにLv.表記がある", () => {
+    render(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    const item = screen.getByTestId("quest-item-q1");
+    expect(within(item).getByText("Lv.1")).toBeTruthy();
+  });
+});
+
 // --- 評価バッジ ---
 
 describe("評価バッジ", () => {

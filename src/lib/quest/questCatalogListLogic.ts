@@ -148,6 +148,47 @@ export function ratingColor(rating: QuestRating): string {
   }
 }
 
+/** 評価のCSS変数ペア（bg, text） */
+export function ratingCssVars(rating: QuestRating): {
+  readonly bg: string;
+  readonly text: string;
+} {
+  switch (rating) {
+    case "perfect":
+      return {
+        bg: "var(--color-quest-rating-perfect-bg)",
+        text: "var(--color-quest-rating-perfect-text)",
+      };
+    case "good":
+      return {
+        bg: "var(--color-quest-rating-good-bg)",
+        text: "var(--color-quest-rating-good-text)",
+      };
+    case "completed":
+      return {
+        bg: "var(--color-quest-rating-clear-bg)",
+        text: "var(--color-quest-rating-clear-text)",
+      };
+    case "not-completed":
+      return {
+        bg: "var(--color-quest-rating-none-bg)",
+        text: "var(--color-quest-rating-none-text)",
+      };
+    /* v8 ignore start */
+    default: {
+      const _: never = rating;
+      throw new Error(`Unknown rating: ${String(_) satisfies string}`);
+    }
+    /* v8 ignore stop */
+  }
+}
+
+/** 難易度の星を filled/empty 配列で返す */
+export function difficultyStars(level: DifficultyLevel): readonly boolean[] {
+  const maxStars = 5;
+  return Array.from({ length: maxStars }, (_, i) => i < level);
+}
+
 /** カテゴリの進捗テキスト（例: "3 / 5"） */
 export function categoryProgressText(
   completedCount: number,

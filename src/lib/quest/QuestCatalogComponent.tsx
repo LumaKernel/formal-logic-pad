@@ -14,14 +14,14 @@ import type { QuestId, DifficultyLevel } from "./questDefinition";
 import {
   applyFiltersToGroups,
   defaultFilterState,
-  difficultyLabel,
   difficultyShortLabel,
   ratingLabel,
-  ratingColor,
+  ratingCssVars,
   categoryProgressText,
   stepCountText,
   completionFilterOptions,
   difficultyFilterOptions,
+  difficultyStars,
   type CatalogFilterState,
   type CompletionFilter,
 } from "./questCatalogListLogic";
@@ -38,7 +38,7 @@ export type QuestCatalogProps = {
 const containerStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  gap: 16,
+  gap: 20,
   padding: 16,
   fontFamily:
     "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
@@ -46,87 +46,137 @@ const containerStyle: CSSProperties = {
 
 const filterBarStyle: CSSProperties = {
   display: "flex",
-  gap: 8,
+  gap: 6,
   flexWrap: "wrap",
   alignItems: "center",
+  padding: "10px 14px",
+  borderRadius: 8,
+  background: "var(--color-quest-chapter-bg)",
+  border: "1px solid var(--color-quest-chapter-border)",
 };
 
 const filterLabelStyle: CSSProperties = {
-  fontSize: 12,
+  fontSize: 11,
   color: "var(--color-text-secondary, #888)",
-  fontWeight: 600,
+  fontWeight: 700,
+  letterSpacing: "0.03em",
+  textTransform: "uppercase" as const,
 };
 
 const filterButtonStyle: CSSProperties = {
   padding: "4px 10px",
-  fontSize: 12,
-  borderRadius: 12,
+  fontSize: 11,
+  borderRadius: 10,
   borderWidth: 1,
   borderStyle: "solid",
-  borderColor: "var(--color-border, #ddd)",
-  background: "var(--color-surface, #fff)",
+  borderColor: "var(--color-quest-filter-border)",
+  background: "var(--color-quest-filter-bg)",
   color: "var(--color-text-primary, #333)",
   cursor: "pointer",
   transition: "all 0.15s",
+  fontWeight: 500,
 };
 
 const filterButtonActiveStyle: CSSProperties = {
   ...filterButtonStyle,
-  background: "var(--color-primary, #1976d2)",
+  background: "var(--color-quest-filter-active-bg)",
   color: "#fff",
-  borderColor: "var(--color-primary, #1976d2)",
+  borderColor: "var(--color-quest-filter-active-border)",
+  fontWeight: 600,
+};
+
+const categoryContainerStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 0,
 };
 
 const categoryHeaderStyle: CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "8px 12px",
-  borderRadius: 8,
-  background: "var(--color-surface-alt, #f5f5f5)",
+  padding: "12px 16px",
+  borderRadius: "8px 8px 0 0",
+  background: "var(--color-quest-chapter-bg)",
+  border: "1px solid var(--color-quest-chapter-border)",
+  borderBottom: "2px solid var(--color-quest-chapter-rule)",
+};
+
+const chapterNumberStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 28,
+  height: 28,
+  borderRadius: "50%",
+  background: "var(--color-quest-chapter-number)",
+  color: "#fff",
+  fontSize: 13,
+  fontWeight: 700,
+  marginRight: 10,
+  flexShrink: 0,
 };
 
 const categoryTitleStyle: CSSProperties = {
-  fontSize: 16,
+  fontSize: 15,
   fontWeight: 700,
   color: "var(--color-text-primary, #333)",
 };
 
 const categoryDescStyle: CSSProperties = {
-  fontSize: 12,
+  fontSize: 11,
   color: "var(--color-text-secondary, #888)",
   marginTop: 2,
 };
 
+const progressContainerStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-end",
+  gap: 4,
+  flexShrink: 0,
+};
+
 const categoryProgressStyle: CSSProperties = {
-  fontSize: 13,
+  fontSize: 12,
   color: "var(--color-text-secondary, #666)",
   fontWeight: 600,
   whiteSpace: "nowrap",
 };
 
+const progressBarOuterStyle: CSSProperties = {
+  width: 60,
+  height: 4,
+  borderRadius: 2,
+  background: "var(--color-quest-progress-bar-bg)",
+  overflow: "hidden",
+};
+
 const questListStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  gap: 6,
-  paddingLeft: 8,
+  gap: 0,
+  border: "1px solid var(--color-quest-card-border)",
+  borderTop: "none",
+  borderRadius: "0 0 8px 8px",
+  overflow: "hidden",
 };
 
 const questItemStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   padding: "10px 14px",
-  borderRadius: 8,
-  border: "1px solid var(--color-border, #e0e0e0)",
-  background: "var(--color-surface, #fff)",
+  background: "var(--color-quest-card-bg)",
   cursor: "pointer",
-  transition: "background 0.15s",
+  transition: "background 0.15s, box-shadow 0.15s",
   gap: 10,
+  borderBottom: "1px solid var(--color-quest-card-border)",
 };
 
 const questItemHoverStyle: CSSProperties = {
   ...questItemStyle,
-  background: "var(--color-surface-hover, #f5f5f5)",
+  background: "var(--color-quest-card-hover-bg)",
+  boxShadow: "inset 3px 0 0 var(--color-quest-filter-active-bg)",
 };
 
 const questInfoStyle: CSSProperties = {
@@ -135,13 +185,13 @@ const questInfoStyle: CSSProperties = {
 };
 
 const questTitleStyle: CSSProperties = {
-  fontSize: 14,
+  fontSize: 13,
   fontWeight: 600,
   color: "var(--color-text-primary, #333)",
 };
 
 const questDescStyle: CSSProperties = {
-  fontSize: 12,
+  fontSize: 11,
   color: "var(--color-text-secondary, #888)",
   marginTop: 2,
   overflow: "hidden",
@@ -157,67 +207,122 @@ const questMetaStyle: CSSProperties = {
 };
 
 const difficultyBadgeStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 3,
   fontSize: 10,
   padding: "2px 6px",
-  borderRadius: 4,
+  borderRadius: 10,
   fontWeight: 600,
-  background: "var(--color-badge-difficulty-bg, #e3f2fd)",
-  color: "var(--color-badge-difficulty-text, #1565c0)",
+  background: "var(--color-quest-difficulty-bg)",
+  color: "var(--color-quest-difficulty-text)",
+};
+
+const starStyle: CSSProperties = {
+  fontSize: 9,
+  lineHeight: 1,
 };
 
 const stepTextStyle: CSSProperties = {
-  fontSize: 11,
+  fontSize: 10,
   color: "var(--color-text-secondary, #999)",
 };
 
 const ratingBadgeBaseStyle: CSSProperties = {
-  fontSize: 11,
+  fontSize: 10,
   fontWeight: 700,
   padding: "2px 8px",
-  borderRadius: 4,
+  borderRadius: 10,
   whiteSpace: "nowrap",
 };
 
 const startButtonStyle: CSSProperties = {
-  padding: "6px 14px",
-  fontSize: 12,
+  padding: "5px 12px",
+  fontSize: 11,
   fontWeight: 600,
   borderRadius: 6,
   border: "none",
-  background: "var(--color-primary, #1976d2)",
+  background: "var(--color-quest-start-bg)",
   color: "#fff",
   cursor: "pointer",
   flexShrink: 0,
-  transition: "opacity 0.15s",
+  transition: "background 0.15s",
 };
 
 const emptyStyle: CSSProperties = {
   textAlign: "center",
   padding: 32,
   color: "var(--color-text-secondary, #999)",
-  fontSize: 14,
+  fontSize: 13,
+  background: "var(--color-quest-empty-bg)",
+  borderRadius: 8,
+  border: "1px solid var(--color-quest-chapter-border)",
 };
 
 // --- Sub-components ---
+
+function DifficultyStars({ level }: { readonly level: DifficultyLevel }) {
+  const stars = difficultyStars(level);
+  return (
+    <span data-testid="difficulty-stars" style={difficultyBadgeStyle}>
+      <span style={{ fontSize: 10, fontWeight: 600 }}>
+        {difficultyShortLabel(level)}
+      </span>
+      {stars.map((filled, i) => (
+        <span
+          key={i}
+          style={{
+            ...starStyle,
+            color: filled
+              ? "var(--color-quest-star-filled)"
+              : "var(--color-quest-star-empty)",
+          }}
+        >
+          {"\u2605"}
+        </span>
+      ))}
+    </span>
+  );
+}
 
 function RatingBadge({
   rating,
 }: {
   readonly rating: QuestCatalogItem["rating"];
 }) {
-  const color = ratingColor(rating);
+  const vars = ratingCssVars(rating);
   const style: CSSProperties = {
     ...ratingBadgeBaseStyle,
-    color,
-    background:
-      rating === "not-completed"
-        ? "var(--color-surface-alt, #f5f5f5)"
-        : `${color satisfies string}20`,
+    color: vars.text,
+    background: vars.bg,
   };
   return (
     <span data-testid="rating-badge" style={style}>
       {ratingLabel(rating)}
     </span>
+  );
+}
+
+function ProgressBar({
+  completed,
+  total,
+}: {
+  readonly completed: number;
+  readonly total: number;
+}) {
+  const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+  return (
+    <div style={progressBarOuterStyle} data-testid="progress-bar">
+      <div
+        style={{
+          width: `${String(pct) satisfies string}%`,
+          height: "100%",
+          borderRadius: 2,
+          background: "var(--color-quest-progress-bar-fill)",
+          transition: "width 0.3s ease",
+        }}
+      />
+    </div>
   );
 }
 
@@ -249,10 +354,7 @@ function QuestItem({
         <div style={questTitleStyle}>{item.quest.title}</div>
         <div style={questDescStyle}>{item.quest.description}</div>
         <div style={questMetaStyle}>
-          <span style={difficultyBadgeStyle}>
-            {difficultyShortLabel(item.quest.difficulty)}{" "}
-            {difficultyLabel(item.quest.difficulty)}
-          </span>
+          <DifficultyStars level={item.quest.difficulty} />
           <span style={stepTextStyle}>
             {stepCountText(item.bestStepCount, item.quest.estimatedSteps)}
           </span>
@@ -276,20 +378,39 @@ function QuestItem({
 
 function CategorySection({
   group,
+  chapterNumber,
   onStart,
 }: {
   readonly group: CategoryGroup;
+  readonly chapterNumber: number;
   readonly onStart: (questId: QuestId) => void;
 }) {
   return (
-    <div data-testid={`category-${group.category.id satisfies string}`}>
+    <div
+      data-testid={`category-${group.category.id satisfies string}`}
+      style={categoryContainerStyle}
+    >
       <div style={categoryHeaderStyle}>
-        <div>
-          <div style={categoryTitleStyle}>{group.category.label}</div>
-          <div style={categoryDescStyle}>{group.category.description}</div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <span
+            style={chapterNumberStyle}
+            data-testid={`chapter-number-${String(chapterNumber) satisfies string}`}
+          >
+            {chapterNumber}
+          </span>
+          <div>
+            <div style={categoryTitleStyle}>{group.category.label}</div>
+            <div style={categoryDescStyle}>{group.category.description}</div>
+          </div>
         </div>
-        <div style={categoryProgressStyle}>
-          {categoryProgressText(group.completedCount, group.totalCount)}
+        <div style={progressContainerStyle}>
+          <div style={categoryProgressStyle}>
+            {categoryProgressText(group.completedCount, group.totalCount)}
+          </div>
+          <ProgressBar
+            completed={group.completedCount}
+            total={group.totalCount}
+          />
         </div>
       </div>
       <div style={questListStyle}>
@@ -335,7 +456,7 @@ export function QuestCatalog({ groups, onStartQuest }: QuestCatalogProps) {
             {opt.label}
           </button>
         ))}
-        <span style={{ ...filterLabelStyle, marginLeft: 8 }}>状態:</span>
+        <span style={{ ...filterLabelStyle, marginLeft: 12 }}>状態:</span>
         {completionFilterOptions.map((opt) => (
           <button
             key={opt.value}
@@ -358,10 +479,11 @@ export function QuestCatalog({ groups, onStartQuest }: QuestCatalogProps) {
           条件に合うクエストがありません。
         </div>
       ) : (
-        filteredGroups.map((group) => (
+        filteredGroups.map((group, index) => (
           <CategorySection
             key={group.category.id}
             group={group}
+            chapterNumber={index + 1}
             onStart={onStartQuest}
           />
         ))

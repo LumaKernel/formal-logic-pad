@@ -7,6 +7,8 @@ import {
   difficultyShortLabel,
   ratingLabel,
   ratingColor,
+  ratingCssVars,
+  difficultyStars,
   categoryProgressText,
   stepCountText,
   completionFilterOptions,
@@ -318,5 +320,58 @@ describe("difficultyFilterOptions", () => {
 
   it("最初はnull（全難易度）", () => {
     expect(difficultyFilterOptions[0]?.value).toBeNull();
+  });
+});
+
+// --- ratingCssVars ---
+
+describe("ratingCssVars", () => {
+  it("perfectはCSS変数ペアを返す", () => {
+    const vars = ratingCssVars("perfect");
+    expect(vars.bg).toContain("--color-quest-rating-perfect-bg");
+    expect(vars.text).toContain("--color-quest-rating-perfect-text");
+  });
+
+  it("goodはCSS変数ペアを返す", () => {
+    const vars = ratingCssVars("good");
+    expect(vars.bg).toContain("--color-quest-rating-good-bg");
+    expect(vars.text).toContain("--color-quest-rating-good-text");
+  });
+
+  it("completedはCSS変数ペアを返す", () => {
+    const vars = ratingCssVars("completed");
+    expect(vars.bg).toContain("--color-quest-rating-clear-bg");
+    expect(vars.text).toContain("--color-quest-rating-clear-text");
+  });
+
+  it("not-completedはCSS変数ペアを返す", () => {
+    const vars = ratingCssVars("not-completed");
+    expect(vars.bg).toContain("--color-quest-rating-none-bg");
+    expect(vars.text).toContain("--color-quest-rating-none-text");
+  });
+});
+
+// --- difficultyStars ---
+
+describe("difficultyStars", () => {
+  it("難易度1で最初だけtrue、残りfalse", () => {
+    const stars = difficultyStars(1);
+    expect(stars).toEqual([true, false, false, false, false]);
+  });
+
+  it("難易度3で前3つがtrue", () => {
+    const stars = difficultyStars(3);
+    expect(stars).toEqual([true, true, true, false, false]);
+  });
+
+  it("難易度5で全部true", () => {
+    const stars = difficultyStars(5);
+    expect(stars).toEqual([true, true, true, true, true]);
+  });
+
+  it("常に5要素の配列を返す", () => {
+    expect(difficultyStars(1)).toHaveLength(5);
+    expect(difficultyStars(2)).toHaveLength(5);
+    expect(difficultyStars(4)).toHaveLength(5);
   });
 });

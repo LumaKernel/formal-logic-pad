@@ -170,6 +170,15 @@ export const Default: Story = {
     ).toBeInTheDocument();
     await expect(canvas.getByText("命題論理の基礎")).toBeInTheDocument();
     await expect(canvas.getByText("4 / 5")).toBeInTheDocument();
+    // チャプター番号が表示される
+    await expect(canvas.getByTestId("chapter-number-1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("chapter-number-2")).toBeInTheDocument();
+    // プログレスバーが表示される
+    const bars = canvas.getAllByTestId("progress-bar");
+    await expect(bars.length).toBe(2);
+    // 難易度星が表示される
+    const stars = canvas.getAllByTestId("difficulty-stars");
+    await expect(stars.length).toBeGreaterThan(0);
   },
 };
 

@@ -130,7 +130,7 @@
   /* Notebook Badge */
   --color-badge-free-bg: rgba(76, 175, 80, 0.12);
   --color-badge-free-text: #2e7d32;
-  --color-badge-quest-bg: rgba(230, 81, 0, 0.10);
+  --color-badge-quest-bg: rgba(230, 81, 0, 0.1);
   --color-badge-quest-text: #e65100;
 
   /* Notebook Action Button */
@@ -140,6 +140,39 @@
   --color-notebook-delete-text: #c62828;
   --color-notebook-delete-border: rgba(198, 40, 40, 0.25);
   --color-notebook-delete-hover-bg: rgba(198, 40, 40, 0.06);
+
+  /* Quest Catalog */
+  --color-quest-card-bg: #fffdf8;
+  --color-quest-card-border: rgba(180, 160, 130, 0.25);
+  --color-quest-card-shadow: rgba(120, 100, 70, 0.08);
+  --color-quest-card-shadow-hover: rgba(120, 100, 70, 0.18);
+  --color-quest-card-hover-bg: rgba(252, 249, 243, 0.98);
+  --color-quest-chapter-bg: rgba(252, 249, 243, 0.96);
+  --color-quest-chapter-border: rgba(180, 160, 130, 0.2);
+  --color-quest-chapter-number: #8b7355;
+  --color-quest-chapter-rule: rgba(180, 160, 130, 0.25);
+  --color-quest-filter-bg: rgba(255, 253, 248, 0.9);
+  --color-quest-filter-border: rgba(180, 160, 130, 0.3);
+  --color-quest-filter-active-bg: #5b7a9e;
+  --color-quest-filter-active-border: #5b7a9e;
+  --color-quest-filter-hover-bg: rgba(245, 240, 230, 0.95);
+  --color-quest-progress-bar-bg: rgba(180, 160, 130, 0.15);
+  --color-quest-progress-bar-fill: #5b7a9e;
+  --color-quest-star-filled: #d4a03c;
+  --color-quest-star-empty: rgba(180, 160, 130, 0.3);
+  --color-quest-rating-perfect-bg: rgba(212, 160, 60, 0.12);
+  --color-quest-rating-perfect-text: #8b6914;
+  --color-quest-rating-good-bg: rgba(76, 175, 80, 0.12);
+  --color-quest-rating-good-text: #2e7d32;
+  --color-quest-rating-clear-bg: rgba(91, 122, 158, 0.12);
+  --color-quest-rating-clear-text: #5b7a9e;
+  --color-quest-rating-none-bg: rgba(180, 160, 130, 0.1);
+  --color-quest-rating-none-text: #999;
+  --color-quest-start-bg: #5b7a9e;
+  --color-quest-start-hover-bg: #4a6580;
+  --color-quest-difficulty-bg: rgba(180, 160, 130, 0.12);
+  --color-quest-difficulty-text: #8b7355;
+  --color-quest-empty-bg: rgba(252, 249, 243, 0.96);
 
   /* Legacy compat (used by page.module.css) */
   --background: #ffffff;
@@ -279,6 +312,39 @@
   --color-notebook-delete-text: #ef5350;
   --color-notebook-delete-border: rgba(239, 83, 80, 0.3);
   --color-notebook-delete-hover-bg: rgba(239, 83, 80, 0.08);
+
+  /* Quest Catalog */
+  --color-quest-card-bg: #262320;
+  --color-quest-card-border: rgba(100, 90, 75, 0.3);
+  --color-quest-card-shadow: rgba(0, 0, 0, 0.2);
+  --color-quest-card-shadow-hover: rgba(0, 0, 0, 0.4);
+  --color-quest-card-hover-bg: rgba(42, 38, 34, 0.98);
+  --color-quest-chapter-bg: rgba(36, 33, 30, 0.96);
+  --color-quest-chapter-border: rgba(100, 90, 75, 0.3);
+  --color-quest-chapter-number: #c8b898;
+  --color-quest-chapter-rule: rgba(100, 90, 75, 0.25);
+  --color-quest-filter-bg: rgba(42, 38, 34, 0.9);
+  --color-quest-filter-border: rgba(100, 90, 75, 0.35);
+  --color-quest-filter-active-bg: #6b92b8;
+  --color-quest-filter-active-border: #6b92b8;
+  --color-quest-filter-hover-bg: rgba(52, 48, 42, 0.95);
+  --color-quest-progress-bar-bg: rgba(100, 90, 75, 0.2);
+  --color-quest-progress-bar-fill: #6b92b8;
+  --color-quest-star-filled: #e0b84c;
+  --color-quest-star-empty: rgba(100, 90, 75, 0.35);
+  --color-quest-rating-perfect-bg: rgba(224, 184, 76, 0.15);
+  --color-quest-rating-perfect-text: #e0b84c;
+  --color-quest-rating-good-bg: rgba(76, 175, 80, 0.15);
+  --color-quest-rating-good-text: #66bb6a;
+  --color-quest-rating-clear-bg: rgba(107, 146, 184, 0.15);
+  --color-quest-rating-clear-text: #6b92b8;
+  --color-quest-rating-none-bg: rgba(100, 90, 75, 0.15);
+  --color-quest-rating-none-text: #888;
+  --color-quest-start-bg: #6b92b8;
+  --color-quest-start-hover-bg: #5a7d9e;
+  --color-quest-difficulty-bg: rgba(100, 90, 75, 0.15);
+  --color-quest-difficulty-text: #c8b898;
+  --color-quest-empty-bg: rgba(36, 33, 30, 0.96);
 
   /* Legacy compat (used by page.module.css) */
   --background: #0a0a0a;
