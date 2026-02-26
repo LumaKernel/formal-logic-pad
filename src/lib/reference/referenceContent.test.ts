@@ -16,8 +16,8 @@ describe("allReferenceEntries", () => {
   });
 
   it("エントリ数が期待通り", () => {
-    // 公理13 + 推論規則9 + 論理体系5 + 概念3 + 理論2 = 32
-    expect(allReferenceEntries).toHaveLength(32);
+    // 公理13 + 推論規則9 + 論理体系5 + 記法7 + 概念3 + 理論2 = 39
+    expect(allReferenceEntries).toHaveLength(39);
   });
 
   it("少なくとも1つのエントリが各カテゴリに存在する", () => {
@@ -25,6 +25,7 @@ describe("allReferenceEntries", () => {
       "axiom",
       "inference-rule",
       "logic-system",
+      "notation",
       "concept",
       "theory",
     ] as const;
@@ -495,5 +496,152 @@ describe("検索の動作確認", () => {
   it("カット除去を検索できる", () => {
     const result = searchEntries(allReferenceEntries, "カット除去", "ja");
     expect(result.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("記法カテゴリのエントリを検索できる", () => {
+    const resultEn = searchEntries(allReferenceEntries, "connective", "en");
+    expect(resultEn.some((e) => e.id === "notation-connectives")).toBe(true);
+    const resultJa = searchEntries(allReferenceEntries, "結合子", "ja");
+    expect(resultJa.some((e) => e.id === "notation-connectives")).toBe(true);
+  });
+
+  it("量化子を検索できる", () => {
+    const resultEn = searchEntries(allReferenceEntries, "quantifier", "en");
+    expect(resultEn.some((e) => e.id === "notation-quantifiers")).toBe(true);
+    const resultJa = searchEntries(allReferenceEntries, "量化子", "ja");
+    expect(resultJa.some((e) => e.id === "notation-quantifiers")).toBe(true);
+  });
+
+  it("メタ変数を検索できる", () => {
+    const resultEn = searchEntries(allReferenceEntries, "metavariable", "en");
+    expect(resultEn.some((e) => e.id === "notation-metavariables")).toBe(true);
+    const resultJa = searchEntries(allReferenceEntries, "メタ変数", "ja");
+    expect(resultJa.some((e) => e.id === "notation-metavariables")).toBe(true);
+  });
+
+  it("入力方法を検索できる", () => {
+    const resultEn = searchEntries(allReferenceEntries, "input method", "en");
+    expect(resultEn.some((e) => e.id === "notation-input-methods")).toBe(true);
+    const resultJa = searchEntries(allReferenceEntries, "入力方法", "ja");
+    expect(resultJa.some((e) => e.id === "notation-input-methods")).toBe(true);
+  });
+});
+
+describe("記法エントリの個別チェック", () => {
+  const notationIds = [
+    "notation-connectives",
+    "notation-quantifiers",
+    "notation-equality",
+    "notation-metavariables",
+    "notation-term-operations",
+    "notation-precedence",
+    "notation-input-methods",
+  ];
+
+  it("全記法エントリが存在する", () => {
+    for (const id of notationIds) {
+      const entry = findEntryById(allReferenceEntries, id);
+      expect(entry).toBeDefined();
+      expect(entry?.category).toBe("notation");
+    }
+  });
+
+  it("論理結合子エントリに→, ∧, ∨, ¬, ↔が記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "notation-connectives");
+    expect(entry?.body.en.some((p) => p.includes("→"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("∧"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("∨"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("¬"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("↔"))).toBe(true);
+    expect(entry?.formalNotation).toBeTruthy();
+  });
+
+  it("量化子エントリに∀, ∃が記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "notation-quantifiers");
+    expect(entry?.body.en.some((p) => p.includes("∀"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("∃"))).toBe(true);
+    expect(entry?.formalNotation).toBeTruthy();
+  });
+
+  it("等号エントリに=の説明がある", () => {
+    const entry = findEntryById(allReferenceEntries, "notation-equality");
+    expect(entry?.body.en.some((p) => p.includes("="))).toBe(true);
+    expect(entry?.formalNotation).toBeTruthy();
+  });
+
+  it("メタ変数エントリにφ, ψ, χが記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "notation-metavariables");
+    expect(entry?.body.en.some((p) => p.includes("φ"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("ψ"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("χ"))).toBe(true);
+  });
+
+  it("メタ変数エントリに添字の説明がある", () => {
+    const entry = findEntryById(allReferenceEntries, "notation-metavariables");
+    expect(entry?.body.en.some((p) => p.includes("subscript"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("添字"))).toBe(true);
+  });
+
+  it("項演算エントリに+, ×, ^が記載されている", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "notation-term-operations",
+    );
+    expect(entry?.body.en.some((p) => p.includes("+"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("×"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("^"))).toBe(true);
+  });
+
+  it("優先順位エントリに結合性の説明がある", () => {
+    const entry = findEntryById(allReferenceEntries, "notation-precedence");
+    expect(entry?.body.en.some((p) => p.includes("associativity"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("結合性"))).toBe(true);
+  });
+
+  it("優先順位エントリに優先順位の一覧がある", () => {
+    const entry = findEntryById(allReferenceEntries, "notation-precedence");
+    expect(entry?.body.en.some((p) => p.includes("¬"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("→"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("∧"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("∨"))).toBe(true);
+  });
+
+  it("入力方法エントリにASCII入力の説明がある", () => {
+    const entry = findEntryById(allReferenceEntries, "notation-input-methods");
+    expect(entry?.body.en.some((p) => p.includes("->"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("/\\"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\/"))).toBe(true);
+  });
+
+  it("入力方法エントリにギリシャ文字入力の説明がある", () => {
+    const entry = findEntryById(allReferenceEntries, "notation-input-methods");
+    expect(entry?.body.en.some((p) => p.includes("phi"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("psi"))).toBe(true);
+  });
+
+  it("記法エントリに外部リンクがある", () => {
+    const entry = findEntryById(allReferenceEntries, "notation-connectives");
+    expect(entry?.externalLinks.length).toBeGreaterThan(0);
+  });
+
+  it("記法エントリにkeywordsがある", () => {
+    for (const id of notationIds) {
+      const entry = findEntryById(allReferenceEntries, id);
+      expect(entry?.keywords.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("記法エントリに適切な関連エントリがある", () => {
+    const connectives = findEntryById(
+      allReferenceEntries,
+      "notation-connectives",
+    );
+    expect(connectives?.relatedEntryIds.length).toBeGreaterThan(0);
+
+    const quantifiers = findEntryById(
+      allReferenceEntries,
+      "notation-quantifiers",
+    );
+    expect(quantifiers?.relatedEntryIds.length).toBeGreaterThan(0);
   });
 });

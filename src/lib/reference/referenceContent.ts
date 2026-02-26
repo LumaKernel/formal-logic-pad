@@ -1539,6 +1539,437 @@ const theoryGroupTheory: ReferenceEntry = {
 };
 
 // ============================================================
+// 記法・記号 (Notation)
+// ============================================================
+
+const notationConnectives: ReferenceEntry = {
+  id: "notation-connectives",
+  category: "notation",
+  title: {
+    en: "Logical Connectives",
+    ja: "論理結合子",
+  },
+  summary: {
+    en: "→ (implication), ∧ (conjunction), ∨ (disjunction), ¬ (negation), ↔ (biconditional).",
+    ja: "→（含意）、∧（連言）、∨（選言）、¬（否定）、↔（双条件）。",
+  },
+  body: {
+    en: [
+      "**Logical connectives** combine formulas to form compound statements. This application supports five connectives, listed from highest to lowest precedence:",
+      "**¬ (Negation):** A unary prefix operator. ¬φ is true when φ is false. Written `~` or `not` in ASCII input. LaTeX: `\\lnot`.",
+      "**∧ (Conjunction):** A binary infix operator, left-associative. φ ∧ ψ is true when both φ and ψ are true. Written `/\\` or `and` in ASCII input. LaTeX: `\\land`.",
+      "**∨ (Disjunction):** A binary infix operator, left-associative. φ ∨ ψ is true when at least one of φ or ψ is true. Written `\\/` or `or` in ASCII input. LaTeX: `\\lor`.",
+      "**→ (Implication):** A binary infix operator, right-associative. φ → ψ is false only when φ is true and ψ is false. Written `->` or `implies` in ASCII input. LaTeX: `\\to`.",
+      "**↔ (Biconditional):** A binary infix operator, right-associative. φ ↔ ψ is true when φ and ψ have the same truth value. Written `<->` or `iff` in ASCII input. LaTeX: `\\leftrightarrow`.",
+    ],
+    ja: [
+      "**論理結合子**は論理式を組み合わせて複合命題を形成します。本アプリケーションでは5つの結合子をサポートしており、優先順位の高い順に列挙します：",
+      "**¬（否定）：** 単項前置演算子です。¬φはφが偽のとき真になります。ASCII入力では `~` または `not` と書きます。LaTeX: `\\lnot`。",
+      "**∧（連言）：** 二項中置演算子で、左結合です。φ ∧ ψはφとψの両方が真のとき真になります。ASCII入力では `/\\` または `and` と書きます。LaTeX: `\\land`。",
+      "**∨（選言）：** 二項中置演算子で、左結合です。φ ∨ ψはφとψの少なくとも一方が真のとき真になります。ASCII入力では `\\/` または `or` と書きます。LaTeX: `\\lor`。",
+      "**→（含意）：** 二項中置演算子で、右結合です。φ → ψはφが真でψが偽のときのみ偽になります。ASCII入力では `->` または `implies` と書きます。LaTeX: `\\to`。",
+      "**↔（双条件）：** 二項中置演算子で、右結合です。φ ↔ ψはφとψの真偽値が同じとき真になります。ASCII入力では `<->` または `iff` と書きます。LaTeX: `\\leftrightarrow`。",
+    ],
+  },
+  formalNotation: "\\lnot, \\land, \\lor, \\to, \\leftrightarrow",
+  relatedEntryIds: [
+    "notation-precedence",
+    "notation-input-methods",
+    "axiom-a1",
+    "axiom-a2",
+    "axiom-a3",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Logical_connective",
+      label: {
+        en: "Logical connective (Wikipedia)",
+        ja: "論理結合子 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E8%AB%96%E7%90%86%E7%B5%90%E5%90%88%E5%AD%90",
+      label: {
+        en: "Logical connective (Wikipedia JA)",
+        ja: "論理結合子 (Wikipedia)",
+      },
+    },
+  ],
+  keywords: [
+    "connective",
+    "結合子",
+    "negation",
+    "否定",
+    "conjunction",
+    "連言",
+    "disjunction",
+    "選言",
+    "implication",
+    "含意",
+    "biconditional",
+    "双条件",
+    "→",
+    "∧",
+    "∨",
+    "¬",
+    "↔",
+  ],
+  order: 1,
+};
+
+const notationQuantifiers: ReferenceEntry = {
+  id: "notation-quantifiers",
+  category: "notation",
+  title: {
+    en: "Quantifiers",
+    ja: "量化子",
+  },
+  summary: {
+    en: "∀ (universal quantifier) and ∃ (existential quantifier) for predicate logic.",
+    ja: "∀（全称量化子）と∃（存在量化子）、述語論理における量化。",
+  },
+  body: {
+    en: [
+      "**Quantifiers** bind variables and specify the scope over which a formula holds. They are essential for predicate logic (first-order logic).",
+      "**∀ (Universal quantifier):** ∀x.φ asserts that φ holds for all values of x. Written `all x.` or `forall x.` in ASCII input. The dot (`.`) separates the bound variable from the formula scope. LaTeX: `\\forall`.",
+      "**∃ (Existential quantifier):** ∃x.φ asserts that there exists at least one value of x for which φ holds. Written `ex x.` or `exists x.` in ASCII input. LaTeX: `\\exists`.",
+      "Quantifiers bind tighter than all connectives: ∀x.φ → ψ is parsed as (∀x.φ) → ψ, not ∀x.(φ → ψ). Use parentheses to change grouping when needed.",
+    ],
+    ja: [
+      "**量化子**は変数を束縛し、論理式が成り立つ範囲を指定します。述語論理（一階論理）において不可欠です。",
+      "**∀（全称量化子）：** ∀x.φはxのすべての値に対してφが成り立つことを主張します。ASCII入力では `all x.` または `forall x.` と書きます。ドット（`.`）が束縛変数と論理式のスコープを分離します。LaTeX: `\\forall`。",
+      "**∃（存在量化子）：** ∃x.φはφが成り立つようなxの値が少なくとも1つ存在することを主張します。ASCII入力では `ex x.` または `exists x.` と書きます。LaTeX: `\\exists`。",
+      "量化子はすべての結合子よりも強く束縛します：∀x.φ → ψは(∀x.φ) → ψと解析され、∀x.(φ → ψ)ではありません。グルーピングを変更するには括弧を使用してください。",
+    ],
+  },
+  formalNotation: "\\forall x.\\varphi, \\quad \\exists x.\\varphi",
+  relatedEntryIds: ["notation-connectives", "axiom-a4", "axiom-a5", "rule-gen"],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Quantifier_(logic)",
+      label: {
+        en: "Quantifier (Wikipedia)",
+        ja: "量化子 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E9%87%8F%E5%8C%96%E5%AD%90",
+      label: {
+        en: "Quantifier (Wikipedia JA)",
+        ja: "量化子 (Wikipedia)",
+      },
+    },
+  ],
+  keywords: [
+    "quantifier",
+    "量化子",
+    "universal",
+    "全称",
+    "existential",
+    "存在",
+    "∀",
+    "∃",
+    "forall",
+    "exists",
+    "bound variable",
+    "束縛変数",
+  ],
+  order: 2,
+};
+
+const notationEquality: ReferenceEntry = {
+  id: "notation-equality",
+  category: "notation",
+  title: {
+    en: "Equality",
+    ja: "等号",
+  },
+  summary: {
+    en: "t₁ = t₂ — equality between terms, governed by equality axioms E1–E5.",
+    ja: "t₁ = t₂ — 項間の等号、等号公理E1–E5により規定。",
+  },
+  body: {
+    en: [
+      "**Equality** (=) is a binary predicate on terms that forms an atomic formula. The expression t₁ = t₂ states that the terms t₁ and t₂ denote the same object.",
+      "Equality is governed by the equality axioms: E1 (reflexivity: x = x), E2 (symmetry), E3 (transitivity), E4 (function congruence), and E5 (predicate congruence). These axioms ensure that = behaves as a proper equivalence relation compatible with all operations.",
+      "In this application, equality formulas are written as `t1 = t2` where t1 and t2 are terms. Equality is available when the logic system includes equality axioms (e.g., predicate logic with equality).",
+    ],
+    ja: [
+      "**等号**（=）は項に対する二項述語で、原子論理式を形成します。式 t₁ = t₂ は項t₁とt₂が同じ対象を表すことを述べます。",
+      "等号は等号公理により規定されます：E1（反射律: x = x）、E2（対称律）、E3（推移律）、E4（関数合同律）、E5（述語合同律）。これらの公理により、=はすべての演算と互換な適切な同値関係として振る舞います。",
+      "本アプリケーションでは、等号論理式は `t1 = t2` のように書きます（t1, t2は項）。論理体系に等号公理が含まれている場合（述語論理+等号など）に利用可能です。",
+    ],
+  },
+  formalNotation: "t_1 = t_2",
+  relatedEntryIds: ["axiom-e1", "axiom-e2", "axiom-e3", "axiom-e4", "axiom-e5"],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/First-order_logic#Equality_and_its_axioms",
+      label: {
+        en: "Equality in first-order logic (Wikipedia)",
+        ja: "一階論理における等号 (Wikipedia)",
+      },
+    },
+  ],
+  keywords: [
+    "equality",
+    "等号",
+    "=",
+    "reflexivity",
+    "反射律",
+    "symmetry",
+    "対称律",
+    "transitivity",
+    "推移律",
+  ],
+  order: 3,
+};
+
+const notationMetavariables: ReferenceEntry = {
+  id: "notation-metavariables",
+  category: "notation",
+  title: {
+    en: "Metavariables",
+    ja: "メタ変数",
+  },
+  summary: {
+    en: "Greek letters (φ, ψ, χ, ...) as placeholders for arbitrary formulas in axiom schemas.",
+    ja: "ギリシャ文字（φ, ψ, χ, ...）を公理スキーマ内の任意の論理式のプレースホルダーとして使用。",
+  },
+  body: {
+    en: [
+      "**Metavariables** are placeholders that stand for arbitrary formulas. In axiom schemas like A1: φ → (ψ → φ), the symbols φ and ψ are metavariables that can be replaced with any well-formed formula.",
+      "This application uses 22 Greek letters as metavariables: α, β, γ, δ, ε, ζ, η, θ, ι, κ, λ, μ, ν, ξ, π, ρ, σ, τ, υ, φ, χ, ψ, ω. The letter omicron (ο) is excluded to avoid confusion with the Latin letter 'o'.",
+      "Metavariables support optional subscript digits for disambiguation. For example, φ₁, φ₂, φ₀₁ are all distinct metavariables. Subscripts are treated as strings, so φ₁, φ₀₁, and φ₀₀₁ are three different variables.",
+      "In ASCII input, Greek letters are typed by name (e.g., `phi`, `psi`, `chi`). Subscripts are appended directly: `phi1`, `phi01`, or with underscore: `phi_1`, `phi_01`. In Unicode output, subscripts use dedicated Unicode subscript digits (₀–₉).",
+    ],
+    ja: [
+      "**メタ変数**は任意の論理式を表すプレースホルダーです。公理スキーマ A1: φ → (ψ → φ) において、φやψは任意の整形式論理式に置き換えることができるメタ変数です。",
+      "本アプリケーションでは22のギリシャ文字をメタ変数として使用します：α, β, γ, δ, ε, ζ, η, θ, ι, κ, λ, μ, ν, ξ, π, ρ, σ, τ, υ, φ, χ, ψ, ω。オミクロン(ο)はラテン文字の'o'との混同を避けるため除外されています。",
+      "メタ変数は曖昧さ回避のためにオプションの添字数字をサポートします。例えば、φ₁, φ₂, φ₀₁はすべて異なるメタ変数です。添字は文字列として扱われるため、φ₁, φ₀₁, φ₀₀₁は3つの異なる変数です。",
+      "ASCII入力ではギリシャ文字は名前で入力します（例：`phi`, `psi`, `chi`）。添字は直接追加：`phi1`, `phi01`、またはアンダースコア付き：`phi_1`, `phi_01`。Unicode出力では添字に専用のUnicode下付き数字（₀–₉）を使用します。",
+    ],
+  },
+  relatedEntryIds: [
+    "notation-connectives",
+    "notation-input-methods",
+    "axiom-a1",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Metavariable",
+      label: {
+        en: "Metavariable (Wikipedia)",
+        ja: "メタ変数 (Wikipedia)",
+      },
+    },
+  ],
+  keywords: [
+    "metavariable",
+    "メタ変数",
+    "Greek letter",
+    "ギリシャ文字",
+    "φ",
+    "ψ",
+    "χ",
+    "phi",
+    "psi",
+    "chi",
+    "subscript",
+    "添字",
+    "placeholder",
+    "プレースホルダー",
+  ],
+  order: 4,
+};
+
+const notationTermOperations: ReferenceEntry = {
+  id: "notation-term-operations",
+  category: "notation",
+  title: {
+    en: "Term Operations",
+    ja: "項演算",
+  },
+  summary: {
+    en: "Binary operations on terms: + (addition), − (subtraction), × (multiplication), ÷ (division), ^ (power).",
+    ja: "項に対する二項演算：+（加法）、−（減法）、×（乗法）、÷（除法）、^（冪乗）。",
+  },
+  body: {
+    en: [
+      "**Term operations** are binary infix operators on terms, used primarily in theories like Peano Arithmetic and Group Theory.",
+      "Five operations are supported, listed from highest to lowest precedence: **^** (power, right-associative), **×** (multiplication, left-associative) and **÷** (division, left-associative) at the same level, **+** (addition, left-associative) and **−** (subtraction, left-associative) at the same level.",
+      "In ASCII input: `+` for addition, `-` for subtraction, `*` for multiplication, `/` for division, `^` for power. In Unicode output: + is kept as-is, − uses U+2212 (minus sign), × uses U+00D7, ÷ uses U+00F7.",
+      "Terms also include variables (lowercase identifiers like x, y, z), constants (digits like 0, 1), and function applications (like f(x), g(x, y)). Term metavariables use Greek letters (τ, σ, etc.) analogous to formula metavariables.",
+    ],
+    ja: [
+      "**項演算**は項に対する二項中置演算子で、主にペアノ算術や群論などの理論で使用されます。",
+      "5つの演算をサポートしており、優先順位の高い順に：**^**（冪乗、右結合）、**×**（乗法、左結合）と**÷**（除法、左結合）が同レベル、**+**（加法、左結合）と**−**（減法、左結合）が同レベルです。",
+      "ASCII入力では：`+`で加法、`-`で減法、`*`で乗法、`/`で除法、`^`で冪乗。Unicode出力では：+はそのまま、−はU+2212（マイナス記号）、×はU+00D7、÷はU+00F7を使用します。",
+      "項には変数（x, y, zなどの小文字識別子）、定数（0, 1などの数字）、関数適用（f(x), g(x, y)など）も含まれます。項メタ変数は論理式メタ変数と同様にギリシャ文字（τ, σなど）を使用します。",
+    ],
+  },
+  formalNotation: "+, -, \\times, \\div, \\hat{}",
+  relatedEntryIds: [
+    "notation-precedence",
+    "notation-equality",
+    "theory-peano",
+    "theory-group",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Term_(logic)",
+      label: {
+        en: "Term (logic) (Wikipedia)",
+        ja: "項 (論理学) (Wikipedia)",
+      },
+    },
+  ],
+  keywords: [
+    "term",
+    "項",
+    "operation",
+    "演算",
+    "addition",
+    "加法",
+    "+",
+    "multiplication",
+    "乗法",
+    "×",
+    "power",
+    "冪乗",
+    "^",
+    "function",
+    "関数",
+    "variable",
+    "変数",
+    "constant",
+    "定数",
+  ],
+  order: 5,
+};
+
+const notationPrecedence: ReferenceEntry = {
+  id: "notation-precedence",
+  category: "notation",
+  title: {
+    en: "Operator Precedence and Associativity",
+    ja: "演算子の優先順位と結合性",
+  },
+  summary: {
+    en: "Binding strength and associativity rules that determine how expressions are parsed.",
+    ja: "式の解析方法を決定する束縛の強さと結合性の規則。",
+  },
+  body: {
+    en: [
+      "**Operator precedence** determines the order in which operators bind their operands when parentheses are omitted. Higher precedence means tighter binding. The associativity of an operator determines grouping when operators of equal precedence are chained.",
+      "**Formula connective precedence** (highest to lowest): ¬ (prefix, strongest) > ∧ (left-associative) > ∨ (left-associative) > → (right-associative) > ↔ (right-associative, weakest). Example: ¬φ ∧ ψ → χ is parsed as (((¬φ) ∧ ψ) → χ).",
+      "**Term operation precedence** (highest to lowest): ^ (right-associative, strongest) > ×, ÷ (left-associative) > +, − (left-associative, weakest). Example: a + b × c ^ d is parsed as (a + (b × (c ^ d))).",
+      "**Quantifiers** bind tighter than connectives: ∀x.φ → ψ is (∀x.φ) → ψ. Use explicit parentheses for ∀x.(φ → ψ). The Pratt parsing algorithm used internally assigns binding powers to achieve minimal parenthesization in output.",
+    ],
+    ja: [
+      "**演算子の優先順位**は、括弧が省略された場合に演算子がオペランドを束縛する順序を決定します。優先順位が高いほど強く束縛します。**結合性**は、同じ優先順位の演算子が連鎖した場合のグルーピングを決定します。",
+      "**論理式の結合子の優先順位**（高→低）：¬（前置、最強）> ∧（左結合）> ∨（左結合）> →（右結合）> ↔（右結合、最弱）。例：¬φ ∧ ψ → χ は (((¬φ) ∧ ψ) → χ) と解析されます。",
+      "**項演算の優先順位**（高→低）：^（右結合、最強）> ×, ÷（左結合）> +, −（左結合、最弱）。例：a + b × c ^ d は (a + (b × (c ^ d))) と解析されます。",
+      "**量化子**は結合子より強く束縛します：∀x.φ → ψ は (∀x.φ) → ψ です。∀x.(φ → ψ) とするには明示的な括弧を使用します。内部で使用されるPratt解析アルゴリズムは出力における最小括弧化を実現するために束縛力を割り当てます。",
+    ],
+  },
+  relatedEntryIds: [
+    "notation-connectives",
+    "notation-quantifiers",
+    "notation-term-operations",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Order_of_operations",
+      label: {
+        en: "Order of operations (Wikipedia)",
+        ja: "演算の順序 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Pratt_parser",
+      label: {
+        en: "Pratt parser (Wikipedia)",
+        ja: "Prattパーサー (Wikipedia)",
+      },
+    },
+  ],
+  keywords: [
+    "precedence",
+    "優先順位",
+    "associativity",
+    "結合性",
+    "binding power",
+    "束縛力",
+    "Pratt parser",
+    "parentheses",
+    "括弧",
+    "order of operations",
+    "演算の順序",
+  ],
+  order: 6,
+};
+
+const notationInputMethods: ReferenceEntry = {
+  id: "notation-input-methods",
+  category: "notation",
+  title: {
+    en: "Input Methods",
+    ja: "入力方法",
+  },
+  summary: {
+    en: "How to type logical symbols using ASCII shortcuts that are converted to Unicode.",
+    ja: "ASCII短縮表記からUnicodeへの変換による論理記号の入力方法。",
+  },
+  body: {
+    en: [
+      "**Input methods** allow typing logical symbols using standard ASCII characters. The application converts ASCII input to proper Unicode symbols for display.",
+      "**Connective input:** `->` or `implies` → →, `/\\` or `and` → ∧, `\\/` or `or` → ∨, `~` or `not` → ¬, `<->` or `iff` → ↔. The completion system also suggests symbols as you type.",
+      "**Quantifier input:** `all x.` or `forall x.` → ∀x., `ex x.` or `exists x.` → ∃x. The dot (`.`) is required to delimit the quantifier scope.",
+      "**Greek letter input:** Type the letter name to input a Greek letter: `phi` → φ, `psi` → ψ, `chi` → χ, `alpha` → α, etc. Subscripts are appended: `phi1` → φ₁, `phi_01` → φ₀₁. The tab-completion popup shows available completions.",
+      "**Term input:** Variables are lowercase identifiers (x, y, z), predicates start with uppercase (P, Q), constants are digits (0, 1). Functions use parenthesized arguments: f(x), g(x, y).",
+    ],
+    ja: [
+      "**入力方法**により、標準的なASCII文字を使って論理記号を入力できます。アプリケーションはASCII入力を適切なUnicode記号に変換して表示します。",
+      "**結合子の入力：** `->` または `implies` → →、`/\\` または `and` → ∧、`\\/` または `or` → ∨、`~` または `not` → ¬、`<->` または `iff` → ↔。補完システムが入力中に記号を提案します。",
+      "**量化子の入力：** `all x.` または `forall x.` → ∀x.、`ex x.` または `exists x.` → ∃x.。ドット（`.`）は量化子のスコープを区切るために必須です。",
+      "**ギリシャ文字の入力：** 文字名を入力してギリシャ文字を入力します：`phi` → φ、`psi` → ψ、`chi` → χ、`alpha` → α、など。添字は追加します：`phi1` → φ₁、`phi_01` → φ₀₁。タブ補完ポップアップが利用可能な補完を表示します。",
+      "**項の入力：** 変数は小文字識別子（x, y, z）、述語は大文字開始（P, Q）、定数は数字（0, 1）です。関数は括弧付き引数を使用します：f(x), g(x, y)。",
+    ],
+  },
+  relatedEntryIds: [
+    "notation-connectives",
+    "notation-quantifiers",
+    "notation-metavariables",
+  ],
+  externalLinks: [],
+  keywords: [
+    "input",
+    "入力",
+    "ASCII",
+    "Unicode",
+    "completion",
+    "補完",
+    "shortcut",
+    "ショートカット",
+    "input method",
+    "入力方法",
+    "tab completion",
+    "タブ補完",
+  ],
+  order: 7,
+};
+
+// ============================================================
 // エクスポート
 // ============================================================
 
@@ -1579,6 +2010,14 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   systemMinimal,
   systemIntuitionistic,
   systemClassical,
+  // Notation
+  notationConnectives,
+  notationQuantifiers,
+  notationEquality,
+  notationMetavariables,
+  notationTermOperations,
+  notationPrecedence,
+  notationInputMethods,
   // Concepts
   conceptSubstitution,
   conceptFreeVariable,
