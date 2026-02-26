@@ -65,7 +65,9 @@ import {
   removeSelectedNodes,
   duplicateSelectedNodes,
   cutSelectedNodes,
+  applyIncrementalLayout,
 } from "./workspaceState";
+import type { LayoutDirection } from "./treeLayoutLogic";
 import {
   toggleNodeSelection,
   selectSingleNode,
@@ -394,6 +396,35 @@ export function ProofWorkspace({
   // コンテナref（キーボードイベント用）
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // 自動レイアウト機能
+  const [autoLayout, setAutoLayout] = useState(false);
+  const [autoLayoutDirection, setAutoLayoutDirection] =
+    useState<LayoutDirection>("top-to-bottom");
+
+  /** setWorkspace のラッパー。ノード数/接続数が変化した場合にインクリメンタルレイアウトを適用する。 */
+  const setWorkspaceWithAutoLayout = useCallback(
+    (ws: WorkspaceState) => {
+      if (!autoLayout) {
+        setWorkspace(ws);
+        return;
+      }
+      const nodeCountChanged = ws.nodes.length !== workspace.nodes.length;
+      const connectionCountChanged =
+        ws.connections.length !== workspace.connections.length;
+      if (nodeCountChanged || connectionCountChanged) {
+        const laid = applyIncrementalLayout(
+          ws,
+          autoLayoutDirection,
+          nodeSizes,
+        );
+        setWorkspace(laid);
+      } else {
+        setWorkspace(ws);
+      }
+    },
+    [autoLayout, autoLayoutDirection, workspace, nodeSizes, setWorkspace],
+  );
+
   // --- 公理パレット ---
 
   const availableAxioms = useMemo(
@@ -417,11 +448,11 @@ export function ProofWorkspace({
   const handleAddAxiom = useCallback(
     (axiom: AxiomPaletteItem) => {
       const position = computeNewNodePosition(workspace.nodes);
-      setWorkspace(
+      setWorkspaceWithAutoLayout(
         addNode(workspace, "axiom", axiom.displayName, position, axiom.dslText),
       );
     },
-    [workspace, setWorkspace, computeNewNodePosition],
+    [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition],
   );
 
   // --- MP選択モードハンドラ ---
@@ -458,11 +489,11 @@ export function ProofWorkspace({
           mpPosition,
         );
 
-        setWorkspace(result.workspace);
+        setWorkspaceWithAutoLayout(result.workspace);
         setMPSelection({ phase: "idle" });
       }
     },
-    [mpSelection, workspace, setWorkspace],
+    [mpSelection, workspace, setWorkspaceWithAutoLayout],
   );
 
   // --- Gen選択モードハンドラ ---
@@ -499,10 +530,10 @@ export function ProofWorkspace({
         genPosition,
       );
 
-      setWorkspace(result.workspace);
+      setWorkspaceWithAutoLayout(result.workspace);
       setGenSelection({ phase: "idle" });
     },
-    [genSelection, workspace, setWorkspace],
+    [genSelection, workspace, setWorkspaceWithAutoLayout],
   );
 
   // 統合ノードクリックハンドラ
@@ -777,7 +808,7 @@ export function ProofWorkspace({
         y: -viewport.offsetY / viewport.scale + 300,
       };
       const result = pasteNodes(workspace, data, center);
-      setWorkspace(result);
+      setWorkspaceWithAutoLayout(result);
       // ペースト後、新しいノードを選択状態にする
       const newNodeIds = new Set(
         result.nodes.slice(workspace.nodes.length).map((n) => n.id),
@@ -803,7 +834,7 @@ export function ProofWorkspace({
         // クリップボードAPIが使えない環境では何もしない
       });
     /* v8 ignore stop */
-  }, [workspace, viewport, setWorkspace]);
+  }, [workspace, viewport, setWorkspaceWithAutoLayout]);
 
   const handleCut = useCallback(() => {
     if (selectedNodeIds.size === 0) return;
@@ -813,23 +844,23 @@ export function ProofWorkspace({
     navigator.clipboard.writeText(json).catch(() => {
       // クリップボードAPIが使えない環境でも内部保持で動作
     });
-    setWorkspace(result.workspace);
+    setWorkspaceWithAutoLayout(result.workspace);
     setSelectedNodeIds(clearSelection());
-  }, [selectedNodeIds, workspace, setWorkspace]);
+  }, [selectedNodeIds, workspace, setWorkspaceWithAutoLayout]);
 
   const handleDuplicate = useCallback(() => {
     if (selectedNodeIds.size === 0) return;
     const result = duplicateSelectedNodes(workspace, selectedNodeIds);
-    setWorkspace(result.workspace);
+    setWorkspaceWithAutoLayout(result.workspace);
     setSelectedNodeIds(result.newNodeIds);
-  }, [selectedNodeIds, workspace, setWorkspace]);
+  }, [selectedNodeIds, workspace, setWorkspaceWithAutoLayout]);
 
   const handleDeleteSelected = useCallback(() => {
     if (selectedNodeIds.size === 0) return;
     const result = removeSelectedNodes(workspace, selectedNodeIds);
-    setWorkspace(result);
+    setWorkspaceWithAutoLayout(result);
     setSelectedNodeIds(clearSelection());
-  }, [selectedNodeIds, workspace, setWorkspace]);
+  }, [selectedNodeIds, workspace, setWorkspaceWithAutoLayout]);
 
   // --- キーボードショートカット ---
   /* v8 ignore start -- キーボードイベント: JSDOMではfocus制御が不安定なためブラウザテストで検証 */
@@ -1216,6 +1247,32 @@ export function ProofWorkspace({
             </button>
           </>
         ) : null}
+        {/* 自動レイアウトトグル */}
+        <span style={{ borderLeft: "1px solid var(--color-border, #ccc)", paddingLeft: 8, marginLeft: 4, display: "inline-flex", alignItems: "center", gap: 4 }}>
+          <label
+            style={{ display: "inline-flex", alignItems: "center", gap: 4, cursor: "pointer", fontSize: 12 }}
+            data-testid={testId ? `${testId satisfies string}-auto-layout-label` : undefined}
+          >
+            <input
+              type="checkbox"
+              checked={autoLayout}
+              onChange={(e) => setAutoLayout(e.target.checked)}
+              data-testid={testId ? `${testId satisfies string}-auto-layout-toggle` : undefined}
+            />
+            Auto Layout
+          </label>
+          {autoLayout ? (
+            <select
+              value={autoLayoutDirection}
+              onChange={(e) => setAutoLayoutDirection(e.target.value as LayoutDirection)}
+              style={{ fontSize: 11, padding: "1px 4px", borderRadius: 3, border: "1px solid var(--color-border, #ccc)", background: "var(--color-surface, #fff)", color: "var(--color-text-primary, #171717)" }}
+              data-testid={testId ? `${testId satisfies string}-auto-layout-direction` : undefined}
+            >
+              <option value="top-to-bottom">Top→Bottom</option>
+              <option value="bottom-to-top">Bottom→Top</option>
+            </select>
+          ) : null}
+        </span>
       </div>
 
       {/* MP選択バナー */}

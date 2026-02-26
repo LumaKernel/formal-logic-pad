@@ -28,6 +28,7 @@ import {
   duplicateSelectedNodes,
   cutSelectedNodes,
   applyTreeLayout,
+  applyIncrementalLayout,
 } from "./workspaceState";
 import type { ClipboardData } from "./copyPasteLogic";
 
@@ -1160,6 +1161,89 @@ describe("proofWorkspace", () => {
       expect(result.workspace.connections).toHaveLength(0);
       expect(result.clipboardData.nodes).toHaveLength(2);
       expect(result.clipboardData.connections).toHaveLength(1);
+    });
+  });
+
+  describe("applyIncrementalLayout", () => {
+    it("ノード追加後に差分のみレイアウトが更新される", () => {
+      // まず2ノード+接続でレイアウト済みの状態を作る
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 0, y: 0 }, "phi -> psi");
+      ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+      ws = applyTreeLayout(ws, "top-to-bottom");
+
+      // 新しいノードを追加（レイアウト前の位置は0,0）
+      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 }, "psi");
+      ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
+      ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+
+      const result = applyIncrementalLayout(ws, "top-to-bottom");
+
+      // 全ノードの位置が設定されている
+      expect(result.nodes).toHaveLength(3);
+      const mpNode = result.nodes.find((n) => n.id === "node-3")!;
+      // MPノードは（0,0）から移動しているはず
+      expect(mpNode.position.x !== 0 || mpNode.position.y !== 0).toBe(true);
+    });
+
+    it("変更がない場合は同じ参照を返す", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+
+      // レイアウト適用（孤立ノード1個なので理想位置に設定）
+      ws = applyTreeLayout(ws, "top-to-bottom");
+
+      // 同じ状態で再度インクリメンタルレイアウトを適用
+      const result = applyIncrementalLayout(ws, "top-to-bottom");
+
+      // diff=0なので同じ参照が返る
+      expect(result).toBe(ws);
+    });
+
+    it("ノード削除後に残ったノードが再整列される", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "mp", "MP", { x: 100, y: 200 }, "psi");
+      ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
+      ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      ws = applyTreeLayout(ws, "top-to-bottom");
+
+      // node-2を削除（接続も除去される）
+      ws = removeNode(ws, "node-2");
+
+      const result = applyIncrementalLayout(ws, "top-to-bottom");
+
+      // 残り2ノード
+      expect(result.nodes).toHaveLength(2);
+    });
+
+    it("空のワークスペースでエラーにならない", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const result = applyIncrementalLayout(ws, "top-to-bottom");
+      expect(result.nodes).toHaveLength(0);
+      // diff=0なので同じ参照
+      expect(result).toBe(ws);
+    });
+
+    it("カスタム閾値を指定できる", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      // 大きな閾値で適用
+      const result = applyIncrementalLayout(
+        ws,
+        "top-to-bottom",
+        undefined,
+        undefined,
+        10000,
+      );
+
+      // 閾値が大きすぎるため移動が抑制され、同じ参照が返る
+      // （理想位置との差が閾値以下ならdiff=0）
+      // 注: ノード1個だけなら理想位置は(0,0)なので差は0→同じ参照
+      expect(result).toBe(ws);
     });
   });
 });

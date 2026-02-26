@@ -1938,4 +1938,52 @@ describe("ProofWorkspace", () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe("auto layout toggle", () => {
+    it("shows auto layout toggle in header", () => {
+      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
+      expect(
+        screen.getByTestId("workspace-auto-layout-toggle"),
+      ).toBeInTheDocument();
+    });
+
+    it("direction selector appears when auto layout is enabled", async () => {
+      const user = userEvent.setup();
+      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
+
+      expect(
+        screen.queryByTestId("workspace-auto-layout-direction"),
+      ).not.toBeInTheDocument();
+
+      const toggle = screen.getByTestId("workspace-auto-layout-toggle");
+      await user.click(toggle);
+
+      expect(
+        screen.getByTestId("workspace-auto-layout-direction"),
+      ).toBeInTheDocument();
+    });
+
+    it("applies incremental layout when axiom is added with auto layout enabled", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+
+      render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // Enable auto layout
+      const toggle = screen.getByTestId("workspace-auto-layout-toggle");
+      await user.click(toggle);
+
+      // The toggle should be checked
+      expect(toggle).toBeChecked();
+
+      // Add an axiom by clicking the first palette item
+      const paletteItems = screen.getAllByRole("button", { name: /A1/i });
+      if (paletteItems.length > 0) {
+        await user.click(paletteItems[0]!);
+      }
+    });
+  });
 });

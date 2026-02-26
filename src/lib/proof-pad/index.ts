@@ -31,6 +31,7 @@ export {
   pasteNodes,
   removeSelectedNodes,
   applyTreeLayout,
+  applyIncrementalLayout,
 } from "./workspaceState";
 export type {
   WorkspaceMode,

@@ -27,6 +27,7 @@ import {
 } from "./copyPasteLogic";
 import {
   computeTreeLayout,
+  computeLayoutDiff,
   type LayoutConfig,
   type LayoutDirection,
 } from "./treeLayoutLogic";
@@ -597,6 +598,59 @@ export function applyTreeLayout(
     ...state,
     nodes: state.nodes.map((node) => {
       const newPos = positions.get(node.id);
+      return newPos !== undefined ? { ...node, position: newPos } : node;
+    }),
+  };
+}
+
+/** ワークスペースにインクリメンタルなツリー自動レイアウトを適用する。
+ *
+ *  現在の位置と理想レイアウトとの差分（`computeLayoutDiff`）を計算し、
+ *  閾値以上移動するノードのみ位置を更新する。
+ *  ノード追加/削除時に手動配置を大きく崩さず再整列するためのもの。
+ *
+ *  純粋関数 — 副作用なし。 */
+export function applyIncrementalLayout(
+  state: WorkspaceState,
+  direction: LayoutDirection,
+  nodeSizes?: ReadonlyMap<string, Size>,
+  config?: Partial<LayoutConfig>,
+  threshold?: number,
+): WorkspaceState {
+  const layoutNodes = state.nodes.map((node) => ({
+    id: node.id,
+    size: nodeSizes?.get(node.id) ?? DEFAULT_NODE_SIZE,
+  }));
+
+  const layoutEdges = state.connections.map((conn) => ({
+    fromNodeId: conn.fromNodeId,
+    toNodeId: conn.toNodeId,
+  }));
+
+  const layoutConfig: LayoutConfig = {
+    horizontalGap: config?.horizontalGap ?? 40,
+    verticalGap: config?.verticalGap ?? 80,
+    direction,
+  };
+
+  const currentPositions = new Map(
+    state.nodes.map((node) => [node.id, node.position]),
+  );
+
+  const diff = computeLayoutDiff(
+    layoutNodes,
+    layoutEdges,
+    currentPositions,
+    layoutConfig,
+    threshold,
+  );
+
+  if (diff.size === 0) return state;
+
+  return {
+    ...state,
+    nodes: state.nodes.map((node) => {
+      const newPos = diff.get(node.id);
       return newPos !== undefined ? { ...node, position: newPos } : node;
     }),
   };
