@@ -25,14 +25,14 @@ const axiomA1: ReferenceEntry = {
   },
   body: {
     en: [
-      "Axiom A1, also called the **K axiom** or **weakening axiom**, states that if φ is true, then ψ → φ holds for any ψ.",
+      "Axiom A1, also called the **K axiom** or **weakening axiom**, states that if φ is true, then ψ → φ holds for any ψ. Intuitively, already known things remain true even with extra assumptions.",
       "In combinatory logic, this corresponds to the K combinator: K = λx.λy.x, which takes two arguments and returns the first.",
-      "A1 is common to all Hilbert-style axiom systems implemented in this application (Łukasiewicz, Mendelson, etc.).",
+      "A1 is common to all Hilbert-style axiom systems implemented in this application (Łukasiewicz, Mendelson, etc.). It appears frequently in proofs when a previously established result needs to be preserved under additional hypotheses.",
     ],
     ja: [
-      "公理A1は**K公理**（弱化公理）とも呼ばれ、φが真ならば、任意のψに対してψ → φが成り立つことを述べます。",
+      "公理A1は**K公理**（弱化公理）とも呼ばれ、φが真ならば、任意のψに対してψ → φが成り立つことを述べます。直観的には、既知の事実は追加の仮定があっても真のままです。",
       "コンビネータ論理では、Kコンビネータ K = λx.λy.x に対応します。2つの引数を取り、最初の引数を返します。",
-      "A1は、本アプリケーションで実装されているすべてのHilbert系公理体系（Łukasiewicz、Mendelsonなど）に共通です。",
+      "A1は、本アプリケーションで実装されているすべてのHilbert系公理体系（Łukasiewicz、Mendelsonなど）に共通です。以前に確立された結果を追加の仮定のもとで保持する必要がある場合に、証明の中で頻繁に出現します。",
     ],
   },
   formalNotation: "\\varphi \\to (\\psi \\to \\varphi)",
@@ -71,12 +71,12 @@ const axiomA2: ReferenceEntry = {
     en: [
       "Axiom A2, also called the **S axiom**, states that implication distributes over itself. If φ implies (ψ implies χ), and φ implies ψ, then φ implies χ.",
       "In combinatory logic, this corresponds to the S combinator: S = λx.λy.λz.(xz)(yz). Together with K (A1), S and K form a complete basis for combinatory logic.",
-      "The proof of φ → φ (identity) uses both A1 and A2: this is the combinatory identity SKK = I.",
+      "The proof of φ → φ (identity) uses both A1 and A2: this is the combinatory identity SKK = I. Much of proof construction in Hilbert systems reduces to finding appropriate A1 and A2 instantiations.",
     ],
     ja: [
       "公理A2は**S公理**とも呼ばれ、含意が自身に分配することを述べます。φが(ψがχを含意すること)を含意し、φがψを含意するなら、φはχを含意します。",
       "コンビネータ論理では、Sコンビネータ S = λx.λy.λz.(xz)(yz) に対応します。K (A1)とともに、SとKはコンビネータ論理の完全な基盤を形成します。",
-      "φ → φ（恒等律）の証明にはA1とA2の両方が使われます。これはコンビネータの等式 SKK = I に対応します。",
+      "φ → φ（恒等律）の証明にはA1とA2の両方が使われます。これはコンビネータの等式 SKK = I に対応します。Hilbert系での証明構成の多くは、適切なA1とA2のインスタンス化を見つけることに帰着します。",
     ],
   },
   formalNotation:
@@ -104,12 +104,12 @@ const axiomA3: ReferenceEntry = {
   body: {
     en: [
       "Axiom A3 is the **contraposition axiom** used in the Łukasiewicz system. It states that if ¬φ implies ¬ψ, then ψ implies φ.",
-      "This axiom captures the essence of classical logic: it is equivalent to the law of excluded middle (φ ∨ ¬φ) and double negation elimination (¬¬φ → φ) in the presence of A1 and A2.",
+      "This axiom captures the essence of classical logic. In the presence of A1 and A2, A3 is equivalent to: the law of excluded middle (φ ∨ ¬φ), double negation elimination (¬¬φ → φ), Peirce's law (((φ → ψ) → φ) → φ), and Mendelson's M3.",
       "In systems without A3 (using only A1, A2, and MP), you get the **positive implicational calculus**, which is weaker than classical logic.",
     ],
     ja: [
       "公理A3はŁukasiewicz体系で使用される**対偶公理**です。¬φが¬ψを含意するなら、ψはφを含意することを述べます。",
-      "この公理は古典論理の本質を捉えます: A1とA2の存在下で、排中律（φ ∨ ¬φ）および二重否定除去（¬¬φ → φ）と同値です。",
+      "この公理は古典論理の本質を捉えます。A1とA2の存在下で、A3は以下と同値です: 排中律（φ ∨ ¬φ）、二重否定除去（¬¬φ → φ）、Peirceの法則（((φ → ψ) → φ) → φ）、MendelsonのM3。",
       "A3がない体系（A1, A2, MPのみ）は**正含意計算**となり、古典論理より弱い体系になります。",
     ],
   },
@@ -181,13 +181,13 @@ const axiomEfq: ReferenceEntry = {
   },
   body: {
     en: [
-      "**Ex falso quodlibet** (from falsehood, anything follows) states that if both φ and ¬φ are true, then any proposition ψ is true.",
-      "This axiom is used in intuitionistic and minimal logic systems. It provides the ability to derive arbitrary conclusions from contradictions.",
+      "**Ex falso quodlibet** (from falsehood, anything follows) states that if both φ and ¬φ are true, then any proposition ψ is true. Equivalently, it can be written as ⊥ → φ when a falsum constant ⊥ is available.",
+      "This axiom is what distinguishes intuitionistic logic from minimal logic (Johansson's system). Minimal logic has no explosion principle, making it strictly weaker.",
       "In classical logic, EFQ is derivable from A3 (or M3) via A1 and A2, so it does not need to be added as a separate axiom.",
     ],
     ja: [
-      "**爆発律** (Ex falso quodlibet、偽からは何でも導ける) は、φと¬φの両方が真ならば、任意の命題ψが真であることを述べます。",
-      "この公理は直観主義論理や最小論理の体系で使用されます。矛盾から任意の結論を導く能力を提供します。",
+      "**爆発律** (Ex falso quodlibet、偽からは何でも導ける) は、φと¬φの両方が真ならば、任意の命題ψが真であることを述べます。矛盾定数⊥が利用可能な場合、⊥ → φ とも書けます。",
+      "この公理は直観主義論理と最小論理（Johanssonの体系）を区別するものです。最小論理は爆発律を持たないため、厳密に弱い体系です。",
       "古典論理ではEFQはA3（またはM3）からA1, A2を使って導出可能なので、別の公理として追加する必要はありません。",
     ],
   },
@@ -223,11 +223,13 @@ const axiomDne: ReferenceEntry = {
       "**Double negation elimination** (DNE) states that if it is not the case that φ is not true, then φ is true.",
       "DNE is the key axiom that distinguishes classical logic from intuitionistic logic. Adding DNE to intuitionistic logic yields classical logic.",
       "DNE is equivalent to the law of excluded middle (φ ∨ ¬φ) and Peirce's law (((φ → ψ) → φ) → φ) in the presence of the other axioms.",
+      "In the Łukasiewicz system, ¬¬φ → φ can be derived from A1, A2, A3, and MP, but the proof takes over a dozen steps — illustrating why Hilbert systems are verbose in practice.",
     ],
     ja: [
       "**二重否定除去** (DNE) は、φが真でないということがない（¬¬φ）なら、φは真であることを述べます。",
       "DNEは古典論理と直観主義論理を区別する核心的な公理です。直観主義論理にDNEを加えると古典論理になります。",
       "DNEは他の公理の存在下で、排中律（φ ∨ ¬φ）やPeirceの法則（((φ → ψ) → φ) → φ）と同値です。",
+      "Łukasiewicz体系では、¬¬φ → φ はA1, A2, A3, MPから導出可能ですが、十数ステップを要します。Hilbert系が実践的に冗長である理由を示しています。",
     ],
   },
   formalNotation: "\\lnot\\lnot\\varphi \\to \\varphi",
@@ -272,11 +274,13 @@ const axiomA4: ReferenceEntry = {
   body: {
     en: [
       "Axiom A4 allows **universal instantiation**: if ∀x.φ holds for all x, then φ[t/x] holds for any specific term t (provided t is free for x in φ).",
-      'The side condition "t is free for x in φ" means that substituting t for x does not accidentally capture any free variables of t under a quantifier in φ.',
+      'The side condition "t is free for x in φ" means that substituting t for x does not accidentally capture any free variables of t under a quantifier in φ. For example, substituting y into ∀y.Q(x,y) would capture y, so it is not allowed.',
+      "Examples: From ∀x.P(x), instantiate with t = a to get P(a). From ∀x.Q(x,y), instantiate with t = f(z) to get Q(f(z),y) (valid since z is free for x).",
     ],
     ja: [
       "公理A4は**全称例化**を可能にします: ∀x.φがすべてのxについて成り立つなら、任意の項tに対してφ[t/x]が成り立ちます（tがφにおいてxについて自由であるという条件付き）。",
-      "「tがφにおいてxについて自由である」という条件は、xをtに置換してもtの自由変数がφの量化子に捕獲されないことを意味します。",
+      "「tがφにおいてxについて自由である」という条件は、xをtに置換してもtの自由変数がφの量化子に捕獲されないことを意味します。例えば、∀y.Q(x,y)にyを代入するとyが捕獲されるため、許可されません。",
+      "例: ∀x.P(x)からt = aで例化してP(a)を得る。∀x.Q(x,y)からt = f(z)で例化してQ(f(z),y)を得る（zはxについて自由なので有効）。",
     ],
   },
   formalNotation: "\\forall x. \\varphi \\to \\varphi[t/x]",
@@ -308,13 +312,13 @@ const axiomA5: ReferenceEntry = {
   },
   body: {
     en: [
-      "Axiom A5 states that if ∀x.(φ → ψ) holds, and x is not free in φ, then φ → ∀x.ψ also holds.",
-      "The side condition that x must not be free in φ is essential. Without it, the axiom would be unsound.",
+      "Axiom A5 states that if ∀x.(φ → ψ) holds, and x is not free in φ, then φ → ∀x.ψ also holds. Intuitively, if φ's truth is independent of x, then φ can be moved outside the scope of ∀x.",
+      "The side condition that x must not be free in φ is essential. Without it, the axiom would be unsound. For example, ∀x.(P(x) → Q(x)) → (P(x) → ∀x.Q(x)) would be invalid because x appears free in P(x).",
       "Together with A4 and the Gen rule, A5 completes the axiomatization of first-order predicate logic.",
     ],
     ja: [
-      "公理A5は、∀x.(φ → ψ)が成り立ち、xがφに自由出現しないならば、φ → ∀x.ψも成り立つことを述べます。",
-      "xがφに自由出現しないという条件は本質的です。この条件がなければ、公理は健全ではなくなります。",
+      "公理A5は、∀x.(φ → ψ)が成り立ち、xがφに自由出現しないならば、φ → ∀x.ψも成り立つことを述べます。直観的には、φの真偽がxに依存しないなら、φを∀xのスコープの外に出せるということです。",
+      "xがφに自由出現しないという条件は本質的です。この条件がなければ、公理は健全ではなくなります。例えば、∀x.(P(x) → Q(x)) → (P(x) → ∀x.Q(x))はP(x)にxが自由出現するため不正です。",
       "A4およびGen規則とともに、A5は一階述語論理の公理化を完成させます。",
     ],
   },
@@ -343,15 +347,15 @@ const axiomE1: ReferenceEntry = {
   body: {
     en: [
       "**Reflexivity** is the most fundamental property of equality: every object is equal to itself.",
-      "This axiom provides the base case for equality reasoning.",
+      "This axiom provides the base case for equality reasoning. Via universal instantiation (A4), it gives concrete instances like 0 = 0, f(x) = f(x), and x + y = x + y for any term.",
     ],
     ja: [
       "**反射律**は等号の最も基本的な性質です: すべての対象は自分自身と等しいです。",
-      "この公理は等号に関する推論の基本ケースを提供します。",
+      "この公理は等号に関する推論の基本ケースを提供します。全称例化(A4)により、任意の項に対して 0 = 0, f(x) = f(x), x + y = x + y などの具体的なインスタンスが得られます。",
     ],
   },
   formalNotation: "\\forall x.\\ x = x",
-  relatedEntryIds: ["axiom-e2", "axiom-e3"],
+  relatedEntryIds: ["axiom-e2", "axiom-e3", "axiom-e4", "axiom-e5"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -380,7 +384,7 @@ const axiomE2: ReferenceEntry = {
     ],
   },
   formalNotation: "\\forall x. \\forall y.\\ x = y \\to y = x",
-  relatedEntryIds: ["axiom-e1", "axiom-e3"],
+  relatedEntryIds: ["axiom-e1", "axiom-e3", "axiom-e4", "axiom-e5"],
   externalLinks: [],
   keywords: ["E2", "symmetry", "equality", "対称律"],
   order: 10,
@@ -398,18 +402,118 @@ const axiomE3: ReferenceEntry = {
     en: [
       "**Transitivity** states that if x = y and y = z, then x = z. This allows chaining equalities.",
       "Together with reflexivity (E1) and symmetry (E2), transitivity makes equality an equivalence relation.",
+      "For multi-step equality chains (e.g., a = b, b = c, c = d → a = d), transitivity must be applied repeatedly.",
     ],
     ja: [
       "**推移律**は、x = y かつ y = z ならば x = z であることを述べます。等式を連鎖させることができます。",
       "反射律(E1)と対称律(E2)とともに、推移律は等号を同値関係にします。",
+      "多段の等式連鎖（例: a = b, b = c, c = d → a = d）では、推移律を繰り返し適用する必要があります。",
     ],
   },
   formalNotation:
     "\\forall x. \\forall y. \\forall z.\\ x = y \\to (y = z \\to x = z)",
-  relatedEntryIds: ["axiom-e1", "axiom-e2"],
+  relatedEntryIds: ["axiom-e1", "axiom-e2", "axiom-e4", "axiom-e5"],
   externalLinks: [],
   keywords: ["E3", "transitivity", "equality", "推移律"],
   order: 11,
+};
+
+const axiomE4: ReferenceEntry = {
+  id: "axiom-e4",
+  category: "axiom",
+  title: {
+    en: "Axiom E4 (Function Congruence)",
+    ja: "公理 E4 (関数の合同律)",
+  },
+  summary: {
+    en: "x₁ = y₁ ∧ ··· ∧ xₙ = yₙ → f(x₁,...,xₙ) = f(y₁,...,yₙ) — Equal arguments yield equal function values.",
+    ja: "x₁ = y₁ ∧ ··· ∧ xₙ = yₙ → f(x₁,...,xₙ) = f(y₁,...,yₙ) — 等しい引数は等しい関数値を与える。",
+  },
+  body: {
+    en: [
+      "**Function congruence** (E4) states that if corresponding arguments are equal, then the function values are also equal. For each n-ary function symbol f in the signature, there is an instance of E4.",
+      "For a unary function f: ∀x.∀y. x = y → f(x) = f(y). For a binary operation ∘: ∀x₁.∀y₁.∀x₂.∀y₂. x₁ = y₁ ∧ x₂ = y₂ → x₁ ∘ x₂ = y₁ ∘ y₂.",
+      "E4 is a *schema family*: it generates a separate axiom instance for each function symbol in the theory's signature (including binary operators like +, −, ×).",
+    ],
+    ja: [
+      "**関数の合同律** (E4) は、対応する引数が等しければ関数値も等しいことを述べます。シグネチャ中の各n項関数記号fに対してE4のインスタンスがあります。",
+      "単項関数fの場合: ∀x.∀y. x = y → f(x) = f(y)。二項演算∘の場合: ∀x₁.∀y₁.∀x₂.∀y₂. x₁ = y₁ ∧ x₂ = y₂ → x₁ ∘ x₂ = y₁ ∘ y₂。",
+      "E4は*スキーマ族*です: 理論のシグネチャ中の各関数記号（+, −, ×などの二項演算子を含む）に対して、別個の公理インスタンスが生成されます。",
+    ],
+  },
+  formalNotation:
+    "\\forall \\vec{x}. \\forall \\vec{y}.\\ \\bigwedge_i x_i = y_i \\to f(\\vec{x}) = f(\\vec{y})",
+  relatedEntryIds: ["axiom-e1", "axiom-e3", "axiom-e5"],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Congruence_relation",
+      label: {
+        en: "Congruence relation (Wikipedia)",
+        ja: "合同関係 (Wikipedia)",
+      },
+    },
+  ],
+  keywords: [
+    "E4",
+    "function congruence",
+    "congruence",
+    "equality",
+    "合同律",
+    "関数",
+  ],
+  order: 12,
+};
+
+const axiomE5: ReferenceEntry = {
+  id: "axiom-e5",
+  category: "axiom",
+  title: {
+    en: "Axiom E5 (Predicate Congruence)",
+    ja: "公理 E5 (述語の合同律)",
+  },
+  summary: {
+    en: "x₁ = y₁ ∧ ··· ∧ xₙ = yₙ → (P(x₁,...,xₙ) → P(y₁,...,yₙ)) — Equal arguments preserve predicate truth.",
+    ja: "x₁ = y₁ ∧ ··· ∧ xₙ = yₙ → (P(x₁,...,xₙ) → P(y₁,...,yₙ)) — 等しい引数は述語の真偽を保存する。",
+  },
+  body: {
+    en: [
+      "**Predicate congruence** (E5) states that if corresponding arguments are equal, and the predicate holds for one set of arguments, it also holds for the other. For each n-ary predicate symbol P, there is an instance of E5.",
+      "For a unary predicate P: ∀x.∀y. x = y → (P(x) → P(y)). The reverse direction (P(y) → P(x)) is derivable by combining E2 (symmetry) with E5.",
+      "Like E4, E5 is a *schema family*: it generates a separate axiom instance for each predicate symbol in the theory's signature.",
+      "E5 is equivalent to the **Leibniz substitution principle**: t₁ = t₂ → φ[t₁/x] → φ[t₂/x], which encompasses both E4 and E5 in a more abstract form.",
+    ],
+    ja: [
+      "**述語の合同律** (E5) は、対応する引数が等しく、一方の引数の組に対して述語が成り立つなら、もう一方でも成り立つことを述べます。シグネチャ中の各n項述語記号Pに対してE5のインスタンスがあります。",
+      "単項述語Pの場合: ∀x.∀y. x = y → (P(x) → P(y))。逆方向（P(y) → P(x)）はE2（対称律）とE5を組み合わせて導出できます。",
+      "E4と同様に、E5は*スキーマ族*です: 理論のシグネチャ中の各述語記号に対して、別個の公理インスタンスが生成されます。",
+      "E5は**ライプニッツの代入原理** t₁ = t₂ → φ[t₁/x] → φ[t₂/x] と同値であり、より抽象的な形でE4とE5の両方を包含します。",
+    ],
+  },
+  formalNotation:
+    "\\forall \\vec{x}. \\forall \\vec{y}.\\ \\bigwedge_i x_i = y_i \\to (P(\\vec{x}) \\to P(\\vec{y}))",
+  relatedEntryIds: ["axiom-e1", "axiom-e2", "axiom-e4", "concept-substitution"],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Leibniz%27s_law",
+      label: {
+        en: "Identity of indiscernibles (Wikipedia)",
+        ja: "不可識別者同一の原理 (Wikipedia)",
+      },
+    },
+  ],
+  keywords: [
+    "E5",
+    "predicate congruence",
+    "Leibniz",
+    "congruence",
+    "equality",
+    "合同律",
+    "述語",
+    "ライプニッツ",
+  ],
+  order: 13,
 };
 
 // ============================================================
@@ -951,6 +1055,8 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   axiomE1,
   axiomE2,
   axiomE3,
+  axiomE4,
+  axiomE5,
   // Inference Rules
   ruleMP,
   ruleGen,

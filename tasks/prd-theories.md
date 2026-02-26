@@ -21,8 +21,8 @@
     - [x] `ReferenceCategory`: axiom, inference-rule, logic-system, notation, concept 等
     - [x] 検索・フィルタリングの純粋ロジック
     - [x] テスト
-  - [ ] リファレンスコンテンツ: dev/logic-reference/ の内容をユーザー向けに再構成
-    - [ ] 公理(A1,A2,A3,M3,EFQ,DNE,A4,A5,E1-E5)の解説(en/ja)
+  - [-] リファレンスコンテンツ: dev/logic-reference/ の内容をユーザー向けに再構成
+    - [x] 公理(A1,A2,A3,M3,EFQ,DNE,A4,A5,E1-E5)の解説(en/ja)
     - [ ] 推論規則(MP,Gen,自然演繹ルール,シーケント計算ルール)の解説(en/ja)
     - [ ] 論理体系(Łukasiewicz,Mendelson,直観主義,古典)の解説(en/ja)
     - [ ] 記法・記号一覧の解説(en/ja)

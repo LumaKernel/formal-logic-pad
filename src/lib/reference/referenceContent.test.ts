@@ -16,8 +16,8 @@ describe("allReferenceEntries", () => {
   });
 
   it("エントリ数が期待通り", () => {
-    // 公理11 + 推論規則2 + 論理体系5 + 概念3 + 理論2 = 23
-    expect(allReferenceEntries).toHaveLength(23);
+    // 公理13 + 推論規則2 + 論理体系5 + 概念3 + 理論2 = 25
+    expect(allReferenceEntries).toHaveLength(25);
   });
 
   it("少なくとも1つのエントリが各カテゴリに存在する", () => {
@@ -127,6 +127,8 @@ describe("公理エントリの個別チェック", () => {
     "axiom-e1",
     "axiom-e2",
     "axiom-e3",
+    "axiom-e4",
+    "axiom-e5",
   ];
 
   it("全公理エントリが存在する", () => {
@@ -179,6 +181,36 @@ describe("論理体系エントリの個別チェック", () => {
   });
 });
 
+describe("等号公理E4/E5の個別チェック", () => {
+  it("E4 (Function Congruence) エントリが存在する", () => {
+    const entry = findEntryById(allReferenceEntries, "axiom-e4");
+    expect(entry).toBeDefined();
+    expect(entry?.category).toBe("axiom");
+    expect(entry?.formalNotation).toBeTruthy();
+    expect(entry?.keywords).toContain("E4");
+  });
+
+  it("E5 (Predicate Congruence) エントリが存在する", () => {
+    const entry = findEntryById(allReferenceEntries, "axiom-e5");
+    expect(entry).toBeDefined();
+    expect(entry?.category).toBe("axiom");
+    expect(entry?.formalNotation).toBeTruthy();
+    expect(entry?.keywords).toContain("E5");
+  });
+
+  it("E4の解説にスキーマ族であることが記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "axiom-e4");
+    expect(entry?.body.en.some((p) => p.includes("schema family"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("スキーマ族"))).toBe(true);
+  });
+
+  it("E5の解説にライプニッツ原理が記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "axiom-e5");
+    expect(entry?.body.en.some((p) => p.includes("Leibniz"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("ライプニッツ"))).toBe(true);
+  });
+});
+
 describe("検索の動作確認", () => {
   it("英語で公理を検索できる", () => {
     const result = searchEntries(allReferenceEntries, "axiom", "en");
@@ -207,5 +239,17 @@ describe("検索の動作確認", () => {
       const result = searchEntries(allReferenceEntries, "A1", locale as Locale);
       expect(result.length).toBeGreaterThan(0);
     }
+  });
+
+  it("合同律をキーワードで検索できる", () => {
+    const result = searchEntries(allReferenceEntries, "congruence", "en");
+    expect(result.length).toBeGreaterThanOrEqual(2);
+    expect(result.some((e) => e.id === "axiom-e4")).toBe(true);
+    expect(result.some((e) => e.id === "axiom-e5")).toBe(true);
+  });
+
+  it("日本語で合同律を検索できる", () => {
+    const result = searchEntries(allReferenceEntries, "合同律", "ja");
+    expect(result.length).toBeGreaterThanOrEqual(2);
   });
 });

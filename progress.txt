@@ -84,6 +84,38 @@
 
 ---
 
+## 2026-02-27 - リファレンス: 公理コンテンツ拡充（E4/E5追加・既存公理解説充実化）
+- E4（関数の合同律）、E5（述語の合同律）の2つの新しいリファレンスエントリを追加
+  - E4: スキーマ族として各関数記号ごとに生成されるインスタンス群
+  - E5: スキーマ族 + ライプニッツ代入原理との同値性を記載
+- 既存公理エントリ（A1-A5, A3, EFQ, DNE, E1-E3）の解説を充実化
+  - A1: 証明中での使用頻度に関する情報追加
+  - A2: Hilbert系の証明構成パターンに関する情報追加
+  - A3: Peirceの法則、M3との同値性を明記
+  - A4: 具体例と不正な代入の例を追加
+  - A5: 直観的説明と無効な例を追加
+  - EFQ: 最小論理との区別を明記（Johansson体系）
+  - DNE: Łukasiewicz体系での導出の冗長性に言及
+  - E1: A4を通じた具体的インスタンスの例を追加
+  - E3: 多段等式連鎖の例を追加
+  - E1/E2/E3のrelatedEntryIdsにE4/E5を追加
+- テスト: 167ファイル、3960テスト全パス（+20テスト）
+  - E4/E5の個別チェック、合同律検索テスト等を追加
+- カバレッジ: Stmts 99.34%(維持), Branch 94.95%(維持), Funcs 90.07%(維持), Lines 99.92%(維持)
+  - ベースライン: Stmts 99.34%, Branch 94.95%, Funcs 90.07%, Lines 99.92%
+  - lib/reference: Stmts 100%, Branch 100%, Funcs 100%, Lines 100%
+- ブラウザ確認: .screenshots/storybook-reference-axiom-content-check.png
+- 変更ファイル:
+  - `src/lib/reference/referenceContent.ts` (MODIFIED - E4/E5追加、既存解説充実化)
+  - `src/lib/reference/referenceContent.test.ts` (MODIFIED - E4/E5テスト追加、エントリ数更新)
+  - `task-processing.md` (MODIFIED - タスク記入→完了後クリア)
+  - `tasks/prd-theories.md` (MODIFIED - 公理解説サブタスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - E4/E5はシグネチャ依存のスキーマ族。リファレンスではベクトル記法で抽象化して記述
+  - 既存エントリの解説充実化では、dev/logic-reference/ の具体例や歴史的文脈が有用
+  - エントリ追加時は relatedEntryIds の双方向リンクを忘れずに（既存エントリ側も更新）
+---
+
 ## 2026-02-26 - リファレンス: 多言語対応リファレンスシステムの型定義・純粋ロジック・コンテンツ追加
 - `src/lib/reference/` に新ライブラリを作成
   - `referenceEntry.ts`: 型定義(ReferenceEntry, LocalizedText, ReferenceCategory等) + 検索・フィルタリング・グループ化の純粋ロジック
