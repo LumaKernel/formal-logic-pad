@@ -82,6 +82,29 @@
 
 ---
 
+## 2026-02-26 - UIスタイル: ツールバーとパレットの紙パネル化（US-S04）
+- globals.css に紙パネル用CSS変数を追加（--color-panel-bg, --color-panel-border, --color-panel-shadow, --color-panel-rule-line, --color-paper-button-*）
+- ProofWorkspace.tsx のヘッダー・ゴールコンテナを紙パネルスタイルに変更
+- ProofWorkspace.tsx のエクスポート/インポートボタンをpaper-likeスタイルに統一（paperButtonStyle定数抽出）
+- ProofWorkspace.tsx のシステムバッジ・セレクトドロップダウン・コンテキストメニューも紙パネルに統一
+- AxiomPalette.tsx のパネル背景を紙風に変更、罫線（borderBottom）をアイテム間に追加
+- AxiomPalette.tsx のホバーを暖色系に変更
+- ライト/ダークモード両対応（CSS変数で切り替え）
+- テスト: 158ファイル、3289テスト全パス
+- カバレッジ: Stmts 99.32%(維持), Branch 94.93%(維持), Funcs 89.96%(+0.05), Lines 99.91%(維持)
+  - ベースライン: Stmts 99.32%, Branch 94.93%, Funcs 89.91%, Lines 99.91%
+- ブラウザ確認: .screenshots/us-s04-toolbar-paper-panel-light.png, .screenshots/us-s04-toolbar-paper-panel-fullscreen-light.png, .screenshots/us-s04-toolbar-paper-panel-fullscreen-dark.png, .screenshots/us-s04-with-axioms-light.png
+- 変更ファイル:
+  - `src/app/globals.css` (MODIFIED - 紙パネル・紙ボタンCSS変数追加 light/dark)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - ヘッダー/ゴール/ボタン/メニューの紙パネル化)
+  - `src/lib/proof-pad/AxiomPalette.tsx` (MODIFIED - パネル紙風+罫線+ホバー暖色系)
+  - `tasks/prd-ui-style.md` (MODIFIED - US-S04完了)
+- **今後のイテレーションへの学び:**
+  - 紙パネルCSS変数（--color-panel-*）とボタンCSS変数（--color-paper-button-*）を分離した。新しいパネルやボタンを追加する際はこれらを参照
+  - インラインスタイルの重複はpaperButtonStyleのような定数に抽出して一元管理。ProofWorkspace.tsxの4箇所のインラインエクスポートボタンスタイルを1つの定数に統合
+  - AxiomPaletteのアイテム間罫線はborderBottomで実現（メモ帳風の質感）
+---
+
 ## 2026-02-26 - ProofWorkspace: インクリメンタル自動レイアウト機能を追加
 - workspaceState.ts に `applyIncrementalLayout` 純粋関数を追加（`computeLayoutDiff` を利用した差分レイアウト）
 - ProofWorkspace.tsx に「Auto Layout」トグルと方向セレクタ（Top→Bottom / Bottom→Top）を追加
