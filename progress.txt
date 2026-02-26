@@ -4018,3 +4018,22 @@
   - useMemoでfindEntryByIdを呼ぶ際、referenceEntriesの依存のみでOK（エントリIDは静的マッピングなので変化しない）
   - Storybook URLのケバブケース: `proofpad-proofworkspace--with-reference-popover`（proof-pad → proofpad のようにハイフンが消える）
 ---
+
+## 2026-02-27 - リファレンスコンテンツ外部リソースリンク充実化
+- 実装した内容: 全39リファレンスエントリのexternalLinksを充実化
+  - Wikipedia EN/JA, MathWorld, nLab のリンクを体系的に追加
+  - 以前空だったエントリ(axiom-a5, axiom-e2, axiom-e3, rule-nd-implication, rule-nd-conjunction, rule-nd-disjunction, rule-sc-logical)にもリンクを追加
+  - 全カテゴリ(axiom, inference-rule, logic-system, concept, theory, notation)を網羅
+- 変更したファイル:
+  - `src/lib/reference/referenceContent.ts` (MODIFIED - 全エントリのexternalLinks充実化, +470行)
+  - `tasks/prd-theories.md` (MODIFIED - タスク完了マーク)
+  - `task-processing.md` (MODIFIED→クリア)
+- カバレッジ: 99.36% Statements (変化なし), 94.96% Branch, 90.21% Functions, 99.92% Lines
+- スクリーンショット:
+  - `.screenshots/reference-modal-external-links-tall.png` (External Resourcesセクション表示確認)
+- **今後のイテレーションへの学び:**
+  - ExternalLinkTypeは "wikipedia-en" | "wikipedia-ja" | "mathworld" | "nlab" | "paper" | "other" の6種類
+  - referenceContent.tsのテストはURL形式バリデーション・多言語ラベル完備性チェックを含むので、リンク追加時にテストを追加する必要はない
+  - ReferenceModalの"External Resources"セクションはリンクが存在する場合のみ表示される（referenceUILogic.tsで制御）
+  - データのみの変更なのでカバレッジに影響なし
+---

@@ -54,6 +54,14 @@ const axiomA1: ReferenceEntry = {
         ja: "ヒルベルト流演繹体系 (Wikipedia)",
       },
     },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/Hilbert+system",
+      label: {
+        en: "Hilbert system (nLab)",
+        ja: "ヒルベルト体系 (nLab)",
+      },
+    },
   ],
   keywords: ["K", "K axiom", "weakening", "A1", "弱化"],
   order: 1,
@@ -87,6 +95,22 @@ const axiomA2: ReferenceEntry = {
       type: "wikipedia-en",
       url: "https://en.wikipedia.org/wiki/S,_K,_I_combinator_calculus",
       label: { en: "SKI combinator calculus", ja: "SKIコンビネータ計算" },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/SKI%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8D%E3%83%BC%E3%82%BF%E8%A8%88%E7%AE%97",
+      label: {
+        en: "SKI combinator calculus (Wikipedia JA)",
+        ja: "SKIコンビネータ計算 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/combinatory+logic",
+      label: {
+        en: "Combinatory logic (nLab)",
+        ja: "コンビネータ論理 (nLab)",
+      },
     },
   ],
   keywords: ["S", "S axiom", "distribution", "A2", "分配"],
@@ -128,6 +152,11 @@ const axiomA3: ReferenceEntry = {
       url: "https://en.wikipedia.org/wiki/Contraposition",
       label: { en: "Contraposition (Wikipedia)", ja: "対偶 (Wikipedia)" },
     },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E5%AF%BE%E5%81%B6_(%E8%AB%96%E7%90%86%E5%AD%A6)",
+      label: { en: "Contraposition (Wikipedia JA)", ja: "対偶 (Wikipedia)" },
+    },
   ],
   keywords: ["A3", "contraposition", "Łukasiewicz", "対偶", "classical"],
   order: 3,
@@ -160,6 +189,14 @@ const axiomM3: ReferenceEntry = {
       url: "https://en.wikipedia.org/wiki/Reductio_ad_absurdum",
       label: {
         en: "Reductio ad absurdum (Wikipedia)",
+        ja: "背理法 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E8%83%8C%E7%90%86%E6%B3%95",
+      label: {
+        en: "Reductio ad absurdum (Wikipedia JA)",
         ja: "背理法 (Wikipedia)",
       },
     },
@@ -200,6 +237,22 @@ const axiomEfq: ReferenceEntry = {
       label: {
         en: "Principle of explosion (Wikipedia)",
         ja: "爆発律 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E7%88%86%E7%99%BA%E5%BE%8B",
+      label: {
+        en: "Principle of explosion (Wikipedia JA)",
+        ja: "爆発律 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/ex+falso+quodlibet",
+      label: {
+        en: "Ex falso quodlibet (nLab)",
+        ja: "爆発律 (nLab)",
       },
     },
   ],
@@ -249,6 +302,22 @@ const axiomDne: ReferenceEntry = {
         ja: "二重否定 (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E4%BA%8C%E9%87%8D%E5%90%A6%E5%AE%9A%E3%81%AE%E9%99%A4%E5%8E%BB",
+      label: {
+        en: "Double negation elimination (Wikipedia JA)",
+        ja: "二重否定の除去 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/double+negation",
+      label: {
+        en: "Double negation (nLab)",
+        ja: "二重否定 (nLab)",
+      },
+    },
   ],
   keywords: [
     "DNE",
@@ -294,6 +363,22 @@ const axiomA4: ReferenceEntry = {
         ja: "全称例化 (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/First-order_logic",
+      label: {
+        en: "First-order logic (Wikipedia)",
+        ja: "一階論理 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E4%B8%80%E9%9A%8E%E8%BF%B0%E8%AA%9E%E8%AB%96%E7%90%86",
+      label: {
+        en: "First-order logic (Wikipedia JA)",
+        ja: "一階述語論理 (Wikipedia)",
+      },
+    },
   ],
   keywords: ["A4", "universal instantiation", "UI", "全称例化", "predicate"],
   order: 7,
@@ -325,7 +410,24 @@ const axiomA5: ReferenceEntry = {
   formalNotation:
     "\\forall x.(\\varphi \\to \\psi) \\to (\\varphi \\to \\forall x.\\psi)",
   relatedEntryIds: ["axiom-a4", "rule-gen", "concept-free-variable"],
-  externalLinks: [],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/First-order_logic#Axioms_for_quantifiers",
+      label: {
+        en: "First-order logic: quantifier axioms (Wikipedia)",
+        ja: "一階論理: 量化子の公理 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/first-order+logic",
+      label: {
+        en: "First-order logic (nLab)",
+        ja: "一階論理 (nLab)",
+      },
+    },
+  ],
   keywords: [
     "A5",
     "universal distribution",
@@ -362,6 +464,16 @@ const axiomE1: ReferenceEntry = {
       url: "https://en.wikipedia.org/wiki/Equality_(mathematics)",
       label: { en: "Equality (Wikipedia)", ja: "等号 (Wikipedia)" },
     },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E7%AD%89%E5%8F%B7",
+      label: { en: "Equality (Wikipedia JA)", ja: "等号 (Wikipedia)" },
+    },
+    {
+      type: "mathworld",
+      url: "https://mathworld.wolfram.com/Reflexive.html",
+      label: { en: "Reflexive (MathWorld)", ja: "反射的 (MathWorld)" },
+    },
   ],
   keywords: ["E1", "reflexivity", "equality", "反射律", "等号"],
   order: 9,
@@ -385,7 +497,21 @@ const axiomE2: ReferenceEntry = {
   },
   formalNotation: "\\forall x. \\forall y.\\ x = y \\to y = x",
   relatedEntryIds: ["axiom-e1", "axiom-e3", "axiom-e4", "axiom-e5"],
-  externalLinks: [],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Symmetric_relation",
+      label: { en: "Symmetric relation (Wikipedia)", ja: "対称関係 (Wikipedia)" },
+    },
+    {
+      type: "mathworld",
+      url: "https://mathworld.wolfram.com/EquivalenceRelation.html",
+      label: {
+        en: "Equivalence relation (MathWorld)",
+        ja: "同値関係 (MathWorld)",
+      },
+    },
+  ],
   keywords: ["E2", "symmetry", "equality", "対称律"],
   order: 10,
 };
@@ -413,7 +539,21 @@ const axiomE3: ReferenceEntry = {
   formalNotation:
     "\\forall x. \\forall y. \\forall z.\\ x = y \\to (y = z \\to x = z)",
   relatedEntryIds: ["axiom-e1", "axiom-e2", "axiom-e4", "axiom-e5"],
-  externalLinks: [],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Transitive_relation",
+      label: {
+        en: "Transitive relation (Wikipedia)",
+        ja: "推移関係 (Wikipedia)",
+      },
+    },
+    {
+      type: "mathworld",
+      url: "https://mathworld.wolfram.com/Transitive.html",
+      label: { en: "Transitive (MathWorld)", ja: "推移的 (MathWorld)" },
+    },
+  ],
   keywords: ["E3", "transitivity", "equality", "推移律"],
   order: 11,
 };
@@ -551,6 +691,30 @@ const ruleMP: ReferenceEntry = {
         ja: "モーダスポネンス (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%83%A2%E3%83%BC%E3%83%80%E3%82%B9%E3%83%9D%E3%83%8D%E3%83%B3%E3%82%B9",
+      label: {
+        en: "Modus ponens (Wikipedia JA)",
+        ja: "モーダスポネンス (Wikipedia)",
+      },
+    },
+    {
+      type: "mathworld",
+      url: "https://mathworld.wolfram.com/ModusPonens.html",
+      label: {
+        en: "Modus Ponens (MathWorld)",
+        ja: "モーダスポネンス (MathWorld)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/modus+ponens",
+      label: {
+        en: "Modus ponens (nLab)",
+        ja: "モーダスポネンス (nLab)",
+      },
+    },
   ],
   keywords: [
     "MP",
@@ -591,6 +755,14 @@ const ruleGen: ReferenceEntry = {
       label: {
         en: "Universal generalization (Wikipedia)",
         ja: "全称汎化 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/universal+quantifier",
+      label: {
+        en: "Universal quantifier (nLab)",
+        ja: "全称量化子 (nLab)",
       },
     },
   ],
@@ -647,6 +819,14 @@ const ruleNdOverview: ReferenceEntry = {
         ja: "自然演繹 (Wikipedia)",
       },
     },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/natural+deduction",
+      label: {
+        en: "Natural deduction (nLab)",
+        ja: "自然演繹 (nLab)",
+      },
+    },
   ],
   keywords: [
     "natural deduction",
@@ -693,7 +873,24 @@ const ruleNdImplication: ReferenceEntry = {
     "rule-nd-conjunction",
     "rule-nd-disjunction",
   ],
-  externalLinks: [],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Natural_deduction#Implication_introduction_and_elimination",
+      label: {
+        en: "ND implication rules (Wikipedia)",
+        ja: "自然演繹の含意規則 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Deduction_theorem",
+      label: {
+        en: "Deduction theorem (Wikipedia)",
+        ja: "演繹定理 (Wikipedia)",
+      },
+    },
+  ],
   keywords: [
     "implication introduction",
     "implication elimination",
@@ -737,7 +934,24 @@ const ruleNdConjunction: ReferenceEntry = {
     "rule-nd-implication",
     "rule-nd-disjunction",
   ],
-  externalLinks: [],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Conjunction_introduction",
+      label: {
+        en: "Conjunction introduction (Wikipedia)",
+        ja: "連言導入 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Conjunction_elimination",
+      label: {
+        en: "Conjunction elimination (Wikipedia)",
+        ja: "連言除去 (Wikipedia)",
+      },
+    },
+  ],
   keywords: [
     "conjunction introduction",
     "conjunction elimination",
@@ -780,7 +994,24 @@ const ruleNdDisjunction: ReferenceEntry = {
     "rule-nd-implication",
     "rule-nd-conjunction",
   ],
-  externalLinks: [],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Disjunction_introduction",
+      label: {
+        en: "Disjunction introduction (Wikipedia)",
+        ja: "選言導入 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Disjunction_elimination",
+      label: {
+        en: "Disjunction elimination (Wikipedia)",
+        ja: "選言除去 (Wikipedia)",
+      },
+    },
+  ],
   keywords: [
     "disjunction introduction",
     "disjunction elimination",
@@ -843,6 +1074,22 @@ const ruleScOverview: ReferenceEntry = {
         ja: "シーケント計算 (Wikipedia)",
       },
     },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/sequent+calculus",
+      label: {
+        en: "Sequent calculus (nLab)",
+        ja: "シーケント計算 (nLab)",
+      },
+    },
+    {
+      type: "mathworld",
+      url: "https://mathworld.wolfram.com/Sequent.html",
+      label: {
+        en: "Sequent (MathWorld)",
+        ja: "シーケント (MathWorld)",
+      },
+    },
   ],
   keywords: [
     "sequent calculus",
@@ -898,6 +1145,22 @@ const ruleScStructural: ReferenceEntry = {
         ja: "カット除去定理 (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%83%E3%83%88%E9%99%A4%E5%8E%BB%E5%AE%9A%E7%90%86",
+      label: {
+        en: "Cut-elimination theorem (Wikipedia JA)",
+        ja: "カット除去定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/cut+elimination",
+      label: {
+        en: "Cut elimination (nLab)",
+        ja: "カット除去 (nLab)",
+      },
+    },
   ],
   keywords: [
     "cut",
@@ -950,7 +1213,16 @@ const ruleScLogical: ReferenceEntry = {
     "rule-nd-conjunction",
     "rule-nd-disjunction",
   ],
-  externalLinks: [],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Sequent_calculus#Inference_rules",
+      label: {
+        en: "Sequent calculus inference rules (Wikipedia)",
+        ja: "シーケント計算の推論規則 (Wikipedia)",
+      },
+    },
+  ],
   keywords: [
     "logical rule",
     "left rule",
@@ -1083,6 +1355,14 @@ const systemMendelson: ReferenceEntry = {
         ja: "エリオット・メンデルソン (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Hilbert_system",
+      label: {
+        en: "Hilbert system (Wikipedia)",
+        ja: "ヒルベルト体系 (Wikipedia)",
+      },
+    },
   ],
   keywords: [
     "Mendelson",
@@ -1143,6 +1423,22 @@ const systemMinimal: ReferenceEntry = {
       label: {
         en: "Curry-Howard correspondence (Wikipedia)",
         ja: "Curry-Howard対応 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AA%E3%83%BC%EF%BC%9D%E3%83%8F%E3%83%AF%E3%83%BC%E3%83%89%E5%90%8C%E5%9E%8B%E5%AF%BE%E5%BF%9C",
+      label: {
+        en: "Curry-Howard correspondence (Wikipedia JA)",
+        ja: "カリー＝ハワード同型対応 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/minimal+logic",
+      label: {
+        en: "Minimal logic (nLab)",
+        ja: "最小論理 (nLab)",
       },
     },
   ],
@@ -1219,6 +1515,22 @@ const systemIntuitionistic: ReferenceEntry = {
       label: {
         en: "Heyting arithmetic (Wikipedia)",
         ja: "ヘイティング算術 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/intuitionistic+logic",
+      label: {
+        en: "Intuitionistic logic (nLab)",
+        ja: "直観主義論理 (nLab)",
+      },
+    },
+    {
+      type: "mathworld",
+      url: "https://mathworld.wolfram.com/IntuitionisticLogic.html",
+      label: {
+        en: "Intuitionistic Logic (MathWorld)",
+        ja: "直観主義論理 (MathWorld)",
       },
     },
   ],
@@ -1302,6 +1614,30 @@ const systemClassical: ReferenceEntry = {
         ja: "ゲーデルの完全性定理 (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%B2%E3%83%BC%E3%83%87%E3%83%AB%E3%81%AE%E5%AE%8C%E5%85%A8%E6%80%A7%E5%AE%9A%E7%90%86",
+      label: {
+        en: "Gödel's completeness theorem (Wikipedia JA)",
+        ja: "ゲーデルの完全性定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/classical+logic",
+      label: {
+        en: "Classical logic (nLab)",
+        ja: "古典論理 (nLab)",
+      },
+    },
+    {
+      type: "mathworld",
+      url: "https://mathworld.wolfram.com/PropositionalCalculus.html",
+      label: {
+        en: "Propositional Calculus (MathWorld)",
+        ja: "命題計算 (MathWorld)",
+      },
+    },
   ],
   keywords: [
     "classical",
@@ -1355,6 +1691,14 @@ const conceptSubstitution: ReferenceEntry = {
         ja: "論理における代入 (Wikipedia)",
       },
     },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/substitution",
+      label: {
+        en: "Substitution (nLab)",
+        ja: "代入 (nLab)",
+      },
+    },
   ],
   keywords: [
     "substitution",
@@ -1396,6 +1740,22 @@ const conceptFreeVariable: ReferenceEntry = {
         ja: "自由変数と束縛変数 (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E8%87%AA%E7%94%B1%E5%A4%89%E6%95%B0%E3%81%A8%E6%9D%9F%E7%B8%9B%E5%A4%89%E6%95%B0",
+      label: {
+        en: "Free and bound variables (Wikipedia JA)",
+        ja: "自由変数と束縛変数 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/free+variable",
+      label: {
+        en: "Free variable (nLab)",
+        ja: "自由変数 (nLab)",
+      },
+    },
   ],
   keywords: [
     "free variable",
@@ -1435,6 +1795,22 @@ const conceptUnification: ReferenceEntry = {
       label: {
         en: "Unification (Wikipedia)",
         ja: "ユニフィケーション (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/unification",
+      label: {
+        en: "Unification (nLab)",
+        ja: "ユニフィケーション (nLab)",
+      },
+    },
+    {
+      type: "mathworld",
+      url: "https://mathworld.wolfram.com/Unification.html",
+      label: {
+        en: "Unification (MathWorld)",
+        ja: "ユニフィケーション (MathWorld)",
       },
     },
   ],
@@ -1481,6 +1857,30 @@ const theoryPeanoArithmetic: ReferenceEntry = {
         ja: "ペアノ公理 (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%83%9A%E3%82%A2%E3%83%8E%E3%81%AE%E5%85%AC%E7%90%86",
+      label: {
+        en: "Peano axioms (Wikipedia JA)",
+        ja: "ペアノの公理 (Wikipedia)",
+      },
+    },
+    {
+      type: "mathworld",
+      url: "https://mathworld.wolfram.com/PeanosAxioms.html",
+      label: {
+        en: "Peano's Axioms (MathWorld)",
+        ja: "ペアノの公理 (MathWorld)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/Peano+arithmetic",
+      label: {
+        en: "Peano arithmetic (nLab)",
+        ja: "ペアノ算術 (nLab)",
+      },
+    },
   ],
   keywords: [
     "Peano",
@@ -1522,6 +1922,30 @@ const theoryGroupTheory: ReferenceEntry = {
       label: {
         en: "Group theory (Wikipedia)",
         ja: "群論 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E7%BE%A4%E8%AB%96",
+      label: {
+        en: "Group theory (Wikipedia JA)",
+        ja: "群論 (Wikipedia)",
+      },
+    },
+    {
+      type: "mathworld",
+      url: "https://mathworld.wolfram.com/Group.html",
+      label: {
+        en: "Group (MathWorld)",
+        ja: "群 (MathWorld)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/group",
+      label: {
+        en: "Group (nLab)",
+        ja: "群 (nLab)",
       },
     },
   ],
@@ -1596,6 +2020,14 @@ const notationConnectives: ReferenceEntry = {
         ja: "論理結合子 (Wikipedia)",
       },
     },
+    {
+      type: "mathworld",
+      url: "https://mathworld.wolfram.com/Connective.html",
+      label: {
+        en: "Connective (MathWorld)",
+        ja: "結合子 (MathWorld)",
+      },
+    },
   ],
   keywords: [
     "connective",
@@ -1663,6 +2095,14 @@ const notationQuantifiers: ReferenceEntry = {
         ja: "量化子 (Wikipedia)",
       },
     },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/quantifier",
+      label: {
+        en: "Quantifier (nLab)",
+        ja: "量化子 (nLab)",
+      },
+    },
   ],
   keywords: [
     "quantifier",
@@ -1713,6 +2153,22 @@ const notationEquality: ReferenceEntry = {
       label: {
         en: "Equality in first-order logic (Wikipedia)",
         ja: "一階論理における等号 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E7%AD%89%E5%8F%B7",
+      label: {
+        en: "Equality sign (Wikipedia JA)",
+        ja: "等号 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/equality",
+      label: {
+        en: "Equality (nLab)",
+        ja: "等号 (nLab)",
       },
     },
   ],
