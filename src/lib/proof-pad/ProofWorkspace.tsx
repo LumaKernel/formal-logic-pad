@@ -164,9 +164,9 @@ const systemBadgeStyle = {
 
 const mpButtonStyle = {
   padding: "4px 12px",
-  background: "#d9944a",
-  color: "#fff",
-  border: "1px solid rgba(255,255,255,0.3)",
+  background: "var(--color-mp-button, #d9944a)",
+  color: "var(--color-node-text, #fff)",
+  border: "1px solid var(--color-node-border, rgba(255,255,255,0.3))",
   borderRadius: 6,
   cursor: "pointer",
   fontWeight: 600 as const,
@@ -176,8 +176,8 @@ const mpButtonStyle = {
 
 const mpButtonActiveStyle = {
   ...mpButtonStyle,
-  background: "#b5752e",
-  boxShadow: "0 0 0 2px rgba(217,148,74,0.5)",
+  background: "var(--color-mp-button-active, #b5752e)",
+  boxShadow: "0 0 0 2px var(--color-mp-button-shadow, rgba(217,148,74,0.5))",
 };
 
 const mpSelectionBannerStyle = {
@@ -187,13 +187,13 @@ const mpSelectionBannerStyle = {
   transform: "translateX(-50%)",
   zIndex: 20,
   padding: "8px 16px",
-  background: "rgba(217,148,74,0.95)",
-  color: "#fff",
+  background: "var(--color-mp-banner, rgba(217,148,74,0.95))",
+  color: "var(--color-node-text, #fff)",
   borderRadius: 8,
   fontSize: 13,
   fontFamily: "sans-serif",
   fontWeight: 500 as const,
-  boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+  boxShadow: "0 2px 8px var(--color-node-shadow, rgba(0,0,0,0.2))",
   pointerEvents: "auto" as const,
   display: "flex",
   alignItems: "center",
@@ -203,8 +203,8 @@ const mpSelectionBannerStyle = {
 const cancelButtonStyle = {
   padding: "2px 8px",
   background: "rgba(255,255,255,0.2)",
-  color: "#fff",
-  border: "1px solid rgba(255,255,255,0.3)",
+  color: "var(--color-node-text, #fff)",
+  border: "1px solid var(--color-node-border, rgba(255,255,255,0.3))",
   borderRadius: 4,
   cursor: "pointer",
   fontSize: 11,
@@ -213,18 +213,18 @@ const cancelButtonStyle = {
 
 const genButtonStyle = {
   ...mpButtonStyle,
-  background: "#9b59b6",
+  background: "var(--color-gen-button, #9b59b6)",
 };
 
 const genButtonActiveStyle = {
   ...genButtonStyle,
-  background: "#7d3c98",
-  boxShadow: "0 0 0 2px rgba(155,89,182,0.5)",
+  background: "var(--color-gen-button-active, #7d3c98)",
+  boxShadow: "0 0 0 2px var(--color-gen-button-shadow, rgba(155,89,182,0.5))",
 };
 
 const genSelectionBannerStyle = {
   ...mpSelectionBannerStyle,
-  background: "rgba(155,89,182,0.95)",
+  background: "var(--color-gen-banner, rgba(155,89,182,0.95))",
 };
 
 const genVariableInputStyle = {
@@ -236,7 +236,7 @@ const genVariableInputStyle = {
   width: 40,
   outline: "none",
   background: "rgba(255,255,255,0.2)",
-  color: "#fff",
+  color: "var(--color-node-text, #fff)",
 };
 
 // --- ゴール関連スタイル ---
@@ -285,13 +285,13 @@ const proofCompleteBannerStyle = {
   transform: "translateX(-50%)",
   zIndex: 30,
   padding: "12px 28px",
-  background: "linear-gradient(135deg, #4ad97a, #2ecc71)",
-  color: "#fff",
+  background: `linear-gradient(135deg, var(--color-proof-complete-gradient-start, #4ad97a), var(--color-proof-complete-gradient-end, #2ecc71))`,
+  color: "var(--color-node-text, #fff)",
   borderRadius: 12,
   fontSize: 18,
   fontFamily: "sans-serif",
   fontWeight: 700 as const,
-  boxShadow: "0 4px 20px rgba(74,217,122,0.5)",
+  boxShadow: `0 4px 20px var(--color-proof-complete-shadow, rgba(74,217,122,0.5))`,
   pointerEvents: "none" as const,
   textAlign: "center" as const,
   letterSpacing: 1,
@@ -320,14 +320,14 @@ const convertToFreeButtonStyle = {
 
 const selectionBannerStyle = {
   ...mpSelectionBannerStyle,
-  background: "rgba(59,130,246,0.95)",
+  background: "var(--color-selection-banner, rgba(59,130,246,0.95))",
 };
 
 const selectionActionButtonStyle = {
   padding: "2px 8px",
   background: "rgba(255,255,255,0.2)",
-  color: "#fff",
-  border: "1px solid rgba(255,255,255,0.3)",
+  color: "var(--color-node-text, #fff)",
+  border: "1px solid var(--color-node-border, rgba(255,255,255,0.3))",
   borderRadius: 4,
   cursor: "pointer",
   fontSize: 11,
@@ -1214,8 +1214,8 @@ export function ProofWorkspace({
           mpValidations.get(conn.toNodeId) ?? genValidations.get(conn.toNodeId);
         const color = nodeValidation
           ? nodeValidation.type === "error"
-            ? "#e06060"
-            : "#60c060"
+            ? "var(--color-error, #e06060)"
+            : "var(--color-success, #60c060)"
           : getProofEdgeColor(fromNode.kind);
 
         return (
@@ -1274,16 +1274,16 @@ export function ProofWorkspace({
       // 選択モードの視覚的ハイライト色
       const selectionColor =
         mpSelection.phase !== "idle"
-          ? "rgba(217,148,74,0.6)"
+          ? "var(--color-mp-button-shadow, rgba(217,148,74,0.6))"
           : genSelection.phase !== "idle"
-            ? "rgba(155,89,182,0.6)"
+            ? "var(--color-gen-button-shadow, rgba(155,89,182,0.6))"
             : undefined;
 
       // アウトラインスタイルの決定
       const outlineStyle = isSelectedLeft
-        ? "3px solid #d9944a"
+        ? `3px solid var(--color-mp-button, #d9944a)`
         : isNodeSelected
-          ? "2px solid #3b82f6"
+          ? "2px solid var(--color-accent, #3b82f6)"
           : isSelectionActive && selectionColor
             ? `2px dashed ${selectionColor satisfies string}`
             : undefined;
@@ -1441,7 +1441,7 @@ export function ProofWorkspace({
               style={{
                 ...genVariableInputStyle,
                 ...(genSelection.phase !== "idle"
-                  ? { border: "1px solid #9b59b6" }
+                  ? { border: "1px solid var(--color-gen-button, #9b59b6)" }
                   : {}),
               }}
               data-testid={
@@ -1746,7 +1746,7 @@ export function ProofWorkspace({
             type="button"
             style={{
               ...selectionActionButtonStyle,
-              background: "rgba(224,96,96,0.3)",
+              background: "var(--color-error-bg, rgba(224,96,96,0.3))",
             }}
             onClick={handleDeleteSelected}
             data-testid={
@@ -1787,7 +1787,7 @@ export function ProofWorkspace({
         />
         {goalCheckResult._tag === "GoalAchieved" ? (
           <span
-            style={{ color: "#2ecc71", fontWeight: 700 }}
+            style={{ color: "var(--color-success, #2ecc71)", fontWeight: 700 }}
             data-testid={
               testId ? `${testId satisfies string}-goal-achieved` : undefined
             }
@@ -1796,7 +1796,7 @@ export function ProofWorkspace({
           </span>
         ) : goalCheckResult._tag === "GoalNotAchieved" ? (
           <span
-            style={{ color: "#999" }}
+            style={{ color: "var(--color-text-secondary, #999)" }}
             data-testid={
               testId
                 ? `${testId satisfies string}-goal-not-achieved`
@@ -1807,7 +1807,7 @@ export function ProofWorkspace({
           </span>
         ) : goalCheckResult._tag === "GoalParseError" ? (
           <span
-            style={{ color: "#e06060", fontSize: 11 }}
+            style={{ color: "var(--color-error, #e06060)", fontSize: 11 }}
             data-testid={
               testId ? `${testId satisfies string}-goal-parse-error` : undefined
             }
@@ -1833,8 +1833,8 @@ export function ProofWorkspace({
         <div
           style={{
             ...proofCompleteBannerStyle,
-            background: "linear-gradient(135deg, #e0a030, #d4940a)",
-            boxShadow: "0 4px 20px rgba(224,160,48,0.5)",
+            background: "linear-gradient(135deg, var(--color-warning, #e0a030), var(--color-warning-hover, #d4940a))",
+            boxShadow: "0 4px 20px var(--color-mp-button-shadow, rgba(224,160,48,0.5))",
           }}
           data-testid={
             testId
@@ -1900,7 +1900,7 @@ export function ProofWorkspace({
             onClick={handleSelectSubtree}
             /* v8 ignore start - hover visual effect only */
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--color-hover, #f0f0f0)";
+              e.currentTarget.style.background = "var(--color-surface-hover, #f0f0f0)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "transparent";
@@ -1914,7 +1914,7 @@ export function ProofWorkspace({
               background: "transparent",
               textAlign: "left",
               cursor: "pointer",
-              color: "var(--color-text, #333)",
+              color: "var(--color-text-primary, #333)",
               fontSize: 13,
               lineHeight: "1.4",
             }}

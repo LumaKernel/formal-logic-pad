@@ -3005,3 +3005,33 @@
   - テストで使う論理式は必ずパーサーで有効な式を使うこと（"some-result" → "psi -> phi"）
   - `ProofMessages` 型に新キーを追加すると `WorkspaceContent.tsx` でコンパイルエラーになるので変更漏れ防止に有効
 ---
+
+## 2026-02-26 - UIスタイル改善 (US-S01: デザイントークンCSS変数化)
+- 実装した内容:
+  - prd-ui-style.md のタスク分解: 9ストーリー（US-S01〜US-S09）を3フェーズに分けて詳細化
+  - US-S01: ハードコードされた色値をCSS変数に移行（リファクタリングのみ、視覚的変化なし）
+  - globals.css: ノード色（4色）・エッジ色（4色）・ワークスペースUI色（MP/Gen/選択バナー/完了バナー等 約30変数）をlight/dark両テーマに定義
+  - proofNodeUI.ts: NODE_COLORS/EDGE_COLORS ルックアップオブジェクト + cssVar()ヘルパー関数でCSS変数参照を生成
+  - ProofWorkspace.tsx: 約20箇所のインラインカラー値をCSS変数参照に置換
+  - テスト更新: JSDOM環境でCSS変数が解決されないため、テスト期待値を `var(--color-node-axiom, #5b8bd9)` 形式に更新
+- カバレッジ: Stmts 99.31%, Branch 94.92%, Funcs 89.87%, Lines 99.93% (ベースラインと同一)
+- 変更したファイル:
+  - `src/app/globals.css` (MODIFIED - CSS変数追加 約60行)
+  - `src/lib/proof-pad/proofNodeUI.ts` (MODIFIED - NODE_COLORS/EDGE_COLORS + cssVar())
+  - `src/lib/proof-pad/proofNodeUI.test.ts` (MODIFIED - エッジ色テスト期待値更新)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - インラインカラー→CSS変数)
+  - `src/lib/proof-pad/EditableProofNode.test.tsx` (MODIFIED - ノード色テスト期待値更新)
+  - `tasks/prd-ui-style.md` (MODIFIED - 9ストーリーに分解 + US-S01完了)
+- スクリーンショット:
+  - `.screenshots/before-css-var-default.png`
+  - `.screenshots/before-css-var-with-nodes.png`
+  - `.screenshots/before-css-var-goal-achieved.png`
+  - `.screenshots/after-css-var-default.png`
+  - `.screenshots/after-css-var-with-nodes.png`
+  - `.screenshots/after-css-var-goal-achieved.png`
+- **今後のイテレーションへの学び:**
+  - CSS変数化のパターン: `{ varName, fallback }` ルックアップ + `cssVar()` ヘルパーで `var(--name, fallback)` を生成。テーマ対応とフォールバックを両立
+  - ESLint `require-satisfies-in-tls`: テンプレートリテラル内で変数を使う場合 `satisfies string` が必要。ヘルパー関数内に閉じ込めると呼び出し側がクリーンに
+  - JSDOM環境ではCSS変数(`var(...)`)が解決されない。テストは生の文字列で比較する
+  - `--color-hover` → `--color-surface-hover`, `--color-text` → `--color-text-primary` のように既存変数名を正確に参照すること
+---

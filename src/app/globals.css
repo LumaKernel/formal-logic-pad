@@ -63,6 +63,37 @@
   --color-minimap-viewport: rgba(59, 130, 246, 0.15);
   --color-minimap-viewport-border: rgba(59, 130, 246, 0.6);
 
+  /* Proof Node Colors */
+  --color-node-axiom: #5b8bd9;
+  --color-node-mp: #d9944a;
+  --color-node-gen: #9b59b6;
+  --color-node-conclusion: #4ad97a;
+  --color-node-text: #fff;
+  --color-node-border: rgba(255, 255, 255, 0.2);
+  --color-node-shadow: rgba(0, 0, 0, 0.2);
+  --color-node-conclusion-border: #2ecc71;
+  --color-node-conclusion-shadow: rgba(74, 217, 122, 0.4);
+
+  /* Proof Edge Colors (connection lines) */
+  --color-edge-axiom: #7aa3e0;
+  --color-edge-mp: #e0a87a;
+  --color-edge-gen: #c39bd3;
+  --color-edge-conclusion: #7ae0a3;
+
+  /* Proof Workspace UI */
+  --color-mp-button: #d9944a;
+  --color-mp-button-active: #b5752e;
+  --color-mp-button-shadow: rgba(217, 148, 74, 0.5);
+  --color-mp-banner: rgba(217, 148, 74, 0.95);
+  --color-gen-button: #9b59b6;
+  --color-gen-button-active: #7d3c98;
+  --color-gen-button-shadow: rgba(155, 89, 182, 0.5);
+  --color-gen-banner: rgba(155, 89, 182, 0.95);
+  --color-selection-banner: rgba(59, 130, 246, 0.95);
+  --color-proof-complete-gradient-start: #4ad97a;
+  --color-proof-complete-gradient-end: #2ecc71;
+  --color-proof-complete-shadow: rgba(74, 217, 122, 0.5);
+
   /* Legacy compat (used by page.module.css) */
   --background: #ffffff;
   --foreground: #171717;
@@ -123,6 +154,37 @@
   --color-minimap-item: rgba(180, 180, 200, 0.5);
   --color-minimap-viewport: rgba(99, 150, 246, 0.2);
   --color-minimap-viewport-border: rgba(99, 150, 246, 0.7);
+
+  /* Proof Node Colors */
+  --color-node-axiom: #6b9be5;
+  --color-node-mp: #e0a05a;
+  --color-node-gen: #ab6dc6;
+  --color-node-conclusion: #5ae08a;
+  --color-node-text: #fff;
+  --color-node-border: rgba(255, 255, 255, 0.15);
+  --color-node-shadow: rgba(0, 0, 0, 0.4);
+  --color-node-conclusion-border: #4ad97a;
+  --color-node-conclusion-shadow: rgba(74, 217, 122, 0.3);
+
+  /* Proof Edge Colors (connection lines) */
+  --color-edge-axiom: #8ab3f0;
+  --color-edge-mp: #f0b88a;
+  --color-edge-gen: #d3abe3;
+  --color-edge-conclusion: #8af0b3;
+
+  /* Proof Workspace UI */
+  --color-mp-button: #e0a05a;
+  --color-mp-button-active: #c8883e;
+  --color-mp-button-shadow: rgba(224, 160, 90, 0.5);
+  --color-mp-banner: rgba(224, 160, 90, 0.95);
+  --color-gen-button: #ab6dc6;
+  --color-gen-button-active: #8d4fa8;
+  --color-gen-button-shadow: rgba(171, 109, 198, 0.5);
+  --color-gen-banner: rgba(171, 109, 198, 0.95);
+  --color-selection-banner: rgba(79, 150, 246, 0.95);
+  --color-proof-complete-gradient-start: #5ae08a;
+  --color-proof-complete-gradient-end: #3dd97a;
+  --color-proof-complete-shadow: rgba(90, 224, 138, 0.4);
 
   /* Legacy compat (used by page.module.css) */
   --background: #0a0a0a;

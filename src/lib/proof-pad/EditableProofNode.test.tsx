@@ -71,14 +71,17 @@ describe("EditableProofNode", () => {
   });
 
   describe("種別ごとのスタイル", () => {
-    it.each<{ readonly kind: ProofNodeKind; readonly color: string }>([
-      { kind: "axiom", color: "#5b8bd9" },
-      { kind: "mp", color: "#d9944a" },
-      { kind: "conclusion", color: "#4ad97a" },
-    ])("kind=$kind でbackground=$colorが適用される", ({ kind, color }) => {
+    it.each<{ readonly kind: ProofNodeKind; readonly cssVar: string }>([
+      { kind: "axiom", cssVar: "var(--color-node-axiom, #5b8bd9)" },
+      { kind: "mp", cssVar: "var(--color-node-mp, #d9944a)" },
+      {
+        kind: "conclusion",
+        cssVar: "var(--color-node-conclusion, #4ad97a)",
+      },
+    ])("kind=$kind でbackgroundにCSS変数が適用される", ({ kind, cssVar }) => {
       renderNode({ kind, label: kind.toUpperCase() });
       const node = screen.getByTestId("test-node");
-      expect(node).toHaveStyle({ background: color });
+      expect(node).toHaveStyle({ background: cssVar });
     });
   });
 

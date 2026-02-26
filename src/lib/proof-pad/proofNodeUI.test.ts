@@ -85,16 +85,18 @@ describe("getProofEdgeColor", () => {
     }
   });
 
-  it("axiom edges are lighter blue", () => {
-    expect(getProofEdgeColor("axiom")).toBe("#7aa3e0");
+  it("axiom edges use CSS variable with fallback", () => {
+    expect(getProofEdgeColor("axiom")).toBe(
+      "var(--color-edge-axiom, #7aa3e0)",
+    );
   });
 
-  it("mp edges are lighter orange", () => {
-    expect(getProofEdgeColor("mp")).toBe("#e0a87a");
+  it("mp edges use CSS variable with fallback", () => {
+    expect(getProofEdgeColor("mp")).toBe("var(--color-edge-mp, #e0a87a)");
   });
 
-  it("gen edges are lighter purple", () => {
-    expect(getProofEdgeColor("gen")).toBe("#c39bd3");
+  it("gen edges use CSS variable with fallback", () => {
+    expect(getProofEdgeColor("gen")).toBe("var(--color-edge-gen, #c39bd3)");
   });
 });
 

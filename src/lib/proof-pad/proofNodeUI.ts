@@ -38,48 +38,60 @@ export interface ProofNodeStyle {
   readonly boxShadow: string;
 }
 
-const AXIOM_COLOR = "#5b8bd9";
-const MP_COLOR = "#d9944a";
-const GEN_COLOR = "#9b59b6";
-const CONCLUSION_COLOR = "#4ad97a";
+/**
+ * ノード色のCSS変数名とフォールバック値。
+ * globals.css の --color-node-* と同期すること。
+ */
+const NODE_COLORS = {
+  axiom: { varName: "--color-node-axiom", fallback: "#5b8bd9" },
+  mp: { varName: "--color-node-mp", fallback: "#d9944a" },
+  gen: { varName: "--color-node-gen", fallback: "#9b59b6" },
+  conclusion: { varName: "--color-node-conclusion", fallback: "#4ad97a" },
+} as const satisfies Record<ProofNodeKind, { readonly varName: string; readonly fallback: string }>;
+
+/** CSS変数参照文字列を生成するヘルパー */
+function cssVar(entry: { readonly varName: string; readonly fallback: string }): string {
+  return `var(${entry.varName satisfies string}, ${entry.fallback satisfies string})`;
+}
 
 /**
  * ノード種別に対応するスタイルを返す。
  * exhaustive switchで網羅性を保証。
+ * 色はCSS変数を参照し、フォールバック値を持つ。
  */
 export function getProofNodeStyle(kind: ProofNodeKind): ProofNodeStyle {
   switch (kind) {
     case "axiom":
       return {
-        backgroundColor: AXIOM_COLOR,
-        textColor: "#fff",
+        backgroundColor: cssVar(NODE_COLORS.axiom),
+        textColor: "var(--color-node-text, #fff)",
         borderRadius: 8,
-        border: "1px solid rgba(255,255,255,0.2)",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+        border: "1px solid var(--color-node-border, rgba(255,255,255,0.2))",
+        boxShadow: "0 2px 8px var(--color-node-shadow, rgba(0,0,0,0.2))",
       };
     case "mp":
       return {
-        backgroundColor: MP_COLOR,
-        textColor: "#fff",
+        backgroundColor: cssVar(NODE_COLORS.mp),
+        textColor: "var(--color-node-text, #fff)",
         borderRadius: 8,
-        border: "1px solid rgba(255,255,255,0.2)",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+        border: "1px solid var(--color-node-border, rgba(255,255,255,0.2))",
+        boxShadow: "0 2px 8px var(--color-node-shadow, rgba(0,0,0,0.2))",
       };
     case "gen":
       return {
-        backgroundColor: GEN_COLOR,
-        textColor: "#fff",
+        backgroundColor: cssVar(NODE_COLORS.gen),
+        textColor: "var(--color-node-text, #fff)",
         borderRadius: 8,
-        border: "1px solid rgba(255,255,255,0.2)",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+        border: "1px solid var(--color-node-border, rgba(255,255,255,0.2))",
+        boxShadow: "0 2px 8px var(--color-node-shadow, rgba(0,0,0,0.2))",
       };
     case "conclusion":
       return {
-        backgroundColor: CONCLUSION_COLOR,
-        textColor: "#fff",
+        backgroundColor: cssVar(NODE_COLORS.conclusion),
+        textColor: "var(--color-node-text, #fff)",
         borderRadius: 12,
-        border: "2px solid #2ecc71",
-        boxShadow: "0 4px 16px rgba(74,217,122,0.4)",
+        border: "2px solid var(--color-node-conclusion-border, #2ecc71)",
+        boxShadow: "0 4px 16px var(--color-node-conclusion-shadow, rgba(74,217,122,0.4))",
       };
   }
 }
@@ -132,17 +144,29 @@ export function getProofNodePorts(
 // --- エッジカラー ---
 
 /**
+ * エッジ色のCSS変数名とフォールバック値。
+ * globals.css の --color-edge-* と同期すること。
+ */
+const EDGE_COLORS = {
+  axiom: { varName: "--color-edge-axiom", fallback: "#7aa3e0" },
+  mp: { varName: "--color-edge-mp", fallback: "#e0a87a" },
+  gen: { varName: "--color-edge-gen", fallback: "#c39bd3" },
+  conclusion: { varName: "--color-edge-conclusion", fallback: "#7ae0a3" },
+} as const satisfies Record<ProofNodeKind, { readonly varName: string; readonly fallback: string }>;
+
+/**
  * ノード種別に対応するエッジ（接続線）の色を返す。
+ * CSS変数を参照し、フォールバック値を持つ。
  */
 export function getProofEdgeColor(fromKind: ProofNodeKind): string {
   switch (fromKind) {
     case "axiom":
-      return "#7aa3e0";
+      return cssVar(EDGE_COLORS.axiom);
     case "mp":
-      return "#e0a87a";
+      return cssVar(EDGE_COLORS.mp);
     case "gen":
-      return "#c39bd3";
+      return cssVar(EDGE_COLORS.gen);
     case "conclusion":
-      return "#7ae0a3";
+      return cssVar(EDGE_COLORS.conclusion);
   }
 }
