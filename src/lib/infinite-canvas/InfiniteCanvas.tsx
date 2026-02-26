@@ -22,6 +22,8 @@ export interface InfiniteCanvasProps {
   readonly gridLineColor?: string;
   /** Width of the major grid lines in px */
   readonly gridLineWidth?: number;
+  /** Enable paper-like noise texture overlay. Default: true */
+  readonly paperTexture?: boolean;
   /** Callback when viewport changes (e.g. from panning) */
   readonly onViewportChange?: (viewport: ViewportState) => void;
   /** Minimum allowed zoom scale */
@@ -62,11 +64,12 @@ const NOOP = () => {};
 export function InfiniteCanvas({
   viewport = DEFAULT_VIEWPORT,
   dotSpacing = 20,
-  dotColor = "var(--color-canvas-dot, #c0c0c0)",
-  backgroundColor = "var(--color-canvas-bg, #ffffff)",
+  dotColor = "var(--color-canvas-dot, #c8bfb0)",
+  backgroundColor = "var(--color-canvas-bg, #f5f0e8)",
   majorGridEvery = 5,
-  gridLineColor = "var(--color-canvas-grid-line, rgba(0, 0, 0, 0.06))",
+  gridLineColor = "var(--color-canvas-grid-line, rgba(80, 60, 40, 0.08))",
   gridLineWidth = 0.5,
+  paperTexture = true,
   onViewportChange = NOOP,
   minScale = MIN_SCALE,
   maxScale = MAX_SCALE,
@@ -81,6 +84,7 @@ export function InfiniteCanvas({
 }: InfiniteCanvasProps) {
   const patternId = useId();
   const gridLinePatternId = `${patternId satisfies string}-gridline`;
+  const paperFilterId = `${patternId satisfies string}-paper`;
   const containerRef = useRef<HTMLDivElement>(null);
   const clickStartRef = useRef<Point | null>(null);
   const { patternSize, patternOffsetX, patternOffsetY, dotRadius } =
@@ -210,6 +214,23 @@ export function InfiniteCanvas({
               }}
             />
           </pattern>
+          {paperTexture && (
+            <filter id={paperFilterId} data-testid="paper-texture-filter">
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency="0.65"
+                numOctaves={4}
+                stitchTiles="stitch"
+                result="noise"
+              />
+              <feColorMatrix
+                type="saturate"
+                values="0"
+                in="noise"
+                result="mono"
+              />
+            </filter>
+          )}
           {gridLineParams != null && (
             <pattern
               id={gridLinePatternId}
@@ -257,6 +278,15 @@ export function InfiniteCanvas({
             width="100%"
             height="100%"
             fill={`url(#${gridLinePatternId satisfies string})`}
+          />
+        )}
+        {paperTexture && (
+          <rect
+            data-testid="paper-texture-overlay"
+            width="100%"
+            height="100%"
+            filter={`url(#${paperFilterId satisfies string})`}
+            opacity="var(--paper-texture-opacity, 0.04)"
           />
         )}
       </svg>

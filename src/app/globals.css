@@ -22,9 +22,12 @@
   --color-border: #e2e8f0;
 
   /* Canvas (InfiniteCanvas) */
-  --color-canvas-bg: #ffffff;
-  --color-canvas-dot: #c0c0c0;
-  --color-canvas-grid-line: rgba(0, 0, 0, 0.06);
+  --color-canvas-bg: #f5f0e8;
+  --color-canvas-dot: #c8bfb0;
+  --color-canvas-grid-line: rgba(80, 60, 40, 0.08);
+
+  /* Paper texture noise (SVG feTurbulence parameters) */
+  --paper-texture-opacity: 0.04;
 
   /* Accent */
   --color-accent: #555ab9;
@@ -114,9 +117,12 @@
   --color-border: #2d3748;
 
   /* Canvas (InfiniteCanvas) */
-  --color-canvas-bg: #1a1a2e;
-  --color-canvas-dot: #3a3a5c;
-  --color-canvas-grid-line: rgba(255, 255, 255, 0.06);
+  --color-canvas-bg: #1a1816;
+  --color-canvas-dot: #3a3530;
+  --color-canvas-grid-line: rgba(200, 180, 160, 0.08);
+
+  /* Paper texture noise (SVG feTurbulence parameters) */
+  --paper-texture-opacity: 0.05;
 
   /* Accent — WCAG AA: #7b7fdb on #0a0a0a = 6.0:1 */
   --color-accent: #7b7fdb;

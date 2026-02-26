@@ -36,7 +36,7 @@ export const Default: Story = {
     // Default uses CSS variable for theme-aware colors
     const circle = infiniteCanvas.querySelector("circle");
     await expect(circle?.getAttribute("fill")).toBe(
-      "var(--color-canvas-dot, #c0c0c0)",
+      "var(--color-canvas-dot, #c8bfb0)",
     );
   },
 };
@@ -106,7 +106,7 @@ export const WithGridLines: Story = {
 
     // Verify CSS variable default for grid line color
     await expect(lines?.[0]?.getAttribute("stroke")).toBe(
-      "var(--color-canvas-grid-line, rgba(0, 0, 0, 0.06))",
+      "var(--color-canvas-grid-line, rgba(80, 60, 40, 0.08))",
     );
   },
 };
@@ -142,11 +142,11 @@ export const ThemeAware: Story = {
 
     // Verify CSS variable defaults are applied (theme-aware)
     await expect(infiniteCanvas.style.backgroundColor).toBe(
-      "var(--color-canvas-bg, #ffffff)",
+      "var(--color-canvas-bg, #f5f0e8)",
     );
     const circle = infiniteCanvas.querySelector("circle");
     await expect(circle?.getAttribute("fill")).toBe(
-      "var(--color-canvas-dot, #c0c0c0)",
+      "var(--color-canvas-dot, #c8bfb0)",
     );
   },
 };

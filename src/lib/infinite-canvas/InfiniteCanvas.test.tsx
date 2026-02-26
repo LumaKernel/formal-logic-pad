@@ -32,7 +32,7 @@ describe("InfiniteCanvas", () => {
     const canvas = screen.getByTestId("infinite-canvas");
     const circle = canvas.querySelector("circle");
     expect(circle?.getAttribute("fill")).toBe(
-      "var(--color-canvas-dot, #c0c0c0)",
+      "var(--color-canvas-dot, #c8bfb0)",
     );
   });
 
@@ -40,7 +40,7 @@ describe("InfiniteCanvas", () => {
     render(<InfiniteCanvas />);
     const canvas = screen.getByTestId("infinite-canvas");
     expect(canvas.style.backgroundColor).toBe(
-      "var(--color-canvas-bg, #ffffff)",
+      "var(--color-canvas-bg, #f5f0e8)",
     );
   });
 
@@ -114,10 +114,10 @@ describe("InfiniteCanvas grid lines", () => {
     const gridLinePattern = patterns[1];
     const lines = gridLinePattern?.querySelectorAll("line");
     expect(lines?.[0]?.getAttribute("stroke")).toBe(
-      "var(--color-canvas-grid-line, rgba(0, 0, 0, 0.06))",
+      "var(--color-canvas-grid-line, rgba(80, 60, 40, 0.08))",
     );
     expect(lines?.[1]?.getAttribute("stroke")).toBe(
-      "var(--color-canvas-grid-line, rgba(0, 0, 0, 0.06))",
+      "var(--color-canvas-grid-line, rgba(80, 60, 40, 0.08))",
     );
   });
 
@@ -178,8 +178,8 @@ describe("InfiniteCanvas grid lines", () => {
     // Only dot pattern, no grid line pattern
     expect(patterns).toHaveLength(1);
     const rects = canvas.querySelectorAll("rect");
-    // Only one rect for dot pattern
-    expect(rects).toHaveLength(1);
+    // Two rects: dot pattern fill + paper texture overlay
+    expect(rects).toHaveLength(2);
   });
 
   it("applies viewport offset to grid line pattern position", () => {
@@ -198,12 +198,12 @@ describe("InfiniteCanvas grid lines", () => {
     expect(gridLinePattern?.getAttribute("y")).toBe("50");
   });
 
-  it("renders two rect fills when grid lines are enabled", () => {
+  it("renders three rect fills when grid lines are enabled", () => {
     render(<InfiniteCanvas />);
     const canvas = screen.getByTestId("infinite-canvas");
     const rects = canvas.querySelectorAll("rect");
-    // Two rects: dot pattern fill + grid line pattern fill
-    expect(rects).toHaveLength(2);
+    // Three rects: dot pattern fill + grid line pattern fill + paper texture overlay
+    expect(rects).toHaveLength(3);
   });
 });
 

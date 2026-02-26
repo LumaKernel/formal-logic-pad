@@ -3035,3 +3035,31 @@
   - JSDOM環境ではCSS変数(`var(...)`)が解決されない。テストは生の文字列で比較する
   - `--color-hover` → `--color-surface-hover`, `--color-text` → `--color-text-primary` のように既存変数名を正確に参照すること
 ---
+
+## 2026-02-26 - UIスタイル: 紙のような背景テクスチャの導入（US-S02）
+- キャンバス背景色をクリーム系暖色に変更: light `#f5f0e8` / dark `#1a1816`
+- グリッドドット色を暖色系に調整: light `#c8bfb0` / dark `#3a3530`
+- グリッド線色を暖色系に調整: light `rgba(80, 60, 40, 0.08)` / dark `rgba(200, 180, 160, 0.08)`
+- SVG `feTurbulence` フィルタによる微細な紙テクスチャ（fractalNoise）を追加
+- `paperTexture` prop (default: true) でテクスチャ表示のon/off可能
+- CSS変数 `--paper-texture-opacity` でテクスチャ不透明度を制御 (light: 0.04, dark: 0.05)
+- テスト: 158ファイル全パス。全体3286テスト通過
+- カバレッジ: Stmts 99.32%(+0.01), Branch 94.96%(+0.01), Funcs 89.89%(維持), Lines 99.91%(維持)
+  - ベースライン: Stmts 99.31%, Branch 94.95%, Funcs 89.89%, Lines 99.91%
+- ブラウザ確認:
+  - `.screenshots/paper-texture-canvas-light.png`
+  - `.screenshots/paper-texture-canvas-dark.png`
+  - `.screenshots/paper-texture-proof-workspace-light.png`
+  - `.screenshots/paper-texture-proof-workspace-dark.png`
+- 変更ファイル:
+  - `src/app/globals.css` (MODIFIED - canvas背景色/ドット色/テクスチャopacity変数追加)
+  - `src/lib/infinite-canvas/InfiniteCanvas.tsx` (MODIFIED - paperTexture prop + SVG feTurbulenceフィルタ追加)
+  - `src/lib/infinite-canvas/InfiniteCanvas.test.tsx` (MODIFIED - 新デフォルト色に更新 + rect数テスト修正)
+  - `src/lib/infinite-canvas/InfiniteCanvas.stories.ts` (MODIFIED - 新デフォルト色に更新)
+  - `tasks/prd-ui-style.md` (MODIFIED - US-S02完了)
+- **今後のイテレーションへの学び:**
+  - SVG feTurbulence + feColorMatrix でパフォーマンスに優しいノイズテクスチャが実現可能。画像不要
+  - InfiniteCanvasのCSS変数フォールバック値を変更する際は、テスト・ストーリーの両方で期待値を更新すること
+  - paperTexture追加でSVG rect数が増えるため、rect数をチェックしているテストの更新が必要
+  - Storybook iframe内のdata-theme属性はデコレーターで設定されるため、JS評価でテーマ切り替えする際は全data-theme要素を更新する
+---
