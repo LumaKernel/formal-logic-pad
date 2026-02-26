@@ -2656,3 +2656,30 @@
   - 分配はアイテムの中心座標でソートし、最初と最後の端座標から等間隔ギャップを計算
   - Tier 2.1 スナップ・整列は全項目完了
 ---
+
+## 2026-02-26 - [InfiniteCanvas] ドラッグ中のエッジスクロール
+- Tier 2.2「ドラッグ中のエッジスクロール」を実装
+- CanvasItemをビューポート端にドラッグすると自動的にパンする機能
+- 3層分離パターン: edgeScrollLogic.ts(純粋ロジック) → useEdgeScroll.ts(hook) → 呼び出し元統合
+- CanvasItemに`onDragMove`/`onDragEnd`コールバックを追加（エッジスクロール連携用）
+- 変更ファイル:
+  - `src/lib/infinite-canvas/edgeScrollLogic.ts` (NEW) - 純粋ロジック: エッジ侵入度計算、スクロール方向、速度（二次イージング）
+  - `src/lib/infinite-canvas/edgeScrollLogic.test.ts` (NEW) - 30テスト
+  - `src/lib/infinite-canvas/useEdgeScroll.ts` (NEW) - rAFベースのアニメーションhook
+  - `src/lib/infinite-canvas/useEdgeScroll.test.tsx` (NEW) - 7テスト
+  - `src/lib/infinite-canvas/EdgeScrollDemo.stories.tsx` (NEW) - play関数付きデモストーリー
+  - `src/lib/infinite-canvas/CanvasItem.tsx` (MODIFIED) - onDragMove/onDragEnd props追加
+  - `src/lib/infinite-canvas/CanvasItem.test.tsx` (MODIFIED) - 3テスト追加
+  - `src/lib/infinite-canvas/index.ts` (MODIFIED) - エクスポート追加
+  - `tasks/prd-infinite-canvas-enhancements.md` (MODIFIED)
+- カバレッジ: Stmts 99.36%(↑0.01), Branch 94.84%(≈同), Funcs 90.34%(↓0.12), Lines 99.97%(同)
+  - ベースライン: Stmts 99.35%, Branch 94.85%, Funcs 90.46%, Lines 99.97%
+  - Funcs微減はCanvasItem既存の未テスト関数(handleLongPress)による影響（新コード自体は100%）
+- ブラウザ確認: .screenshots/edge-scroll-storybook.png, .screenshots/edge-scroll-iframe.png, .screenshots/edge-scroll-interactions.png
+- **今後のイテレーションへの学び:**
+  - rAF自己参照はuseCallback内で直接できない（react-hooks/immutability lint）。tickRef.currentパターンで回避
+  - useEdgeScrollはviewport値を直接受け取り内部でrefに同期する方がAPI的にシンプル（呼び出し元でref管理不要）
+  - CanvasItemのonDragMove/onDragEndはオプショナルコールバック。stopPropagation後のタイミングで呼ばれるのでInfiniteCanvasには伝播しない
+  - エッジスクロールの速度は二次イージング（penetration^2 * maxSpeed）で自然な加速感を実現
+  - containerEl.getBoundingClientRect()でclientX/Yをcontainer相対座標に変換する必要がある
+---
