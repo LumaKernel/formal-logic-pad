@@ -2874,3 +2874,32 @@
   - AABB重なり判定は `<` と `>` で厳密不等式。境界ぴったり（接触のみ）は重ならないとする
   - `0 - 0 = -0` のJS仕様に注意。テストでは`toBeCloseTo`で対応
 ---
+
+## 2026-02-26 - [ProofPad] JSONデータエクスポート/インポート
+- 実装した内容:
+  - WorkspaceStateのJSONエクスポート/インポート純粋ロジック (`workspaceExport.ts`)
+  - タグ付きエンベロープ形式 (`_tag: "ProofPadWorkspace"`, `version: 1`) でフォーマット管理
+  - LogicSystemの `ReadonlySet<PropositionalAxiomId>` → Array 変換（notebookSerializationと同パターン）
+  - 完全なバリデーション付きインポート（型・値・形状すべて検証）
+  - タグ付きユニオンの結果型 (`ImportResult = Success | InvalidJSON | InvalidFormat`)
+  - `generateExportFileName` 純粋関数（DateComponentsをDI）
+  - ProofWorkspace.tsxにExport JSON/Import JSONボタンを統合
+  - 55テスト: ラウンドトリップ、バリデーションエラー網羅、ファイル名生成
+- カバレッジ変化:
+  - ベースライン: Stmts 99.34%, Branch 94.95%, Funcs 90.81%, Lines 99.93%
+  - 完了後: Stmts 99.36% (+0.02), Branch 95.13% (+0.18), Funcs 90.35% (-0.46%), Lines 99.93% (same)
+  - Funcs微減は関数総数増加による相対的な変動（新規関数は全て100%カバー）
+  - workspaceExport.ts は 100%/100%/100%/100% の完全カバレッジ
+- ブラウザ確認: .screenshots/json-export-empty-workspace.png
+- 変更ファイル:
+  - `src/lib/proof-pad/workspaceExport.ts` (NEW - 純粋エクスポート/インポートロジック)
+  - `src/lib/proof-pad/workspaceExport.test.ts` (NEW - 55テスト)
+  - `src/lib/proof-pad/index.ts` (MODIFIED - workspaceExport export追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - Export/Import UI統合)
+  - `tasks/prd-infinite-canvas-enhancements.md` (MODIFIED - JSON export完了)
+- **今後のイテレーションへの学び:**
+  - `@luma-dev/luma-ts/no-date` lint規則により `new Date()`, `Date.now()`, `Date.UTC()` は使用不可。日時が必要な純粋関数はDateComponentsをDIパターンで受け取る
+  - UI層（不純な層）ではeslint-disable-next-lineで個別に解除可能
+  - parseNode等のオプショナルフィールド検証では早期returnを避け、結果を累積する（複数のオプショナルが共存可能）
+  - JSON.parseの結果ではInfinity/NaNは発生しないが、将来の入力ソース拡張に備えたNumber.isFinite防御コードは`/* v8 ignore start/stop */`で除外
+---
