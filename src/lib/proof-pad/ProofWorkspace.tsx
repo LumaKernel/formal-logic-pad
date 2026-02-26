@@ -84,6 +84,10 @@ import {
   importWorkspaceFromJSON,
   generateExportFileName,
 } from "./workspaceExport";
+import {
+  generateExportSVG,
+  generateImageExportFileName,
+} from "./workspaceImageExport";
 
 // --- Props ---
 
@@ -791,6 +795,66 @@ export function ProofWorkspace({
     URL.revokeObjectURL(url);
   }, [workspace]);
 
+  const handleExportSVG = useCallback(() => {
+    const svgStr = generateExportSVG(workspace, { nodeSizes });
+    // eslint-disable-next-line @luma-dev/luma-ts/no-date -- 不純なUI層でのみ使用
+    const d = new Date();
+    const fileName = generateImageExportFileName(workspace.system.name, {
+      year: d.getUTCFullYear(),
+      month: d.getUTCMonth() + 1,
+      day: d.getUTCDate(),
+      hour: d.getUTCHours(),
+      minute: d.getUTCMinutes(),
+    }, "svg");
+    const blob = new Blob([svgStr], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [workspace, nodeSizes]);
+
+  const handleExportPNG = useCallback(() => {
+    const svgStr = generateExportSVG(workspace, { nodeSizes });
+    // SVG → Canvas → PNG
+    const img = new Image();
+    const svgBlob = new Blob([svgStr], { type: "image/svg+xml" });
+    const svgUrl = URL.createObjectURL(svgBlob);
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      if (ctx === null) {
+        URL.revokeObjectURL(svgUrl);
+        return;
+      }
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(svgUrl);
+
+      canvas.toBlob((pngBlob) => {
+        if (pngBlob === null) return;
+        // eslint-disable-next-line @luma-dev/luma-ts/no-date -- 不純なUI層でのみ使用
+        const d = new Date();
+        const fileName = generateImageExportFileName(workspace.system.name, {
+          year: d.getUTCFullYear(),
+          month: d.getUTCMonth() + 1,
+          day: d.getUTCDate(),
+          hour: d.getUTCHours(),
+          minute: d.getUTCMinutes(),
+        }, "png");
+        const url = URL.createObjectURL(pngBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+      }, "image/png");
+    };
+    img.src = svgUrl;
+  }, [workspace, nodeSizes]);
+
   const handleImportJSON = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
@@ -1481,6 +1545,48 @@ export function ProofWorkspace({
             }
           >
             Export JSON
+          </button>
+          <button
+            type="button"
+            style={{
+              padding: "3px 8px",
+              background: "var(--color-badge-bg, #e8eaf0)",
+              color: "var(--color-text-primary, #171717)",
+              border: "1px solid var(--color-border, #ccc)",
+              borderRadius: 4,
+              cursor: "pointer",
+              fontSize: 11,
+              fontFamily: "sans-serif",
+            }}
+            onClick={handleExportSVG}
+            data-testid={
+              testId
+                ? `${testId satisfies string}-export-svg-button`
+                : undefined
+            }
+          >
+            Export SVG
+          </button>
+          <button
+            type="button"
+            style={{
+              padding: "3px 8px",
+              background: "var(--color-badge-bg, #e8eaf0)",
+              color: "var(--color-text-primary, #171717)",
+              border: "1px solid var(--color-border, #ccc)",
+              borderRadius: 4,
+              cursor: "pointer",
+              fontSize: 11,
+              fontFamily: "sans-serif",
+            }}
+            onClick={handleExportPNG}
+            data-testid={
+              testId
+                ? `${testId satisfies string}-export-png-button`
+                : undefined
+            }
+          >
+            Export PNG
           </button>
           <button
             type="button"

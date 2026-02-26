@@ -154,3 +154,13 @@ export type {
   DateComponents,
   ImportResult,
 } from "./workspaceExport";
+export {
+  computeExportBounds,
+  generateExportSVG,
+  generateImageExportFileName,
+} from "./workspaceImageExport";
+export type {
+  BoundingBox,
+  NodeSizeMap,
+  SVGExportOptions,
+} from "./workspaceImageExport";
