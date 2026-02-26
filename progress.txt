@@ -3895,3 +3895,44 @@
   - 論理体系の解説では、アプリ内のプリセット名（HK, NJ, LKなど）との対応を明記すると有用
   - 次のリファレンスコンテンツタスク: 記法・記号一覧の解説(en/ja)
 ---
+
+## 2026-02-27 - リファレンスUIコンポーネント
+- 実装した内容:
+  - `referenceUILogic.ts`: 純粋ロジック層（インラインMarkdownパーサー、Popover/Modal用データ構築）
+  - `referenceUILogic.test.ts`: 22テスト（parseInlineMarkdown 8件、buildPopoverData 8件、buildModalData 6件）
+  - `InlineMarkdown.tsx`: **bold**マークダウンレンダリングコンポーネント
+  - `ReferencePopover.tsx`: (?)ボタンで解説ポップオーバー表示（トグル、Escape/外部クリックで閉じる）
+  - `ReferencePopover.test.tsx`: 16テスト（表示、開閉、KaTeX、a11y、太字レンダリング等）
+  - `ReferenceModal.tsx`: 詳細リファレンスモーダル（カテゴリバッジ、KaTeX数式、body段落、関連エントリ、外部リンク）
+  - `ReferenceModal.test.tsx`: 19テスト（レンダリング、多言語、KaTeX、関連エントリナビゲーション、外部リンクセキュリティ等）
+  - `ReferencePopover.stories.tsx`: 8ストーリー + play関数
+  - `ReferenceModal.stories.tsx`: 7ストーリー + play関数
+- テスト: 172ファイル、4178テスト全パス（+57テスト追加）
+- カバレッジ: Stmts 99.36%(↑), Branch 94.96%(↑), Funcs 90.09%(↑), Lines 99.92%(維持)
+  - ベースライン: Stmts 99.34%, Branch 94.95%, Funcs 90.07%, Lines 99.92%
+- 品質チェック: tsc ✅, eslint ✅, test ✅
+- ブラウザ確認: Playwright MCP でStorybook全ストーリーのスクリーンショット撮影・確認済み
+  - .screenshots/reference-popover-open.png
+  - .screenshots/reference-popover-detail-btn.png
+  - .screenshots/reference-popover-japanese.png
+  - .screenshots/reference-modal-default.png
+  - .screenshots/reference-modal-related-entries.png
+  - .screenshots/reference-modal-external-links.png
+- 変更ファイル:
+  - src/lib/reference/referenceUILogic.ts (新規)
+  - src/lib/reference/referenceUILogic.test.ts (新規)
+  - src/lib/reference/InlineMarkdown.tsx (新規)
+  - src/lib/reference/ReferencePopover.tsx (新規)
+  - src/lib/reference/ReferencePopover.test.tsx (新規)
+  - src/lib/reference/ReferencePopover.stories.tsx (新規)
+  - src/lib/reference/ReferenceModal.tsx (新規)
+  - src/lib/reference/ReferenceModal.test.tsx (新規)
+  - src/lib/reference/ReferenceModal.stories.tsx (新規)
+  - tasks/prd-theories.md (リファレンスUIコンポーネント完了)
+- **今後のイテレーションへの学び:**
+  - ESLint `require-satisfies-in-tls` ルール: テンプレートリテラル内の式には `satisfies string` が必要。`${"1px"}` のようなリテラルは直接文字列にするのが簡単
+  - KaTeX: `katex.renderToString` の利用パターンは FormulaKaTeX.tsx を参照。`dangerouslySetInnerHTML` で注入
+  - Popover/Modal: inline CSS-in-JS + CSS変数パターンが既存コード（CommandPalette, ContextMenu）と一致
+  - アーキテクチャ: 純粋ロジック(.ts) → コンポーネント(.tsx) → Storybook(.stories.tsx) の3層構成が定着
+  - testId省略時のブランチカバレッジ: testId=undefined のテストケースを追加して対応
+---
