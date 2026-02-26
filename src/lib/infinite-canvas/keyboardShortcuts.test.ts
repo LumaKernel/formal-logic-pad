@@ -413,6 +413,48 @@ describe("classifyKeyDown", () => {
     });
   });
 
+  describe("/キー（コマンドパレット）", () => {
+    it("/ で open-command-palette", () => {
+      const action = classifyKeyDown(
+        makeKeyEvent({ key: "/" }),
+        DEFAULT_VIEWPORT,
+        CONTAINER_SIZE,
+        false,
+      );
+      expect(action).toEqual({ type: "open-command-palette" });
+    });
+
+    it("/ リピートでは none", () => {
+      const action = classifyKeyDown(
+        makeKeyEvent({ key: "/", repeat: true }),
+        DEFAULT_VIEWPORT,
+        CONTAINER_SIZE,
+        false,
+      );
+      expect(action).toEqual({ type: "none" });
+    });
+
+    it("Ctrl+/ は none", () => {
+      const action = classifyKeyDown(
+        makeKeyEvent({ key: "/", ctrlKey: true }),
+        DEFAULT_VIEWPORT,
+        CONTAINER_SIZE,
+        false,
+      );
+      expect(action).toEqual({ type: "none" });
+    });
+
+    it("Shift+/ は none", () => {
+      const action = classifyKeyDown(
+        makeKeyEvent({ key: "/", shiftKey: true }),
+        DEFAULT_VIEWPORT,
+        CONTAINER_SIZE,
+        false,
+      );
+      expect(action).toEqual({ type: "none" });
+    });
+  });
+
   describe("スペースキー（パンモード）", () => {
     it("Space で enter-space-pan", () => {
       const action = classifyKeyDown(

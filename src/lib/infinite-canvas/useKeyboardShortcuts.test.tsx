@@ -309,6 +309,21 @@ describe("useKeyboardShortcuts", () => {
     expect(onOpenSearch).toHaveBeenCalledTimes(1);
   });
 
+  it("/ で onOpenCommandPalette が呼ばれる", () => {
+    const onOpenCommandPalette = vi.fn();
+    const { result } = renderHook(() =>
+      useKeyboardShortcuts(DEFAULT_VIEWPORT, CONTAINER_SIZE, false, {
+        onOpenCommandPalette,
+      }),
+    );
+
+    act(() => {
+      result.current.onKeyDown(createKeyboardEvent("/"));
+    });
+
+    expect(onOpenCommandPalette).toHaveBeenCalledTimes(1);
+  });
+
   it("コールバック未設定でもエラーにならない", () => {
     const { result } = renderHook(() =>
       useKeyboardShortcuts(DEFAULT_VIEWPORT, CONTAINER_SIZE, true, {}),

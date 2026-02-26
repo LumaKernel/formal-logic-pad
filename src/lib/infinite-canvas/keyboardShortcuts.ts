@@ -20,6 +20,7 @@ export type KeyboardAction =
   | { readonly type: "zoom-out"; readonly viewport: ViewportState }
   | { readonly type: "zoom-to-selection" }
   | { readonly type: "open-search" }
+  | { readonly type: "open-command-palette" }
   | { readonly type: "enter-space-pan" }
   | { readonly type: "exit-space-pan" }
   | { readonly type: "none" };
@@ -123,6 +124,11 @@ export function classifyKeyDown(
   // Use code="Digit2" for keyboard-layout independence (Shift+2 produces "@" on US layout but varies by locale)
   if (shiftKey && code === "Digit2" && !mod && hasSelection) {
     return { type: "zoom-to-selection" };
+  }
+
+  // "/" key → open command palette (no modifier, not repeat)
+  if (key === "/" && !mod && !shiftKey && !repeat) {
+    return { type: "open-command-palette" };
   }
 
   // Space key → toggle space-pan mode (only on initial press, not repeat)

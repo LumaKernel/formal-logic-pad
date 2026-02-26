@@ -2748,3 +2748,31 @@
   - ゴースト接続線はSVG直線（M...L...）で描画。ベジェ曲線でなく直線にすることでドラッグ中のレスポンスが良い
   - previewStateがnullかどうかでpanEnabled/dragEnabledを制御し、プレビュー中のキャンバス操作を無効化
 ---
+
+## 2026-02-26 - InfiniteCanvas: コマンドパレット
+- Tier 3.1 コマンドパレット機能を実装
+- 3層アーキテクチャ: pure logic → React hook → UI component
+- 新規ファイル:
+  - src/lib/infinite-canvas/commandPalette.ts (純粋ロジック: filterItems, selectNext/Previous, getSelectedItem)
+  - src/lib/infinite-canvas/commandPalette.test.ts (23テスト)
+  - src/lib/infinite-canvas/useCommandPalette.ts (React hook: open/close, query, navigation, execute)
+  - src/lib/infinite-canvas/useCommandPalette.test.tsx (12テスト)
+  - src/lib/infinite-canvas/CommandPaletteComponent.tsx (UIコンポーネント: overlay, search, keyboard nav)
+  - src/lib/infinite-canvas/CommandPaletteComponent.test.tsx (15テスト)
+  - src/lib/infinite-canvas/CommandPaletteDemo.stories.tsx (2ストーリー: Default, PaletteInteraction)
+- 変更ファイル:
+  - src/lib/infinite-canvas/keyboardShortcuts.ts (+open-command-palette action, / key handler)
+  - src/lib/infinite-canvas/keyboardShortcuts.test.ts (+4テスト)
+  - src/lib/infinite-canvas/useKeyboardShortcuts.ts (+onOpenCommandPalette callback)
+  - src/lib/infinite-canvas/useKeyboardShortcuts.test.tsx (+1テスト)
+- テスト: 152ファイル, 3091テスト全パス
+- カバレッジ: Stmts 99.40%(+0.01), Branch 94.97%(+0.03), Funcs 90.87%(+0.14), Lines 99.97%(同)
+  - ベースライン: Stmts 99.39%, Branch 94.94%, Funcs 90.73%, Lines 99.97%
+- ブラウザ確認: .screenshots/command-palette-default.png, .screenshots/command-palette-interaction.png
+- **今後のイテレーションへの学び:**
+  - キーボードショートカット追加は3箇所を変更: KeyboardAction union, classifyKeyDown, handleAction switch (+callbacks型)
+  - JSDOMではscrollIntoViewが未実装。typeof guardでランタイムチェックが必要
+  - CommandPaletteは3層分離: commandPalette.ts(純粋ロジック) → useCommandPalette.ts(hook) → CommandPaletteComponent.tsx(UI)
+  - コマンドパレットのテストは各層独立でテスト可能。純粋ロジック→hook→UIの順に積み上げ
+  - ESLint require-satisfies-in-tls: template literal内のid参照にはsatisfies stringが必要
+---

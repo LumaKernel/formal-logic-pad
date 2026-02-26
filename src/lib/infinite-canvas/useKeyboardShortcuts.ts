@@ -18,6 +18,8 @@ export type KeyboardShortcutCallbacks = {
   readonly onZoomToSelection?: () => void;
   /** Called when search is triggered (Ctrl/Cmd+F) */
   readonly onOpenSearch?: () => void;
+  /** Called when command palette is triggered (/) */
+  readonly onOpenCommandPalette?: () => void;
 };
 
 /** Minimal keyboard event interface used by the hook.
@@ -77,6 +79,9 @@ export function useKeyboardShortcuts(
           return true;
         case "open-search":
           callbacks.onOpenSearch?.();
+          return true;
+        case "open-command-palette":
+          callbacks.onOpenCommandPalette?.();
           return true;
         case "enter-space-pan":
           setIsSpacePanActive(true);
