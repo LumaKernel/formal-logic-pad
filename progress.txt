@@ -3936,3 +3936,33 @@
   - アーキテクチャ: 純粋ロジック(.ts) → コンポーネント(.tsx) → Storybook(.stories.tsx) の3層構成が定着
   - testId省略時のブランチカバレッジ: testId=undefined のテストケースを追加して対応
 ---
+
+## 2026-02-27 - リファレンス統合: AxiomPaletteに公理リファレンスポップオーバー統合
+- AxiomPaletteの各公理名横に(?)マークを追加し、クリックでリファレンスポップオーバーを表示
+- 実装内容:
+  - `axiomPaletteLogic.ts`: axiom ID→リファレンスエントリIDマッピング（getAxiomReferenceEntryId）
+  - `AxiomPalette.tsx`: ReferencePopover統合、stopPropagation で親click防止
+  - `ProofWorkspace.tsx`: referenceEntries/locale/onOpenReferenceDetail props追加
+  - `ProofWorkspace.stories.tsx`: WithReferencePopoverストーリー追加
+  - `index.ts`: getAxiomReferenceEntryId export追加
+- テスト: 172ファイル、4198テスト全パス（+20テスト追加）
+- カバレッジ: Stmts 99.36%(維持), Branch 94.97%(+0.01), Funcs 90.10%(+0.01), Lines 99.91%(維持)
+  - ベースライン: Stmts 99.36%, Branch 94.96%, Funcs 90.09%, Lines 99.92%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Storybook WithReferencePopoverストーリーで(?)クリック→ポップオーバー表示を確認
+  - スクリーンショット: .screenshots/axiom-palette-reference-popover.png, .screenshots/axiom-palette-reference-fullscreen.png
+- 変更ファイル:
+  - `src/lib/proof-pad/axiomPaletteLogic.ts` (MODIFIED - マッピング追加)
+  - `src/lib/proof-pad/axiomPaletteLogic.test.ts` (MODIFIED - 14テスト追加)
+  - `src/lib/proof-pad/AxiomPalette.tsx` (MODIFIED - ReferencePopover統合)
+  - `src/lib/proof-pad/AxiomPalette.test.tsx` (MODIFIED - 6テスト追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - 新props追加)
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` (MODIFIED - WithReferencePopoverストーリー追加)
+  - `src/lib/proof-pad/index.ts` (MODIFIED - export追加)
+  - `tasks/prd-theories.md` (MODIFIED - AxiomPaletteサブタスク完了)
+- **今後のイテレーションへの学び:**
+  - stopPropagation パターン: 親のonClickハンドラを発火させずに子要素でポップオーバーを開くには、wrapper spanで `e.stopPropagation()` + `role="presentation"` が有効
+  - リファレンス統合の3つのprops: `referenceEntries`, `locale`, `onOpenReferenceDetail` — すべてオプショナルにして後方互換性を維持
+  - axiom ID→reference entry IDマッピングは純粋関数として分離（axiomPaletteLogic.ts）。UIとロジックの分離パターンが引き続き有効
+  - 次のタスク: NotebookCreateFormに体系リファレンスポップオーバーを統合
+---
