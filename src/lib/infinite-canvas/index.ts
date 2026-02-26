@@ -56,6 +56,21 @@ export {
   snapToGrid,
 } from "./snap";
 export type { SnapConfig } from "./snap";
+export {
+  computeObjectSnap,
+  DEFAULT_OBJECT_SNAP_THRESHOLD,
+  OBJECT_SNAP_DISABLED,
+  OBJECT_SNAP_NONE,
+} from "./objectSnap";
+export type {
+  AlignmentAxis,
+  AlignmentGuide,
+  ObjectSnapConfig,
+  ObjectSnapResult,
+  SnapTargetRect,
+} from "./objectSnap";
+export { AlignmentGuidesComponent } from "./AlignmentGuidesComponent";
+export type { AlignmentGuidesProps } from "./AlignmentGuidesComponent";
 export type { GridDot, Point, Size, ViewportState } from "./types";
 export { computeGridDots, computeGridPatternParams } from "./grid";
 export { applyPanDelta, computeDelta } from "./pan";

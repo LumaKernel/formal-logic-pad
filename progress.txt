@@ -2588,3 +2588,25 @@
   - `SnapConfig` 型でenable/disable + gridSpacingを束ねることで、将来的なスナップの種類追加（オブジェクトスナップ等）にも拡張しやすい
   - Tier 2.1の残り: オブジェクトスナップ、選択アイテムの整列操作、等間隔分配
 ---
+
+## 2026-02-26 - InfiniteCanvas: オブジェクトスナップ機能を追加
+- `objectSnap.ts`: 純粋ロジック。ドラッグ中アイテムと他アイテムのエッジ/中心の距離を計算し、閾値内で最も近い位置にスナップ。X/Y軸独立処理
+- `AlignmentGuidesComponent.tsx`: SVGオーバーレイでスナップガイドライン（破線）を描画。world→screen変換対応
+- `ObjectSnapDemo.stories.tsx`: 3アイテムの動的デモ。スナップON/OFFトグル、座標・ガイド数表示、play関数でインタラクションテスト
+- テスト: objectSnap(23), AlignmentGuidesComponent(6) = 29件追加、全2843テストパス
+- カバレッジ: Stmts 99.33%(維持), Branch 94.78%(維持), Funcs 90.46%(維持), Lines 99.97%(維持)
+  - ベースライン: Stmts 99.33%, Branch 94.78%, Funcs 90.46%, Lines 99.97%
+- ブラウザ確認: .screenshots/object-snap-demo-default.png, .screenshots/object-snap-demo-iframe.png
+- 変更ファイル:
+  - `src/lib/infinite-canvas/objectSnap.ts` (NEW)
+  - `src/lib/infinite-canvas/objectSnap.test.ts` (NEW)
+  - `src/lib/infinite-canvas/AlignmentGuidesComponent.tsx` (NEW)
+  - `src/lib/infinite-canvas/AlignmentGuidesComponent.test.tsx` (NEW)
+  - `src/lib/infinite-canvas/ObjectSnapDemo.stories.tsx` (NEW)
+  - `src/lib/infinite-canvas/index.ts` (MODIFIED)
+- **今後のイテレーションへの学び:**
+  - オブジェクトスナップも3層分離: objectSnap.ts(純粋ロジック) → caller統合 → AlignmentGuidesComponent(UIオーバーレイ)
+  - `findBestSnap`は各ドラッグエッジ×各ターゲットエッジの全組み合わせを走査し最小距離を選ぶ。同距離・同スナップ位置のターゲットは集約してガイド線の範囲を拡大
+  - `buildGuide`はスナップ軸に直交する方向にガイド線を描画。全参加矩形のmin/maxで範囲決定
+  - Tier 2.1の残り: 選択アイテムの整列操作、等間隔分配
+---
