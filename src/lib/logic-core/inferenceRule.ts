@@ -163,6 +163,20 @@ export type LogicSystem = {
 };
 
 /**
+ * 最小論理（Minimal Logic / HM）: A1, A2 + MP
+ * 否定に関する公理を含まない。含意のみで閉じた体系。
+ * 直観主義論理・古典論理の共通部分。
+ * @see dev/logic-reference/07-axiom-systems-survey.md
+ */
+export const minimalLogicSystem: LogicSystem = {
+  name: "Minimal Logic",
+  propositionalAxioms: new Set(["A1", "A2"]),
+  predicateLogic: false,
+  equalityLogic: false,
+  generalization: false,
+};
+
+/**
  * Łukasiewicz体系（デフォルト）: A1, A2, A3 + MP
  */
 export const lukasiewiczSystem: LogicSystem = {

@@ -16,6 +16,7 @@ import {
   axiomE1Template,
   axiomE2Template,
   axiomE3Template,
+  minimalLogicSystem,
   lukasiewiczSystem,
   mendelsonSystem,
   predicateLogicSystem,
@@ -549,6 +550,17 @@ describe("applySubstitution", () => {
 // ── 体系設定 ──────────────────────────────────────────────
 
 describe("LogicSystem", () => {
+  it("Minimal logic system has A1, A2 only", () => {
+    expect(minimalLogicSystem.propositionalAxioms.has("A1")).toBe(true);
+    expect(minimalLogicSystem.propositionalAxioms.has("A2")).toBe(true);
+    expect(minimalLogicSystem.propositionalAxioms.has("A3")).toBe(false);
+    expect(minimalLogicSystem.propositionalAxioms.has("M3")).toBe(false);
+    expect(minimalLogicSystem.propositionalAxioms.size).toBe(2);
+    expect(minimalLogicSystem.predicateLogic).toBe(false);
+    expect(minimalLogicSystem.equalityLogic).toBe(false);
+    expect(minimalLogicSystem.generalization).toBe(false);
+  });
+
   it("Łukasiewicz system has A1, A2, A3", () => {
     expect(lukasiewiczSystem.propositionalAxioms.has("A1")).toBe(true);
     expect(lukasiewiczSystem.propositionalAxioms.has("A2")).toBe(true);
@@ -642,6 +654,26 @@ describe("identifyAxiom", () => {
     if (a2Result._tag === "Ok") {
       expect(a2Result.axiomId).toBe("A2");
     }
+  });
+
+  it("should identify A1 and A2 in minimal logic system", () => {
+    const a1Result = identifyAxiom(axiomA1Template, minimalLogicSystem);
+    expect(a1Result._tag).toBe("Ok");
+    if (a1Result._tag === "Ok") {
+      expect(a1Result.axiomId).toBe("A1");
+    }
+    const a2Result = identifyAxiom(axiomA2Template, minimalLogicSystem);
+    expect(a2Result._tag).toBe("Ok");
+    if (a2Result._tag === "Ok") {
+      expect(a2Result.axiomId).toBe("A2");
+    }
+  });
+
+  it("should not identify A3 or M3 in minimal logic system", () => {
+    const a3Result = identifyAxiom(axiomA3Template, minimalLogicSystem);
+    expect(a3Result._tag).toBe("Error");
+    const m3Result = identifyAxiom(axiomM3Template, minimalLogicSystem);
+    expect(m3Result._tag).toBe("Error");
   });
 
   it("should identify A4 instance when predicate logic enabled", () => {

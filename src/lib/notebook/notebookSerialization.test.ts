@@ -9,6 +9,7 @@ import {
   createQuestNotebook,
 } from "./notebookState";
 import {
+  minimalLogicSystem,
   lukasiewiczSystem,
   mendelsonSystem,
 } from "../logic-core/inferenceRule";
@@ -47,6 +48,36 @@ describe("notebookSerialization", () => {
         restored.notebooks[0]?.workspace.system.propositionalAxioms.has("A3"),
       ).toBe(true);
       expect(restored.nextId).toBe(col.nextId);
+    });
+
+    it("最小論理体系のノートブックをラウンドトリップできる", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "最小論理ノート",
+        system: minimalLogicSystem,
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      expect(restored.notebooks.length).toBe(1);
+      expect(restored.notebooks[0]?.workspace.system.name).toBe(
+        "Minimal Logic",
+      );
+      expect(
+        restored.notebooks[0]?.workspace.system.propositionalAxioms.has("A1"),
+      ).toBe(true);
+      expect(
+        restored.notebooks[0]?.workspace.system.propositionalAxioms.has("A2"),
+      ).toBe(true);
+      expect(
+        restored.notebooks[0]?.workspace.system.propositionalAxioms.has("A3"),
+      ).toBe(false);
+      expect(
+        restored.notebooks[0]?.workspace.system.propositionalAxioms.has("M3"),
+      ).toBe(false);
+      expect(
+        restored.notebooks[0]?.workspace.system.propositionalAxioms.size,
+      ).toBe(2);
     });
 
     it("Mendelson体系のノートブックをラウンドトリップできる", () => {

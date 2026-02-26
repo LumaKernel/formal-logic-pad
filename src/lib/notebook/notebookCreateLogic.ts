@@ -9,6 +9,7 @@
 
 import type { LogicSystem } from "../logic-core/inferenceRule";
 import {
+  minimalLogicSystem,
   lukasiewiczSystem,
   mendelsonSystem,
   predicateLogicSystem,
@@ -27,6 +28,13 @@ export type SystemPreset = {
 
 /** 利用可能なプリセット公理系一覧 */
 export const systemPresets: readonly SystemPreset[] = [
+  {
+    id: "minimal",
+    label: "最小論理（Minimal Logic）",
+    description:
+      "A1, A2 + Modus Ponens。否定公理なしの最小体系。含意のみで閉じる。",
+    system: minimalLogicSystem,
+  },
   {
     id: "lukasiewicz",
     label: "Łukasiewicz（命題論理）",

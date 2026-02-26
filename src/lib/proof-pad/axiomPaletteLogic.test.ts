@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { getAvailableAxioms } from "./axiomPaletteLogic";
 import {
+  minimalLogicSystem,
   lukasiewiczSystem,
   mendelsonSystem,
   predicateLogicSystem,
@@ -14,6 +15,12 @@ describe("axiomPalette", () => {
       const items = getAvailableAxioms(lukasiewiczSystem);
       const ids = items.map((i) => i.id);
       expect(ids).toEqual(["A1", "A2", "A3"]);
+    });
+
+    it("returns A1, A2 only for minimal logic system", () => {
+      const items = getAvailableAxioms(minimalLogicSystem);
+      const ids = items.map((i) => i.id);
+      expect(ids).toEqual(["A1", "A2"]);
     });
 
     it("returns A1, A2, M3 for Mendelson system", () => {

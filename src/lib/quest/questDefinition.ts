@@ -102,6 +102,7 @@ export function findCategoryById(
  * notebookCreateLogic.ts の systemPresets と一致させる。
  */
 export type SystemPresetId =
+  | "minimal"
   | "lukasiewicz"
   | "mendelson"
   | "predicate"
