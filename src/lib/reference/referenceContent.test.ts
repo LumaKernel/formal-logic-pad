@@ -261,6 +261,141 @@ describe("論理体系エントリの個別チェック", () => {
       expect(entry?.category).toBe("logic-system");
     }
   });
+
+  it("Łukasiewicz体系にA1, A2, A3, MPへの言及がある", () => {
+    const entry = findEntryById(allReferenceEntries, "system-lukasiewicz");
+    expect(entry?.body.en.some((p) => p.includes("A1"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("A2"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("A3"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("Modus Ponens"))).toBe(true);
+  });
+
+  it("Łukasiewicz体系に健全性・完全性の記載がある", () => {
+    const entry = findEntryById(allReferenceEntries, "system-lukasiewicz");
+    expect(entry?.body.en.some((p) => p.includes("sound and complete"))).toBe(
+      true,
+    );
+    expect(entry?.body.ja.some((p) => p.includes("健全かつ完全"))).toBe(true);
+  });
+
+  it("Łukasiewicz体系に他の結合子の定義が記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "system-lukasiewicz");
+    expect(entry?.body.en.some((p) => p.includes("≡"))).toBe(true);
+  });
+
+  it("Łukasiewicz体系にアプリ内での拡張方法が記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "system-lukasiewicz");
+    expect(
+      entry?.body.en.some((p) => p.includes("predicate logic axioms")),
+    ).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("equality axioms"))).toBe(
+      true,
+    );
+    expect(entry?.body.ja.some((p) => p.includes("述語論理公理"))).toBe(true);
+  });
+
+  it("Mendelson体系にM3とA3の互換性の記載がある", () => {
+    const entry = findEntryById(allReferenceEntries, "system-mendelson");
+    expect(entry?.body.en.some((p) => p.includes("interderivable"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("相互導出可能"))).toBe(true);
+  });
+
+  it("Mendelson体系にŁukasiewiczとの比較がある", () => {
+    const entry = findEntryById(allReferenceEntries, "system-mendelson");
+    expect(entry?.body.en.some((p) => p.includes("Comparison"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("比較"))).toBe(true);
+  });
+
+  it("最小論理にNM/LMへの対応が記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "system-minimal");
+    expect(entry?.body.en.some((p) => p.includes("NM"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("LM"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("NM"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("LM"))).toBe(true);
+  });
+
+  it("最小論理にCurry-Howard対応の記載がある", () => {
+    const entry = findEntryById(allReferenceEntries, "system-minimal");
+    expect(entry?.body.en.some((p) => p.includes("Curry-Howard"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("Curry-Howard"))).toBe(true);
+  });
+
+  it("最小論理に体系の階層が記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "system-minimal");
+    expect(entry?.body.en.some((p) => p.includes("⊂"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("⊂"))).toBe(true);
+  });
+
+  it("直観主義論理にBHK解釈の記載がある", () => {
+    const entry = findEntryById(allReferenceEntries, "system-intuitionistic");
+    expect(entry?.body.en.some((p) => p.includes("BHK"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("BHK"))).toBe(true);
+  });
+
+  it("直観主義論理にNJ/LJへの対応が記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "system-intuitionistic");
+    expect(entry?.body.en.some((p) => p.includes("NJ"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("LJ"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("NJ"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("LJ"))).toBe(true);
+  });
+
+  it("直観主義論理にHeyting算術の記載がある", () => {
+    const entry = findEntryById(allReferenceEntries, "system-intuitionistic");
+    expect(entry?.body.en.some((p) => p.includes("Heyting Arithmetic"))).toBe(
+      true,
+    );
+    expect(entry?.body.ja.some((p) => p.includes("ヘイティング算術"))).toBe(
+      true,
+    );
+  });
+
+  it("直観主義論理にEFQの記載がある", () => {
+    const entry = findEntryById(allReferenceEntries, "system-intuitionistic");
+    expect(entry?.body.en.some((p) => p.includes("ex falso quodlibet"))).toBe(
+      true,
+    );
+    expect(entry?.body.ja.some((p) => p.includes("爆発律"))).toBe(true);
+  });
+
+  it("古典論理にNK/LKへの対応が記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "system-classical");
+    expect(entry?.body.en.some((p) => p.includes("NK"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("LK"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("NK"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("LK"))).toBe(true);
+  });
+
+  it("古典論理に複数の同値な定式化が記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "system-classical");
+    expect(entry?.body.en.some((p) => p.includes("A3"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("M3"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("DNE"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("excluded middle"))).toBe(
+      true,
+    );
+    expect(entry?.body.en.some((p) => p.includes("Peirce"))).toBe(true);
+  });
+
+  it("古典論理に完全性定理の記載がある", () => {
+    const entry = findEntryById(allReferenceEntries, "system-classical");
+    expect(entry?.body.en.some((p) => p.includes("completeness theorem"))).toBe(
+      true,
+    );
+    expect(entry?.body.ja.some((p) => p.includes("完全性定理"))).toBe(true);
+  });
+
+  it("古典論理に体系の階層が記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "system-classical");
+    expect(entry?.body.en.some((p) => p.includes("⊂"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("⊂"))).toBe(true);
+  });
+
+  it("古典論理に二値性の記載がある", () => {
+    const entry = findEntryById(allReferenceEntries, "system-classical");
+    expect(entry?.body.en.some((p) => p.includes("bivalence"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("二値性"))).toBe(true);
+  });
 });
 
 describe("等号公理E4/E5の個別チェック", () => {

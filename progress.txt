@@ -84,6 +84,30 @@
 
 ---
 
+## 2026-02-27 - リファレンス: 推論規則コンテンツ追加（自然演繹・シーケント計算）
+- 7つの新しいリファレンスエントリを追加（推論規則カテゴリ: 2→9）
+  - rule-nd-overview: 自然演繹の概要（NM/NJ/NK体系、Gentzen由来、仮定の解除メカニズム）
+  - rule-nd-implication: 含意規則（→I 仮定解除、→E モーダスポネンス）
+  - rule-nd-conjunction: 連言規則（∧I 結合、∧E 左/右射影）
+  - rule-nd-disjunction: 選言規則（∨I 注入、∨E 場合分け）
+  - rule-sc-overview: シーケント計算の概要（LM/LJ/LK体系、カット除去定理）
+  - rule-sc-structural: 構造規則（Cut, Weakening, Contraction, Exchange）
+  - rule-sc-logical: 論理規則（→, ∧, ∨, ∀, ∃の左右規則）
+- テスト: 167ファイル、4021テスト全パス（+61テスト追加）
+- カバレッジ: Stmts 99.34%(維持), Branch 94.95%(維持), Funcs 90.07%(維持), Lines 99.92%(維持)
+  - ベースライン: Stmts 99.34%, Branch 94.95%, Funcs 90.07%, Lines 99.92%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- 変更ファイル:
+  - `src/lib/reference/referenceContent.ts` (MODIFIED - 7エントリ追加)
+  - `src/lib/reference/referenceContent.test.ts` (MODIFIED - 新規テスト追加)
+  - `tasks/prd-theories.md` (MODIFIED - タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - 推論規則は粒度のバランスが重要: 個々のルール(30+)を全部独立エントリにすると多すぎる。グループ化（概要/含意/連言/選言、概要/構造/論理）が適切
+  - 自然演繹はNM⊂NJ⊂NK、シーケント計算はLM⊂LJ⊂LK — 各論理体系にND/SC両方のバリアントがある
+  - シーケント計算の右規則の可用性がLM/LJ/LKを区別する核心（右弱化・右縮約・右交換）
+  - 次のタスク: 論理体系(Łukasiewicz,Mendelson,直観主義,古典)の解説 or 記法・記号一覧の解説
+---
+
 ## 2026-02-27 - リファレンス: 公理コンテンツ拡充（E4/E5追加・既存公理解説充実化）
 - E4（関数の合同律）、E5（述語の合同律）の2つの新しいリファレンスエントリを追加
   - E4: スキーマ族として各関数記号ごとに生成されるインスタンス群
@@ -3820,4 +3844,31 @@
   - WorkspacePageViewPropsはdiscriminated unionのため、StorybookのMeta<typeof Component>型推論がうまくいかない。Meta（型引数なし）+ render-basedストーリーで対応する
   - HubPageViewパターン: 純粋コンポーネント(propsのみ) + コンテナ(hooks/router) の2層分離はStorybook testabilityに効果的
   - src/app/** はカバレッジ除外対象（vitest.config.ts設定済み）。新しいプレゼンテーションコンポーネントもこの範囲内なのでカバレッジに影響しない
+---
+
+## 2026-02-27 - リファレンスコンテンツ: 論理体系解説の充実化
+- 実装した内容:
+  - 5つの論理体系エントリ(Łukasiewicz, Mendelson, 最小論理, 直観主義, 古典)の解説を大幅に拡充
+  - 各体系のbodyを3-4パラグラフから5-6パラグラフに拡充:
+    - 歴史的文脈（人名、年代）
+    - アプリ内での実装との対応（プリセット名、拡張方法）
+    - 自然演繹・シーケント計算への対応（NM/NJ/NK, LM/LJ/LK）
+    - 体系間の階層関係と相互関係
+    - 完全性定理やCurry-Howard対応などの重要な定理
+  - 外部リンクの追加（Wikipedia en/ja, Gödel完全性定理など）
+  - 関連エントリの充実（相互参照の追加）
+  - キーワードの追加（NM, NJ, NK, LM, LJ, LK, HA, BHKなど）
+  - テスト18件追加: 各体系の内容品質を検証
+- テスト: 167ファイル、4039テスト全パス（+18テスト追加）
+- カバレッジ: Stmts 99.34%(維持), Branch 94.95%(維持), Lines 99.92%(維持)
+  - ベースライン: Stmts 99.34%, Branch 94.95%, Lines 99.92%
+- 品質チェック: tsc ✅, eslint ✅, test ✅
+- 変更ファイル:
+  - src/lib/reference/referenceContent.ts (拡充 — 論理体系5エントリのbody, externalLinks, relatedEntryIds, keywords)
+  - src/lib/reference/referenceContent.test.ts (テスト18件追加)
+  - tasks/prd-theories.md (タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - リファレンスエントリのbody拡充はen/jaのパラグラフ数を同じに保つ必要がある（テストで検証済み）
+  - 論理体系の解説では、アプリ内のプリセット名（HK, NJ, LKなど）との対応を明記すると有用
+  - 次のリファレンスコンテンツタスク: 記法・記号一覧の解説(en/ja)
 ---

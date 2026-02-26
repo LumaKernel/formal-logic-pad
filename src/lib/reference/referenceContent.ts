@@ -984,16 +984,20 @@ const systemLukasiewicz: ReferenceEntry = {
   },
   body: {
     en: [
-      "The **Łukasiewicz system** is a Hilbert-style axiom system for classical propositional logic, using implication (→) and negation (¬) as primitive connectives.",
-      "It consists of three axiom schemas (A1, A2, A3) and one inference rule (Modus Ponens). All three axioms are independent — none can be derived from the others.",
-      "Other connectives are defined: φ ∧ ψ ≡ ¬(φ → ¬ψ), φ ∨ ψ ≡ ¬φ → ψ, φ ↔ ψ ≡ (φ → ψ) ∧ (ψ → φ).",
-      "The system is sound and complete for classical propositional logic.",
+      "The **Łukasiewicz system** is a Hilbert-style axiom system for classical propositional logic, named after the Polish logician Jan Łukasiewicz (1878–1956). It uses implication (→) and negation (¬) as primitive connectives.",
+      "It consists of three axiom schemas — **A1** (φ → (ψ → φ)), **A2** ((φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))), **A3** ((¬φ → ¬ψ) → (ψ → φ)) — and one inference rule (Modus Ponens). All three axioms are independent: none can be derived from the others.",
+      "Other connectives are defined in terms of → and ¬: φ ∧ ψ ≡ ¬(φ → ¬ψ), φ ∨ ψ ≡ ¬φ → ψ, φ ↔ ψ ≡ (φ → ψ) ∧ (ψ → φ). This minimality is characteristic of Hilbert-style systems.",
+      "The system is **sound and complete** for classical propositional logic: every provable formula is a tautology (soundness), and every tautology is provable (completeness).",
+      "In this application, the Łukasiewicz system serves as the default classical propositional base. It can be extended with predicate logic axioms (A4, A5 + Gen) for first-order logic, equality axioms (E1–E5) for equality logic, and theory-specific axioms (e.g., Peano Arithmetic, Group Theory) for mathematical theories.",
+      "**Hierarchy in this application**: Minimal Logic (A1+A2) ⊂ Intuitionistic (A1+A2+EFQ) ⊂ Łukasiewicz/Classical (A1+A2+A3). The Łukasiewicz and Mendelson systems prove exactly the same theorems but use different formulations of the classical negation axiom.",
     ],
     ja: [
-      "**ウカシェヴィチ体系**は、含意(→)と否定(¬)を原始結合子とする古典命題論理のHilbert系公理体系です。",
-      "3つの公理スキーマ(A1, A2, A3)と1つの推論規則(モーダスポネンス)からなります。3つの公理はすべて独立しています — いずれも他から導出できません。",
-      "他の結合子は定義されます: φ ∧ ψ ≡ ¬(φ → ¬ψ), φ ∨ ψ ≡ ¬φ → ψ, φ ↔ ψ ≡ (φ → ψ) ∧ (ψ → φ)。",
-      "この体系は古典命題論理に対して健全かつ完全です。",
+      "**ウカシェヴィチ体系**は、ポーランドの論理学者ヤン・ウカシェヴィチ (1878–1956) の名にちなむ古典命題論理のHilbert系公理体系です。含意(→)と否定(¬)を原始結合子とします。",
+      "3つの公理スキーマ — **A1** (φ → (ψ → φ))、**A2** ((φ → (ψ → χ)) → ((φ → ψ) → (φ → χ)))、**A3** ((¬φ → ¬ψ) → (ψ → φ)) — と1つの推論規則(モーダスポネンス)からなります。3つの公理はすべて独立しています: いずれも他から導出できません。",
+      "他の結合子は→と¬で定義されます: φ ∧ ψ ≡ ¬(φ → ¬ψ)、φ ∨ ψ ≡ ¬φ → ψ、φ ↔ ψ ≡ (φ → ψ) ∧ (ψ → φ)。この最小性はHilbert系の特徴です。",
+      "この体系は古典命題論理に対して**健全かつ完全**です: 証明可能な論理式はすべてトートロジーであり（健全性）、すべてのトートロジーは証明可能です（完全性）。",
+      "本アプリケーションでは、ウカシェヴィチ体系がデフォルトの古典命題論理基盤です。述語論理公理(A4, A5 + Gen)で一階論理へ、等号公理(E1–E5)で等号論理へ、理論公理（ペアノ算術、群論など）で数学理論へと拡張できます。",
+      "**本アプリケーションでの階層**: 最小論理(A1+A2) ⊂ 直観主義(A1+A2+EFQ) ⊂ ウカシェヴィチ/古典(A1+A2+A3)。ウカシェヴィチ体系とメンデルソン体系はまったく同じ定理を証明しますが、古典的否定公理の定式化が異なります。",
     ],
   },
   relatedEntryIds: [
@@ -1002,6 +1006,8 @@ const systemLukasiewicz: ReferenceEntry = {
     "axiom-a3",
     "rule-mp",
     "system-mendelson",
+    "system-classical",
+    "system-minimal",
   ],
   externalLinks: [
     {
@@ -1012,14 +1018,26 @@ const systemLukasiewicz: ReferenceEntry = {
         ja: "ヤン・ウカシェヴィチ (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Hilbert_system",
+      label: {
+        en: "Hilbert system (Wikipedia)",
+        ja: "ヒルベルト体系 (Wikipedia)",
+      },
+    },
   ],
   keywords: [
     "Łukasiewicz",
     "classical",
     "propositional",
+    "Hilbert",
     "ウカシェヴィチ",
     "古典",
     "命題論理",
+    "ヒルベルト",
+    "sound",
+    "complete",
   ],
   order: 1,
 };
@@ -1034,14 +1052,18 @@ const systemMendelson: ReferenceEntry = {
   },
   body: {
     en: [
-      "The **Mendelson system** replaces A3 (contraposition) with M3 (reductio ad absurdum). A1 and A2 remain the same.",
-      "M3 and A3 are interderivable in the presence of A1 and A2, so both systems prove exactly the same theorems.",
-      'The Mendelson system is widely used in logic textbooks (e.g., Mendelson, "Introduction to Mathematical Logic").',
+      "The **Mendelson system** is a Hilbert-style axiom system for classical propositional logic, named after the American logician Elliott Mendelson (1931–2020). It replaces the Łukasiewicz contraposition axiom A3 with M3 (reductio ad absurdum): (¬φ → ¬ψ) → ((¬φ → ψ) → φ).",
+      "A1 and A2 remain the same as in the Łukasiewicz system. M3 and A3 are **interderivable** in the presence of A1, A2, and MP, so both systems prove exactly the same set of theorems.",
+      'The Mendelson system is widely used in logic textbooks, most notably in Mendelson\'s own "Introduction to Mathematical Logic" (1964, multiple editions). The reductio formulation M3 is sometimes considered more intuitive for beginners because it directly encodes proof by contradiction.',
+      "In this application, the Mendelson system is available as an alternative classical propositional base. Like the Łukasiewicz system, it can be extended with predicate logic axioms (A4, A5 + Gen), equality axioms (E1–E5), and theory-specific axioms (Peano Arithmetic, Group Theory, etc.).",
+      "**Comparison with Łukasiewicz**: While the two systems are equivalent in deductive power, they differ in proof style. A3 (contraposition) is concise but requires more intermediate steps; M3 (reductio) often leads to shorter proofs when reasoning by contradiction. The choice between them is largely a matter of taste and pedagogical preference.",
     ],
     ja: [
-      "**メンデルソン体系**はA3(対偶)をM3(背理法)に置き換えます。A1とA2はそのままです。",
-      "M3とA3はA1・A2の存在下で相互導出可能なので、両体系はまったく同じ定理を証明します。",
-      "メンデルソン体系は論理学の教科書で広く使われています（例: Mendelson「Introduction to Mathematical Logic」）。",
+      "**メンデルソン体系**は、アメリカの論理学者エリオット・メンデルソン (1931–2020) の名にちなむ古典命題論理のHilbert系公理体系です。ウカシェヴィチ体系の対偶公理A3をM3（背理法）(¬φ → ¬ψ) → ((¬φ → ψ) → φ) に置き換えます。",
+      "A1とA2はウカシェヴィチ体系と同じです。M3とA3はA1, A2, MPの存在下で**相互導出可能**なので、両体系はまったく同じ定理集合を証明します。",
+      "メンデルソン体系は論理学の教科書で広く使われています。特にMendelsonの「Introduction to Mathematical Logic」(1964年、複数版)で有名です。背理法の定式化M3は矛盾による証明を直接符号化するため、初学者にはより直観的と考えられることもあります。",
+      "本アプリケーションでは、メンデルソン体系は古典命題論理の代替基盤として利用可能です。ウカシェヴィチ体系と同様に、述語論理公理(A4, A5 + Gen)、等号公理(E1–E5)、理論公理（ペアノ算術、群論など）で拡張できます。",
+      "**ウカシェヴィチ体系との比較**: 2つの体系は演繹力では同等ですが、証明のスタイルが異なります。A3（対偶）は簡潔ですが中間ステップが多くなりがちで、M3（背理法）は矛盾による推論で短い証明になることが多いです。選択は主に好みと教育的配慮の問題です。",
     ],
   },
   relatedEntryIds: [
@@ -1050,9 +1072,26 @@ const systemMendelson: ReferenceEntry = {
     "axiom-m3",
     "rule-mp",
     "system-lukasiewicz",
+    "system-classical",
   ],
-  externalLinks: [],
-  keywords: ["Mendelson", "classical", "reductio", "メンデルソン", "背理法"],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Elliott_Mendelson",
+      label: {
+        en: "Elliott Mendelson (Wikipedia)",
+        ja: "エリオット・メンデルソン (Wikipedia)",
+      },
+    },
+  ],
+  keywords: [
+    "Mendelson",
+    "classical",
+    "reductio",
+    "メンデルソン",
+    "背理法",
+    "proof by contradiction",
+  ],
   order: 2,
 };
 
@@ -1066,21 +1105,28 @@ const systemMinimal: ReferenceEntry = {
   },
   body: {
     en: [
-      "**Minimal logic** (also called positive implicational calculus when restricted to implication) uses only A1, A2, and MP.",
-      "It has no negation axioms, so neither ex falso quodlibet nor double negation elimination hold.",
-      "Minimal logic is the common core of all the logic systems in this application.",
+      "**Minimal logic** (also called *Johansson's minimal logic*, named after Ingebrigt Johansson, 1936) uses only the axioms A1 (K), A2 (S), and the inference rule Modus Ponens. When restricted to implication alone, it is called the *positive implicational calculus*.",
+      "It has no negation axioms: neither **ex falso quodlibet** (EFQ: φ → (¬φ → ψ)) nor **double negation elimination** (DNE: ¬¬φ → φ) holds. Negation ¬φ is simply an abbreviation for φ → ⊥ (or not treated specially at all).",
+      "Minimal logic is the common core of all the logic systems in this application: **Minimal ⊂ Intuitionistic ⊂ Classical**. Any theorem of minimal logic is automatically a theorem of all stronger systems.",
+      "In natural deduction, minimal logic corresponds to the system **NM**: it has introduction and elimination rules for →, ∧, ∨, and weakening, but lacks EFQ and DNE. In sequent calculus, it corresponds to **LM**.",
+      "Despite its weakness, minimal logic is computationally significant. Via the Curry-Howard correspondence, proofs in minimal logic correspond to simply-typed lambda calculus terms, making it the logical foundation of functional programming.",
     ],
     ja: [
-      "**最小論理**（含意に限定した場合、正含意計算とも呼ばれる）はA1, A2, MPのみを使用します。",
-      "否定公理がないため、爆発律も二重否定除去も成り立ちません。",
-      "最小論理は、本アプリケーションのすべての論理体系に共通する核です。",
+      "**最小論理**（*ヨハンソンの最小論理*とも呼ばれ、Ingebrigt Johansson, 1936年に由来）は、公理A1 (K)、A2 (S)と推論規則モーダスポネンスのみを使用します。含意のみに限定した場合は*正含意計算*と呼ばれます。",
+      "否定公理を持ちません: **爆発律** (EFQ: φ → (¬φ → ψ)) も**二重否定除去** (DNE: ¬¬φ → φ) も成り立ちません。否定¬φは単にφ → ⊥の省略形（あるいは特別扱いしない）です。",
+      "最小論理は本アプリケーションのすべての論理体系の共通核です: **最小論理 ⊂ 直観主義 ⊂ 古典**。最小論理の定理はすべての強い体系でも自動的に定理です。",
+      "自然演繹では最小論理はシステム**NM**に対応します: →, ∧, ∨の導入規則・除去規則と弱化を持ちますが、EFQとDNEを欠きます。シーケント計算では**LM**に対応します。",
+      "弱い体系にもかかわらず、最小論理は計算論的に重要です。Curry-Howard対応を通じて、最小論理の証明は単純型付きラムダ計算の項に対応し、関数型プログラミングの論理的基盤となっています。",
     ],
   },
   relatedEntryIds: [
     "axiom-a1",
     "axiom-a2",
+    "rule-mp",
     "system-intuitionistic",
     "system-classical",
+    "rule-nd-overview",
+    "rule-sc-overview",
   ],
   externalLinks: [
     {
@@ -1091,8 +1137,25 @@ const systemMinimal: ReferenceEntry = {
         ja: "最小論理 (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Curry%E2%80%93Howard_correspondence",
+      label: {
+        en: "Curry-Howard correspondence (Wikipedia)",
+        ja: "Curry-Howard対応 (Wikipedia)",
+      },
+    },
   ],
-  keywords: ["minimal", "最小論理", "positive implicational", "正含意計算"],
+  keywords: [
+    "minimal",
+    "Johansson",
+    "最小論理",
+    "positive implicational",
+    "正含意計算",
+    "NM",
+    "LM",
+    "Curry-Howard",
+  ],
   order: 3,
 };
 
@@ -1106,21 +1169,32 @@ const systemIntuitionistic: ReferenceEntry = {
   },
   body: {
     en: [
-      "**Intuitionistic logic** extends minimal logic with ex falso quodlibet (EFQ): φ → (¬φ → ψ).",
-      "It does not have the law of excluded middle (φ ∨ ¬φ) or double negation elimination (¬¬φ → φ). A proof of φ requires constructive evidence.",
-      "Intuitionistic logic is the foundation of constructive mathematics and is closely connected to type theory via the Curry-Howard correspondence.",
+      "**Intuitionistic logic** (also called *constructive logic*) was developed by L.E.J. Brouwer (1881–1966) and formalized by Arend Heyting (1898–1980). In the Hilbert-style formulation, it extends minimal logic with **ex falso quodlibet** (EFQ): φ → (¬φ → ψ) — from a contradiction, anything follows.",
+      "It does **not** have the law of excluded middle (φ ∨ ¬φ) or double negation elimination (¬¬φ → φ). A proof of φ requires constructive evidence — you cannot simply show that ¬φ leads to a contradiction.",
+      "In natural deduction, intuitionistic logic corresponds to **NJ** (NM + EFQ). In sequent calculus, it corresponds to **LJ** (right side of sequents has at most one formula). In this application, the Hilbert-style variant uses A1, A2, EFQ, and MP.",
+      "Intuitionistic logic is the foundation of **constructive mathematics** and the **BHK interpretation** (Brouwer-Heyting-Kolmogorov): a proof of φ → ψ is a function transforming proofs of φ into proofs of ψ; a proof of φ ∧ ψ is a pair of proofs; a proof of φ ∨ ψ specifies which disjunct holds and provides its proof.",
+      "Via the **Curry-Howard correspondence**, intuitionistic proofs correspond to programs in typed lambda calculi. This connection is the basis of proof assistants like Coq, Agda, and Lean.",
+      "**Heyting Arithmetic** (HA) is the intuitionistic variant of Peano Arithmetic: it uses A1, A2, EFQ (instead of A3/M3/DNE) as the propositional base, combined with predicate logic and PA axioms. HA is available as a preset in this application.",
     ],
     ja: [
-      "**直観主義論理**は最小論理に爆発律(EFQ) φ → (¬φ → ψ) を加えた体系です。",
-      "排中律（φ ∨ ¬φ）や二重否定除去（¬¬φ → φ）は成り立ちません。φの証明には構成的な証拠が必要です。",
-      "直観主義論理は構成的数学の基礎であり、Curry-Howard対応を通じて型理論と密接に結びついています。",
+      "**直観主義論理**（*構成的論理*とも呼ばれる）は L.E.J. ブラウワー (1881–1966) によって発展され、アレンド・ヘイティング (1898–1980) によって形式化されました。Hilbert系の定式化では、最小論理に**爆発律** (EFQ): φ → (¬φ → ψ)（矛盾からは何でも導ける）を加えます。",
+      "排中律（φ ∨ ¬φ）や二重否定除去（¬¬φ → φ）は成り立ち**ません**。φの証明には構成的な証拠が必要です — ¬φが矛盾を導くことを示すだけでは不十分です。",
+      "自然演繹では直観主義論理はシステム**NJ** (NM + EFQ)に対応します。シーケント計算では**LJ**（シーケントの右辺が高々1つの論理式）に対応します。本アプリケーションのHilbert系では A1, A2, EFQ, MP を使用します。",
+      "直観主義論理は**構成的数学**と**BHK解釈** (Brouwer-Heyting-Kolmogorov)の基礎です: φ → ψの証明はφの証明をψの証明に変換する関数; φ ∧ ψの証明は証明の対; φ ∨ ψの証明はどちらの選言肢が成り立つか指定しその証明を与えます。",
+      "**Curry-Howard対応**を通じて、直観主義の証明は型付きラムダ計算のプログラムに対応します。この対応関係はCoq, Agda, Leanなどの証明支援系の基礎です。",
+      "**ヘイティング算術** (HA) はペアノ算術の直観主義版です: 命題論理基盤としてA1, A2, EFQ (A3/M3/DNEではなく) を使用し、述語論理とPA公理を組み合わせます。HAは本アプリケーションでプリセットとして利用可能です。",
     ],
   },
   relatedEntryIds: [
+    "axiom-a1",
+    "axiom-a2",
     "axiom-efq",
     "axiom-dne",
     "system-minimal",
     "system-classical",
+    "rule-nd-overview",
+    "rule-sc-overview",
+    "theory-peano",
   ],
   externalLinks: [
     {
@@ -1131,13 +1205,37 @@ const systemIntuitionistic: ReferenceEntry = {
         ja: "直観主義論理 (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E7%9B%B4%E8%A6%B3%E4%B8%BB%E7%BE%A9%E8%AB%96%E7%90%86",
+      label: {
+        en: "Intuitionistic logic (Wikipedia JA)",
+        ja: "直観主義論理 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Heyting_arithmetic",
+      label: {
+        en: "Heyting arithmetic (Wikipedia)",
+        ja: "ヘイティング算術 (Wikipedia)",
+      },
+    },
   ],
   keywords: [
     "intuitionistic",
     "constructive",
+    "Brouwer",
+    "Heyting",
+    "BHK",
     "直観主義",
     "構成的",
     "Curry-Howard",
+    "NJ",
+    "LJ",
+    "HA",
+    "ブラウワー",
+    "ヘイティング",
   ],
   order: 4,
 };
@@ -1152,14 +1250,20 @@ const systemClassical: ReferenceEntry = {
   },
   body: {
     en: [
-      "**Classical logic** extends intuitionistic logic with double negation elimination (DNE): ¬¬φ → φ.",
-      "Equivalently, it can be obtained by adding the law of excluded middle (φ ∨ ¬φ), Peirce's law, or other classically equivalent axioms.",
-      "In this application, classical logic is realized through the Łukasiewicz system (A1+A2+A3) or Mendelson system (A1+A2+M3), or through the intuitionistic base with DNE added.",
+      "**Classical logic** is the standard logic of mathematics, extending intuitionistic logic with principles that allow non-constructive reasoning. Any of the following equivalent additions to minimal logic (A1+A2+MP) yields classical propositional logic: **A3** (contraposition), **M3** (reductio), **DNE** (double negation elimination), the **law of excluded middle** (LEM: φ ∨ ¬φ), or **Peirce's law** (((φ → ψ) → φ) → φ).",
+      "The key semantic property is **bivalence**: every proposition is either true or false, with no middle ground. This enables proof techniques like proof by contradiction and case analysis on φ ∨ ¬φ, which are not available in intuitionistic logic.",
+      "In this application, classical logic can be realized in multiple equivalent ways: the **Łukasiewicz system** (A1+A2+A3), the **Mendelson system** (A1+A2+M3), or the **HK system** (A1+A2+DNE). All three prove exactly the same theorems.",
+      "In natural deduction, classical logic corresponds to **NK** (NM + DNE). In sequent calculus, it corresponds to **LK** (unrestricted right side of sequents). The key difference from LJ (intuitionistic) is that LK allows multiple formulas on the right side, enabling classical reasoning.",
+      "**Completeness theorems**: Classical propositional logic is decidable (truth tables). Classical first-order predicate logic is complete (Gödel's completeness theorem, 1930): every valid formula is provable. However, it is undecidable (Church-Turing theorem, 1936).",
+      "**Hierarchy**: Minimal Logic (A1+A2) ⊂ Intuitionistic (A1+A2+EFQ) ⊂ Classical (A1+A2+A3/M3/DNE). Classical logic proves strictly more theorems than intuitionistic logic, which in turn proves strictly more than minimal logic.",
     ],
     ja: [
-      "**古典論理**は直観主義論理に二重否定除去(DNE) ¬¬φ → φ を加えた体系です。",
-      "同等に、排中律（φ ∨ ¬φ）、Peirceの法則、その他の古典的に同値な公理を加えることでも得られます。",
-      "本アプリケーションでは、古典論理はŁukasiewicz体系(A1+A2+A3)、Mendelson体系(A1+A2+M3)、または直観主義ベースにDNEを追加することで実現されます。",
+      "**古典論理**は数学の標準的な論理であり、直観主義論理を非構成的推論を可能にする原理で拡張します。最小論理(A1+A2+MP)への以下の同値な追加のいずれかにより古典命題論理が得られます: **A3**（対偶）、**M3**（背理法）、**DNE**（二重否定除去）、**排中律** (LEM: φ ∨ ¬φ)、**Peirceの法則** (((φ → ψ) → φ) → φ)。",
+      "重要な意味論的性質は**二値性**です: すべての命題は真か偽のいずれかであり、中間はありません。これにより背理法やφ ∨ ¬φに基づく場合分けなど、直観主義論理では使えない証明技法が可能になります。",
+      "本アプリケーションでは、古典論理は複数の同値な方法で実現できます: **ウカシェヴィチ体系** (A1+A2+A3)、**メンデルソン体系** (A1+A2+M3)、**HK体系** (A1+A2+DNE)。3つとも完全に同じ定理を証明します。",
+      "自然演繹では古典論理はシステム**NK** (NM + DNE)に対応します。シーケント計算では**LK**（シーケントの右辺に制約なし）に対応します。LJ（直観主義）との主要な違いは、LKが右辺に複数の論理式を許すことで、古典的推論を可能にする点です。",
+      "**完全性定理**: 古典命題論理は決定可能です（真理値表）。古典一階述語論理は完全です（ゲーデルの完全性定理, 1930年）: 妥当なすべての論理式は証明可能です。ただし決定不能です（Church-Turingの定理, 1936年）。",
+      "**階層**: 最小論理(A1+A2) ⊂ 直観主義(A1+A2+EFQ) ⊂ 古典(A1+A2+A3/M3/DNE)。古典論理は直観主義論理より真に多くの定理を証明し、直観主義論理は最小論理より真に多くの定理を証明します。",
     ],
   },
   relatedEntryIds: [
@@ -1169,6 +1273,9 @@ const systemClassical: ReferenceEntry = {
     "system-lukasiewicz",
     "system-mendelson",
     "system-intuitionistic",
+    "system-minimal",
+    "rule-nd-overview",
+    "rule-sc-overview",
   ],
   externalLinks: [
     {
@@ -1179,8 +1286,38 @@ const systemClassical: ReferenceEntry = {
         ja: "古典論理 (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E5%8F%A4%E5%85%B8%E8%AB%96%E7%90%86",
+      label: {
+        en: "Classical logic (Wikipedia JA)",
+        ja: "古典論理 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/G%C3%B6del%27s_completeness_theorem",
+      label: {
+        en: "Gödel's completeness theorem (Wikipedia)",
+        ja: "ゲーデルの完全性定理 (Wikipedia)",
+      },
+    },
   ],
-  keywords: ["classical", "excluded middle", "古典", "排中律", "LEM", "DNE"],
+  keywords: [
+    "classical",
+    "excluded middle",
+    "bivalence",
+    "古典",
+    "排中律",
+    "二値性",
+    "LEM",
+    "DNE",
+    "NK",
+    "LK",
+    "HK",
+    "Gödel",
+    "completeness",
+  ],
   order: 5,
 };
 
