@@ -14,6 +14,7 @@
  *
  * @see inferenceRule.ts Hilbert流の体系定義 (LogicSystem)
  * @see naturalDeduction.ts 自然演繹のピュアロジック
+ * @see sequentCalculus.ts シーケント計算のピュアロジック
  */
 
 import type { LogicSystem } from "./inferenceRule";
@@ -30,8 +31,10 @@ import type { LogicSystem } from "./inferenceRule";
  * 新しいスタイル追加時はすべての switch 文を更新すること
  * （satisfies never でコンパイル時に検出される）。
  */
-export type DeductionStyle = "hilbert" | "natural-deduction";
-// 将来: | "sequent-calculus"
+export type DeductionStyle =
+  | "hilbert"
+  | "natural-deduction"
+  | "sequent-calculus";
 
 // ── 自然演繹の体系設定 ─────────────────────────────────────
 
@@ -121,13 +124,143 @@ export const nkSystem: NaturalDeductionSystem = {
   rules: new Set([...nmBaseRules, "dne"]),
 };
 
+// ── シーケント計算の体系設定 ───────────────────────────────────
+
+/**
+ * シーケント計算の推論規則ID。
+ *
+ * LM（最小論理）で使える基本規則:
+ * - identity (公理 ID)
+ * - cut (カット規則 CUT)
+ * - weakening-left, contraction-left, exchange-left (左構造規則)
+ * - contraction-right, exchange-right (右構造規則 ※LJでは⇒cと⇒eは不要)
+ * - implication-left, implication-right (→⇒, ⇒→)
+ * - conjunction-left, conjunction-right (∧⇒, ⇒∧)
+ * - disjunction-left, disjunction-right (∨⇒, ⇒∨)
+ * - universal-left, universal-right (∀⇒, ⇒∀)
+ * - existential-left, existential-right (∃⇒, ⇒∃)
+ *
+ * LJ（直観主義論理）で追加:
+ * - bottom-left (⊥⇒)
+ * - weakening-right (⇒w)
+ *
+ * LK（古典論理）で追加（LJの右辺制限を解除）:
+ * - contraction-right (⇒c)
+ * - exchange-right (⇒e)
+ *
+ * 注: LMでは (⇒w) と (⊥⇒) が使用不可（定義10.36）。
+ *     LJでは右辺が高々1のため (⇒c) と (⇒e) が不要。
+ */
+export type ScRuleId =
+  | "identity"
+  | "bottom-left"
+  | "cut"
+  | "weakening-left"
+  | "weakening-right"
+  | "contraction-left"
+  | "contraction-right"
+  | "exchange-left"
+  | "exchange-right"
+  | "implication-left"
+  | "implication-right"
+  | "conjunction-left"
+  | "conjunction-right"
+  | "disjunction-left"
+  | "disjunction-right"
+  | "universal-left"
+  | "universal-right"
+  | "existential-left"
+  | "existential-right";
+
+/** LM（最小論理）の基本規則セット */
+const lmBaseRules: ReadonlySet<ScRuleId> = new Set([
+  "identity",
+  "cut",
+  "weakening-left",
+  "contraction-left",
+  "exchange-left",
+  "contraction-right",
+  "exchange-right",
+  "implication-left",
+  "implication-right",
+  "conjunction-left",
+  "conjunction-right",
+  "disjunction-left",
+  "disjunction-right",
+  "universal-left",
+  "universal-right",
+  "existential-left",
+  "existential-right",
+]);
+
+/**
+ * シーケント計算の体系設定。
+ *
+ * どの推論規則を有効にするかを指定する。
+ * また、右辺の最大長を制限できる（LJ/LMでは高々1、LKでは無制限）。
+ */
+export type SequentCalculusSystem = {
+  /** 体系名 */
+  readonly name: string;
+  /** 有効な推論規則 */
+  readonly rules: ReadonlySet<ScRuleId>;
+  /**
+   * 右辺の最大長。
+   * - undefined: 制限なし（LK）
+   * - 1: 高々1（LJ, LM）
+   */
+  readonly maxSuccedentLength?: number;
+};
+
+/**
+ * LM: シーケント計算の最小論理。
+ * LJから (⊥⇒) と (⇒w) を除いた体系。
+ * 戸次『数理論理学』定義10.36
+ *
+ * 注: LMでは右辺は常に1つ（系10.37）。
+ * (⇒w)が使えないため右辺を0にできない。
+ * また (⇒c)/(⇒e) は右辺高々1なので実質的に不要だが、
+ * 形式的には持つ（LJの部分体系として）。
+ */
+export const lmSystem: SequentCalculusSystem = {
+  name: "Sequent Calculus LM",
+  rules: lmBaseRules,
+  maxSuccedentLength: 1,
+};
+
+/**
+ * LJ: シーケント計算の直観主義論理。
+ * LM + (⊥⇒) + (⇒w)。
+ * 右辺が高々1に制限。
+ * 戸次『数理論理学』定義10.20, 10.22-10.24
+ */
+export const ljSystem: SequentCalculusSystem = {
+  name: "Sequent Calculus LJ",
+  rules: new Set([...lmBaseRules, "bottom-left", "weakening-right"]),
+  maxSuccedentLength: 1,
+};
+
+/**
+ * LK: シーケント計算の古典論理。
+ * 完全対称体系。右辺は0個以上。
+ * 戸次『数理論理学』定義10.2-10.4
+ */
+export const lkSystem: SequentCalculusSystem = {
+  name: "Sequent Calculus LK",
+  rules: new Set([
+    ...lmBaseRules,
+    "bottom-left",
+    "weakening-right",
+  ]),
+  maxSuccedentLength: undefined,
+};
+
 // ── 演繹体系（統一型） ──────────────────────────────────────
 
 /**
  * 統一された演繹体系の定義。
  *
- * Hilbert流と自然演繹を discriminated union で管理する。
- * 将来のシーケント計算追加時はここにバリアントを追加する。
+ * Hilbert流・自然演繹・シーケント計算を discriminated union で管理する。
  */
 export type DeductionSystem =
   | {
@@ -137,6 +270,10 @@ export type DeductionSystem =
   | {
       readonly style: "natural-deduction";
       readonly system: NaturalDeductionSystem;
+    }
+  | {
+      readonly style: "sequent-calculus";
+      readonly system: SequentCalculusSystem;
     };
 
 // ── ファクトリ関数 ──────────────────────────────────────────
@@ -153,6 +290,13 @@ export function naturalDeduction(
   return { style: "natural-deduction", system };
 }
 
+/** シーケント計算の演繹体系を作成する */
+export function sequentCalculusDeduction(
+  system: SequentCalculusSystem,
+): DeductionSystem {
+  return { style: "sequent-calculus", system };
+}
+
 // ── ユーティリティ ──────────────────────────────────────────
 
 /** 演繹体系の名前を取得する */
@@ -161,6 +305,8 @@ export function getDeductionSystemName(ds: DeductionSystem): string {
     case "hilbert":
       return ds.system.name;
     case "natural-deduction":
+      return ds.system.name;
+    case "sequent-calculus":
       return ds.system.name;
     default: {
       /* v8 ignore start */
@@ -178,6 +324,8 @@ export function getDeductionStyleLabel(style: DeductionStyle): string {
       return "Hilbert流";
     case "natural-deduction":
       return "自然演繹";
+    case "sequent-calculus":
+      return "シーケント計算";
     default: {
       /* v8 ignore start */
       const _exhaustive: never = style;
@@ -209,6 +357,87 @@ export const allNdRuleIds: readonly NdRuleId[] = [
   "efq",
   "dne",
 ];
+
+/** シーケント計算体系で特定の規則が有効かどうかを判定する */
+export function isScRuleEnabled(
+  system: SequentCalculusSystem,
+  ruleId: ScRuleId,
+): boolean {
+  return system.rules.has(ruleId);
+}
+
+/** 全ScRuleIdの一覧（テスト・UI用） */
+export const allScRuleIds: readonly ScRuleId[] = [
+  "identity",
+  "bottom-left",
+  "cut",
+  "weakening-left",
+  "weakening-right",
+  "contraction-left",
+  "contraction-right",
+  "exchange-left",
+  "exchange-right",
+  "implication-left",
+  "implication-right",
+  "conjunction-left",
+  "conjunction-right",
+  "disjunction-left",
+  "disjunction-right",
+  "universal-left",
+  "universal-right",
+  "existential-left",
+  "existential-right",
+];
+
+/** ScRuleIdの表示名 */
+export function getScRuleDisplayName(ruleId: ScRuleId): string {
+  switch (ruleId) {
+    case "identity":
+      return "公理 (ID)";
+    case "bottom-left":
+      return "⊥公理 (⊥⇒)";
+    case "cut":
+      return "カット (CUT)";
+    case "weakening-left":
+      return "左弱化 (w⇒)";
+    case "weakening-right":
+      return "右弱化 (⇒w)";
+    case "contraction-left":
+      return "左縮約 (c⇒)";
+    case "contraction-right":
+      return "右縮約 (⇒c)";
+    case "exchange-left":
+      return "左交換 (e⇒)";
+    case "exchange-right":
+      return "右交換 (⇒e)";
+    case "implication-left":
+      return "左→規則 (→⇒)";
+    case "implication-right":
+      return "右→規則 (⇒→)";
+    case "conjunction-left":
+      return "左∧規則 (∧⇒)";
+    case "conjunction-right":
+      return "右∧規則 (⇒∧)";
+    case "disjunction-left":
+      return "左∨規則 (∨⇒)";
+    case "disjunction-right":
+      return "右∨規則 (⇒∨)";
+    case "universal-left":
+      return "左∀規則 (∀⇒)";
+    case "universal-right":
+      return "右∀規則 (⇒∀)";
+    case "existential-left":
+      return "左∃規則 (∃⇒)";
+    case "existential-right":
+      return "右∃規則 (⇒∃)";
+    default: {
+      /* v8 ignore start */
+      const _exhaustive: never = ruleId;
+      return _exhaustive;
+      /* v8 ignore stop */
+    }
+  }
+}
 
 /** NdRuleIdの表示名 */
 export function getNdRuleDisplayName(ruleId: NdRuleId): string {

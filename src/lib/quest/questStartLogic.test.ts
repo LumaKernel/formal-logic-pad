@@ -15,7 +15,14 @@ import {
   predicateLogicSystem,
   equalityLogicSystem,
 } from "../logic-core/inferenceRule";
-import { nmSystem, njSystem, nkSystem } from "../logic-core/deductionSystem";
+import {
+  nmSystem,
+  njSystem,
+  nkSystem,
+  lmSystem,
+  ljSystem,
+  lkSystem,
+} from "../logic-core/deductionSystem";
 
 // --- テスト用クエスト定義 ---
 
@@ -119,6 +126,27 @@ describe("resolveSystemPreset", () => {
     expect(result?.deductionSystem.system).toBe(nkSystem);
   });
 
+  it("sc-lmプリセットを解決できる", () => {
+    const result = resolveSystemPreset("sc-lm");
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem.style).toBe("sequent-calculus");
+    expect(result?.deductionSystem.system).toBe(lmSystem);
+  });
+
+  it("sc-ljプリセットを解決できる", () => {
+    const result = resolveSystemPreset("sc-lj");
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem.style).toBe("sequent-calculus");
+    expect(result?.deductionSystem.system).toBe(ljSystem);
+  });
+
+  it("sc-lkプリセットを解決できる", () => {
+    const result = resolveSystemPreset("sc-lk");
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem.style).toBe("sequent-calculus");
+    expect(result?.deductionSystem.system).toBe(lkSystem);
+  });
+
   it("存在しないプリセットIDはundefinedを返す", () => {
     const result = resolveSystemPreset("nonexistent" as SystemPresetId);
     expect(result).toBeUndefined();
@@ -167,6 +195,15 @@ describe("buildQuestStartParams", () => {
     const quest: QuestDefinition = {
       ...testQuest,
       systemPresetId: "nd-nm",
+    };
+    const result = buildQuestStartParams(quest);
+    expect(result).toBeUndefined();
+  });
+
+  it("シーケント計算プリセットのクエストはundefinedを返す（Hilbert流のみ対応）", () => {
+    const quest: QuestDefinition = {
+      ...testQuest,
+      systemPresetId: "sc-lm",
     };
     const result = buildQuestStartParams(quest);
     expect(result).toBeUndefined();

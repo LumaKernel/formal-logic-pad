@@ -11,9 +11,13 @@ import type { DeductionSystem } from "../logic-core/deductionSystem";
 import {
   hilbertDeduction,
   naturalDeduction,
+  sequentCalculusDeduction,
   nmSystem,
   njSystem,
   nkSystem,
+  lmSystem,
+  ljSystem,
+  lkSystem,
 } from "../logic-core/deductionSystem";
 import {
   skSystem,
@@ -58,7 +62,11 @@ export type SystemPreset = {
  *   NM ⊆ NJ (NM + EFQ)
  *   NM ⊆ NK (NM + DNE)
  *
- * @see 戸次大介『数理論理学』第7章, 第8章
+ * シーケント計算:
+ *   LM ⊂ LJ (LM + ⊥⇒ + ⇒w)
+ *   LJ ⊂ LK (右辺制限解除)
+ *
+ * @see 戸次大介『数理論理学』第7章, 第8章, 第10章
  */
 export const systemPresets: readonly SystemPreset[] = [
   {
@@ -117,24 +125,45 @@ export const systemPresets: readonly SystemPreset[] = [
   },
   {
     id: "nd-nm",
-    label: "自然演繹 NM（最小論理）",
+    label: "NM（最小論理）",
     description:
       "自然演繹: 基本規則のみ（→I/→E, ∧I/∧E, ∨I/∨E, 弱化）。戸次『数理論理学』§8.2。",
     deductionSystem: naturalDeduction(nmSystem),
   },
   {
     id: "nd-nj",
-    label: "自然演繹 NJ（直観主義論理）",
+    label: "NJ（直観主義論理）",
     description:
       "自然演繹: NM + EFQ（爆発律）。矛盾から任意の命題を導出可能。戸次『数理論理学』§8.3。",
     deductionSystem: naturalDeduction(njSystem),
   },
   {
     id: "nd-nk",
-    label: "自然演繹 NK（古典論理）",
+    label: "NK（古典論理）",
     description:
       "自然演繹: NM + DNE（二重否定除去）。最も広い古典論理の自然演繹体系。戸次『数理論理学』§8.3。",
     deductionSystem: naturalDeduction(nkSystem),
+  },
+  {
+    id: "sc-lm",
+    label: "LM（最小論理）",
+    description:
+      "ゲンツェン流: LJから(⊥⇒)と(⇒w)を除いた体系。右辺は常に1つ。NMと等価。戸次『数理論理学』§10.3。",
+    deductionSystem: sequentCalculusDeduction(lmSystem),
+  },
+  {
+    id: "sc-lj",
+    label: "LJ（直観主義論理）",
+    description:
+      "ゲンツェン流: 右辺が高々1に制限。(⊥⇒)を含む。NJと等価。戸次『数理論理学』§10.2。",
+    deductionSystem: sequentCalculusDeduction(ljSystem),
+  },
+  {
+    id: "sc-lk",
+    label: "LK（古典論理）",
+    description:
+      "ゲンツェン流: 完全対称体系。左右両辺が0個以上。NKと等価。戸次『数理論理学』§10.1。",
+    deductionSystem: sequentCalculusDeduction(lkSystem),
   },
 ] as const;
 

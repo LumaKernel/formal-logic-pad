@@ -112,7 +112,10 @@ export type SystemPresetId =
   | "equality"
   | "nd-nm"
   | "nd-nj"
-  | "nd-nk";
+  | "nd-nk"
+  | "sc-lm"
+  | "sc-lj"
+  | "sc-lk";
 
 // --- クエスト定義 ---
 

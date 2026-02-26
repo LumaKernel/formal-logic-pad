@@ -1,18 +1,24 @@
 import { describe, it, expect } from "vitest";
 import {
   type DeductionStyle,
-  type NdRuleId,
   type DeductionSystem,
   nmSystem,
   njSystem,
   nkSystem,
+  lmSystem,
+  ljSystem,
+  lkSystem,
   hilbertDeduction,
   naturalDeduction,
+  sequentCalculusDeduction,
   getDeductionSystemName,
   getDeductionStyleLabel,
   isNdRuleEnabled,
   allNdRuleIds,
   getNdRuleDisplayName,
+  isScRuleEnabled,
+  allScRuleIds,
+  getScRuleDisplayName,
 } from "./deductionSystem";
 import { minimalLogicSystem, classicalLogicSystem } from "./inferenceRule";
 
@@ -223,21 +229,229 @@ describe("getNdRuleDisplayName", () => {
   });
 });
 
+// ── LM/LJ/LK体系のテスト ──────────────────────────────────
+
+describe("LM (シーケント計算・最小論理)", () => {
+  it("名前が正しい", () => {
+    expect(lmSystem.name).toBe("Sequent Calculus LM");
+  });
+
+  it("基本規則17種を含む", () => {
+    expect(lmSystem.rules.size).toBe(17);
+  });
+
+  it("公理(ID)とカット(CUT)を含む", () => {
+    expect(lmSystem.rules.has("identity")).toBe(true);
+    expect(lmSystem.rules.has("cut")).toBe(true);
+  });
+
+  it("左構造規則を含む", () => {
+    expect(lmSystem.rules.has("weakening-left")).toBe(true);
+    expect(lmSystem.rules.has("contraction-left")).toBe(true);
+    expect(lmSystem.rules.has("exchange-left")).toBe(true);
+  });
+
+  it("右構造規則(c⇒,e⇒)を含む", () => {
+    expect(lmSystem.rules.has("contraction-right")).toBe(true);
+    expect(lmSystem.rules.has("exchange-right")).toBe(true);
+  });
+
+  it("論理規則を含む", () => {
+    expect(lmSystem.rules.has("implication-left")).toBe(true);
+    expect(lmSystem.rules.has("implication-right")).toBe(true);
+    expect(lmSystem.rules.has("conjunction-left")).toBe(true);
+    expect(lmSystem.rules.has("conjunction-right")).toBe(true);
+    expect(lmSystem.rules.has("disjunction-left")).toBe(true);
+    expect(lmSystem.rules.has("disjunction-right")).toBe(true);
+    expect(lmSystem.rules.has("universal-left")).toBe(true);
+    expect(lmSystem.rules.has("universal-right")).toBe(true);
+    expect(lmSystem.rules.has("existential-left")).toBe(true);
+    expect(lmSystem.rules.has("existential-right")).toBe(true);
+  });
+
+  it("⊥公理を含まない", () => {
+    expect(lmSystem.rules.has("bottom-left")).toBe(false);
+  });
+
+  it("右弱化を含まない", () => {
+    expect(lmSystem.rules.has("weakening-right")).toBe(false);
+  });
+
+  it("右辺の最大長が1", () => {
+    expect(lmSystem.maxSuccedentLength).toBe(1);
+  });
+});
+
+describe("LJ (シーケント計算・直観主義論理)", () => {
+  it("名前が正しい", () => {
+    expect(ljSystem.name).toBe("Sequent Calculus LJ");
+  });
+
+  it("LMの基本規則 + ⊥公理 + 右弱化 = 19種", () => {
+    expect(ljSystem.rules.size).toBe(19);
+  });
+
+  it("⊥公理を含む", () => {
+    expect(ljSystem.rules.has("bottom-left")).toBe(true);
+  });
+
+  it("右弱化を含む", () => {
+    expect(ljSystem.rules.has("weakening-right")).toBe(true);
+  });
+
+  it("LMの全規則を含む", () => {
+    for (const rule of lmSystem.rules) {
+      expect(ljSystem.rules.has(rule)).toBe(true);
+    }
+  });
+
+  it("右辺の最大長が1", () => {
+    expect(ljSystem.maxSuccedentLength).toBe(1);
+  });
+});
+
+describe("LK (シーケント計算・古典論理)", () => {
+  it("名前が正しい", () => {
+    expect(lkSystem.name).toBe("Sequent Calculus LK");
+  });
+
+  it("LJと同じ19種の規則を含む", () => {
+    expect(lkSystem.rules.size).toBe(19);
+  });
+
+  it("LJの全規則を含む", () => {
+    for (const rule of ljSystem.rules) {
+      expect(lkSystem.rules.has(rule)).toBe(true);
+    }
+  });
+
+  it("右辺の最大長が制限なし(undefined)", () => {
+    expect(lkSystem.maxSuccedentLength).toBeUndefined();
+  });
+});
+
+// ── DeductionSystemのシーケント計算テスト ────────────────────
+
+describe("DeductionSystem (sequent-calculus)", () => {
+  it("sequentCalculusDeduction でシーケント計算体系を作成できる", () => {
+    const ds = sequentCalculusDeduction(lmSystem);
+    expect(ds.style).toBe("sequent-calculus");
+    expect(ds.system).toBe(lmSystem);
+  });
+
+  it("getDeductionSystemName でシーケント計算の名前を取得できる", () => {
+    const ds = sequentCalculusDeduction(ljSystem);
+    expect(getDeductionSystemName(ds)).toBe("Sequent Calculus LJ");
+  });
+});
+
+// ── isScRuleEnabled のテスト ────────────────────────────────
+
+describe("isScRuleEnabled", () => {
+  it("LMでidentityは有効", () => {
+    expect(isScRuleEnabled(lmSystem, "identity")).toBe(true);
+  });
+
+  it("LMでbottom-leftは無効", () => {
+    expect(isScRuleEnabled(lmSystem, "bottom-left")).toBe(false);
+  });
+
+  it("LMでweakening-rightは無効", () => {
+    expect(isScRuleEnabled(lmSystem, "weakening-right")).toBe(false);
+  });
+
+  it("LJでbottom-leftは有効", () => {
+    expect(isScRuleEnabled(ljSystem, "bottom-left")).toBe(true);
+  });
+
+  it("LJでweakening-rightは有効", () => {
+    expect(isScRuleEnabled(ljSystem, "weakening-right")).toBe(true);
+  });
+
+  it("LKでbottom-leftは有効", () => {
+    expect(isScRuleEnabled(lkSystem, "bottom-left")).toBe(true);
+  });
+});
+
+// ── allScRuleIds のテスト ───────────────────────────────────
+
+describe("allScRuleIds", () => {
+  it("19種の規則IDを含む", () => {
+    expect(allScRuleIds).toHaveLength(19);
+  });
+
+  it("重複がない", () => {
+    const unique = new Set(allScRuleIds);
+    expect(unique.size).toBe(allScRuleIds.length);
+  });
+
+  it("LMの全規則を含む", () => {
+    for (const rule of lmSystem.rules) {
+      expect(allScRuleIds).toContain(rule);
+    }
+  });
+
+  it("bottom-left と weakening-right を含む", () => {
+    expect(allScRuleIds).toContain("bottom-left");
+    expect(allScRuleIds).toContain("weakening-right");
+  });
+});
+
+// ── getScRuleDisplayName のテスト ────────────────────────────
+
+describe("getScRuleDisplayName", () => {
+  it("全規則の表示名が空でない", () => {
+    for (const ruleId of allScRuleIds) {
+      const name = getScRuleDisplayName(ruleId);
+      expect(name).not.toBe("");
+      expect(name.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("公理の表示名", () => {
+    expect(getScRuleDisplayName("identity")).toBe("公理 (ID)");
+  });
+
+  it("⊥公理の表示名", () => {
+    expect(getScRuleDisplayName("bottom-left")).toBe("⊥公理 (⊥⇒)");
+  });
+
+  it("カットの表示名", () => {
+    expect(getScRuleDisplayName("cut")).toBe("カット (CUT)");
+  });
+
+  it("左弱化の表示名", () => {
+    expect(getScRuleDisplayName("weakening-left")).toBe("左弱化 (w⇒)");
+  });
+
+  it("右弱化の表示名", () => {
+    expect(getScRuleDisplayName("weakening-right")).toBe("右弱化 (⇒w)");
+  });
+});
+
 // ── 型の網羅性テスト ────────────────────────────────────────
 
 describe("型の網羅性", () => {
   it("DeductionStyle の全バリアントを網羅している", () => {
-    const styles: readonly DeductionStyle[] = ["hilbert", "natural-deduction"];
-    // 全バリアントで getDeductionStyleLabel が動作する
+    const styles: readonly DeductionStyle[] = [
+      "hilbert",
+      "natural-deduction",
+      "sequent-calculus",
+    ];
     for (const style of styles) {
       expect(typeof getDeductionStyleLabel(style)).toBe("string");
     }
   });
 
   it("NdRuleId の全バリアントを網羅している", () => {
-    // allNdRuleIds と getNdRuleDisplayName が全規則をカバー
     for (const ruleId of allNdRuleIds) {
       expect(typeof getNdRuleDisplayName(ruleId)).toBe("string");
+    }
+  });
+
+  it("ScRuleId の全バリアントを網羅している", () => {
+    for (const ruleId of allScRuleIds) {
+      expect(typeof getScRuleDisplayName(ruleId)).toBe("string");
     }
   });
 
@@ -245,6 +459,7 @@ describe("型の網羅性", () => {
     const systems: readonly DeductionSystem[] = [
       hilbertDeduction(minimalLogicSystem),
       naturalDeduction(nmSystem),
+      sequentCalculusDeduction(lmSystem),
     ];
     for (const ds of systems) {
       expect(typeof getDeductionSystemName(ds)).toBe("string");

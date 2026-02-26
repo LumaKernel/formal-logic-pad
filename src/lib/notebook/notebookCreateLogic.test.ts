@@ -29,14 +29,19 @@ describe("systemPresets", () => {
   it("each preset has a valid DeductionSystem", () => {
     for (const preset of systemPresets) {
       const ds = preset.deductionSystem;
-      expect(ds.style === "hilbert" || ds.style === "natural-deduction").toBe(
-        true,
-      );
+      expect(
+        ds.style === "hilbert" ||
+          ds.style === "natural-deduction" ||
+          ds.style === "sequent-calculus",
+      ).toBe(true);
       expect(ds.system.name).toBeTruthy();
       if (ds.style === "hilbert") {
         expect(ds.system.propositionalAxioms).toBeInstanceOf(Set);
       }
       if (ds.style === "natural-deduction") {
+        expect(ds.system.rules).toBeInstanceOf(Set);
+      }
+      if (ds.style === "sequent-calculus") {
         expect(ds.system.rules).toBeInstanceOf(Set);
       }
     }
@@ -61,6 +66,13 @@ describe("systemPresets", () => {
     expect(ids).toContain("nd-nk");
   });
 
+  it("includes all sequent calculus presets", () => {
+    const ids = systemPresets.map((p) => p.id);
+    expect(ids).toContain("sc-lm");
+    expect(ids).toContain("sc-lj");
+    expect(ids).toContain("sc-lk");
+  });
+
   it("natural deduction presets have correct style", () => {
     const ndPresets = systemPresets.filter((p) => p.id.startsWith("nd-"));
     expect(ndPresets).toHaveLength(3);
@@ -69,8 +81,18 @@ describe("systemPresets", () => {
     }
   });
 
+  it("sequent calculus presets have correct style", () => {
+    const scPresets = systemPresets.filter((p) => p.id.startsWith("sc-"));
+    expect(scPresets).toHaveLength(3);
+    for (const p of scPresets) {
+      expect(p.deductionSystem.style).toBe("sequent-calculus");
+    }
+  });
+
   it("hilbert presets have correct style", () => {
-    const hilbertPresets = systemPresets.filter((p) => !p.id.startsWith("nd-"));
+    const hilbertPresets = systemPresets.filter(
+      (p) => !p.id.startsWith("nd-") && !p.id.startsWith("sc-"),
+    );
     expect(hilbertPresets.length).toBeGreaterThanOrEqual(8);
     for (const p of hilbertPresets) {
       expect(p.deductionSystem.style).toBe("hilbert");
@@ -182,6 +204,24 @@ describe("validateCreateForm", () => {
   it("valid form with nd-nk system", () => {
     expect(
       validateCreateForm({ ...validValues, systemPresetId: "nd-nk" }),
+    ).toEqual({ valid: true });
+  });
+
+  it("valid form with sc-lm system", () => {
+    expect(
+      validateCreateForm({ ...validValues, systemPresetId: "sc-lm" }),
+    ).toEqual({ valid: true });
+  });
+
+  it("valid form with sc-lj system", () => {
+    expect(
+      validateCreateForm({ ...validValues, systemPresetId: "sc-lj" }),
+    ).toEqual({ valid: true });
+  });
+
+  it("valid form with sc-lk system", () => {
+    expect(
+      validateCreateForm({ ...validValues, systemPresetId: "sc-lk" }),
     ).toEqual({ valid: true });
   });
 
