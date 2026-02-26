@@ -420,6 +420,14 @@ const axiomA5: ReferenceEntry = {
       },
     },
     {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E4%B8%80%E9%9A%8E%E8%BF%B0%E8%AA%9E%E8%AB%96%E7%90%86",
+      label: {
+        en: "First-order logic (Wikipedia JA)",
+        ja: "一階述語論理 (Wikipedia)",
+      },
+    },
+    {
       type: "nlab",
       url: "https://ncatlab.org/nlab/show/first-order+logic",
       label: {
@@ -501,7 +509,10 @@ const axiomE2: ReferenceEntry = {
     {
       type: "wikipedia-en",
       url: "https://en.wikipedia.org/wiki/Symmetric_relation",
-      label: { en: "Symmetric relation (Wikipedia)", ja: "対称関係 (Wikipedia)" },
+      label: {
+        en: "Symmetric relation (Wikipedia)",
+        ja: "対称関係 (Wikipedia)",
+      },
     },
     {
       type: "mathworld",
@@ -593,6 +604,22 @@ const axiomE4: ReferenceEntry = {
         ja: "合同関係 (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E5%90%88%E5%90%8C%E9%96%A2%E4%BF%82",
+      label: {
+        en: "Congruence relation (Wikipedia JA)",
+        ja: "合同関係 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/congruence",
+      label: {
+        en: "Congruence (nLab)",
+        ja: "合同 (nLab)",
+      },
+    },
   ],
   keywords: [
     "E4",
@@ -640,6 +667,22 @@ const axiomE5: ReferenceEntry = {
       label: {
         en: "Identity of indiscernibles (Wikipedia)",
         ja: "不可識別者同一の原理 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E4%B8%8D%E5%8F%AF%E8%AD%98%E5%88%A5%E8%80%85%E5%90%8C%E4%B8%80%E3%81%AE%E5%8E%9F%E7%90%86",
+      label: {
+        en: "Identity of indiscernibles (Wikipedia JA)",
+        ja: "不可識別者同一の原理 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/identity+of+indiscernibles",
+      label: {
+        en: "Identity of indiscernibles (nLab)",
+        ja: "不可識別者同一の原理 (nLab)",
       },
     },
   ],
@@ -754,6 +797,14 @@ const ruleGen: ReferenceEntry = {
       url: "https://en.wikipedia.org/wiki/Universal_generalization",
       label: {
         en: "Universal generalization (Wikipedia)",
+        ja: "全称汎化 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E5%85%A8%E7%A7%B0%E6%B1%8E%E5%8C%96",
+      label: {
+        en: "Universal generalization (Wikipedia JA)",
         ja: "全称汎化 (Wikipedia)",
       },
     },
@@ -887,6 +938,14 @@ const ruleNdImplication: ReferenceEntry = {
       url: "https://en.wikipedia.org/wiki/Deduction_theorem",
       label: {
         en: "Deduction theorem (Wikipedia)",
+        ja: "演繹定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E6%BC%94%E7%B9%B9%E5%AE%9A%E7%90%86",
+      label: {
+        en: "Deduction theorem (Wikipedia JA)",
         ja: "演繹定理 (Wikipedia)",
       },
     },
@@ -1222,6 +1281,22 @@ const ruleScLogical: ReferenceEntry = {
         ja: "シーケント計算の推論規則 (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%B7%E3%83%BC%E3%82%AF%E3%82%A8%E3%83%B3%E3%83%88%E8%A8%88%E7%AE%97",
+      label: {
+        en: "Sequent calculus (Wikipedia JA)",
+        ja: "シーケント計算 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/sequent+calculus",
+      label: {
+        en: "Sequent calculus (nLab)",
+        ja: "シーケント計算 (nLab)",
+      },
+    },
   ],
   keywords: [
     "logical rule",
@@ -1262,6 +1337,7 @@ const systemLukasiewicz: ReferenceEntry = {
       "The system is **sound and complete** for classical propositional logic: every provable formula is a tautology (soundness), and every tautology is provable (completeness).",
       "In this application, the Łukasiewicz system serves as the default classical propositional base. It can be extended with predicate logic axioms (A4, A5 + Gen) for first-order logic, equality axioms (E1–E5) for equality logic, and theory-specific axioms (e.g., Peano Arithmetic, Group Theory) for mathematical theories.",
       "**Hierarchy in this application**: Minimal Logic (A1+A2) ⊂ Intuitionistic (A1+A2+EFQ) ⊂ Łukasiewicz/Classical (A1+A2+A3). The Łukasiewicz and Mendelson systems prove exactly the same theorems but use different formulations of the classical negation axiom.",
+      '**Standard references**: This axiom system appears in many logic textbooks. The contraposition formulation (A3) is associated with the Polish school of logic. For Japanese readers, Daisuke Bekki\'s "数理論理学" covers Hilbert-style axiom systems in the Polish tradition.',
     ],
     ja: [
       "**ウカシェヴィチ体系**は、ポーランドの論理学者ヤン・ウカシェヴィチ (1878–1956) の名にちなむ古典命題論理のHilbert系公理体系です。含意(→)と否定(¬)を原始結合子とします。",
@@ -1270,6 +1346,7 @@ const systemLukasiewicz: ReferenceEntry = {
       "この体系は古典命題論理に対して**健全かつ完全**です: 証明可能な論理式はすべてトートロジーであり（健全性）、すべてのトートロジーは証明可能です（完全性）。",
       "本アプリケーションでは、ウカシェヴィチ体系がデフォルトの古典命題論理基盤です。述語論理公理(A4, A5 + Gen)で一階論理へ、等号公理(E1–E5)で等号論理へ、理論公理（ペアノ算術、群論など）で数学理論へと拡張できます。",
       "**本アプリケーションでの階層**: 最小論理(A1+A2) ⊂ 直観主義(A1+A2+EFQ) ⊂ ウカシェヴィチ/古典(A1+A2+A3)。ウカシェヴィチ体系とメンデルソン体系はまったく同じ定理を証明しますが、古典的否定公理の定式化が異なります。",
+      "**参考文献**: この公理系は多くの論理学教科書に登場します。対偶形式(A3)はポーランド学派の論理学に関連します。日本語では、戸次大介『数理論理学』がポーランド流のHilbert系公理体系を扱っています。",
     ],
   },
   relatedEntryIds: [
@@ -1296,6 +1373,22 @@ const systemLukasiewicz: ReferenceEntry = {
       label: {
         en: "Hilbert system (Wikipedia)",
         ja: "ヒルベルト体系 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%83%92%E3%83%AB%E3%83%99%E3%83%AB%E3%83%88%E6%B5%81%E8%A8%BC%E6%98%8E%E8%AB%96",
+      label: {
+        en: "Hilbert-style deduction system (Wikipedia JA)",
+        ja: "ヒルベルト流証明論 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/Hilbert+system",
+      label: {
+        en: "Hilbert system (nLab)",
+        ja: "ヒルベルト体系 (nLab)",
       },
     },
   ],
@@ -1329,6 +1422,7 @@ const systemMendelson: ReferenceEntry = {
       'The Mendelson system is widely used in logic textbooks, most notably in Mendelson\'s own "Introduction to Mathematical Logic" (1964, multiple editions). The reductio formulation M3 is sometimes considered more intuitive for beginners because it directly encodes proof by contradiction.',
       "In this application, the Mendelson system is available as an alternative classical propositional base. Like the Łukasiewicz system, it can be extended with predicate logic axioms (A4, A5 + Gen), equality axioms (E1–E5), and theory-specific axioms (Peano Arithmetic, Group Theory, etc.).",
       "**Comparison with Łukasiewicz**: While the two systems are equivalent in deductive power, they differ in proof style. A3 (contraposition) is concise but requires more intermediate steps; M3 (reductio) often leads to shorter proofs when reasoning by contradiction. The choice between them is largely a matter of taste and pedagogical preference.",
+      '**Standard references**: Elliott Mendelson, "Introduction to Mathematical Logic" (1964, 6th ed. 2015) is the definitive textbook for this system. Herbert Enderton\'s "A Mathematical Introduction to Logic" (2001) uses a similar axiomatization.',
     ],
     ja: [
       "**メンデルソン体系**は、アメリカの論理学者エリオット・メンデルソン (1931–2020) の名にちなむ古典命題論理のHilbert系公理体系です。ウカシェヴィチ体系の対偶公理A3をM3（背理法）(¬φ → ¬ψ) → ((¬φ → ψ) → φ) に置き換えます。",
@@ -1336,6 +1430,7 @@ const systemMendelson: ReferenceEntry = {
       "メンデルソン体系は論理学の教科書で広く使われています。特にMendelsonの「Introduction to Mathematical Logic」(1964年、複数版)で有名です。背理法の定式化M3は矛盾による証明を直接符号化するため、初学者にはより直観的と考えられることもあります。",
       "本アプリケーションでは、メンデルソン体系は古典命題論理の代替基盤として利用可能です。ウカシェヴィチ体系と同様に、述語論理公理(A4, A5 + Gen)、等号公理(E1–E5)、理論公理（ペアノ算術、群論など）で拡張できます。",
       "**ウカシェヴィチ体系との比較**: 2つの体系は演繹力では同等ですが、証明のスタイルが異なります。A3（対偶）は簡潔ですが中間ステップが多くなりがちで、M3（背理法）は矛盾による推論で短い証明になることが多いです。選択は主に好みと教育的配慮の問題です。",
+      "**参考文献**: Elliott Mendelson『Introduction to Mathematical Logic』(1964年、第6版2015年)がこの体系の標準的教科書です。Herbert Endertonの『A Mathematical Introduction to Logic』(2001年)も同様の公理化を使用しています。",
     ],
   },
   relatedEntryIds: [
@@ -1361,6 +1456,22 @@ const systemMendelson: ReferenceEntry = {
       label: {
         en: "Hilbert system (Wikipedia)",
         ja: "ヒルベルト体系 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%83%92%E3%83%AB%E3%83%99%E3%83%AB%E3%83%88%E6%B5%81%E8%A8%BC%E6%98%8E%E8%AB%96",
+      label: {
+        en: "Hilbert-style deduction system (Wikipedia JA)",
+        ja: "ヒルベルト流証明論 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/Hilbert+system",
+      label: {
+        en: "Hilbert system (nLab)",
+        ja: "ヒルベルト体系 (nLab)",
       },
     },
   ],
@@ -2225,6 +2336,22 @@ const notationMetavariables: ReferenceEntry = {
         ja: "メタ変数 (Wikipedia)",
       },
     },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Axiom_schema",
+      label: {
+        en: "Axiom schema (Wikipedia)",
+        ja: "公理スキーマ (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/metavariable",
+      label: {
+        en: "Metavariable (nLab)",
+        ja: "メタ変数 (nLab)",
+      },
+    },
   ],
   keywords: [
     "metavariable",
@@ -2284,6 +2411,22 @@ const notationTermOperations: ReferenceEntry = {
       label: {
         en: "Term (logic) (Wikipedia)",
         ja: "項 (論理学) (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E9%A0%85_(%E6%95%B0%E7%90%86%E8%AB%96%E7%90%86%E5%AD%A6)",
+      label: {
+        en: "Term (mathematical logic) (Wikipedia JA)",
+        ja: "項 (数理論理学) (Wikipedia)",
+      },
+    },
+    {
+      type: "mathworld",
+      url: "https://mathworld.wolfram.com/Term.html",
+      label: {
+        en: "Term (MathWorld)",
+        ja: "項 (MathWorld)",
       },
     },
   ],
