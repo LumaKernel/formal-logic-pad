@@ -9,6 +9,10 @@
 
 import { type CSSProperties, useCallback, useMemo } from "react";
 import type { AxiomPaletteItem } from "./axiomPaletteLogic";
+import { getAxiomReferenceEntryId } from "./axiomPaletteLogic";
+import type { ReferenceEntry, Locale } from "../reference/referenceEntry";
+import { findEntryById } from "../reference/referenceEntry";
+import { ReferencePopover } from "../reference/ReferencePopover";
 
 // --- Props ---
 
@@ -17,6 +21,12 @@ export interface AxiomPaletteProps {
   readonly axioms: readonly AxiomPaletteItem[];
   /** 公理追加時のコールバック */
   readonly onAddAxiom: (axiom: AxiomPaletteItem) => void;
+  /** リファレンスエントリ一覧（省略時はリファレンスポップオーバー非表示） */
+  readonly referenceEntries?: readonly ReferenceEntry[];
+  /** ロケール（リファレンス表示用、省略時は"ja"） */
+  readonly locale?: Locale;
+  /** リファレンス詳細モーダルを開くコールバック */
+  readonly onOpenReferenceDetail?: (entryId: string) => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -87,18 +97,34 @@ const itemFormulaStyle: CSSProperties = {
 
 // --- コンポーネント ---
 
+const itemLabelRowStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 4,
+};
+
 function AxiomPaletteItemView({
   axiom,
   onAdd,
+  referenceEntry,
+  locale,
+  onOpenReferenceDetail,
   testId,
 }: {
   readonly axiom: AxiomPaletteItem;
   readonly onAdd: (axiom: AxiomPaletteItem) => void;
+  readonly referenceEntry?: ReferenceEntry;
+  readonly locale?: Locale;
+  readonly onOpenReferenceDetail?: (entryId: string) => void;
   readonly testId?: string;
 }) {
   const handleClick = useCallback(() => {
     onAdd(axiom);
   }, [axiom, onAdd]);
+
+  const handlePopoverClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
 
   return (
     <div
@@ -120,7 +146,23 @@ function AxiomPaletteItemView({
         }
       }}
     >
-      <span style={itemLabelStyle}>{axiom.displayName}</span>
+      <span style={itemLabelRowStyle}>
+        <span style={itemLabelStyle}>{axiom.displayName}</span>
+        {referenceEntry !== undefined && locale !== undefined && (
+          <span role="presentation" onClick={handlePopoverClick}>
+            <ReferencePopover
+              entry={referenceEntry}
+              locale={locale}
+              onOpenDetail={onOpenReferenceDetail}
+              testId={
+                testId !== undefined
+                  ? `${testId satisfies string}-ref`
+                  : undefined
+              }
+            />
+          </span>
+        )}
+      </span>
       <span style={itemFormulaStyle}>{axiom.unicodeDisplay}</span>
     </div>
   );
@@ -129,23 +171,43 @@ function AxiomPaletteItemView({
 export function AxiomPalette({
   axioms,
   onAddAxiom,
+  referenceEntries,
+  locale,
+  onOpenReferenceDetail,
   testId,
 }: AxiomPaletteProps) {
   const items = useMemo(
     () =>
-      axioms.map((axiom) => (
-        <AxiomPaletteItemView
-          key={axiom.id}
-          axiom={axiom}
-          onAdd={onAddAxiom}
-          testId={
-            testId
-              ? `${testId satisfies string}-item-${axiom.id satisfies string}`
-              : undefined
-          }
-        />
-      )),
-    [axioms, onAddAxiom, testId],
+      axioms.map((axiom) => {
+        const refEntryId = getAxiomReferenceEntryId(axiom.id);
+        const refEntry =
+          refEntryId !== undefined && referenceEntries !== undefined
+            ? findEntryById(referenceEntries, refEntryId)
+            : undefined;
+        return (
+          <AxiomPaletteItemView
+            key={axiom.id}
+            axiom={axiom}
+            onAdd={onAddAxiom}
+            referenceEntry={refEntry}
+            locale={locale}
+            onOpenReferenceDetail={onOpenReferenceDetail}
+            testId={
+              testId
+                ? `${testId satisfies string}-item-${axiom.id satisfies string}`
+                : undefined
+            }
+          />
+        );
+      }),
+    [
+      axioms,
+      onAddAxiom,
+      referenceEntries,
+      locale,
+      onOpenReferenceDetail,
+      testId,
+    ],
   );
 
   if (axioms.length === 0) {

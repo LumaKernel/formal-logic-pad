@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { AxiomPalette } from "./AxiomPalette";
 import { getAvailableAxioms, type AxiomPaletteItem } from "./axiomPaletteLogic";
 import { lukasiewiczSystem } from "../logic-core/inferenceRule";
+import { allReferenceEntries } from "../reference/referenceContent";
 
 const defaultAxioms = getAvailableAxioms(lukasiewiczSystem);
 
@@ -128,5 +129,112 @@ describe("AxiomPalette", () => {
     );
     expect(container.textContent).toContain("Axioms");
     expect(container.textContent).toContain("A1 (K)");
+  });
+
+  describe("リファレンスポップオーバー統合", () => {
+    it("referenceEntries指定時に(?)ボタンが表示される", () => {
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={() => {}}
+          referenceEntries={allReferenceEntries}
+          locale="ja"
+          testId="palette"
+        />,
+      );
+      const refTrigger = screen.getByTestId("palette-item-A1-ref-trigger");
+      expect(refTrigger).toBeInTheDocument();
+      expect(refTrigger.textContent).toBe("?");
+    });
+
+    it("各公理にリファレンスポップオーバーが表示される", () => {
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={() => {}}
+          referenceEntries={allReferenceEntries}
+          locale="ja"
+          testId="palette"
+        />,
+      );
+      // A1, A2, A3 すべてにリファレンスボタンがある
+      expect(
+        screen.getByTestId("palette-item-A1-ref-trigger"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("palette-item-A2-ref-trigger"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("palette-item-A3-ref-trigger"),
+      ).toBeInTheDocument();
+    });
+
+    it("(?)クリックでポップオーバーが開く（親の公理追加は発火しない）", async () => {
+      const user = userEvent.setup();
+      const handleAdd = vi.fn();
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={handleAdd}
+          referenceEntries={allReferenceEntries}
+          locale="ja"
+          testId="palette"
+        />,
+      );
+      await user.click(screen.getByTestId("palette-item-A1-ref-trigger"));
+      // ポップオーバーが表示される
+      expect(
+        screen.getByTestId("palette-item-A1-ref-popover"),
+      ).toBeInTheDocument();
+      // 公理追加は発火していない
+      expect(handleAdd).not.toHaveBeenCalled();
+    });
+
+    it("referenceEntries未指定時は(?)ボタンが非表示", () => {
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={() => {}}
+          testId="palette"
+        />,
+      );
+      expect(screen.queryByTestId("palette-item-A1-ref-trigger")).toBeNull();
+    });
+
+    it("英語ロケールでもリファレンスが表示される", () => {
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={() => {}}
+          referenceEntries={allReferenceEntries}
+          locale="en"
+          testId="palette"
+        />,
+      );
+      expect(
+        screen.getByTestId("palette-item-A1-ref-trigger"),
+      ).toBeInTheDocument();
+    });
+
+    it("onOpenReferenceDetailが呼ばれる", async () => {
+      const user = userEvent.setup();
+      const handleDetail = vi.fn();
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={() => {}}
+          referenceEntries={allReferenceEntries}
+          locale="ja"
+          onOpenReferenceDetail={handleDetail}
+          testId="palette"
+        />,
+      );
+      // ポップオーバーを開く
+      await user.click(screen.getByTestId("palette-item-A1-ref-trigger"));
+      // 「詳しく見る」ボタンをクリック
+      const detailBtn = screen.getByTestId("palette-item-A1-ref-detail-btn");
+      await user.click(detailBtn);
+      expect(handleDetail).toHaveBeenCalledWith("axiom-a1");
+    });
   });
 });

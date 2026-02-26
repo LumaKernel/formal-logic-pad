@@ -24,6 +24,7 @@ import {
   axiomE3Template,
 } from "../logic-core/inferenceRule";
 import { formatFormula } from "../logic-lang/formatUnicode";
+import type { ReferenceEntryId } from "../reference/referenceEntry";
 
 // --- 公理パレットアイテム ---
 
@@ -118,6 +119,41 @@ const equalityAxiomMetas: readonly EqualityAxiomMeta[] = [
     dslText: "all x. all y. all z. x = y -> (y = z -> x = z)",
   },
 ];
+
+// --- 公理ID → リファレンスエントリID マッピング ---
+
+/**
+ * 公理IDからリファレンスエントリIDへのマッピング。
+ *
+ * 標準的な公理（A1, A2, ... E3）はそれぞれ対応するリファレンスエントリを持つ。
+ * 理論公理（PA1, G1等）は現時点ではリファレンスエントリが存在しない場合がある。
+ *
+ * 新しい公理リファレンスエントリ追加時は referenceContent.ts にも追加すること。
+ */
+const axiomIdToReferenceEntryId: ReadonlyMap<string, ReferenceEntryId> =
+  new Map([
+    ["A1", "axiom-a1"],
+    ["A2", "axiom-a2"],
+    ["A3", "axiom-a3"],
+    ["M3", "axiom-m3"],
+    ["EFQ", "axiom-efq"],
+    ["DNE", "axiom-dne"],
+    ["A4", "axiom-a4"],
+    ["A5", "axiom-a5"],
+    ["E1", "axiom-e1"],
+    ["E2", "axiom-e2"],
+    ["E3", "axiom-e3"],
+  ]);
+
+/**
+ * 公理IDに対応するリファレンスエントリIDを返す。
+ * 対応するエントリがない場合はundefinedを返す。
+ */
+export function getAxiomReferenceEntryId(
+  axiomId: string,
+): ReferenceEntryId | undefined {
+  return axiomIdToReferenceEntryId.get(axiomId);
+}
 
 // --- パレット生成 ---
 

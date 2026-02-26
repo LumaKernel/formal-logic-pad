@@ -14,6 +14,7 @@ import {
   predicateLogicSystem,
   equalityLogicSystem,
 } from "../logic-core/inferenceRule";
+import { allReferenceEntries } from "../reference/referenceContent";
 import { ProofWorkspace } from "./ProofWorkspace";
 import {
   createEmptyWorkspace,
@@ -498,6 +499,49 @@ function SubtreeSelectionWorkspace() {
     </div>
   );
 }
+
+// --- リファレンスポップオーバー統合デモ ---
+
+function WorkspaceWithReference() {
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        referenceEntries={allReferenceEntries}
+        locale="ja"
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/** 公理パレットにリファレンスポップオーバー(?)付き */
+export const WithReferencePopover: Story = {
+  render: () => <WorkspaceWithReference />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+    // Reference (?) buttons should be visible on each axiom
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette-item-A1-ref-trigger"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette-item-A2-ref-trigger"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette-item-A3-ref-trigger"),
+    ).toBeInTheDocument();
+
+    // Click (?) to open popover
+    await userEvent.click(
+      canvas.getByTestId("workspace-axiom-palette-item-A1-ref-trigger"),
+    );
+    // Popover should be visible
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette-item-A1-ref-popover"),
+    ).toBeInTheDocument();
+  },
+};
 
 /** サブツリー選択: 右クリック→Select Subtreeでサブツリーを一括選択 */
 export const SubtreeSelection: Story = {

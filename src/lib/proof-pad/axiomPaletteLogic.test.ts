@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { getAvailableAxioms } from "./axiomPaletteLogic";
+import {
+  getAvailableAxioms,
+  getAxiomReferenceEntryId,
+} from "./axiomPaletteLogic";
 import {
   minimalLogicSystem,
   intuitionisticSystem,
@@ -219,6 +222,79 @@ describe("axiomPalette", () => {
         const ids = items.map((i) => i.id);
         expect(ids).not.toContain("PA1");
       });
+    });
+  });
+
+  describe("getAxiomReferenceEntryId", () => {
+    it("maps A1 to axiom-a1", () => {
+      expect(getAxiomReferenceEntryId("A1")).toBe("axiom-a1");
+    });
+
+    it("maps A2 to axiom-a2", () => {
+      expect(getAxiomReferenceEntryId("A2")).toBe("axiom-a2");
+    });
+
+    it("maps A3 to axiom-a3", () => {
+      expect(getAxiomReferenceEntryId("A3")).toBe("axiom-a3");
+    });
+
+    it("maps M3 to axiom-m3", () => {
+      expect(getAxiomReferenceEntryId("M3")).toBe("axiom-m3");
+    });
+
+    it("maps EFQ to axiom-efq", () => {
+      expect(getAxiomReferenceEntryId("EFQ")).toBe("axiom-efq");
+    });
+
+    it("maps DNE to axiom-dne", () => {
+      expect(getAxiomReferenceEntryId("DNE")).toBe("axiom-dne");
+    });
+
+    it("maps A4 to axiom-a4", () => {
+      expect(getAxiomReferenceEntryId("A4")).toBe("axiom-a4");
+    });
+
+    it("maps A5 to axiom-a5", () => {
+      expect(getAxiomReferenceEntryId("A5")).toBe("axiom-a5");
+    });
+
+    it("maps E1 to axiom-e1", () => {
+      expect(getAxiomReferenceEntryId("E1")).toBe("axiom-e1");
+    });
+
+    it("maps E2 to axiom-e2", () => {
+      expect(getAxiomReferenceEntryId("E2")).toBe("axiom-e2");
+    });
+
+    it("maps E3 to axiom-e3", () => {
+      expect(getAxiomReferenceEntryId("E3")).toBe("axiom-e3");
+    });
+
+    it("returns undefined for unknown axiom ID", () => {
+      expect(getAxiomReferenceEntryId("UNKNOWN")).toBeUndefined();
+    });
+
+    it("returns undefined for theory axiom ID (PA1)", () => {
+      expect(getAxiomReferenceEntryId("PA1")).toBeUndefined();
+    });
+
+    it("covers all standard axiom IDs", () => {
+      const standardAxiomIds = [
+        "A1",
+        "A2",
+        "A3",
+        "M3",
+        "EFQ",
+        "DNE",
+        "A4",
+        "A5",
+        "E1",
+        "E2",
+        "E3",
+      ];
+      for (const id of standardAxiomIds) {
+        expect(getAxiomReferenceEntryId(id)).toBeDefined();
+      }
     });
   });
 });

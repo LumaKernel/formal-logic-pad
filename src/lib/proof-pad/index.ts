@@ -5,7 +5,10 @@ export type {
 } from "./EditableProofNode";
 export { AxiomPalette } from "./AxiomPalette";
 export type { AxiomPaletteProps } from "./AxiomPalette";
-export { getAvailableAxioms } from "./axiomPaletteLogic";
+export {
+  getAvailableAxioms,
+  getAxiomReferenceEntryId,
+} from "./axiomPaletteLogic";
 export type { AxiomPaletteItem } from "./axiomPaletteLogic";
 export { ProofWorkspace } from "./ProofWorkspace";
 export type { ProofWorkspaceProps, GoalAchievedInfo } from "./ProofWorkspace";

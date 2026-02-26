@@ -92,6 +92,7 @@ import {
   generateExportSVG,
   generateImageExportFileName,
 } from "./workspaceImageExport";
+import type { ReferenceEntry, Locale } from "../reference/referenceEntry";
 
 // --- Props ---
 
@@ -114,6 +115,12 @@ export interface ProofWorkspaceProps {
   readonly onFormulaParsed?: (nodeId: string, formula: Formula) => void;
   /** ゴール達成時のコールバック（達成へ遷移した瞬間に1回だけ呼ばれる） */
   readonly onGoalAchieved?: (info: GoalAchievedInfo) => void;
+  /** リファレンスエントリ一覧（省略時はリファレンスポップオーバー非表示） */
+  readonly referenceEntries?: readonly ReferenceEntry[];
+  /** ロケール（リファレンス表示用） */
+  readonly locale?: Locale;
+  /** リファレンス詳細モーダルを開くコールバック */
+  readonly onOpenReferenceDetail?: (entryId: string) => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -373,6 +380,9 @@ export function ProofWorkspace({
   onWorkspaceChange,
   onFormulaParsed,
   onGoalAchieved,
+  referenceEntries,
+  locale,
+  onOpenReferenceDetail,
   testId,
 }: ProofWorkspaceProps) {
   // i18nメッセージ
@@ -1888,6 +1898,9 @@ export function ProofWorkspace({
       <AxiomPalette
         axioms={availableAxioms}
         onAddAxiom={handleAddAxiom}
+        referenceEntries={referenceEntries}
+        locale={locale}
+        onOpenReferenceDetail={onOpenReferenceDetail}
         testId={testId ? `${testId satisfies string}-axiom-palette` : undefined}
       />
 
