@@ -901,6 +901,209 @@ const qPA12RobinsonSurjectivity: QuestDefinition = {
   order: 6,
 };
 
+// --- 群論の基礎 ---
+
+const qG01Associativity: QuestDefinition = {
+  id: "group-01",
+  category: "group-basics",
+  title: "結合律 (G1)",
+  description:
+    "∀x.∀y.∀z. (x * y) * z = x * (y * z) を証明せよ。群の最も基本的な公理。",
+  difficulty: 1,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "all x. all y. all z. (x * y) * z = x * (y * z)",
+      label: "Goal: ∀x.∀y.∀z. (x·y)·z = x·(y·z)",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "G1は群の結合律です。公理パレットから直接配置できます。",
+    "G1: ∀x.∀y.∀z. (x * y) * z = x * (y * z)",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "結合律は群の定義で最も基本的な公理。括弧の付け方によらず演算結果が同じことを保証する。",
+  order: 1,
+};
+
+const qG02LeftIdentity: QuestDefinition = {
+  id: "group-02",
+  category: "group-basics",
+  title: "左単位元 (G2L)",
+  description: "∀x. e * x = x を証明せよ。群の単位元の左からの性質。",
+  difficulty: 1,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "all x. e * x = x",
+      label: "Goal: ∀x. e·x = x",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "G2Lは群の左単位元公理です。公理パレットから配置します。",
+    "G2L: ∀x. e * x = x — eを左から掛けても変わらない。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "単位元eは群の演算の「何もしない要素」。左から掛けても元の要素を変えない。",
+  order: 2,
+};
+
+const qG03LeftInverse: QuestDefinition = {
+  id: "group-03",
+  category: "group-basics",
+  title: "左逆元 (G3L)",
+  description:
+    "∀x. i(x) * x = e を証明せよ。任意の元の左逆元が単位元を与える。",
+  difficulty: 1,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "all x. i(x) * x = e",
+      label: "Goal: ∀x. i(x)·x = e",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "G3Lは群の左逆元公理です。公理パレットから配置します。",
+    "G3L: ∀x. i(x) * x = e — 逆元を左から掛けると単位元になる。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "逆元i(x)は「xの効果を打ち消す」元。左から掛けると単位元eに戻る。",
+  order: 3,
+};
+
+const qG04RightIdentity: QuestDefinition = {
+  id: "group-04",
+  category: "group-basics",
+  title: "右単位元 (G2R)",
+  description: "∀x. x * e = x を証明せよ。群の単位元の右からの性質。",
+  difficulty: 1,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "all x. x * e = x",
+      label: "Goal: ∀x. x·e = x",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "G2Rは群の右単位元公理です。公理パレットから配置します。",
+    "G2R: ∀x. x * e = x — eを右から掛けても変わらない。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "両側公理系では左右の単位元性が公理として与えられる。左公理系では右単位元は定理。",
+  order: 4,
+};
+
+const qG05RightInverse: QuestDefinition = {
+  id: "group-05",
+  category: "group-basics",
+  title: "右逆元 (G3R)",
+  description: "∀x. x * i(x) = e を証明せよ。任意の元の右逆元。",
+  difficulty: 1,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "all x. x * i(x) = e",
+      label: "Goal: ∀x. x·i(x) = e",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "G3Rは群の右逆元公理です。公理パレットから配置します。",
+    "G3R: ∀x. x * i(x) = e — 逆元を右から掛けると単位元になる。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "両側公理系では左右の逆元性が公理として与えられる。左公理系では右逆元は定理。",
+  order: 5,
+};
+
+const qG06Commutativity: QuestDefinition = {
+  id: "group-06",
+  category: "group-basics",
+  title: "可換律 (G4)",
+  description:
+    "∀x.∀y. x * y = y * x を証明せよ。アーベル群の追加公理。",
+  difficulty: 1,
+  systemPresetId: "abelian-group",
+  goals: [
+    {
+      formulaText: "all x. all y. x * y = y * x",
+      label: "Goal: ∀x.∀y. x·y = y·x",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "G4はアーベル群の可換律公理です。公理パレットから配置します。",
+    "G4: ∀x.∀y. x * y = y * x — 演算の順序を入れ替えられる。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "可換律は一般の群では成り立たない。可換律が成り立つ群を特にアーベル群（可換群）と呼ぶ。",
+  order: 6,
+};
+
+// --- 群論の推論 ---
+
+const qG07IdentityTimesIdentity: QuestDefinition = {
+  id: "group-07",
+  category: "group-proofs",
+  title: "e * e = e",
+  description:
+    "単位元同士の積が単位元になることを証明せよ。G2Lの∀消去で導出する。",
+  difficulty: 2,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "e * e = e",
+      label: "Goal: e·e = e",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "G2L: ∀x. e * x = x を使います。xをeに代入すれば e * e = e が得られます。",
+    "A5（∀消去）を使って∀x.φ(x) から φ(e) を導出します。",
+    "手順: G2L(公理) → A5インスタンス((∀x. e*x=x) → e*e=e) → MP",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "∀消去は「A5: (∀x.φ) → φ[t/x]」のインスタンスとMPの組み合わせ。群論でも同じパターンが使える。",
+  order: 1,
+};
+
+const qG08InverseIdentity: QuestDefinition = {
+  id: "group-08",
+  category: "group-proofs",
+  title: "i(e) * e = e",
+  description:
+    "単位元の逆元と単位元の積が単位元になることを証明せよ。G3Lの∀消去で導出。",
+  difficulty: 2,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "i(e) * e = e",
+      label: "Goal: i(e)·e = e",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "G3L: ∀x. i(x) * x = e を使います。xをeに代入すれば i(e) * e = e が得られます。",
+    "A5（∀消去）を使って∀x.φ(x) から φ(e) を導出します。",
+    "手順: G3L(公理) → A5インスタンス → MP",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "逆元関数iは任意の元に適用可能。特にi(e)は単位元の逆元で、自分自身が単位元になる。",
+  order: 2,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -940,4 +1143,12 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qPA10SuccessorNotZeroInstance,
   qPA11OnePlusOne,
   qPA12RobinsonSurjectivity,
+  qG01Associativity,
+  qG02LeftIdentity,
+  qG03LeftInverse,
+  qG04RightIdentity,
+  qG05RightInverse,
+  qG06Commutativity,
+  qG07IdentityTimesIdentity,
+  qG08InverseIdentity,
 ];

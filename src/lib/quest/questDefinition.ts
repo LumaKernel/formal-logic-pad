@@ -32,6 +32,8 @@ export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
  * - "equality-basics": 等号付き述語論理の基礎
  * - "peano-basics": ペアノ算術の基礎（PA公理の直接利用）
  * - "peano-arithmetic": ペアノ算術の算術的推論（PA公理の組み合わせ）
+ * - "group-basics": 群論の基礎（群公理の直接利用）
+ * - "group-proofs": 群論の推論（群公理の組み合わせ）
  */
 export type QuestCategory =
   | "propositional-basics"
@@ -41,7 +43,9 @@ export type QuestCategory =
   | "predicate-basics"
   | "equality-basics"
   | "peano-basics"
-  | "peano-arithmetic";
+  | "peano-arithmetic"
+  | "group-basics"
+  | "group-proofs";
 
 /** カテゴリのメタデータ */
 export type QuestCategoryMeta = {
@@ -102,6 +106,18 @@ export const questCategories: readonly QuestCategoryMeta[] = [
     description: "PA公理を組み合わせた算術的性質の証明。",
     order: 8,
   },
+  {
+    id: "group-basics",
+    label: "群論の基礎",
+    description: "群公理（G1-G3）を直接利用する基本的な証明。",
+    order: 9,
+  },
+  {
+    id: "group-proofs",
+    label: "群論の推論",
+    description: "群公理を組み合わせた群の性質の証明。",
+    order: 10,
+  },
 ] as const;
 
 /** カテゴリIDからカテゴリメタデータを検索する */
@@ -131,6 +147,9 @@ export type SystemPresetId =
   | "peano-hk"
   | "peano-mendelson"
   | "heyting"
+  | "group-left"
+  | "group-full"
+  | "abelian-group"
   | "nd-nm"
   | "nd-nj"
   | "nd-nk"

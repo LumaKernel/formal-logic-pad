@@ -33,6 +33,9 @@ import {
   peanoArithmeticHKSystem,
   peanoArithmeticMendelsonSystem,
   heytingArithmeticSystem,
+  groupTheoryLeftSystem,
+  groupTheoryFullSystem,
+  abelianGroupSystem,
 } from "../logic-core/inferenceRule";
 
 // --- プリセット公理系 ---
@@ -162,6 +165,27 @@ export const systemPresets: readonly SystemPreset[] = [
     description:
       "Hilbert流: 直観主義論理（EFQ:爆発原理）+ 等号付き述語論理 + PA1-PA6。二重否定除去は使えない構成的算術。",
     deductionSystem: hilbertDeduction(heytingArithmeticSystem),
+  },
+  {
+    id: "group-left",
+    label: "群論（左公理系）",
+    description:
+      "Hilbert流: 等号付き述語論理 + G1(結合律) + G2L(左単位元) + G3L(左逆元)。最小限の群公理化。右性質は定理として導出可能。",
+    deductionSystem: hilbertDeduction(groupTheoryLeftSystem),
+  },
+  {
+    id: "group-full",
+    label: "群論（両側公理系）",
+    description:
+      "Hilbert流: 等号付き述語論理 + G1 + G2L + G2R + G3L + G3R。冗長だが直感的な群公理化。初学者向け。",
+    deductionSystem: hilbertDeduction(groupTheoryFullSystem),
+  },
+  {
+    id: "abelian-group",
+    label: "アーベル群",
+    description:
+      "Hilbert流: 等号付き述語論理 + 両側群公理 + G4(可換律)。可換群の公理系。",
+    deductionSystem: hilbertDeduction(abelianGroupSystem),
   },
   {
     id: "nd-nm",

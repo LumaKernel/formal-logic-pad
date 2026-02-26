@@ -19,6 +19,9 @@ import {
   peanoArithmeticHKSystem,
   peanoArithmeticMendelsonSystem,
   heytingArithmeticSystem,
+  groupTheoryLeftSystem,
+  groupTheoryFullSystem,
+  abelianGroupSystem,
 } from "../logic-core/inferenceRule";
 import {
   nmSystem,
@@ -185,6 +188,27 @@ describe("resolveSystemPreset", () => {
     expect(result).toBeDefined();
     expect(result?.deductionSystem.style).toBe("hilbert");
     expect(result?.deductionSystem.system).toBe(heytingArithmeticSystem);
+  });
+
+  it("group-leftプリセットを解決できる", () => {
+    const result = resolveSystemPreset("group-left");
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem.style).toBe("hilbert");
+    expect(result?.deductionSystem.system).toBe(groupTheoryLeftSystem);
+  });
+
+  it("group-fullプリセットを解決できる", () => {
+    const result = resolveSystemPreset("group-full");
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem.style).toBe("hilbert");
+    expect(result?.deductionSystem.system).toBe(groupTheoryFullSystem);
+  });
+
+  it("abelian-groupプリセットを解決できる", () => {
+    const result = resolveSystemPreset("abelian-group");
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem.style).toBe("hilbert");
+    expect(result?.deductionSystem.system).toBe(abelianGroupSystem);
   });
 
   it("存在しないプリセットIDはundefinedを返す", () => {

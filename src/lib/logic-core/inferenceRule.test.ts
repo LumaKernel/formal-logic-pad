@@ -33,6 +33,18 @@ import {
   peanoArithmeticHKSystem,
   peanoArithmeticMendelsonSystem,
   heytingArithmeticSystem,
+  axiomG1Template,
+  axiomG2LTemplate,
+  axiomG2RTemplate,
+  axiomG3LTemplate,
+  axiomG3RTemplate,
+  axiomG4CommTemplate,
+  groupLeftAxioms,
+  groupFullAxioms,
+  abelianGroupAxioms,
+  groupTheoryLeftSystem,
+  groupTheoryFullSystem,
+  abelianGroupSystem,
   skSystem,
   minimalLogicSystem,
   intuitionisticSystem,
@@ -1874,5 +1886,281 @@ describe("matchTheoryAxiom", () => {
       const result = matchTheoryAxiom(axiom, candidate);
       expect(result._tag).toBe("Error");
     });
+  });
+});
+
+// ── 群論公理テンプレート ──────────────────────────────────────────
+
+describe("群論公理テンプレート", () => {
+  // ヘルパー
+  const e = constant("e");
+  const invX = functionApplication("i", [x]);
+
+  describe("G1: ∀x.∀y.∀z. (x * y) * z = x * (y * z)", () => {
+    it("テンプレートが正しい構造を持つ", () => {
+      expect(axiomG1Template._tag).toBe("Universal");
+      if (axiomG1Template._tag === "Universal") {
+        expect(axiomG1Template.variable.name).toBe("x");
+        expect(axiomG1Template.formula._tag).toBe("Universal");
+      }
+    });
+
+    it("正しいインスタンスとexactマッチする", () => {
+      const result = matchTheoryAxiom(groupLeftAxioms[0], axiomG1Template);
+      expect(result._tag).toBe("Ok");
+    });
+
+    it("異なる結合でマッチしない", () => {
+      // x * (y * z) = (x * y) * z — 左右逆
+      const wrong = universal(
+        x,
+        universal(
+          y,
+          universal(
+            z,
+            equality(
+              binaryOperation("*", x, binaryOperation("*", y, z)),
+              binaryOperation("*", binaryOperation("*", x, y), z),
+            ),
+          ),
+        ),
+      );
+      const result = matchTheoryAxiom(groupLeftAxioms[0], wrong);
+      expect(result._tag).toBe("Error");
+    });
+  });
+
+  describe("G2L: ∀x. e * x = x", () => {
+    it("テンプレートが正しい構造を持つ", () => {
+      expect(axiomG2LTemplate._tag).toBe("Universal");
+      if (axiomG2LTemplate._tag === "Universal") {
+        expect(axiomG2LTemplate.formula._tag).toBe("Equality");
+      }
+    });
+
+    it("正しいインスタンスとexactマッチする", () => {
+      const result = matchTheoryAxiom(groupLeftAxioms[1], axiomG2LTemplate);
+      expect(result._tag).toBe("Ok");
+    });
+
+    it("右単位元とマッチしない", () => {
+      // x * e = x
+      const wrong = universal(
+        x,
+        equality(binaryOperation("*", x, e), x),
+      );
+      const result = matchTheoryAxiom(groupLeftAxioms[1], wrong);
+      expect(result._tag).toBe("Error");
+    });
+  });
+
+  describe("G2R: ∀x. x * e = x", () => {
+    it("テンプレートが正しい構造を持つ", () => {
+      expect(axiomG2RTemplate._tag).toBe("Universal");
+    });
+
+    it("正しいインスタンスとexactマッチする", () => {
+      const g2r = groupFullAxioms.find((a) => a.id === "G2R");
+      expect(g2r).toBeDefined();
+      const result = matchTheoryAxiom(g2r!, axiomG2RTemplate);
+      expect(result._tag).toBe("Ok");
+    });
+  });
+
+  describe("G3L: ∀x. i(x) * x = e", () => {
+    it("テンプレートが正しい構造を持つ", () => {
+      expect(axiomG3LTemplate._tag).toBe("Universal");
+      if (axiomG3LTemplate._tag === "Universal") {
+        expect(axiomG3LTemplate.formula._tag).toBe("Equality");
+      }
+    });
+
+    it("正しいインスタンスとexactマッチする", () => {
+      const result = matchTheoryAxiom(groupLeftAxioms[2], axiomG3LTemplate);
+      expect(result._tag).toBe("Ok");
+    });
+
+    it("右逆元とマッチしない", () => {
+      // x * i(x) = e
+      const wrong = universal(
+        x,
+        equality(binaryOperation("*", x, invX), e),
+      );
+      const result = matchTheoryAxiom(groupLeftAxioms[2], wrong);
+      expect(result._tag).toBe("Error");
+    });
+  });
+
+  describe("G3R: ∀x. x * i(x) = e", () => {
+    it("テンプレートが正しい構造を持つ", () => {
+      expect(axiomG3RTemplate._tag).toBe("Universal");
+    });
+
+    it("正しいインスタンスとexactマッチする", () => {
+      const g3r = groupFullAxioms.find((a) => a.id === "G3R");
+      expect(g3r).toBeDefined();
+      const result = matchTheoryAxiom(g3r!, axiomG3RTemplate);
+      expect(result._tag).toBe("Ok");
+    });
+  });
+
+  describe("G4: ∀x.∀y. x * y = y * x (可換律)", () => {
+    it("テンプレートが正しい構造を持つ", () => {
+      expect(axiomG4CommTemplate._tag).toBe("Universal");
+      if (axiomG4CommTemplate._tag === "Universal") {
+        expect(axiomG4CommTemplate.formula._tag).toBe("Universal");
+      }
+    });
+
+    it("正しいインスタンスとexactマッチする", () => {
+      const g4 = abelianGroupAxioms.find((a) => a.id === "G4");
+      expect(g4).toBeDefined();
+      const result = matchTheoryAxiom(g4!, axiomG4CommTemplate);
+      expect(result._tag).toBe("Ok");
+    });
+
+    it("異なる式はマッチしない", () => {
+      // x * y = x * y (恒等式)
+      const wrong = universal(
+        x,
+        universal(
+          y,
+          equality(
+            binaryOperation("*", x, y),
+            binaryOperation("*", x, y),
+          ),
+        ),
+      );
+      const g4 = abelianGroupAxioms.find((a) => a.id === "G4");
+      expect(g4).toBeDefined();
+      const result = matchTheoryAxiom(g4!, wrong);
+      expect(result._tag).toBe("Error");
+    });
+  });
+});
+
+describe("群論の公理配列", () => {
+  it("groupLeftAxiomsは3公理を持つ", () => {
+    expect(groupLeftAxioms).toHaveLength(3);
+    expect(groupLeftAxioms.map((a) => a.id)).toEqual(["G1", "G2L", "G3L"]);
+  });
+
+  it("groupFullAxiomsは5公理を持つ", () => {
+    expect(groupFullAxioms).toHaveLength(5);
+    expect(groupFullAxioms.map((a) => a.id)).toEqual([
+      "G1",
+      "G2L",
+      "G3L",
+      "G2R",
+      "G3R",
+    ]);
+  });
+
+  it("abelianGroupAxiomsは6公理を持つ", () => {
+    expect(abelianGroupAxioms).toHaveLength(6);
+    expect(abelianGroupAxioms.map((a) => a.id)).toEqual([
+      "G1",
+      "G2L",
+      "G3L",
+      "G2R",
+      "G3R",
+      "G4",
+    ]);
+  });
+
+  it("全公理がexactマッチモード", () => {
+    for (const axiom of abelianGroupAxioms) {
+      expect(axiom.matchMode).toBe("exact");
+    }
+  });
+
+  it("全公理にdslTextが設定されている", () => {
+    for (const axiom of abelianGroupAxioms) {
+      expect(axiom.dslText.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("群論LogicSystem", () => {
+  it("groupTheoryLeftSystemは左公理系", () => {
+    expect(groupTheoryLeftSystem.name).toBe("Group Theory (Left Axioms)");
+    expect(groupTheoryLeftSystem.predicateLogic).toBe(true);
+    expect(groupTheoryLeftSystem.equalityLogic).toBe(true);
+    expect(groupTheoryLeftSystem.generalization).toBe(true);
+    expect(groupTheoryLeftSystem.theoryAxioms).toHaveLength(3);
+  });
+
+  it("groupTheoryFullSystemは両側公理系", () => {
+    expect(groupTheoryFullSystem.name).toBe("Group Theory (Full Axioms)");
+    expect(groupTheoryFullSystem.theoryAxioms).toHaveLength(5);
+  });
+
+  it("abelianGroupSystemはアーベル群", () => {
+    expect(abelianGroupSystem.name).toBe("Abelian Group");
+    expect(abelianGroupSystem.theoryAxioms).toHaveLength(6);
+  });
+
+  it("全体系がLukasiewicz命題論理基盤", () => {
+    for (const system of [
+      groupTheoryLeftSystem,
+      groupTheoryFullSystem,
+      abelianGroupSystem,
+    ]) {
+      expect(system.propositionalAxioms.has("A1")).toBe(true);
+      expect(system.propositionalAxioms.has("A2")).toBe(true);
+      expect(system.propositionalAxioms.has("A3")).toBe(true);
+    }
+  });
+});
+
+describe("群論公理のidentifyAxiom", () => {
+  it("G1をgroupTheoryLeftSystemで識別できる", () => {
+    const result = identifyAxiom(axiomG1Template, groupTheoryLeftSystem);
+    expect(result._tag).toBe("TheoryAxiom");
+    if (result._tag === "TheoryAxiom") {
+      expect(result.theoryAxiomId).toBe("G1");
+    }
+  });
+
+  it("G2LをgroupTheoryLeftSystemで識別できる", () => {
+    const result = identifyAxiom(axiomG2LTemplate, groupTheoryLeftSystem);
+    expect(result._tag).toBe("TheoryAxiom");
+    if (result._tag === "TheoryAxiom") {
+      expect(result.theoryAxiomId).toBe("G2L");
+    }
+  });
+
+  it("G3LをgroupTheoryLeftSystemで識別できる", () => {
+    const result = identifyAxiom(axiomG3LTemplate, groupTheoryLeftSystem);
+    expect(result._tag).toBe("TheoryAxiom");
+    if (result._tag === "TheoryAxiom") {
+      expect(result.theoryAxiomId).toBe("G3L");
+    }
+  });
+
+  it("G2RはgroupTheoryLeftSystemでは識別不可", () => {
+    const result = identifyAxiom(axiomG2RTemplate, groupTheoryLeftSystem);
+    expect(result._tag).toBe("Error");
+  });
+
+  it("G2RはgroupTheoryFullSystemで識別できる", () => {
+    const result = identifyAxiom(axiomG2RTemplate, groupTheoryFullSystem);
+    expect(result._tag).toBe("TheoryAxiom");
+    if (result._tag === "TheoryAxiom") {
+      expect(result.theoryAxiomId).toBe("G2R");
+    }
+  });
+
+  it("G4はabelianGroupSystemで識別できる", () => {
+    const result = identifyAxiom(axiomG4CommTemplate, abelianGroupSystem);
+    expect(result._tag).toBe("TheoryAxiom");
+    if (result._tag === "TheoryAxiom") {
+      expect(result.theoryAxiomId).toBe("G4");
+    }
+  });
+
+  it("G4はgroupTheoryFullSystemでは識別不可", () => {
+    const result = identifyAxiom(axiomG4CommTemplate, groupTheoryFullSystem);
+    expect(result._tag).toBe("Error");
   });
 });

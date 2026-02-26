@@ -62,6 +62,9 @@ describe("systemPresets", () => {
     expect(ids).toContain("peano-hk");
     expect(ids).toContain("peano-mendelson");
     expect(ids).toContain("heyting");
+    expect(ids).toContain("group-left");
+    expect(ids).toContain("group-full");
+    expect(ids).toContain("abelian-group");
   });
 
   it("includes all natural deduction presets", () => {
@@ -150,11 +153,43 @@ describe("systemPresets", () => {
     }
   });
 
+  it("group-left preset includes 3 theory axioms", () => {
+    const preset = systemPresets.find((p) => p.id === "group-left");
+    expect(preset).toBeDefined();
+    if (preset?.deductionSystem.style === "hilbert") {
+      expect(preset.deductionSystem.system.theoryAxioms?.length).toBe(3);
+      const ids = preset.deductionSystem.system.theoryAxioms?.map(
+        (a) => a.id,
+      );
+      expect(ids).toEqual(["G1", "G2L", "G3L"]);
+    }
+  });
+
+  it("group-full preset includes 5 theory axioms", () => {
+    const preset = systemPresets.find((p) => p.id === "group-full");
+    expect(preset).toBeDefined();
+    if (preset?.deductionSystem.style === "hilbert") {
+      expect(preset.deductionSystem.system.theoryAxioms?.length).toBe(5);
+    }
+  });
+
+  it("abelian-group preset includes 6 theory axioms", () => {
+    const preset = systemPresets.find((p) => p.id === "abelian-group");
+    expect(preset).toBeDefined();
+    if (preset?.deductionSystem.style === "hilbert") {
+      expect(preset.deductionSystem.system.theoryAxioms?.length).toBe(6);
+      const ids = preset.deductionSystem.system.theoryAxioms?.map(
+        (a) => a.id,
+      );
+      expect(ids).toContain("G4");
+    }
+  });
+
   it("hilbert presets have correct style", () => {
     const hilbertPresets = systemPresets.filter(
       (p) => !p.id.startsWith("nd-") && !p.id.startsWith("sc-"),
     );
-    expect(hilbertPresets.length).toBeGreaterThanOrEqual(13);
+    expect(hilbertPresets.length).toBeGreaterThanOrEqual(16);
     for (const p of hilbertPresets) {
       expect(p.deductionSystem.style).toBe("hilbert");
     }

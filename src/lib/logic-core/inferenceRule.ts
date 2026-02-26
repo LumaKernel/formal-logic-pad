@@ -376,6 +376,149 @@ export const robinsonAxioms: readonly TheoryAxiom[] = [
   },
 ];
 
+// ── 群論の公理テンプレート ─────────────────────────────────
+
+// ヘルパー: 群論の定数・演算
+/** 群の単位元 e */
+const groupIdentity = constant("e");
+/** 群の逆元関数 i(x) */
+const inverseOfX = functionApplication("i", [xVar]);
+
+/**
+ * G1: ∀x.∀y.∀z. (x * y) * z = x * (y * z)
+ * 結合律。群の最も基本的な性質。
+ */
+export const axiomG1Template: Formula = universal(
+  xVar,
+  universal(
+    yVar,
+    universal(
+      zVar,
+      equality(
+        binaryOperation("*", binaryOperation("*", xVar, yVar), zVar),
+        binaryOperation("*", xVar, binaryOperation("*", yVar, zVar)),
+      ),
+    ),
+  ),
+);
+
+/**
+ * G2L: ∀x. e * x = x
+ * 左単位元。
+ */
+export const axiomG2LTemplate: Formula = universal(
+  xVar,
+  equality(binaryOperation("*", groupIdentity, xVar), xVar),
+);
+
+/**
+ * G2R: ∀x. x * e = x
+ * 右単位元。
+ */
+export const axiomG2RTemplate: Formula = universal(
+  xVar,
+  equality(binaryOperation("*", xVar, groupIdentity), xVar),
+);
+
+/**
+ * G3L: ∀x. i(x) * x = e
+ * 左逆元。逆元関数 i を使って表現。
+ */
+export const axiomG3LTemplate: Formula = universal(
+  xVar,
+  equality(binaryOperation("*", inverseOfX, xVar), groupIdentity),
+);
+
+/**
+ * G3R: ∀x. x * i(x) = e
+ * 右逆元。
+ */
+export const axiomG3RTemplate: Formula = universal(
+  xVar,
+  equality(binaryOperation("*", xVar, inverseOfX), groupIdentity),
+);
+
+/**
+ * G4: ∀x.∀y. x * y = y * x
+ * 可換律。アーベル群の追加公理。
+ */
+export const axiomG4CommTemplate: Formula = universal(
+  xVar,
+  universal(
+    yVar,
+    equality(
+      binaryOperation("*", xVar, yVar),
+      binaryOperation("*", yVar, xVar),
+    ),
+  ),
+);
+
+// ── 群論の理論公理定義 ────────────────────────────────────
+
+/**
+ * 群論の左公理系: G1(結合律) + G2L(左単位元) + G3L(左逆元)。
+ * 数学的に最小限の群の公理化。右単位元・右逆元は定理として導出可能。
+ */
+export const groupLeftAxioms: readonly TheoryAxiom[] = [
+  {
+    id: "G1",
+    displayName: "G1 (結合律)",
+    template: axiomG1Template,
+    dslText: "all x. all y. all z. (x * y) * z = x * (y * z)",
+    matchMode: "exact",
+  },
+  {
+    id: "G2L",
+    displayName: "G2L (左単位元)",
+    template: axiomG2LTemplate,
+    dslText: "all x. e * x = x",
+    matchMode: "exact",
+  },
+  {
+    id: "G3L",
+    displayName: "G3L (左逆元)",
+    template: axiomG3LTemplate,
+    dslText: "all x. i(x) * x = e",
+    matchMode: "exact",
+  },
+];
+
+/**
+ * 群論の両側公理系: 結合律 + 左右単位元 + 左右逆元。
+ * 冗長だが直感的な公理化。初学者向け。
+ */
+export const groupFullAxioms: readonly TheoryAxiom[] = [
+  ...groupLeftAxioms,
+  {
+    id: "G2R",
+    displayName: "G2R (右単位元)",
+    template: axiomG2RTemplate,
+    dslText: "all x. x * e = x",
+    matchMode: "exact",
+  },
+  {
+    id: "G3R",
+    displayName: "G3R (右逆元)",
+    template: axiomG3RTemplate,
+    dslText: "all x. x * i(x) = e",
+    matchMode: "exact",
+  },
+];
+
+/**
+ * アーベル群の公理: 両側群公理 + 可換律。
+ */
+export const abelianGroupAxioms: readonly TheoryAxiom[] = [
+  ...groupFullAxioms,
+  {
+    id: "G4",
+    displayName: "G4 (可換律)",
+    template: axiomG4CommTemplate,
+    dslText: "all x. all y. x * y = y * x",
+    matchMode: "exact",
+  },
+];
+
 // ── 体系設定 ──────────────────────────────────────────────
 
 /**
@@ -575,6 +718,53 @@ export const heytingArithmeticSystem: LogicSystem = {
   equalityLogic: true,
   generalization: true,
   theoryAxioms: peanoFixedAxioms,
+};
+
+/**
+ * 群論（左公理系）: 等号付き述語論理 + G1(結合律) + G2L(左単位元) + G3L(左逆元)
+ * 最小限の群の公理化。右単位元・右逆元は定理として導出可能。
+ * 命題論理基盤: Łukasiewicz体系（A3: 対偶）
+ *
+ * シグネチャ: 定数 e, 関数 i(·), 二項演算 *
+ */
+export const groupTheoryLeftSystem: LogicSystem = {
+  name: "Group Theory (Left Axioms)",
+  propositionalAxioms: new Set(["A1", "A2", "A3"]),
+  predicateLogic: true,
+  equalityLogic: true,
+  generalization: true,
+  theoryAxioms: groupLeftAxioms,
+};
+
+/**
+ * 群論（両側公理系）: 等号付き述語論理 + G1 + G2L + G2R + G3L + G3R
+ * 冗長だが直感的な公理化。初学者向け。
+ * 命題論理基盤: Łukasiewicz体系（A3: 対偶）
+ *
+ * シグネチャ: 定数 e, 関数 i(·), 二項演算 *
+ */
+export const groupTheoryFullSystem: LogicSystem = {
+  name: "Group Theory (Full Axioms)",
+  propositionalAxioms: new Set(["A1", "A2", "A3"]),
+  predicateLogic: true,
+  equalityLogic: true,
+  generalization: true,
+  theoryAxioms: groupFullAxioms,
+};
+
+/**
+ * アーベル群: 等号付き述語論理 + 両側群公理 + G4(可換律)
+ * 命題論理基盤: Łukasiewicz体系（A3: 対偶）
+ *
+ * シグネチャ: 定数 e, 関数 i(·), 二項演算 *
+ */
+export const abelianGroupSystem: LogicSystem = {
+  name: "Abelian Group",
+  propositionalAxioms: new Set(["A1", "A2", "A3"]),
+  predicateLogic: true,
+  equalityLogic: true,
+  generalization: true,
+  theoryAxioms: abelianGroupAxioms,
 };
 
 // ── 推論規則の適用結果 ───────────────────────────────────
