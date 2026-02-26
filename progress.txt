@@ -80,6 +80,31 @@
 
 ---
 
+## 2026-02-26 - InfiniteCanvas: 選択範囲にズーム機能を追加
+- Shift+2 キーボードショートカットで選択アイテムにフィットするズーム操作
+- ZoomControlsComponent に選択範囲にズームボタン追加（選択時のみ表示）
+- keyboardShortcuts.ts に `zoom-to-selection` アクション追加（code="Digit2"ベースでキーボードレイアウト独立）
+- useKeyboardShortcuts.ts に `onZoomToSelection` コールバック追加
+- ZoomControlsDemo.stories.tsx に ZoomToSelection ストーリー追加（play関数でインタラクションテスト）
+- テスト: keyboardShortcuts(41), useKeyboardShortcuts(17), ZoomControlsComponent(26) = 84件パス
+- カバレッジ: Stmts 99.35%(維持), Branch 94.85%(+0.02), Funcs 90.46%(+0.06), Lines 99.97%(維持)
+  - ベースライン: Stmts 99.35%, Branch 94.83%, Funcs 90.4%, Lines 99.97%
+- ブラウザ確認: .screenshots/zoom-to-selection-storybook.png, .screenshots/zoom-to-selection-iframe.png
+- 変更ファイル:
+  - `src/lib/infinite-canvas/keyboardShortcuts.ts` (MODIFIED)
+  - `src/lib/infinite-canvas/keyboardShortcuts.test.ts` (MODIFIED)
+  - `src/lib/infinite-canvas/useKeyboardShortcuts.ts` (MODIFIED)
+  - `src/lib/infinite-canvas/useKeyboardShortcuts.test.tsx` (MODIFIED)
+  - `src/lib/infinite-canvas/ZoomControlsComponent.tsx` (MODIFIED)
+  - `src/lib/infinite-canvas/ZoomControlsComponent.test.tsx` (MODIFIED)
+  - `src/lib/infinite-canvas/ZoomControlsDemo.stories.tsx` (MODIFIED)
+- **今後のイテレーションへの学び:**
+  - `code` ベースのキーボードショートカット判定（`code: "Digit2"`）はキーボードレイアウト非依存。`key` はUS配列で`@`、JP配列で`"`等異なるため
+  - `classifyKeyDown` で `code` を destructure に含めるのを忘れないこと（既存の destructure パターンに追加が必要）
+  - ZoomControlsComponent の新しいボタンは `selectedItems` + `onZoomToSelection` の両方が提供されたときのみ表示するパターン
+  - `computeFitToContentViewport` は汎用的で、選択アイテムのサブセットを渡すだけでzoom-to-selectionが実現できる
+---
+
 ## 2026-02-25 - InfiniteCanvas: キーボードショートカット機能を追加
 - `keyboardShortcuts.ts`: 純粋ロジック。KeyEventInput → KeyboardAction の分類関数（classifyKeyDown/classifyKeyUp）、矢印パンデルタ計算（computeArrowPanDelta）
 - `useKeyboardShortcuts.ts`: React hook。KeyboardEventLike型で受けてclassify → callbacksに振り分け。スペースパンモードの状態管理
