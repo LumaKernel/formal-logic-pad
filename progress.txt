@@ -3331,3 +3331,26 @@
   - Mendelson体系のM3 (¬φ→¬ψ)→((¬φ→ψ)→φ) とŁukasiewicz体系のA3 (¬φ→¬ψ)→(ψ→φ) は構造が異なるため、クロスマッチしない
   - `prd-logic-selection.md`はまだ完了していない（SK, 最小論理, etc. が残っている）
 ---
+
+## 2026-02-26 - 論理体系: 最小論理(Minimal Logic)体系の追加
+- 最小論理(HM = Hilbert Minimal Logic)を新しい命題論理公理系として追加
+- A1(K) + A2(S) のみ、否定公理なし。含意のみで閉じた最小体系
+- 変更ファイル（9ファイル、+117行）:
+  - `src/lib/logic-core/inferenceRule.ts` — minimalLogicSystem定数追加
+  - `src/lib/logic-core/inferenceRule.test.ts` — minimalLogicSystem検証(+3件)、identifyAxiom minimal体系テスト(+3件)
+  - `src/lib/notebook/notebookCreateLogic.ts` — "minimal"プリセット追加
+  - `src/lib/notebook/notebookCreateLogic.test.ts` — minimalプリセット存在・バリデーションテスト(+2件)
+  - `src/lib/notebook/notebookSerialization.test.ts` — 最小論理ラウンドトリップテスト(+1件)
+  - `src/lib/proof-pad/axiomPaletteLogic.test.ts` — minimal体系パレットテスト(+1件)
+  - `src/lib/quest/questDefinition.ts` — SystemPresetIdに"minimal"追加
+  - `task-processing.md`
+  - `tasks/prd-logic-selection.md` — 実行中マーク
+- ベースラインカバレッジ: Stmts 99.34%, Branch 94.92%, Funcs 89.95%, Lines 99.93%
+- 完了後カバレッジ: Stmts 99.34%, Branch 94.92%, Funcs 89.96%, Lines 99.93%（維持/微増）
+- テスト: 3336→3342件（+6件）
+- スクリーンショット: `.screenshots/minimal-logic-create-form-fullscreen.png`
+- **今後のイテレーションへの学び:**
+  - 最小論理は新しい公理を追加しないため、PropositionalAxiomIdやVALID_AXIOM_IDSの変更は不要
+  - 新しいLogicSystem定数 + プリセット + SystemPresetId の3点セットで体系追加可能
+  - `prd-logic-selection.md`はまだ完了していない（HJ=NJ直観主義、HK=NK古典、シークエント計算等が残っている）
+---
