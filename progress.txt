@@ -84,6 +84,29 @@
 
 ---
 
+## 2026-02-27 - リファレンス: 記法・記号コンテンツ追加
+- 7つの新しいリファレンスエントリを追加（notationカテゴリ: 0→7）
+  - notation-connectives: 論理結合子（→, ∧, ∨, ¬, ↔）の解説・ASCII入力方法
+  - notation-quantifiers: 量化子（∀, ∃）の解説・スコープ規則
+  - notation-equality: 等号（=）の解説・等号公理との関連
+  - notation-metavariables: メタ変数（φ, ψ, χ等ギリシャ文字）・添字規則
+  - notation-term-operations: 項演算（+, ×, ^等）の解説・優先順位
+  - notation-precedence: 演算子優先順位と結合性のまとめ・Prattパーサー
+  - notation-input-methods: ASCII入力→Unicode変換の一覧
+- テスト: 340テスト全パス（+67テスト追加）
+- カバレッジ: reference/ 100%維持（Stmts, Branch, Funcs, Lines全て100%）
+  - ベースライン: Stmts 99.34%, Branch 94.95%, Funcs 90.07%, Lines 99.92%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- 変更ファイル:
+  - `src/lib/reference/referenceContent.ts` (MODIFIED - 7エントリ追加、約440行)
+  - `src/lib/reference/referenceContent.test.ts` (MODIFIED - 記法テスト追加、約150行)
+  - `tasks/prd-theories.md` (MODIFIED - 記法タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - テスト内でbody内の文字列をincludesで検索する場合、大文字/小文字に注意（Pratt parserなど固有名詞が大文字始まりだとマッチしない）
+  - notationカテゴリは記号のASCII入力対応を体系的にまとめるのに便利。入力方法エントリは実際のUI（completion popup等）との連携が今後必要
+  - リファレンスコンテンツ完了（公理13+推論規則9+論理体系5+記法7+概念3+理論2=39エントリ）。次はUIコンポーネント（ReferencePopover, ReferenceModal）の実装
+---
+
 ## 2026-02-27 - リファレンス: 推論規則コンテンツ追加（自然演繹・シーケント計算）
 - 7つの新しいリファレンスエントリを追加（推論規則カテゴリ: 2→9）
   - rule-nd-overview: 自然演繹の概要（NM/NJ/NK体系、Gentzen由来、仮定の解除メカニズム）

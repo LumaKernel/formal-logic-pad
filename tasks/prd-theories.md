@@ -25,7 +25,7 @@
     - [x] 公理(A1,A2,A3,M3,EFQ,DNE,A4,A5,E1-E5)の解説(en/ja)
     - [x] 推論規則(MP,Gen,自然演繹ルール,シーケント計算ルール)の解説(en/ja)
     - [x] 論理体系(Łukasiewicz,Mendelson,直観主義,古典)の解説(en/ja)
-    - [-] 記法・記号一覧の解説(en/ja)
+    - [x] 記法・記号一覧の解説(en/ja)
   - [ ] リファレンスUIコンポーネント
     - [ ] `ReferencePopover` コンポーネント: (?)マーク等のクリックで解説ポップオーバー表示
     - [ ] `ReferenceModal` コンポーネント: 詳細リファレンス表示
