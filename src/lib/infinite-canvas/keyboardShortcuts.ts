@@ -19,6 +19,7 @@ export type KeyboardAction =
   | { readonly type: "zoom-in"; readonly viewport: ViewportState }
   | { readonly type: "zoom-out"; readonly viewport: ViewportState }
   | { readonly type: "zoom-to-selection" }
+  | { readonly type: "open-search" }
   | { readonly type: "enter-space-pan" }
   | { readonly type: "exit-space-pan" }
   | { readonly type: "none" };
@@ -111,6 +112,11 @@ export function classifyKeyDown(
       maxScale,
     );
     return { type: "zoom-out", viewport: newViewport };
+  }
+
+  // Ctrl/Cmd+F → open search
+  if (mod && key.toLowerCase() === "f" && !shiftKey) {
+    return { type: "open-search" };
   }
 
   // Shift+2 → zoom to selection (only when items are selected)

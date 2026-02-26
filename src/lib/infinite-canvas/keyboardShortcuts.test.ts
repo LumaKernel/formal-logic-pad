@@ -361,6 +361,58 @@ describe("classifyKeyDown", () => {
     });
   });
 
+  describe("Ctrl/Cmd+F（検索）", () => {
+    it("Ctrl+F で open-search", () => {
+      const action = classifyKeyDown(
+        makeKeyEvent({ key: "f", ctrlKey: true }),
+        DEFAULT_VIEWPORT,
+        CONTAINER_SIZE,
+        false,
+      );
+      expect(action).toEqual({ type: "open-search" });
+    });
+
+    it("Meta+F で open-search（macOS）", () => {
+      const action = classifyKeyDown(
+        makeKeyEvent({ key: "f", metaKey: true }),
+        DEFAULT_VIEWPORT,
+        CONTAINER_SIZE,
+        false,
+      );
+      expect(action).toEqual({ type: "open-search" });
+    });
+
+    it("大文字 F でも open-search", () => {
+      const action = classifyKeyDown(
+        makeKeyEvent({ key: "F", ctrlKey: true }),
+        DEFAULT_VIEWPORT,
+        CONTAINER_SIZE,
+        false,
+      );
+      expect(action).toEqual({ type: "open-search" });
+    });
+
+    it("Ctrl+Shift+F は none（Shiftあり）", () => {
+      const action = classifyKeyDown(
+        makeKeyEvent({ key: "f", ctrlKey: true, shiftKey: true }),
+        DEFAULT_VIEWPORT,
+        CONTAINER_SIZE,
+        false,
+      );
+      expect(action).toEqual({ type: "none" });
+    });
+
+    it("修飾キーなしの f は none", () => {
+      const action = classifyKeyDown(
+        makeKeyEvent({ key: "f" }),
+        DEFAULT_VIEWPORT,
+        CONTAINER_SIZE,
+        false,
+      );
+      expect(action).toEqual({ type: "none" });
+    });
+  });
+
   describe("スペースキー（パンモード）", () => {
     it("Space で enter-space-pan", () => {
       const action = classifyKeyDown(

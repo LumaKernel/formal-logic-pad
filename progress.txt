@@ -77,7 +77,39 @@
 - localStorage永続化hookパターン: useState初期化でloadし、useEffectでsave（useTheme.tsと同じ）
 - `src/lib/quest/` はクエストモード管理。questDefinition.ts(型・カテゴリ) + builtinQuests.ts(問題データ) + questProgress.ts(進捗) + questCatalog.ts(カタログ)
 - クエスト進捗のMapもJSON化不可。serialize/deserializeパターンはnotebookSerializationと同様
+- ノード検索も3層分離: nodeSearch.ts(純粋) → useNodeSearch.ts(hook) → NodeSearchComponent.tsx(UI)
+- キーボードショートカット追加時は `KeyboardAction` union + `classifyKeyDown` + `handleAction` switch の3箇所を変更
 
+---
+
+## 2026-02-26 - InfiniteCanvas: ノード検索＆ナビゲーション機能を追加
+- 3層分離パターンで実装: nodeSearch.ts(純粋ロジック) → useNodeSearch.ts(hook) → NodeSearchComponent.tsx(UI)
+- Ctrl/Cmd+F でキャンバス内ノードをテキスト検索（case-insensitive）
+- マッチ結果の前後ナビゲーション（Enter/Shift+Enter、ボタン）
+- マッチしたノードにビューポートを自動フォーカス（ズーム＋パン）
+- ハイライト表示（黄色アウトライン）
+- keyboardShortcuts.ts に `open-search` アクション追加
+- NodeSearchDemo.stories.tsx: Defaultストーリー + SearchInteraction play関数テスト
+- テスト: nodeSearch(26), useNodeSearch(12), NodeSearchComponent(19), keyboardShortcuts(46), useKeyboardShortcuts(18) = 121件パス
+- カバレッジ: Stmts 99.37%(+0.01), Branch 94.89%(+0.05), Funcs 90.76%(+0.42), Lines 99.97%(維持)
+  - ベースライン: Stmts 99.36%, Branch 94.84%, Funcs 90.34%, Lines 99.97%
+- ブラウザ確認: .screenshots/node-search-default.png, .screenshots/node-search-interaction.png
+- 変更ファイル:
+  - `src/lib/infinite-canvas/nodeSearch.ts` (NEW)
+  - `src/lib/infinite-canvas/nodeSearch.test.ts` (NEW)
+  - `src/lib/infinite-canvas/useNodeSearch.ts` (NEW)
+  - `src/lib/infinite-canvas/useNodeSearch.test.tsx` (NEW)
+  - `src/lib/infinite-canvas/NodeSearchComponent.tsx` (NEW)
+  - `src/lib/infinite-canvas/NodeSearchComponent.test.tsx` (NEW)
+  - `src/lib/infinite-canvas/NodeSearchDemo.stories.tsx` (NEW)
+  - `src/lib/infinite-canvas/keyboardShortcuts.ts` (MODIFIED)
+  - `src/lib/infinite-canvas/keyboardShortcuts.test.ts` (MODIFIED)
+  - `src/lib/infinite-canvas/useKeyboardShortcuts.ts` (MODIFIED)
+  - `src/lib/infinite-canvas/useKeyboardShortcuts.test.tsx` (MODIFIED)
+- **今後のイテレーションへの学び:**
+  - ノード検索も3層分離パターンが適用: nodeSearch.ts(純粋) → useNodeSearch.ts(hook) → NodeSearchComponent.tsx(UI)
+  - `computeFocusViewport` は既存の `computeFitToContentViewport` を単一アイテムで呼ぶことで実現（再利用性が高い）
+  - キーボードショートカットの追加は KeyboardAction union + classifyKeyDown + handleAction switch の3箇所変更が必要
 ---
 
 ## 2026-02-26 - InfiniteCanvas: 選択範囲にズーム機能を追加

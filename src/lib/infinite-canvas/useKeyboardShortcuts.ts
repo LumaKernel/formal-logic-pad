@@ -16,6 +16,8 @@ export type KeyboardShortcutCallbacks = {
   readonly onSpacePanChange?: (active: boolean) => void;
   /** Called when zoom-to-selection is triggered (Shift+2) */
   readonly onZoomToSelection?: () => void;
+  /** Called when search is triggered (Ctrl/Cmd+F) */
+  readonly onOpenSearch?: () => void;
 };
 
 /** Minimal keyboard event interface used by the hook.
@@ -72,6 +74,9 @@ export function useKeyboardShortcuts(
           return true;
         case "zoom-to-selection":
           callbacks.onZoomToSelection?.();
+          return true;
+        case "open-search":
+          callbacks.onOpenSearch?.();
           return true;
         case "enter-space-pan":
           setIsSpacePanActive(true);

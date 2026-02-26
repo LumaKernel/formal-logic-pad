@@ -294,6 +294,21 @@ describe("useKeyboardShortcuts", () => {
     expect(onZoomToSelection).not.toHaveBeenCalled();
   });
 
+  it("Ctrl+F で onOpenSearch が呼ばれる", () => {
+    const onOpenSearch = vi.fn();
+    const { result } = renderHook(() =>
+      useKeyboardShortcuts(DEFAULT_VIEWPORT, CONTAINER_SIZE, false, {
+        onOpenSearch,
+      }),
+    );
+
+    act(() => {
+      result.current.onKeyDown(createKeyboardEvent("f", { ctrlKey: true }));
+    });
+
+    expect(onOpenSearch).toHaveBeenCalledTimes(1);
+  });
+
   it("コールバック未設定でもエラーにならない", () => {
     const { result } = renderHook(() =>
       useKeyboardShortcuts(DEFAULT_VIEWPORT, CONTAINER_SIZE, true, {}),
