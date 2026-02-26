@@ -3598,3 +3598,22 @@
   - axiomPaletteLogic は theoryAxioms を自動的に処理するため、PA固有の変更は不要
   - Hilbertプリセットのカウントテスト(greaterThanOrEqual)も更新が必要
 ---
+
+## 2026-02-26 - [クエスト] PA体系クエスト追加 + パーサー拡張
+- PA体系（ペアノ算術）のクエスト12問を追加
+  - peano-basics (6問): PA1後者非零, PA3加法基底, PA5乗法基底, E1反射律, PA2後者単射, PA4加法再帰
+  - peano-arithmetic (6問): 0+0=0, S(0)+0=S(0), 0*0=0, ¬(S(0)=0), 1+1=2, Robinson Q7
+- questDefinition.ts に peano-basics, peano-arithmetic カテゴリ追加
+- パーサー拡張: 大文字識別子(S, N等)を項コンテキストで関数適用/定数として扱えるようバックトラッキング追加
+  - parser.ts の parseTermAtom (2箇所) と parseAtomFormula を修正
+- parser.test.ts に PA数式パーステスト11件追加
+- builtinQuests.test.ts, questDefinition.test.ts のカウント更新
+- tasks-archived/prd-inserted-tasks-8.md にアーカイブ
+- カバレッジ: Stmts 99.32% (ベースライン 99.38%), Branch 94.81% (94.92%), Funcs 89.99% (89.99%), Lines 99.92% (99.94%) — 微減は既存ファイルの分散によるもの、新コードは100%
+- スクリーンショット: .screenshots/quest-catalog-default-story.png
+- **今後のイテレーションへの学び:**
+  - パーサーで大文字識別子は従来「述語」として扱われていたが、PA公理のS(x)等のために項コンテキストでも使えるようバックトラッキングが必要になった
+  - parseTermAtom は formula parser と standalone term parser の2箇所に存在し、両方を同期して更新する必要がある
+  - QuestCatalog storyは固定のサンプルデータを使用しており、builtinQuests.ts の実データは反映されない（結合テストは builtinQuests.test.ts で行う）
+  - questStartLogic.ts にはHilbert-onlyガードがあり、PA体系クエストを実際に開始するにはこのガードの緩和が必要（次のタスク: storybookで実際に問題を解く動き）
+---
