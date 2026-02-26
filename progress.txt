@@ -2847,3 +2847,30 @@
   - wheelイベントはaddEventListener({ passive: false })で登録されているため、dispatchEventではトリガーされない
   - DetailLevelの閾値はDIパターン（thresholds引数）で将来の調整に対応
 ---
+
+## 2026-02-26 - InfiniteCanvas: Viewport Culling機能を追加
+- `viewportCulling.ts` に純粋ロジックを実装: `computeViewportBounds`, `isItemVisible`, `isConnectionVisible`, `computeVisibleItemIds`
+- バッファゾーン200ワールドピクセル（`DEFAULT_CULLING_CONFIG`）でスムーズなスクロール体験
+- ProofWorkspace.tsx に統合: ResizeObserver でコンテナサイズ監視 → viewportBounds計算 → ノード/接続のフィルタリング
+- `cullingEnabled` ガード: containerSize未取得時（JSDOM等）はカリング無効で安全に動作
+- vitest.setup.ts に ResizeObserver mock追加（JSDOM対応）
+- テスト: viewportCulling(28), ProofWorkspace(98) 全パス。全体3160テスト通過
+- カバレッジ: Stmts 99.34%(維持), Branch 94.95%(+0.06), Funcs 90.81%(+0.01), Lines 99.93%(-0.02)
+  - ベースライン: Stmts 99.34%, Branch 94.89%, Funcs 90.8%, Lines 99.95%
+  - viewportCulling.ts は 100%/100%/100%/100% の完全カバレッジ
+  - Lines微減はProofWorkspace.tsx内のResizeObserver/カリング統合コード（ブラウザ専用API、v8 ignoreで対応済み）
+- ブラウザ確認: .screenshots/viewport-culling-iframe-with-nodes.png, .screenshots/viewport-culling-valid-mp.png
+- 変更ファイル:
+  - `src/lib/infinite-canvas/viewportCulling.ts` (NEW - 純粋カリング計算ロジック)
+  - `src/lib/infinite-canvas/viewportCulling.test.ts` (NEW - 28テスト)
+  - `src/lib/infinite-canvas/index.ts` (MODIFIED - viewportCulling export追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - Viewport Culling統合)
+  - `vitest.setup.ts` (MODIFIED - ResizeObserver mock追加)
+  - `tasks/prd-infinite-canvas-enhancements.md` (MODIFIED - Tier 3.4完了)
+- **今後のイテレーションへの学び:**
+  - JSDOMにはResizeObserverが存在しない。vitest.setup.tsでmock提供が必要
+  - カリング統合コードはJSDOMでcontainerSize=0のため到達不能。`cullingEnabled`ガードで安全にフォールバック
+  - 純粋ロジック（viewportCulling.ts）に全ての判定ロジックを集約し、統合側は最小限のグルーコードに留めることで、JSDOMでテスト不可な部分を最小化
+  - AABB重なり判定は `<` と `>` で厳密不等式。境界ぴったり（接触のみ）は重ならないとする
+  - `0 - 0 = -0` のJS仕様に注意。テストでは`toBeCloseTo`で対応
+---
