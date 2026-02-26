@@ -2820,3 +2820,30 @@
   - コマンドパレットのテストは各層独立でテスト可能。純粋ロジック→hook→UIの順に積み上げ
   - ESLint require-satisfies-in-tls: template literal内のid参照にはsatisfies stringが必要
 ---
+
+## 2026-02-26 - ProofPad: Level-of-Detail レンダリング機能を追加
+- `levelOfDetail.ts` に純粋ロジックを新規作成。DetailLevel("full"|"compact"|"minimal")とcomputeDetailLevel/getDetailVisibilityを定義
+- `EditableProofNode.tsx` に `detailLevel` propを追加。visibilityフラグに基づいてバッジ・ステータス・依存・数式を条件レンダリング
+- `ProofWorkspace.tsx` で `computeDetailLevel(viewport.scale)` をuseMemoで計算し、各ノードに渡す
+- 閾値: scale≥0.5 → full, 0.3≤scale<0.5 → compact, scale<0.3 → minimal
+- Storybook `LevelOfDetail` ストーリーで3レベルの比較表示＋play関数でインタラクションテスト
+- テスト: levelOfDetail(16), EditableProofNode(56), ProofWorkspace(98) 全パス。全体3132テスト通過
+- カバレッジ: Stmts 99.34%(維持), Branch 94.89%(+0.03), Funcs 90.8%(+0.05), Lines 99.95%(維持)
+  - ベースライン: Stmts 99.34%, Branch 94.86%, Funcs 90.75%, Lines 99.95%
+  - levelOfDetail.ts は 100%/100%/100%/100% の完全カバレッジ
+- ブラウザ確認: .screenshots/level-of-detail-comparison.png
+- 変更ファイル:
+  - `src/lib/proof-pad/levelOfDetail.ts` (NEW - 純粋LoD計算ロジック)
+  - `src/lib/proof-pad/levelOfDetail.test.ts` (NEW - 16テスト)
+  - `src/lib/proof-pad/EditableProofNode.tsx` (MODIFIED - detailLevel prop追加)
+  - `src/lib/proof-pad/EditableProofNode.test.tsx` (MODIFIED - 5テスト追加)
+  - `src/lib/proof-pad/EditableProofNode.stories.tsx` (MODIFIED - LevelOfDetailストーリー追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - computeDetailLevel統合)
+  - `src/lib/proof-pad/index.ts` (MODIFIED - levelOfDetail export追加)
+  - `tasks/prd-infinite-canvas-enhancements.md` (MODIFIED - Tier 3.3完了)
+- **今後のイテレーションへの学び:**
+  - 3層分離パターンがLoD機能にもそのまま適用できた: levelOfDetail.ts(純粋) → EditableProofNode(UI) → ProofWorkspace(統合)
+  - ProofWorkspaceのviewportはuseState内部管理のため、外部からscaleを変更するテストは困難。純粋ロジックレベルで十分にテスト
+  - wheelイベントはaddEventListener({ passive: false })で登録されているため、dispatchEventではトリガーされない
+  - DetailLevelの閾値はDIパターン（thresholds引数）で将来の調整に対応
+---
