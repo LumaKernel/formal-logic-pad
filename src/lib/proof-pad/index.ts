@@ -144,3 +144,13 @@ export type {
   LayoutConfig,
   LayoutResult,
 } from "./treeLayoutLogic";
+export {
+  exportWorkspaceToJSON,
+  importWorkspaceFromJSON,
+  generateExportFileName,
+} from "./workspaceExport";
+export type {
+  WorkspaceExportData,
+  DateComponents,
+  ImportResult,
+} from "./workspaceExport";

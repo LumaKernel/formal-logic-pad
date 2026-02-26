@@ -79,6 +79,11 @@ import {
   isItemVisible,
   isConnectionVisible,
 } from "../infinite-canvas/viewportCulling";
+import {
+  exportWorkspaceToJSON,
+  importWorkspaceFromJSON,
+  generateExportFileName,
+} from "./workspaceExport";
 
 // --- Props ---
 
@@ -398,6 +403,9 @@ export function ProofWorkspace({
 
   // コンテナref（キーボードイベント用）
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // ファイルインポート用の隠しinput
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // コンテナサイズ（Viewport Culling用）
   const [containerSize, setContainerSize] = useState<Size>({
@@ -759,6 +767,54 @@ export function ProofWorkspace({
     },
     [mpSelection.phase, genSelection.phase, editingNodeIds],
   );
+
+  // --- JSON エクスポート/インポート ---
+
+  /* v8 ignore start -- ブラウザAPI(Blob, URL.createObjectURL, FileReader, Date)のためJSDOMでは検証不可 */
+  const handleExportJSON = useCallback(() => {
+    const json = exportWorkspaceToJSON(workspace);
+    // eslint-disable-next-line @luma-dev/luma-ts/no-date -- 不純なUI層でのみ使用
+    const d = new Date();
+    const fileName = generateExportFileName(workspace.system.name, {
+      year: d.getUTCFullYear(),
+      month: d.getUTCMonth() + 1,
+      day: d.getUTCDate(),
+      hour: d.getUTCHours(),
+      minute: d.getUTCMinutes(),
+    });
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [workspace]);
+
+  const handleImportJSON = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = reader.result;
+        if (typeof text !== "string") return;
+        const result = importWorkspaceFromJSON(text);
+        if (result._tag === "Success") {
+          setWorkspace(result.workspace);
+        }
+      };
+      reader.readAsText(file);
+      // 同じファイルを再度選択できるようにリセット
+      e.target.value = "";
+    },
+    [setWorkspace],
+  );
+  /* v8 ignore stop */
 
   const handleCanvasClick = useCallback(() => {
     // キャンバスの空白部分クリックで選択解除
@@ -1393,6 +1449,70 @@ export function ProofWorkspace({
               <option value="bottom-to-top">Bottom→Top</option>
             </select>
           ) : null}
+        </span>
+        {/* エクスポート/インポート */}
+        <span
+          style={{
+            borderLeft: "1px solid var(--color-border, #ccc)",
+            paddingLeft: 8,
+            marginLeft: 4,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+          }}
+        >
+          <button
+            type="button"
+            style={{
+              padding: "3px 8px",
+              background: "var(--color-badge-bg, #e8eaf0)",
+              color: "var(--color-text-primary, #171717)",
+              border: "1px solid var(--color-border, #ccc)",
+              borderRadius: 4,
+              cursor: "pointer",
+              fontSize: 11,
+              fontFamily: "sans-serif",
+            }}
+            onClick={handleExportJSON}
+            data-testid={
+              testId
+                ? `${testId satisfies string}-export-json-button`
+                : undefined
+            }
+          >
+            Export JSON
+          </button>
+          <button
+            type="button"
+            style={{
+              padding: "3px 8px",
+              background: "var(--color-badge-bg, #e8eaf0)",
+              color: "var(--color-text-primary, #171717)",
+              border: "1px solid var(--color-border, #ccc)",
+              borderRadius: 4,
+              cursor: "pointer",
+              fontSize: 11,
+              fontFamily: "sans-serif",
+            }}
+            onClick={handleImportJSON}
+            data-testid={
+              testId
+                ? `${testId satisfies string}-import-json-button`
+                : undefined
+            }
+          >
+            Import JSON
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+            data-testid={
+              testId ? `${testId satisfies string}-file-input` : undefined
+            }
+          />
         </span>
       </div>
 
