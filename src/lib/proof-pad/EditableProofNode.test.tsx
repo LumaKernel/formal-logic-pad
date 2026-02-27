@@ -645,6 +645,58 @@ describe("EditableProofNode", () => {
     });
   });
 
+  describe("visibilityOverrides", () => {
+    it("fullレベルでshowDependencies: falseにすると依存情報が非表示になる", () => {
+      renderNode({
+        dependencies: [{ nodeId: "dep-1", displayName: "Dep1" }],
+        detailLevel: "full",
+        visibilityOverrides: { showDependencies: false },
+      });
+      expect(
+        screen.queryByTestId("test-node-dependencies"),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText("Depends on:")).not.toBeInTheDocument();
+    });
+
+    it("fullレベルでvisibilityOverrides未指定だと依存情報が表示される", () => {
+      renderNode({
+        dependencies: [{ nodeId: "dep-1", displayName: "Dep1" }],
+        detailLevel: "full",
+      });
+      expect(screen.getByTestId("test-node-dependencies")).toBeInTheDocument();
+      expect(screen.getByText("Depends on:")).toBeInTheDocument();
+    });
+
+    it("compactレベルでshowDependencies: trueにすると依存情報が表示される", () => {
+      renderNode({
+        dependencies: [{ nodeId: "dep-1", displayName: "Dep1" }],
+        detailLevel: "compact",
+        visibilityOverrides: { showDependencies: true },
+      });
+      expect(screen.getByTestId("test-node-dependencies")).toBeInTheDocument();
+    });
+
+    it("showDependencies: falseでも他の表示要素には影響しない", () => {
+      renderNode({
+        classification: "root-axiom" as const,
+        axiomName: "A1 (K)",
+        statusMessage: "Valid",
+        statusType: "success" as const,
+        dependencies: [{ nodeId: "dep-1", displayName: "Dep1" }],
+        detailLevel: "full",
+        visibilityOverrides: { showDependencies: false },
+      });
+      // 依存情報のみ非表示
+      expect(
+        screen.queryByTestId("test-node-dependencies"),
+      ).not.toBeInTheDocument();
+      // 他の要素は表示される
+      expect(screen.getByTestId("test-node-role-badge")).toBeInTheDocument();
+      expect(screen.getByTestId("test-node-axiom-name")).toBeInTheDocument();
+      expect(screen.getByTestId("test-node-status")).toBeInTheDocument();
+    });
+  });
+
   describe("editTrigger", () => {
     it('editTrigger="dblclick"でシングルクリックでは編集モードに入らない', async () => {
       const user = userEvent.setup();

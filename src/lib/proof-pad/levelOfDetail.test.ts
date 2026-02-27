@@ -115,4 +115,49 @@ describe("getDetailVisibility", () => {
       expect(typeof vis.showDependencies).toBe("boolean");
     }
   });
+
+  describe("overrides", () => {
+    it("overrides未指定時はデフォルト動作と同じ", () => {
+      const vis = getDetailVisibility("full", undefined);
+      expect(vis.showDependencies).toBe(true);
+    });
+
+    it("fullレベルでshowDependencies: falseをオーバーライドできる", () => {
+      const vis = getDetailVisibility("full", { showDependencies: false });
+      expect(vis.showDependencies).toBe(false);
+      // 他のフィールドはfullのデフォルト値を維持
+      expect(vis.showFormula).toBe(true);
+      expect(vis.showStatus).toBe(true);
+      expect(vis.showRoleBadge).toBe(true);
+      expect(vis.showAxiomName).toBe(true);
+      expect(vis.showProtectedBadge).toBe(true);
+    });
+
+    it("compactレベルでshowDependencies: trueをオーバーライドできる", () => {
+      const vis = getDetailVisibility("compact", { showDependencies: true });
+      expect(vis.showDependencies).toBe(true);
+      // 他のフィールドはcompactのデフォルト値を維持
+      expect(vis.showFormula).toBe(true);
+      expect(vis.showStatus).toBe(false);
+    });
+
+    it("minimalレベルでshowDependencies: trueをオーバーライドできる", () => {
+      const vis = getDetailVisibility("minimal", { showDependencies: true });
+      expect(vis.showDependencies).toBe(true);
+      // 他のフィールドはminimalのデフォルト値を維持
+      expect(vis.showFormula).toBe(false);
+    });
+
+    it("空のoverridesオブジェクトではデフォルト動作", () => {
+      const vis = getDetailVisibility("full", {});
+      expect(vis.showDependencies).toBe(true);
+    });
+
+    it("showDependencies: undefinedではデフォルト動作", () => {
+      const vis = getDetailVisibility("full", {
+        showDependencies: undefined,
+      });
+      expect(vis.showDependencies).toBe(true);
+    });
+  });
 });

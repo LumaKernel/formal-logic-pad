@@ -10,7 +10,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { EditableProofNode } from "./EditableProofNode";
 import type { ProofNodeKind } from "./proofNodeUI";
-import type { DetailLevel } from "./levelOfDetail";
+import type { DetailLevel, DetailVisibilityOverrides } from "./levelOfDetail";
 import { InfiniteCanvas } from "../infinite-canvas/InfiniteCanvas";
 import { CanvasItem } from "../infinite-canvas/CanvasItem";
 import type { Point, ViewportState } from "../infinite-canvas/types";
@@ -548,5 +548,104 @@ export const EditTriggerComparison: Story = {
     await expect(canvas.getByTestId("et-dblclick-status")).toHaveTextContent(
       "dblclick: editing=none",
     );
+  },
+};
+
+// --- 依存情報表示オンオフ比較 ---
+
+/**
+ * 依存情報(Depends on)の表示をvisibilityOverridesで制御するデモ。
+ * 同じノード構成で showDependencies: true / false を並べて比較。
+ */
+export const DependencyVisibilityToggle: Story = {
+  render: () => {
+    const deps = [
+      { nodeId: "a1", displayName: "A1 (K)" },
+      { nodeId: "a2", displayName: "A2 (S)" },
+    ];
+    const overrideOptions: readonly {
+      readonly label: string;
+      readonly overrides: DetailVisibilityOverrides | undefined;
+      readonly testPrefix: string;
+    }[] = [
+      {
+        label: "デフォルト (依存情報表示)",
+        overrides: undefined,
+        testPrefix: "dep-default",
+      },
+      {
+        label: "依存情報非表示 (showDependencies: false)",
+        overrides: { showDependencies: false },
+        testPrefix: "dep-hidden",
+      },
+    ];
+
+    return (
+      <div style={{ padding: 24 }}>
+        <div
+          style={{
+            fontFamily: "var(--font-ui)",
+            fontSize: 16,
+            fontWeight: 700,
+            marginBottom: 16,
+          }}
+        >
+          依存情報表示の設定比較
+        </div>
+        <div style={{ display: "flex", gap: 32, alignItems: "flex-start" }}>
+          {overrideOptions.map((opt) => (
+            <div key={opt.testPrefix}>
+              <div
+                style={{
+                  fontFamily: "var(--font-ui)",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  marginBottom: 8,
+                }}
+              >
+                {opt.label}
+              </div>
+              <EditableProofNode
+                id="mp-node"
+                kind="mp"
+                label="MP"
+                formulaText="ψ"
+                onFormulaTextChange={() => {}}
+                editable={false}
+                isProtected
+                statusMessage="MP successfully applied"
+                statusType="success"
+                classification="derived"
+                dependencies={deps}
+                detailLevel="full"
+                visibilityOverrides={opt.overrides}
+                testId={opt.testPrefix}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // デフォルト: 依存情報が表示されている
+    await expect(
+      canvas.getByTestId("dep-default-dependencies"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("dep-default-dependencies"),
+    ).toHaveTextContent("A1 (K)");
+
+    // 非表示設定: 依存情報が表示されていない
+    expect(
+      canvas.queryByTestId("dep-hidden-dependencies"),
+    ).not.toBeInTheDocument();
+
+    // 非表示でも他の要素は正常に表示される
+    await expect(
+      canvas.getByTestId("dep-hidden-status"),
+    ).toBeInTheDocument();
   },
 };

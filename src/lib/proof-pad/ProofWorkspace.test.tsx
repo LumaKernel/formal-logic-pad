@@ -28,6 +28,7 @@ function StatefulWorkspace({
   initialWorkspace,
   onFormulaParsed,
   onGoalAchieved,
+  showDependencies,
   testId = "workspace",
 }: {
   readonly initialWorkspace: WorkspaceState;
@@ -36,6 +37,7 @@ function StatefulWorkspace({
     readonly matchingNodeId: string;
     readonly stepCount: number;
   }) => void;
+  readonly showDependencies?: boolean;
   readonly testId?: string;
 }) {
   const [workspace, setWorkspace] = useState(initialWorkspace);
@@ -50,6 +52,7 @@ function StatefulWorkspace({
       onWorkspaceChange={handleChange}
       onFormulaParsed={onFormulaParsed}
       onGoalAchieved={onGoalAchieved}
+      showDependencies={showDependencies}
       testId={testId}
     />
   );
@@ -559,6 +562,35 @@ describe("ProofWorkspace", () => {
           screen.getByTestId("proof-node-node-3-dependencies"),
         ).toHaveTextContent("Depends on:");
       });
+    });
+
+    it("hides axiom dependencies when showDependencies=false", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <StatefulWorkspace
+          initialWorkspace={(() => {
+            let ws = createEmptyWorkspace(lukasiewiczSystem);
+            ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+            ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+            return ws;
+          })()}
+          showDependencies={false}
+        />,
+      );
+
+      // Apply MP
+      await user.click(screen.getByTestId("workspace-mp-button"));
+      await user.click(screen.getByTestId("proof-node-node-1"));
+      await user.click(screen.getByTestId("proof-node-node-2"));
+
+      // MP node should exist but dependencies should be hidden
+      await waitFor(() => {
+        expect(screen.getByTestId("proof-node-node-3")).toBeInTheDocument();
+      });
+      expect(
+        screen.queryByTestId("proof-node-node-3-dependencies"),
+      ).not.toBeInTheDocument();
     });
 
     it("applies MP via onWorkspaceChange (external state)", async () => {

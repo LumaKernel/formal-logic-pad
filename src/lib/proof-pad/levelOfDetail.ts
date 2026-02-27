@@ -61,7 +61,30 @@ export interface DetailVisibility {
   readonly showDependencies: boolean;
 }
 
-export function getDetailVisibility(level: DetailLevel): DetailVisibility {
+/**
+ * ユーザー設定による表示オーバーライド。
+ * 各フィールドが指定された場合、DetailLevelによる自動判定を上書きする。
+ */
+export interface DetailVisibilityOverrides {
+  /** 依存情報の表示をユーザーが明示的に制御する（undefined = DetailLevel自動判定に従う） */
+  readonly showDependencies?: boolean;
+}
+
+export function getDetailVisibility(
+  level: DetailLevel,
+  overrides?: DetailVisibilityOverrides,
+): DetailVisibility {
+  const base = getBaseDetailVisibility(level);
+  if (overrides === undefined) return base;
+  return {
+    ...base,
+    ...(overrides.showDependencies !== undefined
+      ? { showDependencies: overrides.showDependencies }
+      : {}),
+  };
+}
+
+function getBaseDetailVisibility(level: DetailLevel): DetailVisibility {
   switch (level) {
     case "full":
       return {

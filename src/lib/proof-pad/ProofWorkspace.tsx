@@ -77,7 +77,11 @@ import {
   deserializeClipboardData,
 } from "./copyPasteLogic";
 import type { ClipboardData } from "./copyPasteLogic";
-import { computeDetailLevel, DEFAULT_THRESHOLDS } from "./levelOfDetail";
+import {
+  computeDetailLevel,
+  DEFAULT_THRESHOLDS,
+  type DetailVisibilityOverrides,
+} from "./levelOfDetail";
 import {
   computeViewportBounds,
   isItemVisible,
@@ -124,6 +128,8 @@ export interface ProofWorkspaceProps {
   readonly locale?: Locale;
   /** リファレンス詳細モーダルを開くコールバック */
   readonly onOpenReferenceDetail?: (entryId: string) => void;
+  /** ノード内の依存情報(Depends on)表示を制御する（undefined = DetailLevelの自動判定に従う） */
+  readonly showDependencies?: boolean;
   /** data-testid */
   readonly testId?: string;
 }
@@ -347,6 +353,7 @@ export function ProofWorkspace({
   referenceEntries,
   locale,
   onOpenReferenceDetail,
+  showDependencies,
   testId,
 }: ProofWorkspaceProps) {
   // i18nメッセージ
@@ -1289,6 +1296,12 @@ export function ProofWorkspace({
     [viewport.scale],
   );
 
+  const visibilityOverrides: DetailVisibilityOverrides | undefined = useMemo(
+    () =>
+      showDependencies !== undefined ? { showDependencies } : undefined,
+    [showDependencies],
+  );
+
   // --- ノードのレンダリング ---
 
   const renderNode = useCallback(
@@ -1366,6 +1379,7 @@ export function ProofWorkspace({
               axiomName={axiomNames.get(node.id)}
               dependencies={getNodeDependencyInfos(node.id)}
               detailLevel={detailLevel}
+              visibilityOverrides={visibilityOverrides}
               testId={`proof-node-${node.id satisfies string}`}
             />
           </div>
@@ -1376,6 +1390,7 @@ export function ProofWorkspace({
       workspace,
       viewport,
       detailLevel,
+      visibilityOverrides,
       editingNodeIds,
       isSelectionActive,
       selectedNodeIds,

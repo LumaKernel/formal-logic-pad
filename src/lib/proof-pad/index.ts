@@ -112,6 +112,7 @@ export type {
   DetailLevel,
   DetailLevelThresholds,
   DetailVisibility,
+  DetailVisibilityOverrides,
 } from "./levelOfDetail";
 export { identifyAxiomName, getAxiomDisplayName } from "./axiomNameLogic";
 export type { AxiomNameResult } from "./axiomNameLogic";

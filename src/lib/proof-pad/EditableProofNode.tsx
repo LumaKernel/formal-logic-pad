@@ -17,7 +17,7 @@ import { computeParseState } from "../formula-input/FormulaInput";
 import type { ProofNodeKind } from "./proofNodeUI";
 import { getProofNodeStyle } from "./proofNodeUI";
 import type { NodeRole, NodeClassification } from "./nodeRoleLogic";
-import type { DetailLevel } from "./levelOfDetail";
+import type { DetailLevel, DetailVisibilityOverrides } from "./levelOfDetail";
 import { getDetailVisibility } from "./levelOfDetail";
 
 // --- Props ---
@@ -63,6 +63,8 @@ export interface EditableProofNodeProps {
   readonly dependencies?: readonly DependencyInfo[];
   /** 表示詳細度（ズームレベルに応じた簡略表示、デフォルト: "full"） */
   readonly detailLevel?: DetailLevel;
+  /** ユーザー設定による表示オーバーライド（DetailLevelの自動判定を上書き） */
+  readonly visibilityOverrides?: DetailVisibilityOverrides;
   /** 編集モードに入るトリガー（デフォルト: "click"） */
   readonly editTrigger?: EditTrigger;
   /** data-testid */
@@ -245,13 +247,14 @@ export function EditableProofNode({
   axiomName,
   dependencies,
   detailLevel = "full",
+  visibilityOverrides,
   editTrigger,
   testId,
 }: EditableProofNodeProps) {
   const nodeStyle = useMemo(() => getProofNodeStyle(kind), [kind]);
   const visibility = useMemo(
-    () => getDetailVisibility(detailLevel),
-    [detailLevel],
+    () => getDetailVisibility(detailLevel, visibilityOverrides),
+    [detailLevel, visibilityOverrides],
   );
   const [isHovered, setIsHovered] = useState(false);
 
