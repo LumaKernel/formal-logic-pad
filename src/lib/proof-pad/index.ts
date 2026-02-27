@@ -134,7 +134,13 @@ export type {
   DetailVisibility,
   DetailVisibilityOverrides,
 } from "./levelOfDetail";
-export { identifyAxiomName, getAxiomDisplayName } from "./axiomNameLogic";
+export {
+  identifyAxiomName,
+  getAxiomDisplayName,
+  isTrivialFormulaSubstitution,
+  isTrivialTermSubstitution,
+  isTrivialAxiomSubstitution,
+} from "./axiomNameLogic";
 export type { AxiomNameResult } from "./axiomNameLogic";
 export { parseGoalFormula, checkGoal } from "./goalCheckLogic";
 export type {
