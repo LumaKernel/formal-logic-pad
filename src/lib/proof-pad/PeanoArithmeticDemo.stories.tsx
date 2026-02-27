@@ -24,7 +24,7 @@ import {
   createEmptyWorkspace,
   addNode,
   applyMPAndConnect,
-  updateGoalFormulaText,
+  updateNodeRole,
 } from "./workspaceState";
 import type { WorkspaceState } from "./workspaceState";
 
@@ -35,7 +35,9 @@ function PA1AxiomComplete() {
     let ws = createEmptyWorkspace(peanoArithmeticSystem);
     // PA1: ∀x. ¬(S(x) = 0) をそのまま配置
     ws = addNode(ws, "axiom", "PA1", { x: 200, y: 100 }, "all x. ~(S(x) = 0)");
-    ws = updateGoalFormulaText(ws, "all x. ~(S(x) = 0)");
+    // ゴールノードを追加して role を設定
+    ws = addNode(ws, "axiom", "Goal", { x: 200, y: 250 }, "all x. ~(S(x) = 0)");
+    ws = updateNodeRole(ws, "node-2", "goal");
     return ws;
   })();
 
@@ -78,8 +80,9 @@ function ZeroPlusZeroComplete() {
     const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 250, y: 250 });
     ws = mp.workspace;
 
-    // ゴール設定
-    ws = updateGoalFormulaText(ws, "0 + 0 = 0");
+    // ゴールノードを追加して role を設定
+    ws = addNode(ws, "axiom", "Goal", { x: 450, y: 250 }, "0 + 0 = 0");
+    ws = updateNodeRole(ws, "node-4", "goal");
 
     return ws;
   })();
@@ -119,8 +122,9 @@ function ZeroPlusZeroPartial() {
       "(all x. x + 0 = x) -> 0 + 0 = 0",
     );
 
-    // ゴール設定（MP適用前）
-    ws = updateGoalFormulaText(ws, "0 + 0 = 0");
+    // ゴールノードを追加して role を設定（MP適用前）
+    ws = addNode(ws, "axiom", "Goal", { x: 250, y: 200 }, "0 + 0 = 0");
+    ws = updateNodeRole(ws, "node-3", "goal");
 
     return ws;
   })();
@@ -164,8 +168,9 @@ function SuccessorNotZeroComplete() {
     const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 250, y: 250 });
     ws = mp.workspace;
 
-    // ゴール設定
-    ws = updateGoalFormulaText(ws, "~(S(0) = 0)");
+    // ゴールノードを追加して role を設定
+    ws = addNode(ws, "axiom", "Goal", { x: 450, y: 250 }, "~(S(0) = 0)");
+    ws = updateNodeRole(ws, "node-4", "goal");
 
     return ws;
   })();
@@ -227,13 +232,10 @@ export const PA1AxiomPlacement: Story = {
     // PA1ノードが配置されている
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
 
-    // ゴールが達成されている
-    await expect(canvas.getByTestId("workspace-goal-input")).toHaveValue(
-      "all x. ~(S(x) = 0)",
-    );
-    await expect(
-      canvas.getByTestId("workspace-goal-achieved"),
-    ).toBeInTheDocument();
+    // ゴールノードが配置されている
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+
+    // 証明完成バナーが表示されている
     await expect(
       canvas.getByTestId("workspace-proof-complete-banner"),
     ).toBeInTheDocument();
@@ -257,7 +259,7 @@ export const ZeroPlusZeroCompleted: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // 3つのノードが存在する
+    // 3つの証明ノードが存在する
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
     await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
@@ -267,13 +269,10 @@ export const ZeroPlusZeroCompleted: Story = {
       canvas.getByTestId("proof-node-node-3-status"),
     ).toHaveTextContent("MP applied");
 
-    // ゴールが達成されている
-    await expect(canvas.getByTestId("workspace-goal-input")).toHaveValue(
-      "0 + 0 = 0",
-    );
-    await expect(
-      canvas.getByTestId("workspace-goal-achieved"),
-    ).toBeInTheDocument();
+    // ゴールノードが配置されている
+    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+
+    // 証明完成バナーが表示されている
     await expect(
       canvas.getByTestId("workspace-proof-complete-banner"),
     ).toBeInTheDocument();
@@ -293,20 +292,15 @@ export const ZeroPlusZeroInteractive: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // ゴールは未達成
-    await expect(canvas.getByTestId("workspace-goal-input")).toHaveValue(
-      "0 + 0 = 0",
-    );
-    await expect(
-      canvas.getByTestId("workspace-goal-not-achieved"),
-    ).toBeInTheDocument();
+    // 証明完成バナーは未表示
     await expect(
       canvas.queryByTestId("workspace-proof-complete-banner"),
     ).not.toBeInTheDocument();
 
-    // 2つのノードが存在（PA3, A5）
+    // 2つの証明ノードとゴールノードが存在（PA3, A5, Goal）
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
 
     // MP適用でStep 3を実行: node-1(左前提: PA3) と node-2(右前提: A5) を選択
     await userEvent.click(canvas.getByTestId("workspace-mp-button"));
@@ -323,16 +317,13 @@ export const ZeroPlusZeroInteractive: Story = {
     // 右前提: node-2 ((∀x. x + 0 = x) → 0 + 0 = 0)
     await userEvent.click(canvas.getByTestId("proof-node-node-2"));
 
-    // MPノードが生成された
-    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    // MPノードが生成された（ゴールノードがnode-3なので、MPノードはnode-4）
+    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
     await expect(
-      canvas.getByTestId("proof-node-node-3-status"),
+      canvas.getByTestId("proof-node-node-4-status"),
     ).toHaveTextContent("MP applied");
 
-    // ゴールが達成された
-    await expect(
-      canvas.getByTestId("workspace-goal-achieved"),
-    ).toBeInTheDocument();
+    // 証明完成バナーが表示された
     await expect(
       canvas.getByTestId("workspace-proof-complete-banner"),
     ).toBeInTheDocument();
@@ -356,7 +347,7 @@ export const SuccessorNotZeroProof: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // 3つのノードが存在する
+    // 3つの証明ノードが存在する
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
     await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
@@ -366,13 +357,10 @@ export const SuccessorNotZeroProof: Story = {
       canvas.getByTestId("proof-node-node-3-status"),
     ).toHaveTextContent("MP applied");
 
-    // ゴールが達成されている
-    await expect(canvas.getByTestId("workspace-goal-input")).toHaveValue(
-      "~(S(0) = 0)",
-    );
-    await expect(
-      canvas.getByTestId("workspace-goal-achieved"),
-    ).toBeInTheDocument();
+    // ゴールノードが配置されている
+    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+
+    // 証明完成バナーが表示されている
     await expect(
       canvas.getByTestId("workspace-proof-complete-banner"),
     ).toBeInTheDocument();

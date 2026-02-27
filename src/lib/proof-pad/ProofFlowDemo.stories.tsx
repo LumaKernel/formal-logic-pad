@@ -21,7 +21,7 @@ import {
   createEmptyWorkspace,
   addNode,
   applyMPAndConnect,
-  updateGoalFormulaText,
+  updateNodeRole,
 } from "./workspaceState";
 import type { WorkspaceState } from "./workspaceState";
 
@@ -59,8 +59,9 @@ function IdentityProofComplete() {
     const mp2 = applyMPAndConnect(ws, "node-4", "node-3", { x: 250, y: 500 });
     ws = mp2.workspace;
 
-    // ゴール設定
-    ws = updateGoalFormulaText(ws, "phi -> phi");
+    // ゴール設定（ノードとして追加）
+    ws = addNode(ws, "axiom", "Goal", { x: 450, y: 500 }, "phi -> phi");
+    ws = updateNodeRole(ws, "node-6", "goal");
 
     return ws;
   })();
@@ -108,8 +109,9 @@ function IdentityProofPartial() {
     // Step 4: A1インスタンス（最後のMP適用待ち）
     ws = addNode(ws, "axiom", "A1②", { x: 50, y: 350 }, "phi -> (phi -> phi)");
 
-    // ゴール設定
-    ws = updateGoalFormulaText(ws, "phi -> phi");
+    // ゴール設定（ノードとして追加）
+    ws = addNode(ws, "axiom", "Goal", { x: 450, y: 350 }, "phi -> phi");
+    ws = updateNodeRole(ws, "node-5", "goal");
 
     return ws;
   })();
@@ -170,13 +172,10 @@ export const IdentityProofCompleted: Story = {
       canvas.getByTestId("proof-node-node-5-status"),
     ).toHaveTextContent("MP applied");
 
-    // ゴールが達成されている
-    await expect(canvas.getByTestId("workspace-goal-input")).toHaveValue(
-      "phi -> phi",
-    );
-    await expect(
-      canvas.getByTestId("workspace-goal-achieved"),
-    ).toBeInTheDocument();
+    // ゴールノードが存在する
+    await expect(canvas.getByTestId("proof-node-node-6")).toBeInTheDocument();
+
+    // ゴールが達成されている（バナー表示）
     await expect(
       canvas.getByTestId("workspace-proof-complete-banner"),
     ).toBeInTheDocument();
@@ -196,22 +195,17 @@ export const IdentityProofInteractive: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // ゴールは未達成
-    await expect(canvas.getByTestId("workspace-goal-input")).toHaveValue(
-      "phi -> phi",
-    );
-    await expect(
-      canvas.getByTestId("workspace-goal-not-achieved"),
-    ).toBeInTheDocument();
+    // ゴールは未達成（バナーなし）
     await expect(
       canvas.queryByTestId("workspace-proof-complete-banner"),
     ).not.toBeInTheDocument();
 
-    // 4つのノードが存在（Step 1-4）
+    // 5つのノードが存在（Step 1-4 + Goal）
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
     await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
     await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-5")).toBeInTheDocument();
 
     // MP適用でStep 5を実行: node-4(左前提) と node-3(右前提) を選択
     await userEvent.click(canvas.getByTestId("workspace-mp-button"));
@@ -229,15 +223,12 @@ export const IdentityProofInteractive: Story = {
     await userEvent.click(canvas.getByTestId("proof-node-node-3"));
 
     // MPノードが生成された
-    await expect(canvas.getByTestId("proof-node-node-5")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-6")).toBeInTheDocument();
     await expect(
-      canvas.getByTestId("proof-node-node-5-status"),
+      canvas.getByTestId("proof-node-node-6-status"),
     ).toHaveTextContent("MP applied");
 
     // ゴールが達成された！
-    await expect(
-      canvas.getByTestId("workspace-goal-achieved"),
-    ).toBeInTheDocument();
     await expect(
       canvas.getByTestId("workspace-proof-complete-banner"),
     ).toBeInTheDocument();

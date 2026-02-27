@@ -21,7 +21,6 @@ export {
   addNode,
   updateNodePosition,
   updateNodeFormulaText,
-  updateGoalFormulaText,
   updateNodeGenVariableName,
   updateNodeRole,
   findNode,
@@ -119,9 +118,10 @@ export type { AxiomNameResult } from "./axiomNameLogic";
 export { parseGoalFormula, checkGoal } from "./goalCheckLogic";
 export type {
   GoalNotSet,
-  GoalParseError,
-  GoalNotAchieved,
-  GoalAchieved,
+  GoalAllAchieved,
+  GoalPartiallyAchieved,
+  GoalStatus,
+  AchievedGoalInfo,
   GoalCheckResult,
 } from "./goalCheckLogic";
 export {

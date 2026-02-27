@@ -12,6 +12,7 @@ function makeNode(
   id: string,
   formulaText: string,
   kind: "axiom" | "mp" | "conclusion" = "axiom",
+  role?: "axiom" | "goal",
 ): WorkspaceNode {
   return {
     id,
@@ -19,7 +20,12 @@ function makeNode(
     label: "test",
     formulaText,
     position: { x: 0, y: 0 },
+    role,
   };
+}
+
+function makeGoalNode(id: string, formulaText: string): WorkspaceNode {
+  return makeNode(id, formulaText, "axiom", "goal");
 }
 
 describe("goalCheckLogic", () => {
@@ -56,131 +62,213 @@ describe("goalCheckLogic", () => {
   });
 
   describe("checkGoal", () => {
-    it("returns GoalNotSet for empty goal text", () => {
-      const result = checkGoal("", []);
+    it("returns GoalNotSet when no goal nodes exist", () => {
+      const result = checkGoal([]);
       expect(result._tag).toBe("GoalNotSet");
     });
 
-    it("returns GoalNotSet for whitespace-only goal text", () => {
-      const result = checkGoal("   ", []);
-      expect(result._tag).toBe("GoalNotSet");
-    });
-
-    it("returns GoalParseError for invalid goal formula", () => {
-      const result = checkGoal("-> ->", []);
-      expect(result._tag).toBe("GoalParseError");
-    });
-
-    it("returns GoalNotAchieved when no nodes exist", () => {
-      const result = checkGoal("phi", []);
-      expect(result._tag).toBe("GoalNotAchieved");
-    });
-
-    it("returns GoalNotAchieved when no node matches", () => {
-      const nodes = [makeNode("node-1", "psi")];
-      const result = checkGoal("phi", nodes);
-      expect(result._tag).toBe("GoalNotAchieved");
-    });
-
-    it("returns GoalAchieved when a node matches exactly", () => {
+    it("returns GoalNotSet when no nodes have role=goal", () => {
       const nodes = [makeNode("node-1", "phi")];
-      const result = checkGoal("phi", nodes);
-      expect(result._tag).toBe("GoalAchieved");
-      if (result._tag === "GoalAchieved") {
-        expect(result.matchingNodeId).toBe("node-1");
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalNotSet");
+    });
+
+    it("returns GoalPartiallyAchieved when goal exists but no matching work node", () => {
+      const nodes = [makeGoalNode("goal-1", "phi")];
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalPartiallyAchieved");
+      if (result._tag === "GoalPartiallyAchieved") {
+        expect(result.achievedCount).toBe(0);
+        expect(result.totalCount).toBe(1);
       }
     });
 
-    it("returns GoalAchieved matching the first matching node", () => {
+    it("returns GoalPartiallyAchieved when goal formula doesn't match any work node", () => {
       const nodes = [
+        makeGoalNode("goal-1", "phi"),
         makeNode("node-1", "psi"),
-        makeNode("node-2", "phi"),
-        makeNode("node-3", "phi"),
       ];
-      const result = checkGoal("phi", nodes);
-      expect(result._tag).toBe("GoalAchieved");
-      if (result._tag === "GoalAchieved") {
-        expect(result.matchingNodeId).toBe("node-2");
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalPartiallyAchieved");
+    });
+
+    it("returns GoalAllAchieved when a work node matches the goal", () => {
+      const nodes = [
+        makeGoalNode("goal-1", "phi"),
+        makeNode("node-1", "phi"),
+      ];
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalAllAchieved");
+      if (result._tag === "GoalAllAchieved") {
+        expect(result.achievedGoals).toHaveLength(1);
+        expect(result.achievedGoals[0]!.matchingNodeId).toBe("node-1");
       }
     });
 
     it("matches implication formula correctly", () => {
-      const nodes = [makeNode("node-1", "phi -> psi")];
-      const result = checkGoal("phi -> psi", nodes);
-      expect(result._tag).toBe("GoalAchieved");
+      const nodes = [
+        makeGoalNode("goal-1", "phi -> psi"),
+        makeNode("node-1", "phi -> psi"),
+      ];
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalAllAchieved");
     });
 
-    it("matches φ → φ style formula from Unicode input", () => {
-      const nodes = [makeNode("node-1", "φ → φ")];
-      const result = checkGoal("phi -> phi", nodes);
-      expect(result._tag).toBe("GoalAchieved");
+    it("matches Unicode formula with DSL formula", () => {
+      const nodes = [
+        makeGoalNode("goal-1", "phi -> phi"),
+        makeNode("node-1", "φ → φ"),
+      ];
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalAllAchieved");
     });
 
-    it("skips nodes with empty formula text", () => {
-      const nodes = [makeNode("node-1", ""), makeNode("node-2", "phi")];
-      const result = checkGoal("phi", nodes);
-      expect(result._tag).toBe("GoalAchieved");
-      if (result._tag === "GoalAchieved") {
-        expect(result.matchingNodeId).toBe("node-2");
+    it("skips work nodes with empty formula text", () => {
+      const nodes = [
+        makeGoalNode("goal-1", "phi"),
+        makeNode("node-1", ""),
+        makeNode("node-2", "phi"),
+      ];
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalAllAchieved");
+      if (result._tag === "GoalAllAchieved") {
+        expect(result.achievedGoals[0]!.matchingNodeId).toBe("node-2");
       }
     });
 
-    it("skips nodes with unparseable formula text", () => {
-      const nodes = [makeNode("node-1", "-> ->"), makeNode("node-2", "phi")];
-      const result = checkGoal("phi", nodes);
-      expect(result._tag).toBe("GoalAchieved");
-      if (result._tag === "GoalAchieved") {
-        expect(result.matchingNodeId).toBe("node-2");
+    it("skips work nodes with unparseable formula text", () => {
+      const nodes = [
+        makeGoalNode("goal-1", "phi"),
+        makeNode("node-1", "-> ->"),
+        makeNode("node-2", "phi"),
+      ];
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalAllAchieved");
+      if (result._tag === "GoalAllAchieved") {
+        expect(result.achievedGoals[0]!.matchingNodeId).toBe("node-2");
       }
     });
 
     it("matches MP result node", () => {
       const nodes = [
+        makeGoalNode("goal-1", "psi"),
         makeNode("node-1", "phi", "axiom"),
         makeNode("node-2", "phi -> psi", "axiom"),
         makeNode("node-3", "ψ", "mp"),
       ];
-      const result = checkGoal("psi", nodes);
-      expect(result._tag).toBe("GoalAchieved");
-      if (result._tag === "GoalAchieved") {
-        expect(result.matchingNodeId).toBe("node-3");
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalAllAchieved");
+      if (result._tag === "GoalAllAchieved") {
+        expect(result.achievedGoals[0]!.matchingNodeId).toBe("node-3");
       }
     });
 
     it("does not match structurally different formulas", () => {
-      const nodes = [makeNode("node-1", "phi -> psi")];
-      const result = checkGoal("psi -> phi", nodes);
-      expect(result._tag).toBe("GoalNotAchieved");
-    });
-
-    it("returns GoalNotAchieved for complex formula not in workspace", () => {
       const nodes = [
-        makeNode("node-1", "phi"),
-        makeNode("node-2", "phi -> psi"),
+        makeGoalNode("goal-1", "phi -> psi"),
+        makeNode("node-1", "psi -> phi"),
       ];
-      const result = checkGoal("phi -> (psi -> phi)", nodes);
-      expect(result._tag).toBe("GoalNotAchieved");
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalPartiallyAchieved");
     });
 
-    it("provides goalFormula in GoalNotAchieved result", () => {
-      const result = checkGoal("phi -> phi", []) as Extract<
-        GoalCheckResult,
-        { readonly _tag: "GoalNotAchieved" }
-      >;
-      expect(result._tag).toBe("GoalNotAchieved");
-      expect(result.goalFormula).toBeDefined();
-      expect(result.goalFormula._tag).toBe("Implication");
+    it("handles multiple goals - all achieved", () => {
+      const nodes = [
+        makeGoalNode("goal-1", "phi"),
+        makeGoalNode("goal-2", "psi"),
+        makeNode("node-1", "phi"),
+        makeNode("node-2", "psi"),
+      ];
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalAllAchieved");
+      if (result._tag === "GoalAllAchieved") {
+        expect(result.achievedGoals).toHaveLength(2);
+      }
     });
 
-    it("provides goalFormula in GoalAchieved result", () => {
-      const nodes = [makeNode("node-1", "phi")];
-      const result = checkGoal("phi", nodes) as Extract<
+    it("handles multiple goals - partial achievement", () => {
+      const nodes = [
+        makeGoalNode("goal-1", "phi"),
+        makeGoalNode("goal-2", "psi"),
+        makeNode("node-1", "phi"),
+      ];
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalPartiallyAchieved");
+      if (result._tag === "GoalPartiallyAchieved") {
+        expect(result.achievedCount).toBe(1);
+        expect(result.totalCount).toBe(2);
+        expect(result.goalStatuses[0]!.achieved).toBe(true);
+        expect(result.goalStatuses[1]!.achieved).toBe(false);
+      }
+    });
+
+    it("handles goal with unparseable formula text", () => {
+      const nodes = [makeGoalNode("goal-1", "-> ->")];
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalPartiallyAchieved");
+      if (result._tag === "GoalPartiallyAchieved") {
+        expect(result.goalStatuses[0]!.goalFormula).toBeUndefined();
+        expect(result.goalStatuses[0]!.achieved).toBe(false);
+      }
+    });
+
+    it("handles goal with empty formula text", () => {
+      const nodes = [makeGoalNode("goal-1", "")];
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalPartiallyAchieved");
+      if (result._tag === "GoalPartiallyAchieved") {
+        expect(result.goalStatuses[0]!.goalFormula).toBeUndefined();
+        expect(result.goalStatuses[0]!.achieved).toBe(false);
+      }
+    });
+
+    it("does not match goal nodes against other goal nodes", () => {
+      const nodes = [
+        makeGoalNode("goal-1", "phi"),
+        makeGoalNode("goal-2", "phi"),
+      ];
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalPartiallyAchieved");
+      if (result._tag === "GoalPartiallyAchieved") {
+        expect(result.achievedCount).toBe(0);
+        expect(result.totalCount).toBe(2);
+      }
+    });
+
+    it("provides goalFormula in GoalAllAchieved result", () => {
+      const nodes = [
+        makeGoalNode("goal-1", "phi"),
+        makeNode("node-1", "phi"),
+      ];
+      const result = checkGoal(nodes) as Extract<
         GoalCheckResult,
-        { readonly _tag: "GoalAchieved" }
+        { readonly _tag: "GoalAllAchieved" }
       >;
-      expect(result._tag).toBe("GoalAchieved");
-      expect(result.goalFormula).toBeDefined();
-      expect(result.goalFormula._tag).toBe("MetaVariable");
+      expect(result.achievedGoals[0]!.goalFormula).toBeDefined();
+      expect(result.achievedGoals[0]!.goalFormula._tag).toBe("MetaVariable");
+    });
+
+    it("provides goalStatuses in GoalPartiallyAchieved result", () => {
+      const nodes = [
+        makeGoalNode("goal-1", "phi -> phi"),
+        makeNode("node-1", "psi"),
+      ];
+      const result = checkGoal(nodes) as Extract<
+        GoalCheckResult,
+        { readonly _tag: "GoalPartiallyAchieved" }
+      >;
+      expect(result.goalStatuses).toHaveLength(1);
+      expect(result.goalStatuses[0]!.goalFormula).toBeDefined();
+      expect(result.goalStatuses[0]!.goalFormula!._tag).toBe("Implication");
+    });
+
+    it("ignores role=axiom nodes as non-goal", () => {
+      const nodes = [
+        makeNode("node-1", "phi", "axiom", "axiom"),
+        makeNode("node-2", "phi"),
+      ];
+      const result = checkGoal(nodes);
+      expect(result._tag).toBe("GoalNotSet");
     });
   });
 });

@@ -40,7 +40,6 @@ type SerializedWorkspaceState = {
   readonly nodes: readonly WorkspaceNode[];
   readonly connections: readonly WorkspaceConnection[];
   readonly nextNodeId: number;
-  readonly goalFormulaText: string;
   readonly mode: WorkspaceMode;
 };
 
@@ -189,7 +188,7 @@ function parseWorkspaceState(raw: unknown): WorkspaceState | undefined {
   /* v8 ignore start */
   if (!Number.isFinite(obj["nextNodeId"])) return undefined;
   /* v8 ignore stop */
-  if (typeof obj["goalFormulaText"] !== "string") return undefined;
+  // goalFormulaText は廃止されたが、旧データの互換性のために存在を許容する
   if (typeof obj["mode"] !== "string" || !VALID_MODES.has(obj["mode"]))
     return undefined;
 
@@ -212,7 +211,6 @@ function parseWorkspaceState(raw: unknown): WorkspaceState | undefined {
     nodes,
     connections,
     nextNodeId: obj["nextNodeId"],
-    goalFormulaText: obj["goalFormulaText"],
     mode: obj["mode"] as WorkspaceMode,
   };
 }
@@ -250,7 +248,6 @@ export function exportWorkspaceToJSON(state: WorkspaceState): string {
       nodes: state.nodes,
       connections: state.connections,
       nextNodeId: state.nextNodeId,
-      goalFormulaText: state.goalFormulaText,
       mode: state.mode,
     },
   };

@@ -14,7 +14,6 @@ import {
   updateNodeFormulaText,
   updateNodeGenVariableName,
   updateNodeRole,
-  updateGoalFormulaText,
   findNode,
   removeNode,
   addConnection,
@@ -538,40 +537,6 @@ describe("proofWorkspace", () => {
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
       updateNodeRole(ws, "node-1", "axiom");
       expect(ws.nodes[0]!.role).toBeUndefined();
-    });
-  });
-
-  describe("goalFormulaText", () => {
-    it("initializes with empty goal formula text", () => {
-      const ws = createEmptyWorkspace(lukasiewiczSystem);
-      expect(ws.goalFormulaText).toBe("");
-    });
-
-    it("updates goal formula text", () => {
-      const ws = createEmptyWorkspace(lukasiewiczSystem);
-      const result = updateGoalFormulaText(ws, "phi -> phi");
-      expect(result.goalFormulaText).toBe("phi -> phi");
-    });
-
-    it("clears goal formula text", () => {
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = updateGoalFormulaText(ws, "phi -> phi");
-      const result = updateGoalFormulaText(ws, "");
-      expect(result.goalFormulaText).toBe("");
-    });
-
-    it("does not affect other fields", () => {
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      const result = updateGoalFormulaText(ws, "phi -> phi");
-      expect(result.nodes).toHaveLength(1);
-      expect(result.system).toBe(lukasiewiczSystem);
-    });
-
-    it("does not mutate original state", () => {
-      const ws = createEmptyWorkspace(lukasiewiczSystem);
-      updateGoalFormulaText(ws, "phi -> phi");
-      expect(ws.goalFormulaText).toBe("");
     });
   });
 

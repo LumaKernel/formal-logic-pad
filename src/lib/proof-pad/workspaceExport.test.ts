@@ -40,7 +40,6 @@ function createSampleWorkspace(): WorkspaceState {
       },
     ],
     nextNodeId: 3,
-    goalFormulaText: "phi -> phi",
     mode: "free",
   };
 }
@@ -61,7 +60,6 @@ function createQuestWorkspace(): WorkspaceState {
     ],
     connections: [],
     nextNodeId: 2,
-    goalFormulaText: "",
     mode: "quest",
   };
 }
@@ -87,7 +85,6 @@ function createGenWorkspace(): WorkspaceState {
     ],
     connections: [],
     nextNodeId: 2,
-    goalFormulaText: "",
     mode: "free",
   };
 }
@@ -101,7 +98,6 @@ describe("exportWorkspaceToJSON", () => {
       nodes: [],
       connections: [],
       nextNodeId: 1,
-      goalFormulaText: "",
       mode: "free",
     };
     const json = exportWorkspaceToJSON(state);
@@ -112,7 +108,6 @@ describe("exportWorkspaceToJSON", () => {
     expect(parsed.workspace.nodes).toEqual([]);
     expect(parsed.workspace.connections).toEqual([]);
     expect(parsed.workspace.nextNodeId).toBe(1);
-    expect(parsed.workspace.goalFormulaText).toBe("");
     expect(parsed.workspace.mode).toBe("free");
   });
 
@@ -187,7 +182,6 @@ describe("importWorkspaceFromJSON", () => {
     expect(result.workspace.nodes).toHaveLength(2);
     expect(result.workspace.connections).toHaveLength(1);
     expect(result.workspace.nextNodeId).toBe(3);
-    expect(result.workspace.goalFormulaText).toBe("phi -> phi");
     expect(result.workspace.mode).toBe("free");
 
     // LogicSystemのSetが復元されている
@@ -292,7 +286,6 @@ describe("importWorkspaceFromJSON", () => {
           nodes: [],
           connections: [],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -316,7 +309,6 @@ describe("importWorkspaceFromJSON", () => {
           nodes: [],
           connections: [],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -348,7 +340,6 @@ describe("importWorkspaceFromJSON", () => {
           ],
           connections: [],
           nextNodeId: 2,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -380,7 +371,6 @@ describe("importWorkspaceFromJSON", () => {
           ],
           connections: [],
           nextNodeId: 2,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -413,7 +403,6 @@ describe("importWorkspaceFromJSON", () => {
           ],
           connections: [],
           nextNodeId: 2,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -437,7 +426,6 @@ describe("importWorkspaceFromJSON", () => {
           nodes: [],
           connections: [{ id: "c1", fromNodeId: "n1" }],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -461,7 +449,6 @@ describe("importWorkspaceFromJSON", () => {
           nodes: [],
           connections: [],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "invalid-mode",
         },
       }),
@@ -485,7 +472,7 @@ describe("importWorkspaceFromJSON", () => {
           nodes: [],
           connections: [],
           nextNodeId: "not-a-number",
-          goalFormulaText: "",
+
           mode: "free",
         },
       }),
@@ -518,7 +505,6 @@ describe("importWorkspaceFromJSON", () => {
           ],
           connections: [],
           nextNodeId: 2,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -551,7 +537,6 @@ describe("importWorkspaceFromJSON", () => {
           ],
           connections: [],
           nextNodeId: 2,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -584,7 +569,6 @@ describe("importWorkspaceFromJSON", () => {
           ],
           connections: [],
           nextNodeId: 2,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -607,7 +591,6 @@ describe("importWorkspaceFromJSON", () => {
           nodes: [],
           connections: [],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -631,7 +614,6 @@ describe("importWorkspaceFromJSON", () => {
           nodes: [],
           connections: [],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -655,7 +637,6 @@ describe("importWorkspaceFromJSON", () => {
           nodes: [],
           connections: [],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -679,7 +660,6 @@ describe("importWorkspaceFromJSON", () => {
           nodes: [],
           connections: [],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -711,7 +691,6 @@ describe("importWorkspaceFromJSON", () => {
           ],
           connections: [],
           nextNodeId: 2,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -742,7 +721,6 @@ describe("importWorkspaceFromJSON", () => {
             },
           ],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -766,7 +744,6 @@ describe("importWorkspaceFromJSON", () => {
           nodes: "not-array",
           connections: [],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -790,7 +767,6 @@ describe("importWorkspaceFromJSON", () => {
           nodes: [],
           connections: "not-array",
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -821,7 +797,6 @@ describe("importWorkspaceFromJSON", () => {
           ],
           connections: [],
           nextNodeId: 2,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -852,7 +827,6 @@ describe("importWorkspaceFromJSON", () => {
           ],
           connections: [],
           nextNodeId: 2,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -876,7 +850,6 @@ describe("importWorkspaceFromJSON", () => {
           nodes: [null],
           connections: [],
           nextNodeId: 2,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -899,30 +872,6 @@ describe("importWorkspaceFromJSON", () => {
           },
           nodes: [],
           connections: [null],
-          nextNodeId: 1,
-          goalFormulaText: "",
-          mode: "free",
-        },
-      }),
-    );
-    expect(result._tag).toBe("InvalidFormat");
-  });
-
-  it("goalFormulaTextが欠けているとInvalidFormatを返す", () => {
-    const result = importWorkspaceFromJSON(
-      JSON.stringify({
-        _tag: "ProofPadWorkspace",
-        version: 1,
-        workspace: {
-          system: {
-            name: "test",
-            propositionalAxioms: [],
-            predicateLogic: false,
-            equalityLogic: false,
-            generalization: false,
-          },
-          nodes: [],
-          connections: [],
           nextNodeId: 1,
           mode: "free",
         },
@@ -949,7 +898,6 @@ describe("importWorkspaceFromJSON", () => {
             { id: "c1", fromNodeId: "n1", toNodeId: "n2", toPortId: "p" },
           ],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -980,7 +928,6 @@ describe("importWorkspaceFromJSON", () => {
             },
           ],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -1006,7 +953,6 @@ describe("importWorkspaceFromJSON", () => {
             { id: "c1", fromNodeId: "n1", fromPortId: "p", toPortId: "q" },
           ],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -1037,7 +983,6 @@ describe("importWorkspaceFromJSON", () => {
             },
           ],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -1061,7 +1006,6 @@ describe("importWorkspaceFromJSON", () => {
           nodes: [],
           connections: [],
           nextNodeId: 1,
-          goalFormulaText: "",
           mode: "free",
         },
       }),
@@ -1093,7 +1037,6 @@ describe("importWorkspaceFromJSON", () => {
           ],
           connections: [],
           nextNodeId: 2,
-          goalFormulaText: "",
           mode: "free",
         },
       }),

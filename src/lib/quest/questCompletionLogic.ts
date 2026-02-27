@@ -41,7 +41,9 @@ const STEP_NODE_KINDS: ReadonlySet<ProofNodeKind> = new Set([
 export function computeStepCount(nodes: readonly WorkspaceNode[]): number {
   return nodes.filter(
     (node) =>
-      STEP_NODE_KINDS.has(node.kind) && node.protection !== "quest-goal",
+      STEP_NODE_KINDS.has(node.kind) &&
+      node.protection !== "quest-goal" &&
+      node.role !== "goal",
   ).length;
 }
 

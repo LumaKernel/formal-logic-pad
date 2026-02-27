@@ -42,6 +42,6 @@ logic-core, logic-lang, formula-input, infinite-canvas を統合する層。
 
 ## WorkspaceState
 
-- `goalFormulaText` フィールド: 証明の目標式をDSLテキストで保持。空文字列は未設定
-- `updateGoalFormulaText()`: ゴール式テキスト更新用の純粋関数
+- ゴールは `role: "goal"` を持つ WorkspaceNode で表現（旧 `goalFormulaText` フィールドは廃止済み）
+- `checkGoal(nodes)`: ゴールノードと同じ式を持つ非ゴールノードが存在すれば達成と判定
 - ゴール判定は ProofWorkspace.tsx 内で `checkGoal()` を useMemo で呼び出し

@@ -74,7 +74,6 @@ describe("notebookState", () => {
       const nb = col.notebooks[0]!;
       expect(nb.workspace.nodes).toEqual([]);
       expect(nb.workspace.connections).toEqual([]);
-      expect(nb.workspace.goalFormulaText).toBe("");
     });
   });
 
@@ -186,11 +185,11 @@ describe("notebookState", () => {
       col = createNotebook(col, { name: "Note", system, now: now1 });
 
       const newWorkspace = createEmptyWorkspace(system);
-      const updated = { ...newWorkspace, goalFormulaText: "phi -> psi" };
+      const updated = { ...newWorkspace, nextNodeId: 42 };
 
       const result = updateNotebookWorkspace(col, "notebook-1", updated, now2);
       const nb = findNotebook(result, "notebook-1");
-      expect(nb!.workspace.goalFormulaText).toBe("phi -> psi");
+      expect(nb!.workspace.nextNodeId).toBe(42);
       expect(nb!.meta.updatedAt).toBe(now2);
     });
 
@@ -200,11 +199,11 @@ describe("notebookState", () => {
       col = createNotebook(col, { name: "Other", system, now: now2 });
 
       const newWorkspace = createEmptyWorkspace(system);
-      const updated = { ...newWorkspace, goalFormulaText: "phi" };
+      const updated = { ...newWorkspace, nextNodeId: 99 };
 
       const result = updateNotebookWorkspace(col, "notebook-1", updated, now3);
       const other = findNotebook(result, "notebook-2");
-      expect(other!.workspace.goalFormulaText).toBe("");
+      expect(other!.workspace.nextNodeId).toBe(1);
       expect(other!.meta.updatedAt).toBe(now2);
     });
   });
@@ -260,13 +259,13 @@ describe("notebookState", () => {
       // ワークスペースを更新してから複製
       const ws = {
         ...col.notebooks[0]!.workspace,
-        goalFormulaText: "phi -> phi",
+        nextNodeId: 77,
       };
       col = updateNotebookWorkspace(col, "notebook-1", ws, now2);
 
       const result = duplicateNotebook(col, "notebook-1", now3);
       const dup = result.notebooks[1]!;
-      expect(dup.workspace.goalFormulaText).toBe("phi -> phi");
+      expect(dup.workspace.nextNodeId).toBe(77);
     });
 
     it("returns unchanged collection when source not found", () => {

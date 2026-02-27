@@ -173,18 +173,16 @@ describe("useNotebookCollection hook", () => {
     const originalWorkspace = result.current.notebooks[0]?.workspace;
     expect(originalWorkspace).toBeTruthy();
 
-    // ノードを追加したワークスペース状態で更新
+    // ワークスペース状態を更新
     const updatedWorkspace = {
       ...originalWorkspace!,
-      goalFormulaText: "phi -> phi",
+      nextNodeId: 42,
     };
     act(() => {
       result.current.updateWorkspace(id, updatedWorkspace);
     });
 
-    expect(result.current.notebooks[0]?.workspace.goalFormulaText).toBe(
-      "phi -> phi",
-    );
+    expect(result.current.notebooks[0]?.workspace.nextNodeId).toBe(42);
   });
 
   it("notebooksは更新日時順でソートされている", () => {

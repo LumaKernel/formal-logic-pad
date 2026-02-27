@@ -22,7 +22,7 @@ import {
   addNode,
   addConnection,
   applyMPAndConnect,
-  updateGoalFormulaText,
+  updateNodeRole,
 } from "./workspaceState";
 import type { WorkspaceState } from "./workspaceState";
 
@@ -318,7 +318,8 @@ function WorkspaceWithGoalAchieved() {
       x: 200,
       y: 250,
     });
-    ws = updateGoalFormulaText(result.workspace, "psi");
+    ws = addNode(result.workspace, "axiom", "Goal", { x: 400, y: 250 }, "psi");
+    ws = updateNodeRole(ws, "node-4", "goal");
     return ws;
   })();
 
@@ -343,7 +344,8 @@ function WorkspaceWithGoalNotAchieved() {
   const initial = (() => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "phi");
-    ws = updateGoalFormulaText(ws, "phi -> phi");
+    ws = addNode(ws, "axiom", "Goal", { x: 300, y: 0 }, "phi -> phi");
+    ws = updateNodeRole(ws, "node-2", "goal");
     return ws;
   })();
 
@@ -370,12 +372,6 @@ export const GoalAchieved: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
-    // Goal input should have "psi"
-    await expect(canvas.getByTestId("workspace-goal-input")).toHaveValue("psi");
-    // Should show achieved
-    await expect(
-      canvas.getByTestId("workspace-goal-achieved"),
-    ).toBeInTheDocument();
     // Should show proof complete banner
     await expect(
       canvas.getByTestId("workspace-proof-complete-banner"),
@@ -389,14 +385,6 @@ export const GoalNotAchieved: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
-    // Goal input should have "phi -> phi"
-    await expect(canvas.getByTestId("workspace-goal-input")).toHaveValue(
-      "phi -> phi",
-    );
-    // Should show not achieved
-    await expect(
-      canvas.getByTestId("workspace-goal-not-achieved"),
-    ).toBeInTheDocument();
     // Should NOT show proof complete banner
     await expect(
       canvas.queryByTestId("workspace-proof-complete-banner"),
