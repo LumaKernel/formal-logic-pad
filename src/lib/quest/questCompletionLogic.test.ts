@@ -70,12 +70,30 @@ describe("computeStepCount", () => {
     expect(computeStepCount(nodes)).toBe(4);
   });
 
-  test("ゴールノードのみの場合は0を返す", () => {
+  test("ゴールノード(quest-goal)のみの場合は0を返す", () => {
     const nodes = [
       makeNode({ id: "n1", kind: "axiom", protection: "quest-goal" }),
       makeNode({ id: "n2", kind: "axiom", protection: "quest-goal" }),
     ];
     expect(computeStepCount(nodes)).toBe(0);
+  });
+
+  test("role=goalのノードはカウントしない", () => {
+    const nodes = [
+      makeNode({ id: "n1", kind: "axiom", role: "goal" }),
+    ];
+    expect(computeStepCount(nodes)).toBe(0);
+  });
+
+  test("role=goalとquest-goalの両方が混在しても正しくカウントする", () => {
+    const nodes = [
+      makeNode({ id: "n1", kind: "axiom" }),
+      makeNode({ id: "n2", kind: "axiom", role: "goal" }),
+      makeNode({ id: "n3", kind: "axiom", protection: "quest-goal" }),
+      makeNode({ id: "n4", kind: "mp" }),
+    ];
+    // axiom(n1) + mp(n4) = 2。role=goalとquest-goalは除外
+    expect(computeStepCount(nodes)).toBe(2);
   });
 });
 

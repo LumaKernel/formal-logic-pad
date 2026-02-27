@@ -4098,3 +4098,41 @@
   - タスクは実装難易度・依存関係・ユーザー価値の3軸で優先度を考慮。リファレンス追加は低コスト・高価値
   - TAB (タブロー式シーケント計算) は bekki.pdf 独自の形式化で、一般的な分析的タブローとはやや異なる（シーケント形式で定式化）
 ---
+
+## 2026-02-27 - [ゴール機能] Goal入力UI廃止・ノードロールベースのゴール判定に統一
+- 実装した内容:
+  - `goalFormulaText` フィールドを `WorkspaceState` から完全削除
+  - `updateGoalFormulaText()` 関数を削除
+  - `checkGoal()` をテキストベースからノードロール (`role: "goal"`) ベースに書き換え
+  - 新しいゴールチェック結果型: `GoalNotSet | GoalAllAchieved | GoalPartiallyAchieved`
+  - `computeStepCount()` が `role: "goal"` ノードも除外するよう修正
+  - ProofWorkspace.tsx から Goal テキスト入力 UI（約60行）を削除
+  - 全ストーリーファイルを `addNode` + `updateNodeRole` パターンに移行
+- 変更したファイル:
+  - src/lib/proof-pad/goalCheckLogic.ts (書き換え)
+  - src/lib/proof-pad/goalCheckLogic.test.ts (書き換え)
+  - src/lib/proof-pad/workspaceState.ts (フィールド・関数削除)
+  - src/lib/proof-pad/workspaceState.test.ts (テスト削除)
+  - src/lib/proof-pad/workspaceExport.ts (フィールド削除、後方互換コメント追加)
+  - src/lib/proof-pad/workspaceExport.test.ts (テスト更新)
+  - src/lib/proof-pad/workspaceImageExport.test.ts (テスト更新)
+  - src/lib/proof-pad/ProofWorkspace.tsx (Goal UI削除)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (テスト書き換え)
+  - src/lib/proof-pad/ProofWorkspace.stories.tsx (ストーリー更新)
+  - src/lib/proof-pad/ProofFlowDemo.stories.tsx (ストーリー更新)
+  - src/lib/proof-pad/PeanoArithmeticDemo.stories.tsx (ストーリー更新)
+  - src/lib/proof-pad/GroupTheoryDemo.stories.tsx (ストーリー更新)
+  - src/lib/proof-pad/index.ts (export更新)
+  - src/lib/proof-pad/CLAUDE.md (ドキュメント更新)
+  - src/lib/notebook/notebookState.test.ts (テスト更新)
+  - src/lib/notebook/notebookSerialization.test.ts (テスト更新)
+  - src/lib/notebook/useNotebookCollection.test.tsx (テスト更新)
+  - src/lib/quest/questCompletionLogic.ts (role=goal除外追加)
+  - src/lib/quest/questCompletionLogic.test.ts (テスト追加)
+- カバレッジ: Statements 99.21% (goalCheckLogic.ts 100%)
+- **今後のイテレーションへの学び:**
+  - ゴール判定は `role: "goal"` ノードベース。`goalFormulaText` は完全廃止済み
+  - `computeStepCount()` はステップ数から `protection: "quest-goal"` と `role: "goal"` の両方を除外する
+  - `workspaceExport.ts` は旧データの `goalFormulaText` を黙って無視する（後方互換性）
+  - フィールド削除時は型エラーで全箇所を検出できるが、テストデータ内のリテラルは型チェックで拾えないため、grep で確認が必要
+---

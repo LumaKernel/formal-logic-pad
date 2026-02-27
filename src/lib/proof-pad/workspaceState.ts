@@ -89,8 +89,6 @@ export type WorkspaceState = {
   readonly nodes: readonly WorkspaceNode[];
   readonly connections: readonly WorkspaceConnection[];
   readonly nextNodeId: number;
-  /** 証明目標の論理式テキスト（DSL形式）。空文字列は未設定 */
-  readonly goalFormulaText: string;
   /** ワークスペースのモード（デフォルト: "free"） */
   readonly mode: WorkspaceMode;
 };
@@ -104,7 +102,6 @@ export function createEmptyWorkspace(system: LogicSystem): WorkspaceState {
     nodes: [],
     connections: [],
     nextNodeId: 1,
-    goalFormulaText: "",
     mode: "free",
   };
 }
@@ -137,7 +134,6 @@ export function createQuestWorkspace(
     nodes: [],
     connections: [],
     nextNodeId: 1,
-    goalFormulaText: "",
     mode: "quest",
   };
 
@@ -242,17 +238,6 @@ export function updateNodeFormulaText(
     nodes: state.nodes.map((node) =>
       node.id === nodeId ? { ...node, formulaText } : node,
     ),
-  };
-}
-
-/** ゴール式テキストを更新する */
-export function updateGoalFormulaText(
-  state: WorkspaceState,
-  goalFormulaText: string,
-): WorkspaceState {
-  return {
-    ...state,
-    goalFormulaText,
   };
 }
 

@@ -40,7 +40,6 @@ function createSampleWorkspace(): WorkspaceState {
       },
     ],
     nextNodeId: 3,
-    goalFormulaText: "phi -> phi",
     mode: "free",
   };
 }
@@ -51,7 +50,6 @@ function createEmptyWorkspace(): WorkspaceState {
     nodes: [],
     connections: [],
     nextNodeId: 1,
-    goalFormulaText: "",
     mode: "free",
   };
 }
@@ -129,7 +127,6 @@ function createMultiNodeWorkspace(): WorkspaceState {
       },
     ],
     nextNodeId: 6,
-    goalFormulaText: "all x. result",
     mode: "free",
   };
 }
@@ -299,7 +296,6 @@ describe("generateExportSVG", () => {
       ],
       connections: [],
       nextNodeId: 2,
-      goalFormulaText: "",
       mode: "free",
     };
     const sizes: NodeSizeMap = new Map([["n1", { width: 150, height: 80 }]]);
@@ -323,7 +319,6 @@ describe("generateExportSVG", () => {
       ],
       connections: [],
       nextNodeId: 2,
-      goalFormulaText: "",
       mode: "free",
     };
     const svg = generateExportSVG(ws);
@@ -351,7 +346,6 @@ describe("generateExportSVG", () => {
       ],
       connections: [],
       nextNodeId: 2,
-      goalFormulaText: "",
       mode: "free",
     };
     const svg = generateExportSVG(ws);
@@ -384,7 +378,6 @@ describe("generateExportSVG", () => {
         },
       ],
       nextNodeId: 2,
-      goalFormulaText: "",
       mode: "free",
     };
     const svg = generateExportSVG(ws);
@@ -425,7 +418,6 @@ describe("generateExportSVG", () => {
         },
       ],
       nextNodeId: 3,
-      goalFormulaText: "",
       mode: "free",
     };
     const svg = generateExportSVG(ws);
@@ -449,7 +441,6 @@ describe("generateExportSVG", () => {
       ],
       connections: [],
       nextNodeId: 2,
-      goalFormulaText: "",
       mode: "free",
     };
     const svg = generateExportSVG(ws);
@@ -474,7 +465,6 @@ describe("generateExportSVG", () => {
       ],
       connections: [],
       nextNodeId: 2,
-      goalFormulaText: "",
       mode: "free",
     };
     const svg = generateExportSVG(ws);

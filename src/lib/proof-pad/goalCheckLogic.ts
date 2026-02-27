@@ -1,8 +1,8 @@
 /**
  * 証明目標（ゴール）達成判定の純粋ロジック。
  *
- * ワークスペース上のノードが目標式と一致するかを検査する。
- * UI層（ProofWorkspace.tsx）から利用される。
+ * ノードの role === "goal" をゴールとして扱い、
+ * 他のノードが同じ式を導出していれば達成とみなす。
  *
  * 変更時は goalCheckLogic.test.ts, ProofWorkspace.tsx, index.ts も同期すること。
  */
@@ -14,25 +14,36 @@ import type { WorkspaceNode } from "./workspaceState";
 
 // --- ゴール達成チェックの結果型 ---
 
-/** ゴールがまだ設定されていない */
+/** ゴールがまだ設定されていない（role="goal" のノードがない） */
 export type GoalNotSet = {
   readonly _tag: "GoalNotSet";
 };
 
-/** ゴール式のパースに失敗 */
-export type GoalParseError = {
-  readonly _tag: "GoalParseError";
+/** すべてのゴールが達成された */
+export type GoalAllAchieved = {
+  readonly _tag: "GoalAllAchieved";
+  readonly achievedGoals: readonly AchievedGoalInfo[];
 };
 
-/** ゴール未達成（ワークスペース上に一致するノードがない） */
-export type GoalNotAchieved = {
-  readonly _tag: "GoalNotAchieved";
-  readonly goalFormula: Formula;
+/** 一部のゴールが未達成 */
+export type GoalPartiallyAchieved = {
+  readonly _tag: "GoalPartiallyAchieved";
+  readonly achievedCount: number;
+  readonly totalCount: number;
+  readonly goalStatuses: readonly GoalStatus[];
 };
 
-/** ゴール達成（一致するノードが見つかった） */
-export type GoalAchieved = {
-  readonly _tag: "GoalAchieved";
+/** 個別ゴールの状態 */
+export type GoalStatus = {
+  readonly goalNodeId: string;
+  readonly goalFormula: Formula | undefined;
+  readonly achieved: boolean;
+  readonly matchingNodeId: string | undefined;
+};
+
+/** 達成されたゴールの情報 */
+export type AchievedGoalInfo = {
+  readonly goalNodeId: string;
   readonly goalFormula: Formula;
   readonly matchingNodeId: string;
 };
@@ -40,9 +51,8 @@ export type GoalAchieved = {
 /** ゴールチェック結果 */
 export type GoalCheckResult =
   | GoalNotSet
-  | GoalParseError
-  | GoalNotAchieved
-  | GoalAchieved;
+  | GoalAllAchieved
+  | GoalPartiallyAchieved;
 
 // --- ゴール式のパース ---
 
@@ -62,43 +72,78 @@ export function parseGoalFormula(goalText: string): Formula | undefined {
 // --- ゴール達成チェック ---
 
 /**
- * ワークスペース上のノードからゴール式と一致するものを探す。
+ * ワークスペース上の role="goal" ノードが全て証明されているかチェックする。
  *
- * @param goalText ゴールのDSLテキスト
+ * ゴールノードの式と一致する式を持つ非ゴールノードが存在すれば「達成」とみなす。
+ *
  * @param nodes ワークスペース上のノード一覧
  * @returns ゴールチェック結果
  */
 export function checkGoal(
-  goalText: string,
   nodes: readonly WorkspaceNode[],
 ): GoalCheckResult {
-  const trimmed = goalText.trim();
-  if (trimmed === "") {
+  const goalNodes = nodes.filter((n) => n.role === "goal");
+  if (goalNodes.length === 0) {
     return { _tag: "GoalNotSet" };
   }
 
-  const goalFormula = parseGoalFormula(trimmed);
-  if (goalFormula === undefined) {
-    return { _tag: "GoalParseError" };
+  // ゴールノード以外のノード（証明の根拠となるノード）
+  const workNodes = nodes.filter((n) => n.role !== "goal");
+
+  const goalStatuses: GoalStatus[] = [];
+  const achievedGoals: AchievedGoalInfo[] = [];
+
+  for (const goalNode of goalNodes) {
+    const goalFormula = parseGoalFormula(goalNode.formulaText);
+    if (goalFormula === undefined) {
+      goalStatuses.push({
+        goalNodeId: goalNode.id,
+        goalFormula: undefined,
+        achieved: false,
+        matchingNodeId: undefined,
+      });
+      continue;
+    }
+
+    // ゴール式と一致するワークノードを探す
+    let matchingNodeId: string | undefined;
+    for (const work of workNodes) {
+      if (work.formulaText.trim() === "") continue;
+      const workResult = parseString(work.formulaText);
+      if (!workResult.ok) continue;
+      if (equalFormula(goalFormula, workResult.formula)) {
+        matchingNodeId = work.id;
+        break;
+      }
+    }
+
+    if (matchingNodeId !== undefined) {
+      achievedGoals.push({
+        goalNodeId: goalNode.id,
+        goalFormula,
+        matchingNodeId,
+      });
+    }
+
+    goalStatuses.push({
+      goalNodeId: goalNode.id,
+      goalFormula,
+      achieved: matchingNodeId !== undefined,
+      matchingNodeId,
+    });
   }
 
-  // ノードの論理式をパースして比較
-  for (const node of nodes) {
-    if (node.formulaText.trim() === "") continue;
-    const nodeResult = parseString(node.formulaText);
-    if (!nodeResult.ok) continue;
-
-    if (equalFormula(goalFormula, nodeResult.formula)) {
-      return {
-        _tag: "GoalAchieved",
-        goalFormula,
-        matchingNodeId: node.id,
-      };
-    }
+  if (achievedGoals.length >= goalNodes.length) {
+    return {
+      _tag: "GoalAllAchieved",
+      achievedGoals,
+    };
   }
 
   return {
-    _tag: "GoalNotAchieved",
-    goalFormula,
+    _tag: "GoalPartiallyAchieved",
+    achievedCount: achievedGoals.length,
+    totalCount: goalNodes.length,
+    goalStatuses,
   };
 }

@@ -16,7 +16,7 @@ import {
   createQuestWorkspace,
   addNode,
   addConnection,
-  updateGoalFormulaText,
+  updateNodeRole,
   updateNodeGenVariableName,
   applyMPAndConnect,
   applyGenAndConnect,
@@ -677,98 +677,11 @@ describe("ProofWorkspace", () => {
   });
 
   describe("goal setting and completion", () => {
-    it("renders goal input area", () => {
-      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
-      expect(screen.getByTestId("workspace-goal")).toBeInTheDocument();
-      expect(screen.getByTestId("workspace-goal-input")).toBeInTheDocument();
-    });
-
-    it("shows empty goal input initially", () => {
-      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
-      const goalInput = screen.getByTestId("workspace-goal-input");
-      expect(goalInput).toHaveValue("");
-    });
-
-    it("updates goal text from external state", () => {
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = updateGoalFormulaText(ws, "phi -> phi");
-
-      render(
-        <ProofWorkspace
-          system={lukasiewiczSystem}
-          workspace={ws}
-          testId="workspace"
-        />,
-      );
-
-      expect(screen.getByTestId("workspace-goal-input")).toHaveValue(
-        "phi -> phi",
-      );
-    });
-
-    it("calls onWorkspaceChange when goal text changes", async () => {
-      const user = userEvent.setup();
-      const onWorkspaceChange = vi.fn();
-      const ws = createEmptyWorkspace(lukasiewiczSystem);
-
-      render(
-        <ProofWorkspace
-          system={lukasiewiczSystem}
-          workspace={ws}
-          onWorkspaceChange={onWorkspaceChange}
-          testId="workspace"
-        />,
-      );
-
-      await user.type(screen.getByTestId("workspace-goal-input"), "p");
-      expect(onWorkspaceChange).toHaveBeenCalled();
-      const newState = onWorkspaceChange.mock.calls[0][0] as WorkspaceState;
-      expect(newState.goalFormulaText).toBe("p");
-    });
-
-    it("shows 'Not yet' when goal is set but not achieved", () => {
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = updateGoalFormulaText(ws, "phi -> phi");
-
-      render(
-        <ProofWorkspace
-          system={lukasiewiczSystem}
-          workspace={ws}
-          testId="workspace"
-        />,
-      );
-
-      expect(
-        screen.getByTestId("workspace-goal-not-achieved"),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByTestId("workspace-goal-not-achieved"),
-      ).toHaveTextContent("Not yet");
-    });
-
-    it("shows 'Proved!' when goal formula matches a workspace node", () => {
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = updateGoalFormulaText(ws, "phi");
-
-      render(
-        <ProofWorkspace
-          system={lukasiewiczSystem}
-          workspace={ws}
-          testId="workspace"
-        />,
-      );
-
-      expect(screen.getByTestId("workspace-goal-achieved")).toBeInTheDocument();
-      expect(screen.getByTestId("workspace-goal-achieved")).toHaveTextContent(
-        "Proved!",
-      );
-    });
-
     it("shows proof complete banner when goal is achieved", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = updateGoalFormulaText(ws, "phi");
+      ws = addNode(ws, "axiom", "Goal", { x: 400, y: 0 }, "phi");
+      ws = updateNodeRole(ws, "node-2", "goal");
 
       render(
         <ProofWorkspace
@@ -795,7 +708,8 @@ describe("ProofWorkspace", () => {
 
     it("does not show banner when goal is not achieved", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = updateGoalFormulaText(ws, "phi -> phi");
+      ws = addNode(ws, "axiom", "Goal", { x: 400, y: 0 }, "phi -> phi");
+      ws = updateNodeRole(ws, "node-1", "goal");
 
       render(
         <ProofWorkspace
@@ -810,26 +724,6 @@ describe("ProofWorkspace", () => {
       ).not.toBeInTheDocument();
     });
 
-    it("shows 'Invalid formula' for unparseable goal", () => {
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = updateGoalFormulaText(ws, "-> ->");
-
-      render(
-        <ProofWorkspace
-          system={lukasiewiczSystem}
-          workspace={ws}
-          testId="workspace"
-        />,
-      );
-
-      expect(
-        screen.getByTestId("workspace-goal-parse-error"),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByTestId("workspace-goal-parse-error"),
-      ).toHaveTextContent("Invalid formula");
-    });
-
     it("shows banner when MP application completes the goal", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
@@ -838,7 +732,8 @@ describe("ProofWorkspace", () => {
         x: 100,
         y: 150,
       });
-      ws = updateGoalFormulaText(result.workspace, "psi");
+      ws = addNode(result.workspace, "axiom", "Goal", { x: 400, y: 0 }, "psi");
+      ws = updateNodeRole(ws, "node-4", "goal");
 
       render(
         <ProofWorkspace
@@ -848,50 +743,17 @@ describe("ProofWorkspace", () => {
         />,
       );
 
-      expect(screen.getByTestId("workspace-goal-achieved")).toBeInTheDocument();
       expect(
         screen.getByTestId("workspace-proof-complete-banner"),
       ).toBeInTheDocument();
-    });
-
-    it("updates goal text via typing (internal state)", async () => {
-      const user = userEvent.setup();
-
-      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
-
-      const goalInput = screen.getByTestId("workspace-goal-input");
-      await user.type(goalInput, "phi");
-
-      await waitFor(() => {
-        expect(goalInput).toHaveValue("phi");
-      });
-    });
-
-    it("achieves goal via typing after adding matching axiom (internal state)", async () => {
-      const user = userEvent.setup();
-
-      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
-
-      // Add A1 axiom (phi -> (psi -> phi))
-      await user.click(screen.getByTestId("workspace-axiom-palette-item-A1"));
-
-      // Set goal
-      const goalInput = screen.getByTestId("workspace-goal-input");
-      await user.type(goalInput, "phi -> (psi -> phi)");
-
-      // Should show goal achieved
-      await waitFor(() => {
-        expect(
-          screen.getByTestId("workspace-goal-achieved"),
-        ).toBeInTheDocument();
-      });
     });
 
     it("calls onGoalAchieved when goal is achieved (external state)", () => {
       const onGoalAchieved = vi.fn();
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = updateGoalFormulaText(ws, "phi");
+      ws = addNode(ws, "axiom", "Goal", { x: 400, y: 0 }, "phi");
+      ws = updateNodeRole(ws, "node-2", "goal");
 
       render(
         <ProofWorkspace
@@ -909,39 +771,6 @@ describe("ProofWorkspace", () => {
       });
     });
 
-    it("calls onGoalAchieved only once on transition to achieved", async () => {
-      const onGoalAchieved = vi.fn();
-      const user = userEvent.setup();
-
-      render(
-        <StatefulWorkspace
-          initialWorkspace={createEmptyWorkspace(lukasiewiczSystem)}
-          onGoalAchieved={onGoalAchieved}
-          testId="workspace"
-        />,
-      );
-
-      // Not called yet
-      expect(onGoalAchieved).not.toHaveBeenCalled();
-
-      // Add axiom
-      await user.click(screen.getByTestId("workspace-axiom-palette-item-A1"));
-
-      // Type goal that matches
-      const goalInput = screen.getByTestId("workspace-goal-input");
-      await user.type(goalInput, "phi -> (psi -> phi)");
-
-      await waitFor(() => {
-        expect(onGoalAchieved).toHaveBeenCalledTimes(1);
-      });
-
-      expect(onGoalAchieved).toHaveBeenCalledWith(
-        expect.objectContaining({
-          stepCount: 1,
-        }),
-      );
-    });
-
     it("does not call onGoalAchieved when goal is not set", () => {
       const onGoalAchieved = vi.fn();
       render(
@@ -957,7 +786,8 @@ describe("ProofWorkspace", () => {
     it("does not call onGoalAchieved when goal is not yet achieved", () => {
       const onGoalAchieved = vi.fn();
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = updateGoalFormulaText(ws, "phi -> phi");
+      ws = addNode(ws, "axiom", "Goal", { x: 400, y: 0 }, "phi -> phi");
+      ws = updateNodeRole(ws, "node-1", "goal");
 
       render(
         <ProofWorkspace
@@ -1373,13 +1203,14 @@ describe("ProofWorkspace", () => {
       const { container } = render(
         <ProofWorkspace system={lukasiewiczSystem} workspace={ws} />,
       );
-      expect(container.querySelector("input")).toBeInTheDocument();
+      expect(container.firstChild).toBeInTheDocument();
     });
 
     it("testIdなしでゴール達成バナーが表示される", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = updateGoalFormulaText(ws, "φ → φ");
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "φ → φ");
+      ws = addNode(ws, "axiom", "Goal", { x: 400, y: 0 }, "φ → φ");
+      ws = updateNodeRole(ws, "node-2", "goal");
       const { container } = render(
         <ProofWorkspace system={lukasiewiczSystem} workspace={ws} />,
       );
