@@ -124,12 +124,14 @@ describe("axiomPalette", () => {
       expect(items[2].dslText).toBe("(~phi -> ~psi) -> (psi -> phi)");
     });
 
-    it("A4 and A5 have empty dslText (user fills in specific instance)", () => {
+    it("A4 and A5 have schematic dslText as default", () => {
       const items = getAvailableAxioms(predicateLogicSystem);
       const a4 = items.find((i) => i.id === "A4");
       const a5 = items.find((i) => i.id === "A5");
-      expect(a4?.dslText).toBe("");
-      expect(a5?.dslText).toBe("");
+      expect(a4?.dslText).toBe("(all x. phi) -> phi");
+      expect(a5?.dslText).toBe(
+        "all x. (phi -> psi) -> (phi -> all x. psi)",
+      );
     });
 
     it("A4 shows schematic unicode display", () => {

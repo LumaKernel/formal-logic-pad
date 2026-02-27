@@ -181,21 +181,21 @@ export function getAvailableAxioms(
     }
   }
 
-  // 述語論理公理（A4, A5はスキーマが複雑なためテンプレートとしてはDSLテキストのみ提供）
+  // 述語論理公理（A4, A5はスキーマなので一般形をdslTextに設定）
   if (system.predicateLogic) {
     items.push({
       id: "A4",
       displayName: "A4 (UI)",
       template: axiomA1Template, // placeholder — A4はパターン依存で固定テンプレートなし
       unicodeDisplay: "∀x.φ → φ[t/x]",
-      dslText: "",
+      dslText: "(all x. phi) -> phi",
     });
     items.push({
       id: "A5",
       displayName: "A5 (∀-Dist)",
       template: axiomA1Template, // placeholder — A5も同様
       unicodeDisplay: "∀x.(φ → ψ) → (φ → ∀x.ψ)",
-      dslText: "",
+      dslText: "all x. (phi -> psi) -> (phi -> all x. psi)",
     });
   }
 

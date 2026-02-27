@@ -8,7 +8,7 @@
   - [ ] MPの結果をさらに使ってなにかしていた、というような場合に、サブツリーのすべてが連鎖する、というような例も
 - [ ] Depends Onはノード内には書かなくていいかな。詳細サイドパネルの中になど入れておきたいか。
   - [ ] いや、ノード内のやつも設定でオンオフできるようにしよう。
-- [ ] http://localhost:13006/?path=/story/proofpad-grouptheorydemo--identity-times-identity-interactive
+- [x] http://localhost:13006/?path=/story/proofpad-grouptheorydemo--identity-times-identity-interactive
       A5とかを呼び出すと、Formulaが入っていない状態で呼びだされてしまう。これは合っているのかな？
 - [ ] formula編集しているときは、formula記述言語に関する仕様、ドキュメントのモーダルだかパネルを開くことのできる方法を提供する
 - [ ] MPの片側を選択すると、適用可能なもう片側は判定可能なので、そういうやつだけが光るよう(というより対象外は暗く)になってて欲しい
