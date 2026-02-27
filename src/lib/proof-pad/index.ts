@@ -239,3 +239,15 @@ export type {
   UniversalFormulaValidation,
   A5AntecedentValidation,
 } from "./parametricAxiomLogic";
+export {
+  extractInferenceEdges,
+  findInferenceEdgesForNode,
+  getInferenceEdgeConclusionNodeId,
+  getInferenceEdgePremiseNodeIds,
+} from "./inferenceEdge";
+export type {
+  MPEdge,
+  GenEdge,
+  SubstitutionEdge,
+  InferenceEdge,
+} from "./inferenceEdge";

@@ -1,3 +1,35 @@
 - [ ] Apply系、モーダルじゃなくて、エッジ上のパラメータ入力という形にしてもいいかなと思う。
-  - [ ] そのまえにまず、MPなどの推論規則系統は、ノードとして表われるのではなく、エッジ、ノード間の関係性として表現されるように再整理が必要だろう。
-    - [ ] 多くのストーリーが関連するだろうので、それらを整理しながらになる。
+  - [-] そのまえにまず、MPなどの推論規則系統は、ノードとして表われるのではなく、エッジ、ノード間の関係性として表現されるように再整理が必要だろう。
+    - [-] 多くのストーリーが関連するだろうので、それらを整理しながらになる。
+      - [-] Step 0: InferenceEdge 型定義と変換ユーティリティ（既存ノードベース→エッジベース変換の純粋関数）
+        - [x] InferenceEdge 型（MPEdge / GenEdge / SubstitutionEdge）をworkspaceState.tsに定義
+        - [x] extractInferenceEdges: 既存のノード+接続からInferenceEdgeを抽出する純粋関数
+        - [x] テスト: extractInferenceEdgesの単体テスト
+      - [ ] Step 1: WorkspaceState への InferenceEdge 統合（データモデル拡張）
+        - [ ] WorkspaceState に inferenceEdges フィールドを追加（オプショナル、段階移行用）
+        - [ ] revalidateInferenceConclusions を InferenceEdge ベースに移行
+        - [ ] addNode/removeNode/addConnection/removeConnection で inferenceEdges も同期
+        - [ ] テスト: 既存テストが全て通ることを確認しつつ新フィールドのテスト追加
+      - [ ] Step 2: applyMPAndConnect / applyGenAndConnect / applySubstitutionAndConnect の移行
+        - [ ] MPノード作成を廃止し、MPEdge + 結論ノード（kind: "axiom" → "derived" 等）に変更
+        - [ ] Gen/Substitution も同様
+        - [ ] 接続モデルの変更: premise-left/premise-right ポートIDの廃止、直接ノード間接続
+        - [ ] テスト: 全applyロジックの単体テスト更新
+      - [ ] Step 3: ProofNodeKind から "mp" / "gen" / "substitution" を削除
+        - [ ] proofNodeUI.ts: ポート定義・スタイルのリファクタ
+        - [ ] nodeRoleLogic.ts: 分類ロジック更新
+        - [ ] dependencyLogic.ts: 依存追跡をInferenceEdge経由に変更
+        - [ ] テスト: 全exhaustive switchの更新
+      - [ ] Step 4: UI層の移行
+        - [ ] EditableProofNode.tsx: 推論規則ノードの描画を廃止
+        - [ ] ProofWorkspace.tsx: InferenceEdge の描画（接続線上にラベル表示）
+        - [ ] エッジ上のパラメータ入力UI（Gen変数名、代入エントリ）
+        - [ ] テスト: コンポーネントテスト + Storybookストーリー更新
+      - [ ] Step 5: シリアライゼーション移行
+        - [ ] workspaceExport.ts: InferenceEdge のJSON化
+        - [ ] notebookSerialization.ts: 既存データからの移行パス
+        - [ ] テスト: 旧フォーマットの読み込み互換性
+      - [ ] Step 6: クエスト・ゴールチェック移行
+        - [ ] goalCheckLogic.ts: InferenceEdge ベースのゴール達成判定
+        - [ ] questCompletionLogic.ts: 更新
+        - [ ] テスト: クエスト関連テスト更新
