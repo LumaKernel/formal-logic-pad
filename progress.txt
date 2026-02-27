@@ -81,7 +81,34 @@
 - キーボードショートカット追加時は `KeyboardAction` union + `classifyKeyDown` + `handleAction` switch の3箇所を変更
 - `src/lib/reference/` は多言語リファレンスシステム。referenceEntry.ts(型・検索ロジック) + referenceContent.ts(コンテンツデータ)。パラグラフ単位でen/jaを対応させる設計
 - リファレンスエントリ追加時は `allReferenceEntries` 配列 + `referenceContent.test.ts` のエントリ数を更新
+- `src/lib/keybinding/` は構造的キーバインディングシステム。keybinding.ts(型・マッチング・コード対応) + defaultBindings.ts(デフォルト定義) + customizeBindings.ts(オーバーライド)
+- `mod`修飾キーでOS差を吸収: macOS→metaKey(Cmd)、Windows/Linux→ctrlKey(Ctrl)
+- コードシーケンスの定義順序が重要: Shift+ArrowをArrowより前に置かないとマッチしない
 
+---
+
+## 2026-02-27 - キーバインディング基盤モジュールの追加
+- `src/lib/keybinding/` に構造的キーバインディングシステムを新規作成
+  - `keybinding.ts`: 型定義（KeyStroke/KeyBinding/KeyBindingMap等）+ マッチングロジック + コードシーケンス対応 + OS検出
+  - `defaultBindings.ts`: 既存キャンバスショートカットに対応するデフォルトバインディング定義（CanvasAction型 + DEFAULT_CANVAS_BINDINGS）
+  - `customizeBindings.ts`: ユーザーカスタマイズ機能（replace/add/remove戦略のオーバーライド）
+- テスト: 4310テスト全パス（+78テスト追加）
+- カバレッジ: Stmts 99.35%(↑), Branch 94.95%(↑), Funcs 90.32%(↑), Lines 99.92%(維持)
+  - ベースライン: Stmts 99.34%, Branch 94.88%, Funcs 90.26%, Lines 99.92%
+  - keybindingモジュール単体: 全項目100%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- 変更ファイル:
+  - `src/lib/keybinding/keybinding.ts` (NEW)
+  - `src/lib/keybinding/keybinding.test.ts` (NEW - 48テスト)
+  - `src/lib/keybinding/defaultBindings.ts` (NEW)
+  - `src/lib/keybinding/defaultBindings.test.ts` (NEW - 24テスト)
+  - `src/lib/keybinding/customizeBindings.ts` (NEW)
+  - `src/lib/keybinding/customizeBindings.test.ts` (NEW - 6テスト)
+- **今後のイテレーションへの学び:**
+  - `mod`修飾キーでmacOS(Cmd)/Windows・Linux(Ctrl)の差を吸収するパターンが有効
+  - コードシーケンス（chord）にはタイムアウト（1500ms）とpending状態管理が必要
+  - 既存の`keyboardShortcuts.ts`は将来このモジュールを使ってリファクタ可能（今回は基盤のみ）
+  - デフォルトバインディングの順序が重要: Shift+Arrow → Arrow の順で定義しないとShift付きがマッチしない
 ---
 
 ## 2026-02-27 - リファレンス統合: NotebookCreateFormに体系リファレンスポップオーバー
@@ -4135,4 +4162,18 @@
   - `computeStepCount()` はステップ数から `protection: "quest-goal"` と `role: "goal"` の両方を除外する
   - `workspaceExport.ts` は旧データの `goalFormulaText` を黙って無視する（後方互換性）
   - フィールド削除時は型エラーで全箇所を検出できるが、テストデータ内のリテラルは型チェックで拾えないため、grep で確認が必要
+---
+
+## 2026-02-27 - 公理パレット A4/A5 空ノード修正
+- パレットからA4/A5を追加した際に空の数式でノードが作成されるバグを修正
+- A4のdslTextに `(all x. phi) -> phi`、A5に `all x. (phi -> psi) -> (phi -> all x. psi)` を設定
+- 変更したファイル:
+  - src/lib/proof-pad/axiomPaletteLogic.ts (dslText修正)
+  - src/lib/proof-pad/axiomPaletteLogic.test.ts (テスト更新)
+  - tasks/prd-inserted-tasks.md (タスク完了マーク)
+- カバレッジ: Statements 99.34% (ベースライン99.27%から向上), Lines 99.92%
+- **今後のイテレーションへの学び:**
+  - A4/A5のスキーマ一般形はDSLパーサーで正しく解析され、`matchAxiomA4`/`matchAxiomA5`でも公理として認識される
+  - 命題変数(phi, psi)は項変数(x)とは独立なので、`x ∉ FV(phi)` の制約も自然に満たされる
+  - パレットの`dslText`が空文字列だとノードが空で追加される。スキーマ公理でも一般形を設定すべき
 ---
