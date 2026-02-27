@@ -500,6 +500,19 @@ export type DuplicateResult = {
   readonly newNodeIds: ReadonlySet<string>;
 };
 
+/**
+ * 複製されたノードからゴールroleを除去する。
+ * ゴールが複製されまくるのを防ぐため、複製先は通常の中間定理になる。
+ */
+function stripGoalRole(node: WorkspaceNode): WorkspaceNode {
+  if (node.role === "goal") {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { role: _removed, ...rest } = node;
+    return rest;
+  }
+  return node;
+}
+
 export function duplicateSelectedNodes(
   state: WorkspaceState,
   selectedNodeIds: ReadonlySet<string>,
@@ -523,16 +536,29 @@ export function duplicateSelectedNodes(
     targetCenter,
     state.nextNodeId,
   );
-  const newNodeIds = new Set(result.newNodes.map((n) => n.id));
+  // ゴールroleを除去（複製されたゴールは通常の中間定理になる）
+  const strippedNodes = result.newNodes.map(stripGoalRole);
+  const newNodeIds = new Set(strippedNodes.map((n) => n.id));
   return {
     workspace: {
       ...state,
-      nodes: [...state.nodes, ...result.newNodes],
+      nodes: [...state.nodes, ...strippedNodes],
       connections: [...state.connections, ...result.newConnections],
       nextNodeId: result.nextNodeId,
     },
     newNodeIds,
   };
+}
+
+/**
+ * 単一ノードを複製する（コンテキストメニュー用）。
+ * ゴールノードは通常の中間定理として複製される。
+ */
+export function duplicateNode(
+  state: WorkspaceState,
+  nodeId: string,
+): DuplicateResult {
+  return duplicateSelectedNodes(state, new Set([nodeId]));
 }
 
 /**

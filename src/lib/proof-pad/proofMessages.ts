@@ -88,6 +88,7 @@ export type ProofMessages = {
   readonly useAsMPLeft: string;
   readonly useAsMPRight: string;
   readonly applyGenToNode: string;
+  readonly duplicateNode: string;
   readonly deleteNode: string;
   readonly deleteConnection: string;
   /** `{variableName}` プレースホルダーを含む */
@@ -169,6 +170,7 @@ export const defaultProofMessages: ProofMessages = {
   useAsMPLeft: "Use as MP Left (\u03C6)",
   useAsMPRight: "Use as MP Right (\u03C6\u2192\u03C8)",
   applyGenToNode: "Apply Gen",
+  duplicateNode: "Duplicate Node",
   deleteNode: "Delete Node",
   deleteConnection: "Delete Connection",
   genVariablePrompt: "Variable name:",

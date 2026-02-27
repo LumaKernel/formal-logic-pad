@@ -25,6 +25,7 @@ import {
   pasteNodes,
   removeSelectedNodes,
   duplicateSelectedNodes,
+  duplicateNode,
   cutSelectedNodes,
   applyTreeLayout,
   applyIncrementalLayout,
@@ -1080,6 +1081,70 @@ describe("proofWorkspace", () => {
       expect(newNode.formulaText).toBe("phi -> (psi -> phi)");
       expect(newNode.position.x).toBe(80); // 50 + 30
       expect(newNode.position.y).toBe(80); // 50 + 30
+    });
+
+    it("ゴールノードの複製はroleがクリアされる", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "G1", { x: 100, y: 100 }, "phi -> phi");
+      ws = updateNodeRole(ws, "node-1", "goal");
+
+      const result = duplicateSelectedNodes(ws, new Set(["node-1"]));
+      expect(result.workspace.nodes).toHaveLength(2);
+      const newNode = result.workspace.nodes.find((n) =>
+        result.newNodeIds.has(n.id),
+      )!;
+      expect(newNode.formulaText).toBe("phi -> phi");
+      expect(newNode.role).toBeUndefined();
+    });
+
+    it("公理ノードの複製はroleが保持される", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi -> (psi -> phi)");
+      ws = updateNodeRole(ws, "node-1", "axiom");
+
+      const result = duplicateSelectedNodes(ws, new Set(["node-1"]));
+      const newNode = result.workspace.nodes.find((n) =>
+        result.newNodeIds.has(n.id),
+      )!;
+      expect(newNode.role).toBe("axiom");
+    });
+  });
+
+  describe("duplicateNode", () => {
+    it("単一ノードをIDで複製する", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+
+      const result = duplicateNode(ws, "node-1");
+      expect(result.workspace.nodes).toHaveLength(2);
+      expect(result.newNodeIds.size).toBe(1);
+      const newNode = result.workspace.nodes.find((n) =>
+        result.newNodeIds.has(n.id),
+      )!;
+      expect(newNode.formulaText).toBe("phi");
+      expect(newNode.position.x).toBe(130); // 100 + 30
+      expect(newNode.position.y).toBe(130); // 100 + 30
+    });
+
+    it("ゴールノードをduplicateNodeで複製するとroleがクリアされる", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "G1", { x: 50, y: 50 }, "phi -> phi");
+      ws = updateNodeRole(ws, "node-1", "goal");
+
+      const result = duplicateNode(ws, "node-1");
+      const newNode = result.workspace.nodes.find((n) =>
+        result.newNodeIds.has(n.id),
+      )!;
+      expect(newNode.role).toBeUndefined();
+    });
+
+    it("存在しないノードIDでは何も変化しない", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+
+      const result = duplicateNode(ws, "nonexistent");
+      expect(result.workspace.nodes).toHaveLength(1);
+      expect(result.newNodeIds.size).toBe(0);
     });
   });
 
