@@ -4807,3 +4807,29 @@
   - PeanoArithmeticDemoストーリーの修正（代入操作ステップの挟み込み）は別イテレーションで実施（UI層の変更が必要）
   - 次のステップ: ProofWorkspace.tsx で `isTrivialSubstitution` を利用して非自明公理インスタンスに警告表示、デモストーリーの修正
 ---
+
+## 2026-02-27 - [ProofPad] 公理の非自明代入に対する警告表示をUI層に統合
+- 実装した内容:
+  - `EditableProofNode.tsx` に `"warning"` statusType を追加（`"error" | "warning" | "success"` の3状態）
+  - `getStatusStyle` ヘルパー関数で状態に応じたスタイルを返す設計に変更
+  - `ProofWorkspace.tsx` の `axiomNames` Mapを `{ displayName, isTrivialSubstitution }` に拡張
+  - `renderNodeCallback` で非自明公理ノードに警告表示ロジック追加（`root-axiom` + `root-unmarked` の両方を対象）
+  - `proofMessages.ts` に `axiomNonTrivialWarning` メッセージ追加
+  - en.json/ja.json に翻訳追加、WorkspaceContent.tsx にi18n連携追加
+  - EditableProofNode.test.tsx: 警告ステータス表示テスト追加
+  - ProofWorkspace.test.tsx: 非自明公理警告テスト3件追加（非自明表示、自明非表示、derived非表示）
+- 変更したファイル:
+  - `src/lib/proof-pad/EditableProofNode.tsx` (warning status追加)
+  - `src/lib/proof-pad/EditableProofNode.test.tsx` (テスト追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (警告ロジック統合)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (テスト3件追加)
+  - `src/lib/proof-pad/proofMessages.ts` (メッセージ追加)
+  - `messages/en.json`, `messages/ja.json` (翻訳追加)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (i18n連携)
+- カバレッジ: Stmts 98.63%, Branch 93.41%(↑0.04), Funcs 91.25%(↑0.01), Lines 99.40%(↑0.01)
+- **今後のイテレーションへの学び:**
+  - `addNode` でノードを追加した場合、`role` が設定されないため `classifyNode` は `"root-unmarked"` を返す。公理警告の対象条件は `"root-axiom"` だけでなく `"root-unmarked"` も含める必要がある
+  - `EditableProofNode` のstatusTypeは union型で管理。新しい状態を追加する場合は `getStatusStyle` のswitch文が網羅性チェックで検出してくれる
+  - PeanoArithmeticDemoストーリーの修正は、A4/A5スキーマノードの特別UI設計と合わせて別イテレーションで実施
+  - ブラウザ検証: `.screenshots/axiom-nontrivial-warning-fullscreen.png` でA5ノードの警告表示を確認済み
+---
