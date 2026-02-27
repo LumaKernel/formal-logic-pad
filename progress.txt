@@ -89,6 +89,22 @@
 
 ---
 
+## 2026-02-28 - CI修復（Lint/Prettier）
+- CIが5連続failureだった原因を特定・修正
+  - ESLint: `substitutionApplicationLogic.test.ts` の未使用import（`conjunction`, `negation`）を削除
+  - Prettier: 22ファイルのフォーマットを修正（`npx prettier --write`）
+- CI: ✅ グリーン（Run ID: 22500484187）
+- テスト: 4783テスト全パス
+- カバレッジ: ベースラインと同等（フォーマット修正のみのため変化なし）
+  - Stmts 98.59%, Branch 92.93%, Funcs 91.22%, Lines 99.30%
+- 変更ファイル: 22ファイル（大半はPrettierフォーマットのみ）
+  - `src/lib/proof-pad/substitutionApplicationLogic.test.ts` (未使用import削除)
+- **今後のイテレーションへの学び:**
+  - CIのLintステップはPrettierのexit code 1でも全体が失敗する（`eslint . && prettier . --check`）
+  - Prettier更新後にフォーマットが変わることがある。定期的に`npx prettier --write .`を実行するとよい
+  - CIの確認は`gh run list`→`gh run view <id>`→`gh run view <id> --log-failed`の手順で
+---
+
 ## 2026-02-28 - ニュートラル状態のドラッグをキャンバスパンに変更
 - ニュートラル状態（何も押していない状態）でキャンバスをドラッグすると矩形選択になっていた問題を修正
 - デフォルト動作をキャンバスパン（grab/grabbing）に変更、Shift+ドラッグで矩形選択に
