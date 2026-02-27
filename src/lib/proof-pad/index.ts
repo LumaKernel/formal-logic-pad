@@ -171,6 +171,13 @@ export type {
   SVGExportOptions,
 } from "./workspaceImageExport";
 export {
+  isOutputPort,
+  isInputPort,
+  isInputPortOccupied,
+  validatePortConnection,
+  validateDragConnection,
+} from "./portConnectionLogic";
+export {
   defaultProofMessages,
   getMPErrorMessageKey,
   getGenErrorMessageKey,

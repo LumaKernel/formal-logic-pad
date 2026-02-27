@@ -17,9 +17,14 @@ import type { EditorMode } from "../formula-input/editorLogic";
 import { InfiniteCanvas } from "../infinite-canvas/InfiniteCanvas";
 import { CanvasItem } from "../infinite-canvas/CanvasItem";
 import { PortConnection } from "../infinite-canvas/PortConnection";
+import { ConnectorPortComponent } from "../infinite-canvas/ConnectorPortComponent";
+import { ConnectionPreviewLine } from "../infinite-canvas/ConnectionPreviewLine";
 import { findPort } from "../infinite-canvas/connector";
+import type { ConnectorPortOnItem } from "../infinite-canvas/connector";
 import type { ViewportState, Point, Size } from "../infinite-canvas/types";
 import { screenToWorld } from "../infinite-canvas/multiSelection";
+import { useConnectionPreview } from "../infinite-canvas/useConnectionPreview";
+import { buildPortCandidates } from "../infinite-canvas/connectionPreview";
 import { EditableProofNode } from "./EditableProofNode";
 import { getProofNodePorts, getProofEdgeColor } from "./proofNodeUI";
 import { AxiomPalette } from "./AxiomPalette";
@@ -66,6 +71,7 @@ import {
   convertToFreeMode,
   isNodeProtected,
   addNode,
+  addConnection,
   updateNodePosition,
   updateNodeFormulaText,
   updateNodeRole,
@@ -82,6 +88,7 @@ import {
   applyIncrementalLayout,
   revalidateInferenceConclusions,
 } from "./workspaceState";
+import { validateDragConnection } from "./portConnectionLogic";
 import type { LayoutDirection } from "./treeLayoutLogic";
 import {
   toggleNodeSelection,
@@ -590,6 +597,123 @@ export function ProofWorkspace({
     },
     [autoLayout, autoLayoutDirection, workspace, nodeSizes, setWorkspace],
   );
+
+  // --- ポートドラッグ接続 ---
+
+  const portCandidates = useMemo(
+    () =>
+      buildPortCandidates(
+        workspace.nodes
+          .map((node) => {
+            const size = nodeSizes.get(node.id);
+            if (!size) return null;
+            return {
+              id: node.id,
+              position: node.position,
+              width: size.width,
+              height: size.height,
+              ports: [...getProofNodePorts(node.kind)],
+            };
+          })
+          .filter((x) => x !== null),
+      ),
+    [workspace.nodes, nodeSizes],
+  );
+
+  const handleValidateConnection = useCallback(
+    (
+      sourceItemId: string,
+      sourcePortId: string,
+      targetItemId: string,
+      targetPortId: string,
+    ): boolean => {
+      const result = validateDragConnection(
+        workspace,
+        sourceItemId,
+        sourcePortId,
+        targetItemId,
+        targetPortId,
+      );
+      return result.valid;
+    },
+    [workspace],
+  );
+
+  const handleConnectionComplete = useCallback(
+    (
+      sourceItemId: string,
+      sourcePortId: string,
+      targetItemId: string,
+      targetPortId: string,
+    ) => {
+      const result = validateDragConnection(
+        workspace,
+        sourceItemId,
+        sourcePortId,
+        targetItemId,
+        targetPortId,
+      );
+      if (!result.valid) return;
+      let newWs = addConnection(
+        workspace,
+        result.fromNodeId,
+        result.fromPortId,
+        result.toNodeId,
+        result.toPortId,
+      );
+      newWs = revalidateInferenceConclusions(newWs);
+      setWorkspaceWithAutoLayout(newWs);
+    },
+    [workspace, setWorkspaceWithAutoLayout],
+  );
+
+  const {
+    previewState: connectionPreviewState,
+    startDrag: startConnectionDrag,
+    updateDrag: updateConnectionDrag,
+    endDrag: endConnectionDrag,
+  } = useConnectionPreview(
+    viewport,
+    portCandidates,
+    handleValidateConnection,
+    handleConnectionComplete,
+  );
+
+  const handlePortDragStart = useCallback(
+    (nodeId: string) =>
+      (portId: string, screenX: number, screenY: number) => {
+        const size = nodeSizes.get(nodeId);
+        const node = workspace.nodes.find((n) => n.id === nodeId);
+        if (!size || !node) return;
+        const ports = getProofNodePorts(node.kind);
+        const port = ports.find((p) => p.id === portId);
+        if (!port) return;
+
+        const portOnItem: ConnectorPortOnItem = {
+          port,
+          itemPosition: node.position,
+          itemWidth: size.width,
+          itemHeight: size.height,
+        };
+        startConnectionDrag(nodeId, portOnItem, screenX, screenY);
+      },
+    [workspace.nodes, nodeSizes, startConnectionDrag],
+  );
+
+  const handleConnectionPointerMove = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      if (connectionPreviewState !== null) {
+        updateConnectionDrag(e.clientX, e.clientY);
+      }
+    },
+    [connectionPreviewState, updateConnectionDrag],
+  );
+
+  const handleConnectionPointerUp = useCallback(() => {
+    if (connectionPreviewState !== null) {
+      endConnectionDrag();
+    }
+  }, [connectionPreviewState, endConnectionDrag]);
 
   // --- 公理パレット ---
 
@@ -1808,6 +1932,8 @@ export function ProofWorkspace({
       tabIndex={-1}
       onClick={handleCanvasClick}
       onContextMenu={handleCanvasContextMenu}
+      onPointerMove={handleConnectionPointerMove}
+      onPointerUp={handleConnectionPointerUp}
     >
       {/* 体系情報ヘッダー */}
       <div
@@ -2541,9 +2667,60 @@ export function ProofWorkspace({
       ) : null}
 
       {/* InfiniteCanvas */}
-      <InfiniteCanvas viewport={viewport} onViewportChange={setViewport}>
+      <InfiniteCanvas
+        viewport={viewport}
+        onViewportChange={setViewport}
+        panEnabled={connectionPreviewState === null}
+      >
         {connectionElements}
+        {/* Connection preview line (shown during port drag) */}
+        {connectionPreviewState !== null && (
+          <ConnectionPreviewLine
+            state={connectionPreviewState}
+            viewport={viewport}
+          />
+        )}
         {workspace.nodes.filter((node) => !isNodeCulled(node)).map(renderNode)}
+        {/* Connector ports for drag-to-connect */}
+        {workspace.nodes.flatMap((node) => {
+          const size = nodeSizes.get(node.id);
+          if (!size) return [];
+          const ports = getProofNodePorts(node.kind);
+          return ports.map((port) => {
+            const uniqueId = `${node.id satisfies string}-${port.id satisfies string}`;
+            const isSnappedTarget =
+              connectionPreviewState?.snappedTarget !== null &&
+              connectionPreviewState?.snappedTarget?.itemId === node.id &&
+              connectionPreviewState?.snappedTarget?.portOnItem.port.id ===
+                port.id;
+            return (
+              <ConnectorPortComponent
+                key={uniqueId}
+                port={{ ...port, id: uniqueId }}
+                itemPosition={node.position}
+                itemWidth={size.width}
+                itemHeight={size.height}
+                viewport={viewport}
+                highlighted={isSnappedTarget ?? false}
+                color={
+                  isSnappedTarget === true
+                    ? connectionPreviewState?.isValid === true
+                      ? "#3b82f6"
+                      : "#ef4444"
+                    : "var(--color-port-fill, #fff)"
+                }
+                borderColor={
+                  isSnappedTarget === true
+                    ? connectionPreviewState?.isValid === true
+                      ? "#3b82f6"
+                      : "#ef4444"
+                    : "var(--color-port-border, #666)"
+                }
+                onPortDragStart={handlePortDragStart(node.id)}
+              />
+            );
+          });
+        })}
         <MinimapComponent
           viewport={viewport}
           containerSize={containerSize}

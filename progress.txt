@@ -4589,3 +4589,46 @@
   - 接続削除後はrevalidateInferenceConclusionsで推論結論を再検証する必要あり（MPノードのエラー表示更新のため）
   - ProofMessagesに新キー追加時の同期ファイル: proofMessages.ts, en.json, ja.json, WorkspaceContent.tsx（TypeScript型が変更漏れを検出）
 ---
+
+## 2026-02-27 - ポートドラッグ接続UI統合
+- **タスク**: ノードのポートからドラッグして別ポートに接続する機能をProofWorkspaceに統合
+- **実装内容**:
+  - `portConnectionLogic.ts` 新規作成: ポートドラッグ接続の純粋バリデーションロジック
+    - `isOutputPort`, `isInputPort`: ポートの入出力判定（"out" = 出力、それ以外 = 入力）
+    - `isInputPortOccupied`: 入力ポートの接続済み判定
+    - `validatePortConnection`: 5つのルールで接続の妥当性を検証（自己接続不可、方向チェック、占有チェック等）
+    - `validateDragConnection`: ドラッグ元がinputの場合は方向を反転して検証、正規化された接続方向を返す
+  - `portConnectionLogic.test.ts` 新規作成: 33テストで全バリデーション関数をカバー
+  - `ProofWorkspace.tsx` 大幅追加（+179行）:
+    - `buildPortCandidates` でノードごとのポート候補を構築
+    - `useConnectionPreview` フックで接続プレビュー状態管理
+    - `handlePortDragStart`, `handleConnectionPointerMove/Up` でポートドラッグ操作
+    - `ConnectorPortComponent` でポート表示（スナップ時に色変化: 有効=青/無効=赤）
+    - `ConnectionPreviewLine` でドラッグ中のプレビューライン表示
+    - ドラッグ中はキャンバスパンを無効化
+    - 接続完了時に `addConnection` + `revalidateInferenceConclusions` + 自動レイアウト
+  - `index.ts` にportConnectionLogicの関数をエクスポート追加
+- **変更ファイル**:
+  - `src/lib/proof-pad/portConnectionLogic.ts` (NEW - 純粋バリデーションロジック)
+  - `src/lib/proof-pad/portConnectionLogic.test.ts` (NEW - 33テスト)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - ポートドラッグ接続統合)
+  - `src/lib/proof-pad/index.ts` (MODIFIED - エクスポート追加)
+  - `tasks/prd-inserted-tasks.md` (MODIFIED - タスク完了マーク)
+- **テスト:** 4470テスト全パス（+33件: portConnectionLogic）
+- **カバレッジ:** Stmts 98.77%, Branch 94.33%, Funcs 90.54%, Lines 99.53%
+  - ベースライン: Stmts 99.08%, Branch 94.36%, Funcs 90.84%, Lines 99.74%
+  - 低下分はProofWorkspace.tsx内のUI統合コード（ポインタイベント、ConnectorPortComponent描画）でJSDOM環境ではテスト不能な部分
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPで各ストーリーのポート表示を確認
+  - `.screenshots/port-drag-valid-mp-overview.png`
+  - `.screenshots/port-drag-valid-mp-fullscreen.png`
+  - `.screenshots/port-drag-with-nodes.png`
+  - `.screenshots/port-drag-peano-complete.png`
+  - 各ストーリーで正しいポート数が描画されていることを確認（data-testid="connector-port-*"）
+- **今後のイテレーションへの学び:**
+  - ポート定義: axiom→out(1), mp→premise-left+premise-right+out(3), gen→premise+out(2), conclusion→premise-left+premise-right(2)
+  - portConnectionLogicは3層分離パターン（純粋ロジック→状態管理→UI）に従う
+  - `buildPortCandidates` は `nodeSizes` が揃わないとポートが表示されない（非同期DOM計測に依存）
+  - validateDragConnectionは双方向ドラッグ対応（output→input, input→output両方）
+  - 重複接続チェック(validatePortConnection L82-91)は占有チェックで先に弾かれるため到達不能だが防御的コードとして残し、v8 ignoreで除外
+---

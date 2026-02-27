@@ -27,7 +27,7 @@
 - [ ] MPで証明したものの、公理を書き換えてMPが不適になり、なので書き換えた公理を削除して、もう一度呼び出して、繋げて、MPが再度正常な状態になる、というのを行うことを実現する機能群とストーリーを用意しよう。
   - [x] まず必要な機能についてタスクとしてまとめていこう
   - [x] 接続削除UI: 接続線の右クリックコンテキストメニューに「Delete Connection」を追加
-  - [ ] ポートドラッグ接続UI: ノードのポートからドラッグして別ポートに接続する機能をProofWorkspaceに統合
+  - [x] ポートドラッグ接続UI: ノードのポートからドラッグして別ポートに接続する機能をProofWorkspaceに統合
   - [ ] 上記を組み合わせた一連のシナリオストーリーを作成
 - [x] http://localhost:13006/?path=/story/proofpad-peanoarithmeticdemo--zero-plus-zero-completed
       GOALになにも繋ってない状態で Proof Completeとなっているが、ゴールに確実にMPから繋げるなどして証明されて始めてProof Completeとなってほしい
