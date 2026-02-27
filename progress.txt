@@ -5381,3 +5381,31 @@
   - ProofWorkspace.test.tsxのサブツリーテストは addConnection だけでは不十分。applyMPAndConnect等を使ってInferenceEdgeも生成する必要がある
   - useCallback依存配列の更新漏れはESLint exhaustive-depsで検出可能。connections→inferenceEdgesの切替時に忘れやすい
 ---
+
+## 2026-02-28 - InferenceEdge統合 Step 7: エッジバッジインタラクティブ化
+- InferenceEdgeBadge をクリック可能にし、Gen/Substitutionのパラメータ編集ポップオーバーを実装
+- 純粋ロジック (edgeBadgeEditLogic.ts) とUI (EdgeParameterPopover.tsx) を完全分離
+- workspaceState.ts に updateInferenceEdgeGenVariableName / updateInferenceEdgeSubstitutionEntries を追加
+- ProofWorkspace.tsx に edgeBadgeEditState 管理とポップオーバー表示を統合
+- ブラウザテスト: Storybook Substitution Applied でSubst(2)バッジクリック→ポップオーバー表示・Cancel動作を確認
+- カバレッジ: 98.58% Stmts, 92.66% Branch, 90.93% Funcs, 99.31% Lines (微減だがStmts/Lines 100%の新ファイル)
+- ベースライン: 98.63% Stmts, 92.93% Branch, 91.20% Funcs, 99.36% Lines
+- 変更したファイル:
+  - src/lib/proof-pad/edgeBadgeEditLogic.ts (新規: 純粋ロジック)
+  - src/lib/proof-pad/edgeBadgeEditLogic.test.ts (新規: 28テスト)
+  - src/lib/proof-pad/EdgeParameterPopover.tsx (新規: Gen/Substポップオーバー)
+  - src/lib/proof-pad/EdgeParameterPopover.test.tsx (新規: 14テスト)
+  - src/lib/proof-pad/InferenceEdgeBadge.tsx (onBadgeClick追加, isInteractive判定)
+  - src/lib/proof-pad/InferenceEdgeBadge.test.tsx (インタラクティブテスト5件追加)
+  - src/lib/proof-pad/workspaceState.ts (updateInferenceEdgeGenVariableName/SubstitutionEntries追加)
+  - src/lib/proof-pad/workspaceState.test.ts (6テスト追加)
+  - src/lib/proof-pad/ProofWorkspace.tsx (edgeBadgeEditState管理+ポップオーバー統合)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (Gen badge→popover統合テスト1件追加)
+  - src/lib/proof-pad/index.ts (新エクスポート追加)
+- **今後のイテレーションへの学び:**
+  - InferenceEdgeのvariableName/entriesは直接edge上にあり、syncInferenceEdgesではsyncされない。edgeを直接更新後にrevalidateInferenceConclusions呼び出しが必要
+  - GreekLetter型（string literal union）には `as` を使わず、greekLetters.find() で型安全に変換
+  - 接続線上のbadgeはPointerEventsをauto/noneで切替。MPは編集パラメータがないためnon-interactive
+  - EdgeParameterPopoverはProofWorkspace上のabsolute positionオーバーレイとして実装（SVG foreignObject不要）
+  - スクリーンショット: .screenshots/substitution-popover-open.png
+---
