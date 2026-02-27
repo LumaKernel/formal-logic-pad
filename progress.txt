@@ -4964,3 +4964,18 @@
   - MinimapItem(id/position/size)とZoomItemBounds(x/y/width/height)は構造が異なるため変換が必要
   - ZoomControlsComponentのitemsプロパティはフィットトゥコンテンツ機能に使用される。selectedItemsは選択中ノードへのズーム機能用
 ---
+
+## 2026-02-28 - [ProofPad] 公理ノードのラベルを計算ベースに変更
+- 公理ノードの`label`を具体的な公理名（"A1 (K)"等）ではなく汎用的な"Axiom"に変更
+- `getProofNodeKindLabel`関数を`proofNodeUI.ts`に追加（ProofNodeKind→表示ラベルの網羅的マッピング）
+- `ProofWorkspace.tsx`の`handleAddAxiom`、`handleParametricAxiomConfirm`、`handleCanvasMenuAddNode`を更新
+- `index.ts`にエクスポート追加
+- 20ファイル変更: テスト13ファイル + ストーリー5ファイル + ソース2ファイルのlabel更新
+- 変更したファイル: proofNodeUI.ts, ProofWorkspace.tsx, index.ts, proofNodeUI.test.ts, ProofWorkspace.test.tsx, workspaceState.test.ts, mpApplicationLogic.test.ts, genApplicationLogic.test.ts, substitutionApplicationLogic.test.ts, copyPasteLogic.test.ts, workspaceExport.test.ts, workspaceImageExport.test.ts, EditableProofNode.test.tsx, ProofWorkspace.stories.tsx, ProofFlowDemo.stories.tsx, PeanoArithmeticDemo.stories.tsx, TreeLayoutDemo.stories.tsx, GroupTheoryDemo.stories.tsx
+- カバレッジ: Stmts 98.71%(変化なし), Branch 93.21%(変化なし), Funcs 91.15%(微減0.02%), Lines 99.44%(変化なし)
+- ブラウザ検証: `.screenshots/axiom-label-computed-with-nodes.png`, `.screenshots/axiom-reidentify-on-edit.png`
+- **今後のイテレーションへの学び:**
+  - `axiomNameLogic.ts`の`identifyAxiomName`は既にformulaテキストから公理を計算で同定する仕組みがあった。今回の変更はlabel側をそれに合わせた
+  - テストファイルでの`addNode`呼び出しは単一行と複数行の両方があり、`replace_all`だけでは複数行のケースを漏らす。検索して確認が必要
+  - `dependencyLogic.test.ts`や`axiomPaletteLogic.test.ts`の"A1","A2"等はpropositionalAxiomsセット値（公理ID）であり、ノードlabelとは別物なので変更不要
+---
