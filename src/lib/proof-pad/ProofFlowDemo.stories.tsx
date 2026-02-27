@@ -143,13 +143,7 @@ function MPPremiseEditInvalidation() {
     // phi + (phi -> psi) → MP → psi (成功状態)
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "A1: φ", { x: 50, y: 50 }, "phi");
-    ws = addNode(
-      ws,
-      "axiom",
-      "A2: φ→ψ",
-      { x: 350, y: 50 },
-      "phi -> psi",
-    );
+    ws = addNode(ws, "axiom", "A2: φ→ψ", { x: 350, y: 50 }, "phi -> psi");
     const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 200, y: 200 });
     ws = mp.workspace;
     return ws;
@@ -181,25 +175,13 @@ function MPCascadeFailure() {
     // psi(=MP1) + (psi -> chi) → MP2 → chi
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "A1: φ", { x: 50, y: 50 }, "phi");
-    ws = addNode(
-      ws,
-      "axiom",
-      "A2: φ→ψ",
-      { x: 350, y: 50 },
-      "phi -> psi",
-    );
+    ws = addNode(ws, "axiom", "A2: φ→ψ", { x: 350, y: 50 }, "phi -> psi");
     const mp1 = applyMPAndConnect(ws, "node-1", "node-2", {
       x: 200,
       y: 200,
     });
     ws = mp1.workspace;
-    ws = addNode(
-      ws,
-      "axiom",
-      "A3: ψ→χ",
-      { x: 500, y: 200 },
-      "psi -> chi",
-    );
+    ws = addNode(ws, "axiom", "A3: ψ→χ", { x: 500, y: 200 }, "psi -> chi");
     const mp2 = applyMPAndConnect(ws, "node-3", "node-4", {
       x: 350,
       y: 350,
@@ -327,13 +309,7 @@ function MixedErrorStatesDemo() {
 
     // 成功するMP: φ + (φ→ψ) → ψ
     ws = addNode(ws, "axiom", "A: φ", { x: 50, y: 50 }, "phi");
-    ws = addNode(
-      ws,
-      "axiom",
-      "B: φ→ψ",
-      { x: 350, y: 50 },
-      "phi -> psi",
-    );
+    ws = addNode(ws, "axiom", "B: φ→ψ", { x: 350, y: 50 }, "phi -> psi");
     const mpOk = applyMPAndConnect(ws, "node-1", "node-2", {
       x: 200,
       y: 200,
@@ -342,13 +318,7 @@ function MixedErrorStatesDemo() {
 
     // 失敗するMP: α + (β→γ) → MP失敗（αとβが不一致）
     ws = addNode(ws, "axiom", "C: α", { x: 550, y: 50 }, "alpha");
-    ws = addNode(
-      ws,
-      "axiom",
-      "D: β→γ",
-      { x: 850, y: 50 },
-      "beta -> gamma",
-    );
+    ws = addNode(ws, "axiom", "D: β→γ", { x: 850, y: 50 }, "beta -> gamma");
     const mpFail = applyMPAndConnect(ws, "node-4", "node-5", {
       x: 700,
       y: 200,
@@ -676,5 +646,149 @@ export const MixedErrorStates: Story = {
     await expect(
       canvas.queryByTestId("workspace-proof-complete-banner"),
     ).not.toBeInTheDocument();
+  },
+};
+
+// --- MP修復フローデモ ---
+
+function MPRepairFlowDemo() {
+  const initial = (() => {
+    // φ + (φ→ψ) → MP → ψ（成功状態）
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addNode(ws, "axiom", "A: φ", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "B: φ→ψ", { x: 350, y: 50 }, "phi -> psi");
+    const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 200, y: 200 });
+    ws = mp.workspace;
+    return ws;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/**
+ * MP修復フロー: 公理書き換え → MP無効化 → 削除 → 再構築 → MP再成功。
+ *
+ * シナリオ:
+ *   1. 初期状態: φ + (φ→ψ) → MP → ψ（成功）
+ *   2. φ を chi に書き換え → MP失敗
+ *   3. MPノードを右クリック→Delete Nodeで削除（接続も一緒に消える）
+ *   4. chi ノードを右クリック→Delete Nodeで削除
+ *   5. パレットからA1公理を追加
+ *   6. A1の式を φ に書き換え
+ *   7. 新ノードを右クリック→「Use as MP Left」→ (φ→ψ)ノードをクリック
+ *   8. 新しいMPノードが生成され、MP成功
+ *
+ * 接続削除・ノード削除・パレット追加・コンテキストメニューMP適用を
+ * 組み合わせた一連の修復フローを実演する。
+ */
+export const MPRepairFlow: Story = {
+  render: () => <MPRepairFlowDemo />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // === Step 1: 初期状態確認 ===
+    // 3ノード（A: φ, B: φ→ψ, MP）が存在
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+
+    // MP成功状態
+    await expect(
+      canvas.getByTestId("proof-node-node-3-status"),
+    ).toHaveTextContent("MP applied");
+
+    // === Step 2: 公理φをchiに書き換え → MP失敗 ===
+    const display = canvas.getByTestId("proof-node-node-1-editor-display");
+    await userEvent.click(display);
+    const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
+    await userEvent.clear(input);
+    await userEvent.type(input, "chi");
+    await userEvent.tab();
+
+    // MP失敗を確認
+    await expect(
+      canvas.getByTestId("proof-node-node-3-status"),
+    ).toHaveTextContent("Left premise does not match");
+
+    // === Step 3: MPノードを右クリック→Delete Node ===
+    const mpNode = canvas.getByTestId("proof-node-node-3");
+    await userEvent.pointer({ keys: "[MouseRight]", target: mpNode });
+    await expect(
+      canvas.getByTestId("workspace-node-context-menu"),
+    ).toBeInTheDocument();
+    await userEvent.click(canvas.getByTestId("workspace-delete-node"));
+
+    // MPノードが消えた
+    await expect(
+      canvas.queryByTestId("proof-node-node-3"),
+    ).not.toBeInTheDocument();
+
+    // === Step 4: chiノードを右クリック→Delete Node ===
+    const chiNode = canvas.getByTestId("proof-node-node-1");
+    await userEvent.pointer({ keys: "[MouseRight]", target: chiNode });
+    await expect(
+      canvas.getByTestId("workspace-node-context-menu"),
+    ).toBeInTheDocument();
+    await userEvent.click(canvas.getByTestId("workspace-delete-node"));
+
+    // chiノードが消えた
+    await expect(
+      canvas.queryByTestId("proof-node-node-1"),
+    ).not.toBeInTheDocument();
+
+    // (φ→ψ)ノードのみ残る
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+
+    // === Step 5: パレットからA1公理を追加 ===
+    const a1Item = canvas.getByTestId("workspace-axiom-palette-item-A1");
+    await userEvent.click(a1Item);
+
+    // 新ノードが追加された（node-4）
+    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+
+    // === Step 6: A1の式をφに書き換え ===
+    const newDisplay = canvas.getByTestId("proof-node-node-4-editor-display");
+    await userEvent.click(newDisplay);
+    const newInput = canvas.getByTestId("proof-node-node-4-editor-input-input");
+    await userEvent.clear(newInput);
+    await userEvent.type(newInput, "phi");
+    await userEvent.tab();
+
+    // === Step 7: 新ノードを右クリック→Use as MP Left → (φ→ψ)をクリック ===
+    const newNode = canvas.getByTestId("proof-node-node-4");
+    await userEvent.pointer({ keys: "[MouseRight]", target: newNode });
+    await expect(
+      canvas.getByTestId("workspace-node-context-menu"),
+    ).toBeInTheDocument();
+    await userEvent.click(canvas.getByTestId("workspace-use-as-mp-left"));
+
+    // MP選択バナーが右前提選択を促す
+    await expect(canvas.getByTestId("workspace-mp-banner")).toHaveTextContent(
+      "Click the right premise",
+    );
+
+    // (φ→ψ)ノードをクリック
+    await userEvent.click(canvas.getByTestId("proof-node-node-2"));
+
+    // === Step 8: 新MPノード生成、MP成功 ===
+    await expect(canvas.getByTestId("proof-node-node-5")).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("proof-node-node-5-status"),
+    ).toHaveTextContent("MP applied");
   },
 };
