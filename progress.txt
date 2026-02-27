@@ -4979,3 +4979,34 @@
   - テストファイルでの`addNode`呼び出しは単一行と複数行の両方があり、`replace_all`だけでは複数行のケースを漏らす。検索して確認が必要
   - `dependencyLogic.test.ts`や`axiomPaletteLogic.test.ts`の"A1","A2"等はpropositionalAxiomsセット値（公理ID）であり、ノードlabelとは別物なので変更不要
 ---
+
+## 2026-02-28 - 代入対象メタ変数の自動抽出・テンプレート生成
+- 実装した内容:
+  - `collectUniqueTermMetaVariablesInFormula`: Formula内のユニークTermMetaVariable収集関数を追加 (metaVariable.ts)
+  - `extractSubstitutionTargets`: 論理式から代入対象を一括抽出する純粋関数 (substitutionApplicationLogic.ts)
+  - `extractSubstitutionTargetsFromText`: テキスト形式の論理式から代入対象を抽出 (substitutionApplicationLogic.ts)
+  - `generateSubstitutionEntryTemplate`: 抽出結果から空のSubstitutionEntriesテンプレートを生成 (substitutionApplicationLogic.ts)
+  - ProofWorkspace UI統合: Apply Substitution時にノードの論理式からメタ変数を自動抽出しテンプレート事前生成
+- 変更したファイル:
+  - `src/lib/logic-core/metaVariable.ts` (MODIFIED - collectUniqueTermMetaVariablesInFormula追加)
+  - `src/lib/logic-core/metaVariable.test.ts` (MODIFIED - 新関数テスト追加)
+  - `src/lib/proof-pad/substitutionApplicationLogic.ts` (MODIFIED - 抽出・テンプレート生成関数追加)
+  - `src/lib/proof-pad/substitutionApplicationLogic.test.ts` (MODIFIED - 新関数テスト追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - UI統合)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (MODIFIED - テスト更新)
+- テスト: 4657テスト全パス
+- カバレッジ: Stmts 98.69%(98.71→微減), Branch 93.05%(93.21→低下), Funcs 91.30%(91.19→向上), Lines 99.41%(99.44→微減)
+  - ベースライン: Stmts 98.71%, Branch 93.21%, Funcs 91.19%, Lines 99.44%
+  - Branch低下はProofWorkspace.tsx UI分岐(自動抽出のif分岐)追加による。純粋ロジック層のカバレッジは100%維持
+  - substitutionApplicationLogic.ts Funcs: 62.5→94.44 に大幅向上
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでA2(S)公理の代入テンプレート自動生成・代入適用を検証
+  - `.screenshots/substitution-auto-extract-template.png` - メタ変数(φ,ψ,χ)が自動抽出されたUI
+  - `.screenshots/substitution-auto-extract-filled.png` - 値入力済みのUI
+  - `.screenshots/substitution-auto-extract-result.png` - 代入適用結果ノード
+- **今後のイテレーションへの学び:**
+  - 既存の`collectUniqueFormulaMetaVariables`と`collectTermMetaVariablesInFormula`はあったが、Formula内のTermMetaVariableのユニーク版がなかった。パターンに従い追加
+  - 代入テンプレート生成パターン: extractTargets → generateTemplate → UIセットの3層で、既存の3層分離アーキテクチャに沿った設計
+  - UI統合時にSubstPromptEntryの初期化ロジックを変更すると、既存テストのエントリ数期待値が変わる。テストの修正も必須
+  - metaVarフィールドにreadOnly属性を追加すれば、自動抽出されたメタ変数名の誤編集を防げる(今回は未実装)
+---
