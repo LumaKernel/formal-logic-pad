@@ -661,6 +661,59 @@ describe("ProofWorkspace", () => {
       });
     });
 
+    it("clicking Gen badge opens popover for editing variable name", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <StatefulWorkspace
+          initialWorkspace={(() => {
+            let ws = createEmptyWorkspace(predicateLogicSystem);
+            ws = addNode(ws, "axiom", "Ax", { x: 0, y: 0 }, "phi");
+            const genResult = applyGenAndConnect(ws, "node-1", "x", {
+              x: 0,
+              y: 150,
+            });
+            return genResult.workspace;
+          })()}
+        />,
+      );
+
+      // Verify Gen badge is displayed
+      await waitFor(() => {
+        expect(screen.getByText("Gen(x)")).toBeInTheDocument();
+      });
+
+      // Click the Gen badge to open popover
+      await user.click(screen.getByText("Gen(x)"));
+
+      // Popover should be visible
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-edge-popover"),
+        ).toBeInTheDocument();
+      });
+
+      // Edit variable name from "x" to "y"
+      const input = screen.getByTestId(
+        "workspace-edge-popover-inner-gen-input",
+      );
+      await user.clear(input);
+      await user.type(input, "y");
+
+      // Confirm
+      await user.click(
+        screen.getByTestId("workspace-edge-popover-inner-confirm"),
+      );
+
+      // Popover should be closed and badge updated
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-edge-popover"),
+        ).not.toBeInTheDocument();
+        expect(screen.getByText("Gen(y)")).toBeInTheDocument();
+      });
+    });
+
     it("hides axiom dependencies when showDependencies=false", async () => {
       const user = userEvent.setup();
 

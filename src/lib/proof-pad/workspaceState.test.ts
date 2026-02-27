@@ -23,6 +23,8 @@ import {
   applyGenAndConnect,
   applySubstitutionAndConnect,
   updateNodeSubstitutionEntries,
+  updateInferenceEdgeGenVariableName,
+  updateInferenceEdgeSubstitutionEntries,
   copySelectedNodes,
   pasteNodes,
   removeSelectedNodes,
@@ -1866,6 +1868,142 @@ describe("proofWorkspace", () => {
       if (edgeAfter?._tag === "substitution") {
         expect(edgeAfter.entries).toEqual(originalEntries);
       }
+    });
+
+    it("updateInferenceEdgeGenVariableName updates edge variableName and revalidates", () => {
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "Ax", { x: 0, y: 0 }, "phi");
+      const genResult = applyGenAndConnect(ws, "node-1", "x", {
+        x: 0,
+        y: 150,
+      });
+      ws = genResult.workspace;
+
+      // Initial: variable is "x", conclusion is "∀x.φ"
+      const edgeBefore = ws.inferenceEdges[0];
+      expect(edgeBefore?._tag).toBe("gen");
+      if (edgeBefore?._tag === "gen") {
+        expect(edgeBefore.variableName).toBe("x");
+      }
+      expect(findNode(ws, "node-2")?.formulaText).toBe("∀x.φ");
+
+      // Update to "y"
+      ws = updateInferenceEdgeGenVariableName(ws, "node-2", "y");
+
+      const edgeAfter = ws.inferenceEdges[0];
+      expect(edgeAfter?._tag).toBe("gen");
+      if (edgeAfter?._tag === "gen") {
+        expect(edgeAfter.variableName).toBe("y");
+      }
+      // Conclusion should be revalidated to "∀y.φ"
+      expect(findNode(ws, "node-2")?.formulaText).toBe("∀y.φ");
+    });
+
+    it("updateInferenceEdgeGenVariableName with empty name clears conclusion", () => {
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "Ax", { x: 0, y: 0 }, "phi");
+      const genResult = applyGenAndConnect(ws, "node-1", "x", {
+        x: 0,
+        y: 150,
+      });
+      ws = genResult.workspace;
+      expect(findNode(ws, "node-2")?.formulaText).toBe("∀x.φ");
+
+      // Set to empty → validation should fail, clearing conclusion
+      ws = updateInferenceEdgeGenVariableName(ws, "node-2", "");
+
+      const edge = ws.inferenceEdges[0];
+      if (edge?._tag === "gen") {
+        expect(edge.variableName).toBe("");
+      }
+      expect(findNode(ws, "node-2")?.formulaText).toBe("");
+    });
+
+    it("updateInferenceEdgeGenVariableName does nothing for non-gen edges", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 150,
+      });
+      ws = mpResult.workspace;
+
+      // Try to update Gen variable on an MP edge — should be a no-op
+      const before = ws.inferenceEdges[0];
+      ws = updateInferenceEdgeGenVariableName(ws, "node-3", "x");
+      const after = ws.inferenceEdges[0];
+      expect(after).toEqual(before);
+    });
+
+    it("updateInferenceEdgeSubstitutionEntries updates edge entries and revalidates", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const originalEntries: SubstitutionEntries = [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          formulaText: "alpha",
+        },
+      ];
+      const substResult = applySubstitutionAndConnect(
+        ws,
+        "node-1",
+        originalEntries,
+        { x: 0, y: 150 },
+      );
+      ws = substResult.workspace;
+
+      // Initial: substitution with φ := alpha
+      const conclusionBefore = findNode(ws, "node-2")?.formulaText;
+      expect(conclusionBefore).toContain("α");
+
+      // Update to φ := beta
+      const newEntries: SubstitutionEntries = [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          formulaText: "beta",
+        },
+      ];
+      ws = updateInferenceEdgeSubstitutionEntries(ws, "node-2", newEntries);
+
+      const edgeAfter = ws.inferenceEdges[0];
+      if (edgeAfter?._tag === "substitution") {
+        expect(edgeAfter.entries).toEqual(newEntries);
+      }
+      // Conclusion should be revalidated with new substitution
+      const conclusionAfter = findNode(ws, "node-2")?.formulaText;
+      expect(conclusionAfter).toContain("β");
+    });
+
+    it("updateInferenceEdgeSubstitutionEntries with empty entries clears conclusion", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const originalEntries: SubstitutionEntries = [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          formulaText: "alpha",
+        },
+      ];
+      const substResult = applySubstitutionAndConnect(
+        ws,
+        "node-1",
+        originalEntries,
+        { x: 0, y: 150 },
+      );
+      ws = substResult.workspace;
+
+      // Set to empty entries
+      ws = updateInferenceEdgeSubstitutionEntries(ws, "node-2", []);
+
+      const edgeAfter = ws.inferenceEdges[0];
+      if (edgeAfter?._tag === "substitution") {
+        expect(edgeAfter.entries).toEqual([]);
+      }
+      // Conclusion should be cleared since no substitutions
+      expect(findNode(ws, "node-2")?.formulaText).toBe("");
     });
 
     it("applyMPAndConnect produces correct inferenceEdges", () => {

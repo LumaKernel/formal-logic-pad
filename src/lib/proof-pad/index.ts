@@ -32,6 +32,8 @@ export {
   applyGenAndConnect,
   applySubstitutionAndConnect,
   updateNodeSubstitutionEntries,
+  updateInferenceEdgeGenVariableName,
+  updateInferenceEdgeSubstitutionEntries,
   copySelectedNodes,
   pasteNodes,
   removeSelectedNodes,

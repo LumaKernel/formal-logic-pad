@@ -346,6 +346,54 @@ export function updateNodeSubstitutionEntries(
   });
 }
 
+/**
+ * GenEdgeの量化変数名を直接更新する。
+ * エッジのvariableNameを変更し、結論テキストを再計算する。
+ *
+ * @param state 現在のワークスペース状態
+ * @param conclusionNodeId Gen結論ノードのID
+ * @param variableName 新しい量化変数名
+ */
+export function updateInferenceEdgeGenVariableName(
+  state: WorkspaceState,
+  conclusionNodeId: string,
+  variableName: string,
+): WorkspaceState {
+  const updated = {
+    ...state,
+    inferenceEdges: state.inferenceEdges.map((edge) =>
+      edge._tag === "gen" && edge.conclusionNodeId === conclusionNodeId
+        ? { ...edge, variableName }
+        : edge,
+    ),
+  };
+  return revalidateInferenceConclusions(updated);
+}
+
+/**
+ * SubstitutionEdgeの代入エントリを直接更新する。
+ * エッジのentriesを変更し、結論テキストを再計算する。
+ *
+ * @param state 現在のワークスペース状態
+ * @param conclusionNodeId Substitution結論ノードのID
+ * @param entries 新しい代入エントリリスト
+ */
+export function updateInferenceEdgeSubstitutionEntries(
+  state: WorkspaceState,
+  conclusionNodeId: string,
+  entries: SubstitutionEntries,
+): WorkspaceState {
+  const updated = {
+    ...state,
+    inferenceEdges: state.inferenceEdges.map((edge) =>
+      edge._tag === "substitution" && edge.conclusionNodeId === conclusionNodeId
+        ? { ...edge, entries }
+        : edge,
+    ),
+  };
+  return revalidateInferenceConclusions(updated);
+}
+
 /** ノードの役割を更新する（保護ノードは更新不可） */
 export function updateNodeRole(
   state: WorkspaceState,

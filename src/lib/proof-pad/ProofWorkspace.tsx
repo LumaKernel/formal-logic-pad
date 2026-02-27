@@ -97,6 +97,8 @@ import {
   applySubstitutionAndConnect,
   applyIncrementalLayout,
   revalidateInferenceConclusions,
+  updateInferenceEdgeGenVariableName,
+  updateInferenceEdgeSubstitutionEntries,
 } from "./workspaceState";
 import { validateDragConnection } from "./portConnectionLogic";
 import type { LayoutDirection } from "./treeLayoutLogic";
@@ -135,6 +137,9 @@ import { ParametricAxiomPanel } from "./ParametricAxiomPanel";
 import { findInferenceEdgeForConclusionNode } from "./inferenceEdge";
 import { computeInferenceEdgeLabelData } from "./inferenceEdgeLabelLogic";
 import { InferenceEdgeBadge } from "./InferenceEdgeBadge";
+import { EdgeParameterPopover } from "./EdgeParameterPopover";
+import type { EdgeBadgeEditState } from "./edgeBadgeEditLogic";
+import { createEditStateFromEdge } from "./edgeBadgeEditLogic";
 import { useEdgeScroll } from "../infinite-canvas/useEdgeScroll";
 import { useMarquee } from "../infinite-canvas/useMarquee";
 import { MinimapComponent } from "../infinite-canvas/MinimapComponent";
@@ -1676,6 +1681,53 @@ export function ProofWorkspace({
     [],
   );
 
+  // --- エッジバッジ編集（ポップオーバー） ---
+  const [edgeBadgeEditState, setEdgeBadgeEditState] =
+    useState<EdgeBadgeEditState | null>(null);
+
+  const handleEdgeBadgeClick = useCallback(
+    (conclusionNodeId: string) => {
+      const edge = workspace.inferenceEdges.find(
+        (e) => e.conclusionNodeId === conclusionNodeId,
+      );
+      if (!edge) return;
+      const editState = createEditStateFromEdge(edge);
+      if (!editState) return;
+      setEdgeBadgeEditState(editState);
+    },
+    [workspace.inferenceEdges],
+  );
+
+  const handleEdgeBadgeConfirmGen = useCallback(
+    (conclusionNodeId: string, variableName: string) => {
+      const updated = updateInferenceEdgeGenVariableName(
+        workspace,
+        conclusionNodeId,
+        variableName,
+      );
+      setWorkspaceWithAutoLayout(updated);
+      setEdgeBadgeEditState(null);
+    },
+    [workspace, setWorkspaceWithAutoLayout],
+  );
+
+  const handleEdgeBadgeConfirmSubstitution = useCallback(
+    (conclusionNodeId: string, entries: SubstitutionEntries) => {
+      const updated = updateInferenceEdgeSubstitutionEntries(
+        workspace,
+        conclusionNodeId,
+        entries,
+      );
+      setWorkspaceWithAutoLayout(updated);
+      setEdgeBadgeEditState(null);
+    },
+    [workspace, setWorkspaceWithAutoLayout],
+  );
+
+  const handleEdgeBadgeCancel = useCallback(() => {
+    setEdgeBadgeEditState(null);
+  }, []);
+
   // コンテキストメニュー表示時のノード情報（メニューの enabled/disabled 判定用）
   const menuNodeIsImplication = useMemo(() => {
     if (!nodeMenuState.open) return false;
@@ -2130,6 +2182,7 @@ export function ProofWorkspace({
           workspace.inferenceEdges,
           conn.toNodeId,
         );
+        const edgeBadgeConclusionNodeId = inferenceEdge?.conclusionNodeId;
         const edgeLabel =
           inferenceEdge !== undefined ? (
             <InferenceEdgeBadge
@@ -2137,6 +2190,11 @@ export function ProofWorkspace({
               testId={
                 testId
                   ? `${testId satisfies string}-edge-badge-${conn.id satisfies string}`
+                  : undefined
+              }
+              onBadgeClick={
+                edgeBadgeConclusionNodeId !== undefined
+                  ? () => handleEdgeBadgeClick(edgeBadgeConclusionNodeId)
                   : undefined
               }
             />
@@ -2185,6 +2243,7 @@ export function ProofWorkspace({
       substitutionValidations,
       handDrawnConnections,
       handleConnectionContextMenu,
+      handleEdgeBadgeClick,
       testId,
     ],
   );
@@ -2905,6 +2964,34 @@ export function ProofWorkspace({
               {msg.cancel}
             </button>
           </div>
+        </div>
+      ) : null}
+
+      {/* エッジバッジ編集ポップオーバー */}
+      {edgeBadgeEditState !== null ? (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 1000,
+          }}
+          data-testid={
+            testId ? `${testId satisfies string}-edge-popover` : "edge-popover"
+          }
+        >
+          <EdgeParameterPopover
+            editState={edgeBadgeEditState}
+            onConfirmGen={handleEdgeBadgeConfirmGen}
+            onConfirmSubstitution={handleEdgeBadgeConfirmSubstitution}
+            onCancel={handleEdgeBadgeCancel}
+            testId={
+              testId
+                ? `${testId satisfies string}-edge-popover-inner`
+                : "edge-popover-inner"
+            }
+          />
         </div>
       ) : null}
 
