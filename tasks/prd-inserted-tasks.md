@@ -28,7 +28,7 @@
   - [x] まず必要な機能についてタスクとしてまとめていこう
   - [x] 接続削除UI: 接続線の右クリックコンテキストメニューに「Delete Connection」を追加
   - [x] ポートドラッグ接続UI: ノードのポートからドラッグして別ポートに接続する機能をProofWorkspaceに統合
-  - [-] 上記を組み合わせた一連のシナリオストーリーを作成
+  - [x] 上記を組み合わせた一連のシナリオストーリーを作成
 - [x] http://localhost:13006/?path=/story/proofpad-peanoarithmeticdemo--zero-plus-zero-completed
       GOALになにも繋ってない状態で Proof Completeとなっているが、ゴールに確実にMPから繋げるなどして証明されて始めてProof Completeとなってほしい
 - [x] Export/Ipmortはずっと表示されてるボタンではなく、ノートに関する操作メニューの中にあるような形で十分だろう

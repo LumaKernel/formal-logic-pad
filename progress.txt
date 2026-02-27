@@ -117,6 +117,27 @@
   - ProofWorkspace→EditableProofNode間のprop伝搬時、useCallbackのdependency listに新propを忘れずに追加すること
 ---
 
+## 2026-02-27 - MP修復フローシナリオストーリー
+- `ProofFlowDemo.stories.tsx` に `MPRepairFlow` ストーリーを追加
+- シナリオ: 公理書き換え→MP無効化→ノード削除→パレット再追加→コンテキストメニューMP適用→MP再成功
+- play関数で8ステップの一連フローを自動実行（32インタラクション）
+- テスト: 4471テスト全パス（+1テスト追加）
+- カバレッジ: Stmts 98.77%(維持), Branch 93.96%(維持), Funcs 90.62%(微増), Lines 99.53%(維持)
+  - ベースライン: Stmts 98.77%, Branch 93.96%, Funcs 90.58%, Lines 99.53%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでスクリーンショット撮影・確認済み
+  - `.screenshots/mp-repair-flow-initial.png`
+  - `.screenshots/mp-repair-flow-final-state.png`
+- 変更ファイル:
+  - `src/lib/proof-pad/ProofFlowDemo.stories.tsx` (MODIFIED - MPRepairFlowストーリー追加)
+  - `tasks/prd-inserted-tasks.md` (MODIFIED - タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - play関数でのノード右クリック→コンテキストメニュー操作: `userEvent.pointer({ keys: "[MouseRight]", target })` → `getByTestId("workspace-node-context-menu")` → メニュー項目クリック
+  - 「Use as MP Left」はコンテキストメニューから左前提を固定し、次のノードクリックで右前提を選択→新MPノード生成のフロー
+  - ポートドラッグ接続はplay関数では複雑（PointerDown+Move+Up+SVG座標計算）なため、コンテキストメニューMP適用で代替可能
+  - prettierフォーマットの差分に注意: 関数引数の改行ルールが変わることがある
+---
+
 ## 2026-02-27 - ProofWorkspaceにミニマップとエッジスクロールをデフォルト搭載
 - `ProofWorkspace.tsx` に `useEdgeScroll` hookを追加し、ノードドラッグ中にキャンバス端で自動パンを実現
 - `ProofWorkspace.tsx` に `MinimapComponent` を追加し、右下にミニマップを常時表示
