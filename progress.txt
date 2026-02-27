@@ -36,6 +36,7 @@
 - 防御的コード（到達不能だが安全のために残す）は `/* v8 ignore start/stop */` で除外。コメントで理由を明記すること
 - MP適用ロジックは3層分離: 純粋バリデーション(`mpApplicationLogic.ts`) → 状態管理(`workspaceState.ts`) → UI(`ProofWorkspace.tsx`)
 - Gen適用ロジックも同様の3層: `genApplicationLogic.ts` → `workspaceState.ts` → `ProofWorkspace.tsx`。新しい推論規則追加時はこのパターンに従う
+- `revalidateInferenceConclusions` は前提変更時にMP/Gen結論テキストを再計算する純粋関数。`handleFormulaTextChange`後に必ず呼ぶ
 - `formatFormula` は右結合→で最小括弧化。テスト期待値は `χ → φ → ψ → φ`（括弧なし）
 - unificationのMartelli-Montanariアルゴリズムでは即時代入適用により一部の分岐が到達不能になる
 - parserのPratt parserではinfixBPが事前フィルタするため`tokenToBinaryOperator`のdefaultケースは到達不能
@@ -4176,4 +4177,54 @@
   - A4/A5のスキーマ一般形はDSLパーサーで正しく解析され、`matchAxiomA4`/`matchAxiomA5`でも公理として認識される
   - 命題変数(phi, psi)は項変数(x)とは独立なので、`x ∉ FV(phi)` の制約も自然に満たされる
   - パレットの`dslText`が空文字列だとノードが空で追加される。スキーマ公理でも一般形を設定すべき
+---
+
+## 2026-02-27 - 数式エディタ editTrigger
+- FormulaEditor/EditableProofNodeにeditTrigger（click/dblclick/none）プロップを追加
+- editorLogic.tsにEditTrigger型を定義、FormulaEditorでeditTriggerに応じたイベントハンドラの切替を実装
+- EditableProofNodeへのeditTrigger伝搬も実装
+- FormulaEditor.stories.tsxにDoubleClickTrigger + EditTriggerComparisonストーリー追加
+- EditableProofNode.stories.tsxにEditTriggerComparisonストーリー追加（Canvas上でのリアルな比較）
+- FormulaEditor.test.tsxに10テスト、EditableProofNode.test.tsxに3テスト追加（合計+16）
+- index.tsからEditTrigger型をexport
+- 変更ファイル: editorLogic.ts, FormulaEditor.tsx, index.ts, EditableProofNode.tsx, *.test.tsx, *.stories.tsx
+- カバレッジ: Stmts 99.35%, Branch 94.96% (baseline 94.95%から微増), Funcs 90.32%, Lines 99.92% — 低下なし
+- スクリーンショット: .screenshots/edit-trigger-comparison-formulaeditor.png, .screenshots/edit-trigger-comparison-editableproofnode.png
+- **今後のイテレーションへの学び:**
+  - EditTriggerはFormulaEditorの表示モード内のイベントハンドラを条件付きで切り替えるだけで実現可能
+  - テンプレートリテラル内の三項演算子は全体を()で囲んでから satisfies string を付与する必要がある
+  - aria-labelもeditTriggerに応じて適切に変更すること（「クリックして編集」vs「ダブルクリックして編集」）
+  - 比較検討ストーリーはFormulaEditor単体とEditableProofNode（Canvas内）の両方で作成すると有用
+  - 残りの検証項目: コンテキストメニューで編集開始、サイドパネルでの編集は別タスク
+---
+
+## 2026-02-27 - MP前提書き換えによるMP無効化・連鎖失敗デモストーリー
+- `revalidateInferenceConclusions` 関数を workspaceState.ts に新規追加
+  - 全MP/Genノードの結論テキストを前提ノードの現在値から再計算する純粋関数
+  - 検証成功時は結論テキストを更新、失敗時はformulaTextを空文字にクリア
+  - 前提変更が下流に伝播するようfixed-point反復を実装
+- ProofWorkspace.tsx の `handleFormulaTextChange` で `revalidateInferenceConclusions` を呼ぶよう変更
+  - 公理ノードの式変更時にMP/Gen結論が自動的に再計算される
+- ProofFlowDemo.stories.tsx に2つの新ストーリーを追加
+  - `MPPremiseEditInvalidates`: φ+(φ→ψ)→MP(ψ)の成功状態から、φをχに書き換えてMP失敗になるデモ
+  - `MPCascadeChainFailure`: 2段MPチェーンで、最初の前提を変更すると連鎖的に両MPが失敗するデモ
+- テスト: 4336テスト全パス（+10テスト: 純粋ロジック8件 + ストーリー2件）
+- カバレッジ: Stmts 99.35%(維持), Branch 94.88%(微減0.08%), Funcs 90.37%(↑), Lines 99.91%(微減0.01%)
+  - ベースライン: Stmts 99.35%, Branch 94.96%, Funcs 90.32%, Lines 99.92%
+  - Branch微減はProofWorkspace.tsx内の新コード行がブラウザテストのみでカバーされるため
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでスクリーンショット撮影・確認済み
+  - `.screenshots/mp-premise-edit-invalidates-result.png`
+  - `.screenshots/mp-cascade-chain-failure-result.png`
+- 変更ファイル:
+  - `src/lib/proof-pad/workspaceState.ts` (MODIFIED - revalidateInferenceConclusions追加)
+  - `src/lib/proof-pad/workspaceState.test.ts` (MODIFIED - 8テスト追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - handleFormulaTextChangeで再検証追加)
+  - `src/lib/proof-pad/ProofFlowDemo.stories.tsx` (MODIFIED - 2ストーリー追加)
+  - `tasks/prd-inserted-tasks.md` (MODIFIED - タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - MP/Genノードの結論テキストは前提変更時に自動更新されない設計だった。revalidateInferenceConclusionsで再計算を明示的に行う必要がある
+  - fixed-point反復はDAGの深さ+1回で必ず収束する（MAX_ITERATIONS = nodes.length + 1で安全）
+  - play関数での式編集: display要素クリック→input要素clear→type→tabの手順
+  - 連鎖影響のデモでは、MP1失敗→formulaTextクリア→MP2がLeftParseError（空文字パース失敗）となる
 ---

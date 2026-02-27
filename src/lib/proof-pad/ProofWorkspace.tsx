@@ -66,6 +66,7 @@ import {
   duplicateSelectedNodes,
   cutSelectedNodes,
   applyIncrementalLayout,
+  revalidateInferenceConclusions,
 } from "./workspaceState";
 import type { LayoutDirection } from "./treeLayoutLogic";
 import {
@@ -1121,7 +1122,8 @@ export function ProofWorkspace({
 
   const handleFormulaTextChange = useCallback(
     (nodeId: string, text: string) => {
-      setWorkspace(updateNodeFormulaText(workspace, nodeId, text));
+      const updated = updateNodeFormulaText(workspace, nodeId, text);
+      setWorkspace(revalidateInferenceConclusions(updated));
     },
     [workspace, setWorkspace],
   );

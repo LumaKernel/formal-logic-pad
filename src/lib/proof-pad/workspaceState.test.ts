@@ -28,6 +28,7 @@ import {
   cutSelectedNodes,
   applyTreeLayout,
   applyIncrementalLayout,
+  revalidateInferenceConclusions,
 } from "./workspaceState";
 import type { ClipboardData } from "./copyPasteLogic";
 
@@ -1221,6 +1222,155 @@ describe("proofWorkspace", () => {
       // （理想位置との差が閾値以下ならdiff=0）
       // 注: ノード1個だけなら理想位置は(0,0)なので差は0→同じ参照
       expect(result).toBe(ws);
+    });
+  });
+
+  describe("revalidateInferenceConclusions", () => {
+    it("updates MP conclusion text when premises are valid", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "phi -> psi");
+      const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 50, y: 100 });
+      ws = mp.workspace;
+      // MP conclusion should be "ψ"
+      expect(findNode(ws, "node-3")?.formulaText).not.toBe("");
+
+      const result = revalidateInferenceConclusions(ws);
+      // Should remain the same (already valid)
+      expect(findNode(result, "node-3")?.formulaText).toBe(
+        findNode(ws, "node-3")?.formulaText,
+      );
+    });
+
+    it("clears MP conclusion text when left premise is changed to mismatch", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "phi -> psi");
+      const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 50, y: 100 });
+      ws = mp.workspace;
+      expect(findNode(ws, "node-3")?.formulaText).not.toBe("");
+
+      // Change left premise to incompatible formula
+      ws = updateNodeFormulaText(ws, "node-1", "chi");
+      ws = revalidateInferenceConclusions(ws);
+
+      // MP conclusion should be cleared
+      expect(findNode(ws, "node-3")?.formulaText).toBe("");
+    });
+
+    it("propagates failure through MP chain", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      // phi + (phi -> psi) → MP1 → psi
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "phi -> psi");
+      const mp1 = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 50,
+        y: 100,
+      });
+      ws = mp1.workspace;
+      // psi(=node-3) + (psi -> chi) → MP2 → chi
+      ws = addNode(ws, "axiom", "A3", { x: 200, y: 100 }, "psi -> chi");
+      const mp2 = applyMPAndConnect(ws, "node-3", "node-4", {
+        x: 150,
+        y: 200,
+      });
+      ws = mp2.workspace;
+
+      // Both MPs should be valid initially
+      expect(findNode(ws, "node-3")?.formulaText).not.toBe("");
+      expect(findNode(ws, "node-5")?.formulaText).not.toBe("");
+
+      // Change first premise to break MP1
+      ws = updateNodeFormulaText(ws, "node-1", "alpha");
+      ws = revalidateInferenceConclusions(ws);
+
+      // MP1 should be cleared (alpha ≠ phi)
+      expect(findNode(ws, "node-3")?.formulaText).toBe("");
+      // MP2 should also be cleared (node-3 is now empty → parse error)
+      expect(findNode(ws, "node-5")?.formulaText).toBe("");
+    });
+
+    it("restores MP conclusion when premise is fixed", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "phi -> psi");
+      const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 50, y: 100 });
+      ws = mp.workspace;
+
+      // Break it
+      ws = updateNodeFormulaText(ws, "node-1", "chi");
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-3")?.formulaText).toBe("");
+
+      // Fix it
+      ws = updateNodeFormulaText(ws, "node-1", "phi");
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-3")?.formulaText).not.toBe("");
+    });
+
+    it("returns same state when no inference nodes exist", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      const result = revalidateInferenceConclusions(ws);
+      expect(result).toBe(ws);
+    });
+
+    it("returns same state when all conclusions are already correct", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "phi -> psi");
+      const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 50, y: 100 });
+      ws = mp.workspace;
+
+      // First call should return same state (no changes needed)
+      const result = revalidateInferenceConclusions(ws);
+      // Node references may differ (map creates new objects) but formulaText should match
+      expect(findNode(result, "node-3")?.formulaText).toBe(
+        findNode(ws, "node-3")?.formulaText,
+      );
+    });
+
+    it("handles Gen node revalidation", () => {
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> psi");
+      const gen = applyGenAndConnect(ws, "node-1", "x", { x: 50, y: 100 });
+      ws = gen.workspace;
+      expect(findNode(ws, "node-2")?.formulaText).not.toBe("");
+
+      // Change premise to invalid
+      ws = updateNodeFormulaText(ws, "node-1", "");
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-2")?.formulaText).toBe("");
+    });
+
+    it("restores chain when intermediate node is corrected", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      // Build chain: A1(phi) + A2(phi->psi) → MP1(psi) + A3(psi->chi) → MP2(chi)
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "phi -> psi");
+      const mp1 = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 50,
+        y: 100,
+      });
+      ws = mp1.workspace;
+      ws = addNode(ws, "axiom", "A3", { x: 200, y: 100 }, "psi -> chi");
+      const mp2 = applyMPAndConnect(ws, "node-3", "node-4", {
+        x: 150,
+        y: 200,
+      });
+      ws = mp2.workspace;
+
+      // Break and verify cascade
+      ws = updateNodeFormulaText(ws, "node-1", "alpha");
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-3")?.formulaText).toBe("");
+      expect(findNode(ws, "node-5")?.formulaText).toBe("");
+
+      // Fix and verify cascade restoration
+      ws = updateNodeFormulaText(ws, "node-1", "phi");
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-3")?.formulaText).not.toBe("");
+      expect(findNode(ws, "node-5")?.formulaText).not.toBe("");
     });
   });
 });

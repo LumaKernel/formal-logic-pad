@@ -652,3 +652,62 @@ export function applyIncrementalLayout(
     }),
   };
 }
+
+// --- 推論結論の再検証・再計算 ---
+
+/**
+ * 全MP/Genノードの結論テキストを前提ノードの現在の値から再計算する。
+ *
+ * 検証成功時は結論テキストをformulaTextに設定し、
+ * 失敗時はformulaTextを空文字にクリアする。
+ * 前提の変更が下流のMP/Genノードに伝播するよう、
+ * 変更がなくなるまで反復する（fixed-point）。
+ *
+ * 純粋関数 — 副作用なし。
+ *
+ * 変更時は workspaceState.test.ts も同期すること。
+ */
+export function revalidateInferenceConclusions(
+  state: WorkspaceState,
+): WorkspaceState {
+  const MAX_ITERATIONS = state.nodes.length + 1;
+  let current = state;
+
+  for (let i = 0; i < MAX_ITERATIONS; i++) {
+    let changed = false;
+
+    const newNodes = current.nodes.map((node) => {
+      if (node.kind === "mp") {
+        const result = validateMPApplication(current, node.id);
+        const newText =
+          result._tag === "Success" ? result.conclusionText : "";
+        if (newText !== node.formulaText) {
+          changed = true;
+          return { ...node, formulaText: newText };
+        }
+        return node;
+      }
+      if (node.kind === "gen") {
+        const variableName = node.genVariableName ?? "";
+        const result = validateGenApplication(
+          current,
+          node.id,
+          variableName,
+        );
+        const newText =
+          result._tag === "Success" ? result.conclusionText : "";
+        if (newText !== node.formulaText) {
+          changed = true;
+          return { ...node, formulaText: newText };
+        }
+        return node;
+      }
+      return node;
+    });
+
+    if (!changed) break;
+    current = { ...current, nodes: newNodes };
+  }
+
+  return current;
+}
