@@ -132,6 +132,8 @@ import { useEdgeScroll } from "../infinite-canvas/useEdgeScroll";
 import { useMarquee } from "../infinite-canvas/useMarquee";
 import { MinimapComponent } from "../infinite-canvas/MinimapComponent";
 import type { MinimapItem } from "../infinite-canvas/minimap";
+import { ZoomControlsComponent } from "../infinite-canvas/ZoomControlsComponent";
+import type { ZoomItemBounds } from "../infinite-canvas/zoom";
 
 // --- Props ---
 
@@ -624,6 +626,32 @@ export function ProofWorkspace({
         size: nodeSizes.get(node.id) ?? DEFAULT_NODE_SIZE,
       })),
     [workspace.nodes, nodeSizes],
+  );
+
+  // ズームコントロール用アイテム一覧（MinimapItem → ZoomItemBounds変換）
+  const zoomItems: readonly ZoomItemBounds[] = useMemo(
+    () =>
+      minimapItems.map((item) => ({
+        x: item.position.x,
+        y: item.position.y,
+        width: item.size.width,
+        height: item.size.height,
+      })),
+    [minimapItems],
+  );
+
+  // 選択中ノードのズーム対象バウンズ
+  const selectedZoomItems: readonly ZoomItemBounds[] = useMemo(
+    () =>
+      minimapItems
+        .filter((item) => selectedNodeIds.has(item.id))
+        .map((item) => ({
+          x: item.position.x,
+          y: item.position.y,
+          width: item.size.width,
+          height: item.size.height,
+        })),
+    [minimapItems, selectedNodeIds],
   );
 
   // 自動レイアウト機能
@@ -3178,6 +3206,16 @@ export function ProofWorkspace({
             );
           });
         })}
+        <ZoomControlsComponent
+          viewport={viewport}
+          containerSize={containerSize}
+          onViewportChange={setViewport}
+          items={zoomItems}
+          selectedItems={
+            selectedZoomItems.length > 0 ? selectedZoomItems : undefined
+          }
+          position="bottom-left"
+        />
         <MinimapComponent
           viewport={viewport}
           containerSize={containerSize}

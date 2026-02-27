@@ -4944,3 +4944,23 @@
   - CanvasItemはInfiniteCanvasとノードコンテンツの中間層。ここでのstopPropagationがcanvasレベルのイベント(pan/marquee)を防ぐ重要な役割を果たす
   - ブラウザテストでのデバッグ: page.evaluate()でイベントリスナーを追加し、実際のイベントフローをトレースする手法が有効
 ---
+
+## 2026-02-28 - [ProofPad] ズームコントロールのフル機能を有効化
+- 実装した内容:
+  - ProofWorkspaceにZoomControlsComponentを組み込み（左下に配置）
+  - ズームイン/アウトボタン、パーセンテージ表示、プリセットドロップダウン、リセット、フィットトゥコンテンツをすべて有効化
+  - minimapItemsからZoomItemBoundsへの変換ロジック追加（useMemo）
+  - 選択中ノードのZoomItemBounds計算追加（selectedZoomItems）
+  - MinimapComponentは既存の右下配置を維持
+- 変更したファイル:
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (ZoomControlsComponent追加、import・useMemo追加)
+  - `tasks/prd-inserted-tasks.md` (タスク完了マーク・アーカイブ)
+  - `tasks-archived/prd-inserted-tasks.md` (完了タスク移動)
+  - `task-processing.md`
+- カバレッジ: Stmts 98.71%(変化なし), Branch 93.21%(微増), Lines 99.44%(変化なし)
+- ブラウザ検証: `.screenshots/proof-workspace-zoom-controls-iframe.png`, `.screenshots/proof-workspace-zoom-fit-to-content.png`, `.screenshots/proof-workspace-zoom-controls-real-app.png`
+- **今後のイテレーションへの学び:**
+  - ZoomControlsComponentはInfiniteCanvasの子として配置するだけで機能する。viewport/onViewportChange/containerSizeの3つは必須props
+  - MinimapItem(id/position/size)とZoomItemBounds(x/y/width/height)は構造が異なるため変換が必要
+  - ZoomControlsComponentのitemsプロパティはフィットトゥコンテンツ機能に使用される。selectedItemsは選択中ノードへのズーム機能用
+---
