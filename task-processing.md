@@ -1,25 +1,19 @@
-## 現在のタスク
+## 申し送り事項
 
-**出典**: `tasks/prd-inserted-tasks.md` line 20-22
+**出典**: `tasks/prd-inserted-tasks.md` line 20-22 (タスクは継続中 `[-]`)
 
-```
-[-] http://localhost:13006/?path=/story/proofpad-peanoarithmeticdemo--zero-plus-zero-completed
-    これを例にするが、公理は公理そのものの形(とメタ変数の取り方の違い)を除けば、公理と判定されてはならなくて、
-    公理のを利用したものでも、代入操作をするステップ(ノード)を挟んで利用する形でなければならない。
-```
+### 完了した部分
 
-### 具体的なスコープ（このイテレーション）
+- `axiomNameLogic.ts` に `isTrivialSubstitution` 判定の純粋ロジックを実装・テスト済み
+- A4/A5は `alwaysNonTrivialAxiomIds` で常に非自明
+- 100%カバレッジ達成
 
-1. **公理判定の厳格化**: `axiomNameLogic.ts` / `inferenceRule.ts` で公理のインスタンス（メタ変数に具体値を代入したもの）を「公理」として認識しないようにする
-   - 非自明な代入（メタ変数→具体的な式/項）がある場合は公理として認識しない
-   - 公理スキーマそのもの（メタ変数がそのまま残った形）は引き続き認識する
-2. **PeanoArithmeticDemo ストーリーの修正**: 代入操作ステップを挟んだ正しい証明フローに更新
-   - PA3 axiom → Substitution(x:=0) → `0 + 0 = 0`
-   - A5 axiom → Substitution(...) → instantiated A5
+### 残作業（次イテレーション）
 
-### 周辺情報
-
-- 代入操作ロジック: `src/lib/proof-pad/substitutionApplicationLogic.ts` に純粋ロジック
-- 公理判定: `src/lib/logic-core/inferenceRule.ts` の `identifyAxiom()`
-- 公理名表示: `src/lib/proof-pad/axiomNameLogic.ts` の `identifyAxiomName()`
-- ワークスペース状態: `src/lib/proof-pad/workspaceState.ts` に `applySubstitutionAndConnect()`
+1. **UI層での警告表示**: `ProofWorkspace.tsx` で `isTrivialSubstitution: false` の公理ノードに警告メッセージを表示
+   - `proofMessages.ts` に新メッセージ追加
+   - 公理ノードの見た目を変える（エラー状態 or 警告状態）
+2. **PeanoArithmeticDemoストーリーの修正**: 代入操作ステップを挟んだ正しい証明フローに更新
+   - PA3 axiom(スキーマ) → Substitution(τ:=0) → `0 + 0 = 0` ※ただしPA3のterm meta substitutionの扱いを確認
+   - A4 instance は `matchAxiomA4` が空マップを返すため、term variable substitution (x:=0) が必要だが、現在の代入操作はformula/term **meta** substitutionのみ対応
+3. **A4/A5のスキーマノード**: オブジェクト言語で表現できないため、特別なUI（パラメトリック公理呼び出し）が必要になる可能性
