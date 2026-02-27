@@ -21,6 +21,8 @@ import {
   changeSystem,
   applyMPAndConnect,
   applyGenAndConnect,
+  applySubstitutionAndConnect,
+  updateNodeSubstitutionEntries,
   copySelectedNodes,
   pasteNodes,
   removeSelectedNodes,
@@ -32,6 +34,7 @@ import {
   revalidateInferenceConclusions,
 } from "./workspaceState";
 import type { ClipboardData } from "./copyPasteLogic";
+import type { SubstitutionEntries } from "./substitutionApplicationLogic";
 
 describe("proofWorkspace", () => {
   describe("createEmptyWorkspace", () => {
@@ -496,6 +499,120 @@ describe("proofWorkspace", () => {
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
 
       applyGenAndConnect(ws, "node-1", "x", { x: 0, y: 150 });
+
+      expect(ws.nodes).toHaveLength(1);
+      expect(ws.connections).toHaveLength(0);
+    });
+  });
+
+  describe("updateNodeSubstitutionEntries", () => {
+    it("sets substitutionEntries on the node", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "substitution", "Subst", { x: 0, y: 0 });
+      const entries: SubstitutionEntries = [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          metaVariableSubscript: undefined,
+          formulaText: "alpha",
+        },
+      ];
+      const result = updateNodeSubstitutionEntries(ws, "node-1", entries);
+      expect(result.nodes[0]!.substitutionEntries).toBe(entries);
+    });
+
+    it("does not affect other nodes", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "substitution", "Subst", { x: 0, y: 100 });
+      const entries: SubstitutionEntries = [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          metaVariableSubscript: undefined,
+          formulaText: "alpha",
+        },
+      ];
+      const result = updateNodeSubstitutionEntries(ws, "node-2", entries);
+      expect(result.nodes[0]!.substitutionEntries).toBeUndefined();
+      expect(result.nodes[1]!.substitutionEntries).toBe(entries);
+    });
+  });
+
+  describe("applySubstitutionAndConnect", () => {
+    const singleEntry: SubstitutionEntries = [
+      {
+        _tag: "FormulaSubstitution",
+        metaVariableName: "φ",
+        formulaText: "alpha",
+      },
+    ];
+
+    it("creates substitution node and connects to premise", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const result = applySubstitutionAndConnect(ws, "node-1", singleEntry, {
+        x: 0,
+        y: 150,
+      });
+      expect(result.substitutionNodeId).toBe("node-2");
+      expect(result.workspace.nodes).toHaveLength(2);
+      expect(result.workspace.connections).toHaveLength(1);
+      expect(result.workspace.connections[0]!.fromNodeId).toBe("node-1");
+      expect(result.workspace.connections[0]!.toNodeId).toBe("node-2");
+    });
+
+    it("returns NoSubstitutionEntries with empty entries", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const result = applySubstitutionAndConnect(ws, "node-1", [], {
+        x: 0,
+        y: 150,
+      });
+      expect(result.validation._tag).toBe("NoSubstitutionEntries");
+    });
+
+    it("returns Success with A1 substitution", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      // A1: φ → (ψ → φ)
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const entries: SubstitutionEntries = [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          formulaText: "alpha",
+        },
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "ψ",
+          formulaText: "beta",
+        },
+      ];
+      const result = applySubstitutionAndConnect(ws, "node-1", entries, {
+        x: 0,
+        y: 150,
+      });
+      expect(result.validation._tag).toBe("Success");
+      if (result.validation._tag === "Success") {
+        expect(result.validation.conclusionText).toBe("α → β → α");
+      }
+    });
+
+    it("returns PremiseParseError when premise has parse error", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "-> bad");
+      const result = applySubstitutionAndConnect(ws, "node-1", singleEntry, {
+        x: 0,
+        y: 150,
+      });
+      expect(result.validation._tag).toBe("PremiseParseError");
+    });
+
+    it("does not mutate original state", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+
+      applySubstitutionAndConnect(ws, "node-1", singleEntry, { x: 0, y: 150 });
 
       expect(ws.nodes).toHaveLength(1);
       expect(ws.connections).toHaveLength(0);
@@ -1436,6 +1553,59 @@ describe("proofWorkspace", () => {
       ws = revalidateInferenceConclusions(ws);
       expect(findNode(ws, "node-3")?.formulaText).not.toBe("");
       expect(findNode(ws, "node-5")?.formulaText).not.toBe("");
+    });
+
+    it("handles substitution node revalidation", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      // Create axiom A1 schema: φ → (ψ → φ)
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const subst = applySubstitutionAndConnect(
+        ws,
+        "node-1",
+        [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha",
+          },
+        ],
+        { x: 50, y: 100 },
+      );
+      ws = subst.workspace;
+      expect(findNode(ws, "node-2")?.formulaText).not.toBe("");
+
+      // Change premise to invalid formula
+      ws = updateNodeFormulaText(ws, "node-1", "");
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-2")?.formulaText).toBe("");
+    });
+
+    it("restores substitution conclusion when premise is fixed", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const entries: SubstitutionEntries = [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          formulaText: "alpha",
+        },
+      ];
+      const subst = applySubstitutionAndConnect(ws, "node-1", entries, {
+        x: 50,
+        y: 100,
+      });
+      ws = subst.workspace;
+      const originalText = findNode(ws, "node-2")?.formulaText;
+      expect(originalText).not.toBe("");
+
+      // Break → fix → should restore
+      ws = updateNodeFormulaText(ws, "node-1", "");
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-2")?.formulaText).toBe("");
+
+      ws = updateNodeFormulaText(ws, "node-1", "phi -> (psi -> phi)");
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-2")?.formulaText).toBe(originalText);
     });
   });
 });

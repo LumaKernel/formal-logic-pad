@@ -29,7 +29,7 @@ import type { Point, ViewportState } from "./types";
 
 // --- Node types for proof tree ---
 
-type ProofNodeKind = "axiom" | "mp" | "conclusion";
+type ProofNodeKind = "axiom" | "mp" | "gen" | "substitution" | "conclusion";
 
 interface ProofNode {
   readonly id: string;
@@ -74,6 +74,8 @@ const CONCLUSION_PORTS: readonly ConnectorPort[] = [
 
 const AXIOM_COLOR = "#5b8bd9";
 const MP_COLOR = "#d9944a";
+const GEN_COLOR = "#9b59b6";
+const SUBSTITUTION_COLOR = "#3498db";
 const CONCLUSION_COLOR = "#4ad97a";
 
 function makeNode(
@@ -181,6 +183,10 @@ function nodeColor(kind: ProofNodeKind): string {
       return AXIOM_COLOR;
     case "mp":
       return MP_COLOR;
+    case "gen":
+      return GEN_COLOR;
+    case "substitution":
+      return SUBSTITUTION_COLOR;
     case "conclusion":
       return CONCLUSION_COLOR;
   }

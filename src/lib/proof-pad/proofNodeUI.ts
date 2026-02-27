@@ -16,15 +16,17 @@ import type { ConnectorPort } from "../infinite-canvas/connector";
  * - axiom: 公理（葉ノード）— 編集可能な論理式
  * - mp: Modus Ponens（推論規則）— 2つの前提から結論を導出
  * - gen: Generalization（汎化規則）— 1つの前提から ∀x.φ を導出
+ * - substitution: 代入操作 — 前提の論理式にメタ変数代入を適用
  * - conclusion: 最終結論
  */
-export type ProofNodeKind = "axiom" | "mp" | "gen" | "conclusion";
+export type ProofNodeKind = "axiom" | "mp" | "gen" | "substitution" | "conclusion";
 
 /** すべてのProofNodeKindの値（exhaustive checkに使用） */
 export const PROOF_NODE_KINDS: readonly ProofNodeKind[] = [
   "axiom",
   "mp",
   "gen",
+  "substitution",
   "conclusion",
 ] as const;
 
@@ -50,6 +52,7 @@ const NODE_COLORS = {
   axiom: { varName: "--color-node-axiom", fallback: "#5b8bd9" },
   mp: { varName: "--color-node-mp", fallback: "#d9944a" },
   gen: { varName: "--color-node-gen", fallback: "#9b59b6" },
+  substitution: { varName: "--color-node-substitution", fallback: "#3498db" },
   conclusion: { varName: "--color-node-conclusion", fallback: "#4ad97a" },
 } as const satisfies Record<
   ProofNodeKind,
@@ -99,6 +102,11 @@ export function getProofNodeStyle(kind: ProofNodeKind): ProofNodeStyle {
         ...CARD_BASE,
         stripeColor: cssVar(NODE_COLORS.gen),
       };
+    case "substitution":
+      return {
+        ...CARD_BASE,
+        stripeColor: cssVar(NODE_COLORS.substitution),
+      };
     case "conclusion":
       return {
         ...CARD_BASE,
@@ -133,6 +141,12 @@ export const GEN_PORTS: readonly ConnectorPort[] = [
   { id: "out", edge: "bottom", position: 0.5 },
 ];
 
+/** 代入ノード: 上に1つの入力ポート、下に1つの出力ポート */
+export const SUBSTITUTION_PORTS: readonly ConnectorPort[] = [
+  { id: "premise", edge: "top", position: 0.5 },
+  { id: "out", edge: "bottom", position: 0.5 },
+];
+
 /** 結論ノード: 上に2つの入力ポートのみ */
 export const CONCLUSION_PORTS: readonly ConnectorPort[] = [
   { id: "premise-left", edge: "top", position: 0.3 },
@@ -153,6 +167,8 @@ export function getProofNodePorts(
       return MP_PORTS;
     case "gen":
       return GEN_PORTS;
+    case "substitution":
+      return SUBSTITUTION_PORTS;
     case "conclusion":
       return CONCLUSION_PORTS;
   }
@@ -168,6 +184,7 @@ const EDGE_COLORS = {
   axiom: { varName: "--color-edge-axiom", fallback: "#7aa3e0" },
   mp: { varName: "--color-edge-mp", fallback: "#e0a87a" },
   gen: { varName: "--color-edge-gen", fallback: "#c39bd3" },
+  substitution: { varName: "--color-edge-substitution", fallback: "#5dade2" },
   conclusion: { varName: "--color-edge-conclusion", fallback: "#7ae0a3" },
 } as const satisfies Record<
   ProofNodeKind,
@@ -186,6 +203,8 @@ export function getProofEdgeColor(fromKind: ProofNodeKind): string {
       return cssVar(EDGE_COLORS.mp);
     case "gen":
       return cssVar(EDGE_COLORS.gen);
+    case "substitution":
+      return cssVar(EDGE_COLORS.substitution);
     case "conclusion":
       return cssVar(EDGE_COLORS.conclusion);
   }

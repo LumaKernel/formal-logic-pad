@@ -4,6 +4,7 @@ import {
   CONCLUSION_PORTS,
   GEN_PORTS,
   MP_PORTS,
+  SUBSTITUTION_PORTS,
   PROOF_NODE_KINDS,
   getProofEdgeColor,
   getProofNodePorts,
@@ -12,7 +13,7 @@ import {
 import type { ProofNodeKind } from "./proofNodeUI";
 
 describe("getProofNodeStyle", () => {
-  it.each<ProofNodeKind>(["axiom", "mp", "gen", "conclusion"])(
+  it.each<ProofNodeKind>(["axiom", "mp", "gen", "substitution", "conclusion"])(
     "returns a style object for kind=%s",
     (kind) => {
       const style = getProofNodeStyle(kind);
@@ -52,10 +53,11 @@ describe("getProofNodeStyle", () => {
     expect(getProofNodeStyle("conclusion").borderRadius).toBe(12);
   });
 
-  it("axiom, mp, and gen have border radius 8", () => {
+  it("axiom, mp, gen, and substitution have border radius 8", () => {
     expect(getProofNodeStyle("axiom").borderRadius).toBe(8);
     expect(getProofNodeStyle("mp").borderRadius).toBe(8);
     expect(getProofNodeStyle("gen").borderRadius).toBe(8);
+    expect(getProofNodeStyle("substitution").borderRadius).toBe(8);
   });
 
   it("includes stripeColor and boxShadowHover", () => {
@@ -94,6 +96,13 @@ describe("getProofNodePorts", () => {
     expect(ports.map((p) => p.id)).toEqual(["premise", "out"]);
   });
 
+  it("substitution has 2 ports (1 input + 1 output)", () => {
+    const ports = getProofNodePorts("substitution");
+    expect(ports).toBe(SUBSTITUTION_PORTS);
+    expect(ports).toHaveLength(2);
+    expect(ports.map((p) => p.id)).toEqual(["premise", "out"]);
+  });
+
   it("conclusion has 2 input ports", () => {
     const ports = getProofNodePorts("conclusion");
     expect(ports).toBe(CONCLUSION_PORTS);
@@ -120,10 +129,14 @@ describe("getProofEdgeColor", () => {
   it("gen edges use CSS variable with fallback", () => {
     expect(getProofEdgeColor("gen")).toBe("var(--color-edge-gen, #c39bd3)");
   });
+
+  it("substitution edges use CSS variable with fallback", () => {
+    expect(getProofEdgeColor("substitution")).toBe("var(--color-edge-substitution, #5dade2)");
+  });
 });
 
 describe("PROOF_NODE_KINDS", () => {
-  it("contains all 4 kinds", () => {
-    expect(PROOF_NODE_KINDS).toEqual(["axiom", "mp", "gen", "conclusion"]);
+  it("contains all 5 kinds", () => {
+    expect(PROOF_NODE_KINDS).toEqual(["axiom", "mp", "gen", "substitution", "conclusion"]);
   });
 });

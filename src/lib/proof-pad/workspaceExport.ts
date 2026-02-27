@@ -59,6 +59,7 @@ const VALID_KINDS: ReadonlySet<string> = new Set([
   "axiom",
   "mp",
   "gen",
+  "substitution",
   "conclusion",
 ]);
 const VALID_MODES: ReadonlySet<string> = new Set(["free", "quest"]);

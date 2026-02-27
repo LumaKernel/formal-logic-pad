@@ -27,6 +27,7 @@ const STEP_NODE_KINDS: ReadonlySet<ProofNodeKind> = new Set([
   "axiom",
   "mp",
   "gen",
+  "substitution",
 ]);
 
 /**
