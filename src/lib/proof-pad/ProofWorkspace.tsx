@@ -23,6 +23,7 @@ import { findPort } from "../infinite-canvas/connector";
 import type { ConnectorPortOnItem } from "../infinite-canvas/connector";
 import type { ViewportState, Point, Size } from "../infinite-canvas/types";
 import { screenToWorld } from "../infinite-canvas/multiSelection";
+import type { SelectableItem } from "../infinite-canvas/multiSelection";
 import { useConnectionPreview } from "../infinite-canvas/useConnectionPreview";
 import { buildPortCandidates } from "../infinite-canvas/connectionPreview";
 import { EditableProofNode } from "./EditableProofNode";
@@ -123,6 +124,7 @@ import { findEntryById } from "../reference/referenceEntry";
 import { ReferencePopover } from "../reference/ReferencePopover";
 import { getInferenceRuleReferenceEntryId } from "./inferenceRuleReferenceLogic";
 import { useEdgeScroll } from "../infinite-canvas/useEdgeScroll";
+import { useMarquee } from "../infinite-canvas/useMarquee";
 import { MinimapComponent } from "../infinite-canvas/MinimapComponent";
 import type { MinimapItem } from "../infinite-canvas/minimap";
 
@@ -511,6 +513,9 @@ export function ProofWorkspace({
   // コンテナref（キーボードイベント用）
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // マーキー完了後のclickイベント抑制用ref
+  const suppressNextClickRef = useRef(false);
+
   // ファイルインポート用の隠しinput
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -679,6 +684,37 @@ export function ProofWorkspace({
     handleValidateConnection,
     handleConnectionComplete,
   );
+
+  // マーキー選択（空白部分ドラッグで矩形選択）
+  const [isSpacePanActive, setIsSpacePanActive] = useState(false);
+
+  const selectableItems: readonly SelectableItem[] = minimapItems;
+
+  const handleMarqueeSelectionChange = useCallback(
+    (ids: ReadonlySet<string>) => {
+      setSelectedNodeIds(ids);
+      // マーキーで選択した直後のclickイベントで選択解除されるのを防ぐ
+      suppressNextClickRef.current = true;
+    },
+    [],
+  );
+
+  const {
+    marqueeRect,
+    onPointerDown: marqueePointerDown,
+    onPointerMove: marqueePointerMove,
+    onPointerUp: marqueePointerUp,
+  } = useMarquee(
+    viewport,
+    selectableItems,
+    selectedNodeIds,
+    handleMarqueeSelectionChange,
+    containerRef,
+  );
+
+  /** マーキーモードが有効かどうか（スペースパン中・ポートドラッグ中は無効） */
+  const marqueeEnabled =
+    !isSpacePanActive && connectionPreviewState === null;
 
   const handlePortDragStart = useCallback(
     (nodeId: string) =>
@@ -1207,6 +1243,11 @@ export function ProofWorkspace({
   /* v8 ignore stop */
 
   const handleCanvasClick = useCallback(() => {
+    // マーキー選択直後のclickイベントはスキップ
+    if (suppressNextClickRef.current) {
+      suppressNextClickRef.current = false;
+      return;
+    }
     // キャンバスの空白部分クリックで選択解除
     if (selectedNodeIds.size > 0) {
       setSelectedNodeIds(clearSelection());
@@ -1580,11 +1621,25 @@ export function ProofWorkspace({
         handleDeleteSelected();
       } else if (e.key === "Escape") {
         setSelectedNodeIds(clearSelection());
+      } else if (e.key === " " && !e.repeat) {
+        // スペースキー押下でパンモード有効化
+        e.preventDefault();
+        setIsSpacePanActive(true);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === " ") {
+        setIsSpacePanActive(false);
       }
     };
 
     container.addEventListener("keydown", handleKeyDown);
-    return () => container.removeEventListener("keydown", handleKeyDown);
+    container.addEventListener("keyup", handleKeyUp);
+    return () => {
+      container.removeEventListener("keydown", handleKeyDown);
+      container.removeEventListener("keyup", handleKeyUp);
+    };
   }, [
     editingNodeIds,
     handleCopy,
@@ -2688,7 +2743,12 @@ export function ProofWorkspace({
       <InfiniteCanvas
         viewport={viewport}
         onViewportChange={setViewport}
-        panEnabled={connectionPreviewState === null}
+        panEnabled={connectionPreviewState === null && !marqueeEnabled}
+        onEmptyAreaPointerDown={marqueeEnabled ? marqueePointerDown : undefined}
+        onEmptyAreaPointerMove={marqueeEnabled ? marqueePointerMove : undefined}
+        onEmptyAreaPointerUp={marqueeEnabled ? marqueePointerUp : undefined}
+        onEmptyAreaClick={handleCanvasClick}
+        marqueeRect={marqueeRect}
       >
         {connectionElements}
         {/* Connection preview line (shown during port drag) */}

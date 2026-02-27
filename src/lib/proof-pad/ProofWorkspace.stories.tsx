@@ -1000,3 +1000,53 @@ export const NodeDuplicate: Story = {
     await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
   },
 };
+
+// --- Marquee Selection ---
+
+function MarqueeSelectionWorkspace() {
+  const initial = (() => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "φ → (ψ → φ)");
+    ws = addNode(ws, "axiom", "A2", { x: 250, y: 50 }, "ψ → φ");
+    ws = addNode(ws, "axiom", "A3", { x: 450, y: 50 }, "χ → ψ");
+    ws = addNode(ws, "axiom", "A4", { x: 50, y: 250 }, "φ → χ");
+    return ws;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/** マーキー矩形選択: 空白部分をドラッグして矩形範囲内のノードを選択。スペースキー押下中はパンモード */
+export const MarqueeSelection: Story = {
+  render: () => <MarqueeSelectionWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // 4ノードが表示されている
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+
+    // 選択バナーは表示されていない
+    const bannerQuery = canvasElement.querySelector(
+      "[data-testid='workspace-selection-banner']",
+    );
+    expect(bannerQuery).toBeNull();
+  },
+};
