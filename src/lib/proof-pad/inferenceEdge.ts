@@ -1,15 +1,14 @@
 /**
- * 推論エッジの型定義と既存ノードベースからの抽出ユーティリティ。
+ * 推論エッジの型定義とユーティリティ。
  *
- * 推論規則（MP, Gen, Substitution）をノードではなくエッジとして表現するための
- * 新しいデータモデル。段階的移行の第一歩として、既存のWorkspaceStateから
- * InferenceEdgeを抽出する純粋関数を提供する。
+ * 推論規則（MP, Gen, Substitution）をノードではなくエッジとして表現するデータモデル。
+ * InferenceEdgeはWorkspaceState.inferenceEdgesに直接保持され、
+ * ノードの種別（ProofNodeKind）からは独立して管理される。
  *
  * 変更時は inferenceEdge.test.ts も同期すること。
  */
 
 import type { SubstitutionEntries } from "./substitutionApplicationLogic";
-import type { WorkspaceState, WorkspaceNode } from "./workspaceState";
 
 // --- 推論エッジ型 ---
 
@@ -19,7 +18,7 @@ import type { WorkspaceState, WorkspaceNode } from "./workspaceState";
  */
 export type MPEdge = {
   readonly _tag: "mp";
-  /** 結論ノードのID（derivedノード or レガシーMPノード） */
+  /** 結論ノードのID（derivedノード） */
   readonly conclusionNodeId: string;
   /** antecedent（φ）のノードID */
   readonly leftPremiseNodeId: string | undefined;
@@ -35,7 +34,7 @@ export type MPEdge = {
  */
 export type GenEdge = {
   readonly _tag: "gen";
-  /** 結論ノードのID（derivedノード or レガシーGenノード） */
+  /** 結論ノードのID（derivedノード） */
   readonly conclusionNodeId: string;
   /** 前提（φ）のノードID */
   readonly premiseNodeId: string | undefined;
@@ -51,7 +50,7 @@ export type GenEdge = {
  */
 export type SubstitutionEdge = {
   readonly _tag: "substitution";
-  /** 結論ノードのID（derivedノード or レガシーSubstitutionノード） */
+  /** 結論ノードのID（derivedノード） */
   readonly conclusionNodeId: string;
   /** 前提のノードID */
   readonly premiseNodeId: string | undefined;
@@ -64,117 +63,7 @@ export type SubstitutionEdge = {
 /** 推論エッジの union 型 */
 export type InferenceEdge = MPEdge | GenEdge | SubstitutionEdge;
 
-// --- 既存ノードベースからの抽出 ---
-
-/**
- * MPノードからMPEdgeを抽出する。
- * 接続からpremise-left/premise-rightのノードIDを探索する。
- */
-function extractMPEdge(node: WorkspaceNode, state: WorkspaceState): MPEdge {
-  let leftPremiseNodeId: string | undefined;
-  let rightPremiseNodeId: string | undefined;
-
-  for (const conn of state.connections) {
-    if (conn.toNodeId === node.id) {
-      if (conn.toPortId === "premise-left") {
-        leftPremiseNodeId = conn.fromNodeId;
-      } else if (conn.toPortId === "premise-right") {
-        rightPremiseNodeId = conn.fromNodeId;
-      }
-    }
-  }
-
-  return {
-    _tag: "mp",
-    conclusionNodeId: node.id,
-    leftPremiseNodeId,
-    rightPremiseNodeId,
-    conclusionText: node.formulaText,
-  };
-}
-
-/**
- * GenノードからGenEdgeを抽出する。
- * 接続からpremiseのノードIDを探索する。
- */
-function extractGenEdge(node: WorkspaceNode, state: WorkspaceState): GenEdge {
-  let premiseNodeId: string | undefined;
-
-  for (const conn of state.connections) {
-    if (conn.toNodeId === node.id && conn.toPortId === "premise") {
-      premiseNodeId = conn.fromNodeId;
-    }
-  }
-
-  return {
-    _tag: "gen",
-    conclusionNodeId: node.id,
-    premiseNodeId,
-    variableName: node.genVariableName ?? "",
-    conclusionText: node.formulaText,
-  };
-}
-
-/**
- * SubstitutionノードからSubstitutionEdgeを抽出する。
- * 接続からpremiseのノードIDを探索する。
- */
-function extractSubstitutionEdge(
-  node: WorkspaceNode,
-  state: WorkspaceState,
-): SubstitutionEdge {
-  let premiseNodeId: string | undefined;
-
-  for (const conn of state.connections) {
-    if (conn.toNodeId === node.id && conn.toPortId === "premise") {
-      premiseNodeId = conn.fromNodeId;
-    }
-  }
-
-  return {
-    _tag: "substitution",
-    conclusionNodeId: node.id,
-    premiseNodeId,
-    entries: node.substitutionEntries ?? [],
-    conclusionText: node.formulaText,
-  };
-}
-
-/**
- * 既存のWorkspaceStateから推論エッジを抽出する純粋関数。
- *
- * 現在のノードベース表現（kind: "mp" / "gen" / "substitution"）を走査し、
- * 各推論ノードと接続からInferenceEdgeを構築する。
- *
- * 段階的移行の橋渡し: 既存データ → 新しいエッジベース表現。
- */
-export function extractInferenceEdges(
-  state: WorkspaceState,
-): readonly InferenceEdge[] {
-  const edges: InferenceEdge[] = [];
-
-  for (const node of state.nodes) {
-    switch (node.kind) {
-      case "mp":
-        edges.push(extractMPEdge(node, state));
-        break;
-      case "gen":
-        edges.push(extractGenEdge(node, state));
-        break;
-      case "substitution":
-        edges.push(extractSubstitutionEdge(node, state));
-        break;
-      case "axiom":
-      case "derived":
-      case "conclusion":
-        // 推論規則ではないノードはスキップ
-        // (derivedノードの推論情報はinferenceEdgesに直接保持される)
-        break;
-    }
-  }
-
-  return edges;
-}
+// --- ユーティリティ ---
 
 /**
  * 指定ノードIDに関連する推論エッジを検索する。

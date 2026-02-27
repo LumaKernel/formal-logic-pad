@@ -72,7 +72,7 @@ describe("nodeRoleLogic", () => {
 
   describe("classifyNode", () => {
     it("returns 'derived' for a node with incoming connections", () => {
-      const node = makeNode("node-2", { kind: "mp" });
+      const node = makeNode("node-2", { kind: "derived" });
       const connections = [makeConnection("node-1", "node-2")];
       expect(classifyNode(node, connections)).toBe("derived");
     });
@@ -119,7 +119,7 @@ describe("nodeRoleLogic", () => {
       const nodes = [
         makeNode("node-1", { role: "axiom" }),
         makeNode("node-2"),
-        makeNode("node-3", { kind: "mp" }),
+        makeNode("node-3", { kind: "derived" }),
       ];
       const connections = [
         makeConnection("node-1", "node-3", "out", "premise-left"),
@@ -195,13 +195,13 @@ describe("nodeRoleLogic", () => {
     });
 
     it("excludes derived nodes", () => {
-      const nodes = [makeNode("node-1"), makeNode("node-2", { kind: "mp" })];
+      const nodes = [makeNode("node-1"), makeNode("node-2", { kind: "derived" })];
       const connections = [makeConnection("node-1", "node-2")];
       expect(getAxiomNodeIds(nodes, connections)).toEqual(["node-1"]);
     });
 
     it("returns empty array when all nodes are derived", () => {
-      const nodes = [makeNode("node-2", { kind: "mp" })];
+      const nodes = [makeNode("node-2", { kind: "derived" })];
       const connections = [makeConnection("node-1", "node-2")];
       expect(getAxiomNodeIds(nodes, connections)).toEqual([]);
     });

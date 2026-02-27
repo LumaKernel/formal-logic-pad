@@ -109,15 +109,12 @@ export type SubstitutionApplicationResult =
 
 /**
  * 代入ノード/derivedノードに関連する前提ノードのIDを取得する。
- *
- * 優先: InferenceEdge（source of truth）から取得。
- * フォールバック: レガシーのポートベース接続（premise）から取得。
+ * InferenceEdge（source of truth）から取得する。
  */
 export function getSubstitutionPremise(
   state: WorkspaceState,
   substitutionNodeId: string,
 ): string | undefined {
-  // InferenceEdge から取得
   const substEdge = state.inferenceEdges.find(
     (e) =>
       e._tag === "substitution" && e.conclusionNodeId === substitutionNodeId,
@@ -126,12 +123,6 @@ export function getSubstitutionPremise(
     return substEdge.premiseNodeId;
   }
 
-  // レガシーフォールバック: ポートベース接続
-  for (const conn of state.connections) {
-    if (conn.toNodeId === substitutionNodeId && conn.toPortId === "premise") {
-      return conn.fromNodeId;
-    }
-  }
   return undefined;
 }
 

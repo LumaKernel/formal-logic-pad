@@ -49,15 +49,12 @@ export type MPApplicationResult = MPApplicationSuccess | MPApplicationError;
 
 /**
  * MPノード/derivedノードに関連する前提ノードのIDを取得する。
- *
- * 優先: InferenceEdge（source of truth）から取得。
- * フォールバック: レガシーのポートベース接続（premise-left/premise-right）から取得。
+ * InferenceEdge（source of truth）から取得する。
  */
 export function getMPPremises(
   state: WorkspaceState,
   mpNodeId: string,
 ): MPPremiseState {
-  // InferenceEdge から取得
   const mpEdge = state.inferenceEdges.find(
     (e) => e._tag === "mp" && e.conclusionNodeId === mpNodeId,
   );
@@ -68,21 +65,7 @@ export function getMPPremises(
     };
   }
 
-  // レガシーフォールバック: ポートベース接続
-  let leftNodeId: string | undefined;
-  let rightNodeId: string | undefined;
-
-  for (const conn of state.connections) {
-    if (conn.toNodeId === mpNodeId) {
-      if (conn.toPortId === "premise-left") {
-        leftNodeId = conn.fromNodeId;
-      } else if (conn.toPortId === "premise-right") {
-        rightNodeId = conn.fromNodeId;
-      }
-    }
-  }
-
-  return { leftNodeId, rightNodeId };
+  return { leftNodeId: undefined, rightNodeId: undefined };
 }
 
 // --- ノードから論理式をパース ---

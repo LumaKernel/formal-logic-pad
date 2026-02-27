@@ -24,7 +24,7 @@ function createSampleWorkspace(): WorkspaceState {
       },
       {
         id: "node-2",
-        kind: "mp",
+        kind: "derived",
         label: "MP",
         formulaText: "psi -> phi",
         position: { x: 300, y: 400 },
@@ -78,7 +78,7 @@ function createGenWorkspace(): WorkspaceState {
     nodes: [
       {
         id: "node-1",
-        kind: "gen",
+        kind: "derived",
         label: "Gen",
         formulaText: "all x. P(x)",
         position: { x: 100, y: 200 },
@@ -564,7 +564,7 @@ describe("importWorkspaceFromJSON", () => {
           nodes: [
             {
               id: "n1",
-              kind: "gen",
+              kind: "derived",
               label: "Gen",
               formulaText: "",
               position: { x: 0, y: 0 },

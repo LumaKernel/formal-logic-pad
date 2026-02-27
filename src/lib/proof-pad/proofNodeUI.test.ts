@@ -2,9 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   AXIOM_PORTS,
   CONCLUSION_PORTS,
-  GEN_PORTS,
-  MP_PORTS,
-  SUBSTITUTION_PORTS,
+  DERIVED_PORTS,
   PROOF_NODE_KINDS,
   getProofEdgeColor,
   getProofNodePorts,
@@ -14,7 +12,7 @@ import {
 import type { ProofNodeKind } from "./proofNodeUI";
 
 describe("getProofNodeStyle", () => {
-  it.each<ProofNodeKind>(["axiom", "mp", "gen", "substitution", "conclusion"])(
+  it.each<ProofNodeKind>(["axiom", "derived", "conclusion"])(
     "returns a style object for kind=%s",
     (kind) => {
       const style = getProofNodeStyle(kind);
@@ -54,11 +52,9 @@ describe("getProofNodeStyle", () => {
     expect(getProofNodeStyle("conclusion").borderRadius).toBe(12);
   });
 
-  it("axiom, mp, gen, and substitution have border radius 8", () => {
+  it("axiom and derived have border radius 8", () => {
     expect(getProofNodeStyle("axiom").borderRadius).toBe(8);
-    expect(getProofNodeStyle("mp").borderRadius).toBe(8);
-    expect(getProofNodeStyle("gen").borderRadius).toBe(8);
-    expect(getProofNodeStyle("substitution").borderRadius).toBe(8);
+    expect(getProofNodeStyle("derived").borderRadius).toBe(8);
   });
 
   it("includes stripeColor and boxShadowHover", () => {
@@ -79,29 +75,16 @@ describe("getProofNodePorts", () => {
     expect(ports[0]?.edge).toBe("bottom");
   });
 
-  it("mp has 3 ports (2 input + 1 output)", () => {
-    const ports = getProofNodePorts("mp");
-    expect(ports).toBe(MP_PORTS);
-    expect(ports).toHaveLength(3);
+  it("derived has 4 ports (3 input + 1 output)", () => {
+    const ports = getProofNodePorts("derived");
+    expect(ports).toBe(DERIVED_PORTS);
+    expect(ports).toHaveLength(4);
     expect(ports.map((p) => p.id)).toEqual([
       "premise-left",
       "premise-right",
+      "premise",
       "out",
     ]);
-  });
-
-  it("gen has 2 ports (1 input + 1 output)", () => {
-    const ports = getProofNodePorts("gen");
-    expect(ports).toBe(GEN_PORTS);
-    expect(ports).toHaveLength(2);
-    expect(ports.map((p) => p.id)).toEqual(["premise", "out"]);
-  });
-
-  it("substitution has 2 ports (1 input + 1 output)", () => {
-    const ports = getProofNodePorts("substitution");
-    expect(ports).toBe(SUBSTITUTION_PORTS);
-    expect(ports).toHaveLength(2);
-    expect(ports.map((p) => p.id)).toEqual(["premise", "out"]);
   });
 
   it("conclusion has 2 input ports", () => {
@@ -123,49 +106,22 @@ describe("getProofEdgeColor", () => {
     expect(getProofEdgeColor("axiom")).toBe("var(--color-edge-axiom, #7aa3e0)");
   });
 
-  it("mp edges use CSS variable with fallback", () => {
-    expect(getProofEdgeColor("mp")).toBe("var(--color-edge-mp, #e0a87a)");
-  });
-
-  it("gen edges use CSS variable with fallback", () => {
-    expect(getProofEdgeColor("gen")).toBe("var(--color-edge-gen, #c39bd3)");
-  });
-
-  it("substitution edges use CSS variable with fallback", () => {
-    expect(getProofEdgeColor("substitution")).toBe(
-      "var(--color-edge-substitution, #5dade2)",
+  it("derived edges use CSS variable with fallback", () => {
+    expect(getProofEdgeColor("derived")).toBe(
+      "var(--color-edge-derived, #e6b870)",
     );
   });
 });
 
 describe("PROOF_NODE_KINDS", () => {
-  it("contains all 6 kinds", () => {
-    expect(PROOF_NODE_KINDS).toEqual([
-      "axiom",
-      "mp",
-      "gen",
-      "substitution",
-      "derived",
-      "conclusion",
-    ]);
+  it("contains all 3 kinds", () => {
+    expect(PROOF_NODE_KINDS).toEqual(["axiom", "derived", "conclusion"]);
   });
 });
 
 describe("getProofNodeKindLabel", () => {
   it("returns 'Axiom' for axiom kind", () => {
     expect(getProofNodeKindLabel("axiom")).toBe("Axiom");
-  });
-
-  it("returns 'MP' for mp kind", () => {
-    expect(getProofNodeKindLabel("mp")).toBe("MP");
-  });
-
-  it("returns 'Gen' for gen kind", () => {
-    expect(getProofNodeKindLabel("gen")).toBe("Gen");
-  });
-
-  it("returns 'Subst' for substitution kind", () => {
-    expect(getProofNodeKindLabel("substitution")).toBe("Subst");
   });
 
   it("returns 'Derived' for derived kind", () => {

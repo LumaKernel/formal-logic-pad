@@ -21,13 +21,11 @@ import { getNodeAxiomIds } from "../proof-pad/dependencyLogic";
 
 /**
  * ステップとしてカウントするノード種別。
- * 公理、MP（Modus Ponens）、Gen（汎化）がそれぞれ1ステップとなる。
+ * 公理ノードと推論結果（derived）ノードがそれぞれ1ステップとなる。
  */
 const STEP_NODE_KINDS: ReadonlySet<ProofNodeKind> = new Set([
   "axiom",
-  "mp",
-  "gen",
-  "substitution",
+  "derived",
 ]);
 
 /**

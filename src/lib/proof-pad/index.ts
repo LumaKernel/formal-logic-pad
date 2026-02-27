@@ -107,9 +107,7 @@ export type {
 export {
   PROOF_NODE_KINDS,
   AXIOM_PORTS,
-  MP_PORTS,
-  GEN_PORTS,
-  SUBSTITUTION_PORTS,
+  DERIVED_PORTS,
   CONCLUSION_PORTS,
   getProofNodeStyle,
   getProofNodePorts,
@@ -241,7 +239,6 @@ export type {
   A5AntecedentValidation,
 } from "./parametricAxiomLogic";
 export {
-  extractInferenceEdges,
   findInferenceEdgesForNode,
   getInferenceEdgeConclusionNodeId,
   getInferenceEdgePremiseNodeIds,
