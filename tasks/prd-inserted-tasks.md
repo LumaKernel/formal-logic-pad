@@ -21,39 +21,42 @@
       これを例にするが、公理は公理そのものの形(とメタ変数の取り方の違い)を除けば、公理と判定されてはならなくて、
       公理のを利用したものでも、代入操作をするステップ(ノード)を挟んで利用する形でなければならない。
 - [x] 白紙部分でのコンテキストメニューで公理、ゴール、中間地点ノードなどの追加をできるようにしよう
-    - [ ] まっさらな公理に、既存のwell-knownな公理を入れたら自動で判別される、というのがなされるストーリーを用意しよう
+  - [ ] まっさらな公理に、既存のwell-knownな公理を入れたら自動で判別される、というのがなされるストーリーを用意しよう
 - [ ] 公理ノードを呼び出しによって作成しても、公理を別のものに書き換えて、別のwell-knownなものにしたら、そちらとして自動で判定されるようにしよう
-    - [ ] このとき、内部情報として、最初からそちらの公理を呼び出したときと同じ状態になるのがいい。well-knownな公理でも、idなどで管理するわけではなく、あくまもで、公理の形がそうか、ということで自動判別されるという仕組みで一貫させよう。
+  - [ ] このとき、内部情報として、最初からそちらの公理を呼び出したときと同じ状態になるのがいい。well-knownな公理でも、idなどで管理するわけではなく、あくまもで、公理の形がそうか、ということで自動判別されるという仕組みで一貫させよう。
 - [ ] MPで証明したものの、公理を書き換えてMPが不適になり、なので書き換えた公理を削除して、もう一度呼び出して、繋げて、MPが再度正常な状態になる、というのを行うことを実現する機能群とストーリーを用意しよう。
-    - [ ] まず必要な機能についてタスクとしてまとめていこう
+  - [ ] まず必要な機能についてタスクとしてまとめていこう
 - [x] http://localhost:13006/?path=/story/proofpad-peanoarithmeticdemo--zero-plus-zero-completed
-        GOALになにも繋ってない状態で Proof Completeとなっているが、ゴールに確実にMPから繋げるなどして証明されて始めてProof Completeとなってほしい
+      GOALになにも繋ってない状態で Proof Completeとなっているが、ゴールに確実にMPから繋げるなどして証明されて始めてProof Completeとなってほしい
 - [x] Export/Ipmortはずっと表示されてるボタンではなく、ノートに関する操作メニューの中にあるような形で十分だろう
 - [ ] 述語論理の練習問題をぜひもっと充実させたい ( ./bekki.pdf も参考に)
-    - [ ] 基礎側のもが一切ないので、まずはドキュメント(知識)を整備しつつ
+  - [ ] 基礎側のもが一切ないので、まずはドキュメント(知識)を整備しつつ
 - [ ] 命題論理の練習問題をぜひもっと充実させたい ( ./bekki.pdf も参考に)
-    - [ ] pdfのテキスト化やその上での文字検索などを駆使して練習問題の全体像を見てみてほしい
+  - [ ] pdfのテキスト化やその上での文字検索などを駆使して練習問題の全体像を見てみてほしい
 - [ ] コンテキストメニュー経由での追加したノードを削除するという基本機能がない
-    - [ ] ただしクエストのといはゴールは消せないほうがよいだろう。
-    - [ ] duplicateなどもあるとよいだろう。ただし、ゴールなどは、野良の通常の中間定理に変わるのが良いだろう (ゴールが複製されまくるのをユーザーができてしまうのはよくない）
-    - [ ] Apply 代入操作 (ととりあえずここでは呼ぶが) もあるとよい
+  - [ ] ただしクエストのといはゴールは消せないほうがよいだろう。
+  - [ ] duplicateなどもあるとよいだろう。ただし、ゴールなどは、野良の通常の中間定理に変わるのが良いだろう (ゴールが複製されまくるのをユーザーができてしまうのはよくない）
+  - [ ] Apply 代入操作 (ととりあえずここでは呼ぶが) もあるとよい
 - [ ] http://localhost:13000/workspace/... ← 実際のこれらはミニマップとか画面端スクロールがないけど、せっかく作ったそのあたりの機能はデフォルトで全部搭載しておこう
 - [ ] ノード移動の仕様について、マウスからどんどん離れていってしまうことがある
-        基本的に、むしろ、マウスとの相対位置はキープされてほしいものだ。
-        snapや画面端スクロールがついていたり、すばやく動かしたり長く動かすと起こる。
-- [ ] http://localhost:13000
-        実際に使ってみようとすると以下のようなエラーが出る。
-    Removing a style property during rerender (borderBottomColor) when a conflicting property is set (borderBottom) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values.
+      基本的に、むしろ、マウスとの相対位置はキープされてほしいものだ。
+      snapや画面端スクロールがついていたり、すばやく動かしたり長く動かすと起こる。
+- [x] http://localhost:13000
+      実際に使ってみようとすると以下のようなエラーが出る。
+      Removing a style property during rerender (borderBottomColor) when a conflicting property is set (borderBottom) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values.
 
-    src/app/HubPageView.tsx (178:9) @ HubPageView
+  src/app/HubPageView.tsx (178:9) @ HubPageView
 
       176 |       {/* Tab Bar */}
       177 |       <nav style={tabBarStyle}>
-    > 178 |         <button
+
+  > 178 | <button
+
           |         ^
       179 |           type="button"
       180 |           style={tab === "notebooks" ? tabActiveStyle : tabStyle}
       181 |           onClick={() => {
-    - [ ] 修正プラン、タスクを立てよう。
-    - [ ] これを検出できるストーリーは作れないだろうか。
-    - [ ] playwright mcpで自身で最後にしっかり確認しよう
+
+  - [x] 修正プラン、タスクを立てよう。
+  - [x] これを検出できるストーリーは作れないだろうか。
+  - [x] playwright mcpで自身で最後にしっかり確認しよう

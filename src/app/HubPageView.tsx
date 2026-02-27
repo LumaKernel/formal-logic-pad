@@ -95,7 +95,9 @@ const tabStyle: CSSProperties = {
   border: "none",
   background: "transparent",
   color: "var(--color-text-secondary, #666)",
-  borderBottom: "2px solid transparent",
+  borderBottomWidth: 2,
+  borderBottomStyle: "solid",
+  borderBottomColor: "transparent",
   transition: "color 0.15s, border-color 0.15s",
 };
 
