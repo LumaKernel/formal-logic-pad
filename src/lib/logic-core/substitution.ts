@@ -23,6 +23,7 @@ import {
   Existential,
   Predicate,
   Equality,
+  FormulaSubstitution,
 } from "./formula";
 import {
   type Term,
@@ -142,6 +143,12 @@ const substituteFormulaMetaVariablesRec = (
     case "Equality":
       // 等号の項には論理式メタ変数がない
       return f;
+    case "FormulaSubstitution":
+      return new FormulaSubstitution({
+        formula: substituteFormulaMetaVariablesRec(f.formula, subst),
+        term: f.term,
+        variable: f.variable,
+      });
   }
   /* v8 ignore start */
   f satisfies never;
@@ -263,6 +270,12 @@ const substituteTermMetaVariablesInFormulaRec = (
         left: substituteTermMetaVariablesInTermRec(f.left, subst),
         right: substituteTermMetaVariablesInTermRec(f.right, subst),
       });
+    case "FormulaSubstitution":
+      return new FormulaSubstitution({
+        formula: substituteTermMetaVariablesInFormulaRec(f.formula, subst),
+        term: substituteTermMetaVariablesInTermRec(f.term, subst),
+        variable: f.variable,
+      });
   }
   /* v8 ignore start */
   f satisfies never;
@@ -309,6 +322,22 @@ const isFreeForRec = (t: Term, x: TermVariable, f: Formula): boolean => {
       }
       // 量化子の束縛変数 y が t の自由変数に含まれていたら捕獲
       if (freeVariablesInTerm(t).has(f.variable.name)) {
+        return false;
+      }
+      return isFreeForRec(t, x, f.formula);
+    }
+    case "FormulaSubstitution": {
+      // φ[τ/y] に対する x への代入可能性:
+      // y が x と同じなら φ 中の x は束縛される → φ 部分は代入不要、τ 部分のみチェック
+      if (f.variable.name === x.name) {
+        return true;
+      }
+      // y が t の自由変数に含まれていたら捕獲
+      if (freeVariablesInTerm(t).has(f.variable.name)) {
+        // x が φ で自由に出現しない場合は問題ない
+        if (!freeVariablesInFormula(f.formula).has(x.name)) {
+          return isFreeForRec(t, x, f.formula);
+        }
         return false;
       }
       return isFreeForRec(t, x, f.formula);
@@ -516,6 +545,59 @@ const substituteTermVariableInFormulaRec = (
         left: substituteTermVariableInTermRec(f.left, x, s),
         right: substituteTermVariableInTermRec(f.right, x, s),
       });
+    case "FormulaSubstitution": {
+      // φ[τ/y] に対する x の代入:
+      // y == x → φ 中の x は [τ/y] で束縛されるため代入しない。τ 中は代入する
+      if (f.variable.name === x.name) {
+        return new FormulaSubstitution({
+          formula: f.formula,
+          term: substituteTermVariableInTermRec(f.term, x, s),
+          variable: f.variable,
+        });
+      }
+      // y ≠ x → formula と term 両方に再帰
+      // ただし s の自由変数に y が含まれる場合は α変換が必要
+      const freeInS = freeVariablesInTerm(s);
+      if (freeInS.has(f.variable.name) && freeVariablesInFormula(f.formula).has(x.name)) {
+        // α変換: [τ/y] の y を新鮮な変数に
+        const usedNames = new Set<string>();
+        for (const v of allVariableNamesInFormula(f.formula)) {
+          usedNames.add(v);
+        }
+        for (const v of allVariableNamesInTerm(f.term)) {
+          usedNames.add(v);
+        }
+        for (const v of allVariableNamesInTerm(s)) {
+          usedNames.add(v);
+        }
+        usedNames.add(x.name);
+        const freshName = freshVariableName(f.variable.name, usedNames);
+        const freshVar = new TermVariable({ name: freshName });
+
+        // y を新鮮な変数にリネーム（formula 内のみ）
+        const renamedFormula = substituteTermVariableInFormulaRec(
+          f.formula,
+          f.variable,
+          freshVar,
+        );
+        // リネーム後の formula に x → s 代入を適用
+        const substitutedFormula = substituteTermVariableInFormulaRec(
+          renamedFormula,
+          x,
+          s,
+        );
+        return new FormulaSubstitution({
+          formula: substitutedFormula,
+          term: substituteTermVariableInTermRec(f.term, x, s),
+          variable: freshVar,
+        });
+      }
+      return new FormulaSubstitution({
+        formula: substituteTermVariableInFormulaRec(f.formula, x, s),
+        term: substituteTermVariableInTermRec(f.term, x, s),
+        variable: f.variable,
+      });
+    }
   }
   /* v8 ignore start */
   f satisfies never;

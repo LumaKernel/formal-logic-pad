@@ -13,6 +13,7 @@ import {
   existential,
   predicate,
   equality,
+  formulaSubstitution,
 } from "../logic-core/formula";
 import {
   termVariable,
@@ -622,6 +623,107 @@ describe("Parser", () => {
     });
   });
 
+  // --- 置換式 ---
+
+  describe("formula substitution", () => {
+    it("simple substitution φ[τ/x]", () => {
+      const φ = metaVariable("φ");
+      assertFormula(
+        "φ[τ/x]",
+        formulaSubstitution(φ, termMetaVariable("τ"), termVariable("x")),
+      );
+    });
+
+    it("substitution with constant term φ[0/x]", () => {
+      const φ = metaVariable("φ");
+      assertFormula(
+        "φ[0/x]",
+        formulaSubstitution(φ, constant("0"), termVariable("x")),
+      );
+    });
+
+    it("substitution with function term φ[S(y)/x]", () => {
+      const φ = metaVariable("φ");
+      assertFormula(
+        "φ[S(y)/x]",
+        formulaSubstitution(
+          φ,
+          functionApplication("S", [termVariable("y")]),
+          termVariable("x"),
+        ),
+      );
+    });
+
+    it("substitution with complex term φ[x + y/z]", () => {
+      const φ = metaVariable("φ");
+      assertFormula(
+        "φ[x + y/z]",
+        formulaSubstitution(
+          φ,
+          binaryOperation("+", termVariable("x"), termVariable("y")),
+          termVariable("z"),
+        ),
+      );
+    });
+
+    it("chained substitution φ[τ/x][σ/y]", () => {
+      const φ = metaVariable("φ");
+      assertFormula(
+        "φ[τ/x][σ/y]",
+        formulaSubstitution(
+          formulaSubstitution(φ, termMetaVariable("τ"), termVariable("x")),
+          termMetaVariable("σ"),
+          termVariable("y"),
+        ),
+      );
+    });
+
+    it("substitution on predicate P(x)[τ/x]", () => {
+      assertFormula(
+        "P(x)[τ/x]",
+        formulaSubstitution(
+          predicate("P", [termVariable("x")]),
+          termMetaVariable("τ"),
+          termVariable("x"),
+        ),
+      );
+    });
+
+    it("substitution binds tighter than →", () => {
+      // φ[τ/x] → ψ = (φ[τ/x]) → ψ
+      const φ = metaVariable("φ");
+      const ψ = metaVariable("ψ");
+      assertFormula(
+        "φ[τ/x] → ψ",
+        implication(
+          formulaSubstitution(φ, termMetaVariable("τ"), termVariable("x")),
+          ψ,
+        ),
+      );
+    });
+
+    it("substitution on parenthesized formula (φ → ψ)[τ/x]", () => {
+      const φ = metaVariable("φ");
+      const ψ = metaVariable("ψ");
+      assertFormula(
+        "(φ → ψ)[τ/x]",
+        formulaSubstitution(
+          implication(φ, ψ),
+          termMetaVariable("τ"),
+          termVariable("x"),
+        ),
+      );
+    });
+
+    it("substitution with greek letter variable φ[τ/ζ]", () => {
+      const φ = metaVariable("φ");
+      assertFormula(
+        "φ[τ/ζ]",
+        formulaSubstitution(φ, termMetaVariable("τ"), termVariable("ζ")),
+      );
+    });
+  });
+
   // --- エラーケース ---
 
   describe("error cases", () => {
@@ -699,6 +801,22 @@ describe("Parser", () => {
       const errors = parseErr("φ (");
       expect(errors.length).toBeGreaterThanOrEqual(1);
       expect(errors[0]!.message).toContain("(");
+    });
+
+    it("unclosed substitution bracket", () => {
+      const errors = parseErr("φ[τ/x");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors[0]!.message).toContain("]");
+    });
+
+    it("substitution missing variable after slash", () => {
+      const errors = parseErr("φ[τ/]");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("substitution missing slash", () => {
+      const errors = parseErr("φ[τ x]");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
     });
 
     it("comma at start is unexpected", () => {

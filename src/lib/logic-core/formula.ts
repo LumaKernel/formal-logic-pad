@@ -103,6 +103,23 @@ export class Equality extends Schema.TaggedClass<Equality>()("Equality", {
   right: Term,
 }) {}
 
+/**
+ * 論理式内の項変数置換 φ[τ/x]
+ * 「論理式 formula 中の自由変数 variable を項 term で置き換える」を表す構文ノード。
+ * これはメタ変数代入ではなく、対象言語（オブジェクト言語）内の置換を表す。
+ *
+ * 例: A4公理 ∀x.φ → φ[τ/x] の右辺
+ *     φ[f(x)/y] — φ の中の y を f(x) に置き換え
+ */
+export class FormulaSubstitution extends Schema.TaggedClass<FormulaSubstitution>()(
+  "FormulaSubstitution",
+  {
+    formula: Schema.suspend((): Schema.Schema<Formula> => Formula),
+    term: Term,
+    variable: TermVariable,
+  },
+) {}
+
 // ── Formula Union ────────────────────────────────────────
 
 /**
@@ -119,7 +136,8 @@ export type Formula =
   | Universal
   | Existential
   | Predicate
-  | Equality;
+  | Equality
+  | FormulaSubstitution;
 
 export const Formula = Schema.Union(
   MetaVariable,
@@ -132,6 +150,7 @@ export const Formula = Schema.Union(
   Existential,
   Predicate,
   Equality,
+  FormulaSubstitution,
 );
 
 // ── ファクトリ関数 ───────────────────────────────────────
@@ -172,3 +191,10 @@ export const predicate = (name: string, args: readonly Term[]): Predicate =>
 
 export const equality = (left: Term, right: Term): Equality =>
   new Equality({ left, right });
+
+export const formulaSubstitution = (
+  formula: Formula,
+  term: Term,
+  variable: TermVariable,
+): FormulaSubstitution =>
+  new FormulaSubstitution({ formula, term, variable });

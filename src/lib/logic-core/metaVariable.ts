@@ -88,6 +88,9 @@ export const collectFormulaMetaVariables = (
     case "Equality":
       // Term にはFormulaのMetaVariableは含まれない
       return [];
+    case "FormulaSubstitution":
+      // formula 部分にメタ変数が含まれうる（term 部分は Term なので Formula メタ変数なし）
+      return collectFormulaMetaVariables(f.formula);
   }
   /* v8 ignore start */
   f satisfies never;
@@ -149,6 +152,11 @@ export const collectTermMetaVariablesInFormula = (
       return [
         ...collectTermMetaVariables(f.left),
         ...collectTermMetaVariables(f.right),
+      ];
+    case "FormulaSubstitution":
+      return [
+        ...collectTermMetaVariablesInFormula(f.formula),
+        ...collectTermMetaVariables(f.term),
       ];
   }
   /* v8 ignore start */

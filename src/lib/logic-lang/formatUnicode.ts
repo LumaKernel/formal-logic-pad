@@ -102,6 +102,7 @@ const formulaChildBP = (
     case "MetaVariable":
     case "Predicate":
     case "Equality":
+    case "FormulaSubstitution":
       return { leftBP: 100, rightBP: 100 };
     case "Universal":
     case "Existential":
@@ -215,6 +216,25 @@ const formatFormulaInner = (f: Formula, parentBP: number): string => {
       const leftStr = formatTermInner(f.left);
       const rightStr = formatTermInner(f.right);
       return `${leftStr satisfies string} = ${rightStr satisfies string}`;
+    }
+
+    case "FormulaSubstitution": {
+      const formulaStr = formatFormulaInner(f.formula, 0);
+      const termStr = formatTermInner(f.term);
+      const varStr = f.variable.name;
+      // φ が複合式（二項演算子・量化子）なら括弧が必要
+      const needsParens =
+        f.formula._tag === "Implication" ||
+        f.formula._tag === "Biconditional" ||
+        f.formula._tag === "Conjunction" ||
+        f.formula._tag === "Disjunction" ||
+        f.formula._tag === "Universal" ||
+        f.formula._tag === "Existential" ||
+        f.formula._tag === "Negation";
+      const wrappedFormula = needsParens
+        ? `(${formulaStr satisfies string})`
+        : formulaStr;
+      return `${wrappedFormula satisfies string}[${termStr satisfies string}/${varStr satisfies string}]`;
     }
 
     /* v8 ignore next 5 */

@@ -42,6 +42,7 @@ export {
   Existential,
   Predicate,
   Equality,
+  FormulaSubstitution,
   Formula,
   metaVariable,
   negation,
@@ -53,6 +54,7 @@ export {
   existential,
   predicate,
   equality,
+  formulaSubstitution,
 } from "./formula";
 export type { Formula as FormulaType } from "./formula";
 

@@ -18,6 +18,7 @@ import {
   existential,
   predicate,
   equality,
+  formulaSubstitution,
 } from "../logic-core/formula";
 import {
   termVariable,
@@ -330,6 +331,84 @@ describe("formatFormula", () => {
     });
   });
 
+  describe("置換式", () => {
+    it("単純な置換 φ[τ/x]", () => {
+      expect(
+        formatFormula(
+          formulaSubstitution(
+            metaVariable("φ"),
+            termMetaVariable("τ"),
+            termVariable("x"),
+          ),
+        ),
+      ).toBe("φ[τ/x]");
+    });
+
+    it("複合式への置換 (φ → ψ)[τ/x]", () => {
+      expect(
+        formatFormula(
+          formulaSubstitution(
+            implication(metaVariable("φ"), metaVariable("ψ")),
+            termMetaVariable("τ"),
+            termVariable("x"),
+          ),
+        ),
+      ).toBe("(φ → ψ)[τ/x]");
+    });
+
+    it("否定への置換 (¬φ)[τ/x]", () => {
+      expect(
+        formatFormula(
+          formulaSubstitution(
+            negation(metaVariable("φ")),
+            termMetaVariable("τ"),
+            termVariable("x"),
+          ),
+        ),
+      ).toBe("(¬φ)[τ/x]");
+    });
+
+    it("述語への置換 P(x)[τ/x]", () => {
+      expect(
+        formatFormula(
+          formulaSubstitution(
+            predicate("P", [termVariable("x")]),
+            termMetaVariable("τ"),
+            termVariable("x"),
+          ),
+        ),
+      ).toBe("P(x)[τ/x]");
+    });
+
+    it("チェイン置換 φ[τ/x][σ/y]", () => {
+      expect(
+        formatFormula(
+          formulaSubstitution(
+            formulaSubstitution(
+              metaVariable("φ"),
+              termMetaVariable("τ"),
+              termVariable("x"),
+            ),
+            termMetaVariable("σ"),
+            termVariable("y"),
+          ),
+        ),
+      ).toBe("φ[τ/x][σ/y]");
+    });
+
+    it("複合項での置換 φ[S(y)/x]", () => {
+      expect(
+        formatFormula(
+          formulaSubstitution(
+            metaVariable("φ"),
+            functionApplication("S", [termVariable("y")]),
+            termVariable("x"),
+          ),
+        ),
+      ).toBe("φ[S(y)/x]");
+    });
+  });
+
   describe("複合式", () => {
     it("S公理: (φ → ψ → χ) → (φ → ψ) → (φ → χ)", () => {
       const s = implication(
@@ -586,6 +665,26 @@ describe("ラウンドトリップ (parse → format → parse)", () => {
 
   it("(x + y) * z = x", () => {
     roundTrip("(x + y) * z = x", "(x + y) × z = x");
+  });
+
+  it("φ[τ/x]", () => {
+    roundTrip("φ[τ/x]", "φ[τ/x]");
+  });
+
+  it("(φ → ψ)[τ/x]", () => {
+    roundTrip("(φ → ψ)[τ/x]", "(φ → ψ)[τ/x]");
+  });
+
+  it("φ[τ/x][σ/y]", () => {
+    roundTrip("φ[τ/x][σ/y]", "φ[τ/x][σ/y]");
+  });
+
+  it("φ[S(y)/x]", () => {
+    roundTrip("φ[S(y)/x]", "φ[S(y)/x]");
+  });
+
+  it("φ[τ/x] → ψ", () => {
+    roundTrip("φ[τ/x] → ψ", "φ[τ/x] → ψ");
   });
 
   it("format → parse ラウンドトリップ", () => {

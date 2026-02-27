@@ -87,6 +87,18 @@ export const freeVariablesInFormula = (f: Formula): ReadonlySet<string> => {
       }
       return result;
     }
+    case "FormulaSubstitution": {
+      // φ[τ/x] の自由変数 = (φの自由変数 \ {x}) ∪ (xがφで自由なら τの自由変数)
+      const innerFree = freeVariablesInFormula(f.formula);
+      const result = new Set(innerFree);
+      const xFreeInFormula = result.delete(f.variable.name);
+      if (xFreeInFormula) {
+        for (const v of freeVariablesInTerm(f.term)) {
+          result.add(v);
+        }
+      }
+      return result;
+    }
   }
   /* v8 ignore start */
   f satisfies never;
@@ -151,6 +163,17 @@ export const allVariableNamesInFormula = (f: Formula): ReadonlySet<string> => {
         result.add(v);
       }
       for (const v of allVariableNamesInTerm(f.right)) {
+        result.add(v);
+      }
+      return result;
+    }
+    case "FormulaSubstitution": {
+      const result = new Set<string>();
+      result.add(f.variable.name);
+      for (const v of allVariableNamesInFormula(f.formula)) {
+        result.add(v);
+      }
+      for (const v of allVariableNamesInTerm(f.term)) {
         result.add(v);
       }
       return result;

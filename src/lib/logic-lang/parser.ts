@@ -21,6 +21,7 @@ import {
   existential,
   predicate,
   equality,
+  formulaSubstitution,
 } from "../logic-core/formula";
 import type { Formula } from "../logic-core/formula";
 import {
@@ -166,6 +167,12 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
         return ")";
       case "LPAREN":
         return "(";
+      case "RBRACKET":
+        return "]";
+      case "LBRACKET":
+        return "[";
+      case "DIVIDE":
+        return "/";
       case "DOT":
         return ".";
       case "COMMA":
@@ -183,6 +190,9 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
     // prefix
     let lhs = parseFormulaPrefix();
     if (lhs === undefined) return undefined;
+
+    // postfix: 置換 [term/variable]（最高優先度、infixより先に適用）
+    lhs = parseSubstitutionPostfix(lhs);
 
     // infix
     while (true) {
@@ -218,9 +228,54 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
         default:
           break;
       }
+
+      // 右辺の後にも置換が続く可能性（例: (φ → ψ)[τ/x] ではなく φ → ψ[τ/x]）
+      // ただし lhs 全体に対する置換は括弧が必要なので、ここでは右辺には適用しない
     }
 
     return lhs;
+  };
+
+  // --- 置換の postfix パース ---
+  // φ[τ/x] 形式の置換をチェーン可能にパースする
+
+  const STOP_AT_DIVIDE: ReadonlySet<TokenKind> = new Set(["DIVIDE"]);
+
+  const parseSubstitutionPostfix = (formula: Formula): Formula => {
+    let result = formula;
+    while (peek().kind === "LBRACKET") {
+      advance(); // LBRACKET を消費
+
+      // 置換項をパース（DIVIDE を項の二項演算子として消費しない）
+      const term = parseTerm(0, STOP_AT_DIVIDE);
+      if (term === undefined) return result;
+
+      // `/` (DIVIDE) を期待
+      if (expect("DIVIDE") === undefined) return result;
+
+      // 置換変数をパース（LOWER_IDENT または META_VARIABLE）
+      const varToken = peek();
+      let varName: string;
+      if (varToken.kind === "LOWER_IDENT") {
+        advance();
+        varName = varToken.value!;
+      } else if (varToken.kind === "META_VARIABLE") {
+        advance();
+        varName = varToken.value!;
+      } else {
+        addError(
+          `Expected variable after '/' in substitution at ${posStr(varToken.span.start) satisfies string}`,
+          varToken.span,
+        );
+        return result;
+      }
+
+      // `]` を期待
+      if (expect("RBRACKET") === undefined) return result;
+
+      result = formulaSubstitution(result, term, termVariable(varName));
+    }
+    return result;
   };
 
   // --- 論理式の prefix パース ---
@@ -488,13 +543,18 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
   };
 
   // --- 項パース (Pratt parser) ---
+  // stopBefore: 指定されたトークン種別が来たらinfix演算子として消費しない（置換の `/` 区切り用）
 
-  const parseTerm = (minBP: number): Term | undefined => {
+  const parseTerm = (
+    minBP: number,
+    stopBefore?: ReadonlySet<TokenKind>,
+  ): Term | undefined => {
     let lhs = parseTermAtom();
     if (lhs === undefined) return undefined;
 
     while (true) {
       const token = peek();
+      if (stopBefore !== undefined && stopBefore.has(token.kind)) break;
       const bp = termInfixBP(token.kind);
       if (bp === undefined) break;
       if (bp.leftBP < minBP) break;
@@ -502,7 +562,7 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
       advance();
       const op = tokenToBinaryOperator(token.kind)!;
 
-      const rhs = parseTerm(bp.rightBP);
+      const rhs = parseTerm(bp.rightBP, stopBefore);
       if (rhs === undefined) return undefined;
 
       lhs = binaryOperation(op, lhs, rhs);

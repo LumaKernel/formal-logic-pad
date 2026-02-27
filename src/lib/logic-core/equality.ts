@@ -83,6 +83,14 @@ export const equalFormula = (a: Formula, b: Formula): boolean => {
       const bEq = b as typeof a;
       return equalTerm(a.left, bEq.left) && equalTerm(a.right, bEq.right);
     }
+    case "FormulaSubstitution": {
+      const bSub = b as typeof a;
+      return (
+        equalFormula(a.formula, bSub.formula) &&
+        equalTerm(a.term, bSub.term) &&
+        equalTerm(a.variable, bSub.variable)
+      );
+    }
   }
   /* v8 ignore start */
   a satisfies never;

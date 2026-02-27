@@ -116,6 +116,8 @@ const occursInFormula = (mvKey: string, f: Formula): boolean => {
     case "Predicate":
     case "Equality":
       return false;
+    case "FormulaSubstitution":
+      return occursInFormula(mvKey, f.formula);
   }
   /* v8 ignore start */
   f satisfies never;
@@ -237,6 +239,14 @@ const decomposeFormula = (
     case "Equality": {
       const bEq = b as typeof a;
       return [termEquation(a.left, bEq.left), termEquation(a.right, bEq.right)];
+    }
+    case "FormulaSubstitution": {
+      const bSub = b as typeof a;
+      return [
+        formulaEquation(a.formula, bSub.formula),
+        termEquation(a.term, bSub.term),
+        termEquation(a.variable, bSub.variable),
+      ];
     }
   }
   /* v8 ignore start */

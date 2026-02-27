@@ -44,6 +44,8 @@ const UNICODE_SINGLE_CHAR: ReadonlyMap<string, TokenKind> = new Map([
   // 区切り文字
   ["(", "LPAREN"],
   [")", "RPAREN"],
+  ["[", "LBRACKET"],
+  ["]", "RBRACKET"],
   [".", "DOT"],
   [",", "COMMA"],
 ]);

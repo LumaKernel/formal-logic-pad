@@ -198,6 +198,14 @@ describe("Lexer", () => {
       expect(kinds(lexOk(")"))).toEqual([{ kind: "RPAREN" }]);
     });
 
+    it("should lex [", () => {
+      expect(kinds(lexOk("["))).toEqual([{ kind: "LBRACKET" }]);
+    });
+
+    it("should lex ]", () => {
+      expect(kinds(lexOk("]"))).toEqual([{ kind: "RBRACKET" }]);
+    });
+
     it("should lex .", () => {
       expect(kinds(lexOk("."))).toEqual([{ kind: "DOT" }]);
     });
@@ -670,6 +678,17 @@ describe("Lexer", () => {
         { kind: "LPAREN" },
         { kind: "LOWER_IDENT", value: "y" },
         { kind: "RPAREN" },
+      ]);
+    });
+
+    it("should lex φ[τ/x] substitution syntax", () => {
+      expect(kinds(lexOk("φ[τ/x]"))).toEqual([
+        { kind: "META_VARIABLE", value: "φ" },
+        { kind: "LBRACKET" },
+        { kind: "META_VARIABLE", value: "τ" },
+        { kind: "DIVIDE" },
+        { kind: "LOWER_IDENT", value: "x" },
+        { kind: "RBRACKET" },
       ]);
     });
 

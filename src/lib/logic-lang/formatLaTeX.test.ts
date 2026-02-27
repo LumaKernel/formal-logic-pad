@@ -18,6 +18,7 @@ import {
   existential,
   predicate,
   equality,
+  formulaSubstitution,
 } from "../logic-core/formula";
 import {
   termVariable,
@@ -330,6 +331,60 @@ describe("formatFormulaLaTeX", () => {
           ),
         ),
       ).toBe("x + y = z");
+    });
+  });
+
+  describe("置換式", () => {
+    it("単純な置換 φ[τ/x]", () => {
+      expect(
+        formatFormulaLaTeX(
+          formulaSubstitution(
+            metaVariable("φ"),
+            termMetaVariable("τ"),
+            termVariable("x"),
+          ),
+        ),
+      ).toBe("\\varphi[\\tau/x]");
+    });
+
+    it("複合式への置換 (φ → ψ)[τ/x]", () => {
+      expect(
+        formatFormulaLaTeX(
+          formulaSubstitution(
+            implication(metaVariable("φ"), metaVariable("ψ")),
+            termMetaVariable("τ"),
+            termVariable("x"),
+          ),
+        ),
+      ).toBe("\\left(\\varphi \\to \\psi\\right)[\\tau/x]");
+    });
+
+    it("述語への置換 P(x)[τ/x]", () => {
+      expect(
+        formatFormulaLaTeX(
+          formulaSubstitution(
+            predicate("P", [termVariable("x")]),
+            termMetaVariable("τ"),
+            termVariable("x"),
+          ),
+        ),
+      ).toBe("P\\left(x\\right)[\\tau/x]");
+    });
+
+    it("チェイン置換 φ[τ/x][σ/y]", () => {
+      expect(
+        formatFormulaLaTeX(
+          formulaSubstitution(
+            formulaSubstitution(
+              metaVariable("φ"),
+              termMetaVariable("τ"),
+              termVariable("x"),
+            ),
+            termMetaVariable("σ"),
+            termVariable("y"),
+          ),
+        ),
+      ).toBe("\\varphi[\\tau/x][\\sigma/y]");
     });
   });
 

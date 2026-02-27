@@ -932,6 +932,14 @@ export const matchFormulaPattern = (
         const cEq = c as typeof t;
         return matchTerm(t.left, cEq.left) && matchTerm(t.right, cEq.right);
       }
+      case "FormulaSubstitution": {
+        const cSub = c as typeof t;
+        return (
+          matchFormula(t.formula, cSub.formula) &&
+          matchTerm(t.term, cSub.term) &&
+          matchTerm(t.variable, cSub.variable)
+        );
+      }
     }
     /* v8 ignore start */
     t satisfies never;
@@ -1470,6 +1478,14 @@ const inferTermReplacement = (
       case "Equality": {
         const tEq = t as typeof b;
         return matchTerm(b.left, tEq.left) && matchTerm(b.right, tEq.right);
+      }
+      case "FormulaSubstitution": {
+        const tSub = t as typeof b;
+        return (
+          matchFormula(b.formula, tSub.formula) &&
+          matchTerm(b.term, tSub.term) &&
+          matchTerm(b.variable, tSub.variable)
+        );
       }
     }
     /* v8 ignore start */

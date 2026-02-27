@@ -26,6 +26,7 @@ import {
   existential,
   predicate,
   equality,
+  formulaSubstitution,
 } from "./formula";
 import {
   termVariable,
@@ -300,6 +301,42 @@ describe("collectFormulaMetaVariables", () => {
     const result = collectFormulaMetaVariables(deMorgan);
     expect(result).toHaveLength(4);
   });
+
+  it("collects from FormulaSubstitution (formula part only)", () => {
+    // φ[τ/x] → collects φ from the formula part
+    const fs = formulaSubstitution(
+      metaVariable("φ"),
+      termVariable("y"),
+      termVariable("x"),
+    );
+    const result = collectFormulaMetaVariables(fs);
+    expect(result).toHaveLength(1);
+    expect(result[0].name).toBe("φ");
+  });
+
+  it("collects from nested FormulaSubstitution", () => {
+    // (φ → ψ)[τ/x] → collects φ and ψ
+    const fs = formulaSubstitution(
+      implication(metaVariable("φ"), metaVariable("ψ")),
+      termVariable("y"),
+      termVariable("x"),
+    );
+    const result = collectFormulaMetaVariables(fs);
+    expect(result).toHaveLength(2);
+    expect(result[0].name).toBe("φ");
+    expect(result[1].name).toBe("ψ");
+  });
+
+  it("returns empty for FormulaSubstitution with no MetaVariables in formula", () => {
+    // P(x)[y/x] → no MetaVariables
+    const fs = formulaSubstitution(
+      predicate("P", [termVariable("x")]),
+      termVariable("y"),
+      termVariable("x"),
+    );
+    const result = collectFormulaMetaVariables(fs);
+    expect(result).toHaveLength(0);
+  });
 });
 
 describe("collectTermMetaVariables", () => {
@@ -416,6 +453,43 @@ describe("collectTermMetaVariablesInFormula", () => {
       existential(termVariable("x"), predicate("P", [termMetaVariable("τ")])),
     );
     expect(result).toHaveLength(1);
+  });
+
+  it("collects from FormulaSubstitution (formula and term parts)", () => {
+    // P(τ)[σ/x] → collects τ from formula and σ from term
+    const fs = formulaSubstitution(
+      predicate("P", [termMetaVariable("τ")]),
+      termMetaVariable("σ"),
+      termVariable("x"),
+    );
+    const result = collectTermMetaVariablesInFormula(fs);
+    expect(result).toHaveLength(2);
+    expect(result[0].name).toBe("τ");
+    expect(result[1].name).toBe("σ");
+  });
+
+  it("collects from FormulaSubstitution with no TermMetaVariables", () => {
+    // P(x)[y/x] → no TermMetaVariables
+    const fs = formulaSubstitution(
+      predicate("P", [termVariable("x")]),
+      termVariable("y"),
+      termVariable("x"),
+    );
+    const result = collectTermMetaVariablesInFormula(fs);
+    expect(result).toHaveLength(0);
+  });
+
+  it("collects duplicates from FormulaSubstitution", () => {
+    // P(τ)[τ/x] → collects τ from formula and τ from term (2 occurrences)
+    const fs = formulaSubstitution(
+      predicate("P", [termMetaVariable("τ")]),
+      termMetaVariable("τ"),
+      termVariable("x"),
+    );
+    const result = collectTermMetaVariablesInFormula(fs);
+    expect(result).toHaveLength(2);
+    expect(result[0].name).toBe("τ");
+    expect(result[1].name).toBe("τ");
   });
 });
 

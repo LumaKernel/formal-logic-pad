@@ -27,6 +27,8 @@ export const TOKEN_KINDS = [
   // 区切り文字
   "LPAREN",
   "RPAREN",
+  "LBRACKET",
+  "RBRACKET",
   "DOT",
   "COMMA",
   // 識別子

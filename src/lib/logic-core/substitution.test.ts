@@ -25,6 +25,7 @@ import {
   existential,
   predicate,
   equality,
+  formulaSubstitution,
 } from "./formula";
 import {
   termVariable,
@@ -202,6 +203,34 @@ describe("substituteFormulaMetaVariables", () => {
       equalFormula(result, negation(conjunction(px, disjunction(qxy, rz)))),
     ).toBe(true);
   });
+
+  test("FormulaSubstitution: substitutes in formula part, preserves term and variable", () => {
+    // φ[τ₁/x] with {φ ↦ P(x)} → P(x)[τ₁/x]
+    const tau1 = termMetaVariable("τ");
+    const fs = formulaSubstitution(phi, tau1, termVariable("x"));
+    const subst = buildFormulaSubstitutionMap([[phi, px]]);
+    const result = substituteFormulaMetaVariables(fs, subst);
+    expect(
+      equalFormula(
+        result,
+        formulaSubstitution(px, tau1, termVariable("x")),
+      ),
+    ).toBe(true);
+  });
+
+  test("FormulaSubstitution: non-matching MetaVariable unchanged", () => {
+    // ψ[τ/x] with {φ ↦ P(x)} → ψ[τ/x] (ψ not in substitution)
+    const tau1 = termMetaVariable("τ");
+    const fs = formulaSubstitution(psi, tau1, termVariable("x"));
+    const subst = buildFormulaSubstitutionMap([[phi, px]]);
+    const result = substituteFormulaMetaVariables(fs, subst);
+    expect(
+      equalFormula(
+        result,
+        formulaSubstitution(psi, tau1, termVariable("x")),
+      ),
+    ).toBe(true);
+  });
 });
 
 // ── 2. 項メタ変数代入 ──────────────────────────────────────────
@@ -367,6 +396,39 @@ describe("substituteTermMetaVariablesInFormula", () => {
       ),
     ).toBe(true);
   });
+
+  test("FormulaSubstitution: substitutes in both formula and term parts", () => {
+    // P(τ)[τ/x] with {τ ↦ f(x,0)} → P(f(x,0))[f(x,0)/x]
+    const fs = formulaSubstitution(
+      predicate("P", [tau]),
+      tau,
+      termVariable("x"),
+    );
+    const result = substituteTermMetaVariablesInFormula(fs, subst);
+    expect(
+      equalFormula(
+        result,
+        formulaSubstitution(
+          predicate("P", [fx0]),
+          fx0,
+          termVariable("x"),
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  test("FormulaSubstitution: variable unchanged by term meta substitution", () => {
+    // φ[τ/y] with {τ ↦ f(x,0)} → φ[f(x,0)/y], variable y stays
+    const phi = metaVariable("φ");
+    const fs = formulaSubstitution(phi, tau, termVariable("y"));
+    const result = substituteTermMetaVariablesInFormula(fs, subst);
+    expect(
+      equalFormula(
+        result,
+        formulaSubstitution(phi, fx0, termVariable("y")),
+      ),
+    ).toBe(true);
+  });
 });
 
 // ── 3. 代入可能性チェック (isFreeFor) ──────────────────────────
@@ -514,6 +576,46 @@ describe("isFreeFor", () => {
       predicate("Q", [termVariable("x"), termVariable("y")]),
     );
     expect(isFreeFor(termVariable("y"), termVariable("x"), f)).toBe(false);
+  });
+
+  test("FormulaSubstitution: y == x → always free for", () => {
+    // P(x)[τ/x] with [z/x] → x is bound by the substitution, so always free
+    const fs = formulaSubstitution(
+      predicate("P", [termVariable("x")]),
+      termVariable("y"),
+      termVariable("x"),
+    );
+    expect(isFreeFor(termVariable("z"), termVariable("x"), fs)).toBe(true);
+  });
+
+  test("FormulaSubstitution: y != x, no capture → free for", () => {
+    // P(x)[τ/y] with [z/x] → y not in FV(z), so no capture
+    const fs = formulaSubstitution(
+      predicate("P", [termVariable("x")]),
+      termVariable("a"),
+      termVariable("y"),
+    );
+    expect(isFreeFor(termVariable("z"), termVariable("x"), fs)).toBe(true);
+  });
+
+  test("FormulaSubstitution: y != x, y in FV(t), x free in φ → NOT free for", () => {
+    // P(x)[τ/y] with [y/x] → y is in FV(y) and x is free in P(x), so capture
+    const fs = formulaSubstitution(
+      predicate("P", [termVariable("x")]),
+      termVariable("a"),
+      termVariable("y"),
+    );
+    expect(isFreeFor(termVariable("y"), termVariable("x"), fs)).toBe(false);
+  });
+
+  test("FormulaSubstitution: y != x, y in FV(t), x NOT free in φ → free for", () => {
+    // P(z)[τ/y] with [y/x] → y is in FV(y) but x is NOT free in P(z), so OK
+    const fs = formulaSubstitution(
+      predicate("P", [termVariable("z")]),
+      termVariable("a"),
+      termVariable("y"),
+    );
+    expect(isFreeFor(termVariable("y"), termVariable("x"), fs)).toBe(true);
   });
 });
 
@@ -740,6 +842,58 @@ describe("substituteTermVariableInFormula", () => {
         implication(universal(y, predicate("P", [y])), predicate("Q", [y])),
       ),
     ).toBe(true);
+  });
+
+  test("FormulaSubstitution: y == x → only substitute in term", () => {
+    // P(x, a)[τ/x] with [z/x] → P(x, a)[τ[z/x]/x]
+    // The formula part is NOT substituted (x is bound by the FormulaSubstitution)
+    const a = constant("a");
+    const tau = functionApplication("f", [x]);
+    const fs = formulaSubstitution(predicate("P", [x, a]), tau, x);
+    const result = substituteTermVariableInFormula(fs, x, z);
+    // formula stays: P(x, a), term: f(x)[z/x] = f(z), variable: x
+    expect(
+      equalFormula(
+        result,
+        formulaSubstitution(
+          predicate("P", [x, a]),
+          functionApplication("f", [z]),
+          x,
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  test("FormulaSubstitution: y != x, no capture → recurse into both", () => {
+    // P(x)[τ/y] with [z/x] → P(z)[τ[z/x]/y]
+    const tau = functionApplication("f", [x]);
+    const fs = formulaSubstitution(predicate("P", [x]), tau, y);
+    const result = substituteTermVariableInFormula(fs, x, z);
+    expect(
+      equalFormula(
+        result,
+        formulaSubstitution(
+          predicate("P", [z]),
+          functionApplication("f", [z]),
+          y,
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  test("FormulaSubstitution: y != x, capture → α-conversion", () => {
+    // P(x)[τ/y] with [y/x] → y is in FV(y) and x is free in P(x)
+    // Need α-conversion: rename y to fresh variable
+    const tau = termVariable("a");
+    const fs = formulaSubstitution(predicate("P", [x]), tau, y);
+    const result = substituteTermVariableInFormula(fs, x, y);
+    // After α-conversion: P(y)[a/y'] for some fresh y'
+    expect(result._tag).toBe("FormulaSubstitution");
+    if (result._tag === "FormulaSubstitution") {
+      // The variable should be renamed (not y, not x)
+      expect(result.variable.name).not.toBe("y");
+      expect(result.variable.name).not.toBe("x");
+    }
   });
 });
 

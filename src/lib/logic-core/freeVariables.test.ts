@@ -24,6 +24,7 @@ import {
   existential,
   predicate,
   equality,
+  formulaSubstitution,
 } from "./formula";
 
 describe("freeVariablesInTerm", () => {
@@ -173,6 +174,40 @@ describe("freeVariablesInFormula", () => {
     );
     expect(freeVariablesInFormula(f)).toEqual(new Set());
   });
+
+  test("FormulaSubstitution: x free in φ includes τ's free vars", () => {
+    // P(x, y)[f(z)/x] → FV = (FV(P(x,y)) \ {x}) ∪ FV(f(z)) = {y} ∪ {z} = {y, z}
+    const phi = predicate("P", [termVariable("x"), termVariable("y")]);
+    const tau = functionApplication("f", [termVariable("z")]);
+    const f = formulaSubstitution(phi, tau, termVariable("x"));
+    expect(freeVariablesInFormula(f)).toEqual(new Set(["y", "z"]));
+  });
+
+  test("FormulaSubstitution: x NOT free in φ excludes τ's free vars", () => {
+    // P(y)[f(z)/x] → FV = FV(P(y)) \ {x} = {y} (x not free, so τ vars not added)
+    const phi = predicate("P", [termVariable("y")]);
+    const tau = functionApplication("f", [termVariable("z")]);
+    const f = formulaSubstitution(phi, tau, termVariable("x"));
+    expect(freeVariablesInFormula(f)).toEqual(new Set(["y"]));
+  });
+
+  test("FormulaSubstitution: x free, τ is constant → removes x", () => {
+    // P(x)[0/x] → FV = {}, since x is removed and constant has no free vars
+    const phi = predicate("P", [termVariable("x")]);
+    const tau = constant("0");
+    const f = formulaSubstitution(phi, tau, termVariable("x"));
+    expect(freeVariablesInFormula(f)).toEqual(new Set());
+  });
+
+  test("FormulaSubstitution: nested formula with bound x", () => {
+    // (∀x. P(x))[y/x] → FV = {} (x is bound in ∀x.P(x), so x is not free)
+    const phi = universal(
+      termVariable("x"),
+      predicate("P", [termVariable("x")]),
+    );
+    const f = formulaSubstitution(phi, termVariable("y"), termVariable("x"));
+    expect(freeVariablesInFormula(f)).toEqual(new Set());
+  });
 });
 
 describe("isFreeInFormula", () => {
@@ -280,5 +315,27 @@ describe("allVariableNamesInFormula", () => {
   test("Predicate with function application", () => {
     const f = predicate("P", [functionApplication("f", [termVariable("x")])]);
     expect(allVariableNamesInFormula(f)).toEqual(new Set(["x"]));
+  });
+
+  test("FormulaSubstitution collects from formula, term, and variable", () => {
+    // P(y)[f(z)/x] → allVars = {y} ∪ {z} ∪ {x} = {x, y, z}
+    const phi = predicate("P", [termVariable("y")]);
+    const tau = functionApplication("f", [termVariable("z")]);
+    const f = formulaSubstitution(phi, tau, termVariable("x"));
+    expect(allVariableNamesInFormula(f)).toEqual(new Set(["x", "y", "z"]));
+  });
+
+  test("FormulaSubstitution with overlapping variables", () => {
+    // P(x)[x/x] → allVars = {x} (all three contribute the same variable)
+    const phi = predicate("P", [termVariable("x")]);
+    const f = formulaSubstitution(phi, termVariable("x"), termVariable("x"));
+    expect(allVariableNamesInFormula(f)).toEqual(new Set(["x"]));
+  });
+
+  test("FormulaSubstitution with constant term", () => {
+    // P(x, y)[0/x] → allVars = {x, y} (variable from binding, formula vars)
+    const phi = predicate("P", [termVariable("x"), termVariable("y")]);
+    const f = formulaSubstitution(phi, constant("0"), termVariable("x"));
+    expect(allVariableNamesInFormula(f)).toEqual(new Set(["x", "y"]));
   });
 });
