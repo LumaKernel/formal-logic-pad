@@ -116,6 +116,27 @@
   - ProofWorkspace→EditableProofNode間のprop伝搬時、useCallbackのdependency listに新propを忘れずに追加すること
 ---
 
+## 2026-02-27 - ProofWorkspaceにミニマップとエッジスクロールをデフォルト搭載
+- `ProofWorkspace.tsx` に `useEdgeScroll` hookを追加し、ノードドラッグ中にキャンバス端で自動パンを実現
+- `ProofWorkspace.tsx` に `MinimapComponent` を追加し、右下にミニマップを常時表示
+- `CanvasItem` に `onDragMove` / `onDragEnd` を接続してエッジスクロールをトリガー
+- テスト: 4413テスト全パス（変更なし）
+- カバレッジ: Stmts 99.1%(維持), Branch 94.5%(↑), Funcs 90.77%(↑), Lines 99.76%(維持)
+  - ベースライン: Stmts 99.1%, Branch 94.47%, Funcs 90.59%, Lines 99.77%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでスクリーンショット撮影・確認済み
+  - `.screenshots/proof-flow-demo-minimap.png` - Storybookでのミニマップ表示確認
+  - `.screenshots/workspace-with-minimap-empty.png` - 実際のワークスペース（空）
+  - `.screenshots/workspace-with-minimap-nodes.png` - 実際のワークスペース（ノード追加後）
+- 変更ファイル:
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - useEdgeScroll + MinimapComponent統合)
+- **今後のイテレーションへの学び:**
+  - InfiniteCanvasの機能(Minimap, EdgeScroll, GridSnap等)はデモストーリーで検証済みでも、プロダクションコンポーネントへの統合は別途必要
+  - `useEdgeScroll` はviewport, containerSize, setViewportの3つがあれば接続可能。CanvasItemのonDragMove/onDragEndを直接つなぐだけ
+  - MinimapComponentはInfiniteCanvasの子要素として配置。viewport, containerSize, items(ノード位置+サイズ)が必要
+  - 既存のnodeSizes Map + workspace.nodesからMinimapItem配列を構築する。未計測ノードはDEFAULT_NODE_SIZEでフォールバック
+---
+
 ## 2026-02-27 - キャンバスノード改行バグ修正
 - CanvasItem.tsx に `whiteSpace: "nowrap"` を追加し、ノードが画面端で改行される問題を修正
 - 原因: CanvasItemは`position: absolute`で配置されるが、`whiteSpace`がデフォルト`"normal"`のため、InfiniteCanvasの`overflow: hidden`制約下でテキストが折り返されていた
