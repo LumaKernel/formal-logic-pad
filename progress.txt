@@ -89,6 +89,31 @@
 
 ---
 
+## 2026-02-28 - PeanoArithmeticDemoストーリーを代入操作ステップを挟んだ正しいフローに修正
+- A4公理（全称消去 `∀x.φ → φ[t/x]`）のインスタンスを直接公理ノードに書いていた旧フロー（PA3 + A5 + MP）を修正
+- 新フロー: PA3 → A4スキーマインスタンス(τを含む) → 代入操作(τ:=0) → MP
+- ラベル修正: 誤って「A5」とされていたものを正しく「A4」（全称消去）に修正
+- ZeroPlusZeroCompleted, ZeroPlusZeroInteractive, SuccessorNotZeroProof の3ストーリーを更新
+- PA1AxiomPlacement は変更なし（自明な公理はそのまま配置でOK）
+- テスト: 4570テスト全パス（変更なし）
+- カバレッジ: Stmts 98.64%(↑), Branch 93.48%(↑), Funcs 91.37%(↑), Lines 99.41%(↑)
+  - ベースライン: Stmts 98.63%, Branch 93.41%, Funcs 91.21%, Lines 99.4%
+  - 代入操作のコードパスがストーリーで使われるようになったため微増
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでスクリーンショット撮影・確認済み
+  - `.screenshots/pa-demo-zero-plus-zero-completed-iframe.png`
+  - `.screenshots/pa-demo-successor-not-zero-proof-iframe.png`
+  - `.screenshots/pa-demo-zero-plus-zero-interactive-iframe.png`
+- 変更ファイル:
+  - `src/lib/proof-pad/PeanoArithmeticDemo.stories.tsx` (MODIFIED - 全ストーリーを代入操作ステップ付きに更新)
+  - `tasks/prd-inserted-tasks.md` (MODIFIED - タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - A4 (`∀x.φ → φ[t/x]`) と A5 (`∀x.(φ→ψ) → (φ→∀x.ψ)`) を混同しやすい。ストーリーでは正しい公理名を使うこと
+  - A4/A5のスキーマはオブジェクト言語で書けない。ワークアラウンドとして「φを代入済みのインスタンス（τを含む）」→「代入操作でτを具体化」という2段階が必要
+  - `applySubstitutionAndConnect` はTermSubstitutionEntry(`_tag: "TermSubstitution"`)でterm meta variable代入を適用可能
+  - 代入ノードの前提接続ポートは `"premise"` (from `"out"`)。ゴールへの接続ポートは任意名でOK（goalCheckLogicはポート名を見ない）
+---
+
 ## 2026-02-27 - 証明ノード依存情報表示オンオフ設定
 - `levelOfDetail.ts` に `DetailVisibilityOverrides` 型と `getDetailVisibility` のオーバーライド対応を追加
 - `EditableProofNode.tsx` に `visibilityOverrides` propを追加

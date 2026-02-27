@@ -5,14 +5,15 @@
  *
  * ストーリー一覧:
  * 1. PA1公理の配置（公理をそのまま定理として使う、最も簡単な例）
- * 2. 0+0=0 の完成済み証明（PA3 + A5 + MP で∀消去）
+ * 2. 0+0=0 の完成済み証明（PA3 + A4代入 + MP で∀消去）
  * 3. 0+0=0 のインタラクティブ証明（ユーザーがMP適用で完成）
- * 4. ¬(S(0)=0) の完成済み証明（PA1 + A5 + MP で 1≠0 を導く）
+ * 4. ¬(S(0)=0) の完成済み証明（PA1 + A4代入 + MP で 1≠0 を導く）
  *
- * 証明パターン（∀消去）:
+ * 証明パターン（∀消去 via A4）:
  *   Step 1. 理論公理: ∀x. φ(x)
- *   Step 2. A5インスタンス: (∀x. φ(x)) → φ(t)
- *   Step 3. MP(1,2): φ(t)
+ *   Step 2. A4スキーマインスタンス（τを含む）: (∀x. φ(x)) → φ(τ)
+ *   Step 3. 代入操作 (τ := t): (∀x. φ(x)) → φ(t)
+ *   Step 4. MP(1,3): φ(t)
  */
 
 import { useState, useCallback } from "react";
@@ -25,6 +26,7 @@ import {
   addNode,
   addConnection,
   applyMPAndConnect,
+  applySubstitutionAndConnect,
   updateNodeRole,
 } from "./workspaceState";
 import type { WorkspaceState } from "./workspaceState";
@@ -40,7 +42,7 @@ function PA1AxiomComplete() {
     ws = addNode(ws, "axiom", "Goal", { x: 200, y: 250 }, "all x. ~(S(x) = 0)");
     ws = updateNodeRole(ws, "node-2", "goal");
     // 公理ノードからゴールノードへ接続して達成
-    ws = addConnection(ws, "node-1", "output", "node-2", "input");
+    ws = addConnection(ws, "node-1", "out", "node-2", "input");
     return ws;
   })();
 
@@ -70,24 +72,35 @@ function ZeroPlusZeroComplete() {
     // Step 1: PA3 (加法基底): ∀x. x + 0 = x
     ws = addNode(ws, "axiom", "PA3", { x: 50, y: 50 }, "all x. x + 0 = x");
 
-    // Step 2: A5インスタンス: (∀x. x + 0 = x) → 0 + 0 = 0
+    // Step 2: A4スキーマインスタンス（τを含む）: (∀x. x+0=x) → τ+0=τ
     ws = addNode(
       ws,
       "axiom",
-      "A5",
+      "A4",
       { x: 450, y: 50 },
-      "(all x. x + 0 = x) -> 0 + 0 = 0",
+      "(all x. x + 0 = x) -> τ + 0 = τ",
     );
 
-    // Step 3: MP(1,2) → 0 + 0 = 0
-    const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 250, y: 250 });
+    // Step 3: 代入操作 (τ := 0): → (∀x. x+0=x) → 0+0=0
+    const subst = applySubstitutionAndConnect(
+      ws,
+      "node-2",
+      [{ _tag: "TermSubstitution", metaVariableName: "τ", termText: "0" }],
+      { x: 450, y: 200 },
+    );
+    ws = subst.workspace;
+    // subst node = node-3
+
+    // Step 4: MP(1,3) → 0 + 0 = 0
+    const mp = applyMPAndConnect(ws, "node-1", "node-3", { x: 250, y: 350 });
     ws = mp.workspace;
+    // mp node = node-4
 
     // ゴールノードを追加して role を設定
-    ws = addNode(ws, "axiom", "Goal", { x: 450, y: 250 }, "0 + 0 = 0");
-    ws = updateNodeRole(ws, "node-4", "goal");
+    ws = addNode(ws, "axiom", "Goal", { x: 450, y: 350 }, "0 + 0 = 0");
+    ws = updateNodeRole(ws, "node-5", "goal");
     // MP結果ノードからゴールノードへ接続して達成
-    ws = addConnection(ws, "node-3", "output", "node-4", "input");
+    ws = addConnection(ws, "node-4", "out", "node-5", "input");
 
     return ws;
   })();
@@ -118,18 +131,28 @@ function ZeroPlusZeroPartial() {
     // Step 1: PA3 (加法基底): ∀x. x + 0 = x
     ws = addNode(ws, "axiom", "PA3", { x: 50, y: 50 }, "all x. x + 0 = x");
 
-    // Step 2: A5インスタンス: (∀x. x + 0 = x) → 0 + 0 = 0
+    // Step 2: A4スキーマインスタンス（τを含む）: (∀x. x+0=x) → τ+0=τ
     ws = addNode(
       ws,
       "axiom",
-      "A5",
+      "A4",
       { x: 450, y: 50 },
-      "(all x. x + 0 = x) -> 0 + 0 = 0",
+      "(all x. x + 0 = x) -> τ + 0 = τ",
     );
 
+    // Step 3: 代入操作済み (τ := 0): → (∀x. x+0=x) → 0+0=0
+    const subst = applySubstitutionAndConnect(
+      ws,
+      "node-2",
+      [{ _tag: "TermSubstitution", metaVariableName: "τ", termText: "0" }],
+      { x: 450, y: 200 },
+    );
+    ws = subst.workspace;
+    // subst node = node-3
+
     // ゴールノードを追加して role を設定（MP適用前）
-    ws = addNode(ws, "axiom", "Goal", { x: 250, y: 200 }, "0 + 0 = 0");
-    ws = updateNodeRole(ws, "node-3", "goal");
+    ws = addNode(ws, "axiom", "Goal", { x: 250, y: 350 }, "0 + 0 = 0");
+    ws = updateNodeRole(ws, "node-4", "goal");
 
     return ws;
   })();
@@ -160,24 +183,35 @@ function SuccessorNotZeroComplete() {
     // Step 1: PA1: ∀x. ¬(S(x) = 0)
     ws = addNode(ws, "axiom", "PA1", { x: 50, y: 50 }, "all x. ~(S(x) = 0)");
 
-    // Step 2: A5インスタンス: (∀x. ¬(S(x) = 0)) → ¬(S(0) = 0)
+    // Step 2: A4スキーマインスタンス（τを含む）: (∀x. ¬(S(x)=0)) → ¬(S(τ)=0)
     ws = addNode(
       ws,
       "axiom",
-      "A5",
+      "A4",
       { x: 450, y: 50 },
-      "(all x. ~(S(x) = 0)) -> ~(S(0) = 0)",
+      "(all x. ~(S(x) = 0)) -> ~(S(τ) = 0)",
     );
 
-    // Step 3: MP(1,2) → ¬(S(0) = 0)
-    const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 250, y: 250 });
+    // Step 3: 代入操作 (τ := 0): → (∀x. ¬(S(x)=0)) → ¬(S(0)=0)
+    const subst = applySubstitutionAndConnect(
+      ws,
+      "node-2",
+      [{ _tag: "TermSubstitution", metaVariableName: "τ", termText: "0" }],
+      { x: 450, y: 200 },
+    );
+    ws = subst.workspace;
+    // subst node = node-3
+
+    // Step 4: MP(1,3) → ¬(S(0) = 0)
+    const mp = applyMPAndConnect(ws, "node-1", "node-3", { x: 250, y: 350 });
     ws = mp.workspace;
+    // mp node = node-4
 
     // ゴールノードを追加して role を設定
-    ws = addNode(ws, "axiom", "Goal", { x: 450, y: 250 }, "~(S(0) = 0)");
-    ws = updateNodeRole(ws, "node-4", "goal");
+    ws = addNode(ws, "axiom", "Goal", { x: 450, y: 350 }, "~(S(0) = 0)");
+    ws = updateNodeRole(ws, "node-5", "goal");
     // MP結果ノードからゴールノードへ接続して達成
-    ws = addConnection(ws, "node-3", "output", "node-4", "input");
+    ws = addConnection(ws, "node-4", "out", "node-5", "input");
 
     return ws;
   })();
@@ -252,13 +286,15 @@ export const PA1AxiomPlacement: Story = {
 /**
  * 0+0=0 の完成済み証明。
  *
- * PA3（加法基底: ∀x. x+0=x）をA5（∀消去）でインスタンス化し、
- * MPで 0+0=0 を導出する。形式算術における「計算」の基本パターン。
+ * PA3（加法基底: ∀x. x+0=x）を A4（全称消去: ∀x.φ → φ[t/x]）と
+ * 代入操作でインスタンス化し、MPで 0+0=0 を導出する。
+ * 形式算術における「計算」の基本パターン。
  *
  * 証明手順:
  *   Step 1. PA3: ∀x. x + 0 = x
- *   Step 2. A5:  (∀x. x + 0 = x) → 0 + 0 = 0
- *   Step 3. MP(1,2): 0 + 0 = 0
+ *   Step 2. A4(τを含む): (∀x. x+0=x) → τ+0=τ
+ *   Step 3. 代入操作 (τ := 0): (∀x. x+0=x) → 0+0=0
+ *   Step 4. MP(1,3): 0 + 0 = 0
  */
 export const ZeroPlusZeroCompleted: Story = {
   render: () => <ZeroPlusZeroComplete />,
@@ -266,18 +302,24 @@ export const ZeroPlusZeroCompleted: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // 3つの証明ノードが存在する
+    // PA3 公理ノード
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    // A4 スキーマインスタンス（τを含む）
     await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    // 代入操作ノード
     await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
-
-    // MP適用が成功している
+    // 代入適用が成功している
     await expect(
       canvas.getByTestId("proof-node-node-3-status"),
+    ).toHaveTextContent("Substitution applied");
+    // MP ノード
+    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("proof-node-node-4-status"),
     ).toHaveTextContent("MP applied");
 
     // ゴールノードが配置されている
-    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-5")).toBeInTheDocument();
 
     // 証明完成バナーが表示されている
     await expect(
@@ -289,8 +331,8 @@ export const ZeroPlusZeroCompleted: Story = {
 /**
  * 0+0=0 のインタラクティブ証明。
  *
- * PA3とA5が配置済みで、ユーザーがMP適用で証明を完成させる。
- * play関数で左前提(PA3) → 右前提(A5) の順にクリックして
+ * PA3 と A4代入済みが配置済みで、ユーザーがMP適用で証明を完成させる。
+ * play関数で左前提(PA3) → 右前提(代入結果) の順にクリックして
  * MPを適用し、0+0=0 を導出する。
  */
 export const ZeroPlusZeroInteractive: Story = {
@@ -304,12 +346,18 @@ export const ZeroPlusZeroInteractive: Story = {
       canvas.queryByTestId("workspace-proof-complete-banner"),
     ).not.toBeInTheDocument();
 
-    // 2つの証明ノードとゴールノードが存在（PA3, A5, Goal）
+    // PA3, A4(τ含む), 代入ノード, ゴールノードが存在
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
     await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
 
-    // MP適用でStep 3を実行: node-1(左前提: PA3) と node-2(右前提: A5) を選択
+    // 代入適用が成功している
+    await expect(
+      canvas.getByTestId("proof-node-node-3-status"),
+    ).toHaveTextContent("Substitution applied");
+
+    // MP適用: node-1(左前提: PA3) と node-3(右前提: 代入結果) を選択
     await userEvent.click(canvas.getByTestId("workspace-mp-button"));
     await expect(canvas.getByTestId("workspace-mp-banner")).toHaveTextContent(
       "Click the left premise",
@@ -321,13 +369,13 @@ export const ZeroPlusZeroInteractive: Story = {
       "Click the right premise",
     );
 
-    // 右前提: node-2 ((∀x. x + 0 = x) → 0 + 0 = 0)
-    await userEvent.click(canvas.getByTestId("proof-node-node-2"));
+    // 右前提: node-3 (代入結果: (∀x. x+0=x) → 0+0=0)
+    await userEvent.click(canvas.getByTestId("proof-node-node-3"));
 
-    // MPノードが生成された（ゴールノードがnode-3なので、MPノードはnode-4）
-    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+    // MPノードが生成された（ゴールノードがnode-4なので、MPノードはnode-5）
+    await expect(canvas.getByTestId("proof-node-node-5")).toBeInTheDocument();
     await expect(
-      canvas.getByTestId("proof-node-node-4-status"),
+      canvas.getByTestId("proof-node-node-5-status"),
     ).toHaveTextContent("MP applied");
 
     // ゴールノードへの接続はまだないため、Proof Completeにはならない
@@ -340,13 +388,14 @@ export const ZeroPlusZeroInteractive: Story = {
 /**
  * ¬(S(0) = 0) の完成済み証明（1≠0）。
  *
- * PA1（∀x. ¬(S(x)=0)）をA5で x=0 にインスタンス化し、
+ * PA1（∀x. ¬(S(x)=0)）を A4（全称消去）と代入操作で x=0 にインスタンス化し、
  * MPで ¬(S(0)=0) を導出する。「1は0ではない」という自然数論の基本事実。
  *
  * 証明手順:
  *   Step 1. PA1: ∀x. ¬(S(x) = 0)
- *   Step 2. A5:  (∀x. ¬(S(x) = 0)) → ¬(S(0) = 0)
- *   Step 3. MP(1,2): ¬(S(0) = 0)
+ *   Step 2. A4(τを含む): (∀x. ¬(S(x)=0)) → ¬(S(τ)=0)
+ *   Step 3. 代入操作 (τ := 0): (∀x. ¬(S(x)=0)) → ¬(S(0)=0)
+ *   Step 4. MP(1,3): ¬(S(0) = 0)
  */
 export const SuccessorNotZeroProof: Story = {
   render: () => <SuccessorNotZeroComplete />,
@@ -354,18 +403,23 @@ export const SuccessorNotZeroProof: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // 3つの証明ノードが存在する
+    // PA1 公理ノード
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    // A4 スキーマインスタンス（τを含む）
     await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    // 代入操作ノード
     await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
-
-    // MP適用が成功している
     await expect(
       canvas.getByTestId("proof-node-node-3-status"),
+    ).toHaveTextContent("Substitution applied");
+    // MP ノード
+    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("proof-node-node-4-status"),
     ).toHaveTextContent("MP applied");
 
     // ゴールノードが配置されている
-    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-5")).toBeInTheDocument();
 
     // 証明完成バナーが表示されている
     await expect(
