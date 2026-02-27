@@ -4878,3 +4878,29 @@
   - bekki.pdf の練習問題7.50 はさらなるクエスト追加の良い素材（¬¬∀ξφ → ∀ξ¬¬φ など）
   - ブラウザ検証: `.screenshots/predicate-logic-quests.png`, `.screenshots/predicate-logic-quests-bottom.png`
 ---
+
+## 2026-02-27 - [ProofPad] A4/A5パラメトリック公理UIの特別設計
+- 実装した内容:
+  - A4/A5パラメトリック公理のスキーマインスタンス生成ロジック（純粋関数層）
+  - A4パネル: 全称式を入力→プレビュー→確定でτ含むスキーマインスタンスを自動生成
+  - A5パネル: 変数名/前件/後件を入力→制約チェック(x∉FV(φ))→プレビュー→確定
+  - ProofWorkspaceへの統合: A4/A5クリック時にパネルを開き、確定でノード追加
+  - ラウンドトリップテスト: 生成DSL→パース→A4/A5マッチャーで検証
+- 変更したファイル:
+  - `src/lib/proof-pad/parametricAxiomLogic.ts` (NEW - 純粋ロジック層)
+  - `src/lib/proof-pad/parametricAxiomLogic.test.ts` (NEW - 31テスト)
+  - `src/lib/proof-pad/ParametricAxiomPanel.tsx` (NEW - UIコンポーネント)
+  - `src/lib/proof-pad/ParametricAxiomPanel.test.tsx` (NEW - 16テスト)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (パネル統合)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (4テスト追加)
+  - `src/lib/proof-pad/index.ts` (エクスポート追加)
+  - `tasks/prd-inserted-tasks.md`, `task-processing.md`
+- カバレッジ: Stmts 98.64%→98.71%(↑), Branch 93.5%→93.21%(↓微), Lines 99.41%→99.44%(↑)
+  - Branch微減はtestId条件分岐(undefined未テスト)のため、実質的に問題なし
+- ブラウザ検証: `.screenshots/a4-parametric-panel-interactive-preview.png`, `.screenshots/a5-parametric-panel-with-preview.png`, `.screenshots/a4-parametric-node-created.png`
+- **今後のイテレーションへの学び:**
+  - 3層分離パターン: 純粋ロジック(parametricAxiomLogic.ts) → UIコンポーネント(ParametricAxiomPanel.tsx) → 統合(ProofWorkspace.tsx) が効果的
+  - formatFormula のラウンドトリップ: Unicode出力(∀, →, ¬等)はパーサーが再パース可能。テストで活用できる
+  - TermMetaVariable は `new TermMetaVariable({ name: "τ" })` で生成。TaggedClassパターンに従う
+  - A4/A5は `alwaysNonTrivialAxiomIds` に登録済み。パラメトリック生成後も代入ステップが必要
+---

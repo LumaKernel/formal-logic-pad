@@ -216,3 +216,25 @@ export {
   useProofMessages,
 } from "./ProofMessagesContext";
 export type { ProofMessagesProviderProps } from "./ProofMessagesContext";
+export { ParametricAxiomPanel } from "./ParametricAxiomPanel";
+export type { ParametricAxiomPanelProps } from "./ParametricAxiomPanel";
+export {
+  generateA4Instance,
+  generateA5Instance,
+  validateUniversalFormula,
+  validateA5Antecedent,
+  getA4ErrorMessage,
+  getA5ErrorMessage,
+} from "./parametricAxiomLogic";
+export type {
+  A4InstanceInput,
+  A4InstanceSuccess,
+  A4InstanceError,
+  A4InstanceResult,
+  A5InstanceInput,
+  A5InstanceSuccess,
+  A5InstanceError,
+  A5InstanceResult,
+  UniversalFormulaValidation,
+  A5AntecedentValidation,
+} from "./parametricAxiomLogic";
