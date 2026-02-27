@@ -7,6 +7,7 @@ import {
   parseNodeFormula,
   validateMPApplication,
   getMPErrorMessage,
+  computeMPCompatibleNodeIds,
 } from "./mpApplicationLogic";
 import type { WorkspaceNode } from "./workspaceState";
 
@@ -265,6 +266,84 @@ describe("mpApplicationLogic", () => {
       if (result._tag === "Success") {
         expect(result.conclusionText).toBe("χ");
       }
+    });
+  });
+
+  describe("computeMPCompatibleNodeIds", () => {
+    it("returns empty set when leftNode not found", () => {
+      const nodes: readonly WorkspaceNode[] = [];
+      const result = computeMPCompatibleNodeIds(nodes, "nonexistent");
+      expect(result.size).toBe(0);
+    });
+
+    it("returns empty set when left formula is unparseable", () => {
+      const nodes: readonly WorkspaceNode[] = [
+        { id: "n1", kind: "axiom", label: "", formulaText: "-> ->", position: { x: 0, y: 0 } },
+        { id: "n2", kind: "axiom", label: "", formulaText: "phi -> psi", position: { x: 100, y: 0 } },
+      ];
+      const result = computeMPCompatibleNodeIds(nodes, "n1");
+      expect(result.size).toBe(0);
+    });
+
+    it("returns compatible implication nodes with matching antecedent", () => {
+      const nodes: readonly WorkspaceNode[] = [
+        { id: "left", kind: "axiom", label: "", formulaText: "phi", position: { x: 0, y: 0 } },
+        { id: "right-ok", kind: "axiom", label: "", formulaText: "phi -> psi", position: { x: 100, y: 0 } },
+        { id: "right-mismatch", kind: "axiom", label: "", formulaText: "psi -> chi", position: { x: 200, y: 0 } },
+        { id: "not-impl", kind: "axiom", label: "", formulaText: "psi", position: { x: 300, y: 0 } },
+      ];
+      const result = computeMPCompatibleNodeIds(nodes, "left");
+      expect(result.size).toBe(1);
+      expect(result.has("right-ok")).toBe(true);
+      expect(result.has("right-mismatch")).toBe(false);
+      expect(result.has("not-impl")).toBe(false);
+    });
+
+    it("excludes the left node itself from results", () => {
+      const nodes: readonly WorkspaceNode[] = [
+        { id: "n1", kind: "axiom", label: "", formulaText: "phi -> psi", position: { x: 0, y: 0 } },
+        { id: "n2", kind: "axiom", label: "", formulaText: "(phi -> psi) -> chi", position: { x: 100, y: 0 } },
+      ];
+      const result = computeMPCompatibleNodeIds(nodes, "n1");
+      expect(result.has("n1")).toBe(false);
+      expect(result.has("n2")).toBe(true);
+    });
+
+    it("returns multiple compatible nodes", () => {
+      const nodes: readonly WorkspaceNode[] = [
+        { id: "left", kind: "axiom", label: "", formulaText: "phi", position: { x: 0, y: 0 } },
+        { id: "r1", kind: "axiom", label: "", formulaText: "phi -> psi", position: { x: 100, y: 0 } },
+        { id: "r2", kind: "axiom", label: "", formulaText: "phi -> chi", position: { x: 200, y: 0 } },
+        { id: "r3", kind: "axiom", label: "", formulaText: "phi -> (psi -> chi)", position: { x: 300, y: 0 } },
+      ];
+      const result = computeMPCompatibleNodeIds(nodes, "left");
+      expect(result.size).toBe(3);
+      expect(result.has("r1")).toBe(true);
+      expect(result.has("r2")).toBe(true);
+      expect(result.has("r3")).toBe(true);
+    });
+
+    it("skips nodes with empty formula", () => {
+      const nodes: readonly WorkspaceNode[] = [
+        { id: "left", kind: "axiom", label: "", formulaText: "phi", position: { x: 0, y: 0 } },
+        { id: "empty", kind: "axiom", label: "", formulaText: "", position: { x: 100, y: 0 } },
+        { id: "ok", kind: "axiom", label: "", formulaText: "phi -> psi", position: { x: 200, y: 0 } },
+      ];
+      const result = computeMPCompatibleNodeIds(nodes, "left");
+      expect(result.size).toBe(1);
+      expect(result.has("ok")).toBe(true);
+      expect(result.has("empty")).toBe(false);
+    });
+
+    it("handles complex formula as left premise", () => {
+      const nodes: readonly WorkspaceNode[] = [
+        { id: "left", kind: "axiom", label: "", formulaText: "phi -> psi", position: { x: 0, y: 0 } },
+        { id: "ok", kind: "axiom", label: "", formulaText: "(phi -> psi) -> chi", position: { x: 100, y: 0 } },
+        { id: "wrong", kind: "axiom", label: "", formulaText: "phi -> chi", position: { x: 200, y: 0 } },
+      ];
+      const result = computeMPCompatibleNodeIds(nodes, "left");
+      expect(result.size).toBe(1);
+      expect(result.has("ok")).toBe(true);
     });
   });
 

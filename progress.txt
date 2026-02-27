@@ -4377,3 +4377,26 @@
   - WorkspaceMenuItemコンポーネントは再利用可能: ヘッダードロップダウンメニューとキャンバスコンテキストメニューの両方で利用
   - キャンバスのonContextMenuはInfiniteCanvas内部ではなく、ProofWorkspaceのコンテナdiv要素にアタッチする
 ---
+
+## 2026-02-27 - MP互換ノードハイライト機能
+- 実装した内容: MP選択モードで左前提(φ)を選択した後、右前提候補として互換性のあるノード（φ→ψの形でantecedentが一致するもの）をハイライトし、非互換ノードをopacity 0.35で暗くする機能を実装
+- ベースラインカバレッジ: Stmts 99.11%, Branch 94.47%, Lines 99.63%, 4372 tests
+- 完了時カバレッジ: Stmts 99.22%, Branch 94.64%, Lines 99.74%, 4382 tests ✅ (向上)
+- ブラウザ確認:
+  - `.screenshots/mp-highlight-selecting-left.png` - 左前提選択フェーズ（全ノード通常表示） ✅
+  - `.screenshots/mp-highlight-incompatible-dimmed.png` - 非互換ノード暗転 ✅
+  - `.screenshots/mp-highlight-selecting-right-compatible.png` - 互換ノードハイライト ✅
+  - `.screenshots/mp-highlight-compatible-highlighted.png` - 互換ノードのみ明るい表示 ✅
+- 変更ファイル:
+  - `src/lib/proof-pad/mpApplicationLogic.ts` (MODIFIED - computeMPCompatibleNodeIds純粋関数追加、equalFormula import追加)
+  - `src/lib/proof-pad/mpApplicationLogic.test.ts` (MODIFIED - computeMPCompatibleNodeIdsテスト7件追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - mpCompatibleNodeIds useMemo、renderNode内のopacity/outline条件分岐追加)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (MODIFIED - MP互換ノードハイライトテスト3件追加)
+  - `tasks/prd-inserted-tasks.md` (MODIFIED - タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - MP互換判定の核: equalFormula(leftFormula, implication.left)で構造的等価性を判定。logic-core/equality.tsからimport
+  - 選択フェーズによる分岐: selecting-left(まだ未選択)→フィルタリングなし、selecting-right(左選択済み)→右前提候補のフィルタリングあり
+  - 視覚的区別: 互換ノード=2px solid outline(目立つ)、非互換ノード=opacity 0.35+dashed outline(暗く)、選択済み=3px solid(最も目立つ)
+  - computeMPCompatibleNodeIdsは純粋関数としてmpApplicationLogic.tsに配置。UI層のuseMemoで呼び出してrenderNodeで利用
+  - ストーリーでのブラウザテスト時、axiom paletteがノードを覆う場合がある。evaluate()でdirectにclick()すれば回避可能
+---

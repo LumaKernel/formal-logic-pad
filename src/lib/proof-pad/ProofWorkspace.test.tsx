@@ -708,6 +708,99 @@ describe("ProofWorkspace", () => {
     });
   });
 
+  describe("MP compatible node highlighting", () => {
+    it("dims incompatible nodes after left premise is selected", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <StatefulWorkspace
+          initialWorkspace={(() => {
+            let ws = createEmptyWorkspace(lukasiewiczSystem);
+            // node-1: left premise "phi"
+            ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+            // node-2: compatible right premise "phi -> psi"
+            ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+            // node-3: incompatible (not an implication) "psi"
+            ws = addNode(ws, "axiom", "A3", { x: 400, y: 0 }, "psi");
+            return ws;
+          })()}
+        />,
+      );
+
+      // Enter MP selection mode and select left premise
+      await user.click(screen.getByTestId("workspace-mp-button"));
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      // Now in "selecting-right" phase
+      expect(screen.getByTestId("workspace-mp-banner")).toHaveTextContent(
+        "Click the right premise",
+      );
+
+      // Compatible node (node-2) should NOT be dimmed
+      const compatibleWrapper =
+        screen.getByTestId("proof-node-node-2").parentElement!;
+      expect(compatibleWrapper.style.opacity).not.toBe("0.35");
+
+      // Incompatible node (node-3) should be dimmed
+      const incompatibleWrapper =
+        screen.getByTestId("proof-node-node-3").parentElement!;
+      expect(incompatibleWrapper.style.opacity).toBe("0.35");
+    });
+
+    it("does not dim nodes during selecting-left phase", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <StatefulWorkspace
+          initialWorkspace={(() => {
+            let ws = createEmptyWorkspace(lukasiewiczSystem);
+            ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+            ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "psi");
+            return ws;
+          })()}
+        />,
+      );
+
+      // Enter MP selection mode (selecting-left phase)
+      await user.click(screen.getByTestId("workspace-mp-button"));
+      expect(screen.getByTestId("workspace-mp-banner")).toHaveTextContent(
+        "Click the left premise",
+      );
+
+      // No nodes should be dimmed
+      const node1Wrapper =
+        screen.getByTestId("proof-node-node-1").parentElement!;
+      const node2Wrapper =
+        screen.getByTestId("proof-node-node-2").parentElement!;
+      expect(node1Wrapper.style.opacity).not.toBe("0.35");
+      expect(node2Wrapper.style.opacity).not.toBe("0.35");
+    });
+
+    it("gives compatible nodes a solid outline in selecting-right phase", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <StatefulWorkspace
+          initialWorkspace={(() => {
+            let ws = createEmptyWorkspace(lukasiewiczSystem);
+            ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+            ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+            return ws;
+          })()}
+        />,
+      );
+
+      await user.click(screen.getByTestId("workspace-mp-button"));
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      // Compatible node should have solid outline (not dashed)
+      const compatibleWrapper =
+        screen.getByTestId("proof-node-node-2").parentElement!;
+      expect(compatibleWrapper.style.outline).toContain("solid");
+      expect(compatibleWrapper.style.outline).not.toContain("dashed");
+    });
+  });
+
   describe("goal setting and completion", () => {
     it("shows proof complete banner when goal is achieved", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);

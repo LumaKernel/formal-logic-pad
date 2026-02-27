@@ -8,6 +8,7 @@
  */
 
 import type { Formula } from "../logic-core/formula";
+import { equalFormula } from "../logic-core/equality";
 import type { RuleApplicationError } from "../logic-core/inferenceRule";
 import { applyModusPonens } from "../logic-core/inferenceRule";
 import { parseString } from "../logic-lang/parser";
@@ -150,6 +151,40 @@ export function validateMPApplication(
     conclusion: result.conclusion,
     conclusionText: formatFormula(result.conclusion),
   };
+}
+
+// --- MP互換ノード判定（ハイライト用） ---
+
+/**
+ * MP選択モードで左前提が選択済みの場合に、
+ * 右前提として互換性のあるノードのIDセットを返す。
+ *
+ * 右前提は Implication(φ→ψ) の形で、かつ antecedent(φ) が
+ * 左前提の formula と構造的に等しいノード。
+ *
+ * leftNodeId のノード自身は結果に含まれない。
+ */
+export function computeMPCompatibleNodeIds(
+  nodes: readonly WorkspaceNode[],
+  leftNodeId: string,
+): ReadonlySet<string> {
+  const leftNode = nodes.find((n) => n.id === leftNodeId);
+  if (!leftNode) return new Set();
+
+  const leftFormula = parseNodeFormula(leftNode);
+  if (!leftFormula) return new Set();
+
+  const compatible = new Set<string>();
+  for (const node of nodes) {
+    if (node.id === leftNodeId) continue;
+    const formula = parseNodeFormula(node);
+    if (!formula) continue;
+    if (formula._tag !== "Implication") continue;
+    if (equalFormula(leftFormula, formula.left)) {
+      compatible.add(node.id);
+    }
+  }
+  return compatible;
 }
 
 // --- エラーメッセージ ---

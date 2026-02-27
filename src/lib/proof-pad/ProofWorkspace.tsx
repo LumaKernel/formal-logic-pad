@@ -24,7 +24,10 @@ import { EditableProofNode } from "./EditableProofNode";
 import { getProofNodePorts, getProofEdgeColor } from "./proofNodeUI";
 import { AxiomPalette } from "./AxiomPalette";
 import { getAvailableAxioms, type AxiomPaletteItem } from "./axiomPaletteLogic";
-import { validateMPApplication } from "./mpApplicationLogic";
+import {
+  validateMPApplication,
+  computeMPCompatibleNodeIds,
+} from "./mpApplicationLogic";
 import { validateGenApplication } from "./genApplicationLogic";
 import {
   getMPErrorMessageKey,
@@ -677,6 +680,16 @@ export function ProofWorkspace({
 
   const isSelectionActive =
     mpSelection.phase !== "idle" || genSelection.phase !== "idle";
+
+  // --- MP互換ノードIDセット（ハイライト用） ---
+
+  const mpCompatibleNodeIds: ReadonlySet<string> = useMemo(
+    () =>
+      mpSelection.phase === "selecting-right"
+        ? computeMPCompatibleNodeIds(workspace.nodes, mpSelection.leftNodeId)
+        : new Set<string>(),
+    [mpSelection, workspace.nodes],
+  );
 
   // --- MPノードの検証状態を計算 ---
 
@@ -1452,6 +1465,16 @@ export function ProofWorkspace({
         mpSelection.leftNodeId === node.id;
       const isNodeSelected = selectedNodeIds.has(node.id);
 
+      // MP右前提候補の互換判定
+      const isMPCompatible =
+        mpSelection.phase === "selecting-right" &&
+        !isSelectedLeft &&
+        mpCompatibleNodeIds.has(node.id);
+      const isMPIncompatible =
+        mpSelection.phase === "selecting-right" &&
+        !isSelectedLeft &&
+        !mpCompatibleNodeIds.has(node.id);
+
       // ノードの検証状態（MPまたはGen）
       const nodeValidation =
         mpValidations.get(node.id) ?? genValidations.get(node.id);
@@ -1467,11 +1490,13 @@ export function ProofWorkspace({
       // アウトラインスタイルの決定
       const outlineStyle = isSelectedLeft
         ? `3px solid var(--color-mp-button, #d9944a)`
-        : isNodeSelected
-          ? "2px solid var(--color-accent, #3b82f6)"
-          : isSelectionActive && selectionColor
-            ? `2px dashed ${selectionColor satisfies string}`
-            : undefined;
+        : isMPCompatible
+          ? `2px solid var(--color-mp-button, #d9944a)`
+          : isNodeSelected
+            ? "2px solid var(--color-accent, #3b82f6)"
+            : isSelectionActive && selectionColor
+              ? `2px dashed ${selectionColor satisfies string}`
+              : undefined;
 
       return (
         <CanvasItem
@@ -1500,6 +1525,8 @@ export function ProofWorkspace({
               outline: outlineStyle,
               outlineOffset: 2,
               borderRadius: 10,
+              opacity: isMPIncompatible ? 0.35 : undefined,
+              transition: "opacity 0.15s ease",
             }}
           >
             <EditableProofNode
@@ -1536,6 +1563,7 @@ export function ProofWorkspace({
       isSelectionActive,
       selectedNodeIds,
       mpSelection,
+      mpCompatibleNodeIds,
       genSelection,
       mpValidations,
       genValidations,
