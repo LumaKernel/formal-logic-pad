@@ -600,6 +600,218 @@ const q24DeMorgan: QuestDefinition = {
   order: 3,
 };
 
+// --- Level 3-4: 否定公理の追加問題 ---
+
+const q25TripleNegationElim: QuestDefinition = {
+  id: "prop-25",
+  category: "propositional-negation",
+  title: "三重否定除去",
+  description:
+    "¬¬¬φ → ¬φ を証明せよ。三重否定を一重否定に還元する（戸次7.23）。",
+  difficulty: 3,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "~~~phi -> ~phi",
+      label: "Goal: ¬¬¬φ → ¬φ",
+      position: { x: 400, y: 600 },
+    },
+  ],
+  hints: [
+    "DNE (¬¬φ → φ) を ¬φ に適用して ¬¬¬φ → ¬φ を直接得る方法を考えましょう。",
+    "DNE: ¬¬α → α のαに¬φを代入します。",
+    "DNEが補題として使える場合は1ステップで完了します。",
+  ],
+  estimatedSteps: 18,
+  learningPoint:
+    "三重否定除去はDNEの直接的な帰結。¬¬(¬φ) → ¬φ はDNEのインスタンス。しかしDNE自体の証明を含めると長い。",
+  order: 8,
+};
+
+const q26ConsequentiaMirabilis: QuestDefinition = {
+  id: "prop-26",
+  category: "propositional-negation",
+  title: "驚嘆すべき帰結 (CM)",
+  description:
+    "(φ → ¬φ) → ¬φ を証明せよ。自己矛盾する仮定から否定を導く（戸次7.24）。",
+  difficulty: 3,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(phi -> ~phi) -> ~phi",
+      label: "Goal: (φ → ¬φ) → ¬φ",
+      position: { x: 400, y: 600 },
+    },
+  ],
+  hints: [
+    "S公理の特殊ケース (Q-06) と恒等律 (Q-01) を組み合わせます。",
+    "A2: (φ → (φ → ¬φ)) → ((φ → φ) → (φ → ¬φ)) のφ→¬φ版を考えます。",
+    "(φ → ¬φ) は「φが2回必要な含意」の形。Q-06のパターンが使えます。",
+  ],
+  estimatedSteps: 15,
+  learningPoint:
+    "Consequentia mirabilis（驚嘆すべき帰結）はラテン語由来の古典的定理。自己矛盾する仮定を排除する推論パターン。",
+  order: 9,
+};
+
+const q27Contraposition2: QuestDefinition = {
+  id: "prop-27",
+  category: "propositional-negation",
+  title: "対偶律 (CON2)",
+  description:
+    "(φ → ¬ψ) → (ψ → ¬φ) を証明せよ。否定を含む対偶律の第2形態（戸次7.29）。",
+  difficulty: 3,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(phi -> ~psi) -> (psi -> ~phi)",
+      label: "Goal: (φ → ¬ψ) → (ψ → ¬φ)",
+      position: { x: 400, y: 600 },
+    },
+  ],
+  hints: [
+    "DNI (ψ → ¬¬ψ) と推移律で ψ → ¬¬ψ → ... の形を作ります。",
+    "A3: (¬α → ¬β) → (β → α) を活用します。",
+    "φ → ¬ψ の対偶を取ることで ¬¬ψ → ¬φ を導き、DNIと推移律で結合します。",
+  ],
+  estimatedSteps: 20,
+  learningPoint:
+    "対偶律は4つの形態 (CON1-CON4) がある。CON1 (Modus Tollens) と CON2 はSK体系でも証明可能。",
+  order: 10,
+};
+
+const q28ClaviusLaw: QuestDefinition = {
+  id: "prop-28",
+  category: "propositional-negation",
+  title: "Clavius の法則 (CM*)",
+  description:
+    "(¬φ → φ) → φ を証明せよ。CMの双対。古典論理の重要な定理（戸次7.55）。",
+  difficulty: 4,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(~phi -> phi) -> phi",
+      label: "Goal: (¬φ → φ) → φ",
+      position: { x: 400, y: 600 },
+    },
+  ],
+  hints: [
+    "DNE (¬¬φ → φ) を活用する戦略が有効です。",
+    "推移律で (¬φ → φ) → (¬φ → ¬¬φ) → ... の形を作ります。",
+    "CM (Q-26): (α → ¬α) → ¬α を ¬φ に適用して ¬φ → ¬¬φ → φ の形に持ち込みます。",
+  ],
+  estimatedSteps: 25,
+  learningPoint:
+    "Clavius の法則は古典論理に特有。直観主義論理では証明できない。CMと対を成す重要な定理。",
+  order: 11,
+};
+
+const q29TertiumNonDatur: QuestDefinition = {
+  id: "prop-29",
+  category: "propositional-negation",
+  title: "第三の可能性は存在しない (TND)",
+  description:
+    "(φ → ψ) → ((¬φ → ψ) → ψ) を証明せよ。場合分け推論の根幹（戸次7.81）。",
+  difficulty: 4,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> ((~phi -> psi) -> psi)",
+      label: "Goal: (φ → ψ) → ((¬φ → ψ) → ψ)",
+      position: { x: 400, y: 600 },
+    },
+  ],
+  hints: [
+    "CM* (Q-28): (¬α → α) → α を出発点に考えます。",
+    "φ → ψ と ¬φ → ψ の2つの前提から ψ を導く。",
+    "推移律で (¬ψ → ¬φ) と (¬φ → ψ) を接続し、CM* のパターンに持ち込みます。",
+  ],
+  estimatedSteps: 30,
+  learningPoint:
+    "TND（tertium non datur）は場合分け推論の形式化。排中律 (LEM) と密接に関連する古典論理の基本法則。",
+  order: 12,
+};
+
+// --- Level 5: 挑戦問題（追加） ---
+
+const q30LawOfNonContradiction: QuestDefinition = {
+  id: "prop-30",
+  category: "propositional-advanced",
+  title: "矛盾律 (LNC)",
+  description:
+    "¬(φ ∧ ¬φ) を証明せよ。矛盾は起こり得ないという基本法則（戸次7.40）。",
+  difficulty: 5,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "~(phi /\\ ~phi)",
+      label: "Goal: ¬(φ ∧ ¬φ)",
+      position: { x: 400, y: 600 },
+    },
+  ],
+  hints: [
+    "連言の定義: α ∧ β ≡ ¬(α → ¬β) を展開します。",
+    "φ ∧ ¬φ = ¬(φ → ¬¬φ) なので、ゴールは ¬¬(φ → ¬¬φ) です。",
+    "DNI (α → ¬¬α) を φ → ¬¬φ に適用すれば (φ → ¬¬φ) が導け、DNI で二重否定にします。",
+  ],
+  estimatedSteps: 20,
+  learningPoint:
+    "矛盾律 (LNC) は最小論理 HM でも証明可能な基本法則。連言の定義を展開すると DNI で証明できる。",
+  order: 4,
+};
+
+const q31ConjunctionElimRight: QuestDefinition = {
+  id: "prop-31",
+  category: "propositional-advanced",
+  title: "連言の右除去",
+  description:
+    "(φ ∧ ψ) → ψ を証明せよ。連言の右射影（右側要素の取り出し）。",
+  difficulty: 5,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(phi /\\ psi) -> psi",
+      label: "Goal: (φ ∧ ψ) → ψ",
+      position: { x: 400, y: 600 },
+    },
+  ],
+  hints: [
+    "連言を定義で展開: ¬(φ → ¬ψ) → ψ。",
+    "爆発律 (Q-18) と A3（対偶）を組み合わせます。",
+    "Q-23の左射影と同様の手法だが、取り出す側が異なるため若干アプローチが変わります。",
+  ],
+  estimatedSteps: 25,
+  learningPoint:
+    "連言の除去には左射影 (φ∧ψ→φ) と右射影 (φ∧ψ→ψ) の2つが必要。Hilbert系では各々独立に証明する。",
+  order: 5,
+};
+
+const q32DisjunctionElim: QuestDefinition = {
+  id: "prop-32",
+  category: "propositional-advanced",
+  title: "選言除去 (Disjunction Elimination)",
+  description:
+    "(φ ∨ ψ) → ((φ → χ) → ((ψ → χ) → χ)) を証明せよ。場合分け推論の形式化。",
+  difficulty: 5,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))",
+      label: "Goal: (φ ∨ ψ) → ((φ → χ) → ((ψ → χ) → χ))",
+      position: { x: 400, y: 600 },
+    },
+  ],
+  hints: [
+    "選言の定義: φ ∨ ψ ≡ ¬φ → ψ を展開します。",
+    "TND (Q-29) の考え方が使えます: φ → χ と ¬φ → ψ → χ の2つから χ を導く形。",
+    "含意の交換 (Q-07) と推移律を多用する長い証明になります。",
+  ],
+  estimatedSteps: 45,
+  learningPoint:
+    "選言除去は場合分け推論の形式化。自然演繹では1ルールで済むが、Hilbert系では非常に長い証明が必要。",
+  order: 6,
+};
+
 // --- ペアノ算術の基礎 ---
 
 const qPA01SuccessorNotZero: QuestDefinition = {
@@ -1127,9 +1339,17 @@ export const builtinQuests: readonly QuestDefinition[] = [
   q19ConverseContraposition,
   q20LawOfExcludedMiddle,
   q21PeirceLaw,
+  q25TripleNegationElim,
+  q26ConsequentiaMirabilis,
+  q27Contraposition2,
+  q28ClaviusLaw,
+  q29TertiumNonDatur,
   q22ConjunctionIntro,
   q23ConjunctionElim,
   q24DeMorgan,
+  q30LawOfNonContradiction,
+  q31ConjunctionElimRight,
+  q32DisjunctionElim,
   qPA01SuccessorNotZero,
   qPA02AdditionBase,
   qPA03MultiplicationBase,
