@@ -6,6 +6,7 @@ import {
   type ImportResult,
 } from "./workspaceExport";
 import type { WorkspaceState } from "./workspaceState";
+import type { InferenceEdge } from "./inferenceEdge";
 import { lukasiewiczSystem } from "../logic-core/inferenceRule";
 
 // --- テストヘルパー ---
@@ -92,6 +93,108 @@ function createGenWorkspace(): WorkspaceState {
   };
 }
 
+function createWorkspaceWithInferenceEdges(): WorkspaceState {
+  const mpEdge: InferenceEdge = {
+    _tag: "mp",
+    conclusionNodeId: "node-3",
+    leftPremiseNodeId: "node-1",
+    rightPremiseNodeId: "node-2",
+    conclusionText: "psi",
+  };
+  const genEdge: InferenceEdge = {
+    _tag: "gen",
+    conclusionNodeId: "node-4",
+    premiseNodeId: "node-1",
+    variableName: "x",
+    conclusionText: "all x. phi",
+  };
+  const substEdge: InferenceEdge = {
+    _tag: "substitution",
+    conclusionNodeId: "node-5",
+    premiseNodeId: "node-1",
+    entries: [
+      {
+        _tag: "FormulaSubstitution",
+        metaVariableName: "φ",
+        formulaText: "p -> q",
+      },
+      {
+        _tag: "TermSubstitution",
+        metaVariableName: "τ",
+        metaVariableSubscript: "1",
+        termText: "f(a)",
+      },
+    ],
+    conclusionText: "(p -> q) -> (psi -> (p -> q))",
+  };
+
+  return {
+    system: {
+      name: "Predicate Logic",
+      propositionalAxioms: new Set(["A1", "A2", "A3"]),
+      predicateLogic: true,
+      equalityLogic: false,
+      generalization: true,
+    },
+    nodes: [
+      {
+        id: "node-1",
+        kind: "axiom",
+        label: "A1",
+        formulaText: "phi -> (psi -> phi)",
+        position: { x: 0, y: 0 },
+      },
+      {
+        id: "node-2",
+        kind: "axiom",
+        label: "Premise",
+        formulaText: "phi",
+        position: { x: 200, y: 0 },
+      },
+      {
+        id: "node-3",
+        kind: "derived",
+        label: "MP",
+        formulaText: "psi",
+        position: { x: 100, y: 200 },
+      },
+      {
+        id: "node-4",
+        kind: "derived",
+        label: "Gen",
+        formulaText: "all x. phi",
+        position: { x: 0, y: 400 },
+      },
+      {
+        id: "node-5",
+        kind: "derived",
+        label: "Subst",
+        formulaText: "(p -> q) -> (psi -> (p -> q))",
+        position: { x: 200, y: 400 },
+      },
+    ],
+    connections: [
+      {
+        id: "conn-1-3-left",
+        fromNodeId: "node-1",
+        fromPortId: "out",
+        toNodeId: "node-3",
+        toPortId: "premise-left",
+      },
+      {
+        id: "conn-2-3-right",
+        fromNodeId: "node-2",
+        fromPortId: "out",
+        toNodeId: "node-3",
+        toPortId: "premise-right",
+      },
+    ],
+    inferenceEdges: [mpEdge, genEdge, substEdge],
+    nextNodeId: 6,
+    mode: "free",
+  };
+}
+
 // --- exportWorkspaceToJSON ---
 
 describe("exportWorkspaceToJSON", () => {
@@ -164,6 +267,46 @@ describe("exportWorkspaceToJSON", () => {
     expect(parsed.workspace.system.generalization).toBe(true);
   });
 
+  it("InferenceEdgesがシリアライズされる", () => {
+    const state = createWorkspaceWithInferenceEdges();
+    const json = exportWorkspaceToJSON(state);
+    const parsed = JSON.parse(json);
+
+    expect(parsed.workspace.inferenceEdges).toHaveLength(3);
+
+    // MPエッジ
+    expect(parsed.workspace.inferenceEdges[0]._tag).toBe("mp");
+    expect(parsed.workspace.inferenceEdges[0].conclusionNodeId).toBe("node-3");
+    expect(parsed.workspace.inferenceEdges[0].leftPremiseNodeId).toBe("node-1");
+    expect(parsed.workspace.inferenceEdges[0].rightPremiseNodeId).toBe(
+      "node-2",
+    );
+    expect(parsed.workspace.inferenceEdges[0].conclusionText).toBe("psi");
+
+    // Genエッジ
+    expect(parsed.workspace.inferenceEdges[1]._tag).toBe("gen");
+    expect(parsed.workspace.inferenceEdges[1].variableName).toBe("x");
+
+    // Substitutionエッジ
+    expect(parsed.workspace.inferenceEdges[2]._tag).toBe("substitution");
+    expect(parsed.workspace.inferenceEdges[2].entries).toHaveLength(2);
+    expect(parsed.workspace.inferenceEdges[2].entries[0]._tag).toBe(
+      "FormulaSubstitution",
+    );
+    expect(parsed.workspace.inferenceEdges[2].entries[1]._tag).toBe(
+      "TermSubstitution",
+    );
+    expect(parsed.workspace.inferenceEdges[2].entries[1].metaVariableSubscript).toBe("1");
+  });
+
+  it("空のinferenceEdgesがシリアライズされる", () => {
+    const state = createSampleWorkspace();
+    const json = exportWorkspaceToJSON(state);
+    const parsed = JSON.parse(json);
+
+    expect(parsed.workspace.inferenceEdges).toEqual([]);
+  });
+
   it("出力はpretty-printされている", () => {
     const state = createSampleWorkspace();
     const json = exportWorkspaceToJSON(state);
@@ -219,6 +362,176 @@ describe("importWorkspaceFromJSON", () => {
     expect(result.workspace.nodes[0].genVariableName).toBe("x");
     expect(result.workspace.system.predicateLogic).toBe(true);
     expect(result.workspace.system.generalization).toBe(true);
+  });
+
+  it("InferenceEdgesのラウンドトリップ", () => {
+    const original = createWorkspaceWithInferenceEdges();
+    const json = exportWorkspaceToJSON(original);
+    const result = importWorkspaceFromJSON(json);
+
+    expect(result._tag).toBe("Success");
+    if (result._tag !== "Success") return;
+
+    expect(result.workspace.inferenceEdges).toHaveLength(3);
+
+    // MPエッジの復元
+    const mp = result.workspace.inferenceEdges[0];
+    expect(mp._tag).toBe("mp");
+    if (mp._tag !== "mp") return;
+    expect(mp.conclusionNodeId).toBe("node-3");
+    expect(mp.leftPremiseNodeId).toBe("node-1");
+    expect(mp.rightPremiseNodeId).toBe("node-2");
+    expect(mp.conclusionText).toBe("psi");
+
+    // Genエッジの復元
+    const gen = result.workspace.inferenceEdges[1];
+    expect(gen._tag).toBe("gen");
+    if (gen._tag !== "gen") return;
+    expect(gen.conclusionNodeId).toBe("node-4");
+    expect(gen.premiseNodeId).toBe("node-1");
+    expect(gen.variableName).toBe("x");
+
+    // Substitutionエッジの復元
+    const subst = result.workspace.inferenceEdges[2];
+    expect(subst._tag).toBe("substitution");
+    if (subst._tag !== "substitution") return;
+    expect(subst.conclusionNodeId).toBe("node-5");
+    expect(subst.entries).toHaveLength(2);
+    expect(subst.entries[0]._tag).toBe("FormulaSubstitution");
+    if (subst.entries[0]._tag !== "FormulaSubstitution") return;
+    expect(subst.entries[0].metaVariableName).toBe("φ");
+    expect(subst.entries[0].formulaText).toBe("p -> q");
+    expect(subst.entries[1]._tag).toBe("TermSubstitution");
+    if (subst.entries[1]._tag !== "TermSubstitution") return;
+    expect(subst.entries[1].metaVariableName).toBe("τ");
+    expect(subst.entries[1].metaVariableSubscript).toBe("1");
+    expect(subst.entries[1].termText).toBe("f(a)");
+  });
+
+  it("旧フォーマット互換: inferenceEdgesフィールドなしでも空配列で復元する", () => {
+    // inferenceEdges フィールドが存在しない旧フォーマットのJSON
+    const oldFormatJson = JSON.stringify({
+      _tag: "ProofPadWorkspace",
+      version: 1,
+      workspace: {
+        system: {
+          name: "Łukasiewicz",
+          propositionalAxioms: ["A1", "A2", "A3"],
+          predicateLogic: false,
+          equalityLogic: false,
+          generalization: false,
+        },
+        nodes: [
+          {
+            id: "node-1",
+            kind: "axiom",
+            label: "A1",
+            formulaText: "phi -> (psi -> phi)",
+            position: { x: 0, y: 0 },
+          },
+        ],
+        connections: [],
+        nextNodeId: 2,
+        mode: "free",
+      },
+    });
+
+    const result = importWorkspaceFromJSON(oldFormatJson);
+    expect(result._tag).toBe("Success");
+    if (result._tag !== "Success") return;
+
+    expect(result.workspace.inferenceEdges).toEqual([]);
+    expect(result.workspace.nodes).toHaveLength(1);
+  });
+
+  it("旧フォーマット互換: レガシーノード種別mp/gen/substitutionがderivedに変換される", () => {
+    const oldFormatJson = JSON.stringify({
+      _tag: "ProofPadWorkspace",
+      version: 1,
+      workspace: {
+        system: {
+          name: "test",
+          propositionalAxioms: ["A1"],
+          predicateLogic: false,
+          equalityLogic: false,
+          generalization: false,
+        },
+        nodes: [
+          {
+            id: "n1",
+            kind: "mp",
+            label: "MP",
+            formulaText: "psi",
+            position: { x: 0, y: 0 },
+          },
+          {
+            id: "n2",
+            kind: "gen",
+            label: "Gen",
+            formulaText: "all x. phi",
+            position: { x: 100, y: 0 },
+          },
+          {
+            id: "n3",
+            kind: "substitution",
+            label: "Subst",
+            formulaText: "phi",
+            position: { x: 200, y: 0 },
+          },
+        ],
+        connections: [],
+        nextNodeId: 4,
+        mode: "free",
+      },
+    });
+
+    const result = importWorkspaceFromJSON(oldFormatJson);
+    expect(result._tag).toBe("Success");
+    if (result._tag !== "Success") return;
+
+    expect(result.workspace.nodes[0].kind).toBe("derived");
+    expect(result.workspace.nodes[1].kind).toBe("derived");
+    expect(result.workspace.nodes[2].kind).toBe("derived");
+    expect(result.workspace.inferenceEdges).toEqual([]);
+  });
+
+  it("undefinedの前提ノードIDのラウンドトリップ", () => {
+    const state: WorkspaceState = {
+      system: lukasiewiczSystem,
+      nodes: [
+        {
+          id: "node-1",
+          kind: "derived",
+          label: "MP",
+          formulaText: "",
+          position: { x: 0, y: 0 },
+        },
+      ],
+      connections: [],
+      inferenceEdges: [
+        {
+          _tag: "mp",
+          conclusionNodeId: "node-1",
+          leftPremiseNodeId: undefined,
+          rightPremiseNodeId: undefined,
+          conclusionText: "",
+        },
+      ],
+      nextNodeId: 2,
+      mode: "free",
+    };
+
+    const json = exportWorkspaceToJSON(state);
+    const result = importWorkspaceFromJSON(json);
+
+    expect(result._tag).toBe("Success");
+    if (result._tag !== "Success") return;
+
+    const edge = result.workspace.inferenceEdges[0];
+    expect(edge._tag).toBe("mp");
+    if (edge._tag !== "mp") return;
+    expect(edge.leftPremiseNodeId).toBeUndefined();
+    expect(edge.rightPremiseNodeId).toBeUndefined();
   });
 
   it("不正なJSONでInvalidJSONを返す", () => {
@@ -1009,6 +1322,528 @@ describe("importWorkspaceFromJSON", () => {
           },
           nodes: [],
           connections: [],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("inferenceEdgesがArrayでないとInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: "not-array",
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("inferenceEdgeの_tagが不正でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            { _tag: "invalid", conclusionNodeId: "n1", conclusionText: "" },
+          ],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("inferenceEdgeがnullだとInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [null],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("mpエッジのconclusionNodeIdが非文字列でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            { _tag: "mp", conclusionNodeId: 123, conclusionText: "" },
+          ],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("mpエッジのconclusionTextが非文字列でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            { _tag: "mp", conclusionNodeId: "n1", conclusionText: 42 },
+          ],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("mpエッジのleftPremiseNodeIdが非文字列でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            {
+              _tag: "mp",
+              conclusionNodeId: "n1",
+              leftPremiseNodeId: 123,
+              conclusionText: "",
+            },
+          ],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("mpエッジのrightPremiseNodeIdが非文字列でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            {
+              _tag: "mp",
+              conclusionNodeId: "n1",
+              rightPremiseNodeId: true,
+              conclusionText: "",
+            },
+          ],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("genエッジのvariableNameが欠けているとInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            { _tag: "gen", conclusionNodeId: "n1", conclusionText: "" },
+          ],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("genエッジのpremiseNodeIdが非文字列でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            {
+              _tag: "gen",
+              conclusionNodeId: "n1",
+              premiseNodeId: 42,
+              variableName: "x",
+              conclusionText: "",
+            },
+          ],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("substitutionエッジのentriesがArrayでないとInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            {
+              _tag: "substitution",
+              conclusionNodeId: "n1",
+              entries: "not-array",
+              conclusionText: "",
+            },
+          ],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("substitutionエッジのpremiseNodeIdが非文字列でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            {
+              _tag: "substitution",
+              conclusionNodeId: "n1",
+              premiseNodeId: false,
+              entries: [],
+              conclusionText: "",
+            },
+          ],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("substitutionエントリの_tagが不正でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            {
+              _tag: "substitution",
+              conclusionNodeId: "n1",
+              entries: [
+                { _tag: "Invalid", metaVariableName: "φ", formulaText: "p" },
+              ],
+              conclusionText: "",
+            },
+          ],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("substitutionエントリがnullだとInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            {
+              _tag: "substitution",
+              conclusionNodeId: "n1",
+              entries: [null],
+              conclusionText: "",
+            },
+          ],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("FormulaSubstitutionエントリのmetaVariableNameが非文字列でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            {
+              _tag: "substitution",
+              conclusionNodeId: "n1",
+              entries: [
+                {
+                  _tag: "FormulaSubstitution",
+                  metaVariableName: 42,
+                  formulaText: "p",
+                },
+              ],
+              conclusionText: "",
+            },
+          ],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("FormulaSubstitutionエントリのformulaTextが非文字列でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            {
+              _tag: "substitution",
+              conclusionNodeId: "n1",
+              entries: [
+                {
+                  _tag: "FormulaSubstitution",
+                  metaVariableName: "φ",
+                  formulaText: 42,
+                },
+              ],
+              conclusionText: "",
+            },
+          ],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("TermSubstitutionエントリのtermTextが非文字列でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            {
+              _tag: "substitution",
+              conclusionNodeId: "n1",
+              entries: [
+                {
+                  _tag: "TermSubstitution",
+                  metaVariableName: "τ",
+                  termText: true,
+                },
+              ],
+              conclusionText: "",
+            },
+          ],
+          nextNodeId: 1,
+          mode: "free",
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("metaVariableSubscriptが非文字列でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          inferenceEdges: [
+            {
+              _tag: "substitution",
+              conclusionNodeId: "n1",
+              entries: [
+                {
+                  _tag: "FormulaSubstitution",
+                  metaVariableName: "φ",
+                  metaVariableSubscript: 42,
+                  formulaText: "p",
+                },
+              ],
+              conclusionText: "",
+            },
+          ],
           nextNodeId: 1,
           mode: "free",
         },

@@ -80,11 +80,17 @@ function parseNotebook(raw: unknown): Notebook | undefined {
   const questId =
     typeof obj["questId"] === "string" ? obj["questId"] : undefined;
 
+  // inferenceEdges は旧フォーマットに存在しない場合がある（互換性のためデフォルト空配列）
+  const inferenceEdges = Array.isArray(workspace["inferenceEdges"])
+    ? (workspace["inferenceEdges"] as readonly unknown[])
+    : [];
+
   return {
     meta,
     workspace: {
       ...workspace,
       system,
+      inferenceEdges,
     } as WorkspaceState,
     ...(questId !== undefined ? { questId } : {}),
   };

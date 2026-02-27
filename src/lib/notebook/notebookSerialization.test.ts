@@ -598,6 +598,115 @@ describe("notebookSerialization", () => {
     });
   });
 
+  describe("InferenceEdge シリアライゼーション", () => {
+    it("InferenceEdgesを含むワークスペースをラウンドトリップできる", () => {
+      let col = createNotebook(createEmptyCollection(), {
+        name: "推論エッジテスト",
+        system: lukasiewiczSystem,
+        now: 1000,
+      });
+      // InferenceEdgesを直接追加
+      const notebook = col.notebooks[0];
+      if (notebook === undefined) throw new Error("notebook not found");
+      col = {
+        ...col,
+        notebooks: [
+          {
+            ...notebook,
+            workspace: {
+              ...notebook.workspace,
+              inferenceEdges: [
+                {
+                  _tag: "mp",
+                  conclusionNodeId: "node-2",
+                  leftPremiseNodeId: "node-1",
+                  rightPremiseNodeId: undefined,
+                  conclusionText: "psi",
+                },
+                {
+                  _tag: "gen",
+                  conclusionNodeId: "node-3",
+                  premiseNodeId: "node-1",
+                  variableName: "x",
+                  conclusionText: "all x. phi",
+                },
+                {
+                  _tag: "substitution",
+                  conclusionNodeId: "node-4",
+                  premiseNodeId: "node-1",
+                  entries: [
+                    {
+                      _tag: "FormulaSubstitution",
+                      metaVariableName: "φ",
+                      formulaText: "p -> q",
+                    },
+                  ],
+                  conclusionText: "(p -> q) -> (psi -> (p -> q))",
+                },
+              ],
+            },
+          },
+        ],
+      };
+
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      expect(restored.notebooks.length).toBe(1);
+      const ws = restored.notebooks[0]?.workspace;
+      expect(ws?.inferenceEdges).toHaveLength(3);
+      expect(ws?.inferenceEdges[0]?._tag).toBe("mp");
+      expect(ws?.inferenceEdges[1]?._tag).toBe("gen");
+      expect(ws?.inferenceEdges[2]?._tag).toBe("substitution");
+    });
+
+    it("旧フォーマット互換: inferenceEdgesがないデータでは空配列が設定される", () => {
+      // inferenceEdges フィールドを含まない旧フォーマットを手動構築
+      const oldFormatJson = JSON.stringify({
+        notebooks: [
+          {
+            meta: {
+              id: "notebook-1",
+              name: "旧フォーマット",
+              createdAt: 1000,
+              updatedAt: 1000,
+            },
+            workspace: {
+              system: {
+                name: "Łukasiewicz",
+                propositionalAxioms: ["A1", "A2", "A3"],
+                predicateLogic: false,
+                equalityLogic: false,
+                generalization: false,
+              },
+              nodes: [],
+              connections: [],
+              nextNodeId: 1,
+              mode: "free",
+            },
+          },
+        ],
+        nextId: 2,
+      });
+
+      const result = deserializeCollection(oldFormatJson);
+      expect(result.notebooks.length).toBe(1);
+      expect(result.notebooks[0]?.workspace.inferenceEdges).toEqual([]);
+    });
+
+    it("空のinferenceEdgesがラウンドトリップできる", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "空エッジ",
+        system: lukasiewiczSystem,
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      expect(restored.notebooks[0]?.workspace.inferenceEdges).toEqual([]);
+    });
+  });
+
   describe("serializeCollection の出力形式", () => {
     it("propositionalAxiomsがArrayとしてシリアライズされる", () => {
       const col = createNotebook(createEmptyCollection(), {

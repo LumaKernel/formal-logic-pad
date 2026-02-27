@@ -21,6 +21,9 @@ import type {
   WorkspaceMode,
   NodeProtection,
 } from "./workspaceState";
+import type { InferenceEdge } from "./inferenceEdge";
+import type { SubstitutionEntry } from "./substitutionApplicationLogic";
+import type { GreekLetter } from "../logic-core/greekLetters";
 import type { ProofNodeKind } from "./proofNodeUI";
 import type { NodeRole } from "./nodeRoleLogic";
 import type { Point } from "../infinite-canvas/types";
@@ -39,6 +42,7 @@ type SerializedWorkspaceState = {
   readonly system: SerializedLogicSystem;
   readonly nodes: readonly WorkspaceNode[];
   readonly connections: readonly WorkspaceConnection[];
+  readonly inferenceEdges: readonly InferenceEdge[];
   readonly nextNodeId: number;
   readonly mode: WorkspaceMode;
 };
@@ -73,6 +77,15 @@ const LEGACY_KIND_MAP: ReadonlyMap<string, string> = new Map([
 const VALID_MODES: ReadonlySet<string> = new Set(["free", "quest"]);
 const VALID_ROLES: ReadonlySet<string> = new Set(["axiom", "goal"]);
 const VALID_PROTECTIONS: ReadonlySet<string> = new Set(["quest-goal"]);
+const VALID_EDGE_TAGS: ReadonlySet<string> = new Set([
+  "mp",
+  "gen",
+  "substitution",
+]);
+const VALID_SUBSTITUTION_ENTRY_TAGS: ReadonlySet<string> = new Set([
+  "FormulaSubstitution",
+  "TermSubstitution",
+]);
 
 function validateAxiomId(value: unknown): PropositionalAxiomId | undefined {
   if (typeof value === "string" && VALID_AXIOM_IDS.has(value)) {
@@ -191,6 +204,125 @@ function parseConnection(raw: unknown): WorkspaceConnection | undefined {
   };
 }
 
+function parseSubstitutionEntry(
+  raw: unknown,
+): SubstitutionEntry | undefined {
+  if (typeof raw !== "object" || raw === null) return undefined;
+  const obj = raw as Record<string, unknown>;
+  if (
+    typeof obj["_tag"] !== "string" ||
+    !VALID_SUBSTITUTION_ENTRY_TAGS.has(obj["_tag"])
+  )
+    return undefined;
+  if (typeof obj["metaVariableName"] !== "string") return undefined;
+  if (
+    obj["metaVariableSubscript"] !== undefined &&
+    typeof obj["metaVariableSubscript"] !== "string"
+  )
+    return undefined;
+
+  if (obj["_tag"] === "FormulaSubstitution") {
+    if (typeof obj["formulaText"] !== "string") return undefined;
+    return {
+      _tag: "FormulaSubstitution",
+      metaVariableName:
+        obj["metaVariableName"] as GreekLetter,
+      ...(obj["metaVariableSubscript"] !== undefined
+        ? {
+            metaVariableSubscript: obj["metaVariableSubscript"] as string,
+          }
+        : {}),
+      formulaText: obj["formulaText"],
+    };
+  }
+
+  // TermSubstitution
+  if (typeof obj["termText"] !== "string") return undefined;
+  return {
+    _tag: "TermSubstitution",
+    metaVariableName: obj["metaVariableName"] as GreekLetter,
+    ...(obj["metaVariableSubscript"] !== undefined
+      ? {
+          metaVariableSubscript: obj["metaVariableSubscript"] as string,
+        }
+      : {}),
+    termText: obj["termText"],
+  };
+}
+
+function parseInferenceEdge(raw: unknown): InferenceEdge | undefined {
+  if (typeof raw !== "object" || raw === null) return undefined;
+  const obj = raw as Record<string, unknown>;
+
+  if (typeof obj["_tag"] !== "string" || !VALID_EDGE_TAGS.has(obj["_tag"]))
+    return undefined;
+  if (typeof obj["conclusionNodeId"] !== "string") return undefined;
+  if (typeof obj["conclusionText"] !== "string") return undefined;
+
+  const tag = obj["_tag"];
+
+  if (tag === "mp") {
+    if (
+      obj["leftPremiseNodeId"] !== undefined &&
+      typeof obj["leftPremiseNodeId"] !== "string"
+    )
+      return undefined;
+    if (
+      obj["rightPremiseNodeId"] !== undefined &&
+      typeof obj["rightPremiseNodeId"] !== "string"
+    )
+      return undefined;
+
+    return {
+      _tag: "mp",
+      conclusionNodeId: obj["conclusionNodeId"],
+      leftPremiseNodeId: (obj["leftPremiseNodeId"] as string) ?? undefined,
+      rightPremiseNodeId: (obj["rightPremiseNodeId"] as string) ?? undefined,
+      conclusionText: obj["conclusionText"],
+    };
+  }
+
+  if (tag === "gen") {
+    if (
+      obj["premiseNodeId"] !== undefined &&
+      typeof obj["premiseNodeId"] !== "string"
+    )
+      return undefined;
+    if (typeof obj["variableName"] !== "string") return undefined;
+
+    return {
+      _tag: "gen",
+      conclusionNodeId: obj["conclusionNodeId"],
+      premiseNodeId: (obj["premiseNodeId"] as string) ?? undefined,
+      variableName: obj["variableName"],
+      conclusionText: obj["conclusionText"],
+    };
+  }
+
+  // substitution
+  if (
+    obj["premiseNodeId"] !== undefined &&
+    typeof obj["premiseNodeId"] !== "string"
+  )
+    return undefined;
+  if (!Array.isArray(obj["entries"])) return undefined;
+
+  const entries: SubstitutionEntry[] = [];
+  for (const item of obj["entries"] as readonly unknown[]) {
+    const parsed = parseSubstitutionEntry(item);
+    if (parsed === undefined) return undefined;
+    entries.push(parsed);
+  }
+
+  return {
+    _tag: "substitution",
+    conclusionNodeId: obj["conclusionNodeId"],
+    premiseNodeId: (obj["premiseNodeId"] as string) ?? undefined,
+    entries,
+    conclusionText: obj["conclusionText"],
+  };
+}
+
 function parseWorkspaceState(raw: unknown): WorkspaceState | undefined {
   if (typeof raw !== "object" || raw === null) return undefined;
   const obj = raw as Record<string, unknown>;
@@ -223,11 +355,22 @@ function parseWorkspaceState(raw: unknown): WorkspaceState | undefined {
     connections.push(parsed);
   }
 
+  // inferenceEdges は optional（旧フォーマット互換: 存在しなければ空配列）
+  const inferenceEdges: InferenceEdge[] = [];
+  if (obj["inferenceEdges"] !== undefined) {
+    if (!Array.isArray(obj["inferenceEdges"])) return undefined;
+    for (const item of obj["inferenceEdges"] as readonly unknown[]) {
+      const parsed = parseInferenceEdge(item);
+      if (parsed === undefined) return undefined;
+      inferenceEdges.push(parsed);
+    }
+  }
+
   return {
     system,
     nodes,
     connections,
-    inferenceEdges: [],
+    inferenceEdges,
     nextNodeId: obj["nextNodeId"],
     mode: obj["mode"] as WorkspaceMode,
   };
@@ -265,6 +408,7 @@ export function exportWorkspaceToJSON(state: WorkspaceState): string {
       system: serializeLogicSystem(state.system),
       nodes: state.nodes,
       connections: state.connections,
+      inferenceEdges: state.inferenceEdges,
       nextNodeId: state.nextNodeId,
       mode: state.mode,
     },
