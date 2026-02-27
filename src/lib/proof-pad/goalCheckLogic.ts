@@ -2,8 +2,8 @@
  * 証明目標（ゴール）達成判定の純粋ロジック。
  *
  * ノードの role === "goal" をゴールとして扱い、
- * ゴールノードへの incoming connection があり、
- * 接続元ノードが同じ式を導出していれば達成とみなす。
+ * InferenceEdge または直接接続によってゴールノードに接続された
+ * ノードが同じ式を導出していれば達成とみなす。
  *
  * 変更時は goalCheckLogic.test.ts, ProofWorkspace.tsx, index.ts も同期すること。
  */
@@ -12,6 +12,8 @@ import { equalFormula } from "../logic-core/equality";
 import { parseString } from "../logic-lang/parser";
 import type { Formula } from "../logic-core/formula";
 import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
+import type { InferenceEdge } from "./inferenceEdge";
+import { getInferenceEdgePremiseNodeIds } from "./inferenceEdge";
 
 // --- ゴール達成チェックの結果型 ---
 
@@ -73,19 +75,54 @@ export function parseGoalFormula(goalText: string): Formula | undefined {
 // --- ゴール達成チェック ---
 
 /**
+ * ゴールノードに接続されたソースノードIDを収集する。
+ *
+ * InferenceEdge と WorkspaceConnection の両方から、
+ * ゴールノードを結論/宛先とするソースノードIDを集める。
+ * InferenceEdge の前提ノードIDと、Connection の fromNodeId を統合する。
+ */
+function getGoalIncomingNodeIds(
+  goalNodeId: string,
+  connections: readonly WorkspaceConnection[],
+  inferenceEdges: readonly InferenceEdge[],
+): readonly string[] {
+  const nodeIds = new Set<string>();
+
+  // InferenceEdge: ゴールノードを結論とするエッジの前提ノード
+  for (const edge of inferenceEdges) {
+    if (edge.conclusionNodeId === goalNodeId) {
+      for (const premiseId of getInferenceEdgePremiseNodeIds(edge)) {
+        nodeIds.add(premiseId);
+      }
+    }
+  }
+
+  // WorkspaceConnection: ゴールノードへの incoming connection
+  for (const conn of connections) {
+    if (conn.toNodeId === goalNodeId) {
+      nodeIds.add(conn.fromNodeId);
+    }
+  }
+
+  return [...nodeIds];
+}
+
+/**
  * ワークスペース上の role="goal" ノードが全て証明されているかチェックする。
  *
- * ゴールノードに incoming connection があり、その接続元ノードの式が
- * ゴール式と構造的に一致していれば「達成」とみなす。
+ * ゴールノードに incoming connection または InferenceEdge の前提関係があり、
+ * その接続元ノードの式がゴール式と構造的に一致していれば「達成」とみなす。
  * ゴールノードに接続がない場合は式が一致するノードが存在しても未達成。
  *
  * @param nodes ワークスペース上のノード一覧
  * @param connections ワークスペース上の接続一覧
+ * @param inferenceEdges ワークスペース上の推論エッジ一覧
  * @returns ゴールチェック結果
  */
 export function checkGoal(
   nodes: readonly WorkspaceNode[],
   connections: readonly WorkspaceConnection[],
+  inferenceEdges: readonly InferenceEdge[],
 ): GoalCheckResult {
   const goalNodes = nodes.filter((n) => n.role === "goal");
   if (goalNodes.length === 0) {
@@ -110,14 +147,16 @@ export function checkGoal(
       continue;
     }
 
-    // ゴールノードへの incoming connection の接続元ノードから一致するものを探す
-    const incomingConnections = connections.filter(
-      (c) => c.toNodeId === goalNode.id,
+    // ゴールノードへの incoming ノードIDを InferenceEdge + Connection から収集
+    const incomingNodeIds = getGoalIncomingNodeIds(
+      goalNode.id,
+      connections,
+      inferenceEdges,
     );
 
     let matchingNodeId: string | undefined;
-    for (const conn of incomingConnections) {
-      const sourceNode = nodeById.get(conn.fromNodeId);
+    for (const sourceNodeId of incomingNodeIds) {
+      const sourceNode = nodeById.get(sourceNodeId);
       if (sourceNode === undefined) continue;
       if (sourceNode.formulaText.trim() === "") continue;
       const sourceResult = parseString(sourceNode.formulaText);

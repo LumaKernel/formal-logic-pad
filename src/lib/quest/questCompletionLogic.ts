@@ -7,10 +7,8 @@
  * 変更時は questCompletionLogic.test.ts も同期すること。
  */
 
-import type {
-  WorkspaceNode,
-  WorkspaceConnection,
-} from "../proof-pad/workspaceState";
+import type { WorkspaceNode } from "../proof-pad/workspaceState";
+import type { InferenceEdge } from "../proof-pad/inferenceEdge";
 import type { ProofNodeKind } from "../proof-pad/proofNodeUI";
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
 import { equalFormula } from "../logic-core/equality";
@@ -152,13 +150,13 @@ export type QuestGoalCheckWithAxiomsResult =
  * 3. ゴールの allowedAxiomIds と比較して制限違反をチェック
  *
  * @param nodes ワークスペース上のノード一覧
- * @param connections ワークスペース上の接続一覧
+ * @param inferenceEdges ワークスペース上の推論エッジ一覧
  * @param system 論理体系設定
  * @returns 公理制限付きゴールチェック結果
  */
 export function checkQuestGoalsWithAxioms(
   nodes: readonly WorkspaceNode[],
-  connections: readonly WorkspaceConnection[],
+  inferenceEdges: readonly InferenceEdge[],
   system: LogicSystem,
 ): QuestGoalCheckWithAxiomsResult {
   const goalNodes = nodes.filter((n) => n.protection === "quest-goal");
@@ -213,7 +211,7 @@ export function checkQuestGoalsWithAxioms(
     const usedAxiomIds = getNodeAxiomIds(
       matchingNode.id,
       nodes,
-      connections,
+      inferenceEdges,
       system,
     );
 

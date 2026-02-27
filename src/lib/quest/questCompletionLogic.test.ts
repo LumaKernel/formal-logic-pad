@@ -5,10 +5,8 @@ import {
   checkQuestGoalsWithAxioms,
   computeViolatingAxiomIds,
 } from "./questCompletionLogic";
-import type {
-  WorkspaceNode,
-  WorkspaceConnection,
-} from "../proof-pad/workspaceState";
+import type { WorkspaceNode } from "../proof-pad/workspaceState";
+import type { InferenceEdge } from "../proof-pad/inferenceEdge";
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
 
 // --- ヘルパー ---
@@ -315,17 +313,17 @@ describe("checkQuestGoalsWithAxioms", () => {
     generalization: false,
   };
 
-  function makeConnection(
-    fromNodeId: string,
-    toNodeId: string,
-    toPortId: string = "premise-left",
-  ): WorkspaceConnection {
+  function makeMPEdge(
+    conclusionNodeId: string,
+    leftPremiseNodeId: string,
+    rightPremiseNodeId: string,
+  ): InferenceEdge {
     return {
-      id: `conn-${fromNodeId satisfies string}-${toNodeId satisfies string}`,
-      fromNodeId,
-      fromPortId: "out",
-      toNodeId,
-      toPortId,
+      _tag: "mp",
+      conclusionNodeId,
+      leftPremiseNodeId,
+      rightPremiseNodeId,
+      conclusionText: "",
     };
   }
 
@@ -443,13 +441,10 @@ describe("checkQuestGoalsWithAxioms", () => {
         formulaText: "psi -> phi",
       }),
     ];
-    const connections = [
-      makeConnection("a1", "mp1", "premise-left"),
-      makeConnection("a3", "mp1", "premise-right"),
-    ];
+    const inferenceEdges = [makeMPEdge("mp1", "a1", "a3")];
     const result = checkQuestGoalsWithAxioms(
       nodes,
-      connections,
+      inferenceEdges,
       lukasiewiczSystem,
     );
     expect(result._tag).toBe("AllAchievedButAxiomViolation");

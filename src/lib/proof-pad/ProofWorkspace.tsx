@@ -1146,8 +1146,13 @@ export function ProofWorkspace({
   // --- ゴールチェック（ノードrole="goal"ベース） ---
 
   const goalCheckResult = useMemo(
-    () => checkGoal(workspace.nodes, workspace.connections),
-    [workspace.nodes, workspace.connections],
+    () =>
+      checkGoal(
+        workspace.nodes,
+        workspace.connections,
+        workspace.inferenceEdges,
+      ),
+    [workspace.nodes, workspace.connections, workspace.inferenceEdges],
   );
 
   // --- クエストゴールチェック（クエストモード: 保護ノードベース、公理制限付き） ---
@@ -1157,11 +1162,16 @@ export function ProofWorkspace({
       workspace.mode === "quest"
         ? checkQuestGoalsWithAxioms(
             workspace.nodes,
-            workspace.connections,
+            workspace.inferenceEdges,
             workspace.system,
           )
         : undefined,
-    [workspace.mode, workspace.nodes, workspace.connections, workspace.system],
+    [
+      workspace.mode,
+      workspace.nodes,
+      workspace.inferenceEdges,
+      workspace.system,
+    ],
   );
 
   const isGoalAchieved =
@@ -1243,8 +1253,8 @@ export function ProofWorkspace({
   // --- 公理依存関係の計算 ---
 
   const nodeDependencies = useMemo(
-    () => getAllNodeDependencies(workspace.nodes, workspace.connections),
-    [workspace.nodes, workspace.connections],
+    () => getAllNodeDependencies(workspace.nodes, workspace.inferenceEdges),
+    [workspace.nodes, workspace.inferenceEdges],
   );
 
   /**
@@ -1455,11 +1465,11 @@ export function ProofWorkspace({
     if (!nodeMenuState.open) return;
     const subtreeIds = getSubtreeNodeIds(
       nodeMenuState.nodeId,
-      workspace.connections,
+      workspace.inferenceEdges,
     );
     setSelectedNodeIds(subtreeIds);
     setNodeMenuState(closeNodeMenu());
-  }, [nodeMenuState, workspace.connections]);
+  }, [nodeMenuState, workspace.inferenceEdges]);
 
   // コンテキストメニューから「MPの左前提として使う」
   const handleUseAsMPLeft = useCallback(() => {

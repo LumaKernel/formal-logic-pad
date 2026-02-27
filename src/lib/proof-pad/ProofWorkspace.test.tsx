@@ -2022,15 +2022,18 @@ describe("ProofWorkspace", () => {
       ).toBeInTheDocument();
     });
 
-    it("Select Subtree selects node and all descendants via connections", async () => {
+    it("Select Subtree selects node and all descendants via InferenceEdge", async () => {
       const user = userEvent.setup();
       // axiom-1(node-1) → mp(node-3) ← axiom-2(node-2)
+      // applyMPAndConnect creates both connections and InferenceEdges
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
-      ws = addNode(ws, "derived", "MP", { x: 100, y: 100 }, "psi");
-      ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
-      ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      ws = mpResult.workspace;
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
@@ -2047,7 +2050,7 @@ describe("ProofWorkspace", () => {
         screen.queryByTestId("workspace-node-context-menu"),
       ).not.toBeInTheDocument();
 
-      // Selection banner should show 2 nodes (node-1 and node-3)
+      // Selection banner should show 2 nodes (node-1 and mp node)
       await waitFor(() => {
         expect(
           screen.getByTestId("workspace-selection-banner"),
@@ -2057,11 +2060,15 @@ describe("ProofWorkspace", () => {
 
     it("Select Subtree on leaf node selects only that node", async () => {
       const user = userEvent.setup();
-      // axiom(node-1) → mp(node-2) (node-2 is leaf in subtree direction)
+      // axiom(node-1) → mp(node-2 via applyMP)
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "derived", "MP", { x: 100, y: 100 }, "psi");
-      ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> psi");
+      // Use substitution to create a derived node with InferenceEdge
+      const substResult = applySubstitutionAndConnect(ws, "node-1", [], {
+        x: 100,
+        y: 100,
+      });
+      ws = substResult.workspace;
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
