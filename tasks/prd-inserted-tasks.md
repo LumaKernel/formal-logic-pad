@@ -12,9 +12,9 @@
       A5とかを呼び出すと、Formulaが入っていない状態で呼びだされてしまう。これは合っているのかな？
 - [x] formula編集しているときは、formula記述言語に関する仕様、ドキュメントのモーダルだかパネルを開くことのできる方法を提供する (onOpenSyntaxHelp コールバック + ?ボタン + ReferenceModal連携で実装済み)
 - [x] MPの片側を選択すると、適用可能なもう片側は判定可能なので、そういうやつだけが光るよう(というより対象外は暗く)になってて欲しい
-- [ ] コンテキストメニューで、MPの左右それぞれとして選択を開始することもできるようにする。(Apply MP、から始めるだけではなく)
+- [-] コンテキストメニューで、MPの左右それぞれとして選択を開始することもできるようにする。(Apply MP、から始めるだけではなく)
       ただし、MPは片方は -> 形じゃないといけないので、そうでないときは選択できない状態でよい。開始すると適用可能対象が光る、というのは同様に。
-  - [ ] Apply Genについても同様
+  - [-] Apply Genについても同様
 - [x] ノードが画面右端とかになると改行されるなどの影響を受ける。キャンバス自体は自由に存在してるはずで、そこを切り取ってみてるだけだから、そんなことは起こらないべきだ。(CanvasItemにwhiteSpace: "nowrap"を追加して修正)
 - [x] Demo系のストーリーに、より巨大な例や、異常系関連のものをぜひ追加してほしい
 - [ ] http://localhost:13006/?path=/story/proofpad-peanoarithmeticdemo--zero-plus-zero-completed
@@ -29,4 +29,27 @@
 - [x] http://localhost:13006/?path=/story/proofpad-peanoarithmeticdemo--zero-plus-zero-completed
         GOALになにも繋ってない状態で Proof Completeとなっているが、ゴールに確実にMPから繋げるなどして証明されて始めてProof Completeとなってほしい
 - [x] Export/Ipmortはずっと表示されてるボタンではなく、ノートに関する操作メニューの中にあるような形で十分だろう
+- [ ] 述語論理の練習問題をぜひもっと充実させたい ( ./bekki.pdf も参考に)
+    - [ ] 基礎側のもが一切ないので、まずはドキュメント(知識)を整備しつつ
+- [ ] 命題論理の練習問題をぜひもっと充実させたい ( ./bekki.pdf も参考に)
+    - [ ] pdfのテキスト化やその上での文字検索などを駆使して練習問題の全体像を見てみてほしい
+- [ ] コンテキストメニュー経由での追加したノードを削除するという基本機能がない
+    - [ ] ただしクエストのといはゴールは消せないほうがよいだろう。
+    - [ ] duplicateなどもあるとよいだろう。ただし、ゴールなどは、野良の通常の中間定理に変わるのが良いだろう (ゴールが複製されまくるのをユーザーができてしまうのはよくない）
+    - [ ] Apply 代入操作 (ととりあえずここでは呼ぶが) もあるとよい
+- [ ] http://localhost:13000
+        実際に使ってみようとすると以下のようなエラーが出る。
+    Removing a style property during rerender (borderBottomColor) when a conflicting property is set (borderBottom) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values.
 
+    src/app/HubPageView.tsx (178:9) @ HubPageView
+
+      176 |       {/* Tab Bar */}
+      177 |       <nav style={tabBarStyle}>
+    > 178 |         <button
+          |         ^
+      179 |           type="button"
+      180 |           style={tab === "notebooks" ? tabActiveStyle : tabStyle}
+      181 |           onClick={() => {
+    - [ ] 修正プラン、タスクを立てよう。
+    - [ ] これを検出できるストーリーは作れないだろうか。
+    - [ ] playwright mcpで自身で最後にしっかり確認しよう
