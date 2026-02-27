@@ -5350,3 +5350,34 @@
   - notebookSerialization.tsはspreadでworkspaceを展開しているが、inferenceEdgesがundefinedの場合に明示的にデフォルトを設定する必要がある
   - SubstitutionEntry._tagでFormulaSubstitution/TermSubstitutionを判別し、それぞれ固有フィールド（formulaText/termText）をバリデーション
 ---
+
+## 2026-02-28 - [proof-pad] InferenceEdge統合 Step 6 - クエスト・ゴールチェック移行
+- dependencyLogic.ts: WorkspaceConnection→InferenceEdgeベースの依存追跡に完全移行
+  - getNodeDependencies: InferenceEdgeのconclusionNodeIdで逆方向マップ構築、premiseNodeIdsで再帰辿り
+  - getSubtreeNodeIds: InferenceEdgeの前提→結論方向の順方向マップで子孫収集
+  - getNodeAxiomIds: InferenceEdge経由でルートノードの公理スキーマID特定
+- goalCheckLogic.ts: InferenceEdge+Connection両方からゴール達成判定
+  - getGoalIncomingNodeIds: InferenceEdgeとConnectionの両方からソースノードIDを収集（重複排除）
+  - checkGoal: 第3引数にinferenceEdgesを追加
+- questCompletionLogic.ts: connections→inferenceEdgesに完全移行
+- ProofWorkspace.tsx: 全呼び出し箇所をworkspace.inferenceEdgesに更新
+  - getAllNodeDependencies, checkGoal, checkQuestGoalsWithAxioms, getSubtreeNodeIds
+  - useCallback依存配列もworkspace.inferenceEdgesに修正
+- カバレッジ: Stmts 98.58%→98.63%, Branch 92.83%→92.93%, Funcs 91.19%→91.20%, Lines 99.32%→99.36%（全指標向上）
+- テスト: 4865→4873（+8新規テスト）
+- スクリーンショット: .screenshots/step6-valid-mp-story.png, .screenshots/step6-quest-mode.png, .screenshots/step6-goal-achieved.png, .screenshots/step6-goal-not-achieved.png
+- 変更ファイル:
+  - src/lib/proof-pad/dependencyLogic.ts (WorkspaceConnection→InferenceEdgeに完全移行)
+  - src/lib/proof-pad/dependencyLogic.test.ts (全テストをInferenceEdge対応に書き換え)
+  - src/lib/proof-pad/goalCheckLogic.ts (InferenceEdge+Connection両方対応)
+  - src/lib/proof-pad/goalCheckLogic.test.ts (InferenceEdge用テスト7件追加)
+  - src/lib/quest/questCompletionLogic.ts (connections→inferenceEdgesに移行)
+  - src/lib/quest/questCompletionLogic.test.ts (InferenceEdge対応に更新)
+  - src/lib/proof-pad/ProofWorkspace.tsx (全呼び出し箇所をinferenceEdges対応)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (サブツリーテストをInferenceEdge対応)
+- **今後のイテレーションへの学び:**
+  - goalCheckLogicはInferenceEdge+Connection両方を見ることで段階移行を実現。完全移行後はConnection部分を削除可能
+  - getInferenceEdgePremiseNodeIds がundefined premiseを除外してくれるため、undefined判定をcaller側で行う必要がない
+  - ProofWorkspace.test.tsxのサブツリーテストは addConnection だけでは不十分。applyMPAndConnect等を使ってInferenceEdgeも生成する必要がある
+  - useCallback依存配列の更新漏れはESLint exhaustive-depsで検出可能。connections→inferenceEdgesの切替時に忘れやすい
+---
