@@ -10,3 +10,14 @@ export function worldToScreen(
     y: worldPoint.y * viewport.scale + viewport.offsetY,
   };
 }
+
+/** Convert a screen-space point to world-space coordinates given a viewport. */
+export function screenToWorld(
+  viewport: ViewportState,
+  screenPoint: Point,
+): Point {
+  return {
+    x: (screenPoint.x - viewport.offsetX) / viewport.scale,
+    y: (screenPoint.y - viewport.offsetY) / viewport.scale,
+  };
+}

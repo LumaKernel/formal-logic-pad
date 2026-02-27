@@ -24,6 +24,7 @@
 - FormulaInput: 制御コンポーネント、`useDeferredValue`でデバウンス、純粋関数（computeParseState等）を分離してテスタブルに
 - macOSのcase-insensitiveファイルシステムでは `FormulaEditor.tsx` と `formulaEditor.ts` が衝突する。異なるケースのファイル名は使わず、`editorLogic.ts` のように明確に異なる名前にする
 
+- ドラッグはオフセットベース方式: ドラッグ開始時にカーソル→アイテムのワールド座標オフセットを記録し、毎フレームカーソルのワールド座標からオフセットを引いて位置を算出。デルタ方式はsnap誤差の蓄積やviewport変化(エッジスクロール)に弱い
 - CanvasItem + FormulaEditor 統合: `onModeChange` コールバック + `dragEnabled` プロパティで編集中ドラッグ無効化を実現
 - FormulaEditor内 `onPointerDown` で `stopPropagation` し、CanvasItem の PointerCapture によるclick干渉を防止
 - `src/lib/proof-pad/` は ProofPad（証明ワークスペース）のUIコンポーネント群。logic-core, formula-input, infinite-canvas を統合
@@ -4509,4 +4510,27 @@
   - 新しいクエストのformulaTextはparseStringで事前にパース確認すると安全
   - bekki.pdfの練習問題番号と定義番号は別物。定義7.xxが定理の定義、練習問題7.xxが証明課題
   - 述語論理の練習問題追加が次のタスク候補として残っている
+---
+
+## 2026-02-27 - [InfiniteCanvas] ドラッグ時のマウス位置ずれ修正
+- **実装内容:** ノードドラッグがマウスから離れていくバグを修正。デルタベース方式からオフセットベース方式に変更
+  - デルタ方式の問題: snap補正やエッジスクロールによるviewport変化で誤差が蓄積
+  - オフセット方式: ドラッグ開始時のカーソル-アイテム間ワールド座標オフセットを固定し、毎フレームカーソルのワールド座標から算出
+- **変更ファイル:**
+  - `src/lib/infinite-canvas/coordinate.ts` - screenToWorld関数を追加
+  - `src/lib/infinite-canvas/multiSelection.ts` - screenToWorldをcoordinate.tsからre-export（重複削除）
+  - `src/lib/infinite-canvas/drag.ts` - computeGrabOffset, computeDragPosition純粋関数を追加
+  - `src/lib/infinite-canvas/useDragItem.ts` - オフセットベース方式に全面書き換え（scale→viewport引数変更）
+  - `src/lib/infinite-canvas/CanvasItem.tsx` - useDragItem呼び出し変更（viewport.scale→viewport）
+  - `src/lib/infinite-canvas/index.ts` - 新関数のexport追加
+  - `src/lib/infinite-canvas/coordinate.test.ts` - screenToWorldテスト6件追加
+  - `src/lib/infinite-canvas/drag.test.ts` - computeGrabOffset/computeDragPositionテスト10件追加
+  - `src/lib/infinite-canvas/useDragItem.test.tsx` - テスト更新+2件追加（viewport offset対応、snap drift非蓄積確認）
+- **テスト:** 4431 passed (176 files), +18テスト
+- **カバレッジ:** Stmts 99.1%, Branch 94.5%, Funcs 90.79%, Lines 99.76% (維持)
+- **今後のイテレーションへの学び:**
+  - ドラッグのオフセットベース方式は、viewport変化（エッジスクロール）やsnap補正の影響を自然に吸収する
+  - useDragItemでviewportをrefに保持する際、renderフェーズでの直接代入は`react-hooks/refs`ルール違反。useEffectで更新する
+  - screenToWorldはcoordinate.tsに配置し、multiSelection.tsからはre-exportするのが正しい配置
+  - 純粋関数（drag.ts）→ hook（useDragItem.ts）→ UI（CanvasItem.tsx）の3層分離を維持する
 ---

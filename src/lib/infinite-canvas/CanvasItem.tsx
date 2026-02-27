@@ -61,7 +61,7 @@ export function CanvasItem({
   const clickStartRef = useRef<Point | null>(null);
   const { isDragging, onPointerDown, onPointerMove, onPointerUp } = useDragItem(
     position,
-    viewport.scale,
+    viewport,
     onPositionChange,
     snapConfig,
   );

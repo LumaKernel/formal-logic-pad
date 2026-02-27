@@ -55,7 +55,7 @@ export type { ConnectionLabelPlacement } from "./connectionLabel";
 export { InfiniteCanvas } from "./InfiniteCanvas";
 export type { InfiniteCanvasProps } from "./InfiniteCanvas";
 export { worldToScreen } from "./coordinate";
-export { applyDragDelta } from "./drag";
+export { applyDragDelta, computeGrabOffset, computeDragPosition } from "./drag";
 export {
   applySnap,
   DEFAULT_SNAP_GRID_SPACING,

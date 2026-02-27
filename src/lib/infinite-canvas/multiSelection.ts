@@ -7,7 +7,11 @@
  * 変更時は multiSelection.test.ts, useMarquee.ts, InfiniteCanvas.tsx, index.ts も同期すること。
  */
 
+import { screenToWorld } from "./coordinate";
 import type { Point, Size, ViewportState } from "./types";
+
+// Re-export for backward compatibility
+export { screenToWorld };
 
 // --- マーキー矩形 ---
 
@@ -75,17 +79,6 @@ export function computeMarqueeRect(state: MarqueeState): MarqueeRect | null {
 }
 
 // --- 座標変換 ---
-
-/** スクリーン座標からワールド座標へ変換 */
-export function screenToWorld(
-  viewport: ViewportState,
-  screenPoint: Point,
-): Point {
-  return {
-    x: (screenPoint.x - viewport.offsetX) / viewport.scale,
-    y: (screenPoint.y - viewport.offsetY) / viewport.scale,
-  };
-}
 
 /** マーキー矩形（スクリーン座標）をワールド座標に変換 */
 export function marqueeRectToWorld(

@@ -1,9 +1,8 @@
-import { useCallback, useRef, useState } from "react";
-import { computeDelta } from "./pan";
-import { applyDragDelta } from "./drag";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { computeDragPosition, computeGrabOffset } from "./drag";
 import { applySnap, SNAP_DISABLED } from "./snap";
 import type { SnapConfig } from "./snap";
-import type { Point } from "./types";
+import type { Point, ViewportState } from "./types";
 
 export type UseDragItemResult = {
   /** Whether the item is currently being dragged */
@@ -17,60 +16,76 @@ export type UseDragItemResult = {
 };
 
 /** Hook that provides drag-to-move behavior for a CanvasItem.
- *  Converts screen-space drag deltas to world-space position changes.
- *  Optionally snaps the resulting position to a grid.
+ *  Uses an offset-based approach: records the cursor-to-item offset at drag start,
+ *  then computes position from cursor's world coordinates minus this offset.
+ *  This ensures the item follows the cursor exactly, even with snap or viewport changes.
  *
  *  @param position       Current world-space position of the item
- *  @param scale          Current viewport scale (for screen→world conversion)
+ *  @param viewport       Current viewport state (for screen→world conversion)
  *  @param onPositionChange  Callback when position changes due to dragging
  *  @param snapConfig     Optional snap configuration (default: disabled)
  */
 export function useDragItem(
   position: Point,
-  scale: number,
+  viewport: ViewportState,
   onPositionChange: (next: Point) => void,
   snapConfig: SnapConfig = SNAP_DISABLED,
 ): UseDragItemResult {
   const [isDragging, setIsDragging] = useState(false);
-  const lastPointRef = useRef<Point | null>(null);
+  const grabOffsetRef = useRef<Point | null>(null);
 
-  const onPointerDown = useCallback((e: React.PointerEvent<HTMLElement>) => {
-    if (e.button !== 0) return;
+  // Keep viewport in a ref so onPointerMove always sees the latest value
+  // (important when edge scroll changes the viewport between pointer events)
+  const viewportRef = useRef(viewport);
+  useEffect(() => {
+    viewportRef.current = viewport;
+  }, [viewport]);
 
-    // Stop propagation to prevent canvas pan
-    e.stopPropagation();
-
-    // ブラウザAPI可用性チェック（テスト環境ではモックされる場合がある）
-    /* v8 ignore start */
-    if (e.currentTarget.setPointerCapture) {
-      /* v8 ignore stop */
-      e.currentTarget.setPointerCapture(e.pointerId);
-    }
-    setIsDragging(true);
-    lastPointRef.current = { x: e.clientX, y: e.clientY };
-  }, []);
-
-  const onPointerMove = useCallback(
+  const onPointerDown = useCallback(
     (e: React.PointerEvent<HTMLElement>) => {
-      const lastPoint = lastPointRef.current;
-      if (lastPoint === null) return;
+      if (e.button !== 0) return;
 
       // Stop propagation to prevent canvas pan
       e.stopPropagation();
 
-      const currentPoint: Point = { x: e.clientX, y: e.clientY };
-      const delta = computeDelta(lastPoint, currentPoint);
-      const rawPosition = applyDragDelta(position, delta, scale);
+      // ブラウザAPI可用性チェック（テスト環境ではモックされる場合がある）
+      /* v8 ignore start */
+      if (e.currentTarget.setPointerCapture) {
+        /* v8 ignore stop */
+        e.currentTarget.setPointerCapture(e.pointerId);
+      }
+      setIsDragging(true);
+      grabOffsetRef.current = computeGrabOffset(
+        viewportRef.current,
+        { x: e.clientX, y: e.clientY },
+        position,
+      );
+    },
+    [position],
+  );
+
+  const onPointerMove = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      if (grabOffsetRef.current === null) return;
+
+      // Stop propagation to prevent canvas pan
+      e.stopPropagation();
+
+      const screenCursor: Point = { x: e.clientX, y: e.clientY };
+      const rawPosition = computeDragPosition(
+        viewportRef.current,
+        screenCursor,
+        grabOffsetRef.current,
+      );
       const newPosition = applySnap(rawPosition, snapConfig);
 
-      lastPointRef.current = currentPoint;
       onPositionChange(newPosition);
     },
-    [position, scale, onPositionChange, snapConfig],
+    [onPositionChange, snapConfig],
   );
 
   const onPointerUp = useCallback((e: React.PointerEvent<HTMLElement>) => {
-    if (lastPointRef.current === null) return;
+    if (grabOffsetRef.current === null) return;
 
     // Stop propagation to prevent canvas pan
     e.stopPropagation();
@@ -82,7 +97,7 @@ export function useDragItem(
       e.currentTarget.releasePointerCapture(e.pointerId);
     }
     setIsDragging(false);
-    lastPointRef.current = null;
+    grabOffsetRef.current = null;
   }, []);
 
   return {
