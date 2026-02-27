@@ -2,11 +2,11 @@
   - [-] そのまえにまず、MPなどの推論規則系統は、ノードとして表われるのではなく、エッジ、ノード間の関係性として表現されるように再整理が必要だろう。
     - [-] 多くのストーリーが関連するだろうので、それらを整理しながらになる。
       - [x] Step 0: InferenceEdge 型定義と変換ユーティリティ（既存ノードベース→エッジベース変換の純粋関数）
-      - [-] Step 1: WorkspaceState への InferenceEdge 統合（データモデル拡張）
-        - [ ] WorkspaceState に inferenceEdges フィールドを追加（オプショナル、段階移行用）
-        - [ ] revalidateInferenceConclusions を InferenceEdge ベースに移行
-        - [ ] addNode/removeNode/addConnection/removeConnection で inferenceEdges も同期
-        - [ ] テスト: 既存テストが全て通ることを確認しつつ新フィールドのテスト追加
+      - [x] Step 1: WorkspaceState への InferenceEdge 統合（データモデル拡張）
+        - [x] WorkspaceState に inferenceEdges フィールドを追加（オプショナル、段階移行用）
+        - [x] revalidateInferenceConclusions を InferenceEdge ベースに移行
+        - [x] addNode/removeNode/addConnection/removeConnection で inferenceEdges も同期
+        - [x] テスト: 既存テストが全て通ることを確認しつつ新フィールドのテスト追加
       - [ ] Step 2: applyMPAndConnect / applyGenAndConnect / applySubstitutionAndConnect の移行
         - [ ] MPノード作成を廃止し、MPEdge + 結論ノード（kind: "axiom" → "derived" 等）に変更
         - [ ] Gen/Substitution も同様

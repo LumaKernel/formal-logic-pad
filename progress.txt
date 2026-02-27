@@ -89,6 +89,29 @@
 
 ---
 
+## 2026-02-28 - InferenceEdge統合 Step 1: WorkspaceState データモデル拡張
+- WorkspaceState型にinferenceEdgesフィールドを追加（オプショナル、段階移行用）
+- syncInferenceEdges関数で状態変更時にエッジを自動再構築
+- getInferenceEdges関数でキャッシュ付き遅延計算を提供
+- 以下の状態変更関数すべてでinferenceEdges同期を実装:
+  - addNode, removeNode, addConnection, removeConnection
+  - updateNodeFormulaText, updateNodeGenVariableName, updateNodeSubstitutionEntries
+  - pasteNodes, removeSelectedNodes, duplicateSelectedNodes
+  - revalidateInferenceConclusions（変更時のみ）
+- createEmptyWorkspace, createQuestWorkspace で初期化
+- テスト: 20テスト追加（4817→4837）
+- カバレッジ: 維持（Stmts 98.60%, Branch 93.03%, Lines 99.31%）
+- 変更ファイル:
+  - `src/lib/proof-pad/workspaceState.ts` (型拡張、同期ロジック追加)
+  - `src/lib/proof-pad/workspaceState.test.ts` (inferenceEdges syncテスト20件追加)
+  - `src/lib/proof-pad/index.ts` (getInferenceEdgesエクスポート追加)
+- **今後のイテレーションへの学び:**
+  - inferenceEdge.ts → workspaceState.ts の循環参照は、inferenceEdge.ts側がtype importのみなら問題ない
+  - revalidateInferenceConclusionsは変更なし時に参照等価性(toBe)テストがあるため、syncは変更時のみ行う必要がある
+  - SubstitutionEntryの_tagは"FormulaSubstitution"（"formula"ではない）、metaVariableNameプロパティ名に注意
+  - スクリーンショット: screenshots.local/inference-edge-step1-valid-mp-fullscreen.png
+---
+
 ## 2026-02-28 - CI修復（Lint/Prettier）
 - CIが5連続failureだった原因を特定・修正
   - ESLint: `substitutionApplicationLogic.test.ts` の未使用import（`conjunction`, `negation`）を削除
