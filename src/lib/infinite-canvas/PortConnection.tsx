@@ -23,12 +23,17 @@ export interface PortConnectionProps {
   /** Callback when the connection line is clicked.
    *  Receives screen coordinates (clientX, clientY). */
   readonly onClick?: (screenX: number, screenY: number) => void;
+  /** Callback when the connection line is right-clicked (context menu).
+   *  Receives screen coordinates (clientX, clientY). */
+  readonly onContextMenu?: (screenX: number, screenY: number) => void;
   /** Content to render at the midpoint of the connection line */
   readonly label?: ReactNode;
   /** Vertical offset for the label from the line midpoint (default: -20) */
   readonly labelOffsetY?: number;
   /** Enable hand-drawn style with SVG turbulence filter (optional, default false) */
   readonly handDrawn?: boolean;
+  /** data-testid for the connection SVG element */
+  readonly testId?: string;
 }
 
 /** Width of the invisible hit area for click detection on port connections. */
@@ -47,13 +52,15 @@ export function PortConnection({
   strokeWidth = 2,
   obstacles = [],
   onClick,
+  onContextMenu,
   label,
   labelOffsetY = -20,
   handDrawn = false,
+  testId,
 }: PortConnectionProps) {
   const filterId = useId();
   const path = computePortConnectionPath(from, to, viewport, obstacles);
-  const clickable = onClick !== undefined;
+  const hasHitArea = onClick !== undefined || onContextMenu !== undefined;
   const hasLabel = label !== undefined;
 
   const filterUrl = handDrawn
@@ -69,7 +76,7 @@ export function PortConnection({
   return (
     <>
       <svg
-        data-testid="port-connection"
+        data-testid={testId ?? "port-connection"}
         style={{
           position: "absolute",
           inset: 0,
@@ -122,8 +129,8 @@ export function PortConnection({
           opacity={0.8}
           filter={filterUrl}
         />
-        {/* Invisible hit area for click detection */}
-        {clickable && (
+        {/* Invisible hit area for click/context-menu detection */}
+        {hasHitArea && (
           <path
             data-testid="port-connection-hit-area"
             d={path.d}
@@ -134,10 +141,23 @@ export function PortConnection({
             onPointerDown={(e) => {
               e.stopPropagation();
             }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onClick(e.clientX, e.clientY);
-            }}
+            onClick={
+              onClick
+                ? (e) => {
+                    e.stopPropagation();
+                    onClick(e.clientX, e.clientY);
+                  }
+                : undefined
+            }
+            onContextMenu={
+              onContextMenu
+                ? (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onContextMenu(e.clientX, e.clientY);
+                  }
+                : undefined
+            }
           />
         )}
       </svg>

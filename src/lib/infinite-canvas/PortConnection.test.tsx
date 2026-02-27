@@ -230,6 +230,60 @@ describe("PortConnection", () => {
     expect(pointerEvent.stopPropagation).toHaveBeenCalled();
   });
 
+  it("renders hit area when only onContextMenu is provided", () => {
+    const handleContextMenu = vi.fn();
+    render(
+      <PortConnection
+        from={fromPort}
+        to={toPort}
+        viewport={viewport}
+        onContextMenu={handleContextMenu}
+      />,
+    );
+    const hitArea = screen.getByTestId("port-connection-hit-area");
+    expect(hitArea).toBeInTheDocument();
+  });
+
+  it("calls onContextMenu with screen coordinates on right-click", () => {
+    const handleContextMenu = vi.fn();
+    render(
+      <PortConnection
+        from={fromPort}
+        to={toPort}
+        viewport={viewport}
+        onContextMenu={handleContextMenu}
+      />,
+    );
+    const hitArea = screen.getByTestId("port-connection-hit-area");
+    fireEvent.contextMenu(hitArea, { clientX: 150, clientY: 80 });
+    expect(handleContextMenu).toHaveBeenCalledOnce();
+    expect(handleContextMenu).toHaveBeenCalledWith(150, 80);
+  });
+
+  it("prevents default and stops propagation on context menu", () => {
+    const handleContextMenu = vi.fn();
+    render(
+      <PortConnection
+        from={fromPort}
+        to={toPort}
+        viewport={viewport}
+        onContextMenu={handleContextMenu}
+      />,
+    );
+    const hitArea = screen.getByTestId("port-connection-hit-area");
+    const event = new MouseEvent("contextmenu", {
+      bubbles: true,
+      clientX: 150,
+      clientY: 80,
+      cancelable: true,
+    });
+    vi.spyOn(event, "preventDefault");
+    vi.spyOn(event, "stopPropagation");
+    hitArea.dispatchEvent(event);
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(event.stopPropagation).toHaveBeenCalled();
+  });
+
   it("does not render label when label prop is not provided", () => {
     render(<PortConnection from={fromPort} to={toPort} viewport={viewport} />);
     expect(

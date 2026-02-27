@@ -56,6 +56,12 @@ import {
   closeNodeMenu,
 } from "../infinite-canvas/nodeMenu";
 import {
+  type LineMenuState,
+  LINE_MENU_CLOSED,
+  openLineMenu,
+  closeLineMenu,
+} from "../infinite-canvas/lineMenu";
+import {
   createEmptyWorkspace,
   convertToFreeMode,
   isNodeProtected,
@@ -69,6 +75,7 @@ import {
   copySelectedNodes,
   pasteNodes,
   removeNode,
+  removeConnection,
   removeSelectedNodes,
   duplicateSelectedNodes,
   cutSelectedNodes,
@@ -484,6 +491,11 @@ export function ProofWorkspace({
   const [nodeMenuState, setNodeMenuState] =
     useState<NodeMenuState>(NODE_MENU_CLOSED);
   const nodeMenuRef = useRef<HTMLDivElement>(null);
+
+  // 接続線コンテキストメニュー
+  const [lineMenuState, setLineMenuState] =
+    useState<LineMenuState>(LINE_MENU_CLOSED);
+  const lineMenuRef = useRef<HTMLDivElement>(null);
 
   // クリップボードデータ（内部保持用、navigator.clipboard フォールバック）
   const clipboardRef = useRef<ClipboardData | null>(null);
@@ -1079,8 +1091,11 @@ export function ProofWorkspace({
     if (nodeMenuState.open) {
       setNodeMenuState(closeNodeMenu());
     }
+    if (lineMenuState.open) {
+      setLineMenuState(closeLineMenu());
+    }
     /* v8 ignore stop */
-  }, [selectedNodeIds, nodeMenuState.open]);
+  }, [selectedNodeIds, nodeMenuState.open, lineMenuState.open]);
 
   // --- ノードコンテキストメニュー ---
 
@@ -1189,7 +1204,7 @@ export function ProofWorkspace({
     setNodeMenuState(closeNodeMenu());
   }, [nodeMenuState, workspace, setWorkspaceWithAutoLayout]);
 
-  // コンテキストメニュー外クリックで閉じる
+  // ノードコンテキストメニュー外クリックで閉じる
   useEffect(() => {
     if (!nodeMenuState.open) return;
     const handleClickOutside = (e: PointerEvent) => {
@@ -1205,6 +1220,39 @@ export function ProofWorkspace({
       document.removeEventListener("pointerdown", handleClickOutside);
     };
   }, [nodeMenuState.open]);
+
+  // --- 接続線コンテキストメニュー ---
+
+  const handleConnectionContextMenu = useCallback(
+    (connectionId: string, screenX: number, screenY: number) => {
+      setLineMenuState(openLineMenu(connectionId, screenX, screenY));
+    },
+    [],
+  );
+
+  const handleDeleteConnection = useCallback(() => {
+    if (!lineMenuState.open) return;
+    const result = removeConnection(workspace, lineMenuState.connectionId);
+    setWorkspaceWithAutoLayout(revalidateInferenceConclusions(result));
+    setLineMenuState(closeLineMenu());
+  }, [lineMenuState, workspace, setWorkspaceWithAutoLayout]);
+
+  // 接続線コンテキストメニュー外クリックで閉じる
+  useEffect(() => {
+    if (!lineMenuState.open) return;
+    const handleClickOutside = (e: PointerEvent) => {
+      if (
+        lineMenuRef.current !== null &&
+        !lineMenuRef.current.contains(e.target as Node)
+      ) {
+        setLineMenuState(closeLineMenu());
+      }
+    };
+    document.addEventListener("pointerdown", handleClickOutside);
+    return () => {
+      document.removeEventListener("pointerdown", handleClickOutside);
+    };
+  }, [lineMenuState.open]);
 
   // ワークスペース操作メニュー外クリックで閉じる
   useEffect(() => {
@@ -1573,6 +1621,14 @@ export function ProofWorkspace({
             color={color}
             strokeWidth={2}
             handDrawn={handDrawnConnections}
+            onContextMenu={(screenX, screenY) => {
+              handleConnectionContextMenu(conn.id, screenX, screenY);
+            }}
+            testId={
+              testId
+                ? `${testId satisfies string}-connection-${conn.id satisfies string}`
+                : undefined
+            }
           />
         );
       }),
@@ -1585,6 +1641,8 @@ export function ProofWorkspace({
       mpValidations,
       genValidations,
       handDrawnConnections,
+      handleConnectionContextMenu,
+      testId,
     ],
   );
 
@@ -2377,6 +2435,47 @@ export function ProofWorkspace({
               testId
                 ? `${testId satisfies string}-delete-node`
                 : "delete-node"
+            }
+          />
+        </div>
+      ) : null}
+
+      {/* 接続線コンテキストメニュー */}
+      {lineMenuState.open ? (
+        <div
+          ref={lineMenuRef}
+          data-testid={
+            testId
+              ? `${testId satisfies string}-line-context-menu`
+              : "line-context-menu"
+          }
+          style={{
+            position: "fixed",
+            left: lineMenuState.screenPosition.x,
+            top: lineMenuState.screenPosition.y,
+            zIndex: 2000,
+            minWidth: 140,
+            background: "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
+            border:
+              "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.2))",
+            borderRadius: 8,
+            boxShadow:
+              "0 4px 16px var(--color-panel-shadow, rgba(120, 100, 70, 0.1))",
+            padding: "4px 0",
+            fontFamily: "var(--font-ui)",
+            fontSize: 13,
+            userSelect: "none",
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <WorkspaceMenuItem
+            label={msg.deleteConnection}
+            onClick={handleDeleteConnection}
+            testId={
+              testId
+                ? `${testId satisfies string}-delete-connection`
+                : "delete-connection"
             }
           />
         </div>

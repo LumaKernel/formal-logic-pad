@@ -856,3 +856,87 @@ export const AxiomReidentifyOnEdit: Story = {
     ).toHaveTextContent("A2 (S)");
   },
 };
+
+// --- 接続削除デモ ---
+
+function ConnectionDeleteWorkspace() {
+  const initial = (() => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "A2", { x: 350, y: 50 }, "phi -> psi");
+    const result = applyMPAndConnect(ws, "node-1", "node-2", {
+      x: 200,
+      y: 250,
+    });
+    return result.workspace;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/** 接続削除: 接続線を右クリック→Delete Connectionで接続を削除 */
+export const ConnectionDelete: Story = {
+  render: () => <ConnectionDeleteWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // 3ノード(A1, A2, MP)と2接続が表示されている
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+
+    // 接続線の hit area を見つけて右クリック
+    const connectionSvg = canvas.getByTestId(
+      "workspace-connection-conn-node-1-out-node-3-premise-left",
+    );
+    const hitArea = connectionSvg.querySelector(
+      '[data-testid="port-connection-hit-area"]',
+    );
+    await expect(hitArea).toBeTruthy();
+
+    await userEvent.pointer({
+      keys: "[MouseRight]",
+      target: hitArea!,
+    });
+
+    // 接続線コンテキストメニューが表示される
+    await expect(
+      canvas.getByTestId("workspace-line-context-menu"),
+    ).toBeInTheDocument();
+
+    // Delete Connectionメニュー項目が表示される
+    await expect(
+      canvas.getByTestId("workspace-delete-connection"),
+    ).toBeInTheDocument();
+
+    // Delete Connectionをクリック
+    await userEvent.click(canvas.getByTestId("workspace-delete-connection"));
+
+    // 接続線が削除される（SVG要素が消える）
+    await expect(
+      canvas.queryByTestId(
+        "workspace-connection-conn-node-1-out-node-3-premise-left",
+      ),
+    ).not.toBeInTheDocument();
+
+    // ノードは残る
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+  },
+};

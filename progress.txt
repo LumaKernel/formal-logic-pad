@@ -4555,3 +4555,37 @@
   - 空のformulaTextの場合、FormulaEditorはplaceholderを表示。clickで編集モードに入る
   - play関数でのFormulaEditor操作: display要素をclick → input-input要素にtype → tabでblur確定
 ---
+
+## 2026-02-27 - 接続削除UI
+- 実装した内容:
+  - 接続線の右クリックコンテキストメニューに「Delete Connection」を追加
+  - PortConnectionに`onContextMenu`プロップを追加（右クリックイベントハンドリング）
+  - PortConnectionに`testId`プロップを追加（接続ごとに個別のdata-testid）
+  - ProofWorkspaceにlineMenuState（接続線コンテキストメニュー状態管理）を追加
+  - `removeConnection` + `revalidateInferenceConclusions` で接続削除後の推論結論を再検証
+  - ProofMessagesに`deleteConnection`キーを追加（en/ja対応）
+  - ConnectionDeleteストーリー（play関数付き）を追加
+  - PortConnection.test.tsxに`onContextMenu`関連の3テスト追加
+- 変更ファイル:
+  - `src/lib/infinite-canvas/PortConnection.tsx` (MODIFIED - onContextMenu, testIdプロップ追加)
+  - `src/lib/infinite-canvas/PortConnection.test.tsx` (MODIFIED - 3テスト追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - lineMenu状態管理・接続線コンテキストメニュー)
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` (MODIFIED - ConnectionDeleteストーリー追加)
+  - `src/lib/proof-pad/proofMessages.ts` (MODIFIED - deleteConnectionキー追加)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (MODIFIED - deleteConnection翻訳)
+  - `messages/en.json`, `messages/ja.json` (MODIFIED - deleteConnection追加)
+  - `tasks/prd-inserted-tasks.md` (MODIFIED - 接続削除UIタスク完了マーク)
+- **テスト:** 4437テスト全パス（+4件: PortConnection 3件, ストーリー 1件）
+- **カバレッジ:** Stmts 99.08%, Branch 94.36%, Funcs 90.84%, Lines 99.74% (維持)
+  - ベースライン: Stmts 99.1%, Branch 94.5%, Funcs 90.76%, Lines 99.76%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでスクリーンショット撮影・確認済み
+  - `.screenshots/connection-delete-story-initial.png`
+  - `.screenshots/connection-delete-context-menu.png`
+  - `.screenshots/connection-delete-after-delete.png`
+- **今後のイテレーションへの学び:**
+  - PortConnectionのonContextMenuはSVG path要素のonContextMenuイベントで実装。preventDefault+stopPropagation必須
+  - 接続IDは `conn-{fromNodeId}-{fromPortId}-{toNodeId}-{toPortId}` 形式
+  - 接続削除後はrevalidateInferenceConclusionsで推論結論を再検証する必要あり（MPノードのエラー表示更新のため）
+  - ProofMessagesに新キー追加時の同期ファイル: proofMessages.ts, en.json, ja.json, WorkspaceContent.tsx（TypeScript型が変更漏れを検出）
+---

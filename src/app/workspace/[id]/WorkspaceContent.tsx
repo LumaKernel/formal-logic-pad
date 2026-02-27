@@ -70,6 +70,7 @@ function useProofMessagesFromIntl(): ProofMessages {
       useAsMPRight: t("useAsMPRight"),
       applyGenToNode: t("applyGenToNode"),
       deleteNode: t("deleteNode"),
+      deleteConnection: t("deleteConnection"),
       genVariablePrompt: t("genVariablePrompt"),
       proofCompleteButAxiomViolation: t("proofCompleteButAxiomViolation"),
       axiomViolationDetail: t("axiomViolationDetail"),

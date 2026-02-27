@@ -62,6 +62,7 @@
     "useAsMPRight": "MP右前提として使う (φ→ψ)",
     "applyGenToNode": "Genを適用",
     "deleteNode": "ノードを削除",
+    "deleteConnection": "接続を削除",
     "genVariablePrompt": "変数名:",
     "proofCompleteButAxiomViolation": "証明完了（公理制限違反あり）",
     "axiomViolationDetail": "許可されていない公理が使用されています: {axiomIds}"

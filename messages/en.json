@@ -62,6 +62,7 @@
     "useAsMPRight": "Use as MP Right (φ→ψ)",
     "applyGenToNode": "Apply Gen",
     "deleteNode": "Delete Node",
+    "deleteConnection": "Delete Connection",
     "genVariablePrompt": "Variable name:",
     "proofCompleteButAxiomViolation": "Proof Complete (axiom restriction violated)",
     "axiomViolationDetail": "Disallowed axiom(s) used: {axiomIds}"
