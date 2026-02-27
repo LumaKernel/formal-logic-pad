@@ -4683,3 +4683,31 @@
   - `{ role: _removed, ...rest } = node` でプロパティ除去する場合、eslint no-unused-varsに注意
   - 既存のcopyPasteLogic.tsのbuildClipboardData + pasteClipboardDataの組み合わせで複製は実現できる。追加のロジックはpostprocess（ゴールroleクリアなど）で対応
 ---
+
+## 2026-02-27 - [ProofWorkspace] 矩形選択（マーキー）統合
+- 実装内容: ProofWorkspaceにuseMarquee hookを統合し、矩形選択機能を有効化
+  - 空白領域でドラッグすると矩形選択UIが表示される
+  - 矩形内のノードが自動的に選択される
+  - Space長押しでパンモードに切り替え可能（マーキー/パンの使い分け）
+  - マーキー後のclick eventで選択がクリアされないようsuppressNextClickRefパターンを導入
+- Storybookストーリー: MarqueeSelection（4ノード配置、play関数で基本確認）
+- テスト: 全177ファイル 4480+テスト全パス
+- カバレッジ:
+  - ベースライン: Stmts 98.77%, Branch 93.92%, Funcs 90.85%, Lines 99.51%
+  - 実装後:    Stmts 98.71%, Branch 93.79%, Funcs 90.95%, Lines 99.46%
+  - Stmts/Branch/Lines微減はv8 ignoreブロック内のUI統合コード追加による分母増加、Funcs微増
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでスクリーンショット撮影・確認済み
+  - `.screenshots/marquee-selection-all-dragging.png`
+  - `.screenshots/marquee-selection-all-result.png`
+- 変更ファイル:
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (useMarquee統合、Space pan切り替え、suppressNextClickRef)
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` (MarqueeSelectionストーリー追加)
+  - `tasks/prd-inserted-tasks.md` (タスク完了マーク)
+  - `task-processing.md` (タスク完了・クリア)
+- **今後のイテレーションへの学び:**
+  - マーキー選択後にbrowserのclick eventが発火して選択がクリアされる問題: suppressNextClickRefパターンで回避。pointerup後に同一要素でclickが発生するのはブラウザの仕様
+  - useMarqueeのSelectableItemはMinimapItemと互換（id, position, size）のため、minimapItemsをそのまま再利用可能
+  - panEnabled=falseのときInfiniteCanvasはcrosshairカーソルになり、onEmptyAreaPointerDown/Move/Up が使える
+  - connectionPreviewState（ポート接続中）はマーキーより優先。両方activeにならないようmarqueeEnabledで制御
+---
