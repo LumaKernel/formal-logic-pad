@@ -1,10 +1,7 @@
 - [ ] Apply系、モーダルじゃなくて、エッジ上のパラメータ入力という形にしてもいいかなと思う。
   - [-] そのまえにまず、MPなどの推論規則系統は、ノードとして表われるのではなく、エッジ、ノード間の関係性として表現されるように再整理が必要だろう。
     - [-] 多くのストーリーが関連するだろうので、それらを整理しながらになる。
-      - [-] Step 0: InferenceEdge 型定義と変換ユーティリティ（既存ノードベース→エッジベース変換の純粋関数）
-        - [x] InferenceEdge 型（MPEdge / GenEdge / SubstitutionEdge）をworkspaceState.tsに定義
-        - [x] extractInferenceEdges: 既存のノード+接続からInferenceEdgeを抽出する純粋関数
-        - [x] テスト: extractInferenceEdgesの単体テスト
+      - [x] Step 0: InferenceEdge 型定義と変換ユーティリティ（既存ノードベース→エッジベース変換の純粋関数）
       - [ ] Step 1: WorkspaceState への InferenceEdge 統合（データモデル拡張）
         - [ ] WorkspaceState に inferenceEdges フィールドを追加（オプショナル、段階移行用）
         - [ ] revalidateInferenceConclusions を InferenceEdge ベースに移行

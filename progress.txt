@@ -5181,3 +5181,29 @@
   - `shouldShowFieldError` のように touched/submitted の組み合わせを純粋関数として分離すると、テストが容易になる
   - `prd-inserted-tasks.md` の精査: 既実装機能を [x] マークすることで、未着手タスクの見通しが良くなる
 ---
+
+## 2026-02-28 - InferenceEdge型定義（エッジベース推論規則移行Step 0）
+- 実装した内容:
+  - 推論規則をノードからエッジに移行する大規模リファクタリングの段階的計画を作成
+  - `inferenceEdge.ts`: InferenceEdge型（MPEdge / GenEdge / SubstitutionEdge）と抽出ユーティリティを定義
+  - `inferenceEdge.test.ts`: 34テスト（extractInferenceEdges, findInferenceEdgesForNode, getInferenceEdgeConclusionNodeId, getInferenceEdgePremiseNodeIds）
+  - `index.ts`: 新モジュールのエクスポート追加
+  - `tasks/prd-inserted-tasks.md`: Step 0〜6の段階的移行計画を追加
+- 変更したファイル:
+  - src/lib/proof-pad/inferenceEdge.ts (NEW)
+  - src/lib/proof-pad/inferenceEdge.test.ts (NEW)
+  - src/lib/proof-pad/index.ts (MODIFIED)
+  - tasks/prd-inserted-tasks.md (MODIFIED)
+  - task-processing.md (MODIFIED)
+- テスト: 185ファイル, 4817テスト全パス（+34テスト）
+- カバレッジ:
+  - ベースライン: Stmts 98.59%, Branch 92.98%, Funcs 91.23%, Lines 99.30%
+  - 最終: Stmts 98.59%, Branch 93.02%, Funcs 91.01%, Lines 99.31%
+  - Branch微増(+0.04), Lines微増(+0.01), Funcs微減(-0.22%/分母増加のみ)
+- **今後のイテレーションへの学び:**
+  - 大規模リファクタリングはadditive onlyの第一歩から始める。既存コードに破壊的変更を加えず、新しい型と「既存データからの抽出関数」だけを追加
+  - 推論規則のエッジ化は45+ファイル・13,700+行テストに影響する。6ステップの段階移行が必要
+  - extractInferenceEdgesは現在のノード+接続グラフから推論エッジ情報を再構築するブリッジ関数。将来的にはWorkspaceStateに直接格納される
+  - MP:左右2前提（premise-left/premise-right）、Gen/Substitution:1前提（premise）のポート構造が既存アーキテクチャの中核
+  - 現在の推論ノードの`formulaText`が結論を保持している。エッジベースではこれがエッジの属性になる
+---
