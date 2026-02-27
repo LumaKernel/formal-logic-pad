@@ -4336,3 +4336,21 @@
   - インタラクティブストーリーではMP適用後にゴールへの接続が自動生成されないため、play関数で「Proof Complete」バナーが出ないことを期待する
   - `addConnection(ws, fromId, "output", toId, "input")`でゴールノードへの接続を明示的に作成する必要がある
 ---
+
+## 2026-02-27 - ヘッダーUI改善（Export/Importメニュー化）
+- 実装した内容: ヘッダーに常時表示されていた4つのExport/Importボタンを「⋯」ドロップダウンメニューに格納。WorkspaceMenuItemコンポーネントを抽出し、ノードコンテキストメニューと同様のUIパターンで実装
+- ベースラインカバレッジ: Stmts 99.37%, Branch 94.92%, Lines 99.93%, 4364 tests
+- 完了時カバレッジ: Stmts 99.27%, Branch 94.83%, Lines 99.79%, 4368 tests ✅ (微減はv8 ignore済みの不純handler wrapper分)
+- ブラウザ確認:
+  - `.screenshots/workspace-menu-closed.png` - メニュー閉状態のヘッダー ✅
+  - `.screenshots/workspace-menu-open.png` - ドロップダウン展開状態 ✅
+  - `.screenshots/workspace-menu-predicate.png` - Predicate Logic体系での表示確認 ✅
+- 変更ファイル:
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - WorkspaceMenuItemコンポーネント追加、ドロップダウンメニュー実装)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (MODIFIED - メニュー開閉テスト4件追加)
+  - `tasks/prd-inserted-tasks.md` (MODIFIED - タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - React Compilerの`Cannot access refs during render`エラー: `.map()`のarray literal内にrefを使うcallbackを含めるとエラーになる場合がある。個別のコンポーネントに抽出して回避
+  - ドロップダウンメニューの外クリック閉じ: ボタンref + メニューref の両方を`pointerdown`で判定し、どちらにも含まれなければ閉じるパターン
+  - Export/Importハンドラは`v8 ignore`内で定義済みだが、JSX内のonClick wrapperラムダは別途カバレッジ対象になる。不純コードを呼ぶだけのwrapperは微小なカバレッジ低下として許容
+---

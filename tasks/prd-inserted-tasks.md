@@ -28,5 +28,5 @@
     - [ ] まず必要な機能についてタスクとしてまとめていこう
 - [x] http://localhost:13006/?path=/story/proofpad-peanoarithmeticdemo--zero-plus-zero-completed
         GOALになにも繋ってない状態で Proof Completeとなっているが、ゴールに確実にMPから繋げるなどして証明されて始めてProof Completeとなってほしい
-- [-] Export/Ipmortはずっと表示されてるボタンではなく、ノートに関する操作メニューの中にあるような形で十分だろう
+- [x] Export/Ipmortはずっと表示されてるボタンではなく、ノートに関する操作メニューの中にあるような形で十分だろう
 
