@@ -732,8 +732,8 @@ export function ProofWorkspace({
     handleConnectionComplete,
   );
 
-  // マーキー選択（空白部分ドラッグで矩形選択）
-  const [isSpacePanActive, setIsSpacePanActive] = useState(false);
+  // マーキー選択（Shift+ドラッグで矩形選択）
+  const [isShiftMarqueeActive, setIsShiftMarqueeActive] = useState(false);
 
   const selectableItems: readonly SelectableItem[] = minimapItems;
 
@@ -759,8 +759,8 @@ export function ProofWorkspace({
     containerRef,
   );
 
-  /** マーキーモードが有効かどうか（スペースパン中・ポートドラッグ中は無効） */
-  const marqueeEnabled = !isSpacePanActive && connectionPreviewState === null;
+  /** マーキーモードが有効かどうか（Shift押下中 かつ ポートドラッグ中でない） */
+  const marqueeEnabled = isShiftMarqueeActive && connectionPreviewState === null;
 
   const handlePortDragStart = useCallback(
     (nodeId: string) => (portId: string, screenX: number, screenY: number) => {
@@ -1835,16 +1835,15 @@ export function ProofWorkspace({
         handleDeleteSelected();
       } else if (e.key === "Escape") {
         setSelectedNodeIds(clearSelection());
-      } else if (e.key === " " && !e.repeat) {
-        // スペースキー押下でパンモード有効化
-        e.preventDefault();
-        setIsSpacePanActive(true);
+      } else if (e.key === "Shift" && !e.repeat) {
+        // Shiftキー押下でマーキー（矩形選択）モード有効化
+        setIsShiftMarqueeActive(true);
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === " ") {
-        setIsSpacePanActive(false);
+      if (e.key === "Shift") {
+        setIsShiftMarqueeActive(false);
       }
     };
 
