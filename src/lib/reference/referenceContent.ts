@@ -1768,6 +1768,79 @@ const systemClassical: ReferenceEntry = {
   order: 5,
 };
 
+const systemPredicateLogic: ReferenceEntry = {
+  id: "system-predicate",
+  category: "logic-system",
+  title: { en: "Predicate Logic", ja: "述語論理" },
+  summary: {
+    en: "First-order predicate logic extending propositional logic with quantifiers (∀, ∃) and the Gen rule.",
+    ja: "命題論理を量化子（∀, ∃）と Gen 規則で拡張した一階述語論理。",
+  },
+  body: {
+    en: [
+      "**Predicate logic** (first-order logic) extends propositional logic with **universal quantification** (∀x.φ: \"for all x, φ holds\") and **existential quantification** (∃x.φ: \"there exists an x such that φ holds\"). This allows reasoning about objects, their properties (predicates), and functions.",
+      "The predicate logic system adds two axiom schemas to the propositional base (A1+A2+A3): **A4** (∀x.φ → φ[t/x], universal instantiation) allows removing ∀ by substituting a specific term, and **A5** (∀x.(φ → ψ) → (φ → ∀x.ψ), universal distribution) allows introducing ∀ when x is not free in φ.",
+      "A new inference rule **Gen** (generalization) is also added: from a proved theorem φ, derive ∀x.φ. Gen can only be applied to theorems (not to assumptions in a deduction), which is a crucial restriction.",
+      "The existential quantifier ∃ is defined as ¬∀¬: ∃x.φ ≡ ¬∀x.¬φ. This means \"there exists an x satisfying φ\" is equivalent to \"it is not the case that all x fail to satisfy φ\".",
+      "Key properties: (1) ∀x.∀y.φ ↔ ∀y.∀x.φ (quantifier order is swappable for ∀), (2) ∃x.¬φ → ¬∀x.φ, (3) ∀x.¬φ → ¬∃x.φ. These relationships between ∀ and ∃ are fundamental in predicate logic reasoning.",
+    ],
+    ja: [
+      "**述語論理**（一階論理）は命題論理を**全称量化**（∀x.φ: 「すべてのxについてφが成り立つ」）と**存在量化**（∃x.φ: 「φを満たすxが存在する」）で拡張します。これにより対象、その性質（述語）、関数についての推論が可能になります。",
+      "述語論理体系は命題論理の基盤(A1+A2+A3)に2つの公理スキーマを追加します: **A4**（∀x.φ → φ[t/x], 全称消去）は∀を外して具体的な項を代入でき、**A5**（∀x.(φ → ψ) → (φ → ∀x.ψ), 全称分配）はxがφに自由出現しないとき∀を導入できます。",
+      "新しい推論規則**Gen**（汎化）も追加されます: 証明済みの定理φから∀x.φを導出します。Genは定理にのみ適用でき（演繹中の仮定には適用不可）、この制約は極めて重要です。",
+      "存在量化子∃は¬∀¬として定義されます: ∃x.φ ≡ ¬∀x.¬φ。「φを満たすxが存在する」は「すべてのxがφを満たさないわけではない」と同値です。",
+      "重要な性質: (1) ∀x.∀y.φ ↔ ∀y.∀x.φ（∀の順序は交換可能）、(2) ∃x.¬φ → ¬∀x.φ、(3) ∀x.¬φ → ¬∃x.φ。これらの∀と∃の関係は述語論理の推論の基本です。",
+    ],
+  },
+  relatedEntryIds: [
+    "axiom-a4",
+    "axiom-a5",
+    "rule-gen",
+    "system-classical",
+    "concept-free-variable",
+    "concept-substitution",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/First-order_logic",
+      label: {
+        en: "First-order logic (Wikipedia)",
+        ja: "一階論理 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E4%B8%80%E9%9A%8E%E8%BF%B0%E8%AA%9E%E8%AB%96%E7%90%86",
+      label: {
+        en: "First-order logic (Wikipedia JA)",
+        ja: "一階述語論理 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/first-order+logic",
+      label: {
+        en: "First-order logic (nLab)",
+        ja: "一階論理 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "predicate",
+    "first-order",
+    "quantifier",
+    "forall",
+    "exists",
+    "述語",
+    "一階",
+    "量化",
+    "全称",
+    "存在",
+  ],
+  order: 6,
+};
+
 // ============================================================
 // 概念 (Concepts)
 // ============================================================
@@ -2609,6 +2682,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   systemMinimal,
   systemIntuitionistic,
   systemClassical,
+  systemPredicateLogic,
   // Notation
   notationConnectives,
   notationQuantifiers,

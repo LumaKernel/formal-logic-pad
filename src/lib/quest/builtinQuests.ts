@@ -1315,6 +1315,166 @@ const qG08InverseIdentity: QuestDefinition = {
   order: 2,
 };
 
+// --- 述語論理の基礎 ---
+
+const qPred01UniversalElim: QuestDefinition = {
+  id: "pred-01",
+  category: "predicate-basics",
+  title: "全称消去 (A4)",
+  description:
+    "∀x.P(x) → P(x) を証明せよ。A4（全称消去公理）の最も基本的なインスタンス。",
+  difficulty: 1,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "all x. P(x) -> P(x)",
+      label: "Goal: ∀x.P(x) → P(x)",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "A4: ∀ξ.φ → φ[τ/ξ] のインスタンスを作ります。",
+    "ξ=x, φ=P(x), τ=x として、∀x.P(x) → P(x)[x/x] = ∀x.P(x) → P(x) です。",
+    "A4を配置するだけで完成します。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "A4（全称消去）は量化子∀を外す基本公理。∀x.φ(x) → φ(t) で任意の項tを代入できる。",
+  order: 1,
+};
+
+const qPred02IdentityQuantified: QuestDefinition = {
+  id: "pred-02",
+  category: "predicate-basics",
+  title: "全称化された恒等律",
+  description:
+    "∀x.(P(x) → P(x)) を証明せよ。命題論理の恒等律に Gen を適用する。",
+  difficulty: 2,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "all x. (P(x) -> P(x))",
+      label: "Goal: ∀x.(P(x) → P(x))",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "まず命題論理の恒等律 P(x) → P(x) を証明します（A1, A2, MP）。",
+    "次に Gen 規則を使って ∀x.(P(x) → P(x)) を得ます。",
+    "Gen: φ が証明されていれば ∀x.φ も証明される。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "Gen（汎化規則）は証明済みの式を全称量化する。定理に対してのみ適用可能であることに注意。",
+  order: 2,
+};
+
+const qPred03UniversalSwap: QuestDefinition = {
+  id: "pred-03",
+  category: "predicate-basics",
+  title: "全称量化子の交換",
+  description:
+    "∀x.∀y.P(x, y) → ∀y.∀x.P(x, y) を証明せよ。量化子の順序交換（例7.49）。",
+  difficulty: 3,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "all x. all y. P(x, y) -> all y. all x. P(x, y)",
+      label: "Goal: ∀x.∀y.P(x,y) → ∀y.∀x.P(x,y)",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "∀x.∀y.P(x,y) から ∀y.∀x.P(x,y) を演繹することを目標にします。",
+    "A4で外側の∀xを消去し、再びA4で∀yを消去して P(x,y) を得ます。",
+    "Genでまず∀x.P(x,y)を得て、再びGenで∀y.∀x.P(x,y)を得ます。",
+    "A5を使って∀の中に戻していく操作が必要です。",
+  ],
+  estimatedSteps: 10,
+  learningPoint:
+    "∀量化子の順序は交換可能。A4(消去)とA5+Gen(導入)の組み合わせで示す。",
+  order: 3,
+};
+
+const qPred04ExistentialIntro: QuestDefinition = {
+  id: "pred-04",
+  category: "predicate-basics",
+  title: "存在導入 (EI)",
+  description:
+    "P(x) → ∃x.P(x) を証明せよ。具体的な項から存在命題を導く基本操作。",
+  difficulty: 1,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "P(x) -> ex x. P(x)",
+      label: "Goal: P(x) → ∃x.P(x)",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "∃x.P(x) は ¬∀x.¬P(x) の略記です。",
+    "A4のインスタンスとして使えます。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "存在量化子の導入。P(t) が成り立てば ∃x.P(x) が成り立つ。",
+  order: 4,
+};
+
+const qPred05ExistNegToNegUniv: QuestDefinition = {
+  id: "pred-05",
+  category: "predicate-basics",
+  title: "∃x.¬P(x) → ¬∀x.P(x)",
+  description:
+    "「¬P(x) を満たすxが存在する」ならば「すべてのxがP(x) を満たすわけではない」ことを証明せよ。",
+  difficulty: 3,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "ex x. ~P(x) -> ~(all x. P(x))",
+      label: "Goal: ∃x.¬P(x) → ¬∀x.P(x)",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "∃x.¬P(x) は ¬∀x.¬¬P(x) の略記です。",
+    "A4を使って ∀x.P(x) → P(x) を得て、対偶操作と組み合わせます。",
+    "A3（対偶律）が鍵です: (¬ψ → ¬φ) → (φ → ψ) の形。",
+    "二重否定の導入・除去と推移律を活用します。",
+  ],
+  estimatedSteps: 15,
+  learningPoint:
+    "∃xと∀xの関係は否定を介して結ばれる。述語論理の対偶的推論の基本。",
+  order: 5,
+};
+
+const qPred06UnivNegToNegExist: QuestDefinition = {
+  id: "pred-06",
+  category: "predicate-basics",
+  title: "∀x.¬P(x) → ¬∃x.P(x)",
+  description:
+    "「すべてのxが¬P(x) を満たす」ならば「P(x) を満たすxは存在しない」ことを証明せよ。",
+  difficulty: 3,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "all x. ~P(x) -> ~(ex x. P(x))",
+      label: "Goal: ∀x.¬P(x) → ¬∃x.P(x)",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "∃x.P(x) は ¬∀x.¬P(x) の略記です。",
+    "¬∃x.P(x) は ¬¬∀x.¬P(x) 、すなわち二重否定の形です。",
+    "∀x.¬P(x) から ∀x.¬P(x) への恒等律と、二重否定導入を組み合わせます。",
+    "DNI（φ → ¬¬φ）のインスタンスを∀x.¬P(x)に適用します。",
+  ],
+  estimatedSteps: 8,
+  learningPoint:
+    "∀x.¬P(x) → ¬∃x.P(x) は量化子と否定の基本関係。∃の定義（¬∀¬）を展開して二重否定導入で証明。",
+  order: 6,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -1370,4 +1530,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qG06Commutativity,
   qG07IdentityTimesIdentity,
   qG08InverseIdentity,
+  qPred01UniversalElim,
+  qPred02IdentityQuantified,
+  qPred03UniversalSwap,
+  qPred04ExistentialIntro,
+  qPred05ExistNegToNegUniv,
+  qPred06UnivNegToNegExist,
 ];
