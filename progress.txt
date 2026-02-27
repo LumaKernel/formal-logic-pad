@@ -5137,3 +5137,31 @@
   - 確認オーバーレイの `onClick` に `e.stopPropagation()` が必要（カード全体のクリックハンドラでonOpenが発火するのを防ぐ）
   - `position: relative` が既にカードスタイルにあったので、`position: absolute; inset: 0` のオーバーレイが正しく配置された
 ---
+
+## 2026-02-28 - ノート作成フォームバリデーションUX改善
+- 実装した内容:
+  - `notebookCreateLogic.ts`: `shouldShowFieldError()` (blurバリデーション判定), `getFirstErrorField()` (フォーカス管理用) を追加
+  - `NotebookCreateFormComponent.tsx`: blurバリデーション、submit時のscrollIntoView+focus、aria-invalid/aria-describedby/role="alert" アクセシビリティ属性を追加
+  - `notebookCreateLogic.test.ts`: shouldShowFieldError(6テスト), getFirstErrorField(4テスト) を追加
+  - `NotebookCreateFormComponent.test.tsx`: blur/submit/aria属性テスト(9テスト) を追加
+  - `NotebookCreateFormComponent.stories.tsx`: BlurValidation ストーリー追加、ValidationError ストーリーにアクセシビリティ検証追加
+  - `tasks/prd-inserted-tasks.md`: 既実装タスク(公理自動判別、浮きノードMP接続)を完了マーク
+- 変更したファイル:
+  - src/lib/notebook/notebookCreateLogic.ts
+  - src/lib/notebook/notebookCreateLogic.test.ts
+  - src/lib/notebook/NotebookCreateFormComponent.tsx
+  - src/lib/notebook/NotebookCreateFormComponent.test.tsx
+  - src/lib/notebook/NotebookCreateFormComponent.stories.tsx
+  - tasks/prd-inserted-tasks.md
+  - tasks/prd-note-manage.md
+  - task-processing.md
+- カバレッジ: Stmts 98.59%(+0.01), Branch 92.93%(-0.01), Funcs 91.22%(+0.02), Lines 99.30%(±0)
+- スクリーンショット:
+  - `.screenshots/form-validation-error.png` - エラー表示（赤枠+エラーメッセージ+フォーカス）
+  - `.screenshots/form-blur-validation-final.png` - blur後の有効入力でエラー消去
+- **今後のイテレーションへの学び:**
+  - jsdomには `scrollIntoView` が実装されていないので、optional chaining (`?.`) で呼ぶ必要がある
+  - フォームバリデーションUXのベストプラクティス: blur時バリデーション + submit時フォーカス移動 + role="alert" + aria-invalid
+  - `shouldShowFieldError` のように touched/submitted の組み合わせを純粋関数として分離すると、テストが容易になる
+  - `prd-inserted-tasks.md` の精査: 既実装機能を [x] マークすることで、未着手タスクの見通しが良くなる
+---
