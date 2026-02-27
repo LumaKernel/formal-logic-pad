@@ -4400,3 +4400,37 @@
   - computeMPCompatibleNodeIdsは純粋関数としてmpApplicationLogic.tsに配置。UI層のuseMemoで呼び出してrenderNodeで利用
   - ストーリーでのブラウザテスト時、axiom paletteがノードを覆う場合がある。evaluate()でdirectにclick()すれば回避可能
 ---
+
+## 2026-02-27 - コンテキストメニューからのMP左右前提選択・Gen適用
+- 実装した内容:
+  - ノード右クリックコンテキストメニューに「Use as MP Left (φ)」「Use as MP Right (φ→ψ)」を追加
+  - 右前提(φ→ψ)として使えないノード（含意でない）はdisabled表示
+  - 新MPフェーズ「selecting-left-for-right」: 右前提を先に選択→左前提を選択するフロー
+  - 述語論理体系で「Apply Gen」コンテキストメニュー項目を追加
+  - Gen適用時の変数名入力プロンプトバナーUI
+  - computeMPLeftCompatibleNodeIds: 右前提から互換する左前提候補を算出する純粋関数
+  - isNodeImplication: ノードが含意かどうかを判定する純粋関数
+- 変更したファイル:
+  - src/lib/proof-pad/mpApplicationLogic.ts (新関数2つ追加)
+  - src/lib/proof-pad/mpApplicationLogic.test.ts (12テスト追加)
+  - src/lib/proof-pad/ProofWorkspace.tsx (コンテキストメニュー、状態管理、UI)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (12テスト追加)
+  - src/lib/proof-pad/proofMessages.ts (4メッセージキー追加)
+  - src/app/workspace/[id]/WorkspaceContent.tsx (i18n 4キー追加)
+  - messages/en.json, messages/ja.json (翻訳4項目追加)
+- カバレッジ: Stmts 99.10% (ベースライン 99.22%), Branch 94.34% (ベースライン 94.64%), Lines 99.76% (ベースライン 99.74%)
+  - Stmts/Branchの微減はProofWorkspace.tsx内の既存未カバーコード(export/importハンドラ)と新Gen UIの一部。Lines微増
+- スクリーンショット:
+  - .screenshots/context-menu-mp-derived-node.png (非含意ノードではMP Right disabled)
+  - .screenshots/context-menu-implication-node.png (含意ノードではMP Right enabled)
+  - .screenshots/mp-selecting-left-for-right-banner.png (右前提選択後のバナー表示)
+  - .screenshots/context-menu-predicate-logic-with-gen.png (述語論理でGen含む4項目)
+  - .screenshots/gen-prompt-banner.png (Gen変数名入力プロンプト)
+  - .screenshots/gen-prompt-with-variable.png (変数名入力後)
+  - .screenshots/gen-applied-from-context-menu.png (Gen適用結果)
+- **今後のイテレーションへの学び:**
+  - MPSelectionState型にphaseを追加する場合、handleNodeClickForMP・mpCompatibleNodeIds・banner表示・highlighting全箇所を更新する必要がある
+  - LogicSystemの generalization は boolean フィールド（enabledRules.has()ではない）
+  - WorkspaceMenuItemにdisabled propを追加する際はcursor・opacity・color・pointer-eventsのスタイル設定が必要
+  - コンテキストメニューからGen適用する場合、変数名入力が追加で必要。プロンプトバナーUIパターンで解決
+---
