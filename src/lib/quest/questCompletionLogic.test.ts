@@ -79,9 +79,7 @@ describe("computeStepCount", () => {
   });
 
   test("role=goalのノードはカウントしない", () => {
-    const nodes = [
-      makeNode({ id: "n1", kind: "axiom", role: "goal" }),
-    ];
+    const nodes = [makeNode({ id: "n1", kind: "axiom", role: "goal" })];
     expect(computeStepCount(nodes)).toBe(0);
   });
 
