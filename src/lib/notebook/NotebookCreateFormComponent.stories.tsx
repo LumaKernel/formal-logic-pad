@@ -77,11 +77,42 @@ export const ValidationError: Story = {
     // 名前を入力せずに送信
     await userEvent.click(canvas.getByTestId("create-submit-btn"));
     // エラーメッセージが表示される
+    const errorEl = canvas.getByTestId("create-name-error");
+    await expect(errorEl).toHaveTextContent("名前を入力してください");
+    // role="alert" でアクセシブル
+    await expect(errorEl).toHaveAttribute("role", "alert");
+    // inputにフォーカスが移る
+    const input = canvas.getByTestId("create-name-input");
+    await expect(input).toHaveFocus();
+    await expect(input).toHaveAttribute("aria-invalid", "true");
+    // onSubmitは呼ばれない
+    await expect(args.onSubmit).not.toHaveBeenCalled();
+  },
+};
+
+export const BlurValidation: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByTestId("create-name-input");
+
+    // 初期状態: エラーなし
+    await expect(
+      canvas.queryByTestId("create-name-error"),
+    ).not.toBeInTheDocument();
+
+    // フォーカスしてblur → エラー表示
+    await userEvent.click(input);
+    await userEvent.tab();
     await expect(canvas.getByTestId("create-name-error")).toHaveTextContent(
       "名前を入力してください",
     );
-    // onSubmitは呼ばれない
-    await expect(args.onSubmit).not.toHaveBeenCalled();
+
+    // 有効な値を入力 → エラーが消える
+    await userEvent.click(input);
+    await userEvent.type(input, "テストノート");
+    await expect(
+      canvas.queryByTestId("create-name-error"),
+    ).not.toBeInTheDocument();
   },
 };
 

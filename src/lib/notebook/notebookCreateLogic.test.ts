@@ -6,6 +6,8 @@ import {
   defaultCreateFormValues,
   validateCreateForm,
   getFieldError,
+  shouldShowFieldError,
+  getFirstErrorField,
   getPresetReferenceEntryId,
   type CreateFormValues,
 } from "./notebookCreateLogic";
@@ -563,5 +565,116 @@ describe("getPresetReferenceEntryId", () => {
 
   it("returns undefined for empty string", () => {
     expect(getPresetReferenceEntryId("")).toBeUndefined();
+  });
+});
+
+describe("shouldShowFieldError", () => {
+  const invalidValidation = validateCreateForm({
+    name: "",
+    systemPresetId: "lukasiewicz",
+  });
+  const validValidation = validateCreateForm({
+    name: "テスト",
+    systemPresetId: "lukasiewicz",
+  });
+
+  it("returns undefined when not touched and not submitted", () => {
+    expect(
+      shouldShowFieldError({
+        touched: false,
+        submitted: false,
+        validation: invalidValidation,
+        field: "name",
+      }),
+    ).toBeUndefined();
+  });
+
+  it("returns error when touched even if not submitted", () => {
+    expect(
+      shouldShowFieldError({
+        touched: true,
+        submitted: false,
+        validation: invalidValidation,
+        field: "name",
+      }),
+    ).toBe("名前を入力してください");
+  });
+
+  it("returns error when submitted even if not touched", () => {
+    expect(
+      shouldShowFieldError({
+        touched: false,
+        submitted: true,
+        validation: invalidValidation,
+        field: "name",
+      }),
+    ).toBe("名前を入力してください");
+  });
+
+  it("returns error when both touched and submitted", () => {
+    expect(
+      shouldShowFieldError({
+        touched: true,
+        submitted: true,
+        validation: invalidValidation,
+        field: "name",
+      }),
+    ).toBe("名前を入力してください");
+  });
+
+  it("returns undefined for valid form even when touched and submitted", () => {
+    expect(
+      shouldShowFieldError({
+        touched: true,
+        submitted: true,
+        validation: validValidation,
+        field: "name",
+      }),
+    ).toBeUndefined();
+  });
+
+  it("returns undefined for non-error field", () => {
+    expect(
+      shouldShowFieldError({
+        touched: true,
+        submitted: true,
+        validation: invalidValidation,
+        field: "systemPresetId",
+      }),
+    ).toBeUndefined();
+  });
+});
+
+describe("getFirstErrorField", () => {
+  it("returns undefined for valid form", () => {
+    const validation = validateCreateForm({
+      name: "テスト",
+      systemPresetId: "lukasiewicz",
+    });
+    expect(getFirstErrorField(validation)).toBeUndefined();
+  });
+
+  it("returns 'name' when name is the first error", () => {
+    const validation = validateCreateForm({
+      name: "",
+      systemPresetId: "lukasiewicz",
+    });
+    expect(getFirstErrorField(validation)).toBe("name");
+  });
+
+  it("returns 'name' when both name and system have errors (name is first)", () => {
+    const validation = validateCreateForm({
+      name: "",
+      systemPresetId: "nonexistent",
+    });
+    expect(getFirstErrorField(validation)).toBe("name");
+  });
+
+  it("returns 'systemPresetId' when only system has error", () => {
+    const validation = validateCreateForm({
+      name: "テスト",
+      systemPresetId: "nonexistent",
+    });
+    expect(getFirstErrorField(validation)).toBe("systemPresetId");
   });
 });
