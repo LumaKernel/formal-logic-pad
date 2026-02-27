@@ -58,6 +58,10 @@
     "addAxiomNode": "Add Axiom Node",
     "addGoalNode": "Add Goal Node",
     "addNode": "Add Node",
+    "useAsMPLeft": "Use as MP Left (φ)",
+    "useAsMPRight": "Use as MP Right (φ→ψ)",
+    "applyGenToNode": "Apply Gen",
+    "genVariablePrompt": "Variable name:",
     "proofCompleteButAxiomViolation": "Proof Complete (axiom restriction violated)",
     "axiomViolationDetail": "Disallowed axiom(s) used: {axiomIds}"
   }

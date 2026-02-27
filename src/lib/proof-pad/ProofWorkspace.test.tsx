@@ -1904,6 +1904,274 @@ describe("ProofWorkspace", () => {
     });
   });
 
+  describe("node context menu - MP/Gen actions", () => {
+    it("shows Use as MP Left and Use as MP Right items in context menu", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      expect(
+        screen.getByTestId("workspace-use-as-mp-left"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-use-as-mp-right"),
+      ).toBeInTheDocument();
+    });
+
+    it("Use as MP Right is disabled when node formula is not an implication", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      const mpRightBtn = screen.getByTestId("workspace-use-as-mp-right");
+      expect(mpRightBtn).toBeDisabled();
+    });
+
+    it("Use as MP Right is enabled when node formula is an implication", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      const mpRightBtn = screen.getByTestId("workspace-use-as-mp-right");
+      expect(mpRightBtn).not.toBeDisabled();
+    });
+
+    it("Use as MP Left starts MP selection in selecting-right phase with banner", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      const mpLeftBtn = screen.getByTestId("workspace-use-as-mp-left");
+      await user.click(mpLeftBtn);
+
+      // Context menu should be closed
+      expect(
+        screen.queryByTestId("workspace-node-context-menu"),
+      ).not.toBeInTheDocument();
+
+      // MP selection banner should be visible (asking for right premise)
+      expect(screen.getByTestId("workspace-mp-banner")).toHaveTextContent(
+        "Click the right premise",
+      );
+    });
+
+    it("Use as MP Right starts selecting-left-for-right phase with banner", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      const mpRightBtn = screen.getByTestId("workspace-use-as-mp-right");
+      await user.click(mpRightBtn);
+
+      // Context menu should be closed
+      expect(
+        screen.queryByTestId("workspace-node-context-menu"),
+      ).not.toBeInTheDocument();
+
+      // MP selection banner should be visible (asking for left premise)
+      expect(screen.getByTestId("workspace-mp-banner")).toHaveTextContent(
+        "Click the left premise",
+      );
+    });
+
+    it("Use as MP Left then clicking right premise applies MP", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Left", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Right", { x: 200, y: 0 }, "phi -> psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Right-click on left premise and use as MP left
+      const leftNode = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: leftNode });
+      await user.click(screen.getByTestId("workspace-use-as-mp-left"));
+
+      // Click right premise to apply MP
+      const rightNode = screen.getByTestId("proof-node-node-2");
+      await user.click(rightNode);
+
+      // MP should be applied - new MP node should be created
+      await waitFor(() => {
+        expect(screen.getByTestId("proof-node-node-3")).toBeInTheDocument();
+      });
+
+      // Banner should be gone
+      expect(
+        screen.queryByTestId("workspace-mp-banner"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("Use as MP Right then clicking left premise applies MP", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Left", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Right", { x: 200, y: 0 }, "phi -> psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Right-click on right premise (implication) and use as MP right
+      const rightNode = screen.getByTestId("proof-node-node-2");
+      await user.pointer({ keys: "[MouseRight]", target: rightNode });
+      await user.click(screen.getByTestId("workspace-use-as-mp-right"));
+
+      // Click left premise to apply MP
+      const leftNode = screen.getByTestId("proof-node-node-1");
+      await user.click(leftNode);
+
+      // MP should be applied - new MP node should be created
+      await waitFor(() => {
+        expect(screen.getByTestId("proof-node-node-3")).toBeInTheDocument();
+      });
+
+      // Banner should be gone
+      expect(
+        screen.queryByTestId("workspace-mp-banner"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("does not show Apply Gen in context menu when Gen is not enabled", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      expect(
+        screen.queryByTestId("workspace-apply-gen-to-node"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows Apply Gen in context menu when Gen is enabled (predicate logic)", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      expect(
+        screen.getByTestId("workspace-apply-gen-to-node"),
+      ).toBeInTheDocument();
+    });
+
+    it("Apply Gen opens variable name prompt, entering name and confirming applies Gen", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Right-click and select Apply Gen
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+      await user.click(screen.getByTestId("workspace-apply-gen-to-node"));
+
+      // Prompt should appear
+      const input = screen.getByTestId("workspace-gen-prompt-input");
+      expect(input).toBeInTheDocument();
+
+      // Type variable name and confirm
+      await user.type(input, "x");
+      const confirmBtn = screen.getByTestId("workspace-gen-prompt-confirm");
+      await user.click(confirmBtn);
+
+      // Gen should be applied - new Gen node should be created
+      await waitFor(() => {
+        expect(screen.getByTestId("proof-node-node-2")).toBeInTheDocument();
+      });
+
+      // Prompt should be gone
+      expect(
+        screen.queryByTestId("workspace-gen-prompt-banner"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("Gen prompt confirms with Enter key", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Right-click and select Apply Gen
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+      await user.click(screen.getByTestId("workspace-apply-gen-to-node"));
+
+      // Type variable name and press Enter
+      const input = screen.getByTestId("workspace-gen-prompt-input");
+      await user.type(input, "x{Enter}");
+
+      // Gen should be applied - new Gen node should be created
+      await waitFor(() => {
+        expect(screen.getByTestId("proof-node-node-2")).toBeInTheDocument();
+      });
+
+      // Prompt should be gone
+      expect(
+        screen.queryByTestId("workspace-gen-prompt-banner"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("Gen prompt can be cancelled", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Right-click and select Apply Gen
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+      await user.click(screen.getByTestId("workspace-apply-gen-to-node"));
+
+      // Prompt should appear
+      expect(
+        screen.getByTestId("workspace-gen-prompt-banner"),
+      ).toBeInTheDocument();
+
+      // Press Escape to cancel
+      const input = screen.getByTestId("workspace-gen-prompt-input");
+      await user.type(input, "{Escape}");
+
+      // Prompt should be gone
+      expect(
+        screen.queryByTestId("workspace-gen-prompt-banner"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe("auto layout toggle", () => {
     it("shows auto layout toggle in header", () => {
       render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
@@ -2123,9 +2391,7 @@ describe("ProofWorkspace", () => {
     it("shows menu button and opens dropdown on click", async () => {
       const user = userEvent.setup();
       const ws = createEmptyWorkspace(lukasiewiczSystem);
-      render(
-        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
-      );
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
       // メニューボタンが存在する
       const menuButton = screen.getByTestId("workspace-workspace-menu-button");
@@ -2160,9 +2426,7 @@ describe("ProofWorkspace", () => {
     it("closes menu on second click of menu button", async () => {
       const user = userEvent.setup();
       const ws = createEmptyWorkspace(lukasiewiczSystem);
-      render(
-        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
-      );
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
       const menuButton = screen.getByTestId("workspace-workspace-menu-button");
 
@@ -2182,9 +2446,7 @@ describe("ProofWorkspace", () => {
     it("closes menu after clicking a menu item", async () => {
       const user = userEvent.setup();
       const ws = createEmptyWorkspace(lukasiewiczSystem);
-      render(
-        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
-      );
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
       const menuButton = screen.getByTestId("workspace-workspace-menu-button");
 
@@ -2205,9 +2467,7 @@ describe("ProofWorkspace", () => {
 
     it("does not show export/import buttons inline in header", () => {
       const ws = createEmptyWorkspace(lukasiewiczSystem);
-      render(
-        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
-      );
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
       // メニューが閉じた状態では export/import ボタンは表示されない
       expect(

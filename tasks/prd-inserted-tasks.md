@@ -37,6 +37,10 @@
     - [ ] ただしクエストのといはゴールは消せないほうがよいだろう。
     - [ ] duplicateなどもあるとよいだろう。ただし、ゴールなどは、野良の通常の中間定理に変わるのが良いだろう (ゴールが複製されまくるのをユーザーができてしまうのはよくない）
     - [ ] Apply 代入操作 (ととりあえずここでは呼ぶが) もあるとよい
+- [ ] http://localhost:13000/workspace/... ← 実際のこれらはミニマップとか画面端スクロールがないけど、せっかく作ったそのあたりの機能はデフォルトで全部搭載しておこう
+- [ ] ノード移動の仕様について、マウスからどんどん離れていってしまうことがある
+        基本的に、むしろ、マウスとの相対位置はキープされてほしいものだ。
+        snapや画面端スクロールがついていたり、すばやく動かしたり長く動かすと起こる。
 - [ ] http://localhost:13000
         実際に使ってみようとすると以下のようなエラーが出る。
     Removing a style property during rerender (borderBottomColor) when a conflicting property is set (borderBottom) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values.

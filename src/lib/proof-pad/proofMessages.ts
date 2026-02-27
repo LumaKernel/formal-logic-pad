@@ -85,6 +85,11 @@ export type ProofMessages = {
   readonly addAxiomNode: string;
   readonly addGoalNode: string;
   readonly addNode: string;
+  readonly useAsMPLeft: string;
+  readonly useAsMPRight: string;
+  readonly applyGenToNode: string;
+  /** `{variableName}` プレースホルダーを含む */
+  readonly genVariablePrompt: string;
 
   // --- 公理制限 ---
   readonly proofCompleteButAxiomViolation: string;
@@ -159,6 +164,10 @@ export const defaultProofMessages: ProofMessages = {
   addAxiomNode: "Add Axiom Node",
   addGoalNode: "Add Goal Node",
   addNode: "Add Node",
+  useAsMPLeft: "Use as MP Left (\u03C6)",
+  useAsMPRight: "Use as MP Right (\u03C6\u2192\u03C8)",
+  applyGenToNode: "Apply Gen",
+  genVariablePrompt: "Variable name:",
 
   // Axiom restriction
   proofCompleteButAxiomViolation: "Proof Complete (axiom restriction violated)",

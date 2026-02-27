@@ -27,6 +27,8 @@ import { getAvailableAxioms, type AxiomPaletteItem } from "./axiomPaletteLogic";
 import {
   validateMPApplication,
   computeMPCompatibleNodeIds,
+  computeMPLeftCompatibleNodeIds,
+  isNodeImplication,
 } from "./mpApplicationLogic";
 import { validateGenApplication } from "./genApplicationLogic";
 import {
@@ -145,7 +147,11 @@ export interface ProofWorkspaceProps {
 type MPSelectionState =
   | { readonly phase: "idle" }
   | { readonly phase: "selecting-left" }
-  | { readonly phase: "selecting-right"; readonly leftNodeId: string };
+  | { readonly phase: "selecting-right"; readonly leftNodeId: string }
+  | {
+      readonly phase: "selecting-left-for-right";
+      readonly rightNodeId: string;
+    };
 
 // --- Gen選択モードの状態 ---
 
@@ -354,20 +360,25 @@ function WorkspaceMenuItem({
   label,
   onClick,
   testId,
+  disabled,
 }: {
   readonly label: string;
   readonly onClick: () => void;
   readonly testId: string | undefined;
+  readonly disabled?: boolean;
 }) {
   return (
     <button
       type="button"
       data-testid={testId}
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
       /* v8 ignore start - hover visual effect only */
       onMouseEnter={(e) => {
-        e.currentTarget.style.background =
-          "var(--color-surface-hover, #f0f0f0)";
+        if (!disabled) {
+          e.currentTarget.style.background =
+            "var(--color-surface-hover, #f0f0f0)";
+        }
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.background = "transparent";
@@ -380,11 +391,14 @@ function WorkspaceMenuItem({
         border: "none",
         background: "transparent",
         textAlign: "left" as const,
-        cursor: "pointer",
-        color: "var(--color-text-primary, #333)",
+        cursor: disabled ? "default" : "pointer",
+        color: disabled
+          ? "var(--color-text-disabled, #999)"
+          : "var(--color-text-primary, #333)",
         fontSize: 13,
         lineHeight: "1.4",
         whiteSpace: "nowrap" as const,
+        opacity: disabled ? 0.5 : 1,
       }}
     >
       {label}
@@ -486,7 +500,11 @@ export function ProofWorkspace({
     readonly open: boolean;
     readonly screenPosition: Point;
     readonly worldPosition: Point;
-  }>({ open: false, screenPosition: { x: 0, y: 0 }, worldPosition: { x: 0, y: 0 } });
+  }>({
+    open: false,
+    screenPosition: { x: 0, y: 0 },
+    worldPosition: { x: 0, y: 0 },
+  });
   const canvasMenuRef = useRef<HTMLDivElement>(null);
 
   // コンテナサイズ（Viewport Culling用）
@@ -606,7 +624,6 @@ export function ProofWorkspace({
         const rightNode = findNode(workspace, nodeId);
         if (!leftNode || !rightNode) return;
 
-        // Compute position: midpoint below the two nodes
         const mpPosition: Point = {
           x: (leftNode.position.x + rightNode.position.x) / 2,
           y: Math.max(leftNode.position.y, rightNode.position.y) + 150,
@@ -616,6 +633,26 @@ export function ProofWorkspace({
           workspace,
           mpSelection.leftNodeId,
           nodeId,
+          mpPosition,
+        );
+
+        setWorkspaceWithAutoLayout(result.workspace);
+        setMPSelection({ phase: "idle" });
+      } else if (mpSelection.phase === "selecting-left-for-right") {
+        // Right premise was pre-selected, now left is clicked
+        const leftNode = findNode(workspace, nodeId);
+        const rightNode = findNode(workspace, mpSelection.rightNodeId);
+        if (!leftNode || !rightNode) return;
+
+        const mpPosition: Point = {
+          x: (leftNode.position.x + rightNode.position.x) / 2,
+          y: Math.max(leftNode.position.y, rightNode.position.y) + 150,
+        };
+
+        const result = applyMPAndConnect(
+          workspace,
+          nodeId,
+          mpSelection.rightNodeId,
           mpPosition,
         );
 
@@ -687,7 +724,12 @@ export function ProofWorkspace({
     () =>
       mpSelection.phase === "selecting-right"
         ? computeMPCompatibleNodeIds(workspace.nodes, mpSelection.leftNodeId)
-        : new Set<string>(),
+        : mpSelection.phase === "selecting-left-for-right"
+          ? computeMPLeftCompatibleNodeIds(
+              workspace.nodes,
+              mpSelection.rightNodeId,
+            )
+          : new Set<string>(),
     [mpSelection, workspace.nodes],
   );
 
@@ -1039,6 +1081,79 @@ export function ProofWorkspace({
     setNodeMenuState(closeNodeMenu());
   }, [nodeMenuState, workspace.connections]);
 
+  // コンテキストメニューから「MPの左前提として使う」
+  const handleUseAsMPLeft = useCallback(() => {
+    if (!nodeMenuState.open) return;
+    setMPSelection({
+      phase: "selecting-right",
+      leftNodeId: nodeMenuState.nodeId,
+    });
+    setGenSelection({ phase: "idle" });
+    setNodeMenuState(closeNodeMenu());
+  }, [nodeMenuState]);
+
+  // コンテキストメニューから「MPの右前提として使う」
+  const handleUseAsMPRight = useCallback(() => {
+    if (!nodeMenuState.open) return;
+    setMPSelection({
+      phase: "selecting-left-for-right",
+      rightNodeId: nodeMenuState.nodeId,
+    });
+    setGenSelection({ phase: "idle" });
+    setNodeMenuState(closeNodeMenu());
+  }, [nodeMenuState]);
+
+  // コンテキストメニューから「Genを適用する」（変数名入力付き）
+  const [genPromptNodeId, setGenPromptNodeId] = useState<string | null>(null);
+  const [genPromptInput, setGenPromptInput] = useState("");
+
+  const handleApplyGenToNode = useCallback(() => {
+    if (!nodeMenuState.open) return;
+    setGenPromptNodeId(nodeMenuState.nodeId);
+    setGenPromptInput("");
+    setNodeMenuState(closeNodeMenu());
+  }, [nodeMenuState]);
+
+  const handleGenPromptConfirm = useCallback(() => {
+    if (genPromptNodeId === null) return;
+    const variableName = genPromptInput.trim();
+    if (variableName === "") return;
+
+    const premiseNode = findNode(workspace, genPromptNodeId);
+    if (!premiseNode) return;
+
+    const genPosition: Point = {
+      x: premiseNode.position.x,
+      y: premiseNode.position.y + 150,
+    };
+
+    const result = applyGenAndConnect(
+      workspace,
+      genPromptNodeId,
+      variableName,
+      genPosition,
+    );
+
+    setWorkspaceWithAutoLayout(result.workspace);
+    setGenPromptNodeId(null);
+    setGenPromptInput("");
+  }, [genPromptNodeId, genPromptInput, workspace, setWorkspaceWithAutoLayout]);
+
+  const handleGenPromptCancel = useCallback(() => {
+    setGenPromptNodeId(null);
+    setGenPromptInput("");
+  }, []);
+
+  // コンテキストメニュー表示時のノード情報（メニューの enabled/disabled 判定用）
+  const menuNodeIsImplication = useMemo(() => {
+    if (!nodeMenuState.open) return false;
+    const node = findNode(workspace, nodeMenuState.nodeId);
+    if (!node) return false;
+    return isNodeImplication(node);
+  }, [nodeMenuState, workspace]);
+
+  const menuNodeHasGenEnabled = workspace.system.generalization;
+
   // コンテキストメニュー外クリックで閉じる
   useEffect(() => {
     if (!nodeMenuState.open) return;
@@ -1097,12 +1212,7 @@ export function ProofWorkspace({
 
   const handleCanvasMenuAddNode = useCallback(
     (role: "axiom" | "goal" | undefined) => {
-      let ws = addNode(
-        workspace,
-        "axiom",
-        "",
-        canvasMenuState.worldPosition,
-      );
+      let ws = addNode(workspace, "axiom", "", canvasMenuState.worldPosition);
       const newNodeId = ws.nodes[ws.nodes.length - 1]!.id;
       if (role === "goal") {
         ws = updateNodeRole(ws, newNodeId, "goal");
@@ -1463,16 +1573,21 @@ export function ProofWorkspace({
       const isSelectedLeft =
         mpSelection.phase === "selecting-right" &&
         mpSelection.leftNodeId === node.id;
+      const isSelectedRight =
+        mpSelection.phase === "selecting-left-for-right" &&
+        mpSelection.rightNodeId === node.id;
+      const isPreSelectedNode = isSelectedLeft || isSelectedRight;
       const isNodeSelected = selectedNodeIds.has(node.id);
 
-      // MP右前提候補の互換判定
+      // MP互換候補の判定（右前提候補 or 左前提候補）
+      const isMPFiltering =
+        mpSelection.phase === "selecting-right" ||
+        mpSelection.phase === "selecting-left-for-right";
       const isMPCompatible =
-        mpSelection.phase === "selecting-right" &&
-        !isSelectedLeft &&
-        mpCompatibleNodeIds.has(node.id);
+        isMPFiltering && !isPreSelectedNode && mpCompatibleNodeIds.has(node.id);
       const isMPIncompatible =
-        mpSelection.phase === "selecting-right" &&
-        !isSelectedLeft &&
+        isMPFiltering &&
+        !isPreSelectedNode &&
         !mpCompatibleNodeIds.has(node.id);
 
       // ノードの検証状態（MPまたはGen）
@@ -1488,7 +1603,7 @@ export function ProofWorkspace({
             : undefined;
 
       // アウトラインスタイルの決定
-      const outlineStyle = isSelectedLeft
+      const outlineStyle = isPreSelectedNode
         ? `3px solid var(--color-mp-button, #d9944a)`
         : isMPCompatible
           ? `2px solid var(--color-mp-button, #d9944a)`
@@ -1812,9 +1927,7 @@ export function ProofWorkspace({
             <div
               ref={workspaceMenuRef}
               data-testid={
-                testId
-                  ? `${testId satisfies string}-workspace-menu`
-                  : undefined
+                testId ? `${testId satisfies string}-workspace-menu` : undefined
               }
               style={{
                 position: "absolute",
@@ -1823,8 +1936,7 @@ export function ProofWorkspace({
                 marginTop: 4,
                 zIndex: 2000,
                 minWidth: 150,
-                background:
-                  "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
+                background: "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
                 border:
                   "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.2))",
                 borderRadius: 8,
@@ -1912,7 +2024,9 @@ export function ProofWorkspace({
           <span>
             {mpSelection.phase === "selecting-left"
               ? msg.mpBannerSelectLeft
-              : msg.mpBannerSelectRight}
+              : mpSelection.phase === "selecting-left-for-right"
+                ? msg.mpBannerSelectLeft
+                : msg.mpBannerSelectRight}
           </span>
           <button
             type="button"
@@ -1941,6 +2055,62 @@ export function ProofWorkspace({
             type="button"
             style={cancelButtonStyle}
             onClick={handleCancelGenSelection}
+          >
+            {msg.cancel}
+          </button>
+        </div>
+      ) : null}
+
+      {/* Gen変数名入力プロンプト（コンテキストメニューから起動） */}
+      {genPromptNodeId !== null ? (
+        <div
+          style={genSelectionBannerStyle}
+          data-testid={
+            testId
+              ? `${testId satisfies string}-gen-prompt-banner`
+              : "gen-prompt-banner"
+          }
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span>{msg.genVariablePrompt}</span>
+          <input
+            type="text"
+            value={genPromptInput}
+            onChange={(e) => {
+              setGenPromptInput(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleGenPromptConfirm();
+              } else if (e.key === "Escape") {
+                handleGenPromptCancel();
+              }
+            }}
+            autoFocus
+            style={genVariableInputStyle}
+            data-testid={
+              testId
+                ? `${testId satisfies string}-gen-prompt-input`
+                : "gen-prompt-input"
+            }
+          />
+          <button
+            type="button"
+            style={cancelButtonStyle}
+            onClick={handleGenPromptConfirm}
+            disabled={genPromptInput.trim() === ""}
+            data-testid={
+              testId
+                ? `${testId satisfies string}-gen-prompt-confirm`
+                : "gen-prompt-confirm"
+            }
+          >
+            {msg.genApply}
+          </button>
+          <button
+            type="button"
+            style={cancelButtonStyle}
+            onClick={handleGenPromptCancel}
           >
             {msg.cancel}
           </button>
@@ -2107,38 +2277,52 @@ export function ProofWorkspace({
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
-          <button
-            type="button"
-            data-testid={
+          <WorkspaceMenuItem
+            label={msg.selectSubtree}
+            onClick={handleSelectSubtree}
+            testId={
               testId
                 ? `${testId satisfies string}-select-subtree`
                 : "select-subtree"
             }
-            onClick={handleSelectSubtree}
-            /* v8 ignore start - hover visual effect only */
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background =
-                "var(--color-surface-hover, #f0f0f0)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-            }}
-            /* v8 ignore stop */
+          />
+          <div
             style={{
-              display: "block",
-              width: "100%",
-              padding: "6px 16px",
-              border: "none",
-              background: "transparent",
-              textAlign: "left",
-              cursor: "pointer",
-              color: "var(--color-text-primary, #333)",
-              fontSize: 13,
-              lineHeight: "1.4",
+              height: 1,
+              background: "var(--color-panel-border, rgba(180, 160, 130, 0.2))",
+              margin: "4px 0",
             }}
-          >
-            {msg.selectSubtree}
-          </button>
+          />
+          <WorkspaceMenuItem
+            label={msg.useAsMPLeft}
+            onClick={handleUseAsMPLeft}
+            testId={
+              testId
+                ? `${testId satisfies string}-use-as-mp-left`
+                : "use-as-mp-left"
+            }
+          />
+          <WorkspaceMenuItem
+            label={msg.useAsMPRight}
+            onClick={handleUseAsMPRight}
+            disabled={!menuNodeIsImplication}
+            testId={
+              testId
+                ? `${testId satisfies string}-use-as-mp-right`
+                : "use-as-mp-right"
+            }
+          />
+          {menuNodeHasGenEnabled ? (
+            <WorkspaceMenuItem
+              label={msg.applyGenToNode}
+              onClick={handleApplyGenToNode}
+              testId={
+                testId
+                  ? `${testId satisfies string}-apply-gen-to-node`
+                  : "apply-gen-to-node"
+              }
+            />
+          ) : null}
         </div>
       ) : null}
 

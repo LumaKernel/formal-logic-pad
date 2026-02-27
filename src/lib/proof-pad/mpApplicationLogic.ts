@@ -187,6 +187,50 @@ export function computeMPCompatibleNodeIds(
   return compatible;
 }
 
+/**
+ * MP選択モードで右前提が選択済みの場合に、
+ * 左前提として互換性のあるノードのIDセットを返す。
+ *
+ * 右前提は Implication(φ→ψ) の形で、かつ antecedent(φ) が
+ * 左前提候補ノードの formula と構造的に等しいノード。
+ *
+ * rightNodeId のノード自身は結果に含まれない。
+ * 右前提のノードがImplicationでない場合は空セットを返す。
+ */
+export function computeMPLeftCompatibleNodeIds(
+  nodes: readonly WorkspaceNode[],
+  rightNodeId: string,
+): ReadonlySet<string> {
+  const rightNode = nodes.find((n) => n.id === rightNodeId);
+  if (!rightNode) return new Set();
+
+  const rightFormula = parseNodeFormula(rightNode);
+  if (!rightFormula) return new Set();
+  if (rightFormula._tag !== "Implication") return new Set();
+
+  const antecedent = rightFormula.left;
+  const compatible = new Set<string>();
+  for (const node of nodes) {
+    if (node.id === rightNodeId) continue;
+    const formula = parseNodeFormula(node);
+    if (!formula) continue;
+    if (equalFormula(formula, antecedent)) {
+      compatible.add(node.id);
+    }
+  }
+  return compatible;
+}
+
+/**
+ * ノードの論理式がImplication形式(φ→ψ)かどうかを判定する。
+ * パース不能な場合はfalseを返す。
+ */
+export function isNodeImplication(node: WorkspaceNode): boolean {
+  const formula = parseNodeFormula(node);
+  if (!formula) return false;
+  return formula._tag === "Implication";
+}
+
 // --- エラーメッセージ ---
 
 /**
