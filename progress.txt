@@ -4471,3 +4471,21 @@
   - WorkspaceMenuItem は native HTML `disabled` 属性を使用（aria-disabled ではない）。テストでは `toBeDisabled()` を使う
   - コンテキストメニューの区切り線は inline style の `<div>` で実装（他のメニュー項目と同じパターン）
 ---
+
+## 2026-02-27 - クエスト（命題論理練習問題追加）
+- 戸次大介『数理論理学』(bekki.pdf) 第7章のHilbert流証明論の練習問題を参考に、命題論理の練習問題を8問追加
+- 追加問題:
+  - 否定を含む命題論理 (5問): 三重否定除去(7.23), CM(7.24), CON2(7.29), CM*(7.55), TND(7.81)
+  - 命題論理の挑戦問題 (3問): LNC矛盾律(7.40), 連言右除去, 選言除去
+- 合計クエスト数: 43 → 51
+- カバレッジ: 変化なし (Stmts 99.1%, Branch 94.47%, Funcs 90.59%, Lines 99.77%)
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts (8つのQuestDefinition追加)
+  - src/lib/quest/builtinQuests.test.ts (クエスト数カウント 43→51)
+  - tasks/prd-inserted-tasks.md (タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - builtinQuests配列の並び順はカテゴリごとにまとめる必要がある（テストで検証される）
+  - 新しいクエストのformulaTextはparseStringで事前にパース確認すると安全
+  - bekki.pdfの練習問題番号と定義番号は別物。定義7.xxが定理の定義、練習問題7.xxが証明課題
+  - 述語論理の練習問題追加が次のタスク候補として残っている
+---
