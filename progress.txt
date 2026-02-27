@@ -4711,3 +4711,45 @@
   - panEnabled=falseのときInfiniteCanvasはcrosshairカーソルになり、onEmptyAreaPointerDown/Move/Up が使える
   - connectionPreviewState（ポート接続中）はマーキーより優先。両方activeにならないようmarqueeEnabledで制御
 ---
+
+## 2026-02-27 - 代入操作（Substitution Application）純粋ロジック層
+- 実装した内容:
+  - 新規: `substitutionApplicationLogic.ts` — 代入ノードの純粋検証ロジック
+    - FormulaSubstitutionEntry / TermSubstitutionEntry 型定義
+    - buildFormulaSubstitutionMap / buildTermSubstitutionMap — エントリからMap構築
+    - validateSubstitutionApplication — 前提接続・パース・代入適用の一括検証
+    - getSubstitutionErrorMessage — エラーメッセージ生成
+  - 新規: `substitutionApplicationLogic.test.ts` — 32テスト
+  - ProofNodeKindに "substitution" を追加（proofNodeUI.ts）
+    - スタイル、ポート（premise入力 + out出力）、エッジカラーを定義
+  - workspaceState.ts:
+    - WorkspaceNode に substitutionEntries フィールド追加
+    - applySubstitutionAndConnect 関数追加
+    - updateNodeSubstitutionEntries 関数追加
+    - revalidateInferenceConclusions で substitution ノードを処理
+  - index.ts: 新規エクスポート追加
+  - 網羅性対応: EditableProofNode.test.tsx, ProofTree.stories.tsx, workspaceExport.ts, questCompletionLogic.ts
+  - workspaceState.test.ts: 12テスト追加（substitution操作、revalidation）
+- カバレッジ: Stmts 98.71% (→), Branch 93.79% (→), Funcs 90.73% (90.95%→微減), Lines 99.45% (99.46%→微減)
+  - 関数カバレッジの微減はProofTree.stories.tsx等の新分岐追加による影響で許容範囲
+- ブラウザ確認: `.screenshots/substitution-logic-proof-workspace.png`
+- 変更ファイル:
+  - `src/lib/proof-pad/substitutionApplicationLogic.ts` (新規)
+  - `src/lib/proof-pad/substitutionApplicationLogic.test.ts` (新規)
+  - `src/lib/proof-pad/proofNodeUI.ts`
+  - `src/lib/proof-pad/proofNodeUI.test.ts`
+  - `src/lib/proof-pad/workspaceState.ts`
+  - `src/lib/proof-pad/workspaceState.test.ts`
+  - `src/lib/proof-pad/index.ts`
+  - `src/lib/proof-pad/EditableProofNode.test.tsx`
+  - `src/lib/proof-pad/workspaceExport.ts`
+  - `src/lib/infinite-canvas/ProofTree.stories.tsx`
+  - `src/lib/quest/questCompletionLogic.ts`
+- **今後のイテレーションへの学び:**
+  - MetaVariable.name は GreekLetter 型（string ではない）、subscript は string | undefined（number ではない）
+  - フォーミュラパーサーは Greek letter 名（phi, psi, alpha, beta）を命題変数として認識。単一文字（p, q, r）は項変数扱いで等号式でのみ使用可能
+  - ProofNodeKind の追加は多くのファイルに波及する（exhaustive check）。Record<ProofNodeKind, ...> や switch文を全て更新する必要がある
+  - 3層アーキテクチャ: 純粋ロジック（.ts）→ 状態管理（workspaceState.ts）→ UI（ProofWorkspace.tsx）のパターンがMP/Genと一貫
+  - formatFormula は右結合の含意の括弧を省略する（"α → β → α" であって "(α → (β → α))" ではない）
+  - 次のイテレーションで UI 統合（ProofWorkspace.tsx のコンテキストメニュー「Apply 代入操作」）が必要
+---
