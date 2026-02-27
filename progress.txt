@@ -4858,3 +4858,23 @@
   - PeanoArithmeticDemoストーリーの修正は、A4/A5スキーマノードの特別UI設計と合わせて別イテレーションで実施
   - ブラウザ検証: `.screenshots/axiom-nontrivial-warning-fullscreen.png` でA5ノードの警告表示を確認済み
 ---
+
+## 2026-02-27 - [Quest] 述語論理の基礎クエスト追加
+- 実装した内容:
+  - bekki.pdf（戸次「数理論理学」第7章）を参考に述語論理の練習問題6問を追加
+  - クエスト: pred-01〜pred-06（全称消去、全称化恒等律、全称量化子交換、存在導入、∃¬→¬∀、∀¬→¬∃）
+  - リファレンスドキュメント: 述語論理の体系（system-predicate）をen/ja両言語で追加
+  - カテゴリ「predicate-basics」に6問、難易度Lv.1〜Lv.3
+- 変更したファイル:
+  - `src/lib/quest/builtinQuests.ts` (述語論理クエスト6問追加)
+  - `src/lib/quest/builtinQuests.test.ts` (クエスト数 51→57)
+  - `src/lib/reference/referenceContent.ts` (述語論理リファレンス追加)
+  - `src/lib/reference/referenceContent.test.ts` (カウント 39→40)
+  - `task-processing.md`, `tasks/prd-inserted-tasks.md`
+- カバレッジ: データ追加のみのため変動なし（Stmts 98.63%前後を維持）
+- **今後のイテレーションへの学び:**
+  - 述語論理の数式構文: `all x. P(x)` で∀、`ex x. P(x)` で∃、`~` で¬。パーサーは正しく処理する
+  - QuestCatalog Storybook Default ストーリーはハードコードのモック2カテゴリのみ。実データの確認は localhost:13000 のQuestsタブで行う
+  - bekki.pdf の練習問題7.50 はさらなるクエスト追加の良い素材（¬¬∀ξφ → ∀ξ¬¬φ など）
+  - ブラウザ検証: `.screenshots/predicate-logic-quests.png`, `.screenshots/predicate-logic-quests-bottom.png`
+---
