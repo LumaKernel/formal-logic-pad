@@ -13,11 +13,11 @@
         - [x] ハイブリッド方式: InferenceEdge（新source of truth）+ レガシー接続（後方互換）の両方を生成
         - [x] copy/paste ロジックの InferenceEdge 対応
         - [x] テスト: 全applyロジックの単体テスト更新
-      - [-] Step 3: ProofNodeKind から "mp" / "gen" / "substitution" を削除
-        - [ ] proofNodeUI.ts: ポート定義・スタイルのリファクタ
-        - [ ] nodeRoleLogic.ts: 分類ロジック更新
-        - [ ] dependencyLogic.ts: 依存追跡をInferenceEdge経由に変更
-        - [ ] テスト: 全exhaustive switchの更新
+      - [x] Step 3: ProofNodeKind から "mp" / "gen" / "substitution" を削除
+        - [x] proofNodeUI.ts: ポート定義・スタイルのリファクタ
+        - [x] nodeRoleLogic.ts: 分類ロジック更新
+        - [x] dependencyLogic.ts: 依存追跡をInferenceEdge経由に変更
+        - [x] テスト: 全exhaustive switchの更新
       - [ ] Step 4: UI層の移行
         - [ ] EditableProofNode.tsx: 推論規則ノードの描画を廃止
         - [ ] ProofWorkspace.tsx: InferenceEdge の描画（接続線上にラベル表示）

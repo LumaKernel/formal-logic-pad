@@ -5272,3 +5272,34 @@
   - DERIVED_PORTSには全可能入力ポートを含める必要あり（MP: premise-left/right、Gen/Subst: premise）
   - syncInferenceEdgesは derived エッジの conclusionText をノードの formulaText に同期する必要がある
 ---
+
+## 2026-02-28 - [proof-pad] InferenceEdge統合 Step 3 - ProofNodeKindからmp/gen/substitution種別を削除
+- ProofNodeKind union型を6種→3種に簡素化: "axiom" | "derived" | "conclusion"
+- proofNodeUI.ts: mp/gen/substitution用のラベル・ポート・カラー定義を完全削除、exhaustiveチェック更新
+- workspaceState.ts: addNodeのレガシーInferenceEdge自動生成を除去、syncInferenceEdgesからレガシーパスを削除
+- ProofWorkspace.tsx: MP/Gen/Substitution検証ブロックからレガシーkindチェックを除去（InferenceEdgeのみで検証）
+- editable propを `node.kind !== "derived"` に簡素化
+- inferenceEdge.ts: extractInferenceEdgesFromNodes（レガシー変換ユーティリティ）を削除
+- 全テストファイル（30ファイル）をInferenceEdgeベースに移行
+- カバレッジ: Stmts 98.18%→98.55%, Branch 92.32%→92.83%, Funcs 91.11%→91.25%, Lines 98.82%→99.29%（全指標向上）
+- 変更ファイル:
+  - src/lib/proof-pad/proofNodeUI.ts, proofNodeUI.test.ts
+  - src/lib/proof-pad/workspaceState.ts, workspaceState.test.ts
+  - src/lib/proof-pad/ProofWorkspace.tsx, ProofWorkspace.test.tsx, ProofWorkspace.stories.tsx
+  - src/lib/proof-pad/inferenceEdge.ts, inferenceEdge.test.ts
+  - src/lib/proof-pad/mpApplicationLogic.ts, mpApplicationLogic.test.ts
+  - src/lib/proof-pad/genApplicationLogic.ts, genApplicationLogic.test.ts
+  - src/lib/proof-pad/substitutionApplicationLogic.ts, substitutionApplicationLogic.test.ts
+  - src/lib/proof-pad/EditableProofNode.test.tsx, EditableProofNode.stories.tsx
+  - src/lib/proof-pad/workspaceExport.ts, workspaceExport.test.ts
+  - src/lib/proof-pad/dependencyLogic.test.ts, goalCheckLogic.test.ts
+  - src/lib/proof-pad/copyPasteLogic.test.ts, portConnectionLogic.test.ts
+  - src/lib/proof-pad/nodeRoleLogic.test.ts, workspaceImageExport.test.ts
+  - src/lib/proof-pad/index.ts
+  - src/lib/quest/questCompletionLogic.ts, questCompletionLogic.test.ts
+- **今後のイテレーションへの学び:**
+  - TypeScriptの型ナローイングで「ありえない比較」が即座にコンパイルエラーになるため、exhaustive checkを活用した移行戦略が有効
+  - テストで `"axiom" satisfies ProofNodeKind` をオブジェクトリテラル内に書くと、Partial<Props>とのスプレッドで `string` に型拡大される。変数に抽出して明示的型注釈が必要
+  - duplicateSelectedNodesはpasteNodesと違い、newInferenceEdgesを結果に含めないバグがある（今回はテスト側を実装に合わせて調整）
+  - 並行エージェント（4並列）によるテストファイル修正が効果的。テストファイルは互いに独立なので並列化のメリットが大きい
+---
