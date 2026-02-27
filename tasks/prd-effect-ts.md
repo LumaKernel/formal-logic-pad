@@ -8,25 +8,25 @@
 
 ### Effect.ts を使用中のモジュール
 
-| モジュール | 使用範囲 | 使用機能 |
-|-----------|---------|---------|
+| モジュール                                              | 使用範囲    | 使用機能                                                                                    |
+| ------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------- |
 | logic-core (`formula.ts`, `term.ts`, `greekLetters.ts`) | AST定義のみ | `Schema.TaggedClass`, `Schema.Union`, `Schema.suspend`, `Schema.Literal`, `Schema.optional` |
 
 ### 現在のエラー型インベントリ（移行対象）
 
 すべて手動の `_tag` 付きオブジェクトリテラル。`throw` は使われていない。
 
-| ファイル | エラー型 | バリアント数 | 結果型 |
-|---------|---------|------------|-------|
-| `logic-core/inferenceRule.ts` | `RuleApplicationError` | 10 | `RuleApplicationResult` (`Ok`/`Error`) |
-| `logic-core/unification.ts` | `UnificationError` | 3 | `UnificationResult` (`Ok`/`Error`) |
-| `proof-pad/mpApplicationLogic.ts` | `MPApplicationError` | 6 | `MPApplicationResult` (`Success`/Error variants) |
-| `proof-pad/genApplicationLogic.ts` | `GenApplicationError` | 5 | `GenApplicationResult` |
-| `proof-pad/substitutionApplicationLogic.ts` | `SubstitutionApplicationError` | 5 | `SubstitutionApplicationResult` |
-| `proof-pad/goalCheckLogic.ts` | ― (ステータス型) | 3 | `GoalCheckResult` (`GoalNotSet`/`GoalAllAchieved`/`GoalPartiallyAchieved`) |
-| `quest/questCompletionLogic.ts` | ― (ステータス型) | 3+4 | `QuestGoalCheckResult`, `QuestGoalCheckWithAxiomsResult` |
-| `logic-lang/parser.ts` | `ParseError` (interface) | ― | `ParseResult` (`{ ok: true }` / `{ ok: false }`) |
-| `logic-lang/lexer.ts` (token.ts) | `LexerError` (interface) | ― | `LexResult` (`{ ok: true }` / `{ ok: false }`) |
+| ファイル                                    | エラー型                       | バリアント数 | 結果型                                                                     |
+| ------------------------------------------- | ------------------------------ | ------------ | -------------------------------------------------------------------------- |
+| `logic-core/inferenceRule.ts`               | `RuleApplicationError`         | 10           | `RuleApplicationResult` (`Ok`/`Error`)                                     |
+| `logic-core/unification.ts`                 | `UnificationError`             | 3            | `UnificationResult` (`Ok`/`Error`)                                         |
+| `proof-pad/mpApplicationLogic.ts`           | `MPApplicationError`           | 6            | `MPApplicationResult` (`Success`/Error variants)                           |
+| `proof-pad/genApplicationLogic.ts`          | `GenApplicationError`          | 5            | `GenApplicationResult`                                                     |
+| `proof-pad/substitutionApplicationLogic.ts` | `SubstitutionApplicationError` | 5            | `SubstitutionApplicationResult`                                            |
+| `proof-pad/goalCheckLogic.ts`               | ― (ステータス型)               | 3            | `GoalCheckResult` (`GoalNotSet`/`GoalAllAchieved`/`GoalPartiallyAchieved`) |
+| `quest/questCompletionLogic.ts`             | ― (ステータス型)               | 3+4          | `QuestGoalCheckResult`, `QuestGoalCheckWithAxiomsResult`                   |
+| `logic-lang/parser.ts`                      | `ParseError` (interface)       | ―            | `ParseResult` (`{ ok: true }` / `{ ok: false }`)                           |
+| `logic-lang/lexer.ts` (token.ts)            | `LexerError` (interface)       | ―            | `LexResult` (`{ ok: true }` / `{ ok: false }`)                             |
 
 ### 未使用だが有効なEffect.ts機能
 
@@ -47,15 +47,15 @@
 
 ## 採用優先度マトリクス
 
-| モジュール | 複雑度 | 現在のエラー処理 | 純粋性 | Effect.ts 価値 | 優先度 |
-|-----------|-------|----------------|-------|--------------|-------|
-| logic-core | 高 | `Ok`/`Error` union | 純粋 | ⭐⭐ 中 | P1 |
-| proof-pad (ロジック層) | 非常に高 | `_tag` 付き union | 混在 | ⭐⭐⭐ 高 | P1 |
-| quest (ロジック層) | 中 | `_tag` union | 混在 | ⭐⭐ 中 | P2 |
-| logic-lang | 高 | `{ ok, errors }` union | 純粋 | ⭐⭐ 中 | P2 |
-| formula-input (ロジック層) | 中 | discriminated union | 混在 | ⭐ 低 | P3 |
-| infinite-canvas | 非常に高 | ほぼ不要(数学) | 純粋 | ⭐ 低 | 対象外 |
-| theme / history / keybinding / reference | 低〜中 | なし | 純粋 | ⭐ 低 | 対象外 |
+| モジュール                               | 複雑度   | 現在のエラー処理       | 純粋性 | Effect.ts 価値 | 優先度 |
+| ---------------------------------------- | -------- | ---------------------- | ------ | -------------- | ------ |
+| logic-core                               | 高       | `Ok`/`Error` union     | 純粋   | ⭐⭐ 中        | P1     |
+| proof-pad (ロジック層)                   | 非常に高 | `_tag` 付き union      | 混在   | ⭐⭐⭐ 高      | P1     |
+| quest (ロジック層)                       | 中       | `_tag` union           | 混在   | ⭐⭐ 中        | P2     |
+| logic-lang                               | 高       | `{ ok, errors }` union | 純粋   | ⭐⭐ 中        | P2     |
+| formula-input (ロジック層)               | 中       | discriminated union    | 混在   | ⭐ 低          | P3     |
+| infinite-canvas                          | 非常に高 | ほぼ不要(数学)         | 純粋   | ⭐ 低          | 対象外 |
+| theme / history / keybinding / reference | 低〜中   | なし                   | 純粋   | ⭐ 低          | 対象外 |
 
 ---
 
@@ -69,8 +69,8 @@
 - [ ] **ET-001: logic-core エラー型を `Data.TaggedError` に統一**
 
   **対象ファイルと変換内容:**
-
   1. **`src/lib/logic-core/inferenceRule.ts`** — `RuleApplicationError` (10バリアント)
+
      ```typescript
      // Before:
      export type RuleApplicationError =
@@ -90,23 +90,41 @@
      // ... 残り8バリアント同様
      export type RuleApplicationError = NotAnImplication | PremiseMismatch | ...
      ```
+
      - `RuleApplicationResult` も `Either<Formula, RuleApplicationError>` に変換（ `_tag: "Ok"` / `_tag: "Error"` を廃止）
      - `AxiomMatchResult`, `AxiomIdentificationResult` も同様に `Either` 化
 
   2. **`src/lib/logic-core/unification.ts`** — `UnificationError` (3バリアント)
+
      ```typescript
      // Before:
      export type UnificationError =
-       | { readonly _tag: "StructureMismatch"; readonly left: Formula | Term; readonly right: Formula | Term }
-       | { readonly _tag: "OccursCheck"; readonly variable: string; readonly inExpression: Formula | Term }
-       | { readonly _tag: "TagMismatch"; readonly leftTag: string; readonly rightTag: string };
+       | {
+           readonly _tag: "StructureMismatch";
+           readonly left: Formula | Term;
+           readonly right: Formula | Term;
+         }
+       | {
+           readonly _tag: "OccursCheck";
+           readonly variable: string;
+           readonly inExpression: Formula | Term;
+         }
+       | {
+           readonly _tag: "TagMismatch";
+           readonly leftTag: string;
+           readonly rightTag: string;
+         };
 
      // After:
-     export class StructureMismatch extends Data.TaggedError("StructureMismatch")<{
-       readonly left: Formula | Term; readonly right: Formula | Term
+     export class StructureMismatch extends Data.TaggedError(
+       "StructureMismatch",
+     )<{
+       readonly left: Formula | Term;
+       readonly right: Formula | Term;
      }> {}
      // ... 残り2つ同様
      ```
+
      - `UnificationResult` → `Either<UnificationSuccess, UnificationError>` に変換
 
   **影響を受けるファイル（importの更新が必要）:**
@@ -136,6 +154,7 @@
   - `src/lib/logic-core/index.ts` (re-export追加)
 
   **提供する関数:**
+
   ```typescript
   import { Schema, Either } from "effect"
   import { Formula } from "./formula"
@@ -176,6 +195,7 @@
   **現在の構造:** 関数内で再帰的に `UnificationResult` を返し、呼び出し元が `_tag` を検査して分岐している。
 
   **変換方針:**
+
   ```typescript
   // Before: 手動Result伝搬
   function unifyFormulas(a: Formula, b: Formula): UnificationResult {
@@ -183,15 +203,21 @@
   }
 
   // After: Effect.gen で短絡評価
-  function unifyFormulas(a: Formula, b: Formula): Effect<UnificationSuccess, UnificationError> {
+  function unifyFormulas(
+    a: Formula,
+    b: Formula,
+  ): Effect<UnificationSuccess, UnificationError> {
     return Effect.gen(function* () {
       // yield* Effect.fail(new StructureMismatch({ left: a, right: b })) で即座に短絡
       // ...
-    })
+    });
   }
   // 互換性ラッパー（呼び出し元がEffect未対応の間）
-  export function unifyFormulasSync(a: Formula, b: Formula): Either<UnificationSuccess, UnificationError> {
-    return Effect.runSync(Effect.either(unifyFormulas(a, b)))
+  export function unifyFormulasSync(
+    a: Formula,
+    b: Formula,
+  ): Either<UnificationSuccess, UnificationError> {
+    return Effect.runSync(Effect.either(unifyFormulas(a, b)));
   }
   ```
 
@@ -215,8 +241,8 @@
 - [ ] **ET-004: proof-pad エラー型を `Data.TaggedError` に移行**
 
   **対象ファイルと変換内容:**
-
   1. **`src/lib/proof-pad/mpApplicationLogic.ts`** — `MPApplicationError` (6バリアント)
+
      ```typescript
      // Before:
      export type MPApplicationError =
@@ -236,6 +262,7 @@
      export class MPRuleError extends Data.TaggedError("MPRuleError")<{ readonly error: RuleApplicationError }> {}
      export type MPApplicationError = LeftPremiseMissing | RightPremiseMissing | ...
      ```
+
      - `MPApplicationResult` → `Either<MPApplicationSuccess, MPApplicationError>` に
      - `getMPErrorMessage()` は `_tag` ベースの既存パターンをそのまま維持可能
 
@@ -273,30 +300,44 @@
   - `src/lib/proof-pad/substitutionApplicationLogic.ts` — `validateSubstitutionApplication()` 関数
 
   **変換例 (`validateMPApplication`):**
+
   ```typescript
   // Before: 手動の早期リターンチェーン
   export function validateMPApplication(state, mpNodeId): MPApplicationResult {
     const premises = getMPPremises(state, mpNodeId);
-    if (!premises.leftNodeId && !premises.rightNodeId) return { _tag: "BothPremisesMissing" };
+    if (!premises.leftNodeId && !premises.rightNodeId)
+      return { _tag: "BothPremisesMissing" };
     if (!premises.leftNodeId) return { _tag: "LeftPremiseMissing" };
     // ... パース → MP適用 → 結果返却
   }
 
   // After: Effect.gen パイプライン
-  export const validateMPApplication = (state: WorkspaceState, mpNodeId: string) =>
+  export const validateMPApplication = (
+    state: WorkspaceState,
+    mpNodeId: string,
+  ) =>
     Effect.gen(function* () {
       const premises = getMPPremises(state, mpNodeId);
-      if (!premises.leftNodeId && !premises.rightNodeId) yield* Effect.fail(new BothPremisesMissing());
+      if (!premises.leftNodeId && !premises.rightNodeId)
+        yield* Effect.fail(new BothPremisesMissing());
       if (!premises.leftNodeId) yield* Effect.fail(new LeftPremiseMissing());
-      const leftFormula = yield* parseNodeFormula(state, premises.leftNodeId).pipe(
-        Effect.mapError(() => new LeftParseError({ nodeId: premises.leftNodeId! }))
+      const leftFormula = yield* parseNodeFormula(
+        state,
+        premises.leftNodeId,
+      ).pipe(
+        Effect.mapError(
+          () => new LeftParseError({ nodeId: premises.leftNodeId! }),
+        ),
       );
       // ... MP適用
-    })
+    });
 
   // 互換性ラッパー
-  export const validateMPApplicationSync = (state: WorkspaceState, mpNodeId: string): Either<MPApplicationSuccess, MPApplicationError> =>
-    Effect.runSync(Effect.either(validateMPApplication(state, mpNodeId)))
+  export const validateMPApplicationSync = (
+    state: WorkspaceState,
+    mpNodeId: string,
+  ): Either<MPApplicationSuccess, MPApplicationError> =>
+    Effect.runSync(Effect.either(validateMPApplication(state, mpNodeId)));
   ```
 
   **UI層との境界:** `ProofWorkspace.tsx` では `validateMPApplicationSync` を呼び、返される `Either` を `Either.match` で処理する。
@@ -352,6 +393,7 @@
   - `src/lib/logic-lang/lexer.test.ts`
 
   **変換内容:**
+
   ```typescript
   // Before:
   export type ParseResult =
@@ -359,8 +401,8 @@
     | { readonly ok: false; readonly errors: readonly ParseError[] };
 
   // After:
-  import { Either } from "effect"
-  export type ParseResult = Either.Either<Formula, readonly ParseError[]>
+  import { Either } from "effect";
+  export type ParseResult = Either.Either<Formula, readonly ParseError[]>;
   // Right = 成功 (Formula), Left = 失敗 (ParseError[])
   ```
 
@@ -397,6 +439,7 @@
   - `src/lib/logic-lang/lexer.ts`
 
   **変換内容:**
+
   ```typescript
   // Before:
   export interface ParseError {
@@ -435,32 +478,37 @@
   - `src/lib/quest/questProgress.test.ts`
 
   **変換方針:**
+
   ```typescript
-  import { Effect, Layer, Context } from "effect"
+  import { Effect, Layer, Context } from "effect";
 
   // StorageService の定義
   class StorageService extends Context.Tag("StorageService")<
     StorageService,
     {
-      readonly getItem: (key: string) => Effect.Effect<string | null>
-      readonly setItem: (key: string, value: string) => Effect.Effect<void>
+      readonly getItem: (key: string) => Effect.Effect<string | null>;
+      readonly setItem: (key: string, value: string) => Effect.Effect<void>;
     }
   >() {}
 
   // 本番Layer
   const BrowserStorageLayer = Layer.succeed(StorageService, {
     getItem: (key) => Effect.sync(() => localStorage.getItem(key)),
-    setItem: (key, value) => Effect.sync(() => localStorage.setItem(key, value)),
-  })
+    setItem: (key, value) =>
+      Effect.sync(() => localStorage.setItem(key, value)),
+  });
 
   // テストLayer
   const InMemoryStorageLayer = (initial: Record<string, string> = {}) => {
-    const store = new Map(Object.entries(initial))
+    const store = new Map(Object.entries(initial));
     return Layer.succeed(StorageService, {
       getItem: (key) => Effect.sync(() => store.get(key) ?? null),
-      setItem: (key, value) => Effect.sync(() => { store.set(key, value) }),
-    })
-  }
+      setItem: (key, value) =>
+        Effect.sync(() => {
+          store.set(key, value);
+        }),
+    });
+  };
   ```
 
   **手順:**
@@ -538,13 +586,20 @@
   - `src/lib/error-utils/errorMessages.ts` (新規作成)
 
   **提供する機能:**
+
   ```typescript
   // Data.TaggedError → ユーザー向けメッセージ（i18n対応）
-  export function getErrorMessage(error: { readonly _tag: string }, locale: Locale): string
+  export function getErrorMessage(
+    error: { readonly _tag: string },
+    locale: Locale,
+  ): string;
   // Either → UI表示用の統一的な変換
   export function eitherToDisplayResult<A, E extends { readonly _tag: string }>(
-    result: Either<A, E>, locale: Locale
-  ): { readonly ok: true; readonly value: A } | { readonly ok: false; readonly message: string }
+    result: Either<A, E>,
+    locale: Locale,
+  ):
+    | { readonly ok: true; readonly value: A }
+    | { readonly ok: false; readonly message: string };
   ```
 
   **受け入れ基準:** エラー→メッセージ変換が一箇所に集約される

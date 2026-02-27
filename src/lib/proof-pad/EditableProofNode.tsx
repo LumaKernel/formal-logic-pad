@@ -261,9 +261,7 @@ function getRoleBadgeLabel(classification: NodeClassification): string {
   }
 }
 
-function getStatusStyle(
-  type: "error" | "warning" | "success",
-): CSSProperties {
+function getStatusStyle(type: "error" | "warning" | "success"): CSSProperties {
   switch (type) {
     case "error":
       return statusErrorStyle;

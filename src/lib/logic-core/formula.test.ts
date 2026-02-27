@@ -216,7 +216,11 @@ describe("Formula union type", () => {
       existential(termVariable("x"), metaVariable("φ")),
       predicate("P", [termVariable("x")]),
       equality(termVariable("x"), termVariable("y")),
-      formulaSubstitution(metaVariable("φ"), termVariable("y"), termVariable("x")),
+      formulaSubstitution(
+        metaVariable("φ"),
+        termVariable("y"),
+        termVariable("x"),
+      ),
     ];
 
     const tags = formulas.map((f) => f._tag);
@@ -267,7 +271,15 @@ describe("Formula union type", () => {
     expect(classify(negation(metaVariable("φ")))).toBe("neg");
     expect(classify(predicate("P", []))).toBe("pred");
     expect(classify(equality(termVariable("x"), termVariable("y")))).toBe("eq");
-    expect(classify(formulaSubstitution(metaVariable("φ"), termVariable("y"), termVariable("x")))).toBe("subst");
+    expect(
+      classify(
+        formulaSubstitution(
+          metaVariable("φ"),
+          termVariable("y"),
+          termVariable("x"),
+        ),
+      ),
+    ).toBe("subst");
   });
 });
 

@@ -212,10 +212,7 @@ describe("substituteFormulaMetaVariables", () => {
     const subst = buildFormulaSubstitutionMap([[phi, px]]);
     const result = substituteFormulaMetaVariables(fs, subst);
     expect(
-      equalFormula(
-        result,
-        formulaSubstitution(px, tau1, termVariable("x")),
-      ),
+      equalFormula(result, formulaSubstitution(px, tau1, termVariable("x"))),
     ).toBe(true);
   });
 
@@ -226,10 +223,7 @@ describe("substituteFormulaMetaVariables", () => {
     const subst = buildFormulaSubstitutionMap([[phi, px]]);
     const result = substituteFormulaMetaVariables(fs, subst);
     expect(
-      equalFormula(
-        result,
-        formulaSubstitution(psi, tau1, termVariable("x")),
-      ),
+      equalFormula(result, formulaSubstitution(psi, tau1, termVariable("x"))),
     ).toBe(true);
   });
 });
@@ -409,11 +403,7 @@ describe("substituteTermMetaVariablesInFormula", () => {
     expect(
       equalFormula(
         result,
-        formulaSubstitution(
-          predicate("P", [fx0]),
-          fx0,
-          termVariable("x"),
-        ),
+        formulaSubstitution(predicate("P", [fx0]), fx0, termVariable("x")),
       ),
     ).toBe(true);
   });
@@ -424,10 +414,7 @@ describe("substituteTermMetaVariablesInFormula", () => {
     const fs = formulaSubstitution(phi, tau, termVariable("y"));
     const result = substituteTermMetaVariablesInFormula(fs, subst);
     expect(
-      equalFormula(
-        result,
-        formulaSubstitution(phi, fx0, termVariable("y")),
-      ),
+      equalFormula(result, formulaSubstitution(phi, fx0, termVariable("y"))),
     ).toBe(true);
   });
 });
@@ -1174,7 +1161,10 @@ describe("resolveFormulaSubstitution", () => {
     );
     const result = resolveFormulaSubstitution(f);
     expect(
-      equalFormula(result, implication(predicate("P", [a]), predicate("Q", [b]))),
+      equalFormula(
+        result,
+        implication(predicate("P", [a]), predicate("Q", [b])),
+      ),
     ).toBe(true);
   });
 
@@ -1185,7 +1175,10 @@ describe("resolveFormulaSubstitution", () => {
     );
     const result = resolveFormulaSubstitution(f);
     expect(
-      equalFormula(result, conjunction(predicate("P", [a]), predicate("Q", [y]))),
+      equalFormula(
+        result,
+        conjunction(predicate("P", [a]), predicate("Q", [y])),
+      ),
     ).toBe(true);
   });
 
@@ -1196,7 +1189,10 @@ describe("resolveFormulaSubstitution", () => {
     );
     const result = resolveFormulaSubstitution(f);
     expect(
-      equalFormula(result, disjunction(predicate("P", [y]), predicate("Q", [a]))),
+      equalFormula(
+        result,
+        disjunction(predicate("P", [y]), predicate("Q", [a])),
+      ),
     ).toBe(true);
   });
 
@@ -1207,30 +1203,27 @@ describe("resolveFormulaSubstitution", () => {
     );
     const result = resolveFormulaSubstitution(f);
     expect(
-      equalFormula(result, biconditional(predicate("P", [a]), predicate("Q", [b]))),
+      equalFormula(
+        result,
+        biconditional(predicate("P", [a]), predicate("Q", [b])),
+      ),
     ).toBe(true);
   });
 
   test("全称量化内の置換", () => {
-    const f = universal(
-      y,
-      formulaSubstitution(predicate("P", [x, y]), a, x),
-    );
+    const f = universal(y, formulaSubstitution(predicate("P", [x, y]), a, x));
     const result = resolveFormulaSubstitution(f);
-    expect(
-      equalFormula(result, universal(y, predicate("P", [a, y]))),
-    ).toBe(true);
+    expect(equalFormula(result, universal(y, predicate("P", [a, y])))).toBe(
+      true,
+    );
   });
 
   test("存在量化内の置換", () => {
-    const f = existential(
-      y,
-      formulaSubstitution(predicate("P", [x, y]), a, x),
-    );
+    const f = existential(y, formulaSubstitution(predicate("P", [x, y]), a, x));
     const result = resolveFormulaSubstitution(f);
-    expect(
-      equalFormula(result, existential(y, predicate("P", [a, y]))),
-    ).toBe(true);
+    expect(equalFormula(result, existential(y, predicate("P", [a, y])))).toBe(
+      true,
+    );
   });
 
   test("等号内はそのまま（FormulaSubstitutionを含まない）", () => {
@@ -1251,18 +1244,12 @@ describe("resolveFormulaSubstitution", () => {
     // (∀x.P(x))[a/x] → substituteTermVariableInFormula(∀x.P(x), x, a) → ∀x.P(x) (束縛されているので変化なし)
     const f = formulaSubstitution(universal(x, predicate("P", [x])), a, x);
     const result = resolveFormulaSubstitution(f);
-    expect(
-      equalFormula(result, universal(x, predicate("P", [x]))),
-    ).toBe(true);
+    expect(equalFormula(result, universal(x, predicate("P", [x])))).toBe(true);
   });
 
   test("変数捕獲回避(α変換): (∀y.P(x,y))[y/x] → ∀y'.P(y,y')", () => {
     // substituteTermVariableInFormulaがα変換を行う
-    const f = formulaSubstitution(
-      universal(y, predicate("P", [x, y])),
-      y,
-      x,
-    );
+    const f = formulaSubstitution(universal(y, predicate("P", [x, y])), y, x);
     const result = resolveFormulaSubstitution(f);
     const yPrime = termVariable("y'");
     expect(

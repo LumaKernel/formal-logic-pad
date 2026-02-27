@@ -558,7 +558,10 @@ const substituteTermVariableInFormulaRec = (
       // y ≠ x → formula と term 両方に再帰
       // ただし s の自由変数に y が含まれる場合は α変換が必要
       const freeInS = freeVariablesInTerm(s);
-      if (freeInS.has(f.variable.name) && freeVariablesInFormula(f.formula).has(x.name)) {
+      if (
+        freeInS.has(f.variable.name) &&
+        freeVariablesInFormula(f.formula).has(x.name)
+      ) {
         // α変換: [τ/y] の y を新鮮な変数に
         const usedNames = new Set<string>();
         for (const v of allVariableNamesInFormula(f.formula)) {

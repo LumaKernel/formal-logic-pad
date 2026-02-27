@@ -1523,16 +1523,18 @@ export function ProofWorkspace({
               entry._tag === "FormulaSubstitution"
                 ? {
                     kind: "formula" as const,
-                    metaVar: entry.metaVariableSubscript !== undefined
-                      ? `${entry.metaVariableName satisfies string}_${entry.metaVariableSubscript satisfies string}`
-                      : `${entry.metaVariableName satisfies string}`,
+                    metaVar:
+                      entry.metaVariableSubscript !== undefined
+                        ? `${entry.metaVariableName satisfies string}_${entry.metaVariableSubscript satisfies string}`
+                        : `${entry.metaVariableName satisfies string}`,
                     value: "",
                   }
                 : {
                     kind: "term" as const,
-                    metaVar: entry.metaVariableSubscript !== undefined
-                      ? `${entry.metaVariableName satisfies string}_${entry.metaVariableSubscript satisfies string}`
-                      : `${entry.metaVariableName satisfies string}`,
+                    metaVar:
+                      entry.metaVariableSubscript !== undefined
+                        ? `${entry.metaVariableName satisfies string}_${entry.metaVariableSubscript satisfies string}`
+                        : `${entry.metaVariableName satisfies string}`,
                     value: "",
                   },
             ),

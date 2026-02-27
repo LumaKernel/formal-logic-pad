@@ -493,7 +493,11 @@ export function applySubstitutionAndConnect(
 
   // 成功時は結論テキストを代入ノードに設定
   if (validation._tag === "Success") {
-    ws = updateNodeFormulaText(ws, substitutionNodeId, validation.conclusionText);
+    ws = updateNodeFormulaText(
+      ws,
+      substitutionNodeId,
+      validation.conclusionText,
+    );
   }
 
   return { workspace: ws, substitutionNodeId, validation };
@@ -775,8 +779,7 @@ export function revalidateInferenceConclusions(
     const newNodes = current.nodes.map((node) => {
       if (node.kind === "mp") {
         const result = validateMPApplication(current, node.id);
-        const newText =
-          result._tag === "Success" ? result.conclusionText : "";
+        const newText = result._tag === "Success" ? result.conclusionText : "";
         if (newText !== node.formulaText) {
           changed = true;
           return { ...node, formulaText: newText };
@@ -785,13 +788,8 @@ export function revalidateInferenceConclusions(
       }
       if (node.kind === "gen") {
         const variableName = node.genVariableName ?? "";
-        const result = validateGenApplication(
-          current,
-          node.id,
-          variableName,
-        );
-        const newText =
-          result._tag === "Success" ? result.conclusionText : "";
+        const result = validateGenApplication(current, node.id, variableName);
+        const newText = result._tag === "Success" ? result.conclusionText : "";
         if (newText !== node.formulaText) {
           changed = true;
           return { ...node, formulaText: newText };
@@ -805,8 +803,7 @@ export function revalidateInferenceConclusions(
           node.id,
           entries,
         );
-        const newText =
-          result._tag === "Success" ? result.conclusionText : "";
+        const newText = result._tag === "Success" ? result.conclusionText : "";
         if (newText !== node.formulaText) {
           changed = true;
           return { ...node, formulaText: newText };

@@ -23,10 +23,8 @@ export function computeGrabOffset(
   screenCursor: Point,
   itemWorldPosition: Point,
 ): Point {
-  const cursorWorldX =
-    (screenCursor.x - viewport.offsetX) / viewport.scale;
-  const cursorWorldY =
-    (screenCursor.y - viewport.offsetY) / viewport.scale;
+  const cursorWorldX = (screenCursor.x - viewport.offsetX) / viewport.scale;
+  const cursorWorldY = (screenCursor.y - viewport.offsetY) / viewport.scale;
   return {
     x: cursorWorldX - itemWorldPosition.x,
     y: cursorWorldY - itemWorldPosition.y,
@@ -42,10 +40,8 @@ export function computeDragPosition(
   screenCursor: Point,
   grabOffset: Point,
 ): Point {
-  const cursorWorldX =
-    (screenCursor.x - viewport.offsetX) / viewport.scale;
-  const cursorWorldY =
-    (screenCursor.y - viewport.offsetY) / viewport.scale;
+  const cursorWorldX = (screenCursor.x - viewport.offsetX) / viewport.scale;
+  const cursorWorldY = (screenCursor.y - viewport.offsetY) / viewport.scale;
   return {
     x: cursorWorldX - grabOffset.x,
     y: cursorWorldY - grabOffset.y,

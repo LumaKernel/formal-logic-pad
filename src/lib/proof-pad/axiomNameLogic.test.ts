@@ -24,11 +24,7 @@ import {
   equality,
   negation,
 } from "../logic-core/formula";
-import {
-  termMetaVariable,
-  termVariable,
-  constant,
-} from "../logic-core/term";
+import { termMetaVariable, termVariable, constant } from "../logic-core/term";
 import { parseString } from "../logic-lang/parser";
 import {
   metaVariableKey,

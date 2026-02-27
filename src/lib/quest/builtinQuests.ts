@@ -764,8 +764,7 @@ const q31ConjunctionElimRight: QuestDefinition = {
   id: "prop-31",
   category: "propositional-advanced",
   title: "連言の右除去",
-  description:
-    "(φ ∧ ψ) → ψ を証明せよ。連言の右射影（右側要素の取り出し）。",
+  description: "(φ ∧ ψ) → ψ を証明せよ。連言の右射影（右側要素の取り出し）。",
   difficulty: 5,
   systemPresetId: "lukasiewicz",
   goals: [
@@ -1416,8 +1415,7 @@ const qPred04ExistentialIntro: QuestDefinition = {
     "A4のインスタンスとして使えます。",
   ],
   estimatedSteps: 1,
-  learningPoint:
-    "存在量化子の導入。P(t) が成り立てば ∃x.P(x) が成り立つ。",
+  learningPoint: "存在量化子の導入。P(t) が成り立てば ∃x.P(x) が成り立つ。",
   order: 4,
 };
 

@@ -196,5 +196,4 @@ export const formulaSubstitution = (
   formula: Formula,
   term: Term,
   variable: TermVariable,
-): FormulaSubstitution =>
-  new FormulaSubstitution({ formula, term, variable });
+): FormulaSubstitution => new FormulaSubstitution({ formula, term, variable });
