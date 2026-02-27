@@ -61,6 +61,7 @@
     "useAsMPLeft": "Use as MP Left (φ)",
     "useAsMPRight": "Use as MP Right (φ→ψ)",
     "applyGenToNode": "Apply Gen",
+    "duplicateNode": "Duplicate Node",
     "deleteNode": "Delete Node",
     "deleteConnection": "Delete Connection",
     "genVariablePrompt": "Variable name:",

@@ -20,6 +20,7 @@ import {
   updateNodeGenVariableName,
   applyMPAndConnect,
   applyGenAndConnect,
+  duplicateNode,
 } from "./workspaceState";
 
 // --- 状態管理ラッパー（インタラクションテスト用） ---
@@ -2712,6 +2713,66 @@ describe("ProofWorkspace", () => {
 
       // Protected node should remain
       expect(screen.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    });
+  });
+
+  describe("node context menu - duplicate node", () => {
+    it("shows Duplicate Node item in context menu", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      expect(
+        screen.getByTestId("workspace-duplicate-node"),
+      ).toBeInTheDocument();
+    });
+
+    it("duplicates node when Duplicate Node is clicked", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Right-click on node-1
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      // Click Duplicate Node
+      await user.click(screen.getByTestId("workspace-duplicate-node"));
+
+      // Context menu should be closed
+      expect(
+        screen.queryByTestId("workspace-node-context-menu"),
+      ).not.toBeInTheDocument();
+
+      // New duplicated node should appear
+      await waitFor(() => {
+        expect(screen.getByTestId("proof-node-node-2")).toBeInTheDocument();
+      });
+
+      // Original node should remain
+      expect(screen.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    });
+
+    it("duplicated goal node loses goal role (pure logic test)", () => {
+      // ゴールroleクリアは純粋ロジック側でテスト済み（workspaceState.test.ts）
+      // UIテストでは単にduplicateが動作することを確認
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "G1", { x: 0, y: 0 }, "phi -> phi");
+      ws = updateNodeRole(ws, "node-1", "goal");
+
+      const result = duplicateNode(ws, "node-1");
+      const newNode = result.workspace.nodes.find((n) =>
+        result.newNodeIds.has(n.id),
+      );
+      expect(newNode).toBeDefined();
+      expect(newNode!.role).toBeUndefined();
     });
   });
 });

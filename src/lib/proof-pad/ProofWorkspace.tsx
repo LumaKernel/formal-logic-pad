@@ -84,6 +84,7 @@ import {
   removeConnection,
   removeSelectedNodes,
   duplicateSelectedNodes,
+  duplicateNode,
   cutSelectedNodes,
   applyIncrementalLayout,
   revalidateInferenceConclusions,
@@ -1321,6 +1322,14 @@ export function ProofWorkspace({
   }, [nodeMenuState, workspace]);
 
   // コンテキストメニューから「ノードを削除する」
+  const handleDuplicateNode = useCallback(() => {
+    if (!nodeMenuState.open) return;
+    const result = duplicateNode(workspace, nodeMenuState.nodeId);
+    setWorkspaceWithAutoLayout(result.workspace);
+    setSelectedNodeIds(result.newNodeIds);
+    setNodeMenuState(closeNodeMenu());
+  }, [nodeMenuState, workspace, setWorkspaceWithAutoLayout]);
+
   const handleDeleteNode = useCallback(() => {
     if (!nodeMenuState.open) return;
     const result = removeNode(workspace, nodeMenuState.nodeId);
@@ -2552,6 +2561,15 @@ export function ProofWorkspace({
               background: "var(--color-panel-border, rgba(180, 160, 130, 0.2))",
               margin: "4px 0",
             }}
+          />
+          <WorkspaceMenuItem
+            label={msg.duplicateNode}
+            onClick={handleDuplicateNode}
+            testId={
+              testId
+                ? `${testId satisfies string}-duplicate-node`
+                : "duplicate-node"
+            }
           />
           <WorkspaceMenuItem
             label={msg.deleteNode}

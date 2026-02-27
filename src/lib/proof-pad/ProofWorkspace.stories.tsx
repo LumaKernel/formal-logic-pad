@@ -940,3 +940,63 @@ export const ConnectionDelete: Story = {
     await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
   },
 };
+
+// --- ノード複製デモ ---
+
+function NodeDuplicateWorkspace() {
+  const initial = (() => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi -> (psi -> phi)");
+    ws = addNode(ws, "axiom", "G1", { x: 400, y: 100 }, "phi -> phi");
+    ws = updateNodeRole(ws, "node-2", "goal");
+    return ws;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/** ノード複製: 右クリック→Duplicate Nodeでノードを複製。ゴールノードはroleがクリアされる */
+export const NodeDuplicate: Story = {
+  render: () => <NodeDuplicateWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // 2ノード(A1, G1)が表示されている
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+
+    // node-1（公理）を右クリック → コンテキストメニュー表示
+    const node1 = canvas.getByTestId("proof-node-node-1");
+    await userEvent.pointer({ keys: "[MouseRight]", target: node1 });
+
+    // Duplicate Nodeメニュー項目が表示される
+    await expect(
+      canvas.getByTestId("workspace-duplicate-node"),
+    ).toBeInTheDocument();
+
+    // Duplicate Nodeをクリック
+    await userEvent.click(canvas.getByTestId("workspace-duplicate-node"));
+
+    // 複製されたノード(node-3)が表示される
+    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+
+    // 元のノードも残っている
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+  },
+};

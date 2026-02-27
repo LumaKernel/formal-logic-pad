@@ -69,6 +69,7 @@ function useProofMessagesFromIntl(): ProofMessages {
       useAsMPLeft: t("useAsMPLeft"),
       useAsMPRight: t("useAsMPRight"),
       applyGenToNode: t("applyGenToNode"),
+      duplicateNode: t("duplicateNode"),
       deleteNode: t("deleteNode"),
       deleteConnection: t("deleteConnection"),
       genVariablePrompt: t("genVariablePrompt"),
