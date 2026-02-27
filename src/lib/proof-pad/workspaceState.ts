@@ -20,6 +20,11 @@ import {
   type GenApplicationResult,
 } from "./genApplicationLogic";
 import {
+  validateSubstitutionApplication,
+  type SubstitutionApplicationResult,
+  type SubstitutionEntries,
+} from "./substitutionApplicationLogic";
+import {
   buildClipboardData,
   computeCentroid,
   pasteClipboardData,
@@ -62,6 +67,8 @@ export type WorkspaceNode = {
   readonly position: Point;
   /** Gen規則で使用する量化変数名（genノードのみ） */
   readonly genVariableName?: string;
+  /** 代入操作のエントリリスト（substitutionノードのみ） */
+  readonly substitutionEntries?: SubstitutionEntries;
   /** ユーザーが明示的に設定した役割（"axiom" | "goal" | undefined） */
   readonly role?: NodeRole;
   /** ノードの保護状態（クエストモードのゴールノードなど） */
@@ -255,6 +262,20 @@ export function updateNodeGenVariableName(
   };
 }
 
+/** ノードの代入エントリを更新する */
+export function updateNodeSubstitutionEntries(
+  state: WorkspaceState,
+  nodeId: string,
+  substitutionEntries: SubstitutionEntries,
+): WorkspaceState {
+  return {
+    ...state,
+    nodes: state.nodes.map((node) =>
+      node.id === nodeId ? { ...node, substitutionEntries } : node,
+    ),
+  };
+}
+
 /** ノードの役割を更新する（保護ノードは更新不可） */
 export function updateNodeRole(
   state: WorkspaceState,
@@ -427,6 +448,55 @@ export function applyGenAndConnect(
   }
 
   return { workspace: ws, genNodeId, validation };
+}
+
+// --- 代入操作適用（ノード作成 + 接続 + 結論自動生成） ---
+
+/** 代入操作適用結果 */
+export type ApplySubstitutionResult = {
+  readonly workspace: WorkspaceState;
+  readonly substitutionNodeId: string;
+  readonly validation: SubstitutionApplicationResult;
+};
+
+/**
+ * ソースノードを接続して代入操作ノードを作成し、代入適用を検証する。
+ *
+ * @param state 現在のワークスペース状態
+ * @param premiseNodeId 前提（公理スキーマ等）ノードのID
+ * @param entries 代入エントリのリスト
+ * @param position 代入ノードの配置位置
+ * @returns 新しいワークスペース状態、代入ノードID、検証結果
+ */
+export function applySubstitutionAndConnect(
+  state: WorkspaceState,
+  premiseNodeId: string,
+  entries: SubstitutionEntries,
+  position: Point,
+): ApplySubstitutionResult {
+  // 代入ノードを追加
+  let ws = addNode(state, "substitution", "Subst", position);
+  const substitutionNodeId = `node-${String(state.nextNodeId) satisfies string}`;
+
+  // 代入エントリを設定
+  ws = updateNodeSubstitutionEntries(ws, substitutionNodeId, entries);
+
+  // 接続を追加（premise → premise）
+  ws = addConnection(ws, premiseNodeId, "out", substitutionNodeId, "premise");
+
+  // 代入適用を検証
+  const validation = validateSubstitutionApplication(
+    ws,
+    substitutionNodeId,
+    entries,
+  );
+
+  // 成功時は結論テキストを代入ノードに設定
+  if (validation._tag === "Success") {
+    ws = updateNodeFormulaText(ws, substitutionNodeId, validation.conclusionText);
+  }
+
+  return { workspace: ws, substitutionNodeId, validation };
 }
 
 // --- コピー＆ペースト ---
@@ -682,11 +752,11 @@ export function applyIncrementalLayout(
 // --- 推論結論の再検証・再計算 ---
 
 /**
- * 全MP/Genノードの結論テキストを前提ノードの現在の値から再計算する。
+ * 全MP/Gen/Substitutionノードの結論テキストを前提ノードの現在の値から再計算する。
  *
  * 検証成功時は結論テキストをformulaTextに設定し、
  * 失敗時はformulaTextを空文字にクリアする。
- * 前提の変更が下流のMP/Genノードに伝播するよう、
+ * 前提の変更が下流のMP/Gen/Substitutionノードに伝播するよう、
  * 変更がなくなるまで反復する（fixed-point）。
  *
  * 純粋関数 — 副作用なし。
@@ -719,6 +789,21 @@ export function revalidateInferenceConclusions(
           current,
           node.id,
           variableName,
+        );
+        const newText =
+          result._tag === "Success" ? result.conclusionText : "";
+        if (newText !== node.formulaText) {
+          changed = true;
+          return { ...node, formulaText: newText };
+        }
+        return node;
+      }
+      if (node.kind === "substitution") {
+        const entries = node.substitutionEntries ?? [];
+        const result = validateSubstitutionApplication(
+          current,
+          node.id,
+          entries,
         );
         const newText =
           result._tag === "Success" ? result.conclusionText : "";

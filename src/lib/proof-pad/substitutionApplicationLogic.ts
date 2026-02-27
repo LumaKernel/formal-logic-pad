@@ -1,0 +1,299 @@
+/**
+ * 代入操作（Substitution Application）ノードのための純粋ロジック。
+ *
+ * 公理スキーマやその他の論理式に対して、メタ変数代入を適用し結果を返す。
+ * 代入エントリは「φ := p → q」のような形式で指定される。
+ * UI層（ProofWorkspace.tsx）から利用される。
+ *
+ * 変更時は substitutionApplicationLogic.test.ts, ProofWorkspace.tsx, workspaceState.ts, index.ts も同期すること。
+ */
+
+import type { Formula } from "../logic-core/formula";
+import type { GreekLetter } from "../logic-core/greekLetters";
+import {
+  substituteFormulaMetaVariables,
+  substituteTermMetaVariablesInFormula,
+  type FormulaSubstitutionMap,
+  type TermMetaSubstitutionMap,
+} from "../logic-core/substitution";
+import { metaVariableKey, termMetaVariableKey } from "../logic-core/metaVariable";
+import { formatFormula } from "../logic-lang/formatUnicode";
+import { parseString as parseFormula, parseTermString } from "../logic-lang/parser";
+import { parseNodeFormula } from "./mpApplicationLogic";
+import type { WorkspaceState } from "./workspaceState";
+
+// --- 代入エントリ ---
+
+/**
+ * 論理式メタ変数の代入エントリ。
+ * 例: φ := p → q
+ */
+export type FormulaSubstitutionEntry = {
+  readonly _tag: "FormulaSubstitution";
+  /** メタ変数名（例: "φ"） */
+  readonly metaVariableName: GreekLetter;
+  /** メタ変数の添字（省略可） */
+  readonly metaVariableSubscript?: string;
+  /** 代入先の論理式テキスト */
+  readonly formulaText: string;
+};
+
+/**
+ * 項メタ変数の代入エントリ。
+ * 例: t := S(0)
+ */
+export type TermSubstitutionEntry = {
+  readonly _tag: "TermSubstitution";
+  /** 項メタ変数名（例: "τ"） */
+  readonly metaVariableName: GreekLetter;
+  /** メタ変数の添字（省略可） */
+  readonly metaVariableSubscript?: string;
+  /** 代入先の項テキスト */
+  readonly termText: string;
+};
+
+/** 代入エントリ（論理式 or 項） */
+export type SubstitutionEntry =
+  | FormulaSubstitutionEntry
+  | TermSubstitutionEntry;
+
+// --- 代入ノード固有のフィールド ---
+
+/**
+ * 代入ノードの代入テキスト形式。
+ * WorkspaceNode.substitutionEntries に格納される。
+ */
+export type SubstitutionEntries = readonly SubstitutionEntry[];
+
+// --- 代入適用の結果型 ---
+
+/** 代入適用の成功結果 */
+export type SubstitutionApplicationSuccess = {
+  readonly _tag: "Success";
+  readonly conclusion: Formula;
+  readonly conclusionText: string;
+};
+
+/** 代入適用のエラー */
+export type SubstitutionApplicationError =
+  | { readonly _tag: "PremiseMissing" }
+  | { readonly _tag: "PremiseParseError"; readonly nodeId: string }
+  | { readonly _tag: "NoSubstitutionEntries" }
+  | {
+      readonly _tag: "FormulaParseError";
+      readonly entryIndex: number;
+      readonly formulaText: string;
+    }
+  | {
+      readonly _tag: "TermParseError";
+      readonly entryIndex: number;
+      readonly termText: string;
+    };
+
+/** 代入適用の結果型 */
+export type SubstitutionApplicationResult =
+  | SubstitutionApplicationSuccess
+  | SubstitutionApplicationError;
+
+// --- 代入ノードの前提接続を取得 ---
+
+/**
+ * 代入ノードに接続されている前提ノードのIDを取得する。
+ * premise ポートに接続されたノードが前提。
+ */
+export function getSubstitutionPremise(
+  state: WorkspaceState,
+  substitutionNodeId: string,
+): string | undefined {
+  for (const conn of state.connections) {
+    if (
+      conn.toNodeId === substitutionNodeId &&
+      conn.toPortId === "premise"
+    ) {
+      return conn.fromNodeId;
+    }
+  }
+  return undefined;
+}
+
+// --- 代入マップの構築 ---
+
+/**
+ * 代入エントリから FormulaSubstitutionMap を構築する。
+ * パース失敗時はエラーを返す。
+ */
+export function buildFormulaSubstitutionMap(
+  entries: SubstitutionEntries,
+): {
+  readonly _tag: "Ok";
+  readonly map: FormulaSubstitutionMap;
+} | {
+  readonly _tag: "Error";
+  readonly entryIndex: number;
+  readonly formulaText: string;
+} {
+  const map = new Map<string, Formula>();
+
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    if (entry === undefined || entry._tag !== "FormulaSubstitution") continue;
+
+    const parseResult = parseFormula(entry.formulaText);
+    if (!parseResult.ok) {
+      return {
+        _tag: "Error",
+        entryIndex: i,
+        formulaText: entry.formulaText,
+      };
+    }
+
+    const key = metaVariableKey({
+      _tag: "MetaVariable",
+      name: entry.metaVariableName,
+      subscript: entry.metaVariableSubscript,
+    });
+    map.set(key, parseResult.formula);
+  }
+
+  return { _tag: "Ok", map };
+}
+
+/**
+ * 代入エントリから TermMetaSubstitutionMap を構築する。
+ * 項テキストのパースには parseTermString を使う。
+ * パース失敗時はエラーを返す。
+ */
+export function buildTermSubstitutionMap(
+  entries: SubstitutionEntries,
+): {
+  readonly _tag: "Ok";
+  readonly map: TermMetaSubstitutionMap;
+} | {
+  readonly _tag: "Error";
+  readonly entryIndex: number;
+  readonly termText: string;
+} {
+  const map = new Map<string, import("../logic-core/term").Term>();
+
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    if (entry === undefined || entry._tag !== "TermSubstitution") continue;
+
+    const parseResult = parseTermString(entry.termText);
+    if (!parseResult.ok) {
+      return {
+        _tag: "Error",
+        entryIndex: i,
+        termText: entry.termText,
+      };
+    }
+
+    const key = termMetaVariableKey({
+      _tag: "TermMetaVariable",
+      name: entry.metaVariableName,
+      subscript: entry.metaVariableSubscript,
+    });
+    map.set(key, parseResult.term);
+  }
+
+  return { _tag: "Ok", map };
+}
+
+// --- 代入適用のバリデーション ---
+
+/**
+ * 代入ノードの接続状態を検証し、適用結果を返す。
+ *
+ * premise: 前提の論理式（公理スキーマ等）
+ * entries: 代入エントリのリスト
+ *
+ * 前提が接続され、パース可能であれば代入を適用し、
+ * 成功時は結論式とそのテキスト表現を返す。
+ */
+export function validateSubstitutionApplication(
+  state: WorkspaceState,
+  substitutionNodeId: string,
+  entries: SubstitutionEntries,
+): SubstitutionApplicationResult {
+  if (entries.length === 0) {
+    return { _tag: "NoSubstitutionEntries" };
+  }
+
+  const premiseNodeId = getSubstitutionPremise(state, substitutionNodeId);
+
+  if (premiseNodeId === undefined) {
+    return { _tag: "PremiseMissing" };
+  }
+
+  // ノードを取得
+  const premiseNode = state.nodes.find((n) => n.id === premiseNodeId);
+
+  /* v8 ignore start -- 防御的コード: 接続があるがノードが削除済みのケース（通常到達不能） */
+  if (!premiseNode) {
+    return { _tag: "PremiseMissing" };
+  }
+  /* v8 ignore stop */
+
+  // パース
+  const premiseFormula = parseNodeFormula(premiseNode);
+  if (!premiseFormula) {
+    return { _tag: "PremiseParseError", nodeId: premiseNodeId };
+  }
+
+  // 論理式メタ変数代入マップを構築
+  const formulaMapResult = buildFormulaSubstitutionMap(entries);
+  if (formulaMapResult._tag === "Error") {
+    return {
+      _tag: "FormulaParseError",
+      entryIndex: formulaMapResult.entryIndex,
+      formulaText: formulaMapResult.formulaText,
+    };
+  }
+
+  // 項メタ変数代入マップを構築
+  const termMapResult = buildTermSubstitutionMap(entries);
+  if (termMapResult._tag === "Error") {
+    return {
+      _tag: "TermParseError",
+      entryIndex: termMapResult.entryIndex,
+      termText: termMapResult.termText,
+    };
+  }
+
+  // 代入を適用
+  let result = premiseFormula;
+  if (formulaMapResult.map.size > 0) {
+    result = substituteFormulaMetaVariables(result, formulaMapResult.map);
+  }
+  if (termMapResult.map.size > 0) {
+    result = substituteTermMetaVariablesInFormula(result, termMapResult.map);
+  }
+
+  return {
+    _tag: "Success",
+    conclusion: result,
+    conclusionText: formatFormula(result),
+  };
+}
+
+// --- エラーメッセージ ---
+
+/**
+ * 代入適用エラーに対する人間向けメッセージを返す。
+ */
+export function getSubstitutionErrorMessage(
+  error: SubstitutionApplicationError,
+): string {
+  switch (error._tag) {
+    case "PremiseMissing":
+      return "Connect a premise to apply substitution";
+    case "PremiseParseError":
+      return "Premise has invalid formula";
+    case "NoSubstitutionEntries":
+      return "Add at least one substitution entry";
+    case "FormulaParseError":
+      return `Invalid formula in substitution entry ${String(error.entryIndex + 1) satisfies string}`;
+    case "TermParseError":
+      return `Invalid term in substitution entry ${String(error.entryIndex + 1) satisfies string}`;
+  }
+}

@@ -30,6 +30,8 @@ export {
   changeSystem,
   applyMPAndConnect,
   applyGenAndConnect,
+  applySubstitutionAndConnect,
+  updateNodeSubstitutionEntries,
   copySelectedNodes,
   pasteNodes,
   removeSelectedNodes,
@@ -45,6 +47,7 @@ export type {
   QuestGoalDefinition,
   ApplyMPResult,
   ApplyGenResult,
+  ApplySubstitutionResult,
 } from "./workspaceState";
 export {
   computeCentroid,
@@ -85,10 +88,27 @@ export type {
   GenApplicationResult,
 } from "./genApplicationLogic";
 export {
+  getSubstitutionPremise,
+  validateSubstitutionApplication,
+  getSubstitutionErrorMessage,
+  buildFormulaSubstitutionMap,
+  buildTermSubstitutionMap,
+} from "./substitutionApplicationLogic";
+export type {
+  FormulaSubstitutionEntry,
+  TermSubstitutionEntry,
+  SubstitutionEntry,
+  SubstitutionEntries,
+  SubstitutionApplicationSuccess,
+  SubstitutionApplicationError,
+  SubstitutionApplicationResult,
+} from "./substitutionApplicationLogic";
+export {
   PROOF_NODE_KINDS,
   AXIOM_PORTS,
   MP_PORTS,
   GEN_PORTS,
+  SUBSTITUTION_PORTS,
   CONCLUSION_PORTS,
   getProofNodeStyle,
   getProofNodePorts,
