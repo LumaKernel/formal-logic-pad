@@ -4354,3 +4354,26 @@
   - ドロップダウンメニューの外クリック閉じ: ボタンref + メニューref の両方を`pointerdown`で判定し、どちらにも含まれなければ閉じるパターン
   - Export/Importハンドラは`v8 ignore`内で定義済みだが、JSX内のonClick wrapperラムダは別途カバレッジ対象になる。不純コードを呼ぶだけのwrapperは微小なカバレッジ低下として許容
 ---
+
+## 2026-02-27 - キャンバスUI改善（空白部分の右クリックメニュー）
+- 実装した内容: キャンバスの空白部分を右クリックした際にコンテキストメニューを表示し、公理ノード、ゴールノード、中間ノードを右クリック位置に追加できる機能を実装
+- ベースラインカバレッジ: Stmts 99.27%, Branch 94.83%, Lines 99.79%, 4368 tests
+- 完了時カバレッジ: Stmts 99.11%, Branch 94.47%, Lines 99.63%, 4372 tests ✅ (微減はv8 ignore済みの不純handler wrapper分)
+- ブラウザ確認:
+  - `.screenshots/canvas-context-menu-open.png` - 右クリックメニュー表示 ✅
+  - `.screenshots/canvas-context-menu-goal-added.png` - ゴールノード追加 ✅
+  - `.screenshots/canvas-context-menu-nodes-added.png` - 複数ノード追加 ✅
+- 変更ファイル:
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - canvasMenuState状態、handleCanvasContextMenu、handleCanvasMenuAddNode追加、キャンバスメニューUI)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (MODIFIED - キャンバスコンテキストメニューテスト4件追加)
+  - `src/lib/proof-pad/proofMessages.ts` (MODIFIED - addAxiomNode, addGoalNode, addNodeメッセージ追加)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (MODIFIED - 新メッセージキー3件のi18n対応)
+  - `messages/en.json` (MODIFIED - 新メッセージ3件追加)
+  - `messages/ja.json` (MODIFIED - 新メッセージ3件追加)
+  - `tasks/prd-inserted-tasks.md` (MODIFIED - タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - screenToWorld(viewport, screenPoint)でスクリーン座標→ワールド座標変換が可能。右クリック位置にノードを配置する際に必須
+  - ProofMessagesに新キーを追加する際は、proofMessages.ts（型+デフォルト）→ WorkspaceContent.tsx（i18n）→ messages/en.json, ja.json の4箇所を同期する必要がある。型エラーで検出されるがja.jsonは手動確認が必要
+  - WorkspaceMenuItemコンポーネントは再利用可能: ヘッダードロップダウンメニューとキャンバスコンテキストメニューの両方で利用
+  - キャンバスのonContextMenuはInfiniteCanvas内部ではなく、ProofWorkspaceのコンテナdiv要素にアタッチする
+---

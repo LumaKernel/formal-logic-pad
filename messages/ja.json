@@ -55,6 +55,9 @@
     "exportPNG": "PNG エクスポート",
     "importJSON": "JSON インポート",
     "selectSubtree": "サブツリーを選択",
+    "addAxiomNode": "公理ノードを追加",
+    "addGoalNode": "ゴールノードを追加",
+    "addNode": "ノードを追加",
     "proofCompleteButAxiomViolation": "証明完了（公理制限違反あり）",
     "axiomViolationDetail": "許可されていない公理が使用されています: {axiomIds}"
   }

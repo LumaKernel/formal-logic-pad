@@ -2122,4 +2122,132 @@ describe("ProofWorkspace", () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe("canvas context menu (right-click on empty area)", () => {
+    it("shows context menu on right-click of canvas", async () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const { container } = render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // コンテキストメニューは閉じている
+      expect(
+        screen.queryByTestId("workspace-canvas-context-menu"),
+      ).not.toBeInTheDocument();
+
+      // キャンバスコンテナ上で右クリック
+      const canvas = container.querySelector("[data-testid='workspace']")!;
+      await userEvent.pointer({
+        target: canvas,
+        keys: "[MouseRight]",
+        coords: { clientX: 300, clientY: 200 },
+      });
+
+      // コンテキストメニューが開く
+      expect(
+        screen.getByTestId("workspace-canvas-context-menu"),
+      ).toBeInTheDocument();
+
+      // メニュー項目が表示される
+      expect(
+        screen.getByTestId("workspace-canvas-menu-add-axiom"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-canvas-menu-add-goal"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-canvas-menu-add-node"),
+      ).toBeInTheDocument();
+    });
+
+    it("adds axiom node when 'Add Axiom Node' is clicked", async () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const { container } = render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // 右クリックでメニューを開く
+      const canvas = container.querySelector("[data-testid='workspace']")!;
+      await userEvent.pointer({
+        target: canvas,
+        keys: "[MouseRight]",
+        coords: { clientX: 300, clientY: 200 },
+      });
+
+      // 「Add Axiom Node」をクリック
+      await userEvent.click(
+        screen.getByTestId("workspace-canvas-menu-add-axiom"),
+      );
+
+      // メニューが閉じる
+      expect(
+        screen.queryByTestId("workspace-canvas-context-menu"),
+      ).not.toBeInTheDocument();
+
+      // 新しいノードが追加されている
+      expect(
+        screen.getByTestId(`proof-node-${"node-1" satisfies string}`),
+      ).toBeInTheDocument();
+    });
+
+    it("adds goal node when 'Add Goal Node' is clicked", async () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const { container } = render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // 右クリックでメニューを開く
+      const canvas = container.querySelector("[data-testid='workspace']")!;
+      await userEvent.pointer({
+        target: canvas,
+        keys: "[MouseRight]",
+        coords: { clientX: 300, clientY: 200 },
+      });
+
+      // 「Add Goal Node」をクリック
+      await userEvent.click(
+        screen.getByTestId("workspace-canvas-menu-add-goal"),
+      );
+
+      // メニューが閉じる
+      expect(
+        screen.queryByTestId("workspace-canvas-context-menu"),
+      ).not.toBeInTheDocument();
+
+      // 新しいゴールノードが追加されている
+      expect(
+        screen.getByTestId(`proof-node-${"node-1" satisfies string}`),
+      ).toBeInTheDocument();
+    });
+
+    it("adds plain node when 'Add Node' is clicked", async () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const { container } = render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // 右クリックでメニューを開く
+      const canvas = container.querySelector("[data-testid='workspace']")!;
+      await userEvent.pointer({
+        target: canvas,
+        keys: "[MouseRight]",
+        coords: { clientX: 300, clientY: 200 },
+      });
+
+      // 「Add Node」をクリック
+      await userEvent.click(
+        screen.getByTestId("workspace-canvas-menu-add-node"),
+      );
+
+      // メニューが閉じる
+      expect(
+        screen.queryByTestId("workspace-canvas-context-menu"),
+      ).not.toBeInTheDocument();
+
+      // 新しいノードが追加されている
+      expect(
+        screen.getByTestId(`proof-node-${"node-1" satisfies string}`),
+      ).toBeInTheDocument();
+    });
+  });
 });

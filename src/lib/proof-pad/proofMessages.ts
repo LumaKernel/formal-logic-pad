@@ -82,6 +82,9 @@ export type ProofMessages = {
 
   // --- コンテキストメニュー ---
   readonly selectSubtree: string;
+  readonly addAxiomNode: string;
+  readonly addGoalNode: string;
+  readonly addNode: string;
 
   // --- 公理制限 ---
   readonly proofCompleteButAxiomViolation: string;
@@ -153,6 +156,9 @@ export const defaultProofMessages: ProofMessages = {
 
   // Context menu
   selectSubtree: "Select Subtree",
+  addAxiomNode: "Add Axiom Node",
+  addGoalNode: "Add Goal Node",
+  addNode: "Add Node",
 
   // Axiom restriction
   proofCompleteButAxiomViolation: "Proof Complete (axiom restriction violated)",

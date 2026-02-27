@@ -55,6 +55,9 @@
     "exportPNG": "Export PNG",
     "importJSON": "Import JSON",
     "selectSubtree": "Select Subtree",
+    "addAxiomNode": "Add Axiom Node",
+    "addGoalNode": "Add Goal Node",
+    "addNode": "Add Node",
     "proofCompleteButAxiomViolation": "Proof Complete (axiom restriction violated)",
     "axiomViolationDetail": "Disallowed axiom(s) used: {axiomIds}"
   }

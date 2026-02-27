@@ -19,6 +19,7 @@ import { CanvasItem } from "../infinite-canvas/CanvasItem";
 import { PortConnection } from "../infinite-canvas/PortConnection";
 import { findPort } from "../infinite-canvas/connector";
 import type { ViewportState, Point, Size } from "../infinite-canvas/types";
+import { screenToWorld } from "../infinite-canvas/multiSelection";
 import { EditableProofNode } from "./EditableProofNode";
 import { getProofNodePorts, getProofEdgeColor } from "./proofNodeUI";
 import { AxiomPalette } from "./AxiomPalette";
@@ -476,6 +477,14 @@ export function ProofWorkspace({
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
   const workspaceMenuRef = useRef<HTMLDivElement>(null);
   const workspaceMenuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // キャンバス空白部分コンテキストメニュー
+  const [canvasMenuState, setCanvasMenuState] = useState<{
+    readonly open: boolean;
+    readonly screenPosition: Point;
+    readonly worldPosition: Point;
+  }>({ open: false, screenPosition: { x: 0, y: 0 }, worldPosition: { x: 0, y: 0 } });
+  const canvasMenuRef = useRef<HTMLDivElement>(null);
 
   // コンテナサイズ（Viewport Culling用）
   const [containerSize, setContainerSize] = useState<Size>({
@@ -1053,6 +1062,67 @@ export function ProofWorkspace({
     };
   }, [workspaceMenuOpen]);
 
+  // --- キャンバス空白部分コンテキストメニュー ---
+
+  const handleCanvasContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      // ノード上の右クリックは handleNodeContextMenu で処理済み
+      // ここではキャンバスの空白部分のみ
+      e.preventDefault();
+      const worldPos = screenToWorld(viewport, {
+        x: e.clientX,
+        y: e.clientY,
+      });
+      setCanvasMenuState({
+        open: true,
+        screenPosition: { x: e.clientX, y: e.clientY },
+        worldPosition: worldPos,
+      });
+    },
+    [viewport],
+  );
+
+  const handleCanvasMenuAddNode = useCallback(
+    (role: "axiom" | "goal" | undefined) => {
+      let ws = addNode(
+        workspace,
+        "axiom",
+        "",
+        canvasMenuState.worldPosition,
+      );
+      const newNodeId = ws.nodes[ws.nodes.length - 1]!.id;
+      if (role === "goal") {
+        ws = updateNodeRole(ws, newNodeId, "goal");
+      } else if (role === "axiom") {
+        ws = updateNodeRole(ws, newNodeId, "axiom");
+      }
+      setWorkspace(ws);
+      setCanvasMenuState({
+        open: false,
+        screenPosition: { x: 0, y: 0 },
+        worldPosition: { x: 0, y: 0 },
+      });
+    },
+    [workspace, canvasMenuState.worldPosition, setWorkspace],
+  );
+
+  // キャンバスコンテキストメニュー外クリックで閉じる
+  useEffect(() => {
+    if (!canvasMenuState.open) return;
+    const handleClickOutside = (e: PointerEvent) => {
+      if (
+        canvasMenuRef.current !== null &&
+        !canvasMenuRef.current.contains(e.target as Node)
+      ) {
+        setCanvasMenuState((prev) => ({ ...prev, open: false }));
+      }
+    };
+    document.addEventListener("pointerdown", handleClickOutside);
+    return () => {
+      document.removeEventListener("pointerdown", handleClickOutside);
+    };
+  }, [canvasMenuState.open]);
+
   // --- コピー＆ペースト ---
 
   const handleCopy = useCallback(() => {
@@ -1497,6 +1567,7 @@ export function ProofWorkspace({
       }}
       tabIndex={-1}
       onClick={handleCanvasClick}
+      onContextMenu={handleCanvasContextMenu}
     >
       {/* 体系情報ヘッダー */}
       <div
@@ -2040,6 +2111,65 @@ export function ProofWorkspace({
           >
             {msg.selectSubtree}
           </button>
+        </div>
+      ) : null}
+
+      {/* キャンバス空白部分コンテキストメニュー */}
+      {canvasMenuState.open ? (
+        <div
+          ref={canvasMenuRef}
+          data-testid={
+            testId
+              ? `${testId satisfies string}-canvas-context-menu`
+              : undefined
+          }
+          style={{
+            position: "fixed",
+            left: canvasMenuState.screenPosition.x,
+            top: canvasMenuState.screenPosition.y,
+            zIndex: 2000,
+            minWidth: 160,
+            background: "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
+            border:
+              "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.2))",
+            borderRadius: 8,
+            boxShadow:
+              "0 4px 16px var(--color-panel-shadow, rgba(120, 100, 70, 0.1))",
+            padding: "4px 0",
+            fontFamily: "var(--font-ui)",
+            fontSize: 13,
+            userSelect: "none",
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <WorkspaceMenuItem
+            label={msg.addAxiomNode}
+            onClick={() => handleCanvasMenuAddNode("axiom")}
+            testId={
+              testId
+                ? `${testId satisfies string}-canvas-menu-add-axiom`
+                : undefined
+            }
+          />
+          <WorkspaceMenuItem
+            label={msg.addGoalNode}
+            onClick={() => handleCanvasMenuAddNode("goal")}
+            testId={
+              testId
+                ? `${testId satisfies string}-canvas-menu-add-goal`
+                : undefined
+            }
+          />
+          <WorkspaceMenuItem
+            label={msg.addNode}
+            onClick={() => handleCanvasMenuAddNode(undefined)}
+            testId={
+              testId
+                ? `${testId satisfies string}-canvas-menu-add-node`
+                : undefined
+            }
+          />
         </div>
       ) : null}
 
