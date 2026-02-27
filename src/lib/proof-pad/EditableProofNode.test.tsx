@@ -21,7 +21,7 @@ function renderNode(
   const defaultProps = {
     id: "node-1",
     kind: "axiom" as ProofNodeKind,
-    label: "A1",
+    label: "Axiom",
     formulaText: "φ → (ψ → φ)",
     onFormulaTextChange: vi.fn(),
     testId: "test-node",
@@ -44,7 +44,7 @@ function StatefulWrapper(props: {
     <EditableProofNode
       id="node-1"
       kind="axiom"
-      label="A1"
+      label="Axiom"
       formulaText={text}
       onFormulaTextChange={(_id, newText) => {
         setText(newText);
@@ -60,7 +60,7 @@ describe("EditableProofNode", () => {
   describe("表示モード（デフォルト）", () => {
     it("ノードのラベルが表示される", () => {
       renderNode();
-      expect(screen.getByText("A1")).toBeInTheDocument();
+      expect(screen.getByText("Axiom")).toBeInTheDocument();
     });
 
     it("論理式がUnicodeレンダリングで表示される", () => {
@@ -399,7 +399,7 @@ describe("EditableProofNode", () => {
         <EditableProofNode
           id="node-1"
           kind="axiom"
-          label="A1"
+          label="Axiom"
           formulaText="φ"
           onFormulaTextChange={() => {}}
           classification="root-axiom"
@@ -415,7 +415,7 @@ describe("EditableProofNode", () => {
         <EditableProofNode
           id="node-1"
           kind="axiom"
-          label="A1"
+          label="Axiom"
           formulaText="φ → ψ"
           onFormulaTextChange={() => {}}
         />,
@@ -428,7 +428,7 @@ describe("EditableProofNode", () => {
         <EditableProofNode
           id="node-1"
           kind="axiom"
-          label="A1"
+          label="Axiom"
           formulaText="φ → ψ"
           editable={false}
           onFormulaTextChange={() => {}}
@@ -500,7 +500,7 @@ describe("EditableProofNode", () => {
 
     it("保護ノードでもヘッダー行が表示される（QUESTバッジのため）", () => {
       renderNode({ isProtected: true });
-      expect(screen.getByText("A1")).toBeInTheDocument();
+      expect(screen.getByText("Axiom")).toBeInTheDocument();
       expect(
         screen.getByTestId("test-node-protected-badge"),
       ).toBeInTheDocument();
@@ -511,7 +511,7 @@ describe("EditableProofNode", () => {
         <EditableProofNode
           id="node-1"
           kind="axiom"
-          label="A1"
+          label="Axiom"
           formulaText="φ"
           onFormulaTextChange={() => {}}
           isProtected={true}
@@ -541,7 +541,7 @@ describe("EditableProofNode", () => {
       renderNode({ axiomName: "A2 (S)" });
       // ヘッダー行が存在し、公理名バッジが含まれる
       expect(screen.getByText("A2 (S)")).toBeInTheDocument();
-      expect(screen.getByText("A1")).toBeInTheDocument(); // label
+      expect(screen.getByText("Axiom")).toBeInTheDocument(); // label
     });
 
     it("testIdなしでも公理名バッジが表示される", () => {
@@ -549,7 +549,7 @@ describe("EditableProofNode", () => {
         <EditableProofNode
           id="node-1"
           kind="axiom"
-          label="A1"
+          label="Axiom"
           formulaText="φ"
           onFormulaTextChange={() => {}}
           axiomName="A1 (K)"
@@ -636,7 +636,7 @@ describe("EditableProofNode", () => {
     it("detailLevel='minimal'ですべて非表示（ラベルのみ）", () => {
       renderNode({ ...fullProps, detailLevel: "minimal" });
       // ラベルは常に表示
-      expect(screen.getByText("A1")).toBeInTheDocument();
+      expect(screen.getByText("Axiom")).toBeInTheDocument();
       // 数式も非表示
       expect(screen.queryByTestId("test-node-formula")).not.toBeInTheDocument();
       expect(

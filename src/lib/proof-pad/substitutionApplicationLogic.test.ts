@@ -8,11 +8,7 @@ import {
   type SubstitutionEntries,
   type SubstitutionApplicationError,
 } from "./substitutionApplicationLogic";
-import {
-  createEmptyWorkspace,
-  addNode,
-  addConnection,
-} from "./workspaceState";
+import { createEmptyWorkspace, addNode, addConnection } from "./workspaceState";
 import {
   lukasiewiczSystem,
   predicateLogicSystem,
@@ -217,7 +213,7 @@ describe("buildTermSubstitutionMap", () => {
 describe("validateSubstitutionApplication", () => {
   it("returns NoSubstitutionEntries when entries list is empty", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+    ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
     const result = validateSubstitutionApplication(ws, "node-1", []);
     expect(result._tag).toBe("NoSubstitutionEntries");
   });
@@ -270,7 +266,7 @@ describe("validateSubstitutionApplication", () => {
 
   it("returns FormulaParseError when substitution formula is invalid", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+    ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
     ws = addNode(ws, "substitution", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
     const entries: SubstitutionEntries = [
@@ -286,7 +282,7 @@ describe("validateSubstitutionApplication", () => {
 
   it("returns TermParseError when term substitution is invalid", () => {
     let ws = createEmptyWorkspace(predicateLogicSystem);
-    ws = addNode(ws, "axiom", "Test", { x: 0, y: 0 }, "phi -> phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> phi");
     ws = addNode(ws, "substitution", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
     const entries: SubstitutionEntries = [
@@ -303,7 +299,7 @@ describe("validateSubstitutionApplication", () => {
   it("successfully applies formula meta-variable substitution to A1", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     // A1: φ → (ψ → φ)
-    ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+    ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
     ws = addNode(ws, "substitution", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
 
@@ -329,7 +325,7 @@ describe("validateSubstitutionApplication", () => {
 
   it("returns same formula when meta-variables not present in premise", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "Concrete", { x: 0, y: 0 }, "alpha -> beta");
+    ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "alpha -> beta");
     ws = addNode(ws, "substitution", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
 
@@ -349,7 +345,7 @@ describe("validateSubstitutionApplication", () => {
 
   it("applies single formula meta-variable substitution", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "Test", { x: 0, y: 0 }, "phi -> phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> phi");
     ws = addNode(ws, "substitution", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
 
@@ -369,7 +365,7 @@ describe("validateSubstitutionApplication", () => {
 
   it("applies negation substitution", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "Test", { x: 0, y: 0 }, "~phi -> (phi -> psi)");
+    ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "~phi -> (phi -> psi)");
     ws = addNode(ws, "substitution", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
 
@@ -394,7 +390,13 @@ describe("validateSubstitutionApplication", () => {
 
   it("handles only formula entries when no term entries present", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A2", { x: 0, y: 0 }, "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))");
+    ws = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 0, y: 0 },
+      "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
+    );
     ws = addNode(ws, "substitution", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
 
@@ -419,7 +421,9 @@ describe("validateSubstitutionApplication", () => {
     expect(result._tag).toBe("Success");
     if (result._tag === "Success") {
       // (α → ((α → β) → β)) → ((α → α → β) → (α → β))
-      expect(result.conclusionText).toBe("(α → (α → β) → β) → (α → α → β) → α → β");
+      expect(result.conclusionText).toBe(
+        "(α → (α → β) → β) → (α → α → β) → α → β",
+      );
     }
   });
 });
@@ -427,7 +431,10 @@ describe("validateSubstitutionApplication", () => {
 // --- getSubstitutionErrorMessage ---
 
 describe("getSubstitutionErrorMessage", () => {
-  it.each<{ readonly error: SubstitutionApplicationError; readonly expected: string }>([
+  it.each<{
+    readonly error: SubstitutionApplicationError;
+    readonly expected: string;
+  }>([
     {
       error: { _tag: "PremiseMissing" },
       expected: "Connect a premise to apply substitution",
@@ -456,7 +463,10 @@ describe("getSubstitutionErrorMessage", () => {
       error: { _tag: "TermParseError", entryIndex: 1, termText: "bad" },
       expected: "Invalid term in substitution entry 2",
     },
-  ])("returns correct message for $error._tag (index $error.entryIndex)", ({ error, expected }) => {
-    expect(getSubstitutionErrorMessage(error)).toBe(expected);
-  });
+  ])(
+    "returns correct message for $error._tag (index $error.entryIndex)",
+    ({ error, expected }) => {
+      expect(getSubstitutionErrorMessage(error)).toBe(expected);
+    },
+  );
 });

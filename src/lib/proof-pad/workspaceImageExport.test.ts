@@ -17,7 +17,7 @@ function createSampleWorkspace(): WorkspaceState {
       {
         id: "node-1",
         kind: "axiom",
-        label: "A1",
+        label: "Axiom",
         formulaText: "phi -> (psi -> phi)",
         position: { x: 100, y: 200 },
         role: "axiom",
@@ -61,14 +61,14 @@ function createMultiNodeWorkspace(): WorkspaceState {
       {
         id: "node-1",
         kind: "axiom",
-        label: "A1",
+        label: "Axiom",
         formulaText: "phi -> (psi -> phi)",
         position: { x: 0, y: 0 },
       },
       {
         id: "node-2",
         kind: "axiom",
-        label: "A2",
+        label: "Axiom",
         formulaText: "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
         position: { x: 300, y: 0 },
       },
@@ -147,7 +147,7 @@ describe("computeExportBounds", () => {
       {
         id: "n1",
         kind: "axiom",
-        label: "A1",
+        label: "Axiom",
         formulaText: "phi",
         position: { x: 100, y: 200 },
       },
@@ -165,7 +165,7 @@ describe("computeExportBounds", () => {
       {
         id: "n1",
         kind: "axiom",
-        label: "A1",
+        label: "Axiom",
         formulaText: "phi",
         position: { x: 0, y: 0 },
       },
@@ -183,7 +183,7 @@ describe("computeExportBounds", () => {
       {
         id: "n1",
         kind: "axiom",
-        label: "A1",
+        label: "Axiom",
         formulaText: "phi",
         position: { x: -50, y: -100 },
       },
@@ -221,7 +221,7 @@ describe("generateExportSVG", () => {
     const svg = generateExportSVG(ws);
 
     // ノードが描画されている
-    expect(svg).toContain("A1");
+    expect(svg).toContain("Axiom");
     expect(svg).toContain("MP");
     // 式テキストが含まれる
     expect(svg).toContain("phi");
@@ -257,8 +257,7 @@ describe("generateExportSVG", () => {
     expect(svg).toContain("#4ad97a"); // conclusion stripe
 
     // 各種ラベル
-    expect(svg).toContain("A1");
-    expect(svg).toContain("A2");
+    expect(svg).toContain("Axiom");
     expect(svg).toContain("MP");
     expect(svg).toContain("Gen");
     expect(svg).toContain("Goal");
@@ -289,7 +288,7 @@ describe("generateExportSVG", () => {
         {
           id: "n1",
           kind: "axiom",
-          label: "A1",
+          label: "Axiom",
           formulaText: "phi",
           position: { x: 0, y: 0 },
         },
@@ -339,7 +338,7 @@ describe("generateExportSVG", () => {
         {
           id: "n1",
           kind: "axiom",
-          label: "A1",
+          label: "Axiom",
           formulaText: longFormula,
           position: { x: 0, y: 0 },
         },
@@ -363,7 +362,7 @@ describe("generateExportSVG", () => {
         {
           id: "n1",
           kind: "axiom",
-          label: "A1",
+          label: "Axiom",
           formulaText: "phi",
           position: { x: 0, y: 0 },
         },
@@ -396,7 +395,7 @@ describe("generateExportSVG", () => {
         {
           id: "n1",
           kind: "axiom",
-          label: "A1",
+          label: "Axiom",
           formulaText: "phi",
           position: { x: 0, y: 0 },
         },
@@ -434,7 +433,7 @@ describe("generateExportSVG", () => {
         {
           id: "n1",
           kind: "axiom",
-          label: "A1",
+          label: "Axiom",
           formulaText: "",
           position: { x: 0, y: 0 },
         },
@@ -458,7 +457,7 @@ describe("generateExportSVG", () => {
         {
           id: "n1",
           kind: "axiom",
-          label: "A1",
+          label: "Axiom",
           formulaText: "phi",
           position: { x: 100, y: 200 },
         },

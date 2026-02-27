@@ -582,7 +582,8 @@ export function ProofWorkspace({
 
   // パラメトリック公理パネル（A4/A5の入力パネル表示状態）
   const [parametricAxiomPanel, setParametricAxiomPanel] = useState<
-    { readonly open: false } | { readonly open: true; readonly axiomId: "A4" | "A5" }
+    | { readonly open: false }
+    | { readonly open: true; readonly axiomId: "A4" | "A5" }
   >({ open: false });
 
   // コンテナサイズ（Viewport Culling用）
@@ -788,7 +789,8 @@ export function ProofWorkspace({
   );
 
   /** マーキーモードが有効かどうか（Shift押下中 かつ ポートドラッグ中でない） */
-  const marqueeEnabled = isShiftMarqueeActive && connectionPreviewState === null;
+  const marqueeEnabled =
+    isShiftMarqueeActive && connectionPreviewState === null;
 
   const handlePortDragStart = useCallback(
     (nodeId: string) => (portId: string, screenX: number, screenY: number) => {
@@ -869,8 +871,10 @@ export function ProofWorkspace({
         return;
       }
       const position = computeNewNodePosition(workspace.nodes);
+      // ラベルは汎用的な "Axiom" を使用。具体的な公理名(A1, A2等)は
+      // formulaText から自動計算される axiomName バッジで表示する。
       setWorkspaceWithAutoLayout(
-        addNode(workspace, "axiom", axiom.displayName, position, axiom.dslText),
+        addNode(workspace, "axiom", "Axiom", position, axiom.dslText),
       );
     },
     [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition],
@@ -883,8 +887,9 @@ export function ProofWorkspace({
       readonly termMetaVariableName?: string;
     }) => {
       const position = computeNewNodePosition(workspace.nodes);
+      // パラメトリック公理も汎用ラベル。公理名はformulaTextから計算される。
       setWorkspaceWithAutoLayout(
-        addNode(workspace, "axiom", params.axiomDisplayName, position, params.dslText),
+        addNode(workspace, "axiom", "Axiom", position, params.dslText),
       );
       setParametricAxiomPanel({ open: false });
     },
@@ -1711,7 +1716,12 @@ export function ProofWorkspace({
 
   const handleCanvasMenuAddNode = useCallback(
     (role: "axiom" | "goal" | undefined) => {
-      let ws = addNode(workspace, "axiom", "", canvasMenuState.worldPosition);
+      let ws = addNode(
+        workspace,
+        "axiom",
+        "Axiom",
+        canvasMenuState.worldPosition,
+      );
       const newNodeId = ws.nodes[ws.nodes.length - 1]!.id;
       if (role === "goal") {
         ws = updateNodeRole(ws, newNodeId, "goal");
@@ -2127,10 +2137,12 @@ export function ProofWorkspace({
       const isAxiomNode =
         nodeClassification === "root-axiom" ||
         nodeClassification === "root-unmarked";
-      const nodeValidation: {
-        readonly message: string;
-        readonly type: "error" | "warning" | "success";
-      } | undefined =
+      const nodeValidation:
+        | {
+            readonly message: string;
+            readonly type: "error" | "warning" | "success";
+          }
+        | undefined =
         ruleValidation ??
         (axInfo !== undefined && !axInfo.isTrivialSubstitution && isAxiomNode
           ? { message: msg.axiomNonTrivialWarning, type: "warning" }

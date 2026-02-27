@@ -37,7 +37,13 @@ function PA1AxiomComplete() {
   const initial = (() => {
     let ws = createEmptyWorkspace(peanoArithmeticSystem);
     // PA1: ∀x. ¬(S(x) = 0) をそのまま配置
-    ws = addNode(ws, "axiom", "PA1", { x: 200, y: 100 }, "all x. ~(S(x) = 0)");
+    ws = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 200, y: 100 },
+      "all x. ~(S(x) = 0)",
+    );
     // ゴールノードを追加して role を設定
     ws = addNode(ws, "axiom", "Goal", { x: 200, y: 250 }, "all x. ~(S(x) = 0)");
     ws = updateNodeRole(ws, "node-2", "goal");
@@ -70,13 +76,13 @@ function ZeroPlusZeroComplete() {
     let ws = createEmptyWorkspace(peanoArithmeticSystem);
 
     // Step 1: PA3 (加法基底): ∀x. x + 0 = x
-    ws = addNode(ws, "axiom", "PA3", { x: 50, y: 50 }, "all x. x + 0 = x");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "all x. x + 0 = x");
 
     // Step 2: A4スキーマインスタンス（τを含む）: (∀x. x+0=x) → τ+0=τ
     ws = addNode(
       ws,
       "axiom",
-      "A4",
+      "Axiom",
       { x: 450, y: 50 },
       "(all x. x + 0 = x) -> τ + 0 = τ",
     );
@@ -129,13 +135,13 @@ function ZeroPlusZeroPartial() {
     let ws = createEmptyWorkspace(peanoArithmeticSystem);
 
     // Step 1: PA3 (加法基底): ∀x. x + 0 = x
-    ws = addNode(ws, "axiom", "PA3", { x: 50, y: 50 }, "all x. x + 0 = x");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "all x. x + 0 = x");
 
     // Step 2: A4スキーマインスタンス（τを含む）: (∀x. x+0=x) → τ+0=τ
     ws = addNode(
       ws,
       "axiom",
-      "A4",
+      "Axiom",
       { x: 450, y: 50 },
       "(all x. x + 0 = x) -> τ + 0 = τ",
     );
@@ -181,13 +187,13 @@ function SuccessorNotZeroComplete() {
     let ws = createEmptyWorkspace(peanoArithmeticSystem);
 
     // Step 1: PA1: ∀x. ¬(S(x) = 0)
-    ws = addNode(ws, "axiom", "PA1", { x: 50, y: 50 }, "all x. ~(S(x) = 0)");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "all x. ~(S(x) = 0)");
 
     // Step 2: A4スキーマインスタンス（τを含む）: (∀x. ¬(S(x)=0)) → ¬(S(τ)=0)
     ws = addNode(
       ws,
       "axiom",
-      "A4",
+      "Axiom",
       { x: 450, y: 50 },
       "(all x. ~(S(x) = 0)) -> ~(S(τ) = 0)",
     );

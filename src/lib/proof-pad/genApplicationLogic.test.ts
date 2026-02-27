@@ -21,7 +21,7 @@ describe("genApplicationLogic", () => {
 
     it("returns premise node id when connected", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "gen", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const premiseId = getGenPremise(ws, "node-2");
@@ -30,7 +30,7 @@ describe("genApplicationLogic", () => {
 
     it("ignores connections to other ports", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "gen", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "out");
       const premiseId = getGenPremise(ws, "node-2");
@@ -39,7 +39,7 @@ describe("genApplicationLogic", () => {
 
     it("ignores connections to other nodes", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "gen", "Gen-1", { x: 100, y: 100 });
       ws = addNode(ws, "gen", "Gen-2", { x: 200, y: 200 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
@@ -72,7 +72,7 @@ describe("genApplicationLogic", () => {
 
     it("returns PremiseParseError when premise formula is invalid", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "-> ->");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "-> ->");
       ws = addNode(ws, "gen", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const result = validateGenApplication(ws, "node-2", "x");
@@ -81,7 +81,7 @@ describe("genApplicationLogic", () => {
 
     it("returns PremiseParseError when premise formula is empty", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "");
       ws = addNode(ws, "gen", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const result = validateGenApplication(ws, "node-2", "x");
@@ -90,7 +90,7 @@ describe("genApplicationLogic", () => {
 
     it("returns GeneralizationNotEnabled when system does not support Gen", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "gen", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const result = validateGenApplication(ws, "node-2", "x");
@@ -99,7 +99,7 @@ describe("genApplicationLogic", () => {
 
     it("returns Success with conclusion when Gen is valid", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "gen", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const result = validateGenApplication(ws, "node-2", "x");
@@ -112,7 +112,7 @@ describe("genApplicationLogic", () => {
 
     it("returns Success with complex formula", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> psi");
       ws = addNode(ws, "gen", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const result = validateGenApplication(ws, "node-2", "y");
@@ -124,7 +124,7 @@ describe("genApplicationLogic", () => {
 
     it("handles predicate formula with Gen", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "P(x) -> Q(x)");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "P(x) -> Q(x)");
       ws = addNode(ws, "gen", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const result = validateGenApplication(ws, "node-2", "x");
@@ -136,7 +136,7 @@ describe("genApplicationLogic", () => {
 
     it("trims variable name whitespace", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "gen", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const result = validateGenApplication(ws, "node-2", "  x  ");

@@ -9,6 +9,7 @@ import {
   getProofEdgeColor,
   getProofNodePorts,
   getProofNodeStyle,
+  getProofNodeKindLabel,
 } from "./proofNodeUI";
 import type { ProofNodeKind } from "./proofNodeUI";
 
@@ -131,12 +132,48 @@ describe("getProofEdgeColor", () => {
   });
 
   it("substitution edges use CSS variable with fallback", () => {
-    expect(getProofEdgeColor("substitution")).toBe("var(--color-edge-substitution, #5dade2)");
+    expect(getProofEdgeColor("substitution")).toBe(
+      "var(--color-edge-substitution, #5dade2)",
+    );
   });
 });
 
 describe("PROOF_NODE_KINDS", () => {
   it("contains all 5 kinds", () => {
-    expect(PROOF_NODE_KINDS).toEqual(["axiom", "mp", "gen", "substitution", "conclusion"]);
+    expect(PROOF_NODE_KINDS).toEqual([
+      "axiom",
+      "mp",
+      "gen",
+      "substitution",
+      "conclusion",
+    ]);
+  });
+});
+
+describe("getProofNodeKindLabel", () => {
+  it("returns 'Axiom' for axiom kind", () => {
+    expect(getProofNodeKindLabel("axiom")).toBe("Axiom");
+  });
+
+  it("returns 'MP' for mp kind", () => {
+    expect(getProofNodeKindLabel("mp")).toBe("MP");
+  });
+
+  it("returns 'Gen' for gen kind", () => {
+    expect(getProofNodeKindLabel("gen")).toBe("Gen");
+  });
+
+  it("returns 'Subst' for substitution kind", () => {
+    expect(getProofNodeKindLabel("substitution")).toBe("Subst");
+  });
+
+  it("returns 'Conclusion' for conclusion kind", () => {
+    expect(getProofNodeKindLabel("conclusion")).toBe("Conclusion");
+  });
+
+  it("returns a label for every PROOF_NODE_KINDS entry", () => {
+    for (const kind of PROOF_NODE_KINDS) {
+      expect(getProofNodeKindLabel(kind)).toBeTruthy();
+    }
   });
 });

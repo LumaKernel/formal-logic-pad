@@ -26,14 +26,14 @@ function createMessyProof(): WorkspaceState {
   ws = addNode(
     ws,
     "axiom",
-    "A1①",
+    "Axiom",
     { x: 500, y: 400 },
     "phi -> ((phi -> phi) -> phi)",
   );
   ws = addNode(
     ws,
     "axiom",
-    "A2",
+    "Axiom",
     { x: 100, y: 100 },
     "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
   );
@@ -42,7 +42,7 @@ function createMessyProof(): WorkspaceState {
     y: 300,
   });
   ws = mp1.workspace;
-  ws = addNode(ws, "axiom", "A1②", { x: 600, y: 50 }, "phi -> (phi -> phi)");
+  ws = addNode(ws, "axiom", "Axiom", { x: 600, y: 50 }, "phi -> (phi -> phi)");
   const mp2 = applyMPAndConnect(ws, "node-4", "node-3", {
     x: 400,
     y: 100,

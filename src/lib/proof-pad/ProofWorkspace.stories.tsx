@@ -56,11 +56,11 @@ function EqualityLogicWorkspace() {
 function WorkspaceWithNodes() {
   const initial = (() => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A1 (K)", { x: 50, y: 50 }, "φ → (ψ → φ)");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "φ → (ψ → φ)");
     ws = addNode(
       ws,
       "axiom",
-      "A2 (S)",
+      "Axiom",
       { x: 350, y: 50 },
       "(φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))",
     );
@@ -90,8 +90,8 @@ function WorkspaceWithNodes() {
 function WorkspaceWithValidMP() {
   const initial = (() => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "phi");
-    ws = addNode(ws, "axiom", "A2", { x: 350, y: 50 }, "phi -> psi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 350, y: 50 }, "phi -> psi");
     const result = applyMPAndConnect(ws, "node-1", "node-2", {
       x: 200,
       y: 250,
@@ -119,8 +119,8 @@ function WorkspaceWithValidMP() {
 function WorkspaceWithInvalidMP() {
   const initial = (() => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "phi");
-    ws = addNode(ws, "axiom", "A2", { x: 350, y: 50 }, "psi -> chi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 350, y: 50 }, "psi -> chi");
     const result = applyMPAndConnect(ws, "node-1", "node-2", {
       x: 200,
       y: 250,
@@ -313,8 +313,8 @@ export const MPSelectionFlow: Story = {
 function WorkspaceWithGoalAchieved() {
   const initial = (() => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "phi");
-    ws = addNode(ws, "axiom", "A2", { x: 350, y: 50 }, "phi -> psi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 350, y: 50 }, "phi -> psi");
     const result = applyMPAndConnect(ws, "node-1", "node-2", {
       x: 200,
       y: 250,
@@ -346,7 +346,7 @@ function WorkspaceWithGoalAchieved() {
 function WorkspaceWithGoalNotAchieved() {
   const initial = (() => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi");
     ws = addNode(ws, "axiom", "Goal", { x: 300, y: 0 }, "phi -> phi");
     ws = updateNodeRole(ws, "node-2", "goal");
     return ws;
@@ -458,14 +458,14 @@ function SubtreeSelectionWorkspace() {
   const initial = (() => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     // 2段のMPチェーン: axiom-1,axiom-2 → mp-1, axiom-3 → mp-2
-    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "phi");
-    ws = addNode(ws, "axiom", "A2", { x: 350, y: 50 }, "phi -> psi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 350, y: 50 }, "phi -> psi");
     const mp1 = applyMPAndConnect(ws, "node-1", "node-2", {
       x: 200,
       y: 200,
     });
     ws = mp1.workspace;
-    ws = addNode(ws, "axiom", "A3", { x: 500, y: 200 }, "psi -> chi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 500, y: 200 }, "psi -> chi");
     const mp2 = applyMPAndConnect(ws, "node-3", "node-4", {
       x: 350,
       y: 350,
@@ -613,8 +613,8 @@ export const SubtreeSelection: Story = {
 function NodeDeleteWorkspace() {
   const initial = (() => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "phi");
-    ws = addNode(ws, "axiom", "A2", { x: 350, y: 50 }, "phi -> psi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 350, y: 50 }, "phi -> psi");
     const mp1 = applyMPAndConnect(ws, "node-1", "node-2", {
       x: 200,
       y: 200,
@@ -682,7 +682,7 @@ function QuestNodeDeleteWorkspace() {
     let ws = createQuestWorkspace(lukasiewiczSystem, [
       { formulaText: "phi -> phi", position: { x: 200, y: 200 } },
     ]);
-    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "phi -> phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi -> phi");
     return ws;
   })();
 
@@ -863,8 +863,8 @@ export const AxiomReidentifyOnEdit: Story = {
 function ConnectionDeleteWorkspace() {
   const initial = (() => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "phi");
-    ws = addNode(ws, "axiom", "A2", { x: 350, y: 50 }, "phi -> psi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 350, y: 50 }, "phi -> psi");
     const result = applyMPAndConnect(ws, "node-1", "node-2", {
       x: 200,
       y: 250,
@@ -947,8 +947,14 @@ export const ConnectionDelete: Story = {
 function NodeDuplicateWorkspace() {
   const initial = (() => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi -> (psi -> phi)");
-    ws = addNode(ws, "axiom", "G1", { x: 400, y: 100 }, "phi -> phi");
+    ws = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 100, y: 100 },
+      "phi -> (psi -> phi)",
+    );
+    ws = addNode(ws, "axiom", "Goal", { x: 400, y: 100 }, "phi -> phi");
     ws = updateNodeRole(ws, "node-2", "goal");
     return ws;
   })();
@@ -1007,10 +1013,10 @@ export const NodeDuplicate: Story = {
 function MarqueeSelectionWorkspace() {
   const initial = (() => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "φ → (ψ → φ)");
-    ws = addNode(ws, "axiom", "A2", { x: 250, y: 50 }, "ψ → φ");
-    ws = addNode(ws, "axiom", "A3", { x: 450, y: 50 }, "χ → ψ");
-    ws = addNode(ws, "axiom", "A4", { x: 50, y: 250 }, "φ → χ");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "φ → (ψ → φ)");
+    ws = addNode(ws, "axiom", "Axiom", { x: 250, y: 50 }, "ψ → φ");
+    ws = addNode(ws, "axiom", "Axiom", { x: 450, y: 50 }, "χ → ψ");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 250 }, "φ → χ");
     return ws;
   })();
 
@@ -1059,7 +1065,13 @@ function SubstitutionAppliedWorkspace() {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
 
     // 公理 A1: φ → (ψ → φ)
-    ws = addNode(ws, "axiom", "A1", { x: 200, y: 50 }, "phi -> (psi -> phi)");
+    ws = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 200, y: 50 },
+      "phi -> (psi -> phi)",
+    );
 
     // 代入操作: φ := α → β, ψ := γ
     const result = applySubstitutionAndConnect(
@@ -1133,7 +1145,7 @@ export const SubstitutionContextMenu: Story = {
       ws = addNode(
         ws,
         "axiom",
-        "A1",
+        "Axiom",
         { x: 200, y: 100 },
         "phi -> (psi -> phi)",
       );

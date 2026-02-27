@@ -35,7 +35,7 @@ function IdentityProofComplete() {
     ws = addNode(
       ws,
       "axiom",
-      "A1①",
+      "Axiom",
       { x: 50, y: 50 },
       "phi -> ((phi -> phi) -> phi)",
     );
@@ -44,7 +44,7 @@ function IdentityProofComplete() {
     ws = addNode(
       ws,
       "axiom",
-      "A2",
+      "Axiom",
       { x: 450, y: 50 },
       "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
     );
@@ -54,7 +54,13 @@ function IdentityProofComplete() {
     ws = mp1.workspace;
 
     // Step 4: A1インスタンス φ=phi, ψ=phi
-    ws = addNode(ws, "axiom", "A1②", { x: 50, y: 350 }, "phi -> (phi -> phi)");
+    ws = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 50, y: 350 },
+      "phi -> (phi -> phi)",
+    );
 
     // Step 5: MP(4,3) → φ → φ
     const mp2 = applyMPAndConnect(ws, "node-4", "node-3", { x: 250, y: 500 });
@@ -95,14 +101,14 @@ function IdentityProofPartial() {
     ws = addNode(
       ws,
       "axiom",
-      "A1①",
+      "Axiom",
       { x: 50, y: 50 },
       "phi -> ((phi -> phi) -> phi)",
     );
     ws = addNode(
       ws,
       "axiom",
-      "A2",
+      "Axiom",
       { x: 450, y: 50 },
       "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
     );
@@ -110,7 +116,13 @@ function IdentityProofPartial() {
     ws = mp1.workspace;
 
     // Step 4: A1インスタンス（最後のMP適用待ち）
-    ws = addNode(ws, "axiom", "A1②", { x: 50, y: 350 }, "phi -> (phi -> phi)");
+    ws = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 50, y: 350 },
+      "phi -> (phi -> phi)",
+    );
 
     // ゴール設定（ノードとして追加）
     ws = addNode(ws, "axiom", "Goal", { x: 450, y: 350 }, "phi -> phi");
@@ -142,8 +154,8 @@ function MPPremiseEditInvalidation() {
   const initial = (() => {
     // phi + (phi -> psi) → MP → psi (成功状態)
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A1: φ", { x: 50, y: 50 }, "phi");
-    ws = addNode(ws, "axiom", "A2: φ→ψ", { x: 350, y: 50 }, "phi -> psi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 350, y: 50 }, "phi -> psi");
     const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 200, y: 200 });
     ws = mp.workspace;
     return ws;
@@ -174,14 +186,14 @@ function MPCascadeFailure() {
     // phi + (phi -> psi) → MP1 → psi
     // psi(=MP1) + (psi -> chi) → MP2 → chi
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A1: φ", { x: 50, y: 50 }, "phi");
-    ws = addNode(ws, "axiom", "A2: φ→ψ", { x: 350, y: 50 }, "phi -> psi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 350, y: 50 }, "phi -> psi");
     const mp1 = applyMPAndConnect(ws, "node-1", "node-2", {
       x: 200,
       y: 200,
     });
     ws = mp1.workspace;
-    ws = addNode(ws, "axiom", "A3: ψ→χ", { x: 500, y: 200 }, "psi -> chi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 500, y: 200 }, "psi -> chi");
     const mp2 = applyMPAndConnect(ws, "node-3", "node-4", {
       x: 350,
       y: 350,
@@ -221,7 +233,7 @@ function LargeProofTreeDemo() {
     ws = addNode(
       ws,
       "axiom",
-      "A1①",
+      "Axiom",
       { x: 50, y: 30 },
       "phi -> ((phi -> phi) -> phi)",
     );
@@ -229,7 +241,7 @@ function LargeProofTreeDemo() {
     ws = addNode(
       ws,
       "axiom",
-      "A2",
+      "Axiom",
       { x: 500, y: 30 },
       "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
     );
@@ -237,7 +249,13 @@ function LargeProofTreeDemo() {
     const mp1 = applyMPAndConnect(ws, "node-1", "node-2", { x: 280, y: 120 });
     ws = mp1.workspace;
     // Step 4: A1② φ → (φ→φ)
-    ws = addNode(ws, "axiom", "A1②", { x: 50, y: 200 }, "phi -> (phi -> phi)");
+    ws = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 50, y: 200 },
+      "phi -> (phi -> phi)",
+    );
     // Step 5: MP(4,3) → φ → φ
     const mp2 = applyMPAndConnect(ws, "node-4", "node-3", { x: 280, y: 280 });
     ws = mp2.workspace;
@@ -247,7 +265,7 @@ function LargeProofTreeDemo() {
     ws = addNode(
       ws,
       "axiom",
-      "A1③",
+      "Axiom",
       { x: 600, y: 280 },
       "(phi -> phi) -> (psi -> (phi -> phi))",
     );
@@ -260,7 +278,7 @@ function LargeProofTreeDemo() {
     ws = addNode(
       ws,
       "axiom",
-      "A1④",
+      "Axiom",
       { x: 750, y: 360 },
       "(psi -> (phi -> phi)) -> (chi -> (psi -> (phi -> phi)))",
     );
@@ -308,8 +326,8 @@ function MixedErrorStatesDemo() {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
 
     // 成功するMP: φ + (φ→ψ) → ψ
-    ws = addNode(ws, "axiom", "A: φ", { x: 50, y: 50 }, "phi");
-    ws = addNode(ws, "axiom", "B: φ→ψ", { x: 350, y: 50 }, "phi -> psi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 350, y: 50 }, "phi -> psi");
     const mpOk = applyMPAndConnect(ws, "node-1", "node-2", {
       x: 200,
       y: 200,
@@ -317,8 +335,8 @@ function MixedErrorStatesDemo() {
     ws = mpOk.workspace;
 
     // 失敗するMP: α + (β→γ) → MP失敗（αとβが不一致）
-    ws = addNode(ws, "axiom", "C: α", { x: 550, y: 50 }, "alpha");
-    ws = addNode(ws, "axiom", "D: β→γ", { x: 850, y: 50 }, "beta -> gamma");
+    ws = addNode(ws, "axiom", "Axiom", { x: 550, y: 50 }, "alpha");
+    ws = addNode(ws, "axiom", "Axiom", { x: 850, y: 50 }, "beta -> gamma");
     const mpFail = applyMPAndConnect(ws, "node-4", "node-5", {
       x: 700,
       y: 200,
@@ -326,16 +344,10 @@ function MixedErrorStatesDemo() {
     ws = mpFail.workspace;
 
     // パースエラーの公理ノード
-    ws = addNode(
-      ws,
-      "axiom",
-      "E: パースエラー",
-      { x: 550, y: 350 },
-      "-> -> invalid",
-    );
+    ws = addNode(ws, "axiom", "Axiom", { x: 550, y: 350 }, "-> -> invalid");
 
     // 未接続の孤立ノード
-    ws = addNode(ws, "axiom", "F: 孤立", { x: 850, y: 350 }, "delta");
+    ws = addNode(ws, "axiom", "Axiom", { x: 850, y: 350 }, "delta");
 
     // ゴール1: ψ（MP成功で達成 - MP結果からの接続あり）
     ws = addNode(ws, "axiom", "Goal①: ψ", { x: 100, y: 400 }, "psi");
@@ -655,8 +667,8 @@ function MPRepairFlowDemo() {
   const initial = (() => {
     // φ + (φ→ψ) → MP → ψ（成功状態）
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "axiom", "A: φ", { x: 50, y: 50 }, "phi");
-    ws = addNode(ws, "axiom", "B: φ→ψ", { x: 350, y: 50 }, "phi -> psi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 350, y: 50 }, "phi -> psi");
     const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 200, y: 200 });
     ws = mp.workspace;
     return ws;

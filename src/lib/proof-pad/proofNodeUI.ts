@@ -19,7 +19,12 @@ import type { ConnectorPort } from "../infinite-canvas/connector";
  * - substitution: 代入操作 — 前提の論理式にメタ変数代入を適用
  * - conclusion: 最終結論
  */
-export type ProofNodeKind = "axiom" | "mp" | "gen" | "substitution" | "conclusion";
+export type ProofNodeKind =
+  | "axiom"
+  | "mp"
+  | "gen"
+  | "substitution"
+  | "conclusion";
 
 /** すべてのProofNodeKindの値（exhaustive checkに使用） */
 export const PROOF_NODE_KINDS: readonly ProofNodeKind[] = [
@@ -29,6 +34,26 @@ export const PROOF_NODE_KINDS: readonly ProofNodeKind[] = [
   "substitution",
   "conclusion",
 ] as const;
+
+/**
+ * ノード種別に対応するデフォルトラベルを返す。
+ * 公理ノードは "Axiom" を返す（具体的な公理名は `axiomNameLogic.ts` で計算される）。
+ * exhaustive switchで網羅性を保証。
+ */
+export function getProofNodeKindLabel(kind: ProofNodeKind): string {
+  switch (kind) {
+    case "axiom":
+      return "Axiom";
+    case "mp":
+      return "MP";
+    case "gen":
+      return "Gen";
+    case "substitution":
+      return "Subst";
+    case "conclusion":
+      return "Conclusion";
+  }
+}
 
 // --- スタイル ---
 

@@ -217,9 +217,7 @@ describe("ProofWorkspace", () => {
       render(
         <ProofWorkspace system={predicateLogicSystem} testId="workspace" />,
       );
-      await user.click(
-        screen.getByTestId("workspace-axiom-palette-item-A4"),
-      );
+      await user.click(screen.getByTestId("workspace-axiom-palette-item-A4"));
       expect(
         screen.getByTestId("workspace-parametric-axiom-panel"),
       ).toBeInTheDocument();
@@ -230,9 +228,7 @@ describe("ProofWorkspace", () => {
       render(
         <ProofWorkspace system={predicateLogicSystem} testId="workspace" />,
       );
-      await user.click(
-        screen.getByTestId("workspace-axiom-palette-item-A5"),
-      );
+      await user.click(screen.getByTestId("workspace-axiom-palette-item-A5"));
       expect(
         screen.getByTestId("workspace-parametric-axiom-panel"),
       ).toBeInTheDocument();
@@ -243,9 +239,7 @@ describe("ProofWorkspace", () => {
       render(
         <ProofWorkspace system={predicateLogicSystem} testId="workspace" />,
       );
-      await user.click(
-        screen.getByTestId("workspace-axiom-palette-item-A4"),
-      );
+      await user.click(screen.getByTestId("workspace-axiom-palette-item-A4"));
       expect(
         screen.getByTestId("workspace-parametric-axiom-panel"),
       ).toBeInTheDocument();
@@ -269,9 +263,7 @@ describe("ProofWorkspace", () => {
           testId="workspace"
         />,
       );
-      await user.click(
-        screen.getByTestId("workspace-axiom-palette-item-A4"),
-      );
+      await user.click(screen.getByTestId("workspace-axiom-palette-item-A4"));
       const input = screen.getByTestId(
         "workspace-parametric-axiom-panel-universal-input",
       );
@@ -281,9 +273,7 @@ describe("ProofWorkspace", () => {
       );
       expect(onWorkspaceChange).toHaveBeenCalled();
       const lastCall =
-        onWorkspaceChange.mock.calls[
-          onWorkspaceChange.mock.calls.length - 1
-        ];
+        onWorkspaceChange.mock.calls[onWorkspaceChange.mock.calls.length - 1];
       const updatedWs = lastCall?.[0] as WorkspaceState;
       expect(updatedWs.nodes.length).toBeGreaterThan(0);
       const addedNode = updatedWs.nodes[updatedWs.nodes.length - 1];
@@ -309,7 +299,7 @@ describe("ProofWorkspace", () => {
       const newState = onWorkspaceChange.mock.calls[0][0] as WorkspaceState;
       expect(newState.nodes).toHaveLength(1);
       expect(newState.nodes[0].kind).toBe("axiom");
-      expect(newState.nodes[0].label).toBe("A1 (K)");
+      expect(newState.nodes[0].label).toBe("Axiom");
       expect(newState.nodes[0].formulaText).toBe("phi -> (psi -> phi)");
     });
 
@@ -1729,13 +1719,7 @@ describe("ProofWorkspace", () => {
     it("shows warning for non-trivial axiom instance", () => {
       // phi -> (phi -> phi) is A1 with psi:=phi (non-trivial: same meta-var for different slots)
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(
-        ws,
-        "axiom",
-        "Axiom",
-        { x: 0, y: 0 },
-        "phi -> (phi -> phi)",
-      );
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (phi -> phi)");
 
       render(
         <ProofWorkspace
@@ -1745,20 +1729,14 @@ describe("ProofWorkspace", () => {
         />,
       );
 
-      expect(
-        screen.getByTestId("proof-node-node-1-status"),
-      ).toHaveTextContent("Needs substitution step");
+      expect(screen.getByTestId("proof-node-node-1-status")).toHaveTextContent(
+        "Needs substitution step",
+      );
     });
 
     it("does not show warning for trivial axiom instance", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(
-        ws,
-        "axiom",
-        "Axiom",
-        { x: 0, y: 0 },
-        "phi -> (psi -> phi)",
-      );
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
 
       render(
         <ProofWorkspace

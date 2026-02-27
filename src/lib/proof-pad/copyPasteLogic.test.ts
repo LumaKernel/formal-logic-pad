@@ -17,7 +17,7 @@ import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
 const nodeA: WorkspaceNode = {
   id: "node-1",
   kind: "axiom",
-  label: "A1",
+  label: "Axiom",
   formulaText: "phi -> (psi -> phi)",
   position: { x: 100, y: 100 },
   role: "axiom",
@@ -26,7 +26,7 @@ const nodeA: WorkspaceNode = {
 const nodeB: WorkspaceNode = {
   id: "node-2",
   kind: "axiom",
-  label: "A2",
+  label: "Axiom",
   formulaText: "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
   position: { x: 300, y: 100 },
 };
@@ -117,7 +117,7 @@ describe("buildClipboardData", () => {
     expect(result.nodes).toHaveLength(1);
     expect(result.nodes[0]?.originalId).toBe("node-1");
     expect(result.nodes[0]?.kind).toBe("axiom");
-    expect(result.nodes[0]?.label).toBe("A1");
+    expect(result.nodes[0]?.label).toBe("Axiom");
     expect(result.nodes[0]?.formulaText).toBe("phi -> (psi -> phi)");
     expect(result.nodes[0]?.relativePosition).toEqual({ x: 0, y: 0 });
     expect(result.nodes[0]?.role).toBe("axiom");
@@ -379,7 +379,7 @@ describe("pasteClipboardData", () => {
         {
           originalId: "node-1",
           kind: "axiom",
-          label: "A1",
+          label: "Axiom",
           formulaText: "phi",
           relativePosition: { x: 0, y: 0 },
         },

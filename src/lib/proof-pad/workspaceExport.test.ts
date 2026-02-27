@@ -17,7 +17,7 @@ function createSampleWorkspace(): WorkspaceState {
       {
         id: "node-1",
         kind: "axiom",
-        label: "A1",
+        label: "Axiom",
         formulaText: "phi -> (psi -> phi)",
         position: { x: 100, y: 200 },
         role: "axiom",

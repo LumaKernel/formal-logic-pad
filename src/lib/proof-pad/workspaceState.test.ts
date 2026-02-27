@@ -60,12 +60,12 @@ describe("proofWorkspace", () => {
   describe("addNode", () => {
     it("adds an axiom node", () => {
       const ws = createEmptyWorkspace(lukasiewiczSystem);
-      const result = addNode(ws, "axiom", "A1", { x: 100, y: 200 });
+      const result = addNode(ws, "axiom", "Axiom", { x: 100, y: 200 });
       expect(result.nodes).toHaveLength(1);
       expect(result.nodes[0]).toEqual({
         id: "node-1",
         kind: "axiom",
-        label: "A1",
+        label: "Axiom",
         formulaText: "",
         position: { x: 100, y: 200 },
       });
@@ -74,7 +74,13 @@ describe("proofWorkspace", () => {
 
     it("adds a node with formula text", () => {
       const ws = createEmptyWorkspace(lukasiewiczSystem);
-      const result = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> phi");
+      const result = addNode(
+        ws,
+        "axiom",
+        "Axiom",
+        { x: 0, y: 0 },
+        "phi -> phi",
+      );
       expect(result.nodes[0]!.formulaText).toBe("phi -> phi");
     });
 
@@ -93,8 +99,8 @@ describe("proofWorkspace", () => {
 
     it("increments node IDs", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 });
       ws = addNode(ws, "mp", "MP", { x: 50, y: 100 });
       expect(ws.nodes).toHaveLength(3);
       expect(ws.nodes[0]!.id).toBe("node-1");
@@ -105,7 +111,7 @@ describe("proofWorkspace", () => {
 
     it("does not mutate original state", () => {
       const ws = createEmptyWorkspace(lukasiewiczSystem);
-      addNode(ws, "axiom", "A1", { x: 0, y: 0 });
+      addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       expect(ws.nodes).toHaveLength(0);
       expect(ws.nextNodeId).toBe(1);
     });
@@ -114,22 +120,22 @@ describe("proofWorkspace", () => {
   describe("updateNodePosition", () => {
     it("updates position of existing node", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       const result = updateNodePosition(ws, "node-1", { x: 50, y: 75 });
       expect(result.nodes[0]!.position).toEqual({ x: 50, y: 75 });
     });
 
     it("does not affect other nodes", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 });
       const result = updateNodePosition(ws, "node-1", { x: 50, y: 75 });
       expect(result.nodes[1]!.position).toEqual({ x: 100, y: 0 });
     });
 
     it("returns unchanged state for non-existent node", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       const result = updateNodePosition(ws, "non-existent", { x: 50, y: 75 });
       expect(result.nodes[0]!.position).toEqual({ x: 0, y: 0 });
     });
@@ -138,15 +144,15 @@ describe("proofWorkspace", () => {
   describe("updateNodeFormulaText", () => {
     it("updates formula text", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       const result = updateNodeFormulaText(ws, "node-1", "phi -> psi");
       expect(result.nodes[0]!.formulaText).toBe("phi -> psi");
     });
 
     it("does not affect other nodes", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "alpha");
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "beta");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "alpha");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "beta");
       const result = updateNodeFormulaText(ws, "node-1", "phi -> psi");
       expect(result.nodes[1]!.formulaText).toBe("beta");
     });
@@ -155,10 +161,10 @@ describe("proofWorkspace", () => {
   describe("findNode", () => {
     it("finds existing node", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       const node = findNode(ws, "node-1");
       expect(node).toBeDefined();
-      expect(node!.label).toBe("A1");
+      expect(node!.label).toBe("Axiom");
     });
 
     it("returns undefined for non-existent node", () => {
@@ -171,8 +177,8 @@ describe("proofWorkspace", () => {
   describe("removeNode", () => {
     it("removes a node", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 });
       const result = removeNode(ws, "node-1");
       expect(result.nodes).toHaveLength(1);
       expect(result.nodes[0]!.id).toBe("node-2");
@@ -180,8 +186,8 @@ describe("proofWorkspace", () => {
 
     it("removes related connections", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 });
       ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
@@ -192,8 +198,8 @@ describe("proofWorkspace", () => {
 
     it("removes connections where removed node is the target", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 });
       ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
@@ -205,10 +211,10 @@ describe("proofWorkspace", () => {
 
     it("removes connections where removed node is both source and target", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       ws = addNode(ws, "mp", "MP-1", { x: 100, y: 150 });
       ws = addNode(ws, "mp", "MP-2", { x: 200, y: 300 });
-      ws = addNode(ws, "axiom", "A2", { x: 300, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 300, y: 0 });
       // node-1 → node-2 (node-2 is target)
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
       // node-2 → node-3 (node-2 is source)
@@ -225,7 +231,7 @@ describe("proofWorkspace", () => {
 
     it("does not mutate original state", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       removeNode(ws, "node-1");
       expect(ws.nodes).toHaveLength(1);
     });
@@ -234,7 +240,7 @@ describe("proofWorkspace", () => {
   describe("addConnection", () => {
     it("adds a connection between nodes", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
       const result = addConnection(
         ws,
@@ -255,7 +261,7 @@ describe("proofWorkspace", () => {
 
     it("does not mutate original state", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
       addConnection(ws, "node-1", "out", "node-2", "premise-left");
       expect(ws.connections).toHaveLength(0);
@@ -265,7 +271,7 @@ describe("proofWorkspace", () => {
   describe("removeConnection", () => {
     it("removes a connection", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
       const result = removeConnection(
@@ -277,8 +283,8 @@ describe("proofWorkspace", () => {
 
     it("does not affect other connections", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 });
       ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
@@ -300,7 +306,7 @@ describe("proofWorkspace", () => {
 
     it("preserves nodes and connections", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
       const result = changeSystem(ws, equalityLogicSystem);
@@ -313,8 +319,8 @@ describe("proofWorkspace", () => {
   describe("applyMPAndConnect", () => {
     it("creates MP node with connections and validates successfully", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
 
       const result = applyMPAndConnect(ws, "node-1", "node-2", {
         x: 100,
@@ -336,8 +342,8 @@ describe("proofWorkspace", () => {
 
     it("creates connections from source nodes to MP node", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
 
       const result = applyMPAndConnect(ws, "node-1", "node-2", {
         x: 100,
@@ -358,8 +364,8 @@ describe("proofWorkspace", () => {
 
     it("returns error when right premise is not an implication", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "psi");
 
       const result = applyMPAndConnect(ws, "node-1", "node-2", {
         x: 100,
@@ -375,8 +381,8 @@ describe("proofWorkspace", () => {
 
     it("returns error when premises do not match", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "psi -> chi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "psi -> chi");
 
       const result = applyMPAndConnect(ws, "node-1", "node-2", {
         x: 100,
@@ -388,8 +394,8 @@ describe("proofWorkspace", () => {
 
     it("returns error when left formula is empty", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
 
       const result = applyMPAndConnect(ws, "node-1", "node-2", {
         x: 100,
@@ -401,8 +407,8 @@ describe("proofWorkspace", () => {
 
     it("does not mutate original state", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
 
       applyMPAndConnect(ws, "node-1", "node-2", { x: 100, y: 150 });
 
@@ -421,7 +427,7 @@ describe("proofWorkspace", () => {
 
     it("does not affect other nodes", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "gen", "Gen", { x: 100, y: 100 });
       const result = updateNodeGenVariableName(ws, "node-2", "x");
       expect(result.nodes[0]!.genVariableName).toBeUndefined();
@@ -432,7 +438,7 @@ describe("proofWorkspace", () => {
   describe("applyGenAndConnect", () => {
     it("creates Gen node with connection and validates successfully", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
 
       const result = applyGenAndConnect(ws, "node-1", "x", {
         x: 0,
@@ -454,7 +460,7 @@ describe("proofWorkspace", () => {
 
     it("creates connection from source to Gen node", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
 
       const result = applyGenAndConnect(ws, "node-1", "x", {
         x: 0,
@@ -470,7 +476,7 @@ describe("proofWorkspace", () => {
 
     it("returns error when Gen is not enabled", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
 
       const result = applyGenAndConnect(ws, "node-1", "x", {
         x: 0,
@@ -484,7 +490,7 @@ describe("proofWorkspace", () => {
 
     it("returns error when premise is empty", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "");
 
       const result = applyGenAndConnect(ws, "node-1", "x", {
         x: 0,
@@ -496,7 +502,7 @@ describe("proofWorkspace", () => {
 
     it("does not mutate original state", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
 
       applyGenAndConnect(ws, "node-1", "x", { x: 0, y: 150 });
 
@@ -523,7 +529,7 @@ describe("proofWorkspace", () => {
 
     it("does not affect other nodes", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "substitution", "Subst", { x: 0, y: 100 });
       const entries: SubstitutionEntries = [
         {
@@ -550,7 +556,7 @@ describe("proofWorkspace", () => {
 
     it("creates substitution node and connects to premise", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
       const result = applySubstitutionAndConnect(ws, "node-1", singleEntry, {
         x: 0,
         y: 150,
@@ -564,7 +570,7 @@ describe("proofWorkspace", () => {
 
     it("returns NoSubstitutionEntries with empty entries", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
       const result = applySubstitutionAndConnect(ws, "node-1", [], {
         x: 0,
         y: 150,
@@ -575,7 +581,7 @@ describe("proofWorkspace", () => {
     it("returns Success with A1 substitution", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       // A1: φ → (ψ → φ)
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
       const entries: SubstitutionEntries = [
         {
           _tag: "FormulaSubstitution",
@@ -600,7 +606,7 @@ describe("proofWorkspace", () => {
 
     it("returns PremiseParseError when premise has parse error", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "-> bad");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "-> bad");
       const result = applySubstitutionAndConnect(ws, "node-1", singleEntry, {
         x: 0,
         y: 150,
@@ -610,7 +616,7 @@ describe("proofWorkspace", () => {
 
     it("does not mutate original state", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
 
       applySubstitutionAndConnect(ws, "node-1", singleEntry, { x: 0, y: 150 });
 
@@ -622,21 +628,21 @@ describe("proofWorkspace", () => {
   describe("updateNodeRole", () => {
     it("sets role to 'axiom'", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       const result = updateNodeRole(ws, "node-1", "axiom");
       expect(result.nodes[0]!.role).toBe("axiom");
     });
 
     it("sets role to 'goal'", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       const result = updateNodeRole(ws, "node-1", "goal");
       expect(result.nodes[0]!.role).toBe("goal");
     });
 
     it("clears role by setting to undefined", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = updateNodeRole(ws, "node-1", "axiom");
       const result = updateNodeRole(ws, "node-1", undefined);
       expect(result.nodes[0]!.role).toBeUndefined();
@@ -644,8 +650,8 @@ describe("proofWorkspace", () => {
 
     it("does not affect other nodes", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "psi");
       const result = updateNodeRole(ws, "node-1", "goal");
       expect(result.nodes[0]!.role).toBe("goal");
       expect(result.nodes[1]!.role).toBeUndefined();
@@ -653,7 +659,7 @@ describe("proofWorkspace", () => {
 
     it("does not mutate original state", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       updateNodeRole(ws, "node-1", "axiom");
       expect(ws.nodes[0]!.role).toBeUndefined();
     });
@@ -712,7 +718,7 @@ describe("proofWorkspace", () => {
   describe("isNodeProtected", () => {
     it("returns false for free mode nodes", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       expect(isNodeProtected(ws, "node-1")).toBe(false);
     });
 
@@ -727,7 +733,7 @@ describe("proofWorkspace", () => {
       let ws = createQuestWorkspace(lukasiewiczSystem, [
         { formulaText: "phi", position: { x: 0, y: 0 } },
       ]);
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 });
       expect(isNodeProtected(ws, "node-2")).toBe(false);
     });
 
@@ -753,7 +759,7 @@ describe("proofWorkspace", () => {
       let ws = createQuestWorkspace(lukasiewiczSystem, [
         { formulaText: "phi", position: { x: 0, y: 0 } },
       ]);
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 });
       const result = removeNode(ws, "node-2");
       expect(result.nodes).toHaveLength(1);
       expect(result.nodes[0]!.id).toBe("node-1");
@@ -772,7 +778,7 @@ describe("proofWorkspace", () => {
       let ws = createQuestWorkspace(lukasiewiczSystem, [
         { formulaText: "phi", position: { x: 0, y: 0 } },
       ]);
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 });
       const result = updateNodeFormulaText(ws, "node-2", "psi");
       expect(result.nodes[1]!.formulaText).toBe("psi");
     });
@@ -852,7 +858,7 @@ describe("proofWorkspace", () => {
       let ws = createQuestWorkspace(lukasiewiczSystem, [
         { formulaText: "phi", position: { x: 0, y: 0 } },
       ]);
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "psi");
       const result = convertToFreeMode(ws);
       expect(result.nodes).toHaveLength(2);
       // Protected node: protection cleared
@@ -875,8 +881,8 @@ describe("proofWorkspace", () => {
   describe("copySelectedNodes", () => {
     it("copies selected nodes into clipboard data", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi -> psi");
-      ws = addNode(ws, "axiom", "A2", { x: 300, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 300, y: 100 }, "phi");
       const clipboard = copySelectedNodes(ws, new Set(["node-1", "node-2"]));
       expect(clipboard._tag).toBe("ProofPadClipboard");
       expect(clipboard.nodes).toHaveLength(2);
@@ -884,8 +890,8 @@ describe("proofWorkspace", () => {
 
     it("includes connections between selected nodes only", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 300, y: 100 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 300, y: 100 }, "phi -> psi");
       const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
         x: 200,
         y: 300,
@@ -911,7 +917,7 @@ describe("proofWorkspace", () => {
   describe("pasteNodes", () => {
     it("pastes nodes with new IDs into workspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi");
       const clipboard = copySelectedNodes(ws, new Set(["node-1"]));
       const result = pasteNodes(ws, clipboard, { x: 500, y: 500 });
       expect(result.nodes).toHaveLength(2);
@@ -922,8 +928,8 @@ describe("proofWorkspace", () => {
 
     it("preserves connections between pasted nodes", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 300, y: 100 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 300, y: 100 }, "phi -> psi");
       const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
         x: 200,
         y: 300,
@@ -975,8 +981,8 @@ describe("proofWorkspace", () => {
   describe("removeSelectedNodes", () => {
     it("removes selected nodes and their connections", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 300, y: 100 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 300, y: 100 }, "phi -> psi");
       const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
         x: 200,
         y: 300,
@@ -1010,16 +1016,16 @@ describe("proofWorkspace", () => {
 
     it("handles empty selection", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 });
       const result = removeSelectedNodes(ws, new Set());
       expect(result).toBe(ws);
     });
 
     it("removes only selected, keeps unselected", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 });
-      ws = addNode(ws, "axiom", "A2", { x: 300, y: 100 });
-      ws = addNode(ws, "axiom", "A3", { x: 500, y: 100 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 300, y: 100 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 500, y: 100 });
       const result = removeSelectedNodes(ws, new Set(["node-2"]));
       expect(result.nodes).toHaveLength(2);
       expect(result.nodes[0]!.id).toBe("node-1");
@@ -1028,10 +1034,10 @@ describe("proofWorkspace", () => {
 
     it("removes connections where selected node is target only", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       ws = addNode(ws, "mp", "MP-1", { x: 100, y: 150 });
       ws = addNode(ws, "mp", "MP-2", { x: 200, y: 300 });
-      ws = addNode(ws, "axiom", "A2", { x: 300, y: 0 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 300, y: 0 });
       // node-1 → node-2 (node-2 is target)
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
       // node-2 → node-3 (node-2 is source)
@@ -1051,8 +1057,8 @@ describe("proofWorkspace", () => {
   describe("applyTreeLayout", () => {
     it("ノードの位置がツリーレイアウトで更新される", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 0, y: 0 }, "psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "psi");
       ws = addNode(ws, "mp", "MP", { x: 0, y: 0 }, "phi -> psi");
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
@@ -1077,7 +1083,7 @@ describe("proofWorkspace", () => {
 
     it("bottom-to-topでルートが下に配置される", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "mp", "MP", { x: 0, y: 0 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
 
@@ -1092,7 +1098,7 @@ describe("proofWorkspace", () => {
 
     it("ノードサイズを指定できる", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "mp", "MP", { x: 0, y: 0 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
 
@@ -1122,11 +1128,11 @@ describe("proofWorkspace", () => {
       ws = addNode(
         ws,
         "axiom",
-        "A1",
+        "Axiom",
         { x: 100, y: 100 },
         "phi -> (psi -> phi)",
       );
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 200 }, "psi -> phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 200 }, "psi -> phi");
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
 
       const selected = new Set(["node-1", "node-2"]);
@@ -1156,7 +1162,7 @@ describe("proofWorkspace", () => {
 
     it("空の選択では何も変更しない", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi");
 
       const result = duplicateSelectedNodes(ws, new Set());
       expect(result.workspace.nodes).toHaveLength(1);
@@ -1178,7 +1184,7 @@ describe("proofWorkspace", () => {
 
     it("存在しないノードIDでは何も複製しない", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi");
 
       const result = duplicateSelectedNodes(ws, new Set(["nonexistent"]));
       expect(result.workspace.nodes).toHaveLength(1);
@@ -1187,7 +1193,13 @@ describe("proofWorkspace", () => {
 
     it("単一ノードの複製", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "K", { x: 50, y: 50 }, "phi -> (psi -> phi)");
+      ws = addNode(
+        ws,
+        "axiom",
+        "Axiom",
+        { x: 50, y: 50 },
+        "phi -> (psi -> phi)",
+      );
 
       const result = duplicateSelectedNodes(ws, new Set(["node-1"]));
       expect(result.workspace.nodes).toHaveLength(2);
@@ -1216,7 +1228,13 @@ describe("proofWorkspace", () => {
 
     it("公理ノードの複製はroleが保持される", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi -> (psi -> phi)");
+      ws = addNode(
+        ws,
+        "axiom",
+        "Axiom",
+        { x: 100, y: 100 },
+        "phi -> (psi -> phi)",
+      );
       ws = updateNodeRole(ws, "node-1", "axiom");
 
       const result = duplicateSelectedNodes(ws, new Set(["node-1"]));
@@ -1230,7 +1248,7 @@ describe("proofWorkspace", () => {
   describe("duplicateNode", () => {
     it("単一ノードをIDで複製する", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi");
 
       const result = duplicateNode(ws, "node-1");
       expect(result.workspace.nodes).toHaveLength(2);
@@ -1257,7 +1275,7 @@ describe("proofWorkspace", () => {
 
     it("存在しないノードIDでは何も変化しない", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi");
 
       const result = duplicateNode(ws, "nonexistent");
       expect(result.workspace.nodes).toHaveLength(1);
@@ -1268,8 +1286,8 @@ describe("proofWorkspace", () => {
   describe("cutSelectedNodes", () => {
     it("選択ノードをカットしてClipboardDataを返す", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 200 }, "psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 200 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
 
       const selected = new Set(["node-1"]);
@@ -1301,7 +1319,7 @@ describe("proofWorkspace", () => {
 
     it("空の選択では状態を変更しない", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi");
 
       const result = cutSelectedNodes(ws, new Set());
       expect(result.workspace.nodes).toHaveLength(1);
@@ -1310,8 +1328,8 @@ describe("proofWorkspace", () => {
 
     it("複数ノードのカットで内部接続もClipboardDataに含まれる", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 200 }, "psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 200 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
 
       const selected = new Set(["node-1", "node-2"]);
@@ -1328,8 +1346,8 @@ describe("proofWorkspace", () => {
     it("ノード追加後に差分のみレイアウトが更新される", () => {
       // まず2ノード+接続でレイアウト済みの状態を作る
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 0, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> psi");
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
       ws = applyTreeLayout(ws, "top-to-bottom");
 
@@ -1349,7 +1367,7 @@ describe("proofWorkspace", () => {
 
     it("変更がない場合は同じ参照を返す", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi");
 
       // レイアウト適用（孤立ノード1個なので理想位置に設定）
       ws = applyTreeLayout(ws, "top-to-bottom");
@@ -1363,8 +1381,8 @@ describe("proofWorkspace", () => {
 
     it("ノード削除後に残ったノードが再整列される", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
       ws = addNode(ws, "mp", "MP", { x: 100, y: 200 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
@@ -1389,7 +1407,7 @@ describe("proofWorkspace", () => {
 
     it("カスタム閾値を指定できる", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
 
       // 大きな閾値で適用
       const result = applyIncrementalLayout(
@@ -1410,8 +1428,8 @@ describe("proofWorkspace", () => {
   describe("revalidateInferenceConclusions", () => {
     it("updates MP conclusion text when premises are valid", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "phi -> psi");
       const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 50, y: 100 });
       ws = mp.workspace;
       // MP conclusion should be "ψ"
@@ -1426,8 +1444,8 @@ describe("proofWorkspace", () => {
 
     it("clears MP conclusion text when left premise is changed to mismatch", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "phi -> psi");
       const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 50, y: 100 });
       ws = mp.workspace;
       expect(findNode(ws, "node-3")?.formulaText).not.toBe("");
@@ -1443,15 +1461,15 @@ describe("proofWorkspace", () => {
     it("propagates failure through MP chain", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       // phi + (phi -> psi) → MP1 → psi
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "phi -> psi");
       const mp1 = applyMPAndConnect(ws, "node-1", "node-2", {
         x: 50,
         y: 100,
       });
       ws = mp1.workspace;
       // psi(=node-3) + (psi -> chi) → MP2 → chi
-      ws = addNode(ws, "axiom", "A3", { x: 200, y: 100 }, "psi -> chi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 100 }, "psi -> chi");
       const mp2 = applyMPAndConnect(ws, "node-3", "node-4", {
         x: 150,
         y: 200,
@@ -1474,8 +1492,8 @@ describe("proofWorkspace", () => {
 
     it("restores MP conclusion when premise is fixed", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "phi -> psi");
       const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 50, y: 100 });
       ws = mp.workspace;
 
@@ -1492,15 +1510,15 @@ describe("proofWorkspace", () => {
 
     it("returns same state when no inference nodes exist", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       const result = revalidateInferenceConclusions(ws);
       expect(result).toBe(ws);
     });
 
     it("returns same state when all conclusions are already correct", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "phi -> psi");
       const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 50, y: 100 });
       ws = mp.workspace;
 
@@ -1514,7 +1532,7 @@ describe("proofWorkspace", () => {
 
     it("handles Gen node revalidation", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> psi");
       const gen = applyGenAndConnect(ws, "node-1", "x", { x: 50, y: 100 });
       ws = gen.workspace;
       expect(findNode(ws, "node-2")?.formulaText).not.toBe("");
@@ -1528,14 +1546,14 @@ describe("proofWorkspace", () => {
     it("restores chain when intermediate node is corrected", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       // Build chain: A1(phi) + A2(phi->psi) → MP1(psi) + A3(psi->chi) → MP2(chi)
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 100, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "phi -> psi");
       const mp1 = applyMPAndConnect(ws, "node-1", "node-2", {
         x: 50,
         y: 100,
       });
       ws = mp1.workspace;
-      ws = addNode(ws, "axiom", "A3", { x: 200, y: 100 }, "psi -> chi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 100 }, "psi -> chi");
       const mp2 = applyMPAndConnect(ws, "node-3", "node-4", {
         x: 150,
         y: 200,
@@ -1558,7 +1576,7 @@ describe("proofWorkspace", () => {
     it("handles substitution node revalidation", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       // Create axiom A1 schema: φ → (ψ → φ)
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
       const subst = applySubstitutionAndConnect(
         ws,
         "node-1",
@@ -1582,7 +1600,7 @@ describe("proofWorkspace", () => {
 
     it("restores substitution conclusion when premise is fixed", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
       const entries: SubstitutionEntries = [
         {
           _tag: "FormulaSubstitution",

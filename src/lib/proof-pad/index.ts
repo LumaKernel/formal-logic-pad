@@ -113,6 +113,7 @@ export {
   getProofNodeStyle,
   getProofNodePorts,
   getProofEdgeColor,
+  getProofNodeKindLabel,
 } from "./proofNodeUI";
 export type { ProofNodeKind, ProofNodeStyle } from "./proofNodeUI";
 export {

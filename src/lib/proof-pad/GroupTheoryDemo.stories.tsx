@@ -38,7 +38,7 @@ function G1AssociativityComplete() {
     ws = addNode(
       ws,
       "axiom",
-      "G1",
+      "Axiom",
       { x: 200, y: 100 },
       "all x. all y. all z. (x * y) * z = x * (y * z)",
     );
@@ -80,13 +80,13 @@ function IdentityTimesIdentityComplete() {
     let ws = createEmptyWorkspace(groupTheoryFullSystem);
 
     // Step 1: node-1: G2L (左単位元): ∀x. e * x = x
-    ws = addNode(ws, "axiom", "G2L", { x: 50, y: 50 }, "all x. e * x = x");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "all x. e * x = x");
 
     // Step 2: node-2: A5インスタンス: (∀x. e * x = x) → e * e = e
     ws = addNode(
       ws,
       "axiom",
-      "A5",
+      "Axiom",
       { x: 450, y: 50 },
       "(all x. e * x = x) -> e * e = e",
     );
@@ -128,13 +128,13 @@ function IdentityTimesIdentityPartial() {
     let ws = createEmptyWorkspace(groupTheoryFullSystem);
 
     // Step 1: node-1: G2L (左単位元): ∀x. e * x = x
-    ws = addNode(ws, "axiom", "G2L", { x: 50, y: 50 }, "all x. e * x = x");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "all x. e * x = x");
 
     // Step 2: node-2: A5インスタンス: (∀x. e * x = x) → e * e = e
     ws = addNode(
       ws,
       "axiom",
-      "A5",
+      "Axiom",
       { x: 450, y: 50 },
       "(all x. e * x = x) -> e * e = e",
     );
@@ -170,13 +170,13 @@ function InverseIdentityComplete() {
     let ws = createEmptyWorkspace(groupTheoryFullSystem);
 
     // Step 1: node-1: G3L (左逆元): ∀x. i(x) * x = e
-    ws = addNode(ws, "axiom", "G3L", { x: 50, y: 50 }, "all x. i(x) * x = e");
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "all x. i(x) * x = e");
 
     // Step 2: node-2: A5インスタンス: (∀x. i(x) * x = e) → i(e) * e = e
     ws = addNode(
       ws,
       "axiom",
-      "A5",
+      "Axiom",
       { x: 450, y: 50 },
       "(all x. i(x) * x = e) -> i(e) * e = e",
     );

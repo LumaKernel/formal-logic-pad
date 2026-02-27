@@ -25,7 +25,7 @@ describe("mpApplicationLogic", () => {
 
     it("returns left premise node id", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
       const premises = getMPPremises(ws, "node-2");
@@ -35,7 +35,7 @@ describe("mpApplicationLogic", () => {
 
     it("returns right premise node id", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> psi");
       ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-right");
       const premises = getMPPremises(ws, "node-2");
@@ -45,8 +45,8 @@ describe("mpApplicationLogic", () => {
 
     it("returns both premise node ids", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
       ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
@@ -57,7 +57,7 @@ describe("mpApplicationLogic", () => {
 
     it("ignores connections to other nodes", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "mp", "MP-1", { x: 100, y: 100 });
       ws = addNode(ws, "mp", "MP-2", { x: 200, y: 200 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
@@ -72,7 +72,7 @@ describe("mpApplicationLogic", () => {
       const node: WorkspaceNode = {
         id: "node-1",
         kind: "axiom",
-        label: "A1",
+        label: "Axiom",
         formulaText: "phi -> psi",
         position: { x: 0, y: 0 },
       };
@@ -85,7 +85,7 @@ describe("mpApplicationLogic", () => {
       const node: WorkspaceNode = {
         id: "node-1",
         kind: "axiom",
-        label: "A1",
+        label: "Axiom",
         formulaText: "",
         position: { x: 0, y: 0 },
       };
@@ -96,7 +96,7 @@ describe("mpApplicationLogic", () => {
       const node: WorkspaceNode = {
         id: "node-1",
         kind: "axiom",
-        label: "A1",
+        label: "Axiom",
         formulaText: "   ",
         position: { x: 0, y: 0 },
       };
@@ -107,7 +107,7 @@ describe("mpApplicationLogic", () => {
       const node: WorkspaceNode = {
         id: "node-1",
         kind: "axiom",
-        label: "A1",
+        label: "Axiom",
         formulaText: "-> -> ->",
         position: { x: 0, y: 0 },
       };
@@ -118,7 +118,7 @@ describe("mpApplicationLogic", () => {
       const node: WorkspaceNode = {
         id: "node-1",
         kind: "axiom",
-        label: "A1",
+        label: "Axiom",
         formulaText: "phi",
         position: { x: 0, y: 0 },
       };
@@ -138,7 +138,7 @@ describe("mpApplicationLogic", () => {
 
     it("returns LeftPremiseMissing when only right is connected", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> psi");
       ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-right");
       const result = validateMPApplication(ws, "node-2");
@@ -147,7 +147,7 @@ describe("mpApplicationLogic", () => {
 
     it("returns RightPremiseMissing when only left is connected", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
       const result = validateMPApplication(ws, "node-2");
@@ -156,8 +156,8 @@ describe("mpApplicationLogic", () => {
 
     it("returns LeftParseError when left formula is invalid", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "-> ->");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "-> ->");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
       ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
@@ -167,8 +167,8 @@ describe("mpApplicationLogic", () => {
 
     it("returns LeftParseError when left formula is empty", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
       ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
@@ -178,8 +178,8 @@ describe("mpApplicationLogic", () => {
 
     it("returns RightParseError when right formula is invalid", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "-> ->");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "-> ->");
       ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
@@ -189,8 +189,8 @@ describe("mpApplicationLogic", () => {
 
     it("returns RuleError NotAnImplication when right is not an implication", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "psi");
       ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
@@ -203,8 +203,8 @@ describe("mpApplicationLogic", () => {
 
     it("returns RuleError PremiseMismatch when antecedent does not match", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "psi -> chi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "psi -> chi");
       ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
@@ -217,8 +217,8 @@ describe("mpApplicationLogic", () => {
 
     it("returns Success with conclusion when MP is valid", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
       ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
@@ -232,11 +232,11 @@ describe("mpApplicationLogic", () => {
 
     it("handles complex MP application", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
       ws = addNode(
         ws,
         "axiom",
-        "A2",
+        "Axiom",
         { x: 200, y: 0 },
         "(phi -> (psi -> phi)) -> (chi -> (phi -> (psi -> phi)))",
       );
@@ -253,13 +253,13 @@ describe("mpApplicationLogic", () => {
     it("handles chained MP (MP node output as input to another MP)", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       // First MP: phi, phi -> psi => psi
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
       ws = addNode(ws, "mp", "MP-1", { x: 100, y: 150 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
       // Second MP: psi, psi -> chi => chi
-      ws = addNode(ws, "axiom", "A3", { x: 400, y: 0 }, "psi -> chi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 400, y: 0 }, "psi -> chi");
       ws = addNode(ws, "mp", "MP-2", { x: 250, y: 300 });
       ws = addConnection(ws, "node-3", "out", "node-5", "premise-left");
       ws = addConnection(ws, "node-4", "out", "node-5", "premise-right");
