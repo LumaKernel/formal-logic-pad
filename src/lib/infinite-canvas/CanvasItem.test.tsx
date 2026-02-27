@@ -86,6 +86,19 @@ describe("CanvasItem", () => {
     expect(item.style.position).toBe("absolute");
   });
 
+  it("prevents text wrapping with whiteSpace nowrap", () => {
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+    const item = screen.getByTestId("canvas-item");
+    expect(item.style.whiteSpace).toBe("nowrap");
+  });
+
   it("allows pointer events on the item", () => {
     render(
       <CanvasItem

@@ -88,6 +88,50 @@
 
 ---
 
+## 2026-02-27 - 証明ノード依存情報表示オンオフ設定
+- `levelOfDetail.ts` に `DetailVisibilityOverrides` 型と `getDetailVisibility` のオーバーライド対応を追加
+- `EditableProofNode.tsx` に `visibilityOverrides` propを追加
+- `ProofWorkspace.tsx` に `showDependencies` propを追加し、ワークスペース単位で依存表示を制御可能に
+- `DependencyVisibilityToggle` ストーリーで表示/非表示の比較デモを追加
+- テスト: 4348テスト全パス（+12テスト追加）
+- カバレッジ: Stmts 99.35%(維持), Branch 94.90%(↑), Funcs 90.35%(維持), Lines 99.89%(維持)
+  - ベースライン: Stmts 99.35%, Branch 94.88%, Funcs 90.37%, Lines 99.91%
+  - levelOfDetail.ts: 全項目100%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでスクリーンショット撮影・確認済み
+  - `.screenshots/dependency-visibility-toggle.png`
+  - `.screenshots/dependency-visibility-toggle-iframe.png`
+- 変更ファイル:
+  - `src/lib/proof-pad/levelOfDetail.ts` (MODIFIED - DetailVisibilityOverrides型 + getDetailVisibilityオーバーライド)
+  - `src/lib/proof-pad/levelOfDetail.test.ts` (MODIFIED - overridesテスト6件追加)
+  - `src/lib/proof-pad/EditableProofNode.tsx` (MODIFIED - visibilityOverrides prop追加)
+  - `src/lib/proof-pad/EditableProofNode.test.tsx` (MODIFIED - visibilityOverridesテスト4件追加)
+  - `src/lib/proof-pad/EditableProofNode.stories.tsx` (MODIFIED - DependencyVisibilityToggleストーリー追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - showDependencies prop追加)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (MODIFIED - showDependencies=falseテスト追加)
+  - `src/lib/proof-pad/index.ts` (MODIFIED - DetailVisibilityOverrides型エクスポート)
+- **今後のイテレーションへの学び:**
+  - `DetailVisibilityOverrides` パターン: LoD自動判定をユーザー設定で上書きする汎用的な仕組み。他の表示要素(status, badgeなど)にも同様に拡張可能
+  - `getDetailVisibility` にオーバーライドを追加する際、内部関数 `getBaseDetailVisibility` に分離して既存テストとの互換性を維持
+  - ProofWorkspace→EditableProofNode間のprop伝搬時、useCallbackのdependency listに新propを忘れずに追加すること
+---
+
+## 2026-02-27 - キャンバスノード改行バグ修正
+- CanvasItem.tsx に `whiteSpace: "nowrap"` を追加し、ノードが画面端で改行される問題を修正
+- 原因: CanvasItemは`position: absolute`で配置されるが、`whiteSpace`がデフォルト`"normal"`のため、InfiniteCanvasの`overflow: hidden`制約下でテキストが折り返されていた
+- テスト: CanvasItem.test.tsx に `whiteSpace: "nowrap"` の検証テスト1件追加
+- カバレッジ: Stmts 99%, Branch 94.39%, Funcs 90.15%, Lines 99.52%（維持）
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでスクリーンショット撮影、browser_evaluateで`whiteSpace: "nowrap"`適用を確認済み
+  - `.screenshots/canvas-item-nowrap-fix.png`
+- 変更ファイル:
+  - `src/lib/infinite-canvas/CanvasItem.tsx` (MODIFIED - whiteSpace: "nowrap" 追加)
+  - `src/lib/infinite-canvas/CanvasItem.test.tsx` (MODIFIED - whiteSpaceテスト1件追加)
+- **今後のイテレーションへの学び:**
+  - InfiniteCanvas上のCanvasItemは`position: absolute`だが、CSS的にはテキストレイアウト幅が親要素に制約される。`whiteSpace: "nowrap"`で明示的に制御する必要がある
+  - ブラウザのdevtoolsで`getComputedStyle`を使ってCSSプロパティの実際の値を確認するのが効果的
+---
+
 ## 2026-02-27 - キーバインディング基盤モジュールの追加
 - `src/lib/keybinding/` に構造的キーバインディングシステムを新規作成
   - `keybinding.ts`: 型定義（KeyStroke/KeyBinding/KeyBindingMap等）+ マッチングロジック + コードシーケンス対応 + OS検出

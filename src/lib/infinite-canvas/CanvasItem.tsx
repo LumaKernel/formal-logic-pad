@@ -156,6 +156,7 @@ export function CanvasItem({
               : undefined,
           zIndex: isDragging ? 1000 : undefined,
           touchAction: hasInteraction ? "none" : undefined,
+          whiteSpace: "nowrap",
         }}
         onPointerDown={hasInteraction ? handlePointerDown : undefined}
         onPointerMove={hasInteraction ? handlePointerMove : undefined}
