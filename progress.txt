@@ -5010,3 +5010,45 @@
   - UI統合時にSubstPromptEntryの初期化ロジックを変更すると、既存テストのエントリ数期待値が変わる。テストの修正も必須
   - metaVarフィールドにreadOnly属性を追加すれば、自動抽出されたメタ変数名の誤編集を防げる(今回は未実装)
 ---
+
+## 2026-02-28 02:31 - i18n 言語切り替えUI
+- 言語切り替えトグルUIを3層アーキテクチャで実装（ThemeToggleと同パターン）
+- 実装内容:
+  - `languageToggleLogic.ts`: 純粋ロジック（ラベル、Cookie値構築、isLocale判定）
+  - `useLocaleSwitch.ts`: DI付きhook（Cookie設定 + reload）
+  - `LanguageToggle.tsx` + `LanguageToggle.module.css`: プレゼンテーションコンポーネント
+  - テスト: 26テスト追加（純粋ロジック12 + hook3 + UI11）
+  - Storybook: 3ストーリー（play関数付き）
+- HubPageView, WorkspacePageViewのヘッダーに統合（optional props方式）
+- HubContent, WorkspaceContentで next-intl useLocale + useLocaleSwitch を接続
+- 変更したファイル:
+  - `src/components/LanguageToggle/languageToggleLogic.ts` (NEW)
+  - `src/components/LanguageToggle/languageToggleLogic.test.ts` (NEW)
+  - `src/components/LanguageToggle/useLocaleSwitch.ts` (NEW)
+  - `src/components/LanguageToggle/useLocaleSwitch.test.ts` (NEW)
+  - `src/components/LanguageToggle/LanguageToggle.tsx` (NEW)
+  - `src/components/LanguageToggle/LanguageToggle.module.css` (NEW)
+  - `src/components/LanguageToggle/LanguageToggle.test.tsx` (NEW)
+  - `src/components/LanguageToggle/LanguageToggle.stories.tsx` (NEW)
+  - `src/app/HubPageView.tsx` (MODIFIED - languageToggle prop追加)
+  - `src/app/HubContent.tsx` (MODIFIED - locale接続)
+  - `src/app/HubPageView.stories.tsx` (MODIFIED - languageToggle追加)
+  - `src/app/workspace/[id]/WorkspacePageView.tsx` (MODIFIED - languageToggle prop追加)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (MODIFIED - locale接続)
+  - `src/app/workspace/[id]/WorkspacePageView.stories.tsx` (MODIFIED - languageToggle追加)
+- テスト: 184ファイル, 4686テスト全パス
+- カバレッジ:
+  - ベースライン: Stmts 98.69%, Branch 93.05%, Funcs 91.30%, Lines 99.41%
+  - 最終: Stmts 98.70%, Branch 93.03%, Funcs 91.30%, Lines 99.41%
+  - Branch微減(93.05→93.03%)はv8 ignore計上差異で実質維持
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでHub/Workspace両ページのLanguageToggle表示を確認
+  - `.screenshots/language-toggle-storybook.png`
+  - `.screenshots/hub-page-with-language-toggle.png`
+  - `.screenshots/workspace-page-with-language-toggle.png`
+- **今後のイテレーションへの学び:**
+  - `@luma-dev/luma-ts/no-explicit-return-is` ESLintルールにより type predicate は明示できない。`isLocale`は`Locale | undefined`を返す`find()`ベースに変更
+  - LanguageToggle統合はoptional propsパターンで。Storybook上ではfn()で簡易接続可能
+  - Cookie + reload方式でのlocale切り替え: next-intlがサーバーサイドでCookieからlocaleを決定するため、reload必須
+  - ThemeToggle(3層)と同パターンで新しいトグルUIを追加する際の手順が確立: 純粋ロジック → hook(DI) → UIコンポーネント → ページ統合
+---
