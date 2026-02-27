@@ -88,3 +88,28 @@ Infinity Canvasについて。
 - [x] ふたつ,みっつの浮いた関係性がついてない論理式ノードを、あとからMPなどで繋ぐといったこともできて然るべきだろう。コンテキストメニューから始まる特殊フローでよいので、そのような機能、方法が提供されるべきだ。
       (実装済み: コンテキストメニューの「Use as MP Left」「Use as MP Right」で浮いたノード同士をMP接続可能。ProofWorkspace.test.tsx で検証済み)
 - [x] CIの状態を確認し、失敗していれば修正する。`gh run list` や `gh run view` で現状を把握し、失敗原因を特定して対処すること。
+- [x] Apply系、モーダルじゃなくて、エッジ上のパラメータ入力という形にしてもいいかなと思う。
+  - [-] そのまえにまず、MPなどの推論規則系統は、ノードとして表われるのではなく、エッジ、ノード間の関係性として表現されるように再整理が必要だろう。
+    - [-] 多くのストーリーが関連するだろうので、それらを整理しながらになる。
+      - [x] Step 0: InferenceEdge 型定義と変換ユーティリティ（既存ノードベース→エッジベース変換の純粋関数）
+      - [x] Step 1: WorkspaceState への InferenceEdge 統合（データモデル拡張）
+        - [x] WorkspaceState に inferenceEdges フィールドを追加（オプショナル、段階移行用）
+        - [x] revalidateInferenceConclusions を InferenceEdge ベースに移行
+        - [x] addNode/removeNode/addConnection/removeConnection で inferenceEdges も同期
+        - [x] テスト: 既存テストが全て通ることを確認しつつ新フィールドのテスト追加
+      - [x] Step 2: applyMPAndConnect / applyGenAndConnect / applySubstitutionAndConnect の移行
+        - [x] MPノード作成を廃止し、MPEdge + 結論ノード（kind: "derived"）に変更
+        - [x] Gen/Substitution も同様
+        - [x] ハイブリッド方式: InferenceEdge（新source of truth）+ レガシー接続（後方互換）の両方を生成
+        - [x] copy/paste ロジックの InferenceEdge 対応
+        - [x] テスト: 全applyロジックの単体テスト更新
+      - [x] Step 3: ProofNodeKind から "mp" / "gen" / "substitution" を削除
+        - [x] proofNodeUI.ts: ポート定義・スタイルのリファクタ
+        - [x] nodeRoleLogic.ts: 分類ロジック更新
+        - [x] dependencyLogic.ts: 依存追跡をInferenceEdge経由に変更
+        - [x] テスト: 全exhaustive switchの更新
+      - [x] Step 4: UI層の移行
+        - [x] EditableProofNode.tsx: 推論規則ノードの描画を廃止（Step 3で完了済み）
+        - [x] ProofWorkspace.tsx: InferenceEdge の描画（接続線上にラベル表示）
+        - [x] エッジ上のパラメータ入力UI（バッジにGen変数名・代入エントリ数を表示）
+        - [x] テスト: コンポーネントテスト + Storybookストーリー更新

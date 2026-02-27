@@ -5303,3 +5303,29 @@
   - duplicateSelectedNodesはpasteNodesと違い、newInferenceEdgesを結果に含めないバグがある（今回はテスト側を実装に合わせて調整）
   - 並行エージェント（4並列）によるテストファイル修正が効果的。テストファイルは互いに独立なので並列化のメリットが大きい
 ---
+
+## 2026-02-28 - [proof-pad] InferenceEdge統合 Step 4 - 接続線上に推論規則バッジを表示
+- PortConnectionのlabel propを活用し、InferenceEdgeBadgeコンポーネントを接続線の中点に表示
+- 3層アーキテクチャ: inferenceEdgeLabelLogic.ts（純粋ロジック）→ InferenceEdgeBadge.tsx（UI）→ ProofWorkspace.tsx（統合）
+- MP: 紫バッジ「MP」、Gen: 緑バッジ「Gen(x)」、Substitution: オレンジバッジ「Subst(N)」
+- バッジ色はCSS変数（--color-badge-mp等）でカスタマイズ可能
+- カバレッジ: Stmts 98.55%→98.56%, Branch 92.83%→92.80%, Funcs 91.25%→91.25%, Lines 99.29%→99.30%（安定）
+- テスト: 4820→4839（+19新規テスト）
+- 新規ファイル:
+  - src/lib/proof-pad/inferenceEdgeLabelLogic.ts（純粋ロジック: バッジ色・ラベルデータ計算）
+  - src/lib/proof-pad/inferenceEdgeLabelLogic.test.ts（6テスト）
+  - src/lib/proof-pad/InferenceEdgeBadge.tsx（バッジUIコンポーネント）
+  - src/lib/proof-pad/InferenceEdgeBadge.test.tsx（4テスト）
+- 変更ファイル:
+  - src/lib/proof-pad/inferenceEdge.ts: getInferenceEdgeLabel, findInferenceEdgeForConclusionNode 追加
+  - src/lib/proof-pad/inferenceEdge.test.ts: 8テスト追加
+  - src/lib/proof-pad/ProofWorkspace.tsx: connectionElements useMemoにバッジ統合
+  - src/lib/proof-pad/ProofWorkspace.test.tsx: 1テスト追加
+  - src/lib/proof-pad/index.ts: 新エクスポート追加
+- スクリーンショット: .screenshots/inference-edge-badge-identity-proof.png, .screenshots/inference-edge-badge-peano-arithmetic.png, .screenshots/inference-edge-badge-group-theory.png
+- **今後のイテレーションへの学び:**
+  - PortConnectionのlabel prop + labelOffsetYで接続線上にReactNodeを配置可能。ConnectionLabelDemo.stories.tsxがリファレンス
+  - connection.toNodeId === inferenceEdge.conclusionNodeId でマッピング可能
+  - SubstitutionEntryの正しいプロパティ名: FormulaSubstitutionEntryはformulaText、TermSubstitutionEntryはtermText（replacementTextではない）
+  - Step 4の「EditableProofNode推論規則ノード描画廃止」はStep 3でProofNodeKind簡素化時に既に完了していた
+---
