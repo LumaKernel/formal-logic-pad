@@ -26,7 +26,7 @@
     - [ ] このとき、内部情報として、最初からそちらの公理を呼び出したときと同じ状態になるのがいい。well-knownな公理でも、idなどで管理するわけではなく、あくまもで、公理の形がそうか、ということで自動判別されるという仕組みで一貫させよう。
 - [ ] MPで証明したものの、公理を書き換えてMPが不適になり、なので書き換えた公理を削除して、もう一度呼び出して、繋げて、MPが再度正常な状態になる、というのを行うことを実現する機能群とストーリーを用意しよう。
     - [ ] まず必要な機能についてタスクとしてまとめていこう
-- [ ] http://localhost:13006/?path=/story/proofpad-peanoarithmeticdemo--zero-plus-zero-completed
+- [-] http://localhost:13006/?path=/story/proofpad-peanoarithmeticdemo--zero-plus-zero-completed
         GOALになにも繋ってない状態で Proof Completeとなっているが、ゴールに確実にMPから繋げるなどして証明されて始めてProof Completeとなってほしい
 - [ ] Export/Ipmortはずっと表示されてるボタンではなく、ノートに関する操作メニューの中にあるような形で十分だろう
 

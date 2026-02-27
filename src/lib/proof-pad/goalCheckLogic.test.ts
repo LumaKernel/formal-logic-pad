@@ -4,7 +4,7 @@ import {
   checkGoal,
   type GoalCheckResult,
 } from "./goalCheckLogic";
-import type { WorkspaceNode } from "./workspaceState";
+import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
 
 // --- ヘルパー ---
 
@@ -26,6 +26,20 @@ function makeNode(
 
 function makeGoalNode(id: string, formulaText: string): WorkspaceNode {
   return makeNode(id, formulaText, "axiom", "goal");
+}
+
+function makeConnection(
+  fromNodeId: string,
+  toNodeId: string,
+  id?: string,
+): WorkspaceConnection {
+  return {
+    id: id ?? `${fromNodeId satisfies string}->${toNodeId satisfies string}`,
+    fromNodeId,
+    fromPortId: "output",
+    toNodeId,
+    toPortId: "input",
+  };
 }
 
 describe("goalCheckLogic", () => {
@@ -63,19 +77,19 @@ describe("goalCheckLogic", () => {
 
   describe("checkGoal", () => {
     it("returns GoalNotSet when no goal nodes exist", () => {
-      const result = checkGoal([]);
+      const result = checkGoal([], []);
       expect(result._tag).toBe("GoalNotSet");
     });
 
     it("returns GoalNotSet when no nodes have role=goal", () => {
       const nodes = [makeNode("node-1", "phi")];
-      const result = checkGoal(nodes);
+      const result = checkGoal(nodes, []);
       expect(result._tag).toBe("GoalNotSet");
     });
 
-    it("returns GoalPartiallyAchieved when goal exists but no matching work node", () => {
+    it("returns GoalPartiallyAchieved when goal exists but no connections", () => {
       const nodes = [makeGoalNode("goal-1", "phi")];
-      const result = checkGoal(nodes);
+      const result = checkGoal(nodes, []);
       expect(result._tag).toBe("GoalPartiallyAchieved");
       if (result._tag === "GoalPartiallyAchieved") {
         expect(result.achievedCount).toBe(0);
@@ -83,15 +97,21 @@ describe("goalCheckLogic", () => {
       }
     });
 
-    it("returns GoalPartiallyAchieved when goal formula doesn't match any work node", () => {
-      const nodes = [makeGoalNode("goal-1", "phi"), makeNode("node-1", "psi")];
-      const result = checkGoal(nodes);
+    it("returns GoalPartiallyAchieved when matching node exists but no connection to goal", () => {
+      // 式は一致するが、ゴールノードへの接続がない → 未達成
+      const nodes = [makeGoalNode("goal-1", "phi"), makeNode("node-1", "phi")];
+      const result = checkGoal(nodes, []);
       expect(result._tag).toBe("GoalPartiallyAchieved");
+      if (result._tag === "GoalPartiallyAchieved") {
+        expect(result.achievedCount).toBe(0);
+        expect(result.totalCount).toBe(1);
+      }
     });
 
-    it("returns GoalAllAchieved when a work node matches the goal", () => {
+    it("returns GoalAllAchieved when connected node matches the goal", () => {
       const nodes = [makeGoalNode("goal-1", "phi"), makeNode("node-1", "phi")];
-      const result = checkGoal(nodes);
+      const connections = [makeConnection("node-1", "goal-1")];
+      const result = checkGoal(nodes, connections);
       expect(result._tag).toBe("GoalAllAchieved");
       if (result._tag === "GoalAllAchieved") {
         expect(result.achievedGoals).toHaveLength(1);
@@ -99,94 +119,130 @@ describe("goalCheckLogic", () => {
       }
     });
 
-    it("matches implication formula correctly", () => {
+    it("matches implication formula correctly with connection", () => {
       const nodes = [
         makeGoalNode("goal-1", "phi -> psi"),
         makeNode("node-1", "phi -> psi"),
       ];
-      const result = checkGoal(nodes);
+      const connections = [makeConnection("node-1", "goal-1")];
+      const result = checkGoal(nodes, connections);
       expect(result._tag).toBe("GoalAllAchieved");
     });
 
-    it("matches Unicode formula with DSL formula", () => {
+    it("matches Unicode formula with DSL formula when connected", () => {
       const nodes = [
         makeGoalNode("goal-1", "phi -> phi"),
         makeNode("node-1", "φ → φ"),
       ];
-      const result = checkGoal(nodes);
+      const connections = [makeConnection("node-1", "goal-1")];
+      const result = checkGoal(nodes, connections);
       expect(result._tag).toBe("GoalAllAchieved");
     });
 
-    it("skips work nodes with empty formula text", () => {
+    it("skips connected nodes with empty formula text", () => {
       const nodes = [
         makeGoalNode("goal-1", "phi"),
         makeNode("node-1", ""),
         makeNode("node-2", "phi"),
       ];
-      const result = checkGoal(nodes);
+      const connections = [
+        makeConnection("node-1", "goal-1"),
+        makeConnection("node-2", "goal-1"),
+      ];
+      const result = checkGoal(nodes, connections);
       expect(result._tag).toBe("GoalAllAchieved");
       if (result._tag === "GoalAllAchieved") {
         expect(result.achievedGoals[0]!.matchingNodeId).toBe("node-2");
       }
     });
 
-    it("skips work nodes with unparseable formula text", () => {
+    it("skips connected nodes with unparseable formula text", () => {
       const nodes = [
         makeGoalNode("goal-1", "phi"),
         makeNode("node-1", "-> ->"),
         makeNode("node-2", "phi"),
       ];
-      const result = checkGoal(nodes);
+      const connections = [
+        makeConnection("node-1", "goal-1"),
+        makeConnection("node-2", "goal-1"),
+      ];
+      const result = checkGoal(nodes, connections);
       expect(result._tag).toBe("GoalAllAchieved");
       if (result._tag === "GoalAllAchieved") {
         expect(result.achievedGoals[0]!.matchingNodeId).toBe("node-2");
       }
     });
 
-    it("matches MP result node", () => {
+    it("matches connected MP result node to goal", () => {
       const nodes = [
         makeGoalNode("goal-1", "psi"),
         makeNode("node-1", "phi", "axiom"),
         makeNode("node-2", "phi -> psi", "axiom"),
         makeNode("node-3", "ψ", "mp"),
       ];
-      const result = checkGoal(nodes);
+      // MP結果がゴールに接続されている
+      const connections = [makeConnection("node-3", "goal-1")];
+      const result = checkGoal(nodes, connections);
       expect(result._tag).toBe("GoalAllAchieved");
       if (result._tag === "GoalAllAchieved") {
         expect(result.achievedGoals[0]!.matchingNodeId).toBe("node-3");
       }
     });
 
-    it("does not match structurally different formulas", () => {
+    it("does not achieve goal when MP result exists but not connected to goal", () => {
+      const nodes = [
+        makeGoalNode("goal-1", "psi"),
+        makeNode("node-1", "phi", "axiom"),
+        makeNode("node-2", "phi -> psi", "axiom"),
+        makeNode("node-3", "ψ", "mp"),
+      ];
+      // MPの前提接続はあるが、ゴールへの接続がない
+      const connections = [
+        makeConnection("node-1", "node-3"),
+        makeConnection("node-2", "node-3"),
+      ];
+      const result = checkGoal(nodes, connections);
+      expect(result._tag).toBe("GoalPartiallyAchieved");
+    });
+
+    it("does not match structurally different connected formulas", () => {
       const nodes = [
         makeGoalNode("goal-1", "phi -> psi"),
         makeNode("node-1", "psi -> phi"),
       ];
-      const result = checkGoal(nodes);
+      const connections = [makeConnection("node-1", "goal-1")];
+      const result = checkGoal(nodes, connections);
       expect(result._tag).toBe("GoalPartiallyAchieved");
     });
 
-    it("handles multiple goals - all achieved", () => {
+    it("handles multiple goals - all achieved with connections", () => {
       const nodes = [
         makeGoalNode("goal-1", "phi"),
         makeGoalNode("goal-2", "psi"),
         makeNode("node-1", "phi"),
         makeNode("node-2", "psi"),
       ];
-      const result = checkGoal(nodes);
+      const connections = [
+        makeConnection("node-1", "goal-1"),
+        makeConnection("node-2", "goal-2"),
+      ];
+      const result = checkGoal(nodes, connections);
       expect(result._tag).toBe("GoalAllAchieved");
       if (result._tag === "GoalAllAchieved") {
         expect(result.achievedGoals).toHaveLength(2);
       }
     });
 
-    it("handles multiple goals - partial achievement", () => {
+    it("handles multiple goals - partial achievement with connections", () => {
       const nodes = [
         makeGoalNode("goal-1", "phi"),
         makeGoalNode("goal-2", "psi"),
         makeNode("node-1", "phi"),
+        makeNode("node-2", "psi"),
       ];
-      const result = checkGoal(nodes);
+      // goal-1だけに接続あり
+      const connections = [makeConnection("node-1", "goal-1")];
+      const result = checkGoal(nodes, connections);
       expect(result._tag).toBe("GoalPartiallyAchieved");
       if (result._tag === "GoalPartiallyAchieved") {
         expect(result.achievedCount).toBe(1);
@@ -198,7 +254,7 @@ describe("goalCheckLogic", () => {
 
     it("handles goal with unparseable formula text", () => {
       const nodes = [makeGoalNode("goal-1", "-> ->")];
-      const result = checkGoal(nodes);
+      const result = checkGoal(nodes, []);
       expect(result._tag).toBe("GoalPartiallyAchieved");
       if (result._tag === "GoalPartiallyAchieved") {
         expect(result.goalStatuses[0]!.goalFormula).toBeUndefined();
@@ -208,7 +264,7 @@ describe("goalCheckLogic", () => {
 
     it("handles goal with empty formula text", () => {
       const nodes = [makeGoalNode("goal-1", "")];
-      const result = checkGoal(nodes);
+      const result = checkGoal(nodes, []);
       expect(result._tag).toBe("GoalPartiallyAchieved");
       if (result._tag === "GoalPartiallyAchieved") {
         expect(result.goalStatuses[0]!.goalFormula).toBeUndefined();
@@ -221,7 +277,7 @@ describe("goalCheckLogic", () => {
         makeGoalNode("goal-1", "phi"),
         makeGoalNode("goal-2", "phi"),
       ];
-      const result = checkGoal(nodes);
+      const result = checkGoal(nodes, []);
       expect(result._tag).toBe("GoalPartiallyAchieved");
       if (result._tag === "GoalPartiallyAchieved") {
         expect(result.achievedCount).toBe(0);
@@ -231,7 +287,8 @@ describe("goalCheckLogic", () => {
 
     it("provides goalFormula in GoalAllAchieved result", () => {
       const nodes = [makeGoalNode("goal-1", "phi"), makeNode("node-1", "phi")];
-      const result = checkGoal(nodes) as Extract<
+      const connections = [makeConnection("node-1", "goal-1")];
+      const result = checkGoal(nodes, connections) as Extract<
         GoalCheckResult,
         { readonly _tag: "GoalAllAchieved" }
       >;
@@ -244,7 +301,9 @@ describe("goalCheckLogic", () => {
         makeGoalNode("goal-1", "phi -> phi"),
         makeNode("node-1", "psi"),
       ];
-      const result = checkGoal(nodes) as Extract<
+      // 接続はあるが式が不一致
+      const connections = [makeConnection("node-1", "goal-1")];
+      const result = checkGoal(nodes, connections) as Extract<
         GoalCheckResult,
         { readonly _tag: "GoalPartiallyAchieved" }
       >;
@@ -258,8 +317,28 @@ describe("goalCheckLogic", () => {
         makeNode("node-1", "phi", "axiom", "axiom"),
         makeNode("node-2", "phi"),
       ];
-      const result = checkGoal(nodes);
+      const result = checkGoal(nodes, []);
       expect(result._tag).toBe("GoalNotSet");
+    });
+
+    it("ignores connection from unknown node", () => {
+      const nodes = [makeGoalNode("goal-1", "phi")];
+      // 存在しないノードからの接続
+      const connections = [makeConnection("unknown-node", "goal-1")];
+      const result = checkGoal(nodes, connections);
+      expect(result._tag).toBe("GoalPartiallyAchieved");
+    });
+
+    it("ignores connection to non-goal node", () => {
+      // 接続がゴールノード以外に向いている場合、ゴールは未達成
+      const nodes = [
+        makeGoalNode("goal-1", "phi"),
+        makeNode("node-1", "phi"),
+        makeNode("node-2", "phi"),
+      ];
+      const connections = [makeConnection("node-1", "node-2")];
+      const result = checkGoal(nodes, connections);
+      expect(result._tag).toBe("GoalPartiallyAchieved");
     });
   });
 });

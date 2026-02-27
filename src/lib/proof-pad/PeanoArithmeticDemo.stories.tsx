@@ -23,6 +23,7 @@ import { ProofWorkspace } from "./ProofWorkspace";
 import {
   createEmptyWorkspace,
   addNode,
+  addConnection,
   applyMPAndConnect,
   updateNodeRole,
 } from "./workspaceState";
@@ -38,6 +39,8 @@ function PA1AxiomComplete() {
     // ゴールノードを追加して role を設定
     ws = addNode(ws, "axiom", "Goal", { x: 200, y: 250 }, "all x. ~(S(x) = 0)");
     ws = updateNodeRole(ws, "node-2", "goal");
+    // 公理ノードからゴールノードへ接続して達成
+    ws = addConnection(ws, "node-1", "output", "node-2", "input");
     return ws;
   })();
 
@@ -83,6 +86,8 @@ function ZeroPlusZeroComplete() {
     // ゴールノードを追加して role を設定
     ws = addNode(ws, "axiom", "Goal", { x: 450, y: 250 }, "0 + 0 = 0");
     ws = updateNodeRole(ws, "node-4", "goal");
+    // MP結果ノードからゴールノードへ接続して達成
+    ws = addConnection(ws, "node-3", "output", "node-4", "input");
 
     return ws;
   })();
@@ -171,6 +176,8 @@ function SuccessorNotZeroComplete() {
     // ゴールノードを追加して role を設定
     ws = addNode(ws, "axiom", "Goal", { x: 450, y: 250 }, "~(S(0) = 0)");
     ws = updateNodeRole(ws, "node-4", "goal");
+    // MP結果ノードからゴールノードへ接続して達成
+    ws = addConnection(ws, "node-3", "output", "node-4", "input");
 
     return ws;
   })();
@@ -323,10 +330,10 @@ export const ZeroPlusZeroInteractive: Story = {
       canvas.getByTestId("proof-node-node-4-status"),
     ).toHaveTextContent("MP applied");
 
-    // 証明完成バナーが表示された
+    // ゴールノードへの接続はまだないため、Proof Completeにはならない
     await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
+      canvas.queryByTestId("workspace-proof-complete-banner"),
+    ).not.toBeInTheDocument();
   },
 };
 

@@ -714,6 +714,8 @@ describe("ProofWorkspace", () => {
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Goal", { x: 400, y: 0 }, "phi");
       ws = updateNodeRole(ws, "node-2", "goal");
+      // ゴールノードへの接続がなければ達成にならない
+      ws = addConnection(ws, "node-1", "output", "node-2", "input");
 
       render(
         <ProofWorkspace
@@ -766,6 +768,8 @@ describe("ProofWorkspace", () => {
       });
       ws = addNode(result.workspace, "axiom", "Goal", { x: 400, y: 0 }, "psi");
       ws = updateNodeRole(ws, "node-4", "goal");
+      // MP結果ノードからゴールノードへの接続が必要
+      ws = addConnection(ws, "node-3", "output", "node-4", "input");
 
       render(
         <ProofWorkspace
@@ -786,6 +790,8 @@ describe("ProofWorkspace", () => {
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Goal", { x: 400, y: 0 }, "phi");
       ws = updateNodeRole(ws, "node-2", "goal");
+      // ゴールノードへの接続が必要
+      ws = addConnection(ws, "node-1", "output", "node-2", "input");
 
       render(
         <ProofWorkspace
@@ -1243,6 +1249,8 @@ describe("ProofWorkspace", () => {
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "φ → φ");
       ws = addNode(ws, "axiom", "Goal", { x: 400, y: 0 }, "φ → φ");
       ws = updateNodeRole(ws, "node-2", "goal");
+      // ゴールノードへの接続が必要
+      ws = addConnection(ws, "node-1", "output", "node-2", "input");
       const { container } = render(
         <ProofWorkspace system={lukasiewiczSystem} workspace={ws} />,
       );

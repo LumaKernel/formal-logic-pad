@@ -23,6 +23,7 @@ import { ProofWorkspace } from "./ProofWorkspace";
 import {
   createEmptyWorkspace,
   addNode,
+  addConnection,
   applyMPAndConnect,
   updateNodeRole,
 } from "./workspaceState";
@@ -50,6 +51,8 @@ function G1AssociativityComplete() {
       "all x. all y. all z. (x * y) * z = x * (y * z)",
     );
     ws = updateNodeRole(ws, "node-2", "goal");
+    // 公理ノードからゴールノードへ接続して達成
+    ws = addConnection(ws, "node-1", "output", "node-2", "input");
     return ws;
   })();
 
@@ -95,6 +98,8 @@ function IdentityTimesIdentityComplete() {
     // node-4: ゴールノード
     ws = addNode(ws, "axiom", "Goal", { x: 450, y: 250 }, "e * e = e");
     ws = updateNodeRole(ws, "node-4", "goal");
+    // MP結果ノードからゴールノードへ接続して達成
+    ws = addConnection(ws, "node-3", "output", "node-4", "input");
 
     return ws;
   })();
@@ -183,6 +188,8 @@ function InverseIdentityComplete() {
     // node-4: ゴールノード
     ws = addNode(ws, "axiom", "Goal", { x: 450, y: 250 }, "i(e) * e = e");
     ws = updateNodeRole(ws, "node-4", "goal");
+    // MP結果ノードからゴールノードへ接続して達成
+    ws = addConnection(ws, "node-3", "output", "node-4", "input");
 
     return ws;
   })();
@@ -359,10 +366,10 @@ export const IdentityTimesIdentityInteractive: Story = {
       canvas.getByTestId(`proof-node-${"node-4" satisfies string}-status`),
     ).toHaveTextContent("MP applied");
 
-    // 証明完了バナーが表示された
+    // ゴールノードへの接続はまだないため、Proof Completeにはならない
     await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
+      canvas.queryByTestId("workspace-proof-complete-banner"),
+    ).not.toBeInTheDocument();
   },
 };
 

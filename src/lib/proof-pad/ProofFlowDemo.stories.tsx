@@ -20,6 +20,7 @@ import { ProofWorkspace } from "./ProofWorkspace";
 import {
   createEmptyWorkspace,
   addNode,
+  addConnection,
   applyMPAndConnect,
   updateNodeRole,
 } from "./workspaceState";
@@ -62,6 +63,8 @@ function IdentityProofComplete() {
     // ゴール設定（ノードとして追加）
     ws = addNode(ws, "axiom", "Goal", { x: 450, y: 500 }, "phi -> phi");
     ws = updateNodeRole(ws, "node-6", "goal");
+    // MP結果ノードからゴールノードへ接続して達成
+    ws = addConnection(ws, "node-5", "output", "node-6", "input");
 
     return ws;
   })();
@@ -292,6 +295,8 @@ function LargeProofTreeDemo() {
       "chi -> (psi -> (phi -> phi))",
     );
     ws = updateNodeRole(ws, "node-10", "goal");
+    // MP結果ノードからゴールノードへ接続して達成
+    ws = addConnection(ws, "node-9", "output", "node-10", "input");
 
     return ws;
   })();
@@ -362,11 +367,12 @@ function MixedErrorStatesDemo() {
     // 未接続の孤立ノード
     ws = addNode(ws, "axiom", "F: 孤立", { x: 850, y: 350 }, "delta");
 
-    // ゴール1: ψ（MP成功で達成）
+    // ゴール1: ψ（MP成功で達成 - MP結果からの接続あり）
     ws = addNode(ws, "axiom", "Goal①: ψ", { x: 100, y: 400 }, "psi");
     ws = updateNodeRole(ws, "node-9", "goal");
+    ws = addConnection(ws, "node-3", "output", "node-9", "input");
 
-    // ゴール2: delta（未達成 - MPで証明されていない）
+    // ゴール2: delta（未達成 - 接続なし）
     ws = addNode(
       ws,
       "axiom",
@@ -491,10 +497,10 @@ export const IdentityProofInteractive: Story = {
       canvas.getByTestId("proof-node-node-6-status"),
     ).toHaveTextContent("MP applied");
 
-    // ゴールが達成された！
+    // ゴールノードへの接続はまだないため、Proof Completeにはならない
     await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
+      canvas.queryByTestId("workspace-proof-complete-banner"),
+    ).not.toBeInTheDocument();
   },
 };
 

@@ -320,6 +320,8 @@ function WorkspaceWithGoalAchieved() {
     });
     ws = addNode(result.workspace, "axiom", "Goal", { x: 400, y: 250 }, "psi");
     ws = updateNodeRole(ws, "node-4", "goal");
+    // MP結果ノードからゴールノードへ接続して達成
+    ws = addConnection(ws, "node-3", "output", "node-4", "input");
     return ws;
   })();
 

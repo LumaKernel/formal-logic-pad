@@ -670,8 +670,8 @@ export function ProofWorkspace({
   // --- ゴールチェック（ノードrole="goal"ベース） ---
 
   const goalCheckResult = useMemo(
-    () => checkGoal(workspace.nodes),
-    [workspace.nodes],
+    () => checkGoal(workspace.nodes, workspace.connections),
+    [workspace.nodes, workspace.connections],
   );
 
   // --- クエストゴールチェック（クエストモード: 保護ノードベース、公理制限付き） ---

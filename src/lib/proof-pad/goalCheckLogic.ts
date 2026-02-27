@@ -2,7 +2,8 @@
  * 証明目標（ゴール）達成判定の純粋ロジック。
  *
  * ノードの role === "goal" をゴールとして扱い、
- * 他のノードが同じ式を導出していれば達成とみなす。
+ * ゴールノードへの incoming connection があり、
+ * 接続元ノードが同じ式を導出していれば達成とみなす。
  *
  * 変更時は goalCheckLogic.test.ts, ProofWorkspace.tsx, index.ts も同期すること。
  */
@@ -10,7 +11,7 @@
 import { equalFormula } from "../logic-core/equality";
 import { parseString } from "../logic-lang/parser";
 import type { Formula } from "../logic-core/formula";
-import type { WorkspaceNode } from "./workspaceState";
+import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
 
 // --- ゴール達成チェックの結果型 ---
 
@@ -74,19 +75,25 @@ export function parseGoalFormula(goalText: string): Formula | undefined {
 /**
  * ワークスペース上の role="goal" ノードが全て証明されているかチェックする。
  *
- * ゴールノードの式と一致する式を持つ非ゴールノードが存在すれば「達成」とみなす。
+ * ゴールノードに incoming connection があり、その接続元ノードの式が
+ * ゴール式と構造的に一致していれば「達成」とみなす。
+ * ゴールノードに接続がない場合は式が一致するノードが存在しても未達成。
  *
  * @param nodes ワークスペース上のノード一覧
+ * @param connections ワークスペース上の接続一覧
  * @returns ゴールチェック結果
  */
-export function checkGoal(nodes: readonly WorkspaceNode[]): GoalCheckResult {
+export function checkGoal(
+  nodes: readonly WorkspaceNode[],
+  connections: readonly WorkspaceConnection[],
+): GoalCheckResult {
   const goalNodes = nodes.filter((n) => n.role === "goal");
   if (goalNodes.length === 0) {
     return { _tag: "GoalNotSet" };
   }
 
-  // ゴールノード以外のノード（証明の根拠となるノード）
-  const workNodes = nodes.filter((n) => n.role !== "goal");
+  // ノードIDからノードを引くMap
+  const nodeById = new Map(nodes.map((n) => [n.id, n]));
 
   const goalStatuses: GoalStatus[] = [];
   const achievedGoals: AchievedGoalInfo[] = [];
@@ -103,14 +110,20 @@ export function checkGoal(nodes: readonly WorkspaceNode[]): GoalCheckResult {
       continue;
     }
 
-    // ゴール式と一致するワークノードを探す
+    // ゴールノードへの incoming connection の接続元ノードから一致するものを探す
+    const incomingConnections = connections.filter(
+      (c) => c.toNodeId === goalNode.id,
+    );
+
     let matchingNodeId: string | undefined;
-    for (const work of workNodes) {
-      if (work.formulaText.trim() === "") continue;
-      const workResult = parseString(work.formulaText);
-      if (!workResult.ok) continue;
-      if (equalFormula(goalFormula, workResult.formula)) {
-        matchingNodeId = work.id;
+    for (const conn of incomingConnections) {
+      const sourceNode = nodeById.get(conn.fromNodeId);
+      if (sourceNode === undefined) continue;
+      if (sourceNode.formulaText.trim() === "") continue;
+      const sourceResult = parseString(sourceNode.formulaText);
+      if (!sourceResult.ok) continue;
+      if (equalFormula(goalFormula, sourceResult.formula)) {
+        matchingNodeId = sourceNode.id;
         break;
       }
     }
