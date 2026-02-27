@@ -344,6 +344,50 @@ const selectionActionButtonStyle = {
   fontFamily: "var(--font-ui)",
 };
 
+// --- ワークスペースメニュー項目 ---
+
+function WorkspaceMenuItem({
+  label,
+  onClick,
+  testId,
+}: {
+  readonly label: string;
+  readonly onClick: () => void;
+  readonly testId: string | undefined;
+}) {
+  return (
+    <button
+      type="button"
+      data-testid={testId}
+      onClick={onClick}
+      /* v8 ignore start - hover visual effect only */
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background =
+          "var(--color-surface-hover, #f0f0f0)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "transparent";
+      }}
+      /* v8 ignore stop */
+      style={{
+        display: "block",
+        width: "100%",
+        padding: "6px 16px",
+        border: "none",
+        background: "transparent",
+        textAlign: "left" as const,
+        cursor: "pointer",
+        color: "var(--color-text-primary, #333)",
+        fontSize: 13,
+        lineHeight: "1.4",
+        whiteSpace: "nowrap" as const,
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
 // --- コンポーネント ---
 
 export function ProofWorkspace({
@@ -427,6 +471,11 @@ export function ProofWorkspace({
 
   // ファイルインポート用の隠しinput
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ワークスペース操作メニュー（Export/Import）
+  const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
+  const workspaceMenuRef = useRef<HTMLDivElement>(null);
+  const workspaceMenuButtonRef = useRef<HTMLButtonElement>(null);
 
   // コンテナサイズ（Viewport Culling用）
   const [containerSize, setContainerSize] = useState<Size>({
@@ -984,6 +1033,25 @@ export function ProofWorkspace({
       document.removeEventListener("pointerdown", handleClickOutside);
     };
   }, [nodeMenuState.open]);
+
+  // ワークスペース操作メニュー外クリックで閉じる
+  useEffect(() => {
+    if (!workspaceMenuOpen) return;
+    const handleClickOutside = (e: PointerEvent) => {
+      if (
+        workspaceMenuRef.current !== null &&
+        !workspaceMenuRef.current.contains(e.target as Node) &&
+        workspaceMenuButtonRef.current !== null &&
+        !workspaceMenuButtonRef.current.contains(e.target as Node)
+      ) {
+        setWorkspaceMenuOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", handleClickOutside);
+    return () => {
+      document.removeEventListener("pointerdown", handleClickOutside);
+    };
+  }, [workspaceMenuOpen]);
 
   // --- コピー＆ペースト ---
 
@@ -1614,7 +1682,7 @@ export function ProofWorkspace({
             </select>
           ) : null}
         </span>
-        {/* エクスポート/インポート */}
+        {/* ワークスペース操作メニュー（Export/Import） */}
         <span
           style={{
             borderLeft:
@@ -1623,57 +1691,104 @@ export function ProofWorkspace({
             marginLeft: 4,
             display: "inline-flex",
             alignItems: "center",
-            gap: 4,
+            position: "relative",
           }}
         >
           <button
+            ref={workspaceMenuButtonRef}
             type="button"
             style={paperButtonStyle}
-            onClick={handleExportJSON}
+            onClick={() => setWorkspaceMenuOpen((prev) => !prev)}
             data-testid={
               testId
-                ? `${testId satisfies string}-export-json-button`
+                ? `${testId satisfies string}-workspace-menu-button`
                 : undefined
             }
+            aria-label="Workspace menu"
+            aria-expanded={workspaceMenuOpen}
           >
-            {msg.exportJSON}
+            ⋯
           </button>
-          <button
-            type="button"
-            style={paperButtonStyle}
-            onClick={handleExportSVG}
-            data-testid={
-              testId
-                ? `${testId satisfies string}-export-svg-button`
-                : undefined
-            }
-          >
-            {msg.exportSVG}
-          </button>
-          <button
-            type="button"
-            style={paperButtonStyle}
-            onClick={handleExportPNG}
-            data-testid={
-              testId
-                ? `${testId satisfies string}-export-png-button`
-                : undefined
-            }
-          >
-            {msg.exportPNG}
-          </button>
-          <button
-            type="button"
-            style={paperButtonStyle}
-            onClick={handleImportJSON}
-            data-testid={
-              testId
-                ? `${testId satisfies string}-import-json-button`
-                : undefined
-            }
-          >
-            {msg.importJSON}
-          </button>
+          {workspaceMenuOpen ? (
+            <div
+              ref={workspaceMenuRef}
+              data-testid={
+                testId
+                  ? `${testId satisfies string}-workspace-menu`
+                  : undefined
+              }
+              style={{
+                position: "absolute",
+                top: "100%",
+                right: 0,
+                marginTop: 4,
+                zIndex: 2000,
+                minWidth: 150,
+                background:
+                  "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
+                border:
+                  "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.2))",
+                borderRadius: 8,
+                boxShadow:
+                  "0 4px 16px var(--color-panel-shadow, rgba(120, 100, 70, 0.1))",
+                padding: "4px 0",
+                fontFamily: "var(--font-ui)",
+                fontSize: 13,
+                userSelect: "none",
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <WorkspaceMenuItem
+                label={msg.exportJSON}
+                onClick={() => {
+                  handleExportJSON();
+                  setWorkspaceMenuOpen(false);
+                }}
+                testId={
+                  testId
+                    ? `${testId satisfies string}-export-json-button`
+                    : undefined
+                }
+              />
+              <WorkspaceMenuItem
+                label={msg.exportSVG}
+                onClick={() => {
+                  handleExportSVG();
+                  setWorkspaceMenuOpen(false);
+                }}
+                testId={
+                  testId
+                    ? `${testId satisfies string}-export-svg-button`
+                    : undefined
+                }
+              />
+              <WorkspaceMenuItem
+                label={msg.exportPNG}
+                onClick={() => {
+                  handleExportPNG();
+                  setWorkspaceMenuOpen(false);
+                }}
+                testId={
+                  testId
+                    ? `${testId satisfies string}-export-png-button`
+                    : undefined
+                }
+              />
+              <WorkspaceMenuItem
+                label={msg.importJSON}
+                onClick={() => {
+                  handleImportJSON();
+                  setWorkspaceMenuOpen(false);
+                }}
+                testId={
+                  testId
+                    ? `${testId satisfies string}-import-json-button`
+                    : undefined
+                }
+              />
+            </div>
+          ) : null}
           <input
             ref={fileInputRef}
             type="file"

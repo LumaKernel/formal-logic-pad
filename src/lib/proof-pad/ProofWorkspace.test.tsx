@@ -2025,4 +2025,101 @@ describe("ProofWorkspace", () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe("workspace menu (export/import)", () => {
+    it("shows menu button and opens dropdown on click", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // メニューボタンが存在する
+      const menuButton = screen.getByTestId("workspace-workspace-menu-button");
+      expect(menuButton).toBeInTheDocument();
+
+      // ドロップダウンは閉じている
+      expect(
+        screen.queryByTestId("workspace-workspace-menu"),
+      ).not.toBeInTheDocument();
+
+      // クリックで開く
+      await user.click(menuButton);
+      expect(
+        screen.getByTestId("workspace-workspace-menu"),
+      ).toBeInTheDocument();
+
+      // Export/Import ボタンがメニュー内に存在する
+      expect(
+        screen.getByTestId("workspace-export-json-button"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-export-svg-button"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-export-png-button"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-import-json-button"),
+      ).toBeInTheDocument();
+    });
+
+    it("closes menu on second click of menu button", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      const menuButton = screen.getByTestId("workspace-workspace-menu-button");
+
+      // 開く
+      await user.click(menuButton);
+      expect(
+        screen.getByTestId("workspace-workspace-menu"),
+      ).toBeInTheDocument();
+
+      // 再クリックで閉じる
+      await user.click(menuButton);
+      expect(
+        screen.queryByTestId("workspace-workspace-menu"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("closes menu after clicking a menu item", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      const menuButton = screen.getByTestId("workspace-workspace-menu-button");
+
+      // メニューを開く
+      await user.click(menuButton);
+      expect(
+        screen.getByTestId("workspace-workspace-menu"),
+      ).toBeInTheDocument();
+
+      // Import JSONをクリック（ファイル選択ダイアログはJSDOMではスキップ）
+      await user.click(screen.getByTestId("workspace-import-json-button"));
+
+      // メニューが閉じる
+      expect(
+        screen.queryByTestId("workspace-workspace-menu"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("does not show export/import buttons inline in header", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // メニューが閉じた状態では export/import ボタンは表示されない
+      expect(
+        screen.queryByTestId("workspace-export-json-button"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });
