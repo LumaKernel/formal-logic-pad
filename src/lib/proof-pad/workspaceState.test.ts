@@ -571,16 +571,13 @@ describe("proofWorkspace", () => {
       expect(result.substitutionNodeId).toBe("node-2");
       expect(result.workspace.nodes).toHaveLength(2);
       // derived ノードが作成される（substitutionではなく）
-      const substNode = result.workspace.nodes.find(
-        (n) => n.id === "node-2",
-      );
+      const substNode = result.workspace.nodes.find((n) => n.id === "node-2");
       expect(substNode?.kind).toBe("derived");
       // 互換性: レガシーの接続とInferenceEdgeの両方が作成される
       expect(result.workspace.connections).toHaveLength(1);
       expect(result.workspace.inferenceEdges.length).toBeGreaterThanOrEqual(1);
       const substEdge = result.workspace.inferenceEdges.find(
-        (e) =>
-          e._tag === "substitution" && e.conclusionNodeId === "node-2",
+        (e) => e._tag === "substitution" && e.conclusionNodeId === "node-2",
       );
       expect(substEdge).toBeDefined();
       if (substEdge?._tag === "substitution") {

@@ -195,7 +195,10 @@ describe("nodeRoleLogic", () => {
     });
 
     it("excludes derived nodes", () => {
-      const nodes = [makeNode("node-1"), makeNode("node-2", { kind: "derived" })];
+      const nodes = [
+        makeNode("node-1"),
+        makeNode("node-2", { kind: "derived" }),
+      ];
       const connections = [makeConnection("node-1", "node-2")];
       expect(getAxiomNodeIds(nodes, connections)).toEqual(["node-1"]);
     });
