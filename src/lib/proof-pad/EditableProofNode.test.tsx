@@ -644,4 +644,39 @@ describe("EditableProofNode", () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe("editTrigger", () => {
+    it('editTrigger="dblclick"でシングルクリックでは編集モードに入らない', async () => {
+      const user = userEvent.setup();
+      renderNode({ editTrigger: "dblclick" });
+      const display = screen.getByTestId("test-node-editor-display");
+      await user.click(display);
+      expect(
+        screen.getByTestId("test-node-editor-display"),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByTestId("test-node-editor-edit"),
+      ).not.toBeInTheDocument();
+    });
+
+    it('editTrigger="dblclick"でダブルクリックで編集モードに入る', async () => {
+      const user = userEvent.setup();
+      renderNode({ editTrigger: "dblclick" });
+      const display = screen.getByTestId("test-node-editor-display");
+      await user.dblClick(display);
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("test-node-editor-edit"),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('editTrigger未指定ではデフォルト(click)で動作する', async () => {
+      const user = userEvent.setup();
+      renderNode();
+      const display = screen.getByTestId("test-node-editor-display");
+      await user.click(display);
+      expect(screen.getByTestId("test-node-editor-edit")).toBeInTheDocument();
+    });
+  });
 });

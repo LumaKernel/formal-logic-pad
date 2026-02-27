@@ -32,6 +32,14 @@ export type DisplayRenderer = "unicode" | "katex";
 export type EditorMode = "display" | "editing";
 
 /**
+ * 編集モードに入るトリガーの種類。
+ * - "click": シングルクリックで即座に編集開始（デフォルト）
+ * - "dblclick": ダブルクリックで編集開始
+ * - "none": クリックでは編集しない（外部から制御する場合）
+ */
+export type EditTrigger = "click" | "dblclick" | "none";
+
+/**
  * 編集終了アクション（blur/Escape/Enter）時の結果を計算する。
  * パースエラーの場合はnull（モード遷移しない）を返す。
  */

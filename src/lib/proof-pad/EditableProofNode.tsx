@@ -10,7 +10,7 @@
 import type { CSSProperties } from "react";
 import { useCallback, useMemo, useState } from "react";
 import type { Formula } from "../logic-core/formula";
-import type { EditorMode } from "../formula-input/editorLogic";
+import type { EditTrigger, EditorMode } from "../formula-input/editorLogic";
 import { FormulaDisplay } from "../formula-input/FormulaDisplay";
 import { FormulaEditor } from "../formula-input/FormulaEditor";
 import { computeParseState } from "../formula-input/FormulaInput";
@@ -63,6 +63,8 @@ export interface EditableProofNodeProps {
   readonly dependencies?: readonly DependencyInfo[];
   /** 表示詳細度（ズームレベルに応じた簡略表示、デフォルト: "full"） */
   readonly detailLevel?: DetailLevel;
+  /** 編集モードに入るトリガー（デフォルト: "click"） */
+  readonly editTrigger?: EditTrigger;
   /** data-testid */
   readonly testId?: string;
 }
@@ -243,6 +245,7 @@ export function EditableProofNode({
   axiomName,
   dependencies,
   detailLevel = "full",
+  editTrigger,
   testId,
 }: EditableProofNodeProps) {
   const nodeStyle = useMemo(() => getProofNodeStyle(kind), [kind]);
@@ -407,6 +410,7 @@ export function EditableProofNode({
             onModeChange={handleModeChange}
             displayRenderer="unicode"
             placeholder="Click to edit formula..."
+            editTrigger={editTrigger}
             testId={testId ? `${testId satisfies string}-editor` : undefined}
             style={{
               color: nodeStyle.textColor,

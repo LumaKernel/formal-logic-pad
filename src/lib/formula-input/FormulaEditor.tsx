@@ -14,7 +14,7 @@ import { formatFormula } from "../logic-lang/formatUnicode";
 import { FormulaDisplay } from "./FormulaDisplay";
 import { computeParseState, FormulaInput } from "./FormulaInput";
 import { FormulaKaTeX } from "./FormulaKaTeX";
-import type { DisplayRenderer, EditorMode } from "./editorLogic";
+import type { DisplayRenderer, EditTrigger, EditorMode } from "./editorLogic";
 import { computeExitAction } from "./editorLogic";
 
 // --- Props ---
@@ -38,6 +38,8 @@ export interface FormulaEditorProps {
   readonly className?: string;
   /** 追加のスタイル（コンテナ） */
   readonly style?: CSSProperties;
+  /** 編集モードに入るトリガー（デフォルト: "click"） */
+  readonly editTrigger?: EditTrigger;
   /** data-testid */
   readonly testId?: string;
 }
@@ -91,6 +93,7 @@ export function FormulaEditor({
   fontSize,
   className,
   style,
+  editTrigger = "click",
   testId,
 }: FormulaEditorProps) {
   const [mode, setModeInternal] = useState<EditorMode>("display");
@@ -175,8 +178,9 @@ export function FormulaEditor({
       ...containerBaseStyle,
       ...style,
       ...(fontSize !== undefined ? { fontSize } : {}),
+      ...(editTrigger === "none" ? { cursor: "default" } : {}),
     }),
-    [style, fontSize],
+    [style, fontSize, editTrigger],
   );
 
   // Unicode表示テキスト（表示モード用）
@@ -198,8 +202,13 @@ export function FormulaEditor({
         <div
           role="button"
           tabIndex={0}
-          onClick={handleDisplayClick}
-          onKeyDown={handleDisplayKeyDown}
+          onClick={editTrigger === "click" ? handleDisplayClick : undefined}
+          onDoubleClick={
+            editTrigger === "dblclick" ? handleDisplayClick : undefined
+          }
+          onKeyDown={
+            editTrigger !== "none" ? handleDisplayKeyDown : undefined
+          }
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           style={isHovered ? displayContainerHoverStyle : displayContainerStyle}
@@ -208,8 +217,8 @@ export function FormulaEditor({
           }
           aria-label={
             displayText
-              ? `${displayText satisfies string} - クリックして編集`
-              : "クリックして論理式を入力"
+              ? `${displayText satisfies string} - ${(editTrigger === "dblclick" ? "ダブルクリックして編集" : "クリックして編集") satisfies string}`
+              : `${(editTrigger === "dblclick" ? "ダブルクリックして論理式を入力" : "クリックして論理式を入力") satisfies string}`
           }
         >
           {formula ? (

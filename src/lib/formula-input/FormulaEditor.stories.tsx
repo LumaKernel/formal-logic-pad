@@ -1,7 +1,8 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 import type { Formula } from "../logic-core/formula";
+import type { EditTrigger } from "./editorLogic";
 import { FormulaEditor } from "./FormulaEditor";
 
 // --- Wrapper: 制御コンポーネント用ステート管理 ---
@@ -10,11 +11,13 @@ function FormulaEditorWrapper({
   initialValue = "",
   displayRenderer,
   placeholder,
+  editTrigger,
   testId = "editor",
 }: {
   readonly initialValue?: string;
   readonly displayRenderer?: "unicode" | "katex";
   readonly placeholder?: string;
+  readonly editTrigger?: EditTrigger;
   readonly testId?: string;
 }) {
   const [value, setValue] = useState(initialValue);
@@ -32,6 +35,7 @@ function FormulaEditorWrapper({
         onParsed={handleParsed}
         displayRenderer={displayRenderer}
         placeholder={placeholder}
+        editTrigger={editTrigger}
         testId={testId}
       />
       {parsedTag && (
@@ -267,5 +271,128 @@ export const WithParsedCallback: Story = {
     // blur で表示モードに戻る
     await userEvent.tab();
     await expect(canvas.getByTestId("editor-display")).toBeInTheDocument();
+  },
+};
+
+// --- 編集トリガー比較ストーリー ---
+
+/**
+ * ダブルクリックで編集開始。シングルクリックでは編集モードに入らない。
+ */
+export const DoubleClickTrigger: Story = {
+  args: {
+    value: "φ → ψ",
+    onChange: () => {},
+    testId: "dbl-editor",
+  },
+  render: () => (
+    <FormulaEditorWrapper
+      initialValue="φ → ψ"
+      editTrigger="dblclick"
+      testId="dbl-editor"
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const display = canvas.getByTestId("dbl-editor-display");
+    await expect(display).toBeInTheDocument();
+
+    // シングルクリックでは編集モードに入らない
+    await userEvent.click(display);
+    await expect(display).toBeInTheDocument();
+    expect(canvas.queryByTestId("dbl-editor-edit")).not.toBeInTheDocument();
+
+    // ダブルクリックで編集モードに入る
+    await userEvent.dblClick(display);
+    await waitFor(() => {
+      expect(canvas.getByTestId("dbl-editor-edit")).toBeInTheDocument();
+    });
+
+    // ESCで戻る
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => {
+      expect(canvas.getByTestId("dbl-editor-display")).toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * 編集トリガー比較: click / dblclick / none を横に並べて比較検討。
+ */
+export const EditTriggerComparison: Story = {
+  args: {
+    value: "φ → ψ",
+    onChange: () => {},
+    testId: "comparison",
+  },
+  render: () => {
+    const triggers: readonly EditTrigger[] = ["click", "dblclick", "none"];
+    const labels: Record<EditTrigger, string> = {
+      click: "シングルクリック（現行）",
+      dblclick: "ダブルクリック",
+      none: "外部制御のみ",
+    };
+    return (
+      <div style={{ display: "flex", gap: 32, padding: 24 }}>
+        {triggers.map((trigger) => (
+          <div key={trigger} style={{ width: 300 }}>
+            <div
+              style={{
+                fontFamily: "var(--font-ui)",
+                fontSize: 14,
+                fontWeight: 700,
+                marginBottom: 8,
+              }}
+            >
+              {labels[trigger]}
+            </div>
+            <div
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 11,
+                color: "var(--color-text-secondary, #888)",
+                marginBottom: 12,
+              }}
+            >
+              editTrigger: &quot;{trigger}&quot;
+            </div>
+            <FormulaEditorWrapper
+              initialValue="φ → ψ"
+              editTrigger={trigger}
+              testId={`cmp-${trigger satisfies string}`}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // すべてのエディタが表示されている
+    await expect(
+      canvas.getByTestId("cmp-click-display"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("cmp-dblclick-display"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("cmp-none-display"),
+    ).toBeInTheDocument();
+
+    // clickエディタ: シングルクリックで編集開始
+    await userEvent.click(canvas.getByTestId("cmp-click-display"));
+    await waitFor(() => {
+      expect(canvas.getByTestId("cmp-click-edit")).toBeInTheDocument();
+    });
+
+    // 他のエディタは表示モードのまま
+    await expect(
+      canvas.getByTestId("cmp-dblclick-display"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("cmp-none-display"),
+    ).toBeInTheDocument();
   },
 };

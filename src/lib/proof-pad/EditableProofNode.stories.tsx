@@ -14,7 +14,7 @@ import type { DetailLevel } from "./levelOfDetail";
 import { InfiniteCanvas } from "../infinite-canvas/InfiniteCanvas";
 import { CanvasItem } from "../infinite-canvas/CanvasItem";
 import type { Point, ViewportState } from "../infinite-canvas/types";
-import type { EditorMode } from "../formula-input/editorLogic";
+import type { EditTrigger, EditorMode } from "../formula-input/editorLogic";
 
 // --- デモコンポーネント ---
 
@@ -365,5 +365,188 @@ export const LevelOfDetail: Story = {
     expect(
       canvas.queryByTestId("lod-mp-minimal-status"),
     ).not.toBeInTheDocument();
+  },
+};
+
+// --- 編集トリガー比較 ---
+
+interface TriggerDemoNodeData {
+  readonly id: string;
+  readonly kind: ProofNodeKind;
+  readonly label: string;
+  readonly formulaText: string;
+  readonly position: Point;
+}
+
+function EditTriggerComparisonDemo({
+  editTrigger,
+  testIdPrefix,
+}: {
+  readonly editTrigger: EditTrigger;
+  readonly testIdPrefix: string;
+}) {
+  const initialNodes: readonly TriggerDemoNodeData[] = [
+    {
+      id: "a1",
+      kind: "axiom",
+      label: "A1 (K)",
+      formulaText: "φ → (ψ → φ)",
+      position: { x: 50, y: 50 },
+    },
+    {
+      id: "a2",
+      kind: "axiom",
+      label: "A2 (S)",
+      formulaText: "(φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))",
+      position: { x: 50, y: 180 },
+    },
+  ];
+
+  const [viewport, setViewport] = useState<ViewportState>({
+    offsetX: 0,
+    offsetY: 0,
+    scale: 1,
+  });
+  const [nodes, setNodes] =
+    useState<readonly TriggerDemoNodeData[]>(initialNodes);
+  const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
+
+  const handlePositionChange = useCallback(
+    (id: string, newPosition: Point) => {
+      setNodes((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, position: newPosition } : n)),
+      );
+    },
+    [],
+  );
+
+  const handleFormulaTextChange = useCallback((id: string, text: string) => {
+    setNodes((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, formulaText: text } : n)),
+    );
+  }, []);
+
+  const handleModeChange = useCallback((id: string, mode: EditorMode) => {
+    setEditingNodeId(mode === "editing" ? id : null);
+  }, []);
+
+  return (
+    <div style={{ width: "100%", height: 300 }}>
+      <InfiniteCanvas viewport={viewport} onViewportChange={setViewport}>
+        {nodes.map((node) => (
+          <CanvasItem
+            key={node.id}
+            position={node.position}
+            viewport={viewport}
+            onPositionChange={(pos) => {
+              handlePositionChange(node.id, pos);
+            }}
+            dragEnabled={editingNodeId !== node.id}
+          >
+            <EditableProofNode
+              id={node.id}
+              kind={node.kind}
+              label={node.label}
+              formulaText={node.formulaText}
+              onFormulaTextChange={handleFormulaTextChange}
+              onModeChange={handleModeChange}
+              editTrigger={editTrigger}
+              testId={`${testIdPrefix satisfies string}-${node.id satisfies string}`}
+            />
+          </CanvasItem>
+        ))}
+      </InfiniteCanvas>
+      <div
+        data-testid={`${testIdPrefix satisfies string}-status`}
+        style={{
+          position: "absolute",
+          top: 4,
+          left: 4,
+          background: "rgba(0,0,0,0.7)",
+          color: "#fff",
+          padding: "2px 6px",
+          borderRadius: 4,
+          fontSize: 11,
+          fontFamily: "var(--font-mono)",
+          pointerEvents: "none",
+        }}
+      >
+        {editTrigger}: editing={editingNodeId ?? "none"}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * 編集トリガー比較: click / dblclick を並べて比較検討。
+ * click: シングルクリックで即座に編集（現行動作）
+ * dblclick: ダブルクリックで編集開始（シングルクリックは選択に使える）
+ */
+export const EditTriggerComparison: Story = {
+  render: () => {
+    const triggers: readonly EditTrigger[] = ["click", "dblclick"];
+    const labels: Record<string, string> = {
+      click: "シングルクリック（現行）",
+      dblclick: "ダブルクリック",
+    };
+    return (
+      <div style={{ padding: 16 }}>
+        <div
+          style={{
+            fontFamily: "var(--font-ui)",
+            fontSize: 16,
+            fontWeight: 700,
+            marginBottom: 16,
+          }}
+        >
+          編集トリガー比較
+        </div>
+        {triggers.map((trigger) => (
+          <div key={trigger} style={{ marginBottom: 24 }}>
+            <div
+              style={{
+                fontFamily: "var(--font-ui)",
+                fontSize: 13,
+                fontWeight: 600,
+                marginBottom: 4,
+              }}
+            >
+              {labels[trigger]} (editTrigger: &quot;{trigger}&quot;)
+            </div>
+            <div
+              style={{
+                position: "relative",
+                border: "1px solid var(--color-node-card-border, #ddd)",
+                borderRadius: 8,
+              }}
+            >
+              <EditTriggerComparisonDemo
+                editTrigger={trigger}
+                testIdPrefix={`et-${trigger satisfies string}`}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // 両方のキャンバスが表示されている
+    await expect(
+      canvas.getByTestId("et-click-status"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("et-dblclick-status"),
+    ).toBeInTheDocument();
+
+    // clickモードのステータス初期表示
+    await expect(canvas.getByTestId("et-click-status")).toHaveTextContent(
+      "click: editing=none",
+    );
+    await expect(canvas.getByTestId("et-dblclick-status")).toHaveTextContent(
+      "dblclick: editing=none",
+    );
   },
 };

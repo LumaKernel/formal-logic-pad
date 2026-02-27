@@ -5,7 +5,7 @@ import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import type { Formula } from "../logic-core/formula";
 import { FormulaEditor } from "./FormulaEditor";
-import type { EditorMode } from "./editorLogic";
+import type { EditTrigger, EditorMode } from "./editorLogic";
 
 // --- ヘルパー: 制御コンポーネントラッパー ---
 
@@ -17,6 +17,7 @@ function EditorWrapper({
   displayRenderer,
   placeholder,
   fontSize,
+  editTrigger,
 }: {
   readonly initialValue?: string;
   readonly onParsed?: (formula: Formula) => void;
@@ -25,6 +26,7 @@ function EditorWrapper({
   readonly displayRenderer?: "unicode" | "katex";
   readonly placeholder?: string;
   readonly fontSize?: CSSProperties["fontSize"];
+  readonly editTrigger?: EditTrigger;
 }) {
   const [value, setValue] = useState(initialValue);
   return (
@@ -37,6 +39,7 @@ function EditorWrapper({
       displayRenderer={displayRenderer}
       placeholder={placeholder}
       fontSize={fontSize}
+      editTrigger={editTrigger}
     />
   );
 }
@@ -415,5 +418,94 @@ describe("FormulaEditor - fontSize指定", () => {
     // コンテナにfontSizeが設定されている
     const container = screen.getByTestId("editor");
     expect(container.style.fontSize).toBe("18px");
+  });
+});
+
+// --- editTriggerのテスト ---
+
+describe("FormulaEditor - editTrigger", () => {
+  it('editTrigger="click"（デフォルト）: シングルクリックで編集モードに入る', () => {
+    render(<EditorWrapper initialValue="φ → ψ" editTrigger="click" />);
+
+    fireEvent.click(screen.getByTestId("editor-display"));
+    expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+  });
+
+  it('editTrigger="dblclick": シングルクリックでは編集モードに入らない', () => {
+    render(<EditorWrapper initialValue="φ → ψ" editTrigger="dblclick" />);
+
+    fireEvent.click(screen.getByTestId("editor-display"));
+    // シングルクリックでは表示モードのまま
+    expect(screen.getByTestId("editor-display")).toBeInTheDocument();
+    expect(screen.queryByTestId("editor-edit")).not.toBeInTheDocument();
+  });
+
+  it('editTrigger="dblclick": ダブルクリックで編集モードに入る', () => {
+    render(<EditorWrapper initialValue="φ → ψ" editTrigger="dblclick" />);
+
+    fireEvent.doubleClick(screen.getByTestId("editor-display"));
+    expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+  });
+
+  it('editTrigger="dblclick": Enter/Spaceキーで編集モードに入る', () => {
+    render(<EditorWrapper initialValue="φ → ψ" editTrigger="dblclick" />);
+
+    const display = screen.getByTestId("editor-display");
+    fireEvent.keyDown(display, { key: "Enter" });
+    expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+  });
+
+  it('editTrigger="none": シングルクリックでは編集モードに入らない', () => {
+    render(<EditorWrapper initialValue="φ → ψ" editTrigger="none" />);
+
+    fireEvent.click(screen.getByTestId("editor-display"));
+    expect(screen.getByTestId("editor-display")).toBeInTheDocument();
+    expect(screen.queryByTestId("editor-edit")).not.toBeInTheDocument();
+  });
+
+  it('editTrigger="none": ダブルクリックでも編集モードに入らない', () => {
+    render(<EditorWrapper initialValue="φ → ψ" editTrigger="none" />);
+
+    fireEvent.doubleClick(screen.getByTestId("editor-display"));
+    expect(screen.getByTestId("editor-display")).toBeInTheDocument();
+    expect(screen.queryByTestId("editor-edit")).not.toBeInTheDocument();
+  });
+
+  it('editTrigger="none": Enter/Spaceキーでも編集モードに入らない', () => {
+    render(<EditorWrapper initialValue="φ → ψ" editTrigger="none" />);
+
+    const display = screen.getByTestId("editor-display");
+    fireEvent.keyDown(display, { key: "Enter" });
+    expect(screen.getByTestId("editor-display")).toBeInTheDocument();
+
+    fireEvent.keyDown(display, { key: " " });
+    expect(screen.getByTestId("editor-display")).toBeInTheDocument();
+  });
+
+  it('editTrigger="none": cursorがdefaultになる', () => {
+    render(<EditorWrapper initialValue="φ → ψ" editTrigger="none" />);
+
+    const container = screen.getByTestId("editor");
+    expect(container.style.cursor).toBe("default");
+  });
+
+  it('editTrigger="dblclick": aria-labelにダブルクリックと表示される', () => {
+    render(<EditorWrapper initialValue="φ → ψ" editTrigger="dblclick" />);
+
+    const display = screen.getByTestId("editor-display");
+    expect(display).toHaveAttribute(
+      "aria-label",
+      "φ → ψ - ダブルクリックして編集",
+    );
+  });
+
+  it('editTrigger="dblclick": 空の場合もaria-labelにダブルクリックと表示される', () => {
+    render(<EditorWrapper initialValue="" editTrigger="dblclick" />);
+
+    const display = screen.getByTestId("editor-display");
+    expect(display).toHaveAttribute(
+      "aria-label",
+      "ダブルクリックして論理式を入力",
+    );
   });
 });
