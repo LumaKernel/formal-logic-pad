@@ -100,11 +100,12 @@ export type WorkspaceState = {
   /** ワークスペースのモード（デフォルト: "free"） */
   readonly mode: WorkspaceMode;
   /**
-   * 推論エッジのキャッシュ。ノード/接続変更時に自動的に再構築される。
-   * 段階移行用: 既存のノードベース表現と並行して保持。
-   * undefined の場合は extractInferenceEdges で遅延計算可能。
+   * 推論エッジ（source of truth）。
+   * ノード/接続変更時に自動的に再構築される。
+   * レガシーノード（kind: "mp"/"gen"/"substitution"）からは extractInferenceEdges で抽出。
+   * 新しい derived ノードでは直接管理される。
    */
-  readonly inferenceEdges?: readonly InferenceEdge[];
+  readonly inferenceEdges: readonly InferenceEdge[];
 };
 
 // --- 推論エッジ同期 ---
@@ -112,22 +113,74 @@ export type WorkspaceState = {
 /**
  * ワークスペース状態のinferenceEdgesを現在のノード・接続から再構築する。
  * ノードや接続を変更した後に呼ぶ。
+ *
+ * レガシーノード（kind: "mp"/"gen"/"substitution"）→ extractInferenceEdges で再抽出。
+ * derivedノード → 既存のInferenceEdgeを保持（ノードが存在する限り）。
  */
 function syncInferenceEdges(state: WorkspaceState): WorkspaceState {
+  // レガシーノードから再抽出
+  const legacyEdges = extractInferenceEdges(state);
+
+  // ノードIDとformulaTextのマップを構築
+  const nodeMap = new Map(state.nodes.map((n) => [n.id, n]));
+
+  // 既存の derived ノード用 InferenceEdge を保持（ノードが存在するもののみ）
+  // conclusionText をノードの formulaText と同期する
+  const derivedEdges = state.inferenceEdges
+    .filter((edge) => {
+      const conclusionNode = nodeMap.get(edge.conclusionNodeId);
+      // レガシーの extractInferenceEdges が生成するものは除外
+      if (
+        conclusionNode &&
+        (conclusionNode.kind === "mp" ||
+          conclusionNode.kind === "gen" ||
+          conclusionNode.kind === "substitution")
+      ) {
+        return false; // レガシーノードのエッジは extractInferenceEdges で再生成
+      }
+      // 結論ノードが存在しない場合は削除
+      if (!conclusionNode) {
+        return false;
+      }
+      return true;
+    })
+    .map((edge) => {
+      // conclusionText をノードの formulaText と同期
+      const conclusionNode = nodeMap.get(edge.conclusionNodeId);
+      const currentText = conclusionNode?.formulaText ?? "";
+      if (currentText !== edge.conclusionText) {
+        return { ...edge, conclusionText: currentText };
+      }
+      return edge;
+    });
+
   return {
     ...state,
-    inferenceEdges: extractInferenceEdges(state),
+    inferenceEdges: [...legacyEdges, ...derivedEdges],
   };
 }
 
 /**
  * ワークスペースのinferenceEdgesを取得する。
- * キャッシュがあればそれを返し、なければ遅延計算する。
  */
 export function getInferenceEdges(
   state: WorkspaceState,
 ): readonly InferenceEdge[] {
-  return state.inferenceEdges ?? extractInferenceEdges(state);
+  return state.inferenceEdges;
+}
+
+/**
+ * 推論エッジを直接追加する。
+ * derived ノード用: ノードベースの extractInferenceEdges ではなく直接管理。
+ */
+function addInferenceEdge(
+  state: WorkspaceState,
+  edge: InferenceEdge,
+): WorkspaceState {
+  return {
+    ...state,
+    inferenceEdges: [...state.inferenceEdges, edge],
+  };
 }
 
 // --- 初期状態 ---
@@ -394,7 +447,7 @@ export function changeSystem(
   };
 }
 
-// --- MP適用（ノード作成 + 接続 + 結論自動生成） ---
+// --- MP適用（ノード作成 + InferenceEdge + 結論自動生成） ---
 
 /** MP適用結果 */
 export type ApplyMPResult = {
@@ -404,13 +457,14 @@ export type ApplyMPResult = {
 };
 
 /**
- * 2つのソースノードを接続してMPノードを作成し、MP適用を検証する。
+ * 2つのソースノードからMP適用を行い、derived結論ノードを作成する。
+ * InferenceEdge（MPEdge）を追加し、前提→結論の関係を管理する。
  *
  * @param state 現在のワークスペース状態
  * @param leftNodeId antecedent（φ）ノードのID
  * @param rightNodeId conditional（φ→ψ）ノードのID
- * @param position MPノードの配置位置
- * @returns 新しいワークスペース状態、MPノードID、検証結果
+ * @param position 結論ノードの配置位置
+ * @returns 新しいワークスペース状態、結論ノードID、検証結果
  */
 export function applyMPAndConnect(
   state: WorkspaceState,
@@ -418,18 +472,28 @@ export function applyMPAndConnect(
   rightNodeId: string,
   position: Point,
 ): ApplyMPResult {
-  // MPノードを追加
-  let ws = addNode(state, "mp", "MP", position);
+  // derived結論ノードを追加
+  let ws = addNode(state, "derived", "MP", position);
   const mpNodeId = `node-${String(state.nextNodeId) satisfies string}`;
 
-  // 接続を追加（left → premise-left, right → premise-right）
+  // MPEdge を追加（InferenceEdge として直接管理）
+  const mpEdge: InferenceEdge = {
+    _tag: "mp",
+    conclusionNodeId: mpNodeId,
+    leftPremiseNodeId: leftNodeId,
+    rightPremiseNodeId: rightNodeId,
+    conclusionText: "",
+  };
+  ws = addInferenceEdge(ws, mpEdge);
+
+  // 互換性: レガシーの接続も追加（依存関係追跡・UI等で利用される）
   ws = addConnection(ws, leftNodeId, "out", mpNodeId, "premise-left");
   ws = addConnection(ws, rightNodeId, "out", mpNodeId, "premise-right");
 
   // MP適用を検証
   const validation = validateMPApplication(ws, mpNodeId);
 
-  // 成功時は結論テキストをMPノードに設定
+  // 成功時は結論テキストをderivedノードに設定
   if (validation._tag === "Success") {
     ws = updateNodeFormulaText(ws, mpNodeId, validation.conclusionText);
   }
@@ -437,7 +501,7 @@ export function applyMPAndConnect(
   return { workspace: ws, mpNodeId, validation };
 }
 
-// --- Gen適用（ノード作成 + 接続 + 結論自動生成） ---
+// --- Gen適用（ノード作成 + InferenceEdge + 結論自動生成） ---
 
 /** Gen適用結果 */
 export type ApplyGenResult = {
@@ -447,13 +511,14 @@ export type ApplyGenResult = {
 };
 
 /**
- * ソースノードを接続してGenノードを作成し、Gen適用を検証する。
+ * ソースノードからGen適用を行い、derived結論ノードを作成する。
+ * InferenceEdge（GenEdge）を追加し、前提→結論の関係を管理する。
  *
  * @param state 現在のワークスペース状態
  * @param premiseNodeId 前提（φ）ノードのID
  * @param variableName 量化する変数名
- * @param position Genノードの配置位置
- * @returns 新しいワークスペース状態、GenノードID、検証結果
+ * @param position 結論ノードの配置位置
+ * @returns 新しいワークスペース状態、結論ノードID、検証結果
  */
 export function applyGenAndConnect(
   state: WorkspaceState,
@@ -461,20 +526,27 @@ export function applyGenAndConnect(
   variableName: string,
   position: Point,
 ): ApplyGenResult {
-  // Genノードを追加
-  let ws = addNode(state, "gen", "Gen", position);
+  // derived結論ノードを追加
+  let ws = addNode(state, "derived", "Gen", position);
   const genNodeId = `node-${String(state.nextNodeId) satisfies string}`;
 
-  // Gen変数名を設定
-  ws = updateNodeGenVariableName(ws, genNodeId, variableName);
+  // GenEdge を追加（InferenceEdge として直接管理）
+  const genEdge: InferenceEdge = {
+    _tag: "gen",
+    conclusionNodeId: genNodeId,
+    premiseNodeId,
+    variableName,
+    conclusionText: "",
+  };
+  ws = addInferenceEdge(ws, genEdge);
 
-  // 接続を追加（premise → premise）
+  // 互換性: レガシーの接続も追加（依存関係追跡・UI等で利用される）
   ws = addConnection(ws, premiseNodeId, "out", genNodeId, "premise");
 
   // Gen適用を検証
   const validation = validateGenApplication(ws, genNodeId, variableName);
 
-  // 成功時は結論テキストをGenノードに設定
+  // 成功時は結論テキストをderivedノードに設定
   if (validation._tag === "Success") {
     ws = updateNodeFormulaText(ws, genNodeId, validation.conclusionText);
   }
@@ -482,7 +554,7 @@ export function applyGenAndConnect(
   return { workspace: ws, genNodeId, validation };
 }
 
-// --- 代入操作適用（ノード作成 + 接続 + 結論自動生成） ---
+// --- 代入操作適用（ノード作成 + InferenceEdge + 結論自動生成） ---
 
 /** 代入操作適用結果 */
 export type ApplySubstitutionResult = {
@@ -492,13 +564,14 @@ export type ApplySubstitutionResult = {
 };
 
 /**
- * ソースノードを接続して代入操作ノードを作成し、代入適用を検証する。
+ * ソースノードから代入適用を行い、derived結論ノードを作成する。
+ * InferenceEdge（SubstitutionEdge）を追加し、前提→結論の関係を管理する。
  *
  * @param state 現在のワークスペース状態
  * @param premiseNodeId 前提（公理スキーマ等）ノードのID
  * @param entries 代入エントリのリスト
- * @param position 代入ノードの配置位置
- * @returns 新しいワークスペース状態、代入ノードID、検証結果
+ * @param position 結論ノードの配置位置
+ * @returns 新しいワークスペース状態、結論ノードID、検証結果
  */
 export function applySubstitutionAndConnect(
   state: WorkspaceState,
@@ -506,14 +579,21 @@ export function applySubstitutionAndConnect(
   entries: SubstitutionEntries,
   position: Point,
 ): ApplySubstitutionResult {
-  // 代入ノードを追加
-  let ws = addNode(state, "substitution", "Subst", position);
+  // derived結論ノードを追加
+  let ws = addNode(state, "derived", "Subst", position);
   const substitutionNodeId = `node-${String(state.nextNodeId) satisfies string}`;
 
-  // 代入エントリを設定
-  ws = updateNodeSubstitutionEntries(ws, substitutionNodeId, entries);
+  // SubstitutionEdge を追加（InferenceEdge として直接管理）
+  const substEdge: InferenceEdge = {
+    _tag: "substitution",
+    conclusionNodeId: substitutionNodeId,
+    premiseNodeId,
+    entries,
+    conclusionText: "",
+  };
+  ws = addInferenceEdge(ws, substEdge);
 
-  // 接続を追加（premise → premise）
+  // 互換性: レガシーの接続も追加（依存関係追跡・UI等で利用される）
   ws = addConnection(ws, premiseNodeId, "out", substitutionNodeId, "premise");
 
   // 代入適用を検証
@@ -523,7 +603,7 @@ export function applySubstitutionAndConnect(
     entries,
   );
 
-  // 成功時は結論テキストを代入ノードに設定
+  // 成功時は結論テキストをderivedノードに設定
   if (validation._tag === "Success") {
     ws = updateNodeFormulaText(
       ws,
@@ -544,7 +624,12 @@ export function copySelectedNodes(
   state: WorkspaceState,
   selectedNodeIds: ReadonlySet<string>,
 ): ClipboardData {
-  return buildClipboardData(selectedNodeIds, state.nodes, state.connections);
+  return buildClipboardData(
+    selectedNodeIds,
+    state.nodes,
+    state.connections,
+    state.inferenceEdges,
+  );
 }
 
 /**
@@ -565,6 +650,10 @@ export function pasteNodes(
     ...state,
     nodes: [...state.nodes, ...result.newNodes],
     connections: [...state.connections, ...result.newConnections],
+    inferenceEdges: [
+      ...state.inferenceEdges,
+      ...result.newInferenceEdges,
+    ],
     nextNodeId: result.nextNodeId,
   });
 }
@@ -788,12 +877,14 @@ export function applyIncrementalLayout(
 // --- 推論結論の再検証・再計算 ---
 
 /**
- * 全MP/Gen/Substitutionノードの結論テキストを前提ノードの現在の値から再計算する。
+ * 推論エッジに関連する結論ノードのformulaTextを再計算する。
+ *
+ * InferenceEdge（source of truth）を走査し、各結論ノードを再検証する。
+ * レガシーノード（kind: "mp"/"gen"/"substitution"）もフォールバックで処理する。
  *
  * 検証成功時は結論テキストをformulaTextに設定し、
  * 失敗時はformulaTextを空文字にクリアする。
- * 前提の変更が下流のMP/Gen/Substitutionノードに伝播するよう、
- * 変更がなくなるまで反復する（fixed-point）。
+ * 前提の変更が下流に伝播するよう、変更がなくなるまで反復する（fixed-point）。
  *
  * 純粋関数 — 副作用なし。
  *
@@ -808,7 +899,61 @@ export function revalidateInferenceConclusions(
   for (let i = 0; i < MAX_ITERATIONS; i++) {
     let changed = false;
 
+    // InferenceEdge から結論ノードIDとエッジ情報のマップを構築
+    const edgeByConclusion = new Map<string, InferenceEdge>();
+    for (const edge of current.inferenceEdges) {
+      edgeByConclusion.set(edge.conclusionNodeId, edge);
+    }
+
     const newNodes = current.nodes.map((node) => {
+      // InferenceEdge ベース: derived ノードまたはレガシーノードの結論再計算
+      const edge = edgeByConclusion.get(node.id);
+      if (edge) {
+        switch (edge._tag) {
+          case "mp": {
+            const result = validateMPApplication(current, node.id);
+            const newText =
+              result._tag === "Success" ? result.conclusionText : "";
+            if (newText !== node.formulaText) {
+              changed = true;
+              return { ...node, formulaText: newText };
+            }
+            return node;
+          }
+          case "gen": {
+            const variableName = edge.variableName;
+            const result = validateGenApplication(
+              current,
+              node.id,
+              variableName,
+            );
+            const newText =
+              result._tag === "Success" ? result.conclusionText : "";
+            if (newText !== node.formulaText) {
+              changed = true;
+              return { ...node, formulaText: newText };
+            }
+            return node;
+          }
+          case "substitution": {
+            const entries = edge.entries;
+            const result = validateSubstitutionApplication(
+              current,
+              node.id,
+              entries,
+            );
+            const newText =
+              result._tag === "Success" ? result.conclusionText : "";
+            if (newText !== node.formulaText) {
+              changed = true;
+              return { ...node, formulaText: newText };
+            }
+            return node;
+          }
+        }
+      }
+
+      // レガシーフォールバック: kind ベースの判定（InferenceEdge がないレガシーノード）
       if (node.kind === "mp") {
         const result = validateMPApplication(current, node.id);
         const newText = result._tag === "Success" ? result.conclusionText : "";

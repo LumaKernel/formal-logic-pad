@@ -39,6 +39,7 @@ function createSampleWorkspace(): WorkspaceState {
         toPortId: "premise-left",
       },
     ],
+    inferenceEdges: [],
     nextNodeId: 3,
     mode: "free",
   };
@@ -59,6 +60,7 @@ function createQuestWorkspace(): WorkspaceState {
       },
     ],
     connections: [],
+    inferenceEdges: [],
     nextNodeId: 2,
     mode: "quest",
   };
@@ -84,6 +86,7 @@ function createGenWorkspace(): WorkspaceState {
       },
     ],
     connections: [],
+    inferenceEdges: [],
     nextNodeId: 2,
     mode: "free",
   };
@@ -97,6 +100,7 @@ describe("exportWorkspaceToJSON", () => {
       system: lukasiewiczSystem,
       nodes: [],
       connections: [],
+      inferenceEdges: [],
       nextNodeId: 1,
       mode: "free",
     };

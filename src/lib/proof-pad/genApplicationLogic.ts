@@ -40,13 +40,24 @@ export type GenApplicationResult = GenApplicationSuccess | GenApplicationError;
 // --- Genノードの前提接続を取得 ---
 
 /**
- * Genノードに接続されている前提ノードのIDを取得する。
- * premise ポートに接続されたノードが前提（φ）。
+ * Genノード/derivedノードに関連する前提ノードのIDを取得する。
+ *
+ * 優先: InferenceEdge（source of truth）から取得。
+ * フォールバック: レガシーのポートベース接続（premise）から取得。
  */
 export function getGenPremise(
   state: WorkspaceState,
   genNodeId: string,
 ): string | undefined {
+  // InferenceEdge から取得
+  const genEdge = state.inferenceEdges.find(
+    (e) => e._tag === "gen" && e.conclusionNodeId === genNodeId,
+  );
+  if (genEdge && genEdge._tag === "gen") {
+    return genEdge.premiseNodeId;
+  }
+
+  // レガシーフォールバック: ポートベース接続
   for (const conn of state.connections) {
     if (conn.toNodeId === genNodeId && conn.toPortId === "premise") {
       return conn.fromNodeId;

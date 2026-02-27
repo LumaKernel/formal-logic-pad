@@ -318,7 +318,7 @@ describe("proofWorkspace", () => {
   });
 
   describe("applyMPAndConnect", () => {
-    it("creates MP node with connections and validates successfully", () => {
+    it("creates derived node with InferenceEdge and validates successfully", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
@@ -331,17 +331,19 @@ describe("proofWorkspace", () => {
       expect(result.mpNodeId).toBe("node-3");
       expect(result.validation._tag).toBe("Success");
       expect(result.workspace.nodes).toHaveLength(3);
+      // 互換性: レガシーの接続とInferenceEdgeの両方が作成される
       expect(result.workspace.connections).toHaveLength(2);
+      expect(result.workspace.inferenceEdges.length).toBeGreaterThanOrEqual(1);
 
-      // MP node should have conclusion formula text set
+      // Derived node should have conclusion formula text set
       const mpNode = findNode(result.workspace, "node-3");
       expect(mpNode).toBeDefined();
-      expect(mpNode!.kind).toBe("mp");
+      expect(mpNode!.kind).toBe("derived");
       expect(mpNode!.label).toBe("MP");
       expect(mpNode!.formulaText).toBe("ψ");
     });
 
-    it("creates connections from source nodes to MP node", () => {
+    it("creates InferenceEdge linking premises to derived node", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
@@ -351,16 +353,15 @@ describe("proofWorkspace", () => {
         y: 150,
       });
 
-      const leftConn = result.workspace.connections.find(
-        (c) => c.toPortId === "premise-left",
+      const mpEdge = result.workspace.inferenceEdges.find(
+        (e) => e._tag === "mp" && e.conclusionNodeId === "node-3",
       );
-      const rightConn = result.workspace.connections.find(
-        (c) => c.toPortId === "premise-right",
-      );
-      expect(leftConn).toBeDefined();
-      expect(leftConn!.fromNodeId).toBe("node-1");
-      expect(rightConn).toBeDefined();
-      expect(rightConn!.fromNodeId).toBe("node-2");
+      expect(mpEdge).toBeDefined();
+      expect(mpEdge!._tag).toBe("mp");
+      if (mpEdge!._tag === "mp") {
+        expect(mpEdge!.leftPremiseNodeId).toBe("node-1");
+        expect(mpEdge!.rightPremiseNodeId).toBe("node-2");
+      }
     });
 
     it("returns error when right premise is not an implication", () => {
@@ -437,7 +438,7 @@ describe("proofWorkspace", () => {
   });
 
   describe("applyGenAndConnect", () => {
-    it("creates Gen node with connection and validates successfully", () => {
+    it("creates derived node with InferenceEdge and validates successfully", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
 
@@ -449,17 +450,18 @@ describe("proofWorkspace", () => {
       expect(result.genNodeId).toBe("node-2");
       expect(result.validation._tag).toBe("Success");
       expect(result.workspace.nodes).toHaveLength(2);
+      // 互換性: レガシーの接続とInferenceEdgeの両方が作成される
       expect(result.workspace.connections).toHaveLength(1);
+      expect(result.workspace.inferenceEdges.length).toBeGreaterThanOrEqual(1);
 
       const genNode = findNode(result.workspace, "node-2");
       expect(genNode).toBeDefined();
-      expect(genNode!.kind).toBe("gen");
+      expect(genNode!.kind).toBe("derived");
       expect(genNode!.label).toBe("Gen");
       expect(genNode!.formulaText).toBe("∀x.φ");
-      expect(genNode!.genVariableName).toBe("x");
     });
 
-    it("creates connection from source to Gen node", () => {
+    it("creates InferenceEdge linking premise to derived node", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
 
@@ -468,11 +470,15 @@ describe("proofWorkspace", () => {
         y: 150,
       });
 
-      const conn = result.workspace.connections[0];
-      expect(conn!.fromNodeId).toBe("node-1");
-      expect(conn!.fromPortId).toBe("out");
-      expect(conn!.toNodeId).toBe("node-2");
-      expect(conn!.toPortId).toBe("premise");
+      const genEdge = result.workspace.inferenceEdges.find(
+        (e) => e._tag === "gen" && e.conclusionNodeId === "node-2",
+      );
+      expect(genEdge).toBeDefined();
+      expect(genEdge!._tag).toBe("gen");
+      if (genEdge!._tag === "gen") {
+        expect(genEdge!.premiseNodeId).toBe("node-1");
+        expect(genEdge!.variableName).toBe("x");
+      }
     });
 
     it("returns error when Gen is not enabled", () => {
@@ -555,7 +561,7 @@ describe("proofWorkspace", () => {
       },
     ];
 
-    it("creates substitution node and connects to premise", () => {
+    it("creates derived node with InferenceEdge instead of connections", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
       const result = applySubstitutionAndConnect(ws, "node-1", singleEntry, {
@@ -564,9 +570,22 @@ describe("proofWorkspace", () => {
       });
       expect(result.substitutionNodeId).toBe("node-2");
       expect(result.workspace.nodes).toHaveLength(2);
+      // derived ノードが作成される（substitutionではなく）
+      const substNode = result.workspace.nodes.find(
+        (n) => n.id === "node-2",
+      );
+      expect(substNode?.kind).toBe("derived");
+      // 互換性: レガシーの接続とInferenceEdgeの両方が作成される
       expect(result.workspace.connections).toHaveLength(1);
-      expect(result.workspace.connections[0]!.fromNodeId).toBe("node-1");
-      expect(result.workspace.connections[0]!.toNodeId).toBe("node-2");
+      expect(result.workspace.inferenceEdges.length).toBeGreaterThanOrEqual(1);
+      const substEdge = result.workspace.inferenceEdges.find(
+        (e) =>
+          e._tag === "substitution" && e.conclusionNodeId === "node-2",
+      );
+      expect(substEdge).toBeDefined();
+      if (substEdge?._tag === "substitution") {
+        expect(substEdge.premiseNodeId).toBe("node-1");
+      }
     });
 
     it("returns NoSubstitutionEntries with empty entries", () => {
@@ -889,7 +908,7 @@ describe("proofWorkspace", () => {
       expect(clipboard.nodes).toHaveLength(2);
     });
 
-    it("includes connections between selected nodes only", () => {
+    it("includes connections and InferenceEdges between selected nodes only", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 300, y: 100 }, "phi -> psi");
@@ -899,19 +918,22 @@ describe("proofWorkspace", () => {
       });
       ws = mpResult.workspace;
 
-      // All 3 selected: both connections included
+      // All 3 selected: both connections and InferenceEdge included
       const clipboard = copySelectedNodes(
         ws,
         new Set(["node-1", "node-2", "node-3"]),
       );
       expect(clipboard.connections).toHaveLength(2);
+      expect(clipboard.inferenceEdges).toHaveLength(1);
+      expect(clipboard.inferenceEdges![0]!._tag).toBe("mp");
 
-      // Only 2 selected: no connections (MP node not selected)
+      // Only 2 selected: no connections/InferenceEdge (derived node not selected)
       const clipboardPartial = copySelectedNodes(
         ws,
         new Set(["node-1", "node-2"]),
       );
       expect(clipboardPartial.connections).toHaveLength(0);
+      expect(clipboardPartial.inferenceEdges ?? []).toHaveLength(0);
     });
   });
 
@@ -927,7 +949,7 @@ describe("proofWorkspace", () => {
       expect(result.nextNodeId).toBe(3);
     });
 
-    it("preserves connections between pasted nodes", () => {
+    it("preserves InferenceEdges between pasted nodes", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 300, y: 100 }, "phi -> psi");
@@ -945,15 +967,21 @@ describe("proofWorkspace", () => {
 
       // Original 3 nodes + 3 pasted = 6
       expect(result.nodes).toHaveLength(6);
+      // 互換性: 接続とInferenceEdgeの両方がコピーされる
       // Original 2 connections + 2 pasted = 4
       expect(result.connections).toHaveLength(4);
-      // New connections reference new IDs
-      const newConns = result.connections.filter(
-        (c) =>
-          c.fromNodeId.startsWith("node-4") ||
-          c.fromNodeId.startsWith("node-5"),
+      // Original 1 InferenceEdge + 1 pasted = 2
+      expect(result.inferenceEdges).toHaveLength(2);
+      // Pasted edge references new IDs
+      const pastedEdge = result.inferenceEdges.find(
+        (e) => e.conclusionNodeId === "node-6",
       );
-      expect(newConns.length).toBeGreaterThanOrEqual(1);
+      expect(pastedEdge).toBeDefined();
+      expect(pastedEdge?._tag).toBe("mp");
+      if (pastedEdge?._tag === "mp") {
+        expect(pastedEdge.leftPremiseNodeId).toBe("node-4");
+        expect(pastedEdge.rightPremiseNodeId).toBe("node-5");
+      }
     });
 
     it("does not paste protection status", () => {
@@ -1674,7 +1702,7 @@ describe("proofWorkspace", () => {
       ws = addNode(ws, "mp", "MP", { x: 100, y: 0 });
       // Before connection: MP has no premises
       const mpEdgeBefore = ws.inferenceEdges?.find(
-        (e) => e._tag === "mp" && e.ruleNodeId === "node-2",
+        (e) => e._tag === "mp" && e.conclusionNodeId === "node-2",
       );
       expect(mpEdgeBefore).toBeDefined();
       if (mpEdgeBefore?._tag === "mp") {
@@ -1683,7 +1711,7 @@ describe("proofWorkspace", () => {
       // After connection: MP has left premise
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
       const mpEdgeAfter = ws.inferenceEdges?.find(
-        (e) => e._tag === "mp" && e.ruleNodeId === "node-2",
+        (e) => e._tag === "mp" && e.conclusionNodeId === "node-2",
       );
       if (mpEdgeAfter?._tag === "mp") {
         expect(mpEdgeAfter.leftPremiseNodeId).toBe("node-1");
@@ -1697,7 +1725,7 @@ describe("proofWorkspace", () => {
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
       // Before removal: has premise
       const mpEdgeBefore = ws.inferenceEdges?.find(
-        (e) => e._tag === "mp" && e.ruleNodeId === "node-2",
+        (e) => e._tag === "mp" && e.conclusionNodeId === "node-2",
       );
       if (mpEdgeBefore?._tag === "mp") {
         expect(mpEdgeBefore.leftPremiseNodeId).toBe("node-1");
@@ -1705,7 +1733,7 @@ describe("proofWorkspace", () => {
       // After removal: no premise
       ws = removeConnection(ws, "conn-node-1-out-node-2-premise-left");
       const mpEdgeAfter = ws.inferenceEdges?.find(
-        (e) => e._tag === "mp" && e.ruleNodeId === "node-2",
+        (e) => e._tag === "mp" && e.conclusionNodeId === "node-2",
       );
       if (mpEdgeAfter?._tag === "mp") {
         expect(mpEdgeAfter.leftPremiseNodeId).toBeUndefined();
@@ -1770,7 +1798,7 @@ describe("proofWorkspace", () => {
       const edges = result.workspace.inferenceEdges;
       expect(edges).toBeDefined();
       const mpEdge = edges?.find(
-        (e) => e._tag === "mp" && e.ruleNodeId === "node-3",
+        (e) => e._tag === "mp" && e.conclusionNodeId === "node-3",
       );
       expect(mpEdge).toBeDefined();
       if (mpEdge?._tag === "mp") {
@@ -1793,7 +1821,7 @@ describe("proofWorkspace", () => {
       ws = updateNodeFormulaText(ws, "node-1", "");
       ws = revalidateInferenceConclusions(ws);
       const mpEdge = ws.inferenceEdges?.find(
-        (e) => e._tag === "mp" && e.ruleNodeId === "node-3",
+        (e) => e._tag === "mp" && e.conclusionNodeId === "node-3",
       );
       expect(mpEdge?.conclusionText).toBe("");
 
@@ -1801,7 +1829,7 @@ describe("proofWorkspace", () => {
       ws = updateNodeFormulaText(ws, "node-1", "phi");
       ws = revalidateInferenceConclusions(ws);
       const mpEdgeFixed = ws.inferenceEdges?.find(
-        (e) => e._tag === "mp" && e.ruleNodeId === "node-3",
+        (e) => e._tag === "mp" && e.conclusionNodeId === "node-3",
       );
       expect(mpEdgeFixed?.conclusionText).toBe("ψ");
     });
@@ -1814,12 +1842,8 @@ describe("proofWorkspace", () => {
       expect(edges1).toBe(edges2);
     });
 
-    it("getInferenceEdges falls back to extractInferenceEdges when no cache", () => {
-      // Manually construct a state without inferenceEdges
-      const ws = {
-        ...createEmptyWorkspace(lukasiewiczSystem),
-        inferenceEdges: undefined,
-      };
+    it("getInferenceEdges returns empty array for empty workspace", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
       const edges = getInferenceEdges(ws);
       expect(edges).toEqual([]);
     });
@@ -1831,7 +1855,7 @@ describe("proofWorkspace", () => {
       expect(ws.inferenceEdges).toHaveLength(2);
       ws = removeSelectedNodes(ws, new Set(["node-1"]));
       expect(ws.inferenceEdges).toHaveLength(1);
-      expect(ws.inferenceEdges?.[0]?.ruleNodeId).toBe("node-2");
+      expect(ws.inferenceEdges?.[0]?.conclusionNodeId).toBe("node-2");
     });
 
     it("duplicateSelectedNodes syncs inferenceEdges in result", () => {

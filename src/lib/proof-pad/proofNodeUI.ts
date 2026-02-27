@@ -14,9 +14,10 @@ import type { ConnectorPort } from "../infinite-canvas/connector";
 /**
  * 証明ノードの種類。
  * - axiom: 公理（葉ノード）— 編集可能な論理式
- * - mp: Modus Ponens（推論規則）— 2つの前提から結論を導出
- * - gen: Generalization（汎化規則）— 1つの前提から ∀x.φ を導出
- * - substitution: 代入操作 — 前提の論理式にメタ変数代入を適用
+ * - mp: Modus Ponens（推論規則）— 2つの前提から結論を導出（レガシー: derived + InferenceEdge に移行中）
+ * - gen: Generalization（汎化規則）— 1つの前提から ∀x.φ を導出（レガシー: derived + InferenceEdge に移行中）
+ * - substitution: 代入操作 — 前提の論理式にメタ変数代入を適用（レガシー: derived + InferenceEdge に移行中）
+ * - derived: 推論規則で導出されたノード — InferenceEdge経由で前提と結論の関係を管理
  * - conclusion: 最終結論
  */
 export type ProofNodeKind =
@@ -24,6 +25,7 @@ export type ProofNodeKind =
   | "mp"
   | "gen"
   | "substitution"
+  | "derived"
   | "conclusion";
 
 /** すべてのProofNodeKindの値（exhaustive checkに使用） */
@@ -32,6 +34,7 @@ export const PROOF_NODE_KINDS: readonly ProofNodeKind[] = [
   "mp",
   "gen",
   "substitution",
+  "derived",
   "conclusion",
 ] as const;
 
@@ -50,6 +53,8 @@ export function getProofNodeKindLabel(kind: ProofNodeKind): string {
       return "Gen";
     case "substitution":
       return "Subst";
+    case "derived":
+      return "Derived";
     case "conclusion":
       return "Conclusion";
   }
@@ -78,6 +83,7 @@ const NODE_COLORS = {
   mp: { varName: "--color-node-mp", fallback: "#d9944a" },
   gen: { varName: "--color-node-gen", fallback: "#9b59b6" },
   substitution: { varName: "--color-node-substitution", fallback: "#3498db" },
+  derived: { varName: "--color-node-derived", fallback: "#e6a84d" },
   conclusion: { varName: "--color-node-conclusion", fallback: "#4ad97a" },
 } as const satisfies Record<
   ProofNodeKind,
@@ -132,6 +138,11 @@ export function getProofNodeStyle(kind: ProofNodeKind): ProofNodeStyle {
         ...CARD_BASE,
         stripeColor: cssVar(NODE_COLORS.substitution),
       };
+    case "derived":
+      return {
+        ...CARD_BASE,
+        stripeColor: cssVar(NODE_COLORS.derived),
+      };
     case "conclusion":
       return {
         ...CARD_BASE,
@@ -172,6 +183,18 @@ export const SUBSTITUTION_PORTS: readonly ConnectorPort[] = [
   { id: "out", edge: "bottom", position: 0.5 },
 ];
 
+/**
+ * 導出ノード: 全ての入力ポート + 出力ポート。
+ * InferenceEdge種別（MP/Gen/Substitution）に応じて異なるポートが利用される。
+ * 互換性のため、全ての可能なポートを含む。
+ */
+export const DERIVED_PORTS: readonly ConnectorPort[] = [
+  { id: "premise-left", edge: "top", position: 0.3 },
+  { id: "premise-right", edge: "top", position: 0.7 },
+  { id: "premise", edge: "top", position: 0.5 },
+  { id: "out", edge: "bottom", position: 0.5 },
+];
+
 /** 結論ノード: 上に2つの入力ポートのみ */
 export const CONCLUSION_PORTS: readonly ConnectorPort[] = [
   { id: "premise-left", edge: "top", position: 0.3 },
@@ -194,6 +217,8 @@ export function getProofNodePorts(
       return GEN_PORTS;
     case "substitution":
       return SUBSTITUTION_PORTS;
+    case "derived":
+      return DERIVED_PORTS;
     case "conclusion":
       return CONCLUSION_PORTS;
   }
@@ -210,6 +235,7 @@ const EDGE_COLORS = {
   mp: { varName: "--color-edge-mp", fallback: "#e0a87a" },
   gen: { varName: "--color-edge-gen", fallback: "#c39bd3" },
   substitution: { varName: "--color-edge-substitution", fallback: "#5dade2" },
+  derived: { varName: "--color-edge-derived", fallback: "#e6b870" },
   conclusion: { varName: "--color-edge-conclusion", fallback: "#7ae0a3" },
 } as const satisfies Record<
   ProofNodeKind,
@@ -230,6 +256,8 @@ export function getProofEdgeColor(fromKind: ProofNodeKind): string {
       return cssVar(EDGE_COLORS.gen);
     case "substitution":
       return cssVar(EDGE_COLORS.substitution);
+    case "derived":
+      return cssVar(EDGE_COLORS.derived);
     case "conclusion":
       return cssVar(EDGE_COLORS.conclusion);
   }

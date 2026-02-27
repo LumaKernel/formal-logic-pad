@@ -139,12 +139,13 @@ describe("getProofEdgeColor", () => {
 });
 
 describe("PROOF_NODE_KINDS", () => {
-  it("contains all 5 kinds", () => {
+  it("contains all 6 kinds", () => {
     expect(PROOF_NODE_KINDS).toEqual([
       "axiom",
       "mp",
       "gen",
       "substitution",
+      "derived",
       "conclusion",
     ]);
   });
@@ -165,6 +166,10 @@ describe("getProofNodeKindLabel", () => {
 
   it("returns 'Subst' for substitution kind", () => {
     expect(getProofNodeKindLabel("substitution")).toBe("Subst");
+  });
+
+  it("returns 'Derived' for derived kind", () => {
+    expect(getProofNodeKindLabel("derived")).toBe("Derived");
   });
 
   it("returns 'Conclusion' for conclusion kind", () => {

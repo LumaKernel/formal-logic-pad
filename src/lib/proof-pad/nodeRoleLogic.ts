@@ -60,6 +60,11 @@ export function classifyNode(
   node: WorkspaceNode,
   connections: readonly WorkspaceConnection[],
 ): NodeClassification {
+  // kind: "derived" は常に derived（InferenceEdge経由で前提を持つ）
+  if (node.kind === "derived") {
+    return "derived";
+  }
+
   const isRoot = isRootNode(node.id, connections);
 
   if (!isRoot) {

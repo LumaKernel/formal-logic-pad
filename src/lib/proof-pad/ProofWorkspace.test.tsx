@@ -688,7 +688,7 @@ describe("ProofWorkspace", () => {
       expect(onWorkspaceChange).toHaveBeenCalled();
       const newState = onWorkspaceChange.mock.calls[0][0] as WorkspaceState;
       expect(newState.nodes).toHaveLength(3);
-      expect(newState.nodes[2].kind).toBe("mp");
+      expect(newState.nodes[2].kind).toBe("derived");
       expect(newState.nodes[2].formulaText).toBe("ψ");
       expect(newState.connections).toHaveLength(2);
     });

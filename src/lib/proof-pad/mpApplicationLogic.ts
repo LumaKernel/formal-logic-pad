@@ -48,14 +48,27 @@ export type MPApplicationResult = MPApplicationSuccess | MPApplicationError;
 // --- MPノードの前提接続を取得 ---
 
 /**
- * MPノードに接続されている前提ノードのIDを取得する。
- * premise-left ポートに接続されたノードが antecedent（φ）、
- * premise-right ポートに接続されたノードが conditional（φ→ψ）。
+ * MPノード/derivedノードに関連する前提ノードのIDを取得する。
+ *
+ * 優先: InferenceEdge（source of truth）から取得。
+ * フォールバック: レガシーのポートベース接続（premise-left/premise-right）から取得。
  */
 export function getMPPremises(
   state: WorkspaceState,
   mpNodeId: string,
 ): MPPremiseState {
+  // InferenceEdge から取得
+  const mpEdge = state.inferenceEdges.find(
+    (e) => e._tag === "mp" && e.conclusionNodeId === mpNodeId,
+  );
+  if (mpEdge && mpEdge._tag === "mp") {
+    return {
+      leftNodeId: mpEdge.leftPremiseNodeId,
+      rightNodeId: mpEdge.rightPremiseNodeId,
+    };
+  }
+
+  // レガシーフォールバック: ポートベース接続
   let leftNodeId: string | undefined;
   let rightNodeId: string | undefined;
 

@@ -100,6 +100,7 @@ describe("EditableProofNode", () => {
         mp: "var(--color-node-mp, #d9944a)",
         gen: "var(--color-node-gen, #9b59b6)",
         substitution: "var(--color-node-substitution, #3498db)",
+        derived: "var(--color-node-derived, #e6a84d)",
         conclusion: "var(--color-node-conclusion, #4ad97a)",
       };
       for (const kind of [
@@ -107,6 +108,7 @@ describe("EditableProofNode", () => {
         "mp",
         "gen",
         "substitution",
+        "derived",
         "conclusion",
       ] as const) {
         cleanup();

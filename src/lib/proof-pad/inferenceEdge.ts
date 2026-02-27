@@ -19,13 +19,13 @@ import type { WorkspaceState, WorkspaceNode } from "./workspaceState";
  */
 export type MPEdge = {
   readonly _tag: "mp";
-  /** MPノードID（現在のノードベースとの対応付け用。将来的に廃止） */
-  readonly ruleNodeId: string;
+  /** 結論ノードのID（derivedノード or レガシーMPノード） */
+  readonly conclusionNodeId: string;
   /** antecedent（φ）のノードID */
   readonly leftPremiseNodeId: string | undefined;
   /** conditional（φ→ψ）のノードID */
   readonly rightPremiseNodeId: string | undefined;
-  /** 結論の論理式テキスト（MPノードのformulaText） */
+  /** 結論の論理式テキスト */
   readonly conclusionText: string;
 };
 
@@ -35,8 +35,8 @@ export type MPEdge = {
  */
 export type GenEdge = {
   readonly _tag: "gen";
-  /** GenノードID（現在のノードベースとの対応付け用。将来的に廃止） */
-  readonly ruleNodeId: string;
+  /** 結論ノードのID（derivedノード or レガシーGenノード） */
+  readonly conclusionNodeId: string;
   /** 前提（φ）のノードID */
   readonly premiseNodeId: string | undefined;
   /** 量化変数名 */
@@ -51,8 +51,8 @@ export type GenEdge = {
  */
 export type SubstitutionEdge = {
   readonly _tag: "substitution";
-  /** 代入ノードID（現在のノードベースとの対応付け用。将来的に廃止） */
-  readonly ruleNodeId: string;
+  /** 結論ノードのID（derivedノード or レガシーSubstitutionノード） */
+  readonly conclusionNodeId: string;
   /** 前提のノードID */
   readonly premiseNodeId: string | undefined;
   /** 代入エントリリスト */
@@ -86,7 +86,7 @@ function extractMPEdge(node: WorkspaceNode, state: WorkspaceState): MPEdge {
 
   return {
     _tag: "mp",
-    ruleNodeId: node.id,
+    conclusionNodeId: node.id,
     leftPremiseNodeId,
     rightPremiseNodeId,
     conclusionText: node.formulaText,
@@ -108,7 +108,7 @@ function extractGenEdge(node: WorkspaceNode, state: WorkspaceState): GenEdge {
 
   return {
     _tag: "gen",
-    ruleNodeId: node.id,
+    conclusionNodeId: node.id,
     premiseNodeId,
     variableName: node.genVariableName ?? "",
     conclusionText: node.formulaText,
@@ -133,7 +133,7 @@ function extractSubstitutionEdge(
 
   return {
     _tag: "substitution",
-    ruleNodeId: node.id,
+    conclusionNodeId: node.id,
     premiseNodeId,
     entries: node.substitutionEntries ?? [],
     conclusionText: node.formulaText,
@@ -165,8 +165,10 @@ export function extractInferenceEdges(
         edges.push(extractSubstitutionEdge(node, state));
         break;
       case "axiom":
+      case "derived":
       case "conclusion":
         // 推論規則ではないノードはスキップ
+        // (derivedノードの推論情報はinferenceEdgesに直接保持される)
         break;
     }
   }
@@ -177,15 +179,15 @@ export function extractInferenceEdges(
 /**
  * 指定ノードIDに関連する推論エッジを検索する。
  * ノードが前提として使われている推論エッジ、または
- * ノード自身が推論ノードである場合のエッジを返す。
+ * ノード自身が結論ノードである場合のエッジを返す。
  */
 export function findInferenceEdgesForNode(
   edges: readonly InferenceEdge[],
   nodeId: string,
 ): readonly InferenceEdge[] {
   return edges.filter((edge) => {
-    // 推論ノード自身
-    if (edge.ruleNodeId === nodeId) return true;
+    // 結論ノード自身
+    if (edge.conclusionNodeId === nodeId) return true;
 
     // 前提として使われている
     switch (edge._tag) {
@@ -203,11 +205,10 @@ export function findInferenceEdgesForNode(
 }
 
 /**
- * 推論エッジから結論ノードID（現在の推論ノードID）を取得する。
- * 段階的移行中は推論ノードが結論を保持しているため、ruleNodeIdを返す。
+ * 推論エッジから結論ノードIDを取得する。
  */
 export function getInferenceEdgeConclusionNodeId(edge: InferenceEdge): string {
-  return edge.ruleNodeId;
+  return edge.conclusionNodeId;
 }
 
 /**

@@ -7,11 +7,12 @@
         - [x] revalidateInferenceConclusions を InferenceEdge ベースに移行
         - [x] addNode/removeNode/addConnection/removeConnection で inferenceEdges も同期
         - [x] テスト: 既存テストが全て通ることを確認しつつ新フィールドのテスト追加
-      - [ ] Step 2: applyMPAndConnect / applyGenAndConnect / applySubstitutionAndConnect の移行
-        - [ ] MPノード作成を廃止し、MPEdge + 結論ノード（kind: "axiom" → "derived" 等）に変更
-        - [ ] Gen/Substitution も同様
-        - [ ] 接続モデルの変更: premise-left/premise-right ポートIDの廃止、直接ノード間接続
-        - [ ] テスト: 全applyロジックの単体テスト更新
+      - [x] Step 2: applyMPAndConnect / applyGenAndConnect / applySubstitutionAndConnect の移行
+        - [x] MPノード作成を廃止し、MPEdge + 結論ノード（kind: "derived"）に変更
+        - [x] Gen/Substitution も同様
+        - [x] ハイブリッド方式: InferenceEdge（新source of truth）+ レガシー接続（後方互換）の両方を生成
+        - [x] copy/paste ロジックの InferenceEdge 対応
+        - [x] テスト: 全applyロジックの単体テスト更新
       - [ ] Step 3: ProofNodeKind から "mp" / "gen" / "substitution" を削除
         - [ ] proofNodeUI.ts: ポート定義・スタイルのリファクタ
         - [ ] nodeRoleLogic.ts: 分類ロジック更新

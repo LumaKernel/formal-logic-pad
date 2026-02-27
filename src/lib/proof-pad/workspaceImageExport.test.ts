@@ -39,6 +39,7 @@ function createSampleWorkspace(): WorkspaceState {
         toPortId: "premise-left",
       },
     ],
+    inferenceEdges: [],
     nextNodeId: 3,
     mode: "free",
   };
@@ -49,6 +50,7 @@ function createEmptyWorkspace(): WorkspaceState {
     system: lukasiewiczSystem,
     nodes: [],
     connections: [],
+    inferenceEdges: [],
     nextNodeId: 1,
     mode: "free",
   };
@@ -126,6 +128,7 @@ function createMultiNodeWorkspace(): WorkspaceState {
         toPortId: "premise-left",
       },
     ],
+    inferenceEdges: [],
     nextNodeId: 6,
     mode: "free",
   };
@@ -294,6 +297,7 @@ describe("generateExportSVG", () => {
         },
       ],
       connections: [],
+      inferenceEdges: [],
       nextNodeId: 2,
       mode: "free",
     };
@@ -317,6 +321,7 @@ describe("generateExportSVG", () => {
         },
       ],
       connections: [],
+      inferenceEdges: [],
       nextNodeId: 2,
       mode: "free",
     };
@@ -344,6 +349,7 @@ describe("generateExportSVG", () => {
         },
       ],
       connections: [],
+      inferenceEdges: [],
       nextNodeId: 2,
       mode: "free",
     };
@@ -376,6 +382,7 @@ describe("generateExportSVG", () => {
           toPortId: "premise-left",
         },
       ],
+      inferenceEdges: [],
       nextNodeId: 2,
       mode: "free",
     };
@@ -416,6 +423,7 @@ describe("generateExportSVG", () => {
           toPortId: "premise-left",
         },
       ],
+      inferenceEdges: [],
       nextNodeId: 3,
       mode: "free",
     };
@@ -439,6 +447,7 @@ describe("generateExportSVG", () => {
         },
       ],
       connections: [],
+      inferenceEdges: [],
       nextNodeId: 2,
       mode: "free",
     };
@@ -463,6 +472,7 @@ describe("generateExportSVG", () => {
         },
       ],
       connections: [],
+      inferenceEdges: [],
       nextNodeId: 2,
       mode: "free",
     };

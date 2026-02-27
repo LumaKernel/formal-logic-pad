@@ -5230,3 +5230,45 @@
   - MP:左右2前提（premise-left/premise-right）、Gen/Substitution:1前提（premise）のポート構造が既存アーキテクチャの中核
   - 現在の推論ノードの`formulaText`が結論を保持している。エッジベースではこれがエッジの属性になる
 ---
+
+## 2026-02-28 - InferenceEdge統合 Step 2: apply関数の移行（ハイブリッド方式）
+- applyMPAndConnect / applyGenAndConnect / applySubstitutionAndConnect を移行
+  - kind: "mp"/"gen"/"substitution" → kind: "derived" ノードを生成
+  - InferenceEdge（MPEdge/GenEdge/SubstitutionEdge）をsource of truthとして追加
+  - 後方互換のためレガシー接続（premise-left/premise-right/premise）も同時生成
+- ProofWorkspace.tsx のバリデーション: derived ノード対応
+  - mpValidations/genValidations/substitutionValidations で derived + InferenceEdge ルックアップ追加
+  - editable プロパティから derived ノードを除外
+  - substitutionEntries を InferenceEdge から取得するロジック追加
+- nodeRoleLogic.ts: classifyNode で kind: "derived" は常に "derived" 分類に
+- proofNodeUI.ts: DERIVED_PORTS に全入力ポート（premise-left/premise-right/premise）追加
+- copyPasteLogic.ts: ClipboardData に inferenceEdges フィールド追加、コピー/ペーストで対応
+- syncInferenceEdges: conclusionText とノードの formulaText の同期追加
+- 判別的ナローイング: `e is MPEdge` 型述語の代わりに `edge._tag === "mp"` を使用（no-explicit-return-is lint rule対応）
+- テスト: 4838テスト全パス（185ファイル）
+- カバレッジ: Stmts 98.18%, Branch 92.32%, Funcs 91.11%, Lines 98.82%
+  - ベースライン: Stmts 98.60%, Branch 93.03%, Funcs 91.10%, Lines 99.31%
+  - 微減理由: 新レガシーフォールバックパス（getPremise関数内）、derived ノード用新UIパス
+- スクリーンショット:
+  - .screenshots/step2-mp-selection-flow.png
+  - .screenshots/step2-substitution-applied.png
+  - .screenshots/step2-connection-delete.png
+  - .screenshots/step2-valid-mp-application.png
+- 変更ファイル（20ファイル、+737/-160行）:
+  - src/lib/proof-pad/workspaceState.ts (apply関数のハイブリッド移行、syncInferenceEdges改善)
+  - src/lib/proof-pad/ProofWorkspace.tsx (derivedノード対応バリデーション)
+  - src/lib/proof-pad/copyPasteLogic.ts (InferenceEdge対応)
+  - src/lib/proof-pad/mpApplicationLogic.ts (判別的ナローイング)
+  - src/lib/proof-pad/genApplicationLogic.ts (判別的ナローイング)
+  - src/lib/proof-pad/substitutionApplicationLogic.ts (判別的ナローイング)
+  - src/lib/proof-pad/nodeRoleLogic.ts (derived分類追加)
+  - src/lib/proof-pad/proofNodeUI.ts (DERIVED_PORTS、derivedスタイル・ラベル)
+  - src/lib/proof-pad/inferenceEdge.ts (ruleNodeId→conclusionNodeId改名)
+  - src/lib/proof-pad/workspaceExport.ts (derivedノード対応)
+  - テストファイル8件
+- **今後のイテレーションへの学び:**
+  - apply関数の移行はconnection完全廃止ではなく、ハイブリッド方式が安全。依存追跡・ノード分類・UIが全てconnectionに依存しているため
+  - InferenceEdge find()後の型ナローイングは判別プロパティ(`_tag`)で行う。型述語(`e is MPEdge`)はlint ruleで禁止
+  - DERIVED_PORTSには全可能入力ポートを含める必要あり（MP: premise-left/right、Gen/Subst: premise）
+  - syncInferenceEdgesは derived エッジの conclusionText をノードの formulaText に同期する必要がある
+---

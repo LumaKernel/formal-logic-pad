@@ -9,6 +9,8 @@
 
 import type { Point } from "../infinite-canvas/types";
 import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
+import type { InferenceEdge } from "./inferenceEdge";
+import { getInferenceEdgePremiseNodeIds } from "./inferenceEdge";
 
 // --- クリップボードデータ型 ---
 
@@ -48,6 +50,8 @@ export type ClipboardData = {
   readonly version: 1;
   readonly nodes: readonly CopiedNode[];
   readonly connections: readonly CopiedConnection[];
+  /** コピーされたInferenceEdge（derivedノード用）。省略時は空配列として扱う。 */
+  readonly inferenceEdges?: readonly InferenceEdge[];
 };
 
 // --- コピー ---
@@ -67,11 +71,13 @@ export function computeCentroid(nodes: readonly WorkspaceNode[]): Point {
 /**
  * 選択されたノードIDセットから、コピー用データを構築する。
  * 選択ノード間の接続のみを含める。
+ * InferenceEdgeも、結論・前提が全て選択範囲内にあるもののみ含める。
  */
 export function buildClipboardData(
   selectedNodeIds: ReadonlySet<string>,
   allNodes: readonly WorkspaceNode[],
   allConnections: readonly WorkspaceConnection[],
+  allInferenceEdges: readonly InferenceEdge[] = [],
 ): ClipboardData {
   const selectedNodes = allNodes.filter((n) => selectedNodeIds.has(n.id));
   const centroid = computeCentroid(selectedNodes);
@@ -104,11 +110,21 @@ export function buildClipboardData(
       toPortId: c.toPortId,
     }));
 
+  // 選択ノード内に完結するInferenceEdgeのみ
+  const copiedInferenceEdges = allInferenceEdges.filter((edge) => {
+    if (!selectedNodeIds.has(edge.conclusionNodeId)) return false;
+    const premiseIds = getInferenceEdgePremiseNodeIds(edge);
+    return premiseIds.every((id) => selectedNodeIds.has(id));
+  });
+
   return {
     _tag: "ProofPadClipboard",
     version: 1,
     nodes: copiedNodes,
     connections: copiedConnections,
+    ...(copiedInferenceEdges.length > 0
+      ? { inferenceEdges: copiedInferenceEdges }
+      : {}),
   };
 }
 
@@ -156,6 +172,8 @@ export type PasteResult = {
   readonly newNodes: readonly WorkspaceNode[];
   /** ペーストで追加された新しい接続群 */
   readonly newConnections: readonly WorkspaceConnection[];
+  /** ペーストで追加された新しいInferenceEdge群 */
+  readonly newInferenceEdges: readonly InferenceEdge[];
   /** 次のノードID番号 */
   readonly nextNodeId: number;
 };
@@ -215,9 +233,59 @@ export function pasteClipboardData(
     })
     .filter((c) => c !== undefined);
 
+  // InferenceEdge のノードIDを新IDにマッピング
+  const newInferenceEdges: InferenceEdge[] = (data.inferenceEdges ?? [])
+    .map((edge): InferenceEdge | undefined => {
+      const newConclusionId = idMap.get(edge.conclusionNodeId);
+      if (newConclusionId === undefined) return undefined;
+
+      switch (edge._tag) {
+        case "mp": {
+          const newLeft =
+            edge.leftPremiseNodeId !== undefined
+              ? idMap.get(edge.leftPremiseNodeId)
+              : undefined;
+          const newRight =
+            edge.rightPremiseNodeId !== undefined
+              ? idMap.get(edge.rightPremiseNodeId)
+              : undefined;
+          return {
+            ...edge,
+            conclusionNodeId: newConclusionId,
+            leftPremiseNodeId: newLeft,
+            rightPremiseNodeId: newRight,
+          };
+        }
+        case "gen": {
+          const newPremise =
+            edge.premiseNodeId !== undefined
+              ? idMap.get(edge.premiseNodeId)
+              : undefined;
+          return {
+            ...edge,
+            conclusionNodeId: newConclusionId,
+            premiseNodeId: newPremise,
+          };
+        }
+        case "substitution": {
+          const newPremise =
+            edge.premiseNodeId !== undefined
+              ? idMap.get(edge.premiseNodeId)
+              : undefined;
+          return {
+            ...edge,
+            conclusionNodeId: newConclusionId,
+            premiseNodeId: newPremise,
+          };
+        }
+      }
+    })
+    .filter((e) => e !== undefined);
+
   return {
     newNodes,
     newConnections,
+    newInferenceEdges,
     nextNodeId: currentNodeId,
   };
 }

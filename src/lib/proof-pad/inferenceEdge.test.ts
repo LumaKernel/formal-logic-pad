@@ -50,7 +50,7 @@ describe("inferenceEdge", () => {
         expect(edges).toHaveLength(1);
         expect(edges[0]).toEqual({
           _tag: "mp",
-          ruleNodeId: "node-1",
+          conclusionNodeId: "node-1",
           leftPremiseNodeId: undefined,
           rightPremiseNodeId: undefined,
           conclusionText: "",
@@ -66,7 +66,7 @@ describe("inferenceEdge", () => {
         expect(edges).toHaveLength(1);
         expect(edges[0]).toEqual({
           _tag: "mp",
-          ruleNodeId: "node-2",
+          conclusionNodeId: "node-2",
           leftPremiseNodeId: "node-1",
           rightPremiseNodeId: undefined,
           conclusionText: "",
@@ -84,7 +84,7 @@ describe("inferenceEdge", () => {
         expect(edges).toHaveLength(1);
         expect(edges[0]).toEqual({
           _tag: "mp",
-          ruleNodeId: "node-3",
+          conclusionNodeId: "node-3",
           leftPremiseNodeId: "node-1",
           rightPremiseNodeId: "node-2",
           conclusionText: "",
@@ -109,7 +109,7 @@ describe("inferenceEdge", () => {
         expect(edges).toHaveLength(1);
         expect(edges[0]).toEqual({
           _tag: "gen",
-          ruleNodeId: "node-1",
+          conclusionNodeId: "node-1",
           premiseNodeId: undefined,
           variableName: "",
           conclusionText: "",
@@ -126,7 +126,7 @@ describe("inferenceEdge", () => {
         expect(edges).toHaveLength(1);
         expect(edges[0]).toEqual({
           _tag: "gen",
-          ruleNodeId: "node-2",
+          conclusionNodeId: "node-2",
           premiseNodeId: "node-1",
           variableName: "x",
           conclusionText: "",
@@ -153,7 +153,7 @@ describe("inferenceEdge", () => {
         expect(edges).toHaveLength(1);
         expect(edges[0]).toEqual({
           _tag: "substitution",
-          ruleNodeId: "node-1",
+          conclusionNodeId: "node-1",
           premiseNodeId: undefined,
           entries: [],
           conclusionText: "",
@@ -177,7 +177,7 @@ describe("inferenceEdge", () => {
         expect(edges).toHaveLength(1);
         expect(edges[0]).toEqual({
           _tag: "substitution",
-          ruleNodeId: "node-2",
+          conclusionNodeId: "node-2",
           premiseNodeId: "node-1",
           entries,
           conclusionText: "",
@@ -224,7 +224,7 @@ describe("inferenceEdge", () => {
         // MP edge
         expect(edges[0]).toEqual({
           _tag: "mp",
-          ruleNodeId: "node-3",
+          conclusionNodeId: "node-3",
           leftPremiseNodeId: "node-1",
           rightPremiseNodeId: "node-2",
           conclusionText: "",
@@ -233,7 +233,7 @@ describe("inferenceEdge", () => {
         // Gen edge
         expect(edges[1]).toEqual({
           _tag: "gen",
-          ruleNodeId: "node-4",
+          conclusionNodeId: "node-4",
           premiseNodeId: "node-3",
           variableName: "x",
           conclusionText: "",
@@ -242,7 +242,7 @@ describe("inferenceEdge", () => {
         // Substitution edge
         expect(edges[2]).toEqual({
           _tag: "substitution",
-          ruleNodeId: "node-5",
+          conclusionNodeId: "node-5",
           premiseNodeId: "node-1",
           entries: [],
           conclusionText: "",
@@ -268,7 +268,7 @@ describe("inferenceEdge", () => {
       const edges: readonly InferenceEdge[] = [
         {
           _tag: "mp",
-          ruleNodeId: "mp-1",
+          conclusionNodeId: "mp-1",
           leftPremiseNodeId: "a",
           rightPremiseNodeId: "b",
           conclusionText: "",
@@ -281,7 +281,7 @@ describe("inferenceEdge", () => {
       const edges: readonly InferenceEdge[] = [
         {
           _tag: "mp",
-          ruleNodeId: "mp-1",
+          conclusionNodeId: "mp-1",
           leftPremiseNodeId: "a",
           rightPremiseNodeId: "b",
           conclusionText: "",
@@ -294,7 +294,7 @@ describe("inferenceEdge", () => {
       const edges: readonly InferenceEdge[] = [
         {
           _tag: "mp",
-          ruleNodeId: "mp-1",
+          conclusionNodeId: "mp-1",
           leftPremiseNodeId: "a",
           rightPremiseNodeId: "b",
           conclusionText: "",
@@ -307,7 +307,7 @@ describe("inferenceEdge", () => {
       const edges: readonly InferenceEdge[] = [
         {
           _tag: "mp",
-          ruleNodeId: "mp-1",
+          conclusionNodeId: "mp-1",
           leftPremiseNodeId: "a",
           rightPremiseNodeId: "b",
           conclusionText: "",
@@ -320,7 +320,7 @@ describe("inferenceEdge", () => {
       const edges: readonly InferenceEdge[] = [
         {
           _tag: "gen",
-          ruleNodeId: "gen-1",
+          conclusionNodeId: "gen-1",
           premiseNodeId: "a",
           variableName: "x",
           conclusionText: "",
@@ -333,7 +333,7 @@ describe("inferenceEdge", () => {
       const edges: readonly InferenceEdge[] = [
         {
           _tag: "substitution",
-          ruleNodeId: "subst-1",
+          conclusionNodeId: "subst-1",
           premiseNodeId: "a",
           entries: [],
           conclusionText: "",
@@ -346,21 +346,21 @@ describe("inferenceEdge", () => {
       const edges: readonly InferenceEdge[] = [
         {
           _tag: "mp",
-          ruleNodeId: "mp-1",
+          conclusionNodeId: "mp-1",
           leftPremiseNodeId: "a",
           rightPremiseNodeId: "b",
           conclusionText: "",
         },
         {
           _tag: "gen",
-          ruleNodeId: "gen-1",
+          conclusionNodeId: "gen-1",
           premiseNodeId: "a",
           variableName: "x",
           conclusionText: "",
         },
         {
           _tag: "substitution",
-          ruleNodeId: "subst-1",
+          conclusionNodeId: "subst-1",
           premiseNodeId: "c",
           entries: [],
           conclusionText: "",
@@ -374,14 +374,14 @@ describe("inferenceEdge", () => {
       const edges: readonly InferenceEdge[] = [
         {
           _tag: "mp",
-          ruleNodeId: "mp-1",
+          conclusionNodeId: "mp-1",
           leftPremiseNodeId: undefined,
           rightPremiseNodeId: undefined,
           conclusionText: "",
         },
         {
           _tag: "gen",
-          ruleNodeId: "gen-1",
+          conclusionNodeId: "gen-1",
           premiseNodeId: undefined,
           variableName: "x",
           conclusionText: "",
@@ -396,10 +396,10 @@ describe("inferenceEdge", () => {
   });
 
   describe("getInferenceEdgeConclusionNodeId", () => {
-    it("returns ruleNodeId for MP edge", () => {
+    it("returns conclusionNodeId for MP edge", () => {
       const edge: MPEdge = {
         _tag: "mp",
-        ruleNodeId: "mp-1",
+        conclusionNodeId: "mp-1",
         leftPremiseNodeId: "a",
         rightPremiseNodeId: "b",
         conclusionText: "psi",
@@ -407,10 +407,10 @@ describe("inferenceEdge", () => {
       expect(getInferenceEdgeConclusionNodeId(edge)).toBe("mp-1");
     });
 
-    it("returns ruleNodeId for Gen edge", () => {
+    it("returns conclusionNodeId for Gen edge", () => {
       const edge: GenEdge = {
         _tag: "gen",
-        ruleNodeId: "gen-1",
+        conclusionNodeId: "gen-1",
         premiseNodeId: "a",
         variableName: "x",
         conclusionText: "∀x.φ",
@@ -418,10 +418,10 @@ describe("inferenceEdge", () => {
       expect(getInferenceEdgeConclusionNodeId(edge)).toBe("gen-1");
     });
 
-    it("returns ruleNodeId for Substitution edge", () => {
+    it("returns conclusionNodeId for Substitution edge", () => {
       const edge: SubstitutionEdge = {
         _tag: "substitution",
-        ruleNodeId: "subst-1",
+        conclusionNodeId: "subst-1",
         premiseNodeId: "a",
         entries: [],
         conclusionText: "p -> p",
@@ -434,7 +434,7 @@ describe("inferenceEdge", () => {
     it("returns both premises for MP edge", () => {
       const edge: MPEdge = {
         _tag: "mp",
-        ruleNodeId: "mp-1",
+        conclusionNodeId: "mp-1",
         leftPremiseNodeId: "a",
         rightPremiseNodeId: "b",
         conclusionText: "",
@@ -445,7 +445,7 @@ describe("inferenceEdge", () => {
     it("returns only left premise when right is undefined for MP edge", () => {
       const edge: MPEdge = {
         _tag: "mp",
-        ruleNodeId: "mp-1",
+        conclusionNodeId: "mp-1",
         leftPremiseNodeId: "a",
         rightPremiseNodeId: undefined,
         conclusionText: "",
@@ -456,7 +456,7 @@ describe("inferenceEdge", () => {
     it("returns only right premise when left is undefined for MP edge", () => {
       const edge: MPEdge = {
         _tag: "mp",
-        ruleNodeId: "mp-1",
+        conclusionNodeId: "mp-1",
         leftPremiseNodeId: undefined,
         rightPremiseNodeId: "b",
         conclusionText: "",
@@ -467,7 +467,7 @@ describe("inferenceEdge", () => {
     it("returns empty array when both premises are undefined for MP edge", () => {
       const edge: MPEdge = {
         _tag: "mp",
-        ruleNodeId: "mp-1",
+        conclusionNodeId: "mp-1",
         leftPremiseNodeId: undefined,
         rightPremiseNodeId: undefined,
         conclusionText: "",
@@ -478,7 +478,7 @@ describe("inferenceEdge", () => {
     it("returns premise for Gen edge", () => {
       const edge: GenEdge = {
         _tag: "gen",
-        ruleNodeId: "gen-1",
+        conclusionNodeId: "gen-1",
         premiseNodeId: "a",
         variableName: "x",
         conclusionText: "",
@@ -489,7 +489,7 @@ describe("inferenceEdge", () => {
     it("returns empty array when premise is undefined for Gen edge", () => {
       const edge: GenEdge = {
         _tag: "gen",
-        ruleNodeId: "gen-1",
+        conclusionNodeId: "gen-1",
         premiseNodeId: undefined,
         variableName: "x",
         conclusionText: "",
@@ -500,7 +500,7 @@ describe("inferenceEdge", () => {
     it("returns premise for Substitution edge", () => {
       const edge: SubstitutionEdge = {
         _tag: "substitution",
-        ruleNodeId: "subst-1",
+        conclusionNodeId: "subst-1",
         premiseNodeId: "a",
         entries: [],
         conclusionText: "",
@@ -511,7 +511,7 @@ describe("inferenceEdge", () => {
     it("returns empty array when premise is undefined for Substitution edge", () => {
       const edge: SubstitutionEdge = {
         _tag: "substitution",
-        ruleNodeId: "subst-1",
+        conclusionNodeId: "subst-1",
         premiseNodeId: undefined,
         entries: [],
         conclusionText: "",

@@ -11,6 +11,7 @@ import {
   type ClipboardData,
 } from "./copyPasteLogic";
 import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
+import type { InferenceEdge } from "./inferenceEdge";
 
 // --- テスト用ノード ---
 
@@ -415,6 +416,187 @@ describe("pasteClipboardData", () => {
     expect(result.newNodes).toEqual([]);
     expect(result.newConnections).toEqual([]);
     expect(result.nextNodeId).toBe(1);
+  });
+});
+
+// --- InferenceEdge のコピー＆ペースト ---
+
+describe("buildClipboardData with InferenceEdges", () => {
+  const testInferenceEdges: readonly InferenceEdge[] = [
+    {
+      _tag: "mp",
+      conclusionNodeId: "node-3",
+      leftPremiseNodeId: "node-1",
+      rightPremiseNodeId: "node-2",
+      conclusionText: "psi",
+    },
+  ];
+
+  it("選択ノード内に完結するInferenceEdgeを含める", () => {
+    const result = buildClipboardData(
+      new Set(["node-1", "node-2", "node-3"]),
+      allNodes,
+      allConnections,
+      testInferenceEdges,
+    );
+    expect(result.inferenceEdges).toHaveLength(1);
+    expect(result.inferenceEdges![0]!._tag).toBe("mp");
+  });
+
+  it("結論ノードが選択外のInferenceEdgeは含めない", () => {
+    const result = buildClipboardData(
+      new Set(["node-1", "node-2"]),
+      allNodes,
+      allConnections,
+      testInferenceEdges,
+    );
+    expect(result.inferenceEdges ?? []).toHaveLength(0);
+  });
+
+  it("前提ノードが選択外のInferenceEdgeは含めない", () => {
+    const result = buildClipboardData(
+      new Set(["node-2", "node-3"]),
+      allNodes,
+      allConnections,
+      testInferenceEdges,
+    );
+    expect(result.inferenceEdges ?? []).toHaveLength(0);
+  });
+});
+
+describe("pasteClipboardData with InferenceEdges", () => {
+  it("MPEdgeのノードIDを新しいIDにマッピングする", () => {
+    const clipboard: ClipboardData = {
+      _tag: "ProofPadClipboard",
+      version: 1,
+      nodes: allNodes.map((n) => ({
+        originalId: n.id,
+        kind: n.kind,
+        label: n.label,
+        formulaText: n.formulaText,
+        relativePosition: { x: 0, y: 0 },
+      })),
+      connections: [],
+      inferenceEdges: [
+        {
+          _tag: "mp",
+          conclusionNodeId: "node-3",
+          leftPremiseNodeId: "node-1",
+          rightPremiseNodeId: "node-2",
+          conclusionText: "psi",
+        },
+      ],
+    };
+    const result = pasteClipboardData(clipboard, { x: 0, y: 0 }, 10);
+    expect(result.newInferenceEdges).toHaveLength(1);
+    const edge = result.newInferenceEdges[0]!;
+    expect(edge._tag).toBe("mp");
+    if (edge._tag === "mp") {
+      expect(edge.conclusionNodeId).toBe("node-12");
+      expect(edge.leftPremiseNodeId).toBe("node-10");
+      expect(edge.rightPremiseNodeId).toBe("node-11");
+    }
+  });
+
+  it("GenEdgeのノードIDを新しいIDにマッピングする", () => {
+    const clipboard: ClipboardData = {
+      _tag: "ProofPadClipboard",
+      version: 1,
+      nodes: [
+        {
+          originalId: "node-1",
+          kind: "axiom",
+          label: "A",
+          formulaText: "phi",
+          relativePosition: { x: 0, y: 0 },
+        },
+        {
+          originalId: "node-2",
+          kind: "derived",
+          label: "Gen",
+          formulaText: "forall x. phi",
+          relativePosition: { x: 0, y: 100 },
+        },
+      ],
+      connections: [],
+      inferenceEdges: [
+        {
+          _tag: "gen",
+          conclusionNodeId: "node-2",
+          premiseNodeId: "node-1",
+          variableName: "x",
+          conclusionText: "forall x. phi",
+        },
+      ],
+    };
+    const result = pasteClipboardData(clipboard, { x: 0, y: 0 }, 5);
+    expect(result.newInferenceEdges).toHaveLength(1);
+    const edge = result.newInferenceEdges[0]!;
+    expect(edge._tag).toBe("gen");
+    if (edge._tag === "gen") {
+      expect(edge.conclusionNodeId).toBe("node-6");
+      expect(edge.premiseNodeId).toBe("node-5");
+      expect(edge.variableName).toBe("x");
+    }
+  });
+
+  it("SubstitutionEdgeのノードIDを新しいIDにマッピングする", () => {
+    const clipboard: ClipboardData = {
+      _tag: "ProofPadClipboard",
+      version: 1,
+      nodes: [
+        {
+          originalId: "node-1",
+          kind: "axiom",
+          label: "A",
+          formulaText: "phi -> psi",
+          relativePosition: { x: 0, y: 0 },
+        },
+        {
+          originalId: "node-2",
+          kind: "derived",
+          label: "Subst",
+          formulaText: "alpha -> beta",
+          relativePosition: { x: 0, y: 100 },
+        },
+      ],
+      connections: [],
+      inferenceEdges: [
+        {
+          _tag: "substitution",
+          conclusionNodeId: "node-2",
+          premiseNodeId: "node-1",
+          entries: [
+            {
+              _tag: "FormulaSubstitution",
+              metaVariableName: "φ",
+              formulaText: "alpha",
+            },
+          ],
+          conclusionText: "alpha -> beta",
+        },
+      ],
+    };
+    const result = pasteClipboardData(clipboard, { x: 0, y: 0 }, 1);
+    expect(result.newInferenceEdges).toHaveLength(1);
+    const edge = result.newInferenceEdges[0]!;
+    expect(edge._tag).toBe("substitution");
+    if (edge._tag === "substitution") {
+      expect(edge.conclusionNodeId).toBe("node-2");
+      expect(edge.premiseNodeId).toBe("node-1");
+      expect(edge.entries).toHaveLength(1);
+    }
+  });
+
+  it("InferenceEdgeがないクリップボードでは空配列を返す", () => {
+    const clipboard: ClipboardData = {
+      _tag: "ProofPadClipboard",
+      version: 1,
+      nodes: [],
+      connections: [],
+    };
+    const result = pasteClipboardData(clipboard, { x: 0, y: 0 }, 1);
+    expect(result.newInferenceEdges).toEqual([]);
   });
 });
 

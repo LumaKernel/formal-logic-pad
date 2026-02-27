@@ -24,6 +24,7 @@ import type {
 import type { ProofNodeKind } from "./proofNodeUI";
 import type { NodeRole } from "./nodeRoleLogic";
 import type { Point } from "../infinite-canvas/types";
+import { extractInferenceEdges } from "./inferenceEdge";
 
 // --- エクスポートデータ型 ---
 
@@ -207,12 +208,17 @@ function parseWorkspaceState(raw: unknown): WorkspaceState | undefined {
     connections.push(parsed);
   }
 
-  return {
+  const stateWithoutEdges: WorkspaceState = {
     system,
     nodes,
     connections,
+    inferenceEdges: [],
     nextNodeId: obj["nextNodeId"],
     mode: obj["mode"] as WorkspaceMode,
+  };
+  return {
+    ...stateWithoutEdges,
+    inferenceEdges: extractInferenceEdges(stateWithoutEdges),
   };
 }
 

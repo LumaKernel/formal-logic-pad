@@ -1042,7 +1042,15 @@ export function ProofWorkspace({
       { readonly message: string; readonly type: "error" | "success" }
     >();
     for (const node of workspace.nodes) {
-      if (node.kind !== "mp") continue;
+      // レガシー kind:"mp" ノード、またはInferenceEdge経由のderivedノード
+      const isLegacyMp = node.kind === "mp";
+      const mpEdge =
+        node.kind === "derived"
+          ? workspace.inferenceEdges.find(
+              (e) => e._tag === "mp" && e.conclusionNodeId === node.id,
+            )
+          : undefined;
+      if (!isLegacyMp && !mpEdge) continue;
       const result = validateMPApplication(workspace, node.id);
       if (result._tag === "Success") {
         validations.set(node.id, { message: msg.mpApplied, type: "success" });
@@ -1065,8 +1073,19 @@ export function ProofWorkspace({
       { readonly message: string; readonly type: "error" | "success" }
     >();
     for (const node of workspace.nodes) {
-      if (node.kind !== "gen") continue;
-      const variableName = node.genVariableName ?? "";
+      // レガシー kind:"gen" ノード、またはInferenceEdge経由のderivedノード
+      const isLegacyGen = node.kind === "gen";
+      const genEdgeRaw =
+        node.kind === "derived"
+          ? workspace.inferenceEdges.find(
+              (e) => e._tag === "gen" && e.conclusionNodeId === node.id,
+            )
+          : undefined;
+      if (!isLegacyGen && !genEdgeRaw) continue;
+      const variableName =
+        genEdgeRaw && genEdgeRaw._tag === "gen"
+          ? genEdgeRaw.variableName
+          : (node.genVariableName ?? "");
       const result = validateGenApplication(workspace, node.id, variableName);
       if (result._tag === "Success") {
         validations.set(node.id, { message: msg.genApplied, type: "success" });
@@ -1089,8 +1108,20 @@ export function ProofWorkspace({
       { readonly message: string; readonly type: "error" | "success" }
     >();
     for (const node of workspace.nodes) {
-      if (node.kind !== "substitution") continue;
-      const entries = node.substitutionEntries ?? [];
+      // レガシー kind:"substitution" ノード、またはInferenceEdge経由のderivedノード
+      const isLegacySubst = node.kind === "substitution";
+      const substEdgeRaw =
+        node.kind === "derived"
+          ? workspace.inferenceEdges.find(
+              (e) =>
+                e._tag === "substitution" && e.conclusionNodeId === node.id,
+            )
+          : undefined;
+      if (!isLegacySubst && !substEdgeRaw) continue;
+      const entries =
+        substEdgeRaw && substEdgeRaw._tag === "substitution"
+          ? substEdgeRaw.entries
+          : (node.substitutionEntries ?? []);
       const result = validateSubstitutionApplication(
         workspace,
         node.id,
@@ -2252,7 +2283,8 @@ export function ProofWorkspace({
               editable={
                 node.kind !== "mp" &&
                 node.kind !== "gen" &&
-                node.kind !== "substitution"
+                node.kind !== "substitution" &&
+                node.kind !== "derived"
               }
               statusMessage={nodeValidation?.message}
               statusType={nodeValidation?.type}
@@ -2264,7 +2296,17 @@ export function ProofWorkspace({
               detailLevel={detailLevel}
               visibilityOverrides={visibilityOverrides}
               onOpenSyntaxHelp={onOpenSyntaxHelp}
-              substitutionEntries={node.substitutionEntries}
+              substitutionEntries={(() => {
+                if (node.substitutionEntries) return node.substitutionEntries;
+                const edge = workspace.inferenceEdges.find(
+                  (e) =>
+                    e._tag === "substitution" &&
+                    e.conclusionNodeId === node.id,
+                );
+                return edge && edge._tag === "substitution"
+                  ? edge.entries
+                  : undefined;
+              })()}
               testId={`proof-node-${node.id satisfies string}`}
             />
           </div>
