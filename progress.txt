@@ -4434,3 +4434,40 @@
   - WorkspaceMenuItemにdisabled propを追加する際はcursor・opacity・color・pointer-eventsのスタイル設定が必要
   - コンテキストメニューからGen適用する場合、変数名入力が追加で必要。プロンプトバナーUIパターンで解決
 ---
+
+## 2026-02-27 - UIバグ修正: HubPageViewのborderBottom警告解消
+- `tabStyle`の`borderBottom`ショートハンドを`borderBottomWidth`/`borderBottomStyle`/`borderBottomColor`の個別プロパティに分解
+- Reactのrerender時に「borderBottomColor when conflicting borderBottom」警告が出ていた問題を解消
+- テスト: 176ファイル、4406テスト全パス
+- カバレッジ: Stmts 99.11%(維持), Branch 94.36%(維持), Funcs 90.42%(維持), Lines 99.77%(維持)
+- ブラウザ確認: .screenshots/hubpage-tab-style-fix.png（Playwright MCPでタブ切替後コンソール警告0件確認）
+- 変更ファイル:
+  - `src/app/HubPageView.tsx` (MODIFIED - tabStyleのborderBottom個別プロパティ化)
+  - `tasks/prd-inserted-tasks.md` (MODIFIED - タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - ReactのCSSProperties でショートハンド（borderBottom）と個別プロパティ（borderBottomColor）を混在させてはいけない。スプレッド演算子で上書きする場合は個別プロパティで統一すること
+  - Storybook vitest のstderrにReact警告が出力される。修正後は出力されなくなるため検証可能
+---
+
+## 2026-02-27 - ノード削除機能: コンテキストメニュー経由
+- コンテキストメニューに「ノードを削除」メニュー項目を追加
+- クエストモードではゴールノードの削除を無効化（disabled表示）
+- 既存の `removeNode()` / `isNodeProtected()` を活用、純粋ロジック層の変更なし
+- テスト: 176ファイル、4413テスト全パス（+7テスト追加）
+- カバレッジ: Stmts 99.10%(微減), Branch 94.47%(↑), Funcs 90.59%(↑), Lines 99.77%(維持)
+- ブラウザ確認:
+  - .screenshots/node-delete-story.png (ノード削除ストーリー)
+  - .screenshots/quest-goal-delete-disabled-story.png (クエストゴール削除無効)
+- 変更ファイル:
+  - `src/lib/proof-pad/proofMessages.ts` (deleteNodeキー追加)
+  - `messages/en.json` / `messages/ja.json` (翻訳追加)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (i18n統合)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (コンテキストメニューUI追加)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (+5テスト)
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` (+2ストーリー with play関数)
+  - `tasks/prd-inserted-tasks.md` (タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - `removeNode` と `isNodeProtected` は workspaceState.ts に既に実装済み。新UI追加時はまず既存ピュアロジック層を確認
+  - WorkspaceMenuItem は native HTML `disabled` 属性を使用（aria-disabled ではない）。テストでは `toBeDisabled()` を使う
+  - コンテキストメニューの区切り線は inline style の `<div>` で実装（他のメニュー項目と同じパターン）
+---

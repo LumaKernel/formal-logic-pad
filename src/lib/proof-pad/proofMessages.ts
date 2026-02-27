@@ -88,6 +88,7 @@ export type ProofMessages = {
   readonly useAsMPLeft: string;
   readonly useAsMPRight: string;
   readonly applyGenToNode: string;
+  readonly deleteNode: string;
   /** `{variableName}` プレースホルダーを含む */
   readonly genVariablePrompt: string;
 
@@ -167,6 +168,7 @@ export const defaultProofMessages: ProofMessages = {
   useAsMPLeft: "Use as MP Left (\u03C6)",
   useAsMPRight: "Use as MP Right (\u03C6\u2192\u03C8)",
   applyGenToNode: "Apply Gen",
+  deleteNode: "Delete Node",
   genVariablePrompt: "Variable name:",
 
   // Axiom restriction

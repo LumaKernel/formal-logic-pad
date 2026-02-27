@@ -2603,4 +2603,115 @@ describe("ProofWorkspace", () => {
       ).toBeInTheDocument();
     });
   });
+
+  describe("node context menu - delete node", () => {
+    it("shows Delete Node item in context menu", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      expect(screen.getByTestId("workspace-delete-node")).toBeInTheDocument();
+    });
+
+    it("deletes node when Delete Node is clicked", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Right-click on node-1
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      // Click Delete Node
+      await user.click(screen.getByTestId("workspace-delete-node"));
+
+      // Context menu should be closed
+      expect(
+        screen.queryByTestId("workspace-node-context-menu"),
+      ).not.toBeInTheDocument();
+
+      // Node-1 should be removed
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("proof-node-node-1"),
+        ).not.toBeInTheDocument();
+      });
+
+      // Node-2 should remain
+      expect(screen.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+
+    it("deletes node and removes related connections", async () => {
+      const user = userEvent.setup();
+      // axiom-1(node-1) → mp(node-3) ← axiom-2(node-2)
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "mp", "MP", { x: 100, y: 100 }, "psi");
+      ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
+      ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Right-click on node-1 and delete
+      const node1 = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node1 });
+      await user.click(screen.getByTestId("workspace-delete-node"));
+
+      // Node-1 should be removed
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("proof-node-node-1"),
+        ).not.toBeInTheDocument();
+      });
+
+      // Node-2 and node-3 should remain
+      expect(screen.getByTestId("proof-node-node-2")).toBeInTheDocument();
+      expect(screen.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    });
+
+    it("disables Delete Node for protected quest goal nodes", async () => {
+      const user = userEvent.setup();
+      const ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi", position: { x: 0, y: 0 } },
+      ]);
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Right-click on the protected goal node
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      // Delete Node should be disabled
+      const deleteBtn = screen.getByTestId("workspace-delete-node");
+      expect(deleteBtn).toBeDisabled();
+    });
+
+    it("does not delete protected quest goal node even if clicked", async () => {
+      const user = userEvent.setup();
+      const ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi", position: { x: 0, y: 0 } },
+      ]);
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Right-click on the protected goal node
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      // Click Delete Node (disabled)
+      await user.click(screen.getByTestId("workspace-delete-node"));
+
+      // Protected node should remain
+      expect(screen.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    });
+  });
 });

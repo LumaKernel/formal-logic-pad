@@ -69,6 +69,7 @@ function useProofMessagesFromIntl(): ProofMessages {
       useAsMPLeft: t("useAsMPLeft"),
       useAsMPRight: t("useAsMPRight"),
       applyGenToNode: t("applyGenToNode"),
+      deleteNode: t("deleteNode"),
       genVariablePrompt: t("genVariablePrompt"),
       proofCompleteButAxiomViolation: t("proofCompleteButAxiomViolation"),
       axiomViolationDetail: t("axiomViolationDetail"),

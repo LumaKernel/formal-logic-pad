@@ -68,6 +68,7 @@ import {
   applyGenAndConnect,
   copySelectedNodes,
   pasteNodes,
+  removeNode,
   removeSelectedNodes,
   duplicateSelectedNodes,
   cutSelectedNodes,
@@ -1153,6 +1154,19 @@ export function ProofWorkspace({
   }, [nodeMenuState, workspace]);
 
   const menuNodeHasGenEnabled = workspace.system.generalization;
+
+  const menuNodeIsProtected = useMemo(() => {
+    if (!nodeMenuState.open) return false;
+    return isNodeProtected(workspace, nodeMenuState.nodeId);
+  }, [nodeMenuState, workspace]);
+
+  // コンテキストメニューから「ノードを削除する」
+  const handleDeleteNode = useCallback(() => {
+    if (!nodeMenuState.open) return;
+    const result = removeNode(workspace, nodeMenuState.nodeId);
+    setWorkspaceWithAutoLayout(result);
+    setNodeMenuState(closeNodeMenu());
+  }, [nodeMenuState, workspace, setWorkspaceWithAutoLayout]);
 
   // コンテキストメニュー外クリックで閉じる
   useEffect(() => {
@@ -2323,6 +2337,23 @@ export function ProofWorkspace({
               }
             />
           ) : null}
+          <div
+            style={{
+              height: 1,
+              background: "var(--color-panel-border, rgba(180, 160, 130, 0.2))",
+              margin: "4px 0",
+            }}
+          />
+          <WorkspaceMenuItem
+            label={msg.deleteNode}
+            onClick={handleDeleteNode}
+            disabled={menuNodeIsProtected}
+            testId={
+              testId
+                ? `${testId satisfies string}-delete-node`
+                : "delete-node"
+            }
+          />
         </div>
       ) : null}
 

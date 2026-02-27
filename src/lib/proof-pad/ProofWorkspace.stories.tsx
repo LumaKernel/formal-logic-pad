@@ -606,3 +606,123 @@ export const SubtreeSelection: Story = {
     ).toHaveTextContent("3 node(s) selected");
   },
 };
+
+// --- ノード削除デモ ---
+
+function NodeDeleteWorkspace() {
+  const initial = (() => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "A2", { x: 350, y: 50 }, "phi -> psi");
+    const mp1 = applyMPAndConnect(ws, "node-1", "node-2", {
+      x: 200,
+      y: 200,
+    });
+    ws = mp1.workspace;
+    return ws;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/** ノード削除: 右クリック→Delete Nodeでノードを削除 */
+export const NodeDelete: Story = {
+  render: () => <NodeDeleteWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // 3ノード(A1, A2, MP)が表示されている
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+
+    // node-1を右クリック → コンテキストメニュー表示
+    const node1 = canvas.getByTestId("proof-node-node-1");
+    await userEvent.pointer({ keys: "[MouseRight]", target: node1 });
+
+    // Delete Nodeメニュー項目が表示される
+    await expect(
+      canvas.getByTestId("workspace-delete-node"),
+    ).toBeInTheDocument();
+
+    // Delete Nodeをクリック
+    await userEvent.click(canvas.getByTestId("workspace-delete-node"));
+
+    // node-1が削除される
+    await expect(
+      canvas.queryByTestId("proof-node-node-1"),
+    ).not.toBeInTheDocument();
+
+    // node-2とnode-3は残る
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+  },
+};
+
+// --- クエストモードでゴールノード削除不可デモ ---
+
+function QuestNodeDeleteWorkspace() {
+  const initial = (() => {
+    let ws = createQuestWorkspace(lukasiewiczSystem, [
+      { formulaText: "phi -> phi", position: { x: 200, y: 200 } },
+    ]);
+    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "phi -> phi");
+    return ws;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/** クエストモード: ゴールノードはDelete Nodeが無効化される */
+export const QuestGoalDeleteDisabled: Story = {
+  render: () => <QuestNodeDeleteWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // ゴールノード(node-1)を右クリック
+    const goalNode = canvas.getByTestId("proof-node-node-1");
+    await userEvent.pointer({ keys: "[MouseRight]", target: goalNode });
+
+    // Delete Nodeが無効化されている
+    const deleteBtn = canvas.getByTestId("workspace-delete-node");
+    await expect(deleteBtn).toBeDisabled();
+
+    // 通常ノード(node-2)を右クリックすると削除可能
+    await userEvent.click(document.body); // メニューを閉じる
+    const normalNode = canvas.getByTestId("proof-node-node-2");
+    await userEvent.pointer({ keys: "[MouseRight]", target: normalNode });
+
+    const deleteBtn2 = canvas.getByTestId("workspace-delete-node");
+    await expect(deleteBtn2).not.toBeDisabled();
+  },
+};
