@@ -64,6 +64,7 @@ const meta: Meta<typeof HubPageView> = {
     onConvertToFree: fn(),
     onStartQuest: fn(),
     onCreateNotebook: fn(),
+    languageToggle: { locale: "en", onLocaleChange: fn() },
   },
 };
 

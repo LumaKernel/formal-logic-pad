@@ -15,10 +15,17 @@ import { ProofMessagesProvider } from "../../../lib/proof-pad";
 import type { ProofMessages } from "../../../lib/proof-pad";
 import type { WorkspaceState } from "../../../lib/proof-pad/workspaceState";
 import { ThemeToggle } from "../../../components/ThemeToggle/ThemeToggle";
+import {
+  LanguageToggle,
+  type LanguageToggleProps,
+} from "../../../components/LanguageToggle/LanguageToggle";
 
 // --- Types ---
 
-export type WorkspacePageViewProps =
+export type WorkspacePageViewProps = {
+  /** 言語切り替え（指定時に LanguageToggle を表示） */
+  readonly languageToggle?: LanguageToggleProps;
+} & (
   | {
       /** ノートブックが見つかった場合 */
       readonly found: true;
@@ -40,7 +47,8 @@ export type WorkspacePageViewProps =
       readonly found: false;
       /** 戻るボタン押下 */
       readonly onBack: () => void;
-    };
+    }
+);
 
 // --- Styles ---
 
@@ -131,6 +139,12 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
         </button>
         <span style={notebookNameStyle}>{props.notebookName}</span>
         <div style={headerActionsStyle}>
+          {props.languageToggle ? (
+            <LanguageToggle
+              locale={props.languageToggle.locale}
+              onLocaleChange={props.languageToggle.onLocaleChange}
+            />
+          ) : null}
           <ThemeToggle />
         </div>
       </header>

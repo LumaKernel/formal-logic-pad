@@ -49,6 +49,7 @@ function StatefulWorkspace({
       onBack={onBack}
       onWorkspaceChange={handleChange}
       onGoalAchieved={onGoalAchieved}
+      languageToggle={{ locale: "en", onLocaleChange: () => {} }}
     />
   );
 }
