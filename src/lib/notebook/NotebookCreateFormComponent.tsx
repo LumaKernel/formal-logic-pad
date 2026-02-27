@@ -8,12 +8,13 @@
  * 変更時は NotebookCreateFormComponent.test.tsx, NotebookCreateFormComponent.stories.tsx も同期すること。
  */
 
-import { useState, type CSSProperties } from "react";
+import { useState, useRef, useCallback, type CSSProperties } from "react";
 import {
   systemPresets,
   defaultCreateFormValues,
   validateCreateForm,
-  getFieldError,
+  shouldShowFieldError,
+  getFirstErrorField,
   findPresetById,
   getPresetReferenceEntryId,
   type CreateFormValues,
@@ -156,17 +157,38 @@ export function NotebookCreateForm({
     defaultCreateFormValues,
   );
   const [submitted, setSubmitted] = useState(false);
+  const [nameTouched, setNameTouched] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const validation = validateCreateForm(values);
-  const nameError = submitted ? getFieldError(validation, "name") : undefined;
-  const systemError = submitted
-    ? getFieldError(validation, "systemPresetId")
-    : undefined;
+  const nameError = shouldShowFieldError({
+    touched: nameTouched,
+    submitted,
+    validation,
+    field: "name",
+  });
+  const systemError = shouldShowFieldError({
+    touched: false,
+    submitted,
+    validation,
+    field: "systemPresetId",
+  });
+
+  const handleNameBlur = useCallback(() => {
+    setNameTouched(true);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
-    if (!validation.valid) return;
+    if (!validation.valid) {
+      const firstErrorField = getFirstErrorField(validation);
+      if (firstErrorField === "name" && nameInputRef.current !== null) {
+        nameInputRef.current.scrollIntoView?.({ behavior: "smooth", block: "center" });
+        nameInputRef.current.focus();
+      }
+      return;
+    }
 
     const preset = findPresetById(values.systemPresetId);
     /* v8 ignore start -- 防御的コード: validateCreateForm通過後は到達不能 */
@@ -191,6 +213,7 @@ export function NotebookCreateForm({
           ノート名
         </label>
         <input
+          ref={nameInputRef}
           id="notebook-name"
           data-testid="create-name-input"
           style={nameError !== undefined ? inputErrorStyle : inputStyle}
@@ -198,10 +221,18 @@ export function NotebookCreateForm({
           placeholder="新しいノート"
           value={values.name}
           onChange={(e) => setValues({ ...values, name: e.target.value })}
+          onBlur={handleNameBlur}
+          aria-invalid={nameError !== undefined}
+          aria-describedby={nameError !== undefined ? "create-name-error-msg" : undefined}
           autoFocus
         />
         {nameError !== undefined && (
-          <span style={errorTextStyle} data-testid="create-name-error">
+          <span
+            id="create-name-error-msg"
+            style={errorTextStyle}
+            data-testid="create-name-error"
+            role="alert"
+          >
             {nameError}
           </span>
         )}
@@ -294,7 +325,7 @@ export function NotebookCreateForm({
           })}
         </div>
         {systemError !== undefined && (
-          <span style={errorTextStyle} data-testid="create-system-error">
+          <span style={errorTextStyle} data-testid="create-system-error" role="alert">
             {systemError}
           </span>
         )}

@@ -308,6 +308,36 @@ export function getFieldError(
   return found?.message;
 }
 
+/**
+ * フィールドのエラーを表示すべきかどうかを判定する。
+ *
+ * blurバリデーション（touched）+ submit バリデーション（submitted）の組み合わせ。
+ * - フィールドが touched かつバリデーションエラーがある → 表示
+ * - フォームが submitted かつバリデーションエラーがある → 表示
+ * - それ以外 → 非表示
+ */
+export function shouldShowFieldError(params: {
+  readonly touched: boolean;
+  readonly submitted: boolean;
+  readonly validation: CreateFormValidation;
+  readonly field: CreateFormError["field"];
+}): string | undefined {
+  const { touched, submitted, validation, field } = params;
+  if (!touched && !submitted) return undefined;
+  return getFieldError(validation, field);
+}
+
+/**
+ * バリデーションエラーがある最初のフィールド名を返す。
+ * submit時のフォーカス管理に使用。
+ */
+export function getFirstErrorField(
+  validation: CreateFormValidation,
+): CreateFormError["field"] | undefined {
+  if (validation.valid) return undefined;
+  return validation.errors[0]?.field;
+}
+
 // --- プリセットID → リファレンスエントリID マッピング ---
 
 /**

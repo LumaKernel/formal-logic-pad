@@ -178,6 +178,99 @@ describe("NotebookCreateForm", () => {
       renderForm();
       expect(screen.queryByTestId("create-name-error")).not.toBeInTheDocument();
     });
+
+    it("空の名前入力欄からフォーカスを外すとエラー表示（blur バリデーション）", async () => {
+      renderForm();
+      const user = userEvent.setup();
+      const input = screen.getByTestId("create-name-input");
+
+      // blur前はエラーなし
+      expect(screen.queryByTestId("create-name-error")).not.toBeInTheDocument();
+
+      // フォーカスしてblur
+      await user.click(input);
+      await user.tab();
+
+      expect(screen.getByTestId("create-name-error")).toHaveTextContent(
+        "名前を入力してください",
+      );
+    });
+
+    it("有効な名前入力後のblurではエラー表示されない", async () => {
+      renderForm();
+      const user = userEvent.setup();
+      const input = screen.getByTestId("create-name-input");
+
+      await user.type(input, "テストノート");
+      await user.tab();
+
+      expect(screen.queryByTestId("create-name-error")).not.toBeInTheDocument();
+    });
+
+    it("blur後にエラーが出ても、有効な値を入力するとエラーが消える", async () => {
+      renderForm();
+      const user = userEvent.setup();
+      const input = screen.getByTestId("create-name-input");
+
+      // blurでエラー表示
+      await user.click(input);
+      await user.tab();
+      expect(screen.getByTestId("create-name-error")).toBeInTheDocument();
+
+      // 有効な値を入力するとエラーが消える
+      await user.click(input);
+      await user.type(input, "テストノート");
+      expect(screen.queryByTestId("create-name-error")).not.toBeInTheDocument();
+    });
+
+    it("送信エラー時にname入力欄にフォーカスが移る", async () => {
+      renderForm();
+      const user = userEvent.setup();
+
+      await user.click(screen.getByTestId("create-submit-btn"));
+
+      const input = screen.getByTestId("create-name-input");
+      expect(document.activeElement).toBe(input);
+    });
+
+    it("エラーメッセージにrole='alert'が設定されている", async () => {
+      renderForm();
+      const user = userEvent.setup();
+
+      await user.click(screen.getByTestId("create-submit-btn"));
+
+      const errorEl = screen.getByTestId("create-name-error");
+      expect(errorEl).toHaveAttribute("role", "alert");
+    });
+
+    it("エラー時にinputにaria-invalid='true'が設定される", async () => {
+      renderForm();
+      const user = userEvent.setup();
+
+      await user.click(screen.getByTestId("create-submit-btn"));
+
+      const input = screen.getByTestId("create-name-input");
+      expect(input).toHaveAttribute("aria-invalid", "true");
+    });
+
+    it("正常時にinputにaria-invalid='false'が設定される", () => {
+      renderForm();
+      const input = screen.getByTestId("create-name-input");
+      expect(input).toHaveAttribute("aria-invalid", "false");
+    });
+
+    it("エラー時にaria-describedbyでエラーメッセージと紐付く", async () => {
+      renderForm();
+      const user = userEvent.setup();
+
+      await user.click(screen.getByTestId("create-submit-btn"));
+
+      const input = screen.getByTestId("create-name-input");
+      expect(input).toHaveAttribute("aria-describedby", "create-name-error-msg");
+
+      const errorEl = screen.getByTestId("create-name-error");
+      expect(errorEl).toHaveAttribute("id", "create-name-error-msg");
+    });
   });
 
   describe("キャンセル", () => {
