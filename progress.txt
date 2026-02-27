@@ -5106,3 +5106,34 @@
   - FormulaSubstitutionのresolveは内側から外側へ（innermost-first）実行する。連鎖 `φ[τ₁/x][τ₂/y]` は外側のFormulaSubstitutionのformulaを先に再帰的にresolveしてから、外側の代入を適用
   - 新しい純粋関数を追加する際は、既存の代入関数群（substituteTermVariableInFormula等）を組み合わせることで、変数捕獲回避などの複雑なロジックを再実装せずに済む
 ---
+
+## 2026-02-28 - [notebook] ノート削除の確認ガード機構
+- 実装した内容:
+  - ノート削除ボタンクリック時に即時削除せず、インライン確認オーバーレイを表示
+  - 「本当に削除しますか？」テキスト + 「キャンセル」「削除する」ボタンの2段階操作
+  - カード上にオーバーレイ表示（モーダルではなくインライン確認UI）
+  - 確認状態は `isDeleteConfirming` ステートで管理
+  - キャンセルで確認状態解除、削除するでonDelete発火
+  - 既存のテストを確認フロー対応に更新 + 3テスト追加
+  - Storybookに DeleteAction, DeleteCancel の2ストーリー（play関数付き）
+- 変更したファイル:
+  - `src/lib/notebook/NotebookListComponent.tsx` (MODIFIED - 確認オーバーレイUI・スタイル・ハンドラ追加)
+  - `src/lib/notebook/NotebookListComponent.test.tsx` (MODIFIED - 確認フロー対応テスト更新・追加)
+  - `src/lib/notebook/NotebookListComponent.stories.tsx` (MODIFIED - DeleteAction修正・DeleteCancel追加)
+- テスト: 184ファイル, 4764テスト全パス（+3テスト）
+- カバレッジ:
+  - ベースライン: Stmts 98.59%, Branch 92.94%, Funcs 91.22%, Lines 99.30%
+  - 最終: Stmts 98.58%, Branch 92.94%, Funcs 91.20%, Lines 99.30%
+  - Stmts/Funcs 0.01-0.02%微減（新規CSSスタイル定数追加による分母増加のみ、全ロジックパスはテスト済み）
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認:
+  - `.screenshots/delete-action-after-play.png` - DeleteAction ストーリー表示
+  - `.screenshots/delete-action-interactions-pass.png` - Interactions全パス(6ステップ)
+  - `.screenshots/delete-cancel-interactions-pass.png` - DeleteCancel Interactions全パス(5ステップ)
+  - `.screenshots/delete-confirm-overlay-ui.png` - 確認オーバーレイUIのスクリーンショット
+- **今後のイテレーションへの学び:**
+  - インライン確認オーバーレイはモーダルダイアログより軽量で、カード内に収まるため操作の文脈が保たれる
+  - `notebookListLogic.ts` には既に `deleteConfirmMessage()` 関数があったが、UI側では使われていなかった。確認メッセージの文言はUI側でハードコードしたが、将来的にはロジック層の関数を活用すべき
+  - 確認オーバーレイの `onClick` に `e.stopPropagation()` が必要（カード全体のクリックハンドラでonOpenが発火するのを防ぐ）
+  - `position: relative` が既にカードスタイルにあったので、`position: absolute; inset: 0` のオーバーレイが正しく配置された
+---
