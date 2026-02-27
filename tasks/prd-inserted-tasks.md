@@ -5,7 +5,7 @@
         - [x] workspaceExport.ts: InferenceEdge のJSON化
         - [x] notebookSerialization.ts: 既存データからの移行パス
         - [x] テスト: 旧フォーマットの読み込み互換性
-      - [ ] Step 6: クエスト・ゴールチェック移行
-        - [ ] goalCheckLogic.ts: InferenceEdge ベースのゴール達成判定
-        - [ ] questCompletionLogic.ts: 更新
-        - [ ] テスト: クエスト関連テスト更新
+      - [x] Step 6: クエスト・ゴールチェック移行
+        - [x] goalCheckLogic.ts: InferenceEdge ベースのゴール達成判定
+        - [x] questCompletionLogic.ts: 更新
+        - [x] テスト: クエスト関連テスト更新
