@@ -41,6 +41,14 @@
 
 - ファイル内のすべてのタスクが完了したら、ファイル全体を `tasks-archived/` に `mv` する。
 - 元の `tasks/` からは消える。
+- **例外: `prd-inserted-tasks.md` はファイルごとの `mv` はしない**（下記参照）。
+
+### `prd-inserted-tasks.md` の特別ルール
+
+`prd-inserted-tasks.md` は随時追加される差し込みタスクの置き場であり、ファイル自体は常に `tasks/` に残す。
+
+- 完了した項目は `tasks-archived/prd-inserted-tasks.md` へ移動し、元ファイルからは削除する。
+- ファイル全体の `mv` は**しない**。すべてのタスクが完了しても、空の状態で `tasks/` に残しておく。
 
 ### 例
 
@@ -49,8 +57,10 @@
 # 1. 完了済み項目を tasks-archived/prd-inserted-tasks.md に追記
 # 2. 元ファイルから完了済み項目を削除
 
-# 全体完了: ファイルごと移動
+# 通常のタスクファイル全体完了: ファイルごと移動
 mv tasks/prd-foo.md tasks-archived/prd-foo.md
+
+# prd-inserted-tasks.md はファイルごとのmvはしない（項目の移動のみ）
 ```
 
 ## 進捗レポートのフォーマット
