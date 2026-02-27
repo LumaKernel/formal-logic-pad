@@ -94,8 +94,31 @@ export const DeleteAction: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
+    // 削除ボタンクリックで確認UIが表示される
     await userEvent.click(canvas.getByTestId("delete-btn-nb-1"));
+    await expect(canvas.getByTestId("delete-confirm-nb-1")).toBeInTheDocument();
+    await expect(canvas.getByText("本当に削除しますか？")).toBeInTheDocument();
+    // まだ削除されていない
+    await expect(args.onDelete).not.toHaveBeenCalled();
+    // 確認ボタンで削除
+    await userEvent.click(canvas.getByTestId("delete-confirm-btn-nb-1"));
     await expect(args.onDelete).toHaveBeenCalledWith("nb-1");
+  },
+};
+
+export const DeleteCancel: Story = {
+  args: {
+    items: [makeItem("nb-1", "キャンセルテスト")],
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // 削除ボタンクリックで確認UIが表示される
+    await userEvent.click(canvas.getByTestId("delete-btn-nb-1"));
+    await expect(canvas.getByTestId("delete-confirm-nb-1")).toBeInTheDocument();
+    // キャンセルで確認UIが消える
+    await userEvent.click(canvas.getByTestId("delete-cancel-btn-nb-1"));
+    await expect(canvas.queryByTestId("delete-confirm-nb-1")).toBeNull();
+    await expect(args.onDelete).not.toHaveBeenCalled();
   },
 };
 

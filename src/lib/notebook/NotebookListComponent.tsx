@@ -145,6 +145,48 @@ const deleteButtonHoverStyle: CSSProperties = {
   background: "var(--color-notebook-delete-hover-bg, rgba(198,40,40,0.06))",
 };
 
+const deleteConfirmOverlayStyle: CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+  background: "var(--color-notebook-delete-confirm-bg, rgba(255,253,248,0.97))",
+  borderRadius: 8,
+  zIndex: 1,
+  padding: "0 18px",
+};
+
+const deleteConfirmTextStyle: CSSProperties = {
+  fontSize: 13,
+  color: "var(--color-notebook-delete-text, #c62828)",
+  fontWeight: 600,
+  flex: 1,
+  textAlign: "center",
+};
+
+const deleteConfirmBtnStyle: CSSProperties = {
+  padding: "6px 14px",
+  fontSize: 12,
+  borderRadius: 6,
+  border: "1px solid var(--color-notebook-delete-border, rgba(198,40,40,0.4))",
+  background: "var(--color-notebook-delete-text, #c62828)",
+  color: "#fff",
+  cursor: "pointer",
+  fontWeight: 600,
+};
+
+const deleteCancelBtnStyle: CSSProperties = {
+  padding: "6px 14px",
+  fontSize: 12,
+  borderRadius: 6,
+  border: "1px solid var(--color-notebook-action-border, rgba(180,160,130,0.3))",
+  background: "var(--color-notebook-action-bg, rgba(255,253,248,0.9))",
+  color: "var(--color-text-primary, #333)",
+  cursor: "pointer",
+};
+
 const renameInputStyle: CSSProperties = {
   fontSize: 15,
   fontWeight: 600,
@@ -224,6 +266,7 @@ function NotebookItem({
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(item.name);
   const [editError, setEditError] = useState<string | null>(null);
+  const [isDeleteConfirming, setIsDeleteConfirming] = useState(false);
 
   const handleRenameStart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -250,9 +293,20 @@ function NotebookItem({
     }
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDeleteStart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDeleteConfirming(true);
+  };
+
+  const handleDeleteConfirm = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDelete(item.id);
+    setIsDeleteConfirming(false);
+  };
+
+  const handleDeleteCancel = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDeleteConfirming(false);
   };
 
   const handleDuplicate = (e: React.MouseEvent) => {
@@ -336,13 +390,38 @@ function NotebookItem({
         )}
         <ActionButton
           data-testid={`delete-btn-${item.id satisfies string}`}
-          onClick={handleDelete}
+          onClick={handleDeleteStart}
           title="削除"
           variant="danger"
         >
           削除
         </ActionButton>
       </div>
+      {isDeleteConfirming && (
+        <div
+          data-testid={`delete-confirm-${item.id satisfies string}`}
+          style={deleteConfirmOverlayStyle}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span style={deleteConfirmTextStyle}>
+            本当に削除しますか？
+          </span>
+          <button
+            data-testid={`delete-cancel-btn-${item.id satisfies string}`}
+            style={deleteCancelBtnStyle}
+            onClick={handleDeleteCancel}
+          >
+            キャンセル
+          </button>
+          <button
+            data-testid={`delete-confirm-btn-${item.id satisfies string}`}
+            style={deleteConfirmBtnStyle}
+            onClick={handleDeleteConfirm}
+          >
+            削除する
+          </button>
+        </div>
+      )}
     </div>
   );
 }
