@@ -5329,3 +5329,24 @@
   - SubstitutionEntryの正しいプロパティ名: FormulaSubstitutionEntryはformulaText、TermSubstitutionEntryはtermText（replacementTextではない）
   - Step 4の「EditableProofNode推論規則ノード描画廃止」はStep 3でProofNodeKind簡素化時に既に完了していた
 ---
+
+## 2026-02-28 - [proof-pad] InferenceEdge統合 Step 5 - シリアライゼーション移行
+- workspaceExport.ts: InferenceEdgeのJSON化（エクスポート・インポート両方）
+- notebookSerialization.ts: 旧フォーマット互換（inferenceEdgesフィールドなし→空配列）
+- バリデーション: parseInferenceEdge, parseSubstitutionEntry 関数追加
+- カバレッジ: Stmts 98.56%→98.58%, Branch 92.80%→92.83%, Lines 99.30%→99.32%（全指標安定・向上）
+- テスト: 4839→4865（+26新規テスト）
+- スクリーンショット: .screenshots/step5-serialization-mp-workspace.png
+- 変更ファイル:
+  - src/lib/proof-pad/workspaceExport.ts (InferenceEdge シリアライゼーション追加)
+  - src/lib/proof-pad/workspaceExport.test.ts (+23テスト: ラウンドトリップ、旧フォーマット互換、バリデーション)
+  - src/lib/notebook/notebookSerialization.ts (inferenceEdges フォールバック追加)
+  - src/lib/notebook/notebookSerialization.test.ts (+3テスト: ラウンドトリップ、旧フォーマット互換)
+  - tasks/prd-inserted-tasks.md (Step 5完了マーク)
+  - task-processing.md
+- **今後のイテレーションへの学び:**
+  - InferenceEdge型は全フィールドがJSON化可能（string, string|undefined, SubstitutionEntry[]）なので特別な変換不要
+  - 旧フォーマット互換は「フィールドがなければデフォルト値」パターンで対処。inferenceEdgesはoptionalにしてデフォルト空配列
+  - notebookSerialization.tsはspreadでworkspaceを展開しているが、inferenceEdgesがundefinedの場合に明示的にデフォルトを設定する必要がある
+  - SubstitutionEntry._tagでFormulaSubstitution/TermSubstitutionを判別し、それぞれ固有フィールド（formulaText/termText）をバリデーション
+---

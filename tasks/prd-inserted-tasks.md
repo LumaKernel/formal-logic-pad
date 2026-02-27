@@ -1,10 +1,10 @@
 - [ ] Apply系、モーダルじゃなくて、エッジ上のパラメータ入力という形にしてもいいかなと思う。
   - [-] そのまえにまず、MPなどの推論規則系統は、ノードとして表われるのではなく、エッジ、ノード間の関係性として表現されるように再整理が必要だろう。
     - [-] 多くのストーリーが関連するだろうので、それらを整理しながらになる。
-      - [-] Step 5: シリアライゼーション移行
-        - [ ] workspaceExport.ts: InferenceEdge のJSON化
-        - [ ] notebookSerialization.ts: 既存データからの移行パス
-        - [ ] テスト: 旧フォーマットの読み込み互換性
+      - [x] Step 5: シリアライゼーション移行
+        - [x] workspaceExport.ts: InferenceEdge のJSON化
+        - [x] notebookSerialization.ts: 既存データからの移行パス
+        - [x] テスト: 旧フォーマットの読み込み互換性
       - [ ] Step 6: クエスト・ゴールチェック移行
         - [ ] goalCheckLogic.ts: InferenceEdge ベースのゴール達成判定
         - [ ] questCompletionLogic.ts: 更新
