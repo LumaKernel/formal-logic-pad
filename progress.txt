@@ -89,6 +89,27 @@
 
 ---
 
+## 2026-02-28 - ニュートラル状態のドラッグをキャンバスパンに変更
+- ニュートラル状態（何も押していない状態）でキャンバスをドラッグすると矩形選択になっていた問題を修正
+- デフォルト動作をキャンバスパン（grab/grabbing）に変更、Shift+ドラッグで矩形選択に
+- `isSpacePanActive` → `isShiftMarqueeActive` に変更（ロジックを反転）
+- `marqueeEnabled = isShiftMarqueeActive && connectionPreviewState === null` （デフォルトfalse）
+- Spaceキーによるパンモード切替を廃止、Shiftキーでマーキー切替に変更
+- テスト: 4629テスト全パス
+- カバレッジ: Stmts 98.71%(→), Branch 93.20%(93.23→93.20 v8 ignoreされたUI内分岐変更のため), Funcs 91.19%(91.14→91.19 ↑), Lines 99.44%(→)
+  - ベースライン: Stmts 98.71%, Branch 93.23%, Funcs 91.14%, Lines 99.44%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでカーソル状態(grab)を検証、スクリーンショット撮影
+  - `.screenshots/proof-workspace-empty-iframe-neutral.png`
+  - `.screenshots/proof-workspace-with-nodes-grab-cursor.png`
+- 変更ファイル:
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - パン/マーキーのデフォルト動作切替)
+- **今後のイテレーションへの学び:**
+  - ProofWorkspaceのパン/マーキー切替は`marqueeEnabled`の計算式で制御。`panEnabled`は`!marqueeEnabled`の反転関係
+  - InfiniteCanvasのcursorは`panEnabled ? "grab" : "crosshair"`で決まる。UIの見た目でモード判別可能
+  - Shiftキーの追跡はkeydown/keyupでstate管理。pointerEventのshiftKeyではなくkeyboardイベントで追跡することでカーソル変化もリアルタイムに反映
+---
+
 ## 2026-02-28 - PeanoArithmeticDemoストーリーを代入操作ステップを挟んだ正しいフローに修正
 - A4公理（全称消去 `∀x.φ → φ[t/x]`）のインスタンスを直接公理ノードに書いていた旧フロー（PA3 + A5 + MP）を修正
 - 新フロー: PA3 → A4スキーマインスタンス(τを含む) → 代入操作(τ:=0) → MP
