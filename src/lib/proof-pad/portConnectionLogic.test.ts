@@ -314,13 +314,7 @@ describe("validateDragConnection", () => {
 
   it("出力ポートからドラッグして出力ポートにドロップ: 無効", () => {
     const ws = buildWorkspaceWithNodes();
-    const result = validateDragConnection(
-      ws,
-      "axiom1",
-      "out",
-      "axiom2",
-      "out",
-    );
+    const result = validateDragConnection(ws, "axiom1", "out", "axiom2", "out");
     expect(result).toEqual({ valid: false });
   });
 

@@ -266,7 +266,10 @@ describe("NotebookCreateForm", () => {
       await user.click(screen.getByTestId("create-submit-btn"));
 
       const input = screen.getByTestId("create-name-input");
-      expect(input).toHaveAttribute("aria-describedby", "create-name-error-msg");
+      expect(input).toHaveAttribute(
+        "aria-describedby",
+        "create-name-error-msg",
+      );
 
       const errorEl = screen.getByTestId("create-name-error");
       expect(errorEl).toHaveAttribute("id", "create-name-error-msg");

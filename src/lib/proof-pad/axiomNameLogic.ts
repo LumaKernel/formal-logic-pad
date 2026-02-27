@@ -61,7 +61,10 @@ export function isTrivialFormulaSubstitution(
   for (const [, value] of map) {
     if (value._tag !== "MetaVariable") return false;
     // MetaVariable のキーを生成して重複チェック
-    const subscriptSuffix = value.subscript !== undefined ? `_${value.subscript satisfies string}` : "";
+    const subscriptSuffix =
+      value.subscript !== undefined
+        ? `_${value.subscript satisfies string}`
+        : "";
     const targetKey = `${value.name satisfies string}${subscriptSuffix satisfies string}`;
     if (usedTargets.has(targetKey)) return false;
     usedTargets.add(targetKey);
@@ -82,7 +85,8 @@ export function isTrivialTermSubstitution(
   for (const [, value] of map) {
     if (value._tag !== "TermMetaVariable") return false;
     const { name, subscript } = value;
-    const subscriptSuffix = subscript !== undefined ? `_${subscript satisfies string}` : "";
+    const subscriptSuffix =
+      subscript !== undefined ? `_${subscript satisfies string}` : "";
     const targetKey = `${name satisfies string}${subscriptSuffix satisfies string}`;
     if (usedTargets.has(targetKey)) return false;
     usedTargets.add(targetKey);

@@ -181,7 +181,8 @@ const deleteCancelBtnStyle: CSSProperties = {
   padding: "6px 14px",
   fontSize: 12,
   borderRadius: 6,
-  border: "1px solid var(--color-notebook-action-border, rgba(180,160,130,0.3))",
+  border:
+    "1px solid var(--color-notebook-action-border, rgba(180,160,130,0.3))",
   background: "var(--color-notebook-action-bg, rgba(255,253,248,0.9))",
   color: "var(--color-text-primary, #333)",
   cursor: "pointer",
@@ -403,9 +404,7 @@ function NotebookItem({
           style={deleteConfirmOverlayStyle}
           onClick={(e) => e.stopPropagation()}
         >
-          <span style={deleteConfirmTextStyle}>
-            本当に削除しますか？
-          </span>
+          <span style={deleteConfirmTextStyle}>本当に削除しますか？</span>
           <button
             data-testid={`delete-cancel-btn-${item.id satisfies string}`}
             style={deleteCancelBtnStyle}

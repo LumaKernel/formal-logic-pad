@@ -25,7 +25,10 @@ import {
 import type { MetaVariable } from "../logic-core/formula";
 import type { TermMetaVariable } from "../logic-core/term";
 import { formatFormula } from "../logic-lang/formatUnicode";
-import { parseString as parseFormula, parseTermString } from "../logic-lang/parser";
+import {
+  parseString as parseFormula,
+  parseTermString,
+} from "../logic-lang/parser";
 import { parseNodeFormula } from "./mpApplicationLogic";
 import type { WorkspaceState } from "./workspaceState";
 
@@ -113,10 +116,7 @@ export function getSubstitutionPremise(
   substitutionNodeId: string,
 ): string | undefined {
   for (const conn of state.connections) {
-    if (
-      conn.toNodeId === substitutionNodeId &&
-      conn.toPortId === "premise"
-    ) {
+    if (conn.toNodeId === substitutionNodeId && conn.toPortId === "premise") {
       return conn.fromNodeId;
     }
   }
@@ -129,16 +129,16 @@ export function getSubstitutionPremise(
  * 代入エントリから FormulaSubstitutionMap を構築する。
  * パース失敗時はエラーを返す。
  */
-export function buildFormulaSubstitutionMap(
-  entries: SubstitutionEntries,
-): {
-  readonly _tag: "Ok";
-  readonly map: FormulaSubstitutionMap;
-} | {
-  readonly _tag: "Error";
-  readonly entryIndex: number;
-  readonly formulaText: string;
-} {
+export function buildFormulaSubstitutionMap(entries: SubstitutionEntries):
+  | {
+      readonly _tag: "Ok";
+      readonly map: FormulaSubstitutionMap;
+    }
+  | {
+      readonly _tag: "Error";
+      readonly entryIndex: number;
+      readonly formulaText: string;
+    } {
   const map = new Map<string, Formula>();
 
   for (let i = 0; i < entries.length; i++) {
@@ -170,16 +170,16 @@ export function buildFormulaSubstitutionMap(
  * 項テキストのパースには parseTermString を使う。
  * パース失敗時はエラーを返す。
  */
-export function buildTermSubstitutionMap(
-  entries: SubstitutionEntries,
-): {
-  readonly _tag: "Ok";
-  readonly map: TermMetaSubstitutionMap;
-} | {
-  readonly _tag: "Error";
-  readonly entryIndex: number;
-  readonly termText: string;
-} {
+export function buildTermSubstitutionMap(entries: SubstitutionEntries):
+  | {
+      readonly _tag: "Ok";
+      readonly map: TermMetaSubstitutionMap;
+    }
+  | {
+      readonly _tag: "Error";
+      readonly entryIndex: number;
+      readonly termText: string;
+    } {
   const map = new Map<string, import("../logic-core/term").Term>();
 
   for (let i = 0; i < entries.length; i++) {

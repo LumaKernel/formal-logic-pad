@@ -184,7 +184,10 @@ export function NotebookCreateForm({
     if (!validation.valid) {
       const firstErrorField = getFirstErrorField(validation);
       if (firstErrorField === "name" && nameInputRef.current !== null) {
-        nameInputRef.current.scrollIntoView?.({ behavior: "smooth", block: "center" });
+        nameInputRef.current.scrollIntoView?.({
+          behavior: "smooth",
+          block: "center",
+        });
         nameInputRef.current.focus();
       }
       return;
@@ -223,7 +226,9 @@ export function NotebookCreateForm({
           onChange={(e) => setValues({ ...values, name: e.target.value })}
           onBlur={handleNameBlur}
           aria-invalid={nameError !== undefined}
-          aria-describedby={nameError !== undefined ? "create-name-error-msg" : undefined}
+          aria-describedby={
+            nameError !== undefined ? "create-name-error-msg" : undefined
+          }
           autoFocus
         />
         {nameError !== undefined && (
@@ -325,7 +330,11 @@ export function NotebookCreateForm({
           })}
         </div>
         {systemError !== undefined && (
-          <span style={errorTextStyle} data-testid="create-system-error" role="alert">
+          <span
+            style={errorTextStyle}
+            data-testid="create-system-error"
+            role="alert"
+          >
             {systemError}
           </span>
         )}

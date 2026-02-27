@@ -1778,10 +1778,10 @@ const systemPredicateLogic: ReferenceEntry = {
   },
   body: {
     en: [
-      "**Predicate logic** (first-order logic) extends propositional logic with **universal quantification** (∀x.φ: \"for all x, φ holds\") and **existential quantification** (∃x.φ: \"there exists an x such that φ holds\"). This allows reasoning about objects, their properties (predicates), and functions.",
+      '**Predicate logic** (first-order logic) extends propositional logic with **universal quantification** (∀x.φ: "for all x, φ holds") and **existential quantification** (∃x.φ: "there exists an x such that φ holds"). This allows reasoning about objects, their properties (predicates), and functions.',
       "The predicate logic system adds two axiom schemas to the propositional base (A1+A2+A3): **A4** (∀x.φ → φ[t/x], universal instantiation) allows removing ∀ by substituting a specific term, and **A5** (∀x.(φ → ψ) → (φ → ∀x.ψ), universal distribution) allows introducing ∀ when x is not free in φ.",
       "A new inference rule **Gen** (generalization) is also added: from a proved theorem φ, derive ∀x.φ. Gen can only be applied to theorems (not to assumptions in a deduction), which is a crucial restriction.",
-      "The existential quantifier ∃ is defined as ¬∀¬: ∃x.φ ≡ ¬∀x.¬φ. This means \"there exists an x satisfying φ\" is equivalent to \"it is not the case that all x fail to satisfy φ\".",
+      'The existential quantifier ∃ is defined as ¬∀¬: ∃x.φ ≡ ¬∀x.¬φ. This means "there exists an x satisfying φ" is equivalent to "it is not the case that all x fail to satisfy φ".',
       "Key properties: (1) ∀x.∀y.φ ↔ ∀y.∀x.φ (quantifier order is swappable for ∀), (2) ∃x.¬φ → ¬∀x.φ, (3) ∀x.¬φ → ¬∃x.φ. These relationships between ∀ and ∃ are fundamental in predicate logic reasoning.",
     ],
     ja: [

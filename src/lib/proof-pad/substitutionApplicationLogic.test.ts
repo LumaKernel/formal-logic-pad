@@ -19,16 +19,11 @@ import {
 import {
   metaVariable,
   implication,
-  conjunction,
-  negation,
   universal,
   predicate,
   equality,
 } from "../logic-core/formula";
-import {
-  termVariable,
-  termMetaVariable,
-} from "../logic-core/term";
+import { termVariable, termMetaVariable } from "../logic-core/term";
 
 // --- getSubstitutionPremise ---
 
@@ -550,10 +545,7 @@ describe("extractSubstitutionTargets", () => {
 
   it("handles subscripted meta-variables", () => {
     // φ₁ → φ₂
-    const formula = implication(
-      metaVariable("φ", "1"),
-      metaVariable("φ", "2"),
-    );
+    const formula = implication(metaVariable("φ", "1"), metaVariable("φ", "2"));
     const targets = extractSubstitutionTargets(formula);
     expect(targets.formulaMetaVariables).toHaveLength(2);
     expect(targets.formulaMetaVariables[0]?.subscript).toBe("1");
@@ -652,10 +644,7 @@ describe("generateSubstitutionEntryTemplate", () => {
   it("generates mixed entries (formula first, then term)", () => {
     // φ → P(τ)
     const targets = extractSubstitutionTargets(
-      implication(
-        metaVariable("φ"),
-        predicate("P", [termMetaVariable("τ")]),
-      ),
+      implication(metaVariable("φ"), predicate("P", [termMetaVariable("τ")])),
     );
     const template = generateSubstitutionEntryTemplate(targets);
     expect(template).toHaveLength(2);
