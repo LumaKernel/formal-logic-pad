@@ -10,6 +10,7 @@
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
 import type { Point } from "../infinite-canvas/types";
 import type { ProofNodeKind } from "./proofNodeUI";
+import { extractInferenceEdges, type InferenceEdge } from "./inferenceEdge";
 import type { NodeRole } from "./nodeRoleLogic";
 import {
   validateMPApplication,
@@ -98,7 +99,36 @@ export type WorkspaceState = {
   readonly nextNodeId: number;
   /** ワークスペースのモード（デフォルト: "free"） */
   readonly mode: WorkspaceMode;
+  /**
+   * 推論エッジのキャッシュ。ノード/接続変更時に自動的に再構築される。
+   * 段階移行用: 既存のノードベース表現と並行して保持。
+   * undefined の場合は extractInferenceEdges で遅延計算可能。
+   */
+  readonly inferenceEdges?: readonly InferenceEdge[];
 };
+
+// --- 推論エッジ同期 ---
+
+/**
+ * ワークスペース状態のinferenceEdgesを現在のノード・接続から再構築する。
+ * ノードや接続を変更した後に呼ぶ。
+ */
+function syncInferenceEdges(state: WorkspaceState): WorkspaceState {
+  return {
+    ...state,
+    inferenceEdges: extractInferenceEdges(state),
+  };
+}
+
+/**
+ * ワークスペースのinferenceEdgesを取得する。
+ * キャッシュがあればそれを返し、なければ遅延計算する。
+ */
+export function getInferenceEdges(
+  state: WorkspaceState,
+): readonly InferenceEdge[] {
+  return state.inferenceEdges ?? extractInferenceEdges(state);
+}
 
 // --- 初期状態 ---
 
@@ -110,6 +140,7 @@ export function createEmptyWorkspace(system: LogicSystem): WorkspaceState {
     connections: [],
     nextNodeId: 1,
     mode: "free",
+    inferenceEdges: [],
   };
 }
 
@@ -142,6 +173,7 @@ export function createQuestWorkspace(
     connections: [],
     nextNodeId: 1,
     mode: "quest",
+    inferenceEdges: [],
   };
 
   for (const goal of goals) {
@@ -212,11 +244,11 @@ export function addNode(
     formulaText: formulaText ?? "",
     position,
   };
-  return {
+  return syncInferenceEdges({
     ...state,
     nodes: [...state.nodes, newNode],
     nextNodeId: state.nextNodeId + 1,
-  };
+  });
 }
 
 /** ノードの位置を更新する */
@@ -240,12 +272,12 @@ export function updateNodeFormulaText(
   formulaText: string,
 ): WorkspaceState {
   if (isNodeProtected(state, nodeId)) return state;
-  return {
+  return syncInferenceEdges({
     ...state,
     nodes: state.nodes.map((node) =>
       node.id === nodeId ? { ...node, formulaText } : node,
     ),
-  };
+  });
 }
 
 /** ノードのGen変数名を更新する */
@@ -254,12 +286,12 @@ export function updateNodeGenVariableName(
   nodeId: string,
   genVariableName: string,
 ): WorkspaceState {
-  return {
+  return syncInferenceEdges({
     ...state,
     nodes: state.nodes.map((node) =>
       node.id === nodeId ? { ...node, genVariableName } : node,
     ),
-  };
+  });
 }
 
 /** ノードの代入エントリを更新する */
@@ -268,12 +300,12 @@ export function updateNodeSubstitutionEntries(
   nodeId: string,
   substitutionEntries: SubstitutionEntries,
 ): WorkspaceState {
-  return {
+  return syncInferenceEdges({
     ...state,
     nodes: state.nodes.map((node) =>
       node.id === nodeId ? { ...node, substitutionEntries } : node,
     ),
-  };
+  });
 }
 
 /** ノードの役割を更新する（保護ノードは更新不可） */
@@ -305,13 +337,13 @@ export function removeNode(
   nodeId: string,
 ): WorkspaceState {
   if (isNodeProtected(state, nodeId)) return state;
-  return {
+  return syncInferenceEdges({
     ...state,
     nodes: state.nodes.filter((n) => n.id !== nodeId),
     connections: state.connections.filter(
       (c) => c.fromNodeId !== nodeId && c.toNodeId !== nodeId,
     ),
-  };
+  });
 }
 
 // --- 接続操作 ---
@@ -332,10 +364,10 @@ export function addConnection(
     toNodeId,
     toPortId,
   };
-  return {
+  return syncInferenceEdges({
     ...state,
     connections: [...state.connections, newConnection],
-  };
+  });
 }
 
 /** 接続を削除する */
@@ -343,10 +375,10 @@ export function removeConnection(
   state: WorkspaceState,
   connectionId: string,
 ): WorkspaceState {
-  return {
+  return syncInferenceEdges({
     ...state,
     connections: state.connections.filter((c) => c.id !== connectionId),
-  };
+  });
 }
 
 // --- 体系変更 ---
@@ -529,12 +561,12 @@ export function pasteNodes(
     targetCenter,
     state.nextNodeId,
   );
-  return {
+  return syncInferenceEdges({
     ...state,
     nodes: [...state.nodes, ...result.newNodes],
     connections: [...state.connections, ...result.newConnections],
     nextNodeId: result.nextNodeId,
-  };
+  });
 }
 
 /**
@@ -551,13 +583,13 @@ export function removeSelectedNodes(
   );
   if (removableIds.size === 0) return state;
 
-  return {
+  return syncInferenceEdges({
     ...state,
     nodes: state.nodes.filter((n) => !removableIds.has(n.id)),
     connections: state.connections.filter(
       (c) => !removableIds.has(c.fromNodeId) && !removableIds.has(c.toNodeId),
     ),
-  };
+  });
 }
 
 // --- 複製＆カット ---
@@ -614,12 +646,12 @@ export function duplicateSelectedNodes(
   const strippedNodes = result.newNodes.map(stripGoalRole);
   const newNodeIds = new Set(strippedNodes.map((n) => n.id));
   return {
-    workspace: {
+    workspace: syncInferenceEdges({
       ...state,
       nodes: [...state.nodes, ...strippedNodes],
       connections: [...state.connections, ...result.newConnections],
       nextNodeId: result.nextNodeId,
-    },
+    }),
     newNodeIds,
   };
 }
@@ -817,5 +849,7 @@ export function revalidateInferenceConclusions(
     current = { ...current, nodes: newNodes };
   }
 
-  return current;
+  // ノード変更があった場合のみエッジを再構築
+  if (current === state) return state;
+  return syncInferenceEdges(current);
 }

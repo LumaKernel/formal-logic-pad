@@ -37,6 +37,7 @@ export {
   removeSelectedNodes,
   applyTreeLayout,
   applyIncrementalLayout,
+  getInferenceEdges,
 } from "./workspaceState";
 export type {
   WorkspaceMode,
