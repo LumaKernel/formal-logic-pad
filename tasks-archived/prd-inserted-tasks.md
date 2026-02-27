@@ -113,3 +113,11 @@ Infinity Canvasについて。
         - [x] ProofWorkspace.tsx: InferenceEdge の描画（接続線上にラベル表示）
         - [x] エッジ上のパラメータ入力UI（バッジにGen変数名・代入エントリ数を表示）
         - [x] テスト: コンポーネントテスト + Storybookストーリー更新
+- [x] Step 5: シリアライゼーション移行
+  - [x] workspaceExport.ts: InferenceEdge のJSON化
+  - [x] notebookSerialization.ts: 既存データからの移行パス
+  - [x] テスト: 旧フォーマットの読み込み互換性
+- [x] Step 6: クエスト・ゴールチェック移行
+  - [x] goalCheckLogic.ts: InferenceEdge ベースのゴール達成判定
+  - [x] questCompletionLogic.ts: 更新
+  - [x] テスト: クエスト関連テスト更新
