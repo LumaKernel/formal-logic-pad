@@ -107,6 +107,9 @@ import type { ReferenceEntry, Locale } from "../reference/referenceEntry";
 import { findEntryById } from "../reference/referenceEntry";
 import { ReferencePopover } from "../reference/ReferencePopover";
 import { getInferenceRuleReferenceEntryId } from "./inferenceRuleReferenceLogic";
+import { useEdgeScroll } from "../infinite-canvas/useEdgeScroll";
+import { MinimapComponent } from "../infinite-canvas/MinimapComponent";
+import type { MinimapItem } from "../infinite-canvas/minimap";
 
 // --- Props ---
 
@@ -532,6 +535,24 @@ export function ProofWorkspace({
     };
   }, []);
   /* v8 ignore stop */
+
+  // エッジスクロール（ドラッグ中にキャンバス端で自動パン）
+  const { notifyDragMove, notifyDragEnd } = useEdgeScroll(
+    viewport,
+    containerSize,
+    setViewport,
+  );
+
+  // ミニマップ用アイテム一覧
+  const minimapItems: readonly MinimapItem[] = useMemo(
+    () =>
+      workspace.nodes.map((node) => ({
+        id: node.id,
+        position: node.position,
+        size: nodeSizes.get(node.id) ?? DEFAULT_NODE_SIZE,
+      })),
+    [workspace.nodes, nodeSizes],
+  );
 
   // 自動レイアウト機能
   const [autoLayout, setAutoLayout] = useState(false);
@@ -1634,6 +1655,8 @@ export function ProofWorkspace({
           viewport={viewport}
           onPositionChange={handlePositionChange(node.id)}
           dragEnabled={isDragEnabled}
+          onDragMove={notifyDragMove}
+          onDragEnd={notifyDragEnd}
         >
           <div
             ref={getNodeSizeRef(node.id)}
@@ -1709,6 +1732,8 @@ export function ProofWorkspace({
       handleNodeContextMenu,
       getNodeSizeRef,
       onOpenSyntaxHelp,
+      notifyDragMove,
+      notifyDragEnd,
     ],
   );
 
@@ -2420,6 +2445,13 @@ export function ProofWorkspace({
       <InfiniteCanvas viewport={viewport} onViewportChange={setViewport}>
         {connectionElements}
         {workspace.nodes.filter((node) => !isNodeCulled(node)).map(renderNode)}
+        <MinimapComponent
+          viewport={viewport}
+          containerSize={containerSize}
+          items={minimapItems}
+          onViewportChange={setViewport}
+          position="bottom-right"
+        />
       </InfiniteCanvas>
     </div>
   );
