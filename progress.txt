@@ -4653,3 +4653,33 @@
   - validateDragConnectionは双方向ドラッグ対応（output→input, input→output両方）
   - 重複接続チェック(validatePortConnection L82-91)は占有チェックで先に弾かれるため到達不能だが防御的コードとして残し、v8 ignoreで除外
 ---
+
+## 2026-02-27 - ノード複製（Duplicate Node）コンテキストメニュー追加
+- コンテキストメニュー（右クリック）に「Duplicate Node」を追加
+- ゴールノード複製時にroleがクリアされ通常の中間定理になる仕組みを実装
+- `stripGoalRole` 関数で既存のduplicateSelectedNodes（選択バナー経由）にもゴールroleクリアを適用
+- 単一ノード用の `duplicateNode` 関数を追加（内部的にduplicateSelectedNodesを利用）
+- テスト: 4480テスト全パス（+9テスト追加）
+- カバレッジ: Stmts 98.77%(維持), Branch 93.92%(微減), Funcs 90.85%(↑), Lines 99.51%(微減)
+  - ベースライン: Stmts 98.77%, Branch 93.96%, Funcs 90.62%, Lines 99.53%
+  - Branch/Lines微減はUI統合コードの新規ブランチ追加による分母増加
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでスクリーンショット撮影・確認済み
+  - `.screenshots/node-duplicate-story.png`
+  - `.screenshots/node-duplicate-iframe.png`
+  - `.screenshots/node-duplicate-context-menu.png`
+  - `.screenshots/node-duplicate-goal-stripped.png`
+- 変更ファイル:
+  - `src/lib/proof-pad/workspaceState.ts` (stripGoalRole + duplicateNode追加)
+  - `src/lib/proof-pad/workspaceState.test.ts` (duplicateSelectedNodes/duplicateNodeテスト5件追加)
+  - `src/lib/proof-pad/proofMessages.ts` (duplicateNodeメッセージ追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (handleDuplicateNode + コンテキストメニュー項目追加)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (コンテキストメニューduplicate3件追加)
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` (NodeDuplicateストーリー追加)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (i18n duplicateNode追加)
+  - `messages/en.json`, `messages/ja.json` (翻訳追加)
+- **今後のイテレーションへの学び:**
+  - ProofMessagesに新キーを追加する際は必ずi18nファイル(messages/en.json, messages/ja.json)とWorkspaceContent.tsxも同期する
+  - `{ role: _removed, ...rest } = node` でプロパティ除去する場合、eslint no-unused-varsに注意
+  - 既存のcopyPasteLogic.tsのbuildClipboardData + pasteClipboardDataの組み合わせで複製は実現できる。追加のロジックはpostprocess（ゴールroleクリアなど）で対応
+---
