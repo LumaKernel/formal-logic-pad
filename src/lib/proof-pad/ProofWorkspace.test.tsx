@@ -20,6 +20,7 @@ import {
   updateNodeGenVariableName,
   applyMPAndConnect,
   applyGenAndConnect,
+  applySubstitutionAndConnect,
   duplicateNode,
 } from "./workspaceState";
 
@@ -2773,6 +2774,233 @@ describe("ProofWorkspace", () => {
       );
       expect(newNode).toBeDefined();
       expect(newNode!.role).toBeUndefined();
+    });
+  });
+
+  // --- 代入操作 ---
+
+  describe("substitution application", () => {
+    it("shows substitution applied message for valid substitution node", async () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const result = applySubstitutionAndConnect(
+        ws,
+        "node-1",
+        [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha",
+          },
+        ],
+        { x: 0, y: 150 },
+      );
+      ws = result.workspace;
+
+      render(<StatefulWorkspace initialWorkspace={ws} />);
+      const substNode = screen.getByTestId("proof-node-node-2");
+      expect(substNode).toBeInTheDocument();
+      expect(substNode).toHaveTextContent("Substitution applied");
+    });
+
+    it("shows substitution entries on the node", async () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const result = applySubstitutionAndConnect(
+        ws,
+        "node-1",
+        [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha -> beta",
+          },
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "ψ",
+            formulaText: "gamma",
+          },
+        ],
+        { x: 0, y: 150 },
+      );
+      ws = result.workspace;
+
+      render(<StatefulWorkspace initialWorkspace={ws} />);
+      const entriesEl = screen.getByTestId("proof-node-node-2-subst-entries");
+      expect(entriesEl).toBeInTheDocument();
+      expect(entriesEl).toHaveTextContent("φ := alpha -> beta");
+      expect(entriesEl).toHaveTextContent("ψ := gamma");
+    });
+
+    it("substitution node is not editable (formula is auto-generated)", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const result = applySubstitutionAndConnect(
+        ws,
+        "node-1",
+        [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha",
+          },
+        ],
+        { x: 0, y: 150 },
+      );
+      ws = result.workspace;
+
+      render(<StatefulWorkspace initialWorkspace={ws} />);
+      // substitution node should display formula but not in editor mode
+      const substNode = screen.getByTestId("proof-node-node-2");
+      expect(substNode).toBeInTheDocument();
+      // No editor input should be present (not editable)
+      const editorInput = substNode.querySelector("input");
+      expect(editorInput).toBeNull();
+    });
+
+    it("context menu shows Apply Substitution option", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      const menuItem = screen.getByTestId(
+        "workspace-apply-substitution-to-node",
+      );
+      expect(menuItem).toBeInTheDocument();
+      expect(menuItem).toHaveTextContent("Apply Substitution");
+    });
+
+    it("clicking Apply Substitution opens the prompt banner", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      const menuItem = screen.getByTestId(
+        "workspace-apply-substitution-to-node",
+      );
+      await user.click(menuItem);
+
+      const banner = screen.getByTestId("workspace-subst-prompt-banner");
+      expect(banner).toBeInTheDocument();
+    });
+
+    it("can fill substitution form, add entry, remove entry, and confirm", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+
+      render(<StatefulWorkspace initialWorkspace={ws} />);
+
+      // Open context menu and click Apply Substitution
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+      await user.click(
+        screen.getByTestId("workspace-apply-substitution-to-node"),
+      );
+
+      // Banner should appear with one entry
+      expect(
+        screen.getByTestId("workspace-subst-prompt-banner"),
+      ).toBeInTheDocument();
+
+      // Fill in the first entry
+      const metaVarInput = screen.getByTestId("workspace-subst-metavar-0");
+      const valueInput = screen.getByTestId("workspace-subst-value-0");
+      await user.type(metaVarInput, "phi");
+      await user.type(valueInput, "alpha");
+
+      // Add a second entry
+      await user.click(screen.getByTestId("workspace-subst-add-entry"));
+      const metaVarInput1 = screen.getByTestId("workspace-subst-metavar-1");
+      const valueInput1 = screen.getByTestId("workspace-subst-value-1");
+      await user.type(metaVarInput1, "psi");
+      await user.type(valueInput1, "beta");
+
+      // With 2 entries, remove buttons should appear — remove the second entry
+      const removeButtons = screen
+        .getAllByRole("button")
+        .filter((btn) => btn.textContent === "Remove");
+      expect(removeButtons.length).toBe(2);
+      await user.click(removeButtons[1]!);
+
+      // Only one entry remains
+      expect(screen.queryByTestId("workspace-subst-metavar-1")).toBeNull();
+
+      // Confirm substitution
+      await user.click(screen.getByTestId("workspace-subst-prompt-confirm"));
+
+      // Banner should disappear
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-subst-prompt-banner"),
+        ).toBeNull();
+      });
+
+      // A substitution node should have been created
+      const substNode = screen.getByTestId("proof-node-node-2");
+      expect(substNode).toBeInTheDocument();
+    });
+
+    it("Escape key cancels the substitution prompt", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} />);
+
+      // Open context menu and click Apply Substitution
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+      await user.click(
+        screen.getByTestId("workspace-apply-substitution-to-node"),
+      );
+
+      // Banner should appear
+      expect(
+        screen.getByTestId("workspace-subst-prompt-banner"),
+      ).toBeInTheDocument();
+
+      // Press Escape in the value input
+      const valueInput = screen.getByTestId("workspace-subst-value-0");
+      await user.click(valueInput);
+      await user.keyboard("{Escape}");
+
+      // Banner should disappear
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-subst-prompt-banner"),
+        ).toBeNull();
+      });
+    });
+
+    it("can change entry kind between formula and term", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} />);
+
+      // Open context menu and click Apply Substitution
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+      await user.click(
+        screen.getByTestId("workspace-apply-substitution-to-node"),
+      );
+
+      // Change kind to term
+      const kindSelect = screen.getByTestId("workspace-subst-kind-0");
+      await user.selectOptions(kindSelect, "term");
+      expect(kindSelect).toHaveValue("term");
     });
   });
 });

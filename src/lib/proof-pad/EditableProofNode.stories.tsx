@@ -411,14 +411,11 @@ function EditTriggerComparisonDemo({
     useState<readonly TriggerDemoNodeData[]>(initialNodes);
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
 
-  const handlePositionChange = useCallback(
-    (id: string, newPosition: Point) => {
-      setNodes((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, position: newPosition } : n)),
-      );
-    },
-    [],
-  );
+  const handlePositionChange = useCallback((id: string, newPosition: Point) => {
+    setNodes((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, position: newPosition } : n)),
+    );
+  }, []);
 
   const handleFormulaTextChange = useCallback((id: string, text: string) => {
     setNodes((prev) =>
@@ -534,12 +531,8 @@ export const EditTriggerComparison: Story = {
     const canvas = within(canvasElement);
 
     // 両方のキャンバスが表示されている
-    await expect(
-      canvas.getByTestId("et-click-status"),
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("et-dblclick-status"),
-    ).toBeInTheDocument();
+    await expect(canvas.getByTestId("et-click-status")).toBeInTheDocument();
+    await expect(canvas.getByTestId("et-dblclick-status")).toBeInTheDocument();
 
     // clickモードのステータス初期表示
     await expect(canvas.getByTestId("et-click-status")).toHaveTextContent(
@@ -644,8 +637,6 @@ export const DependencyVisibilityToggle: Story = {
     ).not.toBeInTheDocument();
 
     // 非表示でも他の要素は正常に表示される
-    await expect(
-      canvas.getByTestId("dep-hidden-status"),
-    ).toBeInTheDocument();
+    await expect(canvas.getByTestId("dep-hidden-status")).toBeInTheDocument();
   },
 };

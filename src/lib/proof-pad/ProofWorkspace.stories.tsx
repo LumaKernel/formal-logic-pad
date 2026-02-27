@@ -22,6 +22,7 @@ import {
   addNode,
   addConnection,
   applyMPAndConnect,
+  applySubstitutionAndConnect,
   updateNodeRole,
 } from "./workspaceState";
 import type { WorkspaceState } from "./workspaceState";
@@ -1048,5 +1049,142 @@ export const MarqueeSelection: Story = {
       "[data-testid='workspace-selection-banner']",
     );
     expect(bannerQuery).toBeNull();
+  },
+};
+
+// --- 代入操作（Substitution Application）---
+
+function SubstitutionAppliedWorkspace() {
+  const initial = (() => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+
+    // 公理 A1: φ → (ψ → φ)
+    ws = addNode(ws, "axiom", "A1", { x: 200, y: 50 }, "phi -> (psi -> phi)");
+
+    // 代入操作: φ := α → β, ψ := γ
+    const result = applySubstitutionAndConnect(
+      ws,
+      "node-1",
+      [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          formulaText: "alpha -> beta",
+        },
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "ψ",
+          formulaText: "gamma",
+        },
+      ],
+      { x: 200, y: 250 },
+    );
+    ws = result.workspace;
+
+    return ws;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+export const SubstitutionApplied: Story = {
+  render: () => <SubstitutionAppliedWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // 公理A1ノードが表示
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    // 代入ノードが表示
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+
+    // 代入ノードの結論式が表示されている
+    const substNode = canvas.getByTestId("proof-node-node-2");
+    await expect(substNode).toHaveTextContent("Substitution applied");
+
+    // 代入エントリが表示されている
+    const substEntries = canvas.getByTestId("proof-node-node-2-subst-entries");
+    await expect(substEntries).toBeInTheDocument();
+    await expect(substEntries).toHaveTextContent("φ := alpha -> beta");
+    await expect(substEntries).toHaveTextContent("ψ := gamma");
+  },
+};
+
+// --- 代入操作のコンテキストメニュー経由テスト ---
+
+export const SubstitutionContextMenu: Story = {
+  render: () => {
+    const [workspace, setWorkspace] = useState<WorkspaceState>(() => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(
+        ws,
+        "axiom",
+        "A1",
+        { x: 200, y: 100 },
+        "phi -> (psi -> phi)",
+      );
+      return ws;
+    });
+    const handleChange = useCallback((ws: WorkspaceState) => {
+      setWorkspace(ws);
+    }, []);
+
+    return (
+      <div style={{ width: "100vw", height: "100vh" }}>
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={workspace}
+          onWorkspaceChange={handleChange}
+          testId="workspace"
+        />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // ノードを右クリック
+    const node = canvas.getByTestId("proof-node-node-1");
+    await userEvent.pointer({ keys: "[MouseRight]", target: node });
+
+    // コンテキストメニューに「Apply Substitution」があること
+    const menuItem = await canvas.findByTestId(
+      "workspace-apply-substitution-to-node",
+    );
+    await expect(menuItem).toBeInTheDocument();
+    await expect(menuItem).toHaveTextContent("Apply Substitution");
+
+    // クリックしてプロンプトバナーが表示
+    await userEvent.click(menuItem);
+    const banner = await canvas.findByTestId("workspace-subst-prompt-banner");
+    await expect(banner).toBeInTheDocument();
+
+    // メタ変数と値を入力
+    const metaVarInput = canvas.getByTestId("workspace-subst-metavar-0");
+    const valueInput = canvas.getByTestId("workspace-subst-value-0");
+    await userEvent.type(metaVarInput, "φ");
+    await userEvent.type(valueInput, "alpha");
+
+    // 確定ボタンをクリック
+    const confirmBtn = canvas.getByTestId("workspace-subst-prompt-confirm");
+    await userEvent.click(confirmBtn);
+
+    // 代入ノードが作成されている
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
   },
 };

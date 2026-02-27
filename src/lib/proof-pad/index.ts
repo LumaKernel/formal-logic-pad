@@ -201,6 +201,7 @@ export {
   defaultProofMessages,
   getMPErrorMessageKey,
   getGenErrorMessageKey,
+  getSubstitutionErrorMessageKey,
   formatMessage,
 } from "./proofMessages";
 export type { ProofMessages } from "./proofMessages";

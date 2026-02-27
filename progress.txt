@@ -4753,3 +4753,37 @@
   - formatFormula は右結合の含意の括弧を省略する（"α → β → α" であって "(α → (β → α))" ではない）
   - 次のイテレーションで UI 統合（ProofWorkspace.tsx のコンテキストメニュー「Apply 代入操作」）が必要
 ---
+
+## 2026-02-27 - [ProofPad] 代入操作のUI統合
+- 実装した内容: 代入操作（Substitution Application）のUI統合を完了
+  - コンテキストメニューに「Apply Substitution」を追加
+  - 代入エントリ入力フォーム（formula/term切替、meta変数名、値の入力、エントリ追加/削除）
+  - EditableProofNode に代入エントリ表示（φ := alpha -> beta 形式）
+  - 代入ノードのバリデーション表示（成功/エラーメッセージ）
+  - 代入ノードは自動生成のためeditable=false
+  - proofMessagesに10+1のメッセージキー追加、i18n対応（en.json/ja.json）
+  - テスト: ProofWorkspace.test.tsx に8テスト追加、proofMessages.test.ts に6テスト追加
+  - Storybook: SubstitutionApplied / SubstitutionContextMenu ストーリー追加（play関数付き）
+- カバレッジ: Stmts 98.62% (98.71%→), Branch 93.34% (93.79%→), Funcs 91.22% (90.73%→↑), Lines 99.39% (99.45%→)
+  - Funcsは向上。Stmts/Branch/Linesの微減は ProofWorkspace.tsx の既存uncoveredコード（export JSON/SVG/PNG等）の比率変化による
+- 変更したファイル:
+  - `src/lib/proof-pad/proofMessages.ts` - メッセージキー追加、getSubstitutionErrorMessageKey
+  - `src/lib/proof-pad/proofMessages.test.ts` - substitutionエラーメッセージキーのテスト追加
+  - `src/lib/proof-pad/ProofWorkspace.tsx` - substitution UI統合（コンテキストメニュー、プロンプト、バリデーション）
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` - substitution統合テスト8件追加
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` - SubstitutionApplied/SubstitutionContextMenuストーリー
+  - `src/lib/proof-pad/EditableProofNode.tsx` - substitutionEntries表示
+  - `src/lib/proof-pad/index.ts` - export追加
+  - `messages/en.json` / `messages/ja.json` - i18n
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` - intlフック追加
+  - `tasks/prd-inserted-tasks.md` - タスク完了マーク
+- スクリーンショット:
+  - `.screenshots/substitution-applied-iframe.png`
+  - `.screenshots/substitution-context-menu-iframe.png`
+- **今後のイテレーションへの学び:**
+  - SubstitutionEntries の表示は EditableProofNode 内で行う（dependencies表示の下に配置）
+  - 代入プロンプトのUIパターンはGen（変数名1つの入力）より複雑: 動的エントリリスト（formula/term切替 + metaVar + value）
+  - ESLint `require-satisfies-in-tls` 対策: テンプレートリテラル内でネストされた式は変数に抽出して `satisfies string` を付ける
+  - ProofWorkspace.tsx の substitutionValidations パターンは mpValidations/genValidations と完全に同じ構造
+  - 代入ノードは `node.kind === "substitution"` で editable=false にする（mp/genと同じパターン）
+---

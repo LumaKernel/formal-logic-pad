@@ -19,6 +19,7 @@ import { getProofNodeStyle } from "./proofNodeUI";
 import type { NodeRole, NodeClassification } from "./nodeRoleLogic";
 import type { DetailLevel, DetailVisibilityOverrides } from "./levelOfDetail";
 import { getDetailVisibility } from "./levelOfDetail";
+import type { SubstitutionEntries } from "./substitutionApplicationLogic";
 
 // --- Props ---
 
@@ -69,6 +70,8 @@ export interface EditableProofNodeProps {
   readonly editTrigger?: EditTrigger;
   /** 構文ヘルプを開くコールバック（指定時にFormulaEditor編集モードで?ボタンを表示） */
   readonly onOpenSyntaxHelp?: () => void;
+  /** 代入ノードの代入エントリ一覧（表示用） */
+  readonly substitutionEntries?: SubstitutionEntries;
   /** data-testid */
   readonly testId?: string;
 }
@@ -187,6 +190,23 @@ const dependencyItemStyle: CSSProperties = {
   fontSize: 9,
 };
 
+const substEntriesContainerStyle: CSSProperties = {
+  fontSize: 10,
+  fontFamily: "var(--font-formula)",
+  fontStyle: "italic",
+  marginTop: 4,
+  padding: "3px 6px",
+  background: "var(--color-badge-bg, #e8eaf0)",
+  borderRadius: 4,
+  color: "var(--color-badge-text, #718096)",
+  textAlign: "left",
+};
+
+const substEntryStyle: CSSProperties = {
+  padding: "1px 0",
+  whiteSpace: "nowrap",
+};
+
 function getRoleBadgeStyle(classification: NodeClassification): CSSProperties {
   switch (classification) {
     case "root-axiom":
@@ -252,6 +272,7 @@ export function EditableProofNode({
   visibilityOverrides,
   editTrigger,
   onOpenSyntaxHelp,
+  substitutionEntries,
   testId,
 }: EditableProofNodeProps) {
   const nodeStyle = useMemo(() => getProofNodeStyle(kind), [kind]);
@@ -464,6 +485,31 @@ export function EditableProofNode({
               </span>
             ))}
           </div>
+        </div>
+      ) : null}
+      {visibility.showFormula &&
+      substitutionEntries &&
+      substitutionEntries.length > 0 ? (
+        <div
+          style={substEntriesContainerStyle}
+          data-testid={
+            testId ? `${testId satisfies string}-subst-entries` : undefined
+          }
+        >
+          {substitutionEntries.map((entry, i) => {
+            const subscriptPart = entry.metaVariableSubscript
+              ? `_${entry.metaVariableSubscript satisfies string}`
+              : "";
+            const valueText =
+              entry._tag === "FormulaSubstitution"
+                ? entry.formulaText
+                : entry.termText;
+            return (
+              <div key={i} style={substEntryStyle}>
+                {`${entry.metaVariableName satisfies string}${subscriptPart satisfies string} := ${valueText satisfies string}`}
+              </div>
+            );
+          })}
         </div>
       ) : null}
     </div>

@@ -9,11 +9,13 @@ import {
   defaultProofMessages,
   getMPErrorMessageKey,
   getGenErrorMessageKey,
+  getSubstitutionErrorMessageKey,
   formatMessage,
   type ProofMessages,
 } from "./proofMessages";
 import type { MPApplicationError } from "./mpApplicationLogic";
 import type { GenApplicationError } from "./genApplicationLogic";
+import type { SubstitutionApplicationError } from "./substitutionApplicationLogic";
 import { metaVariable } from "../logic-core/formula";
 
 describe("defaultProofMessages", () => {
@@ -160,6 +162,68 @@ describe("getGenErrorMessageKey", () => {
 
     for (const error of errors) {
       const key = getGenErrorMessageKey(error);
+      expect(key in defaultProofMessages).toBe(true);
+      expect(defaultProofMessages[key]).toBeTruthy();
+    }
+  });
+});
+
+describe("getSubstitutionErrorMessageKey", () => {
+  it("should return substErrorPremiseMissing for PremiseMissing", () => {
+    const error: SubstitutionApplicationError = { _tag: "PremiseMissing" };
+    expect(getSubstitutionErrorMessageKey(error)).toBe(
+      "substErrorPremiseMissing",
+    );
+  });
+
+  it("should return substErrorPremiseParse for PremiseParseError", () => {
+    const error: SubstitutionApplicationError = {
+      _tag: "PremiseParseError",
+      nodeId: "test",
+    };
+    expect(getSubstitutionErrorMessageKey(error)).toBe(
+      "substErrorPremiseParse",
+    );
+  });
+
+  it("should return substErrorNoEntries for NoSubstitutionEntries", () => {
+    const error: SubstitutionApplicationError = {
+      _tag: "NoSubstitutionEntries",
+    };
+    expect(getSubstitutionErrorMessageKey(error)).toBe("substErrorNoEntries");
+  });
+
+  it("should return substErrorFormulaParse for FormulaParseError", () => {
+    const error: SubstitutionApplicationError = {
+      _tag: "FormulaParseError",
+      entryIndex: 0,
+      formulaText: "bad",
+    };
+    expect(getSubstitutionErrorMessageKey(error)).toBe(
+      "substErrorFormulaParse",
+    );
+  });
+
+  it("should return substErrorTermParse for TermParseError", () => {
+    const error: SubstitutionApplicationError = {
+      _tag: "TermParseError",
+      entryIndex: 1,
+      termText: "bad",
+    };
+    expect(getSubstitutionErrorMessageKey(error)).toBe("substErrorTermParse");
+  });
+
+  it("should return a valid key for all error types", () => {
+    const errors: readonly SubstitutionApplicationError[] = [
+      { _tag: "PremiseMissing" },
+      { _tag: "PremiseParseError", nodeId: "x" },
+      { _tag: "NoSubstitutionEntries" },
+      { _tag: "FormulaParseError", entryIndex: 0, formulaText: "bad" },
+      { _tag: "TermParseError", entryIndex: 0, termText: "bad" },
+    ];
+
+    for (const error of errors) {
+      const key = getSubstitutionErrorMessageKey(error);
       expect(key in defaultProofMessages).toBe(true);
       expect(defaultProofMessages[key]).toBeTruthy();
     }

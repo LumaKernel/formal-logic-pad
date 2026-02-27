@@ -13,6 +13,7 @@
 
 import type { MPApplicationError } from "./mpApplicationLogic";
 import type { GenApplicationError } from "./genApplicationLogic";
+import type { SubstitutionApplicationError } from "./substitutionApplicationLogic";
 
 // --- メッセージキー定義 ---
 
@@ -80,6 +81,18 @@ export type ProofMessages = {
   readonly exportPNG: string;
   readonly importJSON: string;
 
+  // --- Substitution ---
+  readonly applySubstitution: string;
+  readonly substitutionApplied: string;
+  readonly substErrorPremiseMissing: string;
+  readonly substErrorPremiseParse: string;
+  readonly substErrorNoEntries: string;
+  readonly substErrorFormulaParse: string;
+  readonly substErrorTermParse: string;
+  readonly substEntryPrompt: string;
+  readonly substAddEntry: string;
+  readonly substRemoveEntry: string;
+
   // --- コンテキストメニュー ---
   readonly selectSubtree: string;
   readonly addAxiomNode: string;
@@ -88,6 +101,7 @@ export type ProofMessages = {
   readonly useAsMPLeft: string;
   readonly useAsMPRight: string;
   readonly applyGenToNode: string;
+  readonly applySubstitutionToNode: string;
   readonly duplicateNode: string;
   readonly deleteNode: string;
   readonly deleteConnection: string;
@@ -162,6 +176,18 @@ export const defaultProofMessages: ProofMessages = {
   exportPNG: "Export PNG",
   importJSON: "Import JSON",
 
+  // Substitution
+  applySubstitution: "Apply Substitution",
+  substitutionApplied: "Substitution applied",
+  substErrorPremiseMissing: "Connect a premise to apply substitution",
+  substErrorPremiseParse: "Premise has invalid formula",
+  substErrorNoEntries: "Add at least one substitution entry",
+  substErrorFormulaParse: "Invalid formula in substitution entry",
+  substErrorTermParse: "Invalid term in substitution entry",
+  substEntryPrompt: "Substitution entries:",
+  substAddEntry: "Add entry",
+  substRemoveEntry: "Remove",
+
   // Context menu
   selectSubtree: "Select Subtree",
   addAxiomNode: "Add Axiom Node",
@@ -170,6 +196,7 @@ export const defaultProofMessages: ProofMessages = {
   useAsMPLeft: "Use as MP Left (\u03C6)",
   useAsMPRight: "Use as MP Right (\u03C6\u2192\u03C8)",
   applyGenToNode: "Apply Gen",
+  applySubstitutionToNode: "Apply Substitution",
   duplicateNode: "Duplicate Node",
   deleteNode: "Delete Node",
   deleteConnection: "Delete Connection",
@@ -231,6 +258,26 @@ export function getGenErrorMessageKey(
       return "genErrorNotEnabled";
     case "RuleError":
       return "genErrorGeneric";
+  }
+}
+
+/**
+ * Substitution適用エラーに対応するメッセージキーを返す。
+ */
+export function getSubstitutionErrorMessageKey(
+  error: SubstitutionApplicationError,
+): keyof ProofMessages {
+  switch (error._tag) {
+    case "PremiseMissing":
+      return "substErrorPremiseMissing";
+    case "PremiseParseError":
+      return "substErrorPremiseParse";
+    case "NoSubstitutionEntries":
+      return "substErrorNoEntries";
+    case "FormulaParseError":
+      return "substErrorFormulaParse";
+    case "TermParseError":
+      return "substErrorTermParse";
   }
 }
 

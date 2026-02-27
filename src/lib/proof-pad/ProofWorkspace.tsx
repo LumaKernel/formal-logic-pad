@@ -37,9 +37,12 @@ import {
   isNodeImplication,
 } from "./mpApplicationLogic";
 import { validateGenApplication } from "./genApplicationLogic";
+import { validateSubstitutionApplication } from "./substitutionApplicationLogic";
+import type { SubstitutionEntries } from "./substitutionApplicationLogic";
 import {
   getMPErrorMessageKey,
   getGenErrorMessageKey,
+  getSubstitutionErrorMessageKey,
   formatMessage,
 } from "./proofMessages";
 import { useProofMessages } from "./ProofMessagesContext";
@@ -87,6 +90,7 @@ import {
   duplicateSelectedNodes,
   duplicateNode,
   cutSelectedNodes,
+  applySubstitutionAndConnect,
   applyIncrementalLayout,
   revalidateInferenceConclusions,
 } from "./workspaceState";
@@ -296,6 +300,43 @@ const genVariableInputStyle = {
   outline: "none",
   background: "rgba(255,255,255,0.2)",
   color: "var(--color-node-text, #fff)",
+};
+
+const substBannerStyle = {
+  ...mpSelectionBannerStyle,
+  background: "var(--color-subst-banner, rgba(52,152,219,0.95))",
+  display: "flex",
+  flexDirection: "column" as const,
+  gap: 6,
+  alignItems: "stretch" as const,
+  maxWidth: 420,
+};
+
+const substEntryRowStyle = {
+  display: "flex",
+  gap: 4,
+  alignItems: "center" as const,
+};
+
+const substInputStyle = {
+  padding: "2px 6px",
+  border: "1px solid rgba(255,255,255,0.5)",
+  borderRadius: 4,
+  fontSize: 12,
+  fontFamily: "var(--font-formula)",
+  outline: "none",
+  background: "rgba(255,255,255,0.2)",
+  color: "var(--color-node-text, #fff)",
+};
+
+const substSelectStyle = {
+  padding: "2px 4px",
+  border: "1px solid rgba(255,255,255,0.5)",
+  borderRadius: 4,
+  fontSize: 11,
+  background: "rgba(255,255,255,0.2)",
+  color: "var(--color-node-text, #fff)",
+  outline: "none",
 };
 
 // --- ゴール関連スタイル ---
@@ -713,27 +754,25 @@ export function ProofWorkspace({
   );
 
   /** マーキーモードが有効かどうか（スペースパン中・ポートドラッグ中は無効） */
-  const marqueeEnabled =
-    !isSpacePanActive && connectionPreviewState === null;
+  const marqueeEnabled = !isSpacePanActive && connectionPreviewState === null;
 
   const handlePortDragStart = useCallback(
-    (nodeId: string) =>
-      (portId: string, screenX: number, screenY: number) => {
-        const size = nodeSizes.get(nodeId);
-        const node = workspace.nodes.find((n) => n.id === nodeId);
-        if (!size || !node) return;
-        const ports = getProofNodePorts(node.kind);
-        const port = ports.find((p) => p.id === portId);
-        if (!port) return;
+    (nodeId: string) => (portId: string, screenX: number, screenY: number) => {
+      const size = nodeSizes.get(nodeId);
+      const node = workspace.nodes.find((n) => n.id === nodeId);
+      if (!size || !node) return;
+      const ports = getProofNodePorts(node.kind);
+      const port = ports.find((p) => p.id === portId);
+      if (!port) return;
 
-        const portOnItem: ConnectorPortOnItem = {
-          port,
-          itemPosition: node.position,
-          itemWidth: size.width,
-          itemHeight: size.height,
-        };
-        startConnectionDrag(nodeId, portOnItem, screenX, screenY);
-      },
+      const portOnItem: ConnectorPortOnItem = {
+        port,
+        itemPosition: node.position,
+        itemWidth: size.width,
+        itemHeight: size.height,
+      };
+      startConnectionDrag(nodeId, portOnItem, screenX, screenY);
+    },
     [workspace.nodes, nodeSizes, startConnectionDrag],
   );
 
@@ -966,6 +1005,37 @@ export function ProofWorkspace({
         validations.set(node.id, { message: msg.genApplied, type: "success" });
       } else if (result._tag !== "PremiseMissing") {
         const key = getGenErrorMessageKey(result);
+        validations.set(node.id, {
+          message: msg[key],
+          type: "error",
+        });
+      }
+    }
+    return validations;
+  }, [workspace, msg]);
+
+  // --- Substitutionノードの検証状態を計算 ---
+
+  const substitutionValidations = useMemo(() => {
+    const validations = new Map<
+      string,
+      { readonly message: string; readonly type: "error" | "success" }
+    >();
+    for (const node of workspace.nodes) {
+      if (node.kind !== "substitution") continue;
+      const entries = node.substitutionEntries ?? [];
+      const result = validateSubstitutionApplication(
+        workspace,
+        node.id,
+        entries,
+      );
+      if (result._tag === "Success") {
+        validations.set(node.id, {
+          message: msg.substitutionApplied,
+          type: "success",
+        });
+      } else if (result._tag !== "PremiseMissing" || entries.length > 0) {
+        const key = getSubstitutionErrorMessageKey(result);
         validations.set(node.id, {
           message: msg[key],
           type: "error",
@@ -1346,6 +1416,111 @@ export function ProofWorkspace({
     setGenPromptNodeId(null);
     setGenPromptInput("");
   }, []);
+
+  // コンテキストメニューから「Substitutionを適用する」
+  const [substPromptNodeId, setSubstPromptNodeId] = useState<string | null>(
+    null,
+  );
+  type SubstPromptEntry = {
+    readonly kind: "formula" | "term";
+    readonly metaVar: string;
+    readonly value: string;
+  };
+  const [substPromptEntries, setSubstPromptEntries] = useState<
+    readonly SubstPromptEntry[]
+  >([{ kind: "formula", metaVar: "", value: "" }]);
+
+  const handleApplySubstitutionToNode = useCallback(() => {
+    if (!nodeMenuState.open) return;
+    setSubstPromptNodeId(nodeMenuState.nodeId);
+    setSubstPromptEntries([{ kind: "formula", metaVar: "", value: "" }]);
+    setNodeMenuState(closeNodeMenu());
+  }, [nodeMenuState]);
+
+  const handleSubstPromptConfirm = useCallback(() => {
+    if (substPromptNodeId === null) return;
+
+    const entries: SubstitutionEntries = substPromptEntries
+      .filter((e) => e.metaVar.trim() !== "" && e.value.trim() !== "")
+      .map((e) =>
+        e.kind === "formula"
+          ? {
+              _tag: "FormulaSubstitution" as const,
+              metaVariableName:
+                e.metaVar.trim() as import("../logic-core/greekLetters").GreekLetter,
+              formulaText: e.value.trim(),
+            }
+          : {
+              _tag: "TermSubstitution" as const,
+              metaVariableName:
+                e.metaVar.trim() as import("../logic-core/greekLetters").GreekLetter,
+              termText: e.value.trim(),
+            },
+      );
+
+    if (entries.length === 0) return;
+
+    const premiseNode = findNode(workspace, substPromptNodeId);
+    if (!premiseNode) return;
+
+    const substPosition: Point = {
+      x: premiseNode.position.x,
+      y: premiseNode.position.y + 150,
+    };
+
+    const result = applySubstitutionAndConnect(
+      workspace,
+      substPromptNodeId,
+      entries,
+      substPosition,
+    );
+
+    setWorkspaceWithAutoLayout(result.workspace);
+    setSubstPromptNodeId(null);
+    setSubstPromptEntries([{ kind: "formula", metaVar: "", value: "" }]);
+  }, [
+    substPromptNodeId,
+    substPromptEntries,
+    workspace,
+    setWorkspaceWithAutoLayout,
+  ]);
+
+  const handleSubstPromptCancel = useCallback(() => {
+    setSubstPromptNodeId(null);
+    setSubstPromptEntries([{ kind: "formula", metaVar: "", value: "" }]);
+  }, []);
+
+  const handleSubstAddEntry = useCallback(() => {
+    setSubstPromptEntries((prev) => [
+      ...prev,
+      { kind: "formula", metaVar: "", value: "" },
+    ]);
+  }, []);
+
+  const handleSubstRemoveEntry = useCallback((index: number) => {
+    setSubstPromptEntries((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const handleSubstEntryChange = useCallback(
+    (index: number, field: "kind" | "metaVar" | "value", val: string) => {
+      setSubstPromptEntries((prev) =>
+        prev.map((entry, i) =>
+          i === index
+            ? {
+                ...entry,
+                [field]:
+                  field === "kind"
+                    ? val === "term"
+                      ? "term"
+                      : "formula"
+                    : val,
+              }
+            : entry,
+        ),
+      );
+    },
+    [],
+  );
 
   // コンテキストメニュー表示時のノード情報（メニューの enabled/disabled 判定用）
   const menuNodeIsImplication = useMemo(() => {
@@ -1783,7 +1958,9 @@ export function ProofWorkspace({
 
         // MP/Genノードへの接続: 検証状態に応じて色を変える
         const nodeValidation =
-          mpValidations.get(conn.toNodeId) ?? genValidations.get(conn.toNodeId);
+          mpValidations.get(conn.toNodeId) ??
+          genValidations.get(conn.toNodeId) ??
+          substitutionValidations.get(conn.toNodeId);
         const color = nodeValidation
           ? nodeValidation.type === "error"
             ? "var(--color-error, #e06060)"
@@ -1828,6 +2005,7 @@ export function ProofWorkspace({
       viewportBounds,
       mpValidations,
       genValidations,
+      substitutionValidations,
       handDrawnConnections,
       handleConnectionContextMenu,
       testId,
@@ -1873,7 +2051,9 @@ export function ProofWorkspace({
 
       // ノードの検証状態（MPまたはGen）
       const nodeValidation =
-        mpValidations.get(node.id) ?? genValidations.get(node.id);
+        mpValidations.get(node.id) ??
+        genValidations.get(node.id) ??
+        substitutionValidations.get(node.id);
 
       // 選択モードの視覚的ハイライト色
       const selectionColor =
@@ -1935,7 +2115,11 @@ export function ProofWorkspace({
               onFormulaTextChange={handleFormulaTextChange}
               onFormulaParsed={handleFormulaParsed}
               onModeChange={handleModeChange}
-              editable={node.kind !== "mp" && node.kind !== "gen"}
+              editable={
+                node.kind !== "mp" &&
+                node.kind !== "gen" &&
+                node.kind !== "substitution"
+              }
               statusMessage={nodeValidation?.message}
               statusType={nodeValidation?.type}
               classification={nodeClassifications.get(node.id)}
@@ -1946,6 +2130,7 @@ export function ProofWorkspace({
               detailLevel={detailLevel}
               visibilityOverrides={visibilityOverrides}
               onOpenSyntaxHelp={onOpenSyntaxHelp}
+              substitutionEntries={node.substitutionEntries}
               testId={`proof-node-${node.id satisfies string}`}
             />
           </div>
@@ -1965,6 +2150,7 @@ export function ProofWorkspace({
       genSelection,
       mpValidations,
       genValidations,
+      substitutionValidations,
       nodeClassifications,
       axiomNames,
       getNodeDependencyInfos,
@@ -2404,6 +2590,124 @@ export function ProofWorkspace({
         </div>
       ) : null}
 
+      {/* 代入プロンプトバナー */}
+      {substPromptNodeId !== null ? (
+        <div
+          style={substBannerStyle}
+          data-testid={
+            testId
+              ? `${testId satisfies string}-subst-prompt-banner`
+              : "subst-prompt-banner"
+          }
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span>{msg.substEntryPrompt}</span>
+          {substPromptEntries.map((entry, i) => (
+            <div key={i} style={substEntryRowStyle}>
+              <select
+                value={entry.kind}
+                onChange={(e) => {
+                  handleSubstEntryChange(i, "kind", e.target.value);
+                }}
+                style={substSelectStyle}
+                data-testid={
+                  testId
+                    ? `${testId satisfies string}-subst-kind-${String(i) satisfies string}`
+                    : `subst-kind-${String(i) satisfies string}`
+                }
+              >
+                <option value="formula">Formula</option>
+                <option value="term">Term</option>
+              </select>
+              <input
+                type="text"
+                value={entry.metaVar}
+                onChange={(e) => {
+                  handleSubstEntryChange(i, "metaVar", e.target.value);
+                }}
+                placeholder={entry.kind === "formula" ? "φ" : "τ"}
+                style={{ ...substInputStyle, width: 30 }}
+                data-testid={
+                  testId
+                    ? `${testId satisfies string}-subst-metavar-${String(i) satisfies string}`
+                    : `subst-metavar-${String(i) satisfies string}`
+                }
+              />
+              <span style={{ color: "var(--color-node-text, #fff)" }}>:=</span>
+              <input
+                type="text"
+                value={entry.value}
+                onChange={(e) => {
+                  handleSubstEntryChange(i, "value", e.target.value);
+                }}
+                placeholder={
+                  entry.kind === "formula" ? "alpha -> beta" : "S(0)"
+                }
+                style={{ ...substInputStyle, width: 120 }}
+                autoFocus={i === 0}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    handleSubstPromptCancel();
+                  }
+                }}
+                data-testid={
+                  testId
+                    ? `${testId satisfies string}-subst-value-${String(i) satisfies string}`
+                    : `subst-value-${String(i) satisfies string}`
+                }
+              />
+              {substPromptEntries.length > 1 ? (
+                <button
+                  type="button"
+                  style={cancelButtonStyle}
+                  onClick={() => {
+                    handleSubstRemoveEntry(i);
+                  }}
+                >
+                  {msg.substRemoveEntry}
+                </button>
+              ) : null}
+            </div>
+          ))}
+          <div style={{ display: "flex", gap: 4 }}>
+            <button
+              type="button"
+              style={cancelButtonStyle}
+              onClick={handleSubstAddEntry}
+              data-testid={
+                testId
+                  ? `${testId satisfies string}-subst-add-entry`
+                  : "subst-add-entry"
+              }
+            >
+              {msg.substAddEntry}
+            </button>
+            <button
+              type="button"
+              style={cancelButtonStyle}
+              onClick={handleSubstPromptConfirm}
+              disabled={substPromptEntries.every(
+                (e) => e.metaVar.trim() === "" || e.value.trim() === "",
+              )}
+              data-testid={
+                testId
+                  ? `${testId satisfies string}-subst-prompt-confirm`
+                  : "subst-prompt-confirm"
+              }
+            >
+              {msg.applySubstitution}
+            </button>
+            <button
+              type="button"
+              style={cancelButtonStyle}
+              onClick={handleSubstPromptCancel}
+            >
+              {msg.cancel}
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       {/* 選択バナー */}
       {selectedNodeIds.size > 0 &&
       mpSelection.phase === "idle" &&
@@ -2610,6 +2914,15 @@ export function ProofWorkspace({
               }
             />
           ) : null}
+          <WorkspaceMenuItem
+            label={msg.applySubstitutionToNode}
+            onClick={handleApplySubstitutionToNode}
+            testId={
+              testId
+                ? `${testId satisfies string}-apply-substitution-to-node`
+                : "apply-substitution-to-node"
+            }
+          />
           <div
             style={{
               height: 1,
@@ -2631,9 +2944,7 @@ export function ProofWorkspace({
             onClick={handleDeleteNode}
             disabled={menuNodeIsProtected}
             testId={
-              testId
-                ? `${testId satisfies string}-delete-node`
-                : "delete-node"
+              testId ? `${testId satisfies string}-delete-node` : "delete-node"
             }
           />
         </div>

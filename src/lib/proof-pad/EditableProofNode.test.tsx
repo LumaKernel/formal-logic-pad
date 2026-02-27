@@ -78,7 +78,13 @@ describe("EditableProofNode", () => {
 
   describe("種別ごとのスタイル（紙カード風）", () => {
     it("全種別で紙カード背景色が適用される", () => {
-      for (const kind of ["axiom", "mp", "gen", "substitution", "conclusion"] as const) {
+      for (const kind of [
+        "axiom",
+        "mp",
+        "gen",
+        "substitution",
+        "conclusion",
+      ] as const) {
         cleanup();
         renderNode({ kind, label: kind.toUpperCase() });
         const node = screen.getByTestId("test-node");
@@ -96,7 +102,13 @@ describe("EditableProofNode", () => {
         substitution: "var(--color-node-substitution, #3498db)",
         conclusion: "var(--color-node-conclusion, #4ad97a)",
       };
-      for (const kind of ["axiom", "mp", "gen", "substitution", "conclusion"] as const) {
+      for (const kind of [
+        "axiom",
+        "mp",
+        "gen",
+        "substitution",
+        "conclusion",
+      ] as const) {
         cleanup();
         renderNode({ kind, label: kind.toUpperCase() });
         const node = screen.getByTestId("test-node");
