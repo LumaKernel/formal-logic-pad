@@ -726,3 +726,133 @@ export const QuestGoalDeleteDisabled: Story = {
     await expect(deleteBtn2).not.toBeDisabled();
   },
 };
+
+// --- 公理自動判別デモ ---
+
+function AxiomAutoIdentifyWorkspace() {
+  const initial = (() => {
+    // 空の公理ノードを1つ配置（formulaText: ""）
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addNode(ws, "axiom", "", { x: 200, y: 150 });
+    return ws;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/**
+ * 公理自動判別: 空ノードにwell-known公理の式を入力すると自動判別バッジが表示される。
+ *
+ * 空の公理ノードをクリックして A1 (K公理) の式 `phi -> (psi -> phi)` を入力し、
+ * 編集を確定すると「A1 (K)」のaxiomNameバッジが自動的に表示されることを検証。
+ */
+export const AxiomAutoIdentifyFromBlank: Story = {
+  render: () => <AxiomAutoIdentifyWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // 空の公理ノードが表示されている
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+
+    // 初期状態: axiomNameバッジは表示されない（空の式では判別不能）
+    await expect(
+      canvas.queryByTestId("proof-node-node-1-axiom-name"),
+    ).not.toBeInTheDocument();
+
+    // ノードをクリックして編集モードに入る（placeholderをクリック）
+    const display = canvas.getByTestId("proof-node-node-1-editor-display");
+    await userEvent.click(display);
+
+    // A1 (K公理) の式を入力: φ → (ψ → φ)
+    const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
+    await userEvent.type(input, "phi -> (psi -> phi)");
+
+    // 編集確定（tabでblur）
+    await userEvent.tab();
+
+    // 自動判別: A1 (K) バッジが表示される
+    await expect(
+      canvas.getByTestId("proof-node-node-1-axiom-name"),
+    ).toHaveTextContent("A1 (K)");
+  },
+};
+
+function AxiomReidentifyWorkspace() {
+  const initial = (() => {
+    // A1 (K公理) の式が入った公理ノードを配置
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addNode(ws, "axiom", "", { x: 200, y: 150 }, "phi -> (psi -> phi)");
+    return ws;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/**
+ * 公理再判別: 既存の公理を別のwell-known公理に書き換えると、判別結果も自動更新される。
+ *
+ * A1 (K公理) の式を A2 (S公理) の式に書き換え、
+ * axiomNameバッジが「A1 (K)」から「A2 (S)」に自動更新されることを検証。
+ * IDではなく式の形で判別する仕組みの一貫性を確認する。
+ */
+export const AxiomReidentifyOnEdit: Story = {
+  render: () => <AxiomReidentifyWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // 初期状態: A1 (K) として判別されている
+    await expect(
+      canvas.getByTestId("proof-node-node-1-axiom-name"),
+    ).toHaveTextContent("A1 (K)");
+
+    // ノードをクリックして編集モードに入る
+    const display = canvas.getByTestId("proof-node-node-1-editor-display");
+    await userEvent.click(display);
+
+    // 式をA2 (S公理) に書き換え
+    const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
+    await userEvent.clear(input);
+    await userEvent.type(
+      input,
+      "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
+    );
+
+    // 編集確定（tabでblur）
+    await userEvent.tab();
+
+    // 自動再判別: A2 (S) バッジに更新される
+    await expect(
+      canvas.getByTestId("proof-node-node-1-axiom-name"),
+    ).toHaveTextContent("A2 (S)");
+  },
+};

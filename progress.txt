@@ -4534,3 +4534,24 @@
   - screenToWorldはcoordinate.tsに配置し、multiSelection.tsからはre-exportするのが正しい配置
   - 純粋関数（drag.ts）→ hook（useDragItem.ts）→ UI（CanvasItem.tsx）の3層分離を維持する
 ---
+
+## 2026-02-27 - 公理自動判別デモストーリー追加
+- 実装した内容:
+  - `AxiomAutoIdentifyFromBlank` ストーリー: 空の公理ノードにwell-known公理の式を入力 → 自動判別バッジ表示を検証
+  - `AxiomReidentifyOnEdit` ストーリー: 既存公理の式を別のwell-known公理に書き換え → バッジ自動更新を検証
+  - 両ストーリーともplay関数で入力→確定→バッジ検証のインタラクションテスト付き
+- 変更ファイル:
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` (MODIFIED - 2ストーリー追加)
+  - `tasks/prd-inserted-tasks.md` (MODIFIED - L24, L25-26のタスクを完了マーク)
+- **テスト:** 4433テスト全パス（+2件）
+- **カバレッジ:** Stmts 99.12%, Branch 94.53%, Funcs 90.76%, Lines 99.76% (維持)
+  - ベースライン: Stmts 99.1%, Branch 94.5%, Funcs 90.76%, Lines 99.76%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでスクリーンショット撮影・確認済み
+  - `.screenshots/axiom-auto-identify-from-blank.png`
+  - `.screenshots/axiom-reidentify-on-edit.png`
+- **今後のイテレーションへの学び:**
+  - 公理自動判別はUI層（ProofWorkspace.tsx）の`axiomNames` useMemoで実装。workspaceState.tsには判別ロジックなし
+  - 空のformulaTextの場合、FormulaEditorはplaceholderを表示。clickで編集モードに入る
+  - play関数でのFormulaEditor操作: display要素をclick → input-input要素にtype → tabでblur確定
+---
