@@ -879,6 +879,37 @@ describe("ProofWorkspace", () => {
       expect(compatibleWrapper.style.outline).toContain("solid");
       expect(compatibleWrapper.style.outline).not.toContain("dashed");
     });
+
+    it("selects node when clicking on label area (not formula) during MP selection", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <StatefulWorkspace
+          initialWorkspace={(() => {
+            let ws = createEmptyWorkspace(lukasiewiczSystem);
+            ws = addNode(ws, "axiom", "Left", { x: 0, y: 0 }, "phi");
+            ws = addNode(ws, "axiom", "Right", { x: 200, y: 0 }, "phi -> psi");
+            return ws;
+          })()}
+          testId="workspace"
+        />,
+      );
+
+      // Enter MP selection mode
+      await user.click(screen.getByTestId("workspace-mp-button"));
+
+      // Click on the node container (not the formula editor area)
+      // This simulates clicking on the label/badge area of the node card
+      const nodeContainer = screen.getByTestId("proof-node-node-1");
+      await user.click(nodeContainer);
+
+      // Should advance to selecting-right phase
+      await waitFor(() => {
+        expect(screen.getByTestId("workspace-mp-banner")).toHaveTextContent(
+          "Click the right premise",
+        );
+      });
+    });
   });
 
   describe("goal setting and completion", () => {

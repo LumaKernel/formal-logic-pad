@@ -87,6 +87,12 @@ export function CanvasItem({
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLElement>) => {
+      // Always stop propagation for interactive items to prevent
+      // InfiniteCanvas from capturing the pointer (pan/marquee).
+      // When draggable, useDragItem.onPointerDown also stops propagation,
+      // but when drag is disabled (e.g. selection mode), we still need
+      // to prevent the canvas from hijacking pointer events.
+      e.stopPropagation();
       if (onClick !== undefined && e.button === 0) {
         clickStartRef.current = { x: e.clientX, y: e.clientY };
       }
