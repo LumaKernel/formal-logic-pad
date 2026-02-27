@@ -635,10 +635,7 @@ export function pasteNodes(
     ...state,
     nodes: [...state.nodes, ...result.newNodes],
     connections: [...state.connections, ...result.newConnections],
-    inferenceEdges: [
-      ...state.inferenceEdges,
-      ...result.newInferenceEdges,
-    ],
+    inferenceEdges: [...state.inferenceEdges, ...result.newInferenceEdges],
     nextNodeId: result.nextNodeId,
   });
 }
@@ -906,11 +903,7 @@ export function revalidateInferenceConclusions(
         }
         case "gen": {
           const variableName = edge.variableName;
-          const result = validateGenApplication(
-            current,
-            node.id,
-            variableName,
-          );
+          const result = validateGenApplication(current, node.id, variableName);
           const newText =
             result._tag === "Success" ? result.conclusionText : "";
           if (newText !== node.formulaText) {

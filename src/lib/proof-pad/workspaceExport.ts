@@ -204,9 +204,7 @@ function parseConnection(raw: unknown): WorkspaceConnection | undefined {
   };
 }
 
-function parseSubstitutionEntry(
-  raw: unknown,
-): SubstitutionEntry | undefined {
+function parseSubstitutionEntry(raw: unknown): SubstitutionEntry | undefined {
   if (typeof raw !== "object" || raw === null) return undefined;
   const obj = raw as Record<string, unknown>;
   if (
@@ -225,8 +223,7 @@ function parseSubstitutionEntry(
     if (typeof obj["formulaText"] !== "string") return undefined;
     return {
       _tag: "FormulaSubstitution",
-      metaVariableName:
-        obj["metaVariableName"] as GreekLetter,
+      metaVariableName: obj["metaVariableName"] as GreekLetter,
       ...(obj["metaVariableSubscript"] !== undefined
         ? {
             metaVariableSubscript: obj["metaVariableSubscript"] as string,

@@ -296,7 +296,9 @@ describe("exportWorkspaceToJSON", () => {
     expect(parsed.workspace.inferenceEdges[2].entries[1]._tag).toBe(
       "TermSubstitution",
     );
-    expect(parsed.workspace.inferenceEdges[2].entries[1].metaVariableSubscript).toBe("1");
+    expect(
+      parsed.workspace.inferenceEdges[2].entries[1].metaVariableSubscript,
+    ).toBe("1");
   });
 
   it("空のinferenceEdgesがシリアライズされる", () => {

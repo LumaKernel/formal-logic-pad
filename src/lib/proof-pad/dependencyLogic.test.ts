@@ -370,12 +370,7 @@ describe("dependencyLogic", () => {
       const nodes = [makeAxiomNode("a1", "phi -> (psi -> phi)")];
       const edges: readonly InferenceEdge[] = [];
 
-      const axiomIds = getNodeAxiomIds(
-        "a1",
-        nodes,
-        edges,
-        lukasiewiczSystem,
-      );
+      const axiomIds = getNodeAxiomIds("a1", nodes, edges, lukasiewiczSystem);
       expect(axiomIds).toEqual(new Set(["A1"]));
     });
 
@@ -389,12 +384,7 @@ describe("dependencyLogic", () => {
       ];
       const edges: readonly InferenceEdge[] = [];
 
-      const axiomIds = getNodeAxiomIds(
-        "a2",
-        nodes,
-        edges,
-        lukasiewiczSystem,
-      );
+      const axiomIds = getNodeAxiomIds("a2", nodes, edges, lukasiewiczSystem);
       expect(axiomIds).toEqual(new Set(["A2"]));
     });
 
@@ -403,12 +393,7 @@ describe("dependencyLogic", () => {
       const nodes = [makeAxiomNode("a3", "(~phi -> ~psi) -> (psi -> phi)")];
       const edges: readonly InferenceEdge[] = [];
 
-      const axiomIds = getNodeAxiomIds(
-        "a3",
-        nodes,
-        edges,
-        lukasiewiczSystem,
-      );
+      const axiomIds = getNodeAxiomIds("a3", nodes, edges, lukasiewiczSystem);
       expect(axiomIds).toEqual(new Set(["A3"]));
     });
 
@@ -425,12 +410,7 @@ describe("dependencyLogic", () => {
       ];
       const edges = [makeMPEdge("mp1", "a1", "a2")];
 
-      const axiomIds = getNodeAxiomIds(
-        "mp1",
-        nodes,
-        edges,
-        lukasiewiczSystem,
-      );
+      const axiomIds = getNodeAxiomIds("mp1", nodes, edges, lukasiewiczSystem);
       expect(axiomIds).toEqual(new Set(["A1", "A2"]));
     });
 
@@ -442,12 +422,7 @@ describe("dependencyLogic", () => {
       ];
       const edges = [makeMPEdge("mp1", "unknown", "a1")];
 
-      const axiomIds = getNodeAxiomIds(
-        "mp1",
-        nodes,
-        edges,
-        lukasiewiczSystem,
-      );
+      const axiomIds = getNodeAxiomIds("mp1", nodes, edges, lukasiewiczSystem);
       expect(axiomIds).toEqual(new Set(["A1"]));
     });
 
@@ -468,12 +443,7 @@ describe("dependencyLogic", () => {
       const nodes = [makeAxiomNode("bad", ">>>invalid<<<")];
       const edges: readonly InferenceEdge[] = [];
 
-      const axiomIds = getNodeAxiomIds(
-        "bad",
-        nodes,
-        edges,
-        lukasiewiczSystem,
-      );
+      const axiomIds = getNodeAxiomIds("bad", nodes, edges, lukasiewiczSystem);
       expect(axiomIds).toEqual(new Set());
     });
 
@@ -508,12 +478,7 @@ describe("dependencyLogic", () => {
         makeMPEdge("mp2", "mp1", "a2"),
       ];
 
-      const axiomIds = getNodeAxiomIds(
-        "mp2",
-        nodes,
-        edges,
-        lukasiewiczSystem,
-      );
+      const axiomIds = getNodeAxiomIds("mp2", nodes, edges, lukasiewiczSystem);
       expect(axiomIds).toEqual(new Set(["A1", "A2", "A3"]));
     });
   });
