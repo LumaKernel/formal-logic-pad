@@ -97,7 +97,7 @@ describe("NotebookList", () => {
       expect(onOpen).toHaveBeenCalledWith("nb-1");
     });
 
-    it("削除ボタンでonDeleteが呼ばれる", () => {
+    it("削除ボタンで確認状態になる（即時削除しない）", () => {
       const onDelete = vi.fn();
       render(
         <NotebookList
@@ -107,7 +107,40 @@ describe("NotebookList", () => {
         />,
       );
       fireEvent.click(screen.getByTestId("delete-btn-nb-1"));
+      // まだonDeleteは呼ばれない
+      expect(onDelete).not.toHaveBeenCalled();
+      // 確認UIが表示される
+      expect(screen.getByTestId("delete-confirm-nb-1")).toBeTruthy();
+    });
+
+    it("削除確認で「削除する」をクリックするとonDeleteが呼ばれる", () => {
+      const onDelete = vi.fn();
+      render(
+        <NotebookList
+          items={[makeItem("nb-1", "テスト")]}
+          {...defaultHandlers}
+          onDelete={onDelete}
+        />,
+      );
+      fireEvent.click(screen.getByTestId("delete-btn-nb-1"));
+      fireEvent.click(screen.getByTestId("delete-confirm-btn-nb-1"));
       expect(onDelete).toHaveBeenCalledWith("nb-1");
+    });
+
+    it("削除確認で「キャンセル」をクリックすると確認が解除される", () => {
+      const onDelete = vi.fn();
+      render(
+        <NotebookList
+          items={[makeItem("nb-1", "テスト")]}
+          {...defaultHandlers}
+          onDelete={onDelete}
+        />,
+      );
+      fireEvent.click(screen.getByTestId("delete-btn-nb-1"));
+      fireEvent.click(screen.getByTestId("delete-cancel-btn-nb-1"));
+      expect(onDelete).not.toHaveBeenCalled();
+      // 確認UIが消える
+      expect(screen.queryByTestId("delete-confirm-nb-1")).toBeNull();
     });
 
     it("削除ボタンクリックでonOpenが呼ばれない（伝播停止）", () => {
