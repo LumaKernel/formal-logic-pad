@@ -4904,3 +4904,22 @@
   - TermMetaVariable は `new TermMetaVariable({ name: "τ" })` で生成。TaggedClassパターンに従う
   - A4/A5は `alwaysNonTrivialAxiomIds` に登録済み。パラメトリック生成後も代入ステップが必要
 ---
+
+## 2026-02-28 - [ProofPad] MP/Gen選択モードでノード全体がクリック反応するよう修正
+- 実装した内容:
+  - CanvasItemのhandlePointerDownで常にe.stopPropagation()を呼ぶよう修正
+  - これにより、MP/Gen選択モードでノードのラベルエリアなど、数式欄以外をクリックしてもノードが選択されるようになった
+  - 根本原因: dragEnabled=falseの時、pointerDownイベントがInfiniteCanvasまでバブルアップし、marqueeハンドラがsetPointerCaptureを呼んでclick イベントが発火しなくなっていた
+  - FormulaEditorエリアだけは、FormulaEditor自身のstopPropagation()により動作していた
+- 変更したファイル:
+  - `src/lib/infinite-canvas/CanvasItem.tsx` (stopPropagation追加)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (テスト追加)
+  - `tasks-archived/prd-inserted-tasks.md` (完了タスクアーカイブ)
+  - `tasks/prd-inserted-tasks.md` (タスク完了マーク)
+- カバレッジ: Stmts 98.71%(変化なし), Branch 93.23%(変化なし), Lines 99.44%(変化なし)
+- ブラウザ検証: Playwright MCPで実際のStorybook上で動作確認。ラベルエリアクリックでMP選択が進行することを確認
+- **今後のイテレーションへの学び:**
+  - setPointerCaptureがイベント横取りの原因になりうる。pointer capture中は他要素のclick/pointerupが発火しない
+  - CanvasItemはInfiniteCanvasとノードコンテンツの中間層。ここでのstopPropagationがcanvasレベルのイベント(pan/marquee)を防ぐ重要な役割を果たす
+  - ブラウザテストでのデバッグ: page.evaluate()でイベントリスナーを追加し、実際のイベントフローをトレースする手法が有効
+---
