@@ -702,7 +702,74 @@ export const buildTermMetaSubstitutionMap = (
   return map;
 };
 
-// ── 6. 検証付き項変数代入 ──────────────────────────────────────
+// ── 6. FormulaSubstitution の解決 ─────────────────────────────────
+
+/**
+ * AST 中の FormulaSubstitution ノードを再帰的に解決する。
+ *
+ * `φ[τ/x]` を見つけたら、まず内側の φ を再帰的に解決し、
+ * その結果に対して `substituteTermVariableInFormula(resolved, x, τ)` を適用する。
+ * これにより、AST 上の「構文的な置換表記」を「実際に置換した結果の論理式」に変換する。
+ *
+ * 注意: α変換が必要な場合は `substituteTermVariableInFormula` が自動的に処理する。
+ */
+export const resolveFormulaSubstitution = (formula: Formula): Formula => {
+  return resolveFormulaSubstitutionRec(formula);
+};
+
+const resolveFormulaSubstitutionRec = (f: Formula): Formula => {
+  switch (f._tag) {
+    case "MetaVariable":
+    case "Predicate":
+    case "Equality":
+      return f;
+    case "Negation":
+      return new Negation({
+        formula: resolveFormulaSubstitutionRec(f.formula),
+      });
+    case "Implication":
+      return new Implication({
+        left: resolveFormulaSubstitutionRec(f.left),
+        right: resolveFormulaSubstitutionRec(f.right),
+      });
+    case "Conjunction":
+      return new Conjunction({
+        left: resolveFormulaSubstitutionRec(f.left),
+        right: resolveFormulaSubstitutionRec(f.right),
+      });
+    case "Disjunction":
+      return new Disjunction({
+        left: resolveFormulaSubstitutionRec(f.left),
+        right: resolveFormulaSubstitutionRec(f.right),
+      });
+    case "Biconditional":
+      return new Biconditional({
+        left: resolveFormulaSubstitutionRec(f.left),
+        right: resolveFormulaSubstitutionRec(f.right),
+      });
+    case "Universal":
+      return new Universal({
+        variable: f.variable,
+        formula: resolveFormulaSubstitutionRec(f.formula),
+      });
+    case "Existential":
+      return new Existential({
+        variable: f.variable,
+        formula: resolveFormulaSubstitutionRec(f.formula),
+      });
+    case "FormulaSubstitution": {
+      // まず内側の formula を再帰的に解決してから、置換を実行
+      const resolvedInner = resolveFormulaSubstitutionRec(f.formula);
+      return substituteTermVariableInFormula(resolvedInner, f.variable, f.term);
+    }
+  }
+  /* v8 ignore start */
+  f satisfies never;
+  return f;
+  /* v8 ignore stop */
+};
+
+// ── 7. 検証付き項変数代入 ──────────────────────────────────────
 
 /**
  * 項変数代入（代入可能性チェック付き）: エラーを返す版。

@@ -95,6 +95,7 @@ export {
   substituteTermVariableInTerm,
   substituteTermVariableInFormula,
   substituteTermVariableChecked,
+  resolveFormulaSubstitution,
   isFreeFor,
   composeFormulaSubstitution,
   composeTermMetaSubstitution,

@@ -12,6 +12,7 @@ import {
   buildFormulaSubstitutionMap,
   buildTermMetaSubstitutionMap,
   freshVariableName,
+  resolveFormulaSubstitution,
 } from "./substitution";
 import { equalFormula, equalTerm } from "./equality";
 import {
@@ -1108,6 +1109,196 @@ describe("integration: A4 universal instantiation", () => {
         conjunction(predicate("P", [a]), predicate("Q", [a])),
       ),
     ).toBe(true);
+  });
+});
+
+// ── 9. resolveFormulaSubstitution ────────────────────────────────
+
+describe("resolveFormulaSubstitution", () => {
+  const x = termVariable("x");
+  const y = termVariable("y");
+  const z = termVariable("z");
+  const a = constant("a");
+  const b = constant("b");
+  const phi = metaVariable("φ");
+
+  test("FormulaSubstitutionがない論理式はそのまま返る", () => {
+    const f = implication(predicate("P", [x]), predicate("Q", [y]));
+    const result = resolveFormulaSubstitution(f);
+    expect(equalFormula(result, f)).toBe(true);
+  });
+
+  test("基本的な置換: P(x)[a/x] → P(a)", () => {
+    const f = formulaSubstitution(predicate("P", [x]), a, x);
+    const result = resolveFormulaSubstitution(f);
+    expect(equalFormula(result, predicate("P", [a]))).toBe(true);
+  });
+
+  test("対象でない変数は置換されない: P(y)[a/x] → P(y)", () => {
+    const f = formulaSubstitution(predicate("P", [y]), a, x);
+    const result = resolveFormulaSubstitution(f);
+    expect(equalFormula(result, predicate("P", [y]))).toBe(true);
+  });
+
+  test("複数の出現: P(x,x)[a/x] → P(a,a)", () => {
+    const f = formulaSubstitution(predicate("P", [x, x]), a, x);
+    const result = resolveFormulaSubstitution(f);
+    expect(equalFormula(result, predicate("P", [a, a]))).toBe(true);
+  });
+
+  test("連鎖置換: P(x)[a/x][b/y] → P(a)", () => {
+    // P(x)[a/x] → P(a)、その結果にはyがないので[b/y]は変化なし
+    const inner = formulaSubstitution(predicate("P", [x]), a, x);
+    const f = formulaSubstitution(inner, b, y);
+    const result = resolveFormulaSubstitution(f);
+    expect(equalFormula(result, predicate("P", [a]))).toBe(true);
+  });
+
+  test("連鎖置換(効果あり): P(x,y)[a/x][b/y] → P(a,b)", () => {
+    const inner = formulaSubstitution(predicate("P", [x, y]), a, x);
+    const f = formulaSubstitution(inner, b, y);
+    const result = resolveFormulaSubstitution(f);
+    expect(equalFormula(result, predicate("P", [a, b]))).toBe(true);
+  });
+
+  test("否定内の置換: ¬(P(x)[a/x]) → ¬P(a)", () => {
+    const f = negation(formulaSubstitution(predicate("P", [x]), a, x));
+    const result = resolveFormulaSubstitution(f);
+    expect(equalFormula(result, negation(predicate("P", [a])))).toBe(true);
+  });
+
+  test("含意内の置換: P(x)[a/x] → Q(y)[b/y] → P(a)→Q(b)", () => {
+    const f = implication(
+      formulaSubstitution(predicate("P", [x]), a, x),
+      formulaSubstitution(predicate("Q", [y]), b, y),
+    );
+    const result = resolveFormulaSubstitution(f);
+    expect(
+      equalFormula(result, implication(predicate("P", [a]), predicate("Q", [b]))),
+    ).toBe(true);
+  });
+
+  test("連言内の置換", () => {
+    const f = conjunction(
+      formulaSubstitution(predicate("P", [x]), a, x),
+      predicate("Q", [y]),
+    );
+    const result = resolveFormulaSubstitution(f);
+    expect(
+      equalFormula(result, conjunction(predicate("P", [a]), predicate("Q", [y]))),
+    ).toBe(true);
+  });
+
+  test("選言内の置換", () => {
+    const f = disjunction(
+      predicate("P", [y]),
+      formulaSubstitution(predicate("Q", [x]), a, x),
+    );
+    const result = resolveFormulaSubstitution(f);
+    expect(
+      equalFormula(result, disjunction(predicate("P", [y]), predicate("Q", [a]))),
+    ).toBe(true);
+  });
+
+  test("双条件内の置換", () => {
+    const f = biconditional(
+      formulaSubstitution(predicate("P", [x]), a, x),
+      formulaSubstitution(predicate("Q", [x]), b, x),
+    );
+    const result = resolveFormulaSubstitution(f);
+    expect(
+      equalFormula(result, biconditional(predicate("P", [a]), predicate("Q", [b]))),
+    ).toBe(true);
+  });
+
+  test("全称量化内の置換", () => {
+    const f = universal(
+      y,
+      formulaSubstitution(predicate("P", [x, y]), a, x),
+    );
+    const result = resolveFormulaSubstitution(f);
+    expect(
+      equalFormula(result, universal(y, predicate("P", [a, y]))),
+    ).toBe(true);
+  });
+
+  test("存在量化内の置換", () => {
+    const f = existential(
+      y,
+      formulaSubstitution(predicate("P", [x, y]), a, x),
+    );
+    const result = resolveFormulaSubstitution(f);
+    expect(
+      equalFormula(result, existential(y, predicate("P", [a, y]))),
+    ).toBe(true);
+  });
+
+  test("等号内はそのまま（FormulaSubstitutionを含まない）", () => {
+    const f = equality(x, a);
+    const result = resolveFormulaSubstitution(f);
+    expect(equalFormula(result, f)).toBe(true);
+  });
+
+  test("メタ変数はそのまま", () => {
+    const f = phi;
+    const result = resolveFormulaSubstitution(f);
+    expect(equalFormula(result, f)).toBe(true);
+  });
+
+  test("量化子の束縛変数と同じ場合: ∀x.P(x)[a/x] (全体が置換) → ∀x.P(a)", () => {
+    // FormulaSubstitutionの内側の∀xは束縛するので、P(x)のxのうち∀xの下にあるものは置換されない
+    // しかしこのテストでは FormulaSubstitution が外側にある
+    // (∀x.P(x))[a/x] → substituteTermVariableInFormula(∀x.P(x), x, a) → ∀x.P(x) (束縛されているので変化なし)
+    const f = formulaSubstitution(universal(x, predicate("P", [x])), a, x);
+    const result = resolveFormulaSubstitution(f);
+    expect(
+      equalFormula(result, universal(x, predicate("P", [x]))),
+    ).toBe(true);
+  });
+
+  test("変数捕獲回避(α変換): (∀y.P(x,y))[y/x] → ∀y'.P(y,y')", () => {
+    // substituteTermVariableInFormulaがα変換を行う
+    const f = formulaSubstitution(
+      universal(y, predicate("P", [x, y])),
+      y,
+      x,
+    );
+    const result = resolveFormulaSubstitution(f);
+    const yPrime = termVariable("y'");
+    expect(
+      equalFormula(result, universal(yPrime, predicate("P", [y, yPrime]))),
+    ).toBe(true);
+  });
+
+  test("関数項を代入: P(x)[f(a)/x] → P(f(a))", () => {
+    const fa = functionApplication("f", [a]);
+    const f = formulaSubstitution(predicate("P", [x]), fa, x);
+    const result = resolveFormulaSubstitution(f);
+    expect(equalFormula(result, predicate("P", [fa]))).toBe(true);
+  });
+
+  test("ネストされた FormulaSubstitution 内部の FormulaSubstitution も解決される", () => {
+    // (P(x,y)[a/x])[b/y] → 内側を先に解決: P(a,y) → 次に[b/y]: P(a,b)
+    const inner = formulaSubstitution(predicate("P", [x, y]), a, x);
+    const f = formulaSubstitution(inner, b, y);
+    const result = resolveFormulaSubstitution(f);
+    expect(equalFormula(result, predicate("P", [a, b]))).toBe(true);
+  });
+
+  test("3段の連鎖: P(x,y,z)[a/x][b/y][constant/z]", () => {
+    const c = constant("c");
+    const step1 = formulaSubstitution(predicate("P", [x, y, z]), a, x);
+    const step2 = formulaSubstitution(step1, b, y);
+    const f = formulaSubstitution(step2, c, z);
+    const result = resolveFormulaSubstitution(f);
+    expect(equalFormula(result, predicate("P", [a, b, c]))).toBe(true);
+  });
+
+  test("メタ変数への置換は解決しない（メタ変数は自由変数ではない）", () => {
+    // φ[a/x] → φのまま（φはメタ変数であり、xの自由出現はない）
+    const f = formulaSubstitution(phi, a, x);
+    const result = resolveFormulaSubstitution(f);
+    expect(equalFormula(result, phi)).toBe(true);
   });
 });
 
