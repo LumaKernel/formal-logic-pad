@@ -4312,3 +4312,27 @@
   - applyMPAndConnectの結果はworkspaceプロパティで新しい状態を取得する。チェーンする場合は各MPの結果のworkspaceを次のベースにする
   - 失敗するMPも applyMPAndConnect で作成できる（不一致でも接続とノードは生成される）
 ---
+
+## 2026-02-27 - ゴール判定ロジック修正
+- 実装した内容: ゴール達成判定(`checkGoal`)がconnectionsを考慮するよう修正。ゴールノードへのincoming connectionがあり、接続元ノードの式が一致する場合のみProof Completeとなるようにした
+- ベースラインカバレッジ: Stmts 99.36%, Branch 94.9%, Funcs 90.44%, Lines 99.89%, 4361 tests
+- 完了時カバレッジ: Stmts 99.37%, Branch 94.92%, Funcs 90.41%, Lines 99.93%, 4364 tests ✅
+- ブラウザ確認:
+  - `.screenshots/goal-check-zero-plus-zero-completed.png` - 接続あり、Proof Complete表示 ✅
+  - `.screenshots/goal-check-interactive-no-complete.png` - MP適用後接続なし、Proof Complete非表示 ✅
+  - `.screenshots/goal-check-pa-interactive.png` - インタラクティブ、Proof Complete非表示 ✅
+- 変更ファイル:
+  - `src/lib/proof-pad/goalCheckLogic.ts` (MODIFIED - connections引数追加、incoming connection判定)
+  - `src/lib/proof-pad/goalCheckLogic.test.ts` (MODIFIED - 全テストconnections対応、新テストケース追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (MODIFIED - checkGoal呼び出しにconnections追加)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (MODIFIED - addConnectionで接続追加)
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` (MODIFIED - ゴール接続追加)
+  - `src/lib/proof-pad/GroupTheoryDemo.stories.tsx` (MODIFIED - ゴール接続追加)
+  - `src/lib/proof-pad/PeanoArithmeticDemo.stories.tsx` (MODIFIED - ゴール接続追加)
+  - `src/lib/proof-pad/ProofFlowDemo.stories.tsx` (MODIFIED - ゴール接続追加)
+  - `tasks/prd-inserted-tasks.md` (MODIFIED - タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - ゴール達成判定を変更する場合、goalCheckLogic.ts（純粋ロジック）→ goalCheckLogic.test.ts → ProofWorkspace.tsx（呼び出し箇所）→ ProofWorkspace.test.tsx → 全デモストーリー（完成済み＋インタラクティブ）すべて更新が必要
+  - インタラクティブストーリーではMP適用後にゴールへの接続が自動生成されないため、play関数で「Proof Complete」バナーが出ないことを期待する
+  - `addConnection(ws, fromId, "output", toId, "input")`でゴールノードへの接続を明示的に作成する必要がある
+---
