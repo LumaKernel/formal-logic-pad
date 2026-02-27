@@ -2,13 +2,18 @@
 
 import { useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useNotebookCollection, findNotebook } from "../../../lib/notebook";
 import type { GoalAchievedInfo } from "../../../lib/proof-pad";
 import type { ProofMessages } from "../../../lib/proof-pad";
 import type { WorkspaceState } from "../../../lib/proof-pad/workspaceState";
 import { useQuestProgress } from "../../../lib/quest";
 import { ThemeProvider } from "../../../lib/theme/ThemeProvider";
+import { isLocale } from "../../../components/LanguageToggle/languageToggleLogic";
+import {
+  useLocaleSwitch,
+  getBrowserLocaleSwitchDeps,
+} from "../../../components/LanguageToggle/useLocaleSwitch";
 import { WorkspacePageView } from "./WorkspacePageView";
 
 /** next-intl の翻訳から ProofMessages オブジェクトを構築するフック */
@@ -98,6 +103,10 @@ function WorkspaceInner() {
   const notebookCollection = useNotebookCollection();
   const questProgress = useQuestProgress();
   const proofMessages = useProofMessagesFromIntl();
+  const rawLocale = useLocale();
+  const locale = isLocale(rawLocale) ?? "en";
+  const localeSwitchDeps = useMemo(() => getBrowserLocaleSwitchDeps(), []);
+  const { switchLocale } = useLocaleSwitch(localeSwitchDeps);
 
   const notebookId =
     typeof params.id === "string"
@@ -139,8 +148,19 @@ function WorkspaceInner() {
     [questId, questRecord],
   );
 
+  const languageToggle = useMemo(
+    () => ({ locale, onLocaleChange: switchLocale }),
+    [locale, switchLocale],
+  );
+
   if (notebook === undefined) {
-    return <WorkspacePageView found={false} onBack={handleBack} />;
+    return (
+      <WorkspacePageView
+        found={false}
+        onBack={handleBack}
+        languageToggle={languageToggle}
+      />
+    );
   }
 
   return (
@@ -152,6 +172,7 @@ function WorkspaceInner() {
       onBack={handleBack}
       onWorkspaceChange={handleWorkspaceChange}
       onGoalAchieved={handleGoalAchieved}
+      languageToggle={languageToggle}
     />
   );
 }

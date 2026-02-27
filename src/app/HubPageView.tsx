@@ -16,6 +16,10 @@ import {
 } from "../lib/notebook";
 import { QuestCatalog, type CategoryGroup } from "../lib/quest";
 import { ThemeToggle } from "../components/ThemeToggle/ThemeToggle";
+import {
+  LanguageToggle,
+  type LanguageToggleProps,
+} from "../components/LanguageToggle/LanguageToggle";
 import type { DeductionSystem } from "../lib/logic-core/deductionSystem";
 
 // --- Types ---
@@ -47,6 +51,8 @@ export type HubPageViewProps = {
   }) => void;
   /** 初期タブ（テスト用） */
   readonly initialTab?: HubTab;
+  /** 言語切り替え（指定時に LanguageToggle を表示） */
+  readonly languageToggle?: LanguageToggleProps;
 };
 
 // --- Styles ---
@@ -161,6 +167,7 @@ export function HubPageView({
   onStartQuest,
   onCreateNotebook,
   initialTab = "notebooks",
+  languageToggle,
 }: HubPageViewProps) {
   const [tab, setTab] = useState<HubTab>(initialTab);
   const [view, setView] = useState<HubViewState>("list");
@@ -171,6 +178,12 @@ export function HubPageView({
       <header style={headerStyle}>
         <span style={titleStyle}>Formal Logic Pad</span>
         <div style={headerActionsStyle}>
+          {languageToggle ? (
+            <LanguageToggle
+              locale={languageToggle.locale}
+              onLocaleChange={languageToggle.onLocaleChange}
+            />
+          ) : null}
           <ThemeToggle />
         </div>
       </header>

@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { useNotebookCollection, toNotebookListItems } from "../lib/notebook";
 import {
   useQuestProgress,
@@ -11,6 +12,11 @@ import {
 import { ThemeProvider } from "../lib/theme/ThemeProvider";
 import type { DeductionSystem } from "../lib/logic-core/deductionSystem";
 import { prepareQuestStart } from "../lib/quest/questStartLogic";
+import { isLocale } from "../components/LanguageToggle/languageToggleLogic";
+import {
+  useLocaleSwitch,
+  getBrowserLocaleSwitchDeps,
+} from "../components/LanguageToggle/useLocaleSwitch";
 import { HubPageView } from "./HubPageView";
 
 // eslint-disable-next-line @luma-dev/luma-ts/no-date
@@ -20,6 +26,10 @@ function HubInner() {
   const router = useRouter();
   const notebookCollection = useNotebookCollection();
   const questProgress = useQuestProgress();
+  const rawLocale = useLocale();
+  const locale = isLocale(rawLocale) ?? "en";
+  const localeSwitchDeps = useMemo(() => getBrowserLocaleSwitchDeps(), []);
+  const { switchLocale } = useLocaleSwitch(localeSwitchDeps);
 
   // Build quest catalog groups
   const groups = useMemo(
@@ -95,6 +105,7 @@ function HubInner() {
       onConvertToFree={notebookCollection.convertToFree}
       onStartQuest={handleStartQuest}
       onCreateNotebook={handleCreateNotebook}
+      languageToggle={{ locale, onLocaleChange: switchLocale }}
     />
   );
 }
