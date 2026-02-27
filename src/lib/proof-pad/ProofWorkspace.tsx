@@ -1118,7 +1118,13 @@ export function ProofWorkspace({
   // --- 公理名自動判別 ---
 
   const axiomNames = useMemo(() => {
-    const names = new Map<string, string>();
+    const names = new Map<
+      string,
+      {
+        readonly displayName: string;
+        readonly isTrivialSubstitution: boolean;
+      }
+    >();
     for (const node of workspace.nodes) {
       const formula = parseNodeFormula(node);
       if (formula === undefined) continue;
@@ -1127,7 +1133,10 @@ export function ProofWorkspace({
         result._tag === "Identified" ||
         result._tag === "TheoryAxiomIdentified"
       ) {
-        names.set(node.id, result.displayName);
+        names.set(node.id, {
+          displayName: result.displayName,
+          isTrivialSubstitution: result.isTrivialSubstitution,
+        });
       }
     }
     return names;
@@ -1154,11 +1163,11 @@ export function ProofWorkspace({
       if (deps.size === 0) return undefined;
 
       return [...deps].map((depId): DependencyInfo => {
-        const axName = axiomNames.get(depId);
+        const axInfo = axiomNames.get(depId);
         const depNode = findNode(workspace, depId);
         return {
           nodeId: depId,
-          displayName: axName ?? depNode?.label ?? depId,
+          displayName: axInfo?.displayName ?? depNode?.label ?? depId,
         };
       });
     },
@@ -2050,10 +2059,25 @@ export function ProofWorkspace({
         !mpCompatibleNodeIds.has(node.id);
 
       // ノードの検証状態（MPまたはGen）
-      const nodeValidation =
+      const ruleValidation =
         mpValidations.get(node.id) ??
         genValidations.get(node.id) ??
         substitutionValidations.get(node.id);
+
+      // 公理の非自明代入チェック（推論規則バリデーションがない場合のみ表示）
+      const axInfo = axiomNames.get(node.id);
+      const nodeClassification = nodeClassifications.get(node.id);
+      const isAxiomNode =
+        nodeClassification === "root-axiom" ||
+        nodeClassification === "root-unmarked";
+      const nodeValidation: {
+        readonly message: string;
+        readonly type: "error" | "warning" | "success";
+      } | undefined =
+        ruleValidation ??
+        (axInfo !== undefined && !axInfo.isTrivialSubstitution && isAxiomNode
+          ? { message: msg.axiomNonTrivialWarning, type: "warning" }
+          : undefined);
 
       // 選択モードの視覚的ハイライト色
       const selectionColor =
@@ -2125,7 +2149,7 @@ export function ProofWorkspace({
               classification={nodeClassifications.get(node.id)}
               onRoleChange={handleRoleChange}
               isProtected={isNodeProtected(workspace, node.id)}
-              axiomName={axiomNames.get(node.id)}
+              axiomName={axiomNames.get(node.id)?.displayName}
               dependencies={getNodeDependencyInfos(node.id)}
               detailLevel={detailLevel}
               visibilityOverrides={visibilityOverrides}
@@ -2166,6 +2190,7 @@ export function ProofWorkspace({
       onOpenSyntaxHelp,
       notifyDragMove,
       notifyDragEnd,
+      msg,
     ],
   );
 

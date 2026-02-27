@@ -76,6 +76,7 @@
     "deleteNode": "Delete Node",
     "deleteConnection": "Delete Connection",
     "genVariablePrompt": "Variable name:",
+    "axiomNonTrivialWarning": "Needs substitution step",
     "proofCompleteButAxiomViolation": "Proof Complete (axiom restriction violated)",
     "axiomViolationDetail": "Disallowed axiom(s) used: {axiomIds}"
   }

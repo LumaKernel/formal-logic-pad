@@ -108,6 +108,9 @@ export type ProofMessages = {
   /** `{variableName}` プレースホルダーを含む */
   readonly genVariablePrompt: string;
 
+  // --- 公理自明性警告 ---
+  readonly axiomNonTrivialWarning: string;
+
   // --- 公理制限 ---
   readonly proofCompleteButAxiomViolation: string;
   /** `{axiomIds}` プレースホルダーを含む */
@@ -201,6 +204,9 @@ export const defaultProofMessages: ProofMessages = {
   deleteNode: "Delete Node",
   deleteConnection: "Delete Connection",
   genVariablePrompt: "Variable name:",
+
+  // Axiom triviality warning
+  axiomNonTrivialWarning: "Needs substitution step",
 
   // Axiom restriction
   proofCompleteButAxiomViolation: "Proof Complete (axiom restriction violated)",
