@@ -238,14 +238,20 @@ export const G1AssociativityPlacement: Story = {
       canvas.getByTestId("workspace-axiom-palette"),
     ).toBeInTheDocument();
     await expect(
-      canvas.getByTestId(`workspace-axiom-palette-item-${"G1" satisfies string}`),
+      canvas.getByTestId(
+        `workspace-axiom-palette-item-${"G1" satisfies string}`,
+      ),
     ).toBeInTheDocument();
 
     // G1ノードが配置されている
-    await expect(canvas.getByTestId(`proof-node-${"node-1" satisfies string}`)).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(`proof-node-${"node-1" satisfies string}`),
+    ).toBeInTheDocument();
 
     // ゴールノードが配置されている
-    await expect(canvas.getByTestId(`proof-node-${"node-2" satisfies string}`)).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(`proof-node-${"node-2" satisfies string}`),
+    ).toBeInTheDocument();
 
     // 証明完了バナーが表示されている
     await expect(
@@ -272,10 +278,18 @@ export const IdentityTimesIdentityCompleted: Story = {
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
     // 3つの証明ノード + ゴールノードが存在する
-    await expect(canvas.getByTestId(`proof-node-${"node-1" satisfies string}`)).toBeInTheDocument();
-    await expect(canvas.getByTestId(`proof-node-${"node-2" satisfies string}`)).toBeInTheDocument();
-    await expect(canvas.getByTestId(`proof-node-${"node-3" satisfies string}`)).toBeInTheDocument();
-    await expect(canvas.getByTestId(`proof-node-${"node-4" satisfies string}`)).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(`proof-node-${"node-1" satisfies string}`),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(`proof-node-${"node-2" satisfies string}`),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(`proof-node-${"node-3" satisfies string}`),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(`proof-node-${"node-4" satisfies string}`),
+    ).toBeInTheDocument();
 
     // MP適用が成功している
     await expect(
@@ -308,9 +322,15 @@ export const IdentityTimesIdentityInteractive: Story = {
     ).not.toBeInTheDocument();
 
     // 2つの証明ノード + ゴールノードが存在（G2L, A5, Goal）
-    await expect(canvas.getByTestId(`proof-node-${"node-1" satisfies string}`)).toBeInTheDocument();
-    await expect(canvas.getByTestId(`proof-node-${"node-2" satisfies string}`)).toBeInTheDocument();
-    await expect(canvas.getByTestId(`proof-node-${"node-3" satisfies string}`)).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(`proof-node-${"node-1" satisfies string}`),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(`proof-node-${"node-2" satisfies string}`),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(`proof-node-${"node-3" satisfies string}`),
+    ).toBeInTheDocument();
 
     // MP適用でStep 3を実行: node-1(左前提: G2L) と node-2(右前提: A5) を選択
     await userEvent.click(canvas.getByTestId("workspace-mp-button"));
@@ -319,16 +339,22 @@ export const IdentityTimesIdentityInteractive: Story = {
     );
 
     // 左前提: node-1 (∀x. e * x = x)
-    await userEvent.click(canvas.getByTestId(`proof-node-${"node-1" satisfies string}`));
+    await userEvent.click(
+      canvas.getByTestId(`proof-node-${"node-1" satisfies string}`),
+    );
     await expect(canvas.getByTestId("workspace-mp-banner")).toHaveTextContent(
       "Click the right premise",
     );
 
     // 右前提: node-2 ((∀x. e * x = x) → e * e = e)
-    await userEvent.click(canvas.getByTestId(`proof-node-${"node-2" satisfies string}`));
+    await userEvent.click(
+      canvas.getByTestId(`proof-node-${"node-2" satisfies string}`),
+    );
 
     // MPノードが生成された（node-4: ゴールノードがnode-3なので、MPはnode-4になる）
-    await expect(canvas.getByTestId(`proof-node-${"node-4" satisfies string}`)).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(`proof-node-${"node-4" satisfies string}`),
+    ).toBeInTheDocument();
     await expect(
       canvas.getByTestId(`proof-node-${"node-4" satisfies string}-status`),
     ).toHaveTextContent("MP applied");
@@ -358,10 +384,18 @@ export const InverseIdentityProof: Story = {
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
     // 3つの証明ノード + ゴールノードが存在する
-    await expect(canvas.getByTestId(`proof-node-${"node-1" satisfies string}`)).toBeInTheDocument();
-    await expect(canvas.getByTestId(`proof-node-${"node-2" satisfies string}`)).toBeInTheDocument();
-    await expect(canvas.getByTestId(`proof-node-${"node-3" satisfies string}`)).toBeInTheDocument();
-    await expect(canvas.getByTestId(`proof-node-${"node-4" satisfies string}`)).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(`proof-node-${"node-1" satisfies string}`),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(`proof-node-${"node-2" satisfies string}`),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(`proof-node-${"node-3" satisfies string}`),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(`proof-node-${"node-4" satisfies string}`),
+    ).toBeInTheDocument();
 
     // MP適用が成功している
     await expect(

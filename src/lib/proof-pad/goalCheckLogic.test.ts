@@ -84,19 +84,13 @@ describe("goalCheckLogic", () => {
     });
 
     it("returns GoalPartiallyAchieved when goal formula doesn't match any work node", () => {
-      const nodes = [
-        makeGoalNode("goal-1", "phi"),
-        makeNode("node-1", "psi"),
-      ];
+      const nodes = [makeGoalNode("goal-1", "phi"), makeNode("node-1", "psi")];
       const result = checkGoal(nodes);
       expect(result._tag).toBe("GoalPartiallyAchieved");
     });
 
     it("returns GoalAllAchieved when a work node matches the goal", () => {
-      const nodes = [
-        makeGoalNode("goal-1", "phi"),
-        makeNode("node-1", "phi"),
-      ];
+      const nodes = [makeGoalNode("goal-1", "phi"), makeNode("node-1", "phi")];
       const result = checkGoal(nodes);
       expect(result._tag).toBe("GoalAllAchieved");
       if (result._tag === "GoalAllAchieved") {
@@ -236,10 +230,7 @@ describe("goalCheckLogic", () => {
     });
 
     it("provides goalFormula in GoalAllAchieved result", () => {
-      const nodes = [
-        makeGoalNode("goal-1", "phi"),
-        makeNode("node-1", "phi"),
-      ];
+      const nodes = [makeGoalNode("goal-1", "phi"), makeNode("node-1", "phi")];
       const result = checkGoal(nodes) as Extract<
         GoalCheckResult,
         { readonly _tag: "GoalAllAchieved" }

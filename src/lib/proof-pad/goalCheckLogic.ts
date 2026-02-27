@@ -79,9 +79,7 @@ export function parseGoalFormula(goalText: string): Formula | undefined {
  * @param nodes ワークスペース上のノード一覧
  * @returns ゴールチェック結果
  */
-export function checkGoal(
-  nodes: readonly WorkspaceNode[],
-): GoalCheckResult {
+export function checkGoal(nodes: readonly WorkspaceNode[]): GoalCheckResult {
   const goalNodes = nodes.filter((n) => n.role === "goal");
   if (goalNodes.length === 0) {
     return { _tag: "GoalNotSet" };
