@@ -18,9 +18,10 @@ afterEach(cleanup);
 function renderNode(
   overrides?: Partial<React.ComponentProps<typeof EditableProofNode>>,
 ) {
+  const kind: ProofNodeKind = overrides?.kind ?? "axiom";
   const defaultProps = {
     id: "node-1",
-    kind: "axiom" as ProofNodeKind,
+    kind,
     label: "Axiom",
     formulaText: "φ → (ψ → φ)",
     onFormulaTextChange: vi.fn(),
@@ -80,9 +81,7 @@ describe("EditableProofNode", () => {
     it("全種別で紙カード背景色が適用される", () => {
       for (const kind of [
         "axiom",
-        "mp",
-        "gen",
-        "substitution",
+        "derived",
         "conclusion",
       ] as const) {
         cleanup();
@@ -97,17 +96,11 @@ describe("EditableProofNode", () => {
     it("全種別でカテゴリ色の左辺ストライプが適用される", () => {
       const stripeColors: Record<ProofNodeKind, string> = {
         axiom: "var(--color-node-axiom, #5b8bd9)",
-        mp: "var(--color-node-mp, #d9944a)",
-        gen: "var(--color-node-gen, #9b59b6)",
-        substitution: "var(--color-node-substitution, #3498db)",
         derived: "var(--color-node-derived, #e6a84d)",
         conclusion: "var(--color-node-conclusion, #4ad97a)",
       };
       for (const kind of [
         "axiom",
-        "mp",
-        "gen",
-        "substitution",
         "derived",
         "conclusion",
       ] as const) {
@@ -256,9 +249,9 @@ describe("EditableProofNode", () => {
   });
 
   describe("各ノード種別", () => {
-    it("MPノードが正しくレンダリングされる", () => {
+    it("derivedノードが正しくレンダリングされる", () => {
       renderNode({
-        kind: "mp",
+        kind: "derived",
         label: "MP",
         formulaText: "(φ→(φ→φ)) → (φ→φ)",
       });
@@ -444,7 +437,7 @@ describe("EditableProofNode", () => {
       const { container } = render(
         <EditableProofNode
           id="node-1"
-          kind="mp"
+          kind="derived"
           label="MP"
           formulaText="ψ"
           editable={false}

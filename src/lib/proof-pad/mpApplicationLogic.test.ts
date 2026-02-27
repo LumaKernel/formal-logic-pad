@@ -12,12 +12,34 @@ import {
   isNodeImplication,
 } from "./mpApplicationLogic";
 import type { WorkspaceNode } from "./workspaceState";
+import type { MPEdge } from "./inferenceEdge";
+
+/** Helper to add an MP inference edge to a workspace state */
+function addMPEdge(
+  ws: ReturnType<typeof createEmptyWorkspace>,
+  conclusionNodeId: string,
+  leftPremiseNodeId: string | undefined,
+  rightPremiseNodeId: string | undefined,
+  conclusionText = "",
+): ReturnType<typeof createEmptyWorkspace> {
+  const edge: MPEdge = {
+    _tag: "mp",
+    conclusionNodeId,
+    leftPremiseNodeId,
+    rightPremiseNodeId,
+    conclusionText,
+  };
+  return {
+    ...ws,
+    inferenceEdges: [...ws.inferenceEdges, edge],
+  };
+}
 
 describe("mpApplicationLogic", () => {
   describe("getMPPremises", () => {
-    it("returns undefined for both when no connections", () => {
+    it("returns undefined for both when no inference edge", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 });
+      ws = addNode(ws, "derived", "MP", { x: 0, y: 0 });
       const premises = getMPPremises(ws, "node-1");
       expect(premises.leftNodeId).toBeUndefined();
       expect(premises.rightNodeId).toBeUndefined();
@@ -26,8 +48,9 @@ describe("mpApplicationLogic", () => {
     it("returns left premise node id", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+      ws = addMPEdge(ws, "node-2", "node-1", undefined);
       const premises = getMPPremises(ws, "node-2");
       expect(premises.leftNodeId).toBe("node-1");
       expect(premises.rightNodeId).toBeUndefined();
@@ -36,8 +59,9 @@ describe("mpApplicationLogic", () => {
     it("returns right premise node id", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> psi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-right");
+      ws = addMPEdge(ws, "node-2", undefined, "node-1");
       const premises = getMPPremises(ws, "node-2");
       expect(premises.leftNodeId).toBeUndefined();
       expect(premises.rightNodeId).toBe("node-1");
@@ -47,20 +71,22 @@ describe("mpApplicationLogic", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const premises = getMPPremises(ws, "node-3");
       expect(premises.leftNodeId).toBe("node-1");
       expect(premises.rightNodeId).toBe("node-2");
     });
 
-    it("ignores connections to other nodes", () => {
+    it("ignores inference edges for other nodes", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "mp", "MP-1", { x: 100, y: 100 });
-      ws = addNode(ws, "mp", "MP-2", { x: 200, y: 200 });
+      ws = addNode(ws, "derived", "MP-1", { x: 100, y: 100 });
+      ws = addNode(ws, "derived", "MP-2", { x: 200, y: 200 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+      ws = addMPEdge(ws, "node-2", "node-1", undefined);
       const premises = getMPPremises(ws, "node-3");
       expect(premises.leftNodeId).toBeUndefined();
       expect(premises.rightNodeId).toBeUndefined();
@@ -129,9 +155,9 @@ describe("mpApplicationLogic", () => {
   });
 
   describe("validateMPApplication", () => {
-    it("returns BothPremisesMissing when no connections", () => {
+    it("returns BothPremisesMissing when no inference edge", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 });
+      ws = addNode(ws, "derived", "MP", { x: 0, y: 0 });
       const result = validateMPApplication(ws, "node-1");
       expect(result._tag).toBe("BothPremisesMissing");
     });
@@ -139,8 +165,9 @@ describe("mpApplicationLogic", () => {
     it("returns LeftPremiseMissing when only right is connected", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> psi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-right");
+      ws = addMPEdge(ws, "node-2", undefined, "node-1");
       const result = validateMPApplication(ws, "node-2");
       expect(result._tag).toBe("LeftPremiseMissing");
     });
@@ -148,8 +175,9 @@ describe("mpApplicationLogic", () => {
     it("returns RightPremiseMissing when only left is connected", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+      ws = addMPEdge(ws, "node-2", "node-1", undefined);
       const result = validateMPApplication(ws, "node-2");
       expect(result._tag).toBe("RightPremiseMissing");
     });
@@ -158,9 +186,10 @@ describe("mpApplicationLogic", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "-> ->");
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const result = validateMPApplication(ws, "node-3");
       expect(result._tag).toBe("LeftParseError");
     });
@@ -169,9 +198,10 @@ describe("mpApplicationLogic", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "");
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const result = validateMPApplication(ws, "node-3");
       expect(result._tag).toBe("LeftParseError");
     });
@@ -180,9 +210,10 @@ describe("mpApplicationLogic", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "-> ->");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const result = validateMPApplication(ws, "node-3");
       expect(result._tag).toBe("RightParseError");
     });
@@ -191,9 +222,10 @@ describe("mpApplicationLogic", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "psi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const result = validateMPApplication(ws, "node-3");
       expect(result._tag).toBe("RuleError");
       if (result._tag === "RuleError") {
@@ -205,9 +237,10 @@ describe("mpApplicationLogic", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "psi -> chi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const result = validateMPApplication(ws, "node-3");
       expect(result._tag).toBe("RuleError");
       if (result._tag === "RuleError") {
@@ -219,9 +252,10 @@ describe("mpApplicationLogic", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const result = validateMPApplication(ws, "node-3");
       expect(result._tag).toBe("Success");
       if (result._tag === "Success") {
@@ -240,9 +274,10 @@ describe("mpApplicationLogic", () => {
         { x: 200, y: 0 },
         "(phi -> (psi -> phi)) -> (chi -> (phi -> (psi -> phi)))",
       );
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const result = validateMPApplication(ws, "node-3");
       expect(result._tag).toBe("Success");
       if (result._tag === "Success") {
@@ -255,14 +290,16 @@ describe("mpApplicationLogic", () => {
       // First MP: phi, phi -> psi => psi
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
-      ws = addNode(ws, "mp", "MP-1", { x: 100, y: 150 }, "psi");
+      ws = addNode(ws, "derived", "MP-1", { x: 100, y: 150 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       // Second MP: psi, psi -> chi => chi
       ws = addNode(ws, "axiom", "Axiom", { x: 400, y: 0 }, "psi -> chi");
-      ws = addNode(ws, "mp", "MP-2", { x: 250, y: 300 });
+      ws = addNode(ws, "derived", "MP-2", { x: 250, y: 300 });
       ws = addConnection(ws, "node-3", "out", "node-5", "premise-left");
       ws = addConnection(ws, "node-4", "out", "node-5", "premise-right");
+      ws = addMPEdge(ws, "node-5", "node-3", "node-4");
       const result = validateMPApplication(ws, "node-5");
       expect(result._tag).toBe("Success");
       if (result._tag === "Success") {

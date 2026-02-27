@@ -1,7 +1,8 @@
 /**
  * 証明ワークスペースの純粋な状態管理ロジック。
  *
- * ワークスペース上のノード（公理/MP/結論）の配置、接続、論理体系設定を管理する。
+ * ワークスペース上のノード（公理/導出/結論）の配置、接続、論理体系設定を管理する。
+ * 推論規則（MP/Gen/Substitution）はInferenceEdgeで管理される。
  * UIコンポーネント（ProofWorkspace.tsx）から利用される。
  *
  * 変更時は workspaceState.test.ts, ProofWorkspace.tsx, index.ts も同期すること。
@@ -10,7 +11,7 @@
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
 import type { Point } from "../infinite-canvas/types";
 import type { ProofNodeKind } from "./proofNodeUI";
-import { extractInferenceEdges, type InferenceEdge } from "./inferenceEdge";
+import type { InferenceEdge } from "./inferenceEdge";
 import type { NodeRole } from "./nodeRoleLogic";
 import {
   validateMPApplication,
@@ -66,9 +67,9 @@ export type WorkspaceNode = {
   readonly label: string;
   readonly formulaText: string;
   readonly position: Point;
-  /** Gen規則で使用する量化変数名（genノードのみ） */
+  /** Gen規則で使用する量化変数名（InferenceEdge経由で管理、後方互換用に保持） */
   readonly genVariableName?: string;
-  /** 代入操作のエントリリスト（substitutionノードのみ） */
+  /** 代入操作のエントリリスト（InferenceEdge経由で管理、後方互換用に保持） */
   readonly substitutionEntries?: SubstitutionEntries;
   /** ユーザーが明示的に設定した役割（"axiom" | "goal" | undefined） */
   readonly role?: NodeRole;
@@ -102,8 +103,7 @@ export type WorkspaceState = {
   /**
    * 推論エッジ（source of truth）。
    * ノード/接続変更時に自動的に再構築される。
-   * レガシーノード（kind: "mp"/"gen"/"substitution"）からは extractInferenceEdges で抽出。
-   * 新しい derived ノードでは直接管理される。
+   * derivedノードの推論情報はInferenceEdgeに直接保持される。
    */
   readonly inferenceEdges: readonly InferenceEdge[];
 };
@@ -114,35 +114,20 @@ export type WorkspaceState = {
  * ワークスペース状態のinferenceEdgesを現在のノード・接続から再構築する。
  * ノードや接続を変更した後に呼ぶ。
  *
- * レガシーノード（kind: "mp"/"gen"/"substitution"）→ extractInferenceEdges で再抽出。
- * derivedノード → 既存のInferenceEdgeを保持（ノードが存在する限り）。
+ * 結論ノードが存在するInferenceEdgeのみ保持し、
+ * conclusionTextをノードのformulaTextと同期する。
  */
 function syncInferenceEdges(state: WorkspaceState): WorkspaceState {
-  // レガシーノードから再抽出
-  const legacyEdges = extractInferenceEdges(state);
-
   // ノードIDとformulaTextのマップを構築
   const nodeMap = new Map(state.nodes.map((n) => [n.id, n]));
 
-  // 既存の derived ノード用 InferenceEdge を保持（ノードが存在するもののみ）
+  // InferenceEdge を保持（結論ノードが存在するもののみ）
   // conclusionText をノードの formulaText と同期する
-  const derivedEdges = state.inferenceEdges
+  const edges = state.inferenceEdges
     .filter((edge) => {
       const conclusionNode = nodeMap.get(edge.conclusionNodeId);
-      // レガシーの extractInferenceEdges が生成するものは除外
-      if (
-        conclusionNode &&
-        (conclusionNode.kind === "mp" ||
-          conclusionNode.kind === "gen" ||
-          conclusionNode.kind === "substitution")
-      ) {
-        return false; // レガシーノードのエッジは extractInferenceEdges で再生成
-      }
       // 結論ノードが存在しない場合は削除
-      if (!conclusionNode) {
-        return false;
-      }
-      return true;
+      return conclusionNode !== undefined;
     })
     .map((edge) => {
       // conclusionText をノードの formulaText と同期
@@ -156,7 +141,7 @@ function syncInferenceEdges(state: WorkspaceState): WorkspaceState {
 
   return {
     ...state,
-    inferenceEdges: [...legacyEdges, ...derivedEdges],
+    inferenceEdges: edges,
   };
 }
 
@@ -171,7 +156,7 @@ export function getInferenceEdges(
 
 /**
  * 推論エッジを直接追加する。
- * derived ノード用: ノードベースの extractInferenceEdges ではなく直接管理。
+ * derivedノードの推論情報をInferenceEdgeとして管理する。
  */
 function addInferenceEdge(
   state: WorkspaceState,
@@ -880,7 +865,6 @@ export function applyIncrementalLayout(
  * 推論エッジに関連する結論ノードのformulaTextを再計算する。
  *
  * InferenceEdge（source of truth）を走査し、各結論ノードを再検証する。
- * レガシーノード（kind: "mp"/"gen"/"substitution"）もフォールバックで処理する。
  *
  * 検証成功時は結論テキストをformulaTextに設定し、
  * 失敗時はformulaTextを空文字にクリアする。
@@ -906,88 +890,51 @@ export function revalidateInferenceConclusions(
     }
 
     const newNodes = current.nodes.map((node) => {
-      // InferenceEdge ベース: derived ノードまたはレガシーノードの結論再計算
       const edge = edgeByConclusion.get(node.id);
-      if (edge) {
-        switch (edge._tag) {
-          case "mp": {
-            const result = validateMPApplication(current, node.id);
-            const newText =
-              result._tag === "Success" ? result.conclusionText : "";
-            if (newText !== node.formulaText) {
-              changed = true;
-              return { ...node, formulaText: newText };
-            }
-            return node;
-          }
-          case "gen": {
-            const variableName = edge.variableName;
-            const result = validateGenApplication(
-              current,
-              node.id,
-              variableName,
-            );
-            const newText =
-              result._tag === "Success" ? result.conclusionText : "";
-            if (newText !== node.formulaText) {
-              changed = true;
-              return { ...node, formulaText: newText };
-            }
-            return node;
-          }
-          case "substitution": {
-            const entries = edge.entries;
-            const result = validateSubstitutionApplication(
-              current,
-              node.id,
-              entries,
-            );
-            const newText =
-              result._tag === "Success" ? result.conclusionText : "";
-            if (newText !== node.formulaText) {
-              changed = true;
-              return { ...node, formulaText: newText };
-            }
-            return node;
-          }
-        }
-      }
+      if (!edge) return node;
 
-      // レガシーフォールバック: kind ベースの判定（InferenceEdge がないレガシーノード）
-      if (node.kind === "mp") {
-        const result = validateMPApplication(current, node.id);
-        const newText = result._tag === "Success" ? result.conclusionText : "";
-        if (newText !== node.formulaText) {
-          changed = true;
-          return { ...node, formulaText: newText };
+      switch (edge._tag) {
+        case "mp": {
+          const result = validateMPApplication(current, node.id);
+          const newText =
+            result._tag === "Success" ? result.conclusionText : "";
+          if (newText !== node.formulaText) {
+            changed = true;
+            return { ...node, formulaText: newText };
+          }
+          return node;
         }
-        return node;
-      }
-      if (node.kind === "gen") {
-        const variableName = node.genVariableName ?? "";
-        const result = validateGenApplication(current, node.id, variableName);
-        const newText = result._tag === "Success" ? result.conclusionText : "";
-        if (newText !== node.formulaText) {
-          changed = true;
-          return { ...node, formulaText: newText };
+        case "gen": {
+          const variableName = edge.variableName;
+          const result = validateGenApplication(
+            current,
+            node.id,
+            variableName,
+          );
+          const newText =
+            result._tag === "Success" ? result.conclusionText : "";
+          if (newText !== node.formulaText) {
+            changed = true;
+            return { ...node, formulaText: newText };
+          }
+          return node;
         }
-        return node;
-      }
-      if (node.kind === "substitution") {
-        const entries = node.substitutionEntries ?? [];
-        const result = validateSubstitutionApplication(
-          current,
-          node.id,
-          entries,
-        );
-        const newText = result._tag === "Success" ? result.conclusionText : "";
-        if (newText !== node.formulaText) {
-          changed = true;
-          return { ...node, formulaText: newText };
+        case "substitution": {
+          const entries = edge.entries;
+          const result = validateSubstitutionApplication(
+            current,
+            node.id,
+            entries,
+          );
+          const newText =
+            result._tag === "Success" ? result.conclusionText : "";
+          if (newText !== node.formulaText) {
+            changed = true;
+            return { ...node, formulaText: newText };
+          }
+          return node;
         }
-        return node;
       }
-      return node;
     });
 
     if (!changed) break;

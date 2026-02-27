@@ -35,13 +35,8 @@ describe("computeStepCount", () => {
     expect(computeStepCount(nodes)).toBe(1);
   });
 
-  test("mpノードを1ステップとしてカウントする", () => {
-    const nodes = [makeNode({ id: "n1", kind: "mp" })];
-    expect(computeStepCount(nodes)).toBe(1);
-  });
-
-  test("genノードを1ステップとしてカウントする", () => {
-    const nodes = [makeNode({ id: "n1", kind: "gen" })];
+  test("derivedノードを1ステップとしてカウントする", () => {
+    const nodes = [makeNode({ id: "n1", kind: "derived" })];
     expect(computeStepCount(nodes)).toBe(1);
   });
 
@@ -61,12 +56,12 @@ describe("computeStepCount", () => {
     const nodes = [
       makeNode({ id: "n1", kind: "axiom" }),
       makeNode({ id: "n2", kind: "axiom" }),
-      makeNode({ id: "n3", kind: "mp" }),
-      makeNode({ id: "n4", kind: "gen" }),
+      makeNode({ id: "n3", kind: "derived" }),
+      makeNode({ id: "n4", kind: "derived" }),
       makeNode({ id: "n5", kind: "conclusion" }),
       makeNode({ id: "n6", kind: "axiom", protection: "quest-goal" }),
     ];
-    // axiom(2) + mp(1) + gen(1) = 4。conclusionとquest-goalは除外
+    // axiom(2) + derived(2) = 4。conclusionとquest-goalは除外
     expect(computeStepCount(nodes)).toBe(4);
   });
 
@@ -88,9 +83,9 @@ describe("computeStepCount", () => {
       makeNode({ id: "n1", kind: "axiom" }),
       makeNode({ id: "n2", kind: "axiom", role: "goal" }),
       makeNode({ id: "n3", kind: "axiom", protection: "quest-goal" }),
-      makeNode({ id: "n4", kind: "mp" }),
+      makeNode({ id: "n4", kind: "derived" }),
     ];
-    // axiom(n1) + mp(n4) = 2。role=goalとquest-goalは除外
+    // axiom(n1) + derived(n4) = 2。role=goalとquest-goalは除外
     expect(computeStepCount(nodes)).toBe(2);
   });
 });
@@ -142,7 +137,7 @@ describe("checkQuestGoals", () => {
       }),
       makeNode({
         id: "n2",
-        kind: "mp",
+        kind: "derived",
         formulaText: "phi -> phi",
       }),
     ];
@@ -170,7 +165,7 @@ describe("checkQuestGoals", () => {
       }),
       makeNode({
         id: "n1",
-        kind: "mp",
+        kind: "derived",
         formulaText: "phi -> phi",
       }),
     ];
@@ -198,7 +193,7 @@ describe("checkQuestGoals", () => {
       }),
       makeNode({
         id: "n1",
-        kind: "mp",
+        kind: "derived",
         formulaText: "phi -> phi",
       }),
       makeNode({
@@ -444,7 +439,7 @@ describe("checkQuestGoalsWithAxioms", () => {
       }),
       makeNode({
         id: "mp1",
-        kind: "mp",
+        kind: "derived",
         formulaText: "psi -> phi",
       }),
     ];

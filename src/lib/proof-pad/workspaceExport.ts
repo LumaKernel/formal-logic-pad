@@ -24,7 +24,6 @@ import type {
 import type { ProofNodeKind } from "./proofNodeUI";
 import type { NodeRole } from "./nodeRoleLogic";
 import type { Point } from "../infinite-canvas/types";
-import { extractInferenceEdges } from "./inferenceEdge";
 
 // --- エクスポートデータ型 ---
 
@@ -58,10 +57,18 @@ type SerializedLogicSystem = {
 const VALID_AXIOM_IDS: ReadonlySet<string> = new Set(["A1", "A2", "A3"]);
 const VALID_KINDS: ReadonlySet<string> = new Set([
   "axiom",
-  "mp",
-  "gen",
-  "substitution",
+  "derived",
   "conclusion",
+]);
+
+/**
+ * レガシーノード種別をderivedに変換する。
+ * 旧フォーマットの互換性のため、mp/gen/substitution をderivedとして読み込む。
+ */
+const LEGACY_KIND_MAP: ReadonlyMap<string, string> = new Map([
+  ["mp", "derived"],
+  ["gen", "derived"],
+  ["substitution", "derived"],
 ]);
 const VALID_MODES: ReadonlySet<string> = new Set(["free", "quest"]);
 const VALID_ROLES: ReadonlySet<string> = new Set(["axiom", "goal"]);
@@ -117,8 +124,16 @@ function parseNode(raw: unknown): WorkspaceNode | undefined {
   const obj = raw as Record<string, unknown>;
 
   if (typeof obj["id"] !== "string") return undefined;
-  if (typeof obj["kind"] !== "string" || !VALID_KINDS.has(obj["kind"]))
-    return undefined;
+  if (typeof obj["kind"] !== "string") return undefined;
+
+  // レガシー種別の変換
+  let kindStr = obj["kind"];
+  const mapped = LEGACY_KIND_MAP.get(kindStr);
+  if (mapped !== undefined) {
+    kindStr = mapped;
+  }
+  if (!VALID_KINDS.has(kindStr)) return undefined;
+
   if (typeof obj["label"] !== "string") return undefined;
   if (typeof obj["formulaText"] !== "string") return undefined;
 
@@ -127,7 +142,7 @@ function parseNode(raw: unknown): WorkspaceNode | undefined {
 
   let result: WorkspaceNode = {
     id: obj["id"],
-    kind: obj["kind"] as ProofNodeKind,
+    kind: kindStr as ProofNodeKind,
     label: obj["label"],
     formulaText: obj["formulaText"],
     position,
@@ -208,17 +223,13 @@ function parseWorkspaceState(raw: unknown): WorkspaceState | undefined {
     connections.push(parsed);
   }
 
-  const stateWithoutEdges: WorkspaceState = {
+  return {
     system,
     nodes,
     connections,
     inferenceEdges: [],
     nextNodeId: obj["nextNodeId"],
     mode: obj["mode"] as WorkspaceMode,
-  };
-  return {
-    ...stateWithoutEdges,
-    inferenceEdges: extractInferenceEdges(stateWithoutEdges),
   };
 }
 

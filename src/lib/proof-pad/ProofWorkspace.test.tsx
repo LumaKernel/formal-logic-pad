@@ -123,7 +123,7 @@ describe("ProofWorkspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
       ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 });
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
 
@@ -699,9 +699,11 @@ describe("ProofWorkspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "psi -> chi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
-      ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
-      ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      const result = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 150,
+      });
+      ws = result.workspace;
 
       render(
         <ProofWorkspace
@@ -723,9 +725,11 @@ describe("ProofWorkspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 }, "psi");
-      ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
-      ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      const result = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 150,
+      });
+      ws = result.workspace;
 
       render(
         <ProofWorkspace
@@ -745,7 +749,7 @@ describe("ProofWorkspace", () => {
 
     it("does not show status for MP node without connections", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
 
       render(
         <ProofWorkspace
@@ -1302,7 +1306,7 @@ describe("ProofWorkspace", () => {
 
     it("does not show status for Gen node without connections", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "gen", "Gen", { x: 0, y: 0 });
+      ws = addNode(ws, "derived", "Gen", { x: 0, y: 0 });
       ws = updateNodeGenVariableName(ws, "node-1", "x");
 
       render(
@@ -1322,9 +1326,9 @@ describe("ProofWorkspace", () => {
     it("shows error status for Gen node with empty variable name", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "gen", "Gen", { x: 0, y: 150 });
-      // No genVariableName set (defaults to "")
-      ws = addConnection(ws, "node-1", "out", "node-2", "premise");
+      // applyGenAndConnect with empty variable name to create InferenceEdge
+      const result = applyGenAndConnect(ws, "node-1", "", { x: 0, y: 150 });
+      ws = result.workspace;
 
       render(
         <ProofWorkspace
@@ -1997,7 +2001,7 @@ describe("ProofWorkspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 100 }, "psi");
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 100 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
 
@@ -2029,7 +2033,7 @@ describe("ProofWorkspace", () => {
       // axiom(node-1) → mp(node-2) (node-2 is leaf in subtree direction)
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 100 }, "psi");
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 100 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
@@ -2824,7 +2828,7 @@ describe("ProofWorkspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 100 }, "psi");
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 100 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
 

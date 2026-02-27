@@ -34,7 +34,7 @@ const nodeB: WorkspaceNode = {
 
 const nodeC: WorkspaceNode = {
   id: "node-3",
-  kind: "mp",
+  kind: "derived",
   label: "MP",
   formulaText: "(phi -> psi) -> (phi -> chi)",
   position: { x: 200, y: 300 },
@@ -42,7 +42,7 @@ const nodeC: WorkspaceNode = {
 
 const nodeD: WorkspaceNode = {
   id: "node-4",
-  kind: "gen",
+  kind: "derived",
   label: "Gen",
   formulaText: "forall x . phi",
   position: { x: 400, y: 300 },

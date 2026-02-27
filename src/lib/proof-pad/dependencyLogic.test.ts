@@ -12,7 +12,7 @@ import type { LogicSystem } from "../logic-core/inferenceRule";
 
 function makeNode(
   id: string,
-  kind: "axiom" | "mp" | "gen" = "axiom",
+  kind: "axiom" | "derived" = "axiom",
 ): WorkspaceNode {
   return {
     id,
@@ -57,7 +57,7 @@ describe("dependencyLogic", () => {
 
     it("1つの前提を持つ導出ノードはその前提の公理に依存する", () => {
       // axiom-1 → mp-1
-      const nodes = [makeNode("axiom-1"), makeNode("mp-1", "mp")];
+      const nodes = [makeNode("axiom-1"), makeNode("mp-1", "derived")];
       const connections = [makeConnection("axiom-1", "mp-1", "premise-left")];
 
       const deps = getNodeDependencies("mp-1", nodes, connections);
@@ -69,7 +69,7 @@ describe("dependencyLogic", () => {
       const nodes = [
         makeNode("axiom-1"),
         makeNode("axiom-2"),
-        makeNode("mp-1", "mp"),
+        makeNode("mp-1", "derived"),
       ];
       const connections = [
         makeConnection("axiom-1", "mp-1", "premise-left"),
@@ -86,8 +86,8 @@ describe("dependencyLogic", () => {
       const nodes = [
         makeNode("axiom-1"),
         makeNode("axiom-2"),
-        makeNode("mp-1", "mp"),
-        makeNode("mp-2", "mp"),
+        makeNode("mp-1", "derived"),
+        makeNode("mp-2", "derived"),
       ];
       const connections = [
         makeConnection("axiom-1", "mp-1", "premise-left"),
@@ -109,9 +109,9 @@ describe("dependencyLogic", () => {
         makeNode("axiom-1"),
         makeNode("axiom-2"),
         makeNode("axiom-3"),
-        makeNode("mp-1", "mp"),
-        makeNode("mp-2", "mp"),
-        makeNode("mp-3", "mp"),
+        makeNode("mp-1", "derived"),
+        makeNode("mp-2", "derived"),
+        makeNode("mp-3", "derived"),
       ];
       const connections = [
         makeConnection("axiom-1", "mp-1", "premise-left"),
@@ -128,7 +128,7 @@ describe("dependencyLogic", () => {
 
     it("Genノードも正しく公理まで遡る", () => {
       // axiom-1 → gen-1
-      const nodes = [makeNode("axiom-1"), makeNode("gen-1", "gen")];
+      const nodes = [makeNode("axiom-1"), makeNode("gen-1", "derived")];
       const connections = [makeConnection("axiom-1", "gen-1", "premise")];
 
       const deps = getNodeDependencies("gen-1", nodes, connections);
@@ -145,10 +145,10 @@ describe("dependencyLogic", () => {
         makeNode("axiom-2"),
         makeNode("axiom-3"),
         makeNode("axiom-4"),
-        makeNode("mp-1", "mp"),
-        makeNode("mp-2", "mp"),
-        makeNode("gen-1", "gen"),
-        makeNode("mp-3", "mp"),
+        makeNode("mp-1", "derived"),
+        makeNode("mp-2", "derived"),
+        makeNode("gen-1", "derived"),
+        makeNode("mp-3", "derived"),
       ];
       const connections = [
         makeConnection("axiom-1", "mp-1", "premise-left"),
@@ -193,7 +193,7 @@ describe("dependencyLogic", () => {
       const nodes = [
         makeNode("axiom-1"),
         makeNode("axiom-2"),
-        makeNode("mp-1", "mp"),
+        makeNode("mp-1", "derived"),
       ];
       const connections = [
         makeConnection("axiom-1", "mp-1", "premise-left"),
@@ -386,7 +386,7 @@ describe("dependencyLogic", () => {
           "a2",
           "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
         ),
-        { ...makeNode("mp1", "mp"), formulaText: "some derived formula" },
+        { ...makeNode("mp1", "derived"), formulaText: "some derived formula" },
       ];
       const connections = [
         makeConnection("a1", "mp1", "premise-left"),
@@ -406,7 +406,7 @@ describe("dependencyLogic", () => {
       const nodes = [
         makeAxiomNode("unknown", "phi"),
         makeAxiomNode("a1", "phi -> (psi -> phi)"),
-        { ...makeNode("mp1", "mp"), formulaText: "" },
+        { ...makeNode("mp1", "derived"), formulaText: "" },
       ];
       const connections = [
         makeConnection("unknown", "mp1", "premise-left"),
@@ -472,8 +472,8 @@ describe("dependencyLogic", () => {
           "a2",
           "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
         ),
-        { ...makeNode("mp1", "mp"), formulaText: "" },
-        { ...makeNode("mp2", "mp"), formulaText: "" },
+        { ...makeNode("mp1", "derived"), formulaText: "" },
+        { ...makeNode("mp2", "derived"), formulaText: "" },
       ];
       const connections = [
         makeConnection("a1", "mp1", "premise-left"),

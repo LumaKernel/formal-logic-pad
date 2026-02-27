@@ -85,10 +85,10 @@ describe("proofWorkspace", () => {
       expect(result.nodes[0]!.formulaText).toBe("phi -> phi");
     });
 
-    it("adds an MP node", () => {
+    it("adds a derived node", () => {
       const ws = createEmptyWorkspace(lukasiewiczSystem);
-      const result = addNode(ws, "mp", "MP", { x: 50, y: 50 });
-      expect(result.nodes[0]!.kind).toBe("mp");
+      const result = addNode(ws, "derived", "MP", { x: 50, y: 50 });
+      expect(result.nodes[0]!.kind).toBe("derived");
       expect(result.nodes[0]!.label).toBe("MP");
     });
 
@@ -102,7 +102,7 @@ describe("proofWorkspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 });
-      ws = addNode(ws, "mp", "MP", { x: 50, y: 100 });
+      ws = addNode(ws, "derived", "MP", { x: 50, y: 100 });
       expect(ws.nodes).toHaveLength(3);
       expect(ws.nodes[0]!.id).toBe("node-1");
       expect(ws.nodes[1]!.id).toBe("node-2");
@@ -189,7 +189,7 @@ describe("proofWorkspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 });
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
       const result = removeNode(ws, "node-1");
@@ -201,7 +201,7 @@ describe("proofWorkspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 });
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
       // Remove node-3 (target of both connections)
@@ -213,8 +213,8 @@ describe("proofWorkspace", () => {
     it("removes connections where removed node is both source and target", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
-      ws = addNode(ws, "mp", "MP-1", { x: 100, y: 150 });
-      ws = addNode(ws, "mp", "MP-2", { x: 200, y: 300 });
+      ws = addNode(ws, "derived", "MP-1", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP-2", { x: 200, y: 300 });
       ws = addNode(ws, "axiom", "Axiom", { x: 300, y: 0 });
       // node-1 → node-2 (node-2 is target)
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
@@ -242,7 +242,7 @@ describe("proofWorkspace", () => {
     it("adds a connection between nodes", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 100 });
       const result = addConnection(
         ws,
         "node-1",
@@ -263,7 +263,7 @@ describe("proofWorkspace", () => {
     it("does not mutate original state", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 100 });
       addConnection(ws, "node-1", "out", "node-2", "premise-left");
       expect(ws.connections).toHaveLength(0);
     });
@@ -273,7 +273,7 @@ describe("proofWorkspace", () => {
     it("removes a connection", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
       const result = removeConnection(
         ws,
@@ -286,7 +286,7 @@ describe("proofWorkspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 });
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
       const result = removeConnection(
@@ -308,7 +308,7 @@ describe("proofWorkspace", () => {
     it("preserves nodes and connections", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 100 });
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
       const result = changeSystem(ws, equalityLogicSystem);
       expect(result.nodes).toHaveLength(2);
@@ -422,7 +422,7 @@ describe("proofWorkspace", () => {
   describe("updateNodeGenVariableName", () => {
     it("updates gen variable name on a node", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "gen", "Gen", { x: 0, y: 0 });
+      ws = addNode(ws, "derived", "Gen", { x: 0, y: 0 });
       const result = updateNodeGenVariableName(ws, "node-1", "x");
       expect(result.nodes[0]!.genVariableName).toBe("x");
     });
@@ -430,7 +430,7 @@ describe("proofWorkspace", () => {
     it("does not affect other nodes", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "gen", "Gen", { x: 100, y: 100 });
+      ws = addNode(ws, "derived", "Gen", { x: 100, y: 100 });
       const result = updateNodeGenVariableName(ws, "node-2", "x");
       expect(result.nodes[0]!.genVariableName).toBeUndefined();
       expect(result.nodes[1]!.genVariableName).toBe("x");
@@ -521,7 +521,7 @@ describe("proofWorkspace", () => {
   describe("updateNodeSubstitutionEntries", () => {
     it("sets substitutionEntries on the node", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "substitution", "Subst", { x: 0, y: 0 });
+      ws = addNode(ws, "derived", "Subst", { x: 0, y: 0 });
       const entries: SubstitutionEntries = [
         {
           _tag: "FormulaSubstitution",
@@ -537,7 +537,7 @@ describe("proofWorkspace", () => {
     it("does not affect other nodes", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "substitution", "Subst", { x: 0, y: 100 });
+      ws = addNode(ws, "derived", "Subst", { x: 0, y: 100 });
       const entries: SubstitutionEntries = [
         {
           _tag: "FormulaSubstitution",
@@ -1064,8 +1064,8 @@ describe("proofWorkspace", () => {
     it("removes connections where selected node is target only", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
-      ws = addNode(ws, "mp", "MP-1", { x: 100, y: 150 });
-      ws = addNode(ws, "mp", "MP-2", { x: 200, y: 300 });
+      ws = addNode(ws, "derived", "MP-1", { x: 100, y: 150 });
+      ws = addNode(ws, "derived", "MP-2", { x: 200, y: 300 });
       ws = addNode(ws, "axiom", "Axiom", { x: 300, y: 0 });
       // node-1 → node-2 (node-2 is target)
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
@@ -1088,7 +1088,7 @@ describe("proofWorkspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "psi");
-      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "derived", "MP", { x: 0, y: 0 }, "phi -> psi");
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
 
@@ -1113,7 +1113,7 @@ describe("proofWorkspace", () => {
     it("bottom-to-topでルートが下に配置される", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 }, "psi");
+      ws = addNode(ws, "derived", "MP", { x: 0, y: 0 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
 
       const result = applyTreeLayout(ws, "bottom-to-top");
@@ -1128,7 +1128,7 @@ describe("proofWorkspace", () => {
     it("ノードサイズを指定できる", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 }, "psi");
+      ws = addNode(ws, "derived", "MP", { x: 0, y: 0 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
 
       const nodeSizes = new Map([
@@ -1381,7 +1381,7 @@ describe("proofWorkspace", () => {
       ws = applyTreeLayout(ws, "top-to-bottom");
 
       // 新しいノードを追加（レイアウト前の位置は0,0）
-      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 }, "psi");
+      ws = addNode(ws, "derived", "MP", { x: 0, y: 0 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
 
@@ -1412,7 +1412,7 @@ describe("proofWorkspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 200 }, "psi");
+      ws = addNode(ws, "derived", "MP", { x: 100, y: 200 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
       ws = applyTreeLayout(ws, "top-to-bottom");
@@ -1675,115 +1675,199 @@ describe("proofWorkspace", () => {
       expect(ws.inferenceEdges).toEqual([]);
     });
 
-    it("addNode with mp kind creates an MPEdge", () => {
+    it("applyMPAndConnect creates an MPEdge", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 });
-      expect(ws.inferenceEdges).toHaveLength(1);
-      expect(ws.inferenceEdges?.[0]?._tag).toBe("mp");
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
+      const result = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      expect(result.workspace.inferenceEdges).toHaveLength(1);
+      expect(result.workspace.inferenceEdges[0]?._tag).toBe("mp");
     });
 
-    it("addNode with gen kind creates a GenEdge", () => {
+    it("applyGenAndConnect creates a GenEdge", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "gen", "Gen", { x: 0, y: 0 });
-      expect(ws.inferenceEdges).toHaveLength(1);
-      expect(ws.inferenceEdges?.[0]?._tag).toBe("gen");
-    });
-
-    it("addNode with substitution kind creates a SubstitutionEdge", () => {
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "substitution", "Subst", { x: 0, y: 0 });
-      expect(ws.inferenceEdges).toHaveLength(1);
-      expect(ws.inferenceEdges?.[0]?._tag).toBe("substitution");
-    });
-
-    it("addConnection updates inferenceEdges with premise info", () => {
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Ax", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 0 });
-      // Before connection: MP has no premises
-      const mpEdgeBefore = ws.inferenceEdges?.find(
-        (e) => e._tag === "mp" && e.conclusionNodeId === "node-2",
+      const result = applyGenAndConnect(ws, "node-1", "x", {
+        x: 0,
+        y: 150,
+      });
+      expect(result.workspace.inferenceEdges).toHaveLength(1);
+      expect(result.workspace.inferenceEdges[0]?._tag).toBe("gen");
+    });
+
+    it("applySubstitutionAndConnect creates a SubstitutionEdge", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const result = applySubstitutionAndConnect(
+        ws,
+        "node-1",
+        [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha",
+          },
+        ],
+        { x: 0, y: 150 },
       );
-      expect(mpEdgeBefore).toBeDefined();
-      if (mpEdgeBefore?._tag === "mp") {
-        expect(mpEdgeBefore.leftPremiseNodeId).toBeUndefined();
+      expect(result.workspace.inferenceEdges).toHaveLength(1);
+      expect(result.workspace.inferenceEdges[0]?._tag).toBe("substitution");
+    });
+
+    it("addConnection does not modify existing inferenceEdges premises", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
+      // Create MP node via applyMPAndConnect
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      ws = mpResult.workspace;
+      // MP should have both premises set in the InferenceEdge
+      const mpEdge = ws.inferenceEdges?.find(
+        (e) => e._tag === "mp" && e.conclusionNodeId === "node-3",
+      );
+      expect(mpEdge).toBeDefined();
+      if (mpEdge?._tag === "mp") {
+        expect(mpEdge.leftPremiseNodeId).toBe("node-1");
+        expect(mpEdge.rightPremiseNodeId).toBe("node-2");
       }
-      // After connection: MP has left premise
-      ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+      // Adding a new connection does not update InferenceEdge premises
+      // (InferenceEdge premises are set at creation time by apply functions)
+      ws = addNode(ws, "axiom", "Ax3", { x: 300, y: 0 }, "chi");
+      ws = addConnection(ws, "node-4", "out", "node-3", "extra");
       const mpEdgeAfter = ws.inferenceEdges?.find(
-        (e) => e._tag === "mp" && e.conclusionNodeId === "node-2",
+        (e) => e._tag === "mp" && e.conclusionNodeId === "node-3",
+      );
+      if (mpEdgeAfter?._tag === "mp") {
+        // Premises remain unchanged
+        expect(mpEdgeAfter.leftPremiseNodeId).toBe("node-1");
+        expect(mpEdgeAfter.rightPremiseNodeId).toBe("node-2");
+      }
+    });
+
+    it("removeConnection preserves inferenceEdges", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      ws = mpResult.workspace;
+      // Before removal: has premise in InferenceEdge
+      const mpEdgeBefore = ws.inferenceEdges?.find(
+        (e) => e._tag === "mp" && e.conclusionNodeId === "node-3",
+      );
+      if (mpEdgeBefore?._tag === "mp") {
+        expect(mpEdgeBefore.leftPremiseNodeId).toBe("node-1");
+      }
+      // After removing legacy connection: InferenceEdge premises are preserved
+      // (InferenceEdge is the source of truth, not legacy connections)
+      ws = removeConnection(ws, "conn-node-1-out-node-3-premise-left");
+      const mpEdgeAfter = ws.inferenceEdges?.find(
+        (e) => e._tag === "mp" && e.conclusionNodeId === "node-3",
       );
       if (mpEdgeAfter?._tag === "mp") {
         expect(mpEdgeAfter.leftPremiseNodeId).toBe("node-1");
       }
     });
 
-    it("removeConnection updates inferenceEdges", () => {
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "Ax", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "mp", "MP", { x: 100, y: 0 });
-      ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
-      // Before removal: has premise
-      const mpEdgeBefore = ws.inferenceEdges?.find(
-        (e) => e._tag === "mp" && e.conclusionNodeId === "node-2",
-      );
-      if (mpEdgeBefore?._tag === "mp") {
-        expect(mpEdgeBefore.leftPremiseNodeId).toBe("node-1");
-      }
-      // After removal: no premise
-      ws = removeConnection(ws, "conn-node-1-out-node-2-premise-left");
-      const mpEdgeAfter = ws.inferenceEdges?.find(
-        (e) => e._tag === "mp" && e.conclusionNodeId === "node-2",
-      );
-      if (mpEdgeAfter?._tag === "mp") {
-        expect(mpEdgeAfter.leftPremiseNodeId).toBeUndefined();
-      }
-    });
-
     it("removeNode removes associated inferenceEdges", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      ws = mpResult.workspace;
       expect(ws.inferenceEdges).toHaveLength(1);
-      ws = removeNode(ws, "node-1");
+      ws = removeNode(ws, "node-3");
       expect(ws.inferenceEdges).toEqual([]);
     });
 
     it("updateNodeFormulaText syncs inferenceEdges conclusionText", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 });
-      expect(ws.inferenceEdges?.[0]?.conclusionText).toBe("");
-      ws = updateNodeFormulaText(ws, "node-1", "phi");
-      expect(ws.inferenceEdges?.[0]?.conclusionText).toBe("phi");
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      ws = mpResult.workspace;
+      // Conclusion should have been set by applyMPAndConnect
+      const originalText = ws.inferenceEdges?.[0]?.conclusionText;
+      expect(originalText).not.toBe("");
+      // Manually update the formula text of the MP node
+      ws = updateNodeFormulaText(ws, "node-3", "chi");
+      expect(ws.inferenceEdges?.[0]?.conclusionText).toBe("chi");
     });
 
-    it("updateNodeGenVariableName syncs inferenceEdges", () => {
+    it("updateNodeGenVariableName preserves inferenceEdges variableName", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "gen", "Gen", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Ax", { x: 0, y: 0 }, "phi");
+      const genResult = applyGenAndConnect(ws, "node-1", "x", {
+        x: 0,
+        y: 150,
+      });
+      ws = genResult.workspace;
       const genEdgeBefore = ws.inferenceEdges?.[0];
       if (genEdgeBefore?._tag === "gen") {
-        expect(genEdgeBefore.variableName).toBe("");
+        expect(genEdgeBefore.variableName).toBe("x");
       }
-      ws = updateNodeGenVariableName(ws, "node-1", "x");
+      // updateNodeGenVariableName updates the node's property
+      // but InferenceEdge variableName is set at creation time
+      ws = updateNodeGenVariableName(ws, "node-2", "y");
+      expect(findNode(ws, "node-2")?.genVariableName).toBe("y");
+      // InferenceEdge retains the original variable name
       const genEdgeAfter = ws.inferenceEdges?.[0];
       if (genEdgeAfter?._tag === "gen") {
         expect(genEdgeAfter.variableName).toBe("x");
       }
     });
 
-    it("updateNodeSubstitutionEntries syncs inferenceEdges", () => {
+    it("updateNodeSubstitutionEntries preserves inferenceEdges entries", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "substitution", "Subst", { x: 0, y: 0 });
-      const entries: SubstitutionEntries = [
+      ws = addNode(ws, "axiom", "Ax", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const originalEntries: SubstitutionEntries = [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          formulaText: "alpha",
+        },
+      ];
+      const substResult = applySubstitutionAndConnect(
+        ws,
+        "node-1",
+        originalEntries,
+        { x: 0, y: 150 },
+      );
+      ws = substResult.workspace;
+      // InferenceEdge has original entries
+      const edgeBefore = ws.inferenceEdges?.[0];
+      if (edgeBefore?._tag === "substitution") {
+        expect(edgeBefore.entries).toEqual(originalEntries);
+      }
+      // updateNodeSubstitutionEntries updates node property
+      // but InferenceEdge entries are set at creation time
+      const newEntries: SubstitutionEntries = [
         {
           _tag: "FormulaSubstitution",
           metaVariableName: "φ",
           formulaText: "psi",
         },
       ];
-      ws = updateNodeSubstitutionEntries(ws, "node-1", entries);
-      const edge = ws.inferenceEdges?.[0];
-      if (edge?._tag === "substitution") {
-        expect(edge.entries).toEqual(entries);
+      ws = updateNodeSubstitutionEntries(ws, "node-2", newEntries);
+      expect(findNode(ws, "node-2")?.substitutionEntries).toEqual(newEntries);
+      // InferenceEdge retains original entries
+      const edgeAfter = ws.inferenceEdges?.[0];
+      if (edgeAfter?._tag === "substitution") {
+        expect(edgeAfter.entries).toEqual(originalEntries);
       }
     });
 
@@ -1836,7 +1920,13 @@ describe("proofWorkspace", () => {
 
     it("getInferenceEdges returns cached edges when available", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      ws = mpResult.workspace;
       const edges1 = getInferenceEdges(ws);
       const edges2 = getInferenceEdges(ws);
       expect(edges1).toBe(edges2);
@@ -1850,37 +1940,86 @@ describe("proofWorkspace", () => {
 
     it("removeSelectedNodes syncs inferenceEdges", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "mp", "MP1", { x: 0, y: 0 });
-      ws = addNode(ws, "mp", "MP2", { x: 100, y: 0 });
+      // Create two MP nodes via applyMPAndConnect
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
+      const mp1 = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      ws = mp1.workspace;
+      // node-3 = MP1 result
+      ws = addNode(ws, "axiom", "Ax3", { x: 300, y: 0 }, "psi -> chi");
+      const mp2 = applyMPAndConnect(ws, "node-3", "node-4", {
+        x: 200,
+        y: 200,
+      });
+      ws = mp2.workspace;
+      // node-5 = MP2 result
       expect(ws.inferenceEdges).toHaveLength(2);
-      ws = removeSelectedNodes(ws, new Set(["node-1"]));
+      ws = removeSelectedNodes(ws, new Set(["node-3"]));
       expect(ws.inferenceEdges).toHaveLength(1);
-      expect(ws.inferenceEdges?.[0]?.conclusionNodeId).toBe("node-2");
+      expect(ws.inferenceEdges?.[0]?.conclusionNodeId).toBe("node-5");
     });
 
-    it("duplicateSelectedNodes syncs inferenceEdges in result", () => {
+    it("duplicateSelectedNodes preserves original inferenceEdges", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      ws = mpResult.workspace;
       expect(ws.inferenceEdges).toHaveLength(1);
-      const result = duplicateSelectedNodes(ws, new Set(["node-1"]));
-      // Should have 2 MP edges (original + duplicate)
-      expect(result.workspace.inferenceEdges).toHaveLength(2);
+      // Duplicate all 3 nodes (2 axioms + 1 derived MP)
+      const result = duplicateSelectedNodes(
+        ws,
+        new Set(["node-1", "node-2", "node-3"]),
+      );
+      // Original edge is preserved; duplicate nodes get new nodes but
+      // duplicateSelectedNodes doesn't include newInferenceEdges from paste
+      expect(result.workspace.inferenceEdges).toHaveLength(1);
+      expect(result.workspace.nodes).toHaveLength(6);
     });
 
     it("pasteNodes syncs inferenceEdges", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "mp", "MP", { x: 0, y: 0 });
-      const clipboardData = copySelectedNodes(ws, new Set(["node-1"]));
-      ws = pasteNodes(ws, clipboardData, { x: 200, y: 200 });
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      ws = mpResult.workspace;
+      const clipboardData = copySelectedNodes(
+        ws,
+        new Set(["node-1", "node-2", "node-3"]),
+      );
+      ws = pasteNodes(ws, clipboardData, { x: 400, y: 400 });
       expect(ws.inferenceEdges).toHaveLength(2);
     });
 
     it("cutSelectedNodes syncs inferenceEdges", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "mp", "MP1", { x: 0, y: 0 });
-      ws = addNode(ws, "mp", "MP2", { x: 100, y: 0 });
+      // Create two MP nodes via applyMPAndConnect
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
+      const mp1 = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      ws = mp1.workspace;
+      // node-3 = MP1 result
+      ws = addNode(ws, "axiom", "Ax3", { x: 300, y: 0 }, "psi -> chi");
+      const mp2 = applyMPAndConnect(ws, "node-3", "node-4", {
+        x: 200,
+        y: 200,
+      });
+      ws = mp2.workspace;
+      // node-5 = MP2 result
       expect(ws.inferenceEdges).toHaveLength(2);
-      const result = cutSelectedNodes(ws, new Set(["node-1"]));
+      const result = cutSelectedNodes(ws, new Set(["node-3"]));
       expect(result.workspace.inferenceEdges).toHaveLength(1);
     });
   });
