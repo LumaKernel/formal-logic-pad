@@ -222,6 +222,180 @@ function MPCascadeFailure() {
   );
 }
 
+// --- 巨大な証明木デモ ---
+
+function LargeProofTreeDemo() {
+  const initial = (() => {
+    // φ→φの証明(5ステップ)をベースに、A1でチェーンを3段に拡張する巨大証明木
+    // 合計11ノード（公理6 + MP4 + ゴール1）
+
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+
+    // === φ→φ の証明（既存パターン） ===
+    // Step 1: A1① φ → ((φ→φ) → φ)
+    ws = addNode(
+      ws,
+      "axiom",
+      "A1①",
+      { x: 50, y: 30 },
+      "phi -> ((phi -> phi) -> phi)",
+    );
+    // Step 2: A2 (φ → ((φ→φ) → φ)) → ((φ → (φ→φ)) → (φ → φ))
+    ws = addNode(
+      ws,
+      "axiom",
+      "A2",
+      { x: 500, y: 30 },
+      "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
+    );
+    // Step 3: MP(1,2) → (φ → (φ→φ)) → (φ → φ)
+    const mp1 = applyMPAndConnect(ws, "node-1", "node-2", { x: 280, y: 120 });
+    ws = mp1.workspace;
+    // Step 4: A1② φ → (φ→φ)
+    ws = addNode(ws, "axiom", "A1②", { x: 50, y: 200 }, "phi -> (phi -> phi)");
+    // Step 5: MP(4,3) → φ → φ
+    const mp2 = applyMPAndConnect(ws, "node-4", "node-3", { x: 280, y: 280 });
+    ws = mp2.workspace;
+
+    // === チェーン第2段: A1で包む ===
+    // Step 6: A1③ (φ→φ) → (ψ → (φ→φ))
+    ws = addNode(
+      ws,
+      "axiom",
+      "A1③",
+      { x: 600, y: 280 },
+      "(phi -> phi) -> (psi -> (phi -> phi))",
+    );
+    // Step 7: MP(5,6) → ψ → (φ→φ)
+    const mp3 = applyMPAndConnect(ws, "node-5", "node-6", { x: 450, y: 360 });
+    ws = mp3.workspace;
+
+    // === チェーン第3段: さらにA1で包む ===
+    // Step 8: A1④ (ψ→(φ→φ)) → (χ → (ψ→(φ→φ)))
+    ws = addNode(
+      ws,
+      "axiom",
+      "A1④",
+      { x: 750, y: 360 },
+      "(psi -> (phi -> phi)) -> (chi -> (psi -> (phi -> phi)))",
+    );
+    // Step 9: MP(7,8) → χ → (ψ→(φ→φ))
+    const mp4 = applyMPAndConnect(ws, "node-7", "node-8", { x: 600, y: 440 });
+    ws = mp4.workspace;
+
+    // ゴール: χ → (ψ → (φ → φ))
+    ws = addNode(
+      ws,
+      "axiom",
+      "Goal",
+      { x: 400, y: 520 },
+      "chi -> (psi -> (phi -> phi))",
+    );
+    ws = updateNodeRole(ws, "node-10", "goal");
+
+    return ws;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+// --- 異常系混合デモ ---
+
+function MixedErrorStatesDemo() {
+  const initial = (() => {
+    // 成功MP、失敗MP、パースエラー、複数ゴール（一部達成・一部未達成）が共存
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+
+    // 成功するMP: φ + (φ→ψ) → ψ
+    ws = addNode(ws, "axiom", "A: φ", { x: 50, y: 50 }, "phi");
+    ws = addNode(
+      ws,
+      "axiom",
+      "B: φ→ψ",
+      { x: 350, y: 50 },
+      "phi -> psi",
+    );
+    const mpOk = applyMPAndConnect(ws, "node-1", "node-2", {
+      x: 200,
+      y: 200,
+    });
+    ws = mpOk.workspace;
+
+    // 失敗するMP: α + (β→γ) → MP失敗（αとβが不一致）
+    ws = addNode(ws, "axiom", "C: α", { x: 550, y: 50 }, "alpha");
+    ws = addNode(
+      ws,
+      "axiom",
+      "D: β→γ",
+      { x: 850, y: 50 },
+      "beta -> gamma",
+    );
+    const mpFail = applyMPAndConnect(ws, "node-4", "node-5", {
+      x: 700,
+      y: 200,
+    });
+    ws = mpFail.workspace;
+
+    // パースエラーの公理ノード
+    ws = addNode(
+      ws,
+      "axiom",
+      "E: パースエラー",
+      { x: 550, y: 350 },
+      "-> -> invalid",
+    );
+
+    // 未接続の孤立ノード
+    ws = addNode(ws, "axiom", "F: 孤立", { x: 850, y: 350 }, "delta");
+
+    // ゴール1: ψ（MP成功で達成）
+    ws = addNode(ws, "axiom", "Goal①: ψ", { x: 100, y: 400 }, "psi");
+    ws = updateNodeRole(ws, "node-9", "goal");
+
+    // ゴール2: delta（未達成 - MPで証明されていない）
+    ws = addNode(
+      ws,
+      "axiom",
+      "Goal②: δ→δ",
+      { x: 400, y: 400 },
+      "delta -> delta",
+    );
+    ws = updateNodeRole(ws, "node-10", "goal");
+
+    return ws;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
 // --- Meta ---
 
 const meta = {
@@ -409,5 +583,92 @@ export const MPCascadeChainFailure: Story = {
     await expect(
       canvas.getByTestId("proof-node-node-5-status"),
     ).toHaveTextContent("Left premise has invalid formula");
+  },
+};
+
+/**
+ * 巨大な証明木デモ。
+ *
+ * φ→φの証明（5ステップ）をベースに、A1を使って結果を2段チェーンし、
+ * 合計11ノード（公理6 + MP4 + ゴール1）の大きな証明木を構築。
+ *
+ * 証明構造:
+ *   A1① + A2 → MP1 → (φ→(φ→φ))→(φ→φ)
+ *   A1② + MP1 → MP2 → φ→φ
+ *   MP2 + A1③ → MP3 → ψ→(φ→φ)
+ *   MP3 + A1④ → MP4 → χ→(ψ→(φ→φ))   ← ゴール達成
+ */
+export const LargeProofTree: Story = {
+  render: () => <LargeProofTreeDemo />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // 11ノード（公理6 + MP4 + ゴール1）が存在
+    for (let i = 1; i <= 10; i++) {
+      await expect(
+        canvas.getByTestId(`proof-node-node-${String(i) satisfies string}`),
+      ).toBeInTheDocument();
+    }
+
+    // 4つのMP適用がすべて成功
+    await expect(
+      canvas.getByTestId("proof-node-node-3-status"),
+    ).toHaveTextContent("MP applied");
+    await expect(
+      canvas.getByTestId("proof-node-node-5-status"),
+    ).toHaveTextContent("MP applied");
+    await expect(
+      canvas.getByTestId("proof-node-node-7-status"),
+    ).toHaveTextContent("MP applied");
+    await expect(
+      canvas.getByTestId("proof-node-node-9-status"),
+    ).toHaveTextContent("MP applied");
+
+    // ゴール達成（χ → (ψ → (φ → φ))）
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
+  },
+};
+
+/**
+ * 異常系混合デモ。
+ *
+ * 以下が同一ワークスペースに共存する状態:
+ * - 成功したMP（φ + φ→ψ → ψ）
+ * - 失敗したMP（α + β→γ → 前提不一致エラー）
+ * - パースエラーの公理ノード（"-> -> invalid"）
+ * - 未接続の孤立ノード（δ）
+ * - 達成済みゴール（ψ）
+ * - 未達成ゴール（δ→δ）
+ */
+export const MixedErrorStates: Story = {
+  render: () => <MixedErrorStatesDemo />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // 10ノードが存在
+    for (let i = 1; i <= 10; i++) {
+      await expect(
+        canvas.getByTestId(`proof-node-node-${String(i) satisfies string}`),
+      ).toBeInTheDocument();
+    }
+
+    // MP成功（node-3: φ + φ→ψ → ψ）
+    await expect(
+      canvas.getByTestId("proof-node-node-3-status"),
+    ).toHaveTextContent("MP applied");
+
+    // MP失敗（node-6: α + β→γ → 前提不一致）
+    await expect(
+      canvas.getByTestId("proof-node-node-6-status"),
+    ).toHaveTextContent("Left premise does not match");
+
+    // ゴールは一部のみ達成なので、完了バナーは表示されない
+    await expect(
+      canvas.queryByTestId("workspace-proof-complete-banner"),
+    ).not.toBeInTheDocument();
   },
 };
