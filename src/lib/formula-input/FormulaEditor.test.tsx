@@ -18,6 +18,7 @@ function EditorWrapper({
   placeholder,
   fontSize,
   editTrigger,
+  onOpenSyntaxHelp,
 }: {
   readonly initialValue?: string;
   readonly onParsed?: (formula: Formula) => void;
@@ -27,6 +28,7 @@ function EditorWrapper({
   readonly placeholder?: string;
   readonly fontSize?: CSSProperties["fontSize"];
   readonly editTrigger?: EditTrigger;
+  readonly onOpenSyntaxHelp?: () => void;
 }) {
   const [value, setValue] = useState(initialValue);
   return (
@@ -40,6 +42,7 @@ function EditorWrapper({
       placeholder={placeholder}
       fontSize={fontSize}
       editTrigger={editTrigger}
+      onOpenSyntaxHelp={onOpenSyntaxHelp}
     />
   );
 }
@@ -507,5 +510,83 @@ describe("FormulaEditor - editTrigger", () => {
       "aria-label",
       "ダブルクリックして論理式を入力",
     );
+  });
+});
+
+// --- 構文ヘルプボタンのテスト ---
+
+describe("FormulaEditor - 構文ヘルプ", () => {
+  it("onOpenSyntaxHelp指定時、編集モードでヘルプボタンが表示される", async () => {
+    const handleHelp = vi.fn();
+    render(
+      <EditorWrapper initialValue="φ → ψ" onOpenSyntaxHelp={handleHelp} />,
+    );
+
+    // 表示モードではヘルプボタンは非表示
+    expect(screen.queryByTestId("editor-syntax-help")).not.toBeInTheDocument();
+
+    // 編集モードに入る
+    await userEvent.click(screen.getByTestId("editor-display"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    });
+
+    // ヘルプボタンが表示される
+    expect(screen.getByTestId("editor-syntax-help")).toBeInTheDocument();
+    expect(screen.getByTestId("editor-syntax-help")).toHaveTextContent("?");
+    expect(screen.getByTestId("editor-syntax-help")).toHaveAttribute(
+      "aria-label",
+      "構文ヘルプ",
+    );
+  });
+
+  it("onOpenSyntaxHelp未指定時、編集モードでもヘルプボタンは表示されない", async () => {
+    render(<EditorWrapper initialValue="φ → ψ" />);
+
+    // 編集モードに入る
+    await userEvent.click(screen.getByTestId("editor-display"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    });
+
+    // ヘルプボタンは非表示
+    expect(screen.queryByTestId("editor-syntax-help")).not.toBeInTheDocument();
+  });
+
+  it("ヘルプボタンクリックでonOpenSyntaxHelpが呼ばれる", async () => {
+    const handleHelp = vi.fn();
+    render(
+      <EditorWrapper initialValue="φ → ψ" onOpenSyntaxHelp={handleHelp} />,
+    );
+
+    // 編集モードに入る
+    await userEvent.click(screen.getByTestId("editor-display"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    });
+
+    // ヘルプボタンをクリック
+    fireEvent.click(screen.getByTestId("editor-syntax-help"));
+    expect(handleHelp).toHaveBeenCalledOnce();
+  });
+
+  it("ヘルプボタンクリック後も編集モードに留まる", async () => {
+    const handleHelp = vi.fn();
+    render(
+      <EditorWrapper initialValue="φ → ψ" onOpenSyntaxHelp={handleHelp} />,
+    );
+
+    // 編集モードに入る
+    await userEvent.click(screen.getByTestId("editor-display"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    });
+
+    // ヘルプボタンをクリック
+    fireEvent.click(screen.getByTestId("editor-syntax-help"));
+
+    // 編集モードに留まっている
+    expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    expect(screen.queryByTestId("editor-display")).not.toBeInTheDocument();
   });
 });

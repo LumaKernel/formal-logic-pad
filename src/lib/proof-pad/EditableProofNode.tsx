@@ -67,6 +67,8 @@ export interface EditableProofNodeProps {
   readonly visibilityOverrides?: DetailVisibilityOverrides;
   /** 編集モードに入るトリガー（デフォルト: "click"） */
   readonly editTrigger?: EditTrigger;
+  /** 構文ヘルプを開くコールバック（指定時にFormulaEditor編集モードで?ボタンを表示） */
+  readonly onOpenSyntaxHelp?: () => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -249,6 +251,7 @@ export function EditableProofNode({
   detailLevel = "full",
   visibilityOverrides,
   editTrigger,
+  onOpenSyntaxHelp,
   testId,
 }: EditableProofNodeProps) {
   const nodeStyle = useMemo(() => getProofNodeStyle(kind), [kind]);
@@ -414,6 +417,7 @@ export function EditableProofNode({
             displayRenderer="unicode"
             placeholder="Click to edit formula..."
             editTrigger={editTrigger}
+            onOpenSyntaxHelp={onOpenSyntaxHelp}
             testId={testId ? `${testId satisfies string}-editor` : undefined}
             style={{
               color: nodeStyle.textColor,

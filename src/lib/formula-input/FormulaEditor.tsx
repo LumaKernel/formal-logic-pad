@@ -40,6 +40,8 @@ export interface FormulaEditorProps {
   readonly style?: CSSProperties;
   /** 編集モードに入るトリガー（デフォルト: "click"） */
   readonly editTrigger?: EditTrigger;
+  /** 構文ヘルプを開くコールバック（指定時に編集モードで?ボタンを表示） */
+  readonly onOpenSyntaxHelp?: () => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -78,7 +80,29 @@ const placeholderStyle: CSSProperties = {
 /* v8 ignore stop */
 
 const editContainerStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: 4,
   transition: "opacity 0.15s ease-in-out",
+};
+
+const syntaxHelpButtonStyle: CSSProperties = {
+  flexShrink: 0,
+  width: 18,
+  height: 18,
+  borderRadius: "50%",
+  border: "1px solid currentColor",
+  background: "transparent",
+  color: "inherit",
+  fontSize: 11,
+  fontWeight: 700,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 0,
+  opacity: 0.6,
+  marginTop: 6,
 };
 
 // --- コンポーネント ---
@@ -94,6 +118,7 @@ export function FormulaEditor({
   className,
   style,
   editTrigger = "click",
+  onOpenSyntaxHelp,
   testId,
 }: FormulaEditorProps) {
   const [mode, setModeInternal] = useState<EditorMode>("display");
@@ -148,6 +173,21 @@ export function FormulaEditor({
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.stopPropagation();
   }, []);
+
+  const handleSyntaxHelpMouseDown = useCallback((e: React.MouseEvent) => {
+    // mousedownでpreventDefaultすることでinputのblurを防ぐ
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleSyntaxHelpClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onOpenSyntaxHelp?.();
+    },
+    [onOpenSyntaxHelp],
+  );
 
   const handleDisplayKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -206,9 +246,7 @@ export function FormulaEditor({
           onDoubleClick={
             editTrigger === "dblclick" ? handleDisplayClick : undefined
           }
-          onKeyDown={
-            editTrigger !== "none" ? handleDisplayKeyDown : undefined
-          }
+          onKeyDown={editTrigger !== "none" ? handleDisplayKeyDown : undefined}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           style={isHovered ? displayContainerHoverStyle : displayContainerStyle}
@@ -253,16 +291,32 @@ export function FormulaEditor({
           style={editContainerStyle}
           data-testid={testId ? `${testId satisfies string}-edit` : undefined}
         >
-          <FormulaInput
-            value={value}
-            onChange={onChange}
-            onParsed={onParsed}
-            placeholder={placeholder}
-            fontSize={fontSize}
-            testId={testId ? `${testId satisfies string}-input` : undefined}
-            onBlur={tryExitEditMode}
-            showPreview={false}
-          />
+          <div style={{ flexGrow: 1, minWidth: 0 }}>
+            <FormulaInput
+              value={value}
+              onChange={onChange}
+              onParsed={onParsed}
+              placeholder={placeholder}
+              fontSize={fontSize}
+              testId={testId ? `${testId satisfies string}-input` : undefined}
+              onBlur={tryExitEditMode}
+              showPreview={false}
+            />
+          </div>
+          {onOpenSyntaxHelp !== undefined && (
+            <button
+              type="button"
+              style={syntaxHelpButtonStyle}
+              onMouseDown={handleSyntaxHelpMouseDown}
+              onClick={handleSyntaxHelpClick}
+              aria-label="構文ヘルプ"
+              data-testid={
+                testId ? `${testId satisfies string}-syntax-help` : undefined
+              }
+            >
+              ?
+            </button>
+          )}
         </div>
       )}
     </div>

@@ -1948,4 +1948,73 @@ describe("ProofWorkspace", () => {
       ).toBeInTheDocument();
     });
   });
+
+  describe("構文ヘルプ伝播", () => {
+    it("onOpenSyntaxHelp指定時、ノード編集モードでヘルプボタンが表示される", async () => {
+      const user = userEvent.setup();
+      const handleSyntaxHelp = vi.fn();
+      const ws = addNode(
+        createEmptyWorkspace(lukasiewiczSystem),
+        "axiom",
+        "A1",
+        { x: 0, y: 0 },
+        "φ → (ψ → φ)",
+      );
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          onOpenSyntaxHelp={handleSyntaxHelp}
+          testId="workspace"
+        />,
+      );
+      // ノードの表示モードをクリックして編集モードに入る
+      const nodeDisplay = screen.getByTestId(
+        `proof-node-${ws.nodes[0]!.id satisfies string}-editor-display`,
+      );
+      await user.click(nodeDisplay);
+      await waitFor(() => {
+        expect(
+          screen.getByTestId(
+            `proof-node-${ws.nodes[0]!.id satisfies string}-editor-syntax-help`,
+          ),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("onOpenSyntaxHelp未指定時はヘルプボタンが表示されない", async () => {
+      const user = userEvent.setup();
+      const ws = addNode(
+        createEmptyWorkspace(lukasiewiczSystem),
+        "axiom",
+        "A1",
+        { x: 0, y: 0 },
+        "φ → (ψ → φ)",
+      );
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          testId="workspace"
+        />,
+      );
+      // ノードの表示モードをクリックして編集モードに入る
+      const nodeDisplay = screen.getByTestId(
+        `proof-node-${ws.nodes[0]!.id satisfies string}-editor-display`,
+      );
+      await user.click(nodeDisplay);
+      await waitFor(() => {
+        expect(
+          screen.getByTestId(
+            `proof-node-${ws.nodes[0]!.id satisfies string}-editor-edit`,
+          ),
+        ).toBeInTheDocument();
+      });
+      expect(
+        screen.queryByTestId(
+          `proof-node-${ws.nodes[0]!.id satisfies string}-editor-syntax-help`,
+        ),
+      ).not.toBeInTheDocument();
+    });
+  });
 });

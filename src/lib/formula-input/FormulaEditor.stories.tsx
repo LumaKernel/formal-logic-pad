@@ -2,6 +2,9 @@ import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import type { Formula } from "../logic-core/formula";
+import { allReferenceEntries } from "../reference/referenceContent";
+import { findEntryById } from "../reference/referenceEntry";
+import { ReferenceModal } from "../reference/ReferenceModal";
 import type { EditTrigger } from "./editorLogic";
 import { FormulaEditor } from "./FormulaEditor";
 
@@ -371,15 +374,11 @@ export const EditTriggerComparison: Story = {
     const canvas = within(canvasElement);
 
     // すべてのエディタが表示されている
-    await expect(
-      canvas.getByTestId("cmp-click-display"),
-    ).toBeInTheDocument();
+    await expect(canvas.getByTestId("cmp-click-display")).toBeInTheDocument();
     await expect(
       canvas.getByTestId("cmp-dblclick-display"),
     ).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("cmp-none-display"),
-    ).toBeInTheDocument();
+    await expect(canvas.getByTestId("cmp-none-display")).toBeInTheDocument();
 
     // clickエディタ: シングルクリックで編集開始
     await userEvent.click(canvas.getByTestId("cmp-click-display"));
@@ -391,8 +390,80 @@ export const EditTriggerComparison: Story = {
     await expect(
       canvas.getByTestId("cmp-dblclick-display"),
     ).toBeInTheDocument();
+    await expect(canvas.getByTestId("cmp-none-display")).toBeInTheDocument();
+  },
+};
+
+/**
+ * 構文ヘルプボタン付きエディタ。
+ * 編集モードに入ると?ボタンが表示され、クリックで入力方法のリファレンスモーダルが開く。
+ */
+function SyntaxHelpWrapper() {
+  const [value, setValue] = useState("φ → ψ");
+  const [modalEntryId, setModalEntryId] = useState<string | null>(null);
+
+  const handleOpenSyntaxHelp = () => {
+    setModalEntryId("notation-input-methods");
+  };
+
+  const modalEntry =
+    modalEntryId !== null
+      ? findEntryById(allReferenceEntries, modalEntryId)
+      : undefined;
+
+  return (
+    <div style={{ width: 400 }}>
+      <FormulaEditor
+        value={value}
+        onChange={setValue}
+        onOpenSyntaxHelp={handleOpenSyntaxHelp}
+        testId="syntax-help-editor"
+      />
+      {modalEntry !== undefined && (
+        <ReferenceModal
+          entry={modalEntry}
+          allEntries={allReferenceEntries}
+          locale="ja"
+          onClose={() => setModalEntryId(null)}
+          onNavigate={(id) => setModalEntryId(id)}
+          testId="syntax-help-modal"
+        />
+      )}
+    </div>
+  );
+}
+
+export const WithSyntaxHelp: Story = {
+  render: () => <SyntaxHelpWrapper />,
+  args: {
+    value: "",
+    onChange: () => {},
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // 表示モードでヘルプボタンは非表示
     await expect(
-      canvas.getByTestId("cmp-none-display"),
+      canvas.queryByTestId("syntax-help-editor-syntax-help"),
+    ).not.toBeInTheDocument();
+
+    // 編集モードに入る
+    await userEvent.click(canvas.getByTestId("syntax-help-editor-display"));
+    await waitFor(() => {
+      expect(canvas.getByTestId("syntax-help-editor-edit")).toBeInTheDocument();
+    });
+
+    // ヘルプボタンが表示される
+    await expect(
+      canvas.getByTestId("syntax-help-editor-syntax-help"),
     ).toBeInTheDocument();
+
+    // ヘルプボタンをクリック → モーダルが開く
+    await userEvent.click(canvas.getByTestId("syntax-help-editor-syntax-help"));
+    const rootEl = canvasElement.ownerDocument.body;
+    const root = within(rootEl);
+    await waitFor(() => {
+      expect(root.getByTestId("syntax-help-modal")).toBeInTheDocument();
+    });
   },
 };

@@ -4272,3 +4272,23 @@
   - play関数での式編集: display要素クリック→input要素clear→type→tabの手順
   - 連鎖影響のデモでは、MP1失敗→formulaTextクリア→MP2がLeftParseError（空文字パース失敗）となる
 ---
+
+## 2026-02-27 - 数式エディタ構文ヘルプ機能
+- 実装した内容: FormulaEditor編集モード時に構文ヘルプ(?ボタン)を表示し、クリックでリファレンスモーダル(入力方法ドキュメント)を開く機能
+- 変更したファイル:
+  - src/lib/formula-input/FormulaEditor.tsx (onOpenSyntaxHelp prop, ?ボタン, blur防止ハンドラ)
+  - src/lib/formula-input/FormulaEditor.test.tsx (構文ヘルプ関連テスト4件追加)
+  - src/lib/formula-input/FormulaEditor.stories.tsx (WithSyntaxHelpストーリー + ReferenceModal連携)
+  - src/lib/proof-pad/EditableProofNode.tsx (onOpenSyntaxHelp prop伝播)
+  - src/lib/proof-pad/EditableProofNode.test.tsx (構文ヘルプ伝播テスト3件追加)
+  - src/lib/proof-pad/ProofWorkspace.tsx (onOpenSyntaxHelp prop伝播)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (構文ヘルプ伝播テスト2件追加)
+  - tasks/prd-inserted-tasks.md (タスク完了マーク)
+- カバレッジ: Stmts 99.35%→99.36%, Branch 94.91%→94.92%, Funcs 90.38%→90.40%, Lines 99.89%→99.91% (微増)
+- スクリーンショット: .screenshots/formula-editor-syntax-help.png
+- **今後のイテレーションへの学び:**
+  - inputの隣にボタンを配置する場合、ボタンのonMouseDownでpreventDefault()しないとinputのblurが発火する
+  - Storybook play関数でPortal越しのモーダルを検索するにはcanvasElement.ownerDocument.bodyをwithin()で囲む
+  - 既存のnotationInputMethods参照エントリが入力方法ドキュメントとして活用可能
+  - コールバック伝播パターン: FormulaEditor → EditableProofNode → ProofWorkspace の3層
+---

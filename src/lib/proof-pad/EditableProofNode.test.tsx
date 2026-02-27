@@ -1,4 +1,10 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -717,18 +723,56 @@ describe("EditableProofNode", () => {
       const display = screen.getByTestId("test-node-editor-display");
       await user.dblClick(display);
       await waitFor(() => {
-        expect(
-          screen.getByTestId("test-node-editor-edit"),
-        ).toBeInTheDocument();
+        expect(screen.getByTestId("test-node-editor-edit")).toBeInTheDocument();
       });
     });
 
-    it('editTrigger未指定ではデフォルト(click)で動作する', async () => {
+    it("editTrigger未指定ではデフォルト(click)で動作する", async () => {
       const user = userEvent.setup();
       renderNode();
       const display = screen.getByTestId("test-node-editor-display");
       await user.click(display);
       expect(screen.getByTestId("test-node-editor-edit")).toBeInTheDocument();
+    });
+  });
+
+  describe("構文ヘルプ", () => {
+    it("onOpenSyntaxHelp指定時、編集モードでヘルプボタンが表示される", async () => {
+      const user = userEvent.setup();
+      const handleHelp = vi.fn();
+      renderNode({ onOpenSyntaxHelp: handleHelp });
+      const display = screen.getByTestId("test-node-editor-display");
+      await user.click(display);
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("test-node-editor-syntax-help"),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("ヘルプボタンクリックでonOpenSyntaxHelpが呼ばれる", async () => {
+      const user = userEvent.setup();
+      const handleHelp = vi.fn();
+      renderNode({ onOpenSyntaxHelp: handleHelp });
+      const display = screen.getByTestId("test-node-editor-display");
+      await user.click(display);
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("test-node-editor-syntax-help"),
+        ).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByTestId("test-node-editor-syntax-help"));
+      expect(handleHelp).toHaveBeenCalledOnce();
+    });
+
+    it("onOpenSyntaxHelp未指定時はヘルプボタンが表示されない", async () => {
+      const user = userEvent.setup();
+      renderNode();
+      const display = screen.getByTestId("test-node-editor-display");
+      await user.click(display);
+      expect(
+        screen.queryByTestId("test-node-editor-syntax-help"),
+      ).not.toBeInTheDocument();
     });
   });
 });

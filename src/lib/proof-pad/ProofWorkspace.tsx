@@ -130,6 +130,8 @@ export interface ProofWorkspaceProps {
   readonly onOpenReferenceDetail?: (entryId: string) => void;
   /** ノード内の依存情報(Depends on)表示を制御する（undefined = DetailLevelの自動判定に従う） */
   readonly showDependencies?: boolean;
+  /** 構文ヘルプを開くコールバック（指定時に数式編集モードで?ボタンを表示） */
+  readonly onOpenSyntaxHelp?: () => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -354,6 +356,7 @@ export function ProofWorkspace({
   locale,
   onOpenReferenceDetail,
   showDependencies,
+  onOpenSyntaxHelp,
   testId,
 }: ProofWorkspaceProps) {
   // i18nメッセージ
@@ -1297,8 +1300,7 @@ export function ProofWorkspace({
   );
 
   const visibilityOverrides: DetailVisibilityOverrides | undefined = useMemo(
-    () =>
-      showDependencies !== undefined ? { showDependencies } : undefined,
+    () => (showDependencies !== undefined ? { showDependencies } : undefined),
     [showDependencies],
   );
 
@@ -1380,6 +1382,7 @@ export function ProofWorkspace({
               dependencies={getNodeDependencyInfos(node.id)}
               detailLevel={detailLevel}
               visibilityOverrides={visibilityOverrides}
+              onOpenSyntaxHelp={onOpenSyntaxHelp}
               testId={`proof-node-${node.id satisfies string}`}
             />
           </div>
@@ -1410,6 +1413,7 @@ export function ProofWorkspace({
       handleNodeSelect,
       handleNodeContextMenu,
       getNodeSizeRef,
+      onOpenSyntaxHelp,
     ],
   );
 

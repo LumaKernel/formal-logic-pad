@@ -10,7 +10,7 @@
   - [x] いや、ノード内のやつも設定でオンオフできるようにしよう。(DetailVisibilityOverrides + showDependencies prop で実装済み)
 - [x] http://localhost:13006/?path=/story/proofpad-grouptheorydemo--identity-times-identity-interactive
       A5とかを呼び出すと、Formulaが入っていない状態で呼びだされてしまう。これは合っているのかな？
-- [ ] formula編集しているときは、formula記述言語に関する仕様、ドキュメントのモーダルだかパネルを開くことのできる方法を提供する
+- [x] formula編集しているときは、formula記述言語に関する仕様、ドキュメントのモーダルだかパネルを開くことのできる方法を提供する (onOpenSyntaxHelp コールバック + ?ボタン + ReferenceModal連携で実装済み)
 - [ ] MPの片側を選択すると、適用可能なもう片側は判定可能なので、そういうやつだけが光るよう(というより対象外は暗く)になってて欲しい
 - [ ] コンテキストメニューで、MPの左右それぞれとして選択を開始することもできるようにする。(Apply MP、から始めるだけではなく)
       ただし、MPは片方は -> 形じゃないといけないので、そうでないときは選択できない状態でよい。開始すると適用可能対象が光る、というのは同様に。
