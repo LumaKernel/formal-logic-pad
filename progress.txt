@@ -4292,3 +4292,23 @@
   - 既存のnotationInputMethods参照エントリが入力方法ドキュメントとして活用可能
   - コールバック伝播パターン: FormulaEditor → EditableProofNode → ProofWorkspace の3層
 ---
+
+## 2026-02-27 - デモストーリー拡張（巨大な証明木・異常系）
+- ProofFlowDemo.stories.tsx に2つの新ストーリーを追加:
+  - **LargeProofTree**: φ→φの証明をベースに3段のMPチェーンを構築した11ノードの巨大証明木（公理6 + MP4 + ゴール1）
+  - **MixedErrorStates**: 成功MP、失敗MP、パースエラー、孤立ノード、複数ゴール（一部達成・一部未達成）が共存する異常系デモ
+- テスト: 4361テスト全パス（+36テスト追加）
+- カバレッジ: Stmts 99.36%(維持), Branch 94.90%(維持), Funcs 90.44%(維持), Lines 99.89%(維持)
+  - ベースライン: Stmts 99.27%, Branch 94.62%, Funcs 90.26%, Lines 99.79%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでスクリーンショット撮影・確認済み
+  - `.screenshots/large-proof-tree-demo.png`
+  - `.screenshots/mixed-error-states-demo.png`
+- 変更ファイル:
+  - `src/lib/proof-pad/ProofFlowDemo.stories.tsx` (MODIFIED - LargeProofTree, MixedErrorStatesストーリー追加)
+  - `tasks/prd-inserted-tasks.md` (MODIFIED - タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - InfiniteCanvasのビューポートカリングにより、画面外のノードはDOMに存在しない。ストーリーのplay関数でノード存在チェックする場合、ノード座標を初期ビューポートに収まるよう配置する必要がある
+  - applyMPAndConnectの結果はworkspaceプロパティで新しい状態を取得する。チェーンする場合は各MPの結果のworkspaceを次のベースにする
+  - 失敗するMPも applyMPAndConnect で作成できる（不一致でも接続とノードは生成される）
+---
