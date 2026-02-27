@@ -5083,3 +5083,26 @@
   - FormulaSubstitution追加時の変更箇所: Formula unionを参照する全exhaustive switch（現在9ファイル以上）。`satisfies never` による網羅性チェックで漏れを防止
   - freeVariables の FormulaSubstitution: `(freeVars(φ) \ {x}) ∪ (x ∈ freeVars(φ) ? freeVars(τ) : ∅)` のセマンティクス
 ---
+
+## 2026-02-28 03:30 - logic-core resolveFormulaSubstitution
+- 実装した内容:
+  - `resolveFormulaSubstitution`: AST内のFormulaSubstitution(φ[τ/x])を再帰的に解決し、実際に項変数代入を実行した結果のFormulaを返す純粋関数
+  - 21テスト追加: 基本置換、連鎖置換(3段含む)、各論理結合子内の置換、変数捕獲回避(α変換)、メタ変数透過、量化子束縛変数との相互作用
+  - index.tsにエクスポート追加
+- 変更したファイル:
+  - `src/lib/logic-core/substitution.ts` (MODIFIED - resolveFormulaSubstitution追加)
+  - `src/lib/logic-core/substitution.test.ts` (MODIFIED - 21テスト追加)
+  - `src/lib/logic-core/index.ts` (MODIFIED - エクスポート追加)
+- テスト: 184ファイル, 4761テスト全パス
+- カバレッジ:
+  - ベースライン: Stmts 98.59%, Branch 92.92%, Funcs 91.28%, Lines 99.30%
+  - 最終: Stmts 98.59%, Branch 92.94%, Funcs 91.22%, Lines 99.30%
+  - Branch微増、Funcs微減(新規関数追加影響のみ、実質維持)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Storybook動作確認(純粋ロジック変更のためUI変更なし)
+  - `.screenshots/resolve-substitution-storybook-working.png`
+- **今後のイテレーションへの学び:**
+  - `resolveFormulaSubstitution` は既存の `substituteTermVariableInFormula` を内部的に使うので、α変換は自動的に処理される
+  - FormulaSubstitutionのresolveは内側から外側へ（innermost-first）実行する。連鎖 `φ[τ₁/x][τ₂/y]` は外側のFormulaSubstitutionのformulaを先に再帰的にresolveしてから、外側の代入を適用
+  - 新しい純粋関数を追加する際は、既存の代入関数群（substituteTermVariableInFormula等）を組み合わせることで、変数捕獲回避などの複雑なロジックを再実装せずに済む
+---
