@@ -16,7 +16,14 @@ import {
   type FormulaSubstitutionMap,
   type TermMetaSubstitutionMap,
 } from "../logic-core/substitution";
-import { metaVariableKey, termMetaVariableKey } from "../logic-core/metaVariable";
+import {
+  metaVariableKey,
+  termMetaVariableKey,
+  collectUniqueFormulaMetaVariables,
+  collectUniqueTermMetaVariablesInFormula,
+} from "../logic-core/metaVariable";
+import type { MetaVariable } from "../logic-core/formula";
+import type { TermMetaVariable } from "../logic-core/term";
 import { formatFormula } from "../logic-lang/formatUnicode";
 import { parseString as parseFormula, parseTermString } from "../logic-lang/parser";
 import { parseNodeFormula } from "./mpApplicationLogic";
@@ -296,4 +303,77 @@ export function getSubstitutionErrorMessage(
     case "TermParseError":
       return `Invalid term in substitution entry ${String(error.entryIndex + 1) satisfies string}`;
   }
+}
+
+// --- 代入対象の抽出 ---
+
+/**
+ * 論理式から代入対象となるメタ変数を抽出した結果。
+ */
+export type SubstitutionTargets = {
+  /** 論理式メタ変数（ユニーク、出現順） */
+  readonly formulaMetaVariables: readonly MetaVariable[];
+  /** 項メタ変数（ユニーク、出現順） */
+  readonly termMetaVariables: readonly TermMetaVariable[];
+};
+
+/**
+ * 論理式から代入対象となるすべてのメタ変数を抽出する。
+ *
+ * 論理式メタ変数（φ, ψ等）と項メタ変数（τ, σ等）を
+ * それぞれユニークかつ出現順で返す。
+ */
+export function extractSubstitutionTargets(
+  formula: Formula,
+): SubstitutionTargets {
+  return {
+    formulaMetaVariables: collectUniqueFormulaMetaVariables(formula),
+    termMetaVariables: collectUniqueTermMetaVariablesInFormula(formula),
+  };
+}
+
+/**
+ * テキスト形式の論理式から代入対象を抽出する。
+ * パース失敗時は null を返す。
+ */
+export function extractSubstitutionTargetsFromText(
+  formulaText: string,
+): SubstitutionTargets | null {
+  const parseResult = parseFormula(formulaText);
+  if (!parseResult.ok) {
+    return null;
+  }
+  return extractSubstitutionTargets(parseResult.formula);
+}
+
+/**
+ * 代入対象のメタ変数から空のSubstitutionEntriesテンプレートを生成する。
+ *
+ * 各メタ変数に対応する空テキストの代入エントリを生成する。
+ * UIで値を入力すれば代入操作が完了する形。
+ */
+export function generateSubstitutionEntryTemplate(
+  targets: SubstitutionTargets,
+): SubstitutionEntries {
+  const entries: SubstitutionEntry[] = [];
+
+  for (const mv of targets.formulaMetaVariables) {
+    entries.push({
+      _tag: "FormulaSubstitution",
+      metaVariableName: mv.name,
+      metaVariableSubscript: mv.subscript,
+      formulaText: "",
+    });
+  }
+
+  for (const tmv of targets.termMetaVariables) {
+    entries.push({
+      _tag: "TermSubstitution",
+      metaVariableName: tmv.name,
+      metaVariableSubscript: tmv.subscript,
+      termText: "",
+    });
+  }
+
+  return entries;
 }

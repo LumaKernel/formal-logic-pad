@@ -37,7 +37,11 @@ import {
   isNodeImplication,
 } from "./mpApplicationLogic";
 import { validateGenApplication } from "./genApplicationLogic";
-import { validateSubstitutionApplication } from "./substitutionApplicationLogic";
+import {
+  validateSubstitutionApplication,
+  extractSubstitutionTargetsFromText,
+  generateSubstitutionEntryTemplate,
+} from "./substitutionApplicationLogic";
 import type { SubstitutionEntries } from "./substitutionApplicationLogic";
 import {
   getMPErrorMessageKey,
@@ -1504,10 +1508,45 @@ export function ProofWorkspace({
 
   const handleApplySubstitutionToNode = useCallback(() => {
     if (!nodeMenuState.open) return;
-    setSubstPromptNodeId(nodeMenuState.nodeId);
+    const nodeId = nodeMenuState.nodeId;
+    const node = findNode(workspace, nodeId);
+    setSubstPromptNodeId(nodeId);
+
+    // 論理式からメタ変数を自動抽出してテンプレート生成
+    if (node?.formulaText) {
+      const targets = extractSubstitutionTargetsFromText(node.formulaText);
+      if (targets !== null) {
+        const template = generateSubstitutionEntryTemplate(targets);
+        if (template.length > 0) {
+          setSubstPromptEntries(
+            template.map((entry) =>
+              entry._tag === "FormulaSubstitution"
+                ? {
+                    kind: "formula" as const,
+                    metaVar: entry.metaVariableSubscript !== undefined
+                      ? `${entry.metaVariableName satisfies string}_${entry.metaVariableSubscript satisfies string}`
+                      : `${entry.metaVariableName satisfies string}`,
+                    value: "",
+                  }
+                : {
+                    kind: "term" as const,
+                    metaVar: entry.metaVariableSubscript !== undefined
+                      ? `${entry.metaVariableName satisfies string}_${entry.metaVariableSubscript satisfies string}`
+                      : `${entry.metaVariableName satisfies string}`,
+                    value: "",
+                  },
+            ),
+          );
+          setNodeMenuState(closeNodeMenu());
+          return;
+        }
+      }
+    }
+
+    // フォールバック: 手動入力用の空エントリ
     setSubstPromptEntries([{ kind: "formula", metaVar: "", value: "" }]);
     setNodeMenuState(closeNodeMenu());
-  }, [nodeMenuState]);
+  }, [nodeMenuState, workspace]);
 
   const handleSubstPromptConfirm = useCallback(() => {
     if (substPromptNodeId === null) return;

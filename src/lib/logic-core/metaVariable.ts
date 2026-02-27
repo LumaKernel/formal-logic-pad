@@ -178,6 +178,26 @@ export const collectUniqueFormulaMetaVariables = (
 };
 
 /**
+ * Formula 内（Term部分含む）のユニークな TermMetaVariable を収集する。
+ * termMetaVariableKey で重複を排除。
+ */
+export const collectUniqueTermMetaVariablesInFormula = (
+  f: Formula,
+): readonly TermMetaVariable[] => {
+  const all = collectTermMetaVariablesInFormula(f);
+  const seen = new Set<string>();
+  const result: TermMetaVariable[] = [];
+  for (const tmv of all) {
+    const key = termMetaVariableKey(tmv);
+    if (!seen.has(key)) {
+      seen.add(key);
+      result.push(tmv);
+    }
+  }
+  return result;
+};
+
+/**
  * Term 内のユニークな TermMetaVariable を収集する。
  * termMetaVariableKey で重複を排除。
  */

@@ -5,6 +5,9 @@ import {
   getSubstitutionPremise,
   validateSubstitutionApplication,
   getSubstitutionErrorMessage,
+  extractSubstitutionTargets,
+  extractSubstitutionTargetsFromText,
+  generateSubstitutionEntryTemplate,
   type SubstitutionEntries,
   type SubstitutionApplicationError,
 } from "./substitutionApplicationLogic";
@@ -13,6 +16,19 @@ import {
   lukasiewiczSystem,
   predicateLogicSystem,
 } from "../logic-core/inferenceRule";
+import {
+  metaVariable,
+  implication,
+  conjunction,
+  negation,
+  universal,
+  predicate,
+  equality,
+} from "../logic-core/formula";
+import {
+  termVariable,
+  termMetaVariable,
+} from "../logic-core/term";
 
 // --- getSubstitutionPremise ---
 
@@ -469,4 +485,213 @@ describe("getSubstitutionErrorMessage", () => {
       expect(getSubstitutionErrorMessage(error)).toBe(expected);
     },
   );
+});
+
+// --- extractSubstitutionTargets ---
+
+describe("extractSubstitutionTargets", () => {
+  it("extracts formula meta-variables from propositional axiom", () => {
+    // φ → (ψ → φ)
+    const formula = implication(
+      metaVariable("φ"),
+      implication(metaVariable("ψ"), metaVariable("φ")),
+    );
+    const targets = extractSubstitutionTargets(formula);
+    expect(targets.formulaMetaVariables).toHaveLength(2);
+    expect(targets.formulaMetaVariables[0]?.name).toBe("φ");
+    expect(targets.formulaMetaVariables[1]?.name).toBe("ψ");
+    expect(targets.termMetaVariables).toHaveLength(0);
+  });
+
+  it("extracts both formula and term meta-variables from predicate formula", () => {
+    // φ → P(τ)
+    const formula = implication(
+      metaVariable("φ"),
+      predicate("P", [termMetaVariable("τ")]),
+    );
+    const targets = extractSubstitutionTargets(formula);
+    expect(targets.formulaMetaVariables).toHaveLength(1);
+    expect(targets.formulaMetaVariables[0]?.name).toBe("φ");
+    expect(targets.termMetaVariables).toHaveLength(1);
+    expect(targets.termMetaVariables[0]?.name).toBe("τ");
+  });
+
+  it("deduplicates across formula", () => {
+    // φ → (φ → ψ)
+    const formula = implication(
+      metaVariable("φ"),
+      implication(metaVariable("φ"), metaVariable("ψ")),
+    );
+    const targets = extractSubstitutionTargets(formula);
+    expect(targets.formulaMetaVariables).toHaveLength(2);
+  });
+
+  it("returns empty for formula with no meta-variables", () => {
+    // P(x) → P(x)
+    const formula = implication(
+      predicate("P", [termVariable("x")]),
+      predicate("P", [termVariable("x")]),
+    );
+    const targets = extractSubstitutionTargets(formula);
+    expect(targets.formulaMetaVariables).toHaveLength(0);
+    expect(targets.termMetaVariables).toHaveLength(0);
+  });
+
+  it("extracts from quantified formula", () => {
+    // ∀x. φ → P(τ)
+    const formula = universal(
+      termVariable("x"),
+      implication(metaVariable("φ"), predicate("P", [termMetaVariable("τ")])),
+    );
+    const targets = extractSubstitutionTargets(formula);
+    expect(targets.formulaMetaVariables).toHaveLength(1);
+    expect(targets.termMetaVariables).toHaveLength(1);
+  });
+
+  it("handles subscripted meta-variables", () => {
+    // φ₁ → φ₂
+    const formula = implication(
+      metaVariable("φ", "1"),
+      metaVariable("φ", "2"),
+    );
+    const targets = extractSubstitutionTargets(formula);
+    expect(targets.formulaMetaVariables).toHaveLength(2);
+    expect(targets.formulaMetaVariables[0]?.subscript).toBe("1");
+    expect(targets.formulaMetaVariables[1]?.subscript).toBe("2");
+  });
+
+  it("extracts term meta-variables from equality", () => {
+    // τ = σ
+    const formula = equality(termMetaVariable("τ"), termMetaVariable("σ"));
+    const targets = extractSubstitutionTargets(formula);
+    expect(targets.formulaMetaVariables).toHaveLength(0);
+    expect(targets.termMetaVariables).toHaveLength(2);
+    expect(targets.termMetaVariables[0]?.name).toBe("τ");
+    expect(targets.termMetaVariables[1]?.name).toBe("σ");
+  });
+});
+
+// --- extractSubstitutionTargetsFromText ---
+
+describe("extractSubstitutionTargetsFromText", () => {
+  it("extracts from valid formula text", () => {
+    const targets = extractSubstitutionTargetsFromText("phi -> (psi -> phi)");
+    expect(targets).not.toBeNull();
+    expect(targets?.formulaMetaVariables).toHaveLength(2);
+    expect(targets?.formulaMetaVariables[0]?.name).toBe("φ");
+    expect(targets?.formulaMetaVariables[1]?.name).toBe("ψ");
+    expect(targets?.termMetaVariables).toHaveLength(0);
+  });
+
+  it("returns null for invalid formula text", () => {
+    const targets = extractSubstitutionTargetsFromText("-> invalid");
+    expect(targets).toBeNull();
+  });
+
+  it("returns null for empty text", () => {
+    const targets = extractSubstitutionTargetsFromText("");
+    expect(targets).toBeNull();
+  });
+
+  it("extracts term meta-variables from predicate formula text", () => {
+    const targets = extractSubstitutionTargetsFromText("all x. P(x) -> P(tau)");
+    expect(targets).not.toBeNull();
+    expect(targets?.formulaMetaVariables).toHaveLength(0);
+    expect(targets?.termMetaVariables).toHaveLength(1);
+    expect(targets?.termMetaVariables[0]?.name).toBe("τ");
+  });
+});
+
+// --- generateSubstitutionEntryTemplate ---
+
+describe("generateSubstitutionEntryTemplate", () => {
+  it("generates empty template for no meta-variables", () => {
+    const template = generateSubstitutionEntryTemplate({
+      formulaMetaVariables: [],
+      termMetaVariables: [],
+    });
+    expect(template).toHaveLength(0);
+  });
+
+  it("generates formula entries for formula meta-variables", () => {
+    const targets = extractSubstitutionTargets(
+      implication(metaVariable("φ"), metaVariable("ψ")),
+    );
+    const template = generateSubstitutionEntryTemplate(targets);
+    expect(template).toHaveLength(2);
+    expect(template[0]?._tag).toBe("FormulaSubstitution");
+    if (template[0]?._tag === "FormulaSubstitution") {
+      expect(template[0].metaVariableName).toBe("φ");
+      expect(template[0].formulaText).toBe("");
+    }
+    expect(template[1]?._tag).toBe("FormulaSubstitution");
+    if (template[1]?._tag === "FormulaSubstitution") {
+      expect(template[1].metaVariableName).toBe("ψ");
+      expect(template[1].formulaText).toBe("");
+    }
+  });
+
+  it("generates term entries for term meta-variables", () => {
+    const targets = extractSubstitutionTargets(
+      equality(termMetaVariable("τ"), termMetaVariable("σ")),
+    );
+    const template = generateSubstitutionEntryTemplate(targets);
+    expect(template).toHaveLength(2);
+    expect(template[0]?._tag).toBe("TermSubstitution");
+    if (template[0]?._tag === "TermSubstitution") {
+      expect(template[0].metaVariableName).toBe("τ");
+      expect(template[0].termText).toBe("");
+    }
+    expect(template[1]?._tag).toBe("TermSubstitution");
+    if (template[1]?._tag === "TermSubstitution") {
+      expect(template[1].metaVariableName).toBe("σ");
+      expect(template[1].termText).toBe("");
+    }
+  });
+
+  it("generates mixed entries (formula first, then term)", () => {
+    // φ → P(τ)
+    const targets = extractSubstitutionTargets(
+      implication(
+        metaVariable("φ"),
+        predicate("P", [termMetaVariable("τ")]),
+      ),
+    );
+    const template = generateSubstitutionEntryTemplate(targets);
+    expect(template).toHaveLength(2);
+    expect(template[0]?._tag).toBe("FormulaSubstitution");
+    expect(template[1]?._tag).toBe("TermSubstitution");
+  });
+
+  it("preserves subscript in generated entries", () => {
+    const targets = extractSubstitutionTargets(
+      implication(metaVariable("φ", "1"), metaVariable("φ", "2")),
+    );
+    const template = generateSubstitutionEntryTemplate(targets);
+    expect(template).toHaveLength(2);
+    if (template[0]?._tag === "FormulaSubstitution") {
+      expect(template[0].metaVariableSubscript).toBe("1");
+    }
+    if (template[1]?._tag === "FormulaSubstitution") {
+      expect(template[1].metaVariableSubscript).toBe("2");
+    }
+  });
+
+  it("round-trip: template from A1 axiom matches expected entries", () => {
+    // A1: φ → (ψ → φ)
+    const targets = extractSubstitutionTargetsFromText("phi -> (psi -> phi)");
+    expect(targets).not.toBeNull();
+    const template = generateSubstitutionEntryTemplate(targets!);
+    expect(template).toHaveLength(2);
+    expect(template[0]?._tag).toBe("FormulaSubstitution");
+    if (template[0]?._tag === "FormulaSubstitution") {
+      expect(template[0].metaVariableName).toBe("φ");
+      expect(template[0].formulaText).toBe("");
+    }
+    expect(template[1]?._tag).toBe("FormulaSubstitution");
+    if (template[1]?._tag === "FormulaSubstitution") {
+      expect(template[1].metaVariableName).toBe("ψ");
+      expect(template[1].formulaText).toBe("");
+    }
+  });
 });

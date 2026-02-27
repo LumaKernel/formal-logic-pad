@@ -3075,33 +3075,35 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("workspace-apply-substitution-to-node"),
       );
 
-      // Banner should appear with one entry
+      // Banner should appear with auto-extracted entries (φ and ψ)
       expect(
         screen.getByTestId("workspace-subst-prompt-banner"),
       ).toBeInTheDocument();
 
-      // Fill in the first entry
-      const metaVarInput = screen.getByTestId("workspace-subst-metavar-0");
-      const valueInput = screen.getByTestId("workspace-subst-value-0");
-      await user.type(metaVarInput, "phi");
-      await user.type(valueInput, "alpha");
-
-      // Add a second entry
-      await user.click(screen.getByTestId("workspace-subst-add-entry"));
+      // Auto-extracted: φ and ψ are pre-filled as metaVar names
+      const metaVarInput0 = screen.getByTestId("workspace-subst-metavar-0");
       const metaVarInput1 = screen.getByTestId("workspace-subst-metavar-1");
+      expect(metaVarInput0).toHaveValue("φ");
+      expect(metaVarInput1).toHaveValue("ψ");
+
+      // Fill in values for the pre-populated entries
+      const valueInput0 = screen.getByTestId("workspace-subst-value-0");
       const valueInput1 = screen.getByTestId("workspace-subst-value-1");
-      await user.type(metaVarInput1, "psi");
+      await user.type(valueInput0, "alpha");
       await user.type(valueInput1, "beta");
 
-      // With 2 entries, remove buttons should appear — remove the second entry
+      // Add a third entry
+      await user.click(screen.getByTestId("workspace-subst-add-entry"));
+
+      // With 3 entries, remove buttons should appear — remove the third entry
       const removeButtons = screen
         .getAllByRole("button")
         .filter((btn) => btn.textContent === "Remove");
-      expect(removeButtons.length).toBe(2);
-      await user.click(removeButtons[1]!);
+      expect(removeButtons.length).toBe(3);
+      await user.click(removeButtons[2]!);
 
-      // Only one entry remains
-      expect(screen.queryByTestId("workspace-subst-metavar-1")).toBeNull();
+      // Only two entries remain
+      expect(screen.queryByTestId("workspace-subst-metavar-2")).toBeNull();
 
       // Confirm substitution
       await user.click(screen.getByTestId("workspace-subst-prompt-confirm"));

@@ -13,6 +13,7 @@ import {
   collectTermMetaVariablesInFormula,
   collectUniqueFormulaMetaVariables,
   collectUniqueTermMetaVariables,
+  collectUniqueTermMetaVariablesInFormula,
 } from "./metaVariable";
 import {
   metaVariable,
@@ -471,6 +472,53 @@ describe("collectUniqueTermMetaVariables", () => {
       functionApplication("g", [termMetaVariable("σ"), termMetaVariable("τ")]),
     ]);
     const result = collectUniqueTermMetaVariables(t);
+    expect(result).toHaveLength(2);
+  });
+});
+
+describe("collectUniqueTermMetaVariablesInFormula", () => {
+  it("returns empty for formula with no term meta-variables", () => {
+    const result = collectUniqueTermMetaVariablesInFormula(
+      implication(metaVariable("φ"), metaVariable("ψ")),
+    );
+    expect(result).toHaveLength(0);
+  });
+
+  it("collects unique term meta-variables from predicates", () => {
+    const f = implication(
+      predicate("P", [termMetaVariable("τ")]),
+      predicate("Q", [termMetaVariable("σ")]),
+    );
+    const result = collectUniqueTermMetaVariablesInFormula(f);
+    expect(result).toHaveLength(2);
+    expect(result[0].name).toBe("τ");
+    expect(result[1].name).toBe("σ");
+  });
+
+  it("deduplicates term meta-variables across formula", () => {
+    const f = conjunction(
+      predicate("P", [termMetaVariable("τ")]),
+      predicate("Q", [termMetaVariable("τ"), termMetaVariable("σ")]),
+    );
+    const result = collectUniqueTermMetaVariablesInFormula(f);
+    expect(result).toHaveLength(2);
+    expect(result[0].name).toBe("τ");
+    expect(result[1].name).toBe("σ");
+  });
+
+  it("collects from equality terms", () => {
+    const f = equality(termMetaVariable("τ"), termMetaVariable("τ"));
+    const result = collectUniqueTermMetaVariablesInFormula(f);
+    expect(result).toHaveLength(1);
+    expect(result[0].name).toBe("τ");
+  });
+
+  it("treats τ and τ₁ as different", () => {
+    const f = predicate("P", [
+      termMetaVariable("τ"),
+      termMetaVariable("τ", "1"),
+    ]);
+    const result = collectUniqueTermMetaVariablesInFormula(f);
     expect(result).toHaveLength(2);
   });
 });
