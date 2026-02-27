@@ -5052,3 +5052,34 @@
   - Cookie + reload方式でのlocale切り替え: next-intlがサーバーサイドでCookieからlocaleを決定するため、reload必須
   - ThemeToggle(3層)と同パターンで新しいトグルUIを追加する際の手順が確立: 純粋ロジック → hook(DI) → UIコンポーネント → ページ統合
 ---
+
+## 2026-02-28 - FormulaSubstitution AST追加
+- 実装した内容:
+  - Formula AST に `FormulaSubstitution` クラスを追加（`φ[τ/x]` を表現する一級ASTノード）
+  - Formula union型に追加し、全exhaustive switchケース（equality, freeVariables, metaVariable, substitution, unification, inferenceRule, formatUnicode, formatLaTeX等）を更新
+  - logic-lang lexer に `[` (LBRACKET), `]` (RBRACKET) トークンを追加
+  - logic-lang parser に `parseSubstitutionPostfix` を追加（`φ[τ/x]` 構文をパース、チェイン `φ[τ₁/x][τ₂/y]` にも対応）
+  - `parseTerm` に `stopBefore` パラメータを追加し、置換内の `/` がDIVIDE二項演算子として消費されるのを防止
+  - Unicode/LaTeX フォーマッターに FormulaSubstitution の出力を追加
+  - index.ts にエクスポートを追加
+- 変更したファイル:
+  - src/lib/logic-core/formula.ts, equality.ts, freeVariables.ts, metaVariable.ts, substitution.ts, unification.ts, inferenceRule.ts, index.ts
+  - src/lib/logic-core/formula.test.ts, freeVariables.test.ts, metaVariable.test.ts, substitution.test.ts
+  - src/lib/logic-lang/token.ts, lexer.ts, parser.ts, formatUnicode.ts, formatLaTeX.ts
+  - src/lib/logic-lang/lexer.test.ts, parser.test.ts, formatUnicode.test.ts, formatLaTeX.test.ts
+  - task-processing.md, tasks/prd-inserted-tasks.md
+- カバレッジ:
+  - ベースライン: Stmts 98.70%, Branch 93.03%, Funcs 91.30%, Lines 99.41%
+  - 最終: Stmts 98.59%, Branch 92.92%, Funcs 91.28%, Lines 99.30%
+  - 微減はFormulaSubstitutionの到達不能ブランチ(exhaustive check等)による
+- 品質チェック: typecheck ✅, lint ✅, test ✅ (4716テスト通過)
+- ブラウザ確認: Playwright MCPでFormulaInput/FormulaDisplay確認
+  - `.screenshots/formula-substitution-basic-display.png`
+  - `.screenshots/formula-substitution-input-parsed.png`
+- **今後のイテレーションへの学び:**
+  - Pratt parserで特定トークンを二項演算子として消費させたくない場合、`stopBefore: ReadonlySet<TokenKind>` パターンが有効。`parseTerm(minBP, stopBefore)` として渡す
+  - 置換構文 `[τ/x]` はポストフィックスとして、infix演算子ループの前に適用する（最高優先度）
+  - `/` (DIVIDE) トークンを置換セパレータとしても再利用可能。パーサーコンテキストで意味が決まるため別トークン不要
+  - FormulaSubstitution追加時の変更箇所: Formula unionを参照する全exhaustive switch（現在9ファイル以上）。`satisfies never` による網羅性チェックで漏れを防止
+  - freeVariables の FormulaSubstitution: `(freeVars(φ) \ {x}) ∪ (x ∈ freeVars(φ) ? freeVars(τ) : ∅)` のセマンティクス
+---
