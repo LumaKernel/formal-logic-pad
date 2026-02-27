@@ -18,7 +18,7 @@
         - [x] nodeRoleLogic.ts: 分類ロジック更新
         - [x] dependencyLogic.ts: 依存追跡をInferenceEdge経由に変更
         - [x] テスト: 全exhaustive switchの更新
-      - [ ] Step 4: UI層の移行
+      - [-] Step 4: UI層の移行
         - [ ] EditableProofNode.tsx: 推論規則ノードの描画を廃止
         - [ ] ProofWorkspace.tsx: InferenceEdge の描画（接続線上にラベル表示）
         - [ ] エッジ上のパラメータ入力UI（Gen変数名、代入エントリ）

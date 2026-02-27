@@ -101,6 +101,38 @@ export function getInferenceEdgeConclusionNodeId(edge: InferenceEdge): string {
 }
 
 /**
+ * 推論エッジの表示ラベル（規則名）を返す。
+ * MP: "MP"
+ * Gen: "Gen(x)" （xは量化変数名）
+ * Substitution: "Subst" + エントリ数
+ */
+export function getInferenceEdgeLabel(edge: InferenceEdge): string {
+  switch (edge._tag) {
+    case "mp":
+      return "MP";
+    case "gen":
+      return edge.variableName !== ""
+        ? `Gen(${edge.variableName satisfies string})`
+        : "Gen";
+    case "substitution":
+      return edge.entries.length > 0
+        ? `Subst(${String(edge.entries.length) satisfies string})`
+        : "Subst";
+  }
+}
+
+/**
+ * 接続先ノードIDに対応する推論エッジを検索する。
+ * 結論ノードIDが一致するエッジを返す。
+ */
+export function findInferenceEdgeForConclusionNode(
+  edges: readonly InferenceEdge[],
+  conclusionNodeId: string,
+): InferenceEdge | undefined {
+  return edges.find((e) => e.conclusionNodeId === conclusionNodeId);
+}
+
+/**
  * 推論エッジの前提ノードIDを全て取得する。
  * undefinedの前提は除外する。
  */

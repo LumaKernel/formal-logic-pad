@@ -132,6 +132,9 @@ import { findEntryById } from "../reference/referenceEntry";
 import { ReferencePopover } from "../reference/ReferencePopover";
 import { getInferenceRuleReferenceEntryId } from "./inferenceRuleReferenceLogic";
 import { ParametricAxiomPanel } from "./ParametricAxiomPanel";
+import { findInferenceEdgeForConclusionNode } from "./inferenceEdge";
+import { computeInferenceEdgeLabelData } from "./inferenceEdgeLabelLogic";
+import { InferenceEdgeBadge } from "./InferenceEdgeBadge";
 import { useEdgeScroll } from "../infinite-canvas/useEdgeScroll";
 import { useMarquee } from "../infinite-canvas/useMarquee";
 import { MinimapComponent } from "../infinite-canvas/MinimapComponent";
@@ -2112,6 +2115,23 @@ export function ProofWorkspace({
             : "var(--color-success, #60c060)"
           : getProofEdgeColor(fromNode.kind);
 
+        // 推論エッジラベル: derivedノードへの接続にInferenceEdgeバッジを表示
+        const inferenceEdge = findInferenceEdgeForConclusionNode(
+          workspace.inferenceEdges,
+          conn.toNodeId,
+        );
+        const edgeLabel =
+          inferenceEdge !== undefined ? (
+            <InferenceEdgeBadge
+              labelData={computeInferenceEdgeLabelData(inferenceEdge)}
+              testId={
+                testId
+                  ? `${testId satisfies string}-edge-badge-${conn.id satisfies string}`
+                  : undefined
+              }
+            />
+          ) : undefined;
+
         return (
           <PortConnection
             key={conn.id}
@@ -2131,6 +2151,8 @@ export function ProofWorkspace({
             color={color}
             strokeWidth={2}
             handDrawn={handDrawnConnections}
+            label={edgeLabel}
+            labelOffsetY={-12}
             onContextMenu={(screenX, screenY) => {
               handleConnectionContextMenu(conn.id, screenX, screenY);
             }}
@@ -2292,8 +2314,7 @@ export function ProofWorkspace({
                 if (node.substitutionEntries) return node.substitutionEntries;
                 const edge = workspace.inferenceEdges.find(
                   (e) =>
-                    e._tag === "substitution" &&
-                    e.conclusionNodeId === node.id,
+                    e._tag === "substitution" && e.conclusionNodeId === node.id,
                 );
                 return edge && edge._tag === "substitution"
                   ? edge.entries

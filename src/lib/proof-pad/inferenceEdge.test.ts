@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   findInferenceEdgesForNode,
+  findInferenceEdgeForConclusionNode,
   getInferenceEdgeConclusionNodeId,
+  getInferenceEdgeLabel,
   getInferenceEdgePremiseNodeIds,
   type InferenceEdge,
   type MPEdge,
@@ -264,6 +266,110 @@ describe("inferenceEdge", () => {
         conclusionText: "",
       };
       expect(getInferenceEdgePremiseNodeIds(edge)).toEqual([]);
+    });
+  });
+
+  describe("getInferenceEdgeLabel", () => {
+    it("returns 'MP' for MP edge", () => {
+      const edge: MPEdge = {
+        _tag: "mp",
+        conclusionNodeId: "mp-1",
+        leftPremiseNodeId: "a",
+        rightPremiseNodeId: "b",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabel(edge)).toBe("MP");
+    });
+
+    it("returns 'Gen(x)' for Gen edge with variable name", () => {
+      const edge: GenEdge = {
+        _tag: "gen",
+        conclusionNodeId: "gen-1",
+        premiseNodeId: "a",
+        variableName: "x",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabel(edge)).toBe("Gen(x)");
+    });
+
+    it("returns 'Gen' for Gen edge with empty variable name", () => {
+      const edge: GenEdge = {
+        _tag: "gen",
+        conclusionNodeId: "gen-1",
+        premiseNodeId: "a",
+        variableName: "",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabel(edge)).toBe("Gen");
+    });
+
+    it("returns 'Subst(N)' for Substitution edge with entries", () => {
+      const edge: SubstitutionEdge = {
+        _tag: "substitution",
+        conclusionNodeId: "subst-1",
+        premiseNodeId: "a",
+        entries: [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "p → q",
+          },
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "ψ",
+            formulaText: "r",
+          },
+        ],
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabel(edge)).toBe("Subst(2)");
+    });
+
+    it("returns 'Subst' for Substitution edge with empty entries", () => {
+      const edge: SubstitutionEdge = {
+        _tag: "substitution",
+        conclusionNodeId: "subst-1",
+        premiseNodeId: "a",
+        entries: [],
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabel(edge)).toBe("Subst");
+    });
+  });
+
+  describe("findInferenceEdgeForConclusionNode", () => {
+    const edges: readonly InferenceEdge[] = [
+      {
+        _tag: "mp",
+        conclusionNodeId: "mp-1",
+        leftPremiseNodeId: "a",
+        rightPremiseNodeId: "b",
+        conclusionText: "",
+      },
+      {
+        _tag: "gen",
+        conclusionNodeId: "gen-1",
+        premiseNodeId: "c",
+        variableName: "x",
+        conclusionText: "",
+      },
+    ];
+
+    it("finds MP edge by conclusion node ID", () => {
+      const result = findInferenceEdgeForConclusionNode(edges, "mp-1");
+      expect(result).toBeDefined();
+      expect(result?._tag).toBe("mp");
+    });
+
+    it("finds Gen edge by conclusion node ID", () => {
+      const result = findInferenceEdgeForConclusionNode(edges, "gen-1");
+      expect(result).toBeDefined();
+      expect(result?._tag).toBe("gen");
+    });
+
+    it("returns undefined for non-existent conclusion node ID", () => {
+      const result = findInferenceEdgeForConclusionNode(edges, "unknown");
+      expect(result).toBeUndefined();
     });
   });
 });

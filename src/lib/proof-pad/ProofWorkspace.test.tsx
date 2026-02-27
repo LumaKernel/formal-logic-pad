@@ -634,6 +634,33 @@ describe("ProofWorkspace", () => {
       });
     });
 
+    it("shows inference edge badge on MP connection", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <StatefulWorkspace
+          initialWorkspace={(() => {
+            let ws = createEmptyWorkspace(lukasiewiczSystem);
+            ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+            ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+            return ws;
+          })()}
+        />,
+      );
+
+      // Apply MP
+      await user.click(screen.getByTestId("workspace-mp-button"));
+      await user.click(screen.getByTestId("proof-node-node-1"));
+      await user.click(screen.getByTestId("proof-node-node-2"));
+
+      // Edge badges should appear on connections to MP node
+      await waitFor(() => {
+        const badges = screen.getAllByText("MP");
+        // There should be at least one MP badge on a connection
+        expect(badges.length).toBeGreaterThanOrEqual(1);
+      });
+    });
+
     it("hides axiom dependencies when showDependencies=false", async () => {
       const user = userEvent.setup();
 

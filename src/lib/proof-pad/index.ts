@@ -240,7 +240,9 @@ export type {
 } from "./parametricAxiomLogic";
 export {
   findInferenceEdgesForNode,
+  findInferenceEdgeForConclusionNode,
   getInferenceEdgeConclusionNodeId,
+  getInferenceEdgeLabel,
   getInferenceEdgePremiseNodeIds,
 } from "./inferenceEdge";
 export type {
