@@ -50,8 +50,8 @@ export interface EditableProofNodeProps {
   readonly editable?: boolean;
   /** ノード下部に表示するステータスメッセージ */
   readonly statusMessage?: string;
-  /** ステータスメッセージの種類（エラー/成功） */
-  readonly statusType?: "error" | "success";
+  /** ステータスメッセージの種類（エラー/警告/成功） */
+  readonly statusType?: "error" | "warning" | "success";
   /** ノードの分類（nodeRoleLogicで計算） */
   readonly classification?: NodeClassification;
   /** ノードの役割変更時のコールバック */
@@ -104,6 +104,17 @@ const statusErrorStyle: CSSProperties = {
   background: "var(--color-error-bg, rgba(255,60,60,0.25))",
   borderRadius: 4,
   color: "var(--color-error, #e06060)",
+};
+
+const statusWarningStyle: CSSProperties = {
+  fontSize: 10,
+  fontFamily: "var(--font-ui)",
+  fontStyle: "normal",
+  marginTop: 4,
+  padding: "2px 6px",
+  background: "var(--color-warning-bg, rgba(255,215,0,0.3))",
+  borderRadius: 4,
+  color: "var(--color-warning, #d9944a)",
 };
 
 const statusSuccessStyle: CSSProperties = {
@@ -247,6 +258,19 @@ function getRoleBadgeLabel(classification: NodeClassification): string {
       return "ROOT";
     case "derived":
       return "DERIVED";
+  }
+}
+
+function getStatusStyle(
+  type: "error" | "warning" | "success",
+): CSSProperties {
+  switch (type) {
+    case "error":
+      return statusErrorStyle;
+    case "warning":
+      return statusWarningStyle;
+    case "success":
+      return statusSuccessStyle;
   }
 }
 
@@ -460,9 +484,9 @@ export function EditableProofNode({
           </div>
         )
       ) : null}
-      {visibility.showStatus && statusMessage ? (
+      {visibility.showStatus && statusMessage && statusType ? (
         <div
-          style={statusType === "error" ? statusErrorStyle : statusSuccessStyle}
+          style={getStatusStyle(statusType)}
           data-testid={testId ? `${testId satisfies string}-status` : undefined}
         >
           {statusMessage}

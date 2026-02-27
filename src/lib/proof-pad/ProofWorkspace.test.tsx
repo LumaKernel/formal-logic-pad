@@ -1616,6 +1616,86 @@ describe("ProofWorkspace", () => {
     });
   });
 
+  describe("axiom non-trivial substitution warning", () => {
+    it("shows warning for non-trivial axiom instance", () => {
+      // phi -> (phi -> phi) is A1 with psi:=phi (non-trivial: same meta-var for different slots)
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(
+        ws,
+        "axiom",
+        "Axiom",
+        { x: 0, y: 0 },
+        "phi -> (phi -> phi)",
+      );
+
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          testId="workspace"
+        />,
+      );
+
+      expect(
+        screen.getByTestId("proof-node-node-1-status"),
+      ).toHaveTextContent("Needs substitution step");
+    });
+
+    it("does not show warning for trivial axiom instance", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(
+        ws,
+        "axiom",
+        "Axiom",
+        { x: 0, y: 0 },
+        "phi -> (psi -> phi)",
+      );
+
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          testId="workspace"
+        />,
+      );
+
+      expect(
+        screen.queryByTestId("proof-node-node-1-status"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("does not show warning for derived nodes", () => {
+      // MP conclusion might match an axiom pattern but it's derived, not root-axiom
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A", { x: 0, y: 0 }, "alpha");
+      ws = addNode(
+        ws,
+        "axiom",
+        "B",
+        { x: 200, y: 0 },
+        "alpha -> (phi -> (phi -> phi))",
+      );
+      const result = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 150,
+      });
+
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={result.workspace}
+          testId="workspace"
+        />,
+      );
+
+      // MP node (node-3) conclusion = phi -> (phi -> phi) matches A1 non-trivially,
+      // but it's a derived node so no warning should be shown
+      expect(
+        screen.queryByTestId("proof-node-node-3-status"),
+      ).toHaveTextContent("MP applied");
+    });
+  });
+
   describe("selection and copy-paste", () => {
     it("shows selection banner when node is clicked", async () => {
       const user = userEvent.setup();

@@ -296,6 +296,17 @@ describe("EditableProofNode", () => {
       );
     });
 
+    it("警告ステータスが表示される", () => {
+      renderNode({
+        statusMessage: "Needs substitution step",
+        statusType: "warning",
+      });
+      expect(screen.getByTestId("test-node-status")).toBeInTheDocument();
+      expect(screen.getByTestId("test-node-status")).toHaveTextContent(
+        "Needs substitution step",
+      );
+    });
+
     it("ステータスがない場合は表示されない", () => {
       renderNode();
       expect(screen.queryByTestId("test-node-status")).not.toBeInTheDocument();
