@@ -6653,3 +6653,33 @@
   - parseTermString で "S(x)" は FunctionApplication を返す（TermVariable ではない）。∃I のnon-variable termテストに有用
   - 量化子ND規則の formula syntax: `all x. P(x)` (∀), `ex x. P(x)` (∃)
 ---
+
+## 2026-03-01 - B2-1: TAB DeductionSystem統合
+
+- タブロー法(TAB)をDeductionSystemの第4スタイル("tableau-calculus")として統合
+- `deductionSystem.ts`: TableauCalculusSystem型、tabSystem/tabPropSystem定義、isTabRuleEnabled、tableauCalculusDeduction factory
+- `notebookCreateLogic.ts`: TABプリセット2種（命題論理版 tab-prop / 全規則版 tab）、カテゴリ定義追加
+- `questDefinition.ts`: SystemPresetIdに"tab-prop" | "tab"追加
+- `questStartLogic.ts`: TABプリセットはUI未対応のためundefinedガード
+- `HubContent.tsx`: TABスタイルのUIガード追加
+- `index.ts`: TAB関連のエクスポート追加
+- テスト: deductionSystem.test.ts (102テスト通過)、notebookCreateLogic.test.ts (114テスト通過)、questStartLogic.test.ts (全テスト通過)
+- カバレッジ: Stmts 98.31% (±0), Branch 91.73% (+0.01), Funcs 88.81% (-0.02), Lines 99.18% (±0)
+- スクリーンショット: .screenshots/B2-tab-presets-expanded.png
+
+変更ファイル:
+- src/lib/logic-core/deductionSystem.ts
+- src/lib/logic-core/deductionSystem.test.ts
+- src/lib/logic-core/index.ts
+- src/lib/notebook/notebookCreateLogic.ts
+- src/lib/notebook/notebookCreateLogic.test.ts
+- src/lib/quest/questDefinition.ts
+- src/lib/quest/questStartLogic.ts
+- src/lib/quest/questStartLogic.test.ts
+- src/app/HubContent.tsx
+
+**今後のイテレーションへの学び:**
+- TABはツリー構造(TabProofNode)の証明図を使うため、Hilbert/NDのフラットなノード+エッジモデルとは根本的に異なる。TAB UI実装にはInferenceEdgeの拡張ではなく、専用のツリーレンダリングが必要になる可能性が高い
+- DeductionStyleの追加時は、全switch文のexhaustive check + テスト中のハードコードされた数値（カテゴリ数・プリセット数等）の更新が必要
+- ノートブック作成フォームのテストでは、スタイル判定の除外フィルタ（`!p.id.startsWith("nd-") && !p.id.startsWith("sc-")`）にも新プレフィックスの追加が必要
+---
