@@ -99,11 +99,17 @@ export type ProofMessages = {
   readonly useAsMPRight: string;
   readonly applyGenToNode: string;
   readonly applySubstitutionToNode: string;
+  readonly mergeWithNode: string;
   readonly duplicateNode: string;
   readonly deleteNode: string;
   readonly deleteConnection: string;
   /** `{variableName}` プレースホルダーを含む */
   readonly genVariablePrompt: string;
+
+  // --- マージ選択 ---
+  readonly mergeBannerSelectTarget: string;
+  readonly mergeCancel: string;
+  readonly mergeNoTargets: string;
 
   // --- 公理制限 ---
   readonly proofCompleteButAxiomViolation: string;
@@ -193,10 +199,16 @@ export const defaultProofMessages: ProofMessages = {
   useAsMPRight: "Use as MP Right (\u03C6\u2192\u03C8)",
   applyGenToNode: "Apply Gen",
   applySubstitutionToNode: "Apply Substitution",
+  mergeWithNode: "Merge with\u2026",
   duplicateNode: "Duplicate Node",
   deleteNode: "Delete Node",
   deleteConnection: "Delete Connection",
   genVariablePrompt: "Variable name:",
+
+  // Merge selection
+  mergeBannerSelectTarget: "Click a node with the same formula to merge",
+  mergeCancel: "Cancel Merge",
+  mergeNoTargets: "No mergeable nodes found",
 
   // Axiom restriction
   proofCompleteButAxiomViolation: "Proof Complete (axiom restriction violated)",

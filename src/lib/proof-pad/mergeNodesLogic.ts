@@ -257,3 +257,35 @@ export function canMergeSelectedNodes(
     findMergeableGroups(selectedNodeIds, allNodes, protectedNodeIds).length > 0
   );
 }
+
+/**
+ * 指定ノードとマージ可能なノード（同一formulaText）のIDセットを返す。
+ *
+ * コンテキストメニューからマージを開始する際に、
+ * クリック可能な候補ノードをハイライトするために使用する。
+ *
+ * @param sourceNodeId マージ開始ノードのID
+ * @param allNodes 全ノード
+ * @param protectedNodeIds 保護されたノードID（マージ対象外）
+ * @returns マージ対象候補のノードIDセット（sourceNode自身は含まない）
+ */
+export function findMergeTargets(
+  sourceNodeId: string,
+  allNodes: readonly WorkspaceNode[],
+  protectedNodeIds: ReadonlySet<string>,
+): ReadonlySet<string> {
+  const sourceNode = allNodes.find((n) => n.id === sourceNodeId);
+  if (!sourceNode || protectedNodeIds.has(sourceNodeId)) {
+    return new Set<string>();
+  }
+
+  const targets = new Set<string>();
+  for (const node of allNodes) {
+    if (node.id === sourceNodeId) continue;
+    if (protectedNodeIds.has(node.id)) continue;
+    if (node.formulaText === sourceNode.formulaText) {
+      targets.add(node.id);
+    }
+  }
+  return targets;
+}
