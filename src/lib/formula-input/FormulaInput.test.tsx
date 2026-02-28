@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { Formula } from "../logic-core/formula";
+import { ParseError } from "../logic-lang/parser";
 import {
   computeErrorHighlights,
   computeParseState,
@@ -74,13 +75,13 @@ describe("computeParseState", () => {
 describe("computeErrorHighlights", () => {
   it("エラーのスパンからハイライト範囲を計算する", () => {
     const highlights = computeErrorHighlights("→ ψ", [
-      {
+      new ParseError({
         message: "Unexpected token",
         span: {
           start: { line: 1, column: 1 },
           end: { line: 1, column: 2 },
         },
-      },
+      }),
     ]);
     expect(highlights).toHaveLength(1);
     expect(highlights[0]?.start).toBe(0);
@@ -89,13 +90,13 @@ describe("computeErrorHighlights", () => {
 
   it("end <= start の場合は最低1文字をハイライトする", () => {
     const highlights = computeErrorHighlights("abc", [
-      {
+      new ParseError({
         message: "Error",
         span: {
           start: { line: 1, column: 2 },
           end: { line: 1, column: 2 },
         },
-      },
+      }),
     ]);
     expect(highlights).toHaveLength(1);
     expect(highlights[0]?.start).toBe(1);
@@ -104,13 +105,13 @@ describe("computeErrorHighlights", () => {
 
   it("入力範囲を超えるオフセットをクランプする", () => {
     const highlights = computeErrorHighlights("ab", [
-      {
+      new ParseError({
         message: "Error",
         span: {
           start: { line: 1, column: 10 },
           end: { line: 1, column: 20 },
         },
-      },
+      }),
     ]);
     expect(highlights).toHaveLength(1);
     expect(highlights[0]?.start).toBe(2);
@@ -119,20 +120,20 @@ describe("computeErrorHighlights", () => {
 
   it("複数エラーでハイライトを返す", () => {
     const highlights = computeErrorHighlights("a → → b", [
-      {
+      new ParseError({
         message: "Error 1",
         span: {
           start: { line: 1, column: 1 },
           end: { line: 1, column: 2 },
         },
-      },
-      {
+      }),
+      new ParseError({
         message: "Error 2",
         span: {
           start: { line: 1, column: 5 },
           end: { line: 1, column: 6 },
         },
-      },
+      }),
     ]);
     expect(highlights).toHaveLength(2);
   });
@@ -140,13 +141,13 @@ describe("computeErrorHighlights", () => {
   it("複数行のエラー位置を正しく計算する", () => {
     const input = "abc\ndef";
     const highlights = computeErrorHighlights(input, [
-      {
+      new ParseError({
         message: "Error",
         span: {
           start: { line: 2, column: 1 },
           end: { line: 2, column: 3 },
         },
-      },
+      }),
     ]);
     expect(highlights).toHaveLength(1);
     expect(highlights[0]?.start).toBe(4); // "abc\n" = 4 chars
@@ -156,24 +157,28 @@ describe("computeErrorHighlights", () => {
 
 describe("formatErrorMessage", () => {
   it("行:列とメッセージをフォーマットする", () => {
-    const msg = formatErrorMessage({
-      message: "Unexpected token",
-      span: {
-        start: { line: 1, column: 3 },
-        end: { line: 1, column: 4 },
-      },
-    });
+    const msg = formatErrorMessage(
+      new ParseError({
+        message: "Unexpected token",
+        span: {
+          start: { line: 1, column: 3 },
+          end: { line: 1, column: 4 },
+        },
+      }),
+    );
     expect(msg).toBe("1:3 Unexpected token");
   });
 
   it("2行目のエラーをフォーマットする", () => {
-    const msg = formatErrorMessage({
-      message: "Expected ')'",
-      span: {
-        start: { line: 2, column: 5 },
-        end: { line: 2, column: 6 },
-      },
-    });
+    const msg = formatErrorMessage(
+      new ParseError({
+        message: "Expected ')'",
+        span: {
+          start: { line: 2, column: 5 },
+          end: { line: 2, column: 6 },
+        },
+      }),
+    );
     expect(msg).toBe("2:5 Expected ')'");
   });
 });

@@ -1,9 +1,9 @@
 export { lex } from "./lexer";
-export { parse, parseString } from "./parser";
-export type { ParseError, ParseResult } from "./parser";
+export { parse, parseString, ParseError } from "./parser";
+export type { ParseResult } from "./parser";
+export { LexerError } from "./token";
 export type {
   LexResult,
-  LexerError,
   Position,
   Span,
   Token,

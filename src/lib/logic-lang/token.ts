@@ -4,6 +4,7 @@
  * 変更時は lexer.ts のトークン化ロジックと lexer.test.ts も同期すること。
  */
 
+import { Data } from "effect";
 import type { Either } from "effect";
 
 // --- トークン種別 ---
@@ -67,10 +68,10 @@ export interface Token {
 
 // --- Lexerエラー ---
 
-export interface LexerError {
+export class LexerError extends Data.TaggedError("LexerError")<{
   readonly message: string;
   readonly span: Span;
-}
+}> {}
 
 // --- Lexer結果 ---
 // Right = 成功 (tokens), Left = 失敗 (errors)
