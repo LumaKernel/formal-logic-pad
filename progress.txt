@@ -87,6 +87,7 @@
 - `mod`修飾キーでOS差を吸収: macOS→metaKey(Cmd)、Windows/Linux→ctrlKey(Ctrl)
 - コードシーケンスの定義順序が重要: Shift+ArrowをArrowより前に置かないとマッチしない
 - `src/lib/logic-core/evaluation.ts` は命題論理の真理値評価エンジン。`evaluateFormula` + `isTautology`/`isSatisfiable`/`isContradiction` + `generateTruthTable`
+- `src/lib/logic-core/normalForm.ts` は命題論理の標準形変換。`toNNF`/`toCNF`/`toDNF` + `isNNF`/`isCNF`/`isDNF`。NNFはCNF/DNFの前段階
 
 ---
 
@@ -5995,4 +5996,34 @@
   - エントリ数の更新を忘れないこと（referenceContent.test.ts の toHaveLength）
   - クロスリファレンスは双方向に追加する（新エントリ→既存 + 既存→新エントリ）
   - prd-advanced.md の完了済みセクションが溜まっていたので一括アーカイブした
+---
+
+## 2026-02-28 - 命題論理の標準形変換（NNF/CNF/DNF）
+- `src/lib/logic-core/normalForm.ts` を新規作成
+  - `toNNF`: 否定標準形への変換（→/↔除去、De Morgan則、二重否定除去）
+  - `toCNF`: 連言標準形への変換（NNF変換後に∨を∧上に分配）
+  - `toDNF`: 選言標準形への変換（NNF変換後に∧を∨上に分配）
+  - `isNNF`/`isCNF`/`isDNF`: 各標準形の判定関数
+- テスト: 112テスト追加（5252→5364）
+  - 全変換で論理的等価性を `isTautology(biconditional(original, converted))` で検証
+  - De Morgan則、含意/双条件除去、分配法則の個別検証
+  - 複合的な式の変換テスト
+  - 非命題論理式のエラーテスト
+- カバレッジ: Stmts 98.57%(↑), Branch 92.56%(↓0.16%), Funcs 89.64%(↓0.45%), Lines 99.33%(↑)
+  - Branch/Funcsの微減はNNF保証による防御的分岐の到達不能部分（v8 ignoreで対応済み）
+  - normalForm.ts: Stmts 100%, Branch 83.9%, Funcs 100%, Lines 100%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Storybook正常動作確認（純粋ロジックモジュールのためUI変更なし）
+- スクリーンショット: `.screenshots/normalForm-storybook-check.png`
+- 変更ファイル:
+  - `src/lib/logic-core/normalForm.ts` - 新規（NNF/CNF/DNF変換・判定ロジック）
+  - `src/lib/logic-core/normalForm.test.ts` - 新規（112テスト）
+  - `src/lib/logic-core/index.ts` - export追加
+  - `tasks/prd-advanced.md` - H1, H2完了マーク
+  - `task-processing.md` - クリア
+- **今後のイテレーションへの学び:**
+  - NNF変換後の分配関数（distributeCNF/distributeDNF）では、NNF保証により→/↔が出現しないため、それらの分岐は到達不能。v8 ignore blockで対応
+  - `isTautology(biconditional(original, converted))` は変換の論理的等価性を検証する強力な方法
+  - `instanceof` でEffect.ts TaggedClassを判定可能（`formula instanceof Conjunction`）。switch+_tagだけでなくinstanceofも活用できる
+  - NNFはCNF/DNFの前段階。H2→H1の順で実装するのが自然
 ---
