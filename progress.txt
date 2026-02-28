@@ -15,6 +15,7 @@
 - v8 coverage: `satisfies never` パターンには `/* v8 ignore start/stop */` を使用（`next N` は動作しない場合がある）
 - Logic Core は `src/lib/logic-core/` に配置。Effect.ts `Schema.TaggedClass` でAST定義、`Data.TaggedError` でエラー型、`Either` でResult型、ピュアロジック、UIなし
 - Effect.ts エラー型パターン: `Data.TaggedError("Tag")<{ fields }>` でクラス定義、`Either.Either<Success, Error>` で結果型、`Either.isLeft/isRight` で分岐
+- Effect.ts DI パターン: `Context.Tag` でサービス定義 → `Layer.succeed` で実装 → `Effect.provide` で注入。テストでは `createInMemoryStorageLayer` のようなインメモリ実装を提供
 - AST の再帰型は `Schema.suspend(() => Formula)` で定義。`FunctionApplication`（`Function` はJS予約語と衝突するため改名）
 - `@luma-dev/luma-ts/no-explicit-return-is` があるため type predicate は明示しない
 - フォーマッターの括弧判定: 左辺は `parent.leftBP > child.rightBP`、右辺は `child.leftBP <= parent.rightBP` で判定（Pratt parserの挙動を正確に反映）
@@ -6404,4 +6405,29 @@
   - interface→Data.TaggedErrorクラス変換時、テストファイルでプレーンオブジェクト`{ message, span }`を使っている箇所が型エラーになる。TypeScript型チェックで全箇所を検出できるため安全
   - Data.TaggedErrorクラスはEffect内部プロパティ（EffectTypeId等）を持つため、プレーンオブジェクトリテラルでは型互換性がない
   - 値export（`export { ParseError }`）とtype export（`export type { ParseError }`）の区別に注意。クラスは値exportが必要
+---
+
+## 2026-03-01 - ET-009: quest ストレージ操作を Effect + Layer で抽象化
+- 実装した内容: StorageService (Context.Tag) + Layer パターンで quest のストレージアクセスを抽象化
+  - `storageService.ts`: StorageService (Context.Tag), BrowserStorageLayer, createInMemoryStorageLayer を新規作成
+  - `useQuestProgress.ts`: loadProgressEffect / saveProgressEffect (Effect版) を追加。hook内は BrowserStorageLayer 経由に変更
+  - 既存の同期版 loadProgress/saveProgress は互換性のため維持
+  - InMemoryStorageLayer を使った副作用フリーな Effect版テスト 7件追加
+  - storageService テスト 5件追加
+- 変更したファイル（6ファイル）:
+  - `src/lib/quest/storageService.ts` — 新規: StorageService, BrowserStorageLayer, createInMemoryStorageLayer
+  - `src/lib/quest/storageService.test.ts` — 新規: InMemoryStorageLayer テスト 5件
+  - `src/lib/quest/useQuestProgress.ts` — loadProgressEffect/saveProgressEffect 追加、hook を BrowserStorageLayer 経由に
+  - `src/lib/quest/useQuestProgress.test.tsx` — Effect版テスト 7件追加
+  - `src/lib/quest/index.ts` — 新しい export 追加
+  - `tasks/prd-effect-ts.md` — ET-009 を [x] に更新
+- ベースライン: Stmts 98.22%, Branch 91.93%, Funcs 89.01%, Lines 99.14%, 5537テスト
+- 完了後: Stmts 98.23%, Branch 91.90%, Funcs 89.02%, Lines 99.14%, 5549テスト — カバレッジ維持 (+12テスト)
+- スクリーンショット: `.screenshots/ET-009-quest-catalog-default.png`, `.screenshots/ET-009-hub-quests-tab.png`
+- **今後のイテレーションへの学び:**
+  - Effect.ts の Context.Tag + Layer パターン: `class MyService extends Context.Tag("MyService")<MyService, { ... }>() {}` で定義、`Layer.succeed(MyService, { ... })` で実装提供
+  - `Effect.provide(effect, layer)` で Layer を注入、`Effect.runSync(...)` で同期実行
+  - `createInMemoryStorageLayer` のように `getStore()` を返すと、テストでストア内容を直接検証できて便利
+  - React hook 内では `Effect.runSync(Effect.provide(effect, BrowserStorageLayer))` で解決。hook は同期的なので Effect.runSync で十分
+  - 既存の `loadProgress(storage: Storage)` 同期版を残すことで、既存テストへの影響を最小限に抑えられる
 ---
