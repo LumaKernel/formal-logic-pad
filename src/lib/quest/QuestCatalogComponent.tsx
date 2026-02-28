@@ -25,12 +25,21 @@ import {
   type CatalogFilterState,
   type CompletionFilter,
 } from "./questCatalogListLogic";
+import {
+  getNotebookCountForQuest,
+  notebookCountText,
+  type QuestNotebookCounts,
+} from "./questNotebookFilterLogic";
 
 // --- Props ---
 
 export type QuestCatalogProps = {
   readonly groups: readonly CategoryGroup[];
   readonly onStartQuest: (questId: QuestId) => void;
+  /** クエストIDごとのノートブック数（指定するとノートブック数バッジを表示） */
+  readonly notebookCounts?: QuestNotebookCounts;
+  /** ノートブック数クリック時のコールバック（ノート一覧を絞り込み表示） */
+  readonly onShowQuestNotebooks?: (questId: QuestId) => void;
 };
 
 // --- Styles ---
@@ -235,6 +244,22 @@ const ratingBadgeBaseStyle: CSSProperties = {
   whiteSpace: "nowrap",
 };
 
+const notebookCountBadgeStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 3,
+  fontSize: 10,
+  fontWeight: 600,
+  padding: "2px 8px",
+  borderRadius: 10,
+  background: "var(--color-quest-notebook-badge-bg, #e8eaf6)",
+  color: "var(--color-quest-notebook-badge-text, #3949ab)",
+  cursor: "pointer",
+  whiteSpace: "nowrap",
+  transition: "background 0.15s",
+  border: "none",
+};
+
 const startButtonStyle: CSSProperties = {
   padding: "5px 12px",
   fontSize: 11,
@@ -325,12 +350,44 @@ function ProgressBar({
   );
 }
 
+function NotebookCountBadge({
+  count,
+  questId,
+  onShow,
+}: {
+  readonly count: number;
+  readonly questId: QuestId;
+  readonly onShow?: (questId: QuestId) => void;
+}) {
+  const text = notebookCountText(count);
+  if (text === "") {
+    return null;
+  }
+  return (
+    <button
+      data-testid={`notebook-count-${questId satisfies string}`}
+      style={notebookCountBadgeStyle}
+      onClick={(e) => {
+        e.stopPropagation();
+        onShow?.(questId);
+      }}
+      title={`このクエストのノート: ${text satisfies string}`}
+    >
+      {text}
+    </button>
+  );
+}
+
 function QuestItem({
   item,
   onStart,
+  notebookCount,
+  onShowNotebooks,
 }: {
   readonly item: QuestCatalogItem;
   readonly onStart: (questId: QuestId) => void;
+  readonly notebookCount: number;
+  readonly onShowNotebooks?: (questId: QuestId) => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -357,6 +414,11 @@ function QuestItem({
           <span style={stepTextStyle}>
             {stepCountText(item.bestStepCount, item.quest.estimatedSteps)}
           </span>
+          <NotebookCountBadge
+            count={notebookCount}
+            questId={item.quest.id}
+            onShow={onShowNotebooks}
+          />
         </div>
       </div>
       <RatingBadge rating={item.rating} />
@@ -379,10 +441,14 @@ function CategorySection({
   group,
   chapterNumber,
   onStart,
+  notebookCounts,
+  onShowNotebooks,
 }: {
   readonly group: CategoryGroup;
   readonly chapterNumber: number;
   readonly onStart: (questId: QuestId) => void;
+  readonly notebookCounts?: QuestNotebookCounts;
+  readonly onShowNotebooks?: (questId: QuestId) => void;
 }) {
   return (
     <div
@@ -414,7 +480,17 @@ function CategorySection({
       </div>
       <div style={questListStyle}>
         {group.items.map((item) => (
-          <QuestItem key={item.quest.id} item={item} onStart={onStart} />
+          <QuestItem
+            key={item.quest.id}
+            item={item}
+            onStart={onStart}
+            notebookCount={
+              notebookCounts
+                ? getNotebookCountForQuest(notebookCounts, item.quest.id)
+                : 0
+            }
+            onShowNotebooks={onShowNotebooks}
+          />
         ))}
       </div>
     </div>
@@ -423,7 +499,12 @@ function CategorySection({
 
 // --- Main component ---
 
-export function QuestCatalog({ groups, onStartQuest }: QuestCatalogProps) {
+export function QuestCatalog({
+  groups,
+  onStartQuest,
+  notebookCounts,
+  onShowQuestNotebooks,
+}: QuestCatalogProps) {
   const [filter, setFilter] = useState<CatalogFilterState>(defaultFilterState);
 
   const filteredGroups = applyFiltersToGroups(groups, filter);
@@ -484,6 +565,8 @@ export function QuestCatalog({ groups, onStartQuest }: QuestCatalogProps) {
             group={group}
             chapterNumber={index + 1}
             onStart={onStartQuest}
+            notebookCounts={notebookCounts}
+            onShowNotebooks={onShowQuestNotebooks}
           />
         ))
       )}

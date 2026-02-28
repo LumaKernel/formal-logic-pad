@@ -8,6 +8,7 @@ import {
   useQuestProgress,
   builtinQuests,
   buildCatalogByCategory,
+  computeQuestNotebookCounts,
 } from "../lib/quest";
 import { ThemeProvider } from "../lib/theme/ThemeProvider";
 import type { DeductionSystem } from "../lib/logic-core/deductionSystem";
@@ -41,6 +42,12 @@ function HubInner() {
   const listItems = useMemo(
     () => toNotebookListItems(notebookCollection.notebooks, getNow()),
     [notebookCollection.notebooks],
+  );
+
+  // Compute notebook counts per quest
+  const notebookCounts = useMemo(
+    () => computeQuestNotebookCounts(notebookCollection.collection),
+    [notebookCollection.collection],
   );
 
   // Navigate to workspace
@@ -108,6 +115,7 @@ function HubInner() {
       onStartQuest={handleStartQuest}
       onCreateNotebook={handleCreateNotebook}
       languageToggle={{ locale, onLocaleChange: switchLocale }}
+      notebookCounts={notebookCounts}
     />
   );
 }

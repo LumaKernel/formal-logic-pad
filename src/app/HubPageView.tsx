@@ -12,9 +12,14 @@ import { useState, type CSSProperties } from "react";
 import {
   NotebookList,
   NotebookCreateForm,
+  filterNotebooksByQuestId,
   type NotebookListItem,
 } from "../lib/notebook";
-import { QuestCatalog, type CategoryGroup } from "../lib/quest";
+import {
+  QuestCatalog,
+  type CategoryGroup,
+  type QuestNotebookCounts,
+} from "../lib/quest";
 import { ThemeToggle } from "../components/ThemeToggle/ThemeToggle";
 import {
   LanguageToggle,
@@ -53,6 +58,8 @@ export type HubPageViewProps = {
   readonly initialTab?: HubTab;
   /** 言語切り替え（指定時に LanguageToggle を表示） */
   readonly languageToggle?: LanguageToggleProps;
+  /** クエストIDごとのノートブック数（クエストカタログに表示） */
+  readonly notebookCounts?: QuestNotebookCounts;
 };
 
 // --- Styles ---
@@ -156,6 +163,31 @@ const emptyHeroDescStyle: CSSProperties = {
   lineHeight: 1.6,
 };
 
+const filterBannerStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  padding: "8px 14px",
+  marginBottom: 12,
+  borderRadius: 8,
+  background: "var(--color-quest-notebook-badge-bg, #e8eaf6)",
+  color: "var(--color-quest-notebook-badge-text, #3949ab)",
+  fontSize: 13,
+  fontWeight: 600,
+};
+
+const clearFilterButtonStyle: CSSProperties = {
+  padding: "3px 10px",
+  fontSize: 11,
+  fontWeight: 600,
+  borderRadius: 6,
+  border: "1px solid currentColor",
+  background: "transparent",
+  color: "inherit",
+  cursor: "pointer",
+  marginLeft: "auto",
+};
+
 export function HubPageView({
   listItems,
   groups,
@@ -168,9 +200,22 @@ export function HubPageView({
   onCreateNotebook,
   initialTab = "notebooks",
   languageToggle,
+  notebookCounts,
 }: HubPageViewProps) {
   const [tab, setTab] = useState<HubTab>(initialTab);
   const [view, setView] = useState<HubViewState>("list");
+  const [questFilter, setQuestFilter] = useState<string | null>(null);
+
+  const handleShowQuestNotebooks = (questId: string) => {
+    setQuestFilter(questId);
+    setTab("notebooks");
+    setView("list");
+  };
+
+  const displayedItems =
+    questFilter !== null
+      ? filterNotebooksByQuestId(listItems, questFilter)
+      : listItems;
 
   return (
     <div style={pageStyle} data-testid="hub-page">
@@ -196,6 +241,7 @@ export function HubPageView({
           onClick={() => {
             setTab("notebooks");
             setView("list");
+            setQuestFilter(null);
           }}
         >
           Notebooks
@@ -225,24 +271,59 @@ export function HubPageView({
                 + New Notebook
               </button>
             </div>
-            {listItems.length === 0 ? (
-              <div style={emptyHeroStyle}>
-                <div style={emptyHeroTitleStyle}>No notebooks yet</div>
-                <p style={emptyHeroDescStyle}>
-                  Create a new notebook to start building formal proofs, or try
-                  a quest to learn the basics.
-                </p>
+            {questFilter !== null && (
+              <div style={filterBannerStyle} data-testid="quest-filter-banner">
+                <span>
+                  {`クエストのノート（${String(displayedItems.length) satisfies string}件）`}
+                </span>
                 <button
                   type="button"
-                  style={createButtonStyle}
-                  onClick={() => setView("create")}
+                  style={clearFilterButtonStyle}
+                  data-testid="clear-quest-filter"
+                  onClick={() => setQuestFilter(null)}
                 >
-                  + New Notebook
+                  フィルタ解除
                 </button>
               </div>
+            )}
+            {displayedItems.length === 0 ? (
+              questFilter !== null ? (
+                <div style={emptyHeroStyle}>
+                  <div
+                    style={{
+                      ...emptyHeroTitleStyle,
+                      fontSize: 16,
+                    }}
+                  >
+                    このクエストのノートはまだありません
+                  </div>
+                  <button
+                    type="button"
+                    style={clearFilterButtonStyle}
+                    onClick={() => setQuestFilter(null)}
+                  >
+                    フィルタ解除
+                  </button>
+                </div>
+              ) : (
+                <div style={emptyHeroStyle}>
+                  <div style={emptyHeroTitleStyle}>No notebooks yet</div>
+                  <p style={emptyHeroDescStyle}>
+                    Create a new notebook to start building formal proofs, or
+                    try a quest to learn the basics.
+                  </p>
+                  <button
+                    type="button"
+                    style={createButtonStyle}
+                    onClick={() => setView("create")}
+                  >
+                    + New Notebook
+                  </button>
+                </div>
+              )
             ) : (
               <NotebookList
-                items={listItems}
+                items={displayedItems}
                 onOpen={onOpenNotebook}
                 onDelete={onDeleteNotebook}
                 onDuplicate={onDuplicateNotebook}
@@ -261,7 +342,12 @@ export function HubPageView({
         )}
 
         {tab === "quests" && (
-          <QuestCatalog groups={groups} onStartQuest={onStartQuest} />
+          <QuestCatalog
+            groups={groups}
+            onStartQuest={onStartQuest}
+            notebookCounts={notebookCounts}
+            onShowQuestNotebooks={handleShowQuestNotebooks}
+          />
         )}
       </div>
     </div>

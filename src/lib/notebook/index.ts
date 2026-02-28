@@ -34,6 +34,7 @@ export {
   formatRelativeTime,
   toNotebookListItem,
   toNotebookListItems,
+  filterNotebooksByQuestId,
   validateNotebookName,
   deleteConfirmMessage,
 } from "./notebookListLogic";

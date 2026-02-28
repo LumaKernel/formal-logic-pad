@@ -18,6 +18,8 @@ export type NotebookListItem = {
   readonly mode: "free" | "quest";
   readonly updatedAtLabel: string;
   readonly createdAtLabel: string;
+  /** クエストから作成された場合のクエストID（フィルタリング用） */
+  readonly questId?: string;
 };
 
 /** 日時のフォーマット（相対表示） */
@@ -61,7 +63,16 @@ export function toNotebookListItem(
     mode: notebook.workspace.mode,
     updatedAtLabel: formatRelativeTime(now, notebook.meta.updatedAt),
     createdAtLabel: formatRelativeTime(now, notebook.meta.createdAt),
+    questId: notebook.questId,
   };
+}
+
+/** クエストIDでノートブック一覧をフィルタする */
+export function filterNotebooksByQuestId(
+  items: readonly NotebookListItem[],
+  questId: string,
+): readonly NotebookListItem[] {
+  return items.filter((item) => item.questId === questId);
 }
 
 /** ノートブック一覧を表示用データに変換する */

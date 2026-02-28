@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn, expect, within, userEvent } from "storybook/test";
 import { HubPageView } from "./HubPageView";
 import type { NotebookListItem } from "../lib/notebook";
-import type { CategoryGroup } from "../lib/quest";
+import type { CategoryGroup, QuestNotebookCounts } from "../lib/quest";
 import { builtinQuests, buildCatalogByCategory } from "../lib/quest";
 import { createEmptyProgress } from "../lib/quest";
 import { ThemeProvider } from "../lib/theme/ThemeProvider";
@@ -23,6 +23,7 @@ const sampleNotebooks: readonly NotebookListItem[] = [
     name: "PA Arithmetic Practice",
     systemName: "PA (Standard)",
     mode: "quest",
+    questId: "prop-01",
     updatedAtLabel: "1 day ago",
     createdAtLabel: "1 week ago",
   },
@@ -35,6 +36,11 @@ const sampleNotebooks: readonly NotebookListItem[] = [
     createdAtLabel: "Today",
   },
 ];
+
+const sampleNotebookCounts: QuestNotebookCounts = new Map([
+  ["prop-01", 1],
+  ["prop-02", 2],
+]);
 
 const sampleGroups: readonly CategoryGroup[] = buildCatalogByCategory(
   builtinQuests,
@@ -161,5 +167,36 @@ export const CreateNotebookForm: Story = {
 
     // 作成フォームが表示される（キャンセルボタンの確認）
     await expect(canvas.getByTestId("create-cancel-btn")).toBeInTheDocument();
+  },
+};
+
+/** クエストタブからノートブックフィルタ表示（notebookCounts付き） */
+export const QuestNotebookFilter: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+    initialTab: "quests",
+    notebookCounts: sampleNotebookCounts,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // クエストタブでノートブック数バッジが表示される
+    await expect(canvas.getByTestId("quest-catalog")).toBeInTheDocument();
+    // prop-01のノート数バッジをクリック→ノートブックタブに切り替わりフィルタ表示
+    const badge = canvas.getByTestId("notebook-count-prop-01");
+    await userEvent.click(badge);
+    // フィルタバナーが表示される
+    await expect(
+      canvas.getByTestId("quest-filter-banner"),
+    ).toBeInTheDocument();
+    // フィルタされたノートブックが表示（prop-01に紐づくnotebook-2のみ）
+    await expect(
+      canvas.getByText("PA Arithmetic Practice"),
+    ).toBeInTheDocument();
+    await expect(canvas.queryByText("My First Proof")).not.toBeInTheDocument();
+    // フィルタ解除で全ノートブックが表示される
+    await userEvent.click(canvas.getByTestId("clear-quest-filter"));
+    await expect(canvas.queryByTestId("quest-filter-banner")).toBeNull();
+    await expect(canvas.getByText("My First Proof")).toBeInTheDocument();
   },
 };

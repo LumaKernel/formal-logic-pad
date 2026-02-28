@@ -105,4 +105,11 @@ export {
   getVersionWarningMessage,
 } from "./questVersionLogic";
 
+export {
+  type QuestNotebookCounts,
+  computeQuestNotebookCounts,
+  getNotebookCountForQuest,
+  notebookCountText,
+} from "./questNotebookFilterLogic";
+
 export { QuestCatalog, type QuestCatalogProps } from "./QuestCatalogComponent";

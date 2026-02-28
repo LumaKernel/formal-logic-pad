@@ -3,6 +3,7 @@ import {
   formatRelativeTime,
   toNotebookListItem,
   toNotebookListItems,
+  filterNotebooksByQuestId,
   validateNotebookName,
   deleteConfirmMessage,
 } from "./notebookListLogic";
@@ -64,6 +65,17 @@ describe("toNotebookListItem", () => {
     expect(item.mode).toBe("free");
     expect(item.updatedAtLabel).toBe("たった今");
     expect(item.createdAtLabel).toBe("たった今");
+    expect(item.questId).toBeUndefined();
+  });
+
+  it("クエストノートブックのquestIdが保持される", () => {
+    const now = 100_000;
+    const notebook: Notebook = {
+      ...makeNotebook("nb-1", "クエスト", 50_000, 90_000),
+      questId: "q-01",
+    };
+    const item = toNotebookListItem(notebook, now);
+    expect(item.questId).toBe("q-01");
   });
 });
 
@@ -84,6 +96,62 @@ describe("toNotebookListItems", () => {
 
   it("空配列の場合は空を返す", () => {
     expect(toNotebookListItems([], 100_000)).toEqual([]);
+  });
+});
+
+describe("filterNotebooksByQuestId", () => {
+  const items = [
+    {
+      id: "nb-1",
+      name: "Free",
+      systemName: "Łukasiewicz",
+      mode: "free" as const,
+      updatedAtLabel: "たった今",
+      createdAtLabel: "たった今",
+    },
+    {
+      id: "nb-2",
+      name: "Quest A",
+      systemName: "Łukasiewicz",
+      mode: "quest" as const,
+      updatedAtLabel: "1分前",
+      createdAtLabel: "2分前",
+      questId: "q-01",
+    },
+    {
+      id: "nb-3",
+      name: "Quest B",
+      systemName: "Łukasiewicz",
+      mode: "quest" as const,
+      updatedAtLabel: "3分前",
+      createdAtLabel: "4分前",
+      questId: "q-02",
+    },
+    {
+      id: "nb-4",
+      name: "Quest A2",
+      systemName: "Łukasiewicz",
+      mode: "quest" as const,
+      updatedAtLabel: "5分前",
+      createdAtLabel: "6分前",
+      questId: "q-01",
+    },
+  ];
+
+  it("指定クエストIDのノートブックのみを返す", () => {
+    const filtered = filterNotebooksByQuestId(items, "q-01");
+    expect(filtered).toHaveLength(2);
+    expect(filtered[0]?.id).toBe("nb-2");
+    expect(filtered[1]?.id).toBe("nb-4");
+  });
+
+  it("一致するものがなければ空配列を返す", () => {
+    expect(filterNotebooksByQuestId(items, "q-99")).toEqual([]);
+  });
+
+  it("questIdが未設定のアイテムはフィルタされる", () => {
+    const filtered = filterNotebooksByQuestId(items, "q-01");
+    expect(filtered.every((i) => i.questId === "q-01")).toBe(true);
   });
 });
 

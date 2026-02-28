@@ -404,3 +404,88 @@ describe("ホバー", () => {
     expect(item).toBeTruthy();
   });
 });
+
+// --- ノートブック数バッジ ---
+
+describe("ノートブック数バッジ", () => {
+  it("notebookCountsが未指定のときバッジが表示されない", () => {
+    render(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    expect(screen.queryByTestId("notebook-count-q1")).toBeNull();
+    expect(screen.queryByTestId("notebook-count-q2")).toBeNull();
+  });
+
+  it("ノートブック数が0のクエストにはバッジが表示されない", () => {
+    const counts = new Map<string, number>([["q1", 0]]);
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        notebookCounts={counts}
+      />,
+    );
+    expect(screen.queryByTestId("notebook-count-q1")).toBeNull();
+  });
+
+  it("ノートブック数が1以上のクエストにバッジが表示される", () => {
+    const counts = new Map<string, number>([
+      ["q1", 2],
+      ["q2", 1],
+    ]);
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        notebookCounts={counts}
+      />,
+    );
+    expect(screen.getByTestId("notebook-count-q1")).toBeTruthy();
+    expect(screen.getByTestId("notebook-count-q1").textContent).toBe("2冊");
+    expect(screen.getByTestId("notebook-count-q2")).toBeTruthy();
+    expect(screen.getByTestId("notebook-count-q2").textContent).toBe("1冊");
+  });
+
+  it("バッジクリックでonShowQuestNotebooksが呼ばれる", async () => {
+    const user = userEvent.setup();
+    const counts = new Map<string, number>([["q1", 3]]);
+    const onShow = vi.fn();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        notebookCounts={counts}
+        onShowQuestNotebooks={onShow}
+      />,
+    );
+    await user.click(screen.getByTestId("notebook-count-q1"));
+    expect(onShow).toHaveBeenCalledWith("q1");
+  });
+
+  it("バッジクリックでonStartQuestが呼ばれない（stopPropagation）", async () => {
+    const user = userEvent.setup();
+    const counts = new Map<string, number>([["q1", 3]]);
+    const onStart = vi.fn();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={onStart}
+        notebookCounts={counts}
+        onShowQuestNotebooks={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("notebook-count-q1"));
+    expect(onStart).not.toHaveBeenCalled();
+  });
+
+  it("mapに含まれないクエストIDのバッジは表示されない", () => {
+    const counts = new Map<string, number>([["other-quest", 5]]);
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        notebookCounts={counts}
+      />,
+    );
+    expect(screen.queryByTestId("notebook-count-q1")).toBeNull();
+    expect(screen.queryByTestId("notebook-count-q2")).toBeNull();
+  });
+});

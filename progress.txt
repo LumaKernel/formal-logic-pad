@@ -5457,3 +5457,27 @@
   - WorkspaceState手動構築時はcreateEmptyWorkspace(system)のスプレッドを使う（connections, nextNodeId等が必要）
   - 「File has not been read yet」エラーはコンテキスト切れ時に発生。Readを再実行すれば解消
 ---
+
+## 2026-02-28 - クエスト→ノート絞り込み機能
+- 実装: クエストカタログからそのクエストのノートブックを絞り込み一覧表示する機能
+- 変更ファイル:
+  - `src/lib/quest/questNotebookFilterLogic.ts` (新規) - 純粋ロジック: computeQuestNotebookCounts, notebookCountText
+  - `src/lib/quest/questNotebookFilterLogic.test.ts` (新規) - 12テスト
+  - `src/lib/quest/QuestCatalogComponent.tsx` - notebookCounts, onShowQuestNotebooks props追加、NotebookCountBadge
+  - `src/lib/quest/QuestCatalogComponent.test.tsx` - 6テスト追加
+  - `src/lib/quest/QuestCatalogComponent.stories.tsx` - WithNotebookCounts ストーリー追加
+  - `src/lib/quest/index.ts` - 新規エクスポート追加
+  - `src/lib/notebook/notebookListLogic.ts` - questId追加、filterNotebooksByQuestId追加
+  - `src/lib/notebook/notebookListLogic.test.ts` - 4テスト追加
+  - `src/lib/notebook/index.ts` - filterNotebooksByQuestId エクスポート追加
+  - `src/app/HubPageView.tsx` - questFilter状態管理、フィルタバナー、handleShowQuestNotebooks
+  - `src/app/HubPageView.stories.tsx` - QuestNotebookFilter ストーリー追加
+  - `src/app/HubContent.tsx` - computeQuestNotebookCounts呼び出し、notebookCounts prop渡し
+  - `tasks/prd-note-manage.md` → `tasks-archived/` (全タスク完了)
+- カバレッジ: Stmts 98.59%→98.60%, Branch 92.72%→92.74%, Funcs 90.88%→90.88%, Lines 99.32%→99.32% (向上/維持)
+- スクリーンショット: `.screenshots/hub-quest-notebook-filter-after-play.png`, `.screenshots/hub-quest-notebook-filter-interactions-pass.png`, `.screenshots/quest-catalog-with-notebook-counts.png`
+- **今後のイテレーションへの学び:**
+  - QuestNotebookCountsはReadonlyMap<QuestId, number>で実装。Storybookのコントロールパネルでは__isClassInstance__/__className__として表示される（Map特有の挙動）
+  - バッジクリックでstopPropagation必須（親のクエスト開始ハンドラを防ぐため）
+  - HubPageViewのフィルタ状態はquestFilter: string | nullで管理。Notebooksタブクリック時にフィルタをクリアする
+---
