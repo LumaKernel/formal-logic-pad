@@ -5515,3 +5515,20 @@
   - propositional-intermediateカテゴリのorder 1-6は既存で埋まっている
   - 演繹定理の核心はA1(K)とA2(S)にあり、A3/M3/DNEの違いに影響されない
 ---
+
+## 2026-02-28 - [reference] グリヴェンコの定理のリファレンスエントリ
+- D1タスク（prd-advanced.md）: グリヴェンコの定理のリファレンスエントリを追加
+- 変更ファイル:
+  - src/lib/reference/referenceContent.ts - conceptGlivenko エントリ追加（en/ja 5段落、LaTeX記法、外部リンク3件、キーワード10件）
+  - src/lib/reference/referenceContent.test.ts - エントリ数 41→42 更新
+  - tasks/prd-advanced.md - D1を[x]完了
+  - task-processing.md - クリア
+- テスト: 5017 tests passing（ベースライン5010 → +7 自動生成テスト）
+- カバレッジ: ベースラインから低下なし（Stmts 98.6%, Branch 92.74%, Lines 99.32%）
+- スクリーンショット: .screenshots/reference-modal-default.png, .screenshots/reference-modal-japanese.png
+- **今後のイテレーションへの学び:**
+  - E1-E6の自然演繹クエストはProofWorkspace UIがHilbert専用のため現時点では実装不可。ND用UIが整うまでスキップ
+  - リファレンスエントリ追加は referenceContent.ts にconst定義 → allReferenceEntries配列に追加 → テストのエントリ数更新の3ステップ
+  - conceptカテゴリのorder番号は現在1-4が使用済み、5以降から連番
+  - relatedEntryIds は既存のエントリIDを参照するため、存在チェックはテストの自動検証で担保される
+---
