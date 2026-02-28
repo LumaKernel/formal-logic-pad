@@ -271,8 +271,7 @@ export {
   isContradiction,
   generateTruthTable,
 } from "./evaluation";
-export type {
-  TruthAssignment,
-  TruthTableRow,
-  TruthTable,
-} from "./evaluation";
+export type { TruthAssignment, TruthTableRow, TruthTable } from "./evaluation";
+
+// ── Normal Forms (標準形変換) ───────────────────────────────
+export { toNNF, toCNF, toDNF, isNNF, isCNF, isDNF } from "./normalForm";
