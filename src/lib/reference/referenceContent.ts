@@ -2590,6 +2590,85 @@ const conceptLowenheimSkolem: ReferenceEntry = {
   order: 10,
 };
 
+const conceptCompactness: ReferenceEntry = {
+  id: "concept-compactness",
+  category: "concept",
+  title: {
+    en: "Compactness Theorem",
+    ja: "コンパクト性定理",
+  },
+  summary: {
+    en: "A set of first-order formulas is satisfiable if and only if every finite subset is satisfiable.",
+    ja: "一階論理式の集合が充足可能であるのは、そのすべての有限部分集合が充足可能であるときに限る。",
+  },
+  body: {
+    en: [
+      `**Statement of the theorem.** The compactness theorem (bekki Theorem 5.109, restated in Section 13.5) states: a set Γ of first-order formulas is satisfiable if and only if every finite subset Γ' ⊆ Γ is satisfiable. The "if" direction is the non-trivial part — the "only if" direction is immediate (any interpretation satisfying Γ also satisfies all its subsets). This theorem captures a remarkable property of first-order logic: infinite unsatisfiability always has a finite "witness."`,
+      `**Proof from Henkin's theorem.** In bekki's presentation, compactness follows immediately from Henkin's theorem and the completeness theorem. If every finite subset of Γ is satisfiable, then by soundness, no finite subset is refutable. Since proofs are finite objects, Γ itself is not refutable (any proof of ⊥ from Γ would use only finitely many premises). By completeness, Γ is therefore satisfiable. The proof was originally given in Section 5.5.3, where it was used in proving Herbrand's theorem (Theorem 5.110).`,
+      `**Why "compactness"?** The name comes from topology. Consider the space of all truth-value assignments (interpretations) with the product topology. The set of models of each formula is a closed set, and satisfiability of Γ means the intersection of these closed sets is non-empty. By the topological compactness of the product space (Tychonoff's theorem), if every finite sub-intersection is non-empty (every finite subset is satisfiable), then the full intersection is non-empty.`,
+      `**Applications.** Compactness is one of the most powerful tools in model theory: (1) **Non-standard models:** It can show that if a theory has arbitrarily large finite models, it has an infinite model (adding axioms saying "there exist at least n distinct elements" for each n). (2) **Transfer principles:** Properties true in all finite structures that can be expressed in first-order logic must also hold in some infinite structures. (3) **Constructing models:** It enables the construction of models with specific properties by adding axiom schemas.`,
+      `**Failure in stronger logics.** Compactness is specific to first-order logic and fails in most stronger logics. For example, in second-order logic, the set {"there exist at least n elements" | n ∈ ℕ} ∪ {"the domain is finite"} has every finite subset satisfiable, but the whole set is not. This failure is intimately related to the failure of completeness in second-order logic. Together with the Löwenheim–Skolem theorem, compactness characterizes first-order logic (Lindström's theorem).`,
+    ],
+    ja: [
+      `**定理の記述。** コンパクト性定理（戸次 定理5.109、13.5節に再掲）は次のように述べます: 一階論理式の集合 Γ が充足可能であるのは、すべての有限部分集合 Γ' ⊆ Γ が充足可能であるときに限る。「ときに限る」の「ならば」方向が自明でない部分です — 「であるならば」方向は自明です（Γ を充足する解釈はそのすべての部分集合も充足します）。この定理は一階論理の驚くべき性質を捉えています: 無限の充足不能性には常に有限の「証拠」があります。`,
+      `**ヘンキンの定理からの証明。** 戸次の提示では、コンパクト性はヘンキンの定理と完全性定理から直ちに従います。Γ のすべての有限部分集合が充足可能ならば、健全性により、有限部分集合は反駁不能です。証明は有限のオブジェクトなので、Γ 自体も反駁不能です（Γ からの ⊥ の証明は有限個の前提のみを使うため）。完全性により、Γ は充足可能です。証明は元々5.5.3節で与えられ、エルブランの定理（定理5.110）の証明に使われました。`,
+      `**なぜ「コンパクト性」か？** 名前は位相幾何学に由来します。すべての真理値割当（解釈）の空間を直積位相で考えます。各論理式のモデルの集合は閉集合であり、Γ の充足可能性はこれらの閉集合の共通部分が空でないことを意味します。直積空間の位相的コンパクト性（チコノフの定理）により、すべての有限部分共通が空でなければ（すべての有限部分集合が充足可能ならば）、全体の共通部分も空でありません。`,
+      `**応用。** コンパクト性はモデル理論における最も強力なツールの一つです: (1) **超準モデル:** ある理論が任意に大きな有限モデルを持つならば、無限モデルも持つことを示せます（「少なくとも n 個の異なる要素が存在する」という公理を各 n について追加）。(2) **転移原理:** すべての有限構造で成り立つ一階論理で表現可能な性質は、ある無限構造でも成立しなければなりません。(3) **モデルの構成:** 公理スキーマを追加することで特定の性質を持つモデルの構成が可能になります。`,
+      `**より強い論理での不成立。** コンパクト性は一階論理に特有であり、ほとんどのより強い論理では成立しません。例えば、二階論理では {「少なくとも n 個の要素が存在する」 | n ∈ ℕ} ∪ {「領域は有限である」} はすべての有限部分集合が充足可能ですが、全体は充足不能です。この不成立は二階論理での完全性の不成立と密接に関連しています。レーヴェンハイム・スコーレムの定理とともに、コンパクト性は一階論理を特徴づけます（リンドストレームの定理）。`,
+    ],
+  },
+  formalNotation:
+    "\\forall \\Gamma' \\subseteq \\Gamma \\;(|\\Gamma'| < \\omega \\Rightarrow \\Gamma' \\text{ sat.}) \\;\\Longrightarrow\\; \\Gamma \\text{ sat.}",
+  relatedEntryIds: [
+    "concept-completeness",
+    "concept-soundness",
+    "concept-lowenheim-skolem",
+    "system-classical",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Compactness_theorem",
+      label: {
+        en: "Compactness theorem (Wikipedia)",
+        ja: "コンパクト性定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%B3%E3%83%B3%E3%83%91%E3%82%AF%E3%83%88%E6%80%A7%E5%AE%9A%E7%90%86",
+      label: {
+        en: "Compactness theorem (Wikipedia JA)",
+        ja: "コンパクト性定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/compactness+theorem",
+      label: {
+        en: "Compactness theorem (nLab)",
+        ja: "コンパクト性定理 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "compactness",
+    "コンパクト性",
+    "compact",
+    "finite subset",
+    "有限部分集合",
+    "satisfiable",
+    "充足可能",
+    "model theory",
+    "モデル理論",
+    "non-standard model",
+    "超準モデル",
+    "Lindström",
+    "リンドストレーム",
+  ],
+  order: 11,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -3285,6 +3364,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptSoundness,
   conceptCompleteness,
   conceptLowenheimSkolem,
+  conceptCompactness,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
