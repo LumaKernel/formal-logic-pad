@@ -1186,10 +1186,12 @@ export const SubstitutionContextMenu: Story = {
     const banner = await canvas.findByTestId("workspace-subst-prompt-banner");
     await expect(banner).toBeInTheDocument();
 
-    // メタ変数と値を入力
-    const metaVarInput = canvas.getByTestId("workspace-subst-metavar-0");
+    // メタ変数は自動抽出され読み取り専用で表示される
+    const metaVarLabel = canvas.getByTestId("workspace-subst-metavar-0");
+    await expect(metaVarLabel).toHaveTextContent("φ");
+
+    // 値を入力
     const valueInput = canvas.getByTestId("workspace-subst-value-0");
-    await userEvent.type(metaVarInput, "φ");
     await userEvent.type(valueInput, "alpha");
 
     // 確定ボタンをクリック

@@ -14,6 +14,7 @@ import type {
   SubstitutionEntries,
   SubstitutionEntry,
 } from "./substitutionApplicationLogic";
+import { extractSubstitutionTargetsFromText } from "./substitutionApplicationLogic";
 
 // --- 編集状態型 ---
 
@@ -33,6 +34,8 @@ export type SubstitutionEditState = {
   readonly conclusionNodeId: string;
   /** 現在の代入エントリ */
   readonly entries: SubstitutionEntries;
+  /** 前提ノードの論理式テキスト（メタ変数自動抽出に使用） */
+  readonly premiseFormulaText: string | undefined;
 };
 
 /** エッジバッジ編集状態のunion型 */
@@ -43,9 +46,11 @@ export type EdgeBadgeEditState = GenEditState | SubstitutionEditState;
 /**
  * InferenceEdgeから編集状態を生成する。
  * MPエッジはパラメータ編集不可なのでundefined。
+ * premiseFormulaTextは前提ノードの論理式テキスト（Substitutionの場合にメタ変数自動抽出に使用）。
  */
 export function createEditStateFromEdge(
   edge: InferenceEdge,
+  premiseFormulaText?: string,
 ): EdgeBadgeEditState | undefined {
   switch (edge._tag) {
     case "mp":
@@ -61,6 +66,7 @@ export function createEditStateFromEdge(
         _tag: "substitution",
         conclusionNodeId: edge.conclusionNodeId,
         entries: edge.entries,
+        premiseFormulaText,
       };
   }
 }
@@ -98,10 +104,70 @@ export type SubstEditEntry = {
 
 /**
  * SubstitutionEntries（内部表現）からUI編集用エントリに変換する。
+ *
+ * premiseFormulaTextが指定された場合、前提スキーマから自動抽出されたメタ変数一覧をベースにし、
+ * 既存のentriesから対応する値をマージする。
+ * これにより、メタ変数の追加/削除はユーザーが手動で行う必要がなくなる。
  */
 export function toSubstEditEntries(
   entries: SubstitutionEntries,
+  premiseFormulaText?: string,
 ): readonly SubstEditEntry[] {
+  // premiseFormulaTextが指定された場合、メタ変数を自動抽出してテンプレート生成
+  if (premiseFormulaText !== undefined) {
+    const targets = extractSubstitutionTargetsFromText(premiseFormulaText);
+    if (targets !== null) {
+      const extractedEntries: SubstEditEntry[] = [];
+
+      // 論理式メタ変数
+      for (const mv of targets.formulaMetaVariables) {
+        const metaVarKey =
+          mv.subscript !== undefined
+            ? `${mv.name satisfies string}_${mv.subscript satisfies string}`
+            : `${mv.name satisfies string}`;
+        // 既存のentriesから値を探す
+        const existing = entries.find(
+          (e) =>
+            e._tag === "FormulaSubstitution" && e.metaVariableName === mv.name,
+        );
+        extractedEntries.push({
+          kind: "formula",
+          metaVar: metaVarKey,
+          value:
+            existing !== undefined && existing._tag === "FormulaSubstitution"
+              ? existing.formulaText
+              : "",
+        });
+      }
+
+      // 項メタ変数
+      for (const tmv of targets.termMetaVariables) {
+        const metaVarKey =
+          tmv.subscript !== undefined
+            ? `${tmv.name satisfies string}_${tmv.subscript satisfies string}`
+            : `${tmv.name satisfies string}`;
+        // 既存のentriesから値を探す
+        const existing = entries.find(
+          (e) =>
+            e._tag === "TermSubstitution" && e.metaVariableName === tmv.name,
+        );
+        extractedEntries.push({
+          kind: "term",
+          metaVar: metaVarKey,
+          value:
+            existing !== undefined && existing._tag === "TermSubstitution"
+              ? existing.termText
+              : "",
+        });
+      }
+
+      if (extractedEntries.length > 0) {
+        return extractedEntries;
+      }
+    }
+  }
+
+  // フォールバック: 既存のentriesをそのまま変換
   if (entries.length === 0) {
     return [{ kind: "formula", metaVar: "", value: "" }];
   }
@@ -173,35 +239,13 @@ export function canConfirmSubstEdit(
 }
 
 /**
- * Substitution編集にエントリを追加する。
+ * Substitution編集のエントリの代入値を更新する。
+ * メタ変数名と種別は自動抽出されるため、valueフィールドのみ更新可能。
  */
-export function addSubstEditEntry(
-  entries: readonly SubstEditEntry[],
-): readonly SubstEditEntry[] {
-  return [...entries, { kind: "formula", metaVar: "", value: "" }];
-}
-
-/**
- * Substitution編集からエントリを削除する。
- */
-export function removeSubstEditEntry(
+export function updateSubstEditEntryValue(
   entries: readonly SubstEditEntry[],
   index: number,
-): readonly SubstEditEntry[] {
-  if (entries.length <= 1) return entries;
-  return entries.filter((_, i) => i !== index);
-}
-
-/**
- * Substitution編集のエントリを更新する。
- */
-export function updateSubstEditEntry(
-  entries: readonly SubstEditEntry[],
-  index: number,
-  field: keyof SubstEditEntry,
   value: string,
 ): readonly SubstEditEntry[] {
-  return entries.map((entry, i) =>
-    i === index ? { ...entry, [field]: value } : entry,
-  );
+  return entries.map((entry, i) => (i === index ? { ...entry, value } : entry));
 }

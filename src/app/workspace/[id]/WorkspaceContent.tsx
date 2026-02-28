@@ -79,8 +79,6 @@ function useProofMessagesFromIntl(): ProofMessages {
       substErrorFormulaParse: t("substErrorFormulaParse"),
       substErrorTermParse: t("substErrorTermParse"),
       substEntryPrompt: t("substEntryPrompt"),
-      substAddEntry: t("substAddEntry"),
-      substRemoveEntry: t("substRemoveEntry"),
       selectSubtree: t("selectSubtree"),
       addAxiomNode: t("addAxiomNode"),
       addGoalNode: t("addGoalNode"),
