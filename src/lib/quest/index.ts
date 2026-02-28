@@ -98,4 +98,11 @@ export {
   type GoalAxiomCheckResult,
 } from "./questCompletionLogic";
 
+export {
+  type QuestVersionStatus,
+  checkQuestVersion,
+  needsVersionWarning,
+  getVersionWarningMessage,
+} from "./questVersionLogic";
+
 export { QuestCatalog, type QuestCatalogProps } from "./QuestCatalogComponent";

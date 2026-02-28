@@ -32,6 +32,7 @@ function makeQuest(
     hints: ["hint1"],
     estimatedSteps: 5,
     learningPoint: "test learning point",
+    version: 1,
     ...overrides,
   };
 }

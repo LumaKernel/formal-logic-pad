@@ -7,7 +7,11 @@ import { useNotebookCollection, findNotebook } from "../../../lib/notebook";
 import type { GoalAchievedInfo } from "../../../lib/proof-pad";
 import type { ProofMessages } from "../../../lib/proof-pad";
 import type { WorkspaceState } from "../../../lib/proof-pad/workspaceState";
-import { useQuestProgress } from "../../../lib/quest";
+import { useQuestProgress, builtinQuests } from "../../../lib/quest";
+import {
+  checkQuestVersion,
+  getVersionWarningMessage,
+} from "../../../lib/quest/questVersionLogic";
 import { ThemeProvider } from "../../../lib/theme/ThemeProvider";
 import { isLocale } from "../../../components/LanguageToggle/languageToggleLogic";
 import {
@@ -148,6 +152,14 @@ function WorkspaceInner() {
     [questId, questRecord],
   );
 
+  const questVersionWarning = useMemo(
+    () =>
+      notebook !== undefined
+        ? getVersionWarningMessage(checkQuestVersion(notebook, builtinQuests))
+        : undefined,
+    [notebook],
+  );
+
   const languageToggle = useMemo(
     () => ({ locale, onLocaleChange: switchLocale }),
     [locale, switchLocale],
@@ -172,6 +184,7 @@ function WorkspaceInner() {
       onBack={handleBack}
       onWorkspaceChange={handleWorkspaceChange}
       onGoalAchieved={handleGoalAchieved}
+      questVersionWarning={questVersionWarning}
       languageToggle={languageToggle}
     />
   );

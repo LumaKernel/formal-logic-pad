@@ -35,6 +35,8 @@ export type Notebook = {
   readonly workspace: WorkspaceState;
   /** クエストから作成された場合のクエストID（自由帳の場合はundefined） */
   readonly questId?: string;
+  /** クエスト作成時のクエスト定義バージョン（自由帳の場合はundefined） */
+  readonly questVersion?: number;
 };
 
 /** ノートブックのコレクション */
@@ -91,6 +93,8 @@ export type CreateQuestNotebookParams = {
   readonly now: number;
   /** 紐付けるクエストID（進捗記録に使用） */
   readonly questId?: string;
+  /** クエスト定義のバージョン番号 */
+  readonly questVersion?: number;
 };
 
 /** クエストモードのノートブックを作成してコレクションに追加する */
@@ -108,6 +112,7 @@ export function createQuestNotebook(
     },
     workspace: createQuestWorkspace(params.system, params.goals),
     questId: params.questId,
+    questVersion: params.questVersion,
   };
   return {
     notebooks: [...collection.notebooks, notebook],

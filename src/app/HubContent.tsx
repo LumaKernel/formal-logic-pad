@@ -64,6 +64,7 @@ function HubInner() {
     (questId: string) => {
       const result = prepareQuestStart(builtinQuests, questId);
       if (!result.ok) return;
+      const quest = builtinQuests.find((q) => q.id === questId);
       const { params } = result;
       const nextId = predictNextNotebookId();
       notebookCollection.createQuest(
@@ -71,6 +72,7 @@ function HubInner() {
         params.system,
         params.goals,
         questId,
+        quest?.version,
       );
       router.push(`/workspace/${nextId satisfies string}`);
     },

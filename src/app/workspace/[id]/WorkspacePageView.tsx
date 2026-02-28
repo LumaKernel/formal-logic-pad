@@ -41,6 +41,8 @@ export type WorkspacePageViewProps = {
       readonly onWorkspaceChange: (workspace: WorkspaceState) => void;
       /** ゴール達成時 */
       readonly onGoalAchieved: (info: GoalAchievedInfo) => void;
+      /** クエストバージョン警告メッセージ（表示不要なら undefined） */
+      readonly questVersionWarning?: string;
     }
   | {
       /** ノートブックが見つからない場合 */
@@ -106,6 +108,17 @@ const workspaceContainerStyle: CSSProperties = {
   overflow: "hidden",
 };
 
+const versionWarningStyle: CSSProperties = {
+  padding: "6px 16px",
+  fontSize: 13,
+  fontWeight: 500,
+  background: "var(--color-warning-bg, rgba(255,215,0,0.15))",
+  color: "var(--color-warning, #b8860b)",
+  borderBottom: "1px solid var(--color-warning-border, rgba(255,215,0,0.4))",
+  textAlign: "center",
+  flexShrink: 0,
+};
+
 const notFoundStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
@@ -148,6 +161,13 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
           <ThemeToggle />
         </div>
       </header>
+
+      {/* Quest version warning */}
+      {props.questVersionWarning !== undefined ? (
+        <div style={versionWarningStyle} data-testid="quest-version-warning">
+          {props.questVersionWarning}
+        </div>
+      ) : null}
 
       {/* Workspace */}
       <div style={workspaceContainerStyle}>
