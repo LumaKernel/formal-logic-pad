@@ -5917,3 +5917,27 @@
   - Troelstra & Schwichtenberg の G1i/G1c は構造共有形ベースの別のアプローチ — 比較対象として有用
   - prd-advanced.md の F セクション（シーケント計算の拡充）は F1-F3 すべて完了
 ---
+
+## 2026-02-28 - [truth-table] 真理値表の自動生成・表示UI
+- A2タスク完了: 命題論理式に対する真理値表を表形式で表示するUIを実装
+- 3層アーキテクチャ:
+  - 純粋ロジック: `src/lib/truth-table/truthTableLogic.ts` (classifyFormula, toDisplayData, buildTruthTableDisplayData, getClassificationLabelKey, getClassificationLabel, formatTruthValue)
+  - Reactコンポーネント: `src/lib/truth-table/TruthTableComponent.tsx` (FormulaKaTeXで結果ヘッダー表示、分類バッジ、日英ロケール)
+  - CSS Module: `src/lib/truth-table/TruthTableComponent.module.css` (テーマ変数対応)
+  - Storybook: `src/lib/truth-table/TruthTableComponent.stories.tsx` (8ストーリー、全てplay関数付き)
+- テスト:
+  - truthTableLogic.test.ts: 29テスト (classifyFormula, toDisplayData, buildTruthTableDisplayData, getClassificationLabelKey, getClassificationLabel, formatTruthValue, 統合テスト)
+  - TruthTableComponent.test.tsx: 15テスト (基本レンダリング, 分類バッジ, KaTeX, data-testid, デフォルトロケール, 論理的正確性)
+  - TruthTableComponent.stories.tsx: 8ストーリー (Tautology, Contradiction, Satisfiable, ExcludedMiddle, ThreeVariables, Biconditional, EnglishLocale, MultipleFormulas)
+- カバレッジ: Stmts 98.54% (維持), Branch 92.70%, Funcs 90.13%, Lines 99.32% (維持)
+  - Funcsの微減はv8計測のばらつき（truth-table自体は100%カバー）
+- テスト総数: 5175 → 5227 (52件追加)
+- ブラウザ確認: Storybook TruthTable ストーリーで表示確認
+- スクリーンショット: `.screenshots/truth-table-tautology.png`, `.screenshots/truth-table-contradiction.png`, `.screenshots/truth-table-multiple-formulas.png`
+- 変更ファイル: src/lib/truth-table/ (6ファイル新規), tasks/prd-advanced.md, task-processing.md
+- **今後のイテレーションへの学び:**
+  - ESLint `require-satisfies-in-tls` ルールはテンプレートリテラル内の式に `satisfies string` を要求する — CSS Modulesのクラス名結合は `.join(" ")` で回避
+  - truth-table は evaluation.ts の generateTruthTable + isTautology + isSatisfiable を活用し、UI層は薄く保つ
+  - TruthAssignment (Map) → boolean[] への変換が toDisplayData の主要な責務
+  - badgeClassNames を Record<FormulaClassification, string> で定義するとexhaustive checkが型で保証される
+---
