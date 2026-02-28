@@ -29,7 +29,23 @@ export const Default: Story = {
     await expect(
       canvas.getByTestId("system-preset-lukasiewicz"),
     ).toHaveAttribute("aria-checked", "true");
-    // 3つの公理系カードが表示
+    // 5つのカテゴリグループが表示
+    await expect(
+      canvas.getByTestId("preset-category-hilbert-propositional"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("preset-category-hilbert-predicate"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("preset-category-hilbert-theory"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("preset-category-natural-deduction"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("preset-category-sequent-calculus"),
+    ).toBeInTheDocument();
+    // 公理系カードが表示
     await expect(
       canvas.getByTestId("system-preset-lukasiewicz"),
     ).toBeInTheDocument();

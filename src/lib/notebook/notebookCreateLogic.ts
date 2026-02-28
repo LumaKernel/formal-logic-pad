@@ -232,6 +232,126 @@ export const systemPresets: readonly SystemPreset[] = [
   },
 ] as const;
 
+// --- プリセットのカテゴリグルーピング ---
+
+/**
+ * プリセットをグルーピングするカテゴリID。
+ *
+ * 新しいカテゴリ追加時の同期ポイント:
+ * - ここにIDを追加
+ * - presetCategoryDefinitions にラベル定義追加
+ * - classifyPresetCategory のロジック更新
+ * - notebookCreateLogic.test.ts のテスト追加
+ */
+export type PresetCategoryId =
+  | "hilbert-propositional"
+  | "hilbert-predicate"
+  | "hilbert-theory"
+  | "natural-deduction"
+  | "sequent-calculus";
+
+/** カテゴリの表示情報 */
+export type PresetCategoryDefinition = {
+  readonly id: PresetCategoryId;
+  readonly label: string;
+  readonly description: string;
+};
+
+/** カテゴリ定義一覧（表示順序を規定する） */
+export const presetCategoryDefinitions: readonly PresetCategoryDefinition[] = [
+  {
+    id: "hilbert-propositional",
+    label: "Hilbert流 命題論理",
+    description: "公理と Modus Ponens による命題論理の証明体系",
+  },
+  {
+    id: "hilbert-predicate",
+    label: "Hilbert流 述語論理",
+    description: "量化子・等号を含む述語論理",
+  },
+  {
+    id: "hilbert-theory",
+    label: "Hilbert流 理論",
+    description: "述語論理に非論理的公理を追加した理論",
+  },
+  {
+    id: "natural-deduction",
+    label: "自然演繹",
+    description: "仮定の導入と解消による証明体系",
+  },
+  {
+    id: "sequent-calculus",
+    label: "シーケント計算",
+    description: "ゲンツェン流のシーケントによる証明体系",
+  },
+];
+
+/** Hilbert述語論理系プリセットIDの集合 */
+const hilbertPredicateIds: ReadonlySet<string> = new Set([
+  "predicate",
+  "equality",
+]);
+
+/** Hilbert理論系プリセットIDの集合 */
+const hilbertTheoryIds: ReadonlySet<string> = new Set([
+  "peano",
+  "robinson",
+  "peano-hk",
+  "peano-mendelson",
+  "heyting",
+  "group-left",
+  "group-full",
+  "abelian-group",
+]);
+
+/**
+ * プリセットのカテゴリを判定する純粋関数。
+ */
+export function classifyPresetCategory(preset: SystemPreset): PresetCategoryId {
+  const style = preset.deductionSystem.style;
+  if (style === "natural-deduction") return "natural-deduction";
+  if (style === "sequent-calculus") return "sequent-calculus";
+  // Hilbert 系の場合はIDで細分類
+  if (hilbertPredicateIds.has(preset.id)) return "hilbert-predicate";
+  if (hilbertTheoryIds.has(preset.id)) return "hilbert-theory";
+  return "hilbert-propositional";
+}
+
+/** カテゴリごとにグルーピングされたプリセット */
+export type PresetGroup = {
+  readonly category: PresetCategoryDefinition;
+  readonly presets: readonly SystemPreset[];
+};
+
+/**
+ * プリセットをカテゴリ別にグルーピングする。
+ * 表示順序は presetCategoryDefinitions に従う。
+ * 空のカテゴリは含めない。
+ */
+export function groupPresetsByCategory(
+  presets: readonly SystemPreset[],
+): readonly PresetGroup[] {
+  const grouped = new Map<PresetCategoryId, SystemPreset[]>();
+  for (const preset of presets) {
+    const categoryId = classifyPresetCategory(preset);
+    const existing = grouped.get(categoryId);
+    if (existing !== undefined) {
+      existing.push(preset);
+    } else {
+      grouped.set(categoryId, [preset]);
+    }
+  }
+
+  const result: PresetGroup[] = [];
+  for (const definition of presetCategoryDefinitions) {
+    const categoryPresets = grouped.get(definition.id);
+    if (categoryPresets !== undefined && categoryPresets.length > 0) {
+      result.push({ category: definition, presets: categoryPresets });
+    }
+  }
+  return result;
+}
+
 /** デフォルトのプリセットID */
 export const defaultPresetId: string = "lukasiewicz";
 

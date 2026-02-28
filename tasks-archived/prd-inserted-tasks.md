@@ -89,8 +89,8 @@ Infinity Canvasについて。
       (実装済み: コンテキストメニューの「Use as MP Left」「Use as MP Right」で浮いたノード同士をMP接続可能。ProofWorkspace.test.tsx で検証済み)
 - [x] CIの状態を確認し、失敗していれば修正する。`gh run list` や `gh run view` で現状を把握し、失敗原因を特定して対処すること。
 - [x] Apply系、モーダルじゃなくて、エッジ上のパラメータ入力という形にしてもいいかなと思う。
-  - [-] そのまえにまず、MPなどの推論規則系統は、ノードとして表われるのではなく、エッジ、ノード間の関係性として表現されるように再整理が必要だろう。
-    - [-] 多くのストーリーが関連するだろうので、それらを整理しながらになる。
+  - [x] そのまえにまず、MPなどの推論規則系統は、ノードとして表われるのではなく、エッジ、ノード間の関係性として表現されるように再整理が必要だろう。（Step 0〜6 完了済み）
+    - [x] 多くのストーリーが関連するだろうので、それらを整理しながらになる。
       - [x] Step 0: InferenceEdge 型定義と変換ユーティリティ（既存ノードベース→エッジベース変換の純粋関数）
       - [x] Step 1: WorkspaceState への InferenceEdge 統合（データモデル拡張）
         - [x] WorkspaceState に inferenceEdges フィールドを追加（オプショナル、段階移行用）
@@ -121,3 +121,4 @@ Infinity Canvasについて。
   - [x] goalCheckLogic.ts: InferenceEdge ベースのゴール達成判定
   - [x] questCompletionLogic.ts: 更新
   - [x] テスト: クエスト関連テスト更新
+  - [x] Step 7: InferenceEdgeBadge インタラクティブ化 — エッジバッジクリックでポップオーバー編集（Gen変数名・Substitutionエントリ）

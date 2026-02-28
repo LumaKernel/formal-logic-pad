@@ -39,13 +39,49 @@ describe("NotebookCreateForm", () => {
       expect(card).toHaveAttribute("aria-checked", "true");
     });
 
-    it("公理系カードが3つ表示される", () => {
+    it("公理系カードが表示される", () => {
       renderForm();
       expect(
         screen.getByTestId("system-preset-lukasiewicz"),
       ).toBeInTheDocument();
       expect(screen.getByTestId("system-preset-predicate")).toBeInTheDocument();
       expect(screen.getByTestId("system-preset-equality")).toBeInTheDocument();
+    });
+
+    it("5つのカテゴリグループが表示される", () => {
+      renderForm();
+      expect(
+        screen.getByTestId("preset-category-hilbert-propositional"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("preset-category-hilbert-predicate"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("preset-category-hilbert-theory"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("preset-category-natural-deduction"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("preset-category-sequent-calculus"),
+      ).toBeInTheDocument();
+    });
+
+    it("カテゴリグループは全てopen状態", () => {
+      renderForm();
+      const categories = [
+        "hilbert-propositional",
+        "hilbert-predicate",
+        "hilbert-theory",
+        "natural-deduction",
+        "sequent-calculus",
+      ] as const;
+      for (const cat of categories) {
+        const details = screen.getByTestId(
+          `preset-category-${cat satisfies string}`,
+        );
+        expect(details).toHaveAttribute("open");
+      }
     });
 
     it("作成ボタンとキャンセルボタンが表示される", () => {
