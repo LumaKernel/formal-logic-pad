@@ -2510,6 +2510,86 @@ const conceptCompleteness: ReferenceEntry = {
   order: 9,
 };
 
+const conceptLowenheimSkolem: ReferenceEntry = {
+  id: "concept-lowenheim-skolem",
+  category: "concept",
+  title: {
+    en: "Löwenheim–Skolem Theorem",
+    ja: "レーヴェンハイム・スコーレムの定理",
+  },
+  summary: {
+    en: "If a set of first-order formulas is satisfiable, then it is satisfiable in a countable domain. Skolem's paradox.",
+    ja: "一階論理式の集合が充足可能ならば、可算領域で充足可能である。スコーレムのパラドックス。",
+  },
+  body: {
+    en: [
+      `**Statement of the theorem.** The (downward) Löwenheim–Skolem theorem (bekki Theorem 13.23) states: if a set Γ of first-order formulas is satisfiable, then Γ is satisfiable in a countable domain. Formally: if there exists any interpretation (M, g) satisfying Γ, then there exists a countable interpretation (M', g') also satisfying Γ. This means that no first-order theory can force its models to be uncountable — even theories that "talk about" uncountable sets always have countable models.`,
+      `**Proof from Henkin's theorem.** The proof is remarkably short. Henkin's theorem (Theorem 13.12) shows that if Γ is unprovable (Γ ⊬_TAB), then Γ is satisfiable in a countable domain. Combined with Lemma 13.9 (if Γ is satisfiable, then Γ ⊬_TAB), the Löwenheim–Skolem theorem follows immediately. The key insight is that the Henkin construction always builds a countable model, since it uses only countably many terms as domain elements.`,
+      `**Skolem's paradox.** The theorem leads to the famous Skolem's paradox: set theory (ZFC) proves the existence of uncountable sets, yet by the Löwenheim–Skolem theorem, ZFC itself has a countable model. How can a countable model contain an "uncountable" set? The resolution is that "uncountable" is defined *within* the model — the model lacks a bijection between its version of ℕ and its version of the reals, even though from outside both are countable. This reveals a fundamental limitation of first-order expressiveness.`,
+      `**Upward variant.** While bekki presents only the downward direction, there is also an upward Löwenheim–Skolem theorem: any first-order theory with an infinite model has models of every infinite cardinality. Together, the downward and upward versions show that first-order logic cannot characterize infinite structures up to isomorphism — it cannot distinguish between different infinite cardinalities.`,
+      `**Significance for model theory.** The Löwenheim–Skolem theorem is a cornerstone of model theory and has far-reaching consequences: (1) It establishes that first-order logic has limited expressive power regarding cardinality. (2) It is closely related to the compactness theorem (Theorem 5.109) — both follow from the completeness theorem. (3) It motivates the study of stronger logics (second-order, infinitary) that can distinguish cardinalities.`,
+    ],
+    ja: [
+      `**定理の記述。** （下方）レーヴェンハイム・スコーレムの定理（戸次 定理13.23）は次のように述べます: 一階論理式の集合 Γ が充足可能ならば、Γ は可算領域で充足可能である。形式的に: Γ を充足する解釈 (M, g) が存在するならば、Γ を充足する可算な解釈 (M', g') も存在する。これは、いかなる一階理論もモデルを非可算に強制することはできないことを意味します — 非可算集合を「語る」理論であっても常に可算モデルを持ちます。`,
+      `**ヘンキンの定理からの証明。** 証明は驚くほど短いです。ヘンキンの定理（定理13.12）は、Γ が証明不能（Γ ⊬_TAB）ならば、Γ が可算領域で充足可能であることを示します。補題13.9（Γ が充足可能ならば Γ ⊬_TAB）と組み合わせることで、レーヴェンハイム・スコーレムの定理が直ちに従います。鍵となる洞察は、ヘンキンの構成が常に可算モデルを構築するということです。領域の要素として可算個の項のみを使用するからです。`,
+      `**スコーレムのパラドックス。** この定理は有名なスコーレムのパラドックスを導きます: 集合論 (ZFC) は非可算集合の存在を証明しますが、レーヴェンハイム・スコーレムの定理により ZFC 自体が可算モデルを持ちます。可算モデルがどのようにして「非可算」集合を含むことができるのでしょうか？ 解決は、「非可算」がモデル *内部* で定義されるということにあります — モデルには ℕ の版と実数の版の間の全単射が欠けていますが、外部から見ればどちらも可算です。これは一階論理の表現力の根本的な限界を露呈します。`,
+      `**上方バリアント。** 戸次では下方向のみが提示されていますが、上方レーヴェンハイム・スコーレムの定理もあります: 無限モデルを持つ一階理論は、あらゆる無限基数のモデルを持ちます。下方と上方を合わせると、一階論理は無限構造を同型を除いて特徴づけることができない — 異なる無限基数を区別できない — ことが示されます。`,
+      `**モデル理論への意義。** レーヴェンハイム・スコーレムの定理はモデル理論の礎石であり、広範な帰結を持ちます: (1) 一階論理が基数に関して限定的な表現力を持つことを確立します。(2) コンパクト性定理（定理5.109）と密接に関連します — どちらも完全性定理から従います。(3) 基数を区別できるより強力な論理（二階論理、無限長論理）の研究を動機づけます。`,
+    ],
+  },
+  formalNotation:
+    "\\Gamma \\text{ is satisfiable} \\;\\Longrightarrow\\; \\Gamma \\text{ is satisfiable in a countable domain}",
+  relatedEntryIds: [
+    "concept-completeness",
+    "concept-soundness",
+    "concept-system-equivalence",
+    "system-classical",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/L%C3%B6wenheim%E2%80%93Skolem_theorem",
+      label: {
+        en: "Löwenheim–Skolem theorem (Wikipedia)",
+        ja: "レーヴェンハイム・スコーレムの定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%83%AC%E3%83%BC%E3%83%B4%E3%82%A7%E3%83%B3%E3%83%8F%E3%82%A4%E3%83%A0%E2%80%93%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%AC%E3%83%A0%E3%81%AE%E5%AE%9A%E7%90%86",
+      label: {
+        en: "Löwenheim–Skolem theorem (Wikipedia JA)",
+        ja: "レーヴェンハイム・スコーレムの定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/L%C3%B6wenheim-Skolem+theorem",
+      label: {
+        en: "Löwenheim–Skolem theorem (nLab)",
+        ja: "レーヴェンハイム・スコーレムの定理 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "Löwenheim",
+    "レーヴェンハイム",
+    "Skolem",
+    "スコーレム",
+    "countable model",
+    "可算モデル",
+    "Skolem's paradox",
+    "スコーレムのパラドックス",
+    "downward",
+    "下方",
+    "model theory",
+    "モデル理論",
+    "cardinality",
+    "基数",
+  ],
+  order: 10,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -3204,6 +3284,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptSystemEquivalence,
   conceptSoundness,
   conceptCompleteness,
+  conceptLowenheimSkolem,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
