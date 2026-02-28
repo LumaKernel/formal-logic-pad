@@ -79,7 +79,7 @@ describe("EditableProofNode", () => {
 
   describe("種別ごとのスタイル（紙カード風）", () => {
     it("全種別で紙カード背景色が適用される", () => {
-      for (const kind of ["axiom", "derived", "conclusion"] as const) {
+      for (const kind of ["axiom", "conclusion"] as const) {
         cleanup();
         renderNode({ kind, label: kind.toUpperCase() });
         const node = screen.getByTestId("test-node");
@@ -92,10 +92,9 @@ describe("EditableProofNode", () => {
     it("全種別でカテゴリ色の左辺ストライプが適用される", () => {
       const stripeColors: Record<ProofNodeKind, string> = {
         axiom: "var(--color-node-axiom, #5b8bd9)",
-        derived: "var(--color-node-derived, #e6a84d)",
         conclusion: "var(--color-node-conclusion, #4ad97a)",
       };
-      for (const kind of ["axiom", "derived", "conclusion"] as const) {
+      for (const kind of ["axiom", "conclusion"] as const) {
         cleanup();
         renderNode({ kind, label: kind.toUpperCase() });
         const node = screen.getByTestId("test-node");
@@ -243,7 +242,7 @@ describe("EditableProofNode", () => {
   describe("各ノード種別", () => {
     it("derivedノードが正しくレンダリングされる", () => {
       renderNode({
-        kind: "derived",
+        kind: "axiom",
         label: "MP",
         formulaText: "(φ→(φ→φ)) → (φ→φ)",
       });
@@ -429,7 +428,7 @@ describe("EditableProofNode", () => {
       const { container } = render(
         <EditableProofNode
           id="node-1"
-          kind="derived"
+          kind="axiom"
           label="MP"
           formulaText="ψ"
           editable={false}

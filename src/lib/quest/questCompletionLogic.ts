@@ -27,7 +27,6 @@ import {
  */
 const STEP_NODE_KINDS: ReadonlySet<ProofNodeKind> = new Set([
   "axiom",
-  "derived",
 ]);
 
 /**

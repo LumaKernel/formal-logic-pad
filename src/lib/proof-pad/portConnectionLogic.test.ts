@@ -35,7 +35,7 @@ function buildWorkspaceWithNodes(): WorkspaceState {
       },
       {
         id: "mp1",
-        kind: "derived",
+        kind: "axiom",
         label: "MP",
         formulaText: "",
         position: { x: 100, y: 200 },
@@ -50,7 +50,7 @@ function buildWorkspaceWithNodes(): WorkspaceState {
       },
       {
         id: "gen1",
-        kind: "derived",
+        kind: "axiom",
         label: "Gen",
         formulaText: "",
         position: { x: 300, y: 200 },
@@ -66,15 +66,15 @@ describe("isOutputPort", () => {
   });
 
   it("premise-leftポートは出力ポートではない", () => {
-    expect(isOutputPort("derived", "premise-left")).toBe(false);
+    expect(isOutputPort("axiom", "premise-left")).toBe(false);
   });
 
   it("premise-rightポートは出力ポートではない", () => {
-    expect(isOutputPort("derived", "premise-right")).toBe(false);
+    expect(isOutputPort("axiom", "premise-right")).toBe(false);
   });
 
   it("premiseポートは出力ポートではない", () => {
-    expect(isOutputPort("derived", "premise")).toBe(false);
+    expect(isOutputPort("axiom", "premise")).toBe(false);
   });
 });
 
@@ -84,15 +84,15 @@ describe("isInputPort", () => {
   });
 
   it("premise-leftポートは入力ポート", () => {
-    expect(isInputPort("derived", "premise-left")).toBe(true);
+    expect(isInputPort("axiom", "premise-left")).toBe(true);
   });
 
   it("premise-rightポートは入力ポート", () => {
-    expect(isInputPort("derived", "premise-right")).toBe(true);
+    expect(isInputPort("axiom", "premise-right")).toBe(true);
   });
 
   it("premiseポートは入力ポート", () => {
-    expect(isInputPort("derived", "premise")).toBe(true);
+    expect(isInputPort("axiom", "premise")).toBe(true);
   });
 });
 

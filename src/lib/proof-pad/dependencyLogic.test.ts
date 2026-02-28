@@ -16,7 +16,7 @@ import type { LogicSystem } from "../logic-core/inferenceRule";
 
 function makeNode(
   id: string,
-  kind: "axiom" | "derived" = "axiom",
+  kind: "axiom" = "axiom",
 ): WorkspaceNode {
   return {
     id,
@@ -98,7 +98,7 @@ describe("dependencyLogic", () => {
 
     it("1つの前提を持つ導出ノードはその前提の公理に依存する", () => {
       // axiom-1 → mp-1 (substitution edge with single premise)
-      const nodes = [makeNode("axiom-1"), makeNode("mp-1", "derived")];
+      const nodes = [makeNode("axiom-1"), makeNode("mp-1", "axiom")];
       const edges = [makeSubstEdge("mp-1", "axiom-1")];
 
       const deps = getNodeDependencies("mp-1", nodes, edges);
@@ -110,7 +110,7 @@ describe("dependencyLogic", () => {
       const nodes = [
         makeNode("axiom-1"),
         makeNode("axiom-2"),
-        makeNode("mp-1", "derived"),
+        makeNode("mp-1", "axiom"),
       ];
       const edges = [makeMPEdge("mp-1", "axiom-1", "axiom-2")];
 
@@ -124,8 +124,8 @@ describe("dependencyLogic", () => {
       const nodes = [
         makeNode("axiom-1"),
         makeNode("axiom-2"),
-        makeNode("mp-1", "derived"),
-        makeNode("mp-2", "derived"),
+        makeNode("mp-1", "axiom"),
+        makeNode("mp-2", "axiom"),
       ];
       const edges = [
         makeMPEdge("mp-1", "axiom-1", "axiom-2"),
@@ -144,9 +144,9 @@ describe("dependencyLogic", () => {
         makeNode("axiom-1"),
         makeNode("axiom-2"),
         makeNode("axiom-3"),
-        makeNode("mp-1", "derived"),
-        makeNode("mp-2", "derived"),
-        makeNode("mp-3", "derived"),
+        makeNode("mp-1", "axiom"),
+        makeNode("mp-2", "axiom"),
+        makeNode("mp-3", "axiom"),
       ];
       const edges = [
         makeMPEdge("mp-1", "axiom-1", "axiom-2"),
@@ -160,7 +160,7 @@ describe("dependencyLogic", () => {
 
     it("Genノードも正しく公理まで遡る", () => {
       // axiom-1 → gen-1
-      const nodes = [makeNode("axiom-1"), makeNode("gen-1", "derived")];
+      const nodes = [makeNode("axiom-1"), makeNode("gen-1", "axiom")];
       const edges = [makeGenEdge("gen-1", "axiom-1")];
 
       const deps = getNodeDependencies("gen-1", nodes, edges);
@@ -176,10 +176,10 @@ describe("dependencyLogic", () => {
         makeNode("axiom-2"),
         makeNode("axiom-3"),
         makeNode("axiom-4"),
-        makeNode("mp-1", "derived"),
-        makeNode("mp-2", "derived"),
-        makeNode("gen-1", "derived"),
-        makeNode("mp-3", "derived"),
+        makeNode("mp-1", "axiom"),
+        makeNode("mp-2", "axiom"),
+        makeNode("gen-1", "axiom"),
+        makeNode("mp-3", "axiom"),
       ];
       const edges = [
         makeMPEdge("mp-1", "axiom-1", "axiom-2"),
@@ -203,7 +203,7 @@ describe("dependencyLogic", () => {
 
     it("前提が未設定のInferenceEdgeがあるノードはルートとして扱われる", () => {
       // MPEdgeでleft/rightがundefined → ルート扱い
-      const nodes = [makeNode("mp-1", "derived")];
+      const nodes = [makeNode("mp-1", "axiom")];
       const edges: readonly InferenceEdge[] = [
         {
           _tag: "mp",
@@ -236,7 +236,7 @@ describe("dependencyLogic", () => {
       const nodes = [
         makeNode("axiom-1"),
         makeNode("axiom-2"),
-        makeNode("mp-1", "derived"),
+        makeNode("mp-1", "axiom"),
       ];
       const edges = [makeMPEdge("mp-1", "axiom-1", "axiom-2")];
 
@@ -409,7 +409,7 @@ describe("dependencyLogic", () => {
           "a2",
           "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
         ),
-        { ...makeNode("mp1", "derived"), formulaText: "some derived formula" },
+        { ...makeNode("mp1", "axiom"), formulaText: "some derived formula" },
       ];
       const edges = [makeMPEdge("mp1", "a1", "a2")];
 
@@ -421,7 +421,7 @@ describe("dependencyLogic", () => {
       const nodes = [
         makeAxiomNode("unknown", "phi"),
         makeAxiomNode("a1", "phi -> (psi -> phi)"),
-        { ...makeNode("mp1", "derived"), formulaText: "" },
+        { ...makeNode("mp1", "axiom"), formulaText: "" },
       ];
       const edges = [makeMPEdge("mp1", "unknown", "a1")];
 
@@ -473,8 +473,8 @@ describe("dependencyLogic", () => {
           "a2",
           "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
         ),
-        { ...makeNode("mp1", "derived"), formulaText: "" },
-        { ...makeNode("mp2", "derived"), formulaText: "" },
+        { ...makeNode("mp1", "axiom"), formulaText: "" },
+        { ...makeNode("mp2", "axiom"), formulaText: "" },
       ];
       const edges = [
         makeMPEdge("mp1", "a1", "a3"),
@@ -588,7 +588,7 @@ describe("dependencyLogic", () => {
           "a1-instance",
           "phi -> ((phi -> phi) -> phi)",
         ),
-        { ...makeNode("mp1", "derived"), formulaText: "" },
+        { ...makeNode("mp1", "axiom"), formulaText: "" },
       ];
       const edges = [makeMPEdge("mp1", "a1-schema", "a1-instance")];
 
@@ -616,7 +616,7 @@ describe("dependencyLogic", () => {
       const nodes = [
         makeAxiomNode("a1-schema", "phi -> (psi -> phi)"),
         {
-          ...makeNode("a1-derived", "derived"),
+          ...makeNode("a1-derived", "axiom"),
           formulaText: "phi -> ((phi -> phi) -> phi)",
         },
       ];

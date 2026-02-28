@@ -63,7 +63,7 @@ export function validatePortConnection(
   const targetNode = findNode(workspace, targetNodeId);
   if (!sourceNode || !targetNode) return false;
 
-  // ポート存在確認
+  // ポート存在確認（kindベースでポートを判定）
   const sourcePorts = getProofNodePorts(sourceNode.kind);
   const targetPorts = getProofNodePorts(targetNode.kind);
   if (!sourcePorts.some((p) => p.id === sourcePortId)) return false;

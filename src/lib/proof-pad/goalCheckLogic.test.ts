@@ -12,7 +12,7 @@ import type { InferenceEdge } from "./inferenceEdge";
 function makeNode(
   id: string,
   formulaText: string,
-  kind: "axiom" | "derived" | "conclusion" = "axiom",
+  kind: "axiom" | "conclusion" = "axiom",
   role?: "axiom" | "goal",
 ): WorkspaceNode {
   return {
@@ -179,7 +179,7 @@ describe("goalCheckLogic", () => {
         makeGoalNode("goal-1", "psi"),
         makeNode("node-1", "phi", "axiom"),
         makeNode("node-2", "phi -> psi", "axiom"),
-        makeNode("node-3", "ψ", "derived"),
+        makeNode("node-3", "ψ", "axiom"),
       ];
       // MP結果がゴールに接続されている
       const connections = [makeConnection("node-3", "goal-1")];
@@ -195,7 +195,7 @@ describe("goalCheckLogic", () => {
         makeGoalNode("goal-1", "psi"),
         makeNode("node-1", "phi", "axiom"),
         makeNode("node-2", "phi -> psi", "axiom"),
-        makeNode("node-3", "ψ", "derived"),
+        makeNode("node-3", "ψ", "axiom"),
       ];
       // MPの前提接続はあるが、ゴールへの接続がない
       const connections = [

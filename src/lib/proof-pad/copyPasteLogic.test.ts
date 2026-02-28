@@ -34,7 +34,7 @@ const nodeB: WorkspaceNode = {
 
 const nodeC: WorkspaceNode = {
   id: "node-3",
-  kind: "derived",
+  kind: "axiom",
   label: "MP",
   formulaText: "(phi -> psi) -> (phi -> chi)",
   position: { x: 200, y: 300 },
@@ -42,7 +42,7 @@ const nodeC: WorkspaceNode = {
 
 const nodeD: WorkspaceNode = {
   id: "node-4",
-  kind: "derived",
+  kind: "axiom",
   label: "Gen",
   formulaText: "forall x . phi",
   position: { x: 400, y: 300 },
@@ -512,7 +512,7 @@ describe("pasteClipboardData with InferenceEdges", () => {
         },
         {
           originalId: "node-2",
-          kind: "derived",
+          kind: "axiom",
           label: "Gen",
           formulaText: "forall x. phi",
           relativePosition: { x: 0, y: 100 },
@@ -554,7 +554,7 @@ describe("pasteClipboardData with InferenceEdges", () => {
         },
         {
           originalId: "node-2",
-          kind: "derived",
+          kind: "axiom",
           label: "Subst",
           formulaText: "alpha -> beta",
           relativePosition: { x: 0, y: 100 },

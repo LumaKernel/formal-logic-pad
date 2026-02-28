@@ -43,7 +43,7 @@ const DEMO_NODES: readonly DemoNodeData[] = [
   },
   {
     id: "mp1",
-    kind: "derived",
+    kind: "axiom",
     label: "MP",
     formulaText: "(φ→(φ→φ)) → (φ→φ)",
     position: { x: 400, y: 50 },
@@ -213,7 +213,7 @@ export const ReadOnly: Story = {
       />
       <EditableProofNode
         id="ro-mp"
-        kind="derived"
+        kind="axiom"
         label="MP"
         formulaText="(φ→(φ→φ)) → (φ→φ)"
         onFormulaTextChange={() => {}}
@@ -292,7 +292,7 @@ export const LevelOfDetail: Story = {
                 />
                 <EditableProofNode
                   id={`lod-mp-${level satisfies string}`}
-                  kind="derived"
+                  kind="axiom"
                   label="MP"
                   formulaText="(φ→(φ→φ)) → (φ→φ)"
                   onFormulaTextChange={() => {}}
@@ -600,7 +600,7 @@ export const DependencyVisibilityToggle: Story = {
               </div>
               <EditableProofNode
                 id="mp-node"
-                kind="derived"
+                kind="axiom"
                 label="MP"
                 formulaText="ψ"
                 onFormulaTextChange={() => {}}

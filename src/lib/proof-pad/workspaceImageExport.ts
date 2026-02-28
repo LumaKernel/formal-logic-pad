@@ -15,10 +15,12 @@ import { computePortConnectionPath } from "../infinite-canvas/connectionPath";
 import type { ViewportState } from "../infinite-canvas/types";
 import type { WorkspaceState, WorkspaceNode } from "./workspaceState";
 import {
-  getProofNodeStyle,
+  getNodeClassificationStyle,
+  getNodeClassificationEdgeColor,
   getProofNodePorts,
-  getProofEdgeColor,
 } from "./proofNodeUI";
+import type { WorkspaceConnection } from "./workspaceState";
+import { classifyNode } from "./nodeRoleLogic";
 import type { DateComponents } from "./workspaceExport";
 
 // --- 定数 ---
@@ -114,8 +116,13 @@ const EXPORT_CARD_TEXT = "#2d2a24";
 const EXPORT_CARD_BORDER = "rgba(0,0,0,0.08)";
 
 /** 単一ノードのSVG要素文字列を生成する（紙カード風: 白背景 + 左辺ストライプ） */
-function renderNodeSVG(node: WorkspaceNode, nodeSizes: NodeSizeMap): string {
-  const style = getProofNodeStyle(node.kind);
+function renderNodeSVG(
+  node: WorkspaceNode,
+  nodeSizes: NodeSizeMap,
+  connections: readonly WorkspaceConnection[],
+): string {
+  const classification = classifyNode(node, connections);
+  const style = getNodeClassificationStyle(classification);
   const size = nodeSizes.get(node.id);
   const w = size?.width ?? DEFAULT_NODE_WIDTH;
   const h = size?.height ?? DEFAULT_NODE_HEIGHT;
@@ -168,7 +175,9 @@ function renderConnectionSVG(
   fromPortId: string,
   toPortId: string,
   nodeSizes: NodeSizeMap,
+  connections: readonly WorkspaceConnection[],
 ): string {
+  const fromClassification = classifyNode(fromNode, connections);
   const fromPorts = getProofNodePorts(fromNode.kind);
   const toPorts = getProofNodePorts(toNode.kind);
   const fromPort = findPort(fromPorts, fromPortId);
@@ -205,7 +214,7 @@ function renderConnectionSVG(
     IDENTITY_VIEWPORT,
   );
 
-  const color = getProofEdgeColor(fromNode.kind);
+  const color = getNodeClassificationEdgeColor(fromClassification);
 
   const lines: string[] = [];
   lines.push(`  <g>`);
@@ -298,6 +307,7 @@ export function generateExportSVG(
         conn.fromPortId,
         conn.toPortId,
         nodeSizes,
+        state.connections,
       );
       if (svg.length > 0) {
         parts.push(svg);
@@ -307,7 +317,7 @@ export function generateExportSVG(
 
   // ノード（接続線の上に描画）
   for (const node of state.nodes) {
-    parts.push(renderNodeSVG(node, nodeSizes));
+    parts.push(renderNodeSVG(node, nodeSizes, state.connections));
   }
 
   parts.push(`</svg>`);

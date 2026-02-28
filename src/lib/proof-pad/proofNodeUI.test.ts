@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  AXIOM_PORTS,
   CONCLUSION_PORTS,
   DERIVED_PORTS,
   PROOF_NODE_KINDS,
@@ -12,7 +11,7 @@ import {
 import type { ProofNodeKind } from "./proofNodeUI";
 
 describe("getProofNodeStyle", () => {
-  it.each<ProofNodeKind>(["axiom", "derived", "conclusion"])(
+  it.each<ProofNodeKind>(["axiom", "conclusion"])(
     "returns a style object for kind=%s",
     (kind) => {
       const style = getProofNodeStyle(kind);
@@ -52,9 +51,8 @@ describe("getProofNodeStyle", () => {
     expect(getProofNodeStyle("conclusion").borderRadius).toBe(12);
   });
 
-  it("axiom and derived have border radius 8", () => {
+  it("axiom has border radius 8", () => {
     expect(getProofNodeStyle("axiom").borderRadius).toBe(8);
-    expect(getProofNodeStyle("derived").borderRadius).toBe(8);
   });
 
   it("includes stripeColor and boxShadowHover", () => {
@@ -67,24 +65,14 @@ describe("getProofNodeStyle", () => {
 });
 
 describe("getProofNodePorts", () => {
-  it("axiom has 1 output port", () => {
+  it("axiom has all ports (input + output) since derived is computed", () => {
     const ports = getProofNodePorts("axiom");
-    expect(ports).toBe(AXIOM_PORTS);
-    expect(ports).toHaveLength(1);
-    expect(ports[0]?.id).toBe("out");
-    expect(ports[0]?.edge).toBe("bottom");
-  });
-
-  it("derived has 4 ports (3 input + 1 output)", () => {
-    const ports = getProofNodePorts("derived");
     expect(ports).toBe(DERIVED_PORTS);
     expect(ports).toHaveLength(4);
-    expect(ports.map((p) => p.id)).toEqual([
-      "premise-left",
-      "premise-right",
-      "premise",
-      "out",
-    ]);
+    expect(ports.some((p) => p.id === "out")).toBe(true);
+    expect(ports.some((p) => p.id === "premise-left")).toBe(true);
+    expect(ports.some((p) => p.id === "premise-right")).toBe(true);
+    expect(ports.some((p) => p.id === "premise")).toBe(true);
   });
 
   it("conclusion has 2 input ports", () => {
@@ -105,27 +93,17 @@ describe("getProofEdgeColor", () => {
   it("axiom edges use CSS variable with fallback", () => {
     expect(getProofEdgeColor("axiom")).toBe("var(--color-edge-axiom, #7aa3e0)");
   });
-
-  it("derived edges use CSS variable with fallback", () => {
-    expect(getProofEdgeColor("derived")).toBe(
-      "var(--color-edge-derived, #e6b870)",
-    );
-  });
 });
 
 describe("PROOF_NODE_KINDS", () => {
-  it("contains all 3 kinds", () => {
-    expect(PROOF_NODE_KINDS).toEqual(["axiom", "derived", "conclusion"]);
+  it("contains all 2 kinds", () => {
+    expect(PROOF_NODE_KINDS).toEqual(["axiom", "conclusion"]);
   });
 });
 
 describe("getProofNodeKindLabel", () => {
   it("returns 'Axiom' for axiom kind", () => {
     expect(getProofNodeKindLabel("axiom")).toBe("Axiom");
-  });
-
-  it("returns 'Derived' for derived kind", () => {
-    expect(getProofNodeKindLabel("derived")).toBe("Derived");
   });
 
   it("returns 'Conclusion' for conclusion kind", () => {

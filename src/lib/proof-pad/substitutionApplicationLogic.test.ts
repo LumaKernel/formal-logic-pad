@@ -55,14 +55,14 @@ function addSubstitutionEdge(
 describe("getSubstitutionPremise", () => {
   it("returns undefined when no connection exists", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "derived", "Subst", { x: 0, y: 0 });
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 0 });
     expect(getSubstitutionPremise(ws, "node-1")).toBeUndefined();
   });
 
   it("returns premise node id when connected", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
-    ws = addNode(ws, "derived", "Subst", { x: 0, y: 100 });
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
     ws = addSubstitutionEdge(ws, "node-2", "node-1");
     expect(getSubstitutionPremise(ws, "node-2")).toBe("node-1");
@@ -71,7 +71,7 @@ describe("getSubstitutionPremise", () => {
   it("ignores connections to other ports", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
-    ws = addNode(ws, "derived", "Subst", { x: 0, y: 100 });
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "other");
     expect(getSubstitutionPremise(ws, "node-2")).toBeUndefined();
   });
@@ -257,7 +257,7 @@ describe("validateSubstitutionApplication", () => {
 
   it("returns PremiseMissing when no premise is connected", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(ws, "derived", "Subst", { x: 0, y: 0 });
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 0 });
     const entries: SubstitutionEntries = [
       {
         _tag: "FormulaSubstitution",
@@ -272,7 +272,7 @@ describe("validateSubstitutionApplication", () => {
   it("returns PremiseParseError when premise formula is invalid", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "-> invalid");
-    ws = addNode(ws, "derived", "Subst", { x: 0, y: 100 });
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
     ws = addSubstitutionEdge(ws, "node-2", "node-1");
     const entries: SubstitutionEntries = [
@@ -289,7 +289,7 @@ describe("validateSubstitutionApplication", () => {
   it("returns PremiseParseError when premise formula is empty", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "");
-    ws = addNode(ws, "derived", "Subst", { x: 0, y: 100 });
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
     ws = addSubstitutionEdge(ws, "node-2", "node-1");
     const entries: SubstitutionEntries = [
@@ -306,7 +306,7 @@ describe("validateSubstitutionApplication", () => {
   it("returns FormulaParseError when substitution formula is invalid", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
-    ws = addNode(ws, "derived", "Subst", { x: 0, y: 100 });
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
     ws = addSubstitutionEdge(ws, "node-2", "node-1");
     const entries: SubstitutionEntries = [
@@ -323,7 +323,7 @@ describe("validateSubstitutionApplication", () => {
   it("returns TermParseError when term substitution is invalid", () => {
     let ws = createEmptyWorkspace(predicateLogicSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> phi");
-    ws = addNode(ws, "derived", "Subst", { x: 0, y: 100 });
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
     ws = addSubstitutionEdge(ws, "node-2", "node-1");
     const entries: SubstitutionEntries = [
@@ -341,7 +341,7 @@ describe("validateSubstitutionApplication", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     // A1: φ → (ψ → φ)
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
-    ws = addNode(ws, "derived", "Subst", { x: 0, y: 100 });
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
     ws = addSubstitutionEdge(ws, "node-2", "node-1");
 
@@ -368,7 +368,7 @@ describe("validateSubstitutionApplication", () => {
   it("returns same formula when meta-variables not present in premise", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "alpha -> beta");
-    ws = addNode(ws, "derived", "Subst", { x: 0, y: 100 });
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
     ws = addSubstitutionEdge(ws, "node-2", "node-1");
 
@@ -389,7 +389,7 @@ describe("validateSubstitutionApplication", () => {
   it("applies single formula meta-variable substitution", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> phi");
-    ws = addNode(ws, "derived", "Subst", { x: 0, y: 100 });
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
     ws = addSubstitutionEdge(ws, "node-2", "node-1");
 
@@ -410,7 +410,7 @@ describe("validateSubstitutionApplication", () => {
   it("applies negation substitution", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "~phi -> (phi -> psi)");
-    ws = addNode(ws, "derived", "Subst", { x: 0, y: 100 });
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
     ws = addSubstitutionEdge(ws, "node-2", "node-1");
 
@@ -442,7 +442,7 @@ describe("validateSubstitutionApplication", () => {
       { x: 0, y: 0 },
       "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
     );
-    ws = addNode(ws, "derived", "Subst", { x: 0, y: 100 });
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
     ws = addConnection(ws, "node-1", "out", "node-2", "premise");
     ws = addSubstitutionEdge(ws, "node-2", "node-1");
 
