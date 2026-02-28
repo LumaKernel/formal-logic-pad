@@ -145,3 +145,4 @@ Infinity Canvasについて。
     - 参考: http://100.73.163.99:13006/?path=/story/proofpad-proofflowdemo--identity-proof-completed
     - 関連するデモストーリーをこの方針に沿って更新する
     - 関連するストーリー・テストの更新
+- [x] derivedというのも、コネクションの結果としてそのようにcomputedなものとして見れるというだけで、内部的にそれを管理する必要はない。ノードそのものは単なるformulaでしかなく。コネクションの状況でderivedになるだけだ、としよう。
