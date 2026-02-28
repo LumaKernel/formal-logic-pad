@@ -181,7 +181,7 @@
 
 ---
 
-- [ ] **ET-006: JSON Import/Export を Schema ベースに**
+- [x] **ET-006: JSON Import/Export を Schema ベースに**
 
   **前提:** ET-002 完了後（`serialization.ts` の decode/encode が使える）
 

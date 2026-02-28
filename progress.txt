@@ -6327,3 +6327,27 @@
   - 同期ラッパーパターン: Effect.runSync(Effect.either(effectVersion(...))) で Effect → Either 変換
   - 内部ヘルパー関数（buildFormulaSubstitutionMap等）は _tag ベースの判別式のままで十分。Effect化は外側のバリデーション関数だけで良い
 ---
+
+## 2026-03-01 - ET-006: JSON Import/Export を Schema ベースに
+- `workspaceExport.ts` を全面的に Effect.ts Schema ベースに書き換え
+  - 手書きの `typeof`/フィールド検証ロジック（約530行）を Schema 定義（約434行）に置き換え
+  - `Schema.transform` で Set↔Array 変換（LogicSystem）、レガシーノード種別変換、WorkspaceState の deductionSystem 再計算
+  - `Schema.compose` でレガシー種別マッピング + バリデーションをチェーン
+  - `Schema.decodeUnknownEither` でインポート、`Schema.encodeSync` でエクスポート
+  - レガシーフォーマット互換性を完全維持（旧ノード種別 mp/gen/substitution/derived → axiom、protection フィールド無視、不明 role 無視）
+  - 公開API（exportWorkspaceToJSON, importWorkspaceFromJSON, generateExportFileName）は変更なし
+- 既存テスト81件が変更なしで全パス — 完全な後方互換性を確認
+- ベースライン: Stmts 98.18%, Branch 91.97%, Funcs 88.92%, Lines 99.16%, 5537テスト
+- 完了後: Stmts 98.22%, Branch 91.93%, Funcs 89.02%, Lines 99.14%, 5537テスト — カバレッジ維持
+- 変更したファイル:
+  - `src/lib/proof-pad/workspaceExport.ts` — Schema ベースに全面書き換え
+  - `tasks/prd-effect-ts.md` — ET-006 を [x] に更新
+  - `task-processing.md` — クリア
+- スクリーンショット: `.screenshots/et-006-workspace-empty-lukasiewicz.png`, `.screenshots/et-006-workspace-with-nodes.png`
+- **今後のイテレーションへの学び:**
+  - Schema.transform の `strict: false` は decode 出力型が Schema の型システム期待と完全一致しない場合に必要（例: deductionSystem の再計算追加）
+  - Schema.compose で変換チェーンが可能: `Schema.transform(String → legacy mapped) |> Schema.compose(Literal("axiom", "conclusion"))` でレガシー変換 + バリデーションを一本化
+  - `Schema.typeSchema` は transform の to 側で使い、エンコード済み型ではなく型レベル型を指定する
+  - Effect.ts Schema は手書きバリデーションより宣言的で保守性が高い。特に Union 型のディスクリミネーション（InferenceEdge の mp/gen/substitution 分岐）が自動化される
+  - Schema ベース化で行数は約80行削減。可読性・保守性が大幅に向上
+---

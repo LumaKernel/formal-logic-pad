@@ -4,14 +4,15 @@
  * WorkspaceState を JSON 文字列に変換してファイルエクスポートし、
  * JSON 文字列から WorkspaceState を復元する機能を提供する。
  *
- * LogicSystem の ReadonlySet<PropositionalAxiomId> は JSON 化できないため、
- * Array に変換して保存し、復元時に Set に戻す（notebookSerialization と同パターン）。
+ * Effect.ts Schema を使用して型安全なシリアライゼーション/デシリアライゼーションを実現。
+ * LogicSystem の ReadonlySet<PropositionalAxiomId> は Schema.transform で
+ * Array ↔ Set の変換を行う。
  *
  * 変更時は workspaceExport.test.ts, index.ts も同期すること。
  */
 
+import { Either, Schema } from "effect";
 import type {
-  AxiomId,
   LogicSystem,
   PropositionalAxiomId,
 } from "../logic-core/inferenceRule";
@@ -25,10 +26,316 @@ import type {
   NodeRole,
 } from "./workspaceState";
 import type { InferenceEdge } from "./inferenceEdge";
-import type { SubstitutionEntry } from "./substitutionApplicationLogic";
-import type { GreekLetter } from "../logic-core/greekLetters";
 import type { ProofNodeKind } from "./proofNodeUI";
-import type { Point } from "../infinite-canvas/types";
+
+// --- 公理ID定数 ---
+
+const PROPOSITIONAL_AXIOM_IDS = [
+  "A1",
+  "A2",
+  "A3",
+  "M3",
+  "EFQ",
+  "DNE",
+] as const;
+
+const ALL_AXIOM_IDS = [
+  "A1",
+  "A2",
+  "A3",
+  "M3",
+  "EFQ",
+  "DNE",
+  "A4",
+  "A5",
+  "E1",
+  "E2",
+  "E3",
+  "E4",
+  "E5",
+] as const;
+
+// --- Schema定義 ---
+
+/**
+ * レガシーノード種別をaxiomに変換するマップ。
+ * 旧フォーマットの互換性のため、mp/gen/substitution/derived をaxiomとして読み込む。
+ */
+const LEGACY_KIND_MAP: ReadonlyMap<string, ProofNodeKind> = new Map([
+  ["mp", "axiom"],
+  ["gen", "axiom"],
+  ["substitution", "axiom"],
+  ["derived", "axiom"],
+]);
+
+/** PointのSchema */
+const PointSchema = Schema.Struct({
+  x: Schema.Number,
+  y: Schema.Number,
+});
+
+/** 命題論理公理IDのSchema */
+const PropositionalAxiomIdSchema = Schema.Literal(...PROPOSITIONAL_AXIOM_IDS);
+
+/** 全公理IDのSchema */
+const AllAxiomIdSchema = Schema.Literal(...ALL_AXIOM_IDS);
+
+/**
+ * LogicSystemのSchema（JSON形式 ↔ LogicSystem）。
+ * propositionalAxiomsをArray ↔ Setで変換する。
+ */
+const LogicSystemSchema = Schema.transform(
+  Schema.Struct({
+    name: Schema.String,
+    propositionalAxioms: Schema.Array(PropositionalAxiomIdSchema),
+    predicateLogic: Schema.Boolean,
+    equalityLogic: Schema.Boolean,
+    generalization: Schema.Boolean,
+  }),
+  Schema.typeSchema(
+    Schema.Struct({
+      name: Schema.String,
+      propositionalAxioms: Schema.ReadonlySetFromSelf(
+        PropositionalAxiomIdSchema,
+      ),
+      predicateLogic: Schema.Boolean,
+      equalityLogic: Schema.Boolean,
+      generalization: Schema.Boolean,
+    }),
+  ),
+  {
+    strict: true,
+    decode: (serialized) => ({
+      ...serialized,
+      propositionalAxioms: new Set(serialized.propositionalAxioms),
+    }),
+    encode: (system) => ({
+      ...system,
+      propositionalAxioms: [...system.propositionalAxioms],
+    }),
+  },
+);
+
+/** ProofNodeKindのSchema（レガシー種別を自動変換） */
+const ProofNodeKindSchema = Schema.transform(Schema.String, Schema.String, {
+  strict: true,
+  decode: (kind) => {
+    const mapped = LEGACY_KIND_MAP.get(kind);
+    return mapped ?? kind;
+  },
+  encode: (kind) => kind,
+}).pipe(Schema.compose(Schema.Literal("axiom", "conclusion")));
+
+/** NodeRoleのSchema（レガシー互換: 不明なroleはundefinedにフィルタ） */
+const NodeRoleSchema = Schema.Literal("axiom");
+
+/** WorkspaceNodeのSchema */
+const WorkspaceNodeSchema = Schema.transform(
+  Schema.Struct({
+    id: Schema.String,
+    kind: ProofNodeKindSchema,
+    label: Schema.String,
+    formulaText: Schema.String,
+    position: PointSchema,
+    genVariableName: Schema.optional(Schema.String),
+    role: Schema.optional(Schema.Union(NodeRoleSchema, Schema.String)),
+    // レガシーフィールドは無視（protection等）
+  }),
+  Schema.typeSchema(
+    Schema.Struct({
+      id: Schema.String,
+      kind: Schema.Literal("axiom", "conclusion"),
+      label: Schema.String,
+      formulaText: Schema.String,
+      position: PointSchema,
+      genVariableName: Schema.optional(Schema.String),
+      role: Schema.optional(NodeRoleSchema),
+    }),
+  ),
+  {
+    strict: true,
+    decode: (raw) => {
+      const base: WorkspaceNode = {
+        id: raw.id,
+        kind: raw.kind satisfies string as ProofNodeKind,
+        label: raw.label,
+        formulaText: raw.formulaText,
+        position: raw.position,
+      };
+      // optional fields
+      const withGen: WorkspaceNode =
+        raw.genVariableName !== undefined
+          ? { ...base, genVariableName: raw.genVariableName }
+          : base;
+      // レガシー互換: "axiom"のみ有効、それ以外は無視
+      const withRole: WorkspaceNode =
+        raw.role === "axiom"
+          ? { ...withGen, role: "axiom" satisfies NodeRole }
+          : withGen;
+      return withRole;
+    },
+    encode: (node) => ({
+      id: node.id,
+      kind: node.kind,
+      label: node.label,
+      formulaText: node.formulaText,
+      position: node.position,
+      ...(node.genVariableName !== undefined
+        ? { genVariableName: node.genVariableName }
+        : {}),
+      ...(node.role !== undefined ? { role: node.role } : {}),
+    }),
+  },
+);
+
+/** WorkspaceConnectionのSchema */
+const WorkspaceConnectionSchema = Schema.Struct({
+  id: Schema.String,
+  fromNodeId: Schema.String,
+  fromPortId: Schema.String,
+  toNodeId: Schema.String,
+  toPortId: Schema.String,
+});
+
+/** FormulaSubstitutionEntryのSchema */
+const FormulaSubstitutionEntrySchema = Schema.Struct({
+  _tag: Schema.Literal("FormulaSubstitution"),
+  metaVariableName: Schema.String,
+  metaVariableSubscript: Schema.optional(Schema.String),
+  formulaText: Schema.String,
+});
+
+/** TermSubstitutionEntryのSchema */
+const TermSubstitutionEntrySchema = Schema.Struct({
+  _tag: Schema.Literal("TermSubstitution"),
+  metaVariableName: Schema.String,
+  metaVariableSubscript: Schema.optional(Schema.String),
+  termText: Schema.String,
+});
+
+/** SubstitutionEntryのSchema */
+const SubstitutionEntrySchema = Schema.Union(
+  FormulaSubstitutionEntrySchema,
+  TermSubstitutionEntrySchema,
+);
+
+/** MPEdgeのSchema */
+const MPEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("mp"),
+  conclusionNodeId: Schema.String,
+  leftPremiseNodeId: Schema.optional(Schema.String),
+  rightPremiseNodeId: Schema.optional(Schema.String),
+  conclusionText: Schema.String,
+});
+
+/** GenEdgeのSchema */
+const GenEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("gen"),
+  conclusionNodeId: Schema.String,
+  premiseNodeId: Schema.optional(Schema.String),
+  variableName: Schema.String,
+  conclusionText: Schema.String,
+});
+
+/** SubstitutionEdgeのSchema */
+const SubstitutionEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("substitution"),
+  conclusionNodeId: Schema.String,
+  premiseNodeId: Schema.optional(Schema.String),
+  entries: Schema.Array(SubstitutionEntrySchema),
+  conclusionText: Schema.String,
+});
+
+/** InferenceEdgeのSchema */
+const InferenceEdgeSchema = Schema.Union(
+  MPEdgeSchema,
+  GenEdgeSchema,
+  SubstitutionEdgeSchema,
+);
+
+/** WorkspaceGoalのSchema */
+const WorkspaceGoalSchema = Schema.Struct({
+  id: Schema.String,
+  formulaText: Schema.String,
+  label: Schema.optional(Schema.String),
+  allowedAxiomIds: Schema.optional(Schema.Array(AllAxiomIdSchema)),
+});
+
+/** WorkspaceModeのSchema */
+const WorkspaceModeSchema = Schema.Literal("free", "quest");
+
+/**
+ * WorkspaceStateのSchema（JSON形式 ↔ WorkspaceState）。
+ * - LogicSystemのSet ↔ Array変換
+ * - deductionSystemの再構築
+ * - inferenceEdges/goalsのoptional→デフォルト空配列
+ */
+const WorkspaceStateSchema = Schema.transform(
+  Schema.Struct({
+    system: LogicSystemSchema,
+    nodes: Schema.Array(WorkspaceNodeSchema),
+    connections: Schema.Array(WorkspaceConnectionSchema),
+    inferenceEdges: Schema.optional(Schema.Array(InferenceEdgeSchema)),
+    nextNodeId: Schema.Number,
+    mode: WorkspaceModeSchema,
+    goals: Schema.optional(Schema.Array(WorkspaceGoalSchema)),
+  }),
+  Schema.typeSchema(
+    Schema.Struct({
+      system: Schema.typeSchema(LogicSystemSchema),
+      deductionSystem: Schema.Unknown,
+      nodes: Schema.Array(Schema.typeSchema(WorkspaceNodeSchema)),
+      connections: Schema.Array(WorkspaceConnectionSchema),
+      inferenceEdges: Schema.Array(Schema.typeSchema(InferenceEdgeSchema)),
+      nextNodeId: Schema.Number,
+      mode: WorkspaceModeSchema,
+      goals: Schema.Array(Schema.typeSchema(WorkspaceGoalSchema)),
+    }),
+  ),
+  {
+    strict: false,
+    decode: (serialized) => ({
+      system: serialized.system,
+      deductionSystem: hilbertDeduction(
+        serialized.system satisfies object as LogicSystem,
+      ),
+      nodes: serialized.nodes satisfies readonly object[] as readonly WorkspaceNode[],
+      connections: serialized.connections satisfies readonly object[] as readonly WorkspaceConnection[],
+      inferenceEdges:
+        (serialized.inferenceEdges ??
+          []) satisfies readonly object[] as readonly InferenceEdge[],
+      nextNodeId: serialized.nextNodeId,
+      mode: serialized.mode satisfies string as WorkspaceMode,
+      goals:
+        (serialized.goals ??
+          []) satisfies readonly object[] as readonly WorkspaceGoal[],
+    }),
+    encode: (state) => ({
+      system: state.system satisfies object as LogicSystem,
+      nodes: state.nodes satisfies readonly object[] as readonly WorkspaceNode[],
+      connections: state.connections satisfies readonly object[] as readonly WorkspaceConnection[],
+      inferenceEdges: state.inferenceEdges satisfies readonly object[] as readonly InferenceEdge[],
+      nextNodeId: state.nextNodeId,
+      mode: state.mode satisfies string as WorkspaceMode,
+      goals: state.goals satisfies readonly object[] as readonly WorkspaceGoal[],
+    }),
+  },
+);
+
+/**
+ * エクスポートデータ全体のSchema。
+ * _tag: "ProofPadWorkspace", version: 1 のバリデーションを含む。
+ */
+const WorkspaceExportDataSchema = Schema.Struct({
+  _tag: Schema.Literal("ProofPadWorkspace"),
+  version: Schema.Literal(1),
+  workspace: WorkspaceStateSchema,
+});
+
+// --- Schema-based decode/encode ---
+
+const decodeExportData = Schema.decodeUnknownEither(WorkspaceExportDataSchema);
+const encodeWorkspaceState = Schema.encodeSync(WorkspaceStateSchema);
 
 // --- エクスポートデータ型 ---
 
@@ -59,421 +366,15 @@ type SerializedLogicSystem = {
   readonly generalization: boolean;
 };
 
-// --- バリデーション ---
-
-const VALID_AXIOM_IDS: ReadonlySet<string> = new Set(["A1", "A2", "A3"]);
-const VALID_ALL_AXIOM_IDS: ReadonlySet<string> = new Set([
-  "A1",
-  "A2",
-  "A3",
-  "M3",
-  "EFQ",
-  "DNE",
-  "A4",
-  "A5",
-  "E1",
-  "E2",
-  "E3",
-  "E4",
-  "E5",
-]);
-const VALID_KINDS: ReadonlySet<string> = new Set(["axiom", "conclusion"]);
-
-/**
- * レガシーノード種別をaxiomに変換する。
- * 旧フォーマットの互換性のため、mp/gen/substitution/derived をaxiomとして読み込む。
- * derivedかどうかはInferenceEdgeから計算される。
- */
-const LEGACY_KIND_MAP: ReadonlyMap<string, string> = new Map([
-  ["mp", "axiom"],
-  ["gen", "axiom"],
-  ["substitution", "axiom"],
-  ["derived", "axiom"],
-]);
-const VALID_MODES: ReadonlySet<string> = new Set(["free", "quest"]);
-const VALID_ROLES: ReadonlySet<string> = new Set(["axiom"]);
-const VALID_EDGE_TAGS: ReadonlySet<string> = new Set([
-  "mp",
-  "gen",
-  "substitution",
-]);
-const VALID_SUBSTITUTION_ENTRY_TAGS: ReadonlySet<string> = new Set([
-  "FormulaSubstitution",
-  "TermSubstitution",
-]);
-
-function validateAllAxiomId(value: string): AxiomId | undefined {
-  if (VALID_ALL_AXIOM_IDS.has(value)) {
-    // validated via VALID_ALL_AXIOM_IDS
-    return value satisfies string as AxiomId;
-  }
-  return undefined;
-}
-
-function validateAxiomId(value: unknown): PropositionalAxiomId | undefined {
-  if (typeof value === "string" && VALID_AXIOM_IDS.has(value)) {
-    // validated via VALID_AXIOM_IDS
-    return value satisfies string as PropositionalAxiomId;
-  }
-  return undefined;
-}
-
-function parseLogicSystem(raw: unknown): LogicSystem | undefined {
-  if (typeof raw !== "object" || raw === null) return undefined;
-  const obj = raw as Record<string, unknown>;
-  if (typeof obj["name"] !== "string") return undefined;
-  if (!Array.isArray(obj["propositionalAxioms"])) return undefined;
-  if (typeof obj["predicateLogic"] !== "boolean") return undefined;
-  if (typeof obj["equalityLogic"] !== "boolean") return undefined;
-  if (typeof obj["generalization"] !== "boolean") return undefined;
-
-  const axiomIds: PropositionalAxiomId[] = [];
-  for (const item of obj["propositionalAxioms"] as readonly unknown[]) {
-    const validated = validateAxiomId(item);
-    if (validated === undefined) return undefined;
-    axiomIds.push(validated);
-  }
-
-  return {
-    name: obj["name"],
-    propositionalAxioms: new Set(axiomIds),
-    predicateLogic: obj["predicateLogic"],
-    equalityLogic: obj["equalityLogic"],
-    generalization: obj["generalization"],
-  };
-}
-
-function parsePoint(raw: unknown): Point | undefined {
-  if (typeof raw !== "object" || raw === null) return undefined;
-  const obj = raw as Record<string, unknown>;
-  if (typeof obj["x"] !== "number" || typeof obj["y"] !== "number")
-    return undefined;
-  // 防御コード: JSON.parseでInfinity/NaNにはならないが、将来の入力ソース拡張に備える
-  /* v8 ignore start */
-  if (!Number.isFinite(obj["x"]) || !Number.isFinite(obj["y"]))
-    return undefined;
-  /* v8 ignore stop */
-  return { x: obj["x"], y: obj["y"] };
-}
-
-function parseNode(raw: unknown): WorkspaceNode | undefined {
-  if (typeof raw !== "object" || raw === null) return undefined;
-  const obj = raw as Record<string, unknown>;
-
-  if (typeof obj["id"] !== "string") return undefined;
-  if (typeof obj["kind"] !== "string") return undefined;
-
-  // レガシー種別の変換
-  let kindStr = obj["kind"];
-  const mapped = LEGACY_KIND_MAP.get(kindStr);
-  if (mapped !== undefined) {
-    kindStr = mapped;
-  }
-  if (!VALID_KINDS.has(kindStr)) return undefined;
-
-  if (typeof obj["label"] !== "string") return undefined;
-  if (typeof obj["formulaText"] !== "string") return undefined;
-
-  const position = parsePoint(obj["position"]);
-  if (position === undefined) return undefined;
-
-  let result: WorkspaceNode = {
-    id: obj["id"],
-    kind: kindStr as ProofNodeKind,
-    label: obj["label"],
-    formulaText: obj["formulaText"],
-    position,
-  };
-
-  // optional fields — 複数が同時に存在しうるので排他的にしない
-  if (obj["genVariableName"] !== undefined) {
-    if (typeof obj["genVariableName"] !== "string") return undefined;
-    result = { ...result, genVariableName: obj["genVariableName"] };
-  }
-
-  if (obj["role"] !== undefined) {
-    if (typeof obj["role"] !== "string") return undefined;
-    // レガシー互換: "goal"は無視し、"axiom"のみ保持
-    if (VALID_ROLES.has(obj["role"])) {
-      result = { ...result, role: obj["role"] as NodeRole };
-    }
-  }
-
-  // レガシー互換: protection フィールドは無視する（廃止済み）
-
-  return result;
-}
-
-function parseConnection(raw: unknown): WorkspaceConnection | undefined {
-  if (typeof raw !== "object" || raw === null) return undefined;
-  const obj = raw as Record<string, unknown>;
-
-  if (typeof obj["id"] !== "string") return undefined;
-  if (typeof obj["fromNodeId"] !== "string") return undefined;
-  if (typeof obj["fromPortId"] !== "string") return undefined;
-  if (typeof obj["toNodeId"] !== "string") return undefined;
-  if (typeof obj["toPortId"] !== "string") return undefined;
-
-  return {
-    id: obj["id"],
-    fromNodeId: obj["fromNodeId"],
-    fromPortId: obj["fromPortId"],
-    toNodeId: obj["toNodeId"],
-    toPortId: obj["toPortId"],
-  };
-}
-
-function parseSubstitutionEntry(raw: unknown): SubstitutionEntry | undefined {
-  if (typeof raw !== "object" || raw === null) return undefined;
-  const obj = raw as Record<string, unknown>;
-  if (
-    typeof obj["_tag"] !== "string" ||
-    !VALID_SUBSTITUTION_ENTRY_TAGS.has(obj["_tag"])
-  )
-    return undefined;
-  if (typeof obj["metaVariableName"] !== "string") return undefined;
-  if (
-    obj["metaVariableSubscript"] !== undefined &&
-    typeof obj["metaVariableSubscript"] !== "string"
-  )
-    return undefined;
-
-  if (obj["_tag"] === "FormulaSubstitution") {
-    if (typeof obj["formulaText"] !== "string") return undefined;
-    return {
-      _tag: "FormulaSubstitution",
-      metaVariableName: obj["metaVariableName"] as GreekLetter,
-      ...(obj["metaVariableSubscript"] !== undefined
-        ? {
-            metaVariableSubscript: obj["metaVariableSubscript"] as string,
-          }
-        : {}),
-      formulaText: obj["formulaText"],
-    };
-  }
-
-  // TermSubstitution
-  if (typeof obj["termText"] !== "string") return undefined;
-  return {
-    _tag: "TermSubstitution",
-    metaVariableName: obj["metaVariableName"] as GreekLetter,
-    ...(obj["metaVariableSubscript"] !== undefined
-      ? {
-          metaVariableSubscript: obj["metaVariableSubscript"] as string,
-        }
-      : {}),
-    termText: obj["termText"],
-  };
-}
-
-function parseInferenceEdge(raw: unknown): InferenceEdge | undefined {
-  if (typeof raw !== "object" || raw === null) return undefined;
-  const obj = raw as Record<string, unknown>;
-
-  if (typeof obj["_tag"] !== "string" || !VALID_EDGE_TAGS.has(obj["_tag"]))
-    return undefined;
-  if (typeof obj["conclusionNodeId"] !== "string") return undefined;
-  if (typeof obj["conclusionText"] !== "string") return undefined;
-
-  const tag = obj["_tag"];
-
-  if (tag === "mp") {
-    if (
-      obj["leftPremiseNodeId"] !== undefined &&
-      typeof obj["leftPremiseNodeId"] !== "string"
-    )
-      return undefined;
-    if (
-      obj["rightPremiseNodeId"] !== undefined &&
-      typeof obj["rightPremiseNodeId"] !== "string"
-    )
-      return undefined;
-
-    return {
-      _tag: "mp",
-      conclusionNodeId: obj["conclusionNodeId"],
-      leftPremiseNodeId: (obj["leftPremiseNodeId"] as string) ?? undefined,
-      rightPremiseNodeId: (obj["rightPremiseNodeId"] as string) ?? undefined,
-      conclusionText: obj["conclusionText"],
-    };
-  }
-
-  if (tag === "gen") {
-    if (
-      obj["premiseNodeId"] !== undefined &&
-      typeof obj["premiseNodeId"] !== "string"
-    )
-      return undefined;
-    if (typeof obj["variableName"] !== "string") return undefined;
-
-    return {
-      _tag: "gen",
-      conclusionNodeId: obj["conclusionNodeId"],
-      premiseNodeId: (obj["premiseNodeId"] as string) ?? undefined,
-      variableName: obj["variableName"],
-      conclusionText: obj["conclusionText"],
-    };
-  }
-
-  // substitution
-  if (
-    obj["premiseNodeId"] !== undefined &&
-    typeof obj["premiseNodeId"] !== "string"
-  )
-    return undefined;
-  if (!Array.isArray(obj["entries"])) return undefined;
-
-  const entries: SubstitutionEntry[] = [];
-  for (const item of obj["entries"] as readonly unknown[]) {
-    const parsed = parseSubstitutionEntry(item);
-    if (parsed === undefined) return undefined;
-    entries.push(parsed);
-  }
-
-  return {
-    _tag: "substitution",
-    conclusionNodeId: obj["conclusionNodeId"],
-    premiseNodeId: (obj["premiseNodeId"] as string) ?? undefined,
-    entries,
-    conclusionText: obj["conclusionText"],
-  };
-}
-
-function parseGoal(raw: unknown): WorkspaceGoal | undefined {
-  if (typeof raw !== "object" || raw === null) return undefined;
-  const obj = raw as Record<string, unknown>;
-  if (typeof obj["id"] !== "string") return undefined;
-  if (typeof obj["formulaText"] !== "string") return undefined;
-  if (obj["label"] !== undefined && typeof obj["label"] !== "string")
-    return undefined;
-
-  let result: WorkspaceGoal = {
-    id: obj["id"],
-    formulaText: obj["formulaText"],
-  };
-
-  if (typeof obj["label"] === "string") {
-    result = { ...result, label: obj["label"] };
-  }
-
-  if (obj["allowedAxiomIds"] !== undefined) {
-    if (!Array.isArray(obj["allowedAxiomIds"])) return undefined;
-    const axiomIds: AxiomId[] = [];
-    for (const item of obj["allowedAxiomIds"]) {
-      if (typeof item !== "string") return undefined;
-      const validated = validateAllAxiomId(item);
-      if (validated === undefined) return undefined;
-      axiomIds.push(validated);
-    }
-    result = { ...result, allowedAxiomIds: axiomIds };
-  }
-
-  return result;
-}
-
-function parseWorkspaceState(raw: unknown): WorkspaceState | undefined {
-  if (typeof raw !== "object" || raw === null) return undefined;
-  const obj = raw as Record<string, unknown>;
-
-  const system = parseLogicSystem(obj["system"]);
-  if (system === undefined) return undefined;
-
-  if (!Array.isArray(obj["nodes"])) return undefined;
-  if (!Array.isArray(obj["connections"])) return undefined;
-  if (typeof obj["nextNodeId"] !== "number") return undefined;
-  // 防御コード: JSON.parseでInfinity/NaNにはならないが、将来の入力ソース拡張に備える
-  /* v8 ignore start */
-  if (!Number.isFinite(obj["nextNodeId"])) return undefined;
-  /* v8 ignore stop */
-  // goalFormulaText は廃止されたが、旧データの互換性のために存在を許容する
-  if (typeof obj["mode"] !== "string" || !VALID_MODES.has(obj["mode"]))
-    return undefined;
-
-  const nodes: WorkspaceNode[] = [];
-  for (const item of obj["nodes"] as readonly unknown[]) {
-    const parsed = parseNode(item);
-    if (parsed === undefined) return undefined;
-    nodes.push(parsed);
-  }
-
-  const connections: WorkspaceConnection[] = [];
-  for (const item of obj["connections"] as readonly unknown[]) {
-    const parsed = parseConnection(item);
-    if (parsed === undefined) return undefined;
-    connections.push(parsed);
-  }
-
-  // inferenceEdges は optional（旧フォーマット互換: 存在しなければ空配列）
-  const inferenceEdges: InferenceEdge[] = [];
-  if (obj["inferenceEdges"] !== undefined) {
-    if (!Array.isArray(obj["inferenceEdges"])) return undefined;
-    for (const item of obj["inferenceEdges"] as readonly unknown[]) {
-      const parsed = parseInferenceEdge(item);
-      if (parsed === undefined) return undefined;
-      inferenceEdges.push(parsed);
-    }
-  }
-
-  // goals は optional（旧フォーマット互換: 存在しなければ空配列）
-  const goals: WorkspaceGoal[] = [];
-  if (obj["goals"] !== undefined) {
-    if (!Array.isArray(obj["goals"])) return undefined;
-    for (const item of obj["goals"] as readonly unknown[]) {
-      const parsed = parseGoal(item);
-      if (parsed === undefined) return undefined;
-      goals.push(parsed);
-    }
-  }
-
-  return {
-    system,
-    deductionSystem: hilbertDeduction(system),
-    nodes,
-    connections,
-    inferenceEdges,
-    nextNodeId: obj["nextNodeId"],
-    mode: obj["mode"] as WorkspaceMode,
-    goals,
-  };
-}
-
-function parseExportData(raw: unknown): WorkspaceState | undefined {
-  if (typeof raw !== "object" || raw === null) return undefined;
-  const obj = raw as Record<string, unknown>;
-
-  if (obj["_tag"] !== "ProofPadWorkspace") return undefined;
-  if (obj["version"] !== 1) return undefined;
-
-  return parseWorkspaceState(obj["workspace"]);
-}
-
 // --- エクスポート ---
-
-/** LogicSystemをJSON化可能な形式に変換する */
-function serializeLogicSystem(system: LogicSystem): SerializedLogicSystem {
-  return {
-    name: system.name,
-    propositionalAxioms: [...system.propositionalAxioms],
-    predicateLogic: system.predicateLogic,
-    equalityLogic: system.equalityLogic,
-    generalization: system.generalization,
-  };
-}
 
 /** WorkspaceState を JSON 文字列にエクスポートする */
 export function exportWorkspaceToJSON(state: WorkspaceState): string {
-  const exportData: WorkspaceExportData = {
-    _tag: "ProofPadWorkspace",
-    version: 1,
-    workspace: {
-      system: serializeLogicSystem(state.system),
-      nodes: state.nodes,
-      connections: state.connections,
-      inferenceEdges: state.inferenceEdges,
-      nextNodeId: state.nextNodeId,
-      mode: state.mode,
-      goals: state.goals,
-    },
+  const serializedWorkspace = encodeWorkspaceState(state);
+  const exportData = {
+    _tag: "ProofPadWorkspace" as const,
+    version: 1 as const,
+    workspace: serializedWorkspace,
   };
   return JSON.stringify(exportData, null, 2);
 }
@@ -520,10 +421,13 @@ export function importWorkspaceFromJSON(json: string): ImportResult {
     return { _tag: "InvalidJSON" };
   }
 
-  const workspace = parseExportData(parsed);
-  if (workspace === undefined) {
+  const result = decodeExportData(parsed);
+  if (Either.isLeft(result)) {
     return { _tag: "InvalidFormat" };
   }
 
-  return { _tag: "Success", workspace };
+  return {
+    _tag: "Success",
+    workspace: result.right.workspace satisfies object as WorkspaceState,
+  };
 }
