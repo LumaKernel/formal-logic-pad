@@ -76,8 +76,16 @@ export {
   useQuestProgress,
   loadProgress,
   saveProgress,
+  loadProgressEffect,
+  saveProgressEffect,
   QUEST_PROGRESS_STORAGE_KEY,
 } from "./useQuestProgress";
+
+export {
+  StorageService,
+  BrowserStorageLayer,
+  createInMemoryStorageLayer,
+} from "./storageService";
 
 export {
   type StartQuestResult,

@@ -3,11 +3,13 @@
  *
  * localStorage への永続化を含む。
  * 純粋ロジック (questProgress.ts) に依存。
+ * ストレージアクセスは StorageService Layer で抽象化。
  *
  * 変更時は useQuestProgress.test.tsx も同期すること。
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Effect } from "effect";
 import type {
   QuestProgressState,
   QuestCompletionRecord,
@@ -24,10 +26,40 @@ import {
   deserializeProgress,
 } from "./questProgress";
 import type { QuestId } from "./questDefinition";
+import { StorageService, BrowserStorageLayer } from "./storageService";
 
-// --- localStorage adapter (pure functions operating on Storage interface) ---
+// --- ストレージキー ---
 
 export const QUEST_PROGRESS_STORAGE_KEY = "quest-progress";
+
+// --- Effect 版 (StorageService 依存) ---
+
+/** StorageService を使って進捗をロードする Effect */
+export const loadProgressEffect = Effect.gen(function* () {
+  const storage = yield* StorageService;
+  const stored = yield* storage.getItem(QUEST_PROGRESS_STORAGE_KEY);
+  if (stored === null) {
+    return createEmptyProgress();
+  }
+  try {
+    const parsed: unknown = JSON.parse(stored);
+    return deserializeProgress(parsed);
+  } catch {
+    return createEmptyProgress();
+  }
+});
+
+/** StorageService を使って進捗を保存する Effect */
+export const saveProgressEffect = (state: QuestProgressState) =>
+  Effect.gen(function* () {
+    const storage = yield* StorageService;
+    yield* storage.setItem(
+      QUEST_PROGRESS_STORAGE_KEY,
+      JSON.stringify(serializeProgress(state)),
+    );
+  });
+
+// --- 同期互換ラッパー (既存の Storage インターフェース版) ---
 
 export function loadProgress(storage: Storage): QuestProgressState {
   const stored = storage.getItem(QUEST_PROGRESS_STORAGE_KEY);
@@ -77,7 +109,7 @@ export function useQuestProgress(): UseQuestProgressResult {
     typeof window === "undefined"
       ? createEmptyProgress()
       : /* v8 ignore stop */
-        loadProgress(window.localStorage),
+        Effect.runSync(Effect.provide(loadProgressEffect, BrowserStorageLayer)),
   );
 
   // Persist to localStorage when state changes
@@ -85,7 +117,9 @@ export function useQuestProgress(): UseQuestProgressResult {
     /* v8 ignore start */
     if (typeof window === "undefined") return;
     /* v8 ignore stop */
-    saveProgress(window.localStorage, state);
+    Effect.runSync(
+      Effect.provide(saveProgressEffect(state), BrowserStorageLayer),
+    );
   }, [state]);
 
   const record = useCallback(

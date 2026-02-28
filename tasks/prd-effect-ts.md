@@ -297,7 +297,7 @@
 
 ### フェーズ3: DI・副作用分離 (quest, app層)
 
-- [ ] **ET-009: quest のストレージ操作を Effect + Layer で抽象化**
+- [-] **ET-009: quest のストレージ操作を Effect + Layer で抽象化**
 
   **対象ファイル:**
   - `src/lib/quest/questProgress.ts` — `loadProgress()`, `saveProgress()`
