@@ -247,23 +247,27 @@ describe("axiomPalette", () => {
         "disjunction-intro-right",
         "disjunction-elim",
         "weakening",
+        "universal-intro",
+        "universal-elim",
+        "existential-intro",
+        "existential-elim",
       ]);
     });
 
-    it("NJはNM+EFQの10規則を返す", () => {
+    it("NJはNM+EFQの14規則を返す", () => {
       const items = getAvailableNdRules(njSystem);
       const ids = items.map((i) => i.id);
       expect(ids).toContain("efq");
       expect(ids).not.toContain("dne");
-      expect(ids).toHaveLength(10);
+      expect(ids).toHaveLength(14);
     });
 
-    it("NKはNM+DNEの10規則を返す", () => {
+    it("NKはNM+DNEの14規則を返す", () => {
       const items = getAvailableNdRules(nkSystem);
       const ids = items.map((i) => i.id);
       expect(ids).toContain("dne");
       expect(ids).not.toContain("efq");
-      expect(ids).toHaveLength(10);
+      expect(ids).toHaveLength(14);
     });
 
     it("各アイテムにdisplayNameがある", () => {

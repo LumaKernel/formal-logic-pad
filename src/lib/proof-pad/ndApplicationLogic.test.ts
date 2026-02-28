@@ -947,4 +947,514 @@ describe("ndApplicationLogic", () => {
       }
     });
   });
+
+  // --- ∀I (Universal Intro) ---
+
+  describe("∀I (Universal Intro)", () => {
+    it("前提φから∀x.φを導出する", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "P(x)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-universal-intro",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        variableName: "x",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result) && result.right._tag === "nd-success") {
+        expect(result.right.conclusionText).toBe("∀x.P(x)");
+      }
+    });
+
+    it("前提が未接続の場合エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-universal-intro",
+        conclusionNodeId: "node-1",
+        premiseNodeId: undefined,
+        variableName: "x",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+    });
+
+    it("変数名が空の場合エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "P(x)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-universal-intro",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        variableName: "",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("NdStructuralError");
+      }
+    });
+
+    it("含意式に対しても∀I適用可能", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "P(x) -> Q(x)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-universal-intro",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        variableName: "x",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result) && result.right._tag === "nd-success") {
+        expect(result.right.conclusionText).toBe("∀x.P(x) → Q(x)");
+      }
+    });
+  });
+
+  // --- ∀E (Universal Elim) ---
+
+  describe("∀E (Universal Elim)", () => {
+    it("∀x.φから φ[t/x] を導出する", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "all x. P(x)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-universal-elim",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        termText: "x",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result) && result.right._tag === "nd-success") {
+        expect(result.right.conclusionText).toBe("P(x)");
+      }
+    });
+
+    it("異なる変数で代入できる", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "all x. P(x)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-universal-elim",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        termText: "y",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result) && result.right._tag === "nd-success") {
+        expect(result.right.conclusionText).toBe("P(y)");
+      }
+    });
+
+    it("前提が∀でない場合エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "P(x)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-universal-elim",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        termText: "x",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("NdStructuralError");
+      }
+    });
+
+    it("項テキストが空の場合エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "all x. P(x)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-universal-elim",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        termText: "",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("NdTermParseError");
+      }
+    });
+
+    it("前提が未接続の場合エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-universal-elim",
+        conclusionNodeId: "node-1",
+        premiseNodeId: undefined,
+        termText: "x",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+    });
+
+    it("項テキストがパース不能な場合エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "all x. P(x)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-universal-elim",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        termText: "!!!invalid",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("NdTermParseError");
+      }
+    });
+
+    it("代入可能性条件(free-for)違反の場合エラー", () => {
+      // ∀x.∀y.P(x,y) に対して y を代入
+      // body = ∀y.P(x,y) で、y は x に対して free-for でない
+      let ws = createNdWorkspace();
+      ws = addNode(
+        ws,
+        "axiom",
+        "premise",
+        { x: 0, y: 0 },
+        "all x. all y. P(x, y)",
+      );
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-universal-elim",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        termText: "y",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("NdEigenvariableViolation");
+      }
+    });
+  });
+
+  // --- ∃I (Existential Intro) ---
+
+  describe("∃I (Existential Intro)", () => {
+    it("φ[t/x] から ∃x.φ を導出する", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "P(y)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-existential-intro",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        variableName: "x",
+        termText: "y",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result) && result.right._tag === "nd-success") {
+        expect(result.right.conclusionText).toBe("∃x.P(x)");
+      }
+    });
+
+    it("同じ変数でwit=var の場合も動作する", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "P(x)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-existential-intro",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        variableName: "y",
+        termText: "x",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result) && result.right._tag === "nd-success") {
+        expect(result.right.conclusionText).toBe("∃y.P(y)");
+      }
+    });
+
+    it("変数名が空の場合エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "P(x)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-existential-intro",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        variableName: "",
+        termText: "x",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("NdStructuralError");
+      }
+    });
+
+    it("項テキストが空の場合エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "P(x)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-existential-intro",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        variableName: "x",
+        termText: "",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("NdTermParseError");
+      }
+    });
+
+    it("前提が未接続の場合エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-existential-intro",
+        conclusionNodeId: "node-1",
+        premiseNodeId: undefined,
+        variableName: "x",
+        termText: "y",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+    });
+
+    it("termTextが不正な構文の場合NdTermParseError", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "ex x. P(x)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-existential-intro",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        variableName: "x",
+        termText: "!!!invalid",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("NdTermParseError");
+      }
+    });
+
+    it("termTextが変数でない場合（関数適用）エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "P(x)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-existential-intro",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        variableName: "x",
+        termText: "S(x)",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("NdStructuralError");
+      }
+    });
+  });
+
+  // --- ∃E (Existential Elim) ---
+
+  describe("∃E (Existential Elim)", () => {
+    it("∃x.φ と ケース前提χ から χ を導出する", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "existential", { x: 0, y: 0 }, "ex x. P(x)");
+      ws = addNode(ws, "axiom", "case", { x: 200, y: 0 }, "Q");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-existential-elim",
+        conclusionNodeId: "node-3",
+        existentialPremiseNodeId: "node-1",
+        casePremiseNodeId: "node-2",
+        dischargedAssumptionId: 1,
+        dischargedFormulaText: "P(x)",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result) && result.right._tag === "nd-success") {
+        expect(result.right.conclusionText).toBe("Q");
+      }
+    });
+
+    it("存在量化前提が∃でない場合エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "notexist", { x: 0, y: 0 }, "P(x)");
+      ws = addNode(ws, "axiom", "case", { x: 200, y: 0 }, "Q");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-existential-elim",
+        conclusionNodeId: "node-3",
+        existentialPremiseNodeId: "node-1",
+        casePremiseNodeId: "node-2",
+        dischargedAssumptionId: 1,
+        dischargedFormulaText: "P(x)",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("NdStructuralError");
+      }
+    });
+
+    it("存在量化前提が未接続の場合エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "case", { x: 200, y: 0 }, "Q");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-existential-elim",
+        conclusionNodeId: "node-2",
+        existentialPremiseNodeId: undefined,
+        casePremiseNodeId: "node-1",
+        dischargedAssumptionId: 1,
+        dischargedFormulaText: "P(x)",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+    });
+
+    it("ケース前提が未接続の場合エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "existential", { x: 0, y: 0 }, "ex x. P(x)");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-existential-elim",
+        conclusionNodeId: "node-2",
+        existentialPremiseNodeId: "node-1",
+        casePremiseNodeId: undefined,
+        dischargedAssumptionId: 1,
+        dischargedFormulaText: "P(x)",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+    });
+  });
+
+  // --- getNdErrorMessage: 量化子規則のエラーメッセージ ---
+
+  describe("getNdErrorMessage (量化子)", () => {
+    it("NdEigenvariableViolation のメッセージ", () => {
+      const err: NdApplicationError = {
+        _tag: "NdEigenvariableViolation",
+        variableName: "x",
+        message: "Term is not free for x in the formula body",
+      } as NdApplicationError;
+      expect(getNdErrorMessage(err)).toBe(
+        "Term is not free for x in the formula body",
+      );
+    });
+
+    it("NdTermParseError のメッセージ", () => {
+      const err: NdApplicationError = {
+        _tag: "NdTermParseError",
+        label: "substitution term (t)",
+      } as NdApplicationError;
+      expect(getNdErrorMessage(err)).toBe(
+        "Enter valid term for substitution term (t)",
+      );
+    });
+  });
 });

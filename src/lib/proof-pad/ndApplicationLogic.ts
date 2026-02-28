@@ -18,13 +18,22 @@ import {
   Conjunction,
   Disjunction,
   Negation,
+  Universal,
+  Existential,
   implication,
   conjunction,
   disjunction,
+  universal,
+  existential,
 } from "../logic-core/formula";
+import { TermVariable, termVariable } from "../logic-core/term";
 import { equalFormula } from "../logic-core/equality";
+import {
+  isFreeFor,
+  substituteTermVariableInFormula,
+} from "../logic-core/substitution";
 import { formatFormula } from "../logic-lang/formatUnicode";
-import { parseString } from "../logic-lang/parser";
+import { parseString, parseTermString } from "../logic-lang/parser";
 import { parseNodeFormula } from "./mpApplicationLogic";
 import type { WorkspaceState, WorkspaceNode } from "./workspaceState";
 import type { NdInferenceEdge } from "./inferenceEdge";
@@ -78,13 +87,28 @@ export class NdCaseConclusionMismatch extends Data.TaggedError(
   readonly rightConclusionText: string;
 }> {}
 
+/** 固有変数条件違反 */
+export class NdEigenvariableViolation extends Data.TaggedError(
+  "NdEigenvariableViolation",
+)<{
+  readonly variableName: string;
+  readonly message: string;
+}> {}
+
+/** 項テキストのパースエラー（∀E, ∃Iの代入項用） */
+export class NdTermParseError extends Data.TaggedError("NdTermParseError")<{
+  readonly label: string;
+}> {}
+
 export type NdApplicationError =
   | NdPremiseMissing
   | NdPremiseParseError
   | NdAdditionalFormulaParseError
   | NdStructuralError
   | NdDischargedFormulaParseError
-  | NdCaseConclusionMismatch;
+  | NdCaseConclusionMismatch
+  | NdEigenvariableViolation
+  | NdTermParseError;
 
 /**
  * EFQ規則の検証成功結果。
@@ -443,6 +467,159 @@ const validateNdDneEffect = (
     return makeSuccess(premise.formula.formula.formula);
   });
 
+/**
+ * ∀I (Universal Intro): φ → ∀x.φ
+ * 1前提 + 量化変数名。
+ * 固有変数条件チェックはこのバリデーション層では行わない
+ * （仮定追跡が必要なため）。
+ */
+const validateNdUniversalIntroEffect = (
+  state: WorkspaceState,
+  edge: Extract<NdInferenceEdge, { readonly _tag: "nd-universal-intro" }>,
+): Effect.Effect<NdApplicationSuccess, NdApplicationError> =>
+  Effect.gen(function* () {
+    const premise = yield* resolvePremise(
+      state,
+      edge.premiseNodeId,
+      "premise (φ)",
+    );
+    if (edge.variableName.trim() === "") {
+      return yield* Effect.fail(
+        new NdStructuralError({ message: "Variable name is required" }),
+      );
+    }
+    const variable = termVariable(edge.variableName.trim());
+    const conclusion = universal(variable, premise.formula);
+    return makeSuccess(conclusion);
+  });
+
+/**
+ * ∀E (Universal Elim): ∀x.φ → φ[t/x]
+ * 1前提（∀x.φ） + 代入項テキスト。
+ * 代入可能性条件 (free-for) を検証する。
+ */
+const validateNdUniversalElimEffect = (
+  state: WorkspaceState,
+  edge: Extract<NdInferenceEdge, { readonly _tag: "nd-universal-elim" }>,
+): Effect.Effect<NdApplicationSuccess, NdApplicationError> =>
+  Effect.gen(function* () {
+    const premise = yield* resolvePremise(
+      state,
+      edge.premiseNodeId,
+      "premise (∀x.φ)",
+    );
+    if (!(premise.formula instanceof Universal)) {
+      return yield* Effect.fail(
+        new NdStructuralError({
+          message: "Premise must be a universal quantification (∀x.φ)",
+        }),
+      );
+    }
+    if (edge.termText.trim() === "") {
+      return yield* Effect.fail(
+        new NdTermParseError({ label: "substitution term (t)" }),
+      );
+    }
+    const termResult = parseTermString(edge.termText.trim());
+    if (Either.isLeft(termResult)) {
+      return yield* Effect.fail(
+        new NdTermParseError({ label: "substitution term (t)" }),
+      );
+    }
+    const t = termResult.right;
+    const x = premise.formula.variable;
+    const body = premise.formula.formula;
+    if (!isFreeFor(t, x, body)) {
+      return yield* Effect.fail(
+        new NdEigenvariableViolation({
+          variableName: x.name,
+          message: `Term is not free for ${x.name satisfies string} in the formula body`,
+        }),
+      );
+    }
+    const conclusion = substituteTermVariableInFormula(body, x, t);
+    return makeSuccess(conclusion);
+  });
+
+/**
+ * ∃I (Existential Intro): φ[t/x] → ∃x.φ
+ * 1前提 + 量化変数名 + 代入項テキスト。
+ * 前提を φ[t/x] とみなし、t を x に置き換えて φ を復元し、∃x.φ を構築する。
+ * 現在は t が単一変数の場合のみサポート。
+ */
+const validateNdExistentialIntroEffect = (
+  state: WorkspaceState,
+  edge: Extract<NdInferenceEdge, { readonly _tag: "nd-existential-intro" }>,
+): Effect.Effect<NdApplicationSuccess, NdApplicationError> =>
+  Effect.gen(function* () {
+    const premise = yield* resolvePremise(
+      state,
+      edge.premiseNodeId,
+      "premise (φ[t/x])",
+    );
+    if (edge.variableName.trim() === "") {
+      return yield* Effect.fail(
+        new NdStructuralError({ message: "Variable name is required" }),
+      );
+    }
+    if (edge.termText.trim() === "") {
+      return yield* Effect.fail(
+        new NdTermParseError({ label: "witness term (t)" }),
+      );
+    }
+    const termResult = parseTermString(edge.termText.trim());
+    if (Either.isLeft(termResult)) {
+      return yield* Effect.fail(
+        new NdTermParseError({ label: "witness term (t)" }),
+      );
+    }
+    const t = termResult.right;
+    const x = termVariable(edge.variableName.trim());
+    // t を x に置き換えて body φ を復元する。
+    // 現在は t が TermVariable の場合のみサポート。
+    if (!(t instanceof TermVariable)) {
+      return yield* Effect.fail(
+        new NdStructuralError({
+          message: "Witness term must be a variable for ∃I",
+        }),
+      );
+    }
+    const body = substituteTermVariableInFormula(premise.formula, t, x);
+    const conclusion = existential(x, body);
+    return makeSuccess(conclusion);
+  });
+
+/**
+ * ∃E (Existential Elim): ∃x.φ と χ（仮定φの下での証明）→ χ
+ * 2前提: 存在量化式と、仮定の下でのケース証明。
+ * 結論はケース前提の論理式。
+ */
+const validateNdExistentialElimEffect = (
+  state: WorkspaceState,
+  edge: Extract<NdInferenceEdge, { readonly _tag: "nd-existential-elim" }>,
+): Effect.Effect<NdApplicationSuccess, NdApplicationError> =>
+  Effect.gen(function* () {
+    const existentialPremise = yield* resolvePremise(
+      state,
+      edge.existentialPremiseNodeId,
+      "existential premise (∃x.φ)",
+    );
+    if (!(existentialPremise.formula instanceof Existential)) {
+      return yield* Effect.fail(
+        new NdStructuralError({
+          message: "First premise must be an existential quantification (∃x.φ)",
+        }),
+      );
+    }
+    const casePremise = yield* resolvePremise(
+      state,
+      edge.casePremiseNodeId,
+      "case premise (χ)",
+    );
+    // 結論はケース前提の論理式（χ）
+    return makeSuccess(casePremise.formula);
+  });
+
 // --- 統合バリデーション ---
 
 /**
@@ -476,6 +653,14 @@ export const validateNdApplicationEffect = (
       return validateNdEfqEffect(state, edge);
     case "nd-dne":
       return validateNdDneEffect(state, edge);
+    case "nd-universal-intro":
+      return validateNdUniversalIntroEffect(state, edge);
+    case "nd-universal-elim":
+      return validateNdUniversalElimEffect(state, edge);
+    case "nd-existential-intro":
+      return validateNdExistentialIntroEffect(state, edge);
+    case "nd-existential-elim":
+      return validateNdExistentialElimEffect(state, edge);
   }
 };
 
@@ -517,5 +702,9 @@ export function getNdErrorMessage(error: NdApplicationError): string {
       return "Enter valid discharged assumption formula";
     case "NdCaseConclusionMismatch":
       return `Left case (${error.leftConclusionText satisfies string}) and right case (${error.rightConclusionText satisfies string}) conclusions must match`;
+    case "NdEigenvariableViolation":
+      return error.message;
+    case "NdTermParseError":
+      return `Enter valid term for ${error.label satisfies string}`;
   }
 }
