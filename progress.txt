@@ -5869,3 +5869,29 @@
   - relatedEntryIds の双方向確認は重要だが、既存エントリが既にリンクしている場合がある — 確認してから追加すること
   - F1とF2は密接に関連（構造規則の許容性 ↔ 許容規則の概念）
 ---
+
+## 2026-02-28 - [reference] 構造共有形と構造独立形の解説リファレンスエントリ追加
+- 新規エントリ `concept-context-sharing-independence` (id: concept-context-sharing-independence) を追加
+- カテゴリ: concept, order: 16
+- 7段落（en/ja）で以下を解説:
+  - (→⇒) 規則の2つの定式化: 構造共有形 (context-sharing) と構造独立形 (context-independent)
+  - 構造共有形: Gentzenオリジナル。前提2つのΓが同一コンテキストを要求
+  - 構造独立形: bekki.pdf採用。前提が独立コンテキスト Γ, Δ を持つ
+  - 構造独立形を採用する理由: LM ⊂ LJ ⊂ LK の包含関係が自然に成立
+  - Troelstra & Schwichtenberg の G1i/G1c との比較
+  - 弱化・縮約による相互導出可能性
+- formalNotation に両形式をLaTeX表記で並記
+- relatedEntryIds: rule-sc-overview, rule-sc-structural, rule-sc-logical, concept-admissible-derivable, system-classical, system-intuitionistic, system-minimal
+- rule-sc-logical の relatedEntryIds に逆参照を追加
+- テスト10件追加: エントリ存在、formalNotation両形式、英語本文、日本語本文、部分体系関係、弱化/縮約関係、関連エントリ、逆参照、英語検索、日本語検索
+- 変更ファイル: src/lib/reference/referenceContent.ts, src/lib/reference/referenceContent.test.ts, tasks/prd-advanced.md, task-processing.md
+- カバレッジ: Statements 98.53% (維持), Branch 92.75%, Funcs 90.93%, Lines 99.31%
+- テスト: 5091 → 5108 (17件追加、うちリファレンス10件)
+- ブラウザ確認: ReferenceModal Storybook Default ストーリーで表示確認
+- スクリーンショット: `.screenshots/reference-modal-default-axiom-a1.png`
+- **今後のイテレーションへの学び:**
+  - bekki.pdf pp.296-297「おわりに」セクションが体系設計の選択理由を説明する重要な情報源
+  - 構造共有形 ↔ 構造独立形の違いは弱化・縮約が導出可能 (derivable) か許容的 (admissible) かに帰着する
+  - Troelstra & Schwichtenberg の G1i/G1c は構造共有形ベースの別のアプローチ — 比較対象として有用
+  - prd-advanced.md の F セクション（シーケント計算の拡充）は F1-F3 すべて完了
+---
