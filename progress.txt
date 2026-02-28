@@ -6706,3 +6706,24 @@
   - `*.local.*` ファイルはESLint configで除外済みだが、tsconfig.jsonでも除外が必要
   - useCallbackの依存配列にある変数がコールバック内で使われていない場合、ESLintのreact-hooks/exhaustive-depsが不要な依存として警告する
 ---
+
+## 2026-03-01 - Add Axiom NodeとAdd Nodeの統一（差し込みタスク）
+- コンテキストメニューの「Add Axiom Node」と「Add Node」を1つの「Add Node」に統一
+  - 両者の違いはnode.roleが"axiom"かundefinedかだけで機能的には同一だった
+  - 統一後は常にrole未設定(ROOT表示)で作成。公理パレットからの追加のみがrole="axiom"を付ける
+- ProofMessages型からaddAxiomNode, addGoalNode（未使用）を削除
+- i18n (en.json, ja.json) から対応エントリを削除
+- WorkspaceContent.tsxの翻訳マッピングを更新
+- テスト: 201ファイル、5848テスト全パス（-1はテストケース統合のため）
+- カバレッジ: 変化なし（Stmts 98.31%, Branch 91.73%, Lines 99.18%）
+- ブラウザテスト: `.screenshots/unified-add-node-context-menu.png` 確認OK
+- 変更ファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx (メニュー統一、handleCanvasMenuAddNode簡素化)
+  - src/lib/proof-pad/proofMessages.ts (addAxiomNode, addGoalNode削除)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (テスト更新)
+  - src/app/workspace/[id]/WorkspaceContent.tsx (翻訳マッピング更新)
+  - messages/en.json, messages/ja.json (エントリ削除)
+- **今後のイテレーションへの学び:**
+  - ProofMessagesの変更時はproofMessages.ts, WorkspaceContent.tsx, messages/en.json, messages/ja.json の4箇所を同期する必要がある
+  - 未使用のi18nメッセージ（addGoalNodeなど）は機能廃止時に合わせて削除すべき
+---
