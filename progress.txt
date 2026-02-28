@@ -6490,3 +6490,25 @@
   - 新しい推論規則追加時は proof-pad CLAUDE.md の「新しい推論規則を追加する場合」を参照
   - 空ペイロードの `Data.TaggedError` は `Record<string, never>` を使う（ESLint対策）
 ---
+
+## 2026-03-01 - ET-013 共通エラーユーティリティの整備
+- `src/lib/validation-display/` モジュールを新規作成
+  - `validationDisplay.ts`: `processValidationResult`, `formatMessage`, `ValidationDisplay` を汎用化
+  - `index.ts`: re-export
+  - `validationDisplay.test.ts`: 12テスト（独自のドメインエラー型でテスト）
+- `src/lib/proof-pad/proofMessages.ts` からローカル実装を削除、`../validation-display` から re-export に変更
+- PRDの `getErrorMessage(error, locale)` 案は、i18n をロジック層に持ち込むためアーキテクチャ上不適切と判断
+  - 代わりに、メッセージマップ型 M をジェネリック化して任意のドメインで使えるようにした
+- 変更ファイル:
+  - `src/lib/validation-display/validationDisplay.ts` (新規)
+  - `src/lib/validation-display/validationDisplay.test.ts` (新規)
+  - `src/lib/validation-display/index.ts` (新規)
+  - `src/lib/proof-pad/proofMessages.ts` (ローカル実装 → re-export)
+- カバレッジ: Stmts 98.25%, Branch 91.9%, Funcs 89.1%, Lines 99.14% (変化なし)
+- テスト: 5574 pass (5562 → 5574, +12 validation-display テスト)
+- prd-effect-ts.md の全タスク(ET-001〜ET-013)完了 → tasks-archived/ にアーカイブ
+- **今後のイテレーションへの学び:**
+  - `validation-display` モジュールは新しいドメインのバリデーション結果→UI表示変換に使える
+  - メッセージマップはジェネリック `M extends Record<string, string>` 型で任意のドメインに対応
+  - i18n は app境界（WorkspaceContent.tsx 等）で解決。純粋ロジック層に locale を持ち込まない
+---
