@@ -2238,6 +2238,112 @@ const conceptKurodaTranslation: ReferenceEntry = {
   order: 6,
 };
 
+const conceptSystemEquivalence: ReferenceEntry = {
+  id: "concept-system-equivalence",
+  category: "concept",
+  title: {
+    en: "Equivalence of Proof Systems (H = N = L)",
+    ja: "証明体系の等価性 (H = N = L)",
+  },
+  summary: {
+    en: "Hilbert systems, natural deduction, and sequent calculus prove the same formulas: HM=NM=LM, HJ=NJ=LJ, HK=NK=LK.",
+    ja: "ヒルベルト系、自然演繹、シーケント計算は同じ論理式を証明する: HM=NM=LM, HJ=NJ=LJ, HK=NK=LK。",
+  },
+  body: {
+    en: [
+      "**Three styles, one logic.** For each level of logical strength — minimal (M), intuitionistic (J), and classical (K) — there exist three distinct proof systems: the Hilbert-style system (H), natural deduction (N), and sequent calculus (L). Despite their vastly different structure, each triple proves exactly the same set of formulas. Formally, for any formula φ: ⊢_HX φ ⟺ ⊢_NX φ ⟺ ⊢_LX φ, where X ∈ {M, J, K}.",
+      '**What "equivalence" means precisely.** Two proof systems are equivalent if they have the same set of theorems — that is, a formula φ is provable in one system if and only if it is provable in the other. This does not mean the proofs look the same: a Hilbert-style proof is a linear sequence of formulas, a natural deduction proof is a tree of hypothetical derivations with discharge, and a sequent calculus proof operates on sequents Γ ⇒ Δ. The equivalence is purely about provability, not about proof structure.',
+      "**H ⊆ N (Hilbert to Natural Deduction).** Every Hilbert-style axiom can be derived in natural deduction without hypotheses. For instance, A1 (φ → (ψ → φ)) is derivable by: assume φ, then assume ψ, weaken to get φ, apply →I twice. Similarly, A2 is derivable using →I and →E. Modus Ponens corresponds directly to →E. Thus every Hilbert proof can be simulated step-by-step in natural deduction.",
+      "**N ⊆ L (Natural Deduction to Sequent Calculus).** The key insight is that each natural deduction rule has a sequent calculus counterpart. The discharge mechanism of natural deduction corresponds to having formulas on the left side of the sequent (antecedent). The →I rule corresponds to (→⇒), and →E corresponds to combining (⇒→) with Cut. The translation preserves provability (bekki Ch.10, Theorem 10.41).",
+      "**L ⊆ H (Sequent Calculus to Hilbert).** Each sequent rule can be simulated using Hilbert axioms and MP. The structural rules (exchange, contraction, weakening) correspond to propositional tautologies derivable in the Hilbert system. Logical rules translate to combinations of axiom instances and MP applications. The translation is typically by induction on the derivation height (bekki Ch.9, Theorem 9.24).",
+      "**The three levels.** (1) **Minimal logic (M):** HM uses axioms A1, A2, A3 + MP. NM has →I/E, ∧I/E, ∨I/E, and weakening. LM is LJ without (⊥⇒). All three prove exactly the same formulas. (2) **Intuitionistic logic (J):** HJ adds the absurdity axiom (⊥ → φ). NJ adds EFQ (ex falso quodlibet). LJ adds (⊥⇒). (3) **Classical logic (K):** HK adds DNE (¬¬φ → φ) or Peirce's law. NK adds the DNE rule. LK allows multiple formulas on the right side of sequents.",
+      '**Significance.** The equivalence theorems have deep consequences: (1) Any metatheorem proved about one system immediately transfers to the others. For example, cut elimination in LK implies the subformula property for HK and NK proofs. (2) Each system has distinct practical advantages — Hilbert systems are minimal and elegant, natural deduction mirrors informal mathematical reasoning, and sequent calculus is ideal for proof search and metatheory. (3) The equivalence shows that the notion of "provability" is robust and independent of the particular formalization chosen.',
+    ],
+    ja: [
+      "**3つの流儀、1つの論理。** 論理的強さの各レベル — 最小論理 (M)、直観主義論理 (J)、古典論理 (K) — に対して、3つの異なる証明体系が存在します: ヒルベルト系 (H)、自然演繹 (N)、シーケント計算 (L)。その構造は大きく異なりますが、各三つ組はまったく同じ論理式の集合を証明します。形式的に、任意の論理式 φ について: ⊢_HX φ ⟺ ⊢_NX φ ⟺ ⊢_LX φ、ただし X ∈ {M, J, K}。",
+      "**「等価性」の正確な意味。** 2つの証明体系が等価であるとは、同じ定理の集合を持つことです — すなわち、論理式 φ が一方の体系で証明可能であることと他方の体系で証明可能であることが同値です。これは証明が同じ見た目であることを意味しません: ヒルベルト系の証明は論理式の線形列、自然演繹の証明は仮定の打ち消しを伴う仮説的導出の木、シーケント計算の証明はシーケント Γ ⇒ Δ 上で操作します。等価性は純粋に証明可能性に関するものであり、証明の構造に関するものではありません。",
+      "**H ⊆ N（ヒルベルト系から自然演繹へ）。** ヒルベルト系のすべての公理は、自然演繹で仮定なしに導出できます。例えば A1 (φ → (ψ → φ)) は: φ を仮定し、ψ を仮定し、弱化で φ を得て、→I を2回適用することで導出できます。同様に A2 も →I と →E で導出可能です。モーダスポネンスは直接 →E に対応します。したがって、すべてのヒルベルト証明は自然演繹でステップごとにシミュレートできます。",
+      "**N ⊆ L（自然演繹からシーケント計算へ）。** 鍵となる洞察は、各自然演繹規則にシーケント計算の対応物があることです。自然演繹の打ち消し機構は、シーケントの左辺（前件）に論理式を持つことに対応します。→I 規則は (→⇒) に対応し、→E は (⇒→) とカットの組み合わせに対応します。この翻訳は証明可能性を保存します（戸次 Ch.10, 定理10.41）。",
+      "**L ⊆ H（シーケント計算からヒルベルト系へ）。** 各シーケント規則はヒルベルト公理と MP を用いてシミュレートできます。構造規則（交換、縮約、弱化）はヒルベルト系で導出可能な命題論理のトートロジーに対応します。論理規則は公理インスタンスと MP 適用の組み合わせに翻訳されます。翻訳は通常、導出の高さに関する帰納法で行います（戸次 Ch.9, 定理9.24）。",
+      "**3つのレベル。** (1) **最小論理 (M):** HM は公理 A1, A2, A3 + MP を使用。NM は →I/E, ∧I/E, ∨I/E と弱化を持ちます。LM は LJ から (⊥⇒) を除いた体系です。3つすべてがまったく同じ論理式を証明します。(2) **直観主義論理 (J):** HJ は矛盾公理 (⊥ → φ) を追加。NJ は EFQ（矛盾からの爆発）を追加。LJ は (⊥⇒) を追加。(3) **古典論理 (K):** HK は DNE (¬¬φ → φ) またはパースの法則を追加。NK は DNE 規則を追加。LK はシーケント右辺に複数の論理式を許可します。",
+      "**意義。** 等価性定理は深い帰結を持ちます: (1) 1つの体系について証明されたメタ定理は直ちに他の体系に転用できます。例えば、LK のカット除去は HK と NK の証明に対する部分論理式性を含意します。(2) 各体系には異なる実用上の利点があります — ヒルベルト系は最小限でエレガント、自然演繹は非形式的な数学的推論を反映、シーケント計算は証明探索とメタ理論に最適です。(3) 等価性は「証明可能性」の概念が頑健であり、選択した特定の形式化に依存しないことを示しています。",
+    ],
+  },
+  formalNotation:
+    "\\vdash_{HX} \\varphi \\;\\Longleftrightarrow\\; \\vdash_{NX} \\varphi \\;\\Longleftrightarrow\\; \\vdash_{LX} \\varphi \\quad (X \\in \\{M, J, K\\})",
+  relatedEntryIds: [
+    "system-minimal",
+    "system-intuitionistic",
+    "system-classical",
+    "concept-glivenko",
+    "concept-kuroda-translation",
+    "rule-nd-overview",
+    "rule-sc-overview",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Curry%E2%80%93Howard_correspondence",
+      label: {
+        en: "Curry–Howard correspondence (Wikipedia)",
+        ja: "カリー＝ハワード対応 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AA%E3%83%BC%EF%BC%9D%E3%83%8F%E3%83%AF%E3%83%BC%E3%83%89%E5%90%8C%E5%9E%8B",
+      label: {
+        en: "Curry–Howard isomorphism (Wikipedia JA)",
+        ja: "カリー＝ハワード同型 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/natural+deduction",
+      label: {
+        en: "Natural deduction (nLab)",
+        ja: "自然演繹 (nLab)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/sequent+calculus",
+      label: {
+        en: "Sequent calculus (nLab)",
+        ja: "シーケント計算 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "equivalence",
+    "等価性",
+    "Hilbert",
+    "ヒルベルト",
+    "natural deduction",
+    "自然演繹",
+    "sequent calculus",
+    "シーケント計算",
+    "HM",
+    "NM",
+    "LM",
+    "HJ",
+    "NJ",
+    "LJ",
+    "HK",
+    "NK",
+    "LK",
+    "minimal",
+    "最小論理",
+    "intuitionistic",
+    "直観主義論理",
+    "classical",
+    "古典論理",
+    "proof system",
+    "証明体系",
+  ],
+  order: 7,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -2929,6 +3035,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptDeductionTheorem,
   conceptGlivenko,
   conceptKurodaTranslation,
+  conceptSystemEquivalence,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
