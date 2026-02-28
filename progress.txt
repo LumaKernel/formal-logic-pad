@@ -6815,3 +6815,28 @@
   - Storybook WithNodes ストーリーでは axiom palette が node-1 を覆うためPlaywright MCP経由でのクリックテストが困難。force:trueやevaluate clickでも回避不可
   - ProofWorkspace内のuseCallback関数定義順序に注意: 参照先が定義前だとTS2448/TS2454エラー
 ---
+
+## 2026-03-01 - MPコネクションチップにロール表示追加
+- 2前提以上の推論エッジのコネクションバッジに前提ロール接尾辞を追加
+  - MP/→E: `MP:φ`(antecedent) / `MP:→`(conditional)
+  - ∧I: `∧I:L` / `∧I:R`
+  - w: `w:✓`(kept) / `w:✗`(discarded)
+  - ∨E: `∨E:∨` / `∨E:L` / `∨E:R`
+  - ∃E: `∃E:∃` / `∃E:φ`
+- 純粋ロジック層: `getPremiseRole`, `getInferenceEdgeLabelForConnection`, `computeInferenceEdgeLabelDataForConnection` を `inferenceEdgeLabelLogic.ts` に追加
+- UI層: `ProofWorkspace.tsx` で `computeInferenceEdgeLabelDataForConnection` を使用するように変更
+- 変更ファイル:
+  - src/lib/proof-pad/inferenceEdgeLabelLogic.ts (3関数追加, PremiseRole型追加)
+  - src/lib/proof-pad/inferenceEdgeLabelLogic.test.ts (22テスト追加)
+  - src/lib/proof-pad/ProofWorkspace.tsx (コネクションバッジ生成をロール付きに変更)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (MPバッジテスト更新)
+- ベースラインカバレッジ: Stmts 98.31%, Branch 91.81%, Funcs 88.78%, Lines 99.18%
+- 完了後カバレッジ: Stmts 98.32%, Branch 91.90%, Funcs 88.77%, Lines 99.19% ✅ 低下なし
+- テスト: 201ファイル、5876テスト全パス
+- ブラウザテスト:
+  - `.screenshots/mp-chip-role-labels-iframe.png` - Identity Proof Completed: MP:φ と MP:→ のバッジが正しく表示
+- **今後のイテレーションへの学び:**
+  - コネクションバッジは `conn.fromNodeId` でエッジのどの前提かを判定できる。この情報はラベル以外にも色分けなどに活用可能
+  - 2前提以上のエッジの `return undefined` 分岐（未マッチケース）もテストで明示的にカバーすべき
+  - `computeInferenceEdgeLabelData` (エッジ全体用) と `computeInferenceEdgeLabelDataForConnection` (コネクション個別用) の2つのAPIを提供し、呼び出し側で使い分ける
+---
