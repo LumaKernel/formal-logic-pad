@@ -5815,3 +5815,35 @@
   - `isTrivialSubstitution`判定のための純粋関数群（`isTrivialFormulaSubstitution`, `isTrivialTermSubstitution`, `isTrivialAxiomSubstitution`）は内部ユーティリティとして残存。identifyAxiomName内部でのみ使用
   - 型からフィールドを削除すると、TypeScriptの型チェックが使用箇所を全て検出してくれるため、安全にリファクタリングできた
 ---
+
+## 2026-02-28 - 代入操作UI見直し（Add/Delete廃止→メタ変数自動抽出方式）
+- 代入操作UIの根本的な見直しを実装
+  - Add/Delete方式の代入対象指定を廃止
+  - 前提スキーマからメタ変数を自動抽出し、ユーザーは代入値のみを入力する方式に変更
+  - kind（Formula/Term）とメタ変数名は読み取り専用表示（`<span>`）に変更
+  - `addSubstEditEntry`, `removeSubstEditEntry` 関数を削除
+  - `updateSubstEditEntry` → `updateSubstEditEntryValue` にリネーム（値のみ更新）
+- `toSubstEditEntries` に `premiseFormulaText` パラメータを追加、`extractSubstitutionTargetsFromText` を使って自動抽出
+- EdgeParameterPopover（バッジクリック時ポップオーバー）とProofWorkspace（プロンプトバナー）の両方を更新
+- `substAddEntry`, `substRemoveEntry` メッセージをproofMessages, i18n（en/ja）から削除
+- 変更ファイル:
+  - `src/lib/proof-pad/edgeBadgeEditLogic.ts` - 核心ロジック（自動抽出・マージ）
+  - `src/lib/proof-pad/edgeBadgeEditLogic.test.ts` - テスト全面更新（32テスト）
+  - `src/lib/proof-pad/EdgeParameterPopover.tsx` - ポップオーバーUI（読み取り専用化）
+  - `src/lib/proof-pad/EdgeParameterPopover.test.tsx` - テスト更新（13テスト）
+  - `src/lib/proof-pad/ProofWorkspace.tsx` - バナーUI + handleEdgeBadgeClick更新
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` - テスト更新
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` - ストーリー更新
+  - `src/lib/proof-pad/proofMessages.ts` - Add/Removeメッセージ削除
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` - i18n配線削除
+  - `messages/en.json`, `messages/ja.json` - 翻訳メッセージ削除
+- カバレッジ: Statements 98.54% → 98.53% (ほぼ維持)
+- テスト: 5083 → 5086 (3件追加)
+- ブラウザ確認: SubstitutionApplied・SubstitutionContextMenuストーリーで新UI（読み取り専用kind/metavar、自動抽出）を確認
+- スクリーンショット: `.screenshots/substitution-applied-iframe.png`, `.screenshots/substitution-popover-readonly-ui.png`, `.screenshots/substitution-prompt-banner-auto-extract.png`
+- **今後のイテレーションへの学び:**
+  - `toSubstEditEntries` はpremiseFormulaTextがない場合のレガシー動作も維持しており、段階的移行に対応
+  - ギリシャ文字名（alpha, beta等）はパーサーがメタ変数として認識する。テストで「メタ変数なし」のケースには `p -> q` のような非ギリシャ名を使うこと
+  - `extractSubstitutionTargetsFromText` + `generateSubstitutionEntryTemplate` でFormulaとTermのメタ変数を自動分類可能
+  - ProofWorkspaceの`handleEdgeBadgeClick`でpremiseFormulaTextを取得するためにworkspace全体（ノード情報）への参照が必要
+---
