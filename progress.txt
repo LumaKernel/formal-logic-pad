@@ -6757,3 +6757,35 @@
   - Playwright MCPのdblclickはCanvasItemのpointerイベント追跡と干渉する場合がある。evaluateでdblclickイベントを直接dispatchする方法が確実
   - Axiomパレットがノードと重なってクリックをインターセプトする問題は既知（別タスク: ノードのコネクション引っ掛け部分のz-index問題）
 ---
+
+## 2026-03-01 - [proof-pad] コネクション削除時のSBST表示残留修正
+- 実装した内容: WorkspaceNodeからgenVariableName/substitutionEntriesプロパティを除去し、InferenceEdgeを唯一の情報源（single source of truth）に変更
+- 問題の根本原因: WorkspaceNodeにgenVariableName/substitutionEntriesが冗長に保存されており、InferenceEdge（コネクション）を削除しても、ノード側のプロパティが残存。UIのフォールバック（`node.substitutionEntries ?? []`）によって古い表示が残っていた
+- 解決: ノードレベルのプロパティを完全に除去し、UI層はInferenceEdgeからのみデータを読み取るように変更。コネクション削除時にEdgeが消えれば、表示も自動的に消える
+- 変更ファイル:
+  - src/lib/proof-pad/workspaceState.ts (genVariableName/substitutionEntries除去、関連関数削除)
+  - src/lib/proof-pad/ProofWorkspace.tsx (フォールバックロジック除去、Edge-onlyデータ読み取り)
+  - src/lib/proof-pad/index.ts (削除した関数のexport除去)
+  - src/lib/proof-pad/copyPasteLogic.ts (CopiedNodeからgenVariableName除去)
+  - src/lib/proof-pad/workspaceExport.ts (出力スキーマからgenVariableName除去、入力は後方互換)
+  - src/lib/proof-pad/substitutionApplicationLogic.ts (コメント更新)
+  - src/lib/proof-pad/workspaceState.test.ts (削除関数のテスト除去 -117行)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (削除関数のimport/使用除去)
+  - src/lib/proof-pad/workspaceExport.test.ts (genVariableNameテスト更新)
+  - src/lib/proof-pad/copyPasteLogic.test.ts (genVariableNameコピーテスト除去)
+  - src/lib/proof-pad/workspaceImageExport.test.ts (テストデータからgenVariableName除去)
+- ベースラインカバレッジ: Stmts 98.32%, Branch 91.75%, Funcs 88.84%, Lines 99.18%
+- 完了後カバレッジ: Stmts 98.33%, Branch 91.81%, Funcs 88.83%, Lines 99.18% ✅ 低下なし
+- テスト: 201ファイル、5839テスト全パス（9テスト削除: 削除した二重保存機能のテスト）
+- ブラウザテスト:
+  - `.screenshots/sbst-fix-with-nodes-iframe.png` - WithNodesストーリー正常表示
+  - `.screenshots/sbst-fix-substitution-applied.png` - 代入適用ストーリー: Edge由来のデータが正しく表示
+  - `.screenshots/sbst-fix-valid-mp.png` - MP適用ストーリー正常表示
+  - `.screenshots/sbst-fix-connection-delete-before.png` - コネクション削除後: stale表示が残らないことを確認
+  - `.screenshots/sbst-fix-substitution-context-menu.png` - 代入コンテキストメニューストーリー正常表示
+- **今後のイテレーションへの学び:**
+  - WorkspaceNodeは純粋にformula情報のみを持つべき。推論規則のパラメータ（代入エントリ、Gen変数名等）はInferenceEdge上にのみ存在すべき
+  - UIフォールバックパターン（`node.prop ?? defaultValue`）は、ステートの二重管理を隠蔽しデバッグを困難にする。single source of truthを徹底すべき
+  - workspaceExport.tsの入力スキーマは後方互換のため旧プロパティを受け入れるが、出力時には含めない設計が移行期に有効
+  - テスト数が減る場合でも、それが不要になった機能のテスト削除なら問題ない。カバレッジの維持が重要
+---
