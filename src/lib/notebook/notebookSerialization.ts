@@ -145,9 +145,7 @@ export function serializeCollection(collection: NotebookCollection): string {
         },
       },
       ...(n.questId !== undefined ? { questId: n.questId } : {}),
-      ...(n.questVersion !== undefined
-        ? { questVersion: n.questVersion }
-        : {}),
+      ...(n.questVersion !== undefined ? { questVersion: n.questVersion } : {}),
     })),
     nextId: collection.nextId,
   };

@@ -780,36 +780,28 @@ describe("groupPresetsByCategory", () => {
 
   it("hilbert-predicate contains 2 presets", () => {
     const groups = groupPresetsByCategory(systemPresets);
-    const predGroup = groups.find(
-      (g) => g.category.id === "hilbert-predicate",
-    );
+    const predGroup = groups.find((g) => g.category.id === "hilbert-predicate");
     expect(predGroup).toBeDefined();
     expect(predGroup!.presets).toHaveLength(2);
   });
 
   it("hilbert-theory contains 8 presets", () => {
     const groups = groupPresetsByCategory(systemPresets);
-    const theoryGroup = groups.find(
-      (g) => g.category.id === "hilbert-theory",
-    );
+    const theoryGroup = groups.find((g) => g.category.id === "hilbert-theory");
     expect(theoryGroup).toBeDefined();
     expect(theoryGroup!.presets).toHaveLength(8);
   });
 
   it("natural-deduction contains 3 presets", () => {
     const groups = groupPresetsByCategory(systemPresets);
-    const ndGroup = groups.find(
-      (g) => g.category.id === "natural-deduction",
-    );
+    const ndGroup = groups.find((g) => g.category.id === "natural-deduction");
     expect(ndGroup).toBeDefined();
     expect(ndGroup!.presets).toHaveLength(3);
   });
 
   it("sequent-calculus contains 3 presets", () => {
     const groups = groupPresetsByCategory(systemPresets);
-    const scGroup = groups.find(
-      (g) => g.category.id === "sequent-calculus",
-    );
+    const scGroup = groups.find((g) => g.category.id === "sequent-calculus");
     expect(scGroup).toBeDefined();
     expect(scGroup!.presets).toHaveLength(3);
   });

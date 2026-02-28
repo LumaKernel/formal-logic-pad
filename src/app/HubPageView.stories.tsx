@@ -186,9 +186,7 @@ export const QuestNotebookFilter: Story = {
     const badge = canvas.getByTestId("notebook-count-prop-01");
     await userEvent.click(badge);
     // フィルタバナーが表示される
-    await expect(
-      canvas.getByTestId("quest-filter-banner"),
-    ).toBeInTheDocument();
+    await expect(canvas.getByTestId("quest-filter-banner")).toBeInTheDocument();
     // フィルタされたノートブックが表示（prop-01に紐づくnotebook-2のみ）
     await expect(
       canvas.getByText("PA Arithmetic Practice"),
