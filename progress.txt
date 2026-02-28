@@ -86,7 +86,29 @@
 - `src/lib/keybinding/` は構造的キーバインディングシステム。keybinding.ts(型・マッチング・コード対応) + defaultBindings.ts(デフォルト定義) + customizeBindings.ts(オーバーライド)
 - `mod`修飾キーでOS差を吸収: macOS→metaKey(Cmd)、Windows/Linux→ctrlKey(Ctrl)
 - コードシーケンスの定義順序が重要: Shift+ArrowをArrowより前に置かないとマッチしない
+- `src/lib/logic-core/evaluation.ts` は命題論理の真理値評価エンジン。`evaluateFormula` + `isTautology`/`isSatisfiable`/`isContradiction` + `generateTruthTable`
 
+---
+
+## 2026-02-28 - 命題論理の真理値評価エンジン
+- `src/lib/logic-core/evaluation.ts` を新規作成
+  - `evaluateFormula`: 真理値割当に基づく論理式の評価（命題論理のみ）
+  - `collectPropositionalVariables`: 命題変数キーの収集
+  - `isTautology` / `isSatisfiable` / `isContradiction`: 恒真・充足可能・矛盾の判定
+  - `generateTruthTable`: 真理値表の生成（変数は辞書順、割当はfalse→true順）
+- テスト: 67テスト追加（5108→5175）
+- カバレッジ: Stmts 98.54%(↑), Branch 92.80%(↑), Funcs 90.97%(↑), Lines 99.32%(↑)
+  - `evaluation.ts`: 100% / 100% / 100% / 100%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- 変更ファイル:
+  - `src/lib/logic-core/evaluation.ts` (新規)
+  - `src/lib/logic-core/evaluation.test.ts` (新規)
+  - `src/lib/logic-core/index.ts` (re-export追加)
+- **今後のイテレーションへの学び:**
+  - `metaVariableKey()` で添字付きメタ変数を `φ_1` 形式のキーにできる。評価エンジンの割当マップのキーとして利用
+  - 命題論理のみ対象なので、Universal/Existential/Predicate/Equality/FormulaSubstitution は明示的にエラーにする設計
+  - `generateAllAssignments` はビット操作で2^n個の割当を辞書順に生成。変数数が多い場合（30以上等）は指数爆発に注意
+  - A2（真理値表UI）は A1 の `generateTruthTable` を表示するだけなので比較的簡単に実装できる
 ---
 
 ## 2026-02-28 - InferenceEdge統合 Step 1: WorkspaceState データモデル拡張
