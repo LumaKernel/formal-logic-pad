@@ -6381,3 +6381,27 @@
   - テストヘルパーを使っているテストファイルは、ヘルパーのみ修正すれば大部分のテストケースは変更不要
   - `editorLogic.ts` と `inputCompletion.ts` は parser.ts を直接使わず、computeParseState 経由のため変更不要だった
 ---
+
+## 2026-03-01 - ET-008: パースエラーをData.TaggedErrorに移行
+- `ParseError`（parser.ts）と`LexerError`（token.ts）をinterfaceから`Data.TaggedError`クラスに変換
+- `token.ts`: LexerError → `class LexerError extends Data.TaggedError("LexerError")<{ message, span }> {}`
+- `parser.ts`: ParseError → `class ParseError extends Data.TaggedError("ParseError")<{ message, span }> {}`
+- `lexer.ts`: LexerErrorのimportを型importから値importに変更、`addError`を`new LexerError()`形式に
+- `parser.ts`: 両`addError`関数と`parseString`/`parseTermString`のLexerError→ParseError変換を更新
+- `index.ts`: ParseError/LexerErrorのexportを型exportから値exportに変更（クラスなので）
+- テストファイル更新: `editorLogic.test.ts`（2箇所）、`FormulaInput.test.tsx`（約10箇所）で`new ParseError({...})`形式に
+- ベースライン: Stmts 98.22%, Branch 91.93%, Funcs 89.01%, Lines 99.14%, 5537テスト
+- 完了後: Stmts 98.22%, Branch 91.93%, Funcs 89.01%, Lines 99.14%, 5537テスト — カバレッジ維持
+- 変更したファイル（6ファイル）:
+  - `src/lib/logic-lang/token.ts` — LexerErrorをData.TaggedErrorクラスに
+  - `src/lib/logic-lang/parser.ts` — ParseErrorをData.TaggedErrorクラスに + エラー生成箇所更新
+  - `src/lib/logic-lang/lexer.ts` — LexerError値import + new LexerError()使用
+  - `src/lib/logic-lang/index.ts` — 値export化
+  - `src/lib/formula-input/editorLogic.test.ts` — new ParseError()形式に更新
+  - `src/lib/formula-input/FormulaInput.test.tsx` — new ParseError()形式に更新
+- スクリーンショット: `.screenshots/ET-008-formula-editor-unicode.png`, `.screenshots/ET-008-proof-workspace-with-nodes.png`
+- **今後のイテレーションへの学び:**
+  - interface→Data.TaggedErrorクラス変換時、テストファイルでプレーンオブジェクト`{ message, span }`を使っている箇所が型エラーになる。TypeScript型チェックで全箇所を検出できるため安全
+  - Data.TaggedErrorクラスはEffect内部プロパティ（EffectTypeId等）を持つため、プレーンオブジェクトリテラルでは型互換性がない
+  - 値export（`export { ParseError }`）とtype export（`export type { ParseError }`）の区別に注意。クラスは値exportが必要
+---

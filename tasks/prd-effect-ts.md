@@ -256,7 +256,7 @@
 
 ---
 
-- [ ] **ET-008: パースエラーを `Data.TaggedError` に**
+- [x] **ET-008: パースエラーを `Data.TaggedError` に**
 
   **前提:** ET-007 完了後
 
