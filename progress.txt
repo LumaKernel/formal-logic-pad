@@ -95,6 +95,28 @@
 
 ---
 
+## 2026-03-01 - 量化子ND強化クエスト (E6)
+- `src/lib/quest/builtinQuests.ts` に量化子ND強化クエスト5問を追加:
+  - nd-19: 存在除去 ∃E 基本（∀x.(P(x)→φ) → ∃x.P(x) → φ）— ∃E の仮説解消パターン
+  - nd-20: 全称から存在 ∀→∃（∀x.P(x) → ∃x.P(x)）— ∀E + ∃I の基本組み合わせ
+  - nd-21: 存在の推移（∃x.P(x) → ∀x.(P(x)→Q(x)) → ∃x.Q(x)）— ∃E + ∃I の組み合わせ
+  - nd-22: ∃の∧分配（∃x.(P(x)∧Q(x)) → ∃x.P(x) ∧ ∃x.Q(x)）— ∃E 内で複数 ∃I
+  - nd-23: ∀の∧結合（∀x.P(x) ∧ ∀x.Q(x) → ∀x.(P(x)∧Q(x))）— ∀E + ∧I + ∀I
+- `src/lib/quest/builtinQuests.test.ts`: クエスト数を78→83に更新
+- テスト: 5742テスト全パス（200ファイル）
+- カバレッジ: Stmts 98.28%(同), Branch 91.54%(同), Funcs 88.92%(同), Lines 99.17%(同) — 変化なし
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: `.screenshots/e6-nd-quantifier-quests-detail.png`, `.screenshots/e6-nd-quantifier-quests-bottom.png` 確認OK
+- 変更ファイル:
+  - `src/lib/quest/builtinQuests.ts` (5クエスト追加)
+  - `src/lib/quest/builtinQuests.test.ts` (クエスト数更新)
+  - `tasks/prd-advanced.md` (E6完了マーク)
+- **今後のイテレーションへの学び:**
+  - 既存のNDクエスト(nd-15〜nd-18)は∀I, ∀E, ∃I の基本と∀の交換をカバーしていたが、∃E のクエストが欠落していた。∃E は仮説解消パターンが特殊で独立した学習が必要
+  - クエスト追加は pure なデータ定義のみの変更で、カバレッジに影響しない（builtinQuests.ts は100%カバー済み）
+  - builtinQuests.test.ts のクエスト数定数を忘れずに更新すること
+---
+
 ## 2026-03-01 - ND用バリデーションロジック (ND-004)
 - `src/lib/proof-pad/ndApplicationLogic.ts` を新規作成: 11種のND推論規則の適用バリデーション
   - Error型: NdPremiseMissing, NdPremiseParseError, NdAdditionalFormulaParseError, NdStructuralError, NdDischargedFormulaParseError, NdCaseConclusionMismatch
