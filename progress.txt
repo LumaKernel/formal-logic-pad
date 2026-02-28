@@ -39,6 +39,7 @@
 - 防御的コード（到達不能だが安全のために残す）は `/* v8 ignore start/stop */` で除外。コメントで理由を明記すること
 - MP適用ロジックは3層分離: 純粋バリデーション(`mpApplicationLogic.ts`) → 状態管理(`workspaceState.ts`) → UI(`ProofWorkspace.tsx`)
 - Gen適用ロジックも同様の3層: `genApplicationLogic.ts` → `workspaceState.ts` → `ProofWorkspace.tsx`。新しい推論規則追加時はこのパターンに従う
+- ND適用ロジックも同様の3層: `ndApplicationLogic.ts` → `workspaceState.ts` → `ProofWorkspace.tsx`。EFQ等の結論自動計算不可な規則は Success union の discriminated tag で分岐
 - `revalidateInferenceConclusions` は前提変更時にMP/Gen結論テキストを再計算する純粋関数。`handleFormulaTextChange`後に必ず呼ぶ
 - `formatFormula` は右結合→で最小括弧化。テスト期待値は `χ → φ → ψ → φ`（括弧なし）
 - unificationのMartelli-Montanariアルゴリズムでは即時代入適用により一部の分岐が到達不能になる
@@ -92,6 +93,36 @@
 - `src/lib/logic-core/normalForm.ts` は命題論理の標準形変換。`toNNF`/`toCNF`/`toDNF` + `isNNF`/`isCNF`/`isDNF`。NNFはCNF/DNFの前段階
 - Storybook play関数: ProofWorkspaceの`isNodeCulled()`がビューポート外ノードをDOM除外する。ストーリーのノード座標はx:0-600,y:0-250に収めること
 
+---
+
+## 2026-03-01 - ND用バリデーションロジック (ND-004)
+- `src/lib/proof-pad/ndApplicationLogic.ts` を新規作成: 11種のND推論規則の適用バリデーション
+  - Error型: NdPremiseMissing, NdPremiseParseError, NdAdditionalFormulaParseError, NdStructuralError, NdDischargedFormulaParseError, NdCaseConclusionMismatch
+  - Success型: NdApplicationSuccess (_tag: "nd-success") + NdEfqValidResult (_tag: "efq-valid") の discriminated union
+  - Effect.gen 内部 → Either 公開ラッパーパターン準拠
+  - EFQ特殊対応: 結論が任意の論理式のため auto-compute 不可、別型で表現
+- `src/lib/proof-pad/ndApplicationLogic.test.ts`: 46単体テスト
+- `src/lib/proof-pad/workspaceState.ts`: revalidateInferenceConclusions にND対応統合
+  - Hilbert/ND を isHilbertInferenceEdge/isNdInferenceEdge で分岐
+  - EFQ成功時は既存ノードテキスト保持、通常ND成功時は結論テキスト上書き
+- `src/lib/proof-pad/workspaceState.test.ts`: +10統合テスト
+- `src/lib/proof-pad/index.ts`: 新エクスポート追加
+- テスト: 5705テスト全パス（+56テスト）
+- カバレッジ: Stmts 98.26%(↑from 98.23%), Branch 91.67%(↑from 91.63%), Funcs 88.97%(↓0.26% from 89.23%), Lines 99.16%(↑from 99.14%)
+  - Funcs微減はndApplicationLogicの一部ヘルパー関数がエクスポートのみで外部テストカバー待ち
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: `.screenshots/nd-004-workspace-full.png` 確認OK
+- 変更ファイル:
+  - `src/lib/proof-pad/ndApplicationLogic.ts` (新規)
+  - `src/lib/proof-pad/ndApplicationLogic.test.ts` (新規)
+  - `src/lib/proof-pad/workspaceState.ts` (ND対応統合)
+  - `src/lib/proof-pad/workspaceState.test.ts` (+10テスト)
+  - `src/lib/proof-pad/index.ts` (エクスポート追加)
+- **今後のイテレーションへの学び:**
+  - 結論を自動計算できない規則（EFQ等）は、Successの discriminated union で別型を返し、呼び出し側で分岐する
+  - `@luma-dev/luma-ts/no-explicit-return-is` がある環境では、type guard を `_tag` 直接チェックに統一すると TypeScript 5.5 の auto-narrowing が正しく効く
+  - NdInferenceEdge 型は import 不要 — `isNdInferenceEdge(edge)` の auto-narrowing で十分
+  - ND validation は mpApplicationLogic.ts パターンに準拠（3層: 純粋バリデーション → 状態管理 → UI）
 ---
 
 ## 2026-03-01 - quest ゴールチェック検証を Effect パイプラインに (ET-010)
