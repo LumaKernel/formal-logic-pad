@@ -1,3 +1,4 @@
+import { Either } from "effect";
 import { describe, it, expect } from "vitest";
 import {
   applyModusPonens,
@@ -54,6 +55,8 @@ import {
   predicateLogicSystem,
   equalityLogicSystem,
   type TheoryAxiom,
+  type RuleApplicationResult,
+  type AxiomMatchResult,
 } from "./inferenceRule";
 import {
   metaVariable,
@@ -78,6 +81,30 @@ import { buildFormulaSubstitutionMap } from "./substitution";
 
 // ── ヘルパー ──────────────────────────────────────────────
 
+const expectRuleOk = (result: RuleApplicationResult) => {
+  expect(Either.isRight(result)).toBe(true);
+  if (!Either.isRight(result)) throw new Error("Expected Right (Ok)");
+  return result.right;
+};
+
+const expectRuleErr = (result: RuleApplicationResult) => {
+  expect(Either.isLeft(result)).toBe(true);
+  if (!Either.isLeft(result)) throw new Error("Expected Left (Error)");
+  return result.left;
+};
+
+const expectMatchOk = (result: AxiomMatchResult) => {
+  expect(Either.isRight(result)).toBe(true);
+  if (!Either.isRight(result)) throw new Error("Expected Right (Ok)");
+  return result.right;
+};
+
+const expectMatchErr = (result: AxiomMatchResult) => {
+  expect(Either.isLeft(result)).toBe(true);
+  if (!Either.isLeft(result)) throw new Error("Expected Left (Error)");
+  return result.left;
+};
+
 const phi = metaVariable("φ");
 const psi = metaVariable("ψ");
 const chi = metaVariable("χ");
@@ -91,11 +118,9 @@ const a = constant("a");
 describe("applyModusPonens", () => {
   it("should derive ψ from φ and φ→ψ", () => {
     const result = applyModusPonens(phi, implication(phi, psi));
-    expect(result._tag).toBe("Ok");
-    if (result._tag === "Ok") {
-      expect(result.conclusion._tag).toBe("MetaVariable");
-      expect((result.conclusion as typeof psi).name).toBe("ψ");
-    }
+    const ok = expectRuleOk(result);
+    expect(ok.conclusion._tag).toBe("MetaVariable");
+    expect((ok.conclusion as typeof psi).name).toBe("ψ");
   });
 
   it("should derive complex conclusion from MP", () => {
@@ -103,44 +128,34 @@ describe("applyModusPonens", () => {
     const pa = predicate("P", [a]);
     const qa = predicate("Q", [a]);
     const result = applyModusPonens(pa, implication(pa, qa));
-    expect(result._tag).toBe("Ok");
-    if (result._tag === "Ok") {
-      expect(result.conclusion._tag).toBe("Predicate");
-    }
+    const ok = expectRuleOk(result);
+    expect(ok.conclusion._tag).toBe("Predicate");
   });
 
   it("should fail if conditional is not an implication", () => {
     const result = applyModusPonens(phi, phi);
-    expect(result._tag).toBe("Error");
-    if (result._tag === "Error") {
-      expect(result.error._tag).toBe("NotAnImplication");
-    }
+    const error = expectRuleErr(result);
+    expect(error._tag).toBe("NotAnImplication");
   });
 
   it("should fail if antecedent does not match", () => {
     const result = applyModusPonens(psi, implication(phi, chi));
-    expect(result._tag).toBe("Error");
-    if (result._tag === "Error") {
-      expect(result.error._tag).toBe("PremiseMismatch");
-    }
+    const error = expectRuleErr(result);
+    expect(error._tag).toBe("PremiseMismatch");
   });
 
   it("should handle nested implications", () => {
     // (φ→ψ) と (φ→ψ)→χ から χ
     const phiToPsi = implication(phi, psi);
     const result = applyModusPonens(phiToPsi, implication(phiToPsi, chi));
-    expect(result._tag).toBe("Ok");
-    if (result._tag === "Ok") {
-      expect(result.conclusion).toBe(chi);
-    }
+    const ok = expectRuleOk(result);
+    expect(ok.conclusion).toBe(chi);
   });
 
   it("should fail with negation as conditional", () => {
     const result = applyModusPonens(phi, negation(phi));
-    expect(result._tag).toBe("Error");
-    if (result._tag === "Error") {
-      expect(result.error._tag).toBe("NotAnImplication");
-    }
+    const error = expectRuleErr(result);
+    expect(error._tag).toBe("NotAnImplication");
   });
 });
 
@@ -149,27 +164,21 @@ describe("applyModusPonens", () => {
 describe("applyGeneralization", () => {
   it("should derive ∀x.φ from φ when Gen is enabled", () => {
     const result = applyGeneralization(phi, x, predicateLogicSystem);
-    expect(result._tag).toBe("Ok");
-    if (result._tag === "Ok") {
-      expect(result.conclusion._tag).toBe("Universal");
-    }
+    const ok = expectRuleOk(result);
+    expect(ok.conclusion._tag).toBe("Universal");
   });
 
   it("should derive ∀x.P(x) from P(x)", () => {
     const px = predicate("P", [x]);
     const result = applyGeneralization(px, x, predicateLogicSystem);
-    expect(result._tag).toBe("Ok");
-    if (result._tag === "Ok") {
-      expect(result.conclusion._tag).toBe("Universal");
-    }
+    const ok = expectRuleOk(result);
+    expect(ok.conclusion._tag).toBe("Universal");
   });
 
   it("should fail when Gen is not enabled", () => {
     const result = applyGeneralization(phi, x, lukasiewiczSystem);
-    expect(result._tag).toBe("Error");
-    if (result._tag === "Error") {
-      expect(result.error._tag).toBe("GeneralizationNotEnabled");
-    }
+    const error = expectRuleErr(result);
+    expect(error._tag).toBe("GeneralizationNotEnabled");
   });
 
   it("should allow generalization with any variable", () => {
@@ -178,10 +187,8 @@ describe("applyGeneralization", () => {
       y,
       predicateLogicSystem,
     );
-    expect(result._tag).toBe("Ok");
-    if (result._tag === "Ok") {
-      expect(result.conclusion._tag).toBe("Universal");
-    }
+    const ok = expectRuleOk(result);
+    expect(ok.conclusion._tag).toBe("Universal");
   });
 });
 
@@ -191,7 +198,7 @@ describe("matchPropositionalAxiom", () => {
   describe("A1: K公理 φ → (ψ → φ)", () => {
     it("should match the template itself", () => {
       const result = matchPropositionalAxiom("A1", axiomA1Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("should match a concrete instance: P(a) → (Q(a) → P(a))", () => {
@@ -199,7 +206,7 @@ describe("matchPropositionalAxiom", () => {
       const qa = predicate("Q", [a]);
       const instance = implication(pa, implication(qa, pa));
       const result = matchPropositionalAxiom("A1", instance);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("should match with negation: ¬φ → (ψ → ¬φ)", () => {
@@ -208,20 +215,20 @@ describe("matchPropositionalAxiom", () => {
         implication(psi, negation(phi)),
       );
       const result = matchPropositionalAxiom("A1", instance);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("should not match a non-instance", () => {
       const nonInstance = implication(phi, implication(psi, psi));
       const result = matchPropositionalAxiom("A1", nonInstance);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 
   describe("A2: S公理", () => {
     it("should match the template itself", () => {
       const result = matchPropositionalAxiom("A2", axiomA2Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("should match a concrete instance", () => {
@@ -234,20 +241,20 @@ describe("matchPropositionalAxiom", () => {
         implication(implication(p, q), implication(p, r)),
       );
       const result = matchPropositionalAxiom("A2", instance);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("should not match when structure differs", () => {
       const nonInstance = implication(phi, psi);
       const result = matchPropositionalAxiom("A2", nonInstance);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 
   describe("A3: 対偶公理 (¬φ → ¬ψ) → (ψ → φ)", () => {
     it("should match the template itself", () => {
       const result = matchPropositionalAxiom("A3", axiomA3Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("should match a concrete instance", () => {
@@ -258,7 +265,7 @@ describe("matchPropositionalAxiom", () => {
         implication(q, p),
       );
       const result = matchPropositionalAxiom("A3", instance);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("should not match when structure differs", () => {
@@ -267,14 +274,14 @@ describe("matchPropositionalAxiom", () => {
         implication(psi, phi),
       );
       const result = matchPropositionalAxiom("A3", nonInstance);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 
   describe("M3: 背理法 (¬φ → ¬ψ) → ((¬φ → ψ) → φ)", () => {
     it("should match the template itself", () => {
       const result = matchPropositionalAxiom("M3", axiomM3Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("should match a concrete instance", () => {
@@ -286,17 +293,17 @@ describe("matchPropositionalAxiom", () => {
         implication(implication(negation(p), q), p),
       );
       const result = matchPropositionalAxiom("M3", instance);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("should not match A3 template (A3 ≠ M3)", () => {
       const result = matchPropositionalAxiom("M3", axiomA3Template);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
 
     it("A3 should not match M3 template", () => {
       const result = matchPropositionalAxiom("A3", axiomM3Template);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
 
     it("should not match when structure differs", () => {
@@ -305,14 +312,14 @@ describe("matchPropositionalAxiom", () => {
         implication(psi, phi),
       );
       const result = matchPropositionalAxiom("M3", nonInstance);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 
   describe("EFQ: 爆発原理 ¬φ → (φ → ψ)", () => {
     it("should match the template itself", () => {
       const result = matchPropositionalAxiom("EFQ", axiomEFQTemplate);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("should match a concrete instance", () => {
@@ -321,31 +328,31 @@ describe("matchPropositionalAxiom", () => {
       // ¬P → (P → Q)
       const instance = implication(negation(p), implication(p, q));
       const result = matchPropositionalAxiom("EFQ", instance);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("should not match A3 template", () => {
       const result = matchPropositionalAxiom("EFQ", axiomA3Template);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
 
     it("A3 should not match EFQ template", () => {
       const result = matchPropositionalAxiom("A3", axiomEFQTemplate);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
 
     it("should not match when structure differs", () => {
       // φ → (¬φ → ψ) ≠ ¬φ → (φ → ψ)
       const nonInstance = implication(phi, implication(negation(phi), psi));
       const result = matchPropositionalAxiom("EFQ", nonInstance);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 
   describe("DNE: 二重否定除去 ¬¬φ → φ", () => {
     it("should match the template itself", () => {
       const result = matchPropositionalAxiom("DNE", axiomDNETemplate);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("should match a concrete instance", () => {
@@ -353,24 +360,24 @@ describe("matchPropositionalAxiom", () => {
       // ¬¬P → P
       const instance = implication(negation(negation(p)), p);
       const result = matchPropositionalAxiom("DNE", instance);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("should not match EFQ template", () => {
       const result = matchPropositionalAxiom("DNE", axiomEFQTemplate);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
 
     it("EFQ should not match DNE template", () => {
       const result = matchPropositionalAxiom("EFQ", axiomDNETemplate);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
 
     it("should not match when structure differs", () => {
       // φ → ¬¬φ ≠ ¬¬φ → φ
       const nonInstance = implication(phi, negation(negation(phi)));
       const result = matchPropositionalAxiom("DNE", nonInstance);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 });
@@ -384,7 +391,7 @@ describe("matchAxiomA4", () => {
       predicate("P", [a]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("should match ∀x.P(x) → P(x) (t=x, trivial substitution)", () => {
@@ -393,7 +400,7 @@ describe("matchAxiomA4", () => {
       predicate("P", [x]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("should match ∀x.Q(x,y) → Q(f(z),y)", () => {
@@ -403,7 +410,7 @@ describe("matchAxiomA4", () => {
       predicate("Q", [fz, y]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("should match ∀x.(P(x)→Q(x)) → (P(a)→Q(a))", () => {
@@ -412,7 +419,7 @@ describe("matchAxiomA4", () => {
       implication(predicate("P", [a]), predicate("Q", [a])),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("should match when variable doesn't appear free in body", () => {
@@ -422,17 +429,17 @@ describe("matchAxiomA4", () => {
       predicate("P", [a]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("should not match non-implication", () => {
     const result = matchAxiomA4(phi);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("should not match when left is not universal", () => {
     const result = matchAxiomA4(implication(phi, psi));
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("should not match when substitution is inconsistent", () => {
@@ -443,7 +450,7 @@ describe("matchAxiomA4", () => {
       predicate("P", [a, b]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("should match with binary operations: ∀x.(x+0=x) → (a+0=a)", () => {
@@ -453,7 +460,7 @@ describe("matchAxiomA4", () => {
       equality(binaryOperation("+", a, zero), a),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("should match when body contains inner quantifier shadowing the bound variable: ∀x.(P(x) ∧ ∀x.Q(x)) → (P(a) ∧ ∀x.Q(x))", () => {
@@ -466,7 +473,7 @@ describe("matchAxiomA4", () => {
       conjunction(pa, universal(x, qx)),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("should match with existential shadowing: ∀x.(P(x) ∧ ∃x.Q(x)) → (P(a) ∧ ∃x.Q(x))", () => {
@@ -478,7 +485,7 @@ describe("matchAxiomA4", () => {
       conjunction(pa, existential(x, qx)),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 });
 
@@ -493,7 +500,7 @@ describe("matchAxiomA5", () => {
       implication(py, universal(x, qx)),
     );
     const result = matchAxiomA5(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("should reject when x ∈ FV(φ): ∀x.(P(x)→Q(x)) → (P(x) → ∀x.Q(x))", () => {
@@ -504,27 +511,25 @@ describe("matchAxiomA5", () => {
       implication(px, universal(x, qx)),
     );
     const result = matchAxiomA5(instance);
-    expect(result._tag).toBe("Error");
-    if (result._tag === "Error") {
-      expect(result.error._tag).toBe("A5VariableFreeInAntecedent");
-    }
+    const error = expectMatchErr(result);
+    expect(error._tag).toBe("A5VariableFreeInAntecedent");
   });
 
   it("should not match non-implication", () => {
     const result = matchAxiomA5(phi);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("should not match when left is not universal", () => {
     const result = matchAxiomA5(implication(phi, psi));
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("should not match when inner body is not implication", () => {
     const result = matchAxiomA5(
       implication(universal(x, predicate("P", [x])), psi),
     );
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("should not match when antecedents differ", () => {
@@ -536,7 +541,7 @@ describe("matchAxiomA5", () => {
       implication(pz, universal(x, qx)),
     );
     const result = matchAxiomA5(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("should not match when bound variables differ", () => {
@@ -547,7 +552,7 @@ describe("matchAxiomA5", () => {
       implication(py, universal(y, qx)),
     );
     const result = matchAxiomA5(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("should not match when consequents differ", () => {
@@ -559,7 +564,7 @@ describe("matchAxiomA5", () => {
       implication(py, universal(x, rx)),
     );
     const result = matchAxiomA5(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("should not match when right conclusion is not universal", () => {
@@ -570,7 +575,7 @@ describe("matchAxiomA5", () => {
       implication(py, qx),
     );
     const result = matchAxiomA5(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("should not match when right side is not implication", () => {
@@ -579,7 +584,7 @@ describe("matchAxiomA5", () => {
     const qx = predicate("Q", [x]);
     const instance = implication(universal(x, implication(py, qx)), qx);
     const result = matchAxiomA5(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 });
 
@@ -589,26 +594,26 @@ describe("matchEqualityAxiom", () => {
   describe("E1: 反射律 ∀x. x = x", () => {
     it("should match the template", () => {
       const result = matchEqualityAxiom("E1", axiomE1Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("should not match a non-instance", () => {
       const result = matchEqualityAxiom("E1", phi);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 
   describe("E2: 対称律 ∀x.∀y. x = y → y = x", () => {
     it("should match the template", () => {
       const result = matchEqualityAxiom("E2", axiomE2Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
   });
 
   describe("E3: 推移律 ∀x.∀y.∀z. x = y → (y = z → x = z)", () => {
     it("should match the template", () => {
       const result = matchEqualityAxiom("E3", axiomE3Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
   });
 });
@@ -940,8 +945,7 @@ describe("integration: φ→φ proof", () => {
         implication(phi, phi),
       ),
     );
-    const a2Result = matchPropositionalAxiom("A2", a2Instance);
-    expect(a2Result._tag).toBe("Ok");
+    expectMatchOk(matchPropositionalAxiom("A2", a2Instance));
 
     // ステップ2: A1 インスタンス (a)
     // φ → ((φ→φ) → φ)
@@ -949,31 +953,25 @@ describe("integration: φ→φ proof", () => {
       phi,
       implication(implication(phi, phi), phi),
     );
-    const a1aResult = matchPropositionalAxiom("A1", a1InstanceA);
-    expect(a1aResult._tag).toBe("Ok");
+    expectMatchOk(matchPropositionalAxiom("A1", a1InstanceA));
 
     // ステップ3: MP (A2 instance + A1 instance a)
     // A2 instance の left = A1 instance a
     const mp1Result = applyModusPonens(a1InstanceA, a2Instance);
-    expect(mp1Result._tag).toBe("Ok");
+    const mp1Ok = expectRuleOk(mp1Result);
     // 結果: (φ→(φ→φ)) → (φ→φ)
-    if (mp1Result._tag === "Ok") {
-      const mp1Conclusion = mp1Result.conclusion;
+    const mp1Conclusion = mp1Ok.conclusion;
 
-      // ステップ4: A1 インスタンス (b)
-      // φ → (φ → φ)
-      const a1InstanceB = implication(phi, implication(phi, phi));
-      const a1bResult = matchPropositionalAxiom("A1", a1InstanceB);
-      expect(a1bResult._tag).toBe("Ok");
+    // ステップ4: A1 インスタンス (b)
+    // φ → (φ → φ)
+    const a1InstanceB = implication(phi, implication(phi, phi));
+    expectMatchOk(matchPropositionalAxiom("A1", a1InstanceB));
 
-      // ステップ5: MP (step3 result + A1 instance b)
-      const mp2Result = applyModusPonens(a1InstanceB, mp1Conclusion);
-      expect(mp2Result._tag).toBe("Ok");
-      // 結果: φ→φ
-      if (mp2Result._tag === "Ok") {
-        expect(mp2Result.conclusion._tag).toBe("Implication");
-      }
-    }
+    // ステップ5: MP (step3 result + A1 instance b)
+    const mp2Result = applyModusPonens(a1InstanceB, mp1Conclusion);
+    const mp2Ok = expectRuleOk(mp2Result);
+    // 結果: φ→φ
+    expect(mp2Ok.conclusion._tag).toBe("Implication");
   });
 });
 
@@ -1010,7 +1008,7 @@ describe("axiom templates", () => {
 describe("edge cases", () => {
   it("MP with identical antecedent and conclusion", () => {
     const result = applyModusPonens(phi, implication(phi, phi));
-    expect(result._tag).toBe("Ok");
+    expectRuleOk(result);
   });
 
   it("A4 with function application replacement", () => {
@@ -1022,14 +1020,14 @@ describe("edge cases", () => {
     );
     const result = matchAxiomA4(instance);
     // ∀x.P(f(x)) → P(f(f(a))): x ↦ f(a)
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("A4 with equality", () => {
     // ∀x.(x = a) → (y = a)
     const instance = implication(universal(x, equality(x, a)), equality(y, a));
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("identifyAxiom prefers A1 over other axioms for matching instances", () => {
@@ -1048,7 +1046,7 @@ describe("edge cases", () => {
       universal(x, predicate("P", [x])),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("A4 with negation in body", () => {
@@ -1058,7 +1056,7 @@ describe("edge cases", () => {
       negation(predicate("P", [a])),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("A4 with conjunction in body", () => {
@@ -1068,7 +1066,7 @@ describe("edge cases", () => {
       conjunction(predicate("P", [a]), predicate("Q", [a])),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("A4 with disjunction in body", () => {
@@ -1077,7 +1075,7 @@ describe("edge cases", () => {
       disjunction(predicate("P", [a]), predicate("Q", [a])),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("A4 with biconditional in body", () => {
@@ -1086,7 +1084,7 @@ describe("edge cases", () => {
       biconditional(predicate("P", [a]), predicate("Q", [a])),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("A4 with existential quantifier in body", () => {
@@ -1096,7 +1094,7 @@ describe("edge cases", () => {
       existential(y, predicate("P", [a, y])),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("A4 with meta variable in body", () => {
@@ -1106,7 +1104,7 @@ describe("edge cases", () => {
       implication(phi, predicate("P", [a])),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("A4 with constant and term meta variable in body", () => {
@@ -1118,7 +1116,7 @@ describe("edge cases", () => {
       predicate("P", [a, c, tau]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("A4 with binary operation in replacement", () => {
@@ -1130,7 +1128,7 @@ describe("edge cases", () => {
       predicate("P", [aplusb]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("A4 with conjunction template (via inferTermReplacement)", () => {
@@ -1140,7 +1138,7 @@ describe("edge cases", () => {
       conjunction(predicate("P", [a]), predicate("Q", [a])),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("identifyAxiom with E2", () => {
@@ -1164,32 +1162,32 @@ describe("edge cases", () => {
   it("E1 template is exact match (no meta variables)", () => {
     // E1: ∀x. x=x — template uses concrete TermVariables, so only exact match works
     const result = matchEqualityAxiom("E1", axiomE1Template);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("E1 rejects non-matching variable name", () => {
     // E1: ∀x. x=x template won't match ∀y. y=y because x≠y (concrete var matching)
     const instance = universal(y, equality(y, y));
     const result = matchEqualityAxiom("E1", instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("E2 exact match", () => {
     // E2: ∀x.∀y. x=y → y=x
     const result = matchEqualityAxiom("E2", axiomE2Template);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   // ── A4 エラー分岐のカバレッジ ─────────────────────────────
 
   it("A4 rejects non-implication", () => {
     const result = matchAxiomA4(phi);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("A4 rejects implication with non-universal left", () => {
     const result = matchAxiomA4(implication(phi, psi));
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("A4 rejects when substitution yields different result", () => {
@@ -1199,7 +1197,7 @@ describe("edge cases", () => {
       predicate("Q", [a]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("A4 with substitution that is not free-for", () => {
@@ -1209,10 +1207,8 @@ describe("edge cases", () => {
       universal(y, predicate("P", [y, y])),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Error");
-    if (result._tag === "Error") {
-      expect(result.error._tag).toBe("SubstitutionNotFreeFor");
-    }
+    const error = expectMatchErr(result);
+    expect(error._tag).toBe("SubstitutionNotFreeFor");
   });
 
   // ── inferTermReplacement カバレッジ ────────────────────────
@@ -1224,7 +1220,7 @@ describe("edge cases", () => {
       universal(y, predicate("P", [y, a])),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("A4 rejects when predicate names differ in body vs target", () => {
@@ -1234,7 +1230,7 @@ describe("edge cases", () => {
       predicate("Q", [a]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("A4 rejects when predicate arity differs", () => {
@@ -1245,7 +1241,7 @@ describe("edge cases", () => {
       predicate("P", [a, b]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("A4 with function application mismatch in body", () => {
@@ -1257,7 +1253,7 @@ describe("edge cases", () => {
       predicate("P", [ga]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("A4 with function arity mismatch in body", () => {
@@ -1270,7 +1266,7 @@ describe("edge cases", () => {
       predicate("P", [fab]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("A4 with binary operation mismatch (wrong operator)", () => {
@@ -1282,7 +1278,7 @@ describe("edge cases", () => {
       predicate("P", [atimesa]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("A4 with binary operation mismatch (wrong type)", () => {
@@ -1294,7 +1290,7 @@ describe("edge cases", () => {
       predicate("P", [fa]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("A4 with variable mismatch in non-target position", () => {
@@ -1304,7 +1300,7 @@ describe("edge cases", () => {
       predicate("P", [a, z]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("A4 where body has no free occurrence of bound var (identity case)", () => {
@@ -1314,7 +1310,7 @@ describe("edge cases", () => {
       predicate("P", [a]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("A4 where body has no free var and conclusion differs", () => {
@@ -1325,7 +1321,7 @@ describe("edge cases", () => {
       predicate("P", [b]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("A4 with quantifier variable mismatch in body", () => {
@@ -1335,7 +1331,7 @@ describe("edge cases", () => {
       universal(z, predicate("P", [a, z])),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("A4 where bound var shadows outer in body (equalFormula path)", () => {
@@ -1346,7 +1342,7 @@ describe("edge cases", () => {
       universal(x, predicate("P", [x])),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 
   it("A4 with function application type mismatch in inferTermReplacement", () => {
@@ -1358,7 +1354,7 @@ describe("edge cases", () => {
       predicate("P", [fa]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("A4 with function application vs non-function in target", () => {
@@ -1370,7 +1366,7 @@ describe("edge cases", () => {
     );
     const result = matchAxiomA4(instance);
     // f(x) with x->a would give f(a), but target position has just a (not f(a))
-    expect(result._tag).toBe("Error");
+    expectMatchErr(result);
   });
 
   it("A4 with function application in body and matching target (covers inferTermReplacement matchTerm)", () => {
@@ -1382,7 +1378,7 @@ describe("edge cases", () => {
       predicate("P", [fa, a]),
     );
     const result = matchAxiomA4(instance);
-    expect(result._tag).toBe("Ok");
+    expectMatchOk(result);
   });
 });
 
@@ -1540,13 +1536,13 @@ describe("ペアノ算術公理テンプレート", () => {
 
     it("正しいインスタンスとexactマッチする", () => {
       const result = matchTheoryAxiom(peanoFixedAxioms[0], axiomPA1Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("異なる式はマッチしない", () => {
       const wrong = universal(x, equality(succOfX, zero)); // ¬ がない
       const result = matchTheoryAxiom(peanoFixedAxioms[0], wrong);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 
@@ -1560,7 +1556,7 @@ describe("ペアノ算術公理テンプレート", () => {
 
     it("正しいインスタンスとexactマッチする", () => {
       const result = matchTheoryAxiom(peanoFixedAxioms[1], axiomPA2Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("異なる式はマッチしない", () => {
@@ -1570,7 +1566,7 @@ describe("ペアノ算術公理テンプレート", () => {
         universal(y, implication(equality(succOfX, succOfY), equality(y, x))),
       );
       const result = matchTheoryAxiom(peanoFixedAxioms[1], wrong);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 
@@ -1584,7 +1580,7 @@ describe("ペアノ算術公理テンプレート", () => {
 
     it("正しいインスタンスとexactマッチする", () => {
       const result = matchTheoryAxiom(peanoFixedAxioms[2], axiomPA3Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
   });
 
@@ -1595,7 +1591,7 @@ describe("ペアノ算術公理テンプレート", () => {
 
     it("正しいインスタンスとexactマッチする", () => {
       const result = matchTheoryAxiom(peanoFixedAxioms[3], axiomPA4Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
   });
 
@@ -1606,7 +1602,7 @@ describe("ペアノ算術公理テンプレート", () => {
 
     it("正しいインスタンスとexactマッチする", () => {
       const result = matchTheoryAxiom(peanoFixedAxioms[4], axiomPA5Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
   });
 
@@ -1617,7 +1613,7 @@ describe("ペアノ算術公理テンプレート", () => {
 
     it("正しいインスタンスとexactマッチする", () => {
       const result = matchTheoryAxiom(peanoFixedAxioms[5], axiomPA6Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
   });
 });
@@ -1840,7 +1836,7 @@ describe("matchTheoryAxiom", () => {
         matchMode: "exact",
       };
       const result = matchTheoryAxiom(axiom, axiomPA1Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("不一致でErrorを返す", () => {
@@ -1852,7 +1848,7 @@ describe("matchTheoryAxiom", () => {
         matchMode: "exact",
       };
       const result = matchTheoryAxiom(axiom, axiomPA2Template);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 
@@ -1870,7 +1866,7 @@ describe("matchTheoryAxiom", () => {
       const px = predicate("P", [x]);
       const candidate = implication(px, px);
       const result = matchTheoryAxiom(axiom, candidate);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("パターン不一致でErrorを返す", () => {
@@ -1884,7 +1880,7 @@ describe("matchTheoryAxiom", () => {
       // 候補: P(x) → Q(x) — φ が P(x) と Q(x) で矛盾
       const candidate = implication(predicate("P", [x]), predicate("Q", [x]));
       const result = matchTheoryAxiom(axiom, candidate);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 });
@@ -1907,7 +1903,7 @@ describe("群論公理テンプレート", () => {
 
     it("正しいインスタンスとexactマッチする", () => {
       const result = matchTheoryAxiom(groupLeftAxioms[0], axiomG1Template);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("異なる結合でマッチしない", () => {
@@ -1926,7 +1922,7 @@ describe("群論公理テンプレート", () => {
         ),
       );
       const result = matchTheoryAxiom(groupLeftAxioms[0], wrong);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 
@@ -1940,14 +1936,14 @@ describe("群論公理テンプレート", () => {
 
     it("正しいインスタンスとexactマッチする", () => {
       const result = matchTheoryAxiom(groupLeftAxioms[1], axiomG2LTemplate);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("右単位元とマッチしない", () => {
       // x * e = x
       const wrong = universal(x, equality(binaryOperation("*", x, e), x));
       const result = matchTheoryAxiom(groupLeftAxioms[1], wrong);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 
@@ -1960,7 +1956,7 @@ describe("群論公理テンプレート", () => {
       const g2r = groupFullAxioms.find((a) => a.id === "G2R");
       expect(g2r).toBeDefined();
       const result = matchTheoryAxiom(g2r!, axiomG2RTemplate);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
   });
 
@@ -1974,14 +1970,14 @@ describe("群論公理テンプレート", () => {
 
     it("正しいインスタンスとexactマッチする", () => {
       const result = matchTheoryAxiom(groupLeftAxioms[2], axiomG3LTemplate);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("右逆元とマッチしない", () => {
       // x * i(x) = e
       const wrong = universal(x, equality(binaryOperation("*", x, invX), e));
       const result = matchTheoryAxiom(groupLeftAxioms[2], wrong);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 
@@ -1994,7 +1990,7 @@ describe("群論公理テンプレート", () => {
       const g3r = groupFullAxioms.find((a) => a.id === "G3R");
       expect(g3r).toBeDefined();
       const result = matchTheoryAxiom(g3r!, axiomG3RTemplate);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
   });
 
@@ -2010,7 +2006,7 @@ describe("群論公理テンプレート", () => {
       const g4 = abelianGroupAxioms.find((a) => a.id === "G4");
       expect(g4).toBeDefined();
       const result = matchTheoryAxiom(g4!, axiomG4CommTemplate);
-      expect(result._tag).toBe("Ok");
+      expectMatchOk(result);
     });
 
     it("異なる式はマッチしない", () => {
@@ -2025,7 +2021,7 @@ describe("群論公理テンプレート", () => {
       const g4 = abelianGroupAxioms.find((a) => a.id === "G4");
       expect(g4).toBeDefined();
       const result = matchTheoryAxiom(g4!, wrong);
-      expect(result._tag).toBe("Error");
+      expectMatchErr(result);
     });
   });
 });

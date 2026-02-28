@@ -17,6 +17,7 @@ import type { MPApplicationError } from "./mpApplicationLogic";
 import type { GenApplicationError } from "./genApplicationLogic";
 import type { SubstitutionApplicationError } from "./substitutionApplicationLogic";
 import { metaVariable } from "../logic-core/formula";
+import { NotAnImplication, PremiseMismatch } from "../logic-core/inferenceRule";
 
 describe("defaultProofMessages", () => {
   it("should have non-empty string values for all keys", () => {
@@ -73,7 +74,7 @@ describe("getMPErrorMessageKey", () => {
     const phi = metaVariable("φ");
     const error: MPApplicationError = {
       _tag: "RuleError",
-      error: { _tag: "NotAnImplication", formula: phi },
+      error: new NotAnImplication({ formula: phi }),
     };
     expect(getMPErrorMessageKey(error)).toBe("mpErrorNotImplication");
   });
@@ -83,11 +84,7 @@ describe("getMPErrorMessageKey", () => {
     const psi = metaVariable("ψ");
     const error: MPApplicationError = {
       _tag: "RuleError",
-      error: {
-        _tag: "PremiseMismatch",
-        expected: phi,
-        actual: psi,
-      },
+      error: new PremiseMismatch({ expected: phi, actual: psi }),
     };
     expect(getMPErrorMessageKey(error)).toBe("mpErrorPremiseMismatch");
   });
@@ -103,11 +100,11 @@ describe("getMPErrorMessageKey", () => {
       { _tag: "RightParseError", nodeId: "x" },
       {
         _tag: "RuleError",
-        error: { _tag: "NotAnImplication", formula: phi },
+        error: new NotAnImplication({ formula: phi }),
       },
       {
         _tag: "RuleError",
-        error: { _tag: "PremiseMismatch", expected: phi, actual: psi },
+        error: new PremiseMismatch({ expected: phi, actual: psi }),
       },
     ];
 

@@ -6064,3 +6064,19 @@
   - `instanceof` でEffect.ts TaggedClassの型判定可能（Universal, Existentialなど）。liftQuantifiersFromBinaryで活用
   - 述語論理のNNFは命題論理のNNFとは別関数（toPredicateNNF）で実装。既存のtoNNFは命題論理専用のまま維持
 ---
+
+## 2026-02-28 - ET-001: logic-core エラー型を Data.TaggedError に統一
+- `unification.ts`: `UnificationError` (3バリアント: StructureMismatch, OccursCheck, TagMismatch) を `Data.TaggedError` クラスに変換。`UnificationResult` を `Either.Either<UnificationSuccess, UnificationError>` に変換
+- `inferenceRule.ts`: `RuleApplicationError` (10バリアント) を `Data.TaggedError` クラスに変換。`RuleApplicationResult` と `AxiomMatchResult` を `Either` に変換。`AxiomIdentificationResult` は3方向分岐のため plain discriminated union のまま維持
+- 依存先修正: `proofTree.ts`, `mpApplicationLogic.ts`, `genApplicationLogic.ts` を `Either.isLeft`/`Either.isRight` パターンに更新
+- テスト修正: `inferenceRule.test.ts` (226テスト), `unification.test.ts`, `mpApplicationLogic.test.ts`, `proofMessages.test.ts` を更新
+- 変更ファイル: `inferenceRule.ts`, `unification.ts`, `index.ts`, `proofTree.ts`, `mpApplicationLogic.ts`, `genApplicationLogic.ts`, `inferenceRule.test.ts`, `unification.test.ts`, `mpApplicationLogic.test.ts`, `proofMessages.test.ts`
+- カバレッジ: Statements 98.58% → 98.58%（変化なし）, Lines 99.34% → 99.34%（変化なし）
+- **今後のイテレーションへの学び:**
+  - `Data.TaggedError("X")<{}>` は ESLint `no-empty-object-type` に引っかかる。`Record<string, never>` を使う
+  - `Record<string, never>` を使った場合、コンストラクタには `new X({})` が必要（引数省略不可）
+  - `Data.TaggedError` のインスタンスは `_tag` プロパティを持つので、既存の `switch (error._tag)` パターンはそのまま動作する
+  - `AxiomIdentificationResult` のような3方向以上の分岐は `Either` では表現しにくい。plain discriminated union のまま残してよい
+  - 依存先の `result._tag === "Error"` → `Either.isLeft(result)`, `result.conclusion` → `result.right.conclusion` のパターン変換が必要
+  - テストで `RuleApplicationError` のインスタンスを作る場合は `new NotAnImplication({...})` 形式にする必要がある（plain object は型エラー）
+---

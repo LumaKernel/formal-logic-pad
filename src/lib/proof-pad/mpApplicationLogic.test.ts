@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { lukasiewiczSystem } from "../logic-core/inferenceRule";
+import {
+  lukasiewiczSystem,
+  NotAnImplication,
+  PremiseMismatch,
+} from "../logic-core/inferenceRule";
 import { metaVariable } from "../logic-core/formula";
 import { createEmptyWorkspace, addNode, addConnection } from "./workspaceState";
 import {
@@ -731,7 +735,7 @@ describe("mpApplicationLogic", () => {
       expect(
         getMPErrorMessage({
           _tag: "RuleError",
-          error: { _tag: "NotAnImplication", formula: metaVariable("φ") },
+          error: new NotAnImplication({ formula: metaVariable("φ") }),
         }),
       ).toBe("Right premise must be an implication (φ→ψ)");
     });
@@ -740,11 +744,10 @@ describe("mpApplicationLogic", () => {
       expect(
         getMPErrorMessage({
           _tag: "RuleError",
-          error: {
-            _tag: "PremiseMismatch",
+          error: new PremiseMismatch({
             expected: metaVariable("φ"),
             actual: metaVariable("ψ"),
-          },
+          }),
         }),
       ).toBe("Left premise does not match antecedent of right premise");
     });

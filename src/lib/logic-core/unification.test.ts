@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { Either } from "effect";
 import {
   metaVariable,
   implication,
@@ -29,15 +30,15 @@ import type { UnificationResult } from "./unification";
 // ── ヘルパー ──────────────────────────────────────────────
 
 const expectOk = (result: UnificationResult) => {
-  expect(result._tag).toBe("Ok");
-  if (result._tag !== "Ok") throw new Error("Expected Ok");
-  return result;
+  expect(Either.isRight(result)).toBe(true);
+  if (!Either.isRight(result)) throw new Error("Expected Right (Ok)");
+  return result.right;
 };
 
 const expectError = (result: UnificationResult) => {
-  expect(result._tag).toBe("Error");
-  if (result._tag !== "Error") throw new Error("Expected Error");
-  return result;
+  expect(Either.isLeft(result)).toBe(true);
+  if (!Either.isLeft(result)) throw new Error("Expected Left (Error)");
+  return result.left;
 };
 
 /**
@@ -277,7 +278,7 @@ describe("unifyFormulas", () => {
       const target = implication(predicate("P", [x]), predicate("Q", [y]));
       const result = unifyFormulas(source, target);
       const error = expectError(result);
-      expect(error.error._tag).toBe("StructureMismatch");
+      expect(error._tag).toBe("StructureMismatch");
     });
 
     it("例4: 失敗（occurs check: φ = φ→ψ）", () => {
@@ -285,7 +286,7 @@ describe("unifyFormulas", () => {
       const target = implication(phi, psi);
       const result = unifyFormulas(source, target);
       const error = expectError(result);
-      expect(error.error._tag).toBe("OccursCheck");
+      expect(error._tag).toBe("OccursCheck");
     });
 
     it("例5: S公理スキーマのマッチング", () => {
@@ -348,13 +349,13 @@ describe("unifyFormulas", () => {
     it("直接的なoccurs check: φ = ¬φ", () => {
       const result = unifyFormulas(phi, negation(phi));
       const error = expectError(result);
-      expect(error.error._tag).toBe("OccursCheck");
+      expect(error._tag).toBe("OccursCheck");
     });
 
     it("間接的なoccurs check: φ = φ∧ψ", () => {
       const result = unifyFormulas(phi, conjunction(phi, psi));
       const error = expectError(result);
-      expect(error.error._tag).toBe("OccursCheck");
+      expect(error._tag).toBe("OccursCheck");
     });
 
     it("入れ子のoccurs check: φ = (ψ→φ)→χ", () => {
@@ -363,19 +364,19 @@ describe("unifyFormulas", () => {
         implication(implication(psi, phi), chi),
       );
       const error = expectError(result);
-      expect(error.error._tag).toBe("OccursCheck");
+      expect(error._tag).toBe("OccursCheck");
     });
 
     it("量化子内のoccurs check: φ = ∀x.φ", () => {
       const result = unifyFormulas(phi, universal(x, phi));
       const error = expectError(result);
-      expect(error.error._tag).toBe("OccursCheck");
+      expect(error._tag).toBe("OccursCheck");
     });
 
     it("存在量化子内のoccurs check: φ = ∃x.φ", () => {
       const result = unifyFormulas(phi, existential(x, phi));
       const error = expectError(result);
-      expect(error.error._tag).toBe("OccursCheck");
+      expect(error._tag).toBe("OccursCheck");
     });
   });
 
@@ -386,19 +387,19 @@ describe("unifyFormulas", () => {
         conjunction(predicate("P", [x]), predicate("Q", [y])),
       );
       const error = expectError(result);
-      expect(error.error._tag).toBe("StructureMismatch");
+      expect(error._tag).toBe("StructureMismatch");
     });
 
     it("異なる述語名", () => {
       const result = unifyFormulas(predicate("P", [x]), predicate("Q", [x]));
       const error = expectError(result);
-      expect(error.error._tag).toBe("StructureMismatch");
+      expect(error._tag).toBe("StructureMismatch");
     });
 
     it("述語の引数数不一致", () => {
       const result = unifyFormulas(predicate("P", [x]), predicate("P", [x, y]));
       const error = expectError(result);
-      expect(error.error._tag).toBe("StructureMismatch");
+      expect(error._tag).toBe("StructureMismatch");
     });
 
     it("量化子の束縛変数不一致", () => {
@@ -408,7 +409,7 @@ describe("unifyFormulas", () => {
       );
       // 束縛変数が異なる → 変数名の不一致
       const error = expectError(result);
-      expect(error.error._tag).toBe("StructureMismatch");
+      expect(error._tag).toBe("StructureMismatch");
     });
   });
 
@@ -520,7 +521,7 @@ describe("unifyFormulas", () => {
       // τ = f(τ) → 失敗
       const result = unifyTerms(tau, functionApplication("f", [tau]));
       const error = expectError(result);
-      expect(error.error._tag).toBe("OccursCheck");
+      expect(error._tag).toBe("OccursCheck");
     });
   });
 
@@ -660,13 +661,13 @@ describe("unifyTerms", () => {
     it("τ = f(τ)", () => {
       const result = unifyTerms(tau, functionApplication("f", [tau]));
       const error = expectError(result);
-      expect(error.error._tag).toBe("OccursCheck");
+      expect(error._tag).toBe("OccursCheck");
     });
 
     it("τ = τ + σ", () => {
       const result = unifyTerms(tau, binaryOperation("+", tau, sigma));
       const error = expectError(result);
-      expect(error.error._tag).toBe("OccursCheck");
+      expect(error._tag).toBe("OccursCheck");
     });
   });
 
@@ -674,13 +675,13 @@ describe("unifyTerms", () => {
     it("異なる変数名", () => {
       const result = unifyTerms(x, y);
       const error = expectError(result);
-      expect(error.error._tag).toBe("StructureMismatch");
+      expect(error._tag).toBe("StructureMismatch");
     });
 
     it("異なる定数名", () => {
       const result = unifyTerms(constant("0"), constant("1"));
       const error = expectError(result);
-      expect(error.error._tag).toBe("StructureMismatch");
+      expect(error._tag).toBe("StructureMismatch");
     });
 
     it("異なる関数名", () => {
@@ -689,7 +690,7 @@ describe("unifyTerms", () => {
         functionApplication("g", [x]),
       );
       const error = expectError(result);
-      expect(error.error._tag).toBe("StructureMismatch");
+      expect(error._tag).toBe("StructureMismatch");
     });
 
     it("異なる引数数", () => {
@@ -698,7 +699,7 @@ describe("unifyTerms", () => {
         functionApplication("f", [x, y]),
       );
       const error = expectError(result);
-      expect(error.error._tag).toBe("StructureMismatch");
+      expect(error._tag).toBe("StructureMismatch");
     });
 
     it("異なる二項演算子", () => {
@@ -707,19 +708,19 @@ describe("unifyTerms", () => {
         binaryOperation("*", x, y),
       );
       const error = expectError(result);
-      expect(error.error._tag).toBe("StructureMismatch");
+      expect(error._tag).toBe("StructureMismatch");
     });
 
     it("異なるタグ: 変数 vs 定数", () => {
       const result = unifyTerms(x, constant("a"));
       const error = expectError(result);
-      expect(error.error._tag).toBe("StructureMismatch");
+      expect(error._tag).toBe("StructureMismatch");
     });
 
     it("異なるタグ: 変数 vs 関数適用", () => {
       const result = unifyTerms(x, functionApplication("f", [y]));
       const error = expectError(result);
-      expect(error.error._tag).toBe("StructureMismatch");
+      expect(error._tag).toBe("StructureMismatch");
     });
   });
 
@@ -757,7 +758,7 @@ describe("unifyTerms", () => {
       const target = functionApplication("f", [x, y]);
       const result = unifyTerms(source, target);
       const error = expectError(result);
-      expect(error.error._tag).toBe("StructureMismatch");
+      expect(error._tag).toBe("StructureMismatch");
     });
   });
 

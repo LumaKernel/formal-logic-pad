@@ -7,6 +7,7 @@
  * 変更時は genApplicationLogic.test.ts, ProofWorkspace.tsx, workspaceState.ts, index.ts も同期すること。
  */
 
+import { Either } from "effect";
 import type { Formula } from "../logic-core/formula";
 import { applyGeneralization } from "../logic-core/inferenceRule";
 import { termVariable } from "../logic-core/term";
@@ -102,8 +103,8 @@ export function validateGenApplication(
   const variable = termVariable(variableName.trim());
   const result = applyGeneralization(premiseFormula, variable, state.system);
 
-  if (result._tag === "Error") {
-    if (result.error._tag === "GeneralizationNotEnabled") {
+  if (Either.isLeft(result)) {
+    if (result.left._tag === "GeneralizationNotEnabled") {
       return { _tag: "GeneralizationNotEnabled" };
     }
     /* v8 ignore start -- 防御的コード: GeneralizationNotEnabled以外のエラーは現時点では発生しない */
@@ -113,8 +114,8 @@ export function validateGenApplication(
 
   return {
     _tag: "Success",
-    conclusion: result.conclusion,
-    conclusionText: formatFormula(result.conclusion),
+    conclusion: result.right.conclusion,
+    conclusionText: formatFormula(result.right.conclusion),
   };
 }
 

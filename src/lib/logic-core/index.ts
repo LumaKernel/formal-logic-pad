@@ -112,8 +112,18 @@ export type {
 } from "./substitution";
 
 // ── Unification ─────────────────────────────────────────────
-export { unifyFormulas, unifyTerms } from "./unification";
-export type { UnificationResult, UnificationError } from "./unification";
+export {
+  unifyFormulas,
+  unifyTerms,
+  StructureMismatch,
+  OccursCheck,
+  TagMismatch,
+} from "./unification";
+export type {
+  UnificationResult,
+  UnificationError,
+  UnificationSuccess,
+} from "./unification";
 
 // ── Inference Rules ─────────────────────────────────────────
 export {
@@ -166,6 +176,16 @@ export {
   intuitionisticSystem,
   classicalLogicSystem,
   mendelsonSystem,
+  NotAnImplication,
+  PremiseMismatch,
+  NotAnAxiomInstance,
+  AxiomNotEnabled,
+  GeneralizationNotEnabled,
+  SubstitutionNotFreeFor,
+  VariableNotFreeInPremise,
+  EqualityNotEnabled,
+  NotAUniversal,
+  A5VariableFreeInAntecedent,
 } from "./inferenceRule";
 export type {
   PropositionalAxiomId,
@@ -176,7 +196,9 @@ export type {
   LogicSystem,
   RuleApplicationError,
   RuleApplicationResult,
+  RuleApplicationSuccess,
   AxiomMatchResult,
+  AxiomMatchSuccess,
   AxiomIdentificationResult,
 } from "./inferenceRule";
 
