@@ -7,7 +7,7 @@
  * 変更時は mpApplicationLogic.test.ts, ProofWorkspace.tsx, index.ts も同期すること。
  */
 
-import { Either } from "effect";
+import { Data, Either } from "effect";
 import type { Formula } from "../logic-core/formula";
 import { equalFormula } from "../logic-core/equality";
 import type { RuleApplicationError } from "../logic-core/inferenceRule";
@@ -26,25 +26,43 @@ export type MPPremiseState = {
 
 /** MP適用の成功結果 */
 export type MPApplicationSuccess = {
-  readonly _tag: "Success";
   readonly conclusion: Formula;
   readonly conclusionText: string;
 };
 
-/** MP適用のエラー */
-export type MPApplicationError =
-  | { readonly _tag: "LeftPremiseMissing" }
-  | { readonly _tag: "RightPremiseMissing" }
-  | { readonly _tag: "BothPremisesMissing" }
-  | { readonly _tag: "LeftParseError"; readonly nodeId: string }
-  | { readonly _tag: "RightParseError"; readonly nodeId: string }
-  | {
-      readonly _tag: "RuleError";
-      readonly error: RuleApplicationError;
-    };
+/** MP適用のエラー（Data.TaggedError） */
+export class LeftPremiseMissing extends Data.TaggedError(
+  "LeftPremiseMissing",
+)<Record<string, never>> {}
+export class RightPremiseMissing extends Data.TaggedError(
+  "RightPremiseMissing",
+)<Record<string, never>> {}
+export class BothPremisesMissing extends Data.TaggedError(
+  "BothPremisesMissing",
+)<Record<string, never>> {}
+export class LeftParseError extends Data.TaggedError("LeftParseError")<{
+  readonly nodeId: string;
+}> {}
+export class RightParseError extends Data.TaggedError("RightParseError")<{
+  readonly nodeId: string;
+}> {}
+export class MPRuleError extends Data.TaggedError("MPRuleError")<{
+  readonly error: RuleApplicationError;
+}> {}
 
-/** MP適用の結果型 */
-export type MPApplicationResult = MPApplicationSuccess | MPApplicationError;
+export type MPApplicationError =
+  | LeftPremiseMissing
+  | RightPremiseMissing
+  | BothPremisesMissing
+  | LeftParseError
+  | RightParseError
+  | MPRuleError;
+
+/** MP適用の結果型（Either: Right=成功, Left=エラー） */
+export type MPApplicationResult = Either.Either<
+  MPApplicationSuccess,
+  MPApplicationError
+>;
 
 // --- MPノードの前提接続を取得 ---
 
@@ -101,15 +119,15 @@ export function validateMPApplication(
 
   // 両方欠けている場合
   if (premises.leftNodeId === undefined && premises.rightNodeId === undefined) {
-    return { _tag: "BothPremisesMissing" };
+    return Either.left(new BothPremisesMissing({}));
   }
 
   // 片方が欠けている場合
   if (premises.leftNodeId === undefined) {
-    return { _tag: "LeftPremiseMissing" };
+    return Either.left(new LeftPremiseMissing({}));
   }
   if (premises.rightNodeId === undefined) {
-    return { _tag: "RightPremiseMissing" };
+    return Either.left(new RightPremiseMissing({}));
   }
 
   // ノードを取得
@@ -118,36 +136,35 @@ export function validateMPApplication(
 
   /* v8 ignore start -- 防御的コード: 接続があるがノードが削除済みのケース（通常到達不能） */
   if (!leftNode) {
-    return { _tag: "LeftPremiseMissing" };
+    return Either.left(new LeftPremiseMissing({}));
   }
   if (!rightNode) {
-    return { _tag: "RightPremiseMissing" };
+    return Either.left(new RightPremiseMissing({}));
   }
   /* v8 ignore stop */
 
   // パース
   const leftFormula = parseNodeFormula(leftNode);
   if (!leftFormula) {
-    return { _tag: "LeftParseError", nodeId: premises.leftNodeId };
+    return Either.left(new LeftParseError({ nodeId: premises.leftNodeId }));
   }
 
   const rightFormula = parseNodeFormula(rightNode);
   if (!rightFormula) {
-    return { _tag: "RightParseError", nodeId: premises.rightNodeId };
+    return Either.left(new RightParseError({ nodeId: premises.rightNodeId }));
   }
 
   // MP適用
   const result = applyModusPonens(leftFormula, rightFormula);
 
   if (Either.isLeft(result)) {
-    return { _tag: "RuleError", error: result.left };
+    return Either.left(new MPRuleError({ error: result.left }));
   }
 
-  return {
-    _tag: "Success",
+  return Either.right({
     conclusion: result.right.conclusion,
     conclusionText: formatFormula(result.right.conclusion),
-  };
+  });
 }
 
 // --- MP互換ノード判定（ハイライト用） ---
@@ -245,7 +262,7 @@ export function getMPErrorMessage(error: MPApplicationError): string {
       return "Left premise has invalid formula";
     case "RightParseError":
       return "Right premise has invalid formula";
-    case "RuleError": {
+    case "MPRuleError": {
       switch (error.error._tag) {
         case "NotAnImplication":
           return "Right premise must be an implication (φ→ψ)";

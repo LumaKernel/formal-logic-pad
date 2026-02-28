@@ -8,6 +8,7 @@
  * 変更時は substitutionApplicationLogic.test.ts, ProofWorkspace.tsx, workspaceState.ts, index.ts も同期すること。
  */
 
+import { Data, Either } from "effect";
 import type { Formula } from "../logic-core/formula";
 import type { GreekLetter } from "../logic-core/greekLetters";
 import {
@@ -79,31 +80,47 @@ export type SubstitutionEntries = readonly SubstitutionEntry[];
 
 /** 代入適用の成功結果 */
 export type SubstitutionApplicationSuccess = {
-  readonly _tag: "Success";
   readonly conclusion: Formula;
   readonly conclusionText: string;
 };
 
-/** 代入適用のエラー */
-export type SubstitutionApplicationError =
-  | { readonly _tag: "PremiseMissing" }
-  | { readonly _tag: "PremiseParseError"; readonly nodeId: string }
-  | { readonly _tag: "NoSubstitutionEntries" }
-  | {
-      readonly _tag: "FormulaParseError";
-      readonly entryIndex: number;
-      readonly formulaText: string;
-    }
-  | {
-      readonly _tag: "TermParseError";
-      readonly entryIndex: number;
-      readonly termText: string;
-    };
+/** 代入適用のエラー（Data.TaggedError） */
+export class SubstPremiseMissing extends Data.TaggedError(
+  "SubstPremiseMissing",
+)<Record<string, never>> {}
+export class SubstPremiseParseError extends Data.TaggedError(
+  "SubstPremiseParseError",
+)<{
+  readonly nodeId: string;
+}> {}
+export class SubstNoEntries extends Data.TaggedError("SubstNoEntries")<
+  Record<string, never>
+> {}
+export class SubstFormulaParseError extends Data.TaggedError(
+  "SubstFormulaParseError",
+)<{
+  readonly entryIndex: number;
+  readonly formulaText: string;
+}> {}
+export class SubstTermParseError extends Data.TaggedError(
+  "SubstTermParseError",
+)<{
+  readonly entryIndex: number;
+  readonly termText: string;
+}> {}
 
-/** 代入適用の結果型 */
-export type SubstitutionApplicationResult =
-  | SubstitutionApplicationSuccess
-  | SubstitutionApplicationError;
+export type SubstitutionApplicationError =
+  | SubstPremiseMissing
+  | SubstPremiseParseError
+  | SubstNoEntries
+  | SubstFormulaParseError
+  | SubstTermParseError;
+
+/** 代入適用の結果型（Either: Right=成功, Left=エラー） */
+export type SubstitutionApplicationResult = Either.Either<
+  SubstitutionApplicationSuccess,
+  SubstitutionApplicationError
+>;
 
 // --- 代入ノードの前提接続を取得 ---
 
@@ -226,13 +243,13 @@ export function validateSubstitutionApplication(
   entries: SubstitutionEntries,
 ): SubstitutionApplicationResult {
   if (entries.length === 0) {
-    return { _tag: "NoSubstitutionEntries" };
+    return Either.left(new SubstNoEntries({}));
   }
 
   const premiseNodeId = getSubstitutionPremise(state, substitutionNodeId);
 
   if (premiseNodeId === undefined) {
-    return { _tag: "PremiseMissing" };
+    return Either.left(new SubstPremiseMissing({}));
   }
 
   // ノードを取得
@@ -240,34 +257,38 @@ export function validateSubstitutionApplication(
 
   /* v8 ignore start -- 防御的コード: 接続があるがノードが削除済みのケース（通常到達不能） */
   if (!premiseNode) {
-    return { _tag: "PremiseMissing" };
+    return Either.left(new SubstPremiseMissing({}));
   }
   /* v8 ignore stop */
 
   // パース
   const premiseFormula = parseNodeFormula(premiseNode);
   if (!premiseFormula) {
-    return { _tag: "PremiseParseError", nodeId: premiseNodeId };
+    return Either.left(
+      new SubstPremiseParseError({ nodeId: premiseNodeId }),
+    );
   }
 
   // 論理式メタ変数代入マップを構築
   const formulaMapResult = buildFormulaSubstitutionMap(entries);
   if (formulaMapResult._tag === "Error") {
-    return {
-      _tag: "FormulaParseError",
-      entryIndex: formulaMapResult.entryIndex,
-      formulaText: formulaMapResult.formulaText,
-    };
+    return Either.left(
+      new SubstFormulaParseError({
+        entryIndex: formulaMapResult.entryIndex,
+        formulaText: formulaMapResult.formulaText,
+      }),
+    );
   }
 
   // 項メタ変数代入マップを構築
   const termMapResult = buildTermSubstitutionMap(entries);
   if (termMapResult._tag === "Error") {
-    return {
-      _tag: "TermParseError",
-      entryIndex: termMapResult.entryIndex,
-      termText: termMapResult.termText,
-    };
+    return Either.left(
+      new SubstTermParseError({
+        entryIndex: termMapResult.entryIndex,
+        termText: termMapResult.termText,
+      }),
+    );
   }
 
   // 代入を適用
@@ -279,11 +300,10 @@ export function validateSubstitutionApplication(
     result = substituteTermMetaVariablesInFormula(result, termMapResult.map);
   }
 
-  return {
-    _tag: "Success",
+  return Either.right({
     conclusion: result,
     conclusionText: formatFormula(result),
-  };
+  });
 }
 
 // --- エラーメッセージ ---
@@ -295,15 +315,15 @@ export function getSubstitutionErrorMessage(
   error: SubstitutionApplicationError,
 ): string {
   switch (error._tag) {
-    case "PremiseMissing":
+    case "SubstPremiseMissing":
       return "Connect a premise to apply substitution";
-    case "PremiseParseError":
+    case "SubstPremiseParseError":
       return "Premise has invalid formula";
-    case "NoSubstitutionEntries":
+    case "SubstNoEntries":
       return "Add at least one substitution entry";
-    case "FormulaParseError":
+    case "SubstFormulaParseError":
       return `Invalid formula in substitution entry ${String(error.entryIndex + 1) satisfies string}`;
-    case "TermParseError":
+    case "SubstTermParseError":
       return `Invalid term in substitution entry ${String(error.entryIndex + 1) satisfies string}`;
   }
 }

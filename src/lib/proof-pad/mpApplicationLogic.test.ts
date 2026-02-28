@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { Either } from "effect";
 import {
   lukasiewiczSystem,
   NotAnImplication,
@@ -14,6 +15,12 @@ import {
   computeMPCompatibleNodeIds,
   computeMPLeftCompatibleNodeIds,
   isNodeImplication,
+  BothPremisesMissing,
+  LeftPremiseMissing,
+  RightPremiseMissing,
+  LeftParseError,
+  RightParseError,
+  MPRuleError,
 } from "./mpApplicationLogic";
 import type { WorkspaceNode } from "./workspaceState";
 import type { MPEdge } from "./inferenceEdge";
@@ -163,7 +170,10 @@ describe("mpApplicationLogic", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "MP", { x: 0, y: 0 });
       const result = validateMPApplication(ws, "node-1");
-      expect(result._tag).toBe("BothPremisesMissing");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("BothPremisesMissing");
+      }
     });
 
     it("returns LeftPremiseMissing when only right is connected", () => {
@@ -173,7 +183,10 @@ describe("mpApplicationLogic", () => {
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-right");
       ws = addMPEdge(ws, "node-2", undefined, "node-1");
       const result = validateMPApplication(ws, "node-2");
-      expect(result._tag).toBe("LeftPremiseMissing");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("LeftPremiseMissing");
+      }
     });
 
     it("returns RightPremiseMissing when only left is connected", () => {
@@ -183,7 +196,10 @@ describe("mpApplicationLogic", () => {
       ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
       ws = addMPEdge(ws, "node-2", "node-1", undefined);
       const result = validateMPApplication(ws, "node-2");
-      expect(result._tag).toBe("RightPremiseMissing");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("RightPremiseMissing");
+      }
     });
 
     it("returns LeftParseError when left formula is invalid", () => {
@@ -195,7 +211,10 @@ describe("mpApplicationLogic", () => {
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
       ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const result = validateMPApplication(ws, "node-3");
-      expect(result._tag).toBe("LeftParseError");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("LeftParseError");
+      }
     });
 
     it("returns LeftParseError when left formula is empty", () => {
@@ -207,7 +226,10 @@ describe("mpApplicationLogic", () => {
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
       ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const result = validateMPApplication(ws, "node-3");
-      expect(result._tag).toBe("LeftParseError");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("LeftParseError");
+      }
     });
 
     it("returns RightParseError when right formula is invalid", () => {
@@ -219,10 +241,13 @@ describe("mpApplicationLogic", () => {
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
       ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const result = validateMPApplication(ws, "node-3");
-      expect(result._tag).toBe("RightParseError");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("RightParseError");
+      }
     });
 
-    it("returns RuleError NotAnImplication when right is not an implication", () => {
+    it("returns MPRuleError NotAnImplication when right is not an implication", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "psi");
@@ -231,13 +256,16 @@ describe("mpApplicationLogic", () => {
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
       ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const result = validateMPApplication(ws, "node-3");
-      expect(result._tag).toBe("RuleError");
-      if (result._tag === "RuleError") {
-        expect(result.error._tag).toBe("NotAnImplication");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("MPRuleError");
+        if (result.left._tag === "MPRuleError") {
+          expect(result.left.error._tag).toBe("NotAnImplication");
+        }
       }
     });
 
-    it("returns RuleError PremiseMismatch when antecedent does not match", () => {
+    it("returns MPRuleError PremiseMismatch when antecedent does not match", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "psi -> chi");
@@ -246,9 +274,12 @@ describe("mpApplicationLogic", () => {
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
       ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const result = validateMPApplication(ws, "node-3");
-      expect(result._tag).toBe("RuleError");
-      if (result._tag === "RuleError") {
-        expect(result.error._tag).toBe("PremiseMismatch");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("MPRuleError");
+        if (result.left._tag === "MPRuleError") {
+          expect(result.left.error._tag).toBe("PremiseMismatch");
+        }
       }
     });
 
@@ -261,10 +292,10 @@ describe("mpApplicationLogic", () => {
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
       ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const result = validateMPApplication(ws, "node-3");
-      expect(result._tag).toBe("Success");
-      if (result._tag === "Success") {
-        expect(result.conclusion._tag).toBe("MetaVariable");
-        expect(result.conclusionText).toBe("ψ");
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right.conclusion._tag).toBe("MetaVariable");
+        expect(result.right.conclusionText).toBe("ψ");
       }
     });
 
@@ -283,9 +314,9 @@ describe("mpApplicationLogic", () => {
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
       ws = addMPEdge(ws, "node-3", "node-1", "node-2");
       const result = validateMPApplication(ws, "node-3");
-      expect(result._tag).toBe("Success");
-      if (result._tag === "Success") {
-        expect(result.conclusionText).toBe("χ → φ → ψ → φ");
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right.conclusionText).toBe("χ → φ → ψ → φ");
       }
     });
 
@@ -305,9 +336,9 @@ describe("mpApplicationLogic", () => {
       ws = addConnection(ws, "node-4", "out", "node-5", "premise-right");
       ws = addMPEdge(ws, "node-5", "node-3", "node-4");
       const result = validateMPApplication(ws, "node-5");
-      expect(result._tag).toBe("Success");
-      if (result._tag === "Success") {
-        expect(result.conclusionText).toBe("χ");
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right.conclusionText).toBe("χ");
       }
     });
   });
@@ -702,53 +733,55 @@ describe("mpApplicationLogic", () => {
 
   describe("getMPErrorMessage", () => {
     it("returns message for BothPremisesMissing", () => {
-      expect(getMPErrorMessage({ _tag: "BothPremisesMissing" })).toBe(
+      expect(getMPErrorMessage(new BothPremisesMissing({}))).toBe(
         "Connect premises to apply MP",
       );
     });
 
     it("returns message for LeftPremiseMissing", () => {
-      expect(getMPErrorMessage({ _tag: "LeftPremiseMissing" })).toBe(
+      expect(getMPErrorMessage(new LeftPremiseMissing({}))).toBe(
         "Left premise (φ) not connected",
       );
     });
 
     it("returns message for RightPremiseMissing", () => {
-      expect(getMPErrorMessage({ _tag: "RightPremiseMissing" })).toBe(
+      expect(getMPErrorMessage(new RightPremiseMissing({}))).toBe(
         "Right premise (φ→ψ) not connected",
       );
     });
 
     it("returns message for LeftParseError", () => {
       expect(
-        getMPErrorMessage({ _tag: "LeftParseError", nodeId: "node-1" }),
+        getMPErrorMessage(new LeftParseError({ nodeId: "node-1" })),
       ).toBe("Left premise has invalid formula");
     });
 
     it("returns message for RightParseError", () => {
       expect(
-        getMPErrorMessage({ _tag: "RightParseError", nodeId: "node-2" }),
+        getMPErrorMessage(new RightParseError({ nodeId: "node-2" })),
       ).toBe("Right premise has invalid formula");
     });
 
     it("returns message for NotAnImplication", () => {
       expect(
-        getMPErrorMessage({
-          _tag: "RuleError",
-          error: new NotAnImplication({ formula: metaVariable("φ") }),
-        }),
+        getMPErrorMessage(
+          new MPRuleError({
+            error: new NotAnImplication({ formula: metaVariable("φ") }),
+          }),
+        ),
       ).toBe("Right premise must be an implication (φ→ψ)");
     });
 
     it("returns message for PremiseMismatch", () => {
       expect(
-        getMPErrorMessage({
-          _tag: "RuleError",
-          error: new PremiseMismatch({
-            expected: metaVariable("φ"),
-            actual: metaVariable("ψ"),
+        getMPErrorMessage(
+          new MPRuleError({
+            error: new PremiseMismatch({
+              expected: metaVariable("φ"),
+              actual: metaVariable("ψ"),
+            }),
           }),
-        }),
+        ),
       ).toBe("Left premise does not match antecedent of right premise");
     });
   });

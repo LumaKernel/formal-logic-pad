@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { Either } from "effect";
 import {
   buildFormulaSubstitutionMap,
   buildTermSubstitutionMap,
@@ -8,6 +9,11 @@ import {
   extractSubstitutionTargets,
   extractSubstitutionTargetsFromText,
   generateSubstitutionEntryTemplate,
+  SubstPremiseMissing,
+  SubstPremiseParseError,
+  SubstNoEntries,
+  SubstFormulaParseError,
+  SubstTermParseError,
   type SubstitutionEntries,
   type SubstitutionApplicationError,
 } from "./substitutionApplicationLogic";
@@ -248,14 +254,17 @@ describe("buildTermSubstitutionMap", () => {
 // --- validateSubstitutionApplication ---
 
 describe("validateSubstitutionApplication", () => {
-  it("returns NoSubstitutionEntries when entries list is empty", () => {
+  it("returns SubstNoEntries when entries list is empty", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
     const result = validateSubstitutionApplication(ws, "node-1", []);
-    expect(result._tag).toBe("NoSubstitutionEntries");
+    expect(Either.isLeft(result)).toBe(true);
+    if (Either.isLeft(result)) {
+      expect(result.left._tag).toBe("SubstNoEntries");
+    }
   });
 
-  it("returns PremiseMissing when no premise is connected", () => {
+  it("returns SubstPremiseMissing when no premise is connected", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "Subst", { x: 0, y: 0 });
     const entries: SubstitutionEntries = [
@@ -266,10 +275,13 @@ describe("validateSubstitutionApplication", () => {
       },
     ];
     const result = validateSubstitutionApplication(ws, "node-1", entries);
-    expect(result._tag).toBe("PremiseMissing");
+    expect(Either.isLeft(result)).toBe(true);
+    if (Either.isLeft(result)) {
+      expect(result.left._tag).toBe("SubstPremiseMissing");
+    }
   });
 
-  it("returns PremiseParseError when premise formula is invalid", () => {
+  it("returns SubstPremiseParseError when premise formula is invalid", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "-> invalid");
     ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
@@ -283,10 +295,13 @@ describe("validateSubstitutionApplication", () => {
       },
     ];
     const result = validateSubstitutionApplication(ws, "node-2", entries);
-    expect(result._tag).toBe("PremiseParseError");
+    expect(Either.isLeft(result)).toBe(true);
+    if (Either.isLeft(result)) {
+      expect(result.left._tag).toBe("SubstPremiseParseError");
+    }
   });
 
-  it("returns PremiseParseError when premise formula is empty", () => {
+  it("returns SubstPremiseParseError when premise formula is empty", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "");
     ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
@@ -300,10 +315,13 @@ describe("validateSubstitutionApplication", () => {
       },
     ];
     const result = validateSubstitutionApplication(ws, "node-2", entries);
-    expect(result._tag).toBe("PremiseParseError");
+    expect(Either.isLeft(result)).toBe(true);
+    if (Either.isLeft(result)) {
+      expect(result.left._tag).toBe("SubstPremiseParseError");
+    }
   });
 
-  it("returns FormulaParseError when substitution formula is invalid", () => {
+  it("returns SubstFormulaParseError when substitution formula is invalid", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
     ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
@@ -317,10 +335,13 @@ describe("validateSubstitutionApplication", () => {
       },
     ];
     const result = validateSubstitutionApplication(ws, "node-2", entries);
-    expect(result._tag).toBe("FormulaParseError");
+    expect(Either.isLeft(result)).toBe(true);
+    if (Either.isLeft(result)) {
+      expect(result.left._tag).toBe("SubstFormulaParseError");
+    }
   });
 
-  it("returns TermParseError when term substitution is invalid", () => {
+  it("returns SubstTermParseError when term substitution is invalid", () => {
     let ws = createEmptyWorkspace(predicateLogicSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> phi");
     ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
@@ -334,7 +355,10 @@ describe("validateSubstitutionApplication", () => {
       },
     ];
     const result = validateSubstitutionApplication(ws, "node-2", entries);
-    expect(result._tag).toBe("TermParseError");
+    expect(Either.isLeft(result)).toBe(true);
+    if (Either.isLeft(result)) {
+      expect(result.left._tag).toBe("SubstTermParseError");
+    }
   });
 
   it("successfully applies formula meta-variable substitution to A1", () => {
@@ -358,10 +382,10 @@ describe("validateSubstitutionApplication", () => {
       },
     ];
     const result = validateSubstitutionApplication(ws, "node-2", entries);
-    expect(result._tag).toBe("Success");
-    if (result._tag === "Success") {
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
       // (α → β) → (γ → (α → β))
-      expect(result.conclusionText).toBe("(α → β) → γ → α → β");
+      expect(result.right.conclusionText).toBe("(α → β) → γ → α → β");
     }
   });
 
@@ -380,9 +404,9 @@ describe("validateSubstitutionApplication", () => {
       },
     ];
     const result = validateSubstitutionApplication(ws, "node-2", entries);
-    expect(result._tag).toBe("Success");
-    if (result._tag === "Success") {
-      expect(result.conclusionText).toBe("α → β");
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
+      expect(result.right.conclusionText).toBe("α → β");
     }
   });
 
@@ -401,9 +425,9 @@ describe("validateSubstitutionApplication", () => {
       },
     ];
     const result = validateSubstitutionApplication(ws, "node-2", entries);
-    expect(result._tag).toBe("Success");
-    if (result._tag === "Success") {
-      expect(result.conclusionText).toBe("α → α");
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
+      expect(result.right.conclusionText).toBe("α → α");
     }
   });
 
@@ -427,9 +451,9 @@ describe("validateSubstitutionApplication", () => {
       },
     ];
     const result = validateSubstitutionApplication(ws, "node-2", entries);
-    expect(result._tag).toBe("Success");
-    if (result._tag === "Success") {
-      expect(result.conclusionText).toBe("¬α → α → β");
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
+      expect(result.right.conclusionText).toBe("¬α → α → β");
     }
   });
 
@@ -464,10 +488,10 @@ describe("validateSubstitutionApplication", () => {
       },
     ];
     const result = validateSubstitutionApplication(ws, "node-2", entries);
-    expect(result._tag).toBe("Success");
-    if (result._tag === "Success") {
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
       // (α → ((α → β) → β)) → ((α → α → β) → (α → β))
-      expect(result.conclusionText).toBe(
+      expect(result.right.conclusionText).toBe(
         "(α → (α → β) → β) → (α → α → β) → α → β",
       );
     }
@@ -482,31 +506,31 @@ describe("getSubstitutionErrorMessage", () => {
     readonly expected: string;
   }>([
     {
-      error: { _tag: "PremiseMissing" },
+      error: new SubstPremiseMissing({}),
       expected: "Connect a premise to apply substitution",
     },
     {
-      error: { _tag: "PremiseParseError", nodeId: "node-1" },
+      error: new SubstPremiseParseError({ nodeId: "node-1" }),
       expected: "Premise has invalid formula",
     },
     {
-      error: { _tag: "NoSubstitutionEntries" },
+      error: new SubstNoEntries({}),
       expected: "Add at least one substitution entry",
     },
     {
-      error: { _tag: "FormulaParseError", entryIndex: 0, formulaText: "bad" },
+      error: new SubstFormulaParseError({ entryIndex: 0, formulaText: "bad" }),
       expected: "Invalid formula in substitution entry 1",
     },
     {
-      error: { _tag: "FormulaParseError", entryIndex: 2, formulaText: "bad" },
+      error: new SubstFormulaParseError({ entryIndex: 2, formulaText: "bad" }),
       expected: "Invalid formula in substitution entry 3",
     },
     {
-      error: { _tag: "TermParseError", entryIndex: 0, termText: "bad" },
+      error: new SubstTermParseError({ entryIndex: 0, termText: "bad" }),
       expected: "Invalid term in substitution entry 1",
     },
     {
-      error: { _tag: "TermParseError", entryIndex: 1, termText: "bad" },
+      error: new SubstTermParseError({ entryIndex: 1, termText: "bad" }),
       expected: "Invalid term in substitution entry 2",
     },
   ])(

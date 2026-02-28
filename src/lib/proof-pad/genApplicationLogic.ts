@@ -7,7 +7,7 @@
  * 変更時は genApplicationLogic.test.ts, ProofWorkspace.tsx, workspaceState.ts, index.ts も同期すること。
  */
 
-import { Either } from "effect";
+import { Data, Either } from "effect";
 import type { Formula } from "../logic-core/formula";
 import { applyGeneralization } from "../logic-core/inferenceRule";
 import { termVariable } from "../logic-core/term";
@@ -19,24 +19,41 @@ import type { WorkspaceState } from "./workspaceState";
 
 /** Gen適用の成功結果 */
 export type GenApplicationSuccess = {
-  readonly _tag: "Success";
   readonly conclusion: Formula;
   readonly conclusionText: string;
 };
 
-/** Gen適用のエラー */
-export type GenApplicationError =
-  | { readonly _tag: "PremiseMissing" }
-  | { readonly _tag: "PremiseParseError"; readonly nodeId: string }
-  | { readonly _tag: "VariableNameEmpty" }
-  | { readonly _tag: "GeneralizationNotEnabled" }
-  | {
-      readonly _tag: "RuleError";
-      readonly message: string;
-    };
+/** Gen適用のエラー（Data.TaggedError） */
+export class GenPremiseMissing extends Data.TaggedError(
+  "GenPremiseMissing",
+)<Record<string, never>> {}
+export class GenPremiseParseError extends Data.TaggedError(
+  "GenPremiseParseError",
+)<{
+  readonly nodeId: string;
+}> {}
+export class GenVariableNameEmpty extends Data.TaggedError(
+  "GenVariableNameEmpty",
+)<Record<string, never>> {}
+export class GenGeneralizationNotEnabled extends Data.TaggedError(
+  "GenGeneralizationNotEnabled",
+)<Record<string, never>> {}
+export class GenRuleError extends Data.TaggedError("GenRuleError")<{
+  readonly message: string;
+}> {}
 
-/** Gen適用の結果型 */
-export type GenApplicationResult = GenApplicationSuccess | GenApplicationError;
+export type GenApplicationError =
+  | GenPremiseMissing
+  | GenPremiseParseError
+  | GenVariableNameEmpty
+  | GenGeneralizationNotEnabled
+  | GenRuleError;
+
+/** Gen適用の結果型（Either: Right=成功, Left=エラー） */
+export type GenApplicationResult = Either.Either<
+  GenApplicationSuccess,
+  GenApplicationError
+>;
 
 // --- Genノードの前提接続を取得 ---
 
@@ -75,13 +92,13 @@ export function validateGenApplication(
   variableName: string,
 ): GenApplicationResult {
   if (variableName.trim() === "") {
-    return { _tag: "VariableNameEmpty" };
+    return Either.left(new GenVariableNameEmpty({}));
   }
 
   const premiseNodeId = getGenPremise(state, genNodeId);
 
   if (premiseNodeId === undefined) {
-    return { _tag: "PremiseMissing" };
+    return Either.left(new GenPremiseMissing({}));
   }
 
   // ノードを取得
@@ -89,14 +106,14 @@ export function validateGenApplication(
 
   /* v8 ignore start -- 防御的コード: 接続があるがノードが削除済みのケース（通常到達不能） */
   if (!premiseNode) {
-    return { _tag: "PremiseMissing" };
+    return Either.left(new GenPremiseMissing({}));
   }
   /* v8 ignore stop */
 
   // パース
   const premiseFormula = parseNodeFormula(premiseNode);
   if (!premiseFormula) {
-    return { _tag: "PremiseParseError", nodeId: premiseNodeId };
+    return Either.left(new GenPremiseParseError({ nodeId: premiseNodeId }));
   }
 
   // Gen適用
@@ -105,18 +122,17 @@ export function validateGenApplication(
 
   if (Either.isLeft(result)) {
     if (result.left._tag === "GeneralizationNotEnabled") {
-      return { _tag: "GeneralizationNotEnabled" };
+      return Either.left(new GenGeneralizationNotEnabled({}));
     }
     /* v8 ignore start -- 防御的コード: GeneralizationNotEnabled以外のエラーは現時点では発生しない */
-    return { _tag: "RuleError", message: "Generalization failed" };
+    return Either.left(new GenRuleError({ message: "Generalization failed" }));
     /* v8 ignore stop */
   }
 
-  return {
-    _tag: "Success",
+  return Either.right({
     conclusion: result.right.conclusion,
     conclusionText: formatFormula(result.right.conclusion),
-  };
+  });
 }
 
 // --- エラーメッセージ ---
@@ -126,15 +142,15 @@ export function validateGenApplication(
  */
 export function getGenErrorMessage(error: GenApplicationError): string {
   switch (error._tag) {
-    case "PremiseMissing":
+    case "GenPremiseMissing":
       return "Connect a premise to apply Gen";
-    case "PremiseParseError":
+    case "GenPremiseParseError":
       return "Premise has invalid formula";
-    case "VariableNameEmpty":
+    case "GenVariableNameEmpty":
       return "Enter a variable name";
-    case "GeneralizationNotEnabled":
+    case "GenGeneralizationNotEnabled":
       return "Gen is not enabled in this logic system";
-    case "RuleError":
+    case "GenRuleError":
       return error.message;
   }
 }

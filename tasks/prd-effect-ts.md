@@ -65,7 +65,7 @@
 
 #### proof-pad ロジック層
 
-- [ ] **ET-004: proof-pad エラー型を `Data.TaggedError` に移行**
+- [-] **ET-004: proof-pad エラー型を `Data.TaggedError` に移行**
 
   **対象ファイルと変換内容:**
   1. **`src/lib/proof-pad/mpApplicationLogic.ts`** — `MPApplicationError` (6バリアント)

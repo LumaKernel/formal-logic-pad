@@ -1,3 +1,4 @@
+import { Either } from "effect";
 import { describe, expect, it } from "vitest";
 import {
   lukasiewiczSystem,
@@ -412,7 +413,7 @@ describe("proofWorkspace", () => {
       });
 
       expect(result.mpNodeId).toBe("node-3");
-      expect(result.validation._tag).toBe("Success");
+      expect(Either.isRight(result.validation)).toBe(true);
       expect(result.workspace.nodes).toHaveLength(3);
       // 互換性: レガシーの接続とInferenceEdgeの両方が作成される
       expect(result.workspace.connections).toHaveLength(2);
@@ -457,7 +458,10 @@ describe("proofWorkspace", () => {
         y: 150,
       });
 
-      expect(result.validation._tag).toBe("RuleError");
+      expect(Either.isLeft(result.validation)).toBe(true);
+      if (Either.isLeft(result.validation)) {
+        expect(result.validation.left._tag).toBe("MPRuleError");
+      }
       // Node should still be created but formula text should be empty
       const mpNode = findNode(result.workspace, "node-3");
       expect(mpNode).toBeDefined();
@@ -474,7 +478,10 @@ describe("proofWorkspace", () => {
         y: 150,
       });
 
-      expect(result.validation._tag).toBe("RuleError");
+      expect(Either.isLeft(result.validation)).toBe(true);
+      if (Either.isLeft(result.validation)) {
+        expect(result.validation.left._tag).toBe("MPRuleError");
+      }
     });
 
     it("returns error when left formula is empty", () => {
@@ -487,7 +494,10 @@ describe("proofWorkspace", () => {
         y: 150,
       });
 
-      expect(result.validation._tag).toBe("LeftParseError");
+      expect(Either.isLeft(result.validation)).toBe(true);
+      if (Either.isLeft(result.validation)) {
+        expect(result.validation.left._tag).toBe("LeftParseError");
+      }
     });
 
     it("does not mutate original state", () => {
@@ -531,7 +541,7 @@ describe("proofWorkspace", () => {
       });
 
       expect(result.genNodeId).toBe("node-2");
-      expect(result.validation._tag).toBe("Success");
+      expect(Either.isRight(result.validation)).toBe(true);
       expect(result.workspace.nodes).toHaveLength(2);
       // 互換性: レガシーの接続とInferenceEdgeの両方が作成される
       expect(result.workspace.connections).toHaveLength(1);
@@ -573,7 +583,10 @@ describe("proofWorkspace", () => {
         y: 150,
       });
 
-      expect(result.validation._tag).toBe("GeneralizationNotEnabled");
+      expect(Either.isLeft(result.validation)).toBe(true);
+      if (Either.isLeft(result.validation)) {
+        expect(result.validation.left._tag).toBe("GenGeneralizationNotEnabled");
+      }
       const genNode = findNode(result.workspace, "node-2");
       expect(genNode!.formulaText).toBe("");
     });
@@ -587,7 +600,10 @@ describe("proofWorkspace", () => {
         y: 150,
       });
 
-      expect(result.validation._tag).toBe("PremiseParseError");
+      expect(Either.isLeft(result.validation)).toBe(true);
+      if (Either.isLeft(result.validation)) {
+        expect(result.validation.left._tag).toBe("GenPremiseParseError");
+      }
     });
 
     it("does not mutate original state", () => {
@@ -675,7 +691,10 @@ describe("proofWorkspace", () => {
         x: 0,
         y: 150,
       });
-      expect(result.validation._tag).toBe("NoSubstitutionEntries");
+      expect(Either.isLeft(result.validation)).toBe(true);
+      if (Either.isLeft(result.validation)) {
+        expect(result.validation.left._tag).toBe("SubstNoEntries");
+      }
     });
 
     it("returns Success with A1 substitution", () => {
@@ -698,9 +717,9 @@ describe("proofWorkspace", () => {
         x: 0,
         y: 150,
       });
-      expect(result.validation._tag).toBe("Success");
-      if (result.validation._tag === "Success") {
-        expect(result.validation.conclusionText).toBe("α → β → α");
+      expect(Either.isRight(result.validation)).toBe(true);
+      if (Either.isRight(result.validation)) {
+        expect(result.validation.right.conclusionText).toBe("α → β → α");
       }
     });
 
@@ -711,7 +730,10 @@ describe("proofWorkspace", () => {
         x: 0,
         y: 150,
       });
-      expect(result.validation._tag).toBe("PremiseParseError");
+      expect(Either.isLeft(result.validation)).toBe(true);
+      if (Either.isLeft(result.validation)) {
+        expect(result.validation.left._tag).toBe("SubstPremiseParseError");
+      }
     });
 
     it("does not mutate original state", () => {

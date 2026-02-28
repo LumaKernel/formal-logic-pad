@@ -87,6 +87,12 @@ export {
   parseNodeFormula,
   validateMPApplication,
   getMPErrorMessage,
+  LeftPremiseMissing,
+  RightPremiseMissing,
+  BothPremisesMissing,
+  LeftParseError,
+  RightParseError,
+  MPRuleError,
 } from "./mpApplicationLogic";
 export type {
   MPPremiseState,
@@ -98,6 +104,11 @@ export {
   getGenPremise,
   validateGenApplication,
   getGenErrorMessage,
+  GenPremiseMissing,
+  GenPremiseParseError,
+  GenVariableNameEmpty,
+  GenGeneralizationNotEnabled,
+  GenRuleError,
 } from "./genApplicationLogic";
 export type {
   GenApplicationSuccess,
@@ -110,6 +121,11 @@ export {
   getSubstitutionErrorMessage,
   buildFormulaSubstitutionMap,
   buildTermSubstitutionMap,
+  SubstPremiseMissing,
+  SubstPremiseParseError,
+  SubstNoEntries,
+  SubstFormulaParseError,
+  SubstTermParseError,
 } from "./substitutionApplicationLogic";
 export type {
   FormulaSubstitutionEntry,

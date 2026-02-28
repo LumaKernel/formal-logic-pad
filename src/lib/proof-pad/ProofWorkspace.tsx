@@ -9,6 +9,7 @@
  * 変更時は ProofWorkspace.test.tsx, ProofWorkspace.stories.tsx, workspaceState.ts, goalCheckLogic.ts, index.ts も同期すること。
  */
 
+import { Either } from "effect";
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LogicSystem } from "../logic-core/inferenceRule";
@@ -1039,10 +1040,10 @@ export function ProofWorkspace({
       );
       if (!mpEdge) continue;
       const result = validateMPApplication(workspace, node.id);
-      if (result._tag === "Success") {
+      if (Either.isRight(result)) {
         validations.set(node.id, { message: msg.mpApplied, type: "success" });
-      } else if (result._tag !== "BothPremisesMissing") {
-        const key = getMPErrorMessageKey(result);
+      } else if (result.left._tag !== "BothPremisesMissing") {
+        const key = getMPErrorMessageKey(result.left);
         validations.set(node.id, {
           message: msg[key],
           type: "error",
@@ -1070,10 +1071,10 @@ export function ProofWorkspace({
           ? genEdgeRaw.variableName
           : (node.genVariableName ?? "");
       const result = validateGenApplication(workspace, node.id, variableName);
-      if (result._tag === "Success") {
+      if (Either.isRight(result)) {
         validations.set(node.id, { message: msg.genApplied, type: "success" });
-      } else if (result._tag !== "PremiseMissing") {
-        const key = getGenErrorMessageKey(result);
+      } else if (result.left._tag !== "GenPremiseMissing") {
+        const key = getGenErrorMessageKey(result.left);
         validations.set(node.id, {
           message: msg[key],
           type: "error",
@@ -1105,13 +1106,13 @@ export function ProofWorkspace({
         node.id,
         entries,
       );
-      if (result._tag === "Success") {
+      if (Either.isRight(result)) {
         validations.set(node.id, {
           message: msg.substitutionApplied,
           type: "success",
         });
-      } else if (result._tag !== "PremiseMissing" || entries.length > 0) {
-        const key = getSubstitutionErrorMessageKey(result);
+      } else if (result.left._tag !== "SubstPremiseMissing" || entries.length > 0) {
+        const key = getSubstitutionErrorMessageKey(result.left);
         validations.set(node.id, {
           message: msg[key],
           type: "error",

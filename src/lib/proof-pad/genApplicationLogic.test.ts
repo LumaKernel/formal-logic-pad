@@ -1,3 +1,4 @@
+import { Either } from "effect";
 import { describe, expect, it } from "vitest";
 import {
   lukasiewiczSystem,
@@ -8,6 +9,11 @@ import {
   getGenPremise,
   validateGenApplication,
   getGenErrorMessage,
+  GenPremiseMissing,
+  GenPremiseParseError,
+  GenVariableNameEmpty,
+  GenGeneralizationNotEnabled,
+  GenRuleError,
 } from "./genApplicationLogic";
 import type { InferenceEdge } from "./inferenceEdge";
 
@@ -68,28 +74,37 @@ describe("genApplicationLogic", () => {
   });
 
   describe("validateGenApplication", () => {
-    it("returns VariableNameEmpty when variable name is empty", () => {
+    it("returns GenVariableNameEmpty when variable name is empty", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Gen", { x: 0, y: 0 });
       const result = validateGenApplication(ws, "node-1", "");
-      expect(result._tag).toBe("VariableNameEmpty");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("GenVariableNameEmpty");
+      }
     });
 
-    it("returns VariableNameEmpty when variable name is whitespace", () => {
+    it("returns GenVariableNameEmpty when variable name is whitespace", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Gen", { x: 0, y: 0 });
       const result = validateGenApplication(ws, "node-1", "   ");
-      expect(result._tag).toBe("VariableNameEmpty");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("GenVariableNameEmpty");
+      }
     });
 
-    it("returns PremiseMissing when no GenEdge is present", () => {
+    it("returns GenPremiseMissing when no GenEdge is present", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Gen", { x: 0, y: 0 });
       const result = validateGenApplication(ws, "node-1", "x");
-      expect(result._tag).toBe("PremiseMissing");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("GenPremiseMissing");
+      }
     });
 
-    it("returns PremiseParseError when premise formula is invalid", () => {
+    it("returns GenPremiseParseError when premise formula is invalid", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "-> ->");
       ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
@@ -103,10 +118,13 @@ describe("genApplicationLogic", () => {
       };
       ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, genEdge] };
       const result = validateGenApplication(ws, "node-2", "x");
-      expect(result._tag).toBe("PremiseParseError");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("GenPremiseParseError");
+      }
     });
 
-    it("returns PremiseParseError when premise formula is empty", () => {
+    it("returns GenPremiseParseError when premise formula is empty", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "");
       ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
@@ -120,10 +138,13 @@ describe("genApplicationLogic", () => {
       };
       ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, genEdge] };
       const result = validateGenApplication(ws, "node-2", "x");
-      expect(result._tag).toBe("PremiseParseError");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("GenPremiseParseError");
+      }
     });
 
-    it("returns GeneralizationNotEnabled when system does not support Gen", () => {
+    it("returns GenGeneralizationNotEnabled when system does not support Gen", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
@@ -137,7 +158,10 @@ describe("genApplicationLogic", () => {
       };
       ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, genEdge] };
       const result = validateGenApplication(ws, "node-2", "x");
-      expect(result._tag).toBe("GeneralizationNotEnabled");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("GenGeneralizationNotEnabled");
+      }
     });
 
     it("returns Success with conclusion when Gen is valid", () => {
@@ -154,10 +178,10 @@ describe("genApplicationLogic", () => {
       };
       ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, genEdge] };
       const result = validateGenApplication(ws, "node-2", "x");
-      expect(result._tag).toBe("Success");
-      if (result._tag === "Success") {
-        expect(result.conclusion._tag).toBe("Universal");
-        expect(result.conclusionText).toBe("∀x.φ");
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right.conclusion._tag).toBe("Universal");
+        expect(result.right.conclusionText).toBe("∀x.φ");
       }
     });
 
@@ -175,9 +199,9 @@ describe("genApplicationLogic", () => {
       };
       ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, genEdge] };
       const result = validateGenApplication(ws, "node-2", "y");
-      expect(result._tag).toBe("Success");
-      if (result._tag === "Success") {
-        expect(result.conclusionText).toBe("∀y.φ → ψ");
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right.conclusionText).toBe("∀y.φ → ψ");
       }
     });
 
@@ -195,9 +219,9 @@ describe("genApplicationLogic", () => {
       };
       ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, genEdge] };
       const result = validateGenApplication(ws, "node-2", "x");
-      expect(result._tag).toBe("Success");
-      if (result._tag === "Success") {
-        expect(result.conclusionText).toBe("∀x.P(x) → Q(x)");
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right.conclusionText).toBe("∀x.P(x) → Q(x)");
       }
     });
 
@@ -215,44 +239,43 @@ describe("genApplicationLogic", () => {
       };
       ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, genEdge] };
       const result = validateGenApplication(ws, "node-2", "  x  ");
-      expect(result._tag).toBe("Success");
-      if (result._tag === "Success") {
-        expect(result.conclusionText).toBe("∀x.φ");
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right.conclusionText).toBe("∀x.φ");
       }
     });
   });
 
   describe("getGenErrorMessage", () => {
-    it("returns message for PremiseMissing", () => {
-      expect(getGenErrorMessage({ _tag: "PremiseMissing" })).toBe(
+    it("returns message for GenPremiseMissing", () => {
+      expect(getGenErrorMessage(new GenPremiseMissing({}))).toBe(
         "Connect a premise to apply Gen",
       );
     });
 
-    it("returns message for PremiseParseError", () => {
+    it("returns message for GenPremiseParseError", () => {
       expect(
-        getGenErrorMessage({ _tag: "PremiseParseError", nodeId: "node-1" }),
+        getGenErrorMessage(new GenPremiseParseError({ nodeId: "node-1" })),
       ).toBe("Premise has invalid formula");
     });
 
-    it("returns message for VariableNameEmpty", () => {
-      expect(getGenErrorMessage({ _tag: "VariableNameEmpty" })).toBe(
+    it("returns message for GenVariableNameEmpty", () => {
+      expect(getGenErrorMessage(new GenVariableNameEmpty({}))).toBe(
         "Enter a variable name",
       );
     });
 
-    it("returns message for GeneralizationNotEnabled", () => {
-      expect(getGenErrorMessage({ _tag: "GeneralizationNotEnabled" })).toBe(
-        "Gen is not enabled in this logic system",
-      );
+    it("returns message for GenGeneralizationNotEnabled", () => {
+      expect(
+        getGenErrorMessage(new GenGeneralizationNotEnabled({})),
+      ).toBe("Gen is not enabled in this logic system");
     });
 
-    it("returns message for RuleError", () => {
+    it("returns message for GenRuleError", () => {
       expect(
-        getGenErrorMessage({
-          _tag: "RuleError",
-          message: "Generalization failed",
-        }),
+        getGenErrorMessage(
+          new GenRuleError({ message: "Generalization failed" }),
+        ),
       ).toBe("Generalization failed");
     });
   });

@@ -228,7 +228,7 @@ export function getMPErrorMessageKey(
       return "mpErrorLeftParse";
     case "RightParseError":
       return "mpErrorRightParse";
-    case "RuleError": {
+    case "MPRuleError": {
       switch (error.error._tag) {
         case "NotAnImplication":
           return "mpErrorNotImplication";
@@ -250,15 +250,15 @@ export function getGenErrorMessageKey(
   error: GenApplicationError,
 ): keyof ProofMessages {
   switch (error._tag) {
-    case "PremiseMissing":
+    case "GenPremiseMissing":
       return "genErrorPremiseMissing";
-    case "PremiseParseError":
+    case "GenPremiseParseError":
       return "genErrorPremiseParse";
-    case "VariableNameEmpty":
+    case "GenVariableNameEmpty":
       return "genErrorVariableEmpty";
-    case "GeneralizationNotEnabled":
+    case "GenGeneralizationNotEnabled":
       return "genErrorNotEnabled";
-    case "RuleError":
+    case "GenRuleError":
       return "genErrorGeneric";
   }
 }
@@ -270,15 +270,15 @@ export function getSubstitutionErrorMessageKey(
   error: SubstitutionApplicationError,
 ): keyof ProofMessages {
   switch (error._tag) {
-    case "PremiseMissing":
+    case "SubstPremiseMissing":
       return "substErrorPremiseMissing";
-    case "PremiseParseError":
+    case "SubstPremiseParseError":
       return "substErrorPremiseParse";
-    case "NoSubstitutionEntries":
+    case "SubstNoEntries":
       return "substErrorNoEntries";
-    case "FormulaParseError":
+    case "SubstFormulaParseError":
       return "substErrorFormulaParse";
-    case "TermParseError":
+    case "SubstTermParseError":
       return "substErrorTermParse";
   }
 }

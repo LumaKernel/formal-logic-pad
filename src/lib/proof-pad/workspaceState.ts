@@ -29,6 +29,7 @@ import {
   type SubstitutionApplicationResult,
   type SubstitutionEntries,
 } from "./substitutionApplicationLogic";
+import { Either } from "effect";
 import {
   buildClipboardData,
   computeCentroid,
@@ -670,8 +671,8 @@ export function applyMPAndConnect(
   const validation = validateMPApplication(ws, mpNodeId);
 
   // 成功時は結論テキストをderivedノードに設定
-  if (validation._tag === "Success") {
-    ws = updateNodeFormulaText(ws, mpNodeId, validation.conclusionText);
+  if (Either.isRight(validation)) {
+    ws = updateNodeFormulaText(ws, mpNodeId, validation.right.conclusionText);
   }
 
   return { workspace: ws, mpNodeId, validation };
@@ -723,8 +724,8 @@ export function applyGenAndConnect(
   const validation = validateGenApplication(ws, genNodeId, variableName);
 
   // 成功時は結論テキストをderivedノードに設定
-  if (validation._tag === "Success") {
-    ws = updateNodeFormulaText(ws, genNodeId, validation.conclusionText);
+  if (Either.isRight(validation)) {
+    ws = updateNodeFormulaText(ws, genNodeId, validation.right.conclusionText);
   }
 
   return { workspace: ws, genNodeId, validation };
@@ -780,11 +781,11 @@ export function applySubstitutionAndConnect(
   );
 
   // 成功時は結論テキストをderivedノードに設定
-  if (validation._tag === "Success") {
+  if (Either.isRight(validation)) {
     ws = updateNodeFormulaText(
       ws,
       substitutionNodeId,
-      validation.conclusionText,
+      validation.right.conclusionText,
     );
   }
 
@@ -1069,8 +1070,9 @@ export function revalidateInferenceConclusions(
       switch (edge._tag) {
         case "mp": {
           const result = validateMPApplication(current, node.id);
-          const newText =
-            result._tag === "Success" ? result.conclusionText : "";
+          const newText = Either.isRight(result)
+            ? result.right.conclusionText
+            : "";
           if (newText !== node.formulaText) {
             changed = true;
             return { ...node, formulaText: newText };
@@ -1080,8 +1082,9 @@ export function revalidateInferenceConclusions(
         case "gen": {
           const variableName = edge.variableName;
           const result = validateGenApplication(current, node.id, variableName);
-          const newText =
-            result._tag === "Success" ? result.conclusionText : "";
+          const newText = Either.isRight(result)
+            ? result.right.conclusionText
+            : "";
           if (newText !== node.formulaText) {
             changed = true;
             return { ...node, formulaText: newText };
@@ -1095,8 +1098,9 @@ export function revalidateInferenceConclusions(
             node.id,
             entries,
           );
-          const newText =
-            result._tag === "Success" ? result.conclusionText : "";
+          const newText = Either.isRight(result)
+            ? result.right.conclusionText
+            : "";
           if (newText !== node.formulaText) {
             changed = true;
             return { ...node, formulaText: newText };

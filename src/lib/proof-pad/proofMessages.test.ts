@@ -14,8 +14,30 @@ import {
   type ProofMessages,
 } from "./proofMessages";
 import type { MPApplicationError } from "./mpApplicationLogic";
+import {
+  BothPremisesMissing,
+  LeftPremiseMissing,
+  RightPremiseMissing,
+  LeftParseError,
+  RightParseError,
+  MPRuleError,
+} from "./mpApplicationLogic";
 import type { GenApplicationError } from "./genApplicationLogic";
+import {
+  GenPremiseMissing,
+  GenPremiseParseError,
+  GenVariableNameEmpty,
+  GenGeneralizationNotEnabled,
+  GenRuleError,
+} from "./genApplicationLogic";
 import type { SubstitutionApplicationError } from "./substitutionApplicationLogic";
+import {
+  SubstPremiseMissing,
+  SubstPremiseParseError,
+  SubstNoEntries,
+  SubstFormulaParseError,
+  SubstTermParseError,
+} from "./substitutionApplicationLogic";
 import { metaVariable } from "../logic-core/formula";
 import { NotAnImplication, PremiseMismatch } from "../logic-core/inferenceRule";
 
@@ -40,52 +62,44 @@ describe("defaultProofMessages", () => {
 
 describe("getMPErrorMessageKey", () => {
   it("should return mpErrorBothMissing for BothPremisesMissing", () => {
-    const error: MPApplicationError = { _tag: "BothPremisesMissing" };
+    const error: MPApplicationError = new BothPremisesMissing({});
     expect(getMPErrorMessageKey(error)).toBe("mpErrorBothMissing");
   });
 
   it("should return mpErrorLeftMissing for LeftPremiseMissing", () => {
-    const error: MPApplicationError = { _tag: "LeftPremiseMissing" };
+    const error: MPApplicationError = new LeftPremiseMissing({});
     expect(getMPErrorMessageKey(error)).toBe("mpErrorLeftMissing");
   });
 
   it("should return mpErrorRightMissing for RightPremiseMissing", () => {
-    const error: MPApplicationError = { _tag: "RightPremiseMissing" };
+    const error: MPApplicationError = new RightPremiseMissing({});
     expect(getMPErrorMessageKey(error)).toBe("mpErrorRightMissing");
   });
 
   it("should return mpErrorLeftParse for LeftParseError", () => {
-    const error: MPApplicationError = {
-      _tag: "LeftParseError",
-      nodeId: "test",
-    };
+    const error: MPApplicationError = new LeftParseError({ nodeId: "test" });
     expect(getMPErrorMessageKey(error)).toBe("mpErrorLeftParse");
   });
 
   it("should return mpErrorRightParse for RightParseError", () => {
-    const error: MPApplicationError = {
-      _tag: "RightParseError",
-      nodeId: "test",
-    };
+    const error: MPApplicationError = new RightParseError({ nodeId: "test" });
     expect(getMPErrorMessageKey(error)).toBe("mpErrorRightParse");
   });
 
   it("should return mpErrorNotImplication for NotAnImplication RuleError", () => {
     const phi = metaVariable("φ");
-    const error: MPApplicationError = {
-      _tag: "RuleError",
+    const error: MPApplicationError = new MPRuleError({
       error: new NotAnImplication({ formula: phi }),
-    };
+    });
     expect(getMPErrorMessageKey(error)).toBe("mpErrorNotImplication");
   });
 
   it("should return mpErrorPremiseMismatch for PremiseMismatch RuleError", () => {
     const phi = metaVariable("φ");
     const psi = metaVariable("ψ");
-    const error: MPApplicationError = {
-      _tag: "RuleError",
+    const error: MPApplicationError = new MPRuleError({
       error: new PremiseMismatch({ expected: phi, actual: psi }),
-    };
+    });
     expect(getMPErrorMessageKey(error)).toBe("mpErrorPremiseMismatch");
   });
 
@@ -93,19 +107,17 @@ describe("getMPErrorMessageKey", () => {
     const phi = metaVariable("φ");
     const psi = metaVariable("ψ");
     const errors: readonly MPApplicationError[] = [
-      { _tag: "BothPremisesMissing" },
-      { _tag: "LeftPremiseMissing" },
-      { _tag: "RightPremiseMissing" },
-      { _tag: "LeftParseError", nodeId: "x" },
-      { _tag: "RightParseError", nodeId: "x" },
-      {
-        _tag: "RuleError",
+      new BothPremisesMissing({}),
+      new LeftPremiseMissing({}),
+      new RightPremiseMissing({}),
+      new LeftParseError({ nodeId: "x" }),
+      new RightParseError({ nodeId: "x" }),
+      new MPRuleError({
         error: new NotAnImplication({ formula: phi }),
-      },
-      {
-        _tag: "RuleError",
+      }),
+      new MPRuleError({
         error: new PremiseMismatch({ expected: phi, actual: psi }),
-      },
+      }),
     ];
 
     for (const error of errors) {
@@ -117,44 +129,42 @@ describe("getMPErrorMessageKey", () => {
 });
 
 describe("getGenErrorMessageKey", () => {
-  it("should return genErrorPremiseMissing for PremiseMissing", () => {
-    const error: GenApplicationError = { _tag: "PremiseMissing" };
+  it("should return genErrorPremiseMissing for GenPremiseMissing", () => {
+    const error: GenApplicationError = new GenPremiseMissing({});
     expect(getGenErrorMessageKey(error)).toBe("genErrorPremiseMissing");
   });
 
-  it("should return genErrorPremiseParse for PremiseParseError", () => {
-    const error: GenApplicationError = {
-      _tag: "PremiseParseError",
+  it("should return genErrorPremiseParse for GenPremiseParseError", () => {
+    const error: GenApplicationError = new GenPremiseParseError({
       nodeId: "test",
-    };
+    });
     expect(getGenErrorMessageKey(error)).toBe("genErrorPremiseParse");
   });
 
-  it("should return genErrorVariableEmpty for VariableNameEmpty", () => {
-    const error: GenApplicationError = { _tag: "VariableNameEmpty" };
+  it("should return genErrorVariableEmpty for GenVariableNameEmpty", () => {
+    const error: GenApplicationError = new GenVariableNameEmpty({});
     expect(getGenErrorMessageKey(error)).toBe("genErrorVariableEmpty");
   });
 
-  it("should return genErrorNotEnabled for GeneralizationNotEnabled", () => {
-    const error: GenApplicationError = { _tag: "GeneralizationNotEnabled" };
+  it("should return genErrorNotEnabled for GenGeneralizationNotEnabled", () => {
+    const error: GenApplicationError = new GenGeneralizationNotEnabled({});
     expect(getGenErrorMessageKey(error)).toBe("genErrorNotEnabled");
   });
 
-  it("should return genErrorGeneric for RuleError", () => {
-    const error: GenApplicationError = {
-      _tag: "RuleError",
+  it("should return genErrorGeneric for GenRuleError", () => {
+    const error: GenApplicationError = new GenRuleError({
       message: "Something failed",
-    };
+    });
     expect(getGenErrorMessageKey(error)).toBe("genErrorGeneric");
   });
 
   it("should return a valid key for all error types", () => {
     const errors: readonly GenApplicationError[] = [
-      { _tag: "PremiseMissing" },
-      { _tag: "PremiseParseError", nodeId: "x" },
-      { _tag: "VariableNameEmpty" },
-      { _tag: "GeneralizationNotEnabled" },
-      { _tag: "RuleError", message: "fail" },
+      new GenPremiseMissing({}),
+      new GenPremiseParseError({ nodeId: "x" }),
+      new GenVariableNameEmpty({}),
+      new GenGeneralizationNotEnabled({}),
+      new GenRuleError({ message: "fail" }),
     ];
 
     for (const error of errors) {
@@ -166,57 +176,52 @@ describe("getGenErrorMessageKey", () => {
 });
 
 describe("getSubstitutionErrorMessageKey", () => {
-  it("should return substErrorPremiseMissing for PremiseMissing", () => {
-    const error: SubstitutionApplicationError = { _tag: "PremiseMissing" };
+  it("should return substErrorPremiseMissing for SubstPremiseMissing", () => {
+    const error: SubstitutionApplicationError = new SubstPremiseMissing({});
     expect(getSubstitutionErrorMessageKey(error)).toBe(
       "substErrorPremiseMissing",
     );
   });
 
-  it("should return substErrorPremiseParse for PremiseParseError", () => {
-    const error: SubstitutionApplicationError = {
-      _tag: "PremiseParseError",
+  it("should return substErrorPremiseParse for SubstPremiseParseError", () => {
+    const error: SubstitutionApplicationError = new SubstPremiseParseError({
       nodeId: "test",
-    };
+    });
     expect(getSubstitutionErrorMessageKey(error)).toBe(
       "substErrorPremiseParse",
     );
   });
 
-  it("should return substErrorNoEntries for NoSubstitutionEntries", () => {
-    const error: SubstitutionApplicationError = {
-      _tag: "NoSubstitutionEntries",
-    };
+  it("should return substErrorNoEntries for SubstNoEntries", () => {
+    const error: SubstitutionApplicationError = new SubstNoEntries({});
     expect(getSubstitutionErrorMessageKey(error)).toBe("substErrorNoEntries");
   });
 
-  it("should return substErrorFormulaParse for FormulaParseError", () => {
-    const error: SubstitutionApplicationError = {
-      _tag: "FormulaParseError",
+  it("should return substErrorFormulaParse for SubstFormulaParseError", () => {
+    const error: SubstitutionApplicationError = new SubstFormulaParseError({
       entryIndex: 0,
       formulaText: "bad",
-    };
+    });
     expect(getSubstitutionErrorMessageKey(error)).toBe(
       "substErrorFormulaParse",
     );
   });
 
-  it("should return substErrorTermParse for TermParseError", () => {
-    const error: SubstitutionApplicationError = {
-      _tag: "TermParseError",
+  it("should return substErrorTermParse for SubstTermParseError", () => {
+    const error: SubstitutionApplicationError = new SubstTermParseError({
       entryIndex: 1,
       termText: "bad",
-    };
+    });
     expect(getSubstitutionErrorMessageKey(error)).toBe("substErrorTermParse");
   });
 
   it("should return a valid key for all error types", () => {
     const errors: readonly SubstitutionApplicationError[] = [
-      { _tag: "PremiseMissing" },
-      { _tag: "PremiseParseError", nodeId: "x" },
-      { _tag: "NoSubstitutionEntries" },
-      { _tag: "FormulaParseError", entryIndex: 0, formulaText: "bad" },
-      { _tag: "TermParseError", entryIndex: 0, termText: "bad" },
+      new SubstPremiseMissing({}),
+      new SubstPremiseParseError({ nodeId: "x" }),
+      new SubstNoEntries({}),
+      new SubstFormulaParseError({ entryIndex: 0, formulaText: "bad" }),
+      new SubstTermParseError({ entryIndex: 0, termText: "bad" }),
     ];
 
     for (const error of errors) {
