@@ -2007,6 +2007,78 @@ const conceptUnification: ReferenceEntry = {
   order: 3,
 };
 
+const conceptDeductionTheorem: ReferenceEntry = {
+  id: "concept-deduction-theorem",
+  category: "concept",
+  title: { en: "Deduction Theorem", ja: "演繹定理" },
+  summary: {
+    en: "Γ, φ ⊢ ψ if and only if Γ ⊢ φ → ψ — derivation from a hypothesis is equivalent to proving an implication.",
+    ja: "Γ, φ ⊢ ψ ⟺ Γ ⊢ φ → ψ — 仮説からの導出は含意の証明と同値である。",
+  },
+  body: {
+    en: [
+      "The **Deduction Theorem** is a fundamental meta-theorem in Hilbert-style proof systems. It states that if ψ can be derived from a set of hypotheses Γ together with an additional hypothesis φ, then the implication φ → ψ can be derived from Γ alone. Conversely, if Γ ⊢ φ → ψ, then Γ, φ ⊢ ψ follows immediately by Modus Ponens.",
+      "**Formal statement:** Γ, φ ⊢ ψ if and only if Γ ⊢ φ → ψ. The left-to-right direction (⇒) is the non-trivial part. It is proved by induction on the length of the derivation of ψ from Γ ∪ {φ}. The proof critically uses axioms A1 (K: φ → (ψ → φ)) and A2 (S: (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))).",
+      "**Significance:** In Hilbert-style systems, proofs are notoriously difficult to construct because the only inference rule is Modus Ponens. The Deduction Theorem provides a powerful proof strategy: to prove φ → ψ, one can instead assume φ and derive ψ, which is often much easier. This bridges the gap between Hilbert systems and the more intuitive natural deduction style.",
+      "**Example:** To prove φ → φ (identity) in a Hilbert system, one can use the Deduction Theorem: assume φ, then φ is immediately derivable, so by the theorem, ⊢ φ → φ. The actual Hilbert-style proof (using S, K, and MP) is considerably longer and less intuitive.",
+      "**Limitations:** The Deduction Theorem does not hold in all logical systems. In particular, for predicate logic, the generalization rule (Gen) requires a side condition: the Deduction Theorem holds only when the hypothesis φ does not contain free occurrences of the variable being generalized.",
+    ],
+    ja: [
+      "**演繹定理**はヒルベルト流証明体系における基本的なメタ定理です。仮説の集合Γに追加の仮説φを合わせたものからψが導出できるならば、Γだけから含意φ → ψが導出できることを述べます。逆に、Γ ⊢ φ → ψ であれば、モーダスポネンスにより直ちに Γ, φ ⊢ ψ が従います。",
+      "**形式的記述:** Γ, φ ⊢ ψ ⟺ Γ ⊢ φ → ψ。左から右の方向（⇒）が非自明な部分です。Γ ∪ {φ} からのψの導出の長さに関する帰納法で証明されます。証明では公理A1（K: φ → (ψ → φ)）と公理A2（S: (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))）が本質的に使われます。",
+      "**意義:** ヒルベルト流体系では、唯一の推論規則がモーダスポネンスであるため、証明の構成は非常に困難です。演繹定理は強力な証明戦略を提供します: φ → ψ を証明するには、φを仮定してψを導出すればよく、これは多くの場合はるかに容易です。これにより、ヒルベルト体系とより直観的な自然演繹スタイルの間の橋渡しが実現されます。",
+      "**例:** ヒルベルト体系でφ → φ（恒等式）を証明するには、演繹定理を使えます: φを仮定すると、φは直ちに導出可能なので、定理により ⊢ φ → φ が得られます。実際のヒルベルト流の証明（S, K, MPを使用）はかなり長く、直観的ではありません。",
+      "**制限:** 演繹定理はすべての論理体系で成り立つわけではありません。特に述語論理では、汎化規則（Gen）に条件が必要です: 演繹定理は、仮説φが汎化される変数の自由出現を含まない場合にのみ成り立ちます。",
+    ],
+  },
+  formalNotation:
+    "\\Gamma, \\varphi \\vdash \\psi \\iff \\Gamma \\vdash \\varphi \\to \\psi",
+  relatedEntryIds: [
+    "axiom-a1",
+    "axiom-a2",
+    "rule-mp",
+    "system-lukasiewicz",
+    "system-mendelson",
+    "rule-gen",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Deduction_theorem",
+      label: {
+        en: "Deduction theorem (Wikipedia)",
+        ja: "演繹定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E6%BC%94%E7%B9%B9%E5%AE%9A%E7%90%86",
+      label: {
+        en: "Deduction theorem (Wikipedia JA)",
+        ja: "演繹定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/deduction+theorem",
+      label: {
+        en: "Deduction theorem (nLab)",
+        ja: "演繹定理 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "deduction theorem",
+    "演繹定理",
+    "hypothesis",
+    "仮説",
+    "meta-theorem",
+    "メタ定理",
+    "Herbrand",
+  ],
+  order: 4,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -2695,6 +2767,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptSubstitution,
   conceptFreeVariable,
   conceptUnification,
+  conceptDeductionTheorem,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,

@@ -15,8 +15,8 @@ describe("allReferenceEntries", () => {
   });
 
   it("エントリ数が期待通り", () => {
-    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念3 + 理論2 = 40
-    expect(allReferenceEntries).toHaveLength(40);
+    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念4 + 理論2 = 41
+    expect(allReferenceEntries).toHaveLength(41);
   });
 
   it("少なくとも1つのエントリが各カテゴリに存在する", () => {
@@ -425,6 +425,70 @@ describe("等号公理E4/E5の個別チェック", () => {
     const entry = findEntryById(allReferenceEntries, "axiom-e5");
     expect(entry?.body.en.some((p) => p.includes("Leibniz"))).toBe(true);
     expect(entry?.body.ja.some((p) => p.includes("ライプニッツ"))).toBe(true);
+  });
+});
+
+describe("概念エントリの個別チェック", () => {
+  it("演繹定理エントリが存在する", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-deduction-theorem",
+    );
+    expect(entry).toBeDefined();
+    expect(entry?.category).toBe("concept");
+  });
+
+  it("演繹定理にformalNotationがある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-deduction-theorem",
+    );
+    expect(entry?.formalNotation).toBeTruthy();
+  });
+
+  it("演繹定理にΓ, φ ⊢ ψの記載がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-deduction-theorem",
+    );
+    expect(entry?.body.en.some((p) => p.includes("Γ"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("Γ"))).toBe(true);
+  });
+
+  it("演繹定理にA1, A2, MPへの言及がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-deduction-theorem",
+    );
+    expect(entry?.body.en.some((p) => p.includes("A1"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("A2"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("Modus Ponens"))).toBe(true);
+  });
+
+  it("演繹定理に述語論理での制限の記載がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-deduction-theorem",
+    );
+    expect(entry?.body.en.some((p) => p.includes("generalization rule"))).toBe(
+      true,
+    );
+    expect(entry?.body.ja.some((p) => p.includes("汎化規則"))).toBe(true);
+  });
+
+  it("演繹定理を検索できる", () => {
+    const resultEn = searchEntries(
+      allReferenceEntries,
+      "deduction theorem",
+      "en",
+    );
+    expect(resultEn.some((e) => e.id === "concept-deduction-theorem")).toBe(
+      true,
+    );
+    const resultJa = searchEntries(allReferenceEntries, "演繹定理", "ja");
+    expect(resultJa.some((e) => e.id === "concept-deduction-theorem")).toBe(
+      true,
+    );
   });
 });
 
