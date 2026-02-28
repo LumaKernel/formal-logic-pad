@@ -5532,3 +5532,18 @@
   - conceptカテゴリのorder番号は現在1-4が使用済み、5以降から連番
   - relatedEntryIds は既存のエントリIDを参照するため、存在チェックはテストの自動検証で担保される
 ---
+
+## 2026-02-28 - [reference] 黒田の否定翻訳のリファレンスエントリ
+- D2タスク（prd-advanced.md）: 黒田の否定翻訳のリファレンスエントリを追加
+- 変更ファイル:
+  - src/lib/reference/referenceContent.ts - conceptKurodaTranslation エントリ追加（en/ja 6段落、LaTeX記法、外部リンク3件、キーワード16件）
+  - src/lib/reference/referenceContent.test.ts - エントリ数 42→43 更新、7テスト追加
+  - tasks/prd-advanced.md - D2を[x]完了
+  - task-processing.md - クリア
+- テスト: 全テストパス（ベースラインから低下なし）
+- カバレッジ: ベースラインから低下なし（Stmts 98.6%, Branch 92.74%, Lines 99.32%）
+- **今後のイテレーションへの学び:**
+  - 黒田の否定翻訳はグリヴェンコの定理の述語論理版。命題論理部分はグリヴェンコと同じ¬¬変換、∀xの直後に¬¬を挿入するのが特徴
+  - conceptカテゴリのorder番号: substitution:1, free-variable:2, unification:3, deduction-theorem:4, glivenko:5, kuroda-translation:6
+  - relatedEntryIdsの双方向リンク: 新エントリから既存エントリへの参照だけでなく、関連する既存エントリ（glivenko）のrelatedEntryIdsにも逆参照を追加する
+---
