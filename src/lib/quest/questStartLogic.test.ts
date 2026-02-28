@@ -46,6 +46,7 @@ const testQuest: QuestDefinition = {
   estimatedSteps: 5,
   learningPoint: "基本",
   order: 1,
+  version: 1,
 };
 
 const testQuests: readonly QuestDefinition[] = [

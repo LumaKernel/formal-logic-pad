@@ -189,6 +189,13 @@ export type QuestDefinition = {
    * ゴール個別の allowedAxiomIds が設定されている場合はそちらが優先される。
    */
   readonly allowedAxiomIds?: readonly AxiomId[];
+  /**
+   * クエスト定義のバージョン番号（正の整数）。
+   * クエスト内容（ゴール、公理系、ヒント等）を変更した場合にインクリメントする。
+   * ノートブック作成時にこのバージョンが記録され、
+   * 最新バージョンと異なる場合にユーザーに警告を表示する。
+   */
+  readonly version: number;
 };
 
 // --- ユーティリティ ---

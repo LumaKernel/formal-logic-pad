@@ -19,6 +19,7 @@ function makeQuest(overrides: Partial<QuestDefinition> = {}): QuestDefinition {
     estimatedSteps: 5,
     learningPoint: "テスト",
     order: 1,
+    version: 1,
     ...overrides,
   };
 }

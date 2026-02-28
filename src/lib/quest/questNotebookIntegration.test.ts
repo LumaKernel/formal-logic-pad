@@ -27,6 +27,7 @@ const testQuest: QuestDefinition = {
   estimatedSteps: 5,
   learningPoint: "基本的なMP適用",
   order: 1,
+  version: 1,
 };
 
 const testQuest2: QuestDefinition = {
@@ -230,6 +231,38 @@ describe("startQuestAndCreateNotebook", () => {
     const nb = findNotebook(result.collection, result.notebookId);
     expect(nb?.meta.createdAt).toBe(12345);
     expect(nb?.meta.updatedAt).toBe(12345);
+  });
+
+  it("ノートブックにクエストのバージョンが記録される", () => {
+    const collection = createEmptyCollection();
+    const result = startQuestAndCreateNotebook(
+      testQuests,
+      "test-quest-01",
+      collection,
+      1000,
+    );
+
+    if (!result.ok) return;
+    const nb = findNotebook(result.collection, result.notebookId);
+    expect(nb?.questVersion).toBe(1);
+  });
+
+  it("バージョンが異なるクエストで正しいバージョンが記録される", () => {
+    const questsWithVersions: readonly QuestDefinition[] = [
+      { ...testQuest, version: 3 },
+      { ...testQuest2, version: 5 },
+    ];
+    const collection = createEmptyCollection();
+    const result = startQuestAndCreateNotebook(
+      questsWithVersions,
+      "test-quest-02",
+      collection,
+      1000,
+    );
+
+    if (!result.ok) return;
+    const nb = findNotebook(result.collection, result.notebookId);
+    expect(nb?.questVersion).toBe(5);
   });
 });
 

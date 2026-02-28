@@ -223,6 +223,70 @@ describe("notebookSerialization", () => {
 
       expect(restored.notebooks[0]?.questId).toBeUndefined();
     });
+
+    it("questVersion付きクエストノートブックをラウンドトリップできる", () => {
+      const col = createQuestNotebook(createEmptyCollection(), {
+        name: "クエスト",
+        system: lukasiewiczSystem,
+        goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+        now: 1000,
+        questId: "prop-01",
+        questVersion: 3,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      expect(restored.notebooks.length).toBe(1);
+      expect(restored.notebooks[0]?.questVersion).toBe(3);
+    });
+
+    it("questVersionがないノートブックではquestVersionがundefinedのまま", () => {
+      const col = createQuestNotebook(createEmptyCollection(), {
+        name: "クエスト",
+        system: lukasiewiczSystem,
+        goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+        now: 1000,
+        questId: "prop-01",
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      expect(restored.notebooks[0]?.questVersion).toBeUndefined();
+    });
+
+    it("旧フォーマット互換: questVersionがないデータではundefinedが設定される", () => {
+      const oldFormatJson = JSON.stringify({
+        notebooks: [
+          {
+            meta: {
+              id: "notebook-1",
+              name: "旧クエスト",
+              createdAt: 1000,
+              updatedAt: 1000,
+            },
+            workspace: {
+              system: {
+                name: "Łukasiewicz",
+                propositionalAxioms: ["A1", "A2", "A3"],
+                predicateLogic: false,
+                equalityLogic: false,
+                generalization: false,
+              },
+              nodes: [],
+              connections: [],
+              nextNodeId: 1,
+              mode: "quest",
+            },
+            questId: "prop-01",
+          },
+        ],
+        nextId: 2,
+      });
+      const result = deserializeCollection(oldFormatJson);
+      expect(result.notebooks.length).toBe(1);
+      expect(result.notebooks[0]?.questId).toBe("prop-01");
+      expect(result.notebooks[0]?.questVersion).toBeUndefined();
+    });
   });
 
   describe("deserializeCollection の不正入力処理", () => {

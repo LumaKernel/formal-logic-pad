@@ -146,6 +146,35 @@ export const WithAxiomNodes: Story = {
   },
 };
 
+/** クエストバージョン警告が表示されるワークスペース */
+export const WithQuestVersionWarning: Story = {
+  render: () => {
+    const ws = createEmptyWorkspace(lukasiewiczSystem);
+    return (
+      <WorkspacePageView
+        found={true}
+        notebookName="旧バージョンのクエスト"
+        workspace={ws}
+        messages={defaultProofMessages}
+        onBack={fn()}
+        onWorkspaceChange={fn()}
+        onGoalAchieved={fn()}
+        questVersionWarning="このノートブックは古いバージョン (v1) のクエストから作成されました。最新バージョンは v3 です。"
+        languageToggle={{ locale: "ja", onLocaleChange: () => {} }}
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByTestId("quest-version-warning"),
+    ).toBeInTheDocument();
+    await expect(canvas.getByText(/古いバージョン/)).toBeInTheDocument();
+    await expect(canvas.getByText(/v1/)).toBeInTheDocument();
+    await expect(canvas.getByText(/v3/)).toBeInTheDocument();
+  },
+};
+
 /** 述語論理体系の空ワークスペース */
 export const EmptyPredicateLogic: Story = {
   render: () => (

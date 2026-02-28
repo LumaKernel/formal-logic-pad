@@ -65,6 +65,7 @@ export interface UseNotebookCollectionResult {
     system: LogicSystem,
     goals: readonly QuestGoalDefinition[],
     questId?: string,
+    questVersion?: number,
   ) => NotebookId;
   /** ノートブックを削除する */
   readonly remove: (id: NotebookId) => void;
@@ -137,6 +138,7 @@ export function useNotebookCollection(
       system: LogicSystem,
       goals: readonly QuestGoalDefinition[],
       questId?: string,
+      questVersion?: number,
     ): NotebookId => {
       const now = getNow();
       let newId: NotebookId = "";
@@ -147,6 +149,7 @@ export function useNotebookCollection(
           goals,
           now,
           questId,
+          questVersion,
         });
         const added = next.notebooks[next.notebooks.length - 1];
         // 防御コード: createQuestNotebookは必ずノートブックを追加するためundefinedにはならない

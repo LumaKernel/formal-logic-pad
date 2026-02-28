@@ -34,6 +34,7 @@ const q01Identity: QuestDefinition = {
   learningPoint:
     "A2 (S公理) は「関数適用の分配」に相当する。この証明はSKK = I の対応。",
   order: 1,
+  version: 1,
 };
 
 const q02ConstantComposition: QuestDefinition = {
@@ -59,6 +60,7 @@ const q02ConstantComposition: QuestDefinition = {
   learningPoint:
     "A1 (K公理) は「結論を前提で持ち上げる」。既に証明した定理は再利用できる。",
   order: 2,
+  version: 1,
 };
 
 const q03TransitivityPrep: QuestDefinition = {
@@ -84,6 +86,7 @@ const q03TransitivityPrep: QuestDefinition = {
   learningPoint:
     "公理のメタ変数にはどんな式でも代入できる。単純な式だけでなく、含意式も代入可能。",
   order: 3,
+  version: 1,
 };
 
 // --- Level 2: MPチェインの基本 ---
@@ -112,6 +115,7 @@ const q04HypotheticalSyllogism: QuestDefinition = {
   learningPoint:
     "推移律はHilbert系で最も基本的かつ頻出の補題。以降の証明で多用する。",
   order: 4,
+  version: 1,
 };
 
 const q05ImplicationWeakening: QuestDefinition = {
@@ -136,6 +140,7 @@ const q05ImplicationWeakening: QuestDefinition = {
   estimatedSteps: 3,
   learningPoint: "K公理の2重適用。「不要な前提を追加する」操作。",
   order: 5,
+  version: 1,
 };
 
 const q06SSpecialCase: QuestDefinition = {
@@ -162,6 +167,7 @@ const q06SSpecialCase: QuestDefinition = {
   learningPoint:
     "「φ → (φ → ψ)」は「φが2回必要な含意」。S公理で1回分に圧縮できる。",
   order: 6,
+  version: 1,
 };
 
 const q07Permutation: QuestDefinition = {
@@ -188,6 +194,7 @@ const q07Permutation: QuestDefinition = {
   learningPoint:
     "C combinator に対応。前提の順序は自由に入れ替えられる（ただし手間がかかる）。",
   order: 7,
+  version: 1,
 };
 
 // --- Level 2-3: 命題論理の中級 ---
@@ -216,6 +223,7 @@ const q08TransitivityChain: QuestDefinition = {
   estimatedSteps: 25,
   learningPoint: "推移律は任意の長さのチェインに拡張できる。",
   order: 1,
+  version: 1,
 };
 
 const q10BComposition: QuestDefinition = {
@@ -241,6 +249,7 @@ const q10BComposition: QuestDefinition = {
   estimatedSteps: 20,
   learningPoint: "B combinator: Bxyz = x(yz)。関数合成に対応。",
   order: 2,
+  version: 1,
 };
 
 const q11PremiseConfluence: QuestDefinition = {
@@ -262,6 +271,7 @@ const q11PremiseConfluence: QuestDefinition = {
   learningPoint:
     "一見難しそうに見えても公理のインスタンスであることがある。メタ変数への代入パターンを見抜く力が重要。",
   order: 3,
+  version: 1,
 };
 
 const q12LeftAssociation: QuestDefinition = {
@@ -288,6 +298,7 @@ const q12LeftAssociation: QuestDefinition = {
   learningPoint:
     "含意の「右結合」と「左結合」を相互変換する技法。演繹定理の逆方向。",
   order: 4,
+  version: 1,
 };
 
 const q13FregeTheorem: QuestDefinition = {
@@ -313,6 +324,7 @@ const q13FregeTheorem: QuestDefinition = {
   learningPoint:
     "Frege は歴史上最初にこの法則を明示的に公理として採用した。同じ定理が異なる文脈で別名を持つことがある。",
   order: 5,
+  version: 1,
 };
 
 const q14DoubleImplicationDistribution: QuestDefinition = {
@@ -338,6 +350,7 @@ const q14DoubleImplicationDistribution: QuestDefinition = {
   estimatedSteps: 18,
   learningPoint: "前提の並び替えはHilbert系では頻出操作。慣れが必要。",
   order: 6,
+  version: 1,
 };
 
 // --- Level 3: 否定公理 A3 の活用 ---
@@ -365,6 +378,7 @@ const q15DoubleNegationIntro: QuestDefinition = {
   learningPoint:
     "二重否定導入は古典論理の基本。A3 の使い方の典型例であり、以降の否定関連証明の出発点。",
   order: 1,
+  version: 1,
 };
 
 const q16ModusTollens: QuestDefinition = {
@@ -390,6 +404,7 @@ const q16ModusTollens: QuestDefinition = {
   learningPoint:
     "Modus Tollens は対偶の直接的な帰結。DNI と A3 の組合せで導出する。",
   order: 2,
+  version: 1,
 };
 
 const q17DoubleNegationElim: QuestDefinition = {
@@ -415,6 +430,7 @@ const q17DoubleNegationElim: QuestDefinition = {
   learningPoint:
     "DNE は古典論理と直観主義論理を分ける分水嶺。Łukasiewicz 系では A3 から DNI 経由で導出可能。",
   order: 3,
+  version: 1,
 };
 
 const q18ExFalso: QuestDefinition = {
@@ -440,6 +456,7 @@ const q18ExFalso: QuestDefinition = {
   learningPoint:
     "古典論理では矛盾からはどんな命題も導出できる（爆発律）。A1 と A3 の組合せで簡潔に証明可能。",
   order: 4,
+  version: 1,
 };
 
 const q19ConverseContraposition: QuestDefinition = {
@@ -464,6 +481,7 @@ const q19ConverseContraposition: QuestDefinition = {
   learningPoint:
     "A3 がまさにこの形であることを再確認。メタ変数への代入パターンを見抜く力が重要。",
   order: 5,
+  version: 1,
 };
 
 // --- Level 4: 否定と含意の相互作用（続き） ---
@@ -492,6 +510,7 @@ const q20LawOfExcludedMiddle: QuestDefinition = {
   learningPoint:
     "選言の定義 α ∨ β ≡ ¬α → β を使えば、排中律は二重否定除去 (DNE) と等価。",
   order: 6,
+  version: 1,
 };
 
 const q21PeirceLaw: QuestDefinition = {
@@ -518,6 +537,7 @@ const q21PeirceLaw: QuestDefinition = {
   learningPoint:
     "Peirce の法則は古典論理と直観主義論理を分ける等価条件のひとつ。排中律、DNE と等価。",
   order: 7,
+  version: 1,
 };
 
 // --- Level 5: 挑戦問題（連言・選言の定義展開） ---
@@ -546,6 +566,7 @@ const q22ConjunctionIntro: QuestDefinition = {
   learningPoint:
     "Hilbert 系で連言を直接扱うのは非常に手間がかかる。自然演繹の方がはるかに簡潔。",
   order: 1,
+  version: 1,
 };
 
 const q23ConjunctionElim: QuestDefinition = {
@@ -572,6 +593,7 @@ const q23ConjunctionElim: QuestDefinition = {
   learningPoint:
     "連言の除去も定義の展開が必要。左射影 (φ∧ψ→φ) と右射影 (φ∧ψ→ψ) は別々に証明する。",
   order: 2,
+  version: 1,
 };
 
 const q24DeMorgan: QuestDefinition = {
@@ -598,6 +620,7 @@ const q24DeMorgan: QuestDefinition = {
   learningPoint:
     "De Morgan の法則は命題論理の重要な等価性。Hilbert 系では証明が非常に長くなる典型例。",
   order: 3,
+  version: 1,
 };
 
 // --- Level 3-4: 否定公理の追加問題 ---
@@ -626,6 +649,7 @@ const q25TripleNegationElim: QuestDefinition = {
   learningPoint:
     "三重否定除去はDNEの直接的な帰結。¬¬(¬φ) → ¬φ はDNEのインスタンス。しかしDNE自体の証明を含めると長い。",
   order: 8,
+  version: 1,
 };
 
 const q26ConsequentiaMirabilis: QuestDefinition = {
@@ -652,6 +676,7 @@ const q26ConsequentiaMirabilis: QuestDefinition = {
   learningPoint:
     "Consequentia mirabilis（驚嘆すべき帰結）はラテン語由来の古典的定理。自己矛盾する仮定を排除する推論パターン。",
   order: 9,
+  version: 1,
 };
 
 const q27Contraposition2: QuestDefinition = {
@@ -678,6 +703,7 @@ const q27Contraposition2: QuestDefinition = {
   learningPoint:
     "対偶律は4つの形態 (CON1-CON4) がある。CON1 (Modus Tollens) と CON2 はSK体系でも証明可能。",
   order: 10,
+  version: 1,
 };
 
 const q28ClaviusLaw: QuestDefinition = {
@@ -704,6 +730,7 @@ const q28ClaviusLaw: QuestDefinition = {
   learningPoint:
     "Clavius の法則は古典論理に特有。直観主義論理では証明できない。CMと対を成す重要な定理。",
   order: 11,
+  version: 1,
 };
 
 const q29TertiumNonDatur: QuestDefinition = {
@@ -730,6 +757,7 @@ const q29TertiumNonDatur: QuestDefinition = {
   learningPoint:
     "TND（tertium non datur）は場合分け推論の形式化。排中律 (LEM) と密接に関連する古典論理の基本法則。",
   order: 12,
+  version: 1,
 };
 
 // --- Level 5: 挑戦問題（追加） ---
@@ -758,6 +786,7 @@ const q30LawOfNonContradiction: QuestDefinition = {
   learningPoint:
     "矛盾律 (LNC) は最小論理 HM でも証明可能な基本法則。連言の定義を展開すると DNI で証明できる。",
   order: 4,
+  version: 1,
 };
 
 const q31ConjunctionElimRight: QuestDefinition = {
@@ -783,6 +812,7 @@ const q31ConjunctionElimRight: QuestDefinition = {
   learningPoint:
     "連言の除去には左射影 (φ∧ψ→φ) と右射影 (φ∧ψ→ψ) の2つが必要。Hilbert系では各々独立に証明する。",
   order: 5,
+  version: 1,
 };
 
 const q32DisjunctionElim: QuestDefinition = {
@@ -809,6 +839,7 @@ const q32DisjunctionElim: QuestDefinition = {
   learningPoint:
     "選言除去は場合分け推論の形式化。自然演繹では1ルールで済むが、Hilbert系では非常に長い証明が必要。",
   order: 6,
+  version: 1,
 };
 
 // --- ペアノ算術の基礎 ---
@@ -836,6 +867,7 @@ const qPA01SuccessorNotZero: QuestDefinition = {
   learningPoint:
     "PA1は「0は後者関数の値域にない」という自然数の基本性質。公理はそのまま定理として使える。",
   order: 1,
+  version: 1,
 };
 
 const qPA02AdditionBase: QuestDefinition = {
@@ -860,6 +892,7 @@ const qPA02AdditionBase: QuestDefinition = {
   learningPoint:
     "PA3は「任意の自然数に0を加えても変わらない」という加法の基底ケース。算術の再帰定義の出発点。",
   order: 2,
+  version: 1,
 };
 
 const qPA03MultiplicationBase: QuestDefinition = {
@@ -884,6 +917,7 @@ const qPA03MultiplicationBase: QuestDefinition = {
   learningPoint:
     "PA5は「任意の自然数と0の積は0」という乗法の基底ケース。PA3（加法基底）と対を成す。",
   order: 3,
+  version: 1,
 };
 
 const qPA04Reflexivity: QuestDefinition = {
@@ -909,6 +943,7 @@ const qPA04Reflexivity: QuestDefinition = {
   learningPoint:
     "E1（反射律）はPA体系の等号公理の一つ。ペアノ算術では等号が基本的な道具になる。",
   order: 4,
+  version: 1,
 };
 
 const qPA05SuccessorInjective: QuestDefinition = {
@@ -934,6 +969,7 @@ const qPA05SuccessorInjective: QuestDefinition = {
   learningPoint:
     "PA2は「S(x) = S(y) ならば x = y」を保証。PA1（0≠後者）と合わせて自然数の構造を規定する。",
   order: 5,
+  version: 1,
 };
 
 const qPA06AdditionRecursion: QuestDefinition = {
@@ -959,6 +995,7 @@ const qPA06AdditionRecursion: QuestDefinition = {
   learningPoint:
     "PA4は「x + S(y) = S(x + y)」で加法の再帰ステップを定義。PA3（基底）とペアで加法を完全に定義する。",
   order: 6,
+  version: 1,
 };
 
 // --- ペアノ算術の推論 ---
@@ -987,6 +1024,7 @@ const qPA07ZeroPlusZero: QuestDefinition = {
   learningPoint:
     "∀消去（A5 + MP）でPA公理を具体的な数に適用する基本技法。形式証明では「計算」もこの操作が必要。",
   order: 1,
+  version: 1,
 };
 
 const qPA08OnePlusZero: QuestDefinition = {
@@ -1011,6 +1049,7 @@ const qPA08OnePlusZero: QuestDefinition = {
   learningPoint:
     "S(0)は自然数1を表す。PA3をS(0)にインスタンス化するだけで1+0=1が証明できる。",
   order: 2,
+  version: 1,
 };
 
 const qPA09ZeroTimesZero: QuestDefinition = {
@@ -1036,6 +1075,7 @@ const qPA09ZeroTimesZero: QuestDefinition = {
   learningPoint:
     "乗法の基底ケースPA5も同じ∀消去パターンで具体化。加法と乗法の基底は対称的。",
   order: 3,
+  version: 1,
 };
 
 const qPA10SuccessorNotZeroInstance: QuestDefinition = {
@@ -1060,6 +1100,7 @@ const qPA10SuccessorNotZeroInstance: QuestDefinition = {
   learningPoint:
     "PA1のインスタンス化で「1 ≠ 0」が導ける。自然数論の最も基本的な事実。",
   order: 4,
+  version: 1,
 };
 
 const qPA11OnePlusOne: QuestDefinition = {
@@ -1086,6 +1127,7 @@ const qPA11OnePlusOne: QuestDefinition = {
   learningPoint:
     "「1+1=2」の形式証明にはPA3、PA4、等号公理の組み合わせが必要。算術の「計算」は複数の公理の連鎖。",
   order: 5,
+  version: 1,
 };
 
 const qPA12RobinsonSurjectivity: QuestDefinition = {
@@ -1110,6 +1152,7 @@ const qPA12RobinsonSurjectivity: QuestDefinition = {
   learningPoint:
     "Q7はRobinson算術固有の公理。PAの帰納法スキーマの代わりに自然数の構造を保証する。",
   order: 6,
+  version: 1,
 };
 
 // --- 群論の基礎 ---
@@ -1137,6 +1180,7 @@ const qG01Associativity: QuestDefinition = {
   learningPoint:
     "結合律は群の定義で最も基本的な公理。括弧の付け方によらず演算結果が同じことを保証する。",
   order: 1,
+  version: 1,
 };
 
 const qG02LeftIdentity: QuestDefinition = {
@@ -1161,6 +1205,7 @@ const qG02LeftIdentity: QuestDefinition = {
   learningPoint:
     "単位元eは群の演算の「何もしない要素」。左から掛けても元の要素を変えない。",
   order: 2,
+  version: 1,
 };
 
 const qG03LeftInverse: QuestDefinition = {
@@ -1186,6 +1231,7 @@ const qG03LeftInverse: QuestDefinition = {
   learningPoint:
     "逆元i(x)は「xの効果を打ち消す」元。左から掛けると単位元eに戻る。",
   order: 3,
+  version: 1,
 };
 
 const qG04RightIdentity: QuestDefinition = {
@@ -1210,6 +1256,7 @@ const qG04RightIdentity: QuestDefinition = {
   learningPoint:
     "両側公理系では左右の単位元性が公理として与えられる。左公理系では右単位元は定理。",
   order: 4,
+  version: 1,
 };
 
 const qG05RightInverse: QuestDefinition = {
@@ -1234,6 +1281,7 @@ const qG05RightInverse: QuestDefinition = {
   learningPoint:
     "両側公理系では左右の逆元性が公理として与えられる。左公理系では右逆元は定理。",
   order: 5,
+  version: 1,
 };
 
 const qG06Commutativity: QuestDefinition = {
@@ -1258,6 +1306,7 @@ const qG06Commutativity: QuestDefinition = {
   learningPoint:
     "可換律は一般の群では成り立たない。可換律が成り立つ群を特にアーベル群（可換群）と呼ぶ。",
   order: 6,
+  version: 1,
 };
 
 // --- 群論の推論 ---
@@ -1286,6 +1335,7 @@ const qG07IdentityTimesIdentity: QuestDefinition = {
   learningPoint:
     "∀消去は「A5: (∀x.φ) → φ[t/x]」のインスタンスとMPの組み合わせ。群論でも同じパターンが使える。",
   order: 1,
+  version: 1,
 };
 
 const qG08InverseIdentity: QuestDefinition = {
@@ -1312,6 +1362,7 @@ const qG08InverseIdentity: QuestDefinition = {
   learningPoint:
     "逆元関数iは任意の元に適用可能。特にi(e)は単位元の逆元で、自分自身が単位元になる。",
   order: 2,
+  version: 1,
 };
 
 // --- 述語論理の基礎 ---
@@ -1340,6 +1391,7 @@ const qPred01UniversalElim: QuestDefinition = {
   learningPoint:
     "A4（全称消去）は量化子∀を外す基本公理。∀x.φ(x) → φ(t) で任意の項tを代入できる。",
   order: 1,
+  version: 1,
 };
 
 const qPred02IdentityQuantified: QuestDefinition = {
@@ -1366,6 +1418,7 @@ const qPred02IdentityQuantified: QuestDefinition = {
   learningPoint:
     "Gen（汎化規則）は証明済みの式を全称量化する。定理に対してのみ適用可能であることに注意。",
   order: 2,
+  version: 1,
 };
 
 const qPred03UniversalSwap: QuestDefinition = {
@@ -1393,6 +1446,7 @@ const qPred03UniversalSwap: QuestDefinition = {
   learningPoint:
     "∀量化子の順序は交換可能。A4(消去)とA5+Gen(導入)の組み合わせで示す。",
   order: 3,
+  version: 1,
 };
 
 const qPred04ExistentialIntro: QuestDefinition = {
@@ -1417,6 +1471,7 @@ const qPred04ExistentialIntro: QuestDefinition = {
   estimatedSteps: 1,
   learningPoint: "存在量化子の導入。P(t) が成り立てば ∃x.P(x) が成り立つ。",
   order: 4,
+  version: 1,
 };
 
 const qPred05ExistNegToNegUniv: QuestDefinition = {
@@ -1444,6 +1499,7 @@ const qPred05ExistNegToNegUniv: QuestDefinition = {
   learningPoint:
     "∃xと∀xの関係は否定を介して結ばれる。述語論理の対偶的推論の基本。",
   order: 5,
+  version: 1,
 };
 
 const qPred06UnivNegToNegExist: QuestDefinition = {
@@ -1471,6 +1527,7 @@ const qPred06UnivNegToNegExist: QuestDefinition = {
   learningPoint:
     "∀x.¬P(x) → ¬∃x.P(x) は量化子と否定の基本関係。∃の定義（¬∀¬）を展開して二重否定導入で証明。",
   order: 6,
+  version: 1,
 };
 
 // --- 全ビルトインクエスト ---

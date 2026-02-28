@@ -80,6 +80,10 @@ function parseNotebook(raw: unknown): Notebook | undefined {
   const questId =
     typeof obj["questId"] === "string" ? obj["questId"] : undefined;
 
+  // questVersion は optional number（旧フォーマットには存在しない）
+  const questVersion =
+    typeof obj["questVersion"] === "number" ? obj["questVersion"] : undefined;
+
   // inferenceEdges は旧フォーマットに存在しない場合がある（互換性のためデフォルト空配列）
   const inferenceEdges = Array.isArray(workspace["inferenceEdges"])
     ? (workspace["inferenceEdges"] as readonly unknown[])
@@ -93,6 +97,7 @@ function parseNotebook(raw: unknown): Notebook | undefined {
       inferenceEdges,
     } as WorkspaceState,
     ...(questId !== undefined ? { questId } : {}),
+    ...(questVersion !== undefined ? { questVersion } : {}),
   };
 }
 
@@ -140,6 +145,9 @@ export function serializeCollection(collection: NotebookCollection): string {
         },
       },
       ...(n.questId !== undefined ? { questId: n.questId } : {}),
+      ...(n.questVersion !== undefined
+        ? { questVersion: n.questVersion }
+        : {}),
     })),
     nextId: collection.nextId,
   };
