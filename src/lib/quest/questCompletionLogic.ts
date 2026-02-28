@@ -7,6 +7,7 @@
  * 変更時は questCompletionLogic.test.ts も同期すること。
  */
 
+import { Either } from "effect";
 import type { WorkspaceNode, WorkspaceGoal } from "../proof-pad/workspaceState";
 import type { InferenceEdge } from "../proof-pad/inferenceEdge";
 import type { ProofNodeKind } from "../proof-pad/proofNodeUI";
@@ -71,12 +72,12 @@ export function checkQuestGoals(
   let achievedCount = 0;
   for (const goal of goals) {
     const goalParsed = parseString(goal.formulaText.trim());
-    if (!goalParsed.ok) continue;
+    if (Either.isLeft(goalParsed)) continue;
 
     const isAchieved = nodes.some((work) => {
       const workParsed = parseString(work.formulaText.trim());
-      if (!workParsed.ok) return false;
-      return equalFormula(goalParsed.formula, workParsed.formula);
+      if (Either.isLeft(workParsed)) return false;
+      return equalFormula(goalParsed.right, workParsed.right);
     });
 
     if (isAchieved) {
@@ -169,7 +170,7 @@ export function checkQuestGoalsWithAxioms(
 
   for (const goal of goals) {
     const goalParsed = parseString(goal.formulaText.trim());
-    if (!goalParsed.ok) {
+    if (Either.isLeft(goalParsed)) {
       goalResults.push({
         goalId: goal.id,
         matchingNodeId: undefined,
@@ -185,8 +186,8 @@ export function checkQuestGoalsWithAxioms(
     let matchingNode: WorkspaceNode | undefined;
     for (const work of nodes) {
       const workParsed = parseString(work.formulaText.trim());
-      if (!workParsed.ok) continue;
-      if (equalFormula(goalParsed.formula, workParsed.formula)) {
+      if (Either.isLeft(workParsed)) continue;
+      if (equalFormula(goalParsed.right, workParsed.right)) {
         matchingNode = work;
         break;
       }

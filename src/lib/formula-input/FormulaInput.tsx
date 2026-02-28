@@ -15,8 +15,9 @@ import {
   useMemo,
   useRef,
 } from "react";
+import { Either } from "effect";
 import type { Formula } from "../logic-core/formula";
-import type { ParseError, ParseResult } from "../logic-lang/parser";
+import type { ParseError } from "../logic-lang/parser";
 import { parseString } from "../logic-lang/parser";
 import { CompletionPopup } from "./CompletionPopup";
 import { FormulaDisplay } from "./FormulaDisplay";
@@ -64,11 +65,11 @@ export const computeParseState = (input: string): FormulaParseState => {
   if (trimmed === "") {
     return { status: "empty" };
   }
-  const result: ParseResult = parseString(trimmed);
-  if (result.ok) {
-    return { status: "success", formula: result.formula };
+  const result = parseString(trimmed);
+  if (Either.isRight(result)) {
+    return { status: "success", formula: result.right };
   }
-  return { status: "error", errors: result.errors };
+  return { status: "error", errors: result.left };
 };
 
 // --- エラー位置からアンダーライン範囲を計算する純粋関数 ---

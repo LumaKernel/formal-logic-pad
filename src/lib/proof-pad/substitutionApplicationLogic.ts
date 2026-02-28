@@ -166,7 +166,7 @@ export function buildFormulaSubstitutionMap(entries: SubstitutionEntries):
     if (entry === undefined || entry._tag !== "FormulaSubstitution") continue;
 
     const parseResult = parseFormula(entry.formulaText);
-    if (!parseResult.ok) {
+    if (Either.isLeft(parseResult)) {
       return {
         _tag: "Error",
         entryIndex: i,
@@ -179,7 +179,7 @@ export function buildFormulaSubstitutionMap(entries: SubstitutionEntries):
       name: entry.metaVariableName,
       subscript: entry.metaVariableSubscript,
     });
-    map.set(key, parseResult.formula);
+    map.set(key, parseResult.right);
   }
 
   return { _tag: "Ok", map };
@@ -207,7 +207,7 @@ export function buildTermSubstitutionMap(entries: SubstitutionEntries):
     if (entry === undefined || entry._tag !== "TermSubstitution") continue;
 
     const parseResult = parseTermString(entry.termText);
-    if (!parseResult.ok) {
+    if (Either.isLeft(parseResult)) {
       return {
         _tag: "Error",
         entryIndex: i,
@@ -220,7 +220,7 @@ export function buildTermSubstitutionMap(entries: SubstitutionEntries):
       name: entry.metaVariableName,
       subscript: entry.metaVariableSubscript,
     });
-    map.set(key, parseResult.term);
+    map.set(key, parseResult.right);
   }
 
   return { _tag: "Ok", map };
@@ -383,10 +383,10 @@ export function extractSubstitutionTargetsFromText(
   formulaText: string,
 ): SubstitutionTargets | null {
   const parseResult = parseFormula(formulaText);
-  if (!parseResult.ok) {
+  if (Either.isLeft(parseResult)) {
     return null;
   }
-  return extractSubstitutionTargets(parseResult.formula);
+  return extractSubstitutionTargets(parseResult.right);
 }
 
 /**

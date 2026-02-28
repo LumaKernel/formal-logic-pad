@@ -210,7 +210,7 @@
 
 #### logic-lang
 
-- [ ] **ET-007: パース結果型を `Either` に統一**
+- [-] **ET-007: パース結果型を `Either` に統一**
 
   **対象ファイル:**
   - `src/lib/logic-lang/parser.ts` — `ParseResult`, `TermParseResult`

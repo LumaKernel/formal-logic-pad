@@ -96,8 +96,8 @@ export function getMPPremises(
 export function parseNodeFormula(node: WorkspaceNode): Formula | undefined {
   if (node.formulaText.trim() === "") return undefined;
   const result = parseString(node.formulaText);
-  if (!result.ok) return undefined;
-  return result.formula;
+  if (Either.isLeft(result)) return undefined;
+  return result.right;
 }
 
 // --- MP適用のバリデーション ---

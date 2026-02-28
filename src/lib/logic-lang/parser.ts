@@ -9,6 +9,7 @@
  * 変更時は token.ts, lexer.ts, parser.test.ts も同期すること。
  */
 
+import { Either } from "effect";
 import type { GreekLetter } from "../logic-core/greekLetters";
 import {
   metaVariable,
@@ -42,14 +43,11 @@ export interface ParseError {
 }
 
 // --- パース結果 ---
+// Right = 成功, Left = 失敗 (errors)
 
-export type ParseResult =
-  | { readonly ok: true; readonly formula: Formula }
-  | { readonly ok: false; readonly errors: readonly ParseError[] };
+export type ParseResult = Either.Either<Formula, readonly ParseError[]>;
 
-export type TermParseResult =
-  | { readonly ok: true; readonly term: Term }
-  | { readonly ok: false; readonly errors: readonly ParseError[] };
+export type TermParseResult = Either.Either<Term, readonly ParseError[]>;
 
 // --- メタ変数の value パース ---
 
@@ -678,7 +676,7 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
       );
     }
     /* v8 ignore stop */
-    return { ok: false, errors };
+    return Either.left(errors);
   }
 
   // 入力の残りチェック
@@ -688,17 +686,17 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
       `Unexpected ${kindToString(remaining.kind) satisfies string} at ${posStr(remaining.span.start) satisfies string}: expected end of input`,
       remaining.span,
     );
-    return { ok: false, errors };
+    return Either.left(errors);
   }
 
   // 防御的: 正常パース後にエラーが残る状況は通常発生しない
   /* v8 ignore start */
   if (errors.length > 0) {
-    return { ok: false, errors };
+    return Either.left(errors);
   }
   /* v8 ignore stop */
 
-  return { ok: true, formula };
+  return Either.right(formula);
 };
 
 // --- 項パーサー（トークン列から） ---
@@ -882,7 +880,7 @@ export const parseTokensAsTerm = (
       );
     }
     /* v8 ignore stop */
-    return { ok: false, errors };
+    return Either.left(errors);
   }
 
   // 入力の残りチェック
@@ -892,17 +890,17 @@ export const parseTokensAsTerm = (
       `Unexpected ${kindToString(remaining.kind) satisfies string} at ${posStr(remaining.span.start) satisfies string}: expected end of input`,
       remaining.span,
     );
-    return { ok: false, errors };
+    return Either.left(errors);
   }
 
   // 防御的: 正常パース後にエラーが残る状況は通常発生しない
   /* v8 ignore start */
   if (errors.length > 0) {
-    return { ok: false, errors };
+    return Either.left(errors);
   }
   /* v8 ignore stop */
 
-  return { ok: true, term };
+  return Either.right(term);
 };
 
 // --- 便利関数: 文字列から直接パース ---
@@ -911,28 +909,26 @@ import { lex } from "./lexer";
 
 export const parseString = (input: string): ParseResult => {
   const lexResult = lex(input);
-  if (!lexResult.ok) {
-    return {
-      ok: false,
-      errors: lexResult.errors.map((e) => ({
+  if (Either.isLeft(lexResult)) {
+    return Either.left(
+      lexResult.left.map((e) => ({
         message: e.message,
         span: e.span,
       })),
-    };
+    );
   }
-  return parse(lexResult.tokens);
+  return parse(lexResult.right);
 };
 
 export const parseTermString = (input: string): TermParseResult => {
   const lexResult = lex(input);
-  if (!lexResult.ok) {
-    return {
-      ok: false,
-      errors: lexResult.errors.map((e) => ({
+  if (Either.isLeft(lexResult)) {
+    return Either.left(
+      lexResult.left.map((e) => ({
         message: e.message,
         span: e.span,
       })),
-    };
+    );
   }
-  return parseTokensAsTerm(lexResult.tokens);
+  return parseTokensAsTerm(lexResult.right);
 };

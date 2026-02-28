@@ -4,6 +4,8 @@
  * 変更時は lexer.ts のトークン化ロジックと lexer.test.ts も同期すること。
  */
 
+import type { Either } from "effect";
+
 // --- トークン種別 ---
 
 export const TOKEN_KINDS = [
@@ -71,7 +73,6 @@ export interface LexerError {
 }
 
 // --- Lexer結果 ---
+// Right = 成功 (tokens), Left = 失敗 (errors)
 
-export type LexResult =
-  | { readonly ok: true; readonly tokens: readonly Token[] }
-  | { readonly ok: false; readonly errors: readonly LexerError[] };
+export type LexResult = Either.Either<readonly Token[], readonly LexerError[]>;
