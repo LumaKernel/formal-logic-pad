@@ -1882,6 +1882,116 @@ const qNd10ConsequentiaMirabilisNK: QuestDefinition = {
   version: 1,
 };
 
+// --- Level ND-2: 背理法・矛盾からの推論 (RAA, CON) ---
+
+const qNd11RaaMinimal: QuestDefinition = {
+  id: "nd-11",
+  category: "nd-basics",
+  title: "背理法 RAA¬ (NM)",
+  description:
+    "(φ → ψ) → (φ → ¬ψ) → ¬φ を自然演繹 NM で証明せよ。φの仮定から矛盾が導かれるなら¬φ。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> (phi -> ~psi) -> ~phi",
+      label: "Goal: (φ → ψ) → (φ → ¬ψ) → ¬φ",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "φ→ψ と φ→¬ψ と φ をそれぞれ仮定します。",
+    "→E で φ→ψ と φ からψを、φ→¬ψ と φ から¬ψを得ます。",
+    "→E で ¬ψ と ψ から ⊥ を導き、→I で φ を解消して ¬φ を得ます。外側の仮定も順に→Iで解消します。",
+  ],
+  estimatedSteps: 8,
+  learningPoint:
+    "背理法 RAA¬ は最小論理 NM の派生規則。φを仮定して矛盾（ψと¬ψの両方）が導かれるなら¬φが結論される。否定導入の一般化。",
+  order: 11,
+  version: 1,
+};
+
+const qNd12RaaClassical: QuestDefinition = {
+  id: "nd-12",
+  category: "nd-basics",
+  title: "古典的背理法 RAA*¬ (NK)",
+  description:
+    "(¬φ → ψ) → (¬φ → ¬ψ) → φ を自然演繹 NK で証明せよ。¬φの仮定から矛盾が導かれるならφ。",
+  difficulty: 3,
+  systemPresetId: "nd-nk",
+  goals: [
+    {
+      formulaText: "(~phi -> psi) -> (~phi -> ~psi) -> phi",
+      label: "Goal: (¬φ → ψ) → (¬φ → ¬ψ) → φ",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "¬φ→ψ と ¬φ→¬ψ と ¬φ をそれぞれ仮定します。",
+    "→E でψと¬ψを得て、→E で矛盾を導きます。→Iで¬φを解消して¬¬φを得ます。",
+    "DNE で ¬¬φ から φ を得ます。外側の仮定を→Iで順に解消します。",
+  ],
+  estimatedSteps: 9,
+  learningPoint:
+    "古典的背理法 RAA*¬ は NK の派生規則。DNE が鍵。NJ では証明不可能で、古典論理と直観主義論理の違いを示す。",
+  order: 12,
+  version: 1,
+};
+
+const qNd13Con1: QuestDefinition = {
+  id: "nd-13",
+  category: "nd-basics",
+  title: "矛盾からの推論 CON1 (NM)",
+  description:
+    "ψ → ¬ψ → ¬φ を自然演繹 NM で証明せよ。ψと¬ψが同時に成り立つなら任意の¬φが結論される。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "psi -> ~psi -> ~phi",
+      label: "Goal: ψ → ¬ψ → ¬φ",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "ψ と ¬ψ と φ をそれぞれ仮定します。",
+    "→E で ¬ψ と ψ から ⊥ を導きます（¬ψ = ψ→⊥）。",
+    "→I で φ を解消して ¬φ を得ます。外側の仮定も→Iで解消します。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "CON1 は NM の派生規則。矛盾した前提（ψと¬ψ）からは任意の否定命題 ¬φ を導ける。EFQ との違いに注意：EFQ は任意のφ（否定なし）も導けるが、CON1 は ¬φ のみ。",
+  order: 13,
+  version: 1,
+};
+
+const qNd14Con4: QuestDefinition = {
+  id: "nd-14",
+  category: "nd-basics",
+  title: "矛盾からの推論 CON4 (NK)",
+  description:
+    "¬ψ → ψ → φ を自然演繹 NK で証明せよ。矛盾した前提から任意のφが結論される（古典版）。",
+  difficulty: 3,
+  systemPresetId: "nd-nk",
+  goals: [
+    {
+      formulaText: "~psi -> psi -> phi",
+      label: "Goal: ¬ψ → ψ → φ",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "¬ψ と ψ と ¬φ をそれぞれ仮定します。",
+    "→E で ¬ψ と ψ から ⊥ を導きます。→I で ¬φ を解消して ¬¬φ を得ます。",
+    "DNE で ¬¬φ から φ を得ます。外側の仮定を→Iで解消します。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "CON4 は NK の派生規則。NM の CON1 が ¬φ しか導けないのに対し、NK では DNE を使って任意の φ を導ける。EFQ と同値な主張。",
+  order: 14,
+  version: 1,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -1956,4 +2066,8 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qNd08ClaviusLawNK,
   qNd09ExcludedMiddleNK,
   qNd10ConsequentiaMirabilisNK,
+  qNd11RaaMinimal,
+  qNd12RaaClassical,
+  qNd13Con1,
+  qNd14Con4,
 ];
