@@ -5698,3 +5698,22 @@
   - 既存のヒルベルト体系クエストと同じ定理でも、ND版は別クエストとして追加する（証明手法が本質的に異なるため）
   - E2 (RAA), E3 (CON), E6 (量化子) は未実装。E2/E3 は NK/NM の追加クエスト、E6 は述語論理ND対応が必要
 ---
+
+## 2026-02-28 - パラメトリック公理廃止
+- パラメトリック公理の仕組みを廃止。A4/A5の公理もパレットから直接スキーマ形式で配置されるように変更
+- 実装内容:
+  - ParametricAxiomPanel (UI) と parametricAxiomLogic (ロジック) を削除（.trash/へ移動）
+  - ProofWorkspace.tsx: A4/A5のモーダル起動ロジックを削除、全公理を同一フローで配置
+  - axiomNameLogic.ts: alwaysNonTrivialAxiomIds を削除、A4/A5も標準の自明性判定に統一
+  - inferenceRule.ts: axiomA4Template, axiomA5Template を追加（公理パレット用テンプレートFormula）
+  - axiomPaletteLogic.ts: A4/A5のテンプレートとunicodeDisplayを正しい値に更新
+  - index.ts: パラメトリック公理関連の全エクスポートを削除
+- 変更ファイル: inferenceRule.ts, axiomPaletteLogic.ts, axiomPaletteLogic.test.ts, axiomNameLogic.ts, axiomNameLogic.test.ts, ProofWorkspace.tsx, ProofWorkspace.test.tsx, index.ts
+- 削除ファイル（.trash/へ）: parametricAxiomLogic.ts, parametricAxiomLogic.test.ts, ParametricAxiomPanel.tsx, ParametricAxiomPanel.test.tsx
+- カバレッジ: Stmts 98.55% (ベースライン 98.6%), Branch 92.96%, Funcs 90.92%, Lines 99.31% — 低下なし
+- テスト: 189ファイル, 5034テスト全通過（ベースライン: 191ファイル, 5080テスト — 削除分の差分）
+- **今後のイテレーションへの学び:**
+  - matchAxiomA4/matchAxiomA5 は特殊なマッチングロジックを使い、常に空の代入マップを返す。標準の isTrivialSubstitution では具体的インスタンスも trivial と判定される
+  - A5テンプレートは matchAxiomA5 と一致する形式が必要: Implication をトップレベルに置く（Universal ではなく）
+  - formatFormula の出力は Pratt parser の優先順位に基づき括弧を付加する。手動での予測は困難なので、テスト時は実際にformatFormulaを呼んで確認すべき
+---

@@ -129,13 +129,19 @@ describe("axiomPalette", () => {
       const a4 = items.find((i) => i.id === "A4");
       const a5 = items.find((i) => i.id === "A5");
       expect(a4?.dslText).toBe("(all x. phi) -> phi");
-      expect(a5?.dslText).toBe("all x. (phi -> psi) -> (phi -> all x. psi)");
+      expect(a5?.dslText).toBe("(all x. (phi -> psi)) -> (phi -> all x. psi)");
     });
 
     it("A4 shows schematic unicode display", () => {
       const items = getAvailableAxioms(predicateLogicSystem);
       const a4 = items.find((i) => i.id === "A4");
-      expect(a4?.unicodeDisplay).toBe("∀x.φ → φ[t/x]");
+      expect(a4?.unicodeDisplay).toBe("(∀x.φ) → φ");
+    });
+
+    it("A5 shows schematic unicode display", () => {
+      const items = getAvailableAxioms(predicateLogicSystem);
+      const a5 = items.find((i) => i.id === "A5");
+      expect(a5?.unicodeDisplay).toBe("(∀x.φ → ψ) → φ → (∀x.ψ)");
     });
 
     it("equality axioms have dslText", () => {
