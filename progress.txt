@@ -5767,3 +5767,28 @@
   - C1 (カット除去) と同じパターンで追加可能。概念エントリは order を連番で付ける（現在14まで使用）
   - 双方向の relatedEntryIds を忘れずに: 新エントリから既存への参照と、既存エントリから新エントリへの参照の両方を設定する
 ---
+
+## 2026-02-28 - F2: 許容規則 vs 導出規則リファレンス
+- タスク: F2. 許容規則 vs 導出規則の概念のリファレンス追加 (from tasks/prd-advanced.md)
+- 実装した内容:
+  - conceptAdmissibleDerivable リファレンスエントリの追加 (id: concept-admissible-derivable, category: concept, order: 15)
+  - bekki Ch.9 定義9.24 の派生規則・許容規則の定義を基に、5パラグラフ(en/ja)で解説
+  - 定義9.24 (派生規則・許容規則)、解説9.25 (派生→許容)、定理9.28 (5つの同値条件)、定理9.30 (等価性) を参照
+  - カット規則を鍵となる例として詳述
+  - formalNotation: 派生規則と許容規則の形式的定義
+  - 関連エントリ: カット除去定理、カリー・ハワード対応、SC構造規則、SC論理規則、古典/直観/最小論理
+  - 外部リンク: Wikipedia (en/ja), nLab
+  - 逆方向の関連リンク: conceptCutElimination → concept-admissible-derivable
+  - テスト: 10件追加 (存在確認、formalNotation、定義記載、カット例、定理9.28参照、関連エントリ、検索 en/ja、逆参照)
+- 変更したファイル:
+  - src/lib/reference/referenceContent.ts - conceptAdmissibleDerivable エントリ追加、conceptCutElimination の関連リンク更新
+  - src/lib/reference/referenceContent.test.ts - エントリ数 51→52 (概念14→15)、新テスト10件追加
+  - tasks/prd-advanced.md - F2 を [x] に
+  - task-processing.md - 完了後クリア
+- テスト: 189ファイル, 5078テスト (ベースライン 5061, +17), カバレッジ Stmts 98.54% (維持)
+- ブラウザ確認: Storybook ReferenceModal で正常描画確認
+- スクリーンショット: .screenshots/f2-reference-modal-default.png
+- **今後のイテレーションへの学び:**
+  - bekki.pdf の定義番号は目次のセクション番号から推測して適切なページ範囲を絞る（Ch.9 は p.194-213 で、定義9.24 は p.202 にある）
+  - 概念エントリの order は連番（15まで使用）
+---

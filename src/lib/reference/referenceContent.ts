@@ -2788,6 +2788,7 @@ const conceptCutElimination: ReferenceEntry = {
     "rule-sc-logical",
     "concept-glivenko",
     "concept-curry-howard",
+    "concept-admissible-derivable",
   ],
   externalLinks: [
     {
@@ -2918,6 +2919,89 @@ const conceptCurryHoward: ReferenceEntry = {
     "証明支援系",
   ],
   order: 14,
+};
+
+const conceptAdmissibleDerivable: ReferenceEntry = {
+  id: "concept-admissible-derivable",
+  category: "concept",
+  title: {
+    en: "Admissible vs Derivable Rules",
+    ja: "許容規則と派生規則",
+  },
+  summary: {
+    en: "A derivable rule can be justified within the system by a proof tree; an admissible rule preserves provability but may lack such justification.",
+    ja: "派生規則は体系内の証明図で正当化できる規則であり、許容規則は証明可能性を保存するが体系内での正当化を持つとは限らない。",
+  },
+  body: {
+    en: [
+      `**Derivable and admissible rules.** In formal proof systems, particularly sequent calculus, the distinction between **derivable** (derivable) and **admissible** (admissible) rules is fundamental. Consider a rule R of the form "from premises S₁, ..., Sₙ conclude S." Rule R is **derivable** in a proof system K if there exists a proof tree in K from S₁, ..., Sₙ to S — that is, the rule can be justified entirely within the system. Rule R is **admissible** in K if whenever S₁, ..., Sₙ are all provable in K, then S is also provable in K — that is, adding the rule does not increase the set of theorems (bekki Definition 9.24).`,
+      `**Every derivable rule is admissible.** If a rule can be justified within the system (derivable), then it certainly preserves provability (admissible). The converse does not hold in general: there are rules that preserve provability without being justifiable within the system. This asymmetry is precisely what makes the distinction important (bekki Remark 9.25).`,
+      `**The cut rule as a key example.** The most prominent example of this distinction is the **cut rule** in sequent calculus. The cut rule is derivable in systems that include it (such as LK, LJ, LM with cut), but the **cut elimination theorem** shows that the cut rule is admissible in the cut-free systems — any sequent provable with cut is also provable without it. This means removing the cut rule does not reduce the proving power of the system, even though the cut rule cannot be derived from the remaining rules alone (bekki Theorem 9.28).`,
+      `**Characterization theorem.** Bekki's Theorem 9.28 provides five equivalent conditions for a rule R to be admissible in K: (1) K = K+R (adding the rule does not change the system), (2) anything provable in K+R is already provable in K, (3) any K+R proof can be transformed into a K proof, (4) any K+R proof where R is used only at the bottom can be transformed into a K proof, and (5) the premises being provable in K implies the conclusion is provable in K. Furthermore, two rules R and R' are equivalent over K if and only if each is admissible in the system extended by the other (bekki Theorem 9.30).`,
+      `**Significance in proof theory.** The admissible/derivable distinction is central to understanding the structure of proof systems. When designing or analyzing a logic, one must determine whether certain rules (weakening, contraction, cut) are built into the system (derivable) or merely preserve theorems (admissible). This distinction also affects the computational content of proofs under the Curry-Howard correspondence: derivable rules correspond to definable functions, while admissible rules may require global transformations that have no direct computational counterpart.`,
+    ],
+    ja: [
+      `**派生規則と許容規則。** 形式的な証明体系、特にシーケント計算において、**派生可能**（derivable）と**許容的**（admissible）の区別は基本的に重要です。「前提 S₁, ..., Sₙ から結論 S を得る」形式の規則 R を考えます。規則 R が証明体系 K において**派生規則**であるとは、S₁, ..., Sₙ から S への K の証明図が存在すること — すなわち、その規則が体系内で完全に正当化できることを意味します。規則 R が K において**許容規則**であるとは、S₁, ..., Sₙ がすべて K で証明可能であるならば S もまた K で証明可能であること — すなわち、その規則を加えても定理の集合が増えないことを意味します（戸次 定義9.24）。`,
+      `**すべての派生規則は許容規則である。** 規則が体系内で正当化できる（派生可能な）場合、それは確実に証明可能性を保存します（許容的です）。逆は一般には成り立ちません: 証明可能性を保存するが体系内では正当化できない規則が存在します。この非対称性こそが、この区別を重要にしている点です（戸次 解説9.25）。`,
+      `**カット規則 — 鍵となる例。** この区別の最も顕著な例は、シーケント計算における**カット規則**です。カット規則はそれを含む体系（カット付きの LK, LJ, LM など）では派生規則ですが、**カット除去定理**はカットなし体系においてカット規則が許容規則であることを示しています — カットを使って証明できるシーケントはカットなしでも証明可能です。これは、カット規則を除いても体系の証明力が減らないことを意味しますが、残りの規則だけからカット規則を導出することはできません（戸次 定理9.28）。`,
+      `**特徴付け定理。** 戸次の定理9.28は、規則 R が K において許容規則であるための5つの同値条件を与えます: (1) K = K+R（規則を加えても体系が変わらない）、(2) K+R で証明可能なものはすでに K で証明可能、(3) K+R の証明図は K の証明図に変換できる、(4) R が最下段のみで使われている K+R の証明図は K の証明図に変換できる、(5) 前提が K で証明可能ならば結論も K で証明可能。さらに、2つの規則 R と R' が K 上で等価であるための必要十分条件は、それぞれが他方を加えた体系の許容規則であることです（戸次 定理9.30）。`,
+      `**証明論における意義。** 許容規則と派生規則の区別は、証明体系の構造を理解するうえで中心的です。論理を設計・分析する際には、ある規則（弱化、縮約、カット）が体系に組み込まれている（派生可能）のか、単に定理を保存する（許容的）だけなのかを判定する必要があります。この区別はカリー・ハワード対応のもとでの証明の計算的内容にも影響します: 派生規則は定義可能な関数に対応しますが、許容規則は直接的な計算的対応物を持たない大域的変換を要求する場合があります。`,
+    ],
+  },
+  formalNotation: `\\text{Derivable: } \\exists\\text{proof tree in }\\mathcal{K}\\text{ from }S_1,\\ldots,S_n\\text{ to }S \\\\
+\\text{Admissible: } \\vdash_{\\mathcal{K}} S_1,\\ldots,\\vdash_{\\mathcal{K}} S_n \\implies \\vdash_{\\mathcal{K}} S`,
+  relatedEntryIds: [
+    "concept-cut-elimination",
+    "concept-curry-howard",
+    "rule-sc-structural",
+    "rule-sc-logical",
+    "system-classical",
+    "system-intuitionistic",
+    "system-minimal",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Admissible_rule",
+      label: {
+        en: "Admissible rule (Wikipedia)",
+        ja: "許容規則 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E8%A8%B1%E5%AE%B9%E8%A6%8F%E5%89%87",
+      label: {
+        en: "Admissible rule (Wikipedia JA)",
+        ja: "許容規則 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/admissible+rule",
+      label: {
+        en: "Admissible rule (nLab)",
+        ja: "許容規則 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "admissible",
+    "derivable",
+    "許容規則",
+    "派生規則",
+    "許容的",
+    "派生可能",
+    "admissible rule",
+    "derivable rule",
+    "cut rule",
+    "カット規則",
+    "cut elimination",
+    "カット除去",
+    "structural rule",
+    "構造規則",
+  ],
+  order: 15,
 };
 
 // ============================================================
@@ -3619,6 +3703,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptProofTheoreticSemantics,
   conceptCutElimination,
   conceptCurryHoward,
+  conceptAdmissibleDerivable,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,

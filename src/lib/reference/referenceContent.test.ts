@@ -15,8 +15,8 @@ describe("allReferenceEntries", () => {
   });
 
   it("エントリ数が期待通り", () => {
-    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念14 + 理論2 = 51
-    expect(allReferenceEntries).toHaveLength(51);
+    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念15 + 理論2 = 52
+    expect(allReferenceEntries).toHaveLength(52);
   });
 
   it("少なくとも1つのエントリが各カテゴリに存在する", () => {
@@ -636,6 +636,101 @@ describe("概念エントリの個別チェック", () => {
     expect(resultEn.some((e) => e.id === "concept-curry-howard")).toBe(true);
     const resultJa = searchEntries(allReferenceEntries, "証明支援系", "ja");
     expect(resultJa.some((e) => e.id === "concept-curry-howard")).toBe(true);
+  });
+});
+
+describe("許容規則と派生規則エントリの個別チェック", () => {
+  it("許容規則と派生規則エントリが存在する", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-admissible-derivable",
+    );
+    expect(entry).toBeDefined();
+    expect(entry?.category).toBe("concept");
+  });
+
+  it("許容規則と派生規則にformalNotationがある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-admissible-derivable",
+    );
+    expect(entry?.formalNotation).toBeTruthy();
+  });
+
+  it("許容規則と派生規則にderivableとadmissibleの定義がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-admissible-derivable",
+    );
+    expect(entry?.body.en.some((p) => p.includes("derivable"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("admissible"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("派生規則"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("許容規則"))).toBe(true);
+  });
+
+  it("許容規則と派生規則にカット規則の例がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-admissible-derivable",
+    );
+    expect(entry?.body.en.some((p) => p.includes("cut rule"))).toBe(true);
+    expect(
+      entry?.body.en.some((p) => p.includes("cut elimination theorem")),
+    ).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("カット規則"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("カット除去定理"))).toBe(true);
+  });
+
+  it("許容規則と派生規則に定理9.28の特徴付けがある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-admissible-derivable",
+    );
+    expect(entry?.body.en.some((p) => p.includes("Theorem 9.28"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("定理9.28"))).toBe(true);
+  });
+
+  it("許容規則と派生規則にカット除去定理が関連エントリに含まれる", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-admissible-derivable",
+    );
+    expect(entry?.relatedEntryIds).toContain("concept-cut-elimination");
+  });
+
+  it("許容規則と派生規則にカリー・ハワード対応が関連エントリに含まれる", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-admissible-derivable",
+    );
+    expect(entry?.relatedEntryIds).toContain("concept-curry-howard");
+  });
+
+  it("許容規則と派生規則を英語で検索できる", () => {
+    const resultEn = searchEntries(allReferenceEntries, "admissible", "en");
+    expect(resultEn.some((e) => e.id === "concept-admissible-derivable")).toBe(
+      true,
+    );
+    const resultEn2 = searchEntries(allReferenceEntries, "derivable", "en");
+    expect(resultEn2.some((e) => e.id === "concept-admissible-derivable")).toBe(
+      true,
+    );
+  });
+
+  it("許容規則と派生規則を日本語で検索できる", () => {
+    const resultJa = searchEntries(allReferenceEntries, "許容規則", "ja");
+    expect(resultJa.some((e) => e.id === "concept-admissible-derivable")).toBe(
+      true,
+    );
+    const resultJa2 = searchEntries(allReferenceEntries, "派生規則", "ja");
+    expect(resultJa2.some((e) => e.id === "concept-admissible-derivable")).toBe(
+      true,
+    );
+  });
+
+  it("カット除去定理から許容規則・派生規則への逆参照がある", () => {
+    const entry = findEntryById(allReferenceEntries, "concept-cut-elimination");
+    expect(entry?.relatedEntryIds).toContain("concept-admissible-derivable");
   });
 });
 
