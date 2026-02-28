@@ -10,7 +10,10 @@
 import type { Point } from "../infinite-canvas/types";
 import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
 import type { InferenceEdge } from "./inferenceEdge";
-import { getInferenceEdgePremiseNodeIds } from "./inferenceEdge";
+import {
+  getInferenceEdgePremiseNodeIds,
+  remapEdgeNodeIds,
+} from "./inferenceEdge";
 
 // --- クリップボードデータ型 ---
 
@@ -238,47 +241,7 @@ export function pasteClipboardData(
     .map((edge): InferenceEdge | undefined => {
       const newConclusionId = idMap.get(edge.conclusionNodeId);
       if (newConclusionId === undefined) return undefined;
-
-      switch (edge._tag) {
-        case "mp": {
-          const newLeft =
-            edge.leftPremiseNodeId !== undefined
-              ? idMap.get(edge.leftPremiseNodeId)
-              : undefined;
-          const newRight =
-            edge.rightPremiseNodeId !== undefined
-              ? idMap.get(edge.rightPremiseNodeId)
-              : undefined;
-          return {
-            ...edge,
-            conclusionNodeId: newConclusionId,
-            leftPremiseNodeId: newLeft,
-            rightPremiseNodeId: newRight,
-          };
-        }
-        case "gen": {
-          const newPremise =
-            edge.premiseNodeId !== undefined
-              ? idMap.get(edge.premiseNodeId)
-              : undefined;
-          return {
-            ...edge,
-            conclusionNodeId: newConclusionId,
-            premiseNodeId: newPremise,
-          };
-        }
-        case "substitution": {
-          const newPremise =
-            edge.premiseNodeId !== undefined
-              ? idMap.get(edge.premiseNodeId)
-              : undefined;
-          return {
-            ...edge,
-            conclusionNodeId: newConclusionId,
-            premiseNodeId: newPremise,
-          };
-        }
-      }
+      return remapEdgeNodeIds(edge, (id) => idMap.get(id));
     })
     .filter((e) => e !== undefined);
 

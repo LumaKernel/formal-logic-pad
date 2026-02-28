@@ -410,6 +410,141 @@ describe("importWorkspaceFromJSON", () => {
     expect(subst.entries[1].termText).toBe("f(a)");
   });
 
+  it("ND InferenceEdgesのラウンドトリップ", () => {
+    const ndEdges: readonly InferenceEdge[] = [
+      {
+        _tag: "nd-implication-intro",
+        conclusionNodeId: "node-3",
+        premiseNodeId: "node-1",
+        dischargedFormulaText: "A",
+        dischargedAssumptionId: 1,
+        conclusionText: "A → B",
+      },
+      {
+        _tag: "nd-implication-elim",
+        conclusionNodeId: "node-4",
+        leftPremiseNodeId: "node-1",
+        rightPremiseNodeId: "node-2",
+        conclusionText: "B",
+      },
+      {
+        _tag: "nd-conjunction-intro",
+        conclusionNodeId: "node-5",
+        leftPremiseNodeId: "node-1",
+        rightPremiseNodeId: "node-2",
+        conclusionText: "A ∧ B",
+      },
+      {
+        _tag: "nd-conjunction-elim-left",
+        conclusionNodeId: "node-6",
+        premiseNodeId: "node-1",
+        conclusionText: "A",
+      },
+      {
+        _tag: "nd-conjunction-elim-right",
+        conclusionNodeId: "node-7",
+        premiseNodeId: "node-1",
+        conclusionText: "B",
+      },
+      {
+        _tag: "nd-disjunction-intro-left",
+        conclusionNodeId: "node-8",
+        premiseNodeId: "node-1",
+        addedRightText: "B",
+        conclusionText: "A ∨ B",
+      },
+      {
+        _tag: "nd-disjunction-intro-right",
+        conclusionNodeId: "node-9",
+        premiseNodeId: "node-2",
+        addedLeftText: "A",
+        conclusionText: "A ∨ B",
+      },
+      {
+        _tag: "nd-disjunction-elim",
+        conclusionNodeId: "node-10",
+        disjunctionPremiseNodeId: "node-1",
+        leftCasePremiseNodeId: "node-2",
+        leftDischargedAssumptionId: 2,
+        rightCasePremiseNodeId: "node-3",
+        rightDischargedAssumptionId: 3,
+        conclusionText: "C",
+      },
+      {
+        _tag: "nd-weakening",
+        conclusionNodeId: "node-11",
+        keptPremiseNodeId: "node-1",
+        discardedPremiseNodeId: "node-2",
+        conclusionText: "A",
+      },
+      {
+        _tag: "nd-efq",
+        conclusionNodeId: "node-12",
+        premiseNodeId: "node-1",
+        conclusionText: "A",
+      },
+      {
+        _tag: "nd-dne",
+        conclusionNodeId: "node-13",
+        premiseNodeId: "node-1",
+        conclusionText: "A",
+      },
+    ];
+
+    const workspace: WorkspaceState = {
+      ...createSampleWorkspace(),
+      inferenceEdges: ndEdges,
+    };
+    const json = exportWorkspaceToJSON(workspace);
+    const result = importWorkspaceFromJSON(json);
+
+    expect(result._tag).toBe("Success");
+    if (result._tag !== "Success") return;
+
+    expect(result.workspace.inferenceEdges).toHaveLength(11);
+
+    // 各NDエッジの_tagが正しく復元されることを確認
+    const tags = result.workspace.inferenceEdges.map((e) => e._tag);
+    expect(tags).toEqual([
+      "nd-implication-intro",
+      "nd-implication-elim",
+      "nd-conjunction-intro",
+      "nd-conjunction-elim-left",
+      "nd-conjunction-elim-right",
+      "nd-disjunction-intro-left",
+      "nd-disjunction-intro-right",
+      "nd-disjunction-elim",
+      "nd-weakening",
+      "nd-efq",
+      "nd-dne",
+    ]);
+
+    // →Iエッジの固有フィールドが正しく復元される
+    const implicationIntro = result.workspace.inferenceEdges[0];
+    if (implicationIntro._tag !== "nd-implication-intro") return;
+    expect(implicationIntro.dischargedFormulaText).toBe("A");
+    expect(implicationIntro.dischargedAssumptionId).toBe(1);
+
+    // ∨Eエッジの複数前提とdischarge情報が復元される
+    const disjunctionElim = result.workspace.inferenceEdges[7];
+    if (disjunctionElim._tag !== "nd-disjunction-elim") return;
+    expect(disjunctionElim.disjunctionPremiseNodeId).toBe("node-1");
+    expect(disjunctionElim.leftCasePremiseNodeId).toBe("node-2");
+    expect(disjunctionElim.leftDischargedAssumptionId).toBe(2);
+    expect(disjunctionElim.rightCasePremiseNodeId).toBe("node-3");
+    expect(disjunctionElim.rightDischargedAssumptionId).toBe(3);
+
+    // ∨I_Lの固有フィールド
+    const disjIntroLeft = result.workspace.inferenceEdges[5];
+    if (disjIntroLeft._tag !== "nd-disjunction-intro-left") return;
+    expect(disjIntroLeft.addedRightText).toBe("B");
+
+    // ∨I_Rの固有フィールド
+    const disjIntroRight = result.workspace.inferenceEdges[6];
+    if (disjIntroRight._tag !== "nd-disjunction-intro-right") return;
+    expect(disjIntroRight.addedLeftText).toBe("A");
+  });
+
   it("旧フォーマット互換: inferenceEdgesフィールドなしでも空配列で復元する", () => {
     // inferenceEdges フィールドが存在しない旧フォーマットのJSON
     const oldFormatJson = JSON.stringify({

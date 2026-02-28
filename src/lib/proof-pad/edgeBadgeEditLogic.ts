@@ -9,6 +9,7 @@
  */
 
 import type { InferenceEdge } from "./inferenceEdge";
+import { isNdInferenceEdge } from "./inferenceEdge";
 import { greekLetters } from "../logic-core/greekLetters";
 import type {
   SubstitutionEntries,
@@ -45,13 +46,17 @@ export type EdgeBadgeEditState = GenEditState | SubstitutionEditState;
 
 /**
  * InferenceEdgeから編集状態を生成する。
- * MPエッジはパラメータ編集不可なのでundefined。
+ * MPエッジ・NDエッジはパラメータ編集不可なのでundefined。
  * premiseFormulaTextは前提ノードの論理式テキスト（Substitutionの場合にメタ変数自動抽出に使用）。
  */
 export function createEditStateFromEdge(
   edge: InferenceEdge,
   premiseFormulaText?: string,
 ): EdgeBadgeEditState | undefined {
+  // NDエッジはパラメータ編集不可
+  if (isNdInferenceEdge(edge)) {
+    return undefined;
+  }
   switch (edge._tag) {
     case "mp":
       return undefined;

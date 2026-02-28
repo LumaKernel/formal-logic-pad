@@ -3,7 +3,12 @@ import {
   getInferenceEdgeBadgeColor,
   computeInferenceEdgeLabelData,
 } from "./inferenceEdgeLabelLogic";
-import type { MPEdge, GenEdge, SubstitutionEdge } from "./inferenceEdge";
+import type {
+  MPEdge,
+  GenEdge,
+  SubstitutionEdge,
+  NdInferenceEdge,
+} from "./inferenceEdge";
 
 describe("inferenceEdgeLabelLogic", () => {
   describe("getInferenceEdgeBadgeColor", () => {
@@ -88,6 +93,57 @@ describe("inferenceEdgeLabelLogic", () => {
       expect(result.label).toBe("Subst(1)");
       expect(result.tag).toBe("substitution");
       expect(result.badgeColor).toContain("--color-badge-subst");
+    });
+
+    it("returns ND badge color for all ND edges", () => {
+      const ndEdges: readonly NdInferenceEdge[] = [
+        {
+          _tag: "nd-implication-intro",
+          conclusionNodeId: "c",
+          premiseNodeId: "p",
+          dischargedFormulaText: "A",
+          dischargedAssumptionId: 1,
+          conclusionText: "A → B",
+        },
+        {
+          _tag: "nd-implication-elim",
+          conclusionNodeId: "c",
+          leftPremiseNodeId: "p1",
+          rightPremiseNodeId: "p2",
+          conclusionText: "B",
+        },
+        {
+          _tag: "nd-conjunction-intro",
+          conclusionNodeId: "c",
+          leftPremiseNodeId: "p1",
+          rightPremiseNodeId: "p2",
+          conclusionText: "A ∧ B",
+        },
+        {
+          _tag: "nd-dne",
+          conclusionNodeId: "c",
+          premiseNodeId: "p",
+          conclusionText: "A",
+        },
+      ];
+      for (const edge of ndEdges) {
+        const result = computeInferenceEdgeLabelData(edge);
+        expect(result.badgeColor).toContain("--color-badge-nd");
+      }
+    });
+
+    it("returns correct label and tag for ND →I edge", () => {
+      const edge: NdInferenceEdge = {
+        _tag: "nd-implication-intro",
+        conclusionNodeId: "c",
+        premiseNodeId: "p",
+        dischargedFormulaText: "A",
+        dischargedAssumptionId: 1,
+        conclusionText: "A → B",
+      };
+      const result = computeInferenceEdgeLabelData(edge);
+      expect(result.label).toBe("→I");
+      expect(result.tag).toBe("nd-implication-intro");
     });
   });
 });

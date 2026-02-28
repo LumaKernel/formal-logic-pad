@@ -30,14 +30,7 @@ import type { ProofNodeKind } from "./proofNodeUI";
 
 // --- 公理ID定数 ---
 
-const PROPOSITIONAL_AXIOM_IDS = [
-  "A1",
-  "A2",
-  "A3",
-  "M3",
-  "EFQ",
-  "DNE",
-] as const;
+const PROPOSITIONAL_AXIOM_IDS = ["A1", "A2", "A3", "M3", "EFQ", "DNE"] as const;
 
 const ALL_AXIOM_IDS = [
   "A1",
@@ -246,11 +239,125 @@ const SubstitutionEdgeSchema = Schema.Struct({
   conclusionText: Schema.String,
 });
 
-/** InferenceEdgeのSchema */
+// --- ND推論エッジ Schema ---
+
+/** ND →導入 (→I) エッジのSchema */
+const NdImplicationIntroEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-implication-intro"),
+  conclusionNodeId: Schema.String,
+  premiseNodeId: Schema.optional(Schema.String),
+  dischargedFormulaText: Schema.String,
+  dischargedAssumptionId: Schema.Number,
+  conclusionText: Schema.String,
+});
+
+/** ND →除去 (→E) エッジのSchema */
+const NdImplicationElimEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-implication-elim"),
+  conclusionNodeId: Schema.String,
+  leftPremiseNodeId: Schema.optional(Schema.String),
+  rightPremiseNodeId: Schema.optional(Schema.String),
+  conclusionText: Schema.String,
+});
+
+/** ND ∧導入 (∧I) エッジのSchema */
+const NdConjunctionIntroEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-conjunction-intro"),
+  conclusionNodeId: Schema.String,
+  leftPremiseNodeId: Schema.optional(Schema.String),
+  rightPremiseNodeId: Schema.optional(Schema.String),
+  conclusionText: Schema.String,
+});
+
+/** ND ∧除去左 (∧E_L) エッジのSchema */
+const NdConjunctionElimLeftEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-conjunction-elim-left"),
+  conclusionNodeId: Schema.String,
+  premiseNodeId: Schema.optional(Schema.String),
+  conclusionText: Schema.String,
+});
+
+/** ND ∧除去右 (∧E_R) エッジのSchema */
+const NdConjunctionElimRightEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-conjunction-elim-right"),
+  conclusionNodeId: Schema.String,
+  premiseNodeId: Schema.optional(Schema.String),
+  conclusionText: Schema.String,
+});
+
+/** ND ∨導入左 (∨I_L) エッジのSchema */
+const NdDisjunctionIntroLeftEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-disjunction-intro-left"),
+  conclusionNodeId: Schema.String,
+  premiseNodeId: Schema.optional(Schema.String),
+  addedRightText: Schema.String,
+  conclusionText: Schema.String,
+});
+
+/** ND ∨導入右 (∨I_R) エッジのSchema */
+const NdDisjunctionIntroRightEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-disjunction-intro-right"),
+  conclusionNodeId: Schema.String,
+  premiseNodeId: Schema.optional(Schema.String),
+  addedLeftText: Schema.String,
+  conclusionText: Schema.String,
+});
+
+/** ND ∨除去 (∨E) エッジのSchema */
+const NdDisjunctionElimEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-disjunction-elim"),
+  conclusionNodeId: Schema.String,
+  disjunctionPremiseNodeId: Schema.optional(Schema.String),
+  leftCasePremiseNodeId: Schema.optional(Schema.String),
+  leftDischargedAssumptionId: Schema.Number,
+  rightCasePremiseNodeId: Schema.optional(Schema.String),
+  rightDischargedAssumptionId: Schema.Number,
+  conclusionText: Schema.String,
+});
+
+/** ND 弱化 (w) エッジのSchema */
+const NdWeakeningEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-weakening"),
+  conclusionNodeId: Schema.String,
+  keptPremiseNodeId: Schema.optional(Schema.String),
+  discardedPremiseNodeId: Schema.optional(Schema.String),
+  conclusionText: Schema.String,
+});
+
+/** ND EFQ (爆発律) エッジのSchema */
+const NdEfqEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-efq"),
+  conclusionNodeId: Schema.String,
+  premiseNodeId: Schema.optional(Schema.String),
+  conclusionText: Schema.String,
+});
+
+/** ND DNE (二重否定除去) エッジのSchema */
+const NdDneEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-dne"),
+  conclusionNodeId: Schema.String,
+  premiseNodeId: Schema.optional(Schema.String),
+  conclusionText: Schema.String,
+});
+
+/** InferenceEdgeのSchema（Hilbert系 + ND） */
 const InferenceEdgeSchema = Schema.Union(
+  // Hilbert系
   MPEdgeSchema,
   GenEdgeSchema,
   SubstitutionEdgeSchema,
+  // ND
+  NdImplicationIntroEdgeSchema,
+  NdImplicationElimEdgeSchema,
+  NdConjunctionIntroEdgeSchema,
+  NdConjunctionElimLeftEdgeSchema,
+  NdConjunctionElimRightEdgeSchema,
+  NdDisjunctionIntroLeftEdgeSchema,
+  NdDisjunctionIntroRightEdgeSchema,
+  NdDisjunctionElimEdgeSchema,
+  NdWeakeningEdgeSchema,
+  NdEfqEdgeSchema,
+  NdDneEdgeSchema,
 );
 
 /** WorkspaceGoalのSchema */
@@ -299,25 +406,29 @@ const WorkspaceStateSchema = Schema.transform(
       deductionSystem: hilbertDeduction(
         serialized.system satisfies object as LogicSystem,
       ),
-      nodes: serialized.nodes satisfies readonly object[] as readonly WorkspaceNode[],
-      connections: serialized.connections satisfies readonly object[] as readonly WorkspaceConnection[],
-      inferenceEdges:
-        (serialized.inferenceEdges ??
-          []) satisfies readonly object[] as readonly InferenceEdge[],
+      nodes:
+        serialized.nodes satisfies readonly object[] as readonly WorkspaceNode[],
+      connections:
+        serialized.connections satisfies readonly object[] as readonly WorkspaceConnection[],
+      inferenceEdges: (serialized.inferenceEdges ??
+        []) satisfies readonly object[] as readonly InferenceEdge[],
       nextNodeId: serialized.nextNodeId,
       mode: serialized.mode satisfies string as WorkspaceMode,
-      goals:
-        (serialized.goals ??
-          []) satisfies readonly object[] as readonly WorkspaceGoal[],
+      goals: (serialized.goals ??
+        []) satisfies readonly object[] as readonly WorkspaceGoal[],
     }),
     encode: (state) => ({
       system: state.system satisfies object as LogicSystem,
-      nodes: state.nodes satisfies readonly object[] as readonly WorkspaceNode[],
-      connections: state.connections satisfies readonly object[] as readonly WorkspaceConnection[],
-      inferenceEdges: state.inferenceEdges satisfies readonly object[] as readonly InferenceEdge[],
+      nodes:
+        state.nodes satisfies readonly object[] as readonly WorkspaceNode[],
+      connections:
+        state.connections satisfies readonly object[] as readonly WorkspaceConnection[],
+      inferenceEdges:
+        state.inferenceEdges satisfies readonly object[] as readonly InferenceEdge[],
       nextNodeId: state.nextNodeId,
       mode: state.mode satisfies string as WorkspaceMode,
-      goals: state.goals satisfies readonly object[] as readonly WorkspaceGoal[],
+      goals:
+        state.goals satisfies readonly object[] as readonly WorkspaceGoal[],
     }),
   },
 );

@@ -8,12 +8,18 @@
  */
 
 import type { InferenceEdge } from "./inferenceEdge";
-import { getInferenceEdgeLabel } from "./inferenceEdge";
+import { getInferenceEdgeLabel, isHilbertInferenceEdge } from "./inferenceEdge";
 
 // --- ラベルバッジ色 ---
 
+/** ND推論規則のデフォルトバッジ色 */
+const ND_BADGE_COLOR = "var(--color-badge-nd, #0984e3)";
+
 /** 推論規則の種別に応じたバッジ背景色 */
 export function getInferenceEdgeBadgeColor(edge: InferenceEdge): string {
+  if (!isHilbertInferenceEdge(edge)) {
+    return ND_BADGE_COLOR;
+  }
   switch (edge._tag) {
     case "mp":
       return "var(--color-badge-mp, #6c5ce7)";

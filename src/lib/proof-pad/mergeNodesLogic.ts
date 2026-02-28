@@ -10,6 +10,7 @@
  */
 
 import type { InferenceEdge } from "./inferenceEdge";
+import { replaceNodeIdInEdge } from "./inferenceEdge";
 import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
 
 // --- マージ結果型 ---
@@ -47,54 +48,7 @@ function regenerateConnectionId(conn: WorkspaceConnection): string {
   return `conn-${conn.fromNodeId satisfies string}-${conn.fromPortId satisfies string}-${conn.toNodeId satisfies string}-${conn.toPortId satisfies string}`;
 }
 
-/**
- * InferenceEdge内のノードIDを置換する。
- * absorbedId → leaderId に置き換える。
- */
-function replaceNodeIdInInferenceEdge(
-  edge: InferenceEdge,
-  absorbedId: string,
-  leaderId: string,
-): InferenceEdge {
-  switch (edge._tag) {
-    case "mp":
-      return {
-        ...edge,
-        conclusionNodeId:
-          edge.conclusionNodeId === absorbedId
-            ? leaderId
-            : edge.conclusionNodeId,
-        leftPremiseNodeId:
-          edge.leftPremiseNodeId === absorbedId
-            ? leaderId
-            : edge.leftPremiseNodeId,
-        rightPremiseNodeId:
-          edge.rightPremiseNodeId === absorbedId
-            ? leaderId
-            : edge.rightPremiseNodeId,
-      };
-    case "gen":
-      return {
-        ...edge,
-        conclusionNodeId:
-          edge.conclusionNodeId === absorbedId
-            ? leaderId
-            : edge.conclusionNodeId,
-        premiseNodeId:
-          edge.premiseNodeId === absorbedId ? leaderId : edge.premiseNodeId,
-      };
-    case "substitution":
-      return {
-        ...edge,
-        conclusionNodeId:
-          edge.conclusionNodeId === absorbedId
-            ? leaderId
-            : edge.conclusionNodeId,
-        premiseNodeId:
-          edge.premiseNodeId === absorbedId ? leaderId : edge.premiseNodeId,
-      };
-  }
-}
+/** @see replaceNodeIdInEdge in inferenceEdge.ts */
 
 // --- メインロジック ---
 
@@ -174,7 +128,7 @@ export function mergeNodes(
   // 前提ノードIDの付替え: absorbed → leader
   for (const absorbedId of absorbedNodeIds) {
     mergedEdges = mergedEdges.map((edge) =>
-      replaceNodeIdInInferenceEdge(edge, absorbedId, leaderNodeId),
+      replaceNodeIdInEdge(edge, absorbedId, leaderNodeId),
     );
   }
 

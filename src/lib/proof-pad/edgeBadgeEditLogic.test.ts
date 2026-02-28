@@ -87,6 +87,91 @@ describe("edgeBadgeEditLogic", () => {
         premiseFormulaText: "phi -> (psi -> phi)",
       });
     });
+
+    it("returns undefined for all ND edges (no parameter editing)", () => {
+      const ndEdges: readonly InferenceEdge[] = [
+        {
+          _tag: "nd-implication-intro",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          dischargedFormulaText: "A",
+          dischargedAssumptionId: 1,
+          conclusionText: "A → B",
+        },
+        {
+          _tag: "nd-implication-elim",
+          conclusionNodeId: "n1",
+          leftPremiseNodeId: "n2",
+          rightPremiseNodeId: "n3",
+          conclusionText: "B",
+        },
+        {
+          _tag: "nd-conjunction-intro",
+          conclusionNodeId: "n1",
+          leftPremiseNodeId: "n2",
+          rightPremiseNodeId: "n3",
+          conclusionText: "A ∧ B",
+        },
+        {
+          _tag: "nd-conjunction-elim-left",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          conclusionText: "A",
+        },
+        {
+          _tag: "nd-conjunction-elim-right",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          conclusionText: "B",
+        },
+        {
+          _tag: "nd-disjunction-intro-left",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          addedRightText: "B",
+          conclusionText: "A ∨ B",
+        },
+        {
+          _tag: "nd-disjunction-intro-right",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          addedLeftText: "A",
+          conclusionText: "A ∨ B",
+        },
+        {
+          _tag: "nd-disjunction-elim",
+          conclusionNodeId: "n1",
+          disjunctionPremiseNodeId: "n2",
+          leftCasePremiseNodeId: "n3",
+          leftDischargedAssumptionId: 1,
+          rightCasePremiseNodeId: "n4",
+          rightDischargedAssumptionId: 2,
+          conclusionText: "C",
+        },
+        {
+          _tag: "nd-weakening",
+          conclusionNodeId: "n1",
+          keptPremiseNodeId: "n2",
+          discardedPremiseNodeId: "n3",
+          conclusionText: "A",
+        },
+        {
+          _tag: "nd-efq",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          conclusionText: "A",
+        },
+        {
+          _tag: "nd-dne",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          conclusionText: "A",
+        },
+      ];
+      for (const edge of ndEdges) {
+        expect(createEditStateFromEdge(edge)).toBeUndefined();
+      }
+    });
   });
 
   describe("Gen edit operations", () => {

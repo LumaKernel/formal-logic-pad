@@ -16,6 +16,7 @@ import {
 import type { Point } from "../infinite-canvas/types";
 import type { ProofNodeKind } from "./proofNodeUI";
 import type { InferenceEdge } from "./inferenceEdge";
+import { isHilbertInferenceEdge } from "./inferenceEdge";
 import {
   validateMPApplication,
   type MPApplicationResult,
@@ -1066,6 +1067,9 @@ export function revalidateInferenceConclusions(
     const newNodes = current.nodes.map((node) => {
       const edge = edgeByConclusion.get(node.id);
       if (!edge) return node;
+
+      // NDエッジのバリデーションは未実装（ND-004で対応予定）
+      if (!isHilbertInferenceEdge(edge)) return node;
 
       switch (edge._tag) {
         case "mp": {

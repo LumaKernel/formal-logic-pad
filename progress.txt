@@ -6512,3 +6512,27 @@
   - メッセージマップはジェネリック `M extends Record<string, string>` 型で任意のドメインに対応
   - i18n は app境界（WorkspaceContent.tsx 等）で解決。純粋ロジック層に locale を持ち込まない
 ---
+
+## 2026-03-01 - ND-002: ワークスペースのノード種別をND規則に拡張
+- InferenceEdge型に11種のND推論エッジ型を追加（→I, →E, ∧I, ∧E_L, ∧E_R, ∨I_L, ∨I_R, ∨E, w, EFQ, DNE）
+- HilbertInferenceEdge / NdInferenceEdge のサブunion型とtype guardを追加
+- remapEdgeNodeIds / replaceNodeIdInEdge ユーティリティを新設（mergeNodesLogic/copyPasteLogicから共通化）
+- 依存ファイルすべてをND対応に更新:
+  - inferenceEdgeLabelLogic.ts: NDバッジ色（unified blue）
+  - edgeBadgeEditLogic.ts: NDエッジはパラメータ編集不可
+  - mergeNodesLogic.ts: replaceNodeIdInEdgeに置換
+  - copyPasteLogic.ts: remapEdgeNodeIdsに置換
+  - workspaceState.ts: isHilbertInferenceEdgeガード追加（ND-004対応予定コメント付き）
+  - workspaceExport.ts: 11種のND Edge Schemaを追加
+  - index.ts: 新型・新関数のexport追加
+- テスト55本追加（5574→5629）
+- カバレッジ: Stmts 98.24%, Branch 91.64%, Funcs 89.14%, Lines 99.15%（ベースライン: 98.25/91.9/89.1/99.14）
+- ベースラインとほぼ同等（Stmts -0.01%, Branch -0.26%は新switchの未通過分岐由来、Lines +0.01%）
+- 変更ファイル: inferenceEdge.ts, inferenceEdge.test.ts, inferenceEdgeLabelLogic.ts, inferenceEdgeLabelLogic.test.ts, edgeBadgeEditLogic.test.ts, mergeNodesLogic.ts, copyPasteLogic.ts, workspaceState.ts, workspaceExport.ts, workspaceExport.test.ts, index.ts
+- スクリーンショット: .screenshots/nd-002-proof-tree-story.png, .screenshots/nd-002-proof-workspace-story.png
+- **今後のイテレーションへの学び:**
+  - ESLint `@luma-dev/luma-ts/no-explicit-return-is` により explicit type predicate (`edge is X`) は使えない。TypeScript 5.5の自動推論を使う。ただし `||` chain で条件を書けば推論される
+  - `isNdInferenceEdge` を否定して使った先での型の絞り込みが効かない場合、`isHilbertInferenceEdge` を直接使うこと
+  - `remapEdgeNodeIds` パターン: ノードID操作を一箇所に集約することで、新エッジ型追加時の変更箇所が減る
+  - AssumptionId は naturalDeduction.ts で `number` branded type として定義されている
+---
