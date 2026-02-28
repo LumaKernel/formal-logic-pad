@@ -1777,9 +1777,10 @@ describe("ProofWorkspace", () => {
     });
   });
 
-  describe("axiom non-trivial substitution warning", () => {
-    it("shows warning for non-trivial axiom instance", () => {
-      // phi -> (phi -> phi) is A1 with psi:=phi (non-trivial: same meta-var for different slots)
+  describe("axiom identification (only schema, not substitution instances)", () => {
+    it("does not identify non-trivial axiom instance as axiom", () => {
+      // phi -> (phi -> phi) is A1 with psi:=phi (non-trivial substitution)
+      // Should NOT be identified as axiom at all
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (phi -> phi)");
 
@@ -1791,12 +1792,17 @@ describe("ProofWorkspace", () => {
         />,
       );
 
-      expect(screen.getByTestId("proof-node-node-1-status")).toHaveTextContent(
-        "Needs substitution step",
-      );
+      // No axiom name should be displayed
+      expect(
+        screen.queryByTestId("proof-node-node-1-axiom-name"),
+      ).not.toBeInTheDocument();
+      // No status message (no warning, no error)
+      expect(
+        screen.queryByTestId("proof-node-node-1-status"),
+      ).not.toBeInTheDocument();
     });
 
-    it("does not show warning for trivial axiom instance", () => {
+    it("identifies trivial axiom schema and shows axiom name", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
 
@@ -1808,13 +1814,18 @@ describe("ProofWorkspace", () => {
         />,
       );
 
+      // Axiom name should be displayed
+      expect(
+        screen.getByTestId("proof-node-node-1-axiom-name"),
+      ).toHaveTextContent("A1 (K)");
+      // No status/warning message
       expect(
         screen.queryByTestId("proof-node-node-1-status"),
       ).not.toBeInTheDocument();
     });
 
-    it("does not show warning for derived nodes", () => {
-      // MP conclusion might match an axiom pattern but it's derived, not root-axiom
+    it("MP derived node shows MP status regardless of formula shape", () => {
+      // MP conclusion might have a shape that matches an axiom pattern
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A", { x: 0, y: 0 }, "alpha");
       ws = addNode(
@@ -1837,8 +1848,8 @@ describe("ProofWorkspace", () => {
         />,
       );
 
-      // MP node (node-3) conclusion = phi -> (phi -> phi) matches A1 non-trivially,
-      // but it's a derived node so no warning should be shown
+      // MP node (node-3) conclusion = phi -> (phi -> phi)
+      // Not identified as axiom (non-trivial), but has MP applied status
       expect(
         screen.queryByTestId("proof-node-node-3-status"),
       ).toHaveTextContent("MP applied");

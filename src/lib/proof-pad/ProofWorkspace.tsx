@@ -1204,7 +1204,6 @@ export function ProofWorkspace({
       string,
       {
         readonly displayName: string;
-        readonly isTrivialSubstitution: boolean;
       }
     >();
     for (const node of workspace.nodes) {
@@ -1217,7 +1216,6 @@ export function ProofWorkspace({
       ) {
         names.set(node.id, {
           displayName: result.displayName,
-          isTrivialSubstitution: result.isTrivialSubstitution,
         });
       }
     }
@@ -1294,13 +1292,16 @@ export function ProofWorkspace({
     const json = exportWorkspaceToJSON(workspace);
     // eslint-disable-next-line @luma-dev/luma-ts/no-date -- 不純なUI層でのみ使用
     const d = new Date();
-    const fileName = generateExportFileName(getDeductionSystemName(workspace.deductionSystem), {
-      year: d.getUTCFullYear(),
-      month: d.getUTCMonth() + 1,
-      day: d.getUTCDate(),
-      hour: d.getUTCHours(),
-      minute: d.getUTCMinutes(),
-    });
+    const fileName = generateExportFileName(
+      getDeductionSystemName(workspace.deductionSystem),
+      {
+        year: d.getUTCFullYear(),
+        month: d.getUTCMonth() + 1,
+        day: d.getUTCDate(),
+        hour: d.getUTCHours(),
+        minute: d.getUTCMinutes(),
+      },
+    );
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -2260,22 +2261,12 @@ export function ProofWorkspace({
         genValidations.get(node.id) ??
         substitutionValidations.get(node.id);
 
-      // 公理の非自明代入チェック（推論規則バリデーションがない場合のみ表示）
-      const axInfo = axiomNames.get(node.id);
-      const nodeClassification = nodeClassifications.get(node.id);
-      const isAxiomNode =
-        nodeClassification === "root-axiom" ||
-        nodeClassification === "root-unmarked";
       const nodeValidation:
         | {
             readonly message: string;
             readonly type: "error" | "warning" | "success";
           }
-        | undefined =
-        ruleValidation ??
-        (axInfo !== undefined && !axInfo.isTrivialSubstitution && isAxiomNode
-          ? { message: msg.axiomNonTrivialWarning, type: "warning" }
-          : undefined);
+        | undefined = ruleValidation;
 
       // 選択モードの視覚的ハイライト色
       const selectionColor =
