@@ -15,8 +15,8 @@ describe("allReferenceEntries", () => {
   });
 
   it("エントリ数が期待通り", () => {
-    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念13 + 理論2 = 50
-    expect(allReferenceEntries).toHaveLength(50);
+    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念14 + 理論2 = 51
+    expect(allReferenceEntries).toHaveLength(51);
   });
 
   it("少なくとも1つのエントリが各カテゴリに存在する", () => {
@@ -560,6 +560,82 @@ describe("概念エントリの個別チェック", () => {
     expect(resultJa.some((e) => e.id === "concept-kuroda-translation")).toBe(
       true,
     );
+  });
+
+  it("カリー・ハワード対応エントリが存在する", () => {
+    const entry = findEntryById(allReferenceEntries, "concept-curry-howard");
+    expect(entry).toBeDefined();
+    expect(entry?.category).toBe("concept");
+  });
+
+  it("カリー・ハワード対応にformalNotationがある", () => {
+    const entry = findEntryById(allReferenceEntries, "concept-curry-howard");
+    expect(entry?.formalNotation).toBeTruthy();
+  });
+
+  it("カリー・ハワード対応に証明=プログラム、命題=型の記載がある", () => {
+    const entry = findEntryById(allReferenceEntries, "concept-curry-howard");
+    expect(
+      entry?.body.en.some((p) => p.includes("proofs correspond to programs")),
+    ).toBe(true);
+    expect(
+      entry?.body.en.some((p) =>
+        p.includes("propositions correspond to types"),
+      ),
+    ).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("証明はプログラム"))).toBe(
+      true,
+    );
+    expect(entry?.body.ja.some((p) => p.includes("命題は型"))).toBe(true);
+  });
+
+  it("カリー・ハワード対応にカット除去と正規化の対応が記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "concept-curry-howard");
+    expect(entry?.body.en.some((p) => p.includes("cut elimination"))).toBe(
+      true,
+    );
+    expect(entry?.body.en.some((p) => p.includes("normalization"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("カット除去"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("正規化"))).toBe(true);
+  });
+
+  it("カリー・ハワード対応にNM/NJ/NKの対応が記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "concept-curry-howard");
+    expect(entry?.body.en.some((p) => p.includes("NM"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("NJ"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("NK"))).toBe(true);
+  });
+
+  it("カリー・ハワード対応にカット除去定理が関連エントリに含まれる", () => {
+    const entry = findEntryById(allReferenceEntries, "concept-curry-howard");
+    expect(entry?.relatedEntryIds).toContain("concept-cut-elimination");
+  });
+
+  it("カリー・ハワード対応に自然演繹が関連エントリに含まれる", () => {
+    const entry = findEntryById(allReferenceEntries, "concept-curry-howard");
+    expect(entry?.relatedEntryIds).toContain("rule-nd-overview");
+  });
+
+  it("カリー・ハワード対応を検索できる", () => {
+    const resultEn = searchEntries(allReferenceEntries, "Curry-Howard", "en");
+    expect(resultEn.some((e) => e.id === "concept-curry-howard")).toBe(true);
+    const resultJa = searchEntries(
+      allReferenceEntries,
+      "カリー・ハワード",
+      "ja",
+    );
+    expect(resultJa.some((e) => e.id === "concept-curry-howard")).toBe(true);
+  });
+
+  it("カリー・ハワード対応を証明支援系で検索できる", () => {
+    const resultEn = searchEntries(
+      allReferenceEntries,
+      "proof assistant",
+      "en",
+    );
+    expect(resultEn.some((e) => e.id === "concept-curry-howard")).toBe(true);
+    const resultJa = searchEntries(allReferenceEntries, "証明支援系", "ja");
+    expect(resultJa.some((e) => e.id === "concept-curry-howard")).toBe(true);
   });
 });
 

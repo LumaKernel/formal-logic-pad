@@ -1518,6 +1518,7 @@ const systemMinimal: ReferenceEntry = {
     "system-classical",
     "rule-nd-overview",
     "rule-sc-overview",
+    "concept-curry-howard",
   ],
   externalLinks: [
     {
@@ -2786,6 +2787,7 @@ const conceptCutElimination: ReferenceEntry = {
     "rule-sc-structural",
     "rule-sc-logical",
     "concept-glivenko",
+    "concept-curry-howard",
   ],
   externalLinks: [
     {
@@ -2832,6 +2834,90 @@ const conceptCutElimination: ReferenceEntry = {
     "階数",
   ],
   order: 13,
+};
+
+const conceptCurryHoward: ReferenceEntry = {
+  id: "concept-curry-howard",
+  category: "concept",
+  title: {
+    en: "Curry-Howard Correspondence",
+    ja: "カリー・ハワード対応",
+  },
+  summary: {
+    en: "A deep structural isomorphism between typed lambda calculus and natural deduction: proofs correspond to programs, and propositions correspond to types.",
+    ja: "型付きラムダ計算と自然演繹の間の深い構造的同型: 証明はプログラムに、命題は型に対応する。",
+  },
+  body: {
+    en: [
+      `**Proofs as programs, propositions as types.** The Curry-Howard correspondence (also called the Curry-Howard isomorphism or proofs-as-programs interpretation) reveals a profound structural identity between formal proof systems and type systems in programming languages. Under this correspondence, **propositions correspond to types** and **proofs correspond to programs** (lambda terms). For example, a proof of the implication φ → ψ corresponds to a function of type φ → ψ — a program that takes an input of type φ and produces an output of type ψ. This insight, discovered independently by Haskell Curry (1958) and William Howard (1969), fundamentally connects logic and computation.`,
+      `**The correspondence table.** The key correspondences are: implication (→) corresponds to function types, conjunction (∧) to product types (pairs), disjunction (∨) to sum types (tagged unions), universal quantification (∀) to dependent function types, and existential quantification (∃) to dependent pair types. On the proof side, the introduction and elimination rules of natural deduction correspond precisely to the construction and destruction operations of typed lambda calculus: →-introduction is lambda abstraction, →-elimination is function application, ∧-introduction is pair construction, and so on.`,
+      `**Cut elimination and normalization.** One of the most striking aspects of the correspondence is the connection between **cut elimination** in sequent calculus and **normalization** (β-reduction) in lambda calculus. A cut in a proof corresponds to a β-redex in a lambda term — the composition of an introduction rule immediately followed by an elimination rule. Cut elimination transforms a proof into cut-free (normal) form, just as β-reduction normalizes a lambda term. The strong normalization theorem for typed lambda calculus is thus the computational counterpart of the cut elimination theorem (bekki Afterword p.298). Key references include Prawitz (1965), Zucker (1974), Pottinger (1977), and Barendregt and Ghilezan (2000).`,
+      `**Logical systems and type systems.** Different logical systems correspond to different type systems: minimal logic (NM) corresponds to the simply typed lambda calculus, intuitionistic logic (NJ) to the simply typed lambda calculus with an empty type (⊥), and classical logic (NK) to extensions with control operators (such as call/cc or continuations). The correspondence extends beyond propositional logic — Martin-Löf's intuitionistic type theory extends it to predicate logic with dependent types, forming the foundation of proof assistants such as Coq, Agda, and Lean.`,
+      `**Significance and applications.** The Curry-Howard correspondence bridges the gap between mathematics and computer science, enabling: (1) proof assistants that verify mathematical proofs as type-checked programs, (2) program extraction from constructive proofs, and (3) a unified framework for understanding both proof theory and programming language theory. The correspondence has inspired the development of modern programming language features including pattern matching (corresponding to case analysis on disjunctions), dependent types (corresponding to quantifiers), and effects/continuations (corresponding to classical reasoning principles).`,
+    ],
+    ja: [
+      `**証明はプログラム、命題は型。** カリー・ハワード対応（カリー・ハワード同型とも呼ばれる）は、形式的な証明体系とプログラミング言語の型システムの間に存在する深い構造的同一性を明らかにします。この対応のもとで、**命題は型に対応**し、**証明はプログラム**（ラムダ項）に対応します。たとえば、含意 φ → ψ の証明は型 φ → ψ を持つ関数 — 型 φ の入力を受け取り型 ψ の出力を返すプログラム — に対応します。この洞察はハスケル・カリー（1958年）とウィリアム・ハワード（1969年）によって独立に発見され、論理学と計算を根本的に結びつけるものです。`,
+      `**対応表。** 主要な対応は次のとおりです: 含意（→）は関数型に、連言（∧）は直積型（ペア）に、選言（∨）は直和型（タグ付き共用体）に、全称量化（∀）は依存関数型に、存在量化（∃）は依存ペア型に対応します。証明の側では、自然演繹の導入規則と除去規則が型付きラムダ計算の構成操作と分解操作に正確に対応します: →導入はラムダ抽象、→除去は関数適用、∧導入はペア構成、などとなります。`,
+      `**カット除去と正規化。** この対応の最も顕著な側面の一つが、シーケント計算における**カット除去**とラムダ計算における**正規化**（β簡約）の間の結びつきです。証明のカットはラムダ項のβ簡約基（β-redex）— 導入規則の直後に除去規則が続く合成 — に対応します。カット除去は証明をカットなし（正規）の形に変換しますが、これはちょうどβ簡約がラムダ項を正規化するのと同じです。型付きラムダ計算の強正規化定理はカット除去定理の計算的対応物です（戸次 おわりに p.298）。主要な参考文献として Prawitz (1965)、Zucker (1974)、Pottinger (1977)、Barendregt and Ghilezan (2000) があります。`,
+      `**論理体系と型システム。** 異なる論理体系は異なる型システムに対応します: 最小論理（NM）は単純型付きラムダ計算に、直観主義論理（NJ）は空型（⊥）を持つ単純型付きラムダ計算に、古典論理（NK）は制御演算子（call/ccや継続など）を持つ拡張に対応します。この対応は命題論理を超えて拡張され — マルティン＝レーフの直観主義型理論は依存型による述語論理への拡張であり、Coq, Agda, Lean などの証明支援系の基盤となっています。`,
+      `**意義と応用。** カリー・ハワード対応は数学と計算機科学を橋渡しし、以下を可能にします: (1) 数学的証明を型検査されたプログラムとして検証する証明支援系、(2) 構成的証明からのプログラム抽出、(3) 証明論とプログラミング言語理論の両方を理解するための統一的な枠組み。この対応は現代のプログラミング言語機能の発展にも影響を与えており、パターンマッチング（選言に対するケース分析に対応）、依存型（量化子に対応）、エフェクト・継続（古典的推論原理に対応）などがあります。`,
+    ],
+  },
+  formalNotation:
+    "\\text{Proof of } \\varphi \\;\\longleftrightarrow\\; \\text{Term } M : \\varphi",
+  relatedEntryIds: [
+    "concept-cut-elimination",
+    "rule-nd-overview",
+    "rule-nd-implication",
+    "system-minimal",
+    "system-intuitionistic",
+    "system-classical",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Curry%E2%80%93Howard_correspondence",
+      label: {
+        en: "Curry-Howard correspondence (Wikipedia)",
+        ja: "カリー・ハワード対応 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AA%E3%83%BC%EF%BC%9D%E3%83%8F%E3%83%AF%E3%83%BC%E3%83%89%E5%90%8C%E5%9E%8B",
+      label: {
+        en: "Curry-Howard isomorphism (Wikipedia JA)",
+        ja: "カリー＝ハワード同型 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/propositions+as+types",
+      label: {
+        en: "Propositions as types (nLab)",
+        ja: "命題としての型 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "Curry-Howard",
+    "カリー・ハワード",
+    "proofs as programs",
+    "propositions as types",
+    "命題は型",
+    "証明はプログラム",
+    "isomorphism",
+    "同型",
+    "typed lambda calculus",
+    "型付きラムダ計算",
+    "normalization",
+    "正規化",
+    "β-reduction",
+    "β簡約",
+    "proof assistant",
+    "証明支援系",
+  ],
+  order: 14,
 };
 
 // ============================================================
@@ -3532,6 +3618,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptCompactness,
   conceptProofTheoreticSemantics,
   conceptCutElimination,
+  conceptCurryHoward,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
