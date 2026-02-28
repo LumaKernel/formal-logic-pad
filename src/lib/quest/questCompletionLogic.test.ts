@@ -1,8 +1,11 @@
 import { describe, test, expect } from "vitest";
+import { Effect } from "effect";
 import {
   computeStepCount,
   checkQuestGoals,
+  checkQuestGoalsEffect,
   checkQuestGoalsWithAxioms,
+  checkQuestGoalsWithAxiomsEffect,
   computeViolatingAxiomIds,
 } from "./questCompletionLogic";
 import type { WorkspaceNode, WorkspaceGoal } from "../proof-pad/workspaceState";
@@ -211,6 +214,45 @@ describe("checkQuestGoals", () => {
     if (result._tag === "NotAllAchieved") {
       expect(result.achievedCount).toBe(0);
       expect(result.totalCount).toBe(1);
+    }
+  });
+});
+
+// --- checkQuestGoalsEffect ---
+
+describe("checkQuestGoalsEffect", () => {
+  test("Effect版がSync版と同じ結果を返す", () => {
+    const goals = [makeGoal({ id: "g1", formulaText: "phi -> phi" })];
+    const nodes = [
+      makeNode({
+        id: "n1",
+        kind: "axiom",
+        formulaText: "phi -> phi",
+      }),
+    ];
+    const syncResult = checkQuestGoals(goals, nodes);
+    const effectResult = Effect.runSync(checkQuestGoalsEffect(goals, nodes));
+    expect(effectResult).toEqual(syncResult);
+  });
+
+  test("NoGoalsケースでEffect版が正しく動作する", () => {
+    const result = Effect.runSync(checkQuestGoalsEffect([], []));
+    expect(result).toEqual({ _tag: "NoGoals" });
+  });
+
+  test("NotAllAchievedケースでEffect版が正しく動作する", () => {
+    const goals = [
+      makeGoal({ id: "g1", formulaText: "phi -> phi" }),
+      makeGoal({ id: "g2", formulaText: "psi -> psi" }),
+    ];
+    const nodes = [
+      makeNode({ id: "n1", kind: "axiom", formulaText: "phi -> phi" }),
+    ];
+    const result = Effect.runSync(checkQuestGoalsEffect(goals, nodes));
+    expect(result._tag).toBe("NotAllAchieved");
+    if (result._tag === "NotAllAchieved") {
+      expect(result.achievedCount).toBe(1);
+      expect(result.totalCount).toBe(2);
     }
   });
 });
@@ -541,5 +583,93 @@ describe("checkQuestGoalsWithAxioms", () => {
     if (result._tag === "NotAllAchieved") {
       expect(result.goalResults[0]?.hasInstanceRootNodes).toBe(false);
     }
+  });
+});
+
+// --- checkQuestGoalsWithAxiomsEffect ---
+
+describe("checkQuestGoalsWithAxiomsEffect", () => {
+  const lukasiewiczSystem: LogicSystem = {
+    name: "Łukasiewicz",
+    propositionalAxioms: new Set(["A1", "A2", "A3"]),
+    predicateLogic: false,
+    equalityLogic: false,
+    generalization: false,
+  };
+
+  test("Effect版がSync版と同じNoGoals結果を返す", () => {
+    const syncResult = checkQuestGoalsWithAxioms(
+      [],
+      [],
+      [],
+      lukasiewiczSystem,
+    );
+    const effectResult = Effect.runSync(
+      checkQuestGoalsWithAxiomsEffect([], [], [], lukasiewiczSystem),
+    );
+    expect(effectResult).toEqual(syncResult);
+  });
+
+  test("Effect版がSync版と同じAllAchieved結果を返す", () => {
+    const goals = [makeGoal({ id: "g1", formulaText: "phi -> (psi -> phi)" })];
+    const nodes = [
+      makeNode({
+        id: "a1",
+        kind: "axiom",
+        formulaText: "phi -> (psi -> phi)",
+      }),
+    ];
+    const syncResult = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
+    const effectResult = Effect.runSync(
+      checkQuestGoalsWithAxiomsEffect(goals, nodes, [], lukasiewiczSystem),
+    );
+    expect(effectResult).toEqual(syncResult);
+  });
+
+  test("Effect版がSync版と同じAllAchievedButAxiomViolation結果を返す", () => {
+    const goals = [
+      makeGoal({
+        id: "g1",
+        formulaText: "phi -> (psi -> phi)",
+        allowedAxiomIds: ["A2", "A3"],
+      }),
+    ];
+    const nodes = [
+      makeNode({
+        id: "a1",
+        kind: "axiom",
+        formulaText: "phi -> (psi -> phi)",
+      }),
+    ];
+    const syncResult = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
+    const effectResult = Effect.runSync(
+      checkQuestGoalsWithAxiomsEffect(goals, nodes, [], lukasiewiczSystem),
+    );
+    expect(effectResult).toEqual(syncResult);
+  });
+
+  test("Effect版がSync版と同じNotAllAchieved結果を返す", () => {
+    const goals = [makeGoal({ id: "g1", formulaText: "phi -> phi" })];
+    const nodes: readonly WorkspaceNode[] = [];
+    const syncResult = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
+    const effectResult = Effect.runSync(
+      checkQuestGoalsWithAxiomsEffect(goals, nodes, [], lukasiewiczSystem),
+    );
+    expect(effectResult).toEqual(syncResult);
   });
 });

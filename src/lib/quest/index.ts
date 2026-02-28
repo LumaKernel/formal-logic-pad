@@ -99,7 +99,9 @@ export {
 export {
   computeStepCount,
   checkQuestGoals,
+  checkQuestGoalsEffect,
   checkQuestGoalsWithAxioms,
+  checkQuestGoalsWithAxiomsEffect,
   computeViolatingAxiomIds,
   type QuestGoalCheckResult,
   type QuestGoalCheckWithAxiomsResult,

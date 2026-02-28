@@ -4,10 +4,13 @@
  * ワークスペースの状態からステップ数を計算し、
  * クエスト完了を判定するための純粋関数を提供する。
  *
+ * Effect版（checkQuestGoalsEffect / checkQuestGoalsWithAxiomsEffect）と
+ * 同期ラッパー（checkQuestGoals / checkQuestGoalsWithAxioms）を提供する。
+ *
  * 変更時は questCompletionLogic.test.ts も同期すること。
  */
 
-import { Either } from "effect";
+import { Either, Effect } from "effect";
 import type { WorkspaceNode, WorkspaceGoal } from "../proof-pad/workspaceState";
 import type { InferenceEdge } from "../proof-pad/inferenceEdge";
 import type { ProofNodeKind } from "../proof-pad/proofNodeUI";
@@ -40,6 +43,40 @@ export function computeStepCount(nodes: readonly WorkspaceNode[]): number {
   return nodes.filter((node) => STEP_NODE_KINDS.has(node.kind)).length;
 }
 
+// --- ゴール一致判定ヘルパー ---
+
+/**
+ * ゴール式に一致するワークノードを探す。
+ * パース不能なゴールはundefinedを返す。
+ */
+function findMatchingNode(
+  goal: WorkspaceGoal,
+  nodes: readonly WorkspaceNode[],
+): WorkspaceNode | undefined {
+  const goalParsed = parseString(goal.formulaText.trim());
+  if (Either.isLeft(goalParsed)) return undefined;
+
+  for (const work of nodes) {
+    const workParsed = parseString(work.formulaText.trim());
+    if (Either.isLeft(workParsed)) continue;
+    if (equalFormula(goalParsed.right, workParsed.right)) {
+      return work;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * ゴール式が達成されているかチェックする。
+ * パース不能なゴールはfalseを返す。
+ */
+function isGoalAchieved(
+  goal: WorkspaceGoal,
+  nodes: readonly WorkspaceNode[],
+): boolean {
+  return findMatchingNode(goal, nodes) !== undefined;
+}
+
 // --- クエストゴール達成チェック ---
 
 /** クエストゴール達成結果 */
@@ -54,49 +91,53 @@ export type QuestGoalCheckResult =
 
 /**
  * クエストモードのワークスペースで、すべてのゴールが達成されているかチェックする。
+ * Effect版。
  *
  * goals配列の各ゴール式が、ノードのいずれかの式と一致すれば「達成」とみなす。
  *
  * @param goals ワークスペースのゴール一覧
  * @param nodes ワークスペース上のノード一覧
- * @returns クエストゴール達成チェック結果
+ * @returns Effect<QuestGoalCheckResult>
+ */
+export const checkQuestGoalsEffect = (
+  goals: readonly WorkspaceGoal[],
+  nodes: readonly WorkspaceNode[],
+): Effect.Effect<QuestGoalCheckResult> =>
+  Effect.gen(function* () {
+    if (goals.length === 0) {
+      return { _tag: "NoGoals" } as const;
+    }
+
+    const achievedResults = yield* Effect.all(
+      goals.map((goal) =>
+        Effect.sync(() => isGoalAchieved(goal, nodes)),
+      ),
+    );
+
+    const achievedCount = achievedResults.filter(Boolean).length;
+
+    if (achievedCount >= goals.length) {
+      return {
+        _tag: "AllAchieved",
+        stepCount: computeStepCount(nodes),
+      } as const;
+    }
+
+    return {
+      _tag: "NotAllAchieved",
+      achievedCount,
+      totalCount: goals.length,
+    } as const;
+  });
+
+/**
+ * 同期ラッパー。
  */
 export function checkQuestGoals(
   goals: readonly WorkspaceGoal[],
   nodes: readonly WorkspaceNode[],
 ): QuestGoalCheckResult {
-  if (goals.length === 0) {
-    return { _tag: "NoGoals" };
-  }
-
-  let achievedCount = 0;
-  for (const goal of goals) {
-    const goalParsed = parseString(goal.formulaText.trim());
-    if (Either.isLeft(goalParsed)) continue;
-
-    const isAchieved = nodes.some((work) => {
-      const workParsed = parseString(work.formulaText.trim());
-      if (Either.isLeft(workParsed)) return false;
-      return equalFormula(goalParsed.right, workParsed.right);
-    });
-
-    if (isAchieved) {
-      achievedCount += 1;
-    }
-  }
-
-  if (achievedCount >= goals.length) {
-    return {
-      _tag: "AllAchieved",
-      stepCount: computeStepCount(nodes),
-    };
-  }
-
-  return {
-    _tag: "NotAllAchieved",
-    achievedCount,
-    totalCount: goals.length,
-  };
+  return Effect.runSync(checkQuestGoalsEffect(goals, nodes));
 }
 
 // --- 公理制限付きゴール達成チェック ---
@@ -141,7 +182,65 @@ export type QuestGoalCheckWithAxiomsResult =
     };
 
 /**
+ * 単一ゴールの公理制限チェックを実行する。
+ * 結果としてGoalAxiomCheckResultを返す。
+ */
+const checkSingleGoalWithAxioms = (
+  goal: WorkspaceGoal,
+  nodes: readonly WorkspaceNode[],
+  inferenceEdges: readonly InferenceEdge[],
+  system: LogicSystem,
+): Effect.Effect<GoalAxiomCheckResult> =>
+  Effect.gen(function* () {
+    const matchingNode = yield* Effect.sync(() =>
+      findMatchingNode(goal, nodes),
+    );
+
+    if (matchingNode === undefined) {
+      return {
+        goalId: goal.id,
+        matchingNodeId: undefined,
+        usedAxiomIds: new Set<AxiomId>(),
+        allowedAxiomIds: goal.allowedAxiomIds,
+        violatingAxiomIds: new Set<AxiomId>(),
+        hasInstanceRootNodes: false,
+      };
+    }
+
+    // 使用された公理を特定
+    const usedAxiomIds = yield* Effect.sync(() =>
+      getNodeAxiomIds(matchingNode.id, nodes, inferenceEdges, system),
+    );
+
+    // 制限違反をチェック
+    const violatingAxiomIds = yield* Effect.sync(() =>
+      computeViolatingAxiomIds(usedAxiomIds, goal.allowedAxiomIds),
+    );
+
+    // ルートノードのインスタンス直接配置をチェック
+    const goalHasInstanceRoots = yield* Effect.sync(() => {
+      const rootValidations = validateRootNodes(
+        matchingNode.id,
+        nodes,
+        inferenceEdges,
+        system,
+      );
+      return hasInstanceRoots(rootValidations);
+    });
+
+    return {
+      goalId: goal.id,
+      matchingNodeId: matchingNode.id,
+      usedAxiomIds,
+      allowedAxiomIds: goal.allowedAxiomIds,
+      violatingAxiomIds,
+      hasInstanceRootNodes: goalHasInstanceRoots,
+    };
+  });
+
+/**
  * 公理制限付きでクエストゴールの達成状況をチェックする。
+ * Effect版。
  *
  * goals配列から各ゴールについて:
  * 1. 一致するワークノードを探す
@@ -152,7 +251,60 @@ export type QuestGoalCheckWithAxiomsResult =
  * @param nodes ワークスペース上のノード一覧
  * @param inferenceEdges ワークスペース上の推論エッジ一覧
  * @param system 論理体系設定
- * @returns 公理制限付きゴールチェック結果
+ * @returns Effect<QuestGoalCheckWithAxiomsResult>
+ */
+export const checkQuestGoalsWithAxiomsEffect = (
+  goals: readonly WorkspaceGoal[],
+  nodes: readonly WorkspaceNode[],
+  inferenceEdges: readonly InferenceEdge[],
+  system: LogicSystem,
+): Effect.Effect<QuestGoalCheckWithAxiomsResult> =>
+  Effect.gen(function* () {
+    if (goals.length === 0) {
+      return { _tag: "NoGoals" } as const;
+    }
+
+    // 各ゴールのチェックを Effect.all で集約
+    const goalResults = yield* Effect.all(
+      goals.map((goal) =>
+        checkSingleGoalWithAxioms(goal, nodes, inferenceEdges, system),
+      ),
+    );
+
+    const achievedCount = goalResults.filter(
+      (r) => r.matchingNodeId !== undefined,
+    ).length;
+
+    const hasAxiomViolation = goalResults.some(
+      (r) => r.violatingAxiomIds.size > 0 || r.hasInstanceRootNodes,
+    );
+
+    if (achievedCount < goals.length) {
+      return {
+        _tag: "NotAllAchieved",
+        achievedCount,
+        totalCount: goals.length,
+        goalResults,
+      } as const;
+    }
+
+    if (hasAxiomViolation) {
+      return {
+        _tag: "AllAchievedButAxiomViolation",
+        stepCount: computeStepCount(nodes),
+        goalResults,
+      } as const;
+    }
+
+    return {
+      _tag: "AllAchieved",
+      stepCount: computeStepCount(nodes),
+      goalResults,
+    } as const;
+  });
+
+/**
+ * 同期ラッパー。
  */
 export function checkQuestGoalsWithAxioms(
   goals: readonly WorkspaceGoal[],
@@ -160,116 +312,9 @@ export function checkQuestGoalsWithAxioms(
   inferenceEdges: readonly InferenceEdge[],
   system: LogicSystem,
 ): QuestGoalCheckWithAxiomsResult {
-  if (goals.length === 0) {
-    return { _tag: "NoGoals" };
-  }
-
-  const goalResults: GoalAxiomCheckResult[] = [];
-  let achievedCount = 0;
-  let hasAxiomViolation = false;
-
-  for (const goal of goals) {
-    const goalParsed = parseString(goal.formulaText.trim());
-    if (Either.isLeft(goalParsed)) {
-      goalResults.push({
-        goalId: goal.id,
-        matchingNodeId: undefined,
-        usedAxiomIds: new Set(),
-        allowedAxiomIds: goal.allowedAxiomIds,
-        violatingAxiomIds: new Set(),
-        hasInstanceRootNodes: false,
-      });
-      continue;
-    }
-
-    // 一致するワークノードを探す
-    let matchingNode: WorkspaceNode | undefined;
-    for (const work of nodes) {
-      const workParsed = parseString(work.formulaText.trim());
-      if (Either.isLeft(workParsed)) continue;
-      if (equalFormula(goalParsed.right, workParsed.right)) {
-        matchingNode = work;
-        break;
-      }
-    }
-
-    if (matchingNode === undefined) {
-      goalResults.push({
-        goalId: goal.id,
-        matchingNodeId: undefined,
-        usedAxiomIds: new Set(),
-        allowedAxiomIds: goal.allowedAxiomIds,
-        violatingAxiomIds: new Set(),
-        hasInstanceRootNodes: false,
-      });
-      continue;
-    }
-
-    achievedCount += 1;
-
-    // 使用された公理を特定
-    const usedAxiomIds = getNodeAxiomIds(
-      matchingNode.id,
-      nodes,
-      inferenceEdges,
-      system,
-    );
-
-    // 制限違反をチェック
-    const violatingAxiomIds = computeViolatingAxiomIds(
-      usedAxiomIds,
-      goal.allowedAxiomIds,
-    );
-
-    if (violatingAxiomIds.size > 0) {
-      hasAxiomViolation = true;
-    }
-
-    // ルートノードのインスタンス直接配置をチェック
-    const rootValidations = validateRootNodes(
-      matchingNode.id,
-      nodes,
-      inferenceEdges,
-      system,
-    );
-    const goalHasInstanceRoots = hasInstanceRoots(rootValidations);
-
-    if (goalHasInstanceRoots) {
-      hasAxiomViolation = true;
-    }
-
-    goalResults.push({
-      goalId: goal.id,
-      matchingNodeId: matchingNode.id,
-      usedAxiomIds,
-      allowedAxiomIds: goal.allowedAxiomIds,
-      violatingAxiomIds,
-      hasInstanceRootNodes: goalHasInstanceRoots,
-    });
-  }
-
-  if (achievedCount < goals.length) {
-    return {
-      _tag: "NotAllAchieved",
-      achievedCount,
-      totalCount: goals.length,
-      goalResults,
-    };
-  }
-
-  if (hasAxiomViolation) {
-    return {
-      _tag: "AllAchievedButAxiomViolation",
-      stepCount: computeStepCount(nodes),
-      goalResults,
-    };
-  }
-
-  return {
-    _tag: "AllAchieved",
-    stepCount: computeStepCount(nodes),
-    goalResults,
-  };
+  return Effect.runSync(
+    checkQuestGoalsWithAxiomsEffect(goals, nodes, inferenceEdges, system),
+  );
 }
 
 /**
