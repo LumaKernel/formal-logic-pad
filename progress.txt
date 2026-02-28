@@ -6168,3 +6168,45 @@
   - syncInferenceEdgesはノード削除時のみクリーンアップする。コネクション削除時のエッジクリーンアップはremoveConnectionが担当
   - MP/Gen/Substitution各InferenceEdge型でテストを書くことで網羅性を確保。GenEdgeは1 premise + variable、SubstitutionEdgeは1 premise + entries
 ---
+
+## 2026-02-28 - [proof-pad] ゴールをノードから独立データに移行
+- 実装した内容: ゴールをキャンバス上のノードではなく、WorkspaceState.goals配列として管理するよう全面リファクタ
+  - NodeRoleから"goal"を削除、NodeProtection型を廃止
+  - WorkspaceGoal型を新規追加（id, formulaText, label?, allowedAxiomIds?）
+  - addGoal/removeGoal/updateGoalFormulaText関数を追加
+  - goalCheckLogicをgoals配列ベースに全面書き換え（コネクション不要、数式一致で判定）
+  - questCompletionLogicをgoals引数分離に対応
+  - QuestGoalDefinitionからpositionフィールドを削除
+  - workspaceExportにgoalsのシリアライズ/デシリアライズを追加（allowedAxiomIds含む）
+  - NodeClassificationから"root-goal"を削除
+  - ロールサイクル: ROOT→AXIOM→ROOT（GOALなし）
+- 変更したファイル（42ファイル、+1094/-1581行）:
+  - nodeRoleLogic.ts/test: "root-goal"削除、getGoalNodeIds()削除
+  - goalCheckLogic.ts/test: goals配列ベースに全面書き換え
+  - workspaceState.ts/test: WorkspaceGoal型追加、goal管理関数追加、isNodeProtected常にfalse
+  - questCompletionLogic.ts/test: goals引数分離
+  - proofNodeUI.ts: "root-goal"ケース削除
+  - EditableProofNode.tsx/test/stories: ロールサイクル変更
+  - ProofWorkspace.tsx/test/stories: ゴールノード関連UI削除、checkGoal呼び出し変更
+  - workspaceExport.ts/test: goals配列のシリアライズ/デシリアライズ追加
+  - workspaceImageExport.test: goals追加
+  - copyPasteLogic.test: protection関連テスト削除
+  - portConnectionLogic.test: goal role削除
+  - builtinQuests.ts: QuestGoalDefinitionからposition削除（74箇所）
+  - notebook系テスト: goals配列対応
+  - quest系テスト: goals引数分離対応
+  - デモストーリー: proof complete判定変更対応
+  - index.ts: エクスポート更新
+- ベースラインカバレッジ: Stmts 98.50%, Branch 92.32%, Funcs 89.23%, Lines 99.30%
+- 完了後カバレッジ: Stmts 98.40%, Branch 92.07%, Funcs 89.07%, Lines 99.28% (微減: ゴールノード関連テスト削除分)
+- テスト: 5443件 全パス
+- ブラウザテスト: Quest Mode（空キャンバス+Quest badge確認）、Identity Proof Interactive（Proof Complete!バナー表示確認）
+- スクリーンショット: .screenshots/quest-mode-no-goal-nodes.png, .screenshots/identity-proof-complete-no-goal-node.png
+- **今後のイテレーションへの学び:**
+  - 大規模リファクタ（275型エラー、42ファイル）は並列agentで8グループに分割して効率的に修正できる
+  - ゴールはノードではなくデータとして管理するのが正しいアーキテクチャ。証明完了は数式一致で判定
+  - NodeProtection/role:"goal"の廃止により、isNodeProtectedは常にfalse。将来的に関数自体を削除すべき
+  - workspaceExportのparseGoalにはallowedAxiomIds検証が必要。VALID_ALL_AXIOM_IDSセットを利用
+  - QuestGoalDefinitionからposition削除はbuiltinQuests.ts全体に影響（74箇所）。型エラーで漏れなく検出可能
+  - ストーリーのproof complete判定が変わった: ゴールノードへのコネクション不要、数式一致だけで完了判定
+---
