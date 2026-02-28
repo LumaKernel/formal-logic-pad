@@ -41,7 +41,7 @@ describe("computeQuestNotebookCounts", () => {
     collection = createQuestNotebook(collection, {
       name: "Quest 1",
       system: lukasiewiczSystem,
-      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      goals: [{ formulaText: "phi -> phi" }],
       now: 1000,
       questId: "q-01",
     });
@@ -54,14 +54,14 @@ describe("computeQuestNotebookCounts", () => {
     collection = createQuestNotebook(collection, {
       name: "Quest 1a",
       system: lukasiewiczSystem,
-      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      goals: [{ formulaText: "phi -> phi" }],
       now: 1000,
       questId: "q-01",
     });
     collection = createQuestNotebook(collection, {
       name: "Quest 1b",
       system: lukasiewiczSystem,
-      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      goals: [{ formulaText: "phi -> phi" }],
       now: 2000,
       questId: "q-01",
     });
@@ -74,21 +74,21 @@ describe("computeQuestNotebookCounts", () => {
     collection = createQuestNotebook(collection, {
       name: "Quest A",
       system: lukasiewiczSystem,
-      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      goals: [{ formulaText: "phi -> phi" }],
       now: 1000,
       questId: "q-01",
     });
     collection = createQuestNotebook(collection, {
       name: "Quest B",
       system: lukasiewiczSystem,
-      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      goals: [{ formulaText: "phi -> phi" }],
       now: 2000,
       questId: "q-02",
     });
     collection = createQuestNotebook(collection, {
       name: "Quest A2",
       system: lukasiewiczSystem,
-      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      goals: [{ formulaText: "phi -> phi" }],
       now: 3000,
       questId: "q-01",
     });
@@ -107,7 +107,7 @@ describe("computeQuestNotebookCounts", () => {
     collection = createQuestNotebook(collection, {
       name: "Quest",
       system: lukasiewiczSystem,
-      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      goals: [{ formulaText: "phi -> phi" }],
       now: 1000,
       questId: "q-01",
     });

@@ -11,6 +11,7 @@
  */
 
 import type {
+  AxiomId,
   LogicSystem,
   PropositionalAxiomId,
 } from "../logic-core/inferenceRule";
@@ -19,14 +20,14 @@ import type {
   WorkspaceState,
   WorkspaceNode,
   WorkspaceConnection,
+  WorkspaceGoal,
   WorkspaceMode,
-  NodeProtection,
+  NodeRole,
 } from "./workspaceState";
 import type { InferenceEdge } from "./inferenceEdge";
 import type { SubstitutionEntry } from "./substitutionApplicationLogic";
 import type { GreekLetter } from "../logic-core/greekLetters";
 import type { ProofNodeKind } from "./proofNodeUI";
-import type { NodeRole } from "./nodeRoleLogic";
 import type { Point } from "../infinite-canvas/types";
 
 // --- エクスポートデータ型 ---
@@ -46,6 +47,7 @@ type SerializedWorkspaceState = {
   readonly inferenceEdges: readonly InferenceEdge[];
   readonly nextNodeId: number;
   readonly mode: WorkspaceMode;
+  readonly goals: readonly WorkspaceGoal[];
 };
 
 /** JSON化可能なLogicSystem（Setの代わりにArray） */
@@ -60,6 +62,21 @@ type SerializedLogicSystem = {
 // --- バリデーション ---
 
 const VALID_AXIOM_IDS: ReadonlySet<string> = new Set(["A1", "A2", "A3"]);
+const VALID_ALL_AXIOM_IDS: ReadonlySet<string> = new Set([
+  "A1",
+  "A2",
+  "A3",
+  "M3",
+  "EFQ",
+  "DNE",
+  "A4",
+  "A5",
+  "E1",
+  "E2",
+  "E3",
+  "E4",
+  "E5",
+]);
 const VALID_KINDS: ReadonlySet<string> = new Set(["axiom", "conclusion"]);
 
 /**
@@ -74,8 +91,7 @@ const LEGACY_KIND_MAP: ReadonlyMap<string, string> = new Map([
   ["derived", "axiom"],
 ]);
 const VALID_MODES: ReadonlySet<string> = new Set(["free", "quest"]);
-const VALID_ROLES: ReadonlySet<string> = new Set(["axiom", "goal"]);
-const VALID_PROTECTIONS: ReadonlySet<string> = new Set(["quest-goal"]);
+const VALID_ROLES: ReadonlySet<string> = new Set(["axiom"]);
 const VALID_EDGE_TAGS: ReadonlySet<string> = new Set([
   "mp",
   "gen",
@@ -86,9 +102,18 @@ const VALID_SUBSTITUTION_ENTRY_TAGS: ReadonlySet<string> = new Set([
   "TermSubstitution",
 ]);
 
+function validateAllAxiomId(value: string): AxiomId | undefined {
+  if (VALID_ALL_AXIOM_IDS.has(value)) {
+    // validated via VALID_ALL_AXIOM_IDS
+    return value satisfies string as AxiomId;
+  }
+  return undefined;
+}
+
 function validateAxiomId(value: unknown): PropositionalAxiomId | undefined {
   if (typeof value === "string" && VALID_AXIOM_IDS.has(value)) {
-    return value as PropositionalAxiomId;
+    // validated via VALID_AXIOM_IDS
+    return value satisfies string as PropositionalAxiomId;
   }
   return undefined;
 }
@@ -167,19 +192,14 @@ function parseNode(raw: unknown): WorkspaceNode | undefined {
   }
 
   if (obj["role"] !== undefined) {
-    if (typeof obj["role"] !== "string" || !VALID_ROLES.has(obj["role"]))
-      return undefined;
-    result = { ...result, role: obj["role"] as NodeRole };
+    if (typeof obj["role"] !== "string") return undefined;
+    // レガシー互換: "goal"は無視し、"axiom"のみ保持
+    if (VALID_ROLES.has(obj["role"])) {
+      result = { ...result, role: obj["role"] as NodeRole };
+    }
   }
 
-  if (obj["protection"] !== undefined) {
-    if (
-      typeof obj["protection"] !== "string" ||
-      !VALID_PROTECTIONS.has(obj["protection"])
-    )
-      return undefined;
-    result = { ...result, protection: obj["protection"] as NodeProtection };
-  }
+  // レガシー互換: protection フィールドは無視する（廃止済み）
 
   return result;
 }
@@ -319,6 +339,38 @@ function parseInferenceEdge(raw: unknown): InferenceEdge | undefined {
   };
 }
 
+function parseGoal(raw: unknown): WorkspaceGoal | undefined {
+  if (typeof raw !== "object" || raw === null) return undefined;
+  const obj = raw as Record<string, unknown>;
+  if (typeof obj["id"] !== "string") return undefined;
+  if (typeof obj["formulaText"] !== "string") return undefined;
+  if (obj["label"] !== undefined && typeof obj["label"] !== "string")
+    return undefined;
+
+  let result: WorkspaceGoal = {
+    id: obj["id"],
+    formulaText: obj["formulaText"],
+  };
+
+  if (typeof obj["label"] === "string") {
+    result = { ...result, label: obj["label"] };
+  }
+
+  if (obj["allowedAxiomIds"] !== undefined) {
+    if (!Array.isArray(obj["allowedAxiomIds"])) return undefined;
+    const axiomIds: AxiomId[] = [];
+    for (const item of obj["allowedAxiomIds"]) {
+      if (typeof item !== "string") return undefined;
+      const validated = validateAllAxiomId(item);
+      if (validated === undefined) return undefined;
+      axiomIds.push(validated);
+    }
+    result = { ...result, allowedAxiomIds: axiomIds };
+  }
+
+  return result;
+}
+
 function parseWorkspaceState(raw: unknown): WorkspaceState | undefined {
   if (typeof raw !== "object" || raw === null) return undefined;
   const obj = raw as Record<string, unknown>;
@@ -362,6 +414,17 @@ function parseWorkspaceState(raw: unknown): WorkspaceState | undefined {
     }
   }
 
+  // goals は optional（旧フォーマット互換: 存在しなければ空配列）
+  const goals: WorkspaceGoal[] = [];
+  if (obj["goals"] !== undefined) {
+    if (!Array.isArray(obj["goals"])) return undefined;
+    for (const item of obj["goals"] as readonly unknown[]) {
+      const parsed = parseGoal(item);
+      if (parsed === undefined) return undefined;
+      goals.push(parsed);
+    }
+  }
+
   return {
     system,
     deductionSystem: hilbertDeduction(system),
@@ -370,6 +433,7 @@ function parseWorkspaceState(raw: unknown): WorkspaceState | undefined {
     inferenceEdges,
     nextNodeId: obj["nextNodeId"],
     mode: obj["mode"] as WorkspaceMode,
+    goals,
   };
 }
 
@@ -408,6 +472,7 @@ export function exportWorkspaceToJSON(state: WorkspaceState): string {
       inferenceEdges: state.inferenceEdges,
       nextNodeId: state.nextNodeId,
       mode: state.mode,
+      goals: state.goals,
     },
   };
   return JSON.stringify(exportData, null, 2);

@@ -41,7 +41,7 @@ function makeQuest(
     description: "Test",
     difficulty: 1,
     systemPresetId: "lukasiewicz",
-    goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+    goals: [{ formulaText: "phi -> phi" }],
     hints: [],
     estimatedSteps: 5,
     learningPoint: "test",

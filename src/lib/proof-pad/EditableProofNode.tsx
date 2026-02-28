@@ -16,7 +16,8 @@ import { FormulaEditor } from "../formula-input/FormulaEditor";
 import { computeParseState } from "../formula-input/FormulaInput";
 import type { ProofNodeKind } from "./proofNodeUI";
 import { getProofNodeStyle, getNodeClassificationStyle } from "./proofNodeUI";
-import type { NodeRole, NodeClassification } from "./nodeRoleLogic";
+import type { NodeClassification } from "./nodeRoleLogic";
+import type { NodeRole } from "./workspaceState";
 import type { DetailLevel, DetailVisibilityOverrides } from "./levelOfDetail";
 import { getDetailVisibility } from "./levelOfDetail";
 import type { SubstitutionEntries } from "./substitutionApplicationLogic";
@@ -226,12 +227,6 @@ function getRoleBadgeStyle(classification: NodeClassification): CSSProperties {
         background: "var(--color-badge-bg, #e8eaf0)",
         color: "var(--color-badge-text, #718096)",
       };
-    case "root-goal":
-      return {
-        ...roleBadgeBaseStyle,
-        background: "var(--color-warning-bg, rgba(255,215,0,0.3))",
-        color: "var(--color-warning, #d9944a)",
-      };
     case "root-unmarked":
       return {
         ...roleBadgeBaseStyle,
@@ -252,8 +247,6 @@ function getRoleBadgeLabel(classification: NodeClassification): string {
   switch (classification) {
     case "root-axiom":
       return "AXIOM";
-    case "root-goal":
-      return "GOAL";
     case "root-unmarked":
       return "ROOT";
     case "derived":
@@ -350,7 +343,7 @@ export function EditableProofNode({
     [id, onModeChange],
   );
 
-  /** 役割バッジクリック時: axiom → goal → unmarked → axiom のサイクル */
+  /** 役割バッジクリック時: unmarked → axiom → unmarked のサイクル */
   const handleRoleBadgeClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -367,9 +360,6 @@ export function EditableProofNode({
           onRoleChange(id, "axiom");
           break;
         case "root-axiom":
-          onRoleChange(id, "goal");
-          break;
-        case "root-goal":
           onRoleChange(id, undefined);
           break;
       }
@@ -445,7 +435,7 @@ export function EditableProofNode({
               isProtected
                 ? "Protected quest goal (role is locked)"
                 : classification !== "derived"
-                  ? "Click to cycle role: Root → Axiom → Goal"
+                  ? "Click to cycle role: Root → Axiom"
                   : "Derived node (role is automatic)"
             }
             data-testid={

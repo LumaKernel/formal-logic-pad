@@ -43,7 +43,7 @@ const testQuest: QuestDefinition = {
   description: "テスト用",
   difficulty: 1,
   systemPresetId: "lukasiewicz",
-  goals: [{ formulaText: "phi -> phi", position: { x: 300, y: 0 } }],
+  goals: [{ formulaText: "phi -> phi" }],
   hints: ["ヒント1"],
   estimatedSteps: 5,
   learningPoint: "基本",
@@ -228,9 +228,7 @@ describe("buildQuestStartParams", () => {
     expect(result?.deductionSystem).toStrictEqual(
       hilbertDeduction(lukasiewiczSystem),
     );
-    expect(result?.goals).toEqual([
-      { formulaText: "phi -> phi", position: { x: 300, y: 0 } },
-    ]);
+    expect(result?.goals).toEqual([{ formulaText: "phi -> phi" }]);
   });
 
   it("述語論理クエストでpredicateLogicSystemが返る", () => {
@@ -307,8 +305,8 @@ describe("buildQuestStartParams", () => {
     const quest: QuestDefinition = {
       ...testQuest,
       goals: [
-        { formulaText: "phi -> phi", position: { x: 0, y: 0 } },
-        { formulaText: "phi -> psi -> phi", position: { x: 300, y: 0 } },
+        { formulaText: "phi -> phi" },
+        { formulaText: "phi -> psi -> phi" },
       ],
     };
     const result = buildQuestStartParams(quest);
@@ -331,7 +329,6 @@ describe("buildQuestStartParams", () => {
       goals: [
         {
           formulaText: "phi -> phi",
-          position: { x: 300, y: 0 },
           allowedAxiomIds: ["A1"],
         },
       ],
@@ -346,7 +343,6 @@ describe("buildQuestStartParams", () => {
       goals: [
         {
           formulaText: "phi -> phi",
-          position: { x: 300, y: 0 },
           allowedAxiomIds: ["A3"],
         },
       ],

@@ -318,12 +318,6 @@ describe("EditableProofNode", () => {
       expect(badge).toHaveTextContent("AXIOM");
     });
 
-    it("root-goal分類で'GOAL'バッジが表示される", () => {
-      renderNode({ classification: "root-goal" });
-      const badge = screen.getByTestId("test-node-role-badge");
-      expect(badge).toHaveTextContent("GOAL");
-    });
-
     it("root-unmarked分類で'ROOT'バッジが表示される", () => {
       renderNode({ classification: "root-unmarked" });
       const badge = screen.getByTestId("test-node-role-badge");
@@ -345,19 +339,10 @@ describe("EditableProofNode", () => {
       expect(onRoleChange).toHaveBeenCalledWith("node-1", "axiom");
     });
 
-    it("root-axiomバッジクリックでonRoleChange('goal')が呼ばれる", async () => {
+    it("root-axiomバッジクリックでonRoleChange(undefined)が呼ばれる", async () => {
       const user = userEvent.setup();
       const onRoleChange = vi.fn();
       renderNode({ classification: "root-axiom", onRoleChange });
-      const badge = screen.getByTestId("test-node-role-badge");
-      await user.click(badge);
-      expect(onRoleChange).toHaveBeenCalledWith("node-1", "goal");
-    });
-
-    it("root-goalバッジクリックでonRoleChange(undefined)が呼ばれる", async () => {
-      const user = userEvent.setup();
-      const onRoleChange = vi.fn();
-      renderNode({ classification: "root-goal", onRoleChange });
       const badge = screen.getByTestId("test-node-role-badge");
       await user.click(badge);
       expect(onRoleChange).toHaveBeenCalledWith("node-1", undefined);
@@ -476,7 +461,7 @@ describe("EditableProofNode", () => {
       const onRoleChange = vi.fn();
       renderNode({
         isProtected: true,
-        classification: "root-goal",
+        classification: "root-axiom",
         onRoleChange,
       });
       const badge = screen.getByTestId("test-node-role-badge");

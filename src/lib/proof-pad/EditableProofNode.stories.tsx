@@ -308,16 +308,16 @@ export const LevelOfDetail: Story = {
                   testId={`lod-mp-${level satisfies string}`}
                 />
                 <EditableProofNode
-                  id={`lod-goal-${level satisfies string}`}
+                  id={`lod-protected-${level satisfies string}`}
                   kind="conclusion"
-                  label="Goal"
+                  label="Protected"
                   formulaText="φ → φ"
                   onFormulaTextChange={() => {}}
                   editable={false}
-                  classification="root-goal"
+                  classification="root-unmarked"
                   isProtected={true}
                   detailLevel={level}
-                  testId={`lod-goal-${level satisfies string}`}
+                  testId={`lod-protected-${level satisfies string}`}
                 />
               </div>
             </div>
@@ -341,7 +341,7 @@ export const LevelOfDetail: Story = {
       canvas.getByTestId("lod-mp-full-dependencies"),
     ).toBeInTheDocument();
     await expect(
-      canvas.getByTestId("lod-goal-full-protected-badge"),
+      canvas.getByTestId("lod-protected-full-protected-badge"),
     ).toBeInTheDocument();
 
     // compact level hides badges/status/dependencies but shows formula

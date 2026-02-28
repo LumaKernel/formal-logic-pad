@@ -16,7 +16,6 @@ import {
 import type { Point } from "../infinite-canvas/types";
 import type { ProofNodeKind } from "./proofNodeUI";
 import type { InferenceEdge } from "./inferenceEdge";
-import type { NodeRole } from "./nodeRoleLogic";
 import {
   validateMPApplication,
   type MPApplicationResult,
@@ -44,6 +43,38 @@ import {
 } from "./treeLayoutLogic";
 import type { Size } from "../infinite-canvas/types";
 
+// --- ノードの明示的な役割マーク ---
+
+/**
+ * ユーザーが明示的に設定するノードの役割。
+ * - "axiom": 公理としてマーク（証明不要であることを宣言）
+ * - undefined: 自動判定（デフォルト、ルートノードは暗黙的に公理）
+ *
+ * ゴールはノードのroleではなくWorkspaceState.goalsで管理される。
+ */
+export type NodeRole = "axiom";
+
+// --- ワークスペースゴール ---
+
+/**
+ * ワークスペース上のゴール（証明すべき目標）。
+ * ノードとは独立したデータとしてWorkspaceState.goalsで管理される。
+ * キャンバス上のどこかのノードの式がゴール式と一致すれば達成。
+ */
+export type WorkspaceGoal = {
+  /** ゴールの一意ID */
+  readonly id: string;
+  /** ゴール式のDSLテキスト */
+  readonly formulaText: string;
+  /** 表示ラベル */
+  readonly label?: string;
+  /**
+   * このゴールを達成するために使ってよい公理スキーマIDのリスト。
+   * undefined の場合はシステムの全公理を許可する。
+   */
+  readonly allowedAxiomIds?: readonly AxiomId[];
+};
+
 // --- ワークスペースモード ---
 
 /**
@@ -52,15 +83,6 @@ import type { Size } from "../infinite-canvas/types";
  * - "quest": クエストモード（保護されたゴールノードが存在し、編集・削除不可）
  */
 export type WorkspaceMode = "free" | "quest";
-
-// --- ノード保護 ---
-
-/**
- * ノードの保護状態。
- * - "quest-goal": クエストモードのゴールノード（編集・削除不可）
- * - undefined: 保護なし（通常ノード）
- */
-export type NodeProtection = "quest-goal";
 
 // --- ワークスペースノード ---
 
@@ -75,16 +97,8 @@ export type WorkspaceNode = {
   readonly genVariableName?: string;
   /** 代入操作のエントリリスト（InferenceEdge経由で管理、後方互換用に保持） */
   readonly substitutionEntries?: SubstitutionEntries;
-  /** ユーザーが明示的に設定した役割（"axiom" | "goal" | undefined） */
+  /** ユーザーが明示的に設定した役割（"axiom" | undefined） */
   readonly role?: NodeRole;
-  /** ノードの保護状態（クエストモードのゴールノードなど） */
-  readonly protection?: NodeProtection;
-  /**
-   * このゴールノードを達成するために使ってよい公理スキーマIDのリスト。
-   * ゴールノード（protection: "quest-goal"）でのみ使用。
-   * undefined の場合はシステムの全公理を許可する。
-   */
-  readonly allowedAxiomIds?: readonly AxiomId[];
 };
 
 /** ワークスペース上の接続（ポートベース） */
@@ -116,6 +130,12 @@ export type WorkspaceState = {
    * derivedノードの推論情報はInferenceEdgeに直接保持される。
    */
   readonly inferenceEdges: readonly InferenceEdge[];
+  /**
+   * ワークスペースのゴール（証明すべき目標）。
+   * ノードとは独立したデータとして管理される。
+   * キャンバス上のどこかのノードの式がゴール式と一致すれば達成。
+   */
+  readonly goals: readonly WorkspaceGoal[];
 };
 
 // --- 推論エッジ同期 ---
@@ -222,17 +242,16 @@ export function createEmptyWorkspace(
     nextNodeId: 1,
     mode: "free",
     inferenceEdges: [],
+    goals: [],
   };
 }
 
-/** クエスト用ゴールノードの定義 */
+/** クエスト用ゴールの定義 */
 export type QuestGoalDefinition = {
   /** ゴール式のDSLテキスト */
   readonly formulaText: string;
   /** 表示ラベル（省略時はデフォルト） */
   readonly label?: string;
-  /** 配置位置 */
-  readonly position: Point;
   /**
    * このゴールを達成するために使ってよい公理スキーマIDのリスト。
    * undefined の場合はシステムの全公理を許可する。
@@ -242,7 +261,7 @@ export type QuestGoalDefinition = {
 
 /**
  * クエストモードのワークスペースを作成する。
- * ゴール定義から保護されたゴールノードを自動生成する。
+ * ゴール定義からWorkspaceGoalを生成する（ノードとしてキャンバスには配置しない）。
  */
 export function createQuestWorkspace(
   systemOrDeduction: LogicSystem | DeductionSystem,
@@ -253,7 +272,14 @@ export function createQuestWorkspace(
       ? systemOrDeduction
       : hilbertDeduction(systemOrDeduction);
   const system = extractLogicSystem(deductionSystem);
-  let state: WorkspaceState = {
+  const workspaceGoals: WorkspaceGoal[] = goals.map((goal, i) => ({
+    id: `goal-${String(i + 1) satisfies string}`,
+    formulaText: goal.formulaText,
+    label: goal.label,
+    allowedAxiomIds: goal.allowedAxiomIds,
+  }));
+
+  return {
     system,
     deductionSystem,
     nodes: [],
@@ -261,56 +287,82 @@ export function createQuestWorkspace(
     nextNodeId: 1,
     mode: "quest",
     inferenceEdges: [],
+    goals: workspaceGoals,
   };
-
-  for (const goal of goals) {
-    const id = `node-${String(state.nextNodeId) satisfies string}`;
-    const newNode: WorkspaceNode = {
-      id,
-      kind: "axiom",
-      label: goal.label ?? "Quest Goal",
-      formulaText: goal.formulaText,
-      position: goal.position,
-      role: "goal",
-      protection: "quest-goal",
-      allowedAxiomIds: goal.allowedAxiomIds,
-    };
-    state = {
-      ...state,
-      nodes: [...state.nodes, newNode],
-      nextNodeId: state.nextNodeId + 1,
-    };
-  }
-
-  return state;
 }
 
 /**
  * クエストモードから自由帳モードに変換する。
- * 保護されたノードの保護状態を解除する。
+ * ゴールは保持される（自由帳でもゴールは表示可能）。
  */
 export function convertToFreeMode(state: WorkspaceState): WorkspaceState {
   if (state.mode === "free") return state;
   return {
     ...state,
     mode: "free",
-    nodes: state.nodes.map((node) =>
-      node.protection !== undefined ? { ...node, protection: undefined } : node,
-    ),
   };
 }
 
 /**
  * ノードが保護されているかを判定する。
- * クエストモードで protection が設定されているノードは保護される。
+ * ゴールがノードから分離されたため、保護されるノードは存在しない。
+ * 後方互換のために関数自体は残すが、常にfalseを返す。
  */
 export function isNodeProtected(
-  state: WorkspaceState,
-  nodeId: string,
+  _state: WorkspaceState,
+  _nodeId: string,
 ): boolean {
-  if (state.mode === "free") return false;
-  const node = state.nodes.find((n) => n.id === nodeId);
-  return node?.protection !== undefined;
+  return false;
+}
+
+// --- ゴール操作 ---
+
+/** ゴールを追加する */
+export function addGoal(
+  state: WorkspaceState,
+  formulaText: string,
+  options?: {
+    readonly label?: string;
+    readonly allowedAxiomIds?: readonly AxiomId[];
+  },
+): WorkspaceState {
+  const nextId = state.goals.length + 1;
+  const id = `goal-${String(nextId) satisfies string}`;
+  const newGoal: WorkspaceGoal = {
+    id,
+    formulaText,
+    label: options?.label,
+    allowedAxiomIds: options?.allowedAxiomIds,
+  };
+  return {
+    ...state,
+    goals: [...state.goals, newGoal],
+  };
+}
+
+/** ゴールを削除する */
+export function removeGoal(
+  state: WorkspaceState,
+  goalId: string,
+): WorkspaceState {
+  return {
+    ...state,
+    goals: state.goals.filter((g) => g.id !== goalId),
+  };
+}
+
+/** ゴールの式テキストを更新する */
+export function updateGoalFormulaText(
+  state: WorkspaceState,
+  goalId: string,
+  formulaText: string,
+): WorkspaceState {
+  return {
+    ...state,
+    goals: state.goals.map((g) =>
+      g.id === goalId ? { ...g, formulaText } : g,
+    ),
+  };
 }
 
 // --- ノード操作 ---
@@ -443,13 +495,12 @@ export function updateInferenceEdgeSubstitutionEntries(
   return revalidateInferenceConclusions(updated);
 }
 
-/** ノードの役割を更新する（保護ノードは更新不可） */
+/** ノードの役割を更新する */
 export function updateNodeRole(
   state: WorkspaceState,
   nodeId: string,
   role: NodeRole | undefined,
 ): WorkspaceState {
-  if (isNodeProtected(state, nodeId)) return state;
   return {
     ...state,
     nodes: state.nodes.map((node) =>
@@ -813,19 +864,6 @@ export type DuplicateResult = {
   readonly newNodeIds: ReadonlySet<string>;
 };
 
-/**
- * 複製されたノードからゴールroleを除去する。
- * ゴールが複製されまくるのを防ぐため、複製先は通常の中間定理になる。
- */
-function stripGoalRole(node: WorkspaceNode): WorkspaceNode {
-  if (node.role === "goal") {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { role: _removed, ...rest } = node;
-    return rest;
-  }
-  return node;
-}
-
 export function duplicateSelectedNodes(
   state: WorkspaceState,
   selectedNodeIds: ReadonlySet<string>,
@@ -849,13 +887,11 @@ export function duplicateSelectedNodes(
     targetCenter,
     state.nextNodeId,
   );
-  // ゴールroleを除去（複製されたゴールは通常の中間定理になる）
-  const strippedNodes = result.newNodes.map(stripGoalRole);
-  const newNodeIds = new Set(strippedNodes.map((n) => n.id));
+  const newNodeIds = new Set(result.newNodes.map((n) => n.id));
   return {
     workspace: syncInferenceEdges({
       ...state,
-      nodes: [...state.nodes, ...strippedNodes],
+      nodes: [...state.nodes, ...result.newNodes],
       connections: [...state.connections, ...result.newConnections],
       nextNodeId: result.nextNodeId,
     }),

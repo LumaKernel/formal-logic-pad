@@ -48,6 +48,7 @@ function createSampleWorkspace(): WorkspaceState {
     inferenceEdges: [],
     nextNodeId: 3,
     mode: "free",
+    goals: [],
   };
 }
 
@@ -55,21 +56,18 @@ function createQuestWorkspace(): WorkspaceState {
   return {
     system: lukasiewiczSystem,
     deductionSystem: hilbertDeduction(lukasiewiczSystem),
-    nodes: [
-      {
-        id: "node-1",
-        kind: "axiom",
-        label: "Quest Goal",
-        formulaText: "phi -> phi",
-        position: { x: 100, y: 200 },
-        role: "goal",
-        protection: "quest-goal",
-      },
-    ],
+    nodes: [],
     connections: [],
     inferenceEdges: [],
-    nextNodeId: 2,
+    nextNodeId: 1,
     mode: "quest",
+    goals: [
+      {
+        id: "goal-1",
+        formulaText: "phi -> phi",
+        label: "Quest Goal",
+      },
+    ],
   };
 }
 
@@ -91,6 +89,7 @@ function createGenWorkspace(): WorkspaceState {
     inferenceEdges: [],
     nextNodeId: 2,
     mode: "free",
+    goals: [],
   };
 }
 
@@ -188,6 +187,7 @@ function createWorkspaceWithInferenceEdges(): WorkspaceState {
     inferenceEdges: [mpEdge, genEdge, substEdge],
     nextNodeId: 6,
     mode: "free",
+    goals: [],
   };
 }
 
@@ -203,6 +203,7 @@ describe("exportWorkspaceToJSON", () => {
       inferenceEdges: [],
       nextNodeId: 1,
       mode: "free",
+      goals: [],
     };
     const json = exportWorkspaceToJSON(state);
     const parsed = JSON.parse(json);
@@ -250,8 +251,9 @@ describe("exportWorkspaceToJSON", () => {
     const parsed = JSON.parse(json);
 
     expect(parsed.workspace.mode).toBe("quest");
-    expect(parsed.workspace.nodes[0].protection).toBe("quest-goal");
-    expect(parsed.workspace.nodes[0].role).toBe("goal");
+    expect(parsed.workspace.goals).toHaveLength(1);
+    expect(parsed.workspace.goals[0].formulaText).toBe("phi -> phi");
+    expect(parsed.workspace.goals[0].label).toBe("Quest Goal");
   });
 
   it("Gen変数名を含むノードをエクスポートする", () => {
@@ -346,8 +348,9 @@ describe("importWorkspaceFromJSON", () => {
     if (result._tag !== "Success") return;
 
     expect(result.workspace.mode).toBe("quest");
-    expect(result.workspace.nodes[0].protection).toBe("quest-goal");
-    expect(result.workspace.nodes[0].role).toBe("goal");
+    expect(result.workspace.goals).toHaveLength(1);
+    expect(result.workspace.goals[0].formulaText).toBe("phi -> phi");
+    expect(result.workspace.goals[0].label).toBe("Quest Goal");
   });
 
   it("Gen変数名のラウンドトリップ", () => {
@@ -519,6 +522,7 @@ describe("importWorkspaceFromJSON", () => {
       ],
       nextNodeId: 2,
       mode: "free",
+      goals: [],
     };
 
     const json = exportWorkspaceToJSON(state);
@@ -797,7 +801,7 @@ describe("importWorkspaceFromJSON", () => {
     expect(result._tag).toBe("InvalidFormat");
   });
 
-  it("ノードのroleが不正でInvalidFormatを返す", () => {
+  it("不明なroleは無視される（レガシー互換）", () => {
     const result = importWorkspaceFromJSON(
       JSON.stringify({
         _tag: "ProofPadWorkspace",
@@ -823,13 +827,18 @@ describe("importWorkspaceFromJSON", () => {
           connections: [],
           nextNodeId: 2,
           mode: "free",
+          goals: [],
         },
       }),
     );
-    expect(result._tag).toBe("InvalidFormat");
+    expect(result._tag).toBe("Success");
+    if (result._tag === "Success") {
+      // 不明なroleは無視され、roleフィールドなしで読み込まれる
+      expect(result.workspace.nodes[0]?.role).toBeUndefined();
+    }
   });
 
-  it("ノードのprotectionが不正でInvalidFormatを返す", () => {
+  it("レガシーのprotectionフィールドは無視される", () => {
     const result = importWorkspaceFromJSON(
       JSON.stringify({
         _tag: "ProofPadWorkspace",
@@ -849,7 +858,7 @@ describe("importWorkspaceFromJSON", () => {
               label: "X",
               formulaText: "",
               position: { x: 0, y: 0 },
-              protection: "invalid-protection",
+              protection: "quest-goal",
             },
           ],
           connections: [],
@@ -858,7 +867,119 @@ describe("importWorkspaceFromJSON", () => {
         },
       }),
     );
+    expect(result._tag).toBe("Success");
+    if (result._tag !== "Success") return;
+    // protection は復元されない（廃止済み）
+    expect(result.workspace.nodes[0]).not.toHaveProperty("protection");
+  });
+
+  it("goalのlabelが非文字列でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          nextNodeId: 1,
+          mode: "free",
+          goals: [{ id: "g1", formulaText: "phi", label: 123 }],
+        },
+      }),
+    );
     expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("goalのallowedAxiomIdsが不正な配列でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          nextNodeId: 1,
+          mode: "free",
+          goals: [
+            { id: "g1", formulaText: "phi", allowedAxiomIds: "not-array" },
+          ],
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("goalのallowedAxiomIdsの要素が不正でInvalidFormatを返す", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          nextNodeId: 1,
+          mode: "free",
+          goals: [
+            { id: "g1", formulaText: "phi", allowedAxiomIds: ["INVALID"] },
+          ],
+        },
+      }),
+    );
+    expect(result._tag).toBe("InvalidFormat");
+  });
+
+  it("goalのallowedAxiomIdsが正常にパースされる", () => {
+    const result = importWorkspaceFromJSON(
+      JSON.stringify({
+        _tag: "ProofPadWorkspace",
+        version: 1,
+        workspace: {
+          system: {
+            name: "test",
+            propositionalAxioms: [],
+            predicateLogic: false,
+            equalityLogic: false,
+            generalization: false,
+          },
+          nodes: [],
+          connections: [],
+          nextNodeId: 1,
+          mode: "free",
+          goals: [
+            { id: "g1", formulaText: "phi", allowedAxiomIds: ["A1", "A2"] },
+          ],
+        },
+      }),
+    );
+    expect(result._tag).toBe("Success");
+    if (result._tag === "Success") {
+      expect(result.workspace.goals).toHaveLength(1);
+      expect(result.workspace.goals[0]?.allowedAxiomIds).toStrictEqual([
+        "A1",
+        "A2",
+      ]);
+    }
   });
 
   it("ノードのgenVariableNameが非文字列でInvalidFormatを返す", () => {

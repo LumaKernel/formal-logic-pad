@@ -22,7 +22,7 @@ const testQuest: QuestDefinition = {
   description: "φ → φ を証明する",
   difficulty: 1,
   systemPresetId: "lukasiewicz",
-  goals: [{ formulaText: "phi -> phi", position: { x: 300, y: 0 } }],
+  goals: [{ formulaText: "phi -> phi" }],
   hints: ["A1とA2を使う"],
   estimatedSteps: 5,
   learningPoint: "基本的なMP適用",
@@ -37,7 +37,6 @@ const testQuest2: QuestDefinition = {
   goals: [
     {
       formulaText: "(phi -> psi) -> (psi -> chi) -> (phi -> chi)",
-      position: { x: 300, y: 0 },
     },
   ],
 };
@@ -104,7 +103,7 @@ describe("startQuestAndCreateNotebook", () => {
     expect(nb?.meta.name).toBe("恒等律");
   });
 
-  it("ゴールノードが保護された状態で作成される", () => {
+  it("ゴールがworkspace.goalsに作成される", () => {
     const collection = createEmptyCollection();
     const result = startQuestAndCreateNotebook(
       testQuests,
@@ -115,8 +114,7 @@ describe("startQuestAndCreateNotebook", () => {
 
     if (!result.ok) return;
     const nb = findNotebook(result.collection, result.notebookId);
-    expect(nb?.workspace.nodes).toHaveLength(1);
-    expect(nb?.workspace.nodes[0]?.protection).toBe("quest-goal");
+    expect(nb?.workspace.goals).toHaveLength(1);
   });
 
   it("既存のコレクションに追加できる", () => {
@@ -271,7 +269,7 @@ describe("getQuestIdForNotebook", () => {
     const collection = createQuestNotebook(createEmptyCollection(), {
       name: "Quest Note",
       system: lukasiewiczSystem,
-      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      goals: [{ formulaText: "phi -> phi" }],
       now: 1000,
       questId: "q-01",
     });
@@ -301,21 +299,21 @@ describe("getNotebookIdsForQuest", () => {
     collection = createQuestNotebook(collection, {
       name: "Quest 1",
       system: lukasiewiczSystem,
-      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      goals: [{ formulaText: "phi -> phi" }],
       now: 1000,
       questId: "q-01",
     });
     collection = createQuestNotebook(collection, {
       name: "Quest 2",
       system: lukasiewiczSystem,
-      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      goals: [{ formulaText: "phi -> phi" }],
       now: 2000,
       questId: "q-02",
     });
     collection = createQuestNotebook(collection, {
       name: "Quest 1 again",
       system: lukasiewiczSystem,
-      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      goals: [{ formulaText: "phi -> phi" }],
       now: 3000,
       questId: "q-01",
     });
@@ -339,7 +337,7 @@ describe("getNotebookIdsForQuest", () => {
     collection = createQuestNotebook(collection, {
       name: "Quest",
       system: lukasiewiczSystem,
-      goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+      goals: [{ formulaText: "phi -> phi" }],
       now: 2000,
       questId: "q-01",
     });

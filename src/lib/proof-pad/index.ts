@@ -42,10 +42,14 @@ export {
   applyTreeLayout,
   applyIncrementalLayout,
   getInferenceEdges,
+  addGoal,
+  removeGoal,
+  updateGoalFormulaText,
 } from "./workspaceState";
 export type {
   WorkspaceMode,
-  NodeProtection,
+  NodeRole,
+  WorkspaceGoal,
   WorkspaceNode,
   WorkspaceConnection,
   WorkspaceState,
@@ -123,10 +127,9 @@ export {
   isRootNode,
   classifyNode,
   classifyAllNodes,
-  getGoalNodeIds,
   getAxiomNodeIds,
 } from "./nodeRoleLogic";
-export type { NodeRole, NodeClassification } from "./nodeRoleLogic";
+export type { NodeClassification } from "./nodeRoleLogic";
 export {
   computeDetailLevel,
   getDetailVisibility,

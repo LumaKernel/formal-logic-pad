@@ -157,9 +157,7 @@ describe("edgeBadgeEditLogic", () => {
           },
         ];
         const result = toSubstEditEntries(entries);
-        expect(result).toEqual([
-          { kind: "term", metaVar: "τ", value: "S(0)" },
-        ]);
+        expect(result).toEqual([{ kind: "term", metaVar: "τ", value: "S(0)" }]);
       });
 
       it("returns default entry for empty entries", () => {
@@ -220,14 +218,9 @@ describe("edgeBadgeEditLogic", () => {
 
       it("extracts both formula and term meta-variables", () => {
         // Formula with both formula meta-variable and term meta-variable
-        const result = toSubstEditEntries(
-          [],
-          "all x. P(x) -> P(tau)",
-        );
+        const result = toSubstEditEntries([], "all x. P(x) -> P(tau)");
         // τ is a term meta-variable
-        expect(result).toEqual([
-          { kind: "term", metaVar: "τ", value: "" },
-        ]);
+        expect(result).toEqual([{ kind: "term", metaVar: "τ", value: "" }]);
       });
 
       it("merges existing term entry values with extracted term meta-variables", () => {
@@ -238,13 +231,8 @@ describe("edgeBadgeEditLogic", () => {
             termText: "S(0)",
           },
         ];
-        const result = toSubstEditEntries(
-          entries,
-          "all x. P(x) -> P(tau)",
-        );
-        expect(result).toEqual([
-          { kind: "term", metaVar: "τ", value: "S(0)" },
-        ]);
+        const result = toSubstEditEntries(entries, "all x. P(x) -> P(tau)");
+        expect(result).toEqual([{ kind: "term", metaVar: "τ", value: "S(0)" }]);
       });
 
       it("falls back to existing entries if premise formula is invalid", () => {

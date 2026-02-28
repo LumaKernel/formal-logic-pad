@@ -46,7 +46,6 @@ function buildWorkspaceWithNodes(): WorkspaceState {
         label: "Goal",
         formulaText: "ψ",
         position: { x: 100, y: 400 },
-        role: "goal",
       },
       {
         id: "gen1",

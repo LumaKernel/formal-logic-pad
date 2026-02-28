@@ -409,9 +409,7 @@ export const toPredicateNNF = (formula: Formula): Formula => {
       return pushPredicateNegation(formula.formula);
     case "Implication":
       // A → B  ≡  ¬A ∨ B
-      return toPredicateNNF(
-        disjunction(negation(formula.left), formula.right),
-      );
+      return toPredicateNNF(disjunction(negation(formula.left), formula.right));
     case "Conjunction":
       return conjunction(
         toPredicateNNF(formula.left),
@@ -590,8 +588,7 @@ const liftQuantifiersFromBinary = (
       left.formula,
       right,
     );
-    const makeQuantifier =
-      left instanceof Universal ? universal : existential;
+    const makeQuantifier = left instanceof Universal ? universal : existential;
     return makeQuantifier(
       renamedVar,
       liftQuantifiersFromBinary(renamedBody, right, op),
@@ -605,8 +602,7 @@ const liftQuantifiersFromBinary = (
       right.formula,
       left,
     );
-    const makeQuantifier =
-      right instanceof Universal ? universal : existential;
+    const makeQuantifier = right instanceof Universal ? universal : existential;
     return makeQuantifier(
       renamedVar,
       liftQuantifiersFromBinary(left, renamedBody, op),
@@ -641,11 +637,7 @@ const renameIfNeeded = (
   }
   const freshName = generateFreshName(variable.name, allNames);
   const freshVar = new TermVariable({ name: freshName });
-  const renamedBody = substituteTermVariableInFormula(
-    body,
-    variable,
-    freshVar,
-  );
+  const renamedBody = substituteTermVariableInFormula(body, variable, freshVar);
   return { renamedBody, renamedVar: freshVar };
 };
 
@@ -677,10 +669,7 @@ const generateFreshName = (
 export const isPNF = (formula: Formula): boolean => {
   // 先頭の量化子列をスキップ
   let current = formula;
-  while (
-    current._tag === "Universal" ||
-    current._tag === "Existential"
-  ) {
+  while (current._tag === "Universal" || current._tag === "Existential") {
     current = current.formula;
   }
   // 行列部分に量化子が含まれていないことを確認

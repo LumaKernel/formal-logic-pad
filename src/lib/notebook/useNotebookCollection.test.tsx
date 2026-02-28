@@ -87,7 +87,7 @@ describe("useNotebookCollection hook", () => {
 
     act(() => {
       result.current.createQuest("クエスト", lukasiewiczSystem, [
-        { formulaText: "phi -> phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi -> phi" },
       ]);
     });
 
@@ -151,7 +151,7 @@ describe("useNotebookCollection hook", () => {
     let id: string = "";
     act(() => {
       id = result.current.createQuest("クエスト", lukasiewiczSystem, [
-        { formulaText: "phi -> phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi -> phi" },
       ]);
     });
     expect(result.current.notebooks[0]?.workspace.mode).toBe("quest");
@@ -225,7 +225,7 @@ describe("useNotebookCollection hook", () => {
       id = result.current.createQuest(
         "クエスト",
         lukasiewiczSystem,
-        [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+        [{ formulaText: "phi -> phi" }],
         "prop-01",
       );
     });

@@ -16,7 +16,7 @@ import {
   createQuestWorkspace,
   addNode,
   addConnection,
-  updateNodeRole,
+  addGoal,
   updateNodeGenVariableName,
   applyMPAndConnect,
   applyGenAndConnect,
@@ -968,10 +968,7 @@ describe("ProofWorkspace", () => {
     it("shows proof complete banner when goal is achieved", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "Goal", { x: 400, y: 0 }, "phi");
-      ws = updateNodeRole(ws, "node-2", "goal");
-      // ゴールノードへの接続がなければ達成にならない
-      ws = addConnection(ws, "node-1", "output", "node-2", "input");
+      ws = addGoal(ws, "phi");
 
       render(
         <ProofWorkspace
@@ -998,8 +995,7 @@ describe("ProofWorkspace", () => {
 
     it("does not show banner when goal is not achieved", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "Goal", { x: 400, y: 0 }, "phi -> phi");
-      ws = updateNodeRole(ws, "node-1", "goal");
+      ws = addGoal(ws, "phi -> phi");
 
       render(
         <ProofWorkspace
@@ -1022,10 +1018,7 @@ describe("ProofWorkspace", () => {
         x: 100,
         y: 150,
       });
-      ws = addNode(result.workspace, "axiom", "Goal", { x: 400, y: 0 }, "psi");
-      ws = updateNodeRole(ws, "node-4", "goal");
-      // MP結果ノードからゴールノードへの接続が必要
-      ws = addConnection(ws, "node-3", "output", "node-4", "input");
+      ws = addGoal(result.workspace, "psi");
 
       render(
         <ProofWorkspace
@@ -1044,10 +1037,7 @@ describe("ProofWorkspace", () => {
       const onGoalAchieved = vi.fn();
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "Goal", { x: 400, y: 0 }, "phi");
-      ws = updateNodeRole(ws, "node-2", "goal");
-      // ゴールノードへの接続が必要
-      ws = addConnection(ws, "node-1", "output", "node-2", "input");
+      ws = addGoal(ws, "phi");
 
       render(
         <ProofWorkspace
@@ -1080,8 +1070,7 @@ describe("ProofWorkspace", () => {
     it("does not call onGoalAchieved when goal is not yet achieved", () => {
       const onGoalAchieved = vi.fn();
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "Goal", { x: 400, y: 0 }, "phi -> phi");
-      ws = updateNodeRole(ws, "node-1", "goal");
+      ws = addGoal(ws, "phi -> phi");
 
       render(
         <ProofWorkspace
@@ -1101,7 +1090,6 @@ describe("ProofWorkspace", () => {
         {
           formulaText: "phi -> (psi -> phi)",
           label: "Goal",
-          position: { x: 0, y: 0 },
         },
       ]);
       // Add an axiom node that matches the goal (A1)
@@ -1129,7 +1117,6 @@ describe("ProofWorkspace", () => {
         {
           formulaText: "phi -> phi",
           label: "Goal",
-          position: { x: 0, y: 0 },
         },
       ]);
       // Add an axiom that does NOT match the goal
@@ -1152,7 +1139,6 @@ describe("ProofWorkspace", () => {
         {
           formulaText: "phi -> (psi -> phi)",
           label: "Goal",
-          position: { x: 0, y: 0 },
         },
       ]);
       ws = addNode(ws, "axiom", "A1", { x: 200, y: 0 }, "phi -> (psi -> phi)");
@@ -1481,11 +1467,7 @@ describe("ProofWorkspace", () => {
       await user.click(badge);
       expect(badge).toHaveTextContent("AXIOM");
 
-      // Click: AXIOM -> GOAL
-      await user.click(badge);
-      expect(badge).toHaveTextContent("GOAL");
-
-      // Click: GOAL -> ROOT
+      // Click: AXIOM -> ROOT (goal is no longer a node role)
       await user.click(badge);
       expect(badge).toHaveTextContent("ROOT");
     });
@@ -1503,10 +1485,7 @@ describe("ProofWorkspace", () => {
     it("testIdなしでゴール達成バナーが表示される", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "φ → φ");
-      ws = addNode(ws, "axiom", "Goal", { x: 400, y: 0 }, "φ → φ");
-      ws = updateNodeRole(ws, "node-2", "goal");
-      // ゴールノードへの接続が必要
-      ws = addConnection(ws, "node-1", "output", "node-2", "input");
+      ws = addGoal(ws, "φ → φ");
       const { container } = render(
         <ProofWorkspace system={lukasiewiczSystem} workspace={ws} />,
       );
@@ -1517,7 +1496,7 @@ describe("ProofWorkspace", () => {
   describe("quest mode", () => {
     it("displays Quest badge in quest mode", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi -> phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi -> phi" },
       ]);
       render(
         <ProofWorkspace
@@ -1548,7 +1527,7 @@ describe("ProofWorkspace", () => {
 
     it("displays Convert to Free button in quest mode", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" },
       ]);
       render(
         <ProofWorkspace
@@ -1562,26 +1541,10 @@ describe("ProofWorkspace", () => {
       ).toBeInTheDocument();
     });
 
-    it("quest goal nodes show QUEST badge", () => {
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
-      ]);
-      render(
-        <ProofWorkspace
-          system={lukasiewiczSystem}
-          workspace={ws}
-          testId="workspace"
-        />,
-      );
-      expect(
-        screen.getByTestId("proof-node-node-1-protected-badge"),
-      ).toHaveTextContent("QUEST");
-    });
-
     it("converts to free mode when Convert to Free button is clicked", async () => {
       const user = userEvent.setup();
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" },
       ]);
       const onWorkspaceChange = vi.fn();
       render(
@@ -1597,13 +1560,12 @@ describe("ProofWorkspace", () => {
       expect(onWorkspaceChange).toHaveBeenCalled();
       const updated = onWorkspaceChange.mock.calls[0]![0] as WorkspaceState;
       expect(updated.mode).toBe("free");
-      expect(updated.nodes[0]!.protection).toBeUndefined();
     });
 
     it("quest mode conversion works with internal state", async () => {
       const user = userEvent.setup();
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" },
       ]);
 
       render(<StatefulWorkspace initialWorkspace={ws} />);
@@ -1620,11 +1582,6 @@ describe("ProofWorkspace", () => {
           screen.queryByTestId("workspace-quest-badge"),
         ).not.toBeInTheDocument();
       });
-
-      // Protected badge should also disappear
-      expect(
-        screen.queryByTestId("proof-node-node-1-protected-badge"),
-      ).not.toBeInTheDocument();
     });
   });
 
@@ -2025,26 +1982,6 @@ describe("ProofWorkspace", () => {
 
       // node-2 should remain
       expect(screen.getByTestId("proof-node-node-2")).toBeInTheDocument();
-    });
-
-    it("does not delete protected nodes in quest mode", async () => {
-      const user = userEvent.setup();
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 100, y: 100 } },
-      ]);
-
-      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
-
-      // Select the protected node
-      const node = screen.getByTestId("proof-node-node-1");
-      await user.click(node);
-
-      // Click delete button
-      const deleteButton = screen.getByTestId("workspace-delete-button");
-      await user.click(deleteButton);
-
-      // Protected node should remain
-      expect(screen.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
   });
 
@@ -2755,11 +2692,12 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("workspace-canvas-menu-add-axiom"),
       ).toBeInTheDocument();
       expect(
-        screen.getByTestId("workspace-canvas-menu-add-goal"),
-      ).toBeInTheDocument();
-      expect(
         screen.getByTestId("workspace-canvas-menu-add-node"),
       ).toBeInTheDocument();
+      // "Add Goal Node" menu item no longer exists (goals are not nodes)
+      expect(
+        screen.queryByTestId("workspace-canvas-menu-add-goal"),
+      ).not.toBeInTheDocument();
     });
 
     it("adds axiom node when 'Add Axiom Node' is clicked", async () => {
@@ -2787,36 +2725,6 @@ describe("ProofWorkspace", () => {
       ).not.toBeInTheDocument();
 
       // 新しいノードが追加されている
-      expect(
-        screen.getByTestId(`proof-node-${"node-1" satisfies string}`),
-      ).toBeInTheDocument();
-    });
-
-    it("adds goal node when 'Add Goal Node' is clicked", async () => {
-      const ws = createEmptyWorkspace(lukasiewiczSystem);
-      const { container } = render(
-        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
-      );
-
-      // 右クリックでメニューを開く
-      const canvas = container.querySelector("[data-testid='workspace']")!;
-      await userEvent.pointer({
-        target: canvas,
-        keys: "[MouseRight]",
-        coords: { clientX: 300, clientY: 200 },
-      });
-
-      // 「Add Goal Node」をクリック
-      await userEvent.click(
-        screen.getByTestId("workspace-canvas-menu-add-goal"),
-      );
-
-      // メニューが閉じる
-      expect(
-        screen.queryByTestId("workspace-canvas-context-menu"),
-      ).not.toBeInTheDocument();
-
-      // 新しいゴールノードが追加されている
       expect(
         screen.getByTestId(`proof-node-${"node-1" satisfies string}`),
       ).toBeInTheDocument();
@@ -2926,42 +2834,6 @@ describe("ProofWorkspace", () => {
       expect(screen.getByTestId("proof-node-node-2")).toBeInTheDocument();
       expect(screen.getByTestId("proof-node-node-3")).toBeInTheDocument();
     });
-
-    it("disables Delete Node for protected quest goal nodes", async () => {
-      const user = userEvent.setup();
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
-      ]);
-
-      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
-
-      // Right-click on the protected goal node
-      const node = screen.getByTestId("proof-node-node-1");
-      await user.pointer({ keys: "[MouseRight]", target: node });
-
-      // Delete Node should be disabled
-      const deleteBtn = screen.getByTestId("workspace-delete-node");
-      expect(deleteBtn).toBeDisabled();
-    });
-
-    it("does not delete protected quest goal node even if clicked", async () => {
-      const user = userEvent.setup();
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
-      ]);
-
-      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
-
-      // Right-click on the protected goal node
-      const node = screen.getByTestId("proof-node-node-1");
-      await user.pointer({ keys: "[MouseRight]", target: node });
-
-      // Click Delete Node (disabled)
-      await user.click(screen.getByTestId("workspace-delete-node"));
-
-      // Protected node should remain
-      expect(screen.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   });
 
   describe("node context menu - duplicate node", () => {
@@ -3008,19 +2880,16 @@ describe("ProofWorkspace", () => {
       expect(screen.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
 
-    it("duplicated goal node loses goal role (pure logic test)", () => {
-      // ゴールroleクリアは純粋ロジック側でテスト済み（workspaceState.test.ts）
+    it("duplicated axiom node preserves role (pure logic test)", () => {
       // UIテストでは単にduplicateが動作することを確認
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "G1", { x: 0, y: 0 }, "phi -> phi");
-      ws = updateNodeRole(ws, "node-1", "goal");
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> phi");
 
       const result = duplicateNode(ws, "node-1");
       const newNode = result.workspace.nodes.find((n) =>
         result.newNodeIds.has(n.id),
       );
       expect(newNode).toBeDefined();
-      expect(newNode!.role).toBeUndefined();
     });
   });
 
