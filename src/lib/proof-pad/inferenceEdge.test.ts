@@ -24,6 +24,10 @@ import {
   type NdWeakeningEdge,
   type NdEfqEdge,
   type NdDneEdge,
+  type NdUniversalIntroEdge,
+  type NdUniversalElimEdge,
+  type NdExistentialIntroEdge,
+  type NdExistentialElimEdge,
 } from "./inferenceEdge";
 
 describe("inferenceEdge", () => {
@@ -478,6 +482,41 @@ describe("inferenceEdge", () => {
     conclusionText: "A",
   };
 
+  const ndUniversalIntro: NdUniversalIntroEdge = {
+    _tag: "nd-universal-intro",
+    conclusionNodeId: "c12",
+    premiseNodeId: "p17",
+    variableName: "x",
+    conclusionText: "∀x.A",
+  };
+
+  const ndUniversalElim: NdUniversalElimEdge = {
+    _tag: "nd-universal-elim",
+    conclusionNodeId: "c13",
+    premiseNodeId: "p18",
+    termText: "y",
+    conclusionText: "A(y)",
+  };
+
+  const ndExistentialIntro: NdExistentialIntroEdge = {
+    _tag: "nd-existential-intro",
+    conclusionNodeId: "c14",
+    premiseNodeId: "p19",
+    variableName: "x",
+    termText: "y",
+    conclusionText: "∃x.A",
+  };
+
+  const ndExistentialElim: NdExistentialElimEdge = {
+    _tag: "nd-existential-elim",
+    conclusionNodeId: "c15",
+    existentialPremiseNodeId: "p20",
+    casePremiseNodeId: "p21",
+    dischargedAssumptionId: 4,
+    dischargedFormulaText: "A(x)",
+    conclusionText: "B",
+  };
+
   const allNdEdges: readonly InferenceEdge[] = [
     ndImplicationIntro,
     ndImplicationElim,
@@ -490,6 +529,10 @@ describe("inferenceEdge", () => {
     ndWeakening,
     ndEfq,
     ndDne,
+    ndUniversalIntro,
+    ndUniversalElim,
+    ndExistentialIntro,
+    ndExistentialElim,
   ];
 
   // ─── isHilbertInferenceEdge / isNdInferenceEdge ──────────
@@ -587,6 +630,10 @@ describe("inferenceEdge", () => {
       { edge: ndWeakening, expected: "w" },
       { edge: ndEfq, expected: "EFQ" },
       { edge: ndDne, expected: "DNE" },
+      { edge: ndUniversalIntro, expected: "∀I(x)" },
+      { edge: ndUniversalElim, expected: "∀E(y)" },
+      { edge: ndExistentialIntro, expected: "∃I(x)" },
+      { edge: ndExistentialElim, expected: "∃E" },
     ] as const)("returns '$expected' for $edge._tag", ({ edge, expected }) => {
       expect(getInferenceEdgeLabel(edge)).toBe(expected);
     });
@@ -874,6 +921,43 @@ describe("inferenceEdge", () => {
         conclusionNodeId: "new-c3",
         leftPremiseNodeId: "new-p4",
         rightPremiseNodeId: "new-p5",
+      });
+    });
+
+    it("remaps ∀I edge", () => {
+      const result = remapEdgeNodeIds(ndUniversalIntro, mapFn);
+      expect(result).toEqual({
+        ...ndUniversalIntro,
+        conclusionNodeId: "new-c12",
+        premiseNodeId: "new-p17",
+      });
+    });
+
+    it("remaps ∀E edge", () => {
+      const result = remapEdgeNodeIds(ndUniversalElim, mapFn);
+      expect(result).toEqual({
+        ...ndUniversalElim,
+        conclusionNodeId: "new-c13",
+        premiseNodeId: "new-p18",
+      });
+    });
+
+    it("remaps ∃I edge", () => {
+      const result = remapEdgeNodeIds(ndExistentialIntro, mapFn);
+      expect(result).toEqual({
+        ...ndExistentialIntro,
+        conclusionNodeId: "new-c14",
+        premiseNodeId: "new-p19",
+      });
+    });
+
+    it("remaps ∃E edge", () => {
+      const result = remapEdgeNodeIds(ndExistentialElim, mapFn);
+      expect(result).toEqual({
+        ...ndExistentialElim,
+        conclusionNodeId: "new-c15",
+        existentialPremiseNodeId: "new-p20",
+        casePremiseNodeId: "new-p21",
       });
     });
   });

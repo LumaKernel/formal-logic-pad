@@ -6,7 +6,7 @@
  * ノードの種別（ProofNodeKind）からは独立して管理される。
  *
  * Hilbert系: MP, Gen, Substitution
- * 自然演繹(ND): →I, →E, ∧I, ∧E_L, ∧E_R, ∨I_L, ∨I_R, ∨E, w, EFQ, DNE
+ * 自然演繹(ND): →I, →E, ∧I, ∧E_L, ∧E_R, ∨I_L, ∨I_R, ∨E, w, EFQ, DNE, ∀I, ∀E, ∃I, ∃E
  *
  * 変更時は inferenceEdge.test.ts も同期すること。
  * InferenceEdge union型のメンバー追加時は以下のswitch文すべてを更新:
@@ -241,6 +241,76 @@ export type NdDneEdge = {
   readonly conclusionText: string;
 };
 
+/**
+ * ND ∀導入 (∀I) エッジ。
+ * φ から ∀x.φ を導出する。
+ * 固有変数条件: x は未打ち消し仮定の自由変数に現れてはならない。
+ * 1前提 + 量化変数名。
+ */
+export type NdUniversalIntroEdge = {
+  readonly _tag: "nd-universal-intro";
+  readonly conclusionNodeId: string;
+  /** 前提（φ）のノードID */
+  readonly premiseNodeId: string | undefined;
+  /** 量化変数名 */
+  readonly variableName: string;
+  readonly conclusionText: string;
+};
+
+/**
+ * ND ∀除去 (∀E) エッジ。
+ * ∀x.φ から φ[t/x] を導出する。
+ * 代入可能性条件: t は φ において x に対して自由 (free-for)。
+ * 1前提 + 代入項テキスト。
+ */
+export type NdUniversalElimEdge = {
+  readonly _tag: "nd-universal-elim";
+  readonly conclusionNodeId: string;
+  /** 前提（∀x.φ）のノードID */
+  readonly premiseNodeId: string | undefined;
+  /** 代入する項のテキスト */
+  readonly termText: string;
+  readonly conclusionText: string;
+};
+
+/**
+ * ND ∃導入 (∃I) エッジ。
+ * φ[t/x] から ∃x.φ を導出する。
+ * 1前提 + 量化変数名 + 代入項テキスト。
+ * 前提が φ[t/x] の形であることを確認し、∃x.φ を構築する。
+ */
+export type NdExistentialIntroEdge = {
+  readonly _tag: "nd-existential-intro";
+  readonly conclusionNodeId: string;
+  /** 前提（φ[t/x]）のノードID */
+  readonly premiseNodeId: string | undefined;
+  /** 量化変数名 */
+  readonly variableName: string;
+  /** 代入する項のテキスト（前提中で一般化される項） */
+  readonly termText: string;
+  readonly conclusionText: string;
+};
+
+/**
+ * ND ∃除去 (∃E) エッジ。
+ * ∃x.φ と仮定φの下でのχの証明から、χを導出する。
+ * 固有変数条件: x は χ にも未打ち消し仮定にも自由に現れてはならない。
+ * 2前提 + discharged仮定情報 + 量化変数名。
+ */
+export type NdExistentialElimEdge = {
+  readonly _tag: "nd-existential-elim";
+  readonly conclusionNodeId: string;
+  /** 前提: ∃x.φ のノードID */
+  readonly existentialPremiseNodeId: string | undefined;
+  /** 前提: φの仮定の下でのχの証明のノードID */
+  readonly casePremiseNodeId: string | undefined;
+  /** 打ち消す仮定のID（φに対応） */
+  readonly dischargedAssumptionId: AssumptionId;
+  /** 打ち消す仮定の論理式テキスト */
+  readonly dischargedFormulaText: string;
+  readonly conclusionText: string;
+};
+
 /** ND推論エッジのunion型 */
 export type NdInferenceEdge =
   | NdImplicationIntroEdge
@@ -253,7 +323,11 @@ export type NdInferenceEdge =
   | NdDisjunctionElimEdge
   | NdWeakeningEdge
   | NdEfqEdge
-  | NdDneEdge;
+  | NdDneEdge
+  | NdUniversalIntroEdge
+  | NdUniversalElimEdge
+  | NdExistentialIntroEdge
+  | NdExistentialElimEdge;
 
 // ─── 統合union型 ─────────────────────────────────────────
 
@@ -282,7 +356,11 @@ export function isNdInferenceEdge(edge: InferenceEdge) {
     edge._tag === "nd-disjunction-elim" ||
     edge._tag === "nd-weakening" ||
     edge._tag === "nd-efq" ||
-    edge._tag === "nd-dne"
+    edge._tag === "nd-dne" ||
+    edge._tag === "nd-universal-intro" ||
+    edge._tag === "nd-universal-elim" ||
+    edge._tag === "nd-existential-intro" ||
+    edge._tag === "nd-existential-elim"
   );
 }
 
@@ -352,6 +430,20 @@ export function getInferenceEdgeLabel(edge: InferenceEdge): string {
       return "EFQ";
     case "nd-dne":
       return "DNE";
+    case "nd-universal-intro":
+      return edge.variableName !== ""
+        ? `∀I(${edge.variableName satisfies string})`
+        : "∀I";
+    case "nd-universal-elim":
+      return edge.termText !== ""
+        ? `∀E(${edge.termText satisfies string})`
+        : "∀E";
+    case "nd-existential-intro":
+      return edge.variableName !== ""
+        ? `∃I(${edge.variableName satisfies string})`
+        : "∃I";
+    case "nd-existential-elim":
+      return "∃E";
   }
 }
 
@@ -404,6 +496,12 @@ export function getInferenceEdgePremiseNodeIds(
       return edge.premiseNodeId !== undefined ? [edge.premiseNodeId] : [];
     case "nd-dne":
       return edge.premiseNodeId !== undefined ? [edge.premiseNodeId] : [];
+    case "nd-universal-intro":
+      return edge.premiseNodeId !== undefined ? [edge.premiseNodeId] : [];
+    case "nd-universal-elim":
+      return edge.premiseNodeId !== undefined ? [edge.premiseNodeId] : [];
+    case "nd-existential-intro":
+      return edge.premiseNodeId !== undefined ? [edge.premiseNodeId] : [];
     // ND 2前提系
     case "nd-implication-elim": {
       const ids: string[] = [];
@@ -432,6 +530,16 @@ export function getInferenceEdgePremiseNodeIds(
       }
       if (edge.discardedPremiseNodeId !== undefined) {
         ids.push(edge.discardedPremiseNodeId);
+      }
+      return ids;
+    }
+    case "nd-existential-elim": {
+      const ids: string[] = [];
+      if (edge.existentialPremiseNodeId !== undefined) {
+        ids.push(edge.existentialPremiseNodeId);
+      }
+      if (edge.casePremiseNodeId !== undefined) {
+        ids.push(edge.casePremiseNodeId);
       }
       return ids;
     }
@@ -529,6 +637,24 @@ export function remapEdgeNodeIds(
         conclusionNodeId: mapRequired(edge.conclusionNodeId),
         premiseNodeId: mapOpt(edge.premiseNodeId),
       };
+    case "nd-universal-intro":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
+        premiseNodeId: mapOpt(edge.premiseNodeId),
+      };
+    case "nd-universal-elim":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
+        premiseNodeId: mapOpt(edge.premiseNodeId),
+      };
+    case "nd-existential-intro":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
+        premiseNodeId: mapOpt(edge.premiseNodeId),
+      };
     // ND 2前提系
     case "nd-implication-elim":
       return {
@@ -550,6 +676,13 @@ export function remapEdgeNodeIds(
         conclusionNodeId: mapRequired(edge.conclusionNodeId),
         keptPremiseNodeId: mapOpt(edge.keptPremiseNodeId),
         discardedPremiseNodeId: mapOpt(edge.discardedPremiseNodeId),
+      };
+    case "nd-existential-elim":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
+        existentialPremiseNodeId: mapOpt(edge.existentialPremiseNodeId),
+        casePremiseNodeId: mapOpt(edge.casePremiseNodeId),
       };
     // ND 3前提系
     case "nd-disjunction-elim":

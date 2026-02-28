@@ -1918,6 +1918,114 @@ const qNd14Con4: QuestDefinition = {
   version: 1,
 };
 
+// --- Level ND-Quantifier: 自然演繹の量化子規則 ---
+
+const qNd15UniversalIntro: QuestDefinition = {
+  id: "nd-15",
+  category: "nd-basics",
+  title: "全称導入 ∀I (NM)",
+  description:
+    "P(x) → ∀x.P(x) → P(x) を自然演繹 NM で証明せよ。∀I規則の基本的な使い方を学ぶ。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "P(x) -> all x. P(x) -> P(x)",
+      label: "Goal: P(x) → ∀x.(P(x) → P(x))",
+    },
+  ],
+  hints: [
+    "P(x) を仮定します。",
+    "→I で P(x) → P(x) を作ります（P(x) を仮定して即解消）。",
+    "∀I でxを量化して ∀x.(P(x) → P(x)) を得ます。",
+    "最初の仮定P(x)を→Iで解消します。",
+  ],
+  estimatedSteps: 4,
+  learningPoint:
+    "∀I（全称導入）は前提φからx.φを導出する。xは未打ち消し仮定に自由に現れてはならない（固有変数条件）。",
+  order: 15,
+  version: 1,
+};
+
+const qNd16UniversalElim: QuestDefinition = {
+  id: "nd-16",
+  category: "nd-basics",
+  title: "全称除去 ∀E (NM)",
+  description:
+    "∀x.P(x) → P(x) を自然演繹 NM で証明せよ。∀E規則で量化子を除去する基本操作。",
+  difficulty: 1,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "all x. P(x) -> P(x)",
+      label: "Goal: ∀x.P(x) → P(x)",
+    },
+  ],
+  hints: [
+    "∀x.P(x) を仮定します。",
+    "∀E で x を代入してP(x)を得ます（t = x）。",
+    "→I で仮定を解消して完成です。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "∀E（全称除去）は ∀x.φ から φ[t/x] を導出する。任意の項tを代入できるが、代入可能性条件（free-for）を満たす必要がある。",
+  order: 16,
+  version: 1,
+};
+
+const qNd17ExistentialIntro: QuestDefinition = {
+  id: "nd-17",
+  category: "nd-basics",
+  title: "存在導入 ∃I (NM)",
+  description:
+    "P(x) → ∃x.P(x) を自然演繹 NM で証明せよ。具体例から存在命題を導く。",
+  difficulty: 1,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "P(x) -> ex x. P(x)",
+      label: "Goal: P(x) → ∃x.P(x)",
+    },
+  ],
+  hints: [
+    "P(x) を仮定します。",
+    "∃I で x を量化変数、x を witness として ∃x.P(x) を得ます。",
+    "→I で仮定を解消して完成です。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "∃I（存在導入）は φ[t/x] から ∃x.φ を導出する。具体的な項tがφを満たすなら、それを存在命題に一般化できる。",
+  order: 17,
+  version: 1,
+};
+
+const qNd18UniversalSwap: QuestDefinition = {
+  id: "nd-18",
+  category: "nd-basics",
+  title: "全称量化子の交換 (NM)",
+  description:
+    "∀x.∀y.P(x, y) → ∀y.∀x.P(x, y) を自然演繹 NM で証明せよ。∀Eと∀Iの組み合わせ。",
+  difficulty: 3,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "all x. all y. P(x, y) -> all y. all x. P(x, y)",
+      label: "Goal: ∀x.∀y.P(x,y) → ∀y.∀x.P(x,y)",
+    },
+  ],
+  hints: [
+    "∀x.∀y.P(x,y) を仮定します。",
+    "∀E で x を消去して ∀y.P(x,y) を得ます。",
+    "∀E で y を消去して P(x,y) を得ます。",
+    "∀I で x を量化して ∀x.P(x,y) を得ます。∀I で y を量化して ∀y.∀x.P(x,y) を得ます。→I で完成。",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "∀量化子の順序は交換可能。∀E（除去）と∀I（導入）の組み合わせで示す。自然演繹ではHilbert流のA5を使わずに直接的に証明できる。",
+  order: 18,
+  version: 1,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -1996,4 +2104,8 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qNd12RaaClassical,
   qNd13Con1,
   qNd14Con4,
+  qNd15UniversalIntro,
+  qNd16UniversalElim,
+  qNd17ExistentialIntro,
+  qNd18UniversalSwap,
 ];

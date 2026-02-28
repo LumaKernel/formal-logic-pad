@@ -64,7 +64,11 @@ export type NdRuleId =
   | "disjunction-elim"
   | "weakening"
   | "efq"
-  | "dne";
+  | "dne"
+  | "universal-intro"
+  | "universal-elim"
+  | "existential-intro"
+  | "existential-elim";
 
 /** NM（最小論理）の基本規則セット */
 const nmBaseRules: ReadonlySet<NdRuleId> = new Set([
@@ -77,6 +81,10 @@ const nmBaseRules: ReadonlySet<NdRuleId> = new Set([
   "disjunction-intro-right",
   "disjunction-elim",
   "weakening",
+  "universal-intro",
+  "universal-elim",
+  "existential-intro",
+  "existential-elim",
 ]);
 
 /**
@@ -352,6 +360,10 @@ export const allNdRuleIds: readonly NdRuleId[] = [
   "weakening",
   "efq",
   "dne",
+  "universal-intro",
+  "universal-elim",
+  "existential-intro",
+  "existential-elim",
 ];
 
 /** シーケント計算体系で特定の規則が有効かどうかを判定する */
@@ -460,6 +472,14 @@ export function getNdRuleDisplayName(ruleId: NdRuleId): string {
       return "爆発律 (EFQ)";
     case "dne":
       return "二重否定除去 (DNE)";
+    case "universal-intro":
+      return "∀導入 (∀I)";
+    case "universal-elim":
+      return "∀除去 (∀E)";
+    case "existential-intro":
+      return "∃導入 (∃I)";
+    case "existential-elim":
+      return "∃除去 (∃E)";
     default: {
       /* v8 ignore start */
       const _exhaustive: never = ruleId;

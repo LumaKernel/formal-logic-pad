@@ -340,6 +340,45 @@ const NdDneEdgeSchema = Schema.Struct({
   conclusionText: Schema.String,
 });
 
+/** ND ∀導入 (∀I) エッジのSchema */
+const NdUniversalIntroEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-universal-intro"),
+  conclusionNodeId: Schema.String,
+  premiseNodeId: Schema.optional(Schema.String),
+  variableName: Schema.String,
+  conclusionText: Schema.String,
+});
+
+/** ND ∀除去 (∀E) エッジのSchema */
+const NdUniversalElimEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-universal-elim"),
+  conclusionNodeId: Schema.String,
+  premiseNodeId: Schema.optional(Schema.String),
+  termText: Schema.String,
+  conclusionText: Schema.String,
+});
+
+/** ND ∃導入 (∃I) エッジのSchema */
+const NdExistentialIntroEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-existential-intro"),
+  conclusionNodeId: Schema.String,
+  premiseNodeId: Schema.optional(Schema.String),
+  variableName: Schema.String,
+  termText: Schema.String,
+  conclusionText: Schema.String,
+});
+
+/** ND ∃除去 (∃E) エッジのSchema */
+const NdExistentialElimEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("nd-existential-elim"),
+  conclusionNodeId: Schema.String,
+  existentialPremiseNodeId: Schema.optional(Schema.String),
+  casePremiseNodeId: Schema.optional(Schema.String),
+  dischargedAssumptionId: Schema.Number,
+  dischargedFormulaText: Schema.String,
+  conclusionText: Schema.String,
+});
+
 /** InferenceEdgeのSchema（Hilbert系 + ND） */
 const InferenceEdgeSchema = Schema.Union(
   // Hilbert系
@@ -358,6 +397,10 @@ const InferenceEdgeSchema = Schema.Union(
   NdWeakeningEdgeSchema,
   NdEfqEdgeSchema,
   NdDneEdgeSchema,
+  NdUniversalIntroEdgeSchema,
+  NdUniversalElimEdgeSchema,
+  NdExistentialIntroEdgeSchema,
+  NdExistentialElimEdgeSchema,
 );
 
 /** WorkspaceGoalのSchema */

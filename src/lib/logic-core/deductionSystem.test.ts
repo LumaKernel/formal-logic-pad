@@ -29,8 +29,8 @@ describe("NM (最小論理)", () => {
     expect(nmSystem.name).toBe("Natural Deduction NM");
   });
 
-  it("基本規則9種を含む", () => {
-    expect(nmSystem.rules.size).toBe(9);
+  it("基本規則13種を含む", () => {
+    expect(nmSystem.rules.size).toBe(13);
   });
 
   it("→I, →E を含む", () => {
@@ -54,6 +54,13 @@ describe("NM (最小論理)", () => {
     expect(nmSystem.rules.has("weakening")).toBe(true);
   });
 
+  it("∀I, ∀E, ∃I, ∃E を含む", () => {
+    expect(nmSystem.rules.has("universal-intro")).toBe(true);
+    expect(nmSystem.rules.has("universal-elim")).toBe(true);
+    expect(nmSystem.rules.has("existential-intro")).toBe(true);
+    expect(nmSystem.rules.has("existential-elim")).toBe(true);
+  });
+
   it("EFQを含まない", () => {
     expect(nmSystem.rules.has("efq")).toBe(false);
   });
@@ -68,8 +75,8 @@ describe("NJ (直観主義論理)", () => {
     expect(njSystem.name).toBe("Natural Deduction NJ");
   });
 
-  it("NMの基本規則 + EFQ = 10種", () => {
-    expect(njSystem.rules.size).toBe(10);
+  it("NMの基本規則 + EFQ = 14種", () => {
+    expect(njSystem.rules.size).toBe(14);
   });
 
   it("EFQを含む", () => {
@@ -92,8 +99,8 @@ describe("NK (古典論理)", () => {
     expect(nkSystem.name).toBe("Natural Deduction NK");
   });
 
-  it("NMの基本規則 + DNE = 10種", () => {
-    expect(nkSystem.rules.size).toBe(10);
+  it("NMの基本規則 + DNE = 14種", () => {
+    expect(nkSystem.rules.size).toBe(14);
   });
 
   it("DNEを含む", () => {
@@ -176,8 +183,8 @@ describe("isNdRuleEnabled", () => {
 // ── allNdRuleIds のテスト ───────────────────────────────────
 
 describe("allNdRuleIds", () => {
-  it("11種の規則IDを含む", () => {
-    expect(allNdRuleIds).toHaveLength(11);
+  it("15種の規則IDを含む", () => {
+    expect(allNdRuleIds).toHaveLength(15);
   });
 
   it("重複がない", () => {
@@ -226,6 +233,22 @@ describe("getNdRuleDisplayName", () => {
 
   it("弱化の表示名", () => {
     expect(getNdRuleDisplayName("weakening")).toBe("弱化 (w)");
+  });
+
+  it("∀導入の表示名", () => {
+    expect(getNdRuleDisplayName("universal-intro")).toBe("∀導入 (∀I)");
+  });
+
+  it("∀除去の表示名", () => {
+    expect(getNdRuleDisplayName("universal-elim")).toBe("∀除去 (∀E)");
+  });
+
+  it("∃導入の表示名", () => {
+    expect(getNdRuleDisplayName("existential-intro")).toBe("∃導入 (∃I)");
+  });
+
+  it("∃除去の表示名", () => {
+    expect(getNdRuleDisplayName("existential-elim")).toBe("∃除去 (∃E)");
   });
 });
 
