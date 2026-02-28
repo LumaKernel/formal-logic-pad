@@ -5481,3 +5481,37 @@
   - バッジクリックでstopPropagation必須（親のクエスト開始ハンドラを防ぐため）
   - HubPageViewのフィルタ状態はquestFilter: string | nullで管理。Notebooksタブクリック時にフィルタをクリアする
 ---
+
+## 2026-02-28 - リファレンス: 演繹定理エントリ追加
+- 実装: `concept-deduction-theorem` リファレンスエントリを追加（prd-advanced.md G1タスク）
+- 内容: 演繹定理（Γ, φ ⊢ ψ ⟺ Γ ⊢ φ → ψ）の解説。形式的記述、意義、例（φ→φの証明）、述語論理での制限をen/jaで5段落
+- 変更ファイル:
+  - src/lib/reference/referenceContent.ts（conceptDeductionTheoremエントリ追加）
+  - src/lib/reference/referenceContent.test.ts（6テスト追加、エントリ数40→41）
+- テスト: 5010件全パス（+13件）
+- カバレッジ: Stmts 98.6%, Branch 92.74%, Funcs 90.88%, Lines 99.32%（ベースラインから低下なし）
+- スクリーンショット: .screenshots/reference-modal-default.png, .screenshots/reference-popover-default.png
+- **今後のイテレーションへの学び:**
+  - リファレンスエントリ追加はreferenceContent.tsにconst定義→allReferenceEntries配列に追加→テストのエントリ数更新の3ステップ
+  - en/jaの段落数は必ず一致させる（テストで検証される）
+  - conceptカテゴリのorderは連番で管理（substitution:1, free-variable:2, unification:3, deduction-theorem:4）
+---
+
+## 2026-02-28 - クエスト: 演繹定理を活用するクエスト追加
+- 実装: 演繹定理関連のクエスト3問を追加（prd-advanced.md G2タスク）
+  - prop-33: MPの含意化 `φ → ((φ → ψ) → ψ)` (Lv.2, 8ステップ) — MPを含意で表現
+  - prop-34: 含意の弱化除去 `((φ → ψ) → χ) → (ψ → χ)` (Lv.3, 15ステップ) — A1の持ち上げ+推移律
+  - prop-35: Mendelson体系での恒等律 `φ → φ` (Lv.2, 5ステップ) — 体系間の共通性を体感
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts（3クエスト追加、propositional-intermediateカテゴリ order 7-9）
+  - src/lib/quest/builtinQuests.test.ts（クエスト数57→60に更新）
+  - tasks/prd-advanced.md（G2完了マーク）
+- テスト: 全パス（クエスト関連13ファイル299テスト）
+- カバレッジ: ベースラインから低下なし（Stmts 98.6%）
+- スクリーンショット: .screenshots/quest-catalog-deduction-theorem.png, .screenshots/hub-quests-tab-deduction.png
+- **今後のイテレーションへの学び:**
+  - クエスト追加は builtinQuests.ts にconst定義 → builtinQuests配列に追加 → テストのクエスト数更新の3ステップ
+  - 新クエストのorder番号は同カテゴリの既存最大order+1から連番で振る
+  - propositional-intermediateカテゴリのorder 1-6は既存で埋まっている
+  - 演繹定理の核心はA1(K)とA2(S)にあり、A3/M3/DNEの違いに影響されない
+---
