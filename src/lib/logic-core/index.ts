@@ -310,6 +310,55 @@ export {
   isPNF,
 } from "./normalForm";
 
+// ── Tableau Calculus (タブロー式シーケント計算) ──────────────
+export {
+  tabSequent,
+  tabBasicSequent,
+  tabBottom,
+  tabExchange,
+  tabDoubleNegation,
+  tabConjunction,
+  tabNegConjunction,
+  tabDisjunction,
+  tabNegDisjunction,
+  tabImplication,
+  tabNegImplication,
+  tabUniversal,
+  tabNegUniversal,
+  tabExistential,
+  tabNegExistential,
+  getTabConclusion,
+  countTabNodes,
+  tabProofDepth,
+  validateTabProof,
+  allTabRuleIds,
+  getTabRuleDisplayName,
+  tabNodeToRuleId,
+  isTabBranchingRule,
+  hasTabEigenVariableCondition,
+} from "./tableauCalculus";
+export type {
+  TabSequent,
+  TabBasicSequent,
+  TabBottom,
+  TabExchange,
+  TabDoubleNegation,
+  TabConjunction,
+  TabNegConjunction,
+  TabDisjunction,
+  TabNegDisjunction,
+  TabImplication,
+  TabNegImplication,
+  TabUniversal,
+  TabNegUniversal,
+  TabExistential,
+  TabNegExistential,
+  TabProofNode,
+  TabValidationError,
+  TabValidationResult,
+  TabRuleId,
+} from "./tableauCalculus";
+
 // ── Serialization (Schema decode/encode) ─────────────────────
 export {
   decodeFormula,

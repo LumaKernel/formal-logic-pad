@@ -95,6 +95,37 @@
 
 ---
 
+## 2026-03-01 - タブロー式シーケント計算 (TAB) 推論規則データ定義 (B1)
+- `src/lib/logic-core/tableauCalculus.ts` を新規作成: TAB証明体系のデータ定義
+  - 公理: TabBasicSequent (¬φ, φ, Γ ⇒), TabBottom (⊥, Γ ⇒)
+  - 構造規則: TabExchange (交換規則)
+  - 命題論理規則: TabDoubleNegation, TabConjunction, TabNegConjunction, TabDisjunction, TabNegDisjunction, TabImplication, TabNegImplication
+  - 量化子規則: TabUniversal, TabNegUniversal (固有変数条件), TabExistential (固有変数条件), TabNegExistential
+  - 全14規則の discriminated union (TabProofNode)
+  - ファクトリ関数、ユーティリティ (getTabConclusion, countTabNodes, tabProofDepth)
+  - バリデーション (validateTabProof) + エラー型
+  - 規則分類ヘルパー (TabRuleId, allTabRuleIds, getTabRuleDisplayName, tabNodeToRuleId, isTabBranchingRule, hasTabEigenVariableCondition)
+- `src/lib/logic-core/tableauCalculus.test.ts` を新規作成: 83テスト
+  - tabSequent, 全14ファクトリ関数, getTabConclusion, countTabNodes (13ケース), tabProofDepth (8ケース), validateTabProof (18+ケース), 規則分類ヘルパー, 実践的証明例 (排中律, Modus Ponens)
+- `src/lib/logic-core/index.ts`: TABエクスポートを追加
+- テスト: 5825テスト全パス
+- カバレッジ: Stmts 98.31%(+0.03), Branch 91.72%(+0.18), Funcs 88.83%(-0.09), Lines 99.18%(+0.01) — Funcs微減は未呼出のファクトリ関数による（トリビアルな1行関数）
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: `.screenshots/B1-tab-data-storybook-check.png` — UI変更なし、Storybook正常動作確認
+- 変更ファイル:
+  - `src/lib/logic-core/tableauCalculus.ts` (新規: TABデータ定義)
+  - `src/lib/logic-core/tableauCalculus.test.ts` (新規: 83テスト)
+  - `src/lib/logic-core/index.ts` (TABエクスポート追加)
+  - `tasks/prd-advanced.md` (B1完了マーク)
+- **今後のイテレーションへの学び:**
+  - TABはシーケント右辺が常に空（Γ ⇒）。既存のSequent型を再利用し、succedentsを空配列として扱う
+  - TABの分岐規則は ¬∧, ∨, → の3つ（2前提）。他はすべて1前提
+  - 固有変数条件を持つのは ¬∀ と ∃（新しい変数を導入する側）。∀ と ¬∃ はsubstitutedTerm（代入項）を受け取る
+  - bekki.pdf Ch.12 定義12.1-12.3 が TAB の完全な定義。Ch.6 は分析的タブローの元ネタ
+  - sequentCalculus.ts の既存パターン（型定義→union→ファクトリ→ユーティリティ→バリデーション）に従うとスムーズ
+  - `MetaVariable.name` は `GreekLetter` 型（文字列リテラル）なので `metaVariable("φ")` で直接生成。`new GreekLetter()` は不要
+---
+
 ## 2026-03-01 - 量化子ND強化クエスト (E6)
 - `src/lib/quest/builtinQuests.ts` に量化子ND強化クエスト5問を追加:
   - nd-19: 存在除去 ∃E 基本（∀x.(P(x)→φ) → ∃x.P(x) → φ）— ∃E の仮説解消パターン
