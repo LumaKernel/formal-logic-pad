@@ -5623,3 +5623,20 @@
   - D6はD5完全性定理からの帰結。bekki p.291の記述は非常に簡潔（ヘンキンの定理と補題13.9から明らか）
   - D7コンパクト性定理もp.291-292に記述あり。同じセッションで対応可能
 ---
+
+## 2026-02-28 - D7: コンパクト性定理のリファレンスエントリ
+- 実装した内容: コンパクト性定理 (Compactness Theorem) のリファレンスエントリを追加
+  - bekki.pdf Ch.13 Section 13.5 (定理5.109 再掲) に基づく
+  - 5段落の英日バイリンガル解説: 定理の記述、ヘンキンの定理からの証明、名前の由来（位相幾何学）、応用（超準モデル等）、より強い論理での不成立
+  - relatedEntryIds: concept-completeness, concept-soundness, concept-lowenheim-skolem, system-classical
+  - Wikipedia (en/ja) と nLab の外部リンク
+  - keywords: compactness, コンパクト性, 有限部分集合, 超準モデル, Lindström など13件
+- 変更したファイル:
+  - src/lib/reference/referenceContent.ts - conceptCompactness エントリ追加
+  - src/lib/reference/referenceContent.test.ts - エントリ数 47→48
+- テスト: 5066 passed, カバレッジ Stmts 98.6% (維持)
+- **今後のイテレーションへの学び:**
+  - D4-D7 (健全性・完全性・L-S・コンパクト性) はすべてbekki Ch.13に集約されている。バッチ処理が効率的
+  - D8 (証明論的意味論) がD系列の最後。Ch.13.7に記述がある
+  - D系列完了後はアーカイブ検討。D1-D4は既にアーカイブ対象
+---
