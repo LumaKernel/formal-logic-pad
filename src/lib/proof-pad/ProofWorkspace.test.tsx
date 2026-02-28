@@ -3141,7 +3141,7 @@ describe("ProofWorkspace", () => {
       expect(banner).toBeInTheDocument();
     });
 
-    it("can fill substitution form, add entry, remove entry, and confirm", async () => {
+    it("auto-extracts meta-variables and allows filling values to confirm substitution", async () => {
       const user = userEvent.setup();
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
@@ -3160,30 +3160,26 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("workspace-subst-prompt-banner"),
       ).toBeInTheDocument();
 
-      // Auto-extracted: φ and ψ are pre-filled as metaVar names
-      const metaVarInput0 = screen.getByTestId("workspace-subst-metavar-0");
-      const metaVarInput1 = screen.getByTestId("workspace-subst-metavar-1");
-      expect(metaVarInput0).toHaveValue("φ");
-      expect(metaVarInput1).toHaveValue("ψ");
+      // Auto-extracted: φ and ψ are pre-filled as read-only metaVar labels
+      const metaVarLabel0 = screen.getByTestId("workspace-subst-metavar-0");
+      const metaVarLabel1 = screen.getByTestId("workspace-subst-metavar-1");
+      expect(metaVarLabel0).toHaveTextContent("φ");
+      expect(metaVarLabel1).toHaveTextContent("ψ");
+
+      // Kind labels are read-only
+      const kindLabel0 = screen.getByTestId("workspace-subst-kind-0");
+      const kindLabel1 = screen.getByTestId("workspace-subst-kind-1");
+      expect(kindLabel0).toHaveTextContent("Formula");
+      expect(kindLabel1).toHaveTextContent("Formula");
+
+      // No Add/Remove buttons exist
+      expect(screen.queryByTestId("workspace-subst-add-entry")).toBeNull();
 
       // Fill in values for the pre-populated entries
       const valueInput0 = screen.getByTestId("workspace-subst-value-0");
       const valueInput1 = screen.getByTestId("workspace-subst-value-1");
       await user.type(valueInput0, "alpha");
       await user.type(valueInput1, "beta");
-
-      // Add a third entry
-      await user.click(screen.getByTestId("workspace-subst-add-entry"));
-
-      // With 3 entries, remove buttons should appear — remove the third entry
-      const removeButtons = screen
-        .getAllByRole("button")
-        .filter((btn) => btn.textContent === "Remove");
-      expect(removeButtons.length).toBe(3);
-      await user.click(removeButtons[2]!);
-
-      // Only two entries remain
-      expect(screen.queryByTestId("workspace-subst-metavar-2")).toBeNull();
 
       // Confirm substitution
       await user.click(screen.getByTestId("workspace-subst-prompt-confirm"));
@@ -3232,7 +3228,7 @@ describe("ProofWorkspace", () => {
       });
     });
 
-    it("can change entry kind between formula and term", async () => {
+    it("displays kind as read-only text (not editable)", async () => {
       const user = userEvent.setup();
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> phi");
@@ -3246,10 +3242,11 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("workspace-apply-substitution-to-node"),
       );
 
-      // Change kind to term
-      const kindSelect = screen.getByTestId("workspace-subst-kind-0");
-      await user.selectOptions(kindSelect, "term");
-      expect(kindSelect).toHaveValue("term");
+      // Kind is displayed as read-only text
+      const kindLabel = screen.getByTestId("workspace-subst-kind-0");
+      expect(kindLabel).toHaveTextContent("Formula");
+      // It should be a span, not a select
+      expect(kindLabel.tagName).toBe("SPAN");
     });
   });
 });

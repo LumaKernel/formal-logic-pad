@@ -90,8 +90,6 @@ export type ProofMessages = {
   readonly substErrorFormulaParse: string;
   readonly substErrorTermParse: string;
   readonly substEntryPrompt: string;
-  readonly substAddEntry: string;
-  readonly substRemoveEntry: string;
 
   // --- コンテキストメニュー ---
   readonly selectSubtree: string;
@@ -185,8 +183,6 @@ export const defaultProofMessages: ProofMessages = {
   substErrorFormulaParse: "Invalid formula in substitution entry",
   substErrorTermParse: "Invalid term in substitution entry",
   substEntryPrompt: "Substitution entries:",
-  substAddEntry: "Add entry",
-  substRemoveEntry: "Remove",
 
   // Context menu
   selectSubtree: "Select Subtree",

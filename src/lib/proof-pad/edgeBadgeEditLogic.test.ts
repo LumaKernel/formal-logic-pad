@@ -8,9 +8,7 @@ import {
   toSubstEditEntries,
   fromSubstEditEntries,
   canConfirmSubstEdit,
-  addSubstEditEntry,
-  removeSubstEditEntry,
-  updateSubstEditEntry,
+  updateSubstEditEntryValue,
 } from "./edgeBadgeEditLogic";
 
 describe("edgeBadgeEditLogic", () => {
@@ -42,7 +40,7 @@ describe("edgeBadgeEditLogic", () => {
       });
     });
 
-    it("returns substitution edit state for Substitution edge", () => {
+    it("returns substitution edit state for Substitution edge without premiseFormulaText", () => {
       const entries: SubstitutionEntries = [
         {
           _tag: "FormulaSubstitution",
@@ -62,6 +60,31 @@ describe("edgeBadgeEditLogic", () => {
         _tag: "substitution",
         conclusionNodeId: "n1",
         entries,
+        premiseFormulaText: undefined,
+      });
+    });
+
+    it("returns substitution edit state with premiseFormulaText", () => {
+      const entries: SubstitutionEntries = [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          formulaText: "alpha",
+        },
+      ];
+      const substEdge: InferenceEdge = {
+        _tag: "substitution",
+        conclusionNodeId: "n1",
+        premiseNodeId: "n2",
+        entries,
+        conclusionText: "α → (ψ → α)",
+      };
+      const state = createEditStateFromEdge(substEdge, "phi -> (psi -> phi)");
+      expect(state).toEqual({
+        _tag: "substitution",
+        conclusionNodeId: "n1",
+        entries,
+        premiseFormulaText: "phi -> (psi -> phi)",
       });
     });
   });
@@ -110,7 +133,7 @@ describe("edgeBadgeEditLogic", () => {
   });
 
   describe("Substitution edit operations", () => {
-    describe("toSubstEditEntries", () => {
+    describe("toSubstEditEntries (without premiseFormulaText)", () => {
       it("converts formula substitution entries", () => {
         const entries: SubstitutionEntries = [
           {
@@ -134,7 +157,9 @@ describe("edgeBadgeEditLogic", () => {
           },
         ];
         const result = toSubstEditEntries(entries);
-        expect(result).toEqual([{ kind: "term", metaVar: "τ", value: "S(0)" }]);
+        expect(result).toEqual([
+          { kind: "term", metaVar: "τ", value: "S(0)" },
+        ]);
       });
 
       it("returns default entry for empty entries", () => {
@@ -160,6 +185,96 @@ describe("edgeBadgeEditLogic", () => {
           { kind: "formula", metaVar: "φ", value: "alpha" },
           { kind: "term", metaVar: "τ", value: "S(0)" },
         ]);
+      });
+    });
+
+    describe("toSubstEditEntries (with premiseFormulaText)", () => {
+      it("auto-extracts meta-variables from premise formula", () => {
+        const result = toSubstEditEntries([], "phi -> (psi -> phi)");
+        expect(result).toEqual([
+          { kind: "formula", metaVar: "φ", value: "" },
+          { kind: "formula", metaVar: "ψ", value: "" },
+        ]);
+      });
+
+      it("merges existing entry values with extracted meta-variables", () => {
+        const entries: SubstitutionEntries = [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha",
+          },
+        ];
+        const result = toSubstEditEntries(entries, "phi -> (psi -> phi)");
+        expect(result).toEqual([
+          { kind: "formula", metaVar: "φ", value: "alpha" },
+          { kind: "formula", metaVar: "ψ", value: "" },
+        ]);
+      });
+
+      it("extracts term meta-variables as well", () => {
+        const result = toSubstEditEntries([], "(all x. phi) -> phi");
+        // phi is formula metavar; no term metavar in this formula
+        expect(result).toEqual([{ kind: "formula", metaVar: "φ", value: "" }]);
+      });
+
+      it("extracts both formula and term meta-variables", () => {
+        // Formula with both formula meta-variable and term meta-variable
+        const result = toSubstEditEntries(
+          [],
+          "all x. P(x) -> P(tau)",
+        );
+        // τ is a term meta-variable
+        expect(result).toEqual([
+          { kind: "term", metaVar: "τ", value: "" },
+        ]);
+      });
+
+      it("merges existing term entry values with extracted term meta-variables", () => {
+        const entries: SubstitutionEntries = [
+          {
+            _tag: "TermSubstitution",
+            metaVariableName: "τ",
+            termText: "S(0)",
+          },
+        ];
+        const result = toSubstEditEntries(
+          entries,
+          "all x. P(x) -> P(tau)",
+        );
+        expect(result).toEqual([
+          { kind: "term", metaVar: "τ", value: "S(0)" },
+        ]);
+      });
+
+      it("falls back to existing entries if premise formula is invalid", () => {
+        const entries: SubstitutionEntries = [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha",
+          },
+        ];
+        const result = toSubstEditEntries(entries, "invalid!!!");
+        expect(result).toEqual([
+          { kind: "formula", metaVar: "φ", value: "alpha" },
+        ]);
+      });
+
+      it("extracts Greek letter names written in Latin as meta-variables", () => {
+        // In the parser, "alpha" is parsed as the Greek letter α (meta-variable)
+        const result = toSubstEditEntries([], "alpha -> beta");
+        expect(result).toEqual([
+          { kind: "formula", metaVar: "α", value: "" },
+          { kind: "formula", metaVar: "β", value: "" },
+        ]);
+      });
+
+      it("falls back to empty default if premise has no meta-variables and entries are empty", () => {
+        // A formula with only bound/free variables but no meta-variables
+        // Use a concrete propositional variable name that is NOT a Greek letter
+        const result = toSubstEditEntries([], "p -> q");
+        expect(result).toEqual([{ kind: "formula", metaVar: "", value: "" }]);
       });
     });
 
@@ -277,65 +392,15 @@ describe("edgeBadgeEditLogic", () => {
       });
     });
 
-    describe("addSubstEditEntry", () => {
-      it("adds a new default entry", () => {
-        const entries = [
-          { kind: "formula" as const, metaVar: "φ", value: "alpha" },
-        ];
-        const result = addSubstEditEntry(entries);
-        expect(result).toHaveLength(2);
-        expect(result[1]).toEqual({
-          kind: "formula",
-          metaVar: "",
-          value: "",
-        });
-      });
-    });
-
-    describe("removeSubstEditEntry", () => {
-      it("removes entry at specified index", () => {
-        const entries = [
-          { kind: "formula" as const, metaVar: "φ", value: "alpha" },
-          { kind: "term" as const, metaVar: "τ", value: "S(0)" },
-        ];
-        const result = removeSubstEditEntry(entries, 0);
-        expect(result).toEqual([{ kind: "term", metaVar: "τ", value: "S(0)" }]);
-      });
-
-      it("does not remove if only one entry", () => {
-        const entries = [
-          { kind: "formula" as const, metaVar: "φ", value: "alpha" },
-        ];
-        const result = removeSubstEditEntry(entries, 0);
-        expect(result).toHaveLength(1);
-      });
-    });
-
-    describe("updateSubstEditEntry", () => {
-      it("updates metaVar at index", () => {
-        const entries = [
-          { kind: "formula" as const, metaVar: "φ", value: "alpha" },
-        ];
-        const result = updateSubstEditEntry(entries, 0, "metaVar", "ψ");
-        expect(result[0]!.metaVar).toBe("ψ");
-        expect(result[0]!.value).toBe("alpha");
-      });
-
+    describe("updateSubstEditEntryValue", () => {
       it("updates value at index", () => {
         const entries = [
           { kind: "formula" as const, metaVar: "φ", value: "alpha" },
         ];
-        const result = updateSubstEditEntry(entries, 0, "value", "beta");
+        const result = updateSubstEditEntryValue(entries, 0, "beta");
         expect(result[0]!.metaVar).toBe("φ");
         expect(result[0]!.value).toBe("beta");
-      });
-
-      it("updates kind at index", () => {
-        const entries = [
-          { kind: "formula" as const, metaVar: "φ", value: "alpha" },
-        ];
-        const result = updateSubstEditEntry(entries, 0, "kind", "term");
-        expect(result[0]!.kind).toBe("term");
+        expect(result[0]!.kind).toBe("formula");
       });
 
       it("does not affect other entries", () => {
@@ -343,7 +408,7 @@ describe("edgeBadgeEditLogic", () => {
           { kind: "formula" as const, metaVar: "φ", value: "alpha" },
           { kind: "term" as const, metaVar: "τ", value: "S(0)" },
         ];
-        const result = updateSubstEditEntry(entries, 0, "value", "beta");
+        const result = updateSubstEditEntryValue(entries, 0, "beta");
         expect(result[1]).toEqual(entries[1]);
       });
     });

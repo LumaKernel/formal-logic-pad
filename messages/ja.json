@@ -62,8 +62,6 @@
     "substErrorFormulaParse": "代入エントリの論理式が不正です",
     "substErrorTermParse": "代入エントリの項が不正です",
     "substEntryPrompt": "代入エントリ:",
-    "substAddEntry": "エントリ追加",
-    "substRemoveEntry": "削除",
     "selectSubtree": "サブツリーを選択",
     "addAxiomNode": "公理ノードを追加",
     "addGoalNode": "ゴールノードを追加",

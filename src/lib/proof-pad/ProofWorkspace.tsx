@@ -1619,32 +1619,11 @@ export function ProofWorkspace({
     setSubstPromptEntries([{ kind: "formula", metaVar: "", value: "" }]);
   }, []);
 
-  const handleSubstAddEntry = useCallback(() => {
-    setSubstPromptEntries((prev) => [
-      ...prev,
-      { kind: "formula", metaVar: "", value: "" },
-    ]);
-  }, []);
-
-  const handleSubstRemoveEntry = useCallback((index: number) => {
-    setSubstPromptEntries((prev) => prev.filter((_, i) => i !== index));
-  }, []);
-
-  const handleSubstEntryChange = useCallback(
-    (index: number, field: "kind" | "metaVar" | "value", val: string) => {
+  const handleSubstEntryValueChange = useCallback(
+    (index: number, val: string) => {
       setSubstPromptEntries((prev) =>
         prev.map((entry, i) =>
-          i === index
-            ? {
-                ...entry,
-                [field]:
-                  field === "kind"
-                    ? val === "term"
-                      ? "term"
-                      : "formula"
-                    : val,
-              }
-            : entry,
+          i === index ? { ...entry, value: val } : entry,
         ),
       );
     },
@@ -1661,11 +1640,16 @@ export function ProofWorkspace({
         (e) => e.conclusionNodeId === conclusionNodeId,
       );
       if (!edge) return;
-      const editState = createEditStateFromEdge(edge);
+      // Substitutionエッジの場合、前提ノードの論理式テキストを取得してメタ変数自動抽出に使用
+      const premiseFormulaText =
+        edge._tag === "substitution" && edge.premiseNodeId !== undefined
+          ? findNode(workspace, edge.premiseNodeId)?.formulaText
+          : undefined;
+      const editState = createEditStateFromEdge(edge, premiseFormulaText);
       if (!editState) return;
       setEdgeBadgeEditState(editState);
     },
-    [workspace.inferenceEdges],
+    [workspace],
   );
 
   const handleEdgeBadgeConfirmGen = useCallback(
@@ -2823,11 +2807,7 @@ export function ProofWorkspace({
           <span>{msg.substEntryPrompt}</span>
           {substPromptEntries.map((entry, i) => (
             <div key={i} style={substEntryRowStyle}>
-              <select
-                value={entry.kind}
-                onChange={(e) => {
-                  handleSubstEntryChange(i, "kind", e.target.value);
-                }}
+              <span
                 style={substSelectStyle}
                 data-testid={
                   testId
@@ -2835,29 +2815,24 @@ export function ProofWorkspace({
                     : `subst-kind-${String(i) satisfies string}`
                 }
               >
-                <option value="formula">Formula</option>
-                <option value="term">Term</option>
-              </select>
-              <input
-                type="text"
-                value={entry.metaVar}
-                onChange={(e) => {
-                  handleSubstEntryChange(i, "metaVar", e.target.value);
-                }}
-                placeholder={entry.kind === "formula" ? "φ" : "τ"}
+                {entry.kind === "formula" ? "Formula" : "Term"}
+              </span>
+              <span
                 style={{ ...substInputStyle, width: 30 }}
                 data-testid={
                   testId
                     ? `${testId satisfies string}-subst-metavar-${String(i) satisfies string}`
                     : `subst-metavar-${String(i) satisfies string}`
                 }
-              />
+              >
+                {entry.metaVar}
+              </span>
               <span style={{ color: "var(--color-node-text, #fff)" }}>:=</span>
               <input
                 type="text"
                 value={entry.value}
                 onChange={(e) => {
-                  handleSubstEntryChange(i, "value", e.target.value);
+                  handleSubstEntryValueChange(i, e.target.value);
                 }}
                 placeholder={
                   entry.kind === "formula" ? "alpha -> beta" : "S(0)"
@@ -2875,32 +2850,9 @@ export function ProofWorkspace({
                     : `subst-value-${String(i) satisfies string}`
                 }
               />
-              {substPromptEntries.length > 1 ? (
-                <button
-                  type="button"
-                  style={cancelButtonStyle}
-                  onClick={() => {
-                    handleSubstRemoveEntry(i);
-                  }}
-                >
-                  {msg.substRemoveEntry}
-                </button>
-              ) : null}
             </div>
           ))}
           <div style={{ display: "flex", gap: 4 }}>
-            <button
-              type="button"
-              style={cancelButtonStyle}
-              onClick={handleSubstAddEntry}
-              data-testid={
-                testId
-                  ? `${testId satisfies string}-subst-add-entry`
-                  : "subst-add-entry"
-              }
-            >
-              {msg.substAddEntry}
-            </button>
             <button
               type="button"
               style={cancelButtonStyle}

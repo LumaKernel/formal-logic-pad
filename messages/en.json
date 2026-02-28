@@ -62,8 +62,6 @@
     "substErrorFormulaParse": "Invalid formula in substitution entry",
     "substErrorTermParse": "Invalid term in substitution entry",
     "substEntryPrompt": "Substitution entries:",
-    "substAddEntry": "Add entry",
-    "substRemoveEntry": "Remove",
     "selectSubtree": "Select Subtree",
     "addAxiomNode": "Add Axiom Node",
     "addGoalNode": "Add Goal Node",

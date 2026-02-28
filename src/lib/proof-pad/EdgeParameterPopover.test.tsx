@@ -117,9 +117,10 @@ describe("EdgeParameterPopover", () => {
           formulaText: "alpha",
         },
       ],
+      premiseFormulaText: undefined,
     };
 
-    it("renders with current entries", () => {
+    it("renders with current entries (read-only metaVar and kind)", () => {
       render(
         <EdgeParameterPopover
           editState={substEditState}
@@ -127,13 +128,18 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      const metaVarInput = screen.getByTestId("popover-metavar-0");
+      // metaVar is displayed as read-only text
+      const metaVarLabel = screen.getByTestId("popover-metavar-0");
+      expect(metaVarLabel).toHaveTextContent("φ");
+      // kind is displayed as read-only text
+      const kindLabel = screen.getByTestId("popover-kind-0");
+      expect(kindLabel).toHaveTextContent("Formula");
+      // value is editable
       const valueInput = screen.getByTestId("popover-value-0");
-      expect(metaVarInput).toHaveValue("φ");
       expect(valueInput).toHaveValue("alpha");
     });
 
-    it("calls onConfirmSubstitution with updated entries", async () => {
+    it("calls onConfirmSubstitution with updated value", async () => {
       const user = userEvent.setup();
       const onConfirm = vi.fn();
       render(
@@ -157,8 +163,7 @@ describe("EdgeParameterPopover", () => {
       ]);
     });
 
-    it("can add and remove entries", async () => {
-      const user = userEvent.setup();
+    it("does not have add or remove buttons", () => {
       render(
         <EdgeParameterPopover
           editState={substEditState}
@@ -166,12 +171,40 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      // Add an entry
-      await user.click(screen.getByTestId("popover-add-entry"));
-      expect(screen.getByTestId("popover-metavar-1")).toBeInTheDocument();
-      // Remove the added entry
-      await user.click(screen.getByTestId("popover-remove-1"));
-      expect(screen.queryByTestId("popover-metavar-1")).not.toBeInTheDocument();
+      // No add/remove buttons exist
+      expect(screen.queryByTestId("popover-add-entry")).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("popover-remove-0"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("auto-extracts meta-variables from premiseFormulaText", () => {
+      const stateWithPremise: EdgeBadgeEditState = {
+        _tag: "substitution",
+        conclusionNodeId: "node-2",
+        entries: [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha",
+          },
+        ],
+        premiseFormulaText: "phi -> (psi -> phi)",
+      };
+      render(
+        <EdgeParameterPopover
+          editState={stateWithPremise}
+          onCancel={() => {}}
+          testId="popover"
+        />,
+      );
+      // Two entries should be rendered (φ and ψ)
+      expect(screen.getByTestId("popover-metavar-0")).toHaveTextContent("φ");
+      expect(screen.getByTestId("popover-metavar-1")).toHaveTextContent("ψ");
+      // φ entry should have existing value merged
+      expect(screen.getByTestId("popover-value-0")).toHaveValue("alpha");
+      // ψ entry should be empty (no existing value)
+      expect(screen.getByTestId("popover-value-1")).toHaveValue("");
     });
 
     it("calls onCancel on Cancel button", async () => {
@@ -203,59 +236,12 @@ describe("EdgeParameterPopover", () => {
       expect(onCancel).toHaveBeenCalledOnce();
     });
 
-    it("can change kind select from formula to term", async () => {
-      const user = userEvent.setup();
-      const onConfirm = vi.fn();
-      render(
-        <EdgeParameterPopover
-          editState={substEditState}
-          onConfirmSubstitution={onConfirm}
-          onCancel={() => {}}
-          testId="popover"
-        />,
-      );
-      const kindSelect = screen.getByTestId("popover-kind-0");
-      await user.selectOptions(kindSelect, "term");
-      // Confirm with the updated kind
-      await user.click(screen.getByTestId("popover-confirm"));
-      expect(onConfirm).toHaveBeenCalledWith("node-2", [
-        {
-          _tag: "TermSubstitution",
-          metaVariableName: "φ",
-          termText: "alpha",
-        },
-      ]);
-    });
-
-    it("can change metaVar input", async () => {
-      const user = userEvent.setup();
-      const onConfirm = vi.fn();
-      render(
-        <EdgeParameterPopover
-          editState={substEditState}
-          onConfirmSubstitution={onConfirm}
-          onCancel={() => {}}
-          testId="popover"
-        />,
-      );
-      const metaVarInput = screen.getByTestId("popover-metavar-0");
-      await user.clear(metaVarInput);
-      await user.type(metaVarInput, "ψ");
-      await user.click(screen.getByTestId("popover-confirm"));
-      expect(onConfirm).toHaveBeenCalledWith("node-2", [
-        {
-          _tag: "FormulaSubstitution",
-          metaVariableName: "ψ",
-          formulaText: "alpha",
-        },
-      ]);
-    });
-
     it("disables confirm when no valid entries", () => {
       const emptySubstState: EdgeBadgeEditState = {
         _tag: "substitution",
         conclusionNodeId: "node-2",
         entries: [],
+        premiseFormulaText: undefined,
       };
       render(
         <EdgeParameterPopover

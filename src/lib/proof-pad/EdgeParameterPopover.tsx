@@ -18,9 +18,7 @@ import {
   toSubstEditEntries,
   fromSubstEditEntries,
   canConfirmSubstEdit,
-  addSubstEditEntry,
-  removeSubstEditEntry,
-  updateSubstEditEntry,
+  updateSubstEditEntryValue,
 } from "./edgeBadgeEditLogic";
 import type { SubstitutionEntries } from "./substitutionApplicationLogic";
 
@@ -216,7 +214,7 @@ function SubstitutionPopover({
   readonly testId?: string;
 }) {
   const [entries, setEntries] = useState<readonly SubstEditEntry[]>(() =>
-    toSubstEditEntries(editState.entries),
+    toSubstEditEntries(editState.entries, editState.premiseFormulaText),
   );
 
   const handleConfirm = useCallback(() => {
@@ -252,39 +250,35 @@ function SubstitutionPopover({
             alignItems: "center",
           }}
         >
-          <select
-            value={entry.kind}
-            onChange={(e) => {
-              setEntries(
-                updateSubstEditEntry(entries, i, "kind", e.target.value),
-              );
+          <span
+            style={{
+              ...selectStyle,
+              display: "inline-block",
+              minWidth: 52,
             }}
-            style={selectStyle}
             data-testid={
               testId
                 ? `${testId satisfies string}-kind-${String(i) satisfies string}`
                 : undefined
             }
           >
-            <option value="formula">Formula</option>
-            <option value="term">Term</option>
-          </select>
-          <input
-            type="text"
-            value={entry.metaVar}
-            onChange={(e) => {
-              setEntries(
-                updateSubstEditEntry(entries, i, "metaVar", e.target.value),
-              );
+            {entry.kind === "formula" ? "Formula" : "Term"}
+          </span>
+          <span
+            style={{
+              ...inputStyle,
+              width: 30,
+              flexShrink: 0,
+              display: "inline-block",
             }}
-            placeholder={entry.kind === "formula" ? "φ" : "τ"}
-            style={{ ...inputStyle, width: 30, flexShrink: 0 }}
             data-testid={
               testId
                 ? `${testId satisfies string}-metavar-${String(i) satisfies string}`
                 : undefined
             }
-          />
+          >
+            {entry.metaVar}
+          </span>
           <span
             style={{
               color: "var(--color-text-muted, #b2bec3)",
@@ -298,9 +292,7 @@ function SubstitutionPopover({
             type="text"
             value={entry.value}
             onChange={(e) => {
-              setEntries(
-                updateSubstEditEntry(entries, i, "value", e.target.value),
-              );
+              setEntries(updateSubstEditEntryValue(entries, i, e.target.value));
             }}
             placeholder={entry.kind === "formula" ? "alpha -> beta" : "S(0)"}
             style={{ ...inputStyle, flex: 1 }}
@@ -316,22 +308,6 @@ function SubstitutionPopover({
                 : undefined
             }
           />
-          {entries.length > 1 ? (
-            <button
-              type="button"
-              style={{ ...buttonStyle, padding: "2px 6px", fontSize: 10 }}
-              onClick={() => {
-                setEntries(removeSubstEditEntry(entries, i));
-              }}
-              data-testid={
-                testId
-                  ? `${testId satisfies string}-remove-${String(i) satisfies string}`
-                  : undefined
-              }
-            >
-              ×
-            </button>
-          ) : null}
         </div>
       ))}
       <div
@@ -339,53 +315,35 @@ function SubstitutionPopover({
           display: "flex",
           gap: 4,
           marginTop: 6,
-          justifyContent: "space-between",
+          justifyContent: "flex-end",
         }}
       >
         <button
           type="button"
           style={buttonStyle}
-          onClick={() => {
-            setEntries(addSubstEditEntry(entries));
-          }}
+          onClick={onCancel}
           data-testid={
-            testId
-              ? `${testId satisfies string}-add-entry`
-              : "edge-popover-add-entry"
+            testId ? `${testId satisfies string}-cancel` : "edge-popover-cancel"
           }
         >
-          + Add
+          Cancel
         </button>
-        <div style={{ display: "flex", gap: 4 }}>
-          <button
-            type="button"
-            style={buttonStyle}
-            onClick={onCancel}
-            data-testid={
-              testId
-                ? `${testId satisfies string}-cancel`
-                : "edge-popover-cancel"
-            }
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            style={{
-              ...confirmButtonStyle,
-              backgroundColor: "var(--color-badge-subst, #e17055)",
-            }}
-            onClick={handleConfirm}
-            disabled={!canConfirmSubstEdit(entries)}
-            data-testid={
-              testId
-                ? `${testId satisfies string}-confirm`
-                : "edge-popover-confirm"
-            }
-          >
-            Apply
-          </button>
-        </div>
+        <button
+          type="button"
+          style={{
+            ...confirmButtonStyle,
+            backgroundColor: "var(--color-badge-subst, #e17055)",
+          }}
+          onClick={handleConfirm}
+          disabled={!canConfirmSubstEdit(entries)}
+          data-testid={
+            testId
+              ? `${testId satisfies string}-confirm`
+              : "edge-popover-confirm"
+          }
+        >
+          Apply
+        </button>
       </div>
     </div>
   );
