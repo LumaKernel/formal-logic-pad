@@ -6240,3 +6240,18 @@
   - Ctrl+Aで全選択→操作のパターンはブラウザテストで便利
   - mergeNodesLogic.ts: 3層アーキテクチャ（純粋ロジック→状態管理→UI）パターンの良い事例
 ---
+
+## 2026-02-28 - logic-core シリアライゼーション (ET-002)
+- 実装した内容: Formula/Term の JSON シリアライゼーション（Schema.decodeUnknownEither / Schema.encodeUnknownSync）
+- 新規ファイル:
+  - `src/lib/logic-core/serialization.ts` — decodeFormula, encodeFormula, decodeTerm, encodeTerm
+  - `src/lib/logic-core/serialization.test.ts` — 45テスト（ラウンドトリップ + エラーケース）
+  - `src/lib/logic-core/index.ts` — re-export追加
+- カバレッジ: 98.17% (変化なし)、serialization.ts は 100%
+- テスト: 5528件 全パス (+45件)
+- **今後のイテレーションへの学び:**
+  - Schema.TaggedClass で定義されたAST型は Schema.decodeUnknownEither / Schema.encodeUnknownSync でそのまま decode/encode 可能。追加のSchema定義は不要
+  - Schema.suspend による再帰型も問題なく encode/decode される
+  - Schema.decodeUnknownEither は Either<A, ParseError> を返し、Schema.encodeUnknownSync は unknown (JSON互換) を返す
+  - Effect.ts Schema の curried API: Schema.decodeUnknownEither(Schema)(input) パターン
+---

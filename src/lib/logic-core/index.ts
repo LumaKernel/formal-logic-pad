@@ -307,3 +307,11 @@ export {
   toPNF,
   isPNF,
 } from "./normalForm";
+
+// ── Serialization (Schema decode/encode) ─────────────────────
+export {
+  decodeFormula,
+  encodeFormula,
+  decodeTerm,
+  encodeTerm,
+} from "./serialization";

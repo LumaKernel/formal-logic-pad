@@ -146,7 +146,7 @@
 
 ---
 
-- [ ] **ET-002: Schema.decode/encode によるAST検証・シリアライゼーション**
+- [x] **ET-002: Schema.decode/encode によるAST検証・シリアライゼーション**
 
   **対象ファイル:**
   - `src/lib/logic-core/serialization.ts` (新規作成)
