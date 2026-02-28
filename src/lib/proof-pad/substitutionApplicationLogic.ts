@@ -8,7 +8,7 @@
  * 変更時は substitutionApplicationLogic.test.ts, ProofWorkspace.tsx, workspaceState.ts, index.ts も同期すること。
  */
 
-import { Data, Either } from "effect";
+import { Data, Effect, Either } from "effect";
 import type { Formula } from "../logic-core/formula";
 import type { GreekLetter } from "../logic-core/greekLetters";
 import {
@@ -229,82 +229,102 @@ export function buildTermSubstitutionMap(entries: SubstitutionEntries):
 // --- 代入適用のバリデーション ---
 
 /**
- * 代入ノードの接続状態を検証し、適用結果を返す。
+ * 代入ノードの接続状態を検証し、適用結果を返す（Effect版）。
  *
  * premise: 前提の論理式（公理スキーマ等）
  * entries: 代入エントリのリスト
  *
  * 前提が接続され、パース可能であれば代入を適用し、
  * 成功時は結論式とそのテキスト表現を返す。
+ *
+ * @returns Effect<SubstitutionApplicationSuccess, SubstitutionApplicationError>
  */
-export function validateSubstitutionApplication(
+export const validateSubstitutionApplicationEffect = (
   state: WorkspaceState,
   substitutionNodeId: string,
   entries: SubstitutionEntries,
-): SubstitutionApplicationResult {
-  if (entries.length === 0) {
-    return Either.left(new SubstNoEntries({}));
-  }
+): Effect.Effect<
+  SubstitutionApplicationSuccess,
+  SubstitutionApplicationError
+> =>
+  Effect.gen(function* () {
+    if (entries.length === 0) {
+      return yield* Effect.fail(new SubstNoEntries({}));
+    }
 
-  const premiseNodeId = getSubstitutionPremise(state, substitutionNodeId);
+    const premiseNodeId = getSubstitutionPremise(state, substitutionNodeId);
 
-  if (premiseNodeId === undefined) {
-    return Either.left(new SubstPremiseMissing({}));
-  }
+    if (premiseNodeId === undefined) {
+      return yield* Effect.fail(new SubstPremiseMissing({}));
+    }
 
-  // ノードを取得
-  const premiseNode = state.nodes.find((n) => n.id === premiseNodeId);
+    // ノードを取得
+    const premiseNode = state.nodes.find((n) => n.id === premiseNodeId);
 
-  /* v8 ignore start -- 防御的コード: 接続があるがノードが削除済みのケース（通常到達不能） */
-  if (!premiseNode) {
-    return Either.left(new SubstPremiseMissing({}));
-  }
-  /* v8 ignore stop */
+    /* v8 ignore start -- 防御的コード: 接続があるがノードが削除済みのケース（通常到達不能） */
+    if (!premiseNode) {
+      return yield* Effect.fail(new SubstPremiseMissing({}));
+    }
+    /* v8 ignore stop */
 
-  // パース
-  const premiseFormula = parseNodeFormula(premiseNode);
-  if (!premiseFormula) {
-    return Either.left(
-      new SubstPremiseParseError({ nodeId: premiseNodeId }),
-    );
-  }
+    // パース
+    const premiseFormula = parseNodeFormula(premiseNode);
+    if (!premiseFormula) {
+      return yield* Effect.fail(
+        new SubstPremiseParseError({ nodeId: premiseNodeId }),
+      );
+    }
 
-  // 論理式メタ変数代入マップを構築
-  const formulaMapResult = buildFormulaSubstitutionMap(entries);
-  if (formulaMapResult._tag === "Error") {
-    return Either.left(
-      new SubstFormulaParseError({
-        entryIndex: formulaMapResult.entryIndex,
-        formulaText: formulaMapResult.formulaText,
-      }),
-    );
-  }
+    // 論理式メタ変数代入マップを構築
+    const formulaMapResult = buildFormulaSubstitutionMap(entries);
+    if (formulaMapResult._tag === "Error") {
+      return yield* Effect.fail(
+        new SubstFormulaParseError({
+          entryIndex: formulaMapResult.entryIndex,
+          formulaText: formulaMapResult.formulaText,
+        }),
+      );
+    }
 
-  // 項メタ変数代入マップを構築
-  const termMapResult = buildTermSubstitutionMap(entries);
-  if (termMapResult._tag === "Error") {
-    return Either.left(
-      new SubstTermParseError({
-        entryIndex: termMapResult.entryIndex,
-        termText: termMapResult.termText,
-      }),
-    );
-  }
+    // 項メタ変数代入マップを構築
+    const termMapResult = buildTermSubstitutionMap(entries);
+    if (termMapResult._tag === "Error") {
+      return yield* Effect.fail(
+        new SubstTermParseError({
+          entryIndex: termMapResult.entryIndex,
+          termText: termMapResult.termText,
+        }),
+      );
+    }
 
-  // 代入を適用
-  let result = premiseFormula;
-  if (formulaMapResult.map.size > 0) {
-    result = substituteFormulaMetaVariables(result, formulaMapResult.map);
-  }
-  if (termMapResult.map.size > 0) {
-    result = substituteTermMetaVariablesInFormula(result, termMapResult.map);
-  }
+    // 代入を適用
+    let result = premiseFormula;
+    if (formulaMapResult.map.size > 0) {
+      result = substituteFormulaMetaVariables(result, formulaMapResult.map);
+    }
+    if (termMapResult.map.size > 0) {
+      result = substituteTermMetaVariablesInFormula(result, termMapResult.map);
+    }
 
-  return Either.right({
-    conclusion: result,
-    conclusionText: formatFormula(result),
+    return {
+      conclusion: result,
+      conclusionText: formatFormula(result),
+    };
   });
-}
+
+/**
+ * 代入ノードの接続状態を検証し、適用結果を返す（互換ラッパー: Either を返す同期版）。
+ */
+export const validateSubstitutionApplication = (
+  state: WorkspaceState,
+  substitutionNodeId: string,
+  entries: SubstitutionEntries,
+): SubstitutionApplicationResult =>
+  Effect.runSync(
+    Effect.either(
+      validateSubstitutionApplicationEffect(state, substitutionNodeId, entries),
+    ),
+  );
 
 // --- エラーメッセージ ---
 

@@ -85,6 +85,7 @@ export type {
 export {
   getMPPremises,
   parseNodeFormula,
+  validateMPApplicationEffect,
   validateMPApplication,
   getMPErrorMessage,
   LeftPremiseMissing,
@@ -102,6 +103,7 @@ export type {
 } from "./mpApplicationLogic";
 export {
   getGenPremise,
+  validateGenApplicationEffect,
   validateGenApplication,
   getGenErrorMessage,
   GenPremiseMissing,
@@ -117,6 +119,7 @@ export type {
 } from "./genApplicationLogic";
 export {
   getSubstitutionPremise,
+  validateSubstitutionApplicationEffect,
   validateSubstitutionApplication,
   getSubstitutionErrorMessage,
   buildFormulaSubstitutionMap,

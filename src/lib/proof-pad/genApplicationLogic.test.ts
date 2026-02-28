@@ -1,4 +1,4 @@
-import { Either } from "effect";
+import { Effect, Either } from "effect";
 import { describe, expect, it } from "vitest";
 import {
   lukasiewiczSystem,
@@ -7,6 +7,7 @@ import {
 import { createEmptyWorkspace, addNode, addConnection } from "./workspaceState";
 import {
   getGenPremise,
+  validateGenApplicationEffect,
   validateGenApplication,
   getGenErrorMessage,
   GenPremiseMissing,
@@ -242,6 +243,67 @@ describe("genApplicationLogic", () => {
       expect(Either.isRight(result)).toBe(true);
       if (Either.isRight(result)) {
         expect(result.right.conclusionText).toBe("∀x.φ");
+      }
+    });
+  });
+
+  describe("validateGenApplicationEffect", () => {
+    it("Effect版: 成功時はEffect.runSyncで値を取得できる", () => {
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
+      ws = addConnection(ws, "node-1", "out", "node-2", "premise");
+      const genEdge: InferenceEdge = {
+        _tag: "gen",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        variableName: "x",
+        conclusionText: "",
+      };
+      ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, genEdge] };
+
+      const result = Effect.runSync(
+        Effect.either(validateGenApplicationEffect(ws, "node-2", "x")),
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right.conclusionText).toBe("∀x.φ");
+      }
+    });
+
+    it("Effect版: エラー時はEffect.eitherでLeftを取得できる", () => {
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "Gen", { x: 0, y: 0 });
+
+      const result = Effect.runSync(
+        Effect.either(validateGenApplicationEffect(ws, "node-1", "x")),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("GenPremiseMissing");
+      }
+    });
+
+    it("Effect版: GenGeneralizationNotEnabledが伝搬される", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
+      ws = addConnection(ws, "node-1", "out", "node-2", "premise");
+      const genEdge: InferenceEdge = {
+        _tag: "gen",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        variableName: "x",
+        conclusionText: "",
+      };
+      ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, genEdge] };
+
+      const result = Effect.runSync(
+        Effect.either(validateGenApplicationEffect(ws, "node-2", "x")),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("GenGeneralizationNotEnabled");
       }
     });
   });

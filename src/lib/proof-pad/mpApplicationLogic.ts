@@ -7,7 +7,7 @@
  * 変更時は mpApplicationLogic.test.ts, ProofWorkspace.tsx, index.ts も同期すること。
  */
 
-import { Data, Either } from "effect";
+import { Data, Effect, Either } from "effect";
 import type { Formula } from "../logic-core/formula";
 import { equalFormula } from "../logic-core/equality";
 import type { RuleApplicationError } from "../logic-core/inferenceRule";
@@ -103,69 +103,89 @@ export function parseNodeFormula(node: WorkspaceNode): Formula | undefined {
 // --- MP適用のバリデーション ---
 
 /**
- * MPノードの接続状態を検証し、適用結果を返す。
+ * MPノードの接続状態を検証し、適用結果を返す（Effect版）。
  *
  * premise-left: antecedent φ
  * premise-right: conditional φ→ψ
  *
  * 両方の前提が接続され、パース可能であればMP適用を試み、
  * 成功時は結論式（ψ）とそのテキスト表現を返す。
+ *
+ * @returns Effect<MPApplicationSuccess, MPApplicationError>
  */
-export function validateMPApplication(
+export const validateMPApplicationEffect = (
   state: WorkspaceState,
   mpNodeId: string,
-): MPApplicationResult {
-  const premises = getMPPremises(state, mpNodeId);
+): Effect.Effect<MPApplicationSuccess, MPApplicationError> =>
+  Effect.gen(function* () {
+    const premises = getMPPremises(state, mpNodeId);
 
-  // 両方欠けている場合
-  if (premises.leftNodeId === undefined && premises.rightNodeId === undefined) {
-    return Either.left(new BothPremisesMissing({}));
-  }
+    // 両方欠けている場合
+    if (
+      premises.leftNodeId === undefined &&
+      premises.rightNodeId === undefined
+    ) {
+      return yield* Effect.fail(new BothPremisesMissing({}));
+    }
 
-  // 片方が欠けている場合
-  if (premises.leftNodeId === undefined) {
-    return Either.left(new LeftPremiseMissing({}));
-  }
-  if (premises.rightNodeId === undefined) {
-    return Either.left(new RightPremiseMissing({}));
-  }
+    // 片方が欠けている場合
+    if (premises.leftNodeId === undefined) {
+      return yield* Effect.fail(new LeftPremiseMissing({}));
+    }
+    if (premises.rightNodeId === undefined) {
+      return yield* Effect.fail(new RightPremiseMissing({}));
+    }
 
-  // ノードを取得
-  const leftNode = state.nodes.find((n) => n.id === premises.leftNodeId);
-  const rightNode = state.nodes.find((n) => n.id === premises.rightNodeId);
+    // ノードを取得
+    const leftNode = state.nodes.find((n) => n.id === premises.leftNodeId);
+    const rightNode = state.nodes.find((n) => n.id === premises.rightNodeId);
 
-  /* v8 ignore start -- 防御的コード: 接続があるがノードが削除済みのケース（通常到達不能） */
-  if (!leftNode) {
-    return Either.left(new LeftPremiseMissing({}));
-  }
-  if (!rightNode) {
-    return Either.left(new RightPremiseMissing({}));
-  }
-  /* v8 ignore stop */
+    /* v8 ignore start -- 防御的コード: 接続があるがノードが削除済みのケース（通常到達不能） */
+    if (!leftNode) {
+      return yield* Effect.fail(new LeftPremiseMissing({}));
+    }
+    if (!rightNode) {
+      return yield* Effect.fail(new RightPremiseMissing({}));
+    }
+    /* v8 ignore stop */
 
-  // パース
-  const leftFormula = parseNodeFormula(leftNode);
-  if (!leftFormula) {
-    return Either.left(new LeftParseError({ nodeId: premises.leftNodeId }));
-  }
+    // パース
+    const leftFormula = parseNodeFormula(leftNode);
+    if (!leftFormula) {
+      return yield* Effect.fail(
+        new LeftParseError({ nodeId: premises.leftNodeId }),
+      );
+    }
 
-  const rightFormula = parseNodeFormula(rightNode);
-  if (!rightFormula) {
-    return Either.left(new RightParseError({ nodeId: premises.rightNodeId }));
-  }
+    const rightFormula = parseNodeFormula(rightNode);
+    if (!rightFormula) {
+      return yield* Effect.fail(
+        new RightParseError({ nodeId: premises.rightNodeId }),
+      );
+    }
 
-  // MP適用
-  const result = applyModusPonens(leftFormula, rightFormula);
+    // MP適用（Either → yield* でEffect化、エラー型をMPRuleErrorに変換）
+    const mpResult = yield* Either.mapLeft(
+      applyModusPonens(leftFormula, rightFormula),
+      (error) => new MPRuleError({ error }),
+    );
 
-  if (Either.isLeft(result)) {
-    return Either.left(new MPRuleError({ error: result.left }));
-  }
-
-  return Either.right({
-    conclusion: result.right.conclusion,
-    conclusionText: formatFormula(result.right.conclusion),
+    return {
+      conclusion: mpResult.conclusion,
+      conclusionText: formatFormula(mpResult.conclusion),
+    };
   });
-}
+
+/**
+ * MPノードの接続状態を検証し、適用結果を返す（互換ラッパー: Either を返す同期版）。
+ */
+export const validateMPApplication = (
+  state: WorkspaceState,
+  mpNodeId: string,
+): MPApplicationResult =>
+  Effect.runSync(
+    Effect.either(validateMPApplicationEffect(state, mpNodeId)),
+  );
 
 // --- MP互換ノード判定（ハイライト用） ---
 

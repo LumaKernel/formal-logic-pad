@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Either } from "effect";
+import { Effect, Either } from "effect";
 import {
   lukasiewiczSystem,
   NotAnImplication,
@@ -10,6 +10,7 @@ import { createEmptyWorkspace, addNode, addConnection } from "./workspaceState";
 import {
   getMPPremises,
   parseNodeFormula,
+  validateMPApplicationEffect,
   validateMPApplication,
   getMPErrorMessage,
   computeMPCompatibleNodeIds,
@@ -728,6 +729,57 @@ describe("mpApplicationLogic", () => {
         position: { x: 0, y: 0 },
       };
       expect(isNodeImplication(node)).toBe(true);
+    });
+  });
+
+  describe("validateMPApplicationEffect", () => {
+    it("Effect版: 成功時はEffect.runSyncで値を取得できる", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "MP", { x: 100, y: 150 });
+      ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
+      ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      ws = addMPEdge(ws, "node-3", "node-1", "node-2");
+
+      const result = Effect.runSync(
+        Effect.either(validateMPApplicationEffect(ws, "node-3")),
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right.conclusionText).toBe("ψ");
+      }
+    });
+
+    it("Effect版: エラー時はEffect.eitherでLeftを取得できる", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "MP", { x: 0, y: 0 });
+
+      const result = Effect.runSync(
+        Effect.either(validateMPApplicationEffect(ws, "node-1")),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("BothPremisesMissing");
+      }
+    });
+
+    it("Effect版: MPRuleErrorが正しく伝搬される", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 }, "psi");
+      ws = addNode(ws, "axiom", "MP", { x: 100, y: 150 });
+      ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
+      ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
+      ws = addMPEdge(ws, "node-3", "node-1", "node-2");
+
+      const result = Effect.runSync(
+        Effect.either(validateMPApplicationEffect(ws, "node-3")),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("MPRuleError");
+      }
     });
   });
 

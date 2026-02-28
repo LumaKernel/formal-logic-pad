@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { Either } from "effect";
+import { Effect, Either } from "effect";
 import {
   buildFormulaSubstitutionMap,
   buildTermSubstitutionMap,
   getSubstitutionPremise,
+  validateSubstitutionApplicationEffect,
   validateSubstitutionApplication,
   getSubstitutionErrorMessage,
   extractSubstitutionTargets,
@@ -740,6 +741,76 @@ describe("generateSubstitutionEntryTemplate", () => {
     if (template[1]?._tag === "FormulaSubstitution") {
       expect(template[1].metaVariableName).toBe("ψ");
       expect(template[1].formulaText).toBe("");
+    }
+  });
+});
+
+describe("validateSubstitutionApplicationEffect", () => {
+  it("Effect版: 成功時はEffect.runSyncで値を取得できる", () => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+    ws = addNode(ws, "axiom", "Subst", { x: 100, y: 100 });
+    ws = addConnection(ws, "node-1", "out", "node-2", "premise");
+    const entries: SubstitutionEntries = [
+      {
+        _tag: "FormulaSubstitution",
+        metaVariableName: "φ",
+        formulaText: "chi",
+      },
+      {
+        _tag: "FormulaSubstitution",
+        metaVariableName: "ψ",
+        formulaText: "chi -> chi",
+      },
+    ];
+    ws = addSubstitutionEdge(ws, "node-2", "node-1", entries);
+
+    const result = Effect.runSync(
+      Effect.either(
+        validateSubstitutionApplicationEffect(ws, "node-2", entries),
+      ),
+    );
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
+      expect(result.right.conclusionText).toBe("χ → (χ → χ) → χ");
+    }
+  });
+
+  it("Effect版: エラー時はEffect.eitherでLeftを取得できる", () => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 0 });
+
+    const entries: SubstitutionEntries = [
+      {
+        _tag: "FormulaSubstitution",
+        metaVariableName: "φ",
+        formulaText: "chi",
+      },
+    ];
+
+    const result = Effect.runSync(
+      Effect.either(
+        validateSubstitutionApplicationEffect(ws, "node-1", entries),
+      ),
+    );
+    expect(Either.isLeft(result)).toBe(true);
+    if (Either.isLeft(result)) {
+      expect(result.left._tag).toBe("SubstPremiseMissing");
+    }
+  });
+
+  it("Effect版: SubstNoEntriesが伝搬される", () => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 0 });
+
+    const result = Effect.runSync(
+      Effect.either(
+        validateSubstitutionApplicationEffect(ws, "node-1", []),
+      ),
+    );
+    expect(Either.isLeft(result)).toBe(true);
+    if (Either.isLeft(result)) {
+      expect(result.left._tag).toBe("SubstNoEntries");
     }
   });
 });
