@@ -175,6 +175,7 @@ export function InfiniteCanvas({
         height: "100%",
         overflow: "hidden",
         position: "relative",
+        isolation: "isolate",
         backgroundColor,
         cursor: isDragging ? "grabbing" : panEnabled ? "grab" : "crosshair",
         touchAction: "none",

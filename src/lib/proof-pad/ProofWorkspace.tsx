@@ -2224,6 +2224,20 @@ export function ProofWorkspace({
   // Hand-drawn filter is only applied at high zoom (full detail) for performance
   const handDrawnConnections = viewport.scale >= DEFAULT_THRESHOLDS.fullAbove;
 
+  // 接続済みポートのキー集合（未接続ポートを dimmed にするため）
+  const connectedPortKeys = useMemo(() => {
+    const keys = new Set<string>();
+    for (const conn of workspace.connections) {
+      keys.add(
+        `${conn.fromNodeId satisfies string}-${conn.fromPortId satisfies string}`,
+      );
+      keys.add(
+        `${conn.toNodeId satisfies string}-${conn.toPortId satisfies string}`,
+      );
+    }
+    return keys;
+  }, [workspace.connections]);
+
   const connectionElements = useMemo(
     () =>
       workspace.connections.map((conn) => {
@@ -3524,6 +3538,10 @@ export function ProofWorkspace({
                       ? "#3b82f6"
                       : "#ef4444"
                     : "var(--color-port-border, #666)"
+                }
+                dimmed={
+                  connectionPreviewState === null &&
+                  !connectedPortKeys.has(uniqueId)
                 }
                 onPortDragStart={handlePortDragStart(node.id)}
               />

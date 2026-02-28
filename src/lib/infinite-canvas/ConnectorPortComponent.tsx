@@ -22,6 +22,8 @@ export interface ConnectorPortComponentProps {
   readonly borderColor?: string;
   /** Whether this port is highlighted (e.g. on hover) */
   readonly highlighted?: boolean;
+  /** Whether this port is dimmed (reduced visibility, e.g. not connected and not dragging) */
+  readonly dimmed?: boolean;
   /** Callback when the port is clicked */
   readonly onPortClick?: (portId: string) => void;
   /** Callback when drag starts from this port (for connection preview) */
@@ -46,6 +48,7 @@ export function ConnectorPortComponent({
   color = "#fff",
   borderColor = "#666",
   highlighted = false,
+  dimmed = false,
   onPortClick,
   onPortDragStart,
 }: ConnectorPortComponentProps) {
@@ -85,8 +88,9 @@ export function ConnectorPortComponent({
         pointerEvents: "auto",
         cursor: "crosshair",
         zIndex: 500,
+        opacity: dimmed ? 0 : 1,
         transition:
-          "width 0.15s ease, height 0.15s ease, background-color 0.15s ease",
+          "width 0.15s ease, height 0.15s ease, background-color 0.15s ease, opacity 0.15s ease",
         boxSizing: "border-box",
       }}
       onPointerDown={handlePointerDown}
