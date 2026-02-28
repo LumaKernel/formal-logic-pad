@@ -598,12 +598,7 @@ describe("checkQuestGoalsWithAxiomsEffect", () => {
   };
 
   test("Effect版がSync版と同じNoGoals結果を返す", () => {
-    const syncResult = checkQuestGoalsWithAxioms(
-      [],
-      [],
-      [],
-      lukasiewiczSystem,
-    );
+    const syncResult = checkQuestGoalsWithAxioms([], [], [], lukasiewiczSystem);
     const effectResult = Effect.runSync(
       checkQuestGoalsWithAxiomsEffect([], [], [], lukasiewiczSystem),
     );

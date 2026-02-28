@@ -97,14 +97,7 @@ describe("mergeNodes", () => {
 
     it("リーダーが保護ノードの場合はProtectedNodeエラー", () => {
       const nodes = [makeNode("n1", "phi"), makeNode("n2", "phi")];
-      const result = mergeNodes(
-        "n1",
-        ["n2"],
-        nodes,
-        [],
-        [],
-        new Set(["n1"]),
-      );
+      const result = mergeNodes("n1", ["n2"], nodes, [], [], new Set(["n1"]));
       expect(result).toEqual({
         _tag: "Error",
         error: { _tag: "ProtectedNode", nodeId: "n1" },
@@ -113,14 +106,7 @@ describe("mergeNodes", () => {
 
     it("吸収対象が保護ノードの場合はProtectedNodeエラー", () => {
       const nodes = [makeNode("n1", "phi"), makeNode("n2", "phi")];
-      const result = mergeNodes(
-        "n1",
-        ["n2"],
-        nodes,
-        [],
-        [],
-        new Set(["n2"]),
-      );
+      const result = mergeNodes("n1", ["n2"], nodes, [], [], new Set(["n2"]));
       expect(result).toEqual({
         _tag: "Error",
         error: { _tag: "ProtectedNode", nodeId: "n2" },
@@ -175,9 +161,7 @@ describe("mergeNodes", () => {
         makeNode("n3", "psi"),
       ];
       // n2 → n3 の出力コネクション
-      const connections = [
-        makeConnection("n2", "out", "n3", "premise-left"),
-      ];
+      const connections = [makeConnection("n2", "out", "n3", "premise-left")];
       const result = mergeNodes(
         "n1",
         ["n2"],
@@ -195,9 +179,7 @@ describe("mergeNodes", () => {
       expect(result.connections[0].fromPortId).toBe("out");
       expect(result.connections[0].toPortId).toBe("premise-left");
       // IDが再生成されている
-      expect(result.connections[0].id).toBe(
-        "conn-n1-out-n3-premise-left",
-      );
+      expect(result.connections[0].id).toBe("conn-n1-out-n3-premise-left");
     });
 
     it("吸収ノードへの入力コネクション（derive元）は削除される", () => {
@@ -207,9 +189,7 @@ describe("mergeNodes", () => {
         makeNode("n0", "psi"),
       ];
       // n0 → n2 の入力コネクション（n2はderivedだった）
-      const connections = [
-        makeConnection("n0", "out", "n2", "premise"),
-      ];
+      const connections = [makeConnection("n0", "out", "n2", "premise")];
       const result = mergeNodes(
         "n1",
         ["n2"],
@@ -232,9 +212,7 @@ describe("mergeNodes", () => {
         makeNode("n0", "psi"),
       ];
       // n0 → n1 の入力コネクション（リーダーのderive元）
-      const connections = [
-        makeConnection("n0", "out", "n1", "premise"),
-      ];
+      const connections = [makeConnection("n0", "out", "n1", "premise")];
       const result = mergeNodes(
         "n1",
         ["n2"],
@@ -316,14 +294,7 @@ describe("mergeNodes", () => {
           conclusionText: "phi",
         },
       ];
-      const result = mergeNodes(
-        "n1",
-        ["n2"],
-        nodes,
-        [],
-        edges,
-        emptyProtected,
-      );
+      const result = mergeNodes("n1", ["n2"], nodes, [], edges, emptyProtected);
       expect(result._tag).toBe("Success");
       if (result._tag !== "Success") return;
 
@@ -341,14 +312,7 @@ describe("mergeNodes", () => {
           conclusionText: "phi",
         },
       ];
-      const result = mergeNodes(
-        "n1",
-        ["n2"],
-        nodes,
-        [],
-        edges,
-        emptyProtected,
-      );
+      const result = mergeNodes("n1", ["n2"], nodes, [], edges, emptyProtected);
       expect(result._tag).toBe("Success");
       if (result._tag !== "Success") return;
 
@@ -371,20 +335,15 @@ describe("mergeNodes", () => {
           conclusionText: "psi",
         },
       ];
-      const result = mergeNodes(
-        "n1",
-        ["n2"],
-        nodes,
-        [],
-        edges,
-        emptyProtected,
-      );
+      const result = mergeNodes("n1", ["n2"], nodes, [], edges, emptyProtected);
       expect(result._tag).toBe("Success");
       if (result._tag !== "Success") return;
 
       expect(result.inferenceEdges).toHaveLength(1);
       expect(result.inferenceEdges[0]._tag).toBe("mp");
-      const mp = result.inferenceEdges[0] as { readonly leftPremiseNodeId: string | undefined };
+      const mp = result.inferenceEdges[0] as {
+        readonly leftPremiseNodeId: string | undefined;
+      };
       expect(mp.leftPremiseNodeId).toBe("n1");
     });
 
@@ -403,18 +362,13 @@ describe("mergeNodes", () => {
           conclusionText: "psi",
         },
       ];
-      const result = mergeNodes(
-        "n1",
-        ["n2"],
-        nodes,
-        [],
-        edges,
-        emptyProtected,
-      );
+      const result = mergeNodes("n1", ["n2"], nodes, [], edges, emptyProtected);
       expect(result._tag).toBe("Success");
       if (result._tag !== "Success") return;
 
-      const mp = result.inferenceEdges[0] as { readonly rightPremiseNodeId: string | undefined };
+      const mp = result.inferenceEdges[0] as {
+        readonly rightPremiseNodeId: string | undefined;
+      };
       expect(mp.rightPremiseNodeId).toBe("n1");
     });
 
@@ -433,19 +387,14 @@ describe("mergeNodes", () => {
           conclusionText: "all x. phi",
         },
       ];
-      const result = mergeNodes(
-        "n1",
-        ["n2"],
-        nodes,
-        [],
-        edges,
-        emptyProtected,
-      );
+      const result = mergeNodes("n1", ["n2"], nodes, [], edges, emptyProtected);
       expect(result._tag).toBe("Success");
       if (result._tag !== "Success") return;
 
       expect(result.inferenceEdges[0]._tag).toBe("gen");
-      const gen = result.inferenceEdges[0] as { readonly premiseNodeId: string | undefined };
+      const gen = result.inferenceEdges[0] as {
+        readonly premiseNodeId: string | undefined;
+      };
       expect(gen.premiseNodeId).toBe("n1");
     });
 
@@ -464,19 +413,14 @@ describe("mergeNodes", () => {
           conclusionText: "psi",
         },
       ];
-      const result = mergeNodes(
-        "n1",
-        ["n2"],
-        nodes,
-        [],
-        edges,
-        emptyProtected,
-      );
+      const result = mergeNodes("n1", ["n2"], nodes, [], edges, emptyProtected);
       expect(result._tag).toBe("Success");
       if (result._tag !== "Success") return;
 
       expect(result.inferenceEdges[0]._tag).toBe("substitution");
-      const subst = result.inferenceEdges[0] as { readonly premiseNodeId: string | undefined };
+      const subst = result.inferenceEdges[0] as {
+        readonly premiseNodeId: string | undefined;
+      };
       expect(subst.premiseNodeId).toBe("n1");
     });
   });
@@ -671,11 +615,7 @@ describe("findMergeableGroups", () => {
 
   it("保護ノードはグループから除外される", () => {
     const nodes = [makeNode("n1", "phi"), makeNode("n2", "phi")];
-    const groups = findMergeableGroups(
-      ["n1", "n2"],
-      nodes,
-      new Set(["n2"]),
-    );
+    const groups = findMergeableGroups(["n1", "n2"], nodes, new Set(["n2"]));
     // n2が除外されるのでn1だけでグループにならない
     expect(groups).toHaveLength(0);
   });

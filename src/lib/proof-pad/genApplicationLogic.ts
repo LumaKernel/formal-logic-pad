@@ -24,9 +24,9 @@ export type GenApplicationSuccess = {
 };
 
 /** Gen適用のエラー（Data.TaggedError） */
-export class GenPremiseMissing extends Data.TaggedError(
-  "GenPremiseMissing",
-)<Record<string, never>> {}
+export class GenPremiseMissing extends Data.TaggedError("GenPremiseMissing")<
+  Record<string, never>
+> {}
 export class GenPremiseParseError extends Data.TaggedError(
   "GenPremiseParseError",
 )<{
@@ -150,9 +150,7 @@ export const validateGenApplication = (
   variableName: string,
 ): GenApplicationResult =>
   Effect.runSync(
-    Effect.either(
-      validateGenApplicationEffect(state, genNodeId, variableName),
-    ),
+    Effect.either(validateGenApplicationEffect(state, genNodeId, variableName)),
   );
 
 // --- エラーメッセージ ---

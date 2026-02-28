@@ -283,11 +283,7 @@ describe("countTabNodes", () => {
   it("含意規則は左+右+1", () => {
     const leftLeaf = tabBasicSequent(tabSequent([negPhi, phiImplPsi]));
     const rightLeaf = tabBasicSequent(tabSequent([psi, phiImplPsi]));
-    const node = tabImplication(
-      leftLeaf,
-      rightLeaf,
-      tabSequent([phiImplPsi]),
-    );
+    const node = tabImplication(leftLeaf, rightLeaf, tabSequent([phiImplPsi]));
     expect(countTabNodes(node)).toBe(3);
   });
 
@@ -394,11 +390,7 @@ describe("tabProofDepth", () => {
   it("含意規則の深さは左右の最大深さ+1", () => {
     const leftLeaf = tabBasicSequent(tabSequent([negPhi, phiImplPsi]));
     const rightLeaf = tabBasicSequent(tabSequent([psi, phiImplPsi]));
-    const node = tabImplication(
-      leftLeaf,
-      rightLeaf,
-      tabSequent([phiImplPsi]),
-    );
+    const node = tabImplication(leftLeaf, rightLeaf, tabSequent([phiImplPsi]));
     expect(tabProofDepth(node)).toBe(1);
   });
 
@@ -533,11 +525,7 @@ describe("validateTabProof", () => {
   it("含意規則のバリデーションが通る", () => {
     const leftLeaf = tabBasicSequent(tabSequent([negPhi, phiImplPsi]));
     const rightLeaf = tabBasicSequent(tabSequent([psi, phiImplPsi]));
-    const node = tabImplication(
-      leftLeaf,
-      rightLeaf,
-      tabSequent([phiImplPsi]),
-    );
+    const node = tabImplication(leftLeaf, rightLeaf, tabSequent([phiImplPsi]));
     expect(validateTabProof(node)._tag).toBe("Valid");
   });
 

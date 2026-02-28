@@ -804,9 +804,7 @@ describe("validateSubstitutionApplicationEffect", () => {
     ws = addNode(ws, "axiom", "Subst", { x: 0, y: 0 });
 
     const result = Effect.runSync(
-      Effect.either(
-        validateSubstitutionApplicationEffect(ws, "node-1", []),
-      ),
+      Effect.either(validateSubstitutionApplicationEffect(ws, "node-1", [])),
     );
     expect(Either.isLeft(result)).toBe(true);
     if (Either.isLeft(result)) {

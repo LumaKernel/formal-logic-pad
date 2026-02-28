@@ -420,9 +420,7 @@ describe("ProofWorkspace", () => {
 
     it("renders axiom palette for Hilbert system (not ND palette)", () => {
       render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
-      expect(
-        screen.getByTestId("workspace-axiom-palette"),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("workspace-axiom-palette")).toBeInTheDocument();
       expect(
         screen.queryByTestId("workspace-nd-rule-palette"),
       ).not.toBeInTheDocument();

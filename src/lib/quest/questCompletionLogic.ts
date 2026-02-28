@@ -109,9 +109,7 @@ export const checkQuestGoalsEffect = (
     }
 
     const achievedResults = yield* Effect.all(
-      goals.map((goal) =>
-        Effect.sync(() => isGoalAchieved(goal, nodes)),
-      ),
+      goals.map((goal) => Effect.sync(() => isGoalAchieved(goal, nodes))),
     );
 
     const achievedCount = achievedResults.filter(Boolean).length;

@@ -13,16 +13,8 @@ import {
   greekLetterNames,
   isValidSubscript,
 } from "../logic-core/greekLetters";
-import {
-  LexerError,
-} from "./token";
-import type {
-  LexResult,
-  Position,
-  Span,
-  Token,
-  TokenKind,
-} from "./token";
+import { LexerError } from "./token";
+import type { LexResult, Position, Span, Token, TokenKind } from "./token";
 
 // --- Unicode記号 → トークン種別 マッピング ---
 

@@ -144,7 +144,10 @@ export function mergeNodes(
 
   // リーダーの既存コネクションキーを先に登録（重複排除）
   for (const conn of allConnections) {
-    if (!absorbedIdSet.has(conn.fromNodeId) && !absorbedIdSet.has(conn.toNodeId)) {
+    if (
+      !absorbedIdSet.has(conn.fromNodeId) &&
+      !absorbedIdSet.has(conn.toNodeId)
+    ) {
       const key = `${conn.fromNodeId satisfies string}-${conn.fromPortId satisfies string}-${conn.toNodeId satisfies string}-${conn.toPortId satisfies string}`;
       seenConnectionKeys.add(key);
       mergedConnections.push(conn);

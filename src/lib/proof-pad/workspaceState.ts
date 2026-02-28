@@ -319,6 +319,8 @@ export function isNodeProtected(
   _state: WorkspaceState,
   _nodeId: string,
 ): boolean {
+  void _state;
+  void _nodeId;
   return false;
 }
 

@@ -803,15 +803,15 @@ describe("mpApplicationLogic", () => {
     });
 
     it("returns message for LeftParseError", () => {
-      expect(
-        getMPErrorMessage(new LeftParseError({ nodeId: "node-1" })),
-      ).toBe("Left premise has invalid formula");
+      expect(getMPErrorMessage(new LeftParseError({ nodeId: "node-1" }))).toBe(
+        "Left premise has invalid formula",
+      );
     });
 
     it("returns message for RightParseError", () => {
-      expect(
-        getMPErrorMessage(new RightParseError({ nodeId: "node-2" })),
-      ).toBe("Right premise has invalid formula");
+      expect(getMPErrorMessage(new RightParseError({ nodeId: "node-2" }))).toBe(
+        "Right premise has invalid formula",
+      );
     });
 
     it("returns message for NotAnImplication", () => {

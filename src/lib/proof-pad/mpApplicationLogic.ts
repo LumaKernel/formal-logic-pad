@@ -31,9 +31,9 @@ export type MPApplicationSuccess = {
 };
 
 /** MP適用のエラー（Data.TaggedError） */
-export class LeftPremiseMissing extends Data.TaggedError(
-  "LeftPremiseMissing",
-)<Record<string, never>> {}
+export class LeftPremiseMissing extends Data.TaggedError("LeftPremiseMissing")<
+  Record<string, never>
+> {}
 export class RightPremiseMissing extends Data.TaggedError(
   "RightPremiseMissing",
 )<Record<string, never>> {}
@@ -183,9 +183,7 @@ export const validateMPApplication = (
   state: WorkspaceState,
   mpNodeId: string,
 ): MPApplicationResult =>
-  Effect.runSync(
-    Effect.either(validateMPApplicationEffect(state, mpNodeId)),
-  );
+  Effect.runSync(Effect.either(validateMPApplicationEffect(state, mpNodeId)));
 
 // --- MP互換ノード判定（ハイライト用） ---
 

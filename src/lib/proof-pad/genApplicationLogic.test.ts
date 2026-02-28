@@ -328,9 +328,9 @@ describe("genApplicationLogic", () => {
     });
 
     it("returns message for GenGeneralizationNotEnabled", () => {
-      expect(
-        getGenErrorMessage(new GenGeneralizationNotEnabled({})),
-      ).toBe("Gen is not enabled in this logic system");
+      expect(getGenErrorMessage(new GenGeneralizationNotEnabled({}))).toBe(
+        "Gen is not enabled in this logic system",
+      );
     });
 
     it("returns message for GenRuleError", () => {

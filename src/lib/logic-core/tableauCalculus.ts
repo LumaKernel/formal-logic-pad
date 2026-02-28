@@ -285,9 +285,7 @@ export type TabProofNode =
 
 // ── ファクトリ関数 ──────────────────────────────────────────
 
-export const tabBasicSequent = (
-  conclusion: TabSequent,
-): TabBasicSequent => ({
+export const tabBasicSequent = (conclusion: TabSequent): TabBasicSequent => ({
   _tag: "TabBasicSequent",
   conclusion,
 });

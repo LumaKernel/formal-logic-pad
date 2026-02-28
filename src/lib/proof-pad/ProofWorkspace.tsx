@@ -110,10 +110,7 @@ import {
   updateInferenceEdgeSubstitutionEntries,
   mergeSelectedNodes,
 } from "./workspaceState";
-import {
-  findMergeableGroups,
-  canMergeSelectedNodes,
-} from "./mergeNodesLogic";
+import { findMergeableGroups, canMergeSelectedNodes } from "./mergeNodesLogic";
 import { validateDragConnection } from "./portConnectionLogic";
 import type { LayoutDirection } from "./treeLayoutLogic";
 import {
@@ -835,7 +832,7 @@ export function ProofWorkspace({
       };
       startConnectionDrag(nodeId, portOnItem, screenX, screenY);
     },
-    [workspace.nodes, nodeSizes, nodeClassifications, startConnectionDrag],
+    [workspace.nodes, nodeSizes, startConnectionDrag],
   );
 
   const handleConnectionPointerMove = useCallback(
@@ -1935,14 +1932,20 @@ export function ProofWorkspace({
     return canMergeSelectedNodes(
       [...selectedNodeIds],
       workspace.nodes,
-      new Set(workspace.nodes.filter((n) => isNodeProtected(workspace, n.id)).map((n) => n.id)),
+      new Set(
+        workspace.nodes
+          .filter((n) => isNodeProtected(workspace, n.id))
+          .map((n) => n.id),
+      ),
     );
   }, [selectedNodeIds, workspace]);
 
   const handleMergeSelected = useCallback(() => {
     if (selectedNodeIds.size < 2) return;
     const protectedIds = new Set(
-      workspace.nodes.filter((n) => isNodeProtected(workspace, n.id)).map((n) => n.id),
+      workspace.nodes
+        .filter((n) => isNodeProtected(workspace, n.id))
+        .map((n) => n.id),
     );
     const groups = findMergeableGroups(
       [...selectedNodeIds],
@@ -1953,7 +1956,11 @@ export function ProofWorkspace({
 
     let ws = workspace;
     for (const group of groups) {
-      const result = mergeSelectedNodes(ws, group.leaderNodeId, group.absorbedNodeIds);
+      const result = mergeSelectedNodes(
+        ws,
+        group.leaderNodeId,
+        group.absorbedNodeIds,
+      );
       if (result._tag === "Success") {
         ws = result.workspace;
       }
@@ -2422,7 +2429,6 @@ export function ProofWorkspace({
       onOpenSyntaxHelp,
       notifyDragMove,
       notifyDragEnd,
-      msg,
     ],
   );
 
@@ -3118,9 +3124,7 @@ export function ProofWorkspace({
           rules={availableNdRules}
           onAddAssumption={handleAddAssumption}
           testId={
-            testId
-              ? `${testId satisfies string}-nd-rule-palette`
-              : undefined
+            testId ? `${testId satisfies string}-nd-rule-palette` : undefined
           }
         />
       ) : (
@@ -3131,9 +3135,7 @@ export function ProofWorkspace({
           locale={locale}
           onOpenReferenceDetail={onOpenReferenceDetail}
           testId={
-            testId
-              ? `${testId satisfies string}-axiom-palette`
-              : undefined
+            testId ? `${testId satisfies string}-axiom-palette` : undefined
           }
         />
       )}

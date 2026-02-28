@@ -231,14 +231,14 @@ push 後、CI の結果を確認:
 
 ### 使い分け
 
-| 機能 | 用途 | 使わない場面 |
-|---|---|---|
-| `Schema.TaggedClass` | ASTノード等のデータ型定義。`_tag` で discriminated union。シリアライゼーション対象 | エラー型（→ `Data.TaggedError`） |
-| `Data.TaggedError` | エラー型。`_tag` を自動付与。`Either.left` / `Effect.fail` で生成 | データ型（→ `Schema.TaggedClass`） |
-| `Either` | Result型（`Right` = 成功, `Left` = 失敗）。公開APIの戻り値 | 内部実装（→ `Effect.gen`） |
-| `Effect.gen` | 複数のバリデーションチェーンがある関数。短絡評価が明示的になる | 単純な関数や単一の分岐のみの処理 |
-| `Layer` + `Context.Tag` | 副作用（localStorage, fetch等）の抽象化。テストでインメモリ実装に差替え | 純粋関数のみのモジュール |
-| `Schema.decodeUnknownEither` / `Schema.encodeUnknownSync` | JSON import/export の型安全なシリアライゼーション | 内部のデータ変換 |
+| 機能                                                      | 用途                                                                               | 使わない場面                       |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------- |
+| `Schema.TaggedClass`                                      | ASTノード等のデータ型定義。`_tag` で discriminated union。シリアライゼーション対象 | エラー型（→ `Data.TaggedError`）   |
+| `Data.TaggedError`                                        | エラー型。`_tag` を自動付与。`Either.left` / `Effect.fail` で生成                  | データ型（→ `Schema.TaggedClass`） |
+| `Either`                                                  | Result型（`Right` = 成功, `Left` = 失敗）。公開APIの戻り値                         | 内部実装（→ `Effect.gen`）         |
+| `Effect.gen`                                              | 複数のバリデーションチェーンがある関数。短絡評価が明示的になる                     | 単純な関数や単一の分岐のみの処理   |
+| `Layer` + `Context.Tag`                                   | 副作用（localStorage, fetch等）の抽象化。テストでインメモリ実装に差替え            | 純粋関数のみのモジュール           |
+| `Schema.decodeUnknownEither` / `Schema.encodeUnknownSync` | JSON import/export の型安全なシリアライゼーション                                  | 内部のデータ変換                   |
 
 ### パターン
 
@@ -279,7 +279,9 @@ const storage = yield* StorageService;
 
 ```typescript
 // 空ペイロード: Record<string, never> を使う（{} は ESLint エラー）
-export class FooMissing extends Data.TaggedError("FooMissing")<Record<string, never>> {}
+export class FooMissing extends Data.TaggedError("FooMissing")<
+  Record<string, never>
+> {}
 // ペイロードあり
 export class FooParseError extends Data.TaggedError("FooParseError")<{
   readonly nodeId: string;
