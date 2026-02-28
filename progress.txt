@@ -5640,3 +5640,22 @@
   - D8 (証明論的意味論) がD系列の最後。Ch.13.7に記述がある
   - D系列完了後はアーカイブ検討。D1-D4は既にアーカイブ対象
 ---
+
+## 2026-02-28 - D8: 証明論的意味論のリファレンスエントリ
+- 実装した内容: 証明論的意味論 (Proof-Theoretic Semantics) のリファレンスエントリを追加
+  - bekki.pdf Ch.13.7 に基づく
+  - 5段落の英日バイリンガル解説: 健全性・完全性から意味へ、正当性の二つの視点、証明規則による意味、循環の懸念とその解消、真理なしの意味
+  - relatedEntryIds: concept-soundness, concept-completeness, concept-system-equivalence, rule-nd-overview, rule-sc-overview
+  - Wikipedia (en/ja) と nLab の外部リンク
+  - keywords: proof-theoretic semantics, 証明論的意味論, Dummett, Prawitz, harmony, 調和 など15件
+- 変更したファイル:
+  - src/lib/reference/referenceContent.ts - conceptProofTheoreticSemantics エントリ追加
+  - src/lib/reference/referenceContent.test.ts - エントリ数 48→49
+- テスト: 5073 passed, カバレッジ Stmts 98.6% (維持)
+- D系列（D1-D8）すべて完了。tasks-archived/prd-advanced.md にアーカイブ済み
+- G系列（G1-G2）も完了済み、同時にアーカイブ
+- **今後のイテレーションへの学び:**
+  - D系列メタ定理群（健全性・完全性・L-S・コンパクト性・証明論的意味論）はすべてbekki Ch.13に集中。まとめて対応すると効率的
+  - 残りのセクション: A(意味論), B(タブロー), C(カット除去), E(派生規則), F(シーケント拡充), H(標準形), I(カリー・ハワード)
+  - C1(カット除去定理リファレンス)やI1(カリー・ハワード対応)はリファレンスエントリなので既存パターンで対応可能
+---
