@@ -2367,6 +2367,7 @@ export function ProofWorkspace({
               onFormulaParsed={handleFormulaParsed}
               onModeChange={handleModeChange}
               editable={nodeClassifications.get(node.id) !== "derived"}
+              editTrigger="dblclick"
               statusMessage={nodeValidation?.message}
               statusType={nodeValidation?.type}
               classification={nodeClassifications.get(node.id)}

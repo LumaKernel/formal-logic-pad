@@ -689,9 +689,9 @@ export const MPPremiseEditInvalidates: Story = {
       canvas.getByTestId("proof-node-node-3-status"),
     ).toHaveTextContent("MP applied");
 
-    // node-1(φ)をクリックして編集モードに入る
+    // node-1(φ)をダブルクリックして編集モードに入る（editTrigger="dblclick"）
     const display = canvas.getByTestId("proof-node-node-1-editor-display");
-    await userEvent.click(display);
+    await userEvent.dblClick(display);
 
     // 入力欄をクリア → "chi" を入力
     const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
@@ -733,9 +733,9 @@ export const MPCascadeChainFailure: Story = {
       canvas.getByTestId("proof-node-node-5-status"),
     ).toHaveTextContent("MP applied");
 
-    // node-1(φ)をクリックして編集モードに入る
+    // node-1(φ)をダブルクリックして編集モードに入る（editTrigger="dblclick"）
     const display = canvas.getByTestId("proof-node-node-1-editor-display");
-    await userEvent.click(display);
+    await userEvent.dblClick(display);
 
     // 入力欄をクリア → "alpha" を入力
     const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
@@ -910,7 +910,7 @@ export const MPRepairFlow: Story = {
 
     // === Step 2: 公理φをchiに書き換え → MP失敗 ===
     const display = canvas.getByTestId("proof-node-node-1-editor-display");
-    await userEvent.click(display);
+    await userEvent.dblClick(display);
     const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
     await userEvent.clear(input);
     await userEvent.type(input, "chi");
@@ -959,7 +959,7 @@ export const MPRepairFlow: Story = {
 
     // === Step 6: A1の式をφに書き換え ===
     const newDisplay = canvas.getByTestId("proof-node-node-4-editor-display");
-    await userEvent.click(newDisplay);
+    await userEvent.dblClick(newDisplay);
     const newInput = canvas.getByTestId("proof-node-node-4-editor-input-input");
     await userEvent.clear(newInput);
     await userEvent.type(newInput, "phi");

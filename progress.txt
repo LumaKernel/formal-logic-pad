@@ -28,7 +28,8 @@
 
 - ドラッグはオフセットベース方式: ドラッグ開始時にカーソル→アイテムのワールド座標オフセットを記録し、毎フレームカーソルのワールド座標からオフセットを引いて位置を算出。デルタ方式はsnap誤差の蓄積やviewport変化(エッジスクロール)に弱い
 - CanvasItem + FormulaEditor 統合: `onModeChange` コールバック + `dragEnabled` プロパティで編集中ドラッグ無効化を実現
-- FormulaEditor内 `onPointerDown` で `stopPropagation` し、CanvasItem の PointerCapture によるclick干渉を防止
+- FormulaEditor内 `onPointerDown` の `stopPropagation` は**編集モード時のみ**に限定。表示モードではCanvasItemへpointerイベントを伝播させ、ノード選択・ドラッグを可能にする
+- ProofWorkspace では `editTrigger="dblclick"` を使用。シングルクリックはノード選択、ダブルクリックで数式編集モードに入る
 - `src/lib/proof-pad/` は ProofPad（証明ワークスペース）のUIコンポーネント群。logic-core, formula-input, infinite-canvas を統合
 - ProofWorkspace: 制御/非制御両モード対応。workspaceState.ts にピュアロジック、ProofWorkspace.tsx にUIを分離
 - nodeRoleLogic.ts: ノード分類の純粋ロジック。NodeRole("axiom"|"goal") と NodeClassification("root-axiom"|"root-goal"|"root-unmarked"|"derived") で分類
@@ -6726,4 +6727,33 @@
 - **今後のイテレーションへの学び:**
   - ProofMessagesの変更時はproofMessages.ts, WorkspaceContent.tsx, messages/en.json, messages/ja.json の4箇所を同期する必要がある
   - 未使用のi18nメッセージ（addGoalNodeなど）は機能廃止時に合わせて削除すべき
+---
+
+## 2026-03-01 - ノード選択・メニュー判定をノード全体に拡大（差し込みタスク）
+- FormulaEditorの`handlePointerDown`でのstopPropagationを編集モード時のみに限定
+  - 以前: 表示モードでもstopPropagation → CanvasItemがpointerイベントを受け取れず、数式部分のクリック/ドラッグが不可
+  - 修正後: 表示モードではpointerイベントがCanvasItemまで伝播 → 数式部分でもノード選択・ドラッグ・コンテキストメニューが機能
+- ProofWorkspaceでeditTrigger="dblclick"をEditableProofNodeに渡すよう変更
+  - シングルクリック → ノード選択（編集モードに入らない）
+  - ダブルクリック → 数式編集モードに入る
+- テスト更新: ProofWorkspace.test.tsx（6箇所）、ProofWorkspace.stories.tsx（2箇所）、ProofFlowDemo.stories.tsx（4箇所）でclick→dblClickに変更
+- テスト: 201ファイル、5848テスト全パス
+- カバレッジ: Stmts 98.32%, Branch 91.75%, Funcs 88.84%, Lines 99.18%（ベースラインと同等）
+- ブラウザテスト:
+  - `.screenshots/node-selection-initial.png` - 初期状態
+  - `.screenshots/node-selection-single-click-formula.png` - シングルクリックで編集モードに入らないことを確認
+  - `.screenshots/node-selection-context-menu-on-label.png` - ラベル部分の右クリックメニュー
+  - `.screenshots/node-selection-context-menu-on-formula.png` - 数式部分の右クリックメニュー
+  - `.screenshots/node-selection-dblclick-edit-mode.png` - ダブルクリックで編集モードに入ることを確認
+- 変更ファイル:
+  - src/lib/formula-input/FormulaEditor.tsx (handlePointerDown条件付きstopPropagation)
+  - src/lib/proof-pad/ProofWorkspace.tsx (editTrigger="dblclick"追加)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (click→dblClick 6箇所)
+  - src/lib/proof-pad/ProofWorkspace.stories.tsx (click→dblClick 2箇所)
+  - src/lib/proof-pad/ProofFlowDemo.stories.tsx (click→dblClick 4箇所)
+- **今後のイテレーションへの学び:**
+  - FormulaEditorのstopPropagationはCanvasItemとの統合時に影響大。表示モードでは伝播を許可し、編集モードでのみブロックすべき
+  - editTrigger="dblclick"にすることで、シングルクリックはノード選択に使える。CanvasItem内のインタラクティブ要素ではdblclickが適切
+  - Playwright MCPのdblclickはCanvasItemのpointerイベント追跡と干渉する場合がある。evaluateでdblclickイベントを直接dispatchする方法が確実
+  - Axiomパレットがノードと重なってクリックをインターセプトする問題は既知（別タスク: ノードのコネクション引っ掛け部分のz-index問題）
 ---

@@ -767,9 +767,9 @@ export const AxiomAutoIdentifyFromBlank: Story = {
       canvas.queryByTestId("proof-node-node-1-axiom-name"),
     ).not.toBeInTheDocument();
 
-    // ノードをクリックして編集モードに入る（placeholderをクリック）
+    // ノードをダブルクリックして編集モードに入る（editTrigger="dblclick"）
     const display = canvas.getByTestId("proof-node-node-1-editor-display");
-    await userEvent.click(display);
+    await userEvent.dblClick(display);
 
     // A1 (K公理) の式を入力: φ → (ψ → φ)
     const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
@@ -828,9 +828,9 @@ export const AxiomReidentifyOnEdit: Story = {
       canvas.getByTestId("proof-node-node-1-axiom-name"),
     ).toHaveTextContent("A1 (K)");
 
-    // ノードをクリックして編集モードに入る
+    // ノードをダブルクリックして編集モードに入る（editTrigger="dblclick"）
     const display = canvas.getByTestId("proof-node-node-1-editor-display");
-    await userEvent.click(display);
+    await userEvent.dblClick(display);
 
     // 式をA2 (S公理) に書き換え
     const input = canvas.getByTestId("proof-node-node-1-editor-input-input");

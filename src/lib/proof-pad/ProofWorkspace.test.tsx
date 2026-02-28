@@ -435,9 +435,9 @@ describe("ProofWorkspace", () => {
 
       render(<StatefulWorkspace initialWorkspace={ws} />);
 
-      // Click the formula display to enter edit mode
+      // Double-click the formula display to enter edit mode (editTrigger="dblclick")
       const display = screen.getByTestId("proof-node-node-1-editor-display");
-      await user.click(display);
+      await user.dblClick(display);
 
       // Type into the actual <input> element (triggers handleFormulaTextChange)
       const input = screen.getByTestId("proof-node-node-1-editor-input-input");
@@ -461,8 +461,8 @@ describe("ProofWorkspace", () => {
         />,
       );
 
-      // Click the formula display to enter edit mode
-      await user.click(screen.getByTestId("proof-node-node-1-editor-display"));
+      // Double-click the formula display to enter edit mode (editTrigger="dblclick")
+      await user.dblClick(screen.getByTestId("proof-node-node-1-editor-display"));
 
       // Type a valid Greek letter formula (same as EditableProofNode test)
       const input = screen.getByTestId("proof-node-node-1-editor-input-input");
@@ -474,7 +474,7 @@ describe("ProofWorkspace", () => {
       });
     });
 
-    it("enters editing mode when formula display is clicked", async () => {
+    it("enters editing mode when formula display is double-clicked", async () => {
       const user = userEvent.setup();
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "");
@@ -487,8 +487,10 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("proof-node-node-1-editor-display"),
       ).toBeInTheDocument();
 
-      // Click to enter edit mode (triggers handleModeChange with "editing")
-      await user.click(screen.getByTestId("proof-node-node-1-editor-display"));
+      // Double-click to enter edit mode (editTrigger="dblclick")
+      await user.dblClick(
+        screen.getByTestId("proof-node-node-1-editor-display"),
+      );
 
       // Should now be in editing mode - edit container should be visible
       expect(
@@ -504,8 +506,10 @@ describe("ProofWorkspace", () => {
 
       render(<StatefulWorkspace initialWorkspace={ws} />);
 
-      // Enter edit mode
-      await user.click(screen.getByTestId("proof-node-node-1-editor-display"));
+      // Enter edit mode (double-click since editTrigger="dblclick")
+      await user.dblClick(
+        screen.getByTestId("proof-node-node-1-editor-display"),
+      );
       expect(
         screen.getByTestId("proof-node-node-1-editor-edit"),
       ).toBeInTheDocument();
@@ -2618,11 +2622,11 @@ describe("ProofWorkspace", () => {
           testId="workspace"
         />,
       );
-      // ノードの表示モードをクリックして編集モードに入る
+      // ノードの表示モードをダブルクリックして編集モードに入る (editTrigger="dblclick")
       const nodeDisplay = screen.getByTestId(
         `proof-node-${ws.nodes[0]!.id satisfies string}-editor-display`,
       );
-      await user.click(nodeDisplay);
+      await user.dblClick(nodeDisplay);
       await waitFor(() => {
         expect(
           screen.getByTestId(
@@ -2648,11 +2652,11 @@ describe("ProofWorkspace", () => {
           testId="workspace"
         />,
       );
-      // ノードの表示モードをクリックして編集モードに入る
+      // ノードの表示モードをダブルクリックして編集モードに入る (editTrigger="dblclick")
       const nodeDisplay = screen.getByTestId(
         `proof-node-${ws.nodes[0]!.id satisfies string}-editor-display`,
       );
-      await user.click(nodeDisplay);
+      await user.dblClick(nodeDisplay);
       await waitFor(() => {
         expect(
           screen.getByTestId(

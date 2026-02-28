@@ -168,11 +168,17 @@ export function FormulaEditor({
     enterEditMode();
   }, [enterEditMode]);
 
-  // CanvasItem内配置時: PointerCaptureによるclickイベント干渉を防ぐため
-  // FormulaEditorコンテナでpointerDownの伝播を停止する
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.stopPropagation();
-  }, []);
+  // CanvasItem内配置時: 編集モード中はPointerCaptureによるドラッグを防止するため
+  // pointerDownの伝播を停止する。表示モードでは伝播を許可してドラッグ/クリックが
+  // 親（CanvasItem）に伝わるようにする。
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (mode === "editing") {
+        e.stopPropagation();
+      }
+    },
+    [mode],
+  );
 
   const handleSyntaxHelpMouseDown = useCallback((e: React.MouseEvent) => {
     // mousedownでpreventDefaultすることでinputのblurを防ぐ
