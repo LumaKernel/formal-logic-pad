@@ -13,7 +13,8 @@
 - wheel イベントは `useEffect` + `addEventListener({ passive: false })` で登録（React `onWheel` は Chrome で passive）
 - トラックパッド判定: `ctrlKey: true` → ピンチ(zoom)、`ctrlKey: false` → 2本指スクロール(pan)
 - v8 coverage: `satisfies never` パターンには `/* v8 ignore start/stop */` を使用（`next N` は動作しない場合がある）
-- Logic Core は `src/lib/logic-core/` に配置。Effect.ts `Schema.TaggedClass` でAST定義、ピュアロジック、UIなし
+- Logic Core は `src/lib/logic-core/` に配置。Effect.ts `Schema.TaggedClass` でAST定義、`Data.TaggedError` でエラー型、`Either` でResult型、ピュアロジック、UIなし
+- Effect.ts エラー型パターン: `Data.TaggedError("Tag")<{ fields }>` でクラス定義、`Either.Either<Success, Error>` で結果型、`Either.isLeft/isRight` で分岐
 - AST の再帰型は `Schema.suspend(() => Formula)` で定義。`FunctionApplication`（`Function` はJS予約語と衝突するため改名）
 - `@luma-dev/luma-ts/no-explicit-return-is` があるため type predicate は明示しない
 - フォーマッターの括弧判定: 左辺は `parent.leftBP > child.rightBP`、右辺は `child.leftBP <= parent.rightBP` で判定（Pratt parserの挙動を正確に反映）
