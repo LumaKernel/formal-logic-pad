@@ -9,7 +9,7 @@
  * 変更時は token.ts, lexer.ts, parser.test.ts も同期すること。
  */
 
-import { Either } from "effect";
+import { Data, Either } from "effect";
 import type { GreekLetter } from "../logic-core/greekLetters";
 import {
   metaVariable,
@@ -37,10 +37,10 @@ import type { Token, TokenKind, Span, Position } from "./token";
 
 // --- パーサーエラー ---
 
-export interface ParseError {
+export class ParseError extends Data.TaggedError("ParseError")<{
   readonly message: string;
   readonly span: Span;
-}
+}> {}
 
 // --- パース結果 ---
 // Right = 成功, Left = 失敗 (errors)
@@ -153,7 +153,7 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
   };
 
   const addError = (message: string, span: Span): void => {
-    errors.push({ message, span });
+    errors.push(new ParseError({ message, span }));
   };
 
   const posStr = (p: Position): string =>
@@ -728,7 +728,7 @@ export const parseTokensAsTerm = (
   };
 
   const addError = (message: string, span: Span): void => {
-    errors.push({ message, span });
+    errors.push(new ParseError({ message, span }));
   };
 
   const posStr = (p: Position): string =>
@@ -911,10 +911,9 @@ export const parseString = (input: string): ParseResult => {
   const lexResult = lex(input);
   if (Either.isLeft(lexResult)) {
     return Either.left(
-      lexResult.left.map((e) => ({
-        message: e.message,
-        span: e.span,
-      })),
+      lexResult.left.map(
+        (e) => new ParseError({ message: e.message, span: e.span }),
+      ),
     );
   }
   return parse(lexResult.right);
@@ -924,10 +923,9 @@ export const parseTermString = (input: string): TermParseResult => {
   const lexResult = lex(input);
   if (Either.isLeft(lexResult)) {
     return Either.left(
-      lexResult.left.map((e) => ({
-        message: e.message,
-        span: e.span,
-      })),
+      lexResult.left.map(
+        (e) => new ParseError({ message: e.message, span: e.span }),
+      ),
     );
   }
   return parseTokensAsTerm(lexResult.right);

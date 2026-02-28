@@ -13,9 +13,11 @@ import {
   greekLetterNames,
   isValidSubscript,
 } from "../logic-core/greekLetters";
+import {
+  LexerError,
+} from "./token";
 import type {
   LexResult,
-  LexerError,
   Position,
   Span,
   Token,
@@ -146,7 +148,7 @@ export const lex = (input: string): LexResult => {
   };
 
   const addError = (message: string, span: Span): void => {
-    errors.push({ message, span });
+    errors.push(new LexerError({ message, span }));
   };
 
   // Unicode下付き数字列を読み取る

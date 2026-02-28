@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ParseError } from "../logic-lang/parser";
 import type { FormulaParseState } from "./FormulaInput";
 import { canExitEditMode, computeExitAction } from "./editorLogic";
 
@@ -21,13 +22,13 @@ describe("canExitEditMode", () => {
     const state: FormulaParseState = {
       status: "error",
       errors: [
-        {
+        new ParseError({
           message: "unexpected token",
           span: {
             start: { line: 1, column: 1 },
             end: { line: 1, column: 2 },
           },
-        },
+        }),
       ],
     };
     expect(canExitEditMode(state)).toBe(false);
@@ -52,13 +53,13 @@ describe("computeExitAction", () => {
     const state: FormulaParseState = {
       status: "error",
       errors: [
-        {
+        new ParseError({
           message: "unexpected token",
           span: {
             start: { line: 1, column: 1 },
             end: { line: 1, column: 2 },
           },
-        },
+        }),
       ],
     };
     expect(computeExitAction(state)).toBeNull();
