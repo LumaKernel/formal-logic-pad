@@ -5717,3 +5717,18 @@
   - A5テンプレートは matchAxiomA5 と一致する形式が必要: Implication をトップレベルに置く（Universal ではなく）
   - formatFormula の出力は Pratt parser の優先順位に基づき括弧を付加する。手動での予測は困難なので、テスト時は実際にformatFormulaを呼んで確認すべき
 ---
+
+## 2026-02-28 - 背理法・矛盾からの推論 NDクエスト追加
+- nd-11: 背理法 RAA¬ (NM) — (φ → ψ) → (φ → ¬ψ) → ¬φ
+- nd-12: 古典的背理法 RAA*¬ (NK) — (¬φ → ψ) → (¬φ → ¬ψ) → φ
+- nd-13: 矛盾からの推論 CON1 (NM) — ψ → ¬ψ → ¬φ
+- nd-14: 矛盾からの推論 CON4 (NK) — ¬ψ → ψ → φ
+- 変更ファイル: builtinQuests.ts, builtinQuests.test.ts, prd-advanced.md
+- カバレッジ: Stmts 98.55%, Branch 92.96%, Funcs 90.92%, Lines 99.31% — 変化なし（データ追加のみ）
+- テスト: 189ファイル, 5034テスト全通過
+- **今後のイテレーションへの学び:**
+  - bekki.pdf Ch.8 に RAA¬/RAA*¬/CON1-CON4 の定義がある（定義8.27, 8.32）
+  - NM の派生規則: RAA¬, CON1, CON2（否定のみ導出可能）
+  - NK の派生規則: RAA*¬, CON3, CON4（任意の命題を導出可能、DNEが鍵）
+  - CON1/CON4 は矛盾からの推論。NM は ¬φ のみ、NK は φ も導ける（EFQと同値）
+---
