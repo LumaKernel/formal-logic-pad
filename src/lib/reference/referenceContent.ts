@@ -2079,6 +2079,79 @@ const conceptDeductionTheorem: ReferenceEntry = {
   order: 4,
 };
 
+const conceptGlivenko: ReferenceEntry = {
+  id: "concept-glivenko",
+  category: "concept",
+  title: { en: "Glivenko's Theorem", ja: "グリヴェンコの定理" },
+  summary: {
+    en: "Γ ⊢_LK φ if and only if Γ ⊢_LJ ¬¬φ — a formula provable in classical logic is provable under double negation in intuitionistic logic.",
+    ja: "Γ ⊢_LK φ ⟺ Γ ⊢_LJ ¬¬φ — 古典論理で証明可能な命題は、直観主義論理で二重否定を付ければ証明可能。",
+  },
+  body: {
+    en: [
+      "**Glivenko's Theorem** (1929) establishes a precise relationship between classical and intuitionistic propositional logic. It states that a propositional formula φ is provable in classical logic (LK) if and only if its double negation ¬¬φ is provable in intuitionistic logic (LJ). This holds even when hypotheses Γ are present: Γ ⊢_LK φ ⟺ Γ ⊢_LJ ¬¬φ.",
+      "**Proof outline:** The right-to-left direction (⟸) follows from the fact that intuitionistic logic is a subsystem of classical logic, and DNE (¬¬φ → φ) holds classically. For the left-to-right direction (⟹), one shows that for every classical axiom and inference rule, the double-negation translation preserves derivability in intuitionistic logic. The key insight is that ¬¬ acts as a \"modality\" that absorbs classical reasoning.",
+      "**Significance:** Glivenko's theorem shows that classical and intuitionistic logic are \"not so far apart\" for propositional logic — every classical theorem has an intuitionistic counterpart under double negation. This is a foundational result in the study of the relationship between constructive and classical mathematics.",
+      "**Limitation to propositional logic:** Glivenko's theorem in its original form applies only to propositional logic. For predicate logic, a more refined translation is needed. Kuroda's negative translation (inserting ¬¬ after each ∀) provides the predicate-logic generalization.",
+      "**Connection to other results:** Glivenko's theorem is closely related to the Kuroda translation and the Gödel-Gentzen negative translation. These translations systematically embed classical logic into intuitionistic logic, demonstrating that classical reasoning can always be \"interpreted\" constructively via double negation.",
+    ],
+    ja: [
+      "**グリヴェンコの定理** (1929) は、古典命題論理と直観主義命題論理の間の正確な関係を確立するものです。命題論理式 φ が古典論理 (LK) で証明可能であることと、その二重否定 ¬¬φ が直観主義論理 (LJ) で証明可能であることは同値です。仮説 Γ がある場合にも成立します: Γ ⊢_LK φ ⟺ Γ ⊢_LJ ¬¬φ。",
+      "**証明の概略:** 右から左の方向 (⟸) は、直観主義論理が古典論理の部分体系であり、古典論理では DNE (¬¬φ → φ) が成り立つことから従います。左から右の方向 (⟹) では、古典論理の各公理と推論規則について、二重否定翻訳が直観主義論理での導出可能性を保存することを示します。鍵となる洞察は、¬¬ が古典的推論を吸収する「モダリティ」として機能することです。",
+      "**意義:** グリヴェンコの定理は、命題論理に関しては古典論理と直観主義論理が「それほど離れていない」ことを示します — すべての古典的定理は、二重否定の下で直観主義的な対応物を持ちます。これは、構成的数学と古典的数学の関係の研究における基礎的な結果です。",
+      "**命題論理への限定:** グリヴェンコの定理は、元の形では命題論理にのみ適用されます。述語論理に対しては、より精緻な翻訳が必要です。黒田の否定翻訳（各 ∀ の直後に ¬¬ を挿入する）が、述語論理への一般化を提供します。",
+      "**他の結果との関連:** グリヴェンコの定理は、黒田翻訳やゲーデル・ゲンツェンの否定翻訳と密接に関連しています。これらの翻訳は、古典論理を直観主義論理に体系的に埋め込むものであり、古典的推論が二重否定を通じて常に構成的に「解釈」できることを示しています。",
+    ],
+  },
+  formalNotation:
+    "\\Gamma \\vdash_{\\mathbf{LK}} \\varphi \\iff \\Gamma \\vdash_{\\mathbf{LJ}} \\lnot\\lnot\\varphi",
+  relatedEntryIds: [
+    "axiom-dne",
+    "system-classical",
+    "system-intuitionistic",
+    "concept-deduction-theorem",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Glivenko%27s_theorem",
+      label: {
+        en: "Glivenko's theorem (Wikipedia)",
+        ja: "グリヴェンコの定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%B0%E3%83%AA%E3%83%B4%E3%82%A7%E3%83%B3%E3%82%B3%E3%81%AE%E5%AE%9A%E7%90%86",
+      label: {
+        en: "Glivenko's theorem (Wikipedia JA)",
+        ja: "グリヴェンコの定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/Glivenko%27s+theorem",
+      label: {
+        en: "Glivenko's theorem (nLab)",
+        ja: "グリヴェンコの定理 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "Glivenko",
+    "グリヴェンコ",
+    "double negation",
+    "二重否定",
+    "classical",
+    "古典論理",
+    "intuitionistic",
+    "直観主義論理",
+    "negative translation",
+    "否定翻訳",
+  ],
+  order: 5,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -2768,6 +2841,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptFreeVariable,
   conceptUnification,
   conceptDeductionTheorem,
+  conceptGlivenko,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
