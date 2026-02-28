@@ -373,7 +373,7 @@
 
 ---
 
-- [ ] **ET-011: app層のエラーバウンダリ整備**
+- [-] **ET-011: app層のエラーバウンダリ整備**
 
   **対象ファイル:**
   - `src/lib/proof-pad/ProofWorkspace.tsx` (主要なEffect消費者)

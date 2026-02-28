@@ -5,11 +5,13 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { Either } from "effect";
 import {
   defaultProofMessages,
   getMPErrorMessageKey,
   getGenErrorMessageKey,
   getSubstitutionErrorMessageKey,
+  processValidationResult,
   formatMessage,
   type ProofMessages,
 } from "./proofMessages";
@@ -229,6 +231,117 @@ describe("getSubstitutionErrorMessageKey", () => {
       expect(key in defaultProofMessages).toBe(true);
       expect(defaultProofMessages[key]).toBeTruthy();
     }
+  });
+});
+
+describe("processValidationResult", () => {
+  it("成功時はsuccessメッセージを返す", () => {
+    const result = Either.right({ conclusionText: "φ" });
+    const display = processValidationResult(
+      result,
+      "MP applied",
+      getMPErrorMessageKey,
+      (e) => e._tag === "BothPremisesMissing",
+      defaultProofMessages,
+    );
+    expect(display).toEqual({ message: "MP applied", type: "success" });
+  });
+
+  it("スキップ対象エラーの場合はundefinedを返す", () => {
+    const result: Either.Either<
+      { readonly conclusionText: string },
+      MPApplicationError
+    > = Either.left(new BothPremisesMissing({}));
+    const display = processValidationResult(
+      result,
+      "MP applied",
+      getMPErrorMessageKey,
+      (e) => e._tag === "BothPremisesMissing",
+      defaultProofMessages,
+    );
+    expect(display).toBeUndefined();
+  });
+
+  it("表示対象エラーの場合はエラーメッセージを返す", () => {
+    const result: Either.Either<
+      { readonly conclusionText: string },
+      MPApplicationError
+    > = Either.left(new LeftPremiseMissing({}));
+    const display = processValidationResult(
+      result,
+      "MP applied",
+      getMPErrorMessageKey,
+      (e) => e._tag === "BothPremisesMissing",
+      defaultProofMessages,
+    );
+    expect(display).toEqual({
+      message: defaultProofMessages.mpErrorLeftMissing,
+      type: "error",
+    });
+  });
+
+  it("Gen エラーでも正しく動作する", () => {
+    const result: Either.Either<unknown, GenApplicationError> = Either.left(
+      new GenVariableNameEmpty({}),
+    );
+    const display = processValidationResult(
+      result,
+      "Gen applied",
+      getGenErrorMessageKey,
+      (e) => e._tag === "GenPremiseMissing",
+      defaultProofMessages,
+    );
+    expect(display).toEqual({
+      message: defaultProofMessages.genErrorVariableEmpty,
+      type: "error",
+    });
+  });
+
+  it("Substitution エラーでも正しく動作する", () => {
+    const result: Either.Either<unknown, SubstitutionApplicationError> =
+      Either.left(new SubstNoEntries({}));
+    const display = processValidationResult(
+      result,
+      "Substitution applied",
+      getSubstitutionErrorMessageKey,
+      (e) => e._tag === "SubstPremiseMissing",
+      defaultProofMessages,
+    );
+    expect(display).toEqual({
+      message: defaultProofMessages.substErrorNoEntries,
+      type: "error",
+    });
+  });
+
+  it("shouldSkipError で外部変数による複合条件を使える", () => {
+    // Substitutionの特殊ケース: SubstPremiseMissingでもentries.length > 0ならエラー表示
+    const result: Either.Either<unknown, SubstitutionApplicationError> =
+      Either.left(new SubstPremiseMissing({}));
+
+    // entries が空 → スキップ
+    const emptyEntries: readonly unknown[] = [];
+    const display1 = processValidationResult(
+      result,
+      "Substitution applied",
+      getSubstitutionErrorMessageKey,
+      (e) => e._tag === "SubstPremiseMissing" && emptyEntries.length === 0,
+      defaultProofMessages,
+    );
+    expect(display1).toBeUndefined();
+
+    // entries がある → エラー表示
+    const nonEmptyEntries: readonly unknown[] = [{ text: "x" }];
+    const display2 = processValidationResult(
+      result,
+      "Substitution applied",
+      getSubstitutionErrorMessageKey,
+      (e) => e._tag === "SubstPremiseMissing" && nonEmptyEntries.length === 0,
+      defaultProofMessages,
+    );
+    expect(display2).toEqual({
+      message: defaultProofMessages.substErrorPremiseMissing,
+      type: "error",
+    });
   });
 });
 
