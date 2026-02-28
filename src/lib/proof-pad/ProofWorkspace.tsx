@@ -1086,9 +1086,7 @@ export function ProofWorkspace({
       );
       if (!genEdgeRaw) continue;
       const variableName =
-        genEdgeRaw._tag === "gen"
-          ? genEdgeRaw.variableName
-          : (node.genVariableName ?? "");
+        genEdgeRaw._tag === "gen" ? genEdgeRaw.variableName : "";
       const result = validateGenApplication(workspace, node.id, variableName);
       const display = processValidationResult(
         result,
@@ -1118,9 +1116,7 @@ export function ProofWorkspace({
       );
       if (!substEdgeRaw) continue;
       const entries =
-        substEdgeRaw._tag === "substitution"
-          ? substEdgeRaw.entries
-          : (node.substitutionEntries ?? []);
+        substEdgeRaw._tag === "substitution" ? substEdgeRaw.entries : [];
       const result = validateSubstitutionApplication(
         workspace,
         node.id,
@@ -2379,7 +2375,6 @@ export function ProofWorkspace({
               visibilityOverrides={visibilityOverrides}
               onOpenSyntaxHelp={onOpenSyntaxHelp}
               substitutionEntries={(() => {
-                if (node.substitutionEntries) return node.substitutionEntries;
                 const edge = workspace.inferenceEdges.find(
                   (e) =>
                     e._tag === "substitution" && e.conclusionNodeId === node.id,

@@ -93,7 +93,6 @@ function createMultiNodeWorkspace(): WorkspaceState {
         label: "Gen",
         formulaText: "all x. result",
         position: { x: 150, y: 400 },
-        genVariableName: "x",
       },
       {
         id: "node-5",

@@ -15,7 +15,6 @@ import {
   addNode,
   updateNodePosition,
   updateNodeFormulaText,
-  updateNodeGenVariableName,
   updateNodeRole,
   findNode,
   removeNode,
@@ -25,7 +24,6 @@ import {
   applyMPAndConnect,
   applyGenAndConnect,
   applySubstitutionAndConnect,
-  updateNodeSubstitutionEntries,
   updateInferenceEdgeGenVariableName,
   updateInferenceEdgeSubstitutionEntries,
   copySelectedNodes,
@@ -512,24 +510,6 @@ describe("proofWorkspace", () => {
     });
   });
 
-  describe("updateNodeGenVariableName", () => {
-    it("updates gen variable name on a node", () => {
-      let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "Gen", { x: 0, y: 0 });
-      const result = updateNodeGenVariableName(ws, "node-1", "x");
-      expect(result.nodes[0]!.genVariableName).toBe("x");
-    });
-
-    it("does not affect other nodes", () => {
-      let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
-      const result = updateNodeGenVariableName(ws, "node-2", "x");
-      expect(result.nodes[0]!.genVariableName).toBeUndefined();
-      expect(result.nodes[1]!.genVariableName).toBe("x");
-    });
-  });
-
   describe("applyGenAndConnect", () => {
     it("creates derived node with InferenceEdge and validates successfully", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
@@ -614,40 +594,6 @@ describe("proofWorkspace", () => {
 
       expect(ws.nodes).toHaveLength(1);
       expect(ws.connections).toHaveLength(0);
-    });
-  });
-
-  describe("updateNodeSubstitutionEntries", () => {
-    it("sets substitutionEntries on the node", () => {
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "Subst", { x: 0, y: 0 });
-      const entries: SubstitutionEntries = [
-        {
-          _tag: "FormulaSubstitution",
-          metaVariableName: "φ",
-          metaVariableSubscript: undefined,
-          formulaText: "alpha",
-        },
-      ];
-      const result = updateNodeSubstitutionEntries(ws, "node-1", entries);
-      expect(result.nodes[0]!.substitutionEntries).toBe(entries);
-    });
-
-    it("does not affect other nodes", () => {
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
-      const entries: SubstitutionEntries = [
-        {
-          _tag: "FormulaSubstitution",
-          metaVariableName: "φ",
-          metaVariableSubscript: undefined,
-          formulaText: "alpha",
-        },
-      ];
-      const result = updateNodeSubstitutionEntries(ws, "node-2", entries);
-      expect(result.nodes[0]!.substitutionEntries).toBeUndefined();
-      expect(result.nodes[1]!.substitutionEntries).toBe(entries);
     });
   });
 
@@ -2252,69 +2198,6 @@ describe("proofWorkspace", () => {
       // Manually update the formula text of the MP node
       ws = updateNodeFormulaText(ws, "node-3", "chi");
       expect(ws.inferenceEdges?.[0]?.conclusionText).toBe("chi");
-    });
-
-    it("updateNodeGenVariableName preserves inferenceEdges variableName", () => {
-      let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "axiom", "Ax", { x: 0, y: 0 }, "phi");
-      const genResult = applyGenAndConnect(ws, "node-1", "x", {
-        x: 0,
-        y: 150,
-      });
-      ws = genResult.workspace;
-      const genEdgeBefore = ws.inferenceEdges?.[0];
-      if (genEdgeBefore?._tag === "gen") {
-        expect(genEdgeBefore.variableName).toBe("x");
-      }
-      // updateNodeGenVariableName updates the node's property
-      // but InferenceEdge variableName is set at creation time
-      ws = updateNodeGenVariableName(ws, "node-2", "y");
-      expect(findNode(ws, "node-2")?.genVariableName).toBe("y");
-      // InferenceEdge retains the original variable name
-      const genEdgeAfter = ws.inferenceEdges?.[0];
-      if (genEdgeAfter?._tag === "gen") {
-        expect(genEdgeAfter.variableName).toBe("x");
-      }
-    });
-
-    it("updateNodeSubstitutionEntries preserves inferenceEdges entries", () => {
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "Ax", { x: 0, y: 0 }, "phi -> (psi -> phi)");
-      const originalEntries: SubstitutionEntries = [
-        {
-          _tag: "FormulaSubstitution",
-          metaVariableName: "φ",
-          formulaText: "alpha",
-        },
-      ];
-      const substResult = applySubstitutionAndConnect(
-        ws,
-        "node-1",
-        originalEntries,
-        { x: 0, y: 150 },
-      );
-      ws = substResult.workspace;
-      // InferenceEdge has original entries
-      const edgeBefore = ws.inferenceEdges?.[0];
-      if (edgeBefore?._tag === "substitution") {
-        expect(edgeBefore.entries).toEqual(originalEntries);
-      }
-      // updateNodeSubstitutionEntries updates node property
-      // but InferenceEdge entries are set at creation time
-      const newEntries: SubstitutionEntries = [
-        {
-          _tag: "FormulaSubstitution",
-          metaVariableName: "φ",
-          formulaText: "psi",
-        },
-      ];
-      ws = updateNodeSubstitutionEntries(ws, "node-2", newEntries);
-      expect(findNode(ws, "node-2")?.substitutionEntries).toEqual(newEntries);
-      // InferenceEdge retains original entries
-      const edgeAfter = ws.inferenceEdges?.[0];
-      if (edgeAfter?._tag === "substitution") {
-        expect(edgeAfter.entries).toEqual(originalEntries);
-      }
     });
 
     it("updateInferenceEdgeGenVariableName updates edge variableName and revalidates", () => {

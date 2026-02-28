@@ -82,7 +82,6 @@ function createGenWorkspace(): WorkspaceState {
         label: "Gen",
         formulaText: "all x. P(x)",
         position: { x: 100, y: 200 },
-        genVariableName: "x",
       },
     ],
     connections: [],
@@ -256,12 +255,13 @@ describe("exportWorkspaceToJSON", () => {
     expect(parsed.workspace.goals[0].label).toBe("Quest Goal");
   });
 
-  it("Gen変数名を含むノードをエクスポートする", () => {
+  it("Gen変数名はノードではなくInferenceEdgeで管理される", () => {
     const state = createGenWorkspace();
     const json = exportWorkspaceToJSON(state);
     const parsed = JSON.parse(json);
 
-    expect(parsed.workspace.nodes[0].genVariableName).toBe("x");
+    // genVariableName はノードにエクスポートされない（InferenceEdgeがsource of truth）
+    expect(parsed.workspace.nodes[0].genVariableName).toBeUndefined();
     expect(parsed.workspace.system.predicateLogic).toBe(true);
     expect(parsed.workspace.system.generalization).toBe(true);
   });
@@ -353,7 +353,7 @@ describe("importWorkspaceFromJSON", () => {
     expect(result.workspace.goals[0].label).toBe("Quest Goal");
   });
 
-  it("Gen変数名のラウンドトリップ", () => {
+  it("Gen変数名のラウンドトリップ（ノードにはgenVariableNameがない）", () => {
     const original = createGenWorkspace();
     const json = exportWorkspaceToJSON(original);
     const result = importWorkspaceFromJSON(json);
@@ -361,7 +361,10 @@ describe("importWorkspaceFromJSON", () => {
     expect(result._tag).toBe("Success");
     if (result._tag !== "Success") return;
 
-    expect(result.workspace.nodes[0].genVariableName).toBe("x");
+    // genVariableName はノードに保持されない（InferenceEdgeがsource of truth）
+    expect(
+      "genVariableName" in result.workspace.nodes[0]!,
+    ).toBe(false);
     expect(result.workspace.system.predicateLogic).toBe(true);
     expect(result.workspace.system.generalization).toBe(true);
   });

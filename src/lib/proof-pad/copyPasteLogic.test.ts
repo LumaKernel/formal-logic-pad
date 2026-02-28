@@ -46,7 +46,6 @@ const nodeD: WorkspaceNode = {
   label: "Gen",
   formulaText: "forall x . phi",
   position: { x: 400, y: 300 },
-  genVariableName: "x",
 };
 
 // --- テスト用接続 ---
@@ -151,15 +150,6 @@ describe("buildClipboardData", () => {
     expect(result.connections).toEqual([]);
   });
 
-  it("genVariableNameがないノードではgenVariableNameが含まれない", () => {
-    const result = buildClipboardData(
-      new Set(["node-2"]),
-      allNodes,
-      allConnections,
-    );
-    expect(result.nodes[0]?.genVariableName).toBeUndefined();
-  });
-
   it("roleがないノードではroleが含まれない", () => {
     const result = buildClipboardData(
       new Set(["node-2"]),
@@ -167,15 +157,6 @@ describe("buildClipboardData", () => {
       allConnections,
     );
     expect(result.nodes[0]?.role).toBeUndefined();
-  });
-
-  it("genVariableName が保存される", () => {
-    const result = buildClipboardData(
-      new Set(["node-4"]),
-      allNodes,
-      allConnections,
-    );
-    expect(result.nodes[0]?.genVariableName).toBe("x");
   });
 
   it("相対位置が中心基準で計算される", () => {
@@ -336,16 +317,6 @@ describe("pasteClipboardData", () => {
     expect(result.newConnections[0]?.id).toBe(
       "conn-node-10-out-node-12-premise-left",
     );
-  });
-
-  it("genVariableNameが保持される", () => {
-    const clipboard = buildClipboardData(
-      new Set(["node-4"]),
-      allNodes,
-      allConnections,
-    );
-    const result = pasteClipboardData(clipboard, { x: 0, y: 0 }, 1);
-    expect(result.newNodes[0]?.genVariableName).toBe("x");
   });
 
   it("roleが保持される", () => {
