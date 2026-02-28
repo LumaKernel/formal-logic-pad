@@ -6304,3 +6304,26 @@
   - workspaceState.ts, ProofWorkspace.tsx, proofMessages.ts の3ファイルが主要な消費者。エラー型変更時はこの3つの更新を忘れないこと
   - テストではエラー検証が `result.left._tag === "..."` パターンになる（Either.isLeftでガード後）
 ---
+
+## 2026-02-28 - proof-pad MP/Gen/Subst適用ロジック Effect.gen化 (ET-005)
+- 実装した内容: validateMPApplication, validateGenApplication, validateSubstitutionApplication を Effect.gen パイプラインに変換
+  - 各関数を `...Effect` 版（Effect.gen使用）と同期ラッパー版に分離
+  - パターン: validateXxxEffect → Effect.Effect<Success, Error>、validateXxx → Either（Effect.runSync + Effect.either）
+  - 消費者（workspaceState.ts, ProofWorkspace.tsx）は変更不要（同期ラッパーが同じシグネチャを維持）
+- 変更したファイル:
+  - `src/lib/proof-pad/mpApplicationLogic.ts` — validateMPApplicationEffect + 同期ラッパー化
+  - `src/lib/proof-pad/genApplicationLogic.ts` — validateGenApplicationEffect + 同期ラッパー化
+  - `src/lib/proof-pad/substitutionApplicationLogic.ts` — validateSubstitutionApplicationEffect + 同期ラッパー化
+  - `src/lib/proof-pad/index.ts` — Effect版の3関数をexport追加
+  - `src/lib/proof-pad/mpApplicationLogic.test.ts` — Effect版テスト3件追加
+  - `src/lib/proof-pad/genApplicationLogic.test.ts` — Effect版テスト3件追加
+  - `src/lib/proof-pad/substitutionApplicationLogic.test.ts` — Effect版テスト3件追加
+- カバレッジ: Stmts 98.18%(+0.01), Branch 91.97%(+0.03), Funcs 88.92%(+0.09), Lines 99.16%(+0.01) — 全指標微向上
+- テスト: 5537件 全パス (+9件)
+- スクリーンショット: `.screenshots/et-005-with-nodes.png`, `.screenshots/et-005-valid-mp-application.png`, `.screenshots/et-005-substitution-applied.png`
+- **今後のイテレーションへの学び:**
+  - Either.mapLeft は Either のエラー型変換に使う。Effect.mapError は Effect 専用で Either には使えない
+  - Effect.gen 内で Either を yield* すると自動的に Right を取り出し、Left は失敗に変換される
+  - 同期ラッパーパターン: Effect.runSync(Effect.either(effectVersion(...))) で Effect → Either 変換
+  - 内部ヘルパー関数（buildFormulaSubstitutionMap等）は _tag ベースの判別式のままで十分。Effect化は外側のバリデーション関数だけで良い
+---
