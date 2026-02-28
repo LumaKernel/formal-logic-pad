@@ -1,15 +1,12 @@
 /**
  * 公理名自動判別の純粋ロジック。
  *
- * ノードの論理式がどの有名公理のインスタンスかを自動判定し、
+ * ノードの論理式がどの有名公理のスキーマそのものかを自動判定し、
  * 表示名（例: "A1 (K)"）を返す。
  *
- * `identifyAxiom` を内部的に利用し、FormulaのパースはUIレイヤーまたは
- * 呼び出し側が事前に行う前提。
- *
- * isTrivialSubstitution: 公理スキーマそのものか（メタ変数の命名違いのみ）を判定。
- * 非自明な代入（メタ変数に具体的な式/項を代入したもの）は公理として直接使えず、
- * 代入操作ノードを挟む必要がある。
+ * 公理として識別されるのは、公理スキーマそのものの形のみ。
+ * メタ変数に具体的な式を代入して得られたインスタンス（例: φ→(φ→φ)）は
+ * 公理として識別しない。ユーザーは代入操作ノードを介して具体化すべき。
  *
  * 変更時は axiomNameLogic.test.ts, EditableProofNode.tsx, ProofWorkspace.tsx, index.ts も同期すること。
  */
@@ -96,7 +93,7 @@ export function isTrivialTermSubstitution(
 
 /**
  * 公理識別結果の代入が自明（公理スキーマそのもの or メタ変数の命名違いのみ）かどうかを判定する。
- * 自明でない場合、代入操作ノードを挟んで具体化する必要がある。
+ * 自明でない場合、その式は公理スキーマそのものではなく代入インスタンスである。
  */
 export function isTrivialAxiomSubstitution(
   formulaSub: FormulaSubstitutionMap,
@@ -113,28 +110,27 @@ export function isTrivialAxiomSubstitution(
 /**
  * 公理名判定の結果。
  *
- * isTrivialSubstitution:
- *   true = 公理スキーマそのもの（メタ変数の命名違いのみ）
- *   false = メタ変数に具体的な式/項を代入したインスタンス → 代入操作ノード必須
+ * Identified/TheoryAxiomIdentified は公理スキーマそのもの（メタ変数の命名違いのみ）の場合のみ返る。
+ * メタ変数に具体的な式/項を代入したインスタンスは NotIdentified となる。
  */
 export type AxiomNameResult =
   | {
       readonly _tag: "Identified";
       readonly axiomId: AxiomId;
       readonly displayName: string;
-      readonly isTrivialSubstitution: boolean;
     }
   | {
       readonly _tag: "TheoryAxiomIdentified";
       readonly theoryAxiomId: string;
       readonly displayName: string;
-      readonly isTrivialSubstitution: boolean;
     }
   | { readonly _tag: "NotIdentified" };
 
 /**
- * 論理式がシステムで有効な公理のインスタンスかを判定し、
+ * 論理式がシステムで有効な公理スキーマそのものかを判定し、
  * マッチした場合は公理IDと表示名を返す。
+ *
+ * 代入後のインスタンス（例: φ→(φ→φ)）は公理として識別しない。
  *
  * @param formula パース済みの論理式
  * @param system 論理体系設定
@@ -146,26 +142,30 @@ export function identifyAxiomName(
 ): AxiomNameResult {
   const result = identifyAxiom(formula, system);
   switch (result._tag) {
-    case "Ok":
+    case "Ok": {
+      const isTrivial = isTrivialAxiomSubstitution(
+        result.formulaSubstitution,
+        result.termSubstitution,
+      );
+      if (!isTrivial) return { _tag: "NotIdentified" };
       return {
         _tag: "Identified",
         axiomId: result.axiomId,
         displayName: axiomDisplayNames[result.axiomId],
-        isTrivialSubstitution: isTrivialAxiomSubstitution(
-          result.formulaSubstitution,
-          result.termSubstitution,
-        ),
       };
-    case "TheoryAxiom":
+    }
+    case "TheoryAxiom": {
+      const isTrivial = isTrivialAxiomSubstitution(
+        result.formulaSubstitution,
+        result.termSubstitution,
+      );
+      if (!isTrivial) return { _tag: "NotIdentified" };
       return {
         _tag: "TheoryAxiomIdentified",
         theoryAxiomId: result.theoryAxiomId,
         displayName: result.displayName,
-        isTrivialSubstitution: isTrivialAxiomSubstitution(
-          result.formulaSubstitution,
-          result.termSubstitution,
-        ),
       };
+    }
     case "Error":
       return { _tag: "NotIdentified" };
   }

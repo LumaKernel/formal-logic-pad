@@ -58,11 +58,23 @@ describe("axiomNameLogic", () => {
         }
       });
 
-      it("identifies A1 instance with specific propositions", () => {
-        // p → (q → p) where p, q are specific formulas
+      it("does not identify A1 instance with specific propositions (non-trivial substitution)", () => {
+        // (α→β) → (χ → (α→β)) is A1 with φ:=(α→β), which is non-trivial
         const formula = parseFormula(
           "(alpha -> beta) -> (chi -> (alpha -> beta))",
         );
+        const result = identifyAxiomName(formula, lukasiewiczSystem);
+        expect(result._tag).toBe("NotIdentified");
+      });
+
+      it("does not identify φ→(φ→φ) as axiom (non-trivial: same meta-var for different slots)", () => {
+        const formula = parseFormula("phi -> (phi -> phi)");
+        const result = identifyAxiomName(formula, lukasiewiczSystem);
+        expect(result._tag).toBe("NotIdentified");
+      });
+
+      it("identifies A1 with renamed meta-variables (χ→(α→χ)) as A1", () => {
+        const formula = parseFormula("chi -> (alpha -> chi)");
         const result = identifyAxiomName(formula, lukasiewiczSystem);
         expect(result._tag).toBe("Identified");
         if (result._tag === "Identified") {
@@ -175,6 +187,25 @@ describe("axiomNameLogic", () => {
       });
     });
 
+    // --- 非trivialインスタンスは公理として識別されない ---
+    describe("non-trivial substitution instances are not identified as axioms", () => {
+      it("A1 with concrete formula substitution is NotIdentified", () => {
+        // ¬φ → (ψ → ¬φ) = A1 with φ := ¬φ (non-trivial)
+        const formula = parseFormula("~phi -> (psi -> ~phi)");
+        const result = identifyAxiomName(formula, lukasiewiczSystem);
+        expect(result._tag).toBe("NotIdentified");
+      });
+
+      it("A2 with collapsed meta-variables is NotIdentified", () => {
+        // (φ→(φ→φ))→((φ→φ)→(φ→φ)) = A2 with ψ:=φ, χ:=φ
+        const formula = parseFormula(
+          "(phi -> (phi -> phi)) -> ((phi -> phi) -> (phi -> phi))",
+        );
+        const result = identifyAxiomName(formula, lukasiewiczSystem);
+        expect(result._tag).toBe("NotIdentified");
+      });
+    });
+
     // --- 体系依存 ---
     describe("system-dependent identification", () => {
       it("does not identify A3 if not enabled in system", () => {
@@ -237,6 +268,7 @@ describe("axiomNameLogic", () => {
       it("identifies A4 (UI) instance: ∀x.(x=x) → a=a", () => {
         // A4: ∀x.φ → φ[t/x]
         // Instance: ∀x.(x=x) → a=a (φ = x=x, t = a)
+        // A4/A5マッチャーは専用ロジックで検証するため、代入マップは常に空 → trivial
         const x = termVariable("x");
         const a = constant("a");
         const formula = implication(
@@ -343,87 +375,77 @@ describe("axiomNameLogic", () => {
     });
   });
 
-  // --- isTrivialSubstitution フィールドのテスト ---
-  describe("isTrivialSubstitution", () => {
+  // --- 公理スキーマそのもの vs 代入インスタンスの区別テスト ---
+  describe("axiom schema vs substitution instance", () => {
     describe("命題論理公理", () => {
-      it("A1テンプレートそのもの (φ→ψ→φ) は trivial", () => {
+      it("A1テンプレートそのもの (φ→ψ→φ) は Identified", () => {
         const formula = parseFormula("phi -> (psi -> phi)");
         const result = identifyAxiomName(formula, lukasiewiczSystem);
         expect(result._tag).toBe("Identified");
         if (result._tag === "Identified") {
-          expect(result.isTrivialSubstitution).toBe(true);
+          expect(result.axiomId).toBe("A1");
         }
       });
 
-      it("A1のメタ変数名を変えただけ (χ→α→χ) は trivial", () => {
+      it("A1のメタ変数名を変えただけ (χ→α→χ) は Identified", () => {
         const formula = parseFormula("chi -> (alpha -> chi)");
         const result = identifyAxiomName(formula, lukasiewiczSystem);
         expect(result._tag).toBe("Identified");
         if (result._tag === "Identified") {
           expect(result.axiomId).toBe("A1");
-          expect(result.isTrivialSubstitution).toBe(true);
         }
       });
 
-      it("A1に具体式を代入 ((α→β)→χ→(α→β)) は non-trivial", () => {
+      it("A1に具体式を代入 ((α→β)→χ→(α→β)) は NotIdentified", () => {
         const formula = parseFormula(
           "(alpha -> beta) -> (chi -> (alpha -> beta))",
         );
         const result = identifyAxiomName(formula, lukasiewiczSystem);
-        expect(result._tag).toBe("Identified");
-        if (result._tag === "Identified") {
-          expect(result.axiomId).toBe("A1");
-          expect(result.isTrivialSubstitution).toBe(false);
-        }
+        expect(result._tag).toBe("NotIdentified");
       });
 
-      it("A1に否定を含む式を代入 (¬φ→ψ→¬φ) は non-trivial", () => {
+      it("A1に否定を含む式を代入 (¬φ→ψ→¬φ) は NotIdentified", () => {
         const formula = parseFormula("~phi -> (psi -> ~phi)");
         const result = identifyAxiomName(formula, lukasiewiczSystem);
-        expect(result._tag).toBe("Identified");
-        if (result._tag === "Identified") {
-          expect(result.axiomId).toBe("A1");
-          expect(result.isTrivialSubstitution).toBe(false);
-        }
+        expect(result._tag).toBe("NotIdentified");
+      });
+
+      it("φ→(φ→φ) は NotIdentified (同じメタ変数が異なるスロットに入る)", () => {
+        const formula = parseFormula("phi -> (phi -> phi)");
+        const result = identifyAxiomName(formula, lukasiewiczSystem);
+        expect(result._tag).toBe("NotIdentified");
       });
     });
 
     describe("理論公理", () => {
-      it("PA1テンプレートそのもの (exact match) は trivial", () => {
+      it("PA1テンプレートそのもの (exact match) は TheoryAxiomIdentified", () => {
         const result = identifyAxiomName(
           axiomPA1Template,
           peanoArithmeticSystem,
         );
         expect(result._tag).toBe("TheoryAxiomIdentified");
-        if (result._tag === "TheoryAxiomIdentified") {
-          expect(result.isTrivialSubstitution).toBe(true);
-        }
       });
 
-      it("PA3テンプレートそのもの (exact match) は trivial", () => {
+      it("PA3テンプレートそのもの (exact match) は TheoryAxiomIdentified", () => {
         const result = identifyAxiomName(
           axiomPA3Template,
           peanoArithmeticSystem,
         );
         expect(result._tag).toBe("TheoryAxiomIdentified");
-        if (result._tag === "TheoryAxiomIdentified") {
-          expect(result.isTrivialSubstitution).toBe(true);
-        }
       });
     });
 
     describe("述語論理公理", () => {
-      it("A4スキーマ ∀x.φ → φ は trivial", () => {
+      it("A4スキーマ ∀x.φ → φ は Identified", () => {
         const formula = parseFormula("(all x. phi) -> phi");
         const result = identifyAxiomName(formula, equalityLogicSystem);
         expect(result._tag).toBe("Identified");
         if (result._tag === "Identified") {
           expect(result.axiomId).toBe("A4");
-          expect(result.isTrivialSubstitution).toBe(true);
         }
       });
 
-      it("A5スキーマ (∀x.(φ→ψ)) → (φ→∀x.ψ) は trivial", () => {
+      it("A5スキーマ (∀x.(φ→ψ)) → (φ→∀x.ψ) は Identified", () => {
         const formula = parseFormula(
           "(all x. (phi -> psi)) -> (phi -> all x. psi)",
         );
@@ -431,11 +453,10 @@ describe("axiomNameLogic", () => {
         expect(result._tag).toBe("Identified");
         if (result._tag === "Identified") {
           expect(result.axiomId).toBe("A5");
-          expect(result.isTrivialSubstitution).toBe(true);
         }
       });
 
-      it("A4のインスタンス ∀x.(x=x) → a=a もtrivial (A4/A5マッチャーは常に空の代入マップを返す)", () => {
+      it("A4のインスタンス ∀x.(x=x) → a=a も Identified (A4/A5マッチャーは常に空の代入マップを返す)", () => {
         const x = termVariable("x");
         const a = constant("a");
         const formula = implication(
@@ -446,13 +467,10 @@ describe("axiomNameLogic", () => {
         expect(result._tag).toBe("Identified");
         if (result._tag === "Identified") {
           expect(result.axiomId).toBe("A4");
-          // A4/A5マッチャーは専用ロジックで検証するため、代入マップは常に空 → trivial
-          // 具体化はパッド上で代入操作ノードを介して行う設計
-          expect(result.isTrivialSubstitution).toBe(true);
         }
       });
 
-      it("A5のインスタンス ∀x.(P(a)→x=x) → (P(a)→∀x.x=x) もtrivial", () => {
+      it("A5のインスタンス ∀x.(P(a)→x=x) → (P(a)→∀x.x=x) も Identified", () => {
         // A5マッチャーは専用ロジックで構造検証するため、代入マップは常に空
         const formula = parseFormula(
           "(all x. (P(a) -> x = x)) -> (P(a) -> all x. x = x)",
@@ -461,19 +479,17 @@ describe("axiomNameLogic", () => {
         expect(result._tag).toBe("Identified");
         if (result._tag === "Identified") {
           expect(result.axiomId).toBe("A5");
-          expect(result.isTrivialSubstitution).toBe(true);
         }
       });
     });
 
     describe("等号公理", () => {
-      it("E1テンプレート ∀x.x=x は trivial (束縛変数のみで代入なし)", () => {
+      it("E1テンプレート ∀x.x=x は Identified (束縛変数のみで代入なし)", () => {
         const formula = parseFormula("all x. x = x");
         const result = identifyAxiomName(formula, equalityLogicSystem);
         expect(result._tag).toBe("Identified");
         if (result._tag === "Identified") {
           expect(result.axiomId).toBe("E1");
-          expect(result.isTrivialSubstitution).toBe(true);
         }
       });
     });

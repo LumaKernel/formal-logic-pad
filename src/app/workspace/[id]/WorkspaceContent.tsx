@@ -93,7 +93,6 @@ function useProofMessagesFromIntl(): ProofMessages {
       deleteNode: t("deleteNode"),
       deleteConnection: t("deleteConnection"),
       genVariablePrompt: t("genVariablePrompt"),
-      axiomNonTrivialWarning: t("axiomNonTrivialWarning"),
       proofCompleteButAxiomViolation: t("proofCompleteButAxiomViolation"),
       axiomViolationDetail: t("axiomViolationDetail"),
     }),

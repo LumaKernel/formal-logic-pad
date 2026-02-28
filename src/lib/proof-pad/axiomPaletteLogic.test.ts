@@ -15,11 +15,7 @@ import {
   peanoArithmeticSystem,
 } from "../logic-core/inferenceRule";
 import type { LogicSystem } from "../logic-core/inferenceRule";
-import {
-  nmSystem,
-  njSystem,
-  nkSystem,
-} from "../logic-core/deductionSystem";
+import { nmSystem, njSystem, nkSystem } from "../logic-core/deductionSystem";
 
 describe("axiomPalette", () => {
   describe("getAvailableAxioms", () => {
