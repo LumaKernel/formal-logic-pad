@@ -540,6 +540,89 @@ const q21PeirceLaw: QuestDefinition = {
   version: 1,
 };
 
+// --- Level 2-3: 演繹定理の活用 ---
+
+const q33ModusPonensImplication: QuestDefinition = {
+  id: "prop-33",
+  category: "propositional-intermediate",
+  title: "MPの含意化",
+  description:
+    "φ → ((φ → ψ) → ψ) を証明せよ。Modus Ponensを含意の形で表現する。演繹定理的に「φを仮定し、φ→ψを仮定するとψが出る」ことの形式化。",
+  difficulty: 2,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "phi -> ((phi -> psi) -> psi)",
+      label: "Goal: φ → ((φ → ψ) → ψ)",
+      position: { x: 400, y: 600 },
+    },
+  ],
+  hints: [
+    "演繹定理的に考えると: φを仮定し、φ→ψを仮定するとMPでψが出ます。",
+    "A1: φ → ((φ → ψ) → φ) のインスタンスを作りましょう。",
+    "A2で分配し、恒等律と組み合わせます。",
+  ],
+  estimatedSteps: 8,
+  learningPoint:
+    "MPの含意化はMP規則そのものを対象言語内で表現したもの。演繹定理の基本応用であり、φを仮定すればφ→ψからψが得られることの形式化。",
+  order: 7,
+  version: 1,
+};
+
+const q34ImplicationWeakeningElim: QuestDefinition = {
+  id: "prop-34",
+  category: "propositional-intermediate",
+  title: "含意の弱化除去",
+  description:
+    "((φ → ψ) → χ) → (ψ → χ) を証明せよ。「φ→ψの証明にはψで十分」。演繹定理の典型的応用パターン。",
+  difficulty: 3,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "((phi -> psi) -> chi) -> (psi -> chi)",
+      label: "Goal: ((φ → ψ) → χ) → (ψ → χ)",
+      position: { x: 400, y: 600 },
+    },
+  ],
+  hints: [
+    "A1: ψ → (φ → ψ) で ψ から φ → ψ を導けます。",
+    "推移律 (Q-04) で A1 と仮定 (φ→ψ)→χ を接続します。",
+    "B combinator (Q-10) を使うとより簡潔に構成できます。",
+  ],
+  estimatedSteps: 15,
+  learningPoint:
+    "演繹定理的に見ると「ψを仮定→A1でφ→ψ→仮定(φ→ψ)→χでχ」。A1の「持ち上げ」と推移律の組合せ。",
+  order: 8,
+  version: 1,
+};
+
+const q35MendelsonIdentity: QuestDefinition = {
+  id: "prop-35",
+  category: "propositional-intermediate",
+  title: "Mendelson体系での恒等律",
+  description:
+    "φ → φ を Mendelson 体系 (A1, A2, M3) で証明せよ。Łukasiewicz体系と同じ証明が使える。体系が変わっても演繹定理の証明構造は共通。",
+  difficulty: 2,
+  systemPresetId: "mendelson",
+  goals: [
+    {
+      formulaText: "phi -> phi",
+      label: "Goal: φ → φ",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "Q-01 (Łukasiewicz体系) と全く同じ証明が使えます。",
+    "恒等律の証明は A1 と A2 のみで構成されるため、A3/M3 の違いに影響されません。",
+    "演繹定理の証明がA1とA2のみに依存することの実例です。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "恒等律はA1+A2のみで証明可能。Łukasiewicz/Mendelson/Classical(HK)/Intuitionistic(HJ)すべてで同じ証明が使える。演繹定理の核心はA1(K)とA2(S)にある。",
+  order: 9,
+  version: 1,
+};
+
 // --- Level 5: 挑戦問題（連言・選言の定義展開） ---
 
 const q22ConjunctionIntro: QuestDefinition = {
@@ -1547,6 +1630,9 @@ export const builtinQuests: readonly QuestDefinition[] = [
   q12LeftAssociation,
   q13FregeTheorem,
   q14DoubleImplicationDistribution,
+  q33ModusPonensImplication,
+  q34ImplicationWeakeningElim,
+  q35MendelsonIdentity,
   q15DoubleNegationIntro,
   q16ModusTollens,
   q17DoubleNegationElim,
