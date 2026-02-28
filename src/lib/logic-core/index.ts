@@ -261,3 +261,18 @@ export type {
   NaturalDeductionSystem,
   DeductionSystem,
 } from "./deductionSystem";
+
+// ── Evaluation (命題論理の真理値評価) ─────────────────────
+export {
+  evaluateFormula,
+  collectPropositionalVariables,
+  isTautology,
+  isSatisfiable,
+  isContradiction,
+  generateTruthTable,
+} from "./evaluation";
+export type {
+  TruthAssignment,
+  TruthTableRow,
+  TruthTable,
+} from "./evaluation";
