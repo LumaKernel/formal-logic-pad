@@ -6683,3 +6683,26 @@
 - DeductionStyleの追加時は、全switch文のexhaustive check + テスト中のハードコードされた数値（カテゴリ数・プリセット数等）の更新が必要
 - ノートブック作成フォームのテストでは、スタイル判定の除外フィルタ（`!p.id.startsWith("nd-") && !p.id.startsWith("sc-")`）にも新プレフィックスの追加が必要
 ---
+
+## 2026-03-01 - CI修正（差し込みタスク）
+- CI失敗原因の調査と修正
+  - 原因: Prettierフォーマットエラー (17ファイル) + ESLint warning (4件)
+  - 17ファイルにPrettier --writeを実行してフォーマット修正
+  - ESLint warning修正:
+    - ProofWorkspace.tsx: useCallbackの不要な依存 `nodeClassifications`, `msg` を依存配列から削除
+    - workspaceState.ts: `isNodeProtected` の未使用引数に `void` 式追加
+  - tsconfig.json: `exclude` に `**/*.local.*` を追加（ローカルスクラッチファイルをtypecheck対象外に）
+- CI結果: ✅ success (run 22529595227)
+- テスト: 201ファイル、5849テスト全パス
+- カバレッジ: 変化なし（Stmts 98.31%, Branch 91.73%, Lines 99.18%）
+- 変更ファイル:
+  - 17ファイル Prettierフォーマット修正
+  - src/lib/proof-pad/ProofWorkspace.tsx (useCallback依存配列修正)
+  - src/lib/proof-pad/workspaceState.ts (void式追加)
+  - tsconfig.json (exclude追加)
+- **今後のイテレーションへの学び:**
+  - Prettierフォーマットはコミット前に必ず `npx prettier --write` を全変更ファイルに実行すること。CIではwarningではなくexit code 1で失敗する
+  - ESLintのno-unused-varsは `_` プレフィックスがあっても警告される（nextのデフォルト設定）。`void _arg` で回避可能
+  - `*.local.*` ファイルはESLint configで除外済みだが、tsconfig.jsonでも除外が必要
+  - useCallbackの依存配列にある変数がコールバック内で使われていない場合、ESLintのreact-hooks/exhaustive-depsが不要な依存として警告する
+---
