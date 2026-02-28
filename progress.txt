@@ -6536,3 +6536,19 @@
   - `remapEdgeNodeIds` パターン: ノードID操作を一箇所に集約することで、新エッジ型追加時の変更箇所が減る
   - AssumptionId は naturalDeduction.ts で `number` branded type として定義されている
 ---
+
+## 2026-03-01 - ND-003: ND用推論規則パレットの実装
+- NdRulePalette.tsx 新規作成: NDの推論規則一覧表示 + 「仮定を追加」ボタン
+- NdRulePalette.test.tsx: 13テスト（NM/NJ/NK規則表示、クリック/キーボード操作、hover、a11y、空リスト）
+- ProofWorkspace.tsx: deductionSystem.style に基づきパレット切り替え（ND → NdRulePalette, Hilbert → AxiomPalette）
+- ProofWorkspace.test.tsx: ND統合テスト6件追加（パレット表示、EFQ/DNE規則、仮定追加ノード生成）
+- ProofWorkspace.stories.tsx: EmptyNaturalDeduction ストーリー追加（play関数付き）
+- index.ts: NdRulePalette, NdRulePaletteProps エクスポート追加
+- カバレッジ: Statements 98.24% → 98.23%（実質同等、新コード込み）
+- ブラウザテスト: Storybook で ND パレット表示確認済み（.screenshots/nd-rule-palette-storybook.png）
+- **変更ファイル**: NdRulePalette.tsx, NdRulePalette.test.tsx, ProofWorkspace.tsx, ProofWorkspace.test.tsx, ProofWorkspace.stories.tsx, index.ts
+- **今後のイテレーションへの学び:**
+  - ND パレットは AxiomPalette と同パターン（パネルスタイル、data-testid、hover/keyboard対応）
+  - handleAddAssumption は addNode(workspace, "axiom", "Assumption", position, "") で仮定ノード追加
+  - deductionSystem.style の switch で Hilbert/ND パレット切り替え。sequent-calculus は将来対応
+---
