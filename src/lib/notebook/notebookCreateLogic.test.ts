@@ -9,6 +9,9 @@ import {
   shouldShowFieldError,
   getFirstErrorField,
   getPresetReferenceEntryId,
+  classifyPresetCategory,
+  groupPresetsByCategory,
+  presetCategoryDefinitions,
   type CreateFormValues,
 } from "./notebookCreateLogic";
 
@@ -676,5 +679,175 @@ describe("getFirstErrorField", () => {
       systemPresetId: "nonexistent",
     });
     expect(getFirstErrorField(validation)).toBe("systemPresetId");
+  });
+});
+
+describe("classifyPresetCategory", () => {
+  it("classifies SK as hilbert-propositional", () => {
+    const preset = findPresetById("sk");
+    expect(preset).toBeDefined();
+    expect(classifyPresetCategory(preset!)).toBe("hilbert-propositional");
+  });
+
+  it("classifies lukasiewicz as hilbert-propositional", () => {
+    const preset = findPresetById("lukasiewicz");
+    expect(preset).toBeDefined();
+    expect(classifyPresetCategory(preset!)).toBe("hilbert-propositional");
+  });
+
+  it("classifies predicate as hilbert-predicate", () => {
+    const preset = findPresetById("predicate");
+    expect(preset).toBeDefined();
+    expect(classifyPresetCategory(preset!)).toBe("hilbert-predicate");
+  });
+
+  it("classifies equality as hilbert-predicate", () => {
+    const preset = findPresetById("equality");
+    expect(preset).toBeDefined();
+    expect(classifyPresetCategory(preset!)).toBe("hilbert-predicate");
+  });
+
+  it("classifies peano as hilbert-theory", () => {
+    const preset = findPresetById("peano");
+    expect(preset).toBeDefined();
+    expect(classifyPresetCategory(preset!)).toBe("hilbert-theory");
+  });
+
+  it("classifies group-left as hilbert-theory", () => {
+    const preset = findPresetById("group-left");
+    expect(preset).toBeDefined();
+    expect(classifyPresetCategory(preset!)).toBe("hilbert-theory");
+  });
+
+  it("classifies nd-nm as natural-deduction", () => {
+    const preset = findPresetById("nd-nm");
+    expect(preset).toBeDefined();
+    expect(classifyPresetCategory(preset!)).toBe("natural-deduction");
+  });
+
+  it("classifies sc-lk as sequent-calculus", () => {
+    const preset = findPresetById("sc-lk");
+    expect(preset).toBeDefined();
+    expect(classifyPresetCategory(preset!)).toBe("sequent-calculus");
+  });
+
+  it("all presets are classified", () => {
+    for (const preset of systemPresets) {
+      const category = classifyPresetCategory(preset);
+      expect(
+        [
+          "hilbert-propositional",
+          "hilbert-predicate",
+          "hilbert-theory",
+          "natural-deduction",
+          "sequent-calculus",
+        ].includes(category),
+      ).toBe(true);
+    }
+  });
+});
+
+describe("groupPresetsByCategory", () => {
+  it("groups all presets into 5 categories", () => {
+    const groups = groupPresetsByCategory(systemPresets);
+    expect(groups).toHaveLength(5);
+  });
+
+  it("preserves category order from presetCategoryDefinitions", () => {
+    const groups = groupPresetsByCategory(systemPresets);
+    const categoryIds = groups.map((g) => g.category.id);
+    expect(categoryIds).toEqual([
+      "hilbert-propositional",
+      "hilbert-predicate",
+      "hilbert-theory",
+      "natural-deduction",
+      "sequent-calculus",
+    ]);
+  });
+
+  it("hilbert-propositional contains 6 presets", () => {
+    const groups = groupPresetsByCategory(systemPresets);
+    const propGroup = groups.find(
+      (g) => g.category.id === "hilbert-propositional",
+    );
+    expect(propGroup).toBeDefined();
+    expect(propGroup!.presets).toHaveLength(6);
+    const ids = propGroup!.presets.map((p) => p.id);
+    expect(ids).toContain("sk");
+    expect(ids).toContain("lukasiewicz");
+    expect(ids).toContain("mendelson");
+  });
+
+  it("hilbert-predicate contains 2 presets", () => {
+    const groups = groupPresetsByCategory(systemPresets);
+    const predGroup = groups.find(
+      (g) => g.category.id === "hilbert-predicate",
+    );
+    expect(predGroup).toBeDefined();
+    expect(predGroup!.presets).toHaveLength(2);
+  });
+
+  it("hilbert-theory contains 8 presets", () => {
+    const groups = groupPresetsByCategory(systemPresets);
+    const theoryGroup = groups.find(
+      (g) => g.category.id === "hilbert-theory",
+    );
+    expect(theoryGroup).toBeDefined();
+    expect(theoryGroup!.presets).toHaveLength(8);
+  });
+
+  it("natural-deduction contains 3 presets", () => {
+    const groups = groupPresetsByCategory(systemPresets);
+    const ndGroup = groups.find(
+      (g) => g.category.id === "natural-deduction",
+    );
+    expect(ndGroup).toBeDefined();
+    expect(ndGroup!.presets).toHaveLength(3);
+  });
+
+  it("sequent-calculus contains 3 presets", () => {
+    const groups = groupPresetsByCategory(systemPresets);
+    const scGroup = groups.find(
+      (g) => g.category.id === "sequent-calculus",
+    );
+    expect(scGroup).toBeDefined();
+    expect(scGroup!.presets).toHaveLength(3);
+  });
+
+  it("total presets across all groups equals systemPresets length", () => {
+    const groups = groupPresetsByCategory(systemPresets);
+    const total = groups.reduce((sum, g) => sum + g.presets.length, 0);
+    expect(total).toBe(systemPresets.length);
+  });
+
+  it("skips empty categories", () => {
+    const groups = groupPresetsByCategory([]);
+    expect(groups).toHaveLength(0);
+  });
+
+  it("each group has category with label and description", () => {
+    const groups = groupPresetsByCategory(systemPresets);
+    for (const group of groups) {
+      expect(group.category.label.length).toBeGreaterThan(0);
+      expect(group.category.description.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("presetCategoryDefinitions", () => {
+  it("has 5 categories", () => {
+    expect(presetCategoryDefinitions).toHaveLength(5);
+  });
+
+  it("each has unique id", () => {
+    const ids = presetCategoryDefinitions.map((d) => d.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("each has non-empty label and description", () => {
+    for (const def of presetCategoryDefinitions) {
+      expect(def.label.length).toBeGreaterThan(0);
+      expect(def.description.length).toBeGreaterThan(0);
+    }
   });
 });

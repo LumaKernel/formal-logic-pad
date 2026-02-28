@@ -11,6 +11,7 @@
 import { useState, useRef, useCallback, type CSSProperties } from "react";
 import {
   systemPresets,
+  groupPresetsByCategory,
   defaultCreateFormValues,
   validateCreateForm,
   shouldShowFieldError,
@@ -18,6 +19,7 @@ import {
   findPresetById,
   getPresetReferenceEntryId,
   type CreateFormValues,
+  type SystemPreset,
 } from "./notebookCreateLogic";
 import type { DeductionSystem } from "../logic-core/deductionSystem";
 import { getDeductionStyleLabel } from "../logic-core/deductionSystem";
@@ -143,6 +145,134 @@ const cancelButtonStyle: CSSProperties = {
   cursor: "pointer",
 };
 
+const categoryDetailsStyle: CSSProperties = {
+  borderRadius: 8,
+  border: "1px solid var(--color-border, #e0e0e0)",
+  overflow: "hidden",
+};
+
+const categorySummaryStyle: CSSProperties = {
+  padding: "8px 12px",
+  fontSize: 13,
+  fontWeight: 600,
+  cursor: "pointer",
+  background: "var(--color-surface-alt, #f8f8fa)",
+  color: "var(--color-text-primary, #333)",
+  listStyle: "none",
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+};
+
+const categoryDescStyle: CSSProperties = {
+  fontSize: 11,
+  fontWeight: 400,
+  color: "var(--color-text-secondary, #666)",
+};
+
+const categoryPresetsContainerStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 6,
+  padding: "8px 10px",
+};
+
+/** プリセットをカテゴリごとにグルーピング（静的データなのでモジュールレベルで計算） */
+const presetGroups = groupPresetsByCategory(systemPresets);
+
+// --- PresetCard ---
+
+type PresetCardProps = {
+  readonly preset: SystemPreset;
+  readonly selected: boolean;
+  readonly onSelect: () => void;
+  readonly referenceEntries?: readonly ReferenceEntry[];
+  readonly locale?: Locale;
+  readonly onOpenReferenceDetail?: (entryId: string) => void;
+  readonly testId?: string;
+};
+
+function PresetCard({
+  preset,
+  selected,
+  onSelect,
+  referenceEntries,
+  locale,
+  onOpenReferenceDetail,
+  testId,
+}: PresetCardProps) {
+  const refEntryId = getPresetReferenceEntryId(preset.id);
+  const refEntry =
+    refEntryId !== undefined && referenceEntries !== undefined
+      ? findEntryById(referenceEntries, refEntryId)
+      : undefined;
+
+  return (
+    <div
+      data-testid={`system-preset-${preset.id satisfies string}`}
+      style={selected ? systemCardSelectedStyle : systemCardStyle}
+      onClick={onSelect}
+      role="radio"
+      aria-checked={selected}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
+    >
+      <div
+        style={{
+          ...systemCardLabelStyle,
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <span
+          style={{
+            fontSize: 10,
+            fontWeight: 500,
+            padding: "1px 6px",
+            borderRadius: 4,
+            background:
+              preset.deductionSystem.style === "hilbert"
+                ? "var(--color-accent-light, #e8e9f5)"
+                : "var(--color-warning-light, #fff3e0)",
+            color:
+              preset.deductionSystem.style === "hilbert"
+                ? "var(--color-accent, #555ab9)"
+                : "var(--color-warning, #e65100)",
+            marginRight: 6,
+          }}
+        >
+          {getDeductionStyleLabel(preset.deductionSystem.style)}
+        </span>
+        {preset.label}
+        {refEntry !== undefined && locale !== undefined && (
+          <span
+            role="presentation"
+            onClick={(e) => e.stopPropagation()}
+            style={{ marginLeft: 4 }}
+          >
+            <ReferencePopover
+              entry={refEntry}
+              locale={locale}
+              onOpenDetail={onOpenReferenceDetail}
+              testId={
+                testId !== undefined
+                  ? `${testId satisfies string}-preset-${preset.id satisfies string}-ref`
+                  : undefined
+              }
+            />
+          </span>
+        )}
+      </div>
+      <div style={systemCardDescStyle}>{preset.description}</div>
+    </div>
+  );
+}
+
 // --- Component ---
 
 export function NotebookCreateForm({
@@ -250,84 +380,37 @@ export function NotebookCreateForm({
           style={{ display: "flex", flexDirection: "column", gap: 8 }}
           data-testid="create-system-list"
         >
-          {systemPresets.map((preset) => {
-            const refEntryId = getPresetReferenceEntryId(preset.id);
-            const refEntry =
-              refEntryId !== undefined && referenceEntries !== undefined
-                ? findEntryById(referenceEntries, refEntryId)
-                : undefined;
-            return (
-              <div
-                key={preset.id}
-                data-testid={`system-preset-${preset.id satisfies string}`}
-                style={
-                  values.systemPresetId === preset.id
-                    ? systemCardSelectedStyle
-                    : systemCardStyle
-                }
-                onClick={() =>
-                  setValues({ ...values, systemPresetId: preset.id })
-                }
-                role="radio"
-                aria-checked={values.systemPresetId === preset.id}
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setValues({ ...values, systemPresetId: preset.id });
-                  }
-                }}
-              >
-                <div
-                  style={{
-                    ...systemCardLabelStyle,
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 500,
-                      padding: "1px 6px",
-                      borderRadius: 4,
-                      background:
-                        preset.deductionSystem.style === "hilbert"
-                          ? "var(--color-accent-light, #e8e9f5)"
-                          : "var(--color-warning-light, #fff3e0)",
-                      color:
-                        preset.deductionSystem.style === "hilbert"
-                          ? "var(--color-accent, #555ab9)"
-                          : "var(--color-warning, #e65100)",
-                      marginRight: 6,
-                    }}
-                  >
-                    {getDeductionStyleLabel(preset.deductionSystem.style)}
-                  </span>
-                  {preset.label}
-                  {refEntry !== undefined && locale !== undefined && (
-                    <span
-                      role="presentation"
-                      onClick={(e) => e.stopPropagation()}
-                      style={{ marginLeft: 4 }}
-                    >
-                      <ReferencePopover
-                        entry={refEntry}
-                        locale={locale}
-                        onOpenDetail={onOpenReferenceDetail}
-                        testId={
-                          testId !== undefined
-                            ? `${testId satisfies string}-preset-${preset.id satisfies string}-ref`
-                            : undefined
-                        }
-                      />
-                    </span>
-                  )}
-                </div>
-                <div style={systemCardDescStyle}>{preset.description}</div>
+          {presetGroups.map((group) => (
+            <details
+              key={group.category.id}
+              open
+              style={categoryDetailsStyle}
+              data-testid={`preset-category-${group.category.id satisfies string}`}
+            >
+              <summary style={categorySummaryStyle}>
+                <span>{group.category.label}</span>
+                <span style={categoryDescStyle}>
+                  {group.category.description}
+                </span>
+              </summary>
+              <div style={categoryPresetsContainerStyle}>
+                {group.presets.map((preset) => (
+                  <PresetCard
+                    key={preset.id}
+                    preset={preset}
+                    selected={values.systemPresetId === preset.id}
+                    onSelect={() =>
+                      setValues({ ...values, systemPresetId: preset.id })
+                    }
+                    referenceEntries={referenceEntries}
+                    locale={locale}
+                    onOpenReferenceDetail={onOpenReferenceDetail}
+                    testId={testId}
+                  />
+                ))}
               </div>
-            );
-          })}
+            </details>
+          ))}
         </div>
         {systemError !== undefined && (
           <span

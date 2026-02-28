@@ -5409,3 +5409,29 @@
   - EdgeParameterPopoverはProofWorkspace上のabsolute positionオーバーレイとして実装（SVG foreignObject不要）
   - スクリーンショット: .screenshots/substitution-popover-open.png
 ---
+
+## 2026-02-28 - [notebook] 体系選択UIカテゴリグルーピング
+- 体系選択UIをフラットリスト（22個一列表示）から、5カテゴリに分類されたグルーピングUIに改善
+- 純粋ロジック層:
+  - PresetCategoryId型、PresetCategoryDefinition型追加
+  - presetCategoryDefinitions: 5カテゴリ定義（Hilbert命題/述語/理論、自然演繹、シーケント計算）
+  - classifyPresetCategory: プリセットのカテゴリ分類関数
+  - groupPresetsByCategory: カテゴリ別グルーピング関数
+- UI層:
+  - PresetCard子コンポーネント抽出（カード描画の再利用）
+  - `<details>/<summary>`でカテゴリごとの折りたたみグループ表示
+  - カテゴリヘッダーにラベル＋説明文表示
+- テスト: 22テスト追加（分類9、グルーピング10、カテゴリ定義3）+ UIテスト2追加
+- カバレッジ: Stmts 98.58% → 98.59%, Branch 92.66% → 92.68%, Funcs 90.93% → 90.96%, Lines 99.31% → 99.32% (4926 → 4950テスト)
+- 変更ファイル:
+  - src/lib/notebook/notebookCreateLogic.ts（グルーピングロジック追加）
+  - src/lib/notebook/notebookCreateLogic.test.ts（22テスト追加）
+  - src/lib/notebook/NotebookCreateFormComponent.tsx（グループ化UI + PresetCard抽出）
+  - src/lib/notebook/NotebookCreateFormComponent.test.tsx（カテゴリグループのテスト追加）
+  - src/lib/notebook/NotebookCreateFormComponent.stories.tsx（カテゴリグループ検証追加）
+- スクリーンショット: .screenshots/notebook-create-form-grouped-full-tall.png
+- **今後のイテレーションへの学び:**
+  - details/summaryは折りたたみUIにCSSフレームワーク不要で使える標準HTML要素
+  - PresetCardのような子コンポーネント抽出は、ネストしたループ描画の可読性を大幅に向上させる
+  - カテゴリ分類ロジック（classifyPresetCategory）は純粋関数としてプリセットIDのSet参照で実装。新プリセット追加時はSetに追加が必要
+---
