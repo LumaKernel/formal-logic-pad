@@ -7,9 +7,10 @@ export { AxiomPalette } from "./AxiomPalette";
 export type { AxiomPaletteProps } from "./AxiomPalette";
 export {
   getAvailableAxioms,
+  getAvailableNdRules,
   getAxiomReferenceEntryId,
 } from "./axiomPaletteLogic";
-export type { AxiomPaletteItem } from "./axiomPaletteLogic";
+export type { AxiomPaletteItem, NdRulePaletteItem } from "./axiomPaletteLogic";
 export { getInferenceRuleReferenceEntryId } from "./inferenceRuleReferenceLogic";
 export { ProofWorkspace } from "./ProofWorkspace";
 export type { ProofWorkspaceProps, GoalAchievedInfo } from "./ProofWorkspace";
@@ -17,6 +18,7 @@ export {
   createEmptyWorkspace,
   createQuestWorkspace,
   convertToFreeMode,
+  extractLogicSystem,
   isNodeProtected,
   addNode,
   updateNodePosition,

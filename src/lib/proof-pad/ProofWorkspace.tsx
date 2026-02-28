@@ -12,6 +12,7 @@
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LogicSystem } from "../logic-core/inferenceRule";
+import { getDeductionSystemName } from "../logic-core/deductionSystem";
 import type { Formula } from "../logic-core/formula";
 import type { EditorMode } from "../formula-input/editorLogic";
 import { InfiniteCanvas } from "../infinite-canvas/InfiniteCanvas";
@@ -1293,7 +1294,7 @@ export function ProofWorkspace({
     const json = exportWorkspaceToJSON(workspace);
     // eslint-disable-next-line @luma-dev/luma-ts/no-date -- 不純なUI層でのみ使用
     const d = new Date();
-    const fileName = generateExportFileName(workspace.system.name, {
+    const fileName = generateExportFileName(getDeductionSystemName(workspace.deductionSystem), {
       year: d.getUTCFullYear(),
       month: d.getUTCMonth() + 1,
       day: d.getUTCDate(),
@@ -1314,7 +1315,7 @@ export function ProofWorkspace({
     // eslint-disable-next-line @luma-dev/luma-ts/no-date -- 不純なUI層でのみ使用
     const d = new Date();
     const fileName = generateImageExportFileName(
-      workspace.system.name,
+      getDeductionSystemName(workspace.deductionSystem),
       {
         year: d.getUTCFullYear(),
         month: d.getUTCMonth() + 1,
@@ -1356,7 +1357,7 @@ export function ProofWorkspace({
         // eslint-disable-next-line @luma-dev/luma-ts/no-date -- 不純なUI層でのみ使用
         const d = new Date();
         const fileName = generateImageExportFileName(
-          workspace.system.name,
+          getDeductionSystemName(workspace.deductionSystem),
           {
             year: d.getUTCFullYear(),
             month: d.getUTCMonth() + 1,
@@ -2422,7 +2423,7 @@ export function ProofWorkspace({
           style={systemBadgeStyle}
           data-testid={testId ? `${testId satisfies string}-system` : undefined}
         >
-          {workspace.system.name}
+          {getDeductionSystemName(workspace.deductionSystem)}
         </span>
         {workspace.mode === "quest" ? (
           <>

@@ -7,13 +7,18 @@ import {
 } from "./workspaceExport";
 import type { WorkspaceState } from "./workspaceState";
 import type { InferenceEdge } from "./inferenceEdge";
-import { lukasiewiczSystem } from "../logic-core/inferenceRule";
+import {
+  lukasiewiczSystem,
+  predicateLogicSystem,
+} from "../logic-core/inferenceRule";
+import { hilbertDeduction } from "../logic-core/deductionSystem";
 
 // --- テストヘルパー ---
 
 function createSampleWorkspace(): WorkspaceState {
   return {
     system: lukasiewiczSystem,
+    deductionSystem: hilbertDeduction(lukasiewiczSystem),
     nodes: [
       {
         id: "node-1",
@@ -49,6 +54,7 @@ function createSampleWorkspace(): WorkspaceState {
 function createQuestWorkspace(): WorkspaceState {
   return {
     system: lukasiewiczSystem,
+    deductionSystem: hilbertDeduction(lukasiewiczSystem),
     nodes: [
       {
         id: "node-1",
@@ -69,13 +75,8 @@ function createQuestWorkspace(): WorkspaceState {
 
 function createGenWorkspace(): WorkspaceState {
   return {
-    system: {
-      name: "Predicate Logic",
-      propositionalAxioms: new Set(["A1", "A2", "A3"]),
-      predicateLogic: true,
-      equalityLogic: false,
-      generalization: true,
-    },
+    system: predicateLogicSystem,
+    deductionSystem: hilbertDeduction(predicateLogicSystem),
     nodes: [
       {
         id: "node-1",
@@ -129,13 +130,8 @@ function createWorkspaceWithInferenceEdges(): WorkspaceState {
   };
 
   return {
-    system: {
-      name: "Predicate Logic",
-      propositionalAxioms: new Set(["A1", "A2", "A3"]),
-      predicateLogic: true,
-      equalityLogic: false,
-      generalization: true,
-    },
+    system: predicateLogicSystem,
+    deductionSystem: hilbertDeduction(predicateLogicSystem),
     nodes: [
       {
         id: "node-1",
@@ -201,6 +197,7 @@ describe("exportWorkspaceToJSON", () => {
   it("空のワークスペースをエクスポートする", () => {
     const state: WorkspaceState = {
       system: lukasiewiczSystem,
+      deductionSystem: hilbertDeduction(lukasiewiczSystem),
       nodes: [],
       connections: [],
       inferenceEdges: [],
@@ -500,6 +497,7 @@ describe("importWorkspaceFromJSON", () => {
   it("undefinedの前提ノードIDのラウンドトリップ", () => {
     const state: WorkspaceState = {
       system: lukasiewiczSystem,
+      deductionSystem: hilbertDeduction(lukasiewiczSystem),
       nodes: [
         {
           id: "node-1",

@@ -58,10 +58,10 @@ export function startQuestAndCreateNotebook(
   }
 
   const quest = quests.find((q) => q.id === questId);
-  const { name, system, goals } = result.params;
+  const { name, deductionSystem, goals } = result.params;
   const newCollection = createQuestNotebook(collection, {
     name,
-    system,
+    system: deductionSystem,
     goals,
     now,
     questId,

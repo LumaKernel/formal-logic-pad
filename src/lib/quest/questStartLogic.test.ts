@@ -30,6 +30,8 @@ import {
   lmSystem,
   ljSystem,
   lkSystem,
+  hilbertDeduction,
+  naturalDeduction,
 } from "../logic-core/deductionSystem";
 
 // --- テスト用クエスト定義 ---
@@ -223,7 +225,9 @@ describe("buildQuestStartParams", () => {
     const result = buildQuestStartParams(testQuest);
     expect(result).toBeDefined();
     expect(result?.name).toBe("テストクエスト");
-    expect(result?.system).toBe(lukasiewiczSystem);
+    expect(result?.deductionSystem).toStrictEqual(
+      hilbertDeduction(lukasiewiczSystem),
+    );
     expect(result?.goals).toEqual([
       { formulaText: "phi -> phi", position: { x: 300, y: 0 } },
     ]);
@@ -235,7 +239,9 @@ describe("buildQuestStartParams", () => {
       systemPresetId: "predicate",
     };
     const result = buildQuestStartParams(quest);
-    expect(result?.system).toBe(predicateLogicSystem);
+    expect(result?.deductionSystem).toStrictEqual(
+      hilbertDeduction(predicateLogicSystem),
+    );
   });
 
   it("等号クエストでequalityLogicSystemが返る", () => {
@@ -244,7 +250,9 @@ describe("buildQuestStartParams", () => {
       systemPresetId: "equality",
     };
     const result = buildQuestStartParams(quest);
-    expect(result?.system).toBe(equalityLogicSystem);
+    expect(result?.deductionSystem).toStrictEqual(
+      hilbertDeduction(equalityLogicSystem),
+    );
   });
 
   it("不正なプリセットIDの場合undefinedを返す", () => {
@@ -256,16 +264,37 @@ describe("buildQuestStartParams", () => {
     expect(result).toBeUndefined();
   });
 
-  it("自然演繹プリセットのクエストはundefinedを返す（Hilbert流のみ対応）", () => {
+  it("自然演繹プリセットのクエストでND体系が返る", () => {
     const quest: QuestDefinition = {
       ...testQuest,
       systemPresetId: "nd-nm",
     };
     const result = buildQuestStartParams(quest);
-    expect(result).toBeUndefined();
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem).toStrictEqual(naturalDeduction(nmSystem));
   });
 
-  it("シーケント計算プリセットのクエストはundefinedを返す（Hilbert流のみ対応）", () => {
+  it("自然演繹NJプリセットのクエストでNJ体系が返る", () => {
+    const quest: QuestDefinition = {
+      ...testQuest,
+      systemPresetId: "nd-nj",
+    };
+    const result = buildQuestStartParams(quest);
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem).toStrictEqual(naturalDeduction(njSystem));
+  });
+
+  it("自然演繹NKプリセットのクエストでNK体系が返る", () => {
+    const quest: QuestDefinition = {
+      ...testQuest,
+      systemPresetId: "nd-nk",
+    };
+    const result = buildQuestStartParams(quest);
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem).toStrictEqual(naturalDeduction(nkSystem));
+  });
+
+  it("シーケント計算プリセットのクエストはundefinedを返す（UI未対応）", () => {
     const quest: QuestDefinition = {
       ...testQuest,
       systemPresetId: "sc-lm",
@@ -338,7 +367,9 @@ describe("prepareQuestStart", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.params.name).toBe("テストクエスト");
-      expect(result.params.system).toStrictEqual(lukasiewiczSystem);
+      expect(result.params.deductionSystem).toStrictEqual(
+        hilbertDeduction(lukasiewiczSystem),
+      );
     }
   });
 
@@ -369,7 +400,9 @@ describe("prepareQuestStart", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.params.name).toBe("述語テスト");
-      expect(result.params.system).toStrictEqual(predicateLogicSystem);
+      expect(result.params.deductionSystem).toStrictEqual(
+        hilbertDeduction(predicateLogicSystem),
+      );
     }
   });
 
@@ -378,7 +411,9 @@ describe("prepareQuestStart", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.params.name).toBe("等号テスト");
-      expect(result.params.system).toStrictEqual(equalityLogicSystem);
+      expect(result.params.deductionSystem).toStrictEqual(
+        hilbertDeduction(equalityLogicSystem),
+      );
     }
   });
 

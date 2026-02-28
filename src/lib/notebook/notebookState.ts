@@ -8,6 +8,7 @@
  */
 
 import type { LogicSystem } from "../logic-core/inferenceRule";
+import type { DeductionSystem } from "../logic-core/deductionSystem";
 import {
   createEmptyWorkspace,
   createQuestWorkspace,
@@ -60,7 +61,7 @@ export function createEmptyCollection(): NotebookCollection {
 /** 新しいノートブックを作成するためのパラメータ */
 export type CreateNotebookParams = {
   readonly name: string;
-  readonly system: LogicSystem;
+  readonly system: LogicSystem | DeductionSystem;
   readonly now: number;
 };
 
@@ -88,7 +89,7 @@ export function createNotebook(
 /** クエストノートブックを作成するためのパラメータ */
 export type CreateQuestNotebookParams = {
   readonly name: string;
-  readonly system: LogicSystem;
+  readonly system: LogicSystem | DeductionSystem;
   readonly goals: readonly QuestGoalDefinition[];
   readonly now: number;
   /** 紐付けるクエストID（進捗記録に使用） */

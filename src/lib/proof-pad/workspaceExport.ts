@@ -14,6 +14,7 @@ import type {
   LogicSystem,
   PropositionalAxiomId,
 } from "../logic-core/inferenceRule";
+import { hilbertDeduction } from "../logic-core/deductionSystem";
 import type {
   WorkspaceState,
   WorkspaceNode,
@@ -365,6 +366,7 @@ function parseWorkspaceState(raw: unknown): WorkspaceState | undefined {
 
   return {
     system,
+    deductionSystem: hilbertDeduction(system),
     nodes,
     connections,
     inferenceEdges,

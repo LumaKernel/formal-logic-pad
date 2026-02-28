@@ -2,12 +2,12 @@
  * クエスト開始の純粋ロジック。
  *
  * QuestDefinition から ノートブック作成パラメータへの変換、
- * および公理系プリセットIDからLogicSystemへの解決を提供する。
+ * および公理系プリセットIDからDeductionSystemへの解決を提供する。
  *
  * 変更時は questStartLogic.test.ts も同期すること。
  */
 
-import type { LogicSystem } from "../logic-core/inferenceRule";
+import type { DeductionSystem } from "../logic-core/deductionSystem";
 import type { QuestGoalDefinition } from "../proof-pad/workspaceState";
 import type { SystemPreset } from "../notebook/notebookCreateLogic";
 import { systemPresets } from "../notebook/notebookCreateLogic";
@@ -16,7 +16,7 @@ import type { QuestDefinition, SystemPresetId } from "./questDefinition";
 // --- プリセット解決 ---
 
 /**
- * SystemPresetId から LogicSystem を解決する。
+ * SystemPresetId から SystemPreset を解決する。
  * 見つからない場合は undefined を返す。
  */
 export function resolveSystemPreset(
@@ -30,13 +30,16 @@ export function resolveSystemPreset(
 /** クエスト開始時のノートブック作成に必要なパラメータ */
 export type QuestStartParams = {
   readonly name: string;
-  readonly system: LogicSystem;
+  readonly deductionSystem: DeductionSystem;
   readonly goals: readonly QuestGoalDefinition[];
 };
 
 /**
  * QuestDefinition からノートブック作成に必要なパラメータを算出する。
  * プリセットIDが解決できない場合は undefined を返す。
+ *
+ * Hilbert流・自然演繹の両方に対応。
+ * シーケント計算はUI未対応のため現在 undefined を返す。
  */
 export function buildQuestStartParams(
   quest: QuestDefinition,
@@ -54,12 +57,12 @@ export function buildQuestStartParams(
         }))
       : quest.goals;
 
-  // クエストは現在Hilbert流のみ対応
-  if (preset.deductionSystem.style !== "hilbert") return undefined;
+  // シーケント計算はUI未対応
+  if (preset.deductionSystem.style === "sequent-calculus") return undefined;
 
   return {
     name: `${quest.title satisfies string}`,
-    system: preset.deductionSystem.system,
+    deductionSystem: preset.deductionSystem,
     goals,
   };
 }

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   getAvailableAxioms,
+  getAvailableNdRules,
   getAxiomReferenceEntryId,
 } from "./axiomPaletteLogic";
 import {
@@ -14,6 +15,11 @@ import {
   peanoArithmeticSystem,
 } from "../logic-core/inferenceRule";
 import type { LogicSystem } from "../logic-core/inferenceRule";
+import {
+  nmSystem,
+  njSystem,
+  nkSystem,
+} from "../logic-core/deductionSystem";
 
 describe("axiomPalette", () => {
   describe("getAvailableAxioms", () => {
@@ -228,6 +234,58 @@ describe("axiomPalette", () => {
         const ids = items.map((i) => i.id);
         expect(ids).not.toContain("PA1");
       });
+    });
+  });
+
+  describe("getAvailableNdRules", () => {
+    it("NMの基本規則9つを返す", () => {
+      const items = getAvailableNdRules(nmSystem);
+      const ids = items.map((i) => i.id);
+      expect(ids).toEqual([
+        "implication-intro",
+        "implication-elim",
+        "conjunction-intro",
+        "conjunction-elim-left",
+        "conjunction-elim-right",
+        "disjunction-intro-left",
+        "disjunction-intro-right",
+        "disjunction-elim",
+        "weakening",
+      ]);
+    });
+
+    it("NJはNM+EFQの10規則を返す", () => {
+      const items = getAvailableNdRules(njSystem);
+      const ids = items.map((i) => i.id);
+      expect(ids).toContain("efq");
+      expect(ids).not.toContain("dne");
+      expect(ids).toHaveLength(10);
+    });
+
+    it("NKはNM+DNEの10規則を返す", () => {
+      const items = getAvailableNdRules(nkSystem);
+      const ids = items.map((i) => i.id);
+      expect(ids).toContain("dne");
+      expect(ids).not.toContain("efq");
+      expect(ids).toHaveLength(10);
+    });
+
+    it("各アイテムにdisplayNameがある", () => {
+      const items = getAvailableNdRules(nmSystem);
+      for (const item of items) {
+        expect(item.displayName).toBeTruthy();
+      }
+    });
+
+    it("allNdRuleIdsの順序で返される", () => {
+      const items = getAvailableNdRules(njSystem);
+      const ids = items.map((i) => i.id);
+      // implication-intro が conjunction-intro より前
+      expect(ids.indexOf("implication-intro")).toBeLessThan(
+        ids.indexOf("conjunction-intro"),
+      );
+      // efq が最後から2番目（weakening の次）
+      expect(ids.indexOf("weakening")).toBeLessThan(ids.indexOf("efq"));
     });
   });
 
