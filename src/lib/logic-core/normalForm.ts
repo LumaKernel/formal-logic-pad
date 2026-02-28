@@ -2,10 +2,20 @@ import type { Formula } from "./formula";
 import {
   Conjunction,
   Disjunction,
+  Universal,
+  Existential,
   conjunction,
   disjunction,
   negation,
+  universal,
+  existential,
 } from "./formula";
+import { TermVariable } from "./term";
+import {
+  freeVariablesInFormula,
+  allVariableNamesInFormula,
+} from "./freeVariables";
+import { substituteTermVariableInFormula } from "./substitution";
 
 // ── 否定標準形 (NNF: Negation Normal Form) ──────────────
 
@@ -374,4 +384,335 @@ const isLiteral = (formula: Formula): boolean => {
   if (formula._tag === "Negation" && formula.formula._tag === "MetaVariable")
     return true;
   return false;
+};
+
+// ── 述語論理の否定標準形 (Predicate NNF) ────────────────
+
+/**
+ * 述語論理式を否定標準形 (NNF) に変換する。
+ *
+ * 命題論理の NNF に加え、量化子の扱いを含む:
+ * - `¬∀x.φ ≡ ∃x.¬φ`
+ * - `¬∃x.φ ≡ ∀x.¬φ`
+ * - `→` と `↔` が除去される
+ * - `¬` は原子命題（MetaVariable）、述語（Predicate）、等号（Equality）の直前にのみ現れる
+ *
+ * FormulaSubstitution が含まれている場合はエラー。
+ */
+export const toPredicateNNF = (formula: Formula): Formula => {
+  switch (formula._tag) {
+    case "MetaVariable":
+    case "Predicate":
+    case "Equality":
+      return formula;
+    case "Negation":
+      return pushPredicateNegation(formula.formula);
+    case "Implication":
+      // A → B  ≡  ¬A ∨ B
+      return toPredicateNNF(
+        disjunction(negation(formula.left), formula.right),
+      );
+    case "Conjunction":
+      return conjunction(
+        toPredicateNNF(formula.left),
+        toPredicateNNF(formula.right),
+      );
+    case "Disjunction":
+      return disjunction(
+        toPredicateNNF(formula.left),
+        toPredicateNNF(formula.right),
+      );
+    case "Biconditional":
+      // A ↔ B  ≡  (A ∧ B) ∨ (¬A ∧ ¬B)
+      return toPredicateNNF(
+        disjunction(
+          conjunction(formula.left, formula.right),
+          conjunction(negation(formula.left), negation(formula.right)),
+        ),
+      );
+    case "Universal":
+      return universal(formula.variable, toPredicateNNF(formula.formula));
+    case "Existential":
+      return existential(formula.variable, toPredicateNNF(formula.formula));
+    case "FormulaSubstitution":
+      throw new Error(
+        `Cannot convert FormulaSubstitution node to predicate NNF: ${formula._tag satisfies string}. Resolve substitutions first.`,
+      );
+  }
+  /* v8 ignore start */
+  formula satisfies never;
+  throw new Error("Unreachable");
+  /* v8 ignore stop */
+};
+
+/**
+ * ¬φ の φ を受け取り、¬φ の述語論理 NNF を返す。
+ * De Morgan 則、二重否定除去、量化子の否定を適用する。
+ */
+const pushPredicateNegation = (formula: Formula): Formula => {
+  switch (formula._tag) {
+    case "MetaVariable":
+    case "Predicate":
+    case "Equality":
+      // ¬p, ¬P(...), ¬(t=s) はそのまま
+      return negation(formula);
+    case "Negation":
+      // ¬¬A ≡ A
+      return toPredicateNNF(formula.formula);
+    case "Implication":
+      // ¬(A → B) ≡ A ∧ ¬B
+      return conjunction(
+        toPredicateNNF(formula.left),
+        pushPredicateNegation(formula.right),
+      );
+    case "Conjunction":
+      // ¬(A ∧ B) ≡ ¬A ∨ ¬B (De Morgan)
+      return disjunction(
+        pushPredicateNegation(formula.left),
+        pushPredicateNegation(formula.right),
+      );
+    case "Disjunction":
+      // ¬(A ∨ B) ≡ ¬A ∧ ¬B (De Morgan)
+      return conjunction(
+        pushPredicateNegation(formula.left),
+        pushPredicateNegation(formula.right),
+      );
+    case "Biconditional":
+      // ¬(A ↔ B) ≡ (A ∧ ¬B) ∨ (¬A ∧ B)
+      return toPredicateNNF(
+        disjunction(
+          conjunction(formula.left, negation(formula.right)),
+          conjunction(negation(formula.left), formula.right),
+        ),
+      );
+    case "Universal":
+      // ¬∀x.φ ≡ ∃x.¬φ
+      return existential(
+        formula.variable,
+        pushPredicateNegation(formula.formula),
+      );
+    case "Existential":
+      // ¬∃x.φ ≡ ∀x.¬φ
+      return universal(
+        formula.variable,
+        pushPredicateNegation(formula.formula),
+      );
+    case "FormulaSubstitution":
+      throw new Error(
+        `Cannot convert FormulaSubstitution node to predicate NNF: ${formula._tag satisfies string}. Resolve substitutions first.`,
+      );
+  }
+  /* v8 ignore start */
+  formula satisfies never;
+  throw new Error("Unreachable");
+  /* v8 ignore stop */
+};
+
+// ── 冠頭標準形 (PNF: Prenex Normal Form) ────────────────
+
+/**
+ * 述語論理式を冠頭標準形 (PNF: Prenex Normal Form) に変換する。
+ *
+ * PNF では量化子がすべて式の先頭に集まる:
+ *   Q₁x₁.Q₂x₂....Qₙxₙ.φ  (φ は量化子を含まない)
+ *
+ * 手順:
+ * 1. 述語論理の NNF に変換（→, ↔ 除去、¬ を内側に押し込み）
+ * 2. 量化子を外側に持ち上げる（必要に応じてα変換）
+ *
+ * FormulaSubstitution が含まれている場合はエラー。
+ */
+export const toPNF = (formula: Formula): Formula => {
+  const nnf = toPredicateNNF(formula);
+  return pullQuantifiers(nnf);
+};
+
+/**
+ * NNF の述語論理式から量化子を外側に持ち上げる。
+ *
+ * - ∀x.φ, ∃x.φ: 本体を再帰的に処理
+ * - φ ∧ ψ, φ ∨ ψ: 両辺を処理した後、量化子を持ち上げる
+ * - 原子式・否定原子式: そのまま
+ */
+const pullQuantifiers = (formula: Formula): Formula => {
+  switch (formula._tag) {
+    case "MetaVariable":
+    case "Predicate":
+    case "Equality":
+    case "Negation":
+      // 原子式（NNFなので¬の直下は原子式）
+      return formula;
+    case "Universal":
+      return universal(formula.variable, pullQuantifiers(formula.formula));
+    case "Existential":
+      return existential(formula.variable, pullQuantifiers(formula.formula));
+    case "Conjunction": {
+      const left = pullQuantifiers(formula.left);
+      const right = pullQuantifiers(formula.right);
+      return liftQuantifiersFromBinary(left, right, "conjunction");
+    }
+    case "Disjunction": {
+      const left = pullQuantifiers(formula.left);
+      const right = pullQuantifiers(formula.right);
+      return liftQuantifiersFromBinary(left, right, "disjunction");
+    }
+    /* v8 ignore start */
+    // NNF 変換後は →, ↔ は出現しない
+    case "Implication":
+    case "Biconditional":
+    case "FormulaSubstitution":
+      throw new Error(
+        `Unexpected formula node in PNF quantifier lifting: ${formula._tag satisfies string}. Input must be in predicate NNF.`,
+      );
+  }
+  formula satisfies never;
+  throw new Error("Unreachable");
+  /* v8 ignore stop */
+};
+
+/**
+ * 二項結合子（∧ or ∨）の両辺から量化子を持ち上げる。
+ *
+ * 例: (∀x.φ) ∧ ψ → ∀x'.(φ[x'/x] ∧ ψ)  (x が ψ で自由なら α変換)
+ *     φ ∧ (∃y.ψ) → ∃y'.(φ ∧ ψ[y'/y])  (y が φ で自由なら α変換)
+ */
+const liftQuantifiersFromBinary = (
+  left: Formula,
+  right: Formula,
+  op: "conjunction" | "disjunction",
+): Formula => {
+  const combine = op === "conjunction" ? conjunction : disjunction;
+
+  // 左辺が量化子の場合: (Qx.φ) op ψ → Qx'.(φ' op ψ)
+  if (left instanceof Universal || left instanceof Existential) {
+    const { renamedBody, renamedVar } = renameIfNeeded(
+      left.variable,
+      left.formula,
+      right,
+    );
+    const makeQuantifier =
+      left instanceof Universal ? universal : existential;
+    return makeQuantifier(
+      renamedVar,
+      liftQuantifiersFromBinary(renamedBody, right, op),
+    );
+  }
+
+  // 右辺が量化子の場合: φ op (Qy.ψ) → Qy'.(φ op ψ')
+  if (right instanceof Universal || right instanceof Existential) {
+    const { renamedBody, renamedVar } = renameIfNeeded(
+      right.variable,
+      right.formula,
+      left,
+    );
+    const makeQuantifier =
+      right instanceof Universal ? universal : existential;
+    return makeQuantifier(
+      renamedVar,
+      liftQuantifiersFromBinary(left, renamedBody, op),
+    );
+  }
+
+  // 両辺とも量化子でない場合: そのまま結合
+  return combine(left, right);
+};
+
+/**
+ * 量化子 Qx.body を other と組み合わせる際、x が other で自由なら α変換する。
+ *
+ * @returns renamedBody: α変換後の body, renamedVar: 使用する変数
+ */
+const renameIfNeeded = (
+  variable: TermVariable,
+  body: Formula,
+  other: Formula,
+): { readonly renamedBody: Formula; readonly renamedVar: TermVariable } => {
+  const otherFree = freeVariablesInFormula(other);
+  if (!otherFree.has(variable.name)) {
+    return { renamedBody: body, renamedVar: variable };
+  }
+  // α変換が必要: 衝突しない新鮮な変数名を生成
+  const allNames = new Set<string>();
+  for (const v of allVariableNamesInFormula(body)) {
+    allNames.add(v);
+  }
+  for (const v of allVariableNamesInFormula(other)) {
+    allNames.add(v);
+  }
+  const freshName = generateFreshName(variable.name, allNames);
+  const freshVar = new TermVariable({ name: freshName });
+  const renamedBody = substituteTermVariableInFormula(
+    body,
+    variable,
+    freshVar,
+  );
+  return { renamedBody, renamedVar: freshVar };
+};
+
+/**
+ * base 名に ' を追加して使用済み名と衝突しない名前を生成する。
+ */
+const generateFreshName = (
+  base: string,
+  usedNames: ReadonlySet<string>,
+): string => {
+  let candidate = `${base satisfies string}'`;
+  while (usedNames.has(candidate)) {
+    candidate = `${candidate satisfies string}'`;
+  }
+  return candidate;
+};
+
+// ── PNF 判定関数 ────────────────────────────────────────
+
+/**
+ * 述語論理式が冠頭標準形 (PNF) であるかを判定する。
+ *
+ * PNF の条件:
+ * - 量化子はすべて式の先頭に集まっている
+ * - 量化子部分の後の行列（matrix）には量化子が含まれない
+ *
+ * FormulaSubstitution が含まれている場合はエラー。
+ */
+export const isPNF = (formula: Formula): boolean => {
+  // 先頭の量化子列をスキップ
+  let current = formula;
+  while (
+    current._tag === "Universal" ||
+    current._tag === "Existential"
+  ) {
+    current = current.formula;
+  }
+  // 行列部分に量化子が含まれていないことを確認
+  return isQuantifierFree(current);
+};
+
+/**
+ * 論理式に量化子が含まれていないことを判定する。
+ */
+const isQuantifierFree = (formula: Formula): boolean => {
+  switch (formula._tag) {
+    case "MetaVariable":
+    case "Predicate":
+    case "Equality":
+      return true;
+    case "Negation":
+      return isQuantifierFree(formula.formula);
+    case "Implication":
+    case "Conjunction":
+    case "Disjunction":
+    case "Biconditional":
+      return isQuantifierFree(formula.left) && isQuantifierFree(formula.right);
+    case "Universal":
+    case "Existential":
+      return false;
+    case "FormulaSubstitution":
+      throw new Error(
+        `Cannot check PNF for FormulaSubstitution node: ${formula._tag satisfies string}. Resolve substitutions first.`,
+      );
+  }
+  /* v8 ignore start */
+  formula satisfies never;
+  return false;
+  /* v8 ignore stop */
 };

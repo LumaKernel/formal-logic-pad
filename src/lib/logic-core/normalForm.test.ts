@@ -6,13 +6,27 @@ import {
   biconditional,
   conjunction,
   disjunction,
+  existential,
   implication,
   metaVariable,
   negation,
   predicate,
   universal,
+  equality,
+  formulaSubstitution,
 } from "./formula";
-import { isCNF, isDNF, isNNF, toCNF, toDNF, toNNF } from "./normalForm";
+import {
+  isCNF,
+  isDNF,
+  isNNF,
+  isPNF,
+  toCNF,
+  toDNF,
+  toNNF,
+  toPNF,
+  toPredicateNNF,
+} from "./normalForm";
+import { freeVariablesInFormula } from "./freeVariables";
 import { termVariable } from "./term";
 
 // ── テスト用ヘルパー ────────────────────────────────────
@@ -573,4 +587,607 @@ describe("恒等変換の検証（変換結果は元の式と論理的に等価�
       assertEquivalent(formula, result);
     });
   }
+});
+
+// ── 述語論理テスト用ヘルパー ──────────────────────────────
+
+const x = termVariable("x");
+const y = termVariable("y");
+
+// P(x), Q(x), R(x,y) など述語
+const Px = predicate("P", [x]);
+const Qx = predicate("Q", [x]);
+const Qy = predicate("Q", [y]);
+const Rxy = predicate("R", [x, y]);
+
+// ── toPredicateNNF (述語論理の NNF) ────────────────────
+
+describe("toPredicateNNF", () => {
+  describe("原子式", () => {
+    it("述語はそのまま返る", () => {
+      expect(equalFormula(toPredicateNNF(Px), Px)).toBe(true);
+    });
+
+    it("等号はそのまま返る", () => {
+      const eq = equality(x, y);
+      expect(equalFormula(toPredicateNNF(eq), eq)).toBe(true);
+    });
+
+    it("メタ変数はそのまま返る", () => {
+      expect(equalFormula(toPredicateNNF(p), p)).toBe(true);
+    });
+  });
+
+  describe("否定の変換", () => {
+    it("¬P(x) はそのまま", () => {
+      const formula = negation(Px);
+      const result = toPredicateNNF(formula);
+      expect(result._tag).toBe("Negation");
+    });
+
+    it("¬¬P(x) → P(x) (二重否定除去)", () => {
+      const formula = negation(negation(Px));
+      const result = toPredicateNNF(formula);
+      expect(equalFormula(result, Px)).toBe(true);
+    });
+
+    it("¬(P(x) ∧ Q(x)) → ¬P(x) ∨ ¬Q(x) (De Morgan)", () => {
+      const formula = negation(conjunction(Px, Qx));
+      const result = toPredicateNNF(formula);
+      expect(
+        equalFormula(result, disjunction(negation(Px), negation(Qx))),
+      ).toBe(true);
+    });
+
+    it("¬(P(x) ∨ Q(x)) → ¬P(x) ∧ ¬Q(x) (De Morgan)", () => {
+      const formula = negation(disjunction(Px, Qx));
+      const result = toPredicateNNF(formula);
+      expect(
+        equalFormula(result, conjunction(negation(Px), negation(Qx))),
+      ).toBe(true);
+    });
+  });
+
+  describe("量化子の否定", () => {
+    it("¬∀x.P(x) → ∃x.¬P(x)", () => {
+      const formula = negation(universal(x, Px));
+      const result = toPredicateNNF(formula);
+      expect(equalFormula(result, existential(x, negation(Px)))).toBe(true);
+    });
+
+    it("¬∃x.P(x) → ∀x.¬P(x)", () => {
+      const formula = negation(existential(x, Px));
+      const result = toPredicateNNF(formula);
+      expect(equalFormula(result, universal(x, negation(Px)))).toBe(true);
+    });
+
+    it("¬¬∀x.P(x) → ∀x.P(x)", () => {
+      const formula = negation(negation(universal(x, Px)));
+      const result = toPredicateNNF(formula);
+      expect(equalFormula(result, universal(x, Px))).toBe(true);
+    });
+
+    it("¬∀x.¬P(x) → ∃x.P(x)", () => {
+      const formula = negation(universal(x, negation(Px)));
+      const result = toPredicateNNF(formula);
+      expect(equalFormula(result, existential(x, Px))).toBe(true);
+    });
+  });
+
+  describe("含意・双条件の除去", () => {
+    it("∀x.(P(x) → Q(x)) → ∀x.(¬P(x) ∨ Q(x))", () => {
+      const formula = universal(x, implication(Px, Qx));
+      const result = toPredicateNNF(formula);
+      expect(
+        equalFormula(result, universal(x, disjunction(negation(Px), Qx))),
+      ).toBe(true);
+    });
+
+    it("¬(P(x) → Q(x)) → P(x) ∧ ¬Q(x)", () => {
+      const formula = negation(implication(Px, Qx));
+      const result = toPredicateNNF(formula);
+      expect(equalFormula(result, conjunction(Px, negation(Qx)))).toBe(true);
+    });
+
+    it("¬(P(x) ↔ Q(x)) を NNF に変換", () => {
+      const formula = negation(biconditional(Px, Qx));
+      const result = toPredicateNNF(formula);
+      // (P ∧ ¬Q) ∨ (¬P ∧ Q)
+      const expected = disjunction(
+        conjunction(Px, negation(Qx)),
+        conjunction(negation(Px), Qx),
+      );
+      expect(equalFormula(result, expected)).toBe(true);
+    });
+  });
+
+  describe("量化子の保存", () => {
+    it("∀x.P(x) はそのまま", () => {
+      const formula = universal(x, Px);
+      expect(equalFormula(toPredicateNNF(formula), formula)).toBe(true);
+    });
+
+    it("∃x.P(x) はそのまま", () => {
+      const formula = existential(x, Px);
+      expect(equalFormula(toPredicateNNF(formula), formula)).toBe(true);
+    });
+
+    it("∀x.∃y.R(x,y) はそのまま", () => {
+      const formula = universal(x, existential(y, Rxy));
+      expect(equalFormula(toPredicateNNF(formula), formula)).toBe(true);
+    });
+  });
+
+  describe("複合的な式", () => {
+    it("¬(∀x.P(x) ∧ ∃y.Q(y)) → ∃x.¬P(x) ∨ ∀y.¬Q(y)", () => {
+      const formula = negation(conjunction(universal(x, Px), existential(y, Qy)));
+      const result = toPredicateNNF(formula);
+      const expected = disjunction(
+        existential(x, negation(Px)),
+        universal(y, negation(Qy)),
+      );
+      expect(equalFormula(result, expected)).toBe(true);
+    });
+
+    it("¬(∀x.P(x) → ∃y.Q(y)) → ∀x.P(x) ∧ ∀y.¬Q(y)", () => {
+      const formula = negation(implication(universal(x, Px), existential(y, Qy)));
+      const result = toPredicateNNF(formula);
+      const expected = conjunction(
+        universal(x, Px),
+        universal(y, negation(Qy)),
+      );
+      expect(equalFormula(result, expected)).toBe(true);
+    });
+  });
+
+  describe("エラーケース", () => {
+    it("FormulaSubstitution を含む式でエラー", () => {
+      const formula = formulaSubstitution(Px, y, x);
+      expect(() => toPredicateNNF(formula)).toThrow("FormulaSubstitution");
+    });
+
+    it("¬FormulaSubstitution でもエラー", () => {
+      const formula = negation(formulaSubstitution(Px, y, x));
+      expect(() => toPredicateNNF(formula)).toThrow("FormulaSubstitution");
+    });
+  });
+});
+
+// ── toPNF (冠頭標準形) ─────────────────────────────────
+
+describe("toPNF", () => {
+  describe("量化子なしの式", () => {
+    it("P(x) はそのまま PNF", () => {
+      const result = toPNF(Px);
+      expect(isPNF(result)).toBe(true);
+      expect(equalFormula(result, Px)).toBe(true);
+    });
+
+    it("P(x) ∧ Q(x) はそのまま PNF", () => {
+      const formula = conjunction(Px, Qx);
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+    });
+
+    it("¬P(x) はそのまま PNF", () => {
+      const formula = negation(Px);
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+    });
+
+    it("メタ変数はそのまま PNF", () => {
+      const result = toPNF(p);
+      expect(isPNF(result)).toBe(true);
+    });
+  });
+
+  describe("単一量化子", () => {
+    it("∀x.P(x) はそのまま PNF", () => {
+      const formula = universal(x, Px);
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      expect(equalFormula(result, formula)).toBe(true);
+    });
+
+    it("∃x.P(x) はそのまま PNF", () => {
+      const formula = existential(x, Px);
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      expect(equalFormula(result, formula)).toBe(true);
+    });
+  });
+
+  describe("ネストした量化子", () => {
+    it("∀x.∃y.R(x,y) はそのまま PNF", () => {
+      const formula = universal(x, existential(y, Rxy));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      expect(equalFormula(result, formula)).toBe(true);
+    });
+  });
+
+  describe("量化子の持ち上げ（変数衝突なし）", () => {
+    it("(∀x.P(x)) ∧ Q(y) → ∀x.(P(x) ∧ Q(y))", () => {
+      const formula = conjunction(universal(x, Px), Qy);
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      // x は Q(y) で自由でないので α変換なし
+      expect(result._tag).toBe("Universal");
+      if (result._tag === "Universal") {
+        expect(result.variable.name).toBe("x");
+      }
+    });
+
+    it("Q(y) ∧ (∃x.P(x)) → ∃x.(Q(y) ∧ P(x))", () => {
+      const formula = conjunction(Qy, existential(x, Px));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      expect(result._tag).toBe("Existential");
+      if (result._tag === "Existential") {
+        expect(result.variable.name).toBe("x");
+      }
+    });
+
+    it("(∀x.P(x)) ∨ Q(y) → ∀x.(P(x) ∨ Q(y))", () => {
+      const formula = disjunction(universal(x, Px), Qy);
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      expect(result._tag).toBe("Universal");
+    });
+
+    it("Q(y) ∨ (∃x.P(x)) → ∃x.(Q(y) ∨ P(x))", () => {
+      const formula = disjunction(Qy, existential(x, Px));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      expect(result._tag).toBe("Existential");
+    });
+  });
+
+  describe("量化子の持ち上げ（α変換が必要）", () => {
+    it("(∀x.P(x)) ∧ P(x) → ∀x'.(P(x') ∧ P(x))  (x が右辺で自由)", () => {
+      const formula = conjunction(universal(x, Px), Px);
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      // α変換により x' に改名されるはず
+      expect(result._tag).toBe("Universal");
+      if (result._tag === "Universal") {
+        expect(result.variable.name).not.toBe("x");
+        // x は行列部分で自由に出現する（元の Px からの参照）
+        const matrixFree = freeVariablesInFormula(result.formula);
+        expect(matrixFree.has("x")).toBe(true);
+      }
+    });
+
+    it("P(x) ∧ (∃x.Q(x)) → ∃x'.(P(x) ∧ Q(x'))  (x が左辺で自由)", () => {
+      const formula = conjunction(Px, existential(x, Qx));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      expect(result._tag).toBe("Existential");
+      if (result._tag === "Existential") {
+        expect(result.variable.name).not.toBe("x");
+      }
+    });
+
+    it("(∀x.P(x)) ∨ P(x) → ∀x'.(P(x') ∨ P(x))", () => {
+      const formula = disjunction(universal(x, Px), Px);
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      expect(result._tag).toBe("Universal");
+      if (result._tag === "Universal") {
+        expect(result.variable.name).not.toBe("x");
+      }
+    });
+
+    it("P(x) ∨ (∃x.Q(x)) → ∃x'.(P(x) ∨ Q(x'))", () => {
+      const formula = disjunction(Px, existential(x, Qx));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      expect(result._tag).toBe("Existential");
+      if (result._tag === "Existential") {
+        expect(result.variable.name).not.toBe("x");
+      }
+    });
+  });
+
+  describe("両辺に量化子がある場合", () => {
+    it("(∀x.P(x)) ∧ (∃y.Q(y)) → ∀x.∃y.(P(x) ∧ Q(y))", () => {
+      const formula = conjunction(universal(x, Px), existential(y, Qy));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      // 量化子が2つ先頭に来る
+      expect(result._tag).toBe("Universal");
+      if (result._tag === "Universal") {
+        expect(result.formula._tag).toBe("Existential");
+      }
+    });
+
+    it("(∃x.P(x)) ∨ (∀y.Q(y)) → ∃x.∀y.(P(x) ∨ Q(y))", () => {
+      const formula = disjunction(existential(x, Px), universal(y, Qy));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      expect(result._tag).toBe("Existential");
+      if (result._tag === "Existential") {
+        expect(result.formula._tag).toBe("Universal");
+      }
+    });
+
+    it("(∀x.P(x)) ∧ (∃x.Q(x)) → α変換して量化子を持ち上げ", () => {
+      // 両辺が x を使うので一方が α変換される
+      const formula = conjunction(universal(x, Px), existential(x, Qx));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      // 2つの量化子が先頭に来る
+      expect(
+        result._tag === "Universal" || result._tag === "Existential",
+      ).toBe(true);
+    });
+  });
+
+  describe("→ と ↔ の除去を含む PNF 変換", () => {
+    it("∀x.P(x) → ∃y.Q(y) を PNF に変換", () => {
+      const formula = implication(universal(x, Px), existential(y, Qy));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+    });
+
+    it("¬(∀x.P(x) → Q(y)) を PNF に変換", () => {
+      const formula = negation(implication(universal(x, Px), Qy));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+    });
+
+    it("P(x) ↔ ∀y.Q(y) を PNF に変換", () => {
+      const formula = biconditional(Px, universal(y, Qy));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+    });
+  });
+
+  describe("複合的な式", () => {
+    it("(∀x.P(x)) ∧ (∀y.Q(y)) ∧ R(x,y) を PNF に変換", () => {
+      const formula = conjunction(
+        conjunction(universal(x, Px), universal(y, Qy)),
+        Rxy,
+      );
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+    });
+
+    it("¬(∀x.P(x) ∧ ∃y.Q(y)) を PNF に変換", () => {
+      const formula = negation(
+        conjunction(universal(x, Px), existential(y, Qy)),
+      );
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+    });
+
+    it("∀x.(P(x) ∨ ∃y.R(x,y)) を PNF に変換", () => {
+      const formula = universal(x, disjunction(Px, existential(y, Rxy)));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+    });
+
+    it("(∀x.P(x)) → (∀x.Q(x)) を PNF に変換", () => {
+      const formula = implication(universal(x, Px), universal(x, Qx));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+    });
+
+    it("三重量化子: ∀x.(∃y.(P(x) ∧ Q(y))) ∨ R(x,y) を PNF に変換", () => {
+      const formula = disjunction(
+        universal(x, existential(y, conjunction(Px, Qy))),
+        Rxy,
+      );
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+    });
+  });
+
+  describe("等号を含む式", () => {
+    it("∀x.(x = x) はそのまま PNF", () => {
+      const formula = universal(x, equality(x, x));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      expect(equalFormula(result, formula)).toBe(true);
+    });
+
+    it("¬∀x.(x = y) → ∃x.¬(x = y)", () => {
+      const formula = negation(universal(x, equality(x, y)));
+      const result = toPNF(formula);
+      expect(isPNF(result)).toBe(true);
+      expect(result._tag).toBe("Existential");
+    });
+  });
+
+  describe("エラーケース", () => {
+    it("FormulaSubstitution を含む式でエラー", () => {
+      const formula = formulaSubstitution(Px, y, x);
+      expect(() => toPNF(formula)).toThrow("FormulaSubstitution");
+    });
+  });
+});
+
+// ── isPNF ──────────────────────────────────────────────
+
+describe("isPNF", () => {
+  describe("PNF の式", () => {
+    it("原子式は PNF", () => {
+      expect(isPNF(Px)).toBe(true);
+    });
+
+    it("等号は PNF", () => {
+      expect(isPNF(equality(x, y))).toBe(true);
+    });
+
+    it("メタ変数は PNF", () => {
+      expect(isPNF(p)).toBe(true);
+    });
+
+    it("¬P(x) は PNF", () => {
+      expect(isPNF(negation(Px))).toBe(true);
+    });
+
+    it("P(x) ∧ Q(x) は PNF", () => {
+      expect(isPNF(conjunction(Px, Qx))).toBe(true);
+    });
+
+    it("P(x) ∨ Q(x) は PNF", () => {
+      expect(isPNF(disjunction(Px, Qx))).toBe(true);
+    });
+
+    it("P(x) → Q(x) は PNF（行列部に量化子がなければ OK）", () => {
+      expect(isPNF(implication(Px, Qx))).toBe(true);
+    });
+
+    it("∀x.P(x) は PNF", () => {
+      expect(isPNF(universal(x, Px))).toBe(true);
+    });
+
+    it("∃x.P(x) は PNF", () => {
+      expect(isPNF(existential(x, Px))).toBe(true);
+    });
+
+    it("∀x.∃y.R(x,y) は PNF", () => {
+      expect(isPNF(universal(x, existential(y, Rxy)))).toBe(true);
+    });
+
+    it("∀x.∃y.(P(x) ∧ Q(y)) は PNF", () => {
+      expect(
+        isPNF(universal(x, existential(y, conjunction(Px, Qy)))),
+      ).toBe(true);
+    });
+
+    it("∀x.(P(x) ∧ ¬Q(x)) は PNF", () => {
+      expect(isPNF(universal(x, conjunction(Px, negation(Qx))))).toBe(true);
+    });
+  });
+
+  describe("PNF でない式", () => {
+    it("P(x) ∧ ∀y.Q(y) は PNF ではない（行列部に量化子）", () => {
+      expect(isPNF(conjunction(Px, universal(y, Qy)))).toBe(false);
+    });
+
+    it("∀x.P(x) ∨ Q(x) は PNF ではない（量化子の後に二項結合子の外側に量化子）", () => {
+      // 注: これは ∀x.(P(x)) ∨ Q(x) — 量化子は左辺のみにかかる
+      expect(isPNF(disjunction(universal(x, Px), Qx))).toBe(false);
+    });
+
+    it("¬∀x.P(x) は PNF ではない（¬の下に量化子）", () => {
+      expect(isPNF(negation(universal(x, Px)))).toBe(false);
+    });
+
+    it("∀x.(P(x) ∧ ∃y.Q(y)) は PNF ではない（行列部に量化子）", () => {
+      expect(
+        isPNF(universal(x, conjunction(Px, existential(y, Qy)))),
+      ).toBe(false);
+    });
+
+    it("(∀x.P(x)) → (∃y.Q(y)) は PNF ではない", () => {
+      expect(
+        isPNF(implication(universal(x, Px), existential(y, Qy))),
+      ).toBe(false);
+    });
+  });
+
+  describe("エラーケース", () => {
+    it("FormulaSubstitution でエラー", () => {
+      expect(() => isPNF(formulaSubstitution(Px, y, x))).toThrow(
+        "FormulaSubstitution",
+      );
+    });
+
+    it("ネストした FormulaSubstitution でエラー", () => {
+      expect(() =>
+        isPNF(conjunction(Px, formulaSubstitution(Qx, y, x))),
+      ).toThrow("FormulaSubstitution");
+    });
+  });
+});
+
+// ── PNF 変換の一貫性テスト ──────────────────────────────
+
+describe("PNF 変換の一貫性", () => {
+  it("既に PNF な式は変換後も同じ構造", () => {
+    const formula = universal(x, existential(y, conjunction(Px, Qy)));
+    const result = toPNF(formula);
+    expect(isPNF(result)).toBe(true);
+    expect(equalFormula(result, formula)).toBe(true);
+  });
+
+  it("PNF 変換は冪等: toPNF(toPNF(φ)) = toPNF(φ)", () => {
+    const formula = conjunction(universal(x, Px), existential(y, Qy));
+    const once = toPNF(formula);
+    const twice = toPNF(once);
+    expect(equalFormula(once, twice)).toBe(true);
+  });
+
+  it("変換後の自由変数は保存される", () => {
+    // ∀x.P(x) ∧ R(x,y) — x, y が自由だが x は ∀x 内で束縛
+    // 全体の自由変数: x（右辺の R(x,y) 由来）, y
+    const formula = conjunction(universal(x, Px), Rxy);
+    const originalFree = freeVariablesInFormula(formula);
+    const result = toPNF(formula);
+    const resultFree = freeVariablesInFormula(result);
+    // PNF 変換では α変換が起きうるが、自由変数セットは保存される
+    expect(resultFree.has("x")).toBe(originalFree.has("x"));
+    expect(resultFree.has("y")).toBe(originalFree.has("y"));
+  });
+
+  it("複数回の α変換が必要な場合も正しく動作", () => {
+    // (∀x.P(x)) ∧ P(x) ∧ P(x) のような式
+    const formula = conjunction(
+      conjunction(universal(x, Px), Px),
+      Px,
+    );
+    const result = toPNF(formula);
+    expect(isPNF(result)).toBe(true);
+  });
+
+  it("深いネストの量化子も正しく持ち上がる", () => {
+    // ((∀x.P(x)) ∧ (∃y.Q(y))) ∨ R(x,y)
+    const formula = disjunction(
+      conjunction(universal(x, Px), existential(y, Qy)),
+      Rxy,
+    );
+    const result = toPNF(formula);
+    expect(isPNF(result)).toBe(true);
+  });
+
+  it("α変換で x' も衝突する場合 x'' に改名される", () => {
+    // x' という変数名が既に使われているケース
+    const xPrime = termVariable("x'");
+    const PxPrime = predicate("P", [xPrime]);
+    // (∀x.P(x)) ∧ (P(x) ∧ P(x')) — x も x' も使われている
+    const formula = conjunction(
+      universal(x, Px),
+      conjunction(Px, PxPrime),
+    );
+    const result = toPNF(formula);
+    expect(isPNF(result)).toBe(true);
+    // α変換で x'' が使われるはず
+    expect(result._tag).toBe("Universal");
+    if (result._tag === "Universal") {
+      expect(result.variable.name).toBe("x''");
+    }
+  });
+
+  it("z 変数を含む式でのα変換", () => {
+    // (∀x.R(x,y)) ∧ (∃x.P(x)) — 同じ x を使うので α変換必要
+    const formula = conjunction(
+      universal(x, Rxy),
+      existential(x, Px),
+    );
+    const result = toPNF(formula);
+    expect(isPNF(result)).toBe(true);
+    // 2つの量化子が先頭に
+    expect(
+      result._tag === "Universal" || result._tag === "Existential",
+    ).toBe(true);
+    if (result._tag === "Universal" || result._tag === "Existential") {
+      expect(
+        result.formula._tag === "Universal" ||
+          result.formula._tag === "Existential",
+      ).toBe(true);
+    }
+  });
 });
