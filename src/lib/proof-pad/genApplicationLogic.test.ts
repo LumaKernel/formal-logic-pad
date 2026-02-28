@@ -15,7 +15,7 @@ describe("genApplicationLogic", () => {
   describe("getGenPremise", () => {
     it("returns undefined when no inferenceEdges", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "derived", "Gen", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Gen", { x: 0, y: 0 });
       const premiseId = getGenPremise(ws, "node-1");
       expect(premiseId).toBeUndefined();
     });
@@ -23,7 +23,7 @@ describe("genApplicationLogic", () => {
     it("returns premise node id when GenEdge exists", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "derived", "Gen", { x: 100, y: 100 });
+      ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const genEdge: InferenceEdge = {
         _tag: "gen",
@@ -40,7 +40,7 @@ describe("genApplicationLogic", () => {
     it("returns undefined when no GenEdge for this node", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "derived", "Gen", { x: 100, y: 100 });
+      ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "out");
       // No GenEdge added — connection alone does not suffice
       const premiseId = getGenPremise(ws, "node-2");
@@ -50,8 +50,8 @@ describe("genApplicationLogic", () => {
     it("ignores GenEdges for other nodes", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "derived", "Gen-1", { x: 100, y: 100 });
-      ws = addNode(ws, "derived", "Gen-2", { x: 200, y: 200 });
+      ws = addNode(ws, "axiom", "Gen-1", { x: 100, y: 100 });
+      ws = addNode(ws, "axiom", "Gen-2", { x: 200, y: 200 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const genEdge: InferenceEdge = {
         _tag: "gen",
@@ -70,21 +70,21 @@ describe("genApplicationLogic", () => {
   describe("validateGenApplication", () => {
     it("returns VariableNameEmpty when variable name is empty", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "derived", "Gen", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Gen", { x: 0, y: 0 });
       const result = validateGenApplication(ws, "node-1", "");
       expect(result._tag).toBe("VariableNameEmpty");
     });
 
     it("returns VariableNameEmpty when variable name is whitespace", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "derived", "Gen", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Gen", { x: 0, y: 0 });
       const result = validateGenApplication(ws, "node-1", "   ");
       expect(result._tag).toBe("VariableNameEmpty");
     });
 
     it("returns PremiseMissing when no GenEdge is present", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "derived", "Gen", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Gen", { x: 0, y: 0 });
       const result = validateGenApplication(ws, "node-1", "x");
       expect(result._tag).toBe("PremiseMissing");
     });
@@ -92,7 +92,7 @@ describe("genApplicationLogic", () => {
     it("returns PremiseParseError when premise formula is invalid", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "-> ->");
-      ws = addNode(ws, "derived", "Gen", { x: 100, y: 100 });
+      ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const genEdge: InferenceEdge = {
         _tag: "gen",
@@ -109,7 +109,7 @@ describe("genApplicationLogic", () => {
     it("returns PremiseParseError when premise formula is empty", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "");
-      ws = addNode(ws, "derived", "Gen", { x: 100, y: 100 });
+      ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const genEdge: InferenceEdge = {
         _tag: "gen",
@@ -126,7 +126,7 @@ describe("genApplicationLogic", () => {
     it("returns GeneralizationNotEnabled when system does not support Gen", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "derived", "Gen", { x: 100, y: 100 });
+      ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const genEdge: InferenceEdge = {
         _tag: "gen",
@@ -143,7 +143,7 @@ describe("genApplicationLogic", () => {
     it("returns Success with conclusion when Gen is valid", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "derived", "Gen", { x: 100, y: 100 });
+      ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const genEdge: InferenceEdge = {
         _tag: "gen",
@@ -164,7 +164,7 @@ describe("genApplicationLogic", () => {
     it("returns Success with complex formula", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> psi");
-      ws = addNode(ws, "derived", "Gen", { x: 100, y: 100 });
+      ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const genEdge: InferenceEdge = {
         _tag: "gen",
@@ -184,7 +184,7 @@ describe("genApplicationLogic", () => {
     it("handles predicate formula with Gen", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "P(x) -> Q(x)");
-      ws = addNode(ws, "derived", "Gen", { x: 100, y: 100 });
+      ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const genEdge: InferenceEdge = {
         _tag: "gen",
@@ -204,7 +204,7 @@ describe("genApplicationLogic", () => {
     it("trims variable name whitespace", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      ws = addNode(ws, "derived", "Gen", { x: 100, y: 100 });
+      ws = addNode(ws, "axiom", "Gen", { x: 100, y: 100 });
       ws = addConnection(ws, "node-1", "out", "node-2", "premise");
       const genEdge: InferenceEdge = {
         _tag: "gen",

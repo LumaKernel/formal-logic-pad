@@ -13,17 +13,18 @@ import type { ConnectorPort } from "../infinite-canvas/connector";
 // --- ノード種別 ---
 
 /**
- * 証明ノードの種類。
- * - axiom: 公理（葉ノード）— 編集可能な論理式
- * - derived: 推論規則で導出されたノード — InferenceEdge経由で前提と結論の関係を管理
- * - conclusion: 最終結論
+ * 証明ノードの種類（ストレージ上の種別）。
+ * - axiom: 公理（通常の論理式ノード）— 編集可能
+ * - conclusion: 最終結論（現在未使用だが互換性のため保持）
+ *
+ * ノードが "derived" かどうかは InferenceEdge の有無から計算する（computed）。
+ * ProofNodeKind には含めない。
  */
-export type ProofNodeKind = "axiom" | "derived" | "conclusion";
+export type ProofNodeKind = "axiom" | "conclusion";
 
 /** すべてのProofNodeKindの値（exhaustive checkに使用） */
 export const PROOF_NODE_KINDS: readonly ProofNodeKind[] = [
   "axiom",
-  "derived",
   "conclusion",
 ] as const;
 
@@ -36,8 +37,6 @@ export function getProofNodeKindLabel(kind: ProofNodeKind): string {
   switch (kind) {
     case "axiom":
       return "Axiom";
-    case "derived":
-      return "Derived";
     case "conclusion":
       return "Conclusion";
   }
@@ -65,10 +64,7 @@ const NODE_COLORS = {
   axiom: { varName: "--color-node-axiom", fallback: "#5b8bd9" },
   derived: { varName: "--color-node-derived", fallback: "#e6a84d" },
   conclusion: { varName: "--color-node-conclusion", fallback: "#4ad97a" },
-} as const satisfies Record<
-  ProofNodeKind,
-  { readonly varName: string; readonly fallback: string }
->;
+} as const;
 
 /** CSS変数参照文字列を生成するヘルパー */
 function cssVar(entry: {
@@ -102,11 +98,6 @@ export function getProofNodeStyle(kind: ProofNodeKind): ProofNodeStyle {
       return {
         ...CARD_BASE,
         stripeColor: cssVar(NODE_COLORS.axiom),
-      };
-    case "derived":
-      return {
-        ...CARD_BASE,
-        stripeColor: cssVar(NODE_COLORS.derived),
       };
     case "conclusion":
       return {
@@ -149,6 +140,7 @@ export const CONCLUSION_PORTS: readonly ConnectorPort[] = [
 
 /**
  * ノード種別に対応するポート定義を返す。
+ * derived は computed なので、axiom kind のノードは常に全ポート（入出力両方）を持つ。
  * exhaustive switchで網羅性を保証。
  */
 export function getProofNodePorts(
@@ -156,8 +148,6 @@ export function getProofNodePorts(
 ): readonly ConnectorPort[] {
   switch (kind) {
     case "axiom":
-      return AXIOM_PORTS;
-    case "derived":
       return DERIVED_PORTS;
     case "conclusion":
       return CONCLUSION_PORTS;
@@ -174,10 +164,7 @@ const EDGE_COLORS = {
   axiom: { varName: "--color-edge-axiom", fallback: "#7aa3e0" },
   derived: { varName: "--color-edge-derived", fallback: "#e6b870" },
   conclusion: { varName: "--color-edge-conclusion", fallback: "#7ae0a3" },
-} as const satisfies Record<
-  ProofNodeKind,
-  { readonly varName: string; readonly fallback: string }
->;
+} as const;
 
 /**
  * ノード種別に対応するエッジ（接続線）の色を返す。
@@ -187,9 +174,52 @@ export function getProofEdgeColor(fromKind: ProofNodeKind): string {
   switch (fromKind) {
     case "axiom":
       return cssVar(EDGE_COLORS.axiom);
-    case "derived":
-      return cssVar(EDGE_COLORS.derived);
     case "conclusion":
       return cssVar(EDGE_COLORS.conclusion);
+  }
+}
+
+// --- NodeClassification ベースのUI関数 ---
+// derived はストレージ上の kind ではなく InferenceEdge から computed で判定する。
+// NodeClassification を使って UI スタイル/ポート/エッジ色を決定する。
+
+import type { NodeClassification } from "./nodeRoleLogic";
+
+/**
+ * NodeClassification に基づいてノードスタイルを返す。
+ * derived ノードは InferenceEdge の有無から計算された classification で判定される。
+ */
+export function getNodeClassificationStyle(
+  classification: NodeClassification,
+): ProofNodeStyle {
+  switch (classification) {
+    case "root-axiom":
+    case "root-goal":
+    case "root-unmarked":
+      return {
+        ...CARD_BASE,
+        stripeColor: cssVar(NODE_COLORS.axiom),
+      };
+    case "derived":
+      return {
+        ...CARD_BASE,
+        stripeColor: cssVar(NODE_COLORS.derived),
+      };
+  }
+}
+
+/**
+ * NodeClassification に基づいてエッジ色を返す。
+ */
+export function getNodeClassificationEdgeColor(
+  classification: NodeClassification,
+): string {
+  switch (classification) {
+    case "root-axiom":
+    case "root-goal":
+    case "root-unmarked":
+      return cssVar(EDGE_COLORS.axiom);
+    case "derived":
+      return cssVar(EDGE_COLORS.derived);
   }
 }

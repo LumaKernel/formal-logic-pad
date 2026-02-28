@@ -15,7 +15,7 @@ import { FormulaDisplay } from "../formula-input/FormulaDisplay";
 import { FormulaEditor } from "../formula-input/FormulaEditor";
 import { computeParseState } from "../formula-input/FormulaInput";
 import type { ProofNodeKind } from "./proofNodeUI";
-import { getProofNodeStyle } from "./proofNodeUI";
+import { getProofNodeStyle, getNodeClassificationStyle } from "./proofNodeUI";
 import type { NodeRole, NodeClassification } from "./nodeRoleLogic";
 import type { DetailLevel, DetailVisibilityOverrides } from "./levelOfDetail";
 import { getDetailVisibility } from "./levelOfDetail";
@@ -297,7 +297,13 @@ export function EditableProofNode({
   substitutionEntries,
   testId,
 }: EditableProofNodeProps) {
-  const nodeStyle = useMemo(() => getProofNodeStyle(kind), [kind]);
+  const nodeStyle = useMemo(
+    () =>
+      classification
+        ? getNodeClassificationStyle(classification)
+        : getProofNodeStyle(kind),
+    [kind, classification],
+  );
   const visibility = useMemo(
     () => getDetailVisibility(detailLevel, visibilityOverrides),
     [detailLevel, visibilityOverrides],

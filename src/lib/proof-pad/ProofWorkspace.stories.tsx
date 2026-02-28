@@ -64,7 +64,7 @@ function WorkspaceWithNodes() {
       { x: 350, y: 50 },
       "(φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))",
     );
-    ws = addNode(ws, "derived", "MP", { x: 200, y: 200 });
+    ws = addNode(ws, "axiom", "MP", { x: 200, y: 200 });
     ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
     ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
     return ws;

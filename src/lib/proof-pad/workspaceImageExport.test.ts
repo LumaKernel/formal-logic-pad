@@ -26,7 +26,7 @@ function createSampleWorkspace(): WorkspaceState {
       },
       {
         id: "node-2",
-        kind: "derived",
+        kind: "axiom",
         label: "MP",
         formulaText: "psi -> phi",
         position: { x: 300, y: 400 },
@@ -80,14 +80,14 @@ function createMultiNodeWorkspace(): WorkspaceState {
       },
       {
         id: "node-3",
-        kind: "derived",
+        kind: "axiom",
         label: "MP",
         formulaText: "result",
         position: { x: 150, y: 200 },
       },
       {
         id: "node-4",
-        kind: "derived",
+        kind: "axiom",
         label: "Gen",
         formulaText: "all x. result",
         position: { x: 150, y: 400 },
@@ -196,7 +196,7 @@ describe("computeExportBounds", () => {
       },
       {
         id: "n2",
-        kind: "derived",
+        kind: "axiom",
         label: "MP",
         formulaText: "psi",
         position: { x: 400, y: 300 },
@@ -258,9 +258,9 @@ describe("generateExportSVG", () => {
     expect(svg).toContain("#fffdf8");
 
     // 各種ストライプ色（CSS変数のfallback）がSVGに含まれる
-    expect(svg).toContain("#5b8bd9"); // axiom stripe
-    expect(svg).toContain("#e6a84d"); // derived stripe
-    expect(svg).toContain("#4ad97a"); // conclusion stripe
+    // derived は computed: 接続のないノードは axiom ストライプ、接続があるノードは derived ストライプ
+    expect(svg).toContain("#5b8bd9"); // axiom stripe（ルートノード）
+    expect(svg).toContain("#e6a84d"); // derived stripe（接続先ノード: MP, Gen, Goal）
 
     // 各種ラベル
     expect(svg).toContain("Axiom");
@@ -416,7 +416,7 @@ describe("generateExportSVG", () => {
         },
         {
           id: "n2",
-          kind: "derived",
+          kind: "axiom",
           label: "MP",
           formulaText: "psi",
           position: { x: 200, y: 200 },

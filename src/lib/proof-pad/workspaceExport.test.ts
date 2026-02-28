@@ -30,7 +30,7 @@ function createSampleWorkspace(): WorkspaceState {
       },
       {
         id: "node-2",
-        kind: "derived",
+        kind: "axiom",
         label: "MP",
         formulaText: "psi -> phi",
         position: { x: 300, y: 400 },
@@ -80,7 +80,7 @@ function createGenWorkspace(): WorkspaceState {
     nodes: [
       {
         id: "node-1",
-        kind: "derived",
+        kind: "axiom",
         label: "Gen",
         formulaText: "all x. P(x)",
         position: { x: 100, y: 200 },
@@ -149,21 +149,21 @@ function createWorkspaceWithInferenceEdges(): WorkspaceState {
       },
       {
         id: "node-3",
-        kind: "derived",
+        kind: "axiom",
         label: "MP",
         formulaText: "psi",
         position: { x: 100, y: 200 },
       },
       {
         id: "node-4",
-        kind: "derived",
+        kind: "axiom",
         label: "Gen",
         formulaText: "all x. phi",
         position: { x: 0, y: 400 },
       },
       {
         id: "node-5",
-        kind: "derived",
+        kind: "axiom",
         label: "Subst",
         formulaText: "(p -> q) -> (psi -> (p -> q))",
         position: { x: 200, y: 400 },
@@ -488,9 +488,9 @@ describe("importWorkspaceFromJSON", () => {
     expect(result._tag).toBe("Success");
     if (result._tag !== "Success") return;
 
-    expect(result.workspace.nodes[0].kind).toBe("derived");
-    expect(result.workspace.nodes[1].kind).toBe("derived");
-    expect(result.workspace.nodes[2].kind).toBe("derived");
+    expect(result.workspace.nodes[0].kind).toBe("axiom");
+    expect(result.workspace.nodes[1].kind).toBe("axiom");
+    expect(result.workspace.nodes[2].kind).toBe("axiom");
     expect(result.workspace.inferenceEdges).toEqual([]);
   });
 
@@ -501,7 +501,7 @@ describe("importWorkspaceFromJSON", () => {
       nodes: [
         {
           id: "node-1",
-          kind: "derived",
+          kind: "axiom",
           label: "MP",
           formulaText: "",
           position: { x: 0, y: 0 },
@@ -877,7 +877,7 @@ describe("importWorkspaceFromJSON", () => {
           nodes: [
             {
               id: "n1",
-              kind: "derived",
+              kind: "axiom",
               label: "Gen",
               formulaText: "",
               position: { x: 0, y: 0 },

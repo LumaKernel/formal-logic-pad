@@ -60,20 +60,18 @@ type SerializedLogicSystem = {
 // --- バリデーション ---
 
 const VALID_AXIOM_IDS: ReadonlySet<string> = new Set(["A1", "A2", "A3"]);
-const VALID_KINDS: ReadonlySet<string> = new Set([
-  "axiom",
-  "derived",
-  "conclusion",
-]);
+const VALID_KINDS: ReadonlySet<string> = new Set(["axiom", "conclusion"]);
 
 /**
- * レガシーノード種別をderivedに変換する。
- * 旧フォーマットの互換性のため、mp/gen/substitution をderivedとして読み込む。
+ * レガシーノード種別をaxiomに変換する。
+ * 旧フォーマットの互換性のため、mp/gen/substitution/derived をaxiomとして読み込む。
+ * derivedかどうかはInferenceEdgeから計算される。
  */
 const LEGACY_KIND_MAP: ReadonlyMap<string, string> = new Map([
-  ["mp", "derived"],
-  ["gen", "derived"],
-  ["substitution", "derived"],
+  ["mp", "axiom"],
+  ["gen", "axiom"],
+  ["substitution", "axiom"],
+  ["derived", "axiom"],
 ]);
 const VALID_MODES: ReadonlySet<string> = new Set(["free", "quest"]);
 const VALID_ROLES: ReadonlySet<string> = new Set(["axiom", "goal"]);

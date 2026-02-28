@@ -123,7 +123,7 @@ describe("ProofWorkspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 });
       ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 });
-      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "axiom", "MP", { x: 100, y: 150 });
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
 
@@ -746,7 +746,7 @@ describe("ProofWorkspace", () => {
       expect(onWorkspaceChange).toHaveBeenCalled();
       const newState = onWorkspaceChange.mock.calls[0][0] as WorkspaceState;
       expect(newState.nodes).toHaveLength(3);
-      expect(newState.nodes[2].kind).toBe("derived");
+      expect(newState.nodes[2].kind).toBe("axiom");
       expect(newState.nodes[2].formulaText).toBe("ψ");
       expect(newState.connections).toHaveLength(2);
     });
@@ -807,7 +807,7 @@ describe("ProofWorkspace", () => {
 
     it("does not show status for MP node without connections", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "derived", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "axiom", "MP", { x: 100, y: 150 });
 
       render(
         <ProofWorkspace
@@ -1364,7 +1364,7 @@ describe("ProofWorkspace", () => {
 
     it("does not show status for Gen node without connections", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
-      ws = addNode(ws, "derived", "Gen", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Gen", { x: 0, y: 0 });
       ws = updateNodeGenVariableName(ws, "node-1", "x");
 
       render(
@@ -2904,7 +2904,7 @@ describe("ProofWorkspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
-      ws = addNode(ws, "derived", "MP", { x: 100, y: 100 }, "psi");
+      ws = addNode(ws, "axiom", "MP", { x: 100, y: 100 }, "psi");
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
       ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
 

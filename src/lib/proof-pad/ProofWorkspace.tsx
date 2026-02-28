@@ -28,7 +28,10 @@ import type { SelectableItem } from "../infinite-canvas/multiSelection";
 import { useConnectionPreview } from "../infinite-canvas/useConnectionPreview";
 import { buildPortCandidates } from "../infinite-canvas/connectionPreview";
 import { EditableProofNode } from "./EditableProofNode";
-import { getProofNodePorts, getProofEdgeColor } from "./proofNodeUI";
+import {
+  getProofNodePorts,
+  getNodeClassificationEdgeColor,
+} from "./proofNodeUI";
 import { AxiomPalette } from "./AxiomPalette";
 import { getAvailableAxioms, type AxiomPaletteItem } from "./axiomPaletteLogic";
 import {
@@ -686,6 +689,13 @@ export function ProofWorkspace({
     [autoLayout, autoLayoutDirection, workspace, nodeSizes, setWorkspace],
   );
 
+  // --- ノード分類 ---
+
+  const nodeClassifications = useMemo(
+    () => classifyAllNodes(workspace.nodes, workspace.connections),
+    [workspace.nodes, workspace.connections],
+  );
+
   // --- ポートドラッグ接続 ---
 
   const portCandidates = useMemo(
@@ -815,7 +825,7 @@ export function ProofWorkspace({
       };
       startConnectionDrag(nodeId, portOnItem, screenX, screenY);
     },
-    [workspace.nodes, nodeSizes, startConnectionDrag],
+    [workspace.nodes, nodeSizes, nodeClassifications, startConnectionDrag],
   );
 
   const handleConnectionPointerMove = useCallback(
@@ -1019,13 +1029,10 @@ export function ProofWorkspace({
       { readonly message: string; readonly type: "error" | "success" }
     >();
     for (const node of workspace.nodes) {
-      // InferenceEdge経由のderivedノード
-      const mpEdge =
-        node.kind === "derived"
-          ? workspace.inferenceEdges.find(
-              (e) => e._tag === "mp" && e.conclusionNodeId === node.id,
-            )
-          : undefined;
+      // InferenceEdge経由で結論ノードかどうかを判定（kindではなくInferenceEdgeで判定）
+      const mpEdge = workspace.inferenceEdges.find(
+        (e) => e._tag === "mp" && e.conclusionNodeId === node.id,
+      );
       if (!mpEdge) continue;
       const result = validateMPApplication(workspace, node.id);
       if (result._tag === "Success") {
@@ -1049,13 +1056,10 @@ export function ProofWorkspace({
       { readonly message: string; readonly type: "error" | "success" }
     >();
     for (const node of workspace.nodes) {
-      // InferenceEdge経由のderivedノード
-      const genEdgeRaw =
-        node.kind === "derived"
-          ? workspace.inferenceEdges.find(
-              (e) => e._tag === "gen" && e.conclusionNodeId === node.id,
-            )
-          : undefined;
+      // InferenceEdge経由で結論ノードかどうかを判定（kindではなくInferenceEdgeで判定）
+      const genEdgeRaw = workspace.inferenceEdges.find(
+        (e) => e._tag === "gen" && e.conclusionNodeId === node.id,
+      );
       if (!genEdgeRaw) continue;
       const variableName =
         genEdgeRaw._tag === "gen"
@@ -1083,14 +1087,11 @@ export function ProofWorkspace({
       { readonly message: string; readonly type: "error" | "success" }
     >();
     for (const node of workspace.nodes) {
-      // InferenceEdge経由のderivedノード
-      const substEdgeRaw =
-        node.kind === "derived"
-          ? workspace.inferenceEdges.find(
-              (e) =>
-                e._tag === "substitution" && e.conclusionNodeId === node.id,
-            )
-          : undefined;
+      // InferenceEdge経由で結論ノードかどうかを判定（kindではなくInferenceEdgeで判定）
+      const substEdgeRaw = workspace.inferenceEdges.find(
+        (e) =>
+          e._tag === "substitution" && e.conclusionNodeId === node.id,
+      );
       if (!substEdgeRaw) continue;
       const entries =
         substEdgeRaw._tag === "substitution"
@@ -1185,13 +1186,6 @@ export function ProofWorkspace({
     onGoalAchieved,
     workspace.nodes,
   ]);
-
-  // --- ノード分類 ---
-
-  const nodeClassifications = useMemo(
-    () => classifyAllNodes(workspace.nodes, workspace.connections),
-    [workspace.nodes, workspace.connections],
-  );
 
   // --- 公理名自動判別 ---
 
@@ -2121,11 +2115,13 @@ export function ProofWorkspace({
           mpValidations.get(conn.toNodeId) ??
           genValidations.get(conn.toNodeId) ??
           substitutionValidations.get(conn.toNodeId);
+        const fromClassification =
+          nodeClassifications.get(fromNode.id) ?? "root-unmarked";
         const color = nodeValidation
           ? nodeValidation.type === "error"
             ? "var(--color-error, #e06060)"
             : "var(--color-success, #60c060)"
-          : getProofEdgeColor(fromNode.kind);
+          : getNodeClassificationEdgeColor(fromClassification);
 
         // 推論エッジラベル: derivedノードへの接続にInferenceEdgeバッジを表示
         const inferenceEdge = findInferenceEdgeForConclusionNode(
@@ -2185,6 +2181,7 @@ export function ProofWorkspace({
     [
       workspace,
       nodeSizes,
+      nodeClassifications,
       viewport,
       cullingEnabled,
       viewportBounds,
@@ -2308,7 +2305,7 @@ export function ProofWorkspace({
               onFormulaTextChange={handleFormulaTextChange}
               onFormulaParsed={handleFormulaParsed}
               onModeChange={handleModeChange}
-              editable={node.kind !== "derived"}
+              editable={nodeClassifications.get(node.id) !== "derived"}
               statusMessage={nodeValidation?.message}
               statusType={nodeValidation?.type}
               classification={nodeClassifications.get(node.id)}

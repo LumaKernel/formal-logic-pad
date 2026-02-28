@@ -60,11 +60,7 @@ export function classifyNode(
   node: WorkspaceNode,
   connections: readonly WorkspaceConnection[],
 ): NodeClassification {
-  // kind: "derived" は常に derived（InferenceEdge経由で前提を持つ）
-  if (node.kind === "derived") {
-    return "derived";
-  }
-
+  // derived判定: コネクション（InferenceEdge由来）の有無で判定
   const isRoot = isRootNode(node.id, connections);
 
   if (!isRoot) {
@@ -79,7 +75,7 @@ export function classifyNode(
     return "root-goal";
   }
 
-  // 未マーク: axiom kind のノードは暗黙的に公理
+  // 未マーク: ルートノードは暗黙的に公理
   return "root-unmarked";
 }
 
