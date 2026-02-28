@@ -2,12 +2,20 @@ import { describe, expect, it } from "vitest";
 import {
   getInferenceEdgeBadgeColor,
   computeInferenceEdgeLabelData,
+  getPremiseRole,
+  getInferenceEdgeLabelForConnection,
+  computeInferenceEdgeLabelDataForConnection,
 } from "./inferenceEdgeLabelLogic";
 import type {
   MPEdge,
   GenEdge,
   SubstitutionEdge,
   NdInferenceEdge,
+  NdImplicationElimEdge,
+  NdConjunctionIntroEdge,
+  NdWeakeningEdge,
+  NdDisjunctionElimEdge,
+  NdExistentialElimEdge,
 } from "./inferenceEdge";
 
 describe("inferenceEdgeLabelLogic", () => {
@@ -144,6 +152,331 @@ describe("inferenceEdgeLabelLogic", () => {
       const result = computeInferenceEdgeLabelData(edge);
       expect(result.label).toBe("→I");
       expect(result.tag).toBe("nd-implication-intro");
+    });
+  });
+
+  describe("getPremiseRole", () => {
+    it("returns 'left' for MP left premise", () => {
+      const edge: MPEdge = {
+        _tag: "mp",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "a",
+        rightPremiseNodeId: "b",
+        conclusionText: "",
+      };
+      expect(getPremiseRole(edge, "a")).toBe("left");
+    });
+
+    it("returns 'right' for MP right premise", () => {
+      const edge: MPEdge = {
+        _tag: "mp",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "a",
+        rightPremiseNodeId: "b",
+        conclusionText: "",
+      };
+      expect(getPremiseRole(edge, "b")).toBe("right");
+    });
+
+    it("returns undefined for unrelated node in MP", () => {
+      const edge: MPEdge = {
+        _tag: "mp",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "a",
+        rightPremiseNodeId: "b",
+        conclusionText: "",
+      };
+      expect(getPremiseRole(edge, "x")).toBeUndefined();
+    });
+
+    it("returns 'premise' for 1-premise Gen edge", () => {
+      const edge: GenEdge = {
+        _tag: "gen",
+        conclusionNodeId: "c",
+        premiseNodeId: "a",
+        variableName: "x",
+        conclusionText: "",
+      };
+      expect(getPremiseRole(edge, "a")).toBe("premise");
+    });
+
+    it("returns 'left'/'right' for →E edge", () => {
+      const edge: NdImplicationElimEdge = {
+        _tag: "nd-implication-elim",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "p1",
+        rightPremiseNodeId: "p2",
+        conclusionText: "",
+      };
+      expect(getPremiseRole(edge, "p1")).toBe("left");
+      expect(getPremiseRole(edge, "p2")).toBe("right");
+    });
+
+    it("returns 'left'/'right' for ∧I edge", () => {
+      const edge: NdConjunctionIntroEdge = {
+        _tag: "nd-conjunction-intro",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "p1",
+        rightPremiseNodeId: "p2",
+        conclusionText: "",
+      };
+      expect(getPremiseRole(edge, "p1")).toBe("left");
+      expect(getPremiseRole(edge, "p2")).toBe("right");
+    });
+
+    it("returns 'kept'/'discarded' for w edge", () => {
+      const edge: NdWeakeningEdge = {
+        _tag: "nd-weakening",
+        conclusionNodeId: "c",
+        keptPremiseNodeId: "k",
+        discardedPremiseNodeId: "d",
+        conclusionText: "",
+      };
+      expect(getPremiseRole(edge, "k")).toBe("kept");
+      expect(getPremiseRole(edge, "d")).toBe("discarded");
+    });
+
+    it("returns 'existential'/'case' for ∃E edge", () => {
+      const edge: NdExistentialElimEdge = {
+        _tag: "nd-existential-elim",
+        conclusionNodeId: "c",
+        existentialPremiseNodeId: "e",
+        casePremiseNodeId: "p",
+        dischargedAssumptionId: 1,
+        dischargedFormulaText: "A",
+        conclusionText: "",
+      };
+      expect(getPremiseRole(edge, "e")).toBe("existential");
+      expect(getPremiseRole(edge, "p")).toBe("case");
+    });
+
+    it("returns 'disjunction'/'leftCase'/'rightCase' for ∨E edge", () => {
+      const edge: NdDisjunctionElimEdge = {
+        _tag: "nd-disjunction-elim",
+        conclusionNodeId: "c",
+        disjunctionPremiseNodeId: "d",
+        leftCasePremiseNodeId: "l",
+        leftDischargedAssumptionId: 1,
+        rightCasePremiseNodeId: "r",
+        rightDischargedAssumptionId: 2,
+        conclusionText: "",
+      };
+      expect(getPremiseRole(edge, "d")).toBe("disjunction");
+      expect(getPremiseRole(edge, "l")).toBe("leftCase");
+      expect(getPremiseRole(edge, "r")).toBe("rightCase");
+    });
+
+    it("returns undefined for MP with undefined premises", () => {
+      const edge: MPEdge = {
+        _tag: "mp",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: undefined,
+        rightPremiseNodeId: undefined,
+        conclusionText: "",
+      };
+      expect(getPremiseRole(edge, "a")).toBeUndefined();
+    });
+
+    it("returns undefined for unrelated node in w edge", () => {
+      const edge: NdWeakeningEdge = {
+        _tag: "nd-weakening",
+        conclusionNodeId: "c",
+        keptPremiseNodeId: "k",
+        discardedPremiseNodeId: "d",
+        conclusionText: "",
+      };
+      expect(getPremiseRole(edge, "x")).toBeUndefined();
+    });
+
+    it("returns undefined for unrelated node in ∃E edge", () => {
+      const edge: NdExistentialElimEdge = {
+        _tag: "nd-existential-elim",
+        conclusionNodeId: "c",
+        existentialPremiseNodeId: "e",
+        casePremiseNodeId: "p",
+        dischargedAssumptionId: 1,
+        dischargedFormulaText: "A",
+        conclusionText: "",
+      };
+      expect(getPremiseRole(edge, "x")).toBeUndefined();
+    });
+
+    it("returns undefined for unrelated node in ∨E edge", () => {
+      const edge: NdDisjunctionElimEdge = {
+        _tag: "nd-disjunction-elim",
+        conclusionNodeId: "c",
+        disjunctionPremiseNodeId: "d",
+        leftCasePremiseNodeId: "l",
+        leftDischargedAssumptionId: 1,
+        rightCasePremiseNodeId: "r",
+        rightDischargedAssumptionId: 2,
+        conclusionText: "",
+      };
+      expect(getPremiseRole(edge, "x")).toBeUndefined();
+    });
+
+    it("returns undefined for unrelated node in 1-premise Gen edge", () => {
+      const edge: GenEdge = {
+        _tag: "gen",
+        conclusionNodeId: "c",
+        premiseNodeId: "a",
+        variableName: "x",
+        conclusionText: "",
+      };
+      expect(getPremiseRole(edge, "x")).toBeUndefined();
+    });
+  });
+
+  describe("getInferenceEdgeLabelForConnection", () => {
+    it("returns 'MP:φ' for MP left premise", () => {
+      const edge: MPEdge = {
+        _tag: "mp",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "a",
+        rightPremiseNodeId: "b",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabelForConnection(edge, "a")).toBe("MP:φ");
+    });
+
+    it("returns 'MP:→' for MP right premise", () => {
+      const edge: MPEdge = {
+        _tag: "mp",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "a",
+        rightPremiseNodeId: "b",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabelForConnection(edge, "b")).toBe("MP:→");
+    });
+
+    it("returns 'MP' for unknown premise in MP edge", () => {
+      const edge: MPEdge = {
+        _tag: "mp",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "a",
+        rightPremiseNodeId: "b",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabelForConnection(edge, "x")).toBe("MP");
+    });
+
+    it("returns '→E:φ' and '→E:→' for ND →E", () => {
+      const edge: NdImplicationElimEdge = {
+        _tag: "nd-implication-elim",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "p1",
+        rightPremiseNodeId: "p2",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabelForConnection(edge, "p1")).toBe("→E:φ");
+      expect(getInferenceEdgeLabelForConnection(edge, "p2")).toBe("→E:→");
+    });
+
+    it("returns '∧I:L' and '∧I:R' for ND ∧I", () => {
+      const edge: NdConjunctionIntroEdge = {
+        _tag: "nd-conjunction-intro",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "p1",
+        rightPremiseNodeId: "p2",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabelForConnection(edge, "p1")).toBe("∧I:L");
+      expect(getInferenceEdgeLabelForConnection(edge, "p2")).toBe("∧I:R");
+    });
+
+    it("returns 'w:✓' and 'w:✗' for ND w", () => {
+      const edge: NdWeakeningEdge = {
+        _tag: "nd-weakening",
+        conclusionNodeId: "c",
+        keptPremiseNodeId: "k",
+        discardedPremiseNodeId: "d",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabelForConnection(edge, "k")).toBe("w:✓");
+      expect(getInferenceEdgeLabelForConnection(edge, "d")).toBe("w:✗");
+    });
+
+    it("returns '∨E:∨', '∨E:L', '∨E:R' for ND ∨E", () => {
+      const edge: NdDisjunctionElimEdge = {
+        _tag: "nd-disjunction-elim",
+        conclusionNodeId: "c",
+        disjunctionPremiseNodeId: "d",
+        leftCasePremiseNodeId: "l",
+        leftDischargedAssumptionId: 1,
+        rightCasePremiseNodeId: "r",
+        rightDischargedAssumptionId: 2,
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabelForConnection(edge, "d")).toBe("∨E:∨");
+      expect(getInferenceEdgeLabelForConnection(edge, "l")).toBe("∨E:L");
+      expect(getInferenceEdgeLabelForConnection(edge, "r")).toBe("∨E:R");
+    });
+
+    it("returns '∃E:∃' and '∃E:φ' for ND ∃E", () => {
+      const edge: NdExistentialElimEdge = {
+        _tag: "nd-existential-elim",
+        conclusionNodeId: "c",
+        existentialPremiseNodeId: "e",
+        casePremiseNodeId: "p",
+        dischargedAssumptionId: 1,
+        dischargedFormulaText: "A",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabelForConnection(edge, "e")).toBe("∃E:∃");
+      expect(getInferenceEdgeLabelForConnection(edge, "p")).toBe("∃E:φ");
+    });
+
+    it("returns base label for 1-premise Gen edge", () => {
+      const edge: GenEdge = {
+        _tag: "gen",
+        conclusionNodeId: "c",
+        premiseNodeId: "a",
+        variableName: "x",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabelForConnection(edge, "a")).toBe("Gen(x)");
+    });
+
+    it("returns base label for 1-premise Subst edge", () => {
+      const edge: SubstitutionEdge = {
+        _tag: "substitution",
+        conclusionNodeId: "c",
+        premiseNodeId: "a",
+        entries: [],
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabelForConnection(edge, "a")).toBe("Subst");
+    });
+  });
+
+  describe("computeInferenceEdgeLabelDataForConnection", () => {
+    it("returns role-annotated label data for MP left premise", () => {
+      const edge: MPEdge = {
+        _tag: "mp",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "a",
+        rightPremiseNodeId: "b",
+        conclusionText: "",
+      };
+      const result = computeInferenceEdgeLabelDataForConnection(edge, "a");
+      expect(result.label).toBe("MP:φ");
+      expect(result.tag).toBe("mp");
+      expect(result.badgeColor).toContain("--color-badge-mp");
+    });
+
+    it("returns role-annotated label data for MP right premise", () => {
+      const edge: MPEdge = {
+        _tag: "mp",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "a",
+        rightPremiseNodeId: "b",
+        conclusionText: "",
+      };
+      const result = computeInferenceEdgeLabelDataForConnection(edge, "b");
+      expect(result.label).toBe("MP:→");
+      expect(result.tag).toBe("mp");
+      expect(result.badgeColor).toContain("--color-badge-mp");
     });
   });
 });

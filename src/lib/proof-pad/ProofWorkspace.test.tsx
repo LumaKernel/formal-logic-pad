@@ -729,11 +729,11 @@ describe("ProofWorkspace", () => {
       await user.click(screen.getByTestId("proof-node-node-1"));
       await user.click(screen.getByTestId("proof-node-node-2"));
 
-      // Edge badges should appear on connections to MP node
+      // Edge badges should appear with role-annotated labels
       await waitFor(() => {
-        const badges = screen.getAllByText("MP");
-        // There should be at least one MP badge on a connection
-        expect(badges.length).toBeGreaterThanOrEqual(1);
+        // MP:φ for antecedent, MP:→ for conditional
+        expect(screen.getByText("MP:φ")).toBeInTheDocument();
+        expect(screen.getByText("MP:→")).toBeInTheDocument();
       });
     });
 
