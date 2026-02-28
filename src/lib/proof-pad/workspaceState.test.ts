@@ -318,19 +318,61 @@ describe("proofWorkspace", () => {
       expect(result.connections).toHaveLength(0);
     });
 
-    it("does not affect other connections", () => {
+    it("does not affect connections to different nodes", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       ws = addNode(ws, "axiom", "Axiom", { x: 200, y: 0 });
-      ws = addNode(ws, "axiom", "MP", { x: 100, y: 150 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 400, y: 0 });
+      // InferenceEdge がない接続 → 単体だけ削除
+      ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
       ws = addConnection(ws, "node-1", "out", "node-3", "premise-left");
-      ws = addConnection(ws, "node-2", "out", "node-3", "premise-right");
       const result = removeConnection(
         ws,
-        "conn-node-1-out-node-3-premise-left",
+        "conn-node-1-out-node-2-premise-left",
       );
       expect(result.connections).toHaveLength(1);
-      expect(result.connections[0]!.fromNodeId).toBe("node-2");
+      expect(result.connections[0]!.toNodeId).toBe("node-3");
+    });
+
+    it("removes all connections to same conclusion node when InferenceEdge exists", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      ws = mpResult.workspace;
+      // MP作成後: 2コネクション + 1 InferenceEdge
+      expect(ws.connections).toHaveLength(2);
+      expect(ws.inferenceEdges).toHaveLength(1);
+      // 片方のコネクションを削除 → 両方消える + InferenceEdge も消える
+      ws = removeConnection(ws, "conn-node-1-out-node-3-premise-left");
+      expect(ws.connections).toHaveLength(0);
+      expect(ws.inferenceEdges).toHaveLength(0);
+    });
+
+    it("node becomes root-unmarked after removing inference connections", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      ws = mpResult.workspace;
+      // MP結論ノードは derived
+      expect(ws.connections.some((c) => c.toNodeId === "node-3")).toBe(true);
+      // コネクション削除後 → ルートノードになる
+      ws = removeConnection(ws, "conn-node-2-out-node-3-premise-right");
+      expect(ws.connections.some((c) => c.toNodeId === "node-3")).toBe(false);
+    });
+
+    it("returns unchanged state for non-existent connectionId", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
+      const result = removeConnection(ws, "non-existent-id");
+      expect(result).toBe(ws);
     });
   });
 
@@ -1783,7 +1825,7 @@ describe("proofWorkspace", () => {
       }
     });
 
-    it("removeConnection preserves inferenceEdges", () => {
+    it("removeConnection removes associated InferenceEdge and all connections to that node", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
@@ -1792,22 +1834,54 @@ describe("proofWorkspace", () => {
         y: 100,
       });
       ws = mpResult.workspace;
-      // Before removal: has premise in InferenceEdge
-      const mpEdgeBefore = ws.inferenceEdges?.find(
-        (e) => e._tag === "mp" && e.conclusionNodeId === "node-3",
-      );
-      if (mpEdgeBefore?._tag === "mp") {
-        expect(mpEdgeBefore.leftPremiseNodeId).toBe("node-1");
-      }
-      // After removing legacy connection: InferenceEdge premises are preserved
-      // (InferenceEdge is the source of truth, not legacy connections)
+      // Before: 1 InferenceEdge, 2 connections
+      expect(ws.inferenceEdges).toHaveLength(1);
+      expect(ws.connections).toHaveLength(2);
+      // After removing one connection: InferenceEdge is removed, both connections are removed
       ws = removeConnection(ws, "conn-node-1-out-node-3-premise-left");
-      const mpEdgeAfter = ws.inferenceEdges?.find(
-        (e) => e._tag === "mp" && e.conclusionNodeId === "node-3",
-      );
-      if (mpEdgeAfter?._tag === "mp") {
-        expect(mpEdgeAfter.leftPremiseNodeId).toBe("node-1");
-      }
+      expect(ws.inferenceEdges).toHaveLength(0);
+      expect(ws.connections).toHaveLength(0);
+      // The conclusion node still exists but is no longer derived
+      expect(ws.nodes.find((n) => n.id === "node-3")).toBeDefined();
+    });
+
+    it("removeConnection removes Gen InferenceEdge and connection", () => {
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      const genResult = applyGenAndConnect(ws, "node-1", "x", {
+        x: 100,
+        y: 100,
+      });
+      ws = genResult.workspace;
+      expect(ws.inferenceEdges).toHaveLength(1);
+      expect(ws.connections).toHaveLength(1);
+      // コネクション削除 → Gen InferenceEdge も消える
+      ws = removeConnection(ws, ws.connections[0]!.id);
+      expect(ws.inferenceEdges).toHaveLength(0);
+      expect(ws.connections).toHaveLength(0);
+    });
+
+    it("removeConnection removes Substitution InferenceEdge and connection", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi -> psi -> phi");
+      const entries: SubstitutionEntries = [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          formulaText: "chi",
+        },
+      ];
+      const substResult = applySubstitutionAndConnect(ws, "node-1", entries, {
+        x: 100,
+        y: 100,
+      });
+      ws = substResult.workspace;
+      expect(ws.inferenceEdges).toHaveLength(1);
+      expect(ws.connections).toHaveLength(1);
+      // コネクション削除 → Substitution InferenceEdge も消える
+      ws = removeConnection(ws, ws.connections[0]!.id);
+      expect(ws.inferenceEdges).toHaveLength(0);
+      expect(ws.connections).toHaveLength(0);
     });
 
     it("removeNode removes associated inferenceEdges", () => {

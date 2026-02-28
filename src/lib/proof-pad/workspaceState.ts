@@ -505,11 +505,44 @@ export function addConnection(
   });
 }
 
-/** 接続を削除する */
+/**
+ * 接続を削除する。
+ *
+ * 削除するコネクションの toNodeId に対応する InferenceEdge が存在する場合、
+ * 同じ結論ノードへの他のコネクションもすべて連動削除し、
+ * InferenceEdge も削除する。
+ * これにより、MPノードへの片方のコネクションを消すと
+ * もう片方も消え、ノードが derived ではなくなる。
+ */
 export function removeConnection(
   state: WorkspaceState,
   connectionId: string,
 ): WorkspaceState {
+  const targetConnection = state.connections.find((c) => c.id === connectionId);
+  if (!targetConnection) {
+    return state;
+  }
+
+  const toNodeId = targetConnection.toNodeId;
+
+  // 削除対象のコネクションの toNodeId に対応する InferenceEdge を探す
+  const relatedEdge = state.inferenceEdges.find(
+    (e) => e.conclusionNodeId === toNodeId,
+  );
+
+  if (relatedEdge) {
+    // InferenceEdge が存在する場合:
+    // 同じ結論ノードへの全コネクションを削除し、InferenceEdge も削除する
+    return syncInferenceEdges({
+      ...state,
+      connections: state.connections.filter((c) => c.toNodeId !== toNodeId),
+      inferenceEdges: state.inferenceEdges.filter(
+        (e) => e.conclusionNodeId !== toNodeId,
+      ),
+    });
+  }
+
+  // InferenceEdge がない場合: そのコネクションだけ削除
   return syncInferenceEdges({
     ...state,
     connections: state.connections.filter((c) => c.id !== connectionId),

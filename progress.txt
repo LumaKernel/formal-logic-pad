@@ -6146,3 +6146,25 @@
   - workspaceExportで"derived"→"axiom"のレガシーマッピングが必要（既存保存データとの後方互換性）
   - ReactのuseMemo依存配列は変更後に必ず確認。preserve-manual-memoization lintルールが検出してくれる
 ---
+
+## 2026-02-28 - [proof-pad] コネクション削除時のInferenceEdge・関連コネクション連動削除
+- 実装した内容:
+  - removeConnection関数を改修: コネクション削除時にInferenceEdgeが関連する場合、同一結論ノードへの全コネクションとInferenceEdgeを連動削除
+  - 結論ノードへのincoming接続がすべて失われた場合、ノードがroot-unmarked（浮いた状態）に自動変更される
+  - 存在しないconnectionIdの場合は状態を変更せず返す（参照等価性保持）
+- 変更したファイル:
+  - src/lib/proof-pad/workspaceState.ts (removeConnection関数の改修)
+  - src/lib/proof-pad/workspaceState.test.ts (テスト7件: 連動削除、root-unmarked遷移、非存在ID、MP/Gen/Substitution各エッジ型)
+  - tasks/prd-inserted-tasks.md (タスク完了マーク)
+  - tasks-archived/prd-inserted-tasks.md (完了タスクのアーカイブ)
+  - task-processing.md (空に)
+- ベースラインカバレッジ: Stmts 98.50%, Branch 92.32%, Funcs 89.21%, Lines 99.30%
+- 完了後カバレッジ: Stmts 98.50%, Branch 92.32%, Funcs 89.23%, Lines 99.30% (変化なし)
+- テスト: 5458件 全パス (5件追加)
+- ブラウザテスト: Connection Delete (13 interactions PASS), Valid MP Application (5 interactions PASS)
+- スクリーンショット: .screenshots/connection-delete-story-loaded.png, .screenshots/connection-delete-interactions-pass.png, .screenshots/valid-mp-application-pass.png
+- **今後のイテレーションへの学び:**
+  - removeConnectionはInferenceEdgeのsource of truthとlegacy connectionsの二重管理を考慮する必要がある。InferenceEdgeがある場合は結論ノードへの全コネクションをまとめて削除するのが正しい
+  - syncInferenceEdgesはノード削除時のみクリーンアップする。コネクション削除時のエッジクリーンアップはremoveConnectionが担当
+  - MP/Gen/Substitution各InferenceEdge型でテストを書くことで網羅性を確保。GenEdgeは1 premise + variable、SubstitutionEdgeは1 premise + entries
+---
