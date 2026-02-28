@@ -25,23 +25,30 @@ logic-core, logic-lang, formula-input, infinite-canvas を統合する層。
 
 ## ノード種別
 
-- `axiom`: 公理ノード（青、下にoutポート）
-- `mp`: Modus Ponens（オレンジ、上に2入力+下にoutポート）
-- `conclusion`: 結論（緑、上に2入力ポート）
+- `axiom`: 公理ノード（kind値、ノードの初期状態）
+- "derived" 状態はコネクション/InferenceEdgeから動的に計算される（kindに保存しない）
+- 推論規則（MP/Gen/Substitution）はInferenceEdgeとして表現され、ノードではない
+
+## マージロジック
+
+- `mergeNodesLogic.ts`: 同一formulaTextノードのマージ（純粋ロジック）
+  - 変更時は `mergeNodesLogic.test.ts`, `workspaceState.ts`, `index.ts` も同期
+  - リーダーノード保持、吸収ノードの定理利用コネクションをリーダーに付替え
+  - InferenceEdgeの前提ノードIDも付替え、結論が吸収ノードのEdgeは削除
+- `workspaceState.ts`: `mergeSelectedNodes()` で純粋ロジックをラップ + syncInferenceEdges + revalidate
+- UI: ProofWorkspace.tsx の選択バナーにMergeボタン + Ctrl/Cmd+M ショートカット
 
 ## テスト
 
 - `proofNodeUI.test.ts`: 純粋関数テスト（スタイル、ポート、エッジカラー）
 - `axiomPaletteLogic.test.ts`: 公理パレットロジックテスト（体系別公理一覧）
 - `goalCheckLogic.test.ts`: ゴールチェック純粋ロジックテスト（パース/一致判定/境界ケース）
-- `AxiomPalette.test.tsx`: コンポーネントテスト（表示/クリック/キーボード操作）
-- `EditableProofNode.test.tsx`: コンポーネントテスト（表示/編集/読み取り専用）
-- `EditableProofNode.stories.tsx`: Storybook ストーリー（インタラクションテスト）
-- `ProofWorkspace.test.tsx`: 統合テスト（公理パレット・MP適用・ゴール判定を含む）
-- `ProofWorkspace.stories.tsx`: Storybook ストーリー（GoalAchieved/GoalNotAchieved でゴール判定デモ）
+- `mergeNodesLogic.test.ts`: マージ純粋ロジックテスト（31テスト）
+- `workspaceState.test.ts`: 統合テスト（マージ含む）
+- `ProofWorkspace.stories.tsx`: Storybook ストーリー
 
 ## WorkspaceState
 
-- ゴールは `role: "goal"` を持つ WorkspaceNode で表現（旧 `goalFormulaText` フィールドは廃止済み）
-- `checkGoal(nodes)`: ゴールノードと同じ式を持つ非ゴールノードが存在すれば達成と判定
-- ゴール判定は ProofWorkspace.tsx 内で `checkGoal()` を useMemo で呼び出し
+- ゴールはノードではなく独立データ（`WorkspaceGoal`）として管理
+- ゴール達成判定: ゴール式と同じ式を持つノードが存在し、許可公理のみで導出されていれば達成
+- `isNodeProtected()` は常にfalseを返す（ゴールノード廃止のため）
