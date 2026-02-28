@@ -5748,3 +5748,22 @@
   - ProofWorkspace.tsx は体系に依存しない設計なので、ND対応は主にロジック層の変更で済む
   - emptyLogicSystem（ダミー）を使ってND/SC workspaceのHilbert互換性を確保するパターン
 ---
+
+## 2026-02-28 - カリー・ハワード対応リファレンスエントリ (I1)
+- 実装した内容: カリー・ハワード対応 (Curry-Howard correspondence) のリファレンスエントリを追加
+  - 英語・日本語の5パラグラフ構成: 証明=プログラム対応、対応表、カット除去と正規化、論理体系と型システム、意義と応用
+  - bekki.pdf おわりに p.298 の記述を参照
+  - 関連エントリ: カット除去定理、自然演繹概要、最小論理、直観主義論理、古典論理
+  - 外部リンク: Wikipedia (en/ja), nLab
+  - 逆方向の関連リンクも追加（カット除去定理→CH、最小論理→CH）
+- 変更したファイル:
+  - src/lib/reference/referenceContent.ts - conceptCurryHoward エントリ追加、既存エントリの関連リンク更新
+  - src/lib/reference/referenceContent.test.ts - エントリ数 50→51、新テスト10件追加
+- テスト: 189ファイル, 5061テスト (ベースライン 5045, +16), カバレッジ Stmts 98.54% (維持)
+- ブラウザ確認: Storybook ReferenceModal で正常描画確認
+- スクリーンショット: screenshots.local/curry-howard-reference-modal-storybook.png
+- **今後のイテレーションへの学び:**
+  - リファレンスエントリの追加パターン: referenceContent.ts にエントリ定義 → allReferenceEntries に追加 → テストのエントリ数更新 → 個別テスト追加
+  - C1 (カット除去) と同じパターンで追加可能。概念エントリは order を連番で付ける（現在14まで使用）
+  - 双方向の relatedEntryIds を忘れずに: 新エントリから既存への参照と、既存エントリから新エントリへの参照の両方を設定する
+---
