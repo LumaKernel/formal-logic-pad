@@ -5569,3 +5569,24 @@
   - conceptカテゴリのorder番号: substitution:1, ..., kuroda-translation:6, system-equivalence:7
   - Prettierフォーマットは新ファイル追加だけでなく、既存ファイルの編集後にも必ず実行すること
 ---
+
+## 2026-02-28 - リファレンス: 健全性定理
+- `concept-soundness` リファレンスエントリを追加
+  - bekki Ch.13 の定義13.1, 定理13.10, 定理13.24 に基づく
+  - 健全性の意味、意味論的妥当性、証明戦略、各体系の健全性、帰結、完全性との関係
+  - en/ja 各6パラグラフ
+  - formalNotation: Γ ⊢_K Δ ⟹ Γ ⊨ Δ
+  - 関連エントリ: concept-system-equivalence, system-classical, rule-sc-overview, rule-sc-logical, rule-sc-structural
+- テスト: 5045テスト全パス (referenceContent.test.ts 395テスト含む)
+- カバレッジ: Stmts 98.60%(維持), Branch 92.74%(維持), Funcs 90.88%(維持), Lines 99.32%(維持)
+  - ベースライン: Stmts 98.60%, Branch 92.74%, Funcs 90.88%, Lines 99.32%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでStorybook確認済み
+  - `.screenshots/reference-modal-loaded.png`
+- 変更ファイル:
+  - `src/lib/reference/referenceContent.ts` (MODIFIED - conceptSoundnessエントリ追加)
+  - `src/lib/reference/referenceContent.test.ts` (MODIFIED - エントリ数44→45に更新)
+- **今後のイテレーションへの学び:**
+  - conceptカテゴリのorder: soundness:8 (system-equivalence:7の次)
+  - D5（完全性定理）は健全性と双対の概念なので、conceptSoundnessの relatedEntryIds に相互リンクを追加すること
+---
