@@ -5941,3 +5941,27 @@
   - TruthAssignment (Map) → boolean[] への変換が toDisplayData の主要な責務
   - badgeClassNames を Record<FormulaClassification, string> で定義するとexhaustive checkが型で保証される
 ---
+
+## 2026-02-28 - [reference] 述語論理の構造と解釈リファレンス
+- A3タスク完了: 述語論理の構造と解釈 (bekki Ch.5 定義5.56-5.66) のリファレンスエントリを追加
+- 実装内容:
+  - `conceptPredicateSemantics` エントリ: 7パラグラフ (en/ja 対応)
+  - 構造 M = (D_M, F_M)、変数割当 g、項の指示対象 ⟦τ⟧_{M,g}、充足関係 ⟦φ⟧_{M,g}、量化子の意味論、意味論的帰結 Γ ⊨ Δ
+  - formalNotation: LaTeX形式の正式表記
+  - relatedEntryIds: concept-soundness, concept-completeness, concept-lowenheim-skolem, concept-compactness, system-predicate, notation-quantifiers
+  - externalLinks: Wikipedia (en/ja), nLab
+  - keywords: 26個 (en/ja)
+- 変更ファイル:
+  - `src/lib/reference/referenceContent.ts` - エントリ追加 (54エントリ目)
+  - `src/lib/reference/referenceContent.test.ts` - 12テスト追加 + エントリ数更新
+  - `tasks/prd-advanced.md` - A3完了マーク
+  - `task-processing.md` - クリア
+- テスト: 5227 → 5245 (18件増加)
+- カバレッジ: Stmts 98.55% (維持), Branch 92.72%, Funcs 90.09%, Lines 99.32% (維持)
+- ブラウザ確認: Storybook ReferenceModal/ReferencePopover ストーリーで動作確認
+- スクリーンショット: `.screenshots/reference-modal-default.png`, `.screenshots/reference-popover-open.png`, `.screenshots/reference-storybook-overview.png`
+- **今後のイテレーションへの学び:**
+  - relatedEntryIds の ID は変数名ではなくエントリの `id` プロパティの値を使う（例: `systemPredicateLogic` の id は `"system-predicate"` であり `"system-predicate-logic"` ではない）
+  - リファレンスエントリのテストは既存パターン (describe + it ブロック) に従い、存在確認・タイトル・本文内容・数式・関連エントリ・検索テストを網羅する
+  - body の en/ja パラグラフ数は必ず一致させる（型制約あり）
+---
