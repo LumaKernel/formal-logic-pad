@@ -133,7 +133,6 @@ import type { ReferenceEntry, Locale } from "../reference/referenceEntry";
 import { findEntryById } from "../reference/referenceEntry";
 import { ReferencePopover } from "../reference/ReferencePopover";
 import { getInferenceRuleReferenceEntryId } from "./inferenceRuleReferenceLogic";
-import { ParametricAxiomPanel } from "./ParametricAxiomPanel";
 import { findInferenceEdgeForConclusionNode } from "./inferenceEdge";
 import { computeInferenceEdgeLabelData } from "./inferenceEdgeLabelLogic";
 import { InferenceEdgeBadge } from "./InferenceEdgeBadge";
@@ -592,12 +591,6 @@ export function ProofWorkspace({
   });
   const canvasMenuRef = useRef<HTMLDivElement>(null);
 
-  // パラメトリック公理パネル（A4/A5の入力パネル表示状態）
-  const [parametricAxiomPanel, setParametricAxiomPanel] = useState<
-    | { readonly open: false }
-    | { readonly open: true; readonly axiomId: "A4" | "A5" }
-  >({ open: false });
-
   // コンテナサイズ（Viewport Culling用）
   const [containerSize, setContainerSize] = useState<Size>({
     width: 0,
@@ -877,11 +870,6 @@ export function ProofWorkspace({
 
   const handleAddAxiom = useCallback(
     (axiom: AxiomPaletteItem) => {
-      // A4/A5はパラメトリック公理パネルで入力
-      if (axiom.id === "A4" || axiom.id === "A5") {
-        setParametricAxiomPanel({ open: true, axiomId: axiom.id });
-        return;
-      }
       const position = computeNewNodePosition(workspace.nodes);
       // ラベルは汎用的な "Axiom" を使用。具体的な公理名(A1, A2等)は
       // formulaText から自動計算される axiomName バッジで表示する。
@@ -891,26 +879,6 @@ export function ProofWorkspace({
     },
     [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition],
   );
-
-  const handleParametricAxiomConfirm = useCallback(
-    (params: {
-      readonly dslText: string;
-      readonly axiomDisplayName: string;
-      readonly termMetaVariableName?: string;
-    }) => {
-      const position = computeNewNodePosition(workspace.nodes);
-      // パラメトリック公理も汎用ラベル。公理名はformulaTextから計算される。
-      setWorkspaceWithAutoLayout(
-        addNode(workspace, "axiom", "Axiom", position, params.dslText),
-      );
-      setParametricAxiomPanel({ open: false });
-    },
-    [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition],
-  );
-
-  const handleParametricAxiomCancel = useCallback(() => {
-    setParametricAxiomPanel({ open: false });
-  }, []);
 
   // --- MP選択モードハンドラ ---
 
@@ -3125,20 +3093,6 @@ export function ProofWorkspace({
         onOpenReferenceDetail={onOpenReferenceDetail}
         testId={testId ? `${testId satisfies string}-axiom-palette` : undefined}
       />
-
-      {/* パラメトリック公理入力パネル */}
-      {parametricAxiomPanel.open ? (
-        <ParametricAxiomPanel
-          axiomId={parametricAxiomPanel.axiomId}
-          onConfirm={handleParametricAxiomConfirm}
-          onCancel={handleParametricAxiomCancel}
-          testId={
-            testId
-              ? `${testId satisfies string}-parametric-axiom-panel`
-              : undefined
-          }
-        />
-      ) : null}
 
       {/* ノードコンテキストメニュー */}
       {nodeMenuState.open ? (

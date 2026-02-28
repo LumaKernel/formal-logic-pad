@@ -108,15 +108,6 @@ export function isTrivialAxiomSubstitution(
   );
 }
 
-/**
- * A4 (∀x.φ → φ[t/x]) と A5 (∀x.(φ→ψ) → (φ→∀x.ψ)) は
- * メタレベルのスキーマであり、オブジェクト言語で「スキーマそのもの」を記述できない。
- * そのため、A4/A5のインスタンスは常に非自明（代入操作ステップが必須）。
- *
- * 新しい述語論理公理を追加した場合、ここも更新すること。
- */
-const alwaysNonTrivialAxiomIds: ReadonlySet<AxiomId> = new Set(["A4", "A5"]);
-
 // --- 公理名判定結果 ---
 
 /**
@@ -160,12 +151,10 @@ export function identifyAxiomName(
         _tag: "Identified",
         axiomId: result.axiomId,
         displayName: axiomDisplayNames[result.axiomId],
-        isTrivialSubstitution: alwaysNonTrivialAxiomIds.has(result.axiomId)
-          ? false
-          : isTrivialAxiomSubstitution(
-              result.formulaSubstitution,
-              result.termSubstitution,
-            ),
+        isTrivialSubstitution: isTrivialAxiomSubstitution(
+          result.formulaSubstitution,
+          result.termSubstitution,
+        ),
       };
     case "TheoryAxiom":
       return {

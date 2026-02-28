@@ -19,6 +19,8 @@ import {
   axiomM3Template,
   axiomEFQTemplate,
   axiomDNETemplate,
+  axiomA4Template,
+  axiomA5Template,
   axiomE1Template,
   axiomE2Template,
   axiomE3Template,
@@ -181,21 +183,21 @@ export function getAvailableAxioms(
     }
   }
 
-  // 述語論理公理（A4, A5はスキーマなので一般形をdslTextに設定）
+  // 述語論理公理（A4, A5は固定テンプレート。具体化は代入操作ノードで行う）
   if (system.predicateLogic) {
     items.push({
       id: "A4",
       displayName: "A4 (UI)",
-      template: axiomA1Template, // placeholder — A4はパターン依存で固定テンプレートなし
-      unicodeDisplay: "∀x.φ → φ[t/x]",
+      template: axiomA4Template,
+      unicodeDisplay: formatFormula(axiomA4Template),
       dslText: "(all x. phi) -> phi",
     });
     items.push({
       id: "A5",
       displayName: "A5 (∀-Dist)",
-      template: axiomA1Template, // placeholder — A5も同様
-      unicodeDisplay: "∀x.(φ → ψ) → (φ → ∀x.ψ)",
-      dslText: "all x. (phi -> psi) -> (phi -> all x. psi)",
+      template: axiomA5Template,
+      unicodeDisplay: formatFormula(axiomA5Template),
+      dslText: "(all x. (phi -> psi)) -> (phi -> all x. psi)",
     });
   }
 

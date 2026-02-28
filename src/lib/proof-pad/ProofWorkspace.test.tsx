@@ -212,46 +212,7 @@ describe("ProofWorkspace", () => {
       ).toBeInTheDocument();
     });
 
-    it("opens parametric axiom panel when A4 palette item is clicked", async () => {
-      const user = userEvent.setup();
-      render(
-        <ProofWorkspace system={predicateLogicSystem} testId="workspace" />,
-      );
-      await user.click(screen.getByTestId("workspace-axiom-palette-item-A4"));
-      expect(
-        screen.getByTestId("workspace-parametric-axiom-panel"),
-      ).toBeInTheDocument();
-    });
-
-    it("opens parametric axiom panel when A5 palette item is clicked", async () => {
-      const user = userEvent.setup();
-      render(
-        <ProofWorkspace system={predicateLogicSystem} testId="workspace" />,
-      );
-      await user.click(screen.getByTestId("workspace-axiom-palette-item-A5"));
-      expect(
-        screen.getByTestId("workspace-parametric-axiom-panel"),
-      ).toBeInTheDocument();
-    });
-
-    it("closes parametric axiom panel on cancel", async () => {
-      const user = userEvent.setup();
-      render(
-        <ProofWorkspace system={predicateLogicSystem} testId="workspace" />,
-      );
-      await user.click(screen.getByTestId("workspace-axiom-palette-item-A4"));
-      expect(
-        screen.getByTestId("workspace-parametric-axiom-panel"),
-      ).toBeInTheDocument();
-      await user.click(
-        screen.getByTestId("workspace-parametric-axiom-panel-cancel"),
-      );
-      expect(
-        screen.queryByTestId("workspace-parametric-axiom-panel"),
-      ).not.toBeInTheDocument();
-    });
-
-    it("adds axiom node via parametric panel A4 confirm", async () => {
+    it("adds A4 axiom schema directly when A4 palette item is clicked", async () => {
       const user = userEvent.setup();
       const onWorkspaceChange = vi.fn();
       const ws = createEmptyWorkspace(predicateLogicSystem);
@@ -264,20 +225,37 @@ describe("ProofWorkspace", () => {
         />,
       );
       await user.click(screen.getByTestId("workspace-axiom-palette-item-A4"));
-      const input = screen.getByTestId(
-        "workspace-parametric-axiom-panel-universal-input",
-      );
-      await user.type(input, "all x. x + 0 = x");
-      await user.click(
-        screen.getByTestId("workspace-parametric-axiom-panel-confirm"),
-      );
       expect(onWorkspaceChange).toHaveBeenCalled();
       const lastCall =
         onWorkspaceChange.mock.calls[onWorkspaceChange.mock.calls.length - 1];
       const updatedWs = lastCall?.[0] as WorkspaceState;
       expect(updatedWs.nodes.length).toBeGreaterThan(0);
       const addedNode = updatedWs.nodes[updatedWs.nodes.length - 1];
-      expect(addedNode?.formulaText).toContain("τ");
+      expect(addedNode?.formulaText).toBe("(all x. phi) -> phi");
+    });
+
+    it("adds A5 axiom schema directly when A5 palette item is clicked", async () => {
+      const user = userEvent.setup();
+      const onWorkspaceChange = vi.fn();
+      const ws = createEmptyWorkspace(predicateLogicSystem);
+      render(
+        <ProofWorkspace
+          system={predicateLogicSystem}
+          workspace={ws}
+          onWorkspaceChange={onWorkspaceChange}
+          testId="workspace"
+        />,
+      );
+      await user.click(screen.getByTestId("workspace-axiom-palette-item-A5"));
+      expect(onWorkspaceChange).toHaveBeenCalled();
+      const lastCall =
+        onWorkspaceChange.mock.calls[onWorkspaceChange.mock.calls.length - 1];
+      const updatedWs = lastCall?.[0] as WorkspaceState;
+      expect(updatedWs.nodes.length).toBeGreaterThan(0);
+      const addedNode = updatedWs.nodes[updatedWs.nodes.length - 1];
+      expect(addedNode?.formulaText).toBe(
+        "(all x. (phi -> psi)) -> (phi -> all x. psi)",
+      );
     });
 
     it("adds axiom node when palette item is clicked (external state)", async () => {

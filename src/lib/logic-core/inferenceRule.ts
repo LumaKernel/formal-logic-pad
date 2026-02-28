@@ -171,6 +171,23 @@ export const axiomE3Template: Formula = universal(
   ),
 );
 
+/**
+ * A4: 全称例化 (∀x.φ) → φ
+ * 実際のA4は (∀x.φ) → φ[t/x] だが、テンプレートは代入前のスキーマ形式。
+ * 具体化（φ[t/x]の生成）は代入操作ノードで行う。
+ */
+export const axiomA4Template: Formula = implication(universal(xVar, phi), phi);
+
+/**
+ * A5: 全称分配 (∀x.(φ → ψ)) → (φ → ∀x.ψ)
+ * matchAxiomA5 と一致する形式（Implication at top level）。
+ * 制約 x ∉ FV(φ) は代入操作ノード側で検証する。
+ */
+export const axiomA5Template: Formula = implication(
+  universal(xVar, implication(phi, psi)),
+  implication(phi, universal(xVar, psi)),
+);
+
 // E4, E5 はシグネチャ依存（関数記号・述語記号ごとに生成）のため、テンプレートではなく
 // 検証関数内で動的に処理する。
 
