@@ -15,8 +15,8 @@ describe("allReferenceEntries", () => {
   });
 
   it("エントリ数が期待通り", () => {
-    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念15 + 理論2 = 52
-    expect(allReferenceEntries).toHaveLength(52);
+    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念16 + 理論2 = 53
+    expect(allReferenceEntries).toHaveLength(53);
   });
 
   it("少なくとも1つのエントリが各カテゴリに存在する", () => {
@@ -781,6 +781,110 @@ describe("許容規則と派生規則エントリの個別チェック", () => {
   it("カット除去定理から許容規則・派生規則への逆参照がある", () => {
     const entry = findEntryById(allReferenceEntries, "concept-cut-elimination");
     expect(entry?.relatedEntryIds).toContain("concept-admissible-derivable");
+  });
+});
+
+describe("構造共有形と構造独立形エントリの個別チェック", () => {
+  it("concept-context-sharing-independenceが存在する", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-context-sharing-independence",
+    );
+    expect(entry).toBeDefined();
+    expect(entry?.category).toBe("concept");
+  });
+
+  it("formalNotationに構造共有形と構造独立形の両方が含まれる", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-context-sharing-independence",
+    );
+    expect(entry?.formalNotation).toBeTruthy();
+    expect(entry?.formalNotation).toContain("Context-sharing");
+    expect(entry?.formalNotation).toContain("Context-independent");
+  });
+
+  it("英語本文にGentzenとTroelstraの言及がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-context-sharing-independence",
+    );
+    expect(entry?.body.en.some((p) => p.includes("Gentzen"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("Troelstra"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("context-sharing"))).toBe(
+      true,
+    );
+    expect(entry?.body.en.some((p) => p.includes("context-independent"))).toBe(
+      true,
+    );
+  });
+
+  it("日本語本文に構造共有形と構造独立形の説明がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-context-sharing-independence",
+    );
+    expect(entry?.body.ja.some((p) => p.includes("構造共有形"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("構造独立形"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("Gentzen"))).toBe(true);
+  });
+
+  it("LK/LJ/LMの部分体系関係への言及がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-context-sharing-independence",
+    );
+    expect(
+      entry?.body.en.some(
+        (p) => p.includes("LM") && p.includes("LJ") && p.includes("LK"),
+      ),
+    ).toBe(true);
+  });
+
+  it("弱化・縮約との関係への言及がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-context-sharing-independence",
+    );
+    expect(
+      entry?.body.en.some(
+        (p) => p.includes("weakening") && p.includes("contraction"),
+      ),
+    ).toBe(true);
+    expect(
+      entry?.body.ja.some((p) => p.includes("弱化") && p.includes("縮約")),
+    ).toBe(true);
+  });
+
+  it("関連エントリにシーケント計算の概要・論理規則・構造規則が含まれる", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-context-sharing-independence",
+    );
+    expect(entry?.relatedEntryIds).toContain("rule-sc-overview");
+    expect(entry?.relatedEntryIds).toContain("rule-sc-logical");
+    expect(entry?.relatedEntryIds).toContain("rule-sc-structural");
+  });
+
+  it("論理規則から構造共有/独立形への逆参照がある", () => {
+    const entry = findEntryById(allReferenceEntries, "rule-sc-logical");
+    expect(entry?.relatedEntryIds).toContain(
+      "concept-context-sharing-independence",
+    );
+  });
+
+  it("英語で構造共有形を検索できる", () => {
+    const result = searchEntries(allReferenceEntries, "context-sharing", "en");
+    expect(
+      result.some((e) => e.id === "concept-context-sharing-independence"),
+    ).toBe(true);
+  });
+
+  it("日本語で構造共有形を検索できる", () => {
+    const result = searchEntries(allReferenceEntries, "構造共有形", "ja");
+    expect(
+      result.some((e) => e.id === "concept-context-sharing-independence"),
+    ).toBe(true);
   });
 });
 

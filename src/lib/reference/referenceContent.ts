@@ -1297,6 +1297,7 @@ const ruleScLogical: ReferenceEntry = {
     "rule-nd-implication",
     "rule-nd-conjunction",
     "rule-nd-disjunction",
+    "concept-context-sharing-independence",
   ],
   externalLinks: [
     {
@@ -3030,6 +3031,101 @@ const conceptAdmissibleDerivable: ReferenceEntry = {
   order: 15,
 };
 
+const conceptContextSharingIndependence: ReferenceEntry = {
+  id: "concept-context-sharing-independence",
+  category: "concept",
+  title: {
+    en: "Context-Sharing vs Context-Independent Rules",
+    ja: "構造共有形と構造独立形の規則",
+  },
+  summary: {
+    en: "Two formulations of sequent calculus rules: context-sharing (Gentzen's original) where premises share the same context Γ,Δ, and context-independent (this app's choice) where premises have separate contexts.",
+    ja: "シーケント計算の規則の2つの定式化: 前提が同一のコンテキストΓ,Δを共有する構造共有形（Gentzenのオリジナル）と、前提が独立したコンテキストを持つ構造独立形（本アプリの採用形式）。",
+  },
+  body: {
+    en: [
+      `**Two formulations of inference rules.** In sequent calculus, two-premise rules like (→⇒) can be formulated in two different ways. In the **context-sharing** form (Gentzen's original), both premises share the same side formulas Γ and Δ. In the **context-independent** form (used in this application, following bekki), each premise has its own independent context. For (→⇒), these look like:`,
+      `**Context-sharing (→⇒):** From Γ ⇒ Δ, φ and ψ, Γ ⇒ Δ, conclude φ → ψ, Γ ⇒ Δ. Here the context Γ, Δ is shared between both premises and the conclusion. This is Gentzen's original 1935 formulation.`,
+      `**Context-independent (→⇒):** From Γ ⇒ Δ, φ and ψ, Γ' ⇒ Δ', conclude φ → ψ, Γ, Γ' ⇒ Δ, Δ'. Here each premise has its own context (Γ,Δ and Γ',Δ' respectively), and the conclusion combines them.`,
+      `**Why this application uses the context-independent form.** The context-independent form is adopted here for a specific reason related to the relationship between LK (classical) and LJ (intuitionistic). When LJ is defined by restricting LK's right side to at most one formula, the context-sharing (→⇒) forces Δ to be empty (since both Δ,φ and Δ must have length ≤ 1). This means the LJ version of (→⇒) becomes a special case with a different form. Troelstra and Schwichtenberg (2000) address this in their systems G1i and G1m by using a modified rule: from Γ ⇒ φ and ψ, Γ ⇒ χ, conclude φ → ψ, Γ ⇒ χ (bekki pp.296–297).`,
+      `**The problem with the modified rule.** While this modified (→⇒) is a derivable rule in LK, it is not the same as LK's (→⇒) restricted to single-conclusion sequents. Consequently, a proof in G1i is not automatically a proof in G1c (the classical system), making the relationship between intuitionistic and classical provability less transparent.`,
+      `**Trade-off.** The context-independent form avoids these issues: the LJ version of (→⇒) is simply the LK version with single-formula right sides, so any LJ proof is automatically an LK proof. However, it introduces an asymmetry — while all other logical rules in this application's LK use the context-sharing form, (→⇒) alone uses the context-independent form (bekki p.297). The choice reflects a deliberate design decision prioritizing the clean subsystem relationship LM ⊂ LJ ⊂ LK.`,
+      `**Connection to weakening and contraction.** The context-sharing and context-independent forms are interderivable in the presence of weakening and contraction. Context-sharing can simulate context-independence by weakening both premises to have a common context; conversely, context-independence can simulate context-sharing by using the same context Γ in both premises (setting Γ' = Γ and Δ' = Δ). This means the two formulations yield the same set of provable sequents.`,
+    ],
+    ja: [
+      `**推論規則の2つの定式化。** シーケント計算において、(→⇒) のような2前提規則には2通りの定式化があります。**構造共有形**（Gentzenのオリジナル）では両前提が同一の副論理式列 Γ, Δ を共有します。**構造独立形**（本アプリケーションが戸次に従い採用する形式）では各前提が独立したコンテキストを持ちます。(→⇒) の場合、以下のようになります:`,
+      `**構造共有形 (→⇒):** Γ ⇒ Δ, φ と ψ, Γ ⇒ Δ から φ → ψ, Γ ⇒ Δ を得る。ここでコンテキスト Γ, Δ は両前提と結論で共有されます。これが Gentzen (1935) のオリジナルの定式化です。`,
+      `**構造独立形 (→⇒):** Γ ⇒ Δ, φ と ψ, Γ' ⇒ Δ' から φ → ψ, Γ, Γ' ⇒ Δ, Δ' を得る。ここで各前提はそれぞれ独立したコンテキスト (Γ,Δ と Γ',Δ') を持ち、結論でそれらが結合されます。`,
+      `**本アプリケーションが構造独立形を採用する理由。** 構造独立形の採用にはLK（古典論理）とLJ（直観主義論理）の関係に関する具体的な理由があります。LJをLKの右辺を高々1つの論理式に制限して定義する場合、構造共有形の(→⇒)ではΔが空列に限定されます（Δ,φ と Δ の両方が長さ1以下でなければならないため）。このためLJ版の(→⇒)は異なる形式の特殊なものになります。Troelstra and Schwichtenberg (2000) はG1i・G1m体系で修正された規則を使っています: Γ ⇒ φ と ψ, Γ ⇒ χ から φ → ψ, Γ ⇒ χ を導く形式です（戸次 pp.296–297）。`,
+      `**修正規則の問題点。** この修正された (→⇒) はLKの派生規則ではありますが、単結論シーケントに制限したLKの (→⇒) とは同一ではありません。その結果、G1i の証明が自動的に G1c（古典体系）の証明にはならず、直観主義と古典論理の証明可能性の関係が不透明になります。`,
+      `**トレードオフ。** 構造独立形はこれらの問題を回避します: LJ版の(→⇒)は単にLK版を右辺1論理式に制限したものになるため、あらゆるLJ証明が自動的にLK証明となります。ただし、非対称性が生じます — 本アプリケーションのLKにおいて、他のすべての論理規則は構造共有形なのに対し、(→⇒) だけが構造独立形です（戸次 p.297）。この選択は、LM ⊂ LJ ⊂ LK という明確な部分体系関係を優先する意図的な設計判断を反映しています。`,
+      `**弱化・縮約との関係。** 構造共有形と構造独立形は、弱化と縮約がある体系では相互に導出可能です。構造共有形は、両前提を弱化して共通のコンテキストを持たせることで構造独立形を模倣でき、逆に構造独立形は同一のコンテキストΓを両前提に使う（Γ' = Γ, Δ' = Δ とする）ことで構造共有形を模倣できます。つまり、2つの定式化は同じ証明可能シーケントの集合を与えます。`,
+    ],
+  },
+  formalNotation: `\\text{Context-sharing: } (\\to\\Rightarrow)\\; \\dfrac{\\Gamma \\Rightarrow \\Delta, \\varphi \\qquad \\psi, \\Gamma \\Rightarrow \\Delta}{\\varphi \\to \\psi, \\Gamma \\Rightarrow \\Delta} \\\\[12pt]
+\\text{Context-independent: } (\\to\\Rightarrow)\\; \\dfrac{\\Gamma \\Rightarrow \\Delta, \\varphi \\qquad \\psi, \\Gamma' \\Rightarrow \\Delta'}{\\varphi \\to \\psi, \\Gamma, \\Gamma' \\Rightarrow \\Delta, \\Delta'}`,
+  relatedEntryIds: [
+    "rule-sc-overview",
+    "rule-sc-structural",
+    "rule-sc-logical",
+    "concept-admissible-derivable",
+    "system-classical",
+    "system-intuitionistic",
+    "system-minimal",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Sequent_calculus",
+      label: {
+        en: "Sequent calculus (Wikipedia)",
+        ja: "シーケント計算 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%B7%E3%83%BC%E3%82%AF%E3%82%A8%E3%83%B3%E3%83%88%E8%A8%88%E7%AE%97",
+      label: {
+        en: "Sequent calculus (Wikipedia JA)",
+        ja: "シーケント計算 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/sequent+calculus",
+      label: {
+        en: "Sequent calculus (nLab)",
+        ja: "シーケント計算 (nLab)",
+      },
+    },
+    {
+      type: "other",
+      url: "https://www.cambridge.org/core/books/basic-proof-theory/51CA760BC24E2B4C3FC1E7072961AE49",
+      label: {
+        en: "Troelstra & Schwichtenberg: Basic Proof Theory",
+        ja: "Troelstra & Schwichtenberg: Basic Proof Theory",
+      },
+    },
+  ],
+  keywords: [
+    "context-sharing",
+    "context-independent",
+    "構造共有形",
+    "構造独立形",
+    "implication left",
+    "→⇒",
+    "Gentzen",
+    "G1c",
+    "G1i",
+    "G1m",
+    "LK",
+    "LJ",
+    "Troelstra",
+    "Schwichtenberg",
+  ],
+  order: 16,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -3730,6 +3826,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptCutElimination,
   conceptCurryHoward,
   conceptAdmissibleDerivable,
+  conceptContextSharingIndependence,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
