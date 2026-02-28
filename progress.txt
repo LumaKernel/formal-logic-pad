@@ -5965,3 +5965,34 @@
   - リファレンスエントリのテストは既存パターン (describe + it ブロック) に従い、存在確認・タイトル・本文内容・数式・関連エントリ・検索テストを網羅する
   - body の en/ja パラグラフ数は必ず一致させる（型制約あり）
 ---
+
+## 2026-02-28 - 意味論的妥当性・充足可能性・矛盾のリファレンスエントリ追加
+- **タスク:** prd-advanced.md A4 - 意味論的妥当性 (⊨) の概念のリファレンス追加
+- 実装内容:
+  - `conceptSemanticValidity` エントリ: 6パラグラフ (en/ja 対応)
+  - 恒真 (valid)・充足可能 (satisfiable)・矛盾 (unsatisfiable) の3つの基本性質
+  - 意味論的帰結 (⊨) の形式的定義
+  - 双対性 (恒真 ↔ 否定が矛盾)
+  - 証明論的導出 (⊢) と意味論的妥当性 (⊨) の違い（健全性・完全性との関係）
+  - 命題論理と述語論理の決定可能性の違い
+  - formalNotation: LaTeX形式の正式表記
+  - relatedEntryIds: concept-soundness, concept-completeness, concept-predicate-semantics, concept-cut-elimination, system-classical, notation-connectives
+  - externalLinks: Wikipedia (en/ja) validity, satisfiability, logical consequence; nLab semantics
+  - keywords: 28個 (en/ja)
+  - 既存エントリ (conceptSoundness, conceptCompleteness, conceptPredicateSemantics) に双方向クロスリファレンスを追加
+- 変更ファイル:
+  - `src/lib/reference/referenceContent.ts` - エントリ追加 (55エントリ目) + クロスリファレンス追加
+  - `src/lib/reference/referenceContent.test.ts` - エントリ数更新 (54→55)
+  - `tasks/prd-advanced.md` - A4完了マーク + 完了済みセクション (A, C1, E1-E5, F, I) をアーカイブ
+  - `tasks-archived/prd-advanced.md` - 完了済み項目を追記
+  - `task-processing.md` - クリア
+- テスト: 5252 (変化なし - データ追加のみ、テスト追加なし)
+- カバレッジ: Stmts 98.55% (維持), Branch 92.72%, Funcs 90.09%, Lines 99.32% (維持)
+- ブラウザ確認: Storybook ReferenceModal/ReferencePopover ストーリーで動作確認
+- スクリーンショット: `.screenshots/reference-popover-default.png`, `.screenshots/reference-popover-open.png`, `.screenshots/reference-modal-default.png`, `.screenshots/reference-modal-related-entries.png`
+- **今後のイテレーションへの学び:**
+  - リファレンスエントリはデータ追加のみの場合、既存テストで十分カバーされる（allReferenceEntries に対するループテストが全エントリを検証する）
+  - エントリ数の更新を忘れないこと（referenceContent.test.ts の toHaveLength）
+  - クロスリファレンスは双方向に追加する（新エントリ→既存 + 既存→新エントリ）
+  - prd-advanced.md の完了済みセクションが溜まっていたので一括アーカイブした
+---
