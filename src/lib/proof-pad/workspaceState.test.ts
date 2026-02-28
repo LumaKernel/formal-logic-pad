@@ -1849,6 +1849,225 @@ describe("proofWorkspace", () => {
       ws = revalidateInferenceConclusions(ws);
       expect(findNode(ws, "node-2")?.formulaText).toBe(originalText);
     });
+
+    // --- ND バリデーション統合テスト ---
+
+    it("updates ND →I conclusion text when premise is valid", () => {
+      let ws = createEmptyWorkspace(naturalDeduction(nmSystem));
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "psi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "nd-implication-intro" as const,
+            conclusionNodeId: "node-2",
+            premiseNodeId: "node-1",
+            dischargedFormulaText: "phi",
+            dischargedAssumptionId: 1,
+            conclusionText: "",
+          },
+        ],
+      };
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-2")?.formulaText).toBe("φ → ψ");
+    });
+
+    it("updates ND →E conclusion text", () => {
+      let ws = createEmptyWorkspace(naturalDeduction(nmSystem));
+      ws = addNode(ws, "axiom", "left", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "right", { x: 200, y: 0 }, "phi -> psi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "nd-implication-elim" as const,
+            conclusionNodeId: "node-3",
+            leftPremiseNodeId: "node-1",
+            rightPremiseNodeId: "node-2",
+            conclusionText: "",
+          },
+        ],
+      };
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-3")?.formulaText).toBe("ψ");
+    });
+
+    it("updates ND ∧I conclusion text", () => {
+      let ws = createEmptyWorkspace(naturalDeduction(nmSystem));
+      ws = addNode(ws, "axiom", "left", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "right", { x: 200, y: 0 }, "psi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "nd-conjunction-intro" as const,
+            conclusionNodeId: "node-3",
+            leftPremiseNodeId: "node-1",
+            rightPremiseNodeId: "node-2",
+            conclusionText: "",
+          },
+        ],
+      };
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-3")?.formulaText).toBe("φ ∧ ψ");
+    });
+
+    it("updates ND ∧E_L conclusion text", () => {
+      let ws = createEmptyWorkspace(naturalDeduction(nmSystem));
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "phi /\\ psi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "nd-conjunction-elim-left" as const,
+            conclusionNodeId: "node-2",
+            premiseNodeId: "node-1",
+            conclusionText: "",
+          },
+        ],
+      };
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-2")?.formulaText).toBe("φ");
+    });
+
+    it("updates ND ∧E_R conclusion text", () => {
+      let ws = createEmptyWorkspace(naturalDeduction(nmSystem));
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "phi /\\ psi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "nd-conjunction-elim-right" as const,
+            conclusionNodeId: "node-2",
+            premiseNodeId: "node-1",
+            conclusionText: "",
+          },
+        ],
+      };
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-2")?.formulaText).toBe("ψ");
+    });
+
+    it("updates ND DNE conclusion text", () => {
+      let ws = createEmptyWorkspace(naturalDeduction(nmSystem));
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "not not phi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "nd-dne" as const,
+            conclusionNodeId: "node-2",
+            premiseNodeId: "node-1",
+            conclusionText: "",
+          },
+        ],
+      };
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-2")?.formulaText).toBe("φ");
+    });
+
+    it("clears ND conclusion text on validation error", () => {
+      let ws = createEmptyWorkspace(naturalDeduction(nmSystem));
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 }, "old text");
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "nd-conjunction-elim-left" as const,
+            conclusionNodeId: "node-2",
+            premiseNodeId: "node-1",
+            conclusionText: "",
+          },
+        ],
+      };
+      // phi is not a conjunction → validation error → clear
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-2")?.formulaText).toBe("");
+    });
+
+    it("does not update EFQ conclusion text (preserves user input)", () => {
+      let ws = createEmptyWorkspace(naturalDeduction(nmSystem));
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 }, "user text");
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "nd-efq" as const,
+            conclusionNodeId: "node-2",
+            premiseNodeId: "node-1",
+            conclusionText: "",
+          },
+        ],
+      };
+      ws = revalidateInferenceConclusions(ws);
+      // EFQ should NOT change the conclusion text
+      expect(findNode(ws, "node-2")?.formulaText).toBe("user text");
+    });
+
+    it("updates ND conclusion on premise change", () => {
+      let ws = createEmptyWorkspace(naturalDeduction(nmSystem));
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "phi /\\ psi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "nd-conjunction-elim-left" as const,
+            conclusionNodeId: "node-2",
+            premiseNodeId: "node-1",
+            conclusionText: "",
+          },
+        ],
+      };
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-2")?.formulaText).toBe("φ");
+
+      // Change premise
+      ws = updateNodeFormulaText(ws, "node-1", "chi /\\ psi");
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-2")?.formulaText).toBe("χ");
+    });
+
+    it("clears ND conclusion when premise becomes empty", () => {
+      let ws = createEmptyWorkspace(naturalDeduction(nmSystem));
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "phi /\\ psi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "nd-conjunction-elim-left" as const,
+            conclusionNodeId: "node-2",
+            premiseNodeId: "node-1",
+            conclusionText: "",
+          },
+        ],
+      };
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-2")?.formulaText).toBe("φ");
+
+      ws = updateNodeFormulaText(ws, "node-1", "");
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-2")?.formulaText).toBe("");
+    });
   });
 
   describe("inferenceEdges sync", () => {

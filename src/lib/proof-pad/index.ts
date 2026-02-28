@@ -142,6 +142,25 @@ export type {
   SubstitutionApplicationResult,
 } from "./substitutionApplicationLogic";
 export {
+  validateNdApplicationEffect,
+  validateNdApplication,
+  getNdErrorMessage,
+  isNdEfqValidResult,
+  NdPremiseMissing,
+  NdPremiseParseError,
+  NdAdditionalFormulaParseError,
+  NdStructuralError,
+  NdDischargedFormulaParseError,
+  NdCaseConclusionMismatch,
+} from "./ndApplicationLogic";
+export type {
+  NdApplicationSuccess,
+  NdEfqValidResult,
+  NdValidationSuccess,
+  NdApplicationError,
+  NdApplicationResult,
+} from "./ndApplicationLogic";
+export {
   PROOF_NODE_KINDS,
   AXIOM_PORTS,
   DERIVED_PORTS,
