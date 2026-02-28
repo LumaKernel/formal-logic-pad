@@ -6454,3 +6454,25 @@
   - React hook 内では `Effect.runSync(Effect.provide(effect, BrowserStorageLayer))` で解決。hook は同期的なので Effect.runSync で十分
   - 既存の `loadProgress(storage: Storage)` 同期版を残すことで、既存テストへの影響を最小限に抑えられる
 ---
+
+## 2026-03-01 - ET-011: app層のエラーバウンダリ整備
+- 実装した内容:
+  - `processValidationResult` 純粋関数を `proofMessages.ts` に追加
+  - ProofWorkspace.tsx の MP/Gen/Substitution バリデーション結果処理を統一パターンにリファクタリング
+  - UI層(ProofWorkspace.tsx)から `Either` の直接参照を排除し、`processValidationResult` 経由に
+  - `ValidationDisplay` 型を追加（成功/エラーのUI表示データ）
+  - テスト6件追加（成功/スキップ/エラー表示/Gen/Subst/複合条件）
+- 変更したファイル:
+  - `src/lib/proof-pad/proofMessages.ts` — `processValidationResult` 関数と `ValidationDisplay` 型を追加
+  - `src/lib/proof-pad/proofMessages.test.ts` — 6テスト追加
+  - `src/lib/proof-pad/ProofWorkspace.tsx` — MP/Gen/Subst バリデーション処理を `processValidationResult` に統一、`Either` import 削除
+  - `tasks/prd-effect-ts.md` — ET-011 を [x] に更新
+- ベースライン: Stmts 98.24%, Branch 91.92%, Funcs 89.07%, Lines 99.14%, 5556テスト
+- 完了後: Stmts 98.25%, Branch 91.90%, Funcs 89.10%, Lines 99.14%, 5562テスト — カバレッジ維持 (+6テスト)
+- スクリーンショット: `.screenshots/et-011-with-nodes.png`, `.screenshots/et-011-valid-mp.png`, `.screenshots/et-011-invalid-mp.png`
+- **今後のイテレーションへの学び:**
+  - `processValidationResult` パターン: バリデーション結果(Either) → UI表示データへの変換を純粋関数で統一。`shouldSkipError` コールバックで表示不要ケース（前提未接続等）をカスタマイズ可能
+  - UI層はEffect/Eitherを直接使わず、proofMessages層の純粋関数経由で結果を消費するのがクリーン
+  - Substitutionの `entries.length > 0` 条件のような特殊ケースは `shouldSkipError` のクロージャで外部変数をキャプチャして表現
+  - TypeScriptでリテラル値比較 `1 === 0` は型エラーになる（テストでは変数経由で比較すること）
+---
