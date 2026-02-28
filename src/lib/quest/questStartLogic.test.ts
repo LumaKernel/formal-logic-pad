@@ -30,6 +30,8 @@ import {
   lmSystem,
   ljSystem,
   lkSystem,
+  tabSystem,
+  tabPropSystem,
   hilbertDeduction,
   naturalDeduction,
 } from "../logic-core/deductionSystem";
@@ -214,6 +216,20 @@ describe("resolveSystemPreset", () => {
     expect(result?.deductionSystem.system).toBe(abelianGroupSystem);
   });
 
+  it("tab-propプリセットを解決できる", () => {
+    const result = resolveSystemPreset("tab-prop");
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem.style).toBe("tableau-calculus");
+    expect(result?.deductionSystem.system).toBe(tabPropSystem);
+  });
+
+  it("tabプリセットを解決できる", () => {
+    const result = resolveSystemPreset("tab");
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem.style).toBe("tableau-calculus");
+    expect(result?.deductionSystem.system).toBe(tabSystem);
+  });
+
   it("存在しないプリセットIDはundefinedを返す", () => {
     const result = resolveSystemPreset("nonexistent" as SystemPresetId);
     expect(result).toBeUndefined();
@@ -296,6 +312,15 @@ describe("buildQuestStartParams", () => {
     const quest: QuestDefinition = {
       ...testQuest,
       systemPresetId: "sc-lm",
+    };
+    const result = buildQuestStartParams(quest);
+    expect(result).toBeUndefined();
+  });
+
+  it("タブロー法プリセットのクエストはundefinedを返す（UI未対応）", () => {
+    const quest: QuestDefinition = {
+      ...testQuest,
+      systemPresetId: "tab-prop",
     };
     const result = buildQuestStartParams(quest);
     expect(result).toBeUndefined();

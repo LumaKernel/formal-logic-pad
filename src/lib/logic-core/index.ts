@@ -271,18 +271,23 @@ export {
   nmSystem,
   njSystem,
   nkSystem,
+  tabSystem,
+  tabPropSystem,
   hilbertDeduction,
   naturalDeduction,
+  tableauCalculusDeduction,
   getDeductionSystemName,
   getDeductionStyleLabel,
   isNdRuleEnabled,
   allNdRuleIds,
   getNdRuleDisplayName,
+  isTabRuleEnabled,
 } from "./deductionSystem";
 export type {
   DeductionStyle,
   NdRuleId,
   NaturalDeductionSystem,
+  TableauCalculusSystem,
   DeductionSystem,
 } from "./deductionSystem";
 

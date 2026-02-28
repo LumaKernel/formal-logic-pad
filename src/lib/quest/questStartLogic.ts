@@ -57,8 +57,12 @@ export function buildQuestStartParams(
         }))
       : quest.goals;
 
-  // シーケント計算はUI未対応
-  if (preset.deductionSystem.style === "sequent-calculus") return undefined;
+  // シーケント計算・タブロー法はUI未対応
+  if (
+    preset.deductionSystem.style === "sequent-calculus" ||
+    preset.deductionSystem.style === "tableau-calculus"
+  )
+    return undefined;
 
   return {
     name: `${quest.title satisfies string}`,
