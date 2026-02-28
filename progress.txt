@@ -5792,3 +5792,26 @@
   - bekki.pdf の定義番号は目次のセクション番号から推測して適切なページ範囲を絞る（Ch.9 は p.194-213 で、定義9.24 は p.202 にある）
   - 概念エントリの order は連番（15まで使用）
 ---
+
+## 2026-02-28 - [proof-pad] 公理判別ロジック修正
+- 公理判別ロジック(`identifyAxiomName`)を修正: 非自明な代入インスタンス（例: `φ→(φ→φ)`）をNotIdentifiedとして返すように変更
+- `isTrivialSubstitution`フィールドをAxiomNameResult型から完全削除
+- 「代入操作ステップが必要です / Needs substitution step」警告メッセージを完全削除（proofMessages, i18n, ProofWorkspace UI）
+- ProofWorkspace.tsxから非自明公理警告の表示ロジックを削除・簡素化
+- 変更ファイル:
+  - `src/lib/proof-pad/axiomNameLogic.ts` - 核心の判定ロジック修正
+  - `src/lib/proof-pad/axiomNameLogic.test.ts` - テスト更新（非自明→NotIdentified）
+  - `src/lib/proof-pad/ProofWorkspace.tsx` - 警告表示ロジック削除
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` - テスト更新
+  - `src/lib/proof-pad/proofMessages.ts` - axiomNonTrivialWarning削除
+  - `src/lib/proof-pad/axiomPaletteLogic.test.ts` - import整理
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` - i18n配線削除
+  - `messages/en.json`, `messages/ja.json` - 翻訳メッセージ削除
+- カバレッジ: Statements 98.54% → 98.54% (維持)
+- テスト: 5078 → 5083 (5件追加)
+- ブラウザ確認: Identity Proof Completedストーリーで非自明公理インスタンスに公理名バッジが表示されないことを確認
+- **今後のイテレーションへの学び:**
+  - 公理判別は「スキーマそのものの形のみ」: 代入によって得られた式は公理ではない。この設計方針はプロジェクト全体で一貫している
+  - `isTrivialSubstitution`判定のための純粋関数群（`isTrivialFormulaSubstitution`, `isTrivialTermSubstitution`, `isTrivialAxiomSubstitution`）は内部ユーティリティとして残存。identifyAxiomName内部でのみ使用
+  - 型からフィールドを削除すると、TypeScriptの型チェックが使用箇所を全て検出してくれるため、安全にリファクタリングできた
+---
