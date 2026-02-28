@@ -2090,10 +2090,10 @@ const conceptGlivenko: ReferenceEntry = {
   body: {
     en: [
       "**Glivenko's Theorem** (1929) establishes a precise relationship between classical and intuitionistic propositional logic. It states that a propositional formula φ is provable in classical logic (LK) if and only if its double negation ¬¬φ is provable in intuitionistic logic (LJ). This holds even when hypotheses Γ are present: Γ ⊢_LK φ ⟺ Γ ⊢_LJ ¬¬φ.",
-      "**Proof outline:** The right-to-left direction (⟸) follows from the fact that intuitionistic logic is a subsystem of classical logic, and DNE (¬¬φ → φ) holds classically. For the left-to-right direction (⟹), one shows that for every classical axiom and inference rule, the double-negation translation preserves derivability in intuitionistic logic. The key insight is that ¬¬ acts as a \"modality\" that absorbs classical reasoning.",
-      "**Significance:** Glivenko's theorem shows that classical and intuitionistic logic are \"not so far apart\" for propositional logic — every classical theorem has an intuitionistic counterpart under double negation. This is a foundational result in the study of the relationship between constructive and classical mathematics.",
+      '**Proof outline:** The right-to-left direction (⟸) follows from the fact that intuitionistic logic is a subsystem of classical logic, and DNE (¬¬φ → φ) holds classically. For the left-to-right direction (⟹), one shows that for every classical axiom and inference rule, the double-negation translation preserves derivability in intuitionistic logic. The key insight is that ¬¬ acts as a "modality" that absorbs classical reasoning.',
+      '**Significance:** Glivenko\'s theorem shows that classical and intuitionistic logic are "not so far apart" for propositional logic — every classical theorem has an intuitionistic counterpart under double negation. This is a foundational result in the study of the relationship between constructive and classical mathematics.',
       "**Limitation to propositional logic:** Glivenko's theorem in its original form applies only to propositional logic. For predicate logic, a more refined translation is needed. Kuroda's negative translation (inserting ¬¬ after each ∀) provides the predicate-logic generalization.",
-      "**Connection to other results:** Glivenko's theorem is closely related to the Kuroda translation and the Gödel-Gentzen negative translation. These translations systematically embed classical logic into intuitionistic logic, demonstrating that classical reasoning can always be \"interpreted\" constructively via double negation.",
+      '**Connection to other results:** Glivenko\'s theorem is closely related to the Kuroda translation and the Gödel-Gentzen negative translation. These translations systematically embed classical logic into intuitionistic logic, demonstrating that classical reasoning can always be "interpreted" constructively via double negation.',
     ],
     ja: [
       "**グリヴェンコの定理** (1929) は、古典命題論理と直観主義命題論理の間の正確な関係を確立するものです。命題論理式 φ が古典論理 (LK) で証明可能であることと、その二重否定 ¬¬φ が直観主義論理 (LJ) で証明可能であることは同値です。仮説 Γ がある場合にも成立します: Γ ⊢_LK φ ⟺ Γ ⊢_LJ ¬¬φ。",
@@ -2110,6 +2110,7 @@ const conceptGlivenko: ReferenceEntry = {
     "system-classical",
     "system-intuitionistic",
     "concept-deduction-theorem",
+    "concept-kuroda-translation",
   ],
   externalLinks: [
     {
@@ -2150,6 +2151,91 @@ const conceptGlivenko: ReferenceEntry = {
     "否定翻訳",
   ],
   order: 5,
+};
+
+const conceptKurodaTranslation: ReferenceEntry = {
+  id: "concept-kuroda-translation",
+  category: "concept",
+  title: {
+    en: "Kuroda's Negative Translation",
+    ja: "黒田の否定翻訳",
+  },
+  summary: {
+    en: "A translation inserting ¬¬ after each ∀ to embed classical predicate logic into intuitionistic logic: ⊢_LK φ ⟺ ⊢_LJ ¬¬φ*.",
+    ja: "各 ∀ の直後に ¬¬ を挿入し、古典述語論理を直観主義論理に埋め込む翻訳: ⊢_LK φ ⟺ ⊢_LJ ¬¬φ*。",
+  },
+  body: {
+    en: [
+      "**Kuroda's negative translation** (1951) extends Glivenko's theorem from propositional logic to first-order predicate logic. While Glivenko showed that ⊢_LK φ ⟺ ⊢_LJ ¬¬φ for propositional formulas, simply prefixing ¬¬ does not work for predicate logic. Kuroda's key insight is that inserting ¬¬ immediately after each universal quantifier (∀) is sufficient to bridge the gap.",
+      "**Definition:** The Kuroda transform φ* of a formula φ is defined recursively: (1) Atomic formulas are unchanged: P(t₁,...,tₙ)* = P(t₁,...,tₙ). (2) Propositional connectives distribute to subformulas: (¬φ)* = ¬(φ*), (φ → ψ)* = φ* → ψ*, (φ ∧ ψ)* = φ* ∧ ψ*, (φ ∨ ψ)* = φ* ∨ ψ*. (3) The universal quantifier gets a ¬¬ insertion: (∀x.φ)* = ∀x.¬¬(φ*). (4) The existential quantifier just recurses: (∃x.φ)* = ∃x.(φ*).",
+      "**Main theorem:** For any first-order formula φ, ⊢_LK φ if and only if ⊢_LJ ¬¬φ*. This extends Glivenko's result to the full first-order predicate logic, using the Kuroda transform to handle the universal quantifier.",
+      "**Why simple ¬¬ prefix fails for predicate logic:** The formula ∀x(F(x) ∨ ¬F(x)) is provable in classical logic (LK), but ¬¬∀x(F(x) ∨ ¬F(x)) is not provable in intuitionistic logic (LJ). The universal quantifier interacts non-trivially with excluded middle, and Kuroda's insertion of ¬¬ after each ∀ precisely neutralizes this interaction.",
+      "**Comparison with other negative translations:** Kolmogorov's translation (1925) prefixes every subformula with ¬¬. The Gödel-Gentzen translation (1933) places ¬¬ before atomic formulas, disjunctions, and existential quantifiers. Kuroda's translation is the simplest — it only modifies universal quantifiers. All three translations produce intuitionistically equivalent results.",
+      "**Significance:** Kuroda's translation reveals that the gap between classical and intuitionistic predicate logic resides specifically in the universal quantifier. Classical reasoning about \"for all x\" implicitly uses excluded middle at each instance, and Kuroda's ¬¬ after ∀ neutralizes precisely this. The result is foundational for proof theory, establishing that classical systems (LK, NK, HK) are equivalent to their minimal logic counterparts plus the DNE rule.",
+    ],
+    ja: [
+      "**黒田の否定翻訳** (1951) は、グリヴェンコの定理を命題論理から一階述語論理に拡張するものです。グリヴェンコは命題論理式について ⊢_LK φ ⟺ ⊢_LJ ¬¬φ を示しましたが、述語論理では単に ¬¬ を前置するだけでは不十分です。黒田の鍵となる洞察は、各全称量化子 (∀) の直後に ¬¬ を挿入するだけで十分であるということです。",
+      "**定義:** 論理式 φ の黒田変換 φ* は再帰的に定義されます: (1) 原子論理式は変更なし: P(t₁,...,tₙ)* = P(t₁,...,tₙ)。(2) 命題結合子は部分論理式に分配: (¬φ)* = ¬(φ*)、(φ → ψ)* = φ* → ψ*、(φ ∧ ψ)* = φ* ∧ ψ*、(φ ∨ ψ)* = φ* ∨ ψ*。(3) 全称量化子に ¬¬ を挿入: (∀x.φ)* = ∀x.¬¬(φ*)。(4) 存在量化子は再帰のみ: (∃x.φ)* = ∃x.(φ*)。",
+      "**主定理:** 任意の一階論理式 φ について、⊢_LK φ であることと ⊢_LJ ¬¬φ* であることは同値です。これは黒田変換を用いて全称量化子を処理することで、グリヴェンコの結果を一階述語論理全体に拡張するものです。",
+      "**述語論理で単純な ¬¬ 前置が失敗する理由:** 論理式 ∀x(F(x) ∨ ¬F(x)) は古典論理 (LK) で証明可能ですが、¬¬∀x(F(x) ∨ ¬F(x)) は直観主義論理 (LJ) では証明できません。全称量化子は排中律と非自明に相互作用し、黒田の各 ∀ の直後への ¬¬ 挿入がまさにこの相互作用を中和します。",
+      "**他の否定翻訳との比較:** コルモゴロフの翻訳 (1925) はすべての部分論理式に ¬¬ を前置します。ゲーデル・ゲンツェンの翻訳 (1933) は原子論理式、選言、存在量化子の前に ¬¬ を配置します。黒田の翻訳は最も単純で、全称量化子のみを修正します。3つの翻訳はすべて直観主義的に同値な結果を生成します。",
+      "**意義:** 黒田の翻訳は、古典述語論理と直観主義述語論理の間の差異が特に全称量化子に存在することを明らかにします。「すべての x について」という古典的推論は各インスタンスで暗黙に排中律を使用しており、黒田の ∀ の直後の ¬¬ がまさにこれを中和します。この結果は証明論の基礎であり、古典的体系 (LK, NK, HK) がそれぞれの最小論理の対応物に DNE 規則を加えたものと等価であることを確立します。",
+    ],
+  },
+  formalNotation:
+    "(\\forall x.\\varphi)^* = \\forall x.\\lnot\\lnot(\\varphi^*)",
+  relatedEntryIds: [
+    "concept-glivenko",
+    "axiom-dne",
+    "system-classical",
+    "system-intuitionistic",
+    "axiom-a4",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Double-negation_translation",
+      label: {
+        en: "Double-negation translation (Wikipedia)",
+        ja: "二重否定翻訳 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E4%BA%8C%E9%87%8D%E5%90%A6%E5%AE%9A%E7%BF%BB%E8%A8%B3",
+      label: {
+        en: "Double-negation translation (Wikipedia JA)",
+        ja: "二重否定翻訳 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/double+negation+translation",
+      label: {
+        en: "Double negation translation (nLab)",
+        ja: "二重否定翻訳 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "Kuroda",
+    "黒田",
+    "negative translation",
+    "否定翻訳",
+    "double negation",
+    "二重否定",
+    "classical",
+    "古典論理",
+    "intuitionistic",
+    "直観主義論理",
+    "universal quantifier",
+    "全称量化子",
+    "Glivenko",
+    "グリヴェンコ",
+    "predicate logic",
+    "述語論理",
+  ],
+  order: 6,
 };
 
 // ============================================================
@@ -2842,6 +2928,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptUnification,
   conceptDeductionTheorem,
   conceptGlivenko,
+  conceptKurodaTranslation,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
