@@ -93,7 +93,30 @@
 - `src/lib/logic-core/evaluation.ts` は命題論理の真理値評価エンジン。`evaluateFormula` + `isTautology`/`isSatisfiable`/`isContradiction` + `generateTruthTable`
 - `src/lib/logic-core/normalForm.ts` は命題論理の標準形変換。`toNNF`/`toCNF`/`toDNF` + `isNNF`/`isCNF`/`isDNF`。NNFはCNF/DNFの前段階
 - Storybook play関数: ProofWorkspaceの`isNodeCulled()`がビューポート外ノードをDOM除外する。ストーリーのノード座標はx:0-600,y:0-250に収めること
+- InfiniteCanvasの `isolation: isolate` でstacking contextを隔離。内部z-indexが外部UIパネルに影響しない
+- 未接続コネクタポートは `dimmed` (opacity:0) で非表示。接続ドラッグ中は全ポート表示
 
+---
+
+## 2026-03-01 - コネクタポートz-index修正・未接続ポート非表示化 (差し込みタスク)
+- InfiniteCanvasに `isolation: isolate` を追加し、キャンバス内z-indexがAxiomPalette等のUIパネルを覆わないよう修正
+- ConnectorPortComponentに `dimmed` propを追加、未接続ポートは opacity: 0 で非表示に
+- 接続ドラッグ中は全ポートを表示（connectionPreviewState !== null で判定）
+- 接続済みポートは `connectedPortKeys` Set で判定し常時表示
+- テスト: 5876テスト全パス（201ファイル）
+- カバレッジ: Stmts 98.34%(+0.02), Branch 91.86%(-0.04), Funcs 88.86%(+0.09), Lines 99.17%(-0.02) — 実質同等
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: `.screenshots/inserted-task-connector-port-dimmed.png`, `.screenshots/inserted-task-connector-port-connected.png` 確認OK
+- 変更ファイル:
+  - `src/lib/infinite-canvas/InfiniteCanvas.tsx` (isolation: isolate追加)
+  - `src/lib/infinite-canvas/ConnectorPortComponent.tsx` (dimmed prop追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (connectedPortKeys計算、dimmed渡し)
+  - `tasks/prd-inserted-tasks.md` (完了マーク)
+  - `tasks-archived/prd-inserted-tasks.md` (完了項目アーカイブ)
+- **今後のイテレーションへの学び:**
+  - `isolation: isolate` はstacking contextを隔離する最も直接的な方法。`overflow: hidden` + `position: relative` だけではstacking contextは作成されない
+  - 未接続ポートの非表示はUXを大幅改善。ドラッグ接続は connectionPreviewState で全ポート表示に切替
+  - connectedPortKeys は `${nodeId}-${portId}` 形式でSetに格納し、ポートレンダリング時にO(1)で判定
 ---
 
 ## 2026-03-01 - タブロー式シーケント計算 (TAB) 推論規則データ定義 (B1)
