@@ -6351,3 +6351,33 @@
   - Effect.ts Schema は手書きバリデーションより宣言的で保守性が高い。特に Union 型のディスクリミネーション（InferenceEdge の mp/gen/substitution 分岐）が自動化される
   - Schema ベース化で行数は約80行削減。可読性・保守性が大幅に向上
 ---
+
+## 2026-03-01 - ET-007: パース結果型をEither.Eitherに統一
+- `LexResult`, `ParseResult`, `TermParseResult` を手動の `{ ok: true; ... } | { ok: false; ... }` 判別共用体から Effect.ts `Either.Either<Success, Error>` に変換
+- 型定義変更: `token.ts` (LexResult), `parser.ts` (ParseResult, TermParseResult)
+- 内部実装更新: `lexer.ts` (Either.left/right返却), `parser.ts` (全return文をEither化)
+- 呼び出し元を一括更新（50+箇所、9本番ファイル + 6テストファイル）:
+  - FormulaInput.tsx, TermInput.tsx — `computeParseState` のパース結果判定
+  - mpApplicationLogic.ts, goalCheckLogic.ts, dependencyLogic.ts, substitutionApplicationLogic.ts — `!result.ok` → `Either.isLeft(result)`, `result.formula` → `result.right`
+  - questCompletionLogic.ts — ゴール/ワーク両方のパース結果判定
+  - lexer.test.ts, parser.test.ts, formatUnicode.test.ts, axiomNameLogic.test.ts, builtinQuests.test.ts — テストヘルパー・アサーション更新
+- TypeScript型チェックで変更漏れを完全検出 — `tsc --noEmit` で0エラー確認
+- ベースライン: Stmts 98.22%, Branch 91.93%, Funcs 89.02%, Lines 99.14%, 5537テスト
+- 完了後: Stmts 98.22%, Branch 91.93%, Funcs 89.01%, Lines 99.14%, 5537テスト — カバレッジ維持
+- 変更したファイル（17ファイル）:
+  - `src/lib/logic-lang/token.ts` — LexResult型定義変更
+  - `src/lib/logic-lang/lexer.ts` — Either.left/right返却
+  - `src/lib/logic-lang/parser.ts` — ParseResult/TermParseResult型定義変更 + 全return文更新
+  - `src/lib/formula-input/FormulaInput.tsx`, `TermInput.tsx` — Either.isRight/left使用
+  - `src/lib/proof-pad/mpApplicationLogic.ts`, `goalCheckLogic.ts`, `dependencyLogic.ts`, `substitutionApplicationLogic.ts` — パース結果判定更新
+  - `src/lib/quest/questCompletionLogic.ts` — パース結果判定更新
+  - `src/lib/logic-lang/lexer.test.ts`, `parser.test.ts`, `formatUnicode.test.ts` — テスト更新
+  - `src/lib/proof-pad/axiomNameLogic.test.ts`, `src/lib/quest/builtinQuests.test.ts` — テスト更新
+  - `tasks/prd-effect-ts.md`, `task-processing.md` — タスク管理更新
+- スクリーンショット: `.screenshots/ET-007-formula-input-valid.png`, `.screenshots/ET-007-proof-workspace-empty.png`, `.screenshots/ET-007-proof-workspace-with-nodes.png`
+- **今後のイテレーションへの学び:**
+  - Either移行は型エラーで漏れを完全検出できるため安全。`tsc --noEmit` を最初に実行し、エラー箇所を一括把握してから修正するのが効率的
+  - パターン: `result.ok` → `Either.isRight(result)`, `result.formula` → `result.right`, `result.errors` → `result.left`
+  - テストヘルパーを使っているテストファイルは、ヘルパーのみ修正すれば大部分のテストケースは変更不要
+  - `editorLogic.ts` と `inputCompletion.ts` は parser.ts を直接使わず、computeParseState 経由のため変更不要だった
+---
