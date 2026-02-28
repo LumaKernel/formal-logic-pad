@@ -149,7 +149,7 @@ import { findEntryById } from "../reference/referenceEntry";
 import { ReferencePopover } from "../reference/ReferencePopover";
 import { getInferenceRuleReferenceEntryId } from "./inferenceRuleReferenceLogic";
 import { findInferenceEdgeForConclusionNode } from "./inferenceEdge";
-import { computeInferenceEdgeLabelData } from "./inferenceEdgeLabelLogic";
+import { computeInferenceEdgeLabelDataForConnection } from "./inferenceEdgeLabelLogic";
 import { InferenceEdgeBadge } from "./InferenceEdgeBadge";
 import { EdgeParameterPopover } from "./EdgeParameterPopover";
 import type { EdgeBadgeEditState } from "./edgeBadgeEditLogic";
@@ -2281,7 +2281,10 @@ export function ProofWorkspace({
         const edgeLabel =
           inferenceEdge !== undefined ? (
             <InferenceEdgeBadge
-              labelData={computeInferenceEdgeLabelData(inferenceEdge)}
+              labelData={computeInferenceEdgeLabelDataForConnection(
+                inferenceEdge,
+                conn.fromNodeId,
+              )}
               testId={
                 testId
                   ? `${testId satisfies string}-edge-badge-${conn.id satisfies string}`
