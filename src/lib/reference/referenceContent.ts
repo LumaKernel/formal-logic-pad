@@ -2344,6 +2344,88 @@ const conceptSystemEquivalence: ReferenceEntry = {
   order: 7,
 };
 
+const conceptSoundness: ReferenceEntry = {
+  id: "concept-soundness",
+  category: "concept",
+  title: {
+    en: "Soundness Theorem",
+    ja: "健全性定理",
+  },
+  summary: {
+    en: "If a formula is provable in a proof system, then it is semantically valid: ⊢_K Δ implies ⊨ Δ.",
+    ja: "証明体系で証明可能な論理式は意味論的に妥当である: ⊢_K Δ ならば ⊨ Δ。",
+  },
+  body: {
+    en: [
+      `**What soundness means.** The soundness theorem states that if a formula (or sequent) is provable in a proof system K, then it is semantically valid — that is, true under every interpretation. Formally: if Γ ⊢_K Δ, then Γ ⊨ Δ. In other words, the proof system never "lies": it cannot prove something that is false. This is a fundamental requirement for any proof system to be trustworthy.`,
+      `**Semantic validity (⊨).** To say Γ ⊨ Δ means that for every interpretation (M, g), if (M, g) satisfies all formulas in Γ, then (M, g) satisfies at least one formula in Δ. Equivalently, the set ¬Δ, Γ is unsatisfiable — there is no interpretation making all of Γ true while making all of Δ false. For propositional logic, an interpretation is a truth-value assignment; for predicate logic, it is a structure with a domain and interpretation function (bekki Ch.5, Definition 5.66).`,
+      `**Proof strategy: preserving satisfiability.** The standard proof of soundness proceeds by induction on the derivation. For tableau-style sequent calculus (TAB), the key lemma (bekki Lemma 13.7) shows that each inference rule preserves satisfiability upward: if the conclusion sequent Γ ⇒ has a satisfying interpretation, then at least one premise also has a satisfying interpretation. Since axioms (basic sequents) ¬φ, φ, Γ ⇒ are clearly unsatisfiable, any completed derivation starting from provable sequents reaches only unsatisfiable leaves, guaranteeing the root is valid.`,
+      `**Soundness for specific systems.** (1) **TAB** (Theorem 13.10): Γ ⊢_TAB Δ ⟹ Γ ⊨ Δ. Proved by contraposition — if Γ ⊭ Δ, then ¬Δ, Γ is satisfiable, and the satisfiability lemma shows Γ ⊬_TAB Δ. (2) **LK** (Theorem 13.24): Γ ⊢_LK Δ ⟹ Γ ⊨ Δ. Proved similarly via a soundness lemma for LK rules (Lemma 13.25). By the equivalence of proof systems (HK = NK = LK = TAB), soundness extends to all classical proof systems.`,
+      `**Consequences of soundness.** Soundness has important corollaries: (1) **Consistency:** If a system is sound, it cannot prove a contradiction (⊥), since ⊥ has no satisfying interpretation. (2) **Semantic cut elimination:** From LK soundness, for any LK derivation of S, there exists an LK-CUT derivation of S. This gives a completely different proof of cut elimination via semantics rather than syntactic transformation (bekki Section 13.6). (3) **Trustworthiness:** Soundness justifies using the proof system as a reliable tool for establishing truths about mathematical structures.`,
+      `**Soundness vs. completeness.** Soundness (⊢ ⟹ ⊨) and completeness (⊨ ⟹ ⊢) are dual properties. Together they establish that provability and semantic validity coincide: ⊢ ⟺ ⊨. While soundness is generally straightforward to prove (induction on derivations), completeness is significantly harder and historically deeper — Gödel's completeness theorem (1930) established it for first-order logic. Soundness says the system is safe; completeness says the system is sufficient.`,
+    ],
+    ja: [
+      `**健全性の意味。** 健全性定理は、証明体系 K で証明可能な論理式（またはシーケント）が意味論的に妥当であること — すなわち、すべての解釈のもとで真であること — を述べます。形式的に: Γ ⊢_K Δ ならば Γ ⊨ Δ。言い換えれば、証明体系は決して「嘘をつかない」: 偽であるものを証明することはできません。これは、証明体系が信頼できるための基本的な要件です。`,
+      `**意味論的妥当性（⊨）。** Γ ⊨ Δ とは、任意の解釈 (M, g) について、(M, g) が Γ のすべての論理式を充足するならば、(M, g) が Δ の少なくとも1つの論理式を充足することを意味します。同値的に、集合 ¬Δ, Γ が充足不能 — Γ のすべてを真にしつつ Δ のすべてを偽にする解釈が存在しない — ということです。命題論理では解釈は真理値割当であり、述語論理では解釈は領域と解釈関数を持つ構造です（戸次 Ch.5, 定義5.66）。`,
+      `**証明戦略: 充足可能性の保存。** 健全性の標準的な証明は、導出に関する帰納法で進みます。タブロー式シーケント計算 (TAB) では、鍵となる補題（戸次 補題13.7）が、各推論規則が充足可能性を上方に保存することを示します: 結論のシーケント Γ ⇒ に充足する解釈があるならば、少なくとも1つの前提にも充足する解釈があります。公理（基本式）¬φ, φ, Γ ⇒ は明らかに充足不能なので、証明可能なシーケントから始まる完成した導出は充足不能な葉のみに到達し、根が妥当であることが保証されます。`,
+      `**各体系の健全性。** (1) **TAB**（定理13.10）: Γ ⊢_TAB Δ ⟹ Γ ⊨ Δ。対偶による証明 — Γ ⊭ Δ ならば ¬Δ, Γ は充足可能であり、充足可能性補題により Γ ⊬_TAB Δ。(2) **LK**（定理13.24）: Γ ⊢_LK Δ ⟹ Γ ⊨ Δ。LK 規則に対する健全性補題（補題13.25）を用いて同様に証明されます。証明体系の等価性（HK = NK = LK = TAB）により、健全性はすべての古典論理の証明体系に拡張されます。`,
+      `**健全性の帰結。** 健全性には重要な系があります: (1) **無矛盾性:** 体系が健全であれば、矛盾（⊥）を証明できません。⊥ には充足する解釈が存在しないからです。(2) **意味論的カット除去:** LK の健全性から、任意の LK 導出のシーケント S に対して LK-CUT の導出が存在します。これは構文的変換ではなく意味論を介したカット除去の全く異なる証明を与えます（戸次 13.6節）。(3) **信頼性:** 健全性は、証明体系を数学的構造に関する真理を確立するための信頼できるツールとして使うことを正当化します。`,
+      `**健全性と完全性。** 健全性（⊢ ⟹ ⊨）と完全性（⊨ ⟹ ⊢）は双対的な性質です。これらを合わせると、証明可能性と意味論的妥当性が一致することが確立されます: ⊢ ⟺ ⊨。健全性の証明は一般に比較的容易（導出に関する帰納法）ですが、完全性の証明はかなり困難で歴史的にも深い結果です — ゲーデルの完全性定理（1930年）が一階論理に対してこれを確立しました。健全性は体系が安全であることを、完全性は体系が十分であることを述べます。`,
+    ],
+  },
+  formalNotation:
+    "\\Gamma \\vdash_K \\Delta \\;\\Longrightarrow\\; \\Gamma \\vDash \\Delta",
+  relatedEntryIds: [
+    "concept-system-equivalence",
+    "system-classical",
+    "rule-sc-overview",
+    "rule-sc-logical",
+    "rule-sc-structural",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Soundness",
+      label: {
+        en: "Soundness (Wikipedia)",
+        ja: "健全性 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E5%81%A5%E5%85%A8%E6%80%A7",
+      label: {
+        en: "Soundness (Wikipedia JA)",
+        ja: "健全性 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/soundness+theorem",
+      label: {
+        en: "Soundness theorem (nLab)",
+        ja: "健全性定理 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "soundness",
+    "健全性",
+    "sound",
+    "semantic validity",
+    "意味論的妥当性",
+    "satisfiability",
+    "充足可能性",
+    "interpretation",
+    "解釈",
+    "consistency",
+    "無矛盾性",
+    "trustworthy",
+    "信頼性",
+  ],
+  order: 8,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -3036,6 +3118,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptGlivenko,
   conceptKurodaTranslation,
   conceptSystemEquivalence,
+  conceptSoundness,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
