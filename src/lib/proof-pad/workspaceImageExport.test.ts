@@ -7,12 +7,14 @@ import {
 } from "./workspaceImageExport";
 import type { WorkspaceState, WorkspaceNode } from "./workspaceState";
 import { lukasiewiczSystem } from "../logic-core/inferenceRule";
+import { hilbertDeduction } from "../logic-core/deductionSystem";
 
 // --- テストヘルパー ---
 
 function createSampleWorkspace(): WorkspaceState {
   return {
     system: lukasiewiczSystem,
+    deductionSystem: hilbertDeduction(lukasiewiczSystem),
     nodes: [
       {
         id: "node-1",
@@ -48,6 +50,7 @@ function createSampleWorkspace(): WorkspaceState {
 function createEmptyWorkspace(): WorkspaceState {
   return {
     system: lukasiewiczSystem,
+    deductionSystem: hilbertDeduction(lukasiewiczSystem),
     nodes: [],
     connections: [],
     inferenceEdges: [],
@@ -59,6 +62,7 @@ function createEmptyWorkspace(): WorkspaceState {
 function createMultiNodeWorkspace(): WorkspaceState {
   return {
     system: lukasiewiczSystem,
+    deductionSystem: hilbertDeduction(lukasiewiczSystem),
     nodes: [
       {
         id: "node-1",
@@ -286,6 +290,7 @@ describe("generateExportSVG", () => {
   it("カスタムノードサイズを使用する", () => {
     const ws: WorkspaceState = {
       system: lukasiewiczSystem,
+      deductionSystem: hilbertDeduction(lukasiewiczSystem),
       nodes: [
         {
           id: "n1",
@@ -310,6 +315,7 @@ describe("generateExportSVG", () => {
   it("XMLの特殊文字がエスケープされる", () => {
     const ws: WorkspaceState = {
       system: lukasiewiczSystem,
+      deductionSystem: hilbertDeduction(lukasiewiczSystem),
       nodes: [
         {
           id: "n1",
@@ -338,6 +344,7 @@ describe("generateExportSVG", () => {
       "phi -> (psi -> (chi -> (alpha -> (beta -> (gamma -> (delta -> epsilon))))))";
     const ws: WorkspaceState = {
       system: lukasiewiczSystem,
+      deductionSystem: hilbertDeduction(lukasiewiczSystem),
       nodes: [
         {
           id: "n1",
@@ -363,6 +370,7 @@ describe("generateExportSVG", () => {
   it("存在しない接続先ノードがあっても壊れない", () => {
     const ws: WorkspaceState = {
       system: lukasiewiczSystem,
+      deductionSystem: hilbertDeduction(lukasiewiczSystem),
       nodes: [
         {
           id: "n1",
@@ -397,6 +405,7 @@ describe("generateExportSVG", () => {
   it("存在しないポートIDがあっても壊れない", () => {
     const ws: WorkspaceState = {
       system: lukasiewiczSystem,
+      deductionSystem: hilbertDeduction(lukasiewiczSystem),
       nodes: [
         {
           id: "n1",
@@ -436,6 +445,7 @@ describe("generateExportSVG", () => {
   it("空の式テキストのノードでもテキスト要素が生成されない", () => {
     const ws: WorkspaceState = {
       system: lukasiewiczSystem,
+      deductionSystem: hilbertDeduction(lukasiewiczSystem),
       nodes: [
         {
           id: "n1",
@@ -461,6 +471,7 @@ describe("generateExportSVG", () => {
   it("viewBoxがノードの位置に基づいて正しく設定される", () => {
     const ws: WorkspaceState = {
       system: lukasiewiczSystem,
+      deductionSystem: hilbertDeduction(lukasiewiczSystem),
       nodes: [
         {
           id: "n1",

@@ -9,6 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { LogicSystem } from "../logic-core/inferenceRule";
+import type { DeductionSystem } from "../logic-core/deductionSystem";
 import type { WorkspaceState } from "../proof-pad/workspaceState";
 import type { QuestGoalDefinition } from "../proof-pad/workspaceState";
 import type { NotebookCollection, NotebookId } from "./notebookState";
@@ -58,11 +59,14 @@ export interface UseNotebookCollectionResult {
   /** コレクション全体 */
   readonly collection: NotebookCollection;
   /** ノートブックを新規作成する */
-  readonly create: (name: string, system: LogicSystem) => NotebookId;
+  readonly create: (
+    name: string,
+    system: LogicSystem | DeductionSystem,
+  ) => NotebookId;
   /** クエストノートブックを新規作成する */
   readonly createQuest: (
     name: string,
-    system: LogicSystem,
+    system: LogicSystem | DeductionSystem,
     goals: readonly QuestGoalDefinition[],
     questId?: string,
     questVersion?: number,
@@ -113,7 +117,7 @@ export function useNotebookCollection(
   }, [collection]);
 
   const create = useCallback(
-    (name: string, system: LogicSystem): NotebookId => {
+    (name: string, system: LogicSystem | DeductionSystem): NotebookId => {
       const now = getNow();
       let newId: NotebookId = "";
       setCollection((prev) => {
@@ -135,7 +139,7 @@ export function useNotebookCollection(
   const createQuest = useCallback(
     (
       name: string,
-      system: LogicSystem,
+      system: LogicSystem | DeductionSystem,
       goals: readonly QuestGoalDefinition[],
       questId?: string,
       questVersion?: number,

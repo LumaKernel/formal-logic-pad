@@ -76,7 +76,7 @@ function HubInner() {
       const nextId = predictNextNotebookId();
       notebookCollection.createQuest(
         params.name,
-        params.system,
+        params.deductionSystem,
         params.goals,
         questId,
         quest?.version,
@@ -92,12 +92,12 @@ function HubInner() {
       readonly name: string;
       readonly deductionSystem: DeductionSystem;
     }) => {
-      // 現在はHilbert流のみワークスペース対応
-      if (params.deductionSystem.style !== "hilbert") {
+      // シーケント計算はUI未対応
+      if (params.deductionSystem.style === "sequent-calculus") {
         return;
       }
       const nextId = predictNextNotebookId();
-      notebookCollection.create(params.name, params.deductionSystem.system);
+      notebookCollection.create(params.name, params.deductionSystem);
       router.push(`/workspace/${nextId satisfies string}`);
     },
     [notebookCollection, router, predictNextNotebookId],

@@ -9,6 +9,10 @@
  */
 
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
+import {
+  type DeductionSystem,
+  hilbertDeduction,
+} from "../logic-core/deductionSystem";
 import type { Point } from "../infinite-canvas/types";
 import type { ProofNodeKind } from "./proofNodeUI";
 import type { InferenceEdge } from "./inferenceEdge";
@@ -95,6 +99,12 @@ export type WorkspaceConnection = {
 /** ワークスペースの状態 */
 export type WorkspaceState = {
   readonly system: LogicSystem;
+  /**
+   * 演繹体系（統一型）。
+   * Hilbert流・自然演繹・シーケント計算を区別する。
+   * 未設定時は system からHilbert流として推定される。
+   */
+  readonly deductionSystem: DeductionSystem;
   readonly nodes: readonly WorkspaceNode[];
   readonly connections: readonly WorkspaceConnection[];
   readonly nextNodeId: number;
@@ -168,12 +178,45 @@ function addInferenceEdge(
   };
 }
 
+// --- DeductionSystem → LogicSystem 変換 ---
+
+/**
+ * ND/SC用のダミーLogicSystem。
+ * system フィールドの後方互換性のために使用する。
+ * Hilbert固有の機能（MP, Gen等）は使えない。
+ */
+export const emptyLogicSystem: LogicSystem = {
+  name: "Empty (non-Hilbert)",
+  propositionalAxioms: new Set(),
+  predicateLogic: false,
+  equalityLogic: false,
+  generalization: false,
+};
+
+/**
+ * DeductionSystem から LogicSystem を抽出する。
+ * Hilbert流の場合はそのまま返し、ND/SC の場合はダミーを返す。
+ */
+export function extractLogicSystem(ds: DeductionSystem): LogicSystem {
+  if (ds.style === "hilbert") return ds.system;
+  return emptyLogicSystem;
+}
+
 // --- 初期状態 ---
 
-/** 空のワークスペースを作成する */
-export function createEmptyWorkspace(system: LogicSystem): WorkspaceState {
+/** 空のワークスペースを作成する（DeductionSystem版） */
+export function createEmptyWorkspace(
+  systemOrDeduction: LogicSystem | DeductionSystem,
+): WorkspaceState {
+  // DeductionSystem かどうかを判別（style プロパティの有無）
+  const deductionSystem: DeductionSystem =
+    "style" in systemOrDeduction
+      ? systemOrDeduction
+      : hilbertDeduction(systemOrDeduction);
+  const system = extractLogicSystem(deductionSystem);
   return {
     system,
+    deductionSystem,
     nodes: [],
     connections: [],
     nextNodeId: 1,
@@ -202,11 +245,17 @@ export type QuestGoalDefinition = {
  * ゴール定義から保護されたゴールノードを自動生成する。
  */
 export function createQuestWorkspace(
-  system: LogicSystem,
+  systemOrDeduction: LogicSystem | DeductionSystem,
   goals: readonly QuestGoalDefinition[],
 ): WorkspaceState {
+  const deductionSystem: DeductionSystem =
+    "style" in systemOrDeduction
+      ? systemOrDeduction
+      : hilbertDeduction(systemOrDeduction);
+  const system = extractLogicSystem(deductionSystem);
   let state: WorkspaceState = {
     system,
+    deductionSystem,
     nodes: [],
     connections: [],
     nextNodeId: 1,
@@ -472,11 +521,17 @@ export function removeConnection(
 /** 論理体系を変更する */
 export function changeSystem(
   state: WorkspaceState,
-  system: LogicSystem,
+  systemOrDeduction: LogicSystem | DeductionSystem,
 ): WorkspaceState {
+  const deductionSystem: DeductionSystem =
+    "style" in systemOrDeduction
+      ? systemOrDeduction
+      : hilbertDeduction(systemOrDeduction);
+  const system = extractLogicSystem(deductionSystem);
   return {
     ...state,
     system,
+    deductionSystem,
   };
 }
 

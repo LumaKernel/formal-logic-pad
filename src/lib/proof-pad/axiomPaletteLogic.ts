@@ -12,6 +12,14 @@ import type {
   LogicSystem,
   PropositionalAxiomId,
 } from "../logic-core/inferenceRule";
+import type {
+  NaturalDeductionSystem,
+  NdRuleId,
+} from "../logic-core/deductionSystem";
+import {
+  getNdRuleDisplayName,
+  allNdRuleIds,
+} from "../logic-core/deductionSystem";
 import {
   axiomA1Template,
   axiomA2Template,
@@ -227,5 +235,38 @@ export function getAvailableAxioms(
     }
   }
 
+  return items;
+}
+
+// --- 自然演繹規則パレット ---
+
+/** 自然演繹パレットに表示する推論規則アイテム */
+export type NdRulePaletteItem = {
+  /** 規則ID */
+  readonly id: NdRuleId;
+  /** 規則の表示名（例: "→導入 (→I)"） */
+  readonly displayName: string;
+};
+
+/**
+ * 自然演繹体系に応じた利用可能な推論規則パレットアイテムの一覧を返す。
+ *
+ * 変更時は axiomPaletteLogic.test.ts も同期すること。
+ *
+ * @param system 自然演繹体系設定
+ * @returns 利用可能な推論規則のリスト
+ */
+export function getAvailableNdRules(
+  system: NaturalDeductionSystem,
+): readonly NdRulePaletteItem[] {
+  const items: NdRulePaletteItem[] = [];
+  for (const ruleId of allNdRuleIds) {
+    if (system.rules.has(ruleId)) {
+      items.push({
+        id: ruleId,
+        displayName: getNdRuleDisplayName(ruleId),
+      });
+    }
+  }
   return items;
 }

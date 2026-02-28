@@ -8,6 +8,8 @@ import {
   createEmptyWorkspace,
   createQuestWorkspace,
   convertToFreeMode,
+  extractLogicSystem,
+  emptyLogicSystem,
   isNodeProtected,
   addNode,
   updateNodePosition,
@@ -36,6 +38,11 @@ import {
   revalidateInferenceConclusions,
   getInferenceEdges,
 } from "./workspaceState";
+import {
+  hilbertDeduction,
+  naturalDeduction,
+  nmSystem,
+} from "../logic-core/deductionSystem";
 import type { ClipboardData } from "./copyPasteLogic";
 import type { SubstitutionEntries } from "./substitutionApplicationLogic";
 
@@ -57,6 +64,33 @@ describe("proofWorkspace", () => {
     it("creates workspace with equality logic system", () => {
       const ws = createEmptyWorkspace(equalityLogicSystem);
       expect(ws.system).toBe(equalityLogicSystem);
+    });
+
+    it("creates workspace from DeductionSystem (hilbert)", () => {
+      const ds = hilbertDeduction(lukasiewiczSystem);
+      const ws = createEmptyWorkspace(ds);
+      expect(ws.system).toBe(lukasiewiczSystem);
+      expect(ws.deductionSystem).toBe(ds);
+    });
+
+    it("creates workspace from DeductionSystem (natural-deduction)", () => {
+      const ds = naturalDeduction(nmSystem);
+      const ws = createEmptyWorkspace(ds);
+      expect(ws.system).toBe(emptyLogicSystem);
+      expect(ws.deductionSystem).toBe(ds);
+      expect(ws.deductionSystem.style).toBe("natural-deduction");
+    });
+  });
+
+  describe("extractLogicSystem", () => {
+    it("returns system from Hilbert deduction", () => {
+      const ds = hilbertDeduction(lukasiewiczSystem);
+      expect(extractLogicSystem(ds)).toBe(lukasiewiczSystem);
+    });
+
+    it("returns emptyLogicSystem from ND deduction", () => {
+      const ds = naturalDeduction(nmSystem);
+      expect(extractLogicSystem(ds)).toBe(emptyLogicSystem);
     });
   });
 

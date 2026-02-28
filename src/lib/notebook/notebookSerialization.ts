@@ -11,6 +11,7 @@ import type {
   LogicSystem,
   PropositionalAxiomId,
 } from "../logic-core/inferenceRule";
+import { hilbertDeduction } from "../logic-core/deductionSystem";
 import type { WorkspaceState } from "../proof-pad/workspaceState";
 import type {
   Notebook,
@@ -94,6 +95,7 @@ function parseNotebook(raw: unknown): Notebook | undefined {
     workspace: {
       ...workspace,
       system,
+      deductionSystem: hilbertDeduction(system),
       inferenceEdges,
     } as WorkspaceState,
     ...(questId !== undefined ? { questId } : {}),
