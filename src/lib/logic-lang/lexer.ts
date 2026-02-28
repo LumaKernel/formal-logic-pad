@@ -7,6 +7,7 @@
  * 変更時は token.ts のトークン型と lexer.test.ts も同期すること。
  */
 
+import { Either } from "effect";
 import {
   greekLetters,
   greekLetterNames,
@@ -428,7 +429,7 @@ export const lex = (input: string): LexResult => {
   addToken("EOF", makeSpan(eofPos, eofPos));
 
   if (errors.length > 0) {
-    return { ok: false, errors };
+    return Either.left(errors);
   }
-  return { ok: true, tokens };
+  return Either.right(tokens);
 };

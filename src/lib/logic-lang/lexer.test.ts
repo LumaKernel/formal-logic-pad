@@ -1,3 +1,4 @@
+import { Either } from "effect";
 import { describe, expect, it } from "vitest";
 import { lex } from "./lexer";
 import type { Token, TokenKind } from "./token";
@@ -5,9 +6,9 @@ import type { Token, TokenKind } from "./token";
 // ヘルパー: 成功結果からトークン列を取得
 const lexOk = (input: string): readonly Token[] => {
   const result = lex(input);
-  expect(result.ok).toBe(true);
-  if (!result.ok) throw new Error("Expected ok");
-  return result.tokens;
+  expect(Either.isRight(result)).toBe(true);
+  if (Either.isLeft(result)) throw new Error("Expected ok");
+  return result.right;
 };
 
 // ヘルパー: トークンのkindとvalueのペア列を取得（EOF除く）
@@ -25,9 +26,9 @@ const kinds = (
 // ヘルパー: エラー結果を取得
 const lexErr = (input: string) => {
   const result = lex(input);
-  expect(result.ok).toBe(false);
-  if (result.ok) throw new Error("Expected error");
-  return result.errors;
+  expect(Either.isLeft(result)).toBe(true);
+  if (Either.isRight(result)) throw new Error("Expected error");
+  return result.left;
 };
 
 describe("Lexer", () => {

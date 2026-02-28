@@ -27,6 +27,7 @@ import {
   functionApplication,
   binaryOperation,
 } from "../logic-core/term";
+import { Either } from "effect";
 import { formatFormula, formatTerm } from "./formatUnicode";
 import { parseString } from "./parser";
 
@@ -35,12 +36,12 @@ import { parseString } from "./parser";
 /** parse → format のラウンドトリップを検証 */
 const roundTrip = (input: string, expected: string): void => {
   const result = parseString(input);
-  if (!result.ok) {
+  if (Either.isLeft(result)) {
     throw new Error(
-      `Parse failed: ${result.errors.map((e) => e.message).join("; ") satisfies string}`,
+      `Parse failed: ${result.left.map((e) => e.message).join("; ") satisfies string}`,
     );
   }
-  expect(formatFormula(result.formula)).toBe(expected);
+  expect(formatFormula(result.right)).toBe(expected);
 };
 
 // ── 論理式フォーマット ────────────────────────────────────
@@ -695,11 +696,11 @@ describe("ラウンドトリップ (parse → format → parse)", () => {
     );
     const formatted = formatFormula(formula);
     const result = parseString(formatted);
-    if (!result.ok) {
+    if (Either.isLeft(result)) {
       throw new Error(
-        `Parse failed: ${result.errors.map((e) => e.message).join("; ") satisfies string}`,
+        `Parse failed: ${result.left.map((e) => e.message).join("; ") satisfies string}`,
       );
     }
-    expect(formatFormula(result.formula)).toBe(formatted);
+    expect(formatFormula(result.right)).toBe(formatted);
   });
 });

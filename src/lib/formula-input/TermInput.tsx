@@ -15,8 +15,9 @@ import {
   useMemo,
   useRef,
 } from "react";
+import { Either } from "effect";
 import type { Term } from "../logic-core/term";
-import type { ParseError, TermParseResult } from "../logic-lang/parser";
+import type { ParseError } from "../logic-lang/parser";
 import { parseTermString } from "../logic-lang/parser";
 import { CompletionPopup } from "./CompletionPopup";
 import type { ErrorHighlight } from "./FormulaInput";
@@ -62,11 +63,11 @@ export const computeTermParseState = (input: string): TermParseState => {
   if (trimmed === "") {
     return { status: "empty" };
   }
-  const result: TermParseResult = parseTermString(trimmed);
-  if (result.ok) {
-    return { status: "success", term: result.term };
+  const result = parseTermString(trimmed);
+  if (Either.isRight(result)) {
+    return { status: "success", term: result.right };
   }
-  return { status: "error", errors: result.errors };
+  return { status: "error", errors: result.left };
 };
 
 // --- コンポーネント ---

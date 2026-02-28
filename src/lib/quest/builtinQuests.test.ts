@@ -1,3 +1,4 @@
+import { Either } from "effect";
 import { describe, it, expect } from "vitest";
 import { builtinQuests } from "./builtinQuests";
 import { validateUniqueIds, questCategories } from "./questDefinition";
@@ -52,7 +53,7 @@ describe("builtinQuests", () => {
       for (const goal of quest.goals) {
         const result = parseString(goal.formulaText);
         expect(
-          result.ok,
+          Either.isRight(result),
           `${quest.id satisfies string}: "${goal.formulaText satisfies string}" のパースに失敗`,
         ).toBe(true);
       }

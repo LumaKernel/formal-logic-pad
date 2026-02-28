@@ -1,3 +1,4 @@
+import { Either } from "effect";
 import { describe, expect, it } from "vitest";
 import { parseString, parseTermString } from "./parser";
 import type { Formula } from "../logic-core/formula";
@@ -29,31 +30,31 @@ import { equalTerm } from "../logic-core/equality";
 // ヘルパー: 成功パース結果を取得
 const parseOk = (input: string): Formula => {
   const result = parseString(input);
-  if (!result.ok) {
+  if (Either.isLeft(result)) {
     throw new Error(
-      `Parse failed: ${result.errors.map((e) => e.message).join("; ") satisfies string}`,
+      `Parse failed: ${result.left.map((e) => e.message).join("; ") satisfies string}`,
     );
   }
-  return result.formula;
+  return result.right;
 };
 
 // ヘルパー: 項の成功パース結果を取得
 const parseTermOk = (input: string): Term => {
   const result = parseTermString(input);
-  if (!result.ok) {
+  if (Either.isLeft(result)) {
     throw new Error(
-      `Parse failed: ${result.errors.map((e) => e.message).join("; ") satisfies string}`,
+      `Parse failed: ${result.left.map((e) => e.message).join("; ") satisfies string}`,
     );
   }
-  return result.term;
+  return result.right;
 };
 
 // ヘルパー: エラーパース結果を取得
 const parseErr = (input: string) => {
   const result = parseString(input);
-  expect(result.ok).toBe(false);
-  if (result.ok) throw new Error("Expected error");
-  return result.errors;
+  expect(Either.isLeft(result)).toBe(true);
+  if (Either.isRight(result)) throw new Error("Expected error");
+  return result.left;
 };
 
 // ヘルパー: AST比較
@@ -845,19 +846,19 @@ describe("Parser", () => {
   describe("parseString", () => {
     it("should parse valid input", () => {
       const result = parseString("φ → ψ");
-      expect(result.ok).toBe(true);
+      expect(Either.isRight(result)).toBe(true);
     });
 
     it("should return errors for invalid input", () => {
       const result = parseString("→");
-      expect(result.ok).toBe(false);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it("should propagate lexer errors", () => {
       const result = parseString("§");
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.errors[0]!.message).toContain("Unexpected character");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left[0]!.message).toContain("Unexpected character");
       }
     });
   });
@@ -999,113 +1000,116 @@ describe("parseTermString", () => {
   describe("エラーケース", () => {
     it("空文字列でエラーを返す", () => {
       const result = parseTermString("");
-      expect(result.ok).toBe(false);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it("論理式を項として解析するとエラーを返す", () => {
       // "→" は項の開始トークンではない
       const result = parseTermString("→");
-      expect(result.ok).toBe(false);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it("不完全な式でエラーを返す", () => {
       const result = parseTermString("x +");
-      expect(result.ok).toBe(false);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it("余分なトークンでエラーを返す", () => {
       // "x y" は項の後に余分なトークンがある
       const result = parseTermString("x y");
-      expect(result.ok).toBe(false);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it("レキサーエラーを返す", () => {
       const result = parseTermString("x # y");
-      expect(result.ok).toBe(false);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it("閉じ括弧なしでエラーを返す", () => {
       const result = parseTermString("(x");
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.errors.length).toBeGreaterThan(0);
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left.length).toBeGreaterThan(0);
       }
     });
 
     it("関数の閉じ括弧なしでエラーを返す", () => {
       const result = parseTermString("f(x");
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.errors.length).toBeGreaterThan(0);
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left.length).toBeGreaterThan(0);
       }
     });
 
     it("コンマ後の不完全な引数でエラーを返す", () => {
       const result = parseTermString("f(x,)");
-      expect(result.ok).toBe(false);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it("余分な閉じ括弧でエラーを返す", () => {
       const result = parseTermString("x)");
-      expect(result.ok).toBe(false);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it("二項演算の後に論理演算子が来るとエラーを返す", () => {
       const result = parseTermString("x + →");
-      expect(result.ok).toBe(false);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it("ドットが項の位置に来るとエラーを返す", () => {
       const result = parseTermString(".");
-      expect(result.ok).toBe(false);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it("カンマが項の位置に来るとエラーを返す", () => {
       const result = parseTermString(",");
-      expect(result.ok).toBe(false);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it("括弧内に不正なトークンがあるとエラーを返す", () => {
       const result = parseTermString("(→)");
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.errors.length).toBeGreaterThan(0);
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left.length).toBeGreaterThan(0);
       }
     });
 
     it("関数引数の先頭が不正なトークンだとエラーを返す", () => {
       const result = parseTermString("f(→)");
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.errors.length).toBeGreaterThan(0);
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left.length).toBeGreaterThan(0);
       }
     });
 
     it("大文字識別子を項コンテキストで関数適用としてパースする", () => {
       const result = parseTermString("S(x)");
-      expect(result.ok).toBe(true);
-      if (result.ok) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(
-          equalTerm(result.term, functionApplication("S", [termVariable("x")])),
+          equalTerm(
+            result.right,
+            functionApplication("S", [termVariable("x")]),
+          ),
         ).toBe(true);
       }
     });
 
     it("大文字識別子を項コンテキストで定数としてパースする", () => {
       const result = parseTermString("N");
-      expect(result.ok).toBe(true);
-      if (result.ok) {
-        expect(equalTerm(result.term, constant("N"))).toBe(true);
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(equalTerm(result.right, constant("N"))).toBe(true);
       }
     });
 
     it("大文字識別子のネストした関数適用をパースする", () => {
       const result = parseTermString("S(S(0))");
-      expect(result.ok).toBe(true);
-      if (result.ok) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(
           equalTerm(
-            result.term,
+            result.right,
             functionApplication("S", [
               functionApplication("S", [constant("0")]),
             ]),
@@ -1121,11 +1125,11 @@ describe("parseTermString", () => {
 describe("PA formula parsing", () => {
   it("PA1: all x. ~(S(x) = 0)", () => {
     const result = parseString("all x. ~(S(x) = 0)");
-    expect(result.ok).toBe(true);
-    if (result.ok) {
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
       expect(
         equalFormula(
-          result.formula,
+          result.right,
           universal(
             termVariable("x"),
             negation(
@@ -1142,11 +1146,11 @@ describe("PA formula parsing", () => {
 
   it("PA3: all x. x + 0 = x", () => {
     const result = parseString("all x. x + 0 = x");
-    expect(result.ok).toBe(true);
-    if (result.ok) {
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
       expect(
         equalFormula(
-          result.formula,
+          result.right,
           universal(
             termVariable("x"),
             equality(
@@ -1161,11 +1165,11 @@ describe("PA formula parsing", () => {
 
   it("PA4: all x. all y. x + S(y) = S(x + y)", () => {
     const result = parseString("all x. all y. x + S(y) = S(x + y)");
-    expect(result.ok).toBe(true);
-    if (result.ok) {
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
       expect(
         equalFormula(
-          result.formula,
+          result.right,
           universal(
             termVariable("x"),
             universal(
@@ -1189,11 +1193,11 @@ describe("PA formula parsing", () => {
 
   it("S(0) + 0 = S(0)", () => {
     const result = parseString("S(0) + 0 = S(0)");
-    expect(result.ok).toBe(true);
-    if (result.ok) {
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
       expect(
         equalFormula(
-          result.formula,
+          result.right,
           equality(
             binaryOperation(
               "+",
@@ -1209,11 +1213,11 @@ describe("PA formula parsing", () => {
 
   it("S(0) + S(0) = S(S(0)) (1+1=2)", () => {
     const result = parseString("S(0) + S(0) = S(S(0))");
-    expect(result.ok).toBe(true);
-    if (result.ok) {
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
       expect(
         equalFormula(
-          result.formula,
+          result.right,
           equality(
             binaryOperation(
               "+",
@@ -1231,11 +1235,11 @@ describe("PA formula parsing", () => {
 
   it("~(S(0) = 0)", () => {
     const result = parseString("~(S(0) = 0)");
-    expect(result.ok).toBe(true);
-    if (result.ok) {
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
       expect(
         equalFormula(
-          result.formula,
+          result.right,
           negation(
             equality(functionApplication("S", [constant("0")]), constant("0")),
           ),
@@ -1246,21 +1250,21 @@ describe("PA formula parsing", () => {
 
   it("大文字述語P(x)は引き続き述語としてパースされる", () => {
     const result = parseString("P(x)");
-    expect(result.ok).toBe(true);
-    if (result.ok) {
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
       expect(
-        equalFormula(result.formula, predicate("P", [termVariable("x")])),
+        equalFormula(result.right, predicate("P", [termVariable("x")])),
       ).toBe(true);
     }
   });
 
   it("大文字の後に等号が続く場合は等号式として解釈する", () => {
     const result = parseString("S(x) = S(y)");
-    expect(result.ok).toBe(true);
-    if (result.ok) {
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
       expect(
         equalFormula(
-          result.formula,
+          result.right,
           equality(
             functionApplication("S", [termVariable("x")]),
             functionApplication("S", [termVariable("y")]),

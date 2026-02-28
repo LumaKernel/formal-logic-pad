@@ -7,6 +7,7 @@
  * 変更時は goalCheckLogic.test.ts, ProofWorkspace.tsx, index.ts も同期すること。
  */
 
+import { Either } from "effect";
 import { equalFormula } from "../logic-core/equality";
 import { parseString } from "../logic-lang/parser";
 import type { Formula } from "../logic-core/formula";
@@ -65,8 +66,8 @@ export function parseGoalFormula(goalText: string): Formula | undefined {
   const trimmed = goalText.trim();
   if (trimmed === "") return undefined;
   const result = parseString(trimmed);
-  if (!result.ok) return undefined;
-  return result.formula;
+  if (Either.isLeft(result)) return undefined;
+  return result.right;
 }
 
 // --- ゴール達成チェック ---
@@ -109,8 +110,8 @@ export function checkGoal(
     for (const node of nodes) {
       if (node.formulaText.trim() === "") continue;
       const nodeResult = parseString(node.formulaText);
-      if (!nodeResult.ok) continue;
-      if (equalFormula(goalFormula, nodeResult.formula)) {
+      if (Either.isLeft(nodeResult)) continue;
+      if (equalFormula(goalFormula, nodeResult.right)) {
         matchingNodeId = node.id;
         break;
       }

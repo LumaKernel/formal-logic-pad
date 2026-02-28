@@ -8,6 +8,7 @@
  * 変更時は dependencyLogic.test.ts, ProofWorkspace.tsx, index.ts も同期すること。
  */
 
+import { Either } from "effect";
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
 import { identifyAxiom } from "../logic-core/inferenceRule";
 import { parseString } from "../logic-lang/parser";
@@ -172,9 +173,9 @@ export function getNodeAxiomIds(
     if (trimmed === "") continue;
 
     const parsed = parseString(trimmed);
-    if (!parsed.ok) continue;
+    if (Either.isLeft(parsed)) continue;
 
-    const identification = identifyAxiom(parsed.formula, system);
+    const identification = identifyAxiom(parsed.right, system);
     if (identification._tag === "Ok") {
       result.add(identification.axiomId);
     }
@@ -242,12 +243,12 @@ export function validateRootNodes(
     }
 
     const parsed = parseString(trimmed);
-    if (!parsed.ok) {
+    if (Either.isLeft(parsed)) {
       results.push({ _tag: "unknown", nodeId: rootId });
       continue;
     }
 
-    const identification = identifyAxiom(parsed.formula, system);
+    const identification = identifyAxiom(parsed.right, system);
     if (identification._tag === "Ok") {
       const isTrivial = isTrivialAxiomSubstitution(
         identification.formulaSubstitution,

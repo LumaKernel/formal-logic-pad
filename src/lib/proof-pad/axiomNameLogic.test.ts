@@ -25,6 +25,7 @@ import {
   negation,
 } from "../logic-core/formula";
 import { termMetaVariable, termVariable, constant } from "../logic-core/term";
+import { Either } from "effect";
 import { parseString } from "../logic-lang/parser";
 import {
   metaVariableKey,
@@ -40,8 +41,9 @@ import type {
 /** DSL文字列をパースしてFormulaを返す（テスト用）*/
 function parseFormula(text: string) {
   const result = parseString(text);
-  if (!result.ok) throw new Error(`Parse error: ${text satisfies string}`);
-  return result.formula;
+  if (Either.isLeft(result))
+    throw new Error(`Parse error: ${text satisfies string}`);
+  return result.right;
 }
 
 describe("axiomNameLogic", () => {
