@@ -9,7 +9,6 @@
  * 変更時は ProofWorkspace.test.tsx, ProofWorkspace.stories.tsx, workspaceState.ts, goalCheckLogic.ts, index.ts も同期すること。
  */
 
-import { Either } from "effect";
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LogicSystem } from "../logic-core/inferenceRule";
@@ -52,6 +51,7 @@ import {
   getMPErrorMessageKey,
   getGenErrorMessageKey,
   getSubstitutionErrorMessageKey,
+  processValidationResult,
   formatMessage,
 } from "./proofMessages";
 import { useProofMessages } from "./ProofMessagesContext";
@@ -1040,14 +1040,15 @@ export function ProofWorkspace({
       );
       if (!mpEdge) continue;
       const result = validateMPApplication(workspace, node.id);
-      if (Either.isRight(result)) {
-        validations.set(node.id, { message: msg.mpApplied, type: "success" });
-      } else if (result.left._tag !== "BothPremisesMissing") {
-        const key = getMPErrorMessageKey(result.left);
-        validations.set(node.id, {
-          message: msg[key],
-          type: "error",
-        });
+      const display = processValidationResult(
+        result,
+        msg.mpApplied,
+        getMPErrorMessageKey,
+        (e) => e._tag === "BothPremisesMissing",
+        msg,
+      );
+      if (display) {
+        validations.set(node.id, display);
       }
     }
     return validations;
@@ -1071,14 +1072,15 @@ export function ProofWorkspace({
           ? genEdgeRaw.variableName
           : (node.genVariableName ?? "");
       const result = validateGenApplication(workspace, node.id, variableName);
-      if (Either.isRight(result)) {
-        validations.set(node.id, { message: msg.genApplied, type: "success" });
-      } else if (result.left._tag !== "GenPremiseMissing") {
-        const key = getGenErrorMessageKey(result.left);
-        validations.set(node.id, {
-          message: msg[key],
-          type: "error",
-        });
+      const display = processValidationResult(
+        result,
+        msg.genApplied,
+        getGenErrorMessageKey,
+        (e) => e._tag === "GenPremiseMissing",
+        msg,
+      );
+      if (display) {
+        validations.set(node.id, display);
       }
     }
     return validations;
@@ -1106,17 +1108,17 @@ export function ProofWorkspace({
         node.id,
         entries,
       );
-      if (Either.isRight(result)) {
-        validations.set(node.id, {
-          message: msg.substitutionApplied,
-          type: "success",
-        });
-      } else if (result.left._tag !== "SubstPremiseMissing" || entries.length > 0) {
-        const key = getSubstitutionErrorMessageKey(result.left);
-        validations.set(node.id, {
-          message: msg[key],
-          type: "error",
-        });
+      // SubstPremiseMissing はエントリが空のときのみスキップ
+      // （エントリがある場合は前提未接続をエラーとして表示する）
+      const display = processValidationResult(
+        result,
+        msg.substitutionApplied,
+        getSubstitutionErrorMessageKey,
+        (e) => e._tag === "SubstPremiseMissing" && entries.length === 0,
+        msg,
+      );
+      if (display) {
+        validations.set(node.id, display);
       }
     }
     return validations;
