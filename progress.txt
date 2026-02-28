@@ -5590,3 +5590,20 @@
   - conceptカテゴリのorder: soundness:8 (system-equivalence:7の次)
   - D5（完全性定理）は健全性と双対の概念なので、conceptSoundnessの relatedEntryIds に相互リンクを追加すること
 ---
+
+## 2026-02-28 - D5: 完全性定理のリファレンスエントリ
+- 実装した内容: 完全性定理 (Completeness Theorem) のリファレンスエントリを追加
+  - bekki.pdf Ch.13 (定義13.2, 定理13.12-13.14) に基づく
+  - 6段落の英日バイリンガル解説: 完全性の意味、弱い/強い完全性、ヘンキンの定理、充満した列と導出された解釈、ゲーデルの完全性定理、意義と関連結果
+  - relatedEntryIds: concept-soundness, concept-system-equivalence, system-classical, rule-sc-overview, rule-sc-logical
+  - Wikipedia (en/ja) と nLab の外部リンク
+  - keywords: completeness, Gödel, Henkin, 充満 など15件
+- 変更したファイル:
+  - src/lib/reference/referenceContent.ts - conceptCompleteness エントリ追加
+  - src/lib/reference/referenceContent.test.ts - エントリ数 45→46
+- テスト: 5052 passed, カバレッジ Stmts 98.6% (維持)
+- ブラウザ確認: Storybook ReferenceModal, ReferencePopover で正常描画確認
+- **今後のイテレーションへの学び:**
+  - D4 (健全性) と D5 (完全性) は対の概念。relatedEntryIds で相互参照すると良い
+  - bekki Ch.13 は健全性・完全性・レーヴェンハイム・スコーレム・コンパクト性がまとまっている。D6, D7 も同章から取れる
+---
