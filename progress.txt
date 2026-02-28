@@ -5847,3 +5847,25 @@
   - `extractSubstitutionTargetsFromText` + `generateSubstitutionEntryTemplate` でFormulaとTermのメタ変数を自動分類可能
   - ProofWorkspaceの`handleEdgeBadgeClick`でpremiseFormulaTextを取得するためにworkspace全体（ノード情報）への参照が必要
 ---
+
+## 2026-02-28 - [reference] 構造規則リファレンスエントリの拡充
+- 既存の `rule-sc-structural` エントリを大幅に拡充（5段落→8段落、en/ja）
+- 各構造規則（ID, Cut, w, c, e）の定義と役割を詳述
+- LK/LJ/LMの体系間の違いを明記（右規則の利用可否、⊥⇒の有無、包含関係 LM ⊂ LJ ⊂ LK）
+- TABでの弱化・縮約の許容性（定理12.9, 12.11）を記載
+- formalNotation にCut, w⇒, ⇒w, c⇒, ⇒cの規則を追加
+- relatedEntryIds に concept-cut-elimination, concept-admissible-derivable を追加（逆参照は既に存在）
+- externalLinks にnLab structural rule、カット除去定理Wikipediaを追加
+- keywords を拡充（identity, admissible, LK, LJ, LM, 同一律, 許容規則）
+- テスト5件追加: 体系間の違い、TAB許容性、関連エントリ、逆参照、検索
+- 変更ファイル: src/lib/reference/referenceContent.ts, src/lib/reference/referenceContent.test.ts, task-processing.md, tasks/prd-advanced.md
+- カバレッジ: Statements 98.53% → 98.53% (維持)
+- テスト: 5086 → 5091 (5件追加)
+- ブラウザ確認: ReferenceModal Storybookストーリーで表示確認
+- スクリーンショット: `.screenshots/reference-modal-default.png`
+- **今後のイテレーションへの学び:**
+  - 既存エントリの拡充は新規追加よりシンプル（エントリ数変更なし、テスト数のみ増加）
+  - bekki.pdf のページ番号は物理ページと印刷ページで約8ページのオフセットがある
+  - relatedEntryIds の双方向確認は重要だが、既存エントリが既にリンクしている場合がある — 確認してから追加すること
+  - F1とF2は密接に関連（構造規則の許容性 ↔ 許容規則の概念）
+---
