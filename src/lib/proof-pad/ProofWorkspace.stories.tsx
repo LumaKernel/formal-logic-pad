@@ -14,6 +14,7 @@ import {
   predicateLogicSystem,
   equalityLogicSystem,
 } from "../logic-core/inferenceRule";
+import { naturalDeduction, njSystem } from "../logic-core/deductionSystem";
 import { allReferenceEntries } from "../reference/referenceContent";
 import { ProofWorkspace } from "./ProofWorkspace";
 import {
@@ -1188,5 +1189,55 @@ export const SubstitutionContextMenu: Story = {
 
     // 代入ノードが作成されている
     await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+  },
+};
+
+// --- 自然演繹デモ ---
+
+function NdWorkspace() {
+  const initial = createEmptyWorkspace(naturalDeduction(njSystem));
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/** 自然演繹(NJ)の空ワークスペース - NDルールパレット表示 */
+export const EmptyNaturalDeduction: Story = {
+  render: () => <NdWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
+      "Natural Deduction NJ",
+    );
+    // ND rule palette should be visible (not axiom palette)
+    await expect(
+      canvas.getByTestId("workspace-nd-rule-palette"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId("workspace-axiom-palette"),
+    ).not.toBeInTheDocument();
+    // "仮定を追加" button should exist
+    await expect(
+      canvas.getByTestId("workspace-nd-rule-palette-add-assumption"),
+    ).toBeInTheDocument();
+    // Add assumption
+    await userEvent.click(
+      canvas.getByTestId("workspace-nd-rule-palette-add-assumption"),
+    );
+    // Node should appear
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
   },
 };

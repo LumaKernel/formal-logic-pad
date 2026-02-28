@@ -7,6 +7,11 @@ import {
   predicateLogicSystem,
   equalityLogicSystem,
 } from "../logic-core/inferenceRule";
+import {
+  naturalDeduction,
+  njSystem,
+  nkSystem,
+} from "../logic-core/deductionSystem";
 import { allReferenceEntries } from "../reference/referenceContent";
 import type { Formula } from "../logic-core/formula";
 import { ProofWorkspace } from "./ProofWorkspace";
@@ -329,6 +334,98 @@ describe("ProofWorkspace", () => {
       await user.click(screen.getByTestId("workspace-axiom-palette-item-E1"));
       const newState = onWorkspaceChange.mock.calls[0][0] as WorkspaceState;
       expect(newState.nodes[0].formulaText).toBe("all x. x = x");
+    });
+  });
+
+  describe("ND rule palette", () => {
+    it("renders ND rule palette for natural deduction system", () => {
+      const ws = createEmptyWorkspace(naturalDeduction(njSystem));
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          testId="workspace"
+        />,
+      );
+      expect(
+        screen.getByTestId("workspace-nd-rule-palette"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("Natural Deduction")).toBeInTheDocument();
+    });
+
+    it("does not render axiom palette for ND system", () => {
+      const ws = createEmptyWorkspace(naturalDeduction(njSystem));
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          testId="workspace"
+        />,
+      );
+      expect(
+        screen.queryByTestId("workspace-axiom-palette"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows NJ rules including EFQ", () => {
+      const ws = createEmptyWorkspace(naturalDeduction(njSystem));
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          testId="workspace"
+        />,
+      );
+      expect(screen.getByText("爆発律 (EFQ)")).toBeInTheDocument();
+      expect(screen.getByText("→導入 (→I)")).toBeInTheDocument();
+    });
+
+    it("shows NK rules including DNE", () => {
+      const ws = createEmptyWorkspace(naturalDeduction(nkSystem));
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          testId="workspace"
+        />,
+      );
+      expect(screen.getByText("二重否定除去 (DNE)")).toBeInTheDocument();
+    });
+
+    it("adds assumption node when add assumption is clicked", async () => {
+      const user = userEvent.setup();
+      const onWorkspaceChange = vi.fn();
+      const ws = createEmptyWorkspace(naturalDeduction(njSystem));
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          onWorkspaceChange={onWorkspaceChange}
+          testId="workspace"
+        />,
+      );
+      await user.click(
+        screen.getByTestId("workspace-nd-rule-palette-add-assumption"),
+      );
+      expect(onWorkspaceChange).toHaveBeenCalled();
+      const updatedWs = onWorkspaceChange.mock.calls[
+        onWorkspaceChange.mock.calls.length - 1
+      ][0] as WorkspaceState;
+      expect(updatedWs.nodes.length).toBe(1);
+      // 仮定ノードはformulTextが空
+      expect(updatedWs.nodes[0].formulaText).toBe("");
+      // ラベルは"Assumption"
+      expect(updatedWs.nodes[0].label).toBe("Assumption");
+    });
+
+    it("renders axiom palette for Hilbert system (not ND palette)", () => {
+      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
+      expect(
+        screen.getByTestId("workspace-axiom-palette"),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByTestId("workspace-nd-rule-palette"),
+      ).not.toBeInTheDocument();
     });
   });
 
