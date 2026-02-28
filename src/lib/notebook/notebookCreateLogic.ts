@@ -12,12 +12,15 @@ import {
   hilbertDeduction,
   naturalDeduction,
   sequentCalculusDeduction,
+  tableauCalculusDeduction,
   nmSystem,
   njSystem,
   nkSystem,
   lmSystem,
   ljSystem,
   lkSystem,
+  tabSystem,
+  tabPropSystem,
 } from "../logic-core/deductionSystem";
 import type { ReferenceEntryId } from "../reference/referenceEntry";
 import {
@@ -230,6 +233,20 @@ export const systemPresets: readonly SystemPreset[] = [
       "ゲンツェン流: 完全対称体系。左右両辺が0個以上。NKと等価。戸次『数理論理学』§10.1。",
     deductionSystem: sequentCalculusDeduction(lkSystem),
   },
+  {
+    id: "tab-prop",
+    label: "TAB 命題論理",
+    description:
+      "タブロー法: 命題論理部分のみ（量化子規則なし）。反駁による証明。戸次『数理論理学』§12.1-12.3。",
+    deductionSystem: tableauCalculusDeduction(tabPropSystem),
+  },
+  {
+    id: "tab",
+    label: "TAB（全規則）",
+    description:
+      "タブロー法: 量化子規則を含む全14規則。LK-CUT と等価。戸次『数理論理学』§12.1-12.3。",
+    deductionSystem: tableauCalculusDeduction(tabSystem),
+  },
 ] as const;
 
 // --- プリセットのカテゴリグルーピング ---
@@ -248,7 +265,8 @@ export type PresetCategoryId =
   | "hilbert-predicate"
   | "hilbert-theory"
   | "natural-deduction"
-  | "sequent-calculus";
+  | "sequent-calculus"
+  | "tableau-calculus";
 
 /** カテゴリの表示情報 */
 export type PresetCategoryDefinition = {
@@ -284,6 +302,11 @@ export const presetCategoryDefinitions: readonly PresetCategoryDefinition[] = [
     label: "シーケント計算",
     description: "ゲンツェン流のシーケントによる証明体系",
   },
+  {
+    id: "tableau-calculus",
+    label: "タブロー法",
+    description: "タブロー式シーケント計算（反駁による証明）",
+  },
 ];
 
 /** Hilbert述語論理系プリセットIDの集合 */
@@ -311,6 +334,7 @@ export function classifyPresetCategory(preset: SystemPreset): PresetCategoryId {
   const style = preset.deductionSystem.style;
   if (style === "natural-deduction") return "natural-deduction";
   if (style === "sequent-calculus") return "sequent-calculus";
+  if (style === "tableau-calculus") return "tableau-calculus";
   // Hilbert 系の場合はIDで細分類
   if (hilbertPredicateIds.has(preset.id)) return "hilbert-predicate";
   if (hilbertTheoryIds.has(preset.id)) return "hilbert-theory";

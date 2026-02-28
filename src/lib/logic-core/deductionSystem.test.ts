@@ -8,9 +8,12 @@ import {
   lmSystem,
   ljSystem,
   lkSystem,
+  tabSystem,
+  tabPropSystem,
   hilbertDeduction,
   naturalDeduction,
   sequentCalculusDeduction,
+  tableauCalculusDeduction,
   getDeductionSystemName,
   getDeductionStyleLabel,
   isNdRuleEnabled,
@@ -19,7 +22,9 @@ import {
   isScRuleEnabled,
   allScRuleIds,
   getScRuleDisplayName,
+  isTabRuleEnabled,
 } from "./deductionSystem";
+import { allTabRuleIds } from "./tableauCalculus";
 import { minimalLogicSystem, classicalLogicSystem } from "./inferenceRule";
 
 // ── NM/NJ/NK体系のテスト ───────────────────────────────────
@@ -153,6 +158,10 @@ describe("getDeductionStyleLabel", () => {
 
   it("natural-deduction → 自然演繹", () => {
     expect(getDeductionStyleLabel("natural-deduction")).toBe("自然演繹");
+  });
+
+  it("tableau-calculus → タブロー法", () => {
+    expect(getDeductionStyleLabel("tableau-calculus")).toBe("タブロー法");
   });
 });
 
@@ -452,6 +461,105 @@ describe("getScRuleDisplayName", () => {
   });
 });
 
+// ── TAB体系のテスト ──────────────────────────────────────────
+
+describe("TAB (タブロー式シーケント計算)", () => {
+  it("名前が正しい", () => {
+    expect(tabSystem.name).toBe("Tableau Calculus TAB");
+  });
+
+  it("全14規則を含む", () => {
+    expect(tabSystem.rules.size).toBe(14);
+  });
+
+  it("公理規則を含む", () => {
+    expect(tabSystem.rules.has("bs")).toBe(true);
+    expect(tabSystem.rules.has("bottom")).toBe(true);
+  });
+
+  it("構造規則を含む", () => {
+    expect(tabSystem.rules.has("exchange")).toBe(true);
+  });
+
+  it("命題論理規則を含む", () => {
+    expect(tabSystem.rules.has("double-negation")).toBe(true);
+    expect(tabSystem.rules.has("conjunction")).toBe(true);
+    expect(tabSystem.rules.has("neg-conjunction")).toBe(true);
+    expect(tabSystem.rules.has("disjunction")).toBe(true);
+    expect(tabSystem.rules.has("neg-disjunction")).toBe(true);
+    expect(tabSystem.rules.has("implication")).toBe(true);
+    expect(tabSystem.rules.has("neg-implication")).toBe(true);
+  });
+
+  it("量化子規則を含む", () => {
+    expect(tabSystem.rules.has("universal")).toBe(true);
+    expect(tabSystem.rules.has("neg-universal")).toBe(true);
+    expect(tabSystem.rules.has("existential")).toBe(true);
+    expect(tabSystem.rules.has("neg-existential")).toBe(true);
+  });
+});
+
+describe("TAB-Prop (タブロー命題論理)", () => {
+  it("名前が正しい", () => {
+    expect(tabPropSystem.name).toBe("Tableau Calculus TAB (Propositional)");
+  });
+
+  it("命題論理10規則を含む", () => {
+    expect(tabPropSystem.rules.size).toBe(10);
+  });
+
+  it("量化子規則を含まない", () => {
+    expect(tabPropSystem.rules.has("universal")).toBe(false);
+    expect(tabPropSystem.rules.has("neg-universal")).toBe(false);
+    expect(tabPropSystem.rules.has("existential")).toBe(false);
+    expect(tabPropSystem.rules.has("neg-existential")).toBe(false);
+  });
+
+  it("命題論理規則はすべて含む", () => {
+    expect(tabPropSystem.rules.has("bs")).toBe(true);
+    expect(tabPropSystem.rules.has("bottom")).toBe(true);
+    expect(tabPropSystem.rules.has("exchange")).toBe(true);
+    expect(tabPropSystem.rules.has("double-negation")).toBe(true);
+    expect(tabPropSystem.rules.has("conjunction")).toBe(true);
+    expect(tabPropSystem.rules.has("neg-conjunction")).toBe(true);
+    expect(tabPropSystem.rules.has("disjunction")).toBe(true);
+    expect(tabPropSystem.rules.has("neg-disjunction")).toBe(true);
+    expect(tabPropSystem.rules.has("implication")).toBe(true);
+    expect(tabPropSystem.rules.has("neg-implication")).toBe(true);
+  });
+});
+
+// ── DeductionSystemのTABテスト ────────────────────────────
+
+describe("DeductionSystem (tableau-calculus)", () => {
+  it("tableauCalculusDeduction でTAB体系を作成できる", () => {
+    const ds = tableauCalculusDeduction(tabSystem);
+    expect(ds.style).toBe("tableau-calculus");
+    expect(ds.system).toBe(tabSystem);
+  });
+
+  it("getDeductionSystemName でTABの名前を取得できる", () => {
+    const ds = tableauCalculusDeduction(tabSystem);
+    expect(getDeductionSystemName(ds)).toBe("Tableau Calculus TAB");
+  });
+});
+
+// ── isTabRuleEnabled のテスト ────────────────────────────────
+
+describe("isTabRuleEnabled", () => {
+  it("TABでbsは有効", () => {
+    expect(isTabRuleEnabled(tabSystem, "bs")).toBe(true);
+  });
+
+  it("TAB-Propでuniversalは無効", () => {
+    expect(isTabRuleEnabled(tabPropSystem, "universal")).toBe(false);
+  });
+
+  it("TABでuniversalは有効", () => {
+    expect(isTabRuleEnabled(tabSystem, "universal")).toBe(true);
+  });
+});
+
 // ── 型の網羅性テスト ────────────────────────────────────────
 
 describe("型の網羅性", () => {
@@ -460,6 +568,7 @@ describe("型の網羅性", () => {
       "hilbert",
       "natural-deduction",
       "sequent-calculus",
+      "tableau-calculus",
     ];
     for (const style of styles) {
       expect(typeof getDeductionStyleLabel(style)).toBe("string");
@@ -483,9 +592,16 @@ describe("型の網羅性", () => {
       hilbertDeduction(minimalLogicSystem),
       naturalDeduction(nmSystem),
       sequentCalculusDeduction(lmSystem),
+      tableauCalculusDeduction(tabSystem),
     ];
     for (const ds of systems) {
       expect(typeof getDeductionSystemName(ds)).toBe("string");
+    }
+  });
+
+  it("TabRuleId の全バリアントを網羅している", () => {
+    for (const ruleId of allTabRuleIds) {
+      expect(isTabRuleEnabled(tabSystem, ruleId)).toBe(true);
     }
   });
 });

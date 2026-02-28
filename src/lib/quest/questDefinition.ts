@@ -163,7 +163,9 @@ export type SystemPresetId =
   | "nd-nk"
   | "sc-lm"
   | "sc-lj"
-  | "sc-lk";
+  | "sc-lk"
+  | "tab-prop"
+  | "tab";
 
 // --- クエスト定義 ---
 

@@ -8,6 +8,7 @@
  * - 第7章: Hilbert流証明論 (SK, HM, HJ, HK)
  * - 第8章: 自然演繹 (NM, NJ, NK)
  * - 第10章: ゲンツェン流シーケント計算 (LM, LJ, LK)
+ * - 第12章: タブロー式シーケント計算 (TAB)
  *
  * 変更時は deductionSystem.test.ts, notebookCreateLogic.ts,
  * questDefinition.ts の SystemPresetId も同期すること。
@@ -15,9 +16,11 @@
  * @see inferenceRule.ts Hilbert流の体系定義 (LogicSystem)
  * @see naturalDeduction.ts 自然演繹のピュアロジック
  * @see sequentCalculus.ts シーケント計算のピュアロジック
+ * @see tableauCalculus.ts タブロー式シーケント計算のピュアロジック
  */
 
 import type { LogicSystem } from "./inferenceRule";
+import type { TabRuleId } from "./tableauCalculus";
 
 // ── 証明スタイル ─────────────────────────────────────────
 
@@ -26,7 +29,8 @@ import type { LogicSystem } from "./inferenceRule";
  *
  * - "hilbert": Hilbert流（公理 + MP + Gen）
  * - "natural-deduction": 自然演繹（推論規則のペア + 仮定の打ち消し）
- * - "sequent-calculus": シーケント計算（将来追加予定）
+ * - "sequent-calculus": シーケント計算
+ * - "tableau-calculus": タブロー式シーケント計算
  *
  * 新しいスタイル追加時はすべての switch 文を更新すること
  * （satisfies never でコンパイル時に検出される）。
@@ -34,7 +38,8 @@ import type { LogicSystem } from "./inferenceRule";
 export type DeductionStyle =
   | "hilbert"
   | "natural-deduction"
-  | "sequent-calculus";
+  | "sequent-calculus"
+  | "tableau-calculus";
 
 // ── 自然演繹の体系設定 ─────────────────────────────────────
 
@@ -259,6 +264,82 @@ export const lkSystem: SequentCalculusSystem = {
   maxSuccedentLength: undefined,
 };
 
+// ── タブロー式シーケント計算の体系設定 ───────────────────────────
+
+/**
+ * タブロー式シーケント計算の体系設定。
+ *
+ * TAB は シーケントの右辺が常に空（Γ ⇒）という特徴を持つ。
+ * 戸次『数理論理学』第12章。
+ *
+ * 全14規則: 公理(BS, ⊥)、構造(e)、命題(¬¬, ∧, ¬∧, ∨, ¬∨, →, ¬→)、量化子(∀, ¬∀, ∃, ¬∃)
+ */
+export type TableauCalculusSystem = {
+  /** 体系名 */
+  readonly name: string;
+  /** 有効な推論規則 */
+  readonly rules: ReadonlySet<TabRuleId>;
+};
+
+/** TAB（タブロー式シーケント計算）の全規則セット */
+const tabAllRules: ReadonlySet<TabRuleId> = new Set<TabRuleId>([
+  "bs",
+  "bottom",
+  "exchange",
+  "double-negation",
+  "conjunction",
+  "neg-conjunction",
+  "disjunction",
+  "neg-disjunction",
+  "implication",
+  "neg-implication",
+  "universal",
+  "neg-universal",
+  "existential",
+  "neg-existential",
+]);
+
+/**
+ * TAB: タブロー式シーケント計算（全規則）。
+ * LK-CUT（カット付きシーケント計算）と証明力が等価。
+ * 戸次『数理論理学』定義12.1-12.3
+ */
+export const tabSystem: TableauCalculusSystem = {
+  name: "Tableau Calculus TAB",
+  rules: tabAllRules,
+};
+
+/** TABの命題論理部分のみ（量化子規則なし） */
+const tabPropositionalRules: ReadonlySet<TabRuleId> = new Set<TabRuleId>([
+  "bs",
+  "bottom",
+  "exchange",
+  "double-negation",
+  "conjunction",
+  "neg-conjunction",
+  "disjunction",
+  "neg-disjunction",
+  "implication",
+  "neg-implication",
+]);
+
+/**
+ * TAB-Prop: タブロー式シーケント計算の命題論理部分。
+ * 量化子規則を除いた10規則。
+ */
+export const tabPropSystem: TableauCalculusSystem = {
+  name: "Tableau Calculus TAB (Propositional)",
+  rules: tabPropositionalRules,
+};
+
+/** TABの規則が有効かどうかを判定する */
+export function isTabRuleEnabled(
+  system: TableauCalculusSystem,
+  ruleId: TabRuleId,
+): boolean {
+  return system.rules.has(ruleId);
+}
+
 // ── 演繹体系（統一型） ──────────────────────────────────────
 
 /**
@@ -278,6 +359,10 @@ export type DeductionSystem =
   | {
       readonly style: "sequent-calculus";
       readonly system: SequentCalculusSystem;
+    }
+  | {
+      readonly style: "tableau-calculus";
+      readonly system: TableauCalculusSystem;
     };
 
 // ── ファクトリ関数 ──────────────────────────────────────────
@@ -301,6 +386,13 @@ export function sequentCalculusDeduction(
   return { style: "sequent-calculus", system };
 }
 
+/** タブロー式シーケント計算の演繹体系を作成する */
+export function tableauCalculusDeduction(
+  system: TableauCalculusSystem,
+): DeductionSystem {
+  return { style: "tableau-calculus", system };
+}
+
 // ── ユーティリティ ──────────────────────────────────────────
 
 /** 演繹体系の名前を取得する */
@@ -311,6 +403,8 @@ export function getDeductionSystemName(ds: DeductionSystem): string {
     case "natural-deduction":
       return ds.system.name;
     case "sequent-calculus":
+      return ds.system.name;
+    case "tableau-calculus":
       return ds.system.name;
     default: {
       /* v8 ignore start */
@@ -330,6 +424,8 @@ export function getDeductionStyleLabel(style: DeductionStyle): string {
       return "自然演繹";
     case "sequent-calculus":
       return "シーケント計算";
+    case "tableau-calculus":
+      return "タブロー法";
     default: {
       /* v8 ignore start */
       const _exhaustive: never = style;

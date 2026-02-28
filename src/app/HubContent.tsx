@@ -92,8 +92,11 @@ function HubInner() {
       readonly name: string;
       readonly deductionSystem: DeductionSystem;
     }) => {
-      // シーケント計算はUI未対応
-      if (params.deductionSystem.style === "sequent-calculus") {
+      // シーケント計算・タブロー法はUI未対応
+      if (
+        params.deductionSystem.style === "sequent-calculus" ||
+        params.deductionSystem.style === "tableau-calculus"
+      ) {
         return;
       }
       const nextId = predictNextNotebookId();

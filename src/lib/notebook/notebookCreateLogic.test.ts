@@ -38,7 +38,8 @@ describe("systemPresets", () => {
       expect(
         ds.style === "hilbert" ||
           ds.style === "natural-deduction" ||
-          ds.style === "sequent-calculus",
+          ds.style === "sequent-calculus" ||
+          ds.style === "tableau-calculus",
       ).toBe(true);
       expect(ds.system.name).toBeTruthy();
       if (ds.style === "hilbert") {
@@ -48,6 +49,9 @@ describe("systemPresets", () => {
         expect(ds.system.rules).toBeInstanceOf(Set);
       }
       if (ds.style === "sequent-calculus") {
+        expect(ds.system.rules).toBeInstanceOf(Set);
+      }
+      if (ds.style === "tableau-calculus") {
         expect(ds.system.rules).toBeInstanceOf(Set);
       }
     }
@@ -100,6 +104,20 @@ describe("systemPresets", () => {
     expect(scPresets).toHaveLength(3);
     for (const p of scPresets) {
       expect(p.deductionSystem.style).toBe("sequent-calculus");
+    }
+  });
+
+  it("includes all tableau calculus presets", () => {
+    const ids = systemPresets.map((p) => p.id);
+    expect(ids).toContain("tab-prop");
+    expect(ids).toContain("tab");
+  });
+
+  it("tableau calculus presets have correct style", () => {
+    const tabPresets = systemPresets.filter((p) => p.id.startsWith("tab"));
+    expect(tabPresets).toHaveLength(2);
+    for (const p of tabPresets) {
+      expect(p.deductionSystem.style).toBe("tableau-calculus");
     }
   });
 
@@ -189,7 +207,10 @@ describe("systemPresets", () => {
 
   it("hilbert presets have correct style", () => {
     const hilbertPresets = systemPresets.filter(
-      (p) => !p.id.startsWith("nd-") && !p.id.startsWith("sc-"),
+      (p) =>
+        !p.id.startsWith("nd-") &&
+        !p.id.startsWith("sc-") &&
+        !p.id.startsWith("tab"),
     );
     expect(hilbertPresets.length).toBeGreaterThanOrEqual(16);
     for (const p of hilbertPresets) {
@@ -731,6 +752,18 @@ describe("classifyPresetCategory", () => {
     expect(classifyPresetCategory(preset!)).toBe("sequent-calculus");
   });
 
+  it("classifies tab as tableau-calculus", () => {
+    const preset = findPresetById("tab");
+    expect(preset).toBeDefined();
+    expect(classifyPresetCategory(preset!)).toBe("tableau-calculus");
+  });
+
+  it("classifies tab-prop as tableau-calculus", () => {
+    const preset = findPresetById("tab-prop");
+    expect(preset).toBeDefined();
+    expect(classifyPresetCategory(preset!)).toBe("tableau-calculus");
+  });
+
   it("all presets are classified", () => {
     for (const preset of systemPresets) {
       const category = classifyPresetCategory(preset);
@@ -741,6 +774,7 @@ describe("classifyPresetCategory", () => {
           "hilbert-theory",
           "natural-deduction",
           "sequent-calculus",
+          "tableau-calculus",
         ].includes(category),
       ).toBe(true);
     }
@@ -748,9 +782,9 @@ describe("classifyPresetCategory", () => {
 });
 
 describe("groupPresetsByCategory", () => {
-  it("groups all presets into 5 categories", () => {
+  it("groups all presets into 6 categories", () => {
     const groups = groupPresetsByCategory(systemPresets);
-    expect(groups).toHaveLength(5);
+    expect(groups).toHaveLength(6);
   });
 
   it("preserves category order from presetCategoryDefinitions", () => {
@@ -762,6 +796,7 @@ describe("groupPresetsByCategory", () => {
       "hilbert-theory",
       "natural-deduction",
       "sequent-calculus",
+      "tableau-calculus",
     ]);
   });
 
@@ -827,8 +862,8 @@ describe("groupPresetsByCategory", () => {
 });
 
 describe("presetCategoryDefinitions", () => {
-  it("has 5 categories", () => {
-    expect(presetCategoryDefinitions).toHaveLength(5);
+  it("has 6 categories", () => {
+    expect(presetCategoryDefinitions).toHaveLength(6);
   });
 
   it("each has unique id", () => {
