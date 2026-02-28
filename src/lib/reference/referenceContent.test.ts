@@ -15,8 +15,8 @@ describe("allReferenceEntries", () => {
   });
 
   it("エントリ数が期待通り", () => {
-    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念5 + 理論2 = 42
-    expect(allReferenceEntries).toHaveLength(42);
+    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念6 + 理論2 = 43
+    expect(allReferenceEntries).toHaveLength(43);
   });
 
   it("少なくとも1つのエントリが各カテゴリに存在する", () => {
@@ -487,6 +487,77 @@ describe("概念エントリの個別チェック", () => {
     );
     const resultJa = searchEntries(allReferenceEntries, "演繹定理", "ja");
     expect(resultJa.some((e) => e.id === "concept-deduction-theorem")).toBe(
+      true,
+    );
+  });
+
+  it("黒田の否定翻訳エントリが存在する", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-kuroda-translation",
+    );
+    expect(entry).toBeDefined();
+    expect(entry?.category).toBe("concept");
+  });
+
+  it("黒田の否定翻訳にformalNotationがある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-kuroda-translation",
+    );
+    expect(entry?.formalNotation).toBeTruthy();
+  });
+
+  it("黒田の否定翻訳に∀と¬¬の説明がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-kuroda-translation",
+    );
+    expect(entry?.body.en.some((p) => p.includes("∀"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("¬¬"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("∀"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("¬¬"))).toBe(true);
+  });
+
+  it("黒田の否定翻訳にグリヴェンコとの関連の記載がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-kuroda-translation",
+    );
+    expect(entry?.body.en.some((p) => p.includes("Glivenko"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("グリヴェンコ"))).toBe(true);
+  });
+
+  it("黒田の否定翻訳にグリヴェンコの定理が関連エントリに含まれる", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-kuroda-translation",
+    );
+    expect(entry?.relatedEntryIds).toContain("concept-glivenko");
+  });
+
+  it("黒田の否定翻訳を検索できる", () => {
+    const resultEn = searchEntries(allReferenceEntries, "Kuroda", "en");
+    expect(resultEn.some((e) => e.id === "concept-kuroda-translation")).toBe(
+      true,
+    );
+    const resultJa = searchEntries(allReferenceEntries, "黒田", "ja");
+    expect(resultJa.some((e) => e.id === "concept-kuroda-translation")).toBe(
+      true,
+    );
+  });
+
+  it("黒田の否定翻訳に否定翻訳の検索キーワードがある", () => {
+    const resultEn = searchEntries(
+      allReferenceEntries,
+      "negative translation",
+      "en",
+    );
+    expect(resultEn.some((e) => e.id === "concept-kuroda-translation")).toBe(
+      true,
+    );
+    const resultJa = searchEntries(allReferenceEntries, "否定翻訳", "ja");
+    expect(resultJa.some((e) => e.id === "concept-kuroda-translation")).toBe(
       true,
     );
   });
