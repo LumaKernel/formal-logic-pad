@@ -110,7 +110,11 @@ import {
   updateInferenceEdgeSubstitutionEntries,
   mergeSelectedNodes,
 } from "./workspaceState";
-import { findMergeableGroups, canMergeSelectedNodes } from "./mergeNodesLogic";
+import {
+  findMergeableGroups,
+  canMergeSelectedNodes,
+  findMergeTargets,
+} from "./mergeNodesLogic";
 import { validateDragConnection } from "./portConnectionLogic";
 import type { LayoutDirection } from "./treeLayoutLogic";
 import {
@@ -210,6 +214,15 @@ type GenSelectionState =
   | {
       readonly phase: "selecting-premise";
       readonly variableName: string;
+    };
+
+// --- マージ選択モードの状態 ---
+
+type MergeSelectionState =
+  | { readonly phase: "idle" }
+  | {
+      readonly phase: "selecting-target";
+      readonly leaderNodeId: string;
     };
 
 // --- デフォルトノードサイズ（ポート位置計算に必要） ---
@@ -325,6 +338,11 @@ const genVariableInputStyle = {
   outline: "none",
   background: "rgba(255,255,255,0.2)",
   color: "var(--color-node-text, #fff)",
+};
+
+const mergeSelectionBannerStyle = {
+  ...mpSelectionBannerStyle,
+  background: "var(--color-merge-banner, rgba(74,148,217,0.95))",
 };
 
 const substBannerStyle = {
@@ -552,6 +570,11 @@ export function ProofWorkspace({
 
   // Gen選択モード
   const [genSelection, setGenSelection] = useState<GenSelectionState>({
+    phase: "idle",
+  });
+
+  // マージ選択モード
+  const [mergeSelection, setMergeSelection] = useState<MergeSelectionState>({
     phase: "idle",
   });
 
@@ -919,6 +942,7 @@ export function ProofWorkspace({
   const handleStartMPSelection = useCallback(() => {
     setMPSelection({ phase: "selecting-left" });
     setGenSelection({ phase: "idle" });
+    setMergeSelection({ phase: "idle" });
   }, []);
 
   const handleCancelMPSelection = useCallback(() => {
@@ -983,6 +1007,7 @@ export function ProofWorkspace({
       variableName: genVariableInput.trim(),
     });
     setMPSelection({ phase: "idle" });
+    setMergeSelection({ phase: "idle" });
   }, [genVariableInput]);
 
   const handleCancelGenSelection = useCallback(() => {
@@ -1014,6 +1039,28 @@ export function ProofWorkspace({
     [genSelection, workspace, setWorkspaceWithAutoLayout],
   );
 
+  // --- マージ選択モードハンドラ ---
+
+  const handleCancelMerge = useCallback(() => {
+    setMergeSelection({ phase: "idle" });
+  }, []);
+
+  const handleNodeClickForMerge = useCallback(
+    (targetNodeId: string) => {
+      if (mergeSelection.phase !== "selecting-target") return;
+      const result = mergeSelectedNodes(
+        workspace,
+        mergeSelection.leaderNodeId,
+        [targetNodeId],
+      );
+      if (result._tag === "Success") {
+        setWorkspaceWithAutoLayout(result.workspace);
+      }
+      setMergeSelection({ phase: "idle" });
+    },
+    [mergeSelection, workspace, setWorkspaceWithAutoLayout],
+  );
+
   // 統合ノードクリックハンドラ
   const handleNodeClickForSelection = useCallback(
     (nodeId: string) => {
@@ -1021,13 +1068,24 @@ export function ProofWorkspace({
         handleNodeClickForMP(nodeId);
       } else if (genSelection.phase !== "idle") {
         handleNodeClickForGen(nodeId);
+      } else if (mergeSelection.phase !== "idle") {
+        handleNodeClickForMerge(nodeId);
       }
     },
-    [mpSelection, genSelection, handleNodeClickForMP, handleNodeClickForGen],
+    [
+      mpSelection,
+      genSelection,
+      mergeSelection,
+      handleNodeClickForMP,
+      handleNodeClickForGen,
+      handleNodeClickForMerge,
+    ],
   );
 
   const isSelectionActive =
-    mpSelection.phase !== "idle" || genSelection.phase !== "idle";
+    mpSelection.phase !== "idle" ||
+    genSelection.phase !== "idle" ||
+    mergeSelection.phase !== "idle";
 
   // --- MP互換ノードIDセット（ハイライト用） ---
 
@@ -1043,6 +1101,22 @@ export function ProofWorkspace({
           : new Set<string>(),
     [mpSelection, workspace.nodes],
   );
+
+  // --- マージ対象ノードIDセット（ハイライト用） ---
+
+  const mergeTargetNodeIds: ReadonlySet<string> = useMemo(() => {
+    if (mergeSelection.phase !== "selecting-target") return new Set<string>();
+    const protectedIds = new Set(
+      workspace.nodes
+        .filter((n) => isNodeProtected(workspace, n.id))
+        .map((n) => n.id),
+    );
+    return findMergeTargets(
+      mergeSelection.leaderNodeId,
+      workspace.nodes,
+      protectedIds,
+    );
+  }, [mergeSelection, workspace]);
 
   // --- MPノードの検証状態を計算 ---
 
@@ -1461,6 +1535,7 @@ export function ProofWorkspace({
       leftNodeId: nodeMenuState.nodeId,
     });
     setGenSelection({ phase: "idle" });
+    setMergeSelection({ phase: "idle" });
     setNodeMenuState(closeNodeMenu());
   }, [nodeMenuState]);
 
@@ -1472,6 +1547,7 @@ export function ProofWorkspace({
       rightNodeId: nodeMenuState.nodeId,
     });
     setGenSelection({ phase: "idle" });
+    setMergeSelection({ phase: "idle" });
     setNodeMenuState(closeNodeMenu());
   }, [nodeMenuState]);
 
@@ -1515,6 +1591,16 @@ export function ProofWorkspace({
     setGenPromptNodeId(null);
     setGenPromptInput("");
   }, []);
+
+  // コンテキストメニューから「Merge with...」
+  const handleStartMergeFromMenu = useCallback(() => {
+    if (!nodeMenuState.open) return;
+    const nodeId = nodeMenuState.nodeId;
+    setMergeSelection({ phase: "selecting-target", leaderNodeId: nodeId });
+    setMPSelection({ phase: "idle" });
+    setGenSelection({ phase: "idle" });
+    setNodeMenuState(closeNodeMenu());
+  }, [nodeMenuState]);
 
   // コンテキストメニューから「Substitutionを適用する」
   const [substPromptNodeId, setSubstPromptNodeId] = useState<string | null>(
@@ -2006,7 +2092,11 @@ export function ProofWorkspace({
         e.preventDefault();
         handleDeleteSelected();
       } else if (e.key === "Escape") {
-        setSelectedNodeIds(clearSelection());
+        if (mergeSelection.phase !== "idle") {
+          handleCancelMerge();
+        } else {
+          setSelectedNodeIds(clearSelection());
+        }
       } else if (e.key === "Shift" && !e.repeat) {
         // Shiftキー押下でマーキー（矩形選択）モード有効化
         setIsShiftMarqueeActive(true);
@@ -2033,6 +2123,8 @@ export function ProofWorkspace({
     handleDuplicate,
     handleDeleteSelected,
     handleMergeSelected,
+    mergeSelection,
+    handleCancelMerge,
     workspace.nodes,
   ]);
   /* v8 ignore stop */
@@ -2289,6 +2381,19 @@ export function ProofWorkspace({
         !isPreSelectedNode &&
         !mpCompatibleNodeIds.has(node.id);
 
+      // マージ候補の判定
+      const isMergeLeader =
+        mergeSelection.phase === "selecting-target" &&
+        mergeSelection.leaderNodeId === node.id;
+      const isMergeTarget =
+        mergeSelection.phase === "selecting-target" &&
+        !isMergeLeader &&
+        mergeTargetNodeIds.has(node.id);
+      const isMergeIncompatible =
+        mergeSelection.phase === "selecting-target" &&
+        !isMergeLeader &&
+        !mergeTargetNodeIds.has(node.id);
+
       // ノードの検証状態（MPまたはGen）
       const ruleValidation =
         mpValidations.get(node.id) ??
@@ -2303,23 +2408,31 @@ export function ProofWorkspace({
         | undefined = ruleValidation;
 
       // 選択モードの視覚的ハイライト色
+      const mergeHighlightColor =
+        "var(--color-merge-highlight, rgba(74,148,217,0.6))";
       const selectionColor =
         mpSelection.phase !== "idle"
           ? "var(--color-mp-button-shadow, rgba(217,148,74,0.6))"
           : genSelection.phase !== "idle"
             ? "var(--color-gen-button-shadow, rgba(155,89,182,0.6))"
-            : undefined;
+            : mergeSelection.phase !== "idle"
+              ? mergeHighlightColor
+              : undefined;
 
       // アウトラインスタイルの決定
       const outlineStyle = isPreSelectedNode
         ? `3px solid var(--color-mp-button, #d9944a)`
         : isMPCompatible
           ? `2px solid var(--color-mp-button, #d9944a)`
-          : isNodeSelected
-            ? "2px solid var(--color-accent, #3b82f6)"
-            : isSelectionActive && selectionColor
-              ? `2px dashed ${selectionColor satisfies string}`
-              : undefined;
+          : isMergeLeader
+            ? `3px solid ${mergeHighlightColor satisfies string}`
+            : isMergeTarget
+              ? `2px solid ${mergeHighlightColor satisfies string}`
+              : isNodeSelected
+                ? "2px solid var(--color-accent, #3b82f6)"
+                : isSelectionActive && selectionColor
+                  ? `2px dashed ${selectionColor satisfies string}`
+                  : undefined;
 
       return (
         <CanvasItem
@@ -2350,7 +2463,8 @@ export function ProofWorkspace({
               outline: outlineStyle,
               outlineOffset: 2,
               borderRadius: 10,
-              opacity: isMPIncompatible ? 0.35 : undefined,
+              opacity:
+                isMPIncompatible || isMergeIncompatible ? 0.35 : undefined,
               transition: "opacity 0.15s ease",
             }}
           >
@@ -2400,6 +2514,8 @@ export function ProofWorkspace({
       mpSelection,
       mpCompatibleNodeIds,
       genSelection,
+      mergeSelection,
+      mergeTargetNodeIds,
       mpValidations,
       genValidations,
       substitutionValidations,
@@ -2782,6 +2898,25 @@ export function ProofWorkspace({
             onClick={handleCancelGenSelection}
           >
             {msg.cancel}
+          </button>
+        </div>
+      ) : null}
+
+      {/* マージ選択バナー */}
+      {mergeSelection.phase !== "idle" ? (
+        <div
+          style={mergeSelectionBannerStyle}
+          data-testid={
+            testId ? `${testId satisfies string}-merge-banner` : undefined
+          }
+        >
+          <span>{msg.mergeBannerSelectTarget}</span>
+          <button
+            type="button"
+            style={cancelButtonStyle}
+            onClick={handleCancelMerge}
+          >
+            {msg.mergeCancel}
           </button>
         </div>
       ) : null}
@@ -3211,6 +3346,16 @@ export function ProofWorkspace({
               testId
                 ? `${testId satisfies string}-apply-substitution-to-node`
                 : "apply-substitution-to-node"
+            }
+          />
+          <WorkspaceMenuItem
+            label={msg.mergeWithNode}
+            onClick={handleStartMergeFromMenu}
+            disabled={menuNodeIsProtected}
+            testId={
+              testId
+                ? `${testId satisfies string}-merge-with-node`
+                : "merge-with-node"
             }
           />
           <div

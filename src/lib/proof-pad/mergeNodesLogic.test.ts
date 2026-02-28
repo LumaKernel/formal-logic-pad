@@ -3,6 +3,7 @@ import {
   mergeNodes,
   findMergeableGroups,
   canMergeSelectedNodes,
+  findMergeTargets,
 } from "./mergeNodesLogic";
 import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
 import type { InferenceEdge } from "./inferenceEdge";
@@ -628,6 +629,64 @@ describe("findMergeableGroups", () => {
       emptyProtected,
     );
     expect(groups).toHaveLength(0);
+  });
+});
+
+// --- canMergeSelectedNodes ---
+
+// --- findMergeTargets ---
+
+describe("findMergeTargets", () => {
+  it("同一formulaTextのノードIDセットを返す", () => {
+    const nodes = [
+      makeNode("n1", "phi"),
+      makeNode("n2", "phi"),
+      makeNode("n3", "psi"),
+      makeNode("n4", "phi"),
+    ];
+    const targets = findMergeTargets("n1", nodes, emptyProtected);
+    expect(targets).toEqual(new Set(["n2", "n4"]));
+  });
+
+  it("ソースノード自身は含まない", () => {
+    const nodes = [makeNode("n1", "phi"), makeNode("n2", "phi")];
+    const targets = findMergeTargets("n1", nodes, emptyProtected);
+    expect(targets.has("n1")).toBe(false);
+    expect(targets.has("n2")).toBe(true);
+  });
+
+  it("同一formulaTextが存在しない場合は空セット", () => {
+    const nodes = [makeNode("n1", "phi"), makeNode("n2", "psi")];
+    const targets = findMergeTargets("n1", nodes, emptyProtected);
+    expect(targets.size).toBe(0);
+  });
+
+  it("ソースノードが存在しない場合は空セット", () => {
+    const nodes = [makeNode("n1", "phi")];
+    const targets = findMergeTargets("nonexistent", nodes, emptyProtected);
+    expect(targets.size).toBe(0);
+  });
+
+  it("ソースノードが保護されている場合は空セット", () => {
+    const nodes = [makeNode("n1", "phi"), makeNode("n2", "phi")];
+    const targets = findMergeTargets("n1", nodes, new Set(["n1"]));
+    expect(targets.size).toBe(0);
+  });
+
+  it("ターゲット候補が保護されている場合は除外される", () => {
+    const nodes = [
+      makeNode("n1", "phi"),
+      makeNode("n2", "phi"),
+      makeNode("n3", "phi"),
+    ];
+    const targets = findMergeTargets("n1", nodes, new Set(["n2"]));
+    expect(targets).toEqual(new Set(["n3"]));
+  });
+
+  it("1ノードしかない場合は空セット", () => {
+    const nodes = [makeNode("n1", "phi")];
+    const targets = findMergeTargets("n1", nodes, emptyProtected);
+    expect(targets.size).toBe(0);
   });
 });
 

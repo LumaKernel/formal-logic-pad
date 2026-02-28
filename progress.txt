@@ -6789,3 +6789,29 @@
   - workspaceExport.tsの入力スキーマは後方互換のため旧プロパティを受け入れるが、出力時には含めない設計が移行期に有効
   - テスト数が減る場合でも、それが不要になった機能のテスト削除なら問題ない。カバレッジの維持が重要
 ---
+
+## 2026-03-01 - マージ機能をコンテキストメニューから開始するUXに改善
+- ノードマージのUXをMP選択パターンに合わせて改善
+  - コンテキストメニューに「Merge with…」を追加
+  - 選択モード: バナー表示、同一数式ノードのみクリック可能（非互換ノードはdim）
+  - キャンセル: バナーボタンまたはEscキー
+  - MP/Gen選択モードとの相互排他
+- 純粋ロジック層: `findMergeTargets()` を `mergeNodesLogic.ts` に追加（同一formulaTextのノードIDセット返却）
+- テスト: mergeNodesLogic 7テスト + ProofWorkspace 4テスト = 11新規テスト
+- i18n: en.json/ja.json に4つの翻訳キー追加
+- カバレッジ: Stmts 98.31%（ベースライン98.33%、-0.02%は新UIコード由来で許容範囲）
+- 変更ファイル:
+  - src/lib/proof-pad/mergeNodesLogic.ts (findMergeTargets追加)
+  - src/lib/proof-pad/mergeNodesLogic.test.ts (7テスト追加)
+  - src/lib/proof-pad/ProofWorkspace.tsx (MergeSelectionState, UI, ハンドラ)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (4テスト追加)
+  - src/lib/proof-pad/proofMessages.ts (4メッセージ追加)
+  - src/lib/proof-pad/index.ts (findMergeTargets export)
+  - src/app/workspace/[id]/WorkspaceContent.tsx (4翻訳キー追加)
+  - messages/en.json, messages/ja.json
+- スクリーンショット: .screenshots/merge-context-menu.png, merge-selection-mode.png, merge-selection-with-target.png
+- **今後のイテレーションへの学び:**
+  - マージ選択モードはMP選択パターン(2フェーズ: 開始→ターゲット選択)を踏襲。新しい選択モード追加時もこのパターンに従う
+  - Storybook WithNodes ストーリーでは axiom palette が node-1 を覆うためPlaywright MCP経由でのクリックテストが困難。force:trueやevaluate clickでも回避不可
+  - ProofWorkspace内のuseCallback関数定義順序に注意: 参照先が定義前だとTS2448/TS2454エラー
+---

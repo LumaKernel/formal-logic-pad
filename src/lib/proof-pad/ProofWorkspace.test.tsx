@@ -3185,4 +3185,119 @@ describe("ProofWorkspace", () => {
       expect(kindLabel.tagName).toBe("SPAN");
     });
   });
+
+  // --- コンテキストメニューからマージ ---
+
+  describe("node context menu - merge with", () => {
+    it("context menu shows Merge with... item", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      expect(
+        screen.getByTestId("workspace-merge-with-node"),
+      ).toBeInTheDocument();
+    });
+
+    it("clicking Merge with... opens merge selection banner", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Open context menu on node-1
+      const node1 = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node1 });
+
+      // Click Merge with...
+      const mergeItem = screen.getByTestId("workspace-merge-with-node");
+      await user.click(mergeItem);
+
+      // Context menu closes, merge banner appears
+      expect(
+        screen.queryByTestId("workspace-node-context-menu"),
+      ).not.toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-merge-banner"),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("clicking a compatible node during merge mode merges the nodes", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A3", { x: 400, y: 0 }, "psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Open context menu on node-1
+      const node1 = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node1 });
+
+      // Click Merge with...
+      const mergeItem = screen.getByTestId("workspace-merge-with-node");
+      await user.click(mergeItem);
+
+      // Click node-2 (same formula) to merge
+      const node2 = screen.getByTestId("proof-node-node-2");
+      await user.click(node2);
+
+      // node-2 should be removed (merged into node-1)
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("proof-node-node-2"),
+        ).not.toBeInTheDocument();
+      });
+
+      // node-1 and node-3 should still exist
+      expect(screen.getByTestId("proof-node-node-1")).toBeInTheDocument();
+      expect(screen.getByTestId("proof-node-node-3")).toBeInTheDocument();
+
+      // Merge banner should be gone
+      expect(
+        screen.queryByTestId("workspace-merge-banner"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("cancel button on merge banner cancels merge mode", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Open context menu on node-1
+      const node1 = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node1 });
+
+      // Click Merge with...
+      const mergeItem = screen.getByTestId("workspace-merge-with-node");
+      await user.click(mergeItem);
+
+      // Click Cancel on merge banner
+      const cancelBtn = screen.getByText("Cancel Merge");
+      await user.click(cancelBtn);
+
+      // Merge banner should be gone
+      expect(
+        screen.queryByTestId("workspace-merge-banner"),
+      ).not.toBeInTheDocument();
+
+      // Both nodes should still exist
+      expect(screen.getByTestId("proof-node-node-1")).toBeInTheDocument();
+      expect(screen.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+  });
 });
