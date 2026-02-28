@@ -93,6 +93,26 @@
 
 ---
 
+## 2026-02-28 - unification内部をEffect.genでリファクタリング (ET-003)
+- `src/lib/logic-core/unification.ts` の内部実装を `Effect.gen` ベースに変換
+  - `processFormulaEquation` / `processTermEquation` → `Effect.Effect<void, UnificationError>` に変換
+  - `solve` → `Effect.gen` ベースの `solveEffect` に変換（エラー伝搬を `yield*` で明示化）
+  - `unifyFormulasEffect` / `unifyTermsEffect`（Effect版公開API）を新規追加
+  - 既存 `unifyFormulas` / `unifyTerms` は `Effect.runSync(Effect.either(...))` の互換ラッパーとして維持
+- `src/lib/logic-core/index.ts` に Effect版のre-export追加
+- テスト: 5528テスト全パス（変更なし）
+- カバレッジ: Stmts 98.17%(同), Branch 91.93%(同), Funcs 88.81%(微増), Lines 99.15%(同)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- 変更ファイル:
+  - `src/lib/logic-core/unification.ts` (Effect.gen化)
+  - `src/lib/logic-core/index.ts` (re-export追加)
+- **今後のイテレーションへの学び:**
+  - Effect.gen内でミュータブルな状態（while+ワークリスト）をそのまま使用可能。Effect化はエラー伝搬の明示化が主目的
+  - `SolveState` 型でミュータブル状態を構造化すると可読性が向上
+  - 既存公開APIの互換性を `Effect.runSync(Effect.either(...))` ラッパーで維持するパターンは効果的
+  - テストは既存のEitherベースのまま変更不要（互換ラッパー経由）
+---
+
 ## 2026-02-28 - 証明完了判定の厳密化
 - 証明完了判定を厳密化: 公理制限違反・インスタンス直接配置の検出
 - 実装内容:
