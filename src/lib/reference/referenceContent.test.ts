@@ -234,6 +234,56 @@ describe("推論規則エントリの個別チェック", () => {
     expect(entry?.formalNotation).toBeTruthy();
   });
 
+  it("構造規則にLK/LJ/LMの体系間の違いが記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "rule-sc-structural");
+    expect(entry?.body.en.some((p) => p.includes("LK"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("LJ"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("LM"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("LK"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("LJ"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("LM"))).toBe(true);
+  });
+
+  it("構造規則にTABでの許容性が記載されている", () => {
+    const entry = findEntryById(allReferenceEntries, "rule-sc-structural");
+    expect(entry?.body.en.some((p) => p.includes("admissible"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("Theorem 12.9"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("Theorem 12.11"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("許容規則"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("定理12.9"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("定理12.11"))).toBe(true);
+  });
+
+  it("構造規則にカット除去定理と許容規則が関連エントリに含まれる", () => {
+    const entry = findEntryById(allReferenceEntries, "rule-sc-structural");
+    expect(entry?.relatedEntryIds).toContain("concept-cut-elimination");
+    expect(entry?.relatedEntryIds).toContain("concept-admissible-derivable");
+  });
+
+  it("構造規則の関連エントリから逆参照がある", () => {
+    const cutElim = findEntryById(
+      allReferenceEntries,
+      "concept-cut-elimination",
+    );
+    expect(cutElim?.relatedEntryIds).toContain("rule-sc-structural");
+    const admissible = findEntryById(
+      allReferenceEntries,
+      "concept-admissible-derivable",
+    );
+    expect(admissible?.relatedEntryIds).toContain("rule-sc-structural");
+  });
+
+  it("構造規則を英語・日本語で検索できる", () => {
+    const resultEn = searchEntries(
+      allReferenceEntries,
+      "structural rule",
+      "en",
+    );
+    expect(resultEn.some((e) => e.id === "rule-sc-structural")).toBe(true);
+    const resultJa = searchEntries(allReferenceEntries, "構造規則", "ja");
+    expect(resultJa.some((e) => e.id === "rule-sc-structural")).toBe(true);
+  });
+
   it("論理規則に全結合子の記載がある", () => {
     const entry = findEntryById(allReferenceEntries, "rule-sc-logical");
     expect(entry?.body.en.some((p) => p.includes("Implication"))).toBe(true);
