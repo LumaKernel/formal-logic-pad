@@ -3,12 +3,13 @@
  *
  * まっさらな状態から証明を組み立てる流れを実演するストーリー群。
  * Łukasiewicz公理系での φ→φ（恒等律）の証明をステップバイステップで構築。
+ * 公理スキーマ → 代入操作 → インスタンスの厳密なパターンで構築。
  *
  * 証明手順（Łukasiewicz公理系）:
- *   Step 1. A1: φ → ((φ→φ) → φ)
- *   Step 2. A2: (φ → ((φ→φ) → φ)) → ((φ → (φ→φ)) → (φ → φ))
+ *   Step 1. A1スキーマ → 代入[ψ:=(φ→φ)] → φ → ((φ→φ) → φ)
+ *   Step 2. A2スキーマ → 代入[ψ:=(φ→φ), χ:=φ] → A2インスタンス
  *   Step 3. MP(1,2): (φ → (φ→φ)) → (φ → φ)
- *   Step 4. A1: φ → (φ→φ)
+ *   Step 4. A1スキーマ → 代入[ψ:=φ] → φ → (φ→φ)
  *   Step 5. MP(4,3): φ → φ
  */
 
@@ -22,6 +23,7 @@ import {
   addNode,
   addConnection,
   applyMPAndConnect,
+  applySubstitutionAndConnect,
   updateNodeRole,
 } from "./workspaceState";
 import type { WorkspaceState } from "./workspaceState";
@@ -30,47 +32,115 @@ import type { WorkspaceState } from "./workspaceState";
 
 function IdentityProofComplete() {
   const initial = (() => {
-    // Step 1: A1インスタンス φ=phi, ψ=(phi→phi)
+    // 公理スキーマ → 代入操作 → インスタンスの厳密なパターンで構築
     let ws = createEmptyWorkspace(lukasiewiczSystem);
+
+    // Step 1: A1スキーマ φ → (ψ → φ)
     ws = addNode(
       ws,
       "axiom",
       "Axiom",
-      { x: 50, y: 50 },
-      "phi -> ((phi -> phi) -> phi)",
+      { x: 50, y: 0 },
+      "phi -> (psi -> phi)",
     );
+    // node-1: A1 schema
 
-    // Step 2: A2インスタンス φ=phi, ψ=(phi→phi), χ=phi
+    // Step 1b: 代入 ψ := (phi → phi) → φ → ((φ→φ) → φ)
+    const subst1 = applySubstitutionAndConnect(
+      ws,
+      "node-1",
+      [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "ψ",
+          formulaText: "phi -> phi",
+        },
+      ],
+      { x: 50, y: 60 },
+    );
+    ws = subst1.workspace;
+    // node-2: A1 instance φ → ((φ→φ) → φ)
+
+    // Step 2: A2スキーマ (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))
     ws = addNode(
       ws,
       "axiom",
       "Axiom",
-      { x: 450, y: 50 },
-      "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
+      { x: 500, y: 0 },
+      "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
     );
+    // node-3: A2 schema
 
-    // Step 3: MP(1,2) → (φ → (φ→φ)) → (φ → φ)
-    const mp1 = applyMPAndConnect(ws, "node-1", "node-2", { x: 250, y: 200 });
+    // Step 2b: 代入 ψ := (phi → phi), χ := phi
+    const subst2 = applySubstitutionAndConnect(
+      ws,
+      "node-3",
+      [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "ψ",
+          formulaText: "phi -> phi",
+        },
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "χ",
+          formulaText: "phi",
+        },
+      ],
+      { x: 500, y: 60 },
+    );
+    ws = subst2.workspace;
+    // node-4: A2 instance
+
+    // Step 3: MP(subst1, subst2) → (φ → (φ→φ)) → (φ → φ)
+    const mp1 = applyMPAndConnect(ws, "node-2", "node-4", {
+      x: 280,
+      y: 120,
+    });
     ws = mp1.workspace;
+    // node-5: MP result
 
-    // Step 4: A1インスタンス φ=phi, ψ=phi
+    // Step 4: A1スキーマ（2回目）
     ws = addNode(
       ws,
       "axiom",
       "Axiom",
-      { x: 50, y: 350 },
-      "phi -> (phi -> phi)",
+      { x: 50, y: 120 },
+      "phi -> (psi -> phi)",
     );
+    // node-6: A1 schema
 
-    // Step 5: MP(4,3) → φ → φ
-    const mp2 = applyMPAndConnect(ws, "node-4", "node-3", { x: 250, y: 500 });
+    // Step 4b: 代入 ψ := phi → φ → (φ → φ)
+    const subst3 = applySubstitutionAndConnect(
+      ws,
+      "node-6",
+      [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "ψ",
+          formulaText: "phi",
+        },
+      ],
+      { x: 50, y: 180 },
+    );
+    ws = subst3.workspace;
+    // node-7: A1 instance φ → (φ → φ)
+
+    // Step 5: MP(subst3, mp1) → φ → φ
+    const mp2 = applyMPAndConnect(ws, "node-7", "node-5", {
+      x: 280,
+      y: 240,
+    });
     ws = mp2.workspace;
+    // node-8: MP result φ → φ
 
     // ゴール設定（ノードとして追加）
-    ws = addNode(ws, "axiom", "Goal", { x: 450, y: 500 }, "phi -> phi");
-    ws = updateNodeRole(ws, "node-6", "goal");
+    ws = addNode(ws, "axiom", "Goal", { x: 500, y: 240 }, "phi -> phi");
+    ws = updateNodeRole(ws, "node-9", "goal");
+    // node-9: Goal
+
     // MP結果ノードからゴールノードへ接続して達成
-    ws = addConnection(ws, "node-5", "output", "node-6", "input");
+    ws = addConnection(ws, "node-8", "output", "node-9", "input");
 
     return ws;
   })();
@@ -96,37 +166,95 @@ function IdentityProofComplete() {
 
 function IdentityProofPartial() {
   const initial = (() => {
-    // Step 1-3: A1, A2, MP(1,2) まで構築済み
+    // Step 1-3: A1スキーマ→代入, A2スキーマ→代入, MP まで構築済み
     let ws = createEmptyWorkspace(lukasiewiczSystem);
-    ws = addNode(
-      ws,
-      "axiom",
-      "Axiom",
-      { x: 50, y: 50 },
-      "phi -> ((phi -> phi) -> phi)",
-    );
-    ws = addNode(
-      ws,
-      "axiom",
-      "Axiom",
-      { x: 450, y: 50 },
-      "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
-    );
-    const mp1 = applyMPAndConnect(ws, "node-1", "node-2", { x: 250, y: 200 });
-    ws = mp1.workspace;
 
-    // Step 4: A1インスタンス（最後のMP適用待ち）
+    // Step 1: A1スキーマ + 代入
     ws = addNode(
       ws,
       "axiom",
       "Axiom",
-      { x: 50, y: 350 },
-      "phi -> (phi -> phi)",
+      { x: 50, y: 0 },
+      "phi -> (psi -> phi)",
     );
+    const subst1 = applySubstitutionAndConnect(
+      ws,
+      "node-1",
+      [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "ψ",
+          formulaText: "phi -> phi",
+        },
+      ],
+      { x: 50, y: 60 },
+    );
+    ws = subst1.workspace;
+    // node-2: A1 instance
+
+    // Step 2: A2スキーマ + 代入
+    ws = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 500, y: 0 },
+      "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
+    );
+    const subst2 = applySubstitutionAndConnect(
+      ws,
+      "node-3",
+      [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "ψ",
+          formulaText: "phi -> phi",
+        },
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "χ",
+          formulaText: "phi",
+        },
+      ],
+      { x: 500, y: 60 },
+    );
+    ws = subst2.workspace;
+    // node-4: A2 instance
+
+    // Step 3: MP(subst1, subst2)
+    const mp1 = applyMPAndConnect(ws, "node-2", "node-4", {
+      x: 280,
+      y: 120,
+    });
+    ws = mp1.workspace;
+    // node-5: MP result
+
+    // Step 4: A1スキーマ（2回目）+ 代入（最後のMP適用待ち）
+    ws = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 50, y: 120 },
+      "phi -> (psi -> phi)",
+    );
+    // node-6: A1 schema
+    const subst3 = applySubstitutionAndConnect(
+      ws,
+      "node-6",
+      [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "ψ",
+          formulaText: "phi",
+        },
+      ],
+      { x: 50, y: 180 },
+    );
+    ws = subst3.workspace;
+    // node-7: A1 instance φ → (φ → φ)
 
     // ゴール設定（ノードとして追加）
-    ws = addNode(ws, "axiom", "Goal", { x: 450, y: 350 }, "phi -> phi");
-    ws = updateNodeRole(ws, "node-5", "goal");
+    ws = addNode(ws, "axiom", "Goal", { x: 500, y: 180 }, "phi -> phi");
+    ws = updateNodeRole(ws, "node-8", "goal");
 
     return ws;
   })();
@@ -223,80 +351,187 @@ function MPCascadeFailure() {
 
 function LargeProofTreeDemo() {
   const initial = (() => {
-    // φ→φの証明(5ステップ)をベースに、A1でチェーンを3段に拡張する巨大証明木
-    // 合計11ノード（公理6 + MP4 + ゴール1）
+    // φ→φの証明をベースに、A1で2段チェーン拡張する巨大証明木
+    // 公理スキーマ → 代入操作 → インスタンスの厳密なパターンで構築
+    // 合計15ノード（公理スキーマ5 + 代入5 + MP4 + ゴール1）
 
     let ws = createEmptyWorkspace(lukasiewiczSystem);
 
-    // === φ→φ の証明（既存パターン） ===
-    // Step 1: A1① φ → ((φ→φ) → φ)
+    // === φ→φ の証明 ===
+
+    // Step 1: A1スキーマ + 代入 ψ:=(phi→phi)
     ws = addNode(
       ws,
       "axiom",
       "Axiom",
-      { x: 50, y: 30 },
-      "phi -> ((phi -> phi) -> phi)",
+      { x: 30, y: 0 },
+      "phi -> (psi -> phi)",
     );
-    // Step 2: A2 (φ → ((φ→φ) → φ)) → ((φ → (φ→φ)) → (φ → φ))
+    // node-1: A1 schema
+    const subst1 = applySubstitutionAndConnect(
+      ws,
+      "node-1",
+      [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "ψ",
+          formulaText: "phi -> phi",
+        },
+      ],
+      { x: 30, y: 35 },
+    );
+    ws = subst1.workspace;
+    // node-2: A1 instance φ → ((φ→φ) → φ)
+
+    // Step 2: A2スキーマ + 代入 ψ:=(phi→phi), χ:=phi
     ws = addNode(
       ws,
       "axiom",
       "Axiom",
-      { x: 500, y: 30 },
-      "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
+      { x: 320, y: 0 },
+      "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
     );
-    // Step 3: MP(1,2) → (φ → (φ→φ)) → (φ → φ)
-    const mp1 = applyMPAndConnect(ws, "node-1", "node-2", { x: 280, y: 120 });
+    // node-3: A2 schema
+    const subst2 = applySubstitutionAndConnect(
+      ws,
+      "node-3",
+      [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "ψ",
+          formulaText: "phi -> phi",
+        },
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "χ",
+          formulaText: "phi",
+        },
+      ],
+      { x: 320, y: 35 },
+    );
+    ws = subst2.workspace;
+    // node-4: A2 instance
+
+    // Step 3: MP(subst1, subst2)
+    const mp1 = applyMPAndConnect(ws, "node-2", "node-4", { x: 180, y: 70 });
     ws = mp1.workspace;
-    // Step 4: A1② φ → (φ→φ)
+    // node-5: (φ → (φ→φ)) → (φ → φ)
+
+    // Step 4: A1スキーマ（2回目）+ 代入 ψ:=phi
     ws = addNode(
       ws,
       "axiom",
       "Axiom",
-      { x: 50, y: 200 },
-      "phi -> (phi -> phi)",
+      { x: 30, y: 70 },
+      "phi -> (psi -> phi)",
     );
-    // Step 5: MP(4,3) → φ → φ
-    const mp2 = applyMPAndConnect(ws, "node-4", "node-3", { x: 280, y: 280 });
+    // node-6: A1 schema
+    const subst3 = applySubstitutionAndConnect(
+      ws,
+      "node-6",
+      [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "ψ",
+          formulaText: "phi",
+        },
+      ],
+      { x: 30, y: 105 },
+    );
+    ws = subst3.workspace;
+    // node-7: φ → (φ → φ)
+
+    // Step 5: MP(subst3, mp1) → φ → φ
+    const mp2 = applyMPAndConnect(ws, "node-7", "node-5", { x: 180, y: 140 });
     ws = mp2.workspace;
+    // node-8: φ → φ
 
     // === チェーン第2段: A1で包む ===
-    // Step 6: A1③ (φ→φ) → (ψ → (φ→φ))
+
+    // Step 6: A1スキーマ（3回目）+ 代入 φ:=(phi→phi)
     ws = addNode(
       ws,
       "axiom",
       "Axiom",
-      { x: 600, y: 280 },
-      "(phi -> phi) -> (psi -> (phi -> phi))",
+      { x: 400, y: 105 },
+      "phi -> (psi -> phi)",
     );
-    // Step 7: MP(5,6) → ψ → (φ→φ)
-    const mp3 = applyMPAndConnect(ws, "node-5", "node-6", { x: 450, y: 360 });
+    // node-9: A1 schema
+    const subst4 = applySubstitutionAndConnect(
+      ws,
+      "node-9",
+      [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          formulaText: "phi -> phi",
+        },
+      ],
+      { x: 400, y: 140 },
+    );
+    ws = subst4.workspace;
+    // node-10: (φ→φ) → (ψ → (φ→φ))
+
+    // Step 7: MP(mp2, subst4) → ψ → (φ→φ)
+    const mp3 = applyMPAndConnect(ws, "node-8", "node-10", {
+      x: 300,
+      y: 175,
+    });
     ws = mp3.workspace;
+    // node-11: ψ → (φ→φ)
 
     // === チェーン第3段: さらにA1で包む ===
-    // Step 8: A1④ (ψ→(φ→φ)) → (χ → (ψ→(φ→φ)))
+
+    // Step 8: A1スキーマ（4回目）+ 代入 φ:=(psi→(phi→phi)), ψ:=chi
     ws = addNode(
       ws,
       "axiom",
       "Axiom",
-      { x: 750, y: 360 },
-      "(psi -> (phi -> phi)) -> (chi -> (psi -> (phi -> phi)))",
+      { x: 500, y: 140 },
+      "phi -> (psi -> phi)",
     );
-    // Step 9: MP(7,8) → χ → (ψ→(φ→φ))
-    const mp4 = applyMPAndConnect(ws, "node-7", "node-8", { x: 600, y: 440 });
+    // node-12: A1 schema
+    const subst5 = applySubstitutionAndConnect(
+      ws,
+      "node-12",
+      [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          formulaText: "psi -> (phi -> phi)",
+        },
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "ψ",
+          formulaText: "chi",
+        },
+      ],
+      { x: 500, y: 175 },
+    );
+    ws = subst5.workspace;
+    // node-13: (ψ→(φ→φ)) → (χ → (ψ→(φ→φ)))
+
+    // Step 9: MP(mp3, subst5) → χ → (ψ→(φ→φ))
+    const mp4 = applyMPAndConnect(ws, "node-11", "node-13", {
+      x: 400,
+      y: 210,
+    });
     ws = mp4.workspace;
+    // node-14: χ → (ψ→(φ→φ))
 
     // ゴール: χ → (ψ → (φ → φ))
     ws = addNode(
       ws,
       "axiom",
       "Goal",
-      { x: 400, y: 520 },
+      { x: 300, y: 245 },
       "chi -> (psi -> (phi -> phi))",
     );
-    ws = updateNodeRole(ws, "node-10", "goal");
+    ws = updateNodeRole(ws, "node-15", "goal");
+    // node-15: Goal
+
     // MP結果ノードからゴールノードへ接続して達成
-    ws = addConnection(ws, "node-9", "output", "node-10", "input");
+    ws = addConnection(ws, "node-14", "output", "node-15", "input");
 
     return ws;
   })();
@@ -399,8 +634,9 @@ type Story = StoryObj<typeof meta>;
 /**
  * φ→φ（恒等律）の完成済み証明。
  *
- * 5ステップの証明がすべて構築済みで、ゴール「φ → φ」が達成されている状態。
- * 証明の全体像を確認するためのストーリー。
+ * 公理スキーマ→代入→インスタンスの厳密なパターンで構築。
+ * 9ノード（公理スキーマ3 + 代入3 + MP2 + ゴール1）がすべて配置済み。
+ * ゴール「φ → φ」が達成されている状態。
  */
 export const IdentityProofCompleted: Story = {
   render: () => <IdentityProofComplete />,
@@ -408,23 +644,20 @@ export const IdentityProofCompleted: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // 5つのノードが存在する
-    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
-    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
-    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
-    await expect(canvas.getByTestId("proof-node-node-5")).toBeInTheDocument();
+    // 9ノード: 公理スキーマ3 + 代入3 + MP2 + ゴール1
+    for (let i = 1; i <= 9; i++) {
+      await expect(
+        canvas.getByTestId(`proof-node-node-${String(i) satisfies string}`),
+      ).toBeInTheDocument();
+    }
 
-    // MP適用が成功している
-    await expect(
-      canvas.getByTestId("proof-node-node-3-status"),
-    ).toHaveTextContent("MP applied");
+    // MP適用が成功している（node-5, node-8）
     await expect(
       canvas.getByTestId("proof-node-node-5-status"),
     ).toHaveTextContent("MP applied");
-
-    // ゴールノードが存在する
-    await expect(canvas.getByTestId("proof-node-node-6")).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("proof-node-node-8-status"),
+    ).toHaveTextContent("MP applied");
 
     // ゴールが達成されている（バナー表示）
     await expect(
@@ -451,32 +684,32 @@ export const IdentityProofInteractive: Story = {
       canvas.queryByTestId("workspace-proof-complete-banner"),
     ).not.toBeInTheDocument();
 
-    // 5つのノードが存在（Step 1-4 + Goal）
-    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
-    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
-    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
-    await expect(canvas.getByTestId("proof-node-node-5")).toBeInTheDocument();
+    // 8ノード: 公理スキーマ3 + 代入3 + MP1 + ゴール1
+    for (let i = 1; i <= 8; i++) {
+      await expect(
+        canvas.getByTestId(`proof-node-node-${String(i) satisfies string}`),
+      ).toBeInTheDocument();
+    }
 
-    // MP適用でStep 5を実行: node-4(左前提) と node-3(右前提) を選択
+    // MP適用でStep 5を実行: node-7(左前提: φ→(φ→φ)) と node-5(右前提: (φ→(φ→φ))→(φ→φ)) を選択
     await userEvent.click(canvas.getByTestId("workspace-mp-button"));
     await expect(canvas.getByTestId("workspace-mp-banner")).toHaveTextContent(
       "Click the left premise",
     );
 
-    // 左前提: node-4 (φ → (φ→φ))
-    await userEvent.click(canvas.getByTestId("proof-node-node-4"));
+    // 左前提: node-7 (φ → (φ→φ))
+    await userEvent.click(canvas.getByTestId("proof-node-node-7"));
     await expect(canvas.getByTestId("workspace-mp-banner")).toHaveTextContent(
       "Click the right premise",
     );
 
-    // 右前提: node-3 ((φ → (φ→φ)) → (φ → φ))
-    await userEvent.click(canvas.getByTestId("proof-node-node-3"));
+    // 右前提: node-5 ((φ → (φ→φ)) → (φ → φ))
+    await userEvent.click(canvas.getByTestId("proof-node-node-5"));
 
-    // MPノードが生成された
-    await expect(canvas.getByTestId("proof-node-node-6")).toBeInTheDocument();
+    // MPノードが生成された（node-9）
+    await expect(canvas.getByTestId("proof-node-node-9")).toBeInTheDocument();
     await expect(
-      canvas.getByTestId("proof-node-node-6-status"),
+      canvas.getByTestId("proof-node-node-9-status"),
     ).toHaveTextContent("MP applied");
 
     // ゴールノードへの接続はまだないため、Proof Completeにはならない
@@ -577,14 +810,15 @@ export const MPCascadeChainFailure: Story = {
 /**
  * 巨大な証明木デモ。
  *
- * φ→φの証明（5ステップ）をベースに、A1を使って結果を2段チェーンし、
- * 合計11ノード（公理6 + MP4 + ゴール1）の大きな証明木を構築。
+ * φ→φの証明をベースに、A1を使って結果を2段チェーンした大きな証明木。
+ * 公理スキーマ → 代入操作 → インスタンスの厳密なパターンで構築。
+ * 合計15ノード（公理スキーマ5 + 代入5 + MP4 + ゴール1）。
  *
  * 証明構造:
- *   A1① + A2 → MP1 → (φ→(φ→φ))→(φ→φ)
- *   A1② + MP1 → MP2 → φ→φ
- *   MP2 + A1③ → MP3 → ψ→(φ→φ)
- *   MP3 + A1④ → MP4 → χ→(ψ→(φ→φ))   ← ゴール達成
+ *   A1[ψ:=(φ→φ)] + A2[ψ:=(φ→φ),χ:=φ] → MP1 → (φ→(φ→φ))→(φ→φ)
+ *   A1[ψ:=φ] + MP1 → MP2 → φ→φ
+ *   MP2 + A1[φ:=(φ→φ)] → MP3 → ψ→(φ→φ)
+ *   MP3 + A1[φ:=(ψ→(φ→φ)),ψ:=χ] → MP4 → χ→(ψ→(φ→φ))   ← ゴール達成
  */
 export const LargeProofTree: Story = {
   render: () => <LargeProofTreeDemo />,
@@ -592,25 +826,25 @@ export const LargeProofTree: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // 11ノード（公理6 + MP4 + ゴール1）が存在
-    for (let i = 1; i <= 10; i++) {
+    // 15ノード（公理スキーマ5 + 代入5 + MP4 + ゴール1）が存在
+    for (let i = 1; i <= 15; i++) {
       await expect(
         canvas.getByTestId(`proof-node-node-${String(i) satisfies string}`),
       ).toBeInTheDocument();
     }
 
-    // 4つのMP適用がすべて成功
-    await expect(
-      canvas.getByTestId("proof-node-node-3-status"),
-    ).toHaveTextContent("MP applied");
+    // 4つのMP適用がすべて成功（node-5, node-8, node-11, node-14）
     await expect(
       canvas.getByTestId("proof-node-node-5-status"),
     ).toHaveTextContent("MP applied");
     await expect(
-      canvas.getByTestId("proof-node-node-7-status"),
+      canvas.getByTestId("proof-node-node-8-status"),
     ).toHaveTextContent("MP applied");
     await expect(
-      canvas.getByTestId("proof-node-node-9-status"),
+      canvas.getByTestId("proof-node-node-11-status"),
+    ).toHaveTextContent("MP applied");
+    await expect(
+      canvas.getByTestId("proof-node-node-14-status"),
     ).toHaveTextContent("MP applied");
 
     // ゴール達成（χ → (ψ → (φ → φ))）

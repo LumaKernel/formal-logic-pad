@@ -93,6 +93,7 @@ function useProofMessagesFromIntl(): ProofMessages {
       genVariablePrompt: t("genVariablePrompt"),
       proofCompleteButAxiomViolation: t("proofCompleteButAxiomViolation"),
       axiomViolationDetail: t("axiomViolationDetail"),
+      instanceRootViolationDetail: t("instanceRootViolationDetail"),
     }),
     [t],
   );

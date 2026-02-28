@@ -13,7 +13,11 @@ import type { ProofNodeKind } from "../proof-pad/proofNodeUI";
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
 import { equalFormula } from "../logic-core/equality";
 import { parseString } from "../logic-lang/parser";
-import { getNodeAxiomIds } from "../proof-pad/dependencyLogic";
+import {
+  getNodeAxiomIds,
+  validateRootNodes,
+  hasInstanceRoots,
+} from "../proof-pad/dependencyLogic";
 
 // --- ステップ数計算 ---
 
@@ -119,6 +123,11 @@ export type GoalAxiomCheckResult = {
   readonly allowedAxiomIds: readonly AxiomId[] | undefined;
   /** 制限違反の公理スキーマID（制限なしまたは制限内の場合は空） */
   readonly violatingAxiomIds: ReadonlySet<AxiomId>;
+  /**
+   * 代入インスタンスが直接ルートノードに配置されているかどうか。
+   * true の場合、公理スキーマ → SubstitutionEdge → インスタンスの形式で導出すべき。
+   */
+  readonly hasInstanceRootNodes: boolean;
 };
 
 /** 公理制限付きゴールチェック結果 */
@@ -179,6 +188,7 @@ export function checkQuestGoalsWithAxioms(
         usedAxiomIds: new Set(),
         allowedAxiomIds: goal.allowedAxiomIds,
         violatingAxiomIds: new Set(),
+        hasInstanceRootNodes: false,
       });
       continue;
     }
@@ -201,6 +211,7 @@ export function checkQuestGoalsWithAxioms(
         usedAxiomIds: new Set(),
         allowedAxiomIds: goal.allowedAxiomIds,
         violatingAxiomIds: new Set(),
+        hasInstanceRootNodes: false,
       });
       continue;
     }
@@ -225,12 +236,26 @@ export function checkQuestGoalsWithAxioms(
       hasAxiomViolation = true;
     }
 
+    // ルートノードのインスタンス直接配置をチェック
+    const rootValidations = validateRootNodes(
+      matchingNode.id,
+      nodes,
+      inferenceEdges,
+      system,
+    );
+    const goalHasInstanceRoots = hasInstanceRoots(rootValidations);
+
+    if (goalHasInstanceRoots) {
+      hasAxiomViolation = true;
+    }
+
     goalResults.push({
       goalNodeId: goal.id,
       matchingNodeId: matchingNode.id,
       usedAxiomIds,
       allowedAxiomIds: goal.allowedAxiomIds,
       violatingAxiomIds,
+      hasInstanceRootNodes: goalHasInstanceRoots,
     });
   }
 

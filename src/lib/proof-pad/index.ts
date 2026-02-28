@@ -160,7 +160,11 @@ export {
   getAllNodeDependencies,
   getSubtreeNodeIds,
   getNodeAxiomIds,
+  validateRootNodes,
+  getInstanceRootNodeIds,
+  hasInstanceRoots,
 } from "./dependencyLogic";
+export type { RootNodeValidation } from "./dependencyLogic";
 export {
   computeTreeLayout,
   computeLayoutDiff,

@@ -110,6 +110,8 @@ export type ProofMessages = {
   readonly proofCompleteButAxiomViolation: string;
   /** `{axiomIds}` プレースホルダーを含む */
   readonly axiomViolationDetail: string;
+  /** 公理インスタンスが直接ルートノードに配置されている場合のメッセージ */
+  readonly instanceRootViolationDetail: string;
 };
 
 // --- デフォルトメッセージ（英語） ---
@@ -201,6 +203,8 @@ export const defaultProofMessages: ProofMessages = {
   // Axiom restriction
   proofCompleteButAxiomViolation: "Proof Complete (axiom restriction violated)",
   axiomViolationDetail: "Disallowed axiom(s) used: {axiomIds}",
+  instanceRootViolationDetail:
+    "Axiom instances must be derived via substitution, not placed directly.",
 };
 
 // --- エラー → メッセージキー変換（純粋関数） ---
