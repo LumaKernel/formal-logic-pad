@@ -5435,3 +5435,25 @@
   - PresetCardのような子コンポーネント抽出は、ネストしたループ描画の可読性を大幅に向上させる
   - カテゴリ分類ロジック（classifyPresetCategory）は純粋関数としてプリセットIDのSet参照で実装。新プリセット追加時はSetに追加が必要
 ---
+
+## 2026-02-28 - クエストバージョン管理機能
+- QuestDefinition型にversion: numberフィールドを追加
+- 全57クエストにversion: 1を設定
+- Notebook型にquestVersion?: numberフィールドを追加
+- notebookSerialization.tsにquestVersionの読み書きを追加（旧データ互換）
+- questNotebookIntegration.tsでクエスト開始時にバージョンを記録
+- questVersionLogic.ts新規作成: checkQuestVersion, needsVersionWarning, getVersionWarningMessage
+- WorkspacePageViewに警告バナーUIを追加
+- useNotebookCollection.createQuestにquestVersionパラメータを追加
+- HubContent.tsxでクエスト開始時にバージョンを渡すよう更新
+- Storybookストーリー（WithQuestVersionWarning）追加、play関数4アサーション全パス
+- 変更ファイル: questDefinition.ts, builtinQuests.ts, notebookState.ts, notebookSerialization.ts, questNotebookIntegration.ts, questVersionLogic.ts(新), useNotebookCollection.ts, HubContent.tsx, WorkspaceContent.tsx, WorkspacePageView.tsx, WorkspacePageView.stories.tsx, index.ts, +テスト6ファイル
+- テスト: 4973件全パス（+23件）
+- カバレッジ: Stmts 98.59%, Branch 92.72%, Funcs 90.88%, Lines 99.32%（ベースライン: 98.59/92.68/90.96/99.32 — Branch微増、Funcs微減は新関数追加による）
+- スクリーンショット: .screenshots/quest-version-warning-storybook.png
+- **今後のイテレーションへの学び:**
+  - QuestDefinitionにフィールド追加時は全57クエスト+6テストファイルのmakeQuest/testQuestに追記が必要。スクリプト化が有効
+  - template literal内でNumber→Stringは`String(x) satisfies string`で（ネストtemplate literalだとESLintエラー）
+  - WorkspaceState手動構築時はcreateEmptyWorkspace(system)のスプレッドを使う（connections, nextNodeId等が必要）
+  - 「File has not been read yet」エラーはコンテキスト切れ時に発生。Readを再実行すれば解消
+---
