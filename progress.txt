@@ -6027,3 +6027,40 @@
   - `instanceof` でEffect.ts TaggedClassを判定可能（`formula instanceof Conjunction`）。switch+_tagだけでなくinstanceofも活用できる
   - NNFはCNF/DNFの前段階。H2→H1の順で実装するのが自然
 ---
+
+## 2026-02-28 - 冠頭標準形（PNF）変換の実装
+- H3タスク完了: 述語論理式の冠頭標準形（PNF）への変換
+- 実装内容:
+  - `toPredicateNNF`: 述語論理の否定標準形変換（¬∀x.φ ≡ ∃x.¬φ, ¬∃x.φ ≡ ∀x.¬φ を含む拡張NNF）
+  - `toPNF`: PNF変換（NNF → 量化子の外側持ち上げ、α変換による変数衝突回避）
+  - `isPNF`: PNF判定（量化子プレフィックスの後に量化子フリーな行列があるか）
+  - `pushPredicateNegation`: 述語論理版の否定押し込み
+  - `pullQuantifiers`: 二項結合子から量化子を持ち上げる再帰関数
+  - `liftQuantifiersFromBinary`: ∧/∨の両辺から量化子リフト（α変換込み）
+  - `renameIfNeeded`: 変数衝突時のα変換（freshVariableName + substituteTermVariableInFormula）
+- テスト: 76テスト追加（5364→5440）
+  - toPredicateNNF: 原子式、否定変換、量化子否定、含意/双条件除去、量化子保存、複合式、エラーケース
+  - toPNF: 量化子なし/あり、ネスト、変数衝突なし/ありのα変換、両辺量化子、→/↔除去含み、等号、エラー
+  - isPNF: PNFの式/非PNFの式の判定、エラーケース
+  - 一貫性テスト: 冪等性、自由変数保存、複数α変換、深いネスト
+- カバレッジ: Stmts 98.58%(↑), Branch 92.54%(≈), Funcs 89.39%(↓0.25%), Lines 99.34%(↑)
+  - normalForm.ts: Stmts 100%, Lines 100%（Branch 86.92%はv8 ignore block内の防御的分岐）
+  - Funcsの微減はv8 ignore block内の関数宣言がカウントされるため（実質的な低下なし）
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Storybook正常動作（純粋ロジックモジュールのためUI変更なし）
+- スクリーンショット: `.screenshots/pnf-storybook-check.png`
+- H セクション全完了 → tasks-archived/prd-advanced.md にアーカイブ
+- 変更ファイル:
+  - `src/lib/logic-core/normalForm.ts` - PNF変換・判定ロジック追加
+  - `src/lib/logic-core/normalForm.test.ts` - 76テスト追加
+  - `src/lib/logic-core/index.ts` - export追加（toPredicateNNF, toPNF, isPNF）
+  - `tasks/prd-advanced.md` - H3完了、Hセクションアーカイブ
+  - `tasks-archived/prd-advanced.md` - Hセクション追加
+  - `task-processing.md` - クリア
+- **今後のイテレーションへの学び:**
+  - PNF変換のα変換では `allVariableNamesInFormula` で全変数名（束縛含む）を収集し、衝突しない名前を生成する
+  - `substituteTermVariableInFormula` は束縛変数の衝突を自動的に回避する（α変換内蔵）
+  - 量化子の持ち上げは左辺優先で再帰的に処理。両辺に量化子がある場合は左辺から順にリフト
+  - `instanceof` でEffect.ts TaggedClassの型判定可能（Universal, Existentialなど）。liftQuantifiersFromBinaryで活用
+  - 述語論理のNNFは命題論理のNNFとは別関数（toPredicateNNF）で実装。既存のtoNNFは命題論理専用のまま維持
+---
