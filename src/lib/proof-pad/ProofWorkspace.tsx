@@ -33,7 +33,12 @@ import {
   getNodeClassificationEdgeColor,
 } from "./proofNodeUI";
 import { AxiomPalette } from "./AxiomPalette";
-import { getAvailableAxioms, type AxiomPaletteItem } from "./axiomPaletteLogic";
+import {
+  getAvailableAxioms,
+  getAvailableNdRules,
+  type AxiomPaletteItem,
+} from "./axiomPaletteLogic";
+import { NdRulePalette } from "./NdRulePalette";
 import {
   validateMPApplication,
   computeMPCompatibleNodeIds,
@@ -855,6 +860,14 @@ export function ProofWorkspace({
     [workspace.system],
   );
 
+  const availableNdRules = useMemo(
+    () =>
+      workspace.deductionSystem.style === "natural-deduction"
+        ? getAvailableNdRules(workspace.deductionSystem.system)
+        : [],
+    [workspace.deductionSystem],
+  );
+
   // --- 推論規則リファレンス ---
 
   const mpReferenceEntry = useMemo(() => {
@@ -895,6 +908,14 @@ export function ProofWorkspace({
     },
     [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition],
   );
+
+  const handleAddAssumption = useCallback(() => {
+    const position = computeNewNodePosition(workspace.nodes);
+    // NDでは仮定ノードを追加。formulaTextは空で、ユーザーが自由に入力する。
+    setWorkspaceWithAutoLayout(
+      addNode(workspace, "axiom", "Assumption", position, ""),
+    );
+  }, [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition]);
 
   // --- MP選択モードハンドラ ---
 
@@ -3091,15 +3112,31 @@ export function ProofWorkspace({
         </div>
       ) : null}
 
-      {/* 公理パレット */}
-      <AxiomPalette
-        axioms={availableAxioms}
-        onAddAxiom={handleAddAxiom}
-        referenceEntries={referenceEntries}
-        locale={locale}
-        onOpenReferenceDetail={onOpenReferenceDetail}
-        testId={testId ? `${testId satisfies string}-axiom-palette` : undefined}
-      />
+      {/* パレット: 演繹体系のスタイルに応じて切り替え */}
+      {workspace.deductionSystem.style === "natural-deduction" ? (
+        <NdRulePalette
+          rules={availableNdRules}
+          onAddAssumption={handleAddAssumption}
+          testId={
+            testId
+              ? `${testId satisfies string}-nd-rule-palette`
+              : undefined
+          }
+        />
+      ) : (
+        <AxiomPalette
+          axioms={availableAxioms}
+          onAddAxiom={handleAddAxiom}
+          referenceEntries={referenceEntries}
+          locale={locale}
+          onOpenReferenceDetail={onOpenReferenceDetail}
+          testId={
+            testId
+              ? `${testId satisfies string}-axiom-palette`
+              : undefined
+          }
+        />
+      )}
 
       {/* ノードコンテキストメニュー */}
       {nodeMenuState.open ? (

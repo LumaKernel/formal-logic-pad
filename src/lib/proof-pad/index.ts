@@ -5,6 +5,8 @@ export type {
 } from "./EditableProofNode";
 export { AxiomPalette } from "./AxiomPalette";
 export type { AxiomPaletteProps } from "./AxiomPalette";
+export { NdRulePalette } from "./NdRulePalette";
+export type { NdRulePaletteProps } from "./NdRulePalette";
 export {
   getAvailableAxioms,
   getAvailableNdRules,
