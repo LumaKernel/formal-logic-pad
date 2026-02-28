@@ -471,4 +471,121 @@ describe("checkQuestGoalsWithAxioms", () => {
       expect(result.goalResults[0]?.matchingNodeId).toBeUndefined();
     }
   });
+
+  test("公理インスタンスが直接ルートに配置されている場合はAxiomViolationを返す", () => {
+    // ゴール: phi -> phi
+    // ワークノード: A1インスタンスを直接配置（スキーマではなく代入済み）
+    const nodes = [
+      makeNode({
+        id: "g1",
+        kind: "axiom",
+        formulaText: "phi -> ((phi -> phi) -> phi)",
+        protection: "quest-goal",
+      }),
+      makeNode({
+        id: "a1-instance",
+        kind: "axiom",
+        formulaText: "phi -> ((phi -> phi) -> phi)",
+      }),
+    ];
+    const result = checkQuestGoalsWithAxioms(nodes, [], lukasiewiczSystem);
+    expect(result._tag).toBe("AllAchievedButAxiomViolation");
+    if (result._tag === "AllAchievedButAxiomViolation") {
+      expect(result.goalResults[0]?.hasInstanceRootNodes).toBe(true);
+    }
+  });
+
+  test("公理スキーマそのものがルートの場合はhasInstanceRootNodesがfalse", () => {
+    const nodes = [
+      makeNode({
+        id: "g1",
+        kind: "axiom",
+        formulaText: "phi -> (psi -> phi)",
+        protection: "quest-goal",
+      }),
+      makeNode({
+        id: "a1",
+        kind: "axiom",
+        formulaText: "phi -> (psi -> phi)",
+      }),
+    ];
+    const result = checkQuestGoalsWithAxioms(nodes, [], lukasiewiczSystem);
+    expect(result._tag).toBe("AllAchieved");
+    if (result._tag === "AllAchieved") {
+      expect(result.goalResults[0]?.hasInstanceRootNodes).toBe(false);
+    }
+  });
+
+  test("SubstitutionEdgeを介して導出されたインスタンスは正当", () => {
+    // a1-schema (公理スキーマ) → [SubstEdge] → a1-instance (インスタンス)
+    // インスタンスがゴールに一致 → 正当な導出
+    const nodes = [
+      makeNode({
+        id: "g1",
+        kind: "axiom",
+        formulaText: "phi -> ((phi -> phi) -> phi)",
+        protection: "quest-goal",
+      }),
+      makeNode({
+        id: "a1-schema",
+        kind: "axiom",
+        formulaText: "phi -> (psi -> phi)",
+      }),
+      makeNode({
+        id: "a1-instance",
+        kind: "derived",
+        formulaText: "phi -> ((phi -> phi) -> phi)",
+      }),
+    ];
+    const inferenceEdges: readonly InferenceEdge[] = [
+      {
+        _tag: "substitution",
+        conclusionNodeId: "a1-instance",
+        premiseNodeId: "a1-schema",
+        entries: [],
+        conclusionText: "phi -> ((phi -> phi) -> phi)",
+      },
+    ];
+    const result = checkQuestGoalsWithAxioms(
+      nodes,
+      inferenceEdges,
+      lukasiewiczSystem,
+    );
+    expect(result._tag).toBe("AllAchieved");
+    if (result._tag === "AllAchieved") {
+      expect(result.goalResults[0]?.hasInstanceRootNodes).toBe(false);
+    }
+  });
+
+  test("パース不能なゴールのhasInstanceRootNodesはfalse", () => {
+    const nodes = [
+      makeNode({
+        id: "g1",
+        kind: "axiom",
+        formulaText: ">>>invalid<<<",
+        protection: "quest-goal",
+      }),
+    ];
+    const result = checkQuestGoalsWithAxioms(nodes, [], lukasiewiczSystem);
+    expect(result._tag).toBe("NotAllAchieved");
+    if (result._tag === "NotAllAchieved") {
+      expect(result.goalResults[0]?.hasInstanceRootNodes).toBe(false);
+    }
+  });
+
+  test("未達成ゴールのhasInstanceRootNodesはfalse", () => {
+    const nodes = [
+      makeNode({
+        id: "g1",
+        kind: "axiom",
+        formulaText: "phi -> phi",
+        protection: "quest-goal",
+      }),
+    ];
+    const result = checkQuestGoalsWithAxioms(nodes, [], lukasiewiczSystem);
+    expect(result._tag).toBe("NotAllAchieved");
+    if (result._tag === "NotAllAchieved") {
+      expect(result.goalResults[0]?.hasInstanceRootNodes).toBe(false);
+    }
+  });
 });

@@ -14,6 +14,7 @@ import { parseString } from "../logic-lang/parser";
 import type { WorkspaceNode } from "./workspaceState";
 import type { InferenceEdge } from "./inferenceEdge";
 import { getInferenceEdgePremiseNodeIds } from "./inferenceEdge";
+import { isTrivialAxiomSubstitution } from "./axiomNameLogic";
 
 /**
  * あるノードが依存するルートノード（公理）のID集合を返す。
@@ -180,4 +181,115 @@ export function getNodeAxiomIds(
   }
 
   return result;
+}
+
+// --- ルートノードの厳密なバリデーション ---
+
+/**
+ * ルートノードの公理バリデーション結果。
+ *
+ * - "schema": 公理スキーマそのもの（メタ変数の命名違いのみ）。正当なルートノード。
+ * - "instance": 公理スキーマの代入インスタンスがルートに直接配置されている。
+ *   SubstitutionEdge を介してスキーマから導出すべき。
+ * - "unknown": 公理として識別できないルートノード。
+ */
+export type RootNodeValidation =
+  | {
+      readonly _tag: "schema";
+      readonly nodeId: string;
+      readonly axiomId: AxiomId;
+    }
+  | {
+      readonly _tag: "instance";
+      readonly nodeId: string;
+      readonly axiomId: AxiomId;
+    }
+  | {
+      readonly _tag: "unknown";
+      readonly nodeId: string;
+    };
+
+/**
+ * あるノードが依存するルートノードを厳密にバリデーションする。
+ *
+ * ルートノードが公理スキーマそのものか、代入インスタンスか、未知かを判定する。
+ * 代入インスタンスがルートに直接配置されている場合は "instance" として報告する
+ * （SubstitutionEdge で明示的に導出すべき）。
+ *
+ * @param nodeId 対象ノードのID
+ * @param nodes ワークスペースの全ノード
+ * @param inferenceEdges ワークスペースの全推論エッジ
+ * @param system 論理体系設定
+ * @returns ルートノードごとのバリデーション結果
+ */
+export function validateRootNodes(
+  nodeId: string,
+  nodes: readonly WorkspaceNode[],
+  inferenceEdges: readonly InferenceEdge[],
+  system: LogicSystem,
+): readonly RootNodeValidation[] {
+  const rootNodeIds = getNodeDependencies(nodeId, nodes, inferenceEdges);
+  const results: RootNodeValidation[] = [];
+
+  for (const rootId of rootNodeIds) {
+    const node = nodes.find((n) => n.id === rootId);
+    if (node === undefined) continue;
+
+    const trimmed = node.formulaText.trim();
+    if (trimmed === "") {
+      results.push({ _tag: "unknown", nodeId: rootId });
+      continue;
+    }
+
+    const parsed = parseString(trimmed);
+    if (!parsed.ok) {
+      results.push({ _tag: "unknown", nodeId: rootId });
+      continue;
+    }
+
+    const identification = identifyAxiom(parsed.formula, system);
+    if (identification._tag === "Ok") {
+      const isTrivial = isTrivialAxiomSubstitution(
+        identification.formulaSubstitution,
+        identification.termSubstitution,
+      );
+      if (isTrivial) {
+        results.push({
+          _tag: "schema",
+          nodeId: rootId,
+          axiomId: identification.axiomId,
+        });
+      } else {
+        results.push({
+          _tag: "instance",
+          nodeId: rootId,
+          axiomId: identification.axiomId,
+        });
+      }
+    } else {
+      results.push({ _tag: "unknown", nodeId: rootId });
+    }
+  }
+
+  return results;
+}
+
+/**
+ * ルートノードバリデーション結果からインスタンス直接配置のノードIDを返す。
+ */
+export function getInstanceRootNodeIds(
+  validations: readonly RootNodeValidation[],
+): readonly string[] {
+  return validations
+    .filter((v) => v._tag === "instance")
+    .map((v) => v.nodeId);
+}
+
+/**
+ * ルートノードバリデーション結果に不正なインスタンス直接配置があるかどうかを返す。
+ */
+export function hasInstanceRoots(
+  validations: readonly RootNodeValidation[],
+): boolean {
+  return validations.some((v) => v._tag === "instance");
 }

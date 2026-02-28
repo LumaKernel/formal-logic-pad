@@ -75,6 +75,7 @@
     "deleteConnection": "Delete Connection",
     "genVariablePrompt": "Variable name:",
     "proofCompleteButAxiomViolation": "Proof Complete (axiom restriction violated)",
-    "axiomViolationDetail": "Disallowed axiom(s) used: {axiomIds}"
+    "axiomViolationDetail": "Disallowed axiom(s) used: {axiomIds}",
+    "instanceRootViolationDetail": "Axiom instances must be derived via substitution, not placed directly."
   }
 }

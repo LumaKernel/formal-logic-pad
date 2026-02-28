@@ -89,7 +89,53 @@
 - コードシーケンスの定義順序が重要: Shift+ArrowをArrowより前に置かないとマッチしない
 - `src/lib/logic-core/evaluation.ts` は命題論理の真理値評価エンジン。`evaluateFormula` + `isTautology`/`isSatisfiable`/`isContradiction` + `generateTruthTable`
 - `src/lib/logic-core/normalForm.ts` は命題論理の標準形変換。`toNNF`/`toCNF`/`toDNF` + `isNNF`/`isCNF`/`isDNF`。NNFはCNF/DNFの前段階
+- Storybook play関数: ProofWorkspaceの`isNodeCulled()`がビューポート外ノードをDOM除外する。ストーリーのノード座標はx:0-600,y:0-250に収めること
 
+---
+
+## 2026-02-28 - 証明完了判定の厳密化
+- 証明完了判定を厳密化: 公理制限違反・インスタンス直接配置の検出
+- 実装内容:
+  - `dependencyLogic.ts`: `validateRootNodes()`, `getInstanceRootNodeIds()`, `hasInstanceRoots()` を追加
+    - ルートノードが公理スキーマそのもの（schema）か代入インスタンス（instance）か判定
+  - `questCompletionLogic.ts`: `GoalAxiomCheckResult` に `hasInstanceRootNodes` フィールド追加
+    - `checkQuestGoalsWithAxioms()` でインスタンス直接配置を公理違反として報告
+  - `ProofWorkspace.tsx`: `onGoalAchieved` を `AllAchievedButAxiomViolation` で発火しないよう修正
+    - `instanceRootViolationDetail` メッセージを公理違反詳細に追加
+  - `proofMessages.ts`: `instanceRootViolationDetail` メッセージキー追加
+  - `messages/en.json`, `messages/ja.json`: i18n メッセージ追加
+  - `WorkspaceContent.tsx`: `instanceRootViolationDetail` を翻訳マッピングに追加
+  - `ProofFlowDemo.stories.tsx`: 3ストーリーを公理スキーマ→代入→インスタンスの厳密パターンに全面改修
+    - IdentityProofComplete: 6ノード→9ノード（スキーマ3+代入3+MP2+ゴール1）
+    - IdentityProofPartial: 同様に改修（8ノード）
+    - LargeProofTree: 同様に改修（15ノード）
+- テスト: 5457テスト全パス（新規追加含む）
+  - dependencyLogic.test.ts: validateRootNodes テスト追加（schema/instance/unknown/循環/複合ケース）
+  - questCompletionLogic.test.ts: hasInstanceRootNodes テスト追加（違反検出・正常系）
+- カバレッジ: Stmts 98.51%(微減), Branch 92.37%(微減), Funcs 89.23%(微減), Lines 99.30%(微減)
+  - 微減は新規防御的コード（node-not-found の continue 分岐）による。許容範囲
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Storybook 3ストーリー全PASS確認
+  - `.screenshots/identity-proof-completed-pass.png`
+  - `.screenshots/identity-proof-interactive-pass.png`
+  - `.screenshots/large-proof-tree-pass.png`
+- 変更ファイル:
+  - `src/lib/proof-pad/dependencyLogic.ts` (validateRootNodes等追加)
+  - `src/lib/proof-pad/dependencyLogic.test.ts` (テスト追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (onGoalAchieved修正、違反詳細追加)
+  - `src/lib/proof-pad/proofMessages.ts` (instanceRootViolationDetail追加)
+  - `src/lib/proof-pad/index.ts` (export追加)
+  - `src/lib/proof-pad/ProofFlowDemo.stories.tsx` (3ストーリー全面改修)
+  - `src/lib/quest/questCompletionLogic.ts` (hasInstanceRootNodes追加)
+  - `src/lib/quest/questCompletionLogic.test.ts` (テスト追加)
+  - `messages/en.json`, `messages/ja.json` (i18n追加)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (翻訳マッピング追加)
+- **今後のイテレーションへの学び:**
+  - Storybookのviewport culling: `isNodeCulled()` がビューポート外ノードをDOMから除外する。play関数のテストではノード座標をビューポート内に収める必要がある（x: 0-600, y: 0-250程度）
+  - `applySubstitutionAndConnect` API: workspace, premiseNodeId, SubstitutionEntries, position → { workspace, substitutionNodeId, validation }
+  - `FormulaSubstitutionEntry`: `{ _tag: "FormulaSubstitution", metaVariableName: GreekLetter, formulaText: string }`
+  - `isTrivialAxiomSubstitution` でメタ変数名の差異のみ（schema）か実質的代入（instance）かを判定
+  - `addNode` は `node-{nextNodeId}` でIDを割り当て、`applySubstitutionAndConnect` も内部で `addNode` を呼ぶためIDが消費される点に注意
 ---
 
 ## 2026-02-28 - 命題論理の真理値評価エンジン

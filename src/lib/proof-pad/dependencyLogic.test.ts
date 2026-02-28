@@ -4,6 +4,9 @@ import {
   getAllNodeDependencies,
   getSubtreeNodeIds,
   getNodeAxiomIds,
+  validateRootNodes,
+  getInstanceRootNodeIds,
+  hasInstanceRoots,
 } from "./dependencyLogic";
 import type { WorkspaceNode } from "./workspaceState";
 import type { InferenceEdge } from "./inferenceEdge";
@@ -480,6 +483,196 @@ describe("dependencyLogic", () => {
 
       const axiomIds = getNodeAxiomIds("mp2", nodes, edges, lukasiewiczSystem);
       expect(axiomIds).toEqual(new Set(["A1", "A2", "A3"]));
+    });
+  });
+
+  describe("validateRootNodes", () => {
+    const lukasiewiczSystem: LogicSystem = {
+      name: "Łukasiewicz",
+      propositionalAxioms: new Set(["A1", "A2", "A3"]),
+      predicateLogic: false,
+      equalityLogic: false,
+      generalization: false,
+    };
+
+    function makeAxiomNode(id: string, formulaText: string): WorkspaceNode {
+      return {
+        id,
+        kind: "axiom",
+        label: id,
+        formulaText,
+        position: { x: 0, y: 0 },
+      };
+    }
+
+    it("公理スキーマそのものはschemaとして識別する", () => {
+      // φ → (ψ → φ) はA1スキーマそのもの
+      const nodes = [makeAxiomNode("a1", "phi -> (psi -> phi)")];
+      const edges: readonly InferenceEdge[] = [];
+
+      const result = validateRootNodes(
+        "a1",
+        nodes,
+        edges,
+        lukasiewiczSystem,
+      );
+      expect(result).toEqual([
+        { _tag: "schema", nodeId: "a1", axiomId: "A1" },
+      ]);
+    });
+
+    it("公理インスタンス（代入済み）はinstanceとして識別する", () => {
+      // phi -> ((phi -> phi) -> phi) はA1に φ:=phi, ψ:=(phi→phi) を代入したインスタンス
+      const nodes = [
+        makeAxiomNode("a1-instance", "phi -> ((phi -> phi) -> phi)"),
+      ];
+      const edges: readonly InferenceEdge[] = [];
+
+      const result = validateRootNodes(
+        "a1-instance",
+        nodes,
+        edges,
+        lukasiewiczSystem,
+      );
+      expect(result).toEqual([
+        { _tag: "instance", nodeId: "a1-instance", axiomId: "A1" },
+      ]);
+    });
+
+    it("識別不能な論理式はunknownとして識別する", () => {
+      const nodes = [makeAxiomNode("unknown", "phi")];
+      const edges: readonly InferenceEdge[] = [];
+
+      const result = validateRootNodes(
+        "unknown",
+        nodes,
+        edges,
+        lukasiewiczSystem,
+      );
+      expect(result).toEqual([{ _tag: "unknown", nodeId: "unknown" }]);
+    });
+
+    it("空の論理式はunknownとして識別する", () => {
+      const nodes = [makeAxiomNode("empty", "")];
+      const edges: readonly InferenceEdge[] = [];
+
+      const result = validateRootNodes(
+        "empty",
+        nodes,
+        edges,
+        lukasiewiczSystem,
+      );
+      expect(result).toEqual([{ _tag: "unknown", nodeId: "empty" }]);
+    });
+
+    it("パース不能な論理式はunknownとして識別する", () => {
+      const nodes = [makeAxiomNode("bad", ">>>invalid<<<")];
+      const edges: readonly InferenceEdge[] = [];
+
+      const result = validateRootNodes(
+        "bad",
+        nodes,
+        edges,
+        lukasiewiczSystem,
+      );
+      expect(result).toEqual([{ _tag: "unknown", nodeId: "bad" }]);
+    });
+
+    it("MP導出ノードの依存ルートノードを正しく分類する", () => {
+      // a1-schema: A1スキーマそのもの
+      // a1-instance: A1の代入インスタンス
+      // → mp1 (derived)
+      const nodes = [
+        makeAxiomNode("a1-schema", "phi -> (psi -> phi)"),
+        makeAxiomNode(
+          "a1-instance",
+          "phi -> ((phi -> phi) -> phi)",
+        ),
+        { ...makeNode("mp1", "derived"), formulaText: "" },
+      ];
+      const edges = [makeMPEdge("mp1", "a1-schema", "a1-instance")];
+
+      const result = validateRootNodes(
+        "mp1",
+        nodes,
+        edges,
+        lukasiewiczSystem,
+      );
+      expect(result).toHaveLength(2);
+      expect(result).toContainEqual({
+        _tag: "schema",
+        nodeId: "a1-schema",
+        axiomId: "A1",
+      });
+      expect(result).toContainEqual({
+        _tag: "instance",
+        nodeId: "a1-instance",
+        axiomId: "A1",
+      });
+    });
+
+    it("SubstitutionEdge経由の導出ではルートはスキーマ元を指す", () => {
+      // a1-schema → [SubstitutionEdge] → a1-derived
+      const nodes = [
+        makeAxiomNode("a1-schema", "phi -> (psi -> phi)"),
+        {
+          ...makeNode("a1-derived", "derived"),
+          formulaText: "phi -> ((phi -> phi) -> phi)",
+        },
+      ];
+      const edges = [makeSubstEdge("a1-derived", "a1-schema")];
+
+      const result = validateRootNodes(
+        "a1-derived",
+        nodes,
+        edges,
+        lukasiewiczSystem,
+      );
+      // ルートはa1-schema（スキーマそのもの）
+      expect(result).toEqual([
+        { _tag: "schema", nodeId: "a1-schema", axiomId: "A1" },
+      ]);
+    });
+  });
+
+  describe("getInstanceRootNodeIds", () => {
+    it("instanceタグのノードIDのみを返す", () => {
+      const validations = [
+        { _tag: "schema" as const, nodeId: "a1", axiomId: "A1" as const },
+        { _tag: "instance" as const, nodeId: "a2", axiomId: "A1" as const },
+        { _tag: "unknown" as const, nodeId: "u1" },
+      ];
+      expect(getInstanceRootNodeIds(validations)).toEqual(["a2"]);
+    });
+
+    it("instanceがなければ空配列を返す", () => {
+      const validations = [
+        { _tag: "schema" as const, nodeId: "a1", axiomId: "A1" as const },
+        { _tag: "unknown" as const, nodeId: "u1" },
+      ];
+      expect(getInstanceRootNodeIds(validations)).toEqual([]);
+    });
+  });
+
+  describe("hasInstanceRoots", () => {
+    it("instanceタグがあればtrueを返す", () => {
+      const validations = [
+        { _tag: "schema" as const, nodeId: "a1", axiomId: "A1" as const },
+        { _tag: "instance" as const, nodeId: "a2", axiomId: "A1" as const },
+      ];
+      expect(hasInstanceRoots(validations)).toBe(true);
+    });
+
+    it("instanceタグがなければfalseを返す", () => {
+      const validations = [
+        { _tag: "schema" as const, nodeId: "a1", axiomId: "A1" as const },
+        { _tag: "unknown" as const, nodeId: "u1" },
+      ];
+      expect(hasInstanceRoots(validations)).toBe(false);
+    });
+
+    it("空の配列ではfalseを返す", () => {
+      expect(hasInstanceRoots([])).toBe(false);
     });
   });
 });

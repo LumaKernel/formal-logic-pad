@@ -1156,18 +1156,14 @@ export function ProofWorkspace({
     questGoalResult?._tag === "AllAchievedButAxiomViolation";
 
   // --- ゴール達成コールバック（達成へ遷移した瞬間に1回だけ発火） ---
+  // 公理制限違反がある場合はonGoalAchievedを発火しない（クエスト進捗に記録させない）
 
   const prevGoalAchievedRef = useRef(false);
 
-  const isAnyGoalComplete = isGoalAchieved || isGoalAchievedButAxiomViolation;
-
   useEffect(() => {
-    if (isAnyGoalComplete && !prevGoalAchievedRef.current) {
+    if (isGoalAchieved && !prevGoalAchievedRef.current) {
       if (onGoalAchieved) {
-        if (
-          questGoalResult?._tag === "AllAchieved" ||
-          questGoalResult?._tag === "AllAchievedButAxiomViolation"
-        ) {
+        if (questGoalResult?._tag === "AllAchieved") {
           onGoalAchieved({
             matchingNodeId: "",
             stepCount: questGoalResult.stepCount,
@@ -1181,9 +1177,9 @@ export function ProofWorkspace({
         }
       }
     }
-    prevGoalAchievedRef.current = isAnyGoalComplete;
+    prevGoalAchievedRef.current = isGoalAchieved;
   }, [
-    isAnyGoalComplete,
+    isGoalAchieved,
     goalCheckResult,
     questGoalResult,
     onGoalAchieved,
@@ -3017,12 +3013,28 @@ export function ProofWorkspace({
                 fontVariant: "normal" as const,
               }}
             >
-              {formatMessage(msg.axiomViolationDetail, {
-                axiomIds: questGoalResult.goalResults
+              {(() => {
+                const violatingIds = questGoalResult.goalResults
                   .flatMap((r) => [...r.violatingAxiomIds])
-                  .filter((v, i, a) => a.indexOf(v) === i)
-                  .join(", "),
-              })}
+                  .filter((v, i, a) => a.indexOf(v) === i);
+                const hasInstanceRoots = questGoalResult.goalResults.some(
+                  (r) => r.hasInstanceRootNodes,
+                );
+                return (
+                  <>
+                    {violatingIds.length > 0
+                      ? formatMessage(msg.axiomViolationDetail, {
+                          axiomIds: violatingIds.join(", "),
+                        })
+                      : null}
+                    {hasInstanceRoots ? (
+                      <div style={{ marginTop: 2 }}>
+                        {msg.instanceRootViolationDetail}
+                      </div>
+                    ) : null}
+                  </>
+                );
+              })()}
             </div>
           ) : null}
         </div>
