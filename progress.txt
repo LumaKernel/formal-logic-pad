@@ -6127,3 +6127,22 @@
   - 依存先の `result._tag === "Error"` → `Either.isLeft(result)`, `result.conclusion` → `result.right.conclusion` のパターン変換が必要
   - テストで `RuleApplicationError` のインスタンスを作る場合は `new NotAnImplication({...})` 形式にする必要がある（plain object は型エラー）
 ---
+
+## 2026-02-28 - [proof-pad] derived状態をcomputed化
+- ProofNodeKindから"derived"を削除し、"axiom" | "conclusion"に変更
+- ノードのderived状態をInferenceEdge/コネクションの有無からcomputedな値として判定するように変更
+- classifyNode()からkind === "derived"ショートカットを削除
+- addNode(state, "derived", ...)を全てaddNode(state, "axiom", ...)に変更
+- getProofNodePorts("axiom")がDERIVED_PORTS（全ポート）を返すように変更（鶏と卵問題の回避）
+- workspaceExport.tsで"derived"をレガシーkindとして"axiom"にマッピング
+- NodeClassificationベースのUI関数（スタイル/エッジ色）を追加
+- 変更ファイル: proofNodeUI.ts, nodeRoleLogic.ts, workspaceState.ts, workspaceExport.ts, portConnectionLogic.ts, workspaceImageExport.ts, ProofWorkspace.tsx, EditableProofNode.tsx, 全テストファイル（28ファイル）
+- カバレッジ: Statements 98.51% → 98.50%（実質変化なし）, Lines 99.30% → 99.30%（変化なし）
+- スクリーンショット: .screenshots/derived-computed-with-nodes.png, .screenshots/derived-computed-valid-mp.png
+- **今後のイテレーションへの学び:**
+  - ポート定義はkindベースで決めるのが正しい。classificationベースだと、まだ接続がないノードにpremiseポートが出ない鶏と卵問題が発生する
+  - getProofNodePorts("axiom")はDERIVED_PORTS（全ポート）を返す必要がある。任意のaxiomノードが接続先になりうるため
+  - NodeClassificationベースの関数はstyle（ストライプ色）とedge color（接続線色）の2つのみ。ポート定義はkindベースを使う
+  - workspaceExportで"derived"→"axiom"のレガシーマッピングが必要（既存保存データとの後方互換性）
+  - ReactのuseMemo依存配列は変更後に必ず確認。preserve-manual-memoization lintルールが検出してくれる
+---
