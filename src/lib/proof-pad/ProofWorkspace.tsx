@@ -1813,27 +1813,20 @@ export function ProofWorkspace({
     [viewport],
   );
 
-  const handleCanvasMenuAddNode = useCallback(
-    (role: "axiom" | undefined) => {
-      let ws = addNode(
-        workspace,
-        "axiom",
-        "Axiom",
-        canvasMenuState.worldPosition,
-      );
-      const newNodeId = ws.nodes[ws.nodes.length - 1]!.id;
-      if (role === "axiom") {
-        ws = updateNodeRole(ws, newNodeId, "axiom");
-      }
-      setWorkspace(ws);
-      setCanvasMenuState({
-        open: false,
-        screenPosition: { x: 0, y: 0 },
-        worldPosition: { x: 0, y: 0 },
-      });
-    },
-    [workspace, canvasMenuState.worldPosition, setWorkspace],
-  );
+  const handleCanvasMenuAddNode = useCallback(() => {
+    const ws = addNode(
+      workspace,
+      "axiom",
+      "Axiom",
+      canvasMenuState.worldPosition,
+    );
+    setWorkspace(ws);
+    setCanvasMenuState({
+      open: false,
+      screenPosition: { x: 0, y: 0 },
+      worldPosition: { x: 0, y: 0 },
+    });
+  }, [workspace, canvasMenuState.worldPosition, setWorkspace]);
 
   // キャンバスコンテキストメニュー外クリックで閉じる
   useEffect(() => {
@@ -3322,17 +3315,8 @@ export function ProofWorkspace({
           onClick={(e) => e.stopPropagation()}
         >
           <WorkspaceMenuItem
-            label={msg.addAxiomNode}
-            onClick={() => handleCanvasMenuAddNode("axiom")}
-            testId={
-              testId
-                ? `${testId satisfies string}-canvas-menu-add-axiom`
-                : undefined
-            }
-          />
-          <WorkspaceMenuItem
             label={msg.addNode}
-            onClick={() => handleCanvasMenuAddNode(undefined)}
+            onClick={handleCanvasMenuAddNode}
             testId={
               testId
                 ? `${testId satisfies string}-canvas-menu-add-node`

@@ -64,8 +64,6 @@
     "substErrorTermParse": "代入エントリの項が不正です",
     "substEntryPrompt": "代入エントリ:",
     "selectSubtree": "サブツリーを選択",
-    "addAxiomNode": "公理ノードを追加",
-    "addGoalNode": "ゴールノードを追加",
     "addNode": "ノードを追加",
     "useAsMPLeft": "MP左前提として使う (φ)",
     "useAsMPRight": "MP右前提として使う (φ→ψ)",

@@ -94,8 +94,6 @@ export type ProofMessages = {
 
   // --- コンテキストメニュー ---
   readonly selectSubtree: string;
-  readonly addAxiomNode: string;
-  readonly addGoalNode: string;
   readonly addNode: string;
   readonly useAsMPLeft: string;
   readonly useAsMPRight: string;
@@ -190,8 +188,6 @@ export const defaultProofMessages: ProofMessages = {
 
   // Context menu
   selectSubtree: "Select Subtree",
-  addAxiomNode: "Add Axiom Node",
-  addGoalNode: "Add Goal Node",
   addNode: "Add Node",
   useAsMPLeft: "Use as MP Left (\u03C6)",
   useAsMPRight: "Use as MP Right (\u03C6\u2192\u03C8)",

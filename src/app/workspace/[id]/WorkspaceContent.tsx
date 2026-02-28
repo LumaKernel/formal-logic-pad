@@ -81,8 +81,6 @@ function useProofMessagesFromIntl(): ProofMessages {
       substErrorTermParse: t("substErrorTermParse"),
       substEntryPrompt: t("substEntryPrompt"),
       selectSubtree: t("selectSubtree"),
-      addAxiomNode: t("addAxiomNode"),
-      addGoalNode: t("addGoalNode"),
       addNode: t("addNode"),
       useAsMPLeft: t("useAsMPLeft"),
       useAsMPRight: t("useAsMPRight"),

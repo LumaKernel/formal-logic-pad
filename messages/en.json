@@ -64,8 +64,6 @@
     "substErrorTermParse": "Invalid term in substitution entry",
     "substEntryPrompt": "Substitution entries:",
     "selectSubtree": "Select Subtree",
-    "addAxiomNode": "Add Axiom Node",
-    "addGoalNode": "Add Goal Node",
     "addNode": "Add Node",
     "useAsMPLeft": "Use as MP Left (φ)",
     "useAsMPRight": "Use as MP Right (φ→ψ)",

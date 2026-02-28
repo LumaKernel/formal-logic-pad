@@ -2782,50 +2782,20 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("workspace-canvas-context-menu"),
       ).toBeInTheDocument();
 
-      // メニュー項目が表示される
-      expect(
-        screen.getByTestId("workspace-canvas-menu-add-axiom"),
-      ).toBeInTheDocument();
+      // メニュー項目が表示される（統一された「Add Node」のみ）
       expect(
         screen.getByTestId("workspace-canvas-menu-add-node"),
       ).toBeInTheDocument();
-      // "Add Goal Node" menu item no longer exists (goals are not nodes)
+      // "Add Axiom Node" and "Add Goal Node" are no longer separate items
+      expect(
+        screen.queryByTestId("workspace-canvas-menu-add-axiom"),
+      ).not.toBeInTheDocument();
       expect(
         screen.queryByTestId("workspace-canvas-menu-add-goal"),
       ).not.toBeInTheDocument();
     });
 
-    it("adds axiom node when 'Add Axiom Node' is clicked", async () => {
-      const ws = createEmptyWorkspace(lukasiewiczSystem);
-      const { container } = render(
-        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
-      );
-
-      // 右クリックでメニューを開く
-      const canvas = container.querySelector("[data-testid='workspace']")!;
-      await userEvent.pointer({
-        target: canvas,
-        keys: "[MouseRight]",
-        coords: { clientX: 300, clientY: 200 },
-      });
-
-      // 「Add Axiom Node」をクリック
-      await userEvent.click(
-        screen.getByTestId("workspace-canvas-menu-add-axiom"),
-      );
-
-      // メニューが閉じる
-      expect(
-        screen.queryByTestId("workspace-canvas-context-menu"),
-      ).not.toBeInTheDocument();
-
-      // 新しいノードが追加されている
-      expect(
-        screen.getByTestId(`proof-node-${"node-1" satisfies string}`),
-      ).toBeInTheDocument();
-    });
-
-    it("adds plain node when 'Add Node' is clicked", async () => {
+    it("adds node when 'Add Node' is clicked", async () => {
       const ws = createEmptyWorkspace(lukasiewiczSystem);
       const { container } = render(
         <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
