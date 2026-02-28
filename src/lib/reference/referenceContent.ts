@@ -2404,6 +2404,7 @@ const conceptSoundness: ReferenceEntry = {
   formalNotation:
     "\\Gamma \\vdash_K \\Delta \\;\\Longrightarrow\\; \\Gamma \\vDash \\Delta",
   relatedEntryIds: [
+    "concept-semantic-validity",
     "concept-system-equivalence",
     "system-classical",
     "rule-sc-overview",
@@ -2487,6 +2488,7 @@ const conceptCompleteness: ReferenceEntry = {
     "\\Gamma \\vDash \\Delta \\;\\Longrightarrow\\; \\Gamma \\vdash_K \\Delta",
   relatedEntryIds: [
     "concept-soundness",
+    "concept-semantic-validity",
     "concept-system-equivalence",
     "system-classical",
     "rule-sc-overview",
@@ -3163,6 +3165,7 @@ const conceptPredicateSemantics: ReferenceEntry = {
   relatedEntryIds: [
     "concept-soundness",
     "concept-completeness",
+    "concept-semantic-validity",
     "concept-lowenheim-skolem",
     "concept-compactness",
     "system-predicate",
@@ -3231,6 +3234,129 @@ const conceptPredicateSemantics: ReferenceEntry = {
     "意味論的含意",
   ],
   order: 17,
+};
+
+const conceptSemanticValidity: ReferenceEntry = {
+  id: "concept-semantic-validity",
+  category: "concept",
+  title: {
+    en: "Semantic Validity, Satisfiability, and Contradiction",
+    ja: "意味論的妥当性・充足可能性・矛盾",
+  },
+  summary: {
+    en: "A formula is valid (⊨ φ) if true under all interpretations, satisfiable if true under some, and a contradiction if true under none. These semantic notions are connected to provability (⊢) by soundness and completeness.",
+    ja: "論理式が妥当（⊨ φ）であるとはすべての解釈で真、充足可能であるとはある解釈で真、矛盾であるとはどの解釈でも偽であること。これらの意味論的概念は健全性と完全性により証明可能性（⊢）と結びつく。",
+  },
+  body: {
+    en: [
+      `**Three fundamental semantic properties.** Every formula φ falls into exactly one of three mutually exclusive categories based on its behavior across all possible interpretations: (1) **Valid** (tautology): φ is true under every interpretation — written ⊨ φ. (2) **Satisfiable but not valid** (contingent): φ is true under some interpretations and false under others. (3) **Unsatisfiable** (contradiction): φ is false under every interpretation. A formula is **satisfiable** if it is true under at least one interpretation, i.e., either valid or contingent. These three categories partition the set of all formulas and provide the semantic classification used throughout mathematical logic (bekki Ch.5, Definition 5.66–5.67).`,
+      `**Formal definitions.** Let (M, g) denote an interpretation (a structure M paired with a variable assignment g). A formula φ is **satisfied** by (M, g) — written (M, g) ⊨ φ — if ⟦φ⟧_{M,g} = 1. A formula is **valid** (written ⊨ φ) if for all interpretations (M, g), (M, g) ⊨ φ. A formula is **satisfiable** if there exists an interpretation (M, g) such that (M, g) ⊨ φ. A formula is **unsatisfiable** (a contradiction) if no interpretation satisfies it. For propositional logic, interpretations are truth-value assignments; for predicate logic, they include a domain D_M and interpretation function F_M (bekki Definitions 3.48, 5.66).`,
+      `**Semantic entailment.** Beyond classifying individual formulas, the semantic turnstile ⊨ also captures entailment between sets of formulas: Γ ⊨ Δ means that every interpretation satisfying all formulas in Γ also satisfies at least one formula in Δ. Important special cases: Γ ⊨ φ (a single conclusion) means φ is a semantic consequence of Γ — i.e., φ is true whenever all formulas in Γ are true. When Γ = ∅, this reduces to ⊨ φ (validity). The relationship Γ ⊨ Δ is purely semantic: it makes no reference to any proof system (bekki Definition 5.66).`,
+      `**Duality between validity and unsatisfiability.** A formula φ is valid (⊨ φ) if and only if ¬φ is unsatisfiable. Equivalently, φ is satisfiable if and only if ¬φ is not valid. This duality is fundamental: to show that a formula is valid, it suffices to show that its negation leads to a contradiction (refutation). Tableau methods and resolution exploit this duality directly by attempting to construct a satisfying interpretation for ¬φ; if no such interpretation exists, φ must be valid.`,
+      `**Proof-theoretic derivability (⊢) vs. semantic validity (⊨).** The syntactic turnstile ⊢ denotes derivability within a formal proof system: Γ ⊢_K φ means "φ is derivable from Γ in system K" using only the axioms and inference rules of K. This is a purely mechanical, finitary notion — a derivation is a finite sequence of rule applications. In contrast, the semantic turnstile ⊨ quantifies over all (potentially uncountably many) interpretations. The key difference: ⊢ depends on the choice of proof system K; ⊨ depends only on the logical connectives' meaning. The soundness theorem (⊢ ⟹ ⊨) guarantees that provable formulas are valid, and the completeness theorem (⊨ ⟹ ⊢) guarantees that valid formulas are provable. Together: Γ ⊢_K Δ ⟺ Γ ⊨ Δ for classical first-order logic (bekki Theorems 13.10, 13.13).`,
+      `**Propositional vs. predicate logic.** In propositional logic, validity is decidable: one can check all 2^n truth-value assignments for n variables. The truth table method provides a complete decision procedure. In predicate logic, however, validity is only semi-decidable (by Church's theorem, 1936): if φ is valid, a proof can eventually be found, but if φ is not valid, no algorithm can always detect this in finite time. This asymmetry makes the completeness theorem all the more remarkable — despite the undecidability of the general validity problem, every valid formula has a finite proof.`,
+    ],
+    ja: [
+      `**3つの基本的な意味論的性質。** すべての論理式 φ は、可能なすべての解釈に対する振る舞いに基づいて、相互に排他的な3つのカテゴリのちょうど1つに分類されます: (1) **妥当**（恒真式）: φ がすべての解釈のもとで真 — ⊨ φ と書きます。(2) **充足可能だが妥当でない**（偶然的）: φ がある解釈では真、別の解釈では偽。(3) **充足不能**（矛盾）: φ がすべての解釈のもとで偽。論理式が**充足可能**であるとは、少なくとも1つの解釈のもとで真であること、すなわち妥当か偶然的かのどちらかです。これら3つのカテゴリはすべての論理式の集合を分割し、数理論理学全体で使用される意味論的分類を提供します（戸次 Ch.5, 定義5.66–5.67）。`,
+      `**形式的定義。** (M, g) を解釈（構造 M と変数割り当て g の対）とします。論理式 φ が (M, g) に**充足される** — (M, g) ⊨ φ と書く — とは ⟦φ⟧_{M,g} = 1 のことです。論理式が**妥当**（⊨ φ と書く）であるとは、すべての解釈 (M, g) について (M, g) ⊨ φ が成り立つことです。論理式が**充足可能**であるとは、(M, g) ⊨ φ となる解釈 (M, g) が存在することです。論理式が**充足不能**（矛盾）であるとは、それを充足する解釈が存在しないことです。命題論理では解釈は真理値割当であり、述語論理では領域 D_M と解釈関数 F_M を含みます（戸次 定義3.48, 5.66）。`,
+      `**意味論的含意。** 個々の論理式の分類を超えて、意味論的ターンスタイル ⊨ は論理式集合間の含意も捉えます: Γ ⊨ Δ とは、Γ のすべての論理式を充足するすべての解釈が Δ の少なくとも1つの論理式も充足することです。重要な特殊ケース: Γ ⊨ φ（結論が1つ）は φ が Γ の意味論的帰結であること — すなわち Γ のすべての論理式が真であるときは常に φ も真 — を意味します。Γ = ∅ のとき、これは ⊨ φ（妥当性）に帰着します。関係 Γ ⊨ Δ は純粋に意味論的であり、いかなる証明体系にも言及しません（戸次 定義5.66）。`,
+      `**妥当性と充足不能性の双対性。** 論理式 φ が妥当（⊨ φ）であることと ¬φ が充足不能であることは同値です。同値的に、φ が充足可能であることと ¬φ が妥当でないことは同値です。この双対性は基本的です: 論理式が妥当であることを示すには、その否定が矛盾に導くこと（反駁）を示せば十分です。タブロー法や導出原理はこの双対性を直接利用し、¬φ を充足する解釈の構成を試みます; そのような解釈が存在しなければ、φ は妥当でなければなりません。`,
+      `**証明論的導出可能性（⊢）と意味論的妥当性（⊨）。** 構文的ターンスタイル ⊢ は形式的証明体系内での導出可能性を表します: Γ ⊢_K φ は「K の公理と推論規則のみを用いて φ が Γ から導出可能」を意味します。これは純粋に機械的で有限的な概念です — 導出は規則適用の有限列です。対照的に、意味論的ターンスタイル ⊨ は（潜在的に非可算無限個の）すべての解釈にわたる量化です。主要な違い: ⊢ は証明体系 K の選択に依存し、⊨ は論理結合子の意味のみに依存します。健全性定理（⊢ ⟹ ⊨）は証明可能な論理式が妥当であることを保証し、完全性定理（⊨ ⟹ ⊢）は妥当な論理式が証明可能であることを保証します。合わせると: 古典一階論理では Γ ⊢_K Δ ⟺ Γ ⊨ Δ です（戸次 定理13.10, 13.13）。`,
+      `**命題論理と述語論理。** 命題論理では、妥当性は決定可能です: n 個の変数に対する 2^n 通りの真理値割当をすべて検査できます。真理値表法が完全な決定手続きを提供します。しかし述語論理では、妥当性は半決定可能にすぎません（チャーチの定理, 1936年）: φ が妥当であれば証明はいずれ見つかりますが、φ が妥当でない場合、有限時間でそれを常に検出するアルゴリズムは存在しません。この非対称性は完全性定理をいっそう注目すべきものにします — 一般的な妥当性問題の決定不能性にもかかわらず、すべての妥当な論理式は有限の証明を持つのです。`,
+    ],
+  },
+  formalNotation: `\\vDash \\varphi \\;\\Longleftrightarrow\\; \\text{for all } (M, g),\\; (M,g) \\vDash \\varphi \\\\
+\\varphi \\text{ satisfiable} \\;\\Longleftrightarrow\\; \\exists (M,g),\\; (M,g) \\vDash \\varphi \\\\
+\\varphi \\text{ unsatisfiable} \\;\\Longleftrightarrow\\; \\lnot(\\exists (M,g),\\; (M,g) \\vDash \\varphi)`,
+  relatedEntryIds: [
+    "concept-soundness",
+    "concept-completeness",
+    "concept-predicate-semantics",
+    "concept-cut-elimination",
+    "system-classical",
+    "notation-connectives",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Validity_(logic)",
+      label: {
+        en: "Validity (Wikipedia)",
+        ja: "妥当性 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E5%A6%A5%E5%BD%93%E6%80%A7",
+      label: {
+        en: "Validity (Wikipedia JA)",
+        ja: "妥当性 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Satisfiability",
+      label: {
+        en: "Satisfiability (Wikipedia)",
+        ja: "充足可能性 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E5%85%85%E8%B6%B3%E5%8F%AF%E8%83%BD%E6%80%A7",
+      label: {
+        en: "Satisfiability (Wikipedia JA)",
+        ja: "充足可能性 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Logical_consequence",
+      label: {
+        en: "Logical consequence (Wikipedia)",
+        ja: "論理的帰結 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/semantics",
+      label: {
+        en: "Semantics (nLab)",
+        ja: "意味論 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "validity",
+    "妥当性",
+    "valid",
+    "妥当",
+    "tautology",
+    "恒真式",
+    "satisfiable",
+    "充足可能",
+    "satisfiability",
+    "充足可能性",
+    "unsatisfiable",
+    "充足不能",
+    "contradiction",
+    "矛盾",
+    "semantic entailment",
+    "意味論的含意",
+    "⊨",
+    "⊢",
+    "turnstile",
+    "ターンスタイル",
+    "contingent",
+    "偶然的",
+    "decidable",
+    "決定可能",
+    "semi-decidable",
+    "半決定可能",
+    "refutation",
+    "反駁",
+  ],
+  order: 18,
 };
 
 // ============================================================
@@ -3935,6 +4061,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptAdmissibleDerivable,
   conceptContextSharingIndependence,
   conceptPredicateSemantics,
+  conceptSemanticValidity,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
