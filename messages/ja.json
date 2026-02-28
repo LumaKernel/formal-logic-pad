@@ -42,6 +42,7 @@
     "selectionPaste": "ペースト",
     "selectionDuplicate": "複製",
     "selectionDelete": "削除",
+    "selectionMerge": "マージ",
     "selectionClear": "解除",
     "cancel": "キャンセル",
     "logicSystemLabel": "論理体系:",

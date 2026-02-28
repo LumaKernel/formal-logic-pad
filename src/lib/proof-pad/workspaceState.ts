@@ -42,6 +42,10 @@ import {
   type LayoutDirection,
 } from "./treeLayoutLogic";
 import type { Size } from "../infinite-canvas/types";
+import {
+  mergeNodes as mergeNodesLogic,
+  type MergeError,
+} from "./mergeNodesLogic";
 
 // --- ノードの明示的な役割マーク ---
 
@@ -1109,4 +1113,68 @@ export function revalidateInferenceConclusions(
   // ノード変更があった場合のみエッジを再構築
   if (current === state) return state;
   return syncInferenceEdges(current);
+}
+
+// --- ノードマージ ---
+
+/** ノードマージ結果 */
+export type MergeNodesResult =
+  | { readonly _tag: "Error"; readonly error: MergeError }
+  | {
+      readonly _tag: "Success";
+      readonly workspace: WorkspaceState;
+      readonly leaderNodeId: string;
+      readonly absorbedNodeIds: readonly string[];
+    };
+
+/**
+ * 選択されたノードのうち、同一のformulaTextを持つノードをマージする。
+ * リーダーノード（先に選択されたノード）が保持され、
+ * 吸収されるノードの出力コネクション（定理として利用されている立場）は
+ * リーダーに付替えられる。
+ *
+ * @param state 現在のワークスペース状態
+ * @param leaderNodeId リーダーノードのID
+ * @param absorbedNodeIds 吸収されるノードのID一覧
+ * @returns マージ結果
+ */
+export function mergeSelectedNodes(
+  state: WorkspaceState,
+  leaderNodeId: string,
+  absorbedNodeIds: readonly string[],
+): MergeNodesResult {
+  // 保護ノードIDを収集
+  const protectedIds = new Set(
+    state.nodes.filter((n) => isNodeProtected(state, n.id)).map((n) => n.id),
+  );
+
+  const result = mergeNodesLogic(
+    leaderNodeId,
+    absorbedNodeIds,
+    state.nodes,
+    state.connections,
+    state.inferenceEdges,
+    protectedIds,
+  );
+
+  if (result._tag === "Error") {
+    return result;
+  }
+
+  // 新しいワークスペース状態を構築し、推論結論を再検証
+  const newState = revalidateInferenceConclusions(
+    syncInferenceEdges({
+      ...state,
+      nodes: result.nodes,
+      connections: result.connections,
+      inferenceEdges: result.inferenceEdges,
+    }),
+  );
+
+  return {
+    _tag: "Success",
+    workspace: newState,
+    leaderNodeId: result.leaderNodeId,
+    absorbedNodeIds: result.absorbedNodeIds,
+  };
 }

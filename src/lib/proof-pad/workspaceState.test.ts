@@ -41,6 +41,7 @@ import {
   removeGoal,
   updateGoalFormulaText,
   type QuestGoalDefinition,
+  mergeSelectedNodes,
 } from "./workspaceState";
 import {
   hilbertDeduction,
@@ -2361,6 +2362,80 @@ describe("proofWorkspace", () => {
       expect(ws.inferenceEdges).toHaveLength(2);
       const result = cutSelectedNodes(ws, new Set(["node-3"]));
       expect(result.workspace.inferenceEdges).toHaveLength(1);
+    });
+  });
+
+  describe("mergeSelectedNodes", () => {
+    it("同一formulaTextの2ノードをマージできる", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi -> phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 100, y: 0 }, "phi -> phi");
+      const result = mergeSelectedNodes(ws, "node-1", ["node-2"]);
+      expect(result._tag).toBe("Success");
+      if (result._tag !== "Success") return;
+      expect(result.workspace.nodes).toHaveLength(1);
+      expect(result.workspace.nodes[0].id).toBe("node-1");
+      expect(result.leaderNodeId).toBe("node-1");
+      expect(result.absorbedNodeIds).toEqual(["node-2"]);
+    });
+
+    it("吸収ノードの出力コネクションがリーダーに付替えられる", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "N1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "N2", { x: 100, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "N3", { x: 200, y: 0 }, "psi");
+      ws = addConnection(ws, "node-2", "out", "node-3", "premise-left");
+      const result = mergeSelectedNodes(ws, "node-1", ["node-2"]);
+      expect(result._tag).toBe("Success");
+      if (result._tag !== "Success") return;
+      const conn = result.workspace.connections.find(
+        (c) => c.toNodeId === "node-3",
+      );
+      expect(conn?.fromNodeId).toBe("node-1");
+    });
+
+    it("MP前提が付替えられ、結論テキストが再検証される", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      // node-1: phi (leader)
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      // node-2: phi (absorbed)
+      ws = addNode(ws, "axiom", "Ax2", { x: 100, y: 0 }, "phi");
+      // node-3: phi -> psi
+      ws = addNode(ws, "axiom", "Ax3", { x: 200, y: 0 }, "phi -> psi");
+      // MP: node-2 + node-3 → node-4
+      const mp = applyMPAndConnect(ws, "node-2", "node-3", { x: 150, y: 100 });
+      ws = mp.workspace;
+
+      const result = mergeSelectedNodes(ws, "node-1", ["node-2"]);
+      expect(result._tag).toBe("Success");
+      if (result._tag !== "Success") return;
+      // MPの前提がnode-1に付替え
+      const mpEdge = result.workspace.inferenceEdges.find(
+        (e) => e._tag === "mp",
+      );
+      expect(mpEdge).toBeDefined();
+      if (mpEdge?._tag === "mp") {
+        expect(mpEdge.leftPremiseNodeId).toBe("node-1");
+      }
+    });
+
+    it("formulaTextが異なるとエラー", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 100, y: 0 }, "psi");
+      const result = mergeSelectedNodes(ws, "node-1", ["node-2"]);
+      expect(result._tag).toBe("Error");
+      if (result._tag !== "Error") return;
+      expect(result.error._tag).toBe("FormulaTextMismatch");
+    });
+
+    it("吸収対象が空の場合はエラー", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      const result = mergeSelectedNodes(ws, "node-1", []);
+      expect(result._tag).toBe("Error");
+      if (result._tag !== "Error") return;
+      expect(result.error._tag).toBe("NotEnoughNodes");
     });
   });
 });

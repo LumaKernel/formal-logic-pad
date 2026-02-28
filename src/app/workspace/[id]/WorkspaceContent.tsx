@@ -59,6 +59,7 @@ function useProofMessagesFromIntl(): ProofMessages {
       selectionPaste: t("selectionPaste"),
       selectionDuplicate: t("selectionDuplicate"),
       selectionDelete: t("selectionDelete"),
+      selectionMerge: t("selectionMerge"),
       selectionClear: t("selectionClear"),
       cancel: t("cancel"),
       logicSystemLabel: t("logicSystemLabel"),

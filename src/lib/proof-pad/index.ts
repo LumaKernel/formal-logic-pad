@@ -45,6 +45,7 @@ export {
   addGoal,
   removeGoal,
   updateGoalFormulaText,
+  mergeSelectedNodes,
 } from "./workspaceState";
 export type {
   WorkspaceMode,
@@ -57,7 +58,14 @@ export type {
   ApplyMPResult,
   ApplyGenResult,
   ApplySubstitutionResult,
+  MergeNodesResult,
 } from "./workspaceState";
+export {
+  mergeNodes,
+  findMergeableGroups,
+  canMergeSelectedNodes,
+} from "./mergeNodesLogic";
+export type { MergeResult, MergeError } from "./mergeNodesLogic";
 export {
   computeCentroid,
   buildClipboardData,
