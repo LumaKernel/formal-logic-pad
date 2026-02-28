@@ -10,6 +10,7 @@
  * @see dev/logic-reference/07-axiom-systems-survey.md
  */
 
+import { Data, Either } from "effect";
 import {
   type Formula,
   implication,
@@ -787,52 +788,87 @@ export const abelianGroupSystem: LogicSystem = {
 // ── 推論規則の適用結果 ───────────────────────────────────
 
 /**
- * 規則適用エラーの種類。
+ * 規則適用エラーの種類（Data.TaggedError）。
  */
+export class NotAnImplication extends Data.TaggedError("NotAnImplication")<{
+  readonly formula: Formula;
+}> {}
+
+export class PremiseMismatch extends Data.TaggedError("PremiseMismatch")<{
+  readonly expected: Formula;
+  readonly actual: Formula;
+}> {}
+
+export class NotAnAxiomInstance extends Data.TaggedError("NotAnAxiomInstance")<{
+  readonly axiomId: AxiomId;
+  readonly formula: Formula;
+}> {}
+
+export class AxiomNotEnabled extends Data.TaggedError("AxiomNotEnabled")<{
+  readonly axiomId: AxiomId;
+}> {}
+
+export class GeneralizationNotEnabled extends Data.TaggedError(
+  "GeneralizationNotEnabled",
+)<Record<string, never>> {}
+
+export class SubstitutionNotFreeFor extends Data.TaggedError(
+  "SubstitutionNotFreeFor",
+)<{
+  readonly variable: string;
+  readonly formula: Formula;
+}> {}
+
+export class VariableNotFreeInPremise extends Data.TaggedError(
+  "VariableNotFreeInPremise",
+)<{
+  readonly variable: string;
+}> {}
+
+export class EqualityNotEnabled extends Data.TaggedError("EqualityNotEnabled")<
+  Record<string, never>
+> {}
+
+export class NotAUniversal extends Data.TaggedError("NotAUniversal")<{
+  readonly formula: Formula;
+}> {}
+
+export class A5VariableFreeInAntecedent extends Data.TaggedError(
+  "A5VariableFreeInAntecedent",
+)<{
+  readonly variable: string;
+  readonly antecedent: Formula;
+}> {}
+
 export type RuleApplicationError =
-  | { readonly _tag: "NotAnImplication"; readonly formula: Formula }
-  | {
-      readonly _tag: "PremiseMismatch";
-      readonly expected: Formula;
-      readonly actual: Formula;
-    }
-  | {
-      readonly _tag: "NotAnAxiomInstance";
-      readonly axiomId: AxiomId;
-      readonly formula: Formula;
-    }
-  | { readonly _tag: "AxiomNotEnabled"; readonly axiomId: AxiomId }
-  | { readonly _tag: "GeneralizationNotEnabled" }
-  | {
-      readonly _tag: "SubstitutionNotFreeFor";
-      readonly variable: string;
-      readonly formula: Formula;
-    }
-  | { readonly _tag: "VariableNotFreeInPremise"; readonly variable: string }
-  | { readonly _tag: "EqualityNotEnabled" }
-  | { readonly _tag: "NotAUniversal"; readonly formula: Formula }
-  | {
-      readonly _tag: "A5VariableFreeInAntecedent";
-      readonly variable: string;
-      readonly antecedent: Formula;
-    };
+  | NotAnImplication
+  | PremiseMismatch
+  | NotAnAxiomInstance
+  | AxiomNotEnabled
+  | GeneralizationNotEnabled
+  | SubstitutionNotFreeFor
+  | VariableNotFreeInPremise
+  | EqualityNotEnabled
+  | NotAUniversal
+  | A5VariableFreeInAntecedent;
 
 /**
- * 規則適用の結果型。
+ * 規則適用の結果型（Either: Right=成功, Left=エラー）。
  */
-export type RuleApplicationResult =
-  | { readonly _tag: "Ok"; readonly conclusion: Formula }
-  | { readonly _tag: "Error"; readonly error: RuleApplicationError };
+export type RuleApplicationSuccess = {
+  readonly conclusion: Formula;
+};
 
-const ok = (conclusion: Formula): RuleApplicationResult => ({
-  _tag: "Ok",
-  conclusion,
-});
+export type RuleApplicationResult = Either.Either<
+  RuleApplicationSuccess,
+  RuleApplicationError
+>;
 
-const err = (error: RuleApplicationError): RuleApplicationResult => ({
-  _tag: "Error",
-  error,
-});
+const ok = (conclusion: Formula): RuleApplicationResult =>
+  Either.right({ conclusion });
+
+const err = (error: RuleApplicationError): RuleApplicationResult =>
+  Either.left(error);
 
 // ── Modus Ponens ──────────────────────────────────────────
 
@@ -848,14 +884,15 @@ export const applyModusPonens = (
   conditional: Formula,
 ): RuleApplicationResult => {
   if (conditional._tag !== "Implication") {
-    return err({ _tag: "NotAnImplication", formula: conditional });
+    return err(new NotAnImplication({ formula: conditional }));
   }
   if (!equalFormula(antecedent, conditional.left)) {
-    return err({
-      _tag: "PremiseMismatch",
-      expected: conditional.left,
-      actual: antecedent,
-    });
+    return err(
+      new PremiseMismatch({
+        expected: conditional.left,
+        actual: antecedent,
+      }),
+    );
   }
   return ok(conditional.right);
 };
@@ -876,7 +913,7 @@ export const applyGeneralization = (
   system: LogicSystem,
 ): RuleApplicationResult => {
   if (!system.generalization) {
-    return err({ _tag: "GeneralizationNotEnabled" });
+    return err(new GeneralizationNotEnabled({}));
   }
   return ok(universal(variable, formula));
 };
@@ -1015,27 +1052,23 @@ export const matchFormulaPattern = (
  * 一方向パターンマッチングを使ってテンプレートの MetaVariable を候補式にバインドする。
  * マッチした場合、使用された代入を返す。
  */
-export type AxiomMatchResult =
-  | {
-      readonly _tag: "Ok";
-      readonly formulaSubstitution: FormulaSubstitutionMap;
-      readonly termSubstitution: TermMetaSubstitutionMap;
-    }
-  | { readonly _tag: "Error"; readonly error: RuleApplicationError };
+export type AxiomMatchSuccess = {
+  readonly formulaSubstitution: FormulaSubstitutionMap;
+  readonly termSubstitution: TermMetaSubstitutionMap;
+};
+
+export type AxiomMatchResult = Either.Either<
+  AxiomMatchSuccess,
+  RuleApplicationError
+>;
 
 const axiomMatchOk = (
   formulaSubstitution: FormulaSubstitutionMap,
   termSubstitution: TermMetaSubstitutionMap,
-): AxiomMatchResult => ({
-  _tag: "Ok",
-  formulaSubstitution,
-  termSubstitution,
-});
+): AxiomMatchResult => Either.right({ formulaSubstitution, termSubstitution });
 
-const axiomMatchErr = (error: RuleApplicationError): AxiomMatchResult => ({
-  _tag: "Error",
-  error,
-});
+const axiomMatchErr = (error: RuleApplicationError): AxiomMatchResult =>
+  Either.left(error);
 
 /**
  * 命題論理公理 (A1, A2, A3, M3, EFQ, DNE) のインスタンスか判定。
@@ -1047,7 +1080,7 @@ export const matchPropositionalAxiom = (
   const template = getPropositionalAxiomTemplate(axiomId);
   const result = matchFormulaPattern(template, formula);
   if (result === undefined) {
-    return axiomMatchErr({ _tag: "NotAnAxiomInstance", axiomId, formula });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId, formula }));
   }
   return axiomMatchOk(result.formulaSub, result.termSub);
 };
@@ -1084,18 +1117,10 @@ const getPropositionalAxiomTemplate = (
 export const matchAxiomA4 = (formula: Formula): AxiomMatchResult => {
   // A4: ∀x.φ → φ[t/x] の形をチェック
   if (formula._tag !== "Implication") {
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: "A4",
-      formula,
-    });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "A4", formula }));
   }
   if (formula.left._tag !== "Universal") {
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: "A4",
-      formula,
-    });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "A4", formula }));
   }
 
   const boundVar = formula.left.variable;
@@ -1108,30 +1133,20 @@ export const matchAxiomA4 = (formula: Formula): AxiomMatchResult => {
     if (equalFormula(body, conclusion)) {
       return axiomMatchOk(new Map(), new Map());
     }
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: "A4",
-      formula,
-    });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "A4", formula }));
   }
 
   // body と conclusion を走査して t（boundVarへの代入先）を推論
   const replacementTerm = inferTermReplacement(body, conclusion, boundVar);
   if (replacementTerm === undefined) {
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: "A4",
-      formula,
-    });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "A4", formula }));
   }
 
   // t が φ 中の x に対して自由に代入可能かチェック
   if (!isFreeFor(replacementTerm, boundVar, body)) {
-    return axiomMatchErr({
-      _tag: "SubstitutionNotFreeFor",
-      variable: boundVar.name,
-      formula: body,
-    });
+    return axiomMatchErr(
+      new SubstitutionNotFreeFor({ variable: boundVar.name, formula: body }),
+    );
   }
 
   // 実際に代入して一致するか最終確認
@@ -1143,11 +1158,7 @@ export const matchAxiomA4 = (formula: Formula): AxiomMatchResult => {
   // 防御的チェック: inferTermReplacement が正しく動作していれば到達しない
   /* v8 ignore start */
   if (!equalFormula(substituted, conclusion)) {
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: "A4",
-      formula,
-    });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "A4", formula }));
   }
   /* v8 ignore stop */
 
@@ -1160,84 +1171,50 @@ export const matchAxiomA4 = (formula: Formula): AxiomMatchResult => {
  */
 export const matchAxiomA5 = (formula: Formula): AxiomMatchResult => {
   if (formula._tag !== "Implication") {
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: "A5",
-      formula,
-    });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "A5", formula }));
   }
   if (formula.left._tag !== "Universal") {
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: "A5",
-      formula,
-    });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "A5", formula }));
   }
 
   const xv = formula.left.variable;
   const innerBody = formula.left.formula;
 
   if (innerBody._tag !== "Implication") {
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: "A5",
-      formula,
-    });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "A5", formula }));
   }
 
   const antecedent = innerBody.left;
   const consequent = innerBody.right;
 
   if (formula.right._tag !== "Implication") {
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: "A5",
-      formula,
-    });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "A5", formula }));
   }
 
   const rightAntecedent = formula.right.left;
   const rightConsequent = formula.right.right;
 
   if (!equalFormula(antecedent, rightAntecedent)) {
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: "A5",
-      formula,
-    });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "A5", formula }));
   }
 
   if (rightConsequent._tag !== "Universal") {
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: "A5",
-      formula,
-    });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "A5", formula }));
   }
 
   if (!equalTerm(xv, rightConsequent.variable)) {
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: "A5",
-      formula,
-    });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "A5", formula }));
   }
 
   if (!equalFormula(consequent, rightConsequent.formula)) {
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: "A5",
-      formula,
-    });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "A5", formula }));
   }
 
   // 制約: x ∉ FV(φ)
   if (freeVariablesInFormula(antecedent).has(xv.name)) {
-    return axiomMatchErr({
-      _tag: "A5VariableFreeInAntecedent",
-      variable: xv.name,
-      antecedent,
-    });
+    return axiomMatchErr(
+      new A5VariableFreeInAntecedent({ variable: xv.name, antecedent }),
+    );
   }
 
   return axiomMatchOk(new Map(), new Map());
@@ -1255,7 +1232,7 @@ export const matchEqualityAxiom = (
   const template = getEqualityAxiomTemplate(axiomId);
   const result = matchFormulaPattern(template, formula);
   if (result === undefined) {
-    return axiomMatchErr({ _tag: "NotAnAxiomInstance", axiomId, formula });
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId, formula }));
   }
   return axiomMatchOk(result.formulaSub, result.termSub);
 };
@@ -1334,20 +1311,16 @@ export const matchTheoryAxiom = (
     if (equalFormula(axiom.template, formula)) {
       return axiomMatchOk(new Map(), new Map());
     }
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: axiom.id as AxiomId,
-      formula,
-    });
+    return axiomMatchErr(
+      new NotAnAxiomInstance({ axiomId: axiom.id as AxiomId, formula }),
+    );
   }
   // pattern mode
   const result = matchFormulaPattern(axiom.template, formula);
   if (result === undefined) {
-    return axiomMatchErr({
-      _tag: "NotAnAxiomInstance",
-      axiomId: axiom.id as AxiomId,
-      formula,
-    });
+    return axiomMatchErr(
+      new NotAnAxiomInstance({ axiomId: axiom.id as AxiomId, formula }),
+    );
   }
   return axiomMatchOk(result.formulaSub, result.termSub);
 };
@@ -1367,12 +1340,12 @@ export const identifyAxiom = (
   for (const axiomId of propAxiomIds) {
     if (system.propositionalAxioms.has(axiomId)) {
       const result = matchPropositionalAxiom(axiomId, formula);
-      if (result._tag === "Ok") {
+      if (Either.isRight(result)) {
         return {
           _tag: "Ok",
           axiomId,
-          formulaSubstitution: result.formulaSubstitution,
-          termSubstitution: result.termSubstitution,
+          formulaSubstitution: result.right.formulaSubstitution,
+          termSubstitution: result.right.termSubstitution,
         };
       }
     }
@@ -1380,22 +1353,22 @@ export const identifyAxiom = (
 
   if (system.predicateLogic) {
     const a4Result = matchAxiomA4(formula);
-    if (a4Result._tag === "Ok") {
+    if (Either.isRight(a4Result)) {
       return {
         _tag: "Ok",
         axiomId: "A4",
-        formulaSubstitution: a4Result.formulaSubstitution,
-        termSubstitution: a4Result.termSubstitution,
+        formulaSubstitution: a4Result.right.formulaSubstitution,
+        termSubstitution: a4Result.right.termSubstitution,
       };
     }
 
     const a5Result = matchAxiomA5(formula);
-    if (a5Result._tag === "Ok") {
+    if (Either.isRight(a5Result)) {
       return {
         _tag: "Ok",
         axiomId: "A5",
-        formulaSubstitution: a5Result.formulaSubstitution,
-        termSubstitution: a5Result.termSubstitution,
+        formulaSubstitution: a5Result.right.formulaSubstitution,
+        termSubstitution: a5Result.right.termSubstitution,
       };
     }
   }
@@ -1404,12 +1377,12 @@ export const identifyAxiom = (
     const eqAxiomIds: readonly ("E1" | "E2" | "E3")[] = ["E1", "E2", "E3"];
     for (const axiomId of eqAxiomIds) {
       const result = matchEqualityAxiom(axiomId, formula);
-      if (result._tag === "Ok") {
+      if (Either.isRight(result)) {
         return {
           _tag: "Ok",
           axiomId,
-          formulaSubstitution: result.formulaSubstitution,
-          termSubstitution: result.termSubstitution,
+          formulaSubstitution: result.right.formulaSubstitution,
+          termSubstitution: result.right.termSubstitution,
         };
       }
     }
@@ -1419,13 +1392,13 @@ export const identifyAxiom = (
   if (system.theoryAxioms !== undefined) {
     for (const axiom of system.theoryAxioms) {
       const result = matchTheoryAxiom(axiom, formula);
-      if (result._tag === "Ok") {
+      if (Either.isRight(result)) {
         return {
           _tag: "TheoryAxiom",
           theoryAxiomId: axiom.id,
           displayName: axiom.displayName,
-          formulaSubstitution: result.formulaSubstitution,
-          termSubstitution: result.termSubstitution,
+          formulaSubstitution: result.right.formulaSubstitution,
+          termSubstitution: result.right.termSubstitution,
         };
       }
     }

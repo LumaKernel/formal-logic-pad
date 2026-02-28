@@ -7,6 +7,7 @@
  * @see dev/logic-reference/04-substitution-and-unification.md セクション6
  */
 
+import { Data, Either } from "effect";
 import type { Formula } from "./formula";
 import type { Term } from "./term";
 import { equalFormula, equalTerm } from "./equality";
@@ -19,52 +20,65 @@ import {
   type TermMetaSubstitutionMap,
 } from "./substitution";
 
-// ── ユニフィケーション結果型 ──────────────────────────────
+// ── ユニフィケーションエラー型 ──────────────────────────────
+
+/**
+ * 構造不一致エラー。
+ */
+export class StructureMismatch extends Data.TaggedError("StructureMismatch")<{
+  readonly left: Formula | Term;
+  readonly right: Formula | Term;
+}> {}
+
+/**
+ * Occurs check エラー。
+ */
+export class OccursCheck extends Data.TaggedError("OccursCheck")<{
+  readonly variable: string;
+  readonly inExpression: Formula | Term;
+}> {}
+
+/**
+ * タグ不一致エラー。
+ */
+export class TagMismatch extends Data.TaggedError("TagMismatch")<{
+  readonly leftTag: string;
+  readonly rightTag: string;
+}> {}
 
 /**
  * ユニフィケーションエラーの種類。
  */
-export type UnificationError =
-  | {
-      readonly _tag: "StructureMismatch";
-      readonly left: Formula | Term;
-      readonly right: Formula | Term;
-    }
-  | {
-      readonly _tag: "OccursCheck";
-      readonly variable: string;
-      readonly inExpression: Formula | Term;
-    }
-  | {
-      readonly _tag: "TagMismatch";
-      readonly leftTag: string;
-      readonly rightTag: string;
-    };
+export type UnificationError = StructureMismatch | OccursCheck | TagMismatch;
+
+/**
+ * ユニフィケーション成功時の値。
+ */
+export type UnificationSuccess = {
+  readonly formulaSubstitution: FormulaSubstitutionMap;
+  readonly termSubstitution: TermMetaSubstitutionMap;
+};
 
 /**
  * ユニフィケーション結果。
+ * Right = 成功（UnificationSuccess）、Left = 失敗（UnificationError）
  */
-export type UnificationResult =
-  | {
-      readonly _tag: "Ok";
-      readonly formulaSubstitution: FormulaSubstitutionMap;
-      readonly termSubstitution: TermMetaSubstitutionMap;
-    }
-  | { readonly _tag: "Error"; readonly error: UnificationError };
+export type UnificationResult = Either.Either<
+  UnificationSuccess,
+  UnificationError
+>;
 
 const okResult = (
   formulaSubstitution: FormulaSubstitutionMap,
   termSubstitution: TermMetaSubstitutionMap,
-): UnificationResult => ({
-  _tag: "Ok",
-  formulaSubstitution,
-  termSubstitution,
-});
+): UnificationResult =>
+  Either.right({
+    formulaSubstitution,
+    termSubstitution,
+  });
 
-const errResult = (error: UnificationError): UnificationResult => ({
-  _tag: "Error",
-  error,
-});
+const errResult = (error: UnificationError): UnificationResult =>
+  Either.left(error);
 
 // ── 方程式の型 ──────────────────────────────────────────────
 
@@ -395,11 +409,7 @@ const processFormulaEquation = (
 
     // Occurs check
     if (right._tag !== "MetaVariable" && occursInFormula(key, right)) {
-      return errResult({
-        _tag: "OccursCheck",
-        variable: key,
-        inExpression: right,
-      });
+      return errResult(new OccursCheck({ variable: key, inExpression: right }));
     }
 
     // 防御的チェック: 即時代入適用により通常は到達しない
@@ -438,11 +448,7 @@ const processFormulaEquation = (
   }
 
   // 5. 構造不一致
-  return errResult({
-    _tag: "StructureMismatch",
-    left,
-    right,
-  });
+  return errResult(new StructureMismatch({ left, right }));
 };
 
 /**
@@ -471,11 +477,7 @@ const processTermEquation = (
 
     // Occurs check
     if (right._tag !== "TermMetaVariable" && occursInTerm(key, right)) {
-      return errResult({
-        _tag: "OccursCheck",
-        variable: key,
-        inExpression: right,
-      });
+      return errResult(new OccursCheck({ variable: key, inExpression: right }));
     }
 
     // 防御的チェック: 即時代入適用により通常は到達しない
@@ -516,17 +518,9 @@ const processTermEquation = (
       return null;
     }
     // decompose が null = 名前不一致等
-    return errResult({
-      _tag: "StructureMismatch",
-      left,
-      right,
-    });
+    return errResult(new StructureMismatch({ left, right }));
   }
 
   // 5. タグ不一致
-  return errResult({
-    _tag: "StructureMismatch",
-    left,
-    right,
-  });
+  return errResult(new StructureMismatch({ left, right }));
 };

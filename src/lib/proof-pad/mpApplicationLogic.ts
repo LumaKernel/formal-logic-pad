@@ -7,6 +7,7 @@
  * 変更時は mpApplicationLogic.test.ts, ProofWorkspace.tsx, index.ts も同期すること。
  */
 
+import { Either } from "effect";
 import type { Formula } from "../logic-core/formula";
 import { equalFormula } from "../logic-core/equality";
 import type { RuleApplicationError } from "../logic-core/inferenceRule";
@@ -138,14 +139,14 @@ export function validateMPApplication(
   // MP適用
   const result = applyModusPonens(leftFormula, rightFormula);
 
-  if (result._tag === "Error") {
-    return { _tag: "RuleError", error: result.error };
+  if (Either.isLeft(result)) {
+    return { _tag: "RuleError", error: result.left };
   }
 
   return {
     _tag: "Success",
-    conclusion: result.conclusion,
-    conclusionText: formatFormula(result.conclusion),
+    conclusion: result.right.conclusion,
+    conclusionText: formatFormula(result.right.conclusion),
   };
 }
 

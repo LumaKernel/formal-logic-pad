@@ -66,7 +66,7 @@
 > logic-coreは既にEffect.tsに依存しているが、Schema定義以外の機能を使っていない。
 > `throw` は使われていない。すべてResult型（`{ _tag: "Ok" } | { _tag: "Error" }`）で返されている。
 
-- [ ] **ET-001: logic-core エラー型を `Data.TaggedError` に統一**
+- [x] **ET-001: logic-core エラー型を `Data.TaggedError` に統一**
 
   **対象ファイルと変換内容:**
   1. **`src/lib/logic-core/inferenceRule.ts`** — `RuleApplicationError` (10バリアント)

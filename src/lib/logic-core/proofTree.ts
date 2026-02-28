@@ -9,6 +9,7 @@
  * @see dev/logic-reference/03-predicate-logic.md
  */
 
+import { Either } from "effect";
 import { type Formula } from "./formula";
 import { type TermVariable } from "./term";
 import { equalFormula } from "./equality";
@@ -304,9 +305,9 @@ const validateModusPonensNode = (
     getConclusion(node.conditional),
   );
 
-  if (mpResult._tag === "Error") {
+  if (Either.isLeft(mpResult)) {
     const reason =
-      mpResult.error._tag === "NotAnImplication"
+      mpResult.left._tag === "NotAnImplication"
         ? "conditional premise is not an implication"
         : "antecedent does not match the left side of the implication";
     errors.push({
@@ -320,10 +321,10 @@ const validateModusPonensNode = (
   }
 
   // MP結果とノードの結論が一致するかチェック
-  if (!equalFormula(mpResult.conclusion, node.formula)) {
+  if (!equalFormula(mpResult.right.conclusion, node.formula)) {
     errors.push({
       _tag: "ConclusionMismatch",
-      expected: mpResult.conclusion,
+      expected: mpResult.right.conclusion,
       actual: node.formula,
       path,
     });
@@ -346,7 +347,7 @@ const validateGeneralizationNode = (
     system,
   );
 
-  if (genResult._tag === "Error") {
+  if (Either.isLeft(genResult)) {
     errors.push({
       _tag: "GeneralizationFailure",
       reason: "generalization is not enabled in this system",
@@ -357,10 +358,10 @@ const validateGeneralizationNode = (
   }
 
   // Gen結果とノードの結論が一致するかチェック
-  if (!equalFormula(genResult.conclusion, node.formula)) {
+  if (!equalFormula(genResult.right.conclusion, node.formula)) {
     errors.push({
       _tag: "ConclusionMismatch",
-      expected: genResult.conclusion,
+      expected: genResult.right.conclusion,
       actual: node.formula,
       path,
     });
