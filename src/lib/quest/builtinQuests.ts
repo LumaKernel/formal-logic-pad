@@ -2026,6 +2026,142 @@ const qNd18UniversalSwap: QuestDefinition = {
   version: 1,
 };
 
+// --- Level ND-Quantifier Advanced: 量化子規則の強化クエスト ---
+
+const qNd19ExistentialElim: QuestDefinition = {
+  id: "nd-19",
+  category: "nd-basics",
+  title: "存在除去 ∃E (NM)",
+  description:
+    "(∀x.(P(x) → φ)) → (∃x.P(x)) → φ を自然演繹 NM で証明せよ。∃E規則で存在命題の仮説を解消する基本パターンを学ぶ。",
+  difficulty: 3,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "(all x. (P(x) -> phi)) -> (ex x. P(x)) -> phi",
+      label: "Goal: (∀x.(P(x) → φ)) → (∃x.P(x)) → φ",
+    },
+  ],
+  hints: [
+    "∀x.(P(x) → φ) と ∃x.P(x) を仮定します。",
+    "∃E を使います: ∃x.P(x) を存在前提に、P(x) を仮定した上で φ を導く証明をケース前提にします。",
+    "P(x) の仮定から: ∀E で ∀x.(P(x) → φ) から P(x) → φ を得ます。→E で φ を得ます。",
+    "φ が ∃E の結論です（x は φ に自由に現れないので固有変数条件を満たす）。→I で仮定を順に解消します。",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "∃E（存在除去）は ∃x.φ と「φを仮定して χ を導く証明」から χ を導出する。χ に x が自由に現れてはならない（固有変数条件）。仮説解消の基本パターン。",
+  order: 19,
+  version: 1,
+};
+
+const qNd20UniversalToExistential: QuestDefinition = {
+  id: "nd-20",
+  category: "nd-basics",
+  title: "全称から存在 ∀→∃ (NM)",
+  description:
+    "∀x.P(x) → ∃x.P(x) を自然演繹 NM で証明せよ。全称命題から存在命題を導く基本操作。",
+  difficulty: 1,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "all x. P(x) -> ex x. P(x)",
+      label: "Goal: ∀x.P(x) → ∃x.P(x)",
+    },
+  ],
+  hints: [
+    "∀x.P(x) を仮定します。",
+    "∀E で x を代入して P(x) を得ます。",
+    "∃I で x を量化変数、x を witness として ∃x.P(x) を得ます。→I で仮定を解消して完成です。",
+  ],
+  estimatedSteps: 4,
+  learningPoint:
+    "∀x.φ ならば ∃x.φ が成り立つ。∀E で具体例を取り出し、∃I で存在命題に戻す。∀E と ∃I の基本的な組み合わせ。",
+  order: 20,
+  version: 1,
+};
+
+const qNd21ExistentialTransitivity: QuestDefinition = {
+  id: "nd-21",
+  category: "nd-basics",
+  title: "存在の推移 (NM)",
+  description:
+    "(∃x.P(x)) → (∀x.(P(x) → Q(x))) → ∃x.Q(x) を自然演繹 NM で証明せよ。∃E と ∃I の組み合わせ。",
+  difficulty: 3,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "(ex x. P(x)) -> (all x. (P(x) -> Q(x))) -> ex x. Q(x)",
+      label: "Goal: (∃x.P(x)) → (∀x.(P(x) → Q(x))) → ∃x.Q(x)",
+    },
+  ],
+  hints: [
+    "∃x.P(x) と ∀x.(P(x) → Q(x)) を仮定します。",
+    "∃E を使います: P(x) を仮定して ∃x.Q(x) を導く証明を構築します。",
+    "P(x) の仮定のもとで: ∀E で P(x) → Q(x) を得て、→E で Q(x) を得ます。",
+    "∃I で Q(x) から ∃x.Q(x) を導きます。これが ∃E の結論（x は ∃x.Q(x) に自由でない）。→I で仮定を解消。",
+  ],
+  estimatedSteps: 8,
+  learningPoint:
+    "∃E と ∃I の組み合わせパターン: 存在命題を開き、変換を施して、再び存在命題に包む。存在の「推移性」を示す。",
+  order: 21,
+  version: 1,
+};
+
+const qNd22ExistentialConjunctionDistribution: QuestDefinition = {
+  id: "nd-22",
+  category: "nd-basics",
+  title: "∃の∧分配 (NM)",
+  description:
+    "(∃x.(P(x) ∧ Q(x))) → (∃x.P(x)) ∧ (∃x.Q(x)) を自然演繹 NM で証明せよ。∃E で存在命題を開き、∧E で分解、∃I で再構成。",
+  difficulty: 3,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "(ex x. (P(x) /\\ Q(x))) -> (ex x. P(x)) /\\ (ex x. Q(x))",
+      label: "Goal: (∃x.(P(x) ∧ Q(x))) → (∃x.P(x)) ∧ (∃x.Q(x))",
+    },
+  ],
+  hints: [
+    "∃x.(P(x) ∧ Q(x)) を仮定します。",
+    "∃E を使います: P(x) ∧ Q(x) を仮定して (∃x.P(x)) ∧ (∃x.Q(x)) を導きます。",
+    "∧E₁ で P(x) を、∧E₂ で Q(x) を取り出します。",
+    "∃I でそれぞれ ∃x.P(x) と ∃x.Q(x) を得て、∧I で結合します。→I で仮定を解消。",
+  ],
+  estimatedSteps: 9,
+  learningPoint:
+    "存在量化子は連言の上に分配できる（逆方向は一般に成り立たない）。∃E の仮説解消内で複数の ∃I を用いる典型パターン。",
+  order: 22,
+  version: 1,
+};
+
+const qNd23UniversalConjunction: QuestDefinition = {
+  id: "nd-23",
+  category: "nd-basics",
+  title: "∀の∧結合 (NM)",
+  description:
+    "(∀x.P(x)) ∧ (∀x.Q(x)) → ∀x.(P(x) ∧ Q(x)) を自然演繹 NM で証明せよ。∀E で分離、∧I で結合、∀I で再量化。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "(all x. P(x)) /\\ (all x. Q(x)) -> all x. (P(x) /\\ Q(x))",
+      label: "Goal: (∀x.P(x)) ∧ (∀x.Q(x)) → ∀x.(P(x) ∧ Q(x))",
+    },
+  ],
+  hints: [
+    "(∀x.P(x)) ∧ (∀x.Q(x)) を仮定します。",
+    "∧E₁ で ∀x.P(x) を、∧E₂ で ∀x.Q(x) を取り出します。",
+    "∀E でそれぞれ P(x) と Q(x) を得て、∧I で P(x) ∧ Q(x) を作ります。",
+    "∀I で x を量化して ∀x.(P(x) ∧ Q(x)) を得ます。→I で仮定を解消。",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "全称量化子は連言の中に分配できる。∀E と ∀I を使って量化子のスコープを調整する基本テクニック。",
+  order: 23,
+  version: 1,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -2108,4 +2244,9 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qNd16UniversalElim,
   qNd17ExistentialIntro,
   qNd18UniversalSwap,
+  qNd19ExistentialElim,
+  qNd20UniversalToExistential,
+  qNd21ExistentialTransitivity,
+  qNd22ExistentialConjunctionDistribution,
+  qNd23UniversalConjunction,
 ];
