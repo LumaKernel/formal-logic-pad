@@ -1613,6 +1613,275 @@ const qPred06UnivNegToNegExist: QuestDefinition = {
   version: 1,
 };
 
+// --- 自然演繹の基礎 ---
+
+const qNd01Identity: QuestDefinition = {
+  id: "nd-01",
+  category: "nd-basics",
+  title: "恒等律 (→I)",
+  description:
+    "φ → φ を自然演繹 NM で証明せよ。仮定を置いてそのまま解消する、→I の最も基本的な使い方。",
+  difficulty: 1,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "phi -> phi",
+      label: "Goal: φ → φ",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "仮定φを置きます。",
+    "φからφは自明なので、→Iで仮定を解消して φ → φ を得ます。",
+  ],
+  estimatedSteps: 2,
+  learningPoint:
+    "→I（含意導入）は「φを仮定してψを導いたら、仮定を解消して φ → ψ を得る」規則。Hilbert系では5ステップ必要だった証明が2ステップで完了。",
+  order: 1,
+  version: 1,
+};
+
+const qNd02KAxiom: QuestDefinition = {
+  id: "nd-02",
+  category: "nd-basics",
+  title: "K公理 (→Iの2重使用)",
+  description:
+    "φ → (ψ → φ) を自然演繹 NM で証明せよ。→Iを2回使って不要な前提を導入する。",
+  difficulty: 1,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "phi -> (psi -> phi)",
+      label: "Goal: φ → (ψ → φ)",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "まず仮定φを置きます。",
+    "次に仮定ψを置きます。",
+    "φは既に仮定されているので、→Iでψを解消してψ→φを得て、さらに→Iでφを解消します。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "Hilbert系のK公理（A1）に対応する定理。自然演繹では→Iの入れ子で直接証明可能。",
+  order: 2,
+  version: 1,
+};
+
+const qNd03Contraposition: QuestDefinition = {
+  id: "nd-03",
+  category: "nd-basics",
+  title: "対偶 (Modus Tollens)",
+  description:
+    "(φ → ψ) → (¬ψ → ¬φ) を自然演繹 NM で証明せよ。最小論理でも証明可能な対偶律。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> (~psi -> ~phi)",
+      label: "Goal: (φ → ψ) → (¬ψ → ¬φ)",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "仮定φ→ψ、仮定¬ψ、仮定φの3つを置きます。",
+    "→Eでφ→ψとφからψを得て、→Eで¬ψとψから矛盾を導きます。",
+    "→Iで仮定を順に解消していきます。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "対偶律は最小論理NMでも証明可能。¬φ は φ → ⊥ の略記であり、→Iと→Eだけで構成できる。",
+  order: 3,
+  version: 1,
+};
+
+const qNd04ConjunctionCommutativity: QuestDefinition = {
+  id: "nd-04",
+  category: "nd-basics",
+  title: "連言の交換律",
+  description:
+    "(φ ∧ ψ) → (ψ ∧ φ) を自然演繹 NM で証明せよ。∧Eと∧Iの組み合わせ。",
+  difficulty: 1,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "(phi /\\ psi) -> (psi /\\ phi)",
+      label: "Goal: (φ ∧ ψ) → (ψ ∧ φ)",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "仮定φ∧ψを置きます。",
+    "∧E（左）でφを、∧E（右）でψを取り出します。",
+    "∧Iでψとφを逆順に組み合わせてψ∧φを作り、→Iで仮定を解消します。",
+  ],
+  estimatedSteps: 4,
+  learningPoint:
+    "自然演繹では連言を∧Eで分解し、∧Iで再構成できる。Hilbert系では定義展開が必要だった操作が直接行える。",
+  order: 4,
+  version: 1,
+};
+
+const qNd05DisjunctionCommute: QuestDefinition = {
+  id: "nd-05",
+  category: "nd-basics",
+  title: "選言の交換律",
+  description:
+    "(φ ∨ ψ) → (ψ ∨ φ) を自然演繹 NM で証明せよ。∨Eと∨Iの組み合わせ。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "(phi \\/ psi) -> (psi \\/ phi)",
+      label: "Goal: (φ ∨ ψ) → (ψ ∨ φ)",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "仮定φ∨ψを置きます。",
+    "∨E（場合分け）を使います: φの場合は∨I(右)でψ∨φ、ψの場合は∨I(左)でψ∨φ。",
+    "→Iで仮定を解消します。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "∨E（選言除去）は場合分け推論。各ケースで同じ結論を導くことで選言を処理する。",
+  order: 5,
+  version: 1,
+};
+
+const qNd06DoubleNegationIntro: QuestDefinition = {
+  id: "nd-06",
+  category: "nd-basics",
+  title: "二重否定導入 (DNI)",
+  description:
+    "φ → ¬¬φ を自然演繹 NM で証明せよ。最小論理でも証明可能な基本定理。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "phi -> ~~phi",
+      label: "Goal: φ → ¬¬φ",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "φを仮定し、さらに¬φを仮定します。",
+    "→Eで¬φとφから⊥（矛盾）を導きます。",
+    "→Iで¬φの仮定を解消して¬¬φを得、さらにφの仮定を解消します。",
+  ],
+  estimatedSteps: 4,
+  learningPoint:
+    "DNI は最小論理 NM でも証明可能。¬φ = φ → ⊥ なので、¬¬φ = (φ → ⊥) → ⊥。Hilbert系のA3は不要。",
+  order: 6,
+  version: 1,
+};
+
+const qNd07ExFalsoNJ: QuestDefinition = {
+  id: "nd-07",
+  category: "nd-basics",
+  title: "爆発律 (EFQ)",
+  description: "¬φ → (φ → ψ) を自然演繹 NJ で証明せよ。矛盾からは何でも出る。",
+  difficulty: 2,
+  systemPresetId: "nd-nj",
+  goals: [
+    {
+      formulaText: "~phi -> (phi -> psi)",
+      label: "Goal: ¬φ → (φ → ψ)",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "¬φを仮定し、φを仮定します。",
+    "→Eで¬φとφから⊥を導きます。",
+    "EFQで⊥からψを得て、→Iで仮定を順に解消します。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "EFQ（Ex Falso Quodlibet）は NJ で追加される規則。最小論理 NM では矛盾から任意の命題を導けない。",
+  order: 7,
+  version: 1,
+};
+
+const qNd08ClaviusLawNK: QuestDefinition = {
+  id: "nd-08",
+  category: "nd-basics",
+  title: "Clavius の法則 (CM*)",
+  description:
+    "(¬φ → φ) → φ を自然演繹 NK で証明せよ。古典論理の特徴的な推論パターン。",
+  difficulty: 3,
+  systemPresetId: "nd-nk",
+  goals: [
+    {
+      formulaText: "(~phi -> phi) -> phi",
+      label: "Goal: (¬φ → φ) → φ",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "¬φ→φ を仮定します。",
+    "¬φ を仮定し、→E で φ を得ます。これは ¬φ の仮定と矛盾。",
+    "→I で ¬¬φ を得て、DNE で φ を得ます。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "Clavius の法則は古典論理 NK に特有。DNE（二重否定除去）が鍵。直観主義論理 NJ では証明不可能。",
+  order: 8,
+  version: 1,
+};
+
+const qNd09ExcludedMiddleNK: QuestDefinition = {
+  id: "nd-09",
+  category: "nd-basics",
+  title: "排中律 (TND)",
+  description: "φ ∨ ¬φ を自然演繹 NK で証明せよ。古典論理の核心的定理。",
+  difficulty: 3,
+  systemPresetId: "nd-nk",
+  goals: [
+    {
+      formulaText: "phi \\/ ~phi",
+      label: "Goal: φ ∨ ¬φ",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "¬(φ ∨ ¬φ) を仮定して矛盾を導きます。",
+    "φを仮定し、∨I(左)でφ∨¬φ → ¬(φ∨¬φ)と矛盾 → ¬φ を得ます。",
+    "¬φから∨I(右)でφ∨¬φ → ¬(φ∨¬φ)と矛盾 → ¬¬(φ∨¬φ) → DNEでφ∨¬φ。",
+  ],
+  estimatedSteps: 10,
+  learningPoint:
+    "排中律 (TND) は古典論理 NK の核心。直観主義論理 NJ では証明不可能。DNE と等価。",
+  order: 9,
+  version: 1,
+};
+
+const qNd10ConsequentiaMirabilisNK: QuestDefinition = {
+  id: "nd-10",
+  category: "nd-basics",
+  title: "驚嘆すべき帰結 (CM)",
+  description:
+    "(φ → ¬φ) → ¬φ を自然演繹 NM で証明せよ。最小論理でも証明可能な自己矛盾パターン。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "(phi -> ~phi) -> ~phi",
+      label: "Goal: (φ → ¬φ) → ¬φ",
+      position: { x: 400, y: 500 },
+    },
+  ],
+  hints: [
+    "φ→¬φ を仮定します。",
+    "φ を仮定し、→E で ¬φ を得ます。→E で ¬φ と φ から ⊥ を導きます。",
+    "→I で φ の仮定を解消して ¬φ を得ます。→I で φ→¬φ の仮定を解消します。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "Consequentia mirabilis（驚嘆すべき帰結）は最小論理 NM でも証明可能。φ→¬φ は自己矛盾する仮定であり、¬φ が帰結する。",
+  order: 10,
+  version: 1,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -1677,4 +1946,14 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qPred04ExistentialIntro,
   qPred05ExistNegToNegUniv,
   qPred06UnivNegToNegExist,
+  qNd01Identity,
+  qNd02KAxiom,
+  qNd03Contraposition,
+  qNd04ConjunctionCommutativity,
+  qNd05DisjunctionCommute,
+  qNd06DoubleNegationIntro,
+  qNd07ExFalsoNJ,
+  qNd08ClaviusLawNK,
+  qNd09ExcludedMiddleNK,
+  qNd10ConsequentiaMirabilisNK,
 ];

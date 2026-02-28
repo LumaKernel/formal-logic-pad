@@ -34,6 +34,7 @@ export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
  * - "peano-arithmetic": ペアノ算術の算術的推論（PA公理の組み合わせ）
  * - "group-basics": 群論の基礎（群公理の直接利用）
  * - "group-proofs": 群論の推論（群公理の組み合わせ）
+ * - "nd-basics": 自然演繹の基礎（NM/NJ/NK）
  */
 export type QuestCategory =
   | "propositional-basics"
@@ -45,7 +46,8 @@ export type QuestCategory =
   | "peano-basics"
   | "peano-arithmetic"
   | "group-basics"
-  | "group-proofs";
+  | "group-proofs"
+  | "nd-basics";
 
 /** カテゴリのメタデータ */
 export type QuestCategoryMeta = {
@@ -117,6 +119,12 @@ export const questCategories: readonly QuestCategoryMeta[] = [
     label: "群論の推論",
     description: "群公理を組み合わせた群の性質の証明。",
     order: 10,
+  },
+  {
+    id: "nd-basics",
+    label: "自然演繹の基礎",
+    description: "自然演繹体系（NM/NJ/NK）での仮定の導入・解消による証明。",
+    order: 11,
   },
 ] as const;
 

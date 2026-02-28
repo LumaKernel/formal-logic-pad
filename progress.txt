@@ -5678,3 +5678,23 @@
   - C2-C4 はリファレンスではなく可視化・解説機能。実装の複雑さが大幅に異なる
   - I1 (カリー・ハワード対応) はリファレンスエントリなので C1 と同じパターンで対応可能
 ---
+
+## 2026-02-28 - 自然演繹クエスト (E1/E4/E5)
+- 実装した内容: 自然演繹の基礎カテゴリ (nd-basics) と10個のNDクエストを追加
+  - NM (最小論理): 恒等律, K公理, 対偶, 連言交換律, 選言交換律, DNI, CM
+  - NJ (直観主義): 爆発律 (EFQ)
+  - NK (古典論理): Claviusの法則 (CM*), 排中律 (TND)
+- 変更したファイル:
+  - src/lib/quest/questDefinition.ts: QuestCategory に "nd-basics" 追加、カテゴリメタデータ追加
+  - src/lib/quest/questDefinition.test.ts: カテゴリ数を10→11に更新
+  - src/lib/quest/builtinQuests.ts: 10個のNDクエスト (qNd01-qNd10) を追加
+  - src/lib/quest/builtinQuests.test.ts: クエスト数を60→70に更新
+  - tasks/prd-advanced.md: E1, E4, E5 を完了に更新
+- カバレッジ: 変化なし (Statements 98.6%, Branch 92.74%, Funcs 90.88%, Lines 99.32%)
+- **今後のイテレーションへの学び:**
+  - NDクエストの systemPresetId は "nd-nm", "nd-nj", "nd-nk" を使い分ける。NM⊂NJ⊂NK の包含関係に注意
+  - ゴール式は自然演繹の記法で書く。ND体系では仮定の導入・解消が中心なので、ゴール式は証明すべき定理そのもの
+  - builtinQuests.ts にクエストを追加する際は builtinQuests 配列への追加と、テストのクエスト数の更新を忘れずに
+  - 既存のヒルベルト体系クエストと同じ定理でも、ND版は別クエストとして追加する（証明手法が本質的に異なるため）
+  - E2 (RAA), E3 (CON), E6 (量化子) は未実装。E2/E3 は NK/NM の追加クエスト、E6 は述語論理ND対応が必要
+---
