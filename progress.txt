@@ -6583,3 +6583,20 @@
   - handleAddAssumption は addNode(workspace, "axiom", "Assumption", position, "") で仮定ノード追加
   - deductionSystem.style の switch で Hilbert/ND パレット切り替え。sequent-calculus は将来対応
 ---
+
+## 2026-03-01 - ND-006: E6 量化子NDクエストの実装
+- inferenceEdge.ts: 4つの量化子NDエッジタイプ追加（NdUniversalIntroEdge, NdUniversalElimEdge, NdExistentialIntroEdge, NdExistentialElimEdge）
+- deductionSystem.ts: NdRuleId に4規則追加（universal-intro/elim, existential-intro/elim）、nmBaseRules・allNdRuleIds・getNdRuleDisplayName 更新
+- ndApplicationLogic.ts: 4つのバリデータ実装（∀I: eigenvariable条件、∀E: isFreeFor・substituteTermVariable、∃I: witness term検証、∃E: 2前提+discharge）、NdEigenvariableViolation・NdTermParseErrorエラー型追加
+- workspaceExport.ts: 4つのSchema定義追加、InferenceEdgeSchema union更新
+- builtinQuests.ts: 量化子NDクエスト4つ追加（nd-15〜nd-18: ∀I基本、∀E基本、∃I基本、∀量化子入れ替え）
+- テスト: 5705 → 5742テスト（+37）、inferenceEdge/deductionSystem/axiomPaletteLogic/builtinQuests/ndApplicationLogicの全テスト更新
+- カバレッジ: Stmts 98.26% → 98.28%、Branch 91.67% → 91.54%、Lines 99.16% → 99.17%（Stmts/Lines向上）
+- ブラウザテスト: Storybook EmptyNaturalDeduction でパレットに∀I/∀E/∃I/∃E表示確認済み
+- **変更ファイル**: inferenceEdge.ts, deductionSystem.ts, ndApplicationLogic.ts, workspaceExport.ts, builtinQuests.ts, 各テストファイル
+- **今後のイテレーションへの学び:**
+  - workspaceState.ts/mergeNodesLogic.ts/copyPasteLogic.ts はジェネリックなtype guardを使っているため、新エッジタイプ追加時に変更不要
+  - axiomPaletteLogic.ts の getAvailableNdRules は allNdRuleIds をイテレートするため自動的に新規則を含む
+  - parseTermString で "S(x)" は FunctionApplication を返す（TermVariable ではない）。∃I のnon-variable termテストに有用
+  - 量化子ND規則の formula syntax: `all x. P(x)` (∀), `ex x. P(x)` (∃)
+---
