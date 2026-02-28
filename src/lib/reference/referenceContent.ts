@@ -3126,6 +3126,113 @@ const conceptContextSharingIndependence: ReferenceEntry = {
   order: 16,
 };
 
+const conceptPredicateSemantics: ReferenceEntry = {
+  id: "concept-predicate-semantics",
+  category: "concept",
+  title: {
+    en: "Structure and Interpretation in Predicate Logic",
+    ja: "述語論理の構造と解釈",
+  },
+  summary: {
+    en: "A structure M = (D_M, F_M) provides a domain and interpretation for non-logical symbols; together with an assignment g, it determines the truth value of every formula.",
+    ja: "構造 M = (D_M, F_M) は領域と非論理記号の解釈を与え、割り当て g と合わせて、すべての論理式の真理値を決定する。",
+  },
+  body: {
+    en: [
+      `**From propositional to predicate semantics.** In propositional logic, a truth-value assignment to propositional variables suffices to determine the truth value of any formula. In predicate logic, the situation is richer: formulas speak about objects in a domain, and their truth depends on which objects the domain contains and how names, functions, and predicates are interpreted. The semantic framework requires two components: a **structure** M providing the "world" being described, and a variable **assignment** g specifying which objects the variables denote (bekki Ch.5, Section 5.3).`,
+      `**Structure: domain and interpretation.** A structure M = (D_M, F_M) consists of a non-empty set D_M called the **domain** (or universe) and an **interpretation function** F_M (bekki Definition 5.43). The domain D_M is the collection of **entities** that the formulas talk about — for example, the natural numbers N, the real numbers R, or any non-empty set. The interpretation function F_M maps each non-logical symbol to a mathematical object: each name (constant) α maps to an element F_M(α) ∈ D_M; each n-ary function symbol o maps to a function F_M(o): D_M^n → D_M; and each n-ary predicate symbol θ maps to a truth-function F_M(θ): D_M^n → D_t (where D_t = {0, 1}).`,
+      `**Variable assignment.** An assignment g is a function from the set of variables to D_M (bekki Section 5.3.4). Given a structure M and assignment g, the pair (M, g) is called an **interpretation**. Since predicate logic formulas may contain free variables, the assignment is needed to specify what those variables denote. For a variable ξ, g(ξ) ∈ D_M. An important operation is the **ξ-variant** g[ξ ↦ a] that agrees with g on all variables except ξ, which it maps to a ∈ D_M (bekki Definition 5.49).`,
+      `**Denotation of terms.** Given an interpretation (M, g), every term τ receives a value ⟦τ⟧_{M,g} ∈ D_M, called its **denotation** (bekki Definition 5.45). For a name α: ⟦α⟧_{M,g} = F_M(α). For a variable ξ: ⟦ξ⟧_{M,g} = g(ξ). For a function application o(τ₁, …, τₙ): ⟦o(τ₁, …, τₙ)⟧_{M,g} = F_M(o)(⟦τ₁⟧_{M,g}, …, ⟦τₙ⟧_{M,g}). This recursive definition ensures that every term denotes a unique element of D_M.`,
+      `**Satisfaction of formulas.** The truth value ⟦φ⟧_{M,g} ∈ {0, 1} of a formula φ under interpretation (M, g) is defined recursively (bekki Definitions 5.46–5.51). For atomic formulas: ⟦θ(τ₁, …, τₙ)⟧_{M,g} = F_M(θ)(⟦τ₁⟧_{M,g}, …, ⟦τₙ⟧_{M,g}). For propositional connectives (¬, ∧, ∨, →, ↔), the truth functions are the standard ones from propositional logic (bekki Definition 5.47). The key new cases are the quantifiers: ⟦∀ξφ⟧_{M,g} = 1 if and only if for every a ∈ D_M, ⟦φ⟧_{M,g[ξ↦a]} = 1; and ⟦∃ξφ⟧_{M,g} = 1 if and only if there exists an a ∈ D_M such that ⟦φ⟧_{M,g[ξ↦a]} = 1 (bekki Definition 5.51).`,
+      `**Examples.** Consider a structure where D_M = {mammals}, F(x) means "x is a mammal" and G(x) means "x lays eggs". The formula ∃x(F(x) ∧ G(x)) asserts "there exists an egg-laying mammal." Under an assignment mapping x to a platypus, both F(x) and G(x) are true, so the formula is satisfied. In contrast, under D_M = N (natural numbers) with the standard interpretation, ∀x(F(x) → ∃xF(x)) is always true regardless of the predicate F, since if F(a) holds for some a, then ∃xF(x) follows (bekki Examples 5.52–5.53).`,
+      `**Semantic entailment.** An interpretation (M, g) **satisfies** a formula φ (written (M, g) ⊨ φ) if ⟦φ⟧_{M,g} = 1. A set Γ **semantically entails** Δ (written Γ ⊨ Δ) if every interpretation satisfying all formulas in Γ also satisfies at least one formula in Δ (bekki Definition 5.66). A formula φ is a **tautology** (or logically valid) if ⊨ φ, meaning it is true under every interpretation. These semantic notions are the predicate-logic analogues of propositional tautology and entailment, and they are connected to the proof-theoretic notions (⊢) by the soundness and completeness theorems.`,
+    ],
+    ja: [
+      `**命題論理から述語論理の意味論へ。** 命題論理では、命題変数への真理値割当だけで任意の論理式の真理値が決まります。述語論理では状況がより豊かです: 論理式は領域内の対象について述べ、その真理値は領域がどのような対象を含み、名前・関数・述語がどう解釈されるかに依存します。意味論的枠組みには2つの要素が必要です: 記述される「世界」を提供する**構造** M と、変数がどの対象を指示するかを指定する変数**割り当て** g です（戸次 Ch.5, 5.3節）。`,
+      `**構造: 領域と対応付け。** 構造 M = (D_M, F_M) は、**領域**（または存在物の集合）と呼ばれる空でない集合 D_M と**対応付け** F_M からなります（戸次 定義5.43）。領域 D_M は論理式が語る**存在物**の集まりです — 例えば、自然数 N、実数 R、または任意の空でない集合です。対応付け F_M は各非論理記号を数学的対象に写します: 各名前（定数）α は要素 F_M(α) ∈ D_M に、各 n 項演算子 o は関数 F_M(o): D_M^n → D_M に、各 n 項述語 θ は真理関数 F_M(θ): D_M^n → D_t（ただし D_t = {0, 1}）に写されます。`,
+      `**変数の割り当て。** 割り当て g は変数の集合から D_M への関数です（戸次 5.3.4節）。構造 M と割り当て g の対 (M, g) を**解釈**と呼びます。述語論理の論理式は自由変数を含みうるため、それらの変数が何を指示するかを指定する割り当てが必要です。変数 ξ に対して g(ξ) ∈ D_M です。重要な操作として、ξ 以外のすべての変数で g と一致し、ξ を a ∈ D_M に写す**ξ変異** g[ξ ↦ a] があります（戸次 定義5.49）。`,
+      `**項の指示対象。** 解釈 (M, g) のもとで、すべての項 τ は値 ⟦τ⟧_{M,g} ∈ D_M を受け取ります。これを**指示対象**（denotation）と呼びます（戸次 定義5.45）。名前 α の場合: ⟦α⟧_{M,g} = F_M(α)。変数 ξ の場合: ⟦ξ⟧_{M,g} = g(ξ)。関数適用 o(τ₁, …, τₙ) の場合: ⟦o(τ₁, …, τₙ)⟧_{M,g} = F_M(o)(⟦τ₁⟧_{M,g}, …, ⟦τₙ⟧_{M,g})。この再帰的定義により、すべての項は D_M の一意な要素を指示します。`,
+      `**論理式の充足。** 解釈 (M, g) のもとでの論理式 φ の真理値 ⟦φ⟧_{M,g} ∈ {0, 1} は再帰的に定義されます（戸次 定義5.46–5.51）。基本述語式: ⟦θ(τ₁, …, τₙ)⟧_{M,g} = F_M(θ)(⟦τ₁⟧_{M,g}, …, ⟦τₙ⟧_{M,g})。命題結合子（¬, ∧, ∨, →, ↔）の真理関数は命題論理の標準的なものです（戸次 定義5.47）。鍵となる新しい場合は量化子です: ⟦∀ξφ⟧_{M,g} = 1 ⟺ すべての a ∈ D_M について ⟦φ⟧_{M,g[ξ↦a]} = 1 であり、⟦∃ξφ⟧_{M,g} = 1 ⟺ ⟦φ⟧_{M,g[ξ↦a]} = 1 となる a ∈ D_M が存在する（戸次 定義5.51）。`,
+      `**例。** D_M = {哺乳類}、F(x) が「xは哺乳類である」、G(x) が「xは卵生である」という構造を考えます。論理式 ∃x(F(x) ∧ G(x)) は「卵を産む哺乳類が存在する」と主張します。x にカモノハシを割り当てると F(x) も G(x) も真になるので、この論理式は充足されます。一方、D_M = N（自然数）で標準的な解釈のもとでは、∀x(F(x) → ∃xF(x)) は述語 F によらず常に真です。ある a に対して F(a) が成り立てば ∃xF(x) が従うからです（戸次 例5.52–5.53）。`,
+      `**意味論的含意。** 解釈 (M, g) が論理式 φ を**充足する**（(M, g) ⊨ φ と書く）とは ⟦φ⟧_{M,g} = 1 のことです。集合 Γ が Δ を**意味論的に含意する**（Γ ⊨ Δ と書く）とは、Γ のすべての論理式を充足するすべての解釈が Δ の少なくとも1つの論理式も充足することです（戸次 定義5.66）。論理式 φ が**恒真**（論理的に妥当）であるとは ⊨ φ のこと、すなわちすべての解釈のもとで真であることです。これらの意味論的概念は命題論理のトートロジーや含意の述語論理版であり、健全性定理と完全性定理によって証明論的概念（⊢）と結びつけられます。`,
+    ],
+  },
+  formalNotation: `M = (D_M, F_M) \\\\
+\\llbracket \\tau \\rrbracket_{M,g} \\in D_M \\\\
+\\llbracket \\forall \\xi \\, \\varphi \\rrbracket_{M,g} = 1 \\;\\Longleftrightarrow\\; \\text{for all } a \\in D_M,\\; \\llbracket \\varphi \\rrbracket_{M,g[\\xi \\mapsto a]} = 1`,
+  relatedEntryIds: [
+    "concept-soundness",
+    "concept-completeness",
+    "concept-lowenheim-skolem",
+    "concept-compactness",
+    "system-predicate",
+    "notation-quantifiers",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Interpretation_(logic)",
+      label: {
+        en: "Interpretation (Wikipedia)",
+        ja: "解釈 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E8%A7%A3%E9%87%88_(%E8%AB%96%E7%90%86%E5%AD%A6)",
+      label: {
+        en: "Interpretation (Wikipedia JA)",
+        ja: "解釈 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Structure_(mathematical_logic)",
+      label: {
+        en: "Structure (Wikipedia)",
+        ja: "構造 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/first-order+theory#semantics",
+      label: {
+        en: "First-order theory: semantics (nLab)",
+        ja: "一階理論: 意味論 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "structure",
+    "構造",
+    "interpretation",
+    "解釈",
+    "domain",
+    "領域",
+    "assignment",
+    "割り当て",
+    "denotation",
+    "指示対象",
+    "satisfaction",
+    "充足",
+    "semantics",
+    "意味論",
+    "model",
+    "モデル",
+    "truth value",
+    "真理値",
+    "variable assignment",
+    "変数割り当て",
+    "predicate logic",
+    "述語論理",
+    "quantifier",
+    "量化子",
+    "semantic entailment",
+    "意味論的含意",
+  ],
+  order: 17,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -3827,6 +3934,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptCurryHoward,
   conceptAdmissibleDerivable,
   conceptContextSharingIndependence,
+  conceptPredicateSemantics,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,

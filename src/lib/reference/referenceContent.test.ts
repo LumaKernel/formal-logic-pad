@@ -15,8 +15,8 @@ describe("allReferenceEntries", () => {
   });
 
   it("エントリ数が期待通り", () => {
-    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念16 + 理論2 = 53
-    expect(allReferenceEntries).toHaveLength(53);
+    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念17 + 理論2 = 54
+    expect(allReferenceEntries).toHaveLength(54);
   });
 
   it("少なくとも1つのエントリが各カテゴリに存在する", () => {
@@ -885,6 +885,104 @@ describe("構造共有形と構造独立形エントリの個別チェック", (
     expect(
       result.some((e) => e.id === "concept-context-sharing-independence"),
     ).toBe(true);
+  });
+});
+
+describe("concept-predicate-semanticsエントリのテスト", () => {
+  it("concept-predicate-semanticsが存在する", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-predicate-semantics",
+    );
+    expect(entry).toBeDefined();
+    expect(entry?.category).toBe("concept");
+  });
+
+  it("タイトルが英語・日本語の両方にある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-predicate-semantics",
+    );
+    expect(entry?.title.en).toContain("Structure");
+    expect(entry?.title.ja).toContain("構造");
+  });
+
+  it("本文に構造(M)・割り当て(g)・指示対象・充足の概念が含まれる", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-predicate-semantics",
+    );
+    expect(entry?.body.en.some((p) => p.includes("structure"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("assignment"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("denotation"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("atisf"))).toBe(true);
+  });
+
+  it("日本語本文に構造・割り当て・指示対象・充足の概念が含まれる", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-predicate-semantics",
+    );
+    expect(entry?.body.ja.some((p) => p.includes("構造"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("割り当て"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("指示対象"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("充足"))).toBe(true);
+  });
+
+  it("量化子の意味論的定義が含まれる", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-predicate-semantics",
+    );
+    expect(entry?.body.en.some((p) => p.includes("∀"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("∃"))).toBe(true);
+  });
+
+  it("形式的記法が含まれる", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-predicate-semantics",
+    );
+    expect(entry?.formalNotation).toBeTruthy();
+    expect(entry?.formalNotation).toContain("D_M");
+    expect(entry?.formalNotation).toContain("\\forall");
+  });
+
+  it("関連エントリに健全性・完全性が含まれる", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-predicate-semantics",
+    );
+    expect(entry?.relatedEntryIds).toContain("concept-soundness");
+    expect(entry?.relatedEntryIds).toContain("concept-completeness");
+  });
+
+  it("英語でstructure semanticsを検索できる", () => {
+    const result = searchEntries(allReferenceEntries, "structure", "en");
+    expect(result.some((e) => e.id === "concept-predicate-semantics")).toBe(
+      true,
+    );
+  });
+
+  it("日本語で意味論を検索できる", () => {
+    const result = searchEntries(allReferenceEntries, "意味論", "ja");
+    expect(result.some((e) => e.id === "concept-predicate-semantics")).toBe(
+      true,
+    );
+  });
+
+  it("denotationで検索できる", () => {
+    const result = searchEntries(allReferenceEntries, "denotation", "en");
+    expect(result.some((e) => e.id === "concept-predicate-semantics")).toBe(
+      true,
+    );
+  });
+
+  it("指示対象で検索できる", () => {
+    const result = searchEntries(allReferenceEntries, "指示対象", "ja");
+    expect(result.some((e) => e.id === "concept-predicate-semantics")).toBe(
+      true,
+    );
   });
 });
 
