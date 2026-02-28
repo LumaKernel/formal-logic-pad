@@ -5732,3 +5732,19 @@
   - NK の派生規則: RAA*¬, CON3, CON4（任意の命題を導出可能、DNEが鍵）
   - CON1/CON4 は矛盾からの推論。NM は ¬φ のみ、NK は φ も導ける（EFQと同値）
 ---
+
+## 2026-02-28 - ND起動インフラ (ND-001, ND-005)
+- WorkspaceState に `deductionSystem: DeductionSystem` フィールドを追加
+- questStartLogic.ts の `style !== "hilbert"` ブロッカーを解除（SC のみブロック）
+- ProofWorkspace.tsx の体系名表示を `getDeductionSystemName` 経由に変更
+- axiomPaletteLogic.ts に `getAvailableNdRules()` 関数を追加
+- 全テスト・シリアライズファイルに `deductionSystem` フィールドを追加
+- 変更ファイル: workspaceState.ts, questStartLogic.ts, axiomPaletteLogic.ts, ProofWorkspace.tsx, notebookState.ts, useNotebookCollection.ts, HubContent.tsx, questNotebookIntegration.ts, notebookSerialization.ts, workspaceExport.ts, index.ts, + 各テストファイル
+- カバレッジ: 98.55% → 98.54% (維持)、テスト: 5034 → 5045 (+11)
+- スクリーンショット: .screenshots/nd-hub-quests-*.png
+- **今後のイテレーションへの学び:**
+  - `WorkspaceState` にフィールド追加すると全テストファイルの手動構築箇所に波及する。今回10ファイル以上に影響した
+  - `"style" in systemOrDeduction` で LogicSystem | DeductionSystem を判別可能
+  - ProofWorkspace.tsx は体系に依存しない設計なので、ND対応は主にロジック層の変更で済む
+  - emptyLogicSystem（ダミー）を使ってND/SC workspaceのHilbert互換性を確保するパターン
+---

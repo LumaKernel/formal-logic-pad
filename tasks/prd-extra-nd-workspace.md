@@ -10,7 +10,7 @@ E6 (量化子NDクエスト) の前提条件でもある。
 
 ## サブタスク（段階的に進める）
 
-- [-] **ND-001: 現状のND起動ブロッカー調査**
+- [x] **ND-001: 現状のND起動ブロッカー調査**
   - `questStartLogic.ts` の style チェックの詳細確認
   - ProofWorkspace が Hilbert 前提でハードコードされている箇所の洗い出し
   - ND対応に必要な変更箇所のリストアップ
@@ -28,7 +28,7 @@ E6 (量化子NDクエスト) の前提条件でもある。
   - 各ND規則の適用バリデーション（`naturalDeduction.ts` のロジックをUI層に接続）
   - 仮定のdischarge管理
 
-- [-] **ND-005: questStartLogicのND対応**
+- [x] **ND-005: questStartLogicのND対応**
   - `style !== "hilbert"` ブロッカーの解除
   - NDクエスト (qNd01-qNd14) が実際に起動できるようにする
 
