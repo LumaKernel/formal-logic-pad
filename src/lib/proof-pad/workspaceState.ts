@@ -2,7 +2,7 @@
  * 証明ワークスペースの純粋な状態管理ロジック。
  *
  * ワークスペース上のノード（公理/導出/結論）の配置、接続、論理体系設定を管理する。
- * 推論規則（MP/Gen/Substitution）はInferenceEdgeで管理される。
+ * 推論規則（MP/Gen/Substitution/ND規則）はInferenceEdgeで管理される。
  * UIコンポーネント（ProofWorkspace.tsx）から利用される。
  *
  * 変更時は workspaceState.test.ts, ProofWorkspace.tsx, index.ts も同期すること。
@@ -16,7 +16,7 @@ import {
 import type { Point } from "../infinite-canvas/types";
 import type { ProofNodeKind } from "./proofNodeUI";
 import type { InferenceEdge } from "./inferenceEdge";
-import { isHilbertInferenceEdge } from "./inferenceEdge";
+import { isHilbertInferenceEdge, isNdInferenceEdge } from "./inferenceEdge";
 import {
   validateMPApplication,
   type MPApplicationResult,
@@ -30,6 +30,7 @@ import {
   type SubstitutionApplicationResult,
   type SubstitutionEntries,
 } from "./substitutionApplicationLogic";
+import { validateNdApplication } from "./ndApplicationLogic";
 import { Either } from "effect";
 import {
   buildClipboardData,
@@ -1068,50 +1069,78 @@ export function revalidateInferenceConclusions(
       const edge = edgeByConclusion.get(node.id);
       if (!edge) return node;
 
-      // NDエッジのバリデーションは未実装（ND-004で対応予定）
-      if (!isHilbertInferenceEdge(edge)) return node;
-
-      switch (edge._tag) {
-        case "mp": {
-          const result = validateMPApplication(current, node.id);
-          const newText = Either.isRight(result)
-            ? result.right.conclusionText
-            : "";
-          if (newText !== node.formulaText) {
-            changed = true;
-            return { ...node, formulaText: newText };
+      if (isHilbertInferenceEdge(edge)) {
+        switch (edge._tag) {
+          case "mp": {
+            const result = validateMPApplication(current, node.id);
+            const newText = Either.isRight(result)
+              ? result.right.conclusionText
+              : "";
+            if (newText !== node.formulaText) {
+              changed = true;
+              return { ...node, formulaText: newText };
+            }
+            return node;
           }
-          return node;
-        }
-        case "gen": {
-          const variableName = edge.variableName;
-          const result = validateGenApplication(current, node.id, variableName);
-          const newText = Either.isRight(result)
-            ? result.right.conclusionText
-            : "";
-          if (newText !== node.formulaText) {
-            changed = true;
-            return { ...node, formulaText: newText };
+          case "gen": {
+            const variableName = edge.variableName;
+            const result = validateGenApplication(
+              current,
+              node.id,
+              variableName,
+            );
+            const newText = Either.isRight(result)
+              ? result.right.conclusionText
+              : "";
+            if (newText !== node.formulaText) {
+              changed = true;
+              return { ...node, formulaText: newText };
+            }
+            return node;
           }
-          return node;
-        }
-        case "substitution": {
-          const entries = edge.entries;
-          const result = validateSubstitutionApplication(
-            current,
-            node.id,
-            entries,
-          );
-          const newText = Either.isRight(result)
-            ? result.right.conclusionText
-            : "";
-          if (newText !== node.formulaText) {
-            changed = true;
-            return { ...node, formulaText: newText };
+          case "substitution": {
+            const entries = edge.entries;
+            const result = validateSubstitutionApplication(
+              current,
+              node.id,
+              entries,
+            );
+            const newText = Either.isRight(result)
+              ? result.right.conclusionText
+              : "";
+            if (newText !== node.formulaText) {
+              changed = true;
+              return { ...node, formulaText: newText };
+            }
+            return node;
           }
-          return node;
         }
       }
+
+      if (isNdInferenceEdge(edge)) {
+        const ndResult = validateNdApplication(current, edge);
+        if (Either.isRight(ndResult)) {
+          const success = ndResult.right;
+          // EFQは結論を自動計算できないため、結論テキストを更新しない
+          if (success._tag === "efq-valid") return node;
+          const newText = success.conclusionText;
+          if (newText !== node.formulaText) {
+            changed = true;
+            return { ...node, formulaText: newText };
+          }
+        } else {
+          // バリデーションエラー時は結論テキストをクリア
+          if (node.formulaText !== "") {
+            changed = true;
+            return { ...node, formulaText: "" };
+          }
+        }
+        return node;
+      }
+
+      /* v8 ignore start -- exhaustive check: 新しいエッジ型が追加された場合にコンパイルエラーを発生させる */
+      return node;
+      /* v8 ignore stop */
     });
 
     if (!changed) break;
