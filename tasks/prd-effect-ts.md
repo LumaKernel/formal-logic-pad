@@ -186,7 +186,7 @@
 
 ---
 
-- [ ] **ET-003: unification の内部を `Effect.gen` で整理**
+- [-] **ET-003: unification の内部を `Effect.gen` で整理**
 
   **対象ファイル:**
   - `src/lib/logic-core/unification.ts`

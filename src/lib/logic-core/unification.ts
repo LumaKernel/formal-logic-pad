@@ -4,10 +4,12 @@
  * Martelli-Montanari アルゴリズムに基づく双方向ユニフィケーション。
  * 論理式メタ変数と項メタ変数の両方を統一的に処理する。
  *
+ * 内部は Effect.gen でエラー伝搬を行い、公開APIでは Either を返す。
+ *
  * @see dev/logic-reference/04-substitution-and-unification.md セクション6
  */
 
-import { Data, Either } from "effect";
+import { Data, Effect, Either } from "effect";
 import type { Formula } from "./formula";
 import type { Term } from "./term";
 import { equalFormula, equalTerm } from "./equality";
@@ -67,18 +69,6 @@ export type UnificationResult = Either.Either<
   UnificationSuccess,
   UnificationError
 >;
-
-const okResult = (
-  formulaSubstitution: FormulaSubstitutionMap,
-  termSubstitution: TermMetaSubstitutionMap,
-): UnificationResult =>
-  Either.right({
-    formulaSubstitution,
-    termSubstitution,
-  });
-
-const errResult = (error: UnificationError): UnificationResult =>
-  Either.left(error);
 
 // ── 方程式の型 ──────────────────────────────────────────────
 
@@ -311,7 +301,243 @@ const decomposeTerm = (a: Term, b: Term): readonly Equation[] | null => {
   /* v8 ignore stop */
 };
 
-// ── メインアルゴリズム ─────────────────────────────────────
+// ── Effect ベースの内部処理関数 ──────────────────────────────
+
+/**
+ * ミュータブルな作業状態。
+ * solve 内部でのみ使用される。
+ */
+type SolveState = {
+  readonly equations: Equation[];
+  readonly formulaSub: Map<string, Formula>;
+  readonly termSub: Map<string, Term>;
+};
+
+/**
+ * 論理式方程式を処理。
+ * 正常処理は void を返し、エラー時は UnificationError で失敗する。
+ */
+const processFormulaEquationEffect = (
+  left: Formula,
+  right: Formula,
+  state: SolveState,
+): Effect.Effect<void, UnificationError> =>
+  Effect.gen(function* () {
+    // 1. Delete: 同一式
+    if (equalFormula(left, right)) {
+      return;
+    }
+
+    // 2. Orient + Eliminate: 右辺がメタ変数で左辺がメタ変数でない場合、入れ替え
+    if (left._tag !== "MetaVariable" && right._tag === "MetaVariable") {
+      yield* processFormulaEquationEffect(right, left, state);
+      return;
+    }
+
+    // 3. Eliminate: 左辺がメタ変数
+    if (left._tag === "MetaVariable") {
+      const key = metaVariableKey(left);
+
+      // Occurs check
+      if (right._tag !== "MetaVariable" && occursInFormula(key, right)) {
+        yield* Effect.fail(
+          new OccursCheck({ variable: key, inExpression: right }),
+        );
+      }
+
+      // 防御的チェック: 即時代入適用により通常は到達しない
+      /* v8 ignore start */
+      const existing = state.formulaSub.get(key);
+      if (existing !== undefined) {
+        state.equations.push(formulaEquation(existing, right));
+        return;
+      }
+      /* v8 ignore stop */
+
+      // 代入を記録し、残りの方程式に適用
+      state.formulaSub.set(key, right);
+      const updated = applyFormulaSubstToEquations(state.equations, key, right);
+      state.equations.length = 0;
+      state.equations.push(...updated);
+
+      // 既存の代入マップ内の値にも適用
+      const singleSubst: FormulaSubstitutionMap = new Map([[key, right]]);
+      for (const [k, v] of state.formulaSub) {
+        if (k !== key) {
+          state.formulaSub.set(
+            k,
+            substituteFormulaMetaVariables(v, singleSubst),
+          );
+        }
+      }
+
+      return;
+    }
+
+    // 4. Decompose: 同じ _tag
+    if (left._tag === right._tag) {
+      const subEquations = decomposeFormula(left, right);
+      if (subEquations !== null) {
+        state.equations.push(...subEquations);
+        return;
+      }
+    }
+
+    // 5. 構造不一致
+    yield* Effect.fail(new StructureMismatch({ left, right }));
+  });
+
+/**
+ * 項方程式を処理。
+ * 正常処理は void を返し、エラー時は UnificationError で失敗する。
+ */
+const processTermEquationEffect = (
+  left: Term,
+  right: Term,
+  state: SolveState,
+): Effect.Effect<void, UnificationError> =>
+  Effect.gen(function* () {
+    // 1. Delete: 同一項
+    if (equalTerm(left, right)) {
+      return;
+    }
+
+    // 2. Orient: 右辺がメタ変数で左辺がメタ変数でない
+    if (left._tag !== "TermMetaVariable" && right._tag === "TermMetaVariable") {
+      yield* processTermEquationEffect(right, left, state);
+      return;
+    }
+
+    // 3. Eliminate: 左辺が項メタ変数
+    if (left._tag === "TermMetaVariable") {
+      const key = termMetaVariableKey(left);
+
+      // Occurs check
+      if (right._tag !== "TermMetaVariable" && occursInTerm(key, right)) {
+        yield* Effect.fail(
+          new OccursCheck({ variable: key, inExpression: right }),
+        );
+      }
+
+      // 防御的チェック: 即時代入適用により通常は到達しない
+      /* v8 ignore start */
+      const existing = state.termSub.get(key);
+      if (existing !== undefined) {
+        state.equations.push(termEquation(existing, right));
+        return;
+      }
+      /* v8 ignore stop */
+
+      // 代入を記録し、残りの方程式に適用
+      state.termSub.set(key, right);
+      const updated = applyTermSubstToEquations(state.equations, key, right);
+      state.equations.length = 0;
+      state.equations.push(...updated);
+
+      // 既存の代入マップ内の値にも適用
+      const singleSubst: TermMetaSubstitutionMap = new Map([[key, right]]);
+      for (const [k, v] of state.termSub) {
+        if (k !== key) {
+          state.termSub.set(
+            k,
+            substituteTermMetaVariablesInTerm(v, singleSubst),
+          );
+        }
+      }
+      // FormulaSubの値にも項メタ変数代入を適用
+      for (const [k, v] of state.formulaSub) {
+        state.formulaSub.set(
+          k,
+          substituteTermMetaVariablesInFormula(v, singleSubst),
+        );
+      }
+
+      return;
+    }
+
+    // 4. Decompose: 同じ _tag
+    if (left._tag === right._tag) {
+      const subEquations = decomposeTerm(left, right);
+      if (subEquations !== null) {
+        state.equations.push(...subEquations);
+        return;
+      }
+      // decompose が null = 名前不一致等
+      yield* Effect.fail(new StructureMismatch({ left, right }));
+    }
+
+    // 5. タグ不一致
+    yield* Effect.fail(new StructureMismatch({ left, right }));
+  });
+
+// ── メインアルゴリズム（Effect版） ──────────────────────────
+
+/**
+ * Martelli-Montanari アルゴリズムのメインループ（Effect版）。
+ *
+ * 方程式リストを処理し、代入マップを構築する。
+ * エラー時は yield* Effect.fail で短絡する。
+ */
+const solveEffect = (
+  initialEquations: readonly Equation[],
+  initialFormulaSub: Map<string, Formula>,
+  initialTermSub: Map<string, Term>,
+): Effect.Effect<UnificationSuccess, UnificationError> =>
+  Effect.gen(function* () {
+    const state: SolveState = {
+      equations: [...initialEquations],
+      formulaSub: new Map(initialFormulaSub),
+      termSub: new Map(initialTermSub),
+    };
+
+    while (state.equations.length > 0) {
+      const eq = state.equations.shift();
+      // 防御的チェック: while条件でlength>0を確認済みのため到達しない
+      /* v8 ignore start */
+      if (eq === undefined) break;
+      /* v8 ignore stop */
+
+      if (eq._kind === "formula") {
+        yield* processFormulaEquationEffect(eq.left, eq.right, state);
+      } else {
+        yield* processTermEquationEffect(eq.left, eq.right, state);
+      }
+    }
+
+    return {
+      formulaSubstitution: state.formulaSub,
+      termSubstitution: state.termSub,
+    };
+  });
+
+// ── 公開API（Effect版） ─────────────────────────────────────
+
+/**
+ * 2つの論理式をユニフィケーションする（Effect版）。
+ *
+ * Martelli-Montanari アルゴリズムに基づく。
+ * 双方向ユニフィケーション: 両辺のメタ変数が代入対象になる。
+ *
+ * @returns Effect<UnificationSuccess, UnificationError>
+ */
+export const unifyFormulasEffect = (
+  source: Formula,
+  target: Formula,
+): Effect.Effect<UnificationSuccess, UnificationError> => {
+  return solveEffect([formulaEquation(source, target)], new Map(), new Map());
+};
+
+/**
+ * 2つの項をユニフィケーションする（Effect版）。
+ */
+export const unifyTermsEffect = (
+  source: Term,
+  target: Term,
+): Effect.Effect<UnificationSuccess, UnificationError> => {
+  return solveEffect([termEquation(source, target)], new Map(), new Map());
+};
+
+// ── 公開API（互換ラッパー: Either を返す同期版） ────────────
 
 /**
  * 2つの論理式をユニフィケーションする。
@@ -326,201 +552,12 @@ export const unifyFormulas = (
   source: Formula,
   target: Formula,
 ): UnificationResult => {
-  return solve([formulaEquation(source, target)], new Map(), new Map());
+  return Effect.runSync(Effect.either(unifyFormulasEffect(source, target)));
 };
 
 /**
  * 2つの項をユニフィケーションする。
  */
 export const unifyTerms = (source: Term, target: Term): UnificationResult => {
-  return solve([termEquation(source, target)], new Map(), new Map());
-};
-
-/**
- * Martelli-Montanari アルゴリズムのメインループ。
- *
- * 方程式リストを処理し、代入マップを構築する。
- */
-const solve = (
-  initialEquations: readonly Equation[],
-  initialFormulaSub: Map<string, Formula>,
-  initialTermSub: Map<string, Term>,
-): UnificationResult => {
-  // ミュータブルなワークリスト
-  const equations: Equation[] = [...initialEquations];
-  const formulaSub = new Map(initialFormulaSub);
-  const termSub = new Map(initialTermSub);
-
-  while (equations.length > 0) {
-    const eq = equations.shift();
-    // 防御的チェック: while条件でlength>0を確認済みのため到達しない
-    /* v8 ignore start */
-    if (eq === undefined) break;
-    /* v8 ignore stop */
-
-    if (eq._kind === "formula") {
-      const result = processFormulaEquation(
-        eq.left,
-        eq.right,
-        equations,
-        formulaSub,
-        termSub,
-      );
-      if (result !== null) return result;
-    } else {
-      const result = processTermEquation(
-        eq.left,
-        eq.right,
-        equations,
-        formulaSub,
-        termSub,
-      );
-      if (result !== null) return result;
-    }
-  }
-
-  return okResult(formulaSub, termSub);
-};
-
-/**
- * 論理式方程式を処理。
- * エラーを返す場合はUnificationResult、正常処理はnull（ループ継続）。
- */
-const processFormulaEquation = (
-  left: Formula,
-  right: Formula,
-  equations: Equation[],
-  formulaSub: Map<string, Formula>,
-  termSub: Map<string, Term>,
-): UnificationResult | null => {
-  // 1. Delete: 同一式
-  if (equalFormula(left, right)) {
-    return null;
-  }
-
-  // 2. Orient + Eliminate: 右辺がメタ変数で左辺がメタ変数でない場合、入れ替え
-  if (left._tag !== "MetaVariable" && right._tag === "MetaVariable") {
-    return processFormulaEquation(right, left, equations, formulaSub, termSub);
-  }
-
-  // 3. Eliminate: 左辺がメタ変数
-  if (left._tag === "MetaVariable") {
-    const key = metaVariableKey(left);
-
-    // Occurs check
-    if (right._tag !== "MetaVariable" && occursInFormula(key, right)) {
-      return errResult(new OccursCheck({ variable: key, inExpression: right }));
-    }
-
-    // 防御的チェック: 即時代入適用により通常は到達しない
-    /* v8 ignore start */
-    const existing = formulaSub.get(key);
-    if (existing !== undefined) {
-      equations.push(formulaEquation(existing, right));
-      return null;
-    }
-    /* v8 ignore stop */
-
-    // 代入を記録し、残りの方程式に適用
-    formulaSub.set(key, right);
-    const updated = applyFormulaSubstToEquations(equations, key, right);
-    equations.length = 0;
-    equations.push(...updated);
-
-    // 既存の代入マップ内の値にも適用
-    const singleSubst: FormulaSubstitutionMap = new Map([[key, right]]);
-    for (const [k, v] of formulaSub) {
-      if (k !== key) {
-        formulaSub.set(k, substituteFormulaMetaVariables(v, singleSubst));
-      }
-    }
-
-    return null;
-  }
-
-  // 4. Decompose: 同じ _tag
-  if (left._tag === right._tag) {
-    const subEquations = decomposeFormula(left, right);
-    if (subEquations !== null) {
-      equations.push(...subEquations);
-      return null;
-    }
-  }
-
-  // 5. 構造不一致
-  return errResult(new StructureMismatch({ left, right }));
-};
-
-/**
- * 項方程式を処理。
- */
-const processTermEquation = (
-  left: Term,
-  right: Term,
-  equations: Equation[],
-  formulaSub: Map<string, Formula>,
-  termSub: Map<string, Term>,
-): UnificationResult | null => {
-  // 1. Delete: 同一項
-  if (equalTerm(left, right)) {
-    return null;
-  }
-
-  // 2. Orient: 右辺がメタ変数で左辺がメタ変数でない
-  if (left._tag !== "TermMetaVariable" && right._tag === "TermMetaVariable") {
-    return processTermEquation(right, left, equations, formulaSub, termSub);
-  }
-
-  // 3. Eliminate: 左辺が項メタ変数
-  if (left._tag === "TermMetaVariable") {
-    const key = termMetaVariableKey(left);
-
-    // Occurs check
-    if (right._tag !== "TermMetaVariable" && occursInTerm(key, right)) {
-      return errResult(new OccursCheck({ variable: key, inExpression: right }));
-    }
-
-    // 防御的チェック: 即時代入適用により通常は到達しない
-    /* v8 ignore start */
-    const existing = termSub.get(key);
-    if (existing !== undefined) {
-      equations.push(termEquation(existing, right));
-      return null;
-    }
-    /* v8 ignore stop */
-
-    // 代入を記録し、残りの方程式に適用
-    termSub.set(key, right);
-    const updated = applyTermSubstToEquations(equations, key, right);
-    equations.length = 0;
-    equations.push(...updated);
-
-    // 既存の代入マップ内の値にも適用
-    const singleSubst: TermMetaSubstitutionMap = new Map([[key, right]]);
-    for (const [k, v] of termSub) {
-      if (k !== key) {
-        termSub.set(k, substituteTermMetaVariablesInTerm(v, singleSubst));
-      }
-    }
-    // FormulaSubの値にも項メタ変数代入を適用
-    for (const [k, v] of formulaSub) {
-      formulaSub.set(k, substituteTermMetaVariablesInFormula(v, singleSubst));
-    }
-
-    return null;
-  }
-
-  // 4. Decompose: 同じ _tag
-  if (left._tag === right._tag) {
-    const subEquations = decomposeTerm(left, right);
-    if (subEquations !== null) {
-      equations.push(...subEquations);
-      return null;
-    }
-    // decompose が null = 名前不一致等
-    return errResult(new StructureMismatch({ left, right }));
-  }
-
-  // 5. タグ不一致
-  return errResult(new StructureMismatch({ left, right }));
+  return Effect.runSync(Effect.either(unifyTermsEffect(source, target)));
 };

@@ -115,6 +115,8 @@ export type {
 export {
   unifyFormulas,
   unifyTerms,
+  unifyFormulasEffect,
+  unifyTermsEffect,
   StructureMismatch,
   OccursCheck,
   TagMismatch,
