@@ -5547,3 +5547,25 @@
   - conceptカテゴリのorder番号: substitution:1, free-variable:2, unification:3, deduction-theorem:4, glivenko:5, kuroda-translation:6
   - relatedEntryIdsの双方向リンク: 新エントリから既存エントリへの参照だけでなく、関連する既存エントリ（glivenko）のrelatedEntryIdsにも逆参照を追加する
 ---
+
+## 2026-02-28 - 体系等価性のリファレンスエントリ (D3)
+- `concept-system-equivalence` リファレンスエントリを追加
+  - HM=NM=LM, HJ=NJ=LJ, HK=NK=LK の等価性を解説
+  - H⊆N, N⊆L, L⊆H の各方向の翻訳概略
+  - 3つのレベル（最小論理・直観主義論理・古典論理）の対応関係
+  - en/ja 各7パラグラフ
+- テスト: 5031テスト全パス (referenceContent.test.ts 388テスト含む)
+- カバレッジ: Stmts 98.60%(維持), Branch 92.74%(維持), Funcs 90.88%(維持), Lines 99.32%(維持)
+  - ベースライン: Stmts 98.60%, Branch 92.74%, Funcs 90.88%, Lines 99.32%
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: Playwright MCPでStorybook確認済み
+  - `.screenshots/reference-modal-default.png`
+  - `.screenshots/reference-modal-default-iframe.png`
+- 変更ファイル:
+  - `src/lib/reference/referenceContent.ts` (MODIFIED - conceptSystemEquivalenceエントリ追加)
+  - `src/lib/reference/referenceContent.test.ts` (MODIFIED - エントリ数43→44に更新)
+- **今後のイテレーションへの学び:**
+  - 自然演繹のクエストを追加するには `questStartLogic.ts:58` の `style !== "hilbert"` 制限を解除する必要がある。現在クエストシステムはHilbert流のみ対応
+  - conceptカテゴリのorder番号: substitution:1, ..., kuroda-translation:6, system-equivalence:7
+  - Prettierフォーマットは新ファイル追加だけでなく、既存ファイルの編集後にも必ず実行すること
+---
