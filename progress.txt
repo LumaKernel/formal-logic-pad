@@ -94,6 +94,29 @@
 
 ---
 
+## 2026-03-01 - quest ゴールチェック検証を Effect パイプラインに (ET-010)
+- `src/lib/quest/questCompletionLogic.ts` の `checkQuestGoals` / `checkQuestGoalsWithAxioms` を `Effect.gen` パイプラインに変換
+  - 各ゴールの検証を個別Effectとして分離し、`Effect.all` で集約
+  - `findMatchingNode` / `isGoalAchieved` ヘルパー関数を抽出
+  - `checkSingleGoalWithAxioms` で単一ゴールの公理制限チェックをEffect化
+  - 同期ラッパー (`checkQuestGoals` / `checkQuestGoalsWithAxioms`) で既存インターフェース維持
+  - Effect版 (`checkQuestGoalsEffect` / `checkQuestGoalsWithAxiomsEffect`) を新規公開
+- `src/lib/quest/index.ts` にEffect版のre-export追加
+- テスト: 5556テスト全パス（+7テスト: Effect版テスト追加）
+- カバレッジ: Stmts 98.24%(微増 from 98.23%), Branch 91.92%(微増 from 91.9%), Funcs 89.07%(微増 from 89.02%), Lines 99.14%(同)
+  - `questCompletionLogic.ts`: Stmts 100%, Branch 100%, Funcs 92.85%(向上)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: `.screenshots/et-010-quest-catalog-default.png` 確認OK
+- 変更ファイル:
+  - `src/lib/quest/questCompletionLogic.ts` (Effect.gen化)
+  - `src/lib/quest/questCompletionLogic.test.ts` (Effect版テスト追加)
+  - `src/lib/quest/index.ts` (re-export追加)
+- **今後のイテレーションへの学び:**
+  - ステータス型（NoGoals/NotAllAchieved/AllAchieved等）を返す関数のEffect化では、`Effect.fail`を使わずEffect<Result, never>として構成するのが自然
+  - 各要素の検証を個別Effectとして分離し `Effect.all` で集約するパターンは宣言的で読みやすい
+  - 同期ラッパーは `Effect.runSync` で簡潔に提供可能
+---
+
 ## 2026-02-28 - unification内部をEffect.genでリファクタリング (ET-003)
 - `src/lib/logic-core/unification.ts` の内部実装を `Effect.gen` ベースに変換
   - `processFormulaEquation` / `processTermEquation` → `Effect.Effect<void, UnificationError>` に変換
