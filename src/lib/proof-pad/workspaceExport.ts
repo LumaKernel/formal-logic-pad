@@ -141,13 +141,13 @@ const WorkspaceNodeSchema = Schema.transform(
       label: Schema.String,
       formulaText: Schema.String,
       position: PointSchema,
-      genVariableName: Schema.optional(Schema.String),
       role: Schema.optional(NodeRoleSchema),
     }),
   ),
   {
     strict: true,
     decode: (raw) => {
+      // genVariableName はレガシーフィールド。InferenceEdgeがsource of truthなので無視する。
       const base: WorkspaceNode = {
         id: raw.id,
         kind: raw.kind satisfies string as ProofNodeKind,
@@ -155,16 +155,11 @@ const WorkspaceNodeSchema = Schema.transform(
         formulaText: raw.formulaText,
         position: raw.position,
       };
-      // optional fields
-      const withGen: WorkspaceNode =
-        raw.genVariableName !== undefined
-          ? { ...base, genVariableName: raw.genVariableName }
-          : base;
       // レガシー互換: "axiom"のみ有効、それ以外は無視
       const withRole: WorkspaceNode =
         raw.role === "axiom"
-          ? { ...withGen, role: "axiom" satisfies NodeRole }
-          : withGen;
+          ? { ...base, role: "axiom" satisfies NodeRole }
+          : base;
       return withRole;
     },
     encode: (node) => ({
@@ -173,9 +168,6 @@ const WorkspaceNodeSchema = Schema.transform(
       label: node.label,
       formulaText: node.formulaText,
       position: node.position,
-      ...(node.genVariableName !== undefined
-        ? { genVariableName: node.genVariableName }
-        : {}),
       ...(node.role !== undefined ? { role: node.role } : {}),
     }),
   },

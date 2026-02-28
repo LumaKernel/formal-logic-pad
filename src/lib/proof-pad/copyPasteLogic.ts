@@ -28,7 +28,6 @@ export type CopiedNode = {
   readonly formulaText: string;
   /** コピー元ノード群の中心からの相対位置 */
   readonly relativePosition: Point;
-  readonly genVariableName?: string;
   readonly role?: WorkspaceNode["role"];
   // protection は意図的に含めない（コピーしたものは保護されない）
 };
@@ -94,9 +93,6 @@ export function buildClipboardData(
       x: n.position.x - centroid.x,
       y: n.position.y - centroid.y,
     },
-    ...(n.genVariableName !== undefined
-      ? { genVariableName: n.genVariableName }
-      : {}),
     ...(n.role !== undefined ? { role: n.role } : {}),
   }));
 
@@ -212,9 +208,6 @@ export function pasteClipboardData(
         x: targetCenter.x + copiedNode.relativePosition.x,
         y: targetCenter.y + copiedNode.relativePosition.y,
       },
-      ...(copiedNode.genVariableName !== undefined
-        ? { genVariableName: copiedNode.genVariableName }
-        : {}),
       ...(copiedNode.role !== undefined ? { role: copiedNode.role } : {}),
       // protection は意図的に含めない
     };

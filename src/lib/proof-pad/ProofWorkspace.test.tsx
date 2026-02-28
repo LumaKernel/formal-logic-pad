@@ -22,7 +22,6 @@ import {
   addNode,
   addConnection,
   addGoal,
-  updateNodeGenVariableName,
   applyMPAndConnect,
   applyGenAndConnect,
   applySubstitutionAndConnect,
@@ -1450,7 +1449,6 @@ describe("ProofWorkspace", () => {
     it("does not show status for Gen node without connections", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Gen", { x: 0, y: 0 });
-      ws = updateNodeGenVariableName(ws, "node-1", "x");
 
       render(
         <ProofWorkspace

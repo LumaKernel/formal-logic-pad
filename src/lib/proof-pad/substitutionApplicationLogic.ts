@@ -72,7 +72,7 @@ export type SubstitutionEntry =
 
 /**
  * 代入ノードの代入テキスト形式。
- * WorkspaceNode.substitutionEntries に格納される。
+ * InferenceEdge（SubstitutionEdge）の entries に格納される。
  */
 export type SubstitutionEntries = readonly SubstitutionEntry[];
 

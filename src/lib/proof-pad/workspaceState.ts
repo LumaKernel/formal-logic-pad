@@ -93,17 +93,18 @@ export type WorkspaceMode = "free" | "quest";
 
 // --- ワークスペースノード ---
 
-/** ワークスペース上の証明ノード */
+/**
+ * ワークスペース上の証明ノード。
+ *
+ * Gen変数名・代入エントリはInferenceEdgeが唯一のsource of truth。
+ * ノードにはこれらの情報を保持しない。
+ */
 export type WorkspaceNode = {
   readonly id: string;
   readonly kind: ProofNodeKind;
   readonly label: string;
   readonly formulaText: string;
   readonly position: Point;
-  /** Gen規則で使用する量化変数名（InferenceEdge経由で管理、後方互換用に保持） */
-  readonly genVariableName?: string;
-  /** 代入操作のエントリリスト（InferenceEdge経由で管理、後方互換用に保持） */
-  readonly substitutionEntries?: SubstitutionEntries;
   /** ユーザーが明示的に設定した役割（"axiom" | undefined） */
   readonly role?: NodeRole;
 };
@@ -424,34 +425,6 @@ export function updateNodeFormulaText(
     ...state,
     nodes: state.nodes.map((node) =>
       node.id === nodeId ? { ...node, formulaText } : node,
-    ),
-  });
-}
-
-/** ノードのGen変数名を更新する */
-export function updateNodeGenVariableName(
-  state: WorkspaceState,
-  nodeId: string,
-  genVariableName: string,
-): WorkspaceState {
-  return syncInferenceEdges({
-    ...state,
-    nodes: state.nodes.map((node) =>
-      node.id === nodeId ? { ...node, genVariableName } : node,
-    ),
-  });
-}
-
-/** ノードの代入エントリを更新する */
-export function updateNodeSubstitutionEntries(
-  state: WorkspaceState,
-  nodeId: string,
-  substitutionEntries: SubstitutionEntries,
-): WorkspaceState {
-  return syncInferenceEdges({
-    ...state,
-    nodes: state.nodes.map((node) =>
-      node.id === nodeId ? { ...node, substitutionEntries } : node,
     ),
   });
 }
