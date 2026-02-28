@@ -102,7 +102,12 @@ import {
   revalidateInferenceConclusions,
   updateInferenceEdgeGenVariableName,
   updateInferenceEdgeSubstitutionEntries,
+  mergeSelectedNodes,
 } from "./workspaceState";
+import {
+  findMergeableGroups,
+  canMergeSelectedNodes,
+} from "./mergeNodesLogic";
 import { validateDragConnection } from "./portConnectionLogic";
 import type { LayoutDirection } from "./treeLayoutLogic";
 import {
@@ -1901,6 +1906,41 @@ export function ProofWorkspace({
     setSelectedNodeIds(clearSelection());
   }, [selectedNodeIds, workspace, setWorkspaceWithAutoLayout]);
 
+  const mergeEnabled = useMemo(() => {
+    if (selectedNodeIds.size < 2) return false;
+    return canMergeSelectedNodes(
+      [...selectedNodeIds],
+      workspace.nodes,
+      new Set(workspace.nodes.filter((n) => isNodeProtected(workspace, n.id)).map((n) => n.id)),
+    );
+  }, [selectedNodeIds, workspace]);
+
+  const handleMergeSelected = useCallback(() => {
+    if (selectedNodeIds.size < 2) return;
+    const protectedIds = new Set(
+      workspace.nodes.filter((n) => isNodeProtected(workspace, n.id)).map((n) => n.id),
+    );
+    const groups = findMergeableGroups(
+      [...selectedNodeIds],
+      workspace.nodes,
+      protectedIds,
+    );
+    if (groups.length === 0) return;
+
+    let ws = workspace;
+    for (const group of groups) {
+      const result = mergeSelectedNodes(ws, group.leaderNodeId, group.absorbedNodeIds);
+      if (result._tag === "Success") {
+        ws = result.workspace;
+      }
+    }
+
+    setWorkspaceWithAutoLayout(ws);
+    // マージ後はリーダーノードだけ選択
+    const leaderIds = new Set(groups.map((g) => g.leaderNodeId));
+    setSelectedNodeIds(leaderIds);
+  }, [selectedNodeIds, workspace, setWorkspaceWithAutoLayout]);
+
   // --- キーボードショートカット ---
   /* v8 ignore start -- キーボードイベント: JSDOMではfocus制御が不安定なためブラウザテストで検証 */
 
@@ -1935,6 +1975,9 @@ export function ProofWorkspace({
       } else if (isModifier && e.key === "d") {
         e.preventDefault();
         handleDuplicate();
+      } else if (isModifier && e.key === "m") {
+        e.preventDefault();
+        handleMergeSelected();
       } else if (isModifier && e.key === "a") {
         e.preventDefault();
         // Ctrl/Cmd+A: 全選択
@@ -1969,6 +2012,7 @@ export function ProofWorkspace({
     handleCut,
     handleDuplicate,
     handleDeleteSelected,
+    handleMergeSelected,
     workspace.nodes,
   ]);
   /* v8 ignore stop */
@@ -2948,6 +2992,20 @@ export function ProofWorkspace({
             }
           >
             {msg.selectionDuplicate}
+          </button>
+          <button
+            type="button"
+            style={{
+              ...selectionActionButtonStyle,
+              opacity: mergeEnabled ? 1 : 0.4,
+            }}
+            onClick={handleMergeSelected}
+            disabled={!mergeEnabled}
+            data-testid={
+              testId ? `${testId satisfies string}-merge-button` : undefined
+            }
+          >
+            {msg.selectionMerge}
           </button>
           <button
             type="button"

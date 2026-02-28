@@ -66,6 +66,7 @@ export type ProofMessages = {
   readonly selectionPaste: string;
   readonly selectionDuplicate: string;
   readonly selectionDelete: string;
+  readonly selectionMerge: string;
   readonly selectionClear: string;
   readonly cancel: string;
 
@@ -161,6 +162,7 @@ export const defaultProofMessages: ProofMessages = {
   selectionPaste: "Paste",
   selectionDuplicate: "Duplicate",
   selectionDelete: "Delete",
+  selectionMerge: "Merge",
   selectionClear: "Clear",
   cancel: "Cancel",
 

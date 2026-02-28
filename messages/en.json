@@ -42,6 +42,7 @@
     "selectionPaste": "Paste",
     "selectionDuplicate": "Duplicate",
     "selectionDelete": "Delete",
+    "selectionMerge": "Merge",
     "selectionClear": "Clear",
     "cancel": "Cancel",
     "logicSystemLabel": "Logic System:",
