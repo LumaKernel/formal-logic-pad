@@ -64,8 +64,7 @@ import { identifyAxiomName } from "./axiomNameLogic";
 import { parseNodeFormula } from "./mpApplicationLogic";
 import { getAllNodeDependencies, getSubtreeNodeIds } from "./dependencyLogic";
 import type { DependencyInfo } from "./EditableProofNode";
-import type { NodeRole } from "./nodeRoleLogic";
-import type { WorkspaceState, WorkspaceNode } from "./workspaceState";
+import type { WorkspaceState, WorkspaceNode, NodeRole } from "./workspaceState";
 import {
   type NodeMenuState,
   NODE_MENU_CLOSED,
@@ -1089,8 +1088,7 @@ export function ProofWorkspace({
     for (const node of workspace.nodes) {
       // InferenceEdge経由で結論ノードかどうかを判定（kindではなくInferenceEdgeで判定）
       const substEdgeRaw = workspace.inferenceEdges.find(
-        (e) =>
-          e._tag === "substitution" && e.conclusionNodeId === node.id,
+        (e) => e._tag === "substitution" && e.conclusionNodeId === node.id,
       );
       if (!substEdgeRaw) continue;
       const entries =
@@ -1118,16 +1116,11 @@ export function ProofWorkspace({
     return validations;
   }, [workspace, msg]);
 
-  // --- ゴールチェック（ノードrole="goal"ベース） ---
+  // --- ゴールチェック（workspace.goalsベース） ---
 
   const goalCheckResult = useMemo(
-    () =>
-      checkGoal(
-        workspace.nodes,
-        workspace.connections,
-        workspace.inferenceEdges,
-      ),
-    [workspace.nodes, workspace.connections, workspace.inferenceEdges],
+    () => checkGoal(workspace.goals, workspace.nodes),
+    [workspace.goals, workspace.nodes],
   );
 
   // --- クエストゴールチェック（クエストモード: 保護ノードベース、公理制限付き） ---
@@ -1136,6 +1129,7 @@ export function ProofWorkspace({
     () =>
       workspace.mode === "quest"
         ? checkQuestGoalsWithAxioms(
+            workspace.goals,
             workspace.nodes,
             workspace.inferenceEdges,
             workspace.system,
@@ -1143,6 +1137,7 @@ export function ProofWorkspace({
         : undefined,
     [
       workspace.mode,
+      workspace.goals,
       workspace.nodes,
       workspace.inferenceEdges,
       workspace.system,
@@ -1793,7 +1788,7 @@ export function ProofWorkspace({
   );
 
   const handleCanvasMenuAddNode = useCallback(
-    (role: "axiom" | "goal" | undefined) => {
+    (role: "axiom" | undefined) => {
       let ws = addNode(
         workspace,
         "axiom",
@@ -1801,9 +1796,7 @@ export function ProofWorkspace({
         canvasMenuState.worldPosition,
       );
       const newNodeId = ws.nodes[ws.nodes.length - 1]!.id;
-      if (role === "goal") {
-        ws = updateNodeRole(ws, newNodeId, "goal");
-      } else if (role === "axiom") {
+      if (role === "axiom") {
         ws = updateNodeRole(ws, newNodeId, "axiom");
       }
       setWorkspace(ws);
@@ -3234,15 +3227,6 @@ export function ProofWorkspace({
             testId={
               testId
                 ? `${testId satisfies string}-canvas-menu-add-axiom`
-                : undefined
-            }
-          />
-          <WorkspaceMenuItem
-            label={msg.addGoalNode}
-            onClick={() => handleCanvasMenuAddNode("goal")}
-            testId={
-              testId
-                ? `${testId satisfies string}-canvas-menu-add-goal`
                 : undefined
             }
           />

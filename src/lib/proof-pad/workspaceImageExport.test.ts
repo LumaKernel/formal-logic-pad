@@ -44,6 +44,7 @@ function createSampleWorkspace(): WorkspaceState {
     inferenceEdges: [],
     nextNodeId: 3,
     mode: "free",
+    goals: [],
   };
 }
 
@@ -56,6 +57,7 @@ function createEmptyWorkspace(): WorkspaceState {
     inferenceEdges: [],
     nextNodeId: 1,
     mode: "free",
+    goals: [],
   };
 }
 
@@ -99,7 +101,6 @@ function createMultiNodeWorkspace(): WorkspaceState {
         label: "Goal",
         formulaText: "all x. result",
         position: { x: 150, y: 600 },
-        role: "goal",
       },
     ],
     connections: [
@@ -135,6 +136,7 @@ function createMultiNodeWorkspace(): WorkspaceState {
     inferenceEdges: [],
     nextNodeId: 6,
     mode: "free",
+    goals: [],
   };
 }
 
@@ -304,6 +306,7 @@ describe("generateExportSVG", () => {
       inferenceEdges: [],
       nextNodeId: 2,
       mode: "free",
+      goals: [],
     };
     const sizes: NodeSizeMap = new Map([["n1", { width: 150, height: 80 }]]);
     const svg = generateExportSVG(ws, { nodeSizes: sizes });
@@ -329,6 +332,7 @@ describe("generateExportSVG", () => {
       inferenceEdges: [],
       nextNodeId: 2,
       mode: "free",
+      goals: [],
     };
     const svg = generateExportSVG(ws);
 
@@ -358,6 +362,7 @@ describe("generateExportSVG", () => {
       inferenceEdges: [],
       nextNodeId: 2,
       mode: "free",
+      goals: [],
     };
     const svg = generateExportSVG(ws);
 
@@ -392,6 +397,7 @@ describe("generateExportSVG", () => {
       inferenceEdges: [],
       nextNodeId: 2,
       mode: "free",
+      goals: [],
     };
     const svg = generateExportSVG(ws);
 
@@ -434,6 +440,7 @@ describe("generateExportSVG", () => {
       inferenceEdges: [],
       nextNodeId: 3,
       mode: "free",
+      goals: [],
     };
     const svg = generateExportSVG(ws);
 
@@ -459,6 +466,7 @@ describe("generateExportSVG", () => {
       inferenceEdges: [],
       nextNodeId: 2,
       mode: "free",
+      goals: [],
     };
     const svg = generateExportSVG(ws);
 
@@ -485,6 +493,7 @@ describe("generateExportSVG", () => {
       inferenceEdges: [],
       nextNodeId: 2,
       mode: "free",
+      goals: [],
     };
     const svg = generateExportSVG(ws);
 

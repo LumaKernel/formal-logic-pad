@@ -3,7 +3,6 @@ import {
   isRootNode,
   classifyNode,
   classifyAllNodes,
-  getGoalNodeIds,
   getAxiomNodeIds,
 } from "./nodeRoleLogic";
 import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
@@ -83,12 +82,6 @@ describe("nodeRoleLogic", () => {
       expect(classifyNode(node, connections)).toBe("root-axiom");
     });
 
-    it("returns 'root-goal' for a root node explicitly marked as goal", () => {
-      const node = makeNode("node-1", { role: "goal" });
-      const connections: readonly WorkspaceConnection[] = [];
-      expect(classifyNode(node, connections)).toBe("root-goal");
-    });
-
     it("returns 'root-unmarked' for a root node without role", () => {
       const node = makeNode("node-1");
       const connections: readonly WorkspaceConnection[] = [];
@@ -103,12 +96,6 @@ describe("nodeRoleLogic", () => {
 
     it("returns 'derived' even if node has explicit role when it has incoming connections", () => {
       const node = makeNode("node-2", { role: "axiom" });
-      const connections = [makeConnection("node-1", "node-2")];
-      expect(classifyNode(node, connections)).toBe("derived");
-    });
-
-    it("returns 'derived' for goal-marked node with incoming connections", () => {
-      const node = makeNode("node-2", { role: "goal" });
       const connections = [makeConnection("node-1", "node-2")];
       expect(classifyNode(node, connections)).toBe("derived");
     });
@@ -137,40 +124,13 @@ describe("nodeRoleLogic", () => {
       expect(result.size).toBe(0);
     });
 
-    it("classifies multiple root nodes with different roles", () => {
-      const nodes = [
-        makeNode("node-1", { role: "axiom" }),
-        makeNode("node-2", { role: "goal" }),
-        makeNode("node-3"),
-      ];
+    it("classifies multiple root nodes with different markings", () => {
+      const nodes = [makeNode("node-1", { role: "axiom" }), makeNode("node-2")];
       const connections: readonly WorkspaceConnection[] = [];
 
       const result = classifyAllNodes(nodes, connections);
       expect(result.get("node-1")).toBe("root-axiom");
-      expect(result.get("node-2")).toBe("root-goal");
-      expect(result.get("node-3")).toBe("root-unmarked");
-    });
-  });
-
-  describe("getGoalNodeIds", () => {
-    it("returns empty array when no goals exist", () => {
-      const nodes = [makeNode("node-1")];
-      expect(getGoalNodeIds(nodes, [])).toEqual([]);
-    });
-
-    it("returns IDs of nodes marked as goal", () => {
-      const nodes = [
-        makeNode("node-1", { role: "goal" }),
-        makeNode("node-2", { role: "axiom" }),
-        makeNode("node-3", { role: "goal" }),
-      ];
-      expect(getGoalNodeIds(nodes, [])).toEqual(["node-1", "node-3"]);
-    });
-
-    it("excludes derived nodes even if marked as goal", () => {
-      const nodes = [makeNode("node-1"), makeNode("node-2", { role: "goal" })];
-      const connections = [makeConnection("node-1", "node-2")];
-      expect(getGoalNodeIds(nodes, connections)).toEqual([]);
+      expect(result.get("node-2")).toBe("root-unmarked");
     });
   });
 
@@ -185,20 +145,8 @@ describe("nodeRoleLogic", () => {
       expect(getAxiomNodeIds(nodes, [])).toEqual(["node-1"]);
     });
 
-    it("excludes goal-marked root nodes", () => {
-      const nodes = [
-        makeNode("node-1", { role: "axiom" }),
-        makeNode("node-2", { role: "goal" }),
-        makeNode("node-3"),
-      ];
-      expect(getAxiomNodeIds(nodes, [])).toEqual(["node-1", "node-3"]);
-    });
-
     it("excludes derived nodes", () => {
-      const nodes = [
-        makeNode("node-1"),
-        makeNode("node-2", { kind: "axiom" }),
-      ];
+      const nodes = [makeNode("node-1"), makeNode("node-2", { kind: "axiom" })];
       const connections = [makeConnection("node-1", "node-2")];
       expect(getAxiomNodeIds(nodes, connections)).toEqual(["node-1"]);
     });

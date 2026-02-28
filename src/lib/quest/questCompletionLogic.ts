@@ -7,7 +7,7 @@
  * 変更時は questCompletionLogic.test.ts も同期すること。
  */
 
-import type { WorkspaceNode } from "../proof-pad/workspaceState";
+import type { WorkspaceNode, WorkspaceGoal } from "../proof-pad/workspaceState";
 import type { InferenceEdge } from "../proof-pad/inferenceEdge";
 import type { ProofNodeKind } from "../proof-pad/proofNodeUI";
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
@@ -25,26 +25,18 @@ import {
  * ステップとしてカウントするノード種別。
  * 公理ノードと推論結果（derived）ノードがそれぞれ1ステップとなる。
  */
-const STEP_NODE_KINDS: ReadonlySet<ProofNodeKind> = new Set([
-  "axiom",
-]);
+const STEP_NODE_KINDS: ReadonlySet<ProofNodeKind> = new Set(["axiom"]);
 
 /**
  * ワークスペース上のノードからステップ数を計算する。
  *
  * ステップ数 = 公理ノード + MPノード + Genノードの合計。
- * conclusionノードやゴールノードはカウントしない。
  *
  * @param nodes ワークスペース上のノード一覧
  * @returns ステップ数
  */
 export function computeStepCount(nodes: readonly WorkspaceNode[]): number {
-  return nodes.filter(
-    (node) =>
-      STEP_NODE_KINDS.has(node.kind) &&
-      node.protection !== "quest-goal" &&
-      node.role !== "goal",
-  ).length;
+  return nodes.filter((node) => STEP_NODE_KINDS.has(node.kind)).length;
 }
 
 // --- クエストゴール達成チェック ---
@@ -62,28 +54,26 @@ export type QuestGoalCheckResult =
 /**
  * クエストモードのワークスペースで、すべてのゴールが達成されているかチェックする。
  *
- * ゴールノード（protection: "quest-goal"）の各formulaが、
- * 非保護ノードのいずれかのformulaと一致すれば「達成」とみなす。
+ * goals配列の各ゴール式が、ノードのいずれかの式と一致すれば「達成」とみなす。
  *
+ * @param goals ワークスペースのゴール一覧
  * @param nodes ワークスペース上のノード一覧
  * @returns クエストゴール達成チェック結果
  */
 export function checkQuestGoals(
+  goals: readonly WorkspaceGoal[],
   nodes: readonly WorkspaceNode[],
 ): QuestGoalCheckResult {
-  const goalNodes = nodes.filter((n) => n.protection === "quest-goal");
-  if (goalNodes.length === 0) {
+  if (goals.length === 0) {
     return { _tag: "NoGoals" };
   }
 
-  const workNodes = nodes.filter((n) => n.protection !== "quest-goal");
-
   let achievedCount = 0;
-  for (const goal of goalNodes) {
+  for (const goal of goals) {
     const goalParsed = parseString(goal.formulaText.trim());
     if (!goalParsed.ok) continue;
 
-    const isAchieved = workNodes.some((work) => {
+    const isAchieved = nodes.some((work) => {
       const workParsed = parseString(work.formulaText.trim());
       if (!workParsed.ok) return false;
       return equalFormula(goalParsed.formula, workParsed.formula);
@@ -94,7 +84,7 @@ export function checkQuestGoals(
     }
   }
 
-  if (achievedCount >= goalNodes.length) {
+  if (achievedCount >= goals.length) {
     return {
       _tag: "AllAchieved",
       stepCount: computeStepCount(nodes),
@@ -104,7 +94,7 @@ export function checkQuestGoals(
   return {
     _tag: "NotAllAchieved",
     achievedCount,
-    totalCount: goalNodes.length,
+    totalCount: goals.length,
   };
 }
 
@@ -112,8 +102,8 @@ export function checkQuestGoals(
 
 /** 公理制限チェック結果: ゴールごとの使用公理と制限違反 */
 export type GoalAxiomCheckResult = {
-  /** ゴールノードID */
-  readonly goalNodeId: string;
+  /** ゴールID */
+  readonly goalId: string;
   /** 一致したワークノードID（未達成の場合はundefined） */
   readonly matchingNodeId: string | undefined;
   /** 使用された公理スキーマIDの集合 */
@@ -152,37 +142,36 @@ export type QuestGoalCheckWithAxiomsResult =
 /**
  * 公理制限付きでクエストゴールの達成状況をチェックする。
  *
- * 基本的な達成判定に加えて、各ゴールに対して:
+ * goals配列から各ゴールについて:
  * 1. 一致するワークノードを探す
  * 2. 一致したノードが依存する公理スキーマIDを特定
  * 3. ゴールの allowedAxiomIds と比較して制限違反をチェック
  *
+ * @param goals ワークスペースのゴール一覧
  * @param nodes ワークスペース上のノード一覧
  * @param inferenceEdges ワークスペース上の推論エッジ一覧
  * @param system 論理体系設定
  * @returns 公理制限付きゴールチェック結果
  */
 export function checkQuestGoalsWithAxioms(
+  goals: readonly WorkspaceGoal[],
   nodes: readonly WorkspaceNode[],
   inferenceEdges: readonly InferenceEdge[],
   system: LogicSystem,
 ): QuestGoalCheckWithAxiomsResult {
-  const goalNodes = nodes.filter((n) => n.protection === "quest-goal");
-  if (goalNodes.length === 0) {
+  if (goals.length === 0) {
     return { _tag: "NoGoals" };
   }
-
-  const workNodes = nodes.filter((n) => n.protection !== "quest-goal");
 
   const goalResults: GoalAxiomCheckResult[] = [];
   let achievedCount = 0;
   let hasAxiomViolation = false;
 
-  for (const goal of goalNodes) {
+  for (const goal of goals) {
     const goalParsed = parseString(goal.formulaText.trim());
     if (!goalParsed.ok) {
       goalResults.push({
-        goalNodeId: goal.id,
+        goalId: goal.id,
         matchingNodeId: undefined,
         usedAxiomIds: new Set(),
         allowedAxiomIds: goal.allowedAxiomIds,
@@ -194,7 +183,7 @@ export function checkQuestGoalsWithAxioms(
 
     // 一致するワークノードを探す
     let matchingNode: WorkspaceNode | undefined;
-    for (const work of workNodes) {
+    for (const work of nodes) {
       const workParsed = parseString(work.formulaText.trim());
       if (!workParsed.ok) continue;
       if (equalFormula(goalParsed.formula, workParsed.formula)) {
@@ -205,7 +194,7 @@ export function checkQuestGoalsWithAxioms(
 
     if (matchingNode === undefined) {
       goalResults.push({
-        goalNodeId: goal.id,
+        goalId: goal.id,
         matchingNodeId: undefined,
         usedAxiomIds: new Set(),
         allowedAxiomIds: goal.allowedAxiomIds,
@@ -249,7 +238,7 @@ export function checkQuestGoalsWithAxioms(
     }
 
     goalResults.push({
-      goalNodeId: goal.id,
+      goalId: goal.id,
       matchingNodeId: matchingNode.id,
       usedAxiomIds,
       allowedAxiomIds: goal.allowedAxiomIds,
@@ -258,11 +247,11 @@ export function checkQuestGoalsWithAxioms(
     });
   }
 
-  if (achievedCount < goalNodes.length) {
+  if (achievedCount < goals.length) {
     return {
       _tag: "NotAllAchieved",
       achievedCount,
-      totalCount: goalNodes.length,
+      totalCount: goals.length,
       goalResults,
     };
   }

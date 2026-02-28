@@ -280,9 +280,7 @@ export function validateRootNodes(
 export function getInstanceRootNodeIds(
   validations: readonly RootNodeValidation[],
 ): readonly string[] {
-  return validations
-    .filter((v) => v._tag === "instance")
-    .map((v) => v.nodeId);
+  return validations.filter((v) => v._tag === "instance").map((v) => v.nodeId);
 }
 
 /**

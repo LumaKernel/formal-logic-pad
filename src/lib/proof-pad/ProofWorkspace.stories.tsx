@@ -21,9 +21,9 @@ import {
   createQuestWorkspace,
   addNode,
   addConnection,
+  addGoal,
   applyMPAndConnect,
   applySubstitutionAndConnect,
-  updateNodeRole,
 } from "./workspaceState";
 import type { WorkspaceState } from "./workspaceState";
 
@@ -319,10 +319,7 @@ function WorkspaceWithGoalAchieved() {
       x: 200,
       y: 250,
     });
-    ws = addNode(result.workspace, "axiom", "Goal", { x: 400, y: 250 }, "psi");
-    ws = updateNodeRole(ws, "node-4", "goal");
-    // MP結果ノードからゴールノードへ接続して達成
-    ws = addConnection(ws, "node-3", "output", "node-4", "input");
+    ws = addGoal(result.workspace, "psi");
     return ws;
   })();
 
@@ -347,8 +344,7 @@ function WorkspaceWithGoalNotAchieved() {
   const initial = (() => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi");
-    ws = addNode(ws, "axiom", "Goal", { x: 300, y: 0 }, "phi -> phi");
-    ws = updateNodeRole(ws, "node-2", "goal");
+    ws = addGoal(ws, "phi -> phi");
     return ws;
   })();
 
@@ -402,12 +398,10 @@ function QuestModeWorkspace() {
     {
       formulaText: "phi -> (psi -> phi)",
       label: "Quest: K axiom",
-      position: { x: 100, y: 300 },
     },
     {
       formulaText: "phi -> phi",
       label: "Quest: Identity",
-      position: { x: 400, y: 300 },
     },
   ]);
 
@@ -428,7 +422,7 @@ function QuestModeWorkspace() {
   );
 }
 
-/** クエストモード: 保護されたゴールノード付きワークスペース */
+/** クエストモード: ゴールはWorkspaceState.goalsで管理（ノードとしてキャンバスには配置しない） */
 export const QuestMode: Story = {
   render: () => <QuestModeWorkspace />,
   play: async ({ canvasElement }) => {
@@ -442,13 +436,11 @@ export const QuestMode: Story = {
     await expect(
       canvas.getByTestId("workspace-convert-free-button"),
     ).toBeInTheDocument();
-    // Quest goal nodes with QUEST badge
+    // ゴールはノードとしてキャンバスに配置されないため、
+    // proof-node は存在しない（キャンバスは空）
     await expect(
-      canvas.getByTestId("proof-node-node-1-protected-badge"),
-    ).toHaveTextContent("QUEST");
-    await expect(
-      canvas.getByTestId("proof-node-node-2-protected-badge"),
-    ).toHaveTextContent("QUEST");
+      canvas.queryByTestId("proof-node-node-1"),
+    ).not.toBeInTheDocument();
   },
 };
 
@@ -675,12 +667,12 @@ export const NodeDelete: Story = {
   },
 };
 
-// --- クエストモードでゴールノード削除不可デモ ---
+// --- クエストモードでノード削除デモ ---
 
 function QuestNodeDeleteWorkspace() {
   const initial = (() => {
     let ws = createQuestWorkspace(lukasiewiczSystem, [
-      { formulaText: "phi -> phi", position: { x: 200, y: 200 } },
+      { formulaText: "phi -> phi" },
     ]);
     ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi -> phi");
     return ws;
@@ -703,28 +695,27 @@ function QuestNodeDeleteWorkspace() {
   );
 }
 
-/** クエストモード: ゴールノードはDelete Nodeが無効化される */
+/** クエストモード: ゴールはノードではないため、公理ノードは通常通り削除可能 */
 export const QuestGoalDeleteDisabled: Story = {
   render: () => <QuestNodeDeleteWorkspace />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // ゴールノード(node-1)を右クリック
-    const goalNode = canvas.getByTestId("proof-node-node-1");
-    await userEvent.pointer({ keys: "[MouseRight]", target: goalNode });
+    // クエストモードのバッジが表示されている
+    await expect(
+      canvas.getByTestId("workspace-quest-badge"),
+    ).toBeInTheDocument();
 
-    // Delete Nodeが無効化されている
+    // 公理ノード(node-1)が存在する（ゴールはノードとしては存在しない）
+    const axiomNode = canvas.getByTestId("proof-node-node-1");
+    await expect(axiomNode).toBeInTheDocument();
+
+    // node-1を右クリック → 削除可能（ゴールがノードから分離されたため保護なし）
+    await userEvent.pointer({ keys: "[MouseRight]", target: axiomNode });
+
     const deleteBtn = canvas.getByTestId("workspace-delete-node");
-    await expect(deleteBtn).toBeDisabled();
-
-    // 通常ノード(node-2)を右クリックすると削除可能
-    await userEvent.click(document.body); // メニューを閉じる
-    const normalNode = canvas.getByTestId("proof-node-node-2");
-    await userEvent.pointer({ keys: "[MouseRight]", target: normalNode });
-
-    const deleteBtn2 = canvas.getByTestId("workspace-delete-node");
-    await expect(deleteBtn2).not.toBeDisabled();
+    await expect(deleteBtn).not.toBeDisabled();
   },
 };
 
@@ -954,8 +945,7 @@ function NodeDuplicateWorkspace() {
       { x: 100, y: 100 },
       "phi -> (psi -> phi)",
     );
-    ws = addNode(ws, "axiom", "Goal", { x: 400, y: 100 }, "phi -> phi");
-    ws = updateNodeRole(ws, "node-2", "goal");
+    ws = addGoal(ws, "phi -> phi");
     return ws;
   })();
 
@@ -976,16 +966,15 @@ function NodeDuplicateWorkspace() {
   );
 }
 
-/** ノード複製: 右クリック→Duplicate Nodeでノードを複製。ゴールノードはroleがクリアされる */
+/** ノード複製: 右クリック→Duplicate Nodeでノードを複製 */
 export const NodeDuplicate: Story = {
   render: () => <NodeDuplicateWorkspace />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // 2ノード(A1, G1)が表示されている
+    // 1ノード(A1)のみ表示されている（ゴールはノードではない）
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
 
     // node-1（公理）を右クリック → コンテキストメニュー表示
     const node1 = canvas.getByTestId("proof-node-node-1");
@@ -999,12 +988,11 @@ export const NodeDuplicate: Story = {
     // Duplicate Nodeをクリック
     await userEvent.click(canvas.getByTestId("workspace-duplicate-node"));
 
-    // 複製されたノード(node-3)が表示される
-    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    // 複製されたノード(node-2)が表示される
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
 
     // 元のノードも残っている
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
   },
 };
 

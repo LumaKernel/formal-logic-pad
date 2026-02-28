@@ -21,10 +21,9 @@ import { ProofWorkspace } from "./ProofWorkspace";
 import {
   createEmptyWorkspace,
   addNode,
-  addConnection,
+  addGoal,
   applyMPAndConnect,
   applySubstitutionAndConnect,
-  updateNodeRole,
 } from "./workspaceState";
 import type { WorkspaceState } from "./workspaceState";
 
@@ -36,13 +35,7 @@ function IdentityProofComplete() {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
 
     // Step 1: A1スキーマ φ → (ψ → φ)
-    ws = addNode(
-      ws,
-      "axiom",
-      "Axiom",
-      { x: 50, y: 0 },
-      "phi -> (psi -> phi)",
-    );
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 0 }, "phi -> (psi -> phi)");
     // node-1: A1 schema
 
     // Step 1b: 代入 ψ := (phi → phi) → φ → ((φ→φ) → φ)
@@ -134,13 +127,8 @@ function IdentityProofComplete() {
     ws = mp2.workspace;
     // node-8: MP result φ → φ
 
-    // ゴール設定（ノードとして追加）
-    ws = addNode(ws, "axiom", "Goal", { x: 500, y: 240 }, "phi -> phi");
-    ws = updateNodeRole(ws, "node-9", "goal");
-    // node-9: Goal
-
-    // MP結果ノードからゴールノードへ接続して達成
-    ws = addConnection(ws, "node-8", "output", "node-9", "input");
+    // ゴール設定
+    ws = addGoal(ws, "phi -> phi");
 
     return ws;
   })();
@@ -170,13 +158,7 @@ function IdentityProofPartial() {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
 
     // Step 1: A1スキーマ + 代入
-    ws = addNode(
-      ws,
-      "axiom",
-      "Axiom",
-      { x: 50, y: 0 },
-      "phi -> (psi -> phi)",
-    );
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 0 }, "phi -> (psi -> phi)");
     const subst1 = applySubstitutionAndConnect(
       ws,
       "node-1",
@@ -252,9 +234,8 @@ function IdentityProofPartial() {
     ws = subst3.workspace;
     // node-7: A1 instance φ → (φ → φ)
 
-    // ゴール設定（ノードとして追加）
-    ws = addNode(ws, "axiom", "Goal", { x: 500, y: 180 }, "phi -> phi");
-    ws = updateNodeRole(ws, "node-8", "goal");
+    // ゴール設定
+    ws = addGoal(ws, "phi -> phi");
 
     return ws;
   })();
@@ -353,20 +334,14 @@ function LargeProofTreeDemo() {
   const initial = (() => {
     // φ→φの証明をベースに、A1で2段チェーン拡張する巨大証明木
     // 公理スキーマ → 代入操作 → インスタンスの厳密なパターンで構築
-    // 合計15ノード（公理スキーマ5 + 代入5 + MP4 + ゴール1）
+    // 合計14ノード（公理スキーマ5 + 代入5 + MP4）
 
     let ws = createEmptyWorkspace(lukasiewiczSystem);
 
     // === φ→φ の証明 ===
 
     // Step 1: A1スキーマ + 代入 ψ:=(phi→phi)
-    ws = addNode(
-      ws,
-      "axiom",
-      "Axiom",
-      { x: 30, y: 0 },
-      "phi -> (psi -> phi)",
-    );
+    ws = addNode(ws, "axiom", "Axiom", { x: 30, y: 0 }, "phi -> (psi -> phi)");
     // node-1: A1 schema
     const subst1 = applySubstitutionAndConnect(
       ws,
@@ -418,13 +393,7 @@ function LargeProofTreeDemo() {
     // node-5: (φ → (φ→φ)) → (φ → φ)
 
     // Step 4: A1スキーマ（2回目）+ 代入 ψ:=phi
-    ws = addNode(
-      ws,
-      "axiom",
-      "Axiom",
-      { x: 30, y: 70 },
-      "phi -> (psi -> phi)",
-    );
+    ws = addNode(ws, "axiom", "Axiom", { x: 30, y: 70 }, "phi -> (psi -> phi)");
     // node-6: A1 schema
     const subst3 = applySubstitutionAndConnect(
       ws,
@@ -519,19 +488,8 @@ function LargeProofTreeDemo() {
     ws = mp4.workspace;
     // node-14: χ → (ψ→(φ→φ))
 
-    // ゴール: χ → (ψ → (φ → φ))
-    ws = addNode(
-      ws,
-      "axiom",
-      "Goal",
-      { x: 300, y: 245 },
-      "chi -> (psi -> (phi -> phi))",
-    );
-    ws = updateNodeRole(ws, "node-15", "goal");
-    // node-15: Goal
-
-    // MP結果ノードからゴールノードへ接続して達成
-    ws = addConnection(ws, "node-14", "output", "node-15", "input");
+    // ゴール設定: χ → (ψ → (φ → φ))
+    ws = addGoal(ws, "chi -> (psi -> (phi -> phi))");
 
     return ws;
   })();
@@ -584,20 +542,11 @@ function MixedErrorStatesDemo() {
     // 未接続の孤立ノード
     ws = addNode(ws, "axiom", "Axiom", { x: 850, y: 350 }, "delta");
 
-    // ゴール1: ψ（MP成功で達成 - MP結果からの接続あり）
-    ws = addNode(ws, "axiom", "Goal①: ψ", { x: 100, y: 400 }, "psi");
-    ws = updateNodeRole(ws, "node-9", "goal");
-    ws = addConnection(ws, "node-3", "output", "node-9", "input");
+    // ゴール1: ψ（MP成功で達成）
+    ws = addGoal(ws, "psi");
 
-    // ゴール2: delta（未達成 - 接続なし）
-    ws = addNode(
-      ws,
-      "axiom",
-      "Goal②: δ→δ",
-      { x: 400, y: 400 },
-      "delta -> delta",
-    );
-    ws = updateNodeRole(ws, "node-10", "goal");
+    // ゴール2: delta→delta（未達成）
+    ws = addGoal(ws, "delta -> delta");
 
     return ws;
   })();
@@ -635,7 +584,7 @@ type Story = StoryObj<typeof meta>;
  * φ→φ（恒等律）の完成済み証明。
  *
  * 公理スキーマ→代入→インスタンスの厳密なパターンで構築。
- * 9ノード（公理スキーマ3 + 代入3 + MP2 + ゴール1）がすべて配置済み。
+ * 8ノード（公理スキーマ3 + 代入3 + MP2）がすべて配置済み。
  * ゴール「φ → φ」が達成されている状態。
  */
 export const IdentityProofCompleted: Story = {
@@ -644,8 +593,8 @@ export const IdentityProofCompleted: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // 9ノード: 公理スキーマ3 + 代入3 + MP2 + ゴール1
-    for (let i = 1; i <= 9; i++) {
+    // 8ノード: 公理スキーマ3 + 代入3 + MP2
+    for (let i = 1; i <= 8; i++) {
       await expect(
         canvas.getByTestId(`proof-node-node-${String(i) satisfies string}`),
       ).toBeInTheDocument();
@@ -684,8 +633,8 @@ export const IdentityProofInteractive: Story = {
       canvas.queryByTestId("workspace-proof-complete-banner"),
     ).not.toBeInTheDocument();
 
-    // 8ノード: 公理スキーマ3 + 代入3 + MP1 + ゴール1
-    for (let i = 1; i <= 8; i++) {
+    // 7ノード: 公理スキーマ3 + 代入3 + MP1
+    for (let i = 1; i <= 7; i++) {
       await expect(
         canvas.getByTestId(`proof-node-node-${String(i) satisfies string}`),
       ).toBeInTheDocument();
@@ -706,16 +655,17 @@ export const IdentityProofInteractive: Story = {
     // 右前提: node-5 ((φ → (φ→φ)) → (φ → φ))
     await userEvent.click(canvas.getByTestId("proof-node-node-5"));
 
-    // MPノードが生成された（node-9）
-    await expect(canvas.getByTestId("proof-node-node-9")).toBeInTheDocument();
+    // MPノードが生成された（node-8）
+    await expect(canvas.getByTestId("proof-node-node-8")).toBeInTheDocument();
     await expect(
-      canvas.getByTestId("proof-node-node-9-status"),
+      canvas.getByTestId("proof-node-node-8-status"),
     ).toHaveTextContent("MP applied");
 
-    // ゴールノードへの接続はまだないため、Proof Completeにはならない
+    // ゴールは WorkspaceState.goals で管理されており、
+    // MPで導出した式がゴール式と一致するため、証明完了となる
     await expect(
-      canvas.queryByTestId("workspace-proof-complete-banner"),
-    ).not.toBeInTheDocument();
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
   },
 };
 
@@ -812,7 +762,7 @@ export const MPCascadeChainFailure: Story = {
  *
  * φ→φの証明をベースに、A1を使って結果を2段チェーンした大きな証明木。
  * 公理スキーマ → 代入操作 → インスタンスの厳密なパターンで構築。
- * 合計15ノード（公理スキーマ5 + 代入5 + MP4 + ゴール1）。
+ * 合計14ノード（公理スキーマ5 + 代入5 + MP4）。
  *
  * 証明構造:
  *   A1[ψ:=(φ→φ)] + A2[ψ:=(φ→φ),χ:=φ] → MP1 → (φ→(φ→φ))→(φ→φ)
@@ -826,8 +776,8 @@ export const LargeProofTree: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // 15ノード（公理スキーマ5 + 代入5 + MP4 + ゴール1）が存在
-    for (let i = 1; i <= 15; i++) {
+    // 14ノード（公理スキーマ5 + 代入5 + MP4）が存在
+    for (let i = 1; i <= 14; i++) {
       await expect(
         canvas.getByTestId(`proof-node-node-${String(i) satisfies string}`),
       ).toBeInTheDocument();
@@ -871,8 +821,8 @@ export const MixedErrorStates: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // 10ノードが存在
-    for (let i = 1; i <= 10; i++) {
+    // 8ノードが存在
+    for (let i = 1; i <= 8; i++) {
       await expect(
         canvas.getByTestId(`proof-node-node-${String(i) satisfies string}`),
       ).toBeInTheDocument();

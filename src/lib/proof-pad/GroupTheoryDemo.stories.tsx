@@ -23,9 +23,8 @@ import { ProofWorkspace } from "./ProofWorkspace";
 import {
   createEmptyWorkspace,
   addNode,
-  addConnection,
+  addGoal,
   applyMPAndConnect,
-  updateNodeRole,
 } from "./workspaceState";
 import type { WorkspaceState } from "./workspaceState";
 
@@ -42,17 +41,8 @@ function G1AssociativityComplete() {
       { x: 200, y: 100 },
       "all x. all y. all z. (x * y) * z = x * (y * z)",
     );
-    // node-2: ゴールノード
-    ws = addNode(
-      ws,
-      "axiom",
-      "Goal",
-      { x: 200, y: 250 },
-      "all x. all y. all z. (x * y) * z = x * (y * z)",
-    );
-    ws = updateNodeRole(ws, "node-2", "goal");
-    // 公理ノードからゴールノードへ接続して達成
-    ws = addConnection(ws, "node-1", "output", "node-2", "input");
+    // ゴール設定
+    ws = addGoal(ws, "all x. all y. all z. (x * y) * z = x * (y * z)");
     return ws;
   })();
 
@@ -95,11 +85,8 @@ function IdentityTimesIdentityComplete() {
     const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 250, y: 250 });
     ws = mp.workspace;
 
-    // node-4: ゴールノード
-    ws = addNode(ws, "axiom", "Goal", { x: 450, y: 250 }, "e * e = e");
-    ws = updateNodeRole(ws, "node-4", "goal");
-    // MP結果ノードからゴールノードへ接続して達成
-    ws = addConnection(ws, "node-3", "output", "node-4", "input");
+    // ゴール設定
+    ws = addGoal(ws, "e * e = e");
 
     return ws;
   })();
@@ -139,9 +126,8 @@ function IdentityTimesIdentityPartial() {
       "(all x. e * x = x) -> e * e = e",
     );
 
-    // node-3: ゴールノード（MP適用前）
-    ws = addNode(ws, "axiom", "Goal", { x: 250, y: 200 }, "e * e = e");
-    ws = updateNodeRole(ws, "node-3", "goal");
+    // ゴール設定（MP適用前）
+    ws = addGoal(ws, "e * e = e");
 
     return ws;
   })();
@@ -185,11 +171,8 @@ function InverseIdentityComplete() {
     const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 250, y: 250 });
     ws = mp.workspace;
 
-    // node-4: ゴールノード
-    ws = addNode(ws, "axiom", "Goal", { x: 450, y: 250 }, "i(e) * e = e");
-    ws = updateNodeRole(ws, "node-4", "goal");
-    // MP結果ノードからゴールノードへ接続して達成
-    ws = addConnection(ws, "node-3", "output", "node-4", "input");
+    // ゴール設定
+    ws = addGoal(ws, "i(e) * e = e");
 
     return ws;
   })();
@@ -255,11 +238,6 @@ export const G1AssociativityPlacement: Story = {
       canvas.getByTestId(`proof-node-${"node-1" satisfies string}`),
     ).toBeInTheDocument();
 
-    // ゴールノードが配置されている
-    await expect(
-      canvas.getByTestId(`proof-node-${"node-2" satisfies string}`),
-    ).toBeInTheDocument();
-
     // 証明完了バナーが表示されている
     await expect(
       canvas.getByTestId("workspace-proof-complete-banner"),
@@ -284,7 +262,7 @@ export const IdentityTimesIdentityCompleted: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // 3つの証明ノード + ゴールノードが存在する
+    // 3つの証明ノードが存在する
     await expect(
       canvas.getByTestId(`proof-node-${"node-1" satisfies string}`),
     ).toBeInTheDocument();
@@ -293,9 +271,6 @@ export const IdentityTimesIdentityCompleted: Story = {
     ).toBeInTheDocument();
     await expect(
       canvas.getByTestId(`proof-node-${"node-3" satisfies string}`),
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId(`proof-node-${"node-4" satisfies string}`),
     ).toBeInTheDocument();
 
     // MP適用が成功している
@@ -328,15 +303,12 @@ export const IdentityTimesIdentityInteractive: Story = {
       canvas.queryByTestId("workspace-proof-complete-banner"),
     ).not.toBeInTheDocument();
 
-    // 2つの証明ノード + ゴールノードが存在（G2L, A5, Goal）
+    // 2つの証明ノードが存在（G2L, A5）
     await expect(
       canvas.getByTestId(`proof-node-${"node-1" satisfies string}`),
     ).toBeInTheDocument();
     await expect(
       canvas.getByTestId(`proof-node-${"node-2" satisfies string}`),
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId(`proof-node-${"node-3" satisfies string}`),
     ).toBeInTheDocument();
 
     // MP適用でStep 3を実行: node-1(左前提: G2L) と node-2(右前提: A5) を選択
@@ -358,18 +330,19 @@ export const IdentityTimesIdentityInteractive: Story = {
       canvas.getByTestId(`proof-node-${"node-2" satisfies string}`),
     );
 
-    // MPノードが生成された（node-4: ゴールノードがnode-3なので、MPはnode-4になる）
+    // MPノードが生成された（node-3）
     await expect(
-      canvas.getByTestId(`proof-node-${"node-4" satisfies string}`),
+      canvas.getByTestId(`proof-node-${"node-3" satisfies string}`),
     ).toBeInTheDocument();
     await expect(
-      canvas.getByTestId(`proof-node-${"node-4" satisfies string}-status`),
+      canvas.getByTestId(`proof-node-${"node-3" satisfies string}-status`),
     ).toHaveTextContent("MP applied");
 
-    // ゴールノードへの接続はまだないため、Proof Completeにはならない
+    // ゴールは WorkspaceState.goals で管理されており、
+    // MPで導出した式がゴール式と一致するため、証明完了となる
     await expect(
-      canvas.queryByTestId("workspace-proof-complete-banner"),
-    ).not.toBeInTheDocument();
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
   },
 };
 
@@ -390,7 +363,7 @@ export const InverseIdentityProof: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
-    // 3つの証明ノード + ゴールノードが存在する
+    // 3つの証明ノードが存在する
     await expect(
       canvas.getByTestId(`proof-node-${"node-1" satisfies string}`),
     ).toBeInTheDocument();
@@ -399,9 +372,6 @@ export const InverseIdentityProof: Story = {
     ).toBeInTheDocument();
     await expect(
       canvas.getByTestId(`proof-node-${"node-3" satisfies string}`),
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId(`proof-node-${"node-4" satisfies string}`),
     ).toBeInTheDocument();
 
     // MP適用が成功している

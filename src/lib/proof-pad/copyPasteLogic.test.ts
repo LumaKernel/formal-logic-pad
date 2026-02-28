@@ -338,20 +338,6 @@ describe("pasteClipboardData", () => {
     );
   });
 
-  it("protectionはコピーされない", () => {
-    const protectedNode: WorkspaceNode = {
-      ...nodeA,
-      protection: "quest-goal",
-    };
-    const clipboard = buildClipboardData(
-      new Set(["node-1"]),
-      [protectedNode],
-      [],
-    );
-    const result = pasteClipboardData(clipboard, { x: 0, y: 0 }, 1);
-    expect(result.newNodes[0]?.protection).toBeUndefined();
-  });
-
   it("genVariableNameが保持される", () => {
     const clipboard = buildClipboardData(
       new Set(["node-4"]),

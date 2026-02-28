@@ -37,6 +37,10 @@ import {
   applyIncrementalLayout,
   revalidateInferenceConclusions,
   getInferenceEdges,
+  addGoal,
+  removeGoal,
+  updateGoalFormulaText,
+  type QuestGoalDefinition,
 } from "./workspaceState";
 import {
   hilbertDeduction,
@@ -728,11 +732,12 @@ describe("proofWorkspace", () => {
       expect(result.nodes[0]!.role).toBe("axiom");
     });
 
-    it("sets role to 'goal'", () => {
+    it("sets role to 'axiom' on a second node", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
-      const result = updateNodeRole(ws, "node-1", "goal");
-      expect(result.nodes[0]!.role).toBe("goal");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "psi");
+      const result = updateNodeRole(ws, "node-2", "axiom");
+      expect(result.nodes[1]!.role).toBe("axiom");
     });
 
     it("clears role by setting to undefined", () => {
@@ -747,8 +752,8 @@ describe("proofWorkspace", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "psi");
-      const result = updateNodeRole(ws, "node-1", "goal");
-      expect(result.nodes[0]!.role).toBe("goal");
+      const result = updateNodeRole(ws, "node-1", "axiom");
+      expect(result.nodes[0]!.role).toBe("axiom");
       expect(result.nodes[1]!.role).toBeUndefined();
     });
 
@@ -768,45 +773,136 @@ describe("proofWorkspace", () => {
   });
 
   describe("createQuestWorkspace", () => {
-    it("creates quest mode workspace with goal nodes", () => {
+    it("creates quest mode workspace with goals", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi -> phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi -> phi" },
       ]);
       expect(ws.mode).toBe("quest");
-      expect(ws.nodes).toHaveLength(1);
-      expect(ws.nodes[0]!.formulaText).toBe("phi -> phi");
-      expect(ws.nodes[0]!.role).toBe("goal");
-      expect(ws.nodes[0]!.protection).toBe("quest-goal");
-      expect(ws.nodes[0]!.kind).toBe("axiom");
+      expect(ws.nodes).toHaveLength(0);
+      expect(ws.goals).toHaveLength(1);
+      expect(ws.goals[0]!.formulaText).toBe("phi -> phi");
+      expect(ws.goals[0]!.id).toBe("goal-1");
     });
 
-    it("creates multiple goal nodes", () => {
+    it("creates multiple goals", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi -> phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi -> phi" },
         {
           formulaText: "psi -> phi -> psi",
-          position: { x: 200, y: 0 },
           label: "Goal 2",
         },
       ]);
-      expect(ws.nodes).toHaveLength(2);
-      expect(ws.nodes[0]!.id).toBe("node-1");
-      expect(ws.nodes[1]!.id).toBe("node-2");
-      expect(ws.nodes[1]!.label).toBe("Goal 2");
-      expect(ws.nextNodeId).toBe(3);
+      expect(ws.goals).toHaveLength(2);
+      expect(ws.goals[0]!.id).toBe("goal-1");
+      expect(ws.goals[1]!.id).toBe("goal-2");
+      expect(ws.goals[1]!.label).toBe("Goal 2");
+      expect(ws.nodes).toHaveLength(0);
     });
 
-    it("uses default label when not specified", () => {
+    it("uses undefined label when not specified", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" },
       ]);
-      expect(ws.nodes[0]!.label).toBe("Quest Goal");
+      expect(ws.goals[0]!.label).toBeUndefined();
     });
 
     it("creates empty quest workspace with no goals", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, []);
       expect(ws.mode).toBe("quest");
+      expect(ws.goals).toHaveLength(0);
       expect(ws.nodes).toHaveLength(0);
+    });
+
+    it("passes allowedAxiomIds to goals", () => {
+      const ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi", allowedAxiomIds: ["A1", "A2"] },
+      ]);
+      expect(ws.goals[0]!.allowedAxiomIds).toEqual(["A1", "A2"]);
+    });
+  });
+
+  describe("addGoal", () => {
+    it("adds a goal to the workspace", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const result = addGoal(ws, "phi -> phi");
+      expect(result.goals).toHaveLength(1);
+      expect(result.goals[0]!.formulaText).toBe("phi -> phi");
+      expect(result.goals[0]!.id).toBe("goal-1");
+    });
+
+    it("adds a goal with label and allowedAxiomIds", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const result = addGoal(ws, "phi", {
+        label: "Test Goal",
+        allowedAxiomIds: ["A1"],
+      });
+      expect(result.goals[0]!.label).toBe("Test Goal");
+      expect(result.goals[0]!.allowedAxiomIds).toEqual(["A1"]);
+    });
+
+    it("adds multiple goals with incrementing IDs", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addGoal(ws, "phi");
+      ws = addGoal(ws, "psi");
+      expect(ws.goals).toHaveLength(2);
+      expect(ws.goals[0]!.id).toBe("goal-1");
+      expect(ws.goals[1]!.id).toBe("goal-2");
+    });
+
+    it("does not mutate original state", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      addGoal(ws, "phi");
+      expect(ws.goals).toHaveLength(0);
+    });
+  });
+
+  describe("removeGoal", () => {
+    it("removes a goal by ID", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addGoal(ws, "phi");
+      ws = addGoal(ws, "psi");
+      const result = removeGoal(ws, "goal-1");
+      expect(result.goals).toHaveLength(1);
+      expect(result.goals[0]!.formulaText).toBe("psi");
+    });
+
+    it("returns unchanged state for non-existent goal ID", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addGoal(ws, "phi");
+      const result = removeGoal(ws, "non-existent");
+      expect(result.goals).toHaveLength(1);
+    });
+
+    it("does not mutate original state", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addGoal(ws, "phi");
+      removeGoal(ws, "goal-1");
+      expect(ws.goals).toHaveLength(1);
+    });
+  });
+
+  describe("updateGoalFormulaText", () => {
+    it("updates formula text of a goal", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addGoal(ws, "phi");
+      const result = updateGoalFormulaText(ws, "goal-1", "psi -> phi");
+      expect(result.goals[0]!.formulaText).toBe("psi -> phi");
+    });
+
+    it("does not affect other goals", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addGoal(ws, "phi");
+      ws = addGoal(ws, "psi");
+      const result = updateGoalFormulaText(ws, "goal-1", "chi");
+      expect(result.goals[0]!.formulaText).toBe("chi");
+      expect(result.goals[1]!.formulaText).toBe("psi");
+    });
+
+    it("does not mutate original state", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addGoal(ws, "phi");
+      updateGoalFormulaText(ws, "goal-1", "psi");
+      expect(ws.goals[0]!.formulaText).toBe("phi");
     });
   });
 
@@ -817,127 +913,127 @@ describe("proofWorkspace", () => {
       expect(isNodeProtected(ws, "node-1")).toBe(false);
     });
 
-    it("returns true for quest-goal nodes in quest mode", () => {
+    it("always returns false (goals are separate from nodes)", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" },
       ]);
-      expect(isNodeProtected(ws, "node-1")).toBe(true);
+      // Even in quest mode, no nodes are protected because goals are separate
+      expect(ws.nodes).toHaveLength(0);
     });
 
-    it("returns false for non-protected nodes in quest mode", () => {
+    it("returns false for nodes in quest mode", () => {
       let ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" },
       ]);
       ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 });
-      expect(isNodeProtected(ws, "node-2")).toBe(false);
+      expect(isNodeProtected(ws, "node-1")).toBe(false);
     });
 
     it("returns false for non-existent node", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" },
       ]);
       expect(isNodeProtected(ws, "non-existent")).toBe(false);
     });
   });
 
-  describe("quest mode protection", () => {
-    it("prevents removing protected nodes in quest mode", () => {
+  describe("quest mode with goals", () => {
+    it("quest mode has no protected nodes (goals are separate)", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" },
       ]);
+      // No nodes exist, goals are in ws.goals
+      expect(ws.nodes).toHaveLength(0);
+      expect(ws.goals).toHaveLength(1);
+      expect(ws.goals[0]!.formulaText).toBe("phi");
+    });
+
+    it("allows removing nodes in quest mode (no protection)", () => {
+      let ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi" },
+      ]);
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 });
       const result = removeNode(ws, "node-1");
-      expect(result.nodes).toHaveLength(1);
-      expect(result).toBe(ws);
+      expect(result.nodes).toHaveLength(0);
+      // Goals remain unaffected
+      expect(result.goals).toHaveLength(1);
     });
 
-    it("allows removing non-protected nodes in quest mode", () => {
+    it("allows updating formula text of nodes in quest mode", () => {
       let ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" },
       ]);
       ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 });
-      const result = removeNode(ws, "node-2");
-      expect(result.nodes).toHaveLength(1);
-      expect(result.nodes[0]!.id).toBe("node-1");
-    });
-
-    it("prevents updating formula text of protected nodes", () => {
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
-      ]);
       const result = updateNodeFormulaText(ws, "node-1", "psi");
-      expect(result.nodes[0]!.formulaText).toBe("phi");
-      expect(result).toBe(ws);
+      expect(result.nodes[0]!.formulaText).toBe("psi");
     });
 
-    it("allows updating formula text of non-protected nodes", () => {
+    it("allows updating role of nodes in quest mode", () => {
       let ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" },
       ]);
       ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 });
-      const result = updateNodeFormulaText(ws, "node-2", "psi");
-      expect(result.nodes[1]!.formulaText).toBe("psi");
-    });
-
-    it("prevents updating role of protected nodes", () => {
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
-      ]);
       const result = updateNodeRole(ws, "node-1", "axiom");
-      expect(result.nodes[0]!.role).toBe("goal");
-      expect(result).toBe(ws);
+      expect(result.nodes[0]!.role).toBe("axiom");
     });
 
-    it("allows updating position of protected nodes (drag is allowed)", () => {
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+    it("goals persist when nodes are added/removed", () => {
+      let ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi" },
       ]);
-      const result = updateNodePosition(ws, "node-1", { x: 100, y: 100 });
-      expect(result.nodes[0]!.position).toEqual({ x: 100, y: 100 });
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "phi");
+      expect(ws.goals).toHaveLength(1);
+      ws = removeNode(ws, "node-1");
+      expect(ws.goals).toHaveLength(1);
+      expect(ws.goals[0]!.formulaText).toBe("phi");
     });
   });
 
   describe("convertToFreeMode", () => {
     it("converts quest mode to free mode", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" },
       ]);
       const result = convertToFreeMode(ws);
       expect(result.mode).toBe("free");
     });
 
-    it("removes protection from all nodes", () => {
+    it("preserves goals after conversion", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
-        { formulaText: "psi", position: { x: 200, y: 0 } },
+        { formulaText: "phi" },
+        { formulaText: "psi" },
       ]);
       const result = convertToFreeMode(ws);
-      expect(result.nodes[0]!.protection).toBeUndefined();
-      expect(result.nodes[1]!.protection).toBeUndefined();
+      expect(result.goals).toHaveLength(2);
+      expect(result.goals[0]!.formulaText).toBe("phi");
+      expect(result.goals[1]!.formulaText).toBe("psi");
     });
 
     it("preserves node data after conversion", () => {
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi -> phi", position: { x: 50, y: 100 } },
+      let ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi -> phi" },
       ]);
+      ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 100 }, "phi -> phi");
       const result = convertToFreeMode(ws);
       expect(result.nodes[0]!.formulaText).toBe("phi -> phi");
       expect(result.nodes[0]!.position).toEqual({ x: 50, y: 100 });
-      expect(result.nodes[0]!.role).toBe("goal");
     });
 
     it("allows editing after conversion", () => {
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+      let ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi" },
       ]);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       let freeWs = convertToFreeMode(ws);
       freeWs = updateNodeFormulaText(freeWs, "node-1", "psi");
       expect(freeWs.nodes[0]!.formulaText).toBe("psi");
     });
 
     it("allows deletion after conversion", () => {
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+      let ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi" },
       ]);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       let freeWs = convertToFreeMode(ws);
       freeWs = removeNode(freeWs, "node-1");
       expect(freeWs.nodes).toHaveLength(0);
@@ -949,27 +1045,22 @@ describe("proofWorkspace", () => {
       expect(result).toBe(ws);
     });
 
-    it("preserves non-protected nodes during conversion", () => {
+    it("preserves nodes during conversion", () => {
       let ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" },
       ]);
       ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "psi");
       const result = convertToFreeMode(ws);
-      expect(result.nodes).toHaveLength(2);
-      // Protected node: protection cleared
-      expect(result.nodes[0]!.protection).toBeUndefined();
-      // Non-protected node: unchanged
-      expect(result.nodes[1]!.formulaText).toBe("psi");
-      expect(result.nodes[1]!.protection).toBeUndefined();
+      expect(result.nodes).toHaveLength(1);
+      expect(result.nodes[0]!.formulaText).toBe("psi");
     });
 
     it("does not mutate original state", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" },
       ]);
       convertToFreeMode(ws);
       expect(ws.mode).toBe("quest");
-      expect(ws.nodes[0]!.protection).toBe("quest-goal");
     });
   });
 
@@ -1059,13 +1150,14 @@ describe("proofWorkspace", () => {
       }
     });
 
-    it("does not paste protection status", () => {
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
-      ]);
+    it("pastes nodes without special properties", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = updateNodeRole(ws, "node-1", "axiom");
       const clipboard = copySelectedNodes(ws, new Set(["node-1"]));
       const result = pasteNodes(ws, clipboard, { x: 500, y: 500 });
-      expect(result.nodes[1]!.protection).toBeUndefined();
+      expect(result.nodes).toHaveLength(2);
+      expect(result.nodes[1]!.formulaText).toBe("phi");
     });
 
     it("handles empty clipboard data", () => {
@@ -1101,21 +1193,25 @@ describe("proofWorkspace", () => {
       expect(result.connections).toHaveLength(0);
     });
 
-    it("skips protected nodes", () => {
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+    it("removes all selected nodes (no protection)", () => {
+      let ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi" },
       ]);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
       const result = removeSelectedNodes(ws, new Set(["node-1"]));
-      // Protected node should not be removed
-      expect(result.nodes).toHaveLength(1);
+      expect(result.nodes).toHaveLength(0);
+      // Goals remain unaffected
+      expect(result.goals).toHaveLength(1);
     });
 
-    it("returns unchanged state when no removable nodes", () => {
+    it("returns unchanged state when selecting non-existent nodes", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" },
       ]);
-      const result = removeSelectedNodes(ws, new Set(["node-1"]));
-      expect(result).toBe(ws);
+      const result = removeSelectedNodes(ws, new Set(["non-existent"]));
+      expect(result.nodes).toStrictEqual(ws.nodes);
+      expect(result.connections).toStrictEqual(ws.connections);
+      expect(result.goals).toStrictEqual(ws.goals);
     });
 
     it("handles empty selection", () => {
@@ -1273,15 +1369,13 @@ describe("proofWorkspace", () => {
       expect(result.newNodeIds.size).toBe(0);
     });
 
-    it("保護ノードはコピーされない（空のClipboardData）", () => {
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi -> phi", position: { x: 100, y: 100 } },
+    it("クエストモードでもノードの複製は可能", () => {
+      let ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi -> phi" },
       ]);
-      // 保護ノードのみ選択
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi -> phi");
       const selected = new Set(["node-1"]);
       const result = duplicateSelectedNodes(ws, selected);
-      // buildClipboardDataは保護ノードも含むが、pasteClipboardDataで復元される
-      // ただし保護は剥がされる
       expect(result.workspace.nodes).toHaveLength(2);
       expect(result.newNodeIds.size).toBe(1);
     });
@@ -1316,10 +1410,10 @@ describe("proofWorkspace", () => {
       expect(newNode.position.y).toBe(80); // 50 + 30
     });
 
-    it("ゴールノードの複製はroleがクリアされる", () => {
+    it("axiomノードの複製はroleが保持される（duplicateSelectedNodes）", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "G1", { x: 100, y: 100 }, "phi -> phi");
-      ws = updateNodeRole(ws, "node-1", "goal");
+      ws = addNode(ws, "axiom", "Ax1", { x: 100, y: 100 }, "phi -> phi");
+      ws = updateNodeRole(ws, "node-1", "axiom");
 
       const result = duplicateSelectedNodes(ws, new Set(["node-1"]));
       expect(result.workspace.nodes).toHaveLength(2);
@@ -1327,7 +1421,7 @@ describe("proofWorkspace", () => {
         result.newNodeIds.has(n.id),
       )!;
       expect(newNode.formulaText).toBe("phi -> phi");
-      expect(newNode.role).toBeUndefined();
+      expect(newNode.role).toBe("axiom");
     });
 
     it("公理ノードの複製はroleが保持される", () => {
@@ -1365,16 +1459,16 @@ describe("proofWorkspace", () => {
       expect(newNode.position.y).toBe(130); // 100 + 30
     });
 
-    it("ゴールノードをduplicateNodeで複製するとroleがクリアされる", () => {
+    it("axiomノードをduplicateNodeで複製するとroleが保持される", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "G1", { x: 50, y: 50 }, "phi -> phi");
-      ws = updateNodeRole(ws, "node-1", "goal");
+      ws = addNode(ws, "axiom", "Ax1", { x: 50, y: 50 }, "phi -> phi");
+      ws = updateNodeRole(ws, "node-1", "axiom");
 
       const result = duplicateNode(ws, "node-1");
       const newNode = result.workspace.nodes.find((n) =>
         result.newNodeIds.has(n.id),
       )!;
-      expect(newNode.role).toBeUndefined();
+      expect(newNode.role).toBe("axiom");
     });
 
     it("存在しないノードIDでは何も変化しない", () => {
@@ -1408,17 +1502,20 @@ describe("proofWorkspace", () => {
       expect(result.clipboardData.nodes[0]!.originalId).toBe("node-1");
     });
 
-    it("保護ノードはカットされない", () => {
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi -> phi", position: { x: 100, y: 100 } },
+    it("クエストモードでもノードはカットできる", () => {
+      let ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi -> phi" },
       ]);
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 100 }, "phi -> phi");
       const selected = new Set(["node-1"]);
       const result = cutSelectedNodes(ws, selected);
 
-      // 保護ノードは削除されない
-      expect(result.workspace.nodes).toHaveLength(1);
+      // ノードは削除される（保護なし）
+      expect(result.workspace.nodes).toHaveLength(0);
       // ClipboardDataにはコピーされる
       expect(result.clipboardData.nodes).toHaveLength(1);
+      // ゴールは残る
+      expect(result.workspace.goals).toHaveLength(1);
     });
 
     it("空の選択では状態を変更しない", () => {
@@ -1739,7 +1836,7 @@ describe("proofWorkspace", () => {
 
     it("createQuestWorkspace initializes with empty inferenceEdges", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi", position: { x: 0, y: 0 } },
+        { formulaText: "phi" } satisfies QuestGoalDefinition,
       ]);
       expect(ws.inferenceEdges).toEqual([]);
     });

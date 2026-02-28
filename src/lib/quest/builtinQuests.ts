@@ -22,7 +22,6 @@ const q01Identity: QuestDefinition = {
     {
       formulaText: "phi -> phi",
       label: "Goal: φ → φ",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -48,7 +47,6 @@ const q02ConstantComposition: QuestDefinition = {
     {
       formulaText: "psi -> (phi -> phi)",
       label: "Goal: ψ → (φ → φ)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -75,7 +73,6 @@ const q03TransitivityPrep: QuestDefinition = {
     {
       formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> psi))",
       label: "Goal",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -103,7 +100,6 @@ const q04HypotheticalSyllogism: QuestDefinition = {
     {
       formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
       label: "Goal",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -129,7 +125,6 @@ const q05ImplicationWeakening: QuestDefinition = {
     {
       formulaText: "phi -> (psi -> (chi -> psi))",
       label: "Goal",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -155,7 +150,6 @@ const q06SSpecialCase: QuestDefinition = {
     {
       formulaText: "(phi -> (phi -> psi)) -> (phi -> psi)",
       label: "Goal",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -182,7 +176,6 @@ const q07Permutation: QuestDefinition = {
     {
       formulaText: "(phi -> (psi -> chi)) -> (psi -> (phi -> chi))",
       label: "Goal",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -212,7 +205,6 @@ const q08TransitivityChain: QuestDefinition = {
       formulaText:
         "(phi -> psi) -> ((psi -> chi) -> ((chi -> theta) -> (phi -> theta)))",
       label: "Goal",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -238,7 +230,6 @@ const q10BComposition: QuestDefinition = {
     {
       formulaText: "(psi -> chi) -> ((phi -> psi) -> (phi -> chi))",
       label: "Goal",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -263,7 +254,6 @@ const q11PremiseConfluence: QuestDefinition = {
     {
       formulaText: "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
       label: "Goal",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: ["この式はある公理のインスタンスです。", "A2をよく見てみましょう。"],
@@ -286,7 +276,6 @@ const q12LeftAssociation: QuestDefinition = {
     {
       formulaText: "((phi -> psi) -> (phi -> chi)) -> (phi -> (psi -> chi))",
       label: "Goal",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -313,7 +302,6 @@ const q13FregeTheorem: QuestDefinition = {
     {
       formulaText: "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
       label: "Goal",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -339,7 +327,6 @@ const q14DoubleImplicationDistribution: QuestDefinition = {
     {
       formulaText: "(phi -> psi) -> ((phi -> (psi -> chi)) -> (phi -> chi))",
       label: "Goal",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -366,7 +353,6 @@ const q15DoubleNegationIntro: QuestDefinition = {
     {
       formulaText: "phi -> ~~phi",
       label: "Goal: φ → ¬¬φ",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -392,7 +378,6 @@ const q16ModusTollens: QuestDefinition = {
     {
       formulaText: "(phi -> psi) -> (~psi -> ~phi)",
       label: "Goal: (φ → ψ) → (¬ψ → ¬φ)",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -418,7 +403,6 @@ const q17DoubleNegationElim: QuestDefinition = {
     {
       formulaText: "~~phi -> phi",
       label: "Goal: ¬¬φ → φ",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -444,7 +428,6 @@ const q18ExFalso: QuestDefinition = {
     {
       formulaText: "~phi -> (phi -> psi)",
       label: "Goal: ¬φ → (φ → ψ)",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -470,7 +453,6 @@ const q19ConverseContraposition: QuestDefinition = {
     {
       formulaText: "(~psi -> ~phi) -> (phi -> psi)",
       label: "Goal: (¬ψ → ¬φ) → (φ → ψ)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -498,7 +480,6 @@ const q20LawOfExcludedMiddle: QuestDefinition = {
     {
       formulaText: "~phi \\/ phi",
       label: "Goal: ¬φ ∨ φ",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -525,7 +506,6 @@ const q21PeirceLaw: QuestDefinition = {
     {
       formulaText: "((phi -> psi) -> phi) -> phi",
       label: "Goal: ((φ → ψ) → φ) → φ",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -554,7 +534,6 @@ const q33ModusPonensImplication: QuestDefinition = {
     {
       formulaText: "phi -> ((phi -> psi) -> psi)",
       label: "Goal: φ → ((φ → ψ) → ψ)",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -581,7 +560,6 @@ const q34ImplicationWeakeningElim: QuestDefinition = {
     {
       formulaText: "((phi -> psi) -> chi) -> (psi -> chi)",
       label: "Goal: ((φ → ψ) → χ) → (ψ → χ)",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -608,7 +586,6 @@ const q35MendelsonIdentity: QuestDefinition = {
     {
       formulaText: "phi -> phi",
       label: "Goal: φ → φ",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -637,7 +614,6 @@ const q22ConjunctionIntro: QuestDefinition = {
     {
       formulaText: "phi -> (psi -> (phi /\\ psi))",
       label: "Goal: φ → (ψ → (φ ∧ ψ))",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -664,7 +640,6 @@ const q23ConjunctionElim: QuestDefinition = {
     {
       formulaText: "(phi /\\ psi) -> phi",
       label: "Goal: (φ ∧ ψ) → φ",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -691,7 +666,6 @@ const q24DeMorgan: QuestDefinition = {
     {
       formulaText: "~(phi \\/ psi) -> (~phi /\\ ~psi)",
       label: "Goal: ¬(φ ∨ ψ) → (¬φ ∧ ¬ψ)",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -720,7 +694,6 @@ const q25TripleNegationElim: QuestDefinition = {
     {
       formulaText: "~~~phi -> ~phi",
       label: "Goal: ¬¬¬φ → ¬φ",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -747,7 +720,6 @@ const q26ConsequentiaMirabilis: QuestDefinition = {
     {
       formulaText: "(phi -> ~phi) -> ~phi",
       label: "Goal: (φ → ¬φ) → ¬φ",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -774,7 +746,6 @@ const q27Contraposition2: QuestDefinition = {
     {
       formulaText: "(phi -> ~psi) -> (psi -> ~phi)",
       label: "Goal: (φ → ¬ψ) → (ψ → ¬φ)",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -801,7 +772,6 @@ const q28ClaviusLaw: QuestDefinition = {
     {
       formulaText: "(~phi -> phi) -> phi",
       label: "Goal: (¬φ → φ) → φ",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -828,7 +798,6 @@ const q29TertiumNonDatur: QuestDefinition = {
     {
       formulaText: "(phi -> psi) -> ((~phi -> psi) -> psi)",
       label: "Goal: (φ → ψ) → ((¬φ → ψ) → ψ)",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -857,7 +826,6 @@ const q30LawOfNonContradiction: QuestDefinition = {
     {
       formulaText: "~(phi /\\ ~phi)",
       label: "Goal: ¬(φ ∧ ¬φ)",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -883,7 +851,6 @@ const q31ConjunctionElimRight: QuestDefinition = {
     {
       formulaText: "(phi /\\ psi) -> psi",
       label: "Goal: (φ ∧ ψ) → ψ",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -910,7 +877,6 @@ const q32DisjunctionElim: QuestDefinition = {
     {
       formulaText: "(phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))",
       label: "Goal: (φ ∨ ψ) → ((φ → χ) → ((ψ → χ) → χ))",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -939,7 +905,6 @@ const qPA01SuccessorNotZero: QuestDefinition = {
     {
       formulaText: "all x. ~(S(x) = 0)",
       label: "Goal: ∀x. ¬(S(x) = 0)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -964,7 +929,6 @@ const qPA02AdditionBase: QuestDefinition = {
     {
       formulaText: "all x. x + 0 = x",
       label: "Goal: ∀x. x + 0 = x",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -989,7 +953,6 @@ const qPA03MultiplicationBase: QuestDefinition = {
     {
       formulaText: "all x. x * 0 = 0",
       label: "Goal: ∀x. x × 0 = 0",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1015,7 +978,6 @@ const qPA04Reflexivity: QuestDefinition = {
     {
       formulaText: "all x. x = x",
       label: "Goal: ∀x. x = x",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1041,7 +1003,6 @@ const qPA05SuccessorInjective: QuestDefinition = {
     {
       formulaText: "all x. all y. S(x) = S(y) -> x = y",
       label: "Goal: ∀x.∀y. S(x) = S(y) → x = y",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1067,7 +1028,6 @@ const qPA06AdditionRecursion: QuestDefinition = {
     {
       formulaText: "all x. all y. x + S(y) = S(x + y)",
       label: "Goal: ∀x.∀y. x + S(y) = S(x + y)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1095,7 +1055,6 @@ const qPA07ZeroPlusZero: QuestDefinition = {
     {
       formulaText: "0 + 0 = 0",
       label: "Goal: 0 + 0 = 0",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1121,7 +1080,6 @@ const qPA08OnePlusZero: QuestDefinition = {
     {
       formulaText: "S(0) + 0 = S(0)",
       label: "Goal: S(0) + 0 = S(0)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1147,7 +1105,6 @@ const qPA09ZeroTimesZero: QuestDefinition = {
     {
       formulaText: "0 * 0 = 0",
       label: "Goal: 0 × 0 = 0",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1172,7 +1129,6 @@ const qPA10SuccessorNotZeroInstance: QuestDefinition = {
     {
       formulaText: "~(S(0) = 0)",
       label: "Goal: ¬(S(0) = 0)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1198,7 +1154,6 @@ const qPA11OnePlusOne: QuestDefinition = {
     {
       formulaText: "S(0) + S(0) = S(S(0))",
       label: "Goal: 1 + 1 = 2",
-      position: { x: 400, y: 600 },
     },
   ],
   hints: [
@@ -1224,7 +1179,6 @@ const qPA12RobinsonSurjectivity: QuestDefinition = {
     {
       formulaText: "all x. x = 0 \\/ ex y. x = S(y)",
       label: "Goal: ∀x.(x = 0 ∨ ∃y.(x = S(y)))",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1252,7 +1206,6 @@ const qG01Associativity: QuestDefinition = {
     {
       formulaText: "all x. all y. all z. (x * y) * z = x * (y * z)",
       label: "Goal: ∀x.∀y.∀z. (x·y)·z = x·(y·z)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1277,7 +1230,6 @@ const qG02LeftIdentity: QuestDefinition = {
     {
       formulaText: "all x. e * x = x",
       label: "Goal: ∀x. e·x = x",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1303,7 +1255,6 @@ const qG03LeftInverse: QuestDefinition = {
     {
       formulaText: "all x. i(x) * x = e",
       label: "Goal: ∀x. i(x)·x = e",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1328,7 +1279,6 @@ const qG04RightIdentity: QuestDefinition = {
     {
       formulaText: "all x. x * e = x",
       label: "Goal: ∀x. x·e = x",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1353,7 +1303,6 @@ const qG05RightInverse: QuestDefinition = {
     {
       formulaText: "all x. x * i(x) = e",
       label: "Goal: ∀x. x·i(x) = e",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1378,7 +1327,6 @@ const qG06Commutativity: QuestDefinition = {
     {
       formulaText: "all x. all y. x * y = y * x",
       label: "Goal: ∀x.∀y. x·y = y·x",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1406,7 +1354,6 @@ const qG07IdentityTimesIdentity: QuestDefinition = {
     {
       formulaText: "e * e = e",
       label: "Goal: e·e = e",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1433,7 +1380,6 @@ const qG08InverseIdentity: QuestDefinition = {
     {
       formulaText: "i(e) * e = e",
       label: "Goal: i(e)·e = e",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1462,7 +1408,6 @@ const qPred01UniversalElim: QuestDefinition = {
     {
       formulaText: "all x. P(x) -> P(x)",
       label: "Goal: ∀x.P(x) → P(x)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1489,7 +1434,6 @@ const qPred02IdentityQuantified: QuestDefinition = {
     {
       formulaText: "all x. (P(x) -> P(x))",
       label: "Goal: ∀x.(P(x) → P(x))",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1516,7 +1460,6 @@ const qPred03UniversalSwap: QuestDefinition = {
     {
       formulaText: "all x. all y. P(x, y) -> all y. all x. P(x, y)",
       label: "Goal: ∀x.∀y.P(x,y) → ∀y.∀x.P(x,y)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1544,7 +1487,6 @@ const qPred04ExistentialIntro: QuestDefinition = {
     {
       formulaText: "P(x) -> ex x. P(x)",
       label: "Goal: P(x) → ∃x.P(x)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1569,7 +1511,6 @@ const qPred05ExistNegToNegUniv: QuestDefinition = {
     {
       formulaText: "ex x. ~P(x) -> ~(all x. P(x))",
       label: "Goal: ∃x.¬P(x) → ¬∀x.P(x)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1597,7 +1538,6 @@ const qPred06UnivNegToNegExist: QuestDefinition = {
     {
       formulaText: "all x. ~P(x) -> ~(ex x. P(x))",
       label: "Goal: ∀x.¬P(x) → ¬∃x.P(x)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1627,7 +1567,6 @@ const qNd01Identity: QuestDefinition = {
     {
       formulaText: "phi -> phi",
       label: "Goal: φ → φ",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1653,7 +1592,6 @@ const qNd02KAxiom: QuestDefinition = {
     {
       formulaText: "phi -> (psi -> phi)",
       label: "Goal: φ → (ψ → φ)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1680,7 +1618,6 @@ const qNd03Contraposition: QuestDefinition = {
     {
       formulaText: "(phi -> psi) -> (~psi -> ~phi)",
       label: "Goal: (φ → ψ) → (¬ψ → ¬φ)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1707,7 +1644,6 @@ const qNd04ConjunctionCommutativity: QuestDefinition = {
     {
       formulaText: "(phi /\\ psi) -> (psi /\\ phi)",
       label: "Goal: (φ ∧ ψ) → (ψ ∧ φ)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1734,7 +1670,6 @@ const qNd05DisjunctionCommute: QuestDefinition = {
     {
       formulaText: "(phi \\/ psi) -> (psi \\/ phi)",
       label: "Goal: (φ ∨ ψ) → (ψ ∨ φ)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1761,7 +1696,6 @@ const qNd06DoubleNegationIntro: QuestDefinition = {
     {
       formulaText: "phi -> ~~phi",
       label: "Goal: φ → ¬¬φ",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1787,7 +1721,6 @@ const qNd07ExFalsoNJ: QuestDefinition = {
     {
       formulaText: "~phi -> (phi -> psi)",
       label: "Goal: ¬φ → (φ → ψ)",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1814,7 +1747,6 @@ const qNd08ClaviusLawNK: QuestDefinition = {
     {
       formulaText: "(~phi -> phi) -> phi",
       label: "Goal: (¬φ → φ) → φ",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1840,7 +1772,6 @@ const qNd09ExcludedMiddleNK: QuestDefinition = {
     {
       formulaText: "phi \\/ ~phi",
       label: "Goal: φ ∨ ¬φ",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1867,7 +1798,6 @@ const qNd10ConsequentiaMirabilisNK: QuestDefinition = {
     {
       formulaText: "(phi -> ~phi) -> ~phi",
       label: "Goal: (φ → ¬φ) → ¬φ",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1896,7 +1826,6 @@ const qNd11RaaMinimal: QuestDefinition = {
     {
       formulaText: "(phi -> psi) -> (phi -> ~psi) -> ~phi",
       label: "Goal: (φ → ψ) → (φ → ¬ψ) → ¬φ",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1923,7 +1852,6 @@ const qNd12RaaClassical: QuestDefinition = {
     {
       formulaText: "(~phi -> psi) -> (~phi -> ~psi) -> phi",
       label: "Goal: (¬φ → ψ) → (¬φ → ¬ψ) → φ",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1950,7 +1878,6 @@ const qNd13Con1: QuestDefinition = {
     {
       formulaText: "psi -> ~psi -> ~phi",
       label: "Goal: ψ → ¬ψ → ¬φ",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [
@@ -1977,7 +1904,6 @@ const qNd14Con4: QuestDefinition = {
     {
       formulaText: "~psi -> psi -> phi",
       label: "Goal: ¬ψ → ψ → φ",
-      position: { x: 400, y: 500 },
     },
   ],
   hints: [

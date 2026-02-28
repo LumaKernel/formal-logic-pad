@@ -5,7 +5,7 @@ import {
   checkQuestGoalsWithAxioms,
   computeViolatingAxiomIds,
 } from "./questCompletionLogic";
-import type { WorkspaceNode } from "../proof-pad/workspaceState";
+import type { WorkspaceNode, WorkspaceGoal } from "../proof-pad/workspaceState";
 import type { InferenceEdge } from "../proof-pad/inferenceEdge";
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
 
@@ -19,6 +19,17 @@ function makeNode(
     label: "",
     formulaText: "",
     position: { x: 0, y: 0 },
+    ...overrides,
+  };
+}
+
+function makeGoal(
+  overrides: Partial<WorkspaceGoal> & {
+    readonly id: string;
+    readonly formulaText: string;
+  },
+): WorkspaceGoal {
+  return {
     ...overrides,
   };
 }
@@ -43,13 +54,6 @@ describe("computeStepCount", () => {
     expect(computeStepCount(nodes)).toBe(0);
   });
 
-  test("quest-goalで保護されたノードはカウントしない", () => {
-    const nodes = [
-      makeNode({ id: "n1", kind: "axiom", protection: "quest-goal" }),
-    ];
-    expect(computeStepCount(nodes)).toBe(0);
-  });
-
   test("混合ノードのステップ数を正しく計算する", () => {
     const nodes = [
       makeNode({ id: "n1", kind: "axiom" }),
@@ -57,62 +61,41 @@ describe("computeStepCount", () => {
       makeNode({ id: "n3", kind: "axiom" }),
       makeNode({ id: "n4", kind: "axiom" }),
       makeNode({ id: "n5", kind: "conclusion" }),
-      makeNode({ id: "n6", kind: "axiom", protection: "quest-goal" }),
     ];
-    // axiom(2) + derived(2) = 4。conclusionとquest-goalは除外
+    // axiom(4)。conclusionは除外
     expect(computeStepCount(nodes)).toBe(4);
   });
 
-  test("ゴールノード(quest-goal)のみの場合は0を返す", () => {
+  test("conclusionノードのみの場合は0を返す", () => {
     const nodes = [
-      makeNode({ id: "n1", kind: "axiom", protection: "quest-goal" }),
-      makeNode({ id: "n2", kind: "axiom", protection: "quest-goal" }),
+      makeNode({ id: "n1", kind: "conclusion" }),
+      makeNode({ id: "n2", kind: "conclusion" }),
     ];
     expect(computeStepCount(nodes)).toBe(0);
-  });
-
-  test("role=goalのノードはカウントしない", () => {
-    const nodes = [makeNode({ id: "n1", kind: "axiom", role: "goal" })];
-    expect(computeStepCount(nodes)).toBe(0);
-  });
-
-  test("role=goalとquest-goalの両方が混在しても正しくカウントする", () => {
-    const nodes = [
-      makeNode({ id: "n1", kind: "axiom" }),
-      makeNode({ id: "n2", kind: "axiom", role: "goal" }),
-      makeNode({ id: "n3", kind: "axiom", protection: "quest-goal" }),
-      makeNode({ id: "n4", kind: "axiom" }),
-    ];
-    // axiom(n1) + derived(n4) = 2。role=goalとquest-goalは除外
-    expect(computeStepCount(nodes)).toBe(2);
   });
 });
 
 describe("checkQuestGoals", () => {
-  test("ゴールノードがない場合はNoGoalsを返す", () => {
+  test("ゴールがない場合はNoGoalsを返す", () => {
+    const goals: readonly WorkspaceGoal[] = [];
     const nodes = [makeNode({ id: "n1", kind: "axiom", formulaText: "phi" })];
-    expect(checkQuestGoals(nodes)).toEqual({ _tag: "NoGoals" });
+    expect(checkQuestGoals(goals, nodes)).toEqual({ _tag: "NoGoals" });
   });
 
-  test("空のノード配列はNoGoalsを返す", () => {
-    expect(checkQuestGoals([])).toEqual({ _tag: "NoGoals" });
+  test("空のゴール配列と空のノード配列はNoGoalsを返す", () => {
+    expect(checkQuestGoals([], [])).toEqual({ _tag: "NoGoals" });
   });
 
   test("ゴールが未達成の場合はNotAllAchievedを返す", () => {
+    const goals = [makeGoal({ id: "g1", formulaText: "phi -> phi" })];
     const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: "phi -> phi",
-        protection: "quest-goal",
-      }),
       makeNode({
         id: "n1",
         kind: "axiom",
         formulaText: "phi -> (psi -> phi)",
       }),
     ];
-    const result = checkQuestGoals(nodes);
+    const result = checkQuestGoals(goals, nodes);
     expect(result._tag).toBe("NotAllAchieved");
     if (result._tag === "NotAllAchieved") {
       expect(result.achievedCount).toBe(0);
@@ -121,13 +104,8 @@ describe("checkQuestGoals", () => {
   });
 
   test("ゴールが達成された場合はAllAchievedを返す", () => {
+    const goals = [makeGoal({ id: "g1", formulaText: "phi -> phi" })];
     const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: "phi -> phi",
-        protection: "quest-goal",
-      }),
       makeNode({
         id: "n1",
         kind: "axiom",
@@ -139,35 +117,27 @@ describe("checkQuestGoals", () => {
         formulaText: "phi -> phi",
       }),
     ];
-    const result = checkQuestGoals(nodes);
+    const result = checkQuestGoals(goals, nodes);
     expect(result._tag).toBe("AllAchieved");
     if (result._tag === "AllAchieved") {
-      // axiom(1) + mp(1) = 2ステップ（ゴールノードは除外）
+      // axiom(2) = 2ステップ
       expect(result.stepCount).toBe(2);
     }
   });
 
   test("複数ゴールのうち一部のみ達成の場合はNotAllAchievedを返す", () => {
+    const goals = [
+      makeGoal({ id: "g1", formulaText: "phi -> phi" }),
+      makeGoal({ id: "g2", formulaText: "psi -> psi" }),
+    ];
     const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: "phi -> phi",
-        protection: "quest-goal",
-      }),
-      makeNode({
-        id: "g2",
-        kind: "axiom",
-        formulaText: "psi -> psi",
-        protection: "quest-goal",
-      }),
       makeNode({
         id: "n1",
         kind: "axiom",
         formulaText: "phi -> phi",
       }),
     ];
-    const result = checkQuestGoals(nodes);
+    const result = checkQuestGoals(goals, nodes);
     expect(result._tag).toBe("NotAllAchieved");
     if (result._tag === "NotAllAchieved") {
       expect(result.achievedCount).toBe(1);
@@ -176,19 +146,11 @@ describe("checkQuestGoals", () => {
   });
 
   test("複数ゴールすべて達成の場合はAllAchievedを返す", () => {
+    const goals = [
+      makeGoal({ id: "g1", formulaText: "phi -> phi" }),
+      makeGoal({ id: "g2", formulaText: "psi -> psi" }),
+    ];
     const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: "phi -> phi",
-        protection: "quest-goal",
-      }),
-      makeNode({
-        id: "g2",
-        kind: "axiom",
-        formulaText: "psi -> psi",
-        protection: "quest-goal",
-      }),
       makeNode({
         id: "n1",
         kind: "axiom",
@@ -200,7 +162,7 @@ describe("checkQuestGoals", () => {
         formulaText: "psi -> psi",
       }),
     ];
-    const result = checkQuestGoals(nodes);
+    const result = checkQuestGoals(goals, nodes);
     expect(result._tag).toBe("AllAchieved");
     if (result._tag === "AllAchieved") {
       expect(result.stepCount).toBe(2);
@@ -208,13 +170,8 @@ describe("checkQuestGoals", () => {
   });
 
   test("ゴールのformulaTextが空の場合はスキップする", () => {
+    const goals = [makeGoal({ id: "g1", formulaText: "" })];
     const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: "",
-        protection: "quest-goal",
-      }),
       makeNode({
         id: "n1",
         kind: "axiom",
@@ -222,44 +179,34 @@ describe("checkQuestGoals", () => {
       }),
     ];
     // 空のゴールはパース失敗→スキップされるので、ゴール0/1で未達成扱い
-    const result = checkQuestGoals(nodes);
+    const result = checkQuestGoals(goals, nodes);
     // パース失敗のゴールはcontinueされ、achievedCountは増えないがtotalCountは1
     expect(result._tag).toBe("NotAllAchieved");
   });
 
   test("ゴールのformulaTextがパース不能な場合はスキップする", () => {
+    const goals = [makeGoal({ id: "g1", formulaText: ">>>invalid<<<" })];
     const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: ">>>invalid<<<",
-        protection: "quest-goal",
-      }),
       makeNode({
         id: "n1",
         kind: "axiom",
         formulaText: "phi",
       }),
     ];
-    const result = checkQuestGoals(nodes);
+    const result = checkQuestGoals(goals, nodes);
     expect(result._tag).toBe("NotAllAchieved");
   });
 
   test("ワークノードのformulaTextがパース不能でもエラーにならない", () => {
+    const goals = [makeGoal({ id: "g1", formulaText: "phi" })];
     const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: "phi",
-        protection: "quest-goal",
-      }),
       makeNode({
         id: "n1",
         kind: "axiom",
         formulaText: ">>>invalid<<<",
       }),
     ];
-    const result = checkQuestGoals(nodes);
+    const result = checkQuestGoals(goals, nodes);
     expect(result._tag).toBe("NotAllAchieved");
     if (result._tag === "NotAllAchieved") {
       expect(result.achievedCount).toBe(0);
@@ -327,26 +274,26 @@ describe("checkQuestGoalsWithAxioms", () => {
     };
   }
 
-  test("ゴールノードがない場合はNoGoalsを返す", () => {
-    const result = checkQuestGoalsWithAxioms([], [], lukasiewiczSystem);
+  test("ゴールがない場合はNoGoalsを返す", () => {
+    const result = checkQuestGoalsWithAxioms([], [], [], lukasiewiczSystem);
     expect(result._tag).toBe("NoGoals");
   });
 
   test("ゴール達成・公理制限なしでAllAchievedを返す", () => {
+    const goals = [makeGoal({ id: "g1", formulaText: "phi -> (psi -> phi)" })];
     const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: "phi -> (psi -> phi)",
-        protection: "quest-goal",
-      }),
       makeNode({
         id: "a1",
         kind: "axiom",
         formulaText: "phi -> (psi -> phi)",
       }),
     ];
-    const result = checkQuestGoalsWithAxioms(nodes, [], lukasiewiczSystem);
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
     expect(result._tag).toBe("AllAchieved");
     if (result._tag === "AllAchieved") {
       expect(result.goalResults).toHaveLength(1);
@@ -356,40 +303,50 @@ describe("checkQuestGoalsWithAxioms", () => {
   });
 
   test("ゴール達成・公理制限内でAllAchievedを返す", () => {
-    const nodes = [
-      makeNode({
+    const goals = [
+      makeGoal({
         id: "g1",
-        kind: "axiom",
         formulaText: "phi -> (psi -> phi)",
-        protection: "quest-goal",
         allowedAxiomIds: ["A1", "A2"],
       }),
+    ];
+    const nodes = [
       makeNode({
         id: "a1",
         kind: "axiom",
         formulaText: "phi -> (psi -> phi)",
       }),
     ];
-    const result = checkQuestGoalsWithAxioms(nodes, [], lukasiewiczSystem);
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
     expect(result._tag).toBe("AllAchieved");
   });
 
   test("ゴール達成・公理制限違反でAllAchievedButAxiomViolationを返す", () => {
-    const nodes = [
-      makeNode({
+    const goals = [
+      makeGoal({
         id: "g1",
-        kind: "axiom",
         formulaText: "phi -> (psi -> phi)",
-        protection: "quest-goal",
         allowedAxiomIds: ["A2", "A3"],
       }),
+    ];
+    const nodes = [
       makeNode({
         id: "a1",
         kind: "axiom",
         formulaText: "phi -> (psi -> phi)",
       }),
     ];
-    const result = checkQuestGoalsWithAxioms(nodes, [], lukasiewiczSystem);
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
     expect(result._tag).toBe("AllAchievedButAxiomViolation");
     if (result._tag === "AllAchievedButAxiomViolation") {
       expect(result.goalResults[0]?.violatingAxiomIds).toEqual(new Set(["A1"]));
@@ -397,15 +354,14 @@ describe("checkQuestGoalsWithAxioms", () => {
   });
 
   test("ゴール未達成の場合はNotAllAchievedを返す", () => {
-    const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: "phi -> phi",
-        protection: "quest-goal",
-      }),
-    ];
-    const result = checkQuestGoalsWithAxioms(nodes, [], lukasiewiczSystem);
+    const goals = [makeGoal({ id: "g1", formulaText: "phi -> phi" })];
+    const nodes: readonly WorkspaceNode[] = [];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
     expect(result._tag).toBe("NotAllAchieved");
     if (result._tag === "NotAllAchieved") {
       expect(result.achievedCount).toBe(0);
@@ -417,14 +373,14 @@ describe("checkQuestGoalsWithAxioms", () => {
     // ゴール: psi -> phi  (A3の結論部分と一致するような式)
     // a1 (A1インスタンス) + a3 (A3インスタンス) → mp1 (psi -> phi)
     // ゴールは A1 のみ許可 → A3 が制限違反
-    const nodes = [
-      makeNode({
+    const goals = [
+      makeGoal({
         id: "g1",
-        kind: "axiom",
         formulaText: "psi -> phi",
-        protection: "quest-goal",
         allowedAxiomIds: ["A1"],
       }),
+    ];
+    const nodes = [
       makeNode({
         id: "a1",
         kind: "axiom",
@@ -443,6 +399,7 @@ describe("checkQuestGoalsWithAxioms", () => {
     ];
     const inferenceEdges = [makeMPEdge("mp1", "a1", "a3")];
     const result = checkQuestGoalsWithAxioms(
+      goals,
       nodes,
       inferenceEdges,
       lukasiewiczSystem,
@@ -457,15 +414,14 @@ describe("checkQuestGoalsWithAxioms", () => {
   });
 
   test("パース不能なゴールはmatchingNodeId: undefinedで結果に含まれる", () => {
-    const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: ">>>invalid<<<",
-        protection: "quest-goal",
-      }),
-    ];
-    const result = checkQuestGoalsWithAxioms(nodes, [], lukasiewiczSystem);
+    const goals = [makeGoal({ id: "g1", formulaText: ">>>invalid<<<" })];
+    const nodes: readonly WorkspaceNode[] = [];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
     expect(result._tag).toBe("NotAllAchieved");
     if (result._tag === "NotAllAchieved") {
       expect(result.goalResults[0]?.matchingNodeId).toBeUndefined();
@@ -473,22 +429,24 @@ describe("checkQuestGoalsWithAxioms", () => {
   });
 
   test("公理インスタンスが直接ルートに配置されている場合はAxiomViolationを返す", () => {
-    // ゴール: phi -> phi
+    // ゴール: phi -> ((phi -> phi) -> phi)
     // ワークノード: A1インスタンスを直接配置（スキーマではなく代入済み）
+    const goals = [
+      makeGoal({ id: "g1", formulaText: "phi -> ((phi -> phi) -> phi)" }),
+    ];
     const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: "phi -> ((phi -> phi) -> phi)",
-        protection: "quest-goal",
-      }),
       makeNode({
         id: "a1-instance",
         kind: "axiom",
         formulaText: "phi -> ((phi -> phi) -> phi)",
       }),
     ];
-    const result = checkQuestGoalsWithAxioms(nodes, [], lukasiewiczSystem);
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
     expect(result._tag).toBe("AllAchievedButAxiomViolation");
     if (result._tag === "AllAchievedButAxiomViolation") {
       expect(result.goalResults[0]?.hasInstanceRootNodes).toBe(true);
@@ -496,20 +454,20 @@ describe("checkQuestGoalsWithAxioms", () => {
   });
 
   test("公理スキーマそのものがルートの場合はhasInstanceRootNodesがfalse", () => {
+    const goals = [makeGoal({ id: "g1", formulaText: "phi -> (psi -> phi)" })];
     const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: "phi -> (psi -> phi)",
-        protection: "quest-goal",
-      }),
       makeNode({
         id: "a1",
         kind: "axiom",
         formulaText: "phi -> (psi -> phi)",
       }),
     ];
-    const result = checkQuestGoalsWithAxioms(nodes, [], lukasiewiczSystem);
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
     expect(result._tag).toBe("AllAchieved");
     if (result._tag === "AllAchieved") {
       expect(result.goalResults[0]?.hasInstanceRootNodes).toBe(false);
@@ -519,13 +477,10 @@ describe("checkQuestGoalsWithAxioms", () => {
   test("SubstitutionEdgeを介して導出されたインスタンスは正当", () => {
     // a1-schema (公理スキーマ) → [SubstEdge] → a1-instance (インスタンス)
     // インスタンスがゴールに一致 → 正当な導出
+    const goals = [
+      makeGoal({ id: "g1", formulaText: "phi -> ((phi -> phi) -> phi)" }),
+    ];
     const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: "phi -> ((phi -> phi) -> phi)",
-        protection: "quest-goal",
-      }),
       makeNode({
         id: "a1-schema",
         kind: "axiom",
@@ -547,6 +502,7 @@ describe("checkQuestGoalsWithAxioms", () => {
       },
     ];
     const result = checkQuestGoalsWithAxioms(
+      goals,
       nodes,
       inferenceEdges,
       lukasiewiczSystem,
@@ -558,15 +514,14 @@ describe("checkQuestGoalsWithAxioms", () => {
   });
 
   test("パース不能なゴールのhasInstanceRootNodesはfalse", () => {
-    const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: ">>>invalid<<<",
-        protection: "quest-goal",
-      }),
-    ];
-    const result = checkQuestGoalsWithAxioms(nodes, [], lukasiewiczSystem);
+    const goals = [makeGoal({ id: "g1", formulaText: ">>>invalid<<<" })];
+    const nodes: readonly WorkspaceNode[] = [];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
     expect(result._tag).toBe("NotAllAchieved");
     if (result._tag === "NotAllAchieved") {
       expect(result.goalResults[0]?.hasInstanceRootNodes).toBe(false);
@@ -574,15 +529,14 @@ describe("checkQuestGoalsWithAxioms", () => {
   });
 
   test("未達成ゴールのhasInstanceRootNodesはfalse", () => {
-    const nodes = [
-      makeNode({
-        id: "g1",
-        kind: "axiom",
-        formulaText: "phi -> phi",
-        protection: "quest-goal",
-      }),
-    ];
-    const result = checkQuestGoalsWithAxioms(nodes, [], lukasiewiczSystem);
+    const goals = [makeGoal({ id: "g1", formulaText: "phi -> phi" })];
+    const nodes: readonly WorkspaceNode[] = [];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
     expect(result._tag).toBe("NotAllAchieved");
     if (result._tag === "NotAllAchieved") {
       expect(result.goalResults[0]?.hasInstanceRootNodes).toBe(false);

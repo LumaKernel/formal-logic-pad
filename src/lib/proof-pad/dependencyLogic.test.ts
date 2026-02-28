@@ -14,10 +14,7 @@ import type { LogicSystem } from "../logic-core/inferenceRule";
 
 // --- ヘルパー ---
 
-function makeNode(
-  id: string,
-  kind: "axiom" = "axiom",
-): WorkspaceNode {
+function makeNode(id: string, kind: "axiom" = "axiom"): WorkspaceNode {
   return {
     id,
     kind,
@@ -510,15 +507,8 @@ describe("dependencyLogic", () => {
       const nodes = [makeAxiomNode("a1", "phi -> (psi -> phi)")];
       const edges: readonly InferenceEdge[] = [];
 
-      const result = validateRootNodes(
-        "a1",
-        nodes,
-        edges,
-        lukasiewiczSystem,
-      );
-      expect(result).toEqual([
-        { _tag: "schema", nodeId: "a1", axiomId: "A1" },
-      ]);
+      const result = validateRootNodes("a1", nodes, edges, lukasiewiczSystem);
+      expect(result).toEqual([{ _tag: "schema", nodeId: "a1", axiomId: "A1" }]);
     });
 
     it("公理インスタンス（代入済み）はinstanceとして識別する", () => {
@@ -569,12 +559,7 @@ describe("dependencyLogic", () => {
       const nodes = [makeAxiomNode("bad", ">>>invalid<<<")];
       const edges: readonly InferenceEdge[] = [];
 
-      const result = validateRootNodes(
-        "bad",
-        nodes,
-        edges,
-        lukasiewiczSystem,
-      );
+      const result = validateRootNodes("bad", nodes, edges, lukasiewiczSystem);
       expect(result).toEqual([{ _tag: "unknown", nodeId: "bad" }]);
     });
 
@@ -584,20 +569,12 @@ describe("dependencyLogic", () => {
       // → mp1 (derived)
       const nodes = [
         makeAxiomNode("a1-schema", "phi -> (psi -> phi)"),
-        makeAxiomNode(
-          "a1-instance",
-          "phi -> ((phi -> phi) -> phi)",
-        ),
+        makeAxiomNode("a1-instance", "phi -> ((phi -> phi) -> phi)"),
         { ...makeNode("mp1", "axiom"), formulaText: "" },
       ];
       const edges = [makeMPEdge("mp1", "a1-schema", "a1-instance")];
 
-      const result = validateRootNodes(
-        "mp1",
-        nodes,
-        edges,
-        lukasiewiczSystem,
-      );
+      const result = validateRootNodes("mp1", nodes, edges, lukasiewiczSystem);
       expect(result).toHaveLength(2);
       expect(result).toContainEqual({
         _tag: "schema",

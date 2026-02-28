@@ -1,40 +1,29 @@
 /**
- * ノードの役割（公理/ゴール）分類の純粋ロジック。
+ * ノードの分類の純粋ロジック。
  *
- * ワークスペース上のノードが公理かゴールかを判定する。
- * - ルートノード（前提への入力接続がないノード）は暗黙的に公理
- * - 明示的にマークされたノードはその役割を優先
- * - 未証明で公理マークされていないルートノードはゴール候補
+ * ワークスペース上のノードがルート（公理）か導出かを判定する。
+ * - ルートノード（前提への入力接続がないノード）は公理
+ * - 導出ノード（前提接続あり）は他のノードから導出された
+ *
+ * ゴールはノードのroleではなくWorkspaceState.goalsで管理される。
  *
  * 変更時は nodeRoleLogic.test.ts, workspaceState.ts, ProofWorkspace.tsx, index.ts も同期すること。
  */
 
 import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
 
-// --- ノードの明示的な役割マーク ---
-
-/**
- * ユーザーが明示的に設定するノードの役割。
- * - "axiom": 公理としてマーク（証明不要であることを宣言）
- * - "goal": ゴールとしてマーク（証明すべき対象であることを宣言）
- * - undefined: 自動判定（デフォルト）
- */
-export type NodeRole = "axiom" | "goal";
-
 // --- 推論されるノードの状態 ---
 
 /**
  * ノードの推論された分類。
- * - "root-axiom": ルートノードで公理としてマーク/自動判定
- * - "root-goal": ルートノードでゴールとしてマーク
- * - "root-unmarked": ルートノードで未マーク（公理パレットから追加されたaxiom kindノードなどは暗黙公理）
+ * - "root-axiom": ルートノードで公理としてマーク
+ * - "root-unmarked": ルートノードで未マーク（暗黙公理）
  * - "derived": 他のノードから導出された（前提接続あり）
+ *
+ * ゴールはノード分類ではなくWorkspaceState.goalsで管理されるため、
+ * "root-goal"は存在しない。
  */
-export type NodeClassification =
-  | "root-axiom"
-  | "root-goal"
-  | "root-unmarked"
-  | "derived";
+export type NodeClassification = "root-axiom" | "root-unmarked" | "derived";
 
 /**
  * ノードがルート（前提への入力接続がない）かどうかを判定する。
@@ -71,9 +60,6 @@ export function classifyNode(
   if (node.role === "axiom") {
     return "root-axiom";
   }
-  if (node.role === "goal") {
-    return "root-goal";
-  }
 
   // 未マーク: ルートノードは暗黙的に公理
   return "root-unmarked";
@@ -95,19 +81,6 @@ export function classifyAllNodes(
     result.set(node.id, classifyNode(node, connections));
   }
   return result;
-}
-
-/**
- * ゴールとして分類されたノードのIDリストを返す。
- * 明示的にゴールとしてマークされたルートノードのみ。
- */
-export function getGoalNodeIds(
-  nodes: readonly WorkspaceNode[],
-  connections: readonly WorkspaceConnection[],
-): readonly string[] {
-  return nodes
-    .filter((node) => classifyNode(node, connections) === "root-goal")
-    .map((node) => node.id);
 }
 
 /**

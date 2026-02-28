@@ -194,7 +194,6 @@ export function getNodeClassificationStyle(
 ): ProofNodeStyle {
   switch (classification) {
     case "root-axiom":
-    case "root-goal":
     case "root-unmarked":
       return {
         ...CARD_BASE,
@@ -216,7 +215,6 @@ export function getNodeClassificationEdgeColor(
 ): string {
   switch (classification) {
     case "root-axiom":
-    case "root-goal":
     case "root-unmarked":
       return cssVar(EDGE_COLORS.axiom);
     case "derived":

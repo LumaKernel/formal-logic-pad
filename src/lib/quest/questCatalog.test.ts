@@ -29,7 +29,6 @@ function makeQuest(
     goals: [
       {
         formulaText: "phi -> phi",
-        position: { x: 0, y: 0 },
       },
     ],
     hints: ["hint1"],

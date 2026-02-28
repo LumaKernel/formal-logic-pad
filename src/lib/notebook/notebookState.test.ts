@@ -82,7 +82,7 @@ describe("notebookState", () => {
       const col = createQuestNotebook(createEmptyCollection(), {
         name: "Quest 1",
         system,
-        goals: [{ formulaText: "phi -> phi", position: { x: 100, y: 100 } }],
+        goals: [{ formulaText: "phi -> phi" }],
         now: now1,
       });
 
@@ -90,15 +90,15 @@ describe("notebookState", () => {
       const nb = col.notebooks[0]!;
       expect(nb.meta.name).toBe("Quest 1");
       expect(nb.workspace.mode).toBe("quest");
-      expect(nb.workspace.nodes).toHaveLength(1);
-      expect(nb.workspace.nodes[0]!.protection).toBe("quest-goal");
+      expect(nb.workspace.nodes).toHaveLength(0);
+      expect(nb.workspace.goals).toHaveLength(1);
     });
 
     it("stores questId when provided", () => {
       const col = createQuestNotebook(createEmptyCollection(), {
         name: "Quest 1",
         system,
-        goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+        goals: [{ formulaText: "phi -> phi" }],
         now: now1,
         questId: "q-01",
       });
@@ -110,7 +110,7 @@ describe("notebookState", () => {
       const col = createQuestNotebook(createEmptyCollection(), {
         name: "Quest 1",
         system,
-        goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+        goals: [{ formulaText: "phi -> phi" }],
         now: now1,
       });
 
@@ -280,14 +280,14 @@ describe("notebookState", () => {
       const col = createQuestNotebook(createEmptyCollection(), {
         name: "Quest",
         system,
-        goals: [{ formulaText: "phi -> phi", position: { x: 0, y: 0 } }],
+        goals: [{ formulaText: "phi -> phi" }],
         now: now1,
       });
 
       const result = convertNotebookToFreeMode(col, "notebook-1", now2);
       const nb = findNotebook(result, "notebook-1");
       expect(nb!.workspace.mode).toBe("free");
-      expect(nb!.workspace.nodes[0]!.protection).toBeUndefined();
+      expect(nb!.workspace.nodes).toHaveLength(0);
       expect(nb!.meta.updatedAt).toBe(now2);
     });
 

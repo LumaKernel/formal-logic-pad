@@ -173,9 +173,7 @@ describe("EdgeParameterPopover", () => {
       );
       // No add/remove buttons exist
       expect(screen.queryByTestId("popover-add-entry")).not.toBeInTheDocument();
-      expect(
-        screen.queryByTestId("popover-remove-0"),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId("popover-remove-0")).not.toBeInTheDocument();
     });
 
     it("auto-extracts meta-variables from premiseFormulaText", () => {

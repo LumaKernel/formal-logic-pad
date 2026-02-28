@@ -720,7 +720,9 @@ describe("toPredicateNNF", () => {
 
   describe("複合的な式", () => {
     it("¬(∀x.P(x) ∧ ∃y.Q(y)) → ∃x.¬P(x) ∨ ∀y.¬Q(y)", () => {
-      const formula = negation(conjunction(universal(x, Px), existential(y, Qy)));
+      const formula = negation(
+        conjunction(universal(x, Px), existential(y, Qy)),
+      );
       const result = toPredicateNNF(formula);
       const expected = disjunction(
         existential(x, negation(Px)),
@@ -730,7 +732,9 @@ describe("toPredicateNNF", () => {
     });
 
     it("¬(∀x.P(x) → ∃y.Q(y)) → ∀x.P(x) ∧ ∀y.¬Q(y)", () => {
-      const formula = negation(implication(universal(x, Px), existential(y, Qy)));
+      const formula = negation(
+        implication(universal(x, Px), existential(y, Qy)),
+      );
       const result = toPredicateNNF(formula);
       const expected = conjunction(
         universal(x, Px),
@@ -917,9 +921,9 @@ describe("toPNF", () => {
       const result = toPNF(formula);
       expect(isPNF(result)).toBe(true);
       // 2つの量化子が先頭に来る
-      expect(
-        result._tag === "Universal" || result._tag === "Existential",
-      ).toBe(true);
+      expect(result._tag === "Universal" || result._tag === "Existential").toBe(
+        true,
+      );
     });
   });
 
@@ -1052,9 +1056,9 @@ describe("isPNF", () => {
     });
 
     it("∀x.∃y.(P(x) ∧ Q(y)) は PNF", () => {
-      expect(
-        isPNF(universal(x, existential(y, conjunction(Px, Qy)))),
-      ).toBe(true);
+      expect(isPNF(universal(x, existential(y, conjunction(Px, Qy))))).toBe(
+        true,
+      );
     });
 
     it("∀x.(P(x) ∧ ¬Q(x)) は PNF", () => {
@@ -1077,15 +1081,15 @@ describe("isPNF", () => {
     });
 
     it("∀x.(P(x) ∧ ∃y.Q(y)) は PNF ではない（行列部に量化子）", () => {
-      expect(
-        isPNF(universal(x, conjunction(Px, existential(y, Qy)))),
-      ).toBe(false);
+      expect(isPNF(universal(x, conjunction(Px, existential(y, Qy))))).toBe(
+        false,
+      );
     });
 
     it("(∀x.P(x)) → (∃y.Q(y)) は PNF ではない", () => {
-      expect(
-        isPNF(implication(universal(x, Px), existential(y, Qy))),
-      ).toBe(false);
+      expect(isPNF(implication(universal(x, Px), existential(y, Qy)))).toBe(
+        false,
+      );
     });
   });
 
@@ -1135,10 +1139,7 @@ describe("PNF 変換の一貫性", () => {
 
   it("複数回の α変換が必要な場合も正しく動作", () => {
     // (∀x.P(x)) ∧ P(x) ∧ P(x) のような式
-    const formula = conjunction(
-      conjunction(universal(x, Px), Px),
-      Px,
-    );
+    const formula = conjunction(conjunction(universal(x, Px), Px), Px);
     const result = toPNF(formula);
     expect(isPNF(result)).toBe(true);
   });
@@ -1158,10 +1159,7 @@ describe("PNF 変換の一貫性", () => {
     const xPrime = termVariable("x'");
     const PxPrime = predicate("P", [xPrime]);
     // (∀x.P(x)) ∧ (P(x) ∧ P(x')) — x も x' も使われている
-    const formula = conjunction(
-      universal(x, Px),
-      conjunction(Px, PxPrime),
-    );
+    const formula = conjunction(universal(x, Px), conjunction(Px, PxPrime));
     const result = toPNF(formula);
     expect(isPNF(result)).toBe(true);
     // α変換で x'' が使われるはず
@@ -1173,16 +1171,13 @@ describe("PNF 変換の一貫性", () => {
 
   it("z 変数を含む式でのα変換", () => {
     // (∀x.R(x,y)) ∧ (∃x.P(x)) — 同じ x を使うので α変換必要
-    const formula = conjunction(
-      universal(x, Rxy),
-      existential(x, Px),
-    );
+    const formula = conjunction(universal(x, Rxy), existential(x, Px));
     const result = toPNF(formula);
     expect(isPNF(result)).toBe(true);
     // 2つの量化子が先頭に
-    expect(
-      result._tag === "Universal" || result._tag === "Existential",
-    ).toBe(true);
+    expect(result._tag === "Universal" || result._tag === "Existential").toBe(
+      true,
+    );
     if (result._tag === "Universal" || result._tag === "Existential") {
       expect(
         result.formula._tag === "Universal" ||
