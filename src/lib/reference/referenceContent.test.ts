@@ -15,8 +15,8 @@ describe("allReferenceEntries", () => {
   });
 
   it("エントリ数が期待通り", () => {
-    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念11 + 理論2 = 48
-    expect(allReferenceEntries).toHaveLength(48);
+    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念12 + 理論2 = 49
+    expect(allReferenceEntries).toHaveLength(49);
   });
 
   it("少なくとも1つのエントリが各カテゴリに存在する", () => {

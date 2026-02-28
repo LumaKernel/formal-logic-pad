@@ -2669,6 +2669,86 @@ const conceptCompactness: ReferenceEntry = {
   order: 11,
 };
 
+const conceptProofTheoreticSemantics: ReferenceEntry = {
+  id: "concept-proof-theoretic-semantics",
+  category: "concept",
+  title: {
+    en: "Proof-Theoretic Semantics",
+    ja: "証明論的意味論",
+  },
+  summary: {
+    en: "An approach that defines the meaning of logical connectives through their behavior in proof systems, rather than through truth values or model-theoretic interpretations.",
+    ja: "論理結合子の意味を真理値やモデル論的解釈ではなく、証明体系における振る舞いによって定める立場。",
+  },
+  body: {
+    en: [
+      `**From soundness and completeness to meaning.** The soundness and completeness theorems for first-order logic establish that Γ ⊢ Δ if and only if Γ ⊨ Δ. This means that any formula provable in a proof system (Hilbert, natural deduction, sequent calculus, or tableau — all equivalent by the results of Chapters 9–10) is indeed semantically valid. In the standard view, this gives proof systems their "legitimacy": they are justified because they agree with model-theoretic truth.`,
+      `**Two perspectives on legitimacy.** However, one can also adopt a different viewpoint (bekki Section 13.7). Instead of asking whether a proof system faithfully captures semantic truth, one can ask whether every individual proof system is legitimate in its own right. Under this view, soundness and completeness theorems are needed to certify that a proof system is a "genuine proof system." But another perspective — proof-theoretic semantics — proposes that proof systems can define the meaning of logical connectives independently.`,
+      `**Meaning through proof rules.** In proof-theoretic semantics, the meaning of a connective like ∧ (conjunction) is not given by "∧ is true when both conjuncts are true" (the model-theoretic account). Instead, it is determined by the inference rules that govern it. In model-theoretic semantics, |∧| is expressed as a truth table; in proof-theoretic semantics, the meaning of ∧ is determined by the two rules (∧) and (¬∧) in the tableau system — or equivalently by the introduction and elimination rules ∧I and ∧E in natural deduction (bekki Section 13.7).`,
+      `**Circularity concern and its resolution.** A natural worry arises: when we transfer from one proof system to another (say, from Hilbert to natural deduction), is the validity ultimately preserved? Could the transfer chain produce a circularity, where no system is grounded in absolute correctness? In proof-theoretic semantics, the definition of validity is internal to each system: a proof system's rules themselves constitute the meaning of the connectives. There is no need to appeal to an external notion of truth. However, the equivalence between proof systems and their inclusion relationships guarantee that validity is maintained relatively — each system is justified by its relationship to other systems (bekki Section 13.7).`,
+      `**Significance: meaning without truth.** The key insight from soundness and completeness is that the meaning of a formula need not be defined via truth values. Model-theoretic semantics defines meaning through truth functions and interpretations, but proof-theoretic semantics shows that an entirely different — yet equally valid — notion of "meaning" can be given through the behavior of formulas in proofs. This observation, discussed in bekki's concluding remarks on Chapter 2, challenges the common intuition that truth is the fundamental concept. Multiple "meaning" frameworks can coexist, each revealing different aspects of logic.`,
+    ],
+    ja: [
+      `**健全性と完全性から意味へ。** 一階論理の健全性定理と完全性定理は Γ ⊢ Δ と Γ ⊨ Δ が同値であることを確立します。つまり、証明体系（ヒルベルト流、自然演繹、シーケント計算、タブロー — 9–10章の結果によりすべて等価）で証明可能な論理式は、意味論的に妥当です。標準的な見方では、これが証明体系に「正当性」を与えます: モデル論的な真理と一致するがゆえに正当化されるのです。`,
+      `**正当性に関する二つの視点。** しかし、別の見方も可能です（戸次 13.7節）。証明体系が意味論的真理を忠実に捉えているかを問う代わりに、個々の証明体系がそれ自体として正当であるかを問うこともできます。この見方では、証明体系が「まともな証明体系」であることを保証するために健全性・完全性定理が必要です。しかし別の視点 — 証明論的意味論 — は、証明体系が論理結合子の意味を独立に定義できると提案します。`,
+      `**証明規則による意味。** 証明論的意味論では、∧（連言）のような結合子の意味は「両方の連言肢が真のとき ∧ は真」（モデル論的説明）としてではなく、それを支配する推論規則によって定められます。モデル論の意味論では |∧| は真理値表として表されますが、証明論的意味論では ∧ の意味はタブロー体系における (∧) と (¬∧) の二つの規則によって — あるいは同等に自然演繹の導入規則 ∧I と除去規則 ∧E によって — 決定されます（戸次 13.7節）。`,
+      `**循環の懸念とその解消。** 自然な疑問が生じます: ある証明体系から別の体系へ（たとえばヒルベルト流から自然演繹へ）移行するとき、妥当性は最終的に保存されるのでしょうか？ 移行の連鎖が循環を生み、どの体系も絶対的な正しさに基盤を持たないということにならないでしょうか？ 証明論的意味論では、妥当性の定義は各体系の内部にあります: 証明体系の規則自体が結合子の意味を構成するのです。外部的な真理概念に訴える必要はありません。ただし、証明体系間の等価性や包含関係により、妥当性は相対的に保証されます — 各体系は他の体系との関係によって正当化されます（戸次 13.7節）。`,
+      `**意義: 真理なしの意味。** 健全性と完全性からの重要な洞察は、論理式の意味が真理値によって定義される必要がないということです。モデル論の意味論は真理関数と解釈を通じて意味を定義しますが、証明論的意味論は、証明における論理式の振る舞いを通じて、まったく異なりながらも同様に妥当な「意味」の概念を与えられることを示します。戸次の第2章に関する結びの考察で述べられたこの観察は、真理が根本概念であるという一般的直観に挑戦するものです。複数の「意味」の枠組みが共存でき、それぞれが論理の異なる側面を明らかにするのです。`,
+    ],
+  },
+  relatedEntryIds: [
+    "concept-soundness",
+    "concept-completeness",
+    "concept-system-equivalence",
+    "rule-nd-overview",
+    "rule-sc-overview",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Proof-theoretic_semantics",
+      label: {
+        en: "Proof-theoretic semantics (Wikipedia)",
+        ja: "証明論的意味論 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E8%A8%BC%E6%98%8E%E8%AB%96%E7%9A%84%E6%84%8F%E5%91%B3%E8%AB%96",
+      label: {
+        en: "Proof-theoretic semantics (Wikipedia JA)",
+        ja: "証明論的意味論 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/proof-theoretic+semantics",
+      label: {
+        en: "Proof-theoretic semantics (nLab)",
+        ja: "証明論的意味論 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "proof-theoretic semantics",
+    "証明論的意味論",
+    "proof-theoretic",
+    "meaning",
+    "意味",
+    "inference rule",
+    "推論規則",
+    "introduction rule",
+    "導入規則",
+    "elimination rule",
+    "除去規則",
+    "Dummett",
+    "Prawitz",
+    "harmony",
+    "調和",
+  ],
+  order: 12,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -3365,6 +3445,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptCompleteness,
   conceptLowenheimSkolem,
   conceptCompactness,
+  conceptProofTheoreticSemantics,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
