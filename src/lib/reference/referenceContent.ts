@@ -2749,6 +2749,91 @@ const conceptProofTheoreticSemantics: ReferenceEntry = {
   order: 12,
 };
 
+const conceptCutElimination: ReferenceEntry = {
+  id: "concept-cut-elimination",
+  category: "concept",
+  title: {
+    en: "Cut Elimination Theorem",
+    ja: "カット除去定理",
+  },
+  summary: {
+    en: "Any sequent provable with the CUT rule can be proved without it. The CUT rule is admissible in LM, LJ, and LK. Also known as Gentzen's Hauptsatz.",
+    ja: "カット規則を用いた証明は、カット規則なしの証明に変換できる。カット規則は LM, LJ, LK において許容規則である。ゲンツェンの基本定理とも呼ばれる。",
+  },
+  body: {
+    en: [
+      `**Statement and significance.** The cut elimination theorem (Hauptsatz) states that for any sequent S, if S is provable in the sequent calculus K (= K-CUT + CUT), then S is provable in K-CUT (i.e., without the CUT rule). This holds for all three sequent calculi: LM (minimal logic), LJ (intuitionistic logic), and LK (classical logic) (bekki Theorem 11.2). Since K = K-CUT + CUT by definition, this means the CUT rule is an **admissible rule** — adding it does not increase the set of provable sequents. This fundamental result, discovered by Gerhard Gentzen in 1934, is one of the most important theorems in proof theory.`,
+      `**The MIX rule and proof strategy.** The proof uses a variant of CUT called the **MIX rule**, which replaces *all* occurrences of the cut formula rather than just one. On LM-CUT and LJ-CUT, CUT and MIX are equivalent (bekki Lemma 11.13), so proving that MIX is admissible suffices. MIX has better structural properties for the induction argument. The proof proceeds by **double induction** on the pair (depth d, rank r): the depth d measures the syntactic complexity of the principal (cut) formula, and the rank r counts the consecutive occurrences of the principal formula along paths in the proof tree (bekki Definitions 11.16–11.18).`,
+      `**Double induction structure.** The elimination is decomposed into three lemmas: (1) Cut(1,1) — the base case for depth 1 and rank 1 (bekki Lemma 11.23); (2) Cut(d,r) follows from Cut(d,1)…Cut(d,r−1) for r ≥ 2 — reducing rank while keeping depth fixed (bekki Lemma 11.24); (3) Cut(d,1) follows from Cut(1,r)…Cut(d−1,r) for all r, for d ≥ 2 — reducing depth at the cost of possibly increasing rank (bekki Lemma 11.26). This lexicographic induction on (d,r) terminates because each step strictly decreases the pair (bekki Remark 11.28).`,
+      `**Consistency as a corollary.** A profound consequence of cut elimination is the **consistency** (inconsistency-freeness) of the proof systems: ⊥ is not provable in LK or LJ (bekki Theorem 11.5). The proof is elegant: if ⊥ were provable, there would be a CUT-free proof of the sequent ⇒ ⊥. But no CUT-free inference rule can produce a sequent with an empty antecedent and ⊥ as the sole succedent, yielding a contradiction. This extends to all equivalent systems (NK, NJ, HK, HJ).`,
+      `**Independence of classical axioms.** Another corollary is the **independence of DNE from intuitionistic logic**: the law of double negation elimination (¬¬φ → φ) is not provable in LJ (bekki Theorem 11.9). The proof uses the fact that LEM (φ ∨ ¬φ) is not LJ-provable (bekki Theorem 11.8), which follows from a structural analysis of LJ-CUT proofs showing that CUT-free proofs in LJ must have non-empty antecedents with compound formulas (bekki Lemma 11.6). The LK proof uses a different, elegant approach: via Glivenko's theorem, LK cut elimination is reduced to LJ cut elimination (bekki p.266–267).`,
+    ],
+    ja: [
+      `**定理の主張と意義。** カット除去定理（基本定理, Hauptsatz）は、シーケント S が体系 K（= K-CUT + CUT）で証明可能ならば、K-CUT（カット規則なし）でも証明可能であることを述べます。これはすべてのシーケント計算 — LM（最小論理）、LJ（直観主義論理）、LK（古典論理）— で成り立ちます（戸次 定理11.2）。K = K-CUT + CUT なので、これはカット規則が**許容規則**であることを意味します — カット規則を追加しても証明可能なシーケントの集合は増えません。ゲルハルト・ゲンツェンが1934年に発見したこの基本的な結果は、証明論において最も重要な定理の一つです。`,
+      `**ミックス規則と証明戦略。** 証明にはカットの変種である**ミックス規則 (MIX)** が使われます。MIX はカット論理式のすべての出現を一度に置き換える規則で、LM-CUT および LJ-CUT 上でカットと同値です（戸次 補題11.13）。そのため、MIX の許容性を示せば十分です。MIX は帰納法の議論により適した構造的性質を持ちます。証明は対 (深さ d, 階数 r) に対する**二重帰納法**で進みます。深さ d は主論理式（カット論理式）の構文的複雑さ、階数 r は証明図の経路に沿った主論理式の連続出現回数を測ります（戸次 定義11.16–11.18）。`,
+      `**二重帰納法の構造。** 除去は3つの補題に分解されます: (1) Cut(1,1) — 深さ1・階数1の基本ケース（戸次 補題11.23）、(2) r ≥ 2 のとき Cut(d,1)…Cut(d,r−1) から Cut(d,r) が従う — 深さを固定して階数を減少（戸次 補題11.24）、(3) d ≥ 2 のとき任意の r に対して Cut(1,r)…Cut(d−1,r) から Cut(d,1) が従う — 階数が増える可能性があるが深さが減少（戸次 補題11.26）。(d,r) の辞書式帰納法は各ステップで対を真に減少させるため停止します（戸次 解説11.28）。`,
+      `**系としての無矛盾性。** カット除去の深い帰結として、証明体系の**無矛盾性**（矛盾の導出不可能性）があります: LK でも LJ でも ⊥ は証明不能です（戸次 定理11.5）。証明は簡明です: もし ⊥ が証明可能なら、シーケント ⇒ ⊥ のカットなし証明が存在しますが、前件が空で ⊥ のみを後件に持つシーケントを結論とするカットなし推論規則は存在しないため矛盾します。これは等価な体系（NK, NJ, HK, HJ）にも拡張されます。`,
+      `**古典論理固有の公理の独立性。** もう一つの系として、**直観主義論理からの DNE の独立性**があります: 二重否定除去（¬¬φ → φ）は LJ では証明不能です（戸次 定理11.9）。証明には、排中律（φ ∨ ¬φ）が LJ で証明不能であること（戸次 定理11.8）を利用します。これは LJ-CUT の証明の構造分析 — カットなし証明では前件が非空で複合論理式を含む必要がある（戸次 補題11.6）— から従います。LK の証明は異なる巧妙なアプローチを取ります: グリベンコの定理を経由して、LK のカット除去を LJ のカット除去に帰着させます（戸次 p.266–267）。`,
+    ],
+  },
+  formalNotation:
+    "\\vdash_K S \\;\\Longrightarrow\\; \\vdash_{K\\text{-CUT}} S",
+  relatedEntryIds: [
+    "concept-soundness",
+    "concept-completeness",
+    "concept-system-equivalence",
+    "rule-sc-overview",
+    "rule-sc-structural",
+    "rule-sc-logical",
+    "concept-glivenko",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Cut-elimination_theorem",
+      label: {
+        en: "Cut-elimination theorem (Wikipedia)",
+        ja: "カット除去定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%83%E3%83%88%E9%99%A4%E5%8E%BB%E5%AE%9A%E7%90%86",
+      label: {
+        en: "Cut elimination theorem (Wikipedia JA)",
+        ja: "カット除去定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/cut+elimination",
+      label: {
+        en: "Cut elimination (nLab)",
+        ja: "カット除去 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "cut elimination",
+    "カット除去",
+    "Hauptsatz",
+    "基本定理",
+    "Gentzen",
+    "ゲンツェン",
+    "admissible",
+    "許容規則",
+    "MIX rule",
+    "ミックス規則",
+    "consistency",
+    "無矛盾性",
+    "double induction",
+    "二重帰納法",
+    "rank",
+    "階数",
+  ],
+  order: 13,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -3446,6 +3531,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptLowenheimSkolem,
   conceptCompactness,
   conceptProofTheoreticSemantics,
+  conceptCutElimination,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
