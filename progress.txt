@@ -6476,3 +6476,17 @@
   - Substitutionの `entries.length > 0` 条件のような特殊ケースは `shouldSkipError` のクロージャで外部変数をキャプチャして表現
   - TypeScriptでリテラル値比較 `1 === 0` は型エラーになる（テストでは変数経由で比較すること）
 ---
+
+## 2026-03-01 - ET-012 Effect.ts プロジェクト規約ドキュメント化
+- Effect.ts の使い方規約を CLAUDE.md ファイルに追加
+- 変更ファイル:
+  - `CLAUDE.md` — Effect.ts 規約セクション追加（使い分け表、パターン例、注意事項）
+  - `src/lib/logic-core/CLAUDE.md` — Effect.ts パターン（logic-core 固有）セクション追加
+  - `src/lib/proof-pad/CLAUDE.md` — Effect.ts パターン（proof-pad 固有）セクション追加
+- ベースラインカバレッジ: Stmts 98.25%, Branch 91.9%, Funcs 89.1%, Lines 99.14%
+- ドキュメントのみの変更のためカバレッジ変化なし
+- **今後のイテレーションへの学び:**
+  - Effect.ts の規約は CLAUDE.md の「Effect.ts 規約」セクションを参照
+  - 新しい推論規則追加時は proof-pad CLAUDE.md の「新しい推論規則を追加する場合」を参照
+  - 空ペイロードの `Data.TaggedError` は `Record<string, never>` を使う（ESLint対策）
+---

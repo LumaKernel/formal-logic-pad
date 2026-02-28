@@ -19,6 +19,15 @@ logic-core, logic-lang, formula-input, infinite-canvas を統合する層。
 - `AxiomPalette.tsx`: サイドパネルUI — axiomPaletteLogic の一覧を表示、クリックで公理追加
 - CanvasItem + EditableProofNode 連携: `onModeChange` → `dragEnabled` パターン（FI-008で確立）
 
+## Effect.ts パターン（proof-pad 固有）
+
+- **3層分離**: 純粋バリデーション(`*ApplicationLogic.ts`) → 状態管理(`workspaceState.ts`) → UI(`ProofWorkspace.tsx`)
+- **エラー型**: 各推論規則ごとに `Data.TaggedError` クラスを定義し union 型に集約（例: `MPApplicationError`, `GenApplicationError`）
+- **バリデーション**: `Effect.gen` で実装（`validate*Effect`）、公開APIは `Either` を返す（`validate*`）
+- **エラー→メッセージ変換**: `proofMessages.ts` の `getErrorMessageKey()` 関数で `_tag` → メッセージキーに変換
+- **UI層の統一処理**: `processValidationResult()` で `Either` → `ValidationDisplay` に変換。UI層は `Either` を直接参照しない
+- 新しい推論規則を追加する場合: `*ApplicationLogic.ts` + テスト → `proofMessages.ts` にキー追加 → `workspaceState.ts` に統合 → `ProofWorkspace.tsx` でUI
+
 ## ファイル命名規則
 
 - macOS case-insensitive FS 対策: `axiomPaletteLogic.ts`（ロジック）と `AxiomPalette.tsx`（UI）のように、拡張子だけでなくファイル名自体を明確に異なるものにする

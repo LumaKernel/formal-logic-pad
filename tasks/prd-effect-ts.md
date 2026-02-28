@@ -389,7 +389,7 @@
 
 ### フェーズ4: 横断的整備
 
-- [ ] **ET-012: Effect.ts のプロジェクト規約を CLAUDE.md に追加**
+- [x] **ET-012: Effect.ts のプロジェクト規約を CLAUDE.md に追加**
 
   **追加先:** `CLAUDE.md` および `src/lib/logic-core/CLAUDE.md`
 

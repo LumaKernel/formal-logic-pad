@@ -225,6 +225,77 @@ push 後、CI の結果を確認:
 - **変更時に一緒にすべきことをコード内に明記する。** 関連するファイル・テスト・型定義など、一緒に変更すべきものをコメントやドキュメントで明示しておく（テストをどう更新すべきかも含め）
 - **gitコミット差分を振り返る。** 問題が漏れた場合、差分を見て「この変更を最初からするにはどうすれば良かったか」を考え、仕組みとして再発を防ぐ
 
+## Effect.ts 規約
+
+本プロジェクトでは Effect.ts を段階的に採用している。以下の規約に従うこと。
+
+### 使い分け
+
+| 機能 | 用途 | 使わない場面 |
+|---|---|---|
+| `Schema.TaggedClass` | ASTノード等のデータ型定義。`_tag` で discriminated union。シリアライゼーション対象 | エラー型（→ `Data.TaggedError`） |
+| `Data.TaggedError` | エラー型。`_tag` を自動付与。`Either.left` / `Effect.fail` で生成 | データ型（→ `Schema.TaggedClass`） |
+| `Either` | Result型（`Right` = 成功, `Left` = 失敗）。公開APIの戻り値 | 内部実装（→ `Effect.gen`） |
+| `Effect.gen` | 複数のバリデーションチェーンがある関数。短絡評価が明示的になる | 単純な関数や単一の分岐のみの処理 |
+| `Layer` + `Context.Tag` | 副作用（localStorage, fetch等）の抽象化。テストでインメモリ実装に差替え | 純粋関数のみのモジュール |
+| `Schema.decodeUnknownEither` / `Schema.encodeUnknownSync` | JSON import/export の型安全なシリアライゼーション | 内部のデータ変換 |
+
+### パターン
+
+#### 内部 Effect → 公開 Either ラッパー
+
+```typescript
+// 内部: Effect.gen で実装（"Effect" サフィックス）
+const validateFooEffect = (...): Effect.Effect<Success, FooError> =>
+  Effect.gen(function* () {
+    // yield* Effect.fail(new SomeError({})) で短絡
+  });
+
+// 公開API: Either を返す（サフィックスなし）
+export const validateFoo = (...): Either.Either<Success, FooError> =>
+  Effect.runSync(Effect.either(validateFooEffect(...)));
+```
+
+#### DI（Layer + Context.Tag）
+
+```typescript
+// サービス定義
+class StorageService extends Context.Tag("StorageService")<
+  StorageService,
+  { readonly getItem: (key: string) => Effect.Effect<string | null> }
+>() {}
+
+// 本番Layer
+const BrowserStorageLayer = Layer.succeed(StorageService, { ... });
+
+// テストLayer
+const { layer } = createInMemoryStorageLayer();
+
+// 使用: yield* ServiceName で取得
+const storage = yield* StorageService;
+```
+
+#### エラー型定義
+
+```typescript
+// 空ペイロード: Record<string, never> を使う（{} は ESLint エラー）
+export class FooMissing extends Data.TaggedError("FooMissing")<Record<string, never>> {}
+// ペイロードあり
+export class FooParseError extends Data.TaggedError("FooParseError")<{
+  readonly nodeId: string;
+}> {}
+// union型として集約
+export type FooError = FooMissing | FooParseError;
+```
+
+### 注意事項
+
+- `Schema.optionalWith({ as: "Option" })` は union schema で使えない。`Schema.optional` を使う
+- `Either<A, E>` は `Right(A)` = 成功, `Left(E)` = 失敗（Effect.ts の慣例）
+- UI層（React コンポーネント）では `Effect.runSync` / `Either.isRight` で境界を作る。UI層が Effect の内部型を直接参照しない
+- `context7` の `resolve-library-id` → `query-docs` で最新APIを確認してから実装する
+- 再帰型は `Schema.suspend((): Schema.Schema<T> => T)` で定義
+
 ## アーキテクチャ方針
 
 とにかく独立した、そしてなるべく純粋な、よくテストされた部分をしっかり作り込んで、それを大量に並べて、それをちょっと結合しただけのものとしてアプリケーションが成立するように徹底的に意識せよ。
