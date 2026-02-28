@@ -2426,6 +2426,90 @@ const conceptSoundness: ReferenceEntry = {
   order: 8,
 };
 
+const conceptCompleteness: ReferenceEntry = {
+  id: "concept-completeness",
+  category: "concept",
+  title: {
+    en: "Completeness Theorem",
+    ja: "完全性定理",
+  },
+  summary: {
+    en: "If a formula is semantically valid, then it is provable in the proof system: ⊨ Δ implies ⊢_K Δ. Gödel's completeness theorem.",
+    ja: "意味論的に妥当な論理式は証明体系で証明可能である: ⊨ Δ ならば ⊢_K Δ。ゲーデルの完全性定理。",
+  },
+  body: {
+    en: [
+      `**What completeness means.** The completeness theorem states that if a formula (or sequent) is semantically valid, then it is provable in the proof system K. Formally: if Γ ⊨ Δ, then Γ ⊢_K Δ (bekki Definition 13.2). In other words, the proof system has no "gaps": every semantic truth can be captured by a formal derivation. Together with soundness (⊢ ⟹ ⊨), completeness establishes the equivalence ⊢ ⟺ ⊨, meaning the syntactic notion of provability perfectly matches the semantic notion of validity.`,
+      `**Two forms of completeness.** Completeness comes in two variants: (1) **(Weak) completeness** (Theorem 13.13): ⊨ φ ⟹ ⊢_TAB φ — if a sentence is valid (true in all interpretations), it is provable. (2) **Strong completeness** (Theorem 13.14): Γ ⊨ Δ ⟹ Γ ⊢_TAB Δ — if Δ is a semantic consequence of Γ, then Δ is derivable from Γ. Strong completeness subsumes weak completeness (take Γ = ∅). Both forms hold for classical first-order logic.`,
+      `**Henkin's theorem: the key ingredient.** The proof of completeness relies on Henkin's theorem (Theorem 13.12): if Γ ⊬_TAB, then Γ is satisfiable in a countable domain. The contrapositive gives completeness. The proof constructs a *full* (充満) sequence (Definition 13.17) — a maximally expanded sequence of formulas where every TAB rule's requirements are met — and then extracts an *induced Herbrand interpretation* (Definition 13.19) from this full sequence, which serves as a countable model.`,
+      `**Full sequences and induced interpretations.** A full sequence Γ̂ (Definition 13.17) satisfies the condition that for every formula that is a principal formula of a TAB rule, the corresponding requirements of that rule are met within Γ̂. Given an unprovable Γ, Lemma 13.18 constructs such a full Γ̂ ⊇ Γ with Γ̂ ⊬_TAB by systematically enumerating all formulas and extending Γ step by step. The induced interpretation F_M from this full sequence (Definition 13.19) assigns truth values based on membership in the sequence, and Lemma 13.20 shows this interpretation satisfies every formula in Γ̂.`,
+      `**Gödel's completeness theorem.** The completeness of first-order logic was first proved by Kurt Gödel in 1930 (his doctoral dissertation). From Theorem 13.13 and TAB soundness, one obtains ⊨ φ ⟺ ⊢_TAB φ — this is Gödel's completeness theorem (bekki p.285, footnote). By the equivalence of proof systems (HK = NK = LK = TAB), completeness extends to all formulations of classical first-order logic.`,
+      `**Significance and related results.** Completeness has profound consequences: (1) It guarantees that the proof system is *sufficient* — no valid inference escapes it. (2) Combined with soundness, it shows the proof system is equivalent to the semantics (Chapter 5). (3) It underlies the Löwenheim–Skolem theorem (every satisfiable set has a countable model) and the compactness theorem (a set is satisfiable iff every finite subset is). Note: Gödel's completeness theorem should not be confused with Gödel's *incompleteness* theorems, which concern the limitations of formal systems for arithmetic.`,
+    ],
+    ja: [
+      `**完全性の意味。** 完全性定理は、意味論的に妥当な論理式（またはシーケント）が証明体系 K で証明可能であることを述べます。形式的に: Γ ⊨ Δ ならば Γ ⊢_K Δ（戸次 定義13.2）。言い換えれば、証明体系に「漏れ」はない: すべての意味論的真理は形式的な導出で捉えることができます。健全性（⊢ ⟹ ⊨）と合わせて、完全性は ⊢ ⟺ ⊨ という等価性を確立し、証明可能性という構文的概念と妥当性という意味論的概念が完全に一致することを意味します。`,
+      `**完全性の二つの形式。** 完全性には二つのバリエーションがあります: (1) **（弱い）完全性定理**（定理13.13）: ⊨ φ ⟹ ⊢_TAB φ — 恒真な文（すべての解釈で真）は証明可能である。(2) **強い完全性定理**（定理13.14）: Γ ⊨ Δ ⟹ Γ ⊢_TAB Δ — Δ が Γ の意味論的帰結ならば、Δ は Γ から導出可能である。強い完全性は弱い完全性を包含します（Γ = ∅ とすればよい）。両形式とも古典一階論理で成立します。`,
+      `**ヘンキンの定理: 鍵となる成分。** 完全性の証明はヘンキンの定理（定理13.12）に依拠します: Γ ⊬_TAB ならば、Γ は可算領域で充足可能です。この対偶が完全性を与えます。証明は *充満* した列（定義13.17）— TAB の各規則の要請がすべて満たされた、極大的に拡張された論理式の列 — を構成し、この充満した列から *導出された解釈*（エルブラン解釈）（定義13.19）を取り出します。これが可算モデルとして機能します。`,
+      `**充満した列と導出された解釈。** 充満した列 Γ̂（定義13.17）は、TAB 規則の主論理式であるすべての論理式について、その規則の対応する要請が Γ̂ 内で満たされるという条件を満足します。証明不能な Γ が与えられたとき、補題13.18 はすべての論理式を体系的に列挙し、Γ を段階的に拡張することで、Γ̂ ⊇ Γ かつ Γ̂ ⊬_TAB である充満した列を構成します。この充満した列からの導出された解釈 F_M（定義13.19）は列への所属に基づいて真理値を割り当て、補題13.20 はこの解釈が Γ̂ 内のすべての論理式を充足することを示します。`,
+      `**ゲーデルの完全性定理。** 一階論理の完全性は、1930年にクルト・ゲーデルによって初めて証明されました（博士論文）。定理13.13 と TAB の健全性から、⊨ φ ⟺ ⊢_TAB φ が得られます — これがゲーデルの完全性定理です（戸次 p.285, 脚注）。証明体系の等価性（HK = NK = LK = TAB）により、完全性は古典一階論理のすべての定式化に拡張されます。`,
+      `**意義と関連する結果。** 完全性には深い帰結があります: (1) 証明体系が *十分* であること — 妥当な推論は一つも漏れない — を保証します。(2) 健全性と合わせて、証明体系が意味論（第5章）と等価であることを示します。(3) レーヴェンハイム・スコーレムの定理（充足可能な集合は可算モデルを持つ）やコンパクト性定理（集合が充足可能 ⟺ すべての有限部分集合が充足可能）の基礎となります。注意: ゲーデルの完全性定理はゲーデルの *不完全性* 定理と混同してはなりません。後者は算術の形式体系の限界に関するものです。`,
+    ],
+  },
+  formalNotation:
+    "\\Gamma \\vDash \\Delta \\;\\Longrightarrow\\; \\Gamma \\vdash_K \\Delta",
+  relatedEntryIds: [
+    "concept-soundness",
+    "concept-system-equivalence",
+    "system-classical",
+    "rule-sc-overview",
+    "rule-sc-logical",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/G%C3%B6del%27s_completeness_theorem",
+      label: {
+        en: "Gödel's completeness theorem (Wikipedia)",
+        ja: "ゲーデルの完全性定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%B2%E3%83%BC%E3%83%87%E3%83%AB%E3%81%AE%E5%AE%8C%E5%85%A8%E6%80%A7%E5%AE%9A%E7%90%86",
+      label: {
+        en: "Gödel's completeness theorem (Wikipedia JA)",
+        ja: "ゲーデルの完全性定理 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/completeness+theorem",
+      label: {
+        en: "Completeness theorem (nLab)",
+        ja: "完全性定理 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "completeness",
+    "完全性",
+    "complete",
+    "Gödel",
+    "ゲーデル",
+    "Henkin",
+    "ヘンキン",
+    "semantic validity",
+    "意味論的妥当性",
+    "satisfiability",
+    "充足可能性",
+    "countable model",
+    "可算モデル",
+    "full sequence",
+    "充満",
+  ],
+  order: 9,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -3119,6 +3203,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptKurodaTranslation,
   conceptSystemEquivalence,
   conceptSoundness,
+  conceptCompleteness,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
