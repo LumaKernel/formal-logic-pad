@@ -6210,3 +6210,33 @@
   - QuestGoalDefinitionからposition削除はbuiltinQuests.ts全体に影響（74箇所）。型エラーで漏れなく検出可能
   - ストーリーのproof complete判定が変わった: ゴールノードへのコネクション不要、数式一致だけで完了判定
 ---
+
+## 2026-02-28 - [proof-pad] ノードマージ機能
+- 実装した内容: 同一論理式ノードのマージ機能を追加
+  - 純粋ロジック: `mergeNodesLogic.ts` (mergeNodes, findMergeableGroups, canMergeSelectedNodes)
+  - テスト: `mergeNodesLogic.test.ts` (31テスト), `workspaceState.test.ts` (+5テスト)
+  - 統合: `workspaceState.ts` に mergeSelectedNodes 関数追加
+  - UI: ProofWorkspace.tsx に Merge ボタン + Ctrl/Cmd+M ショートカット追加
+  - i18n: en.json, ja.json に selectionMerge 追加
+- 変更したファイル:
+  - src/lib/proof-pad/mergeNodesLogic.ts (新規)
+  - src/lib/proof-pad/mergeNodesLogic.test.ts (新規)
+  - src/lib/proof-pad/workspaceState.ts
+  - src/lib/proof-pad/workspaceState.test.ts
+  - src/lib/proof-pad/ProofWorkspace.tsx
+  - src/lib/proof-pad/index.ts
+  - src/lib/proof-pad/proofMessages.ts
+  - src/app/workspace/[id]/WorkspaceContent.tsx
+  - messages/en.json, messages/ja.json
+- ベースラインカバレッジ: Stmts 98.40%, Branch 92.07%, Funcs 89.07%, Lines 99.28%
+- 完了後カバレッジ: Stmts 98.17%, Branch 91.93%, Funcs 88.77%, Lines 99.15%
+  - 微減の主因: mergeNodesLogic.ts内の構造的に到達不能な分岐（replaceNodeIdInInferenceEdgeのconclusion分岐は呼び出し前にフィルタ済み）
+- テスト: 5483件 全パス (+36件)
+- ブラウザテスト: Storybook iframe直接アクセスでA1ノード2個追加→Ctrl+A選択→Mergeボタン有効確認→クリックで1ノードに統合、Ctrl+M (3→1)も確認
+- スクリーンショット: .screenshots/merge-01〜05
+- **今後のイテレーションへの学び:**
+  - ノードマージは copy/paste と同様のIDリマッピングパターン（absorbed → leader）
+  - 新しいノード追加時、位置がデフォルト同一になるためStorybook上では重なる。Playwright force:true で対処可能
+  - Ctrl+Aで全選択→操作のパターンはブラウザテストで便利
+  - mergeNodesLogic.ts: 3層アーキテクチャ（純粋ロジック→状態管理→UI）パターンの良い事例
+---
