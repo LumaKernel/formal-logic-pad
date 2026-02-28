@@ -6275,3 +6275,32 @@
   - Schema.decodeUnknownEither は Either<A, ParseError> を返し、Schema.encodeUnknownSync は unknown (JSON互換) を返す
   - Effect.ts Schema の curried API: Schema.decodeUnknownEither(Schema)(input) パターン
 ---
+
+## 2026-02-28 - proof-pad エラー型移行 (ET-004)
+- 実装した内容: proof-pad のエラー型を Data.TaggedError + Either パターンに移行
+  - mpApplicationLogic.ts: MPApplicationError (6バリアント) → Data.TaggedError クラス、MPApplicationResult → Either
+  - genApplicationLogic.ts: GenApplicationError (5バリアント) → 同上
+  - substitutionApplicationLogic.ts: SubstitutionApplicationError (5バリアント) → 同上
+- 変更したファイル:
+  - `src/lib/proof-pad/mpApplicationLogic.ts` — エラークラス定義 + Either化
+  - `src/lib/proof-pad/genApplicationLogic.ts` — 同上
+  - `src/lib/proof-pad/substitutionApplicationLogic.ts` — 同上
+  - `src/lib/proof-pad/workspaceState.ts` — Either.isRight/isLeft パターンに更新
+  - `src/lib/proof-pad/ProofWorkspace.tsx` — UI層の結果型ハンドリング更新
+  - `src/lib/proof-pad/proofMessages.ts` — エラーメッセージキー関数の更新
+  - `src/lib/proof-pad/index.ts` — エラークラスのvalue export追加
+  - `src/lib/proof-pad/mpApplicationLogic.test.ts` — Either ベースのアサーションに更新
+  - `src/lib/proof-pad/genApplicationLogic.test.ts` — 同上
+  - `src/lib/proof-pad/substitutionApplicationLogic.test.ts` — 同上
+  - `src/lib/proof-pad/workspaceState.test.ts` — 同上
+  - `src/lib/proof-pad/proofMessages.test.ts` — エラーインスタンス生成に更新
+- カバレッジ: Stmts 98.17%, Branch 91.94%(+0.01), Funcs 88.83%(+0.02), Lines 99.15% — 維持/微向上
+- テスト: 5528件 全パス
+- スクリーンショット: `.screenshots/et-004-valid-mp-application.png`
+- **今後のイテレーションへの学び:**
+  - Data.TaggedError クラスは値としてexportする必要がある（type exportではなく）。index.ts のre-export更新を忘れないこと
+  - エラータグ名はプレフィックスで名前空間分離（MP→"MPRuleError"、Gen→"GenPremiseMissing"、Subst→"SubstNoEntries"等）
+  - Either化により result._tag === "Success" → Either.isRight(result) + result.right.xxx パターンに変わる
+  - workspaceState.ts, ProofWorkspace.tsx, proofMessages.ts の3ファイルが主要な消費者。エラー型変更時はこの3つの更新を忘れないこと
+  - テストではエラー検証が `result.left._tag === "..."` パターンになる（Either.isLeftでガード後）
+---
