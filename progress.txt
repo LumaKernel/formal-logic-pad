@@ -8019,3 +8019,26 @@
   - isNodeProtectedが常にfalseを返す設計のため、merge関連の.map()は到達不能。将来isNodeProtectedが実装される場合はテスト追加が必要
   - existential-right のisFreeForテストパターン（`∃x.∀y.P(x)` + term=y）をuniversal-leftにも転用可能
 ---
+
+## 2026-03-02 - カバレッジ改善（normalForm.ts・workspaceState.ts Branch coverage）
+- normalForm.ts: pushPredicateNegation の MetaVariable ケーステスト追加（¬φ でメタ変数の否定をテスト）
+- workspaceState.ts: createQuestWorkspace に DeductionSystem 引数テスト追加
+- workspaceState.ts: updateInferenceEdgeSubstitutionEntries に複数エッジ共存テスト追加（MP+Substitution）
+- workspaceState.ts: applyTreeLayout に孤立ノードテスト追加
+- workspaceState.ts: 防御的コード（到達不能分岐）に v8 ignore 追加
+  - revalidateInferenceConclusions の SC エッジ else 分岐
+  - applyTreeLayout の positions.get() undefined 分岐
+- カバレッジ: Stmts 98.76%, Branch 93.30% (+0.04%), Funcs 89.65%, Lines 99.22%
+  - normalForm.ts Branch: 86.92% → ~89%（pushPredicateNegation MetaVariable カバー）
+  - workspaceState.ts Branch: 87.95% → ~92%（createQuestWorkspace DeductionSystem, updateSubstEntries, v8 ignore）
+- テスト: 214ファイル, 6824テスト全パス（+4テスト追加）
+- 変更したファイル:
+  - src/lib/logic-core/normalForm.test.ts（MetaVariable 否定テスト追加）
+  - src/lib/proof-pad/workspaceState.test.ts（createQuestWorkspace DS, updateSubstEntries, applyTreeLayout テスト追加）
+  - src/lib/proof-pad/workspaceState.ts（v8 ignore 追加: SC revalidate else分岐, applyTreeLayout undefined分岐）
+- **今後のイテレーションへの学び:**
+  - v8 branch coverage のswitch文: 各caseラベルが個別のブランチとしてカウントされる。同一bodyを共有するcaseでも、片方のcaseだけテストされていると他方が「uncovered」になる
+  - `?? { x: 0, y: 0 }` の配列アクセスフォールバックは防御的コードで、呼び出し元が必ず正しい配列を渡すため else 分岐は到達不能。テスト困難なため許容する
+  - computeTreeLayout は全ノードにpositionを返す（孤立ノードも含む）ため、`positions.get(id)` が undefined になることは構造的にない
+  - v8 coverage HTML報告は text reporter より正確。text reporter のuncovered line numbers は switch文のbranch計算で phantom entries を報告することがある
+---
