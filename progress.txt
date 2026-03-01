@@ -7871,3 +7871,34 @@
   - workspaceExport.tsのSchema.transform decode内の??分岐はv8が旧フォーマットテストでもブランチとして検出しない場合がある。v8 ignoreが適切
   - ProofWorkspace.tsxのブランチカバレッジ（81.69%）はUIコンポーネントのため、Storybook play関数での改善が有効
 ---
+
+## 2026-03-02 - シーケント計算クエスト追加
+- sc-basics カテゴリを QuestCategory に追加（14番目のカテゴリ）
+- シーケント計算（LK）基礎クエスト10問を追加:
+  - sc-01: 恒等律（Identity）φ → φ
+  - sc-02: 弱化左（Weakening）φ → (ψ → φ)
+  - sc-03: 縮約左（Contraction）(φ → (φ → ψ)) → (φ → ψ)
+  - sc-04: 交換（Exchange）(φ → (ψ → χ)) → (ψ → (φ → χ))
+  - sc-05: 結合右（Conjunction Right）φ → (ψ → (φ ∧ ψ))
+  - sc-06: 選言左（Disjunction Left）(φ ∨ ψ) → ((φ → χ) → ((ψ → χ) → χ))
+  - sc-07: 排中律（Excluded Middle）φ ∨ ¬φ（LK固有）
+  - sc-08: 二重否定除去（Double Negation Elim）¬¬φ → φ（LK固有）
+  - sc-09: 対偶（Contraposition）(φ → ψ) → (¬ψ → ¬φ)
+  - sc-10: ド・モルガン（De Morgan）¬(φ ∧ ψ) → (¬φ ∨ ¬ψ)
+- すべて systemPresetId: "sc-lk" を使用
+- カバレッジ: Stmts 99.34%, Branch 94.07%, Funcs 89.63%, Lines 99.92% — 変化なし
+- テスト: 212ファイル, 6644テスト全パス
+- 変更したファイル:
+  - src/lib/quest/questDefinition.ts（カテゴリ追加）
+  - src/lib/quest/builtinQuests.ts（クエスト10問追加）
+  - src/lib/quest/questDefinition.test.ts（カテゴリ数14に更新）
+  - src/lib/quest/builtinQuests.test.ts（クエスト数110に更新）
+  - task-processing.md（タスク計画）
+  - tasks/prd-logic-pad-world.md（タスク進行状況更新）
+- スクリーンショット: .screenshots/sc-basics-quest-catalog-storybook.png
+- **今後のイテレーションへの学び:**
+  - QuestCatalog Storybook story はハードコードされたサンプルデータを使用しており、builtinQuests の実データは表示されない。実データの確認にはアプリケーション本体か専用のintegrationストーリーが必要
+  - シーケント計算のクエストゴールは通常の命題論理式テキスト（"phi -> phi"）で定義。parseString()でパースされる。シーケント表記（"A ⊢ B"）ではない
+  - ProofWorkspace.tsx にはsequent-calculus用のルールパレットUIがまだない。UIは別イテレーションで実装が必要
+  - sc-lk/sc-lj/sc-lm プリセットは notebookCreateLogic.ts に既存
+---
