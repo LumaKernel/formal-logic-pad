@@ -7822,3 +7822,21 @@
   - applyFiltersToGroupsが空グループを除外するため、QuestCatalogのProgressBar total===0は到達不能
   - rectsOverlapの4条件AND（a.x < b.x+b.w && b.x < a.x+a.w && a.y < b.y+b.h && b.y < a.y+a.h）は各条件を個別にfalseにするテストケースが必要
 ---
+
+## 2026-03-02 - カバレッジ改善（connectionPath・inferenceEdge・mpApplicationLogic）
+- ベースライン: Stmts 99.32%, Branch 93.74%, Funcs 89.67%, Lines 99.92%, Tests 6622
+- 結果: Stmts 99.32%, Branch 93.89% (+0.15%), Funcs 89.67%, Lines 99.92%, Tests 6633 (+11)
+- 実装した内容:
+  - connectionPath.test.ts: 障害物回避テスト4件追加（交差する障害物でのパス偏向、反対側偏向(sign=-1)、同位置ノード+障害物(connLen=0)）Branch 95.55% → 98.88%
+  - inferenceEdge.test.ts: undefined前提のブランチテスト5件追加（nd-existential-elim全undefined/一部、nd-disjunction-elim一部、tab-branching全undefined/一部）Branch 88.88% → 91.41%
+  - mpApplicationLogic.test.ts: パース不能な式ノードのスキップテスト1件追加 Branch 96.61% → 98.30%
+- 変更したファイル:
+  - src/lib/infinite-canvas/connectionPath.test.ts
+  - src/lib/proof-pad/inferenceEdge.test.ts
+  - src/lib/proof-pad/mpApplicationLogic.test.ts
+- **今後のイテレーションへの学び:**
+  - connectionPath.tsの障害物フィルタはfrom/toと完全一致するobstacleを除外する。テストではposition/dimensionsを微妙にずらす必要がある
+  - 障害物回避のsign分岐: perpendicular方向のdot積でsign=1/-1が決まる。水平接続の場合、obsCenter.y > midWorld.yでsign=-1（下方偏向）
+  - computeSmartConnectionPathのconnLen===0はfrom/toが同位置でも発生しない（exit/entry方向が異なるため）。防御的ガードとしてv8 ignoreが適切
+  - InferenceEdgeのundefined前提テスト: 各NdEdge型のoptional premiseを個別にundefinedにするパターンが有効
+---
