@@ -19,6 +19,8 @@ import {
   njSystem,
   tableauCalculusDeduction,
   tabSystem,
+  analyticTableauDeduction,
+  atSystem,
 } from "../logic-core/deductionSystem";
 import { allReferenceEntries } from "../reference/referenceContent";
 import { ProofWorkspace } from "./ProofWorkspace";
@@ -1304,6 +1306,77 @@ export const EmptyTableau: StoryObj<typeof meta> = {
     // シーケント追加
     await userEvent.click(
       canvas.getByTestId("workspace-tab-rule-palette-add-sequent"),
+    );
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+  },
+};
+
+// --- AT（分析的タブロー）ストーリー ---
+
+function AnalyticTableauWorkspace() {
+  const initial = createEmptyWorkspace(
+    analyticTableauDeduction(atSystem),
+  );
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={workspace.system}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+export const EmptyAnalyticTableau: StoryObj<typeof meta> = {
+  render: () => <AnalyticTableauWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // ATパレットが表示される
+    await expect(
+      canvas.getByTestId("workspace-at-rule-palette"),
+    ).toBeInTheDocument();
+    // ヘッダーとパレット両方に "Analytic Tableau" テキストがあるため getAllByText を使う
+    const atTexts = canvas.getAllByText("Analytic Tableau");
+    await expect(atTexts.length).toBeGreaterThanOrEqual(2);
+
+    // AT規則が表示される
+    await expect(canvas.getByText("T(∧)")).toBeInTheDocument();
+    await expect(canvas.getByText("F(∨)")).toBeInTheDocument();
+    await expect(canvas.getByText("×")).toBeInTheDocument();
+
+    // セクションヘッダーが表示される
+    await expect(canvas.getByText("α (non-branching)")).toBeInTheDocument();
+    await expect(canvas.getByText("β (branching)")).toBeInTheDocument();
+    await expect(canvas.getByText("Closure")).toBeInTheDocument();
+
+    // 分岐バッジが表示される
+    const betaDisjRule = canvas.getByTestId(
+      "workspace-at-rule-palette-rule-beta-disj",
+    );
+    await expect(betaDisjRule.textContent).toContain("分岐");
+
+    // Hilbertパレット・NDパレット・TABパレットは非表示
+    await expect(
+      canvas.queryByTestId("workspace-axiom-palette"),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId("workspace-nd-rule-palette"),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId("workspace-tab-rule-palette"),
+    ).not.toBeInTheDocument();
+
+    // 署名付き論理式ノード追加
+    await userEvent.click(
+      canvas.getByTestId("workspace-at-rule-palette-add-formula"),
     );
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
   },

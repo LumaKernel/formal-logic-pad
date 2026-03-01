@@ -9,16 +9,20 @@ export { NdRulePalette } from "./NdRulePalette";
 export type { NdRulePaletteProps } from "./NdRulePalette";
 export { TabRulePalette } from "./TabRulePalette";
 export type { TabRulePaletteProps } from "./TabRulePalette";
+export { AtRulePalette } from "./AtRulePalette";
+export type { AtRulePaletteProps } from "./AtRulePalette";
 export {
   getAvailableAxioms,
   getAvailableNdRules,
   getAvailableTabRules,
+  getAvailableAtRules,
   getAxiomReferenceEntryId,
 } from "./axiomPaletteLogic";
 export type {
   AxiomPaletteItem,
   NdRulePaletteItem,
   TabRulePaletteItem,
+  AtRulePaletteItem,
 } from "./axiomPaletteLogic";
 export { getInferenceRuleReferenceEntryId } from "./inferenceRuleReferenceLogic";
 export { ProofWorkspace } from "./ProofWorkspace";

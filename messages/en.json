@@ -88,6 +88,14 @@
     "tabPositionPrompt": "Principal formula position (0-based):",
     "tabExchangePositionPrompt": "Exchange position (0-based):",
     "tabTermPrompt": "Substitution term:",
-    "tabEigenVariablePrompt": "Eigen variable name:"
+    "tabEigenVariablePrompt": "Eigen variable name:",
+    "atBannerSelectNode": "Click a node to apply {ruleName}",
+    "atCancel": "Cancel AT",
+    "atApplied": "AT rule applied",
+    "atError": "AT rule application failed",
+    "applyAtRuleToNode": "Apply AT Rule",
+    "atTermPrompt": "Substitution term:",
+    "atEigenVariablePrompt": "Eigen variable name:",
+    "atClosureBannerSelectContradiction": "Click the contradicting node to close the branch"
   }
 }

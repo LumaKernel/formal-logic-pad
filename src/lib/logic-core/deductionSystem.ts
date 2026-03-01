@@ -9,6 +9,7 @@
  * - 第8章: 自然演繹 (NM, NJ, NK)
  * - 第10章: ゲンツェン流シーケント計算 (LM, LJ, LK)
  * - 第12章: タブロー式シーケント計算 (TAB)
+ * - 第6章: 分析的タブロー (AT)
  *
  * 変更時は deductionSystem.test.ts, notebookCreateLogic.ts,
  * questDefinition.ts の SystemPresetId も同期すること。
@@ -17,10 +18,12 @@
  * @see naturalDeduction.ts 自然演繹のピュアロジック
  * @see sequentCalculus.ts シーケント計算のピュアロジック
  * @see tableauCalculus.ts タブロー式シーケント計算のピュアロジック
+ * @see analyticTableau.ts 分析的タブローのピュアロジック
  */
 
 import type { LogicSystem } from "./inferenceRule";
 import type { TabRuleId } from "./tableauCalculus";
+import type { AtRuleId } from "./analyticTableau";
 
 // ── 証明スタイル ─────────────────────────────────────────
 
@@ -31,6 +34,7 @@ import type { TabRuleId } from "./tableauCalculus";
  * - "natural-deduction": 自然演繹（推論規則のペア + 仮定の打ち消し）
  * - "sequent-calculus": シーケント計算
  * - "tableau-calculus": タブロー式シーケント計算
+ * - "analytic-tableau": 分析的タブロー
  *
  * 新しいスタイル追加時はすべての switch 文を更新すること
  * （satisfies never でコンパイル時に検出される）。
@@ -39,7 +43,8 @@ export type DeductionStyle =
   | "hilbert"
   | "natural-deduction"
   | "sequent-calculus"
-  | "tableau-calculus";
+  | "tableau-calculus"
+  | "analytic-tableau";
 
 // ── 自然演繹の体系設定 ─────────────────────────────────────
 
@@ -340,6 +345,84 @@ export function isTabRuleEnabled(
   return system.rules.has(ruleId);
 }
 
+// ── 分析的タブローの体系設定 ─────────────────────────────────
+
+/**
+ * 分析的タブローの体系設定。
+ *
+ * 分析的タブロー (bekki 第6章) は署名付き論理式の木構造で証明を行う。
+ * TAB（タブロー式シーケント計算, Ch.12）と本質的に同じ規則を持つが、
+ * 表現方法が異なる（シーケントではなく個別の署名付き論理式）。
+ *
+ * 全15規則: α規則(7), β規則(3), γ規則(2), δ規則(2), closure(1)
+ */
+export type AnalyticTableauSystem = {
+  /** 体系名 */
+  readonly name: string;
+  /** 有効な規則 */
+  readonly rules: ReadonlySet<AtRuleId>;
+};
+
+/** 分析的タブロー全規則セット */
+const atAllRules: ReadonlySet<AtRuleId> = new Set<AtRuleId>([
+  "alpha-conj",
+  "alpha-neg-disj",
+  "alpha-neg-impl",
+  "alpha-double-neg-t",
+  "alpha-double-neg-f",
+  "alpha-neg-t",
+  "alpha-neg-f",
+  "beta-neg-conj",
+  "beta-disj",
+  "beta-impl",
+  "gamma-univ",
+  "gamma-neg-exist",
+  "delta-neg-univ",
+  "delta-exist",
+  "closure",
+]);
+
+/**
+ * AT: 分析的タブロー（全規則）。
+ * 戸次『数理論理学』第6章。
+ */
+export const atSystem: AnalyticTableauSystem = {
+  name: "Analytic Tableau",
+  rules: atAllRules,
+};
+
+/** 分析的タブロー命題論理部分（量化子規則なし） */
+const atPropositionalRules: ReadonlySet<AtRuleId> = new Set<AtRuleId>([
+  "alpha-conj",
+  "alpha-neg-disj",
+  "alpha-neg-impl",
+  "alpha-double-neg-t",
+  "alpha-double-neg-f",
+  "alpha-neg-t",
+  "alpha-neg-f",
+  "beta-neg-conj",
+  "beta-disj",
+  "beta-impl",
+  "closure",
+]);
+
+/**
+ * AT-Prop: 分析的タブローの命題論理部分。
+ * 量化子規則（γ/δ）を除いた11規則。
+ */
+export const atPropSystem: AnalyticTableauSystem = {
+  name: "Analytic Tableau (Propositional)",
+  rules: atPropositionalRules,
+};
+
+/** 分析的タブローの規則が有効かどうかを判定する */
+export function isAtRuleEnabled(
+  system: AnalyticTableauSystem,
+  ruleId: AtRuleId,
+): boolean {
+  return system.rules.has(ruleId);
+}
+
 // ── 演繹体系（統一型） ──────────────────────────────────────
 
 /**
@@ -363,6 +446,10 @@ export type DeductionSystem =
   | {
       readonly style: "tableau-calculus";
       readonly system: TableauCalculusSystem;
+    }
+  | {
+      readonly style: "analytic-tableau";
+      readonly system: AnalyticTableauSystem;
     };
 
 // ── ファクトリ関数 ──────────────────────────────────────────
@@ -393,6 +480,13 @@ export function tableauCalculusDeduction(
   return { style: "tableau-calculus", system };
 }
 
+/** 分析的タブローの演繹体系を作成する */
+export function analyticTableauDeduction(
+  system: AnalyticTableauSystem,
+): DeductionSystem {
+  return { style: "analytic-tableau", system };
+}
+
 // ── ユーティリティ ──────────────────────────────────────────
 
 /** 演繹体系の名前を取得する */
@@ -405,6 +499,8 @@ export function getDeductionSystemName(ds: DeductionSystem): string {
     case "sequent-calculus":
       return ds.system.name;
     case "tableau-calculus":
+      return ds.system.name;
+    case "analytic-tableau":
       return ds.system.name;
     default: {
       /* v8 ignore start */
@@ -426,6 +522,8 @@ export function getDeductionStyleLabel(style: DeductionStyle): string {
       return "シーケント計算";
     case "tableau-calculus":
       return "タブロー法";
+    case "analytic-tableau":
+      return "分析的タブロー";
     default: {
       /* v8 ignore start */
       const _exhaustive: never = style;

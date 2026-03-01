@@ -134,6 +134,21 @@ export type ProofMessages = {
   readonly tabTermPrompt: string;
   /** 固有変数プロンプト */
   readonly tabEigenVariablePrompt: string;
+
+  // --- AT (分析的タブロー) ---
+  /** `{ruleName}` プレースホルダーを含む */
+  readonly atBannerSelectNode: string;
+  readonly atCancel: string;
+  readonly atApplied: string;
+  readonly atError: string;
+  /** コンテキストメニュー: AT規則適用 */
+  readonly applyAtRuleToNode: string;
+  /** 代入項プロンプト（γ規則用） */
+  readonly atTermPrompt: string;
+  /** 固有変数プロンプト（δ規則用） */
+  readonly atEigenVariablePrompt: string;
+  /** 矛盾ノード選択プロンプト（closure用） */
+  readonly atClosureBannerSelectContradiction: string;
 };
 
 // --- デフォルトメッセージ（英語） ---
@@ -243,6 +258,17 @@ export const defaultProofMessages: ProofMessages = {
   tabExchangePositionPrompt: "Exchange position (0-based):",
   tabTermPrompt: "Substitution term:",
   tabEigenVariablePrompt: "Eigen variable name:",
+
+  // AT (Analytic Tableau)
+  atBannerSelectNode: "Click a node to apply {ruleName}",
+  atCancel: "Cancel AT",
+  atApplied: "AT rule applied",
+  atError: "AT rule application failed",
+  applyAtRuleToNode: "Apply AT Rule",
+  atTermPrompt: "Substitution term:",
+  atEigenVariablePrompt: "Eigen variable name:",
+  atClosureBannerSelectContradiction:
+    "Click the contradicting node to close the branch",
 };
 
 // --- エラー → メッセージキー変換（純粋関数） ---

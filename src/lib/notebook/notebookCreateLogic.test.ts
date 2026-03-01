@@ -39,7 +39,8 @@ describe("systemPresets", () => {
         ds.style === "hilbert" ||
           ds.style === "natural-deduction" ||
           ds.style === "sequent-calculus" ||
-          ds.style === "tableau-calculus",
+          ds.style === "tableau-calculus" ||
+          ds.style === "analytic-tableau",
       ).toBe(true);
       expect(ds.system.name).toBeTruthy();
       if (ds.style === "hilbert") {
@@ -52,6 +53,9 @@ describe("systemPresets", () => {
         expect(ds.system.rules).toBeInstanceOf(Set);
       }
       if (ds.style === "tableau-calculus") {
+        expect(ds.system.rules).toBeInstanceOf(Set);
+      }
+      if (ds.style === "analytic-tableau") {
         expect(ds.system.rules).toBeInstanceOf(Set);
       }
     }
@@ -210,7 +214,8 @@ describe("systemPresets", () => {
       (p) =>
         !p.id.startsWith("nd-") &&
         !p.id.startsWith("sc-") &&
-        !p.id.startsWith("tab"),
+        !p.id.startsWith("tab") &&
+        !p.id.startsWith("at"),
     );
     expect(hilbertPresets.length).toBeGreaterThanOrEqual(16);
     for (const p of hilbertPresets) {
@@ -775,6 +780,7 @@ describe("classifyPresetCategory", () => {
           "natural-deduction",
           "sequent-calculus",
           "tableau-calculus",
+          "analytic-tableau",
         ].includes(category),
       ).toBe(true);
     }
@@ -782,9 +788,9 @@ describe("classifyPresetCategory", () => {
 });
 
 describe("groupPresetsByCategory", () => {
-  it("groups all presets into 6 categories", () => {
+  it("groups all presets into 7 categories", () => {
     const groups = groupPresetsByCategory(systemPresets);
-    expect(groups).toHaveLength(6);
+    expect(groups).toHaveLength(7);
   });
 
   it("preserves category order from presetCategoryDefinitions", () => {
@@ -797,6 +803,7 @@ describe("groupPresetsByCategory", () => {
       "natural-deduction",
       "sequent-calculus",
       "tableau-calculus",
+      "analytic-tableau",
     ]);
   });
 
@@ -862,8 +869,8 @@ describe("groupPresetsByCategory", () => {
 });
 
 describe("presetCategoryDefinitions", () => {
-  it("has 6 categories", () => {
-    expect(presetCategoryDefinitions).toHaveLength(6);
+  it("has 7 categories", () => {
+    expect(presetCategoryDefinitions).toHaveLength(7);
   });
 
   it("each has unique id", () => {

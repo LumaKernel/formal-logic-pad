@@ -10,10 +10,13 @@ import {
   lkSystem,
   tabSystem,
   tabPropSystem,
+  atSystem,
+  atPropSystem,
   hilbertDeduction,
   naturalDeduction,
   sequentCalculusDeduction,
   tableauCalculusDeduction,
+  analyticTableauDeduction,
   getDeductionSystemName,
   getDeductionStyleLabel,
   isNdRuleEnabled,
@@ -23,8 +26,10 @@ import {
   allScRuleIds,
   getScRuleDisplayName,
   isTabRuleEnabled,
+  isAtRuleEnabled,
 } from "./deductionSystem";
 import { allTabRuleIds } from "./tableauCalculus";
+import { allAtRuleIds } from "./analyticTableau";
 import { minimalLogicSystem, classicalLogicSystem } from "./inferenceRule";
 
 // ── NM/NJ/NK体系のテスト ───────────────────────────────────
@@ -162,6 +167,10 @@ describe("getDeductionStyleLabel", () => {
 
   it("tableau-calculus → タブロー法", () => {
     expect(getDeductionStyleLabel("tableau-calculus")).toBe("タブロー法");
+  });
+
+  it("analytic-tableau → 分析的タブロー", () => {
+    expect(getDeductionStyleLabel("analytic-tableau")).toBe("分析的タブロー");
   });
 });
 
@@ -544,6 +553,53 @@ describe("DeductionSystem (tableau-calculus)", () => {
   });
 });
 
+// ── DeductionSystemのATテスト ────────────────────────────
+
+describe("DeductionSystem (analytic-tableau)", () => {
+  it("analyticTableauDeduction でAT体系を作成できる", () => {
+    const ds = analyticTableauDeduction(atSystem);
+    expect(ds.style).toBe("analytic-tableau");
+    expect(ds.system).toBe(atSystem);
+  });
+
+  it("getDeductionSystemName でATの名前を取得できる", () => {
+    const ds = analyticTableauDeduction(atSystem);
+    expect(getDeductionSystemName(ds)).toBe("Analytic Tableau");
+  });
+
+  it("atSystem has 15 rules", () => {
+    expect(atSystem.rules.size).toBe(15);
+  });
+
+  it("atPropSystem has 11 rules (no quantifiers)", () => {
+    expect(atPropSystem.rules.size).toBe(11);
+    expect(atPropSystem.rules.has("gamma-univ")).toBe(false);
+    expect(atPropSystem.rules.has("gamma-neg-exist")).toBe(false);
+    expect(atPropSystem.rules.has("delta-neg-univ")).toBe(false);
+    expect(atPropSystem.rules.has("delta-exist")).toBe(false);
+  });
+});
+
+// ── isAtRuleEnabled のテスト ────────────────────────────────
+
+describe("isAtRuleEnabled", () => {
+  it("ATでalpha-conjは有効", () => {
+    expect(isAtRuleEnabled(atSystem, "alpha-conj")).toBe(true);
+  });
+
+  it("AT-Propでgamma-univは無効", () => {
+    expect(isAtRuleEnabled(atPropSystem, "gamma-univ")).toBe(false);
+  });
+
+  it("ATでgamma-univは有効", () => {
+    expect(isAtRuleEnabled(atSystem, "gamma-univ")).toBe(true);
+  });
+
+  it("ATでclosureは有効", () => {
+    expect(isAtRuleEnabled(atSystem, "closure")).toBe(true);
+  });
+});
+
 // ── isTabRuleEnabled のテスト ────────────────────────────────
 
 describe("isTabRuleEnabled", () => {
@@ -569,6 +625,7 @@ describe("型の網羅性", () => {
       "natural-deduction",
       "sequent-calculus",
       "tableau-calculus",
+      "analytic-tableau",
     ];
     for (const style of styles) {
       expect(typeof getDeductionStyleLabel(style)).toBe("string");

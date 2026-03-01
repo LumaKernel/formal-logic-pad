@@ -106,6 +106,16 @@ function useProofMessagesFromIntl(): ProofMessages {
       tabExchangePositionPrompt: t("tabExchangePositionPrompt"),
       tabTermPrompt: t("tabTermPrompt"),
       tabEigenVariablePrompt: t("tabEigenVariablePrompt"),
+      atBannerSelectNode: t("atBannerSelectNode"),
+      atCancel: t("atCancel"),
+      atApplied: t("atApplied"),
+      atError: t("atError"),
+      applyAtRuleToNode: t("applyAtRuleToNode"),
+      atTermPrompt: t("atTermPrompt"),
+      atEigenVariablePrompt: t("atEigenVariablePrompt"),
+      atClosureBannerSelectContradiction: t(
+        "atClosureBannerSelectContradiction",
+      ),
     }),
     [t],
   );

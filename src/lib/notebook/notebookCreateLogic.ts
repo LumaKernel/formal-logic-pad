@@ -13,6 +13,7 @@ import {
   naturalDeduction,
   sequentCalculusDeduction,
   tableauCalculusDeduction,
+  analyticTableauDeduction,
   nmSystem,
   njSystem,
   nkSystem,
@@ -21,6 +22,8 @@ import {
   lkSystem,
   tabSystem,
   tabPropSystem,
+  atSystem,
+  atPropSystem,
 } from "../logic-core/deductionSystem";
 import type { ReferenceEntryId } from "../reference/referenceEntry";
 import {
@@ -247,6 +250,20 @@ export const systemPresets: readonly SystemPreset[] = [
       "タブロー法: 量化子規則を含む全14規則。LK-CUT と等価。戸次『数理論理学』§12.1-12.3。",
     deductionSystem: tableauCalculusDeduction(tabSystem),
   },
+  {
+    id: "at-prop",
+    label: "分析的タブロー 命題論理",
+    description:
+      "分析的タブロー: 命題論理部分のみ（量化子規則なし）。署名付き論理式の木構造で反駁証明。戸次『数理論理学』§6.1-6.4。",
+    deductionSystem: analyticTableauDeduction(atPropSystem),
+  },
+  {
+    id: "at",
+    label: "分析的タブロー（全規則）",
+    description:
+      "分析的タブロー: α/β/γ/δ規則 + closure。量化子対応。戸次『数理論理学』第6章。",
+    deductionSystem: analyticTableauDeduction(atSystem),
+  },
 ] as const;
 
 // --- プリセットのカテゴリグルーピング ---
@@ -266,7 +283,8 @@ export type PresetCategoryId =
   | "hilbert-theory"
   | "natural-deduction"
   | "sequent-calculus"
-  | "tableau-calculus";
+  | "tableau-calculus"
+  | "analytic-tableau";
 
 /** カテゴリの表示情報 */
 export type PresetCategoryDefinition = {
@@ -307,6 +325,11 @@ export const presetCategoryDefinitions: readonly PresetCategoryDefinition[] = [
     label: "タブロー法",
     description: "タブロー式シーケント計算（反駁による証明）",
   },
+  {
+    id: "analytic-tableau",
+    label: "分析的タブロー",
+    description: "署名付き論理式の木構造による反駁証明",
+  },
 ];
 
 /** Hilbert述語論理系プリセットIDの集合 */
@@ -335,6 +358,7 @@ export function classifyPresetCategory(preset: SystemPreset): PresetCategoryId {
   if (style === "natural-deduction") return "natural-deduction";
   if (style === "sequent-calculus") return "sequent-calculus";
   if (style === "tableau-calculus") return "tableau-calculus";
+  if (style === "analytic-tableau") return "analytic-tableau";
   // Hilbert 系の場合はIDで細分類
   if (hilbertPredicateIds.has(preset.id)) return "hilbert-predicate";
   if (hilbertTheoryIds.has(preset.id)) return "hilbert-theory";

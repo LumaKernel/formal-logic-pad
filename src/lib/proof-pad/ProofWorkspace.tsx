@@ -38,16 +38,26 @@ import {
   getAvailableAxioms,
   getAvailableNdRules,
   getAvailableTabRules,
+  getAvailableAtRules,
   type AxiomPaletteItem,
 } from "./axiomPaletteLogic";
 import { NdRulePalette } from "./NdRulePalette";
 import { TabRulePalette } from "./TabRulePalette";
+import { AtRulePalette } from "./AtRulePalette";
 import type { TabRuleId } from "../logic-core/tableauCalculus";
 import { getTabRuleDisplayName } from "../logic-core/tableauCalculus";
+import type { AtRuleId } from "../logic-core/analyticTableau";
+import {
+  getAtRuleDisplayName,
+  isGammaRule as isAtGammaRule,
+  isDeltaRule as isAtDeltaRule,
+  isClosureRule as isAtClosureRule,
+} from "../logic-core/analyticTableau";
 import {
   getTabErrorMessage,
   isTabAxiomRule,
 } from "./tabApplicationLogic";
+import { getAtErrorMessage } from "./atApplicationLogic";
 import {
   validateMPApplication,
   computeMPCompatibleNodeIds,
@@ -119,6 +129,7 @@ import {
   updateInferenceEdgeSubstitutionEntries,
   mergeSelectedNodes,
   applyTabRuleAndConnect,
+  applyAtRuleAndConnect,
 } from "./workspaceState";
 import {
   findMergeableGroups,
@@ -244,6 +255,20 @@ type TabSelectionState =
       readonly ruleId: TabRuleId;
     };
 
+// --- AT規則選択モードの状態 ---
+
+type AtSelectionState =
+  | { readonly phase: "idle" }
+  | {
+      readonly phase: "selecting-node";
+      readonly ruleId: AtRuleId;
+    }
+  | {
+      readonly phase: "selecting-contradiction";
+      readonly ruleId: AtRuleId;
+      readonly principalNodeId: string;
+    };
+
 // --- デフォルトノードサイズ（ポート位置計算に必要） ---
 
 const DEFAULT_NODE_SIZE: Size = { width: 180, height: 60 };
@@ -367,6 +392,11 @@ const mergeSelectionBannerStyle = {
 const tabSelectionBannerStyle = {
   ...mpSelectionBannerStyle,
   background: "var(--color-tab-banner, rgba(100, 140, 80, 0.95))",
+};
+
+const atSelectionBannerStyle = {
+  ...mpSelectionBannerStyle,
+  background: "var(--color-at-banner, rgba(140, 100, 160, 0.95))",
 };
 
 const substBannerStyle = {
@@ -604,6 +634,11 @@ export function ProofWorkspace({
 
   // TAB規則選択モード
   const [tabSelection, setTabSelection] = useState<TabSelectionState>({
+    phase: "idle",
+  });
+
+  // AT規則選択モード
+  const [atSelection, setAtSelection] = useState<AtSelectionState>({
     phase: "idle",
   });
 
@@ -925,6 +960,14 @@ export function ProofWorkspace({
     [workspace.deductionSystem],
   );
 
+  const availableAtRules = useMemo(
+    () =>
+      workspace.deductionSystem.style === "analytic-tableau"
+        ? getAvailableAtRules(workspace.deductionSystem.system)
+        : [],
+    [workspace.deductionSystem],
+  );
+
   // --- 推論規則リファレンス ---
 
   const mpReferenceEntry = useMemo(() => {
@@ -980,6 +1023,14 @@ export function ProofWorkspace({
     // TABシーケントは左辺（Γ）のみで右辺は常に空。
     setWorkspaceWithAutoLayout(
       addNode(workspace, "axiom", "Sequent", position, ""),
+    );
+  }, [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition]);
+
+  const handleAddSignedFormula = useCallback(() => {
+    const position = computeNewNodePosition(workspace.nodes);
+    // ATでは署名付き論理式ノードを追加。formulaTextは空で、ユーザーが "T:φ" / "F:φ" を入力する。
+    setWorkspaceWithAutoLayout(
+      addNode(workspace, "axiom", "SignedFormula", position, ""),
     );
   }, [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition]);
 
@@ -1116,6 +1167,7 @@ export function ProofWorkspace({
       setMPSelection({ phase: "idle" });
       setGenSelection({ phase: "idle" });
       setMergeSelection({ phase: "idle" });
+      setAtSelection({ phase: "idle" });
     },
     [],
   );
@@ -1222,6 +1274,140 @@ export function ProofWorkspace({
     [tabSelection, workspace, setWorkspaceWithAutoLayout, msg],
   );
 
+  // --- AT規則選択モードハンドラ ---
+
+  const handleStartAtRuleSelection = useCallback(
+    (ruleId: AtRuleId) => {
+      if (isAtClosureRule(ruleId)) {
+        // closure はまず主ノードを選択
+        setAtSelection({ phase: "selecting-node", ruleId });
+      } else {
+        setAtSelection({ phase: "selecting-node", ruleId });
+      }
+      setMPSelection({ phase: "idle" });
+      setGenSelection({ phase: "idle" });
+      setMergeSelection({ phase: "idle" });
+      setTabSelection({ phase: "idle" });
+    },
+    [],
+  );
+
+  const handleCancelAtSelection = useCallback(() => {
+    setAtSelection({ phase: "idle" });
+  }, []);
+
+  const handleNodeClickForAt = useCallback(
+    (nodeId: string) => {
+      if (atSelection.phase === "selecting-contradiction") {
+        // closure: 矛盾ノード選択 → 適用
+        const principalNode = findNode(workspace, atSelection.principalNodeId);
+        if (!principalNode) {
+          setAtSelection({ phase: "idle" });
+          return;
+        }
+        const contradictionNode = findNode(workspace, nodeId);
+        if (!contradictionNode) {
+          setAtSelection({ phase: "idle" });
+          return;
+        }
+
+        const result = applyAtRuleAndConnect(
+          workspace,
+          atSelection.principalNodeId,
+          {
+            ruleId: atSelection.ruleId,
+            signedFormulaText: principalNode.formulaText,
+            contradictionFormulaText: contradictionNode.formulaText,
+          },
+          [],
+          nodeId,
+        );
+
+        if (Either.isRight(result.validation)) {
+          setWorkspaceWithAutoLayout(result.workspace);
+        } else {
+          const errorMsg = getAtErrorMessage(result.validation.left);
+          globalThis.alert(errorMsg);
+        }
+
+        setAtSelection({ phase: "idle" });
+        return;
+      }
+
+      if (atSelection.phase !== "selecting-node") return;
+
+      const conclusionNode = findNode(workspace, nodeId);
+      if (!conclusionNode) return;
+
+      const { ruleId } = atSelection;
+
+      // closure: 主ノード選択後、矛盾ノード選択に遷移
+      if (isAtClosureRule(ruleId)) {
+        setAtSelection({
+          phase: "selecting-contradiction",
+          ruleId,
+          principalNodeId: nodeId,
+        });
+        return;
+      }
+
+      // γ規則: 代入項入力
+      let termText: string | undefined;
+      if (isAtGammaRule(ruleId)) {
+        const input = globalThis.prompt(msg.atTermPrompt, "");
+        if (input === null) {
+          setAtSelection({ phase: "idle" });
+          return;
+        }
+        termText = input;
+      }
+
+      // δ規則: 固有変数入力
+      let eigenVariable: string | undefined;
+      if (isAtDeltaRule(ruleId)) {
+        const input = globalThis.prompt(msg.atEigenVariablePrompt, "");
+        if (input === null) {
+          setAtSelection({ phase: "idle" });
+          return;
+        }
+        eigenVariable = input;
+      }
+
+      // 結果ノードの配置位置計算
+      const resultPositions: Point[] = [];
+      resultPositions.push({
+        x: conclusionNode.position.x - 100,
+        y: conclusionNode.position.y - 150,
+      });
+      resultPositions.push({
+        x: conclusionNode.position.x + 100,
+        y: conclusionNode.position.y - 150,
+      });
+
+      const result = applyAtRuleAndConnect(
+        workspace,
+        nodeId,
+        {
+          ruleId,
+          signedFormulaText: conclusionNode.formulaText,
+          eigenVariable,
+          termText,
+        },
+        resultPositions,
+      );
+
+      if (Either.isRight(result.validation)) {
+        setWorkspaceWithAutoLayout(result.workspace);
+      } else {
+        const errorMsg = getAtErrorMessage(result.validation.left);
+        globalThis.alert(errorMsg);
+      }
+
+      setAtSelection({ phase: "idle" });
+    },
+    [atSelection, workspace, setWorkspaceWithAutoLayout, msg],
+  );
+
   // 統合ノードクリックハンドラ
   const handleNodeClickForSelection = useCallback(
     (nodeId: string) => {
@@ -1233,6 +1419,8 @@ export function ProofWorkspace({
         handleNodeClickForMerge(nodeId);
       } else if (tabSelection.phase !== "idle") {
         handleNodeClickForTab(nodeId);
+      } else if (atSelection.phase !== "idle") {
+        handleNodeClickForAt(nodeId);
       }
     },
     [
@@ -1240,10 +1428,12 @@ export function ProofWorkspace({
       genSelection,
       mergeSelection,
       tabSelection,
+      atSelection,
       handleNodeClickForMP,
       handleNodeClickForGen,
       handleNodeClickForMerge,
       handleNodeClickForTab,
+      handleNodeClickForAt,
     ],
   );
 
@@ -1251,7 +1441,8 @@ export function ProofWorkspace({
     mpSelection.phase !== "idle" ||
     genSelection.phase !== "idle" ||
     mergeSelection.phase !== "idle" ||
-    tabSelection.phase !== "idle";
+    tabSelection.phase !== "idle" ||
+    atSelection.phase !== "idle";
 
   // --- MP互換ノードIDセット（ハイライト用） ---
 
@@ -3127,6 +3318,31 @@ export function ProofWorkspace({
         </div>
       ) : null}
 
+      {/* AT規則選択バナー */}
+      {atSelection.phase !== "idle" ? (
+        <div
+          style={atSelectionBannerStyle}
+          data-testid={
+            testId ? `${testId satisfies string}-at-banner` : undefined
+          }
+        >
+          <span>
+            {atSelection.phase === "selecting-contradiction"
+              ? msg.atClosureBannerSelectContradiction
+              : formatMessage(msg.atBannerSelectNode, {
+                  ruleName: getAtRuleDisplayName(atSelection.ruleId),
+                })}
+          </span>
+          <button
+            type="button"
+            style={cancelButtonStyle}
+            onClick={handleCancelAtSelection}
+          >
+            {msg.atCancel}
+          </button>
+        </div>
+      ) : null}
+
       {/* Gen変数名入力プロンプト（コンテキストメニューから起動） */}
       {genPromptNodeId !== null ? (
         <div
@@ -3469,6 +3685,18 @@ export function ProofWorkspace({
           }
           testId={
             testId ? `${testId satisfies string}-tab-rule-palette` : undefined
+          }
+        />
+      ) : workspace.deductionSystem.style === "analytic-tableau" ? (
+        <AtRulePalette
+          rules={availableAtRules}
+          onAddFormula={handleAddSignedFormula}
+          onRuleClick={handleStartAtRuleSelection}
+          selectedRuleId={
+            atSelection.phase !== "idle" ? atSelection.ruleId : undefined
+          }
+          testId={
+            testId ? `${testId satisfies string}-at-rule-palette` : undefined
           }
         />
       ) : (
