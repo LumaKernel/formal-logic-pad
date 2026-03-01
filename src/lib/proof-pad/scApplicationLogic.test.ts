@@ -962,6 +962,25 @@ describe("scApplicationLogic", () => {
       }
     });
 
+    it("固有変数が右辺のみに自由出現するならエラー", () => {
+      // succedentsループ(line 934-938)のカバレッジ
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "universal-right",
+          sequentText: " ⇒ Q(y), ∀x.P(x)",
+          principalPosition: 1,
+          eigenVariable: "y",
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScEigenVariableError");
+        if (result.left._tag === "ScEigenVariableError") {
+          expect(result.left.variableName).toBe("y");
+        }
+      }
+    });
+
     it("位置が範囲外ならエラー", () => {
       const result = validateScApplication(
         makeParams({
@@ -1039,6 +1058,25 @@ describe("scApplicationLogic", () => {
       }
     });
 
+    it("固有変数が左辺のみに自由出現するならエラー", () => {
+      // antecedentsループ(line 1005-1009)のカバレッジ
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "existential-left",
+          sequentText: "P(y), ∃x.P(x) ⇒ ",
+          principalPosition: 1,
+          eigenVariable: "y",
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScEigenVariableError");
+        if (result.left._tag === "ScEigenVariableError") {
+          expect(result.left.variableName).toBe("y");
+        }
+      }
+    });
+
     it("位置が範囲外ならエラー", () => {
       const result = validateScApplication(
         makeParams({
@@ -1113,6 +1151,24 @@ describe("scApplicationLogic", () => {
       expect(Either.isLeft(result)).toBe(true);
       if (Either.isLeft(result)) {
         expect(result.left._tag).toBe("ScTermParseError");
+      }
+    });
+
+    it("代入項が自由でない(isFreeFor失敗)ならエラー", () => {
+      // body = ∀y.P(x) に対して term=y, xi=x で代入すると
+      // P(x)中のxにyを代入→P(y) だがyが∀yに捕獲されるためisFreeFor=false
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "existential-right",
+          sequentText: " ⇒ ∃x.∀y.P(x)",
+          principalPosition: 0,
+          termText: "y",
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScEigenVariableError");
+        expect(result.left.message).toContain("not free for");
       }
     });
 

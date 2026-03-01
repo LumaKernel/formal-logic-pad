@@ -3007,6 +3007,30 @@ describe("proofWorkspace", () => {
       const result = revalidateInferenceConclusions(ws);
       expect(findNode(result, "node-2")?.formulaText).toBe(originalText);
     });
+
+    it("does not change SC node when revalidating (SC premises are computed at rule application time)", () => {
+      const scDeduction = sequentCalculusDeduction(lkSystem);
+      let ws = createEmptyWorkspace(scDeduction);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "φ, ψ ⇒ χ");
+      // SC規則適用で前提ノードを作成
+      const applied = applyScRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "weakening-left",
+          sequentText: "φ, ψ ⇒ χ",
+          principalPosition: 0,
+        },
+        [{ x: 100, y: 100 }],
+      );
+      ws = applied.workspace;
+      const premiseId = applied.premiseNodeIds[0]!;
+      const originalText = findNode(ws, premiseId)?.formulaText;
+      expect(originalText).toBeDefined();
+      // revalidateしても前提ノードのテキストは変わらない
+      const result = revalidateInferenceConclusions(ws);
+      expect(findNode(result, premiseId)?.formulaText).toBe(originalText);
+    });
   });
 
   describe("updateInferenceEdgeGenVariableName - edge not found", () => {
