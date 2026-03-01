@@ -753,8 +753,11 @@ const pushMixIntoLeft = (
 
   switch (leftNode._tag) {
     case "ScIdentity":
-      // φ ⇒ φ のカットで左がID → 右前提がそのまま
-      return { _tag: "Success", proof: cutNode.right };
+      // φ ⇒ φ のカットで左がID → 右前提（結論を調整）
+      return {
+        _tag: "Success",
+        proof: adjustConclusion(cutNode.right, cutNode.conclusion),
+      };
 
     /* v8 ignore start -- pushMixIntoLeft は lr >= 2 で呼ばれるが、ScBottomLeft は succedents が空のため rightRank <= 0 で到達不可 */
     case "ScBottomLeft":
@@ -1187,8 +1190,11 @@ const pushMixIntoRight = (
   switch (rightNode._tag) {
     /* v8 ignore start -- pushMixIntoRight は rr >= 2 で呼ばれるが、ScIdentity/BottomLeft では rr <= 1 のため到達不可 */
     case "ScIdentity":
-      // φ ⇒ φ のカットで右がID → 左前提がそのまま
-      return { _tag: "Success", proof: cutNode.left };
+      // φ ⇒ φ のカットで右がID → 左前提（結論を調整）
+      return {
+        _tag: "Success",
+        proof: adjustConclusion(cutNode.left, cutNode.conclusion),
+      };
 
     case "ScBottomLeft":
       return eliminateRankZeroRight(cutNode);
@@ -1864,14 +1870,20 @@ const eliminateBaseCut = (
   const leftNode = cutNode.left;
   const rightNode = cutNode.right;
 
-  // 左がID: φ ⇒ φ の場合、結果は右前提
+  // 左がID: φ ⇒ φ の場合、結果は右前提（結論を調整）
   if (leftNode._tag === "ScIdentity") {
-    return { _tag: "Success", proof: cutNode.right };
+    return {
+      _tag: "Success",
+      proof: adjustConclusion(cutNode.right, cutNode.conclusion),
+    };
   }
 
-  // 右がID: φ ⇒ φ の場合、結果は左前提
+  // 右がID: φ ⇒ φ の場合、結果は左前提（結論を調整）
   if (rightNode._tag === "ScIdentity") {
-    return { _tag: "Success", proof: cutNode.left };
+    return {
+      _tag: "Success",
+      proof: adjustConclusion(cutNode.left, cutNode.conclusion),
+    };
   }
 
   // どちらもIDでない場合: 構造規則の処理にフォールバック

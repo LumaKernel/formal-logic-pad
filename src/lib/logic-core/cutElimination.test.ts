@@ -49,6 +49,7 @@ import {
   scUniversalLeft,
   scExistentialRight,
   scBottomLeft,
+  getScConclusion,
 } from "./sequentCalculus";
 
 // ── テスト用ヘルパー ────────────────────────────────────────
@@ -2380,6 +2381,602 @@ describe("eliminateCuts", () => {
       // maxSteps: 1 → 外側カットで1ステップ消費、内側の最初のカットで上限超過
       const result = eliminateCuts(cut, { maxSteps: 1 });
       expect(result._tag).toBe("StepLimitExceeded");
+    });
+  });
+
+  // ── 正当性検証: 結論シーケント保存 ──────────────────────────
+
+  describe("正当性検証: 結論シーケントの保存", () => {
+    /**
+     * カット除去の核心的な正当性条件:
+     * 除去後の証明の結論シーケントが元の証明と同じであること
+     */
+    const assertCutEliminationCorrect = (
+      proof: Parameters<typeof eliminateCuts>[0],
+      label: string,
+    ) => {
+      const originalConclusion = getScConclusion(proof);
+      const result = eliminateCuts(proof);
+      expect(result._tag, `${label satisfies string}: should succeed`).toBe(
+        "Success",
+      );
+      if (result._tag === "Success") {
+        expect(
+          isCutFree(result.proof),
+          `${label satisfies string}: should be cut-free`,
+        ).toBe(true);
+        const resultConclusion = getScConclusion(result.proof);
+        expect(
+          sequentEqual(resultConclusion, originalConclusion),
+          `${label satisfies string}: conclusion should be preserved. Got ${JSON.stringify(resultConclusion) satisfies string} but expected ${JSON.stringify(originalConclusion) satisfies string}`,
+        ).toBe(true);
+      }
+    };
+
+    it("ID-ID カット: 結論が保存される", () => {
+      const cut = scCut(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      assertCutEliminationCorrect(cut, "ID-ID");
+    });
+
+    it("ランク0左: 左にカット式なしの場合も結論が保存される", () => {
+      const left = scIdentity(sequent([psi], [psi]));
+      const right = scIdentity(sequent([phi], [phi]));
+      const cut = scCut(left, right, phi, sequent([psi], [psi]));
+      assertCutEliminationCorrect(cut, "rank0-left");
+    });
+
+    it("ランク0右: 右にカット式なしの場合も結論が保存される", () => {
+      const left = scIdentity(sequent([phi], [phi]));
+      const right = scIdentity(sequent([psi], [psi]));
+      const cut = scCut(left, right, phi, sequent([psi], [psi]));
+      assertCutEliminationCorrect(cut, "rank0-right");
+    });
+
+    it("弱化右+カット: 結論が保存される", () => {
+      const premise = scIdentity(sequent([psi], [psi]));
+      const left = scWeakeningRight(premise, phi, sequent([psi], [psi, phi]));
+      const right = scIdentity(sequent([phi], [phi]));
+      const cut = scCut(left, right, phi, sequent([psi], [psi]));
+      assertCutEliminationCorrect(cut, "weakR+cut");
+    });
+
+    it("含意カット (⇒→)/(→⇒): 結論が保存される", () => {
+      // 有効な証明: φ ⊢ φ から ⊢ φ→φ を導出
+      const implPhiPhi = implication(phi, phi);
+      const left = scImplicationRight(
+        scIdentity(sequent([phi], [phi])),
+        sequent([], [implPhiPhi]),
+      );
+      const right = scImplicationLeft(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        sequent([implPhiPhi, phi], [phi]),
+      );
+      const cut = scCut(left, right, implPhiPhi, sequent([phi], [phi]));
+      assertCutEliminationCorrect(cut, "impl-cut");
+    });
+
+    it("連言カット (⇒∧)/(∧⇒): 結論が保存される", () => {
+      const left = scConjunctionRight(
+        scIdentity(sequent([alpha], [alpha])),
+        scIdentity(sequent([beta], [beta])),
+        sequent([alpha, beta], [conjunction(alpha, beta)]),
+      );
+      const right = scConjunctionLeft(
+        scIdentity(sequent([alpha], [alpha])),
+        1,
+        sequent([conjunction(alpha, beta)], [alpha]),
+      );
+      const cut = scCut(
+        left,
+        right,
+        conjunction(alpha, beta),
+        sequent([alpha, beta], [alpha]),
+      );
+      assertCutEliminationCorrect(cut, "conj-cut");
+    });
+
+    it("選言カット (⇒∨)/(∨⇒): 結論が保存される", () => {
+      const left = scDisjunctionRight(
+        scIdentity(sequent([alpha], [alpha])),
+        1,
+        sequent([alpha], [disjunction(alpha, beta)]),
+      );
+      const right = scDisjunctionLeft(
+        scIdentity(sequent([alpha], [alpha])),
+        scIdentity(sequent([beta], [beta])),
+        sequent([disjunction(alpha, beta)], [alpha, beta]),
+      );
+      const cut = scCut(
+        left,
+        right,
+        disjunction(alpha, beta),
+        sequent([alpha], [alpha, beta]),
+      );
+      assertCutEliminationCorrect(cut, "disj-cut");
+    });
+
+    it("ネストされたカット: 結論が保存される", () => {
+      const inner = scCut(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      const outer = scCut(
+        inner,
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      assertCutEliminationCorrect(outer, "nested-cut");
+    });
+
+    it("3重ネストされたカット: 結論が保存される", () => {
+      const inner = scCut(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      const middle = scCut(
+        inner,
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      const outer = scCut(
+        middle,
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      assertCutEliminationCorrect(outer, "triple-nested");
+    });
+
+    it("左右両方にサブプルーフを持つカット: 結論が保存される", () => {
+      const leftSub = scCut(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      const rightSub = scCut(
+        scIdentity(sequent([psi], [psi])),
+        scIdentity(sequent([psi], [psi])),
+        psi,
+        sequent([psi], [psi]),
+      );
+      const outer = scCut(
+        scWeakeningRight(leftSub, psi, sequent([phi], [phi, psi])),
+        scWeakeningLeft(rightSub, phi, sequent([psi, phi], [psi])),
+        psi,
+        sequent([phi, psi], [phi, psi]),
+      );
+      assertCutEliminationCorrect(outer, "both-sub-cuts");
+    });
+
+    it("ランク2のカット: 結論が保存される", () => {
+      // ランク2: 左の弱化でφが追加されている
+      const idLeft = scIdentity(sequent([phi], [phi]));
+      const weakLeft = scWeakeningRight(
+        idLeft,
+        psi,
+        sequent([phi], [phi, psi]),
+      );
+      const right = scIdentity(sequent([phi], [phi]));
+      const cut = scCut(weakLeft, right, phi, sequent([phi], [phi, psi]));
+      assertCutEliminationCorrect(cut, "rank2-cut");
+    });
+
+    it("複合的な証明: 構造規則+論理規則+カットの組み合わせ", () => {
+      // ψ ⊢ ψ → (w⇒) φ,ψ ⊢ ψ → (⇒w) φ,ψ ⊢ ψ,α
+      const p1 = scIdentity(sequent([psi], [psi]));
+      const p2 = scWeakeningLeft(p1, phi, sequent([phi, psi], [psi]));
+      const left = scWeakeningRight(
+        p2,
+        alpha,
+        sequent([phi, psi], [psi, alpha]),
+      );
+
+      // α ⊢ α → (w⇒) φ,α ⊢ α
+      const right = scWeakeningLeft(
+        scIdentity(sequent([alpha], [alpha])),
+        phi,
+        sequent([phi, alpha], [alpha]),
+      );
+
+      // CUT(φ) on left and right
+      // 結論: ψ,α ⊢ ψ,α (φを除去して結論)
+      const cut = scCut(left, right, phi, sequent([psi, alpha], [psi, alpha]));
+      assertCutEliminationCorrect(cut, "complex-structural");
+    });
+
+    it("含意のネストしたカット: 結論が保存される", () => {
+      // 有効な含意カットの結果にさらにカットを適用
+      const implPhiPhi = implication(phi, phi);
+      const leftInner = scImplicationRight(
+        scIdentity(sequent([phi], [phi])),
+        sequent([], [implPhiPhi]),
+      );
+      const rightInner = scImplicationLeft(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        sequent([implPhiPhi, phi], [phi]),
+      );
+      const innerCut = scCut(
+        leftInner,
+        rightInner,
+        implPhiPhi,
+        sequent([phi], [phi]),
+      );
+
+      // innerCut の結論 φ ⊢ φ を使ってさらに弱化してカット
+      const weakened = scWeakeningRight(
+        innerCut,
+        chi,
+        sequent([phi], [phi, chi]),
+      );
+      const rightOuter = scIdentity(sequent([phi], [phi]));
+      const outerCut = scCut(
+        weakened,
+        rightOuter,
+        phi,
+        sequent([phi], [phi, chi]),
+      );
+      assertCutEliminationCorrect(outerCut, "nested-impl-cut");
+    });
+  });
+
+  // ── 正当性検証: eliminateCutsWithSteps の結果一貫性 ──────────
+
+  describe("正当性検証: eliminateCutsWithSteps の結果一貫性", () => {
+    it("eliminateCuts と eliminateCutsWithSteps は同じ結論を返す", () => {
+      const cut = scCut(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+
+      const result1 = eliminateCuts(cut);
+      const { result: result2 } = eliminateCutsWithSteps(cut);
+
+      expect(result1._tag).toBe("Success");
+      expect(result2._tag).toBe("Success");
+      if (result1._tag === "Success" && result2._tag === "Success") {
+        expect(
+          sequentEqual(
+            getScConclusion(result1.proof),
+            getScConclusion(result2.proof),
+          ),
+        ).toBe(true);
+      }
+    });
+
+    it("含意カットでも両APIが同じ結論を返す", () => {
+      const implPhiPhi = implication(phi, phi);
+      const left = scImplicationRight(
+        scIdentity(sequent([phi], [phi])),
+        sequent([], [implPhiPhi]),
+      );
+      const right = scImplicationLeft(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        sequent([implPhiPhi, phi], [phi]),
+      );
+      const cut = scCut(left, right, implPhiPhi, sequent([phi], [phi]));
+
+      const result1 = eliminateCuts(cut);
+      const { result: result2 } = eliminateCutsWithSteps(cut);
+
+      expect(result1._tag).toBe("Success");
+      expect(result2._tag).toBe("Success");
+      if (result1._tag === "Success" && result2._tag === "Success") {
+        expect(
+          sequentEqual(
+            getScConclusion(result1.proof),
+            getScConclusion(result2.proof),
+          ),
+        ).toBe(true);
+      }
+    });
+
+    it("ステップ配列の各エントリは証明ノードとメタデータを持つ", () => {
+      const implPhiPhi = implication(phi, phi);
+      const left = scImplicationRight(
+        scIdentity(sequent([phi], [phi])),
+        sequent([], [implPhiPhi]),
+      );
+      const right = scImplicationLeft(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        sequent([implPhiPhi, phi], [phi]),
+      );
+      const cut = scCut(left, right, implPhiPhi, sequent([phi], [phi]));
+
+      const { result, steps } = eliminateCutsWithSteps(cut);
+      expect(result._tag).toBe("Success");
+      expect(steps.length).toBeGreaterThan(0);
+
+      for (const step of steps) {
+        expect(step.description).toContain("Cut elimination");
+        expect(step.depth).toBeGreaterThanOrEqual(1);
+        expect(step.rank).toBeGreaterThanOrEqual(1);
+        expect(step.proof).toBeDefined();
+        expect(step.proof._tag).toBe("ScCut");
+      }
+    });
+  });
+
+  // ── 正当性検証: 非自明な証明パターン ──────────────────────────
+
+  describe("正当性検証: 非自明な証明パターン", () => {
+    it("連言カット componentIndex=2: 結論が保存される", () => {
+      const left = scConjunctionRight(
+        scIdentity(sequent([alpha], [alpha])),
+        scIdentity(sequent([beta], [beta])),
+        sequent([alpha, beta], [conjunction(alpha, beta)]),
+      );
+      const right = scConjunctionLeft(
+        scIdentity(sequent([beta], [beta])),
+        2,
+        sequent([conjunction(alpha, beta)], [beta]),
+      );
+      const cut = scCut(
+        left,
+        right,
+        conjunction(alpha, beta),
+        sequent([alpha, beta], [beta]),
+      );
+
+      const result = eliminateCuts(cut);
+      expect(result._tag).toBe("Success");
+      if (result._tag === "Success") {
+        expect(isCutFree(result.proof)).toBe(true);
+        const resultConc = getScConclusion(result.proof);
+        expect(sequentEqual(resultConc, sequent([alpha, beta], [beta]))).toBe(
+          true,
+        );
+      }
+    });
+
+    it("選言カット componentIndex=2: 結論が保存される", () => {
+      const left = scDisjunctionRight(
+        scIdentity(sequent([beta], [beta])),
+        2,
+        sequent([beta], [disjunction(alpha, beta)]),
+      );
+      const right = scDisjunctionLeft(
+        scIdentity(sequent([alpha], [alpha])),
+        scIdentity(sequent([beta], [beta])),
+        sequent([disjunction(alpha, beta)], [alpha, beta]),
+      );
+      const cut = scCut(
+        left,
+        right,
+        disjunction(alpha, beta),
+        sequent([beta], [alpha, beta]),
+      );
+
+      const result = eliminateCuts(cut);
+      expect(result._tag).toBe("Success");
+      if (result._tag === "Success") {
+        expect(isCutFree(result.proof)).toBe(true);
+        const resultConc = getScConclusion(result.proof);
+        expect(sequentEqual(resultConc, sequent([beta], [alpha, beta]))).toBe(
+          true,
+        );
+      }
+    });
+
+    it("否定のカット: 結論が保存される", () => {
+      const negAlpha = negation(alpha);
+      const left = scIdentity(sequent([negAlpha], [negAlpha]));
+      const right = scIdentity(sequent([negAlpha], [negAlpha]));
+      const cut = scCut(left, right, negAlpha, sequent([negAlpha], [negAlpha]));
+
+      const result = eliminateCuts(cut);
+      expect(result._tag).toBe("Success");
+      if (result._tag === "Success") {
+        expect(isCutFree(result.proof)).toBe(true);
+        const resultConc = getScConclusion(result.proof);
+        expect(sequentEqual(resultConc, sequent([negAlpha], [negAlpha]))).toBe(
+          true,
+        );
+      }
+    });
+
+    it("全称量化のカット: 結論が保存される", () => {
+      const univAlpha = universal(x, alpha);
+      const left = scIdentity(sequent([univAlpha], [univAlpha]));
+      const right = scIdentity(sequent([univAlpha], [univAlpha]));
+      const cut = scCut(
+        left,
+        right,
+        univAlpha,
+        sequent([univAlpha], [univAlpha]),
+      );
+
+      const result = eliminateCuts(cut);
+      expect(result._tag).toBe("Success");
+      if (result._tag === "Success") {
+        expect(isCutFree(result.proof)).toBe(true);
+        const resultConc = getScConclusion(result.proof);
+        expect(
+          sequentEqual(resultConc, sequent([univAlpha], [univAlpha])),
+        ).toBe(true);
+      }
+    });
+
+    it("述語（原子式）のカット: 結論が保存される", () => {
+      const pred = predicate("P", [x]);
+      const left = scIdentity(sequent([pred], [pred]));
+      const right = scIdentity(sequent([pred], [pred]));
+      const cut = scCut(left, right, pred, sequent([pred], [pred]));
+
+      const result = eliminateCuts(cut);
+      expect(result._tag).toBe("Success");
+      if (result._tag === "Success") {
+        expect(isCutFree(result.proof)).toBe(true);
+        const resultConc = getScConclusion(result.proof);
+        expect(sequentEqual(resultConc, sequent([pred], [pred]))).toBe(true);
+      }
+    });
+
+    it("弱化+縮約+カットの組み合わせ: 結論が保存される", () => {
+      // φ ⊢ φ → (⇒w) φ ⊢ φ,φ → (⇒c) φ ⊢ φ → (⇒w) φ ⊢ φ,ψ
+      const id = scIdentity(sequent([phi], [phi]));
+      const w1 = scWeakeningRight(id, phi, sequent([phi], [phi, phi]));
+      const c1 = scContractionRight(w1, phi, sequent([phi], [phi]));
+      const left = scWeakeningRight(c1, psi, sequent([phi], [phi, psi]));
+
+      // φ ⊢ φ
+      const right = scIdentity(sequent([phi], [phi]));
+
+      const cut = scCut(left, right, phi, sequent([phi], [phi, psi]));
+
+      const result = eliminateCuts(cut);
+      expect(result._tag).toBe("Success");
+      if (result._tag === "Success") {
+        expect(isCutFree(result.proof)).toBe(true);
+        const resultConc = getScConclusion(result.proof);
+        expect(sequentEqual(resultConc, sequent([phi], [phi, psi]))).toBe(true);
+      }
+    });
+
+    it("交換規則+カット: 結論が保存される", () => {
+      // φ,ψ ⊢ φ → (x⇒ pos=0) ψ,φ ⊢ φ
+      const id = scIdentity(sequent([phi, psi], [phi]));
+      const left = scExchangeLeft(id, 0, sequent([psi, phi], [phi]));
+
+      const right = scIdentity(sequent([phi], [phi]));
+
+      const cut = scCut(left, right, phi, sequent([psi, phi], [phi]));
+
+      const result = eliminateCuts(cut);
+      expect(result._tag).toBe("Success");
+      if (result._tag === "Success") {
+        expect(isCutFree(result.proof)).toBe(true);
+        const resultConc = getScConclusion(result.proof);
+        expect(sequentEqual(resultConc, sequent([psi, phi], [phi]))).toBe(true);
+      }
+    });
+
+    it("カットフリーな証明は不変（恒等性テスト）", () => {
+      const proof = scWeakeningRight(
+        scIdentity(sequent([phi], [phi])),
+        psi,
+        sequent([phi], [phi, psi]),
+      );
+
+      const result = eliminateCuts(proof);
+      expect(result._tag).toBe("Success");
+      if (result._tag === "Success") {
+        expect(isCutFree(result.proof)).toBe(true);
+        const resultConc = getScConclusion(result.proof);
+        expect(sequentEqual(resultConc, sequent([phi], [phi, psi]))).toBe(true);
+      }
+    });
+
+    it("BottomLeft + カット: 結論が保存される", () => {
+      const left = scBottomLeft(sequent([], []));
+      const right = scIdentity(sequent([phi], [phi]));
+      const cut = scCut(left, right, phi, sequent([], []));
+
+      const result = eliminateCuts(cut);
+      expect(result._tag).toBe("Success");
+      if (result._tag === "Success") {
+        expect(isCutFree(result.proof)).toBe(true);
+        const resultConc = getScConclusion(result.proof);
+        expect(sequentEqual(resultConc, sequent([], []))).toBe(true);
+      }
+    });
+
+    it("複数の異なる論理式のカット連鎖: 結論が保存される", () => {
+      // まず φ でカット、次に ψ でカット
+      const cut1 = scCut(
+        scIdentity(sequent([phi], [phi])),
+        scWeakeningRight(
+          scIdentity(sequent([phi], [phi])),
+          psi,
+          sequent([phi], [phi, psi]),
+        ),
+        phi,
+        sequent([phi], [phi, psi]),
+      );
+
+      // cut1 の結論: φ ⊢ φ,ψ を使ってさらにψでカット
+      const cut2 = scCut(
+        cut1,
+        scIdentity(sequent([psi], [psi])),
+        psi,
+        sequent([phi], [phi, psi]),
+      );
+
+      const result = eliminateCuts(cut2);
+      expect(result._tag).toBe("Success");
+      if (result._tag === "Success") {
+        expect(isCutFree(result.proof)).toBe(true);
+        const resultConc = getScConclusion(result.proof);
+        expect(sequentEqual(resultConc, sequent([phi], [phi, psi]))).toBe(true);
+      }
+    });
+  });
+
+  // ── pushMixIntoRight: 追加カバレッジ ────────────────────────
+
+  describe("pushMixIntoRight: 追加の構造規則カバレッジ", () => {
+    it("ScExchangeRight: 右交換の場合", () => {
+      const left = scIdentity(sequent([phi], [phi]));
+      const idRight = scIdentity(sequent([phi, psi], [phi, psi]));
+      const exchanged = scExchangeRight(
+        idRight,
+        0,
+        sequent([phi, psi], [psi, phi]),
+      );
+      // leftRank(exchanged, phi) = leftRank(idRight, phi) + 1 = 1 + 1 = 2
+      // rightRank(left, phi) = 1, so rr > lr → pushMixIntoRight
+      const cut = scCut(left, exchanged, phi, sequent([psi], [psi]));
+
+      const result = eliminateCuts(cut);
+      expect(result._tag).toBe("Success");
+      if (result._tag === "Success") {
+        expect(isCutFree(result.proof)).toBe(true);
+      }
+    });
+
+    it("ScContractionRight でφ以外が縮約される場合", () => {
+      const left = scIdentity(sequent([phi], [phi]));
+      const idRight = scIdentity(sequent([phi], [phi]));
+      const weak1 = scWeakeningRight(idRight, psi, sequent([phi], [phi, psi]));
+      const weak2 = scWeakeningRight(
+        weak1,
+        psi,
+        sequent([phi], [phi, psi, psi]),
+      );
+      const contracted = scContractionRight(
+        weak2,
+        psi,
+        sequent([phi], [phi, psi]),
+      );
+      const weak3 = scWeakeningLeft(
+        contracted,
+        chi,
+        sequent([phi, chi], [phi, psi]),
+      );
+      const cut = scCut(left, weak3, phi, sequent([chi], [phi, psi]));
+
+      const result = eliminateCuts(cut);
+      expect(result._tag).toBe("Success");
+      if (result._tag === "Success") {
+        expect(isCutFree(result.proof)).toBe(true);
+      }
     });
   });
 });

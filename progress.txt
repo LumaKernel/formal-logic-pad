@@ -7474,3 +7474,21 @@
   - `_tag === "Failure"` から `_tag !== "Success"` への変更で v8 ignore を外せる（3値union対応）
   - ステップ上限テストは maxSteps: 1 で外側カット消費 → 内側再帰でStepLimitExceeded発火
 ---
+
+## 2026-03-01 - カット除去の正当性テストとバグ修正
+- カット除去アルゴリズムの正当性検証テスト28件を追加（176テスト、元は148）
+- 結論シーケント保存の検証（`assertCutEliminationCorrect`ヘルパー）を導入
+- **バグ発見・修正**: ScIdentity処理時に`adjustConclusion`が欠落していた3箇所を修正
+  - `eliminateBaseCut`: 左/右がScIdentityの場合
+  - `pushMixIntoLeft`: ScIdentityケース
+  - `pushMixIntoRight`: ScIdentityケース
+- テストカテゴリ: ID-IDカット、rank0、weakening、conjunction/disjunction/negation/quantifier/predicate カット、構造規則（exchange, contraction）、ネスト、チェーン、eliminateCutsWithSteps一貫性
+- カバレッジ: Stmts 96.92%, Branch 90.37%, Lines 97.95%（ベースラインと同値）
+- 変更ファイル: `cutElimination.ts`, `cutElimination.test.ts`
+- スクリーンショット: `.screenshots/cut-elimination-stepper-simple-cut.png`, `.screenshots/cut-elimination-stepper-implication-cut.png`
+- **今後のイテレーションへの学び:**
+  - カット除去の正当性検証で最も重要なのは「結論シーケントの保存」。`isCutFree`だけでは不十分
+  - ScIdentityをカットの片側として返す際は必ず`adjustConclusion`でカット全体の結論に合わせる
+  - `scIdentity(sequent([α], [β]))` (α≠β) は不正な証明。テストで使うと表面上は通るが正当性テストで発覚する
+  - テストでは必ず「正当に構成された証明」を使うこと（公理の前提条件を満たしているか確認）
+---
