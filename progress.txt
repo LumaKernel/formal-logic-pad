@@ -7934,3 +7934,47 @@
   - 規則適用ロジック（scApplicationLogic.ts）は未実装。SC規則クリック時のアクションは後続タスクで実装が必要
   - isScBranchingRule() は4規則: cut, implication-left, conjunction-right, disjunction-left（前提が2つの規則）
 ---
+
+## 2026-03-02 - シーケント計算規則適用ロジックとUI統合
+- scApplicationLogic.ts 新規作成: 全19SC規則のバリデーション・エッジ生成（純粋関数層）
+- inferenceEdge.ts: ScSinglePremiseEdge / ScBranchingEdge / ScAxiomEdge 型追加
+- inferenceEdgeLabelLogic.ts / edgeBadgeEditLogic.ts: SC対応（バッジ色、ラベル計算、パラメータ編集ガード）
+- workspaceState.ts: applyScRuleAndConnect統合関数
+- workspaceExport.ts: SCエッジSchemaのencode/decode対応
+- ProofWorkspace.tsx: SC規則選択→バナー表示→ノードクリック→適用フロー統合
+- proofMessages.ts / WorkspaceContent.tsx: SC用プロンプト・バナーメッセージ追加
+- messages/en.json, messages/ja.json: SC i18n翻訳追加
+- テスト: 計137件追加
+  - scApplicationLogic.test.ts（新規99テスト）: 全19規則のバリデーション、パースユーティリティ、エッジ生成、分類、エラーメッセージ
+  - inferenceEdge.test.ts（+29テスト）: SC getEdgePremiseNodeIds, remapEdgeNodeIds, replaceNodeIdInEdge, isScInferenceEdge, ラベル
+  - inferenceEdgeLabelLogic.test.ts（+12テスト）: SCバッジ色、getPremiseRole、ラベルデータ
+  - edgeBadgeEditLogic.test.ts（+1テスト）: SCエッジの編集状態がundefined
+  - workspaceState.test.ts（+4テスト）: applyScRuleAndConnect（公理・1前提・2前提・エラー）
+- カバレッジ: Stmts 98.66%, Branch 93.18%, Funcs 89.65%, Lines 99.12%（ベースライン Stmts 99.34%）
+  - 低下の主因: ProofWorkspace.tsx UIイベントハンドラ（純粋ロジック層は100%）
+- テスト: 214ファイル, 6813テスト全パス
+- 変更したファイル:
+  - src/lib/proof-pad/scApplicationLogic.ts（新規: ~850行）
+  - src/lib/proof-pad/scApplicationLogic.test.ts（新規: 99テスト）
+  - src/lib/proof-pad/inferenceEdge.ts（SC型3つ + ユーティリティ関数switch追加）
+  - src/lib/proof-pad/inferenceEdge.test.ts（SCテスト29件追加）
+  - src/lib/proof-pad/inferenceEdgeLabelLogic.ts（SC対応追加）
+  - src/lib/proof-pad/inferenceEdgeLabelLogic.test.ts（SCテスト12件追加）
+  - src/lib/proof-pad/edgeBadgeEditLogic.ts（SCガード追加）
+  - src/lib/proof-pad/edgeBadgeEditLogic.test.ts（SCテスト1件追加）
+  - src/lib/proof-pad/workspaceState.ts（applyScRuleAndConnect追加）
+  - src/lib/proof-pad/workspaceState.test.ts（SCテスト4件追加）
+  - src/lib/proof-pad/workspaceExport.ts（SC Schema追加）
+  - src/lib/proof-pad/ProofWorkspace.tsx（SC選択フロー統合 +210行）
+  - src/lib/proof-pad/proofMessages.ts（SCメッセージ9キー追加）
+  - src/app/workspace/[id]/WorkspaceContent.tsx（SCメッセージバインディング）
+  - src/lib/proof-pad/index.ts（SCエクスポート追加）
+  - messages/en.json, messages/ja.json（SC翻訳追加）
+- スクリーンショット: .screenshots/sc-rule-application-palette.png, .screenshots/sc-rule-application-fullscreen.png, .screenshots/sc-rule-selection-banner.png
+- **今後のイテレーションへの学び:**
+  - scApplicationLogicはtabApplicationLogicと同じ3層パターン（Effect内部→Either公開→エッジ生成）に従う
+  - ⊥（bottom）はformula.tsに専用クラスがなく、パーサーもトークン化できない。bottom-left規則は構造的公理マーカーとして実装（antecedents.length >= 1のみチェック）
+  - SC規則のUI統合はTAB/ATと同じSelectionStateパターン: idle→selecting-node→クリック→globalThis.prompt()→適用
+  - inferenceEdge.tsに新エッジ型追加時は、getEdgePremiseNodeIds, remapEdgeNodeIds, replaceNodeIdInEdge, getInferenceEdgeLabel, getInferenceEdgeConclusionNodeIdの全switch文と、isXxxInferenceEdge型ガード、workspaceExport.ts Schema、inferenceEdgeLabelLogic.ts、edgeBadgeEditLogic.tsの更新が必要
+  - ProofWorkspace.tsxのカバレッジ低下はUI統合で避けられない。純粋ロジック層を100%カバーすることで品質を担保する
+---
