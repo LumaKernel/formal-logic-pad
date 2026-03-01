@@ -7306,3 +7306,27 @@
   - ScExchangeRight テストを忘れやすい。eliminateFromChildren の全ケースを網羅すること
   - 大規模な純粋ロジックモジュールではカバレッジのStmts/Branch低下は避けがたい。Lines 100% を目標にしつつ、防御コードは v8 ignore で対処
 ---
+
+## 2026-03-01 - depends on 重複排除
+- 実装した内容: "Depends on" に同じ公理名が二重表示される問題を修正
+  - `deduplicateDependencyInfos` 純粋関数を `dependencyLogic.ts` に追加
+  - `ProofWorkspace.tsx` の `getNodeDependencyInfos` でdisplayNameベースの重複排除を適用
+  - `index.ts` にエクスポート追加
+  - テスト6件追加（空配列、重複なし、重複あり、最初保持、複数重複、単一要素）
+- 変更したファイル:
+  - `src/lib/proof-pad/dependencyLogic.ts` - deduplicateDependencyInfos 追加
+  - `src/lib/proof-pad/dependencyLogic.test.ts` - テスト6件追加
+  - `src/lib/proof-pad/ProofWorkspace.tsx` - getNodeDependencyInfos で重複排除適用
+  - `src/lib/proof-pad/index.ts` - エクスポート追加
+  - `tasks/prd-inserted-tasks.md` - タスク完了マーク
+- ベースラインカバレッジ: Stmts 96.80%, Branch 90.22%, Funcs 88.10%, Lines 97.96%
+- 完了後カバレッジ: Stmts 96.80%, Branch 90.25%, Funcs 88.11%, Lines 97.96%（維持〜微増）
+- テスト: 207ファイル、6373テスト全パス
+- スクリーンショット:
+  - `.screenshots/depends-on-dedup-mp-selection-flow.png` - Storybook MP Selection Flowストーリー
+  - `.screenshots/depends-on-dedup-iframe-view.png` - "Depends on: A1 (K), A2 (S)" の正常表示確認
+- **今後のイテレーションへの学び:**
+  - 「Depends on」の重複は、同じ公理スキーマの異なるインスタンスが複数のルートノードとして存在する場合に発生する
+  - displayNameベースの重複排除が適切。nodeIdではなくdisplayNameで判定すること
+  - 純粋関数として分離してテスト → UIで適用、というパターンが有効
+---

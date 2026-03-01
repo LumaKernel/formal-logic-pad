@@ -7,6 +7,7 @@ import {
   validateRootNodes,
   getInstanceRootNodeIds,
   hasInstanceRoots,
+  deduplicateDependencyInfos,
 } from "./dependencyLogic";
 import type { WorkspaceNode } from "./workspaceState";
 import type { InferenceEdge } from "./inferenceEdge";
@@ -650,6 +651,64 @@ describe("dependencyLogic", () => {
 
     it("空の配列ではfalseを返す", () => {
       expect(hasInstanceRoots([])).toBe(false);
+    });
+  });
+
+  describe("deduplicateDependencyInfos", () => {
+    it("空配列を返す", () => {
+      expect(deduplicateDependencyInfos([])).toEqual([]);
+    });
+
+    it("重複のない配列はそのまま返す", () => {
+      const deps = [
+        { nodeId: "a1", displayName: "A1" },
+        { nodeId: "a2", displayName: "A2" },
+        { nodeId: "a3", displayName: "A3" },
+      ];
+      expect(deduplicateDependencyInfos(deps)).toEqual(deps);
+    });
+
+    it("同じdisplayNameの重複を除去する", () => {
+      const deps = [
+        { nodeId: "node-1", displayName: "A1" },
+        { nodeId: "node-2", displayName: "A1" },
+        { nodeId: "node-3", displayName: "A2" },
+      ];
+      expect(deduplicateDependencyInfos(deps)).toEqual([
+        { nodeId: "node-1", displayName: "A1" },
+        { nodeId: "node-3", displayName: "A2" },
+      ]);
+    });
+
+    it("最初に出現したエントリを保持する", () => {
+      const deps = [
+        { nodeId: "first-a1", displayName: "A1" },
+        { nodeId: "second-a1", displayName: "A1" },
+        { nodeId: "third-a1", displayName: "A1" },
+      ];
+      expect(deduplicateDependencyInfos(deps)).toEqual([
+        { nodeId: "first-a1", displayName: "A1" },
+      ]);
+    });
+
+    it("異なるdisplayNameの要素はすべて保持する", () => {
+      const deps = [
+        { nodeId: "n1", displayName: "A1" },
+        { nodeId: "n2", displayName: "A2" },
+        { nodeId: "n3", displayName: "A1" },
+        { nodeId: "n4", displayName: "A3" },
+        { nodeId: "n5", displayName: "A2" },
+      ];
+      expect(deduplicateDependencyInfos(deps)).toEqual([
+        { nodeId: "n1", displayName: "A1" },
+        { nodeId: "n2", displayName: "A2" },
+        { nodeId: "n4", displayName: "A3" },
+      ]);
+    });
+
+    it("単一要素の配列はそのまま返す", () => {
+      const deps = [{ nodeId: "a1", displayName: "A1" }];
+      expect(deduplicateDependencyInfos(deps)).toEqual(deps);
     });
   });
 });

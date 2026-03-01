@@ -12,6 +12,7 @@ import { Either } from "effect";
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
 import { identifyAxiom } from "../logic-core/inferenceRule";
 import { parseString } from "../logic-lang/parser";
+import type { DependencyInfo } from "./EditableProofNode";
 import type { WorkspaceNode } from "./workspaceState";
 import type { InferenceEdge } from "./inferenceEdge";
 import { getInferenceEdgePremiseNodeIds } from "./inferenceEdge";
@@ -291,4 +292,28 @@ export function hasInstanceRoots(
   validations: readonly RootNodeValidation[],
 ): boolean {
   return validations.some((v) => v._tag === "instance");
+}
+
+/**
+ * 依存公理リストをdisplayNameで重複排除する。
+ *
+ * 同じ公理スキーマの異なるインスタンス（例: A1[φ:=p] と A1[φ:=q]）が
+ * 複数のルートノードとして存在する場合、表示名が同一になるため重複を除去する。
+ * 最初に出現したエントリを保持する。
+ *
+ * @param deps 重複排除前の依存情報配列
+ * @returns displayNameが一意な依存情報配列
+ */
+export function deduplicateDependencyInfos(
+  deps: readonly DependencyInfo[],
+): readonly DependencyInfo[] {
+  const seen = new Set<string>();
+  const result: DependencyInfo[] = [];
+  for (const dep of deps) {
+    if (!seen.has(dep.displayName)) {
+      seen.add(dep.displayName);
+      result.push(dep);
+    }
+  }
+  return result;
 }

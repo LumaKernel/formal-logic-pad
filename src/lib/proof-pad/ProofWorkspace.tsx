@@ -87,7 +87,11 @@ import {
 import { classifyAllNodes } from "./nodeRoleLogic";
 import { identifyAxiomName } from "./axiomNameLogic";
 import { parseNodeFormula } from "./mpApplicationLogic";
-import { getAllNodeDependencies, getSubtreeNodeIds } from "./dependencyLogic";
+import {
+  getAllNodeDependencies,
+  getSubtreeNodeIds,
+  deduplicateDependencyInfos,
+} from "./dependencyLogic";
 import type { DependencyInfo } from "./EditableProofNode";
 import type { WorkspaceState, WorkspaceNode, NodeRole } from "./workspaceState";
 import {
@@ -1680,7 +1684,7 @@ export function ProofWorkspace({
       // 依存公理がない（接続が不完全など）→ 表示不要
       if (deps.size === 0) return undefined;
 
-      return [...deps].map((depId): DependencyInfo => {
+      const infos = [...deps].map((depId): DependencyInfo => {
         const axInfo = axiomNames.get(depId);
         const depNode = findNode(workspace, depId);
         return {
@@ -1688,6 +1692,7 @@ export function ProofWorkspace({
           displayName: axInfo?.displayName ?? depNode?.label ?? depId,
         };
       });
+      return deduplicateDependencyInfos(infos);
     },
     [nodeDependencies, axiomNames, workspace],
   );
