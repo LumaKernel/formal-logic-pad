@@ -382,6 +382,23 @@ describe("TermInput", () => {
       expect(screen.queryByTestId("ti-syntax-help")).not.toBeInTheDocument();
     });
 
+    it("?ボタンのmousedownでpreventDefaultが呼ばれる", () => {
+      const onOpenSyntaxHelp = vi.fn();
+      render(
+        <TermInput
+          value=""
+          onChange={() => {}}
+          onOpenSyntaxHelp={onOpenSyntaxHelp}
+          testId="ti"
+        />,
+      );
+      const button = screen.getByTestId("ti-syntax-help");
+      const event = new MouseEvent("mousedown", { bubbles: true });
+      const preventDefaultSpy = vi.spyOn(event, "preventDefault");
+      button.dispatchEvent(event);
+      expect(preventDefaultSpy).toHaveBeenCalledOnce();
+    });
+
     it("?ボタンクリックでonOpenSyntaxHelpが呼ばれる", async () => {
       const onOpenSyntaxHelp = vi.fn();
       render(

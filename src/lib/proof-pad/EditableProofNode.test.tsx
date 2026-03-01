@@ -835,6 +835,20 @@ describe("EditableProofNode", () => {
       expect(container).toHaveTextContent("???invalid???");
     });
 
+    it("項代入のパース不可能な値はプレーンテキストでフォールバックされる", () => {
+      renderNode({
+        substitutionEntries: [
+          {
+            _tag: "TermSubstitution",
+            metaVariableName: "τ",
+            termText: "???invalid-term???",
+          },
+        ],
+      });
+      const container = screen.getByTestId("test-node-subst-entries");
+      expect(container).toHaveTextContent("???invalid-term???");
+    });
+
     it("空の代入エントリでは表示されない", () => {
       renderNode({ substitutionEntries: [] });
       expect(
