@@ -43,11 +43,14 @@ import {
   mergeSelectedNodes,
   applyAtRuleAndConnect,
   applyTabRuleAndConnect,
+  applyScRuleAndConnect,
 } from "./workspaceState";
 import {
   hilbertDeduction,
   naturalDeduction,
   nmSystem,
+  sequentCalculusDeduction,
+  lkSystem,
 } from "../logic-core/deductionSystem";
 import type { ClipboardData } from "./copyPasteLogic";
 import type { SubstitutionEntries } from "./substitutionApplicationLogic";
@@ -3025,6 +3028,104 @@ describe("proofWorkspace", () => {
       const result = updateInferenceEdgeSubstitutionEntries(ws, "node-1", []);
       // Should not crash; inferenceEdges remain empty
       expect(result.inferenceEdges).toHaveLength(0);
+    });
+  });
+
+  describe("applyScRuleAndConnect", () => {
+    const scDeduction = sequentCalculusDeduction(lkSystem);
+
+    it("バリデーションエラー時は元の状態を返す", () => {
+      let ws = createEmptyWorkspace(scDeduction);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "invalid!!!");
+      const result = applyScRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "weakening-left",
+          sequentText: "invalid!!!",
+          principalPosition: 0,
+        },
+        [],
+      );
+      expect(result.workspace).toBe(ws);
+      expect(result.premiseNodeIds).toEqual([]);
+      expect(Either.isLeft(result.validation)).toBe(true);
+    });
+
+    it("sc-axiom-result: identity公理で前提ノードなし", () => {
+      let ws = createEmptyWorkspace(scDeduction);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "φ ⇒ φ");
+      const result = applyScRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "identity",
+          sequentText: "φ ⇒ φ",
+          principalPosition: 0,
+        },
+        [],
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.premiseNodeIds).toHaveLength(0);
+      // エッジが追加されている
+      expect(result.workspace.inferenceEdges).toHaveLength(1);
+      expect(result.workspace.inferenceEdges[0]!._tag).toBe("sc-axiom");
+      // 接続は作成されない（公理なので）
+      expect(result.workspace.connections).toHaveLength(0);
+    });
+
+    it("sc-single-result: 左弱化規則で1前提ノードが作成される", () => {
+      let ws = createEmptyWorkspace(scDeduction);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "φ, ψ ⇒ χ");
+      const result = applyScRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "weakening-left",
+          sequentText: "φ, ψ ⇒ χ",
+          principalPosition: 0,
+        },
+        [{ x: 100, y: 100 }],
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.premiseNodeIds).toHaveLength(1);
+      // 前提ノードが作成されている
+      const premiseNode = findNode(result.workspace, result.premiseNodeIds[0]!);
+      expect(premiseNode).toBeDefined();
+      // 接続が作成されている
+      expect(result.workspace.connections).toHaveLength(1);
+      expect(result.workspace.connections[0]!.fromNodeId).toBe("node-1");
+      expect(result.workspace.connections[0]!.toNodeId).toBe(
+        result.premiseNodeIds[0],
+      );
+    });
+
+    it("sc-branching-result: カット規則で2前提ノードが作成される", () => {
+      let ws = createEmptyWorkspace(scDeduction);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "φ ⇒ ψ");
+      const result = applyScRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "cut",
+          sequentText: "φ ⇒ ψ",
+          principalPosition: 0,
+          cutFormulaText: "χ",
+        },
+        [
+          { x: 100, y: 100 },
+          { x: 200, y: 100 },
+        ],
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.premiseNodeIds).toHaveLength(2);
+      // 2つの前提ノードが作成されている
+      const leftNode = findNode(result.workspace, result.premiseNodeIds[0]!);
+      const rightNode = findNode(result.workspace, result.premiseNodeIds[1]!);
+      expect(leftNode).toBeDefined();
+      expect(rightNode).toBeDefined();
+      // 2つの接続が作成されている
+      expect(result.workspace.connections).toHaveLength(2);
     });
   });
 });

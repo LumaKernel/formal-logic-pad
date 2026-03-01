@@ -21,6 +21,7 @@ import {
   isNdInferenceEdge,
   isTabInferenceEdge,
   isAtInferenceEdge,
+  isScInferenceEdge,
 } from "./inferenceEdge";
 import {
   validateMPApplication,
@@ -48,6 +49,12 @@ import {
   type AtRuleApplicationParams,
   type AtApplicationResult,
 } from "./atApplicationLogic";
+import {
+  validateScApplication,
+  createScEdgeFromResult,
+  type ScRuleApplicationParams,
+  type ScApplicationResult,
+} from "./scApplicationLogic";
 import { Either } from "effect";
 import {
   buildClipboardData,
@@ -1060,6 +1067,110 @@ export function applyAtRuleAndConnect(
   };
 }
 
+// --- SC規則適用（ノード作成 + InferenceEdge + 前提シーケント自動生成） ---
+
+/** SC規則適用結果 */
+export type ApplyScRuleResult = {
+  readonly workspace: WorkspaceState;
+  /** 結論ノードID（規則適用元のシーケントノード） */
+  readonly conclusionNodeId: string;
+  /** 生成された前提ノードのID（公理なら空、1前提なら1つ、分岐なら2つ） */
+  readonly premiseNodeIds: readonly string[];
+  readonly validation: ScApplicationResult;
+};
+
+/**
+ * シーケントノードにSC規則を適用し、前提ノードを作成する。
+ * InferenceEdge（ScEdge）を追加し、結論→前提の関係を管理する。
+ *
+ * @param state 現在のワークスペース状態
+ * @param conclusionNodeId 規則を適用するシーケントノード（結論側）のID
+ * @param params SC規則適用パラメータ
+ * @param premisePositions 前提ノードの配置位置（1前提: [pos], 分岐: [leftPos, rightPos], 公理: []）
+ * @returns 新しいワークスペース状態、前提ノードID群、検証結果
+ */
+export function applyScRuleAndConnect(
+  state: WorkspaceState,
+  conclusionNodeId: string,
+  params: ScRuleApplicationParams,
+  premisePositions: readonly Point[],
+): ApplyScRuleResult {
+  // バリデーション実行
+  const validation = validateScApplication(params);
+
+  if (Either.isLeft(validation)) {
+    return {
+      workspace: state,
+      conclusionNodeId,
+      premiseNodeIds: [],
+      validation,
+    };
+  }
+
+  const result = validation.right;
+  let ws = state;
+  const premiseNodeIds: string[] = [];
+
+  // 結果に応じてノードとエッジを生成
+  const edge = createScEdgeFromResult(params, result, conclusionNodeId);
+
+  switch (result._tag) {
+    case "sc-axiom-result": {
+      // 公理: 前提ノードなし
+      ws = addInferenceEdge(ws, edge);
+      break;
+    }
+    case "sc-single-result": {
+      // 1前提: 前提ノードを1つ作成
+      const pos = premisePositions[0] ?? { x: 0, y: 0 };
+      const premiseId = `node-${String(ws.nextNodeId) satisfies string}`;
+      ws = addNode(ws, "axiom", "", pos, result.premiseText);
+      premiseNodeIds.push(premiseId);
+
+      // エッジの premiseNodeId を設定
+      const singleEdge = { ...edge, premiseNodeId: premiseId } as typeof edge;
+      ws = addInferenceEdge(ws, singleEdge);
+
+      // 接続追加
+      ws = addConnection(ws, conclusionNodeId, "out", premiseId, "premise");
+      break;
+    }
+    case "sc-branching-result": {
+      // 2前提: 前提ノードを2つ作成
+      const leftPos = premisePositions[0] ?? { x: 0, y: 0 };
+      const rightPos = premisePositions[1] ?? { x: 0, y: 0 };
+
+      const leftId = `node-${String(ws.nextNodeId) satisfies string}`;
+      ws = addNode(ws, "axiom", "", leftPos, result.leftPremiseText);
+      premiseNodeIds.push(leftId);
+
+      const rightId = `node-${String(ws.nextNodeId) satisfies string}`;
+      ws = addNode(ws, "axiom", "", rightPos, result.rightPremiseText);
+      premiseNodeIds.push(rightId);
+
+      // エッジの前提ノードIDを設定
+      const branchEdge = {
+        ...edge,
+        leftPremiseNodeId: leftId,
+        rightPremiseNodeId: rightId,
+      } as typeof edge;
+      ws = addInferenceEdge(ws, branchEdge);
+
+      // 接続追加
+      ws = addConnection(ws, conclusionNodeId, "out", leftId, "premise-left");
+      ws = addConnection(ws, conclusionNodeId, "out", rightId, "premise-right");
+      break;
+    }
+  }
+
+  return {
+    workspace: ws,
+    conclusionNodeId,
+    premiseNodeIds,
+    validation,
+  };
+}
+
 // --- コピー＆ペースト ---
 
 /**
@@ -1413,6 +1524,12 @@ export function revalidateInferenceConclusions(
       // ATエッジは署名付き論理式操作のため、formulaTextの自動計算は行わない
       // ATの結果ノードは規則適用時に計算済み
       if (isAtInferenceEdge(edge)) {
+        return node;
+      }
+
+      // SCエッジはシーケント操作のため、formulaTextの自動計算は行わない
+      // SCの前提シーケントは規則適用時に計算済み
+      if (isScInferenceEdge(edge)) {
         return node;
       }
 

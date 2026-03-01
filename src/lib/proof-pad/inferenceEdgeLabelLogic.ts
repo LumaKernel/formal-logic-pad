@@ -13,6 +13,7 @@ import {
   isHilbertInferenceEdge,
   isTabInferenceEdge,
   isAtInferenceEdge,
+  isScInferenceEdge,
 } from "./inferenceEdge";
 
 // --- ラベルバッジ色 ---
@@ -26,8 +27,14 @@ const TAB_BADGE_COLOR = "var(--color-badge-tab, #d63031)";
 /** AT推論規則のデフォルトバッジ色 */
 const AT_BADGE_COLOR = "var(--color-badge-at, #e84393)";
 
+/** SC推論規則のデフォルトバッジ色 */
+const SC_BADGE_COLOR = "var(--color-badge-sc, #27ae60)";
+
 /** 推論規則の種別に応じたバッジ背景色 */
 export function getInferenceEdgeBadgeColor(edge: InferenceEdge): string {
+  if (isScInferenceEdge(edge)) {
+    return SC_BADGE_COLOR;
+  }
   if (isAtInferenceEdge(edge)) {
     return AT_BADGE_COLOR;
   }
@@ -143,6 +150,18 @@ export function getPremiseRole(
       return undefined;
     case "at-closed":
       if (edge.contradictionNodeId === premiseNodeId) return "premise";
+      return undefined;
+    // SC 1前提系
+    case "sc-single":
+      if (edge.premiseNodeId === premiseNodeId) return "premise";
+      return undefined;
+    // SC 2前提（分岐）系
+    case "sc-branching":
+      if (edge.leftPremiseNodeId === premiseNodeId) return "left";
+      if (edge.rightPremiseNodeId === premiseNodeId) return "right";
+      return undefined;
+    // SC 公理（0前提）
+    case "sc-axiom":
       return undefined;
   }
 }

@@ -13,6 +13,7 @@ import {
   isNdInferenceEdge,
   isTabInferenceEdge,
   isAtInferenceEdge,
+  isScInferenceEdge,
 } from "./inferenceEdge";
 import { greekLetters } from "../logic-core/greekLetters";
 import type {
@@ -67,6 +68,10 @@ export function createEditStateFromEdge(
   }
   // ATエッジはパラメータ編集不可
   if (isAtInferenceEdge(edge)) {
+    return undefined;
+  }
+  // SCエッジはパラメータ編集不可
+  if (isScInferenceEdge(edge)) {
     return undefined;
   }
   switch (edge._tag) {

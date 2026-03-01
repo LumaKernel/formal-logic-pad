@@ -51,6 +51,7 @@ export {
   applySubstitutionAndConnect,
   applyTabRuleAndConnect,
   applyAtRuleAndConnect,
+  applyScRuleAndConnect,
   updateInferenceEdgeGenVariableName,
   updateInferenceEdgeSubstitutionEntries,
   copySelectedNodes,
@@ -77,6 +78,7 @@ export type {
   ApplySubstitutionResult,
   ApplyTabRuleResult,
   ApplyAtRuleResult,
+  ApplyScRuleResult,
   MergeNodesResult,
 } from "./workspaceState";
 export {
@@ -228,6 +230,36 @@ export type {
   AtApplicationError,
   AtApplicationResult,
 } from "./atApplicationLogic";
+export {
+  splitSequentTextParts,
+  parseSequentText,
+  formatSequentTextFromFormulas,
+  validateScApplicationEffect,
+  validateScApplication,
+  createScEdgeFromResult,
+  isScAxiomRule,
+  isScSinglePremiseRule,
+  isScBranchingRule,
+  getScErrorMessage,
+  ScSequentParseError,
+  ScPrincipalPositionOutOfRange,
+  ScPrincipalFormulaMismatch,
+  ScEigenVariableError,
+  ScTermParseError,
+  ScExchangePositionError,
+  ScComponentIndexError,
+} from "./scApplicationLogic";
+export type {
+  SequentTextParts,
+  ParsedSequent,
+  ScRuleApplicationParams,
+  ScSinglePremiseResult,
+  ScBranchingResult,
+  ScAxiomResult,
+  ScApplicationSuccess,
+  ScApplicationError,
+  ScApplicationResult,
+} from "./scApplicationLogic";
 export {
   PROOF_NODE_KINDS,
   AXIOM_PORTS,

@@ -462,7 +462,45 @@ const AtClosedEdgeSchema = Schema.Struct({
   conclusionText: Schema.String,
 });
 
-/** InferenceEdgeのSchema（Hilbert系 + ND + TAB + AT） */
+// ─── SC (ゲンツェン流シーケント計算) 推論エッジ Schema ────────
+
+/** SC 1前提規則エッジのSchema */
+const ScSinglePremiseEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("sc-single"),
+  ruleId: Schema.String,
+  conclusionNodeId: Schema.String,
+  premiseNodeId: Schema.optional(Schema.String),
+  conclusionText: Schema.String,
+  eigenVariable: Schema.optional(Schema.String),
+  termText: Schema.optional(Schema.String),
+  exchangePosition: Schema.optional(Schema.Number),
+  componentIndex: Schema.optional(
+    Schema.Union(Schema.Literal(1), Schema.Literal(2)),
+  ),
+  cutFormulaText: Schema.optional(Schema.String),
+});
+
+/** SC 2前提（分岐）規則エッジのSchema */
+const ScBranchingEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("sc-branching"),
+  ruleId: Schema.String,
+  conclusionNodeId: Schema.String,
+  leftPremiseNodeId: Schema.optional(Schema.String),
+  rightPremiseNodeId: Schema.optional(Schema.String),
+  leftConclusionText: Schema.String,
+  rightConclusionText: Schema.String,
+  conclusionText: Schema.String,
+});
+
+/** SC 公理（0前提）マークエッジのSchema */
+const ScAxiomEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("sc-axiom"),
+  ruleId: Schema.String,
+  conclusionNodeId: Schema.String,
+  conclusionText: Schema.String,
+});
+
+/** InferenceEdgeのSchema（Hilbert系 + ND + TAB + AT + SC） */
 const InferenceEdgeSchema = Schema.Union(
   // Hilbert系
   MPEdgeSchema,
@@ -494,6 +532,10 @@ const InferenceEdgeSchema = Schema.Union(
   AtGammaEdgeSchema,
   AtDeltaEdgeSchema,
   AtClosedEdgeSchema,
+  // SC
+  ScSinglePremiseEdgeSchema,
+  ScBranchingEdgeSchema,
+  ScAxiomEdgeSchema,
 );
 
 /** WorkspaceGoalのSchema */

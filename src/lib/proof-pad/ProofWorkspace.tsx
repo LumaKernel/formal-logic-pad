@@ -57,6 +57,9 @@ import {
 } from "../logic-core/analyticTableau";
 import { getTabErrorMessage, isTabAxiomRule } from "./tabApplicationLogic";
 import { getAtErrorMessage } from "./atApplicationLogic";
+import type { ScRuleId } from "../logic-core/deductionSystem";
+import { getScRuleDisplayName } from "../logic-core/deductionSystem";
+import { getScErrorMessage, isScAxiomRule } from "./scApplicationLogic";
 import {
   validateMPApplication,
   computeMPCompatibleNodeIds,
@@ -135,6 +138,7 @@ import {
   mergeSelectedNodes,
   applyTabRuleAndConnect,
   applyAtRuleAndConnect,
+  applyScRuleAndConnect,
 } from "./workspaceState";
 import {
   findMergeableGroups,
@@ -274,6 +278,15 @@ type AtSelectionState =
       readonly principalNodeId: string;
     };
 
+// --- SC規則選択モードの状態 ---
+
+type ScSelectionState =
+  | { readonly phase: "idle" }
+  | {
+      readonly phase: "selecting-node";
+      readonly ruleId: ScRuleId;
+    };
+
 // --- デフォルトノードサイズ（ポート位置計算に必要） ---
 
 const DEFAULT_NODE_SIZE: Size = { width: 180, height: 60 };
@@ -402,6 +415,11 @@ const tabSelectionBannerStyle = {
 const atSelectionBannerStyle = {
   ...mpSelectionBannerStyle,
   background: "var(--color-at-banner, rgba(140, 100, 160, 0.95))",
+};
+
+const scSelectionBannerStyle = {
+  ...mpSelectionBannerStyle,
+  background: "var(--color-sc-banner, rgba(39, 174, 96, 0.95))",
 };
 
 const substBannerStyle = {
@@ -644,6 +662,11 @@ export function ProofWorkspace({
 
   // AT規則選択モード
   const [atSelection, setAtSelection] = useState<AtSelectionState>({
+    phase: "idle",
+  });
+
+  // SC規則選択モード
+  const [scSelection, setScSelection] = useState<ScSelectionState>({
     phase: "idle",
   });
 
@@ -1212,6 +1235,7 @@ export function ProofWorkspace({
     setGenSelection({ phase: "idle" });
     setMergeSelection({ phase: "idle" });
     setAtSelection({ phase: "idle" });
+    setScSelection({ phase: "idle" });
   }, []);
 
   const handleCancelTabSelection = useCallback(() => {
@@ -1329,6 +1353,7 @@ export function ProofWorkspace({
     setGenSelection({ phase: "idle" });
     setMergeSelection({ phase: "idle" });
     setTabSelection({ phase: "idle" });
+    setScSelection({ phase: "idle" });
   }, []);
 
   const handleCancelAtSelection = useCallback(() => {
@@ -1451,6 +1476,155 @@ export function ProofWorkspace({
     [atSelection, workspace, setWorkspaceWithAutoLayout, msg],
   );
 
+  // --- SC規則選択モードハンドラ ---
+
+  const handleStartScRuleSelection = useCallback((ruleId: ScRuleId) => {
+    setScSelection({ phase: "selecting-node", ruleId });
+    setMPSelection({ phase: "idle" });
+    setGenSelection({ phase: "idle" });
+    setMergeSelection({ phase: "idle" });
+    setTabSelection({ phase: "idle" });
+    setAtSelection({ phase: "idle" });
+  }, []);
+
+  const handleCancelScSelection = useCallback(() => {
+    setScSelection({ phase: "idle" });
+  }, []);
+
+  const handleNodeClickForSc = useCallback(
+    (nodeId: string) => {
+      if (scSelection.phase !== "selecting-node") return;
+
+      const conclusionNode = findNode(workspace, nodeId);
+      if (!conclusionNode) return;
+
+      const { ruleId } = scSelection;
+
+      // 規則に応じて追加パラメータを収集
+      let principalPosition = 0;
+      let eigenVariable: string | undefined;
+      let termText: string | undefined;
+      let exchangePosition: number | undefined;
+      let componentIndex: 1 | 2 | undefined;
+      let cutFormulaText: string | undefined;
+
+      // 交換規則: 位置入力
+      if (ruleId === "exchange-left" || ruleId === "exchange-right") {
+        const input = globalThis.prompt(msg.scExchangePositionPrompt, "0");
+        if (input === null) {
+          setScSelection({ phase: "idle" });
+          return;
+        }
+        exchangePosition = parseInt(input, 10);
+        if (Number.isNaN(exchangePosition)) {
+          setScSelection({ phase: "idle" });
+          return;
+        }
+      }
+
+      // カット規則: カット式入力
+      if (ruleId === "cut") {
+        const input = globalThis.prompt(msg.scCutFormulaPrompt, "");
+        if (input === null) {
+          setScSelection({ phase: "idle" });
+          return;
+        }
+        cutFormulaText = input;
+      }
+
+      // 公理・交換・カット以外: 主論理式の位置入力
+      if (
+        !isScAxiomRule(ruleId) &&
+        ruleId !== "exchange-left" &&
+        ruleId !== "exchange-right" &&
+        ruleId !== "cut"
+      ) {
+        const input = globalThis.prompt(msg.scPositionPrompt, "0");
+        if (input === null) {
+          setScSelection({ phase: "idle" });
+          return;
+        }
+        principalPosition = parseInt(input, 10);
+        if (Number.isNaN(principalPosition)) {
+          setScSelection({ phase: "idle" });
+          return;
+        }
+      }
+
+      // ∧左/∨右: 成分インデックス入力
+      if (ruleId === "conjunction-left" || ruleId === "disjunction-right") {
+        const input = globalThis.prompt(msg.scComponentIndexPrompt, "1");
+        if (input === null) {
+          setScSelection({ phase: "idle" });
+          return;
+        }
+        const idx = parseInt(input, 10);
+        if (idx !== 1 && idx !== 2) {
+          setScSelection({ phase: "idle" });
+          return;
+        }
+        componentIndex = idx;
+      }
+
+      // ∀左/∃右: 項テキスト入力
+      if (ruleId === "universal-left" || ruleId === "existential-right") {
+        const input = globalThis.prompt(msg.scTermPrompt, "");
+        if (input === null) {
+          setScSelection({ phase: "idle" });
+          return;
+        }
+        termText = input;
+      }
+
+      // ⇒∀/∃⇒: 固有変数入力
+      if (ruleId === "universal-right" || ruleId === "existential-left") {
+        const input = globalThis.prompt(msg.scEigenVariablePrompt, "");
+        if (input === null) {
+          setScSelection({ phase: "idle" });
+          return;
+        }
+        eigenVariable = input;
+      }
+
+      // 前提ノードの位置計算
+      const premisePositions: Point[] = [];
+      premisePositions.push({
+        x: conclusionNode.position.x - 100,
+        y: conclusionNode.position.y - 150,
+      });
+      premisePositions.push({
+        x: conclusionNode.position.x + 100,
+        y: conclusionNode.position.y - 150,
+      });
+
+      const result = applyScRuleAndConnect(
+        workspace,
+        nodeId,
+        {
+          ruleId,
+          sequentText: conclusionNode.formulaText,
+          principalPosition,
+          eigenVariable,
+          termText,
+          exchangePosition,
+          componentIndex,
+          cutFormulaText,
+        },
+        premisePositions,
+      );
+
+      if (Either.isRight(result.validation)) {
+        setWorkspaceWithAutoLayout(result.workspace);
+      } else {
+        const errorMsg = getScErrorMessage(result.validation.left);
+        globalThis.alert(errorMsg);
+      }
+
+      setScSelection({ phase: "idle" });
+    },
+    [scSelection, workspace, setWorkspaceWithAutoLayout, msg],
+  );
+
   // 統合ノードクリックハンドラ
   const handleNodeClickForSelection = useCallback(
     (nodeId: string) => {
@@ -1464,6 +1638,8 @@ export function ProofWorkspace({
         handleNodeClickForTab(nodeId);
       } else if (atSelection.phase !== "idle") {
         handleNodeClickForAt(nodeId);
+      } else if (scSelection.phase !== "idle") {
+        handleNodeClickForSc(nodeId);
       }
     },
     [
@@ -1472,11 +1648,13 @@ export function ProofWorkspace({
       mergeSelection,
       tabSelection,
       atSelection,
+      scSelection,
       handleNodeClickForMP,
       handleNodeClickForGen,
       handleNodeClickForMerge,
       handleNodeClickForTab,
       handleNodeClickForAt,
+      handleNodeClickForSc,
     ],
   );
 
@@ -1485,7 +1663,8 @@ export function ProofWorkspace({
     genSelection.phase !== "idle" ||
     mergeSelection.phase !== "idle" ||
     tabSelection.phase !== "idle" ||
-    atSelection.phase !== "idle";
+    atSelection.phase !== "idle" ||
+    scSelection.phase !== "idle";
 
   // --- MP互換ノードIDセット（ハイライト用） ---
 
@@ -3408,6 +3587,29 @@ export function ProofWorkspace({
         </div>
       ) : null}
 
+      {/* SC規則選択バナー */}
+      {scSelection.phase !== "idle" ? (
+        <div
+          style={scSelectionBannerStyle}
+          data-testid={
+            testId ? `${testId satisfies string}-sc-banner` : undefined
+          }
+        >
+          <span>
+            {formatMessage(msg.scBannerSelectNode, {
+              ruleName: getScRuleDisplayName(scSelection.ruleId),
+            })}
+          </span>
+          <button
+            type="button"
+            style={cancelButtonStyle}
+            onClick={handleCancelScSelection}
+          >
+            {msg.scCancel}
+          </button>
+        </div>
+      ) : null}
+
       {/* Gen変数名入力プロンプト（コンテキストメニューから起動） */}
       {genPromptNodeId !== null ? (
         <div
@@ -3771,6 +3973,12 @@ export function ProofWorkspace({
         <ScRulePalette
           rules={availableScRules}
           onAddSequent={handleAddSequent}
+          onRuleClick={handleStartScRuleSelection}
+          selectedRuleId={
+            scSelection.phase === "selecting-node"
+              ? scSelection.ruleId
+              : undefined
+          }
           testId={
             testId ? `${testId satisfies string}-sc-rule-palette` : undefined
           }
