@@ -119,6 +119,15 @@ function useProofMessagesFromIntl(): ProofMessages {
       atClosureBannerSelectContradiction: t(
         "atClosureBannerSelectContradiction",
       ),
+      cutEliminationTitle: t("cutEliminationTitle"),
+      cutEliminationCuts: t("cutEliminationCuts"),
+      cutEliminationCutFree: t("cutEliminationCutFree"),
+      cutEliminationStepProgress: t("cutEliminationStepProgress"),
+      cutEliminationInitialState: t("cutEliminationInitialState"),
+      cutEliminationStepInfo: t("cutEliminationStepInfo"),
+      cutEliminationSuccess: t("cutEliminationSuccess"),
+      cutEliminationFailure: t("cutEliminationFailure"),
+      cutEliminationNoCuts: t("cutEliminationNoCuts"),
     }),
     [t],
   );

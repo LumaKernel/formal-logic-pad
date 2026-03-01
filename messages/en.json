@@ -99,6 +99,15 @@
     "applyAtRuleToNode": "Apply AT Rule",
     "atTermPrompt": "Substitution term:",
     "atEigenVariablePrompt": "Eigen variable name:",
-    "atClosureBannerSelectContradiction": "Click the contradicting node to close the branch"
+    "atClosureBannerSelectContradiction": "Click the contradicting node to close the branch",
+    "cutEliminationTitle": "Cut Elimination",
+    "cutEliminationCuts": "{cutCount} cut(s)",
+    "cutEliminationCutFree": "Cut-free",
+    "cutEliminationStepProgress": "Step {current} / {total}",
+    "cutEliminationInitialState": "Initial proof",
+    "cutEliminationStepInfo": "depth={depth}, rank={rank}",
+    "cutEliminationSuccess": "Cut elimination succeeded",
+    "cutEliminationFailure": "Cut elimination failed",
+    "cutEliminationNoCuts": "Proof is already cut-free"
   }
 }

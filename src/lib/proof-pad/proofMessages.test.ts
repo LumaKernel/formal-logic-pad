@@ -414,4 +414,61 @@ describe("formatMessage", () => {
       defaultProofMessages.atClosureBannerSelectContradiction.length,
     ).toBeGreaterThan(0);
   });
+
+  it("should format cutEliminationCuts correctly", () => {
+    const result = formatMessage(defaultProofMessages.cutEliminationCuts, {
+      cutCount: "3",
+    });
+    expect(result).toContain("3");
+    expect(result).not.toContain("{cutCount}");
+  });
+
+  it("should format cutEliminationStepProgress correctly", () => {
+    const result = formatMessage(
+      defaultProofMessages.cutEliminationStepProgress,
+      {
+        current: "2",
+        total: "5",
+      },
+    );
+    expect(result).toContain("2");
+    expect(result).toContain("5");
+    expect(result).not.toContain("{current}");
+    expect(result).not.toContain("{total}");
+  });
+
+  it("should format cutEliminationStepInfo correctly", () => {
+    const result = formatMessage(
+      defaultProofMessages.cutEliminationStepInfo,
+      {
+        depth: "3",
+        rank: "1",
+      },
+    );
+    expect(result).toContain("3");
+    expect(result).toContain("1");
+    expect(result).not.toContain("{depth}");
+    expect(result).not.toContain("{rank}");
+  });
+
+  it("Cut elimination default messages are all non-empty strings", () => {
+    expect(
+      defaultProofMessages.cutEliminationTitle.length,
+    ).toBeGreaterThan(0);
+    expect(
+      defaultProofMessages.cutEliminationCutFree.length,
+    ).toBeGreaterThan(0);
+    expect(
+      defaultProofMessages.cutEliminationInitialState.length,
+    ).toBeGreaterThan(0);
+    expect(
+      defaultProofMessages.cutEliminationSuccess.length,
+    ).toBeGreaterThan(0);
+    expect(
+      defaultProofMessages.cutEliminationFailure.length,
+    ).toBeGreaterThan(0);
+    expect(
+      defaultProofMessages.cutEliminationNoCuts.length,
+    ).toBeGreaterThan(0);
+  });
 });

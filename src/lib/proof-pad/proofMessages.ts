@@ -155,6 +155,20 @@ export type ProofMessages = {
   readonly atEigenVariablePrompt: string;
   /** 矛盾ノード選択プロンプト（closure用） */
   readonly atClosureBannerSelectContradiction: string;
+
+  // --- カット除去ステッパー ---
+  readonly cutEliminationTitle: string;
+  /** `{cutCount}` プレースホルダーを含む */
+  readonly cutEliminationCuts: string;
+  readonly cutEliminationCutFree: string;
+  /** `{current}` と `{total}` プレースホルダーを含む */
+  readonly cutEliminationStepProgress: string;
+  readonly cutEliminationInitialState: string;
+  /** `{depth}` と `{rank}` プレースホルダーを含む */
+  readonly cutEliminationStepInfo: string;
+  readonly cutEliminationSuccess: string;
+  readonly cutEliminationFailure: string;
+  readonly cutEliminationNoCuts: string;
 };
 
 // --- デフォルトメッセージ（英語） ---
@@ -280,6 +294,17 @@ export const defaultProofMessages: ProofMessages = {
   atEigenVariablePrompt: "Eigen variable name:",
   atClosureBannerSelectContradiction:
     "Click the contradicting node to close the branch",
+
+  // Cut elimination stepper
+  cutEliminationTitle: "Cut Elimination",
+  cutEliminationCuts: "{cutCount} cut(s)",
+  cutEliminationCutFree: "Cut-free",
+  cutEliminationStepProgress: "Step {current} / {total}",
+  cutEliminationInitialState: "Initial proof",
+  cutEliminationStepInfo: "depth={depth}, rank={rank}",
+  cutEliminationSuccess: "Cut elimination succeeded",
+  cutEliminationFailure: "Cut elimination failed",
+  cutEliminationNoCuts: "Proof is already cut-free",
 };
 
 // --- エラー → メッセージキー変換（純粋関数） ---

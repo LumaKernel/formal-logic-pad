@@ -269,6 +269,21 @@ export type {
 } from "./goalPanelLogic";
 export { GoalPanel } from "./GoalPanel";
 export type { GoalPanelProps } from "./GoalPanel";
+export {
+  computeCutEliminationStepperData,
+  resolveStepperState,
+  applyStepperAction,
+  canStepForward,
+  canStepBackward,
+  formatSequentText as formatSequentTextForStepper,
+} from "./cutEliminationStepperLogic";
+export type {
+  StepperStepInfo,
+  CutEliminationStepperData,
+  StepperAction,
+} from "./cutEliminationStepperLogic";
+export { CutEliminationStepper } from "./CutEliminationStepper";
+export type { CutEliminationStepperProps } from "./CutEliminationStepper";
 export { parseGoalFormula, checkGoal } from "./goalCheckLogic";
 export type {
   GoalNotSet,
