@@ -1685,11 +1685,13 @@ export function ProofWorkspace({
 
   const mergeTargetNodeIds: ReadonlySet<string> = useMemo(() => {
     if (mergeSelection.phase !== "selecting-target") return new Set<string>();
+    /* v8 ignore start -- isNodeProtected always returns false (design: goals separated from nodes) */
     const protectedIds = new Set(
       workspace.nodes
         .filter((n) => isNodeProtected(workspace, n.id))
         .map((n) => n.id),
     );
+    /* v8 ignore stop */
     return findMergeTargets(
       mergeSelection.leaderNodeId,
       workspace.nodes,

@@ -8042,3 +8042,36 @@
   - computeTreeLayout は全ノードにpositionを返す（孤立ノードも含む）ため、`positions.get(id)` が undefined になることは構造的にない
   - v8 coverage HTML報告は text reporter より正確。text reporter のuncovered line numbers は switch文のbranch計算で phantom entries を報告することがある
 ---
+
+## 2026-03-02 - カバレッジ改善: ProofWorkspace.tsx SC規則テスト・Branch coverage大幅改善
+- ProofWorkspace.tsx のBranch coverage: 76.1% → 83.04%（+6.94%）
+- ProofWorkspace.tsx の Lines coverage: 91.25% → 100%
+- 全体: Stmts 98.76% → 99.4%, Branch 93.3% → 94.18%, Funcs 89.65% → 89.75%, Lines 99.22% → 100%
+- テスト: 215ファイル, 6846テスト全パス（+22テスト追加）
+- 主な追加テスト:
+  - SC規則テスト群（最大の未カバーブロック L1482-1623）:
+    - identity規則（公理、promptなし）
+    - conjunction-right（位置prompt）
+    - exchange-left（交換位置prompt）、キャンセルパス（null/NaN）
+    - cut規則（カット式prompt）、キャンセルパス
+    - conjunction-left（位置+成分index prompt）、キャンセルパス（null/invalid index）
+    - universal-left（項prompt）、キャンセルパス
+    - universal-right（固有変数prompt）、キャンセルパス
+    - 位置promptキャンセル（null/NaN）
+    - SCノードクリックのディスパッチ
+    - SC規則適用エラー時のalert表示
+  - 代入フォールバック: 空の数式テキストでメタ変数なし→手動入力フォールバック
+  - autoLayout有効 + SC identity（ノード/接続数変化なし → レイアウトスキップ L808）
+  - TAB連言テスト修正: "T:phi & psi" → "phi ∧ psi"（パーサーが認識する形式に修正）
+- v8 ignore追加: mergeTargetNodeIds の protected filter（isNodeProtected は常にfalse）
+- 変更したファイル:
+  - src/lib/proof-pad/ProofWorkspace.test.tsx（+513行: SC規則テスト群、代入フォールバック、autoLayoutテスト追加）
+  - src/lib/proof-pad/ProofWorkspace.tsx（+2行: v8 ignore start/stop）
+- **今後のイテレーションへの学び:**
+  - SC規則テストでは `globalThis.prompt` のモック順序が重要。規則によって複数回のpromptが必要（例: conjunction-left は位置prompt + 成分index prompt）
+  - SC sequent テキストは `⇒` 区切り（例: `phi ⇒ psi`）。TAB sequent テキストはプレーン数式（`T:` プレフィックスなし）
+  - パーサーは `&` を論理積として認識しない。`∧` または `/\` を使用する
+  - identity規則は両辺に1つ以上の数式があれば成功する。エラーテストには空の片辺（例: `phi ⇒ `）を使う
+  - isNodeProtected は現在常に false を返す（ゴールはノードから分離されている設計）。この防御的コードはv8 ignoreで対処
+  - autoLayout の「ノード/接続数が変化しない」分岐は、identity のような既存ノードの属性のみ変更する規則でカバーできる
+---
