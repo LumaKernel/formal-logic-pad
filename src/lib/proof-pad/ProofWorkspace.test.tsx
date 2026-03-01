@@ -9,8 +9,11 @@ import {
 } from "../logic-core/inferenceRule";
 import {
   naturalDeduction,
+  tableauCalculusDeduction,
   njSystem,
   nkSystem,
+  tabSystem,
+  tabPropSystem,
 } from "../logic-core/deductionSystem";
 import { allReferenceEntries } from "../reference/referenceContent";
 import type { Formula } from "../logic-core/formula";
@@ -3298,6 +3301,77 @@ describe("ProofWorkspace", () => {
       // Both nodes should still exist
       expect(screen.getByTestId("proof-node-node-1")).toBeInTheDocument();
       expect(screen.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+  });
+
+  describe("TAB (Tableau Calculus)", () => {
+    it("renders with TAB system and shows TabRulePalette", () => {
+      const ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      render(
+        <ProofWorkspace
+          system={ws.system}
+          workspace={ws}
+          onWorkspaceChange={() => {}}
+          testId="workspace"
+        />,
+      );
+      expect(
+        screen.getByTestId("workspace-tab-rule-palette"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("Tableau Calculus")).toBeInTheDocument();
+      expect(screen.getByText("BS")).toBeInTheDocument();
+    });
+
+    it("renders with TAB propositional system", () => {
+      const ws = createEmptyWorkspace(
+        tableauCalculusDeduction(tabPropSystem),
+      );
+      render(
+        <ProofWorkspace
+          system={ws.system}
+          workspace={ws}
+          onWorkspaceChange={() => {}}
+          testId="workspace"
+        />,
+      );
+      expect(
+        screen.getByTestId("workspace-tab-rule-palette"),
+      ).toBeInTheDocument();
+      // 量化子規則が表示されない
+      expect(
+        screen.queryByTestId("workspace-tab-rule-palette-rule-universal"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("adds a sequent node when add-sequent button is clicked", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-add-sequent"),
+      );
+      // ノードが1つ追加されているはず
+      await waitFor(() => {
+        expect(screen.getByText("Sequent")).toBeInTheDocument();
+      });
+    });
+
+    it("does not show AxiomPalette or NdRulePalette in TAB mode", () => {
+      const ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      render(
+        <ProofWorkspace
+          system={ws.system}
+          workspace={ws}
+          onWorkspaceChange={() => {}}
+          testId="workspace"
+        />,
+      );
+      expect(
+        screen.queryByTestId("workspace-axiom-palette"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("workspace-nd-rule-palette"),
+      ).not.toBeInTheDocument();
     });
   });
 });

@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   getAvailableAxioms,
   getAvailableNdRules,
+  getAvailableTabRules,
   getAxiomReferenceEntryId,
 } from "./axiomPaletteLogic";
 import {
@@ -15,7 +16,15 @@ import {
   peanoArithmeticSystem,
 } from "../logic-core/inferenceRule";
 import type { LogicSystem } from "../logic-core/inferenceRule";
-import { nmSystem, njSystem, nkSystem } from "../logic-core/deductionSystem";
+import {
+  nmSystem,
+  njSystem,
+  nkSystem,
+  tabSystem,
+  tabPropSystem,
+} from "../logic-core/deductionSystem";
+import type { TableauCalculusSystem } from "../logic-core/deductionSystem";
+import type { TabRuleId } from "../logic-core/tableauCalculus";
 
 describe("axiomPalette", () => {
   describe("getAvailableAxioms", () => {
@@ -286,6 +295,84 @@ describe("axiomPalette", () => {
       );
       // efq が最後から2番目（weakening の次）
       expect(ids.indexOf("weakening")).toBeLessThan(ids.indexOf("efq"));
+    });
+  });
+
+  describe("getAvailableTabRules", () => {
+    it("TAB全体系の14規則すべてを返す", () => {
+      const items = getAvailableTabRules(tabSystem);
+      expect(items).toHaveLength(14);
+    });
+
+    it("TAB命題論理体系の10規則を返す", () => {
+      const items = getAvailableTabRules(tabPropSystem);
+      expect(items).toHaveLength(10);
+    });
+
+    it("TAB命題論理体系には量化子規則が含まれない", () => {
+      const items = getAvailableTabRules(tabPropSystem);
+      const ids = items.map((i) => i.id);
+      expect(ids).not.toContain("universal");
+      expect(ids).not.toContain("neg-universal");
+      expect(ids).not.toContain("existential");
+      expect(ids).not.toContain("neg-existential");
+    });
+
+    it("allTabRuleIdsの順序で返される", () => {
+      const items = getAvailableTabRules(tabSystem);
+      const ids = items.map((i) => i.id);
+      expect(ids.indexOf("bs")).toBeLessThan(ids.indexOf("conjunction"));
+      expect(ids.indexOf("conjunction")).toBeLessThan(
+        ids.indexOf("implication"),
+      );
+    });
+
+    it("各アイテムにdisplayNameがある", () => {
+      const items = getAvailableTabRules(tabSystem);
+      for (const item of items) {
+        expect(item.displayName).toBeTruthy();
+      }
+    });
+
+    it("分岐規則が正しくマークされる", () => {
+      const items = getAvailableTabRules(tabSystem);
+      const branchingIds = items
+        .filter((i) => i.isBranching)
+        .map((i) => i.id);
+      expect(branchingIds).toEqual([
+        "neg-conjunction",
+        "disjunction",
+        "implication",
+      ]);
+    });
+
+    it("非分岐規則が正しくマークされる", () => {
+      const items = getAvailableTabRules(tabSystem);
+      const nonBranchingIds = items
+        .filter((i) => !i.isBranching)
+        .map((i) => i.id);
+      expect(nonBranchingIds).toContain("bs");
+      expect(nonBranchingIds).toContain("conjunction");
+      expect(nonBranchingIds).toContain("double-negation");
+    });
+
+    it("空の規則セットで空リストを返す", () => {
+      const emptySystem: TableauCalculusSystem = {
+        name: "Empty",
+        rules: new Set<TabRuleId>(),
+      };
+      const items = getAvailableTabRules(emptySystem);
+      expect(items).toEqual([]);
+    });
+
+    it("部分的な規則セットを正しく処理する", () => {
+      const partialSystem: TableauCalculusSystem = {
+        name: "Partial",
+        rules: new Set<TabRuleId>(["bs", "bottom", "conjunction"]),
+      };
+      const items = getAvailableTabRules(partialSystem);
+      const ids = items.map((i) => i.id);
+      expect(ids).toEqual(["bs", "bottom", "conjunction"]);
     });
   });
 

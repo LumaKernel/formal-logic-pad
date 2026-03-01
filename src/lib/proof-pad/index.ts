@@ -7,12 +7,19 @@ export { AxiomPalette } from "./AxiomPalette";
 export type { AxiomPaletteProps } from "./AxiomPalette";
 export { NdRulePalette } from "./NdRulePalette";
 export type { NdRulePaletteProps } from "./NdRulePalette";
+export { TabRulePalette } from "./TabRulePalette";
+export type { TabRulePaletteProps } from "./TabRulePalette";
 export {
   getAvailableAxioms,
   getAvailableNdRules,
+  getAvailableTabRules,
   getAxiomReferenceEntryId,
 } from "./axiomPaletteLogic";
-export type { AxiomPaletteItem, NdRulePaletteItem } from "./axiomPaletteLogic";
+export type {
+  AxiomPaletteItem,
+  NdRulePaletteItem,
+  TabRulePaletteItem,
+} from "./axiomPaletteLogic";
 export { getInferenceRuleReferenceEntryId } from "./inferenceRuleReferenceLogic";
 export { ProofWorkspace } from "./ProofWorkspace";
 export type { ProofWorkspaceProps, GoalAchievedInfo } from "./ProofWorkspace";

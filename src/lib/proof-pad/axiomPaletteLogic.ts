@@ -15,11 +15,18 @@ import type {
 import type {
   NaturalDeductionSystem,
   NdRuleId,
+  TableauCalculusSystem,
 } from "../logic-core/deductionSystem";
 import {
   getNdRuleDisplayName,
   allNdRuleIds,
 } from "../logic-core/deductionSystem";
+import type { TabRuleId } from "../logic-core/tableauCalculus";
+import {
+  allTabRuleIds,
+  getTabRuleDisplayName,
+  isTabBranchingRule,
+} from "../logic-core/tableauCalculus";
 import {
   axiomA1Template,
   axiomA2Template,
@@ -265,6 +272,42 @@ export function getAvailableNdRules(
       items.push({
         id: ruleId,
         displayName: getNdRuleDisplayName(ruleId),
+      });
+    }
+  }
+  return items;
+}
+
+// --- タブロー規則パレット ---
+
+/** タブロー規則パレットに表示する規則アイテム */
+export type TabRulePaletteItem = {
+  /** 規則ID */
+  readonly id: TabRuleId;
+  /** 規則の表示名（例: "BS", "¬∧"） */
+  readonly displayName: string;
+  /** 分岐規則かどうか（¬∧, ∨, → が該当） */
+  readonly isBranching: boolean;
+};
+
+/**
+ * タブロー体系に応じた利用可能な規則パレットアイテムの一覧を返す。
+ *
+ * 変更時は axiomPaletteLogic.test.ts も同期すること。
+ *
+ * @param system タブロー体系設定
+ * @returns 利用可能な規則のリスト
+ */
+export function getAvailableTabRules(
+  system: TableauCalculusSystem,
+): readonly TabRulePaletteItem[] {
+  const items: TabRulePaletteItem[] = [];
+  for (const ruleId of allTabRuleIds) {
+    if (system.rules.has(ruleId)) {
+      items.push({
+        id: ruleId,
+        displayName: getTabRuleDisplayName(ruleId),
+        isBranching: isTabBranchingRule(ruleId),
       });
     }
   }

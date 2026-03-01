@@ -14,7 +14,12 @@ import {
   predicateLogicSystem,
   equalityLogicSystem,
 } from "../logic-core/inferenceRule";
-import { naturalDeduction, njSystem } from "../logic-core/deductionSystem";
+import {
+  naturalDeduction,
+  njSystem,
+  tableauCalculusDeduction,
+  tabSystem,
+} from "../logic-core/deductionSystem";
 import { allReferenceEntries } from "../reference/referenceContent";
 import { ProofWorkspace } from "./ProofWorkspace";
 import {
@@ -1238,6 +1243,68 @@ export const EmptyNaturalDeduction: Story = {
       canvas.getByTestId("workspace-nd-rule-palette-add-assumption"),
     );
     // Node should appear
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+  },
+};
+
+// --- TAB（タブロー式シーケント計算）ストーリー ---
+
+function TableauWorkspace() {
+  const initial = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={workspace.system}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+export const EmptyTableau: StoryObj<typeof meta> = {
+  render: () => <TableauWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // TABパレットが表示される
+    await expect(
+      canvas.getByTestId("workspace-tab-rule-palette"),
+    ).toBeInTheDocument();
+    await expect(canvas.getByText("Tableau Calculus")).toBeInTheDocument();
+
+    // TAB規則が表示される
+    await expect(canvas.getByText("BS")).toBeInTheDocument();
+    await expect(canvas.getByText("¬¬")).toBeInTheDocument();
+    await expect(canvas.getByText("∧")).toBeInTheDocument();
+    await expect(canvas.getByText("¬∧")).toBeInTheDocument();
+    await expect(canvas.getByText("∨")).toBeInTheDocument();
+    await expect(canvas.getByText("→")).toBeInTheDocument();
+
+    // 分岐バッジが表示される
+    const negConjRule = canvas.getByTestId(
+      "workspace-tab-rule-palette-rule-neg-conjunction",
+    );
+    await expect(negConjRule.textContent).toContain("分岐");
+
+    // Hilbertパレット・NDパレットは非表示
+    await expect(
+      canvas.queryByTestId("workspace-axiom-palette"),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId("workspace-nd-rule-palette"),
+    ).not.toBeInTheDocument();
+
+    // シーケント追加
+    await userEvent.click(
+      canvas.getByTestId("workspace-tab-rule-palette-add-sequent"),
+    );
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
   },
 };
