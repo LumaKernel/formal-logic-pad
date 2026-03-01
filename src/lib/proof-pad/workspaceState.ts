@@ -16,7 +16,11 @@ import {
 import type { Point } from "../infinite-canvas/types";
 import type { ProofNodeKind } from "./proofNodeUI";
 import type { InferenceEdge } from "./inferenceEdge";
-import { isHilbertInferenceEdge, isNdInferenceEdge } from "./inferenceEdge";
+import {
+  isHilbertInferenceEdge,
+  isNdInferenceEdge,
+  isTabInferenceEdge,
+} from "./inferenceEdge";
 import {
   validateMPApplication,
   type MPApplicationResult,
@@ -31,6 +35,12 @@ import {
   type SubstitutionEntries,
 } from "./substitutionApplicationLogic";
 import { validateNdApplication } from "./ndApplicationLogic";
+import {
+  validateTabApplication,
+  createTabEdgeFromResult,
+  type TabRuleApplicationParams,
+  type TabApplicationResult,
+} from "./tabApplicationLogic";
 import { Either } from "effect";
 import {
   buildClipboardData,
@@ -769,6 +779,122 @@ export function applySubstitutionAndConnect(
   return { workspace: ws, substitutionNodeId, validation };
 }
 
+// --- TAB規則適用（ノード作成 + InferenceEdge + 前提シーケント自動生成） ---
+
+/** TAB規則適用結果 */
+export type ApplyTabRuleResult = {
+  readonly workspace: WorkspaceState;
+  /** 結論ノードID（規則適用元のシーケントノード） */
+  readonly conclusionNodeId: string;
+  /** 生成された前提ノードのID（公理なら空、1前提なら1つ、分岐なら2つ） */
+  readonly premiseNodeIds: readonly string[];
+  readonly validation: TabApplicationResult;
+};
+
+/**
+ * シーケントノードにTAB規則を適用し、前提ノードを作成する。
+ * InferenceEdge（TabEdge）を追加し、結論→前提の関係を管理する。
+ *
+ * @param state 現在のワークスペース状態
+ * @param conclusionNodeId 規則を適用するシーケントノード（結論側）のID
+ * @param params TAB規則適用パラメータ
+ * @param premisePositions 前提ノードの配置位置（1前提: [pos], 分岐: [leftPos, rightPos], 公理: []）
+ * @returns 新しいワークスペース状態、前提ノードID群、検証結果
+ */
+export function applyTabRuleAndConnect(
+  state: WorkspaceState,
+  conclusionNodeId: string,
+  params: TabRuleApplicationParams,
+  premisePositions: readonly Point[],
+): ApplyTabRuleResult {
+  // バリデーション実行
+  const validation = validateTabApplication(params);
+
+  if (Either.isLeft(validation)) {
+    return {
+      workspace: state,
+      conclusionNodeId,
+      premiseNodeIds: [],
+      validation,
+    };
+  }
+
+  const result = validation.right;
+  let ws = state;
+  const premiseNodeIds: string[] = [];
+
+  // 結果に応じてノードとエッジを生成
+  const edge = createTabEdgeFromResult(params, result, conclusionNodeId);
+
+  switch (result._tag) {
+    case "tab-axiom-result": {
+      // 公理: 前提ノードなし
+      ws = addInferenceEdge(ws, edge);
+      break;
+    }
+    case "tab-single-result": {
+      // 1前提: 前提ノードを1つ作成
+      const pos = premisePositions[0] ?? { x: 0, y: 0 };
+      const premiseId = `node-${String(ws.nextNodeId) satisfies string}`;
+      ws = addNode(ws, "axiom", "", pos, result.premiseText);
+      premiseNodeIds.push(premiseId);
+
+      // エッジの premiseNodeId を設定
+      const singleEdge = { ...edge, premiseNodeId: premiseId } as typeof edge;
+      ws = addInferenceEdge(ws, singleEdge);
+
+      // 接続追加
+      ws = addConnection(ws, conclusionNodeId, "out", premiseId, "premise");
+      break;
+    }
+    case "tab-branching-result": {
+      // 2前提: 前提ノードを2つ作成
+      const leftPos = premisePositions[0] ?? { x: 0, y: 0 };
+      const rightPos = premisePositions[1] ?? { x: 0, y: 0 };
+
+      const leftId = `node-${String(ws.nextNodeId) satisfies string}`;
+      ws = addNode(ws, "axiom", "", leftPos, result.leftPremiseText);
+      premiseNodeIds.push(leftId);
+
+      const rightId = `node-${String(ws.nextNodeId) satisfies string}`;
+      ws = addNode(ws, "axiom", "", rightPos, result.rightPremiseText);
+      premiseNodeIds.push(rightId);
+
+      // エッジの前提ノードIDを設定
+      const branchEdge = {
+        ...edge,
+        leftPremiseNodeId: leftId,
+        rightPremiseNodeId: rightId,
+      } as typeof edge;
+      ws = addInferenceEdge(ws, branchEdge);
+
+      // 接続追加
+      ws = addConnection(
+        ws,
+        conclusionNodeId,
+        "out",
+        leftId,
+        "premise-left",
+      );
+      ws = addConnection(
+        ws,
+        conclusionNodeId,
+        "out",
+        rightId,
+        "premise-right",
+      );
+      break;
+    }
+  }
+
+  return {
+    workspace: ws,
+    conclusionNodeId,
+    premiseNodeIds,
+    validation,
+  };
+}
+
 // --- コピー＆ペースト ---
 
 /**
@@ -1110,6 +1236,12 @@ export function revalidateInferenceConclusions(
             return { ...node, formulaText: "" };
           }
         }
+        return node;
+      }
+
+      // TABエッジはシーケント操作のため、formulaTextの自動計算は行わない
+      // TABの前提シーケントは規則適用時に計算済み
+      if (isTabInferenceEdge(edge)) {
         return node;
       }
 

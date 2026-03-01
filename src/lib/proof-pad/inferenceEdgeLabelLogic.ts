@@ -8,15 +8,25 @@
  */
 
 import type { InferenceEdge } from "./inferenceEdge";
-import { getInferenceEdgeLabel, isHilbertInferenceEdge } from "./inferenceEdge";
+import {
+  getInferenceEdgeLabel,
+  isHilbertInferenceEdge,
+  isTabInferenceEdge,
+} from "./inferenceEdge";
 
 // --- ラベルバッジ色 ---
 
 /** ND推論規則のデフォルトバッジ色 */
 const ND_BADGE_COLOR = "var(--color-badge-nd, #0984e3)";
 
+/** TAB推論規則のデフォルトバッジ色 */
+const TAB_BADGE_COLOR = "var(--color-badge-tab, #d63031)";
+
 /** 推論規則の種別に応じたバッジ背景色 */
 export function getInferenceEdgeBadgeColor(edge: InferenceEdge): string {
+  if (isTabInferenceEdge(edge)) {
+    return TAB_BADGE_COLOR;
+  }
   if (!isHilbertInferenceEdge(edge)) {
     return ND_BADGE_COLOR;
   }
@@ -95,6 +105,18 @@ export function getPremiseRole(
     case "nd-universal-elim":
     case "nd-existential-intro":
       if (edge.premiseNodeId === premiseNodeId) return "premise";
+      return undefined;
+    // TAB 1前提系
+    case "tab-single":
+      if (edge.premiseNodeId === premiseNodeId) return "premise";
+      return undefined;
+    // TAB 2前提（分岐）系
+    case "tab-branching":
+      if (edge.leftPremiseNodeId === premiseNodeId) return "left";
+      if (edge.rightPremiseNodeId === premiseNodeId) return "right";
+      return undefined;
+    // TAB 公理（0前提）
+    case "tab-axiom":
       return undefined;
   }
 }

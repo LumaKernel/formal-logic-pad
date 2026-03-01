@@ -9,7 +9,7 @@
  */
 
 import type { InferenceEdge } from "./inferenceEdge";
-import { isNdInferenceEdge } from "./inferenceEdge";
+import { isNdInferenceEdge, isTabInferenceEdge } from "./inferenceEdge";
 import { greekLetters } from "../logic-core/greekLetters";
 import type {
   SubstitutionEntries,
@@ -55,6 +55,10 @@ export function createEditStateFromEdge(
 ): EdgeBadgeEditState | undefined {
   // NDエッジはパラメータ編集不可
   if (isNdInferenceEdge(edge)) {
+    return undefined;
+  }
+  // TABエッジはパラメータ編集不可
+  if (isTabInferenceEdge(edge)) {
     return undefined;
   }
   switch (edge._tag) {

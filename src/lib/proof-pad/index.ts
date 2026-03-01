@@ -41,6 +41,7 @@ export {
   applyMPAndConnect,
   applyGenAndConnect,
   applySubstitutionAndConnect,
+  applyTabRuleAndConnect,
   updateInferenceEdgeGenVariableName,
   updateInferenceEdgeSubstitutionEntries,
   copySelectedNodes,
@@ -65,6 +66,7 @@ export type {
   ApplyMPResult,
   ApplyGenResult,
   ApplySubstitutionResult,
+  ApplyTabRuleResult,
   MergeNodesResult,
 } from "./workspaceState";
 export {
@@ -166,6 +168,32 @@ export type {
   NdApplicationError,
   NdApplicationResult,
 } from "./ndApplicationLogic";
+export {
+  splitSequentText,
+  formatSequentText,
+  parseSequentFormulas,
+  validateTabApplicationEffect,
+  validateTabApplication,
+  createTabEdgeFromResult,
+  isTabAxiomRule,
+  isTabSinglePremiseRule,
+  getTabErrorMessage,
+  TabSequentParseError,
+  TabPrincipalPositionOutOfRange,
+  TabPrincipalFormulaMismatch,
+  TabEigenVariableError,
+  TabTermParseError,
+  TabExchangePositionError,
+} from "./tabApplicationLogic";
+export type {
+  TabRuleApplicationParams,
+  TabSinglePremiseResult,
+  TabBranchingResult,
+  TabAxiomResult,
+  TabApplicationSuccess,
+  TabApplicationError,
+  TabApplicationResult,
+} from "./tabApplicationLogic";
 export {
   PROOF_NODE_KINDS,
   AXIOM_PORTS,

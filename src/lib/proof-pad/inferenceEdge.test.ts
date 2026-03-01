@@ -9,6 +9,7 @@ import {
   replaceNodeIdInEdge,
   isHilbertInferenceEdge,
   isNdInferenceEdge,
+  isTabInferenceEdge,
   type InferenceEdge,
   type MPEdge,
   type GenEdge,
@@ -28,6 +29,9 @@ import {
   type NdUniversalElimEdge,
   type NdExistentialIntroEdge,
   type NdExistentialElimEdge,
+  type TabSinglePremiseEdge,
+  type TabBranchingEdge,
+  type TabAxiomEdge,
 } from "./inferenceEdge";
 
 describe("inferenceEdge", () => {
@@ -988,6 +992,130 @@ describe("inferenceEdge", () => {
       expect(result).toEqual({
         ...ndDisjunctionElim,
         leftCasePremiseNodeId: "new-p11",
+      });
+    });
+  });
+
+  // --- TAB エッジテスト ---
+
+  describe("isTabInferenceEdge", () => {
+    const tabSingle: TabSinglePremiseEdge = {
+      _tag: "tab-single",
+      ruleId: "double-negation",
+      conclusionNodeId: "c1",
+      premiseNodeId: "p1",
+      conclusionText: "¬¬φ",
+    };
+    const tabBranching: TabBranchingEdge = {
+      _tag: "tab-branching",
+      ruleId: "neg-conjunction",
+      conclusionNodeId: "c1",
+      leftPremiseNodeId: "p1",
+      rightPremiseNodeId: "p2",
+      leftConclusionText: "¬φ",
+      rightConclusionText: "¬ψ",
+      conclusionText: "¬(φ∧ψ)",
+    };
+    const tabAxiom: TabAxiomEdge = {
+      _tag: "tab-axiom",
+      ruleId: "bs",
+      conclusionNodeId: "c1",
+      conclusionText: "¬φ, φ",
+    };
+
+    it("TABエッジを正しく判定する", () => {
+      expect(isTabInferenceEdge(tabSingle)).toBe(true);
+      expect(isTabInferenceEdge(tabBranching)).toBe(true);
+      expect(isTabInferenceEdge(tabAxiom)).toBe(true);
+    });
+
+    it("非TABエッジを正しく判定する", () => {
+      const mpEdge: MPEdge = {
+        _tag: "mp",
+        conclusionNodeId: "c1",
+        leftPremiseNodeId: "p1",
+        rightPremiseNodeId: "p2",
+        conclusionText: "",
+      };
+      expect(isTabInferenceEdge(mpEdge)).toBe(false);
+      expect(isHilbertInferenceEdge(tabSingle)).toBe(false);
+      expect(isNdInferenceEdge(tabSingle)).toBe(false);
+    });
+
+    describe("getInferenceEdgeLabel for TAB edges", () => {
+      it("returns display name for tab-single", () => {
+        expect(getInferenceEdgeLabel(tabSingle)).toBe("¬¬");
+      });
+
+      it("returns display name for tab-branching", () => {
+        expect(getInferenceEdgeLabel(tabBranching)).toBe("¬∧");
+      });
+
+      it("returns display name for tab-axiom", () => {
+        expect(getInferenceEdgeLabel(tabAxiom)).toBe("BS");
+      });
+    });
+
+    describe("getInferenceEdgePremiseNodeIds for TAB edges", () => {
+      it("returns premise for tab-single", () => {
+        expect(getInferenceEdgePremiseNodeIds(tabSingle)).toEqual(["p1"]);
+      });
+
+      it("returns empty for tab-single with undefined premise", () => {
+        const edge: TabSinglePremiseEdge = {
+          ...tabSingle,
+          premiseNodeId: undefined,
+        };
+        expect(getInferenceEdgePremiseNodeIds(edge)).toEqual([]);
+      });
+
+      it("returns both premises for tab-branching", () => {
+        expect(getInferenceEdgePremiseNodeIds(tabBranching)).toEqual([
+          "p1",
+          "p2",
+        ]);
+      });
+
+      it("returns empty for tab-axiom", () => {
+        expect(getInferenceEdgePremiseNodeIds(tabAxiom)).toEqual([]);
+      });
+    });
+
+    describe("remapEdgeNodeIds for TAB edges", () => {
+      it("remaps tab-single edge node IDs", () => {
+        const result = remapEdgeNodeIds(
+          tabSingle,
+          (id) => `new-${id satisfies string}`,
+        );
+        expect(result).toEqual({
+          ...tabSingle,
+          conclusionNodeId: "new-c1",
+          premiseNodeId: "new-p1",
+        });
+      });
+
+      it("remaps tab-branching edge node IDs", () => {
+        const result = remapEdgeNodeIds(
+          tabBranching,
+          (id) => `new-${id satisfies string}`,
+        );
+        expect(result).toEqual({
+          ...tabBranching,
+          conclusionNodeId: "new-c1",
+          leftPremiseNodeId: "new-p1",
+          rightPremiseNodeId: "new-p2",
+        });
+      });
+
+      it("remaps tab-axiom edge node IDs", () => {
+        const result = remapEdgeNodeIds(
+          tabAxiom,
+          (id) => `new-${id satisfies string}`,
+        );
+        expect(result).toEqual({
+          ...tabAxiom,
+          conclusionNodeId: "new-c1",
+        });
       });
     });
   });

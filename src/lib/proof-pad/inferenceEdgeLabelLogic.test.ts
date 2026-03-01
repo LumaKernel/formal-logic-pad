@@ -16,6 +16,9 @@ import type {
   NdWeakeningEdge,
   NdDisjunctionElimEdge,
   NdExistentialElimEdge,
+  TabSinglePremiseEdge,
+  TabBranchingEdge,
+  TabAxiomEdge,
 } from "./inferenceEdge";
 
 describe("inferenceEdgeLabelLogic", () => {
@@ -477,6 +480,86 @@ describe("inferenceEdgeLabelLogic", () => {
       expect(result.label).toBe("MP:→");
       expect(result.tag).toBe("mp");
       expect(result.badgeColor).toContain("--color-badge-mp");
+    });
+  });
+
+  // --- TABエッジ ---
+
+  describe("TAB badge color", () => {
+    it("TAB 1前提エッジのバッジ色を返す", () => {
+      const edge: TabSinglePremiseEdge = {
+        _tag: "tab-single",
+        ruleId: "double-negation",
+        conclusionNodeId: "c1",
+        premiseNodeId: "p1",
+        conclusionText: "¬¬φ",
+      };
+      expect(getInferenceEdgeBadgeColor(edge)).toContain("--color-badge-tab");
+    });
+
+    it("TAB 分岐エッジのバッジ色を返す", () => {
+      const edge: TabBranchingEdge = {
+        _tag: "tab-branching",
+        ruleId: "neg-conjunction",
+        conclusionNodeId: "c1",
+        leftPremiseNodeId: "p1",
+        rightPremiseNodeId: "p2",
+        leftConclusionText: "¬φ",
+        rightConclusionText: "¬ψ",
+        conclusionText: "¬(φ∧ψ)",
+      };
+      expect(getInferenceEdgeBadgeColor(edge)).toContain("--color-badge-tab");
+    });
+
+    it("TAB 公理エッジのバッジ色を返す", () => {
+      const edge: TabAxiomEdge = {
+        _tag: "tab-axiom",
+        ruleId: "bs",
+        conclusionNodeId: "c1",
+        conclusionText: "¬φ, φ",
+      };
+      expect(getInferenceEdgeBadgeColor(edge)).toContain("--color-badge-tab");
+    });
+  });
+
+  describe("TAB premise role", () => {
+    it("TAB 1前提の premise ロールを返す", () => {
+      const edge: TabSinglePremiseEdge = {
+        _tag: "tab-single",
+        ruleId: "conjunction",
+        conclusionNodeId: "c1",
+        premiseNodeId: "p1",
+        conclusionText: "φ∧ψ",
+      };
+      expect(getPremiseRole(edge, "p1")).toBe("premise");
+      expect(getPremiseRole(edge, "unknown")).toBeUndefined();
+    });
+
+    it("TAB 分岐の left/right ロールを返す", () => {
+      const edge: TabBranchingEdge = {
+        _tag: "tab-branching",
+        ruleId: "disjunction",
+        conclusionNodeId: "c1",
+        leftPremiseNodeId: "p1",
+        rightPremiseNodeId: "p2",
+        leftConclusionText: "φ",
+        rightConclusionText: "ψ",
+        conclusionText: "φ∨ψ",
+      };
+      expect(getPremiseRole(edge, "p1")).toBe("left");
+      expect(getPremiseRole(edge, "p2")).toBe("right");
+      expect(getPremiseRole(edge, "unknown")).toBeUndefined();
+    });
+
+    it("TAB 公理は undefined を返す", () => {
+      const edge: TabAxiomEdge = {
+        _tag: "tab-axiom",
+        ruleId: "bs",
+        conclusionNodeId: "c1",
+        conclusionText: "¬φ, φ",
+      };
+      expect(getPremiseRole(edge, "c1")).toBeUndefined();
+      expect(getPremiseRole(edge, "p1")).toBeUndefined();
     });
   });
 });

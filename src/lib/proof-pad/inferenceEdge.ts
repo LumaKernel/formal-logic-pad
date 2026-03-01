@@ -20,6 +20,10 @@
 
 import type { SubstitutionEntries } from "./substitutionApplicationLogic";
 import type { AssumptionId } from "../logic-core/naturalDeduction";
+import {
+  type TabRuleId,
+  getTabRuleDisplayName,
+} from "../logic-core/tableauCalculus";
 
 // ─── Hilbert系 推論エッジ型 ─────────────────────────────────
 
@@ -329,10 +333,83 @@ export type NdInferenceEdge =
   | NdExistentialIntroEdge
   | NdExistentialElimEdge;
 
+// ─── TAB (タブロー式シーケント計算) 推論エッジ型 ─────────
+
+/**
+ * TAB 1前提規則エッジ。
+ * 結論シーケントノードから、1つの前提シーケントノードへの関係。
+ * 対象規則: e, ¬¬, ∧, ¬∨, ¬→, ∀, ¬∀, ∃, ¬∃
+ */
+export type TabSinglePremiseEdge = {
+  readonly _tag: "tab-single";
+  /** 適用された規則 */
+  readonly ruleId: TabRuleId;
+  /** 結論シーケントノードのID */
+  readonly conclusionNodeId: string;
+  /** 前提シーケントノードのID */
+  readonly premiseNodeId: string | undefined;
+  /** 前提シーケントのテキスト（自動計算結果） */
+  readonly conclusionText: string;
+  /** 追加パラメータ: 固有変数名（¬∀, ∃規則用） */
+  readonly eigenVariable?: string;
+  /** 追加パラメータ: 代入項テキスト（∀, ¬∃規則用） */
+  readonly termText?: string;
+  /** 追加パラメータ: 交換位置（e規則用） */
+  readonly exchangePosition?: number;
+};
+
+/**
+ * TAB 2前提（分岐）規則エッジ。
+ * 結論シーケントノードから、2つの前提シーケントノードへの関係。
+ * 対象規則: ¬∧, ∨, →
+ */
+export type TabBranchingEdge = {
+  readonly _tag: "tab-branching";
+  /** 適用された規則 */
+  readonly ruleId: TabRuleId;
+  /** 結論シーケントノードのID */
+  readonly conclusionNodeId: string;
+  /** 左前提シーケントノードのID */
+  readonly leftPremiseNodeId: string | undefined;
+  /** 右前提シーケントノードのID */
+  readonly rightPremiseNodeId: string | undefined;
+  /** 左前提シーケントのテキスト */
+  readonly leftConclusionText: string;
+  /** 右前提シーケントのテキスト */
+  readonly rightConclusionText: string;
+  /** conclusionTextは左前提テキストをフォールバックとして使用 */
+  readonly conclusionText: string;
+};
+
+/**
+ * TAB 公理（0前提）マークエッジ。
+ * シーケントノードが公理（BS or ⊥）であることを示す。
+ * 前提なし。
+ * 対象規則: bs, bottom
+ */
+export type TabAxiomEdge = {
+  readonly _tag: "tab-axiom";
+  /** 適用された規則 */
+  readonly ruleId: TabRuleId;
+  /** 公理ノードのID */
+  readonly conclusionNodeId: string;
+  /** 公理テキスト */
+  readonly conclusionText: string;
+};
+
+/** TAB推論エッジのunion型 */
+export type TabInferenceEdge =
+  | TabSinglePremiseEdge
+  | TabBranchingEdge
+  | TabAxiomEdge;
+
 // ─── 統合union型 ─────────────────────────────────────────
 
-/** 推論エッジの union 型（Hilbert系 + ND） */
-export type InferenceEdge = HilbertInferenceEdge | NdInferenceEdge;
+/** 推論エッジの union 型（Hilbert系 + ND + TAB） */
+export type InferenceEdge =
+  | HilbertInferenceEdge
+  | NdInferenceEdge
+  | TabInferenceEdge;
 
 // ─── 判別ヘルパー ────────────────────────────────────────
 
@@ -361,6 +438,15 @@ export function isNdInferenceEdge(edge: InferenceEdge) {
     edge._tag === "nd-universal-elim" ||
     edge._tag === "nd-existential-intro" ||
     edge._tag === "nd-existential-elim"
+  );
+}
+
+/** TABのエッジかどうかを判定する */
+export function isTabInferenceEdge(edge: InferenceEdge) {
+  return (
+    edge._tag === "tab-single" ||
+    edge._tag === "tab-branching" ||
+    edge._tag === "tab-axiom"
   );
 }
 
@@ -444,6 +530,13 @@ export function getInferenceEdgeLabel(edge: InferenceEdge): string {
         : "∃I";
     case "nd-existential-elim":
       return "∃E";
+    // TAB
+    case "tab-single":
+      return getTabRuleDisplayName(edge.ruleId);
+    case "tab-branching":
+      return getTabRuleDisplayName(edge.ruleId);
+    case "tab-axiom":
+      return getTabRuleDisplayName(edge.ruleId);
   }
 }
 
@@ -557,6 +650,21 @@ export function getInferenceEdgePremiseNodeIds(
       }
       return ids;
     }
+    // TAB
+    case "tab-single":
+      return edge.premiseNodeId !== undefined ? [edge.premiseNodeId] : [];
+    case "tab-branching": {
+      const ids: string[] = [];
+      if (edge.leftPremiseNodeId !== undefined) {
+        ids.push(edge.leftPremiseNodeId);
+      }
+      if (edge.rightPremiseNodeId !== undefined) {
+        ids.push(edge.rightPremiseNodeId);
+      }
+      return ids;
+    }
+    case "tab-axiom":
+      return [];
   }
 }
 
@@ -692,6 +800,25 @@ export function remapEdgeNodeIds(
         disjunctionPremiseNodeId: mapOpt(edge.disjunctionPremiseNodeId),
         leftCasePremiseNodeId: mapOpt(edge.leftCasePremiseNodeId),
         rightCasePremiseNodeId: mapOpt(edge.rightCasePremiseNodeId),
+      };
+    // TAB
+    case "tab-single":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
+        premiseNodeId: mapOpt(edge.premiseNodeId),
+      };
+    case "tab-branching":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
+        leftPremiseNodeId: mapOpt(edge.leftPremiseNodeId),
+        rightPremiseNodeId: mapOpt(edge.rightPremiseNodeId),
+      };
+    case "tab-axiom":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
       };
   }
 }

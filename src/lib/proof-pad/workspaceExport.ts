@@ -371,7 +371,41 @@ const NdExistentialElimEdgeSchema = Schema.Struct({
   conclusionText: Schema.String,
 });
 
-/** InferenceEdgeのSchema（Hilbert系 + ND） */
+// --- TAB推論エッジ Schema ---
+
+/** TAB 1前提規則エッジのSchema */
+const TabSinglePremiseEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("tab-single"),
+  ruleId: Schema.String,
+  conclusionNodeId: Schema.String,
+  premiseNodeId: Schema.optional(Schema.String),
+  conclusionText: Schema.String,
+  eigenVariable: Schema.optional(Schema.String),
+  termText: Schema.optional(Schema.String),
+  exchangePosition: Schema.optional(Schema.Number),
+});
+
+/** TAB 2前提（分岐）規則エッジのSchema */
+const TabBranchingEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("tab-branching"),
+  ruleId: Schema.String,
+  conclusionNodeId: Schema.String,
+  leftPremiseNodeId: Schema.optional(Schema.String),
+  rightPremiseNodeId: Schema.optional(Schema.String),
+  leftConclusionText: Schema.String,
+  rightConclusionText: Schema.String,
+  conclusionText: Schema.String,
+});
+
+/** TAB 公理（0前提）マークエッジのSchema */
+const TabAxiomEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("tab-axiom"),
+  ruleId: Schema.String,
+  conclusionNodeId: Schema.String,
+  conclusionText: Schema.String,
+});
+
+/** InferenceEdgeのSchema（Hilbert系 + ND + TAB） */
 const InferenceEdgeSchema = Schema.Union(
   // Hilbert系
   MPEdgeSchema,
@@ -393,6 +427,10 @@ const InferenceEdgeSchema = Schema.Union(
   NdUniversalElimEdgeSchema,
   NdExistentialIntroEdgeSchema,
   NdExistentialElimEdgeSchema,
+  // TAB
+  TabSinglePremiseEdgeSchema,
+  TabBranchingEdgeSchema,
+  TabAxiomEdgeSchema,
 );
 
 /** WorkspaceGoalのSchema */
