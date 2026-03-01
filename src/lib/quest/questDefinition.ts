@@ -51,7 +51,8 @@ export type QuestCategory =
   | "group-proofs"
   | "nd-basics"
   | "tab-basics"
-  | "at-basics";
+  | "at-basics"
+  | "sc-basics";
 
 /** カテゴリのメタデータ */
 export type QuestCategoryMeta = {
@@ -143,6 +144,13 @@ export const questCategories: readonly QuestCategoryMeta[] = [
     description:
       "分析的タブロー（Analytic Tableau）での反駁証明。署名付き論理式のα/β規則を適用し、全枝を閉じる。",
     order: 13,
+  },
+  {
+    id: "sc-basics",
+    label: "シーケント計算の基礎",
+    description:
+      "ゲンツェン流シーケント計算（LK/LJ）での証明。構造規則と論理規則を組み合わせてシーケントを導出する。",
+    order: 14,
   },
 ] as const;
 

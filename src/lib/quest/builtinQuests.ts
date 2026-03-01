@@ -2621,6 +2621,268 @@ const qAt07UniversalToExistential: QuestDefinition = {
   version: 1,
 };
 
+// --- SCクエスト: シーケント計算の基礎 ---
+
+const qSc01Identity: QuestDefinition = {
+  id: "sc-01",
+  category: "sc-basics",
+  title: "恒等律 (Identity)",
+  description:
+    "φ → φ をシーケント計算で証明せよ。⇒→ 規則（→右）と Identity 公理で導出する。",
+  difficulty: 1,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "phi -> phi",
+      label: "Goal: φ → φ",
+    },
+  ],
+  hints: [
+    "⇒→ 規則を使うと、⇒ φ → φ を φ ⇒ φ に帰着できます。",
+    "φ ⇒ φ は Identity 公理そのものです。",
+  ],
+  estimatedSteps: 2,
+  learningPoint:
+    "シーケント計算の ⇒→ 規則は、含意を証明するために前件に仮定を移す操作に相当する。Identity 公理はすべての証明の基礎。",
+  order: 1,
+  version: 1,
+};
+
+const qSc02WeakeningLeft: QuestDefinition = {
+  id: "sc-02",
+  category: "sc-basics",
+  title: "左弱化 (Weakening Left)",
+  description:
+    "φ → (ψ → φ) をシーケント計算で証明せよ。弱化規則（WL）で不要な前件を追加する。",
+  difficulty: 1,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "phi -> (psi -> phi)",
+      label: "Goal: φ → (ψ → φ)",
+    },
+  ],
+  hints: [
+    "⇒→ 規則を2回使って φ, ψ ⇒ φ に帰着します。",
+    "φ ⇒ φ は Identity。そこに WL（左弱化）で ψ を追加すると φ, ψ ⇒ φ になります。",
+  ],
+  estimatedSteps: 4,
+  learningPoint:
+    "弱化規則（Weakening）は前件に不要な式を追加する構造規則。Hilbert系のK公理 φ → (ψ → φ) に相当する。",
+  order: 2,
+  version: 1,
+};
+
+const qSc03ContractionLeft: QuestDefinition = {
+  id: "sc-03",
+  category: "sc-basics",
+  title: "左縮約 (Contraction Left)",
+  description:
+    "(φ → (φ → ψ)) → (φ → ψ) をシーケント計算で証明せよ。縮約規則（CL）で重複する前件をまとめる。",
+  difficulty: 2,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "(phi -> (phi -> psi)) -> (phi -> psi)",
+      label: "Goal: (φ → (φ → ψ)) → (φ → ψ)",
+    },
+  ],
+  hints: [
+    "⇒→ 規則を2回使い、φ → (φ → ψ), φ ⇒ ψ に帰着します。",
+    "→⇒ 規則で φ → (φ → ψ) を分解: φ ⇒ φ と φ → ψ, φ ⇒ ψ の2つの前提。",
+    "φ → ψ, φ ⇒ ψ も →⇒ で分解。CL（左縮約）で重複するφをまとめます。",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "縮約規則（Contraction）は前件の重複を除去する構造規則。仮定を複数回使う証明で必要になる。",
+  order: 3,
+  version: 1,
+};
+
+const qSc04ExchangeLeft: QuestDefinition = {
+  id: "sc-04",
+  category: "sc-basics",
+  title: "交換 (Exchange)",
+  description:
+    "(φ → (ψ → χ)) → (ψ → (φ → χ)) をシーケント計算で証明せよ。交換規則（XL）で前件の順序を入れ替える。",
+  difficulty: 2,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "(phi -> (psi -> chi)) -> (psi -> (phi -> chi))",
+      label: "Goal: (φ → (ψ → χ)) → (ψ → (φ → χ))",
+    },
+  ],
+  hints: [
+    "⇒→ 規則を3回使い、φ → (ψ → χ), ψ, φ ⇒ χ に帰着します。",
+    "→⇒ 規則で φ → (ψ → χ) を分解します。",
+    "XL（左交換）で前件の順序を入れ替えて必要な形にします。",
+  ],
+  estimatedSteps: 8,
+  learningPoint:
+    "交換規則（Exchange）は前件の順序を入れ替える構造規則。Hilbert系では暗黙だが、シーケント計算では明示的に操作する。",
+  order: 4,
+  version: 1,
+};
+
+const qSc05ConjunctionRight: QuestDefinition = {
+  id: "sc-05",
+  category: "sc-basics",
+  title: "連言導入 (∧R)",
+  description:
+    "φ → (ψ → (φ /\\ ψ)) をシーケント計算で証明せよ。⇒∧ 規則で連言を構成する。",
+  difficulty: 2,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "phi -> (psi -> (phi /\\ psi))",
+      label: "Goal: φ → (ψ → (φ ∧ ψ))",
+    },
+  ],
+  hints: [
+    "⇒→ を2回使って φ, ψ ⇒ φ ∧ ψ に帰着します。",
+    "⇒∧ 規則は2つの前提を要求: φ, ψ ⇒ φ と φ, ψ ⇒ ψ。",
+    "それぞれ Identity + WL で導出します。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "⇒∧（∧右）規則は連言を導入する論理規則。2つの前提が必要で、両方の成分を別々に証明する。",
+  order: 5,
+  version: 1,
+};
+
+const qSc06DisjunctionLeft: QuestDefinition = {
+  id: "sc-06",
+  category: "sc-basics",
+  title: "選言除去 (∨L)",
+  description:
+    "(φ \\/ ψ) → ((φ → χ) → ((ψ → χ) → χ)) をシーケント計算で証明せよ。∨⇒ 規則で選言を分解する。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "(phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))",
+      label: "Goal: (φ ∨ ψ) → ((φ → χ) → ((ψ → χ) → χ))",
+    },
+  ],
+  hints: [
+    "⇒→ を3回使い、φ ∨ ψ, φ → χ, ψ → χ ⇒ χ に帰着します。",
+    "∨⇒ 規則で φ ∨ ψ を分解: φ, φ → χ, ψ → χ ⇒ χ と ψ, φ → χ, ψ → χ ⇒ χ の2前提。",
+    "各前提で →⇒ 規則を使って χ を導出します。",
+  ],
+  estimatedSteps: 12,
+  learningPoint:
+    "∨⇒（∨左）規則は選言を場合分けする論理規則。各分岐で結論を個別に証明する必要がある。",
+  order: 6,
+  version: 1,
+};
+
+const qSc07ExcludedMiddle: QuestDefinition = {
+  id: "sc-07",
+  category: "sc-basics",
+  title: "排中律 (LK)",
+  description:
+    "φ \\/ ~φ をシーケント計算（LK体系）で証明せよ。古典論理の核心。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "phi \\/ ~phi",
+      label: "Goal: φ ∨ ¬φ",
+    },
+  ],
+  hints: [
+    "⇒∨ 規則と ⇒¬ 規則を組み合わせます。",
+    "⇒ φ ∨ ¬φ から、⇒∨₂ で ⇒ ¬φ に帰着し、⇒¬ で φ ⇒ に帰着。",
+    "φ ⇒ φ ∨ ¬φ は ⇒∨₁ + Identity。LKでは右辺が複数の式を持てるのがポイント。",
+    "右縮約（CR）で右辺の φ ∨ ¬φ をまとめます。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "排中律 φ ∨ ¬φ は LK（古典論理）特有の定理。LJ（直観主義論理）では証明できない。LKでは右辺に複数の式を許すことで証明可能になる。",
+  order: 7,
+  version: 1,
+};
+
+const qSc08DoubleNegationElim: QuestDefinition = {
+  id: "sc-08",
+  category: "sc-basics",
+  title: "二重否定除去 (LK)",
+  description:
+    "~~φ → φ をシーケント計算（LK体系）で証明せよ。¬⇒ と ⇒¬ の組み合わせ。",
+  difficulty: 2,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "~~phi -> phi",
+      label: "Goal: ¬¬φ → φ",
+    },
+  ],
+  hints: [
+    "⇒→ で ¬¬φ ⇒ φ に帰着します。",
+    "¬⇒ 規則で ¬¬φ を分解: ⇒ ¬φ, φ の前提が必要。",
+    "⇒¬ 規則で ⇒ ¬φ を φ ⇒ に帰着。φ ⇒ φ は Identity。",
+  ],
+  estimatedSteps: 4,
+  learningPoint:
+    "二重否定除去 ¬¬φ → φ はLK特有。¬⇒ 規則は否定を前件から除去し、中身を後件に移す。",
+  order: 8,
+  version: 1,
+};
+
+const qSc09Contraposition: QuestDefinition = {
+  id: "sc-09",
+  category: "sc-basics",
+  title: "対偶 (Contraposition)",
+  description:
+    "(φ → ψ) → (~ψ → ~φ) をシーケント計算で証明せよ。否定と含意の相互作用。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> (~psi -> ~phi)",
+      label: "Goal: (φ → ψ) → (¬ψ → ¬φ)",
+    },
+  ],
+  hints: [
+    "⇒→ を2回使い、φ → ψ, ¬ψ ⇒ ¬φ に帰着します。",
+    "⇒¬ で φ → ψ, ¬ψ, φ ⇒ に帰着します。",
+    "→⇒ で φ → ψ を分解し、¬⇒ で ¬ψ を分解します。",
+  ],
+  estimatedSteps: 8,
+  learningPoint:
+    "対偶の証明は含意規則と否定規則の典型的な組み合わせ。シーケント計算では各規則の相互作用が明確に見える。",
+  order: 9,
+  version: 1,
+};
+
+const qSc10DeMorgan: QuestDefinition = {
+  id: "sc-10",
+  category: "sc-basics",
+  title: "ドモルガンの法則",
+  description:
+    "~(φ /\\ ψ) -> (~φ \\/ ~ψ) をシーケント計算で証明せよ。否定と連言・選言の関係。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "~(phi /\\ psi) -> (~phi \\/ ~psi)",
+      label: "Goal: ¬(φ ∧ ψ) → (¬φ ∨ ¬ψ)",
+    },
+  ],
+  hints: [
+    "⇒→ で ¬(φ ∧ ψ) ⇒ ¬φ ∨ ¬ψ に帰着します。",
+    "¬⇒ 規則で ¬(φ ∧ ψ) を分解: ⇒ φ ∧ ψ, ¬φ ∨ ¬ψ の前提。",
+    "⇒∧ で φ と ψ を別々に証明。⇒∨ と ⇒¬ を組み合わせます。",
+    "LKでは右辺に複数の式を持てるので、¬φ ∨ ¬ψ を右辺に残しながら操作できます。",
+  ],
+  estimatedSteps: 10,
+  learningPoint:
+    "ドモルガンの法則はLKの複数式右辺を活用する典型例。否定と連言/選言の双対性がシーケント計算で明確に表現される。",
+  order: 10,
+  version: 1,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -2725,4 +2987,14 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qAt05DeMorgan,
   qAt06Distribution,
   qAt07UniversalToExistential,
+  qSc01Identity,
+  qSc02WeakeningLeft,
+  qSc03ContractionLeft,
+  qSc04ExchangeLeft,
+  qSc05ConjunctionRight,
+  qSc06DisjunctionLeft,
+  qSc07ExcludedMiddle,
+  qSc08DoubleNegationElim,
+  qSc09Contraposition,
+  qSc10DeMorgan,
 ];
