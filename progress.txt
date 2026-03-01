@@ -6930,3 +6930,36 @@
   - Effect.genでのバリデーションチェーン→公開APIはEither返却パターンがTAB規則にも適合
   - InferenceEdge union拡張時の変更箇所: inferenceEdge.ts, workspaceExport.ts, inferenceEdgeLabelLogic.ts, edgeBadgeEditLogic.ts, index.ts（exhaustiveチェックで検出可能）
 ---
+
+## 2026-03-01 - B2-4: TAB規則適用UI統合
+- タスク: B2. TABの証明木構築UI（B2-4: TAB規則適用UI統合）
+- **B2完了！** 全サブタスク(B2-1〜B2-4)の実装完了
+- 実装した内容:
+  - TabRulePalette: `onRuleClick`, `selectedRuleId` props追加、規則アイテムをクリック可能に
+  - ProofWorkspace: `TabSelectionState` ステートマシン追加（idle/selecting-node）
+  - 規則選択バナー: 「Click a sequent node to apply {ruleName}」+ Cancel ボタン
+  - `handleNodeClickForTab`: 規則に応じた追加パラメータ収集（globalThis.prompt）+ applyTabRuleAndConnect呼び出し
+  - エラーハンドリング: getTabErrorMessage + globalThis.alert
+  - ProofMessages: TAB関連9メッセージ追加（en.json, ja.json, WorkspaceContent.tsx）
+- 変更したファイル:
+  - `src/lib/proof-pad/TabRulePalette.tsx` - onRuleClick/selectedRuleId props、クリック可能な規則アイテム
+  - `src/lib/proof-pad/TabRulePalette.test.tsx` - 8テスト追加（クリック、Enter/Space、選択状態、ホバー）
+  - `src/lib/proof-pad/proofMessages.ts` - TABメッセージ9キー追加
+  - `src/lib/proof-pad/proofMessages.test.ts` - tabBannerSelectNodeフォーマットテスト追加
+  - `src/lib/proof-pad/ProofWorkspace.tsx` - TabSelectionState、ハンドラ群、バナーJSX、パレット接続
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` - 4テスト追加（バナー表示/キャンセル/切替/ハイライト）
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` - TABメッセージi18n接続
+  - `messages/en.json`, `messages/ja.json` - TAB翻訳キー追加
+- カバレッジ: ベースライン Stmts 98.12%, Branch 91.66%, Funcs 88.88%, Lines 99.04%
+  → 完了後 Stmts 97.65%, Branch 91.1%, Funcs 88.88%, Lines 98.49%
+  （ProofWorkspace.tsx UI統合コード追加による微減。純粋ロジック・パレット100%維持）
+- スクリーンショット:
+  - `.screenshots/tab-rule-palette-initial.png` - TABパレット初期状態
+  - `.screenshots/tab-rule-selection-banner.png` - ∧規則選択時のバナー表示
+  - `.screenshots/tab-rule-selection-cancelled.png` - キャンセル後の状態
+- **今後のイテレーションへの学び:**
+  - TAB UI統合は既存のMP/Gen/Mergeと同じパターン（SelectionState → handleStart → handleNodeClick → apply）
+  - globalThis.promptで追加パラメータ収集は簡易だが、将来的にはインラインUIに置換可能
+  - ProofWorkspace.tsxの規模が大きいため、新しい選択フロー追加時はisSelectionActive更新を忘れずに
+  - TabRulePaletteのuseMemoでruleItems生成: onRuleClick/selectedRuleIdの変更でリレンダリング
+---
