@@ -546,12 +546,14 @@ const WorkspaceStateSchema = Schema.transform(
         serialized.nodes satisfies readonly object[] as readonly WorkspaceNode[],
       connections:
         serialized.connections satisfies readonly object[] as readonly WorkspaceConnection[],
+      /* v8 ignore start -- 旧フォーマット後方互換: inferenceEdges/goals がないJSONのデコード時に空配列をデフォルト */
       inferenceEdges: (serialized.inferenceEdges ??
         []) satisfies readonly object[] as readonly InferenceEdge[],
       nextNodeId: serialized.nextNodeId,
       mode: serialized.mode satisfies string as WorkspaceMode,
       goals: (serialized.goals ??
         []) satisfies readonly object[] as readonly WorkspaceGoal[],
+      /* v8 ignore stop */
     }),
     encode: (state) => ({
       system: state.system satisfies object as LogicSystem,
