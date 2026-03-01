@@ -2162,6 +2162,272 @@ const qNd23UniversalConjunction: QuestDefinition = {
   version: 1,
 };
 
+// --- TABクエスト: タブロー法の基礎 ---
+
+const qTab01Identity: QuestDefinition = {
+  id: "tab-01",
+  category: "tab-basics",
+  title: "恒等律の反駁 (→)",
+  description:
+    "¬(φ → φ) を根として閉じたタブローを構築せよ。¬→規則を適用すると φ と ¬φ が同一枝上に現れ、BSで閉じる。",
+  difficulty: 1,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~(phi -> phi)",
+      label: "Root: ¬(φ → φ) ⇒",
+    },
+  ],
+  hints: [
+    "¬(φ → φ) に ¬→ 規則を適用すると、φ と ¬φ が前件に追加されます。",
+    "φ と ¬φ が同一枝上にあれば BS（基本式）で閉じられます。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "TABでは、証明したい式 φ の否定 ¬φ を根に置き、矛盾を導くことで証明する（反駁法）。¬→ 規則は否定含意を分解する基本規則。",
+  order: 1,
+  version: 1,
+};
+
+const qTab02DoubleNegationElim: QuestDefinition = {
+  id: "tab-02",
+  category: "tab-basics",
+  title: "二重否定除去の反駁 (¬¬)",
+  description:
+    "¬(¬¬φ → φ) を根として閉じたタブローを構築せよ。¬→ で分解し、¬¬ 規則で二重否定を除去する。",
+  difficulty: 1,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~(~~phi -> phi)",
+      label: "Root: ¬(¬¬φ → φ) ⇒",
+    },
+  ],
+  hints: [
+    "¬(¬¬φ → φ) に ¬→ 規則を適用すると、¬¬φ と ¬φ が前件に追加されます。",
+    "¬¬φ に ¬¬ 規則を適用すると φ が前件に追加されます。",
+    "φ と ¬φ が同一枝上にあれば BS で閉じられます。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "TABの ¬¬ 規則は二重否定を除去する。Hilbert系では5ステップ必要な二重否定除去が、TABでは直接的に処理できる。",
+  order: 2,
+  version: 1,
+};
+
+const qTab03ExcludedMiddle: QuestDefinition = {
+  id: "tab-03",
+  category: "tab-basics",
+  title: "排中律の反駁 (¬∨, →)",
+  description:
+    "¬(φ ∨ ¬φ) を根として閉じたタブローを構築せよ。¬∨ 規則で分解すると ¬φ と ¬¬φ が得られる。",
+  difficulty: 1,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~(phi \\/ ~phi)",
+      label: "Root: ¬(φ ∨ ¬φ) ⇒",
+    },
+  ],
+  hints: [
+    "¬(φ ∨ ¬φ) に ¬∨ 規則を適用すると、¬φ と ¬¬φ が前件に追加されます。",
+    "¬¬φ に ¬¬ 規則を適用すると φ が前件に追加されます。",
+    "φ と ¬φ が同一枝上にあれば BS で閉じられます。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "排中律 φ ∨ ¬φ はTABで直接的に反駁できる。¬∨ 規則は否定選言を二つの否定に分解する。",
+  order: 3,
+  version: 1,
+};
+
+const qTab04Contraposition: QuestDefinition = {
+  id: "tab-04",
+  category: "tab-basics",
+  title: "対偶の反駁 (→, ¬→)",
+  description:
+    "¬((φ → ψ) → (¬ψ → ¬φ)) を根として閉じたタブローを構築せよ。含意の分解と分岐を組み合わせる。",
+  difficulty: 2,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~((phi -> psi) -> (~psi -> ~phi))",
+      label: "Root: ¬((φ → ψ) → (¬ψ → ¬φ)) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ 規則で分解すると φ → ψ と ¬(¬ψ → ¬φ) が得られます。",
+    "¬(¬ψ → ¬φ) に ¬→ 規則を適用すると ¬ψ と ¬¬φ が得られます。",
+    "¬¬φ に ¬¬ 規則を適用して φ を得ます。",
+    "φ → ψ に → 規則を適用すると分岐: ¬φ / ψ。各枝で BS を狙います。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "対偶は古典論理の基本定理。TABでは → 規則の分岐により、各枝で矛盾を独立に導く。",
+  order: 4,
+  version: 1,
+};
+
+const qTab05DeMorgan1: QuestDefinition = {
+  id: "tab-05",
+  category: "tab-basics",
+  title: "ド・モルガンの法則 1 (¬∧, ∨)",
+  description:
+    "¬(¬(φ ∧ ψ) → (¬φ ∨ ¬ψ)) を根として閉じたタブローを構築せよ。¬∧ の分岐と ∨ の分岐を組み合わせる。",
+  difficulty: 2,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~(~(phi /\\ psi) -> (~phi \\/ ~psi))",
+      label: "Root: ¬(¬(φ ∧ ψ) → (¬φ ∨ ¬ψ)) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で分解すると ¬(φ ∧ ψ) と ¬(¬φ ∨ ¬ψ) が得られます。",
+    "¬(¬φ ∨ ¬ψ) に ¬∨ を適用すると ¬¬φ と ¬¬ψ が得られます。",
+    "¬¬ 規則で φ と ψ を取り出します。",
+    "¬(φ ∧ ψ) に ¬∧ を適用すると分岐: ¬φ / ¬ψ。各枝で BS。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "ド・モルガンの法則はTABの分岐規則（¬∧）を使って自然に証明できる。各枝での矛盾を独立に示す。",
+  order: 5,
+  version: 1,
+};
+
+const qTab06DeMorgan2: QuestDefinition = {
+  id: "tab-06",
+  category: "tab-basics",
+  title: "ド・モルガンの法則 2 (¬∨, ∧)",
+  description:
+    "¬(¬(φ ∨ ψ) → (¬φ ∧ ¬ψ)) を根として閉じたタブローを構築せよ。¬∨ で否定を分解し、∧ で結合を分解。",
+  difficulty: 2,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~(~(phi \\/ psi) -> (~phi /\\ ~psi))",
+      label: "Root: ¬(¬(φ ∨ ψ) → (¬φ ∧ ¬ψ)) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で分解すると ¬(φ ∨ ψ) と ¬(¬φ ∧ ¬ψ) が得られます。",
+    "¬(φ ∨ ψ) に ¬∨ を適用すると ¬φ と ¬ψ が得られます。",
+    "¬(¬φ ∧ ¬ψ) に ¬∧ を適用すると分岐: ¬¬φ / ¬¬ψ。",
+    "各枝で ¬¬ 規則を適用して φ / ψ を取り出し、BS で閉じます。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "ド・モルガンの逆方向も TAB で自然に証明できる。¬∨ と ¬∧ の規則が否定された論理結合子を直接処理する。",
+  order: 6,
+  version: 1,
+};
+
+const qTab07ConjunctionCommute: QuestDefinition = {
+  id: "tab-07",
+  category: "tab-basics",
+  title: "連言の交換律 (∧, ¬∧)",
+  description:
+    "¬((φ ∧ ψ) → (ψ ∧ φ)) を根として閉じたタブローを構築せよ。∧ 規則で分解し、¬∧ の分岐で閉じる。",
+  difficulty: 2,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~((phi /\\ psi) -> (psi /\\ phi))",
+      label: "Root: ¬((φ ∧ ψ) → (ψ ∧ φ)) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で分解すると φ ∧ ψ と ¬(ψ ∧ φ) が得られます。",
+    "φ ∧ ψ に ∧ 規則を適用すると φ と ψ が前件に追加されます。",
+    "¬(ψ ∧ φ) に ¬∧ を適用すると分岐: ¬ψ / ¬φ。各枝で BS。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "∧ 規則は連言を前件の二つの要素に分解する（分岐なし）。¬∧ は分岐を伴うが、各枝で矛盾が見つかれば閉じる。",
+  order: 7,
+  version: 1,
+};
+
+const qTab08DisjunctionCommute: QuestDefinition = {
+  id: "tab-08",
+  category: "tab-basics",
+  title: "選言の交換律 (∨, ¬∨)",
+  description:
+    "¬((φ ∨ ψ) → (ψ ∨ φ)) を根として閉じたタブローを構築せよ。∨ 規則の分岐と ¬∨ を組み合わせる。",
+  difficulty: 2,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~((phi \\/ psi) -> (psi \\/ phi))",
+      label: "Root: ¬((φ ∨ ψ) → (ψ ∨ φ)) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で分解すると φ ∨ ψ と ¬(ψ ∨ φ) が得られます。",
+    "¬(ψ ∨ φ) に ¬∨ を適用すると ¬ψ と ¬φ が前件に追加されます。",
+    "φ ∨ ψ に ∨ 規則を適用すると分岐: φ / ψ。各枝で BS。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "∨ 規則は分岐（2前提）を伴うが、¬∨ は分岐なしで二つの否定を追加する。規則の対称性に注目。",
+  order: 8,
+  version: 1,
+};
+
+const qTab09ModusTollens: QuestDefinition = {
+  id: "tab-09",
+  category: "tab-basics",
+  title: "モーダストレンスの反駁 (→)",
+  description:
+    "¬((φ → ψ) → (~ψ → ~φ)) と同値な対偶を、別の形で反駁する。¬((φ → ψ) ∧ ¬ψ → ¬φ) を扱う。",
+  difficulty: 3,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~(((phi -> psi) /\\ ~psi) -> ~phi)",
+      label: "Root: ¬(((φ → ψ) ∧ ¬ψ) → ¬φ) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で分解すると (φ → ψ) ∧ ¬ψ と ¬¬φ が得られます。",
+    "∧ 規則で φ → ψ と ¬ψ を取り出し、¬¬ で φ を得ます。",
+    "φ → ψ に → 規則を適用すると分岐: ¬φ / ψ。",
+    "左枝: φ と ¬φ で BS。右枝: ψ と ¬ψ で BS。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "モーダストレンス（(φ→ψ) ∧ ¬ψ → ¬φ）はTABの → 分岐で自然に証明できる。Hilbert系でのMP連鎖より直観的。",
+  order: 9,
+  version: 1,
+};
+
+const qTab10HypotheticalSyllogism: QuestDefinition = {
+  id: "tab-10",
+  category: "tab-basics",
+  title: "推移律の反駁 (→)",
+  description:
+    "¬((φ → ψ) → ((ψ → χ) → (φ → χ))) を根として閉じたタブローを構築せよ。複数の → 分岐を処理する。",
+  difficulty: 3,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~((phi -> psi) -> ((psi -> chi) -> (phi -> chi)))",
+      label: "Root: ¬((φ → ψ) → ((ψ → χ) → (φ → χ))) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で分解すると φ → ψ と ¬((ψ → χ) → (φ → χ)) が得られます。",
+    "もう一度 ¬→ で分解して ψ → χ と ¬(φ → χ) を得ます。",
+    "¬(φ → χ) に ¬→ を適用して φ と ¬χ を得ます。",
+    "φ → ψ に → を適用して分岐: ¬φ / ψ。左枝は BS。右枝で ψ → χ に → を適用して分岐: ¬ψ / χ。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "推移律は Hilbert系では最も基本的かつ難しい補題だが、TABでは機械的に分岐を処理するだけで証明できる。",
+  order: 10,
+  version: 1,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -2249,4 +2515,14 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qNd21ExistentialTransitivity,
   qNd22ExistentialConjunctionDistribution,
   qNd23UniversalConjunction,
+  qTab01Identity,
+  qTab02DoubleNegationElim,
+  qTab03ExcludedMiddle,
+  qTab04Contraposition,
+  qTab05DeMorgan1,
+  qTab06DeMorgan2,
+  qTab07ConjunctionCommute,
+  qTab08DisjunctionCommute,
+  qTab09ModusTollens,
+  qTab10HypotheticalSyllogism,
 ];
