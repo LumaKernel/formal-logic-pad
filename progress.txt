@@ -7651,3 +7651,28 @@
   - Storybook はデフォルト英語メッセージで動作するため、i18n対応してもストーリー変更不要
   - `as unknown as T` はESLint `no-as-unknown-as` に引っかかる。明示的オブジェクト構築で回避
 ---
+
+## 2026-03-01 - [i18n] ProofWorkspaceの各種UIラベルi18n対応
+- 問題: JA選択時にノードラベル「AXIOM」「ROOT」「DERIVED」「Depends on:」「Axioms」等が英語のまま
+- 原因: EditableProofNode, AxiomPalette, NdRulePalette, TabRulePalette, AtRulePalette, ProofWorkspace, EdgeParameterPopover にハードコードされた英語/日本語文字列
+- 修正: 既存の ProofMessages パターンに約30個の新キーを追加し、各コンポーネントを `useProofMessages()` 経由で取得したメッセージに置換
+  - `proofMessages.ts`: ProofMessages型に30キー追加 + defaultProofMessages拡張
+  - `messages/en.json`, `messages/ja.json`: ProofWorkspace名前空間に32キー追加
+  - `WorkspaceContent.tsx`: useProofMessagesFromIntl に32キーのマッピング追加
+  - `EditableProofNode.tsx`: AXIOM/ROOT/DERIVED/QUEST/Depends on/ツールチップ等すべてi18n化。getRoleBadgeLabelにmsgパラメータ追加
+  - `AxiomPalette.tsx`: "Axioms" → msg.axiomPaletteHeader
+  - `NdRulePalette.tsx`: ヘッダー・ボタン・セクションi18n化（ハードコード日本語「仮定を追加」も修正）
+  - `TabRulePalette.tsx`: 同上（ハードコード日本語「シーケントを追加」も修正）
+  - `AtRulePalette.tsx`: 同上（ハードコード日本語「署名付き論理式を追加」も修正、α/β/γδ/closure セクション名）
+  - `ProofWorkspace.tsx`: ノード作成ラベル（Axiom/Assumption/Sequent/SignedFormula）、aria-label、代入種別ラベルi18n化
+  - `EdgeParameterPopover.tsx`: Formula/Term/Substitution entries i18n化
+- テスト更新: NdRulePalette.test.tsx（"+ 仮定を追加"→"+ Add Assumption"）、proofMessages.test.ts（axiomIdentifiedTooltipプレースホルダー検証追加）
+- ブラウザ確認: JA→「公理一覧」「公理」「ルート」「公理として識別: A1 (K)」「クリックで役割切替」、EN→「Axioms」「ROOT」正常
+- カバレッジ: 99.03%（ベースライン99.02%から微増）。テスト: 212ファイル 6577テスト全パス
+- スクリーンショット: `.screenshots/i18n-workspace-ja-palette.png`, `.screenshots/i18n-workspace-ja-node-labels.png`, `.screenshots/i18n-workspace-en-node-labels.png`
+- **今後のイテレーションへの学び:**
+  - テンプレート文字列を含むi18nキー（例: `{axiomName}`）は `String(t.raw(key))` で取得する（`t(key)` はICU MessageFormatパースエラー）
+  - `formatMessage(template, params)` はproofMessages.tsのユーティリティで、`{key}` プレースホルダーを置換する
+  - NdRulePalette/TabRulePalette/AtRulePaletteにハードコード日本語が混在していた。デフォルトメッセージは英語に統一し、日本語はja.jsonで提供
+  - useCallback内でmsgプロパティを参照する場合、依存配列にmsg.xxxを個別追加が必要（React Compiler/ESLint）
+---
