@@ -7590,3 +7590,24 @@
   - next-intlで `t.raw()` の戻り値は `unknown` なので `String()` で包む
   - ゴールパネルの表示が壊れていた場合、IntlErrorが原因の可能性がある
 ---
+
+## 2026-03-01 - [proof-pad] 代入エントリの数式レンダリング
+- EditableProofNode.tsx の代入エントリ表示を数式レンダリング化
+- 問題: 代入エントリ（例: `φ := alpha -> beta`）がプレーンテキストで表示されていた
+- 修正: `SubstitutionEntryValue` / `MetaVariableLabel` コンポーネントを追加
+  - `formulaText` → `parseString()` でパースし `FormulaDisplay` で表示（例: `α → β`）
+  - `termText` → `parseTermString()` でパースし `TermDisplay` で表示
+  - パース失敗時はプレーンテキストにフォールバック
+  - メタ変数名は `role="math"` 付きの数式フォントで表示
+- テスト追加: 6件（数式レンダリング、項レンダリング、添字、フォールバック、空リスト、:=記号）
+- 既存テスト更新: ProofWorkspace.test.tsx, ProofWorkspace.stories.tsx の期待値を更新
+  - `"φ := alpha -> beta"` → `"φ := α → β"`
+  - `"ψ := gamma"` → `"ψ := γ"`
+- カバレッジ: 変動なし。テスト: 212ファイル 6575テスト全パス
+- 変更ファイル: `EditableProofNode.tsx`, `EditableProofNode.test.tsx`, `ProofWorkspace.test.tsx`, `ProofWorkspace.stories.tsx`
+- スクリーンショット: `.screenshots/substitution-entries-katex-rendered.png`
+- **今後のイテレーションへの学び:**
+  - 代入エントリのテキストはパーサーの入力形式（例: `alpha -> beta`, `phi`）で保存されている。表示時にパース→フォーマットが必要
+  - `parseString("p -> q")` は失敗する。パーサーはギリシャ文字名（phi, psi, alpha等）を使用
+  - `FormulaDisplay`/`TermDisplay` はAST入力なので、テキストからの表示にはパーサーが必要
+---
