@@ -2826,6 +2826,7 @@ const conceptCutElimination: ReferenceEntry = {
     "concept-tab-lk-equivalence",
     "concept-consistency-from-cut-elimination",
     "concept-axiom-independence",
+    "concept-speed-up-theorem",
   ],
   externalLinks: [
     {
@@ -3775,6 +3776,77 @@ const conceptAnalyticTableau: ReferenceEntry = {
   order: 22,
 };
 
+const conceptSpeedUpTheorem: ReferenceEntry = {
+  id: "concept-speed-up-theorem",
+  category: "concept",
+  title: {
+    en: "Speed-Up Theorem: Don't Eliminate Cut",
+    ja: "速度向上定理: カットを除去するな",
+  },
+  summary: {
+    en: "Cut elimination can cause an exponential blowup in proof size. Boolos (1984) gave a concrete example where the shortest CUT-free proof is super-exponentially larger than the proof with CUT.",
+    ja: "カット除去は証明のサイズを指数関数的に増大させうる。Boolos (1984) は、カットなし証明がカットあり証明より超指数関数的に大きくなる具体例を示した。",
+  },
+  body: {
+    en: [
+      `**The cost of cut elimination.** While the cut elimination theorem guarantees that any sequent provable with the CUT rule can also be proved without it, this transformation comes at a steep computational cost. George Boolos demonstrated in his 1984 paper "Don't Eliminate Cut" that there exist simple, natural inferences whose CUT-free proofs are incomparably longer than their proofs using CUT (modus ponens). This reveals a fundamental tension between the theoretical elegance of cut-free proofs and the practical efficiency of proofs that use lemmas and intermediate results.`,
+      `**Boolos's example H_n.** Boolos constructed a family of inferences H_n ("H" for "heap") with the following premisses: (1) (x)(y)(z) +x+yz = ++xyz (associativity of addition), (2) (x) dx = +xx (doubling), (3) L1 (the predicate L holds for 1), and (4) (x)(Lx → L+x1) (successor closure of L). The conclusion is Ld...d1 where d is applied 2^n times consecutively to 1. For example, H₃ concludes Lddddddddd1 (8 = 2³ applications of d). The key result is that while a natural deduction proof (using CUT/modus ponens) requires only about 16(2^n + 8n + 21) symbols — linear in 2^n — the shortest closed tree (CUT-free proof) requires more than 2^(2^n) symbols, a super-exponential blowup.`,
+      `**Why the blowup occurs.** The proof with CUT works by establishing a chain of lemmas: first that L applies to d1 = 1+1 = 2, then to dd1 = 2·2 = 4, then to ddd1 = 2·4 = 8, and so on, each step reusing the previous result as a lemma via modus ponens. Without CUT, however, the tree method cannot reuse previously established results. Each branch of the proof tree must independently verify the entire chain from scratch, leading to an exponential duplication of work at each level. The interpretation I that makes the premisses true assigns positive integers as the domain, with d as doubling and + as addition, and L as a predicate true of all positive integers less than or equal to 2^(2^n).`,
+      `**Implications for proof theory.** This speed-up result shows that CUT is not merely a convenience but is essential for practical reasoning. While CUT-free proofs have desirable properties — they enjoy the subformula property, which means every formula appearing in the proof is a subformula of the conclusion or a premiss — the exponential cost of achieving this property can be prohibitive. Boolos argued that this is a reason to favor natural deduction over the method of trees (analytic tableaux) for certain applications: natural deduction permits the development and reuse of "subsidiary conclusions" or lemmas, which corresponds exactly to the use of CUT. The XM (excluded middle / modus ponens mix) rule, when added to the tree method, restores this capability and eliminates the exponential penalty.`,
+    ],
+    ja: [
+      `**カット除去のコスト。** カット除去定理は、CUT規則を用いて証明可能なすべてのシーケントがCUTなしでも証明可能であることを保証しますが、この変換には莫大な計算コストが伴います。George Boolosは1984年の論文 "Don't Eliminate Cut" において、CUTなし証明がCUT（モーダスポネンス）を用いた証明に比べて桁違いに長くなる、単純で自然な推論の具体例を示しました。これは、カットなし証明の理論的な美しさと、補題や中間結果を活用する証明の実用的な効率性との間にある、根本的な緊張関係を明らかにしています。`,
+      `**Boolosの例 H_n。** Boolosは推論の族 H_n（"H" は "heap"）を構成しました。前提は次の4つです: (1) (x)(y)(z) +x+yz = ++xyz（加法の結合法則）、(2) (x) dx = +xx（倍化）、(3) L1（述語 L が 1 で成り立つ）、(4) (x)(Lx → L+x1)（L の後者閉包）。結論は Ld...d1 で、d を 2^n 回連続適用します。例えば H₃ の結論は Lddddddddd1（d が 8 = 2³ 回）です。主要な結果は、自然演繹（CUT/モーダスポネンスあり）の証明は約 16(2^n + 8n + 21) シンボル — 2^n に対して線形 — で済むのに対し、最短の閉じた木（CUTなし証明）は 2^(2^n) シンボルを超える、つまり超指数関数的な膨張が生じるということです。`,
+      `**膨張が起きる理由。** CUTを使う証明は補題の連鎖を構築します: まず L が d1 = 1+1 = 2 に適用されることを示し、次に dd1 = 2·2 = 4、次に ddd1 = 2·4 = 8、というように、各ステップで前の結果をモーダスポネンスで補題として再利用します。しかしCUTなしでは、木の方法は以前に確立された結果を再利用できません。証明木の各枝が独立に連鎖全体を最初から検証しなければならず、各レベルで指数的な作業の重複が生じます。前提を真にする解釈 I は、正の整数を領域とし、d を倍化、+ を加法とし、L を 2^(2^n) 以下のすべての正の整数で真となる述語とします。`,
+      `**証明論への含意。** この速度向上の結果は、CUTが単なる便宜ではなく、実用的な推論に不可欠であることを示しています。CUTなし証明は望ましい性質 — 証明に現れるすべての論理式が結論または前提の部分論理式であるという部分論理式性 — を持ちますが、この性質を達成するための指数的コストは法外なものになりえます。Boolosは、特定の応用では木の方法（分析的タブロー）よりも自然演繹を支持する理由としてこの結果を挙げました: 自然演繹は「補助的結論」すなわち補題の構築と再利用を許し、これはまさにCUTの使用に対応します。XM規則（排中律/モーダスポネンス混合）を木の方法に追加すれば、この能力が回復し指数的ペナルティが解消されます。`,
+    ],
+  },
+  formalNotation: `H_n: \\; \\text{CUT proof} \\sim O(2^n), \\quad \\text{CUT-free proof} > 2^{2^n} \\text{ symbols}`,
+  relatedEntryIds: [
+    "concept-cut-elimination",
+    "concept-admissible-derivable",
+    "concept-analytic-tableau",
+    "concept-tab-lk-equivalence",
+    "rule-mp",
+    "rule-sc-overview",
+  ],
+  externalLinks: [
+    {
+      type: "paper",
+      url: "https://www.jstor.org/stable/30226313",
+      label: {
+        en: "Boolos (1984) Don't Eliminate Cut (JSTOR)",
+        ja: "Boolos (1984) Don't Eliminate Cut (JSTOR)",
+      },
+    },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Cut-elimination_theorem#Complexity",
+      label: {
+        en: "Cut elimination: Complexity (Wikipedia)",
+        ja: "カット除去: 計算量 (Wikipedia)",
+      },
+    },
+  ],
+  keywords: [
+    "speed-up",
+    "速度向上",
+    "don't eliminate cut",
+    "Boolos",
+    "ブーロス",
+    "exponential blowup",
+    "指数的膨張",
+    "proof length",
+    "証明の長さ",
+    "subformula property",
+    "部分論理式性",
+    "lemma",
+    "補題",
+    "modus ponens",
+  ],
+  order: 23,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -4482,6 +4554,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptConsistencyFromCutElimination,
   conceptAxiomIndependence,
   conceptAnalyticTableau,
+  conceptSpeedUpTheorem,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
