@@ -15,8 +15,8 @@ describe("allReferenceEntries", () => {
   });
 
   it("エントリ数が期待通り", () => {
-    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念21 + 理論2 = 58
-    expect(allReferenceEntries).toHaveLength(58);
+    // 公理13 + 推論規則9 + 論理体系6 + 記法7 + 概念22 + 理論2 = 59
+    expect(allReferenceEntries).toHaveLength(59);
   });
 
   it("少なくとも1つのエントリが各カテゴリに存在する", () => {
@@ -1200,5 +1200,97 @@ describe("記法エントリの個別チェック", () => {
       "notation-quantifiers",
     );
     expect(quantifiers?.relatedEntryIds.length).toBeGreaterThan(0);
+  });
+});
+
+describe("分析的タブローエントリの個別チェック", () => {
+  it("分析的タブローエントリが存在する", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-analytic-tableau",
+    );
+    expect(entry).toBeDefined();
+    expect(entry?.category).toBe("concept");
+  });
+
+  it("formalNotationにβ規則の表記がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-analytic-tableau",
+    );
+    expect(entry?.formalNotation).toBeTruthy();
+    expect(entry?.formalNotation).toContain("\\beta");
+  });
+
+  it("α規則・β規則・γ規則・δ規則の解説がEN/JA両方にある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-analytic-tableau",
+    );
+    expect(entry?.body.en.some((p) => p.includes("α rules"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("β rules"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("γ rules"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("δ rules"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("α規則"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("β規則"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("γ規則"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("δ規則"))).toBe(true);
+  });
+
+  it("署名付き論理式の解説がEN/JA両方にある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-analytic-tableau",
+    );
+    expect(entry?.body.en.some((p) => p.includes("Signed formulas"))).toBe(
+      true,
+    );
+    expect(entry?.body.ja.some((p) => p.includes("署名付き論理式"))).toBe(true);
+  });
+
+  it("TABとの関係が記載されている", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-analytic-tableau",
+    );
+    expect(entry?.body.en.some((p) => p.includes("TAB"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("TAB"))).toBe(true);
+    expect(entry?.relatedEntryIds).toContain("concept-tab-lk-equivalence");
+  });
+
+  it("簡略化記法の解説がEN/JA両方にある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-analytic-tableau",
+    );
+    expect(entry?.body.en.some((p) => p.includes("Abbreviated notation"))).toBe(
+      true,
+    );
+    expect(entry?.body.ja.some((p) => p.includes("簡略化記法"))).toBe(true);
+  });
+
+  it("分析的タブローを英語・日本語で検索できる", () => {
+    const resultEn = searchEntries(
+      allReferenceEntries,
+      "analytic tableau",
+      "en",
+    );
+    expect(resultEn.length).toBeGreaterThan(0);
+    expect(resultEn.some((e) => e.id === "concept-analytic-tableau")).toBe(
+      true,
+    );
+    const resultJa = searchEntries(allReferenceEntries, "分析的タブロー", "ja");
+    expect(resultJa.length).toBeGreaterThan(0);
+    expect(resultJa.some((e) => e.id === "concept-analytic-tableau")).toBe(
+      true,
+    );
+  });
+
+  it("外部リンクがある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-analytic-tableau",
+    );
+    expect(entry?.externalLinks.length).toBeGreaterThan(0);
   });
 });

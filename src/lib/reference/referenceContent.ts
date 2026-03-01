@@ -3672,6 +3672,109 @@ const conceptAxiomIndependence: ReferenceEntry = {
   order: 21,
 };
 
+const conceptAnalyticTableau: ReferenceEntry = {
+  id: "concept-analytic-tableau",
+  category: "concept",
+  title: {
+    en: "Analytic Tableau",
+    ja: "分析的タブロー",
+  },
+  summary: {
+    en: "The analytic tableau (semantic tableau) is a refutation-based proof method: to prove φ, assume F(φ) and derive contradictions on every branch. Rules are classified as α (non-branching), β (branching), γ/δ (quantifiers).",
+    ja: "分析的タブロー（意味論的タブロー）は反駁ベースの証明法である。φ を証明するには F(φ) を仮定し、すべての枝で矛盾を導出する。規則はα（非分岐）、β（分岐）、γ/δ（量化子）に分類される。",
+  },
+  body: {
+    en: [
+      `**What is an analytic tableau?** The analytic tableau (also called semantic tableau) is a proof method based on **refutation**: to prove a formula φ, one assumes that φ is false — written F(φ) — and then systematically applies decomposition rules to the signed formulas on each branch of a tree. If every branch closes (contains a contradiction), the original assumption F(φ) is untenable, and φ is proved. This makes the tableau method a natural way to search for proofs: "assume the conclusion is wrong and look for a contradiction" (bekki Ch.6, Definition 6.2).`,
+      `**Signed formulas.** The building blocks of the analytic tableau are **signed formulas**: pairs of a sign (T or F) and a formula. T(φ) asserts "φ is assumed true" and F(φ) asserts "φ is assumed false." A branch closes (is marked ×) when it contains both T(φ) and F(φ) for some formula φ — a direct contradiction. The **abbreviated notation** (bekki §6.5) identifies T(φ) with φ and F(φ) with ¬φ, so that a closed branch simply contains both φ and ¬φ. Internally, the implementation preserves the explicit sign for clarity.`,
+      `**α rules (non-branching).** The α rules decompose a signed formula into one or two components that are added to the **same branch** (no splitting). Examples: T(φ ∧ ψ) produces T(φ) and T(ψ); F(φ ∨ ψ) produces F(φ) and F(ψ); F(φ → ψ) produces T(φ) and F(ψ); T(¬φ) produces F(φ); F(¬φ) produces T(φ); and double negation rules T(¬¬φ) → T(φ), F(¬¬φ) → F(φ). The name "α" comes from the Smullyan classification of tableau rules (bekki Definition 6.2, p.131).`,
+      `**β rules (branching).** The β rules decompose a signed formula into two alternatives, creating a **branch split** (two child branches). Examples: F(φ ∧ ψ) branches into F(φ) | F(ψ); T(φ ∨ ψ) branches into T(φ) | T(ψ); T(φ → ψ) branches into F(φ) | T(ψ). Both branches must eventually close for the proof to succeed. The β rules capture the fact that a disjunctive situation (e.g., "φ ∨ ψ is true") requires considering each possibility separately.`,
+      `**Branch closure and proof completion.** A branch is **closed** (×) when it contains T(φ) and F(φ) for the same formula φ. A tableau proof is complete when **every branch is closed**. An open branch (one that cannot be closed) represents a potential countermodel — an assignment under which the original formula is false. Thus the tableau method simultaneously attempts to prove validity and searches for counterexamples.`,
+      `**γ and δ rules (quantifiers).** For predicate logic, two additional rule classes handle quantifiers. **γ rules** decompose universal-affirmative and existential-negative formulas: T(∀ξ.φ) → T(φ[τ/ξ]) and F(∃ξ.φ) → F(φ[τ/ξ]) for an arbitrary term τ. **δ rules** decompose existential-affirmative and universal-negative formulas: T(∃ξ.φ) → T(φ[ζ/ξ]) and F(∀ξ.φ) → F(φ[ζ/ξ]) where ζ is a **fresh eigenvariable** that does not appear elsewhere on the branch. The γ/δ distinction corresponds to the universal/existential asymmetry in quantifier reasoning (bekki Definition 6.24).`,
+      `**Relationship with TAB.** The analytic tableau and TAB (tableau-style sequent calculus, bekki Ch.12) are essentially the same proof system in different guises. TAB uses sequents Γ ⇒ (with an empty right-hand side), where each formula in Γ corresponds to a signed formula on a tableau branch. The TAB axiom (BS): ¬φ, φ, Γ ⇒ corresponds to a closed branch containing T(φ) and F(φ). Every TAB rule has a direct analogue as a tableau rule, and vice versa. The equivalence TAB ⊆ LK-CUT (Theorem 12.13) and LK-CUT ⊆ TAB (Theorem 12.15) therefore also applies to the analytic tableau.`,
+      `**Abbreviated notation.** In the abbreviated notation (bekki §6.5), T(φ) is written simply as φ, and F(φ) as ¬φ. Under this convention, the α rule for T(φ ∧ ψ) becomes "from φ ∧ ψ, add φ and ψ," and the β rule for T(φ → ψ) becomes "from φ → ψ, branch into ¬φ | ψ." The abbreviated notation makes tableaux look like natural deduction arguments with negation, and indeed there is a systematic correspondence between the two. In this application, the internal representation preserves the sign (T/F) while the display can use either signed or abbreviated notation.`,
+    ],
+    ja: [
+      `**分析的タブローとは。** 分析的タブロー（意味論的タブローとも呼ばれる）は**反駁**に基づく証明法です。論理式 φ を証明するには、φ が偽であると仮定し — F(φ) と書きます — 木の各枝上の署名付き論理式に対して分解規則を体系的に適用します。すべての枝が閉じれば（矛盾を含めば）、元の仮定 F(φ) は維持できず、φ が証明されます。このためタブロー法は証明探索の自然な方法です:「結論が誤りだと仮定して矛盾を探す」（戸次 Ch.6, 定義6.2）。`,
+      `**署名付き論理式。** 分析的タブローの構成要素は**署名付き論理式**です: 符号（T または F）と論理式のペアです。T(φ) は「φ は真と仮定される」、F(φ) は「φ は偽と仮定される」を表します。枝は、ある論理式 φ について T(φ) と F(φ) の両方を含むとき**閉じます**（× と記されます）— 直接の矛盾です。**簡略化記法**（戸次 §6.5）では T(φ) を φ、F(φ) を ¬φ と同一視し、閉じた枝は単に φ と ¬φ の両方を含むことになります。実装では、明確さのために明示的な符号を内部的に保持しています。`,
+      `**α規則（非分岐）。** α規則は署名付き論理式を、**同じ枝**に追加される1つまたは2つの要素に分解します（分割なし）。例: T(φ ∧ ψ) は T(φ) と T(ψ) を生成; F(φ ∨ ψ) は F(φ) と F(ψ) を生成; F(φ → ψ) は T(φ) と F(ψ) を生成; T(¬φ) は F(φ) を生成; F(¬φ) は T(φ) を生成; 二重否定規則 T(¬¬φ) → T(φ), F(¬¬φ) → F(φ)。「α」という名前はスマリヤンによるタブロー規則の分類に由来します（戸次 定義6.2, p.131）。`,
+      `**β規則（分岐）。** β規則は署名付き論理式を2つの選択肢に分解し、**枝の分岐**（2つの子枝）を作ります。例: F(φ ∧ ψ) は F(φ) | F(ψ) に分岐; T(φ ∨ ψ) は T(φ) | T(ψ) に分岐; T(φ → ψ) は F(φ) | T(ψ) に分岐。証明が成功するには両方の枝が最終的に閉じる必要があります。β規則は、選言的状況（例:「φ ∨ ψ が真」）では各可能性を別々に考慮する必要があるという事実を捉えています。`,
+      `**枝の閉じと証明の完成。** 枝は、同じ論理式 φ について T(φ) と F(φ) を含むとき**閉じます**（×）。タブロー証明は**すべての枝が閉じた**とき完成です。閉じることができない開いた枝は、反モデル — 元の論理式が偽となる付値 — を表します。したがってタブロー法は、妥当性の証明と反例の探索を同時に行います。`,
+      `**γ規則とδ規則（量化子）。** 述語論理では、量化子を扱う2つの追加規則クラスがあります。**γ規則**は全称肯定と存在否定の論理式を分解します: T(∀ξ.φ) → T(φ[τ/ξ]) および F(∃ξ.φ) → F(φ[τ/ξ])（任意の項 τ に対して）。**δ規則**は存在肯定と全称否定の論理式を分解します: T(∃ξ.φ) → T(φ[ζ/ξ]) および F(∀ξ.φ) → F(φ[ζ/ξ])（ζ は枝上の他の場所に出現しない**固有変数**）。γ/δ の区別は量化子推論における全称/存在の非対称性に対応します（戸次 定義6.24）。`,
+      `**TAB との関係。** 分析的タブローと TAB（タブロー式シーケント計算、戸次 Ch.12）は本質的に同じ証明体系を異なる装いで表現したものです。TAB はシーケント Γ ⇒（右辺が空）を使い、Γ 内の各論理式はタブロー枝上の署名付き論理式に対応します。TAB の公理 (BS): ¬φ, φ, Γ ⇒ は T(φ) と F(φ) を含む閉じた枝に対応します。すべての TAB 規則はタブロー規則として直接の対応物を持ち、逆も同様です。TAB ⊆ LK-CUT（定理12.13）と LK-CUT ⊆ TAB（定理12.15）の等価性は、したがって分析的タブローにも適用されます。`,
+      `**簡略化記法。** 簡略化記法（戸次 §6.5）では、T(φ) は単に φ と書かれ、F(φ) は ¬φ と書かれます。この記法のもとで、T(φ ∧ ψ) のα規則は「φ ∧ ψ から φ と ψ を追加」となり、T(φ → ψ) のβ規則は「φ → ψ から ¬φ | ψ に分岐」となります。簡略化記法によりタブローは否定付きの自然演繹の議論のように見え、実際に両者には体系的な対応関係があります。本アプリケーションでは、内部表現は符号（T/F）を保持しつつ、表示時に署名付きまたは簡略化記法のいずれかを使用できます。`,
+    ],
+  },
+  formalNotation:
+    "\\dfrac{\\text{T}(\\varphi \\to \\psi)}{\\text{F}(\\varphi) \\mid \\text{T}(\\psi)} \\;(\\beta)",
+  relatedEntryIds: [
+    "concept-tab-lk-equivalence",
+    "concept-cut-elimination",
+    "concept-system-equivalence",
+    "rule-sc-overview",
+    "rule-sc-logical",
+    "concept-soundness",
+    "concept-completeness",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Method_of_analytic_tableaux",
+      label: {
+        en: "Method of analytic tableaux (Wikipedia)",
+        ja: "分析的タブロー法 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%BF%E3%83%96%E3%83%AD%E3%83%BC",
+      label: {
+        en: "Tableau (Wikipedia JA)",
+        ja: "タブロー (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/analytic+tableau",
+      label: {
+        en: "Analytic tableau (nLab)",
+        ja: "分析的タブロー (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "analytic tableau",
+    "分析的タブロー",
+    "semantic tableau",
+    "意味論的タブロー",
+    "signed formula",
+    "署名付き論理式",
+    "alpha rule",
+    "α規則",
+    "beta rule",
+    "β規則",
+    "gamma rule",
+    "γ規則",
+    "delta rule",
+    "δ規則",
+    "branch closure",
+    "枝の閉じ",
+    "refutation",
+    "反駁",
+    "Smullyan",
+    "スマリヤン",
+    "eigenvariable",
+    "固有変数",
+    "abbreviated notation",
+    "簡略化記法",
+    "Definition 6.2",
+    "定義6.2",
+    "Definition 6.24",
+    "定義6.24",
+  ],
+  order: 22,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -4378,6 +4481,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptTabLkEquivalence,
   conceptConsistencyFromCutElimination,
   conceptAxiomIndependence,
+  conceptAnalyticTableau,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,

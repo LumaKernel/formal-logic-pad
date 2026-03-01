@@ -98,6 +98,31 @@
 
 ---
 
+## 2026-03-01 - 分析的タブローリファレンスエントリ (AT-005)
+- `src/lib/reference/referenceContent.ts` に分析的タブローのリファレンスエントリ (`concept-analytic-tableau`) を追加
+  - 8パラグラフ構成: 概要、署名付き論理式、α規則、β規則、枝の閉じ、γ/δ規則、TABとの関係、簡略化記法
+  - EN/JA 両方のパラグラフを対応させて作成
+  - formalNotation: β規則（含意のT）の推論図
+  - 関連エントリ: concept-tab-lk-equivalence, concept-cut-elimination, concept-system-equivalence ほか
+  - 外部リンク: Wikipedia EN/JA, nLab
+  - キーワード: 28語（EN/JA混在）
+- `src/lib/reference/referenceContent.test.ts` に分析的タブローエントリのテスト8件追加
+  - エントリ数を 58 → 59 に更新（概念22個に）
+- テスト: 6236テスト全パス（206ファイル）
+- カバレッジ: Stmts 97.07%(同), Branch 90.84%(同), Funcs 88.67%(同), Lines 97.86%(同) — 変化なし
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: `.screenshots/at-005-reference-storybook-check.png` — Storybook正常動作確認
+- `tasks/prd-analytic-tableau.md` 全タスク完了 → `tasks-archived/` にアーカイブ
+- 変更ファイル:
+  - `src/lib/reference/referenceContent.ts` (エントリ追加)
+  - `src/lib/reference/referenceContent.test.ts` (テスト追加)
+  - `tasks-archived/prd-analytic-tableau.md` (アーカイブ)
+- **今後のイテレーションへの学び:**
+  - リファレンスエントリのbody.en/body.jaは段落数を揃える必要がある（テストで検証される）
+  - 検索テストで特定エントリが1位に来ることを期待すると、同じキーワードを持つ他エントリと競合する。`some()` でマッチ確認がロバスト
+  - 分析的タブロー PRD（AT-001〜AT-005）は完全に完了。次は prd-advanced.md の残タスク（C2: カット除去可視化）が候補
+---
+
 ## 2026-03-01 - 分析的タブローPRD作成・タスク分割
 - bekki.pdf Ch.6（タブロー、pp.129-146）を精読し、分析的タブローの仕様を把握
 - `tasks/prd-analytic-tableau.md` を新規作成: 5タスク（AT-001〜AT-005）に分割

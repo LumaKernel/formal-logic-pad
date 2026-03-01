@@ -122,22 +122,22 @@ bekki.pdf 第6章に基づき、分析的タブロー（analytic tableaux / sema
 - [x] `src/lib/quest/builtinQuests.test.ts`: クエスト数更新
 - [x] 型チェック/lint/test が通る
 
-### AT-005: 分析的タブローのリファレンスエントリ
+### AT-005: 分析的タブローのリファレンスエントリ [x]
 
 **説明:** 分析的タブローの解説リファレンスエントリを追加する。
 
 **受け入れ基準:**
 
-- [ ] `src/lib/reference/referenceContent.ts` に分析的タブローのリファレンスエントリ追加:
+- [x] `src/lib/reference/referenceContent.ts` に分析的タブローのリファレンスエントリ追加:
   - 分析的タブローとは何か（背理法ベースの証明法）
   - α規則（非分岐）とβ規則（分岐）の解説
   - 枝の閉じ条件と証明の完成
   - 量化子規則（γ/δ規則）と固有変数条件
   - TAB（タブロー式シーケント計算）との対応関係
   - 簡略化記法（6.5節）の解説
-- [ ] `src/lib/reference/referenceContent.test.ts`: エントリ数更新
-- [ ] EN/JA 両方のパラグラフを作成
-- [ ] 型チェック/lint/test が通る
+- [x] `src/lib/reference/referenceContent.test.ts`: エントリ数更新
+- [x] EN/JA 両方のパラグラフを作成
+- [x] 型チェック/lint/test が通る
 
 ## 設計詳細
 
