@@ -7181,3 +7181,37 @@
   - InferenceEdge union に新システム追加時の変更箇所: inferenceEdge.ts(型+ユーティリティ), workspaceExport.ts(Schema), inferenceEdgeLabelLogic.ts(色・ラベル), edgeBadgeEditLogic.ts(編集状態), workspaceState.ts(適用関数+revalidateガード), index.ts(エクスポート)
   - ATの署名付き論理式テキストフォーマット "T:φ" / "F:φ" は、UI層でのパース・表示に使用される
 ---
+
+## 2026-03-01 - 分析的タブロー規則パレットUI (AT-003)
+- 実装した内容: 分析的タブロー規則パレットUIコンポーネントを新規作成し、ProofWorkspaceに統合
+- 変更したファイル:
+  - `src/lib/proof-pad/AtRulePalette.tsx` - 新規作成: AT規則パレットUI（α/β/γ/δ/Closure グループ化表示）
+  - `src/lib/proof-pad/AtRulePalette.test.tsx` - 新規作成: コンポーネントテスト
+  - `src/lib/proof-pad/ProofWorkspace.tsx` - AT規則パレット統合、AtSelectionState 3フェーズ状態機械、規則適用ハンドラ
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` - EmptyAnalyticTableau ストーリー追加（play関数付き）
+  - `src/lib/proof-pad/proofMessages.ts` - AT用デフォルトメッセージ8件追加
+  - `src/lib/proof-pad/proofMessages.test.ts` - ATメッセージテスト追加
+  - `src/lib/proof-pad/axiomPaletteLogic.ts` - getAvailableAtRules追加
+  - `src/lib/proof-pad/axiomPaletteLogic.test.ts` - AT規則リストテスト8件追加
+  - `src/lib/proof-pad/index.ts` - AtRulePalette関連エクスポート追加
+  - `src/lib/logic-core/deductionSystem.ts` - "analytic-tableau" DeductionSystemId追加、isAtRuleEnabled
+  - `src/lib/logic-core/deductionSystem.test.ts` - ATシステム・isAtRuleEnabledテスト追加
+  - `src/lib/notebook/notebookCreateLogic.ts` - AT用プリセット2件追加
+  - `src/lib/notebook/notebookCreateLogic.test.ts` - カテゴリ数6→7修正、ATフィルタ追加
+  - `messages/en.json` - AT用i18nメッセージ8件追加
+  - `messages/ja.json` - AT用i18nメッセージ8件追加
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` - AT用ProofMessages マッピング追加
+  - `tasks/prd-analytic-tableau.md` - AT-003を完了マーク
+- ベースラインカバレッジ: Stmts 97.62%, Branch 91.41%, Funcs 88.61%, Lines 98.47%
+- 完了後カバレッジ: Stmts 97.05%, Branch 90.76%, Funcs 88.54%, Lines 97.85%（ProofWorkspace.tsx UIハンドラコードにより微減）
+- テスト: 206ファイル、6221テスト全パス
+- スクリーンショット:
+  - `.screenshots/at-palette-storybook.png` - Storybook AT規則パレット確認
+  - `.screenshots/at-palette-fullscreen.png` - フルスクリーンAT規則パレット確認
+  - `.screenshots/at-palette-panel.png` - AT規則パレットパネル単体
+- **今後のイテレーションへの学び:**
+  - getByText で「Found multiple elements」エラーが出る場合、ヘッダーのシステム名表示とパレットのタイトルが同じテキストになる可能性がある。getAllByText を使うか、getByTestId で特定する
+  - ProofWorkspace のパレット表示は deductionSystem.style で分岐する条件付きレンダリング。新システム追加時は必ず分岐条件を追加
+  - AtSelectionState は3フェーズ: idle → selecting-node → selecting-contradiction（closureのみ）。γ/δ規則はpromptでterm/eigenVariable入力
+  - notebookCreateLogic のプリセット・カテゴリは、新演繹システム追加時に必ず更新が必要（テストのカテゴリ数、スタイルリスト、フィルタ条件）
+---
