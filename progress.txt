@@ -7527,3 +7527,22 @@
   - classifySignedFormula が事前検証するため、後続の applyAlphaRule 等の undefined チェックは構造的に到達不能 → v8 ignore が適切
   - TAB/ATエッジ型のテストデータ作成時は InferenceEdge の型定義を正確に参照すること（TabBranchingEdge には leftConclusionText/rightConclusionText が必要、AtBetaEdge には leftResultNodeId/rightResultNodeId が必要）
 ---
+
+## 2026-03-01 - [proof-pad] ProofWorkspace.tsx カバレッジ改善
+- ProofWorkspace.tsx: Stmts 80.79% → 95.06%, Branch 68.97% → 79.64%, Funcs 89.97% → 96.51%, Lines 81.51% → 98.65%
+- 全体: Stmts 97.54% → 99.05%, Branch 91.25% → 92.67%, Lines 96.58% → 99.72%
+- 29テスト追加 (6532 → 6561テスト、212ファイル全パス)
+- 追加テスト内容:
+  - AT(分析タブロー): palette render, banner show/cancel, alpha-conj/beta-impl apply, closure 2-phase flow, closure invalid pair alert, gamma/delta prompt and cancel, selection mode switching
+  - TAB: conjunction apply with prompt mock, cancel (null/NaN), exchange rule cancel/NaN, universal/existential cancel, alert on failure
+  - エクスポートメニュー: JSON/SVG/PNG クリックテスト
+  - 選択クリア・マージバナーテスト
+- JSDOM到達不能コードにv8 ignore適用: port drag connection, marquee selection, click-outside handler, edge badge edit handlers
+- 変更ファイル: `ProofWorkspace.test.tsx`, `ProofWorkspace.tsx`, `task-processing.md`
+- スクリーンショット: `.screenshots/proof-workspace-lukasiewicz.png`, `.screenshots/proof-workspace-analytic-tableau.png`
+- **今後のイテレーションへの学び:**
+  - ProofWorkspace.tsx のport drag connection (handleValidateConnection, handleConnectionComplete, handlePortDragStart等) はJSDOMでテスト不可→v8 ignore適用
+  - AT closureの2フェーズフロー: 最初のノードクリック→2番目のノードクリック→closure生成。closureボタンクリック後にselection modeに入る
+  - globalThis.prompt/alertのmockはvi.spyOnで行い、afterEach/afterAllで必ずrestoreする
+  - Storybook story URL形式: `proofpad-proofworkspace--empty-xxx` (proofpadはハイフンなし)
+---
