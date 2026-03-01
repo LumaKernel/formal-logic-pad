@@ -370,6 +370,9 @@ export function computeTreeLayout(
   // Build forest
   const forest = buildForest(rootIds, nodeMap, forward);
 
+  // 防御的: nodes.length > 0 かつ buildForest で未訪問ノードが孤立ノードとして追加されるため、
+  // forest.length === 0 は到達しない
+  /* v8 ignore next 3 */
   if (forest.length === 0) {
     return new Map();
   }
