@@ -7676,3 +7676,44 @@
   - NdRulePalette/TabRulePalette/AtRulePaletteにハードコード日本語が混在していた。デフォルトメッセージは英語に統一し、日本語はja.jsonで提供
   - useCallback内でmsgプロパティを参照する場合、依存配列にmsg.xxxを個別追加が必要（React Compiler/ESLint）
 ---
+
+## 2026-03-02 - [coverage] FormulaSubstitution・大文字定数・循環グラフのカバレッジ改善
+- `unification.ts`: FormulaSubstitutionのoccurs check/decompose/一致テスト3件追加 → Stmts 97.33%→100%
+- `inferenceRule.ts`: matchFormulaPattern/inferTermReplacementのFormulaSubstitutionテスト3件追加 → Stmts 98.84%→100%
+- `parser.ts`: 大文字定数(O=O)テスト1件追加、LBRACKET到達不能パスにv8 ignore追加 → Lines 99.48%→100%
+- `treeLayoutLogic.ts`: 循環グラフテスト1件追加、forest.length===0到達不能パスにv8 ignore追加 → Stmts/Lines 100%
+- 全体カバレッジ: Stmts 99.03%→99.12%, Lines 99.67%→99.77%, Branch 92.55%→92.72%
+- テスト: 212ファイル 6585テスト全パス（+8テスト）
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- 変更ファイル:
+  - `src/lib/logic-core/unification.test.ts` (FormulaSubstitutionテスト追加)
+  - `src/lib/logic-core/inferenceRule.test.ts` (FormulaSubstitutionテスト追加)
+  - `src/lib/logic-lang/parser.test.ts` (大文字定数テスト追加)
+  - `src/lib/logic-lang/parser.ts` (LBRACKET v8 ignore)
+  - `src/lib/proof-pad/treeLayoutLogic.test.ts` (循環グラフテスト追加)
+  - `src/lib/proof-pad/treeLayoutLogic.ts` (forest空チェック v8 ignore)
+- **今後のイテレーションへの学び:**
+  - FormulaSubstitution型は `φ[τ/x]` の未評価代入を保持するAST構文ノード。テストには `formulaSubstitution(formula, term, variable)` ヘルパーを使用
+  - `matchFormulaPattern` と `inferTermReplacement` でのFormulaSubstitution分岐は、A4公理の body に FormulaSubstitution を含む式を構築してテスト可能
+  - `buildForest` の未訪問ノード追加（line 163-176）により、forest.length === 0 は nodes.length > 0 なら到達不能。防御的コードとしてv8 ignoreが適切
+  - parser.ts の `kindToString("LBRACKET")` は expect() で LBRACKET が使われていないため到達不能
+  - Lines 100% だが Stmts < 100% のファイル（parser.ts, formula.ts）はクロージャ/関数宣言の計上の違い。Lines 100% なら追求不要
+---
+
+## 2026-03-02 - [quest] TABクエスト起動有効化
+- `questStartLogic.ts` の `buildQuestStartParams` から `tableau-calculus` スタイルのブロックを解除
+- TABクエスト（tab-01〜tab-10）がクエストカタログから起動可能に
+- テスト: `questStartLogic.test.ts` にTABプリセット正常動作テスト2件追加（tab-prop, tab）
+- 既存テスト326件（questモジュール）すべてパス
+- カバレッジ: Stmts 99.12%(変化なし), Branch 92.75%(変化なし), Funcs 89.44%(+0.03), Lines 99.77%(変化なし)
+- 品質チェック: typecheck ✅, lint ✅, test ✅ (6586テスト全パス)
+- ブラウザテスト: devサーバーでTABクエスト「恒等律の反駁」起動確認 `.screenshots/tab-quest-workspace-opened.png`
+- 変更ファイル:
+  - `src/lib/quest/questStartLogic.ts` (TABブロック解除)
+  - `src/lib/quest/questStartLogic.test.ts` (TABテスト追加)
+- **今後のイテレーションへの学び:**
+  - `questStartLogic.ts` ではスタイルベースで体系の起動可否を制御。ATは `analytic-tableau` で元々ブロックされていなかった
+  - SCクエスト起動にはProofWorkspaceのSC規則UI対応が必要（現在TAB/ATのみUI対応済み）
+  - TABクエストのUI: ProofWorkspace.tsx にTabRulePalette, handleStartTabRuleSelection等が既に実装済み
+  - devサーバーのNext.js dev overlayがPlaywright操作をインターセプトすることがある。スクリーンショット確認は可能
+---

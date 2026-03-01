@@ -34,6 +34,7 @@ import {
   tabPropSystem,
   hilbertDeduction,
   naturalDeduction,
+  tableauCalculusDeduction,
 } from "../logic-core/deductionSystem";
 
 // --- テスト用クエスト定義 ---
@@ -317,13 +318,28 @@ describe("buildQuestStartParams", () => {
     expect(result).toBeUndefined();
   });
 
-  it("タブロー法プリセットのクエストはundefinedを返す（UI未対応）", () => {
+  it("タブロー法プリセットのクエストでTAB体系が返る", () => {
     const quest: QuestDefinition = {
       ...testQuest,
       systemPresetId: "tab-prop",
     };
     const result = buildQuestStartParams(quest);
-    expect(result).toBeUndefined();
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem).toStrictEqual(
+      tableauCalculusDeduction(tabPropSystem),
+    );
+  });
+
+  it("タブロー法tabプリセットのクエストでTAB体系が返る", () => {
+    const quest: QuestDefinition = {
+      ...testQuest,
+      systemPresetId: "tab",
+    };
+    const result = buildQuestStartParams(quest);
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem).toStrictEqual(
+      tableauCalculusDeduction(tabSystem),
+    );
   });
 
   it("複数ゴールのクエストでgoalsが正しく設定される", () => {
