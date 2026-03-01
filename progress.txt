@@ -7798,3 +7798,27 @@
   - vitest --coverageの結果は全テスト集約時に異なるファイルからのインポートで数値が変わることがある（個別実行では100%でも全体では低くなる場合あり）
   - nodeRoleLogic.ts/storageService.tsは個別テスト実行ではBranch 100%だが全体集約時に低下する → テスト自体は十分
 ---
+
+## 2026-03-02 - カバレッジ改善（CutEliminationStepper・multiSelection・grid・QuestCatalog）
+- ベースライン: Stmts 99.31%, Branch 93.56%, Funcs 89.66%, Lines 99.92% (6609テスト)
+- 結果: Stmts 99.31%, Branch 93.74% (+0.18%), Funcs 89.67%, Lines 99.92% (6622テスト)
+- 実装した内容:
+  - CutEliminationStepper.test.tsx: StepLimitExceeded/Failure結果表示、cutCount=0、testId無しのテスト6件追加
+  - CutEliminationStepper.tsx: 防御的フォールバック(currentStep?.conclusionText、cutEliminationStepLimitExceeded??)にv8 ignore追加
+  - multiSelection.test.ts: rectsOverlapの4条件AND各分岐（Y方向のみ重なり、b左側、b上側）テスト3件追加
+  - grid.test.ts: computeGridDotsデフォルト引数テスト1件追加
+  - QuestCatalogComponent.test.tsx: Spaceキー操作、非対象キー(Tab)、進捗バー0%表示テスト4件追加（合計3件追加、1件は既存テスト拡張）
+  - QuestCatalogComponent.tsx: ProgressBar total===0防御的分岐にv8 ignore追加
+- 変更したファイル:
+  - src/lib/proof-pad/CutEliminationStepper.test.tsx
+  - src/lib/proof-pad/CutEliminationStepper.tsx
+  - src/lib/infinite-canvas/multiSelection.test.ts
+  - src/lib/infinite-canvas/grid.test.ts
+  - src/lib/quest/QuestCatalogComponent.test.tsx
+  - src/lib/quest/QuestCatalogComponent.tsx
+- **今後のイテレーションへの学び:**
+  - CutEliminationStepperDataは手動構築でテスト可能。computeCutEliminationStepperDataではStepLimitExceededを再現しづらい（単純なcut証明は1ステップで除去完了するため）
+  - Effect.ts SchemaはnullフィールドをInvalidFormatとして拒否する。optional??のnull分岐はSchemaレベルで到達不能
+  - applyFiltersToGroupsが空グループを除外するため、QuestCatalogのProgressBar total===0は到達不能
+  - rectsOverlapの4条件AND（a.x < b.x+b.w && b.x < a.x+a.w && a.y < b.y+b.h && b.y < a.y+a.h）は各条件を個別にfalseにするテストケースが必要
+---
