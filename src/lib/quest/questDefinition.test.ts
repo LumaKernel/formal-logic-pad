@@ -39,8 +39,8 @@ function makeQuest(
 // --- questCategories ---
 
 describe("questCategories", () => {
-  it("12個のカテゴリが定義されている", () => {
-    expect(questCategories).toHaveLength(12);
+  it("13個のカテゴリが定義されている", () => {
+    expect(questCategories).toHaveLength(13);
   });
 
   it("各カテゴリにはid, label, description, orderがある", () => {

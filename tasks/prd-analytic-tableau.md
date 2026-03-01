@@ -105,13 +105,13 @@ bekki.pdf 第6章に基づき、分析的タブロー（analytic tableaux / sema
 - [x] 型チェック/lint/test が通る
 - [x] Playwright MCP でブラウザ確認・スクリーンショット
 
-### AT-004: 分析的タブロー用クエスト
+### AT-004: 分析的タブロー用クエスト [x]
 
 **説明:** 分析的タブローの学習用クエストを追加する。
 
 **受け入れ基準:**
 
-- [ ] `src/lib/quest/builtinQuests.ts` に分析的タブロークエスト5-10問を追加:
+- [x] `src/lib/quest/builtinQuests.ts` に分析的タブロークエスト5-10問を追加:
   - 基本: P ∨ ¬P の証明（排中律）
   - 含意: P → (Q → P) の証明
   - 二重否定: ¬¬P → P の証明
@@ -119,8 +119,8 @@ bekki.pdf 第6章に基づき、分析的タブロー（analytic tableaux / sema
   - 対偶: (P → Q) → (¬Q → ¬P) の証明
   - De Morgan: ¬(P ∧ Q) ⊨ ¬P ∨ ¬Q
   - 量化子基本: ∀x.F(x) ⊨ ∃x.F(x)
-- [ ] `src/lib/quest/builtinQuests.test.ts`: クエスト数更新
-- [ ] 型チェック/lint/test が通る
+- [x] `src/lib/quest/builtinQuests.test.ts`: クエスト数更新
+- [x] 型チェック/lint/test が通る
 
 ### AT-005: 分析的タブローのリファレンスエントリ
 

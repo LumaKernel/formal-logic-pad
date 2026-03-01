@@ -2428,6 +2428,199 @@ const qTab10HypotheticalSyllogism: QuestDefinition = {
   version: 1,
 };
 
+// --- ATクエスト: 分析的タブローの基礎 ---
+
+const qAt01ExcludedMiddle: QuestDefinition = {
+  id: "at-01",
+  category: "at-basics",
+  title: "排中律 (α/β規則)",
+  description:
+    "F:φ ∨ ¬φ をルートに配置し、全枝を閉じて φ ∨ ¬φ を証明せよ。β規則で分岐し、α規則で閉じる。",
+  difficulty: 1,
+  systemPresetId: "at-prop",
+  goals: [
+    {
+      formulaText: "phi \\/ ~phi",
+      label: "Goal: φ ∨ ¬φ（排中律）",
+    },
+  ],
+  hints: [
+    "F(φ ∨ ¬φ) をルートノードとして配置しましょう（テキスト: F:phi \\/ ~phi）。",
+    "F(φ ∨ ψ) はα規則（F∨）: F(φ) と F(ψ) の2つを同一枝上に追加します。",
+    "F(¬φ) はα規則（F¬）: T(φ) に変換します。",
+    "T(φ) と F(φ) が同一枝上にあれば closure 規則で閉じられます。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "分析的タブローでは F(目標式) をルートに置き、矛盾を導くことで証明する（反駁法）。α規則は枝を分岐させず、β規則は枝を2つに分岐させる。",
+  order: 1,
+  version: 1,
+};
+
+const qAt02Implication: QuestDefinition = {
+  id: "at-02",
+  category: "at-basics",
+  title: "含意の基本 (α規則)",
+  description:
+    "F:φ → (ψ → φ) をルートに配置し、全枝を閉じて φ → (ψ → φ) を証明せよ。F→規則を繰り返し適用する。",
+  difficulty: 1,
+  systemPresetId: "at-prop",
+  goals: [
+    {
+      formulaText: "phi -> (psi -> phi)",
+      label: "Goal: φ → (ψ → φ)",
+    },
+  ],
+  hints: [
+    "F(φ → (ψ → φ)) をルートに配置しましょう（テキスト: F:phi -> (psi -> phi)）。",
+    "F(φ → ψ) はα規則（F→）: T(φ) と F(ψ) を同一枝上に追加します。",
+    "F→ を2回適用すると T(φ) と F(φ) が得られ、closure で閉じます。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "F→ 規則は F(φ → ψ) を T(φ) と F(ψ) に分解する非分岐（α）規則。含意の否定を前提と否定結論に分ける。",
+  order: 2,
+  version: 1,
+};
+
+const qAt03DoubleNegation: QuestDefinition = {
+  id: "at-03",
+  category: "at-basics",
+  title: "二重否定除去 (α規則)",
+  description:
+    "F:¬¬φ → φ をルートに配置し、全枝を閉じて ¬¬φ → φ を証明せよ。二重否定のα規則を使う。",
+  difficulty: 1,
+  systemPresetId: "at-prop",
+  goals: [
+    {
+      formulaText: "~~phi -> phi",
+      label: "Goal: ¬¬φ → φ",
+    },
+  ],
+  hints: [
+    "F(¬¬φ → φ) をルートに配置しましょう（テキスト: F:~~phi -> phi）。",
+    "F→ 規則で T(¬¬φ) と F(φ) を得ます。",
+    "T(¬¬φ) に T¬¬ 規則を適用すると T(φ) が得られます。",
+    "T(φ) と F(φ) で closure。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "二重否定除去は T¬¬ のα規則で直接処理できる。Hilbert系では複数ステップ必要な証明がタブローでは単純。",
+  order: 3,
+  version: 1,
+};
+
+const qAt04Contraposition: QuestDefinition = {
+  id: "at-04",
+  category: "at-basics",
+  title: "対偶 (α/β規則)",
+  description:
+    "F:(φ → ψ) → (¬ψ → ¬φ) をルートに配置し、全枝を閉じて対偶を証明せよ。β規則の分岐を処理する。",
+  difficulty: 2,
+  systemPresetId: "at-prop",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> (~psi -> ~phi)",
+      label: "Goal: (φ → ψ) → (¬ψ → ¬φ)",
+    },
+  ],
+  hints: [
+    "F((φ → ψ) → (¬ψ → ¬φ)) をルートに配置しましょう。",
+    "F→ で T(φ → ψ) と F(¬ψ → ¬φ) を得ます。",
+    "F(¬ψ → ¬φ) に F→ で T(¬ψ) と F(¬φ) を得ます。",
+    "T(¬ψ) → F(ψ)、F(¬φ) → T(φ) で変換。T(φ → ψ) に T→（β規則）で分岐: F(φ)/T(ψ)。各枝で closure。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "T→ は分岐を伴うβ規則。F(前件) と T(後件) の2枝に分かれ、各枝で独立に矛盾を導く。",
+  order: 4,
+  version: 1,
+};
+
+const qAt05DeMorgan: QuestDefinition = {
+  id: "at-05",
+  category: "at-basics",
+  title: "ド・モルガン (α/β規則)",
+  description:
+    "F:¬(φ ∧ ψ) → (¬φ ∨ ¬ψ) をルートに配置し、全枝を閉じてド・モルガンの法則を証明せよ。",
+  difficulty: 2,
+  systemPresetId: "at-prop",
+  goals: [
+    {
+      formulaText: "~(phi /\\ psi) -> (~phi \\/ ~psi)",
+      label: "Goal: ¬(φ ∧ ψ) → (¬φ ∨ ¬ψ)",
+    },
+  ],
+  hints: [
+    "F(¬(φ ∧ ψ) → (¬φ ∨ ¬ψ)) をルートに配置しましょう。",
+    "F→ で T(¬(φ ∧ ψ)) と F(¬φ ∨ ¬ψ) を得ます。",
+    "T(¬(φ ∧ ψ)) に T¬ で F(φ ∧ ψ) を得ます。F(φ ∧ ψ) はβ規則（F∧）で分岐。",
+    "F(¬φ ∨ ¬ψ) に F∨ で F(¬φ) と F(¬ψ) → T(φ) と T(ψ) を得ます。",
+    "各枝で F(φ)/T(φ) または F(ψ)/T(ψ) の矛盾で closure。",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "F∧ はβ規則（分岐）、F∨ はα規則（非分岐）。ド・モルガンはこの対称的な規則の組み合わせで証明できる。",
+  order: 5,
+  version: 1,
+};
+
+const qAt06Distribution: QuestDefinition = {
+  id: "at-06",
+  category: "at-basics",
+  title: "分配律 (複合分岐)",
+  description:
+    "F:(φ ∧ (ψ ∨ χ)) → ((φ ∧ ψ) ∨ (φ ∧ χ)) をルートに配置し、全枝を閉じて分配律を証明せよ。",
+  difficulty: 3,
+  systemPresetId: "at-prop",
+  goals: [
+    {
+      formulaText:
+        "(phi /\\ (psi \\/ chi)) -> ((phi /\\ psi) \\/ (phi /\\ chi))",
+      label: "Goal: (φ ∧ (ψ ∨ χ)) → ((φ ∧ ψ) ∨ (φ ∧ χ))",
+    },
+  ],
+  hints: [
+    "F→ で T(φ ∧ (ψ ∨ χ)) と F((φ ∧ ψ) ∨ (φ ∧ χ)) を得ます。",
+    "T(φ ∧ (ψ ∨ χ)) に T∧（α規則）で T(φ) と T(ψ ∨ χ) を得ます。",
+    "F((φ ∧ ψ) ∨ (φ ∧ χ)) に F∨（α規則）で F(φ ∧ ψ) と F(φ ∧ χ) を得ます。",
+    "T(ψ ∨ χ) に T∨（β規則）で分岐。各枝で F∧（β規則）をさらに適用して closure。",
+  ],
+  estimatedSteps: 10,
+  learningPoint:
+    "分配律は複数の分岐を持つ証明。T∧/F∨ はα規則（非分岐）、T∨/F∧ はβ規則（分岐）。β規則の適用順序で枝の数が変わる。",
+  order: 6,
+  version: 1,
+};
+
+const qAt07UniversalToExistential: QuestDefinition = {
+  id: "at-07",
+  category: "at-basics",
+  title: "全称から存在 (γ/δ規則)",
+  description:
+    "F:∀x.P(x) → ∃x.P(x) をルートに配置し、全枝を閉じて ∀x.P(x) → ∃x.P(x) を証明せよ。量化子規則を使う。",
+  difficulty: 2,
+  systemPresetId: "at",
+  goals: [
+    {
+      formulaText: "all x. P(x) -> ex x. P(x)",
+      label: "Goal: ∀x.P(x) → ∃x.P(x)",
+    },
+  ],
+  hints: [
+    "F(∀x.P(x) → ∃x.P(x)) をルートに配置しましょう（テキスト: F:all x. P(x) -> ex x. P(x)）。",
+    "F→ で T(∀x.P(x)) と F(∃x.P(x)) を得ます。",
+    "F(∃x.P(x)) に δ規則（F∃）を適用: F(P(a)) （固有変数 a）。",
+    "T(∀x.P(x)) に γ規則（T∀）を適用: T(P(a))（項として a を使用）。",
+    "T(P(a)) と F(P(a)) で closure。",
+  ],
+  estimatedSteps: 4,
+  learningPoint:
+    "γ規則（T∀/F∃）は任意の項で代入できる。δ規則（F∀/T∃）は固有変数条件を満たす新しい変数で代入する。δ規則で導入された変数をγ規則の項として使うのが典型パターン。",
+  order: 7,
+  version: 1,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -2525,4 +2718,11 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qTab08DisjunctionCommute,
   qTab09ModusTollens,
   qTab10HypotheticalSyllogism,
+  qAt01ExcludedMiddle,
+  qAt02Implication,
+  qAt03DoubleNegation,
+  qAt04Contraposition,
+  qAt05DeMorgan,
+  qAt06Distribution,
+  qAt07UniversalToExistential,
 ];

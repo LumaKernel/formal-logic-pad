@@ -36,6 +36,7 @@ export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
  * - "group-proofs": 群論の推論（群公理の組み合わせ）
  * - "nd-basics": 自然演繹の基礎（NM/NJ/NK）
  * - "tab-basics": タブロー法の基礎（TAB命題論理）
+ * - "at-basics": 分析的タブローの基礎（AT命題論理）
  */
 export type QuestCategory =
   | "propositional-basics"
@@ -49,7 +50,8 @@ export type QuestCategory =
   | "group-basics"
   | "group-proofs"
   | "nd-basics"
-  | "tab-basics";
+  | "tab-basics"
+  | "at-basics";
 
 /** カテゴリのメタデータ */
 export type QuestCategoryMeta = {
@@ -135,6 +137,13 @@ export const questCategories: readonly QuestCategoryMeta[] = [
       "タブロー式シーケント計算（TAB）での反駁証明。否定して閉じたタブローを構築する。",
     order: 12,
   },
+  {
+    id: "at-basics",
+    label: "分析的タブローの基礎",
+    description:
+      "分析的タブロー（Analytic Tableau）での反駁証明。署名付き論理式のα/β規則を適用し、全枝を閉じる。",
+    order: 13,
+  },
 ] as const;
 
 /** カテゴリIDからカテゴリメタデータを検索する */
@@ -174,7 +183,9 @@ export type SystemPresetId =
   | "sc-lj"
   | "sc-lk"
   | "tab-prop"
-  | "tab";
+  | "tab"
+  | "at-prop"
+  | "at";
 
 // --- クエスト定義 ---
 
