@@ -38,6 +38,7 @@
 - `src/lib/history/` は汎用undo/redoライブラリ。純粋ロジック（history.ts）+ React hook（useHistory.ts）。InfiniteCanvasとは独立
 - `replacePresent` はundo エントリを作らない一時的な更新用（ドラッグ中等）。`pushState` は通常のundo可能な操作用
 - 防御的コード（到達不能だが安全のために残す）は `/* v8 ignore start/stop */` で除外。コメントで理由を明記すること
+- カット除去: `cutElimination.ts` に純粋ロジック実装。eliminateCuts（即結果）/ eliminateCutsWithSteps（ステップ記録付き）が公開API。二重帰納法 (depth, rank)
 - MP適用ロジックは3層分離: 純粋バリデーション(`mpApplicationLogic.ts`) → 状態管理(`workspaceState.ts`) → UI(`ProofWorkspace.tsx`)
 - Gen適用ロジックも同様の3層: `genApplicationLogic.ts` → `workspaceState.ts` → `ProofWorkspace.tsx`。新しい推論規則追加時はこのパターンに従う
 - ND適用ロジックも同様の3層: `ndApplicationLogic.ts` → `workspaceState.ts` → `ProofWorkspace.tsx`。EFQ等の結論自動計算不可な規則は Success union の discriminated tag で分岐
@@ -7266,4 +7267,42 @@
   - パーサーの量化子構文は `all x.` / `forall x.`（∀）と `ex x.` / `exists x.`（∃）。`Ax.` や `Ex.` は認識されない
   - ATクエストのgoal formulaTextは通常の論理式（`phi \/ ~phi`等）で記述する。署名付き形式（`T:φ`/`F:φ`）はルートノード作成時にUI側で付与される
   - builtinQuestsの総数を100に到達させた。次のクエスト追加時はテストの期待値を更新すること
+---
+
+## 2026-03-01 - カット除去アルゴリズム純粋ロジック実装 (C2前段階)
+- 実装した内容: bekki Ch.11 に基づくカット除去定理の純粋ロジック実装
+  - `cutElimination.ts` (~1730行): MIX規則に対する (depth, rank) の辞書式二重帰納法
+  - formulaDepth: 論理式の深さ計算
+  - mixRank (leftRank + rightRank): カット式の左右ランク計算
+  - eliminateCuts / eliminateCutsWithSteps: メインAPI（ステップ記録付き）
+  - eliminateSingleCut: (d, r) の辞書式降下でカットを除去
+  - eliminateRankZeroLeft / eliminateRankZeroRight: ランク0ケース（弱化で構成）
+  - reduceRank → pushMixIntoLeft / pushMixIntoRight: ランク削減 (Lemma 11.24)
+  - reduceDepth → reduceImplicationCut / reduceConjunctionCut / reduceDisjunctionCut: 深さ削減 (Lemma 11.26)
+  - eliminateBaseCut: 基底ケース (r=1, d=1) (Lemma 11.23)
+  - isCutFree / countCuts: 検証ユーティリティ
+  - `cutElimination.test.ts` (131テスト): 全ルールケース、ランク削減、深さ削減、基底ケースを網羅
+- 変更したファイル:
+  - `src/lib/logic-core/cutElimination.ts` (新規)
+  - `src/lib/logic-core/cutElimination.test.ts` (新規)
+  - `src/lib/logic-core/index.ts` - cutEliminationモジュールのエクスポート追加
+  - `tasks/prd-advanced.md` - C2を実行中 [-] マーク
+  - `tasks/prd-logic-pad-world.md` - 不要タスクを整理
+  - `tasks-archived/prd-formal-logic-pad.md` (アーカイブ)
+  - `tasks-archived/prd-logic-pad-world.md` (アーカイブ)
+- ベースラインカバレッジ: Stmts 97.07%, Branch 90.84%, Funcs 88.67%, Lines 97.86%
+- 完了後カバレッジ: Stmts 96.80%, Branch 90.22%, Funcs 88.10%, Lines 97.96%
+  - cutElimination.ts: Stmts 91.19%, Branch 77.30%, Funcs 62.85%, Lines 100%
+  - Lines カバレッジは向上 (97.86% → 97.96%)
+  - Stmts は新規1730行ファイルの影響で微減 (-0.27%)。v8 ignore 対象は防御的コード・到達不能分岐のみ
+- テスト: 207ファイル、6367テスト全パス
+- スクリーンショット:
+  - `.screenshots/storybook-cutElimination-check.png` - Storybook正常動作確認（純粋ロジック変更のためUI影響なし）
+- **今後のイテレーションへの学び:**
+  - カット除去の二重帰納法は (depth, rank) の辞書式順序。rank >= 2 でランク削減、rank = 1 で深さ削減
+  - pushMixIntoLeft/Right の各構造規則ケースでは、カット式が該当規則の主式かどうかで分岐が変わる
+  - eliminateRankZeroLeft/Right は弱化で結論を構成。adjustConclusion で交換規則の代替を行う
+  - v8 ignore は `/* v8 ignore start */` / `/* v8 ignore stop */` のブロック形式を使うこと（next N は不安定）
+  - ScExchangeRight テストを忘れやすい。eliminateFromChildren の全ケースを網羅すること
+  - 大規模な純粋ロジックモジュールではカバレッジのStmts/Branch低下は避けがたい。Lines 100% を目標にしつつ、防御コードは v8 ignore で対処
 ---
