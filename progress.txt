@@ -7415,3 +7415,28 @@
   - ProofWorkspaceへの統合にはWorkspaceState ↔ ScProofNode変換レイヤーが必要（現在未実装）
   - GoalPanel 3層パターン（純粋ロジック → UIコンポーネント → ワークスペース統合）は再利用性が高い
 ---
+
+## 2026-03-01 - [reference] Don't Eliminate Cut リファレンスエントリー追加
+- George Boolos (1984) "Don't Eliminate Cut" の内容をリファレンスエントリーとして追加
+  - カット除去で証明が超指数関数的に膨張する具体例 H_n の解説
+  - CUTあり証明 O(2^n) vs CUTなし証明 > 2^(2^n) の対比
+  - 補題の再利用（カット/モーダスポネンス）の実用的重要性
+  - 日英バイリンガル4パラグラフ
+- concept-cut-elimination から相互リンク追加
+- prd-advanced.md 全タスク完了によりアーカイブ
+- 変更ファイル:
+  - `src/lib/reference/referenceContent.ts` - 新エントリ concept-speed-up-theorem 追加（+73行）
+  - `src/lib/reference/referenceContent.test.ts` - エントリ数 59→60 に更新
+  - `tasks-archived/prd-advanced.md` - C2完了をアーカイブに追記
+  - `tasks/prd-advanced.md` - 全完了により削除（.trashedへ移動）
+  - `tasks/prd-logic-pad-world.md` - Don't eliminate cutタスク完了マーク
+- ベースラインカバレッジ: Stmts 97.23%, Branch 90.85%, Funcs 88.69%, Lines 97.94%
+- 完了後カバレッジ: Stmts 97.23%, Branch 90.85%, Funcs 88.69%, Lines 97.94%（変化なし）
+- テスト: 212ファイル、6457→6464テスト全パス（+7: 新エントリのバリデーション）
+- スクリーンショット: `.screenshots/dont-eliminate-cut-storybook-check.png`
+- **今後のイテレーションへの学び:**
+  - リファレンスエントリ追加時は3ファイル同期: referenceContent.ts（エントリ定義 + allReferenceEntries配列）、referenceContent.test.ts（エントリ数）
+  - ExternalLinkType に "paper" があるので学術論文のリンクに使える
+  - relatedEntryIds は双方向に設定するとナビゲーション体験が向上する
+  - 概念エントリのorder番号は現在の最大値+1（概念カテゴリの最後のorderを確認すること）
+---

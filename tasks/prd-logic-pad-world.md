@@ -3,4 +3,4 @@
 
 - [-] クエストモード的な形で、基礎を学んだり、問題形式で進めることができる。
   - [ ] 大きなゴールのひとつはカット除去定理を遂行すること。実装をサポートしてもらいながら実際にカット除去定理まで学べたらいい
-  - [-] カット除去定理の一個次として、Don't eliminate cutの例を載せたい。 https://www.jstor.org/stable/30226313 (./dont-elim-cut.pdf を参照)
+  - [x] カット除去定理の一個次として、Don't eliminate cutの例を載せたい。 https://www.jstor.org/stable/30226313 (./dont-elim-cut.pdf を参照)
