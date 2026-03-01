@@ -99,6 +99,30 @@
 
 ---
 
+## 2026-03-01 - formula入力の構文ヘルプボタン追加
+- TermInput に `onOpenSyntaxHelp` プロップ追加（?ボタン表示）
+- EdgeParameterPopover（代入入力）に `onOpenSyntaxHelp` プロップ追加（?ボタン表示）
+- ProofWorkspace → EdgeParameterPopover への `onOpenSyntaxHelp` 伝播
+- WorkspacePageView に `onOpenSyntaxHelp` プロップ追加
+- TermInput ストーリー「With Syntax Help」追加（play関数付き）
+- テスト: TermInput 3テスト追加、EdgeParameterPopover 5テスト追加
+- カバレッジ: Stmts 99.03%, Lines 99.7% — ベースラインから変化なし
+- 品質チェック: typecheck ✅, lint ✅, test ✅ (6568テスト全パス)
+- ブラウザテスト: `.screenshots/terminput-syntax-help-button.png`, `.screenshots/formulaeditor-syntax-help.png`
+- 変更ファイル:
+  - `src/lib/formula-input/TermInput.tsx` (?ボタン追加)
+  - `src/lib/formula-input/TermInput.test.tsx` (テスト追加)
+  - `src/lib/formula-input/TermInput.stories.tsx` (ストーリー追加)
+  - `src/lib/proof-pad/EdgeParameterPopover.tsx` (?ボタン追加)
+  - `src/lib/proof-pad/EdgeParameterPopover.test.tsx` (テスト追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (onOpenSyntaxHelp伝播)
+  - `src/app/workspace/[id]/WorkspacePageView.tsx` (プロップ追加)
+- **今後のイテレーションへの学び:**
+  - TermInputの?ボタンはFormulaEditorと同じパターン（`onOpenSyntaxHelp` prop + ?ボタン + mouseDown/click stopPropagation）
+  - EdgeParameterPopoverの?ボタンは代入(substitution)ポップオーバーのみに表示（genには不要 — 変数名入力のみなので）
+  - syntaxHelpButtonStyleはTermInputとEdgeParameterPopoverで重複定義されている。将来的に共通化候補
+---
+
 ## 2026-03-01 - 分析的タブローリファレンスエントリ (AT-005)
 - `src/lib/reference/referenceContent.ts` に分析的タブローのリファレンスエントリ (`concept-analytic-tableau`) を追加
   - 8パラグラフ構成: 概要、署名付き論理式、α規則、β規則、枝の閉じ、γ/δ規則、TABとの関係、簡略化記法
