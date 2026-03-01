@@ -7611,3 +7611,22 @@
   - `parseString("p -> q")` は失敗する。パーサーはギリシャ文字名（phi, psi, alpha等）を使用
   - `FormulaDisplay`/`TermDisplay` はAST入力なので、テキストからの表示にはパーサーが必要
 ---
+
+## 2026-03-01 - [proof-pad] コネクション削除時のノードラベル残留修正
+- 問題: MP/Gen/Substitutionのコネクション削除後、結論ノードに「MP」「Gen」「Subst」等のラベルが残留
+- 原因: `removeConnection` がInferenceEdge削除時にノードの`label`プロパティをリセットしていなかった
+- 修正: `workspaceState.ts` の `removeConnection` で、InferenceEdge削除時に結論ノードのラベルを `getProofNodeKindLabel(n.kind)` でデフォルト値にリセット
+- アプローチ: 状態層（workspaceState）のみで修正。UI層（ProofWorkspace.tsx）は `node.label` をそのまま表示
+  - 当初はUI層でInferenceEdgeからラベルを動的計算する案を試したが、エッジバッジとノードラベルで「Gen(x)」が重複する問題が発生
+  - 状態層のみのリセットが最もシンプルかつ正確な修正
+- テスト追加: workspaceState.test.ts に2件（MP/Substitutionのラベルリセット確認）
+- ストーリー追加: ConnectionDelete ストーリーに `.not.toHaveTextContent("MP")` + `.toHaveTextContent("Axiom")` アサーション追加
+- ブラウザ確認: localhost:13000で実際にコネクション削除→ラベルリセットを確認
+- カバレッジ: 99.02% (ベースライン 99.03%、実質変動なし)。テスト: 212ファイル 6577テスト全パス
+- 変更ファイル: `workspaceState.ts`, `workspaceState.test.ts`, `ProofWorkspace.stories.tsx`, `EditableProofNode.tsx`(Prettier)
+- スクリーンショット: `.screenshots/workspace-before-delete.png`, `.screenshots/workspace-after-delete.png`, `.screenshots/connection-delete-interactions-pass.png`
+- **今後のイテレーションへの学び:**
+  - `WorkspaceNode.label` は永続化されるため、InferenceEdge由来のラベルを状態に書き込む場合、Edge削除時のリセットも必須
+  - UI層での動的計算は、エッジバッジとの重複に注意が必要（同じ情報が2箇所に表示される問題）
+  - 状態層のみでの修正が、テスト容易性・シンプルさの面で優れている
+---
