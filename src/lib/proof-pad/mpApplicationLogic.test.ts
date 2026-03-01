@@ -673,6 +673,36 @@ describe("mpApplicationLogic", () => {
       expect(result.has("n1")).toBe(true);
       expect(result.has("n2")).toBe(true);
     });
+
+    it("skips nodes with unparseable formula", () => {
+      const nodes: readonly WorkspaceNode[] = [
+        {
+          id: "right",
+          kind: "axiom",
+          label: "",
+          formulaText: "phi -> psi",
+          position: { x: 0, y: 0 },
+        },
+        {
+          id: "unparseable",
+          kind: "axiom",
+          label: "",
+          formulaText: "!!!invalid",
+          position: { x: 100, y: 0 },
+        },
+        {
+          id: "match",
+          kind: "axiom",
+          label: "",
+          formulaText: "phi",
+          position: { x: 200, y: 0 },
+        },
+      ];
+      const result = computeMPLeftCompatibleNodeIds(nodes, "right");
+      expect(result.size).toBe(1);
+      expect(result.has("match")).toBe(true);
+      expect(result.has("unparseable")).toBe(false);
+    });
   });
 
   describe("isNodeImplication", () => {
