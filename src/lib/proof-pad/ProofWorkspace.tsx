@@ -818,6 +818,7 @@ export function ProofWorkspace({
     [workspace.nodes, nodeSizes],
   );
 
+  /* v8 ignore start -- ポートドラッグ接続: 実座標ベースのDOM操作が必要でJSDOMではテスト不可。ブラウザテストで検証 */
   const handleValidateConnection = useCallback(
     (
       sourceItemId: string,
@@ -864,6 +865,7 @@ export function ProofWorkspace({
     },
     [workspace, setWorkspaceWithAutoLayout],
   );
+  /* v8 ignore stop */
 
   const {
     previewState: connectionPreviewState,
@@ -882,6 +884,7 @@ export function ProofWorkspace({
 
   const selectableItems: readonly SelectableItem[] = minimapItems;
 
+  /* v8 ignore start -- マーキー選択: useMarqueeコールバック。実ポインタ操作が必要 */
   const handleMarqueeSelectionChange = useCallback(
     (ids: ReadonlySet<string>) => {
       setSelectedNodeIds(ids);
@@ -890,6 +893,7 @@ export function ProofWorkspace({
     },
     [],
   );
+  /* v8 ignore stop */
 
   const {
     marqueeRect,
@@ -908,6 +912,7 @@ export function ProofWorkspace({
   const marqueeEnabled =
     isShiftMarqueeActive && connectionPreviewState === null;
 
+  /* v8 ignore start -- ポートドラッグ開始・移動・完了: 実座標ベースのDOM操作が必要。ブラウザテストで検証 */
   const handlePortDragStart = useCallback(
     (nodeId: string) => (portId: string, screenX: number, screenY: number) => {
       const size = nodeSizes.get(nodeId);
@@ -942,6 +947,7 @@ export function ProofWorkspace({
       endConnectionDrag();
     }
   }, [connectionPreviewState, endConnectionDrag]);
+  /* v8 ignore stop */
 
   // --- 公理パレット ---
 
@@ -1307,15 +1313,19 @@ export function ProofWorkspace({
       if (atSelection.phase === "selecting-contradiction") {
         // closure: 矛盾ノード選択 → 適用
         const principalNode = findNode(workspace, atSelection.principalNodeId);
+        /* v8 ignore start -- 防御的コード: クリックされたノードが存在しないケースは通常到達不能 */
         if (!principalNode) {
           setAtSelection({ phase: "idle" });
           return;
         }
+        /* v8 ignore stop */
         const contradictionNode = findNode(workspace, nodeId);
+        /* v8 ignore start -- 防御的コード */
         if (!contradictionNode) {
           setAtSelection({ phase: "idle" });
           return;
         }
+        /* v8 ignore stop */
 
         const result = applyAtRuleAndConnect(
           workspace,
@@ -1858,10 +1868,12 @@ export function ProofWorkspace({
 
   const handleCanvasClick = useCallback(() => {
     // マーキー選択直後のclickイベントはスキップ
+    /* v8 ignore start -- マーキー操作後のclick抑制: JSDOMではマーキー操作が再現不可 */
     if (suppressNextClickRef.current) {
       suppressNextClickRef.current = false;
       return;
     }
+    /* v8 ignore stop */
     // キャンバスの空白部分クリックで選択解除
     if (selectedNodeIds.size > 0) {
       setSelectedNodeIds(clearSelection());
@@ -2130,6 +2142,7 @@ export function ProofWorkspace({
   );
 
   const handleEdgeBadgeConfirmSubstitution = useCallback(
+    /* v8 ignore start -- エッジバッジ編集: SVG接続線上のバッジクリックが必要。ブラウザテストで検証 */
     (conclusionNodeId: string, entries: SubstitutionEntries) => {
       const updated = updateInferenceEdgeSubstitutionEntries(
         workspace,
@@ -2145,6 +2158,7 @@ export function ProofWorkspace({
   const handleEdgeBadgeCancel = useCallback(() => {
     setEdgeBadgeEditState(null);
   }, []);
+  /* v8 ignore stop */
 
   // コンテキストメニュー表示時のノード情報（メニューの enabled/disabled 判定用）
   const menuNodeIsImplication = useMemo(() => {
@@ -2203,6 +2217,7 @@ export function ProofWorkspace({
     [],
   );
 
+  /* v8 ignore start -- 接続線コンテキストメニュー: SVG上の右クリック操作が必要。ブラウザテストで検証 */
   const handleDeleteConnection = useCallback(() => {
     if (!lineMenuState.open) return;
     const result = removeConnection(workspace, lineMenuState.connectionId);
@@ -2226,6 +2241,7 @@ export function ProofWorkspace({
       document.removeEventListener("pointerdown", handleClickOutside);
     };
   }, [lineMenuState.open]);
+  /* v8 ignore stop */
 
   // ワークスペース操作メニュー外クリックで閉じる
   useEffect(() => {
@@ -2281,6 +2297,7 @@ export function ProofWorkspace({
     });
   }, [workspace, canvasMenuState.worldPosition, setWorkspace]);
 
+  /* v8 ignore start -- キャンバスコンテキストメニュー外クリック: ref.contains使用でJSDOMではテスト不安定 */
   // キャンバスコンテキストメニュー外クリックで閉じる
   useEffect(() => {
     if (!canvasMenuState.open) return;
@@ -2297,6 +2314,7 @@ export function ProofWorkspace({
       document.removeEventListener("pointerdown", handleClickOutside);
     };
   }, [canvasMenuState.open]);
+  /* v8 ignore stop */
 
   // --- コピー＆ペースト ---
 
