@@ -8000,3 +8000,22 @@
   - inferenceEdge.tsに新エッジ型追加時は、getEdgePremiseNodeIds, remapEdgeNodeIds, replaceNodeIdInEdge, getInferenceEdgeLabel, getInferenceEdgeConclusionNodeIdの全switch文と、isXxxInferenceEdge型ガード、workspaceExport.ts Schema、inferenceEdgeLabelLogic.ts、edgeBadgeEditLogic.tsの更新が必要
   - ProofWorkspace.tsxのカバレッジ低下はUI統合で避けられない。純粋ロジック層を100%カバーすることで品質を担保する
 ---
+
+## 2026-03-02 - カバレッジ改善（ProofWorkspace.tsx + scApplicationLogic.ts）
+- ProofWorkspace.tsx: 未カバー3行を対処
+  - Lines 2614, 2624: isNodeProtectedが常にfalseを返すための到達不能コード → `/* v8 ignore next */` で防御的コードとして除外
+  - Line 3335: auto-layout direction onChange ハンドラ → `fireEvent.change` テスト追加でカバー
+- scApplicationLogic.ts: 未カバー2行を対処
+  - Line 409: contraction-right の principalPosition 範囲外エラー → テスト追加
+  - Line 866: universal-left の isFreeFor 失敗エラー → テスト追加
+  - scApplicationLogic.ts Lines 100%到達
+- カバレッジ: Stmts 98.71% → 98.76%, Lines 99.18% → 99.22%（向上）
+- テスト: 214ファイル, 6820テスト全パス（+3テスト追加）
+- 変更したファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx（v8 ignore追加）
+  - src/lib/proof-pad/ProofWorkspace.test.tsx（方向セレクタテスト追加）
+  - src/lib/proof-pad/scApplicationLogic.test.ts（位置範囲外・isFreeForテスト追加）
+- **今後のイテレーションへの学び:**
+  - isNodeProtectedが常にfalseを返す設計のため、merge関連の.map()は到達不能。将来isNodeProtectedが実装される場合はテスト追加が必要
+  - existential-right のisFreeForテストパターン（`∃x.∀y.P(x)` + term=y）をuniversal-leftにも転用可能
+---
