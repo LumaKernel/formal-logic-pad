@@ -1,0 +1,4 @@
+- [x] タブローを対応するということは企画できないだろうか ( ./bekki.pdf を参考にしつつ)
+  - [x] まずはタスク分割 → `tasks/prd-analytic-tableau.md` に PRD 作成済み
+- [x] タブロー式シークエント計算を対応するということは企画できないだろうか ( ./bekki.pdf を参考にしつつ)
+  - [x] まずはタスク分割 → `tasks/prd-advanced.md` の B1-B4 で実装済み（tableauCalculus.ts + UI + クエスト + リファレンス）
