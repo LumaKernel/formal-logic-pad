@@ -88,6 +88,72 @@ describe("edgeBadgeEditLogic", () => {
       });
     });
 
+    it("returns undefined for TAB edges (no parameter editing)", () => {
+      const tabEdges: readonly InferenceEdge[] = [
+        {
+          _tag: "tab-single",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          ruleId: "conjunction",
+          conclusionText: "P ∧ Q ⊢",
+        },
+        {
+          _tag: "tab-branching",
+          conclusionNodeId: "n1",
+          leftPremiseNodeId: "n2",
+          rightPremiseNodeId: "n3",
+          ruleId: "neg-conjunction",
+          leftConclusionText: "¬P ⊢",
+          rightConclusionText: "¬Q ⊢",
+          conclusionText: "¬(P ∧ Q) ⊢",
+        },
+        {
+          _tag: "tab-axiom",
+          conclusionNodeId: "n1",
+          ruleId: "bs",
+          conclusionText: "P ⊢ P",
+        },
+      ];
+      for (const edge of tabEdges) {
+        expect(createEditStateFromEdge(edge)).toBeUndefined();
+      }
+    });
+
+    it("returns undefined for AT edges (no parameter editing)", () => {
+      const atEdges: readonly InferenceEdge[] = [
+        {
+          _tag: "at-alpha",
+          conclusionNodeId: "n1",
+          resultNodeId: "n2",
+          secondResultNodeId: undefined,
+          ruleId: "alpha-double-neg-t",
+          resultText: "T:P",
+          secondResultText: undefined,
+          conclusionText: "T:¬¬P",
+        },
+        {
+          _tag: "at-beta",
+          conclusionNodeId: "n1",
+          leftResultNodeId: "n2",
+          rightResultNodeId: "n3",
+          ruleId: "beta-impl",
+          conclusionText: "T:P→Q",
+          leftResultText: "F:P",
+          rightResultText: "T:Q",
+        },
+        {
+          _tag: "at-closed",
+          conclusionNodeId: "n1",
+          ruleId: "closure",
+          contradictionNodeId: "n2",
+          conclusionText: "closed",
+        },
+      ];
+      for (const edge of atEdges) {
+        expect(createEditStateFromEdge(edge)).toBeUndefined();
+      }
+    });
+
     it("returns undefined for all ND edges (no parameter editing)", () => {
       const ndEdges: readonly InferenceEdge[] = [
         {

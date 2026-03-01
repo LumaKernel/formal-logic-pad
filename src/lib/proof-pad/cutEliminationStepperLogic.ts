@@ -151,8 +151,10 @@ export function resolveStepperState(
       currentCutCount = countCuts(step.proof);
     } else {
       // フォールバック（到達不能だが防御的に）
+      /* v8 ignore start */
       currentProof = originalProof;
       currentCutCount = baseData.initialInfo.cutCount;
+      /* v8 ignore stop */
     }
   }
 

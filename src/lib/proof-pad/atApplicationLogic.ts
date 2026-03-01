@@ -19,7 +19,11 @@
 import { Data, Effect, Either } from "effect";
 import { parseString, parseTermString } from "../logic-lang/parser";
 import { formatFormula } from "../logic-lang/formatUnicode";
-import type { Sign, SignedFormula, AtRuleId } from "../logic-core/analyticTableau";
+import type {
+  Sign,
+  SignedFormula,
+  AtRuleId,
+} from "../logic-core/analyticTableau";
 import {
   signedFormula,
   applyAlphaRule,
@@ -239,7 +243,11 @@ export const validateAtApplicationEffect = (
 
     // γ規則
     if (isGammaRule(params.ruleId)) {
-      return yield* validateGammaEffect(sf, params.ruleId, params.termText ?? "");
+      return yield* validateGammaEffect(
+        sf,
+        params.ruleId,
+        params.termText ?? "",
+      );
     }
 
     // δ規則
@@ -271,6 +279,8 @@ const validateAlphaEffect = (
 ): Effect.Effect<AtAlphaResult, AtApplicationError> =>
   Effect.gen(function* () {
     const result = applyAlphaRule(sf);
+    // 防御的コード: classifySignedFormula が既にα規則であることを確認済みのため到達不能
+    /* v8 ignore start */
     if (result === undefined) {
       return yield* Effect.fail(
         new AtPrincipalFormulaMismatch({
@@ -279,6 +289,7 @@ const validateAlphaEffect = (
         }),
       );
     }
+    /* v8 ignore stop */
     const firstResult = formatSignedFormulaText(result.results[0]);
     const secondResult =
       result.results.length === 2
@@ -301,6 +312,8 @@ const validateBetaEffect = (
 ): Effect.Effect<AtBetaResult, AtApplicationError> =>
   Effect.gen(function* () {
     const result = applyBetaRule(sf);
+    // 防御的コード: classifySignedFormula が既にβ規則であることを確認済みのため到達不能
+    /* v8 ignore start */
     if (result === undefined) {
       return yield* Effect.fail(
         new AtPrincipalFormulaMismatch({
@@ -309,6 +322,7 @@ const validateBetaEffect = (
         }),
       );
     }
+    /* v8 ignore stop */
     return {
       _tag: "at-beta-result",
       ruleId: result.ruleId,
@@ -338,6 +352,8 @@ const validateGammaEffect = (
       );
     }
     const result = applyGammaRule(sf, termResult.right);
+    // 防御的コード: classifySignedFormula が既にγ規則であることを確認済みのため到達不能
+    /* v8 ignore start */
     if (result === undefined) {
       return yield* Effect.fail(
         new AtPrincipalFormulaMismatch({
@@ -346,6 +362,7 @@ const validateGammaEffect = (
         }),
       );
     }
+    /* v8 ignore stop */
     return {
       _tag: "at-gamma-result",
       ruleId: result.ruleId,
@@ -395,6 +412,8 @@ const validateDeltaEffect = (
     }
 
     const result = applyDeltaRule(sf, zeta);
+    // 防御的コード: classifySignedFormula が既にδ規則であることを確認済みのため到達不能
+    /* v8 ignore start */
     if (result === undefined) {
       return yield* Effect.fail(
         new AtPrincipalFormulaMismatch({
@@ -403,6 +422,7 @@ const validateDeltaEffect = (
         }),
       );
     }
+    /* v8 ignore stop */
     return {
       _tag: "at-delta-result",
       ruleId: result.ruleId,

@@ -21,10 +21,7 @@ import {
   tableauCalculusDeduction,
   tabSystem,
 } from "../logic-core/deductionSystem";
-import {
-  createEmptyWorkspace,
-  applyTabRuleAndConnect,
-} from "./workspaceState";
+import { createEmptyWorkspace, applyTabRuleAndConnect } from "./workspaceState";
 
 const tabDeduction = tableauCalculusDeduction(tabSystem);
 
@@ -189,12 +186,26 @@ describe("tabApplicationLogic", () => {
       }
     });
 
-    it("範囲外の交換位置ではエラーを返す", () => {
+    it("範囲外の交換位置ではエラーを返す（位置が大きすぎる）", () => {
       const result = validateTabApplication(
         makeParams({
           ruleId: "exchange",
           sequentText: "φ, ψ",
           exchangePosition: 1,
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabExchangePositionError");
+      }
+    });
+
+    it("範囲外の交換位置ではエラーを返す（負の位置）", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "exchange",
+          sequentText: "φ, ψ",
+          exchangePosition: -1,
         }),
       );
       expect(Either.isLeft(result)).toBe(true);
@@ -293,7 +304,7 @@ describe("tabApplicationLogic", () => {
       }
     });
 
-    it("主論理式が¬(φ∧ψ)でない場合はエラー", () => {
+    it("主論理式が¬(φ∧ψ)でない場合はエラー（内部が連言でない）", () => {
       const result = validateTabApplication(
         makeParams({
           ruleId: "neg-conjunction",
@@ -303,11 +314,39 @@ describe("tabApplicationLogic", () => {
       );
       expect(Either.isLeft(result)).toBe(true);
     });
+
+    it("主論理式が否定でない場合はエラー", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "neg-conjunction",
+          sequentText: "φ ∧ ψ",
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabPrincipalFormulaMismatch");
+      }
+    });
   });
 
   // --- 選言規則 ---
 
   describe("∨ (選言)", () => {
+    it("主論理式が選言でない場合はエラー", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "disjunction",
+          sequentText: "φ ∧ ψ",
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabPrincipalFormulaMismatch");
+      }
+    });
+
     it("φ∨ψ から分岐: φ / ψ", () => {
       const result = validateTabApplication(
         makeParams({
@@ -330,6 +369,34 @@ describe("tabApplicationLogic", () => {
   // --- 否定選言規則 ---
 
   describe("¬∨ (否定選言)", () => {
+    it("主論理式が¬(φ∨ψ)でない場合はエラー（否定でない）", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "neg-disjunction",
+          sequentText: "φ ∨ ψ",
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabPrincipalFormulaMismatch");
+      }
+    });
+
+    it("主論理式が¬(φ∨ψ)でない場合はエラー（内部が選言でない）", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "neg-disjunction",
+          sequentText: "¬(φ ∧ ψ)",
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabPrincipalFormulaMismatch");
+      }
+    });
+
     it("¬(φ∨ψ) から ¬φ, ¬ψ を追加する", () => {
       const result = validateTabApplication(
         makeParams({
@@ -351,6 +418,20 @@ describe("tabApplicationLogic", () => {
   // --- 含意規則 ---
 
   describe("→ (含意)", () => {
+    it("主論理式が含意でない場合はエラー", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "implication",
+          sequentText: "φ ∧ ψ",
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabPrincipalFormulaMismatch");
+      }
+    });
+
     it("φ→ψ から分岐: ¬φ / ψ", () => {
       const result = validateTabApplication(
         makeParams({
@@ -373,6 +454,34 @@ describe("tabApplicationLogic", () => {
   // --- 否定含意規則 ---
 
   describe("¬→ (否定含意)", () => {
+    it("主論理式が¬(φ→ψ)でない場合はエラー（否定でない）", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "neg-implication",
+          sequentText: "φ → ψ",
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabPrincipalFormulaMismatch");
+      }
+    });
+
+    it("主論理式が¬(φ→ψ)でない場合はエラー（内部が含意でない）", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "neg-implication",
+          sequentText: "¬(φ ∧ ψ)",
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabPrincipalFormulaMismatch");
+      }
+    });
+
     it("¬(φ→ψ) から φ, ¬ψ を追加する", () => {
       const result = validateTabApplication(
         makeParams({
@@ -426,6 +535,53 @@ describe("tabApplicationLogic", () => {
         expect(result.left._tag).toBe("TabTermParseError");
       }
     });
+
+    it("不正な項テキストではエラー", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "universal",
+          sequentText: "∀x.P(x)",
+          principalPosition: 0,
+          termText: "∧∧",
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabTermParseError");
+      }
+    });
+
+    it("主論理式が全称でない場合はエラー", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "universal",
+          sequentText: "∃x.P(x)",
+          principalPosition: 0,
+          termText: "y",
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabPrincipalFormulaMismatch");
+      }
+    });
+
+    it("代入項がfree forでない場合はエラー", () => {
+      // ∀x.∀y.P(x) に対して y を代入すると、
+      // ∀y.P(y) になり y が内側の ∀y に捕獲される
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "universal",
+          sequentText: "∀x.∀y.P(x)",
+          principalPosition: 0,
+          termText: "y",
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabEigenVariableError");
+      }
+    });
   });
 
   // --- 否定全称規則 ---
@@ -475,6 +631,36 @@ describe("tabApplicationLogic", () => {
       );
       expect(Either.isLeft(result)).toBe(true);
     });
+
+    it("主論理式が¬∀でない場合はエラー（否定でない）", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "neg-universal",
+          sequentText: "∀x.P(x)",
+          principalPosition: 0,
+          eigenVariable: "z",
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabPrincipalFormulaMismatch");
+      }
+    });
+
+    it("主論理式が¬∀でない場合はエラー（内部が全称でない）", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "neg-universal",
+          sequentText: "¬∃x.P(x)",
+          principalPosition: 0,
+          eigenVariable: "z",
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabPrincipalFormulaMismatch");
+      }
+    });
   });
 
   // --- 存在規則 ---
@@ -508,6 +694,36 @@ describe("tabApplicationLogic", () => {
         }),
       );
       expect(Either.isLeft(result)).toBe(true);
+    });
+
+    it("主論理式が存在量化でない場合はエラー", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "existential",
+          sequentText: "∀x.P(x)",
+          principalPosition: 0,
+          eigenVariable: "z",
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabPrincipalFormulaMismatch");
+      }
+    });
+
+    it("固有変数名が空の場合はエラー", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "existential",
+          sequentText: "∃x.P(x)",
+          principalPosition: 0,
+          eigenVariable: "",
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabEigenVariableError");
+      }
     });
   });
 
@@ -574,6 +790,23 @@ describe("tabApplicationLogic", () => {
       expect(Either.isLeft(result)).toBe(true);
       if (Either.isLeft(result)) {
         expect(result.left._tag).toBe("TabTermParseError");
+      }
+    });
+
+    it("代入項がfree forでない場合はエラー", () => {
+      // ¬∃x.∀y.P(x) に対して y を代入すると、
+      // ¬∀y.P(y) になり y が内側の ∀y に捕獲される
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "neg-existential",
+          sequentText: "¬∃x.∀y.P(x)",
+          principalPosition: 0,
+          termText: "y",
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("TabEigenVariableError");
       }
     });
   });
@@ -831,9 +1064,7 @@ describe("tabApplicationLogic", () => {
       expect(result.premiseNodeIds).toHaveLength(1);
       expect(result.premiseNodeIds[0]).toBe("node-2");
 
-      const premiseNode = result.workspace.nodes.find(
-        (n) => n.id === "node-2",
-      );
+      const premiseNode = result.workspace.nodes.find((n) => n.id === "node-2");
       expect(premiseNode).toBeDefined();
       expect(premiseNode!.formulaText).toBe("φ, ¬¬φ");
 

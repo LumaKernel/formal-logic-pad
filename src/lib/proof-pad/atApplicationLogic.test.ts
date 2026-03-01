@@ -30,10 +30,7 @@ import {
   type AtApplicationSuccess,
 } from "./atApplicationLogic";
 import { signedFormula } from "../logic-core/analyticTableau";
-import {
-  conjunction,
-  predicate,
-} from "../logic-core/formula";
+import { conjunction, predicate } from "../logic-core/formula";
 
 // --- ヘルパー ---
 
@@ -347,6 +344,16 @@ describe("atApplicationLogic", () => {
       });
       expect(result._tag).toBe("at-delta-result");
     });
+
+    it("枝上にパース不可能なテキストがあっても無視してバリデーション成功", () => {
+      const result = expectSuccess({
+        ruleId: "delta-neg-univ",
+        signedFormulaText: "F:∀x.P(x)",
+        eigenVariable: "z",
+        branchFormulaTexts: ["T:Q(y)", "invalid-text", "F:R"],
+      });
+      expect(result._tag).toBe("at-delta-result");
+    });
   });
 
   // ── closure ──
@@ -392,6 +399,24 @@ describe("atApplicationLogic", () => {
       const tag = expectErrorTag({
         ruleId: "closure",
         signedFormulaText: "T:P",
+      });
+      expect(tag).toBe("AtContradictionError");
+    });
+
+    it("矛盾テキストが空文字列でエラー", () => {
+      const tag = expectErrorTag({
+        ruleId: "closure",
+        signedFormulaText: "T:P",
+        contradictionFormulaText: "",
+      });
+      expect(tag).toBe("AtContradictionError");
+    });
+
+    it("矛盾テキストが空白のみでエラー", () => {
+      const tag = expectErrorTag({
+        ruleId: "closure",
+        signedFormulaText: "T:P",
+        contradictionFormulaText: "  ",
       });
       expect(tag).toBe("AtContradictionError");
     });
@@ -517,7 +542,11 @@ describe("atApplicationLogic", () => {
         branchFormulaTexts: [],
       });
       const edge = createAtEdgeFromResult(
-        { ruleId: "delta-exist", signedFormulaText: "T:∃x.P(x)", eigenVariable: "z" },
+        {
+          ruleId: "delta-exist",
+          signedFormulaText: "T:∃x.P(x)",
+          eigenVariable: "z",
+        },
         result,
         "node-1",
       );
@@ -534,7 +563,11 @@ describe("atApplicationLogic", () => {
         contradictionFormulaText: "F:P",
       });
       const edge = createAtEdgeFromResult(
-        { ruleId: "closure", signedFormulaText: "T:P", contradictionFormulaText: "F:P" },
+        {
+          ruleId: "closure",
+          signedFormulaText: "T:P",
+          contradictionFormulaText: "F:P",
+        },
         result,
         "node-1",
         "node-2",
@@ -576,9 +609,7 @@ describe("atApplicationLogic", () => {
     });
 
     it("AtTermParseError", () => {
-      const msg = getAtErrorMessage(
-        new AtTermParseError({ label: "term τ" }),
-      );
+      const msg = getAtErrorMessage(new AtTermParseError({ label: "term τ" }));
       expect(msg).toContain("term τ");
     });
 
