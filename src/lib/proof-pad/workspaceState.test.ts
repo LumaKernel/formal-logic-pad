@@ -2960,13 +2960,7 @@ describe("proofWorkspace", () => {
 
     it("does not change Substitution conclusion when text is already correct", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(
-        ws,
-        "axiom",
-        "Axiom",
-        { x: 0, y: 0 },
-        "phi -> (psi -> phi)",
-      );
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
       const subst = applySubstitutionAndConnect(
         ws,
         "node-1",
