@@ -372,10 +372,11 @@ export function computeTreeLayout(
 
   // 防御的: nodes.length > 0 かつ buildForest で未訪問ノードが孤立ノードとして追加されるため、
   // forest.length === 0 は到達しない
-  /* v8 ignore next 3 */
+  /* v8 ignore start */
   if (forest.length === 0) {
     return new Map();
   }
+  /* v8 ignore stop */
 
   // Calculate subtree widths
   const withWidths = forest.map((tree) =>

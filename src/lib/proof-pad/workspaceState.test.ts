@@ -42,6 +42,7 @@ import {
   type QuestGoalDefinition,
   mergeSelectedNodes,
   applyAtRuleAndConnect,
+  applyTabRuleAndConnect,
 } from "./workspaceState";
 import {
   hilbertDeduction,
@@ -2014,6 +2015,53 @@ describe("proofWorkspace", () => {
       ws = updateNodeFormulaText(ws, "node-1", "");
       ws = revalidateInferenceConclusions(ws);
       expect(findNode(ws, "node-2")?.formulaText).toBe("");
+    });
+
+    it("TABエッジの前提ノードは revalidate で変更されない", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      // シーケント ¬φ, φ に bs (basic sequent) 公理を適用
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "¬φ, φ");
+      const tabResult = applyTabRuleAndConnect(
+        ws,
+        "node-1",
+        { ruleId: "bs", sequentText: "¬φ, φ", principalPosition: 0 },
+        [],
+      );
+      ws = tabResult.workspace;
+      const originalText = findNode(ws, "node-1")?.formulaText;
+
+      // 前提を変更してから revalidate
+      ws = updateNodeFormulaText(ws, "node-1", "¬ψ, ψ");
+      ws = revalidateInferenceConclusions(ws);
+
+      // TABエッジでは formulaText の自動計算を行わないため、変更後のテキストが保持される
+      expect(findNode(ws, "node-1")?.formulaText).toBe("¬ψ, ψ");
+      expect(findNode(ws, "node-1")?.formulaText).not.toBe(originalText);
+    });
+
+    it("ATエッジの結果ノードは revalidate で変更されない", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "T:P ∧ Q");
+      const atResult = applyAtRuleAndConnect(
+        ws,
+        "node-1",
+        { ruleId: "alpha-conj", signedFormulaText: "T:P ∧ Q" },
+        [
+          { x: 100, y: 100 },
+          { x: 200, y: 100 },
+        ],
+      );
+      ws = atResult.workspace;
+      const resultNode2Text = findNode(ws, "node-2")?.formulaText;
+      const resultNode3Text = findNode(ws, "node-3")?.formulaText;
+
+      // 結論ノードのテキストを変更してから revalidate
+      ws = updateNodeFormulaText(ws, "node-1", "T:R ∧ S");
+      ws = revalidateInferenceConclusions(ws);
+
+      // ATエッジでは formulaText の自動計算を行わないため、結果ノードのテキストは変更されない
+      expect(findNode(ws, "node-2")?.formulaText).toBe(resultNode2Text);
+      expect(findNode(ws, "node-3")?.formulaText).toBe(resultNode3Text);
     });
   });
 
