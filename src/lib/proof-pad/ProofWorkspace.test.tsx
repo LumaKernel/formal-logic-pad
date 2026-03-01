@@ -10,10 +10,12 @@ import {
 import {
   naturalDeduction,
   tableauCalculusDeduction,
+  analyticTableauDeduction,
   njSystem,
   nkSystem,
   tabSystem,
   tabPropSystem,
+  atSystem,
 } from "../logic-core/deductionSystem";
 import { allReferenceEntries } from "../reference/referenceContent";
 import type { Formula } from "../logic-core/formula";
@@ -3447,6 +3449,756 @@ describe("ProofWorkspace", () => {
       await user.click(ruleEl);
       // 選択後はfontWeight 600
       expect(ruleEl.style.fontWeight).toBe("600");
+    });
+
+    it("applies conjunction rule when node is clicked during TAB selection", async () => {
+      const user = userEvent.setup();
+      // conjunction (T:φ∧ψ) を分解する
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValue("0");
+      let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "T:phi & psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // conjunction規則をクリック
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-conjunction"),
+      );
+      // バナーが表示される
+      expect(
+        screen.getByTestId("workspace-tab-banner"),
+      ).toBeInTheDocument();
+
+      // ノードをクリック
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      // バナーが消える（規則が適用された）
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-tab-banner"),
+        ).not.toBeInTheDocument();
+      });
+
+      promptMock.mockRestore();
+    });
+
+    it("cancels TAB rule when prompt returns null", async () => {
+      const user = userEvent.setup();
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValue(null);
+      let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "T:phi & psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // conjunction規則をクリック → ノードクリック
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-conjunction"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      // promptがnullを返したのでバナーが消える（キャンセル）
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-tab-banner"),
+        ).not.toBeInTheDocument();
+      });
+
+      promptMock.mockRestore();
+    });
+
+    it("cancels TAB rule when prompt returns NaN", async () => {
+      const user = userEvent.setup();
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValue("abc");
+      let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "T:phi & psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-conjunction"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      // NaN入力でバナーが消える（キャンセル）
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-tab-banner"),
+        ).not.toBeInTheDocument();
+      });
+
+      promptMock.mockRestore();
+    });
+
+    it("applies exchange rule with position prompt", async () => {
+      const user = userEvent.setup();
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValue("0");
+      let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "phi, psi |- chi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-exchange"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-tab-banner"),
+        ).not.toBeInTheDocument();
+      });
+
+      promptMock.mockRestore();
+    });
+
+    it("applies universal rule with term prompt", async () => {
+      const user = userEvent.setup();
+      // 最初のpromptは位置(0), 次はterm
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValueOnce("0")
+        .mockReturnValueOnce("a");
+      let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      ws = addNode(
+        ws,
+        "axiom",
+        "S1",
+        { x: 100, y: 300 },
+        "T:forall x. P(x)",
+      );
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-universal"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-tab-banner"),
+        ).not.toBeInTheDocument();
+      });
+
+      promptMock.mockRestore();
+    });
+
+    it("applies existential rule with eigenVariable prompt", async () => {
+      const user = userEvent.setup();
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValueOnce("0")
+        .mockReturnValueOnce("c");
+      let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      ws = addNode(
+        ws,
+        "axiom",
+        "S1",
+        { x: 100, y: 300 },
+        "T:exists x. P(x)",
+      );
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-existential"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-tab-banner"),
+        ).not.toBeInTheDocument();
+      });
+
+      promptMock.mockRestore();
+    });
+
+    it("exchange rule cancels when prompt returns null", async () => {
+      const user = userEvent.setup();
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValue(null);
+      let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "phi, psi |- chi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-exchange"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-tab-banner"),
+        ).not.toBeInTheDocument();
+      });
+
+      promptMock.mockRestore();
+    });
+
+    it("exchange rule cancels when prompt returns NaN", async () => {
+      const user = userEvent.setup();
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValue("abc");
+      let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "phi, psi |- chi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-exchange"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-tab-banner"),
+        ).not.toBeInTheDocument();
+      });
+
+      promptMock.mockRestore();
+    });
+
+    it("universal rule cancels when term prompt returns null", async () => {
+      const user = userEvent.setup();
+      // 最初のprompt(位置)は成功、次のprompt(term)はnull
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValueOnce("0")
+        .mockReturnValueOnce(null);
+      let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      ws = addNode(
+        ws,
+        "axiom",
+        "S1",
+        { x: 100, y: 300 },
+        "T:forall x. P(x)",
+      );
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-universal"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-tab-banner"),
+        ).not.toBeInTheDocument();
+      });
+
+      promptMock.mockRestore();
+    });
+
+    it("existential rule cancels when eigenVariable prompt returns null", async () => {
+      const user = userEvent.setup();
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValueOnce("0")
+        .mockReturnValueOnce(null);
+      let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      ws = addNode(
+        ws,
+        "axiom",
+        "S1",
+        { x: 100, y: 300 },
+        "T:exists x. P(x)",
+      );
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-existential"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-tab-banner"),
+        ).not.toBeInTheDocument();
+      });
+
+      promptMock.mockRestore();
+    });
+
+    it("shows alert when TAB rule application fails", async () => {
+      const user = userEvent.setup();
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValue("0");
+      const alertMock = vi
+        .spyOn(globalThis, "alert")
+        .mockImplementation(() => {});
+      let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      // 空の論理式（パースエラーになるはず）
+      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-conjunction"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      // エラー時はalertが呼ばれる
+      await waitFor(() => {
+        expect(alertMock).toHaveBeenCalled();
+      });
+
+      promptMock.mockRestore();
+      alertMock.mockRestore();
+    });
+  });
+
+  describe("AT (Analytic Tableau)", () => {
+    it("renders with AT system and shows AtRulePalette", () => {
+      const ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
+      render(
+        <ProofWorkspace
+          system={ws.system}
+          workspace={ws}
+          onWorkspaceChange={() => {}}
+          testId="workspace"
+        />,
+      );
+      expect(
+        screen.getByTestId("workspace-at-rule-palette"),
+      ).toBeInTheDocument();
+    });
+
+    it("clicking an AT alpha rule shows AT selection banner", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // バナーが最初は非表示
+      expect(
+        screen.queryByTestId("workspace-at-banner"),
+      ).not.toBeInTheDocument();
+
+      // α規則をクリック
+      await user.click(
+        screen.getByTestId("workspace-at-rule-palette-rule-alpha-conj"),
+      );
+
+      // バナーが表示される
+      expect(screen.getByTestId("workspace-at-banner")).toBeInTheDocument();
+    });
+
+    it("clicking cancel in AT banner dismisses it", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-at-rule-palette-rule-alpha-conj"),
+      );
+      expect(screen.getByTestId("workspace-at-banner")).toBeInTheDocument();
+
+      // キャンセルボタンをクリック
+      const cancelButton = screen
+        .getByTestId("workspace-at-banner")
+        .querySelector("button");
+      expect(cancelButton).not.toBeNull();
+      await user.click(cancelButton!);
+
+      expect(
+        screen.queryByTestId("workspace-at-banner"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("applies alpha-conj rule on node click", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
+      ws = addNode(ws, "axiom", "SF", { x: 100, y: 300 }, "T:phi & psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // α-conj 規則をクリック
+      await user.click(
+        screen.getByTestId("workspace-at-rule-palette-rule-alpha-conj"),
+      );
+      expect(screen.getByTestId("workspace-at-banner")).toBeInTheDocument();
+
+      // ノードをクリック → 規則適用
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      // バナーが消える
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-at-banner"),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it("applies beta-impl rule on node click", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
+      ws = addNode(ws, "axiom", "SF", { x: 100, y: 300 }, "T:phi -> psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-at-rule-palette-rule-beta-impl"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-at-banner"),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it("shows alert when AT rule application fails", async () => {
+      const user = userEvent.setup();
+      const alertMock = vi
+        .spyOn(globalThis, "alert")
+        .mockImplementation(() => {});
+      let ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
+      // 空の論理式（パースエラー）
+      ws = addNode(ws, "axiom", "SF", { x: 100, y: 300 }, "");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-at-rule-palette-rule-alpha-conj"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      await waitFor(() => {
+        expect(alertMock).toHaveBeenCalled();
+      });
+
+      alertMock.mockRestore();
+    });
+
+    it("closure rule enters selecting-contradiction phase", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
+      ws = addNode(ws, "axiom", "SF", { x: 100, y: 300 }, "T:phi");
+      ws = addNode(ws, "axiom", "SF2", { x: 300, y: 300 }, "F:phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // closure規則をクリック
+      await user.click(
+        screen.getByTestId("workspace-at-rule-palette-rule-closure"),
+      );
+      expect(screen.getByTestId("workspace-at-banner")).toBeInTheDocument();
+
+      // 最初のノードをクリック（主ノード選択）
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      // まだバナーが表示されている（矛盾ノード選択待ち）
+      expect(screen.getByTestId("workspace-at-banner")).toBeInTheDocument();
+
+      // 2番目のノードをクリック（矛盾ノード選択）
+      await user.click(screen.getByTestId("proof-node-node-2"));
+
+      // バナーが消える（closure適用完了）
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-at-banner"),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it("closure rule shows alert on invalid pair", async () => {
+      const user = userEvent.setup();
+      const alertMock = vi
+        .spyOn(globalThis, "alert")
+        .mockImplementation(() => {});
+      let ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
+      ws = addNode(ws, "axiom", "SF", { x: 100, y: 300 }, "T:phi");
+      ws = addNode(ws, "axiom", "SF2", { x: 300, y: 300 }, "T:psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-at-rule-palette-rule-closure"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+      await user.click(screen.getByTestId("proof-node-node-2"));
+
+      await waitFor(() => {
+        expect(alertMock).toHaveBeenCalled();
+      });
+
+      alertMock.mockRestore();
+    });
+
+    it("gamma rule prompts for term", async () => {
+      const user = userEvent.setup();
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValue("a");
+      let ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
+      ws = addNode(
+        ws,
+        "axiom",
+        "SF",
+        { x: 100, y: 300 },
+        "T:forall x. P(x)",
+      );
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-at-rule-palette-rule-gamma-univ"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      // promptが呼ばれた
+      expect(promptMock).toHaveBeenCalled();
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-at-banner"),
+        ).not.toBeInTheDocument();
+      });
+
+      promptMock.mockRestore();
+    });
+
+    it("gamma rule cancels when prompt returns null", async () => {
+      const user = userEvent.setup();
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValue(null);
+      let ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
+      ws = addNode(
+        ws,
+        "axiom",
+        "SF",
+        { x: 100, y: 300 },
+        "T:forall x. P(x)",
+      );
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-at-rule-palette-rule-gamma-univ"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-at-banner"),
+        ).not.toBeInTheDocument();
+      });
+
+      promptMock.mockRestore();
+    });
+
+    it("delta rule prompts for eigen variable", async () => {
+      const user = userEvent.setup();
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValue("c");
+      let ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
+      ws = addNode(
+        ws,
+        "axiom",
+        "SF",
+        { x: 100, y: 300 },
+        "T:exists x. P(x)",
+      );
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-at-rule-palette-rule-delta-exist"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      expect(promptMock).toHaveBeenCalled();
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-at-banner"),
+        ).not.toBeInTheDocument();
+      });
+
+      promptMock.mockRestore();
+    });
+
+    it("delta rule cancels when prompt returns null", async () => {
+      const user = userEvent.setup();
+      const promptMock = vi
+        .spyOn(globalThis, "prompt")
+        .mockReturnValue(null);
+      let ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
+      ws = addNode(
+        ws,
+        "axiom",
+        "SF",
+        { x: 100, y: 300 },
+        "T:exists x. P(x)",
+      );
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-at-rule-palette-rule-delta-exist"),
+      );
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-at-banner"),
+        ).not.toBeInTheDocument();
+      });
+
+      promptMock.mockRestore();
+    });
+
+    it("AT rule selection clears other selection modes", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // α規則をクリック → β規則をクリック → バナーは更新される
+      await user.click(
+        screen.getByTestId("workspace-at-rule-palette-rule-alpha-conj"),
+      );
+      expect(screen.getByTestId("workspace-at-banner")).toBeInTheDocument();
+
+      await user.click(
+        screen.getByTestId("workspace-at-rule-palette-rule-beta-impl"),
+      );
+      expect(screen.getByTestId("workspace-at-banner")).toBeInTheDocument();
+    });
+  });
+
+  describe("export menu item clicks", () => {
+    it("clicking export JSON button calls handler and closes menu", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // メニューを開く
+      await user.click(
+        screen.getByTestId("workspace-workspace-menu-button"),
+      );
+
+      // Export JSONをクリック
+      await user.click(screen.getByTestId("workspace-export-json-button"));
+
+      // メニューが閉じる
+      expect(
+        screen.queryByTestId("workspace-workspace-menu"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("clicking export SVG button closes menu", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-workspace-menu-button"),
+      );
+      await user.click(screen.getByTestId("workspace-export-svg-button"));
+
+      expect(
+        screen.queryByTestId("workspace-workspace-menu"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("clicking export PNG button closes menu", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(
+        screen.getByTestId("workspace-workspace-menu-button"),
+      );
+      await user.click(screen.getByTestId("workspace-export-png-button"));
+
+      expect(
+        screen.queryByTestId("workspace-workspace-menu"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("selection clear button", () => {
+    it("clicking clear button deselects all nodes", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // ノードをクリックして選択
+      await user.click(screen.getByTestId("proof-node-node-1"));
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-selection-banner"),
+        ).toBeInTheDocument();
+      });
+
+      // クリアボタン（テキスト"Clear"）をクリック
+      const banner = screen.getByTestId("workspace-selection-banner");
+      const clearButton = Array.from(banner.querySelectorAll("button")).find(
+        (b) => b.textContent === "Clear",
+      );
+      expect(clearButton).toBeDefined();
+      await user.click(clearButton!);
+
+      // 選択バナーが消える
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-selection-banner"),
+        ).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("merge via selection banner", () => {
+    it("merges selected nodes with same formula via merge button", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // 2ノードを選択
+      await user.click(screen.getByTestId("proof-node-node-1"));
+      await user.keyboard("{Control>}");
+      await user.click(screen.getByTestId("proof-node-node-2"));
+      await user.keyboard("{/Control}");
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-selection-banner"),
+        ).toHaveTextContent("2 node(s) selected");
+      });
+
+      // Mergeボタンをクリック
+      const mergeButton = screen.getByTestId("workspace-merge-button");
+      await user.click(mergeButton);
+
+      // 1ノードに統合される
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("proof-node-node-2"),
+        ).not.toBeInTheDocument();
+      });
     });
   });
 });
