@@ -3018,8 +3018,8 @@ describe("ProofWorkspace", () => {
       render(<StatefulWorkspace initialWorkspace={ws} />);
       const entriesEl = screen.getByTestId("proof-node-node-2-subst-entries");
       expect(entriesEl).toBeInTheDocument();
-      expect(entriesEl).toHaveTextContent("φ := alpha -> beta");
-      expect(entriesEl).toHaveTextContent("ψ := gamma");
+      expect(entriesEl).toHaveTextContent("φ := α → β");
+      expect(entriesEl).toHaveTextContent("ψ := γ");
     });
 
     it("substitution node is not editable (formula is auto-generated)", () => {
