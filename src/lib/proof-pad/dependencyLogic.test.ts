@@ -461,6 +461,19 @@ describe("dependencyLogic", () => {
       expect(axiomIds).toEqual(new Set());
     });
 
+    it("ルートノードIDがノード配列に存在しない場合はスキップされる", () => {
+      // mp1 の前提 "ghost" はノード配列に存在しない
+      const nodes = [
+        makeAxiomNode("a1", "phi -> (psi -> phi)"),
+        { ...makeNode("mp1", "axiom"), formulaText: "" },
+      ];
+      const edges = [makeMPEdge("mp1", "ghost", "a1")];
+
+      const axiomIds = getNodeAxiomIds("mp1", nodes, edges, lukasiewiczSystem);
+      // ghost はスキップされ、a1 のみ
+      expect(axiomIds).toEqual(new Set(["A1"]));
+    });
+
     it("チェーン導出でも最初のルート公理のIDを返す", () => {
       // a1, a3 → mp1
       // mp1, a2 → mp2
@@ -585,6 +598,23 @@ describe("dependencyLogic", () => {
       expect(result).toContainEqual({
         _tag: "instance",
         nodeId: "a1-instance",
+        axiomId: "A1",
+      });
+    });
+
+    it("ルートノードIDがノード配列に存在しない場合はスキップされる", () => {
+      const nodes = [
+        makeAxiomNode("a1", "phi -> (psi -> phi)"),
+        { ...makeNode("mp1", "axiom"), formulaText: "" },
+      ];
+      const edges = [makeMPEdge("mp1", "ghost", "a1")];
+
+      const result = validateRootNodes("mp1", nodes, edges, lukasiewiczSystem);
+      // ghost はスキップされ、a1 のみ
+      expect(result).toHaveLength(1);
+      expect(result).toContainEqual({
+        _tag: "schema",
+        nodeId: "a1",
         axiomId: "A1",
       });
     });

@@ -545,6 +545,34 @@ describe("pasteClipboardData with InferenceEdges", () => {
     }
   });
 
+  it("結論ノードがコピーされていないInferenceEdgeはスキップされる", () => {
+    const clipboard: ClipboardData = {
+      _tag: "ProofPadClipboard",
+      version: 1,
+      nodes: [
+        {
+          originalId: "node-1",
+          kind: "axiom",
+          label: "A",
+          formulaText: "phi",
+          relativePosition: { x: 0, y: 0 },
+        },
+      ],
+      connections: [],
+      inferenceEdges: [
+        {
+          _tag: "mp",
+          conclusionNodeId: "node-missing",
+          leftPremiseNodeId: "node-1",
+          rightPremiseNodeId: "node-1",
+          conclusionText: "psi",
+        },
+      ],
+    };
+    const result = pasteClipboardData(clipboard, { x: 0, y: 0 }, 1);
+    expect(result.newInferenceEdges).toEqual([]);
+  });
+
   it("InferenceEdgeがないクリップボードでは空配列を返す", () => {
     const clipboard: ClipboardData = {
       _tag: "ProofPadClipboard",

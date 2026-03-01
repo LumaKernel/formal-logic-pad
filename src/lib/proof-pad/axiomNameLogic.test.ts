@@ -435,6 +435,47 @@ describe("axiomNameLogic", () => {
         );
         expect(result._tag).toBe("TheoryAxiomIdentified");
       });
+
+      it("patternモードの理論公理で非自明な代入インスタンスは NotIdentified", () => {
+        // φ→φ をpatternモードの理論公理として登録
+        const patternAxiomSystem: LogicSystem = {
+          name: "pattern-axiom-test",
+          propositionalAxioms: new Set(["A1", "A2"]),
+          predicateLogic: false,
+          equalityLogic: false,
+          generalization: false,
+          theoryAxioms: [
+            {
+              id: "T1",
+              displayName: "T1 (identity)",
+              template: implication(metaVariable("φ"), metaVariable("φ")),
+              dslText: "phi -> phi",
+              matchMode: "pattern",
+            },
+          ],
+        };
+        // テンプレートそのもの (φ→φ) → TheoryAxiomIdentified (trivial)
+        const trivialFormula = implication(
+          metaVariable("α"),
+          metaVariable("α"),
+        );
+        const trivialResult = identifyAxiomName(
+          trivialFormula,
+          patternAxiomSystem,
+        );
+        expect(trivialResult._tag).toBe("TheoryAxiomIdentified");
+
+        // 非自明な代入: (α→β)→(α→β) → NotIdentified
+        const nonTrivialFormula = implication(
+          implication(metaVariable("α"), metaVariable("β")),
+          implication(metaVariable("α"), metaVariable("β")),
+        );
+        const nonTrivialResult = identifyAxiomName(
+          nonTrivialFormula,
+          patternAxiomSystem,
+        );
+        expect(nonTrivialResult._tag).toBe("NotIdentified");
+      });
     });
 
     describe("述語論理公理", () => {

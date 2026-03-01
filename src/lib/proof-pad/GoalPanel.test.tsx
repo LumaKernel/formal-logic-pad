@@ -267,6 +267,34 @@ describe("GoalPanel", () => {
       fireEvent.keyDown(screen.getByTestId("gp-toggle"), { key: " " });
       expect(screen.getByTestId("gp")).toBeInTheDocument();
     });
+
+    it("Enter/Space以外のキーでは折りたたみ状態が変わらない", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            label: "Goal 1",
+            allowedAxiomIds: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+
+      // Tab キーではcollapseが発生しない
+      fireEvent.keyDown(screen.getByTestId("gp-collapse"), { key: "Tab" });
+      expect(screen.getByTestId("gp")).toBeInTheDocument();
+
+      // 折りたたむ
+      fireEvent.click(screen.getByTestId("gp-collapse"));
+      expect(screen.getByTestId("gp-toggle")).toBeInTheDocument();
+
+      // Escape キーではtoggleが発生しない
+      fireEvent.keyDown(screen.getByTestId("gp-toggle"), { key: "Escape" });
+      expect(screen.getByTestId("gp-toggle")).toBeInTheDocument();
+    });
   });
 
   describe("testId", () => {

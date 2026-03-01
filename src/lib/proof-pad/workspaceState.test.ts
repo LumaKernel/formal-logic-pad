@@ -2065,6 +2065,75 @@ describe("proofWorkspace", () => {
     });
   });
 
+  describe("applyTabRuleAndConnect", () => {
+    it("バリデーションエラー時は元の状態を返す", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "invalid!!!");
+      const result = applyTabRuleAndConnect(
+        ws,
+        "node-1",
+        { ruleId: "bs", sequentText: "invalid!!!", principalPosition: 0 },
+        [],
+      );
+      expect(result.workspace).toBe(ws);
+      expect(result.premiseNodeIds).toEqual([]);
+      expect(Either.isLeft(result.validation)).toBe(true);
+    });
+
+    it("tab-single-result: 連言規則で1前提ノードが作成される", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "φ ∧ ψ");
+      const result = applyTabRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "conjunction",
+          sequentText: "φ ∧ ψ",
+          principalPosition: 0,
+        },
+        [{ x: 100, y: 100 }],
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.premiseNodeIds).toHaveLength(1);
+      // 前提ノードが作成されている
+      const premiseNode = findNode(result.workspace, result.premiseNodeIds[0]!);
+      expect(premiseNode).toBeDefined();
+      // 接続が作成されている
+      expect(result.workspace.connections).toHaveLength(1);
+      expect(result.workspace.connections[0]!.fromNodeId).toBe("node-1");
+      expect(result.workspace.connections[0]!.toNodeId).toBe(
+        result.premiseNodeIds[0],
+      );
+    });
+
+    it("tab-branching-result: 選言規則で2前提ノードが作成される", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "φ ∨ ψ");
+      const result = applyTabRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "disjunction",
+          sequentText: "φ ∨ ψ",
+          principalPosition: 0,
+        },
+        [
+          { x: 100, y: 100 },
+          { x: 200, y: 100 },
+        ],
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.premiseNodeIds).toHaveLength(2);
+      // 2つの前提ノードが作成されている
+      const leftNode = findNode(result.workspace, result.premiseNodeIds[0]!);
+      const rightNode = findNode(result.workspace, result.premiseNodeIds[1]!);
+      expect(leftNode).toBeDefined();
+      expect(rightNode).toBeDefined();
+      // 2つの接続が作成されている
+      expect(result.workspace.connections).toHaveLength(2);
+    });
+  });
+
   describe("inferenceEdges sync", () => {
     it("createEmptyWorkspace initializes with empty inferenceEdges", () => {
       const ws = createEmptyWorkspace(lukasiewiczSystem);
