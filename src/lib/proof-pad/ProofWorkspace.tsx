@@ -1637,12 +1637,13 @@ export function ProofWorkspace({
     [workspace.goals, goalCheckResult],
   );
 
-  const isGoalAchieved =
-    goalCheckResult._tag === "GoalAllAchieved" ||
-    questGoalResult?._tag === "AllAchieved";
-
   const isGoalAchievedButAxiomViolation =
     questGoalResult?._tag === "AllAchievedButAxiomViolation";
+
+  const isGoalAchieved =
+    (goalCheckResult._tag === "GoalAllAchieved" &&
+      !isGoalAchievedButAxiomViolation) ||
+    questGoalResult?._tag === "AllAchieved";
 
   // --- ゴール達成コールバック（達成へ遷移した瞬間に1回だけ発火） ---
   // 公理制限違反がある場合はonGoalAchievedを発火しない（クエスト進捗に記録させない）
