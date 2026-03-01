@@ -13,6 +13,7 @@ import type {
   PropositionalAxiomId,
 } from "../logic-core/inferenceRule";
 import type {
+  AnalyticTableauSystem,
   NaturalDeductionSystem,
   NdRuleId,
   TableauCalculusSystem,
@@ -27,6 +28,12 @@ import {
   getTabRuleDisplayName,
   isTabBranchingRule,
 } from "../logic-core/tableauCalculus";
+import type { AtRuleId } from "../logic-core/analyticTableau";
+import {
+  allAtRuleIds,
+  getAtRuleDisplayName,
+  isBetaRule as isAtBetaRule,
+} from "../logic-core/analyticTableau";
 import {
   axiomA1Template,
   axiomA2Template,
@@ -308,6 +315,42 @@ export function getAvailableTabRules(
         id: ruleId,
         displayName: getTabRuleDisplayName(ruleId),
         isBranching: isTabBranchingRule(ruleId),
+      });
+    }
+  }
+  return items;
+}
+
+// --- 分析的タブロー規則パレット ---
+
+/** 分析的タブロー規則パレットに表示する規則アイテム */
+export type AtRulePaletteItem = {
+  /** 規則ID */
+  readonly id: AtRuleId;
+  /** 規則の表示名（例: "T(∧)", "F(∨)"） */
+  readonly displayName: string;
+  /** 分岐規則かどうか（β規則が該当） */
+  readonly isBranching: boolean;
+};
+
+/**
+ * 分析的タブロー体系に応じた利用可能な規則パレットアイテムの一覧を返す。
+ *
+ * 変更時は axiomPaletteLogic.test.ts も同期すること。
+ *
+ * @param system 分析的タブロー体系設定
+ * @returns 利用可能な規則のリスト
+ */
+export function getAvailableAtRules(
+  system: AnalyticTableauSystem,
+): readonly AtRulePaletteItem[] {
+  const items: AtRulePaletteItem[] = [];
+  for (const ruleId of allAtRuleIds) {
+    if (system.rules.has(ruleId)) {
+      items.push({
+        id: ruleId,
+        displayName: getAtRuleDisplayName(ruleId),
+        isBranching: isAtBetaRule(ruleId),
       });
     }
   }

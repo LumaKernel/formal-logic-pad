@@ -391,4 +391,27 @@ describe("formatMessage", () => {
     expect(result).toContain("∧");
     expect(result).not.toContain("{ruleName}");
   });
+
+  it("should format atBannerSelectNode correctly", () => {
+    const result = formatMessage(defaultProofMessages.atBannerSelectNode, {
+      ruleName: "T(∧)",
+    });
+    expect(result).toContain("T(∧)");
+    expect(result).not.toContain("{ruleName}");
+  });
+
+  it("AT default messages are all non-empty strings", () => {
+    expect(defaultProofMessages.atBannerSelectNode.length).toBeGreaterThan(0);
+    expect(defaultProofMessages.atCancel.length).toBeGreaterThan(0);
+    expect(defaultProofMessages.atApplied.length).toBeGreaterThan(0);
+    expect(defaultProofMessages.atError.length).toBeGreaterThan(0);
+    expect(defaultProofMessages.applyAtRuleToNode.length).toBeGreaterThan(0);
+    expect(defaultProofMessages.atTermPrompt.length).toBeGreaterThan(0);
+    expect(defaultProofMessages.atEigenVariablePrompt.length).toBeGreaterThan(
+      0,
+    );
+    expect(
+      defaultProofMessages.atClosureBannerSelectContradiction.length,
+    ).toBeGreaterThan(0);
+  });
 });

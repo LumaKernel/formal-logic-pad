@@ -88,6 +88,14 @@
     "tabPositionPrompt": "主論理式の位置（0始まり）:",
     "tabExchangePositionPrompt": "交換位置（0始まり）:",
     "tabTermPrompt": "代入項:",
-    "tabEigenVariablePrompt": "固有変数名:"
+    "tabEigenVariablePrompt": "固有変数名:",
+    "atBannerSelectNode": "{ruleName} を適用するノードをクリック",
+    "atCancel": "ATをキャンセル",
+    "atApplied": "AT規則を適用しました",
+    "atError": "AT規則の適用に失敗しました",
+    "applyAtRuleToNode": "AT規則を適用",
+    "atTermPrompt": "代入項:",
+    "atEigenVariablePrompt": "固有変数名:",
+    "atClosureBannerSelectContradiction": "矛盾するノードをクリックして枝を閉じます"
   }
 }

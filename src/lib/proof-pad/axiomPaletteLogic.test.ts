@@ -3,6 +3,7 @@ import {
   getAvailableAxioms,
   getAvailableNdRules,
   getAvailableTabRules,
+  getAvailableAtRules,
   getAxiomReferenceEntryId,
 } from "./axiomPaletteLogic";
 import {
@@ -22,9 +23,15 @@ import {
   nkSystem,
   tabSystem,
   tabPropSystem,
+  atSystem,
+  atPropSystem,
 } from "../logic-core/deductionSystem";
-import type { TableauCalculusSystem } from "../logic-core/deductionSystem";
+import type {
+  TableauCalculusSystem,
+  AnalyticTableauSystem,
+} from "../logic-core/deductionSystem";
 import type { TabRuleId } from "../logic-core/tableauCalculus";
+import type { AtRuleId } from "../logic-core/analyticTableau";
 
 describe("axiomPalette", () => {
   describe("getAvailableAxioms", () => {
@@ -373,6 +380,69 @@ describe("axiomPalette", () => {
       const items = getAvailableTabRules(partialSystem);
       const ids = items.map((i) => i.id);
       expect(ids).toEqual(["bs", "bottom", "conjunction"]);
+    });
+  });
+
+  describe("getAvailableAtRules", () => {
+    it("AT全体系で15規則を返す", () => {
+      const items = getAvailableAtRules(atSystem);
+      expect(items).toHaveLength(15);
+    });
+
+    it("AT命題論理体系で11規則を返す", () => {
+      const items = getAvailableAtRules(atPropSystem);
+      expect(items).toHaveLength(11);
+    });
+
+    it("AT命題論理体系に量化子規則が含まれない", () => {
+      const items = getAvailableAtRules(atPropSystem);
+      const ids = items.map((i) => i.id);
+      expect(ids).not.toContain("gamma-univ");
+      expect(ids).not.toContain("gamma-neg-exist");
+      expect(ids).not.toContain("delta-neg-univ");
+      expect(ids).not.toContain("delta-exist");
+    });
+
+    it("β規則のisBranchingがtrueになる", () => {
+      const items = getAvailableAtRules(atSystem);
+      const betaItems = items.filter((i) => i.isBranching);
+      const betaIds = betaItems.map((i) => i.id);
+      expect(betaIds).toContain("beta-neg-conj");
+      expect(betaIds).toContain("beta-disj");
+      expect(betaIds).toContain("beta-impl");
+    });
+
+    it("α規則のisBranchingがfalseになる", () => {
+      const items = getAvailableAtRules(atSystem);
+      const alphaItem = items.find((i) => i.id === "alpha-conj");
+      expect(alphaItem).toBeDefined();
+      expect(alphaItem!.isBranching).toBe(false);
+    });
+
+    it("displayNameが非空文字列", () => {
+      const items = getAvailableAtRules(atSystem);
+      for (const item of items) {
+        expect(item.displayName.length).toBeGreaterThan(0);
+      }
+    });
+
+    it("空の規則セットで空リストを返す", () => {
+      const emptySystem: AnalyticTableauSystem = {
+        name: "Empty",
+        rules: new Set<AtRuleId>(),
+      };
+      const items = getAvailableAtRules(emptySystem);
+      expect(items).toEqual([]);
+    });
+
+    it("部分的な規則セットを正しく処理する", () => {
+      const partialSystem: AnalyticTableauSystem = {
+        name: "Partial",
+        rules: new Set<AtRuleId>(["alpha-conj", "beta-disj", "closure"]),
+      };
+      const items = getAvailableAtRules(partialSystem);
+      const ids = items.map((i) => i.id);
+      expect(ids).toEqual(["alpha-conj", "beta-disj", "closure"]);
     });
   });
 
