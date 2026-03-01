@@ -243,7 +243,10 @@ function SubstitutionEntryValue({
     const parsed = parseFormula(entry.formulaText);
     if (Either.isRight(parsed)) {
       return (
-        <FormulaDisplay formula={parsed.right} fontSize={substEntryValueFontSize} />
+        <FormulaDisplay
+          formula={parsed.right}
+          fontSize={substEntryValueFontSize}
+        />
       );
     }
     return <span>{entry.formulaText}</span>;
@@ -258,11 +261,7 @@ function SubstitutionEntryValue({
 }
 
 /** メタ変数名（添字含む）を数式フォントで表示する */
-function MetaVariableLabel({
-  entry,
-}: {
-  readonly entry: SubstitutionEntry;
-}) {
+function MetaVariableLabel({ entry }: { readonly entry: SubstitutionEntry }) {
   const subscriptPart = entry.metaVariableSubscript
     ? `_${entry.metaVariableSubscript satisfies string}`
     : "";

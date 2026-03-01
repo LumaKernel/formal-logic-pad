@@ -2131,6 +2131,44 @@ describe("proofWorkspace", () => {
       expect(ws.nodes.find((n) => n.id === "node-3")).toBeDefined();
     });
 
+    it("removeConnection resets conclusion node label to default", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "phi -> psi");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      ws = mpResult.workspace;
+      // Before: node-3 has label "MP"
+      expect(ws.nodes.find((n) => n.id === "node-3")?.label).toBe("MP");
+      // After removing connection: label resets to "Axiom" (default for kind "axiom")
+      ws = removeConnection(ws, "conn-node-1-out-node-3-premise-left");
+      expect(ws.nodes.find((n) => n.id === "node-3")?.label).toBe("Axiom");
+    });
+
+    it("removeConnection resets Substitution node label to default", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi -> psi -> phi");
+      const entries: SubstitutionEntries = [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          formulaText: "chi",
+        },
+      ];
+      const substResult = applySubstitutionAndConnect(ws, "node-1", entries, {
+        x: 100,
+        y: 100,
+      });
+      ws = substResult.workspace;
+      // Before: conclusion node has label "Subst"
+      expect(ws.nodes.find((n) => n.id === "node-2")?.label).toBe("Subst");
+      // After removing connection: label resets
+      ws = removeConnection(ws, ws.connections[0]!.id);
+      expect(ws.nodes.find((n) => n.id === "node-2")?.label).toBe("Axiom");
+    });
+
     it("removeConnection removes Gen InferenceEdge and connection", () => {
       let ws = createEmptyWorkspace(predicateLogicSystem);
       ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
