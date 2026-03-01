@@ -98,6 +98,28 @@
 
 ---
 
+## 2026-03-01 - 分析的タブローPRD作成・タスク分割
+- bekki.pdf Ch.6（タブロー、pp.129-146）を精読し、分析的タブローの仕様を把握
+- `tasks/prd-analytic-tableau.md` を新規作成: 5タスク（AT-001〜AT-005）に分割
+  - AT-001: データ型定義（署名付き論理式、α/β/γ/δ規則、閉じ判定）
+  - AT-002: 規則適用ロジック（InferenceEdge統合）
+  - AT-003: UI（AtRulePalette + ProofWorkspace統合）
+  - AT-004: クエスト追加
+  - AT-005: リファレンスエントリ
+- `tasks/prd-more-systems.md` の全タスク完了 → `tasks-archived/` にアーカイブ
+- カバレッジ: コード変更なし、ベースライン維持
+- 変更ファイル:
+  - `tasks/prd-analytic-tableau.md` (新規)
+  - `tasks-archived/prd-more-systems.md` (アーカイブ)
+  - `task-processing.md` (更新)
+- **今後のイテレーションへの学び:**
+  - 分析的タブローとTAB（タブロー式シーケント計算）は同じ規則を持つが表現が異なる。TABはシーケントΓ⇒、ATは署名付き論理式の木
+  - bekki Ch.6の簡略化記法（6.5節）ではT(φ)=φ, F(φ)=¬φとして否定記号に統合。内部的にはsign付きで保持が設計上クリーン
+  - α規則=非分岐（∧true, ∨false, →false, ¬¬）、β規則=分岐（∧false, ∨true, →true）は標準的な命名
+  - 量化子規則のγ(∀true, ∃false: 任意の項)とδ(∀false, ∃true: 固有変数)の分類も標準的
+  - 分析的タブローでは1ノード=1論理式（TABの1ノード=シーケントとは異なる）
+---
+
 ## 2026-03-01 - コネクタポートz-index修正・未接続ポート非表示化 (差し込みタスク)
 - InfiniteCanvasに `isolation: isolate` を追加し、キャンバス内z-indexがAxiomPalette等のUIパネルを覆わないよう修正
 - ConnectorPortComponentに `dimmed` propを追加、未接続ポートは opacity: 0 で非表示に
