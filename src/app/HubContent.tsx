@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useNotebookCollection, toNotebookListItems } from "../lib/notebook";
 import {
   useQuestProgress,
@@ -19,14 +19,35 @@ import {
   getBrowserLocaleSwitchDeps,
 } from "../components/LanguageToggle/useLocaleSwitch";
 import { HubPageView } from "./HubPageView";
+import type { HubMessages } from "./hubMessages";
+import { HubMessagesProvider } from "./HubMessagesContext";
 
 // eslint-disable-next-line @luma-dev/luma-ts/no-date
 const getNow = (): number => Date.now();
+
+/** next-intl の翻訳から HubMessages オブジェクトを構築するフック */
+function useHubMessagesFromIntl(): HubMessages {
+  const t = useTranslations("HubPage");
+  return useMemo(
+    (): HubMessages => ({
+      tabNotebooks: String(t.raw("tabNotebooks")),
+      tabQuests: String(t.raw("tabQuests")),
+      newNotebook: String(t.raw("newNotebook")),
+      emptyTitle: String(t.raw("emptyTitle")),
+      emptyDescription: String(t.raw("emptyDescription")),
+      questFilterCount: String(t.raw("questFilterCount")),
+      questFilterClear: String(t.raw("questFilterClear")),
+      questFilterEmpty: String(t.raw("questFilterEmpty")),
+    }),
+    [t],
+  );
+}
 
 function HubInner() {
   const router = useRouter();
   const notebookCollection = useNotebookCollection();
   const questProgress = useQuestProgress();
+  const hubMessages = useHubMessagesFromIntl();
   const rawLocale = useLocale();
   const locale = isLocale(rawLocale) ?? "en";
   const localeSwitchDeps = useMemo(() => getBrowserLocaleSwitchDeps(), []);
@@ -107,19 +128,21 @@ function HubInner() {
   );
 
   return (
-    <HubPageView
-      listItems={listItems}
-      groups={groups}
-      onOpenNotebook={handleOpenNotebook}
-      onDeleteNotebook={notebookCollection.remove}
-      onDuplicateNotebook={notebookCollection.duplicate}
-      onRenameNotebook={notebookCollection.rename}
-      onConvertToFree={notebookCollection.convertToFree}
-      onStartQuest={handleStartQuest}
-      onCreateNotebook={handleCreateNotebook}
-      languageToggle={{ locale, onLocaleChange: switchLocale }}
-      notebookCounts={notebookCounts}
-    />
+    <HubMessagesProvider messages={hubMessages}>
+      <HubPageView
+        listItems={listItems}
+        groups={groups}
+        onOpenNotebook={handleOpenNotebook}
+        onDeleteNotebook={notebookCollection.remove}
+        onDuplicateNotebook={notebookCollection.duplicate}
+        onRenameNotebook={notebookCollection.rename}
+        onConvertToFree={notebookCollection.convertToFree}
+        onStartQuest={handleStartQuest}
+        onCreateNotebook={handleCreateNotebook}
+        languageToggle={{ locale, onLocaleChange: switchLocale }}
+        notebookCounts={notebookCounts}
+      />
+    </HubMessagesProvider>
   );
 }
 

@@ -7,6 +7,16 @@
     "title": "Formal Logic Pad へようこそ",
     "description": "形式的証明を探求しましょう"
   },
+  "HubPage": {
+    "tabNotebooks": "ノートブック",
+    "tabQuests": "クエスト",
+    "newNotebook": "+ 新規ノートブック",
+    "emptyTitle": "ノートブックがまだありません",
+    "emptyDescription": "新しいノートブックを作成して形式的証明を始めましょう。クエストで基本を学ぶこともできます。",
+    "questFilterCount": "クエストのノート（{count}件）",
+    "questFilterClear": "フィルタ解除",
+    "questFilterEmpty": "このクエストのノートはまだありません"
+  },
   "ProofWorkspace": {
     "mpApply": "MP 適用",
     "mpCancel": "MP キャンセル",

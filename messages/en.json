@@ -7,6 +7,16 @@
     "title": "Welcome to Formal Logic Pad",
     "description": "Start exploring formal proofs"
   },
+  "HubPage": {
+    "tabNotebooks": "Notebooks",
+    "tabQuests": "Quests",
+    "newNotebook": "+ New Notebook",
+    "emptyTitle": "No notebooks yet",
+    "emptyDescription": "Create a new notebook to start building formal proofs, or try a quest to learn the basics.",
+    "questFilterCount": "Quest notebooks ({count})",
+    "questFilterClear": "Clear filter",
+    "questFilterEmpty": "No notebooks for this quest yet"
+  },
   "ProofWorkspace": {
     "mpApply": "Apply MP",
     "mpCancel": "Cancel MP",

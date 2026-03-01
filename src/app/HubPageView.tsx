@@ -26,6 +26,7 @@ import {
   type LanguageToggleProps,
 } from "../components/LanguageToggle/LanguageToggle";
 import type { DeductionSystem } from "../lib/logic-core/deductionSystem";
+import { useHubMessages } from "./HubMessagesContext";
 
 // --- Types ---
 
@@ -202,6 +203,7 @@ export function HubPageView({
   languageToggle,
   notebookCounts,
 }: HubPageViewProps) {
+  const m = useHubMessages();
   const [tab, setTab] = useState<HubTab>(initialTab);
   const [view, setView] = useState<HubViewState>("list");
   const [questFilter, setQuestFilter] = useState<string | null>(null);
@@ -244,7 +246,7 @@ export function HubPageView({
             setQuestFilter(null);
           }}
         >
-          Notebooks
+          {m.tabNotebooks}
         </button>
         <button
           type="button"
@@ -254,7 +256,7 @@ export function HubPageView({
             setView("list");
           }}
         >
-          Quests
+          {m.tabQuests}
         </button>
       </nav>
 
@@ -268,13 +270,16 @@ export function HubPageView({
                 style={createButtonStyle}
                 onClick={() => setView("create")}
               >
-                + New Notebook
+                {m.newNotebook}
               </button>
             </div>
             {questFilter !== null && (
               <div style={filterBannerStyle} data-testid="quest-filter-banner">
                 <span>
-                  {`クエストのノート（${String(displayedItems.length) satisfies string}件）`}
+                  {m.questFilterCount.replace(
+                    "{count}",
+                    String(displayedItems.length),
+                  )}
                 </span>
                 <button
                   type="button"
@@ -282,7 +287,7 @@ export function HubPageView({
                   data-testid="clear-quest-filter"
                   onClick={() => setQuestFilter(null)}
                 >
-                  フィルタ解除
+                  {m.questFilterClear}
                 </button>
               </div>
             )}
@@ -295,29 +300,26 @@ export function HubPageView({
                       fontSize: 16,
                     }}
                   >
-                    このクエストのノートはまだありません
+                    {m.questFilterEmpty}
                   </div>
                   <button
                     type="button"
                     style={clearFilterButtonStyle}
                     onClick={() => setQuestFilter(null)}
                   >
-                    フィルタ解除
+                    {m.questFilterClear}
                   </button>
                 </div>
               ) : (
                 <div style={emptyHeroStyle}>
-                  <div style={emptyHeroTitleStyle}>No notebooks yet</div>
-                  <p style={emptyHeroDescStyle}>
-                    Create a new notebook to start building formal proofs, or
-                    try a quest to learn the basics.
-                  </p>
+                  <div style={emptyHeroTitleStyle}>{m.emptyTitle}</div>
+                  <p style={emptyHeroDescStyle}>{m.emptyDescription}</p>
                   <button
                     type="button"
                     style={createButtonStyle}
                     onClick={() => setView("create")}
                   >
-                    + New Notebook
+                    {m.newNotebook}
                   </button>
                 </div>
               )
