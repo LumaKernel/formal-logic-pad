@@ -86,24 +86,24 @@ bekki.pdf 第6章に基づき、分析的タブロー（analytic tableaux / sema
 - [x] `src/lib/proof-pad/workspaceState.ts` に AT 規則適用の状態管理関数追加
 - [x] 型チェック/lint/test が通る
 
-### AT-003: 分析的タブロー規則パレット UI
+### AT-003: 分析的タブロー規則パレット UI [x]
 
 **説明:** 分析的タブロー用の規則パレット UI コンポーネントを作成し、ProofWorkspace に統合する。
 
 **受け入れ基準:**
 
-- [ ] `src/lib/proof-pad/AtRulePalette.tsx` を新規作成
+- [x] `src/lib/proof-pad/AtRulePalette.tsx` を新規作成
   - α規則・β規則・量化子規則・閉じマークをグループ化して表示
   - 各規則のクリックで適用モードに入る
   - 「論理式追加」ボタン（タブローの根を作成）
-- [ ] `src/lib/proof-pad/AtRulePalette.test.tsx`: コンポーネントテスト
-- [ ] `ProofWorkspace.tsx` に AT パレットの統合
+- [x] `src/lib/proof-pad/AtRulePalette.test.tsx`: コンポーネントテスト
+- [x] `ProofWorkspace.tsx` に AT パレットの統合
   - 演繹体系が「分析的タブロー」の場合に AT パレットを表示
   - 規則クリック → ノード選択 → 規則適用フロー
-- [ ] deductionSystem.ts に `"analytic-tableau"` を DeductionSystemId に追加
-- [ ] ノートブック作成時に分析的タブローを選択可能にする
-- [ ] 型チェック/lint/test が通る
-- [ ] Playwright MCP でブラウザ確認・スクリーンショット
+- [x] deductionSystem.ts に `"analytic-tableau"` を DeductionSystemId に追加
+- [x] ノートブック作成時に分析的タブローを選択可能にする
+- [x] 型チェック/lint/test が通る
+- [x] Playwright MCP でブラウザ確認・スクリーンショット
 
 ### AT-004: 分析的タブロー用クエスト
 
