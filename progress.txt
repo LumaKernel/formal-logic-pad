@@ -7057,3 +7057,37 @@
   - カット除去→無矛盾性の議論は比較的シンプル: CUT-freeの証明では⊥の導入規則がないため、空のシーケント ⇒ は証明不可能
   - 既存エントリ（concept-cut-elimination）に無矛盾性への言及（paragraph 4）が既にある場合、新エントリではより詳細な解説を提供しつつ重複を最小限にする
 ---
+
+## 2026-03-01 - C4: 古典論理固有の公理の独立性の解説リファレンス
+- タスク: C4. 公理の独立性の解説 (prd-advanced.md)
+- 実装した内容:
+  - 新リファレンスエントリ `concept-axiom-independence` を追加
+  - bekki Ch.11 定理11.9（LJとDNEの独立性）、定理11.8（LJとLEMの独立性）、補題11.6（LJ-CUT証明の構造分析）に基づく解説
+  - 6段落構成（en/ja バイリンガル）:
+    1. 独立性の結果（DNE/LEM が LJ で証明不能）
+    2. LJ-CUT 証明の構造分析（補題11.6の解説）
+    3. LEM の証明不能性（系11.7、定理11.8）
+    4. DNE の証明不能性（LEM の独立性から導出、定理11.9）
+    5. 構成的数学にとっての意義（選言性、ブラウワー/ハイティング/ビショップ）
+    6. 方法: 部分論理式性（カット除去定理の威力）
+  - 双方向リンク: concept-cut-elimination, concept-consistency-from-cut-elimination, concept-glivenko, axiom-dne に相互参照追加
+  - 外部リンク: Wikipedia (Intuitionistic logic en/ja, Double negation elimination, Law of excluded middle), nLab (excluded middle)
+  - キーワード: independence, 独立性, DNE, LEM, 排中律, 直観主義論理, 古典論理, 部分論理式性, 選言性, 構成的数学, 定理11.9, 定理11.8, 補題11.6
+  - テストエントリ数更新: 57→58（概念 20→21）
+- 変更したファイル:
+  - `src/lib/reference/referenceContent.ts` - 新エントリ追加 + 4つの既存エントリに双方向リンク追加
+  - `src/lib/reference/referenceContent.test.ts` - エントリ数更新
+  - `task-processing.md` - タスク記入→クリア
+  - `tasks/prd-advanced.md` - C4を完了マーク、完了済みC4をアーカイブ
+  - `tasks-archived/prd-advanced.md` - C4をアーカイブ追加
+- ベースラインカバレッジ: Stmts 97.65%, Branch 91.1%, Funcs 88.87%, Lines 98.49%
+- 完了後カバレッジ: Stmts 97.66%, Branch 91.1%, Funcs 88.87%, Lines 98.5%（微増）
+- テスト: 203ファイル、6009テスト全パス
+- スクリーンショット:
+  - `.screenshots/axiom-independence-storybook-default.png` - ReferenceModal Storybook表示確認
+- **今後のイテレーションへの学び:**
+  - PRDの参照番号（系11.16）と実際の bekki.pdf の定理番号（定理11.9）が異なることがある。必ず原著PDFを確認する
+  - DNEの独立性はLEMの独立性から間接的に導かれる: LJ+DNE=LK → DNE∈LJ ⟹ LJ=LK ⟹ LEM∈LJ（矛盾）
+  - 補題11.6（LJ-CUT証明の構造的特徴付け）がLEM/DNE独立性の技術的な核心。CUT-freeの部分論理式性が制約を生む
+  - 構成的数学との関連（選言性、二重否定の取り扱い）はユーザーにとって動機付けになりうる
+---
