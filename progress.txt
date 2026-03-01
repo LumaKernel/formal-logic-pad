@@ -7142,3 +7142,42 @@
   - AlphaResultの results が `readonly [SF] | readonly [SF, SF]` の union tuple 型の場合、`results[1]` のアクセスには `!` が必要
   - `substituteTermVariableInFormula` が正しい関数名（`substituteTermInFormula` は存在しない）
 ---
+
+## 2026-03-01 - 分析的タブロー AT-002 規則適用ロジックとInferenceEdge統合
+- 実装した内容:
+  - 分析的タブロー（AT）の規則適用ロジック層を新規作成（atApplicationLogic.ts）
+  - 署名付き論理式のテキストフォーマット: "T:φ" / "F:φ" 形式のパース/フォーマット
+  - エラー型: AtFormulaParseError, AtPrincipalFormulaMismatch, AtEigenVariableError, AtTermParseError, AtContradictionError
+  - 結果型: AtAlphaResult, AtBetaResult, AtGammaResult, AtDeltaResult, AtClosedResult
+  - validateAtApplicationEffect / validateAtApplication: Effect.gen内部 → Either公開API パターン
+  - createAtEdgeFromResult: バリデーション結果からInferenceEdge生成
+  - InferenceEdge union に5つのATエッジ型追加: AtAlphaEdge, AtBetaEdge, AtGammaEdge, AtDeltaEdge, AtClosedEdge
+  - workspaceExport.ts: AT全エッジのSchema定義（シリアライゼーション対応）
+  - workspaceState.ts: applyAtRuleAndConnect 状態管理関数 + revalidateInferenceConclusions のATガード
+  - inferenceEdgeLabelLogic.ts: ATエッジの色（green-600）・ラベル・前提ロール
+  - edgeBadgeEditLogic.ts: ATエッジは編集不可（パラメータなし）
+  - テスト: atApplicationLogic.test.ts (49テスト), inferenceEdge.test.ts (+ATテスト), inferenceEdgeLabelLogic.test.ts (+ATテスト), workspaceState.test.ts (+ATテスト)
+- 変更したファイル:
+  - `src/lib/proof-pad/atApplicationLogic.ts` - 新規作成（AT規則適用ロジック）
+  - `src/lib/proof-pad/atApplicationLogic.test.ts` - 新規作成（49テスト）
+  - `src/lib/proof-pad/inferenceEdge.ts` - ATエッジ型5種追加、型ガード、ユーティリティ
+  - `src/lib/proof-pad/inferenceEdge.test.ts` - ATエッジテスト追加
+  - `src/lib/proof-pad/inferenceEdgeLabelLogic.ts` - ATバッジ色・ラベル追加
+  - `src/lib/proof-pad/inferenceEdgeLabelLogic.test.ts` - ATテスト追加
+  - `src/lib/proof-pad/edgeBadgeEditLogic.ts` - ATエッジ編集不可対応
+  - `src/lib/proof-pad/workspaceExport.ts` - ATエッジSchema追加
+  - `src/lib/proof-pad/workspaceState.ts` - applyAtRuleAndConnect追加
+  - `src/lib/proof-pad/workspaceState.test.ts` - ATテスト追加
+  - `src/lib/proof-pad/index.ts` - AT関連エクスポート追加
+  - `tasks/prd-analytic-tableau.md` - AT-002を完了マーク
+- ベースラインカバレッジ: Stmts 97.68%, Branch 91.27%, Funcs 88.68%, Lines 98.52%
+- 完了後カバレッジ: Stmts 97.62%, Branch 91.41%, Funcs 88.61%, Lines 98.47%（ほぼ維持）
+- テスト: 205ファイル、6181テスト全パス
+- スクリーンショット:
+  - `.screenshots/at-002-storybook-verification.png` - Storybook ProofWorkspace動作確認
+- **今後のイテレーションへの学び:**
+  - AtClosedEdge にも `conclusionText` が必要。syncInferenceEdges が全エッジの conclusionText を参照するため、新エッジ型追加時は必ず conclusionText フィールドを含める
+  - tabApplicationLogic.ts のパターンを参考にすると効率的。署名付き論理式のパース/フォーマットはATの独自要件
+  - InferenceEdge union に新システム追加時の変更箇所: inferenceEdge.ts(型+ユーティリティ), workspaceExport.ts(Schema), inferenceEdgeLabelLogic.ts(色・ラベル), edgeBadgeEditLogic.ts(編集状態), workspaceState.ts(適用関数+revalidateガード), index.ts(エクスポート)
+  - ATの署名付き論理式テキストフォーマット "T:φ" / "F:φ" は、UI層でのパース・表示に使用される
+---
