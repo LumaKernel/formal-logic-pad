@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   lukasiewiczSystem,
@@ -2568,6 +2568,27 @@ describe("ProofWorkspace", () => {
       if (paletteItems.length > 0) {
         await user.click(paletteItems[0]!);
       }
+    });
+
+    it("changes layout direction via direction selector", async () => {
+      const user = userEvent.setup();
+      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
+
+      // Enable auto layout first
+      const toggle = screen.getByTestId("workspace-auto-layout-toggle");
+      await user.click(toggle);
+
+      // Direction selector should appear
+      const directionSelect = screen.getByTestId(
+        "workspace-auto-layout-direction",
+      );
+      expect(directionSelect).toBeInTheDocument();
+
+      // Change direction to bottom-to-top
+      fireEvent.change(directionSelect, {
+        target: { value: "bottom-to-top" },
+      });
+      expect(directionSelect).toHaveValue("bottom-to-top");
     });
   });
 

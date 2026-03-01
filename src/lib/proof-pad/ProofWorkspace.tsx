@@ -2611,6 +2611,8 @@ export function ProofWorkspace({
       new Set(
         workspace.nodes
           .filter((n) => isNodeProtected(workspace, n.id))
+          // v8 ignore: isNodeProtected currently always returns false (defensive code)
+          /* v8 ignore next */
           .map((n) => n.id),
       ),
     );
@@ -2621,6 +2623,8 @@ export function ProofWorkspace({
     const protectedIds = new Set(
       workspace.nodes
         .filter((n) => isNodeProtected(workspace, n.id))
+        // v8 ignore: isNodeProtected currently always returns false (defensive code)
+        /* v8 ignore next */
         .map((n) => n.id),
     );
     const groups = findMergeableGroups(
