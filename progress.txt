@@ -6895,3 +6895,38 @@
   - NdRulePaletteのパターン（panelStyle, headerStyle等のCSSスタイル）は新規パレットのテンプレートとして活用できる
   - ProofWorkspaceのStoryではrender関数内で独自のStatefulWrapperを定義する。meta.argsとの混在に注意
 ---
+
+## 2026-03-01 - TAB推論規則適用ロジック (B2-3)
+- 実装した内容:
+  - TabInferenceEdge型（TabSinglePremiseEdge, TabBranchingEdge, TabAxiomEdge）をInferenceEdge unionに追加
+  - tabApplicationLogic.ts: 14規則の純粋バリデーション（splitSequentText, formatSequentText, parseSequentFormulas, validateTabApplication）
+  - workspaceState.ts: applyTabRuleAndConnect関数（前提ノード自動生成、分岐対応）
+  - workspaceExport.ts: TABエッジのSchemaサポート
+  - inferenceEdgeLabelLogic.ts: TABバッジカラー・前提ロール
+  - edgeBadgeEditLogic.ts: TABガード追加
+  - テスト57件追加（tabApplicationLogic.test.ts）、既存テストにTABケース追加
+- 変更したファイル:
+  - src/lib/proof-pad/tabApplicationLogic.ts (新規: 純粋バリデーション)
+  - src/lib/proof-pad/tabApplicationLogic.test.ts (新規: 57テスト)
+  - src/lib/proof-pad/inferenceEdge.ts (TabInferenceEdge型追加)
+  - src/lib/proof-pad/inferenceEdge.test.ts (TABケース追加)
+  - src/lib/proof-pad/inferenceEdgeLabelLogic.ts (TABバッジカラー追加)
+  - src/lib/proof-pad/inferenceEdgeLabelLogic.test.ts (TABケース追加)
+  - src/lib/proof-pad/edgeBadgeEditLogic.ts (TABガード追加)
+  - src/lib/proof-pad/workspaceExport.ts (TAB Schema追加)
+  - src/lib/proof-pad/workspaceState.ts (applyTabRuleAndConnect追加)
+  - src/lib/proof-pad/index.ts (TABエクスポート追加)
+- ベースラインカバレッジ: Stmts 98.32%, Branch 91.87%, Funcs 88.94%, Lines 99.19%
+- 完了後カバレッジ: Stmts 98.12%, Branch 91.66%, Funcs 88.88%, Lines 99.04%
+  - 微減はTABエッジ関連の新分岐パスによるもの。57テスト追加済み
+- テスト: 203ファイル、5976テスト全パス
+- ブラウザテスト:
+  - `.screenshots/tab-empty-tableau-workspace.png` - Tableauワークスペース表示確認
+  - `.screenshots/tab-workspace-fullscreen.png` - フルスクリーンで規則パレット+ノード確認
+- **今後のイテレーションへの学び:**
+  - TAB規則適用は結論→前提の方向（ユーザーが結論ノード選択→規則適用→前提ノード自動生成）
+  - prependAndFormat(added, principal, rest)パターン: 分解した部分式を主要式の前に配置し、残りを後ろに
+  - metaVariable("phi")ではなくparseSequentFormulasでテスト用シーケントを構築すべき（GreekLetterはUnicode文字必須）
+  - Effect.genでのバリデーションチェーン→公開APIはEither返却パターンがTAB規則にも適合
+  - InferenceEdge union拡張時の変更箇所: inferenceEdge.ts, workspaceExport.ts, inferenceEdgeLabelLogic.ts, edgeBadgeEditLogic.ts, index.ts（exhaustiveチェックで検出可能）
+---
