@@ -99,6 +99,32 @@
 
 ---
 
+## 2026-03-02 - カバレッジ改善: 項代入表示ブランチ・SCフォールバック位置・接続削除ブランチ
+- ProofWorkspace.test.tsx に1テスト追加:
+  - 述語論理式 `phi -> P(tau)` で項メタ変数の代入プロンプト表示テスト（"Term"ラベル、"S(0)"プレースホルダー）
+  - ProofWorkspace.tsx lines 3697-3699, 3719 の `entry.kind === "term"` ブランチをカバー
+- workspaceState.test.ts に3テスト追加:
+  - removeSelectedNodes: toNodeIdが削除対象の場合の接続削除テスト（line 1232 ブランチカバー）
+  - applyScRuleAndConnect: premisePositions空時のフォールバック位置テスト（line 1125 ブランチカバー）
+  - applyScRuleAndConnect: premisePositions 1つだけ時の右側フォールバック位置テスト（line 1141 ブランチカバー）
+- テスト: 214ファイル、6850テスト全パス（+4テスト追加）
+- カバレッジ:
+  - ベースライン: Stmts 99.4%, Branch 94.18%, Funcs 89.75%, Lines 100%
+  - 改善後: Stmts 99.4%, Branch 94.28%, Funcs 89.75%, Lines 100%
+  - ProofWorkspace.tsx: Branch 83.04% → 83.53%
+  - workspaceState.ts: Branch 89.02% → 90.24%
+- 品質チェック: typecheck ✅, lint ✅, test ✅, prettier ✅
+- ブラウザテスト: `.screenshots/coverage-improvement-storybook-check.png` — Storybook正常動作確認
+- 変更ファイル:
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (MODIFIED - 1テスト追加)
+  - `src/lib/proof-pad/workspaceState.test.ts` (MODIFIED - 3テスト追加)
+- **今後のイテレーションへの学び:**
+  - パーサーで `P(tau)` は述語 `P` と項メタ変数 `τ` として解析される。`extractSubstitutionTargetsFromText` で formula/term メタ変数の両方を抽出できる
+  - `applyScRuleAndConnect` の `premisePositions` はオプショナルで、空配列や不足時にフォールバック `{ x: 0, y: 0 }` が使われる
+  - 多くの未カバーBranchは `testId ? \`...\` : undefined` のような三項演算子で、`satisfies string` パターンによるもの。実質的なロジックブランチではなく、テスト追加の優先度は低い
+  - `isNodeProtected` は常に `false` を返すため、`removeSelectedNodes` の保護ノード除外ブランチは空セットでしか到達しない
+---
+
 ## 2026-03-02 - カバレッジ改善: SC量化子規則エッジケース・revalidate SCパス
 - scApplicationLogic.ts に3テスト追加:
   - universal-right: 固有変数が右辺(succedent)のみに自由出現するケース
