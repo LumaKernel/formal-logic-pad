@@ -49,6 +49,17 @@ describe("computeGridDots", () => {
     ).toEqual([]);
   });
 
+  it("uses default dot spacing when not provided", () => {
+    const dots = computeGridDots(
+      { offsetX: 0, offsetY: 0, scale: 1 },
+      { width: 40, height: 40 },
+    );
+    // DEFAULT_DOT_SPACING = 20, so 3 cols x 3 rows = 9 dots
+    expect(dots).toHaveLength(9);
+    expect(dots[0]).toEqual({ x: 0, y: 0 });
+    expect(dots[8]).toEqual({ x: 40, y: 40 });
+  });
+
   it("handles large offsets via modulo", () => {
     const dots = computeGridDots(
       { offsetX: 1000, offsetY: 1000, scale: 1 },

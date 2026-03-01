@@ -334,7 +334,9 @@ function ProgressBar({
   readonly completed: number;
   readonly total: number;
 }) {
+  /* v8 ignore start -- 防御的コード: applyFiltersToGroupsがtotal=0のグループを除外するため到達不能 */
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+  /* v8 ignore stop */
   return (
     <div style={progressBarOuterStyle} data-testid="progress-bar">
       <div

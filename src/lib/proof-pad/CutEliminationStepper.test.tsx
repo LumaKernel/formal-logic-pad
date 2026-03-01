@@ -262,6 +262,120 @@ describe("CutEliminationStepper", () => {
     });
   });
 
+  describe("結果ステータスバリエーション", () => {
+    function makeCustomResultData(
+      result: CutEliminationStepperData["result"],
+    ): CutEliminationStepperData {
+      const proof = makeIdentityProof();
+      return {
+        initialInfo: {
+          cutCount: 1,
+          isCutFree: false,
+          conclusionText: "φ ⊢ φ",
+        },
+        steps: [
+          {
+            index: 0,
+            description: "Step 1",
+            cutCount: 1,
+            depth: 0,
+            rank: 0,
+            conclusionText: "φ ⊢ φ",
+          },
+        ],
+        currentStepIndex: 0,
+        totalSteps: 1,
+        result,
+        currentProof: proof,
+        currentCutCount: 1,
+      };
+    }
+
+    it("StepLimitExceeded結果の表示", () => {
+      const proof = makeIdentityProof();
+      const data = makeCustomResultData({
+        _tag: "StepLimitExceeded",
+        proof,
+        stepsUsed: 42,
+      });
+
+      render(
+        <CutEliminationStepper
+          data={data}
+          onStepChange={() => {}}
+          messages={defaultProofMessages}
+          testId="stepper"
+        />,
+      );
+
+      expect(screen.getByTestId("stepper-result")).toBeInTheDocument();
+      expect(screen.getByTestId("stepper-result")).toHaveTextContent(
+        /Step limit exceeded/,
+      );
+    });
+
+    it("Failure結果の表示", () => {
+      const data = makeCustomResultData({
+        _tag: "Failure",
+        reason: "Test failure",
+      });
+
+      render(
+        <CutEliminationStepper
+          data={data}
+          onStepChange={() => {}}
+          messages={defaultProofMessages}
+          testId="stepper"
+        />,
+      );
+
+      expect(screen.getByTestId("stepper-result")).toBeInTheDocument();
+      expect(screen.getByTestId("stepper-result")).toHaveTextContent(
+        defaultProofMessages.cutEliminationFailure,
+      );
+    });
+
+    it("カット数0でcutFreeテキスト表示", () => {
+      const proof = makeIdentityProof();
+      const data: CutEliminationStepperData = {
+        initialInfo: {
+          cutCount: 1,
+          isCutFree: false,
+          conclusionText: "φ ⊢ φ",
+        },
+        steps: [
+          {
+            index: 0,
+            description: "Step 1",
+            cutCount: 0,
+            depth: 0,
+            rank: 0,
+            conclusionText: "φ ⊢ φ",
+          },
+        ],
+        currentStepIndex: 0,
+        totalSteps: 1,
+        result: { _tag: "Success", proof },
+        currentProof: proof,
+        currentCutCount: 0,
+      };
+
+      render(
+        <CutEliminationStepper
+          data={data}
+          onStepChange={() => {}}
+          messages={defaultProofMessages}
+          testId="stepper"
+        />,
+      );
+
+      // カット数0でcutFreeメッセージが表示される
+      expect(
+        screen.getByText(defaultProofMessages.cutEliminationCutFree),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe("data-testid", () => {
     it("testId\u304C\u3042\u308B\u5834\u5408\u306Fdata-testid\u304C\u8A2D\u5B9A\u3055\u308C\u308B", () => {
       const data = makeCutStepperData(-1);
@@ -288,6 +402,93 @@ describe("CutEliminationStepper", () => {
       );
 
       expect(container.firstChild).toBeTruthy();
+    });
+
+    it("最後のステップでtestIdなしでも結果が表示される", () => {
+      const data = makeCutStepperData(999);
+      const { container } = render(
+        <CutEliminationStepper
+          data={data}
+          onStepChange={() => {}}
+          messages={defaultProofMessages}
+        />,
+      );
+
+      expect(container.textContent).toContain(
+        defaultProofMessages.cutEliminationSuccess,
+      );
+    });
+
+    it("StepLimitExceeded結果でtestIdなしでも表示される", () => {
+      const proof = makeIdentityProof();
+      const data: CutEliminationStepperData = {
+        initialInfo: {
+          cutCount: 1,
+          isCutFree: false,
+          conclusionText: "φ ⊢ φ",
+        },
+        steps: [
+          {
+            index: 0,
+            description: "Step 1",
+            cutCount: 1,
+            depth: 0,
+            rank: 0,
+            conclusionText: "φ ⊢ φ",
+          },
+        ],
+        currentStepIndex: 0,
+        totalSteps: 1,
+        result: { _tag: "StepLimitExceeded", proof, stepsUsed: 42 },
+        currentProof: proof,
+        currentCutCount: 1,
+      };
+      const { container } = render(
+        <CutEliminationStepper
+          data={data}
+          onStepChange={() => {}}
+          messages={defaultProofMessages}
+        />,
+      );
+
+      expect(container.textContent).toContain("Step limit exceeded");
+    });
+
+    it("Failure結果でtestIdなしでも表示される", () => {
+      const proof = makeIdentityProof();
+      const data: CutEliminationStepperData = {
+        initialInfo: {
+          cutCount: 1,
+          isCutFree: false,
+          conclusionText: "φ ⊢ φ",
+        },
+        steps: [
+          {
+            index: 0,
+            description: "Step 1",
+            cutCount: 1,
+            depth: 0,
+            rank: 0,
+            conclusionText: "φ ⊢ φ",
+          },
+        ],
+        currentStepIndex: 0,
+        totalSteps: 1,
+        result: { _tag: "Failure", reason: "Test" },
+        currentProof: proof,
+        currentCutCount: 1,
+      };
+      const { container } = render(
+        <CutEliminationStepper
+          data={data}
+          onStepChange={() => {}}
+          messages={defaultProofMessages}
+        />,
+      );
+
+      expect(container.textContent).toContain(
+        defaultProofMessages.cutEliminationFailure,
+      );
     });
   });
 

@@ -170,6 +170,20 @@ describe("プログレスバー", () => {
     render(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
     expect(screen.getByTestId("progress-bar")).toBeTruthy();
   });
+
+  it("全未完了グループのプログレスバーが0%で表示される", () => {
+    const group = makeGroup({
+      items: [makeItem({ questOverrides: { id: "q1" }, completed: false })],
+      completedCount: 0,
+      totalCount: 1,
+    });
+    render(<QuestCatalog groups={[group]} onStartQuest={vi.fn()} />);
+    const bar = screen.getByTestId("progress-bar");
+    expect(bar).toBeTruthy();
+    // completed=0, total=1 → pct=0 → width: "0%"
+    const inner = bar.firstElementChild;
+    expect(inner).toHaveStyle({ width: "0%" });
+  });
 });
 
 // --- 難易度星 ---
@@ -389,6 +403,26 @@ describe("キーボード操作", () => {
     item.focus();
     await user.keyboard("{Enter}");
     expect(onStartQuest).toHaveBeenCalledWith("q1");
+  });
+
+  it("Spaceキーでクエスト開始", async () => {
+    const user = userEvent.setup();
+    const onStartQuest = vi.fn();
+    render(<QuestCatalog groups={[makeGroup()]} onStartQuest={onStartQuest} />);
+    const item = screen.getByTestId("quest-item-q1");
+    item.focus();
+    await user.keyboard(" ");
+    expect(onStartQuest).toHaveBeenCalledWith("q1");
+  });
+
+  it("他のキーではクエスト開始されない", async () => {
+    const user = userEvent.setup();
+    const onStartQuest = vi.fn();
+    render(<QuestCatalog groups={[makeGroup()]} onStartQuest={onStartQuest} />);
+    const item = screen.getByTestId("quest-item-q1");
+    item.focus();
+    await user.keyboard("{Tab}");
+    expect(onStartQuest).not.toHaveBeenCalled();
   });
 });
 

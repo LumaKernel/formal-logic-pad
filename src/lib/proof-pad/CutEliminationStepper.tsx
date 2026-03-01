@@ -308,9 +308,11 @@ export function CutEliminationStepper({
 
       {/* 結論 */}
       <div style={conclusionStyle}>
+        {/* v8 ignore start -- 防御的コード: currentStepIndex >= 0 なら steps[i] は存在する */}
         {currentStepIndex === -1
           ? initialInfo.conclusionText
           : (currentStep?.conclusionText ?? initialInfo.conclusionText)}
+        {/* v8 ignore stop */}
       </div>
 
       {/* 結果ステータス */}
@@ -336,6 +338,7 @@ export function CutEliminationStepper({
                   : undefined
               }
             >
+              {/* v8 ignore start -- defaultProofMessagesでは常に定義済み */}
               {formatMessage(
                 messages.cutEliminationStepLimitExceeded ??
                   "Step limit exceeded ({stepsUsed} steps)",
@@ -343,6 +346,7 @@ export function CutEliminationStepper({
                   stepsUsed: String(result.stepsUsed),
                 },
               )}
+              {/* v8 ignore stop */}
             </span>
           ) : (
             <span
