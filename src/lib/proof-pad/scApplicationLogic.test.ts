@@ -377,6 +377,20 @@ describe("scApplicationLogic", () => {
         expect(result.left._tag).toBe("ScPrincipalFormulaMismatch");
       }
     });
+
+    it("位置が範囲外ならエラー", () => {
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "contraction-right",
+          sequentText: "P(x) ⇒ Q(x)",
+          principalPosition: 5,
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScPrincipalPositionOutOfRange");
+      }
+    });
   });
 
   describe("exchange-left", () => {
@@ -897,6 +911,24 @@ describe("scApplicationLogic", () => {
       expect(Either.isLeft(result)).toBe(true);
       if (Either.isLeft(result)) {
         expect(result.left._tag).toBe("ScPrincipalPositionOutOfRange");
+      }
+    });
+
+    it("代入項が自由でない(isFreeFor失敗)ならエラー", () => {
+      // body = ∀y.P(x) に対して term=y, xi=x で代入すると
+      // P(x)中のxにyを代入→P(y) だがyが∀yに捕獲されるためisFreeFor=false
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "universal-left",
+          sequentText: "∀x.∀y.P(x) ⇒ Q(z)",
+          principalPosition: 0,
+          termText: "y",
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScEigenVariableError");
+        expect(result.left.message).toContain("not free for");
       }
     });
   });
