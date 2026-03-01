@@ -6863,3 +6863,35 @@
   - 2前提以上のエッジの `return undefined` 分岐（未マッチケース）もテストで明示的にカバーすべき
   - `computeInferenceEdgeLabelData` (エッジ全体用) と `computeInferenceEdgeLabelDataForConnection` (コネクション個別用) の2つのAPIを提供し、呼び出し側で使い分ける
 ---
+
+## 2026-03-01 - B2 TAB規則パレットUI実装
+- タスク: B2. TABの証明木構築UI（B2-2: TAB規則パレットUI部分）
+- 実装内容:
+  - `getAvailableTabRules` 純粋ロジック関数をaxiomPaletteLogic.tsに追加
+  - `TabRulePaletteItem` 型定義（id, displayName, isBranching）
+  - `TabRulePalette.tsx` UIコンポーネント新規作成（NdRulePaletteに準拠）
+  - 分岐規則（¬∧, ∨, →）に「分岐」バッジ表示
+  - `+ シーケントを追加` ボタンでSequentノード追加
+  - ProofWorkspace.tsxでtableau-calculus体系時にTABパレット表示（3-way分岐: ND/TAB/Hilbert）
+  - EmptyTableau ストーリー追加（play関数付き）
+- 変更ファイル:
+  - src/lib/proof-pad/axiomPaletteLogic.ts (TabRulePaletteItem型, getAvailableTabRules関数追加)
+  - src/lib/proof-pad/axiomPaletteLogic.test.ts (9テスト追加)
+  - src/lib/proof-pad/TabRulePalette.tsx (新規)
+  - src/lib/proof-pad/TabRulePalette.test.tsx (新規, 11テスト)
+  - src/lib/proof-pad/ProofWorkspace.tsx (TABパレット分岐追加, handleAddSequent)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (4テスト追加)
+  - src/lib/proof-pad/ProofWorkspace.stories.tsx (EmptyTableauストーリー追加)
+  - src/lib/proof-pad/index.ts (TabRulePalette関連エクスポート追加)
+- ベースラインカバレッジ: Stmts 98.32%, Branch 91.85%, Lines 99.19%
+- 完了後カバレッジ: Stmts ~98.32%, Branch ~91.85%, Lines ~99.19% ✅ 低下なし
+- テスト: 202ファイル、5901テスト全パス
+- ブラウザテスト:
+  - `.screenshots/tab-rule-palette.png` - TABパレット表示確認
+  - `.screenshots/tab-rule-palette-fullscreen.png` - フルスクリーンでパレット詳細確認（全14規則、分岐バッジ、シーケントノード追加済み）
+- **今後のイテレーションへの学び:**
+  - TABのTabProofNodeは再帰的ツリー構造で、既存Hilbert/NDのフラットDAGとは根本的に異なる。専用ツリーレンダラーが必要
+  - DeductionSystemのdiscriminated union分岐は、パレット表示とワークスペース操作の両方で一貫して切り替えること
+  - NdRulePaletteのパターン（panelStyle, headerStyle等のCSSスタイル）は新規パレットのテンプレートとして活用できる
+  - ProofWorkspaceのStoryではrender関数内で独自のStatefulWrapperを定義する。meta.argsとの混在に注意
+---
