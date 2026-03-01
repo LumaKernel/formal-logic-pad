@@ -99,6 +99,27 @@
 
 ---
 
+## 2026-03-02 - ProofWorkspace公理違反バナー修正・カバレッジ改善
+- **バグ修正:** クエストモードで `AllAchievedButAxiomViolation` 時に通常の「Proof Complete」バナーが出る問題を修正
+  - `isGoalAchieved` の計算で `isGoalAchievedButAxiomViolation` を除外する条件を追加
+  - これにより公理違反バナー（lines 3698-3702）が到達可能になりカバレッジ改善
+- **テスト追加:** 3テスト追加（6598→6601）
+  - クエストモードで許可外公理使用時の violation バナー表示テスト
+  - インスタンスルートノード直接配置時の violation バナーテスト
+  - ワークスペースメニューの外クリック閉じテスト
+- カバレッジ: Stmts 99.23%→99.31%, Branch 92.96%→93.18%, Funcs 89.47%→89.64%, Lines 99.86%→99.92%
+  - ProofWorkspace.tsx: Lines 98.38%→99.05% (+0.67)
+- 品質チェック: typecheck ✅, lint ✅, test ✅ (6601テスト全パス)
+- ブラウザテスト: `.screenshots/coverage-axiom-violation-fix.png` — Storybook正常動作確認
+- 変更ファイル:
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (isGoalAchieved条件修正)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (テスト3件追加)
+- **今後のイテレーションへの学び:**
+  - `isGoalAchieved` と `isGoalAchievedButAxiomViolation` は排他的条件。`goalCheckResult._tag === "GoalAllAchieved"` が公理制限無視でマッチするため、violation パスが到達不能だった
+  - クエストモードでは `questGoalResult` が正、通常の `goalCheckResult` はフォールバック。両者の優先関係を間違えるとバグになる
+  - `createQuestWorkspace` の `allowedAxiomIds` パラメータでクエストの公理制限をテスト可能
+---
+
 ## 2026-03-01 - formula入力の構文ヘルプボタン追加
 - TermInput に `onOpenSyntaxHelp` プロップ追加（?ボタン表示）
 - EdgeParameterPopover（代入入力）に `onOpenSyntaxHelp` プロップ追加（?ボタン表示）
