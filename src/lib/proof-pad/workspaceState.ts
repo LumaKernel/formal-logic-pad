@@ -1354,7 +1354,12 @@ export function applyTreeLayout(
     ...state,
     nodes: state.nodes.map((node) => {
       const newPos = positions.get(node.id);
-      return newPos !== undefined ? { ...node, position: newPos } : node;
+      if (newPos !== undefined) {
+        return { ...node, position: newPos };
+      }
+      /* v8 ignore start -- computeTreeLayout は全ノードにpositionを返すため、この分岐は到達不能（防御的） */
+      return node;
+      /* v8 ignore stop */
     }),
   };
 }
@@ -1529,11 +1534,12 @@ export function revalidateInferenceConclusions(
 
       // SCエッジはシーケント操作のため、formulaTextの自動計算は行わない
       // SCの前提シーケントは規則適用時に計算済み
+      /* v8 ignore start -- SCは上流のチェック(Hilbert/ND/TAB/AT)を通過した残りなので、else分岐は到達不能 */
       if (isScInferenceEdge(edge)) {
         return node;
       }
 
-      /* v8 ignore start -- exhaustive check: 新しいエッジ型が追加された場合にコンパイルエラーを発生させる */
+      // exhaustive check: 新しいエッジ型が追加された場合にコンパイルエラーを発生させる
       return node;
       /* v8 ignore stop */
     });
