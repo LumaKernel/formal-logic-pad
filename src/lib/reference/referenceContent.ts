@@ -2308,6 +2308,7 @@ const conceptSystemEquivalence: ReferenceEntry = {
     "rule-nd-overview",
     "rule-sc-overview",
     "concept-tab-lk-equivalence",
+    "concept-consistency-from-cut-elimination",
   ],
   externalLinks: [
     {
@@ -2407,6 +2408,7 @@ const conceptSoundness: ReferenceEntry = {
   relatedEntryIds: [
     "concept-semantic-validity",
     "concept-system-equivalence",
+    "concept-consistency-from-cut-elimination",
     "system-classical",
     "rule-sc-overview",
     "rule-sc-logical",
@@ -2820,6 +2822,7 @@ const conceptCutElimination: ReferenceEntry = {
     "concept-curry-howard",
     "concept-admissible-derivable",
     "concept-tab-lk-equivalence",
+    "concept-consistency-from-cut-elimination",
   ],
   externalLinks: [
     {
@@ -3451,6 +3454,104 @@ const conceptTabLkEquivalence: ReferenceEntry = {
     "定理12.15",
   ],
   order: 19,
+};
+
+const conceptConsistencyFromCutElimination: ReferenceEntry = {
+  id: "concept-consistency-from-cut-elimination",
+  category: "concept",
+  title: {
+    en: "Consistency from Cut Elimination",
+    ja: "カット除去による無矛盾性証明",
+  },
+  summary: {
+    en: "Cut elimination implies that ⊥ is not provable in LK, LJ, or LM — the systems are consistent. This elegant argument also extends to all equivalent Hilbert and natural deduction systems.",
+    ja: "カット除去定理から、LK・LJ・LM で ⊥ は証明不能であること（無矛盾性）が導かれる。この簡明な議論は等価なヒルベルト体系・自然演繹体系にも拡張される。",
+  },
+  body: {
+    en: [
+      `**The consistency theorem.** One of the most profound corollaries of the cut elimination theorem is the **consistency** (inconsistency-freeness) of the sequent calculi: the sequent ⇒ ⊥ is not provable in LK, LJ, or LM (bekki Theorem 11.5). Consistency means that there is no proof of ⊥ from the empty set of assumptions — the system cannot derive a contradiction. This result, first established by Gentzen, provided the first purely syntactic proof of the consistency of classical and intuitionistic logic, without relying on any semantic (model-theoretic) argument.`,
+      `**The proof argument.** The proof is remarkably elegant and proceeds by contradiction. Suppose ⊥ were provable, i.e., the sequent ⇒ ⊥ had a proof in K (= K-CUT + CUT). By the cut elimination theorem, there would then exist a CUT-free proof of ⇒ ⊥. Now examine the last rule applied in this CUT-free proof. The sequent ⇒ ⊥ has an empty antecedent and ⊥ as the sole succedent. However, **no CUT-free inference rule in the sequent calculus can produce such a sequent as its conclusion**: structural rules require the principal formula to already appear, and logical rules introduce compound formulas (not ⊥) in the succedent. Since no rule can derive ⇒ ⊥ without CUT, we reach a contradiction, and therefore ⊥ is not provable. The same argument works for LJ (where the succedent has at most one formula) by the same structural analysis (bekki Theorem 11.5).`,
+      `**Extension to equivalent systems.** Since LK, LJ, and LM are equivalent to the corresponding Hilbert systems (HK, HJ, HM) and natural deduction systems (NK, NJ, NM) — as established by the system equivalence theorems (bekki Chapter 9, Chapter 10) — the consistency result extends to all these systems. That is, ⊬_HK ⊥, ⊬_NK ⊥, ⊬_HJ ⊥, ⊬_NJ ⊥, ⊬_HM ⊥, and ⊬_NM ⊥. The argument proceeds: if ⊥ were provable in any of these systems, by equivalence it would be provable in the corresponding sequent calculus, contradicting the consistency of the sequent calculus. Thus, all the formal proof systems introduced for propositional and predicate logic are consistent.`,
+      `**Why this matters.** The consistency proof via cut elimination is significant for several reasons. First, it is a **purely syntactic (proof-theoretic) argument** — it does not rely on constructing a model or appeal to set-theoretic semantics. This makes it constructive and finitistic in nature, aligning with Hilbert's program for foundational mathematics. Second, it demonstrates the power of cut elimination as a meta-theorem: by analyzing the structure of CUT-free proofs, we can derive strong consequences about what can and cannot be proved. Third, it provides the foundation for further independence results, such as showing that DNE (double negation elimination) is not provable in intuitionistic logic (bekki Theorem 11.9).`,
+      `**The sub-formula property.** The key insight that makes the consistency proof work is the **sub-formula property** of CUT-free proofs: in a CUT-free proof, every formula appearing in the proof is a sub-formula of some formula in the end-sequent. Since ⊥ is atomic and the end-sequent is ⇒ ⊥, the only formulas that can appear in the proof are ⊥ itself. This severely constrains the structure of any hypothetical CUT-free proof of ⇒ ⊥, ultimately leading to the contradiction. The sub-formula property is what distinguishes CUT-free proofs from proofs with CUT, where the cut formula can be arbitrarily complex (a "lemma" that gets eliminated).`,
+      `**Historical context.** Gentzen's original motivation for developing the sequent calculus and proving the cut elimination theorem was precisely to establish consistency results. His 1934 paper "Untersuchungen über das logische Schließen" (Investigations into Logical Reasoning) introduced both the natural deduction and sequent calculus systems, with the Hauptsatz (cut elimination) as the central technical achievement. Gentzen later extended these ideas to prove the consistency of Peano Arithmetic using transfinite induction up to ε₀, a landmark result in proof theory that demonstrated both the power and the limits of Hilbert's program.`,
+    ],
+    ja: [
+      `**無矛盾性定理。** カット除去定理の最も深い系の一つが、シーケント計算の**無矛盾性**（矛盾の導出不可能性）です。すなわち、シーケント ⇒ ⊥ は LK・LJ・LM のいずれでも証明不能です（戸次 定理11.5）。無矛盾性とは、空の仮定集合から ⊥ の証明が存在しないこと — つまり体系が矛盾を導出できないことを意味します。ゲンツェンによって最初に確立されたこの結果は、意味論的（モデル論的）な議論に頼ることなく、古典論理と直観主義論理の無矛盾性を純粋に構文論的に証明した初めてのものです。`,
+      `**証明の議論。** 証明は驚くほど簡明で、背理法によって進みます。⊥ が証明可能だと仮定すると、シーケント ⇒ ⊥ の証明が K（= K-CUT + CUT）に存在します。カット除去定理により、⇒ ⊥ のカットなし証明が存在するはずです。このカットなし証明の最後に適用される規則を調べます。⇒ ⊥ は前件が空で、⊥ のみを後件に持ちます。しかし、**シーケント計算のカットなし推論規則でこのようなシーケントを結論として導けるものは存在しません**: 構造規則は主論理式が既に出現していることを要求し、論理規則は後件に（⊥ではなく）複合論理式を導入します。カットなしで ⇒ ⊥ を導出する規則がないため矛盾に到達し、したがって ⊥ は証明不能です。LJ（後件が高々1つの論理式）についても同様の構造分析で同じ議論が成り立ちます（戸次 定理11.5）。`,
+      `**等価体系への拡張。** LK・LJ・LM は対応するヒルベルト体系（HK・HJ・HM）および自然演繹体系（NK・NJ・NM）と等価であるため — 体系等価性定理（戸次 第9章・第10章）で確立 — 無矛盾性の結果はこれらすべての体系に拡張されます。すなわち、⊬_HK ⊥, ⊬_NK ⊥, ⊬_HJ ⊥, ⊬_NJ ⊥, ⊬_HM ⊥, ⊬_NM ⊥ です。議論は次の通りです: もしこれらの体系のいずれかで ⊥ が証明可能なら、等価性により対応するシーケント計算でも証明可能となり、シーケント計算の無矛盾性に矛盾します。このようにして、命題論理・述語論理に導入されたすべての形式証明体系が無矛盾であることが示されます。`,
+      `**なぜこれが重要か。** カット除去による無矛盾性証明は、いくつかの理由で重要です。第一に、これは**純粋に構文論的（証明論的）な議論**であり、モデルの構成や集合論的意味論に訴えません。これは構成的かつ有限主義的な性格を持ち、ヒルベルトの数学基礎付けプログラムと合致します。第二に、メタ定理としてのカット除去の威力を示します: カットなし証明の構造を分析することで、何が証明できて何が証明できないかについて強い帰結を導けます。第三に、さらなる独立性の結果 — たとえば DNE（二重否定除去）が直観主義論理で証明不能であること（戸次 定理11.9）— の基礎を提供します。`,
+      `**部分論理式性。** 無矛盾性証明が成功する鍵は、カットなし証明の**部分論理式性**にあります: カットなし証明において、証明に出現するすべての論理式は終シーケントのいずれかの論理式の部分論理式です。⊥ は原子論理式であり終シーケントは ⇒ ⊥ なので、証明に出現しうる論理式は ⊥ 自身のみです。これはシーケント ⇒ ⊥ の仮想的なカットなし証明の構造を厳しく制約し、最終的に矛盾に導きます。部分論理式性こそが、カットなし証明とカットを含む証明を区別するものです — カット論理式は任意に複雑な（除去される「補題」としての）論理式でありえます。`,
+      `**歴史的文脈。** ゲンツェンがシーケント計算を開発しカット除去定理を証明した本来の動機は、まさに無矛盾性の結果を確立することでした。1934年の論文「論理的推論の探究 (Untersuchungen über das logische Schließen)」で自然演繹とシーケント計算の両体系を導入し、基本定理（カット除去）を中心的な技術的成果としました。ゲンツェンはのちにこれらの考えを拡張して、ε₀ までの超限帰納法を用いたペアノ算術の無矛盾性を証明しました。これは証明論における画期的な成果であり、ヒルベルトのプログラムの力と限界の両方を示すものでした。`,
+    ],
+  },
+  formalNotation:
+    "\\text{Cut Elimination} \\;\\Longrightarrow\\; \\nvdash_{\\mathsf{LK}} \\bot \\;\\land\\; \\nvdash_{\\mathsf{LJ}} \\bot \\;\\land\\; \\nvdash_{\\mathsf{LM}} \\bot",
+  relatedEntryIds: [
+    "concept-cut-elimination",
+    "concept-system-equivalence",
+    "concept-soundness",
+    "concept-completeness",
+    "concept-admissible-derivable",
+    "concept-glivenko",
+    "rule-sc-overview",
+    "rule-sc-structural",
+    "rule-sc-logical",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Consistency",
+      label: {
+        en: "Consistency (Wikipedia)",
+        ja: "無矛盾性 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E7%84%A1%E7%9F%9B%E7%9B%BE%E6%80%A7",
+      label: {
+        en: "Consistency (Wikipedia JA)",
+        ja: "無矛盾性 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/consistency",
+      label: {
+        en: "Consistency (nLab)",
+        ja: "無矛盾性 (nLab)",
+      },
+    },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Gentzen%27s_consistency_proof",
+      label: {
+        en: "Gentzen's consistency proof (Wikipedia)",
+        ja: "ゲンツェンの無矛盾性証明 (Wikipedia)",
+      },
+    },
+  ],
+  keywords: [
+    "consistency",
+    "無矛盾性",
+    "inconsistency",
+    "矛盾",
+    "bottom",
+    "falsum",
+    "⊥",
+    "cut elimination",
+    "カット除去",
+    "Gentzen",
+    "ゲンツェン",
+    "sub-formula property",
+    "部分論理式性",
+    "Theorem 11.5",
+    "定理11.5",
+    "Hilbert's program",
+    "ヒルベルトのプログラム",
+  ],
+  order: 20,
 };
 
 // ============================================================
@@ -4157,6 +4258,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptPredicateSemantics,
   conceptSemanticValidity,
   conceptTabLkEquivalence,
+  conceptConsistencyFromCutElimination,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
