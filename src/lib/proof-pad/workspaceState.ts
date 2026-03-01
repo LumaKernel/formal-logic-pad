@@ -876,20 +876,8 @@ export function applyTabRuleAndConnect(
       ws = addInferenceEdge(ws, branchEdge);
 
       // 接続追加
-      ws = addConnection(
-        ws,
-        conclusionNodeId,
-        "out",
-        leftId,
-        "premise-left",
-      );
-      ws = addConnection(
-        ws,
-        conclusionNodeId,
-        "out",
-        rightId,
-        "premise-right",
-      );
+      ws = addConnection(ws, conclusionNodeId, "out", leftId, "premise-left");
+      ws = addConnection(ws, conclusionNodeId, "out", rightId, "premise-right");
       break;
     }
   }

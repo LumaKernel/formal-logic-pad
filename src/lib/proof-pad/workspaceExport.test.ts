@@ -362,9 +362,7 @@ describe("importWorkspaceFromJSON", () => {
     if (result._tag !== "Success") return;
 
     // genVariableName はノードに保持されない（InferenceEdgeがsource of truth）
-    expect(
-      "genVariableName" in result.workspace.nodes[0]!,
-    ).toBe(false);
+    expect("genVariableName" in result.workspace.nodes[0]!).toBe(false);
     expect(result.workspace.system.predicateLogic).toBe(true);
     expect(result.workspace.system.generalization).toBe(true);
   });

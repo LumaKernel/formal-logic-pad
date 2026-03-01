@@ -998,8 +998,8 @@ const pushMixIntoLeft = (
           steps,
         );
         /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
-      if (innerResult._tag !== "Success") return innerResult;
-      /* v8 ignore stop */
+        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scImplicationLeft(
@@ -1023,8 +1023,8 @@ const pushMixIntoLeft = (
           steps,
         );
         /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
-      if (innerResult._tag !== "Success") return innerResult;
-      /* v8 ignore stop */
+        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scImplicationLeft(
@@ -1054,8 +1054,8 @@ const pushMixIntoLeft = (
           steps,
         );
         /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
-      if (innerResult._tag !== "Success") return innerResult;
-      /* v8 ignore stop */
+        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scConjunctionRight(
@@ -1079,8 +1079,8 @@ const pushMixIntoLeft = (
           steps,
         );
         /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
-      if (innerResult._tag !== "Success") return innerResult;
-      /* v8 ignore stop */
+        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scConjunctionRight(
@@ -1147,8 +1147,8 @@ const pushMixIntoLeft = (
           steps,
         );
         /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
-      if (innerResult._tag !== "Success") return innerResult;
-      /* v8 ignore stop */
+        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scDisjunctionLeft(
@@ -1172,8 +1172,8 @@ const pushMixIntoLeft = (
           steps,
         );
         /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
-      if (innerResult._tag !== "Success") return innerResult;
-      /* v8 ignore stop */
+        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scDisjunctionLeft(
@@ -1404,8 +1404,8 @@ const pushMixIntoRight = (
           steps,
         );
         /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
-      if (innerResult._tag !== "Success") return innerResult;
-      /* v8 ignore stop */
+        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scImplicationLeft(
@@ -1429,8 +1429,8 @@ const pushMixIntoRight = (
           steps,
         );
         /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
-      if (innerResult._tag !== "Success") return innerResult;
-      /* v8 ignore stop */
+        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scImplicationLeft(
@@ -1507,8 +1507,8 @@ const pushMixIntoRight = (
           steps,
         );
         /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
-      if (innerResult._tag !== "Success") return innerResult;
-      /* v8 ignore stop */
+        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scConjunctionRight(
@@ -1532,8 +1532,8 @@ const pushMixIntoRight = (
           steps,
         );
         /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
-      if (innerResult._tag !== "Success") return innerResult;
-      /* v8 ignore stop */
+        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scConjunctionRight(
@@ -1562,8 +1562,8 @@ const pushMixIntoRight = (
           steps,
         );
         /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
-      if (innerResult._tag !== "Success") return innerResult;
-      /* v8 ignore stop */
+        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scDisjunctionLeft(
@@ -1587,8 +1587,8 @@ const pushMixIntoRight = (
           steps,
         );
         /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
-      if (innerResult._tag !== "Success") return innerResult;
-      /* v8 ignore stop */
+        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scDisjunctionLeft(

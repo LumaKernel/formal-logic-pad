@@ -1314,9 +1314,7 @@ export const EmptyTableau: StoryObj<typeof meta> = {
 // --- AT（分析的タブロー）ストーリー ---
 
 function AnalyticTableauWorkspace() {
-  const initial = createEmptyWorkspace(
-    analyticTableauDeduction(atSystem),
-  );
+  const initial = createEmptyWorkspace(analyticTableauDeduction(atSystem));
   const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
   const handleChange = useCallback((ws: WorkspaceState) => {
     setWorkspace(ws);

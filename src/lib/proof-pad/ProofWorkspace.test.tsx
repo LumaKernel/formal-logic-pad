@@ -466,7 +466,9 @@ describe("ProofWorkspace", () => {
       );
 
       // Double-click the formula display to enter edit mode (editTrigger="dblclick")
-      await user.dblClick(screen.getByTestId("proof-node-node-1-editor-display"));
+      await user.dblClick(
+        screen.getByTestId("proof-node-node-1-editor-display"),
+      );
 
       // Type a valid Greek letter formula (same as EditableProofNode test)
       const input = screen.getByTestId("proof-node-node-1-editor-input-input");
@@ -3325,9 +3327,7 @@ describe("ProofWorkspace", () => {
     });
 
     it("renders with TAB propositional system", () => {
-      const ws = createEmptyWorkspace(
-        tableauCalculusDeduction(tabPropSystem),
-      );
+      const ws = createEmptyWorkspace(tableauCalculusDeduction(tabPropSystem));
       render(
         <ProofWorkspace
           system={ws.system}
@@ -3389,9 +3389,7 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("workspace-tab-rule-palette-rule-conjunction"),
       );
       // バナーが表示される
-      expect(
-        screen.getByTestId("workspace-tab-banner"),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("workspace-tab-banner")).toBeInTheDocument();
     });
 
     it("clicking cancel in TAB banner dismisses it", async () => {
@@ -3402,11 +3400,10 @@ describe("ProofWorkspace", () => {
       await user.click(
         screen.getByTestId("workspace-tab-rule-palette-rule-conjunction"),
       );
-      expect(
-        screen.getByTestId("workspace-tab-banner"),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("workspace-tab-banner")).toBeInTheDocument();
       // キャンセルボタンをクリック
-      const cancelButton = screen.getByTestId("workspace-tab-banner")
+      const cancelButton = screen
+        .getByTestId("workspace-tab-banner")
         .querySelector("button");
       expect(cancelButton).not.toBeNull();
       await user.click(cancelButton!);
@@ -3424,16 +3421,12 @@ describe("ProofWorkspace", () => {
       await user.click(
         screen.getByTestId("workspace-tab-rule-palette-rule-conjunction"),
       );
-      expect(
-        screen.getByTestId("workspace-tab-banner"),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("workspace-tab-banner")).toBeInTheDocument();
       // 別の規則をクリック → バナーは更新される（消えない）
       await user.click(
         screen.getByTestId("workspace-tab-rule-palette-rule-disjunction"),
       );
-      expect(
-        screen.getByTestId("workspace-tab-banner"),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("workspace-tab-banner")).toBeInTheDocument();
     });
 
     it("selected rule is visually highlighted in palette", async () => {
@@ -3454,9 +3447,7 @@ describe("ProofWorkspace", () => {
     it("applies conjunction rule when node is clicked during TAB selection", async () => {
       const user = userEvent.setup();
       // conjunction (T:φ∧ψ) を分解する
-      const promptMock = vi
-        .spyOn(globalThis, "prompt")
-        .mockReturnValue("0");
+      const promptMock = vi.spyOn(globalThis, "prompt").mockReturnValue("0");
       let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
       ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "T:phi & psi");
 
@@ -3467,9 +3458,7 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("workspace-tab-rule-palette-rule-conjunction"),
       );
       // バナーが表示される
-      expect(
-        screen.getByTestId("workspace-tab-banner"),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("workspace-tab-banner")).toBeInTheDocument();
 
       // ノードをクリック
       await user.click(screen.getByTestId("proof-node-node-1"));
@@ -3486,9 +3475,7 @@ describe("ProofWorkspace", () => {
 
     it("cancels TAB rule when prompt returns null", async () => {
       const user = userEvent.setup();
-      const promptMock = vi
-        .spyOn(globalThis, "prompt")
-        .mockReturnValue(null);
+      const promptMock = vi.spyOn(globalThis, "prompt").mockReturnValue(null);
       let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
       ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "T:phi & psi");
 
@@ -3512,9 +3499,7 @@ describe("ProofWorkspace", () => {
 
     it("cancels TAB rule when prompt returns NaN", async () => {
       const user = userEvent.setup();
-      const promptMock = vi
-        .spyOn(globalThis, "prompt")
-        .mockReturnValue("abc");
+      const promptMock = vi.spyOn(globalThis, "prompt").mockReturnValue("abc");
       let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
       ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "T:phi & psi");
 
@@ -3537,9 +3522,7 @@ describe("ProofWorkspace", () => {
 
     it("applies exchange rule with position prompt", async () => {
       const user = userEvent.setup();
-      const promptMock = vi
-        .spyOn(globalThis, "prompt")
-        .mockReturnValue("0");
+      const promptMock = vi.spyOn(globalThis, "prompt").mockReturnValue("0");
       let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
       ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "phi, psi |- chi");
 
@@ -3567,13 +3550,7 @@ describe("ProofWorkspace", () => {
         .mockReturnValueOnce("0")
         .mockReturnValueOnce("a");
       let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
-      ws = addNode(
-        ws,
-        "axiom",
-        "S1",
-        { x: 100, y: 300 },
-        "T:forall x. P(x)",
-      );
+      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "T:forall x. P(x)");
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
@@ -3598,13 +3575,7 @@ describe("ProofWorkspace", () => {
         .mockReturnValueOnce("0")
         .mockReturnValueOnce("c");
       let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
-      ws = addNode(
-        ws,
-        "axiom",
-        "S1",
-        { x: 100, y: 300 },
-        "T:exists x. P(x)",
-      );
+      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "T:exists x. P(x)");
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
@@ -3624,9 +3595,7 @@ describe("ProofWorkspace", () => {
 
     it("exchange rule cancels when prompt returns null", async () => {
       const user = userEvent.setup();
-      const promptMock = vi
-        .spyOn(globalThis, "prompt")
-        .mockReturnValue(null);
+      const promptMock = vi.spyOn(globalThis, "prompt").mockReturnValue(null);
       let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
       ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "phi, psi |- chi");
 
@@ -3648,9 +3617,7 @@ describe("ProofWorkspace", () => {
 
     it("exchange rule cancels when prompt returns NaN", async () => {
       const user = userEvent.setup();
-      const promptMock = vi
-        .spyOn(globalThis, "prompt")
-        .mockReturnValue("abc");
+      const promptMock = vi.spyOn(globalThis, "prompt").mockReturnValue("abc");
       let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
       ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "phi, psi |- chi");
 
@@ -3678,13 +3645,7 @@ describe("ProofWorkspace", () => {
         .mockReturnValueOnce("0")
         .mockReturnValueOnce(null);
       let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
-      ws = addNode(
-        ws,
-        "axiom",
-        "S1",
-        { x: 100, y: 300 },
-        "T:forall x. P(x)",
-      );
+      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "T:forall x. P(x)");
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
@@ -3709,13 +3670,7 @@ describe("ProofWorkspace", () => {
         .mockReturnValueOnce("0")
         .mockReturnValueOnce(null);
       let ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
-      ws = addNode(
-        ws,
-        "axiom",
-        "S1",
-        { x: 100, y: 300 },
-        "T:exists x. P(x)",
-      );
+      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "T:exists x. P(x)");
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
@@ -3735,9 +3690,7 @@ describe("ProofWorkspace", () => {
 
     it("shows alert when TAB rule application fails", async () => {
       const user = userEvent.setup();
-      const promptMock = vi
-        .spyOn(globalThis, "prompt")
-        .mockReturnValue("0");
+      const promptMock = vi.spyOn(globalThis, "prompt").mockReturnValue("0");
       const alertMock = vi
         .spyOn(globalThis, "alert")
         .mockImplementation(() => {});
@@ -3942,17 +3895,9 @@ describe("ProofWorkspace", () => {
 
     it("gamma rule prompts for term", async () => {
       const user = userEvent.setup();
-      const promptMock = vi
-        .spyOn(globalThis, "prompt")
-        .mockReturnValue("a");
+      const promptMock = vi.spyOn(globalThis, "prompt").mockReturnValue("a");
       let ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
-      ws = addNode(
-        ws,
-        "axiom",
-        "SF",
-        { x: 100, y: 300 },
-        "T:forall x. P(x)",
-      );
+      ws = addNode(ws, "axiom", "SF", { x: 100, y: 300 }, "T:forall x. P(x)");
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
@@ -3975,17 +3920,9 @@ describe("ProofWorkspace", () => {
 
     it("gamma rule cancels when prompt returns null", async () => {
       const user = userEvent.setup();
-      const promptMock = vi
-        .spyOn(globalThis, "prompt")
-        .mockReturnValue(null);
+      const promptMock = vi.spyOn(globalThis, "prompt").mockReturnValue(null);
       let ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
-      ws = addNode(
-        ws,
-        "axiom",
-        "SF",
-        { x: 100, y: 300 },
-        "T:forall x. P(x)",
-      );
+      ws = addNode(ws, "axiom", "SF", { x: 100, y: 300 }, "T:forall x. P(x)");
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
@@ -4005,17 +3942,9 @@ describe("ProofWorkspace", () => {
 
     it("delta rule prompts for eigen variable", async () => {
       const user = userEvent.setup();
-      const promptMock = vi
-        .spyOn(globalThis, "prompt")
-        .mockReturnValue("c");
+      const promptMock = vi.spyOn(globalThis, "prompt").mockReturnValue("c");
       let ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
-      ws = addNode(
-        ws,
-        "axiom",
-        "SF",
-        { x: 100, y: 300 },
-        "T:exists x. P(x)",
-      );
+      ws = addNode(ws, "axiom", "SF", { x: 100, y: 300 }, "T:exists x. P(x)");
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
@@ -4037,17 +3966,9 @@ describe("ProofWorkspace", () => {
 
     it("delta rule cancels when prompt returns null", async () => {
       const user = userEvent.setup();
-      const promptMock = vi
-        .spyOn(globalThis, "prompt")
-        .mockReturnValue(null);
+      const promptMock = vi.spyOn(globalThis, "prompt").mockReturnValue(null);
       let ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
-      ws = addNode(
-        ws,
-        "axiom",
-        "SF",
-        { x: 100, y: 300 },
-        "T:exists x. P(x)",
-      );
+      ws = addNode(ws, "axiom", "SF", { x: 100, y: 300 }, "T:exists x. P(x)");
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
@@ -4090,9 +4011,7 @@ describe("ProofWorkspace", () => {
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
       // メニューを開く
-      await user.click(
-        screen.getByTestId("workspace-workspace-menu-button"),
-      );
+      await user.click(screen.getByTestId("workspace-workspace-menu-button"));
 
       // Export JSONをクリック
       await user.click(screen.getByTestId("workspace-export-json-button"));
@@ -4108,9 +4027,7 @@ describe("ProofWorkspace", () => {
       const ws = createEmptyWorkspace(lukasiewiczSystem);
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
-      await user.click(
-        screen.getByTestId("workspace-workspace-menu-button"),
-      );
+      await user.click(screen.getByTestId("workspace-workspace-menu-button"));
       await user.click(screen.getByTestId("workspace-export-svg-button"));
 
       expect(
@@ -4123,9 +4040,7 @@ describe("ProofWorkspace", () => {
       const ws = createEmptyWorkspace(lukasiewiczSystem);
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
-      await user.click(
-        screen.getByTestId("workspace-workspace-menu-button"),
-      );
+      await user.click(screen.getByTestId("workspace-workspace-menu-button"));
       await user.click(screen.getByTestId("workspace-export-png-button"));
 
       expect(

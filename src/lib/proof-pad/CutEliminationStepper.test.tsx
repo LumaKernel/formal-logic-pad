@@ -9,11 +9,7 @@ import {
 } from "./cutEliminationStepperLogic";
 import { defaultProofMessages } from "./proofMessages";
 import { eliminateCutsWithSteps } from "../logic-core/cutElimination";
-import {
-  sequent,
-  scIdentity,
-  scCut,
-} from "../logic-core/sequentCalculus";
+import { sequent, scIdentity, scCut } from "../logic-core/sequentCalculus";
 import { metaVariable } from "../logic-core/formula";
 
 // --- テスト用ヘルパー ---

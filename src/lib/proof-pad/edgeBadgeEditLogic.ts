@@ -9,7 +9,11 @@
  */
 
 import type { InferenceEdge } from "./inferenceEdge";
-import { isNdInferenceEdge, isTabInferenceEdge, isAtInferenceEdge } from "./inferenceEdge";
+import {
+  isNdInferenceEdge,
+  isTabInferenceEdge,
+  isAtInferenceEdge,
+} from "./inferenceEdge";
 import { greekLetters } from "../logic-core/greekLetters";
 import type {
   SubstitutionEntries,

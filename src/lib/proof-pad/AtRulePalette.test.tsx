@@ -298,9 +298,7 @@ describe("AtRulePalette", () => {
     );
     expect(screen.getByText("α (non-branching)")).toBeInTheDocument();
     expect(screen.getByText("β (branching)")).toBeInTheDocument();
-    expect(
-      screen.queryByText("γ/δ (quantifiers)"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("γ/δ (quantifiers)")).not.toBeInTheDocument();
     expect(screen.getByText("Closure")).toBeInTheDocument();
   });
 });

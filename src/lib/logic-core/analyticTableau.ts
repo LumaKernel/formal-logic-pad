@@ -48,10 +48,7 @@ export type SignedFormula = {
 /**
  * 署名付き論理式のファクトリ関数。
  */
-export const signedFormula = (
-  sign: Sign,
-  formula: Formula,
-): SignedFormula => ({
+export const signedFormula = (sign: Sign, formula: Formula): SignedFormula => ({
   sign,
   formula,
 });
@@ -164,8 +161,7 @@ export const isDeltaRule = (ruleId: AtRuleId) =>
 /**
  * 閉じ条件（公理）かどうか判定する。
  */
-export const isClosureRule = (ruleId: AtRuleId) =>
-  ruleId === "closure";
+export const isClosureRule = (ruleId: AtRuleId) => ruleId === "closure";
 
 // ── 規則表示名 ────────────────────────────────────────────────
 
@@ -222,7 +218,9 @@ export type AlphaResult = {
   readonly _tag: "alpha";
   readonly ruleId: AtRuleId;
   /** 追加される署名付き論理式（1個または2個） */
-  readonly results: readonly [SignedFormula] | readonly [SignedFormula, SignedFormula];
+  readonly results:
+    | readonly [SignedFormula]
+    | readonly [SignedFormula, SignedFormula];
 };
 
 /**
@@ -270,9 +268,7 @@ export type AtRuleResult = AlphaResult | BetaResult | GammaResult | DeltaResult;
  * α規則を署名付き論理式に適用する。
  * 適用不可能な場合は undefined を返す。
  */
-export const applyAlphaRule = (
-  sf: SignedFormula,
-): AlphaResult | undefined => {
+export const applyAlphaRule = (sf: SignedFormula): AlphaResult | undefined => {
   const { sign, formula } = sf;
 
   // T(φ∧ψ) → T(φ), T(ψ)
@@ -372,9 +368,7 @@ export const applyAlphaRule = (
  * β規則を署名付き論理式に適用する。
  * 適用不可能な場合は undefined を返す。
  */
-export const applyBetaRule = (
-  sf: SignedFormula,
-): BetaResult | undefined => {
+export const applyBetaRule = (sf: SignedFormula): BetaResult | undefined => {
   const { sign, formula } = sf;
 
   // F(φ∧ψ) → [F(φ) | F(ψ)]
@@ -564,11 +558,13 @@ export const checkBranchClosure = (
     const key = JSON.stringify(sf.formula);
     if (sf.sign === "T") {
       const falseIdx = falseFormulas.get(key);
-      if (falseIdx !== undefined) return { ruleId: "closure", indices: [falseIdx, i] };
+      if (falseIdx !== undefined)
+        return { ruleId: "closure", indices: [falseIdx, i] };
       trueFormulas.set(key, i);
     } else {
       const trueIdx = trueFormulas.get(key);
-      if (trueIdx !== undefined) return { ruleId: "closure", indices: [trueIdx, i] };
+      if (trueIdx !== undefined)
+        return { ruleId: "closure", indices: [trueIdx, i] };
       falseFormulas.set(key, i);
     }
   }
@@ -600,10 +596,7 @@ export const checkEigenVariableCondition = (
 /**
  * 与えられた規則IDが署名付き論理式に適用可能かどうか判定する。
  */
-export const canApplyRule = (
-  ruleId: AtRuleId,
-  sf: SignedFormula,
-): boolean => {
+export const canApplyRule = (ruleId: AtRuleId, sf: SignedFormula): boolean => {
   if (isClosureRule(ruleId)) return false; // closure は別の判定
 
   const classified = classifySignedFormula(sf);

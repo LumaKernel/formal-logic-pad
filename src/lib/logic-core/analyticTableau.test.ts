@@ -100,11 +100,7 @@ describe("規則分類ヘルパー", () => {
 
   it("β規則を正しく判定する", () => {
     const betaRules = allAtRuleIds.filter(isBetaRule);
-    expect(betaRules).toEqual([
-      "beta-neg-conj",
-      "beta-disj",
-      "beta-impl",
-    ]);
+    expect(betaRules).toEqual(["beta-neg-conj", "beta-disj", "beta-impl"]);
   });
 
   it("γ規則を正しく判定する", () => {
@@ -409,59 +405,87 @@ describe("applyDeltaRule", () => {
 
 describe("classifySignedFormula", () => {
   it("T(φ∧ψ) → alpha-conj", () => {
-    expect(classifySignedFormula(signedFormula("T", phiAndPsi))).toBe("alpha-conj");
+    expect(classifySignedFormula(signedFormula("T", phiAndPsi))).toBe(
+      "alpha-conj",
+    );
   });
 
   it("F(φ∨ψ) → alpha-neg-disj", () => {
-    expect(classifySignedFormula(signedFormula("F", phiOrPsi))).toBe("alpha-neg-disj");
+    expect(classifySignedFormula(signedFormula("F", phiOrPsi))).toBe(
+      "alpha-neg-disj",
+    );
   });
 
   it("F(φ→ψ) → alpha-neg-impl", () => {
-    expect(classifySignedFormula(signedFormula("F", phiImplPsi))).toBe("alpha-neg-impl");
+    expect(classifySignedFormula(signedFormula("F", phiImplPsi))).toBe(
+      "alpha-neg-impl",
+    );
   });
 
   it("T(¬¬φ) → alpha-double-neg-t", () => {
-    expect(classifySignedFormula(signedFormula("T", negNegPhi))).toBe("alpha-double-neg-t");
+    expect(classifySignedFormula(signedFormula("T", negNegPhi))).toBe(
+      "alpha-double-neg-t",
+    );
   });
 
   it("F(¬¬φ) → alpha-double-neg-f", () => {
-    expect(classifySignedFormula(signedFormula("F", negNegPhi))).toBe("alpha-double-neg-f");
+    expect(classifySignedFormula(signedFormula("F", negNegPhi))).toBe(
+      "alpha-double-neg-f",
+    );
   });
 
   it("T(¬φ) → alpha-neg-t", () => {
-    expect(classifySignedFormula(signedFormula("T", negPhi))).toBe("alpha-neg-t");
+    expect(classifySignedFormula(signedFormula("T", negPhi))).toBe(
+      "alpha-neg-t",
+    );
   });
 
   it("F(¬φ) → alpha-neg-f", () => {
-    expect(classifySignedFormula(signedFormula("F", negPhi))).toBe("alpha-neg-f");
+    expect(classifySignedFormula(signedFormula("F", negPhi))).toBe(
+      "alpha-neg-f",
+    );
   });
 
   it("F(φ∧ψ) → beta-neg-conj", () => {
-    expect(classifySignedFormula(signedFormula("F", phiAndPsi))).toBe("beta-neg-conj");
+    expect(classifySignedFormula(signedFormula("F", phiAndPsi))).toBe(
+      "beta-neg-conj",
+    );
   });
 
   it("T(φ∨ψ) → beta-disj", () => {
-    expect(classifySignedFormula(signedFormula("T", phiOrPsi))).toBe("beta-disj");
+    expect(classifySignedFormula(signedFormula("T", phiOrPsi))).toBe(
+      "beta-disj",
+    );
   });
 
   it("T(φ→ψ) → beta-impl", () => {
-    expect(classifySignedFormula(signedFormula("T", phiImplPsi))).toBe("beta-impl");
+    expect(classifySignedFormula(signedFormula("T", phiImplPsi))).toBe(
+      "beta-impl",
+    );
   });
 
   it("T(∀x.P(x)) → gamma-univ", () => {
-    expect(classifySignedFormula(signedFormula("T", forallXPhi))).toBe("gamma-univ");
+    expect(classifySignedFormula(signedFormula("T", forallXPhi))).toBe(
+      "gamma-univ",
+    );
   });
 
   it("F(∃x.P(x)) → gamma-neg-exist", () => {
-    expect(classifySignedFormula(signedFormula("F", existsXPhi))).toBe("gamma-neg-exist");
+    expect(classifySignedFormula(signedFormula("F", existsXPhi))).toBe(
+      "gamma-neg-exist",
+    );
   });
 
   it("F(∀x.P(x)) → delta-neg-univ", () => {
-    expect(classifySignedFormula(signedFormula("F", forallXPhi))).toBe("delta-neg-univ");
+    expect(classifySignedFormula(signedFormula("F", forallXPhi))).toBe(
+      "delta-neg-univ",
+    );
   });
 
   it("T(∃x.P(x)) → delta-exist", () => {
-    expect(classifySignedFormula(signedFormula("T", existsXPhi))).toBe("delta-exist");
+    expect(classifySignedFormula(signedFormula("T", existsXPhi))).toBe(
+      "delta-exist",
+    );
   });
 
   it("メタ変数単体は undefined", () => {
@@ -572,9 +596,7 @@ describe("checkEigenVariableCondition", () => {
 
   it("束縛変数は自由変数ではないので条件を満たす", () => {
     // ∀x.P(x) の中の x は束縛されている
-    const branch: readonly SignedFormula[] = [
-      signedFormula("T", forallXPhi),
-    ];
+    const branch: readonly SignedFormula[] = [signedFormula("T", forallXPhi)];
     expect(checkEigenVariableCondition("x", branch)).toBe(true);
   });
 
@@ -593,11 +615,15 @@ describe("checkEigenVariableCondition", () => {
 
 describe("canApplyRule", () => {
   it("T(φ∧ψ) に alpha-conj は適用可能", () => {
-    expect(canApplyRule("alpha-conj", signedFormula("T", phiAndPsi))).toBe(true);
+    expect(canApplyRule("alpha-conj", signedFormula("T", phiAndPsi))).toBe(
+      true,
+    );
   });
 
   it("F(φ∧ψ) に alpha-conj は適用不可能", () => {
-    expect(canApplyRule("alpha-conj", signedFormula("F", phiAndPsi))).toBe(false);
+    expect(canApplyRule("alpha-conj", signedFormula("F", phiAndPsi))).toBe(
+      false,
+    );
   });
 
   it("T(φ∨ψ) に beta-disj は適用可能", () => {
@@ -605,11 +631,15 @@ describe("canApplyRule", () => {
   });
 
   it("T(∀x.P(x)) に gamma-univ は適用可能", () => {
-    expect(canApplyRule("gamma-univ", signedFormula("T", forallXPhi))).toBe(true);
+    expect(canApplyRule("gamma-univ", signedFormula("T", forallXPhi))).toBe(
+      true,
+    );
   });
 
   it("F(∀x.P(x)) に delta-neg-univ は適用可能", () => {
-    expect(canApplyRule("delta-neg-univ", signedFormula("F", forallXPhi))).toBe(true);
+    expect(canApplyRule("delta-neg-univ", signedFormula("F", forallXPhi))).toBe(
+      true,
+    );
   });
 
   it("closure は常に false を返す", () => {
@@ -755,12 +785,30 @@ describe("実践的な証明例", () => {
       const fQ = beta!.right; // F(Q)
 
       // 左枝: ..., T(P), F(P) → 閉じる
-      const leftBranch: readonly SignedFormula[] = [premise, negConclusion, fPAndQ, fNegP, fNegQ, tP, tQ, fP];
+      const leftBranch: readonly SignedFormula[] = [
+        premise,
+        negConclusion,
+        fPAndQ,
+        fNegP,
+        fNegQ,
+        tP,
+        tQ,
+        fP,
+      ];
       const leftClosure = checkBranchClosure(leftBranch);
       expect(leftClosure).toBeDefined();
 
       // 右枝: ..., T(Q), F(Q) → 閉じる
-      const rightBranch: readonly SignedFormula[] = [premise, negConclusion, fPAndQ, fNegP, fNegQ, tP, tQ, fQ];
+      const rightBranch: readonly SignedFormula[] = [
+        premise,
+        negConclusion,
+        fPAndQ,
+        fNegP,
+        fNegQ,
+        tP,
+        tQ,
+        fQ,
+      ];
       const rightClosure = checkBranchClosure(rightBranch);
       expect(rightClosure).toBeDefined();
     });

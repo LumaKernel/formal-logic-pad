@@ -438,13 +438,10 @@ describe("formatMessage", () => {
   });
 
   it("should format cutEliminationStepInfo correctly", () => {
-    const result = formatMessage(
-      defaultProofMessages.cutEliminationStepInfo,
-      {
-        depth: "3",
-        rank: "1",
-      },
-    );
+    const result = formatMessage(defaultProofMessages.cutEliminationStepInfo, {
+      depth: "3",
+      rank: "1",
+    });
     expect(result).toContain("3");
     expect(result).toContain("1");
     expect(result).not.toContain("{depth}");
@@ -452,23 +449,19 @@ describe("formatMessage", () => {
   });
 
   it("Cut elimination default messages are all non-empty strings", () => {
-    expect(
-      defaultProofMessages.cutEliminationTitle.length,
-    ).toBeGreaterThan(0);
-    expect(
-      defaultProofMessages.cutEliminationCutFree.length,
-    ).toBeGreaterThan(0);
+    expect(defaultProofMessages.cutEliminationTitle.length).toBeGreaterThan(0);
+    expect(defaultProofMessages.cutEliminationCutFree.length).toBeGreaterThan(
+      0,
+    );
     expect(
       defaultProofMessages.cutEliminationInitialState.length,
     ).toBeGreaterThan(0);
-    expect(
-      defaultProofMessages.cutEliminationSuccess.length,
-    ).toBeGreaterThan(0);
-    expect(
-      defaultProofMessages.cutEliminationFailure.length,
-    ).toBeGreaterThan(0);
-    expect(
-      defaultProofMessages.cutEliminationNoCuts.length,
-    ).toBeGreaterThan(0);
+    expect(defaultProofMessages.cutEliminationSuccess.length).toBeGreaterThan(
+      0,
+    );
+    expect(defaultProofMessages.cutEliminationFailure.length).toBeGreaterThan(
+      0,
+    );
+    expect(defaultProofMessages.cutEliminationNoCuts.length).toBeGreaterThan(0);
   });
 });

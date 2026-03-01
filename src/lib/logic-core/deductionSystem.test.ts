@@ -29,7 +29,6 @@ import {
   isAtRuleEnabled,
 } from "./deductionSystem";
 import { allTabRuleIds } from "./tableauCalculus";
-import { allAtRuleIds } from "./analyticTableau";
 import { minimalLogicSystem, classicalLogicSystem } from "./inferenceRule";
 
 // ── NM/NJ/NK体系のテスト ───────────────────────────────────

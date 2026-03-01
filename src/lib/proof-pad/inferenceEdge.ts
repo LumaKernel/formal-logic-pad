@@ -811,13 +811,15 @@ export function getInferenceEdgePremiseNodeIds(
     case "at-alpha": {
       const ids: string[] = [];
       if (edge.resultNodeId !== undefined) ids.push(edge.resultNodeId);
-      if (edge.secondResultNodeId !== undefined) ids.push(edge.secondResultNodeId);
+      if (edge.secondResultNodeId !== undefined)
+        ids.push(edge.secondResultNodeId);
       return ids;
     }
     case "at-beta": {
       const ids: string[] = [];
       if (edge.leftResultNodeId !== undefined) ids.push(edge.leftResultNodeId);
-      if (edge.rightResultNodeId !== undefined) ids.push(edge.rightResultNodeId);
+      if (edge.rightResultNodeId !== undefined)
+        ids.push(edge.rightResultNodeId);
       return ids;
     }
     case "at-gamma":

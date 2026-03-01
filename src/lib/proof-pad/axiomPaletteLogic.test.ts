@@ -343,9 +343,7 @@ describe("axiomPalette", () => {
 
     it("分岐規則が正しくマークされる", () => {
       const items = getAvailableTabRules(tabSystem);
-      const branchingIds = items
-        .filter((i) => i.isBranching)
-        .map((i) => i.id);
+      const branchingIds = items.filter((i) => i.isBranching).map((i) => i.id);
       expect(branchingIds).toEqual([
         "neg-conjunction",
         "disjunction",

@@ -1669,12 +1669,7 @@ describe("eliminateCuts", () => {
         weak,
         sequent([phi, universal(x, phi)], [phi, psi]),
       );
-      const cut = scCut(
-        left,
-        right,
-        phi,
-        sequent([universal(x, phi)], [psi]),
-      );
+      const cut = scCut(left, right, phi, sequent([universal(x, phi)], [psi]));
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");

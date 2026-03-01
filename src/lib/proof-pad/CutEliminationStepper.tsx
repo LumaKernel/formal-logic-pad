@@ -98,7 +98,8 @@ const descriptionStyle: CSSProperties = {
   fontSize: 11,
   color: "var(--color-text-primary, #333)",
   padding: "4px 0",
-  borderTop: "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
+  borderTop:
+    "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
   whiteSpace: "nowrap",
   overflow: "hidden",
   textOverflow: "ellipsis",
@@ -152,19 +153,27 @@ export function CutEliminationStepper({
   const backward = canStepBackward(currentStepIndex);
 
   const handleFirst = useCallback(() => {
-    onStepChange(applyStepperAction(currentStepIndex, totalSteps, { type: "first" }));
+    onStepChange(
+      applyStepperAction(currentStepIndex, totalSteps, { type: "first" }),
+    );
   }, [onStepChange, currentStepIndex, totalSteps]);
 
   const handlePrev = useCallback(() => {
-    onStepChange(applyStepperAction(currentStepIndex, totalSteps, { type: "prev" }));
+    onStepChange(
+      applyStepperAction(currentStepIndex, totalSteps, { type: "prev" }),
+    );
   }, [onStepChange, currentStepIndex, totalSteps]);
 
   const handleNext = useCallback(() => {
-    onStepChange(applyStepperAction(currentStepIndex, totalSteps, { type: "next" }));
+    onStepChange(
+      applyStepperAction(currentStepIndex, totalSteps, { type: "next" }),
+    );
   }, [onStepChange, currentStepIndex, totalSteps]);
 
   const handleLast = useCallback(() => {
-    onStepChange(applyStepperAction(currentStepIndex, totalSteps, { type: "last" }));
+    onStepChange(
+      applyStepperAction(currentStepIndex, totalSteps, { type: "last" }),
+    );
   }, [onStepChange, currentStepIndex, totalSteps]);
 
   // カットフリーな証明の場合はコンパクト表示
@@ -184,7 +193,8 @@ export function CutEliminationStepper({
   }
 
   // 現在のステップ情報
-  const currentStep = currentStepIndex >= 0 ? steps[currentStepIndex] : undefined;
+  const currentStep =
+    currentStepIndex >= 0 ? steps[currentStepIndex] : undefined;
 
   // 進捗テキスト
   const progressText =
@@ -240,9 +250,7 @@ export function CutEliminationStepper({
           disabled={!backward}
           onClick={handlePrev}
           data-testid={
-            testId !== undefined
-              ? `${testId satisfies string}-prev`
-              : undefined
+            testId !== undefined ? `${testId satisfies string}-prev` : undefined
           }
         >
           ◀
@@ -263,9 +271,7 @@ export function CutEliminationStepper({
           disabled={!forward}
           onClick={handleNext}
           data-testid={
-            testId !== undefined
-              ? `${testId satisfies string}-next`
-              : undefined
+            testId !== undefined ? `${testId satisfies string}-next` : undefined
           }
         >
           ▶
@@ -276,9 +282,7 @@ export function CutEliminationStepper({
           disabled={!forward}
           onClick={handleLast}
           data-testid={
-            testId !== undefined
-              ? `${testId satisfies string}-last`
-              : undefined
+            testId !== undefined ? `${testId satisfies string}-last` : undefined
           }
         >
           ⏭
@@ -306,7 +310,7 @@ export function CutEliminationStepper({
       <div style={conclusionStyle}>
         {currentStepIndex === -1
           ? initialInfo.conclusionText
-          : currentStep?.conclusionText ?? initialInfo.conclusionText}
+          : (currentStep?.conclusionText ?? initialInfo.conclusionText)}
       </div>
 
       {/* 結果ステータス */}
@@ -332,9 +336,13 @@ export function CutEliminationStepper({
                   : undefined
               }
             >
-              {formatMessage(messages.cutEliminationStepLimitExceeded ?? "Step limit exceeded ({stepsUsed} steps)", {
-                stepsUsed: String(result.stepsUsed),
-              })}
+              {formatMessage(
+                messages.cutEliminationStepLimitExceeded ??
+                  "Step limit exceeded ({stepsUsed} steps)",
+                {
+                  stepsUsed: String(result.stepsUsed),
+                },
+              )}
             </span>
           ) : (
             <span

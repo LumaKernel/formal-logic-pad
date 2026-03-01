@@ -53,10 +53,7 @@ import {
   isDeltaRule as isAtDeltaRule,
   isClosureRule as isAtClosureRule,
 } from "../logic-core/analyticTableau";
-import {
-  getTabErrorMessage,
-  isTabAxiomRule,
-} from "./tabApplicationLogic";
+import { getTabErrorMessage, isTabAxiomRule } from "./tabApplicationLogic";
 import { getAtErrorMessage } from "./atApplicationLogic";
 import {
   validateMPApplication,
@@ -1172,17 +1169,14 @@ export function ProofWorkspace({
 
   // --- TAB規則選択モードハンドラ ---
 
-  const handleStartTabRuleSelection = useCallback(
-    (ruleId: TabRuleId) => {
-      // 公理規則（BS, ⊥）は直接ノード選択なしで適用不可 → ノード選択に進む
-      setTabSelection({ phase: "selecting-node", ruleId });
-      setMPSelection({ phase: "idle" });
-      setGenSelection({ phase: "idle" });
-      setMergeSelection({ phase: "idle" });
-      setAtSelection({ phase: "idle" });
-    },
-    [],
-  );
+  const handleStartTabRuleSelection = useCallback((ruleId: TabRuleId) => {
+    // 公理規則（BS, ⊥）は直接ノード選択なしで適用不可 → ノード選択に進む
+    setTabSelection({ phase: "selecting-node", ruleId });
+    setMPSelection({ phase: "idle" });
+    setGenSelection({ phase: "idle" });
+    setMergeSelection({ phase: "idle" });
+    setAtSelection({ phase: "idle" });
+  }, []);
 
   const handleCancelTabSelection = useCallback(() => {
     setTabSelection({ phase: "idle" });
@@ -1288,21 +1282,18 @@ export function ProofWorkspace({
 
   // --- AT規則選択モードハンドラ ---
 
-  const handleStartAtRuleSelection = useCallback(
-    (ruleId: AtRuleId) => {
-      if (isAtClosureRule(ruleId)) {
-        // closure はまず主ノードを選択
-        setAtSelection({ phase: "selecting-node", ruleId });
-      } else {
-        setAtSelection({ phase: "selecting-node", ruleId });
-      }
-      setMPSelection({ phase: "idle" });
-      setGenSelection({ phase: "idle" });
-      setMergeSelection({ phase: "idle" });
-      setTabSelection({ phase: "idle" });
-    },
-    [],
-  );
+  const handleStartAtRuleSelection = useCallback((ruleId: AtRuleId) => {
+    if (isAtClosureRule(ruleId)) {
+      // closure はまず主ノードを選択
+      setAtSelection({ phase: "selecting-node", ruleId });
+    } else {
+      setAtSelection({ phase: "selecting-node", ruleId });
+    }
+    setMPSelection({ phase: "idle" });
+    setGenSelection({ phase: "idle" });
+    setMergeSelection({ phase: "idle" });
+    setTabSelection({ phase: "idle" });
+  }, []);
 
   const handleCancelAtSelection = useCallback(() => {
     setAtSelection({ phase: "idle" });
