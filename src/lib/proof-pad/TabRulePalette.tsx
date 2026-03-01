@@ -15,6 +15,7 @@
 
 import { type CSSProperties, useCallback, useMemo } from "react";
 import type { TabRulePaletteItem } from "./axiomPaletteLogic";
+import type { TabRuleId } from "../logic-core/tableauCalculus";
 
 // --- Props ---
 
@@ -23,6 +24,10 @@ export interface TabRulePaletteProps {
   readonly rules: readonly TabRulePaletteItem[];
   /** シーケントノード追加時のコールバック */
   readonly onAddSequent: () => void;
+  /** 規則クリック時のコールバック */
+  readonly onRuleClick?: (ruleId: TabRuleId) => void;
+  /** 現在選択中の規則ID */
+  readonly selectedRuleId?: TabRuleId;
   /** data-testid */
   readonly testId?: string;
 }
@@ -92,7 +97,19 @@ const ruleItemStyle: CSSProperties = {
   gap: 4,
   fontSize: 11,
   color: "var(--color-text-secondary, #666)",
+  cursor: "pointer",
+  transition: "background 0.15s",
 };
+
+const ruleItemSelectedStyle: CSSProperties = {
+  ...ruleItemStyle,
+  background: "var(--color-tab-rule-selected-bg, rgba(90, 140, 200, 0.15))",
+  color: "var(--color-text-primary, #333)",
+  fontWeight: 600,
+};
+
+const ruleItemHoverBg =
+  "var(--color-paper-button-hover-bg, rgba(245, 240, 230, 0.95))";
 
 const branchingBadgeStyle: CSSProperties = {
   fontSize: 9,
@@ -108,12 +125,40 @@ const branchingBadgeStyle: CSSProperties = {
 function TabRuleItemView({
   rule,
   testId,
+  isSelected,
+  onClick,
 }: {
   readonly rule: TabRulePaletteItem;
   readonly testId?: string;
+  readonly isSelected: boolean;
+  readonly onClick?: () => void;
 }) {
   return (
-    <div data-testid={testId} style={ruleItemStyle}>
+    <div
+      data-testid={testId}
+      style={isSelected ? ruleItemSelectedStyle : ruleItemStyle}
+      onClick={onClick}
+      onMouseEnter={(e) => {
+        if (!isSelected) {
+          Object.assign(e.currentTarget.style, {
+            background: ruleItemHoverBg,
+          });
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isSelected) {
+          Object.assign(e.currentTarget.style, { background: "" });
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
+    >
       <span>{rule.displayName}</span>
       {rule.isBranching && <span style={branchingBadgeStyle}>分岐</span>}
     </div>
@@ -123,6 +168,8 @@ function TabRuleItemView({
 export function TabRulePalette({
   rules,
   onAddSequent,
+  onRuleClick,
+  selectedRuleId,
   testId,
 }: TabRulePaletteProps) {
   const handleAddClick = useCallback(() => {
@@ -135,6 +182,8 @@ export function TabRulePalette({
         <TabRuleItemView
           key={rule.id}
           rule={rule}
+          isSelected={selectedRuleId === rule.id}
+          onClick={onRuleClick ? () => onRuleClick(rule.id) : undefined}
           testId={
             testId
               ? `${testId satisfies string}-rule-${rule.id satisfies string}`
@@ -142,7 +191,7 @@ export function TabRulePalette({
           }
         />
       )),
-    [rules, testId],
+    [rules, testId, onRuleClick, selectedRuleId],
   );
 
   if (rules.length === 0) {

@@ -79,6 +79,15 @@
     "mergeNoTargets": "マージ可能なノードがありません",
     "proofCompleteButAxiomViolation": "証明完了（公理制限違反あり）",
     "axiomViolationDetail": "許可されていない公理が使用されています: {axiomIds}",
-    "instanceRootViolationDetail": "公理インスタンスは代入操作で導出してください（直接配置不可）。"
+    "instanceRootViolationDetail": "公理インスタンスは代入操作で導出してください（直接配置不可）。",
+    "tabBannerSelectNode": "{ruleName} を適用するシーケントノードをクリック",
+    "tabCancel": "TABをキャンセル",
+    "tabApplied": "TAB規則を適用しました",
+    "tabError": "TAB規則の適用に失敗しました",
+    "applyTabRuleToNode": "TAB規則を適用",
+    "tabPositionPrompt": "主論理式の位置（0始まり）:",
+    "tabExchangePositionPrompt": "交換位置（0始まり）:",
+    "tabTermPrompt": "代入項:",
+    "tabEigenVariablePrompt": "固有変数名:"
   }
 }

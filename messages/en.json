@@ -79,6 +79,15 @@
     "mergeNoTargets": "No mergeable nodes found",
     "proofCompleteButAxiomViolation": "Proof Complete (axiom restriction violated)",
     "axiomViolationDetail": "Disallowed axiom(s) used: {axiomIds}",
-    "instanceRootViolationDetail": "Axiom instances must be derived via substitution, not placed directly."
+    "instanceRootViolationDetail": "Axiom instances must be derived via substitution, not placed directly.",
+    "tabBannerSelectNode": "Click a sequent node to apply {ruleName}",
+    "tabCancel": "Cancel TAB",
+    "tabApplied": "TAB rule applied",
+    "tabError": "TAB rule application failed",
+    "applyTabRuleToNode": "Apply TAB Rule",
+    "tabPositionPrompt": "Principal formula position (0-based):",
+    "tabExchangePositionPrompt": "Exchange position (0-based):",
+    "tabTermPrompt": "Substitution term:",
+    "tabEigenVariablePrompt": "Eigen variable name:"
   }
 }

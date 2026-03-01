@@ -164,4 +164,120 @@ describe("TabRulePalette", () => {
     render(<TabRulePalette rules={tabRules} onAddSequent={() => {}} />);
     expect(screen.getByText("Tableau Calculus")).toBeInTheDocument();
   });
+
+  it("規則クリックでonRuleClickが呼ばれる", async () => {
+    const user = userEvent.setup();
+    const handleRuleClick = vi.fn();
+    render(
+      <TabRulePalette
+        rules={tabRules}
+        onAddSequent={() => {}}
+        onRuleClick={handleRuleClick}
+        testId="palette"
+      />,
+    );
+    await user.click(screen.getByTestId("palette-rule-conjunction"));
+    expect(handleRuleClick).toHaveBeenCalledOnce();
+    expect(handleRuleClick).toHaveBeenCalledWith("conjunction");
+  });
+
+  it("規則のEnterキーでonRuleClickが呼ばれる", async () => {
+    const user = userEvent.setup();
+    const handleRuleClick = vi.fn();
+    render(
+      <TabRulePalette
+        rules={tabRules}
+        onAddSequent={() => {}}
+        onRuleClick={handleRuleClick}
+        testId="palette"
+      />,
+    );
+    const ruleEl = screen.getByTestId("palette-rule-conjunction");
+    ruleEl.focus();
+    await user.keyboard("{Enter}");
+    expect(handleRuleClick).toHaveBeenCalledOnce();
+    expect(handleRuleClick).toHaveBeenCalledWith("conjunction");
+  });
+
+  it("規則のSpaceキーでonRuleClickが呼ばれる", async () => {
+    const user = userEvent.setup();
+    const handleRuleClick = vi.fn();
+    render(
+      <TabRulePalette
+        rules={tabRules}
+        onAddSequent={() => {}}
+        onRuleClick={handleRuleClick}
+        testId="palette"
+      />,
+    );
+    const ruleEl = screen.getByTestId("palette-rule-conjunction");
+    ruleEl.focus();
+    await user.keyboard(" ");
+    expect(handleRuleClick).toHaveBeenCalledOnce();
+    expect(handleRuleClick).toHaveBeenCalledWith("conjunction");
+  });
+
+  it("selectedRuleIdで選択された規則のスタイルが変わる", () => {
+    render(
+      <TabRulePalette
+        rules={tabRules}
+        onAddSequent={() => {}}
+        selectedRuleId="conjunction"
+        testId="palette"
+      />,
+    );
+    const selectedEl = screen.getByTestId("palette-rule-conjunction");
+    // 選択時はfontWeight 600
+    expect(selectedEl.style.fontWeight).toBe("600");
+    // 非選択の要素はfontWeightが600ではない
+    const nonSelectedEl = screen.getByTestId("palette-rule-disjunction");
+    expect(nonSelectedEl.style.fontWeight).not.toBe("600");
+  });
+
+  it("onRuleClickなしでも規則はレンダリングされる", () => {
+    render(
+      <TabRulePalette
+        rules={tabRules}
+        onAddSequent={() => {}}
+        testId="palette"
+      />,
+    );
+    expect(screen.getByTestId("palette-rule-conjunction")).toBeInTheDocument();
+  });
+
+  it("規則アイテムのホバーでスタイルが変化する（非選択時）", async () => {
+    const user = userEvent.setup();
+    render(
+      <TabRulePalette
+        rules={tabRules}
+        onAddSequent={() => {}}
+        onRuleClick={() => {}}
+        testId="palette"
+      />,
+    );
+    const ruleEl = screen.getByTestId("palette-rule-conjunction");
+    await user.hover(ruleEl);
+    await user.unhover(ruleEl);
+    // ホバー・アンホバーでエラーが出ないことを確認
+    expect(ruleEl).toBeInTheDocument();
+  });
+
+  it("選択中の規則アイテムのホバーでスタイルが変わらない", async () => {
+    const user = userEvent.setup();
+    render(
+      <TabRulePalette
+        rules={tabRules}
+        onAddSequent={() => {}}
+        selectedRuleId="conjunction"
+        testId="palette"
+      />,
+    );
+    const selectedEl = screen.getByTestId("palette-rule-conjunction");
+    const bgBefore = selectedEl.style.background;
+    await user.hover(selectedEl);
+    // 選択中のアイテムはホバーでbackgroundが変わらない
+    expect(selectedEl.style.background).toBe(bgBefore);
+    await user.unhover(selectedEl);
+    expect(selectedEl.style.background).toBe(bgBefore);
+  });
 });

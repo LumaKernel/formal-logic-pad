@@ -117,6 +117,23 @@ export type ProofMessages = {
   readonly axiomViolationDetail: string;
   /** 公理インスタンスが直接ルートノードに配置されている場合のメッセージ */
   readonly instanceRootViolationDetail: string;
+
+  // --- TAB ---
+  /** `{ruleName}` プレースホルダーを含む */
+  readonly tabBannerSelectNode: string;
+  readonly tabCancel: string;
+  readonly tabApplied: string;
+  readonly tabError: string;
+  /** コンテキストメニュー: TAB規則適用 */
+  readonly applyTabRuleToNode: string;
+  /** 主論理式位置プロンプト */
+  readonly tabPositionPrompt: string;
+  /** 交換位置プロンプト */
+  readonly tabExchangePositionPrompt: string;
+  /** 代入項プロンプト */
+  readonly tabTermPrompt: string;
+  /** 固有変数プロンプト */
+  readonly tabEigenVariablePrompt: string;
 };
 
 // --- デフォルトメッセージ（英語） ---
@@ -215,6 +232,17 @@ export const defaultProofMessages: ProofMessages = {
   axiomViolationDetail: "Disallowed axiom(s) used: {axiomIds}",
   instanceRootViolationDetail:
     "Axiom instances must be derived via substitution, not placed directly.",
+
+  // TAB
+  tabBannerSelectNode: "Click a sequent node to apply {ruleName}",
+  tabCancel: "Cancel TAB",
+  tabApplied: "TAB rule applied",
+  tabError: "TAB rule application failed",
+  applyTabRuleToNode: "Apply TAB Rule",
+  tabPositionPrompt: "Principal formula position (0-based):",
+  tabExchangePositionPrompt: "Exchange position (0-based):",
+  tabTermPrompt: "Substitution term:",
+  tabEigenVariablePrompt: "Eigen variable name:",
 };
 
 // --- エラー → メッセージキー変換（純粋関数） ---
