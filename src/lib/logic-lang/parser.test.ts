@@ -1273,4 +1273,15 @@ describe("PA formula parsing", () => {
       ).toBe(true);
     }
   });
+
+  it("大文字定数（引数なし）を項コンテキストでパースする", () => {
+    // O = O のように、大文字識別子が引数なしの場合はconstantとして扱われる
+    const result = parseString("O = O");
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
+      expect(
+        equalFormula(result.right, equality(constant("O"), constant("O"))),
+      ).toBe(true);
+    }
+  });
 });

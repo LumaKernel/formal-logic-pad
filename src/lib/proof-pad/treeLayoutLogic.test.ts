@@ -390,6 +390,20 @@ describe("computeTreeLayout", () => {
     // verticalGap = 200, nodeHeight = 40 → b.y = 40 + 200 = 240
     expect(posB.y - posA.y).toBe(40 + 200);
   });
+
+  it("循環グラフでは未訪問ノードが孤立ノードとして配置される", () => {
+    // a → b → a の循環。ルートは存在しないが、未訪問ノードが孤立ノードとしてforestに追加される
+    const nodes = [node("a"), node("b")];
+    const edges: readonly LayoutEdge[] = [
+      { fromNodeId: "a", toNodeId: "b" },
+      { fromNodeId: "b", toNodeId: "a" },
+    ];
+    const result = computeTreeLayout(nodes, edges);
+    // 未訪問ノードが孤立ノードとして配置されるため、全ノードに位置が割り当てられる
+    expect(result.size).toBe(2);
+    expect(result.has("a")).toBe(true);
+    expect(result.has("b")).toBe(true);
+  });
 });
 
 describe("computeLayoutDiff", () => {

@@ -167,6 +167,8 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
         return "(";
       case "RBRACKET":
         return "]";
+      // 防御的: LBRACKET は parseSubstitutionPostfix で peek() チェックされるため expect() されない
+      /* v8 ignore next 2 */
       case "LBRACKET":
         return "[";
       case "DIVIDE":

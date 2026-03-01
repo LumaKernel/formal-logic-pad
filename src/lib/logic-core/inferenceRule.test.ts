@@ -69,6 +69,7 @@ import {
   existential,
   predicate,
   equality,
+  formulaSubstitution,
 } from "./formula";
 import {
   termVariable,
@@ -1380,6 +1381,19 @@ describe("edge cases", () => {
     const result = matchAxiomA4(instance);
     expectMatchOk(result);
   });
+
+  it("A4 with FormulaSubstitution in body (covers inferTermReplacement FormulaSubstitution)", () => {
+    // body = (P(x))[f(x)/w]、conclusion = (P(a))[f(a)/w]
+    // ∀x. body → conclusion で x → a の代入を推論
+    const w = termVariable("w");
+    const fx = functionApplication("f", [x]);
+    const fa = functionApplication("f", [a]);
+    const body = formulaSubstitution(predicate("P", [x]), fx, w);
+    const conclusion = formulaSubstitution(predicate("P", [a]), fa, w);
+    const instance = implication(universal(x, body), conclusion);
+    const result = matchAxiomA4(instance);
+    expectMatchOk(result);
+  });
 });
 
 // ── matchFormulaPattern (直接テスト) ─────────────────────────
@@ -1512,6 +1526,31 @@ describe("matchFormulaPattern", () => {
       const template = equality(binaryOperation("+", x, y), z);
       const candidate = equality(binaryOperation("*", x, y), z);
       const result = matchFormulaPattern(template, candidate);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe("FormulaSubstitution in template", () => {
+    it("should match identical FormulaSubstitution", () => {
+      // Template: φ[τ/x], Candidate: φ[τ/x]
+      const tau = termMetaVariable("τ");
+      const template = formulaSubstitution(phi, tau, x);
+      const candidate = formulaSubstitution(
+        implication(predicate("P", [x]), predicate("Q", [x])),
+        functionApplication("f", [y]),
+        x,
+      );
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).not.toBeUndefined();
+    });
+
+    it("should reject FormulaSubstitution with different variable", () => {
+      // Template: φ[τ/x], Candidate: ψ[τ/y]
+      const tau = termMetaVariable("τ");
+      const template = formulaSubstitution(phi, tau, x);
+      const candidate = formulaSubstitution(psi, tau, y);
+      const result = matchFormulaPattern(template, candidate);
+      // variable x ≠ y
       expect(result).toBeUndefined();
     });
   });

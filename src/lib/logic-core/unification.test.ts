@@ -11,6 +11,7 @@ import {
   existential,
   predicate,
   equality,
+  formulaSubstitution,
   termVariable,
   termMetaVariable,
   constant,
@@ -795,6 +796,53 @@ describe("unifyTerms", () => {
         ok.termSubstitution,
       );
       expect(equalTerm(sourceApplied, targetApplied)).toBe(true);
+    });
+  });
+
+  describe("FormulaSubstitution", () => {
+    it("同一構造のFormulaSubstitutionをユニファイできる", () => {
+      const x = termVariable("x");
+      const y = termVariable("y");
+      const source = formulaSubstitution(
+        metaVariable("φ"),
+        termMetaVariable("τ"),
+        x,
+      );
+      const target = formulaSubstitution(
+        implication(predicate("P", [x]), predicate("Q", [x])),
+        functionApplication("f", [y]),
+        x,
+      );
+      const result = unifyFormulas(source, target);
+      verifyFormulaUnification(result, source, target);
+    });
+
+    it("FormulaSubstitutionの内部構造が異なる場合は失敗する", () => {
+      const x = termVariable("x");
+      const y = termVariable("y");
+      const source = formulaSubstitution(
+        metaVariable("φ"),
+        termMetaVariable("τ"),
+        x,
+      );
+      const target = formulaSubstitution(
+        metaVariable("φ"),
+        termMetaVariable("τ"),
+        y,
+      );
+      const result = unifyFormulas(source, target);
+      // x ≠ y なので変数部分がユニファイ不能
+      expectError(result);
+    });
+
+    it("FormulaSubstitution中のメタ変数にoccurs checkが効く", () => {
+      const x = termVariable("x");
+      // φ = φ[τ/x] のユニフィケーション → occurs check 失敗
+      const mv = metaVariable("φ");
+      const source = mv;
+      const target = formulaSubstitution(mv, termMetaVariable("τ"), x);
+      const result = unifyFormulas(source, target);
+      expectError(result);
     });
   });
 });
