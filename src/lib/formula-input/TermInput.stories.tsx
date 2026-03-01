@@ -8,11 +8,13 @@ import { TermInput } from "./TermInput";
 
 function TermInputWrapper({
   initialValue = "",
+  onOpenSyntaxHelp,
   ...props
 }: {
   readonly initialValue?: string;
   readonly placeholder?: string;
   readonly fontSize?: number;
+  readonly onOpenSyntaxHelp?: () => void;
   readonly testId?: string;
 }) {
   const [value, setValue] = useState(initialValue);
@@ -28,6 +30,7 @@ function TermInputWrapper({
         value={value}
         onChange={setValue}
         onParsed={handleParsed}
+        onOpenSyntaxHelp={onOpenSyntaxHelp}
         {...props}
       />
       {parsedTag && (
@@ -257,5 +260,35 @@ export const ErrorToValid: Story = {
     await expect(canvas.queryByTestId("ti-errors")).not.toBeInTheDocument();
     await expect(canvas.getByTestId("ti-preview")).toBeInTheDocument();
     await expect(canvas.getByTestId("ti-term")).toHaveTextContent("x");
+  },
+};
+
+/**
+ * 構文ヘルプボタン付きの入力欄。?ボタンが右端に表示される。
+ */
+export const WithSyntaxHelp: Story = {
+  args: {
+    value: "x + y",
+    onChange: () => {},
+    testId: "ti",
+  },
+  render: () => (
+    <TermInputWrapper
+      initialValue="x + y"
+      testId="ti"
+      onOpenSyntaxHelp={() => alert("Syntax help opened")}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // ?ボタンが表示されている
+    const helpBtn = canvas.getByTestId("ti-syntax-help");
+    await expect(helpBtn).toBeInTheDocument();
+    await expect(helpBtn).toHaveTextContent("?");
+
+    // 入力欄も正常に表示されている
+    const input = canvas.getByTestId("ti-input");
+    await expect(input).toBeInTheDocument();
   },
 };

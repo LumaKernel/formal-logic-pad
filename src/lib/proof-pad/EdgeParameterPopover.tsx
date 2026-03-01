@@ -39,6 +39,8 @@ export interface EdgeParameterPopoverProps {
   ) => void;
   /** キャンセルコールバック */
   readonly onCancel: () => void;
+  /** 構文ヘルプを開くコールバック（指定時に代入入力欄に?ボタンを表示） */
+  readonly onOpenSyntaxHelp?: () => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -94,6 +96,24 @@ const selectStyle: React.CSSProperties = {
   borderRadius: 4,
   padding: "4px",
   fontSize: 12,
+};
+
+const syntaxHelpButtonStyle: React.CSSProperties = {
+  flexShrink: 0,
+  width: 18,
+  height: 18,
+  borderRadius: "50%",
+  border: "1px solid currentColor",
+  background: "transparent",
+  color: "inherit",
+  fontSize: 11,
+  fontWeight: 700,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 0,
+  opacity: 0.6,
 };
 
 // --- Gen Popover ---
@@ -203,6 +223,7 @@ function SubstitutionPopover({
   editState,
   onConfirm,
   onCancel,
+  onOpenSyntaxHelp,
   testId,
 }: {
   readonly editState: EdgeBadgeEditState & { readonly _tag: "substitution" };
@@ -211,6 +232,7 @@ function SubstitutionPopover({
     entries: SubstitutionEntries,
   ) => void;
   readonly onCancel: () => void;
+  readonly onOpenSyntaxHelp?: () => void;
   readonly testId?: string;
 }) {
   const [entries, setEntries] = useState<readonly SubstEditEntry[]>(() =>
@@ -236,9 +258,35 @@ function SubstitutionPopover({
           fontSize: 11,
           color: "var(--color-text-muted, #b2bec3)",
           fontWeight: 600,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
-        Substitution entries
+        <span>Substitution entries</span>
+        {onOpenSyntaxHelp !== undefined ? (
+          <button
+            type="button"
+            style={syntaxHelpButtonStyle}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onOpenSyntaxHelp();
+            }}
+            title="Syntax help"
+            data-testid={
+              testId
+                ? `${testId satisfies string}-syntax-help`
+                : "edge-popover-syntax-help"
+            }
+          >
+            ?
+          </button>
+        ) : null}
       </div>
       {entries.map((entry, i) => (
         <div
@@ -360,6 +408,7 @@ export function EdgeParameterPopover({
   onConfirmGen,
   onConfirmSubstitution,
   onCancel,
+  onOpenSyntaxHelp,
   testId,
 }: EdgeParameterPopoverProps) {
   switch (editState._tag) {
@@ -378,6 +427,7 @@ export function EdgeParameterPopover({
           editState={editState}
           onConfirm={onConfirmSubstitution ?? (() => {})}
           onCancel={onCancel}
+          onOpenSyntaxHelp={onOpenSyntaxHelp}
           testId={testId}
         />
       );

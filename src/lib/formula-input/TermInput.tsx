@@ -52,6 +52,8 @@ export interface TermInputProps {
   readonly className?: string;
   /** 追加のスタイル（コンテナ） */
   readonly style?: CSSProperties;
+  /** 構文ヘルプを開くコールバック（指定時に?ボタンを表示） */
+  readonly onOpenSyntaxHelp?: () => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -142,6 +144,25 @@ const transparentTextStyle: CSSProperties = {
   color: "transparent",
 };
 
+const syntaxHelpButtonStyle: CSSProperties = {
+  flexShrink: 0,
+  width: 18,
+  height: 18,
+  borderRadius: "50%",
+  border: "1px solid currentColor",
+  background: "transparent",
+  color: "inherit",
+  fontSize: 11,
+  fontWeight: 700,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 0,
+  opacity: 0.6,
+  marginTop: 6,
+};
+
 export function TermInput({
   value,
   onChange,
@@ -150,6 +171,7 @@ export function TermInput({
   fontSize,
   className,
   style,
+  onOpenSyntaxHelp,
   testId,
 }: TermInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -220,71 +242,103 @@ export function TermInput({
     [parseState, deferredValue],
   );
 
+  const handleSyntaxHelpMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleSyntaxHelpClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onOpenSyntaxHelp?.();
+    },
+    [onOpenSyntaxHelp],
+  );
+
   return (
     <div
       className={className}
       style={mergedContainerStyle}
       data-testid={testId}
     >
-      {/* 入力欄 + エラーハイライトオーバーレイ + 補完ポップアップ */}
-      <div style={{ position: "relative" }}>
-        {/* エラーハイライト（入力欄の背後） */}
-        {errorHighlights.length > 0 && (
-          <div
-            style={highlightContainerStyle}
-            aria-hidden="true"
+      {/* 入力欄 + エラーハイライトオーバーレイ + 補完ポップアップ + ?ボタン */}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 4 }}>
+        <div style={{ position: "relative", flex: 1 }}>
+          {/* エラーハイライト（入力欄の背後） */}
+          {errorHighlights.length > 0 && (
+            <div
+              style={highlightContainerStyle}
+              aria-hidden="true"
+              data-testid={
+                testId ? `${testId satisfies string}-highlights` : undefined
+              }
+            >
+              {renderHighlightedText(deferredValue, errorHighlights)}
+            </div>
+          )}
+          <input
+            ref={inputRef}
+            type="text"
+            value={value}
+            onChange={handleChange}
+            placeholder={placeholder}
+            style={{
+              ...currentInputStyle,
+              ...(fontSize !== undefined ? { fontSize } : {}),
+              ...(errorHighlights.length > 0
+                ? {
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    background: "transparent",
+                  }
+                : {}),
+            }}
             data-testid={
-              testId ? `${testId satisfies string}-highlights` : undefined
+              testId ? `${testId satisfies string}-input` : undefined
             }
-          >
-            {renderHighlightedText(deferredValue, errorHighlights)}
-          </div>
-        )}
-        <input
-          ref={inputRef}
-          type="text"
-          value={value}
-          onChange={handleChange}
-          placeholder={placeholder}
-          style={{
-            ...currentInputStyle,
-            ...(fontSize !== undefined ? { fontSize } : {}),
-            ...(errorHighlights.length > 0
-              ? {
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  background: "transparent",
-                }
-              : {}),
-          }}
-          data-testid={testId ? `${testId satisfies string}-input` : undefined}
-          aria-invalid={parseState.status === "error"}
-          aria-describedby={
-            parseState.status === "error" && testId
-              ? `${testId satisfies string}-errors`
-              : undefined
-          }
-        />
-        {/* ハイライトがないときの高さ確保 */}
-        {errorHighlights.length > 0 && (
-          <div style={{ visibility: "hidden", ...highlightContainerStyle }}>
-            {deferredValue || placeholder}
-          </div>
-        )}
-        {/* 補完ポップアップ */}
-        {comp.isOpen && (
-          <CompletionPopup
-            candidates={comp.completion.candidates}
-            selectedIndex={comp.selectedIndex}
-            onSelect={handleCompletionSelect}
-            onSelectedIndexChange={comp.setSelectedIndex}
-            onClose={comp.close}
-            testId={
-              testId ? `${testId satisfies string}-completion` : undefined
+            aria-invalid={parseState.status === "error"}
+            aria-describedby={
+              parseState.status === "error" && testId
+                ? `${testId satisfies string}-errors`
+                : undefined
             }
           />
-        )}
+          {/* ハイライトがないときの高さ確保 */}
+          {errorHighlights.length > 0 && (
+            <div style={{ visibility: "hidden", ...highlightContainerStyle }}>
+              {deferredValue || placeholder}
+            </div>
+          )}
+          {/* 補完ポップアップ */}
+          {comp.isOpen && (
+            <CompletionPopup
+              candidates={comp.completion.candidates}
+              selectedIndex={comp.selectedIndex}
+              onSelect={handleCompletionSelect}
+              onSelectedIndexChange={comp.setSelectedIndex}
+              onClose={comp.close}
+              testId={
+                testId ? `${testId satisfies string}-completion` : undefined
+              }
+            />
+          )}
+        </div>
+        {onOpenSyntaxHelp !== undefined ? (
+          <button
+            type="button"
+            style={syntaxHelpButtonStyle}
+            onMouseDown={handleSyntaxHelpMouseDown}
+            onClick={handleSyntaxHelpClick}
+            title="Syntax help"
+            data-testid={
+              testId ? `${testId satisfies string}-syntax-help` : undefined
+            }
+          >
+            ?
+          </button>
+        ) : null}
       </div>
 
       {/* プレビュー（パース成功時） */}

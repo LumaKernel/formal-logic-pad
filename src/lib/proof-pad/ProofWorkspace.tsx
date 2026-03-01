@@ -3527,6 +3527,7 @@ export function ProofWorkspace({
             onConfirmGen={handleEdgeBadgeConfirmGen}
             onConfirmSubstitution={handleEdgeBadgeConfirmSubstitution}
             onCancel={handleEdgeBadgeCancel}
+            onOpenSyntaxHelp={onOpenSyntaxHelp}
             testId={
               testId
                 ? `${testId satisfies string}-edge-popover-inner`

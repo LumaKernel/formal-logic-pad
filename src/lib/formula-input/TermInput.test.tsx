@@ -362,4 +362,38 @@ describe("TermInput", () => {
       expect(callCount).toBeGreaterThanOrEqual(2);
     });
   });
+
+  describe("構文ヘルプボタン", () => {
+    it("onOpenSyntaxHelpが指定されているとき?ボタンが表示される", () => {
+      const onOpenSyntaxHelp = vi.fn();
+      render(
+        <TermInput
+          value=""
+          onChange={() => {}}
+          onOpenSyntaxHelp={onOpenSyntaxHelp}
+          testId="ti"
+        />,
+      );
+      expect(screen.getByTestId("ti-syntax-help")).toBeInTheDocument();
+    });
+
+    it("onOpenSyntaxHelpが指定されていないとき?ボタンが表示されない", () => {
+      render(<TermInput value="" onChange={() => {}} testId="ti" />);
+      expect(screen.queryByTestId("ti-syntax-help")).not.toBeInTheDocument();
+    });
+
+    it("?ボタンクリックでonOpenSyntaxHelpが呼ばれる", async () => {
+      const onOpenSyntaxHelp = vi.fn();
+      render(
+        <TermInput
+          value=""
+          onChange={() => {}}
+          onOpenSyntaxHelp={onOpenSyntaxHelp}
+          testId="ti"
+        />,
+      );
+      fireEvent.click(screen.getByTestId("ti-syntax-help"));
+      expect(onOpenSyntaxHelp).toHaveBeenCalledOnce();
+    });
+  });
 });

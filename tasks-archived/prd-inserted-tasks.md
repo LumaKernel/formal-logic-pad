@@ -163,3 +163,4 @@ Infinity Canvasについて。
   - [x] クエストノートはゴールの一覧（いくつかの論理式と、それぞれで使っていい公理）がある、という仕組みになっているか？ → 確認済み: WorkspaceGoal.allowedAxiomIds で公理制限をサポート、checkQuestGoalsWithAxioms で判定
   - [x] 証明されたか、関係ない公理は使われていないか、などは判定されているか？ → 確認済み: goalCheckLogic で式の存在判定、questCompletionLogic で公理制限の判定を実装済み
   - [x] ゴール一覧をみる方法が提供されるべきだろう → GoalPanel コンポーネントを実装し ProofWorkspace に統合
+- [x] CIの結果を確認し、失敗していれば修正する。`gh run list` や `gh run view` で現状を把握し、失敗原因を特定して対処すること。

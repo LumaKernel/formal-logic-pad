@@ -251,5 +251,68 @@ describe("EdgeParameterPopover", () => {
       const confirmBtn = screen.getByTestId("popover-confirm");
       expect(confirmBtn).toBeDisabled();
     });
+
+    it("shows syntax help button when onOpenSyntaxHelp is provided", () => {
+      const onOpenSyntaxHelp = vi.fn();
+      render(
+        <EdgeParameterPopover
+          editState={substEditState}
+          onCancel={() => {}}
+          onOpenSyntaxHelp={onOpenSyntaxHelp}
+          testId="popover"
+        />,
+      );
+      const helpButton = screen.getByTestId("popover-syntax-help");
+      expect(helpButton).toBeInTheDocument();
+    });
+
+    it("does not show syntax help button when onOpenSyntaxHelp is not provided", () => {
+      render(
+        <EdgeParameterPopover
+          editState={substEditState}
+          onCancel={() => {}}
+          testId="popover"
+        />,
+      );
+      expect(
+        screen.queryByTestId("popover-syntax-help"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("calls onOpenSyntaxHelp when syntax help button is clicked", async () => {
+      const user = userEvent.setup();
+      const onOpenSyntaxHelp = vi.fn();
+      render(
+        <EdgeParameterPopover
+          editState={substEditState}
+          onCancel={() => {}}
+          onOpenSyntaxHelp={onOpenSyntaxHelp}
+          testId="popover"
+        />,
+      );
+      const helpButton = screen.getByTestId("popover-syntax-help");
+      await user.click(helpButton);
+      expect(onOpenSyntaxHelp).toHaveBeenCalledOnce();
+    });
+
+    it("does not show syntax help button for gen popover", () => {
+      const genState: EdgeBadgeEditState = {
+        _tag: "gen",
+        conclusionNodeId: "node-2",
+        variableName: "x",
+      };
+      const onOpenSyntaxHelp = vi.fn();
+      render(
+        <EdgeParameterPopover
+          editState={genState}
+          onCancel={() => {}}
+          onOpenSyntaxHelp={onOpenSyntaxHelp}
+          testId="popover"
+        />,
+      );
+      expect(
+        screen.queryByTestId("popover-syntax-help"),
+      ).not.toBeInTheDocument();
+    });
   });
 });
