@@ -528,6 +528,55 @@ describe("computeSmartConnectionPath", () => {
     expect(withSelfObstacles.d).toBe(withoutObstacles.d);
   });
 
+  it("deflects path around an intersecting obstacle", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 400, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    // Obstacle sits between from and to, overlapping the connection line
+    const obstacle: Obstacle = {
+      position: { x: 200, y: 0 },
+      width: 80,
+      height: 50,
+    };
+    const withObstacle = computeSmartConnectionPath(from, to, viewport, [
+      obstacle,
+    ]);
+    const withoutObstacle = computeSmartConnectionPath(from, to, viewport);
+    // Deflected path should differ from the straight path
+    expect(withObstacle.d).not.toBe(withoutObstacle.d);
+  });
+
+  it("deflects path to opposite side when obstacle center is below", () => {
+    const from: ConnectionEndpoint = {
+      position: { x: 0, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    const to: ConnectionEndpoint = {
+      position: { x: 400, y: 0 },
+      width: 100,
+      height: 50,
+    };
+    // Obstacle below connection line: center.y > midWorld.y (25), so dot < 0 → sign = -1
+    const obstacle: Obstacle = {
+      position: { x: 200, y: 10 },
+      width: 80,
+      height: 80,
+    };
+    const withObstacle = computeSmartConnectionPath(from, to, viewport, [
+      obstacle,
+    ]);
+    const withoutObstacle = computeSmartConnectionPath(from, to, viewport);
+    expect(withObstacle.d).not.toBe(withoutObstacle.d);
+  });
+
   it("handles same position nodes gracefully", () => {
     const ep: ConnectionEndpoint = {
       position: { x: 100, y: 100 },
@@ -535,6 +584,24 @@ describe("computeSmartConnectionPath", () => {
       height: 50,
     };
     const result = computeSmartConnectionPath(ep, ep, viewport);
+    expect(result.d).toMatch(/^M\s/);
+    expect(result.d).toContain("C ");
+  });
+
+  it("handles same position nodes with obstacle gracefully", () => {
+    const ep: ConnectionEndpoint = {
+      position: { x: 100, y: 100 },
+      width: 50,
+      height: 50,
+    };
+    // Obstacle must differ from ep in position/dimensions to not be filtered,
+    // and must contain the start/end world point for segmentIntersectsRect
+    const obstacle: Obstacle = {
+      position: { x: 80, y: 80 },
+      width: 90,
+      height: 90,
+    };
+    const result = computeSmartConnectionPath(ep, ep, viewport, [obstacle]);
     expect(result.d).toMatch(/^M\s/);
     expect(result.d).toContain("C ");
   });
@@ -644,6 +711,20 @@ describe("computePortConnectionPath", () => {
     expect(with_.d).not.toBe(without.d);
   });
 
+  it("deflects path to opposite side when obstacle center is below", () => {
+    // Place obstacle with center below the connection line (y=25) so dot < 0 (sign = -1)
+    const obstacle: Obstacle = {
+      position: { x: 180, y: 10 },
+      width: 40,
+      height: 80,
+    };
+    const without = computePortConnectionPath(fromPort, toPort, viewport);
+    const with_ = computePortConnectionPath(fromPort, toPort, viewport, [
+      obstacle,
+    ]);
+    expect(with_.d).not.toBe(without.d);
+  });
+
   it("excludes source and target items from obstacles", () => {
     const selfObstacles: readonly Obstacle[] = [
       { position: { x: 0, y: 0 }, width: 100, height: 50 },
@@ -657,6 +738,27 @@ describe("computePortConnectionPath", () => {
     );
     const without = computePortConnectionPath(fromPort, toPort, viewport);
     expect(withSelf.d).toBe(without.d);
+  });
+
+  it("handles same position ports with obstacle gracefully", () => {
+    const samePort: ConnectorPortOnItem = {
+      port: { id: "right", edge: "right", position: 0.5 },
+      itemPosition: { x: 100, y: 100 },
+      itemWidth: 50,
+      itemHeight: 50,
+    };
+    // Obstacle must differ from port item in position/dimensions to not be filtered,
+    // and must contain the start/end world point for segmentIntersectsRect
+    const obstacle: Obstacle = {
+      position: { x: 80, y: 80 },
+      width: 90,
+      height: 90,
+    };
+    const result = computePortConnectionPath(samePort, samePort, viewport, [
+      obstacle,
+    ]);
+    expect(result.d).toMatch(/^M\s/);
+    expect(result.d).toContain("C ");
   });
 
   it("returns midpoint on the bezier curve", () => {

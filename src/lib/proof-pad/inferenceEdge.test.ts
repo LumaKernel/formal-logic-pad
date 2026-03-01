@@ -1324,4 +1324,76 @@ describe("inferenceEdge", () => {
       });
     });
   });
+
+  // ─── undefined前提のブランチカバレッジ追加テスト ─────────
+
+  describe("getInferenceEdgePremiseNodeIds - undefined前提の追加分岐", () => {
+    it("handles nd-existential-elim with all undefined premises", () => {
+      const edge: NdExistentialElimEdge = {
+        _tag: "nd-existential-elim",
+        conclusionNodeId: "c",
+        existentialPremiseNodeId: undefined,
+        casePremiseNodeId: undefined,
+        dischargedAssumptionId: 1,
+        dischargedFormulaText: "A(x)",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual([]);
+    });
+
+    it("handles nd-existential-elim with only casePremise defined", () => {
+      const edge: NdExistentialElimEdge = {
+        _tag: "nd-existential-elim",
+        conclusionNodeId: "c",
+        existentialPremiseNodeId: undefined,
+        casePremiseNodeId: "p1",
+        dischargedAssumptionId: 1,
+        dischargedFormulaText: "A(x)",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual(["p1"]);
+    });
+
+    it("handles nd-disjunction-elim with only leftCase undefined", () => {
+      const edge: NdDisjunctionElimEdge = {
+        _tag: "nd-disjunction-elim",
+        conclusionNodeId: "c",
+        disjunctionPremiseNodeId: "p1",
+        leftCasePremiseNodeId: undefined,
+        leftDischargedAssumptionId: 1,
+        rightCasePremiseNodeId: "p2",
+        rightDischargedAssumptionId: 2,
+        conclusionText: "",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual(["p1", "p2"]);
+    });
+
+    it("handles tab-branching with all undefined premises", () => {
+      const edge: TabBranchingEdge = {
+        _tag: "tab-branching",
+        ruleId: "implication",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: undefined,
+        rightPremiseNodeId: undefined,
+        leftConclusionText: "",
+        rightConclusionText: "",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual([]);
+    });
+
+    it("handles tab-branching with only left premise defined", () => {
+      const edge: TabBranchingEdge = {
+        _tag: "tab-branching",
+        ruleId: "implication",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "p1",
+        rightPremiseNodeId: undefined,
+        leftConclusionText: "",
+        rightConclusionText: "",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual(["p1"]);
+    });
+  });
 });
