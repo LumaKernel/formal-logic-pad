@@ -1127,8 +1127,8 @@ export const SubstitutionApplied: Story = {
     // 代入エントリが表示されている
     const substEntries = canvas.getByTestId("proof-node-node-2-subst-entries");
     await expect(substEntries).toBeInTheDocument();
-    await expect(substEntries).toHaveTextContent("φ := alpha -> beta");
-    await expect(substEntries).toHaveTextContent("ψ := gamma");
+    await expect(substEntries).toHaveTextContent("φ := α → β");
+    await expect(substEntries).toHaveTextContent("ψ := γ");
   },
 };
 

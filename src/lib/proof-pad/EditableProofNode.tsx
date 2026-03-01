@@ -9,18 +9,27 @@
 
 import type { CSSProperties } from "react";
 import { useCallback, useMemo, useState } from "react";
+import { Either } from "effect";
 import type { Formula } from "../logic-core/formula";
 import type { EditTrigger, EditorMode } from "../formula-input/editorLogic";
 import { FormulaDisplay } from "../formula-input/FormulaDisplay";
+import { TermDisplay } from "../formula-input/TermDisplay";
 import { FormulaEditor } from "../formula-input/FormulaEditor";
 import { computeParseState } from "../formula-input/FormulaInput";
+import {
+  parseString as parseFormula,
+  parseTermString,
+} from "../logic-lang/parser";
 import type { ProofNodeKind } from "./proofNodeUI";
 import { getProofNodeStyle, getNodeClassificationStyle } from "./proofNodeUI";
 import type { NodeClassification } from "./nodeRoleLogic";
 import type { NodeRole } from "./workspaceState";
 import type { DetailLevel, DetailVisibilityOverrides } from "./levelOfDetail";
 import { getDetailVisibility } from "./levelOfDetail";
-import type { SubstitutionEntries } from "./substitutionApplicationLogic";
+import type {
+  SubstitutionEntries,
+  SubstitutionEntry,
+} from "./substitutionApplicationLogic";
 
 // --- Props ---
 
@@ -217,7 +226,60 @@ const substEntriesContainerStyle: CSSProperties = {
 const substEntryStyle: CSSProperties = {
   padding: "1px 0",
   whiteSpace: "nowrap",
+  display: "flex",
+  alignItems: "baseline",
+  gap: 2,
 };
+
+const substEntryValueFontSize = 10;
+
+/** 代入エントリの値部分を数式レンダリングするコンポーネント */
+function SubstitutionEntryValue({
+  entry,
+}: {
+  readonly entry: SubstitutionEntry;
+}) {
+  if (entry._tag === "FormulaSubstitution") {
+    const parsed = parseFormula(entry.formulaText);
+    if (Either.isRight(parsed)) {
+      return (
+        <FormulaDisplay formula={parsed.right} fontSize={substEntryValueFontSize} />
+      );
+    }
+    return <span>{entry.formulaText}</span>;
+  }
+  const parsed = parseTermString(entry.termText);
+  if (Either.isRight(parsed)) {
+    return (
+      <TermDisplay term={parsed.right} fontSize={substEntryValueFontSize} />
+    );
+  }
+  return <span>{entry.termText}</span>;
+}
+
+/** メタ変数名（添字含む）を数式フォントで表示する */
+function MetaVariableLabel({
+  entry,
+}: {
+  readonly entry: SubstitutionEntry;
+}) {
+  const subscriptPart = entry.metaVariableSubscript
+    ? `_${entry.metaVariableSubscript satisfies string}`
+    : "";
+  return (
+    <span
+      style={{
+        fontFamily: "var(--font-formula)",
+        fontStyle: "italic",
+      }}
+      role="math"
+      aria-label={`${entry.metaVariableName satisfies string}${subscriptPart satisfies string}`}
+    >
+      {entry.metaVariableName}
+      {subscriptPart}
+    </span>
+  );
+}
 
 function getRoleBadgeStyle(classification: NodeClassification): CSSProperties {
   switch (classification) {
@@ -514,20 +576,13 @@ export function EditableProofNode({
             testId ? `${testId satisfies string}-subst-entries` : undefined
           }
         >
-          {substitutionEntries.map((entry, i) => {
-            const subscriptPart = entry.metaVariableSubscript
-              ? `_${entry.metaVariableSubscript satisfies string}`
-              : "";
-            const valueText =
-              entry._tag === "FormulaSubstitution"
-                ? entry.formulaText
-                : entry.termText;
-            return (
-              <div key={i} style={substEntryStyle}>
-                {`${entry.metaVariableName satisfies string}${subscriptPart satisfies string} := ${valueText satisfies string}`}
-              </div>
-            );
-          })}
+          {substitutionEntries.map((entry, i) => (
+            <div key={i} style={substEntryStyle}>
+              <MetaVariableLabel entry={entry} />
+              <span>{" := "}</span>
+              <SubstitutionEntryValue entry={entry} />
+            </div>
+          ))}
         </div>
       ) : null}
     </div>

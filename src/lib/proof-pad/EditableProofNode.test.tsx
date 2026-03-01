@@ -770,4 +770,90 @@ describe("EditableProofNode", () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe("substitution entries", () => {
+    it("論理式代入エントリが数式レンダリングされる", () => {
+      renderNode({
+        substitutionEntries: [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha -> beta",
+          },
+        ],
+      });
+      const container = screen.getByTestId("test-node-subst-entries");
+      expect(container).toBeInTheDocument();
+      // FormulaDisplayはrole="math"を持つ
+      const mathElements = container.querySelectorAll("[role='math']");
+      expect(mathElements.length).toBeGreaterThanOrEqual(2); // metaVar + value
+    });
+
+    it("項代入エントリが数式レンダリングされる", () => {
+      renderNode({
+        substitutionEntries: [
+          {
+            _tag: "TermSubstitution",
+            metaVariableName: "τ",
+            termText: "S(0)",
+          },
+        ],
+      });
+      const container = screen.getByTestId("test-node-subst-entries");
+      const mathElements = container.querySelectorAll("[role='math']");
+      expect(mathElements.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it("添字付きメタ変数が正しく表示される", () => {
+      renderNode({
+        substitutionEntries: [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            metaVariableSubscript: "1",
+            formulaText: "phi",
+          },
+        ],
+      });
+      const container = screen.getByTestId("test-node-subst-entries");
+      // aria-labelに添字情報が含まれる
+      const metaVarLabel = container.querySelector("[aria-label='φ_1']");
+      expect(metaVarLabel).toBeInTheDocument();
+    });
+
+    it("パース不可能な値はプレーンテキストでフォールバックされる", () => {
+      renderNode({
+        substitutionEntries: [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "???invalid???",
+          },
+        ],
+      });
+      const container = screen.getByTestId("test-node-subst-entries");
+      expect(container).toHaveTextContent("???invalid???");
+    });
+
+    it("空の代入エントリでは表示されない", () => {
+      renderNode({ substitutionEntries: [] });
+      expect(
+        screen.queryByTestId("test-node-subst-entries"),
+      ).not.toBeInTheDocument();
+    });
+
+    it(":= 記号が表示される", () => {
+      renderNode({
+        substitutionEntries: [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "phi",
+          },
+        ],
+      });
+      const container = screen.getByTestId("test-node-subst-entries");
+      expect(container).toHaveTextContent(":=");
+    });
+  });
 });
