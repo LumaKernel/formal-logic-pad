@@ -3342,6 +3342,46 @@ describe("ProofWorkspace", () => {
       const banner = screen.getByTestId("workspace-subst-prompt-banner");
       expect(banner).toBeInTheDocument();
     });
+
+    it("shows Term kind label and term placeholder for formulas with term meta-variables", async () => {
+      const user = userEvent.setup();
+      // 述語論理で phi -> P(tau) は formula meta-variable φ と term meta-variable τ を含む
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "Custom", { x: 0, y: 0 }, "phi -> P(tau)");
+
+      render(<StatefulWorkspace initialWorkspace={ws} />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+      await user.click(
+        screen.getByTestId("workspace-apply-substitution-to-node"),
+      );
+
+      // Banner should appear
+      expect(
+        screen.getByTestId("workspace-subst-prompt-banner"),
+      ).toBeInTheDocument();
+
+      // φ is a formula meta-variable → kind: "Formula"
+      const kindLabel0 = screen.getByTestId("workspace-subst-kind-0");
+      expect(kindLabel0).toHaveTextContent("Formula");
+
+      // τ is a term meta-variable → kind: "Term"
+      const kindLabel1 = screen.getByTestId("workspace-subst-kind-1");
+      expect(kindLabel1).toHaveTextContent("Term");
+
+      // Verify meta-variable labels
+      const metaVarLabel0 = screen.getByTestId("workspace-subst-metavar-0");
+      expect(metaVarLabel0).toHaveTextContent("φ");
+      const metaVarLabel1 = screen.getByTestId("workspace-subst-metavar-1");
+      expect(metaVarLabel1).toHaveTextContent("τ");
+
+      // Verify placeholders: formula uses "alpha -> beta", term uses "S(0)"
+      const valueInput0 = screen.getByTestId("workspace-subst-value-0");
+      expect(valueInput0).toHaveAttribute("placeholder", "alpha -> beta");
+      const valueInput1 = screen.getByTestId("workspace-subst-value-1");
+      expect(valueInput1).toHaveAttribute("placeholder", "S(0)");
+    });
   });
 
   // --- コンテキストメニューからマージ ---
