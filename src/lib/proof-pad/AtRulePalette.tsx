@@ -23,6 +23,7 @@ import {
   isDeltaRule,
   isClosureRule,
 } from "../logic-core/analyticTableau";
+import { useProofMessages } from "./ProofMessagesContext";
 
 // --- Props ---
 
@@ -193,6 +194,7 @@ export function AtRulePalette({
   selectedRuleId,
   testId,
 }: AtRulePaletteProps) {
+  const msg = useProofMessages();
   const handleAddClick = useCallback(() => {
     onAddFormula();
   }, [onAddFormula]);
@@ -253,7 +255,7 @@ export function AtRulePalette({
 
   return (
     <div data-testid={testId} style={panelStyle}>
-      <div style={headerStyle}>Analytic Tableau</div>
+      <div style={headerStyle}>{msg.atPaletteHeader}</div>
       <div
         data-testid={
           testId ? `${testId satisfies string}-add-formula` : undefined
@@ -277,29 +279,29 @@ export function AtRulePalette({
           }
         }}
       >
-        + 署名付き論理式を追加
+        {msg.atAddFormula}
       </div>
       {groupedRules.alpha.length > 0 && (
         <>
-          <div style={sectionHeaderStyle}>α (non-branching)</div>
+          <div style={sectionHeaderStyle}>{msg.atAlphaRules}</div>
           {renderRuleItems(groupedRules.alpha)}
         </>
       )}
       {groupedRules.beta.length > 0 && (
         <>
-          <div style={sectionHeaderStyle}>β (branching)</div>
+          <div style={sectionHeaderStyle}>{msg.atBetaRules}</div>
           {renderRuleItems(groupedRules.beta)}
         </>
       )}
       {groupedRules.gammaDelta.length > 0 && (
         <>
-          <div style={sectionHeaderStyle}>γ/δ (quantifiers)</div>
+          <div style={sectionHeaderStyle}>{msg.atGammaDeltaRules}</div>
           {renderRuleItems(groupedRules.gammaDelta)}
         </>
       )}
       {groupedRules.closure.length > 0 && (
         <>
-          <div style={sectionHeaderStyle}>Closure</div>
+          <div style={sectionHeaderStyle}>{msg.atClosureRules}</div>
           {renderRuleItems(groupedRules.closure)}
         </>
       )}

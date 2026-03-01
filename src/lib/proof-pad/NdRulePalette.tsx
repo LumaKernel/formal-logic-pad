@@ -16,6 +16,7 @@
 import { type CSSProperties, useCallback, useMemo } from "react";
 import type { NdRulePaletteItem } from "./axiomPaletteLogic";
 import type { NdRuleId } from "../logic-core/deductionSystem";
+import { useProofMessages } from "./ProofMessagesContext";
 
 // --- Props ---
 
@@ -118,6 +119,7 @@ export function NdRulePalette({
   onAddAssumption,
   testId,
 }: NdRulePaletteProps) {
+  const msg = useProofMessages();
   const handleAddClick = useCallback(() => {
     onAddAssumption();
   }, [onAddAssumption]);
@@ -144,7 +146,7 @@ export function NdRulePalette({
 
   return (
     <div data-testid={testId} style={panelStyle}>
-      <div style={headerStyle}>Natural Deduction</div>
+      <div style={headerStyle}>{msg.ndPaletteHeader}</div>
       <div
         data-testid={
           testId ? `${testId satisfies string}-add-assumption` : undefined
@@ -168,9 +170,9 @@ export function NdRulePalette({
           }
         }}
       >
-        + 仮定を追加
+        {msg.ndAddAssumption}
       </div>
-      <div style={sectionHeaderStyle}>Rules</div>
+      <div style={sectionHeaderStyle}>{msg.ndRulesSection}</div>
       {ruleItems}
     </div>
   );

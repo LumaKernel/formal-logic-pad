@@ -59,6 +59,9 @@ describe("defaultProofMessages", () => {
       "{variableName}",
     );
     expect(defaultProofMessages.selectionCount).toContain("{count}");
+    expect(defaultProofMessages.axiomIdentifiedTooltip).toContain(
+      "{axiomName}",
+    );
   });
 });
 

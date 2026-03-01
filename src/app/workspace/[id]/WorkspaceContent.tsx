@@ -128,6 +128,45 @@ function useProofMessagesFromIntl(): ProofMessages {
       cutEliminationSuccess: t("cutEliminationSuccess"),
       cutEliminationFailure: t("cutEliminationFailure"),
       cutEliminationNoCuts: t("cutEliminationNoCuts"),
+
+      // Node labels / role badges
+      roleAxiom: t("roleAxiom"),
+      roleRoot: t("roleRoot"),
+      roleDerived: t("roleDerived"),
+      dependsOn: t("dependsOn"),
+      protectedBadge: t("protectedBadge"),
+      axiomIdentifiedTooltip: String(t.raw("axiomIdentifiedTooltip")),
+      protectedQuestTooltip: t("protectedQuestTooltip"),
+      protectedRoleLockedTooltip: t("protectedRoleLockedTooltip"),
+      clickToCycleRoleTooltip: t("clickToCycleRoleTooltip"),
+      derivedNodeAutoTooltip: t("derivedNodeAutoTooltip"),
+      formulaEditorPlaceholder: t("formulaEditorPlaceholder"),
+      substitutionKindFormula: t("substitutionKindFormula"),
+      substitutionKindTerm: t("substitutionKindTerm"),
+
+      // Palette headers
+      axiomPaletteHeader: t("axiomPaletteHeader"),
+      ndPaletteHeader: t("ndPaletteHeader"),
+      ndAddAssumption: t("ndAddAssumption"),
+      ndRulesSection: t("ndRulesSection"),
+      tabPaletteHeader: t("tabPaletteHeader"),
+      tabAddSequent: t("tabAddSequent"),
+      tabRulesSection: t("tabRulesSection"),
+      atPaletteHeader: t("atPaletteHeader"),
+      atAddFormula: t("atAddFormula"),
+      atAlphaRules: t("atAlphaRules"),
+      atBetaRules: t("atBetaRules"),
+      atGammaDeltaRules: t("atGammaDeltaRules"),
+      atClosureRules: t("atClosureRules"),
+
+      // Node creation labels
+      nodeLabelAxiom: t("nodeLabelAxiom"),
+      nodeLabelAssumption: t("nodeLabelAssumption"),
+      nodeLabelSequent: t("nodeLabelSequent"),
+      nodeLabelSignedFormula: t("nodeLabelSignedFormula"),
+
+      // Accessibility
+      workspaceMenuAriaLabel: t("workspaceMenuAriaLabel"),
     }),
     [t],
   );

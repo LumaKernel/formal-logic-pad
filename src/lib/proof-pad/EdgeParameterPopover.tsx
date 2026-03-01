@@ -11,6 +11,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useProofMessages } from "./ProofMessagesContext";
 import type { EdgeBadgeEditState, SubstEditEntry } from "./edgeBadgeEditLogic";
 import {
   canConfirmGenEdit,
@@ -235,6 +236,7 @@ function SubstitutionPopover({
   readonly onOpenSyntaxHelp?: () => void;
   readonly testId?: string;
 }) {
+  const msg = useProofMessages();
   const [entries, setEntries] = useState<readonly SubstEditEntry[]>(() =>
     toSubstEditEntries(editState.entries, editState.premiseFormulaText),
   );
@@ -263,7 +265,7 @@ function SubstitutionPopover({
           justifyContent: "space-between",
         }}
       >
-        <span>Substitution entries</span>
+        <span>{msg.substEntryPrompt}</span>
         {onOpenSyntaxHelp !== undefined ? (
           <button
             type="button"
@@ -310,7 +312,9 @@ function SubstitutionPopover({
                 : undefined
             }
           >
-            {entry.kind === "formula" ? "Formula" : "Term"}
+            {entry.kind === "formula"
+              ? msg.substitutionKindFormula
+              : msg.substitutionKindTerm}
           </span>
           <span
             style={{

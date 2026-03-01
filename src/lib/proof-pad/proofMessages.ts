@@ -171,6 +171,46 @@ export type ProofMessages = {
   readonly cutEliminationNoCuts: string;
   /** `{stepsUsed}` プレースホルダーを含む。ステップ上限超過時に表示 */
   readonly cutEliminationStepLimitExceeded?: string;
+
+  // --- ノードラベル・ロールバッジ ---
+  readonly roleAxiom: string;
+  readonly roleRoot: string;
+  readonly roleDerived: string;
+  readonly dependsOn: string;
+  readonly protectedBadge: string;
+  /** `{axiomName}` プレースホルダーを含む */
+  readonly axiomIdentifiedTooltip: string;
+  readonly protectedQuestTooltip: string;
+  readonly protectedRoleLockedTooltip: string;
+  readonly clickToCycleRoleTooltip: string;
+  readonly derivedNodeAutoTooltip: string;
+  readonly formulaEditorPlaceholder: string;
+  readonly substitutionKindFormula: string;
+  readonly substitutionKindTerm: string;
+
+  // --- パレットヘッダー ---
+  readonly axiomPaletteHeader: string;
+  readonly ndPaletteHeader: string;
+  readonly ndAddAssumption: string;
+  readonly ndRulesSection: string;
+  readonly tabPaletteHeader: string;
+  readonly tabAddSequent: string;
+  readonly tabRulesSection: string;
+  readonly atPaletteHeader: string;
+  readonly atAddFormula: string;
+  readonly atAlphaRules: string;
+  readonly atBetaRules: string;
+  readonly atGammaDeltaRules: string;
+  readonly atClosureRules: string;
+
+  // --- ノード作成ラベル ---
+  readonly nodeLabelAxiom: string;
+  readonly nodeLabelAssumption: string;
+  readonly nodeLabelSequent: string;
+  readonly nodeLabelSignedFormula: string;
+
+  // --- アクセシビリティ ---
+  readonly workspaceMenuAriaLabel: string;
 };
 
 // --- デフォルトメッセージ（英語） ---
@@ -308,6 +348,45 @@ export const defaultProofMessages: ProofMessages = {
   cutEliminationFailure: "Cut elimination failed",
   cutEliminationNoCuts: "Proof is already cut-free",
   cutEliminationStepLimitExceeded: "Step limit exceeded ({stepsUsed} steps)",
+
+  // Node labels / role badges
+  roleAxiom: "AXIOM",
+  roleRoot: "ROOT",
+  roleDerived: "DERIVED",
+  dependsOn: "Depends on:",
+  protectedBadge: "QUEST",
+  axiomIdentifiedTooltip: "Identified as axiom: {axiomName}",
+  protectedQuestTooltip: "Protected quest goal (read-only)",
+  protectedRoleLockedTooltip: "Protected quest goal (role is locked)",
+  clickToCycleRoleTooltip: "Click to cycle role: Root \u2192 Axiom",
+  derivedNodeAutoTooltip: "Derived node (role is automatic)",
+  formulaEditorPlaceholder: "Click to edit formula...",
+  substitutionKindFormula: "Formula",
+  substitutionKindTerm: "Term",
+
+  // Palette headers
+  axiomPaletteHeader: "Axioms",
+  ndPaletteHeader: "Natural Deduction",
+  ndAddAssumption: "+ Add Assumption",
+  ndRulesSection: "Rules",
+  tabPaletteHeader: "Tableau Calculus",
+  tabAddSequent: "+ Add Sequent",
+  tabRulesSection: "Rules",
+  atPaletteHeader: "Analytic Tableau",
+  atAddFormula: "+ Add Signed Formula",
+  atAlphaRules: "\u03B1 (non-branching)",
+  atBetaRules: "\u03B2 (branching)",
+  atGammaDeltaRules: "\u03B3/\u03B4 (quantifiers)",
+  atClosureRules: "Closure",
+
+  // Node creation labels
+  nodeLabelAxiom: "Axiom",
+  nodeLabelAssumption: "Assumption",
+  nodeLabelSequent: "Sequent",
+  nodeLabelSignedFormula: "SignedFormula",
+
+  // Accessibility
+  workspaceMenuAriaLabel: "Workspace menu",
 };
 
 // --- エラー → メッセージキー変換（純粋関数） ---
