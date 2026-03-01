@@ -1418,9 +1418,7 @@ export const EmptySequentCalculus: StoryObj<typeof meta> = {
       canvas.getByTestId("workspace-sc-rule-palette"),
     ).toBeInTheDocument();
     // ワークスペースヘッダーにシステム名、パレットにヘッダーが表示される
-    await expect(
-      canvas.getByText("Sequent Calculus LK"),
-    ).toBeInTheDocument();
+    await expect(canvas.getByText("Sequent Calculus LK")).toBeInTheDocument();
     await expect(canvas.getByText("Sequent Calculus")).toBeInTheDocument();
 
     // SC規則が表示される

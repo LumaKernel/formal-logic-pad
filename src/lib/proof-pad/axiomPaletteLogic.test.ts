@@ -550,9 +550,7 @@ describe("axiomPalette", () => {
       const items = getAvailableScRules(lkSystem);
       const ids = items.map((i) => i.id);
       expect(ids.indexOf("identity")).toBeLessThan(ids.indexOf("cut"));
-      expect(ids.indexOf("cut")).toBeLessThan(
-        ids.indexOf("implication-left"),
-      );
+      expect(ids.indexOf("cut")).toBeLessThan(ids.indexOf("implication-left"));
     });
 
     it("各アイテムにdisplayNameがある", () => {
