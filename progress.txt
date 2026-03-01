@@ -7717,3 +7717,23 @@
   - TABクエストのUI: ProofWorkspace.tsx にTabRulePalette, handleStartTabRuleSelection等が既に実装済み
   - devサーバーのNext.js dev overlayがPlaywright操作をインターセプトすることがある。スクリーンショット確認は可能
 ---
+
+## 2026-03-02 - [coverage] TAB/ATエッジrevalidate・項代入パースエラー・構文ヘルプmousedownのカバレッジ改善
+- `workspaceState.test.ts`: TAB/ATエッジを含むワークスペースで `revalidateInferenceConclusions` がノードを変更しないことを確認するテスト2件追加
+- `EditableProofNode.test.tsx`: TermSubstitutionのパースエラーフォールバック表示テスト1件追加
+- `TermInput.test.tsx`: 構文ヘルプボタンの mousedown で preventDefault が呼ばれるテスト1件追加
+- `treeLayoutLogic.ts`: v8 ignore next → start/stop パターンに修正
+- 全体カバレッジ: Stmts 99.12%→99.19%, Branch 92.75%→92.84%, Funcs 89.44%→89.47%, Lines 99.77%→99.86%
+- テスト: 212ファイル 6590テスト全パス（+4テスト）
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- 変更ファイル:
+  - `src/lib/proof-pad/workspaceState.test.ts` (TAB/AT revalidateテスト追加)
+  - `src/lib/proof-pad/EditableProofNode.test.tsx` (項代入パースエラーフォールバックテスト追加)
+  - `src/lib/formula-input/TermInput.test.tsx` (構文ヘルプmousedownテスト追加)
+  - `src/lib/proof-pad/treeLayoutLogic.ts` (v8 ignore修正)
+- **今後のイテレーションへの学び:**
+  - TAB/ATエッジの revalidateInferenceConclusions: これらのエッジタイプは規則適用時に計算済みのため、結論テキストの再計算は行わない（`return node` で早期リターン）
+  - `applyTabRuleAndConnect` テストの作成: `ruleId: "bs"` (basic sequent)、`sequentText: "¬φ, φ"`、`principalPosition: 0` で公理TABエッジを作成可能
+  - `SubstitutionEntryValue` コンポーネントの `TermSubstitution` パースエラーフォールバック（line 263）は、不正な termText で到達可能
+  - TermInput の handleSyntaxHelpMouseDown は `dispatchEvent(new MouseEvent("mousedown"))` でテスト可能。`vi.spyOn(event, "preventDefault")` で検証
+---
