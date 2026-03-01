@@ -57,7 +57,8 @@ export function splitSequentTextParts(text: string): SequentTextParts {
   const arrowIndex = text.indexOf("⇒");
   if (arrowIndex === -1) {
     // ⇒ なし: 互換性のために全体を左辺として扱う（TABとの互換）
-    const parts = text.trim() === "" ? [] : text.split(",").map((s) => s.trim());
+    const parts =
+      text.trim() === "" ? [] : text.split(",").map((s) => s.trim());
     return { antecedentTexts: parts, succedentTexts: [] };
   }
   const leftStr = text.slice(0, arrowIndex).trim();
@@ -318,8 +319,7 @@ const validateWeakeningRightEffect = (
       return yield* Effect.fail(
         new ScPrincipalFormulaMismatch({
           ruleId: "weakening-right",
-          message:
-            "Weakening right requires at least 1 formula in succedents",
+          message: "Weakening right requires at least 1 formula in succedents",
         }),
       );
     }
@@ -438,10 +438,7 @@ const validateExchangeLeftEffect = (
   exchangePosition: number,
 ): Effect.Effect<ScSinglePremiseResult, ScApplicationError> =>
   Effect.gen(function* () {
-    if (
-      exchangePosition < 0 ||
-      exchangePosition + 1 >= antecedents.length
-    ) {
+    if (exchangePosition < 0 || exchangePosition + 1 >= antecedents.length) {
       return yield* Effect.fail(
         new ScExchangePositionError({
           side: "left",
@@ -470,10 +467,7 @@ const validateExchangeRightEffect = (
   exchangePosition: number,
 ): Effect.Effect<ScSinglePremiseResult, ScApplicationError> =>
   Effect.gen(function* () {
-    if (
-      exchangePosition < 0 ||
-      exchangePosition + 1 >= succedents.length
-    ) {
+    if (exchangePosition < 0 || exchangePosition + 1 >= succedents.length) {
       return yield* Effect.fail(
         new ScExchangePositionError({
           side: "right",
@@ -620,8 +614,7 @@ const validateConjunctionLeftEffect = (
         }),
       );
     }
-    const component =
-      componentIndex === 1 ? principal.left : principal.right;
+    const component = componentIndex === 1 ? principal.left : principal.right;
     const premiseAntecedents = [
       ...antecedents.slice(0, principalPosition),
       component,
@@ -714,8 +707,7 @@ const validateDisjunctionRightEffect = (
         }),
       );
     }
-    const component =
-      componentIndex === 1 ? principal.left : principal.right;
+    const component = componentIndex === 1 ? principal.left : principal.right;
     const premiseSuccedents = [
       ...succedents.slice(0, principalPosition),
       component,
@@ -1369,4 +1361,3 @@ export function getScErrorMessage(error: ScApplicationError): string {
       return error.message;
   }
 }
-
