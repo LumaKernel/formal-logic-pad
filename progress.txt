@@ -7330,3 +7330,33 @@
   - displayNameベースの重複排除が適切。nodeIdではなくdisplayNameで判定すること
   - 純粋関数として分離してテスト → UIで適用、というパターンが有効
 ---
+
+## 2026-03-01 - [proof-pad] ゴール一覧パネル実装
+- 差し込みタスク3件の調査と対応:
+  1. クエストのゴール一覧仕組み → 確認済み（WorkspaceGoal.allowedAxiomIds, checkQuestGoalsWithAxioms）
+  2. 証明・公理制限判定 → 確認済み（goalCheckLogic + questCompletionLogic）
+  3. ゴール一覧UI → GoalPanel コンポーネントを新規実装
+
+- 新規ファイル:
+  - `src/lib/proof-pad/goalPanelLogic.ts` - ゴールパネル表示データの純粋ロジック（computeGoalPanelData）
+  - `src/lib/proof-pad/goalPanelLogic.test.ts` - 9テストケース
+  - `src/lib/proof-pad/GoalPanel.tsx` - ゴールパネルUIコンポーネント（折りたたみ対応）
+  - `src/lib/proof-pad/GoalPanel.test.tsx` - 13テストケース
+
+- 変更ファイル:
+  - `src/lib/proof-pad/proofMessages.ts` - goalPanelTitle/Progress/AllowedAxioms メッセージ追加
+  - `src/lib/proof-pad/ProofWorkspace.tsx` - GoalPanel統合（useMemoでデータ計算）
+  - `src/lib/proof-pad/index.ts` - エクスポート追加
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` - i18nメッセージ追加
+  - `messages/en.json`, `messages/ja.json` - 翻訳追加
+
+- カバレッジ: Stmts 96.8% → 96.83%, Funcs 88.11% → 88.2% (向上)
+- テスト: 6373 → 6395 (22テスト追加)
+- スクリーンショット: `.screenshots/goal-panel-quest-mode.png`, `.screenshots/goal-panel-achieved.png`
+
+- **今後のイテレーションへの学び:**
+  - GoalPanel は純粋ロジック(goalPanelLogic.ts) + UIコンポーネント(GoalPanel.tsx) の2層構成が効果的
+  - proofMessages のi18n追加時は 4箇所同期が必要: ProofMessages型, defaultProofMessages, WorkspaceContent.tsx, messages/*.json
+  - GoalPanelItem のstatusは3値("achieved"/"not-achieved"/"parse-error")で、GoalCheckResultのGoalStatusから変換する
+  - allowedAxiomIds は現在のビルトインクエストでは未使用だが、アーキテクチャとしてサポート済み
+---

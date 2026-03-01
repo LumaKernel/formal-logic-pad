@@ -80,6 +80,8 @@ import {
 } from "./proofMessages";
 import { useProofMessages } from "./ProofMessagesContext";
 import { checkGoal } from "./goalCheckLogic";
+import { computeGoalPanelData } from "./goalPanelLogic";
+import { GoalPanel } from "./GoalPanel";
 import {
   computeStepCount,
   checkQuestGoalsWithAxioms,
@@ -1599,6 +1601,13 @@ export function ProofWorkspace({
       workspace.inferenceEdges,
       workspace.system,
     ],
+  );
+
+  // --- ゴールパネルデータ ---
+
+  const goalPanelData = useMemo(
+    () => computeGoalPanelData(workspace.goals, goalCheckResult),
+    [workspace.goals, goalCheckResult],
   );
 
   const isGoalAchieved =
@@ -3716,6 +3725,13 @@ export function ProofWorkspace({
           }
         />
       )}
+
+      {/* ゴール一覧パネル */}
+      <GoalPanel
+        data={goalPanelData}
+        messages={msg}
+        testId={testId ? `${testId satisfies string}-goal-panel` : undefined}
+      />
 
       {/* ノードコンテキストメニュー */}
       {nodeMenuState.open ? (

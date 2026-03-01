@@ -58,6 +58,12 @@ export type ProofMessages = {
   readonly goalInvalidFormula: string;
   readonly proofComplete: string;
 
+  // --- ゴールパネル ---
+  readonly goalPanelTitle: string;
+  /** `{achieved}` と `{total}` プレースホルダーを含む */
+  readonly goalPanelProgress: string;
+  readonly goalPanelAllowedAxioms: string;
+
   // --- 選択バナー ---
   /** `{count}` プレースホルダーを含む */
   readonly selectionCount: string;
@@ -190,6 +196,11 @@ export const defaultProofMessages: ProofMessages = {
   goalNotYet: "Not yet",
   goalInvalidFormula: "Invalid formula",
   proofComplete: "Proof Complete!",
+
+  // Goal panel
+  goalPanelTitle: "Goals",
+  goalPanelProgress: "{achieved} / {total}",
+  goalPanelAllowedAxioms: "Allowed axioms: {axiomIds}",
 
   // Selection banner
   selectionCount: "{count} node(s) selected",

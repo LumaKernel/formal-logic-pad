@@ -261,6 +261,14 @@ export {
   isTrivialAxiomSubstitution,
 } from "./axiomNameLogic";
 export type { AxiomNameResult } from "./axiomNameLogic";
+export { computeGoalPanelData } from "./goalPanelLogic";
+export type {
+  GoalPanelItem,
+  GoalPanelItemStatus,
+  GoalPanelData,
+} from "./goalPanelLogic";
+export { GoalPanel } from "./GoalPanel";
+export type { GoalPanelProps } from "./GoalPanel";
 export { parseGoalFormula, checkGoal } from "./goalCheckLogic";
 export type {
   GoalNotSet,
