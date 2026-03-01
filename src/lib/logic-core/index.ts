@@ -364,6 +364,37 @@ export type {
   TabRuleId,
 } from "./tableauCalculus";
 
+// ── Analytic Tableau (分析的タブロー) ─────────────────────────
+export {
+  signedFormula,
+  allAtRuleIds,
+  isAlphaRule,
+  isBetaRule,
+  isGammaRule,
+  isDeltaRule,
+  isClosureRule,
+  getAtRuleDisplayName,
+  applyAlphaRule,
+  applyBetaRule,
+  applyGammaRule,
+  applyDeltaRule,
+  classifySignedFormula,
+  checkBranchClosure,
+  checkEigenVariableCondition,
+  canApplyRule,
+} from "./analyticTableau";
+export type {
+  Sign,
+  SignedFormula,
+  AtRuleId,
+  AlphaResult,
+  BetaResult,
+  GammaResult,
+  DeltaResult,
+  AtRuleResult,
+  BranchClosureResult,
+} from "./analyticTableau";
+
 // ── Serialization (Schema decode/encode) ─────────────────────
 export {
   decodeFormula,
