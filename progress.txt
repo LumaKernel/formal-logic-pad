@@ -7384,3 +7384,34 @@
   - switch 文の一部ケースが v8 ignore 済みでも、switch 自体のブランチカウントには影響する（構造的限界）
   - containsFormula の false ブランチが数学的に到達不能な場合（rank >= 2 との矛盾）、そのフォールバック先を v8 ignore で囲めば Stmts/Lines は 100% になるが Branch には構造的限界がある
 ---
+
+## 2026-03-01 - [proof-pad] カット除去ステッパーUIコンポーネント (C2)
+- 純粋ロジック層 cutEliminationStepperLogic.ts: ステッパー状態管理・アクション適用・シーケントテキスト整形
+- UIコンポーネント CutEliminationStepper.tsx: ステップ制御ボタン(⏮◀▶⏭)、depth/rank表示、結果ステータス
+- i18nメッセージ9件追加 (proofMessages.ts, en.json, ja.json, WorkspaceContent.tsx)
+- Storybookストーリー6件 (CutFree, SimpleCut, Rank0Cut, NestedCut, StepNavigation, ImplicationCut) - 全てplay関数付き
+- テスト: ロジック36件 + UI16件 + メッセージ41件 = 全6457テスト合格
+- カバレッジ: Stmts 97.23%, Branch 90.85%, Funcs 88.69%, Lines 97.94% (ベースラインから安定)
+- 変更ファイル:
+  - src/lib/proof-pad/cutEliminationStepperLogic.ts (NEW)
+  - src/lib/proof-pad/cutEliminationStepperLogic.test.ts (NEW)
+  - src/lib/proof-pad/CutEliminationStepper.tsx (NEW)
+  - src/lib/proof-pad/CutEliminationStepper.test.tsx (NEW)
+  - src/lib/proof-pad/CutEliminationStepper.stories.tsx (NEW)
+  - src/lib/proof-pad/proofMessages.ts (9メッセージ追加)
+  - src/lib/proof-pad/proofMessages.test.ts (テスト追加)
+  - src/lib/proof-pad/index.ts (エクスポート追加)
+  - src/app/workspace/[id]/WorkspaceContent.tsx (i18nマッピング)
+  - messages/en.json, messages/ja.json (翻訳追加)
+- スクリーンショット:
+  - .screenshots/cut-elimination-stepper-cutfree.png
+  - .screenshots/cut-elimination-stepper-simplecut.png
+  - .screenshots/cut-elimination-stepper-rank0cut.png
+  - .screenshots/cut-elimination-stepper-nestedcut.png
+  - .screenshots/cut-elimination-stepper-implicationcut.png
+- **今後のイテレーションへの学び:**
+  - scIdentityはSequentのみを受け取る（scIdentity(conclusion)）。scCutは(left, right, cutFormula, conclusion)の順
+  - formatSequentTextがtabApplicationLogicとcutEliminationStepperLogicで名前衝突 → index.tsでas renameで対応
+  - ProofWorkspaceへの統合にはWorkspaceState ↔ ScProofNode変換レイヤーが必要（現在未実装）
+  - GoalPanel 3層パターン（純粋ロジック → UIコンポーネント → ワークスペース統合）は再利用性が高い
+---
