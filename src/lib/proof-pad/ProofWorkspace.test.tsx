@@ -1687,6 +1687,71 @@ describe("ProofWorkspace", () => {
         ).not.toBeInTheDocument();
       });
     });
+
+    it("shows axiom violation banner when goal achieved with disallowed axiom", () => {
+      // allowedAxiomIds に A2 のみ → A1 を使ったら AllAchievedButAxiomViolation
+      let ws = createQuestWorkspace(lukasiewiczSystem, [
+        {
+          formulaText: "phi -> (psi -> phi)",
+          allowedAxiomIds: ["A2"],
+        },
+      ]);
+      // A1 スキーマそのもの: phi -> (psi -> phi) をルートノードとして追加
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          testId="workspace"
+        />,
+      );
+
+      // 通常の proof-complete-banner は表示されない
+      expect(
+        screen.queryByTestId("workspace-proof-complete-banner"),
+      ).not.toBeInTheDocument();
+
+      // axiom violation バナーが表示される
+      expect(
+        screen.getByTestId(
+          "workspace-proof-complete-banner-axiom-violation",
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it("shows axiom violation with instance root when instance is placed directly", () => {
+      // A1 の代入インスタンスをルートノードに直接配置
+      let ws = createQuestWorkspace(lukasiewiczSystem, [
+        {
+          formulaText: "(phi -> psi) -> (chi -> (phi -> psi))",
+          allowedAxiomIds: ["A1"],
+        },
+      ]);
+      // A1 のインスタンス: (φ→ψ) → (χ → (φ→ψ))  ← φ:=φ→ψ のため instance
+      ws = addNode(
+        ws,
+        "axiom",
+        "A1-inst",
+        { x: 0, y: 0 },
+        "(phi -> psi) -> (chi -> (phi -> psi))",
+      );
+
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          testId="workspace"
+        />,
+      );
+
+      // axiom violation バナーが表示される（instance root violation）
+      expect(
+        screen.getByTestId(
+          "workspace-proof-complete-banner-axiom-violation",
+        ),
+      ).toBeInTheDocument();
+    });
   });
 
   describe("axiom name auto-identification", () => {
@@ -2753,6 +2818,29 @@ describe("ProofWorkspace", () => {
       expect(
         screen.queryByTestId("workspace-workspace-menu"),
       ).not.toBeInTheDocument();
+    });
+
+    it("closes menu on click outside", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      const menuButton = screen.getByTestId("workspace-workspace-menu-button");
+
+      // メニューを開く
+      await user.click(menuButton);
+      expect(
+        screen.getByTestId("workspace-workspace-menu"),
+      ).toBeInTheDocument();
+
+      // メニュー外をクリック（document body）
+      await user.pointer({ target: document.body, keys: "[MouseLeft]" });
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-workspace-menu"),
+        ).not.toBeInTheDocument();
+      });
     });
 
     it("does not show export/import buttons inline in header", () => {
