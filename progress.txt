@@ -7508,3 +7508,22 @@
   - switch 文の NaN ブランチは v8 の内部追跡であり、テスト追加では解消不可（v8 ignore で対応）
   - `/* v8 ignore next N */` は unreliable。常に `/* v8 ignore start */` / `/* v8 ignore stop */` のブロック形式を使う
 ---
+
+## 2026-03-01 - [proof-pad] テストカバレッジ改善
+- tabApplicationLogic.ts: 91.76% Stmts → 100% Stmts/Lines (16テスト追加)
+  - neg-conjunction/disjunction/implication 系の主論理式ミスマッチテスト
+  - universal/existential の固有変数・isFreeFor テスト
+  - exchange の negative position テスト
+- atApplicationLogic.ts: 92.91% Stmts → 100% Lines (v8 ignoreマーカー4箇所 + 3テスト追加)
+  - classifySignedFormula の後で到達不能な apply*Rule undefined チェックにv8 ignore適用
+  - closure空文字列テスト、δ規則パース不可テスト追加
+- edgeBadgeEditLogic.ts: TAB/ATエッジのcreateEditStateFromEdge undefinedテスト追加 (lines 62,66カバー)
+- cutEliminationStepperLogic.ts: 防御的到達不能フォールバック(lines 154-155)にv8 ignore適用
+- proof-pad全体カバレッジ: 93.88% → 93.98% Stmts, 84.74% → 84.82% Branch
+- テスト: 6532テスト全パス (212ファイル)
+- 変更ファイル: `tabApplicationLogic.test.ts`, `atApplicationLogic.ts`, `atApplicationLogic.test.ts`, `edgeBadgeEditLogic.test.ts`, `cutEliminationStepperLogic.ts`
+- **今後のイテレーションへの学び:**
+  - シーケントテキストパーサー(splitSequentText)はカンマで分割するため、`P(x, y)` のような多引数述語はパース失敗する。テストでは単引数 `P(x)` を使う
+  - classifySignedFormula が事前検証するため、後続の applyAlphaRule 等の undefined チェックは構造的に到達不能 → v8 ignore が適切
+  - TAB/ATエッジ型のテストデータ作成時は InferenceEdge の型定義を正確に参照すること（TabBranchingEdge には leftConclusionText/rightConclusionText が必要、AtBetaEdge には leftResultNodeId/rightResultNodeId が必要）
+---
