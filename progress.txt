@@ -7031,3 +7031,29 @@
   - bekki.pdf の定理番号を本文中に参照として含めると、ユーザーが原著を参照しやすくなる
   - TABの概念は「右辺が常に空のシーケント」「左辺のみの操作」が本質。LKとの変換ではΓ ⇒ Δ を ¬Δ, Γ ⇒ と翻訳する
 ---
+
+## 2026-03-01 - C3: カット除去による無矛盾性証明の解説リファレンス
+- 実装した内容:
+  - 新リファレンスエントリ `concept-consistency-from-cut-elimination` を追加
+  - bekki Ch.11 定理11.5（LK・LJの無矛盾性）に基づく解説
+  - 6段落構成（en/ja バイリンガル）: 定理の主張、証明の議論、等価体系への拡張、重要性、部分論理式性、歴史的文脈
+  - 双方向リンク: concept-cut-elimination, concept-system-equivalence, concept-soundness から相互参照
+  - 外部リンク: Wikipedia (en/ja), nLab, Gentzen's consistency proof (Wikipedia)
+  - キーワード: consistency, 無矛盾性, bottom, falsum, ⊥, cut elimination, カット除去, Gentzen, sub-formula property, 部分論理式性 等
+  - テストエントリ数更新: 56→57（概念 19→20）
+- 変更したファイル:
+  - `src/lib/reference/referenceContent.ts` - 新エントリ追加 + 3つの既存エントリに双方向リンク追加
+  - `src/lib/reference/referenceContent.test.ts` - エントリ数更新
+  - `task-processing.md` - タスク記入→クリア
+  - `tasks/prd-advanced.md` - C3を完了マーク、完了済みB3/B4/C3をアーカイブ
+  - `tasks-archived/prd-advanced.md` - B3, B4, C3をアーカイブ追加
+- ベースラインカバレッジ: Stmts 97.65%, Branch 91.1%, Funcs 88.87%, Lines 98.49%
+- 完了後カバレッジ: Stmts 97.65%, Branch 91.1%, Funcs 88.87%, Lines 98.49%（変化なし）
+- テスト: 203ファイル、6002テスト全パス
+- スクリーンショット:
+  - `.screenshots/consistency-from-cut-elimination-storybook-default.png` - ReferenceModal Storybook表示確認
+- **今後のイテレーションへの学び:**
+  - PRDの参照番号（系11.15）と実際の bekki.pdf の定理番号（定理11.5）が異なる場合がある。必ず原著PDFを確認して正確な定理番号を使用する
+  - カット除去→無矛盾性の議論は比較的シンプル: CUT-freeの証明では⊥の導入規則がないため、空のシーケント ⇒ は証明不可能
+  - 既存エントリ（concept-cut-elimination）に無矛盾性への言及（paragraph 4）が既にある場合、新エントリではより詳細な解説を提供しつつ重複を最小限にする
+---
