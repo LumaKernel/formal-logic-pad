@@ -7902,3 +7902,35 @@
   - ProofWorkspace.tsx にはsequent-calculus用のルールパレットUIがまだない。UIは別イテレーションで実装が必要
   - sc-lk/sc-lj/sc-lm プリセットは notebookCreateLogic.ts に既存
 ---
+
+## 2026-03-02 - シーケント計算ルールパレットUI追加
+- ScRulePaletteコンポーネントを新規作成（TabRulePaletteパターンをベースに）
+- axiomPaletteLogic.ts に getAvailableScRules() / ScRulePaletteItem 追加
+- deductionSystem.ts に isScBranchingRule() 追加
+- ProofWorkspace.tsx にsequent-calculus用パレット条件分岐追加
+- proofMessages.ts に scPaletteHeader / scAddSequent / scRulesSection メッセージキー追加
+- messages/en.json, messages/ja.json にSC翻訳追加
+- WorkspaceContent.tsx にSCメッセージバインディング追加
+- テスト: ScRulePalette.test.tsx 新規18テスト、axiomPaletteLogic.test.ts 10テスト追加、ProofWorkspace.test.tsx 3テスト追加
+- ストーリー: EmptySequentCalculus ストーリー追加（play関数付き）
+- カバレッジ: Stmts 99.34%, Branch 94.03%, Funcs 89.75%, Lines 99.94%（ベースライン比: Branch -0.04%, Funcs +0.12%）
+- テスト: 213ファイル, 6676テスト全パス
+- 変更したファイル:
+  - src/lib/logic-core/deductionSystem.ts（isScBranchingRule追加）
+  - src/lib/proof-pad/axiomPaletteLogic.ts（getAvailableScRules追加）
+  - src/lib/proof-pad/ScRulePalette.tsx（新規）
+  - src/lib/proof-pad/ScRulePalette.test.tsx（新規）
+  - src/lib/proof-pad/ProofWorkspace.tsx（SC条件分岐追加）
+  - src/lib/proof-pad/ProofWorkspace.test.tsx（SCテスト追加）
+  - src/lib/proof-pad/ProofWorkspace.stories.tsx（SCストーリー追加）
+  - src/lib/proof-pad/proofMessages.ts（SCメッセージキー追加）
+  - src/lib/proof-pad/index.ts（SCエクスポート追加）
+  - src/app/workspace/[id]/WorkspaceContent.tsx（SCメッセージバインディング）
+  - messages/en.json, messages/ja.json（SC翻訳）
+- スクリーンショット: .screenshots/sc-rule-palette-fullscreen.png
+- **今後のイテレーションへの学び:**
+  - ScRulePaletteはTabRulePaletteと同じUIパターン。新しい演繹体系のパレットを追加する際はこのパターンに従う
+  - ストーリーのシステム名テキスト: workspace headerには getDeductionSystemName() の完全名（例: "Sequent Calculus LK"）、パレットheaderにはメッセージキーの短縮名（例: "Sequent Calculus"）が表示される。assertionでは両者を区別する
+  - 規則適用ロジック（scApplicationLogic.ts）は未実装。SC規則クリック時のアクションは後続タスクで実装が必要
+  - isScBranchingRule() は4規則: cut, implication-left, conjunction-right, disjunction-left（前提が2つの規則）
+---
