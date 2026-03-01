@@ -793,6 +793,14 @@ describe("proofWorkspace", () => {
       ]);
       expect(ws.goals[0]!.allowedAxiomIds).toEqual(["A1", "A2"]);
     });
+
+    it("accepts DeductionSystem directly", () => {
+      const ds = hilbertDeduction(lukasiewiczSystem);
+      const ws = createQuestWorkspace(ds, [{ formulaText: "phi -> phi" }]);
+      expect(ws.mode).toBe("quest");
+      expect(ws.deductionSystem).toBe(ds);
+      expect(ws.goals).toHaveLength(1);
+    });
   });
 
   describe("addGoal", () => {
@@ -1293,6 +1301,22 @@ describe("proofWorkspace", () => {
       const ws = createEmptyWorkspace(lukasiewiczSystem);
       const result = applyTreeLayout(ws, "top-to-bottom");
       expect(result.nodes).toHaveLength(0);
+    });
+
+    it("接続のないノードもレイアウトされる", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "MP", { x: 0, y: 0 }, "psi");
+      ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+      // node-3 は孤立ノード（接続なし）
+      ws = addNode(ws, "axiom", "Axiom", { x: 500, y: 500 }, "chi");
+
+      const result = applyTreeLayout(ws, "top-to-bottom");
+
+      expect(result.nodes).toHaveLength(3);
+      // 孤立ノードにもレイアウト位置が割り当てられる
+      const isolatedNode = result.nodes.find((n) => n.id === "node-3")!;
+      expect(isolatedNode.position).toBeDefined();
     });
   });
 
@@ -2493,6 +2517,44 @@ describe("proofWorkspace", () => {
       }
       // Conclusion should be cleared since no substitutions
       expect(findNode(ws, "node-2")?.formulaText).toBe("");
+    });
+
+    it("updateInferenceEdgeSubstitutionEntries preserves other edges", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      // MP edge: phi + (phi -> psi) → psi
+      ws = addNode(ws, "axiom", "Ax", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax", { x: 200, y: 0 }, "phi -> psi");
+      const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 100, y: 100 });
+      ws = mp.workspace;
+      // Substitution edge: psi -> (phi -> psi) → instance
+      ws = addNode(ws, "axiom", "Ax", { x: 300, y: 0 }, "phi -> (psi -> phi)");
+      const subst = applySubstitutionAndConnect(
+        ws,
+        "node-4",
+        [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha",
+          },
+        ],
+        { x: 300, y: 150 },
+      );
+      ws = subst.workspace;
+      expect(ws.inferenceEdges).toHaveLength(2);
+
+      // Update substitution entries — MP edge should be preserved
+      ws = updateInferenceEdgeSubstitutionEntries(ws, "node-5", [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          formulaText: "beta",
+        },
+      ]);
+      // Both edges still exist
+      expect(ws.inferenceEdges).toHaveLength(2);
+      const mpEdge = ws.inferenceEdges.find((e) => e._tag === "mp");
+      expect(mpEdge).toBeDefined();
     });
 
     it("applyMPAndConnect produces correct inferenceEdges", () => {

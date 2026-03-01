@@ -625,6 +625,13 @@ describe("toPredicateNNF", () => {
       expect(result._tag).toBe("Negation");
     });
 
+    it("¬φ（メタ変数）はそのまま", () => {
+      const formula = negation(p);
+      const result = toPredicateNNF(formula);
+      expect(result._tag).toBe("Negation");
+      expect(equalFormula(result, negation(p))).toBe(true);
+    });
+
     it("¬¬P(x) → P(x) (二重否定除去)", () => {
       const formula = negation(negation(Px));
       const result = toPredicateNNF(formula);
