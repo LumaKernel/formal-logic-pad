@@ -938,6 +938,11 @@ export const ConnectionDelete: Story = {
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
     await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+
+    // コネクション削除後、ノード3のラベルが"MP"ではなく"Axiom"に戻る
+    const node3 = canvas.getByTestId("proof-node-node-3");
+    await expect(node3).not.toHaveTextContent("MP");
+    await expect(node3).toHaveTextContent("Axiom");
   },
 };
 

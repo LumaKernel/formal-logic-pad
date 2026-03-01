@@ -14,7 +14,7 @@ import {
   hilbertDeduction,
 } from "../logic-core/deductionSystem";
 import type { Point } from "../infinite-canvas/types";
-import type { ProofNodeKind } from "./proofNodeUI";
+import { type ProofNodeKind, getProofNodeKindLabel } from "./proofNodeUI";
 import type { InferenceEdge } from "./inferenceEdge";
 import {
   isHilbertInferenceEdge,
@@ -583,8 +583,17 @@ export function removeConnection(
   if (relatedEdge) {
     // InferenceEdge が存在する場合:
     // 同じ結論ノードへの全コネクションを削除し、InferenceEdge も削除する
+    // 結論ノードのラベルをデフォルトに戻す（"MP"/"Gen"/"Subst"などのステート残留を防ぐ）
+    const targetNode = state.nodes.find((n) => n.id === toNodeId);
     return syncInferenceEdges({
       ...state,
+      nodes: targetNode
+        ? state.nodes.map((n) =>
+            n.id === toNodeId
+              ? { ...n, label: getProofNodeKindLabel(n.kind) }
+              : n,
+          )
+        : state.nodes,
       connections: state.connections.filter((c) => c.toNodeId !== toNodeId),
       inferenceEdges: state.inferenceEdges.filter(
         (e) => e.conclusionNodeId !== toNodeId,
