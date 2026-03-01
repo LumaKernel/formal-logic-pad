@@ -99,6 +99,28 @@
 
 ---
 
+## 2026-03-02 - カバレッジ改善: SC量化子規則エッジケース・revalidate SCパス
+- scApplicationLogic.ts に3テスト追加:
+  - universal-right: 固有変数が右辺(succedent)のみに自由出現するケース
+  - existential-left: 固有変数が左辺(antecedent)のみに自由出現するケース
+  - existential-right: isFreeFor失敗ケース（代入項が量化子に捕獲される）
+- workspaceState.ts に1テスト追加:
+  - revalidateInferenceConclusions がSCエッジを持つワークスペースで正しく動作することを検証
+- テスト: 214ファイル、6817テスト全パス（+4テスト追加）
+- カバレッジ:
+  - ベースライン: Stmts 98.66%, Branch 93.18%, Funcs 89.62%, Lines 99.12%
+  - 改善後: Stmts 98.71%, Branch 93.22%, Funcs 89.62%, Lines 99.18%
+  - scApplicationLogic.ts: Lines 98.31% → 99.32%
+- 品質チェック: typecheck ✅, lint ✅, test ✅, prettier ✅
+- 変更ファイル:
+  - `src/lib/proof-pad/scApplicationLogic.test.ts` (MODIFIED - 3テスト追加)
+  - `src/lib/proof-pad/workspaceState.test.ts` (MODIFIED - 1テスト追加)
+- **今後のイテレーションへの学び:**
+  - splitSequentTextParts は単純な `.split(",")` を使うため、`P(x, y)` のようなカンマ入り述語はシーケントセパレータと衝突する。テストでは1引数述語 `P(x)` を使うこと
+  - v8 coverage の「Uncovered Line #s」列はBranch未カバーの行を示す場合がある（Lines 100%でも行番号が表示される）
+  - `ScApplicationError` はunion型なので、`variableName` 等の型固有プロパティにアクセスするには `_tag` チェックでnarrowingが必要
+---
+
 ## 2026-03-02 - ProofWorkspace公理違反バナー修正・カバレッジ改善
 - **バグ修正:** クエストモードで `AllAchievedButAxiomViolation` 時に通常の「Proof Complete」バナーが出る問題を修正
   - `isGoalAchieved` の計算で `isGoalAchievedButAxiomViolation` を除外する条件を追加
