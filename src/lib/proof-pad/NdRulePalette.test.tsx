@@ -70,7 +70,7 @@ describe("NdRulePalette", () => {
         testId="palette"
       />,
     );
-    expect(screen.getByText("+ 仮定を追加")).toBeInTheDocument();
+    expect(screen.getByText("+ Add Assumption")).toBeInTheDocument();
   });
 
   it("「仮定を追加」クリックでonAddAssumptionが呼ばれる", async () => {

@@ -16,6 +16,7 @@
 import { type CSSProperties, useCallback, useMemo } from "react";
 import type { TabRulePaletteItem } from "./axiomPaletteLogic";
 import type { TabRuleId } from "../logic-core/tableauCalculus";
+import { useProofMessages } from "./ProofMessagesContext";
 
 // --- Props ---
 
@@ -172,6 +173,7 @@ export function TabRulePalette({
   selectedRuleId,
   testId,
 }: TabRulePaletteProps) {
+  const msg = useProofMessages();
   const handleAddClick = useCallback(() => {
     onAddSequent();
   }, [onAddSequent]);
@@ -200,7 +202,7 @@ export function TabRulePalette({
 
   return (
     <div data-testid={testId} style={panelStyle}>
-      <div style={headerStyle}>Tableau Calculus</div>
+      <div style={headerStyle}>{msg.tabPaletteHeader}</div>
       <div
         data-testid={
           testId ? `${testId satisfies string}-add-sequent` : undefined
@@ -224,9 +226,9 @@ export function TabRulePalette({
           }
         }}
       >
-        + シーケントを追加
+        {msg.tabAddSequent}
       </div>
-      <div style={sectionHeaderStyle}>Rules</div>
+      <div style={sectionHeaderStyle}>{msg.tabRulesSection}</div>
       {ruleItems}
     </div>
   );

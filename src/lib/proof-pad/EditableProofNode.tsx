@@ -30,6 +30,9 @@ import type {
   SubstitutionEntries,
   SubstitutionEntry,
 } from "./substitutionApplicationLogic";
+import { useProofMessages } from "./ProofMessagesContext";
+import type { ProofMessages } from "./proofMessages";
+import { formatMessage } from "./proofMessages";
 
 // --- Props ---
 
@@ -304,14 +307,17 @@ function getRoleBadgeStyle(classification: NodeClassification): CSSProperties {
   }
 }
 
-function getRoleBadgeLabel(classification: NodeClassification): string {
+function getRoleBadgeLabel(
+  classification: NodeClassification,
+  msg: ProofMessages,
+): string {
   switch (classification) {
     case "root-axiom":
-      return "AXIOM";
+      return msg.roleAxiom;
     case "root-unmarked":
-      return "ROOT";
+      return msg.roleRoot;
     case "derived":
-      return "DERIVED";
+      return msg.roleDerived;
   }
 }
 
@@ -363,6 +369,7 @@ export function EditableProofNode({
     [detailLevel, visibilityOverrides],
   );
   const [isHovered, setIsHovered] = useState(false);
+  const msg = useProofMessages();
 
   const containerStyle: CSSProperties = useMemo(
     () => ({
@@ -465,7 +472,9 @@ export function EditableProofNode({
         {visibility.showAxiomName && axiomName ? (
           <div
             style={axiomNameBadgeStyle}
-            title={`Identified as axiom: ${axiomName satisfies string}`}
+            title={formatMessage(msg.axiomIdentifiedTooltip, {
+              axiomName,
+            })}
             data-testid={
               testId ? `${testId satisfies string}-axiom-name` : undefined
             }
@@ -476,12 +485,12 @@ export function EditableProofNode({
         {visibility.showProtectedBadge && isProtected ? (
           <div
             style={protectedBadgeStyle}
-            title="Protected quest goal (read-only)"
+            title={msg.protectedQuestTooltip}
             data-testid={
               testId ? `${testId satisfies string}-protected-badge` : undefined
             }
           >
-            QUEST
+            {msg.protectedBadge}
           </div>
         ) : null}
         {visibility.showRoleBadge && classification ? (
@@ -494,16 +503,16 @@ export function EditableProofNode({
             }
             title={
               isProtected
-                ? "Protected quest goal (role is locked)"
+                ? msg.protectedRoleLockedTooltip
                 : classification !== "derived"
-                  ? "Click to cycle role: Root → Axiom"
-                  : "Derived node (role is automatic)"
+                  ? msg.clickToCycleRoleTooltip
+                  : msg.derivedNodeAutoTooltip
             }
             data-testid={
               testId ? `${testId satisfies string}-role-badge` : undefined
             }
           >
-            {getRoleBadgeLabel(classification)}
+            {getRoleBadgeLabel(classification, msg)}
           </div>
         ) : null}
       </div>
@@ -515,7 +524,7 @@ export function EditableProofNode({
             onParsed={handleFormulaParsed}
             onModeChange={handleModeChange}
             displayRenderer="unicode"
-            placeholder="Click to edit formula..."
+            placeholder={msg.formulaEditorPlaceholder}
             editTrigger={editTrigger}
             onOpenSyntaxHelp={onOpenSyntaxHelp}
             testId={testId ? `${testId satisfies string}-editor` : undefined}
@@ -556,7 +565,7 @@ export function EditableProofNode({
             testId ? `${testId satisfies string}-dependencies` : undefined
           }
         >
-          <div style={dependencyLabelStyle}>Depends on:</div>
+          <div style={dependencyLabelStyle}>{msg.dependsOn}</div>
           <div>
             {dependencies.map((dep) => (
               <span key={dep.nodeId} style={dependencyItemStyle}>

@@ -1012,36 +1012,36 @@ export function ProofWorkspace({
       // ラベルは汎用的な "Axiom" を使用。具体的な公理名(A1, A2等)は
       // formulaText から自動計算される axiomName バッジで表示する。
       setWorkspaceWithAutoLayout(
-        addNode(workspace, "axiom", "Axiom", position, axiom.dslText),
+        addNode(workspace, "axiom", msg.nodeLabelAxiom, position, axiom.dslText),
       );
     },
-    [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition],
+    [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition, msg.nodeLabelAxiom],
   );
 
   const handleAddAssumption = useCallback(() => {
     const position = computeNewNodePosition(workspace.nodes);
     // NDでは仮定ノードを追加。formulaTextは空で、ユーザーが自由に入力する。
     setWorkspaceWithAutoLayout(
-      addNode(workspace, "axiom", "Assumption", position, ""),
+      addNode(workspace, "axiom", msg.nodeLabelAssumption, position, ""),
     );
-  }, [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition]);
+  }, [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition, msg.nodeLabelAssumption]);
 
   const handleAddSequent = useCallback(() => {
     const position = computeNewNodePosition(workspace.nodes);
     // TABではシーケントノードを追加。formulaTextは空で、ユーザーが式を入力する。
     // TABシーケントは左辺（Γ）のみで右辺は常に空。
     setWorkspaceWithAutoLayout(
-      addNode(workspace, "axiom", "Sequent", position, ""),
+      addNode(workspace, "axiom", msg.nodeLabelSequent, position, ""),
     );
-  }, [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition]);
+  }, [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition, msg.nodeLabelSequent]);
 
   const handleAddSignedFormula = useCallback(() => {
     const position = computeNewNodePosition(workspace.nodes);
     // ATでは署名付き論理式ノードを追加。formulaTextは空で、ユーザーが "T:φ" / "F:φ" を入力する。
     setWorkspaceWithAutoLayout(
-      addNode(workspace, "axiom", "SignedFormula", position, ""),
+      addNode(workspace, "axiom", msg.nodeLabelSignedFormula, position, ""),
     );
-  }, [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition]);
+  }, [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition, msg.nodeLabelSignedFormula]);
 
   // --- MP選択モードハンドラ ---
 
@@ -2277,7 +2277,7 @@ export function ProofWorkspace({
     const ws = addNode(
       workspace,
       "axiom",
-      "Axiom",
+      msg.nodeLabelAxiom,
       canvasMenuState.worldPosition,
     );
     setWorkspace(ws);
@@ -2286,7 +2286,7 @@ export function ProofWorkspace({
       screenPosition: { x: 0, y: 0 },
       worldPosition: { x: 0, y: 0 },
     });
-  }, [workspace, canvasMenuState.worldPosition, setWorkspace]);
+  }, [workspace, canvasMenuState.worldPosition, setWorkspace, msg.nodeLabelAxiom]);
 
   /* v8 ignore start -- キャンバスコンテキストメニュー外クリック: ref.contains使用でJSDOMではテスト不安定 */
   // キャンバスコンテキストメニュー外クリックで閉じる
@@ -3156,7 +3156,7 @@ export function ProofWorkspace({
                 ? `${testId satisfies string}-workspace-menu-button`
                 : undefined
             }
-            aria-label="Workspace menu"
+            aria-label={msg.workspaceMenuAriaLabel}
             aria-expanded={workspaceMenuOpen}
           >
             ⋯
@@ -3444,7 +3444,9 @@ export function ProofWorkspace({
                     : `subst-kind-${String(i) satisfies string}`
                 }
               >
-                {entry.kind === "formula" ? "Formula" : "Term"}
+                {entry.kind === "formula"
+                  ? msg.substitutionKindFormula
+                  : msg.substitutionKindTerm}
               </span>
               <span
                 style={{ ...substInputStyle, width: 30 }}

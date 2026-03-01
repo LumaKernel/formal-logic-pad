@@ -13,6 +13,7 @@ import { getAxiomReferenceEntryId } from "./axiomPaletteLogic";
 import type { ReferenceEntry, Locale } from "../reference/referenceEntry";
 import { findEntryById } from "../reference/referenceEntry";
 import { ReferencePopover } from "../reference/ReferencePopover";
+import { useProofMessages } from "./ProofMessagesContext";
 
 // --- Props ---
 
@@ -176,6 +177,7 @@ export function AxiomPalette({
   onOpenReferenceDetail,
   testId,
 }: AxiomPaletteProps) {
+  const msg = useProofMessages();
   const items = useMemo(
     () =>
       axioms.map((axiom) => {
@@ -216,7 +218,7 @@ export function AxiomPalette({
 
   return (
     <div data-testid={testId} style={panelStyle}>
-      <div style={headerStyle}>Axioms</div>
+      <div style={headerStyle}>{msg.axiomPaletteHeader}</div>
       {items}
     </div>
   );
