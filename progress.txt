@@ -6963,3 +6963,39 @@
   - ProofWorkspace.tsxの規模が大きいため、新しい選択フロー追加時はisSelectionActive更新を忘れずに
   - TabRulePaletteのuseMemoでruleItems生成: onRuleClick/selectedRuleIdの変更でリレンダリング
 ---
+
+## 2026-03-01 - TABクエスト問題作成 (B3)
+- 実装した内容: タブロー法（TAB）のクエスト問題10問を追加
+  - tab-01: 恒等律の反駁 (→) - 難易度1
+  - tab-02: 二重否定除去の反駁 (¬¬) - 難易度1
+  - tab-03: 排中律の反駁 (¬∨, ¬¬) - 難易度1
+  - tab-04: 対偶の反駁 (¬→, →) - 難易度2
+  - tab-05: ド・モルガンの法則 1 (¬∧, ¬∨, ¬¬) - 難易度2
+  - tab-06: ド・モルガンの法則 2 (¬∨, ∧) - 難易度2
+  - tab-07: 連言の交換律 (∧, ¬∧) - 難易度2
+  - tab-08: 選言の交換律 (∨, ¬∨) - 難易度2
+  - tab-09: モーダストレンスの反駁 (→) - 難易度3
+  - tab-10: 推移律の反駁 (→) - 難易度3
+  - 全クエスト systemPresetId: "tab-prop"（命題論理TAB）
+  - 新カテゴリ "tab-basics"（タブロー法の基礎、order: 12）追加
+- 変更したファイル:
+  - `src/lib/quest/questDefinition.ts` - QuestCategory union に "tab-basics" 追加、questCategories に TAB カテゴリメタデータ追加
+  - `src/lib/quest/questDefinition.test.ts` - カテゴリ数を11→12に更新
+  - `src/lib/quest/builtinQuests.ts` - TABクエスト10問の定義追加、builtinQuests配列に追加
+  - `src/lib/quest/builtinQuests.test.ts` - クエスト数を83→93に更新
+  - `tasks/prd-advanced.md` - B3を完了マーク
+  - `task-processing.md` - クリア
+- カバレッジ: ベースライン Stmts 97.65%, Branch 91.1%, Funcs 88.88%, Lines 98.49%
+  → 完了後 Stmts 97.65%, Branch 91.1%, Funcs 88.87%, Lines 98.49%（変化なし）
+- スクリーンショット:
+  - `.screenshots/tab-quests-catalog-top.png` - Storybook QuestCatalog上部
+  - `.screenshots/tab-quests-category-header.png` - 実アプリでのTABカテゴリヘッダ表示
+  - `.screenshots/tab-quests-app-bottom.png` - 実アプリでのTABクエスト一覧下部
+  - `.screenshots/tab-quests-final.png` - TABカテゴリ完全表示
+- **今後のイテレーションへの学び:**
+  - TABクエストのゴール式は単一論理式（~(phi -> phi)など）で定義。questCompletionLogicのequalFormula()はparseString()を使うため、カンマ区切りシーケント形式は使えない
+  - TAB反駁証明のクエストは「証明したい式の否定を根に置く」形式。ゴールのlabelに "Root: ¬φ ⇒" のような説明を付けると直感的
+  - builtinQuests.test.tsのクエスト数テストは、新クエスト追加時に必ず更新が必要（現在93）
+  - questDefinition.tsのQuestCategory型はリテラル型unionなので、新カテゴリ追加時にTypeScriptが型エラーで通知してくれる
+  - estimatedStepsはすべて1にした（TABの反駁証明ではBS/⊥でノードを閉じる操作がゴール達成の基準）
+---

@@ -35,6 +35,7 @@ export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
  * - "group-basics": 群論の基礎（群公理の直接利用）
  * - "group-proofs": 群論の推論（群公理の組み合わせ）
  * - "nd-basics": 自然演繹の基礎（NM/NJ/NK）
+ * - "tab-basics": タブロー法の基礎（TAB命題論理）
  */
 export type QuestCategory =
   | "propositional-basics"
@@ -47,7 +48,8 @@ export type QuestCategory =
   | "peano-arithmetic"
   | "group-basics"
   | "group-proofs"
-  | "nd-basics";
+  | "nd-basics"
+  | "tab-basics";
 
 /** カテゴリのメタデータ */
 export type QuestCategoryMeta = {
@@ -125,6 +127,13 @@ export const questCategories: readonly QuestCategoryMeta[] = [
     label: "自然演繹の基礎",
     description: "自然演繹体系（NM/NJ/NK）での仮定の導入・解消による証明。",
     order: 11,
+  },
+  {
+    id: "tab-basics",
+    label: "タブロー法の基礎",
+    description:
+      "タブロー式シーケント計算（TAB）での反駁証明。否定して閉じたタブローを構築する。",
+    order: 12,
   },
 ] as const;
 
