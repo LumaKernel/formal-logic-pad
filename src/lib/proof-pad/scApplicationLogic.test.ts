@@ -1313,9 +1313,7 @@ describe("scApplicationLogic", () => {
     });
 
     it("ScTermParseErrorのメッセージ", () => {
-      const msg = getScErrorMessage(
-        new ScTermParseError({ label: "term τ" }),
-      );
+      const msg = getScErrorMessage(new ScTermParseError({ label: "term τ" }));
       expect(msg).toContain("term τ");
     });
 
