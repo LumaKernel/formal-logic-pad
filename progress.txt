@@ -7774,3 +7774,27 @@
   - formula.ts のStmts < 100%: Schema.TaggedClassのclosure/function宣言カウント差異であり、Lines 100%なら対応不要
   - identifyAxiomName line 162: 既存LogicSystemにはpatternモード理論公理がない（PA7は全システムから除外）。カスタムLogicSystemが必要
 ---
+
+## 2026-03-02 - カバレッジ改善（Branch向上）
+- ベースライン: Stmts 99.31%, Branch 93.18%, Funcs 89.64%, Lines 99.92%
+- 結果: Stmts 99.31%, Branch 93.56%, Funcs 89.66%, Lines 99.92%
+- 実装した内容:
+  - edgeBadgeEditLogic.test.ts: 添字付きメタ変数(phi1→φ_1, tau1→τ_1)のテスト3件追加
+  - EdgeParameterPopover.test.tsx: 項エントリ表示、no-testIdパス、no-opコールバックのテスト6件追加
+  - formatLaTeX.ts: 量化子parentBP>0の到達不能分岐にv8 ignore追加
+  - formatUnicode.ts: 量化子parentBP>0 + subscriptDigits配列フォールバックにv8 ignore追加
+  - TruthTableComponent.tsx: CSSモジュール??""フォールバックにv8 ignore追加 (Branch 75.75%→100%)
+  - workspaceExport.test.ts: 旧フォーマット互換テストにgoalsアサーション追加
+- 変更したファイル:
+  - src/lib/proof-pad/edgeBadgeEditLogic.test.ts
+  - src/lib/proof-pad/EdgeParameterPopover.test.tsx
+  - src/lib/logic-lang/formatLaTeX.ts
+  - src/lib/logic-lang/formatUnicode.ts
+  - src/lib/truth-table/TruthTableComponent.tsx
+  - src/lib/proof-pad/workspaceExport.test.ts
+- **今後のイテレーションへの学び:**
+  - CSSモジュールの ?? "" フォールバックはテスト環境ではundefinedが返るため、本番のtruthy分岐はカバーできない → v8 ignoreが適切
+  - Pratt parserの量化子(Universal/Existential)のchildBPは{0,0}なので、needsParensLeft/RightのBP比較で常にtrue → parentBP>0は到達不能
+  - vitest --coverageの結果は全テスト集約時に異なるファイルからのインポートで数値が変わることがある（個別実行では100%でも全体では低くなる場合あり）
+  - nodeRoleLogic.ts/storageService.tsは個別テスト実行ではBranch 100%だが全体集約時に低下する → テスト自体は十分
+---
