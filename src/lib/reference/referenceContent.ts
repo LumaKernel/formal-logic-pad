@@ -2307,6 +2307,7 @@ const conceptSystemEquivalence: ReferenceEntry = {
     "concept-kuroda-translation",
     "rule-nd-overview",
     "rule-sc-overview",
+    "concept-tab-lk-equivalence",
   ],
   externalLinks: [
     {
@@ -2818,6 +2819,7 @@ const conceptCutElimination: ReferenceEntry = {
     "concept-glivenko",
     "concept-curry-howard",
     "concept-admissible-derivable",
+    "concept-tab-lk-equivalence",
   ],
   externalLinks: [
     {
@@ -3357,6 +3359,98 @@ const conceptSemanticValidity: ReferenceEntry = {
     "反駁",
   ],
   order: 18,
+};
+
+const conceptTabLkEquivalence: ReferenceEntry = {
+  id: "concept-tab-lk-equivalence",
+  category: "concept",
+  title: {
+    en: "Equivalence of TAB and LK-CUT",
+    ja: "TAB と LK-CUT の等価性",
+  },
+  summary: {
+    en: "Tableau-style sequent calculus (TAB) and sequent calculus with cut (LK-CUT) prove exactly the same sequents: TAB ⊆ LK-CUT (Theorem 12.13) and LK-CUT ⊆ TAB (Theorem 12.15).",
+    ja: "タブロー式シーケント計算 (TAB) とカット付きシーケント計算 (LK-CUT) はまったく同じシーケントを証明する: TAB ⊆ LK-CUT（定理12.13）および LK-CUT ⊆ TAB（定理12.15）。",
+  },
+  body: {
+    en: [
+      `**What TAB is.** TAB (tableau-style sequent calculus) is a proof system derived from the analytic tableau method, reformulated in the language of sequent calculus. In TAB, sequents have the form Γ ⇒ (with an empty right-hand side), and the basic sequent (axiom) is (BS): ¬φ, φ, Γ ⇒ — a branch closes when it contains both a formula and its negation. The only structural rule is exchange (e). Logical rules decompose formulas on the left side of the sequent, corresponding to the tableau rules of Chapter 6 (bekki Ch.12.1–12.2, Definitions 12.1–12.3). Unlike Gentzen-style LK, TAB operates purely on the left (antecedent) side.`,
+      `**Principal and side formulas.** Each TAB rule has a **principal formula** (the formula being decomposed) and zero or more **side formulas** (the components produced). For example, (∧) decomposes φ ∧ ψ into φ and ψ; (¬∧) decomposes ¬(φ ∧ ψ) into two branches with ¬φ and ¬ψ. The (¬¬) rule decomposes ¬¬φ into φ (double negation elimination). Rules for quantifiers include (∀) and (∃) for positive occurrences, and (¬∀) and (¬∃) for negated quantifiers, with appropriate variable conditions (bekki Definition 12.3).`,
+      `**TAB ⊆ LK-CUT (Theorem 12.13).** Every TAB proof can be converted to an LK-CUT proof. The proof works by showing that each TAB rule is **admissible** in LK-CUT — that is, each TAB rule can be simulated by a combination of LK-CUT rules. For example, the basic sequent (BS): ¬φ, φ, Γ ⇒ is derivable in LK-CUT using the identity axiom (ID) and structural rules. The TAB rule (∧) corresponds to (⇒∧) combined with cut. The key insight is that TAB's left-side-only decomposition can be faithfully embedded in LK-CUT's richer framework (bekki Ch.12.4, p.278–279).`,
+      `**LK-CUT ⊆ TAB (Theorem 12.15).** Conversely, every LK-CUT proof can be converted to a TAB proof. This direction requires the notion of **generalized sequents**: Γ ⇒ Δ is defined as ¬Δ, Γ ⇒ in TAB (where ¬Δ denotes the negation of each formula in Δ). Each LK-CUT rule — including the identity axiom (ID), structural rules (exchange, weakening, contraction), logical rules, and the cut rule itself — is shown to be admissible in TAB under this translation. The admissibility of weakening (Theorem 12.9) and contraction (Theorem 12.11) in TAB are essential prerequisites (bekki Ch.12.3–12.4, p.280).`,
+      `**Weakening and contraction in TAB.** TAB does not include weakening or contraction as primitive rules, but both are **admissible** — they can be derived without adding them as rules. Weakening (Theorem 12.9) is shown by induction on proof depth: every TAB+w proof can be transformed into a pure TAB proof by "absorbing" the weakened formula into the proof tree. Contraction (Theorem 12.11) is similarly admissible: duplicate formulas can be eliminated. The substitution lemma (Theorem 12.7) — the TAB analogue of the substitution lemma for LK — is a key ingredient (bekki Ch.12.3).`,
+      `**Significance: the four-way equivalence.** Combined with the equivalence of H (Hilbert systems), N (natural deduction), and L (Gentzen-style sequent calculus) established in earlier chapters, the TAB equivalence gives the full picture: Γ ⊢_LK φ ⟺ Γ ⊢_{LK-CUT} φ ⟺ Γ ⊢_TAB φ. This means that the tableau method — which is the basis for many automated theorem provers — has exactly the same proving power as Hilbert systems, natural deduction, and Gentzen-style sequent calculus. The equivalence is purely about provability; the proof structures are quite different. TAB's advantage lies in its systematic, branching proof search strategy (bekki Ch.13, p.281).`,
+    ],
+    ja: [
+      `**TAB とは。** TAB（タブロー式シーケント計算）は、分析的タブロー法をシーケント計算の言語で再定式化した証明体系です。TAB ではシーケントは Γ ⇒（右辺が空）の形をとり、基本シーケント（公理）は (BS): ¬φ, φ, Γ ⇒ — 枝は論理式とその否定の両方を含むときに閉じます。唯一の構造規則は交換 (e) です。論理規則はシーケントの左辺の論理式を分解し、第6章のタブロー規則に対応します（戸次 Ch.12.1–12.2, 定義12.1–12.3）。ゲンツェン流 LK と異なり、TAB は純粋に左辺（前件）側のみで操作します。`,
+      `**主論理式と副論理式。** 各 TAB 規則には**主論理式**（分解される論理式）と0個以上の**副論理式**（生成される構成要素）があります。たとえば (∧) は φ ∧ ψ を φ と ψ に分解し、(¬∧) は ¬(φ ∧ ψ) を ¬φ と ¬ψ の2つの枝に分解します。(¬¬) 規則は ¬¬φ を φ に分解します（二重否定除去）。量化子に対する規則として (∀) と (∃)（肯定出現）、(¬∀) と (¬∃)（否定された量化子）があり、適切な変項条件が付きます（戸次 定義12.3）。`,
+      `**TAB ⊆ LK-CUT（定理12.13）。** すべての TAB の証明は LK-CUT の証明に変換できます。証明は各 TAB 規則が LK-CUT において**許容的**であること — つまり各 TAB 規則が LK-CUT の規則の組み合わせでシミュレートできること — を示します。たとえば、基本シーケント (BS): ¬φ, φ, Γ ⇒ は LK-CUT で恒等公理 (ID) と構造規則を用いて導出可能です。TAB 規則 (∧) は (⇒∧) とカットの組み合わせに対応します。鍵となる洞察は、TAB の左辺のみの分解が LK-CUT のより豊かな枠組みに忠実に埋め込めることです（戸次 Ch.12.4, p.278–279）。`,
+      `**LK-CUT ⊆ TAB（定理12.15）。** 逆に、すべての LK-CUT の証明は TAB の証明に変換できます。この方向には**一般化シーケント**の概念が必要です: Γ ⇒ Δ は TAB では ¬Δ, Γ ⇒ として定義されます（¬Δ は Δ 内の各論理式の否定を表します）。各 LK-CUT 規則 — 恒等公理 (ID)、構造規則（交換、弱化、縮約）、論理規則、カット規則自体 — がこの翻訳のもとで TAB において許容的であることが示されます。TAB における弱化（定理12.9）と縮約（定理12.11）の許容性が本質的な前提条件です（戸次 Ch.12.3–12.4, p.280）。`,
+      `**TAB における弱化と縮約。** TAB は弱化や縮約を原始規則として含みませんが、両方とも**許容的**です — 規則として追加せずとも導出できます。弱化（定理12.9）は証明の深さに関する帰納法で示されます: すべての TAB+w 証明は、弱化された論理式を証明木に「吸収」することで純粋な TAB 証明に変換できます。縮約（定理12.11）も同様に許容的です: 重複する論理式を除去できます。代入補題（定理12.7）— LK の代入補題の TAB 版 — が重要な道具です（戸次 Ch.12.3）。`,
+      `**意義: 4体系の等価性。** 前章で確立された H（ヒルベルト系）、N（自然演繹）、L（ゲンツェン流シーケント計算）の等価性と合わせると、TAB の等価性により全体像が得られます: Γ ⊢_LK φ ⟺ Γ ⊢_{LK-CUT} φ ⟺ Γ ⊢_TAB φ。これは、多くの自動定理証明器の基礎であるタブロー法が、ヒルベルト系、自然演繹、ゲンツェン流シーケント計算とまったく同じ証明力を持つことを意味します。等価性は純粋に証明可能性に関するものであり、証明の構造はまったく異なります。TAB の利点は体系的な分岐型証明探索戦略にあります（戸次 Ch.13, p.281）。`,
+    ],
+  },
+  formalNotation:
+    "\\Gamma \\vdash_{\\text{LK-CUT}} \\varphi \\;\\Longleftrightarrow\\; \\Gamma \\vdash_{\\text{TAB}} \\varphi",
+  relatedEntryIds: [
+    "concept-system-equivalence",
+    "concept-cut-elimination",
+    "concept-admissible-derivable",
+    "rule-sc-overview",
+    "rule-sc-structural",
+    "rule-sc-logical",
+    "concept-soundness",
+    "concept-completeness",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Method_of_analytic_tableaux",
+      label: {
+        en: "Analytic tableaux (Wikipedia)",
+        ja: "分析的タブロー (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%BF%E3%83%96%E3%83%AD%E3%83%BC",
+      label: {
+        en: "Tableau (Wikipedia JA)",
+        ja: "タブロー (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/tableau+calculus",
+      label: {
+        en: "Tableau calculus (nLab)",
+        ja: "タブロー計算 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "TAB",
+    "タブロー",
+    "tableau",
+    "LK-CUT",
+    "equivalence",
+    "等価性",
+    "sequent calculus",
+    "シーケント計算",
+    "basic sequent",
+    "基本シーケント",
+    "weakening",
+    "弱化",
+    "contraction",
+    "縮約",
+    "admissible",
+    "許容規則",
+    "Theorem 12.13",
+    "Theorem 12.15",
+    "定理12.13",
+    "定理12.15",
+  ],
+  order: 19,
 };
 
 // ============================================================
@@ -4062,6 +4156,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptContextSharingIndependence,
   conceptPredicateSemantics,
   conceptSemanticValidity,
+  conceptTabLkEquivalence,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
