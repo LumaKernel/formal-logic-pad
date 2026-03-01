@@ -99,6 +99,15 @@
     "applyAtRuleToNode": "AT規則を適用",
     "atTermPrompt": "代入項:",
     "atEigenVariablePrompt": "固有変数名:",
-    "atClosureBannerSelectContradiction": "矛盾するノードをクリックして枝を閉じます"
+    "atClosureBannerSelectContradiction": "矛盾するノードをクリックして枝を閉じます",
+    "cutEliminationTitle": "カット除去",
+    "cutEliminationCuts": "カット {cutCount} 個",
+    "cutEliminationCutFree": "カットフリー",
+    "cutEliminationStepProgress": "ステップ {current} / {total}",
+    "cutEliminationInitialState": "初期証明",
+    "cutEliminationStepInfo": "深さ={depth}, ランク={rank}",
+    "cutEliminationSuccess": "カット除去成功",
+    "cutEliminationFailure": "カット除去失敗",
+    "cutEliminationNoCuts": "証明は既にカットフリーです"
   }
 }
