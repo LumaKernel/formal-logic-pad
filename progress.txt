@@ -7630,3 +7630,24 @@
   - UI層での動的計算は、エッジバッジとの重複に注意が必要（同じ情報が2箇所に表示される問題）
   - 状態層のみでの修正が、テスト容易性・シンプルさの面で優れている
 ---
+
+## 2026-03-01 - [i18n] ハブページのタブ名・ボタンのi18n対応
+- 問題: JA選択時にハブページのタブ名「Notebooks」「Quests」やボタン「+ New Notebook」が英語のまま表示される
+- 原因: HubPageView.tsx にハードコードされた英語文字列（一部はハードコードされた日本語も）
+- 修正: ProofMessagesContext パターンに倣い、HubMessages型 + Context + next-intl注入を実装
+  - `hubMessages.ts`: HubMessages型定義 + defaultHubMessages（英語デフォルト、Storybook用）
+  - `HubMessagesContext.tsx`: React Context + Provider + useHubMessages フック
+  - `HubPageView.tsx`: ハードコード文字列を `useHubMessages()` に置換
+  - `HubContent.tsx`: `useTranslations("HubPage")` → HubMessagesProvider で注入
+  - `messages/en.json`, `messages/ja.json`: HubPage名前空間追加（8キー）
+- i18n対応キー: tabNotebooks, tabQuests, newNotebook, emptyTitle, emptyDescription, questFilterCount, questFilterClear, questFilterEmpty
+- ブラウザ確認: JA→「ノートブック」「クエスト」「+ 新規ノートブック」、EN→「Notebooks」「Quests」「+ New Notebook」
+- カバレッジ: 99.02%（ベースラインと同等）。テスト: 212ファイル 6577テスト全パス
+- 変更ファイル: `hubMessages.ts`(新規), `HubMessagesContext.tsx`(新規), `HubPageView.tsx`, `HubContent.tsx`, `messages/en.json`, `messages/ja.json`
+- スクリーンショット: `.screenshots/hub-ja-tabs.png`, `.screenshots/hub-en-tabs.png`
+- **今後のイテレーションへの学び:**
+  - HubMessages パターン: `hubMessages.ts`(型+デフォルト) → `HubMessagesContext.tsx`(Context) → `HubContent.tsx`(注入) → `HubPageView.tsx`(消費)
+  - `t.raw(key)` を `String()` でラップする。`t(key)` はICU MessageFormatパースでIntlErrorを起こす可能性あり
+  - Storybook はデフォルト英語メッセージで動作するため、i18n対応してもストーリー変更不要
+  - `as unknown as T` はESLint `no-as-unknown-as` に引っかかる。明示的オブジェクト構築で回避
+---
