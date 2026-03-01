@@ -21,6 +21,8 @@ import {
   tabSystem,
   analyticTableauDeduction,
   atSystem,
+  sequentCalculusDeduction,
+  lkSystem,
 } from "../logic-core/deductionSystem";
 import { allReferenceEntries } from "../reference/referenceContent";
 import { ProofWorkspace } from "./ProofWorkspace";
@@ -1380,6 +1382,73 @@ export const EmptyAnalyticTableau: StoryObj<typeof meta> = {
     // 署名付き論理式ノード追加
     await userEvent.click(
       canvas.getByTestId("workspace-at-rule-palette-add-formula"),
+    );
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+  },
+};
+
+// --- シーケント計算 ---
+
+function SequentCalculusWorkspace() {
+  const initial = createEmptyWorkspace(sequentCalculusDeduction(lkSystem));
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={workspace.system}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+export const EmptySequentCalculus: StoryObj<typeof meta> = {
+  render: () => <SequentCalculusWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // SCパレットが表示される
+    await expect(
+      canvas.getByTestId("workspace-sc-rule-palette"),
+    ).toBeInTheDocument();
+    // ワークスペースヘッダーにシステム名、パレットにヘッダーが表示される
+    await expect(
+      canvas.getByText("Sequent Calculus LK"),
+    ).toBeInTheDocument();
+    await expect(canvas.getByText("Sequent Calculus")).toBeInTheDocument();
+
+    // SC規則が表示される
+    await expect(canvas.getByText("公理 (ID)")).toBeInTheDocument();
+    await expect(canvas.getByText("カット (CUT)")).toBeInTheDocument();
+    await expect(canvas.getByText("左→規則 (→⇒)")).toBeInTheDocument();
+
+    // 分岐バッジが表示される
+    const cutRule = canvas.getByTestId("workspace-sc-rule-palette-rule-cut");
+    await expect(cutRule.textContent).toContain("分岐");
+
+    // Hilbertパレット・NDパレット・TABパレット・ATパレットは非表示
+    await expect(
+      canvas.queryByTestId("workspace-axiom-palette"),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId("workspace-nd-rule-palette"),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId("workspace-tab-rule-palette"),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId("workspace-at-rule-palette"),
+    ).not.toBeInTheDocument();
+
+    // シーケントノード追加
+    await userEvent.click(
+      canvas.getByTestId("workspace-sc-rule-palette-add-sequent"),
     );
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
   },

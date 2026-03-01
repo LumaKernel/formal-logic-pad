@@ -39,11 +39,13 @@ import {
   getAvailableNdRules,
   getAvailableTabRules,
   getAvailableAtRules,
+  getAvailableScRules,
   type AxiomPaletteItem,
 } from "./axiomPaletteLogic";
 import { NdRulePalette } from "./NdRulePalette";
 import { TabRulePalette } from "./TabRulePalette";
 import { AtRulePalette } from "./AtRulePalette";
+import { ScRulePalette } from "./ScRulePalette";
 import type { TabRuleId } from "../logic-core/tableauCalculus";
 import { getTabRuleDisplayName } from "../logic-core/tableauCalculus";
 import type { AtRuleId } from "../logic-core/analyticTableau";
@@ -973,6 +975,14 @@ export function ProofWorkspace({
     () =>
       workspace.deductionSystem.style === "analytic-tableau"
         ? getAvailableAtRules(workspace.deductionSystem.system)
+        : [],
+    [workspace.deductionSystem],
+  );
+
+  const availableScRules = useMemo(
+    () =>
+      workspace.deductionSystem.style === "sequent-calculus"
+        ? getAvailableScRules(workspace.deductionSystem.system)
         : [],
     [workspace.deductionSystem],
   );
@@ -3755,6 +3765,14 @@ export function ProofWorkspace({
           }
           testId={
             testId ? `${testId satisfies string}-at-rule-palette` : undefined
+          }
+        />
+      ) : workspace.deductionSystem.style === "sequent-calculus" ? (
+        <ScRulePalette
+          rules={availableScRules}
+          onAddSequent={handleAddSequent}
+          testId={
+            testId ? `${testId satisfies string}-sc-rule-palette` : undefined
           }
         />
       ) : (

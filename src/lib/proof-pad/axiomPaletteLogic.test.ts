@@ -4,6 +4,7 @@ import {
   getAvailableNdRules,
   getAvailableTabRules,
   getAvailableAtRules,
+  getAvailableScRules,
   getAxiomReferenceEntryId,
 } from "./axiomPaletteLogic";
 import {
@@ -25,10 +26,15 @@ import {
   tabPropSystem,
   atSystem,
   atPropSystem,
+  lmSystem,
+  ljSystem,
+  lkSystem,
 } from "../logic-core/deductionSystem";
 import type {
   TableauCalculusSystem,
   AnalyticTableauSystem,
+  SequentCalculusSystem,
+  ScRuleId,
 } from "../logic-core/deductionSystem";
 import type { TabRuleId } from "../logic-core/tableauCalculus";
 import type { AtRuleId } from "../logic-core/analyticTableau";
@@ -514,6 +520,86 @@ describe("axiomPalette", () => {
       for (const id of standardAxiomIds) {
         expect(getAxiomReferenceEntryId(id)).toBeDefined();
       }
+    });
+  });
+
+  describe("getAvailableScRules", () => {
+    it("LK全体系の19規則すべてを返す", () => {
+      const items = getAvailableScRules(lkSystem);
+      expect(items).toHaveLength(19);
+    });
+
+    it("LJ全体系の19規則すべてを返す", () => {
+      const items = getAvailableScRules(ljSystem);
+      expect(items).toHaveLength(19);
+    });
+
+    it("LM体系の17規則を返す", () => {
+      const items = getAvailableScRules(lmSystem);
+      expect(items).toHaveLength(17);
+    });
+
+    it("LM体系には⊥公理と右弱化が含まれない", () => {
+      const items = getAvailableScRules(lmSystem);
+      const ids = items.map((i) => i.id);
+      expect(ids).not.toContain("bottom-left");
+      expect(ids).not.toContain("weakening-right");
+    });
+
+    it("allScRuleIdsの順序で返される", () => {
+      const items = getAvailableScRules(lkSystem);
+      const ids = items.map((i) => i.id);
+      expect(ids.indexOf("identity")).toBeLessThan(ids.indexOf("cut"));
+      expect(ids.indexOf("cut")).toBeLessThan(
+        ids.indexOf("implication-left"),
+      );
+    });
+
+    it("各アイテムにdisplayNameがある", () => {
+      const items = getAvailableScRules(lkSystem);
+      for (const item of items) {
+        expect(item.displayName).toBeTruthy();
+      }
+    });
+
+    it("分岐規則が正しくマークされる", () => {
+      const items = getAvailableScRules(lkSystem);
+      const branchingIds = items.filter((i) => i.isBranching).map((i) => i.id);
+      expect(branchingIds).toEqual([
+        "cut",
+        "implication-left",
+        "conjunction-right",
+        "disjunction-left",
+      ]);
+    });
+
+    it("非分岐規則が正しくマークされる", () => {
+      const items = getAvailableScRules(lkSystem);
+      const nonBranchingIds = items
+        .filter((i) => !i.isBranching)
+        .map((i) => i.id);
+      expect(nonBranchingIds).toContain("identity");
+      expect(nonBranchingIds).toContain("weakening-left");
+      expect(nonBranchingIds).toContain("implication-right");
+    });
+
+    it("空の規則セットで空リストを返す", () => {
+      const emptySystem: SequentCalculusSystem = {
+        name: "Empty",
+        rules: new Set<ScRuleId>(),
+      };
+      const items = getAvailableScRules(emptySystem);
+      expect(items).toEqual([]);
+    });
+
+    it("部分的な規則セットを正しく処理する", () => {
+      const partialSystem: SequentCalculusSystem = {
+        name: "Partial",
+        rules: new Set<ScRuleId>(["identity", "cut", "implication-left"]),
+      };
+      const items = getAvailableScRules(partialSystem);
+      const ids = items.map((i) => i.id);
+      expect(ids).toEqual(["identity", "cut", "implication-left"]);
     });
   });
 });

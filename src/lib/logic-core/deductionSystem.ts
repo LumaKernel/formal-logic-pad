@@ -641,6 +641,16 @@ export function getScRuleDisplayName(ruleId: ScRuleId): string {
   }
 }
 
+/** シーケント計算の分岐規則（前提が2つ）かどうかを判定する */
+export function isScBranchingRule(ruleId: ScRuleId): boolean {
+  return (
+    ruleId === "cut" ||
+    ruleId === "implication-left" ||
+    ruleId === "conjunction-right" ||
+    ruleId === "disjunction-left"
+  );
+}
+
 /** NdRuleIdの表示名 */
 export function getNdRuleDisplayName(ruleId: NdRuleId): string {
   switch (ruleId) {

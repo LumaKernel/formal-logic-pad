@@ -11,11 +11,14 @@ export { TabRulePalette } from "./TabRulePalette";
 export type { TabRulePaletteProps } from "./TabRulePalette";
 export { AtRulePalette } from "./AtRulePalette";
 export type { AtRulePaletteProps } from "./AtRulePalette";
+export { ScRulePalette } from "./ScRulePalette";
+export type { ScRulePaletteProps } from "./ScRulePalette";
 export {
   getAvailableAxioms,
   getAvailableNdRules,
   getAvailableTabRules,
   getAvailableAtRules,
+  getAvailableScRules,
   getAxiomReferenceEntryId,
 } from "./axiomPaletteLogic";
 export type {
@@ -23,6 +26,7 @@ export type {
   NdRulePaletteItem,
   TabRulePaletteItem,
   AtRulePaletteItem,
+  ScRulePaletteItem,
 } from "./axiomPaletteLogic";
 export { getInferenceRuleReferenceEntryId } from "./inferenceRuleReferenceLogic";
 export { ProofWorkspace } from "./ProofWorkspace";

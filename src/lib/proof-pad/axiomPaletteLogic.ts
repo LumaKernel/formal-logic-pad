@@ -16,11 +16,16 @@ import type {
   AnalyticTableauSystem,
   NaturalDeductionSystem,
   NdRuleId,
+  ScRuleId,
+  SequentCalculusSystem,
   TableauCalculusSystem,
 } from "../logic-core/deductionSystem";
 import {
   getNdRuleDisplayName,
   allNdRuleIds,
+  allScRuleIds,
+  getScRuleDisplayName,
+  isScBranchingRule,
 } from "../logic-core/deductionSystem";
 import type { TabRuleId } from "../logic-core/tableauCalculus";
 import {
@@ -351,6 +356,42 @@ export function getAvailableAtRules(
         id: ruleId,
         displayName: getAtRuleDisplayName(ruleId),
         isBranching: isAtBetaRule(ruleId),
+      });
+    }
+  }
+  return items;
+}
+
+// --- シーケント計算規則パレット ---
+
+/** シーケント計算規則パレットに表示する規則アイテム */
+export type ScRulePaletteItem = {
+  /** 規則ID */
+  readonly id: ScRuleId;
+  /** 規則の表示名（例: "公理 (ID)", "カット (CUT)"） */
+  readonly displayName: string;
+  /** 分岐規則かどうか（前提が2つある規則が該当） */
+  readonly isBranching: boolean;
+};
+
+/**
+ * シーケント計算体系に応じた利用可能な規則パレットアイテムの一覧を返す。
+ *
+ * 変更時は axiomPaletteLogic.test.ts も同期すること。
+ *
+ * @param system シーケント計算体系設定
+ * @returns 利用可能な規則のリスト
+ */
+export function getAvailableScRules(
+  system: SequentCalculusSystem,
+): readonly ScRulePaletteItem[] {
+  const items: ScRulePaletteItem[] = [];
+  for (const ruleId of allScRuleIds) {
+    if (system.rules.has(ruleId)) {
+      items.push({
+        id: ruleId,
+        displayName: getScRuleDisplayName(ruleId),
+        isBranching: isScBranchingRule(ruleId),
       });
     }
   }
