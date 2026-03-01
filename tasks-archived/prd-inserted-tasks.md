@@ -164,3 +164,4 @@ Infinity Canvasについて。
   - [x] 証明されたか、関係ない公理は使われていないか、などは判定されているか？ → 確認済み: goalCheckLogic で式の存在判定、questCompletionLogic で公理制限の判定を実装済み
   - [x] ゴール一覧をみる方法が提供されるべきだろう → GoalPanel コンポーネントを実装し ProofWorkspace に統合
 - [x] CIの結果を確認し、失敗していれば修正する。`gh run list` や `gh run view` で現状を把握し、失敗原因を特定して対処すること。
+- [x] formula入力のいたるところでは、すぐに入力用言語のリファレンスを開けるようにする
