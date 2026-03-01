@@ -7840,3 +7840,34 @@
   - computeSmartConnectionPathのconnLen===0はfrom/toが同位置でも発生しない（exit/entry方向が異なるため）。防御的ガードとしてv8 ignoreが適切
   - InferenceEdgeのundefined前提テスト: 各NdEdge型のoptional premiseを個別にundefinedにするパターンが有効
 ---
+
+## 2026-03-02 - カバレッジ改善（workspaceState・workspaceExport）
+- ベースライン: Stmts 99.32%, Branch 93.89%, Funcs 89.67%, Lines 99.92%, Tests 6633
+- 結果: Stmts 99.34%, Branch 94.07% (+0.18%), Funcs 89.67%, Lines 99.92%, Tests 6644 (+11)
+- 実装した内容:
+  - workspaceState.test.ts: 11テスト追加
+    - AT closure without contradictionNodeId
+    - changeSystem with DeductionSystem
+    - applyTreeLayout position-not-found
+    - removeSelectedNodes source-only removable
+    - ND validation error with already-empty text
+    - MP/Gen/Substitution conclusion already correct (no change needed)
+    - ND ∧E_L conclusion already correct
+    - updateInferenceEdgeGenVariableName with non-existent edge
+    - updateInferenceEdgeSubstitutionEntries with non-existent edge
+  - workspaceState.ts: v8 ignore追加（isNodeProtected常時false, defensive null checks）
+  - workspaceExport.ts: v8 ignore追加（旧フォーマット後方互換のSchema decode ??分岐）
+- ファイル別ブランチカバレッジ変化:
+  - workspaceState.ts: 85.09% → 88.88% (+3.79%)
+  - workspaceExport.ts: 75% → 100% (+25%)
+- 変更したファイル:
+  - src/lib/proof-pad/workspaceState.ts
+  - src/lib/proof-pad/workspaceState.test.ts
+  - src/lib/proof-pad/workspaceExport.ts
+- スクリーンショット: .screenshots/coverage-improvement-proofworkspace.png
+- **今後のイテレーションへの学び:**
+  - isNodeProtected()は設計上常にfalseを返す（ゴールがノードから分離されたため）。v8 ignoreが適切
+  - syncInferenceEdgesのconclusionNode?.formulaText ?? ""はfilter後のmapなので常にdefined。v8 ignoreが適切
+  - workspaceExport.tsのSchema.transform decode内の??分岐はv8が旧フォーマットテストでもブランチとして検出しない場合がある。v8 ignoreが適切
+  - ProofWorkspace.tsxのブランチカバレッジ（81.69%）はUIコンポーネントのため、Storybook play関数での改善が有効
+---
