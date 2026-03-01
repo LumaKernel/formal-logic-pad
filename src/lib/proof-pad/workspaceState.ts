@@ -187,7 +187,11 @@ function syncInferenceEdges(state: WorkspaceState): WorkspaceState {
     .map((edge) => {
       // conclusionText をノードの formulaText と同期
       const conclusionNode = nodeMap.get(edge.conclusionNodeId);
-      const currentText = conclusionNode?.formulaText ?? "";
+      // conclusionNode は先行の filter で undefined を除外済みだが、
+      // TypeScript の Array.filter は narrowing しないため ?. と ?? が必要
+      const currentText =
+        /* v8 ignore next -- always defined after filter */ conclusionNode?.formulaText ??
+        "";
       if (currentText !== edge.conclusionText) {
         return { ...edge, conclusionText: currentText };
       }
@@ -437,7 +441,9 @@ export function updateNodeFormulaText(
   nodeId: string,
   formulaText: string,
 ): WorkspaceState {
+  /* v8 ignore start -- isNodeProtected always returns false (design: goals separated from nodes) */
   if (isNodeProtected(state, nodeId)) return state;
+  /* v8 ignore stop */
   return syncInferenceEdges({
     ...state,
     nodes: state.nodes.map((node) =>
@@ -521,7 +527,9 @@ export function removeNode(
   state: WorkspaceState,
   nodeId: string,
 ): WorkspaceState {
+  /* v8 ignore start -- isNodeProtected always returns false (design: goals separated from nodes) */
   if (isNodeProtected(state, nodeId)) return state;
+  /* v8 ignore stop */
   return syncInferenceEdges({
     ...state,
     nodes: state.nodes.filter((n) => n.id !== nodeId),
@@ -593,7 +601,8 @@ export function removeConnection(
               ? { ...n, label: getProofNodeKindLabel(n.kind) }
               : n,
           )
-        : state.nodes,
+        : /* v8 ignore next -- defensive: node should always exist when InferenceEdge references it */
+          state.nodes,
       connections: state.connections.filter((c) => c.toNodeId !== toNodeId),
       inferenceEdges: state.inferenceEdges.filter(
         (e) => e.conclusionNodeId !== toNodeId,

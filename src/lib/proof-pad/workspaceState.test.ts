@@ -2845,5 +2845,192 @@ describe("proofWorkspace", () => {
       expect(result.workspace).toBe(ws);
       expect(result.resultNodeIds).toHaveLength(0);
     });
+
+    it("closure without contradictionNodeId creates edge without connection", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "T:P");
+      ws = addNode(ws, "axiom", "", { x: 100, y: 0 }, "F:P");
+      const result = applyAtRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "closure",
+          signedFormulaText: "T:P",
+          contradictionFormulaText: "F:P",
+        },
+        [],
+        // No contradictionNodeId provided
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.resultNodeIds).toHaveLength(0);
+      // Edge created but no contradiction connection
+      expect(result.workspace.inferenceEdges).toHaveLength(1);
+      expect(result.workspace.connections).toHaveLength(0);
+    });
+  });
+
+  describe("changeSystem with DeductionSystem", () => {
+    it("changes system via DeductionSystem", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const ds = hilbertDeduction(predicateLogicSystem);
+      const result = changeSystem(ws, ds);
+      expect(result.system).toBe(predicateLogicSystem);
+      expect(result.deductionSystem).toBe(ds);
+    });
+  });
+
+  describe("applyTreeLayout - uncovered branches", () => {
+    it("preserves nodes not present in layout positions map", () => {
+      // ノードがコネクションを持たず孤立している場合も、
+      // ツリーレイアウトで位置が割り当てられないことは通常ないが、
+      // DAG→フォレスト変換で考慮される
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Ax1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Ax2", { x: 200, y: 0 }, "psi");
+      // No connections - all nodes should still get positions
+      const result = applyTreeLayout(ws, "top-to-bottom");
+      // Both nodes should be in the result
+      expect(result.nodes).toHaveLength(2);
+    });
+  });
+
+  describe("removeSelectedNodes - connection branch coverage", () => {
+    it("removes connections where source is removable but target is not", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Source", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Target", { x: 100, y: 100 });
+      ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+      // Remove only the source node
+      const result = removeSelectedNodes(ws, new Set(["node-1"]));
+      expect(result.nodes).toHaveLength(1);
+      expect(result.nodes[0]!.id).toBe("node-2");
+      // Connection should be removed (source was removed)
+      expect(result.connections).toHaveLength(0);
+    });
+  });
+
+  describe("revalidateInferenceConclusions - additional branches", () => {
+    it("does not change ND conclusion when validation error and text is already empty", () => {
+      let ws = createEmptyWorkspace(naturalDeduction(nmSystem));
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "phi");
+      // Conclusion already empty - ND error should not trigger change
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 }, "");
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "nd-conjunction-elim-left" as const,
+            conclusionNodeId: "node-2",
+            premiseNodeId: "node-1",
+            conclusionText: "",
+          },
+        ],
+      };
+      // phi is not a conjunction → validation error → but text is already "" → no change
+      const result = revalidateInferenceConclusions(ws);
+      expect(findNode(result, "node-2")?.formulaText).toBe("");
+      // State should not change since formulaText was already empty
+    });
+
+    it("does not change MP conclusion when text is already correct", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "phi -> psi");
+      const mp = applyMPAndConnect(ws, "node-1", "node-2", { x: 50, y: 100 });
+      ws = mp.workspace;
+      const originalText = findNode(ws, "node-3")?.formulaText;
+      expect(originalText).not.toBe("");
+      // Revalidate without any changes - text should be same, no update needed
+      const result = revalidateInferenceConclusions(ws);
+      expect(findNode(result, "node-3")?.formulaText).toBe(originalText);
+    });
+
+    it("does not change Gen conclusion when text is already correct", () => {
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> psi");
+      const gen = applyGenAndConnect(ws, "node-1", "x", { x: 50, y: 100 });
+      ws = gen.workspace;
+      const originalText = findNode(ws, "node-2")?.formulaText;
+      expect(originalText).not.toBe("");
+      // Revalidate without changes
+      const result = revalidateInferenceConclusions(ws);
+      expect(findNode(result, "node-2")?.formulaText).toBe(originalText);
+    });
+
+    it("does not change Substitution conclusion when text is already correct", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(
+        ws,
+        "axiom",
+        "Axiom",
+        { x: 0, y: 0 },
+        "phi -> (psi -> phi)",
+      );
+      const subst = applySubstitutionAndConnect(
+        ws,
+        "node-1",
+        [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha",
+          },
+        ],
+        { x: 50, y: 100 },
+      );
+      ws = subst.workspace;
+      const originalText = findNode(ws, "node-2")?.formulaText;
+      expect(originalText).not.toBe("");
+      // Revalidate without changes
+      const result = revalidateInferenceConclusions(ws);
+      expect(findNode(result, "node-2")?.formulaText).toBe(originalText);
+    });
+
+    it("does not change ND ∧E_L conclusion when text is already correct", () => {
+      let ws = createEmptyWorkspace(naturalDeduction(nmSystem));
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "phi /\\ psi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "nd-conjunction-elim-left" as const,
+            conclusionNodeId: "node-2",
+            premiseNodeId: "node-1",
+            conclusionText: "",
+          },
+        ],
+      };
+      ws = revalidateInferenceConclusions(ws);
+      const originalText = findNode(ws, "node-2")?.formulaText;
+      expect(originalText).toBe("φ");
+      // Revalidate again without changes - should not trigger update
+      const result = revalidateInferenceConclusions(ws);
+      expect(findNode(result, "node-2")?.formulaText).toBe(originalText);
+    });
+  });
+
+  describe("updateInferenceEdgeGenVariableName - edge not found", () => {
+    it("handles non-existent gen edge gracefully", () => {
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      // No gen edge exists for node-1
+      const result = updateInferenceEdgeGenVariableName(ws, "node-1", "y");
+      // Should not crash; inferenceEdges remain empty
+      expect(result.inferenceEdges).toHaveLength(0);
+    });
+  });
+
+  describe("updateInferenceEdgeSubstitutionEntries - edge not found", () => {
+    it("handles non-existent substitution edge gracefully", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+      // No substitution edge exists for node-1
+      const result = updateInferenceEdgeSubstitutionEntries(ws, "node-1", []);
+      // Should not crash; inferenceEdges remain empty
+      expect(result.inferenceEdges).toHaveLength(0);
+    });
   });
 });
