@@ -11,6 +11,7 @@ import {
   isNdInferenceEdge,
   isTabInferenceEdge,
   isAtInferenceEdge,
+  isScInferenceEdge,
   type InferenceEdge,
   type MPEdge,
   type GenEdge,
@@ -38,6 +39,9 @@ import {
   type AtGammaEdge,
   type AtDeltaEdge,
   type AtClosedEdge,
+  type ScSinglePremiseEdge,
+  type ScBranchingEdge,
+  type ScAxiomEdge,
 } from "./inferenceEdge";
 
 describe("inferenceEdge", () => {
@@ -1394,6 +1398,245 @@ describe("inferenceEdge", () => {
         conclusionText: "",
       };
       expect(getInferenceEdgePremiseNodeIds(edge)).toEqual(["p1"]);
+    });
+
+    it("handles sc-single with premiseNodeId defined", () => {
+      const edge: ScSinglePremiseEdge = {
+        _tag: "sc-single",
+        ruleId: "weakening-left",
+        conclusionNodeId: "c",
+        premiseNodeId: "p1",
+        conclusionText: "φ ⇒ ψ",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual(["p1"]);
+    });
+
+    it("handles sc-single with premiseNodeId undefined", () => {
+      const edge: ScSinglePremiseEdge = {
+        _tag: "sc-single",
+        ruleId: "weakening-left",
+        conclusionNodeId: "c",
+        premiseNodeId: undefined,
+        conclusionText: "φ ⇒ ψ",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual([]);
+    });
+
+    it("handles sc-branching with both premises defined", () => {
+      const edge: ScBranchingEdge = {
+        _tag: "sc-branching",
+        ruleId: "cut",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "p1",
+        rightPremiseNodeId: "p2",
+        leftConclusionText: "",
+        rightConclusionText: "",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual(["p1", "p2"]);
+    });
+
+    it("handles sc-branching with all undefined premises", () => {
+      const edge: ScBranchingEdge = {
+        _tag: "sc-branching",
+        ruleId: "cut",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: undefined,
+        rightPremiseNodeId: undefined,
+        leftConclusionText: "",
+        rightConclusionText: "",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual([]);
+    });
+
+    it("handles sc-branching with only left premise defined", () => {
+      const edge: ScBranchingEdge = {
+        _tag: "sc-branching",
+        ruleId: "cut",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "p1",
+        rightPremiseNodeId: undefined,
+        leftConclusionText: "",
+        rightConclusionText: "",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual(["p1"]);
+    });
+
+    it("handles sc-axiom with no premises", () => {
+      const edge: ScAxiomEdge = {
+        _tag: "sc-axiom",
+        ruleId: "identity",
+        conclusionNodeId: "c",
+        conclusionText: "φ ⇒ φ",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual([]);
+    });
+  });
+
+  describe("isScInferenceEdge", () => {
+    const scSingle: ScSinglePremiseEdge = {
+      _tag: "sc-single",
+      ruleId: "weakening-left",
+      conclusionNodeId: "c1",
+      premiseNodeId: "p1",
+      conclusionText: "φ ⇒ ψ",
+    };
+    const scBranching: ScBranchingEdge = {
+      _tag: "sc-branching",
+      ruleId: "cut",
+      conclusionNodeId: "c1",
+      leftPremiseNodeId: "l1",
+      rightPremiseNodeId: "r1",
+      leftConclusionText: "",
+      rightConclusionText: "",
+      conclusionText: "",
+    };
+    const scAxiom: ScAxiomEdge = {
+      _tag: "sc-axiom",
+      ruleId: "identity",
+      conclusionNodeId: "c1",
+      conclusionText: "φ ⇒ φ",
+    };
+
+    it("returns true for SC edges", () => {
+      expect(isScInferenceEdge(scSingle)).toBe(true);
+      expect(isScInferenceEdge(scBranching)).toBe(true);
+      expect(isScInferenceEdge(scAxiom)).toBe(true);
+    });
+
+    it("returns false for non-SC edges", () => {
+      const mp: MPEdge = {
+        _tag: "mp",
+        conclusionNodeId: "c1",
+        leftPremiseNodeId: "a",
+        rightPremiseNodeId: "b",
+        conclusionText: "",
+      };
+      expect(isScInferenceEdge(mp)).toBe(false);
+      expect(isHilbertInferenceEdge(scSingle)).toBe(false);
+      expect(isNdInferenceEdge(scSingle)).toBe(false);
+      expect(isTabInferenceEdge(scSingle)).toBe(false);
+      expect(isAtInferenceEdge(scSingle)).toBe(false);
+    });
+
+    describe("getInferenceEdgeLabel for SC edges", () => {
+      it("returns display name for sc-single", () => {
+        expect(getInferenceEdgeLabel(scSingle)).toBe("左弱化 (w⇒)");
+      });
+      it("returns display name for sc-branching", () => {
+        expect(getInferenceEdgeLabel(scBranching)).toBe("カット (CUT)");
+      });
+      it("returns display name for sc-axiom", () => {
+        expect(getInferenceEdgeLabel(scAxiom)).toBe("公理 (ID)");
+      });
+    });
+
+    describe("remapEdgeNodeIds for SC edges", () => {
+      it("remaps sc-single edge node ids", () => {
+        const mapped = remapEdgeNodeIds(scSingle, (id) =>
+          id === "c1" ? "new-c" : id === "p1" ? "new-p" : id,
+        );
+        expect(mapped).toEqual({
+          ...scSingle,
+          conclusionNodeId: "new-c",
+          premiseNodeId: "new-p",
+        });
+      });
+
+      it("remaps sc-single edge with undefined premiseNodeId", () => {
+        const edge: ScSinglePremiseEdge = {
+          ...scSingle,
+          premiseNodeId: undefined,
+        };
+        const mapped = remapEdgeNodeIds(edge, (id) =>
+          id === "c1" ? "new-c" : id,
+        );
+        expect(mapped).toEqual({
+          ...edge,
+          conclusionNodeId: "new-c",
+          premiseNodeId: undefined,
+        });
+      });
+
+      it("remaps sc-branching edge node ids", () => {
+        const mapped = remapEdgeNodeIds(scBranching, (id) =>
+          id === "c1"
+            ? "new-c"
+            : id === "l1"
+              ? "new-l"
+              : id === "r1"
+                ? "new-r"
+                : id,
+        );
+        expect(mapped).toEqual({
+          ...scBranching,
+          conclusionNodeId: "new-c",
+          leftPremiseNodeId: "new-l",
+          rightPremiseNodeId: "new-r",
+        });
+      });
+
+      it("remaps sc-branching edge with undefined premise ids", () => {
+        const edge: ScBranchingEdge = {
+          ...scBranching,
+          leftPremiseNodeId: undefined,
+          rightPremiseNodeId: undefined,
+        };
+        const mapped = remapEdgeNodeIds(edge, (id) =>
+          id === "c1" ? "new-c" : id,
+        );
+        expect(mapped).toEqual({
+          ...edge,
+          conclusionNodeId: "new-c",
+          leftPremiseNodeId: undefined,
+          rightPremiseNodeId: undefined,
+        });
+      });
+
+      it("remaps sc-axiom edge node ids", () => {
+        const mapped = remapEdgeNodeIds(scAxiom, (id) =>
+          id === "c1" ? "new-c" : id,
+        );
+        expect(mapped).toEqual({
+          ...scAxiom,
+          conclusionNodeId: "new-c",
+        });
+      });
+    });
+
+    describe("replaceNodeIdInEdge for SC edges", () => {
+      it("replaces conclusionNodeId in sc-single", () => {
+        const replaced = replaceNodeIdInEdge(scSingle, "c1", "replaced");
+        expect(replaced.conclusionNodeId).toBe("replaced");
+      });
+
+      it("replaces premiseNodeId in sc-single", () => {
+        const replaced = replaceNodeIdInEdge(scSingle, "p1", "replaced");
+        expect((replaced as ScSinglePremiseEdge).premiseNodeId).toBe(
+          "replaced",
+        );
+      });
+
+      it("replaces leftPremiseNodeId in sc-branching", () => {
+        const replaced = replaceNodeIdInEdge(scBranching, "l1", "replaced");
+        expect((replaced as ScBranchingEdge).leftPremiseNodeId).toBe(
+          "replaced",
+        );
+      });
+
+      it("replaces rightPremiseNodeId in sc-branching", () => {
+        const replaced = replaceNodeIdInEdge(scBranching, "r1", "replaced");
+        expect((replaced as ScBranchingEdge).rightPremiseNodeId).toBe(
+          "replaced",
+        );
+      });
+
+      it("replaces conclusionNodeId in sc-axiom", () => {
+        const replaced = replaceNodeIdInEdge(scAxiom, "c1", "replaced");
+        expect(replaced.conclusionNodeId).toBe("replaced");
+      });
     });
   });
 });

@@ -24,6 +24,9 @@ import type {
   AtGammaEdge,
   AtDeltaEdge,
   AtClosedEdge,
+  ScSinglePremiseEdge,
+  ScBranchingEdge,
+  ScAxiomEdge,
 } from "./inferenceEdge";
 
 describe("inferenceEdgeLabelLogic", () => {
@@ -654,6 +657,80 @@ describe("inferenceEdgeLabelLogic", () => {
         secondResultText: "T:Q",
       };
       expect(getInferenceEdgeBadgeColor(edge)).toContain("badge-at");
+    });
+  });
+
+  describe("SC edges", () => {
+    const scSingle: ScSinglePremiseEdge = {
+      _tag: "sc-single",
+      ruleId: "weakening-left",
+      conclusionNodeId: "c1",
+      premiseNodeId: "p1",
+      conclusionText: "φ, ψ ⇒ χ",
+    };
+    const scBranching: ScBranchingEdge = {
+      _tag: "sc-branching",
+      ruleId: "cut",
+      conclusionNodeId: "c1",
+      leftPremiseNodeId: "l1",
+      rightPremiseNodeId: "r1",
+      leftConclusionText: "",
+      rightConclusionText: "",
+      conclusionText: "",
+    };
+    const scAxiom: ScAxiomEdge = {
+      _tag: "sc-axiom",
+      ruleId: "identity",
+      conclusionNodeId: "c1",
+      conclusionText: "φ ⇒ φ",
+    };
+
+    describe("getInferenceEdgeBadgeColor for SC edges", () => {
+      it("returns SC badge color for sc-single", () => {
+        expect(getInferenceEdgeBadgeColor(scSingle)).toContain("badge-sc");
+      });
+      it("returns SC badge color for sc-branching", () => {
+        expect(getInferenceEdgeBadgeColor(scBranching)).toContain("badge-sc");
+      });
+      it("returns SC badge color for sc-axiom", () => {
+        expect(getInferenceEdgeBadgeColor(scAxiom)).toContain("badge-sc");
+      });
+    });
+
+    describe("getPremiseRole for SC edges", () => {
+      it("returns 'premise' for sc-single premiseNodeId", () => {
+        expect(getPremiseRole(scSingle, "p1")).toBe("premise");
+      });
+      it("returns undefined for sc-single unknown nodeId", () => {
+        expect(getPremiseRole(scSingle, "unknown")).toBeUndefined();
+      });
+      it("returns 'left' for sc-branching leftPremiseNodeId", () => {
+        expect(getPremiseRole(scBranching, "l1")).toBe("left");
+      });
+      it("returns 'right' for sc-branching rightPremiseNodeId", () => {
+        expect(getPremiseRole(scBranching, "r1")).toBe("right");
+      });
+      it("returns undefined for sc-branching unknown nodeId", () => {
+        expect(getPremiseRole(scBranching, "unknown")).toBeUndefined();
+      });
+      it("returns undefined for sc-axiom", () => {
+        expect(getPremiseRole(scAxiom, "c1")).toBeUndefined();
+      });
+    });
+
+    describe("computeInferenceEdgeLabelData for SC edges", () => {
+      it("computes label for sc-single", () => {
+        const data = computeInferenceEdgeLabelData(scSingle);
+        expect(data.label).toBe("左弱化 (w⇒)");
+      });
+      it("computes label for sc-branching", () => {
+        const data = computeInferenceEdgeLabelData(scBranching);
+        expect(data.label).toBe("カット (CUT)");
+      });
+      it("computes label for sc-axiom", () => {
+        const data = computeInferenceEdgeLabelData(scAxiom);
+        expect(data.label).toBe("公理 (ID)");
+      });
     });
   });
 });

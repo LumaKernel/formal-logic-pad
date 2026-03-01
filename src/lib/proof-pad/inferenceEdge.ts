@@ -8,6 +8,7 @@
  * Hilbert系: MP, Gen, Substitution
  * 自然演繹(ND): →I, →E, ∧I, ∧E_L, ∧E_R, ∨I_L, ∨I_R, ∨E, w, EFQ, DNE, ∀I, ∀E, ∃I, ∃E
  * 分析的タブロー(AT): α規則, β規則, γ規則, δ規則, 閉じ
+ * シーケント計算(SC): 1前提, 分岐(2前提), 公理
  *
  * 変更時は inferenceEdge.test.ts も同期すること。
  * InferenceEdge union型のメンバー追加時は以下のswitch文すべてを更新:
@@ -29,6 +30,10 @@ import {
   type AtRuleId,
   getAtRuleDisplayName,
 } from "../logic-core/analyticTableau";
+import {
+  type ScRuleId,
+  getScRuleDisplayName,
+} from "../logic-core/deductionSystem";
 
 // ─── Hilbert系 推論エッジ型 ─────────────────────────────────
 
@@ -521,14 +526,90 @@ export type AtInferenceEdge =
   | AtDeltaEdge
   | AtClosedEdge;
 
+// ─── SC (ゲンツェン流シーケント計算) 推論エッジ型 ─────────
+
+/**
+ * SC 1前提規則エッジ。
+ * 結論シーケントノードから、1つの前提シーケントノードへの関係。
+ * 対象規則: weakening-left/right, contraction-left/right, exchange-left/right,
+ *           implication-right, conjunction-left, disjunction-right,
+ *           universal-left/right, existential-left/right
+ */
+export type ScSinglePremiseEdge = {
+  readonly _tag: "sc-single";
+  /** 適用された規則 */
+  readonly ruleId: ScRuleId;
+  /** 結論シーケントノードのID */
+  readonly conclusionNodeId: string;
+  /** 前提シーケントノードのID */
+  readonly premiseNodeId: string | undefined;
+  /** 結論シーケントのテキスト */
+  readonly conclusionText: string;
+  /** 追加パラメータ: 固有変数名（∀右, ∃左規則用） */
+  readonly eigenVariable?: string;
+  /** 追加パラメータ: 代入項テキスト（∀左, ∃右規則用） */
+  readonly termText?: string;
+  /** 追加パラメータ: 交換位置（e規則用） */
+  readonly exchangePosition?: number;
+  /** 追加パラメータ: 成分インデックス（∧左, ∨右規則用） */
+  readonly componentIndex?: 1 | 2;
+  /** 追加パラメータ: カット式テキスト（cut規則用、sc-singleでは不使用） */
+  readonly cutFormulaText?: string;
+};
+
+/**
+ * SC 2前提（分岐）規則エッジ。
+ * 結論シーケントノードから、2つの前提シーケントノードへの関係。
+ * 対象規則: cut, implication-left, conjunction-right, disjunction-left
+ */
+export type ScBranchingEdge = {
+  readonly _tag: "sc-branching";
+  /** 適用された規則 */
+  readonly ruleId: ScRuleId;
+  /** 結論シーケントノードのID */
+  readonly conclusionNodeId: string;
+  /** 左前提シーケントノードのID */
+  readonly leftPremiseNodeId: string | undefined;
+  /** 右前提シーケントノードのID */
+  readonly rightPremiseNodeId: string | undefined;
+  /** 左前提シーケントのテキスト */
+  readonly leftConclusionText: string;
+  /** 右前提シーケントのテキスト */
+  readonly rightConclusionText: string;
+  /** 結論シーケントのテキスト */
+  readonly conclusionText: string;
+};
+
+/**
+ * SC 公理（0前提）マークエッジ。
+ * シーケントノードが公理（identity or bottom-left）であることを示す。
+ * 対象規則: identity, bottom-left
+ */
+export type ScAxiomEdge = {
+  readonly _tag: "sc-axiom";
+  /** 適用された規則 */
+  readonly ruleId: ScRuleId;
+  /** 公理ノードのID */
+  readonly conclusionNodeId: string;
+  /** 公理テキスト */
+  readonly conclusionText: string;
+};
+
+/** SC推論エッジのunion型 */
+export type ScInferenceEdge =
+  | ScSinglePremiseEdge
+  | ScBranchingEdge
+  | ScAxiomEdge;
+
 // ─── 統合union型 ─────────────────────────────────────────
 
-/** 推論エッジの union 型（Hilbert系 + ND + TAB + AT） */
+/** 推論エッジの union 型（Hilbert系 + ND + TAB + AT + SC） */
 export type InferenceEdge =
   | HilbertInferenceEdge
   | NdInferenceEdge
   | TabInferenceEdge
-  | AtInferenceEdge;
+  | AtInferenceEdge
+  | ScInferenceEdge;
 
 // ─── 判別ヘルパー ────────────────────────────────────────
 
@@ -577,6 +658,15 @@ export function isAtInferenceEdge(edge: InferenceEdge) {
     edge._tag === "at-gamma" ||
     edge._tag === "at-delta" ||
     edge._tag === "at-closed"
+  );
+}
+
+/** SCのエッジかどうかを判定する */
+export function isScInferenceEdge(edge: InferenceEdge) {
+  return (
+    edge._tag === "sc-single" ||
+    edge._tag === "sc-branching" ||
+    edge._tag === "sc-axiom"
   );
 }
 
@@ -678,6 +768,13 @@ export function getInferenceEdgeLabel(edge: InferenceEdge): string {
       return getAtRuleDisplayName(edge.ruleId);
     case "at-closed":
       return getAtRuleDisplayName(edge.ruleId);
+    // SC
+    case "sc-single":
+      return getScRuleDisplayName(edge.ruleId);
+    case "sc-branching":
+      return getScRuleDisplayName(edge.ruleId);
+    case "sc-axiom":
+      return getScRuleDisplayName(edge.ruleId);
   }
 }
 
@@ -828,6 +925,21 @@ export function getInferenceEdgePremiseNodeIds(
       return edge.resultNodeId !== undefined ? [edge.resultNodeId] : [];
     case "at-closed":
       return [edge.contradictionNodeId];
+    // SC
+    case "sc-single":
+      return edge.premiseNodeId !== undefined ? [edge.premiseNodeId] : [];
+    case "sc-branching": {
+      const scIds: string[] = [];
+      if (edge.leftPremiseNodeId !== undefined) {
+        scIds.push(edge.leftPremiseNodeId);
+      }
+      if (edge.rightPremiseNodeId !== undefined) {
+        scIds.push(edge.rightPremiseNodeId);
+      }
+      return scIds;
+    }
+    case "sc-axiom":
+      return [];
   }
 }
 
@@ -1015,6 +1127,25 @@ export function remapEdgeNodeIds(
         ...edge,
         conclusionNodeId: mapRequired(edge.conclusionNodeId),
         contradictionNodeId: mapRequired(edge.contradictionNodeId),
+      };
+    // SC
+    case "sc-single":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
+        premiseNodeId: mapOpt(edge.premiseNodeId),
+      };
+    case "sc-branching":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
+        leftPremiseNodeId: mapOpt(edge.leftPremiseNodeId),
+        rightPremiseNodeId: mapOpt(edge.rightPremiseNodeId),
+      };
+    case "sc-axiom":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
       };
   }
 }

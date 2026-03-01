@@ -199,6 +199,17 @@ export type ProofMessages = {
   readonly scPaletteHeader: string;
   readonly scAddSequent: string;
   readonly scRulesSection: string;
+  /** SC規則適用のプロンプト */
+  readonly scPositionPrompt: string;
+  readonly scExchangePositionPrompt: string;
+  readonly scTermPrompt: string;
+  readonly scEigenVariablePrompt: string;
+  readonly scCutFormulaPrompt: string;
+  readonly scComponentIndexPrompt: string;
+  readonly scApplyRuleToNode: string;
+  /** `{ruleName}` プレースホルダーを含む */
+  readonly scBannerSelectNode: string;
+  readonly scCancel: string;
   readonly atPaletteHeader: string;
   readonly atAddFormula: string;
   readonly atAlphaRules: string;
@@ -378,6 +389,15 @@ export const defaultProofMessages: ProofMessages = {
   scPaletteHeader: "Sequent Calculus",
   scAddSequent: "+ Add Sequent",
   scRulesSection: "Rules",
+  scPositionPrompt: "Principal formula position (0-based):",
+  scExchangePositionPrompt: "Exchange position (0-based):",
+  scTermPrompt: "Substitution term:",
+  scEigenVariablePrompt: "Eigen variable name:",
+  scCutFormulaPrompt: "Cut formula:",
+  scComponentIndexPrompt: "Component index (1 = left, 2 = right):",
+  scApplyRuleToNode: "Apply SC Rule",
+  scBannerSelectNode: "Click a sequent node to apply {ruleName}",
+  scCancel: "Cancel SC",
   atPaletteHeader: "Analytic Tableau",
   atAddFormula: "+ Add Signed Formula",
   atAlphaRules: "\u03B1 (non-branching)",

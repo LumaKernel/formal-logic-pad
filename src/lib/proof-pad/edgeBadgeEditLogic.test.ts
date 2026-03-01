@@ -154,6 +154,37 @@ describe("edgeBadgeEditLogic", () => {
       }
     });
 
+    it("returns undefined for SC edges (no parameter editing)", () => {
+      const scEdges: readonly InferenceEdge[] = [
+        {
+          _tag: "sc-single",
+          ruleId: "weakening-left",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          conclusionText: "φ, ψ ⇒ χ",
+        },
+        {
+          _tag: "sc-branching",
+          ruleId: "cut",
+          conclusionNodeId: "n1",
+          leftPremiseNodeId: "n2",
+          rightPremiseNodeId: "n3",
+          leftConclusionText: "",
+          rightConclusionText: "",
+          conclusionText: "",
+        },
+        {
+          _tag: "sc-axiom",
+          ruleId: "identity",
+          conclusionNodeId: "n1",
+          conclusionText: "φ ⇒ φ",
+        },
+      ];
+      for (const edge of scEdges) {
+        expect(createEditStateFromEdge(edge)).toBeUndefined();
+      }
+    });
+
     it("returns undefined for all ND edges (no parameter editing)", () => {
       const ndEdges: readonly InferenceEdge[] = [
         {
