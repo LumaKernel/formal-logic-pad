@@ -1012,10 +1012,21 @@ export function ProofWorkspace({
       // ラベルは汎用的な "Axiom" を使用。具体的な公理名(A1, A2等)は
       // formulaText から自動計算される axiomName バッジで表示する。
       setWorkspaceWithAutoLayout(
-        addNode(workspace, "axiom", msg.nodeLabelAxiom, position, axiom.dslText),
+        addNode(
+          workspace,
+          "axiom",
+          msg.nodeLabelAxiom,
+          position,
+          axiom.dslText,
+        ),
       );
     },
-    [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition, msg.nodeLabelAxiom],
+    [
+      workspace,
+      setWorkspaceWithAutoLayout,
+      computeNewNodePosition,
+      msg.nodeLabelAxiom,
+    ],
   );
 
   const handleAddAssumption = useCallback(() => {
@@ -1024,7 +1035,12 @@ export function ProofWorkspace({
     setWorkspaceWithAutoLayout(
       addNode(workspace, "axiom", msg.nodeLabelAssumption, position, ""),
     );
-  }, [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition, msg.nodeLabelAssumption]);
+  }, [
+    workspace,
+    setWorkspaceWithAutoLayout,
+    computeNewNodePosition,
+    msg.nodeLabelAssumption,
+  ]);
 
   const handleAddSequent = useCallback(() => {
     const position = computeNewNodePosition(workspace.nodes);
@@ -1033,7 +1049,12 @@ export function ProofWorkspace({
     setWorkspaceWithAutoLayout(
       addNode(workspace, "axiom", msg.nodeLabelSequent, position, ""),
     );
-  }, [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition, msg.nodeLabelSequent]);
+  }, [
+    workspace,
+    setWorkspaceWithAutoLayout,
+    computeNewNodePosition,
+    msg.nodeLabelSequent,
+  ]);
 
   const handleAddSignedFormula = useCallback(() => {
     const position = computeNewNodePosition(workspace.nodes);
@@ -1041,7 +1062,12 @@ export function ProofWorkspace({
     setWorkspaceWithAutoLayout(
       addNode(workspace, "axiom", msg.nodeLabelSignedFormula, position, ""),
     );
-  }, [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition, msg.nodeLabelSignedFormula]);
+  }, [
+    workspace,
+    setWorkspaceWithAutoLayout,
+    computeNewNodePosition,
+    msg.nodeLabelSignedFormula,
+  ]);
 
   // --- MP選択モードハンドラ ---
 
@@ -2286,7 +2312,12 @@ export function ProofWorkspace({
       screenPosition: { x: 0, y: 0 },
       worldPosition: { x: 0, y: 0 },
     });
-  }, [workspace, canvasMenuState.worldPosition, setWorkspace, msg.nodeLabelAxiom]);
+  }, [
+    workspace,
+    canvasMenuState.worldPosition,
+    setWorkspace,
+    msg.nodeLabelAxiom,
+  ]);
 
   /* v8 ignore start -- キャンバスコンテキストメニュー外クリック: ref.contains使用でJSDOMではテスト不安定 */
   // キャンバスコンテキストメニュー外クリックで閉じる
