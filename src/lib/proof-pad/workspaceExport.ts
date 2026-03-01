@@ -405,7 +405,64 @@ const TabAxiomEdgeSchema = Schema.Struct({
   conclusionText: Schema.String,
 });
 
-/** InferenceEdgeのSchema（Hilbert系 + ND + TAB） */
+// ─── AT (分析的タブロー) エッジ Schema ────────────────────
+
+/** AT α規則エッジのSchema */
+const AtAlphaEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("at-alpha"),
+  ruleId: Schema.String,
+  conclusionNodeId: Schema.String,
+  resultNodeId: Schema.optional(Schema.String),
+  secondResultNodeId: Schema.optional(Schema.String),
+  conclusionText: Schema.String,
+  resultText: Schema.String,
+  secondResultText: Schema.optional(Schema.String),
+});
+
+/** AT β規則エッジのSchema */
+const AtBetaEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("at-beta"),
+  ruleId: Schema.String,
+  conclusionNodeId: Schema.String,
+  leftResultNodeId: Schema.optional(Schema.String),
+  rightResultNodeId: Schema.optional(Schema.String),
+  conclusionText: Schema.String,
+  leftResultText: Schema.String,
+  rightResultText: Schema.String,
+});
+
+/** AT γ規則エッジのSchema */
+const AtGammaEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("at-gamma"),
+  ruleId: Schema.String,
+  conclusionNodeId: Schema.String,
+  resultNodeId: Schema.optional(Schema.String),
+  conclusionText: Schema.String,
+  resultText: Schema.String,
+  termText: Schema.String,
+});
+
+/** AT δ規則エッジのSchema */
+const AtDeltaEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("at-delta"),
+  ruleId: Schema.String,
+  conclusionNodeId: Schema.String,
+  resultNodeId: Schema.optional(Schema.String),
+  conclusionText: Schema.String,
+  resultText: Schema.String,
+  eigenVariable: Schema.String,
+});
+
+/** AT 閉じマークエッジのSchema */
+const AtClosedEdgeSchema = Schema.Struct({
+  _tag: Schema.Literal("at-closed"),
+  ruleId: Schema.Literal("closure"),
+  conclusionNodeId: Schema.String,
+  contradictionNodeId: Schema.String,
+  conclusionText: Schema.String,
+});
+
+/** InferenceEdgeのSchema（Hilbert系 + ND + TAB + AT） */
 const InferenceEdgeSchema = Schema.Union(
   // Hilbert系
   MPEdgeSchema,
@@ -431,6 +488,12 @@ const InferenceEdgeSchema = Schema.Union(
   TabSinglePremiseEdgeSchema,
   TabBranchingEdgeSchema,
   TabAxiomEdgeSchema,
+  // AT
+  AtAlphaEdgeSchema,
+  AtBetaEdgeSchema,
+  AtGammaEdgeSchema,
+  AtDeltaEdgeSchema,
+  AtClosedEdgeSchema,
 );
 
 /** WorkspaceGoalのSchema */

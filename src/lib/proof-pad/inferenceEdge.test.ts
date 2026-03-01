@@ -10,6 +10,7 @@ import {
   isHilbertInferenceEdge,
   isNdInferenceEdge,
   isTabInferenceEdge,
+  isAtInferenceEdge,
   type InferenceEdge,
   type MPEdge,
   type GenEdge,
@@ -32,6 +33,11 @@ import {
   type TabSinglePremiseEdge,
   type TabBranchingEdge,
   type TabAxiomEdge,
+  type AtAlphaEdge,
+  type AtBetaEdge,
+  type AtGammaEdge,
+  type AtDeltaEdge,
+  type AtClosedEdge,
 } from "./inferenceEdge";
 
 describe("inferenceEdge", () => {
@@ -1115,6 +1121,205 @@ describe("inferenceEdge", () => {
         expect(result).toEqual({
           ...tabAxiom,
           conclusionNodeId: "new-c1",
+        });
+      });
+    });
+  });
+
+  // ── AT edge tests ──
+
+  describe("isAtInferenceEdge", () => {
+    const atAlpha: AtAlphaEdge = {
+      _tag: "at-alpha",
+      ruleId: "alpha-conj",
+      conclusionNodeId: "c1",
+      resultNodeId: "r1",
+      secondResultNodeId: "r2",
+      conclusionText: "T:P ∧ Q",
+      resultText: "T:P",
+      secondResultText: "T:Q",
+    };
+    const atBeta: AtBetaEdge = {
+      _tag: "at-beta",
+      ruleId: "beta-disj",
+      conclusionNodeId: "c1",
+      leftResultNodeId: "l1",
+      rightResultNodeId: "r1",
+      conclusionText: "T:P ∨ Q",
+      leftResultText: "T:P",
+      rightResultText: "T:Q",
+    };
+    const atGamma: AtGammaEdge = {
+      _tag: "at-gamma",
+      ruleId: "gamma-univ",
+      conclusionNodeId: "c1",
+      resultNodeId: "r1",
+      conclusionText: "T:∀x.P(x)",
+      resultText: "T:P(y)",
+      termText: "y",
+    };
+    const atDelta: AtDeltaEdge = {
+      _tag: "at-delta",
+      ruleId: "delta-exist",
+      conclusionNodeId: "c1",
+      resultNodeId: "r1",
+      conclusionText: "T:∃x.P(x)",
+      resultText: "T:P(z)",
+      eigenVariable: "z",
+    };
+    const atClosed: AtClosedEdge = {
+      _tag: "at-closed",
+      ruleId: "closure",
+      conclusionNodeId: "c1",
+      contradictionNodeId: "c2",
+      conclusionText: "T:P",
+    };
+
+    it("returns true for AT edges", () => {
+      expect(isAtInferenceEdge(atAlpha)).toBe(true);
+      expect(isAtInferenceEdge(atBeta)).toBe(true);
+      expect(isAtInferenceEdge(atGamma)).toBe(true);
+      expect(isAtInferenceEdge(atDelta)).toBe(true);
+      expect(isAtInferenceEdge(atClosed)).toBe(true);
+    });
+
+    it("returns false for non-AT edges", () => {
+      const mp: MPEdge = {
+        _tag: "mp",
+        conclusionNodeId: "c1",
+        leftPremiseNodeId: "a",
+        rightPremiseNodeId: "b",
+        conclusionText: "",
+      };
+      expect(isAtInferenceEdge(mp)).toBe(false);
+      expect(isHilbertInferenceEdge(atAlpha)).toBe(false);
+      expect(isNdInferenceEdge(atAlpha)).toBe(false);
+      expect(isTabInferenceEdge(atAlpha)).toBe(false);
+    });
+
+    describe("getInferenceEdgeLabel for AT edges", () => {
+      it("returns display name for at-alpha", () => {
+        expect(getInferenceEdgeLabel(atAlpha)).toBe("T(∧)");
+      });
+      it("returns display name for at-beta", () => {
+        expect(getInferenceEdgeLabel(atBeta)).toBe("T(∨)");
+      });
+      it("returns display name for at-gamma", () => {
+        expect(getInferenceEdgeLabel(atGamma)).toBe("T(∀)");
+      });
+      it("returns display name for at-delta", () => {
+        expect(getInferenceEdgeLabel(atDelta)).toBe("T(∃)");
+      });
+      it("returns display name for at-closed", () => {
+        expect(getInferenceEdgeLabel(atClosed)).toBe("×");
+      });
+    });
+
+    describe("getInferenceEdgePremiseNodeIds for AT edges", () => {
+      it("returns result node IDs for at-alpha (2 results)", () => {
+        expect(getInferenceEdgePremiseNodeIds(atAlpha)).toEqual(["r1", "r2"]);
+      });
+      it("returns result node IDs for at-alpha (1 result)", () => {
+        const singleAlpha: AtAlphaEdge = {
+          ...atAlpha,
+          secondResultNodeId: undefined,
+        };
+        expect(getInferenceEdgePremiseNodeIds(singleAlpha)).toEqual(["r1"]);
+      });
+      it("returns result node IDs for at-beta", () => {
+        expect(getInferenceEdgePremiseNodeIds(atBeta)).toEqual(["l1", "r1"]);
+      });
+      it("returns result node IDs for at-gamma", () => {
+        expect(getInferenceEdgePremiseNodeIds(atGamma)).toEqual(["r1"]);
+      });
+      it("returns result node IDs for at-delta", () => {
+        expect(getInferenceEdgePremiseNodeIds(atDelta)).toEqual(["r1"]);
+      });
+      it("returns contradiction node ID for at-closed", () => {
+        expect(getInferenceEdgePremiseNodeIds(atClosed)).toEqual(["c2"]);
+      });
+      it("returns empty for at-alpha with undefined result nodes", () => {
+        const noResults: AtAlphaEdge = {
+          ...atAlpha,
+          resultNodeId: undefined,
+          secondResultNodeId: undefined,
+        };
+        expect(getInferenceEdgePremiseNodeIds(noResults)).toEqual([]);
+      });
+      it("returns empty for at-beta with undefined result nodes", () => {
+        const noResults: AtBetaEdge = {
+          ...atBeta,
+          leftResultNodeId: undefined,
+          rightResultNodeId: undefined,
+        };
+        expect(getInferenceEdgePremiseNodeIds(noResults)).toEqual([]);
+      });
+      it("returns empty for at-gamma with undefined result node", () => {
+        const noResult: AtGammaEdge = { ...atGamma, resultNodeId: undefined };
+        expect(getInferenceEdgePremiseNodeIds(noResult)).toEqual([]);
+      });
+      it("returns empty for at-delta with undefined result node", () => {
+        const noResult: AtDeltaEdge = { ...atDelta, resultNodeId: undefined };
+        expect(getInferenceEdgePremiseNodeIds(noResult)).toEqual([]);
+      });
+    });
+
+    describe("remapEdgeNodeIds for AT edges", () => {
+      it("remaps at-alpha edge node IDs", () => {
+        const result = remapEdgeNodeIds(
+          atAlpha,
+          (id) => `new-${id satisfies string}`,
+        );
+        expect(result).toEqual({
+          ...atAlpha,
+          conclusionNodeId: "new-c1",
+          resultNodeId: "new-r1",
+          secondResultNodeId: "new-r2",
+        });
+      });
+      it("remaps at-beta edge node IDs", () => {
+        const result = remapEdgeNodeIds(
+          atBeta,
+          (id) => `new-${id satisfies string}`,
+        );
+        expect(result).toEqual({
+          ...atBeta,
+          conclusionNodeId: "new-c1",
+          leftResultNodeId: "new-l1",
+          rightResultNodeId: "new-r1",
+        });
+      });
+      it("remaps at-gamma edge node IDs", () => {
+        const result = remapEdgeNodeIds(
+          atGamma,
+          (id) => `new-${id satisfies string}`,
+        );
+        expect(result).toEqual({
+          ...atGamma,
+          conclusionNodeId: "new-c1",
+          resultNodeId: "new-r1",
+        });
+      });
+      it("remaps at-delta edge node IDs", () => {
+        const result = remapEdgeNodeIds(
+          atDelta,
+          (id) => `new-${id satisfies string}`,
+        );
+        expect(result).toEqual({
+          ...atDelta,
+          conclusionNodeId: "new-c1",
+          resultNodeId: "new-r1",
+        });
+      });
+      it("remaps at-closed edge node IDs", () => {
+        const result = remapEdgeNodeIds(
+          atClosed,
+          (id) => `new-${id satisfies string}`,
+        );
+        expect(result).toEqual({
+          ...atClosed,
+          conclusionNodeId: "new-c1",
+          contradictionNodeId: "new-c2",
         });
       });
     });

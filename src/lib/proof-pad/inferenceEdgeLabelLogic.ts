@@ -12,6 +12,7 @@ import {
   getInferenceEdgeLabel,
   isHilbertInferenceEdge,
   isTabInferenceEdge,
+  isAtInferenceEdge,
 } from "./inferenceEdge";
 
 // --- ラベルバッジ色 ---
@@ -22,8 +23,14 @@ const ND_BADGE_COLOR = "var(--color-badge-nd, #0984e3)";
 /** TAB推論規則のデフォルトバッジ色 */
 const TAB_BADGE_COLOR = "var(--color-badge-tab, #d63031)";
 
+/** AT推論規則のデフォルトバッジ色 */
+const AT_BADGE_COLOR = "var(--color-badge-at, #e84393)";
+
 /** 推論規則の種別に応じたバッジ背景色 */
 export function getInferenceEdgeBadgeColor(edge: InferenceEdge): string {
+  if (isAtInferenceEdge(edge)) {
+    return AT_BADGE_COLOR;
+  }
   if (isTabInferenceEdge(edge)) {
     return TAB_BADGE_COLOR;
   }
@@ -117,6 +124,25 @@ export function getPremiseRole(
       return undefined;
     // TAB 公理（0前提）
     case "tab-axiom":
+      return undefined;
+    // AT 結果ノード系
+    case "at-alpha": {
+      if (edge.resultNodeId === premiseNodeId) return "premise";
+      if (edge.secondResultNodeId === premiseNodeId) return "premise";
+      return undefined;
+    }
+    case "at-beta":
+      if (edge.leftResultNodeId === premiseNodeId) return "left";
+      if (edge.rightResultNodeId === premiseNodeId) return "right";
+      return undefined;
+    case "at-gamma":
+      if (edge.resultNodeId === premiseNodeId) return "premise";
+      return undefined;
+    case "at-delta":
+      if (edge.resultNodeId === premiseNodeId) return "premise";
+      return undefined;
+    case "at-closed":
+      if (edge.contradictionNodeId === premiseNodeId) return "premise";
       return undefined;
   }
 }
