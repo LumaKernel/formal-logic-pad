@@ -383,4 +383,12 @@ describe("formatMessage", () => {
     expect(result).toContain("3");
     expect(result).not.toContain("{count}");
   });
+
+  it("should format tabBannerSelectNode correctly", () => {
+    const result = formatMessage(defaultProofMessages.tabBannerSelectNode, {
+      ruleName: "∧",
+    });
+    expect(result).toContain("∧");
+    expect(result).not.toContain("{ruleName}");
+  });
 });

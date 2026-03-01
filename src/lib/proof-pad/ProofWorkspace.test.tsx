@@ -3373,5 +3373,80 @@ describe("ProofWorkspace", () => {
         screen.queryByTestId("workspace-nd-rule-palette"),
       ).not.toBeInTheDocument();
     });
+
+    it("clicking a rule shows TAB selection banner", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+      // バナーが最初は非表示
+      expect(
+        screen.queryByTestId("workspace-tab-banner"),
+      ).not.toBeInTheDocument();
+      // 規則をクリック
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-conjunction"),
+      );
+      // バナーが表示される
+      expect(
+        screen.getByTestId("workspace-tab-banner"),
+      ).toBeInTheDocument();
+    });
+
+    it("clicking cancel in TAB banner dismisses it", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+      // 規則をクリック
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-conjunction"),
+      );
+      expect(
+        screen.getByTestId("workspace-tab-banner"),
+      ).toBeInTheDocument();
+      // キャンセルボタンをクリック
+      const cancelButton = screen.getByTestId("workspace-tab-banner")
+        .querySelector("button");
+      expect(cancelButton).not.toBeNull();
+      await user.click(cancelButton!);
+      // バナーが消える
+      expect(
+        screen.queryByTestId("workspace-tab-banner"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("TAB rule selection is cleared when another selection starts", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+      // 規則をクリック
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-conjunction"),
+      );
+      expect(
+        screen.getByTestId("workspace-tab-banner"),
+      ).toBeInTheDocument();
+      // 別の規則をクリック → バナーは更新される（消えない）
+      await user.click(
+        screen.getByTestId("workspace-tab-rule-palette-rule-disjunction"),
+      );
+      expect(
+        screen.getByTestId("workspace-tab-banner"),
+      ).toBeInTheDocument();
+    });
+
+    it("selected rule is visually highlighted in palette", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(tableauCalculusDeduction(tabSystem));
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+      const ruleEl = screen.getByTestId(
+        "workspace-tab-rule-palette-rule-conjunction",
+      );
+      // クリック前はfontWeight 600でない
+      expect(ruleEl.style.fontWeight).not.toBe("600");
+      // 規則をクリック
+      await user.click(ruleEl);
+      // 選択後はfontWeight 600
+      expect(ruleEl.style.fontWeight).toBe("600");
+    });
   });
 });

@@ -9,6 +9,7 @@
  * 変更時は ProofWorkspace.test.tsx, ProofWorkspace.stories.tsx, workspaceState.ts, goalCheckLogic.ts, index.ts も同期すること。
  */
 
+import { Either } from "effect";
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LogicSystem } from "../logic-core/inferenceRule";
@@ -41,6 +42,12 @@ import {
 } from "./axiomPaletteLogic";
 import { NdRulePalette } from "./NdRulePalette";
 import { TabRulePalette } from "./TabRulePalette";
+import type { TabRuleId } from "../logic-core/tableauCalculus";
+import { getTabRuleDisplayName } from "../logic-core/tableauCalculus";
+import {
+  getTabErrorMessage,
+  isTabAxiomRule,
+} from "./tabApplicationLogic";
 import {
   validateMPApplication,
   computeMPCompatibleNodeIds,
@@ -111,6 +118,7 @@ import {
   updateInferenceEdgeGenVariableName,
   updateInferenceEdgeSubstitutionEntries,
   mergeSelectedNodes,
+  applyTabRuleAndConnect,
 } from "./workspaceState";
 import {
   findMergeableGroups,
@@ -225,6 +233,15 @@ type MergeSelectionState =
   | {
       readonly phase: "selecting-target";
       readonly leaderNodeId: string;
+    };
+
+// --- TAB規則選択モードの状態 ---
+
+type TabSelectionState =
+  | { readonly phase: "idle" }
+  | {
+      readonly phase: "selecting-node";
+      readonly ruleId: TabRuleId;
     };
 
 // --- デフォルトノードサイズ（ポート位置計算に必要） ---
@@ -345,6 +362,11 @@ const genVariableInputStyle = {
 const mergeSelectionBannerStyle = {
   ...mpSelectionBannerStyle,
   background: "var(--color-merge-banner, rgba(74,148,217,0.95))",
+};
+
+const tabSelectionBannerStyle = {
+  ...mpSelectionBannerStyle,
+  background: "var(--color-tab-banner, rgba(100, 140, 80, 0.95))",
 };
 
 const substBannerStyle = {
@@ -577,6 +599,11 @@ export function ProofWorkspace({
 
   // マージ選択モード
   const [mergeSelection, setMergeSelection] = useState<MergeSelectionState>({
+    phase: "idle",
+  });
+
+  // TAB規則選択モード
+  const [tabSelection, setTabSelection] = useState<TabSelectionState>({
     phase: "idle",
   });
 
@@ -1080,6 +1107,121 @@ export function ProofWorkspace({
     [mergeSelection, workspace, setWorkspaceWithAutoLayout],
   );
 
+  // --- TAB規則選択モードハンドラ ---
+
+  const handleStartTabRuleSelection = useCallback(
+    (ruleId: TabRuleId) => {
+      // 公理規則（BS, ⊥）は直接ノード選択なしで適用不可 → ノード選択に進む
+      setTabSelection({ phase: "selecting-node", ruleId });
+      setMPSelection({ phase: "idle" });
+      setGenSelection({ phase: "idle" });
+      setMergeSelection({ phase: "idle" });
+    },
+    [],
+  );
+
+  const handleCancelTabSelection = useCallback(() => {
+    setTabSelection({ phase: "idle" });
+  }, []);
+
+  const handleNodeClickForTab = useCallback(
+    (nodeId: string) => {
+      if (tabSelection.phase !== "selecting-node") return;
+
+      const conclusionNode = findNode(workspace, nodeId);
+      if (!conclusionNode) return;
+
+      const { ruleId } = tabSelection;
+
+      // 規則に応じて追加パラメータを収集
+      let principalPosition = 0;
+      let eigenVariable: string | undefined;
+      let termText: string | undefined;
+      let exchangePosition: number | undefined;
+
+      // 交換規則: 位置入力
+      if (ruleId === "exchange") {
+        const input = globalThis.prompt(msg.tabExchangePositionPrompt, "0");
+        if (input === null) {
+          setTabSelection({ phase: "idle" });
+          return;
+        }
+        exchangePosition = parseInt(input, 10);
+        if (Number.isNaN(exchangePosition)) {
+          setTabSelection({ phase: "idle" });
+          return;
+        }
+      }
+
+      // 公理規則以外: 主論理式の位置入力（デフォルト0）
+      if (!isTabAxiomRule(ruleId) && ruleId !== "exchange") {
+        const input = globalThis.prompt(msg.tabPositionPrompt, "0");
+        if (input === null) {
+          setTabSelection({ phase: "idle" });
+          return;
+        }
+        principalPosition = parseInt(input, 10);
+        if (Number.isNaN(principalPosition)) {
+          setTabSelection({ phase: "idle" });
+          return;
+        }
+      }
+
+      // 量化子規則: 追加パラメータ入力
+      if (ruleId === "universal" || ruleId === "neg-existential") {
+        const input = globalThis.prompt(msg.tabTermPrompt, "");
+        if (input === null) {
+          setTabSelection({ phase: "idle" });
+          return;
+        }
+        termText = input;
+      }
+      if (ruleId === "neg-universal" || ruleId === "existential") {
+        const input = globalThis.prompt(msg.tabEigenVariablePrompt, "");
+        if (input === null) {
+          setTabSelection({ phase: "idle" });
+          return;
+        }
+        eigenVariable = input;
+      }
+
+      // 前提ノードの位置計算
+      const premisePositions: Point[] = [];
+      premisePositions.push({
+        x: conclusionNode.position.x - 100,
+        y: conclusionNode.position.y - 150,
+      });
+      premisePositions.push({
+        x: conclusionNode.position.x + 100,
+        y: conclusionNode.position.y - 150,
+      });
+
+      const result = applyTabRuleAndConnect(
+        workspace,
+        nodeId,
+        {
+          ruleId,
+          sequentText: conclusionNode.formulaText,
+          principalPosition,
+          eigenVariable,
+          termText,
+          exchangePosition,
+        },
+        premisePositions,
+      );
+
+      if (Either.isRight(result.validation)) {
+        setWorkspaceWithAutoLayout(result.workspace);
+      } else {
+        const errorMsg = getTabErrorMessage(result.validation.left);
+        globalThis.alert(errorMsg);
+      }
+
+      setTabSelection({ phase: "idle" });
+    },
+    [tabSelection, workspace, setWorkspaceWithAutoLayout, msg],
+  );
+
   // 統合ノードクリックハンドラ
   const handleNodeClickForSelection = useCallback(
     (nodeId: string) => {
@@ -1089,22 +1231,27 @@ export function ProofWorkspace({
         handleNodeClickForGen(nodeId);
       } else if (mergeSelection.phase !== "idle") {
         handleNodeClickForMerge(nodeId);
+      } else if (tabSelection.phase !== "idle") {
+        handleNodeClickForTab(nodeId);
       }
     },
     [
       mpSelection,
       genSelection,
       mergeSelection,
+      tabSelection,
       handleNodeClickForMP,
       handleNodeClickForGen,
       handleNodeClickForMerge,
+      handleNodeClickForTab,
     ],
   );
 
   const isSelectionActive =
     mpSelection.phase !== "idle" ||
     genSelection.phase !== "idle" ||
-    mergeSelection.phase !== "idle";
+    mergeSelection.phase !== "idle" ||
+    tabSelection.phase !== "idle";
 
   // --- MP互換ノードIDセット（ハイライト用） ---
 
@@ -2957,6 +3104,29 @@ export function ProofWorkspace({
         </div>
       ) : null}
 
+      {/* TAB規則選択バナー */}
+      {tabSelection.phase !== "idle" ? (
+        <div
+          style={tabSelectionBannerStyle}
+          data-testid={
+            testId ? `${testId satisfies string}-tab-banner` : undefined
+          }
+        >
+          <span>
+            {formatMessage(msg.tabBannerSelectNode, {
+              ruleName: getTabRuleDisplayName(tabSelection.ruleId),
+            })}
+          </span>
+          <button
+            type="button"
+            style={cancelButtonStyle}
+            onClick={handleCancelTabSelection}
+          >
+            {msg.tabCancel}
+          </button>
+        </div>
+      ) : null}
+
       {/* Gen変数名入力プロンプト（コンテキストメニューから起動） */}
       {genPromptNodeId !== null ? (
         <div
@@ -3291,6 +3461,12 @@ export function ProofWorkspace({
         <TabRulePalette
           rules={availableTabRules}
           onAddSequent={handleAddSequent}
+          onRuleClick={handleStartTabRuleSelection}
+          selectedRuleId={
+            tabSelection.phase === "selecting-node"
+              ? tabSelection.ruleId
+              : undefined
+          }
           testId={
             testId ? `${testId satisfies string}-tab-rule-palette` : undefined
           }
