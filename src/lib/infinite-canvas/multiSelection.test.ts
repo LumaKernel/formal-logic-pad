@@ -176,6 +176,33 @@ describe("rectsOverlap", () => {
       ),
     ).toBe(false);
   });
+
+  it("Y方向のみ重なりがあっても、X方向が離れていればfalse", () => {
+    expect(
+      rectsOverlap(
+        { x: 0, y: 0, width: 50, height: 100 },
+        { x: 100, y: 50, width: 50, height: 100 },
+      ),
+    ).toBe(false);
+  });
+
+  it("bがaの左側にある場合はfalse", () => {
+    expect(
+      rectsOverlap(
+        { x: 100, y: 0, width: 50, height: 50 },
+        { x: 0, y: 0, width: 50, height: 50 },
+      ),
+    ).toBe(false);
+  });
+
+  it("bがaの上側にある場合はfalse", () => {
+    expect(
+      rectsOverlap(
+        { x: 0, y: 100, width: 50, height: 50 },
+        { x: 0, y: 0, width: 50, height: 50 },
+      ),
+    ).toBe(false);
+  });
 });
 
 describe("findItemsInMarquee", () => {
