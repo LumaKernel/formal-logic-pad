@@ -7215,3 +7215,30 @@
   - AtSelectionState は3フェーズ: idle → selecting-node → selecting-contradiction（closureのみ）。γ/δ規則はpromptでterm/eigenVariable入力
   - notebookCreateLogic のプリセット・カテゴリは、新演繹システム追加時に必ず更新が必要（テストのカテゴリ数、スタイルリスト、フィルタ条件）
 ---
+
+## 2026-03-01 - 分析的タブロー用クエスト (AT-004)
+- 実装した内容: 分析的タブロー（Analytic Tableau）の学習用クエスト7問を追加
+  - at-01: 排中律 (α/β規則) - Lv.1
+  - at-02: 含意の基本 (α規則) - Lv.1
+  - at-03: 二重否定除去 (α規則) - Lv.1
+  - at-04: 対偶 (α/β規則) - Lv.2
+  - at-05: ド・モルガン (α/β規則) - Lv.2
+  - at-06: 分配律 (複合分岐) - Lv.3
+  - at-07: 全称から存在 (γ/δ規則) - Lv.2
+- 変更したファイル:
+  - `src/lib/quest/questDefinition.ts` - at-basicsカテゴリ追加、at-prop/atプリセットID追加
+  - `src/lib/quest/questDefinition.test.ts` - カテゴリ数12→13更新
+  - `src/lib/quest/builtinQuests.ts` - ATクエスト7問定義追加
+  - `src/lib/quest/builtinQuests.test.ts` - クエスト数93→100更新
+  - `tasks/prd-analytic-tableau.md` - AT-004を完了マーク
+- ベースラインカバレッジ: Stmts 97.07%, Branch 90.84%, Funcs 88.66%, Lines 97.86%
+- 完了後カバレッジ: Stmts 97.07%, Branch 90.84%, Funcs 88.67%, Lines 97.86%（維持）
+- テスト: 206ファイル、6221テスト全パス
+- スクリーンショット:
+  - `.screenshots/at-004-quest-catalog-at-basics.png` - クエストカタログAT基礎カテゴリ上部
+  - `.screenshots/at-004-quest-catalog-at-basics-bottom.png` - クエストカタログAT基礎カテゴリ全7問
+- **今後のイテレーションへの学び:**
+  - パーサーの量化子構文は `all x.` / `forall x.`（∀）と `ex x.` / `exists x.`（∃）。`Ax.` や `Ex.` は認識されない
+  - ATクエストのgoal formulaTextは通常の論理式（`phi \/ ~phi`等）で記述する。署名付き形式（`T:φ`/`F:φ`）はルートノード作成時にUI側で付与される
+  - builtinQuestsの総数を100に到達させた。次のクエスト追加時はテストの期待値を更新すること
+---
