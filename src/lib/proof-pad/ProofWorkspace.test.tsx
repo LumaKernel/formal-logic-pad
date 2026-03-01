@@ -11,11 +11,13 @@ import {
   naturalDeduction,
   tableauCalculusDeduction,
   analyticTableauDeduction,
+  sequentCalculusDeduction,
   njSystem,
   nkSystem,
   tabSystem,
   tabPropSystem,
   atSystem,
+  lkSystem,
 } from "../logic-core/deductionSystem";
 import { allReferenceEntries } from "../reference/referenceContent";
 import type { Formula } from "../logic-core/formula";
@@ -4085,6 +4087,61 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("workspace-at-rule-palette-rule-beta-impl"),
       );
       expect(screen.getByTestId("workspace-at-banner")).toBeInTheDocument();
+    });
+  });
+
+  describe("SC (Sequent Calculus)", () => {
+    it("renders with SC LK system and shows SC palette", () => {
+      const ws = createEmptyWorkspace(sequentCalculusDeduction(lkSystem));
+      render(
+        <ProofWorkspace
+          system={ws.system}
+          workspace={ws}
+          onWorkspaceChange={() => {}}
+          testId="workspace"
+        />,
+      );
+      expect(
+        screen.getByTestId("workspace-sc-rule-palette"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("Sequent Calculus")).toBeInTheDocument();
+      expect(screen.getByText("公理 (ID)")).toBeInTheDocument();
+    });
+
+    it("adds a sequent node when add-sequent button is clicked", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(sequentCalculusDeduction(lkSystem));
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+      await user.click(
+        screen.getByTestId("workspace-sc-rule-palette-add-sequent"),
+      );
+      await waitFor(() => {
+        expect(screen.getByText("Sequent")).toBeInTheDocument();
+      });
+    });
+
+    it("does not show other palettes in SC mode", () => {
+      const ws = createEmptyWorkspace(sequentCalculusDeduction(lkSystem));
+      render(
+        <ProofWorkspace
+          system={ws.system}
+          workspace={ws}
+          onWorkspaceChange={() => {}}
+          testId="workspace"
+        />,
+      );
+      expect(
+        screen.queryByTestId("workspace-axiom-palette"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("workspace-nd-rule-palette"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("workspace-tab-rule-palette"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("workspace-at-rule-palette"),
+      ).not.toBeInTheDocument();
     });
   });
 

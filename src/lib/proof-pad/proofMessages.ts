@@ -196,6 +196,9 @@ export type ProofMessages = {
   readonly tabPaletteHeader: string;
   readonly tabAddSequent: string;
   readonly tabRulesSection: string;
+  readonly scPaletteHeader: string;
+  readonly scAddSequent: string;
+  readonly scRulesSection: string;
   readonly atPaletteHeader: string;
   readonly atAddFormula: string;
   readonly atAlphaRules: string;
@@ -372,6 +375,9 @@ export const defaultProofMessages: ProofMessages = {
   tabPaletteHeader: "Tableau Calculus",
   tabAddSequent: "+ Add Sequent",
   tabRulesSection: "Rules",
+  scPaletteHeader: "Sequent Calculus",
+  scAddSequent: "+ Add Sequent",
+  scRulesSection: "Rules",
   atPaletteHeader: "Analytic Tableau",
   atAddFormula: "+ Add Signed Formula",
   atAlphaRules: "\u03B1 (non-branching)",
