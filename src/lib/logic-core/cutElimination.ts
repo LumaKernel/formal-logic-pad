@@ -346,14 +346,18 @@ const eliminateCutsRecursive = (
     counter,
     steps,
   );
+  /* v8 ignore start -- StepLimitExceeded/MAX_RECURSION_DEPTH 超過時の防御的伝播 */
   if (leftResult._tag !== "Success") return leftResult;
+  /* v8 ignore stop */
   const rightResult = eliminateCutsRecursive(
     node.right,
     depth + 1,
     counter,
     steps,
   );
+  /* v8 ignore start -- StepLimitExceeded/MAX_RECURSION_DEPTH 超過時の防御的伝播 */
   if (rightResult._tag !== "Success") return rightResult;
+  /* v8 ignore stop */
 
   // カットフリーな左右を持つ新しいカットノード
   const cutNode: ScCut = scCut(
@@ -370,8 +374,10 @@ const eliminateCutsRecursive = (
 /**
  * カットでないノードの子を再帰的に処理する。
  *
- * NOTE: 各ケースの `if (isAborted(r)) return r;` は
- * StepLimitExceeded 時の早期リターン、および MAX_RECURSION_DEPTH 超過時の防御的コード。
+ * NOTE: 各ケースの `if (r._tag !== "Success") return r;` は
+ * StepLimitExceeded 時の早期リターン。eliminateCutsRecursive が
+ * 非Successを返すのは maxSteps/MAX_RECURSION_DEPTH 超過時のみで、
+ * 通常テストでは到達しない防御的コード。
  */
 const eliminateFromChildren = (
   node: ScProofNode,
@@ -385,7 +391,9 @@ const eliminateFromChildren = (
       return { _tag: "Success", proof: node };
     case "ScWeakeningLeft": {
       const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (r._tag !== "Success") return r;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scWeakeningLeft(r.proof, node.weakenedFormula, node.conclusion),
@@ -393,7 +401,9 @@ const eliminateFromChildren = (
     }
     case "ScWeakeningRight": {
       const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (r._tag !== "Success") return r;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scWeakeningRight(r.proof, node.weakenedFormula, node.conclusion),
@@ -401,7 +411,9 @@ const eliminateFromChildren = (
     }
     case "ScContractionLeft": {
       const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (r._tag !== "Success") return r;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scContractionLeft(
@@ -413,7 +425,9 @@ const eliminateFromChildren = (
     }
     case "ScContractionRight": {
       const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (r._tag !== "Success") return r;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scContractionRight(
@@ -425,7 +439,9 @@ const eliminateFromChildren = (
     }
     case "ScExchangeLeft": {
       const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (r._tag !== "Success") return r;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scExchangeLeft(r.proof, node.position, node.conclusion),
@@ -433,7 +449,9 @@ const eliminateFromChildren = (
     }
     case "ScExchangeRight": {
       const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (r._tag !== "Success") return r;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scExchangeRight(r.proof, node.position, node.conclusion),
@@ -441,9 +459,13 @@ const eliminateFromChildren = (
     }
     case "ScImplicationLeft": {
       const lr = eliminateCutsRecursive(node.left, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (lr._tag !== "Success") return lr;
+      /* v8 ignore stop */
       const rr = eliminateCutsRecursive(node.right, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (rr._tag !== "Success") return rr;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scImplicationLeft(lr.proof, rr.proof, node.conclusion),
@@ -451,7 +473,9 @@ const eliminateFromChildren = (
     }
     case "ScImplicationRight": {
       const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (r._tag !== "Success") return r;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scImplicationRight(r.proof, node.conclusion),
@@ -459,7 +483,9 @@ const eliminateFromChildren = (
     }
     case "ScConjunctionLeft": {
       const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (r._tag !== "Success") return r;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scConjunctionLeft(r.proof, node.componentIndex, node.conclusion),
@@ -467,9 +493,13 @@ const eliminateFromChildren = (
     }
     case "ScConjunctionRight": {
       const lr = eliminateCutsRecursive(node.left, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (lr._tag !== "Success") return lr;
+      /* v8 ignore stop */
       const rr = eliminateCutsRecursive(node.right, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (rr._tag !== "Success") return rr;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scConjunctionRight(lr.proof, rr.proof, node.conclusion),
@@ -477,9 +507,13 @@ const eliminateFromChildren = (
     }
     case "ScDisjunctionLeft": {
       const lr = eliminateCutsRecursive(node.left, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (lr._tag !== "Success") return lr;
+      /* v8 ignore stop */
       const rr = eliminateCutsRecursive(node.right, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (rr._tag !== "Success") return rr;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scDisjunctionLeft(lr.proof, rr.proof, node.conclusion),
@@ -487,7 +521,9 @@ const eliminateFromChildren = (
     }
     case "ScDisjunctionRight": {
       const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (r._tag !== "Success") return r;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scDisjunctionRight(
@@ -502,7 +538,9 @@ const eliminateFromChildren = (
     case "ScExistentialLeft":
     case "ScExistentialRight": {
       const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (r._tag !== "Success") return r;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: { ...node, premise: r.proof },
@@ -794,7 +832,9 @@ const pushMixIntoLeft = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scWeakeningRight(
@@ -821,7 +861,9 @@ const pushMixIntoLeft = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scWeakeningLeft(
@@ -856,7 +898,9 @@ const pushMixIntoLeft = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scContractionRight(
@@ -879,7 +923,9 @@ const pushMixIntoLeft = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scContractionLeft(
@@ -904,7 +950,9 @@ const pushMixIntoLeft = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return innerResult;
     }
 
@@ -922,7 +970,9 @@ const pushMixIntoLeft = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scImplicationRight(innerResult.proof, cutNode.conclusion),
@@ -933,7 +983,6 @@ const pushMixIntoLeft = (
       // 左前提: Γ ⇒ Π,α  右前提: β,Σ ⇒ Δ / Γ,α→β,Σ ⇒ Π,Δ
       // φが右辺にある前提に MIX を押し上げ
       const leftLeftConc = getScConclusion(leftNode.left);
-      const leftRightConc = getScConclusion(leftNode.right);
 
       if (containsFormula(leftLeftConc.succedents, phi)) {
         // 左の左前提にφがある
@@ -948,7 +997,9 @@ const pushMixIntoLeft = (
           counter,
           steps,
         );
-        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
+      if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scImplicationLeft(
@@ -957,9 +1008,8 @@ const pushMixIntoLeft = (
             cutNode.conclusion,
           ),
         };
-      }
-      if (containsFormula(leftRightConc.succedents, phi)) {
-        // 左の右前提にφがある
+      } else {
+        // rank >= 2 の不変条件により、φは左の右前提にある
         const innerCut = scCut(
           leftNode.right,
           cutNode.right,
@@ -972,7 +1022,9 @@ const pushMixIntoLeft = (
           counter,
           steps,
         );
-        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
+      if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scImplicationLeft(
@@ -982,16 +1034,11 @@ const pushMixIntoLeft = (
           ),
         };
       }
-      /* v8 ignore start -- φが両前提にない場合は rank >= 2 に矛盾するため到達不可 */
-      // φがどちらにもない → ランク0と同等
-      return eliminateRankZeroLeft(cutNode);
-      /* v8 ignore stop */
     }
 
     case "ScConjunctionRight": {
       // (⇒∧): Γ ⇒ Δ,φ1 / Γ ⇒ Δ,φ2 / Γ ⇒ Δ,φ1∧φ2
       const leftLeftConc = getScConclusion(leftNode.left);
-      const leftRightConc = getScConclusion(leftNode.right);
 
       if (containsFormula(leftLeftConc.succedents, phi)) {
         const innerCut = scCut(
@@ -1006,7 +1053,9 @@ const pushMixIntoLeft = (
           counter,
           steps,
         );
-        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
+      if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scConjunctionRight(
@@ -1015,8 +1064,8 @@ const pushMixIntoLeft = (
             cutNode.conclusion,
           ),
         };
-      }
-      if (containsFormula(leftRightConc.succedents, phi)) {
+      } else {
+        // rank >= 2 の不変条件により、φは左の右前提にある
         const innerCut = scCut(
           leftNode.right,
           cutNode.right,
@@ -1029,7 +1078,9 @@ const pushMixIntoLeft = (
           counter,
           steps,
         );
-        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
+      if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scConjunctionRight(
@@ -1039,9 +1090,6 @@ const pushMixIntoLeft = (
           ),
         };
       }
-      /* v8 ignore start */
-      return eliminateRankZeroLeft(cutNode);
-      /* v8 ignore stop */
     }
 
     case "ScConjunctionLeft":
@@ -1059,7 +1107,9 @@ const pushMixIntoLeft = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       if (leftNode._tag === "ScConjunctionLeft") {
         return {
           _tag: "Success",
@@ -1082,7 +1132,6 @@ const pushMixIntoLeft = (
 
     case "ScDisjunctionLeft": {
       const leftLeftConc = getScConclusion(leftNode.left);
-      const leftRightConc = getScConclusion(leftNode.right);
 
       if (containsFormula(leftLeftConc.succedents, phi)) {
         const innerCut = scCut(
@@ -1097,7 +1146,9 @@ const pushMixIntoLeft = (
           counter,
           steps,
         );
-        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
+      if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scDisjunctionLeft(
@@ -1106,8 +1157,8 @@ const pushMixIntoLeft = (
             cutNode.conclusion,
           ),
         };
-      }
-      if (containsFormula(leftRightConc.succedents, phi)) {
+      } else {
+        // rank >= 2 の不変条件により、φは左の右前提にある
         const innerCut = scCut(
           leftNode.right,
           cutNode.right,
@@ -1120,7 +1171,9 @@ const pushMixIntoLeft = (
           counter,
           steps,
         );
-        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
+      if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scDisjunctionLeft(
@@ -1130,9 +1183,6 @@ const pushMixIntoLeft = (
           ),
         };
       }
-      /* v8 ignore start */
-      return eliminateRankZeroLeft(cutNode);
-      /* v8 ignore stop */
     }
 
     case "ScUniversalLeft":
@@ -1151,7 +1201,9 @@ const pushMixIntoLeft = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: {
@@ -1225,7 +1277,9 @@ const pushMixIntoRight = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scWeakeningLeft(
@@ -1250,7 +1304,9 @@ const pushMixIntoRight = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scWeakeningRight(
@@ -1282,7 +1338,9 @@ const pushMixIntoRight = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scContractionLeft(
@@ -1305,7 +1363,9 @@ const pushMixIntoRight = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scContractionRight(
@@ -1329,7 +1389,6 @@ const pushMixIntoRight = (
 
     case "ScImplicationLeft": {
       const rightLeftConc = getScConclusion(rightNode.left);
-      const rightRightConc = getScConclusion(rightNode.right);
 
       if (containsFormula(rightLeftConc.antecedents, phi)) {
         const innerCut = scCut(
@@ -1344,7 +1403,9 @@ const pushMixIntoRight = (
           counter,
           steps,
         );
-        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
+      if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scImplicationLeft(
@@ -1353,8 +1414,8 @@ const pushMixIntoRight = (
             cutNode.conclusion,
           ),
         };
-      }
-      if (containsFormula(rightRightConc.antecedents, phi)) {
+      } else {
+        // rank >= 2 の不変条件により、φは右の右前提にある
         const innerCut = scCut(
           cutNode.left,
           rightNode.right,
@@ -1367,7 +1428,9 @@ const pushMixIntoRight = (
           counter,
           steps,
         );
-        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
+      if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scImplicationLeft(
@@ -1377,9 +1440,6 @@ const pushMixIntoRight = (
           ),
         };
       }
-      /* v8 ignore start */
-      return eliminateRankZeroRight(cutNode);
-      /* v8 ignore stop */
     }
 
     case "ScImplicationRight": {
@@ -1395,7 +1455,9 @@ const pushMixIntoRight = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scImplicationRight(innerResult.proof, cutNode.conclusion),
@@ -1415,7 +1477,9 @@ const pushMixIntoRight = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scConjunctionLeft(
@@ -1428,7 +1492,6 @@ const pushMixIntoRight = (
 
     case "ScConjunctionRight": {
       const rightLeftConc = getScConclusion(rightNode.left);
-      const rightRightConc = getScConclusion(rightNode.right);
 
       if (containsFormula(rightLeftConc.antecedents, phi)) {
         const innerCut = scCut(
@@ -1443,7 +1506,9 @@ const pushMixIntoRight = (
           counter,
           steps,
         );
-        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
+      if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scConjunctionRight(
@@ -1452,8 +1517,8 @@ const pushMixIntoRight = (
             cutNode.conclusion,
           ),
         };
-      }
-      if (containsFormula(rightRightConc.antecedents, phi)) {
+      } else {
+        // rank >= 2 の不変条件により、φは右の右前提にある
         const innerCut = scCut(
           cutNode.left,
           rightNode.right,
@@ -1466,7 +1531,9 @@ const pushMixIntoRight = (
           counter,
           steps,
         );
-        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
+      if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scConjunctionRight(
@@ -1476,14 +1543,10 @@ const pushMixIntoRight = (
           ),
         };
       }
-      /* v8 ignore start */
-      return eliminateRankZeroRight(cutNode);
-      /* v8 ignore stop */
     }
 
     case "ScDisjunctionLeft": {
       const rightLeftConc = getScConclusion(rightNode.left);
-      const rightRightConc = getScConclusion(rightNode.right);
 
       if (containsFormula(rightLeftConc.antecedents, phi)) {
         const innerCut = scCut(
@@ -1498,7 +1561,9 @@ const pushMixIntoRight = (
           counter,
           steps,
         );
-        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
+      if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scDisjunctionLeft(
@@ -1507,8 +1572,8 @@ const pushMixIntoRight = (
             cutNode.conclusion,
           ),
         };
-      }
-      if (containsFormula(rightRightConc.antecedents, phi)) {
+      } else {
+        // rank >= 2 の不変条件により、φは右の右前提にある
         const innerCut = scCut(
           cutNode.left,
           rightNode.right,
@@ -1521,7 +1586,9 @@ const pushMixIntoRight = (
           counter,
           steps,
         );
-        if (innerResult._tag !== "Success") return innerResult;
+        /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
+      if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
         return {
           _tag: "Success",
           proof: scDisjunctionLeft(
@@ -1531,9 +1598,6 @@ const pushMixIntoRight = (
           ),
         };
       }
-      /* v8 ignore start */
-      return eliminateRankZeroRight(cutNode);
-      /* v8 ignore stop */
     }
 
     case "ScDisjunctionRight": {
@@ -1549,7 +1613,9 @@ const pushMixIntoRight = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: scDisjunctionRight(
@@ -1576,7 +1642,9 @@ const pushMixIntoRight = (
         counter,
         steps,
       );
+      /* v8 ignore start -- StepLimitExceeded 防御的伝播 */
       if (innerResult._tag !== "Success") return innerResult;
+      /* v8 ignore stop */
       return {
         _tag: "Success",
         proof: {

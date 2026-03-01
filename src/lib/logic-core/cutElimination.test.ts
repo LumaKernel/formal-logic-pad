@@ -1661,6 +1661,28 @@ describe("eliminateCuts", () => {
       }
     });
 
+    it("ScUniversalLeft: 全称左規則の場合", () => {
+      const left = scIdentity(sequent([phi], [phi]));
+      const premise = scIdentity(sequent([phi], [phi]));
+      const weak = scWeakeningRight(premise, psi, sequent([phi], [phi, psi]));
+      const right = scUniversalLeft(
+        weak,
+        sequent([phi, universal(x, phi)], [phi, psi]),
+      );
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([universal(x, phi)], [psi]),
+      );
+
+      const result = eliminateCuts(cut);
+      expect(result._tag).toBe("Success");
+      if (result._tag === "Success") {
+        expect(isCutFree(result.proof)).toBe(true);
+      }
+    });
+
     it("ScBottomLeft: 右がBottomLeftの場合", () => {
       const left = scIdentity(sequent([phi], [phi]));
       const right = scBottomLeft(sequent([], []));
