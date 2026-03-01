@@ -36,9 +36,11 @@ import { AxiomPalette } from "./AxiomPalette";
 import {
   getAvailableAxioms,
   getAvailableNdRules,
+  getAvailableTabRules,
   type AxiomPaletteItem,
 } from "./axiomPaletteLogic";
 import { NdRulePalette } from "./NdRulePalette";
+import { TabRulePalette } from "./TabRulePalette";
 import {
   validateMPApplication,
   computeMPCompatibleNodeIds,
@@ -888,6 +890,14 @@ export function ProofWorkspace({
     [workspace.deductionSystem],
   );
 
+  const availableTabRules = useMemo(
+    () =>
+      workspace.deductionSystem.style === "tableau-calculus"
+        ? getAvailableTabRules(workspace.deductionSystem.system)
+        : [],
+    [workspace.deductionSystem],
+  );
+
   // --- 推論規則リファレンス ---
 
   const mpReferenceEntry = useMemo(() => {
@@ -934,6 +944,15 @@ export function ProofWorkspace({
     // NDでは仮定ノードを追加。formulaTextは空で、ユーザーが自由に入力する。
     setWorkspaceWithAutoLayout(
       addNode(workspace, "axiom", "Assumption", position, ""),
+    );
+  }, [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition]);
+
+  const handleAddSequent = useCallback(() => {
+    const position = computeNewNodePosition(workspace.nodes);
+    // TABではシーケントノードを追加。formulaTextは空で、ユーザーが式を入力する。
+    // TABシーケントは左辺（Γ）のみで右辺は常に空。
+    setWorkspaceWithAutoLayout(
+      addNode(workspace, "axiom", "Sequent", position, ""),
     );
   }, [workspace, setWorkspaceWithAutoLayout, computeNewNodePosition]);
 
@@ -3266,6 +3285,14 @@ export function ProofWorkspace({
           onAddAssumption={handleAddAssumption}
           testId={
             testId ? `${testId satisfies string}-nd-rule-palette` : undefined
+          }
+        />
+      ) : workspace.deductionSystem.style === "tableau-calculus" ? (
+        <TabRulePalette
+          rules={availableTabRules}
+          onAddSequent={handleAddSequent}
+          testId={
+            testId ? `${testId satisfies string}-tab-rule-palette` : undefined
           }
         />
       ) : (
