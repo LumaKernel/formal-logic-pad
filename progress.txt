@@ -6999,3 +6999,35 @@
   - questDefinition.tsのQuestCategory型はリテラル型unionなので、新カテゴリ追加時にTypeScriptが型エラーで通知してくれる
   - estimatedStepsはすべて1にした（TABの反駁証明ではBS/⊥でノードを閉じる操作がゴール達成の基準）
 ---
+
+## 2026-03-01 - B4: TABとLK-CUTの等価性の解説リファレンス
+- タスク: B4. TAB と LK-CUT の等価性の解説リファレンス (prd-advanced.md)
+- 実装した内容:
+  - `concept-tab-lk-equivalence` リファレンスエントリ追加（概念カテゴリ、order: 19）
+  - en/ja 各6段落の多言語コンテンツ:
+    1. TABの定義（タブロー式シーケント計算の基本概念、基本シーケントBS、構造規則）
+    2. 主論理式と副論理式（各TAB規則の分解パターン）
+    3. TAB ⊆ LK-CUT（定理12.13: 各TAB規則がLK-CUTで許容的であること）
+    4. LK-CUT ⊆ TAB（定理12.15: 一般化シーケントによる翻訳）
+    5. TABにおける弱化と縮約の許容性（定理12.9, 12.11）
+    6. 4体系等価性の意義（HK=NK=LK=LK-CUT=TAB）
+  - 双方向リンク: concept-system-equivalence, concept-cut-elimination から相互参照
+  - 外部リンク: Wikipedia (en/ja), nLab
+  - キーワード: TAB, タブロー, LK-CUT, 等価性, 基本シーケント, 弱化, 縮約, 許容規則 等
+  - テストエントリ数更新: 55→56（概念 18→19）
+- 変更したファイル:
+  - `src/lib/reference/referenceContent.ts` - 新エントリ追加 + 双方向リンク更新
+  - `src/lib/reference/referenceContent.test.ts` - エントリ数更新
+  - `task-processing.md` - タスク記入→クリア
+  - `tasks/prd-advanced.md` - B4を完了マーク
+- ベースラインカバレッジ: Stmts 97.65%, Branch 91.1%, Funcs 88.87%, Lines 98.49%
+- 完了後カバレッジ: Stmts 97.65%, Branch 91.1%, Funcs 88.87%, Lines 98.49%（変化なし）
+- テスト: 203ファイル、5995テスト全パス
+- スクリーンショット:
+  - `.screenshots/tab-lk-equivalence-reference-default.png` - ReferenceModal Storybook表示確認
+- **今後のイテレーションへの学び:**
+  - リファレンスエントリ追加は純粋なデータ追加タスク。テストはエントリ数・ID一意性・多言語完全性を自動検証するため、手動確認の必要が少ない
+  - 双方向リンク（relatedEntryIds）の更新を忘れずに。新エントリから既存エントリへのリンクだけでなく、既存エントリから新エントリへのリンクも追加する
+  - bekki.pdf の定理番号を本文中に参照として含めると、ユーザーが原著を参照しやすくなる
+  - TABの概念は「右辺が常に空のシーケント」「左辺のみの操作」が本質。LKとの変換ではΓ ⇒ Δ を ¬Δ, Γ ⇒ と翻訳する
+---
