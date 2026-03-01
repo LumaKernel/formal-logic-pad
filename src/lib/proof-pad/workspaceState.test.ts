@@ -2972,6 +2972,19 @@ describe("proofWorkspace", () => {
       // Connection should be removed (source was removed)
       expect(result.connections).toHaveLength(0);
     });
+
+    it("removes connections where target is removable but source is not", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Source", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "Target", { x: 100, y: 100 });
+      ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+      // Remove only the target node
+      const result = removeSelectedNodes(ws, new Set(["node-2"]));
+      expect(result.nodes).toHaveLength(1);
+      expect(result.nodes[0]!.id).toBe("node-1");
+      // Connection should be removed (target was removed)
+      expect(result.connections).toHaveLength(0);
+    });
   });
 
   describe("revalidateInferenceConclusions - additional branches", () => {
@@ -3212,6 +3225,52 @@ describe("proofWorkspace", () => {
       expect(rightNode).toBeDefined();
       // 2つの接続が作成されている
       expect(result.workspace.connections).toHaveLength(2);
+    });
+
+    it("sc-single-result: premisePositionsが空の場合、フォールバック位置を使う", () => {
+      let ws = createEmptyWorkspace(scDeduction);
+      ws = addNode(ws, "axiom", "", { x: 50, y: 50 }, "φ, ψ ⇒ χ");
+      const result = applyScRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "weakening-left",
+          sequentText: "φ, ψ ⇒ χ",
+          principalPosition: 0,
+        },
+        [], // 空の premisePositions
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.premiseNodeIds).toHaveLength(1);
+      // フォールバック位置 { x: 0, y: 0 } でノードが作成される
+      const premiseNode = findNode(result.workspace, result.premiseNodeIds[0]!);
+      expect(premiseNode).toBeDefined();
+      expect(premiseNode!.position).toEqual({ x: 0, y: 0 });
+    });
+
+    it("sc-branching-result: premisePositionsが1つだけの場合、右側にフォールバック位置を使う", () => {
+      let ws = createEmptyWorkspace(scDeduction);
+      ws = addNode(ws, "axiom", "", { x: 50, y: 50 }, "φ ⇒ ψ");
+      const result = applyScRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "cut",
+          sequentText: "φ ⇒ ψ",
+          principalPosition: 0,
+          cutFormulaText: "χ",
+        },
+        [{ x: 100, y: 100 }], // 1つだけ — 右側のフォールバックが使われる
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.premiseNodeIds).toHaveLength(2);
+      const leftNode = findNode(result.workspace, result.premiseNodeIds[0]!);
+      const rightNode = findNode(result.workspace, result.premiseNodeIds[1]!);
+      expect(leftNode).toBeDefined();
+      expect(rightNode).toBeDefined();
+      // 左は指定位置、右はフォールバック
+      expect(leftNode!.position).toEqual({ x: 100, y: 100 });
+      expect(rightNode!.position).toEqual({ x: 0, y: 0 });
     });
   });
 });
