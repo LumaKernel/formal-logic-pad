@@ -7,6 +7,7 @@
  *
  * Hilbert系: MP, Gen, Substitution
  * 自然演繹(ND): →I, →E, ∧I, ∧E_L, ∧E_R, ∨I_L, ∨I_R, ∨E, w, EFQ, DNE, ∀I, ∀E, ∃I, ∃E
+ * 分析的タブロー(AT): α規則, β規則, γ規則, δ規則, 閉じ
  *
  * 変更時は inferenceEdge.test.ts も同期すること。
  * InferenceEdge union型のメンバー追加時は以下のswitch文すべてを更新:
@@ -24,6 +25,10 @@ import {
   type TabRuleId,
   getTabRuleDisplayName,
 } from "../logic-core/tableauCalculus";
+import {
+  type AtRuleId,
+  getAtRuleDisplayName,
+} from "../logic-core/analyticTableau";
 
 // ─── Hilbert系 推論エッジ型 ─────────────────────────────────
 
@@ -403,13 +408,127 @@ export type TabInferenceEdge =
   | TabBranchingEdge
   | TabAxiomEdge;
 
+// ─── 分析的タブロー(AT) 推論エッジ型 ─────────────────────
+
+/**
+ * AT α規則エッジ（非分岐）。
+ * 規則適用元のノード（conclusionNodeId）から1-2個の結論ノードを同一枝上に追加する。
+ * conclusionNodeId = 規則が適用されるノード（既存のInferenceEdgeの慣例に合わせる）。
+ * 生成されるノード: resultNodeId（1つ目）、secondResultNodeId（2つ目、ある場合）。
+ */
+export type AtAlphaEdge = {
+  readonly _tag: "at-alpha";
+  /** 適用された規則 */
+  readonly ruleId: AtRuleId;
+  /** 規則適用元ノード（署名付き論理式）のID */
+  readonly conclusionNodeId: string;
+  /** 生成されたノードのID（1つ目） */
+  readonly resultNodeId: string | undefined;
+  /** 生成されたノードのID（2つ目、2個結論の場合） */
+  readonly secondResultNodeId: string | undefined;
+  /** 結論テキスト（規則適用元の署名付き論理式テキスト） */
+  readonly conclusionText: string;
+  /** 生成された結論テキスト（1つ目） */
+  readonly resultText: string;
+  /** 生成された結論テキスト（2つ目） */
+  readonly secondResultText: string | undefined;
+};
+
+/**
+ * AT β規則エッジ（分岐）。
+ * 規則適用元のノードから2つの枝に分岐する。
+ */
+export type AtBetaEdge = {
+  readonly _tag: "at-beta";
+  /** 適用された規則 */
+  readonly ruleId: AtRuleId;
+  /** 規則適用元ノード（署名付き論理式）のID */
+  readonly conclusionNodeId: string;
+  /** 左枝結論ノードのID */
+  readonly leftResultNodeId: string | undefined;
+  /** 右枝結論ノードのID */
+  readonly rightResultNodeId: string | undefined;
+  /** 結論テキスト（規則適用元の署名付き論理式テキスト） */
+  readonly conclusionText: string;
+  /** 左枝結論テキスト */
+  readonly leftResultText: string;
+  /** 右枝結論テキスト */
+  readonly rightResultText: string;
+};
+
+/**
+ * AT γ規則エッジ（全称量化子、任意項で代入）。
+ * 規則適用元のノードから1つの結論ノードを生成する。
+ */
+export type AtGammaEdge = {
+  readonly _tag: "at-gamma";
+  /** 適用された規則 */
+  readonly ruleId: AtRuleId;
+  /** 規則適用元ノードのID */
+  readonly conclusionNodeId: string;
+  /** 生成されたノードのID */
+  readonly resultNodeId: string | undefined;
+  /** 結論テキスト（規則適用元） */
+  readonly conclusionText: string;
+  /** 生成された結論テキスト */
+  readonly resultText: string;
+  /** 代入項テキスト */
+  readonly termText: string;
+};
+
+/**
+ * AT δ規則エッジ（存在量化子、固有変数条件）。
+ * 規則適用元のノードから1つの結論ノードを生成する。
+ */
+export type AtDeltaEdge = {
+  readonly _tag: "at-delta";
+  /** 適用された規則 */
+  readonly ruleId: AtRuleId;
+  /** 規則適用元ノードのID */
+  readonly conclusionNodeId: string;
+  /** 生成されたノードのID */
+  readonly resultNodeId: string | undefined;
+  /** 結論テキスト（規則適用元） */
+  readonly conclusionText: string;
+  /** 生成された結論テキスト */
+  readonly resultText: string;
+  /** 固有変数名 */
+  readonly eigenVariable: string;
+};
+
+/**
+ * AT 閉じマークエッジ（公理に相当）。
+ * 枝上に T(φ) と F(φ) が存在することを示す。
+ * conclusionNodeIdは閉じマークを付けるノード。
+ */
+export type AtClosedEdge = {
+  readonly _tag: "at-closed";
+  /** 適用された規則 */
+  readonly ruleId: "closure";
+  /** 閉じマークを付けるノードのID */
+  readonly conclusionNodeId: string;
+  /** 矛盾の相手ノードのID */
+  readonly contradictionNodeId: string;
+  /** 結論テキスト（他のエッジとの整合性のため） */
+  readonly conclusionText: string;
+};
+
+/** AT推論エッジのunion型 */
+export type AtInferenceEdge =
+  | AtAlphaEdge
+  | AtBetaEdge
+  | AtGammaEdge
+  | AtDeltaEdge
+  | AtClosedEdge;
+
 // ─── 統合union型 ─────────────────────────────────────────
 
-/** 推論エッジの union 型（Hilbert系 + ND + TAB） */
+/** 推論エッジの union 型（Hilbert系 + ND + TAB + AT） */
 export type InferenceEdge =
   | HilbertInferenceEdge
   | NdInferenceEdge
-  | TabInferenceEdge;
+  | TabInferenceEdge
+  | AtInferenceEdge;
 
 // ─── 判別ヘルパー ────────────────────────────────────────
 
@@ -447,6 +566,17 @@ export function isTabInferenceEdge(edge: InferenceEdge) {
     edge._tag === "tab-single" ||
     edge._tag === "tab-branching" ||
     edge._tag === "tab-axiom"
+  );
+}
+
+/** ATのエッジかどうかを判定する */
+export function isAtInferenceEdge(edge: InferenceEdge) {
+  return (
+    edge._tag === "at-alpha" ||
+    edge._tag === "at-beta" ||
+    edge._tag === "at-gamma" ||
+    edge._tag === "at-delta" ||
+    edge._tag === "at-closed"
   );
 }
 
@@ -537,6 +667,17 @@ export function getInferenceEdgeLabel(edge: InferenceEdge): string {
       return getTabRuleDisplayName(edge.ruleId);
     case "tab-axiom":
       return getTabRuleDisplayName(edge.ruleId);
+    // AT
+    case "at-alpha":
+      return getAtRuleDisplayName(edge.ruleId);
+    case "at-beta":
+      return getAtRuleDisplayName(edge.ruleId);
+    case "at-gamma":
+      return getAtRuleDisplayName(edge.ruleId);
+    case "at-delta":
+      return getAtRuleDisplayName(edge.ruleId);
+    case "at-closed":
+      return getAtRuleDisplayName(edge.ruleId);
   }
 }
 
@@ -665,6 +806,26 @@ export function getInferenceEdgePremiseNodeIds(
     }
     case "tab-axiom":
       return [];
+    // AT: conclusionNodeId = 規則適用元ノード、生成ノードが結果
+    // 生成ノードは premiseNodeIds ではなく結果ノード
+    case "at-alpha": {
+      const ids: string[] = [];
+      if (edge.resultNodeId !== undefined) ids.push(edge.resultNodeId);
+      if (edge.secondResultNodeId !== undefined) ids.push(edge.secondResultNodeId);
+      return ids;
+    }
+    case "at-beta": {
+      const ids: string[] = [];
+      if (edge.leftResultNodeId !== undefined) ids.push(edge.leftResultNodeId);
+      if (edge.rightResultNodeId !== undefined) ids.push(edge.rightResultNodeId);
+      return ids;
+    }
+    case "at-gamma":
+      return edge.resultNodeId !== undefined ? [edge.resultNodeId] : [];
+    case "at-delta":
+      return edge.resultNodeId !== undefined ? [edge.resultNodeId] : [];
+    case "at-closed":
+      return [edge.contradictionNodeId];
   }
 }
 
@@ -819,6 +980,39 @@ export function remapEdgeNodeIds(
       return {
         ...edge,
         conclusionNodeId: mapRequired(edge.conclusionNodeId),
+      };
+    // AT
+    case "at-alpha":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
+        resultNodeId: mapOpt(edge.resultNodeId),
+        secondResultNodeId: mapOpt(edge.secondResultNodeId),
+      };
+    case "at-beta":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
+        leftResultNodeId: mapOpt(edge.leftResultNodeId),
+        rightResultNodeId: mapOpt(edge.rightResultNodeId),
+      };
+    case "at-gamma":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
+        resultNodeId: mapOpt(edge.resultNodeId),
+      };
+    case "at-delta":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
+        resultNodeId: mapOpt(edge.resultNodeId),
+      };
+    case "at-closed":
+      return {
+        ...edge,
+        conclusionNodeId: mapRequired(edge.conclusionNodeId),
+        contradictionNodeId: mapRequired(edge.contradictionNodeId),
       };
   }
 }

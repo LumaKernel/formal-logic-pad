@@ -42,6 +42,7 @@ export {
   applyGenAndConnect,
   applySubstitutionAndConnect,
   applyTabRuleAndConnect,
+  applyAtRuleAndConnect,
   updateInferenceEdgeGenVariableName,
   updateInferenceEdgeSubstitutionEntries,
   copySelectedNodes,
@@ -67,6 +68,7 @@ export type {
   ApplyGenResult,
   ApplySubstitutionResult,
   ApplyTabRuleResult,
+  ApplyAtRuleResult,
   MergeNodesResult,
 } from "./workspaceState";
 export {
@@ -195,6 +197,30 @@ export type {
   TabApplicationResult,
 } from "./tabApplicationLogic";
 export {
+  formatSignedFormulaText,
+  parseSignedFormulaText,
+  validateAtApplicationEffect,
+  validateAtApplication,
+  createAtEdgeFromResult,
+  getAtErrorMessage,
+  AtFormulaParseError,
+  AtPrincipalFormulaMismatch,
+  AtEigenVariableError,
+  AtTermParseError,
+  AtContradictionError,
+} from "./atApplicationLogic";
+export type {
+  AtRuleApplicationParams,
+  AtAlphaResult,
+  AtBetaResult,
+  AtGammaResult,
+  AtDeltaResult,
+  AtClosedResult,
+  AtApplicationSuccess,
+  AtApplicationError,
+  AtApplicationResult,
+} from "./atApplicationLogic";
+export {
   PROOF_NODE_KINDS,
   AXIOM_PORTS,
   DERIVED_PORTS,
@@ -319,6 +345,8 @@ export {
   replaceNodeIdInEdge,
   isHilbertInferenceEdge,
   isNdInferenceEdge,
+  isTabInferenceEdge,
+  isAtInferenceEdge,
 } from "./inferenceEdge";
 export type {
   MPEdge,
@@ -337,5 +365,15 @@ export type {
   NdEfqEdge,
   NdDneEdge,
   NdInferenceEdge,
+  TabSinglePremiseEdge,
+  TabBranchingEdge,
+  TabAxiomEdge,
+  TabInferenceEdge,
+  AtAlphaEdge,
+  AtBetaEdge,
+  AtGammaEdge,
+  AtDeltaEdge,
+  AtClosedEdge,
+  AtInferenceEdge,
   InferenceEdge,
 } from "./inferenceEdge";

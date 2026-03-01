@@ -19,6 +19,11 @@ import type {
   TabSinglePremiseEdge,
   TabBranchingEdge,
   TabAxiomEdge,
+  AtAlphaEdge,
+  AtBetaEdge,
+  AtGammaEdge,
+  AtDeltaEdge,
+  AtClosedEdge,
 } from "./inferenceEdge";
 
 describe("inferenceEdgeLabelLogic", () => {
@@ -560,6 +565,95 @@ describe("inferenceEdgeLabelLogic", () => {
       };
       expect(getPremiseRole(edge, "c1")).toBeUndefined();
       expect(getPremiseRole(edge, "p1")).toBeUndefined();
+    });
+
+    // AT edges
+    it("AT α規則: 結果ノードに premise を返す", () => {
+      const edge: AtAlphaEdge = {
+        _tag: "at-alpha",
+        ruleId: "alpha-conj",
+        conclusionNodeId: "c1",
+        resultNodeId: "r1",
+        secondResultNodeId: "r2",
+        conclusionText: "T:P ∧ Q",
+        resultText: "T:P",
+        secondResultText: "T:Q",
+      };
+      expect(getPremiseRole(edge, "r1")).toBe("premise");
+      expect(getPremiseRole(edge, "r2")).toBe("premise");
+      expect(getPremiseRole(edge, "unknown")).toBeUndefined();
+    });
+
+    it("AT β規則: 左右にロールを返す", () => {
+      const edge: AtBetaEdge = {
+        _tag: "at-beta",
+        ruleId: "beta-disj",
+        conclusionNodeId: "c1",
+        leftResultNodeId: "l1",
+        rightResultNodeId: "r1",
+        conclusionText: "T:P ∨ Q",
+        leftResultText: "T:P",
+        rightResultText: "T:Q",
+      };
+      expect(getPremiseRole(edge, "l1")).toBe("left");
+      expect(getPremiseRole(edge, "r1")).toBe("right");
+      expect(getPremiseRole(edge, "unknown")).toBeUndefined();
+    });
+
+    it("AT γ規則: 結果ノードに premise を返す", () => {
+      const edge: AtGammaEdge = {
+        _tag: "at-gamma",
+        ruleId: "gamma-univ",
+        conclusionNodeId: "c1",
+        resultNodeId: "r1",
+        conclusionText: "T:∀x.P(x)",
+        resultText: "T:P(y)",
+        termText: "y",
+      };
+      expect(getPremiseRole(edge, "r1")).toBe("premise");
+      expect(getPremiseRole(edge, "unknown")).toBeUndefined();
+    });
+
+    it("AT δ規則: 結果ノードに premise を返す", () => {
+      const edge: AtDeltaEdge = {
+        _tag: "at-delta",
+        ruleId: "delta-exist",
+        conclusionNodeId: "c1",
+        resultNodeId: "r1",
+        conclusionText: "T:∃x.P(x)",
+        resultText: "T:P(z)",
+        eigenVariable: "z",
+      };
+      expect(getPremiseRole(edge, "r1")).toBe("premise");
+      expect(getPremiseRole(edge, "unknown")).toBeUndefined();
+    });
+
+    it("AT closure: 矛盾ノードに premise を返す", () => {
+      const edge: AtClosedEdge = {
+        _tag: "at-closed",
+        ruleId: "closure",
+        conclusionNodeId: "c1",
+        contradictionNodeId: "c2",
+        conclusionText: "T:P",
+      };
+      expect(getPremiseRole(edge, "c2")).toBe("premise");
+      expect(getPremiseRole(edge, "unknown")).toBeUndefined();
+    });
+  });
+
+  describe("getInferenceEdgeBadgeColor for AT edges", () => {
+    it("returns AT badge color for at-alpha", () => {
+      const edge: AtAlphaEdge = {
+        _tag: "at-alpha",
+        ruleId: "alpha-conj",
+        conclusionNodeId: "c1",
+        resultNodeId: "r1",
+        secondResultNodeId: "r2",
+        conclusionText: "T:P ∧ Q",
+        resultText: "T:P",
+        secondResultText: "T:Q",
+      };
+      expect(getInferenceEdgeBadgeColor(edge)).toContain("badge-at");
     });
   });
 });

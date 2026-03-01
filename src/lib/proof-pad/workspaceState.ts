@@ -20,6 +20,7 @@ import {
   isHilbertInferenceEdge,
   isNdInferenceEdge,
   isTabInferenceEdge,
+  isAtInferenceEdge,
 } from "./inferenceEdge";
 import {
   validateMPApplication,
@@ -41,6 +42,12 @@ import {
   type TabRuleApplicationParams,
   type TabApplicationResult,
 } from "./tabApplicationLogic";
+import {
+  validateAtApplication,
+  createAtEdgeFromResult,
+  type AtRuleApplicationParams,
+  type AtApplicationResult,
+} from "./atApplicationLogic";
 import { Either } from "effect";
 import {
   buildClipboardData,
@@ -895,6 +902,158 @@ export function applyTabRuleAndConnect(
   };
 }
 
+// --- AT規則適用（ノード作成 + InferenceEdge + 結果ノード自動生成） ---
+
+/** AT規則適用結果 */
+export type ApplyAtRuleResult = {
+  readonly workspace: WorkspaceState;
+  /** 結論ノードID（規則適用元のノード） */
+  readonly conclusionNodeId: string;
+  /** 生成された結果ノードのID（closureなら空、α/γ/δなら1-2つ、βなら2つ） */
+  readonly resultNodeIds: readonly string[];
+  readonly validation: AtApplicationResult;
+};
+
+/**
+ * 署名付き論理式ノードにAT規則を適用し、結果ノードを作成する。
+ * InferenceEdge（AtEdge）を追加し、適用元→結果の関係を管理する。
+ *
+ * @param state 現在のワークスペース状態
+ * @param conclusionNodeId 規則を適用するノード（署名付き論理式）のID
+ * @param params AT規則適用パラメータ
+ * @param resultPositions 結果ノードの配置位置
+ * @param contradictionNodeId 矛盾ノードのID（closure用）
+ * @returns 新しいワークスペース状態、結果ノードID群、検証結果
+ */
+export function applyAtRuleAndConnect(
+  state: WorkspaceState,
+  conclusionNodeId: string,
+  params: AtRuleApplicationParams,
+  resultPositions: readonly Point[],
+  contradictionNodeId?: string,
+): ApplyAtRuleResult {
+  // バリデーション実行
+  const validation = validateAtApplication(params);
+
+  if (Either.isLeft(validation)) {
+    return {
+      workspace: state,
+      conclusionNodeId,
+      resultNodeIds: [],
+      validation,
+    };
+  }
+
+  const result = validation.right;
+  let ws = state;
+  const resultNodeIds: string[] = [];
+
+  // エッジ生成
+  const edge = createAtEdgeFromResult(
+    params,
+    result,
+    conclusionNodeId,
+    contradictionNodeId,
+  );
+
+  switch (result._tag) {
+    case "at-closed-result": {
+      // closure: 結果ノードなし
+      ws = addInferenceEdge(ws, edge);
+      // 矛盾ノードとの接続
+      if (contradictionNodeId !== undefined) {
+        ws = addConnection(
+          ws,
+          conclusionNodeId,
+          "out",
+          contradictionNodeId,
+          "contradiction",
+        );
+      }
+      break;
+    }
+    case "at-alpha-result": {
+      // α規則: 1-2個の結果ノードを作成
+      const pos1 = resultPositions[0] ?? { x: 0, y: 0 };
+      const resultId1 = `node-${String(ws.nextNodeId) satisfies string}`;
+      ws = addNode(ws, "axiom", "", pos1, result.resultText);
+      resultNodeIds.push(resultId1);
+
+      let resultId2: string | undefined;
+      if (result.secondResultText !== undefined) {
+        const pos2 = resultPositions[1] ?? { x: 0, y: 0 };
+        resultId2 = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "", pos2, result.secondResultText);
+        resultNodeIds.push(resultId2);
+      }
+
+      const alphaEdge = {
+        ...edge,
+        resultNodeId: resultId1,
+        secondResultNodeId: resultId2,
+      } as typeof edge;
+      ws = addInferenceEdge(ws, alphaEdge);
+
+      // 接続追加
+      ws = addConnection(ws, conclusionNodeId, "out", resultId1, "result");
+      if (resultId2 !== undefined) {
+        ws = addConnection(ws, conclusionNodeId, "out", resultId2, "result-2");
+      }
+      break;
+    }
+    case "at-beta-result": {
+      // β規則: 左右2つの枝を作成
+      const leftPos = resultPositions[0] ?? { x: 0, y: 0 };
+      const rightPos = resultPositions[1] ?? { x: 0, y: 0 };
+
+      const leftId = `node-${String(ws.nextNodeId) satisfies string}`;
+      ws = addNode(ws, "axiom", "", leftPos, result.leftResultText);
+      resultNodeIds.push(leftId);
+
+      const rightId = `node-${String(ws.nextNodeId) satisfies string}`;
+      ws = addNode(ws, "axiom", "", rightPos, result.rightResultText);
+      resultNodeIds.push(rightId);
+
+      const betaEdge = {
+        ...edge,
+        leftResultNodeId: leftId,
+        rightResultNodeId: rightId,
+      } as typeof edge;
+      ws = addInferenceEdge(ws, betaEdge);
+
+      // 接続追加
+      ws = addConnection(ws, conclusionNodeId, "out", leftId, "result-left");
+      ws = addConnection(ws, conclusionNodeId, "out", rightId, "result-right");
+      break;
+    }
+    case "at-gamma-result":
+    case "at-delta-result": {
+      // γ/δ規則: 1つの結果ノードを作成
+      const pos = resultPositions[0] ?? { x: 0, y: 0 };
+      const resultId = `node-${String(ws.nextNodeId) satisfies string}`;
+      ws = addNode(ws, "axiom", "", pos, result.resultText);
+      resultNodeIds.push(resultId);
+
+      const gdEdge = {
+        ...edge,
+        resultNodeId: resultId,
+      } as typeof edge;
+      ws = addInferenceEdge(ws, gdEdge);
+
+      // 接続追加
+      ws = addConnection(ws, conclusionNodeId, "out", resultId, "result");
+      break;
+    }
+  }
+
+  return {
+    workspace: ws,
+    conclusionNodeId,
+    resultNodeIds,
+    validation,
+  };
+}
+
 // --- コピー＆ペースト ---
 
 /**
@@ -1242,6 +1401,12 @@ export function revalidateInferenceConclusions(
       // TABエッジはシーケント操作のため、formulaTextの自動計算は行わない
       // TABの前提シーケントは規則適用時に計算済み
       if (isTabInferenceEdge(edge)) {
+        return node;
+      }
+
+      // ATエッジは署名付き論理式操作のため、formulaTextの自動計算は行わない
+      // ATの結果ノードは規則適用時に計算済み
+      if (isAtInferenceEdge(edge)) {
         return node;
       }
 

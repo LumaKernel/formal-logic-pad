@@ -64,27 +64,27 @@ bekki.pdf 第6章に基づき、分析的タブロー（analytic tableaux / sema
 - [x] `src/lib/logic-core/index.ts`: エクスポート追加
 - [x] 型チェック/lint/test が通る
 
-### AT-002: 分析的タブローの規則適用ロジック
+### AT-002: 分析的タブローの規則適用ロジック [x]
 
 **説明:** ワークスペース上での分析的タブロー規則適用のバリデーションと InferenceEdge 統合。
 
 **受け入れ基準:**
 
-- [ ] `src/lib/proof-pad/atApplicationLogic.ts` を新規作成
-- [ ] `AtInferenceEdge` 型の定義（InferenceEdge union に追加）:
+- [x] `src/lib/proof-pad/atApplicationLogic.ts` を新規作成
+- [x] `AtInferenceEdge` 型の定義（InferenceEdge union に追加）:
   - `AtAlphaEdge`: α規則（1前提 → 1or2結論）
   - `AtBetaEdge`: β規則（1前提 → 2枝分岐）
   - `AtClosedEdge`: 枝の閉じマーク（公理に相当）
   - `AtGammaEdge` / `AtDeltaEdge`: 量化子規則
-- [ ] **規則適用バリデーション**: `validateAtApplication()` — Either ベースの結果型
-- [ ] **エラー型**: `AtFormulaParseError`, `AtPrincipalFormulaMismatch`, `AtEigenVariableError`, `AtTermParseError`
-- [ ] `src/lib/proof-pad/atApplicationLogic.test.ts`: 全規則のバリデーションテスト
-- [ ] `src/lib/proof-pad/inferenceEdge.ts` に AT エッジの型ガード・ユーティリティ追加
-- [ ] `src/lib/proof-pad/inferenceEdgeLabelLogic.ts` に AT エッジの色・ラベル追加
-- [ ] `src/lib/proof-pad/edgeBadgeEditLogic.ts` に AT エッジ対応追加
-- [ ] `src/lib/proof-pad/workspaceExport.ts` に AT エッジのシリアライゼーションスキーマ追加
-- [ ] `src/lib/proof-pad/workspaceState.ts` に AT 規則適用の状態管理関数追加
-- [ ] 型チェック/lint/test が通る
+- [x] **規則適用バリデーション**: `validateAtApplication()` — Either ベースの結果型
+- [x] **エラー型**: `AtFormulaParseError`, `AtPrincipalFormulaMismatch`, `AtEigenVariableError`, `AtTermParseError`
+- [x] `src/lib/proof-pad/atApplicationLogic.test.ts`: 全規則のバリデーションテスト
+- [x] `src/lib/proof-pad/inferenceEdge.ts` に AT エッジの型ガード・ユーティリティ追加
+- [x] `src/lib/proof-pad/inferenceEdgeLabelLogic.ts` に AT エッジの色・ラベル追加
+- [x] `src/lib/proof-pad/edgeBadgeEditLogic.ts` に AT エッジ対応追加
+- [x] `src/lib/proof-pad/workspaceExport.ts` に AT エッジのシリアライゼーションスキーマ追加
+- [x] `src/lib/proof-pad/workspaceState.ts` に AT 規則適用の状態管理関数追加
+- [x] 型チェック/lint/test が通る
 
 ### AT-003: 分析的タブロー規則パレット UI
 

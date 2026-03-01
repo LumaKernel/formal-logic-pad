@@ -41,6 +41,7 @@ import {
   updateGoalFormulaText,
   type QuestGoalDefinition,
   mergeSelectedNodes,
+  applyAtRuleAndConnect,
 } from "./workspaceState";
 import {
   hilbertDeduction,
@@ -2560,6 +2561,134 @@ describe("proofWorkspace", () => {
       expect(result._tag).toBe("Error");
       if (result._tag !== "Error") return;
       expect(result.error._tag).toBe("NotEnoughNodes");
+    });
+  });
+
+  // ── AT規則適用 ──
+
+  describe("applyAtRuleAndConnect", () => {
+    it("α規則(2結論): T(P∧Q) → T(P), T(Q)", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "T:P ∧ Q");
+      const result = applyAtRuleAndConnect(
+        ws,
+        "node-1",
+        { ruleId: "alpha-conj", signedFormulaText: "T:P ∧ Q" },
+        [
+          { x: 100, y: 100 },
+          { x: 200, y: 100 },
+        ],
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.resultNodeIds).toHaveLength(2);
+      expect(result.workspace.nodes).toHaveLength(3);
+      expect(result.workspace.inferenceEdges).toHaveLength(1);
+      const edge = result.workspace.inferenceEdges[0]!;
+      expect(edge._tag).toBe("at-alpha");
+    });
+
+    it("α規則(1結論): T(¬P) → F(P)", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "T:¬P");
+      const result = applyAtRuleAndConnect(
+        ws,
+        "node-1",
+        { ruleId: "alpha-neg-t", signedFormulaText: "T:¬P" },
+        [{ x: 100, y: 100 }],
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.resultNodeIds).toHaveLength(1);
+      expect(result.workspace.nodes).toHaveLength(2);
+    });
+
+    it("β規則: T(P→Q) → [F(P) | T(Q)]", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "T:P → Q");
+      const result = applyAtRuleAndConnect(
+        ws,
+        "node-1",
+        { ruleId: "beta-impl", signedFormulaText: "T:P → Q" },
+        [
+          { x: -100, y: 100 },
+          { x: 100, y: 100 },
+        ],
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.resultNodeIds).toHaveLength(2);
+      expect(result.workspace.inferenceEdges).toHaveLength(1);
+      const edge = result.workspace.inferenceEdges[0]!;
+      expect(edge._tag).toBe("at-beta");
+    });
+
+    it("γ規則: T(∀x.P(x)) with y → T(P(y))", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "T:∀x.P(x)");
+      const result = applyAtRuleAndConnect(
+        ws,
+        "node-1",
+        { ruleId: "gamma-univ", signedFormulaText: "T:∀x.P(x)", termText: "y" },
+        [{ x: 100, y: 100 }],
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.resultNodeIds).toHaveLength(1);
+      const edge = result.workspace.inferenceEdges[0]!;
+      expect(edge._tag).toBe("at-gamma");
+    });
+
+    it("δ規則: T(∃x.P(x)) with eigen z → T(P(z))", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "T:∃x.P(x)");
+      const result = applyAtRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "delta-exist",
+          signedFormulaText: "T:∃x.P(x)",
+          eigenVariable: "z",
+          branchFormulaTexts: [],
+        },
+        [{ x: 100, y: 100 }],
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.resultNodeIds).toHaveLength(1);
+      const edge = result.workspace.inferenceEdges[0]!;
+      expect(edge._tag).toBe("at-delta");
+    });
+
+    it("closure: T(P) と F(P) で閉じる", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "T:P");
+      ws = addNode(ws, "axiom", "", { x: 100, y: 0 }, "F:P");
+      const result = applyAtRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "closure",
+          signedFormulaText: "T:P",
+          contradictionFormulaText: "F:P",
+        },
+        [],
+        "node-2",
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.resultNodeIds).toHaveLength(0);
+      expect(result.workspace.inferenceEdges).toHaveLength(1);
+      const edge = result.workspace.inferenceEdges[0]!;
+      expect(edge._tag).toBe("at-closed");
+    });
+
+    it("バリデーション失敗時はワークスペースを変更しない", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "T:P");
+      const result = applyAtRuleAndConnect(
+        ws,
+        "node-1",
+        { ruleId: "alpha-conj", signedFormulaText: "T:P" },
+        [],
+      );
+      expect(Either.isLeft(result.validation)).toBe(true);
+      expect(result.workspace).toBe(ws);
+      expect(result.resultNodeIds).toHaveLength(0);
     });
   });
 });
