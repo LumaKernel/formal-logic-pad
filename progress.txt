@@ -7570,3 +7570,23 @@
   - globalThis.prompt/alertのmockはvi.spyOnで行い、afterEach/afterAllで必ずrestoreする
   - Storybook story URL形式: `proofpad-proofworkspace--empty-xxx` (proofpadはハイフンなし)
 ---
+
+## 2026-03-01 - [i18n] ワークスペースのIntlError修正 + 全体動作確認
+- localhost:13000 を全体的にPlaywright MCPで動作確認
+- 発見: ワークスペースページで10個のIntlError FORMATTING_ERROR（テンプレート変数付きメッセージ）
+- 修正: `WorkspaceContent.tsx` の `useProofMessagesFromIntl()` で10個のキーを `t("key")` → `String(t.raw("key"))` に変更
+  - `genBannerSelectPremise`, `goalPanelProgress`, `goalPanelAllowedAxioms`, `selectionCount`, `axiomViolationDetail`, `tabBannerSelectNode`, `atBannerSelectNode`, `cutEliminationCuts`, `cutEliminationStepProgress`, `cutEliminationStepInfo`
+- 原因: next-intlの `t()` はICU MessageFormatをパースするが、ProofMessagesはテンプレートとして `{variable}` を保持し後で `formatMessage()` で解決する設計。`t.raw()` でICUパースをバイパスする必要があった
+- 追加発見した問題（prd-inserted-tasks.mdに追記済み）:
+  - JA選択時にハブページのタブ名「Notebooks」「Quests」が英語のまま
+  - JA選択時にノードラベル「AXIOM」「ROOT」「DERIVED」「MP」等が英語のまま
+  - 代入ノードでphi -> phiのようにKaTeXレンダーされず表示
+  - MP/置換コネクション削除後もノードにステート残留
+- 変更ファイル: `src/app/workspace/[id]/WorkspaceContent.tsx`, `tasks/prd-inserted-tasks.md`
+- カバレッジ: 変動なし（app層は除外対象）。テスト: 212ファイル 6569テスト全パス
+- スクリーンショット: `.screenshots/top-page-initial.png`, `.screenshots/top-page-ja.png`, `.screenshots/top-page-dark.png`, `.screenshots/workspace-initial.png`, `.screenshots/quest-workspace.png`, `.screenshots/quest-workspace-fixed.png`, `.screenshots/workspace-fixed-no-errors.png`
+- **今後のイテレーションへの学び:**
+  - ProofMessagesのテンプレート変数付きキー（`{variableName}`形式）は `t.raw()` で取得すること。`t()` はICU MessageFormatパースを試みてエラーになる
+  - next-intlで `t.raw()` の戻り値は `unknown` なので `String()` で包む
+  - ゴールパネルの表示が壊れていた場合、IntlErrorが原因の可能性がある
+---
