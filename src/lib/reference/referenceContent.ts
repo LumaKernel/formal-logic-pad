@@ -292,6 +292,7 @@ const axiomDne: ReferenceEntry = {
     "axiom-efq",
     "system-classical",
     "system-intuitionistic",
+    "concept-axiom-independence",
   ],
   externalLinks: [
     {
@@ -2139,6 +2140,7 @@ const conceptGlivenko: ReferenceEntry = {
     "system-intuitionistic",
     "concept-deduction-theorem",
     "concept-kuroda-translation",
+    "concept-axiom-independence",
   ],
   externalLinks: [
     {
@@ -2823,6 +2825,7 @@ const conceptCutElimination: ReferenceEntry = {
     "concept-admissible-derivable",
     "concept-tab-lk-equivalence",
     "concept-consistency-from-cut-elimination",
+    "concept-axiom-independence",
   ],
   externalLinks: [
     {
@@ -3497,6 +3500,7 @@ const conceptConsistencyFromCutElimination: ReferenceEntry = {
     "rule-sc-overview",
     "rule-sc-structural",
     "rule-sc-logical",
+    "concept-axiom-independence",
   ],
   externalLinks: [
     {
@@ -3552,6 +3556,120 @@ const conceptConsistencyFromCutElimination: ReferenceEntry = {
     "ヒルベルトのプログラム",
   ],
   order: 20,
+};
+
+const conceptAxiomIndependence: ReferenceEntry = {
+  id: "concept-axiom-independence",
+  category: "concept",
+  title: {
+    en: "Independence of Classical Axioms",
+    ja: "古典論理固有の公理の独立性",
+  },
+  summary: {
+    en: "DNE (¬¬φ → φ) and LEM (φ ∨ ¬φ) are not provable in intuitionistic logic LJ. This separation between classical and intuitionistic logic is a consequence of the cut elimination theorem.",
+    ja: "DNE（¬¬φ → φ）と LEM（φ ∨ ¬φ）は直観主義論理 LJ で証明不能である。古典論理と直観主義論理のこの分離は、カット除去定理の帰結である。",
+  },
+  body: {
+    en: [
+      `**The independence results.** One of the most important applications of the cut elimination theorem is the proof that **DNE (double negation elimination: ¬¬φ → φ)** and **LEM (law of excluded middle: φ ∨ ¬φ)** are independent from intuitionistic logic. Specifically, ¬¬φ is not provable from φ in LJ (bekki Theorem 11.9), and φ ∨ ¬φ is not provable in LJ (bekki Theorem 11.8). Since LJ ⊂ LK (intuitionistic logic is a subsystem of classical logic), these results demonstrate that the inclusion is strict: there are classically valid formulas that are not intuitionistically provable. This separation is fundamental to the philosophy and practice of constructive mathematics.`,
+      `**Structural analysis of LJ-CUT proofs.** The key lemma underlying the independence proofs is a structural characterization of LJ-CUT provable sequents (bekki Lemma 11.6): every sequent S provable in LJ satisfies at least one of: (1) both sides of S are non-empty, or (2) at least one side contains a compound formula or a quantified formula. This follows from the cut elimination theorem: if S is LJ-provable, then by cut elimination there is an LJ-CUT proof, and one can verify that every LJ axiom and every LJ inference rule (without CUT) preserves this structural property. In particular, the initial sequent φ ⇒ φ has non-empty sides, and every logical rule introduces a compound formula.`,
+      `**Unprovability of LEM.** From the structural lemma, it follows that the sequents ⇒ φ and φ ⇒ are not provable in LJ for any propositional variable φ (bekki Corollary 11.7). In particular, the sequent ⇒ φ ∨ ¬φ, when instantiated with a propositional variable, has an empty antecedent and a single compound formula in the succedent. If φ ∨ ¬φ were LJ-provable, then ⇒ φ ∨ ¬φ would have a CUT-free proof 𝒟. By the structural lemma, 𝒟 must satisfy condition (2), meaning one side must contain a compound formula. But tracing the proof backward, one reaches sequents that violate both conditions (1) and (2), yielding a contradiction (bekki Theorem 11.8).`,
+      `**Unprovability of DNE.** The independence of DNE from LJ (bekki Theorem 11.9) follows from the independence of LEM. LEM (φ ∨ ¬φ) is a theorem of LK, and LJ+DNE = LK (since adding double negation elimination to intuitionistic logic yields classical logic, bekki Theorem 10.52). If DNE were provable in LJ, then LJ would equal LK, and LEM would be an LJ theorem — contradicting the result that LEM is independent from LJ. Therefore DNE is not an LJ theorem: ¬¬φ ⊬_LJ φ.`,
+      `**Significance for constructive mathematics.** The separation between classical and intuitionistic logic has profound implications for the foundations of mathematics. In constructive mathematics (following Brouwer, Heyting, and Bishop), proofs must provide explicit constructions or witnesses — mere non-existence of a counterexample (¬¬φ) does not suffice to establish existence (φ). The unprovability of DNE in LJ formalizes this philosophical stance: intuitionistic logic does not permit the inference from "it is impossible that φ is false" to "φ is true." Similarly, LEM's independence means that every intuitionistic proof of a disjunction φ ∨ ψ must effectively determine which disjunct holds — a property known as the **disjunction property**.`,
+      `**The method: sub-formula property.** The proofs of these independence results all rely on the **sub-formula property** of CUT-free proofs: in a CUT-free proof, every formula is a sub-formula of some formula in the end-sequent. This property constrains what CUT-free proofs can look like, enabling the structural analysis that yields the independence results. Without cut elimination, such fine structural arguments would not be possible — proofs with CUT can contain arbitrary formulas as "lemmas," making structural analysis intractable. This illustrates why the cut elimination theorem is such a powerful tool in proof theory.`,
+    ],
+    ja: [
+      `**独立性の結果。** カット除去定理の最も重要な応用の一つが、**DNE（二重否定除去: ¬¬φ → φ）**と**LEM（排中律: φ ∨ ¬φ）**が直観主義論理から独立であることの証明です。具体的には、¬¬φ から φ は LJ で証明不能であり（戸次 定理11.9）、φ ∨ ¬φ は LJ で証明不能です（戸次 定理11.8）。LJ ⊂ LK（直観主義論理は古典論理の部分体系）であるため、これらの結果は包含が真であることを示します: 古典論理で妥当な論理式のうち、直観主義的に証明不能なものが存在します。この分離は構成的数学の哲学と実践にとって根本的です。`,
+      `**LJ-CUT 証明の構造分析。** 独立性証明の鍵となる補題は、LJ-CUT で証明可能なシーケントの構造的特徴付けです（戸次 補題11.6）: LJ で証明可能なすべてのシーケント S は、次の少なくとも一方を満たします: (1) S の両辺がいずれも空ではない、(2) 右辺か左辺の少なくとも一方に複合論理式または量化論理式を含む。これはカット除去定理から従います: S が LJ で証明可能なら、カット除去により LJ-CUT 証明が存在し、LJ の公理と（カットなしの）LJ の推論規則がすべてこの構造的性質を保つことが検証できます。特に、初期シーケント φ ⇒ φ は両辺が非空であり、すべての論理規則は複合論理式を導入します。`,
+      `**LEM の証明不能性。** 構造補題から、任意の命題変数 φ について、シーケント ⇒ φ と φ ⇒ は LJ で証明不能であることが従います（戸次 系11.7）。特に、命題変数を代入したシーケント ⇒ φ ∨ ¬φ は前件が空で後件に単一の複合論理式を持ちます。もし φ ∨ ¬φ が LJ で証明可能なら、⇒ φ ∨ ¬φ のカットなし証明 𝒟 が存在するはずです。構造補題により、𝒟 は条件 (2) を満たす必要があり、一方の辺に複合論理式を含むはずです。しかし証明を遡ると、条件 (1) と (2) の両方に違反するシーケントに到達し、矛盾が生じます（戸次 定理11.8）。`,
+      `**DNE の証明不能性。** LJ からの DNE の独立性（戸次 定理11.9）は、LEM の独立性から従います。LEM（φ ∨ ¬φ）は LK の定理であり、LJ+DNE = LK です（直観主義論理に二重否定除去を追加すると古典論理が得られる、戸次 定理10.52）。もし DNE が LJ で証明可能なら、LJ = LK となり、LEM は LJ の定理になります — しかしこれは LEM が LJ から独立であるという結果と矛盾します。したがって DNE は LJ の定理ではありません: ¬¬φ ⊬_LJ φ。`,
+      `**構成的数学にとっての意義。** 古典論理と直観主義論理の分離は、数学の基礎に深い含意を持ちます。構成的数学（ブラウワー、ハイティング、ビショップに従い）では、証明は明示的な構成や証拠を提供しなければなりません — 反例の非存在（¬¬φ）だけでは存在（φ）を確立するには不十分です。LJ における DNE の証明不能性はこの哲学的立場を形式化します: 直観主義論理では「φ が偽であることは不可能」から「φ は真」への推論を許しません。同様に、LEM の独立性は、選言 φ ∨ ψ の直観主義的証明はどちらの選言肢が成り立つかを実効的に決定しなければならないことを意味します — これは**選言性 (disjunction property)** として知られる性質です。`,
+      `**方法: 部分論理式性。** これらの独立性の結果の証明はすべて、カットなし証明の**部分論理式性**に依拠しています: カットなし証明において、すべての論理式は終シーケントのいずれかの論理式の部分論理式です。この性質はカットなし証明の形を制約し、独立性の結果をもたらす構造分析を可能にします。カット除去なしでは、このような精密な構造的議論は不可能です — カットを含む証明は「補題」として任意の論理式を含みうるため、構造分析が困難になります。これは、カット除去定理がなぜ証明論においてかくも強力な道具であるかを示しています。`,
+    ],
+  },
+  formalNotation:
+    "\\lnot\\lnot\\varphi \\nvdash_{\\mathsf{LJ}} \\varphi \\quad\\quad \\nvdash_{\\mathsf{LJ}} \\varphi \\lor \\lnot\\varphi",
+  relatedEntryIds: [
+    "concept-cut-elimination",
+    "concept-consistency-from-cut-elimination",
+    "concept-system-equivalence",
+    "concept-glivenko",
+    "axiom-dne",
+    "system-intuitionistic",
+    "system-classical",
+    "concept-admissible-derivable",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Intuitionistic_logic",
+      label: {
+        en: "Intuitionistic logic (Wikipedia)",
+        ja: "直観主義論理 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E7%9B%B4%E8%A6%B3%E4%B8%BB%E7%BE%A9%E8%AB%96%E7%90%86",
+      label: {
+        en: "Intuitionistic logic (Wikipedia JA)",
+        ja: "直観主義論理 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Double_negation#Double_negation_elimination",
+      label: {
+        en: "Double negation elimination (Wikipedia)",
+        ja: "二重否定除去 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Law_of_excluded_middle",
+      label: {
+        en: "Law of excluded middle (Wikipedia)",
+        ja: "排中律 (Wikipedia)",
+      },
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/excluded+middle",
+      label: {
+        en: "Excluded middle (nLab)",
+        ja: "排中律 (nLab)",
+      },
+    },
+  ],
+  keywords: [
+    "independence",
+    "独立性",
+    "DNE",
+    "double negation elimination",
+    "二重否定除去",
+    "LEM",
+    "law of excluded middle",
+    "排中律",
+    "intuitionistic logic",
+    "直観主義論理",
+    "classical logic",
+    "古典論理",
+    "LJ",
+    "LK",
+    "sub-formula property",
+    "部分論理式性",
+    "disjunction property",
+    "選言性",
+    "constructive mathematics",
+    "構成的数学",
+    "Theorem 11.9",
+    "定理11.9",
+    "Theorem 11.8",
+    "定理11.8",
+    "Lemma 11.6",
+    "補題11.6",
+  ],
+  order: 21,
 };
 
 // ============================================================
@@ -4259,6 +4377,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptSemanticValidity,
   conceptTabLkEquivalence,
   conceptConsistencyFromCutElimination,
+  conceptAxiomIndependence,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
