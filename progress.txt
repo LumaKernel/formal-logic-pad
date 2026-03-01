@@ -7737,3 +7737,19 @@
   - `SubstitutionEntryValue` コンポーネントの `TermSubstitution` パースエラーフォールバック（line 263）は、不正な termText で到達可能
   - TermInput の handleSyntaxHelpMouseDown は `dispatchEvent(new MouseEvent("mousedown"))` でテスト可能。`vi.spyOn(event, "preventDefault")` で検証
 ---
+
+## 2026-03-02 - カバレッジ改善（続き）
+- ベースライン: Stmts 99.19%, Branch 92.84%, Funcs 89.47%, Lines 99.86%
+- 結果: Stmts 99.23%, Branch 92.96%, Funcs 89.47%, Lines 99.86% ✅ 向上
+- 変更ファイル:
+  - `src/lib/proof-pad/axiomNameLogic.test.ts` (patternモード理論公理の非自明代入テスト追加)
+  - `src/lib/proof-pad/copyPasteLogic.test.ts` (結論ノード未コピー時のInferenceEdgeスキップテスト追加)
+  - `src/lib/proof-pad/dependencyLogic.test.ts` (ルートノードIDがノード配列に存在しない場合のテスト追加)
+  - `src/lib/proof-pad/GoalPanel.test.tsx` (Enter/Space以外のキーで折りたたみ状態が変わらないテスト追加)
+  - `src/lib/proof-pad/workspaceState.test.ts` (applyTabRuleAndConnect: バリデーションエラー・連言規則・選言規則テスト追加)
+- **今後のイテレーションへの学び:**
+  - TABルールの結果タイプ: "bs"/"bottom" → tab-axiom-result(前提なし), "conjunction"/"double-negation"等 → tab-single-result(1前提), "disjunction"/"neg-conjunction"/"implication" → tab-branching-result(2前提)
+  - workspaceState.ts のカバレッジ: Lines 100%達成。Stmts/Branch < 100%はv8のカウント差異（条件式のtrue/falseパス等）
+  - formula.ts のStmts < 100%: Schema.TaggedClassのclosure/function宣言カウント差異であり、Lines 100%なら対応不要
+  - identifyAxiomName line 162: 既存LogicSystemにはpatternモード理論公理がない（PA7は全システムから除外）。カスタムLogicSystemが必要
+---
