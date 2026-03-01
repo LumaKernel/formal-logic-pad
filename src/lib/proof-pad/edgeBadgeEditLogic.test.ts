@@ -531,6 +531,37 @@ describe("edgeBadgeEditLogic", () => {
       });
     });
 
+    describe("toSubstEditEntries (with subscripted meta-variables)", () => {
+      it("auto-extracts subscripted formula meta-variables from premise", () => {
+        const result = toSubstEditEntries([], "phi1 -> (psi -> phi1)");
+        expect(result).toEqual([
+          { kind: "formula", metaVar: "φ_1", value: "" },
+          { kind: "formula", metaVar: "ψ", value: "" },
+        ]);
+      });
+
+      it("auto-extracts subscripted term meta-variables from premise", () => {
+        const result = toSubstEditEntries([], "all x. P(x) -> P(tau1)");
+        expect(result).toEqual([{ kind: "term", metaVar: "τ_1", value: "" }]);
+      });
+
+      it("handles valid premise with no meta-variables and existing entries", () => {
+        // "p -> q" has no Greek letter meta-variables (p, q are lower idents / term variables)
+        // so extractedEntries.length === 0, fallback to existing entries
+        const entries: SubstitutionEntries = [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha",
+          },
+        ];
+        const result = toSubstEditEntries(entries, "p -> q");
+        expect(result).toEqual([
+          { kind: "formula", metaVar: "φ", value: "alpha" },
+        ]);
+      });
+    });
+
     describe("updateSubstEditEntryValue", () => {
       it("updates value at index", () => {
         const entries = [

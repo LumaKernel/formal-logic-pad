@@ -216,6 +216,9 @@ const formatFormulaInner = (f: Formula, parentBP: number): string => {
       const varName = f.variable.name;
       const bodyStr = formatFormulaInner(f.formula, 0);
       const result = `${sym satisfies string} ${varName satisfies string} . ${bodyStr satisfies string}`;
+      // 防御的コード: 量化子のchildBPは{0,0}なので、親の二項演算子は常にneedsParens=trueとなり
+      // parentBP=0で呼ばれる。parentBP>0は到達不能だが安全のために残す。
+      /* v8 ignore next */
       return parentBP > 0 ? wrapParens(result) : result;
     }
 

@@ -295,6 +295,78 @@ describe("EdgeParameterPopover", () => {
       expect(onOpenSyntaxHelp).toHaveBeenCalledOnce();
     });
 
+    it("renders term entry kind label correctly", () => {
+      const termSubstState: EdgeBadgeEditState = {
+        _tag: "substitution",
+        conclusionNodeId: "node-2",
+        entries: [
+          {
+            _tag: "TermSubstitution",
+            metaVariableName: "τ",
+            termText: "S(0)",
+          },
+        ],
+        premiseFormulaText: undefined,
+      };
+      render(
+        <EdgeParameterPopover
+          editState={termSubstState}
+          onCancel={() => {}}
+          testId="popover"
+        />,
+      );
+      const kindLabel = screen.getByTestId("popover-kind-0");
+      expect(kindLabel).toHaveTextContent("Term");
+      expect(screen.getByTestId("popover-value-0")).toHaveValue("S(0)");
+    });
+
+    it("renders without testId (uses default data-testid values)", () => {
+      render(
+        <EdgeParameterPopover editState={substEditState} onCancel={() => {}} />,
+      );
+      // default testids
+      expect(screen.getByTestId("edge-popover-cancel")).toBeInTheDocument();
+      expect(screen.getByTestId("edge-popover-confirm")).toBeInTheDocument();
+    });
+
+    it("renders gen popover without testId", () => {
+      const genState: EdgeBadgeEditState = {
+        _tag: "gen",
+        conclusionNodeId: "node-2",
+        variableName: "x",
+      };
+      render(<EdgeParameterPopover editState={genState} onCancel={() => {}} />);
+      expect(screen.getByTestId("edge-popover-cancel")).toBeInTheDocument();
+      expect(screen.getByTestId("edge-popover-confirm")).toBeInTheDocument();
+    });
+
+    it("uses no-op for onConfirmSubstitution when not provided", async () => {
+      const user = userEvent.setup();
+      render(
+        <EdgeParameterPopover
+          editState={substEditState}
+          onCancel={() => {}}
+          testId="popover"
+        />,
+      );
+      // Clicking confirm should not throw (uses default no-op)
+      await user.click(screen.getByTestId("popover-confirm"));
+    });
+
+    it("renders syntax help button without testId (default data-testid)", () => {
+      const onOpenSyntaxHelp = vi.fn();
+      render(
+        <EdgeParameterPopover
+          editState={substEditState}
+          onCancel={() => {}}
+          onOpenSyntaxHelp={onOpenSyntaxHelp}
+        />,
+      );
+      expect(
+        screen.getByTestId("edge-popover-syntax-help"),
+      ).toBeInTheDocument();
+    });
+
     it("does not show syntax help button for gen popover", () => {
       const genState: EdgeBadgeEditState = {
         _tag: "gen",

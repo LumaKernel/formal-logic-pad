@@ -579,6 +579,7 @@ describe("importWorkspaceFromJSON", () => {
     if (result._tag !== "Success") return;
 
     expect(result.workspace.inferenceEdges).toEqual([]);
+    expect(result.workspace.goals).toEqual([]);
     expect(result.workspace.nodes).toHaveLength(1);
   });
 

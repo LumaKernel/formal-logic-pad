@@ -31,6 +31,9 @@ const toSubscript = (s: string): string =>
   [...s]
     .map((ch) => {
       const n = ch.charCodeAt(0) - 48; // '0' = 48
+      // 防御的コード: n >= 0 && n <= 9 でsubscriptDigits[n]は常に定義済みだが、
+      // 配列アクセスの型安全のためフォールバックを残す。
+      /* v8 ignore next */
       return n >= 0 && n <= 9 ? (subscriptDigits[n] ?? ch) : ch;
     })
     .join("");
@@ -200,7 +203,9 @@ const formatFormulaInner = (f: Formula, parentBP: number): string => {
       const varName = f.variable.name;
       const bodyStr = formatFormulaInner(f.formula, 0);
       const result = `${sym satisfies string}${varName satisfies string}.${bodyStr satisfies string}`;
-      // 量化子が二項演算子の子になるときは括弧が必要
+      // 防御的コード: 量化子のchildBPは{0,0}なので、親の二項演算子は常にneedsParens=trueとなり
+      // parentBP=0で呼ばれる。parentBP>0は到達不能だが安全のために残す。
+      /* v8 ignore next */
       return parentBP > 0 ? `(${result satisfies string})` : result;
     }
 

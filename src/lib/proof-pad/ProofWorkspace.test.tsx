@@ -1714,9 +1714,7 @@ describe("ProofWorkspace", () => {
 
       // axiom violation バナーが表示される
       expect(
-        screen.getByTestId(
-          "workspace-proof-complete-banner-axiom-violation",
-        ),
+        screen.getByTestId("workspace-proof-complete-banner-axiom-violation"),
       ).toBeInTheDocument();
     });
 
@@ -1747,9 +1745,7 @@ describe("ProofWorkspace", () => {
 
       // axiom violation バナーが表示される（instance root violation）
       expect(
-        screen.getByTestId(
-          "workspace-proof-complete-banner-axiom-violation",
-        ),
+        screen.getByTestId("workspace-proof-complete-banner-axiom-violation"),
       ).toBeInTheDocument();
     });
   });
