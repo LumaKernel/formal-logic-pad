@@ -395,6 +395,28 @@ export type {
   BranchClosureResult,
 } from "./analyticTableau";
 
+// ── Cut Elimination (カット除去) ─────────────────────────────
+export {
+  formulaDepth,
+  removeAllOccurrences,
+  removeFirstOccurrence,
+  containsFormula,
+  countOccurrences,
+  rightRank,
+  leftRank,
+  mixRank,
+  getScChildren,
+  eliminateCuts,
+  eliminateCutsWithSteps,
+  isCutFree,
+  countCuts,
+  sequentEqual,
+} from "./cutElimination";
+export type {
+  CutEliminationResult,
+  CutEliminationStep,
+} from "./cutElimination";
+
 // ── Serialization (Schema decode/encode) ─────────────────────
 export {
   decodeFormula,
