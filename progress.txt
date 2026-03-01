@@ -7113,3 +7113,32 @@
   - 補題11.6（LJ-CUT証明の構造的特徴付け）がLEM/DNE独立性の技術的な核心。CUT-freeの部分論理式性が制約を生む
   - 構成的数学との関連（選言性、二重否定の取り扱い）はユーザーにとって動機付けになりうる
 ---
+
+## 2026-03-01 - 分析的タブロー AT-001 データ型定義とバリデーション
+- 実装した内容:
+  - 分析的タブロー（Analytic Tableau）の純粋ロジック層を新規作成
+  - 署名付き論理式（SignedFormula）: `{ sign: "T" | "F"; formula: Formula }`
+  - α規則（非分岐: 7種）、β規則（分岐: 3種）、γ規則（全称: 2種）、δ規則（存在: 2種）、closure規則（1種）、計15規則
+  - 規則適用関数: `applyAlphaRule`, `applyBetaRule`, `applyGammaRule`, `applyDeltaRule`
+  - 分類ヘルパー: `isAlphaRule`, `isBetaRule`, `isGammaRule`, `isDeltaRule`, `isClosureRule`, `classifySignedFormula`, `canApplyRule`
+  - 枝の閉じ判定: `checkBranchClosure`（矛盾ペアのインデックスも返す）
+  - 固有変数条件チェック: `checkEigenVariableCondition`
+  - テスト88件（全α/β/γ/δ規則 + 閉じ判定 + 排中律/P→(Q→P)/∀x.P(x)⊨∃x.P(x)/De Morgan の実践的証明例）
+- 変更したファイル:
+  - `src/lib/logic-core/analyticTableau.ts` - 新規作成（612行）
+  - `src/lib/logic-core/analyticTableau.test.ts` - 新規作成（88テスト）
+  - `src/lib/logic-core/index.ts` - ATエクスポート追加
+  - `tasks/prd-analytic-tableau.md` - AT-001を完了マーク
+  - `task-processing.md` - タスク記入→クリア
+- ベースラインカバレッジ: Stmts 97.66%, Branch 91.1%, Funcs 88.87%, Lines 98.5%
+- 完了後カバレッジ: Stmts 97.68%, Branch 91.27%, Funcs 88.68%, Lines 98.52%（微増）
+- テスト: 204ファイル、6097テスト全パス
+- スクリーンショット:
+  - `.screenshots/at-001-storybook-check.png` - Storybook動作確認
+- **今後のイテレーションへの学び:**
+  - Formula unionには Bottom/Top がない。⊥/⊤の閉じ条件は Predicate として表現する必要がある
+  - Negationのフィールドは `.formula` であり `.operand` ではない。Implicationは `.left`/`.right` であり `.antecedent`/`.consequent` ではない
+  - Schema.TaggedClassのインスタンスは `new ClassName({...})` で構築する（プレーンオブジェクトリテラルではダメ）
+  - AlphaResultの results が `readonly [SF] | readonly [SF, SF]` の union tuple 型の場合、`results[1]` のアクセスには `!` が必要
+  - `substituteTermVariableInFormula` が正しい関数名（`substituteTermInFormula` は存在しない）
+---
