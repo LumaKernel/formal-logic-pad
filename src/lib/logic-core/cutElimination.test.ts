@@ -14,6 +14,7 @@ import {
   isCutFree,
   countCuts,
   sequentEqual,
+  DEFAULT_MAX_STEPS,
 } from "./cutElimination";
 import {
   FormulaSubstitution,
@@ -110,7 +111,9 @@ describe("formulaDepth", () => {
 
   it("FormulaSubstitutionの深さは1+内部", () => {
     expect(
-      formulaDepth(new FormulaSubstitution({ formula: phi, term: x, variable: x })),
+      formulaDepth(
+        new FormulaSubstitution({ formula: phi, term: x, variable: x }),
+      ),
     ).toBe(2);
   });
 
@@ -229,11 +232,7 @@ describe("getScChildren", () => {
   it("ScImplicationLeftの子は2つ", () => {
     const left = scIdentity(sequent([phi], [phi]));
     const right = scIdentity(sequent([psi], [psi]));
-    const node = scImplicationLeft(
-      left,
-      right,
-      sequent([phiImplPsi], []),
-    );
+    const node = scImplicationLeft(left, right, sequent([phiImplPsi], []));
     expect(getScChildren(node)).toHaveLength(2);
   });
 
@@ -257,14 +256,10 @@ describe("getScChildren", () => {
       getScChildren(scImplicationRight(premise, sequent([], [phiImplPsi]))),
     ).toHaveLength(1);
     expect(
-      getScChildren(
-        scConjunctionLeft(premise, 1, sequent([phiAndPsi], [phi])),
-      ),
+      getScChildren(scConjunctionLeft(premise, 1, sequent([phiAndPsi], [phi]))),
     ).toHaveLength(1);
     expect(
-      getScChildren(
-        scDisjunctionRight(premise, 1, sequent([], [phiOrPsi])),
-      ),
+      getScChildren(scDisjunctionRight(premise, 1, sequent([], [phiOrPsi]))),
     ).toHaveLength(1);
     expect(
       getScChildren(scContractionLeft(premise, phi, sequent([phi], [phi]))),
@@ -282,9 +277,7 @@ describe("getScChildren", () => {
       getScChildren(scExchangeLeft(premise, 0, sequent([phi], [phi]))),
     ).toHaveLength(1);
     expect(
-      getScChildren(
-        scWeakeningRight(premise, psi, sequent([phi], [phi, psi])),
-      ),
+      getScChildren(scWeakeningRight(premise, psi, sequent([phi], [phi, psi]))),
     ).toHaveLength(1);
   });
 
@@ -522,11 +515,7 @@ describe("eliminateCuts", () => {
     it("弱化で導入されたカット式の除去", () => {
       // (⇒w): ψ ⇒ ψ → ψ ⇒ ψ,φ   φ ⇒ φ → CUT(φ) → ψ ⇒ ψ
       const premise = scIdentity(sequent([psi], [psi]));
-      const left = scWeakeningRight(
-        premise,
-        phi,
-        sequent([psi], [psi, phi]),
-      );
+      const left = scWeakeningRight(premise, phi, sequent([psi], [psi, phi]));
       const right = scIdentity(sequent([phi], [phi]));
       const cut = scCut(left, right, phi, sequent([psi], [psi]));
 
@@ -540,11 +529,7 @@ describe("eliminateCuts", () => {
     it("左弱化とカットの相互作用", () => {
       // (w⇒): ψ ⇒ φ → χ,ψ ⇒ φ   φ ⇒ φ → CUT(φ) → χ,ψ ⇒ φ
       const premise = scIdentity(sequent([phi], [phi]));
-      const left = scWeakeningLeft(
-        premise,
-        chi,
-        sequent([chi, phi], [phi]),
-      );
+      const left = scWeakeningLeft(premise, chi, sequent([chi, phi], [phi]));
       const right = scIdentity(sequent([phi], [phi]));
       const cut = scCut(left, right, phi, sequent([chi, phi], [phi]));
 
@@ -746,11 +731,7 @@ describe("eliminateCuts", () => {
         phi,
         sequent([phi], [phi]),
       );
-      const weakened = scWeakeningLeft(
-        cut,
-        psi,
-        sequent([psi, phi], [phi]),
-      );
+      const weakened = scWeakeningLeft(cut, psi, sequent([psi, phi], [phi]));
 
       const result = eliminateCuts(weakened);
       expect(result._tag).toBe("Success");
@@ -843,11 +824,7 @@ describe("eliminateCuts", () => {
         psi,
         sequent([psi], [psi]),
       );
-      const impl = scImplicationLeft(
-        cut1,
-        cut2,
-        sequent([phiImplPsi], []),
-      );
+      const impl = scImplicationLeft(cut1, cut2, sequent([phiImplPsi], []));
 
       const result = eliminateCuts(impl);
       expect(result._tag).toBe("Success");
@@ -958,11 +935,7 @@ describe("eliminateCuts", () => {
         phi,
         sequent([phi], [phi, phi]),
       );
-      const contracted = scContractionRight(
-        cut,
-        phi,
-        sequent([phi], [phi]),
-      );
+      const contracted = scContractionRight(cut, phi, sequent([phi], [phi]));
 
       const result = eliminateCuts(contracted);
       expect(result._tag).toBe("Success");
@@ -999,12 +972,7 @@ describe("eliminateCuts", () => {
         sequent([phi], [phi, psi, chi]),
       );
       const right = scIdentity(sequent([phi], [phi]));
-      const cut = scCut(
-        weak2,
-        right,
-        phi,
-        sequent([phi], [phi, psi, chi]),
-      );
+      const cut = scCut(weak2, right, phi, sequent([phi], [phi, psi, chi]));
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1026,12 +994,7 @@ describe("eliminateCuts", () => {
         sequent([psi, phi], [phi, chi]),
       );
       const right = scIdentity(sequent([phi], [phi]));
-      const cut = scCut(
-        weakLeft2,
-        right,
-        phi,
-        sequent([psi, phi], [phi, chi]),
-      );
+      const cut = scCut(weakLeft2, right, phi, sequent([psi, phi], [phi, chi]));
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1042,11 +1005,7 @@ describe("eliminateCuts", () => {
 
     it("ScContractionRight でφが縮約される場合", () => {
       const idLeft = scIdentity(sequent([phi], [phi, phi]));
-      const contracted = scContractionRight(
-        idLeft,
-        phi,
-        sequent([phi], [phi]),
-      );
+      const contracted = scContractionRight(idLeft, phi, sequent([phi], [phi]));
       const weak = scWeakeningRight(
         contracted,
         psi,
@@ -1081,12 +1040,7 @@ describe("eliminateCuts", () => {
         sequent([phi], [phi, psi, chi]),
       );
       const right = scIdentity(sequent([phi], [phi]));
-      const cut = scCut(
-        weak3,
-        right,
-        phi,
-        sequent([phi], [phi, psi, chi]),
-      );
+      const cut = scCut(weak3, right, phi, sequent([phi], [phi, psi, chi]));
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1097,11 +1051,7 @@ describe("eliminateCuts", () => {
 
     it("ScContractionLeft: 左縮約の場合", () => {
       const idLeft = scIdentity(sequent([phi, phi], [phi]));
-      const contracted = scContractionLeft(
-        idLeft,
-        phi,
-        sequent([phi], [phi]),
-      );
+      const contracted = scContractionLeft(idLeft, phi, sequent([phi], [phi]));
       const weak = scWeakeningRight(
         contracted,
         psi,
@@ -1119,11 +1069,7 @@ describe("eliminateCuts", () => {
 
     it("ScExchangeLeft: 左交換の場合", () => {
       const idLeft = scIdentity(sequent([phi, psi], [phi]));
-      const exchanged = scExchangeLeft(
-        idLeft,
-        0,
-        sequent([psi, phi], [phi]),
-      );
+      const exchanged = scExchangeLeft(idLeft, 0, sequent([psi, phi], [phi]));
       const weak = scWeakeningRight(
         exchanged,
         chi,
@@ -1141,11 +1087,7 @@ describe("eliminateCuts", () => {
 
     it("ScImplicationRight: 含意右規則の場合", () => {
       const idLeft = scIdentity(sequent([phi], [phi]));
-      const weak = scWeakeningRight(
-        idLeft,
-        psi,
-        sequent([phi], [phi, psi]),
-      );
+      const weak = scWeakeningRight(idLeft, psi, sequent([phi], [phi, psi]));
       const right = scIdentity(sequent([phi], [phi]));
       const cut = scCut(weak, right, phi, sequent([phi], [phi, psi]));
 
@@ -1361,12 +1303,7 @@ describe("eliminateCuts", () => {
         sequent([universal(x, phi)], [phi, psi]),
       );
       const right = scIdentity(sequent([phi], [phi]));
-      const cut = scCut(
-        left,
-        right,
-        phi,
-        sequent([universal(x, phi)], [psi]),
-      );
+      const cut = scCut(left, right, phi, sequent([universal(x, phi)], [psi]));
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1449,16 +1386,8 @@ describe("eliminateCuts", () => {
     it("ScContractionLeft でφが縮約される場合", () => {
       const left = scIdentity(sequent([phi], [phi]));
       const idRight = scIdentity(sequent([phi, phi], [phi]));
-      const contracted = scContractionLeft(
-        idRight,
-        phi,
-        sequent([phi], [phi]),
-      );
-      const weak = scWeakeningLeft(
-        contracted,
-        psi,
-        sequent([phi, psi], [phi]),
-      );
+      const contracted = scContractionLeft(idRight, phi, sequent([phi], [phi]));
+      const weak = scWeakeningLeft(contracted, psi, sequent([phi, psi], [phi]));
       const cut = scCut(left, weak, phi, sequent([psi], [phi]));
 
       const result = eliminateCuts(cut);
@@ -1504,11 +1433,7 @@ describe("eliminateCuts", () => {
         phi,
         sequent([phi], [phi]),
       );
-      const weak = scWeakeningLeft(
-        contracted,
-        psi,
-        sequent([phi, psi], [phi]),
-      );
+      const weak = scWeakeningLeft(contracted, psi, sequent([phi, psi], [phi]));
       const cut = scCut(left, weak, phi, sequent([psi], [phi]));
 
       const result = eliminateCuts(cut);
@@ -1527,7 +1452,12 @@ describe("eliminateCuts", () => {
         rightRight,
         sequent([implication(alpha, beta), phi], [phi, alpha, beta]),
       );
-      const cut = scCut(left, right, phi, sequent([implication(alpha, beta)], [alpha, beta]));
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([implication(alpha, beta)], [alpha, beta]),
+      );
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1545,7 +1475,12 @@ describe("eliminateCuts", () => {
         rightRight,
         sequent([implication(alpha, beta), phi], [alpha, phi, beta]),
       );
-      const cut = scCut(left, right, phi, sequent([implication(alpha, beta)], [alpha, beta]));
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([implication(alpha, beta)], [alpha, beta]),
+      );
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1575,7 +1510,12 @@ describe("eliminateCuts", () => {
         1,
         sequent([conjunction(alpha, beta), phi], [phi, alpha]),
       );
-      const cut = scCut(left, right, phi, sequent([conjunction(alpha, beta)], [alpha]));
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([conjunction(alpha, beta)], [alpha]),
+      );
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1593,7 +1533,12 @@ describe("eliminateCuts", () => {
         rightRight,
         sequent([phi, beta], [phi, conjunction(alpha, beta)]),
       );
-      const cut = scCut(left, right, phi, sequent([beta], [conjunction(alpha, beta)]));
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([beta], [conjunction(alpha, beta)]),
+      );
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1611,7 +1556,12 @@ describe("eliminateCuts", () => {
         rightRight,
         sequent([alpha, phi], [conjunction(alpha, beta), phi]),
       );
-      const cut = scCut(left, right, phi, sequent([alpha], [conjunction(alpha, beta)]));
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([alpha], [conjunction(alpha, beta)]),
+      );
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1629,7 +1579,12 @@ describe("eliminateCuts", () => {
         rightRight,
         sequent([disjunction(alpha, beta), phi], [phi, alpha, beta]),
       );
-      const cut = scCut(left, right, phi, sequent([disjunction(alpha, beta)], [alpha, beta]));
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([disjunction(alpha, beta)], [alpha, beta]),
+      );
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1647,7 +1602,12 @@ describe("eliminateCuts", () => {
         rightRight,
         sequent([disjunction(alpha, beta), phi], [alpha, phi, beta]),
       );
-      const cut = scCut(left, right, phi, sequent([disjunction(alpha, beta)], [alpha, beta]));
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([disjunction(alpha, beta)], [alpha, beta]),
+      );
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1664,7 +1624,12 @@ describe("eliminateCuts", () => {
         1,
         sequent([phi, alpha], [phi, disjunction(alpha, beta)]),
       );
-      const cut = scCut(left, right, phi, sequent([alpha], [disjunction(alpha, beta)]));
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([alpha], [disjunction(alpha, beta)]),
+      );
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1681,7 +1646,12 @@ describe("eliminateCuts", () => {
         weak,
         sequent([phi, psi], [existential(x, phi)]),
       );
-      const cut = scCut(left, right, phi, sequent([psi], [existential(x, phi)]));
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([psi], [existential(x, phi)]),
+      );
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1705,11 +1675,7 @@ describe("eliminateCuts", () => {
     it("ScExchangeLeft: 右交換の場合", () => {
       const left = scIdentity(sequent([phi], [phi]));
       const idRight = scIdentity(sequent([phi, psi], [phi]));
-      const exchanged = scExchangeLeft(
-        idRight,
-        0,
-        sequent([psi, phi], [phi]),
-      );
+      const exchanged = scExchangeLeft(idRight, 0, sequent([psi, phi], [phi]));
       const cut = scCut(left, exchanged, phi, sequent([psi], [phi]));
 
       const result = eliminateCuts(cut);
@@ -1734,7 +1700,12 @@ describe("eliminateCuts", () => {
       // 右: φ⇒φ (leftRank=1)
       const right = scIdentity(sequent([phi], [phi]));
       // lr=2, rr=1 → pushMixIntoLeft, left is ScImplicationRight
-      const cut = scCut(left, right, phi, sequent([], [implication(alpha, beta)]));
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([], [implication(alpha, beta)]),
+      );
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1796,7 +1767,12 @@ describe("eliminateCuts", () => {
       // rightPremise の antecedents にも phi がある
       // leftRank(right, phi) = leftRank(rightPremise, phi) + 1 = 1 + 1 = 2
       // lr=1, rr=2 → pushMixIntoRight
-      const cut = scCut(left, right, phi, sequent([], [implication(alpha, beta)]));
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([], [implication(alpha, beta)]),
+      );
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1824,7 +1800,12 @@ describe("eliminateCuts", () => {
       const univAlpha = universal(x, alpha);
       const left = scIdentity(sequent([univAlpha], [univAlpha]));
       const right = scIdentity(sequent([univAlpha], [univAlpha]));
-      const cut = scCut(left, right, univAlpha, sequent([univAlpha], [univAlpha]));
+      const cut = scCut(
+        left,
+        right,
+        univAlpha,
+        sequent([univAlpha], [univAlpha]),
+      );
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1837,7 +1818,12 @@ describe("eliminateCuts", () => {
       const existAlpha = existential(x, alpha);
       const left = scIdentity(sequent([existAlpha], [existAlpha]));
       const right = scIdentity(sequent([existAlpha], [existAlpha]));
-      const cut = scCut(left, right, existAlpha, sequent([existAlpha], [existAlpha]));
+      const cut = scCut(
+        left,
+        right,
+        existAlpha,
+        sequent([existAlpha], [existAlpha]),
+      );
 
       const result = eliminateCuts(cut);
       expect(result._tag).toBe("Success");
@@ -1899,7 +1885,11 @@ describe("eliminateCuts", () => {
       const left = scWeakeningRight(premise, impl, sequent([psi], [psi, impl]));
       // 右: ID(α→β ⇒ α→β) を弱化した構造
       const premise2 = scIdentity(sequent([chi], [chi]));
-      const right = scWeakeningLeft(premise2, impl, sequent([impl, chi], [chi]));
+      const right = scWeakeningLeft(
+        premise2,
+        impl,
+        sequent([impl, chi], [chi]),
+      );
       const cut = scCut(left, right, impl, sequent([psi, chi], [psi, chi]));
 
       const result = eliminateCuts(cut);
@@ -1914,7 +1904,11 @@ describe("eliminateCuts", () => {
       const premise = scIdentity(sequent([psi], [psi]));
       const left = scWeakeningRight(premise, conj, sequent([psi], [psi, conj]));
       const premise2 = scIdentity(sequent([chi], [chi]));
-      const right = scWeakeningLeft(premise2, conj, sequent([conj, chi], [chi]));
+      const right = scWeakeningLeft(
+        premise2,
+        conj,
+        sequent([conj, chi], [chi]),
+      );
       const cut = scCut(left, right, conj, sequent([psi, chi], [psi, chi]));
 
       const result = eliminateCuts(cut);
@@ -1929,7 +1923,11 @@ describe("eliminateCuts", () => {
       const premise = scIdentity(sequent([psi], [psi]));
       const left = scWeakeningRight(premise, disj, sequent([psi], [psi, disj]));
       const premise2 = scIdentity(sequent([chi], [chi]));
-      const right = scWeakeningLeft(premise2, disj, sequent([disj, chi], [chi]));
+      const right = scWeakeningLeft(
+        premise2,
+        disj,
+        sequent([disj, chi], [chi]),
+      );
       const cut = scCut(left, right, disj, sequent([psi, chi], [psi, chi]));
 
       const result = eliminateCuts(cut);
@@ -2040,11 +2038,7 @@ describe("eliminateCuts", () => {
       const cut = scCut(left, right, phi, sequent([], []));
 
       // ExchangeRight(Cut(...), position=0, 結論)
-      const exchangeRight = scExchangeRight(
-        cut,
-        0,
-        sequent([], []),
-      );
+      const exchangeRight = scExchangeRight(cut, 0, sequent([], []));
 
       const result = eliminateCuts(exchangeRight);
       expect(result._tag).toBe("Success");
@@ -2066,17 +2060,326 @@ describe("eliminateCuts", () => {
       const cut = scCut(left, right, phi, sequent([psi], [psi]));
 
       // ExchangeRight wrapping a cut
-      const exchangeRight = scExchangeRight(
-        cut,
-        0,
-        sequent([psi], [psi]),
-      );
+      const exchangeRight = scExchangeRight(cut, 0, sequent([psi], [psi]));
 
       const result = eliminateCuts(exchangeRight);
       expect(result._tag).toBe("Success");
       if (result._tag === "Success") {
         expect(isCutFree(result.proof)).toBe(true);
       }
+    });
+  });
+
+  // ── ステップ上限 ────────────────────────────────────────────
+
+  describe("ステップ上限 (maxSteps)", () => {
+    it("DEFAULT_MAX_STEPS は 1000", () => {
+      expect(DEFAULT_MAX_STEPS).toBe(1000);
+    });
+
+    it("maxSteps を指定しないとデフォルト上限が適用される", () => {
+      // 単純なカットは上限内で成功する
+      const proof = scCut(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      const result = eliminateCuts(proof);
+      expect(result._tag).toBe("Success");
+    });
+
+    it("maxSteps: 0 では即座に StepLimitExceeded を返す", () => {
+      const proof = scCut(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      const result = eliminateCuts(proof, { maxSteps: 0 });
+      expect(result._tag).toBe("StepLimitExceeded");
+      if (result._tag === "StepLimitExceeded") {
+        expect(result.stepsUsed).toBe(0);
+        // 部分結果の proof が含まれる
+        expect(result.proof).toBeDefined();
+      }
+    });
+
+    it("maxSteps: 1 で複数ステップ必要な証明は StepLimitExceeded を返す", () => {
+      // ネストしたカット: 内側のカット除去後に外側のカットが残る → 2ステップ以上必要
+      const innerCut = scCut(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      const outerCut = scCut(
+        innerCut,
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      const result = eliminateCuts(outerCut, { maxSteps: 1 });
+      // 1ステップだけでは足りないはず
+      expect(result._tag).toBe("StepLimitExceeded");
+    });
+
+    it("十分な maxSteps を設定すれば成功する", () => {
+      const innerCut = scCut(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      const outerCut = scCut(
+        innerCut,
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      const result = eliminateCuts(outerCut, { maxSteps: 100 });
+      expect(result._tag).toBe("Success");
+    });
+
+    it("eliminateCutsWithSteps も maxSteps に対応する", () => {
+      const proof = scCut(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      const { result, steps } = eliminateCutsWithSteps(proof, { maxSteps: 0 });
+      expect(result._tag).toBe("StepLimitExceeded");
+      expect(steps.length).toBe(0);
+    });
+
+    it("eliminateCutsWithSteps でステップが記録される", () => {
+      const proof = scCut(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      const { result, steps } = eliminateCutsWithSteps(proof, {
+        maxSteps: 100,
+      });
+      expect(result._tag).toBe("Success");
+      expect(steps.length).toBeGreaterThan(0);
+    });
+
+    it("StepLimitExceeded の stepsUsed は消費したステップ数を反映する", () => {
+      // ランク2のカット: 複数ステップ必要
+      const phi_impl_psi = implication(phi, psi);
+      const leftProof = scImplicationRight(
+        scIdentity(sequent([phi], [phi, psi])),
+        sequent([], [phi_impl_psi]),
+      );
+      const rightProof = scImplicationLeft(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([psi], [psi])),
+        sequent([phi_impl_psi], [psi]),
+      );
+      const cut = scCut(
+        leftProof,
+        rightProof,
+        phi_impl_psi,
+        sequent([], [psi]),
+      );
+      // maxSteps: 2 でいくつかのステップを実行
+      const result = eliminateCuts(cut, { maxSteps: 2 });
+      if (result._tag === "StepLimitExceeded") {
+        expect(result.stepsUsed).toBeLessThanOrEqual(2);
+        expect(result.stepsUsed).toBeGreaterThan(0);
+      }
+      // maxSteps: 100 なら成功する
+      const fullResult = eliminateCuts(cut, { maxSteps: 100 });
+      expect(fullResult._tag).toBe("Success");
+    });
+
+    it("StepLimitExceeded がランク削減右(ScImplicationRight)で伝播する", () => {
+      // right is ScImplicationRight with phi in the premise's antecedents
+      const left = scIdentity(sequent([phi], [phi]));
+      const rightPremise = scIdentity(
+        sequent([phi, alpha], [phi, alpha, beta]),
+      );
+      const right = scImplicationRight(
+        rightPremise,
+        sequent([phi, alpha], [phi, implication(alpha, beta)]),
+      );
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([alpha], [implication(alpha, beta)]),
+      );
+
+      const result = eliminateCuts(cut, { maxSteps: 1 });
+      expect(result._tag).toBe("StepLimitExceeded");
+    });
+
+    it("StepLimitExceeded がランク削減右(ScConjunctionLeft)で伝播する", () => {
+      const left = scIdentity(sequent([phi], [phi]));
+      const premise = scIdentity(sequent([phi, alpha], [phi, alpha]));
+      const right = scConjunctionLeft(
+        premise,
+        1,
+        sequent([conjunction(alpha, beta), phi], [phi, alpha]),
+      );
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([conjunction(alpha, beta)], [alpha]),
+      );
+
+      const result = eliminateCuts(cut, { maxSteps: 1 });
+      expect(result._tag).toBe("StepLimitExceeded");
+    });
+
+    it("StepLimitExceeded がランク削減右(ScConjunctionRight左)で伝播する", () => {
+      const left = scIdentity(sequent([phi], [phi]));
+      const rightLeft = scIdentity(sequent([phi, alpha], [phi, alpha]));
+      const rightRight = scIdentity(sequent([beta], [beta]));
+      const right = scConjunctionRight(
+        rightLeft,
+        rightRight,
+        sequent([phi, beta], [phi, conjunction(alpha, beta)]),
+      );
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([beta], [conjunction(alpha, beta)]),
+      );
+
+      const result = eliminateCuts(cut, { maxSteps: 1 });
+      expect(result._tag).toBe("StepLimitExceeded");
+    });
+
+    it("StepLimitExceeded がランク削減右(ScConjunctionRight右)で伝播する", () => {
+      const left = scIdentity(sequent([phi], [phi]));
+      const rightLeft = scIdentity(sequent([alpha], [alpha]));
+      const rightRight = scIdentity(sequent([phi, beta], [phi, beta]));
+      const right = scConjunctionRight(
+        rightLeft,
+        rightRight,
+        sequent([alpha, phi], [conjunction(alpha, beta), phi]),
+      );
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([alpha], [conjunction(alpha, beta)]),
+      );
+
+      const result = eliminateCuts(cut, { maxSteps: 1 });
+      expect(result._tag).toBe("StepLimitExceeded");
+    });
+
+    it("StepLimitExceeded がランク削減右(ScDisjunctionLeft左)で伝播する", () => {
+      // reduceRankRight → ScDisjunctionLeft, 左前提にφあり
+      const left = scIdentity(sequent([phi], [phi]));
+      const rightLeft = scIdentity(sequent([phi, alpha], [phi, alpha]));
+      const rightRight = scIdentity(sequent([beta], [beta]));
+      const right = scDisjunctionLeft(
+        rightLeft,
+        rightRight,
+        sequent([disjunction(alpha, beta), phi], [phi, alpha, beta]),
+      );
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([disjunction(alpha, beta)], [alpha, beta]),
+      );
+
+      // maxSteps: 1 → 外側のカットで1ステップ消費、内側再帰で上限超過
+      const result = eliminateCuts(cut, { maxSteps: 1 });
+      expect(result._tag).toBe("StepLimitExceeded");
+    });
+
+    it("StepLimitExceeded がランク削減右(ScDisjunctionLeft右)で伝播する", () => {
+      // reduceRankRight → ScDisjunctionLeft, 右前提にφあり
+      const left = scIdentity(sequent([phi], [phi]));
+      const rightLeft = scIdentity(sequent([alpha], [alpha]));
+      const rightRight = scIdentity(sequent([phi, beta], [phi, beta]));
+      const right = scDisjunctionLeft(
+        rightLeft,
+        rightRight,
+        sequent([disjunction(alpha, beta), phi], [alpha, phi, beta]),
+      );
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([disjunction(alpha, beta)], [alpha, beta]),
+      );
+
+      const result = eliminateCuts(cut, { maxSteps: 1 });
+      expect(result._tag).toBe("StepLimitExceeded");
+    });
+
+    it("StepLimitExceeded がランク削減右(ScDisjunctionRight)で伝播する", () => {
+      const left = scIdentity(sequent([phi], [phi]));
+      const premise = scIdentity(sequent([phi, alpha], [phi, alpha]));
+      const right = scDisjunctionRight(
+        premise,
+        1,
+        sequent([phi, alpha], [phi, disjunction(alpha, beta)]),
+      );
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([alpha], [disjunction(alpha, beta)]),
+      );
+
+      const result = eliminateCuts(cut, { maxSteps: 1 });
+      expect(result._tag).toBe("StepLimitExceeded");
+    });
+
+    it("StepLimitExceeded がランク削減右(ScExistentialRight)で伝播する", () => {
+      const left = scIdentity(sequent([phi], [phi]));
+      const premise = scIdentity(sequent([phi], [phi]));
+      const weak = scWeakeningLeft(premise, psi, sequent([phi, psi], [phi]));
+      const right = scExistentialRight(
+        weak,
+        sequent([phi, psi], [existential(x, phi)]),
+      );
+      const cut = scCut(
+        left,
+        right,
+        phi,
+        sequent([psi], [existential(x, phi)]),
+      );
+
+      const result = eliminateCuts(cut, { maxSteps: 1 });
+      expect(result._tag).toBe("StepLimitExceeded");
+    });
+
+    it("StepLimitExceeded が深さ削減(含意カット)で伝播する", () => {
+      // reduceImplicationCut の最初の内部カットで上限超過
+      const left = scImplicationRight(
+        scIdentity(sequent([alpha], [beta])),
+        sequent([], [implication(alpha, beta)]),
+      );
+      const rightLeftPremise = scIdentity(sequent([alpha], [alpha]));
+      const rightRightPremise = scIdentity(sequent([beta], [beta]));
+      const right = scImplicationLeft(
+        rightLeftPremise,
+        rightRightPremise,
+        sequent([implication(alpha, beta), alpha], [beta]),
+      );
+      const cut = scCut(
+        left,
+        right,
+        implication(alpha, beta),
+        sequent([alpha], [beta]),
+      );
+
+      // maxSteps: 1 → 外側カットで1ステップ消費、内側の最初のカットで上限超過
+      const result = eliminateCuts(cut, { maxSteps: 1 });
+      expect(result._tag).toBe("StepLimitExceeded");
     });
   });
 });

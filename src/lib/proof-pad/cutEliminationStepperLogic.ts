@@ -10,6 +10,7 @@
 import type {
   CutEliminationResult,
   CutEliminationStep,
+  CutEliminationOptions,
 } from "../logic-core/cutElimination";
 import {
   eliminateCutsWithSteps,
@@ -80,17 +81,19 @@ export function formatSequentText(seq: Sequent): string {
  * ScProofNode からカット除去を実行し、ステッパー表示データを生成する。
  *
  * @param proof カットを含む可能性のある証明図
+ * @param options カット除去オプション（ステップ上限など）
  * @returns ステッパー表示データ
  */
 export function computeCutEliminationStepperData(
   proof: ScProofNode,
+  options?: CutEliminationOptions,
 ): Omit<CutEliminationStepperData, "currentStepIndex"> {
   const initialCutCount = countCuts(proof);
   const initialIsCutFree = isCutFree(proof);
   const initialConclusion = getScConclusion(proof);
   const initialConclusionText = formatSequentText(initialConclusion);
 
-  const { result, steps } = eliminateCutsWithSteps(proof);
+  const { result, steps } = eliminateCutsWithSteps(proof, options);
 
   const stepInfos: readonly StepperStepInfo[] = steps.map((step, index) => ({
     index,
@@ -130,7 +133,10 @@ export function resolveStepperState(
   originalProof: ScProofNode,
   rawSteps: readonly CutEliminationStep[],
 ): CutEliminationStepperData {
-  const clampedIndex = Math.max(-1, Math.min(stepIndex, baseData.totalSteps - 1));
+  const clampedIndex = Math.max(
+    -1,
+    Math.min(stepIndex, baseData.totalSteps - 1),
+  );
 
   let currentProof: ScProofNode;
   let currentCutCount: number;

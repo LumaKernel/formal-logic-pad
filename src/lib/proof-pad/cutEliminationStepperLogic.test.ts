@@ -41,11 +41,7 @@ function makeSimpleCutProof() {
 function makeRank0CutProof() {
   // left: φ ⊢ φ（右辺にψがない）→ WeakeningRight で φ ⊢ φ, ψ を作る
   const leftBase = scIdentity(sequent([phi], [phi]));
-  const leftProof = scWeakeningRight(
-    leftBase,
-    psi,
-    sequent([phi], [phi, psi]),
-  );
+  const leftProof = scWeakeningRight(leftBase, psi, sequent([phi], [phi, psi]));
   // right: ψ ⊢ ψ
   const rightProof = scIdentity(sequent([psi], [psi]));
   // CUT on ψ: (φ ⊢ φ, ψ) CUT (ψ ⊢ ψ) => φ, ... ⊢ φ, ψ

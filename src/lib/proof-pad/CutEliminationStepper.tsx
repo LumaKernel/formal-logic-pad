@@ -126,6 +126,12 @@ const failureStyle: CSSProperties = {
   fontSize: 10,
 };
 
+const stepLimitStyle: CSSProperties = {
+  color: "var(--color-warning, #c57600)",
+  fontWeight: 700,
+  fontSize: 10,
+};
+
 const cutFreeStyle: CSSProperties = {
   color: "var(--color-proof-complete-text, #2d6a3f)",
   fontWeight: 600,
@@ -316,6 +322,19 @@ export function CutEliminationStepper({
               }
             >
               {messages.cutEliminationSuccess}
+            </span>
+          ) : result._tag === "StepLimitExceeded" ? (
+            <span
+              style={stepLimitStyle}
+              data-testid={
+                testId !== undefined
+                  ? `${testId satisfies string}-result`
+                  : undefined
+              }
+            >
+              {formatMessage(messages.cutEliminationStepLimitExceeded ?? "Step limit exceeded ({stepsUsed} steps)", {
+                stepsUsed: String(result.stepsUsed),
+              })}
             </span>
           ) : (
             <span

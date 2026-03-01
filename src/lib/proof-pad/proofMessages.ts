@@ -169,6 +169,8 @@ export type ProofMessages = {
   readonly cutEliminationSuccess: string;
   readonly cutEliminationFailure: string;
   readonly cutEliminationNoCuts: string;
+  /** `{stepsUsed}` プレースホルダーを含む。ステップ上限超過時に表示 */
+  readonly cutEliminationStepLimitExceeded?: string;
 };
 
 // --- デフォルトメッセージ（英語） ---
@@ -305,6 +307,7 @@ export const defaultProofMessages: ProofMessages = {
   cutEliminationSuccess: "Cut elimination succeeded",
   cutEliminationFailure: "Cut elimination failed",
   cutEliminationNoCuts: "Proof is already cut-free",
+  cutEliminationStepLimitExceeded: "Step limit exceeded ({stepsUsed} steps)",
 };
 
 // --- エラー → メッセージキー変換（純粋関数） ---

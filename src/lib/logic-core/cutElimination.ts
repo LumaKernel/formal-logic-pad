@@ -22,11 +22,7 @@
 
 import type { Formula } from "./formula";
 import { equalFormula } from "./equality";
-import type {
-  Sequent,
-  ScProofNode,
-  ScCut,
-} from "./sequentCalculus";
+import type { Sequent, ScProofNode, ScCut } from "./sequentCalculus";
 import {
   sequent,
   scCut,
@@ -134,10 +130,7 @@ export const countOccurrences = (
  *
  * 実装では証明図を再帰的にたどり、MIXの左前提の全パスの右ランクの最大値を返す。
  */
-export const rightRank = (
-  node: ScProofNode,
-  mixFormula: Formula,
-): number => {
+export const rightRank = (node: ScProofNode, mixFormula: Formula): number => {
   const conc = getScConclusion(node);
   if (!containsFormula(conc.succedents, mixFormula)) return 0;
 
@@ -158,10 +151,7 @@ export const rightRank = (
  * 戸次本 定義11.17: 左ランク
  * rightRank の対称版（左辺の φ 出現を追跡）。
  */
-export const leftRank = (
-  node: ScProofNode,
-  mixFormula: Formula,
-): number => {
+export const leftRank = (node: ScProofNode, mixFormula: Formula): number => {
   const conc = getScConclusion(node);
   if (!containsFormula(conc.antecedents, mixFormula)) return 0;
 
@@ -233,11 +223,25 @@ export const getScChildren = (node: ScProofNode): readonly ScProofNode[] => {
 
 // ── カット除去メイン関数 ────────────────────────────────────
 
+/** カット除去のデフォルトステップ上限 */
+export const DEFAULT_MAX_STEPS = 1000;
+
+/** カット除去のオプション */
+export type CutEliminationOptions = {
+  /** ステップ数の上限。超えると StepLimitExceeded で停止する。（デフォルト: 1000） */
+  readonly maxSteps?: number;
+};
+
 /**
  * カット除去の結果型。
  */
 export type CutEliminationResult =
   | { readonly _tag: "Success"; readonly proof: ScProofNode }
+  | {
+      readonly _tag: "StepLimitExceeded";
+      readonly proof: ScProofNode;
+      readonly stepsUsed: number;
+    }
   | { readonly _tag: "Failure"; readonly reason: string };
 
 /**
@@ -251,33 +255,59 @@ export type CutEliminationStep = {
 };
 
 /**
+ * 内部で使用するステップカウンター（ミュータブル参照）。
+ * 再帰中に共有して残りステップ数を追跡する。
+ */
+type StepCounter = {
+  // eslint-disable-next-line @luma-dev/luma-ts/prefer-immutable -- intentionally mutable counter
+  remaining: number;
+};
+
+/**
  * カットを含まない証明に変換する。
  *
  * 証明図中のすべての ScCut ノードを除去し、カットフリーな証明を返す。
  * 変換過程の各ステップを記録する。
  *
  * @param proof カットを含む可能性のある証明図
- * @returns カットフリーな証明図、または失敗理由
+ * @param options カット除去オプション（ステップ上限など）
+ * @returns カットフリーな証明図、ステップ上限超過時の部分結果、または失敗理由
  */
 export const eliminateCuts = (
   proof: ScProofNode,
+  options?: CutEliminationOptions,
 ): CutEliminationResult => {
-  const result = eliminateCutsRecursive(proof, 0);
+  const maxSteps = options?.maxSteps ?? DEFAULT_MAX_STEPS;
+  const counter: StepCounter = { remaining: maxSteps };
+  const result = eliminateCutsRecursive(proof, 0, counter);
+  if (result._tag === "StepLimitExceeded") {
+    return { ...result, stepsUsed: maxSteps - counter.remaining };
+  }
   return result;
 };
 
 /**
  * ステップバイステップでカットを除去する。
  * 各変換ステップを配列として返す。
+ *
+ * @param proof カットを含む可能性のある証明図
+ * @param options カット除去オプション（ステップ上限など）
  */
 export const eliminateCutsWithSteps = (
   proof: ScProofNode,
+  options?: CutEliminationOptions,
 ): {
   readonly result: CutEliminationResult;
   readonly steps: readonly CutEliminationStep[];
 } => {
+  const maxSteps = options?.maxSteps ?? DEFAULT_MAX_STEPS;
+  const counter: StepCounter = { remaining: maxSteps };
   const steps: CutEliminationStep[] = [];
-  const result = eliminateCutsRecursive(proof, 0, steps);
+  const rawResult = eliminateCutsRecursive(proof, 0, counter, steps);
+  const result =
+    rawResult._tag === "StepLimitExceeded"
+      ? { ...rawResult, stepsUsed: maxSteps - counter.remaining }
+      : rawResult;
   return { result, steps };
 };
 
@@ -292,6 +322,7 @@ const MAX_RECURSION_DEPTH = 10000;
 const eliminateCutsRecursive = (
   node: ScProofNode,
   depth: number,
+  counter: StepCounter,
   steps?: CutEliminationStep[],
 ): CutEliminationResult => {
   /* v8 ignore start — 安全制限: 正常な入力では到達しない */
@@ -305,18 +336,24 @@ const eliminateCutsRecursive = (
 
   // カットでないノードは子を再帰的に処理
   if (node._tag !== "ScCut") {
-    return eliminateFromChildren(node, depth, steps);
+    return eliminateFromChildren(node, depth, counter, steps);
   }
 
   // まず左右のサブプルーフからカットを除去
-  const leftResult = eliminateCutsRecursive(node.left, depth + 1, steps);
-  /* v8 ignore start -- Failure は MAX_RECURSION_DEPTH 超過時のみ発生（防御的コード） */
-  if (leftResult._tag === "Failure") return leftResult;
-  /* v8 ignore stop */
-  const rightResult = eliminateCutsRecursive(node.right, depth + 1, steps);
-  /* v8 ignore start -- 同上 */
-  if (rightResult._tag === "Failure") return rightResult;
-  /* v8 ignore stop */
+  const leftResult = eliminateCutsRecursive(
+    node.left,
+    depth + 1,
+    counter,
+    steps,
+  );
+  if (leftResult._tag !== "Success") return leftResult;
+  const rightResult = eliminateCutsRecursive(
+    node.right,
+    depth + 1,
+    counter,
+    steps,
+  );
+  if (rightResult._tag !== "Success") return rightResult;
 
   // カットフリーな左右を持つ新しいカットノード
   const cutNode: ScCut = scCut(
@@ -327,18 +364,19 @@ const eliminateCutsRecursive = (
   );
 
   // このカットを除去する
-  return eliminateSingleCut(cutNode, depth, steps);
+  return eliminateSingleCut(cutNode, depth, counter, steps);
 };
 
 /**
  * カットでないノードの子を再帰的に処理する。
  *
- * NOTE: 各ケースの `if (r._tag === "Failure") return r;` は防御的コード。
- * Failure は MAX_RECURSION_DEPTH 超過時のみ発生し、正常な入力では到達しない。
+ * NOTE: 各ケースの `if (isAborted(r)) return r;` は
+ * StepLimitExceeded 時の早期リターン、および MAX_RECURSION_DEPTH 超過時の防御的コード。
  */
 const eliminateFromChildren = (
   node: ScProofNode,
   depth: number,
+  counter: StepCounter,
   steps?: CutEliminationStep[],
 ): CutEliminationResult => {
   switch (node._tag) {
@@ -346,38 +384,24 @@ const eliminateFromChildren = (
     case "ScBottomLeft":
       return { _tag: "Success", proof: node };
     case "ScWeakeningLeft": {
-      const r = eliminateCutsRecursive(node.premise, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (r._tag === "Failure") return r;
-      /* v8 ignore stop */
+      const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      if (r._tag !== "Success") return r;
       return {
         _tag: "Success",
-        proof: scWeakeningLeft(
-          r.proof,
-          node.weakenedFormula,
-          node.conclusion,
-        ),
+        proof: scWeakeningLeft(r.proof, node.weakenedFormula, node.conclusion),
       };
     }
     case "ScWeakeningRight": {
-      const r = eliminateCutsRecursive(node.premise, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (r._tag === "Failure") return r;
-      /* v8 ignore stop */
+      const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      if (r._tag !== "Success") return r;
       return {
         _tag: "Success",
-        proof: scWeakeningRight(
-          r.proof,
-          node.weakenedFormula,
-          node.conclusion,
-        ),
+        proof: scWeakeningRight(r.proof, node.weakenedFormula, node.conclusion),
       };
     }
     case "ScContractionLeft": {
-      const r = eliminateCutsRecursive(node.premise, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (r._tag === "Failure") return r;
-      /* v8 ignore stop */
+      const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      if (r._tag !== "Success") return r;
       return {
         _tag: "Success",
         proof: scContractionLeft(
@@ -388,10 +412,8 @@ const eliminateFromChildren = (
       };
     }
     case "ScContractionRight": {
-      const r = eliminateCutsRecursive(node.premise, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (r._tag === "Failure") return r;
-      /* v8 ignore stop */
+      const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      if (r._tag !== "Success") return r;
       return {
         _tag: "Success",
         proof: scContractionRight(
@@ -402,96 +424,70 @@ const eliminateFromChildren = (
       };
     }
     case "ScExchangeLeft": {
-      const r = eliminateCutsRecursive(node.premise, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (r._tag === "Failure") return r;
-      /* v8 ignore stop */
+      const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      if (r._tag !== "Success") return r;
       return {
         _tag: "Success",
         proof: scExchangeLeft(r.proof, node.position, node.conclusion),
       };
     }
     case "ScExchangeRight": {
-      const r = eliminateCutsRecursive(node.premise, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (r._tag === "Failure") return r;
-      /* v8 ignore stop */
+      const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      if (r._tag !== "Success") return r;
       return {
         _tag: "Success",
         proof: scExchangeRight(r.proof, node.position, node.conclusion),
       };
     }
     case "ScImplicationLeft": {
-      const lr = eliminateCutsRecursive(node.left, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (lr._tag === "Failure") return lr;
-      /* v8 ignore stop */
-      const rr = eliminateCutsRecursive(node.right, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (rr._tag === "Failure") return rr;
-      /* v8 ignore stop */
+      const lr = eliminateCutsRecursive(node.left, depth + 1, counter, steps);
+      if (lr._tag !== "Success") return lr;
+      const rr = eliminateCutsRecursive(node.right, depth + 1, counter, steps);
+      if (rr._tag !== "Success") return rr;
       return {
         _tag: "Success",
         proof: scImplicationLeft(lr.proof, rr.proof, node.conclusion),
       };
     }
     case "ScImplicationRight": {
-      const r = eliminateCutsRecursive(node.premise, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (r._tag === "Failure") return r;
-      /* v8 ignore stop */
+      const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      if (r._tag !== "Success") return r;
       return {
         _tag: "Success",
         proof: scImplicationRight(r.proof, node.conclusion),
       };
     }
     case "ScConjunctionLeft": {
-      const r = eliminateCutsRecursive(node.premise, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (r._tag === "Failure") return r;
-      /* v8 ignore stop */
+      const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      if (r._tag !== "Success") return r;
       return {
         _tag: "Success",
-        proof: scConjunctionLeft(
-          r.proof,
-          node.componentIndex,
-          node.conclusion,
-        ),
+        proof: scConjunctionLeft(r.proof, node.componentIndex, node.conclusion),
       };
     }
     case "ScConjunctionRight": {
-      const lr = eliminateCutsRecursive(node.left, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (lr._tag === "Failure") return lr;
-      /* v8 ignore stop */
-      const rr = eliminateCutsRecursive(node.right, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (rr._tag === "Failure") return rr;
-      /* v8 ignore stop */
+      const lr = eliminateCutsRecursive(node.left, depth + 1, counter, steps);
+      if (lr._tag !== "Success") return lr;
+      const rr = eliminateCutsRecursive(node.right, depth + 1, counter, steps);
+      if (rr._tag !== "Success") return rr;
       return {
         _tag: "Success",
         proof: scConjunctionRight(lr.proof, rr.proof, node.conclusion),
       };
     }
     case "ScDisjunctionLeft": {
-      const lr = eliminateCutsRecursive(node.left, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (lr._tag === "Failure") return lr;
-      /* v8 ignore stop */
-      const rr = eliminateCutsRecursive(node.right, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (rr._tag === "Failure") return rr;
-      /* v8 ignore stop */
+      const lr = eliminateCutsRecursive(node.left, depth + 1, counter, steps);
+      if (lr._tag !== "Success") return lr;
+      const rr = eliminateCutsRecursive(node.right, depth + 1, counter, steps);
+      if (rr._tag !== "Success") return rr;
       return {
         _tag: "Success",
         proof: scDisjunctionLeft(lr.proof, rr.proof, node.conclusion),
       };
     }
     case "ScDisjunctionRight": {
-      const r = eliminateCutsRecursive(node.premise, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (r._tag === "Failure") return r;
-      /* v8 ignore stop */
+      const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      if (r._tag !== "Success") return r;
       return {
         _tag: "Success",
         proof: scDisjunctionRight(
@@ -505,10 +501,8 @@ const eliminateFromChildren = (
     case "ScUniversalRight":
     case "ScExistentialLeft":
     case "ScExistentialRight": {
-      const r = eliminateCutsRecursive(node.premise, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (r._tag === "Failure") return r;
-      /* v8 ignore stop */
+      const r = eliminateCutsRecursive(node.premise, depth + 1, counter, steps);
+      if (r._tag !== "Success") return r;
       return {
         _tag: "Success",
         proof: { ...node, premise: r.proof },
@@ -517,7 +511,10 @@ const eliminateFromChildren = (
     /* v8 ignore start */
     case "ScCut":
       // ここには到達しない（呼び出し側で分岐済み）
-      return { _tag: "Failure", reason: "Unexpected ScCut in eliminateFromChildren" };
+      return {
+        _tag: "Failure",
+        reason: "Unexpected ScCut in eliminateFromChildren",
+      };
   }
   node satisfies never;
   return { _tag: "Failure", reason: "Unknown node type" };
@@ -533,8 +530,19 @@ const eliminateFromChildren = (
 const eliminateSingleCut = (
   cutNode: ScCut,
   depth: number,
+  counter: StepCounter,
   steps?: CutEliminationStep[],
 ): CutEliminationResult => {
+  // ステップ上限チェック
+  if (counter.remaining <= 0) {
+    return {
+      _tag: "StepLimitExceeded",
+      proof: cutNode,
+      stepsUsed: 0, // 呼び出し元で計算
+    };
+  }
+  counter.remaining -= 1;
+
   /* v8 ignore start — 安全制限: 正常な入力では到達しない */
   if (depth > MAX_RECURSION_DEPTH) {
     return {
@@ -574,16 +582,16 @@ const eliminateSingleCut = (
 
   if (r >= 2) {
     // ランク削減: Cut(d, r) → Cut(d, r-1)
-    return reduceRank(cutNode, lr, rr, depth, steps);
+    return reduceRank(cutNode, lr, rr, depth, counter, steps);
   }
 
   // r = 1, d >= 2: 深さ削減
   if (d >= 2) {
-    return reduceDepth(cutNode, depth, steps);
+    return reduceDepth(cutNode, depth, counter, steps);
   }
 
   // r = 1, d = 1: 基底ケース
-  return eliminateBaseCut(cutNode, depth, steps);
+  return eliminateBaseCut(cutNode, depth, counter, steps);
 };
 
 // ── ランク 0 のケース ──────────────────────────────────────
@@ -594,9 +602,7 @@ const eliminateSingleCut = (
  * 左前提 Γ ⇒ Π（φなし）を基に、結論 Γ,Σ ⇒ Π,Δ を構成。
  * Σ の各論理式を左弱化で追加し、Δ の各論理式を右弱化で追加。
  */
-const eliminateRankZeroLeft = (
-  cutNode: ScCut,
-): CutEliminationResult => {
+const eliminateRankZeroLeft = (cutNode: ScCut): CutEliminationResult => {
   const rightConc = getScConclusion(cutNode.right);
 
   // 右前提の左辺からカット式を除いたものを左弱化で追加
@@ -638,9 +644,7 @@ const eliminateRankZeroLeft = (
 /**
  * 右ランク = 0: 右前提の左辺にカット式がない。
  */
-const eliminateRankZeroRight = (
-  cutNode: ScCut,
-): CutEliminationResult => {
+const eliminateRankZeroRight = (cutNode: ScCut): CutEliminationResult => {
   const leftConc = getScConclusion(cutNode.left);
 
   // 左前提の右辺からカット式を除いたものを右弱化で追加
@@ -690,9 +694,7 @@ const adjustConclusion = (
 ): ScProofNode => {
   // 結論が既に一致している場合はそのまま返す
   const currentConc = getScConclusion(node);
-  if (
-    sequentEqual(currentConc, targetConclusion)
-  ) {
+  if (sequentEqual(currentConc, targetConclusion)) {
     return node;
   }
   // 構造的に同じ論理式が含まれていれば、conclusion を差し替える
@@ -723,14 +725,15 @@ const reduceRank = (
   lr: number,
   rr: number,
   depth: number,
+  counter: StepCounter,
   steps?: CutEliminationStep[],
 ): CutEliminationResult => {
   if (lr >= rr) {
     // 左ランク ≥ 右ランク: MIX を左前提に押し上げ
-    return pushMixIntoLeft(cutNode, depth, steps);
+    return pushMixIntoLeft(cutNode, depth, counter, steps);
   }
   // 右ランク > 左ランク: MIX を右前提に押し上げ
-  return pushMixIntoRight(cutNode, depth, steps);
+  return pushMixIntoRight(cutNode, depth, counter, steps);
 };
 
 /**
@@ -742,6 +745,7 @@ const reduceRank = (
 const pushMixIntoLeft = (
   cutNode: ScCut,
   depth: number,
+  counter: StepCounter,
   steps?: CutEliminationStep[],
 ): CutEliminationResult => {
   const leftNode = cutNode.left;
@@ -770,7 +774,7 @@ const pushMixIntoLeft = (
           phi,
           cutNode.conclusion,
         );
-        return eliminateSingleCut(innerCut, depth + 1, steps);
+        return eliminateSingleCut(innerCut, depth + 1, counter, steps);
       }
       // 弱化された式がφでない場合: MIX を弱化の前に押し上げ
       const innerConc = sequent(
@@ -780,16 +784,14 @@ const pushMixIntoLeft = (
           leftNode.weakenedFormula,
         ),
       );
-      const innerCut = scCut(
-        leftNode.premise,
-        cutNode.right,
-        phi,
-        innerConc,
+      const innerCut = scCut(leftNode.premise, cutNode.right, phi, innerConc);
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      if (innerResult._tag !== "Success") return innerResult;
       return {
         _tag: "Success",
         proof: scWeakeningRight(
@@ -809,16 +811,14 @@ const pushMixIntoLeft = (
         ),
         cutNode.conclusion.succedents,
       );
-      const innerCut = scCut(
-        leftNode.premise,
-        cutNode.right,
-        phi,
-        innerConc,
+      const innerCut = scCut(leftNode.premise, cutNode.right, phi, innerConc);
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      if (innerResult._tag !== "Success") return innerResult;
       return {
         _tag: "Success",
         proof: scWeakeningLeft(
@@ -840,22 +840,20 @@ const pushMixIntoLeft = (
           phi,
           cutNode.conclusion,
         );
-        return eliminateSingleCut(innerCut, depth + 1, steps);
+        return eliminateSingleCut(innerCut, depth + 1, counter, steps);
       }
       const innerConc = sequent(cutNode.conclusion.antecedents, [
         ...cutNode.conclusion.succedents,
         leftNode.contractedFormula,
       ]);
-      const innerCut = scCut(
-        leftNode.premise,
-        cutNode.right,
-        phi,
-        innerConc,
+      const innerCut = scCut(leftNode.premise, cutNode.right, phi, innerConc);
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      if (innerResult._tag !== "Success") return innerResult;
       return {
         _tag: "Success",
         proof: scContractionRight(
@@ -871,16 +869,14 @@ const pushMixIntoLeft = (
         [leftNode.contractedFormula, ...cutNode.conclusion.antecedents],
         cutNode.conclusion.succedents,
       );
-      const innerCut = scCut(
-        leftNode.premise,
-        cutNode.right,
-        phi,
-        innerConc,
+      const innerCut = scCut(leftNode.premise, cutNode.right, phi, innerConc);
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      if (innerResult._tag !== "Success") return innerResult;
       return {
         _tag: "Success",
         proof: scContractionLeft(
@@ -899,10 +895,13 @@ const pushMixIntoLeft = (
         phi,
         cutNode.conclusion,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
+      );
+      if (innerResult._tag !== "Success") return innerResult;
       return innerResult;
     }
 
@@ -914,10 +913,13 @@ const pushMixIntoLeft = (
         phi,
         cutNode.conclusion,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
+      );
+      if (innerResult._tag !== "Success") return innerResult;
       return {
         _tag: "Success",
         proof: scImplicationRight(innerResult.proof, cutNode.conclusion),
@@ -936,16 +938,14 @@ const pushMixIntoLeft = (
           cutNode.conclusion.antecedents,
           removeAllOccurrences(cutNode.conclusion.succedents, phi),
         );
-        const innerCut = scCut(
-          leftNode.left,
-          cutNode.right,
-          phi,
-          innerConc,
+        const innerCut = scCut(leftNode.left, cutNode.right, phi, innerConc);
+        const innerResult = eliminateSingleCut(
+          innerCut,
+          depth + 1,
+          counter,
+          steps,
         );
-        const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-        /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-        if (innerResult._tag === "Failure") return innerResult;
-        /* v8 ignore stop */
+        if (innerResult._tag !== "Success") return innerResult;
         return {
           _tag: "Success",
           proof: scImplicationLeft(
@@ -963,10 +963,13 @@ const pushMixIntoLeft = (
           phi,
           cutNode.conclusion,
         );
-        const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-        /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-        if (innerResult._tag === "Failure") return innerResult;
-        /* v8 ignore stop */
+        const innerResult = eliminateSingleCut(
+          innerCut,
+          depth + 1,
+          counter,
+          steps,
+        );
+        if (innerResult._tag !== "Success") return innerResult;
         return {
           _tag: "Success",
           proof: scImplicationLeft(
@@ -994,10 +997,13 @@ const pushMixIntoLeft = (
           phi,
           cutNode.conclusion,
         );
-        const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-        /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-        if (innerResult._tag === "Failure") return innerResult;
-        /* v8 ignore stop */
+        const innerResult = eliminateSingleCut(
+          innerCut,
+          depth + 1,
+          counter,
+          steps,
+        );
+        if (innerResult._tag !== "Success") return innerResult;
         return {
           _tag: "Success",
           proof: scConjunctionRight(
@@ -1014,10 +1020,13 @@ const pushMixIntoLeft = (
           phi,
           cutNode.conclusion,
         );
-        const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-        /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-        if (innerResult._tag === "Failure") return innerResult;
-        /* v8 ignore stop */
+        const innerResult = eliminateSingleCut(
+          innerCut,
+          depth + 1,
+          counter,
+          steps,
+        );
+        if (innerResult._tag !== "Success") return innerResult;
         return {
           _tag: "Success",
           proof: scConjunctionRight(
@@ -1041,10 +1050,13 @@ const pushMixIntoLeft = (
         phi,
         cutNode.conclusion,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
+      );
+      if (innerResult._tag !== "Success") return innerResult;
       if (leftNode._tag === "ScConjunctionLeft") {
         return {
           _tag: "Success",
@@ -1076,10 +1088,13 @@ const pushMixIntoLeft = (
           phi,
           cutNode.conclusion,
         );
-        const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-        /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-        if (innerResult._tag === "Failure") return innerResult;
-        /* v8 ignore stop */
+        const innerResult = eliminateSingleCut(
+          innerCut,
+          depth + 1,
+          counter,
+          steps,
+        );
+        if (innerResult._tag !== "Success") return innerResult;
         return {
           _tag: "Success",
           proof: scDisjunctionLeft(
@@ -1096,10 +1111,13 @@ const pushMixIntoLeft = (
           phi,
           cutNode.conclusion,
         );
-        const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-        /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-        if (innerResult._tag === "Failure") return innerResult;
-        /* v8 ignore stop */
+        const innerResult = eliminateSingleCut(
+          innerCut,
+          depth + 1,
+          counter,
+          steps,
+        );
+        if (innerResult._tag !== "Success") return innerResult;
         return {
           _tag: "Success",
           proof: scDisjunctionLeft(
@@ -1124,20 +1142,30 @@ const pushMixIntoLeft = (
         phi,
         cutNode.conclusion,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
+      );
+      if (innerResult._tag !== "Success") return innerResult;
       return {
         _tag: "Success",
-        proof: { ...leftNode, premise: innerResult.proof, conclusion: cutNode.conclusion },
+        proof: {
+          ...leftNode,
+          premise: innerResult.proof,
+          conclusion: cutNode.conclusion,
+        },
       };
     }
 
     /* v8 ignore start */
     case "ScCut":
       // サブプルーフのカットは既に除去済みのはず
-      return { _tag: "Failure", reason: "Unexpected nested cut in left premise" };
+      return {
+        _tag: "Failure",
+        reason: "Unexpected nested cut in left premise",
+      };
   }
   leftNode satisfies never;
   return { _tag: "Failure", reason: "Unknown left node type" };
@@ -1150,6 +1178,7 @@ const pushMixIntoLeft = (
 const pushMixIntoRight = (
   cutNode: ScCut,
   depth: number,
+  counter: StepCounter,
   steps?: CutEliminationStep[],
 ): CutEliminationResult => {
   const rightNode = cutNode.right;
@@ -1174,7 +1203,7 @@ const pushMixIntoRight = (
           phi,
           cutNode.conclusion,
         );
-        return eliminateSingleCut(innerCut, depth + 1, steps);
+        return eliminateSingleCut(innerCut, depth + 1, counter, steps);
       }
       const innerConc = sequent(
         removeFirstOccurrence(
@@ -1183,16 +1212,14 @@ const pushMixIntoRight = (
         ),
         cutNode.conclusion.succedents,
       );
-      const innerCut = scCut(
-        cutNode.left,
-        rightNode.premise,
-        phi,
-        innerConc,
+      const innerCut = scCut(cutNode.left, rightNode.premise, phi, innerConc);
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      if (innerResult._tag !== "Success") return innerResult;
       return {
         _tag: "Success",
         proof: scWeakeningLeft(
@@ -1210,16 +1237,14 @@ const pushMixIntoRight = (
           rightNode.weakenedFormula,
         ),
       ]);
-      const innerCut = scCut(
-        cutNode.left,
-        rightNode.premise,
-        phi,
-        innerConc,
+      const innerCut = scCut(cutNode.left, rightNode.premise, phi, innerConc);
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      if (innerResult._tag !== "Success") return innerResult;
       return {
         _tag: "Success",
         proof: scWeakeningRight(
@@ -1238,22 +1263,20 @@ const pushMixIntoRight = (
           phi,
           cutNode.conclusion,
         );
-        return eliminateSingleCut(innerCut, depth + 1, steps);
+        return eliminateSingleCut(innerCut, depth + 1, counter, steps);
       }
       const innerConc = sequent(
         [rightNode.contractedFormula, ...cutNode.conclusion.antecedents],
         cutNode.conclusion.succedents,
       );
-      const innerCut = scCut(
-        cutNode.left,
-        rightNode.premise,
-        phi,
-        innerConc,
+      const innerCut = scCut(cutNode.left, rightNode.premise, phi, innerConc);
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      if (innerResult._tag !== "Success") return innerResult;
       return {
         _tag: "Success",
         proof: scContractionLeft(
@@ -1269,16 +1292,14 @@ const pushMixIntoRight = (
         ...cutNode.conclusion.succedents,
         rightNode.contractedFormula,
       ]);
-      const innerCut = scCut(
-        cutNode.left,
-        rightNode.premise,
-        phi,
-        innerConc,
+      const innerCut = scCut(cutNode.left, rightNode.premise, phi, innerConc);
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      if (innerResult._tag !== "Success") return innerResult;
       return {
         _tag: "Success",
         proof: scContractionRight(
@@ -1297,7 +1318,7 @@ const pushMixIntoRight = (
         phi,
         cutNode.conclusion,
       );
-      return eliminateSingleCut(innerCut, depth + 1, steps);
+      return eliminateSingleCut(innerCut, depth + 1, counter, steps);
     }
 
     case "ScImplicationLeft": {
@@ -1311,10 +1332,13 @@ const pushMixIntoRight = (
           phi,
           cutNode.conclusion,
         );
-        const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-        /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-        if (innerResult._tag === "Failure") return innerResult;
-        /* v8 ignore stop */
+        const innerResult = eliminateSingleCut(
+          innerCut,
+          depth + 1,
+          counter,
+          steps,
+        );
+        if (innerResult._tag !== "Success") return innerResult;
         return {
           _tag: "Success",
           proof: scImplicationLeft(
@@ -1331,10 +1355,13 @@ const pushMixIntoRight = (
           phi,
           cutNode.conclusion,
         );
-        const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-        /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-        if (innerResult._tag === "Failure") return innerResult;
-        /* v8 ignore stop */
+        const innerResult = eliminateSingleCut(
+          innerCut,
+          depth + 1,
+          counter,
+          steps,
+        );
+        if (innerResult._tag !== "Success") return innerResult;
         return {
           _tag: "Success",
           proof: scImplicationLeft(
@@ -1356,10 +1383,13 @@ const pushMixIntoRight = (
         phi,
         cutNode.conclusion,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
+      );
+      if (innerResult._tag !== "Success") return innerResult;
       return {
         _tag: "Success",
         proof: scImplicationRight(innerResult.proof, cutNode.conclusion),
@@ -1373,10 +1403,13 @@ const pushMixIntoRight = (
         phi,
         cutNode.conclusion,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
+      );
+      if (innerResult._tag !== "Success") return innerResult;
       return {
         _tag: "Success",
         proof: scConjunctionLeft(
@@ -1398,10 +1431,13 @@ const pushMixIntoRight = (
           phi,
           cutNode.conclusion,
         );
-        const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-        /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-        if (innerResult._tag === "Failure") return innerResult;
-        /* v8 ignore stop */
+        const innerResult = eliminateSingleCut(
+          innerCut,
+          depth + 1,
+          counter,
+          steps,
+        );
+        if (innerResult._tag !== "Success") return innerResult;
         return {
           _tag: "Success",
           proof: scConjunctionRight(
@@ -1418,10 +1454,13 @@ const pushMixIntoRight = (
           phi,
           cutNode.conclusion,
         );
-        const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-        /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-        if (innerResult._tag === "Failure") return innerResult;
-        /* v8 ignore stop */
+        const innerResult = eliminateSingleCut(
+          innerCut,
+          depth + 1,
+          counter,
+          steps,
+        );
+        if (innerResult._tag !== "Success") return innerResult;
         return {
           _tag: "Success",
           proof: scConjunctionRight(
@@ -1447,10 +1486,13 @@ const pushMixIntoRight = (
           phi,
           cutNode.conclusion,
         );
-        const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-        /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-        if (innerResult._tag === "Failure") return innerResult;
-        /* v8 ignore stop */
+        const innerResult = eliminateSingleCut(
+          innerCut,
+          depth + 1,
+          counter,
+          steps,
+        );
+        if (innerResult._tag !== "Success") return innerResult;
         return {
           _tag: "Success",
           proof: scDisjunctionLeft(
@@ -1467,10 +1509,13 @@ const pushMixIntoRight = (
           phi,
           cutNode.conclusion,
         );
-        const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-        /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-        if (innerResult._tag === "Failure") return innerResult;
-        /* v8 ignore stop */
+        const innerResult = eliminateSingleCut(
+          innerCut,
+          depth + 1,
+          counter,
+          steps,
+        );
+        if (innerResult._tag !== "Success") return innerResult;
         return {
           _tag: "Success",
           proof: scDisjunctionLeft(
@@ -1492,10 +1537,13 @@ const pushMixIntoRight = (
         phi,
         cutNode.conclusion,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
+      );
+      if (innerResult._tag !== "Success") return innerResult;
       return {
         _tag: "Success",
         proof: scDisjunctionRight(
@@ -1516,19 +1564,29 @@ const pushMixIntoRight = (
         phi,
         cutNode.conclusion,
       );
-      const innerResult = eliminateSingleCut(innerCut, depth + 1, steps);
-      /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-      if (innerResult._tag === "Failure") return innerResult;
-      /* v8 ignore stop */
+      const innerResult = eliminateSingleCut(
+        innerCut,
+        depth + 1,
+        counter,
+        steps,
+      );
+      if (innerResult._tag !== "Success") return innerResult;
       return {
         _tag: "Success",
-        proof: { ...rightNode, premise: innerResult.proof, conclusion: cutNode.conclusion },
+        proof: {
+          ...rightNode,
+          premise: innerResult.proof,
+          conclusion: cutNode.conclusion,
+        },
       };
     }
 
     /* v8 ignore start */
     case "ScCut":
-      return { _tag: "Failure", reason: "Unexpected nested cut in right premise" };
+      return {
+        _tag: "Failure",
+        reason: "Unexpected nested cut in right premise",
+      };
   }
   rightNode satisfies never;
   return { _tag: "Failure", reason: "Unknown right node type" };
@@ -1547,6 +1605,7 @@ const pushMixIntoRight = (
 const reduceDepth = (
   cutNode: ScCut,
   depth: number,
+  counter: StepCounter,
   steps?: CutEliminationStep[],
 ): CutEliminationResult => {
   const phi = cutNode.cutFormula;
@@ -1563,10 +1622,17 @@ const reduceDepth = (
         leftNode._tag === "ScImplicationRight" &&
         rightNode._tag === "ScImplicationLeft"
       ) {
-        return reduceImplicationCut(cutNode, leftNode, rightNode, depth, steps);
+        return reduceImplicationCut(
+          cutNode,
+          leftNode,
+          rightNode,
+          depth,
+          counter,
+          steps,
+        );
       }
       // 左右が期待される規則でない場合: ランク削減にフォールバック
-      return pushMixIntoLeft(cutNode, depth, steps);
+      return pushMixIntoLeft(cutNode, depth, counter, steps);
     }
 
     case "Conjunction": {
@@ -1577,9 +1643,16 @@ const reduceDepth = (
         leftNode._tag === "ScConjunctionRight" &&
         rightNode._tag === "ScConjunctionLeft"
       ) {
-        return reduceConjunctionCut(cutNode, leftNode, rightNode, depth, steps);
+        return reduceConjunctionCut(
+          cutNode,
+          leftNode,
+          rightNode,
+          depth,
+          counter,
+          steps,
+        );
       }
-      return pushMixIntoLeft(cutNode, depth, steps);
+      return pushMixIntoLeft(cutNode, depth, counter, steps);
     }
 
     case "Disjunction": {
@@ -1590,9 +1663,16 @@ const reduceDepth = (
         leftNode._tag === "ScDisjunctionRight" &&
         rightNode._tag === "ScDisjunctionLeft"
       ) {
-        return reduceDisjunctionCut(cutNode, leftNode, rightNode, depth, steps);
+        return reduceDisjunctionCut(
+          cutNode,
+          leftNode,
+          rightNode,
+          depth,
+          counter,
+          steps,
+        );
       }
-      return pushMixIntoLeft(cutNode, depth, steps);
+      return pushMixIntoLeft(cutNode, depth, counter, steps);
     }
 
     case "Negation": {
@@ -1600,12 +1680,12 @@ const reduceDepth = (
       // 否定は α → ⊥ として扱うか、直接対応する規則がシーケント計算にない
       // (シーケント計算では否定は ¬φ = φ → ⊥ と見なすか、特別な規則がある)
       // ここでは pushMixIntoLeft にフォールバック
-      return pushMixIntoLeft(cutNode, depth, steps);
+      return pushMixIntoLeft(cutNode, depth, counter, steps);
     }
 
     default:
       // 量化子等: ランク削減にフォールバック
-      return pushMixIntoLeft(cutNode, depth, steps);
+      return pushMixIntoLeft(cutNode, depth, counter, steps);
   }
 };
 
@@ -1633,6 +1713,7 @@ const reduceImplicationCut = (
   leftNode: ScProofNode & { readonly _tag: "ScImplicationRight" },
   rightNode: ScProofNode & { readonly _tag: "ScImplicationLeft" },
   depth: number,
+  counter: StepCounter,
   steps?: CutEliminationStep[],
 ): CutEliminationResult => {
   const phi = cutNode.cutFormula;
@@ -1671,20 +1752,13 @@ const reduceImplicationCut = (
   );
 
   const cut1 = scCut(rightLeft, leftPremise, alpha, cut1Conclusion);
-  const cut1Result = eliminateSingleCut(cut1, depth + 1, steps);
-  /* v8 ignore start -- 防御的コード: Failure は正常入力で到達しない */
-  if (cut1Result._tag === "Failure") return cut1Result;
-  /* v8 ignore stop */
+  const cut1Result = eliminateSingleCut(cut1, depth + 1, counter, steps);
+  if (cut1Result._tag !== "Success") return cut1Result;
 
   // 2番目のカット: β に対するカット
   // cut1の結果: Γ,Σ ⇒ Δ,Π,β  と  β,Σ' ⇒ Δ'  を CUT(β) で合成
-  const cut2 = scCut(
-    cut1Result.proof,
-    rightRight,
-    beta,
-    cutNode.conclusion,
-  );
-  return eliminateSingleCut(cut2, depth + 1, steps);
+  const cut2 = scCut(cut1Result.proof, rightRight, beta, cutNode.conclusion);
+  return eliminateSingleCut(cut2, depth + 1, counter, steps);
 };
 
 /**
@@ -1705,6 +1779,7 @@ const reduceConjunctionCut = (
   leftNode: ScProofNode & { readonly _tag: "ScConjunctionRight" },
   rightNode: ScProofNode & { readonly _tag: "ScConjunctionLeft" },
   depth: number,
+  counter: StepCounter,
   steps?: CutEliminationStep[],
 ): CutEliminationResult => {
   // 右側が使用する成分: componentIndex (1=α, 2=β)
@@ -1717,8 +1792,7 @@ const reduceConjunctionCut = (
     return { _tag: "Failure", reason: "Expected Conjunction formula" };
   }
   /* v8 ignore stop */
-  const component =
-    rightNode.componentIndex === 1 ? phi.left : phi.right;
+  const component = rightNode.componentIndex === 1 ? phi.left : phi.right;
 
   // CUT(α_i) の結論
   const cut1 = scCut(
@@ -1727,7 +1801,7 @@ const reduceConjunctionCut = (
     component,
     cutNode.conclusion,
   );
-  return eliminateSingleCut(cut1, depth + 1, steps);
+  return eliminateSingleCut(cut1, depth + 1, counter, steps);
 };
 
 /**
@@ -1748,6 +1822,7 @@ const reduceDisjunctionCut = (
   leftNode: ScProofNode & { readonly _tag: "ScDisjunctionRight" },
   rightNode: ScProofNode & { readonly _tag: "ScDisjunctionLeft" },
   depth: number,
+  counter: StepCounter,
   steps?: CutEliminationStep[],
 ): CutEliminationResult => {
   const phi = cutNode.cutFormula;
@@ -1757,8 +1832,7 @@ const reduceDisjunctionCut = (
   }
   /* v8 ignore stop */
 
-  const component =
-    leftNode.componentIndex === 1 ? phi.left : phi.right;
+  const component = leftNode.componentIndex === 1 ? phi.left : phi.right;
 
   // 左が使用する成分に対応する右の前提
   const rightPremise =
@@ -1770,7 +1844,7 @@ const reduceDisjunctionCut = (
     component,
     cutNode.conclusion,
   );
-  return eliminateSingleCut(cut1, depth + 1, steps);
+  return eliminateSingleCut(cut1, depth + 1, counter, steps);
 };
 
 // ── 基底ケース ──────────────────────────────────────────────
@@ -1784,6 +1858,7 @@ const reduceDisjunctionCut = (
 const eliminateBaseCut = (
   cutNode: ScCut,
   depth: number,
+  counter: StepCounter,
   steps?: CutEliminationStep[],
 ): CutEliminationResult => {
   const leftNode = cutNode.left;
@@ -1801,7 +1876,7 @@ const eliminateBaseCut = (
 
   // どちらもIDでない場合: 構造規則の処理にフォールバック
   // ランク1かつ原子式なので、弱化で導入されたケースが多い
-  return pushMixIntoLeft(cutNode, depth, steps);
+  return pushMixIntoLeft(cutNode, depth, counter, steps);
 };
 
 // ── カットフリー判定 ──────────────────────────────────────

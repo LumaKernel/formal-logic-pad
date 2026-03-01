@@ -8,6 +8,7 @@ import {
 } from "./cutEliminationStepperLogic";
 import { defaultProofMessages } from "./proofMessages";
 import { eliminateCutsWithSteps } from "../logic-core/cutElimination";
+import type { CutEliminationOptions } from "../logic-core/cutElimination";
 import type { ScProofNode } from "../logic-core/sequentCalculus";
 import {
   sequent,
@@ -34,11 +35,7 @@ function makeSimpleCutProof(): ScProofNode {
 
 function makeRank0CutProof(): ScProofNode {
   const leftBase = scIdentity(sequent([phi], [phi]));
-  const leftProof = scWeakeningRight(
-    leftBase,
-    psi,
-    sequent([phi], [phi, psi]),
-  );
+  const leftProof = scWeakeningRight(leftBase, psi, sequent([phi], [phi, psi]));
   const rightProof = scIdentity(sequent([psi], [psi]));
   return scCut(leftProof, rightProof, psi, sequent([phi], [phi, psi]));
 }
@@ -67,11 +64,17 @@ function makeImplicationCutProof(): ScProofNode {
 
 // --- \u30E9\u30C3\u30D1\u30FC\u30B3\u30F3\u30DD\u30FC\u30CD\u30F3\u30C8 ---
 
-function StepperWrapper({ proof }: { readonly proof: ScProofNode }) {
+function StepperWrapper({
+  proof,
+  options,
+}: {
+  readonly proof: ScProofNode;
+  readonly options?: CutEliminationOptions;
+}) {
   const [stepIndex, setStepIndex] = useState(-1);
 
-  const baseData = computeCutEliminationStepperData(proof);
-  const { steps } = eliminateCutsWithSteps(proof);
+  const baseData = computeCutEliminationStepperData(proof, options);
+  const { steps } = eliminateCutsWithSteps(proof, options);
   const data = resolveStepperState(baseData, stepIndex, proof, steps);
 
   const handleStepChange = useCallback((index: number) => {
@@ -203,6 +206,21 @@ export const ImplicationCut: Story = {
     await user.click(canvas.getByTestId("stepper-last"));
     await expect(canvas.getByTestId("stepper-result")).toHaveTextContent(
       "Cut elimination succeeded",
+    );
+  },
+};
+
+export const StepLimitExceeded: Story = {
+  render: () => (
+    <StepperWrapper proof={makeNestedCutProof()} options={{ maxSteps: 1 }} />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("stepper")).toBeInTheDocument();
+    const user = userEvent.setup();
+    await user.click(canvas.getByTestId("stepper-last"));
+    await expect(canvas.getByTestId("stepper-result")).toHaveTextContent(
+      /Step limit exceeded/,
     );
   },
 };

@@ -7440,3 +7440,37 @@
   - relatedEntryIds は双方向に設定するとナビゲーション体験が向上する
   - 概念エントリのorder番号は現在の最大値+1（概念カテゴリの最後のorderを確認すること）
 ---
+
+## 2026-03-01 - [logic-core] カット除去ステップ上限機能
+- カット除去アルゴリズムにステップ上限（maxSteps）オプションを追加
+  - `CutEliminationOptions` 型: `{ readonly maxSteps?: number }` (デフォルト1000)
+  - `CutEliminationResult` に `StepLimitExceeded` variant 追加（部分証明 + 消費ステップ数）
+  - 内部で `StepCounter` 型（mutable counter）を再帰関数全体にスレッディング
+  - `eliminateSingleCut` 冒頭でカウンタ検査、超過時は即座に StepLimitExceeded を返す
+  - 全15以上の内部再帰関数にcounterパラメータを追加、abort伝播チェックを統一
+- ステッパーロジック・UIにも対応
+  - `computeCutEliminationStepperData` に options パラメータ追加
+  - CutEliminationStepper.tsx に StepLimitExceeded 表示（warning orange色）
+  - proofMessages.ts に `cutEliminationStepLimitExceeded` メッセージ追加
+- テスト: 148テスト（+17新規）、Storybookストーリー7つ（+1 StepLimitExceeded）
+- 変更ファイル:
+  - `src/lib/logic-core/cutElimination.ts` - ステップ上限インフラ追加（StepCounter, options, StepLimitExceeded）
+  - `src/lib/logic-core/cutElimination.test.ts` - ステップ上限テスト17件追加
+  - `src/lib/logic-core/index.ts` - DEFAULT_MAX_STEPS, CutEliminationOptions エクスポート追加
+  - `src/lib/proof-pad/cutEliminationStepperLogic.ts` - options パラメータ追加
+  - `src/lib/proof-pad/cutEliminationStepperLogic.test.ts` - 対応更新
+  - `src/lib/proof-pad/CutEliminationStepper.tsx` - StepLimitExceeded UI表示追加
+  - `src/lib/proof-pad/CutEliminationStepper.stories.tsx` - StepLimitExceeded ストーリー追加
+  - `src/lib/proof-pad/proofMessages.ts` - cutEliminationStepLimitExceeded メッセージ追加
+- ベースラインカバレッジ: Stmts 97.23%, Branch 90.85%, Funcs 88.69%, Lines 97.94%
+- 完了後カバレッジ: Stmts 96.92%, Branch 90.31%, Funcs 88.72%, Lines 97.95%
+  - Stmts/Branch微減はcutElimination.ts内の構造的に到達不能なabort伝播分岐（v8 ignore対象外化による）
+  - cutElimination.ts Lines: 100%（全行実行済み）
+- テスト: 212ファイル、6481テスト全パス
+- スクリーンショット: `.screenshots/cut-elimination-stepper-step-limit-exceeded.png`
+- **今後のイテレーションへの学び:**
+  - mutable counterをESLint prefer-immutableルール下で使うにはdisableコメントが必要
+  - TypeScript narrowing: `result._tag !== "Success"` パターンはunion型のabort伝播に有効（`isAborted()` ヘルパーは型ガードの制約で使えない）
+  - `_tag === "Failure"` から `_tag !== "Success"` への変更で v8 ignore を外せる（3値union対応）
+  - ステップ上限テストは maxSteps: 1 で外側カット消費 → 内側再帰でStepLimitExceeded発火
+---

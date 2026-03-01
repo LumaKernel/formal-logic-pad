@@ -411,10 +411,12 @@ export {
   isCutFree,
   countCuts,
   sequentEqual,
+  DEFAULT_MAX_STEPS,
 } from "./cutElimination";
 export type {
   CutEliminationResult,
   CutEliminationStep,
+  CutEliminationOptions,
 } from "./cutElimination";
 
 // ── Serialization (Schema decode/encode) ─────────────────────
