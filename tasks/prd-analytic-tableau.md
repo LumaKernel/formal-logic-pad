@@ -36,11 +36,11 @@ bekki.pdf 第6章に基づき、分析的タブロー（analytic tableaux / sema
 
 **受け入れ基準:**
 
-- [ ] `src/lib/logic-core/analyticTableau.ts` を新規作成
-- [ ] **署名付き論理式（Signed Formula）** の定義:
+- [x] `src/lib/logic-core/analyticTableau.ts` を新規作成
+- [x] **署名付き論理式（Signed Formula）** の定義:
   - `SignedFormula`: `{ sign: "T" | "F"; formula: Formula }` （T=真を仮定, F=偽を仮定）
   - bekki 6.5節の簡略化記法に対応: T(φ) = φ, F(φ) = ¬φ と同等だが、内部的に符号を保持
-- [ ] **タブロー規則の定義** (定義6.2 + 6.24 に基づく):
+- [x] **タブロー規則の定義** (定義6.2 + 6.24 に基づく):
   - 非分岐規則（α規則）:
     - T(φ∧ψ) → T(φ), T(ψ)
     - F(φ∨ψ) → F(φ), F(ψ)
@@ -56,14 +56,13 @@ bekki.pdf 第6章に基づき、分析的タブロー（analytic tableaux / sema
     - δ: F(∀ξφ) → F(φ[ζ/ξ]), T(∃ξφ) → T(φ[ζ/ξ]) （固有変数ζ）
   - 公理（枝の閉じ条件）:
     - 同一枝上に T(φ) と F(φ) が存在 → 閉じる（×）
-    - T(⊥) → 閉じる
-    - F(⊤) → 閉じる
-- [ ] **タブロー規則ID** の定義: `AtRuleId` discriminated union
-- [ ] **分類ヘルパー**: `isAlphaRule`, `isBetaRule`, `isGammaRule`, `isDeltaRule`, `getAtRuleDisplayName`, `allAtRuleIds`
-- [ ] **バリデーション**: 規則適用の正当性チェック（対象論理式の構造、固有変数条件など）
-- [ ] `src/lib/logic-core/analyticTableau.test.ts`: 全規則のテスト + 閉じ判定 + 実践的証明例
-- [ ] `src/lib/logic-core/index.ts`: エクスポート追加
-- [ ] 型チェック/lint/test が通る
+    - 注: ⊥/⊤ は Formula union に存在しないため対応しない
+- [x] **タブロー規則ID** の定義: `AtRuleId` discriminated union
+- [x] **分類ヘルパー**: `isAlphaRule`, `isBetaRule`, `isGammaRule`, `isDeltaRule`, `getAtRuleDisplayName`, `allAtRuleIds`
+- [x] **バリデーション**: 規則適用の正当性チェック（対象論理式の構造、固有変数条件など）
+- [x] `src/lib/logic-core/analyticTableau.test.ts`: 全規則のテスト + 閉じ判定 + 実践的証明例
+- [x] `src/lib/logic-core/index.ts`: エクスポート追加
+- [x] 型チェック/lint/test が通る
 
 ### AT-002: 分析的タブローの規則適用ロジック
 
