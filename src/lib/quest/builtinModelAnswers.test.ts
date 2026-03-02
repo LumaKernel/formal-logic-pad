@@ -332,6 +332,40 @@ describe("group-basics 模範解答の検証", () => {
   });
 });
 
+describe("predicate-basics 模範解答の検証", () => {
+  const answers = filterByCategory("predicate-basics");
+
+  it.each(answers)("%s: 模範解答がゴールを達成する", (questId, answer) => {
+    const quest = findQuest(questId);
+    const result = validateModelAnswer(quest, answer);
+    if (result._tag !== "Valid") {
+      const buildResult = buildModelAnswerWorkspace(quest, answer);
+      throw new Error(
+        `Model answer for ${questId satisfies string} is not valid: ${JSON.stringify(result, null, 2) satisfies string}\nBuild result: ${JSON.stringify(buildResult, null, 2) satisfies string}`,
+      );
+    }
+    expect(result._tag).toBe("Valid");
+  });
+
+  it.each(answers)("%s: ワークスペース構築が成功する", (questId, answer) => {
+    const quest = findQuest(questId);
+    const result = buildModelAnswerWorkspace(quest, answer);
+    expect(result._tag).toBe("Ok");
+  });
+
+  it.each(answers)("%s: 自動レイアウトが適用される", (questId, answer) => {
+    const quest = findQuest(questId);
+    const result = buildModelAnswerWorkspace(quest, answer);
+    if (result._tag !== "Ok") return;
+    if (answer.steps.length > 1) {
+      const hasNonZero = result.workspace.nodes.some(
+        (n) => n.position.x !== 0 || n.position.y !== 0,
+      );
+      expect(hasNonZero).toBe(true);
+    }
+  });
+});
+
 describe("group-proofs 模範解答の検証", () => {
   const answers = filterByCategory("group-proofs");
 

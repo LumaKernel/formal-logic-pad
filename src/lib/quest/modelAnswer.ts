@@ -15,6 +15,7 @@ import {
   createQuestWorkspace,
   addNode,
   applyMPAndConnect,
+  applyGenAndConnect,
   applyTreeLayout,
 } from "../proof-pad/workspaceState";
 import {
@@ -29,6 +30,7 @@ import {
  *
  * - axiom: 公理インスタンスを直接記述（ユーザーがタイプする形）
  * - mp: 既存2ステップにMPを適用（leftIndex: 前件, rightIndex: 条件式）
+ * - gen: 既存ステップにGen（汎化）を適用（premiseIndex: 前提, variableName: 束縛変数名）
  */
 export type ModelAnswerStep =
   | {
@@ -42,6 +44,13 @@ export type ModelAnswerStep =
       readonly leftIndex: number;
       /** 条件式ノードのステップインデックス（0始まり） */
       readonly rightIndex: number;
+    }
+  | {
+      readonly _tag: "gen";
+      /** 前提ノードのステップインデックス（0始まり） */
+      readonly premiseIndex: number;
+      /** 汎化する変数名 */
+      readonly variableName: string;
     };
 
 // --- 模範解答定義 ---
@@ -145,6 +154,32 @@ export function buildModelAnswerWorkspace(
           };
         }
         stepNodeIds.push(result.mpNodeId);
+        break;
+      }
+      case "gen": {
+        const premiseNodeId = stepNodeIds[step.premiseIndex];
+        if (premiseNodeId === undefined) {
+          return {
+            _tag: "StepError",
+            stepIndex: i,
+            reason: `invalid index: premise=${String(step.premiseIndex) satisfies string}`,
+          };
+        }
+        const genResult = applyGenAndConnect(
+          ws,
+          premiseNodeId,
+          step.variableName,
+          { x: 0, y: 0 },
+        );
+        ws = genResult.workspace;
+        if (Either.isLeft(genResult.validation)) {
+          return {
+            _tag: "StepError",
+            stepIndex: i,
+            reason: `Gen validation failed`,
+          };
+        }
+        stepNodeIds.push(genResult.genNodeId);
         break;
       }
       /* v8 ignore start — exhaustive check */

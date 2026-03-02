@@ -1401,25 +1401,25 @@ const qPred01UniversalElim: QuestDefinition = {
   category: "predicate-basics",
   title: "全称消去 (A4)",
   description:
-    "∀x.P(x) → P(x) を証明せよ。A4（全称消去公理）の最も基本的なインスタンス。",
+    "(∀x.P(x)) → P(x) を証明せよ。A4（全称消去公理）の最も基本的なインスタンス。",
   difficulty: 1,
   systemPresetId: "predicate",
   goals: [
     {
-      formulaText: "all x. P(x) -> P(x)",
-      label: "Goal: ∀x.P(x) → P(x)",
+      formulaText: "(all x. P(x)) -> P(x)",
+      label: "Goal: (∀x.P(x)) → P(x)",
     },
   ],
   hints: [
-    "A4: ∀ξ.φ → φ[τ/ξ] のインスタンスを作ります。",
-    "ξ=x, φ=P(x), τ=x として、∀x.P(x) → P(x)[x/x] = ∀x.P(x) → P(x) です。",
+    "A4: (∀ξ.φ) → φ[τ/ξ] のインスタンスを作ります。",
+    "ξ=x, φ=P(x), τ=x として、(∀x.P(x)) → P(x)[x/x] = (∀x.P(x)) → P(x) です。",
     "A4を配置するだけで完成します。",
   ],
   estimatedSteps: 1,
   learningPoint:
-    "A4（全称消去）は量化子∀を外す基本公理。∀x.φ(x) → φ(t) で任意の項tを代入できる。",
+    "A4（全称消去）は量化子∀を外す基本公理。(∀x.φ(x)) → φ(t) で任意の項tを代入できる。",
   order: 1,
-  version: 1,
+  version: 2,
 };
 
 const qPred02IdentityQuantified: QuestDefinition = {
@@ -1453,13 +1453,13 @@ const qPred03UniversalSwap: QuestDefinition = {
   category: "predicate-basics",
   title: "全称量化子の交換",
   description:
-    "∀x.∀y.P(x, y) → ∀y.∀x.P(x, y) を証明せよ。量化子の順序交換（例7.49）。",
+    "(∀x.∀y.P(x, y)) → (∀y.∀x.P(x, y)) を証明せよ。量化子の順序交換（例7.49）。",
   difficulty: 3,
   systemPresetId: "predicate",
   goals: [
     {
-      formulaText: "all x. all y. P(x, y) -> all y. all x. P(x, y)",
-      label: "Goal: ∀x.∀y.P(x,y) → ∀y.∀x.P(x,y)",
+      formulaText: "(all x. all y. P(x, y)) -> all y. all x. P(x, y)",
+      label: "Goal: (∀x.∀y.P(x,y)) → (∀y.∀x.P(x,y))",
     },
   ],
   hints: [
@@ -1468,11 +1468,11 @@ const qPred03UniversalSwap: QuestDefinition = {
     "Genでまず∀x.P(x,y)を得て、再びGenで∀y.∀x.P(x,y)を得ます。",
     "A5を使って∀の中に戻していく操作が必要です。",
   ],
-  estimatedSteps: 10,
+  estimatedSteps: 13,
   learningPoint:
     "∀量化子の順序は交換可能。A4(消去)とA5+Gen(導入)の組み合わせで示す。",
   order: 3,
-  version: 1,
+  version: 2,
 };
 
 const qPred04ExistentialIntro: QuestDefinition = {
@@ -1509,8 +1509,8 @@ const qPred05ExistNegToNegUniv: QuestDefinition = {
   systemPresetId: "predicate",
   goals: [
     {
-      formulaText: "ex x. ~P(x) -> ~(all x. P(x))",
-      label: "Goal: ∃x.¬P(x) → ¬∀x.P(x)",
+      formulaText: "(ex x. ~P(x)) -> ~(all x. P(x))",
+      label: "Goal: (∃x.¬P(x)) → ¬(∀x.P(x))",
     },
   ],
   hints: [
@@ -1523,7 +1523,7 @@ const qPred05ExistNegToNegUniv: QuestDefinition = {
   learningPoint:
     "∃xと∀xの関係は否定を介して結ばれる。述語論理の対偶的推論の基本。",
   order: 5,
-  version: 1,
+  version: 2,
 };
 
 const qPred06UnivNegToNegExist: QuestDefinition = {
@@ -1536,8 +1536,8 @@ const qPred06UnivNegToNegExist: QuestDefinition = {
   systemPresetId: "predicate",
   goals: [
     {
-      formulaText: "all x. ~P(x) -> ~(ex x. P(x))",
-      label: "Goal: ∀x.¬P(x) → ¬∃x.P(x)",
+      formulaText: "(all x. ~P(x)) -> ~(ex x. P(x))",
+      label: "Goal: (∀x.¬P(x)) → ¬(∃x.P(x))",
     },
   ],
   hints: [
@@ -1548,9 +1548,9 @@ const qPred06UnivNegToNegExist: QuestDefinition = {
   ],
   estimatedSteps: 8,
   learningPoint:
-    "∀x.¬P(x) → ¬∃x.P(x) は量化子と否定の基本関係。∃の定義（¬∀¬）を展開して二重否定導入で証明。",
+    "(∀x.¬P(x)) → ¬(∃x.P(x)) は量化子と否定の基本関係。∃の定義（¬∀¬）を展開して二重否定導入で証明。",
   order: 6,
-  version: 1,
+  version: 2,
 };
 
 // --- 自然演繹の基礎 ---

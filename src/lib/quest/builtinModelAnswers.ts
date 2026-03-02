@@ -3991,6 +3991,118 @@ const group08InverseIdentity: ModelAnswer = {
   ],
 };
 
+// ============================================================
+// predicate-basics: 述語論理の基礎（A1-A5 + MP + Gen）
+// A4: (∀x.φ) → φ[t/x]
+// A5: (∀x.(φ → ψ)) → (φ → ∀x.ψ)  （x ∉ FV(φ)）
+// Gen: φ ⊢ ∀x.φ
+// ============================================================
+
+/**
+ * pred-01: 全称消去 (A4)
+ *
+ * (∀x.P(x)) → P(x) は A4 の直接インスタンス。1ステップ。
+ */
+const pred01UniversalElim: ModelAnswer = {
+  questId: "pred-01",
+  steps: [
+    { _tag: "axiom", formulaText: "(all x. P(x)) -> P(x)" },
+  ],
+};
+
+/**
+ * pred-02: 全称化された恒等律
+ *
+ * ∀x.(P(x) → P(x))。
+ * Identity proof (A2+A1+MP+A1+MP) で P(x)→P(x) を導出し、Gen で全称化。6ステップ。
+ */
+const pred02IdentityQuantified: ModelAnswer = {
+  questId: "pred-02",
+  steps: [
+    // Identity: P(x) → P(x)
+    // Step 0: A2[φ/P(x), ψ/(P(x)→P(x)), χ/P(x)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(P(x) -> ((P(x) -> P(x)) -> P(x))) -> ((P(x) -> (P(x) -> P(x))) -> (P(x) -> P(x)))",
+    },
+    // Step 1: A1[φ/P(x), ψ/(P(x)→P(x))]
+    { _tag: "axiom", formulaText: "P(x) -> ((P(x) -> P(x)) -> P(x))" },
+    // Step 2: MP(1, 0)
+    { _tag: "mp", leftIndex: 1, rightIndex: 0 },
+    // Step 3: A1[φ/P(x), ψ/P(x)]
+    { _tag: "axiom", formulaText: "P(x) -> (P(x) -> P(x))" },
+    // Step 4: MP(3, 2) = P(x) → P(x)
+    { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+    // Step 5: Gen[x] = ∀x.(P(x) → P(x))
+    { _tag: "gen", premiseIndex: 4, variableName: "x" },
+  ],
+};
+
+/**
+ * pred-03: 全称量化子の交換
+ *
+ * (∀x.∀y.P(x,y)) → (∀y.∀x.P(x,y))。
+ * A4×2 + HS展開(A1+A2+MP×3) + Gen×2 + A5×2 + MP×2 = 13ステップ。
+ *
+ * 証明戦略:
+ * 1. A4で∀xを消去、A4で∀yを消去: (∀x.∀y.P(x,y)) → P(x,y)
+ * 2. Gen[x]でP(x,y)を再全称化: ∀x.((∀x.∀y.P(x,y)) → P(x,y))
+ * 3. A5で∀を含意の内側に移動: (∀x.∀y.P(x,y)) → ∀x.P(x,y)
+ * 4. Gen[y]+A5で同様に: (∀x.∀y.P(x,y)) → ∀y.∀x.P(x,y)
+ */
+const pred03UniversalSwap: ModelAnswer = {
+  questId: "pred-03",
+  steps: [
+    // Step 0: A4 — (∀x.∀y.P(x,y)) → ∀y.P(x,y)
+    {
+      _tag: "axiom",
+      formulaText: "(all x. all y. P(x, y)) -> all y. P(x, y)",
+    },
+    // Step 1: A4 — (∀y.P(x,y)) → P(x,y)
+    { _tag: "axiom", formulaText: "(all y. P(x, y)) -> P(x, y)" },
+    // HS(0, 1): (∀x.∀y.P(x,y)) → P(x,y)
+    // Step 2: A1 — 持ち上げ
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. P(x, y)) -> P(x, y)) -> ((all x. all y. P(x, y)) -> ((all y. P(x, y)) -> P(x, y)))",
+    },
+    // Step 3: MP(1, 2)
+    { _tag: "mp", leftIndex: 1, rightIndex: 2 },
+    // Step 4: A2 — 分配
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. all y. P(x, y)) -> ((all y. P(x, y)) -> P(x, y))) -> (((all x. all y. P(x, y)) -> (all y. P(x, y))) -> ((all x. all y. P(x, y)) -> P(x, y)))",
+    },
+    // Step 5: MP(3, 4)
+    { _tag: "mp", leftIndex: 3, rightIndex: 4 },
+    // Step 6: MP(0, 5) = (∀x.∀y.P(x,y)) → P(x,y)
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+    // Step 7: Gen[x] = ∀x.((∀x.∀y.P(x,y)) → P(x,y))
+    { _tag: "gen", premiseIndex: 6, variableName: "x" },
+    // Step 8: A5 [φ=(∀x.∀y.P(x,y)), ψ=P(x,y)] — x∉FV(∀x.∀y.P(x,y))
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. all y. P(x, y)) -> P(x, y))) -> ((all x. all y. P(x, y)) -> all x. P(x, y))",
+    },
+    // Step 9: MP(7, 8) = (∀x.∀y.P(x,y)) → ∀x.P(x,y)
+    { _tag: "mp", leftIndex: 7, rightIndex: 8 },
+    // Step 10: Gen[y] = ∀y.((∀x.∀y.P(x,y)) → ∀x.P(x,y))
+    { _tag: "gen", premiseIndex: 9, variableName: "y" },
+    // Step 11: A5 [φ=(∀x.∀y.P(x,y)), ψ=∀x.P(x,y)] — y∉FV(∀x.∀y.P(x,y))
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. ((all x. all y. P(x, y)) -> all x. P(x, y))) -> ((all x. all y. P(x, y)) -> all y. all x. P(x, y))",
+    },
+    // Step 12: MP(10, 11) = (∀x.∀y.P(x,y)) → ∀y.∀x.P(x,y)
+    { _tag: "mp", leftIndex: 10, rightIndex: 11 },
+  ],
+};
+
 // --- レジストリ ---
 
 /** 全ビルトイン模範解答 */
@@ -4056,6 +4168,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   // group-proofs
   group07IdentityTimesIdentity,
   group08InverseIdentity,
+  // predicate-basics
+  pred01UniversalElim,
+  pred02IdentityQuantified,
+  pred03UniversalSwap,
 ];
 
 /** QuestId → ModelAnswer のマップ */
