@@ -86,67 +86,97 @@ describe("propositional-basics 模範解答の検証", () => {
 describe("propositional-intermediate 模範解答の検証", () => {
   const answers = filterByCategory("propositional-intermediate");
 
-  it.each(answers)("%s: 模範解答がゴールを達成する", (questId, answer) => {
-    const quest = findQuest(questId);
-    const result = validateModelAnswer(quest, answer);
-    if (result._tag !== "Valid") {
-      const buildResult = buildModelAnswerWorkspace(quest, answer);
-      throw new Error(
-        `Model answer for ${questId satisfies string} is not valid: ${JSON.stringify(result, null, 2) satisfies string}\nBuild result: ${JSON.stringify(buildResult, null, 2) satisfies string}`,
-      );
-    }
-    expect(result._tag).toBe("Valid");
-  });
+  // カバレッジ計測時に並列実行でリソース競合するためタイムアウトを延長
+  const INTERMEDIATE_TIMEOUT = 15_000;
 
-  it.each(answers)("%s: ワークスペース構築が成功する", (questId, answer) => {
-    const quest = findQuest(questId);
-    const result = buildModelAnswerWorkspace(quest, answer);
-    expect(result._tag).toBe("Ok");
-  });
+  it.each(answers)(
+    "%s: 模範解答がゴールを達成する",
+    (questId, answer) => {
+      const quest = findQuest(questId);
+      const result = validateModelAnswer(quest, answer);
+      if (result._tag !== "Valid") {
+        const buildResult = buildModelAnswerWorkspace(quest, answer);
+        throw new Error(
+          `Model answer for ${questId satisfies string} is not valid: ${JSON.stringify(result, null, 2) satisfies string}\nBuild result: ${JSON.stringify(buildResult, null, 2) satisfies string}`,
+        );
+      }
+      expect(result._tag).toBe("Valid");
+    },
+    INTERMEDIATE_TIMEOUT,
+  );
 
-  it.each(answers)("%s: 自動レイアウトが適用される", (questId, answer) => {
-    const quest = findQuest(questId);
-    const result = buildModelAnswerWorkspace(quest, answer);
-    if (result._tag !== "Ok") return;
-    if (answer.steps.length > 1) {
-      const hasNonZero = result.workspace.nodes.some(
-        (n) => n.position.x !== 0 || n.position.y !== 0,
-      );
-      expect(hasNonZero).toBe(true);
-    }
-  });
+  it.each(answers)(
+    "%s: ワークスペース構築が成功する",
+    (questId, answer) => {
+      const quest = findQuest(questId);
+      const result = buildModelAnswerWorkspace(quest, answer);
+      expect(result._tag).toBe("Ok");
+    },
+    INTERMEDIATE_TIMEOUT,
+  );
+
+  it.each(answers)(
+    "%s: 自動レイアウトが適用される",
+    (questId, answer) => {
+      const quest = findQuest(questId);
+      const result = buildModelAnswerWorkspace(quest, answer);
+      if (result._tag !== "Ok") return;
+      if (answer.steps.length > 1) {
+        const hasNonZero = result.workspace.nodes.some(
+          (n) => n.position.x !== 0 || n.position.y !== 0,
+        );
+        expect(hasNonZero).toBe(true);
+      }
+    },
+    INTERMEDIATE_TIMEOUT,
+  );
 });
 
 describe("propositional-negation 模範解答の検証", () => {
   const answers = filterByCategory("propositional-negation");
 
-  it.each(answers)("%s: 模範解答がゴールを達成する", (questId, answer) => {
-    const quest = findQuest(questId);
-    const result = validateModelAnswer(quest, answer);
-    if (result._tag !== "Valid") {
-      const buildResult = buildModelAnswerWorkspace(quest, answer);
-      throw new Error(
-        `Model answer for ${questId satisfies string} is not valid: ${JSON.stringify(result, null, 2) satisfies string}\nBuild result: ${JSON.stringify(buildResult, null, 2) satisfies string}`,
-      );
-    }
-    expect(result._tag).toBe("Valid");
-  });
+  // 否定クエストは大規模な証明（最大163ステップ）があるためタイムアウトを延長
+  const NEGATION_TIMEOUT = 30_000;
 
-  it.each(answers)("%s: ワークスペース構築が成功する", (questId, answer) => {
-    const quest = findQuest(questId);
-    const result = buildModelAnswerWorkspace(quest, answer);
-    expect(result._tag).toBe("Ok");
-  });
+  it.each(answers)(
+    "%s: 模範解答がゴールを達成する",
+    (questId, answer) => {
+      const quest = findQuest(questId);
+      const result = validateModelAnswer(quest, answer);
+      if (result._tag !== "Valid") {
+        const buildResult = buildModelAnswerWorkspace(quest, answer);
+        throw new Error(
+          `Model answer for ${questId satisfies string} is not valid: ${JSON.stringify(result, null, 2) satisfies string}\nBuild result: ${JSON.stringify(buildResult, null, 2) satisfies string}`,
+        );
+      }
+      expect(result._tag).toBe("Valid");
+    },
+    NEGATION_TIMEOUT,
+  );
 
-  it.each(answers)("%s: 自動レイアウトが適用される", (questId, answer) => {
-    const quest = findQuest(questId);
-    const result = buildModelAnswerWorkspace(quest, answer);
-    if (result._tag !== "Ok") return;
-    if (answer.steps.length > 1) {
-      const hasNonZero = result.workspace.nodes.some(
-        (n) => n.position.x !== 0 || n.position.y !== 0,
-      );
-      expect(hasNonZero).toBe(true);
-    }
-  });
+  it.each(answers)(
+    "%s: ワークスペース構築が成功する",
+    (questId, answer) => {
+      const quest = findQuest(questId);
+      const result = buildModelAnswerWorkspace(quest, answer);
+      expect(result._tag).toBe("Ok");
+    },
+    NEGATION_TIMEOUT,
+  );
+
+  it.each(answers)(
+    "%s: 自動レイアウトが適用される",
+    (questId, answer) => {
+      const quest = findQuest(questId);
+      const result = buildModelAnswerWorkspace(quest, answer);
+      if (result._tag !== "Ok") return;
+      if (answer.steps.length > 1) {
+        const hasNonZero = result.workspace.nodes.some(
+          (n) => n.position.x !== 0 || n.position.y !== 0,
+        );
+        expect(hasNonZero).toBe(true);
+      }
+    },
+    NEGATION_TIMEOUT,
+  );
 });

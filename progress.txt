@@ -8315,3 +8315,22 @@
   - Disjunction (∨) はAST上で独立ノード。¬α→β の形で Implication として構築しても equalFormula で一致しない。prop-20 (LEM) の解決にはDisjunctionノード生成方法の調査が必要
   - 否定の深い証明ではインライン展開が不可避で50+ステップになる。後続イテレーションではプログラマティック生成を検討
 ---
+
+## 2026-03-02 - 模範解答追加 (残り7問: prop-08, prop-12, prop-16, prop-21, prop-26, prop-27, prop-29)
+- 実装した内容:
+  - propositional-intermediate 2問: prop-08 (43steps, 3段推移律), prop-12 (37steps, 左結合化)
+  - propositional-negation 5問: prop-16 (107steps, MT), prop-21 (51steps, Peirce), prop-26 (79steps, CM), prop-27 (131steps, CON2), prop-29 (163steps, TND)
+  - プログラマティック証明生成（verify-gen.local.ts）: サブルーチン合成（B combinator, Identity, ExFalso, Clavius, DNE, DNI, Prop34, Prop07）を関数化し、正確な括弧付けで安全に合成
+  - テストタイムアウトの延長（intermediate: 15s, negation: 30s）— 大規模証明のワークスペース構築に時間がかかるため
+- 変更したファイル:
+  - src/lib/quest/builtinModelAnswers.ts (20→27件の模範解答)
+  - src/lib/quest/builtinModelAnswers.test.ts (タイムアウト延長)
+- テスト: 7024 passed, 83 model answer tests
+- カバレッジ: 99.45% statements (維持)
+- 未実装:
+  - prop-20 (LEM, `~phi \/ phi`) — Disjunction ASTノードの生成方法の調査が必要（後続イテレーションへ）
+- **今後のイテレーションへの学び:**
+  - p()関数パターン: 証明のプログラマティック合成で、`bStr -> c` のような合成文字列を作るとき、bStrが `->` を含む場合は必ず括弧で包む必要がある。`p(f) = f.includes("->") ? `(${f})` : f` で安全に括弧付けする
+  - 大規模証明（100+ステップ）はカバレッジ計測時のフルスイート実行でタイムアウトする場合がある。テストに明示的なタイムアウト指定が必要
+  - サブルーチン合成の基本ブロック: bCompose(5steps), Identity(5steps), ExFalso(7steps), Clavius(23steps), DNE(35steps), DNI(37steps) — これらを組み合わせて複雑な証明を構築
+---
