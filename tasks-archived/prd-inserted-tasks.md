@@ -187,3 +187,5 @@ Infinity Canvasについて。
 - [x] ゴールは使っていい前提も表示せよ
 - [x] chrome devtools mcp と WCAG Color Contrast Checker拡張 を利用して色のコントラストをチェックするスキルをセットアップせよ。
   - **あきらめ**: Chrome DevTools MCPは `--disable-extensions` でChrome起動するため拡張機能利用不可。また、stale browser lockで接続不能。
+- [x] キャンバスでshiftしながらクリックで選択対象ノードの追加、削除になってほしい。また、ブラウザネイティブのセレクションが行われてしまうので、このイベントはキャンセルしてほしい。
+- [x] 選択のときも縁に行ったときにスクロールされてほしい。まずは単独のストーリー、機能として実装して、アプリのほうにも展開しよう。

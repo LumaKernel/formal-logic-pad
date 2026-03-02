@@ -8789,3 +8789,20 @@
   - ScriptEditorComponent.tsx は不純なUIラッパーとしてカバレッジ除外が適切。純粋ロジックはscriptEditorLogic.tsに完全分離
   - Monaco Editorの型定義注入は`beforeMount`で`addExtraLib`を使用。`generateProofBridgeTypeDefs()`から.d.tsテキストを取得
 ---
+
+## 2026-03-03 - マーキー選択中のエッジスクロール対応
+- マーキー選択（矩形選択）でキャンバス端に到達した際に自動パンが動作するよう統合
+- MultiSelectionDemoストーリーにエッジスクロール統合（ノードドラッグ+マーキー両方でエッジスクロール対応）
+- ProofWorkspaceにマーキー選択中のエッジスクロール通知ラッパーを追加
+- カバレッジ: Stmts 99.19% → 99.19% (維持), Branch 94.13% → 94.12% (微差、許容範囲)
+- テスト: 7419 → 7419 (変化なし、新しいコードはv8 ignoreブロック内)
+- スクリーンショット: `.screenshots/multi-selection-edge-scroll-default.png`, `.screenshots/proof-workspace-shift-selection.png`
+- **変更ファイル:**
+  - `src/lib/infinite-canvas/MultiSelectionDemo.stories.tsx` (useEdgeScroll統合、ノードドラッグ+マーキー両方で対応)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (handleMarqueePointerMove/Up追加、エッジスクロール通知統合)
+  - `tasks/prd-inserted-tasks.md` (タスク完了マーク)
+- **今後のイテレーションへの学び:**
+  - エッジスクロールの`notifyDragMove`はコンテナ相対座標が必要。`containerRef.current.getBoundingClientRect()`で変換する
+  - マーキー+エッジスクロール統合は、onEmptyAreaPointerMoveで両方を呼ぶラッパーハンドラを作るのがクリーン
+  - CanvasItemの`onDragMove`はclientX/clientYをそのまま渡すが、フルスクリーンコンテナなら概ね一致する
+---

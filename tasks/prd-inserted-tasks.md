@@ -1,7 +1,5 @@
 # 差し込みタスク
 
-- [x] キャンバスでshiftしながらクリックで選択対象ノードの追加、削除になってほしい。また、ブラウザネイティブのセレクションが行われてしまうので、このイベントはキャンセルしてほしい。
-- [-] 選択のときも縁に行ったときにスクロールされてほしい。まずは単独のストーリー、機能として実装して、アプリのほうにも展開しよう。
 - [ ] http://localhost:13000/workspace/notebook-... ノート作成して開始するとエラーが出る
       Removing a style property during rerender (background) when a conflicting property is set (backgroundColor) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values.
 
