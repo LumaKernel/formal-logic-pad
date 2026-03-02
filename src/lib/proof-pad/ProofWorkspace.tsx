@@ -1958,8 +1958,8 @@ export function ProofWorkspace({
       // 編集中ノードのクリックは選択しない
       if (editingNodeIds.has(nodeId)) return;
 
-      if (e.metaKey || e.ctrlKey) {
-        // Ctrl/Cmd+クリック: トグル選択
+      if (e.shiftKey || e.metaKey || e.ctrlKey) {
+        // Shift/Ctrl/Cmd+クリック: トグル選択
         setSelectedNodeIds((prev) => toggleNodeSelection(prev, nodeId));
       } else {
         // 通常クリック: 単一選択

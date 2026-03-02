@@ -179,6 +179,7 @@ export function InfiniteCanvas({
         backgroundColor,
         cursor: isDragging ? "grabbing" : panEnabled ? "grab" : "crosshair",
         touchAction: "none",
+        userSelect: "none",
         transition:
           "background-color var(--theme-transition-duration, 0s) ease",
       }}

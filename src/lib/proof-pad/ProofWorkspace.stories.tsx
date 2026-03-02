@@ -1061,6 +1061,52 @@ export const MarqueeSelection: Story = {
   },
 };
 
+// --- Shift+Click Selection Toggle ---
+
+/** Shift+クリックでノード選択の追加・削除（トグル）ができる */
+export const ShiftClickSelectionToggle: Story = {
+  render: () => <MarqueeSelectionWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    const node1 = canvas.getByTestId("proof-node-node-1");
+    const node2 = canvas.getByTestId("proof-node-node-2");
+    const node3 = canvas.getByTestId("proof-node-node-3");
+    const user = userEvent.setup();
+
+    // 1. 通常クリックでnode1を選択
+    await user.click(node1);
+    await expect(
+      canvas.getByTestId("workspace-selection-banner"),
+    ).toHaveTextContent("1 node(s) selected");
+
+    // 2. Shift+クリックでnode2を追加選択
+    await user.keyboard("{Shift>}");
+    await user.click(node2);
+    await user.keyboard("{/Shift}");
+    await expect(
+      canvas.getByTestId("workspace-selection-banner"),
+    ).toHaveTextContent("2 node(s) selected");
+
+    // 3. Shift+クリックでnode3を追加選択
+    await user.keyboard("{Shift>}");
+    await user.click(node3);
+    await user.keyboard("{/Shift}");
+    await expect(
+      canvas.getByTestId("workspace-selection-banner"),
+    ).toHaveTextContent("3 node(s) selected");
+
+    // 4. Shift+クリックでnode1を選択解除
+    await user.keyboard("{Shift>}");
+    await user.click(node1);
+    await user.keyboard("{/Shift}");
+    await expect(
+      canvas.getByTestId("workspace-selection-banner"),
+    ).toHaveTextContent("2 node(s) selected");
+  },
+};
+
 // --- 代入操作（Substitution Application）---
 
 function SubstitutionAppliedWorkspace() {

@@ -92,6 +92,12 @@ describe("InfiniteCanvas", () => {
     const svg = canvas.querySelector("svg");
     expect(svg?.getAttribute("aria-hidden")).toBe("true");
   });
+
+  it("disables browser native text selection", () => {
+    render(<InfiniteCanvas />);
+    const canvas = screen.getByTestId("infinite-canvas");
+    expect(canvas.style.userSelect).toBe("none");
+  });
 });
 
 describe("InfiniteCanvas grid lines", () => {

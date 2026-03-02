@@ -2025,6 +2025,67 @@ describe("ProofWorkspace", () => {
       });
     });
 
+    it("selects multiple nodes with Shift+click", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 300, y: 100 }, "psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Click first node
+      const node1 = screen.getByTestId("proof-node-node-1");
+      await user.click(node1);
+
+      // Shift+click second node
+      const node2 = screen.getByTestId("proof-node-node-2");
+      await user.keyboard("{Shift>}");
+      await user.click(node2);
+      await user.keyboard("{/Shift}");
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-selection-banner"),
+        ).toHaveTextContent("2 node(s) selected");
+      });
+    });
+
+    it("Shift+click toggles node out of selection", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 300, y: 100 }, "psi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Click first node
+      const node1 = screen.getByTestId("proof-node-node-1");
+      await user.click(node1);
+
+      // Shift+click second node to add
+      const node2 = screen.getByTestId("proof-node-node-2");
+      await user.keyboard("{Shift>}");
+      await user.click(node2);
+      await user.keyboard("{/Shift}");
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-selection-banner"),
+        ).toHaveTextContent("2 node(s) selected");
+      });
+
+      // Shift+click first node again to remove from selection
+      await user.keyboard("{Shift>}");
+      await user.click(node1);
+      await user.keyboard("{/Shift}");
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-selection-banner"),
+        ).toHaveTextContent("1 node(s) selected");
+      });
+    });
+
     it("clears selection when canvas is clicked", async () => {
       const user = userEvent.setup();
       let ws = createEmptyWorkspace(lukasiewiczSystem);
