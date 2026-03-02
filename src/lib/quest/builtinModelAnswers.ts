@@ -4283,6 +4283,283 @@ const nd10ConsequentiaMirabilis: ModelAnswer = {
   ],
 };
 
+// nd-11: 背理法 RAA¬ (φ→ψ) → (φ→¬ψ) → ¬φ (NM)
+// 0: [φ→ψ]  1: [φ→¬ψ]  2: [φ]
+// 3: ψ (→E, 2, 0)  4: ¬ψ (→E, 2, 1)
+// 5: ⊥ (→E, 3, 4)  6: ¬φ (→I, 5, discharge 2)
+// 7: (φ→¬ψ)→¬φ (→I, 6, discharge 1)  8: (φ→ψ)→(φ→¬ψ)→¬φ (→I, 7, discharge 0)
+const nd11Raa: ModelAnswer = {
+  questId: "nd-11",
+  steps: [
+    { _tag: "assumption", formulaText: "phi -> psi" },
+    { _tag: "assumption", formulaText: "phi -> ~psi" },
+    { _tag: "assumption", formulaText: "phi" },
+    { _tag: "nd-implication-elim", leftIndex: 2, rightIndex: 0 },
+    { _tag: "nd-implication-elim", leftIndex: 2, rightIndex: 1 },
+    { _tag: "nd-implication-elim", leftIndex: 3, rightIndex: 4 },
+    { _tag: "nd-implication-intro", premiseIndex: 5, dischargedIndex: 2 },
+    { _tag: "nd-implication-intro", premiseIndex: 6, dischargedIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 7, dischargedIndex: 0 },
+  ],
+};
+
+// nd-12: 古典的背理法 RAA*¬ (¬φ→ψ) → (¬φ→¬ψ) → φ (NK)
+// 0: [¬φ→ψ]  1: [¬φ→¬ψ]  2: [¬φ]
+// 3: ψ (→E, 2, 0)  4: ¬ψ (→E, 2, 1)
+// 5: ⊥ (→E, 3, 4)  6: ¬¬φ (→I, 5, discharge 2)
+// 7: φ (DNE, 6)  8: (¬φ→¬ψ)→φ (→I, 7, discharge 1)
+// 9: (¬φ→ψ)→(¬φ→¬ψ)→φ (→I, 8, discharge 0)
+const nd12ClassicalRaa: ModelAnswer = {
+  questId: "nd-12",
+  steps: [
+    { _tag: "assumption", formulaText: "~phi -> psi" },
+    { _tag: "assumption", formulaText: "~phi -> ~psi" },
+    { _tag: "assumption", formulaText: "~phi" },
+    { _tag: "nd-implication-elim", leftIndex: 2, rightIndex: 0 },
+    { _tag: "nd-implication-elim", leftIndex: 2, rightIndex: 1 },
+    { _tag: "nd-implication-elim", leftIndex: 3, rightIndex: 4 },
+    { _tag: "nd-implication-intro", premiseIndex: 5, dischargedIndex: 2 },
+    { _tag: "nd-dne", premiseIndex: 6 },
+    { _tag: "nd-implication-intro", premiseIndex: 7, dischargedIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 8, dischargedIndex: 0 },
+  ],
+};
+
+// nd-13: 矛盾からの推論 CON1 ψ → ¬ψ → ¬φ (NM)
+// 0: [ψ]  1: [¬ψ]  2: [φ]
+// 3: ⊥ (→E, 0, 1)  4: ¬φ (→I, 3, discharge 2)
+// 5: ¬ψ→¬φ (→I, 4, discharge 1)  6: ψ→¬ψ→¬φ (→I, 5, discharge 0)
+const nd13Con1: ModelAnswer = {
+  questId: "nd-13",
+  steps: [
+    { _tag: "assumption", formulaText: "psi" },
+    { _tag: "assumption", formulaText: "~psi" },
+    { _tag: "assumption", formulaText: "phi" },
+    { _tag: "nd-implication-elim", leftIndex: 0, rightIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 3, dischargedIndex: 2 },
+    { _tag: "nd-implication-intro", premiseIndex: 4, dischargedIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 5, dischargedIndex: 0 },
+  ],
+};
+
+// nd-14: 矛盾からの推論 CON4 ¬ψ → ψ → φ (NK)
+// 0: [¬ψ]  1: [ψ]  2: [¬φ]
+// 3: ⊥ (→E, 1, 0)  4: ¬¬φ (→I, 3, discharge 2)
+// 5: φ (DNE, 4)  6: ψ→φ (→I, 5, discharge 1)
+// 7: ¬ψ→ψ→φ (→I, 6, discharge 0)
+const nd14Con4: ModelAnswer = {
+  questId: "nd-14",
+  steps: [
+    { _tag: "assumption", formulaText: "~psi" },
+    { _tag: "assumption", formulaText: "psi" },
+    { _tag: "assumption", formulaText: "~phi" },
+    { _tag: "nd-implication-elim", leftIndex: 1, rightIndex: 0 },
+    { _tag: "nd-implication-intro", premiseIndex: 3, dischargedIndex: 2 },
+    { _tag: "nd-dne", premiseIndex: 4 },
+    { _tag: "nd-implication-intro", premiseIndex: 5, dischargedIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 6, dischargedIndex: 0 },
+  ],
+};
+
+// nd-15: 全称導入 P(x) → ∀x.(P(x) → P(x)) (NM)
+// 0: [P(x)]  1: [P(x)] (inner assumption)
+// 2: P(x)→P(x) (→I, 1, discharge 1)
+// 3: ∀x.(P(x)→P(x)) (∀I, 2, var="x")
+// 4: P(x)→∀x.(P(x)→P(x)) (→I, 3, discharge 0)
+const nd15UniversalIntro: ModelAnswer = {
+  questId: "nd-15",
+  steps: [
+    { _tag: "assumption", formulaText: "P(x)" },
+    { _tag: "assumption", formulaText: "P(x)" },
+    { _tag: "nd-implication-intro", premiseIndex: 1, dischargedIndex: 1 },
+    { _tag: "nd-universal-intro", premiseIndex: 2, variableName: "x" },
+    { _tag: "nd-implication-intro", premiseIndex: 3, dischargedIndex: 0 },
+  ],
+};
+
+// nd-16: 全称除去 ∀x.(P(x) → P(x)) (NM)
+// goal: "all x. P(x) -> P(x)" = ∀x.(P(x)→P(x))
+// 0: [P(x)]  1: P(x)→P(x) (→I, 0, discharge 0)
+// 2: ∀x.(P(x)→P(x)) (∀I, 1, var="x")
+const nd16UniversalElim: ModelAnswer = {
+  questId: "nd-16",
+  steps: [
+    { _tag: "assumption", formulaText: "P(x)" },
+    { _tag: "nd-implication-intro", premiseIndex: 0, dischargedIndex: 0 },
+    { _tag: "nd-universal-intro", premiseIndex: 1, variableName: "x" },
+  ],
+};
+
+// nd-17: 存在導入 P(x) → ∃x.P(x) (NM)
+// 0: [P(x)]  1: ∃x.P(x) (∃I, 0, var="x", term="x")
+// 2: P(x)→∃x.P(x) (→I, 1, discharge 0)
+const nd17ExistentialIntro: ModelAnswer = {
+  questId: "nd-17",
+  steps: [
+    { _tag: "assumption", formulaText: "P(x)" },
+    {
+      _tag: "nd-existential-intro",
+      premiseIndex: 0,
+      variableName: "x",
+      termText: "x",
+    },
+    { _tag: "nd-implication-intro", premiseIndex: 1, dischargedIndex: 0 },
+  ],
+};
+
+// nd-18: 全称量化子の交換 ∀x.∀y.(P(x,y) → ∀y.∀x.P(x,y)) (NM)
+// goal: "all x. all y. P(x, y) -> all y. all x. P(x, y)" = ∀x.(∀y.(P(x,y) → ∀y.∀x.P(x,y)))
+// 0: [P(x, y)]  1: ∀x.P(x, y) (∀I, 0, var="x")
+// 2: ∀y.∀x.P(x, y) (∀I, 1, var="y")
+// 3: P(x, y)→∀y.∀x.P(x, y) (→I, 2, discharge 0)
+// 4: ∀y.(P(x, y)→∀y.∀x.P(x, y)) (∀I, 3, var="y")
+// 5: ∀x.∀y.(P(x, y)→∀y.∀x.P(x, y)) (∀I, 4, var="x")
+const nd18UniversalSwap: ModelAnswer = {
+  questId: "nd-18",
+  steps: [
+    { _tag: "assumption", formulaText: "P(x, y)" },
+    { _tag: "nd-universal-intro", premiseIndex: 0, variableName: "x" },
+    { _tag: "nd-universal-intro", premiseIndex: 1, variableName: "y" },
+    { _tag: "nd-implication-intro", premiseIndex: 2, dischargedIndex: 0 },
+    { _tag: "nd-universal-intro", premiseIndex: 3, variableName: "y" },
+    { _tag: "nd-universal-intro", premiseIndex: 4, variableName: "x" },
+  ],
+};
+
+// nd-19: 存在除去 (∀x.(P(x)→φ)) → (∃x.P(x)) → φ (NM)
+// 0: [∀x.(P(x)→φ)]  1: [∃x.P(x)]  2: [P(x)] (仮定 for ∃E)
+// 3: P(x)→φ (∀E, 0, term="x")  4: φ (→E, 2, 3)
+// 5: φ (∃E, exist=1, case=4, discharged=2)
+// 6: (∃x.P(x))→φ (→I, 5, discharge 1)
+// 7: (∀x.(P(x)→φ))→(∃x.P(x))→φ (→I, 6, discharge 0)
+const nd19ExistentialElim: ModelAnswer = {
+  questId: "nd-19",
+  steps: [
+    { _tag: "assumption", formulaText: "(all x. (P(x) -> phi))" },
+    { _tag: "assumption", formulaText: "ex x. P(x)" },
+    { _tag: "assumption", formulaText: "P(x)" },
+    { _tag: "nd-universal-elim", premiseIndex: 0, termText: "x" },
+    { _tag: "nd-implication-elim", leftIndex: 2, rightIndex: 3 },
+    {
+      _tag: "nd-existential-elim",
+      existentialIndex: 1,
+      caseIndex: 4,
+      dischargedIndex: 2,
+    },
+    { _tag: "nd-implication-intro", premiseIndex: 5, dischargedIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 6, dischargedIndex: 0 },
+  ],
+};
+
+// nd-20: 全称から存在 ∀x.(P(x) → ∃x.P(x)) (NM)
+// goal: "all x. P(x) -> ex x. P(x)" = ∀x.(P(x) → ∃x.P(x))
+// 0: [P(x)]  1: ∃x.P(x) (∃I, 0, var="x", term="x")
+// 2: P(x)→∃x.P(x) (→I, 1, discharge 0)
+// 3: ∀x.(P(x)→∃x.P(x)) (∀I, 2, var="x")
+const nd20UniversalToExistential: ModelAnswer = {
+  questId: "nd-20",
+  steps: [
+    { _tag: "assumption", formulaText: "P(x)" },
+    {
+      _tag: "nd-existential-intro",
+      premiseIndex: 0,
+      variableName: "x",
+      termText: "x",
+    },
+    { _tag: "nd-implication-intro", premiseIndex: 1, dischargedIndex: 0 },
+    { _tag: "nd-universal-intro", premiseIndex: 2, variableName: "x" },
+  ],
+};
+
+// nd-21: 存在の推移 (∃x.P(x)) → (∀x.(P(x)→Q(x))) → ∃x.Q(x) (NM)
+// 0: [∃x.P(x)]  1: [∀x.(P(x)→Q(x))]  2: [P(x)] (仮定 for ∃E)
+// 3: P(x)→Q(x) (∀E, 1, term="x")  4: Q(x) (→E, 2, 3)
+// 5: ∃x.Q(x) (∃I, 4, var="x", term="x")
+// 6: ∃x.Q(x) (∃E, exist=0, case=5, discharged=2)
+// 7: (∀x.(P(x)→Q(x)))→∃x.Q(x) (→I, 6, discharge 1)
+// 8: (∃x.P(x))→(∀x.(P(x)→Q(x)))→∃x.Q(x) (→I, 7, discharge 0)
+const nd21ExistentialTransitivity: ModelAnswer = {
+  questId: "nd-21",
+  steps: [
+    { _tag: "assumption", formulaText: "ex x. P(x)" },
+    { _tag: "assumption", formulaText: "all x. (P(x) -> Q(x))" },
+    { _tag: "assumption", formulaText: "P(x)" },
+    { _tag: "nd-universal-elim", premiseIndex: 1, termText: "x" },
+    { _tag: "nd-implication-elim", leftIndex: 2, rightIndex: 3 },
+    {
+      _tag: "nd-existential-intro",
+      premiseIndex: 4,
+      variableName: "x",
+      termText: "x",
+    },
+    {
+      _tag: "nd-existential-elim",
+      existentialIndex: 0,
+      caseIndex: 5,
+      dischargedIndex: 2,
+    },
+    { _tag: "nd-implication-intro", premiseIndex: 6, dischargedIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 7, dischargedIndex: 0 },
+  ],
+};
+
+// nd-22: ∃の∧分配 (∃x.(P(x)∧Q(x))) → (∃x.P(x))∧(∃x.Q(x)) (NM)
+// 0: [∃x.(P(x)∧Q(x))]  1: [P(x)∧Q(x)] (仮定 for ∃E)
+// 2: P(x) (∧E_L, 1)  3: Q(x) (∧E_R, 1)
+// 4: ∃x.P(x) (∃I, 2, var="x", term="x")  5: ∃x.Q(x) (∃I, 3, var="x", term="x")
+// 6: (∃x.P(x))∧(∃x.Q(x)) (∧I, 4, 5)
+// 7: (∃x.P(x))∧(∃x.Q(x)) (∃E, exist=0, case=6, discharged=1)
+// 8: (∃x.(P(x)∧Q(x)))→(∃x.P(x))∧(∃x.Q(x)) (→I, 7, discharge 0)
+const nd22ExistentialConjDistribution: ModelAnswer = {
+  questId: "nd-22",
+  steps: [
+    { _tag: "assumption", formulaText: "ex x. (P(x) /\\ Q(x))" },
+    { _tag: "assumption", formulaText: "P(x) /\\ Q(x)" },
+    { _tag: "nd-conjunction-elim-left", premiseIndex: 1 },
+    { _tag: "nd-conjunction-elim-right", premiseIndex: 1 },
+    {
+      _tag: "nd-existential-intro",
+      premiseIndex: 2,
+      variableName: "x",
+      termText: "x",
+    },
+    {
+      _tag: "nd-existential-intro",
+      premiseIndex: 3,
+      variableName: "x",
+      termText: "x",
+    },
+    { _tag: "nd-conjunction-intro", leftIndex: 4, rightIndex: 5 },
+    {
+      _tag: "nd-existential-elim",
+      existentialIndex: 0,
+      caseIndex: 6,
+      dischargedIndex: 1,
+    },
+    { _tag: "nd-implication-intro", premiseIndex: 7, dischargedIndex: 0 },
+  ],
+};
+
+// nd-23: ∀の∧結合 (∀x.P(x))∧(∀x.Q(x)) → ∀x.(P(x)∧Q(x)) (NM)
+// 0: [(∀x.P(x))∧(∀x.Q(x))]
+// 1: ∀x.P(x) (∧E_L, 0)  2: ∀x.Q(x) (∧E_R, 0)
+// 3: P(x) (∀E, 1, term="x")  4: Q(x) (∀E, 2, term="x")
+// 5: P(x)∧Q(x) (∧I, 3, 4)  6: ∀x.(P(x)∧Q(x)) (∀I, 5, var="x")
+// 7: (∀x.P(x))∧(∀x.Q(x))→∀x.(P(x)∧Q(x)) (→I, 6, discharge 0)
+const nd23UniversalConjunction: ModelAnswer = {
+  questId: "nd-23",
+  steps: [
+    { _tag: "assumption", formulaText: "(all x. P(x)) /\\ (all x. Q(x))" },
+    { _tag: "nd-conjunction-elim-left", premiseIndex: 0 },
+    { _tag: "nd-conjunction-elim-right", premiseIndex: 0 },
+    { _tag: "nd-universal-elim", premiseIndex: 1, termText: "x" },
+    { _tag: "nd-universal-elim", premiseIndex: 2, termText: "x" },
+    { _tag: "nd-conjunction-intro", leftIndex: 3, rightIndex: 4 },
+    { _tag: "nd-universal-intro", premiseIndex: 5, variableName: "x" },
+    { _tag: "nd-implication-intro", premiseIndex: 6, dischargedIndex: 0 },
+  ],
+};
+
 // --- レジストリ ---
 
 /** 全ビルトイン模範解答 */
@@ -4363,6 +4640,21 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   nd08ClaviusLaw,
   nd09ExcludedMiddle,
   nd10ConsequentiaMirabilis,
+  // nd-reductio
+  nd11Raa,
+  nd12ClassicalRaa,
+  nd13Con1,
+  nd14Con4,
+  // nd-quantifier
+  nd15UniversalIntro,
+  nd16UniversalElim,
+  nd17ExistentialIntro,
+  nd18UniversalSwap,
+  nd19ExistentialElim,
+  nd20UniversalToExistential,
+  nd21ExistentialTransitivity,
+  nd22ExistentialConjDistribution,
+  nd23UniversalConjunction,
 ];
 
 /** QuestId → ModelAnswer のマップ */
