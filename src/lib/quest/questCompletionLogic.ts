@@ -22,6 +22,7 @@ import {
   validateRootNodes,
   hasInstanceRoots,
 } from "../proof-pad/dependencyLogic";
+import { parseNodeFormula } from "../proof-pad/goalCheckLogic";
 
 // --- ステップ数計算 ---
 
@@ -48,6 +49,9 @@ export function computeStepCount(nodes: readonly WorkspaceNode[]): number {
 /**
  * ゴール式に一致するワークノードを探す。
  * パース不能なゴールはundefinedを返す。
+ *
+ * SC（シーケント計算）のノードは " ⇒ φ" 形式のformulaTextを持つため、
+ * parseNodeFormula でシーケントからの論理式抽出も試みる。
  */
 function findMatchingNode(
   goal: WorkspaceGoal,
@@ -57,9 +61,9 @@ function findMatchingNode(
   if (Either.isLeft(goalParsed)) return undefined;
 
   for (const work of nodes) {
-    const workParsed = parseString(work.formulaText.trim());
-    if (Either.isLeft(workParsed)) continue;
-    if (equalFormula(goalParsed.right, workParsed.right)) {
+    const nodeFormula = parseNodeFormula(work.formulaText);
+    if (nodeFormula === undefined) continue;
+    if (equalFormula(goalParsed.right, nodeFormula)) {
       return work;
     }
   }
