@@ -1193,8 +1193,8 @@ export const SubstitutionContextMenu: Story = {
     const metaVarLabel = canvas.getByTestId("workspace-subst-metavar-0");
     await expect(metaVarLabel).toHaveTextContent("φ");
 
-    // 値を入力
-    const valueInput = canvas.getByTestId("workspace-subst-value-0");
+    // 値を入力（FormulaInput places input at ${testId}-input）
+    const valueInput = canvas.getByTestId("workspace-subst-value-0-input");
     await userEvent.type(valueInput, "alpha");
 
     // 確定ボタンをクリック

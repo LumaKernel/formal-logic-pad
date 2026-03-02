@@ -8587,3 +8587,31 @@
   - 防御的コードの coverage は `/* v8 ignore start/stop */` より実際にテストで網羅する方が安全
   - `prd-inserted-tasks.md` の自動整列改善タスクは全完了。ファイルは空にして保持
 ---
+
+## 2026-03-02 - 数式入力UI統一
+- 実装した内容:
+  - EdgeParameterPopover.tsx: Substitution代入値入力をプレーン`<input>`からFormulaInput/TermInputに置き換え
+  - ProofWorkspace.tsx: Substitution代入プロンプトバナーのプレーン`<input>`をFormulaInput/TermInputに置き換え
+  - TermInput.tsx: `showPreview`と`onBlur`プロップを追加（FormulaInputとAPI統一）
+  - テスト・ストーリーのtestIdを`${testId}-input`サフィックスに合わせて更新
+  - Gen変数名入力はシンプルな変数名のみなのでプレーン`<input>`のまま（数式入力UIは不要）
+- 変更したファイル:
+  - `src/lib/formula-input/TermInput.tsx` — showPreview, onBlur プロップ追加
+  - `src/lib/proof-pad/EdgeParameterPopover.tsx` — FormulaInput/TermInput統合
+  - `src/lib/proof-pad/EdgeParameterPopover.test.tsx` — testId更新
+  - `src/lib/proof-pad/ProofWorkspace.tsx` — FormulaInput/TermInput統合
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` — testId更新
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` — testId更新
+- カバレッジ: Stmts 99.17%, Branch 94.08%, Funcs 89.78%, Lines 99.95%（微減、許容範囲）
+  - 前回: Stmts 99.19%, Branch 94.09%, Funcs 89.83%, Lines 99.97%
+- テスト: 7330テスト全通過（218ファイル）
+- スクリーンショット:
+  - `.screenshots/formula-input-unified-substitution-context-menu.png`
+  - `.screenshots/formula-input-unified-substitution-applied.png`
+  - `.screenshots/formula-input-unified-subst-popover-open.png`
+  - `.screenshots/formula-input-unified-axiom-reidentify.png`
+- **今後のイテレーションへの学び:**
+  - FormulaInput/TermInputのtestIdパターン: コンテナdivに`${testId}`、実際の`<input>`に`${testId}-input`。テスト・ストーリーで値操作する場合は`-input`サフィックスが必要
+  - FormulaInput/TermInputはonKeyDownを直接公開しないため、Escapeハンドラ等は親コンテナのonKeyDownで処理する
+  - TermInputにはshowPreviewがなかったので追加した。コンパクトなインライン用途ではshowPreview={false}を使う
+---

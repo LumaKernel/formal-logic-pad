@@ -16,6 +16,8 @@ import type { LogicSystem } from "../logic-core/inferenceRule";
 import { getDeductionSystemName } from "../logic-core/deductionSystem";
 import type { Formula } from "../logic-core/formula";
 import type { EditorMode } from "../formula-input/editorLogic";
+import { FormulaInput } from "../formula-input/FormulaInput";
+import { TermInput } from "../formula-input/TermInput";
 import { InfiniteCanvas } from "../infinite-canvas/InfiniteCanvas";
 import { CanvasItem } from "../infinite-canvas/CanvasItem";
 import { PortConnection } from "../infinite-canvas/PortConnection";
@@ -3699,6 +3701,11 @@ export function ProofWorkspace({
               : "subst-prompt-banner"
           }
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              handleSubstPromptCancel();
+            }
+          }}
         >
           <span>{msg.substEntryPrompt}</span>
           {substPromptEntries.map((entry, i) => (
@@ -3726,28 +3733,39 @@ export function ProofWorkspace({
                 {entry.metaVar}
               </span>
               <span style={{ color: "var(--color-node-text, #fff)" }}>:=</span>
-              <input
-                type="text"
-                value={entry.value}
-                onChange={(e) => {
-                  handleSubstEntryValueChange(i, e.target.value);
-                }}
-                placeholder={
-                  entry.kind === "formula" ? "alpha -> beta" : "S(0)"
-                }
-                style={{ ...substInputStyle, width: 120 }}
-                autoFocus={i === 0}
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") {
-                    handleSubstPromptCancel();
+              {entry.kind === "formula" ? (
+                <FormulaInput
+                  value={entry.value}
+                  onChange={(value) => {
+                    handleSubstEntryValueChange(i, value);
+                  }}
+                  placeholder="alpha -> beta"
+                  fontSize={12}
+                  showPreview={false}
+                  style={{ flex: 1, minWidth: 0, width: 120 }}
+                  testId={
+                    testId
+                      ? `${testId satisfies string}-subst-value-${String(i) satisfies string}`
+                      : `subst-value-${String(i) satisfies string}`
                   }
-                }}
-                data-testid={
-                  testId
-                    ? `${testId satisfies string}-subst-value-${String(i) satisfies string}`
-                    : `subst-value-${String(i) satisfies string}`
-                }
-              />
+                />
+              ) : (
+                <TermInput
+                  value={entry.value}
+                  onChange={(value) => {
+                    handleSubstEntryValueChange(i, value);
+                  }}
+                  placeholder="S(0)"
+                  fontSize={12}
+                  showPreview={false}
+                  style={{ flex: 1, minWidth: 0, width: 120 }}
+                  testId={
+                    testId
+                      ? `${testId satisfies string}-subst-value-${String(i) satisfies string}`
+                      : `subst-value-${String(i) satisfies string}`
+                  }
+                />
+              )}
             </div>
           ))}
           <div style={{ display: "flex", gap: 4 }}>

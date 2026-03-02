@@ -134,8 +134,8 @@ describe("EdgeParameterPopover", () => {
       // kind is displayed as read-only text
       const kindLabel = screen.getByTestId("popover-kind-0");
       expect(kindLabel).toHaveTextContent("Formula");
-      // value is editable
-      const valueInput = screen.getByTestId("popover-value-0");
+      // value is editable (FormulaInput places input at ${testId}-input)
+      const valueInput = screen.getByTestId("popover-value-0-input");
       expect(valueInput).toHaveValue("alpha");
     });
 
@@ -150,7 +150,7 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      const valueInput = screen.getByTestId("popover-value-0");
+      const valueInput = screen.getByTestId("popover-value-0-input");
       await user.clear(valueInput);
       await user.type(valueInput, "beta");
       await user.click(screen.getByTestId("popover-confirm"));
@@ -200,9 +200,9 @@ describe("EdgeParameterPopover", () => {
       expect(screen.getByTestId("popover-metavar-0")).toHaveTextContent("φ");
       expect(screen.getByTestId("popover-metavar-1")).toHaveTextContent("ψ");
       // φ entry should have existing value merged
-      expect(screen.getByTestId("popover-value-0")).toHaveValue("alpha");
+      expect(screen.getByTestId("popover-value-0-input")).toHaveValue("alpha");
       // ψ entry should be empty (no existing value)
-      expect(screen.getByTestId("popover-value-1")).toHaveValue("");
+      expect(screen.getByTestId("popover-value-1-input")).toHaveValue("");
     });
 
     it("calls onCancel on Cancel button", async () => {
@@ -229,7 +229,7 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      const input = screen.getByTestId("popover-value-0");
+      const input = screen.getByTestId("popover-value-0-input");
       await user.type(input, "{Escape}");
       expect(onCancel).toHaveBeenCalledOnce();
     });
@@ -317,7 +317,7 @@ describe("EdgeParameterPopover", () => {
       );
       const kindLabel = screen.getByTestId("popover-kind-0");
       expect(kindLabel).toHaveTextContent("Term");
-      expect(screen.getByTestId("popover-value-0")).toHaveValue("S(0)");
+      expect(screen.getByTestId("popover-value-0-input")).toHaveValue("S(0)");
     });
 
     it("renders without testId (uses default data-testid values)", () => {

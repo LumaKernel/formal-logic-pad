@@ -56,6 +56,10 @@ export interface TermInputProps {
   readonly onOpenSyntaxHelp?: () => void;
   /** data-testid */
   readonly testId?: string;
+  /** プレビュー（パース成功時のTermDisplay）を表示するか（デフォルト: true） */
+  readonly showPreview?: boolean;
+  /** blur時のコールバック */
+  readonly onBlur?: () => void;
 }
 
 // --- 純粋関数: パース ---
@@ -173,6 +177,8 @@ export function TermInput({
   style,
   onOpenSyntaxHelp,
   testId,
+  showPreview = true,
+  onBlur,
 }: TermInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -304,6 +310,7 @@ export function TermInput({
                 ? `${testId satisfies string}-errors`
                 : undefined
             }
+            onBlur={onBlur}
           />
           {/* ハイライトがないときの高さ確保 */}
           {errorHighlights.length > 0 && (
@@ -341,8 +348,8 @@ export function TermInput({
         ) : null}
       </div>
 
-      {/* プレビュー（パース成功時） */}
-      {parseState.status === "success" && (
+      {/* プレビュー（パース成功時、showPreview=trueの場合のみ） */}
+      {showPreview && parseState.status === "success" && (
         <div
           style={previewStyle}
           data-testid={

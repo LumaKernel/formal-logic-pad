@@ -11,6 +11,8 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { FormulaInput } from "../formula-input/FormulaInput";
+import { TermInput } from "../formula-input/TermInput";
 import { useProofMessages } from "./ProofMessagesContext";
 import type { EdgeBadgeEditState, SubstEditEntry } from "./edgeBadgeEditLogic";
 import {
@@ -253,6 +255,11 @@ function SubstitutionPopover({
       style={{ ...popoverStyle, minWidth: 280 }}
       onClick={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          onCancel();
+        }
+      }}
     >
       <div
         style={{
@@ -340,26 +347,39 @@ function SubstitutionPopover({
           >
             :=
           </span>
-          <input
-            type="text"
-            value={entry.value}
-            onChange={(e) => {
-              setEntries(updateSubstEditEntryValue(entries, i, e.target.value));
-            }}
-            placeholder={entry.kind === "formula" ? "alpha -> beta" : "S(0)"}
-            style={{ ...inputStyle, flex: 1 }}
-            autoFocus={i === 0}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                onCancel();
+          {entry.kind === "formula" ? (
+            <FormulaInput
+              value={entry.value}
+              onChange={(value) => {
+                setEntries(updateSubstEditEntryValue(entries, i, value));
+              }}
+              placeholder="alpha -> beta"
+              fontSize={12}
+              showPreview={false}
+              style={{ flex: 1, minWidth: 0 }}
+              testId={
+                testId
+                  ? `${testId satisfies string}-value-${String(i) satisfies string}`
+                  : undefined
               }
-            }}
-            data-testid={
-              testId
-                ? `${testId satisfies string}-value-${String(i) satisfies string}`
-                : undefined
-            }
-          />
+            />
+          ) : (
+            <TermInput
+              value={entry.value}
+              onChange={(value) => {
+                setEntries(updateSubstEditEntryValue(entries, i, value));
+              }}
+              placeholder="S(0)"
+              fontSize={12}
+              showPreview={false}
+              style={{ flex: 1, minWidth: 0 }}
+              testId={
+                testId
+                  ? `${testId satisfies string}-value-${String(i) satisfies string}`
+                  : undefined
+              }
+            />
+          )}
         </div>
       ))}
       <div

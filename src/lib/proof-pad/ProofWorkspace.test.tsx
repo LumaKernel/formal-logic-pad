@@ -3250,9 +3250,9 @@ describe("ProofWorkspace", () => {
       // No Add/Remove buttons exist
       expect(screen.queryByTestId("workspace-subst-add-entry")).toBeNull();
 
-      // Fill in values for the pre-populated entries
-      const valueInput0 = screen.getByTestId("workspace-subst-value-0");
-      const valueInput1 = screen.getByTestId("workspace-subst-value-1");
+      // Fill in values for the pre-populated entries (FormulaInput places input at ${testId}-input)
+      const valueInput0 = screen.getByTestId("workspace-subst-value-0-input");
+      const valueInput1 = screen.getByTestId("workspace-subst-value-1-input");
       await user.type(valueInput0, "alpha");
       await user.type(valueInput1, "beta");
 
@@ -3290,8 +3290,8 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("workspace-subst-prompt-banner"),
       ).toBeInTheDocument();
 
-      // Press Escape in the value input
-      const valueInput = screen.getByTestId("workspace-subst-value-0");
+      // Press Escape in the value input (FormulaInput places input at ${testId}-input)
+      const valueInput = screen.getByTestId("workspace-subst-value-0-input");
       await user.click(valueInput);
       await user.keyboard("{Escape}");
 
@@ -3377,9 +3377,10 @@ describe("ProofWorkspace", () => {
       expect(metaVarLabel1).toHaveTextContent("τ");
 
       // Verify placeholders: formula uses "alpha -> beta", term uses "S(0)"
-      const valueInput0 = screen.getByTestId("workspace-subst-value-0");
+      // FormulaInput/TermInput places the actual input at ${testId}-input
+      const valueInput0 = screen.getByTestId("workspace-subst-value-0-input");
       expect(valueInput0).toHaveAttribute("placeholder", "alpha -> beta");
-      const valueInput1 = screen.getByTestId("workspace-subst-value-1");
+      const valueInput1 = screen.getByTestId("workspace-subst-value-1-input");
       expect(valueInput1).toHaveAttribute("placeholder", "S(0)");
     });
   });
