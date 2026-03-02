@@ -1836,8 +1836,9 @@ export function ProofWorkspace({
   // --- ゴールパネルデータ ---
 
   const goalPanelData = useMemo(
-    () => computeGoalPanelData(workspace.goals, goalCheckResult),
-    [workspace.goals, goalCheckResult],
+    () =>
+      computeGoalPanelData(workspace.goals, goalCheckResult, availableAxioms),
+    [workspace.goals, goalCheckResult, availableAxioms],
   );
 
   const isGoalAchievedButAxiomViolation =

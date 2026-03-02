@@ -302,6 +302,7 @@ export type {
   GoalPanelItem,
   GoalPanelItemStatus,
   GoalPanelData,
+  AllowedAxiomDetail,
 } from "./goalPanelLogic";
 export { GoalPanel } from "./GoalPanel";
 export type { GoalPanelProps } from "./GoalPanel";

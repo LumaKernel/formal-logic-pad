@@ -112,10 +112,27 @@ const statusParseErrorStyle: CSSProperties = {
   fontSize: 10,
 };
 
-const allowedAxiomsStyle: CSSProperties = {
+const allowedAxiomsHeaderStyle: CSSProperties = {
   fontSize: 10,
   color: "var(--color-text-secondary, #999)",
   fontStyle: "italic",
+  marginTop: 2,
+};
+
+const allowedAxiomItemStyle: CSSProperties = {
+  fontSize: 10,
+  color: "var(--color-text-secondary, #888)",
+  display: "flex",
+  alignItems: "center",
+  gap: 4,
+  paddingLeft: 8,
+};
+
+const allowedAxiomNameStyle: CSSProperties = {
+  fontWeight: 600,
+  fontSize: 10,
+  color: "var(--color-text-secondary, #777)",
+  flexShrink: 0,
 };
 
 const toggleButtonStyle: CSSProperties = {
@@ -190,8 +207,26 @@ function GoalItem({
           item.formulaText
         )}
       </div>
-      {item.allowedAxiomIds !== undefined ? (
-        <div style={allowedAxiomsStyle}>
+      {item.allowedAxiomDetails !== undefined &&
+      item.allowedAxiomDetails.length > 0 ? (
+        <div>
+          <div style={allowedAxiomsHeaderStyle}>
+            {messages.goalPanelAllowedAxioms.replace(
+              "{axiomIds}",
+              item.allowedAxiomDetails
+                .map((a) => a.id)
+                .join(", "),
+            )}
+          </div>
+          {item.allowedAxiomDetails.map((axiom) => (
+            <div key={axiom.id} style={allowedAxiomItemStyle}>
+              <span style={allowedAxiomNameStyle}>{axiom.displayName}:</span>
+              <FormulaDisplay formula={axiom.formula} fontSize={10} />
+            </div>
+          ))}
+        </div>
+      ) : item.allowedAxiomIds !== undefined ? (
+        <div style={allowedAxiomsHeaderStyle}>
           {formatMessage(messages.goalPanelAllowedAxioms, {
             axiomIds: item.allowedAxiomIds.join(", "),
           })}

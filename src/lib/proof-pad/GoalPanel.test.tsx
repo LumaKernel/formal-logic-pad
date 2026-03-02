@@ -20,6 +20,10 @@ function parseFormula(text: string): Formula {
 
 const phiImpliesPhi = parseFormula("phi -> phi");
 const psiImpliesPsi = parseFormula("psi -> psi");
+const a1Template = parseFormula("phi -> (psi -> phi)");
+const a2Template = parseFormula(
+  "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
+);
 
 function makeData(overrides?: Partial<GoalPanelData>): GoalPanelData {
   return {
@@ -50,6 +54,7 @@ describe("GoalPanel", () => {
             formula: phiImpliesPhi,
             label: "Goal: φ → φ",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -70,6 +75,7 @@ describe("GoalPanel", () => {
             formula: phiImpliesPhi,
             label: "Goal: φ → φ",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "not-achieved",
           },
           {
@@ -78,6 +84,7 @@ describe("GoalPanel", () => {
             formula: psiImpliesPsi,
             label: undefined,
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "achieved",
           },
         ],
@@ -105,6 +112,7 @@ describe("GoalPanel", () => {
             formula: undefined,
             label: "Goal 1",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "parse-error",
           },
         ],
@@ -124,6 +132,7 @@ describe("GoalPanel", () => {
             formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "achieved",
           },
         ],
@@ -143,6 +152,7 @@ describe("GoalPanel", () => {
             formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -161,6 +171,7 @@ describe("GoalPanel", () => {
             formula: undefined,
             label: "Goal 1",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "parse-error",
           },
         ],
@@ -172,7 +183,7 @@ describe("GoalPanel", () => {
   });
 
   describe("公理制限の表示", () => {
-    it("allowedAxiomIdsがある場合は表示される", () => {
+    it("allowedAxiomDetailsがある場合は公理名と数式が表示される", () => {
       const data = makeData({
         items: [
           {
@@ -181,6 +192,18 @@ describe("GoalPanel", () => {
             formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: ["A1", "A2"],
+            allowedAxiomDetails: [
+              {
+                id: "A1",
+                displayName: "A1 (K)",
+                formula: a1Template,
+              },
+              {
+                id: "A2",
+                displayName: "A2 (S)",
+                formula: a2Template,
+              },
+            ],
             status: "not-achieved",
           },
         ],
@@ -188,9 +211,14 @@ describe("GoalPanel", () => {
       });
       render(<GoalPanel data={data} messages={msg} testId="gp" />);
       expect(screen.getByText("Allowed axioms: A1, A2")).toBeInTheDocument();
+      expect(screen.getByText("A1 (K):")).toBeInTheDocument();
+      expect(screen.getByText("A2 (S):")).toBeInTheDocument();
+      // 公理数式はrole="math"で表示される（ゴール自体の数式 + 公理2つ = 3つ）
+      const mathEls = screen.getAllByRole("math");
+      expect(mathEls).toHaveLength(3);
     });
 
-    it("allowedAxiomIdsがundefinedの場合は公理制限が表示されない", () => {
+    it("allowedAxiomDetailsがundefinedの場合は公理制限が表示されない", () => {
       const data = makeData({
         items: [
           {
@@ -199,6 +227,7 @@ describe("GoalPanel", () => {
             formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -206,6 +235,25 @@ describe("GoalPanel", () => {
       });
       render(<GoalPanel data={data} messages={msg} testId="gp" />);
       expect(screen.queryByText(/Allowed axioms/u)).not.toBeInTheDocument();
+    });
+
+    it("allowedAxiomIdsがありdetailsが空の場合はIDのみフォールバック表示", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: ["UNKNOWN"],
+            allowedAxiomDetails: [],
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+      expect(screen.getByText("Allowed axioms: UNKNOWN")).toBeInTheDocument();
     });
   });
 
@@ -219,6 +267,7 @@ describe("GoalPanel", () => {
             formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "achieved",
           },
           {
@@ -227,6 +276,7 @@ describe("GoalPanel", () => {
             formula: psiImpliesPsi,
             label: "Goal 2",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -248,6 +298,7 @@ describe("GoalPanel", () => {
             formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -275,6 +326,7 @@ describe("GoalPanel", () => {
             formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -300,6 +352,7 @@ describe("GoalPanel", () => {
             formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -325,6 +378,7 @@ describe("GoalPanel", () => {
             formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -356,6 +410,7 @@ describe("GoalPanel", () => {
             formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "not-achieved",
           },
           {
@@ -364,6 +419,7 @@ describe("GoalPanel", () => {
             formula: psiImpliesPsi,
             label: "Goal 2",
             allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
             status: "achieved",
           },
         ],

@@ -10,6 +10,7 @@ import type { WorkspaceGoal } from "./workspaceState";
 import type { AxiomId } from "../logic-core/inferenceRule";
 import { parseString } from "../logic-lang/parser";
 import type { Formula } from "../logic-core/formula";
+import type { AxiomPaletteItem } from "./axiomPaletteLogic";
 
 // --- ヘルパー ---
 
@@ -22,6 +23,27 @@ function parseFormula(text: string): Formula {
 
 const phiImpliesPhi = parseFormula("phi -> phi");
 const psiImpliesPsi = parseFormula("psi -> psi");
+const a1Template = parseFormula("phi -> (psi -> phi)");
+const a2Template = parseFormula(
+  "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
+);
+
+const sampleAxioms: readonly AxiomPaletteItem[] = [
+  {
+    id: "A1",
+    displayName: "A1 (K)",
+    template: a1Template,
+    unicodeDisplay: "φ → (ψ → φ)",
+    dslText: "phi -> (psi -> phi)",
+  },
+  {
+    id: "A2",
+    displayName: "A2 (S)",
+    template: a2Template,
+    unicodeDisplay: "(φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))",
+    dslText: "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
+  },
+];
 
 function makeGoal(
   id: string,
@@ -205,6 +227,139 @@ describe("computeGoalPanelData", () => {
       const result = computeGoalPanelData(goals, checkResult);
       expect(result.items[0]?.allowedAxiomIds).toEqual(["A1", "A2"]);
       expect(result.items[1]?.allowedAxiomIds).toBeUndefined();
+    });
+  });
+
+  describe("allowedAxiomDetails", () => {
+    it("availableAxiomsを渡すとallowedAxiomDetailsが解決される", () => {
+      const goals = [
+        makeGoal("g1", "phi -> phi", {
+          allowedAxiomIds: ["A1", "A2"],
+        }),
+      ];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalPartiallyAchieved",
+        achievedCount: 0,
+        totalCount: 1,
+        goalStatuses: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            achieved: false,
+            matchingNodeId: undefined,
+          },
+        ],
+      };
+
+      const result = computeGoalPanelData(goals, checkResult, sampleAxioms);
+      expect(result.items[0]?.allowedAxiomDetails).toEqual([
+        {
+          id: "A1",
+          displayName: "A1 (K)",
+          formula: a1Template,
+        },
+        {
+          id: "A2",
+          displayName: "A2 (S)",
+          formula: a2Template,
+        },
+      ]);
+    });
+
+    it("allowedAxiomIdsがundefinedの場合はallowedAxiomDetailsもundefined", () => {
+      const goals = [makeGoal("g1", "phi -> phi")];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalPartiallyAchieved",
+        achievedCount: 0,
+        totalCount: 1,
+        goalStatuses: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            achieved: false,
+            matchingNodeId: undefined,
+          },
+        ],
+      };
+
+      const result = computeGoalPanelData(goals, checkResult, sampleAxioms);
+      expect(result.items[0]?.allowedAxiomDetails).toBeUndefined();
+    });
+
+    it("availableAxiomsに含まれない公理IDは除外される", () => {
+      const goals = [
+        makeGoal("g1", "phi -> phi", {
+          allowedAxiomIds: ["A1", "A3"],
+        }),
+      ];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalPartiallyAchieved",
+        achievedCount: 0,
+        totalCount: 1,
+        goalStatuses: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            achieved: false,
+            matchingNodeId: undefined,
+          },
+        ],
+      };
+
+      const result = computeGoalPanelData(goals, checkResult, sampleAxioms);
+      expect(result.items[0]?.allowedAxiomDetails).toHaveLength(1);
+      expect(result.items[0]?.allowedAxiomDetails?.[0]?.id).toBe("A1");
+    });
+
+    it("GoalAllAchievedでもallowedAxiomDetailsが解決される", () => {
+      const goals = [
+        makeGoal("g1", "phi -> phi", {
+          allowedAxiomIds: ["A1"],
+        }),
+      ];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalAllAchieved",
+        achievedGoals: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            matchingNodeId: "n1",
+          },
+        ],
+      };
+
+      const result = computeGoalPanelData(goals, checkResult, sampleAxioms);
+      expect(result.items[0]?.allowedAxiomDetails).toEqual([
+        {
+          id: "A1",
+          displayName: "A1 (K)",
+          formula: a1Template,
+        },
+      ]);
+    });
+
+    it("availableAxiomsを渡さない場合は空配列として解決される", () => {
+      const goals = [
+        makeGoal("g1", "phi -> phi", {
+          allowedAxiomIds: ["A1"],
+        }),
+      ];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalPartiallyAchieved",
+        achievedCount: 0,
+        totalCount: 1,
+        goalStatuses: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            achieved: false,
+            matchingNodeId: undefined,
+          },
+        ],
+      };
+
+      const result = computeGoalPanelData(goals, checkResult);
+      expect(result.items[0]?.allowedAxiomDetails).toEqual([]);
     });
   });
 
