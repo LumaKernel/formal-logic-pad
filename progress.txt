@@ -8418,3 +8418,33 @@
   - pred-04〜06を証明可能にするには、EI公理の追加 or `∃x.φ ↔ ¬∀x.¬φ` の定義的等価の導入が必要
   - ModelAnswerの"gen"ステップは `applyGenAndConnect` を使用。premiseIndex + variableName で指定
 ---
+
+## 2026-03-02 - ND基本10問の模範解答追加（nd-01〜nd-10）+ NDステップタイプ対応 + ⊥/否定のND規則拡張
+- ModelAnswerStepに16種のNDステップタイプ追加（assumption, nd-implication-intro/elim, nd-conjunction-intro/elim-left/right, nd-disjunction-intro-left/right/elim, nd-weakening, nd-efq, nd-dne, nd-universal-intro/elim, nd-existential-intro/elim）
+- buildModelAnswerWorkspaceでNDステップ→NdInferenceEdge構築ロジックを実装
+- →E: Negation(φ)をφ→⊥として扱い、⊥(BOTTOM)を結論として生成するよう拡張
+- →I: 前提が⊥のとき¬φ（Negation）を結論として生成するよう拡張
+- lexer/parserに⊥（BOTTOM）トークンを追加し、Predicate("⊥", [])として解析
+- nd-01〜nd-10の模範解答を定義
+  - nd-01: φ→φ (2ステップ: assumption + →I)
+  - nd-02: φ→(ψ→φ) (3ステップ)
+  - nd-03: φ→(ψ→(φ∧ψ)) (5ステップ: →Iネスト + ∧I)
+  - nd-04: (φ∧ψ)→φ (2ステップ: assumption + ∧E_L + →I)
+  - nd-05: (φ∧ψ)→(ψ∧φ) (5ステップ: ∧E_L/R + ∧I + →I)
+  - nd-06〜nd-10: 選言(∨I/∨E)、否定(→E with ¬)、二重否定除去(DNE)、EFQ等
+- 変更ファイル: modelAnswer.ts, builtinModelAnswers.ts, builtinModelAnswers.test.ts, ndApplicationLogic.ts, ndApplicationLogic.test.ts, token.ts, lexer.ts, lexer.test.ts, parser.ts, parser.test.ts, task-processing.md
+- テスト: 7152 pass（+38）
+- カバレッジ: Stmts 99.25%, Branch 94.16%, Funcs 89.72%, Lines 99.98%（baseline 99.43% → 99.25%: 防御的エラーブランチの増加分。v8 ignoreで軽減済み）
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: .screenshots/quest-catalog-top.png, .screenshots/nd-quest-catalog.png
+- 模範解答の全体進捗: 67/115問完了（PROP全34 + PEANO全12 + GROUP全8 + PRED 3/6 + ND 10/23）
+- 残り48問: predicate残り(3), nd残り(13), tab(10), at(7), sc(15)
+- **今後のイテレーションへの学び:**
+  - `¬φ` はAST上で `Negation(φ)` クラス。ND規則(`→E`, `→I`)では `¬φ ≡ φ→⊥` として扱う必要がある
+  - `→E`: right が `Negation(φ)` の場合、left が φ と一致すれば `⊥` を結論に生成
+  - `→I`: premise が `⊥`(= `Predicate("⊥", [])`)の場合、`¬(discharged)` を結論に生成（`Implication(discharged, ⊥)` ではなく `Negation(discharged)`）
+  - `⊥` は `Predicate("⊥", [])` として表現。lexerでBOTTOMトークン、parserで0項述語として扱う
+  - ModelAnswer.ts の防御的エラーブランチ（`resolveNodeId`, `applyNdStep`, `dischNode not found`）は正しい模範解答では到達しない。v8 ignoreで除外
+  - 未使用NDステップタイプ（weakening, universal/existential intro/elim）は今後の模範解答追加時にカバーされる
+  - assumptionId は `stepIndex + 1`（0-indexedからの変換）。discharged仮定のテキストはwsのノードから取得
+---
