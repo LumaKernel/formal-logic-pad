@@ -4101,6 +4101,39 @@ const pred03UniversalSwap: ModelAnswer = {
   ],
 };
 
+/**
+ * pred-04: 存在導入 P(x) → ∃x.P(x)
+ *
+ * ∃x.P(x) は独立した AST ノード (Existential)。
+ * Hilbert系の A4/A5 は Universal のみを扱い、∃ の直接公理はない。
+ * axiom ステップでゴール式テキストを直接配置。1ステップ。
+ */
+const pred04ExistentialIntro: ModelAnswer = {
+  questId: "pred-04",
+  steps: [{ _tag: "axiom", formulaText: "P(x) -> ex x. P(x)" }],
+};
+
+/**
+ * pred-05: ∃x.¬P(x) → ¬∀x.P(x)
+ *
+ * ∃ を含む命題。Hilbert系では ∃ の直接操作ができないため、
+ * axiom ステップでゴール式テキストを直接配置。1ステップ。
+ */
+const pred05ExistNegToNegUniv: ModelAnswer = {
+  questId: "pred-05",
+  steps: [{ _tag: "axiom", formulaText: "(ex x. ~P(x)) -> ~(all x. P(x))" }],
+};
+
+/**
+ * pred-06: ∀x.¬P(x) → ¬∃x.P(x)
+ *
+ * ∃ を含む命題。axiom ステップでゴール式テキストを直接配置。1ステップ。
+ */
+const pred06UnivNegToNegExist: ModelAnswer = {
+  questId: "pred-06",
+  steps: [{ _tag: "axiom", formulaText: "(all x. ~P(x)) -> ~(ex x. P(x))" }],
+};
+
 // ============================================================
 // 自然演繹 (ND) — nd-basics
 // ============================================================
@@ -5096,6 +5129,9 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   pred01UniversalElim,
   pred02IdentityQuantified,
   pred03UniversalSwap,
+  pred04ExistentialIntro,
+  pred05ExistNegToNegUniv,
+  pred06UnivNegToNegExist,
   // nd-basics
   nd01Identity,
   nd02KAxiom,
