@@ -202,6 +202,117 @@ describe("buildModelAnswerWorkspace - TAB steps", () => {
   });
 });
 
+// SC テスト用のクエスト定義
+const scQuest: QuestDefinition = {
+  id: "sc-test-01",
+  category: "sc-cut-elimination",
+  title: "Test SC: φ → ((φ → ψ) → ψ)",
+  description: "SCで φ → ((φ → ψ) → ψ) を証明。",
+  difficulty: 2,
+  systemPresetId: "sc-lk",
+  goals: [{ formulaText: "phi -> ((phi -> psi) -> psi)", label: "Goal" }],
+  hints: [],
+  estimatedSteps: 6,
+  learningPoint: "test",
+  order: 1,
+  version: 1,
+};
+
+describe("buildModelAnswerWorkspace - SC steps", () => {
+  it("sc-root でルートシーケントノードを配置できる", () => {
+    const answer: ModelAnswer = {
+      questId: "sc-test-01",
+      steps: [
+        { _tag: "sc-root", sequentText: "⇒ phi -> ((phi -> psi) -> psi)" },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(scQuest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    expect(result.workspace.nodes.length).toBe(1);
+  });
+
+  it("sc-rule で⇒→規則を適用できる", () => {
+    const answer: ModelAnswer = {
+      questId: "sc-test-01",
+      steps: [
+        { _tag: "sc-root", sequentText: "⇒ phi -> ((phi -> psi) -> psi)" },
+        {
+          _tag: "sc-rule",
+          conclusionIndex: 0,
+          ruleId: "implication-right",
+          principalPosition: 0,
+        },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(scQuest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    // ルート + ⇒→で生成された前提 = 2ノード
+    expect(result.workspace.nodes.length).toBe(2);
+  });
+
+  it("完全なSC証明でゴール達成する（sc-ce-02パターン）", () => {
+    const answer: ModelAnswer = {
+      questId: "sc-test-01",
+      steps: [
+        { _tag: "sc-root", sequentText: "⇒ phi -> ((phi -> psi) -> psi)" },
+        { _tag: "sc-rule", conclusionIndex: 0, ruleId: "implication-right", principalPosition: 0 },
+        { _tag: "sc-rule", conclusionIndex: 1, ruleId: "implication-right", principalPosition: 0 },
+        { _tag: "sc-rule", conclusionIndex: 2, ruleId: "exchange-left", principalPosition: 0, exchangePosition: 0 },
+        { _tag: "sc-rule", conclusionIndex: 3, ruleId: "implication-left", principalPosition: 1 },
+        { _tag: "sc-rule", conclusionIndex: 4, ruleId: "identity", principalPosition: 0 },
+        { _tag: "sc-rule", conclusionIndex: 5, ruleId: "identity", principalPosition: 0 },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(scQuest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    expect(
+      result.goalCheck._tag === "AllAchieved" ||
+        result.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+  });
+
+  it("不正なconclusionIndexでStepErrorを返す", () => {
+    const answer: ModelAnswer = {
+      questId: "sc-test-01",
+      steps: [
+        { _tag: "sc-root", sequentText: "⇒ phi -> psi" },
+        {
+          _tag: "sc-rule",
+          conclusionIndex: 99,
+          ruleId: "implication-right",
+          principalPosition: 0,
+        },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(scQuest, answer);
+    expect(result._tag).toBe("StepError");
+    if (result._tag !== "StepError") return;
+    expect(result.stepIndex).toBe(1);
+  });
+
+  it("SC規則検証失敗でStepErrorを返す", () => {
+    const answer: ModelAnswer = {
+      questId: "sc-test-01",
+      steps: [
+        { _tag: "sc-root", sequentText: "⇒ phi" },
+        {
+          _tag: "sc-rule",
+          conclusionIndex: 0,
+          ruleId: "implication-right",
+          principalPosition: 0,
+        },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(scQuest, answer);
+    expect(result._tag).toBe("StepError");
+    if (result._tag !== "StepError") return;
+    expect(result.reason).toContain("SC");
+  });
+});
+
 describe("validateModelAnswer", () => {
   it("正しい模範解答はValidを返す", () => {
     const answer: ModelAnswer = {

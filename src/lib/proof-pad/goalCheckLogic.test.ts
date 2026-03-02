@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   parseGoalFormula,
+  parseNodeFormula,
   checkGoal,
   type GoalCheckResult,
 } from "./goalCheckLogic";
@@ -60,6 +61,66 @@ describe("goalCheckLogic", () => {
       const result = parseGoalFormula("  phi -> psi  ");
       expect(result).toBeDefined();
       expect(result!._tag).toBe("Implication");
+    });
+  });
+
+  describe("parseNodeFormula", () => {
+    it("returns undefined for empty string", () => {
+      expect(parseNodeFormula("")).toBeUndefined();
+    });
+
+    it("returns undefined for whitespace-only string", () => {
+      expect(parseNodeFormula("   ")).toBeUndefined();
+    });
+
+    it("returns undefined for invalid formula", () => {
+      expect(parseNodeFormula("-> ->")).toBeUndefined();
+    });
+
+    it("parses a plain formula directly", () => {
+      const result = parseNodeFormula("phi -> psi");
+      expect(result).toBeDefined();
+      expect(result!._tag).toBe("Implication");
+    });
+
+    it("parses a sequent with empty antecedent and single succedent", () => {
+      // " ⇒ phi" format — represents theorem phi in SC
+      const result = parseNodeFormula("⇒ phi -> psi");
+      expect(result).toBeDefined();
+      expect(result!._tag).toBe("Implication");
+    });
+
+    it("returns undefined for sequent with non-empty antecedent", () => {
+      // "phi ⇒ psi" — not a theorem (has assumptions)
+      const result = parseNodeFormula("phi ⇒ psi");
+      expect(result).toBeUndefined();
+    });
+
+    it("returns undefined for sequent with multiple succedents", () => {
+      // " ⇒ phi, psi" — multiple succedents
+      const result = parseNodeFormula("⇒ phi, psi");
+      expect(result).toBeUndefined();
+    });
+
+    it("returns undefined for unparseable sequent succedent", () => {
+      const result = parseNodeFormula("⇒ -> ->");
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe("checkGoal - SC sequent matching", () => {
+    it("matches SC sequent node to plain goal formula", () => {
+      const goals = [makeGoal("goal-1", "phi -> psi")];
+      const nodes = [makeNode("node-1", "⇒ phi -> psi")];
+      const result = checkGoal(goals, nodes);
+      expect(result._tag).toBe("GoalAllAchieved");
+    });
+
+    it("does not match SC sequent with non-empty antecedent", () => {
+      const goals = [makeGoal("goal-1", "psi")];
+      const nodes = [makeNode("node-1", "phi ⇒ psi")];
+      const result = checkGoal(goals, nodes);
+      expect(result._tag).toBe("GoalPartiallyAchieved");
     });
   });
 

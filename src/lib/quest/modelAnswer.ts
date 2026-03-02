@@ -22,6 +22,8 @@ import {
   applyMPAndConnect,
   applyGenAndConnect,
   applyTreeLayout,
+  applyTabRuleAndConnect,
+  applyScRuleAndConnect,
 } from "../proof-pad/workspaceState";
 import {
   checkQuestGoalsWithAxioms,
@@ -34,7 +36,8 @@ import {
 } from "../proof-pad/ndApplicationLogic";
 import type { TabRuleId } from "../logic-core/tableauCalculus";
 import type { TabRuleApplicationParams } from "../proof-pad/tabApplicationLogic";
-import { applyTabRuleAndConnect } from "../proof-pad/workspaceState";
+import type { ScRuleId } from "../logic-core/deductionSystem";
+import type { ScRuleApplicationParams } from "../proof-pad/scApplicationLogic";
 
 // --- ステップ定義 ---
 
@@ -67,6 +70,10 @@ import { applyTabRuleAndConnect } from "../proof-pad/workspaceState";
  * TAB（タブロー式シーケント計算）:
  * - tab-root: ルートノード（ゴールの式 = 反駁する式）を配置
  * - tab-rule: TAB規則を前ステップに適用（ruleId + principalPosition で指定）
+ *
+ * SC（シーケント計算）:
+ * - sc-root: ルートノード（結論のシーケント）を配置
+ * - sc-rule: SC規則を前ステップに適用（ruleId + principalPosition 等で指定）
  */
 export type ModelAnswerStep =
   // Hilbert系ステップ
@@ -228,6 +235,35 @@ export type ModelAnswerStep =
       readonly termText?: string;
       /** 交換位置（e規則用） */
       readonly exchangePosition?: number;
+    }
+  // SC（シーケント計算）ステップ
+  | {
+      readonly _tag: "sc-root";
+      /** ルートノードのシーケントテキスト（"Γ ⇒ Δ" 形式） */
+      readonly sequentText: string;
+    }
+  | {
+      readonly _tag: "sc-rule";
+      /**
+       * 規則を適用するノードのインデックス（stepNodeIds配列のインデックス）。
+       * SCでは分岐規則が2つのノードを生成するため、ステップインデックスとノードインデックスがずれる。
+       * 分岐規則のステップは左ノードと右ノードの2つのエントリをstepNodeIdsに追加する。
+       */
+      readonly conclusionIndex: number;
+      /** 適用するSC規則ID */
+      readonly ruleId: ScRuleId;
+      /** 主論理式の位置（0-based） */
+      readonly principalPosition: number;
+      /** 固有変数名（∀右規則, ∃左規則用） */
+      readonly eigenVariable?: string;
+      /** 代入項テキスト（∀左規則, ∃右規則用） */
+      readonly termText?: string;
+      /** 交換位置（e規則用） */
+      readonly exchangePosition?: number;
+      /** 成分インデックス（∧左規則, ∨右規則用: 1 or 2） */
+      readonly componentIndex?: 1 | 2;
+      /** カット式テキスト（cut規則用） */
+      readonly cutFormulaText?: string;
     };
 
 // --- 模範解答定義 ---
@@ -1008,6 +1044,102 @@ export function buildModelAnswerWorkspace(
           /* v8 ignore stop */
           // 分岐規則は2つのノードを生成するので、2つのステップIDを消費する
           // 左を現在のステップ、右を次のステップとして登録
+          stepNodeIds.push(leftId);
+          stepNodeIds.push(rightId);
+        }
+        break;
+      }
+      // --- SC（シーケント計算）ステップ ---
+      case "sc-root": {
+        const nodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "Root", { x: 0, y: 0 }, step.sequentText);
+        stepNodeIds.push(nodeId);
+        break;
+      }
+      case "sc-rule": {
+        const conclusionRes = resolveNodeId(
+          stepNodeIds,
+          step.conclusionIndex,
+          "conclusion",
+          i,
+        );
+        if (isError(conclusionRes)) return conclusionRes;
+
+        // 結論ノードのシーケントテキストを取得
+        const conclusionNode = ws.nodes.find(
+          (n) => n.id === conclusionRes.nodeId,
+        );
+        /* v8 ignore start — defensive: node always exists for valid model answer */
+        if (!conclusionNode) {
+          return {
+            _tag: "StepError",
+            stepIndex: i,
+            reason: "SC conclusion node not found",
+          };
+        }
+        /* v8 ignore stop */
+
+        const scParams: ScRuleApplicationParams = {
+          ruleId: step.ruleId,
+          sequentText: conclusionNode.formulaText,
+          principalPosition: step.principalPosition,
+          eigenVariable: step.eigenVariable,
+          termText: step.termText,
+          exchangePosition: step.exchangePosition,
+          componentIndex: step.componentIndex,
+          cutFormulaText: step.cutFormulaText,
+        };
+
+        const scResult = applyScRuleAndConnect(
+          ws,
+          conclusionRes.nodeId,
+          scParams,
+          [
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+          ],
+        );
+
+        if (Either.isLeft(scResult.validation)) {
+          return {
+            _tag: "StepError",
+            stepIndex: i,
+            reason: `SC ${step.ruleId satisfies string} validation failed`,
+          };
+        }
+
+        ws = scResult.workspace;
+
+        // SC規則の結果ノードIDをstepNodeIdsに追加
+        // 0前提（公理）: 結論ノードIDを登録（identityやbottom-left）
+        // 1前提: 前提ノードID を登録
+        // 2前提（分岐）: 左前提ノードIDを登録し、右前提ノードIDも別途登録
+        if (scResult.premiseNodeIds.length === 0) {
+          stepNodeIds.push(conclusionRes.nodeId);
+        } else if (scResult.premiseNodeIds.length === 1) {
+          const premiseId = scResult.premiseNodeIds[0];
+          /* v8 ignore start — defensive: premiseNodeIds[0] exists when length === 1 */
+          if (premiseId === undefined) {
+            return {
+              _tag: "StepError",
+              stepIndex: i,
+              reason: "SC single premise node ID is undefined",
+            };
+          }
+          /* v8 ignore stop */
+          stepNodeIds.push(premiseId);
+        } else {
+          const leftId = scResult.premiseNodeIds[0];
+          const rightId = scResult.premiseNodeIds[1];
+          /* v8 ignore start — defensive: premiseNodeIds[0/1] exist when length >= 2 */
+          if (leftId === undefined || rightId === undefined) {
+            return {
+              _tag: "StepError",
+              stepIndex: i,
+              reason: "SC branching premise node IDs are undefined",
+            };
+          }
+          /* v8 ignore stop */
           stepNodeIds.push(leftId);
           stepNodeIds.push(rightId);
         }

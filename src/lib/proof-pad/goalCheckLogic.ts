@@ -12,6 +12,7 @@ import { equalFormula } from "../logic-core/equality";
 import { parseString } from "../logic-lang/parser";
 import type { Formula } from "../logic-core/formula";
 import type { WorkspaceNode, WorkspaceGoal } from "./workspaceState";
+import { splitSequentTextParts } from "./scApplicationLogic";
 
 // --- ゴール達成チェックの結果型 ---
 
@@ -70,6 +71,39 @@ export function parseGoalFormula(goalText: string): Formula | undefined {
   return result.right;
 }
 
+// --- ノード式のパース ---
+
+/**
+ * ノードのformulaTextからFormulaを抽出する。
+ *
+ * 1. まず直接パースを試みる（通常の論理式）
+ * 2. 失敗した場合、シーケントテキスト（"Γ ⇒ Δ" 形式）として解析し、
+ *    前件が空で後件が1つの場合にその論理式を返す（SC/TABの定理表現）
+ */
+export function parseNodeFormula(formulaText: string): Formula | undefined {
+  const trimmed = formulaText.trim();
+  if (trimmed === "") return undefined;
+
+  // 直接パースを試みる
+  const directResult = parseString(trimmed);
+  if (Either.isRight(directResult)) return directResult.right;
+
+  // シーケントテキストとして解析
+  if (trimmed.includes("⇒")) {
+    const parts = splitSequentTextParts(trimmed);
+    // 前件が空で後件が1つの場合: " ⇒ φ" → φ が定理
+    if (parts.antecedentTexts.length === 0 && parts.succedentTexts.length === 1) {
+      const succText = parts.succedentTexts[0];
+      if (succText !== undefined) {
+        const succResult = parseString(succText);
+        if (Either.isRight(succResult)) return succResult.right;
+      }
+    }
+  }
+
+  return undefined;
+}
+
 // --- ゴール達成チェック ---
 
 /**
@@ -77,6 +111,9 @@ export function parseGoalFormula(goalText: string): Formula | undefined {
  *
  * ゴール式と構造的に一致する式を持つノードがキャンバス上に存在すれば「達成」。
  * ゴールノードへの接続は不要（キャンバス上のどこかに一致するノードがあればよい）。
+ *
+ * SC（シーケント計算）では、ノードのformulaTextがシーケント形式（" ⇒ φ"）の場合、
+ * 前件が空で後件が1つなら、その後件がゴール式と一致するかをチェックする。
  *
  * @param goals ワークスペースのゴール一覧
  * @param nodes ワークスペース上のノード一覧
@@ -109,9 +146,9 @@ export function checkGoal(
     let matchingNodeId: string | undefined;
     for (const node of nodes) {
       if (node.formulaText.trim() === "") continue;
-      const nodeResult = parseString(node.formulaText);
-      if (Either.isLeft(nodeResult)) continue;
-      if (equalFormula(goalFormula, nodeResult.right)) {
+      const nodeFormula = parseNodeFormula(node.formulaText);
+      if (nodeFormula === undefined) continue;
+      if (equalFormula(goalFormula, nodeFormula)) {
         matchingNodeId = node.id;
         break;
       }
