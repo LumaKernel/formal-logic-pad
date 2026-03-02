@@ -8480,3 +8480,37 @@
   - 量化子証明のパターン: ∀I/∃Iは内側から構築（仮定→推論→∀I/∃Iで量化→→Iで含意導入）
   - ∃Eパターン: existentialIndex（存在命題）+ caseIndex（仮定φ(x)から導いた結論）+ dischargedIndex（仮定φ(x)のノード）の3つ組
 ---
+
+## 2026-03-02 - TABタブロー法模範解答追加
+- タブロー法（TAB）10問（tab-01〜tab-10）の模範解答を追加
+- modelAnswer.ts: TABステップタイプ（tab-root, tab-rule）を追加
+  - tab-root: ルートノード（反駁する式）を配置
+  - tab-rule: TAB規則を適用（ruleId + principalPosition + conclusionIndex）
+  - 分岐規則（→, ∨, ¬∧）は stepNodeIds に2つのノードIDをpush
+- builtinModelAnswers.ts: 10問の模範解答を定義
+  - tab-01: 恒等律 ¬→ → BS
+  - tab-02: 二重否定除去 ¬→ → ¬¬ → BS
+  - tab-03: 否定選言 ¬∨ → ¬¬ → BS
+  - tab-04: 対偶 ¬→×2 → ¬¬ → →(分岐) → BS×2
+  - tab-05: ド・モルガン1 ¬→ → ¬∨ → ¬¬×2 → ¬∧(分岐) → BS×2
+  - tab-06: ド・モルガン2 ¬→ → ¬∨ → ¬∧(分岐) → ¬¬+BS per branch
+  - tab-07: 連言→選言 ¬→ → ∧ → ¬∧(分岐) → BS×2
+  - tab-08: 選言交換律 ¬→ → ¬∨ → ∨(分岐) → BS×2
+  - tab-09: モーダストレンス ¬→ → ∧ → ¬¬ → →(分岐) → BS×2
+  - tab-10: 仮言三段論法 ¬→×3 → →(分岐) → BS + →(分岐) → BS×2
+- builtinModelAnswers.test.ts: tab-basics カテゴリの検証テスト（30テスト）
+- modelAnswer.test.ts: TABステップタイプの基本テスト（3テスト）
+- 変更ファイル: modelAnswer.ts, builtinModelAnswers.ts, modelAnswer.test.ts, builtinModelAnswers.test.ts, task-processing.md
+- テスト: 7224 pass（+33）
+- カバレッジ: Stmts 99.18%, Branch 94.10%, Funcs 89.76%, Lines 99.97%（ベースライン: Stmts 99.18%, Branch 94.09%, Funcs 89.78%, Lines 99.98%）
+- 品質チェック: typecheck ✅, lint ✅, prettier ✅, test ✅
+- ブラウザ確認: .screenshots/quest-catalog-tab-model-answers.png（データのみの変更のためUI影響なし）
+- 模範解答の全体進捗: 90/115問完了（PROP全34 + PEANO全12 + GROUP全8 + PRED 3/6 + ND 23/23 + TAB 10/10）
+- 残り25問: predicate残り(3), at(7), sc(15)
+- **今後のイテレーションへの学び:**
+  - TABの prependAndFormat(added, principal, rest) は [added..., principal, ...rest] を生成。新公式はprincipalの前に挿入される
+  - principalPosition は各ステップ後の新しいformula listを基準に数える。規則適用で公式が挿入されるとpositionがずれるため要注意
+  - tab-08, tab-10 で最初にprincipalPositionを間違えた。ルール適用後のformula listを正確にトレースすることが必須
+  - 分岐規則（→, ∨, ¬∧）は stepNodeIds に2つのエントリをpush するため、conclusionIndex の計算時に注意（step配列のインデックスではなくstepNodeIds配列のインデックス）
+  - BS (基本式) のバリデーションはprincipalPositionを無視する（公式リストに2つ以上あればOK）
+---
