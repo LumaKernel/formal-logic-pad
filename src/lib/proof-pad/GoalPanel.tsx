@@ -11,6 +11,7 @@ import { type CSSProperties, useState, useCallback } from "react";
 import type { GoalPanelData, GoalPanelItem } from "./goalPanelLogic";
 import type { ProofMessages } from "./proofMessages";
 import { formatMessage } from "./proofMessages";
+import { FormulaDisplay } from "../formula-input/FormulaDisplay";
 
 // --- Props ---
 
@@ -182,7 +183,13 @@ function GoalItem({
         <span>{item.label ?? `#${String(index + 1) satisfies string}`}</span>
         <GoalItemStatusBadge status={item.status} messages={messages} />
       </div>
-      <div style={itemFormulaStyle}>{item.formulaText}</div>
+      <div style={itemFormulaStyle}>
+        {item.formula !== undefined ? (
+          <FormulaDisplay formula={item.formula} fontSize={11} />
+        ) : (
+          item.formulaText
+        )}
+      </div>
       {item.allowedAxiomIds !== undefined ? (
         <div style={allowedAxiomsStyle}>
           {formatMessage(messages.goalPanelAllowedAxioms, {

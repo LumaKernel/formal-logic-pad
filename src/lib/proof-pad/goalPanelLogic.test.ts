@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { Either } from "effect";
 import {
   computeGoalPanelData,
   type GoalPanelData,
@@ -7,8 +8,20 @@ import {
 import type { GoalCheckResult } from "./goalCheckLogic";
 import type { WorkspaceGoal } from "./workspaceState";
 import type { AxiomId } from "../logic-core/inferenceRule";
+import { parseString } from "../logic-lang/parser";
+import type { Formula } from "../logic-core/formula";
 
 // --- ヘルパー ---
+
+function parseFormula(text: string): Formula {
+  const result = parseString(text);
+  if (Either.isLeft(result))
+    throw new Error(`Parse failed: ${text satisfies string}`);
+  return result.right;
+}
+
+const phiImpliesPhi = parseFormula("phi -> phi");
+const psiImpliesPsi = parseFormula("psi -> psi");
 
 function makeGoal(
   id: string,
@@ -62,12 +75,12 @@ describe("computeGoalPanelData", () => {
         achievedGoals: [
           {
             goalId: "g1",
-            goalFormula: {} as never,
+            goalFormula: phiImpliesPhi,
             matchingNodeId: "n1",
           },
           {
             goalId: "g2",
-            goalFormula: {} as never,
+            goalFormula: psiImpliesPsi,
             matchingNodeId: "n2",
           },
         ],
@@ -81,9 +94,11 @@ describe("computeGoalPanelData", () => {
         "achieved" satisfies GoalPanelItemStatus,
       );
       expect(result.items[0]?.label).toBe("Goal: φ → φ");
+      expect(result.items[0]?.formula).toBe(phiImpliesPhi);
       expect(result.items[1]?.status).toBe(
         "achieved" satisfies GoalPanelItemStatus,
       );
+      expect(result.items[1]?.formula).toBe(psiImpliesPsi);
     });
   });
 
@@ -100,13 +115,13 @@ describe("computeGoalPanelData", () => {
         goalStatuses: [
           {
             goalId: "g1",
-            goalFormula: {} as never,
+            goalFormula: phiImpliesPhi,
             achieved: true,
             matchingNodeId: "n1",
           },
           {
             goalId: "g2",
-            goalFormula: {} as never,
+            goalFormula: psiImpliesPsi,
             achieved: false,
             matchingNodeId: undefined,
           },
@@ -119,9 +134,11 @@ describe("computeGoalPanelData", () => {
       expect(result.items[0]?.status).toBe(
         "achieved" satisfies GoalPanelItemStatus,
       );
+      expect(result.items[0]?.formula).toBe(phiImpliesPhi);
       expect(result.items[1]?.status).toBe(
         "not-achieved" satisfies GoalPanelItemStatus,
       );
+      expect(result.items[1]?.formula).toBe(psiImpliesPsi);
     });
 
     it("パースエラーのゴールがある場合", () => {
@@ -136,7 +153,7 @@ describe("computeGoalPanelData", () => {
         goalStatuses: [
           {
             goalId: "g1",
-            goalFormula: {} as never,
+            goalFormula: phiImpliesPhi,
             achieved: true,
             matchingNodeId: "n1",
           },
@@ -153,6 +170,7 @@ describe("computeGoalPanelData", () => {
       expect(result.items[1]?.status).toBe(
         "parse-error" satisfies GoalPanelItemStatus,
       );
+      expect(result.items[1]?.formula).toBeUndefined();
     });
   });
 
@@ -171,13 +189,13 @@ describe("computeGoalPanelData", () => {
         goalStatuses: [
           {
             goalId: "g1",
-            goalFormula: {} as never,
+            goalFormula: phiImpliesPhi,
             achieved: false,
             matchingNodeId: undefined,
           },
           {
             goalId: "g2",
-            goalFormula: {} as never,
+            goalFormula: psiImpliesPsi,
             achieved: false,
             matchingNodeId: undefined,
           },
@@ -204,7 +222,7 @@ describe("computeGoalPanelData", () => {
         goalStatuses: [
           {
             goalId: "g1",
-            goalFormula: {} as never,
+            goalFormula: phiImpliesPhi,
             achieved: true,
             matchingNodeId: "n1",
           },
@@ -215,6 +233,8 @@ describe("computeGoalPanelData", () => {
       expect(result.items[1]?.status).toBe(
         "not-achieved" satisfies GoalPanelItemStatus,
       );
+      // フォールバック時もパースされた数式が含まれる
+      expect(result.items[1]?.formula).toBeDefined();
     });
 
     it("フォールバックでパースエラーを検出する", () => {
@@ -230,12 +250,14 @@ describe("computeGoalPanelData", () => {
       expect(result.items[0]?.status).toBe(
         "parse-error" satisfies GoalPanelItemStatus,
       );
+      expect(result.items[0]?.formula).toBeUndefined();
     });
   });
 
   describe("formulaText の保持", () => {
     it("ゴールのformulaTextがそのまま保持される", () => {
       const goals = [makeGoal("g1", "phi -> (psi -> phi)")];
+      const phiImpliesPsiImpliesPhi = parseFormula("phi -> (psi -> phi)");
       const checkResult: GoalCheckResult = {
         _tag: "GoalPartiallyAchieved",
         achievedCount: 0,
@@ -243,7 +265,7 @@ describe("computeGoalPanelData", () => {
         goalStatuses: [
           {
             goalId: "g1",
-            goalFormula: {} as never,
+            goalFormula: phiImpliesPsiImpliesPhi,
             achieved: false,
             matchingNodeId: undefined,
           },
@@ -252,6 +274,7 @@ describe("computeGoalPanelData", () => {
 
       const result = computeGoalPanelData(goals, checkResult);
       expect(result.items[0]?.formulaText).toBe("phi -> (psi -> phi)");
+      expect(result.items[0]?.formula).toBe(phiImpliesPsiImpliesPhi);
     });
   });
 });
