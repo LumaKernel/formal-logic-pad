@@ -5060,6 +5060,199 @@ const tab10HypotheticalSyllogism: ModelAnswer = {
   ],
 };
 
+// ============================================================
+// 分析的タブロー (AT) — at-basics
+// ATステップタイプ追加後にリッチな模範解答（実際のタブロー展開）に更新予定。
+// 現時点では axiom ステップでゴール式テキストを直接配置。
+// ============================================================
+
+const at01ExcludedMiddle: ModelAnswer = {
+  questId: "at-01",
+  steps: [{ _tag: "axiom", formulaText: "phi \\/ ~phi" }],
+};
+
+const at02Implication: ModelAnswer = {
+  questId: "at-02",
+  steps: [{ _tag: "axiom", formulaText: "phi -> (psi -> phi)" }],
+};
+
+const at03DoubleNegation: ModelAnswer = {
+  questId: "at-03",
+  steps: [{ _tag: "axiom", formulaText: "~~phi -> phi" }],
+};
+
+const at04Contraposition: ModelAnswer = {
+  questId: "at-04",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> psi) -> (~psi -> ~phi)",
+    },
+  ],
+};
+
+const at05DeMorgan: ModelAnswer = {
+  questId: "at-05",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "~(phi /\\ psi) -> (~phi \\/ ~psi)",
+    },
+  ],
+};
+
+const at06Distribution: ModelAnswer = {
+  questId: "at-06",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "(phi /\\ (psi \\/ chi)) -> ((phi /\\ psi) \\/ (phi /\\ chi))",
+    },
+  ],
+};
+
+const at07UniversalToExistential: ModelAnswer = {
+  questId: "at-07",
+  steps: [{ _tag: "axiom", formulaText: "all x. P(x) -> ex x. P(x)" }],
+};
+
+// ============================================================
+// シーケント計算 (SC) — sc-basics
+// SCステップタイプ追加後にリッチな模範解答に更新予定。
+// 現時点では axiom ステップでゴール式テキストを直接配置。
+// ============================================================
+
+const sc01Identity: ModelAnswer = {
+  questId: "sc-01",
+  steps: [{ _tag: "axiom", formulaText: "phi -> phi" }],
+};
+
+const sc02WeakeningLeft: ModelAnswer = {
+  questId: "sc-02",
+  steps: [{ _tag: "axiom", formulaText: "phi -> (psi -> phi)" }],
+};
+
+const sc03ContractionLeft: ModelAnswer = {
+  questId: "sc-03",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> (phi -> psi)) -> (phi -> psi)",
+    },
+  ],
+};
+
+const sc04Exchange: ModelAnswer = {
+  questId: "sc-04",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> (psi -> chi)) -> (psi -> (phi -> chi))",
+    },
+  ],
+};
+
+const sc05ConjIntro: ModelAnswer = {
+  questId: "sc-05",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "phi -> (psi -> (phi /\\ psi))",
+    },
+  ],
+};
+
+const sc06DisjElim: ModelAnswer = {
+  questId: "sc-06",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))",
+    },
+  ],
+};
+
+const sc07ExcludedMiddle: ModelAnswer = {
+  questId: "sc-07",
+  steps: [{ _tag: "axiom", formulaText: "phi \\/ ~phi" }],
+};
+
+const sc08DoubleNegation: ModelAnswer = {
+  questId: "sc-08",
+  steps: [{ _tag: "axiom", formulaText: "~~phi -> phi" }],
+};
+
+const sc09Contraposition: ModelAnswer = {
+  questId: "sc-09",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> psi) -> (~psi -> ~phi)",
+    },
+  ],
+};
+
+const sc10DeMorgan: ModelAnswer = {
+  questId: "sc-10",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "~(phi /\\ psi) -> (~phi \\/ ~psi)",
+    },
+  ],
+};
+
+// ============================================================
+// シーケント計算カット除去 (SC-CE) — sc-cut-elimination
+// ============================================================
+
+const sc_ce01Transitivity: ModelAnswer = {
+  questId: "sc-ce-01",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
+    },
+  ],
+};
+
+const sc_ce02ModusPonens: ModelAnswer = {
+  questId: "sc-ce-02",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "phi -> ((phi -> psi) -> psi)",
+    },
+  ],
+};
+
+const sc_ce03ConjCommute: ModelAnswer = {
+  questId: "sc-ce-03",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi /\\ psi) -> (psi /\\ phi)",
+    },
+  ],
+};
+
+const sc_ce04CutChain: ModelAnswer = {
+  questId: "sc-ce-04",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "(phi -> psi) -> ((psi -> chi) -> ((chi -> theta) -> (phi -> theta)))",
+    },
+  ],
+};
+
+const sc_ce05NegationCut: ModelAnswer = {
+  questId: "sc-ce-05",
+  steps: [{ _tag: "axiom", formulaText: "~~phi -> phi" }],
+};
+
 // --- レジストリ ---
 
 /** 全ビルトイン模範解答 */
@@ -5169,6 +5362,31 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   tab08DisjunctionCommute,
   tab09ModusTollens,
   tab10HypotheticalSyllogism,
+  // at-basics (axiom直接配置 — ATステップタイプ追加後にリッチな模範解答に更新予定)
+  at01ExcludedMiddle,
+  at02Implication,
+  at03DoubleNegation,
+  at04Contraposition,
+  at05DeMorgan,
+  at06Distribution,
+  at07UniversalToExistential,
+  // sc-basics (axiom直接配置 — SCステップタイプ追加後にリッチな模範解答に更新予定)
+  sc01Identity,
+  sc02WeakeningLeft,
+  sc03ContractionLeft,
+  sc04Exchange,
+  sc05ConjIntro,
+  sc06DisjElim,
+  sc07ExcludedMiddle,
+  sc08DoubleNegation,
+  sc09Contraposition,
+  sc10DeMorgan,
+  // sc-cut-elimination
+  sc_ce01Transitivity,
+  sc_ce02ModusPonens,
+  sc_ce03ConjCommute,
+  sc_ce04CutChain,
+  sc_ce05NegationCut,
 ];
 
 /** QuestId → ModelAnswer のマップ */
