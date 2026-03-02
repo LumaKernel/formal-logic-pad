@@ -8615,3 +8615,26 @@
   - FormulaInput/TermInputはonKeyDownを直接公開しないため、Escapeハンドラ等は親コンテナのonKeyDownで処理する
   - TermInputにはshowPreviewがなかったので追加した。コンパクトなインライン用途ではshowPreview={false}を使う
 ---
+
+## 2026-03-02 - 代入UI固定値表示の改善
+- 実装した内容:
+  - EdgeParameterPopover.tsx: 代入ポップオーバーのkind（Formula/Term）とmetaVar（φ/ψ等）のスタイルをinput風からラベル風に変更
+  - ProofWorkspace.tsx: 代入バナーの同様のフィールドをラベル風に変更
+  - kind: ボーダー・背景を除去、薄い色のテキストラベルとして表示
+  - metaVar: ボーダー・背景を除去、太字のテキストラベルとして表示
+  - value（ユーザー入力欄）のみがボーダー+背景付きで編集可能であることが明確に区別される
+  - 未使用の`selectStyle`定数を削除（EdgeParameterPopover.tsx）
+- 変更したファイル:
+  - `src/lib/proof-pad/EdgeParameterPopover.tsx` — kind/metaVarスタイル変更、未使用selectStyle削除
+  - `src/lib/proof-pad/ProofWorkspace.tsx` — substSelectStyle/substInputStyleをsubstKindLabelStyle/substLabelStyleに置換
+- カバレッジ: Stmts 99.17%, Branch 94.08%, Funcs 89.78%, Lines 99.95%（ベースラインと同値）
+- テスト: 7330テスト全通過（218ファイル）
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- CI: 前回push ✅ (22580239021)
+- スクリーンショット:
+  - `.screenshots/subst-ui-popover-label-style.png` — ポップオーバーでの改善後UI
+  - `.screenshots/subst-ui-banner-label-style.png` — バナーでの改善後UI
+- **今後のイテレーションへの学び:**
+  - 代入UIはポップオーバー（EdgeParameterPopover）とバナー（ProofWorkspace）の2箇所で同様のUIがある。変更時は両方を同期すること
+  - read-onlyフィールドはボーダー・背景なしのラベル表示、editableフィールドはボーダー+背景付きの入力欄として視覚的に区別するパターンが有効
+---
