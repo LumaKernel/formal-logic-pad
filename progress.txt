@@ -99,6 +99,34 @@
 
 ---
 
+## 2026-03-02 - シーケント計算クエストの開始を可能にする
+- `questStartLogic.ts` から `sequent-calculus` スタイルをブロックする条件分岐を削除
+  - `if (preset.deductionSystem.style === "sequent-calculus") return undefined;` を除去
+  - JSDocを更新してSC対応を明記
+- `questStartLogic.test.ts` のSCテストを更新:
+  - 旧: SC→undefinedの1テスト → 新: SC-LM/LJ/LKの3テスト（正常パラメータ返却を検証）
+- `questNotebookIntegration.test.ts` にSCクエストのノートブック作成テスト追加
+- テスト: 214ファイル、6858テスト全パス（+3テスト純増）
+- カバレッジ:
+  - ベースライン: Stmts 99.45%, Branch 94.55%, Funcs 89.76%, Lines 100%
+  - 変更後: Stmts 99.45%, Branch 94.55%, Funcs 89.76%, Lines 100% （維持）
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト:
+  - Storybookでクエストカタログ表示確認
+  - アプリでカット除去体験カテゴリーの5クエスト全てに「開始」ボタン表示を確認
+  - 「カットの基本: 推移律」クエスト開始→SCワークスペース表示を確認
+  - スクリーンショット: `.screenshots/quest-catalog-storybook-default.png`, `.screenshots/quest-catalog-app-quests-tab.png`, `.screenshots/quest-catalog-cut-elimination-section.png`, `.screenshots/sc-quest-workspace-started.png`
+- 変更ファイル:
+  - `src/lib/quest/questStartLogic.ts` (MODIFIED - SCブロック削除)
+  - `src/lib/quest/questStartLogic.test.ts` (MODIFIED - SC→undefinedテストを3つのSC正常テストに置換)
+  - `src/lib/quest/questNotebookIntegration.test.ts` (MODIFIED - SCクエストノートブック作成テスト追加)
+- **今後のイテレーションへの学び:**
+  - `extractLogicSystem()` は非Hilbert系では `emptyLogicSystem` (name: "Empty (non-Hilbert)") を返す。ワークスペースヘッダーのシステム名表示が不正確になる可能性がある（別タスクで対処）
+  - `createQuestWorkspace` はSCを含む全DeductionSystemスタイルに対応済みだった。ブロッカーは `questStartLogic.ts` の明示的ガードのみ
+  - SC系のプリセットID: "sc-lm", "sc-lj", "sc-lk" の3つ。それぞれ `lmSystem`, `ljSystem`, `lkSystem` を持つ
+  - `sequentCalculusDeduction()` は `deductionSystem.ts` からインポート（`inferenceRule.ts` ではない）
+---
+
 ## 2026-03-02 - カバレッジ改善: 項代入表示ブランチ・SCフォールバック位置・接続削除ブランチ
 - ProofWorkspace.test.tsx に1テスト追加:
   - 述語論理式 `phi -> P(tau)` で項メタ変数の代入プロンプト表示テスト（"Term"ラベル、"S(0)"プレースホルダー）
