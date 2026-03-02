@@ -3,7 +3,9 @@ import { expect, within } from "storybook/test";
 import { useCallback, useRef, useState } from "react";
 import { CanvasItem } from "./CanvasItem";
 import { InfiniteCanvas } from "./InfiniteCanvas";
-import type { Point, ViewportState } from "./types";
+import { EdgeScrollIndicator } from "./EdgeScrollIndicator";
+import { useEdgeScroll } from "./useEdgeScroll";
+import type { Point, Size, ViewportState } from "./types";
 import { useMarquee } from "./useMarquee";
 import { selectAll, type SelectableItem } from "./multiSelection";
 
@@ -58,6 +60,25 @@ function MultiSelectionDemoComponent() {
   );
   const [marqueeMode, setMarqueeMode] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [containerSize, setContainerSize] = useState<Size>({
+    width: 0,
+    height: 0,
+  });
+
+  const containerCallbackRef = useCallback((el: HTMLDivElement | null) => {
+    (containerRef as React.MutableRefObject<HTMLDivElement | null>).current =
+      el;
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      setContainerSize({ width: rect.width, height: rect.height });
+    }
+  }, []);
+
+  const { notifyDragMove, notifyDragEnd, edgePenetration } = useEdgeScroll(
+    viewport,
+    containerSize,
+    setViewport,
+  );
 
   const selectableItems: readonly SelectableItem[] = items.map((item) => ({
     id: item.id,
@@ -71,6 +92,47 @@ function MultiSelectionDemoComponent() {
     selectedIds,
     setSelectedIds,
     containerRef,
+  );
+
+  /** マーキー中にエッジスクロールも通知するラッパー */
+  const handleMarqueePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      onPointerMove(e);
+      const el = containerRef.current;
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        notifyDragMove({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        });
+      }
+    },
+    [onPointerMove, notifyDragMove],
+  );
+
+  const handleMarqueePointerUp = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      onPointerUp(e);
+      notifyDragEnd();
+    },
+    [onPointerUp, notifyDragEnd],
+  );
+
+  /** ノードドラッグ時のエッジスクロール通知 */
+  const handleDragMove = useCallback(
+    (screenPoint: Point) => {
+      const el = containerRef.current;
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        notifyDragMove({
+          x: screenPoint.x - rect.left,
+          y: screenPoint.y - rect.top,
+        });
+      } else {
+        notifyDragMove(screenPoint);
+      }
+    },
+    [notifyDragMove],
   );
 
   const handlePositionChange = useCallback((id: string, newPosition: Point) => {
@@ -116,8 +178,8 @@ function MultiSelectionDemoComponent() {
 
   return (
     <div
-      style={{ width: "100vw", height: "100vh" }}
-      ref={containerRef}
+      style={{ width: "100vw", height: "100vh", position: "relative" }}
+      ref={containerCallbackRef}
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
@@ -126,8 +188,10 @@ function MultiSelectionDemoComponent() {
         onViewportChange={setViewport}
         panEnabled={!marqueeMode}
         onEmptyAreaPointerDown={marqueeMode ? onPointerDown : undefined}
-        onEmptyAreaPointerMove={marqueeMode ? onPointerMove : undefined}
-        onEmptyAreaPointerUp={marqueeMode ? onPointerUp : undefined}
+        onEmptyAreaPointerMove={
+          marqueeMode ? handleMarqueePointerMove : undefined
+        }
+        onEmptyAreaPointerUp={marqueeMode ? handleMarqueePointerUp : undefined}
         onEmptyAreaClick={handleEmptyAreaClick}
         marqueeRect={marqueeRect}
       >
@@ -139,6 +203,8 @@ function MultiSelectionDemoComponent() {
             onPositionChange={(pos) => {
               handlePositionChange(item.id, pos);
             }}
+            onDragMove={handleDragMove}
+            onDragEnd={notifyDragEnd}
             onClick={() => {
               handleItemClick(item.id);
             }}
@@ -172,6 +238,7 @@ function MultiSelectionDemoComponent() {
           </CanvasItem>
         ))}
       </InfiniteCanvas>
+      <EdgeScrollIndicator edgePenetration={edgePenetration} />
       <div
         data-testid="selection-info"
         style={{

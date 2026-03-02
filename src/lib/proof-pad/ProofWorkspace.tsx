@@ -930,6 +930,32 @@ export function ProofWorkspace({
   const marqueeEnabled =
     isShiftMarqueeActive && connectionPreviewState === null;
 
+  /* v8 ignore start -- マーキー中エッジスクロール: 実ポインタ操作が必要 */
+  /** マーキー選択中にエッジスクロールも通知するラッパー */
+  const handleMarqueePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      marqueePointerMove(e);
+      const el = containerRef.current;
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        notifyDragMove({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        });
+      }
+    },
+    [marqueePointerMove, notifyDragMove],
+  );
+
+  const handleMarqueePointerUp = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      marqueePointerUp(e);
+      notifyDragEnd();
+    },
+    [marqueePointerUp, notifyDragEnd],
+  );
+  /* v8 ignore stop */
+
   /* v8 ignore start -- ポートドラッグ開始・移動・完了: 実座標ベースのDOM操作が必要。ブラウザテストで検証 */
   const handlePortDragStart = useCallback(
     (nodeId: string) => (portId: string, screenX: number, screenY: number) => {
@@ -4247,8 +4273,12 @@ export function ProofWorkspace({
         onViewportChange={setViewport}
         panEnabled={connectionPreviewState === null && !marqueeEnabled}
         onEmptyAreaPointerDown={marqueeEnabled ? marqueePointerDown : undefined}
-        onEmptyAreaPointerMove={marqueeEnabled ? marqueePointerMove : undefined}
-        onEmptyAreaPointerUp={marqueeEnabled ? marqueePointerUp : undefined}
+        onEmptyAreaPointerMove={
+          marqueeEnabled ? handleMarqueePointerMove : undefined
+        }
+        onEmptyAreaPointerUp={
+          marqueeEnabled ? handleMarqueePointerUp : undefined
+        }
         onEmptyAreaClick={handleCanvasClick}
         marqueeRect={marqueeRect}
       >
