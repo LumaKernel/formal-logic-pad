@@ -389,6 +389,185 @@ function collectPositions(node: TreeNode, positions: Map<string, Point>): void {
   }
 }
 
+/** Extract tree-structure forward adjacency from a forest.
+ *  Only includes parent→child edges that exist in the tree (not DAG edges).
+ *  Pure function. */
+function extractTreeForward(
+  forest: readonly TreeNode[],
+): ReadonlyMap<string, readonly string[]> {
+  const treeForward = new Map<string, string[]>();
+  function traverse(node: TreeNode): void {
+    if (node.children.length > 0) {
+      treeForward.set(
+        node.id,
+        node.children.map((c) => c.id),
+      );
+    }
+    for (const child of node.children) {
+      traverse(child);
+    }
+  }
+  for (const tree of forest) {
+    traverse(tree);
+  }
+  return treeForward;
+}
+
+// --- Overlap resolution (post-layout pass) ---
+
+/** Collect all descendants of a node in the DAG via forward adjacency.
+ *  Pure function. */
+function collectDescendants(
+  nodeId: string,
+  forward: ReadonlyMap<string, readonly string[]>,
+  result: Set<string>,
+): void {
+  const children = forward.get(nodeId) ?? [];
+  for (const childId of children) {
+    if (!result.has(childId)) {
+      result.add(childId);
+      collectDescendants(childId, forward, result);
+    }
+  }
+}
+
+/** Group nodes by their y-coordinate (level).
+ *  Returns levels sorted top-to-bottom (ascending y).
+ *  Pure function. */
+export function groupNodesByY(
+  positions: ReadonlyMap<string, Point>,
+): readonly (readonly { readonly id: string; readonly x: number }[])[] {
+  const byY = new Map<number, { readonly id: string; readonly x: number }[]>();
+  for (const [id, pos] of positions) {
+    const existing = byY.get(pos.y);
+    if (existing !== undefined) {
+      existing.push({ id, x: pos.x });
+    } else {
+      byY.set(pos.y, [{ id, x: pos.x }]);
+    }
+  }
+  // Sort levels by y, and within each level sort nodes by x
+  const sortedYs = [...byY.keys()].sort((a, b) => a - b);
+  return sortedYs.map((y) => {
+    const level = byY.get(y)!;
+    return [...level].sort((a, b) => a.x - b.x);
+  });
+}
+
+/** Resolve rect-boundary overlaps in the position map.
+ *
+ *  For each level, scans left-to-right. If two adjacent nodes overlap
+ *  (rightEdge of left node + horizontalGap > leftEdge of right node),
+ *  the right node and its entire subtree are shifted right.
+ *
+ *  Pure function — returns a new position map. */
+export function resolveOverlaps(
+  positions: ReadonlyMap<string, Point>,
+  nodeMap: ReadonlyMap<string, LayoutNode>,
+  forward: ReadonlyMap<string, readonly string[]>,
+  horizontalGap: number,
+): ReadonlyMap<string, Point> {
+  const mutable = new Map<string, Point>(positions);
+  const levels = groupNodesByY(mutable);
+
+  for (const level of levels) {
+    // Re-read positions (they may have been shifted by prior levels)
+    const sorted = level
+      .map((entry) => ({
+        id: entry.id,
+        x: mutable.get(entry.id)!.x,
+      }))
+      .sort((a, b) => a.x - b.x);
+
+    for (let i = 0; i < sorted.length - 1; i++) {
+      const left = sorted[i]!;
+      const right = sorted[i + 1]!;
+      const leftNode = nodeMap.get(left.id);
+      const leftWidth = leftNode?.size.width ?? 0;
+      const leftRightEdge = mutable.get(left.id)!.x + leftWidth;
+      const rightLeftEdge = mutable.get(right.id)!.x;
+      const requiredX = leftRightEdge + horizontalGap;
+
+      if (requiredX > rightLeftEdge) {
+        const dx = requiredX - rightLeftEdge;
+        // Shift right node and all descendants
+        const toShift = new Set<string>([right.id]);
+        collectDescendants(right.id, forward, toShift);
+        for (const shiftId of toShift) {
+          const pos = mutable.get(shiftId);
+          if (pos !== undefined) {
+            mutable.set(shiftId, { x: pos.x + dx, y: pos.y });
+          }
+        }
+        // Update sorted for subsequent comparisons
+        for (let j = i + 1; j < sorted.length; j++) {
+          if (toShift.has(sorted[j]!.id)) {
+            sorted[j] = {
+              id: sorted[j]!.id,
+              x: sorted[j]!.x + dx,
+            };
+          }
+        }
+      }
+    }
+  }
+
+  return mutable;
+}
+
+/** Re-center parent nodes over their children after overlap resolution.
+ *
+ *  For each parent, computes the midpoint of its children's x-center positions
+ *  and shifts the parent so its center aligns with that midpoint.
+ *  Processes bottom-up to handle cascading adjustments.
+ *
+ *  Pure function — returns a new position map. */
+export function recenterParents(
+  positions: ReadonlyMap<string, Point>,
+  nodeMap: ReadonlyMap<string, LayoutNode>,
+  forward: ReadonlyMap<string, readonly string[]>,
+): ReadonlyMap<string, Point> {
+  const mutable = new Map<string, Point>(positions);
+
+  // Process levels bottom-up: find max depth, then iterate from deepest to shallowest
+  const levels = groupNodesByY(mutable);
+
+  // Build a set of all parent nodeIds (nodes that have children in forward)
+  // Process from deeper levels upward — parents of deeper children first
+  for (let levelIdx = levels.length - 1; levelIdx >= 0; levelIdx--) {
+    const level = levels[levelIdx]!;
+    for (const entry of level) {
+      const children = forward.get(entry.id) ?? [];
+      if (children.length === 0) continue;
+
+      // Compute center of children
+      let minChildCenter = Infinity;
+      let maxChildCenter = -Infinity;
+      for (const childId of children) {
+        const childPos = mutable.get(childId);
+        const childNode = nodeMap.get(childId);
+        if (childPos !== undefined && childNode !== undefined) {
+          const childCenter = childPos.x + childNode.size.width / 2;
+          minChildCenter = Math.min(minChildCenter, childCenter);
+          maxChildCenter = Math.max(maxChildCenter, childCenter);
+        }
+      }
+
+      if (minChildCenter === Infinity) continue;
+
+      const childrenMidpoint = (minChildCenter + maxChildCenter) / 2;
+      const parentNode = nodeMap.get(entry.id);
+      const parentWidth = parentNode?.size.width ?? 0;
+      const newParentX = childrenMidpoint - parentWidth / 2;
+
+      const parentPos = mutable.get(entry.id)!;
+      mutable.set(entry.id, { x: newParentX, y: parentPos.y });
+    }
+  }
+
+  return mutable;
+}
+
 /** Flip y positions for bottom-to-top layout.
  *  - "top-to-bottom": roots at top, leaves at bottom (standard tree)
  *  - "bottom-to-top": roots at bottom, leaves at top
@@ -492,10 +671,22 @@ export function computeTreeLayout(
   );
 
   // Collect positions
-  const positions = new Map<string, Point>();
+  const rawPositions = new Map<string, Point>();
   for (const tree of withXY) {
-    collectPositions(tree, positions);
+    collectPositions(tree, rawPositions);
   }
+
+  // Extract tree-structure forward adjacency (not DAG forward) for overlap resolution
+  const treeForward = extractTreeForward(withXY);
+
+  // Resolve rect-boundary overlaps and recenter parents
+  const resolved = resolveOverlaps(
+    rawPositions,
+    nodeMap,
+    treeForward,
+    config.horizontalGap,
+  );
+  const positions = recenterParents(resolved, nodeMap, treeForward);
 
   // Flip for bottom-to-top direction
   if (config.direction === "bottom-to-top") {
