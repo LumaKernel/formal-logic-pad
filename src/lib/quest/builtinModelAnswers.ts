@@ -4560,6 +4560,473 @@ const nd23UniversalConjunction: ModelAnswer = {
   ],
 };
 
+// ==========================================
+// TAB（タブロー式シーケント計算）模範解答
+// ==========================================
+
+// --- tab-basics ---
+
+/**
+ * tab-01: 恒等律の反駁 ¬(φ → φ)
+ *
+ * ¬→ で分解 → φ, ¬φ → BS で閉じる
+ */
+const tab01Identity: ModelAnswer = {
+  questId: "tab-01",
+  steps: [
+    { _tag: "tab-root", sequentText: "~(phi -> phi)" },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-02: 二重否定除去の反駁 ¬(¬¬φ → φ)
+ *
+ * ¬→ → ¬¬ → BS
+ */
+const tab02DoubleNegationElim: ModelAnswer = {
+  questId: "tab-02",
+  steps: [
+    { _tag: "tab-root", sequentText: "~(~~phi -> phi)" },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "double-negation",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-03: 排中律の反駁 ¬(φ ∨ ¬φ)
+ *
+ * ¬∨ → ¬¬ → BS
+ */
+const tab03ExcludedMiddle: ModelAnswer = {
+  questId: "tab-03",
+  steps: [
+    { _tag: "tab-root", sequentText: "~(phi \\/ ~phi)" },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-disjunction",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "double-negation",
+      principalPosition: 1,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-04: 対偶の反駁 ¬((φ → ψ) → (¬ψ → ¬φ))
+ *
+ * ¬→ → ¬→ → ¬¬ → → (分岐) → 各枝 BS
+ */
+const tab04Contraposition: ModelAnswer = {
+  questId: "tab-04",
+  steps: [
+    { _tag: "tab-root", sequentText: "~((phi -> psi) -> (~psi -> ~phi))" },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "neg-implication",
+      principalPosition: 1,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "double-negation",
+      principalPosition: 1,
+    },
+    // → 規則で分岐: nodeIdx 4 = left, nodeIdx 5 = right
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "implication",
+      principalPosition: 4,
+    },
+    // 左枝: ¬φ, φ → ψ, φ, ¬¬φ, ¬ψ, ... → BS
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // 右枝: ψ, φ → ψ, φ, ¬¬φ, ¬ψ, ... → BS
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 5,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-05: ド・モルガンの法則1 ¬(¬(φ ∧ ψ) → (¬φ ∨ ¬ψ))
+ *
+ * ¬→ → ¬∨ → ¬¬ × 2 → ¬∧ (分岐) → 各枝 BS
+ */
+const tab05DeMorgan1: ModelAnswer = {
+  questId: "tab-05",
+  steps: [
+    { _tag: "tab-root", sequentText: "~(~(phi /\\ psi) -> (~phi \\/ ~psi))" },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "neg-disjunction",
+      principalPosition: 1,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "double-negation",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "double-negation",
+      principalPosition: 2,
+    },
+    // ¬∧ で分岐: nodeIdx 5 = left (¬φ), nodeIdx 6 = right (¬ψ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "neg-conjunction",
+      principalPosition: 5,
+    },
+    // 左枝: ¬φ, ..., φ → BS
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 5,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // 右枝: ¬ψ, ..., ψ → BS
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 6,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-06: ド・モルガンの法則2 ¬(¬(φ ∨ ψ) → (¬φ ∧ ¬ψ))
+ *
+ * ¬→ → ¬∨ → ¬∧ (分岐) → 各枝 ¬¬ → BS
+ */
+const tab06DeMorgan2: ModelAnswer = {
+  questId: "tab-06",
+  steps: [
+    { _tag: "tab-root", sequentText: "~(~(phi \\/ psi) -> (~phi /\\ ~psi))" },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "neg-disjunction",
+      principalPosition: 0,
+    },
+    // ¬∧ で分岐: nodeIdx 3 = left (¬¬φ), nodeIdx 4 = right (¬¬ψ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "neg-conjunction",
+      principalPosition: 3,
+    },
+    // 左枝: ¬¬φ → ¬¬ → φ → BS
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "double-negation",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 5,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // 右枝: ¬¬ψ → ¬¬ → ψ → BS
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "double-negation",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 6,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-07: 連言の交換律 ¬((φ ∧ ψ) → (ψ ∧ φ))
+ *
+ * ¬→ → ∧ → ¬∧ (分岐) → 各枝 BS
+ */
+const tab07ConjunctionCommute: ModelAnswer = {
+  questId: "tab-07",
+  steps: [
+    { _tag: "tab-root", sequentText: "~((phi /\\ psi) -> (psi /\\ phi))" },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "conjunction",
+      principalPosition: 0,
+    },
+    // ¬∧ で分岐: nodeIdx 3 = left (¬ψ), nodeIdx 4 = right (¬φ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "neg-conjunction",
+      principalPosition: 3,
+    },
+    // 左枝: ¬ψ, ..., ψ → BS
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // 右枝: ¬φ, ..., φ → BS
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-08: 選言の交換律 ¬((φ ∨ ψ) → (ψ ∨ φ))
+ *
+ * ¬→ → ¬∨ → ∨ (分岐) → 各枝 BS
+ */
+const tab08DisjunctionCommute: ModelAnswer = {
+  questId: "tab-08",
+  steps: [
+    { _tag: "tab-root", sequentText: "~((phi \\/ psi) -> (psi \\/ phi))" },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "neg-disjunction",
+      principalPosition: 1,
+    },
+    // formulas: [¬ψ, ¬φ, ¬(ψ∨φ), φ∨ψ, ¬(...)]
+    // ∨ で分岐: nodeIdx 3 = left (φ), nodeIdx 4 = right (ψ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "disjunction",
+      principalPosition: 3,
+    },
+    // 左枝: φ, ..., ¬φ → BS
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // 右枝: ψ, ..., ¬ψ → BS
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-09: モーダストレンス ¬(((φ → ψ) ∧ ¬ψ) → ¬φ)
+ *
+ * ¬→ → ∧ → ¬¬ → → (分岐) → 各枝 BS
+ */
+const tab09ModusTollens: ModelAnswer = {
+  questId: "tab-09",
+  steps: [
+    { _tag: "tab-root", sequentText: "~(((phi -> psi) /\\ ~psi) -> ~phi)" },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "conjunction",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "double-negation",
+      principalPosition: 3,
+    },
+    // → で分岐: nodeIdx 4 = left (¬φ), nodeIdx 5 = right (ψ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "implication",
+      principalPosition: 2,
+    },
+    // 左枝: ¬φ, φ → ψ, φ, ... → BS
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // 右枝: ψ, φ → ψ, φ, ..., ¬ψ → BS
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 5,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-10: 推移律（仮言三段論法）¬((φ → ψ) → ((ψ → χ) → (φ → χ)))
+ *
+ * ¬→ × 3 → → (分岐) → 左枝BS, 右枝 → (分岐) → 各枝 BS
+ */
+const tab10HypotheticalSyllogism: ModelAnswer = {
+  questId: "tab-10",
+  steps: [
+    {
+      _tag: "tab-root",
+      sequentText: "~((phi -> psi) -> ((psi -> chi) -> (phi -> chi)))",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "neg-implication",
+      principalPosition: 1,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "neg-implication",
+      principalPosition: 1,
+    },
+    // formulas: [φ, ¬χ, ¬(φ→χ), ψ→χ, ¬((ψ→χ)→(φ→χ)), φ→ψ, ¬(...)]
+    // φ → ψ に → 分岐: stepNodeIds[4] = left (¬φ枝), stepNodeIds[5] = right (ψ枝)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "implication",
+      principalPosition: 5,
+    },
+    // 左枝: BS (¬φ と φ) — stepNodeIds[6] = axiom push
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // 右枝: [ψ, φ→ψ, φ, ¬χ, ¬(φ→χ), ψ→χ, ¬(...), ¬(...)]
+    // ψ → χ に → 分岐: stepNodeIds[7] = left (¬ψ枝), stepNodeIds[8] = right (χ枝)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 5,
+      ruleId: "implication",
+      principalPosition: 5,
+    },
+    // 左枝: BS (¬ψ と ψ) — stepNodeIds[9]
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 7,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // 右枝: BS (χ と ¬χ) — stepNodeIds[10]
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 8,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
 // --- レジストリ ---
 
 /** 全ビルトイン模範解答 */
@@ -4655,6 +5122,17 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   nd21ExistentialTransitivity,
   nd22ExistentialConjDistribution,
   nd23UniversalConjunction,
+  // tab-basics
+  tab01Identity,
+  tab02DoubleNegationElim,
+  tab03ExcludedMiddle,
+  tab04Contraposition,
+  tab05DeMorgan1,
+  tab06DeMorgan2,
+  tab07ConjunctionCommute,
+  tab08DisjunctionCommute,
+  tab09ModusTollens,
+  tab10HypotheticalSyllogism,
 ];
 
 /** QuestId → ModelAnswer のマップ */
