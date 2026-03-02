@@ -191,3 +191,5 @@ Infinity Canvasについて。
 - [x] 選択のときも縁に行ったときにスクロールされてほしい。まずは単独のストーリー、機能として実装して、アプリのほうにも展開しよう。
 - [x] 論理式ノードを追加してダブルクリックしても編集を開始できない。また、クリックして…と表示されるままになっている。クリックではなくダブルクリックだろう。
 - [x] 論理式ノードに、「論理式を編集」的なコンテキストメニューもあってよいだろう。
+- [x] http://localhost:13000/workspace/notebook-... ノート作成して開始するとエラーが出る
+      Removing a style property during rerender (background) when a conflicting property is set (backgroundColor) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values.

@@ -102,6 +102,22 @@
 
 ---
 
+## 2026-03-03 - FormulaInput background/backgroundColor スタイル競合修正
+- FormulaInput, TermInput, FormulaEditor の `background: "transparent"` shorthand が `backgroundColor` と競合する React 警告を修正
+- すべて `backgroundColor: "transparent"` に統一
+- 変更ファイル:
+  - `src/lib/formula-input/FormulaInput.tsx` (line 310)
+  - `src/lib/formula-input/TermInput.tsx` (lines 157, 300)
+  - `src/lib/formula-input/FormulaEditor.tsx` (line 97)
+- カバレッジ: Stmts 99.17% (維持), Branch 94.09% (維持)
+- テスト: 7425 全パス (変化なし)
+- スクリーンショット: `.screenshots/formula-input-style-fix-workspace.png`
+- **今後のイテレーションへの学び:**
+  - CSS shorthand (`background`) と longhand (`backgroundColor`) を同一要素にスプレッドで混在させるとReactが警告を出す。常に longhand を使うこと
+  - 特に `...baseStyle` と `...overlayStyle` のスプレッドパターンで発生しやすい
+
+---
+
 ## 2026-03-03 - Shift+クリック選択トグル・ブラウザネイティブセレクション防止
 - Shift+クリックでノード選択の追加/削除（トグル）機能を追加
 - InfiniteCanvasコンテナに `userSelect: "none"` を追加してブラウザネイティブのテキスト選択を防止
