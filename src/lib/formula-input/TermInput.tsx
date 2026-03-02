@@ -154,7 +154,7 @@ const syntaxHelpButtonStyle: CSSProperties = {
   height: 18,
   borderRadius: "50%",
   border: "1px solid currentColor",
-  background: "transparent",
+  backgroundColor: "transparent",
   color: "inherit",
   fontSize: 11,
   fontWeight: 700,
@@ -297,7 +297,7 @@ export function TermInput({
                     position: "absolute",
                     top: 0,
                     left: 0,
-                    background: "transparent",
+                    backgroundColor: "transparent",
                   }
                 : {}),
             }}

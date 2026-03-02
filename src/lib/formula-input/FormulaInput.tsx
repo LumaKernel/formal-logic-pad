@@ -307,7 +307,7 @@ export function FormulaInput({
                   position: "absolute",
                   top: 0,
                   left: 0,
-                  background: "transparent",
+                  backgroundColor: "transparent",
                 }
               : {}),
           }}
