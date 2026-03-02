@@ -8638,3 +8638,28 @@
   - 代入UIはポップオーバー（EdgeParameterPopover）とバナー（ProofWorkspace）の2箇所で同様のUIがある。変更時は両方を同期すること
   - read-onlyフィールドはボーダー・背景なしのラベル表示、editableフィールドはボーダー+背景付きの入力欄として視覚的に区別するパターンが有効
 ---
+
+## 2026-03-03 - goal-panel: ゴール数式レンダリング
+- 実装した内容:
+  - GoalPanel.tsx: ゴール数式をプレーンテキスト（DSL）からFormulaDisplay（Unicode表示）に変更
+  - goalPanelLogic.ts: GoalPanelItemにformula（パース済みFormula AST）フィールドを追加
+  - computeGoalPanelData: GoalCheckResultからパース済みFormulaを取得、フォールバック時はparseGoalFormulaで再パース
+  - パースエラー時はプレーンテキストにフォールバック
+- 変更したファイル:
+  - `src/lib/proof-pad/goalPanelLogic.ts` — formula フィールド追加、パース済みFormula取得ロジック
+  - `src/lib/proof-pad/GoalPanel.tsx` — FormulaDisplay 統合
+  - `src/lib/proof-pad/goalPanelLogic.test.ts` — formula フィールドの検証追加（`{} as never` → 実際のパース済みFormula使用に改善）
+  - `src/lib/proof-pad/GoalPanel.test.tsx` — role="math" + aria-label で描画確認、パースエラーフォールバックテスト追加
+- カバレッジ: Stmts 99.17%, Branch 94.07%, Funcs 89.83%, Lines 99.96%（ベースラインと同値〜微向上）
+  - GoalPanel.tsx: Branch 96.29% → 96.77%（向上）
+  - goalPanelLogic.ts: Branch 100% → 94.11%, Funcs 91.66% → 92.3%（構造変更による微変動）
+- テスト: 7331テスト全通過（218ファイル）
+- スクリーンショット:
+  - `.screenshots/goal-panel-formula-display.png` — Quest Modeでの改善後UI（φ → ψ → φ, φ → φ）
+  - `.screenshots/goal-panel-formula-display-achieved.png` — Goal Achievedでの改善後UI（ψ）
+- **今後のイテレーションへの学び:**
+  - GoalPanelItemにはformulaTextとformula（パース済みAST）の両方を持たせる。UI層でのパースを避け、ロジック層で一元管理
+  - FormulaDisplayはrole="math"とaria-labelを持つため、テストではgetByRole("math")で検証可能
+  - goalPanelLogic.testで`{} as never`を使わず実際のパース済みFormulaを使うことで、ロジックの正確な動作を検証できる
+  - GoalAllAchieved時のFormulaはachievedGoals配列からgoalFormulaを取得（achievedMapパターン）
+---
