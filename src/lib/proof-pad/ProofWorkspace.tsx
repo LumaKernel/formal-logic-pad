@@ -441,25 +441,18 @@ const substEntryRowStyle = {
   alignItems: "center" as const,
 };
 
-const substInputStyle = {
-  padding: "2px 6px",
-  border: "1px solid rgba(255,255,255,0.5)",
-  borderRadius: 4,
+const substLabelStyle = {
+  padding: "2px 0",
   fontSize: 12,
   fontFamily: "var(--font-formula)",
-  outline: "none",
-  background: "rgba(255,255,255,0.2)",
+  fontWeight: 600 as const,
   color: "var(--color-node-text, #fff)",
 };
 
-const substSelectStyle = {
-  padding: "2px 4px",
-  border: "1px solid rgba(255,255,255,0.5)",
-  borderRadius: 4,
+const substKindLabelStyle = {
+  padding: "2px 0",
   fontSize: 11,
-  background: "rgba(255,255,255,0.2)",
-  color: "var(--color-node-text, #fff)",
-  outline: "none",
+  color: "rgba(255,255,255,0.7)",
 };
 
 // --- ゴール関連スタイル ---
@@ -3711,7 +3704,7 @@ export function ProofWorkspace({
           {substPromptEntries.map((entry, i) => (
             <div key={i} style={substEntryRowStyle}>
               <span
-                style={substSelectStyle}
+                style={substKindLabelStyle}
                 data-testid={
                   testId
                     ? `${testId satisfies string}-subst-kind-${String(i) satisfies string}`
@@ -3723,7 +3716,7 @@ export function ProofWorkspace({
                   : msg.substitutionKindTerm}
               </span>
               <span
-                style={{ ...substInputStyle, width: 30 }}
+                style={{ ...substLabelStyle, width: 30 }}
                 data-testid={
                   testId
                     ? `${testId satisfies string}-subst-metavar-${String(i) satisfies string}`

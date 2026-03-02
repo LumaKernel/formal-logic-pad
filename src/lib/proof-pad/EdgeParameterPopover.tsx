@@ -92,15 +92,6 @@ const confirmButtonStyle: React.CSSProperties = {
   border: "none",
 };
 
-const selectStyle: React.CSSProperties = {
-  backgroundColor: "var(--color-input-bg, #1a1a2e)",
-  color: "var(--color-input-text, #fff)",
-  border: "1px solid var(--color-border, #636e72)",
-  borderRadius: 4,
-  padding: "4px",
-  fontSize: 12,
-};
-
 const syntaxHelpButtonStyle: React.CSSProperties = {
   flexShrink: 0,
   width: 18,
@@ -309,9 +300,12 @@ function SubstitutionPopover({
         >
           <span
             style={{
-              ...selectStyle,
               display: "inline-block",
               minWidth: 52,
+              padding: "4px 0",
+              fontSize: 11,
+              color: "var(--color-text-muted, #b2bec3)",
+              flexShrink: 0,
             }}
             data-testid={
               testId
@@ -325,10 +319,14 @@ function SubstitutionPopover({
           </span>
           <span
             style={{
-              ...inputStyle,
               width: 30,
               flexShrink: 0,
               display: "inline-block",
+              padding: "4px 0",
+              fontSize: 12,
+              fontFamily: "var(--font-mono, monospace)",
+              fontWeight: 600,
+              color: "var(--color-input-text, #fff)",
             }}
             data-testid={
               testId
