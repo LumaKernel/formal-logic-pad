@@ -8663,3 +8663,30 @@
   - goalPanelLogic.testで`{} as never`を使わず実際のパース済みFormulaを使うことで、ロジックの正確な動作を検証できる
   - GoalAllAchieved時のFormulaはachievedGoals配列からgoalFormulaを取得（achievedMapパターン）
 ---
+
+## 2026-03-03 - [goal-panel] ゴールパネルに使用可能な公理の詳細表示
+- 実装した内容:
+  - GoalPanelItemに`allowedAxiomDetails`フィールドを追加（公理の表示名・数式ASTを保持）
+  - `resolveAllowedAxiomDetails`純粋関数: allowedAxiomIdsとavailableAxiomsからフィルタ・マッピング
+  - `computeGoalPanelData`に`availableAxioms`パラメータ追加（オプショナル、デフォルト`[]`）
+  - GoalPanel.tsx: 公理詳細がある場合はdisplayName + FormulaDisplayで表示、IDのみフォールバックも対応
+  - ProofWorkspace.tsx: `getAvailableAxioms(system)`の結果を`computeGoalPanelData`に渡す
+  - テスト: goalPanelLogic.test.tsに5テスト追加、GoalPanel.test.tsxに3テスト追加（既存も`allowedAxiomDetails`フィールド追加）
+- 変更したファイル:
+  - `src/lib/proof-pad/goalPanelLogic.ts` — AllowedAxiomDetail型、resolveAllowedAxiomDetails、computeGoalPanelData拡張
+  - `src/lib/proof-pad/GoalPanel.tsx` — 公理詳細表示UI、スタイル追加
+  - `src/lib/proof-pad/ProofWorkspace.tsx` — availableAxiomsをcomputeGoalPanelDataに渡す
+  - `src/lib/proof-pad/index.ts` — AllowedAxiomDetail型エクスポート追加
+  - `src/lib/proof-pad/goalPanelLogic.test.ts` — allowedAxiomDetails関連5テスト追加
+  - `src/lib/proof-pad/GoalPanel.test.tsx` — allowedAxiomDetails関連3テスト追加、既存テスト更新
+- カバレッジ: Stmts 99.17%, Branch 94.08%, Funcs 89.81%, Lines 99.94%（ベースラインと同等）
+- テスト: 7337テスト全通過（218ファイル、+6テスト）
+- スクリーンショット:
+  - `.screenshots/goal-panel-quest-mode.png` — Quest Modeでのゴールパネル（公理制限なし→表示なし）
+  - `.screenshots/goal-panel-achieved.png` — Goal Achievedでのゴールパネル
+- **今後のイテレーションへの学び:**
+  - `computeGoalPanelData`のオプショナルパラメータ追加で後方互換を維持しつつ機能拡張できる
+  - 現在のStorybook QuestModeストーリーはallowedAxiomIdsを使っていないため、公理制限の視覚確認はユニットテストで担保
+  - flatMapパターンで不明なIDをgracefullyスキップ（存在しない公理IDは除外）
+  - AllowedAxiomDetailはAxiomPaletteItemのサブセット（UIに必要な情報のみ）として設計
+---
