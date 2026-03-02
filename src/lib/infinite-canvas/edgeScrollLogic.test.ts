@@ -5,8 +5,11 @@ import {
   computeEdgeScrollDirection,
   applyEdgeScrollDelta,
   isEdgeScrollIdle,
+  computePerEdgePenetration,
+  isEdgePenetrationIdle,
   DEFAULT_EDGE_SCROLL_CONFIG,
   ZERO_DELTA,
+  ZERO_PENETRATION,
 } from "./edgeScrollLogic";
 import type { EdgeScrollConfig } from "./edgeScrollLogic";
 
@@ -202,5 +205,122 @@ describe("DEFAULT_EDGE_SCROLL_CONFIG", () => {
   it("has sensible defaults", () => {
     expect(DEFAULT_EDGE_SCROLL_CONFIG.threshold).toBeGreaterThan(0);
     expect(DEFAULT_EDGE_SCROLL_CONFIG.maxSpeed).toBeGreaterThan(0);
+  });
+});
+
+describe("computePerEdgePenetration", () => {
+  const config: EdgeScrollConfig = { threshold: 40, maxSpeed: 800 };
+  const size = { width: 800, height: 600 };
+
+  it("returns zero penetration when cursor is in center", () => {
+    const result = computePerEdgePenetration({ x: 400, y: 300 }, size, config);
+    expect(result).toEqual(ZERO_PENETRATION);
+  });
+
+  it("returns left penetration when cursor is near left edge", () => {
+    const result = computePerEdgePenetration({ x: 20, y: 300 }, size, config);
+    expect(result.left).toBe(0.5);
+    expect(result.right).toBe(0);
+    expect(result.top).toBe(0);
+    expect(result.bottom).toBe(0);
+  });
+
+  it("returns right penetration when cursor is near right edge", () => {
+    const result = computePerEdgePenetration({ x: 780, y: 300 }, size, config);
+    expect(result.left).toBe(0);
+    expect(result.right).toBe(0.5);
+    expect(result.top).toBe(0);
+    expect(result.bottom).toBe(0);
+  });
+
+  it("returns top penetration when cursor is near top edge", () => {
+    const result = computePerEdgePenetration({ x: 400, y: 10 }, size, config);
+    expect(result.left).toBe(0);
+    expect(result.right).toBe(0);
+    expect(result.top).toBe(0.75);
+    expect(result.bottom).toBe(0);
+  });
+
+  it("returns bottom penetration when cursor is near bottom edge", () => {
+    const result = computePerEdgePenetration({ x: 400, y: 590 }, size, config);
+    expect(result.left).toBe(0);
+    expect(result.right).toBe(0);
+    expect(result.top).toBe(0);
+    expect(result.bottom).toBe(0.75);
+  });
+
+  it("returns corner penetration (left + top)", () => {
+    const result = computePerEdgePenetration({ x: 0, y: 0 }, size, config);
+    expect(result.left).toBe(1);
+    expect(result.right).toBe(0);
+    expect(result.top).toBe(1);
+    expect(result.bottom).toBe(0);
+  });
+
+  it("returns corner penetration (right + bottom)", () => {
+    const result = computePerEdgePenetration({ x: 800, y: 600 }, size, config);
+    expect(result.left).toBe(0);
+    expect(result.right).toBe(1);
+    expect(result.top).toBe(0);
+    expect(result.bottom).toBe(1);
+  });
+
+  it("clamps to 1 when cursor is beyond container", () => {
+    const result = computePerEdgePenetration({ x: -10, y: -10 }, size, config);
+    expect(result.left).toBe(1);
+    expect(result.top).toBe(1);
+  });
+
+  it("returns zero for invalid config", () => {
+    expect(
+      computePerEdgePenetration({ x: 0, y: 0 }, size, {
+        threshold: 0,
+        maxSpeed: 800,
+      }),
+    ).toEqual(ZERO_PENETRATION);
+    expect(
+      computePerEdgePenetration(
+        { x: 0, y: 0 },
+        { width: 0, height: 600 },
+        config,
+      ),
+    ).toEqual(ZERO_PENETRATION);
+    expect(
+      computePerEdgePenetration(
+        { x: 0, y: 0 },
+        { width: 800, height: 0 },
+        config,
+      ),
+    ).toEqual(ZERO_PENETRATION);
+  });
+});
+
+describe("isEdgePenetrationIdle", () => {
+  it("returns true for zero penetration", () => {
+    expect(isEdgePenetrationIdle(ZERO_PENETRATION)).toBe(true);
+  });
+
+  it("returns false when left is non-zero", () => {
+    expect(
+      isEdgePenetrationIdle({ left: 0.5, right: 0, top: 0, bottom: 0 }),
+    ).toBe(false);
+  });
+
+  it("returns false when right is non-zero", () => {
+    expect(
+      isEdgePenetrationIdle({ left: 0, right: 0.5, top: 0, bottom: 0 }),
+    ).toBe(false);
+  });
+
+  it("returns false when top is non-zero", () => {
+    expect(
+      isEdgePenetrationIdle({ left: 0, right: 0, top: 0.5, bottom: 0 }),
+    ).toBe(false);
+  });
+
+  it("returns false when bottom is non-zero", () => {
+    expect(
+      isEdgePenetrationIdle({ left: 0, right: 0, top: 0, bottom: 0.5 }),
+    ).toBe(false);
   });
 });

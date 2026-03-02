@@ -1,8 +1,13 @@
-import { useCallback, useEffect, useRef } from "react";
-import type { EdgeScrollConfig, EdgeScrollDelta } from "./edgeScrollLogic";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type {
+  EdgePenetration,
+  EdgeScrollConfig,
+  EdgeScrollDelta,
+} from "./edgeScrollLogic";
 import {
   applyEdgeScrollDelta,
   computeEdgeScrollDelta,
+  computePerEdgePenetration,
   DEFAULT_EDGE_SCROLL_CONFIG,
   isEdgeScrollIdle,
 } from "./edgeScrollLogic";
@@ -14,6 +19,8 @@ export type UseEdgeScrollResult = {
   readonly notifyDragMove: (cursorScreen: Point) => void;
   /** Call when the drag ends to stop edge scrolling */
   readonly notifyDragEnd: () => void;
+  /** Current per-edge penetration values, or null when not dragging */
+  readonly edgePenetration: EdgePenetration | null;
 };
 
 /**
@@ -38,6 +45,8 @@ export function useEdgeScroll(
   const lastTimeRef = useRef<number | null>(null);
   const cursorScreenRef = useRef<Point | null>(null);
   const currentDeltaRef = useRef<EdgeScrollDelta>({ dx: 0, dy: 0 });
+  const [edgePenetration, setEdgePenetration] =
+    useState<EdgePenetration | null>(null);
 
   // Keep the latest viewport in a ref so rAF callbacks always see current state
   const viewportRef = useRef(viewport);
@@ -122,6 +131,11 @@ export function useEdgeScroll(
       const delta = computeEdgeScrollDelta(cursorScreen, containerSize, config);
       currentDeltaRef.current = delta;
 
+      // Update per-edge penetration for visual indicator
+      setEdgePenetration(
+        computePerEdgePenetration(cursorScreen, containerSize, config),
+      );
+
       // Start animation loop if needed
       if (!isEdgeScrollIdle(delta)) {
         scheduleRaf();
@@ -133,6 +147,7 @@ export function useEdgeScroll(
   const notifyDragEnd = useCallback(() => {
     cursorScreenRef.current = null;
     currentDeltaRef.current = { dx: 0, dy: 0 };
+    setEdgePenetration(null);
     if (rafIdRef.current !== null) {
       cancelAnimationFrame(rafIdRef.current);
       rafIdRef.current = null;
@@ -140,5 +155,5 @@ export function useEdgeScroll(
     lastTimeRef.current = null;
   }, []);
 
-  return { notifyDragMove, notifyDragEnd };
+  return { notifyDragMove, notifyDragEnd, edgePenetration };
 }

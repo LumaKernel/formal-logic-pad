@@ -185,6 +185,7 @@ import { EdgeParameterPopover } from "./EdgeParameterPopover";
 import type { EdgeBadgeEditState } from "./edgeBadgeEditLogic";
 import { createEditStateFromEdge } from "./edgeBadgeEditLogic";
 import { useEdgeScroll } from "../infinite-canvas/useEdgeScroll";
+import { EdgeScrollIndicator } from "../infinite-canvas/EdgeScrollIndicator";
 import { useMarquee } from "../infinite-canvas/useMarquee";
 import { MinimapComponent } from "../infinite-canvas/MinimapComponent";
 import type { MinimapItem } from "../infinite-canvas/minimap";
@@ -743,7 +744,7 @@ export function ProofWorkspace({
   /* v8 ignore stop */
 
   // エッジスクロール（ドラッグ中にキャンバス端で自動パン）
-  const { notifyDragMove, notifyDragEnd } = useEdgeScroll(
+  const { notifyDragMove, notifyDragEnd, edgePenetration } = useEdgeScroll(
     viewport,
     containerSize,
     setViewport,
@@ -4310,6 +4311,7 @@ export function ProofWorkspace({
           position="bottom-right"
         />
       </InfiniteCanvas>
+      <EdgeScrollIndicator edgePenetration={edgePenetration} />
     </div>
   );
 }

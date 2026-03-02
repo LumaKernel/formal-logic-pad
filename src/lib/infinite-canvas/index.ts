@@ -184,11 +184,22 @@ export {
   computeEdgePenetration,
   computeEdgeScrollDelta,
   computeEdgeScrollDirection,
+  computePerEdgePenetration,
+  isEdgePenetrationIdle,
   isEdgeScrollIdle,
   DEFAULT_EDGE_SCROLL_CONFIG,
   ZERO_DELTA,
+  ZERO_PENETRATION,
 } from "./edgeScrollLogic";
-export type { EdgeScrollConfig, EdgeScrollDelta } from "./edgeScrollLogic";
+export type {
+  EdgePenetration,
+  EdgeScrollConfig,
+  EdgeScrollDelta,
+} from "./edgeScrollLogic";
+export { computeEdgeScrollShadow } from "./edgeScrollIndicatorLogic";
+export type { EdgeScrollShadowStyle } from "./edgeScrollIndicatorLogic";
+export { EdgeScrollIndicator } from "./EdgeScrollIndicator";
+export type { EdgeScrollIndicatorProps } from "./EdgeScrollIndicator";
 export { useEdgeScroll } from "./useEdgeScroll";
 export type { UseEdgeScrollResult } from "./useEdgeScroll";
 export {

@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { CanvasItem } from "./CanvasItem";
 import { InfiniteCanvas } from "./InfiniteCanvas";
 import { useEdgeScroll } from "./useEdgeScroll";
+import { EdgeScrollIndicator } from "./EdgeScrollIndicator";
 import type { EdgeScrollConfig } from "./edgeScrollLogic";
 import type { Point, Size, ViewportState } from "./types";
 
@@ -63,10 +64,9 @@ function EdgeScrollDemo() {
     width: 800,
     height: 600,
   });
-  const [isDraggingAny, setIsDraggingAny] = useState(false);
   const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null);
 
-  const { notifyDragMove, notifyDragEnd } = useEdgeScroll(
+  const { notifyDragMove, notifyDragEnd, edgePenetration } = useEdgeScroll(
     viewport,
     containerSize,
     setViewport,
@@ -83,7 +83,6 @@ function EdgeScrollDemo() {
 
   const handleDragMove = useCallback(
     (screenPoint: Point) => {
-      setIsDraggingAny(true);
       // Convert clientX/clientY to container-relative coordinates
       if (containerEl === null) {
         notifyDragMove(screenPoint);
@@ -99,7 +98,6 @@ function EdgeScrollDemo() {
   );
 
   const handleDragEnd = useCallback(() => {
-    setIsDraggingAny(false);
     notifyDragEnd();
   }, [notifyDragEnd]);
 
@@ -115,7 +113,7 @@ function EdgeScrollDemo() {
     <div
       ref={containerCallbackRef}
       data-testid="edge-scroll-demo-container"
-      style={{ width: "100vw", height: "100vh" }}
+      style={{ width: "100vw", height: "100vh", position: "relative" }}
     >
       <InfiniteCanvas viewport={viewport} onViewportChange={setViewport}>
         {nodes.map((node) => (
@@ -149,67 +147,8 @@ function EdgeScrollDemo() {
           </CanvasItem>
         ))}
       </InfiniteCanvas>
-      {/* Edge zone indicators */}
-      {isDraggingAny && (
-        <>
-          <div
-            data-testid="edge-indicator-left"
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: EDGE_SCROLL_CONFIG.threshold,
-              height: "100%",
-              background: "rgba(59, 130, 246, 0.08)",
-              borderRight: "1px dashed rgba(59, 130, 246, 0.3)",
-              pointerEvents: "none",
-              zIndex: 9999,
-            }}
-          />
-          <div
-            data-testid="edge-indicator-right"
-            style={{
-              position: "fixed",
-              top: 0,
-              right: 0,
-              width: EDGE_SCROLL_CONFIG.threshold,
-              height: "100%",
-              background: "rgba(59, 130, 246, 0.08)",
-              borderLeft: "1px dashed rgba(59, 130, 246, 0.3)",
-              pointerEvents: "none",
-              zIndex: 9999,
-            }}
-          />
-          <div
-            data-testid="edge-indicator-top"
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: EDGE_SCROLL_CONFIG.threshold,
-              background: "rgba(59, 130, 246, 0.08)",
-              borderBottom: "1px dashed rgba(59, 130, 246, 0.3)",
-              pointerEvents: "none",
-              zIndex: 9999,
-            }}
-          />
-          <div
-            data-testid="edge-indicator-bottom"
-            style={{
-              position: "fixed",
-              bottom: 0,
-              left: 0,
-              width: "100%",
-              height: EDGE_SCROLL_CONFIG.threshold,
-              background: "rgba(59, 130, 246, 0.08)",
-              borderTop: "1px dashed rgba(59, 130, 246, 0.3)",
-              pointerEvents: "none",
-              zIndex: 9999,
-            }}
-          />
-        </>
-      )}
+      {/* Shadow glow indicator for edge scroll zones */}
+      <EdgeScrollIndicator edgePenetration={edgePenetration} />
       <div
         data-testid="edge-scroll-info"
         style={{
@@ -268,9 +207,9 @@ export const Default: Story = {
     await expect(info).toBeInTheDocument();
     await expect(info).toHaveTextContent("Edge Scroll Demo");
 
-    // Edge indicators are not visible when not dragging
+    // Shadow indicator is not visible when not dragging
     await expect(
-      canvas.queryByTestId("edge-indicator-left"),
+      canvas.queryByTestId("edge-scroll-indicator"),
     ).not.toBeInTheDocument();
   },
 };

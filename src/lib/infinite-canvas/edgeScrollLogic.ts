@@ -157,3 +157,73 @@ export function applyEdgeScrollDelta(
 export function isEdgeScrollIdle(delta: EdgeScrollDelta): boolean {
   return delta.dx === 0 && delta.dy === 0;
 }
+
+/** Per-edge penetration values (0 = not in zone, 1 = at the very edge) */
+export type EdgePenetration = {
+  readonly left: number;
+  readonly right: number;
+  readonly top: number;
+  readonly bottom: number;
+};
+
+/** Zero penetration - no edges active */
+export const ZERO_PENETRATION: EdgePenetration = {
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0,
+};
+
+/**
+ * Compute per-edge penetration values for all four edges.
+ * Each value is in [0, 1] where 0 means "not in the edge zone" and
+ * 1 means "at the very edge of the container".
+ */
+export function computePerEdgePenetration(
+  cursorScreen: Point,
+  containerSize: Size,
+  config: EdgeScrollConfig,
+): EdgePenetration {
+  const { threshold } = config;
+
+  if (threshold <= 0 || containerSize.width <= 0 || containerSize.height <= 0) {
+    return ZERO_PENETRATION;
+  }
+
+  const left =
+    cursorScreen.x < threshold
+      ? Math.min((threshold - cursorScreen.x) / threshold, 1)
+      : 0;
+  const right =
+    cursorScreen.x > containerSize.width - threshold
+      ? Math.min(
+          (cursorScreen.x - (containerSize.width - threshold)) / threshold,
+          1,
+        )
+      : 0;
+  const top =
+    cursorScreen.y < threshold
+      ? Math.min((threshold - cursorScreen.y) / threshold, 1)
+      : 0;
+  const bottom =
+    cursorScreen.y > containerSize.height - threshold
+      ? Math.min(
+          (cursorScreen.y - (containerSize.height - threshold)) / threshold,
+          1,
+        )
+      : 0;
+
+  return { left, right, top, bottom };
+}
+
+/**
+ * Check whether any edge has non-zero penetration.
+ */
+export function isEdgePenetrationIdle(penetration: EdgePenetration): boolean {
+  return (
+    penetration.left === 0 &&
+    penetration.right === 0 &&
+    penetration.top === 0 &&
+    penetration.bottom === 0
+  );
+}
