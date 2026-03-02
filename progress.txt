@@ -8294,3 +8294,24 @@
   - useEdgeScroll は rAF ループ内でフレームごとにstate更新すると過剰。notifyDragMove（ユーザーイベント駆動）で更新するのが正しい粒度
   - ProofWorkspaceの `position: relative` コンテナ内に `position: absolute; inset: 0` で配置するとInfiniteCanvas全体にオーバーレイできる
 ---
+
+## 2026-03-02 - 模範解答追加 (propositional-intermediate + propositional-negation)
+- 実装した内容:
+  - propositional-intermediate 7問の模範解答: prop-11 (1step), prop-13 (1step), prop-35 (5steps), prop-33 (13steps), prop-10 (7steps), prop-34 (13steps), prop-14 (11steps)
+  - propositional-negation 6問の模範解答: prop-19 (1step), prop-18 (7steps), prop-28 (23steps), prop-17 (35steps), prop-25 (35steps), prop-15 (37steps)
+  - テストをカテゴリ別に分離（basics/intermediate/negation）
+  - 大量のコメント分析ブロックをクリーンアップ
+- 変更したファイル:
+  - src/lib/quest/builtinModelAnswers.ts (13→20件の模範解答)
+  - src/lib/quest/builtinModelAnswers.test.ts (カテゴリ別テスト構造に更新)
+- テスト: 6515 passed, 62 model answer tests
+- 未実装:
+  - propositional-intermediate: prop-08 (3段推移律), prop-12 (左結合化) — 長い証明
+  - propositional-negation: prop-16 (MT), prop-20 (LEM/Disjunction AST問題), prop-21 (Peirce), prop-26 (CM), prop-27 (CON2), prop-29 (TND) — DNE/DNIインライン展開で50-100+ステップ
+- **今後のイテレーションへの学び:**
+  - Łukasiewicz体系の否定証明のブートストラップ順序: ExFalso(7steps) → Clavius(23steps) → DNE(35steps) → DNI(37steps)
+  - B combinator (推移律合成) パターン: A2[φ/A, ψ/B, χ/C] + A1持ち上げ + 3MP = 5ステップの定型
+  - W combinator (prop-06パターン): A2 + identity = 定型的に使える
+  - Disjunction (∨) はAST上で独立ノード。¬α→β の形で Implication として構築しても equalFormula で一致しない。prop-20 (LEM) の解決にはDisjunctionノード生成方法の調査が必要
+  - 否定の深い証明ではインライン展開が不可避で50+ステップになる。後続イテレーションではプログラマティック生成を検討
+---
