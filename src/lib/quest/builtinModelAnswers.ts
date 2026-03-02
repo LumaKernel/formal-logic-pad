@@ -5211,25 +5211,74 @@ const sc_ce01Transitivity: ModelAnswer = {
   questId: "sc-ce-01",
   steps: [
     // Step 0: Root sequent
-    { _tag: "sc-root", sequentText: "⇒ (phi -> psi) -> ((psi -> chi) -> (phi -> chi))" },
+    {
+      _tag: "sc-root",
+      sequentText: "⇒ (phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
+    },
     // Step 1: ⇒→ → phi -> psi ⇒ (psi -> chi) -> (phi -> chi)
-    { _tag: "sc-rule", conclusionIndex: 0, ruleId: "implication-right", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 0,
+      ruleId: "implication-right",
+      principalPosition: 0,
+    },
     // Step 2: ⇒→ → psi -> chi, phi -> psi ⇒ phi -> chi  (added at front)
-    { _tag: "sc-rule", conclusionIndex: 1, ruleId: "implication-right", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 1,
+      ruleId: "implication-right",
+      principalPosition: 0,
+    },
     // Step 3: ⇒→ → phi, psi -> chi, phi -> psi ⇒ chi  (added at front)
-    { _tag: "sc-rule", conclusionIndex: 2, ruleId: "implication-right", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 2,
+      ruleId: "implication-right",
+      principalPosition: 0,
+    },
     // Step 4: exchange-left 1↔2 → phi, phi -> psi, psi -> chi ⇒ chi
-    { _tag: "sc-rule", conclusionIndex: 3, ruleId: "exchange-left", principalPosition: 0, exchangePosition: 1 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 3,
+      ruleId: "exchange-left",
+      principalPosition: 0,
+      exchangePosition: 1,
+    },
     // Step 5: →⇒ on phi -> psi (pos 1) → L: phi ⇒ phi, R: psi, psi -> chi ⇒ chi
-    { _tag: "sc-rule", conclusionIndex: 4, ruleId: "implication-left", principalPosition: 1 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 4,
+      ruleId: "implication-left",
+      principalPosition: 1,
+    },
     // Step 6: identity on L (phi ⇒ phi)
-    { _tag: "sc-rule", conclusionIndex: 5, ruleId: "identity", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 5,
+      ruleId: "identity",
+      principalPosition: 0,
+    },
     // Step 7: →⇒ on R: psi, psi -> chi ⇒ chi at pos 1 → L: psi ⇒ psi, R: chi ⇒ chi
-    { _tag: "sc-rule", conclusionIndex: 6, ruleId: "implication-left", principalPosition: 1 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 6,
+      ruleId: "implication-left",
+      principalPosition: 1,
+    },
     // Step 8: identity on psi ⇒ psi
-    { _tag: "sc-rule", conclusionIndex: 8, ruleId: "identity", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 8,
+      ruleId: "identity",
+      principalPosition: 0,
+    },
     // Step 9: identity on chi ⇒ chi
-    { _tag: "sc-rule", conclusionIndex: 9, ruleId: "identity", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 9,
+      ruleId: "identity",
+      principalPosition: 0,
+    },
   ],
 };
 
@@ -5239,17 +5288,48 @@ const sc_ce02ModusPonens: ModelAnswer = {
     // Step 0: Root sequent
     { _tag: "sc-root", sequentText: "⇒ phi -> ((phi -> psi) -> psi)" },
     // Step 1: ⇒→ → phi ⇒ (phi -> psi) -> psi
-    { _tag: "sc-rule", conclusionIndex: 0, ruleId: "implication-right", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 0,
+      ruleId: "implication-right",
+      principalPosition: 0,
+    },
     // Step 2: ⇒→ → phi -> psi, phi ⇒ psi (⇒→ adds antecedent at front)
-    { _tag: "sc-rule", conclusionIndex: 1, ruleId: "implication-right", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 1,
+      ruleId: "implication-right",
+      principalPosition: 0,
+    },
     // Step 3: exchange-left 0↔1 → phi, phi -> psi ⇒ psi
-    { _tag: "sc-rule", conclusionIndex: 2, ruleId: "exchange-left", principalPosition: 0, exchangePosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 2,
+      ruleId: "exchange-left",
+      principalPosition: 0,
+      exchangePosition: 0,
+    },
     // Step 4: →⇒ on phi -> psi (pos 1) → L: phi ⇒ phi, R: psi ⇒ psi
-    { _tag: "sc-rule", conclusionIndex: 3, ruleId: "implication-left", principalPosition: 1 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 3,
+      ruleId: "implication-left",
+      principalPosition: 1,
+    },
     // Step 5: identity on L (phi ⇒ phi)
-    { _tag: "sc-rule", conclusionIndex: 4, ruleId: "identity", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 4,
+      ruleId: "identity",
+      principalPosition: 0,
+    },
     // Step 6: identity on R (psi ⇒ psi)
-    { _tag: "sc-rule", conclusionIndex: 5, ruleId: "identity", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 5,
+      ruleId: "identity",
+      principalPosition: 0,
+    },
   ],
 };
 
@@ -5259,17 +5339,49 @@ const sc_ce03ConjCommute: ModelAnswer = {
     // Step 0: Root sequent
     { _tag: "sc-root", sequentText: "⇒ (phi /\\ psi) -> (psi /\\ phi)" },
     // Step 1: ⇒→ → phi /\ psi ⇒ psi /\ phi
-    { _tag: "sc-rule", conclusionIndex: 0, ruleId: "implication-right", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 0,
+      ruleId: "implication-right",
+      principalPosition: 0,
+    },
     // Step 2: ⇒∧ on psi /\ phi (pos 0) → L: phi /\ psi ⇒ psi, R: phi /\ psi ⇒ phi
-    { _tag: "sc-rule", conclusionIndex: 1, ruleId: "conjunction-right", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 1,
+      ruleId: "conjunction-right",
+      principalPosition: 0,
+    },
     // Step 3: ∧⇒ on L (phi /\ psi ⇒ psi), componentIndex=2 (get psi) → psi ⇒ psi
-    { _tag: "sc-rule", conclusionIndex: 2, ruleId: "conjunction-left", principalPosition: 0, componentIndex: 2 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 2,
+      ruleId: "conjunction-left",
+      principalPosition: 0,
+      componentIndex: 2,
+    },
     // Step 4: identity on psi ⇒ psi
-    { _tag: "sc-rule", conclusionIndex: 4, ruleId: "identity", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 4,
+      ruleId: "identity",
+      principalPosition: 0,
+    },
     // Step 5: ∧⇒ on R (phi /\ psi ⇒ phi), componentIndex=1 (get phi) → phi ⇒ phi
-    { _tag: "sc-rule", conclusionIndex: 3, ruleId: "conjunction-left", principalPosition: 0, componentIndex: 1 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 3,
+      ruleId: "conjunction-left",
+      principalPosition: 0,
+      componentIndex: 1,
+    },
     // Step 6: identity on phi ⇒ phi
-    { _tag: "sc-rule", conclusionIndex: 6, ruleId: "identity", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 6,
+      ruleId: "identity",
+      principalPosition: 0,
+    },
   ],
 };
 
@@ -5277,36 +5389,113 @@ const sc_ce04CutChain: ModelAnswer = {
   questId: "sc-ce-04",
   steps: [
     // Step 0: Root sequent
-    { _tag: "sc-root", sequentText: "⇒ (phi -> psi) -> ((psi -> chi) -> ((chi -> theta) -> (phi -> theta)))" },
+    {
+      _tag: "sc-root",
+      sequentText:
+        "⇒ (phi -> psi) -> ((psi -> chi) -> ((chi -> theta) -> (phi -> theta)))",
+    },
     // Step 1: ⇒→ → phi -> psi ⇒ ...
-    { _tag: "sc-rule", conclusionIndex: 0, ruleId: "implication-right", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 0,
+      ruleId: "implication-right",
+      principalPosition: 0,
+    },
     // Step 2: ⇒→ → psi -> chi, phi -> psi ⇒ ... (added at front)
-    { _tag: "sc-rule", conclusionIndex: 1, ruleId: "implication-right", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 1,
+      ruleId: "implication-right",
+      principalPosition: 0,
+    },
     // Step 3: ⇒→ → chi -> theta, psi -> chi, phi -> psi ⇒ phi -> theta (added at front)
-    { _tag: "sc-rule", conclusionIndex: 2, ruleId: "implication-right", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 2,
+      ruleId: "implication-right",
+      principalPosition: 0,
+    },
     // Step 4: ⇒→ → phi, chi -> theta, psi -> chi, phi -> psi ⇒ theta (added at front)
-    { _tag: "sc-rule", conclusionIndex: 3, ruleId: "implication-right", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 3,
+      ruleId: "implication-right",
+      principalPosition: 0,
+    },
     // Reorder: [phi, chi->theta, psi->chi, phi->psi] → [phi, phi->psi, psi->chi, chi->theta]
     // Step 5: exchange-left 2↔3 → phi, chi -> theta, phi -> psi, psi -> chi
-    { _tag: "sc-rule", conclusionIndex: 4, ruleId: "exchange-left", principalPosition: 0, exchangePosition: 2 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 4,
+      ruleId: "exchange-left",
+      principalPosition: 0,
+      exchangePosition: 2,
+    },
     // Step 6: exchange-left 1↔2 → phi, phi -> psi, chi -> theta, psi -> chi
-    { _tag: "sc-rule", conclusionIndex: 5, ruleId: "exchange-left", principalPosition: 0, exchangePosition: 1 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 5,
+      ruleId: "exchange-left",
+      principalPosition: 0,
+      exchangePosition: 1,
+    },
     // Step 7: exchange-left 2↔3 → phi, phi -> psi, psi -> chi, chi -> theta ⇒ theta
-    { _tag: "sc-rule", conclusionIndex: 6, ruleId: "exchange-left", principalPosition: 0, exchangePosition: 2 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 6,
+      ruleId: "exchange-left",
+      principalPosition: 0,
+      exchangePosition: 2,
+    },
     // Step 8: →⇒ on phi -> psi (pos 1) → L: phi ⇒ phi, R: psi, psi -> chi, chi -> theta ⇒ theta
-    { _tag: "sc-rule", conclusionIndex: 7, ruleId: "implication-left", principalPosition: 1 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 7,
+      ruleId: "implication-left",
+      principalPosition: 1,
+    },
     // Step 9: identity on phi ⇒ phi
-    { _tag: "sc-rule", conclusionIndex: 8, ruleId: "identity", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 8,
+      ruleId: "identity",
+      principalPosition: 0,
+    },
     // Step 10: →⇒ on psi -> chi (pos 1) → L: psi ⇒ psi, R: chi, chi -> theta ⇒ theta
-    { _tag: "sc-rule", conclusionIndex: 9, ruleId: "implication-left", principalPosition: 1 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 9,
+      ruleId: "implication-left",
+      principalPosition: 1,
+    },
     // Step 11: identity on psi ⇒ psi
-    { _tag: "sc-rule", conclusionIndex: 11, ruleId: "identity", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 11,
+      ruleId: "identity",
+      principalPosition: 0,
+    },
     // Step 12: →⇒ on chi -> theta (pos 1) → L: chi ⇒ chi, R: theta ⇒ theta
-    { _tag: "sc-rule", conclusionIndex: 12, ruleId: "implication-left", principalPosition: 1 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 12,
+      ruleId: "implication-left",
+      principalPosition: 1,
+    },
     // Step 13: identity on chi ⇒ chi
-    { _tag: "sc-rule", conclusionIndex: 14, ruleId: "identity", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 14,
+      ruleId: "identity",
+      principalPosition: 0,
+    },
     // Step 14: identity on theta ⇒ theta
-    { _tag: "sc-rule", conclusionIndex: 15, ruleId: "identity", principalPosition: 0 },
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 15,
+      ruleId: "identity",
+      principalPosition: 0,
+    },
   ],
 };
 

@@ -257,12 +257,43 @@ describe("buildModelAnswerWorkspace - SC steps", () => {
       questId: "sc-test-01",
       steps: [
         { _tag: "sc-root", sequentText: "⇒ phi -> ((phi -> psi) -> psi)" },
-        { _tag: "sc-rule", conclusionIndex: 0, ruleId: "implication-right", principalPosition: 0 },
-        { _tag: "sc-rule", conclusionIndex: 1, ruleId: "implication-right", principalPosition: 0 },
-        { _tag: "sc-rule", conclusionIndex: 2, ruleId: "exchange-left", principalPosition: 0, exchangePosition: 0 },
-        { _tag: "sc-rule", conclusionIndex: 3, ruleId: "implication-left", principalPosition: 1 },
-        { _tag: "sc-rule", conclusionIndex: 4, ruleId: "identity", principalPosition: 0 },
-        { _tag: "sc-rule", conclusionIndex: 5, ruleId: "identity", principalPosition: 0 },
+        {
+          _tag: "sc-rule",
+          conclusionIndex: 0,
+          ruleId: "implication-right",
+          principalPosition: 0,
+        },
+        {
+          _tag: "sc-rule",
+          conclusionIndex: 1,
+          ruleId: "implication-right",
+          principalPosition: 0,
+        },
+        {
+          _tag: "sc-rule",
+          conclusionIndex: 2,
+          ruleId: "exchange-left",
+          principalPosition: 0,
+          exchangePosition: 0,
+        },
+        {
+          _tag: "sc-rule",
+          conclusionIndex: 3,
+          ruleId: "implication-left",
+          principalPosition: 1,
+        },
+        {
+          _tag: "sc-rule",
+          conclusionIndex: 4,
+          ruleId: "identity",
+          principalPosition: 0,
+        },
+        {
+          _tag: "sc-rule",
+          conclusionIndex: 5,
+          ruleId: "identity",
+          principalPosition: 0,
+        },
       ],
     };
     const result = buildModelAnswerWorkspace(scQuest, answer);

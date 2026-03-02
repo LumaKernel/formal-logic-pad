@@ -92,7 +92,10 @@ export function parseNodeFormula(formulaText: string): Formula | undefined {
   if (trimmed.includes("⇒")) {
     const parts = splitSequentTextParts(trimmed);
     // 前件が空で後件が1つの場合: " ⇒ φ" → φ が定理
-    if (parts.antecedentTexts.length === 0 && parts.succedentTexts.length === 1) {
+    if (
+      parts.antecedentTexts.length === 0 &&
+      parts.succedentTexts.length === 1
+    ) {
       const succText = parts.succedentTexts[0];
       if (succText !== undefined) {
         const succResult = parseString(succText);
