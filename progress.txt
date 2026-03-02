@@ -96,7 +96,45 @@
 - Storybook play関数: ProofWorkspaceの`isNodeCulled()`がビューポート外ノードをDOM除外する。ストーリーのノード座標はx:0-600,y:0-250に収めること
 - InfiniteCanvasの `isolation: isolate` でstacking contextを隔離。内部z-indexが外部UIパネルに影響しない
 - 未接続コネクタポートは `dimmed` (opacity:0) で非表示。接続ドラッグ中は全ポート表示
+- `src/lib/script-runner/` はサンドボックスJS実行環境。`createScriptRunner` ファクトリでインスタンスを作り、`run()`/`step()` で実行。`NativeFunctionBridge` でホスト関数をサンドボックスに公開
 
+---
+
+## 2026-03-02 - JS-Interpreterのサンドボックス実行環境を追加 (US-001)
+- `js-interpreter@6.0.1` npm パッケージをインストール
+- `src/lib/script-runner/` に新モジュールを作成:
+  - `jsInterpreterTypes.ts` — JS-Interpreter の型定義（使用するAPIのみ）
+  - `scriptRunner.ts` — サンドボックス実行ラッパー（createScriptRunner ファクトリ関数）
+  - `scriptRunner.test.ts` — 43テスト
+  - `index.ts` — パブリック API エクスポート
+- 機能:
+  - `run(code)`: コード全体を実行して結果を返す
+  - `step()`: 1ステップずつ実行して状態を返す
+  - ステップ数制限（デフォルト: 10,000）
+  - 時間制限（デフォルト: 5,000ms）
+  - ネイティブ関数ブリッジ（サンドボックスにホスト関数を公開）
+  - 構文エラー・ランタイムエラーのハンドリング
+  - サンドボックスの安全性（document, fetch, XMLHttpRequest, require, process, global にアクセス不可）
+- テスト: 160ファイル、6672テスト（unit）全パス（+43テスト追加）
+- カバレッジ:
+  - ベースライン: Stmts 99.4%, Branch 94.48%, Funcs 89.7%, Lines 99.94%
+  - 変更後: scriptRunner.ts 100%/100%/100%/100% — 全体カバレッジ維持
+- 品質チェック: typecheck ✅, lint ✅, test ✅, prettier ✅
+- 変更ファイル:
+  - `package.json`, `package-lock.json` (js-interpreter 追加)
+  - `src/lib/script-runner/jsInterpreterTypes.ts` (NEW)
+  - `src/lib/script-runner/scriptRunner.ts` (NEW)
+  - `src/lib/script-runner/scriptRunner.test.ts` (NEW)
+  - `src/lib/script-runner/index.ts` (NEW)
+  - `tasks/prd-scripted-proof-rewriting.md` (US-001完了)
+- **今後のイテレーションへの学び:**
+  - JS-Interpreter はサンドボックス内に `setTimeout`/`setInterval` を提供する（ホストのものではなく安全）
+  - `js-interpreter` npm パッケージは CJS 形式で export される。`require("js-interpreter")` で読み込み、`"default" in mod` で ESM/CJS を判別
+  - JS-Interpreter の `step()` は boolean を返す（true=まだステップあり、false=完了）。`value` プロパティで最終結果を取得
+  - ネイティブ関数ブリッジは `createNativeFunction` + `setProperty` で実装。引数は `pseudoToNative` で変換、戻り値は `nativeToPseudo` で変換
+  - `@luma-dev/luma-ts/no-explicit-return-is` により型ガード関数は戻り値型を省略（TypeScript 5.5 auto-inference）
+  - `no-constant-condition` を避けるため `while(true)` → `for(;;)` を使用
+  - 次のUS-002では証明操作APIのブリッジを実装する。`NativeFunctionBridge` インターフェースで定義済み
 ---
 
 ## 2026-03-02 - シーケント計算クエストの開始を可能にする
