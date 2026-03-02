@@ -11,7 +11,10 @@ import {
   findLeafNodes,
   findRootNodes,
   flipYPositions,
+  groupNodesByY,
+  recenterParents,
   reorderChildrenByBarycenter,
+  resolveOverlaps,
   type LayoutConfig,
   type LayoutEdge,
   type LayoutNode,
@@ -634,6 +637,230 @@ describe("reorderChildrenByBarycenter", () => {
   });
 });
 
+describe("groupNodesByY", () => {
+  it("同じy座標のノードをグループ化する", () => {
+    const positions = new Map([
+      ["a", { x: 0, y: 0 }],
+      ["b", { x: 100, y: 0 }],
+      ["c", { x: 50, y: 100 }],
+    ]);
+    const levels = groupNodesByY(positions);
+    expect(levels.length).toBe(2);
+    // Level 0 (y=0): a, b sorted by x
+    expect(levels[0]!.map((n) => n.id)).toEqual(["a", "b"]);
+    // Level 1 (y=100): c
+    expect(levels[1]!.map((n) => n.id)).toEqual(["c"]);
+  });
+
+  it("空のpositionsで空配列", () => {
+    const levels = groupNodesByY(new Map());
+    expect(levels.length).toBe(0);
+  });
+
+  it("各レベル内でxソートされる", () => {
+    const positions = new Map([
+      ["c", { x: 200, y: 0 }],
+      ["a", { x: 0, y: 0 }],
+      ["b", { x: 100, y: 0 }],
+    ]);
+    const levels = groupNodesByY(positions);
+    expect(levels[0]!.map((n) => n.id)).toEqual(["a", "b", "c"]);
+  });
+});
+
+describe("resolveOverlaps", () => {
+  it("重なりがない場合は位置が変わらない", () => {
+    const positions = new Map([
+      ["a", { x: 0, y: 0 }],
+      ["b", { x: 200, y: 0 }],
+    ]);
+    const nodeMap = new Map([
+      ["a", node("a")],
+      ["b", node("b")],
+    ]);
+    const result = resolveOverlaps(positions, nodeMap, new Map(), 60);
+    // a: x=0, width=100, rightEdge=100, required=160, b: x=200 > 160 → no overlap
+    expect(result.get("a")).toEqual({ x: 0, y: 0 });
+    expect(result.get("b")).toEqual({ x: 200, y: 0 });
+  });
+
+  it("重なりがある場合は右ノードをシフトする", () => {
+    const positions = new Map([
+      ["a", { x: 0, y: 0 }],
+      ["b", { x: 50, y: 0 }], // a(x=0,w=100)の右端100 + gap60 = 160 > 50
+    ]);
+    const nodeMap = new Map([
+      ["a", node("a")],
+      ["b", node("b")],
+    ]);
+    const result = resolveOverlaps(positions, nodeMap, new Map(), 60);
+    expect(result.get("a")).toEqual({ x: 0, y: 0 });
+    // b should be shifted to 160 (100 + 60)
+    expect(result.get("b")!.x).toBe(160);
+  });
+
+  it("サブツリー全体がシフトされる", () => {
+    const positions = new Map([
+      ["a", { x: 0, y: 0 }],
+      ["b", { x: 50, y: 0 }], // overlaps with a
+      ["c", { x: 60, y: 100 }], // child of b
+    ]);
+    const nodeMap = new Map([
+      ["a", node("a")],
+      ["b", node("b")],
+      ["c", node("c")],
+    ]);
+    const forward = new Map<string, readonly string[]>([["b", ["c"]]]);
+    const result = resolveOverlaps(positions, nodeMap, forward, 60);
+    // b shifted by 110 (from 50 to 160)
+    expect(result.get("b")!.x).toBe(160);
+    // c also shifted by 110 (from 60 to 170)
+    expect(result.get("c")!.x).toBe(170);
+  });
+
+  it("3ノード連鎖で左から右にシフトが伝播する", () => {
+    const positions = new Map([
+      ["a", { x: 0, y: 0 }],
+      ["b", { x: 50, y: 0 }],
+      ["c", { x: 80, y: 0 }],
+    ]);
+    const nodeMap = new Map([
+      ["a", node("a")],
+      ["b", node("b")],
+      ["c", node("c")],
+    ]);
+    const result = resolveOverlaps(positions, nodeMap, new Map(), 60);
+    // a stays at 0
+    expect(result.get("a")!.x).toBe(0);
+    // b: required = 100 + 60 = 160, was 50, shift to 160
+    expect(result.get("b")!.x).toBe(160);
+    // c: required = 160 + 100 + 60 = 320, was 80, shift to 320
+    expect(result.get("c")!.x).toBe(320);
+  });
+
+  it("異なるレベルのノードは独立に処理される", () => {
+    const positions = new Map([
+      ["a", { x: 0, y: 0 }],
+      ["b", { x: 50, y: 100 }], // different level, no overlap with a
+    ]);
+    const nodeMap = new Map([
+      ["a", node("a")],
+      ["b", node("b")],
+    ]);
+    const result = resolveOverlaps(positions, nodeMap, new Map(), 60);
+    // No change — different levels
+    expect(result.get("a")).toEqual({ x: 0, y: 0 });
+    expect(result.get("b")).toEqual({ x: 50, y: 100 });
+  });
+
+  it("forwardに存在するがpositionsにない子孫はスキップされる", () => {
+    const positions = new Map([
+      ["a", { x: 0, y: 0 }],
+      ["b", { x: 50, y: 0 }], // overlaps with a
+    ]);
+    const nodeMap = new Map([
+      ["a", node("a")],
+      ["b", node("b")],
+    ]);
+    // "ghost" is a descendant of b but not in positions
+    const forward = new Map<string, readonly string[]>([["b", ["ghost"]]]);
+    const result = resolveOverlaps(positions, nodeMap, forward, 60);
+    // b is shifted, ghost is silently skipped
+    expect(result.get("b")!.x).toBe(160);
+    expect(result.has("ghost")).toBe(false);
+  });
+
+  it("nodeMapにないノードのwidthは0として扱われる", () => {
+    const positions = new Map([
+      ["a", { x: 0, y: 0 }],
+      ["b", { x: 10, y: 0 }],
+    ]);
+    // "a" is not in nodeMap — its width defaults to 0
+    const nodeMap = new Map([["b", node("b")]]);
+    const result = resolveOverlaps(positions, nodeMap, new Map(), 20);
+    // leftRightEdge = 0 + 0 = 0, requiredX = 0 + 20 = 20
+    // b was at 10, needs to move to 20
+    expect(result.get("b")!.x).toBe(20);
+  });
+});
+
+describe("recenterParents", () => {
+  it("親ノードが子ノードの中央に移動する", () => {
+    // parent at x=0, children at x=100 and x=300
+    const positions = new Map([
+      ["parent", { x: 0, y: 0 }],
+      ["left", { x: 100, y: 100 }],
+      ["right", { x: 300, y: 100 }],
+    ]);
+    const nodeMap = new Map([
+      ["parent", node("parent")],
+      ["left", node("left")],
+      ["right", node("right")],
+    ]);
+    const forward = new Map<string, readonly string[]>([
+      ["parent", ["left", "right"]],
+    ]);
+    const result = recenterParents(positions, nodeMap, forward);
+    // left center = 100 + 50 = 150, right center = 300 + 50 = 350
+    // midpoint = (150 + 350) / 2 = 250
+    // parent x = 250 - 50 = 200
+    expect(result.get("parent")!.x).toBe(200);
+  });
+
+  it("子がない場合は位置が変わらない", () => {
+    const positions = new Map([["a", { x: 10, y: 0 }]]);
+    const nodeMap = new Map([["a", node("a")]]);
+    const result = recenterParents(positions, nodeMap, new Map());
+    expect(result.get("a")).toEqual({ x: 10, y: 0 });
+  });
+
+  it("子が1つの場合も中央に移動する", () => {
+    const positions = new Map([
+      ["parent", { x: 0, y: 0 }],
+      ["child", { x: 200, y: 100 }],
+    ]);
+    const nodeMap = new Map([
+      ["parent", node("parent")],
+      ["child", node("child")],
+    ]);
+    const forward = new Map<string, readonly string[]>([["parent", ["child"]]]);
+    const result = recenterParents(positions, nodeMap, forward);
+    // child center = 200 + 50 = 250
+    // parent x = 250 - 50 = 200
+    expect(result.get("parent")!.x).toBe(200);
+  });
+
+  it("forwardに存在するがpositions/nodeMapにない子は無視される", () => {
+    const positions = new Map([
+      ["parent", { x: 0, y: 0 }],
+      ["child1", { x: 200, y: 100 }],
+      // "ghost" is referenced in forward but has no position/node
+    ]);
+    const nodeMap = new Map([
+      ["parent", node("parent")],
+      ["child1", node("child1")],
+    ]);
+    const forward = new Map<string, readonly string[]>([
+      ["parent", ["child1", "ghost"]],
+    ]);
+    const result = recenterParents(positions, nodeMap, forward);
+    // Only child1 is considered: center = 200 + 50 = 250
+    // parent x = 250 - 50 = 200
+    expect(result.get("parent")!.x).toBe(200);
+  });
+
+  it("forwardの子がすべてpositionsにない場合は位置が変わらない", () => {
+    const positions = new Map([["parent", { x: 10, y: 0 }]]);
+    const nodeMap = new Map([["parent", node("parent")]]);
+    const forward = new Map<string, readonly string[]>([
+      ["parent", ["ghost1", "ghost2"]],
+    ]);
+    const result = recenterParents(positions, nodeMap, forward);
+    // minChildCenter stays Infinity → skip
+    expect(result.get("parent")).toEqual({ x: 10, y: 0 });
+  });
+});
+
 describe("computeTreeLayout - 交差回避", () => {
   it("交差する配置が最適化される", () => {
     // r1(左), r2(右) がルート
@@ -671,5 +898,156 @@ describe("computeTreeLayout - 交差回避", () => {
     expect(posRight.x - leftRightEdge).toBeGreaterThanOrEqual(
       DEFAULT_LAYOUT_CONFIG.horizontalGap,
     );
+  });
+});
+
+describe("computeTreeLayout - rect boundary微調整", () => {
+  /** ヘルパー: 全同一レベルの隣接ノードペアが重ならないことを確認 */
+  function assertNoOverlaps(
+    result: ReadonlyMap<string, { readonly x: number; readonly y: number }>,
+    nodeSizes: ReadonlyMap<string, { readonly width: number }>,
+    horizontalGap: number,
+  ): void {
+    // Group by y
+    const byY = new Map<
+      number,
+      { readonly id: string; readonly x: number }[]
+    >();
+    for (const [id, pos] of result) {
+      const existing = byY.get(pos.y);
+      if (existing !== undefined) {
+        existing.push({ id, x: pos.x });
+      } else {
+        byY.set(pos.y, [{ id, x: pos.x }]);
+      }
+    }
+    for (const [, level] of byY) {
+      const sorted = [...level].sort((a, b) => a.x - b.x);
+      for (let i = 0; i < sorted.length - 1; i++) {
+        const left = sorted[i]!;
+        const right = sorted[i + 1]!;
+        const leftWidth = nodeSizes.get(left.id)?.width ?? 0;
+        const leftRightEdge = left.x + leftWidth;
+        expect(right.x).toBeGreaterThanOrEqual(leftRightEdge + horizontalGap);
+      }
+    }
+  }
+
+  it("幅が大きく異なるノードでも重ならない", () => {
+    // root → wide_child, root → narrow_child
+    const wideSize = { width: 400, height: 40 };
+    const narrowSize = { width: 50, height: 40 };
+    const nodes = [
+      node("root"),
+      node("wide", wideSize),
+      node("narrow", narrowSize),
+    ];
+    const edges: readonly LayoutEdge[] = [
+      { fromNodeId: "root", toNodeId: "wide" },
+      { fromNodeId: "root", toNodeId: "narrow" },
+    ];
+    const result = computeTreeLayout(nodes, edges);
+    const nodeSizes = new Map([
+      ["root", DEFAULT_SIZE],
+      ["wide", wideSize],
+      ["narrow", narrowSize],
+    ]);
+    assertNoOverlaps(result, nodeSizes, DEFAULT_LAYOUT_CONFIG.horizontalGap);
+  });
+
+  it("フォレストのツリー間で重なりが解消される", () => {
+    // Tree1: wide_root → child1
+    // Tree2: narrow_root → child2
+    // wide_rootが大きい場合、Tree2がTree1に重なる可能性
+    const wideSize = { width: 500, height: 40 };
+    const nodes = [
+      node("wide_root", wideSize),
+      node("child1"),
+      node("narrow_root"),
+      node("child2"),
+    ];
+    const edges: readonly LayoutEdge[] = [
+      { fromNodeId: "wide_root", toNodeId: "child1" },
+      { fromNodeId: "narrow_root", toNodeId: "child2" },
+    ];
+    const result = computeTreeLayout(nodes, edges);
+    const nodeSizes = new Map<string, { readonly width: number }>([
+      ["wide_root", wideSize],
+      ["child1", DEFAULT_SIZE],
+      ["narrow_root", DEFAULT_SIZE],
+      ["child2", DEFAULT_SIZE],
+    ]);
+    assertNoOverlaps(result, nodeSizes, DEFAULT_LAYOUT_CONFIG.horizontalGap);
+  });
+
+  it("深い木で各レベルの重なりが解消される", () => {
+    // root → a → a1, a → a2
+    // root → b → b1, b → b2
+    // 各レベルで a2 と b1 が重ならない
+    const nodes = [
+      node("root"),
+      node("a"),
+      node("b"),
+      node("a1"),
+      node("a2"),
+      node("b1"),
+      node("b2"),
+    ];
+    const edges: readonly LayoutEdge[] = [
+      { fromNodeId: "root", toNodeId: "a" },
+      { fromNodeId: "root", toNodeId: "b" },
+      { fromNodeId: "a", toNodeId: "a1" },
+      { fromNodeId: "a", toNodeId: "a2" },
+      { fromNodeId: "b", toNodeId: "b1" },
+      { fromNodeId: "b", toNodeId: "b2" },
+    ];
+    const result = computeTreeLayout(nodes, edges);
+    const nodeSizes = new Map(nodes.map((n) => [n.id, n.size]));
+    assertNoOverlaps(result, nodeSizes, DEFAULT_LAYOUT_CONFIG.horizontalGap);
+  });
+
+  it("親がrecenterされて子の中央に位置する", () => {
+    // parent → left, parent → right
+    const nodes = [node("parent"), node("left"), node("right")];
+    const edges: readonly LayoutEdge[] = [
+      { fromNodeId: "parent", toNodeId: "left" },
+      { fromNodeId: "parent", toNodeId: "right" },
+    ];
+    const result = computeTreeLayout(nodes, edges);
+    const posParent = result.get("parent")!;
+    const posLeft = result.get("left")!;
+    const posRight = result.get("right")!;
+
+    // parent center should be between left center and right center
+    const parentCenter = posParent.x + DEFAULT_SIZE.width / 2;
+    const leftCenter = posLeft.x + DEFAULT_SIZE.width / 2;
+    const rightCenter = posRight.x + DEFAULT_SIZE.width / 2;
+    const childrenMidpoint = (leftCenter + rightCenter) / 2;
+    expect(Math.abs(parentCenter - childrenMidpoint)).toBeLessThan(1);
+  });
+
+  it("bottom-to-topでも重なりが解消される", () => {
+    const wideSize = { width: 400, height: 40 };
+    const nodes = [
+      node("root"),
+      node("wide", wideSize),
+      node("narrow", { width: 50, height: 40 }),
+    ];
+    const edges: readonly LayoutEdge[] = [
+      { fromNodeId: "root", toNodeId: "wide" },
+      { fromNodeId: "root", toNodeId: "narrow" },
+    ];
+    const config: LayoutConfig = {
+      ...DEFAULT_LAYOUT_CONFIG,
+      direction: "bottom-to-top",
+    };
+    const result = computeTreeLayout(nodes, edges, config);
+    // Verify no overlaps (y is flipped, but x should still be valid)
+    const nodeSizes = new Map<string, { readonly width: number }>([
+      ["root", DEFAULT_SIZE],
+      ["wide", wideSize],
+      ["narrow", { width: 50, height: 40 }],
+    ]);
+    assertNoOverlaps(result, nodeSizes, DEFAULT_LAYOUT_CONFIG.horizontalGap);
   });
 });

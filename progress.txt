@@ -8561,3 +8561,29 @@
   - `workspaceState.ts` のレイアウト関連値を変更する際は、テストの期待値も同期が必要
   - 残タスク: rect boundary による微調整機能（prd-inserted-tasks.md に残存）
 ---
+
+## 2026-03-02 - layout: rect boundary 微調整
+- 実装した内容:
+  - `treeLayoutLogic.ts` に rect boundary 重なり解消の後処理パスを追加
+  - `groupNodesByY`: Y座標でノードをレベル分けする純粋関数
+  - `resolveOverlaps`: 各レベルで左→右スキャンし、矩形重なりをサブツリーごとシフトで解消
+  - `recenterParents`: 重なり解消後に親ノードを子の中央に再配置（ボトムアップ）
+  - `extractTreeForward`: DAG forward ではなくツリー構造のみの parent→child 辺を抽出
+  - `computeTreeLayout` パイプラインに上記を統合
+- 変更したファイル:
+  - `src/lib/proof-pad/treeLayoutLogic.ts` — 4関数追加 + パイプライン統合（+193行）
+  - `src/lib/proof-pad/treeLayoutLogic.test.ts` — 24テスト追加（60→64テスト）
+  - `tasks/prd-inserted-tasks.md` → `tasks-archived/prd-inserted-tasks.md` にアーカイブ
+- カバレッジ: Stmts 99.19%, Branch 94.09%, Funcs 89.83%, Lines 99.97%（維持〜向上）
+  - treeLayoutLogic.ts: Branch 95.23% → 96.47%（向上）
+- テスト: 7330テスト全通過
+- スクリーンショット:
+  - `.screenshots/tree-layout-rect-boundary-final.png`
+  - `.screenshots/tree-layout-rect-boundary-fit-final.png`
+  - `.screenshots/tree-layout-rect-boundary-bottom-to-top-final.png`
+- **今後のイテレーションへの学び:**
+  - DAG forward と tree forward の区別が重要。MPのような「2入力→1出力」では複数親が同じ子を参照するため、recenterParents で DAG forward を使うと両親が同位置に移動してしまう。tree forward のみ使うべき
+  - `collectDescendants` でサブツリー全体をシフトする際、forward参照先が positions に存在しない場合のガード（defensive branch）が必要
+  - 防御的コードの coverage は `/* v8 ignore start/stop */` より実際にテストで網羅する方が安全
+  - `prd-inserted-tasks.md` の自動整列改善タスクは全完了。ファイルは空にして保持
+---
