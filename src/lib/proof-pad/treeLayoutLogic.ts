@@ -38,8 +38,8 @@ export type LayoutConfig = {
 
 /** デフォルトのレイアウト設定 */
 export const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
-  horizontalGap: 40,
-  verticalGap: 80,
+  horizontalGap: 60,
+  verticalGap: 120,
   direction: "top-to-bottom",
 };
 
@@ -176,6 +176,97 @@ export function buildForest(
   }
 
   return forest;
+}
+
+// --- Crossing reduction ---
+
+/** Collect nodes at each depth level from a forest.
+ *  Returns a map from depth to ordered list of node IDs at that depth.
+ *  Pure function. */
+export function collectNodesByLevel(
+  forest: readonly TreeNode[],
+): ReadonlyMap<number, readonly string[]> {
+  const levels = new Map<number, string[]>();
+
+  function traverse(node: TreeNode, depth: number): void {
+    const level = levels.get(depth);
+    if (level !== undefined) {
+      level.push(node.id);
+    } else {
+      levels.set(depth, [node.id]);
+    }
+    for (const child of node.children) {
+      traverse(child, depth + 1);
+    }
+  }
+
+  for (const tree of forest) {
+    traverse(tree, 0);
+  }
+
+  return levels;
+}
+
+/** Reorder children of each node using barycenter heuristic to reduce edge crossings.
+ *
+ *  For each node, its children are sorted by the barycenter (average position) of their
+ *  connections in the layer above. This is a single downward pass of the Sugiyama method.
+ *
+ *  Uses the original DAG adjacency (inverse map) so that shared nodes (DAG edges not in tree)
+ *  are also considered.
+ *
+ *  Pure function — returns a new forest. */
+export function reorderChildrenByBarycenter(
+  forest: readonly TreeNode[],
+  inverse: ReadonlyMap<string, readonly string[]>,
+): readonly TreeNode[] {
+  // Step 1: Compute position index for each node at each level
+  const levels = collectNodesByLevel(forest);
+  const positionIndex = new Map<string, number>();
+  for (const [, nodeIds] of levels) {
+    for (let i = 0; i < nodeIds.length; i++) {
+      positionIndex.set(nodeIds[i]!, i);
+    }
+  }
+
+  // Step 2: Reorder children using parent positions from the level above
+  function reorderNode(node: TreeNode): TreeNode {
+    if (node.children.length <= 1) {
+      // Recurse even for single children
+      return {
+        ...node,
+        children: node.children.map(reorderNode),
+      };
+    }
+
+    // For each child, compute barycenter = average position of its parents in the DAG
+    const childrenWithBarycenter = node.children.map((child) => {
+      const parents = inverse.get(child.id) ?? [];
+      let sumPos = 0;
+      let count = 0;
+      for (const parentId of parents) {
+        const pos = positionIndex.get(parentId);
+        if (pos !== undefined) {
+          sumPos += pos;
+          count++;
+        }
+      }
+      const barycenter = count > 0 ? sumPos / count : 0;
+      return { child, barycenter };
+    });
+
+    // Sort by barycenter (stable sort preserves original order for ties)
+    const sorted = [...childrenWithBarycenter].sort(
+      (a, b) => a.barycenter - b.barycenter,
+    );
+
+    return {
+      ...node,
+      children: sorted.map((s) => reorderNode(s.child)),
+    };
+  }
+
+  return forest.map(reorderNode);
 }
 
 /** Calculate subtree widths (post-order traversal).
@@ -368,15 +459,18 @@ export function computeTreeLayout(
   const rootIds = findRootNodes(nodeIds, inverse);
 
   // Build forest
-  const forest = buildForest(rootIds, nodeMap, forward);
+  const rawForest = buildForest(rootIds, nodeMap, forward);
 
   // 防御的: nodes.length > 0 かつ buildForest で未訪問ノードが孤立ノードとして追加されるため、
   // forest.length === 0 は到達しない
   /* v8 ignore start */
-  if (forest.length === 0) {
+  if (rawForest.length === 0) {
     return new Map();
   }
   /* v8 ignore stop */
+
+  // Reorder children to reduce edge crossings (barycenter heuristic)
+  const forest = reorderChildrenByBarycenter(rawForest, inverse);
 
   // Calculate subtree widths
   const withWidths = forest.map((tree) =>
