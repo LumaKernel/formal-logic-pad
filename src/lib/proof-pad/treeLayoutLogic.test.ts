@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   buildAdjacencyLists,
   buildForest,
+  collectNodesByLevel,
   computeLayoutDiff,
   computeLevelHeights,
   computeTotalHeight,
@@ -10,6 +11,7 @@ import {
   findLeafNodes,
   findRootNodes,
   flipYPositions,
+  reorderChildrenByBarycenter,
   type LayoutConfig,
   type LayoutEdge,
   type LayoutNode,
@@ -186,6 +188,14 @@ describe("computeTotalHeight", () => {
 });
 
 describe("flipYPositions", () => {
+  it("nodeMapにIDがない場合はheight=0として処理", () => {
+    const positions = new Map([["unknown", { x: 10, y: 20 }]]);
+    const nodeMap = new Map<string, LayoutNode>(); // 空
+    const flipped = flipYPositions(positions, nodeMap, 100);
+    // height=0 → y = 100 - 20 - 0 = 80
+    expect(flipped.get("unknown")).toEqual({ x: 10, y: 80 });
+  });
+
   it("y座標を反転する", () => {
     const positions = new Map([
       ["a", { x: 0, y: 0 }],
@@ -475,5 +485,196 @@ describe("computeLayoutDiff", () => {
     );
     // aは10移動しているので閾値以上、含まれる
     expect(diff.has("a")).toBe(true);
+  });
+});
+
+describe("DEFAULT_LAYOUT_CONFIG", () => {
+  it("デフォルト間隔が十分広い", () => {
+    expect(DEFAULT_LAYOUT_CONFIG.horizontalGap).toBeGreaterThanOrEqual(60);
+    expect(DEFAULT_LAYOUT_CONFIG.verticalGap).toBeGreaterThanOrEqual(120);
+  });
+});
+
+describe("collectNodesByLevel", () => {
+  it("各レベルのノードIDを収集する", () => {
+    const nodes = new Map([
+      ["a", node("a")],
+      ["b", node("b")],
+      ["c", node("c")],
+      ["d", node("d")],
+    ]);
+    const forward = new Map<string, string[]>([
+      ["a", ["b", "c"]],
+      ["b", ["d"]],
+    ]);
+    const forest = buildForest(["a"], nodes, forward);
+    const levels = collectNodesByLevel(forest);
+    expect(levels.get(0)).toEqual(["a"]);
+    expect(levels.get(1)).toEqual(["b", "c"]);
+    expect(levels.get(2)).toEqual(["d"]);
+  });
+
+  it("フォレストの場合、同じレベルに複数のルート", () => {
+    const nodes = new Map([
+      ["a", node("a")],
+      ["b", node("b")],
+    ]);
+    const forest = buildForest(["a", "b"], nodes, new Map());
+    const levels = collectNodesByLevel(forest);
+    expect(levels.get(0)).toEqual(["a", "b"]);
+  });
+});
+
+describe("reorderChildrenByBarycenter", () => {
+  it("子が1つ以下の場合は順序変更なし", () => {
+    const nodes = new Map([
+      ["a", node("a")],
+      ["b", node("b")],
+    ]);
+    const forward = new Map<string, string[]>([["a", ["b"]]]);
+    const forest = buildForest(["a"], nodes, forward);
+    const inverse = new Map<string, string[]>([["b", ["a"]]]);
+    const reordered = reorderChildrenByBarycenter(forest, inverse);
+    expect(reordered[0]!.children[0]!.id).toBe("b");
+  });
+
+  it("barycenterに基づいて子ノードを並び替える", () => {
+    // ルート r1(pos=0), r2(pos=1) がレベル0
+    // r1 → c2, r1 → c1  （c2が先、c1が後の順で宣言）
+    // r2 → c1             （c1はDAGでr2にも繋がっている）
+    // barycenter: c2はr1(0)のみ → bc=0, c1はr1(0)+r2(1) → bc=0.5
+    // c2のbcがc1より小さいので、c2が左に来る（既にそうなっているケース）
+    const nodes = new Map([
+      ["r1", node("r1")],
+      ["r2", node("r2")],
+      ["c1", node("c1")],
+      ["c2", node("c2")],
+    ]);
+    // r1 → c2, c1 (c2が先)
+    const forward = new Map<string, string[]>([
+      ["r1", ["c2", "c1"]],
+      ["r2", ["c1"]],
+    ]);
+    const forest = buildForest(["r1", "r2"], nodes, forward);
+    const inverse = new Map<string, string[]>([
+      ["c2", ["r1"]],
+      ["c1", ["r1", "r2"]],
+    ]);
+
+    const reordered = reorderChildrenByBarycenter(forest, inverse);
+    // r1の子: c2(bc=0), c1(bc=0.5) → c2が左
+    expect(reordered[0]!.children[0]!.id).toBe("c2");
+    expect(reordered[0]!.children[1]!.id).toBe("c1");
+  });
+
+  it("inverse に存在しない子ノードはbarycenter=0になる", () => {
+    // ルートr1 → c1, c2
+    // inverseにc1/c2のエントリがない場合、barycenter=0
+    const nodes = new Map([
+      ["r1", node("r1")],
+      ["c1", node("c1")],
+      ["c2", node("c2")],
+    ]);
+    const forward = new Map<string, string[]>([["r1", ["c1", "c2"]]]);
+    const forest = buildForest(["r1"], nodes, forward);
+    // inverseが空 → 全子のbarycenter=0 → 元の順序維持
+    const reordered = reorderChildrenByBarycenter(forest, new Map());
+    expect(reordered[0]!.children[0]!.id).toBe("c1");
+    expect(reordered[0]!.children[1]!.id).toBe("c2");
+  });
+
+  it("親のposition indexが存在しない場合スキップ", () => {
+    // ルートr1 → c1, c2
+    // inverseにc1の親として「unknown_parent」がいるが、position indexにはない
+    const nodes = new Map([
+      ["r1", node("r1")],
+      ["c1", node("c1")],
+      ["c2", node("c2")],
+    ]);
+    const forward = new Map<string, string[]>([["r1", ["c1", "c2"]]]);
+    const forest = buildForest(["r1"], nodes, forward);
+    const inverse = new Map<string, string[]>([
+      ["c1", ["r1", "unknown_parent"]],
+      ["c2", ["r1"]],
+    ]);
+    const reordered = reorderChildrenByBarycenter(forest, inverse);
+    // c1のbarycenter = 0 (r1のposだけカウント), c2のbarycenter = 0
+    // 同じbarycenterなので元の順序維持
+    expect(reordered[0]!.children[0]!.id).toBe("c1");
+    expect(reordered[0]!.children[1]!.id).toBe("c2");
+  });
+
+  it("交差を減らす方向に並び替える", () => {
+    // r1(pos=0), r2(pos=1) がルート
+    // r1 → c_right (r2からも接続), r1 → c_left (r1のみ)
+    // r2 → c_right
+    // c_right の barycenter = (0+1)/2 = 0.5, c_left の barycenter = 0/1 = 0
+    // なので c_left が先に来るべき
+    const nodes = new Map([
+      ["r1", node("r1")],
+      ["r2", node("r2")],
+      ["c_left", node("c_left")],
+      ["c_right", node("c_right")],
+    ]);
+    // r1の子が c_right, c_left の順（交差する配置）
+    const forward = new Map<string, string[]>([
+      ["r1", ["c_right", "c_left"]],
+      ["r2", ["c_right"]],
+    ]);
+    const forest = buildForest(["r1", "r2"], nodes, forward);
+    const inverse = new Map<string, string[]>([
+      ["c_right", ["r1", "r2"]],
+      ["c_left", ["r1"]],
+    ]);
+
+    const reordered = reorderChildrenByBarycenter(forest, inverse);
+    // c_left(bc=0)が先、c_right(bc=0.5)が後に並び替えられる
+    expect(reordered[0]!.children[0]!.id).toBe("c_left");
+    expect(reordered[0]!.children[1]!.id).toBe("c_right");
+  });
+});
+
+describe("computeTreeLayout - 交差回避", () => {
+  it("交差する配置が最適化される", () => {
+    // r1(左), r2(右) がルート
+    // r1 → c_right (r2からも接続), r1 → c_left (r1のみ)
+    // r2 → c_right
+    // 最適化後: c_left(r1のみ接続)が左、c_right(r1+r2接続)が右
+    const nodes = [
+      node("r1"),
+      node("r2"),
+      node("c_left"),
+      node("c_right"),
+    ];
+    const edges: readonly LayoutEdge[] = [
+      { fromNodeId: "r1", toNodeId: "c_right" },
+      { fromNodeId: "r1", toNodeId: "c_left" },
+      { fromNodeId: "r2", toNodeId: "c_right" },
+    ];
+    const result = computeTreeLayout(nodes, edges);
+
+    // c_left がc_rightの左に配置される（交差回避）
+    expect(result.get("c_left")!.x).toBeLessThan(result.get("c_right")!.x);
+  });
+
+  it("デフォルト間隔でノード同士が十分離れる", () => {
+    // 2つの子ノードが重ならないことを確認
+    const nodes = [node("root"), node("left"), node("right")];
+    const edges: readonly LayoutEdge[] = [
+      { fromNodeId: "root", toNodeId: "left" },
+      { fromNodeId: "root", toNodeId: "right" },
+    ];
+    const result = computeTreeLayout(nodes, edges);
+
+    const posLeft = result.get("left")!;
+    const posRight = result.get("right")!;
+
+    // rightの左端がleftの右端よりも右にある（重ならない）
+    const leftRightEdge = posLeft.x + DEFAULT_SIZE.width;
+    expect(posRight.x).toBeGreaterThanOrEqual(leftRightEdge);
+    // さらにギャップ分離れている
+    expect(posRight.x - leftRightEdge).toBeGreaterThanOrEqual(
+      DEFAULT_LAYOUT_CONFIG.horizontalGap,
+    );
   });
 });

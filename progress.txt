@@ -8535,3 +8535,29 @@
   - ∃ (Existential) はHilbert系にはA4/A5で直接導入する公理がない。equalFormulaは構造的一致のため ∃x.P(x) ≠ ¬∀x.¬P(x)
   - filterByCategory()でテストケースを自動生成する仕組みは、新しい模範解答を追加するだけでテストが増えるため非常に効率的
 ---
+
+## 2026-03-02 - 自動整列アルゴリズム改善
+- 実装した内容:
+  - デフォルトの間隔を拡大: horizontalGap 40→60, verticalGap 80→120
+  - barycenter heuristic による交差回避アルゴリズム追加（Sugiyama法の簡易版）
+  - `collectNodesByLevel()` 関数追加（深さレベルごとのノード収集）
+  - `reorderChildrenByBarycenter()` 関数追加（DAGの逆隣接リストを使った重心ソート）
+  - `workspaceState.ts` のハードコード値を `DEFAULT_LAYOUT_CONFIG` 参照に統一
+- 変更したファイル:
+  - `src/lib/proof-pad/treeLayoutLogic.ts` — 交差回避ロジック追加、デフォルト間隔拡大
+  - `src/lib/proof-pad/treeLayoutLogic.test.ts` — 新関数のユニットテスト追加（201行追加）
+  - `src/lib/proof-pad/workspaceState.ts` — DEFAULT_LAYOUT_CONFIG参照に統一
+  - `src/lib/proof-pad/workspaceState.test.ts` — verticalGap変更の期待値修正
+  - `tasks/prd-inserted-tasks.md` — 完了サブタスクのマーク
+- カバレッジ: Stmts 99.18%, Branch 94.09%, Funcs 89.79%, Lines 99.97%（維持）
+  - treeLayoutLogic.ts: Branch 92.45% → 95.23%（向上）
+- スクリーンショット:
+  - `.screenshots/tree-layout-improved-identity-proof.png`
+  - `.screenshots/tree-layout-improved-large-proof-tree.png`
+  - `.screenshots/tree-layout-large-proof-tree-iframe.png`
+- **今後のイテレーションへの学び:**
+  - barycenter heuristic は DAG の逆隣接リスト（inverse map）を使って親のポジションを参照する。ツリーだけでなくDAG全体のエッジを考慮するのが重要
+  - `DEFAULT_LAYOUT_CONFIG` を単一の真実の源として使い、ハードコード値を排除するパターンが良い
+  - `workspaceState.ts` のレイアウト関連値を変更する際は、テストの期待値も同期が必要
+  - 残タスク: rect boundary による微調整機能（prd-inserted-tasks.md に残存）
+---

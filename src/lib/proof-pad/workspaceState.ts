@@ -65,6 +65,7 @@ import {
 import {
   computeTreeLayout,
   computeLayoutDiff,
+  DEFAULT_LAYOUT_CONFIG,
   type LayoutConfig,
   type LayoutDirection,
 } from "./treeLayoutLogic";
@@ -1359,8 +1360,9 @@ export function applyTreeLayout(
   }));
 
   const layoutConfig: LayoutConfig = {
-    horizontalGap: config?.horizontalGap ?? 40,
-    verticalGap: config?.verticalGap ?? 80,
+    horizontalGap:
+      config?.horizontalGap ?? DEFAULT_LAYOUT_CONFIG.horizontalGap,
+    verticalGap: config?.verticalGap ?? DEFAULT_LAYOUT_CONFIG.verticalGap,
     direction,
   };
 
@@ -1405,8 +1407,9 @@ export function applyIncrementalLayout(
   }));
 
   const layoutConfig: LayoutConfig = {
-    horizontalGap: config?.horizontalGap ?? 40,
-    verticalGap: config?.verticalGap ?? 80,
+    horizontalGap:
+      config?.horizontalGap ?? DEFAULT_LAYOUT_CONFIG.horizontalGap,
+    verticalGap: config?.verticalGap ?? DEFAULT_LAYOUT_CONFIG.verticalGap,
     direction,
   };
 

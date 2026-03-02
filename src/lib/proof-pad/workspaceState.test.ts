@@ -1293,8 +1293,8 @@ describe("proofWorkspace", () => {
       const posA1 = result.nodes.find((n) => n.id === "node-1")!.position;
       const posMp = result.nodes.find((n) => n.id === "node-2")!.position;
 
-      // verticalGap = 80 by default, nodeHeight = 80
-      expect(posMp.y - posA1.y).toBe(80 + 80);
+      // verticalGap = 120 by default, nodeHeight = 80
+      expect(posMp.y - posA1.y).toBe(80 + 120);
     });
 
     it("空のワークスペースでエラーにならない", () => {
