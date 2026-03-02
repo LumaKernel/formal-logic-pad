@@ -123,3 +123,17 @@ export {
 } from "./questNotebookFilterLogic";
 
 export { QuestCatalog, type QuestCatalogProps } from "./QuestCatalogComponent";
+
+export {
+  type ModelAnswerStep,
+  type ModelAnswer,
+  type BuildModelAnswerResult,
+  type ValidateModelAnswerResult,
+  buildModelAnswerWorkspace,
+  validateModelAnswer,
+} from "./modelAnswer";
+
+export {
+  builtinModelAnswers,
+  modelAnswerRegistry,
+} from "./builtinModelAnswers";
