@@ -8101,3 +8101,26 @@
   - isNodeProtected は現在常に false を返す（ゴールはノードから分離されている設計）。この防御的コードはv8 ignoreで対処
   - autoLayout の「ノード/接続数が変化しない」分岐は、identity のような既存ノードの属性のみ変更する規則でカバーできる
 ---
+
+## 2026-03-02 - カバレッジ改善（workspaceState + ProofWorkspace v8 ignore）
+- Branch coverage: 94.28% → 94.55%
+- workspaceState.ts Branch: 90.12% → 96.42%
+- ProofWorkspace.tsx Branch: 83.53% → 84.11%
+- 実装内容:
+  - workspaceState.ts: `/* v8 ignore next N */` → `/* v8 ignore start/stop */` 形式に統一（TAB/AT/SC規則の防御的??フォールバック）
+  - workspaceState.ts: AT γ/δ規則の防御的`??`にv8 ignoreコメント追加
+  - workspaceState.test.ts: updateInferenceEdgeGenVariableName既存エッジ更新テスト追加
+  - workspaceState.test.ts: updateInferenceEdgeSubstitutionEntries既存エッジ更新テスト追加
+  - workspaceState.test.ts: revalidateInferenceConclusions代入前提変更・代入失敗テスト追加
+  - workspaceState.test.ts: ND結論テキストクリア（非空→空）テスト追加
+  - ProofWorkspace.tsx: findNode null check（MP/Gen/Tab/AT/SC各ハンドラ）にv8 ignore追加
+  - ProofWorkspace.tsx: gen/substitution _tag再チェックternaryにv8 ignore追加
+- 変更したファイル:
+  - src/lib/proof-pad/workspaceState.ts（v8 ignore改善 +16行）
+  - src/lib/proof-pad/workspaceState.test.ts（テスト追加 +136行）
+  - src/lib/proof-pad/ProofWorkspace.tsx（v8 ignore追加 +16行）
+- **今後のイテレーションへの学び:**
+  - `/* v8 ignore next N */` はブランチカバレッジの`??`フォールバックに対して効かないことがある。`/* v8 ignore start */` / `/* v8 ignore stop */` 形式の方が確実
+  - workspaceState.ts の lines 477, 501 は単一テストファイル実行では99.24% Branchだが、フルスイートでは96.42%。v8カバレッジの集約時にBRDA値が消失する既知の問題
+  - ProofWorkspace.tsx の134uncovered branchesのうち107は JSX描画領域（line 2000+）で、ユニットテストでのカバーは困難。残り27のうち半分はfindNode防御的コードでv8 ignoreで対処可能
+---
