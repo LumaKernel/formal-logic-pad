@@ -640,12 +640,7 @@ describe("computeTreeLayout - 交差回避", () => {
     // r1 → c_right (r2からも接続), r1 → c_left (r1のみ)
     // r2 → c_right
     // 最適化後: c_left(r1のみ接続)が左、c_right(r1+r2接続)が右
-    const nodes = [
-      node("r1"),
-      node("r2"),
-      node("c_left"),
-      node("c_right"),
-    ];
+    const nodes = [node("r1"), node("r2"), node("c_left"), node("c_right")];
     const edges: readonly LayoutEdge[] = [
       { fromNodeId: "r1", toNodeId: "c_right" },
       { fromNodeId: "r1", toNodeId: "c_left" },

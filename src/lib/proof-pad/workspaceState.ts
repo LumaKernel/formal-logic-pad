@@ -1360,8 +1360,7 @@ export function applyTreeLayout(
   }));
 
   const layoutConfig: LayoutConfig = {
-    horizontalGap:
-      config?.horizontalGap ?? DEFAULT_LAYOUT_CONFIG.horizontalGap,
+    horizontalGap: config?.horizontalGap ?? DEFAULT_LAYOUT_CONFIG.horizontalGap,
     verticalGap: config?.verticalGap ?? DEFAULT_LAYOUT_CONFIG.verticalGap,
     direction,
   };
@@ -1407,8 +1406,7 @@ export function applyIncrementalLayout(
   }));
 
   const layoutConfig: LayoutConfig = {
-    horizontalGap:
-      config?.horizontalGap ?? DEFAULT_LAYOUT_CONFIG.horizontalGap,
+    horizontalGap: config?.horizontalGap ?? DEFAULT_LAYOUT_CONFIG.horizontalGap,
     verticalGap: config?.verticalGap ?? DEFAULT_LAYOUT_CONFIG.verticalGap,
     direction,
   };
