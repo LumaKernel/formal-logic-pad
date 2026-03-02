@@ -42,6 +42,8 @@ export interface FormulaEditorProps {
   readonly editTrigger?: EditTrigger;
   /** 構文ヘルプを開くコールバック（指定時に編集モードで?ボタンを表示） */
   readonly onOpenSyntaxHelp?: () => void;
+  /** 外部から編集モードを強制的に開始するフラグ（trueにすると編集モードに遷移、使用後はfalseに戻すこと） */
+  readonly forceEditMode?: boolean;
   /** data-testid */
   readonly testId?: string;
 }
@@ -119,6 +121,7 @@ export function FormulaEditor({
   style,
   editTrigger = "click",
   onOpenSyntaxHelp,
+  forceEditMode,
   testId,
 }: FormulaEditorProps) {
   const [mode, setModeInternal] = useState<EditorMode>("display");
@@ -145,6 +148,14 @@ export function FormulaEditor({
   const enterEditMode = useCallback(() => {
     setMode("editing");
   }, [setMode]);
+
+  // 外部から編集モードを強制開始
+  useEffect(() => {
+    if (forceEditMode && mode !== "editing") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot event-driven transition from context menu
+      enterEditMode();
+    }
+  }, [forceEditMode, mode, enterEditMode]);
 
   const tryExitEditMode = useCallback(() => {
     const currentParseState = computeParseState(value);

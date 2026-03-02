@@ -141,6 +141,8 @@ function useProofMessagesFromIntl(): ProofMessages {
       clickToCycleRoleTooltip: t("clickToCycleRoleTooltip"),
       derivedNodeAutoTooltip: t("derivedNodeAutoTooltip"),
       formulaEditorPlaceholder: t("formulaEditorPlaceholder"),
+      formulaEditorPlaceholderDblclick: t("formulaEditorPlaceholderDblclick"),
+      editFormula: t("editFormula"),
       substitutionKindFormula: t("substitutionKindFormula"),
       substitutionKindTerm: t("substitutionKindTerm"),
 

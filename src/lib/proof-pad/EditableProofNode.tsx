@@ -85,6 +85,8 @@ export interface EditableProofNodeProps {
   readonly onOpenSyntaxHelp?: () => void;
   /** 代入ノードの代入エントリ一覧（表示用） */
   readonly substitutionEntries?: SubstitutionEntries;
+  /** 外部から編集モードを強制的に開始するフラグ */
+  readonly forceEditMode?: boolean;
   /** data-testid */
   readonly testId?: string;
 }
@@ -355,6 +357,7 @@ export function EditableProofNode({
   editTrigger,
   onOpenSyntaxHelp,
   substitutionEntries,
+  forceEditMode,
   testId,
 }: EditableProofNodeProps) {
   const nodeStyle = useMemo(
@@ -524,8 +527,13 @@ export function EditableProofNode({
             onParsed={handleFormulaParsed}
             onModeChange={handleModeChange}
             displayRenderer="unicode"
-            placeholder={msg.formulaEditorPlaceholder}
+            placeholder={
+              editTrigger === "dblclick"
+                ? msg.formulaEditorPlaceholderDblclick
+                : msg.formulaEditorPlaceholder
+            }
             editTrigger={editTrigger}
+            forceEditMode={forceEditMode}
             onOpenSyntaxHelp={onOpenSyntaxHelp}
             testId={testId ? `${testId satisfies string}-editor` : undefined}
             style={{

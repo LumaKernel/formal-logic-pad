@@ -130,6 +130,8 @@
     "clickToCycleRoleTooltip": "クリックで役割切替: ルート → 公理",
     "derivedNodeAutoTooltip": "導出ノード（役割は自動）",
     "formulaEditorPlaceholder": "クリックして論理式を入力...",
+    "formulaEditorPlaceholderDblclick": "ダブルクリックして論理式を入力...",
+    "editFormula": "論理式を編集",
     "substitutionKindFormula": "論理式",
     "substitutionKindTerm": "項",
     "axiomPaletteHeader": "公理一覧",

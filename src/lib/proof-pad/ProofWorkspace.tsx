@@ -636,6 +636,11 @@ export function ProofWorkspace({
     () => new Set(),
   );
 
+  // コンテキストメニューから「論理式を編集」で指定されたノードID
+  const [editRequestNodeId, setEditRequestNodeId] = useState<string | null>(
+    null,
+  );
+
   // MP選択モード
   const [mpSelection, setMPSelection] = useState<MPSelectionState>({
     phase: "idle",
@@ -2158,6 +2163,13 @@ export function ProofWorkspace({
     setNodeMenuState(closeNodeMenu());
   }, [nodeMenuState, workspace.inferenceEdges]);
 
+  // コンテキストメニューから「論理式を編集」
+  const handleEditFormula = useCallback(() => {
+    if (!nodeMenuState.open) return;
+    setEditRequestNodeId(nodeMenuState.nodeId);
+    setNodeMenuState(closeNodeMenu());
+  }, [nodeMenuState]);
+
   // コンテキストメニューから「MPの左前提として使う」
   const handleUseAsMPLeft = useCallback(() => {
     if (!nodeMenuState.open) return;
@@ -2422,6 +2434,12 @@ export function ProofWorkspace({
     if (!nodeMenuState.open) return false;
     return isNodeProtected(workspace, nodeMenuState.nodeId);
   }, [nodeMenuState, workspace]);
+
+  const menuNodeIsEditable = useMemo(() => {
+    if (!nodeMenuState.open) return false;
+    if (menuNodeIsProtected) return false;
+    return nodeClassifications.get(nodeMenuState.nodeId) !== "derived";
+  }, [nodeMenuState, menuNodeIsProtected, nodeClassifications]);
 
   // コンテキストメニューから「ノードを削除する」
   const handleDuplicateNode = useCallback(() => {
@@ -2801,17 +2819,24 @@ export function ProofWorkspace({
     [onFormulaParsed],
   );
 
-  const handleModeChange = useCallback((nodeId: string, mode: EditorMode) => {
-    setEditingNodeIds((prev) => {
-      const next = new Set(prev);
-      if (mode === "editing") {
-        next.add(nodeId);
-      } else {
-        next.delete(nodeId);
+  const handleModeChange = useCallback(
+    (nodeId: string, mode: EditorMode) => {
+      setEditingNodeIds((prev) => {
+        const next = new Set(prev);
+        if (mode === "editing") {
+          next.add(nodeId);
+        } else {
+          next.delete(nodeId);
+        }
+        return next;
+      });
+      // 編集モードに入ったら editRequest をクリア
+      if (mode === "editing" && editRequestNodeId === nodeId) {
+        setEditRequestNodeId(null);
       }
-      return next;
-    });
-  }, []);
+    },
+    [editRequestNodeId],
+  );
 
   // --- ノードサイズ参照コールバック ---
 
@@ -3160,6 +3185,7 @@ export function ProofWorkspace({
                   ? edge.entries
                   : undefined;
               })()}
+              forceEditMode={editRequestNodeId === node.id}
               testId={`proof-node-${node.id satisfies string}`}
             />
           </div>
@@ -3197,6 +3223,7 @@ export function ProofWorkspace({
       onOpenSyntaxHelp,
       notifyDragMove,
       notifyDragEnd,
+      editRequestNodeId,
     ],
   );
 
@@ -4100,6 +4127,16 @@ export function ProofWorkspace({
               testId
                 ? `${testId satisfies string}-select-subtree`
                 : "select-subtree"
+            }
+          />
+          <WorkspaceMenuItem
+            label={msg.editFormula}
+            onClick={handleEditFormula}
+            disabled={!menuNodeIsEditable}
+            testId={
+              testId
+                ? `${testId satisfies string}-edit-formula`
+                : "edit-formula"
             }
           />
           <div

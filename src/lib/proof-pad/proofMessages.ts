@@ -185,6 +185,9 @@ export type ProofMessages = {
   readonly clickToCycleRoleTooltip: string;
   readonly derivedNodeAutoTooltip: string;
   readonly formulaEditorPlaceholder: string;
+  readonly formulaEditorPlaceholderDblclick: string;
+  /** コンテキストメニュー: 論理式を編集 */
+  readonly editFormula: string;
   readonly substitutionKindFormula: string;
   readonly substitutionKindTerm: string;
 
@@ -375,6 +378,8 @@ export const defaultProofMessages: ProofMessages = {
   clickToCycleRoleTooltip: "Click to cycle role: Root \u2192 Axiom",
   derivedNodeAutoTooltip: "Derived node (role is automatic)",
   formulaEditorPlaceholder: "Click to edit formula...",
+  formulaEditorPlaceholderDblclick: "Double-click to edit formula...",
+  editFormula: "Edit Formula",
   substitutionKindFormula: "Formula",
   substitutionKindTerm: "Term",
 

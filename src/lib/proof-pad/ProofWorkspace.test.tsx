@@ -2318,6 +2318,68 @@ describe("ProofWorkspace", () => {
     });
   });
 
+  describe("node context menu - edit formula", () => {
+    it("shows Edit Formula item in context menu", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      expect(screen.getByTestId("workspace-edit-formula")).toBeInTheDocument();
+    });
+
+    it("clicking Edit Formula opens editor on the node", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Open context menu and click Edit Formula
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+      const editBtn = screen.getByTestId("workspace-edit-formula");
+      await user.click(editBtn);
+
+      // Context menu should be closed
+      expect(
+        screen.queryByTestId("workspace-node-context-menu"),
+      ).not.toBeInTheDocument();
+
+      // Editor input should appear (edit mode activated)
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("proof-node-node-1-editor-edit"),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("Edit Formula is disabled for derived nodes", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 200,
+      });
+      ws = mpResult.workspace;
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Right-click on MP-derived node (node-3)
+      const mpNode = screen.getByTestId("proof-node-node-3");
+      await user.pointer({ keys: "[MouseRight]", target: mpNode });
+
+      const editBtn = screen.getByTestId("workspace-edit-formula");
+      expect(editBtn).toBeDisabled();
+    });
+  });
+
   describe("node context menu - MP/Gen actions", () => {
     it("shows Use as MP Left and Use as MP Right items in context menu", async () => {
       const user = userEvent.setup();

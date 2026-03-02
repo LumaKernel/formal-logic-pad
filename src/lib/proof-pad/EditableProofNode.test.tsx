@@ -729,6 +729,30 @@ describe("EditableProofNode", () => {
       await user.click(display);
       expect(screen.getByTestId("test-node-editor-edit")).toBeInTheDocument();
     });
+
+    it('editTrigger="dblclick"のときプレースホルダーが「ダブルクリック」になる', () => {
+      renderNode({ formulaText: "", editTrigger: "dblclick" });
+      const placeholder = screen.getByTestId("test-node-editor-placeholder");
+      expect(placeholder.textContent).toContain("Double-click");
+    });
+
+    it("editTrigger未指定のときプレースホルダーが「Click」になる", () => {
+      renderNode({ formulaText: "" });
+      const placeholder = screen.getByTestId("test-node-editor-placeholder");
+      expect(placeholder.textContent).toContain("Click");
+      expect(placeholder.textContent).not.toContain("Double");
+    });
+
+    it("forceEditModeがtrueのとき編集モードに入る", async () => {
+      renderNode({
+        formulaText: "",
+        editTrigger: "dblclick",
+        forceEditMode: true,
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId("test-node-editor-edit")).toBeInTheDocument();
+      });
+    });
   });
 
   describe("構文ヘルプ", () => {

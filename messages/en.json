@@ -130,6 +130,8 @@
     "clickToCycleRoleTooltip": "Click to cycle role: Root → Axiom",
     "derivedNodeAutoTooltip": "Derived node (role is automatic)",
     "formulaEditorPlaceholder": "Click to edit formula...",
+    "formulaEditorPlaceholderDblclick": "Double-click to edit formula...",
+    "editFormula": "Edit Formula",
     "substitutionKindFormula": "Formula",
     "substitutionKindTerm": "Term",
     "axiomPaletteHeader": "Axioms",
