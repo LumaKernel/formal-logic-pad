@@ -32,6 +32,8 @@ export default defineConfig({
         // 不純な領域: フレームワークエントリーポイント・I/O・環境依存
         "src/app/**",
         "src/i18n/**",
+        // Monaco Editor ラッパー（外部ライブラリ統合UI、ロジックは scriptEditorLogic.ts に分離）
+        "src/components/ScriptEditor/ScriptEditorComponent.tsx",
       ],
       reporter: ["text", "html", "lcov"],
     },

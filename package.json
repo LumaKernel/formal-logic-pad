@@ -17,6 +17,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "effect": "^3.19.19",
     "js-interpreter": "^6.0.1",
     "katex": "^0.16.33",

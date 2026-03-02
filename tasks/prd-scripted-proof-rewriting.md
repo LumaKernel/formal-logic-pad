@@ -64,7 +64,7 @@
 
 **受け入れ基準:**
 
-- [ ] `@monaco-editor/react` をインストール・統合
+- [-] `@monaco-editor/react` をインストール・統合
 - [ ] `src/components/ScriptEditor/` にスクリプトエディタコンポーネントを作成
 - [ ] JavaScriptの基本シンタックスハイライト
 - [ ] ブリッジ済みAPI（US-002で定義）の補完候補を自動表示
