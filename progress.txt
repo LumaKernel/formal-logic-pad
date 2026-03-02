@@ -100,6 +100,28 @@
 
 ---
 
+## 2026-03-02 - ペアノ算術12問の模範解答を追加
+- peano-basics 6問（peano-01〜06）: PA1〜PA6, E1の公理直接配置（1ステップ）
+- peano-arithmetic 6問（peano-07〜12）:
+  - peano-07〜10: A4全称消去パターン（PA公理 + A4インスタンス + MP の3ステップ）
+  - peano-11: 1+1=2の複合証明（PA4 + PA3 + E4 + E3で13ステップ）
+  - peano-12: Robinson算術Q7の公理直接配置
+- 変更ファイル:
+  - `src/lib/quest/builtinModelAnswers.ts` (12問追加)
+  - `src/lib/quest/builtinModelAnswers.test.ts` (peano-basics + peano-arithmetic テストセクション追加)
+- テスト: 218ファイル、7081テスト全パス (+36テスト)
+- カバレッジ: Stmts 99.45%, Branch 94.64%, Funcs 89.77%, Lines 99.98% (変化なし)
+- 品質チェック: typecheck ✅, lint ✅, test ✅, prettier ✅
+- **今後のイテレーションへの学び:**
+  - ペアノ算術の全称消去パターン: 理論公理(PA) + A4インスタンス（代入済み）+ MP の3ステップ
+  - A4は1つの∀量化子しか消せない。`all x. all y. ...` は2段階のA4+MPで消す
+  - E4（関数一致性）, E5（述語置換性）はシグネチャ依存で動的生成。identifyAxiomではE1,E2,E3のみ検証
+  - E4/E5インスタンスは`axiom`ステップで直接配置し、`AllAchievedButAxiomViolation` として Valid 扱い
+  - peano-11 (1+1=2) は PA4,PA3,E4,E3 の4つの公理を組み合わせる。最も複雑な形式算術計算
+  - Robinson算術(peano-12)は systemPresetId="robinson" で別システム。Q7公理が追加
+  - 模範解答の全体進捗: 46/115問完了（PROP全34 + PEANO全12）
+---
+
 ## 2026-03-02 - propositional-advanced 7問の模範解答を追加
 - propositional-advanced カテゴリ全7問の模範解答を追加:
   - prop-20 (排中律), prop-22 (連言導入), prop-23 (連言除去左),
