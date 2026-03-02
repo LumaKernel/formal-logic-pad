@@ -8377,3 +8377,23 @@
   - 大規模証明（100+ステップ）はカバレッジ計測時のフルスイート実行でタイムアウトする場合がある。テストに明示的なタイムアウト指定が必要
   - サブルーチン合成の基本ブロック: bCompose(5steps), Identity(5steps), ExFalso(7steps), Clavius(23steps), DNE(35steps), DNI(37steps) — これらを組み合わせて複雑な証明を構築
 ---
+
+## 2026-03-02 - 群論8問の模範解答を追加
+- group-basics 6問（group-01〜06）: G1, G2L, G3L, G2R, G3R, G4の公理直接配置（1ステップ）
+- group-proofs 2問（group-07〜08）: A4全称消去パターン（理論公理 + A4インスタンス + MP の3ステップ）
+  - group-07: G2L(∀x. e*x=x) → A4[x→e] → MP → e*e=e
+  - group-08: G3L(∀x. i(x)*x=e) → A4[x→e] → MP → i(e)*e=e
+- 変更ファイル:
+  - `src/lib/quest/builtinModelAnswers.ts` (8問追加)
+  - `src/lib/quest/builtinModelAnswers.test.ts` (group-basics + group-proofs テストセクション追加)
+- テスト: 218ファイル、7105テスト全パス (+24テスト)
+- カバレッジ: Stmts 99.45%, Branch 94.64%, Funcs 89.77%, Lines 99.98% (変化なし)
+- 品質チェック: typecheck ✅, lint ✅, test ✅, prettier ✅
+- ブラウザ確認: .screenshots/group-theory-model-answers-storybook.png
+- 模範解答の全体進捗: 54/115問完了（PROP全34 + PEANO全12 + GROUP全8）
+- 残り61問: predicate(6), nd(23), tab(10), at(7), sc(15)
+- **今後のイテレーションへの学び:**
+  - 群論の模範解答はペアノ算術と同じパターン: 公理直接配置(basics) + A4全称消去(proofs)
+  - group-06(可換律)はsystemPresetId="abelian-group"（他はgroup-full）
+  - CIのPrettierチェックが失敗していたのはtask-processing.mdの空ファイル問題。0バイトで合格するがCIでは環境差異がありうる
+---
