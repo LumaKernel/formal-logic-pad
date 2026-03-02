@@ -3253,8 +3253,7 @@ describe("proofWorkspace", () => {
         newEntries,
       );
       const substEdge = result.inferenceEdges.find(
-        (e) =>
-          e._tag === "substitution" && e.conclusionNodeId === "node-2",
+        (e) => e._tag === "substitution" && e.conclusionNodeId === "node-2",
       );
       expect(substEdge).toBeDefined();
       if (substEdge && substEdge._tag === "substitution") {
