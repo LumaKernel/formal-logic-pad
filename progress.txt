@@ -98,6 +98,26 @@
 - InfiniteCanvasの `isolation: isolate` でstacking contextを隔離。内部z-indexが外部UIパネルに影響しない
 - 未接続コネクタポートは `dimmed` (opacity:0) で非表示。接続ドラッグ中は全ポート表示
 - `src/lib/script-runner/` はサンドボックスJS実行環境。`createScriptRunner` ファクトリでインスタンスを作り、`run()`/`step()` で実行。`NativeFunctionBridge` でホスト関数をサンドボックスに公開
+- InfiniteCanvasコンテナに `userSelect: "none"` を設定すれば、子要素のブラウザネイティブテキスト選択を防止できる。FormulaEditorの編集モードでは個別に `userSelect: "text"` で上書き済み
+
+---
+
+## 2026-03-03 - Shift+クリック選択トグル・ブラウザネイティブセレクション防止
+- Shift+クリックでノード選択の追加/削除（トグル）機能を追加
+- InfiniteCanvasコンテナに `userSelect: "none"` を追加してブラウザネイティブのテキスト選択を防止
+- 変更ファイル:
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (handleNodeSelect に shiftKey 分岐追加)
+  - `src/lib/infinite-canvas/InfiniteCanvas.tsx` (userSelect: "none" 追加)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (Shift+クリック選択テスト2件追加)
+  - `src/lib/infinite-canvas/InfiniteCanvas.test.tsx` (userSelect テスト追加)
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` (ShiftClickSelectionToggle ストーリー追加)
+- カバレッジ: Stmts 99.19% → 99.19% (維持), Branch 94.07% → 94.13% (微増)
+- テスト: 7415 → 7419 (4件追加)
+- スクリーンショット: `.screenshots/shift-click-selection-toggle.png`, `.screenshots/shift-click-interactions-pass.png`
+- **今後のイテレーションへの学び:**
+  - `handleNodeSelect` は内側の div の onClick から呼ばれるため、React.MouseEvent の shiftKey/metaKey/ctrlKey が利用可能
+  - InfiniteCanvasの `userSelect: "none"` は一括でテキスト選択を防止する。FormulaEditorの編集モードでは個別に `userSelect: "text"` で上書きされているため干渉しない
+  - 既存の `toggleNodeSelection` 関数がそのまま利用でき、純粋ロジック層の変更は不要だった
 
 ---
 
