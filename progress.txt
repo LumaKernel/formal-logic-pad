@@ -8806,3 +8806,26 @@
   - マーキー+エッジスクロール統合は、onEmptyAreaPointerMoveで両方を呼ぶラッパーハンドラを作るのがクリーン
   - CanvasItemの`onDragMove`はclientX/clientYをそのまま渡すが、フルスクリーンコンテナなら概ね一致する
 ---
+
+## 2026-03-03 - ダブルクリックプレースホルダー修正・コンテキストメニュー「論理式を編集」追加
+- editTrigger="dblclick" のときプレースホルダーが「クリックして…」のままだったのを「ダブルクリックして論理式を入力...」に修正
+- ノードコンテキストメニューに「Edit Formula / 論理式を編集」項目を追加
+- forceEditModeプロップによる外部からの編集モード開始機能を追加（useEffect + one-shot pattern）
+- derivedノードでは「論理式を編集」を無効化
+- カバレッジ: Stmts 99.19% → 99.17% (微差、V8 merging quirk), Branch 94.12% → 94.09%, Lines 99.97% → 99.96%
+- テスト: 7419 → 7425 (+6テスト追加)
+- スクリーンショット: `.screenshots/context-menu-edit-formula.png`, `.screenshots/edit-formula-active.png`
+- **変更ファイル:**
+  - `src/lib/proof-pad/proofMessages.ts` (formulaEditorPlaceholderDblclick, editFormula キー追加)
+  - `messages/en.json`, `messages/ja.json` (i18n翻訳追加)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (i18nバインディング追加)
+  - `src/lib/formula-input/FormulaEditor.tsx` (forceEditMode prop + useEffect追加)
+  - `src/lib/proof-pad/EditableProofNode.tsx` (forceEditMode prop + placeholder動的切替)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (editRequestNodeId state, handleEditFormula, menuNodeIsEditable, コンテキストメニュー項目追加)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (+3テスト: context menu表示, Edit Formula動作, derived無効化)
+  - `src/lib/proof-pad/EditableProofNode.test.tsx` (+3テスト: dblclickプレースホルダー, clickプレースホルダー, forceEditMode)
+- **今後のイテレーションへの学び:**
+  - WorkspaceMenuItemは HTML `disabled` 属性を使う。テストでは `toBeDisabled()` を使い、`toHaveAttribute("aria-disabled")` は使わない
+  - ESLint `react-hooks/set-state-in-effect` の disable コメントは useEffect 行ではなく、実際の setState 呼び出し行に配置する必要がある
+  - forceEditMode のような外部トリガーは useEffect + one-shot パターンで実装。使用後にリセットするのは親コンポーネントの責務
+---
