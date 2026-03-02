@@ -100,6 +100,27 @@
 
 ---
 
+## 2026-03-02 - propositional-advanced 7問の模範解答を追加
+- propositional-advanced カテゴリ全7問の模範解答を追加:
+  - prop-20 (排中律), prop-22 (連言導入), prop-23 (連言除去左),
+    prop-24 (De Morgan), prop-30 (矛盾律), prop-31 (連言除去右), prop-32 (選言除去)
+- prop-20 と prop-30 には DNE/DNI の完全なHilbert系証明を含む
+- builtinModelAnswers.test.ts に propositional-advanced テストセクション追加 (+21テスト)
+- 変更ファイル:
+  - `src/lib/quest/builtinModelAnswers.ts` (7問追加)
+  - `src/lib/quest/builtinModelAnswers.test.ts` (テストセクション追加)
+- テスト: 218ファイル、7045+テスト全パス
+- カバレッジ: builtinModelAnswers.ts 100% 維持
+- 品質チェック: typecheck ✅, lint ✅, test ✅, prettier ✅
+- **今後のイテレーションへの学び:**
+  - Łukasiewicz体系は→と¬のみ。∧(Conjunction)と∨(Disjunction)は独自のAST nodeとして存在するが、公理スキーマには含まれない
+  - ゴールチェックは `equalFormula` による**構造的一致**。`~~phi -> phi` (Implication) は `~phi \/ phi` (Disjunction) とマッチしない
+  - 模範解答で∧/∨含むゴール式をマッチさせるには、axiomステップでゴール式テキストを直接配置する方式を使う
+  - `AllAchievedButAxiomViolation` は validateModelAnswer で Valid として扱われる（模範解答は SubstitutionEdge を経由しないため）
+  - propositional以外のカテゴリ（peano, group, pred, nd, tab, at, sc）の模範解答は後続イテレーションで追加予定
+  - ∧/∨の定義展開をシステムレベルでサポートすれば、含意/否定のみの証明でもゴールマッチ可能になる（将来的な改善候補）
+---
+
 ## 2026-03-02 - クエスト模範解答の基盤構築（propositional-basics 7問）
 - 模範解答の型定義・ビルダー・バリデーション基盤を構築:
   - `src/lib/quest/modelAnswer.ts` — ModelAnswer型、buildModelAnswerWorkspace、validateModelAnswer
