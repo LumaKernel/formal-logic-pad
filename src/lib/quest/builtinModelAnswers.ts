@@ -3640,6 +3640,241 @@ const prop32DisjElim: ModelAnswer = {
   ],
 };
 
+// ============================================================
+// peano-basics: ペアノ算術の基礎（公理配置のみ）
+// PA1: ∀x. ¬(S(x) = 0)
+// PA2: ∀x.∀y. S(x) = S(y) → x = y
+// PA3: ∀x. x + 0 = x
+// PA4: ∀x.∀y. x + S(y) = S(x + y)
+// PA5: ∀x. x * 0 = 0
+// PA6: ∀x.∀y. x * S(y) = x * y + x
+// E1: ∀x. x = x
+// ============================================================
+
+/**
+ * peano-01: 0は後者ではない (PA1)
+ *
+ * PA1を直接配置。1ステップ。
+ */
+const peano01PA1: ModelAnswer = {
+  questId: "peano-01",
+  steps: [{ _tag: "axiom", formulaText: "all x. ~(S(x) = 0)" }],
+};
+
+/**
+ * peano-02: 加法の基底 (PA3)
+ *
+ * PA3を直接配置。1ステップ。
+ */
+const peano02PA3: ModelAnswer = {
+  questId: "peano-02",
+  steps: [{ _tag: "axiom", formulaText: "all x. x + 0 = x" }],
+};
+
+/**
+ * peano-03: 乗法の基底 (PA5)
+ *
+ * PA5を直接配置。1ステップ。
+ */
+const peano03PA5: ModelAnswer = {
+  questId: "peano-03",
+  steps: [{ _tag: "axiom", formulaText: "all x. x * 0 = 0" }],
+};
+
+/**
+ * peano-04: 等号の反射律 (E1)
+ *
+ * E1を直接配置。1ステップ。
+ */
+const peano04E1: ModelAnswer = {
+  questId: "peano-04",
+  steps: [{ _tag: "axiom", formulaText: "all x. x = x" }],
+};
+
+/**
+ * peano-05: 後者関数の単射性 (PA2)
+ *
+ * PA2を直接配置。1ステップ。
+ */
+const peano05PA2: ModelAnswer = {
+  questId: "peano-05",
+  steps: [{ _tag: "axiom", formulaText: "all x. all y. S(x) = S(y) -> x = y" }],
+};
+
+/**
+ * peano-06: 加法の再帰 (PA4)
+ *
+ * PA4を直接配置。1ステップ。
+ */
+const peano06PA4: ModelAnswer = {
+  questId: "peano-06",
+  steps: [{ _tag: "axiom", formulaText: "all x. all y. x + S(y) = S(x + y)" }],
+};
+
+// ============================================================
+// peano-arithmetic: ペアノ算術の計算
+// A4を使った全称除去(∀消去)パターン:
+//   Step 1. 理論公理: ∀x. φ(x)
+//   Step 2. A4インスタンス（代入済み）: (∀x. φ(x)) → φ(t)
+//   Step 3. MP(1,2): φ(t)
+// ============================================================
+
+/**
+ * peano-07: 0 + 0 = 0
+ *
+ * PA3 + A4(x→0) + MP。3ステップ。
+ * 1. PA3: ∀x. x + 0 = x
+ * 2. A4[x→0]: (∀x. x+0=x) → 0+0=0
+ * 3. MP(0,1): 0 + 0 = 0
+ */
+const peano07ZeroPlusZero: ModelAnswer = {
+  questId: "peano-07",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. x + 0 = x" },
+    { _tag: "axiom", formulaText: "(all x. x + 0 = x) -> 0 + 0 = 0" },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * peano-08: S(0) + 0 = S(0)
+ *
+ * PA3 + A4(x→S(0)) + MP。3ステップ。
+ * 1. PA3: ∀x. x + 0 = x
+ * 2. A4[x→S(0)]: (∀x. x+0=x) → S(0)+0=S(0)
+ * 3. MP(0,1): S(0) + 0 = S(0)
+ */
+const peano08OnePlusZero: ModelAnswer = {
+  questId: "peano-08",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. x + 0 = x" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. x + 0 = x) -> S(0) + 0 = S(0)",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * peano-09: 0 × 0 = 0
+ *
+ * PA5 + A4(x→0) + MP。3ステップ。
+ * 1. PA5: ∀x. x * 0 = 0
+ * 2. A4[x→0]: (∀x. x*0=0) → 0*0=0
+ * 3. MP(0,1): 0 * 0 = 0
+ */
+const peano09ZeroTimesZero: ModelAnswer = {
+  questId: "peano-09",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. x * 0 = 0" },
+    { _tag: "axiom", formulaText: "(all x. x * 0 = 0) -> 0 * 0 = 0" },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * peano-10: ¬(S(0) = 0)
+ *
+ * PA1 + A4(x→0) + MP。3ステップ。
+ * 1. PA1: ∀x. ¬(S(x) = 0)
+ * 2. A4[x→0]: (∀x. ¬(S(x)=0)) → ¬(S(0)=0)
+ * 3. MP(0,1): ¬(S(0) = 0)
+ */
+const peano10SuccNotZero: ModelAnswer = {
+  questId: "peano-10",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. ~(S(x) = 0)" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. ~(S(x) = 0)) -> ~(S(0) = 0)",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * peano-11: S(0) + S(0) = S(S(0))  (1 + 1 = 2)
+ *
+ * PA4, PA3, E3（推移律）, E4（関数一致性）を組み合わせた複合証明。
+ *
+ * 証明概要:
+ *   PA4[x→S(0),y→0] → S(0) + S(0) = S(S(0) + 0)
+ *   PA3[x→S(0)]      → S(0) + 0 = S(0)
+ *   E4(S)             → S(S(0) + 0) = S(S(0))
+ *   E3                → S(0) + S(0) = S(S(0))
+ *
+ * 14ステップ:
+ *   0. PA4: ∀x.∀y. x+S(y)=S(x+y)
+ *   1. A4(PA4,x→S(0)): ... → ∀y. S(0)+S(y)=S(S(0)+y)
+ *   2. MP(0,1): ∀y. S(0)+S(y)=S(S(0)+y)
+ *   3. A4(step2,y→0): ... → S(0)+S(0)=S(S(0)+0)
+ *   4. MP(2,3): S(0)+S(0)=S(S(0)+0)
+ *   5. PA3: ∀x. x+0=x
+ *   6. A4(PA3,x→S(0)): ... → S(0)+0=S(0)
+ *   7. MP(5,6): S(0)+0=S(0)
+ *   8. E4(S)[S(0)+0,S(0)]: S(0)+0=S(0) → S(S(0)+0)=S(S(0))
+ *   9. MP(7,8): S(S(0)+0)=S(S(0))
+ *   10. E3[S(0)+S(0), S(S(0)+0), S(S(0))]: S(0)+S(0)=S(S(0)+0) → (S(S(0)+0)=S(S(0)) → S(0)+S(0)=S(S(0)))
+ *   11. MP(4,10): S(S(0)+0)=S(S(0)) → S(0)+S(0)=S(S(0))
+ *   12. MP(9,11): S(0)+S(0)=S(S(0))
+ */
+const peano11OnePlusOne: ModelAnswer = {
+  questId: "peano-11",
+  steps: [
+    // PA4 instantiation: S(0)+S(0)=S(S(0)+0)
+    { _tag: "axiom", formulaText: "all x. all y. x + S(y) = S(x + y)" },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. x + S(y) = S(x + y)) -> all y. S(0) + S(y) = S(S(0) + y)",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. S(0) + S(y) = S(S(0) + y)) -> S(0) + S(0) = S(S(0) + 0)",
+    },
+    { _tag: "mp", leftIndex: 2, rightIndex: 3 },
+    // PA3 instantiation: S(0)+0=S(0)
+    { _tag: "axiom", formulaText: "all x. x + 0 = x" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. x + 0 = x) -> S(0) + 0 = S(0)",
+    },
+    { _tag: "mp", leftIndex: 5, rightIndex: 6 },
+    // E4(S): S(0)+0=S(0) → S(S(0)+0)=S(S(0))
+    {
+      _tag: "axiom",
+      formulaText: "S(0) + 0 = S(0) -> S(S(0) + 0) = S(S(0))",
+    },
+    { _tag: "mp", leftIndex: 7, rightIndex: 8 },
+    // E3 transitivity: chain the two equalities
+    {
+      _tag: "axiom",
+      formulaText:
+        "S(0) + S(0) = S(S(0) + 0) -> (S(S(0) + 0) = S(S(0)) -> S(0) + S(0) = S(S(0)))",
+    },
+    { _tag: "mp", leftIndex: 4, rightIndex: 10 },
+    { _tag: "mp", leftIndex: 9, rightIndex: 11 },
+  ],
+};
+
+/**
+ * peano-12: 後者の全射性 (Q7)
+ *
+ * Robinson算術のQ7を直接配置。1ステップ。
+ */
+const peano12Q7: ModelAnswer = {
+  questId: "peano-12",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "all x. x = 0 \\/ ex y. x = S(y)",
+    },
+  ],
+};
+
 // --- レジストリ ---
 
 /** 全ビルトイン模範解答 */
@@ -3681,6 +3916,20 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   prop31ConjElimRight,
   prop24DeMorgan,
   prop32DisjElim,
+  // peano-basics
+  peano01PA1,
+  peano02PA3,
+  peano03PA5,
+  peano04E1,
+  peano05PA2,
+  peano06PA4,
+  // peano-arithmetic
+  peano07ZeroPlusZero,
+  peano08OnePlusZero,
+  peano09ZeroTimesZero,
+  peano10SuccNotZero,
+  peano11OnePlusOne,
+  peano12Q7,
 ];
 
 /** QuestId → ModelAnswer のマップ */
