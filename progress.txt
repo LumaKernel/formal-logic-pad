@@ -1,5 +1,6 @@
 ## Codebase Patterns
 - InfiniteCanvasライブラリは `src/lib/infinite-canvas/` に配置。React + SVGベースの汎用D&Dキャンバス
+- SC模範解答: ⇒→は前件を左辺の先頭に追加するため、exchange-leftで並び替えが必要。→⇒のΓ/Σ分割に注意
 - Vitest + Testing Libraryでテスト。Storybookのplay関数はインタラクションテストとして機能
 - Storybook play関数のimportは `storybook/test` から（`@storybook/test` ではない）
 - ESLint: `@luma-dev/luma-ts/require-satisfies-in-tls` が有効
@@ -8704,4 +8705,47 @@
   - Chrome DevTools MCPは `--disable-extensions` で起動するため、Chrome拡張機能との連携は不可能
   - Chrome DevTools MCPのstale browser lock問題: `/Users/luma/.cache/chrome-devtools-mcp/chrome-profile/SingletonLock` を手動削除するか、既存プロセスをkillする必要がある
   - コントラストチェックが必要な場合、axe-coreをVitestテストに組み込む方法や、Lighthouse CIの方が適切
+---
+
+## 2026-03-03 - SCシーケント計算模範解答インフラ整備
+- 実装した内容:
+  - ModelAnswerStep に `sc-root` / `sc-rule` ステップタイプを追加
+  - buildModelAnswerWorkspace に SC 規則適用ロジックを実装（TABパターンに倣う）
+  - goalCheckLogic に `parseNodeFormula` を追加: シーケント形式（"⇒ φ"）から定理φを抽出
+  - questCompletionLogic の findMatchingNode も parseNodeFormula を利用するよう更新
+  - sc-ce-01〜04 の完全な LK カットフリー証明を実装（exchange-left + →⇒ + identity パターン）
+  - sc-ce-05（¬¬φ→φ）は SC に Negation 規則がないためプレースホルダー維持
+  - テスト: goalCheckLogic.test.ts に parseNodeFormula + SC sequent matching テスト追加
+  - テスト: modelAnswer.test.ts に SC ステップの build テスト5件追加
+- 変更したファイル:
+  - src/lib/quest/modelAnswer.ts — SC ステップタイプ定義 + ビルドロジック
+  - src/lib/quest/builtinModelAnswers.ts — sc-ce-01〜04 の証明ステップ
+  - src/lib/proof-pad/goalCheckLogic.ts — parseNodeFormula（シーケント対応）
+  - src/lib/quest/questCompletionLogic.ts — findMatchingNode のシーケント対応
+  - src/lib/proof-pad/goalCheckLogic.test.ts — parseNodeFormula テスト
+  - src/lib/quest/modelAnswer.test.ts — SC ステップテスト
+- カバレッジ: Stmts 99.17%, Branch 94.09%(+0.01), Funcs 89.85%(+0.04), Lines 99.94% — 低下なし
+- **今後のイテレーションへの学び:**
+  - ⇒→ 規則は含意の前件をシーケント左辺の**先頭**に追加する。複数回の⇒→適用後は exchange-left で並び替えが必要
+  - →⇒ 規則のΓとΣの分割: principalPosition より前がΓ（左前提に行く）、後がΣ（右前提に行く）。phi を Γ に含めたい場合は exchange で phi を前に移動
+  - SC で Negation (¬φ) を扱うには Negation 型の Implication(φ, Bottom) への変換か、専用規則の追加が必要
+  - mpApplicationLogic.ts と goalCheckLogic.ts の両方に parseNodeFormula があるが、異なるシグネチャ（WorkspaceNode vs string）。公開APIはmpApplication版（WorkspaceNode）を維持し、goalCheckLogic版はモジュール内部利用
+---
+
+## 2026-03-03 - [script-runner] 証明操作APIブリッジ（US-002）
+- 実装した内容:
+  - `src/lib/script-runner/proofBridge.ts` — サンドボックス用証明操作APIブリッジモジュール
+    - 11個のブリッジ関数: parseFormula, formatFormula, formatTerm, equalFormula, equalTerm, applyMP, applyGen, unifyFormulas, unifyTerms, substituteFormula, identifyAxiom
+    - `PROOF_BRIDGE_API_DEFS` 定数 — Monaco Editor補完用API定義
+    - `generateProofBridgeTypeDefs()` — .d.ts テキスト生成
+    - デコードヘルパー: decodeFormulaOrThrow, decodeTermOrThrow, decodeLogicSystem
+  - `src/lib/script-runner/proofBridge.test.ts` — 38テスト
+  - `src/lib/script-runner/index.ts` — エクスポート追加
+- カバレッジ: Stmts 99.18%(+0.01), Branch 94.11%(+0.02), Funcs 89.90%(+0.05), Lines 99.95%(+0.01) — 全指標向上
+- **今後のイテレーションへの学び:**
+  - JS-Interpreterのネイティブブリッジ関数内でthrowされたエラーはサンドボックスのtry-catchでは**捕捉不可能**。RuntimeErrorとしてホスト側に伝播する
+  - LogicSystem型のJSON変換: propositionalAxioms はサンドボックスから配列で渡されるため `new Set(Array.isArray(...) ? ... : [])` で復元
+  - FormulaSubstitutionMapのキーはmetaVariableKey文字列。`Map<string, Formula>` に直接setできる
+  - RuleApplicationSuccessは `{ conclusion: Formula }` 構造。`.right` ではなく `.right.conclusion` でアクセス
+  - parseStringは `Either<Formula, readonly ParseError[]>` — エラーは配列
 ---

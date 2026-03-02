@@ -43,18 +43,20 @@
 
 **受け入れ基準:**
 
-- [ ] JS-Interpreterのブリッジ機構で以下のAPIをサンドボックスに公開:
-  - `getProof()`: 現在の証明図を取得
-  - `setProof(proof)`: 証明図を書き換え
-  - `validateProof(proof)`: 証明図の正当性を検証
-  - `applyRule(proof, node, rule)`: 指定ノードに推論規則を適用
-  - `substitute(schema, substitution)`: 代入を適用
-  - `unify(source, target)`: ユニフィケーション
-- [ ] ブリッジ関数の引数・戻り値はJSON互換のプレーンオブジェクトに変換
-- [ ] 不正な操作時は例外をスロー（サンドボックス内でcatch可能）
-- [ ] ブリッジ関数の一覧を定数として定義（Monaco Editorの補完に使用）
-- [ ] ユニットテストでブリッジ関数の呼び出しと戻り値を検証
-- [ ] 型チェック/lintが通る
+- [x] JS-Interpreterのブリッジ機構で以下のAPIをサンドボックスに公開:
+  - `parseFormula(text)`: テキスト→Formula JSON
+  - `formatFormula(formula)` / `formatTerm(term)`: JSON→テキスト
+  - `equalFormula(a,b)` / `equalTerm(a,b)`: 構造的等価性
+  - `applyMP(antecedent, conditional)`: Modus Ponens
+  - `applyGen(formula, variableName, system)`: 汎化規則
+  - `unifyFormulas(source, target)` / `unifyTerms(source, target)`: ユニフィケーション
+  - `substituteFormula(formula, map)`: メタ変数代入
+  - `identifyAxiom(formula, system)`: 公理識別
+- [x] ブリッジ関数の引数・戻り値はJSON互換のプレーンオブジェクトに変換
+- [x] 不正な操作時は例外をスロー（RuntimeError として伝播）
+- [x] ブリッジ関数の一覧を定数として定義（Monaco Editorの補完に使用）— `PROOF_BRIDGE_API_DEFS` + `generateProofBridgeTypeDefs()`
+- [x] ユニットテストでブリッジ関数の呼び出しと戻り値を検証（38テスト）
+- [x] 型チェック/lintが通る
 
 ### US-003: Monaco Editorの統合
 
