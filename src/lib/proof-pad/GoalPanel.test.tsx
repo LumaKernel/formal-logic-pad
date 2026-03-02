@@ -1,12 +1,25 @@
 import { describe, expect, it } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { Either } from "effect";
 import { GoalPanel } from "./GoalPanel";
 import type { GoalPanelData } from "./goalPanelLogic";
 import { defaultProofMessages } from "./proofMessages";
+import { parseString } from "../logic-lang/parser";
+import type { Formula } from "../logic-core/formula";
 
 // --- ヘルパー ---
 
 const msg = defaultProofMessages;
+
+function parseFormula(text: string): Formula {
+  const result = parseString(text);
+  if (Either.isLeft(result))
+    throw new Error(`Parse failed: ${text satisfies string}`);
+  return result.right;
+}
+
+const phiImpliesPhi = parseFormula("phi -> phi");
+const psiImpliesPsi = parseFormula("psi -> psi");
 
 function makeData(overrides?: Partial<GoalPanelData>): GoalPanelData {
   return {
@@ -34,6 +47,7 @@ describe("GoalPanel", () => {
           {
             id: "g1",
             formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
             label: "Goal: φ → φ",
             allowedAxiomIds: undefined,
             status: "not-achieved",
@@ -47,12 +61,13 @@ describe("GoalPanel", () => {
   });
 
   describe("ゴール一覧の表示", () => {
-    it("各ゴールのラベルとDSLテキストが表示される", () => {
+    it("パース済み数式はFormulaDisplayでレンダリングされる", () => {
       const data = makeData({
         items: [
           {
             id: "g1",
             formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
             label: "Goal: φ → φ",
             allowedAxiomIds: undefined,
             status: "not-achieved",
@@ -60,6 +75,7 @@ describe("GoalPanel", () => {
           {
             id: "g2",
             formulaText: "psi -> psi",
+            formula: psiImpliesPsi,
             label: undefined,
             allowedAxiomIds: undefined,
             status: "achieved",
@@ -71,10 +87,32 @@ describe("GoalPanel", () => {
       render(<GoalPanel data={data} messages={msg} testId="gp" />);
 
       expect(screen.getByText("Goal: φ → φ")).toBeInTheDocument();
-      expect(screen.getByText("phi -> phi")).toBeInTheDocument();
+      // FormulaDisplay renders with role="math" and aria-label
+      const mathEls = screen.getAllByRole("math");
+      expect(mathEls).toHaveLength(2);
+      expect(mathEls[0]).toHaveAttribute("aria-label", "φ → φ");
+      expect(mathEls[1]).toHaveAttribute("aria-label", "ψ → ψ");
       // ラベルなしの場合は #2 が表示される
       expect(screen.getByText("#2")).toBeInTheDocument();
-      expect(screen.getByText("psi -> psi")).toBeInTheDocument();
+    });
+
+    it("パースエラー時はプレーンテキストにフォールバックする", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "invalid !!!",
+            formula: undefined,
+            label: "Goal 1",
+            allowedAxiomIds: undefined,
+            status: "parse-error",
+          },
+        ],
+        totalCount: 1,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+      expect(screen.getByText("invalid !!!")).toBeInTheDocument();
+      expect(screen.queryByRole("math")).not.toBeInTheDocument();
     });
 
     it("達成済みゴールは「Proved!」と表示される", () => {
@@ -83,6 +121,7 @@ describe("GoalPanel", () => {
           {
             id: "g1",
             formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
             status: "achieved",
@@ -101,6 +140,7 @@ describe("GoalPanel", () => {
           {
             id: "g1",
             formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
             status: "not-achieved",
@@ -118,6 +158,7 @@ describe("GoalPanel", () => {
           {
             id: "g1",
             formulaText: "invalid !!!",
+            formula: undefined,
             label: "Goal 1",
             allowedAxiomIds: undefined,
             status: "parse-error",
@@ -137,6 +178,7 @@ describe("GoalPanel", () => {
           {
             id: "g1",
             formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: ["A1", "A2"],
             status: "not-achieved",
@@ -154,6 +196,7 @@ describe("GoalPanel", () => {
           {
             id: "g1",
             formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
             status: "not-achieved",
@@ -173,6 +216,7 @@ describe("GoalPanel", () => {
           {
             id: "g1",
             formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
             status: "achieved",
@@ -180,6 +224,7 @@ describe("GoalPanel", () => {
           {
             id: "g2",
             formulaText: "psi -> psi",
+            formula: psiImpliesPsi,
             label: "Goal 2",
             allowedAxiomIds: undefined,
             status: "not-achieved",
@@ -200,6 +245,7 @@ describe("GoalPanel", () => {
           {
             id: "g1",
             formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
             status: "not-achieved",
@@ -226,6 +272,7 @@ describe("GoalPanel", () => {
           {
             id: "g1",
             formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
             status: "not-achieved",
@@ -250,6 +297,7 @@ describe("GoalPanel", () => {
           {
             id: "g1",
             formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
             status: "not-achieved",
@@ -274,6 +322,7 @@ describe("GoalPanel", () => {
           {
             id: "g1",
             formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
             status: "not-achieved",
@@ -304,6 +353,7 @@ describe("GoalPanel", () => {
           {
             id: "g1",
             formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
             label: "Goal 1",
             allowedAxiomIds: undefined,
             status: "not-achieved",
@@ -311,6 +361,7 @@ describe("GoalPanel", () => {
           {
             id: "g2",
             formulaText: "psi -> psi",
+            formula: psiImpliesPsi,
             label: "Goal 2",
             allowedAxiomIds: undefined,
             status: "achieved",

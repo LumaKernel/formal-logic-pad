@@ -10,6 +10,7 @@
 import type { GoalCheckResult, GoalStatus } from "./goalCheckLogic";
 import type { WorkspaceGoal } from "./workspaceState";
 import { parseGoalFormula } from "./goalCheckLogic";
+import type { Formula } from "../logic-core/formula";
 
 // --- ゴールパネル表示データ ---
 
@@ -19,6 +20,8 @@ export type GoalPanelItem = {
   readonly id: string;
   /** ゴール式のDSLテキスト */
   readonly formulaText: string;
+  /** パース済みの論理式AST（パース失敗時はundefined） */
+  readonly formula: Formula | undefined;
   /** 表示ラベル（ゴールに設定されていれば） */
   readonly label: string | undefined;
   /** 許可された公理IDのリスト（制限がなければundefined） */
@@ -79,9 +82,13 @@ export function computeGoalPanelData(
       };
 
     case "GoalAllAchieved": {
+      const achievedMap = new Map(
+        checkResult.achievedGoals.map((ag) => [ag.goalId, ag.goalFormula]),
+      );
       const items: GoalPanelItem[] = goals.map((goal) => ({
         id: goal.id,
         formulaText: goal.formulaText,
+        formula: achievedMap.get(goal.id) ?? parseGoalFormula(goal.formulaText),
         label: goal.label,
         allowedAxiomIds: goal.allowedAxiomIds,
         status: "achieved" as const,
@@ -102,6 +109,7 @@ export function computeGoalPanelData(
         return {
           id: goal.id,
           formulaText: goal.formulaText,
+          formula: gs?.goalFormula ?? parseGoalFormula(goal.formulaText),
           label: goal.label,
           allowedAxiomIds: goal.allowedAxiomIds,
           status:
