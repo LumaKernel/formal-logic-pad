@@ -64,14 +64,14 @@
 
 **受け入れ基準:**
 
-- [-] `@monaco-editor/react` をインストール・統合
-- [ ] `src/components/ScriptEditor/` にスクリプトエディタコンポーネントを作成
-- [ ] JavaScriptの基本シンタックスハイライト
-- [ ] ブリッジ済みAPI（US-002で定義）の補完候補を自動表示
-- [ ] 各APIのJSDoc/型情報をホバーで表示（引数の型、戻り値の型、説明）
-- [ ] エディタ下部に実行ボタン（▶ Run）とステップ実行ボタン（⏭ Step）を配置
-- [ ] 型チェック/lintが通る
-- [ ] Playwright MCPでスクリーンショットを撮影し `.screenshots/` に保存して確認
+- [x] `@monaco-editor/react` をインストール・統合
+- [x] `src/components/ScriptEditor/` にスクリプトエディタコンポーネントを作成
+- [x] JavaScriptの基本シンタックスハイライト
+- [x] ブリッジ済みAPI（US-002で定義）の補完候補を自動表示
+- [x] 各APIのJSDoc/型情報をホバーで表示（引数の型、戻り値の型、説明）
+- [x] エディタ下部に実行ボタン（▶ Run）とステップ実行ボタン（⏭ Step）を配置
+- [x] 型チェック/lintが通る
+- [x] Playwright MCPでスクリーンショットを撮影し `.screenshots/` に保存して確認
 
 ### US-004: ステップ実行とデバッガUI
 
