@@ -3875,6 +3875,122 @@ const peano12Q7: ModelAnswer = {
   ],
 };
 
+// ============================================================
+// group-basics: 群論の公理（直接配置）
+// 両側公理系: G1(結合律) + G2L(左単位元) + G2R(右単位元) + G3L(左逆元) + G3R(右逆元)
+// アーベル群: + G4(可換律)
+// ============================================================
+
+/**
+ * group-01: 結合律 (G1)
+ *
+ * G1を直接配置。1ステップ。
+ */
+const group01Associativity: ModelAnswer = {
+  questId: "group-01",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. all z. (x * y) * z = x * (y * z)",
+    },
+  ],
+};
+
+/**
+ * group-02: 左単位元 (G2L)
+ *
+ * G2Lを直接配置。1ステップ。
+ */
+const group02LeftIdentity: ModelAnswer = {
+  questId: "group-02",
+  steps: [{ _tag: "axiom", formulaText: "all x. e * x = x" }],
+};
+
+/**
+ * group-03: 左逆元 (G3L)
+ *
+ * G3Lを直接配置。1ステップ。
+ */
+const group03LeftInverse: ModelAnswer = {
+  questId: "group-03",
+  steps: [{ _tag: "axiom", formulaText: "all x. i(x) * x = e" }],
+};
+
+/**
+ * group-04: 右単位元 (G2R)
+ *
+ * G2Rを直接配置。1ステップ。
+ */
+const group04RightIdentity: ModelAnswer = {
+  questId: "group-04",
+  steps: [{ _tag: "axiom", formulaText: "all x. x * e = x" }],
+};
+
+/**
+ * group-05: 右逆元 (G3R)
+ *
+ * G3Rを直接配置。1ステップ。
+ */
+const group05RightInverse: ModelAnswer = {
+  questId: "group-05",
+  steps: [{ _tag: "axiom", formulaText: "all x. x * i(x) = e" }],
+};
+
+/**
+ * group-06: 可換律 (G4)
+ *
+ * G4を直接配置。1ステップ。アーベル群体系。
+ */
+const group06Commutativity: ModelAnswer = {
+  questId: "group-06",
+  steps: [{ _tag: "axiom", formulaText: "all x. all y. x * y = y * x" }],
+};
+
+// ============================================================
+// group-proofs: 群論の推論
+// A4を使った全称除去(∀消去)パターン:
+//   Step 1. 理論公理: ∀x. φ(x)
+//   Step 2. A4インスタンス（代入済み）: (∀x. φ(x)) → φ(t)
+//   Step 3. MP(0,1): φ(t)
+// ============================================================
+
+/**
+ * group-07: e * e = e
+ *
+ * G2L + A4(x→e) + MP。3ステップ。
+ * 1. G2L: ∀x. e * x = x
+ * 2. A4[x→e]: (∀x. e*x=x) → e*e=e
+ * 3. MP(0,1): e * e = e
+ */
+const group07IdentityTimesIdentity: ModelAnswer = {
+  questId: "group-07",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. e * x = x" },
+    { _tag: "axiom", formulaText: "(all x. e * x = x) -> e * e = e" },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * group-08: i(e) * e = e
+ *
+ * G3L + A4(x→e) + MP。3ステップ。
+ * 1. G3L: ∀x. i(x) * x = e
+ * 2. A4[x→e]: (∀x. i(x)*x=e) → i(e)*e=e
+ * 3. MP(0,1): i(e) * e = e
+ */
+const group08InverseIdentity: ModelAnswer = {
+  questId: "group-08",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. i(x) * x = e" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. i(x) * x = e) -> i(e) * e = e",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
 // --- レジストリ ---
 
 /** 全ビルトイン模範解答 */
@@ -3930,6 +4046,16 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   peano10SuccNotZero,
   peano11OnePlusOne,
   peano12Q7,
+  // group-basics
+  group01Associativity,
+  group02LeftIdentity,
+  group03LeftInverse,
+  group04RightIdentity,
+  group05RightInverse,
+  group06Commutativity,
+  // group-proofs
+  group07IdentityTimesIdentity,
+  group08InverseIdentity,
 ];
 
 /** QuestId → ModelAnswer のマップ */
