@@ -8690,3 +8690,18 @@
   - flatMapパターンで不明なIDをgracefullyスキップ（存在しない公理IDは除外）
   - AllowedAxiomDetailはAxiomPaletteItemのサブセット（UIに必要な情報のみ）として設計
 ---
+
+## 2026-03-03 - [WCAG] Chrome DevTools MCP + WCAG拡張によるコントラストチェック → あきらめ
+- 調査結果:
+  - Chrome DevTools MCPは `--disable-extensions` フラグ付きでChromeを起動するため、Chrome拡張機能はロード不可
+  - 既存のChrome DevTools MCPのブラウザインスタンスがSingletonLockで残存し、新規接続不能
+  - 上記2つの根本的制約により、WCAG Color Contrast Checker Chrome拡張との組み合わせは実現不可能
+- 代替案として検討したが採用しなかったもの:
+  - Playwright MCPでのJS evaluate（タスクがchrome devtools mcpを明示指定、CLAUDE.mdのMCP代替禁止ルールに抵触）
+  - axe-coreライブラリ（元タスクの要求と異なる手法）
+  - evaluate_scriptによる自作コントラスト計算（拡張機能との組み合わせではない）
+- **今後のイテレーションへの学び:**
+  - Chrome DevTools MCPは `--disable-extensions` で起動するため、Chrome拡張機能との連携は不可能
+  - Chrome DevTools MCPのstale browser lock問題: `/Users/luma/.cache/chrome-devtools-mcp/chrome-profile/SingletonLock` を手動削除するか、既存プロセスをkillする必要がある
+  - コントラストチェックが必要な場合、axe-coreをVitestテストに組み込む方法や、Lighthouse CIの方が適切
+---
