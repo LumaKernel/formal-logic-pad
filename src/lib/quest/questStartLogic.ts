@@ -38,8 +38,7 @@ export type QuestStartParams = {
  * QuestDefinition からノートブック作成に必要なパラメータを算出する。
  * プリセットIDが解決できない場合は undefined を返す。
  *
- * Hilbert流・自然演繹・タブロー法・分析的タブローに対応。
- * シーケント計算はUI未対応のため現在 undefined を返す。
+ * Hilbert流・自然演繹・タブロー法・分析的タブロー・シーケント計算に対応。
  */
 export function buildQuestStartParams(
   quest: QuestDefinition,
@@ -56,9 +55,6 @@ export function buildQuestStartParams(
           allowedAxiomIds: g.allowedAxiomIds ?? quest.allowedAxiomIds,
         }))
       : quest.goals;
-
-  // シーケント計算はUI未対応
-  if (preset.deductionSystem.style === "sequent-calculus") return undefined;
 
   return {
     name: `${quest.title satisfies string}`,

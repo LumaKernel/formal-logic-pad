@@ -35,6 +35,7 @@ import {
   hilbertDeduction,
   naturalDeduction,
   tableauCalculusDeduction,
+  sequentCalculusDeduction,
 } from "../logic-core/deductionSystem";
 
 // --- テスト用クエスト定義 ---
@@ -309,13 +310,40 @@ describe("buildQuestStartParams", () => {
     expect(result?.deductionSystem).toStrictEqual(naturalDeduction(nkSystem));
   });
 
-  it("シーケント計算プリセットのクエストはundefinedを返す（UI未対応）", () => {
+  it("シーケント計算LMプリセットのクエストでSC体系が返る", () => {
     const quest: QuestDefinition = {
       ...testQuest,
       systemPresetId: "sc-lm",
     };
     const result = buildQuestStartParams(quest);
-    expect(result).toBeUndefined();
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem).toStrictEqual(
+      sequentCalculusDeduction(lmSystem),
+    );
+  });
+
+  it("シーケント計算LJプリセットのクエストでSC体系が返る", () => {
+    const quest: QuestDefinition = {
+      ...testQuest,
+      systemPresetId: "sc-lj",
+    };
+    const result = buildQuestStartParams(quest);
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem).toStrictEqual(
+      sequentCalculusDeduction(ljSystem),
+    );
+  });
+
+  it("シーケント計算LKプリセットのクエストでSC体系が返る", () => {
+    const quest: QuestDefinition = {
+      ...testQuest,
+      systemPresetId: "sc-lk",
+    };
+    const result = buildQuestStartParams(quest);
+    expect(result).toBeDefined();
+    expect(result?.deductionSystem).toStrictEqual(
+      sequentCalculusDeduction(lkSystem),
+    );
   });
 
   it("タブロー法プリセットのクエストでTAB体系が返る", () => {

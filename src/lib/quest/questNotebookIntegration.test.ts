@@ -12,6 +12,7 @@ import {
 } from "../notebook/notebookState";
 import type { QuestDefinition, SystemPresetId } from "./questDefinition";
 import { lukasiewiczSystem } from "../logic-core/inferenceRule";
+import { lkSystem } from "../logic-core/deductionSystem";
 
 // --- テスト用クエスト定義 ---
 
@@ -165,6 +166,31 @@ describe("startQuestAndCreateNotebook", () => {
     expect(findNotebook(second.collection, "notebook-2")?.questId).toBe(
       "test-quest-01",
     );
+  });
+
+  it("シーケント計算クエストのノートブックを作成できる", () => {
+    const scQuest: QuestDefinition = {
+      ...testQuest,
+      id: "sc-quest-01",
+      title: "カットの基本",
+      systemPresetId: "sc-lk",
+      goals: [{ formulaText: "phi ⇒ phi" }],
+    };
+    const collection = createEmptyCollection();
+    const result = startQuestAndCreateNotebook(
+      [scQuest],
+      "sc-quest-01",
+      collection,
+      1000,
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const nb = findNotebook(result.collection, result.notebookId);
+    expect(nb).toBeDefined();
+    expect(nb?.workspace.mode).toBe("quest");
+    expect(nb?.workspace.deductionSystem.style).toBe("sequent-calculus");
+    expect(nb?.workspace.deductionSystem.system).toBe(lkSystem);
   });
 
   it("存在しないクエストIDでquest-not-foundエラー", () => {
