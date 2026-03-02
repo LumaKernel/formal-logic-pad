@@ -8124,3 +8124,25 @@
   - workspaceState.ts の lines 477, 501 は単一テストファイル実行では99.24% Branchだが、フルスイートでは96.42%。v8カバレッジの集約時にBRDA値が消失する既知の問題
   - ProofWorkspace.tsx の134uncovered branchesのうち107は JSX描画領域（line 2000+）で、ユニットテストでのカバーは困難。残り27のうち半分はfindNode防御的コードでv8 ignoreで対処可能
 ---
+
+## 2026-03-02 - カット除去体験クエスト追加
+- 新カテゴリー `sc-cut-elimination`（カット除去の体験）を questDefinition.ts に追加（order: 15）
+- builtinQuests.ts に5問のカット除去関連クエストを追加:
+  - sc-ce-01: カットの基本（推移律のカット合成）
+  - sc-ce-02: カットとModus Ponens
+  - sc-ce-03: カットで連言の可換性
+  - sc-ce-04: カット連鎖（3段推移律）
+  - sc-ce-05: 否定とカット（二重否定除去）
+- テスト更新: builtinQuests.test.ts（110→115）, questDefinition.test.ts（14→15カテゴリ）
+- カバレッジ: Stmts 99.45%, Branch 94.55%, Funcs 89.76%, Lines 100%（維持）
+- 変更したファイル:
+  - src/lib/quest/questDefinition.ts（カテゴリ追加）
+  - src/lib/quest/builtinQuests.ts（5クエスト追加）
+  - src/lib/quest/questDefinition.test.ts（カテゴリ数更新）
+  - src/lib/quest/builtinQuests.test.ts（クエスト数更新）
+- **今後のイテレーションへの学び:**
+  - クエスト追加時は builtinQuests.test.ts のクエスト数と questDefinition.test.ts のカテゴリ数を同期すること
+  - ストーリー (QuestCatalogComponent.stories.tsx) はハードコードのサンプルデータを使用。新カテゴリー追加だけではストーリーには表示されない
+  - カット除去ステッパーはSC体系のProofWorkspaceに既に統合済み。クエストでカットを使った証明を作れば自動的にステッパーが利用可能
+  - `prd-logic-pad-world.md` の「カット除去定理を遂行する」はまだ[-]のまま。カットを使うクエストは追加したが、カット除去アルゴリズムの実行そのものをクエスト化するにはQuestGoalDefinitionの拡張が必要（現在は「式を証明する」ゴールのみ対応）
+---
