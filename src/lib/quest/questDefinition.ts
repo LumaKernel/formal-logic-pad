@@ -37,6 +37,7 @@ export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
  * - "nd-basics": 自然演繹の基礎（NM/NJ/NK）
  * - "tab-basics": タブロー法の基礎（TAB命題論理）
  * - "at-basics": 分析的タブローの基礎（AT命題論理）
+ * - "sc-cut-elimination": カット除去の体験（カット規則の活用と除去）
  */
 export type QuestCategory =
   | "propositional-basics"
@@ -52,7 +53,8 @@ export type QuestCategory =
   | "nd-basics"
   | "tab-basics"
   | "at-basics"
-  | "sc-basics";
+  | "sc-basics"
+  | "sc-cut-elimination";
 
 /** カテゴリのメタデータ */
 export type QuestCategoryMeta = {
@@ -151,6 +153,13 @@ export const questCategories: readonly QuestCategoryMeta[] = [
     description:
       "ゲンツェン流シーケント計算（LK/LJ）での証明。構造規則と論理規則を組み合わせてシーケントを導出する。",
     order: 14,
+  },
+  {
+    id: "sc-cut-elimination",
+    label: "カット除去の体験",
+    description:
+      "カット規則を活用した証明を構成し、カット除去ステッパーで除去過程を体験する。カット除去定理（Gentzenの基本定理）の理解を深める。",
+    order: 15,
   },
 ] as const;
 
