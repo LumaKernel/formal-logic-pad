@@ -1,6 +1,6 @@
 # 差し込みタスク
 
-- [ ] http://localhost:13000/workspace/notebook-... ノート作成して開始するとエラーが出る
+- [x] http://localhost:13000/workspace/notebook-... ノート作成して開始するとエラーが出る
       Removing a style property during rerender (background) when a conflicting property is set (backgroundColor) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values.
 
         src/lib/formula-input/FormulaInput.tsx (296:9) @ FormulaInput
