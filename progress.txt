@@ -8448,3 +8448,35 @@
   - 未使用NDステップタイプ（weakening, universal/existential intro/elim）は今後の模範解答追加時にカバーされる
   - assumptionId は `stepIndex + 1`（0-indexedからの変換）。discharged仮定のテキストはwsのノードから取得
 ---
+
+## 2026-03-02 - ND残り13問の模範解答追加（nd-11〜nd-23）+ 量化子NDステップカバレッジ対応
+- nd-11〜nd-14: 命題論理の背理法・矛盾則
+  - nd-11: 背理法 RAA¬ `(φ→ψ)→(φ→¬ψ)→¬φ` (NM) — →E×2 + →I×3
+  - nd-12: 古典的背理法 RAA*¬ `(¬φ→ψ)→(¬φ→¬ψ)→φ` (NK) — →E×2 + →I×2 + DNE
+  - nd-13: CON1 `ψ→¬ψ→¬φ` (NM) — →E + →I×3
+  - nd-14: CON4 `¬ψ→ψ→φ` (NK) — →E + →I×2 + DNE
+- nd-15〜nd-23: 量化子規則（∀I/∀E/∃I/∃E）
+  - nd-15: `P(x) → ∀x.(P(x)→P(x))` — assumption + →I + ∀I + →I
+  - nd-16: `∀x.(P(x)→P(x))` — assumption + →I + ∀I
+  - nd-17: `P(x) → ∃x.P(x)` — assumption + ∃I + →I
+  - nd-18: `∀x.∀y.(P(x,y) → ∀y.∀x.P(x,y))` — assumption + ∀I×2 + →I + ∀I×2
+  - nd-19: `(∀x.(P(x)→φ)) → (∃x.P(x)) → φ` — ∀E + →E + ∃E + →I×2
+  - nd-20: `∀x.(P(x) → ∃x.P(x))` — assumption + ∃I + →I + ∀I
+  - nd-21: `(∃x.P(x)) → (∀x.(P(x)→Q(x))) → ∃x.Q(x)` — ∀E + →E + ∃I + ∃E + →I×2
+  - nd-22: `(∃x.(P(x)∧Q(x))) → (∃x.P(x))∧(∃x.Q(x))` — ∧E_L/R + ∃I×2 + ∧I + ∃E + →I
+  - nd-23: `(∀x.P(x))∧(∀x.Q(x)) → ∀x.(P(x)∧Q(x))` — ∧E_L/R + ∀E×2 + ∧I + ∀I + →I
+- modelAnswer.ts: 量化子NDステップハンドラのv8 ignoreマーカーを除去（カバレッジ対象に）
+- modelAnswer.ts: ∃Eの防御的discharged nodeルックアップにv8 ignore追加
+- 変更ファイル: builtinModelAnswers.ts, modelAnswer.ts, task-processing.md
+- テスト: 7191 pass（+39）
+- カバレッジ: Stmts 99.17%, Branch 94.07%, Funcs 89.78%, Lines 99.97%
+- 品質チェック: typecheck ✅, lint ✅, prettier ✅, test ✅
+- ブラウザ確認: .screenshots/quest-catalog-default-story.png（データのみの変更のためUI影響なし）
+- 模範解答の全体進捗: 80/115問完了（PROP全34 + PEANO全12 + GROUP全8 + PRED 3/6 + ND 23/23）
+- 残り35問: predicate残り(3), tab(10), at(7), sc(15)
+- **今後のイテレーションへの学び:**
+  - Pratt parserの量化子バインディング: `all x. P(x) -> Q` は `∀x.(P(x) → Q)` と解析される（量化子は文末まで延びる）。`(∀x.P(x)) → Q` にするには明示的括弧が必要
+  - nd-16, nd-18, nd-20でこの誤解によりテスト失敗。修正後は全テスト通過
+  - 量化子証明のパターン: ∀I/∃Iは内側から構築（仮定→推論→∀I/∃Iで量化→→Iで含意導入）
+  - ∃Eパターン: existentialIndex（存在命題）+ caseIndex（仮定φ(x)から導いた結論）+ dischargedIndex（仮定φ(x)のノード）の3つ組
+---
