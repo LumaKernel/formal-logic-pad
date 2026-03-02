@@ -8397,3 +8397,24 @@
   - group-06(可換律)はsystemPresetId="abelian-group"（他はgroup-full）
   - CIのPrettierチェックが失敗していたのはtask-processing.mdの空ファイル問題。0バイトで合格するがCIでは環境差異がありうる
 ---
+
+## 2026-03-02 - 述語論理模範解答追加（pred-01〜pred-03）
+- ModelAnswerStepに"gen"ステップタイプ（汎化規則）を追加
+- pred-01: 全称除去（A4直接インスタンス、1ステップ）
+- pred-02: 恒等律の全称化（Identity + Gen、6ステップ）
+- pred-03: 全称量化子の交換（A4×2 + HS展開 + Gen×2 + A5×2、13ステップ）
+- クエスト定義修正: pred-01, pred-03, pred-05, pred-06のformulaTextに括弧追加（量化子の優先順位問題）
+- pred-04〜pred-06は∃量化子のAST生成制約により保留（Existential ASTノードはどの公理スキーマからも生成不可）
+- 変更ファイル: modelAnswer.ts, builtinModelAnswers.ts, builtinModelAnswers.test.ts, builtinQuests.ts
+- テスト: 7114 pass（+9）
+- カバレッジ: Stmts 99.43%, Branch 94.61%, Funcs 89.77%, Lines 99.96% (V8集約のノイズ範囲内)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザ確認: .screenshots/predicate-model-answers-quest-catalog.png
+- 模範解答の全体進捗: 57/115問完了（PROP全34 + PEANO全12 + GROUP全8 + PRED 3/6）
+- 残り58問: predicate残り(3), nd(23), tab(10), at(7), sc(15)
+- **今後のイテレーションへの学び:**
+  - `all x.` は式の終わりまで伸びる（`all x. P(x) -> Q` は `∀x.(P(x) → Q)`）。括弧が必要な場合は `(all x. P(x)) -> Q` と明示
+  - ∃量化子はAST上で独立ノード（`Existential`）。`¬∀x.¬φ` とは構造が異なるため `equalFormula` で一致しない
+  - pred-04〜06を証明可能にするには、EI公理の追加 or `∃x.φ ↔ ¬∀x.¬φ` の定義的等価の導入が必要
+  - ModelAnswerの"gen"ステップは `applyGenAndConnect` を使用。premiseIndex + variableName で指定
+---
