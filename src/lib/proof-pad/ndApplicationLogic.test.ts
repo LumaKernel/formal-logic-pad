@@ -118,6 +118,28 @@ describe("ndApplicationLogic", () => {
         expect(result.left._tag).toBe("NdDischargedFormulaParseError");
       }
     });
+
+    it("前提が⊥の場合、¬φ（Negation）を生成する", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "⊥");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-implication-intro",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        dischargedFormulaText: "phi",
+        dischargedAssumptionId: 1,
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result) && result.right._tag === "nd-success") {
+        expect(result.right.conclusionText).toBe("¬φ");
+      }
+    });
   });
 
   // --- →E (Implication Elim) ---
@@ -228,6 +250,50 @@ describe("ndApplicationLogic", () => {
       expect(Either.isLeft(result)).toBe(true);
       if (Either.isLeft(result)) {
         expect(result.left._tag).toBe("NdPremiseMissing");
+      }
+    });
+
+    it("φ と ¬φ（Negation）から ⊥ を導出する", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "left", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "right", { x: 200, y: 0 }, "~phi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-implication-elim",
+        conclusionNodeId: "node-3",
+        leftPremiseNodeId: "node-1",
+        rightPremiseNodeId: "node-2",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result) && result.right._tag === "nd-success") {
+        expect(result.right.conclusionText).toBe("⊥");
+      }
+    });
+
+    it("φ と ¬ψ（不一致Negation）の場合エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "left", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "right", { x: 200, y: 0 }, "~psi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-implication-elim",
+        conclusionNodeId: "node-3",
+        leftPremiseNodeId: "node-1",
+        rightPremiseNodeId: "node-2",
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("NdStructuralError");
       }
     });
   });

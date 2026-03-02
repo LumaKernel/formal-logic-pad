@@ -43,6 +43,8 @@ const UNICODE_SINGLE_CHAR: ReadonlyMap<string, TokenKind> = new Map([
   ["]", "RBRACKET"],
   [".", "DOT"],
   [",", "COMMA"],
+  // 特殊
+  ["⊥", "BOTTOM"],
 ]);
 
 // ASCII の `-` もMINUSとして扱う（項演算子として）

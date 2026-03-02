@@ -447,6 +447,28 @@ describe("Parser", () => {
     });
   });
 
+  // --- ⊥ (bottom/falsum) ---
+
+  describe("bottom (falsum)", () => {
+    const bottom = predicate("⊥", []);
+
+    it("⊥ をパースできる", () => {
+      assertFormula("⊥", bottom);
+    });
+
+    it("¬⊥ をパースできる", () => {
+      assertFormula("¬⊥", negation(bottom));
+    });
+
+    it("⊥ → φ をパースできる", () => {
+      assertFormula("⊥ → φ", implication(bottom, metaVariable("φ")));
+    });
+
+    it("φ → ⊥ をパースできる", () => {
+      assertFormula("φ → ⊥", implication(metaVariable("φ"), bottom));
+    });
+  });
+
   // --- 項メタ変数 ---
 
   describe("term meta variables", () => {

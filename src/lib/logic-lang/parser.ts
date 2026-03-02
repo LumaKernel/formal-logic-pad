@@ -351,6 +351,12 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
   const parseAtomFormula = (): Formula | undefined => {
     const token = peek();
 
+    // ⊥ (falsum/bottom)
+    if (token.kind === "BOTTOM") {
+      advance();
+      return predicate("⊥", []);
+    }
+
     // メタ変数
     if (token.kind === "META_VARIABLE") {
       // 先読み: 項の二項演算子や等号が続く場合は等号式の可能性

@@ -41,6 +41,7 @@ export const TOKEN_KINDS = [
   // リテラル
   "NUMBER",
   // 特殊
+  "BOTTOM",
   "EOF",
 ] as const;
 
