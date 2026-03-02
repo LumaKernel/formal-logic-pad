@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "effect": "^3.19.19",
+    "js-interpreter": "^6.0.1",
     "katex": "^0.16.33",
     "next": "16.1.6",
     "next-intl": "^4.8.2",
