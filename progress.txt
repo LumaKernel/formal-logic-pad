@@ -8242,3 +8242,33 @@
   - カット除去ステッパーはSC体系のProofWorkspaceに既に統合済み。クエストでカットを使った証明を作れば自動的にステッパーが利用可能
   - `prd-logic-pad-world.md` の「カット除去定理を遂行する」はまだ[-]のまま。カットを使うクエストは追加したが、カット除去アルゴリズムの実行そのものをクエスト化するにはQuestGoalDefinitionの拡張が必要（現在は「式を証明する」ゴールのみ対応）
 ---
+
+## 2026-03-02 - Edge Scroll シャドーアフォーダンス
+- 実装した内容:
+  - `edgeScrollLogic.ts` に `computePerEdgePenetration` / `EdgePenetration` 型を追加（4辺個別の浸透度計算）
+  - `edgeScrollIndicatorLogic.ts` 新規作成: CSS inset box-shadow を penetration に応じて計算する純粋関数
+  - `EdgeScrollIndicator.tsx` 新規コンポーネント: シャドーグロー表示（penetration null 時は非表示）
+  - `useEdgeScroll` を拡張: `edgePenetration` を返り値に追加
+  - `ProofWorkspace.tsx` に `EdgeScrollIndicator` を統合
+  - `EdgeScrollDemo.stories.tsx` を更新: 色付き dashed border インジケーターをシャドーグローに置き換え
+- 変更したファイル:
+  - src/lib/infinite-canvas/edgeScrollLogic.ts (EdgePenetration型 + computePerEdgePenetration + isEdgePenetrationIdle)
+  - src/lib/infinite-canvas/edgeScrollLogic.test.ts (+14 tests)
+  - src/lib/infinite-canvas/edgeScrollIndicatorLogic.ts (新規: computeEdgeScrollShadow)
+  - src/lib/infinite-canvas/edgeScrollIndicatorLogic.test.ts (新規: 11 tests)
+  - src/lib/infinite-canvas/EdgeScrollIndicator.tsx (新規コンポーネント)
+  - src/lib/infinite-canvas/useEdgeScroll.ts (edgePenetration公開)
+  - src/lib/infinite-canvas/index.ts (新しいexports追加)
+  - src/lib/infinite-canvas/EdgeScrollDemo.stories.tsx (シャドーグロー版に更新)
+  - src/lib/proof-pad/ProofWorkspace.tsx (EdgeScrollIndicator統合)
+- テスト: 6932 passed (baseline: 6907, +25)
+- カバレッジ: 99.44% (baseline: 99.45%, 差は丸め誤差)
+- スクリーンショット:
+  - .screenshots/edge-scroll-demo-initial.png (EdgeScrollDemo PASS)
+  - .screenshots/proof-workspace-with-edge-scroll.png (ProofWorkspace PASS)
+- **今後のイテレーションへの学び:**
+  - EdgeScrollIndicator はドラッグ中のみ表示。CSS transition 0.15s でフェードアウトがスムーズに
+  - `computeEdgeScrollShadow` はESLintの `require-satisfies-in-tls` に注意。template literalが複雑な場合は `buildShadow` のようなヘルパー関数を使って分割するのが有効
+  - useEdgeScroll は rAF ループ内でフレームごとにstate更新すると過剰。notifyDragMove（ユーザーイベント駆動）で更新するのが正しい粒度
+  - ProofWorkspaceの `position: relative` コンテナ内に `position: absolute; inset: 0` で配置するとInfiniteCanvas全体にオーバーレイできる
+---
