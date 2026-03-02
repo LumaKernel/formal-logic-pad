@@ -866,7 +866,9 @@ export function applyTabRuleAndConnect(
     }
     case "tab-single-result": {
       // 1前提: 前提ノードを1つ作成
+      /* v8 ignore start -- 防御的: premisePositions[0]は呼び出し元で保証 */
       const pos = premisePositions[0] ?? { x: 0, y: 0 };
+      /* v8 ignore stop */
       const premiseId = `node-${String(ws.nextNodeId) satisfies string}`;
       ws = addNode(ws, "axiom", "", pos, result.premiseText);
       premiseNodeIds.push(premiseId);
@@ -881,8 +883,10 @@ export function applyTabRuleAndConnect(
     }
     case "tab-branching-result": {
       // 2前提: 前提ノードを2つ作成
+      /* v8 ignore start -- 防御的: premisePositions[0/1]は呼び出し元で保証 */
       const leftPos = premisePositions[0] ?? { x: 0, y: 0 };
       const rightPos = premisePositions[1] ?? { x: 0, y: 0 };
+      /* v8 ignore stop */
 
       const leftId = `node-${String(ws.nextNodeId) satisfies string}`;
       ws = addNode(ws, "axiom", "", leftPos, result.leftPremiseText);
@@ -987,14 +991,18 @@ export function applyAtRuleAndConnect(
     }
     case "at-alpha-result": {
       // α規則: 1-2個の結果ノードを作成
+      /* v8 ignore start -- 防御的: resultPositions[0]は呼び出し元で保証 */
       const pos1 = resultPositions[0] ?? { x: 0, y: 0 };
+      /* v8 ignore stop */
       const resultId1 = `node-${String(ws.nextNodeId) satisfies string}`;
       ws = addNode(ws, "axiom", "", pos1, result.resultText);
       resultNodeIds.push(resultId1);
 
       let resultId2: string | undefined;
       if (result.secondResultText !== undefined) {
+        /* v8 ignore start -- 防御的: resultPositions[1]は呼び出し元で保証 */
         const pos2 = resultPositions[1] ?? { x: 0, y: 0 };
+        /* v8 ignore stop */
         resultId2 = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "", pos2, result.secondResultText);
         resultNodeIds.push(resultId2);
@@ -1016,8 +1024,10 @@ export function applyAtRuleAndConnect(
     }
     case "at-beta-result": {
       // β規則: 左右2つの枝を作成
+      /* v8 ignore start -- 防御的: resultPositions[0/1]は呼び出し元で保証 */
       const leftPos = resultPositions[0] ?? { x: 0, y: 0 };
       const rightPos = resultPositions[1] ?? { x: 0, y: 0 };
+      /* v8 ignore stop */
 
       const leftId = `node-${String(ws.nextNodeId) satisfies string}`;
       ws = addNode(ws, "axiom", "", leftPos, result.leftResultText);
@@ -1042,7 +1052,9 @@ export function applyAtRuleAndConnect(
     case "at-gamma-result":
     case "at-delta-result": {
       // γ/δ規則: 1つの結果ノードを作成
+      /* v8 ignore start -- 防御的: resultPositions[0]は呼び出し元で保証 */
       const pos = resultPositions[0] ?? { x: 0, y: 0 };
+      /* v8 ignore stop */
       const resultId = `node-${String(ws.nextNodeId) satisfies string}`;
       ws = addNode(ws, "axiom", "", pos, result.resultText);
       resultNodeIds.push(resultId);
@@ -1122,7 +1134,9 @@ export function applyScRuleAndConnect(
     }
     case "sc-single-result": {
       // 1前提: 前提ノードを1つ作成
+      /* v8 ignore start -- 防御的: premisePositions[0]は呼び出し元で保証 */
       const pos = premisePositions[0] ?? { x: 0, y: 0 };
+      /* v8 ignore stop */
       const premiseId = `node-${String(ws.nextNodeId) satisfies string}`;
       ws = addNode(ws, "axiom", "", pos, result.premiseText);
       premiseNodeIds.push(premiseId);
@@ -1137,8 +1151,10 @@ export function applyScRuleAndConnect(
     }
     case "sc-branching-result": {
       // 2前提: 前提ノードを2つ作成
+      /* v8 ignore start -- 防御的: premisePositions[0/1]は呼び出し元で保証 */
       const leftPos = premisePositions[0] ?? { x: 0, y: 0 };
       const rightPos = premisePositions[1] ?? { x: 0, y: 0 };
+      /* v8 ignore stop */
 
       const leftId = `node-${String(ws.nextNodeId) satisfies string}`;
       ws = addNode(ws, "axiom", "", leftPos, result.leftPremiseText);

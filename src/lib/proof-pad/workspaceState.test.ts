@@ -3083,6 +3083,84 @@ describe("proofWorkspace", () => {
       expect(findNode(result, "node-2")?.formulaText).toBe(originalText);
     });
 
+    it("updates Substitution conclusion text when premise formula changes", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const subst = applySubstitutionAndConnect(
+        ws,
+        "node-1",
+        [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha",
+          },
+        ],
+        { x: 50, y: 100 },
+      );
+      ws = subst.workspace;
+      const originalText = findNode(ws, "node-2")?.formulaText;
+      expect(originalText).not.toBe("");
+      // 前提ノードの数式を変更（代入結果が変わるはず）
+      ws = updateNodeFormulaText(ws, "node-1", "psi -> (chi -> psi)");
+      ws = revalidateInferenceConclusions(ws);
+      // 結論テキストが新しい前提に基づいて再計算されている
+      const newText = findNode(ws, "node-2")?.formulaText;
+      expect(newText).not.toBe(originalText);
+      expect(newText).not.toBe("");
+    });
+
+    it("clears Substitution conclusion text when validation fails", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const subst = applySubstitutionAndConnect(
+        ws,
+        "node-1",
+        [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha",
+          },
+        ],
+        { x: 50, y: 100 },
+      );
+      ws = subst.workspace;
+      const originalText = findNode(ws, "node-2")?.formulaText;
+      expect(originalText).not.toBe("");
+      // 前提ノードの数式を無効にする
+      ws = updateNodeFormulaText(ws, "node-1", "");
+      ws = revalidateInferenceConclusions(ws);
+      // 検証失敗で結論テキストがクリアされる
+      expect(findNode(ws, "node-2")?.formulaText).toBe("");
+    });
+
+    it("clears ND conclusion text when validation error and text was non-empty", () => {
+      let ws = createEmptyWorkspace(naturalDeduction(nmSystem));
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "phi /\\ psi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "nd-conjunction-elim-left" as const,
+            conclusionNodeId: "node-2",
+            premiseNodeId: "node-1",
+            conclusionText: "",
+          },
+        ],
+      };
+      // まず有効な状態で結論テキストを計算
+      ws = revalidateInferenceConclusions(ws);
+      expect(findNode(ws, "node-2")?.formulaText).toBe("φ");
+      // 前提を無効な数式に変更（結合ではない）
+      ws = updateNodeFormulaText(ws, "node-1", "phi");
+      ws = revalidateInferenceConclusions(ws);
+      // バリデーションエラーでテキストがクリアされる
+      expect(findNode(ws, "node-2")?.formulaText).toBe("");
+    });
+
     it("does not change SC node when revalidating (SC premises are computed at rule application time)", () => {
       const scDeduction = sequentCalculusDeduction(lkSystem);
       let ws = createEmptyWorkspace(scDeduction);
@@ -3117,6 +3195,22 @@ describe("proofWorkspace", () => {
       // Should not crash; inferenceEdges remain empty
       expect(result.inferenceEdges).toHaveLength(0);
     });
+
+    it("updates variable name on existing gen edge", () => {
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> psi");
+      const gen = applyGenAndConnect(ws, "node-1", "x", { x: 50, y: 100 });
+      ws = gen.workspace;
+      // Genエッジがある状態で変数名を変更
+      const result = updateInferenceEdgeGenVariableName(ws, "node-2", "y");
+      const genEdge = result.inferenceEdges.find(
+        (e) => e._tag === "gen" && e.conclusionNodeId === "node-2",
+      );
+      expect(genEdge).toBeDefined();
+      if (genEdge && genEdge._tag === "gen") {
+        expect(genEdge.variableName).toBe("y");
+      }
+    });
   });
 
   describe("updateInferenceEdgeSubstitutionEntries - edge not found", () => {
@@ -3127,6 +3221,48 @@ describe("proofWorkspace", () => {
       const result = updateInferenceEdgeSubstitutionEntries(ws, "node-1", []);
       // Should not crash; inferenceEdges remain empty
       expect(result.inferenceEdges).toHaveLength(0);
+    });
+
+    it("updates entries on existing substitution edge", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      const subst = applySubstitutionAndConnect(
+        ws,
+        "node-1",
+        [
+          {
+            _tag: "FormulaSubstitution",
+            metaVariableName: "φ",
+            formulaText: "alpha",
+          },
+        ],
+        { x: 50, y: 100 },
+      );
+      ws = subst.workspace;
+      const newEntries: SubstitutionEntries = [
+        {
+          _tag: "FormulaSubstitution",
+          metaVariableName: "φ",
+          formulaText: "beta",
+        },
+      ];
+      // Substitutionエッジがある状態でエントリを変更
+      const result = updateInferenceEdgeSubstitutionEntries(
+        ws,
+        "node-2",
+        newEntries,
+      );
+      const substEdge = result.inferenceEdges.find(
+        (e) =>
+          e._tag === "substitution" && e.conclusionNodeId === "node-2",
+      );
+      expect(substEdge).toBeDefined();
+      if (substEdge && substEdge._tag === "substitution") {
+        expect(substEdge.entries).toEqual(newEntries);
+      }
+      // 結論テキストが再計算されている
+      const node = findNode(result, "node-2");
+      expect(node?.formulaText).not.toBe("");
     });
   });
 

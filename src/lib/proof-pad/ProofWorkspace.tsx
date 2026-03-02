@@ -1122,7 +1122,9 @@ export function ProofWorkspace({
         // Both nodes selected, apply MP
         const leftNode = findNode(workspace, mpSelection.leftNodeId);
         const rightNode = findNode(workspace, nodeId);
+        /* v8 ignore start -- 防御的: クリックされたノードはワークスペースに存在する */
         if (!leftNode || !rightNode) return;
+        /* v8 ignore stop */
 
         const mpPosition: Point = {
           x: (leftNode.position.x + rightNode.position.x) / 2,
@@ -1142,7 +1144,9 @@ export function ProofWorkspace({
         // Right premise was pre-selected, now left is clicked
         const leftNode = findNode(workspace, nodeId);
         const rightNode = findNode(workspace, mpSelection.rightNodeId);
+        /* v8 ignore start -- 防御的: クリックされたノードはワークスペースに存在する */
         if (!leftNode || !rightNode) return;
+        /* v8 ignore stop */
 
         const mpPosition: Point = {
           x: (leftNode.position.x + rightNode.position.x) / 2,
@@ -1184,7 +1188,9 @@ export function ProofWorkspace({
       if (genSelection.phase !== "selecting-premise") return;
 
       const premiseNode = findNode(workspace, nodeId);
+      /* v8 ignore start -- 防御的: クリックされたノードはワークスペースに存在する */
       if (!premiseNode) return;
+      /* v8 ignore stop */
 
       const genPosition: Point = {
         x: premiseNode.position.x,
@@ -1247,7 +1253,9 @@ export function ProofWorkspace({
       if (tabSelection.phase !== "selecting-node") return;
 
       const conclusionNode = findNode(workspace, nodeId);
+      /* v8 ignore start -- 防御的: クリックされたノードはワークスペースに存在する */
       if (!conclusionNode) return;
+      /* v8 ignore stop */
 
       const { ruleId } = tabSelection;
 
@@ -1405,7 +1413,9 @@ export function ProofWorkspace({
       if (atSelection.phase !== "selecting-node") return;
 
       const conclusionNode = findNode(workspace, nodeId);
+      /* v8 ignore start -- 防御的: クリックされたノードはワークスペースに存在する */
       if (!conclusionNode) return;
+      /* v8 ignore stop */
 
       const { ruleId } = atSelection;
 
@@ -1496,7 +1506,9 @@ export function ProofWorkspace({
       if (scSelection.phase !== "selecting-node") return;
 
       const conclusionNode = findNode(workspace, nodeId);
+      /* v8 ignore start -- 防御的: クリックされたノードはワークスペースに存在する */
       if (!conclusionNode) return;
+      /* v8 ignore stop */
 
       const { ruleId } = scSelection;
 
@@ -1740,8 +1752,10 @@ export function ProofWorkspace({
         (e) => e._tag === "gen" && e.conclusionNodeId === node.id,
       );
       if (!genEdgeRaw) continue;
+      /* v8 ignore start -- 防御的: find述語でe._tag === "gen"チェック済み、else分岐は到達不能 */
       const variableName =
         genEdgeRaw._tag === "gen" ? genEdgeRaw.variableName : "";
+      /* v8 ignore stop */
       const result = validateGenApplication(workspace, node.id, variableName);
       const display = processValidationResult(
         result,
@@ -1770,8 +1784,10 @@ export function ProofWorkspace({
         (e) => e._tag === "substitution" && e.conclusionNodeId === node.id,
       );
       if (!substEdgeRaw) continue;
+      /* v8 ignore start -- 防御的: find述語でe._tag === "substitution"チェック済み、else分岐は到達不能 */
       const entries =
         substEdgeRaw._tag === "substitution" ? substEdgeRaw.entries : [];
+      /* v8 ignore stop */
       const result = validateSubstitutionApplication(
         workspace,
         node.id,
