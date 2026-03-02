@@ -100,6 +100,28 @@
 
 ---
 
+## 2026-03-02 - クエスト模範解答の基盤構築（propositional-basics 7問）
+- 模範解答の型定義・ビルダー・バリデーション基盤を構築:
+  - `src/lib/quest/modelAnswer.ts` — ModelAnswer型、buildModelAnswerWorkspace、validateModelAnswer
+  - `src/lib/quest/builtinModelAnswers.ts` — propositional-basics 7問の模範解答データ
+  - `src/lib/quest/modelAnswer.test.ts` — 9テスト（ビルダー、バリデータの境界条件）
+  - `src/lib/quest/builtinModelAnswers.test.ts` — 23テスト（全7問の検証）
+  - `src/lib/quest/index.ts` — エクスポート追加
+- 模範解答のアーキテクチャ:
+  - ステップ列（DAG構造）としてインデックスベースで証明を記述
+  - axiomステップ（公理インスタンスの直接記述）+ mpステップ（MP適用）
+  - buildModelAnswerWorkspace: ステップ → WorkspaceState → applyTreeLayout → checkQuestGoalsWithAxioms
+  - validateModelAnswer: AllAchieved or AllAchievedButAxiomViolation を Valid として扱う
+- テスト: 6729 unit tests passed, +32 new tests
+- カバレッジ: modelAnswer.ts 94.44% (v8 ignore済み), builtinModelAnswers.ts 100%
+- 品質チェック: typecheck ✅, lint ✅, test ✅, prettier ✅
+- **今後のイテレーションへの学び:**
+  - `AllAchievedButAxiomViolation` は公理インスタンスを直接配置（SubstitutionEdge不使用）で発生する。模範解答ではこれが正常
+  - 115問すべての模範解答は複数イテレーションに分けて追加する
+  - Hilbert系の証明（prop-04 推移律など）は複雑で15ステップ以上になる。各証明は事前に紙面で検証してからコードに落とすと効率的
+  - `createQuestWorkspace` は DeductionSystem を受け取る。`resolveSystemPreset` で SystemPresetId → SystemPreset → deductionSystem と変換
+---
+
 ## 2026-03-02 - ページストーリーを充実させる（差し込みタスク）
 - HubPageView ストーリーに3つ追加:
   - NotebookActions: 削除（確認ダイアログ付き）・複製・リネーム・自由帳化のインタラクションテスト
