@@ -1,14 +1,23 @@
-# 申し送り事項
+# タスク: ND模範解答のステップタイプ追加と基本問題の模範解答追加
 
-## pred-04〜pred-06の模範解答が保留
+**元ファイル:** `tasks/prd-inserted-tasks.md` — `[-] ビルトインのものはすべて網羅。`
 
-∃（存在量化子）を含むゴール（pred-04, pred-05, pred-06）は、現在のシステムでは証明不可能。
+## 内容
 
-**原因:** `Existential` AST ノードはどの公理スキーマ（A1〜A5）からも生成できない。`¬∀x.¬φ` は構造的に `∃x.φ` と異なるため、`equalFormula` でゴール一致しない。
+ModelAnswerStep にND規則のステップタイプを追加し、ND基本問題(nd-01〜nd-10)の模範解答を追加する。
 
-**対策案:**
-1. EI公理（∃導入: `φ(t) → ∃x.φ(x)`）を述語論理プリセットに追加
-2. `∃x.φ ↔ ¬∀x.¬φ` の定義的等価をシステムに導入
-3. `equalFormula` を拡張して定義的等価を考慮
+## 周辺情報
 
-いずれかの対策後、pred-04〜pred-06の模範解答を追加する。
+- 現在のModelAnswerStepは axiom/mp/gen の3タイプのみ（Hilbert系専用）
+- NDの推論規則は14種（→I, →E, ∧I, ∧E_L, ∧E_R, ∨I_L, ∨I_R, ∨E, w, EFQ, DNE, ∀I, ∀E, ∃I, ∃E）
+- NDではノードは「仮定」として追加し、ポート接続で規則適用する
+- ND模範解答は合計23問（nd-01〜nd-23）、現在0件
+
+## テスト計画
+
+- `src/lib/quest/modelAnswer.test.ts` — NDステップタイプのビルドテスト追加
+- `src/lib/quest/builtinModelAnswers.test.ts` — nd-basics (nd-01〜nd-10) のゴール達成テスト追加
+
+## ストーリー計画
+
+- UIの変更なし（純粋ロジックのみ）

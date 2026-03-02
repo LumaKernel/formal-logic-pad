@@ -4005,9 +4005,7 @@ const group08InverseIdentity: ModelAnswer = {
  */
 const pred01UniversalElim: ModelAnswer = {
   questId: "pred-01",
-  steps: [
-    { _tag: "axiom", formulaText: "(all x. P(x)) -> P(x)" },
-  ],
+  steps: [{ _tag: "axiom", formulaText: "(all x. P(x)) -> P(x)" }],
 };
 
 /**
@@ -4103,6 +4101,188 @@ const pred03UniversalSwap: ModelAnswer = {
   ],
 };
 
+// ============================================================
+// 自然演繹 (ND) — nd-basics
+// ============================================================
+
+// nd-01: 恒等律 φ → φ (NM, →I)
+// 0: [φ]        1: φ→φ (→I, 0, discharge 0)
+const nd01Identity: ModelAnswer = {
+  questId: "nd-01",
+  steps: [
+    { _tag: "assumption", formulaText: "phi" },
+    { _tag: "nd-implication-intro", premiseIndex: 0, dischargedIndex: 0 },
+  ],
+};
+
+// nd-02: K公理 φ → (ψ → φ) (NM, →I×2)
+// 0: [φ]  1: [ψ]  2: ψ→φ (→I, 0, discharge 1)  3: φ→(ψ→φ) (→I, 2, discharge 0)
+const nd02KAxiom: ModelAnswer = {
+  questId: "nd-02",
+  steps: [
+    { _tag: "assumption", formulaText: "phi" },
+    { _tag: "assumption", formulaText: "psi" },
+    { _tag: "nd-implication-intro", premiseIndex: 0, dischargedIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 2, dischargedIndex: 0 },
+  ],
+};
+
+// nd-03: 対偶 (φ→ψ) → (¬ψ→¬φ) (NM)
+// 0: [φ→ψ]  1: [¬ψ]  2: [φ]
+// 3: ψ (→E, 2, 0)  4: ⊥ (→E, 3, 1)  5: ¬φ (→I, 4, discharge 2)
+// 6: ¬ψ→¬φ (→I, 5, discharge 1)  7: (φ→ψ)→(¬ψ→¬φ) (→I, 6, discharge 0)
+const nd03Contraposition: ModelAnswer = {
+  questId: "nd-03",
+  steps: [
+    { _tag: "assumption", formulaText: "phi -> psi" },
+    { _tag: "assumption", formulaText: "~psi" },
+    { _tag: "assumption", formulaText: "phi" },
+    { _tag: "nd-implication-elim", leftIndex: 2, rightIndex: 0 },
+    { _tag: "nd-implication-elim", leftIndex: 3, rightIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 4, dischargedIndex: 2 },
+    { _tag: "nd-implication-intro", premiseIndex: 5, dischargedIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 6, dischargedIndex: 0 },
+  ],
+};
+
+// nd-04: 連言の交換律 (φ∧ψ) → (ψ∧φ) (NM)
+// 0: [φ∧ψ]  1: ψ (∧E_R, 0)  2: φ (∧E_L, 0)  3: ψ∧φ (∧I, 1, 2)
+// 4: (φ∧ψ)→(ψ∧φ) (→I, 3, discharge 0)
+const nd04ConjunctionCommutativity: ModelAnswer = {
+  questId: "nd-04",
+  steps: [
+    { _tag: "assumption", formulaText: "phi /\\ psi" },
+    { _tag: "nd-conjunction-elim-right", premiseIndex: 0 },
+    { _tag: "nd-conjunction-elim-left", premiseIndex: 0 },
+    { _tag: "nd-conjunction-intro", leftIndex: 1, rightIndex: 2 },
+    { _tag: "nd-implication-intro", premiseIndex: 3, dischargedIndex: 0 },
+  ],
+};
+
+// nd-05: 選言の交換律 (φ∨ψ) → (ψ∨φ) (NM)
+// 0: [φ∨ψ]  1: [φ]  2: ψ∨φ (∨I_R, 1, addedLeft="psi")
+// 3: [ψ]  4: ψ∨φ (∨I_L, 3, addedRight="phi")
+// 5: ψ∨φ (∨E, disj=0, leftCase=2, leftDisch=1, rightCase=4, rightDisch=3)
+// 6: (φ∨ψ)→(ψ∨φ) (→I, 5, discharge 0)
+const nd05DisjunctionCommutativity: ModelAnswer = {
+  questId: "nd-05",
+  steps: [
+    { _tag: "assumption", formulaText: "phi \\/ psi" },
+    { _tag: "assumption", formulaText: "phi" },
+    {
+      _tag: "nd-disjunction-intro-right",
+      premiseIndex: 1,
+      addedLeftText: "psi",
+    },
+    { _tag: "assumption", formulaText: "psi" },
+    {
+      _tag: "nd-disjunction-intro-left",
+      premiseIndex: 3,
+      addedRightText: "phi",
+    },
+    {
+      _tag: "nd-disjunction-elim",
+      disjunctionIndex: 0,
+      leftCaseIndex: 2,
+      leftDischargedIndex: 1,
+      rightCaseIndex: 4,
+      rightDischargedIndex: 3,
+    },
+    { _tag: "nd-implication-intro", premiseIndex: 5, dischargedIndex: 0 },
+  ],
+};
+
+// nd-06: 二重否定導入 φ → ¬¬φ (NM)
+// ¬φ = φ→⊥, ¬¬φ = (φ→⊥)→⊥
+// 0: [φ]  1: [¬φ]  2: ⊥ (→E, 0, 1)  3: ¬¬φ (→I, 2, discharge 1)
+// 4: φ→¬¬φ (→I, 3, discharge 0)
+const nd06DoubleNegationIntro: ModelAnswer = {
+  questId: "nd-06",
+  steps: [
+    { _tag: "assumption", formulaText: "phi" },
+    { _tag: "assumption", formulaText: "~phi" },
+    { _tag: "nd-implication-elim", leftIndex: 0, rightIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 2, dischargedIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 3, dischargedIndex: 0 },
+  ],
+};
+
+// nd-07: 爆発律 ¬φ → (φ → ψ) (NJ, EFQ)
+// 0: [¬φ]  1: [φ]  2: ⊥ (→E, 1, 0)  3: ψ (EFQ, 2)
+// 4: φ→ψ (→I, 3, discharge 1)  5: ¬φ→(φ→ψ) (→I, 4, discharge 0)
+const nd07ExFalso: ModelAnswer = {
+  questId: "nd-07",
+  steps: [
+    { _tag: "assumption", formulaText: "~phi" },
+    { _tag: "assumption", formulaText: "phi" },
+    { _tag: "nd-implication-elim", leftIndex: 1, rightIndex: 0 },
+    { _tag: "nd-efq", premiseIndex: 2, conclusionText: "psi" },
+    { _tag: "nd-implication-intro", premiseIndex: 3, dischargedIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 4, dischargedIndex: 0 },
+  ],
+};
+
+// nd-08: Claviusの法則 (¬φ→φ) → φ (NK, DNE)
+// 0: [¬φ→φ]  1: [¬φ]  2: φ (→E, 1, 0)
+// 3: ⊥ (→E, 2, 1)  4: ¬¬φ (→I, 3, discharge 1)
+// 5: φ (DNE, 4)  6: (¬φ→φ)→φ (→I, 5, discharge 0)
+const nd08ClaviusLaw: ModelAnswer = {
+  questId: "nd-08",
+  steps: [
+    { _tag: "assumption", formulaText: "~phi -> phi" },
+    { _tag: "assumption", formulaText: "~phi" },
+    { _tag: "nd-implication-elim", leftIndex: 1, rightIndex: 0 },
+    { _tag: "nd-implication-elim", leftIndex: 2, rightIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 3, dischargedIndex: 1 },
+    { _tag: "nd-dne", premiseIndex: 4 },
+    { _tag: "nd-implication-intro", premiseIndex: 5, dischargedIndex: 0 },
+  ],
+};
+
+// nd-09: 排中律 φ ∨ ¬φ (NK, TND)
+// 0: [¬(φ∨¬φ)]  1: [φ]  2: φ∨¬φ (∨I_L, 1, addedRight="~phi")
+// 3: ⊥ (→E, 2, 0)  4: ¬φ (→I, 3, discharge 1)
+// 5: φ∨¬φ (∨I_R, 4, addedLeft="phi")  6: ⊥ (→E, 5, 0)
+// 7: ¬¬(φ∨¬φ) (→I, 6, discharge 0)  8: φ∨¬φ (DNE, 7)
+const nd09ExcludedMiddle: ModelAnswer = {
+  questId: "nd-09",
+  steps: [
+    { _tag: "assumption", formulaText: "~(phi \\/ ~phi)" },
+    { _tag: "assumption", formulaText: "phi" },
+    {
+      _tag: "nd-disjunction-intro-left",
+      premiseIndex: 1,
+      addedRightText: "~phi",
+    },
+    { _tag: "nd-implication-elim", leftIndex: 2, rightIndex: 0 },
+    { _tag: "nd-implication-intro", premiseIndex: 3, dischargedIndex: 1 },
+    {
+      _tag: "nd-disjunction-intro-right",
+      premiseIndex: 4,
+      addedLeftText: "phi",
+    },
+    { _tag: "nd-implication-elim", leftIndex: 5, rightIndex: 0 },
+    { _tag: "nd-implication-intro", premiseIndex: 6, dischargedIndex: 0 },
+    { _tag: "nd-dne", premiseIndex: 7 },
+  ],
+};
+
+// nd-10: 驚嘆すべき帰結 (φ→¬φ) → ¬φ (NM)
+// 0: [φ→¬φ]  1: [φ]  2: ¬φ (→E, 1, 0)
+// 3: ⊥ (→E, 1, 2)  4: ¬φ (→I, 3, discharge 1)
+// 5: (φ→¬φ)→¬φ (→I, 4, discharge 0)
+const nd10ConsequentiaMirabilis: ModelAnswer = {
+  questId: "nd-10",
+  steps: [
+    { _tag: "assumption", formulaText: "phi -> ~phi" },
+    { _tag: "assumption", formulaText: "phi" },
+    { _tag: "nd-implication-elim", leftIndex: 1, rightIndex: 0 },
+    { _tag: "nd-implication-elim", leftIndex: 1, rightIndex: 2 },
+    { _tag: "nd-implication-intro", premiseIndex: 3, dischargedIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 4, dischargedIndex: 0 },
+  ],
+};
+
 // --- レジストリ ---
 
 /** 全ビルトイン模範解答 */
@@ -4172,6 +4352,17 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   pred01UniversalElim,
   pred02IdentityQuantified,
   pred03UniversalSwap,
+  // nd-basics
+  nd01Identity,
+  nd02KAxiom,
+  nd03Contraposition,
+  nd04ConjunctionCommutativity,
+  nd05DisjunctionCommutativity,
+  nd06DoubleNegationIntro,
+  nd07ExFalso,
+  nd08ClaviusLaw,
+  nd09ExcludedMiddle,
+  nd10ConsequentiaMirabilis,
 ];
 
 /** QuestId → ModelAnswer のマップ */

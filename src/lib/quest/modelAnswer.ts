@@ -5,6 +5,11 @@
  * ノート自体ではなく、ステップのDAG構造で表現する。
  *
  * 変更時は modelAnswer.test.ts, builtinModelAnswers.ts も同期すること。
+ *
+ * ステップタイプを追加する場合:
+ * 1. ModelAnswerStep に新しいタグを追加
+ * 2. buildModelAnswerWorkspace の switch に対応する case を追加
+ * 3. modelAnswer.test.ts にテストを追加
  */
 
 import * as Either from "effect/Either";
@@ -22,17 +27,42 @@ import {
   checkQuestGoalsWithAxioms,
   type QuestGoalCheckWithAxiomsResult,
 } from "./questCompletionLogic";
+import type { NdInferenceEdge } from "../proof-pad/inferenceEdge";
+import {
+  validateNdApplication,
+  isNdEfqValidResult,
+} from "../proof-pad/ndApplicationLogic";
 
 // --- ステップ定義 ---
 
 /**
  * 模範解答の1ステップ。
  *
- * - axiom: 公理インスタンスを直接記述（ユーザーがタイプする形）
- * - mp: 既存2ステップにMPを適用（leftIndex: 前件, rightIndex: 条件式）
- * - gen: 既存ステップにGen（汎化）を適用（premiseIndex: 前提, variableName: 束縛変数名）
+ * Hilbert系:
+ * - axiom: 公理インスタンスを直接記述
+ * - mp: 既存2ステップにMPを適用
+ * - gen: 既存ステップにGen（汎化）を適用
+ *
+ * ND（自然演繹）:
+ * - assumption: 仮定ノードを追加（後でdischargeされうる）
+ * - nd-implication-intro: →導入（前提 + 打消し仮定）
+ * - nd-implication-elim: →除去（φ + φ→ψ → ψ）
+ * - nd-conjunction-intro: ∧導入（φ + ψ → φ∧ψ）
+ * - nd-conjunction-elim-left: ∧除去左（φ∧ψ → φ）
+ * - nd-conjunction-elim-right: ∧除去右（φ∧ψ → ψ）
+ * - nd-disjunction-intro-left: ∨導入左（φ → φ∨ψ）
+ * - nd-disjunction-intro-right: ∨導入右（ψ → φ∨ψ）
+ * - nd-disjunction-elim: ∨除去（φ∨ψ + φ→χ + ψ→χ → χ）
+ * - nd-weakening: 弱化（φ, ψ → φ）
+ * - nd-efq: 爆発律（⊥ → φ）
+ * - nd-dne: 二重否定除去（¬¬φ → φ）
+ * - nd-universal-intro: ∀導入（φ → ∀x.φ）
+ * - nd-universal-elim: ∀除去（∀x.φ → φ[t/x]）
+ * - nd-existential-intro: ∃導入（φ[t/x] → ∃x.φ）
+ * - nd-existential-elim: ∃除去（∃x.φ + φ→χ → χ）
  */
 export type ModelAnswerStep =
+  // Hilbert系ステップ
   | {
       readonly _tag: "axiom";
       /** 公理インスタンスの式テキスト（DSL形式） */
@@ -51,6 +81,121 @@ export type ModelAnswerStep =
       readonly premiseIndex: number;
       /** 汎化する変数名 */
       readonly variableName: string;
+    }
+  // ND（自然演繹）ステップ
+  | {
+      readonly _tag: "assumption";
+      /** 仮定の式テキスト（DSL形式） */
+      readonly formulaText: string;
+    }
+  | {
+      readonly _tag: "nd-implication-intro";
+      /** ψを証明する前提のステップインデックス */
+      readonly premiseIndex: number;
+      /** 打ち消す仮定のステップインデックス */
+      readonly dischargedIndex: number;
+    }
+  | {
+      readonly _tag: "nd-implication-elim";
+      /** antecedent（φ）のステップインデックス */
+      readonly leftIndex: number;
+      /** conditional（φ→ψ）のステップインデックス */
+      readonly rightIndex: number;
+    }
+  | {
+      readonly _tag: "nd-conjunction-intro";
+      /** 左辺（φ）のステップインデックス */
+      readonly leftIndex: number;
+      /** 右辺（ψ）のステップインデックス */
+      readonly rightIndex: number;
+    }
+  | {
+      readonly _tag: "nd-conjunction-elim-left";
+      /** 前提（φ∧ψ）のステップインデックス */
+      readonly premiseIndex: number;
+    }
+  | {
+      readonly _tag: "nd-conjunction-elim-right";
+      /** 前提（φ∧ψ）のステップインデックス */
+      readonly premiseIndex: number;
+    }
+  | {
+      readonly _tag: "nd-disjunction-intro-left";
+      /** 前提（φ）のステップインデックス */
+      readonly premiseIndex: number;
+      /** 追加する右辺の式テキスト */
+      readonly addedRightText: string;
+    }
+  | {
+      readonly _tag: "nd-disjunction-intro-right";
+      /** 前提（ψ）のステップインデックス */
+      readonly premiseIndex: number;
+      /** 追加する左辺の式テキスト */
+      readonly addedLeftText: string;
+    }
+  | {
+      readonly _tag: "nd-disjunction-elim";
+      /** φ∨ψ のステップインデックス */
+      readonly disjunctionIndex: number;
+      /** φ→χ の証明のステップインデックス */
+      readonly leftCaseIndex: number;
+      /** 左仮定のステップインデックス */
+      readonly leftDischargedIndex: number;
+      /** ψ→χ の証明のステップインデックス */
+      readonly rightCaseIndex: number;
+      /** 右仮定のステップインデックス */
+      readonly rightDischargedIndex: number;
+    }
+  | {
+      readonly _tag: "nd-weakening";
+      /** 残す方の前提のステップインデックス */
+      readonly keptIndex: number;
+      /** 捨てる方の前提のステップインデックス */
+      readonly discardedIndex: number;
+    }
+  | {
+      readonly _tag: "nd-efq";
+      /** ⊥の証明のステップインデックス */
+      readonly premiseIndex: number;
+      /** 結論の式テキスト（EFQは結論を自動計算できないため明示指定） */
+      readonly conclusionText: string;
+    }
+  | {
+      readonly _tag: "nd-dne";
+      /** ¬¬φ の証明のステップインデックス */
+      readonly premiseIndex: number;
+    }
+  | {
+      readonly _tag: "nd-universal-intro";
+      /** 前提のステップインデックス */
+      readonly premiseIndex: number;
+      /** 量化変数名 */
+      readonly variableName: string;
+    }
+  | {
+      readonly _tag: "nd-universal-elim";
+      /** ∀x.φ の前提のステップインデックス */
+      readonly premiseIndex: number;
+      /** 代入する項のテキスト */
+      readonly termText: string;
+    }
+  | {
+      readonly _tag: "nd-existential-intro";
+      /** φ[t/x] の前提のステップインデックス */
+      readonly premiseIndex: number;
+      /** 量化変数名 */
+      readonly variableName: string;
+      /** 代入する項のテキスト */
+      readonly termText: string;
+    }
+  | {
+      readonly _tag: "nd-existential-elim";
+      /** ∃x.φ のステップインデックス */
+      readonly existentialIndex: number;
+      /** φの仮定下でのχの証明のステップインデックス */
+      readonly caseIndex: number;
+      /** 打ち消す仮定のステップインデックス */
+      readonly dischargedIndex: number;
     };
 
 // --- 模範解答定義 ---
@@ -82,12 +227,82 @@ export type BuildModelAnswerResult =
       readonly reason: string;
     };
 
+// --- NDステップのヘルパー ---
+
+/** ステップインデックスからノードIDを取得。undefinedなら StepError を返す */
+function resolveNodeId(
+  stepNodeIds: readonly string[],
+  index: number,
+  label: string,
+  stepIndex: number,
+): { readonly nodeId: string } | BuildModelAnswerResult {
+  const nodeId = stepNodeIds[index];
+  if (nodeId === undefined) {
+    /* v8 ignore start — defensive: invalid model answer data */
+    return {
+      _tag: "StepError",
+      stepIndex,
+      reason: `invalid ${label satisfies string} index: ${String(index) satisfies string}`,
+    };
+    /* v8 ignore stop */
+  }
+  return { nodeId };
+}
+
+function isError(result: { readonly nodeId: string } | BuildModelAnswerResult) {
+  return "stepIndex" in result || "_tag" in result;
+}
+
+/**
+ * NDステップを処理する共通ヘルパー。
+ * NdInferenceEdge を構築 → バリデーション → 結論ノード作成 → エッジ追加。
+ */
+function applyNdStep(
+  ws: WorkspaceState,
+  edge: NdInferenceEdge,
+  stepIndex: number,
+):
+  | { readonly workspace: WorkspaceState; readonly nodeId: string }
+  | BuildModelAnswerResult {
+  const nodeId = edge.conclusionNodeId;
+
+  // バリデーション
+  const validationResult = validateNdApplication(ws, edge);
+  if (Either.isLeft(validationResult)) {
+    /* v8 ignore start — defensive: correct model answers never fail ND validation */
+    return {
+      _tag: "StepError",
+      stepIndex,
+      reason: `ND ${edge._tag satisfies string} validation failed: ${validationResult.left._tag satisfies string}`,
+    };
+    /* v8 ignore stop */
+  }
+
+  // 結論テキストを決定
+  const conclusionText = isNdEfqValidResult(validationResult.right)
+    ? edge.conclusionText
+    : validationResult.right.conclusionText;
+
+  // 結論ノードの formulaText を更新
+  const updatedWs: WorkspaceState = {
+    ...ws,
+    nodes: ws.nodes.map((n) =>
+      n.id === nodeId ? { ...n, formulaText: conclusionText } : n,
+    ),
+    inferenceEdges: ws.inferenceEdges.map((e) =>
+      e.conclusionNodeId === nodeId ? { ...e, conclusionText } : e,
+    ),
+  };
+
+  return { workspace: updatedWs, nodeId };
+}
+
 /**
  * ModelAnswer から WorkspaceState を純粋に構築する。
  *
  * 1. resolveSystemPreset でDeductionSystemを取得
  * 2. createQuestWorkspace でゴール付きワークスペースを作成
- * 3. ステップを順に適用（addNode + applyMPAndConnect）
+ * 3. ステップを順に適用（addNode + applyMPAndConnect / ND規則適用）
  * 4. applyTreeLayout で自動配置
  * 5. checkQuestGoalsWithAxioms でゴール達成を検証
  */
@@ -159,11 +374,13 @@ export function buildModelAnswerWorkspace(
       case "gen": {
         const premiseNodeId = stepNodeIds[step.premiseIndex];
         if (premiseNodeId === undefined) {
+          /* v8 ignore start — defensive: invalid model answer data */
           return {
             _tag: "StepError",
             stepIndex: i,
             reason: `invalid index: premise=${String(step.premiseIndex) satisfies string}`,
           };
+          /* v8 ignore stop */
         }
         const genResult = applyGenAndConnect(
           ws,
@@ -173,15 +390,499 @@ export function buildModelAnswerWorkspace(
         );
         ws = genResult.workspace;
         if (Either.isLeft(genResult.validation)) {
+          /* v8 ignore start — defensive: correct model answers never fail Gen validation */
           return {
             _tag: "StepError",
             stepIndex: i,
             reason: `Gen validation failed`,
           };
+          /* v8 ignore stop */
         }
         stepNodeIds.push(genResult.genNodeId);
         break;
       }
+      // --- ND（自然演繹）ステップ ---
+      case "assumption": {
+        const nodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(
+          ws,
+          "axiom",
+          "Assumption",
+          { x: 0, y: 0 },
+          step.formulaText,
+        );
+        stepNodeIds.push(nodeId);
+        break;
+      }
+      case "nd-implication-intro": {
+        const premiseRes = resolveNodeId(
+          stepNodeIds,
+          step.premiseIndex,
+          "premise",
+          i,
+        );
+        if (isError(premiseRes)) return premiseRes;
+        const dischRes = resolveNodeId(
+          stepNodeIds,
+          step.dischargedIndex,
+          "discharged",
+          i,
+        );
+        if (isError(dischRes)) return dischRes;
+
+        // 打ち消す仮定のformulaTextを取得
+        const dischNode = ws.nodes.find((n) => n.id === dischRes.nodeId);
+        if (!dischNode) {
+          /* v8 ignore start — defensive: node always exists for valid model answer */
+          return {
+            _tag: "StepError",
+            stepIndex: i,
+            reason: "discharged node not found",
+          };
+          /* v8 ignore stop */
+        }
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "→I", { x: 0, y: 0 }, "");
+
+        const assumptionId = step.dischargedIndex + 1;
+        const edge: NdInferenceEdge = {
+          _tag: "nd-implication-intro",
+          conclusionNodeId,
+          premiseNodeId: premiseRes.nodeId,
+          dischargedFormulaText: dischNode.formulaText,
+          dischargedAssumptionId: assumptionId,
+          conclusionText: "",
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      case "nd-implication-elim": {
+        const leftRes = resolveNodeId(stepNodeIds, step.leftIndex, "left", i);
+        if (isError(leftRes)) return leftRes;
+        const rightRes = resolveNodeId(
+          stepNodeIds,
+          step.rightIndex,
+          "right",
+          i,
+        );
+        if (isError(rightRes)) return rightRes;
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "→E", { x: 0, y: 0 }, "");
+
+        const edge: NdInferenceEdge = {
+          _tag: "nd-implication-elim",
+          conclusionNodeId,
+          leftPremiseNodeId: leftRes.nodeId,
+          rightPremiseNodeId: rightRes.nodeId,
+          conclusionText: "",
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      case "nd-conjunction-intro": {
+        const leftRes = resolveNodeId(stepNodeIds, step.leftIndex, "left", i);
+        if (isError(leftRes)) return leftRes;
+        const rightRes = resolveNodeId(
+          stepNodeIds,
+          step.rightIndex,
+          "right",
+          i,
+        );
+        if (isError(rightRes)) return rightRes;
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "∧I", { x: 0, y: 0 }, "");
+
+        const edge: NdInferenceEdge = {
+          _tag: "nd-conjunction-intro",
+          conclusionNodeId,
+          leftPremiseNodeId: leftRes.nodeId,
+          rightPremiseNodeId: rightRes.nodeId,
+          conclusionText: "",
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      case "nd-conjunction-elim-left": {
+        const premiseRes = resolveNodeId(
+          stepNodeIds,
+          step.premiseIndex,
+          "premise",
+          i,
+        );
+        if (isError(premiseRes)) return premiseRes;
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "∧E_L", { x: 0, y: 0 }, "");
+
+        const edge: NdInferenceEdge = {
+          _tag: "nd-conjunction-elim-left",
+          conclusionNodeId,
+          premiseNodeId: premiseRes.nodeId,
+          conclusionText: "",
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      case "nd-conjunction-elim-right": {
+        const premiseRes = resolveNodeId(
+          stepNodeIds,
+          step.premiseIndex,
+          "premise",
+          i,
+        );
+        if (isError(premiseRes)) return premiseRes;
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "∧E_R", { x: 0, y: 0 }, "");
+
+        const edge: NdInferenceEdge = {
+          _tag: "nd-conjunction-elim-right",
+          conclusionNodeId,
+          premiseNodeId: premiseRes.nodeId,
+          conclusionText: "",
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      case "nd-disjunction-intro-left": {
+        const premiseRes = resolveNodeId(
+          stepNodeIds,
+          step.premiseIndex,
+          "premise",
+          i,
+        );
+        if (isError(premiseRes)) return premiseRes;
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "∨I_L", { x: 0, y: 0 }, "");
+
+        const edge: NdInferenceEdge = {
+          _tag: "nd-disjunction-intro-left",
+          conclusionNodeId,
+          premiseNodeId: premiseRes.nodeId,
+          addedRightText: step.addedRightText,
+          conclusionText: "",
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      case "nd-disjunction-intro-right": {
+        const premiseRes = resolveNodeId(
+          stepNodeIds,
+          step.premiseIndex,
+          "premise",
+          i,
+        );
+        if (isError(premiseRes)) return premiseRes;
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "∨I_R", { x: 0, y: 0 }, "");
+
+        const edge: NdInferenceEdge = {
+          _tag: "nd-disjunction-intro-right",
+          conclusionNodeId,
+          premiseNodeId: premiseRes.nodeId,
+          addedLeftText: step.addedLeftText,
+          conclusionText: "",
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      case "nd-disjunction-elim": {
+        const disjRes = resolveNodeId(
+          stepNodeIds,
+          step.disjunctionIndex,
+          "disjunction",
+          i,
+        );
+        if (isError(disjRes)) return disjRes;
+        const leftCaseRes = resolveNodeId(
+          stepNodeIds,
+          step.leftCaseIndex,
+          "leftCase",
+          i,
+        );
+        if (isError(leftCaseRes)) return leftCaseRes;
+        const rightCaseRes = resolveNodeId(
+          stepNodeIds,
+          step.rightCaseIndex,
+          "rightCase",
+          i,
+        );
+        if (isError(rightCaseRes)) return rightCaseRes;
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "∨E", { x: 0, y: 0 }, "");
+
+        const edge: NdInferenceEdge = {
+          _tag: "nd-disjunction-elim",
+          conclusionNodeId,
+          disjunctionPremiseNodeId: disjRes.nodeId,
+          leftCasePremiseNodeId: leftCaseRes.nodeId,
+          leftDischargedAssumptionId: step.leftDischargedIndex + 1,
+          rightCasePremiseNodeId: rightCaseRes.nodeId,
+          rightDischargedAssumptionId: step.rightDischargedIndex + 1,
+          conclusionText: "",
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      /* v8 ignore start — unused until model answers for these ND step types are added */
+      case "nd-weakening": {
+        const keptRes = resolveNodeId(stepNodeIds, step.keptIndex, "kept", i);
+        if (isError(keptRes)) return keptRes;
+        const discardedRes = resolveNodeId(
+          stepNodeIds,
+          step.discardedIndex,
+          "discarded",
+          i,
+        );
+        if (isError(discardedRes)) return discardedRes;
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "w", { x: 0, y: 0 }, "");
+
+        const edge: NdInferenceEdge = {
+          _tag: "nd-weakening",
+          conclusionNodeId,
+          keptPremiseNodeId: keptRes.nodeId,
+          discardedPremiseNodeId: discardedRes.nodeId,
+          conclusionText: "",
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      /* v8 ignore stop */
+      case "nd-efq": {
+        const premiseRes = resolveNodeId(
+          stepNodeIds,
+          step.premiseIndex,
+          "premise",
+          i,
+        );
+        if (isError(premiseRes)) return premiseRes;
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "EFQ", { x: 0, y: 0 }, step.conclusionText);
+
+        const edge: NdInferenceEdge = {
+          _tag: "nd-efq",
+          conclusionNodeId,
+          premiseNodeId: premiseRes.nodeId,
+          conclusionText: step.conclusionText,
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      case "nd-dne": {
+        const premiseRes = resolveNodeId(
+          stepNodeIds,
+          step.premiseIndex,
+          "premise",
+          i,
+        );
+        if (isError(premiseRes)) return premiseRes;
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "DNE", { x: 0, y: 0 }, "");
+
+        const edge: NdInferenceEdge = {
+          _tag: "nd-dne",
+          conclusionNodeId,
+          premiseNodeId: premiseRes.nodeId,
+          conclusionText: "",
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      /* v8 ignore start — unused until model answers for quantifier ND steps are added */
+      case "nd-universal-intro": {
+        const premiseRes = resolveNodeId(
+          stepNodeIds,
+          step.premiseIndex,
+          "premise",
+          i,
+        );
+        if (isError(premiseRes)) return premiseRes;
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "∀I", { x: 0, y: 0 }, "");
+
+        const edge: NdInferenceEdge = {
+          _tag: "nd-universal-intro",
+          conclusionNodeId,
+          premiseNodeId: premiseRes.nodeId,
+          variableName: step.variableName,
+          conclusionText: "",
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      case "nd-universal-elim": {
+        const premiseRes = resolveNodeId(
+          stepNodeIds,
+          step.premiseIndex,
+          "premise",
+          i,
+        );
+        if (isError(premiseRes)) return premiseRes;
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "∀E", { x: 0, y: 0 }, "");
+
+        const edge: NdInferenceEdge = {
+          _tag: "nd-universal-elim",
+          conclusionNodeId,
+          premiseNodeId: premiseRes.nodeId,
+          termText: step.termText,
+          conclusionText: "",
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      case "nd-existential-intro": {
+        const premiseRes = resolveNodeId(
+          stepNodeIds,
+          step.premiseIndex,
+          "premise",
+          i,
+        );
+        if (isError(premiseRes)) return premiseRes;
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "∃I", { x: 0, y: 0 }, "");
+
+        const edge: NdInferenceEdge = {
+          _tag: "nd-existential-intro",
+          conclusionNodeId,
+          premiseNodeId: premiseRes.nodeId,
+          variableName: step.variableName,
+          termText: step.termText,
+          conclusionText: "",
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      case "nd-existential-elim": {
+        const existRes = resolveNodeId(
+          stepNodeIds,
+          step.existentialIndex,
+          "existential",
+          i,
+        );
+        if (isError(existRes)) return existRes;
+        const caseRes = resolveNodeId(stepNodeIds, step.caseIndex, "case", i);
+        if (isError(caseRes)) return caseRes;
+
+        const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "axiom", "∃E", { x: 0, y: 0 }, "");
+
+        // 打ち消す仮定のformulaTextを取得
+        const dischNodeId = stepNodeIds[step.dischargedIndex];
+        const dischNode =
+          dischNodeId !== undefined
+            ? ws.nodes.find((n) => n.id === dischNodeId)
+            : undefined;
+        if (!dischNode) {
+          return {
+            _tag: "StepError",
+            stepIndex: i,
+            reason: "discharged node not found",
+          };
+        }
+
+        const assumptionId = step.dischargedIndex + 1;
+        const edge: NdInferenceEdge = {
+          _tag: "nd-existential-elim",
+          conclusionNodeId,
+          existentialPremiseNodeId: existRes.nodeId,
+          casePremiseNodeId: caseRes.nodeId,
+          dischargedAssumptionId: assumptionId,
+          dischargedFormulaText: dischNode.formulaText,
+          conclusionText: "",
+        };
+        ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
+
+        const ndResult = applyNdStep(ws, edge, i);
+        if ("_tag" in ndResult) return ndResult;
+        ws = ndResult.workspace;
+        stepNodeIds.push(conclusionNodeId);
+        break;
+      }
+      /* v8 ignore stop */
       /* v8 ignore start — exhaustive check */
       default: {
         const _: never = step;

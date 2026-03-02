@@ -70,6 +70,10 @@ describe("Lexer", () => {
     it("should lex ↔", () => {
       expect(kinds(lexOk("↔"))).toEqual([{ kind: "IFF" }]);
     });
+
+    it("should lex ⊥", () => {
+      expect(kinds(lexOk("⊥"))).toEqual([{ kind: "BOTTOM" }]);
+    });
   });
 
   // --- ASCII論理演算子 ---

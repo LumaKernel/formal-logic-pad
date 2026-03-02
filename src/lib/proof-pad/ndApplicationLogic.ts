@@ -18,11 +18,14 @@ import {
   Conjunction,
   Disjunction,
   Negation,
+  Predicate,
   Universal,
   Existential,
   implication,
   conjunction,
   disjunction,
+  negation,
+  predicate,
   universal,
   existential,
 } from "../logic-core/formula";
@@ -181,10 +184,24 @@ function makeSuccess(conclusion: Formula): NdApplicationSuccess {
   };
 }
 
+// --- ⊥ (falsum) ---
+
+/**
+ * ⊥ (falsum) を表す述語。Predicate("⊥", []) で表現する。
+ * 自然演繹で ¬φ = φ→⊥ と解釈し、→E/→I で使用する。
+ */
+const BOTTOM: Formula = predicate("⊥", []);
+
+/** 論理式が ⊥ かどうかを判定する */
+function isBottom(f: Formula) {
+  return f instanceof Predicate && f.name === "⊥" && f.args.length === 0;
+}
+
 // --- 各ND規則のバリデーション ---
 
 /**
  * →I (Implication Intro): 前提ψの証明 + 打ち消し仮定φ → φ→ψ
+ * 特殊ケース: 前提が⊥の場合、¬φ（Negation）を生成する。
  */
 const validateNdImplicationIntroEffect = (
   state: WorkspaceState,
@@ -196,12 +213,16 @@ const validateNdImplicationIntroEffect = (
     if (!dischargedFormula) {
       return yield* Effect.fail(new NdDischargedFormulaParseError({}));
     }
-    const conclusion = implication(dischargedFormula, premise.formula);
+    // 前提が⊥の場合: φ→⊥ ではなく ¬φ を生成
+    const conclusion = isBottom(premise.formula)
+      ? negation(dischargedFormula)
+      : implication(dischargedFormula, premise.formula);
     return makeSuccess(conclusion);
   });
 
 /**
  * →E (Implication Elim = MP): φ と φ→ψ → ψ
+ * 特殊ケース: ¬φ（Negation）は φ→⊥ と解釈し、φ と ¬φ から ⊥ を導出する。
  */
 const validateNdImplicationElimEffect = (
   state: WorkspaceState,
@@ -216,12 +237,25 @@ const validateNdImplicationElimEffect = (
     const right = yield* resolvePremise(
       state,
       edge.rightPremiseNodeId,
-      "right premise (φ→ψ)",
+      "right premise (φ→ψ or ¬φ)",
     );
+    // ¬φ を φ→⊥ と解釈
+    if (right.formula instanceof Negation) {
+      if (!equalFormula(left.formula, right.formula.formula)) {
+        return yield* Effect.fail(
+          new NdStructuralError({
+            message:
+              "Left premise does not match negated formula of right premise",
+          }),
+        );
+      }
+      return makeSuccess(BOTTOM);
+    }
     if (!(right.formula instanceof Implication)) {
       return yield* Effect.fail(
         new NdStructuralError({
-          message: "Right premise must be an implication (φ→ψ)",
+          message:
+            "Right premise must be an implication (φ→ψ) or negation (¬φ)",
         }),
       );
     }
