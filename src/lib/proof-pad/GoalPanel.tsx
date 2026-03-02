@@ -213,9 +213,7 @@ function GoalItem({
           <div style={allowedAxiomsHeaderStyle}>
             {messages.goalPanelAllowedAxioms.replace(
               "{axiomIds}",
-              item.allowedAxiomDetails
-                .map((a) => a.id)
-                .join(", "),
+              item.allowedAxiomDetails.map((a) => a.id).join(", "),
             )}
           </div>
           {item.allowedAxiomDetails.map((axiom) => (
