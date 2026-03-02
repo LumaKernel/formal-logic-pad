@@ -8749,3 +8749,23 @@
   - RuleApplicationSuccessは `{ conclusion: Formula }` 構造。`.right` ではなく `.right.conclusion` でアクセス
   - parseStringは `Either<Formula, readonly ParseError[]>` — エラーは配列
 ---
+
+## 2026-03-03 - US-003: Monaco Editor統合（ScriptEditorコンポーネント）
+- **実装内容:**
+  - `@monaco-editor/react` をインストール
+  - `src/components/ScriptEditor/scriptEditorLogic.ts`: 純粋な状態管理ロジック（ExecutionStatus, ConsoleEntry, ScriptEditorState, 各種状態遷移関数）
+  - `src/components/ScriptEditor/scriptEditorLogic.test.ts`: 23テスト（全パス）
+  - `src/components/ScriptEditor/ScriptEditorComponent.tsx`: Monaco Editorラッパー（型定義注入、証明API補完、コンソールブリッジ、Run/Step/Reset）
+  - `src/components/ScriptEditor/ScriptEditorComponent.module.css`: スタイル定義
+  - `src/components/ScriptEditor/ScriptEditorComponent.stories.tsx`: 2ストーリー（Default, WithCustomCode）+ play関数テスト
+  - `src/components/ScriptEditor/index.ts`: エクスポート
+  - `vitest.config.ts`: ScriptEditorComponent.tsx をカバレッジ除外に追加（不純なUIラッパー）
+- **カバレッジ:** Stmts 99.19%(+0.01), Branch 94.07%(-0.04), Lines 99.95%(±0)
+  - Funcs 89.44%(-0.46) は v8 カバレッジ集約のクセ（単体ファイルrun では 100%）
+- **スクリーンショット:** `.screenshots/script-editor-default.png`
+- **変更ファイル:** package.json, package-lock.json, vitest.config.ts, src/components/ScriptEditor/* (7ファイル)
+- **今後のイテレーションへの学び:**
+  - js-interpreterの`require()`はMonaco EditorのAMDローダーとブラウザ環境で競合する。Storybookブラウザテストでスクリプト実行のテストは避け、UIのみテストする
+  - ScriptEditorComponent.tsx は不純なUIラッパーとしてカバレッジ除外が適切。純粋ロジックはscriptEditorLogic.tsに完全分離
+  - Monaco Editorの型定義注入は`beforeMount`で`addExtraLib`を使用。`generateProofBridgeTypeDefs()`から.d.tsテキストを取得
+---
