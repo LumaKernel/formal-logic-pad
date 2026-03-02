@@ -185,3 +185,5 @@ Infinity Canvasについて。
 - [x] 代入のUIは固定値のところも編集できるかのように見えてわかりにくいので表示を工夫してほしい。
 - [x] ゴールの数式がレンダーされていない。基本すべてレンダーせよ。他にもあれば統一せよ
 - [x] ゴールは使っていい前提も表示せよ
+- [x] chrome devtools mcp と WCAG Color Contrast Checker拡張 を利用して色のコントラストをチェックするスキルをセットアップせよ。
+  - **あきらめ**: Chrome DevTools MCPは `--disable-extensions` でChrome起動するため拡張機能利用不可。また、stale browser lockで接続不能。
