@@ -13,10 +13,13 @@ import { defaultProofMessages } from "../../../lib/proof-pad";
 import {
   lukasiewiczSystem,
   predicateLogicSystem,
+  groupTheoryLeftSystem,
 } from "../../../lib/logic-core/inferenceRule";
 import {
   createEmptyWorkspace,
   addNode,
+  addGoal,
+  applyMPAndConnect,
 } from "../../../lib/proof-pad/workspaceState";
 import type { WorkspaceState } from "../../../lib/proof-pad/workspaceState";
 import type { GoalAchievedInfo } from "../../../lib/proof-pad";
@@ -190,6 +193,88 @@ export const EmptyPredicateLogic: Story = {
     await expect(
       canvas.getByText("Predicate Logic Notebook"),
     ).toBeInTheDocument();
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+  },
+};
+
+/** ゴール設定済みのワークスペース */
+export const WithGoal: Story = {
+  render: () => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addGoal(ws, "φ → φ", { label: "Identity" });
+    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "φ → (ψ → φ)");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={ws}
+        notebookName="Proof with Goal"
+        onBack={fn()}
+        onGoalAchieved={fn()}
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Proof with Goal")).toBeInTheDocument();
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+  },
+};
+
+/** 証明ツリー（公理 + MP推論エッジ）付きワークスペース */
+export const WithProofTree: Story = {
+  render: () => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    // 公理ノード: φ → (ψ → φ)
+    ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "φ → (ψ → φ)");
+    // 公理ノード: φ
+    ws = addNode(ws, "axiom", "φ", { x: 300, y: 50 }, "φ");
+    // MP適用: φ, φ → (ψ → φ) ⊢ ψ → φ
+    const mpResult = applyMPAndConnect(
+      ws,
+      "node-2", // φ (left premise)
+      "node-1", // φ → (ψ → φ) (right premise / conditional)
+      { x: 175, y: 200 },
+    );
+    ws = mpResult.workspace;
+    return (
+      <StatefulWorkspace
+        initialWorkspace={ws}
+        notebookName="Proof Tree Demo"
+        onBack={fn()}
+        onGoalAchieved={fn()}
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Proof Tree Demo")).toBeInTheDocument();
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+  },
+};
+
+/** 群論体系のワークスペース */
+export const GroupTheoryWorkspace: Story = {
+  render: () => {
+    let ws = createEmptyWorkspace(groupTheoryLeftSystem);
+    ws = addNode(
+      ws,
+      "axiom",
+      "G1",
+      { x: 50, y: 50 },
+      "(x · y) · z = x · (y · z)",
+    );
+    ws = addNode(ws, "axiom", "G2", { x: 50, y: 200 }, "e · x = x");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={ws}
+        notebookName="Group Theory"
+        onBack={fn()}
+        onGoalAchieved={fn()}
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Group Theory")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
   },
 };

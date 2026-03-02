@@ -198,3 +198,96 @@ export const QuestNotebookFilter: Story = {
     await expect(canvas.getByText("My First Proof")).toBeInTheDocument();
   },
 };
+
+/** ノートブック操作のインタラクション（削除・複製・リネーム・自由帳化） */
+export const NotebookActions: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // --- 複製 ---
+    await userEvent.click(canvas.getByTestId("duplicate-btn-notebook-1"));
+    await expect(args.onDuplicateNotebook).toHaveBeenCalledWith("notebook-1");
+
+    // --- リネーム ---
+    await userEvent.click(canvas.getByTestId("rename-btn-notebook-1"));
+    const renameInput = canvas.getByTestId("rename-input");
+    await userEvent.clear(renameInput);
+    await userEvent.type(renameInput, "Renamed Proof");
+    await userEvent.keyboard("{Enter}");
+    await expect(args.onRenameNotebook).toHaveBeenCalledWith(
+      "notebook-1",
+      "Renamed Proof",
+    );
+
+    // --- 自由帳化（questモードのnotebook-2のみ表示） ---
+    await userEvent.click(canvas.getByTestId("convert-btn-notebook-2"));
+    await expect(args.onConvertToFree).toHaveBeenCalledWith("notebook-2");
+
+    // --- 削除（確認ダイアログ付き） ---
+    await userEvent.click(canvas.getByTestId("delete-btn-notebook-3"));
+    // 確認ダイアログが表示される
+    await expect(
+      canvas.getByTestId("delete-confirm-notebook-3"),
+    ).toBeInTheDocument();
+    // キャンセルで閉じる
+    await userEvent.click(canvas.getByTestId("delete-cancel-btn-notebook-3"));
+    await expect(
+      canvas.queryByTestId("delete-confirm-notebook-3"),
+    ).not.toBeInTheDocument();
+
+    // 再度削除→今度は確定
+    await userEvent.click(canvas.getByTestId("delete-btn-notebook-3"));
+    await userEvent.click(canvas.getByTestId("delete-confirm-btn-notebook-3"));
+    await expect(args.onDeleteNotebook).toHaveBeenCalledWith("notebook-3");
+  },
+};
+
+/** クエスト開始のインタラクション */
+export const QuestStart: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+    initialTab: "quests",
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // クエストカタログが表示される
+    await expect(canvas.getByTestId("quest-catalog")).toBeInTheDocument();
+    // 最初のクエスト開始ボタンをクリック
+    const startBtn = canvas.getByTestId("start-btn-prop-01");
+    await userEvent.click(startBtn);
+    await expect(args.onStartQuest).toHaveBeenCalledWith("prop-01");
+  },
+};
+
+/** ノートブック作成フォームの送信 */
+export const CreateNotebookSubmit: Story = {
+  args: {
+    listItems: [],
+    groups: sampleGroups,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // ヒーローの作成ボタンをクリック
+    const buttons = canvas.getAllByText("+ New Notebook");
+    await userEvent.click(buttons[0]!);
+
+    // フォームが表示される
+    await expect(
+      canvas.getByTestId("notebook-create-form"),
+    ).toBeInTheDocument();
+
+    // 名前を入力
+    const nameInput = canvas.getByTestId("create-name-input");
+    await userEvent.clear(nameInput);
+    await userEvent.type(nameInput, "New Logic Proof");
+
+    // 送信
+    await userEvent.click(canvas.getByTestId("create-submit-btn"));
+    await expect(args.onCreateNotebook).toHaveBeenCalled();
+  },
+};
