@@ -100,6 +100,36 @@
 
 ---
 
+## 2026-03-02 - ページストーリーを充実させる（差し込みタスク）
+- HubPageView ストーリーに3つ追加:
+  - NotebookActions: 削除（確認ダイアログ付き）・複製・リネーム・自由帳化のインタラクションテスト
+  - QuestStart: クエスト開始ボタンのインタラクションテスト
+  - CreateNotebookSubmit: ノートブック作成フォームの送信テスト
+- WorkspacePageView ストーリーに3つ追加:
+  - WithGoal: ゴール設定済みワークスペース
+  - WithProofTree: 公理 + MP推論エッジ付き証明ツリー
+  - GroupTheoryWorkspace: 群論体系のワークスペース
+- 変更ファイル:
+  - `src/app/HubPageView.stories.tsx` (3ストーリー追加)
+  - `src/app/workspace/[id]/WorkspacePageView.stories.tsx` (3ストーリー追加)
+- テスト: 6907 passed（+225 Storybookテスト）
+- カバレッジ: V8マージ差異のみ、コアライブラリカバレッジは変動なし
+- 品質チェック: typecheck ✅, lint ✅, test ✅, prettier ✅
+- ブラウザ確認: 全6ストーリーの play 関数が PASS
+- スクリーンショット:
+  - `.screenshots/hub-notebook-actions.png`
+  - `.screenshots/hub-quest-start.png`
+  - `.screenshots/workspace-with-goal.png`
+  - `.screenshots/workspace-with-proof-tree.png`
+  - `.screenshots/workspace-group-theory.png`
+- **今後のイテレーションへの学び:**
+  - NotebookListの各アクションボタンのtestIDパターン: `{action}-btn-{id}`, 削除確認: `delete-confirm-{id}`, `delete-confirm-btn-{id}`, `delete-cancel-btn-{id}`
+  - QuestCatalogの開始ボタン: `start-btn-{questId}`
+  - NotebookCreateFormのフィールド: `create-name-input`, `create-submit-btn`, `create-cancel-btn`
+  - `applyMPAndConnect` でストーリー用の証明ツリーを簡単に構築できる
+  - V8カバレッジのマージ差異は既知の問題。Storybookブラウザテスト混在時にAll filesの数値が変動するが、コアライブラリ個別カバレッジは安定
+---
+
 ## 2026-03-02 - JS-Interpreterのサンドボックス実行環境を追加 (US-001)
 - `js-interpreter@6.0.1` npm パッケージをインストール
 - `src/lib/script-runner/` に新モジュールを作成:
