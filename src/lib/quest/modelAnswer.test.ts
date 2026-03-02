@@ -129,6 +129,79 @@ describe("buildModelAnswerWorkspace", () => {
   });
 });
 
+// TAB テスト用のクエスト定義
+const tabQuest: QuestDefinition = {
+  id: "tab-test-01",
+  category: "tab-basics",
+  title: "Test TAB: φ → φ",
+  description: "タブロー法で φ → φ を証明。",
+  difficulty: 1,
+  systemPresetId: "tab-prop",
+  goals: [{ formulaText: "~(phi -> phi)", label: "Root" }],
+  hints: [],
+  estimatedSteps: 2,
+  learningPoint: "test",
+  order: 1,
+  version: 1,
+};
+
+describe("buildModelAnswerWorkspace - TAB steps", () => {
+  it("tab-root でルートノードを配置できる", () => {
+    const answer: ModelAnswer = {
+      questId: "tab-test-01",
+      steps: [{ _tag: "tab-root", sequentText: "~(phi -> phi)" }],
+    };
+    const result = buildModelAnswerWorkspace(tabQuest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    expect(result.workspace.nodes.length).toBe(1);
+  });
+
+  it("tab-rule で規則を適用できる", () => {
+    const answer: ModelAnswer = {
+      questId: "tab-test-01",
+      steps: [
+        { _tag: "tab-root", sequentText: "~(phi -> phi)" },
+        {
+          _tag: "tab-rule",
+          conclusionIndex: 0,
+          ruleId: "neg-implication",
+          principalPosition: 0,
+        },
+        {
+          _tag: "tab-rule",
+          conclusionIndex: 1,
+          ruleId: "bs",
+          principalPosition: 0,
+        },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(tabQuest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    expect(result.goalCheck._tag).toBe("AllAchieved");
+  });
+
+  it("不正なconclusionIndexでStepErrorを返す", () => {
+    const answer: ModelAnswer = {
+      questId: "tab-test-01",
+      steps: [
+        { _tag: "tab-root", sequentText: "~(phi -> phi)" },
+        {
+          _tag: "tab-rule",
+          conclusionIndex: 99,
+          ruleId: "neg-implication",
+          principalPosition: 0,
+        },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(tabQuest, answer);
+    expect(result._tag).toBe("StepError");
+    if (result._tag !== "StepError") return;
+    expect(result.stepIndex).toBe(1);
+  });
+});
+
 describe("validateModelAnswer", () => {
   it("正しい模範解答はValidを返す", () => {
     const answer: ModelAnswer = {
