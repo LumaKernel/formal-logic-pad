@@ -753,7 +753,6 @@ export function buildModelAnswerWorkspace(
         stepNodeIds.push(conclusionNodeId);
         break;
       }
-      /* v8 ignore start — unused until model answers for quantifier ND steps are added */
       case "nd-universal-intro": {
         const premiseRes = resolveNodeId(
           stepNodeIds,
@@ -856,6 +855,7 @@ export function buildModelAnswerWorkspace(
           dischNodeId !== undefined
             ? ws.nodes.find((n) => n.id === dischNodeId)
             : undefined;
+        /* v8 ignore start — defensive: correct model answers always have valid discharged node */
         if (!dischNode) {
           return {
             _tag: "StepError",
@@ -863,6 +863,7 @@ export function buildModelAnswerWorkspace(
             reason: "discharged node not found",
           };
         }
+        /* v8 ignore stop */
 
         const assumptionId = step.dischargedIndex + 1;
         const edge: NdInferenceEdge = {
@@ -882,7 +883,6 @@ export function buildModelAnswerWorkspace(
         stepNodeIds.push(conclusionNodeId);
         break;
       }
-      /* v8 ignore stop */
       /* v8 ignore start — exhaustive check */
       default: {
         const _: never = step;
