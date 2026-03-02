@@ -2883,6 +2883,146 @@ const qSc10DeMorgan: QuestDefinition = {
   version: 1,
 };
 
+// --- カット除去体験クエスト ---
+
+const qScCe01CutBasic: QuestDefinition = {
+  id: "sc-ce-01",
+  category: "sc-cut-elimination",
+  title: "カットの基本: 推移律",
+  description:
+    "(φ → ψ) → ((ψ → χ) → (φ → χ)) をカット規則を使って証明せよ。2つの含意をカットで合成する基本テクニック。証明完成後、カット除去ステッパーで除去過程を観察しよう。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
+      label: "Goal: (φ → ψ) → ((ψ → χ) → (φ → χ))",
+    },
+  ],
+  hints: [
+    "⇒→ を3回使い、φ → ψ, ψ → χ, φ ⇒ χ に帰着します。",
+    "φ → ψ から →⇒ で φ ⇒ φ と ψ, ... ⇒ χ に分岐。同様に ψ → χ を分解します。",
+    "カット規則を使うアプローチ: まず φ → ψ, φ ⇒ ψ（→⇒ + Identity）を導出。次に ψ → χ, ψ ⇒ χ（→⇒ + Identity）を導出。この2つをカット式 ψ で合成すると φ → ψ, ψ → χ, φ ⇒ χ が得られます。",
+    "証明完成後、カット除去ステッパーのボタンを押してカット除去過程を確認しましょう。",
+  ],
+  estimatedSteps: 12,
+  learningPoint:
+    "カット規則は「補題を使った証明」に対応する。中間式 ψ を媒介にして2つの証明を合成できる。カット除去定理はこの便利なカットが原理的に不要であることを保証する。",
+  order: 1,
+  version: 1,
+};
+
+const qScCe02CutModusPonens: QuestDefinition = {
+  id: "sc-ce-02",
+  category: "sc-cut-elimination",
+  title: "カットと Modus Ponens",
+  description:
+    "φ → (φ → ψ) → ψ をカット規則を使って証明せよ。Hilbert系のModus Ponensに相当するカットの使い方を体験する。",
+  difficulty: 2,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "phi -> ((phi -> psi) -> psi)",
+      label: "Goal: φ → ((φ → ψ) → ψ)",
+    },
+  ],
+  hints: [
+    "⇒→ を2回使い、φ, φ → ψ ⇒ ψ に帰着します。",
+    "→⇒ 規則で φ → ψ を分解するのが直接的な方法です。",
+    "カットを使う方法: φ ⇒ φ（Identity）と φ, φ → ψ ⇒ ψ（→⇒）をカット式 φ で合成。",
+    "証明完成後、カット除去ステッパーでカットがどう除去されるか確認しましょう。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "カット規則はModus Ponens（前件肯定）の一般化と見なせる。シーケント計算ではカットなしでも →⇒ 規則で直接表現できるが、カットを使うことで証明の構造がモジュール化される。",
+  order: 2,
+  version: 1,
+};
+
+const qScCe03CutConjunctionCommute: QuestDefinition = {
+  id: "sc-ce-03",
+  category: "sc-cut-elimination",
+  title: "カットで連言の可換性",
+  description:
+    "(φ ∧ ψ) → (ψ ∧ φ) をカット規則で証明せよ。連言の左成分と右成分を個別に取り出し、カットで再構成する。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "(phi /\\ psi) -> (psi /\\ phi)",
+      label: "Goal: (φ ∧ ψ) → (ψ ∧ φ)",
+    },
+  ],
+  hints: [
+    "⇒→ で φ ∧ ψ ⇒ ψ ∧ φ に帰着します。",
+    "補題1: φ ∧ ψ ⇒ ψ（∧⇒ で左成分を取得）。補題2: φ ∧ ψ ⇒ φ（∧⇒ で右成分を取得）。",
+    "カットを使う方法: 補題1と補題2を ⇒∧ で合成し ψ ∧ φ を構成。あるいは中間結果をカットで繋ぐ。",
+    "カット除去ステッパーで、カットが ∧⇒ と ⇒∧ の直接的な組み合わせに変換される過程を観察しましょう。",
+  ],
+  estimatedSteps: 10,
+  learningPoint:
+    "連言の可換性はカットなしでも証明できるが、「まず片方を取り出し、次にもう片方を取り出し、最後に組み立てる」というモジュール的思考をカットが表現する。カット除去後はこのモジュール構造が展開される。",
+  order: 3,
+  version: 1,
+};
+
+const qScCe04CutChain: QuestDefinition = {
+  id: "sc-ce-04",
+  category: "sc-cut-elimination",
+  title: "カット連鎖",
+  description:
+    "(φ → ψ) → ((ψ → χ) → ((χ → theta) → (φ → theta))) を複数のカットを連鎖させて証明せよ。3段の推移律をカットで表現する。",
+  difficulty: 4,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText:
+        "(phi -> psi) -> ((psi -> chi) -> ((chi -> theta) -> (phi -> theta)))",
+      label: "Goal: (φ → ψ) → ((ψ → χ) → ((χ → θ) → (φ → θ)))",
+    },
+  ],
+  hints: [
+    "⇒→ を4回使い、φ → ψ, ψ → χ, χ → θ, φ ⇒ θ に帰着します。",
+    "カット1: φ → ψ と φ ⇒ φ をカット式 φ で使い、φ → ψ, φ ⇒ ψ を得る。",
+    "カット2: ψ → χ と上の結果をカット式 ψ で合成し、..., φ ⇒ χ を得る。",
+    "カット3: χ → θ と上の結果をカット式 χ で合成し、最終的に ..., φ ⇒ θ を得る。",
+    "証明完成後、カット除去ステッパーでカットが1つずつ除去されていく過程を観察しましょう。深さ（depth）とランク（rank）の変化に注目。",
+  ],
+  estimatedSteps: 20,
+  learningPoint:
+    "複数のカットを連鎖させることで、長い推論を段階的に構成できる。カット除去ではこれらが1つずつ除去され、直接的な証明に変換される。除去ステップ数の増加を確認して、カット除去定理の計算量を実感しよう。",
+  order: 4,
+  version: 1,
+};
+
+const qScCe05CutNegation: QuestDefinition = {
+  id: "sc-ce-05",
+  category: "sc-cut-elimination",
+  title: "否定とカット",
+  description:
+    "¬¬φ → φ をカット規則を使って証明せよ。否定を分解する過程でカットがどう働くかを体験する。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "~~phi -> phi",
+      label: "Goal: ¬¬φ → φ",
+    },
+  ],
+  hints: [
+    "⇒→ で ¬¬φ ⇒ φ に帰着します。",
+    "補題: ⇒ ¬φ, φ を証明します（⇒¬ で φ ⇒ φ に帰着、Identity で完了）。",
+    "本体: ¬¬φ を ¬⇒ で分解し、⇒ ¬φ, φ を得ます。",
+    "カットを使う方法: 補題の結果と ¬⇒ をカットで組み合わせることもできます。",
+    "カット除去ステッパーで否定のカット除去を確認しましょう。¬の深さ（depth）が減少する過程に注目。",
+  ],
+  estimatedSteps: 8,
+  learningPoint:
+    "否定のカット除去では、¬⇒ と ⇒¬ が互いに「相殺」される。これはカット除去の深さ減少ケースの典型例で、帰納法の仕組みが見える。",
+  order: 5,
+  version: 1,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -2997,4 +3137,9 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qSc08DoubleNegationElim,
   qSc09Contraposition,
   qSc10DeMorgan,
+  qScCe01CutBasic,
+  qScCe02CutModusPonens,
+  qScCe03CutConjunctionCommute,
+  qScCe04CutChain,
+  qScCe05CutNegation,
 ];
