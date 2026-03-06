@@ -8845,3 +8845,67 @@
   - ESLint `react-hooks/set-state-in-effect` の disable コメントは useEffect 行ではなく、実際の setState 呼び出し行に配置する必要がある
   - forceEditMode のような外部トリガーは useEffect + one-shot パターンで実装。使用後にリセットするのは親コンポーネントの責務
 ---
+
+## 2026-03-03 - [proof-pad] 証明に必要な全ノードを選択する「証明を選択」機能
+- 実装した内容:
+  - `getProofNodeIds(nodeId, inferenceEdges)` 純粋関数を追加 — InferenceEdgeを逆方向に辿り、起点ノード＋中間＋ルートの全ノードIDを返す
+  - コンテキストメニューに「Select Proof」（証明を選択）を追加
+  - i18nメッセージ（英語/日本語）を追加
+  - dependencyLogic.test.ts に12テスト追加（ルート、チェーン、ダイヤモンドDAG、Gen、深いグラフ等）
+  - ProofWorkspace.test.tsx に2テスト追加（MP全ノード選択、ルートノード単独選択）
+- 変更したファイル:
+  - `src/lib/proof-pad/dependencyLogic.ts` (+getProofNodeIds)
+  - `src/lib/proof-pad/dependencyLogic.test.ts` (+12テスト)
+  - `src/lib/proof-pad/proofMessages.ts` (+selectProof)
+  - `messages/en.json`, `messages/ja.json` (+selectProof)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (+handleSelectProof, コンテキストメニュー項目)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (+2テスト)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (+selectProofメッセージ転送)
+  - `src/lib/proof-pad/index.ts` (+getProofNodeIdsエクスポート)
+- カバレッジ: ベースライン 99.17% Stmts / 94.09% Branch → 完了後 99.16% / 94.05% (V8集約誤差の範囲内)
+- ブラウザテスト: Valid MP Application ストーリーで3ノード選択を確認、スクリーンショット撮影済み
+- **今後のイテレーションへの学び:**
+  - `getProofNodeIds` は `getSubtreeNodeIds` の逆方向版。前者は結論→前提、後者は前提→結論
+  - Storybook URL: `title: "ProofPad/ProofWorkspace"` の場合、URLは `proofpad-proofworkspace--story-name`（ハイフンなし）
+  - コンテキストメニュー項目追加時は proofMessages.ts(型+デフォルト), en/ja.json, WorkspaceContent.tsx, ProofWorkspace.tsx(handler+JSX) の4箇所を更新
+---
+
+## 2026-03-07 - [notebook] クエスト→自由帳変換を「複製して変換」に変更
+- 実装した内容:
+  - `convertNotebookToFreeMode` を in-place 変更から複製+変換パターンに変更
+  - 元のクエストノートブックを保持しつつ、新しい自由帳ノートブックを作成
+  - `ConvertToFreeModeResult` 型を導入（collection + newNotebookId）
+  - ProofWorkspace の変換ボタンを `onDuplicateToFree` コールバックに外部委譲
+  - Hub/Workspace 両画面で変換後に新ノートへ自動遷移
+  - ボタンラベルを「自由帳に変換」→「自由帳として複製」に変更
+  - i18n メッセージ更新（duplicateToFree）
+  - 前セッション未コミット分の getProofNodeIds（証明を選択）機能も同時にコミット
+- 変更したファイル:
+  - `src/lib/notebook/notebookState.ts` (ConvertToFreeModeResult型, 複製+変換ロジック)
+  - `src/lib/notebook/notebookState.test.ts` (テスト更新: 元保持+新規追加)
+  - `src/lib/notebook/useNotebookCollection.ts` (convertToFree戻り値変更)
+  - `src/lib/notebook/useNotebookCollection.test.tsx` (hook テスト更新)
+  - `src/lib/notebook/NotebookListComponent.tsx` (ボタンラベル変更)
+  - `src/lib/notebook/NotebookListComponent.test.tsx` (テスト名更新)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (onDuplicateToFree prop追加, selectProof追加)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (テスト更新)
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` (onDuplicateToFree追加)
+  - `src/lib/proof-pad/proofMessages.ts` (duplicateToFree, selectProofキー追加)
+  - `src/lib/proof-pad/dependencyLogic.ts` (getProofNodeIds追加)
+  - `src/lib/proof-pad/dependencyLogic.test.ts` (12テスト追加)
+  - `src/lib/proof-pad/index.ts` (getProofNodeIdsエクスポート)
+  - `src/app/HubContent.tsx` (変換後ナビゲーション追加)
+  - `src/app/HubPageView.stories.tsx` (コメント更新)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (duplicateToFreeハンドラ追加)
+  - `src/app/workspace/[id]/WorkspacePageView.tsx` (onDuplicateToFree prop追加)
+  - `messages/en.json`, `messages/ja.json` (i18n翻訳追加)
+- カバレッジ: ベースライン Stmts 99.16% / Branch 94.05% → 完了後 Stmts 99.16% / Branch 94.04% (維持)
+- テスト: 7439 passed (変動なし)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Storybook QuestMode ストーリーで「Duplicate as Free」ボタン確認
+- スクリーンショット: `.screenshots/quest-duplicate-to-free-button.png`
+- **今後のイテレーションへの学び:**
+  - React hook の setState updater 内で設定した変数は、関数の戻り値として外部に返すタイミングに注意。useState updater は同期的に実行されるが、テストでは observable state (result.current) を検証する方が堅実
+  - ProofWorkspace からノートブック単位の操作（複製等）を行う場合、内部状態変更ではなくコールバック（onDuplicateToFree）で親に委譲するパターンが適切
+  - `convertNotebookToFreeMode` のような「副作用的」な状態変更関数は、返り値で新しいID等の情報も返すと呼び出し側が便利
+---

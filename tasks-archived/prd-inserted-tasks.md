@@ -193,3 +193,5 @@ Infinity Canvasについて。
 - [x] 論理式ノードに、「論理式を編集」的なコンテキストメニューもあってよいだろう。
 - [x] http://localhost:13000/workspace/notebook-... ノート作成して開始するとエラーが出る
       Removing a style property during rerender (background) when a conflicting property is set (backgroundColor) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values.
+- [x] サブツリーだけでなく、そのノードまでの証明で必要なものをすべて選択、というのも提供しよう。
+- [x] 自由帳への変換はもとのクエスト版も残して。(なので、複製して変換、というのが正しい挙動とも言えそう)
