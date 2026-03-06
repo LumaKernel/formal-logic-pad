@@ -1,4 +1,4 @@
-import { type ReactNode, useCallback, useRef } from "react";
+import { type ReactNode, useCallback, useEffect, useRef } from "react";
 import type { ContextMenuItem } from "./contextMenu";
 import { ContextMenuComponent } from "./ContextMenuComponent";
 import { worldToScreen } from "./coordinate";
@@ -142,9 +142,25 @@ export function CanvasItem({
   const hasInteraction =
     hasDragCallback || hasContextMenu || onClick !== undefined;
 
+  // ドラッグ中のブラウザネイティブテキストセレクションを防止
+  const itemRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!isDragging) return;
+    const el = itemRef.current;
+    if (el === null) return;
+    const handleSelectStart = (e: Event) => {
+      e.preventDefault();
+    };
+    el.addEventListener("selectstart", handleSelectStart);
+    return () => {
+      el.removeEventListener("selectstart", handleSelectStart);
+    };
+  }, [isDragging]);
+
   return (
     <>
       <div
+        ref={itemRef}
         data-testid="canvas-item"
         style={{
           position: "absolute",
