@@ -148,9 +148,7 @@ describe("useNotebookCollection hook", () => {
   it("convertToFreeでクエストを複製して自由帳モードのノートブックを作成する", () => {
     let counter = 1000;
     const getNow = () => counter++;
-    const { result } = renderHook(() =>
-      useNotebookCollection({ getNow }),
-    );
+    const { result } = renderHook(() => useNotebookCollection({ getNow }));
 
     let id: string = "";
     act(() => {
