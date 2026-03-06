@@ -96,6 +96,7 @@ import { parseNodeFormula } from "./mpApplicationLogic";
 import {
   getAllNodeDependencies,
   getSubtreeNodeIds,
+  getProofNodeIds,
   deduplicateDependencyInfos,
 } from "./dependencyLogic";
 import type { DependencyInfo } from "./EditableProofNode";
@@ -114,7 +115,6 @@ import {
 } from "../infinite-canvas/lineMenu";
 import {
   createEmptyWorkspace,
-  convertToFreeMode,
   isNodeProtected,
   addNode,
   addConnection,
@@ -225,6 +225,8 @@ export interface ProofWorkspaceProps {
   readonly showDependencies?: boolean;
   /** 構文ヘルプを開くコールバック（指定時に数式編集モードで?ボタンを表示） */
   readonly onOpenSyntaxHelp?: () => void;
+  /** 自由帳として複製するコールバック（指定時にクエストモードで複製ボタンを表示） */
+  readonly onDuplicateToFree?: () => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -597,6 +599,7 @@ export function ProofWorkspace({
   onOpenReferenceDetail,
   showDependencies,
   onOpenSyntaxHelp,
+  onDuplicateToFree,
   testId,
 }: ProofWorkspaceProps) {
   // i18nメッセージ
@@ -1976,9 +1979,9 @@ export function ProofWorkspace({
     [workspace, setWorkspace],
   );
 
-  const handleConvertToFreeMode = useCallback(() => {
-    setWorkspace(convertToFreeMode(workspace));
-  }, [workspace, setWorkspace]);
+  const handleDuplicateToFree = useCallback(() => {
+    onDuplicateToFree?.();
+  }, [onDuplicateToFree]);
 
   // --- ノード選択ハンドラ ---
 
@@ -2160,6 +2163,16 @@ export function ProofWorkspace({
       workspace.inferenceEdges,
     );
     setSelectedNodeIds(subtreeIds);
+    setNodeMenuState(closeNodeMenu());
+  }, [nodeMenuState, workspace.inferenceEdges]);
+
+  const handleSelectProof = useCallback(() => {
+    if (!nodeMenuState.open) return;
+    const proofIds = getProofNodeIds(
+      nodeMenuState.nodeId,
+      workspace.inferenceEdges,
+    );
+    setSelectedNodeIds(proofIds);
     setNodeMenuState(closeNodeMenu());
   }, [nodeMenuState, workspace.inferenceEdges]);
 
@@ -3265,18 +3278,20 @@ export function ProofWorkspace({
             >
               {msg.questBadge}
             </span>
-            <button
-              type="button"
-              style={convertToFreeButtonStyle}
-              onClick={handleConvertToFreeMode}
-              data-testid={
-                testId
-                  ? `${testId satisfies string}-convert-free-button`
-                  : undefined
-              }
-            >
-              {msg.convertToFree}
-            </button>
+            {onDuplicateToFree !== undefined ? (
+              <button
+                type="button"
+                style={convertToFreeButtonStyle}
+                onClick={handleDuplicateToFree}
+                data-testid={
+                  testId
+                    ? `${testId satisfies string}-convert-free-button`
+                    : undefined
+                }
+              >
+                {msg.duplicateToFree}
+              </button>
+            ) : null}
           </>
         ) : null}
         <button
@@ -4127,6 +4142,15 @@ export function ProofWorkspace({
               testId
                 ? `${testId satisfies string}-select-subtree`
                 : "select-subtree"
+            }
+          />
+          <WorkspaceMenuItem
+            label={msg.selectProof}
+            onClick={handleSelectProof}
+            testId={
+              testId
+                ? `${testId satisfies string}-select-proof`
+                : "select-proof"
             }
           />
           <WorkspaceMenuItem

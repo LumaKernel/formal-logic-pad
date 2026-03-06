@@ -1631,7 +1631,7 @@ describe("ProofWorkspace", () => {
       ).not.toBeInTheDocument();
     });
 
-    it("displays Convert to Free button in quest mode", () => {
+    it("does not display Duplicate as Free button when onDuplicateToFree is not provided", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
         { formulaText: "phi" },
       ]);
@@ -1643,51 +1643,44 @@ describe("ProofWorkspace", () => {
         />,
       );
       expect(
-        screen.getByTestId("workspace-convert-free-button"),
-      ).toBeInTheDocument();
+        screen.queryByTestId("workspace-convert-free-button"),
+      ).not.toBeInTheDocument();
     });
 
-    it("converts to free mode when Convert to Free button is clicked", async () => {
-      const user = userEvent.setup();
+    it("displays Duplicate as Free button when onDuplicateToFree is provided", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
         { formulaText: "phi" },
       ]);
-      const onWorkspaceChange = vi.fn();
       render(
         <ProofWorkspace
           system={lukasiewiczSystem}
           workspace={ws}
-          onWorkspaceChange={onWorkspaceChange}
+          onDuplicateToFree={vi.fn()}
+          testId="workspace"
+        />,
+      );
+      expect(
+        screen.getByTestId("workspace-convert-free-button"),
+      ).toBeInTheDocument();
+    });
+
+    it("calls onDuplicateToFree when Duplicate as Free button is clicked", async () => {
+      const user = userEvent.setup();
+      const ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi" },
+      ]);
+      const onDuplicateToFree = vi.fn();
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          onDuplicateToFree={onDuplicateToFree}
           testId="workspace"
         />,
       );
 
       await user.click(screen.getByTestId("workspace-convert-free-button"));
-      expect(onWorkspaceChange).toHaveBeenCalled();
-      const updated = onWorkspaceChange.mock.calls[0]![0] as WorkspaceState;
-      expect(updated.mode).toBe("free");
-    });
-
-    it("quest mode conversion works with internal state", async () => {
-      const user = userEvent.setup();
-      const ws = createQuestWorkspace(lukasiewiczSystem, [
-        { formulaText: "phi" },
-      ]);
-
-      render(<StatefulWorkspace initialWorkspace={ws} />);
-
-      // Quest badge should be visible
-      expect(screen.getByTestId("workspace-quest-badge")).toBeInTheDocument();
-
-      // Click Convert to Free
-      await user.click(screen.getByTestId("workspace-convert-free-button"));
-
-      // Quest badge should disappear
-      await waitFor(() => {
-        expect(
-          screen.queryByTestId("workspace-quest-badge"),
-        ).not.toBeInTheDocument();
-      });
+      expect(onDuplicateToFree).toHaveBeenCalledOnce();
     });
 
     it("shows axiom violation banner when goal achieved with disallowed axiom", () => {
@@ -2285,6 +2278,61 @@ describe("ProofWorkspace", () => {
 
       const selectSubtreeBtn = screen.getByTestId("workspace-select-subtree");
       await user.click(selectSubtreeBtn);
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-selection-banner"),
+        ).toHaveTextContent("1 node(s) selected");
+      });
+    });
+
+    it("Select Proof selects node and all ancestors (proof prerequisites)", async () => {
+      const user = userEvent.setup();
+      // axiom-1(node-1) → mp(node-3) ← axiom-2(node-2)
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> psi");
+      const mpResult = applyMPAndConnect(ws, "node-1", "node-2", {
+        x: 100,
+        y: 100,
+      });
+      ws = mpResult.workspace;
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // Right-click on the MP node (node-3)
+      const mpNode = screen.getByTestId("proof-node-node-3");
+      await user.pointer({ keys: "[MouseRight]", target: mpNode });
+
+      // Click Select Proof
+      const selectProofBtn = screen.getByTestId("workspace-select-proof");
+      await user.click(selectProofBtn);
+
+      // Context menu should be closed
+      expect(
+        screen.queryByTestId("workspace-node-context-menu"),
+      ).not.toBeInTheDocument();
+
+      // Selection banner should show 3 nodes (node-1, node-2, and mp node-3)
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-selection-banner"),
+        ).toHaveTextContent("3 node(s) selected");
+      });
+    });
+
+    it("Select Proof on root node selects only that node", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      const selectProofBtn = screen.getByTestId("workspace-select-proof");
+      await user.click(selectProofBtn);
 
       await waitFor(() => {
         expect(

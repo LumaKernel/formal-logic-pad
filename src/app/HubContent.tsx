@@ -127,6 +127,16 @@ function HubInner() {
     [notebookCollection, router, predictNextNotebookId],
   );
 
+  const handleConvertToFree = useCallback(
+    (id: string) => {
+      const newId = notebookCollection.convertToFree(id);
+      if (newId !== undefined) {
+        router.push(`/workspace/${newId satisfies string}`);
+      }
+    },
+    [notebookCollection, router],
+  );
+
   return (
     <HubMessagesProvider messages={hubMessages}>
       <HubPageView
@@ -136,7 +146,7 @@ function HubInner() {
         onDeleteNotebook={notebookCollection.remove}
         onDuplicateNotebook={notebookCollection.duplicate}
         onRenameNotebook={notebookCollection.rename}
-        onConvertToFree={notebookCollection.convertToFree}
+        onConvertToFree={handleConvertToFree}
         onStartQuest={handleStartQuest}
         onCreateNotebook={handleCreateNotebook}
         languageToggle={{ locale, onLocaleChange: switchLocale }}

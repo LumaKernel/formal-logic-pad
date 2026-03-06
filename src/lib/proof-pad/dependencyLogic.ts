@@ -142,6 +142,48 @@ export function getSubtreeNodeIds(
   return result;
 }
 
+/**
+ * あるノードの証明に必要な全ノード（起点＋中間＋ルート）のID集合を返す。
+ *
+ * InferenceEdgeを逆方向（結論 → 前提）に辿り、
+ * 指定ノードから到達可能なすべてのノード（前提チェーン全体）を収集する。
+ * getNodeDependencies がルートノードのみを返すのに対し、
+ * この関数は中間の導出ノードも含めた完全な証明グラフを返す。
+ * 循環参照がある場合は訪問済みノードをスキップして無限ループを防止する。
+ *
+ * @param nodeId 起点ノードのID
+ * @param inferenceEdges ワークスペースの全推論エッジ
+ * @returns 証明に必要な全ノードIDの集合（起点ノード自身を含む）
+ */
+export function getProofNodeIds(
+  nodeId: string,
+  inferenceEdges: readonly InferenceEdge[],
+): ReadonlySet<string> {
+  const result = new Set<string>([nodeId]);
+
+  // conclusionNodeId → InferenceEdge のマップを構築
+  const edgeByConclusionId = new Map<string, InferenceEdge>();
+  for (const edge of inferenceEdges) {
+    edgeByConclusionId.set(edge.conclusionNodeId, edge);
+  }
+
+  function traverse(currentId: string): void {
+    const edge = edgeByConclusionId.get(currentId);
+    if (edge === undefined) return;
+
+    const premiseIds = getInferenceEdgePremiseNodeIds(edge);
+    for (const premiseId of premiseIds) {
+      if (!result.has(premiseId)) {
+        result.add(premiseId);
+        traverse(premiseId);
+      }
+    }
+  }
+
+  traverse(nodeId);
+  return result;
+}
+
 // --- 公理スキーマID依存関係 ---
 
 /**

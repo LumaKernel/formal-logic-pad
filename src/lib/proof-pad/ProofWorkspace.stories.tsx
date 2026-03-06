@@ -426,6 +426,7 @@ function QuestModeWorkspace() {
         system={lukasiewiczSystem}
         workspace={workspace}
         onWorkspaceChange={handleChange}
+        onDuplicateToFree={() => {}}
         testId="workspace"
       />
     </div>
@@ -442,7 +443,7 @@ export const QuestMode: Story = {
     await expect(
       canvas.getByTestId("workspace-quest-badge"),
     ).toBeInTheDocument();
-    // Convert to Free button
+    // Duplicate as Free button
     await expect(
       canvas.getByTestId("workspace-convert-free-button"),
     ).toBeInTheDocument();

@@ -171,7 +171,7 @@ describe("NotebookList", () => {
       expect(onDuplicate).toHaveBeenCalledWith("nb-1");
     });
 
-    it("自由帳化ボタンはクエストモード時のみ表示される", () => {
+    it("自由帳として複製ボタンはクエストモード時のみ表示される", () => {
       render(
         <NotebookList
           items={[makeItem("nb-1", "テスト", "quest")]}
@@ -181,7 +181,7 @@ describe("NotebookList", () => {
       expect(screen.getByTestId("convert-btn-nb-1")).toBeTruthy();
     });
 
-    it("自由帳モードでは自由帳化ボタンが表示されない", () => {
+    it("自由帳モードでは自由帳として複製ボタンが表示されない", () => {
       render(
         <NotebookList
           items={[makeItem("nb-1", "テスト", "free")]}
@@ -191,7 +191,7 @@ describe("NotebookList", () => {
       expect(screen.queryByTestId("convert-btn-nb-1")).toBeNull();
     });
 
-    it("自由帳化ボタンでonConvertToFreeが呼ばれる", () => {
+    it("自由帳として複製ボタンでonConvertToFreeが呼ばれる", () => {
       const onConvertToFree = vi.fn();
       render(
         <NotebookList

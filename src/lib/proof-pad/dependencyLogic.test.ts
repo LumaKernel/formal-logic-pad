@@ -3,6 +3,7 @@ import {
   getNodeDependencies,
   getAllNodeDependencies,
   getSubtreeNodeIds,
+  getProofNodeIds,
   getNodeAxiomIds,
   validateRootNodes,
   getInstanceRootNodeIds,
@@ -344,6 +345,136 @@ describe("dependencyLogic", () => {
       ];
       const result = getSubtreeNodeIds("axiom-1", edges);
       expect(result).toEqual(new Set(["axiom-1", "mp-1"]));
+    });
+  });
+
+  describe("getProofNodeIds", () => {
+    it("InferenceEdgeがないノードは自身のみを返す", () => {
+      const edges: readonly InferenceEdge[] = [];
+      const result = getProofNodeIds("node-1", edges);
+      expect(result).toEqual(new Set(["node-1"]));
+    });
+
+    it("1つの前提を持つ導出ノードは前提と自身を返す", () => {
+      // axiom-1 → mp-1
+      const edges = [makeSubstEdge("mp-1", "axiom-1")];
+      const result = getProofNodeIds("mp-1", edges);
+      expect(result).toEqual(new Set(["mp-1", "axiom-1"]));
+    });
+
+    it("ルートノードから開始した場合は自身のみ（子方向には辿らない）", () => {
+      // axiom-1 → mp-1
+      const edges = [makeSubstEdge("mp-1", "axiom-1")];
+      const result = getProofNodeIds("axiom-1", edges);
+      expect(result).toEqual(new Set(["axiom-1"]));
+    });
+
+    it("チェーン状の証明で中間ノードも含めた全ノードを返す", () => {
+      // axiom-1 → mp-1 → mp-2 → mp-3
+      const edges = [
+        makeSubstEdge("mp-1", "axiom-1"),
+        makeSubstEdge("mp-2", "mp-1"),
+        makeSubstEdge("mp-3", "mp-2"),
+      ];
+      const result = getProofNodeIds("mp-3", edges);
+      expect(result).toEqual(new Set(["mp-3", "mp-2", "mp-1", "axiom-1"]));
+    });
+
+    it("2つの前提を持つMPノードは両方の前提を含む", () => {
+      // axiom-1, axiom-2 → mp-1
+      const edges = [makeMPEdge("mp-1", "axiom-1", "axiom-2")];
+      const result = getProofNodeIds("mp-1", edges);
+      expect(result).toEqual(new Set(["mp-1", "axiom-1", "axiom-2"]));
+    });
+
+    it("ダイヤモンド形状のDAGで中間ノードも含む", () => {
+      // axiom-1, axiom-2 → mp-1
+      // axiom-1, axiom-3 → mp-2
+      // mp-1, mp-2 → mp-3
+      const edges = [
+        makeMPEdge("mp-1", "axiom-1", "axiom-2"),
+        makeMPEdge("mp-2", "axiom-1", "axiom-3"),
+        makeMPEdge("mp-3", "mp-1", "mp-2"),
+      ];
+      const result = getProofNodeIds("mp-3", edges);
+      expect(result).toEqual(
+        new Set(["mp-3", "mp-1", "mp-2", "axiom-1", "axiom-2", "axiom-3"]),
+      );
+    });
+
+    it("Genノードも正しく前提を辿る", () => {
+      // axiom-1 → gen-1
+      const edges = [makeGenEdge("gen-1", "axiom-1")];
+      const result = getProofNodeIds("gen-1", edges);
+      expect(result).toEqual(new Set(["gen-1", "axiom-1"]));
+    });
+
+    it("深いグラフで全ノードを含む", () => {
+      // axiom-1, axiom-2 → mp-1 → gen-1
+      // axiom-3, axiom-4 → mp-2
+      // gen-1, mp-2 → mp-3
+      const edges = [
+        makeMPEdge("mp-1", "axiom-1", "axiom-2"),
+        makeGenEdge("gen-1", "mp-1"),
+        makeMPEdge("mp-2", "axiom-3", "axiom-4"),
+        makeMPEdge("mp-3", "gen-1", "mp-2"),
+      ];
+      const result = getProofNodeIds("mp-3", edges);
+      expect(result).toEqual(
+        new Set([
+          "mp-3",
+          "gen-1",
+          "mp-2",
+          "mp-1",
+          "axiom-1",
+          "axiom-2",
+          "axiom-3",
+          "axiom-4",
+        ]),
+      );
+    });
+
+    it("存在しないノードIDでも自身のみを含む集合を返す", () => {
+      const edges = [makeSubstEdge("mp-1", "axiom-1")];
+      const result = getProofNodeIds("nonexistent", edges);
+      expect(result).toEqual(new Set(["nonexistent"]));
+    });
+
+    it("他のノードの前提は含まない", () => {
+      // axiom-1 → mp-1
+      // axiom-2 → mp-2
+      const edges = [
+        makeSubstEdge("mp-1", "axiom-1"),
+        makeSubstEdge("mp-2", "axiom-2"),
+      ];
+      const result = getProofNodeIds("mp-1", edges);
+      expect(result).toEqual(new Set(["mp-1", "axiom-1"]));
+    });
+
+    it("前提が未設定のInferenceEdgeがあるノードは自身のみ返す", () => {
+      const edges: readonly InferenceEdge[] = [
+        {
+          _tag: "mp",
+          conclusionNodeId: "mp-1",
+          leftPremiseNodeId: undefined,
+          rightPremiseNodeId: undefined,
+          conclusionText: "",
+        },
+      ];
+      const result = getProofNodeIds("mp-1", edges);
+      expect(result).toEqual(new Set(["mp-1"]));
+    });
+
+    it("途中のノードから開始すると部分証明のみ返す", () => {
+      // axiom-1, axiom-2 → mp-1
+      // mp-1, axiom-3 → mp-2
+      const edges = [
+        makeMPEdge("mp-1", "axiom-1", "axiom-2"),
+        makeMPEdge("mp-2", "mp-1", "axiom-3"),
+      ];
+      // mp-1 から開始: mp-1の前提だけ
+      const result = getProofNodeIds("mp-1", edges);
+      expect(result).toEqual(new Set(["mp-1", "axiom-1", "axiom-2"]));
     });
   });
 

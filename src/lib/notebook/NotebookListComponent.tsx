@@ -384,9 +384,9 @@ function NotebookItem({
           <ActionButton
             data-testid={`convert-btn-${item.id satisfies string}`}
             onClick={handleConvertToFree}
-            title="自由帳に変換"
+            title="自由帳として複製"
           >
-            自由帳化
+            自由帳として複製
           </ActionButton>
         )}
         <ActionButton

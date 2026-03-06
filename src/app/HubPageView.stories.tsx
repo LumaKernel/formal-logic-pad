@@ -223,7 +223,7 @@ export const NotebookActions: Story = {
       "Renamed Proof",
     );
 
-    // --- 自由帳化（questモードのnotebook-2のみ表示） ---
+    // --- 自由帳として複製（questモードのnotebook-2のみ表示） ---
     await userEvent.click(canvas.getByTestId("convert-btn-notebook-2"));
     await expect(args.onConvertToFree).toHaveBeenCalledWith("notebook-2");
 

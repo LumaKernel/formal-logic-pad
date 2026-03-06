@@ -215,21 +215,48 @@ export function duplicateNotebook(
 
 // --- モード変換 ---
 
-/** クエストモードのノートブックを自由帳モードに変換する */
+/** 自由帳への変換結果 */
+export type ConvertToFreeModeResult = {
+  readonly collection: NotebookCollection;
+  /** 新しく作成された自由帳ノートブックのID（変換が行われなかった場合はundefined） */
+  readonly newNotebookId: NotebookId | undefined;
+};
+
+/**
+ * クエストモードのノートブックを複製して自由帳モードに変換する。
+ * 元のクエストノートブックは保持される。
+ */
 export function convertNotebookToFreeMode(
   collection: NotebookCollection,
   id: NotebookId,
   now: number,
-): NotebookCollection {
+): ConvertToFreeModeResult {
   const source = findNotebook(collection, id);
   if (source === undefined) {
-    return collection;
+    return { collection, newNotebookId: undefined };
   }
   if (source.workspace.mode === "free") {
-    return collection;
+    return { collection, newNotebookId: undefined };
   }
+  const newId = `notebook-${String(collection.nextId) satisfies string}`;
   const converted = convertToFreeMode(source.workspace);
-  return updateNotebookWorkspace(collection, id, converted, now);
+  const newNotebook: Notebook = {
+    meta: {
+      id: newId,
+      name: `${source.meta.name satisfies string} (自由帳)`,
+      createdAt: now,
+      updatedAt: now,
+    },
+    workspace: converted,
+  };
+  return {
+    collection: {
+      ...collection,
+      notebooks: [...collection.notebooks, newNotebook],
+      nextId: collection.nextId + 1,
+    },
+    newNotebookId: newId,
+  };
 }
 
 // --- ソート ---

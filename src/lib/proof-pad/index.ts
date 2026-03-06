@@ -334,6 +334,7 @@ export {
   getNodeDependencies,
   getAllNodeDependencies,
   getSubtreeNodeIds,
+  getProofNodeIds,
   getNodeAxiomIds,
   validateRootNodes,
   getInstanceRootNodeIds,

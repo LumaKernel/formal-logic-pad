@@ -43,6 +43,8 @@ export type WorkspacePageViewProps = {
       readonly onGoalAchieved: (info: GoalAchievedInfo) => void;
       /** 構文ヘルプを開くコールバック */
       readonly onOpenSyntaxHelp?: () => void;
+      /** 自由帳として複製するコールバック */
+      readonly onDuplicateToFree?: () => void;
       /** クエストバージョン警告メッセージ（表示不要なら undefined） */
       readonly questVersionWarning?: string;
     }
@@ -180,6 +182,7 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
             onWorkspaceChange={props.onWorkspaceChange}
             onGoalAchieved={props.onGoalAchieved}
             onOpenSyntaxHelp={props.onOpenSyntaxHelp}
+            onDuplicateToFree={props.onDuplicateToFree}
           />
         </ProofMessagesProvider>
       </div>

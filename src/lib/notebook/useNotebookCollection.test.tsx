@@ -145,8 +145,12 @@ describe("useNotebookCollection hook", () => {
     expect(names).toContain("元ノート (copy)");
   });
 
-  it("convertToFreeでクエストモードを自由帳モードに変換できる", () => {
-    const { result } = renderHook(() => useNotebookCollection());
+  it("convertToFreeでクエストを複製して自由帳モードのノートブックを作成する", () => {
+    let counter = 1000;
+    const getNow = () => counter++;
+    const { result } = renderHook(() =>
+      useNotebookCollection({ getNow }),
+    );
 
     let id: string = "";
     act(() => {
@@ -154,12 +158,18 @@ describe("useNotebookCollection hook", () => {
         { formulaText: "phi -> phi" },
       ]);
     });
+    expect(result.current.notebooks).toHaveLength(1);
     expect(result.current.notebooks[0]?.workspace.mode).toBe("quest");
 
     act(() => {
       result.current.convertToFree(id);
     });
+    // 元のクエストノートブックが残り、新しい自由帳が追加される
+    expect(result.current.notebooks).toHaveLength(2);
+    // 最新の更新日時順なので新しい方が先
     expect(result.current.notebooks[0]?.workspace.mode).toBe("free");
+    expect(result.current.notebooks[0]?.meta.name).toBe("クエスト (自由帳)");
+    expect(result.current.notebooks[1]?.workspace.mode).toBe("quest");
   });
 
   it("updateWorkspaceでワークスペースを更新できる", () => {

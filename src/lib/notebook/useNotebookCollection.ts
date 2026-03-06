@@ -79,8 +79,8 @@ export interface UseNotebookCollectionResult {
   readonly duplicate: (id: NotebookId) => NotebookId;
   /** ノートブックのワークスペースを更新する */
   readonly updateWorkspace: (id: NotebookId, workspace: WorkspaceState) => void;
-  /** クエストモードを自由帳モードに変換する */
-  readonly convertToFree: (id: NotebookId) => void;
+  /** クエストモードを複製して自由帳モードに変換する（新しいノートブックIDを返す） */
+  readonly convertToFree: (id: NotebookId) => NotebookId | undefined;
 }
 
 export interface UseNotebookCollectionOptions {
@@ -210,8 +210,14 @@ export function useNotebookCollection(
   );
 
   const convertToFree = useCallback(
-    (id: NotebookId) => {
-      setCollection((prev) => convertNotebookToFreeMode(prev, id, getNow()));
+    (id: NotebookId): NotebookId | undefined => {
+      let newId: NotebookId | undefined;
+      setCollection((prev) => {
+        const result = convertNotebookToFreeMode(prev, id, getNow());
+        newId = result.newNotebookId;
+        return result.collection;
+      });
+      return newId;
     },
     [getNow],
   );

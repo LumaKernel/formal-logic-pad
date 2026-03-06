@@ -80,6 +80,7 @@ export type ProofMessages = {
   readonly logicSystemLabel: string;
   readonly questBadge: string;
   readonly convertToFree: string;
+  readonly duplicateToFree: string;
   readonly autoLayout: string;
   readonly layoutTopToBottom: string;
   readonly layoutBottomToTop: string;
@@ -100,6 +101,7 @@ export type ProofMessages = {
 
   // --- コンテキストメニュー ---
   readonly selectSubtree: string;
+  readonly selectProof: string;
   readonly addNode: string;
   readonly useAsMPLeft: string;
   readonly useAsMPRight: string;
@@ -290,6 +292,7 @@ export const defaultProofMessages: ProofMessages = {
   logicSystemLabel: "Logic System:",
   questBadge: "Quest",
   convertToFree: "Convert to Free",
+  duplicateToFree: "Duplicate as Free",
   autoLayout: "Auto Layout",
   layoutTopToBottom: "Top\u2192Bottom",
   layoutBottomToTop: "Bottom\u2192Top",
@@ -310,6 +313,7 @@ export const defaultProofMessages: ProofMessages = {
 
   // Context menu
   selectSubtree: "Select Subtree",
+  selectProof: "Select Proof",
   addNode: "Add Node",
   useAsMPLeft: "Use as MP Left (\u03C6)",
   useAsMPRight: "Use as MP Right (\u03C6\u2192\u03C8)",

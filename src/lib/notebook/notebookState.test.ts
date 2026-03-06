@@ -276,7 +276,7 @@ describe("notebookState", () => {
   });
 
   describe("convertNotebookToFreeMode", () => {
-    it("converts a quest notebook to free mode", () => {
+    it("duplicates a quest notebook as free mode, preserving original", () => {
       const col = createQuestNotebook(createEmptyCollection(), {
         name: "Quest",
         system,
@@ -285,10 +285,23 @@ describe("notebookState", () => {
       });
 
       const result = convertNotebookToFreeMode(col, "notebook-1", now2);
-      const nb = findNotebook(result, "notebook-1");
-      expect(nb!.workspace.mode).toBe("free");
-      expect(nb!.workspace.nodes).toHaveLength(0);
-      expect(nb!.meta.updatedAt).toBe(now2);
+      // 元のクエストノートブックが残っている
+      const original = findNotebook(result.collection, "notebook-1");
+      expect(original!.workspace.mode).toBe("quest");
+      expect(original!.meta.updatedAt).toBe(now1);
+
+      // 新しいノートブックが free mode で追加されている
+      expect(result.newNotebookId).toBe("notebook-2");
+      const duplicated = findNotebook(result.collection, "notebook-2");
+      expect(duplicated!.workspace.mode).toBe("free");
+      expect(duplicated!.meta.name).toBe("Quest (自由帳)");
+      expect(duplicated!.meta.createdAt).toBe(now2);
+      expect(duplicated!.meta.updatedAt).toBe(now2);
+      // questId は複製先には含まれない
+      expect(duplicated!.questId).toBeUndefined();
+      // nextId が更新されている
+      expect(result.collection.nextId).toBe(3);
+      expect(result.collection.notebooks).toHaveLength(2);
     });
 
     it("returns unchanged collection for already free notebook", () => {
@@ -297,15 +310,18 @@ describe("notebookState", () => {
 
       const result = convertNotebookToFreeMode(col, "notebook-1", now2);
       // freeモードは変換不要なのでそのまま
-      const nb = findNotebook(result, "notebook-1");
+      expect(result.newNotebookId).toBeUndefined();
+      const nb = findNotebook(result.collection, "notebook-1");
       expect(nb!.workspace.mode).toBe("free");
-      expect(nb!.meta.updatedAt).toBe(now1); // updatedAtは変わらない
+      expect(nb!.meta.updatedAt).toBe(now1);
+      expect(result.collection.notebooks).toHaveLength(1);
     });
 
     it("returns unchanged collection when notebook not found", () => {
       const col = createEmptyCollection();
       const result = convertNotebookToFreeMode(col, "notebook-999", now1);
-      expect(result.notebooks).toHaveLength(0);
+      expect(result.newNotebookId).toBeUndefined();
+      expect(result.collection.notebooks).toHaveLength(0);
     });
   });
 

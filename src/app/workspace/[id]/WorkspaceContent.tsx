@@ -68,6 +68,7 @@ function useProofMessagesFromIntl(): ProofMessages {
       logicSystemLabel: t("logicSystemLabel"),
       questBadge: t("questBadge"),
       convertToFree: t("convertToFree"),
+      duplicateToFree: t("duplicateToFree"),
       autoLayout: t("autoLayout"),
       layoutTopToBottom: t("layoutTopToBottom"),
       layoutBottomToTop: t("layoutBottomToTop"),
@@ -84,6 +85,7 @@ function useProofMessagesFromIntl(): ProofMessages {
       substErrorTermParse: t("substErrorTermParse"),
       substEntryPrompt: t("substEntryPrompt"),
       selectSubtree: t("selectSubtree"),
+      selectProof: t("selectProof"),
       addNode: t("addNode"),
       useAsMPLeft: t("useAsMPLeft"),
       useAsMPRight: t("useAsMPRight"),
@@ -237,6 +239,15 @@ function WorkspaceInner() {
     [questId, questRecord],
   );
 
+  const handleDuplicateToFree = useCallback(() => {
+    if (notebookId !== undefined) {
+      const newId = notebookCollection.convertToFree(notebookId);
+      if (newId !== undefined) {
+        router.push(`/workspace/${newId satisfies string}`);
+      }
+    }
+  }, [notebookId, notebookCollection, router]);
+
   const questVersionWarning = useMemo(
     () =>
       notebook !== undefined
@@ -269,6 +280,7 @@ function WorkspaceInner() {
       onBack={handleBack}
       onWorkspaceChange={handleWorkspaceChange}
       onGoalAchieved={handleGoalAchieved}
+      onDuplicateToFree={handleDuplicateToFree}
       questVersionWarning={questVersionWarning}
       languageToggle={languageToggle}
     />
