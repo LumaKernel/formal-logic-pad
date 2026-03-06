@@ -642,6 +642,65 @@ describe("CanvasItem onClick", () => {
   });
 });
 
+describe("CanvasItem selectstart prevention during drag", () => {
+  beforeEach(() => {
+    Element.prototype.setPointerCapture = vi.fn();
+    Element.prototype.releasePointerCapture = vi.fn();
+  });
+
+  it("prevents selectstart events during drag", () => {
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onPositionChange={vi.fn()}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+    const item = screen.getByTestId("canvas-item");
+
+    // Start dragging
+    fireEvent.pointerDown(item, {
+      button: 0,
+      clientX: 10,
+      clientY: 10,
+      pointerId: 1,
+    });
+
+    const selectStartEvent = new Event("selectstart", {
+      bubbles: true,
+      cancelable: true,
+    });
+    const result = item.dispatchEvent(selectStartEvent);
+
+    // dispatchEvent returns false when preventDefault() was called
+    expect(result).toBe(false);
+  });
+
+  it("allows selectstart events when not dragging", () => {
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onPositionChange={vi.fn()}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+    const item = screen.getByTestId("canvas-item");
+
+    const selectStartEvent = new Event("selectstart", {
+      bubbles: true,
+      cancelable: true,
+    });
+    const result = item.dispatchEvent(selectStartEvent);
+
+    // selectstart should not be prevented when not dragging
+    expect(result).toBe(true);
+  });
+});
+
 describe("CanvasItem snapConfig", () => {
   beforeEach(() => {
     Element.prototype.setPointerCapture = vi.fn();

@@ -1,4 +1,4 @@
-import { type ReactNode, useCallback, useId, useRef } from "react";
+import { type ReactNode, useCallback, useEffect, useId, useRef } from "react";
 import { computeGridLinePatternParams, computeGridPatternParams } from "./grid";
 import type { MarqueeRect } from "./multiSelection";
 import type { Point, ViewportState } from "./types";
@@ -162,6 +162,20 @@ export function InfiniteCanvas({
       onEmptyAreaClick,
     ],
   );
+
+  // ドラッグ中のブラウザネイティブテキストセレクションを防止
+  // CSS user-select: none だけでは一部ブラウザで不十分なため、selectstart イベントも防止する
+  useEffect(() => {
+    const el = containerRef.current;
+    if (el === null) return;
+    const handleSelectStart = (e: Event) => {
+      e.preventDefault();
+    };
+    el.addEventListener("selectstart", handleSelectStart);
+    return () => {
+      el.removeEventListener("selectstart", handleSelectStart);
+    };
+  }, []);
 
   const showMarquee =
     marqueeRect != null && (marqueeRect.width > 1 || marqueeRect.height > 1);

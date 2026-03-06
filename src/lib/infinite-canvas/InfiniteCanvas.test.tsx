@@ -793,6 +793,22 @@ describe("InfiniteCanvas empty area event handlers", () => {
   });
 });
 
+describe("InfiniteCanvas selectstart prevention", () => {
+  it("prevents selectstart events on the container", () => {
+    render(<InfiniteCanvas />);
+    const canvas = screen.getByTestId("infinite-canvas");
+
+    const selectStartEvent = new Event("selectstart", {
+      bubbles: true,
+      cancelable: true,
+    });
+    const result = canvas.dispatchEvent(selectStartEvent);
+
+    // dispatchEvent returns false when preventDefault() was called
+    expect(result).toBe(false);
+  });
+});
+
 describe("InfiniteCanvas marquee rendering", () => {
   it("renders marquee overlay when marqueeRect is provided", () => {
     render(
