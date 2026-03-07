@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useNotebookCollection, toNotebookListItems } from "../lib/notebook";
 import {
@@ -19,11 +19,18 @@ import {
   removeCustomQuest,
   updateCustomQuest,
   findCustomQuestById,
+  exportCustomQuestAsJson,
+  importCustomQuestFromJson,
+  encodeQuestToUrlParam,
+  decodeQuestFromUrlParam,
+  QUEST_URL_PARAM,
+  prepareUrlQuestForImport,
   type CustomQuestEditParams,
   type CreateCustomQuestParams,
 } from "../lib/quest";
 import { ThemeProvider } from "../lib/theme/ThemeProvider";
 import type { DeductionSystem } from "../lib/logic-core/deductionSystem";
+import type { QuestDefinition } from "../lib/quest/questDefinition";
 import { prepareQuestStart } from "../lib/quest/questStartLogic";
 import { isLocale } from "../components/LanguageToggle/languageToggleLogic";
 import {
@@ -246,6 +253,110 @@ function HubInner() {
     [customQuestCollection],
   );
 
+  // Export custom quest as JSON file download
+  const handleExportCustomQuest = useCallback(
+    (questId: string) => {
+      const quest = findCustomQuestById(
+        customQuestCollection.collection,
+        questId,
+      );
+      if (quest === undefined) return;
+      const json = exportCustomQuestAsJson(quest);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `quest-${quest.title.replace(/[^a-zA-Z0-9\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/g, "-") satisfies string}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+    [customQuestCollection.collection],
+  );
+
+  // Import custom quest from JSON string
+  const handleImportCustomQuest = useCallback(
+    (jsonString: string) => {
+      const result = importCustomQuestFromJson(
+        customQuestCollection.collection,
+        jsonString,
+        getNow(),
+      );
+      if (result._tag !== "Ok") return;
+      customQuestCollection.setCollection(result.collection);
+    },
+    [customQuestCollection],
+  );
+
+  // Share quest via URL (copy to clipboard)
+  const handleShareQuestUrl = useCallback(
+    (questId: string) => {
+      const quest =
+        findCustomQuestById(customQuestCollection.collection, questId) ??
+        findQuestById(allQuests, questId);
+      if (quest === undefined) return;
+      const param = encodeQuestToUrlParam(quest);
+      const baseUrl = window.location.origin + window.location.pathname;
+      const shareUrl = `${baseUrl satisfies string}?${QUEST_URL_PARAM satisfies string}=${param satisfies string}`;
+      void navigator.clipboard.writeText(shareUrl);
+    },
+    [customQuestCollection.collection, allQuests],
+  );
+
+  // URL quest receive: derive from ?quest= param (pure derivation, no effect)
+  const searchParams = useSearchParams();
+  const [dismissed, setDismissed] = useState(false);
+
+  const sharedQuest = useMemo((): QuestDefinition | null => {
+    if (dismissed) return null;
+    const questParam = searchParams.get(QUEST_URL_PARAM);
+    if (questParam === null) return null;
+    const result = decodeQuestFromUrlParam(questParam);
+    if (result._tag === "Ok") return result.quest;
+    return null;
+  }, [searchParams, dismissed]);
+
+  // Clear URL param helper (impure)
+  const clearQuestUrlParam = useCallback(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete(QUEST_URL_PARAM);
+    window.history.replaceState({}, "", url.toString());
+    setDismissed(true);
+  }, []);
+
+  // Handle shared quest actions
+  const handleSharedQuestStart = useCallback(() => {
+    if (sharedQuest === null) return;
+    // Add to custom quests first, then start
+    const params = prepareUrlQuestForImport(sharedQuest);
+    const addResult = addCustomQuest(
+      customQuestCollection.collection,
+      params,
+      getNow(),
+    );
+    if (!addResult.ok) return;
+    customQuestCollection.setCollection(addResult.value.collection);
+    clearQuestUrlParam();
+    // Start the quest
+    handleStartQuest(addResult.value.questId);
+  }, [sharedQuest, customQuestCollection, handleStartQuest, clearQuestUrlParam]);
+
+  const handleSharedQuestAddToCollection = useCallback(() => {
+    if (sharedQuest === null) return;
+    const params = prepareUrlQuestForImport(sharedQuest);
+    const addResult = addCustomQuest(
+      customQuestCollection.collection,
+      params,
+      getNow(),
+    );
+    if (!addResult.ok) return;
+    customQuestCollection.setCollection(addResult.value.collection);
+    clearQuestUrlParam();
+  }, [sharedQuest, customQuestCollection, clearQuestUrlParam]);
+
+  const handleSharedQuestDismiss = useCallback(() => {
+    clearQuestUrlParam();
+  }, [clearQuestUrlParam]);
+
   return (
     <HubMessagesProvider messages={hubMessages}>
       <HubPageView
@@ -264,8 +375,15 @@ function HubInner() {
         onEditCustomQuest={handleEditCustomQuest}
         onCreateCustomQuest={handleCreateCustomQuest}
         onDuplicateBuiltinToCustom={handleDuplicateBuiltinToCustom}
+        onExportCustomQuest={handleExportCustomQuest}
+        onImportCustomQuest={handleImportCustomQuest}
+        onShareQuestUrl={handleShareQuestUrl}
         languageToggle={{ locale, onLocaleChange: switchLocale }}
         notebookCounts={notebookCounts}
+        sharedQuest={sharedQuest}
+        onSharedQuestStart={handleSharedQuestStart}
+        onSharedQuestAddToCollection={handleSharedQuestAddToCollection}
+        onSharedQuestDismiss={handleSharedQuestDismiss}
       />
     </HubMessagesProvider>
   );

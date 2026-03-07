@@ -142,6 +142,9 @@ const meta: Meta<typeof HubPageView> = {
     onEditCustomQuest: fn(),
     onCreateCustomQuest: fn(),
     onDuplicateBuiltinToCustom: fn(),
+    onExportCustomQuest: fn(),
+    onImportCustomQuest: fn(),
+    onShareQuestUrl: fn(),
     languageToggle: { locale: "en", onLocaleChange: fn() },
   },
 };
@@ -436,6 +439,111 @@ export const WithEmptyCustomQuests: Story = {
     await expect(
       canvas.getByText("自作クエストはまだありません。"),
     ).toBeInTheDocument();
+  },
+};
+
+/** URL共有で受け取ったクエストのダイアログ表示 */
+export const SharedQuestDialog: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+    sharedQuest: makeCustomQuest({
+      id: "custom-shared-1",
+      title: "共有されたクエスト",
+      description: "URLで共有された自作クエスト。",
+      difficulty: 2,
+      estimatedSteps: 8,
+      goals: [{ formulaText: "p -> p" }, { formulaText: "(p -> q) -> p -> q" }],
+    }),
+    onSharedQuestStart: fn(),
+    onSharedQuestAddToCollection: fn(),
+    onSharedQuestDismiss: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // ダイアログが表示されること
+    await expect(
+      canvas.getByTestId("shared-quest-dialog"),
+    ).toBeInTheDocument();
+    // タイトルが表示される
+    await expect(canvas.getByText("共有されたクエスト")).toBeInTheDocument();
+    // 説明が表示される
+    await expect(
+      canvas.getByText("URLで共有された自作クエスト。"),
+    ).toBeInTheDocument();
+    // 3つのアクションボタンが表示される
+    await expect(
+      canvas.getByTestId("shared-quest-start-btn"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("shared-quest-add-btn"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("shared-quest-dismiss-btn"),
+    ).toBeInTheDocument();
+  },
+};
+
+/** 共有クエストダイアログのアクション（開始） */
+export const SharedQuestStart: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+    sharedQuest: makeCustomQuest({
+      id: "custom-shared-2",
+      title: "開始テスト",
+      description: "テスト。",
+    }),
+    onSharedQuestStart: fn(),
+    onSharedQuestAddToCollection: fn(),
+    onSharedQuestDismiss: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId("shared-quest-start-btn"));
+    await expect(args.onSharedQuestStart).toHaveBeenCalled();
+  },
+};
+
+/** 共有クエストダイアログのアクション（自作に追加） */
+export const SharedQuestAddToCollection: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+    sharedQuest: makeCustomQuest({
+      id: "custom-shared-3",
+      title: "追加テスト",
+      description: "テスト。",
+    }),
+    onSharedQuestStart: fn(),
+    onSharedQuestAddToCollection: fn(),
+    onSharedQuestDismiss: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId("shared-quest-add-btn"));
+    await expect(args.onSharedQuestAddToCollection).toHaveBeenCalled();
+  },
+};
+
+/** 共有クエストダイアログのアクション（閉じる） */
+export const SharedQuestDismiss: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+    sharedQuest: makeCustomQuest({
+      id: "custom-shared-4",
+      title: "キャンセルテスト",
+      description: "テスト。",
+    }),
+    onSharedQuestStart: fn(),
+    onSharedQuestAddToCollection: fn(),
+    onSharedQuestDismiss: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId("shared-quest-dismiss-btn"));
+    await expect(args.onSharedQuestDismiss).toHaveBeenCalled();
   },
 };
 

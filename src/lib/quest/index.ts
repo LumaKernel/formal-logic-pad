@@ -206,3 +206,15 @@ export {
   goalsTextToDefinitions,
   parseHintLines,
 } from "./customQuestEditLogic";
+
+export {
+  QUEST_URL_PARAM,
+  utf8ToBase64Url,
+  base64UrlToUtf8,
+  encodeQuestToUrlParam,
+  decodeQuestFromUrlParam,
+  buildQuestShareUrl,
+  extractQuestParam,
+  prepareUrlQuestForImport,
+  type DecodeQuestUrlResult,
+} from "./questUrlSharing";

@@ -59,6 +59,7 @@ export type CustomQuestListProps = {
   readonly onCreateQuest?: (params: CreateCustomQuestParams) => void;
   readonly onExportQuest?: (questId: QuestId) => void;
   readonly onImportQuest?: (jsonString: string) => void;
+  readonly onShareQuestUrl?: (questId: QuestId) => void;
 };
 
 // --- Styles ---
@@ -939,6 +940,7 @@ function CustomQuestItem({
   onDelete,
   onEdit,
   onExport,
+  onShareUrl,
   isEditing,
   onToggleEdit,
 }: {
@@ -948,6 +950,7 @@ function CustomQuestItem({
   readonly onDelete?: (questId: QuestId) => void;
   readonly onEdit?: (edit: CustomQuestEditParams) => void;
   readonly onExport?: (questId: QuestId) => void;
+  readonly onShareUrl?: (questId: QuestId) => void;
   readonly isEditing: boolean;
   readonly onToggleEdit: (questId: QuestId) => void;
 }) {
@@ -1016,6 +1019,19 @@ function CustomQuestItem({
               title="エクスポート"
             >
               JSON
+            </button>
+          )}
+          {onShareUrl !== undefined && (
+            <button
+              data-testid={`custom-quest-share-btn-${item.quest.id satisfies string}`}
+              style={actionButtonStyle}
+              onClick={(e) => {
+                e.stopPropagation();
+                onShareUrl(item.quest.id);
+              }}
+              title="URL共有"
+            >
+              URL
             </button>
           )}
           {onDuplicate !== undefined && (
@@ -1172,6 +1188,7 @@ export function CustomQuestList({
   onCreateQuest,
   onExportQuest,
   onImportQuest,
+  onShareQuestUrl,
 }: CustomQuestListProps) {
   const totalCount = getCustomQuestCatalogCount(items);
   const completedCount = getCustomQuestCompletedCount(items);
@@ -1266,6 +1283,7 @@ export function CustomQuestList({
                 onDelete={onDeleteQuest}
                 onEdit={onEditQuest}
                 onExport={onExportQuest}
+                onShareUrl={onShareQuestUrl}
                 isEditing={editingQuestId === item.quest.id}
                 onToggleEdit={handleToggleEdit}
               />

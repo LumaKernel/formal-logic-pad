@@ -24,6 +24,7 @@ import {
   type QuestCatalogItem,
   type CreateCustomQuestParams,
 } from "../lib/quest";
+import type { QuestDefinition } from "../lib/quest/questDefinition";
 import { ThemeToggle } from "../components/ThemeToggle/ThemeToggle";
 import {
   LanguageToggle,
@@ -75,12 +76,22 @@ export type HubPageViewProps = {
   readonly onExportCustomQuest?: (questId: string) => void;
   /** JSONから自作クエストをインポートする */
   readonly onImportCustomQuest?: (jsonString: string) => void;
+  /** クエストをURL形式で共有する（クリップボードにコピー） */
+  readonly onShareQuestUrl?: (questId: string) => void;
   /** 初期タブ（テスト用） */
   readonly initialTab?: HubTab;
   /** 言語切り替え（指定時に LanguageToggle を表示） */
   readonly languageToggle?: LanguageToggleProps;
   /** クエストIDごとのノートブック数（クエストカタログに表示） */
   readonly notebookCounts?: QuestNotebookCounts;
+  /** URL共有で受け取ったクエスト（ダイアログ表示用） */
+  readonly sharedQuest?: QuestDefinition | null;
+  /** 共有クエストを開始する */
+  readonly onSharedQuestStart?: () => void;
+  /** 共有クエストを自作に追加する */
+  readonly onSharedQuestAddToCollection?: () => void;
+  /** 共有クエストダイアログを閉じる */
+  readonly onSharedQuestDismiss?: () => void;
 };
 
 // --- Styles ---
@@ -209,6 +220,90 @@ const clearFilterButtonStyle: CSSProperties = {
   marginLeft: "auto",
 };
 
+const sharedQuestOverlayStyle: CSSProperties = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: "rgba(0, 0, 0, 0.5)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  zIndex: 1000,
+};
+
+const sharedQuestDialogStyle: CSSProperties = {
+  background: "var(--color-surface, #fff)",
+  borderRadius: 12,
+  padding: "24px",
+  maxWidth: 480,
+  width: "90%",
+  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
+};
+
+const sharedQuestTitleStyle: CSSProperties = {
+  fontSize: 18,
+  fontWeight: 700,
+  marginBottom: 8,
+  color: "var(--color-text-primary, #333)",
+};
+
+const sharedQuestDescStyle: CSSProperties = {
+  fontSize: 14,
+  color: "var(--color-text-secondary, #666)",
+  marginBottom: 12,
+  lineHeight: 1.5,
+};
+
+const sharedQuestMetaStyle: CSSProperties = {
+  fontSize: 12,
+  color: "var(--color-text-secondary, #999)",
+  marginBottom: 20,
+  padding: "8px 12px",
+  background: "var(--color-bg-secondary, #f5f5f5)",
+  borderRadius: 6,
+};
+
+const sharedQuestActionsStyle: CSSProperties = {
+  display: "flex",
+  gap: 8,
+  justifyContent: "flex-end",
+};
+
+const sharedQuestStartButtonStyle: CSSProperties = {
+  padding: "8px 16px",
+  fontSize: 13,
+  fontWeight: 600,
+  border: "none",
+  borderRadius: 6,
+  cursor: "pointer",
+  background: "var(--color-accent, #555ab9)",
+  color: "#fff",
+};
+
+const sharedQuestAddButtonStyle: CSSProperties = {
+  padding: "8px 16px",
+  fontSize: 13,
+  fontWeight: 600,
+  borderRadius: 6,
+  cursor: "pointer",
+  border: "1px solid var(--color-accent, #555ab9)",
+  background: "transparent",
+  color: "var(--color-accent, #555ab9)",
+};
+
+const sharedQuestCancelButtonStyle: CSSProperties = {
+  padding: "8px 16px",
+  fontSize: 13,
+  fontWeight: 600,
+  borderRadius: 6,
+  cursor: "pointer",
+  border: "1px solid var(--color-border, #ccc)",
+  background: "transparent",
+  color: "var(--color-text-secondary, #666)",
+};
+
 export function HubPageView({
   listItems,
   groups,
@@ -227,9 +322,14 @@ export function HubPageView({
   onDuplicateBuiltinToCustom,
   onExportCustomQuest,
   onImportCustomQuest,
+  onShareQuestUrl,
   initialTab = "notebooks",
   languageToggle,
   notebookCounts,
+  sharedQuest,
+  onSharedQuestStart,
+  onSharedQuestAddToCollection,
+  onSharedQuestDismiss,
 }: HubPageViewProps) {
   const m = useHubMessages();
   const [tab, setTab] = useState<HubTab>(initialTab);
@@ -390,11 +490,69 @@ export function HubPageView({
                 onCreateQuest={onCreateCustomQuest}
                 onExportQuest={onExportCustomQuest}
                 onImportQuest={onImportCustomQuest}
+                onShareQuestUrl={onShareQuestUrl}
               />
             )}
           </>
         )}
       </div>
+
+      {/* Shared Quest Dialog */}
+      {sharedQuest !== undefined &&
+        sharedQuest !== null &&
+        onSharedQuestDismiss !== undefined && (
+          <div
+            style={sharedQuestOverlayStyle}
+            data-testid="shared-quest-dialog"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                onSharedQuestDismiss();
+              }
+            }}
+          >
+            <div style={sharedQuestDialogStyle}>
+              <h3 style={sharedQuestTitleStyle}>
+                {sharedQuest.title}
+              </h3>
+              <p style={sharedQuestDescStyle}>{sharedQuest.description}</p>
+              <div style={sharedQuestMetaStyle}>
+                <span>
+                  {`${sharedQuest.systemPresetId satisfies string} | ${`${sharedQuest.goals.length satisfies number}` satisfies string} goal(s) | est. ${`${sharedQuest.estimatedSteps satisfies number}` satisfies string} steps`}
+                </span>
+              </div>
+              <div style={sharedQuestActionsStyle}>
+                {onSharedQuestStart !== undefined && (
+                  <button
+                    type="button"
+                    style={sharedQuestStartButtonStyle}
+                    data-testid="shared-quest-start-btn"
+                    onClick={onSharedQuestStart}
+                  >
+                    Start Quest
+                  </button>
+                )}
+                {onSharedQuestAddToCollection !== undefined && (
+                  <button
+                    type="button"
+                    style={sharedQuestAddButtonStyle}
+                    data-testid="shared-quest-add-btn"
+                    onClick={onSharedQuestAddToCollection}
+                  >
+                    Add to My Quests
+                  </button>
+                )}
+                <button
+                  type="button"
+                  style={sharedQuestCancelButtonStyle}
+                  data-testid="shared-quest-dismiss-btn"
+                  onClick={onSharedQuestDismiss}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   );
 }

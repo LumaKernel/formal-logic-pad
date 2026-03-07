@@ -99,6 +99,7 @@ const meta = {
     onCreateQuest: fn(),
     onExportQuest: fn(),
     onImportQuest: fn(),
+    onShareQuestUrl: fn(),
   },
 } satisfies Meta<typeof CustomQuestList>;
 
@@ -132,6 +133,10 @@ export const Default: Story = {
     ).toBeInTheDocument();
     await expect(
       canvas.getByTestId("custom-quest-delete-btn-custom-1001"),
+    ).toBeInTheDocument();
+    // URL共有ボタンが表示されていること
+    await expect(
+      canvas.getByTestId("custom-quest-share-btn-custom-1001"),
     ).toBeInTheDocument();
     // インポートボタンがヘッダーに表示されていること
     await expect(
@@ -218,15 +223,19 @@ export const WithoutActions: Story = {
     onEditQuest: undefined,
     onExportQuest: undefined,
     onImportQuest: undefined,
+    onShareQuestUrl: undefined,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // 編集・エクスポート・複製・削除ボタンが表示されないこと
+    // 編集・エクスポート・URL共有・複製・削除ボタンが表示されないこと
     await expect(
       canvas.queryByTestId("custom-quest-edit-btn-custom-1001"),
     ).not.toBeInTheDocument();
     await expect(
       canvas.queryByTestId("custom-quest-export-btn-custom-1001"),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId("custom-quest-share-btn-custom-1001"),
     ).not.toBeInTheDocument();
     await expect(
       canvas.queryByTestId("custom-quest-duplicate-btn-custom-1001"),
@@ -520,5 +529,28 @@ export const ImportQuestCancel: Story = {
 
     // onImportQuestは呼ばれないこと
     await expect(args.onImportQuest).not.toHaveBeenCalled();
+  },
+};
+
+export const ShareQuestUrl: Story = {
+  args: {
+    items: sampleItems,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // URL共有ボタンが表示されていること
+    const shareBtn = canvas.getByTestId(
+      "custom-quest-share-btn-custom-1001",
+    );
+    await expect(shareBtn).toBeInTheDocument();
+    await expect(shareBtn).toHaveTextContent("URL");
+
+    // クリックするとonShareQuestUrlが呼ばれる
+    await userEvent.click(shareBtn);
+    await expect(args.onShareQuestUrl).toHaveBeenCalledWith("custom-1001");
+
+    // onStartQuestは呼ばれないこと（stopPropagation）
+    await expect(args.onStartQuest).not.toHaveBeenCalled();
   },
 };
