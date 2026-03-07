@@ -4435,9 +4435,7 @@ export function ProofWorkspace({
           onRemoveEntry={onRemoveCollectionEntry}
           onClose={() => setCollectionPanelOpen(false)}
           testId={
-            testId
-              ? `${testId satisfies string}-collection-panel`
-              : undefined
+            testId ? `${testId satisfies string}-collection-panel` : undefined
           }
         />
       ) : null}
