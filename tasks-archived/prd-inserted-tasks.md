@@ -208,3 +208,5 @@ Infinity Canvasについて。
   - workspaceState.ts に `updateMultipleNodePositions` 純粋関数を追加。ProofWorkspace.tsx の `handlePositionChange` をマルチドラッグ対応に修正。MultiSelectionDrag ストーリー追加。Playwright MCP でブラウザ動作確認済み。
 - [x] クエストを自由帳に変換したら、ゴール一覧は消えるべきだろうし、そもそも適切にdiscriminated unionにして存在すらそもそもできないようにするべきだろう。変換された自由帳は、かつてクエストであったことを完全に忘却すべきだ。
   - convertToFreeMode でゴール一覧をクリア。Notebook型を FreeNotebook | QuestNotebook のdiscriminated unionに変更。isQuestNotebook / isFreeNotebook 型ガード関数追加。シリアライゼーション対応。テスト追加。
+- [x] http://localhost:13000/ ノートブック一覧側でも、クエストについては、クエストの進行状況(computable)を一覧からも確認できるようにしてほしい。
+  - notebookListLogic: QuestProgressInfo型 + questProgressText関数。NotebookListComponent: QuestProgressBadgeサブコンポーネント。questNotebookIntegration: computeNotebookQuestProgress/enrichListItemsWithQuestProgress。HubContent統合。テスト・ストーリー追加。

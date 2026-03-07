@@ -9053,3 +9053,27 @@
   - `@luma-dev/luma-ts/no-explicit-return-is` により型ガード関数はreturn type annotationなしで書く。TypeScript 5.5の自動推論に委ねる
   - WorkspaceState自体の `goals` をモード別のdiscriminated unionにするのは影響範囲が大きい（50+ファイル）。Notebook型レベルでの型安全性確保が現実的なステップ
 ---
+
+## 2026-03-07 - [notebook] ノートブック一覧にクエスト進捗バッジを表示
+- クエストノートブックの進捗状況（達成数/総数）を一覧画面で確認できるようにした
+- 変更したファイル:
+  - `src/lib/notebook/notebookListLogic.ts` (QuestProgressInfo型, questProgressText関数, NotebookListItemにquestProgressフィールド追加)
+  - `src/lib/notebook/notebookListLogic.test.ts` (questProgressTextテスト4件追加)
+  - `src/lib/notebook/NotebookListComponent.tsx` (QuestProgressBadgeサブコンポーネント追加、部分達成=オレンジ/全達成=緑)
+  - `src/lib/notebook/NotebookListComponent.test.tsx` (クエスト進捗バッジテスト4件追加)
+  - `src/lib/notebook/NotebookListComponent.stories.tsx` (QuestProgressPartial/Complete/Mixedストーリー追加)
+  - `src/lib/notebook/index.ts` (QuestProgressInfo, questProgressTextエクスポート追加)
+  - `src/lib/quest/questNotebookIntegration.ts` (computeNotebookQuestProgress/enrichListItemsWithQuestProgress追加)
+  - `src/lib/quest/questNotebookIntegration.test.ts` (進捗計算テスト8件追加)
+  - `src/lib/quest/index.ts` (新関数エクスポート追加)
+  - `src/app/HubContent.tsx` (enrichListItemsWithQuestProgress統合)
+  - `src/app/HubPageView.stories.tsx` (WithQuestProgressストーリー追加、既存sampleNotebooksに進捗データ追加)
+- カバレッジ: ベースライン Stmts 99.12% / Branch 94.08% → 完了後 Stmts 99.11% / Branch 94.07% (V8マージ誤差範囲、実質低下なし)
+- テスト: 7470 → 7490 passed (+20)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Playwright MCPでStorybook確認。QuestProgressMixed/Partial/HubWithQuestProgressストーリー正常表示。スクリーンショット: .screenshots/quest-progress-mixed-fullscreen.png, .screenshots/quest-progress-partial-story.png, .screenshots/hub-with-quest-progress.png
+- **今後のイテレーションへの学び:**
+  - 循環依存回避: notebook→quest方向の依存を避け、questNotebookIntegration.tsブリッジモジュールで進捗計算を行うパターンが有効
+  - NotebookListItemの拡張はoptionalフィールド追加+後付けenrichパターンで既存コードへの影響を最小化できる
+  - CSS variables使用時は必ずfallback値を付ける（例: `var(--color-quest-progress-partial-bg, #fff3e0)`）
+---
