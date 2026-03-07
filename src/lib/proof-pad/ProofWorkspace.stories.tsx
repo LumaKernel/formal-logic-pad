@@ -498,14 +498,32 @@ function SubtreeSelectionWorkspace() {
 // --- リファレンスポップオーバー統合デモ ---
 
 function WorkspaceWithReference() {
+  const [detailId, setDetailId] = useState<string | null>(null);
   return (
-    <div style={{ width: "100vw", height: "100vh" }}>
+    <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
       <ProofWorkspace
         system={lukasiewiczSystem}
         referenceEntries={allReferenceEntries}
         locale="ja"
+        onOpenReferenceDetail={(id) => setDetailId(id)}
         testId="workspace"
       />
+      {detailId !== null && (
+        <div
+          data-testid="reference-detail-opened"
+          style={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            background: "#e0f7fa",
+            padding: "4px 12px",
+            borderRadius: 4,
+            fontSize: 12,
+          }}
+        >
+          {`Detail: ${detailId satisfies string}`}
+        </div>
+      )}
     </div>
   );
 }
@@ -538,6 +556,17 @@ export const WithReferencePopover: Story = {
     await expect(
       canvas.getByTestId("workspace-mp-ref-popover"),
     ).toBeInTheDocument();
+
+    // System badge should be a clickable button
+    const systemBadge = canvas.getByTestId("workspace-system");
+    await expect(systemBadge.tagName).toBe("BUTTON");
+    await expect(systemBadge).toHaveTextContent("Łukasiewicz");
+
+    // Click system badge to open reference detail
+    await userEvent.click(systemBadge);
+    await expect(
+      canvas.getByTestId("reference-detail-opened"),
+    ).toHaveTextContent("Detail: system-lukasiewicz");
   },
 };
 

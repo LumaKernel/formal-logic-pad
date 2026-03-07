@@ -183,6 +183,7 @@ import type { ReferenceEntry, Locale } from "../reference/referenceEntry";
 import { findEntryById } from "../reference/referenceEntry";
 import { ReferencePopover } from "../reference/ReferencePopover";
 import { getInferenceRuleReferenceEntryId } from "./inferenceRuleReferenceLogic";
+import { getDeductionSystemReferenceEntryId } from "./deductionSystemReferenceLogic";
 import { findInferenceEdgeForConclusionNode } from "./inferenceEdge";
 import { computeInferenceEdgeLabelDataForConnection } from "./inferenceEdgeLabelLogic";
 import { InferenceEdgeBadge } from "./InferenceEdgeBadge";
@@ -322,17 +323,26 @@ const headerStyle = {
   color: "var(--color-text-primary, #171717)",
 };
 
-const systemBadgeStyle = {
+const systemBadgeStyle: CSSProperties = {
   padding: "2px 8px",
   background: "var(--color-paper-button-bg, rgba(255, 253, 248, 0.9))",
   color: "var(--color-badge-text, #718096)",
   borderRadius: 6,
-  fontWeight: 600 as const,
+  fontWeight: 600,
   fontSize: 12,
   border:
     "1px solid var(--color-paper-button-border, rgba(180, 160, 130, 0.3))",
   boxShadow:
     "0 1px 2px var(--color-paper-button-shadow, rgba(120, 100, 70, 0.08))",
+};
+
+const systemBadgeClickableStyle: CSSProperties = {
+  ...systemBadgeStyle,
+  cursor: "pointer",
+  textDecoration: "underline",
+  textDecorationStyle: "dotted",
+  textUnderlineOffset: 2,
+  fontFamily: "inherit",
 };
 
 const mpButtonStyle = {
@@ -1085,6 +1095,31 @@ export function ProofWorkspace({
       ? findEntryById(referenceEntries, entryId)
       : undefined;
   }, [referenceEntries]);
+
+  // --- 演繹体系リファレンス ---
+
+  const systemName = useMemo(
+    () => getDeductionSystemName(workspace.deductionSystem),
+    [workspace.deductionSystem],
+  );
+
+  const systemReferenceEntryId = useMemo(
+    () => getDeductionSystemReferenceEntryId(systemName),
+    [systemName],
+  );
+
+  const systemReferenceEntry = useMemo(() => {
+    return systemReferenceEntryId !== undefined &&
+      referenceEntries !== undefined
+      ? findEntryById(referenceEntries, systemReferenceEntryId)
+      : undefined;
+  }, [referenceEntries, systemReferenceEntryId]);
+
+  const handleSystemBadgeClick = useCallback(() => {
+    if (systemReferenceEntryId !== undefined && onOpenReferenceDetail) {
+      onOpenReferenceDetail(systemReferenceEntryId);
+    }
+  }, [systemReferenceEntryId, onOpenReferenceDetail]);
 
   /** 新しいノードの配置位置を計算する（パレット右側にオフセット配置） */
   const computeNewNodePosition = useCallback(
@@ -3395,12 +3430,30 @@ export function ProofWorkspace({
         data-testid={testId ? `${testId satisfies string}-header` : undefined}
       >
         <span>{msg.logicSystemLabel}</span>
-        <span
-          style={systemBadgeStyle}
-          data-testid={testId ? `${testId satisfies string}-system` : undefined}
-        >
-          {getDeductionSystemName(workspace.deductionSystem)}
-        </span>
+        {systemReferenceEntry !== undefined && onOpenReferenceDetail ? (
+          <button
+            type="button"
+            style={systemBadgeClickableStyle}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSystemBadgeClick();
+            }}
+            data-testid={
+              testId ? `${testId satisfies string}-system` : undefined
+            }
+          >
+            {systemName}
+          </button>
+        ) : (
+          <span
+            style={systemBadgeStyle}
+            data-testid={
+              testId ? `${testId satisfies string}-system` : undefined
+            }
+          >
+            {systemName}
+          </span>
+        )}
         {workspace.mode === "quest" ? (
           <>
             <span
