@@ -146,15 +146,14 @@ export function resolveStepperState(
     currentCutCount = baseData.initialInfo.cutCount;
   } else {
     const step = rawSteps[clampedIndex];
-    if (step !== undefined) {
-      currentProof = step.proof;
-      currentCutCount = countCuts(step.proof);
-    } else {
-      // フォールバック（到達不能だが防御的に）
-      /* v8 ignore start */
+    /* v8 ignore start -- step は clampedIndex が範囲内なので常に defined。防御的チェック */
+    if (step === undefined) {
       currentProof = originalProof;
       currentCutCount = baseData.initialInfo.cutCount;
+    } else {
       /* v8 ignore stop */
+      currentProof = step.proof;
+      currentCutCount = countCuts(step.proof);
     }
   }
 

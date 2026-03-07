@@ -207,98 +207,86 @@ const decomposeFormula = (
   b: Formula,
 ): readonly Equation[] | null => {
   // a._tag === b._tag が前提
-  switch (a._tag) {
-    // MetaVariable 同士はDecomposeではなくDelete/Eliminateで処理（到達しない）
-    /* v8 ignore start */
-    case "MetaVariable":
-      return null;
-    /* v8 ignore stop */
-    case "Negation":
-      return [formulaEquation(a.formula, (b as typeof a).formula)];
-    case "Implication":
-    case "Conjunction":
-    case "Disjunction":
-    case "Biconditional": {
-      const bBin = b as typeof a;
-      return [
-        formulaEquation(a.left, bBin.left),
-        formulaEquation(a.right, bBin.right),
-      ];
-    }
-    case "Universal":
-    case "Existential": {
-      const bQuant = b as typeof a;
-      return [
-        termEquation(a.variable, bQuant.variable),
-        formulaEquation(a.formula, bQuant.formula),
-      ];
-    }
-    case "Predicate": {
-      const bPred = b as typeof a;
-      if (a.name !== bPred.name || a.args.length !== bPred.args.length) {
-        return null;
-      }
-      return a.args.map((arg, i) => termEquation(arg, bPred.args[i]));
-    }
-    case "Equality": {
-      const bEq = b as typeof a;
-      return [termEquation(a.left, bEq.left), termEquation(a.right, bEq.right)];
-    }
-    case "FormulaSubstitution": {
-      const bSub = b as typeof a;
-      return [
-        formulaEquation(a.formula, bSub.formula),
-        termEquation(a.term, bSub.term),
-        termEquation(a.variable, bSub.variable),
-      ];
-    }
+  /* v8 ignore start -- MetaVariable 同士はDecomposeではなくDelete/Eliminateで処理（到達しない） */
+  if (a._tag === "MetaVariable") {
+    return null;
   }
-  /* v8 ignore start */
-  a satisfies never;
-  return null;
   /* v8 ignore stop */
+  if (a._tag === "Negation") {
+    return [formulaEquation(a.formula, (b as typeof a).formula)];
+  }
+  if (
+    a._tag === "Implication" ||
+    a._tag === "Conjunction" ||
+    a._tag === "Disjunction" ||
+    a._tag === "Biconditional"
+  ) {
+    const bBin = b as typeof a;
+    return [
+      formulaEquation(a.left, bBin.left),
+      formulaEquation(a.right, bBin.right),
+    ];
+  }
+  if (a._tag === "Universal" || a._tag === "Existential") {
+    const bQuant = b as typeof a;
+    return [
+      termEquation(a.variable, bQuant.variable),
+      formulaEquation(a.formula, bQuant.formula),
+    ];
+  }
+  if (a._tag === "Predicate") {
+    const bPred = b as typeof a;
+    if (a.name !== bPred.name || a.args.length !== bPred.args.length) {
+      return null;
+    }
+    return a.args.map((arg, i) => termEquation(arg, bPred.args[i]));
+  }
+  if (a._tag === "Equality") {
+    const bEq = b as typeof a;
+    return [termEquation(a.left, bEq.left), termEquation(a.right, bEq.right)];
+  }
+  // FormulaSubstitution — fall-through for exhaustive narrowing
+  const bSub = b as typeof a;
+  return [
+    formulaEquation(a.formula, bSub.formula),
+    termEquation(a.term, bSub.term),
+    termEquation(a.variable, bSub.variable),
+  ];
 };
 
 /**
  * Term を分解して子方程式を生成。
  */
 const decomposeTerm = (a: Term, b: Term): readonly Equation[] | null => {
-  switch (a._tag) {
-    // TermVariable/TermMetaVariable/Constant 同士はDelete/Eliminateで先に処理される（到達しない）
-    /* v8 ignore start */
-    case "TermVariable": {
-      const bVar = b as typeof a;
-      if (a.name !== bVar.name) return null;
-      return [];
-    }
-    case "TermMetaVariable":
-      return null;
-    case "Constant": {
-      const bConst = b as typeof a;
-      if (a.name !== bConst.name) return null;
-      return [];
-    }
-    /* v8 ignore stop */
-    case "FunctionApplication": {
-      const bFunc = b as typeof a;
-      if (a.name !== bFunc.name || a.args.length !== bFunc.args.length) {
-        return null;
-      }
-      return a.args.map((arg, i) => termEquation(arg, bFunc.args[i]));
-    }
-    case "BinaryOperation": {
-      const bBin = b as typeof a;
-      if (a.operator !== bBin.operator) return null;
-      return [
-        termEquation(a.left, bBin.left),
-        termEquation(a.right, bBin.right),
-      ];
-    }
+  /* v8 ignore start -- TermVariable/TermMetaVariable/Constant 同士はDelete/Eliminateで先に処理される（到達しない） */
+  if (a._tag === "TermVariable") {
+    const bVar = b as typeof a;
+    if (a.name !== bVar.name) return null;
+    return [];
   }
-  /* v8 ignore start */
-  a satisfies never;
-  return null;
+  if (a._tag === "TermMetaVariable") {
+    return null;
+  }
+  if (a._tag === "Constant") {
+    const bConst = b as typeof a;
+    if (a.name !== bConst.name) return null;
+    return [];
+  }
   /* v8 ignore stop */
+  if (a._tag === "FunctionApplication") {
+    const bFunc = b as typeof a;
+    if (a.name !== bFunc.name || a.args.length !== bFunc.args.length) {
+      return null;
+    }
+    return a.args.map((arg, i) => termEquation(arg, bFunc.args[i]));
+  }
+  // BinaryOperation — fall-through for exhaustive narrowing
+  const bBin = b as typeof a;
+  if (a.operator !== bBin.operator) return null;
+  return [
+    termEquation(a.left, bBin.left),
+    termEquation(a.right, bBin.right),
+  ];
 };
 
 // ── Effect ベースの内部処理関数 ──────────────────────────────

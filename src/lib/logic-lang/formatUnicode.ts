@@ -31,10 +31,13 @@ const toSubscript = (s: string): string =>
   [...s]
     .map((ch) => {
       const n = ch.charCodeAt(0) - 48; // '0' = 48
-      // 防御的コード: n >= 0 && n <= 9 でsubscriptDigits[n]は常に定義済みだが、
-      // 配列アクセスの型安全のためフォールバックを残す。
-      /* v8 ignore next */
-      return n >= 0 && n <= 9 ? (subscriptDigits[n] ?? ch) : ch;
+      if (n >= 0 && n <= 9) {
+        // 防御的コード: subscriptDigits[n]は常に定義済みだが、型安全のためフォールバック
+        /* v8 ignore start */
+        return subscriptDigits[n] ?? ch;
+        /* v8 ignore stop */
+      }
+      return ch;
     })
     .join("");
 
@@ -205,8 +208,12 @@ const formatFormulaInner = (f: Formula, parentBP: number): string => {
       const result = `${sym satisfies string}${varName satisfies string}.${bodyStr satisfies string}`;
       // 防御的コード: 量化子のchildBPは{0,0}なので、親の二項演算子は常にneedsParens=trueとなり
       // parentBP=0で呼ばれる。parentBP>0は到達不能だが安全のために残す。
-      /* v8 ignore next */
-      return parentBP > 0 ? `(${result satisfies string})` : result;
+      /* v8 ignore start */
+      if (parentBP > 0) {
+        return `(${result satisfies string})`;
+      }
+      /* v8 ignore stop */
+      return result;
     }
 
     case "Predicate": {

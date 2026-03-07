@@ -514,18 +514,16 @@ export function getMPErrorMessageKey(
       return "mpErrorLeftParse";
     case "RightParseError":
       return "mpErrorRightParse";
-    case "MPRuleError": {
-      switch (error.error._tag) {
-        case "NotAnImplication":
-          return "mpErrorNotImplication";
-        case "PremiseMismatch":
-          return "mpErrorPremiseMismatch";
-        /* v8 ignore start -- exhaustive check: other error types not reachable from applyModusPonens */
-        default:
-          return "mpErrorGeneric";
-        /* v8 ignore stop */
+    case "MPRuleError":
+      if (error.error._tag === "NotAnImplication") {
+        return "mpErrorNotImplication";
       }
-    }
+      if (error.error._tag === "PremiseMismatch") {
+        return "mpErrorPremiseMismatch";
+      }
+      /* v8 ignore start -- exhaustive check: other error types not reachable from applyModusPonens */
+      return "mpErrorGeneric";
+    /* v8 ignore stop */
   }
 }
 
