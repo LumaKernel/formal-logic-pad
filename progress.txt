@@ -103,6 +103,33 @@
 
 ---
 
+## 2026-03-07 - ScriptEditor 自動再生（Play/Pause）と速度スライダー
+- ScriptEditorComponent に自動再生機能を追加:
+  - Play ボタン: setInterval で自動ステップ実行（done/error で自動停止）
+  - Pause ボタン: 自動再生の一時停止
+  - Speed スライダー: ステップ間隔を 10ms〜2000ms の範囲で調整
+- scriptEditorLogic.ts に純粋ロジック追加:
+  - `autoPlayIntervalMs` フィールドを ScriptEditorState に追加
+  - `updateAutoPlayInterval`, `sliderToIntervalMs`, `intervalMsToSlider` 関数
+  - 定数: `DEFAULT_AUTO_PLAY_INTERVAL_MS` (200), `MIN_AUTO_PLAY_INTERVAL_MS` (10), `MAX_AUTO_PLAY_INTERVAL_MS` (2000)
+- 変更ファイル:
+  - `src/components/ScriptEditor/scriptEditorLogic.ts` (状態・関数追加)
+  - `src/components/ScriptEditor/ScriptEditorComponent.tsx` (Play/Pause/Speed UI + useEffect タイマー)
+  - `src/components/ScriptEditor/ScriptEditorComponent.module.css` (speedBar スタイル)
+  - `src/components/ScriptEditor/ScriptEditorComponent.stories.tsx` (Play/Speed テスト追加)
+  - `src/components/ScriptEditor/scriptEditorLogic.test.ts` (+10テスト)
+  - `src/components/ScriptEditor/index.ts` (新エクスポート追加)
+- テスト: 229ファイル、7726テスト全パス (+10テスト追加)
+- カバレッジ: Stmts 98.84% (維持), Branch 93.28% (維持), Funcs 89.28% (≈維持), Lines 99.72% (維持)
+- 品質チェック: typecheck ✅, lint ✅, test ✅, prettier ✅
+- スクリーンショット: `.screenshots/script-editor-autoplay-controls.png`
+- **今後のイテレーションへの学び:**
+  - 自動再生は ExecutionStatus に新状態を追加せず、コンポーネントの `useState(isAutoPlaying)` + `useEffect` + `setInterval` で制御するのが最もシンプル
+  - `sliderToIntervalMs` / `intervalMsToSlider` は線形変換。対数スケールにするとUIの操作感が向上する可能性あり（将来改善候補）
+  - autoPlay 中は Step ボタンを disabled にしてタイマーと手動の競合を防止
+  - US-004 の残り: 現在の実行行ハイライト、証明図リアルタイム反映、エラー箇所エディタ表示
+---
+
 ## 2026-03-03 - FormulaInput background/backgroundColor スタイル競合修正
 - FormulaInput, TermInput, FormulaEditor の `background: "transparent"` shorthand が `backgroundColor` と競合する React 警告を修正
 - すべて `backgroundColor: "transparent"` に統一
