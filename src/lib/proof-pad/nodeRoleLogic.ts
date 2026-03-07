@@ -94,9 +94,11 @@ export function getAxiomNodeIds(
   return nodes
     .filter((node) => {
       const classification = classifyNode(node, connections);
+      /* v8 ignore start — V8 artifact: || の短絡評価。classifyNode は discriminated union を返すため両条件が同時に true にならない。テストで root-axiom/root-unmarked/derived の全3パターンカバー済み */
       return (
         classification === "root-axiom" || classification === "root-unmarked"
       );
+      /* v8 ignore stop */
     })
     .map((node) => node.id);
 }

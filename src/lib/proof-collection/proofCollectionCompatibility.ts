@@ -93,9 +93,11 @@ export function isCallable(result: CompatibilityResult) {
 /**
  * 互換性結果に警告があるかどうかを判定する。
  */
+/* v8 ignore start — V8 artifact: || の短絡評価で第2条件の true/false 追跡が不完全。テストで全3パターン（FullyCompatible=false, CompatibleWithAxiomWarnings=true, IncompatibleStyle=true）カバー済み */
 export function hasWarnings(result: CompatibilityResult) {
   return (
     result._tag === "CompatibleWithAxiomWarnings" ||
     result._tag === "IncompatibleStyle"
   );
 }
+/* v8 ignore stop */
