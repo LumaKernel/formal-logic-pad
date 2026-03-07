@@ -9403,3 +9403,27 @@
   - Monaco EditorのsetModelMarkersでエラーマーカー表示。owner文字列 "script-runner" で管理、空配列でクリア
   - 後続タスク: 現在の実行行ハイライト、証明図リアルタイム反映
 ---
+
+## 2026-03-07 - [script-editor] 現在の実行行ハイライト表示
+- 実装内容: ステップ実行時にJS-Interpreterの内部stateStackからAST行番号を取得し、Monacoデコレーションで黄色ハイライト+グリフマーカーを表示
+- 変更ファイル:
+  - `src/lib/script-runner/jsInterpreterTypes.ts` — AST node/state型追加
+  - `src/lib/script-runner/scriptRunner.ts` — StepLocation型追加、getCurrentLocation()実装、StepStatusにlocation追加
+  - `src/lib/script-runner/index.ts` — StepLocation export追加
+  - `src/components/ScriptEditor/scriptEditorLogic.ts` — currentLocation状態、adjustStepLocationLine()、glyphMargin有効化
+  - `src/components/ScriptEditor/ScriptEditorComponent.tsx` — Monaco decorationsRef + useEffect で行ハイライト適用
+  - `src/components/ScriptEditor/ScriptEditorComponent.module.css` — :global(.currentLineHighlight), :global(.currentLineGlyph) 追加
+  - `src/lib/script-runner/scriptRunner.test.ts` — ステップ実行行番号テスト3件追加
+  - `src/components/ScriptEditor/scriptEditorLogic.test.ts` — currentLocation・adjustStepLocationLineテスト追加
+- カバレッジ: Stmts 98.84%, Branch 93.30%, Funcs 89.25%, Lines 99.72% (低下なし)
+- テスト: 229ファイル, 7744 passed
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Playwright MCPでStorybook確認
+  - スクリーンショット: .screenshots/script-editor-default-iframe.png, .screenshots/script-editor-with-custom-code.png
+- **今後のイテレーションへの学び:**
+  - JS-Interpreterの`stateStack[length-1].node.loc`でAcornパーサーのAST位置情報を取得可能（line: 1-indexed, column: 0-indexed）
+  - Monaco decorations: `editor.createDecorationsCollection()` が新しいAPI（旧 `deltaDecorations` は非推奨）
+  - `:global(.className)` でCSS Modulesスコープ外のクラス名を定義（Monaco外部から注入されるため）
+  - consoleShimCode行オフセット補正は`adjustStepLocationLine()`で純粋関数化。エラー位置と実行位置の両方で共通ロジック使用可能
+  - 後続タスク: ステップ実行モード完成、証明図リアルタイム反映
+---
