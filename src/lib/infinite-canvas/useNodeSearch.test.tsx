@@ -216,4 +216,33 @@ describe("useNodeSearch", () => {
     });
     expect(result.current.searchResult.currentIndex).toBe(0);
   });
+
+  it("items変更後にマッチIDが見つからない場合はビューポート変更しない", () => {
+    const onViewportChange = vi.fn();
+    const onHighlightItem = vi.fn();
+    const { result, rerender } = renderHook(
+      ({ searchItems }: { readonly searchItems: readonly SearchableItem[] }) =>
+        useNodeSearch(searchItems, CONTAINER_SIZE, {
+          onViewportChange,
+          onHighlightItem,
+        }),
+      { initialProps: { searchItems: items } },
+    );
+
+    // 検索して最初のマッチを得る
+    act(() => {
+      result.current.setQuery("¬");
+    });
+    expect(result.current.highlightedItemId).toBe("4");
+    const callCountAfterSearch = onViewportChange.mock.calls.length;
+
+    // itemsを空にして再レンダリング（マッチIDが見つからなくなる）
+    rerender({ searchItems: [] });
+
+    // goToNextでfocusOnCurrentMatchが呼ばれるが、itemが見つからないのでビューポート変更しない
+    act(() => {
+      result.current.goToNext();
+    });
+    expect(onViewportChange.mock.calls.length).toBe(callCountAfterSearch);
+  });
 });

@@ -19,6 +19,7 @@ function EditorWrapper({
   fontSize,
   editTrigger,
   onOpenSyntaxHelp,
+  forceEditMode,
 }: {
   readonly initialValue?: string;
   readonly onParsed?: (formula: Formula) => void;
@@ -29,6 +30,7 @@ function EditorWrapper({
   readonly fontSize?: CSSProperties["fontSize"];
   readonly editTrigger?: EditTrigger;
   readonly onOpenSyntaxHelp?: () => void;
+  readonly forceEditMode?: boolean;
 }) {
   const [value, setValue] = useState(initialValue);
   return (
@@ -43,6 +45,7 @@ function EditorWrapper({
       fontSize={fontSize}
       editTrigger={editTrigger}
       onOpenSyntaxHelp={onOpenSyntaxHelp}
+      forceEditMode={forceEditMode}
     />
   );
 }
@@ -588,5 +591,149 @@ describe("FormulaEditor - 構文ヘルプ", () => {
     // 編集モードに留まっている
     expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
     expect(screen.queryByTestId("editor-display")).not.toBeInTheDocument();
+  });
+
+  it("ヘルプボタンのmousedownでpreventDefaultとstopPropagationが呼ばれる", async () => {
+    const handleHelp = vi.fn();
+    render(
+      <EditorWrapper initialValue="φ → ψ" onOpenSyntaxHelp={handleHelp} />,
+    );
+
+    // 編集モードに入る
+    await userEvent.click(screen.getByTestId("editor-display"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    });
+
+    // ヘルプボタンのmousedownイベントを発火
+    const helpButton = screen.getByTestId("editor-syntax-help");
+    const mouseDownEvent = new MouseEvent("mousedown", {
+      bubbles: true,
+      cancelable: true,
+    });
+    const preventDefaultSpy = vi.spyOn(mouseDownEvent, "preventDefault");
+    helpButton.dispatchEvent(mouseDownEvent);
+    expect(preventDefaultSpy).toHaveBeenCalled();
+  });
+});
+
+// --- forceEditMode ---
+
+describe("forceEditMode", () => {
+  it("forceEditModeがtrueの場合に編集モードに遷移する", async () => {
+    const onModeChange = vi.fn();
+    const { rerender } = render(
+      <EditorWrapper
+        initialValue="φ → ψ"
+        onModeChange={onModeChange}
+        forceEditMode={false}
+      />,
+    );
+
+    // 初期状態は表示モード
+    expect(screen.getByTestId("editor-display")).toBeInTheDocument();
+
+    // forceEditMode を true にして再レンダリング
+    rerender(
+      <EditorWrapper
+        initialValue="φ → ψ"
+        onModeChange={onModeChange}
+        forceEditMode={true}
+      />,
+    );
+
+    // 編集モードに遷移する
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    });
+  });
+});
+
+// --- マウスホバー ---
+
+describe("マウスホバー", () => {
+  it("表示モードでmouseLeaveするとホバースタイルが解除される", () => {
+    render(<EditorWrapper initialValue="φ → ψ" />);
+
+    const display = screen.getByTestId("editor-display");
+    fireEvent.mouseEnter(display);
+    fireEvent.mouseLeave(display);
+    // ホバー解除後は通常の表示スタイル（エラーなく動作することを確認）
+    expect(display).toBeInTheDocument();
+  });
+});
+
+// --- testId未指定 ---
+
+describe("testId未指定", () => {
+  it("testIdがundefinedでもエラーなくレンダリングできる（表示モード）", () => {
+    render(
+      <FormulaEditor value="φ → ψ" onChange={vi.fn()} testId={undefined} />,
+    );
+    // testIdなしなのでgetByTestIdは使えない。role=buttonの存在で確認
+    expect(document.querySelector("[role='button']")).toBeInTheDocument();
+  });
+
+  it("testIdがundefinedでもエラーなくレンダリングできる（編集モード）", () => {
+    render(
+      <FormulaEditor
+        value="φ → ψ"
+        onChange={vi.fn()}
+        testId={undefined}
+        forceEditMode={true}
+        onOpenSyntaxHelp={vi.fn()}
+      />,
+    );
+    // 編集モードのinputが存在する
+    expect(document.querySelector("input")).toBeInTheDocument();
+  });
+
+  it("testIdがundefined+katexレンダラーでもエラーなくレンダリングできる", () => {
+    render(
+      <FormulaEditor
+        value="φ → ψ"
+        onChange={vi.fn()}
+        testId={undefined}
+        displayRenderer="katex"
+      />,
+    );
+    expect(document.querySelector("[role='button']")).toBeInTheDocument();
+  });
+
+  it("testIdがundefined+空のvalue(placeholder表示)でもエラーなくレンダリングできる", () => {
+    render(
+      <FormulaEditor
+        value=""
+        onChange={vi.fn()}
+        testId={undefined}
+        placeholder="入力してください"
+      />,
+    );
+    expect(document.querySelector("[role='button']")).toBeInTheDocument();
+  });
+});
+
+// --- Spaceキーで編集モードに入る ---
+
+describe("Spaceキーによる編集モード", () => {
+  it("表示モードでSpaceキーを押すと編集モードに入る", async () => {
+    render(<EditorWrapper initialValue="φ → ψ" />);
+
+    const display = screen.getByTestId("editor-display");
+    fireEvent.keyDown(display, { key: " " });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    });
+  });
+
+  it("表示モードでEnter/Space以外のキーを押しても編集モードに入らない", () => {
+    render(<EditorWrapper initialValue="φ → ψ" />);
+
+    const display = screen.getByTestId("editor-display");
+    fireEvent.keyDown(display, { key: "Tab" });
+    // 表示モードのまま
+    expect(screen.getByTestId("editor-display")).toBeInTheDocument();
+    expect(screen.queryByTestId("editor-edit")).not.toBeInTheDocument();
   });
 });

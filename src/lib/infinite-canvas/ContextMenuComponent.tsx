@@ -28,7 +28,9 @@ export function ContextMenuComponent({
   // Adjust position to stay within viewport after measuring
   useEffect(() => {
     const el = innerRef.current;
+    /* v8 ignore start -- defensive: el is always non-null when component is mounted */
     if (el === null) return;
+    /* v8 ignore stop */
     const clamped = clampMenuPosition(
       screenPosition,
       el.offsetWidth,

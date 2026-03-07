@@ -30,9 +30,11 @@ export function usePan(
     // Only handle primary button (left click / single touch)
     if (e.button !== 0) return;
 
+    /* v8 ignore start -- defensive: browser API existence check */
     if (e.currentTarget.setPointerCapture) {
       e.currentTarget.setPointerCapture(e.pointerId);
     }
+    /* v8 ignore stop */
     setIsDragging(true);
     lastPointRef.current = { x: e.clientX, y: e.clientY };
   }, []);
@@ -55,9 +57,11 @@ export function usePan(
 
   const onPointerUp = useCallback((e: React.PointerEvent<HTMLElement>) => {
     if (lastPointRef.current === null) return;
+    /* v8 ignore start -- defensive: browser API existence check */
     if (e.currentTarget.releasePointerCapture) {
       e.currentTarget.releasePointerCapture(e.pointerId);
     }
+    /* v8 ignore stop */
     setIsDragging(false);
     lastPointRef.current = null;
   }, []);
