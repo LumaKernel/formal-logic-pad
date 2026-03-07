@@ -78,21 +78,10 @@ function MonitorIcon(): ReactNode {
 }
 
 function ThemeIcon({ iconId }: { readonly iconId: ThemeIconId }): ReactNode {
-  switch (iconId) {
-    case "sun":
-      return <SunIcon />;
-    case "moon":
-      return <MoonIcon />;
-    case "monitor":
-      return <MonitorIcon />;
-    default: {
-      /* v8 ignore start */
-      const _exhaustive: never = iconId;
-      void _exhaustive;
-      return null;
-      /* v8 ignore stop */
-    }
-  }
+  if (iconId === "sun") return <SunIcon />;
+  if (iconId === "moon") return <MoonIcon />;
+  // fall-through: TypeScript narrows to "monitor"
+  return <MonitorIcon />;
 }
 
 export interface ThemeToggleProps {

@@ -12,40 +12,18 @@ export type ThemeIconId = "sun" | "moon" | "monitor";
 
 /** Get the icon identifier for a theme mode. */
 export function getThemeIconId(mode: ThemeMode): ThemeIconId {
-  switch (mode) {
-    case "light":
-      return "sun";
-    case "dark":
-      return "moon";
-    case "system":
-      return "monitor";
-    default: {
-      /* v8 ignore start */
-      const _exhaustive: never = mode;
-      void _exhaustive;
-      return "sun";
-      /* v8 ignore stop */
-    }
-  }
+  if (mode === "light") return "sun";
+  if (mode === "dark") return "moon";
+  // fall-through: TypeScript narrows to "system"
+  return "monitor";
 }
 
 /** Get the display label for a theme mode. */
 export function getThemeLabel(mode: ThemeMode): string {
-  switch (mode) {
-    case "light":
-      return "Light";
-    case "dark":
-      return "Dark";
-    case "system":
-      return "System";
-    default: {
-      /* v8 ignore start */
-      const _exhaustive: never = mode;
-      void _exhaustive;
-      return "Light";
-      /* v8 ignore stop */
-    }
-  }
+  if (mode === "light") return "Light";
+  if (mode === "dark") return "Dark";
+  // fall-through: TypeScript narrows to "system"
+  return "System";
 }
 
 /** Get the aria-label for the toggle button for a given mode. */
