@@ -9480,3 +9480,27 @@
   - eliminateCutsWithStepsのFailure分岐は正常入力では発生しないため、テストカバレッジは意図的に省略
   - US-005の残り項目「キャンバス上で可視化」「ステップ実行で確認可能」はSCプルーフのワークスペース表示が未実装のため後回し
 ---
+
+## 2026-03-07 - [script-editor] US-006 テンプレート管理
+- 実装した内容:
+  - savedScriptsLogic.ts: ユーザースクリプトの保存・復元・削除の純粋ロジック
+  - localStorage永続化（serialize/deserialize）付き
+  - 保存ダイアログUI、保存済みスクリプト一覧、ロード・削除ボタン
+  - SaveAndLoad, SaveDialogCancel ストーリーを追加（play関数付き）
+  - savedScriptsLogic.test.ts: 22テスト（CRUD、ラウンドトリップ、エラー処理、ID生成）
+- 変更ファイル:
+  - src/components/ScriptEditor/savedScriptsLogic.ts（新規）
+  - src/components/ScriptEditor/savedScriptsLogic.test.ts（新規）
+  - src/components/ScriptEditor/ScriptEditorComponent.tsx
+  - src/components/ScriptEditor/ScriptEditorComponent.module.css
+  - src/components/ScriptEditor/ScriptEditorComponent.stories.tsx
+  - tasks/prd-scripted-proof-rewriting.md
+- カバレッジ: Stmts 98.85%→98.85%, Branch 93.32%→93.34%, Funcs 89.12%→89.25%, Lines 99.71%→99.71%
+- テスト数: 7814→7838 (+24)
+- スクリーンショット: .screenshots/script-editor-save-and-load.png, .screenshots/script-editor-save-dialog.png
+- **今後のイテレーションへの学び:**
+  - savedScriptsLogicはUIから完全に分離された純粋ロジック。flatMapパターンでtype predicate回避
+  - getNow DI propでDate.now()をテスト可能に（@luma-dev/luma-ts/no-dateルール対応）
+  - localStorage初期化はuseStateの初期化関数内で実行（SSR互換のためtypeof window !== "undefined"チェック）
+  - 保存ダイアログはuseRefでフォーカス管理（useEffect + autoFocus）
+---
