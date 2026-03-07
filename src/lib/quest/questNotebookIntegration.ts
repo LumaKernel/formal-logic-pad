@@ -134,8 +134,10 @@ export function computeNotebookQuestProgress(
   if (goals.length === 0) return undefined;
   const result = checkQuestGoals(goals, nodes);
   switch (result._tag) {
+    /* v8 ignore start -- 防御的コード: goals.length > 0 チェック後なので NoGoals は到達不能 */
     case "NoGoals":
       return undefined;
+    /* v8 ignore stop */
     case "AllAchieved":
       return { achievedCount: goals.length, totalCount: goals.length };
     case "NotAllAchieved":

@@ -118,6 +118,50 @@ describe("questUrlSharing", () => {
       const decoded = base64UrlToUtf8(encoded);
       expect(decoded).toBe(original);
     });
+
+    // --- 不正UTF-8デコードのエッジケース ---
+
+    // バイト配列→base64urlヘルパー（テスト専用）
+    function bytesToBase64Url(bytes: readonly number[]): string {
+      const chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+      let result = "";
+      for (let i = 0; i < bytes.length; i += 3) {
+        const b0 = bytes[i] ?? 0;
+        const b1 = bytes[i + 1];
+        const b2 = bytes[i + 2];
+        result += chars[b0 >> 2];
+        result += chars[((b0 & 3) << 4) | ((b1 ?? 0) >> 4)];
+        result +=
+          b1 !== undefined ? chars[((b1 & 0xf) << 2) | ((b2 ?? 0) >> 6)] : "=";
+        result += b2 !== undefined ? chars[b2 & 0x3f] : "=";
+      }
+      return result.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+    }
+
+    it("4バイトUTF-8シーケンスが途中で切れている場合はundefinedを返す", () => {
+      // 0xF0はUTF-8の4バイトシーケンスのリードバイト。後続バイトが不足
+      const truncated = bytesToBase64Url([0xf0, 0x90]);
+      expect(base64UrlToUtf8(truncated)).toBeUndefined();
+    });
+
+    it("不正なUTF-8リードバイト(0xF8以上)はundefinedを返す", () => {
+      // 0xF8はUTF-8で無効なリードバイト
+      const invalid = bytesToBase64Url([0xf8]);
+      expect(base64UrlToUtf8(invalid)).toBeUndefined();
+    });
+
+    it("2バイトUTF-8シーケンスが途中で切れている場合はundefinedを返す", () => {
+      // 0xC2はUTF-8の2バイトシーケンスのリードバイト。後続バイトが不足
+      const truncated = bytesToBase64Url([0xc2]);
+      expect(base64UrlToUtf8(truncated)).toBeUndefined();
+    });
+
+    it("3バイトUTF-8シーケンスが途中で切れている場合はundefinedを返す", () => {
+      // 0xE3はUTF-8の3バイトシーケンスのリードバイト。後続バイトが1つしかない
+      const truncated = bytesToBase64Url([0xe3, 0x81]);
+      expect(base64UrlToUtf8(truncated)).toBeUndefined();
+    });
   });
 
   describe("encodeQuestToUrlParam / decodeQuestFromUrlParam", () => {
