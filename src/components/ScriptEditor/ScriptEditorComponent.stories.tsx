@@ -275,6 +275,10 @@ function ScriptEditorWithWorkspace() {
         const ws = applyTreeLayout(workspaceRef.current, "bottom-to-top");
         setWorkspace(ws);
       },
+      clearWorkspace: () => {
+        setWorkspace(createEmptyWorkspace(lukasiewiczSystem));
+        nextYRef.current = 50;
+      },
     }),
     [],
   )();

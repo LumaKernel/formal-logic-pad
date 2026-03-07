@@ -1,9 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { BUILTIN_TEMPLATES } from "./templates";
 import type { ScriptTemplate } from "./templates";
 import { createScriptRunner } from "./scriptRunner";
 import { createProofBridges } from "./proofBridge";
 import { createCutEliminationBridges } from "./cutEliminationBridge";
+import { createWorkspaceBridges } from "./workspaceBridge";
+import type { WorkspaceCommandHandler } from "./workspaceBridge";
 import type { NativeFunctionBridge } from "./scriptRunner";
 
 describe("BUILTIN_TEMPLATES", () => {
@@ -73,11 +75,25 @@ describe("テンプレート実行テスト", () => {
     };
   `;
 
+  const createMockHandler = (): WorkspaceCommandHandler => ({
+    addNode: vi.fn().mockReturnValue("node-1"),
+    setNodeFormula: vi.fn(),
+    getNodes: vi.fn().mockReturnValue([]),
+    connectMP: vi.fn().mockReturnValue("node-2"),
+    addGoal: vi.fn(),
+    removeNode: vi.fn(),
+    setNodeRoleAxiom: vi.fn(),
+    applyLayout: vi.fn(),
+    clearWorkspace: vi.fn(),
+  });
+
   const runTemplate = (tmpl: ScriptTemplate) => {
     consoleLogs.length = 0;
+    const handler = createMockHandler();
     const bridges = [
       ...createProofBridges(),
       ...createCutEliminationBridges(),
+      ...createWorkspaceBridges(handler),
       ...consoleBridges,
     ];
     const code = consoleShim + tmpl.code;

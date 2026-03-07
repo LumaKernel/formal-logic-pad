@@ -100,17 +100,24 @@ console.log("カット数: " + countCuts(proof));
 console.log("カットフリー? " + isCutFree(proof));
 console.log("");
 
+// 初期証明をキャンバスに表示
+console.log("--- 初期証明をキャンバスに表示 ---");
+displayScProof(proof);
+
 // カット除去の実行
+console.log("");
 console.log("--- カット除去開始 ---");
 var result = eliminateCutsWithSteps(proof);
 
-// 各ステップの表示
+// 各ステップの表示と可視化
 for (var i = 0; i < result.steps.length; i++) {
   var step = result.steps[i];
   console.log("ステップ " + (i + 1) + ": " + step.description);
   console.log("  depth=" + step.depth + ", rank=" + step.rank);
   var stepConc = getScConclusion(step.proof);
   console.log("  結論: " + formatSequent(stepConc));
+  // 各ステップの証明をキャンバスに表示
+  displayScProof(step.proof);
 }
 
 // 結果の表示
@@ -121,6 +128,8 @@ if (result.result._tag === "Success") {
   var finalConc = getScConclusion(result.result.proof);
   console.log("最終結論: " + formatSequent(finalConc));
   console.log("カットフリー? " + isCutFree(result.result.proof));
+  // 最終結果をキャンバスに表示
+  displayScProof(result.result.proof);
 }
 `,
 };
@@ -162,16 +171,23 @@ var proof = {
 console.log("=== 単純なカット除去 ===");
 console.log("カット数: " + countCuts(proof));
 
+// 初期証明をキャンバスに表示
+displayScProof(proof);
+
 var result = eliminateCutsWithSteps(proof);
 
 for (var i = 0; i < result.steps.length; i++) {
   var step = result.steps[i];
   console.log("ステップ " + (i + 1) + ": " + step.description);
+  // 各ステップの証明をキャンバスに表示
+  displayScProof(step.proof);
 }
 
 console.log("結果: " + result.result._tag);
 if (result.result._tag === "Success") {
   console.log("カットフリー? " + isCutFree(result.result.proof));
+  // 最終結果をキャンバスに表示
+  displayScProof(result.result.proof);
 }
 `,
 };

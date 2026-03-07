@@ -9,6 +9,9 @@
 
 import type { NativeFunctionBridge } from "./scriptRunner";
 import type { ProofBridgeApiDef } from "./proofBridge";
+import { decodeScProofNode } from "./cutEliminationBridge";
+import { formatFormula } from "../logic-lang/formatUnicode";
+import type { ScProofNode } from "../logic-core/sequentCalculus";
 
 // ── ワークスペースコマンド型 ─────────────────────────────────
 
@@ -39,6 +42,8 @@ export interface WorkspaceCommandHandler {
   readonly setNodeRoleAxiom: (nodeId: string) => void;
   /** ツリーレイアウトを適用する */
   readonly applyLayout: () => void;
+  /** ワークスペース上の全ノードを削除する */
+  readonly clearWorkspace: () => void;
 }
 
 // ── ブリッジ関数の実装 ────────────────────────────────────────
@@ -137,6 +142,139 @@ const createApplyLayoutFn =
     return undefined;
   };
 
+const createClearWorkspaceFn =
+  (handler: WorkspaceCommandHandler) => (): unknown => {
+    handler.clearWorkspace();
+    return undefined;
+  };
+
+// ── SC証明木のフラット展開 ──────────────────────────────────
+
+/**
+ * SC証明ノードの推論規則名を取得する。
+ */
+const scTagToRuleName = (tag: string): string => {
+  switch (tag) {
+    case "ScIdentity":
+      return "ID";
+    case "ScBottomLeft":
+      return "⊥L";
+    case "ScCut":
+      return "Cut";
+    case "ScWeakeningLeft":
+      return "WL";
+    case "ScWeakeningRight":
+      return "WR";
+    case "ScContractionLeft":
+      return "CL";
+    case "ScContractionRight":
+      return "CR";
+    case "ScExchangeLeft":
+      return "XL";
+    case "ScExchangeRight":
+      return "XR";
+    case "ScImplicationLeft":
+      return "→L";
+    case "ScImplicationRight":
+      return "→R";
+    case "ScConjunctionLeft":
+      return "∧L";
+    case "ScConjunctionRight":
+      return "∧R";
+    case "ScDisjunctionLeft":
+      return "∨L";
+    case "ScDisjunctionRight":
+      return "∨R";
+    case "ScUniversalLeft":
+      return "∀L";
+    case "ScUniversalRight":
+      return "∀R";
+    case "ScExistentialLeft":
+      return "∃L";
+    case "ScExistentialRight":
+      return "∃R";
+    default:
+      return tag;
+  }
+};
+
+/**
+ * シーケントを Unicode テキストとしてフォーマットする。
+ */
+const formatSequentForDisplay = (seq: ScProofNode["conclusion"]): string => {
+  const left = seq.antecedents.map((f) => formatFormula(f)).join(", ");
+  const right = seq.succedents.map((f) => formatFormula(f)).join(", ");
+  return `${left satisfies string} ⇒ ${right satisfies string}`;
+};
+
+/**
+ * SC証明ノードの直接前提を取得する。
+ */
+const getScPremises = (node: ScProofNode): readonly ScProofNode[] => {
+  switch (node._tag) {
+    case "ScIdentity":
+    case "ScBottomLeft":
+      return [];
+    case "ScCut":
+    case "ScImplicationLeft":
+    case "ScConjunctionRight":
+    case "ScDisjunctionLeft":
+      return [node.left, node.right];
+    case "ScWeakeningLeft":
+    case "ScWeakeningRight":
+    case "ScContractionLeft":
+    case "ScContractionRight":
+    case "ScExchangeLeft":
+    case "ScExchangeRight":
+    case "ScImplicationRight":
+    case "ScConjunctionLeft":
+    case "ScDisjunctionRight":
+    case "ScUniversalLeft":
+    case "ScUniversalRight":
+    case "ScExistentialLeft":
+    case "ScExistentialRight":
+      return [node.premise];
+  }
+  /* v8 ignore start */
+  return [];
+  /* v8 ignore stop */
+};
+
+/**
+ * SC証明木を再帰的にトラバースし、ワークスペースにノードとして配置する。
+ * 各ノードのテキストは「結論シーケント [規則名]」形式。
+ */
+const displayScProofRecursive = (
+  handler: WorkspaceCommandHandler,
+  node: ScProofNode,
+): void => {
+  // 前提を先に配置（ボトムアップ表示用）
+  const premises = getScPremises(node);
+  for (const premise of premises) {
+    displayScProofRecursive(handler, premise);
+  }
+
+  // 結論ノードを配置
+  const sequentText = formatSequentForDisplay(node.conclusion);
+  const ruleName = scTagToRuleName(node._tag);
+  handler.addNode(
+    `${sequentText satisfies string} [${ruleName satisfies string}]`,
+  );
+};
+
+const createDisplayScProofFn =
+  (handler: WorkspaceCommandHandler) =>
+  (proofJson: unknown): unknown => {
+    const proof = decodeScProofNode(proofJson);
+
+    // ワークスペースをクリアして証明木を展開
+    handler.clearWorkspace();
+    displayScProofRecursive(handler, proof);
+    handler.applyLayout();
+
+    return undefined;
+  };
+
 // ── ブリッジ生成 ──────────────────────────────────────────────
 
 /**
@@ -163,6 +301,8 @@ export const createWorkspaceBridges = (
   { name: "removeNode", fn: createRemoveNodeFn(handler) },
   { name: "setNodeRoleAxiom", fn: createSetNodeRoleAxiomFn(handler) },
   { name: "applyLayout", fn: createApplyLayoutFn(handler) },
+  { name: "clearWorkspace", fn: createClearWorkspaceFn(handler) },
+  { name: "displayScProof", fn: createDisplayScProofFn(handler) },
 ];
 
 // ── API 定義（Monaco Editor 補完用）──────────────────────────
@@ -210,6 +350,17 @@ export const WORKSPACE_BRIDGE_API_DEFS: readonly ProofBridgeApiDef[] = [
     name: "applyLayout",
     signature: "() => void",
     description: "ワークスペース上のノードにツリーレイアウトを自動適用する。",
+  },
+  {
+    name: "clearWorkspace",
+    signature: "() => void",
+    description: "ワークスペース上の全ノードを削除する。",
+  },
+  {
+    name: "displayScProof",
+    signature: "(proof: ScProofNodeJson) => void",
+    description:
+      "SC証明木をワークスペースに表示する。既存ノードをクリアし、証明木の各ノードをシーケントテキストとして配置する。",
   },
 ];
 

@@ -23,6 +23,7 @@ const createMockHandler = (): WorkspaceCommandHandler => ({
   removeNode: vi.fn(),
   setNodeRoleAxiom: vi.fn(),
   applyLayout: vi.fn(),
+  clearWorkspace: vi.fn(),
 });
 
 const getRunner = (
@@ -74,7 +75,7 @@ describe("createWorkspaceBridges", () => {
   it("ブリッジ関数一覧を返す", () => {
     const handler = createMockHandler();
     const bridges = createWorkspaceBridges(handler);
-    expect(bridges.length).toBe(8);
+    expect(bridges.length).toBe(10);
     const names = bridges.map((b) => b.name);
     expect(names).toContain("addNode");
     expect(names).toContain("setNodeFormula");
@@ -84,6 +85,8 @@ describe("createWorkspaceBridges", () => {
     expect(names).toContain("removeNode");
     expect(names).toContain("setNodeRoleAxiom");
     expect(names).toContain("applyLayout");
+    expect(names).toContain("clearWorkspace");
+    expect(names).toContain("displayScProof");
   });
 });
 
@@ -211,6 +214,346 @@ describe("applyLayout ブリッジ", () => {
   });
 });
 
+describe("clearWorkspace ブリッジ", () => {
+  it("全ノードを削除する", () => {
+    const handler = createMockHandler();
+    runCode(`clearWorkspace()`, handler);
+    expect(handler.clearWorkspace).toHaveBeenCalled();
+  });
+});
+
+describe("displayScProof ブリッジ", () => {
+  it("SC証明木をワークスペースに展開する", () => {
+    const handler = createMockHandler();
+    // φ ⇒ φ (Identity) のみの証明
+    const code = `
+var phi = { _tag: "MetaVariable", name: "φ" };
+var proof = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+displayScProof(proof);
+`;
+    runCode(code, handler);
+    // clearWorkspace → addNode → applyLayout
+    expect(handler.clearWorkspace).toHaveBeenCalledTimes(1);
+    expect(handler.addNode).toHaveBeenCalledTimes(1);
+    // ノードテキストは "φ ⇒ φ [ID]" 形式
+    const addNodeCall = (handler.addNode as ReturnType<typeof vi.fn>).mock
+      .calls[0];
+    expect(addNodeCall[0]).toContain("φ ⇒ φ");
+    expect(addNodeCall[0]).toContain("[ID]");
+    expect(handler.applyLayout).toHaveBeenCalledTimes(1);
+  });
+
+  it("カットを含む証明木を展開する（複数ノード）", () => {
+    const handler = createMockHandler();
+    // Cut(φ): Identity(φ⇒φ) + Identity(φ⇒φ)
+    const code = `
+var phi = { _tag: "MetaVariable", name: "φ" };
+var idPhi = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+var proof = {
+  _tag: "ScCut",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  left: idPhi,
+  right: idPhi,
+  cutFormula: phi
+};
+displayScProof(proof);
+`;
+    runCode(code, handler);
+    // 2つの前提ID + 1つのCutノード = 3ノード
+    expect(handler.addNode).toHaveBeenCalledTimes(3);
+    expect(handler.clearWorkspace).toHaveBeenCalledTimes(1);
+    expect(handler.applyLayout).toHaveBeenCalledTimes(1);
+  });
+
+  it("BottomLeft（0前提）を展開する", () => {
+    const handler = createMockHandler();
+    const code = `
+var phi = { _tag: "MetaVariable", name: "φ" };
+var proof = {
+  _tag: "ScBottomLeft",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+displayScProof(proof);
+`;
+    runCode(code, handler);
+    expect(handler.addNode).toHaveBeenCalledTimes(1);
+    const call = (handler.addNode as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(call[0]).toContain("[⊥L]");
+  });
+
+  it("WeakeningLeft（単一前提・weakenedFormula）を展開する", () => {
+    const handler = createMockHandler();
+    const code = `
+var phi = { _tag: "MetaVariable", name: "φ" };
+var psi = { _tag: "MetaVariable", name: "ψ" };
+var idPhi = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+var proof = {
+  _tag: "ScWeakeningLeft",
+  conclusion: { antecedents: [psi, phi], succedents: [phi] },
+  premise: idPhi,
+  weakenedFormula: psi
+};
+displayScProof(proof);
+`;
+    runCode(code, handler);
+    expect(handler.addNode).toHaveBeenCalledTimes(2);
+    const calls = (handler.addNode as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls[0][0]).toContain("[ID]");
+    expect(calls[1][0]).toContain("[WL]");
+  });
+
+  it("WeakeningRight を展開する", () => {
+    const handler = createMockHandler();
+    const code = `
+var phi = { _tag: "MetaVariable", name: "φ" };
+var psi = { _tag: "MetaVariable", name: "ψ" };
+var idPhi = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+var proof = {
+  _tag: "ScWeakeningRight",
+  conclusion: { antecedents: [phi], succedents: [phi, psi] },
+  premise: idPhi,
+  weakenedFormula: psi
+};
+displayScProof(proof);
+`;
+    runCode(code, handler);
+    const calls = (handler.addNode as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls[1][0]).toContain("[WR]");
+  });
+
+  it("ContractionLeft/ContractionRight を展開する", () => {
+    const handler = createMockHandler();
+    const code = `
+var phi = { _tag: "MetaVariable", name: "φ" };
+var idPhi = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+var cl = {
+  _tag: "ScContractionLeft",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  premise: idPhi,
+  contractedFormula: phi
+};
+var cr = {
+  _tag: "ScContractionRight",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  premise: cl,
+  contractedFormula: phi
+};
+displayScProof(cr);
+`;
+    runCode(code, handler);
+    const calls = (handler.addNode as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls[0][0]).toContain("[ID]");
+    expect(calls[1][0]).toContain("[CL]");
+    expect(calls[2][0]).toContain("[CR]");
+  });
+
+  it("ExchangeLeft/ExchangeRight を展開する", () => {
+    const handler = createMockHandler();
+    const code = `
+var phi = { _tag: "MetaVariable", name: "φ" };
+var idPhi = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+var xl = {
+  _tag: "ScExchangeLeft",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  premise: idPhi,
+  position: 0
+};
+var xr = {
+  _tag: "ScExchangeRight",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  premise: xl,
+  position: 0
+};
+displayScProof(xr);
+`;
+    runCode(code, handler);
+    const calls = (handler.addNode as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls[0][0]).toContain("[ID]");
+    expect(calls[1][0]).toContain("[XL]");
+    expect(calls[2][0]).toContain("[XR]");
+  });
+
+  it("ImplicationLeft（2前提）を展開する", () => {
+    const handler = createMockHandler();
+    const code = `
+var phi = { _tag: "MetaVariable", name: "φ" };
+var idPhi = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+var proof = {
+  _tag: "ScImplicationLeft",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  left: idPhi,
+  right: idPhi
+};
+displayScProof(proof);
+`;
+    runCode(code, handler);
+    const calls = (handler.addNode as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls[2][0]).toContain("[→L]");
+    expect(handler.addNode).toHaveBeenCalledTimes(3);
+  });
+
+  it("ImplicationRight（単一前提）を展開する", () => {
+    const handler = createMockHandler();
+    const code = `
+var phi = { _tag: "MetaVariable", name: "φ" };
+var idPhi = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+var proof = {
+  _tag: "ScImplicationRight",
+  conclusion: { antecedents: [], succedents: [phi] },
+  premise: idPhi
+};
+displayScProof(proof);
+`;
+    runCode(code, handler);
+    const calls = (handler.addNode as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls[1][0]).toContain("[→R]");
+  });
+
+  it("ConjunctionLeft/ConjunctionRight を展開する", () => {
+    const handler = createMockHandler();
+    const code = `
+var phi = { _tag: "MetaVariable", name: "φ" };
+var idPhi = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+var conjL = {
+  _tag: "ScConjunctionLeft",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  premise: idPhi,
+  componentIndex: 1
+};
+var conjR = {
+  _tag: "ScConjunctionRight",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  left: idPhi,
+  right: conjL
+};
+displayScProof(conjR);
+`;
+    runCode(code, handler);
+    const calls = (handler.addNode as ReturnType<typeof vi.fn>).mock.calls;
+    // idPhi(left) → idPhi(conjL.premise) → conjL → conjR = 4 nodes
+    expect(handler.addNode).toHaveBeenCalledTimes(4);
+    expect(calls[2][0]).toContain("[∧L]");
+    expect(calls[3][0]).toContain("[∧R]");
+  });
+
+  it("DisjunctionLeft/DisjunctionRight を展開する", () => {
+    const handler = createMockHandler();
+    const code = `
+var phi = { _tag: "MetaVariable", name: "φ" };
+var idPhi = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+var disjR = {
+  _tag: "ScDisjunctionRight",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  premise: idPhi,
+  componentIndex: 1
+};
+var disjL = {
+  _tag: "ScDisjunctionLeft",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  left: idPhi,
+  right: disjR
+};
+displayScProof(disjL);
+`;
+    runCode(code, handler);
+    const calls = (handler.addNode as ReturnType<typeof vi.fn>).mock.calls;
+    // idPhi(left) → idPhi(disjR.premise) → disjR → disjL = 4 nodes
+    expect(handler.addNode).toHaveBeenCalledTimes(4);
+    expect(calls[2][0]).toContain("[∨R]");
+    expect(calls[3][0]).toContain("[∨L]");
+  });
+
+  it("UniversalLeft/UniversalRight を展開する", () => {
+    const handler = createMockHandler();
+    const code = `
+var phi = { _tag: "MetaVariable", name: "φ" };
+var idPhi = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+var uniL = {
+  _tag: "ScUniversalLeft",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  premise: idPhi
+};
+var uniR = {
+  _tag: "ScUniversalRight",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  premise: uniL
+};
+displayScProof(uniR);
+`;
+    runCode(code, handler);
+    const calls = (handler.addNode as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls[0][0]).toContain("[ID]");
+    expect(calls[1][0]).toContain("[∀L]");
+    expect(calls[2][0]).toContain("[∀R]");
+  });
+
+  it("ExistentialLeft/ExistentialRight を展開する", () => {
+    const handler = createMockHandler();
+    const code = `
+var phi = { _tag: "MetaVariable", name: "φ" };
+var idPhi = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+var exL = {
+  _tag: "ScExistentialLeft",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  premise: idPhi
+};
+var exR = {
+  _tag: "ScExistentialRight",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  premise: exL
+};
+displayScProof(exR);
+`;
+    runCode(code, handler);
+    const calls = (handler.addNode as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls[0][0]).toContain("[ID]");
+    expect(calls[1][0]).toContain("[∃L]");
+    expect(calls[2][0]).toContain("[∃R]");
+  });
+
+  it("不正な証明JSONでエラー", () => {
+    const handler = createMockHandler();
+    const msg = runCodeError(`displayScProof({ _tag: "Invalid" })`, handler);
+    expect(msg).toContain("SC proof");
+  });
+});
+
 // ── API定義 ──────────────────────────────────────────────────
 
 describe("WORKSPACE_BRIDGE_API_DEFS", () => {
@@ -238,5 +581,7 @@ describe("generateWorkspaceBridgeTypeDefs", () => {
     expect(typeDefs).toContain("declare function addNode");
     expect(typeDefs).toContain("declare function connectMP");
     expect(typeDefs).toContain("declare function applyLayout");
+    expect(typeDefs).toContain("declare function clearWorkspace");
+    expect(typeDefs).toContain("declare function displayScProof");
   });
 });
