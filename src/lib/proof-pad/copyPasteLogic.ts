@@ -12,8 +12,14 @@ import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
 import type { InferenceEdge } from "./inferenceEdge";
 import {
   getInferenceEdgePremiseNodeIds,
+  isAtInferenceEdge,
+  isHilbertInferenceEdge,
+  isNdInferenceEdge,
+  isScInferenceEdge,
+  isTabInferenceEdge,
   remapEdgeNodeIds,
 } from "./inferenceEdge";
+import type { DeductionStyle } from "../logic-core/deductionSystem";
 
 // --- クリップボードデータ型 ---
 
@@ -54,6 +60,8 @@ export type ClipboardData = {
   readonly connections: readonly CopiedConnection[];
   /** コピーされたInferenceEdge（derivedノード用）。省略時は空配列として扱う。 */
   readonly inferenceEdges?: readonly InferenceEdge[];
+  /** コピー元ワークスペースの証明スタイル。ペースト互換性チェックに使用。 */
+  readonly sourceDeductionStyle?: DeductionStyle;
 };
 
 // --- コピー ---
@@ -80,6 +88,7 @@ export function buildClipboardData(
   allNodes: readonly WorkspaceNode[],
   allConnections: readonly WorkspaceConnection[],
   allInferenceEdges: readonly InferenceEdge[] = [],
+  sourceDeductionStyle?: DeductionStyle,
 ): ClipboardData {
   const selectedNodes = allNodes.filter((n) => selectedNodeIds.has(n.id));
   const centroid = computeCentroid(selectedNodes);
@@ -124,6 +133,7 @@ export function buildClipboardData(
     ...(copiedInferenceEdges.length > 0
       ? { inferenceEdges: copiedInferenceEdges }
       : {}),
+    ...(sourceDeductionStyle !== undefined ? { sourceDeductionStyle } : {}),
   };
 }
 
@@ -276,4 +286,74 @@ export function selectSingleNode(nodeId: string): ReadonlySet<string> {
  */
 export function clearSelection(): ReadonlySet<string> {
   return new Set();
+}
+
+// --- ペースト互換性チェック ---
+
+/**
+ * InferenceEdgeからそのエッジが属する証明スタイルを推定する。
+ */
+export function getDeductionStyleForEdge(
+  edge: InferenceEdge,
+): DeductionStyle | undefined {
+  if (isHilbertInferenceEdge(edge)) return "hilbert";
+  if (isNdInferenceEdge(edge)) return "natural-deduction";
+  if (isTabInferenceEdge(edge)) return "tableau-calculus";
+  if (isAtInferenceEdge(edge)) return "analytic-tableau";
+  if (isScInferenceEdge(edge)) return "sequent-calculus";
+  return undefined;
+}
+
+/**
+ * ペースト互換性エラーの型。
+ */
+export type PasteCompatibilityError = {
+  readonly _tag: "IncompatibleStyle";
+  readonly sourceStyle: DeductionStyle;
+  readonly targetStyle: DeductionStyle;
+};
+
+/**
+ * クリップボードデータとターゲットワークスペースの互換性をチェックする。
+ *
+ * - InferenceEdgeがない場合: 常に互換（ノードのみのペースト）
+ * - sourceDeductionStyleが明示されている場合: targetと比較
+ * - sourceDeductionStyleがない場合: InferenceEdgeから推定
+ *
+ * @returns undefined（互換）またはPasteCompatibilityError（非互換）
+ */
+export function checkPasteCompatibility(
+  data: ClipboardData,
+  targetStyle: DeductionStyle,
+): PasteCompatibilityError | undefined {
+  const edges = data.inferenceEdges ?? [];
+
+  // InferenceEdgeがなければ常に互換（ノードのみのペースト）
+  if (edges.length === 0) return undefined;
+
+  // sourceDeductionStyleが明示されていればそれを使う
+  if (data.sourceDeductionStyle !== undefined) {
+    if (data.sourceDeductionStyle !== targetStyle) {
+      return {
+        _tag: "IncompatibleStyle",
+        sourceStyle: data.sourceDeductionStyle,
+        targetStyle,
+      };
+    }
+    return undefined;
+  }
+
+  // sourceDeductionStyleがない場合はInferenceEdgeから推定
+  for (const edge of edges) {
+    const edgeStyle = getDeductionStyleForEdge(edge);
+    if (edgeStyle !== undefined && edgeStyle !== targetStyle) {
+      return {
+        _tag: "IncompatibleStyle",
+        sourceStyle: edgeStyle,
+        targetStyle,
+      };
+    }
+  }
+
+  return undefined;
 }

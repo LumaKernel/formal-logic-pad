@@ -199,3 +199,5 @@ Infinity Canvasについて。
   - 確認結果: 既に `mergeEnabled` (`canMergeSelectedNodes`) で disabled 制御実装済み。opacity: 0.4 + disabled 属性で視覚的にも無効化。
 - [x] なにもないところのコンテキストメニューではペーストが出るべきだろう
   - キャンバス空白部分の右クリックコンテキストメニューに「ペースト」項目を追加。クリップボードが空の場合は disabled。右クリック位置にペーストされる。
+- [x] ノートAから証明図をコピーして、別の(近いタイプの)ノートBへペーストして証明を続きから書ける、というストーリーを作成しよう。必要に応じて機能追加もしよう。
+  - ClipboardDataにsourceDeductionStyleを追加、checkPasteCompatibility純粋関数を実装、ProofWorkspaceのペーストハンドラに統合、CopyPasteCompatibleストーリー追加。

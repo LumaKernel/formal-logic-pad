@@ -155,8 +155,10 @@ import {
   clearSelection,
   serializeClipboardData,
   deserializeClipboardData,
+  checkPasteCompatibility,
 } from "./copyPasteLogic";
 import type { ClipboardData } from "./copyPasteLogic";
+import { getDeductionStyleLabel } from "../logic-core/deductionSystem";
 import {
   computeDetailLevel,
   DEFAULT_THRESHOLDS,
@@ -2585,6 +2587,23 @@ export function ProofWorkspace({
 
   const handleCanvasMenuPaste = useCallback(() => {
     const doInternalPaste = (data: ClipboardData) => {
+      const compatError = checkPasteCompatibility(
+        data,
+        workspace.deductionSystem.style,
+      );
+      if (compatError !== undefined) {
+        const message = msg.pasteIncompatibleStyle
+          .replace(
+            "{sourceStyle}",
+            getDeductionStyleLabel(compatError.sourceStyle),
+          )
+          .replace(
+            "{targetStyle}",
+            getDeductionStyleLabel(compatError.targetStyle),
+          );
+        alert(message);
+        return;
+      }
       const center = canvasMenuState.worldPosition;
       const result = pasteNodes(workspace, data, center);
       setWorkspaceWithAutoLayout(result);
@@ -2621,6 +2640,7 @@ export function ProofWorkspace({
     workspace,
     canvasMenuState.worldPosition,
     setWorkspaceWithAutoLayout,
+    msg.pasteIncompatibleStyle,
   ]);
 
   /* v8 ignore start -- キャンバスコンテキストメニュー外クリック: ref.contains使用でJSDOMではテスト不安定 */
@@ -2659,6 +2679,23 @@ export function ProofWorkspace({
   const handlePaste = useCallback(() => {
     // まず内部クリップボードから試行
     const doInternalPaste = (data: ClipboardData) => {
+      const compatError = checkPasteCompatibility(
+        data,
+        workspace.deductionSystem.style,
+      );
+      if (compatError !== undefined) {
+        const message = msg.pasteIncompatibleStyle
+          .replace(
+            "{sourceStyle}",
+            getDeductionStyleLabel(compatError.sourceStyle),
+          )
+          .replace(
+            "{targetStyle}",
+            getDeductionStyleLabel(compatError.targetStyle),
+          );
+        alert(message);
+        return;
+      }
       const center: Point = {
         x: -viewport.offsetX / viewport.scale + 300,
         y: -viewport.offsetY / viewport.scale + 300,
@@ -2690,7 +2727,12 @@ export function ProofWorkspace({
         // クリップボードAPIが使えない環境では何もしない
       });
     /* v8 ignore stop */
-  }, [workspace, viewport, setWorkspaceWithAutoLayout]);
+  }, [
+    workspace,
+    viewport,
+    setWorkspaceWithAutoLayout,
+    msg.pasteIncompatibleStyle,
+  ]);
 
   const handleCut = useCallback(() => {
     if (selectedNodeIds.size === 0) return;

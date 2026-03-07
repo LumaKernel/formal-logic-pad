@@ -1498,3 +1498,71 @@ export const EmptySequentCalculus: StoryObj<typeof meta> = {
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
   },
 };
+
+// --- コピー＆ペースト互換ストーリー ---
+
+function CopyPasteWorkspace() {
+  const initial = (() => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    // MP適用済みの証明図を構築
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 350, y: 50 }, "phi -> psi");
+    const mp = applyMPAndConnect(ws, "node-1", "node-2", {
+      x: 200,
+      y: 250,
+    });
+    return mp.workspace;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/**
+ * コピー＆ペースト: ノードを選択→コピー→ペーストで複製。
+ * 同一体系内でのペーストは互換性チェックを通過する。
+ */
+export const CopyPasteCompatible: Story = {
+  render: () => <CopyPasteWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // 3ノード表示確認
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+
+    // node-1を右クリック → Select Subtreeで選択
+    const node1 = canvas.getByTestId("proof-node-node-1");
+    await userEvent.pointer({ keys: "[MouseRight]", target: node1 });
+    await userEvent.click(canvas.getByTestId("workspace-select-subtree"));
+
+    // 選択バナーが表示される（node-1 → node-3 のサブツリー）
+    await expect(
+      canvas.getByTestId("workspace-selection-banner"),
+    ).toBeInTheDocument();
+
+    // コピーボタンをクリック
+    await userEvent.click(canvas.getByTestId("workspace-copy-button"));
+
+    // Ctrl+V でペースト（同一体系内なので互換性チェック通過）
+    await userEvent.keyboard("{Control>}v{/Control}");
+
+    // 新しいノードがペーストされる（node-4以降が生成される）
+    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+  },
+};

@@ -8954,3 +8954,34 @@
   - コンテキストメニュー項目追加時は proofMessages.ts(型+デフォルト), en/ja.json, WorkspaceContent.tsx, ProofWorkspace.tsx(handler+JSX) の4箇所を更新
   - キャンバスコンテキストメニューはノードコンテキストメニューとは別。`canvasMenuState` で管理し、`handleCanvasContextMenu` で開く
 ---
+
+## 2026-03-07 - クロスノートブックペースト互換性チェック
+- 実装した内容:
+  - `ClipboardData`に`sourceDeductionStyle`フィールドを追加（後方互換: オプショナル）
+  - `checkPasteCompatibility()` 純粋関数: ペースト先と元の体系スタイルの互換性をチェック
+  - `getDeductionStyleForEdge()`: InferenceEdgeからDeductionStyleを推定するヘルパー
+  - ProofWorkspaceの`handlePaste`と`handleCanvasMenuPaste`に互換性チェックを統合
+  - 非互換時はalertで日本語/英語メッセージを表示
+  - Storybookストーリー `CopyPasteCompatible`: コピー→ペーストの互換フローを検証
+  - テスト16件追加（buildClipboardData sourceDeductionStyle 3件 + getDeductionStyleForEdge 7件 + checkPasteCompatibility 6件）
+- 変更したファイル:
+  - `src/lib/proof-pad/copyPasteLogic.ts` (+sourceDeductionStyle, +checkPasteCompatibility, +getDeductionStyleForEdge, +PasteCompatibilityError)
+  - `src/lib/proof-pad/copyPasteLogic.test.ts` (+16テスト)
+  - `src/lib/proof-pad/workspaceState.ts` (copySelectedNodesにsourceDeductionStyle引渡し)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (handlePaste/handleCanvasMenuPasteに互換性チェック追加)
+  - `src/lib/proof-pad/proofMessages.ts` (+pasteIncompatibleStyle)
+  - `src/lib/proof-pad/index.ts` (+3エクスポート)
+  - `messages/en.json`, `messages/ja.json` (+pasteIncompatibleStyle)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (+pasteIncompatibleStyle i18nバインディング)
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` (+CopyPasteCompatible ストーリー)
+- カバレッジ: ベースライン Stmts 99.15% / Branch 93.99% → 完了後 Stmts 99.1% / Branch 94.02% (微小変動、低下なし)
+- テスト: 7443 → 7460 passed (+17)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Storybookで CopyPasteCompatible ストーリーの全10インタラクション PASS
+- スクリーンショット: `.screenshots/copy-paste-compatible-story.png`, `.screenshots/copy-paste-compatible-interactions.png`
+- **今後のイテレーションへの学び:**
+  - AtAlphaEdge は `premiseNodeId` ではなく `resultNodeId`/`secondResultNodeId` を持つ。AT系エッジの構造はHilbert/ND/SC/TABとは異なる
+  - `ClipboardData`のバージョンはそのまま1で、オプショナルフィールド追加で後方互換性を維持できる
+  - ペースト互換性チェックは2段構え: 明示的`sourceDeductionStyle` → InferenceEdgeからの推定（旧バージョンクリップボード対応）
+  - 次のタスク（非互換ペーストエラー表示ストーリー）は今回の実装を基盤にできる（checkPasteCompatibilityが既にある）
+---
