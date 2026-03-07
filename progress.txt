@@ -14,6 +14,7 @@
 - wheel イベントは `useEffect` + `addEventListener({ passive: false })` で登録（React `onWheel` は Chrome で passive）
 - トラックパッド判定: `ctrlKey: true` → ピンチ(zoom)、`ctrlKey: false` → 2本指スクロール(pan)
 - v8 coverage: `satisfies never` パターンには `/* v8 ignore start/stop */` を使用（`next N` は動作しない場合がある）
+- v8 coverage: switch文のdefaultブランチはv8 ignoreがbody内にあってもswitch行のブランチとしてカウントされる。対策: if-chainに変換し最後のcaseをfall-throughにする
 - Logic Core は `src/lib/logic-core/` に配置。Effect.ts `Schema.TaggedClass` でAST定義、`Data.TaggedError` でエラー型、`Either` でResult型、ピュアロジック、UIなし
 - Effect.ts エラー型パターン: `Data.TaggedError("Tag")<{ fields }>` でクラス定義、`Either.Either<Success, Error>` で結果型、`Either.isLeft/isRight` で分岐
 - Effect.ts DI パターン: `Context.Tag` でサービス定義 → `Layer.succeed` で実装 → `Effect.provide` で注入。テストでは `createInMemoryStorageLayer` のようなインメモリ実装を提供
