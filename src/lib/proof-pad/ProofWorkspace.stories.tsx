@@ -8,7 +8,7 @@
 
 import { useState, useCallback } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, within, userEvent } from "storybook/test";
+import { expect, within, userEvent, waitFor } from "storybook/test";
 import {
   lukasiewiczSystem,
   predicateLogicSystem,
@@ -34,6 +34,7 @@ import {
   addGoal,
   applyMPAndConnect,
   applySubstitutionAndConnect,
+  copySelectedNodes,
 } from "./workspaceState";
 import type { WorkspaceState } from "./workspaceState";
 
@@ -1564,5 +1565,79 @@ export const CopyPasteCompatible: Story = {
 
     // 新しいノードがペーストされる（node-4以降が生成される）
     await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+  },
+};
+
+// --- コピー＆ペースト非互換ストーリー ---
+
+/**
+ * 自然演繹ワークスペースに、Hilbert系でコピーしたデータがクリップボードにある状態。
+ * ペースト操作で互換性エラーが表示されるデモ。
+ *
+ * initialClipboardData propsを使ってHilbert系のクリップボードデータを
+ * 事前に注入し、コンテキストメニューからペーストを試みる。
+ */
+function CopyPasteIncompatibleWorkspace() {
+  // Hilbert系でMP適用済みのクリップボードデータを構築
+  const hilbertClipboardData = (() => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi");
+    ws = addNode(ws, "axiom", "Axiom", { x: 350, y: 50 }, "phi -> psi");
+    const mp = applyMPAndConnect(ws, "node-1", "node-2", {
+      x: 200,
+      y: 250,
+    });
+    ws = mp.workspace;
+    // 全ノードを選択してコピー
+    const allNodeIds = new Set(ws.nodes.map((n) => n.id));
+    return copySelectedNodes(ws, allNodeIds);
+  })();
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={predicateLogicSystem}
+        workspace={createEmptyWorkspace(naturalDeduction(njSystem))}
+        initialClipboardData={hilbertClipboardData}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/**
+ * コピー＆ペースト: Hilbert系のクリップボードデータを自然演繹ワークスペースにペースト。
+ * 互換性エラーメッセージが表示され、ノードはペーストされない。
+ */
+export const CopyPasteIncompatible: Story = {
+  render: () => <CopyPasteIncompatibleWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // 空のワークスペース（ノードなし）
+    expect(canvas.queryByTestId("proof-node-node-1")).not.toBeInTheDocument();
+
+    // 空白右クリック → コンテキストメニューを開く
+    const workspace = canvas.getByTestId("workspace");
+    await userEvent.pointer({ keys: "[MouseRight]", target: workspace });
+
+    // コンテキストメニューのペーストボタンを待つ
+    await waitFor(() => {
+      expect(
+        canvas.getByTestId("workspace-canvas-menu-paste"),
+      ).toBeInTheDocument();
+    });
+
+    // ペーストをクリック → Hilbert vs 自然演繹 → 非互換エラー
+    await userEvent.click(canvas.getByTestId("workspace-canvas-menu-paste"));
+
+    // エラーメッセージが表示される
+    await waitFor(() => {
+      expect(canvas.getByTestId("workspace-paste-error")).toBeInTheDocument();
+    });
+
+    // ノードはペーストされない
+    expect(canvas.queryByTestId("proof-node-node-1")).not.toBeInTheDocument();
   },
 };

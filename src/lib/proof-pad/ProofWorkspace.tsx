@@ -229,6 +229,8 @@ export interface ProofWorkspaceProps {
   readonly onOpenSyntaxHelp?: () => void;
   /** 自由帳として複製するコールバック（指定時にクエストモードで複製ボタンを表示） */
   readonly onDuplicateToFree?: () => void;
+  /** 初期クリップボードデータ（テスト・ストーリー用） */
+  readonly initialClipboardData?: ClipboardData;
   /** data-testid */
   readonly testId?: string;
 }
@@ -602,6 +604,7 @@ export function ProofWorkspace({
   showDependencies,
   onOpenSyntaxHelp,
   onDuplicateToFree,
+  initialClipboardData,
   testId,
 }: ProofWorkspaceProps) {
   // i18nメッセージ
@@ -695,9 +698,31 @@ export function ProofWorkspace({
   const lineMenuRef = useRef<HTMLDivElement>(null);
 
   // クリップボードデータ（内部保持用、navigator.clipboard フォールバック）
-  const clipboardRef = useRef<ClipboardData | null>(null);
+  const clipboardRef = useRef<ClipboardData | null>(
+    initialClipboardData ?? null,
+  );
   // clipboardRef.current の有無を render 中に参照するための state
-  const [hasClipboardData, setHasClipboardData] = useState(false);
+  const [hasClipboardData, setHasClipboardData] = useState(
+    initialClipboardData !== undefined,
+  );
+
+  // ペーストエラーメッセージ（互換性エラー等）
+  const [pasteErrorMessage, setPasteErrorMessage] = useState<string | null>(
+    null,
+  );
+  const pasteErrorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showPasteError = useCallback((message: string) => {
+    setPasteErrorMessage(message);
+    if (pasteErrorTimerRef.current !== null) {
+      clearTimeout(pasteErrorTimerRef.current);
+    }
+    /* v8 ignore start -- 5秒後の自動消去タイマー: 実ブラウザで動作確認 */
+    pasteErrorTimerRef.current = setTimeout(() => {
+      setPasteErrorMessage(null);
+      pasteErrorTimerRef.current = null;
+    }, 5000);
+    /* v8 ignore stop */
+  }, []);
 
   // コンテナref（キーボードイベント用）
   const containerRef = useRef<HTMLDivElement>(null);
@@ -2601,7 +2626,7 @@ export function ProofWorkspace({
             "{targetStyle}",
             getDeductionStyleLabel(compatError.targetStyle),
           );
-        alert(message);
+        showPasteError(message);
         return;
       }
       const center = canvasMenuState.worldPosition;
@@ -2640,6 +2665,7 @@ export function ProofWorkspace({
     workspace,
     canvasMenuState.worldPosition,
     setWorkspaceWithAutoLayout,
+    showPasteError,
     msg.pasteIncompatibleStyle,
   ]);
 
@@ -2693,7 +2719,7 @@ export function ProofWorkspace({
             "{targetStyle}",
             getDeductionStyleLabel(compatError.targetStyle),
           );
-        alert(message);
+        showPasteError(message);
         return;
       }
       const center: Point = {
@@ -2731,6 +2757,7 @@ export function ProofWorkspace({
     workspace,
     viewport,
     setWorkspaceWithAutoLayout,
+    showPasteError,
     msg.pasteIncompatibleStyle,
   ]);
 
@@ -4064,6 +4091,47 @@ export function ProofWorkspace({
           </button>
         </div>
       ) : null}
+
+      {/* v8 ignore start -- ペーストエラーバナー: ストーリーのplay関数(chromium)でカバー */}
+      {/* ペーストエラーメッセージ */}
+      {pasteErrorMessage !== null ? (
+        <div
+          style={{
+            position: "absolute",
+            top: 12,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "var(--color-error-bg, rgba(224,96,96,0.95))",
+            color: "var(--color-error-text, #fff)",
+            padding: "8px 16px",
+            borderRadius: 8,
+            fontSize: 14,
+            zIndex: 200,
+            pointerEvents: "auto",
+          }}
+          data-testid={
+            testId ? `${testId satisfies string}-paste-error` : undefined
+          }
+          onClick={(e) => e.stopPropagation()}
+        >
+          {pasteErrorMessage}
+          <button
+            type="button"
+            style={{
+              marginLeft: 12,
+              background: "none",
+              border: "none",
+              color: "inherit",
+              cursor: "pointer",
+              fontSize: 14,
+            }}
+            onClick={() => setPasteErrorMessage(null)}
+          >
+            ✕
+          </button>
+        </div>
+      ) : null}
+      {/* v8 ignore stop */}
 
       {/* 証明完了バナー（スタンプ風） */}
       {isGoalAchieved ? (
