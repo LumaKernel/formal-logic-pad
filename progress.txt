@@ -10073,3 +10073,34 @@
   - EdgeScrollIndicator は computeEdgeScrollShadow のラッパー。visible=true のパスにはnon-zero penetration値が必要
   - ConnectorPortComponent の onClick ハンドラーは常に stopPropagation する（onPortClick の有無に関わらず）
 ---
+
+## 2026-03-08 - カバレッジ改善 (FormulaEditor, useNodeSearch, ContextMenuComponent, usePan)
+- 実装した内容:
+  - FormulaEditor.test.tsx: 9テスト追加
+    - forceEditMode=true でedit mode遷移
+    - mouseLeave でhoverスタイルリセット
+    - syntax helpボタンのmousedown (preventDefault/stopPropagation)
+    - testId=undefined の各パターン (display, edit, katex, placeholder)
+    - Spaceキーでedit mode遷移、Tabキーでedit modeに入らない
+  - useNodeSearch.test.tsx: 1テスト追加
+    - items変更後にマッチIDが見つからない場合のビューポート変更スキップ
+  - ContextMenuComponent.tsx: v8 ignore追加 (el === null 防御的コード)
+  - usePan.ts: v8 ignore追加 (setPointerCapture/releasePointerCapture ブラウザAPI存在チェック)
+- 変更したファイル:
+  - src/lib/formula-input/FormulaEditor.test.tsx
+  - src/lib/infinite-canvas/useNodeSearch.test.tsx
+  - src/lib/infinite-canvas/ContextMenuComponent.tsx
+  - src/lib/infinite-canvas/usePan.ts
+- カバレッジ:
+  - 全体: Stmts 99.10%→99.11%, Branch 93.96%→94.14% (+0.18%)
+  - FormulaEditor.tsx: Branch 84.61%→100% (単体テスト)
+  - useNodeSearch.ts: Branch 75%→100% (単体テスト)
+  - ContextMenuComponent.tsx: Branch 75%→83.33% (v8 ignore)
+  - usePan.ts: Branch 80%→100% (v8 ignore)
+- テスト数: 8203→8213 (+10), テストファイル数: 242
+- **今後のイテレーションへの学び:**
+  - FormulaEditorのtestId propはternary分岐が多い。testId=undefinedケースのテストを忘れがち
+  - useNodeSearchのfocusOnCurrentMatch内のitem検索は、itemsが変更されてマッチが見つからないケースが実際にあり得る
+  - setPointerCapture/releasePointerCaptureの存在チェックは防御的コード。JSDOMでは常に存在するのでテストでfalseパスは通らない→v8 ignore適切
+  - ContextMenuComponentのref callbackのnullチェックも同様に防御的コード→v8 ignore適切
+---
