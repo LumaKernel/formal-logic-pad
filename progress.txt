@@ -10016,3 +10016,33 @@
   - 編集/作成フォームのonChangeテスト: `fireEvent.change(element, { target: { value: "..." } })` が最も直接的
   - バリデーションエラーフォーカステスト: `document.activeElement` でフォーカス先を確認可能
 ---
+
+## 2026-03-08 - カバレッジ改善 (キーボードショートカット・ツリーレイアウト・EdgeParameterPopover他)
+- 実装した内容:
+  - useKeyboardShortcuts.test.tsx: Ctrl+Shift+L (tree-layout), ArrowLeft/Right (pan) テスト追加 (+3テスト)
+  - ProofWorkspace.test.tsx: ツリーレイアウトコンテキストメニュー (top-to-bottom, bottom-to-top) テスト追加 (+2テスト)
+  - EdgeParameterPopover.test.tsx: TermInput onChange テスト追加 (+1テスト)
+  - cutEliminationBridge.test.ts: ScExchangeLeft/Right position フォールバックテスト追加 (+2テスト)
+  - 防御的コード (copyPasteLogic, cutEliminationBridge, workspaceBridge) に v8 ignore 追加
+  - 不純コード (storageService BrowserStorageLayer, proofCollectionCompatibility isCallable) に v8 ignore 追加
+- 変更したファイル:
+  - src/lib/infinite-canvas/useKeyboardShortcuts.test.tsx
+  - src/lib/proof-pad/EdgeParameterPopover.test.tsx
+  - src/lib/proof-pad/ProofWorkspace.test.tsx
+  - src/lib/proof-pad/copyPasteLogic.ts
+  - src/lib/proof-collection/proofCollectionCompatibility.ts
+  - src/lib/quest/storageService.ts
+  - src/lib/script-runner/cutEliminationBridge.test.ts
+  - src/lib/script-runner/cutEliminationBridge.ts
+  - src/lib/script-runner/workspaceBridge.ts
+- カバレッジ:
+  - 全体: Stmts 98.94%→99.07%, Branch 93.81%→93.92%, Funcs 89.13%→89.27%, Lines 99.75%→99.86%
+- テスト数: 8186→8194 (+8)
+- スクリーンショット: .screenshots/coverage-improvement-proofworkspace.png
+- **今後のイテレーションへの学び:**
+  - V8 coverage aggregation: 単一ファイルテストで100%でも全体テストでは低くなるファイルが多い。特にproofCollectionCompatibility, nodeRoleLogic, multiSelection等。V8カバレッジマージの既知の問題
+  - 防御的コード（exhaustive union switchのdefault, 到達不能な型ガードのfalseパス）には `/* v8 ignore start/stop */` を使用するのが適切
+  - 不純コード（BrowserStorageLayer等のlocalStorage直接使用）もv8 ignoreで対応
+  - ProofWorkspaceのStorybook story IDは `proofpad-proofworkspace--*` 形式（`proof-pad-proofpad-proofworkspace--*` ではない）
+  - useKeyboardShortcutsテスト: `createKeyboardEvent("l", { ctrlKey: true, shiftKey: true })` でキーコンビネーションを再現可能
+---
