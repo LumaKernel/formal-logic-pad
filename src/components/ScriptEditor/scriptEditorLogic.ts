@@ -228,6 +228,42 @@ export const intervalMsToSlider = (intervalMs: number): number => {
   return Math.round(ratio * 100);
 };
 
+// ── エラー位置の抽出 ──────────────────────────────────────────
+
+export interface ErrorLocation {
+  /** 1-indexed の行番号 */
+  readonly line: number;
+  /** 1-indexed の列番号 */
+  readonly column: number;
+}
+
+/**
+ * エラーメッセージから行・列情報を抽出する。
+ *
+ * JS-Interpreter の SyntaxError は "(行:列)" 形式の位置情報を含む。
+ * consoleShimCode 等で先頭に挿入された行数分を lineOffset で差し引く。
+ *
+ * @param errorMessage エラーメッセージ文字列
+ * @param lineOffset 先頭に挿入されたコードの行数（差し引く値）
+ * @returns 抽出できた場合は ErrorLocation、できなかった場合は null
+ */
+export const extractErrorLocation = (
+  errorMessage: string,
+  lineOffset: number,
+): ErrorLocation | null => {
+  // JS-Interpreter SyntaxError: "Unexpected token (3:9)"
+  const match = /\((\d+):(\d+)\)/.exec(errorMessage);
+  if (match === null) return null;
+
+  const rawLine = Number(match[1]);
+  const rawColumn = Number(match[2]);
+  const adjustedLine = rawLine - lineOffset;
+
+  if (adjustedLine < 1) return null;
+
+  return { line: adjustedLine, column: rawColumn + 1 };
+};
+
 // ── デフォルトのエディタオプション ────────────────────────────
 
 export const defaultEditorOptions = {

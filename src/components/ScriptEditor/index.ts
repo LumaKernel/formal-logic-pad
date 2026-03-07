@@ -14,6 +14,7 @@ export {
   updateAutoPlayInterval,
   sliderToIntervalMs,
   intervalMsToSlider,
+  extractErrorLocation,
   DEFAULT_AUTO_PLAY_INTERVAL_MS,
   MIN_AUTO_PLAY_INTERVAL_MS,
   MAX_AUTO_PLAY_INTERVAL_MS,
@@ -22,5 +23,6 @@ export {
 export type {
   ExecutionStatus,
   ConsoleEntry,
+  ErrorLocation,
   ScriptEditorState,
 } from "./scriptEditorLogic";

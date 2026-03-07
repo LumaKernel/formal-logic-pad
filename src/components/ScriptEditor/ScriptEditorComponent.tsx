@@ -34,6 +34,7 @@ import {
   updateAutoPlayInterval,
   sliderToIntervalMs,
   intervalMsToSlider,
+  extractErrorLocation,
   defaultEditorOptions,
 } from "./scriptEditorLogic";
 import type { ScriptEditorState } from "./scriptEditorLogic";
@@ -69,6 +70,8 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
   const runnerRef = useRef<ScriptRunnerInstance | null>(null);
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const autoPlayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
+  const monacoRef = useRef<Parameters<OnMount>[1] | null>(null);
 
   // ── console.log ブリッジ ────────────────────────────────────
 
@@ -96,6 +99,9 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
   // ── コンソール初期化コード ────────────────────────────────
 
   const consoleShimCode = `var console = { log: console_log, error: console_error, warn: console_warn };\n`;
+
+  /** consoleShimCode が挿入する行数（エラー行番号のオフセット補正用） */
+  const consoleShimLineCount = 1;
 
   // ── Monaco beforeMount: 型定義を注入 ────────────────────────
 
@@ -128,8 +134,9 @@ declare var console: {
 
   // ── Monaco onMount ────────────────────────────────────────────
 
-  const handleEditorMount: OnMount = useCallback(() => {
-    // 将来的にエディタインスタンスを保存してステップ実行の行ハイライトに使う
+  const handleEditorMount: OnMount = useCallback((editor, monaco) => {
+    editorRef.current = editor;
+    monacoRef.current = monaco;
   }, []);
 
   // ── コード変更 ───────────────────────────────────────────────
@@ -314,6 +321,50 @@ declare var console: {
     runnerRef.current = null;
     setState((prev) => resetExecution(prev));
   }, []);
+
+  // ── エラーマーカーの更新 ──────────────────────────────────────
+
+  useEffect(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!editor || !monaco) return;
+
+    const model = editor.getModel();
+    if (!model) return;
+
+    if (state.errorMessage !== null) {
+      const loc = extractErrorLocation(
+        state.errorMessage,
+        consoleShimLineCount,
+      );
+      if (loc !== null) {
+        monaco.editor.setModelMarkers(model, "script-runner", [
+          {
+            severity: monaco.MarkerSeverity.Error,
+            startLineNumber: loc.line,
+            startColumn: loc.column,
+            endLineNumber: loc.line,
+            endColumn: loc.column + 1,
+            message: state.errorMessage,
+          },
+        ]);
+      } else {
+        // 位置情報がない場合もエラーメッセージをマーカーとして先頭行に表示
+        monaco.editor.setModelMarkers(model, "script-runner", [
+          {
+            severity: monaco.MarkerSeverity.Error,
+            startLineNumber: 1,
+            startColumn: 1,
+            endLineNumber: 1,
+            endColumn: 1,
+            message: state.errorMessage,
+          },
+        ]);
+      }
+    } else {
+      monaco.editor.setModelMarkers(model, "script-runner", []);
+    }
+  }, [state.errorMessage, consoleShimLineCount]);
 
   // ── ステータスの CSS クラス ─────────────────────────────────────
 
