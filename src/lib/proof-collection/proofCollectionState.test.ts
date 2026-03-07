@@ -20,8 +20,12 @@ import {
   findProofFolder,
   listFolders,
   extractProofData,
+  collectUsedAxiomIds,
+  prepareProofSaveParams,
   type AddEntryParams,
 } from "./proofCollectionState";
+import { createEmptyWorkspace, addNode } from "../proof-pad/workspaceState";
+import { minimalLogicSystem } from "../logic-core/inferenceRule";
 
 // --- テスト用ヘルパー ---
 
@@ -473,5 +477,164 @@ describe("extractProofData", () => {
     const result = extractProofData(selected, nodes, connections, []);
 
     expect(result.nodes[0]?.role).toBeUndefined();
+  });
+});
+
+describe("collectUsedAxiomIds", () => {
+  it("証明サブグラフの公理IDを収集する", () => {
+    const proofNodeIds = new Set(["n1", "n2", "n3"]);
+    const axiomIdByNodeId = new Map<string, string | undefined>([
+      ["n1", "A1"],
+      ["n2", undefined],
+      ["n3", "A2"],
+    ]);
+
+    const result = collectUsedAxiomIds(proofNodeIds, axiomIdByNodeId);
+    expect(result).toEqual(["A1", "A2"]);
+  });
+
+  it("重複する公理IDは1つにまとめる", () => {
+    const proofNodeIds = new Set(["n1", "n2", "n3"]);
+    const axiomIdByNodeId = new Map<string, string | undefined>([
+      ["n1", "A1"],
+      ["n2", "A1"],
+      ["n3", "A2"],
+    ]);
+
+    const result = collectUsedAxiomIds(proofNodeIds, axiomIdByNodeId);
+    expect(result).toEqual(["A1", "A2"]);
+  });
+
+  it("公理IDがない場合は空配列を返す", () => {
+    const proofNodeIds = new Set(["n1", "n2"]);
+    const axiomIdByNodeId = new Map<string, string | undefined>([
+      ["n1", undefined],
+    ]);
+
+    const result = collectUsedAxiomIds(proofNodeIds, axiomIdByNodeId);
+    expect(result).toEqual([]);
+  });
+
+  it("空の証明サブグラフの場合は空配列を返す", () => {
+    const proofNodeIds = new Set<string>();
+    const axiomIdByNodeId = new Map<string, string | undefined>();
+
+    const result = collectUsedAxiomIds(proofNodeIds, axiomIdByNodeId);
+    expect(result).toEqual([]);
+  });
+
+  it("公理IDはソートされる", () => {
+    const proofNodeIds = new Set(["n1", "n2", "n3"]);
+    const axiomIdByNodeId = new Map<string, string | undefined>([
+      ["n1", "DNE"],
+      ["n2", "A2"],
+      ["n3", "A1"],
+    ]);
+
+    const result = collectUsedAxiomIds(proofNodeIds, axiomIdByNodeId);
+    expect(result).toEqual(["A1", "A2", "DNE"]);
+  });
+});
+
+describe("prepareProofSaveParams", () => {
+  it("ノードの証明サブグラフからパラメータを組み立てる", () => {
+    let workspace = createEmptyWorkspace(minimalLogicSystem);
+    workspace = addNode(workspace, "axiom", "公理", { x: 0, y: 0 }, "phi -> psi");
+
+    const axiomIdByNodeId = new Map<string, string | undefined>([
+      ["node-1", "A1"],
+    ]);
+
+    const result = prepareProofSaveParams(
+      "node-1",
+      workspace,
+      axiomIdByNodeId,
+      "hilbert",
+    );
+
+    expect(result).toBeDefined();
+    expect(result?.name).toBe("phi -> psi");
+    expect(result?.nodes).toHaveLength(1);
+    expect(result?.deductionStyle).toBe("hilbert");
+    expect(result?.usedAxiomIds).toEqual(["A1"]);
+  });
+
+  it("存在しないノードIDの場合undefinedを返す", () => {
+    const workspace = createEmptyWorkspace(minimalLogicSystem);
+    const axiomIdByNodeId = new Map<string, string | undefined>();
+
+    const result = prepareProofSaveParams(
+      "nonexistent",
+      workspace,
+      axiomIdByNodeId,
+      "hilbert",
+    );
+
+    expect(result).toBeUndefined();
+  });
+
+  it("formulaTextが空の場合デフォルト名を使う", () => {
+    let workspace = createEmptyWorkspace(minimalLogicSystem);
+    workspace = addNode(workspace, "axiom", "公理", { x: 0, y: 0 }, "");
+
+    const axiomIdByNodeId = new Map<string, string | undefined>();
+
+    const result = prepareProofSaveParams(
+      "node-1",
+      workspace,
+      axiomIdByNodeId,
+      "hilbert",
+    );
+
+    expect(result?.name).toBe("Untitled Proof");
+  });
+
+  it("推論エッジがある場合は前提ノードも含まれる", () => {
+    let workspace = createEmptyWorkspace(minimalLogicSystem);
+    workspace = addNode(workspace, "axiom", "", { x: 0, y: 0 }, "phi");
+    workspace = addNode(workspace, "axiom", "", { x: 100, y: 0 }, "phi -> psi");
+    // ノードを手動でMP適用（workspaceState.applyMPAndConnect は内部でedge作成する）
+    // ここでは直接 inferenceEdge を設定してテスト
+    const workspaceWithEdge: typeof workspace = {
+      ...workspace,
+      nodes: [
+        ...workspace.nodes,
+        {
+          id: "node-3",
+          kind: "conclusion",
+          label: "",
+          formulaText: "psi",
+          position: { x: 50, y: 100 },
+        },
+      ],
+      inferenceEdges: [
+        {
+          _tag: "mp",
+          conclusionNodeId: "node-3",
+          leftPremiseNodeId: "node-1",
+          rightPremiseNodeId: "node-2",
+          conclusionText: "psi",
+        },
+      ],
+    };
+
+    const axiomIdByNodeId = new Map<string, string | undefined>([
+      ["node-1", "A1"],
+      ["node-2", "A2"],
+    ]);
+
+    const result = prepareProofSaveParams(
+      "node-3",
+      workspaceWithEdge,
+      axiomIdByNodeId,
+      "hilbert",
+    );
+
+    expect(result).toBeDefined();
+    expect(result?.name).toBe("psi");
+    // 3ノード（node-1, node-2, node-3）が含まれる
+    expect(result?.nodes).toHaveLength(3);
+    expect(result?.usedAxiomIds).toEqual(["A1", "A2"]);
+    expect(result?.inferenceEdges).toHaveLength(1);
   });
 });

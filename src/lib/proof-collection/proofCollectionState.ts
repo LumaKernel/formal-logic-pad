@@ -11,9 +11,11 @@ import type { Point } from "../infinite-canvas/types";
 import type {
   WorkspaceNode,
   WorkspaceConnection,
+  WorkspaceState,
 } from "../proof-pad/workspaceState";
 import type { InferenceEdge } from "../proof-pad/inferenceEdge";
 import { getInferenceEdgePremiseNodeIds } from "../proof-pad/inferenceEdge";
+import { getProofNodeIds } from "../proof-pad/dependencyLogic";
 import type { DeductionStyle } from "../logic-core/deductionSystem";
 
 // --- 証明エントリの型定義 ---
@@ -347,4 +349,78 @@ export function extractProofData(
   });
 
   return { nodes, connections, inferenceEdges };
+}
+
+// --- 公理ID収集 ---
+
+/**
+ * 証明サブグラフのノード群から使用されている公理IDを収集する。
+ *
+ * @param proofNodeIds 証明サブグラフに含まれるノードIDの集合
+ * @param axiomIdByNodeId 各ノードIDに対応する公理ID（undefined = 公理でない）
+ * @returns 一意な公理IDのリスト
+ */
+export function collectUsedAxiomIds(
+  proofNodeIds: ReadonlySet<string>,
+  axiomIdByNodeId: ReadonlyMap<string, string | undefined>,
+): readonly string[] {
+  const axiomIds = new Set<string>();
+  for (const nodeId of proofNodeIds) {
+    const axiomId = axiomIdByNodeId.get(nodeId);
+    if (axiomId !== undefined) {
+      axiomIds.add(axiomId);
+    }
+  }
+  return [...axiomIds].sort();
+}
+
+// --- ワンクリック保存用のパラメータ準備 ---
+
+/**
+ * prepareProofSaveParams の結果。
+ * AddEntryParams から now を除いた形。
+ */
+export type ProofSaveParams = Omit<AddEntryParams, "now">;
+
+/**
+ * 特定ノードの証明サブグラフから、コレクション保存用のパラメータを組み立てる。
+ *
+ * 1. getProofNodeIds で証明サブグラフのノードIDを収集
+ * 2. extractProofData でノード・接続・推論エッジを抽出
+ * 3. collectUsedAxiomIds で使用公理IDを収集
+ * 4. デフォルト名をノードの formulaText から生成
+ *
+ * @param nodeId 証明の結論ノードID
+ * @param workspace ワークスペースの状態
+ * @param axiomIdByNodeId 各ノードの公理ID（ProofWorkspace の axiomNames から構築）
+ * @param deductionStyle 演繹スタイル
+ *
+ * 変更時は proofCollectionState.test.ts, index.ts も同期すること。
+ */
+export function prepareProofSaveParams(
+  nodeId: string,
+  workspace: WorkspaceState,
+  axiomIdByNodeId: ReadonlyMap<string, string | undefined>,
+  deductionStyle: DeductionStyle,
+): ProofSaveParams | undefined {
+  const node = workspace.nodes.find((n) => n.id === nodeId);
+  if (node === undefined) return undefined;
+
+  const proofNodeIds = getProofNodeIds(nodeId, workspace.inferenceEdges);
+  const extracted = extractProofData(
+    proofNodeIds,
+    workspace.nodes,
+    workspace.connections,
+    workspace.inferenceEdges,
+  );
+  const usedAxiomIds = collectUsedAxiomIds(proofNodeIds, axiomIdByNodeId);
+
+  return {
+    name: node.formulaText || "Untitled Proof",
+    nodes: extracted.nodes,
+    connections: extracted.connections,
+    inferenceEdges: extracted.inferenceEdges,
+    deductionStyle,
+    usedAxiomIds,
+  };
 }

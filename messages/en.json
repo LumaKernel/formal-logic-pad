@@ -89,6 +89,8 @@
     "duplicateNode": "Duplicate Node",
     "deleteNode": "Delete Node",
     "deleteConnection": "Delete Connection",
+    "saveToCollection": "Save to Collection",
+    "savedToCollection": "Saved to collection",
     "genVariablePrompt": "Variable name:",
     "mergeBannerSelectTarget": "Click a node with the same formula to merge",
     "mergeCancel": "Cancel Merge",

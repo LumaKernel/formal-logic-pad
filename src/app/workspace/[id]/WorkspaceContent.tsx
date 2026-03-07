@@ -96,6 +96,8 @@ function useProofMessagesFromIntl(): ProofMessages {
       duplicateNode: t("duplicateNode"),
       deleteNode: t("deleteNode"),
       deleteConnection: t("deleteConnection"),
+      saveToCollection: t("saveToCollection"),
+      savedToCollection: t("savedToCollection"),
       genVariablePrompt: t("genVariablePrompt"),
       mergeBannerSelectTarget: t("mergeBannerSelectTarget"),
       mergeCancel: t("mergeCancel"),

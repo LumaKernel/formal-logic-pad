@@ -16,6 +16,7 @@ export type {
   ProofFolder,
   ProofCollection,
   AddEntryParams,
+  ProofSaveParams,
 } from "./proofCollectionState";
 
 // --- 状態管理 ---
@@ -35,6 +36,8 @@ export {
   findProofFolder,
   listFolders,
   extractProofData,
+  collectUsedAxiomIds,
+  prepareProofSaveParams,
 } from "./proofCollectionState";
 
 // --- 互換性チェック ---

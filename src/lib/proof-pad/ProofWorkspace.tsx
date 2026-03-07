@@ -186,6 +186,8 @@ import { ReferencePopover } from "../reference/ReferencePopover";
 import { getInferenceRuleReferenceEntryId } from "./inferenceRuleReferenceLogic";
 import { getDeductionSystemReferenceEntryId } from "./deductionSystemReferenceLogic";
 import { findInferenceEdgeForConclusionNode } from "./inferenceEdge";
+import type { ProofSaveParams } from "../proof-collection/proofCollectionState";
+import { prepareProofSaveParams } from "../proof-collection/proofCollectionState";
 import { computeInferenceEdgeLabelDataForConnection } from "./inferenceEdgeLabelLogic";
 import { InferenceEdgeBadge } from "./InferenceEdgeBadge";
 import { EdgeParameterPopover } from "./EdgeParameterPopover";
@@ -232,6 +234,8 @@ export interface ProofWorkspaceProps {
   readonly onOpenSyntaxHelp?: () => void;
   /** 自由帳として複製するコールバック（指定時にクエストモードで複製ボタンを表示） */
   readonly onDuplicateToFree?: () => void;
+  /** 証明をコレクションに保存するコールバック（指定時にコンテキストメニューに「コレクションに保存」を表示） */
+  readonly onSaveProofToCollection?: (params: ProofSaveParams) => void;
   /** 初期クリップボードデータ（テスト・ストーリー用） */
   readonly initialClipboardData?: ClipboardData;
   /** data-testid */
@@ -616,6 +620,7 @@ export function ProofWorkspace({
   showDependencies,
   onOpenSyntaxHelp,
   onDuplicateToFree,
+  onSaveProofToCollection,
   initialClipboardData,
   testId,
 }: ProofWorkspaceProps) {
@@ -2257,6 +2262,36 @@ export function ProofWorkspace({
     setSelectedNodeIds(proofIds);
     setNodeMenuState(closeNodeMenu());
   }, [nodeMenuState, workspace.inferenceEdges]);
+
+  // axiomNames から axiomIdByNodeId を構築（prepareProofSaveParams 用）
+  const axiomIdByNodeId = useMemo(() => {
+    const map = new Map<string, string | undefined>();
+    for (const [nodeId, info] of axiomNames) {
+      map.set(nodeId, info.axiomId);
+    }
+    return map;
+  }, [axiomNames]);
+
+  // コンテキストメニューから「コレクションに保存」
+  const handleSaveToCollection = useCallback(() => {
+    if (!nodeMenuState.open) return;
+    if (onSaveProofToCollection === undefined) return;
+    const params = prepareProofSaveParams(
+      nodeMenuState.nodeId,
+      workspace,
+      axiomIdByNodeId,
+      workspace.deductionSystem.style,
+    );
+    if (params !== undefined) {
+      onSaveProofToCollection(params);
+    }
+    setNodeMenuState(closeNodeMenu());
+  }, [
+    nodeMenuState,
+    onSaveProofToCollection,
+    workspace,
+    axiomIdByNodeId,
+  ]);
 
   // コンテキストメニューから「論理式を編集」
   const handleEditFormula = useCallback(() => {
@@ -4407,6 +4442,17 @@ export function ProofWorkspace({
                 : "select-proof"
             }
           />
+          {onSaveProofToCollection !== undefined ? (
+            <WorkspaceMenuItem
+              label={msg.saveToCollection}
+              onClick={handleSaveToCollection}
+              testId={
+                testId
+                  ? `${testId satisfies string}-save-to-collection`
+                  : "save-to-collection"
+              }
+            />
+          ) : null}
           <WorkspaceMenuItem
             label={msg.editFormula}
             onClick={handleEditFormula}

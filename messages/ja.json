@@ -89,6 +89,8 @@
     "duplicateNode": "ノードを複製",
     "deleteNode": "ノードを削除",
     "deleteConnection": "接続を削除",
+    "saveToCollection": "コレクションに保存",
+    "savedToCollection": "コレクションに保存しました",
     "genVariablePrompt": "変数名:",
     "mergeBannerSelectTarget": "同じ論理式のノードをクリックしてマージ",
     "mergeCancel": "マージをキャンセル",

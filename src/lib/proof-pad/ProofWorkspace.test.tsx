@@ -5157,4 +5157,77 @@ describe("ProofWorkspace", () => {
       });
     });
   });
+
+  describe("node context menu - save to collection", () => {
+    it("onSaveProofToCollection未指定時はメニュー項目が表示されない", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      expect(
+        screen.queryByTestId("workspace-save-to-collection"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("onSaveProofToCollection指定時はメニュー項目が表示される", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+
+      const onSave = vi.fn();
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          onSaveProofToCollection={onSave}
+          testId="workspace"
+        />,
+      );
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      expect(
+        screen.getByTestId("workspace-save-to-collection"),
+      ).toBeInTheDocument();
+    });
+
+    it("Save to Collectionクリックでコールバックが呼ばれる", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> psi");
+
+      const onSave = vi.fn();
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          onSaveProofToCollection={onSave}
+          testId="workspace"
+        />,
+      );
+
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      const saveBtn = screen.getByTestId("workspace-save-to-collection");
+      await user.click(saveBtn);
+
+      expect(onSave).toHaveBeenCalledTimes(1);
+      expect(onSave.mock.calls[0]?.[0]).toMatchObject({
+        name: "phi -> psi",
+        deductionStyle: "hilbert",
+      });
+
+      // Context menu should be closed
+      expect(
+        screen.queryByTestId("workspace-node-context-menu"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });

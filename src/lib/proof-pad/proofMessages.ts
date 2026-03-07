@@ -112,6 +112,8 @@ export type ProofMessages = {
   readonly duplicateNode: string;
   readonly deleteNode: string;
   readonly deleteConnection: string;
+  readonly saveToCollection: string;
+  readonly savedToCollection: string;
   /** `{variableName}` プレースホルダーを含む */
   readonly genVariablePrompt: string;
 
@@ -329,6 +331,8 @@ export const defaultProofMessages: ProofMessages = {
   duplicateNode: "Duplicate Node",
   deleteNode: "Delete Node",
   deleteConnection: "Delete Connection",
+  saveToCollection: "Save to Collection",
+  savedToCollection: "Saved to collection",
   genVariablePrompt: "Variable name:",
 
   // Merge selection
