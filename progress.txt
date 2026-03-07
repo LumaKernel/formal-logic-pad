@@ -9808,3 +9808,32 @@
   - 既存の `SerializedCustomQuest` 型をエクスポート形式に再利用。シリアライゼーション層が一貫
   - ファイル入力の `FileReader` はJSDOM/Storybookでテスト困難。テキストエリア入力でのインタラクションテストで代替
 ---
+
+## 2026-03-08 - Menu UX改善（Auto Layoutチェックボックス → コンテキストメニュー/ショートカット）
+- Auto Layoutチェックボックス（非直感的なUI）を完全削除
+- ツリー整列（上→下/下→上）をキャンバス右クリックコンテキストメニューに追加
+- Cmd+Shift+L (macOS) / Ctrl+Shift+L (Windows) キーボードショートカット追加
+- 増分レイアウト（applyIncrementalLayout）からワンショットレイアウト（applyTreeLayout）に変更
+- メニュー体験の設計ドキュメント dev/menu-ux-design.md を新規作成
+- 変更したファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx (autoLayout/autoLayoutDirection state削除、setWorkspaceWithAutoLayout→setWorkspace、handleTreeLayoutコールバック追加、チェックボックスUI削除、コンテキストメニューにツリー整列追加)
+  - src/lib/proof-pad/proofMessages.ts (autoLayout/layoutTopToBottom/layoutBottomToTop → treeLayoutTopToBottom/treeLayoutBottomToTop)
+  - messages/en.json, messages/ja.json (同メッセージキー変更)
+  - src/app/workspace/[id]/WorkspaceContent.tsx (メッセージキー参照更新)
+  - src/lib/keybinding/defaultBindings.ts (tree-layout アクション追加)
+  - src/lib/infinite-canvas/keyboardShortcuts.ts (tree-layout 分類ロジック追加)
+  - src/lib/infinite-canvas/useKeyboardShortcuts.ts (onTreeLayout コールバック追加)
+  - src/lib/keybinding/defaultBindings.test.ts (+2テスト)
+  - src/lib/infinite-canvas/keyboardShortcuts.test.ts (+3テスト)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (auto-layout toggle 5テスト削除、tree layout context menu 1テスト追加)
+  - dev/menu-ux-design.md (新規: メニュー体験設計ドキュメント)
+- カバレッジ: Stmts 98.51%→98.41%, Branch 92.92%→92.89%, Lines 99.35%→99.3%
+  - 微減はauto-layoutコード削除による分母変化（新コードはカバー済み）
+- テスト数: 8055→8056 (+1, auto-layout 5テスト削除 + tree layout/shortcut 6テスト追加)
+- スクリーンショット: .screenshots/menu-ux-context-menu-tree-layout.png, .screenshots/menu-ux-after-tree-layout-applied.png, .screenshots/menu-ux-tree-layout-fitted.png
+- **今後のイテレーションへの学び:**
+  - コンテキストメニューの状態更新は `setCanvasMenuState((prev) => ({ ...prev, open: false }))` のパターンで（直接オブジェクトリテラルだと必須プロパティエラー）
+  - SVG要素は `pointer-events: none` が設定されているため、テストでの右クリックはコンテナ要素（`data-testid`付き）をターゲットにする
+  - `applyIncrementalLayout` は連続モード（チェックボックスON中）向け、`applyTreeLayout` はワンショット向け。UXに応じて使い分ける
+  - キーボードショートカット追加時は3層に変更が必要: defaultBindings.ts (CanvasAction + binding) → keyboardShortcuts.ts (classifyKeyDown) → useKeyboardShortcuts.ts (callbacks + switch)
+---
