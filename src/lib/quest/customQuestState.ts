@@ -362,7 +362,9 @@ export function deserializeCustomQuestCollection(
 }
 
 /** raw JSON からクエスト定義をパースする（不正データは undefined） */
-function parseCustomQuestFromRaw(raw: unknown): QuestDefinition | undefined {
+export function parseCustomQuestFromRaw(
+  raw: unknown,
+): QuestDefinition | undefined {
   if (typeof raw !== "object" || raw === null) return undefined;
 
   const obj = raw as Record<string, unknown>;
@@ -453,6 +455,126 @@ function parseStringArray(
     results.push(item);
   }
   return results;
+}
+
+// --- エクスポート/インポート ---
+
+/** エクスポート用のJSON形式 */
+export type ExportedCustomQuest = {
+  readonly _format: "intro-formal-proof-quest";
+  readonly _version: 1;
+  readonly quest: SerializedCustomQuest;
+};
+
+/** 単一の自作クエストをエクスポート用JSON文字列に変換する */
+export function exportCustomQuestAsJson(quest: QuestDefinition): string {
+  const serialized: SerializedCustomQuest = {
+    id: quest.id,
+    category: quest.category,
+    title: quest.title,
+    description: quest.description,
+    difficulty: quest.difficulty,
+    systemPresetId: quest.systemPresetId,
+    goals: quest.goals.map((g) => ({
+      formulaText: g.formulaText,
+      ...(g.label !== undefined ? { label: g.label } : {}),
+      ...(g.allowedAxiomIds !== undefined
+        ? { allowedAxiomIds: [...g.allowedAxiomIds] }
+        : {}),
+      ...(g.allowedRuleIds !== undefined
+        ? { allowedRuleIds: [...g.allowedRuleIds] }
+        : {}),
+    })),
+    hints: [...quest.hints],
+    estimatedSteps: quest.estimatedSteps,
+    learningPoint: quest.learningPoint,
+    order: quest.order,
+    version: quest.version,
+    ...(quest.allowedAxiomIds !== undefined
+      ? { allowedAxiomIds: [...quest.allowedAxiomIds] }
+      : {}),
+  };
+
+  const exported: ExportedCustomQuest = {
+    _format: "intro-formal-proof-quest",
+    _version: 1,
+    quest: serialized,
+  };
+
+  return JSON.stringify(exported, null, 2);
+}
+
+/** インポート結果 */
+export type ImportCustomQuestResult =
+  | {
+      readonly _tag: "Ok";
+      readonly collection: CustomQuestCollection;
+      readonly questId: QuestId;
+    }
+  | { readonly _tag: "InvalidJson" }
+  | { readonly _tag: "InvalidFormat" }
+  | { readonly _tag: "InvalidQuest" }
+  | { readonly _tag: "DuplicateId"; readonly id: QuestId };
+
+/**
+ * JSON文字列から自作クエストをインポートし、コレクションに追加する。
+ * インポート時は新しいIDを割り当てる（エクスポート元と衝突しないため）。
+ */
+export function importCustomQuestFromJson(
+  collection: CustomQuestCollection,
+  jsonString: string,
+  now: number,
+): ImportCustomQuestResult {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(jsonString);
+  } catch {
+    return { _tag: "InvalidJson" };
+  }
+
+  if (typeof parsed !== "object" || parsed === null) {
+    return { _tag: "InvalidFormat" };
+  }
+
+  const obj = parsed as Record<string, unknown>;
+
+  // フォーマット検証
+  if (obj["_format"] !== "intro-formal-proof-quest") {
+    return { _tag: "InvalidFormat" };
+  }
+
+  // バージョン検証（現在は1のみ）
+  if (obj["_version"] !== 1) {
+    return { _tag: "InvalidFormat" };
+  }
+
+  // クエストデータのパース
+  const questData = parseCustomQuestFromRaw(obj["quest"]);
+  if (questData === undefined) {
+    return { _tag: "InvalidQuest" };
+  }
+
+  // 新しいIDを割り当て
+  const newId = generateCustomQuestId(now);
+  const idValidation = validateNoDuplicateId(collection, newId);
+  if (idValidation._tag !== "Valid") {
+    return { _tag: "DuplicateId", id: newId };
+  }
+
+  const imported: QuestDefinition = {
+    ...questData,
+    id: newId,
+    version: 1,
+  };
+
+  const newQuests = new Map(collection.quests);
+  newQuests.set(newId, imported);
+
+  return {
+    _tag: "Ok",
+    collection: { quests: newQuests },
+    questId: newId,
+  };
 }
 
 /** ストレージキー */

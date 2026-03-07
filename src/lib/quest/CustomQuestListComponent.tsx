@@ -57,6 +57,8 @@ export type CustomQuestListProps = {
   readonly onDeleteQuest?: (questId: QuestId) => void;
   readonly onEditQuest?: (edit: CustomQuestEditParams) => void;
   readonly onCreateQuest?: (params: CreateCustomQuestParams) => void;
+  readonly onExportQuest?: (questId: QuestId) => void;
+  readonly onImportQuest?: (jsonString: string) => void;
 };
 
 // --- Styles ---
@@ -936,6 +938,7 @@ function CustomQuestItem({
   onDuplicate,
   onDelete,
   onEdit,
+  onExport,
   isEditing,
   onToggleEdit,
 }: {
@@ -944,6 +947,7 @@ function CustomQuestItem({
   readonly onDuplicate?: (questId: QuestId) => void;
   readonly onDelete?: (questId: QuestId) => void;
   readonly onEdit?: (edit: CustomQuestEditParams) => void;
+  readonly onExport?: (questId: QuestId) => void;
   readonly isEditing: boolean;
   readonly onToggleEdit: (questId: QuestId) => void;
 }) {
@@ -1001,6 +1005,19 @@ function CustomQuestItem({
               編集
             </button>
           )}
+          {onExport !== undefined && (
+            <button
+              data-testid={`custom-quest-export-btn-${item.quest.id satisfies string}`}
+              style={actionButtonStyle}
+              onClick={(e) => {
+                e.stopPropagation();
+                onExport(item.quest.id);
+              }}
+              title="エクスポート"
+            >
+              JSON
+            </button>
+          )}
           {onDuplicate !== undefined && (
             <button
               data-testid={`custom-quest-duplicate-btn-${item.quest.id satisfies string}`}
@@ -1045,6 +1062,107 @@ function CustomQuestItem({
 
 // --- Main component ---
 
+// --- Import form ---
+
+const importFormOverlayStyle: CSSProperties = {
+  padding: "16px 14px",
+  background: "var(--color-surface, #fff)",
+  borderBottom: "1px solid var(--color-quest-card-border)",
+};
+
+const importFormStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 10,
+};
+
+function CustomQuestImportForm({
+  onImport,
+  onCancel,
+}: {
+  readonly onImport: (jsonString: string) => void;
+  readonly onCancel: () => void;
+}) {
+  const [jsonText, setJsonText] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file === undefined) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result;
+      if (typeof text === "string") {
+        setJsonText(text);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (jsonText.trim() === "") return;
+    onImport(jsonText);
+  };
+
+  return (
+    <div
+      style={importFormOverlayStyle}
+      data-testid="custom-quest-import-form"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <form style={importFormStyle} onSubmit={handleSubmit}>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>JSONファイルを選択</label>
+          <input
+            ref={fileInputRef}
+            data-testid="import-file-input"
+            type="file"
+            accept=".json"
+            onChange={handleFileChange}
+            style={{ fontSize: 12 }}
+          />
+        </div>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>またはJSONを貼り付け</label>
+          <textarea
+            data-testid="import-json-input"
+            style={editTextareaStyle}
+            value={jsonText}
+            onChange={(e) => setJsonText(e.target.value)}
+            rows={5}
+            placeholder={'{\n  "_format": "intro-formal-proof-quest",\n  ...'}
+          />
+        </div>
+        <div style={editActionsStyle}>
+          <button
+            type="button"
+            data-testid="import-cancel-btn"
+            style={editCancelButtonStyle}
+            onClick={(e) => {
+              e.stopPropagation();
+              onCancel();
+            }}
+          >
+            キャンセル
+          </button>
+          <button
+            type="submit"
+            data-testid="import-submit-btn"
+            style={editSaveButtonStyle}
+            disabled={jsonText.trim() === ""}
+          >
+            インポート
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// --- Main component ---
+
 export function CustomQuestList({
   items,
   onStartQuest,
@@ -1052,6 +1170,8 @@ export function CustomQuestList({
   onDeleteQuest,
   onEditQuest,
   onCreateQuest,
+  onExportQuest,
+  onImportQuest,
 }: CustomQuestListProps) {
   const totalCount = getCustomQuestCatalogCount(items);
   const completedCount = getCustomQuestCompletedCount(items);
@@ -1059,15 +1179,30 @@ export function CustomQuestList({
     undefined,
   );
   const [isCreating, setIsCreating] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
   const handleToggleEdit = (questId: QuestId) => {
     setEditingQuestId((prev) => (prev === questId ? undefined : questId));
     setIsCreating(false);
+    setIsImporting(false);
   };
 
   const handleToggleCreate = () => {
     setIsCreating((prev) => !prev);
     setEditingQuestId(undefined);
+    setIsImporting(false);
+  };
+
+  const handleToggleImport = () => {
+    setIsImporting((prev) => !prev);
+    setIsCreating(false);
+    setEditingQuestId(undefined);
+  };
+
+  const handleImport = (jsonString: string) => {
+    if (onImportQuest === undefined) return;
+    onImportQuest(jsonString);
+    setIsImporting(false);
   };
 
   return (
@@ -1078,6 +1213,16 @@ export function CustomQuestList({
           <div style={sectionProgressStyle}>
             {customQuestProgressText(completedCount, totalCount)}
           </div>
+          {onImportQuest !== undefined && (
+            <button
+              type="button"
+              data-testid="custom-quest-import-btn"
+              style={actionButtonStyle}
+              onClick={handleToggleImport}
+            >
+              {isImporting ? "閉じる" : "インポート"}
+            </button>
+          )}
           {onCreateQuest !== undefined && (
             <button
               type="button"
@@ -1090,6 +1235,12 @@ export function CustomQuestList({
           )}
         </div>
       </div>
+      {isImporting && onImportQuest !== undefined && (
+        <CustomQuestImportForm
+          onImport={handleImport}
+          onCancel={() => setIsImporting(false)}
+        />
+      )}
       {isCreating && onCreateQuest !== undefined && (
         <CustomQuestCreateForm
           onSave={(params) => {
@@ -1099,7 +1250,7 @@ export function CustomQuestList({
           onCancel={() => setIsCreating(false)}
         />
       )}
-      {items.length === 0 && !isCreating ? (
+      {items.length === 0 && !isCreating && !isImporting ? (
         <div style={emptyStyle} data-testid="custom-quest-list-empty">
           自作クエストはまだありません。
         </div>
@@ -1114,6 +1265,7 @@ export function CustomQuestList({
                 onDuplicate={onDuplicateQuest}
                 onDelete={onDeleteQuest}
                 onEdit={onEditQuest}
+                onExport={onExportQuest}
                 isEditing={editingQuestId === item.quest.id}
                 onToggleEdit={handleToggleEdit}
               />

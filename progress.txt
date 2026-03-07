@@ -9778,3 +9778,33 @@
   - ボタンのクリックイベントは e.stopPropagation() が必須（親のクエスト開始ボタンのクリックを防止）
   - Storybook story URL パスは title に基づく: "Pages/Hub" → pages-hub--story-name
 ---
+
+## 2026-03-07 - [custom-quest] クエストのJSONエクスポート/インポート
+- 実装した内容:
+  - 純粋ロジック: `customQuestState.ts` に `exportCustomQuestAsJson`, `importCustomQuestFromJson`, `parseCustomQuestFromRaw` を追加
+  - `ExportedCustomQuest` 型: `_format: "intro-formal-proof-quest"`, `_version: 1` メタデータ付きJSON形式
+  - `ImportCustomQuestResult` discriminated union: Ok/InvalidJson/InvalidFormat/InvalidQuest/DuplicateId
+  - インポート時は新IDを生成し、バージョンを1にリセット（衝突回避）
+  - UI: `CustomQuestListComponent.tsx` にJSONエクスポートボタン（各クエスト）、インポートボタン（ヘッダー）
+  - インポートフォーム: ファイル入力 + テキストエリア貼り付けの2入力方式
+  - `HubPageView.tsx` に `onExportCustomQuest`, `onImportCustomQuest` props追加
+  - Storybookストーリー3件追加: ExportQuest, ImportQuest, ImportQuestCancel
+- 変更したファイル:
+  - src/lib/quest/customQuestState.ts (+124行: export/import関数, ExportedCustomQuest型, ImportCustomQuestResult型)
+  - src/lib/quest/customQuestState.test.ts (+405行: parseCustomQuestFromRaw/export/importのテスト21件)
+  - src/lib/quest/CustomQuestListComponent.tsx (+154行: エクスポートボタン, インポートボタン, インポートフォーム)
+  - src/lib/quest/CustomQuestListComponent.stories.tsx (+115行: 3ストーリー追加)
+  - src/lib/quest/index.ts (+5行: 新エクスポート)
+  - src/app/HubPageView.tsx (+8行: props追加)
+  - tasks/prd-custom-quests.md (タスク完了マーク)
+- カバレッジ: Stmts 98.58%→98.51%, Branch 92.98%→92.92%, Lines 99.42%→99.35%
+  - 微減はファイル全体の分母増加による（新コードは全行カバー済み、既存未カバー行は変化なし）
+- テスト数: 8031→8055 (+24)
+- スクリーンショット: .screenshots/custom-quest-list-default.png, .screenshots/custom-quest-export-story.png, .screenshots/custom-quest-import-story.png, .screenshots/custom-quest-import-cancel-story.png, .screenshots/custom-quest-list-full.png
+- **今後のイテレーションへの学び:**
+  - `userEvent.type()` はJSON文字列中の `{` をキーボード修飾子として解釈する。JSON入力テストには `fireEvent.change()` を使う
+  - エクスポート形式に `_format` と `_version` メタデータを含めることで、将来の互換性を確保
+  - `parseCustomQuestFromRaw` を公開関数化することで、インポート/デシリアライゼーション両方で再利用可能に
+  - 既存の `SerializedCustomQuest` 型をエクスポート形式に再利用。シリアライゼーション層が一貫
+  - ファイル入力の `FileReader` はJSDOM/Storybookでテスト困難。テキストエリア入力でのインタラクションテストで代替
+---

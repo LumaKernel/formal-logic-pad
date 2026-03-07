@@ -179,12 +179,17 @@ export {
   mergeWithBuiltinQuests,
   serializeCustomQuestCollection,
   deserializeCustomQuestCollection,
+  parseCustomQuestFromRaw,
+  exportCustomQuestAsJson,
+  importCustomQuestFromJson,
   type CustomQuestCollection,
   type CreateCustomQuestParams,
   type CustomQuestValidation,
   type CustomQuestResult,
   type SerializedCustomQuestCollection,
   type SerializedCustomQuest,
+  type ExportedCustomQuest,
+  type ImportCustomQuestResult,
 } from "./customQuestState";
 
 export {

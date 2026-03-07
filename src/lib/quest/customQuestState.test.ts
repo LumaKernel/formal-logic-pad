@@ -16,9 +16,13 @@ import {
   mergeWithBuiltinQuests,
   serializeCustomQuestCollection,
   deserializeCustomQuestCollection,
+  exportCustomQuestAsJson,
+  importCustomQuestFromJson,
+  parseCustomQuestFromRaw,
   CUSTOM_QUEST_STORAGE_KEY,
   type CreateCustomQuestParams,
   type CustomQuestCollection,
+  type ExportedCustomQuest,
 } from "./customQuestState";
 import type { QuestDefinition } from "./questDefinition";
 
@@ -928,6 +932,407 @@ describe("customQuestState", () => {
   describe("ストレージキー", () => {
     it("CUSTOM_QUEST_STORAGE_KEY が定義されている", () => {
       expect(CUSTOM_QUEST_STORAGE_KEY).toBe("custom-quests");
+    });
+  });
+
+  describe("parseCustomQuestFromRaw", () => {
+    it("有効なrawデータからクエスト定義をパースできる", () => {
+      const raw = {
+        id: "custom-1000",
+        category: "propositional-basics",
+        title: "test",
+        description: "desc",
+        difficulty: 1,
+        systemPresetId: "lukasiewicz",
+        goals: [{ formulaText: "phi -> phi" }],
+        hints: ["hint"],
+        estimatedSteps: 5,
+        learningPoint: "lp",
+        order: 0,
+        version: 1,
+      };
+      const result = parseCustomQuestFromRaw(raw);
+      expect(result).toBeDefined();
+      expect(result?.id).toBe("custom-1000");
+      expect(result?.title).toBe("test");
+    });
+
+    it("nullはundefinedを返す", () => {
+      expect(parseCustomQuestFromRaw(null)).toBeUndefined();
+    });
+
+    it("文字列はundefinedを返す", () => {
+      expect(parseCustomQuestFromRaw("string")).toBeUndefined();
+    });
+
+    it("非カスタムIDはundefinedを返す", () => {
+      const raw = {
+        id: "prop-01",
+        category: "propositional-basics",
+        title: "test",
+        description: "desc",
+        difficulty: 1,
+        systemPresetId: "lukasiewicz",
+        goals: [{ formulaText: "phi -> phi" }],
+        hints: [],
+        estimatedSteps: 5,
+        learningPoint: "lp",
+        version: 1,
+      };
+      expect(parseCustomQuestFromRaw(raw)).toBeUndefined();
+    });
+  });
+
+  describe("exportCustomQuestAsJson", () => {
+    it("クエストをJSON文字列にエクスポートできる", () => {
+      const r = addCustomQuest(
+        createEmptyCustomQuestCollection(),
+        sampleParams,
+        1000,
+      );
+      expect(r.ok).toBe(true);
+      if (!r.ok) return;
+
+      const quest = r.value.collection.quests.get(r.value.questId);
+      expect(quest).toBeDefined();
+      if (quest === undefined) return;
+
+      const json = exportCustomQuestAsJson(quest);
+      const parsed = JSON.parse(json) as ExportedCustomQuest;
+
+      expect(parsed._format).toBe("intro-formal-proof-quest");
+      expect(parsed._version).toBe(1);
+      expect(parsed.quest.id).toBe("custom-1000");
+      expect(parsed.quest.title).toBe("テストクエスト");
+      expect(parsed.quest.goals).toHaveLength(1);
+      expect(parsed.quest.goals[0]?.formulaText).toBe("phi -> phi");
+    });
+
+    it("allowedAxiomIds付きクエストをエクスポートできる", () => {
+      const r = addCustomQuest(
+        createEmptyCustomQuestCollection(),
+        {
+          ...sampleParams,
+          goals: [
+            {
+              formulaText: "phi -> phi",
+              label: "Goal 1",
+              allowedAxiomIds: ["A1", "A2"],
+            },
+          ],
+        },
+        1000,
+      );
+      expect(r.ok).toBe(true);
+      if (!r.ok) return;
+
+      const quest = r.value.collection.quests.get(r.value.questId);
+      if (quest === undefined) return;
+
+      const json = exportCustomQuestAsJson(quest);
+      const parsed = JSON.parse(json) as ExportedCustomQuest;
+
+      expect(parsed.quest.goals[0]?.label).toBe("Goal 1");
+      expect(parsed.quest.goals[0]?.allowedAxiomIds).toEqual(["A1", "A2"]);
+    });
+
+    it("allowedRuleIds付きクエストをエクスポートできる", () => {
+      const r = addCustomQuest(
+        createEmptyCustomQuestCollection(),
+        {
+          ...sampleParams,
+          goals: [
+            {
+              formulaText: "phi -> phi",
+              allowedRuleIds: ["mp", "gen"],
+            },
+          ],
+        },
+        1000,
+      );
+      expect(r.ok).toBe(true);
+      if (!r.ok) return;
+
+      const quest = r.value.collection.quests.get(r.value.questId);
+      if (quest === undefined) return;
+
+      const json = exportCustomQuestAsJson(quest);
+      const parsed = JSON.parse(json) as ExportedCustomQuest;
+
+      expect(parsed.quest.goals[0]?.allowedRuleIds).toEqual(["mp", "gen"]);
+    });
+
+    it("エクスポートJSONは整形済み（pretty-printed）", () => {
+      const r = addCustomQuest(
+        createEmptyCustomQuestCollection(),
+        sampleParams,
+        1000,
+      );
+      if (!r.ok) return;
+
+      const quest = r.value.collection.quests.get(r.value.questId);
+      if (quest === undefined) return;
+
+      const json = exportCustomQuestAsJson(quest);
+      expect(json).toContain("\n");
+      expect(json).toContain("  ");
+    });
+  });
+
+  describe("importCustomQuestFromJson", () => {
+    function createExportedJson(
+      overrides: Record<string, unknown> = {},
+    ): string {
+      const base = {
+        _format: "intro-formal-proof-quest",
+        _version: 1,
+        quest: {
+          id: "custom-1000",
+          category: "propositional-basics",
+          title: "インポートテスト",
+          description: "説明",
+          difficulty: 2,
+          systemPresetId: "lukasiewicz",
+          goals: [{ formulaText: "phi -> phi" }],
+          hints: ["ヒント"],
+          estimatedSteps: 5,
+          learningPoint: "学習ポイント",
+          order: 0,
+          version: 1,
+        },
+        ...overrides,
+      };
+      return JSON.stringify(base);
+    }
+
+    it("有効なJSONからクエストをインポートできる", () => {
+      const collection = createEmptyCustomQuestCollection();
+      const json = createExportedJson();
+      const result = importCustomQuestFromJson(collection, json, 2000);
+
+      expect(result._tag).toBe("Ok");
+      if (result._tag !== "Ok") return;
+
+      expect(result.questId).toBe("custom-2000");
+      expect(result.collection.quests.size).toBe(1);
+
+      const quest = result.collection.quests.get(result.questId);
+      expect(quest?.title).toBe("インポートテスト");
+      expect(quest?.description).toBe("説明");
+      expect(quest?.goals[0]?.formulaText).toBe("phi -> phi");
+    });
+
+    it("インポートされたクエストは新しいIDを取得する", () => {
+      const collection = createEmptyCustomQuestCollection();
+      const json = createExportedJson();
+      const result = importCustomQuestFromJson(collection, json, 5000);
+
+      expect(result._tag).toBe("Ok");
+      if (result._tag !== "Ok") return;
+
+      // 元のID (custom-1000) ではなく新しいID (custom-5000)
+      expect(result.questId).toBe("custom-5000");
+      expect(result.collection.quests.has("custom-1000")).toBe(false);
+    });
+
+    it("インポートされたクエストはバージョン1にリセットされる", () => {
+      const json = createExportedJson({
+        quest: {
+          id: "custom-1000",
+          category: "propositional-basics",
+          title: "test",
+          description: "desc",
+          difficulty: 1,
+          systemPresetId: "lukasiewicz",
+          goals: [{ formulaText: "phi -> phi" }],
+          hints: [],
+          estimatedSteps: 5,
+          learningPoint: "lp",
+          order: 0,
+          version: 5,
+        },
+      });
+
+      const result = importCustomQuestFromJson(
+        createEmptyCustomQuestCollection(),
+        json,
+        2000,
+      );
+      expect(result._tag).toBe("Ok");
+      if (result._tag !== "Ok") return;
+
+      const quest = result.collection.quests.get(result.questId);
+      expect(quest?.version).toBe(1);
+    });
+
+    it("不正なJSON文字列ではInvalidJsonを返す", () => {
+      const result = importCustomQuestFromJson(
+        createEmptyCustomQuestCollection(),
+        "not json",
+        1000,
+      );
+      expect(result._tag).toBe("InvalidJson");
+    });
+
+    it("JSON nullではInvalidFormatを返す", () => {
+      const result = importCustomQuestFromJson(
+        createEmptyCustomQuestCollection(),
+        "null",
+        1000,
+      );
+      expect(result._tag).toBe("InvalidFormat");
+    });
+
+    it("_formatが異なるとInvalidFormatを返す", () => {
+      const json = createExportedJson({ _format: "wrong-format" });
+      const result = importCustomQuestFromJson(
+        createEmptyCustomQuestCollection(),
+        json,
+        1000,
+      );
+      expect(result._tag).toBe("InvalidFormat");
+    });
+
+    it("_formatが欠けているとInvalidFormatを返す", () => {
+      const json = JSON.stringify({
+        _version: 1,
+        quest: {
+          id: "custom-1000",
+          category: "propositional-basics",
+          title: "test",
+          description: "desc",
+          difficulty: 1,
+          systemPresetId: "lukasiewicz",
+          goals: [{ formulaText: "phi" }],
+          hints: [],
+          estimatedSteps: 5,
+          learningPoint: "lp",
+          version: 1,
+        },
+      });
+      const result = importCustomQuestFromJson(
+        createEmptyCustomQuestCollection(),
+        json,
+        1000,
+      );
+      expect(result._tag).toBe("InvalidFormat");
+    });
+
+    it("_versionが異なるとInvalidFormatを返す", () => {
+      const json = createExportedJson({ _version: 2 });
+      const result = importCustomQuestFromJson(
+        createEmptyCustomQuestCollection(),
+        json,
+        1000,
+      );
+      expect(result._tag).toBe("InvalidFormat");
+    });
+
+    it("questデータが不正だとInvalidQuestを返す", () => {
+      const json = createExportedJson({
+        quest: { id: "not-custom", title: "bad" },
+      });
+      const result = importCustomQuestFromJson(
+        createEmptyCustomQuestCollection(),
+        json,
+        1000,
+      );
+      expect(result._tag).toBe("InvalidQuest");
+    });
+
+    it("ID重複時はDuplicateIdを返す", () => {
+      // まず1つ追加
+      const r1 = addCustomQuest(
+        createEmptyCustomQuestCollection(),
+        sampleParams,
+        2000,
+      );
+      expect(r1.ok).toBe(true);
+      if (!r1.ok) return;
+
+      // 同じnowでインポート → ID重複
+      const json = createExportedJson();
+      const result = importCustomQuestFromJson(r1.value.collection, json, 2000);
+      expect(result._tag).toBe("DuplicateId");
+    });
+
+    it("エクスポート→インポートのラウンドトリップが成功する", () => {
+      // エクスポート
+      const r1 = addCustomQuest(
+        createEmptyCustomQuestCollection(),
+        {
+          ...sampleParams,
+          goals: [
+            {
+              formulaText: "phi -> phi",
+              label: "Goal 1",
+              allowedAxiomIds: ["A1"],
+              allowedRuleIds: ["mp"],
+            },
+          ],
+        },
+        1000,
+      );
+      expect(r1.ok).toBe(true);
+      if (!r1.ok) return;
+
+      const quest = r1.value.collection.quests.get(r1.value.questId);
+      if (quest === undefined) return;
+
+      const json = exportCustomQuestAsJson(quest);
+
+      // インポート（別のコレクションに）
+      const result = importCustomQuestFromJson(
+        createEmptyCustomQuestCollection(),
+        json,
+        3000,
+      );
+
+      expect(result._tag).toBe("Ok");
+      if (result._tag !== "Ok") return;
+
+      const imported = result.collection.quests.get(result.questId);
+      expect(imported?.title).toBe("テストクエスト");
+      expect(imported?.description).toBe("テストの説明");
+      expect(imported?.category).toBe("propositional-basics");
+      expect(imported?.difficulty).toBe(2);
+      expect(imported?.systemPresetId).toBe("lukasiewicz");
+      expect(imported?.goals[0]?.formulaText).toBe("phi -> phi");
+      expect(imported?.goals[0]?.label).toBe("Goal 1");
+      expect(imported?.goals[0]?.allowedAxiomIds).toEqual(["A1"]);
+      expect(imported?.goals[0]?.allowedRuleIds).toEqual(["mp"]);
+      expect(imported?.hints).toEqual(["ヒント1"]);
+      expect(imported?.estimatedSteps).toBe(5);
+      expect(imported?.learningPoint).toBe("テスト学習ポイント");
+    });
+
+    it("既存のコレクションにインポートを追加できる", () => {
+      const r1 = addCustomQuest(
+        createEmptyCustomQuestCollection(),
+        sampleParams,
+        1000,
+      );
+      expect(r1.ok).toBe(true);
+      if (!r1.ok) return;
+
+      const json = createExportedJson();
+      const result = importCustomQuestFromJson(r1.value.collection, json, 2000);
+
+      expect(result._tag).toBe("Ok");
+      if (result._tag !== "Ok") return;
+
+      expect(result.collection.quests.size).toBe(2);
+      expect(result.collection.quests.has("custom-1000")).toBe(true);
+      expect(result.collection.quests.has("custom-2000")).toBe(true);
+    });
+
+    it("元のコレクションは変更されない（イミュータブル）", () => {
+      const original = createEmptyCustomQuestCollection();
+      const json = createExportedJson();
+      const result = importCustomQuestFromJson(original, json, 2000);
+
+      expect(result._tag).toBe("Ok");
+      expect(original.quests.size).toBe(0);
     });
   });
 

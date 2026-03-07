@@ -71,6 +71,10 @@ export type HubPageViewProps = {
   readonly onCreateCustomQuest?: (params: CreateCustomQuestParams) => void;
   /** ビルトインクエストを自作クエストに複製する */
   readonly onDuplicateBuiltinToCustom?: (questId: string) => void;
+  /** 自作クエストをJSONエクスポートする */
+  readonly onExportCustomQuest?: (questId: string) => void;
+  /** JSONから自作クエストをインポートする */
+  readonly onImportCustomQuest?: (jsonString: string) => void;
   /** 初期タブ（テスト用） */
   readonly initialTab?: HubTab;
   /** 言語切り替え（指定時に LanguageToggle を表示） */
@@ -221,6 +225,8 @@ export function HubPageView({
   onEditCustomQuest,
   onCreateCustomQuest,
   onDuplicateBuiltinToCustom,
+  onExportCustomQuest,
+  onImportCustomQuest,
   initialTab = "notebooks",
   languageToggle,
   notebookCounts,
@@ -382,6 +388,8 @@ export function HubPageView({
                 onDeleteQuest={onDeleteCustomQuest}
                 onEditQuest={onEditCustomQuest}
                 onCreateQuest={onCreateCustomQuest}
+                onExportQuest={onExportCustomQuest}
+                onImportQuest={onImportCustomQuest}
               />
             )}
           </>

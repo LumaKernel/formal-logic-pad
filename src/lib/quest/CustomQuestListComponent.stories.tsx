@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { fn, expect, within, userEvent } from "storybook/test";
+import { fn, expect, within, userEvent, fireEvent } from "storybook/test";
 import { CustomQuestList } from "./CustomQuestListComponent";
 import type { QuestCatalogItem } from "./questCatalog";
 import type { QuestDefinition } from "./questDefinition";
@@ -97,6 +97,8 @@ const meta = {
     onDeleteQuest: fn(),
     onEditQuest: fn(),
     onCreateQuest: fn(),
+    onExportQuest: fn(),
+    onImportQuest: fn(),
   },
 } satisfies Meta<typeof CustomQuestList>;
 
@@ -118,15 +120,22 @@ export const Default: Story = {
     await expect(canvas.getByText("恒等律の練習")).toBeInTheDocument();
     await expect(canvas.getByText("ド・モルガンの法則")).toBeInTheDocument();
     await expect(canvas.getByText("対偶")).toBeInTheDocument();
-    // 編集・複製・削除ボタンが表示されていること
+    // 編集・エクスポート・複製・削除ボタンが表示されていること
     await expect(
       canvas.getByTestId("custom-quest-edit-btn-custom-1001"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("custom-quest-export-btn-custom-1001"),
     ).toBeInTheDocument();
     await expect(
       canvas.getByTestId("custom-quest-duplicate-btn-custom-1001"),
     ).toBeInTheDocument();
     await expect(
       canvas.getByTestId("custom-quest-delete-btn-custom-1001"),
+    ).toBeInTheDocument();
+    // インポートボタンがヘッダーに表示されていること
+    await expect(
+      canvas.getByTestId("custom-quest-import-btn"),
     ).toBeInTheDocument();
   },
 };
@@ -207,18 +216,27 @@ export const WithoutActions: Story = {
     onDuplicateQuest: undefined,
     onDeleteQuest: undefined,
     onEditQuest: undefined,
+    onExportQuest: undefined,
+    onImportQuest: undefined,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // 編集・複製・削除ボタンが表示されないこと
+    // 編集・エクスポート・複製・削除ボタンが表示されないこと
     await expect(
       canvas.queryByTestId("custom-quest-edit-btn-custom-1001"),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId("custom-quest-export-btn-custom-1001"),
     ).not.toBeInTheDocument();
     await expect(
       canvas.queryByTestId("custom-quest-duplicate-btn-custom-1001"),
     ).not.toBeInTheDocument();
     await expect(
       canvas.queryByTestId("custom-quest-delete-btn-custom-1001"),
+    ).not.toBeInTheDocument();
+    // インポートボタンも非表示
+    await expect(
+      canvas.queryByTestId("custom-quest-import-btn"),
     ).not.toBeInTheDocument();
   },
 };
@@ -411,5 +429,96 @@ export const CreateNewQuestCancel: Story = {
 
     // onCreateQuest は呼ばれていないこと
     await expect(args.onCreateQuest).not.toHaveBeenCalled();
+  },
+};
+
+export const ExportQuest: Story = {
+  args: {
+    items: sampleItems,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // JSONエクスポートボタンが表示されていること
+    const exportBtn = canvas.getByTestId("custom-quest-export-btn-custom-1001");
+    await expect(exportBtn).toBeInTheDocument();
+    await expect(exportBtn).toHaveTextContent("JSON");
+
+    // クリックするとonExportQuestが呼ばれる
+    await userEvent.click(exportBtn);
+    await expect(args.onExportQuest).toHaveBeenCalledWith("custom-1001");
+
+    // onStartQuestは呼ばれないこと（stopPropagation）
+    await expect(args.onStartQuest).not.toHaveBeenCalled();
+  },
+};
+
+export const ImportQuest: Story = {
+  args: {
+    items: sampleItems,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // インポートボタンが表示されていること
+    const importBtn = canvas.getByTestId("custom-quest-import-btn");
+    await expect(importBtn).toBeInTheDocument();
+    await expect(importBtn).toHaveTextContent("インポート");
+
+    // インポートボタンをクリックしてフォームを開く
+    await userEvent.click(importBtn);
+
+    // フォームが表示されること
+    await expect(
+      canvas.getByTestId("custom-quest-import-form"),
+    ).toBeInTheDocument();
+
+    // ボタンのテキストが「閉じる」に変わること
+    await expect(importBtn).toHaveTextContent("閉じる");
+
+    // JSONテキストを入力（userEvent.typeは{を特殊文字として解釈するためfireEventを使用）
+    const jsonInput = canvas.getByTestId(
+      "import-json-input",
+    ) as HTMLTextAreaElement;
+    const jsonText =
+      '{"_format":"intro-formal-proof-quest","_version":1,"quest":{"id":"custom-9999","category":"propositional-basics","title":"test","description":"desc","difficulty":1,"systemPresetId":"lukasiewicz","goals":[{"formulaText":"phi -> phi"}],"hints":[],"estimatedSteps":3,"learningPoint":"lp","order":0,"version":1}}';
+    fireEvent.change(jsonInput, { target: { value: jsonText } });
+
+    // インポートボタンをクリック
+    await userEvent.click(canvas.getByTestId("import-submit-btn"));
+
+    // onImportQuestが呼ばれること
+    await expect(args.onImportQuest).toHaveBeenCalled();
+
+    // フォームが閉じること
+    await expect(
+      canvas.queryByTestId("custom-quest-import-form"),
+    ).not.toBeInTheDocument();
+  },
+};
+
+export const ImportQuestCancel: Story = {
+  args: {
+    items: sampleItems,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // インポートフォームを開く
+    await userEvent.click(canvas.getByTestId("custom-quest-import-btn"));
+    await expect(
+      canvas.getByTestId("custom-quest-import-form"),
+    ).toBeInTheDocument();
+
+    // キャンセルボタンをクリック
+    await userEvent.click(canvas.getByTestId("import-cancel-btn"));
+
+    // フォームが閉じること
+    await expect(
+      canvas.queryByTestId("custom-quest-import-form"),
+    ).not.toBeInTheDocument();
+
+    // onImportQuestは呼ばれないこと
+    await expect(args.onImportQuest).not.toHaveBeenCalled();
   },
 };
