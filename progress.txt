@@ -9207,3 +9207,20 @@
   - コンテキストメニュー項目の条件付き表示は `{callback !== undefined ? <MenuItem /> : null}` パターン
   - 後続タスク: 親コンポーネント（WorkspaceContent等）でonSaveProofToCollectionをuseProofCollectionに接続、コレクション管理UI、証明の挿入機能
 ---
+## 2026-03-07 - [proof-collection] エンドツーエンド保存接続
+- 実装した内容:
+  - WorkspaceContent: useProofCollection() hookを呼び出し、handleSaveToCollectionコールバックを作成
+  - WorkspacePageView: onSaveProofToCollection propを追加し、ProofWorkspaceに転送
+  - これにより、コンテキストメニューの「コレクションに保存」が実際にlocalStorageに永続化されるようになった
+- 変更したファイル:
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (useProofCollection import, handleSaveToCollection, prop渡し)
+  - `src/app/workspace/[id]/WorkspacePageView.tsx` (ProofSaveParams import, prop定義, ProofWorkspaceへの転送)
+- カバレッジ: ベースライン Stmts 99.09% / Branch 93.99% → 完了後 同一 (維持)
+- テスト: 7628 passed (変更なし)
+- 品質チェック: typecheck ✅, lint ✅, test ✅, prettier ✅
+- ブラウザテスト: Playwright MCPでNext.jsアプリ(localhost:13000)確認。ノートブック作成→公理追加→右クリック→「Save to Collection」クリック→localStorage確認で永続化を実証。スクリーンショット: .screenshots/proof-collection-save-e2e.png, .screenshots/proof-collection-context-menu.png
+- **今後のイテレーションへの学び:**
+  - アプリ層の接続はシンプルなprop転送パターン: WorkspaceContent(container) → WorkspacePageView(presentation) → ProofWorkspace(component)
+  - useProofCollection.addEntry の引数型は Omit<AddEntryParams, "now"> = ProofSaveParams なので直接渡せる
+  - 後続タスク: コレクション管理UI（名前・メモ編集、フォルダ分け）、証明の呼び出し・挿入機能、互換性チェック
+---
