@@ -1109,6 +1109,41 @@ export const ShiftClickSelectionToggle: Story = {
   },
 };
 
+// --- Multi-Selection Drag ---
+
+/** マルチセレクションドラッグ: 複数ノードを選択した状態でドラッグ可能。
+ *  ドラッグ動作検証はPlaywright MCPブラウザテストで実施。 */
+export const MultiSelectionDrag: Story = {
+  render: () => <MarqueeSelectionWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    const node1 = canvas.getByTestId("proof-node-node-1");
+    const node2 = canvas.getByTestId("proof-node-node-2");
+    const user = userEvent.setup();
+
+    // 1. クリックでnode1を選択
+    await user.click(node1);
+    await expect(
+      canvas.getByTestId("workspace-selection-banner"),
+    ).toHaveTextContent("1 node(s) selected");
+
+    // 2. Shift+クリックでnode2を追加選択
+    await user.keyboard("{Shift>}");
+    await user.click(node2);
+    await user.keyboard("{/Shift}");
+    await expect(
+      canvas.getByTestId("workspace-selection-banner"),
+    ).toHaveTextContent("2 node(s) selected");
+
+    // 3. 2ノード選択状態が確立されていることを確認
+    // 実際のドラッグ動作（1つドラッグで全選択ノードが平行移動）はブラウザテストで検証
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+  },
+};
+
 // --- 代入操作（Substitution Application）---
 
 function SubstitutionAppliedWorkspace() {
