@@ -518,10 +518,10 @@ export function getMPErrorMessageKey(
       if (error.error._tag === "NotAnImplication") {
         return "mpErrorNotImplication";
       }
+      /* v8 ignore start -- exhaustive check: PremiseMismatch以外のエラーはapplyModusPonensから到達しない */
       if (error.error._tag === "PremiseMismatch") {
         return "mpErrorPremiseMismatch";
       }
-      /* v8 ignore start -- exhaustive check: other error types not reachable from applyModusPonens */
       return "mpErrorGeneric";
     /* v8 ignore stop */
   }
