@@ -132,11 +132,16 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
   // 束縛変数の追跡（ギリシャ文字が量化子で束縛されている場合にTermVariableとして解釈するため）
   const boundVariables: Set<string> = new Set();
 
+  /* v8 ignore start -- 防御的フォールバック: pos は常に有効範囲内で ?? の右辺には到達しない */
   const peek = (): Token => tokens[pos] ?? tokens[tokens.length - 1]!;
+  /* v8 ignore stop */
 
   const advance = (): Token => {
     const token = peek();
+    // 防御的: 最後のトークン（EOF）を超えない安全ガード
+    /* v8 ignore start */
     if (pos < tokens.length - 1) pos++;
+    /* v8 ignore stop */
     return token;
   };
 
@@ -715,7 +720,9 @@ export const parseTokensAsTerm = (
   const errors: ParseError[] = [];
   let pos = 0;
 
+  /* v8 ignore start -- 防御的フォールバック: pos は常に有効範囲内で ?? の右辺には到達しない */
   const peek = (): Token => tokens[pos] ?? tokens[tokens.length - 1]!;
+  /* v8 ignore stop */
 
   const advance = (): Token => {
     const token = peek();

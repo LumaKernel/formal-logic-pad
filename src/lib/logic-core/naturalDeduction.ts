@@ -258,7 +258,8 @@ export const implicationElim = (
   const conclusion =
     rightConclusion instanceof Implication
       ? rightConclusion.right
-      : rightConclusion; // フォールバック（バリデーションでエラーになる）
+      : /* v8 ignore start -- 防御的フォールバック: バリデーション時にエラーとなるため通常到達しない */
+        rightConclusion; /* v8 ignore stop */
   return {
     _tag: "NdImplicationElim",
     formula: conclusion,
@@ -284,7 +285,8 @@ export const conjunctionElimLeft = (
   const formula =
     premConclusion instanceof Conjunction
       ? premConclusion.left
-      : premConclusion; // フォールバック
+      : /* v8 ignore start -- 防御的フォールバック: バリデーション時にエラーとなるため通常到達しない */
+        premConclusion; /* v8 ignore stop */
   return {
     _tag: "NdConjunctionElimLeft",
     formula,
@@ -299,7 +301,8 @@ export const conjunctionElimRight = (
   const formula =
     premConclusion instanceof Conjunction
       ? premConclusion.right
-      : premConclusion; // フォールバック
+      : /* v8 ignore start -- 防御的フォールバック: バリデーション時にエラーとなるため通常到達しない */
+        premConclusion; /* v8 ignore stop */
   return {
     _tag: "NdConjunctionElimRight",
     formula,
@@ -356,7 +359,8 @@ export const dneRule = (premise: NdProofNode): NdDne => {
     premConclusion instanceof Negation &&
     premConclusion.formula instanceof Negation
       ? premConclusion.formula.formula
-      : premConclusion; // フォールバック
+      : /* v8 ignore start -- 防御的フォールバック: バリデーション時にエラーとなるため通常到達しない */
+        premConclusion; /* v8 ignore stop */
   return {
     _tag: "NdDne",
     formula,

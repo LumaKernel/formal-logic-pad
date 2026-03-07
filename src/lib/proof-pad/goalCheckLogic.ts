@@ -97,7 +97,9 @@ export function parseNodeFormula(formulaText: string): Formula | undefined {
       parts.succedentTexts.length === 1
     ) {
       const succText = parts.succedentTexts[0];
+      /* v8 ignore start -- 防御的: length === 1 で保証されるため succText は常に存在する */
       if (succText !== undefined) {
+        /* v8 ignore stop */
         const succResult = parseString(succText);
         if (Either.isRight(succResult)) return succResult.right;
       }

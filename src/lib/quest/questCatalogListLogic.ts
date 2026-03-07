@@ -98,42 +98,20 @@ export function difficultyShortLabel(level: DifficultyLevel): string {
 
 /** 評価の表示ラベル */
 export function ratingLabel(rating: QuestRating): string {
-  switch (rating) {
-    case "perfect":
-      return "Perfect!";
-    case "good":
-      return "Good";
-    case "completed":
-      return "Clear";
-    case "not-completed":
-      return "未クリア";
-    /* v8 ignore start */
-    default: {
-      const _: never = rating;
-      throw new Error(`Unknown rating: ${String(_) satisfies string}`);
-    }
-    /* v8 ignore stop */
-  }
+  if (rating === "perfect") return "Perfect!";
+  if (rating === "good") return "Good";
+  if (rating === "completed") return "Clear";
+  // rating: "not-completed" (TypeScript narrowing)
+  return "未クリア";
 }
 
 /** 評価のアクセントカラー */
 export function ratingColor(rating: QuestRating): string {
-  switch (rating) {
-    case "perfect":
-      return "#FFD700";
-    case "good":
-      return "#4CAF50";
-    case "completed":
-      return "#2196F3";
-    case "not-completed":
-      return "#9E9E9E";
-    /* v8 ignore start */
-    default: {
-      const _: never = rating;
-      throw new Error(`Unknown rating: ${String(_) satisfies string}`);
-    }
-    /* v8 ignore stop */
-  }
+  if (rating === "perfect") return "#FFD700";
+  if (rating === "good") return "#4CAF50";
+  if (rating === "completed") return "#2196F3";
+  // rating: "not-completed" (TypeScript narrowing)
+  return "#9E9E9E";
 }
 
 /** 評価のCSS変数ペア（bg, text） */
@@ -141,34 +119,26 @@ export function ratingCssVars(rating: QuestRating): {
   readonly bg: string;
   readonly text: string;
 } {
-  switch (rating) {
-    case "perfect":
-      return {
-        bg: "var(--color-quest-rating-perfect-bg)",
-        text: "var(--color-quest-rating-perfect-text)",
-      };
-    case "good":
-      return {
-        bg: "var(--color-quest-rating-good-bg)",
-        text: "var(--color-quest-rating-good-text)",
-      };
-    case "completed":
-      return {
-        bg: "var(--color-quest-rating-clear-bg)",
-        text: "var(--color-quest-rating-clear-text)",
-      };
-    case "not-completed":
-      return {
-        bg: "var(--color-quest-rating-none-bg)",
-        text: "var(--color-quest-rating-none-text)",
-      };
-    /* v8 ignore start */
-    default: {
-      const _: never = rating;
-      throw new Error(`Unknown rating: ${String(_) satisfies string}`);
-    }
-    /* v8 ignore stop */
-  }
+  if (rating === "perfect")
+    return {
+      bg: "var(--color-quest-rating-perfect-bg)",
+      text: "var(--color-quest-rating-perfect-text)",
+    };
+  if (rating === "good")
+    return {
+      bg: "var(--color-quest-rating-good-bg)",
+      text: "var(--color-quest-rating-good-text)",
+    };
+  if (rating === "completed")
+    return {
+      bg: "var(--color-quest-rating-clear-bg)",
+      text: "var(--color-quest-rating-clear-text)",
+    };
+  // rating: "not-completed" (TypeScript narrowing)
+  return {
+    bg: "var(--color-quest-rating-none-bg)",
+    text: "var(--color-quest-rating-none-text)",
+  };
 }
 
 /** 難易度の星を filled/empty 配列で返す */

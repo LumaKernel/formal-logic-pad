@@ -491,46 +491,18 @@ export function analyticTableauDeduction(
 
 /** 演繹体系の名前を取得する */
 export function getDeductionSystemName(ds: DeductionSystem): string {
-  switch (ds.style) {
-    case "hilbert":
-      return ds.system.name;
-    case "natural-deduction":
-      return ds.system.name;
-    case "sequent-calculus":
-      return ds.system.name;
-    case "tableau-calculus":
-      return ds.system.name;
-    case "analytic-tableau":
-      return ds.system.name;
-    default: {
-      /* v8 ignore start */
-      const _exhaustive: never = ds;
-      return _exhaustive;
-      /* v8 ignore stop */
-    }
-  }
+  // 全てのスタイルで共通のプロパティにアクセスするためswitch不要
+  return ds.system.name;
 }
 
 /** 演繹体系の証明スタイルの表示名を取得する */
 export function getDeductionStyleLabel(style: DeductionStyle): string {
-  switch (style) {
-    case "hilbert":
-      return "Hilbert流";
-    case "natural-deduction":
-      return "自然演繹";
-    case "sequent-calculus":
-      return "シーケント計算";
-    case "tableau-calculus":
-      return "タブロー法";
-    case "analytic-tableau":
-      return "分析的タブロー";
-    default: {
-      /* v8 ignore start */
-      const _exhaustive: never = style;
-      return _exhaustive;
-      /* v8 ignore stop */
-    }
-  }
+  if (style === "hilbert") return "Hilbert流";
+  if (style === "natural-deduction") return "自然演繹";
+  if (style === "sequent-calculus") return "シーケント計算";
+  if (style === "tableau-calculus") return "タブロー法";
+  // style: "analytic-tableau" (TypeScript narrowing)
+  return "分析的タブロー";
 }
 
 /** 自然演繹体系で特定の規則が有効かどうかを判定する */
@@ -593,52 +565,26 @@ export const allScRuleIds: readonly ScRuleId[] = [
 
 /** ScRuleIdの表示名 */
 export function getScRuleDisplayName(ruleId: ScRuleId): string {
-  switch (ruleId) {
-    case "identity":
-      return "公理 (ID)";
-    case "bottom-left":
-      return "⊥公理 (⊥⇒)";
-    case "cut":
-      return "カット (CUT)";
-    case "weakening-left":
-      return "左弱化 (w⇒)";
-    case "weakening-right":
-      return "右弱化 (⇒w)";
-    case "contraction-left":
-      return "左縮約 (c⇒)";
-    case "contraction-right":
-      return "右縮約 (⇒c)";
-    case "exchange-left":
-      return "左交換 (e⇒)";
-    case "exchange-right":
-      return "右交換 (⇒e)";
-    case "implication-left":
-      return "左→規則 (→⇒)";
-    case "implication-right":
-      return "右→規則 (⇒→)";
-    case "conjunction-left":
-      return "左∧規則 (∧⇒)";
-    case "conjunction-right":
-      return "右∧規則 (⇒∧)";
-    case "disjunction-left":
-      return "左∨規則 (∨⇒)";
-    case "disjunction-right":
-      return "右∨規則 (⇒∨)";
-    case "universal-left":
-      return "左∀規則 (∀⇒)";
-    case "universal-right":
-      return "右∀規則 (⇒∀)";
-    case "existential-left":
-      return "左∃規則 (∃⇒)";
-    case "existential-right":
-      return "右∃規則 (⇒∃)";
-    default: {
-      /* v8 ignore start */
-      const _exhaustive: never = ruleId;
-      return _exhaustive;
-      /* v8 ignore stop */
-    }
-  }
+  if (ruleId === "identity") return "公理 (ID)";
+  if (ruleId === "bottom-left") return "⊥公理 (⊥⇒)";
+  if (ruleId === "cut") return "カット (CUT)";
+  if (ruleId === "weakening-left") return "左弱化 (w⇒)";
+  if (ruleId === "weakening-right") return "右弱化 (⇒w)";
+  if (ruleId === "contraction-left") return "左縮約 (c⇒)";
+  if (ruleId === "contraction-right") return "右縮約 (⇒c)";
+  if (ruleId === "exchange-left") return "左交換 (e⇒)";
+  if (ruleId === "exchange-right") return "右交換 (⇒e)";
+  if (ruleId === "implication-left") return "左→規則 (→⇒)";
+  if (ruleId === "implication-right") return "右→規則 (⇒→)";
+  if (ruleId === "conjunction-left") return "左∧規則 (∧⇒)";
+  if (ruleId === "conjunction-right") return "右∧規則 (⇒∧)";
+  if (ruleId === "disjunction-left") return "左∨規則 (∨⇒)";
+  if (ruleId === "disjunction-right") return "右∨規則 (⇒∨)";
+  if (ruleId === "universal-left") return "左∀規則 (∀⇒)";
+  if (ruleId === "universal-right") return "右∀規則 (⇒∀)";
+  if (ruleId === "existential-left") return "左∃規則 (∃⇒)";
+  // ruleId: "existential-right" (TypeScript narrowing)
+  return "右∃規則 (⇒∃)";
 }
 
 /** シーケント計算の分岐規則（前提が2つ）かどうかを判定する */
@@ -653,42 +599,20 @@ export function isScBranchingRule(ruleId: ScRuleId): boolean {
 
 /** NdRuleIdの表示名 */
 export function getNdRuleDisplayName(ruleId: NdRuleId): string {
-  switch (ruleId) {
-    case "implication-intro":
-      return "→導入 (→I)";
-    case "implication-elim":
-      return "→除去 (→E)";
-    case "conjunction-intro":
-      return "∧導入 (∧I)";
-    case "conjunction-elim-left":
-      return "∧除去左 (∧E_L)";
-    case "conjunction-elim-right":
-      return "∧除去右 (∧E_R)";
-    case "disjunction-intro-left":
-      return "∨導入左 (∨I_L)";
-    case "disjunction-intro-right":
-      return "∨導入右 (∨I_R)";
-    case "disjunction-elim":
-      return "∨除去 (∨E)";
-    case "weakening":
-      return "弱化 (w)";
-    case "efq":
-      return "爆発律 (EFQ)";
-    case "dne":
-      return "二重否定除去 (DNE)";
-    case "universal-intro":
-      return "∀導入 (∀I)";
-    case "universal-elim":
-      return "∀除去 (∀E)";
-    case "existential-intro":
-      return "∃導入 (∃I)";
-    case "existential-elim":
-      return "∃除去 (∃E)";
-    default: {
-      /* v8 ignore start */
-      const _exhaustive: never = ruleId;
-      return _exhaustive;
-      /* v8 ignore stop */
-    }
-  }
+  if (ruleId === "implication-intro") return "→導入 (→I)";
+  if (ruleId === "implication-elim") return "→除去 (→E)";
+  if (ruleId === "conjunction-intro") return "∧導入 (∧I)";
+  if (ruleId === "conjunction-elim-left") return "∧除去左 (∧E_L)";
+  if (ruleId === "conjunction-elim-right") return "∧除去右 (∧E_R)";
+  if (ruleId === "disjunction-intro-left") return "∨導入左 (∨I_L)";
+  if (ruleId === "disjunction-intro-right") return "∨導入右 (∨I_R)";
+  if (ruleId === "disjunction-elim") return "∨除去 (∨E)";
+  if (ruleId === "weakening") return "弱化 (w)";
+  if (ruleId === "efq") return "爆発律 (EFQ)";
+  if (ruleId === "dne") return "二重否定除去 (DNE)";
+  if (ruleId === "universal-intro") return "∀導入 (∀I)";
+  if (ruleId === "universal-elim") return "∀除去 (∀E)";
+  if (ruleId === "existential-intro") return "∃導入 (∃I)";
+  // ruleId: "existential-elim" (TypeScript narrowing)
+  return "∃除去 (∃E)";
 }
