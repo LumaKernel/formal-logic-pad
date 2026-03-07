@@ -190,6 +190,22 @@ function HubInner() {
     [customQuestCollection],
   );
 
+  // Duplicate builtin quest to custom
+  const handleDuplicateBuiltinToCustom = useCallback(
+    (questId: string) => {
+      const source = findQuestById(allQuests, questId);
+      if (source === undefined) return;
+      const result = duplicateAsCustomQuest(
+        customQuestCollection.collection,
+        source,
+        getNow(),
+      );
+      if (!result.ok) return;
+      customQuestCollection.setCollection(result.value.collection);
+    },
+    [allQuests, customQuestCollection],
+  );
+
   // Delete custom quest
   const handleDeleteCustomQuest = useCallback(
     (questId: string) => {
@@ -247,6 +263,7 @@ function HubInner() {
         onDeleteCustomQuest={handleDeleteCustomQuest}
         onEditCustomQuest={handleEditCustomQuest}
         onCreateCustomQuest={handleCreateCustomQuest}
+        onDuplicateBuiltinToCustom={handleDuplicateBuiltinToCustom}
         languageToggle={{ locale, onLocaleChange: switchLocale }}
         notebookCounts={notebookCounts}
       />

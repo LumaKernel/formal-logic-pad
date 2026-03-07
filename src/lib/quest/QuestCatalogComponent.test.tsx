@@ -523,3 +523,66 @@ describe("ノートブック数バッジ", () => {
     expect(screen.queryByTestId("notebook-count-q2")).toBeNull();
   });
 });
+
+// --- 自作に複製ボタン ---
+
+describe("自作に複製ボタン", () => {
+  it("onDuplicateToCustomが未指定のときボタンが表示されない", () => {
+    render(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    expect(screen.queryByTestId("duplicate-to-custom-btn-q1")).toBeNull();
+    expect(screen.queryByTestId("duplicate-to-custom-btn-q2")).toBeNull();
+  });
+
+  it("onDuplicateToCustomが指定されているとき各クエストにボタンが表示される", () => {
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        onDuplicateToCustom={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId("duplicate-to-custom-btn-q1")).toBeTruthy();
+    expect(screen.getByTestId("duplicate-to-custom-btn-q2")).toBeTruthy();
+  });
+
+  it("ボタンに「自作に複製」と表示される", () => {
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        onDuplicateToCustom={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId("duplicate-to-custom-btn-q1").textContent).toBe(
+      "自作に複製",
+    );
+  });
+
+  it("ボタンクリックでonDuplicateToCustomが呼ばれる", async () => {
+    const user = userEvent.setup();
+    const onDuplicate = vi.fn();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        onDuplicateToCustom={onDuplicate}
+      />,
+    );
+    await user.click(screen.getByTestId("duplicate-to-custom-btn-q1"));
+    expect(onDuplicate).toHaveBeenCalledWith("q1");
+  });
+
+  it("ボタンクリックでonStartQuestが呼ばれない（stopPropagation）", async () => {
+    const user = userEvent.setup();
+    const onStart = vi.fn();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={onStart}
+        onDuplicateToCustom={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("duplicate-to-custom-btn-q1"));
+    expect(onStart).not.toHaveBeenCalled();
+  });
+});
