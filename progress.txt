@@ -9750,3 +9750,31 @@
   - isCreating状態とeditingQuestIdは排他制御（作成中は編集クローズ、編集中は作成クローズ）
   - onCreateQuest は optional prop なので、undefined の場合は「新規作成」ボタンが非表示になる
 ---
+
+## 2026-03-07 - custom-quest: ビルトインクエストを自作に複製するボタン
+- 実装した内容:
+  - QuestCatalogComponent.tsx に onDuplicateToCustom props と「自作に複製」ボタンを追加
+  - HubPageView.tsx に onDuplicateBuiltinToCustom props を追加し QuestCatalog に渡す
+  - HubContent.tsx に handleDuplicateBuiltinToCustom ハンドラを実装（既存の duplicateAsCustomQuest + findQuestById を利用）
+  - QuestCatalogComponent.test.tsx に 5つのテスト追加（ボタン表示/非表示、テキスト、コールバック、stopPropagation）
+  - QuestCatalogComponent.stories.tsx に DuplicateToCustom ストーリー（play関数付き）追加
+  - HubPageView.stories.tsx の WithCustomQuests ストーリーに複製ボタンの検証追加
+  - また「作成したクエストからクエストノートを開始する」は既に実装済みであることを確認し [x] に更新
+- 変更したファイル:
+  - src/lib/quest/QuestCatalogComponent.tsx
+  - src/lib/quest/QuestCatalogComponent.test.tsx
+  - src/lib/quest/QuestCatalogComponent.stories.tsx
+  - src/app/HubPageView.tsx
+  - src/app/HubPageView.stories.tsx
+  - src/app/HubContent.tsx
+  - tasks/prd-custom-quests.md
+  - task-processing.md
+- カバレッジ: Stmts 98.58%→98.58%, Branch 92.98%→92.98%, Lines 99.42%→99.42% (変化なし)
+- テスト数: 8025→8031 (+6)
+- スクリーンショット: .screenshots/duplicate-to-custom-story.png, .screenshots/duplicate-to-custom-interactions.png, .screenshots/hub-with-custom-quests-story.png
+- **今後のイテレーションへの学び:**
+  - 既存の純粋関数 (duplicateAsCustomQuest) が UI から簡単に利用できた。純粋ロジック分離のアーキテクチャが効果的
+  - QuestCatalog の props スレッディング: QuestItem → CategorySection → QuestCatalog → HubPageView → HubContent の5層。optional prop で互換性維持
+  - ボタンのクリックイベントは e.stopPropagation() が必須（親のクエスト開始ボタンのクリックを防止）
+  - Storybook story URL パスは title に基づく: "Pages/Hub" → pages-hub--story-name
+---
