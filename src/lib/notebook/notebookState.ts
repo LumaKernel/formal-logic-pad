@@ -135,7 +135,12 @@ export function createQuestNotebook(
   const workspace = createQuestWorkspace(params.system, params.goals);
   const notebook: Notebook =
     params.questId !== undefined
-      ? { meta, workspace, questId: params.questId, questVersion: params.questVersion }
+      ? {
+          meta,
+          workspace,
+          questId: params.questId,
+          questVersion: params.questVersion,
+        }
       : { meta, workspace };
   return {
     notebooks: [...collection.notebooks, notebook],
