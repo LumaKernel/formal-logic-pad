@@ -30,15 +30,37 @@ export type NotebookMeta = {
   readonly updatedAt: number;
 };
 
-/** ノートブック（メタデータ + ワークスペース状態） */
-export type Notebook = {
+/** 自由帳ノートブック（クエスト情報なし） */
+export type FreeNotebook = {
   readonly meta: NotebookMeta;
   readonly workspace: WorkspaceState;
-  /** クエストから作成された場合のクエストID（自由帳の場合はundefined） */
-  readonly questId?: string;
-  /** クエスト作成時のクエスト定義バージョン（自由帳の場合はundefined） */
+  readonly questId?: undefined;
+  readonly questVersion?: undefined;
+};
+
+/** クエストノートブック（クエスト情報あり） */
+export type QuestNotebook = {
+  readonly meta: NotebookMeta;
+  readonly workspace: WorkspaceState;
+  readonly questId: string;
   readonly questVersion?: number;
 };
+
+/**
+ * ノートブック（メタデータ + ワークスペース状態）。
+ * Discriminated union: questId の有無で FreeNotebook / QuestNotebook に分かれる。
+ */
+export type Notebook = FreeNotebook | QuestNotebook;
+
+/** クエストノートブックかどうかを判定する型ガード */
+export function isQuestNotebook(notebook: Notebook) {
+  return notebook.questId !== undefined;
+}
+
+/** 自由帳ノートブックかどうかを判定する型ガード */
+export function isFreeNotebook(notebook: Notebook) {
+  return notebook.questId === undefined;
+}
 
 /** ノートブックのコレクション */
 export type NotebookCollection = {
@@ -104,17 +126,17 @@ export function createQuestNotebook(
   params: CreateQuestNotebookParams,
 ): NotebookCollection {
   const id = `notebook-${String(collection.nextId) satisfies string}`;
-  const notebook: Notebook = {
-    meta: {
-      id,
-      name: params.name,
-      createdAt: params.now,
-      updatedAt: params.now,
-    },
-    workspace: createQuestWorkspace(params.system, params.goals),
-    questId: params.questId,
-    questVersion: params.questVersion,
+  const meta: NotebookMeta = {
+    id,
+    name: params.name,
+    createdAt: params.now,
+    updatedAt: params.now,
   };
+  const workspace = createQuestWorkspace(params.system, params.goals);
+  const notebook: Notebook =
+    params.questId !== undefined
+      ? { meta, workspace, questId: params.questId, questVersion: params.questVersion }
+      : { meta, workspace };
   return {
     notebooks: [...collection.notebooks, notebook],
     nextId: collection.nextId + 1,
