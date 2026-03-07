@@ -327,6 +327,50 @@ describe("NotebookList", () => {
     });
   });
 
+  describe("クエスト進捗バッジ", () => {
+    it("進捗情報がない場合はバッジを表示しない", () => {
+      render(
+        <NotebookList
+          items={[makeItem("nb-1", "テスト", "quest")]}
+          {...defaultHandlers}
+        />,
+      );
+      expect(screen.queryByTestId("quest-progress-badge")).toBeNull();
+    });
+
+    it("部分達成時に進捗バッジを表示する", () => {
+      const item: NotebookListItem = {
+        ...makeItem("nb-1", "テスト", "quest"),
+        questProgress: { achievedCount: 1, totalCount: 3 },
+      };
+      render(<NotebookList items={[item]} {...defaultHandlers} />);
+      const badge = screen.getByTestId("quest-progress-badge");
+      expect(badge).toBeTruthy();
+      expect(badge.textContent).toBe("1/3");
+    });
+
+    it("全達成時に「達成済み」バッジを表示する", () => {
+      const item: NotebookListItem = {
+        ...makeItem("nb-1", "テスト", "quest"),
+        questProgress: { achievedCount: 2, totalCount: 2 },
+      };
+      render(<NotebookList items={[item]} {...defaultHandlers} />);
+      const badge = screen.getByTestId("quest-progress-badge");
+      expect(badge).toBeTruthy();
+      expect(badge.textContent).toBe("達成済み");
+    });
+
+    it("自由帳にquestProgressがない場合はバッジなし", () => {
+      render(
+        <NotebookList
+          items={[makeItem("nb-1", "テスト", "free")]}
+          {...defaultHandlers}
+        />,
+      );
+      expect(screen.queryByTestId("quest-progress-badge")).toBeNull();
+    });
+  });
+
   describe("キーボード操作", () => {
     it("EnterキーでonOpenが呼ばれる", () => {
       const onOpen = vi.fn();

@@ -26,6 +26,7 @@ const sampleNotebooks: readonly NotebookListItem[] = [
     questId: "prop-01",
     updatedAtLabel: "1 day ago",
     createdAtLabel: "1 week ago",
+    questProgress: { achievedCount: 1, totalCount: 3 },
   },
   {
     id: "notebook-3",
@@ -112,6 +113,35 @@ export const WithNotebooks: Story = {
     await expect(
       canvas.getByText("Group Theory Exploration"),
     ).toBeInTheDocument();
+  },
+};
+
+/** ノートブック一覧でクエスト進捗バッジが表示される */
+export const WithQuestProgress: Story = {
+  args: {
+    listItems: [
+      ...sampleNotebooks,
+      {
+        id: "notebook-4",
+        name: "Completed Quest",
+        systemName: "Lukasiewicz",
+        mode: "quest" as const,
+        questId: "prop-02",
+        updatedAtLabel: "3 days ago",
+        createdAtLabel: "1 week ago",
+        questProgress: { achievedCount: 2, totalCount: 2 },
+      },
+    ],
+    groups: sampleGroups,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // 部分達成バッジ（1/3）
+    await expect(canvas.getByText("1/3")).toBeInTheDocument();
+    // 全達成バッジ（達成済み）
+    await expect(canvas.getByText("達成済み")).toBeInTheDocument();
+    // 自由帳にはバッジなし
+    await expect(canvas.getByText("My First Proof")).toBeInTheDocument();
   },
 };
 

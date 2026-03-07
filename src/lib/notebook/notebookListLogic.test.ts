@@ -6,6 +6,7 @@ import {
   filterNotebooksByQuestId,
   validateNotebookName,
   deleteConfirmMessage,
+  questProgressText,
 } from "./notebookListLogic";
 import { lukasiewiczSystem } from "../logic-core/inferenceRule";
 import type { Notebook, NotebookMeta } from "./notebookState";
@@ -184,6 +185,29 @@ describe("validateNotebookName", () => {
 
   it("100文字ちょうどはvalid: true", () => {
     expect(validateNotebookName("a".repeat(100))).toEqual({ valid: true });
+  });
+});
+
+describe("questProgressText", () => {
+  it("全達成時は「達成済み」", () => {
+    expect(questProgressText({ achievedCount: 3, totalCount: 3 })).toBe(
+      "達成済み",
+    );
+  });
+
+  it("部分達成時は「N/M」形式", () => {
+    expect(questProgressText({ achievedCount: 1, totalCount: 3 })).toBe("1/3");
+  });
+
+  it("未達成時は「0/M」形式", () => {
+    expect(questProgressText({ achievedCount: 0, totalCount: 2 })).toBe("0/2");
+  });
+
+  it("totalCountが1の場合", () => {
+    expect(questProgressText({ achievedCount: 0, totalCount: 1 })).toBe("0/1");
+    expect(questProgressText({ achievedCount: 1, totalCount: 1 })).toBe(
+      "達成済み",
+    );
   });
 });
 

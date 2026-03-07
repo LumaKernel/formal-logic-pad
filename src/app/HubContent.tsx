@@ -9,6 +9,7 @@ import {
   builtinQuests,
   buildCatalogByCategory,
   computeQuestNotebookCounts,
+  enrichListItemsWithQuestProgress,
 } from "../lib/quest";
 import { ThemeProvider } from "../lib/theme/ThemeProvider";
 import type { DeductionSystem } from "../lib/logic-core/deductionSystem";
@@ -59,9 +60,13 @@ function HubInner() {
     [questProgress.progress],
   );
 
-  // Build notebook list items
+  // Build notebook list items with quest progress
   const listItems = useMemo(
-    () => toNotebookListItems(notebookCollection.notebooks, getNow()),
+    () =>
+      enrichListItemsWithQuestProgress(
+        toNotebookListItems(notebookCollection.notebooks, getNow()),
+        notebookCollection.notebooks,
+      ),
     [notebookCollection.notebooks],
   );
 

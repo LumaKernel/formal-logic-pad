@@ -162,3 +162,69 @@ export const OpenAction: Story = {
     await expect(args.onOpen).toHaveBeenCalledWith("nb-1");
   },
 };
+
+export const QuestProgressPartial: Story = {
+  args: {
+    items: [
+      {
+        ...makeItem("nb-1", "クエスト進行中", "quest"),
+        questProgress: { achievedCount: 1, totalCount: 3 },
+      },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const badge = canvas.getByTestId("quest-progress-badge");
+    await expect(badge).toBeInTheDocument();
+    await expect(badge).toHaveTextContent("1/3");
+    await expect(canvas.getByText("クエスト")).toBeInTheDocument();
+  },
+};
+
+export const QuestProgressComplete: Story = {
+  args: {
+    items: [
+      {
+        ...makeItem("nb-1", "クエスト達成済み", "quest"),
+        questProgress: { achievedCount: 3, totalCount: 3 },
+      },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const badge = canvas.getByTestId("quest-progress-badge");
+    await expect(badge).toBeInTheDocument();
+    await expect(badge).toHaveTextContent("達成済み");
+  },
+};
+
+export const QuestProgressMixed: Story = {
+  args: {
+    items: [
+      makeItem("nb-1", "自由帳ノート", "free"),
+      {
+        ...makeItem("nb-2", "進行中クエスト", "quest"),
+        questProgress: { achievedCount: 2, totalCount: 5 },
+      },
+      {
+        ...makeItem("nb-3", "達成済みクエスト", "quest"),
+        questProgress: { achievedCount: 3, totalCount: 3 },
+      },
+      makeItem("nb-4", "進捗なしクエスト", "quest"),
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // 自由帳にはバッジなし
+    await expect(canvas.getByText("自由帳ノート")).toBeInTheDocument();
+    // 進行中: 2/5 バッジ
+    await expect(canvas.getByText("2/5")).toBeInTheDocument();
+    // 達成済み: 達成済みバッジ
+    await expect(canvas.getByText("達成済み")).toBeInTheDocument();
+    // 進捗なしクエストにはバッジなし
+    await expect(canvas.getByText("進捗なしクエスト")).toBeInTheDocument();
+    // quest-progress-badge は2つ（進行中 + 達成済み）
+    const badges = canvas.getAllByTestId("quest-progress-badge");
+    await expect(badges).toHaveLength(2);
+  },
+};
