@@ -189,9 +189,7 @@ function ScriptEditorWithWorkspace() {
         );
         if (Either.isLeft(result.validation)) {
           const tag = result.validation.left._tag satisfies string;
-          throw new Error(
-            `Modus Ponens failed: ${tag satisfies string}`,
-          );
+          throw new Error(`Modus Ponens failed: ${tag satisfies string}`);
         }
         setWorkspace(result.workspace);
         return result.mpNodeId;
@@ -209,10 +207,7 @@ function ScriptEditorWithWorkspace() {
         setWorkspace(ws);
       },
       applyLayout: () => {
-        const ws = applyTreeLayout(
-          workspaceRef.current,
-          "bottom-to-top",
-        );
+        const ws = applyTreeLayout(workspaceRef.current, "bottom-to-top");
         setWorkspace(ws);
       },
     }),
@@ -228,7 +223,9 @@ function ScriptEditorWithWorkspace() {
       style={{ display: "flex", width: "100vw", height: "100vh" }}
       data-testid="script-workspace-integration"
     >
-      <div style={{ width: "50%", height: "100%", borderRight: "1px solid #333" }}>
+      <div
+        style={{ width: "50%", height: "100%", borderRight: "1px solid #333" }}
+      >
         <ScriptEditorComponent
           initialCode={`// ワークスペース操作デモ
 // addNode, setNodeFormula, connectMP, applyLayout が使えます
