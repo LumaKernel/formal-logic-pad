@@ -143,6 +143,7 @@ import {
   applyTabRuleAndConnect,
   applyAtRuleAndConnect,
   applyScRuleAndConnect,
+  importProofFromCollection,
 } from "./workspaceState";
 import {
   findMergeableGroups,
@@ -2305,6 +2306,23 @@ export function ProofWorkspace({
     setNodeMenuState(closeNodeMenu());
   }, [nodeMenuState, onSaveProofToCollection, workspace, axiomIdByNodeId]);
 
+  // コレクションパネルからの証明インポート
+  const handleImportFromCollection = useCallback(
+    (entry: ProofEntry) => {
+      const center: Point = {
+        x: -viewport.offsetX / viewport.scale + 300,
+        y: -viewport.offsetY / viewport.scale + 300,
+      };
+      const result = importProofFromCollection(workspace, entry, center);
+      setWorkspaceWithAutoLayout(result);
+      const newNodeIds = new Set(
+        result.nodes.slice(workspace.nodes.length).map((n) => n.id),
+      );
+      setSelectedNodeIds(newNodeIds);
+    },
+    [workspace, viewport, setWorkspaceWithAutoLayout],
+  );
+
   // コンテキストメニューから「論理式を編集」
   const handleEditFormula = useCallback(() => {
     if (!nodeMenuState.open) return;
@@ -4433,6 +4451,7 @@ export function ProofWorkspace({
           onRenameEntry={onRenameCollectionEntry}
           onUpdateMemo={onUpdateCollectionMemo}
           onRemoveEntry={onRemoveCollectionEntry}
+          onImportEntry={handleImportFromCollection}
           onClose={() => setCollectionPanelOpen(false)}
           testId={
             testId ? `${testId satisfies string}-collection-panel` : undefined

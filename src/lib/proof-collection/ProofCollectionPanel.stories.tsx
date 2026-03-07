@@ -161,3 +161,36 @@ export const ClosePanel: Story = {
     await expect(args.onClose).toHaveBeenCalledOnce();
   },
 };
+
+export const ImportEntry: Story = {
+  args: {
+    entries: [createEntry({ id: "e1", name: "Importable Proof" })],
+    onImportEntry: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // インポートボタンが表示される
+    const importButton = canvas.getByTestId("panel-entry-e1-import");
+    await expect(importButton).toBeInTheDocument();
+    await expect(
+      canvas.getByText(defaultProofMessages.collectionEntryImport),
+    ).toBeInTheDocument();
+    // クリックでonImportEntryが呼ばれる
+    await userEvent.click(importButton);
+    await expect(args.onImportEntry).toHaveBeenCalled();
+  },
+};
+
+export const WithoutImport: Story = {
+  args: {
+    entries: [createEntry({ id: "e1", name: "Non-importable Proof" })],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // onImportEntry未指定時はインポートボタンが表示されない
+    await expect(canvas.getByText("Non-importable Proof")).toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId("panel-entry-e1-import"),
+    ).not.toBeInTheDocument();
+  },
+};

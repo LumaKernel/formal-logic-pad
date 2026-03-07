@@ -278,4 +278,54 @@ describe("ProofCollectionPanel", () => {
       expect(screen.getByText("2 proofs")).toBeDefined();
     });
   });
+
+  describe("インポート", () => {
+    it("onImportEntry指定時にインポートボタンを表示する", () => {
+      const entries = [createTestEntry({ id: "e1" })];
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onImportEntry={vi.fn()}
+          testId="panel"
+        />,
+      );
+      expect(screen.getByTestId("panel-entry-e1-import")).toBeDefined();
+      expect(
+        screen.getByText(defaultProofMessages.collectionEntryImport),
+      ).toBeDefined();
+    });
+
+    it("インポートボタンクリックでonImportEntryが呼ばれる", () => {
+      const onImportEntry = vi.fn();
+      const entry = createTestEntry({ id: "e1", name: "My Proof" });
+      render(
+        <ProofCollectionPanel
+          entries={[entry]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onImportEntry={onImportEntry}
+          testId="panel"
+        />,
+      );
+      fireEvent.click(screen.getByTestId("panel-entry-e1-import"));
+      expect(onImportEntry).toHaveBeenCalledWith(entry);
+    });
+
+    it("onImportEntry未指定時にはインポートボタンを表示しない", () => {
+      const entries = [createTestEntry({ id: "e1" })];
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          testId="panel"
+        />,
+      );
+      expect(
+        screen.queryByTestId("panel-entry-e1-import"),
+      ).toBeNull();
+    });
+  });
 });

@@ -74,6 +74,10 @@ import {
   mergeNodes as mergeNodesLogic,
   type MergeError,
 } from "./mergeNodesLogic";
+import {
+  importProofEntry,
+  type ProofEntry,
+} from "../proof-collection/proofCollectionState";
 
 // --- ノードの明示的な役割マーク ---
 
@@ -1236,6 +1240,25 @@ export function pasteNodes(
     targetCenter,
     state.nextNodeId,
   );
+  return syncInferenceEdges({
+    ...state,
+    nodes: [...state.nodes, ...result.newNodes],
+    connections: [...state.connections, ...result.newConnections],
+    inferenceEdges: [...state.inferenceEdges, ...result.newInferenceEdges],
+    nextNodeId: result.nextNodeId,
+  });
+}
+
+/**
+ * 保存された証明エントリからノード・接続・推論エッジをワークスペースにインポートする。
+ * pasteNodesと同様のパターンで、ProofEntryを対象にする。
+ */
+export function importProofFromCollection(
+  state: WorkspaceState,
+  entry: ProofEntry,
+  targetCenter: Point,
+): WorkspaceState {
+  const result = importProofEntry(entry, targetCenter, state.nextNodeId);
   return syncInferenceEdges({
     ...state,
     nodes: [...state.nodes, ...result.newNodes],

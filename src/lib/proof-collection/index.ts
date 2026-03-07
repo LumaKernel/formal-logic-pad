@@ -17,6 +17,7 @@ export type {
   ProofCollection,
   AddEntryParams,
   ProofSaveParams,
+  ImportProofResult,
 } from "./proofCollectionState";
 
 // --- 状態管理 ---
@@ -38,6 +39,7 @@ export {
   extractProofData,
   collectUsedAxiomIds,
   prepareProofSaveParams,
+  importProofEntry,
 } from "./proofCollectionState";
 
 // --- 互換性チェック ---

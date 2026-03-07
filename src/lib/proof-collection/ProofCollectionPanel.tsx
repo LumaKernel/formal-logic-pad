@@ -39,6 +39,8 @@ export interface ProofCollectionPanelProps {
   readonly onUpdateMemo: (id: ProofEntryId, memo: string) => void;
   /** エントリを削除するコールバック */
   readonly onRemoveEntry: (id: ProofEntryId) => void;
+  /** エントリをワークスペースにインポートするコールバック */
+  readonly onImportEntry?: (entry: ProofEntry) => void;
   /** パネルを閉じるコールバック */
   readonly onClose: () => void;
   /** data-testid */
@@ -160,6 +162,18 @@ const deleteButtonStyle: CSSProperties = {
   fontFamily: "var(--font-ui)",
 };
 
+const importButtonStyle: CSSProperties = {
+  fontSize: 10,
+  color: "var(--color-accent, #2b6cb0)",
+  cursor: "pointer",
+  background: "none",
+  border: "none",
+  padding: "1px 4px",
+  borderRadius: 3,
+  fontFamily: "var(--font-ui)",
+  fontWeight: 600,
+};
+
 const deductionStyleBadgeStyle: CSSProperties = {
   fontSize: 9,
   color: "var(--color-text-secondary, #aaa)",
@@ -251,6 +265,7 @@ function CollectionEntry({
   onCommitEdit,
   onCancelEdit,
   onRemove,
+  onImport,
   testId,
 }: {
   readonly entry: ProofEntry;
@@ -265,6 +280,7 @@ function CollectionEntry({
   readonly onCommitEdit: () => void;
   readonly onCancelEdit: () => void;
   readonly onRemove: (id: ProofEntryId) => void;
+  readonly onImport: ((entry: ProofEntry) => void) | undefined;
   readonly testId: string | undefined;
 }) {
   const entryTestId =
@@ -310,6 +326,20 @@ function CollectionEntry({
       />
       <div style={entryActionsStyle}>
         <span style={deductionStyleBadgeStyle}>{entry.deductionStyle}</span>
+        {onImport !== undefined && (
+          <button
+            type="button"
+            style={importButtonStyle}
+            onClick={() => onImport(entry)}
+            data-testid={
+              entryTestId !== undefined
+                ? `${entryTestId satisfies string}-import`
+                : undefined
+            }
+          >
+            {messages.collectionEntryImport}
+          </button>
+        )}
         <button
           type="button"
           style={deleteButtonStyle}
@@ -335,6 +365,7 @@ export function ProofCollectionPanel({
   onRenameEntry,
   onUpdateMemo,
   onRemoveEntry,
+  onImportEntry,
   onClose,
   testId,
 }: ProofCollectionPanelProps) {
@@ -427,6 +458,7 @@ export function ProofCollectionPanel({
             onCommitEdit={handleCommitEdit}
             onCancelEdit={handleCancelEdit}
             onRemove={handleRemove}
+            onImport={onImportEntry}
             testId={testId}
           />
         ))

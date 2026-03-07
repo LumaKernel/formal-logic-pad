@@ -15,6 +15,7 @@ import type {
 } from "../proof-pad/workspaceState";
 import type { InferenceEdge } from "../proof-pad/inferenceEdge";
 import { getInferenceEdgePremiseNodeIds } from "../proof-pad/inferenceEdge";
+import { remapEdgeNodeIds } from "../proof-pad/inferenceEdge";
 import { getProofNodeIds } from "../proof-pad/dependencyLogic";
 import type { DeductionStyle } from "../logic-core/deductionSystem";
 
@@ -422,5 +423,91 @@ export function prepareProofSaveParams(
     inferenceEdges: extracted.inferenceEdges,
     deductionStyle,
     usedAxiomIds,
+  };
+}
+
+// --- 証明エントリのインポート ---
+
+/**
+ * インポート結果。新しいノード・接続・推論エッジを返す。
+ * copyPasteLogicのPasteResultと同様の構造。
+ *
+ * 変更時は proofCollectionState.test.ts, workspaceState.ts, index.ts も同期すること。
+ */
+export type ImportProofResult = {
+  readonly newNodes: readonly WorkspaceNode[];
+  readonly newConnections: readonly WorkspaceConnection[];
+  readonly newInferenceEdges: readonly InferenceEdge[];
+  readonly nextNodeId: number;
+};
+
+/**
+ * 保存された証明エントリからワークスペースノード・接続・推論エッジを復元する。
+ * 新しいIDを割り当て、指定位置を中心に配置する。
+ *
+ * pasteClipboardData と同様のパターン:
+ * - SavedNode → WorkspaceNode（新IDを割り当て、相対位置→絶対位置に変換）
+ * - SavedConnection → WorkspaceConnection（新IDにリマップ）
+ * - InferenceEdge → InferenceEdge（ノードIDを新IDにリマップ）
+ *
+ * @param entry インポートする証明エントリ
+ * @param targetCenter ペースト先の中心座標
+ * @param startNodeId 新しいノードIDの開始番号
+ */
+export function importProofEntry(
+  entry: ProofEntry,
+  targetCenter: Point,
+  startNodeId: number,
+): ImportProofResult {
+  const idMap = new Map<string, string>();
+  let currentNodeId = startNodeId;
+
+  const newNodes: readonly WorkspaceNode[] = entry.nodes.map((savedNode) => {
+    const newId = `node-${String(currentNodeId) satisfies string}`;
+    idMap.set(savedNode.originalId, newId);
+    currentNodeId++;
+
+    return {
+      id: newId,
+      kind: savedNode.kind,
+      label: savedNode.label,
+      formulaText: savedNode.formulaText,
+      position: {
+        x: targetCenter.x + savedNode.relativePosition.x,
+        y: targetCenter.y + savedNode.relativePosition.y,
+      },
+      ...(savedNode.role !== undefined ? { role: savedNode.role } : {}),
+    };
+  });
+
+  const newConnections: readonly WorkspaceConnection[] = entry.connections
+    .map((savedConn) => {
+      const fromId = idMap.get(savedConn.fromOriginalNodeId);
+      const toId = idMap.get(savedConn.toOriginalNodeId);
+      if (fromId === undefined || toId === undefined) return undefined;
+
+      return {
+        id: `conn-${fromId satisfies string}-${savedConn.fromPortId satisfies string}-${toId satisfies string}-${savedConn.toPortId satisfies string}`,
+        fromNodeId: fromId,
+        fromPortId: savedConn.fromPortId,
+        toNodeId: toId,
+        toPortId: savedConn.toPortId,
+      };
+    })
+    .filter((c) => c !== undefined);
+
+  const newInferenceEdges: readonly InferenceEdge[] = entry.inferenceEdges
+    .map((edge): InferenceEdge | undefined => {
+      const newConclusionId = idMap.get(edge.conclusionNodeId);
+      if (newConclusionId === undefined) return undefined;
+      return remapEdgeNodeIds(edge, (id) => idMap.get(id));
+    })
+    .filter((e) => e !== undefined);
+
+  return {
+    newNodes,
+    newConnections,
+    newInferenceEdges,
+    nextNodeId: currentNodeId,
   };
 }

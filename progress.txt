@@ -9256,3 +9256,33 @@
   - ProofCollectionPanel配置はproof-collectionモジュール内（proof-padではなく）。コレクション管理のUI
   - 後続タスク: フォルダ分け管理、証明の呼び出し・挿入機能、互換性チェック
 ---
+
+## 2026-03-07 - [proof-collection] 証明コレクションからのインポート機能
+- 保存済み証明をワークスペースにインポート（呼び戻し）する機能を実装
+- 3層アーキテクチャ: 純粋ロジック(importProofEntry) → 状態管理(importProofFromCollection) → UI(ProofCollectionPanel Import button)
+- 変更したファイル:
+  - `src/lib/proof-collection/proofCollectionState.ts` (importProofEntry: SavedNode→WorkspaceNode変換、IDリマップ、接続・InferenceEdge変換)
+  - `src/lib/proof-collection/proofCollectionState.test.ts` (+7テスト: ID割当、接続リマップ、InferenceEdgeリマップ、空エントリ、ロール、無効接続フィルタ、nextNodeId)
+  - `src/lib/proof-collection/index.ts` (ImportProofResult型・importProofEntry関数export追加)
+  - `src/lib/proof-collection/ProofCollectionPanel.tsx` (onImportEntry optional prop、Importボタン追加)
+  - `src/lib/proof-collection/ProofCollectionPanel.test.tsx` (+3テスト: ボタン表示、クリック、非表示)
+  - `src/lib/proof-collection/ProofCollectionPanel.stories.tsx` (+2ストーリー: ImportEntry, WithoutImport)
+  - `src/lib/proof-pad/workspaceState.ts` (importProofFromCollection統合関数)
+  - `src/lib/proof-pad/workspaceState.test.ts` (+2テスト: 基本インポート、InferenceEdge保存)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (handleImportFromCollectionコールバック接続)
+  - `src/lib/proof-pad/proofMessages.ts` (collectionEntryImport メッセージキー追加)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (i18nマッピング追加)
+  - `messages/en.json`, `messages/ja.json` (collectionEntryImport翻訳追加)
+- カバレッジ: ベースライン Stmts 99.01% / Branch 93.67% → 完了後 Stmts 98.96% / Branch 93.61% (V8集約quirk範囲内の微減)
+- テスト: 7672 passed (+14テスト追加)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Playwright MCPでStorybook確認。ImportEntryストーリー(Interactions 4)、WithoutImportストーリー(Interactions 2)ともに動作確認
+  - スクリーンショット: .screenshots/proof-collection-import-entry-story.png, .screenshots/proof-collection-without-import-story.png
+- **今後のイテレーションへの学び:**
+  - importProofEntryはpasteClipboardData()パターンを踏襲: IDリマップMap生成→ノード変換→接続変換→InferenceEdge変換
+  - remapEdgeNodeIds(edge, mapFn)で全エッジタイプのノードID一括変換
+  - onImportEntryはoptional propパターンで後方互換性を維持。未指定時はImportボタン非表示
+  - viewport中心計算: x: -viewport.offsetX / viewport.scale + 300
+  - importProofFromCollectionはpasteNodes()と同様にsyncInferenceEdgesで整合性を保つ
+  - 後続タスク: フォルダ分け管理、公理系互換性チェック付きインポート
+---

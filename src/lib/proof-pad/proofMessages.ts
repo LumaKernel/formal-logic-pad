@@ -243,6 +243,7 @@ export type ProofMessages = {
   readonly collectionPanelTitle: string;
   readonly collectionEmpty: string;
   readonly collectionEntryDelete: string;
+  readonly collectionEntryImport: string;
   readonly collectionEntryMemoPlaceholder: string;
   /** `{count}` プレースホルダーを含む */
   readonly collectionEntryCount: string;
@@ -451,6 +452,7 @@ export const defaultProofMessages: ProofMessages = {
   collectionPanelTitle: "My Collection",
   collectionEmpty: "No saved proofs yet",
   collectionEntryDelete: "Delete",
+  collectionEntryImport: "Import",
   collectionEntryMemoPlaceholder: "Add a memo…",
   collectionEntryCount: "{count} proofs",
 };

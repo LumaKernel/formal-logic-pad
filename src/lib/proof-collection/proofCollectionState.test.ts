@@ -22,7 +22,9 @@ import {
   extractProofData,
   collectUsedAxiomIds,
   prepareProofSaveParams,
+  importProofEntry,
   type AddEntryParams,
+  type ProofEntry,
 } from "./proofCollectionState";
 import { createEmptyWorkspace, addNode } from "../proof-pad/workspaceState";
 import { minimalLogicSystem } from "../logic-core/inferenceRule";
@@ -642,5 +644,174 @@ describe("prepareProofSaveParams", () => {
     expect(result?.nodes).toHaveLength(3);
     expect(result?.usedAxiomIds).toEqual(["A1", "A2"]);
     expect(result?.inferenceEdges).toHaveLength(1);
+  });
+});
+
+// --- importProofEntry テスト ---
+
+const createTestEntry = (
+  overrides?: Partial<ProofEntry>,
+): ProofEntry => ({
+  id: "proof-1",
+  name: "テスト証明",
+  memo: "",
+  folderId: undefined,
+  createdAt: 1000,
+  updatedAt: 1000,
+  nodes: [
+    {
+      originalId: "node-1",
+      kind: "axiom",
+      label: "公理",
+      formulaText: "phi -> phi",
+      relativePosition: { x: -50, y: 0 },
+    },
+    {
+      originalId: "node-2",
+      kind: "conclusion",
+      label: "",
+      formulaText: "phi",
+      relativePosition: { x: 50, y: 0 },
+    },
+  ],
+  connections: [
+    {
+      fromOriginalNodeId: "node-1",
+      fromPortId: "out-0",
+      toOriginalNodeId: "node-2",
+      toPortId: "in-0",
+    },
+  ],
+  inferenceEdges: [
+    {
+      _tag: "mp",
+      conclusionNodeId: "node-2",
+      leftPremiseNodeId: "node-1",
+      rightPremiseNodeId: "node-1",
+      conclusionText: "phi",
+    },
+  ],
+  deductionStyle: "hilbert",
+  usedAxiomIds: ["A1"],
+  ...overrides,
+});
+
+describe("importProofEntry", () => {
+  it("SavedNodeをWorkspaceNodeに変換し新しいIDを割り当てる", () => {
+    const entry = createTestEntry();
+    const result = importProofEntry(entry, { x: 100, y: 200 }, 10);
+
+    expect(result.newNodes).toHaveLength(2);
+    expect(result.newNodes[0]?.id).toBe("node-10");
+    expect(result.newNodes[0]?.kind).toBe("axiom");
+    expect(result.newNodes[0]?.formulaText).toBe("phi -> phi");
+    expect(result.newNodes[0]?.position).toEqual({ x: 50, y: 200 });
+    expect(result.newNodes[1]?.id).toBe("node-11");
+    expect(result.newNodes[1]?.position).toEqual({ x: 150, y: 200 });
+    expect(result.nextNodeId).toBe(12);
+  });
+
+  it("SavedConnectionをWorkspaceConnectionに変換しIDをリマップする", () => {
+    const entry = createTestEntry();
+    const result = importProofEntry(entry, { x: 0, y: 0 }, 1);
+
+    expect(result.newConnections).toHaveLength(1);
+    expect(result.newConnections[0]?.fromNodeId).toBe("node-1");
+    expect(result.newConnections[0]?.fromPortId).toBe("out-0");
+    expect(result.newConnections[0]?.toNodeId).toBe("node-2");
+    expect(result.newConnections[0]?.toPortId).toBe("in-0");
+  });
+
+  it("InferenceEdgeのノードIDをリマップする", () => {
+    const entry = createTestEntry();
+    const result = importProofEntry(entry, { x: 0, y: 0 }, 5);
+
+    expect(result.newInferenceEdges).toHaveLength(1);
+    const edge = result.newInferenceEdges[0];
+    expect(edge?._tag).toBe("mp");
+    expect(edge?.conclusionNodeId).toBe("node-6");
+    if (edge?._tag === "mp") {
+      expect(edge.leftPremiseNodeId).toBe("node-5");
+      expect(edge.rightPremiseNodeId).toBe("node-5");
+    }
+  });
+
+  it("空のエントリの場合は空の結果を返す", () => {
+    const entry = createTestEntry({
+      nodes: [],
+      connections: [],
+      inferenceEdges: [],
+    });
+    const result = importProofEntry(entry, { x: 0, y: 0 }, 1);
+
+    expect(result.newNodes).toEqual([]);
+    expect(result.newConnections).toEqual([]);
+    expect(result.newInferenceEdges).toEqual([]);
+    expect(result.nextNodeId).toBe(1);
+  });
+
+  it("roleが設定されたノードを正しくインポートする", () => {
+    const entry = createTestEntry({
+      nodes: [
+        {
+          originalId: "node-1",
+          kind: "axiom",
+          label: "公理",
+          formulaText: "phi",
+          relativePosition: { x: 0, y: 0 },
+          role: "axiom",
+        },
+      ],
+      connections: [],
+      inferenceEdges: [],
+    });
+    const result = importProofEntry(entry, { x: 100, y: 100 }, 1);
+
+    expect(result.newNodes[0]?.role).toBe("axiom");
+  });
+
+  it("roleがないノードはroleプロパティを持たない", () => {
+    const entry = createTestEntry({
+      nodes: [
+        {
+          originalId: "node-1",
+          kind: "axiom",
+          label: "公理",
+          formulaText: "phi",
+          relativePosition: { x: 0, y: 0 },
+        },
+      ],
+      connections: [],
+      inferenceEdges: [],
+    });
+    const result = importProofEntry(entry, { x: 0, y: 0 }, 1);
+
+    expect("role" in (result.newNodes[0] ?? {})).toBe(false);
+  });
+
+  it("不正な接続（存在しないノードIDを参照）はフィルタされる", () => {
+    const entry = createTestEntry({
+      nodes: [
+        {
+          originalId: "node-1",
+          kind: "axiom",
+          label: "",
+          formulaText: "phi",
+          relativePosition: { x: 0, y: 0 },
+        },
+      ],
+      connections: [
+        {
+          fromOriginalNodeId: "node-1",
+          fromPortId: "out-0",
+          toOriginalNodeId: "nonexistent",
+          toPortId: "in-0",
+        },
+      ],
+      inferenceEdges: [],
+    });
+    const result = importProofEntry(entry, { x: 0, y: 0 }, 1);
+
+    expect(result.newConnections).toEqual([]);
   });
 });

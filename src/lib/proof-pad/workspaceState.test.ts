@@ -45,6 +45,7 @@ import {
   applyAtRuleAndConnect,
   applyTabRuleAndConnect,
   applyScRuleAndConnect,
+  importProofFromCollection,
 } from "./workspaceState";
 import {
   hilbertDeduction,
@@ -55,6 +56,7 @@ import {
 } from "../logic-core/deductionSystem";
 import type { ClipboardData } from "./copyPasteLogic";
 import type { SubstitutionEntries } from "./substitutionApplicationLogic";
+import type { ProofEntry } from "../proof-collection/proofCollectionState";
 
 describe("proofWorkspace", () => {
   describe("createEmptyWorkspace", () => {
@@ -1202,6 +1204,100 @@ describe("proofWorkspace", () => {
       const result = pasteNodes(ws, emptyClipboard, { x: 0, y: 0 });
       expect(result.nodes).toHaveLength(0);
       expect(result.connections).toHaveLength(0);
+    });
+  });
+
+  describe("importProofFromCollection", () => {
+    it("imports proof entry nodes into workspace with new IDs", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi");
+
+      const entry: ProofEntry = {
+        id: "proof-1",
+        name: "Test",
+        memo: "",
+        folderId: undefined,
+        createdAt: 1000,
+        updatedAt: 1000,
+        nodes: [
+          {
+            originalId: "old-1",
+            kind: "axiom",
+            label: "",
+            formulaText: "psi -> psi",
+            relativePosition: { x: 0, y: 0 },
+          },
+        ],
+        connections: [],
+        inferenceEdges: [],
+        deductionStyle: "hilbert",
+        usedAxiomIds: [],
+      };
+
+      const result = importProofFromCollection(ws, entry, { x: 300, y: 300 });
+      expect(result.nodes).toHaveLength(2);
+      expect(result.nodes[1]?.id).toBe("node-2");
+      expect(result.nodes[1]?.formulaText).toBe("psi -> psi");
+      expect(result.nodes[1]?.position).toEqual({ x: 300, y: 300 });
+      expect(result.nextNodeId).toBe(3);
+    });
+
+    it("preserves InferenceEdges from imported proof entry", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+
+      const entry: ProofEntry = {
+        id: "proof-1",
+        name: "MP Proof",
+        memo: "",
+        folderId: undefined,
+        createdAt: 1000,
+        updatedAt: 1000,
+        nodes: [
+          {
+            originalId: "old-1",
+            kind: "axiom",
+            label: "",
+            formulaText: "phi",
+            relativePosition: { x: -100, y: 0 },
+          },
+          {
+            originalId: "old-2",
+            kind: "axiom",
+            label: "",
+            formulaText: "phi -> psi",
+            relativePosition: { x: 100, y: 0 },
+          },
+          {
+            originalId: "old-3",
+            kind: "conclusion",
+            label: "",
+            formulaText: "psi",
+            relativePosition: { x: 0, y: 100 },
+          },
+        ],
+        connections: [],
+        inferenceEdges: [
+          {
+            _tag: "mp",
+            conclusionNodeId: "old-3",
+            leftPremiseNodeId: "old-1",
+            rightPremiseNodeId: "old-2",
+            conclusionText: "psi",
+          },
+        ],
+        deductionStyle: "hilbert",
+        usedAxiomIds: ["A1"],
+      };
+
+      const result = importProofFromCollection(ws, entry, { x: 200, y: 200 });
+      expect(result.nodes).toHaveLength(3);
+      expect(result.inferenceEdges).toHaveLength(1);
+      const edge = result.inferenceEdges[0];
+      expect(edge?.conclusionNodeId).toBe("node-3");
+      if (edge?._tag === "mp") {
+        expect(edge.leftPremiseNodeId).toBe("node-1");
+        expect(edge.rightPremiseNodeId).toBe("node-2");
+      }
     });
   });
 

@@ -197,6 +197,7 @@ function useProofMessagesFromIntl(): ProofMessages {
       collectionPanelTitle: t("collectionPanelTitle"),
       collectionEmpty: t("collectionEmpty"),
       collectionEntryDelete: t("collectionEntryDelete"),
+      collectionEntryImport: t("collectionEntryImport"),
       collectionEntryMemoPlaceholder: t("collectionEntryMemoPlaceholder"),
       collectionEntryCount: String(t.raw("collectionEntryCount")),
     }),
