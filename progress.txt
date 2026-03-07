@@ -9837,3 +9837,33 @@
   - `applyIncrementalLayout` は連続モード（チェックボックスON中）向け、`applyTreeLayout` はワンショット向け。UXに応じて使い分ける
   - キーボードショートカット追加時は3層に変更が必要: defaultBindings.ts (CanvasAction + binding) → keyboardShortcuts.ts (classifyKeyDown) → useKeyboardShortcuts.ts (callbacks + switch)
 ---
+
+## 2026-03-08 - [menu-ux] メニューアクション定義の宣言的化とドキュメント自動生成
+- 実装した内容:
+  - `menuActionDefinition.ts`: 全メニューアクション（30+項目）を宣言的データとして一元管理
+    - MenuContext型（7コンテキスト: toolbar, workspace-menu, node-context-menu, canvas-context-menu, line-context-menu, keyboard-shortcut, command-palette）
+    - MenuGroup型（8グループ: inference-rules, selection, node-edit, layout, export-import, collection, navigation, connection）
+    - I18nLabel型（en/ja多言語対応）
+    - filterByContext, filterByGroup, getLabel 純粋フィルタ関数
+    - generateMenuDocMarkdown: 定義データからMarkdown表を自動生成
+  - `menuActionDefinition.test.ts`: 30テスト（ID一意性、ラベル存在、コンテキストフィルタ、グループフィルタ、ラベル取得、Markdown生成、特定アクション存在確認）
+  - `scripts/generate-menu-docs.ts`: dev/menu-ux-design.md の「現状のアクション一覧と起点」セクションを自動更新するスクリプト
+  - `dev/menu-ux-design.md`: 自動生成セクションで更新済み
+  - `src/lib/proof-pad/index.ts`: menuActionDefinition の全exportを追加
+- 変更したファイル:
+  - src/lib/proof-pad/menuActionDefinition.ts (新規)
+  - src/lib/proof-pad/menuActionDefinition.test.ts (新規)
+  - scripts/generate-menu-docs.ts (新規)
+  - dev/menu-ux-design.md (自動生成セクション更新)
+  - src/lib/proof-pad/index.ts (export追加)
+  - tasks/prd-inserted-tasks.md (タスク完了→アーカイブ)
+- カバレッジ: Stmts 98.42%→98.43%, Branch 92.88%→92.88%, Funcs 88.42%→88.37%, Lines 99.29%→99.29%
+  - Funcs微減はmenuActionDefinition.tsのdefault parameterカバレッジ（v8の計測特性）
+- テスト数: 8085→8085 (+30新規、既存テスト変更なし)
+- スクリーンショット: .screenshots/menu-action-definition-storybook.png
+- **今後のイテレーションへの学び:**
+  - `import.meta.dirname` はtsx CJSモードでundefinedになる。`dirname(fileURLToPath(import.meta.url))` パターンを使う
+  - ESLint `require-satisfies-in-tls` ルール対応: テンプレートリテラル内の変数は先に `: string` 型注釈を付けるか `satisfies string` を付ける
+  - menuActionDefinition.ts に新アクションを追加する場合、`npx tsx scripts/generate-menu-docs.ts` でdev/menu-ux-design.mdを再生成する
+  - 将来的にProofWorkspaceのハードコードメニューをmenuActionDefinitionから参照する段階的移行が可能（Step 4として計画済み）
+---
