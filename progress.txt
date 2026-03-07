@@ -9867,3 +9867,30 @@
   - menuActionDefinition.ts に新アクションを追加する場合、`npx tsx scripts/generate-menu-docs.ts` でdev/menu-ux-design.mdを再生成する
   - 将来的にProofWorkspaceのハードコードメニューをmenuActionDefinitionから参照する段階的移行が可能（Step 4として計画済み）
 ---
+
+## 2026-03-08 - custom-quest URL共有
+- 実装した内容:
+  - URL形式でのクエスト共有機能（base64urlエンコード/デコード）
+  - 共有URLからのクエスト受取ダイアログ（開始/自作に追加/キャンセル）
+  - 自作クエスト一覧にURL共有ボタンを追加
+  - questUrlSharing.ts: 純粋なUTF-8/base64urlエンコード/デコード実装（ブラウザAPI不使用）
+  - コンパクトJSONフォーマット（短いフィールド名）でURL長を最小化
+- 変更したファイル:
+  - src/lib/quest/questUrlSharing.ts (新規)
+  - src/lib/quest/questUrlSharing.test.ts (新規, 36テスト)
+  - src/lib/quest/index.ts (エクスポート追加)
+  - src/app/HubContent.tsx (ハンドラ追加: 共有URL生成、URL受取、ダイアログアクション)
+  - src/app/HubPageView.tsx (共有クエストダイアログUI追加)
+  - src/app/HubPageView.stories.tsx (4ストーリー追加: Dialog, Start, AddToCollection, Dismiss)
+  - src/lib/quest/CustomQuestListComponent.tsx (URL共有ボタン追加)
+  - src/lib/quest/CustomQuestListComponent.stories.tsx (ShareQuestUrlストーリー追加)
+- カバレッジ: Stmts 98.43%→98.39%, Branch 92.88%→92.83%, Funcs 88.37%→88.25%, Lines 99.29%→99.26%
+  - questUrlSharing.ts自体は96.5%/91.66%/100%/98.44%。全体の微減はV8カバレッジマージのquirk
+- テスト数: 8086→8127 (+36ユニット, +5ストーリー)
+- スクリーンショット: .screenshots/custom-quest-share-url-button.png, .screenshots/shared-quest-dialog.png, .screenshots/shared-quest-start.png
+- **今後のイテレーションへの学び:**
+  - `react-hooks/set-state-in-effect` ESLintルール: useEffect内でsetStateを直接呼ぶとエラー。useMemoで派生状態として扱うか、コールバック内でsetStateする
+  - 純粋なUTF-8エンコード: TextEncoder/TextDecoderはブラウザAPIなのでテスト困難。手動でUTF-8バイト列を構築する方がテスタブル
+  - URL共有のコンパクトフォーマット: フィールド名を短縮（t, d, cat等）してURL長を最小化。圧縮なしでもシンプルなクエストなら十分短い
+  - prd-custom-quests.md のすべてのタスクが完了 → tasks-archived/ にアーカイブ済み
+---
