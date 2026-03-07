@@ -450,3 +450,17 @@ export type {
   InferenceEdge,
   InferenceRuleId,
 } from "./inferenceEdge";
+export {
+  allMenuActions,
+  allMenuContexts,
+  filterByContext,
+  filterByGroup,
+  getLabel,
+  generateMenuDocMarkdown,
+} from "./menuActionDefinition";
+export type {
+  MenuContext,
+  MenuGroup,
+  I18nLabel,
+  MenuActionDefinition,
+} from "./menuActionDefinition";
