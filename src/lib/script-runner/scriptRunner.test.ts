@@ -559,6 +559,49 @@ describe("ScriptRunner", () => {
     });
   });
 
+  describe("ステップ実行の行番号", () => {
+    it("step()がlocation情報を返す", () => {
+      const code = "var x = 1;\nvar y = 2;\nx + y;";
+      const runner = getRunner(createScriptRunner(code));
+      const status = runner.step();
+      expect(status._tag).toBe("Running");
+      if (status._tag === "Running") {
+        expect(status.location).not.toBeNull();
+        if (status.location !== null) {
+          expect(status.location.line).toBeGreaterThanOrEqual(1);
+          expect(status.location.column).toBeGreaterThanOrEqual(0);
+        }
+      }
+    });
+
+    it("複数行コードでステップが進むと行番号が変わる", () => {
+      const code = "var x = 1;\nvar y = 2;\nvar z = x + y;";
+      const runner = getRunner(createScriptRunner(code));
+
+      const lines = new Set<number>();
+      let status = runner.step();
+      while (status._tag === "Running") {
+        if (status.location !== null) {
+          lines.add(status.location.line);
+        }
+        status = runner.step();
+      }
+
+      // 少なくとも2つの異なる行を通過するはず
+      expect(lines.size).toBeGreaterThanOrEqual(2);
+    });
+
+    it("Done状態ではlocationプロパティがない", () => {
+      const runner = getRunner(createScriptRunner("42"));
+      let status = runner.step();
+      while (status._tag === "Running") {
+        status = runner.step();
+      }
+      expect(status._tag).toBe("Done");
+      expect("location" in status).toBe(false);
+    });
+  });
+
   describe("isScriptRunResult", () => {
     it("ScriptRunResultを正しく判定する", () => {
       const result: ScriptRunResult = {

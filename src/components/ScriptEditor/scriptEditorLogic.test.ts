@@ -14,6 +14,7 @@ import {
   sliderToIntervalMs,
   intervalMsToSlider,
   extractErrorLocation,
+  adjustStepLocationLine,
   DEFAULT_AUTO_PLAY_INTERVAL_MS,
   MIN_AUTO_PLAY_INTERVAL_MS,
   MAX_AUTO_PLAY_INTERVAL_MS,
@@ -37,6 +38,7 @@ describe("scriptEditorLogic", () => {
       expect(initialScriptEditorState.autoPlayIntervalMs).toBe(
         DEFAULT_AUTO_PLAY_INTERVAL_MS,
       );
+      expect(initialScriptEditorState.currentLocation).toBeNull();
     });
   });
 
@@ -55,12 +57,14 @@ describe("scriptEditorLogic", () => {
         consoleOutput: [{ type: "log", message: "old" }],
         currentStep: 5,
         errorMessage: "old error",
+        currentLocation: { line: 3, column: 0 },
       };
       const result = startExecution(state);
       expect(result.executionStatus).toBe("running");
       expect(result.consoleOutput).toEqual([]);
       expect(result.currentStep).toBe(0);
       expect(result.errorMessage).toBeNull();
+      expect(result.currentLocation).toBeNull();
     });
   });
 
@@ -71,12 +75,14 @@ describe("scriptEditorLogic", () => {
         consoleOutput: [{ type: "log", message: "old" }],
         currentStep: 5,
         errorMessage: "old error",
+        currentLocation: { line: 2, column: 5 },
       };
       const result = startStepping(state);
       expect(result.executionStatus).toBe("stepping");
       expect(result.consoleOutput).toEqual([]);
       expect(result.currentStep).toBe(0);
       expect(result.errorMessage).toBeNull();
+      expect(result.currentLocation).toBeNull();
     });
   });
 
@@ -87,16 +93,35 @@ describe("scriptEditorLogic", () => {
         executionStatus: "stepping",
         currentStep: 3,
       };
-      const result = recordStep(state, { _tag: "Running", steps: 4 });
+      const result = recordStep(state, {
+        _tag: "Running",
+        steps: 4,
+        location: { line: 2, column: 0 },
+      });
       expect(result.currentStep).toBe(4);
       expect(result.executionStatus).toBe("stepping");
+      expect(result.currentLocation).toEqual({ line: 2, column: 0 });
     });
 
-    it("Done で完了状態になる", () => {
+    it("Running で location が null の場合、currentLocation も null になる", () => {
+      const state: ScriptEditorState = {
+        ...initialScriptEditorState,
+        executionStatus: "stepping",
+      };
+      const result = recordStep(state, {
+        _tag: "Running",
+        steps: 1,
+        location: null,
+      });
+      expect(result.currentLocation).toBeNull();
+    });
+
+    it("Done で完了状態になり currentLocation がクリアされる", () => {
       const state: ScriptEditorState = {
         ...initialScriptEditorState,
         executionStatus: "stepping",
         currentStep: 10,
+        currentLocation: { line: 3, column: 0 },
       };
       const result = recordStep(state, {
         _tag: "Done",
@@ -105,13 +130,15 @@ describe("scriptEditorLogic", () => {
       });
       expect(result.currentStep).toBe(11);
       expect(result.executionStatus).toBe("done");
+      expect(result.currentLocation).toBeNull();
     });
 
-    it("Error でエラー状態になる", () => {
+    it("Error でエラー状態になり currentLocation がクリアされる", () => {
       const state: ScriptEditorState = {
         ...initialScriptEditorState,
         executionStatus: "stepping",
         currentStep: 5,
+        currentLocation: { line: 4, column: 0 },
       };
       const result = recordStep(state, {
         _tag: "Error",
@@ -121,6 +148,7 @@ describe("scriptEditorLogic", () => {
       expect(result.currentStep).toBe(6);
       expect(result.executionStatus).toBe("error");
       expect(result.errorMessage).toBe("RuntimeError: test error");
+      expect(result.currentLocation).toBeNull();
     });
   });
 
@@ -144,30 +172,40 @@ describe("scriptEditorLogic", () => {
   });
 
   describe("setRunResult", () => {
-    it("Ok 結果で done 状態になる", () => {
+    it("Ok 結果で done 状態になり currentLocation がクリアされる", () => {
+      const stateWithLocation: ScriptEditorState = {
+        ...initialScriptEditorState,
+        currentLocation: { line: 3, column: 0 },
+      };
       const okResult: ScriptRunResult = {
         _tag: "Ok",
         value: 42,
         steps: 100,
         elapsedMs: 50,
       };
-      const result = setRunResult(initialScriptEditorState, okResult);
+      const result = setRunResult(stateWithLocation, okResult);
       expect(result.executionStatus).toBe("done");
       expect(result.currentStep).toBe(100);
       expect(result.errorMessage).toBeNull();
+      expect(result.currentLocation).toBeNull();
     });
 
-    it("Error 結果で error 状態になる", () => {
+    it("Error 結果で error 状態になり currentLocation がクリアされる", () => {
+      const stateWithLocation: ScriptEditorState = {
+        ...initialScriptEditorState,
+        currentLocation: { line: 4, column: 2 },
+      };
       const errorResult: ScriptRunResult = {
         _tag: "Error",
         error: { _tag: "RuntimeError", message: "boom" },
         steps: 50,
         elapsedMs: 30,
       };
-      const result = setRunResult(initialScriptEditorState, errorResult);
+      const result = setRunResult(stateWithLocation, errorResult);
       expect(result.executionStatus).toBe("error");
       expect(result.currentStep).toBe(50);
       expect(result.errorMessage).toBe("RuntimeError: boom");
+      expect(result.currentLocation).toBeNull();
     });
   });
 
@@ -179,12 +217,14 @@ describe("scriptEditorLogic", () => {
         consoleOutput: [{ type: "error", message: "boom" }],
         currentStep: 99,
         errorMessage: "some error",
+        currentLocation: { line: 5, column: 3 },
       };
       const result = resetExecution(state);
       expect(result.executionStatus).toBe("idle");
       expect(result.consoleOutput).toEqual([]);
       expect(result.currentStep).toBe(0);
       expect(result.errorMessage).toBeNull();
+      expect(result.currentLocation).toBeNull();
       // コードはリセットされない
       expect(result.code).toBe(state.code);
     });
@@ -364,11 +404,39 @@ describe("scriptEditorLogic", () => {
     });
   });
 
+  describe("adjustStepLocationLine", () => {
+    it("オフセットを差し引いた行番号を返す", () => {
+      const result = adjustStepLocationLine({ line: 3, column: 0 }, 1);
+      expect(result).toBe(2);
+    });
+
+    it("オフセット0ならそのまま返す", () => {
+      const result = adjustStepLocationLine({ line: 5, column: 4 }, 0);
+      expect(result).toBe(5);
+    });
+
+    it("差し引き後に0以下ならnullを返す", () => {
+      const result = adjustStepLocationLine({ line: 1, column: 0 }, 2);
+      expect(result).toBeNull();
+    });
+
+    it("ちょうど0になる場合もnullを返す", () => {
+      const result = adjustStepLocationLine({ line: 1, column: 0 }, 1);
+      expect(result).toBeNull();
+    });
+
+    it("ちょうど1になる場合は1を返す", () => {
+      const result = adjustStepLocationLine({ line: 2, column: 0 }, 1);
+      expect(result).toBe(1);
+    });
+  });
+
   describe("defaultEditorOptions", () => {
     it("必要なオプションが含まれる", () => {
       expect(defaultEditorOptions.minimap.enabled).toBe(false);
       expect(defaultEditorOptions.automaticLayout).toBe(true);
       expect(defaultEditorOptions.fontSize).toBe(14);
+      expect(defaultEditorOptions.glyphMargin).toBe(true);
     });
   });
 });

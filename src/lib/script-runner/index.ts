@@ -18,6 +18,7 @@ export {
   type ScriptRunResultError,
   type ScriptRunResult,
   type ScriptRunError,
+  type StepLocation,
   type StepStatus,
   type ScriptRunnerInstance,
 } from "./scriptRunner";

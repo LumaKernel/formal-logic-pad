@@ -63,9 +63,21 @@ export type ScriptRunError =
   | { readonly _tag: "RuntimeError"; readonly message: string }
   | { readonly _tag: "SyntaxError"; readonly message: string };
 
+/** ステップ実行時の現在位置情報 */
+export interface StepLocation {
+  /** 1-indexed の行番号 */
+  readonly line: number;
+  /** 0-indexed の列番号 */
+  readonly column: number;
+}
+
 /** ステップ実行の状態 */
 export type StepStatus =
-  | { readonly _tag: "Running"; readonly steps: number }
+  | {
+      readonly _tag: "Running";
+      readonly steps: number;
+      readonly location: StepLocation | null;
+    }
   | { readonly _tag: "Done"; readonly value: unknown; readonly steps: number }
   | {
       readonly _tag: "Error";
@@ -186,6 +198,19 @@ export const createScriptRunner = (
     return interpreter.pseudoToNative(interpreter.value);
   };
 
+  const getCurrentLocation = (): StepLocation | null => {
+    const stack = interpreter.stateStack;
+    /* v8 ignore start — JS-Interpreter は常に stateStack にエントリを持ち、
+       Acorn の locations:true オプションにより node.loc は常に存在する。
+       防御的チェックのため到達不能。 */
+    if (stack.length === 0) return null;
+    const currentState = stack[stack.length - 1];
+    const loc = currentState?.node?.loc;
+    if (loc === undefined || loc === null) return null;
+    /* v8 ignore stop */
+    return { line: loc.start.line, column: loc.start.column };
+  };
+
   const stepOnce = (): StepStatus => {
     const limitError = checkLimits();
     if (limitError !== null) {
@@ -217,7 +242,7 @@ export const createScriptRunner = (
       return { _tag: "Error", error: postLimitError, steps };
     }
 
-    return { _tag: "Running", steps };
+    return { _tag: "Running", steps, location: getCurrentLocation() };
   };
 
   const runAll = (): ScriptRunResult => {

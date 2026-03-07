@@ -35,6 +35,25 @@ export type JsInterpreterInitFunc = (
   globalObject: JsInterpreterObject,
 ) => void;
 
+/** Acorn AST のソース位置情報 */
+export interface JsInterpreterSourceLocation {
+  readonly start: { readonly line: number; readonly column: number };
+  readonly end: { readonly line: number; readonly column: number };
+}
+
+/** Acorn AST ノード（最低限のプロパティ） */
+export interface JsInterpreterAstNode {
+  readonly type: string;
+  readonly start: number;
+  readonly end: number;
+  readonly loc?: JsInterpreterSourceLocation;
+}
+
+/** JS-Interpreter のステートスタック要素 */
+export interface JsInterpreterState {
+  readonly node: JsInterpreterAstNode;
+}
+
 /** JS-Interpreter のインスタンス */
 export interface JsInterpreterInstance {
   /** 1ステップ実行。まだステップが残っていれば true を返す */
@@ -45,6 +64,8 @@ export interface JsInterpreterInstance {
   getStatus(): number;
   /** 最後に評価された値 */
   value: JsInterpreterValue;
+  /** 実行ステートスタック。最後の要素が現在実行中のノード */
+  readonly stateStack: readonly JsInterpreterState[];
 
   /** ネイティブ値を JS-Interpreter のオブジェクトに変換 */
   nativeToPseudo(nativeObj: unknown): JsInterpreterValue;

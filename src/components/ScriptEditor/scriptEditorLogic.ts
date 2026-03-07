@@ -5,7 +5,11 @@
  * UI コンポーネント (ScriptEditorComponent.tsx) と一緒に変更すること。
  */
 
-import type { ScriptRunResult, StepStatus } from "@/lib/script-runner";
+import type {
+  ScriptRunResult,
+  StepLocation,
+  StepStatus,
+} from "@/lib/script-runner";
 
 // ── 実行状態 ─────────────────────────────────────────────────
 
@@ -29,6 +33,8 @@ export interface ScriptEditorState {
   readonly errorMessage: string | null;
   /** 自動再生のステップ間隔（ミリ秒）。スライダーで調整可能 */
   readonly autoPlayIntervalMs: number;
+  /** 現在のステップ実行位置（ハイライト用）。null = 位置情報なし */
+  readonly currentLocation: StepLocation | null;
 }
 
 /** デフォルトの自動再生間隔 (ms) */
@@ -47,6 +53,7 @@ export const initialScriptEditorState: ScriptEditorState = {
   currentStep: 0,
   errorMessage: null,
   autoPlayIntervalMs: DEFAULT_AUTO_PLAY_INTERVAL_MS,
+  currentLocation: null,
 };
 
 // ── エラー表示（recordStep, setRunResult が依存）────────────
@@ -90,6 +97,7 @@ export const startExecution = (
   consoleOutput: [],
   currentStep: 0,
   errorMessage: null,
+  currentLocation: null,
 });
 
 export const startStepping = (state: ScriptEditorState): ScriptEditorState => ({
@@ -98,6 +106,7 @@ export const startStepping = (state: ScriptEditorState): ScriptEditorState => ({
   consoleOutput: [],
   currentStep: 0,
   errorMessage: null,
+  currentLocation: null,
 });
 
 export const recordStep = (
@@ -109,12 +118,14 @@ export const recordStep = (
       return {
         ...state,
         currentStep: stepStatus.steps,
+        currentLocation: stepStatus.location,
       };
     case "Done":
       return {
         ...state,
         currentStep: stepStatus.steps,
         executionStatus: "done",
+        currentLocation: null,
       };
     case "Error":
       return {
@@ -127,6 +138,7 @@ export const recordStep = (
           steps: stepStatus.steps,
           elapsedMs: 0,
         }),
+        currentLocation: null,
       };
     default: {
       /* v8 ignore start */
@@ -155,6 +167,7 @@ export const setRunResult = (
       executionStatus: "done",
       currentStep: result.steps,
       errorMessage: null,
+      currentLocation: null,
     };
   }
   return {
@@ -162,6 +175,7 @@ export const setRunResult = (
     executionStatus: "error",
     currentStep: result.steps,
     errorMessage: formatRunError(result),
+    currentLocation: null,
   };
 };
 
@@ -173,6 +187,7 @@ export const resetExecution = (
   consoleOutput: [],
   currentStep: 0,
   errorMessage: null,
+  currentLocation: null,
 });
 
 // ── 実行ステータスの表示文字列 ──────────────────────────────
@@ -264,6 +279,25 @@ export const extractErrorLocation = (
   return { line: adjustedLine, column: rawColumn + 1 };
 };
 
+// ── ステップ実行の行ハイライト位置計算 ─────────────────────────
+
+/**
+ * ステップ実行時の行番号を、consoleShimCode のオフセット分を差し引いて
+ * ユーザーコード内の行番号に変換する。
+ *
+ * @param location StepLocation（JS-Interpreter が返す raw な行番号）
+ * @param lineOffset 先頭に挿入されたコードの行数（差し引く値）
+ * @returns ユーザーコード内の行番号（1-indexed）。null = 無効な位置
+ */
+export const adjustStepLocationLine = (
+  location: StepLocation,
+  lineOffset: number,
+): number | null => {
+  const adjustedLine = location.line - lineOffset;
+  if (adjustedLine < 1) return null;
+  return adjustedLine;
+};
+
 // ── デフォルトのエディタオプション ────────────────────────────
 
 export const defaultEditorOptions = {
@@ -274,4 +308,5 @@ export const defaultEditorOptions = {
   tabSize: 2,
   wordWrap: "on" as const,
   lineNumbers: "on" as const,
+  glyphMargin: true,
 } as const;

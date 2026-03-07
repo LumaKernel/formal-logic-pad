@@ -35,6 +35,7 @@ import {
   sliderToIntervalMs,
   intervalMsToSlider,
   extractErrorLocation,
+  adjustStepLocationLine,
   defaultEditorOptions,
 } from "./scriptEditorLogic";
 import type { ScriptEditorState } from "./scriptEditorLogic";
@@ -72,6 +73,9 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
   const autoPlayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
   const monacoRef = useRef<Parameters<OnMount>[1] | null>(null);
+  const decorationsRef = useRef<ReturnType<
+    Parameters<OnMount>[0]["createDecorationsCollection"]
+  > | null>(null);
 
   // ── console.log ブリッジ ────────────────────────────────────
 
@@ -365,6 +369,47 @@ declare var console: {
       monaco.editor.setModelMarkers(model, "script-runner", []);
     }
   }, [state.errorMessage, consoleShimLineCount]);
+
+  // ── 実行行ハイライトの更新 ──────────────────────────────────────
+
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    if (state.currentLocation !== null) {
+      const adjustedLine = adjustStepLocationLine(
+        state.currentLocation,
+        consoleShimLineCount,
+      );
+      if (adjustedLine !== null) {
+        if (decorationsRef.current === null) {
+          decorationsRef.current = editor.createDecorationsCollection([]);
+        }
+        decorationsRef.current.set([
+          {
+            range: {
+              startLineNumber: adjustedLine,
+              startColumn: 1,
+              endLineNumber: adjustedLine,
+              endColumn: 1,
+            },
+            options: {
+              isWholeLine: true,
+              className: "currentLineHighlight",
+              glyphMarginClassName: "currentLineGlyph",
+            },
+          },
+        ]);
+        editor.revealLineInCenterIfOutsideViewport(adjustedLine);
+        return;
+      }
+    }
+
+    // ハイライトをクリア
+    if (decorationsRef.current !== null) {
+      decorationsRef.current.clear();
+    }
+  }, [state.currentLocation, consoleShimLineCount]);
 
   // ── ステータスの CSS クラス ─────────────────────────────────────
 
