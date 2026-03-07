@@ -854,6 +854,18 @@ describe("Parser", () => {
       expect(errors.length).toBeGreaterThanOrEqual(1);
     });
 
+    it("upper-ident function missing RPAREN in formula context", () => {
+      // "S(x = y" → S( の後にterm list [x] が成功するがRPAREN前に = が来るのでエラー
+      const errors = parseErr("S(x = y");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("upper-ident function with invalid first arg in formula context", () => {
+      // "S(~) = x" → S( の後に ~ は項としてパース不可、term listのfirstがundefined
+      const errors = parseErr("S(~) = x");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
+
     it("zero-arity function call", () => {
       // "f() = x" → f() は空引数リストの関数適用
       assertFormula(

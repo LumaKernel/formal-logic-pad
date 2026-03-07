@@ -719,7 +719,10 @@ export const parseTokensAsTerm = (
 
   const advance = (): Token => {
     const token = peek();
+    // 防御的: 最後のトークン（EOF）を超えない安全ガード
+    /* v8 ignore start */
     if (pos < tokens.length - 1) pos++;
+    /* v8 ignore stop */
     return token;
   };
 
