@@ -59,6 +59,19 @@ export type WorkspacePageViewProps = {
       readonly onUpdateCollectionMemo?: (id: string, memo: string) => void;
       /** コレクションエントリ削除 */
       readonly onRemoveCollectionEntry?: (id: string) => void;
+      /** コレクションフォルダ一覧 */
+      readonly collectionFolders?: readonly import("../../../lib/proof-collection/proofCollectionState").ProofFolder[];
+      /** コレクションエントリのフォルダ移動 */
+      readonly onMoveCollectionEntry?: (
+        id: string,
+        folderId: string | undefined,
+      ) => void;
+      /** コレクションフォルダ作成 */
+      readonly onCreateCollectionFolder?: (name: string) => void;
+      /** コレクションフォルダ削除 */
+      readonly onRemoveCollectionFolder?: (id: string) => void;
+      /** コレクションフォルダ名変更 */
+      readonly onRenameCollectionFolder?: (id: string, newName: string) => void;
       /** クエストバージョン警告メッセージ（表示不要なら undefined） */
       readonly questVersionWarning?: string;
     }
@@ -202,6 +215,11 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
             onRenameCollectionEntry={props.onRenameCollectionEntry}
             onUpdateCollectionMemo={props.onUpdateCollectionMemo}
             onRemoveCollectionEntry={props.onRemoveCollectionEntry}
+            collectionFolders={props.collectionFolders}
+            onMoveCollectionEntry={props.onMoveCollectionEntry}
+            onCreateCollectionFolder={props.onCreateCollectionFolder}
+            onRemoveCollectionFolder={props.onRemoveCollectionFolder}
+            onRenameCollectionFolder={props.onRenameCollectionFolder}
           />
         </ProofMessagesProvider>
       </div>

@@ -176,6 +176,14 @@
     "collectionEntryDelete": "削除",
     "collectionEntryImport": "インポート",
     "collectionEntryMemoPlaceholder": "メモを追加…",
-    "collectionEntryCount": "{count} 件の証明"
+    "collectionEntryCount": "{count} 件の証明",
+    "collectionCreateFolder": "新規フォルダ",
+    "collectionFolderNamePlaceholder": "フォルダ名",
+    "collectionFolderDelete": "フォルダ削除",
+    "collectionFolderRename": "名前変更",
+    "collectionMoveToFolder": "移動先…",
+    "collectionMoveToRoot": "(ルート)",
+    "collectionRootEntries": "未分類",
+    "collectionFolderEntryCount": "{count}"
   }
 }

@@ -200,6 +200,16 @@ function useProofMessagesFromIntl(): ProofMessages {
       collectionEntryImport: t("collectionEntryImport"),
       collectionEntryMemoPlaceholder: t("collectionEntryMemoPlaceholder"),
       collectionEntryCount: String(t.raw("collectionEntryCount")),
+
+      // Folder management
+      collectionCreateFolder: t("collectionCreateFolder"),
+      collectionFolderNamePlaceholder: t("collectionFolderNamePlaceholder"),
+      collectionFolderDelete: t("collectionFolderDelete"),
+      collectionFolderRename: t("collectionFolderRename"),
+      collectionMoveToFolder: t("collectionMoveToFolder"),
+      collectionMoveToRoot: t("collectionMoveToRoot"),
+      collectionRootEntries: t("collectionRootEntries"),
+      collectionFolderEntryCount: String(t.raw("collectionFolderEntryCount")),
     }),
     [t],
   );
@@ -312,6 +322,11 @@ function WorkspaceInner() {
       onRenameCollectionEntry={proofCollection.renameEntry}
       onUpdateCollectionMemo={proofCollection.updateMemo}
       onRemoveCollectionEntry={proofCollection.removeEntry}
+      collectionFolders={proofCollection.folders}
+      onMoveCollectionEntry={proofCollection.moveEntry}
+      onCreateCollectionFolder={proofCollection.createFolder}
+      onRemoveCollectionFolder={proofCollection.removeFolder}
+      onRenameCollectionFolder={proofCollection.renameFolder}
       questVersionWarning={questVersionWarning}
       languageToggle={languageToggle}
     />

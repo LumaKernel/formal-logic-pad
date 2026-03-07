@@ -80,6 +80,7 @@ export {
 export type {
   EditingField,
   EditingState,
+  FolderEditingState,
   PanelState,
 } from "./proofCollectionPanelLogic";
 
@@ -89,6 +90,15 @@ export {
   updateEditingValue,
   cancelEditing,
   isEditing,
+  toggleFolderExpanded,
+  isFolderExpanded,
+  startFolderEditing,
+  updateFolderEditingValue,
+  cancelFolderEditing,
+  isFolderEditing,
+  startCreatingFolder,
+  updateCreatingFolderValue,
+  cancelCreatingFolder,
 } from "./proofCollectionPanelLogic";
 
 // --- パネルUI ---

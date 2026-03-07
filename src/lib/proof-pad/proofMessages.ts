@@ -247,6 +247,17 @@ export type ProofMessages = {
   readonly collectionEntryMemoPlaceholder: string;
   /** `{count}` プレースホルダーを含む */
   readonly collectionEntryCount: string;
+
+  // --- フォルダ管理 ---
+  readonly collectionCreateFolder: string;
+  readonly collectionFolderNamePlaceholder: string;
+  readonly collectionFolderDelete: string;
+  readonly collectionFolderRename: string;
+  readonly collectionMoveToFolder: string;
+  readonly collectionMoveToRoot: string;
+  readonly collectionRootEntries: string;
+  /** `{count}` プレースホルダーを含む */
+  readonly collectionFolderEntryCount: string;
 };
 
 // --- デフォルトメッセージ（英語） ---
@@ -455,6 +466,16 @@ export const defaultProofMessages: ProofMessages = {
   collectionEntryImport: "Import",
   collectionEntryMemoPlaceholder: "Add a memo…",
   collectionEntryCount: "{count} proofs",
+
+  // Folder management
+  collectionCreateFolder: "New Folder",
+  collectionFolderNamePlaceholder: "Folder name",
+  collectionFolderDelete: "Delete Folder",
+  collectionFolderRename: "Rename",
+  collectionMoveToFolder: "Move to…",
+  collectionMoveToRoot: "(Root)",
+  collectionRootEntries: "Uncategorized",
+  collectionFolderEntryCount: "{count}",
 };
 
 // --- エラー → メッセージキー変換（純粋関数） ---

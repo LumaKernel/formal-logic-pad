@@ -176,6 +176,14 @@
     "collectionEntryDelete": "Delete",
     "collectionEntryImport": "Import",
     "collectionEntryMemoPlaceholder": "Add a memo…",
-    "collectionEntryCount": "{count} proofs"
+    "collectionEntryCount": "{count} proofs",
+    "collectionCreateFolder": "New Folder",
+    "collectionFolderNamePlaceholder": "Folder name",
+    "collectionFolderDelete": "Delete Folder",
+    "collectionFolderRename": "Rename",
+    "collectionMoveToFolder": "Move to…",
+    "collectionMoveToRoot": "(Root)",
+    "collectionRootEntries": "Uncategorized",
+    "collectionFolderEntryCount": "{count}"
   }
 }

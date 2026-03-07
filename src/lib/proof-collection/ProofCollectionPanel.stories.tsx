@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn, expect, within, userEvent } from "storybook/test";
 import { ProofCollectionPanel } from "./ProofCollectionPanel";
-import type { ProofEntry } from "./proofCollectionState";
+import type { ProofEntry, ProofFolder } from "./proofCollectionState";
 import { defaultProofMessages } from "../proof-pad/proofMessages";
 
 function createEntry(overrides: Partial<ProofEntry> = {}): ProofEntry {
@@ -21,11 +21,21 @@ function createEntry(overrides: Partial<ProofEntry> = {}): ProofEntry {
   };
 }
 
+function createFolder(overrides: Partial<ProofFolder> = {}): ProofFolder {
+  return {
+    id: "folder-1",
+    name: "Test Folder",
+    createdAt: 1000,
+    ...overrides,
+  };
+}
+
 const meta: Meta<typeof ProofCollectionPanel> = {
   title: "ProofCollection/ProofCollectionPanel",
   component: ProofCollectionPanel,
   args: {
     messages: defaultProofMessages,
+    folders: [],
     onRenameEntry: fn(),
     onUpdateMemo: fn(),
     onRemoveEntry: fn(),
@@ -192,5 +202,99 @@ export const WithoutImport: Story = {
     await expect(
       canvas.queryByTestId("panel-entry-e1-import"),
     ).not.toBeInTheDocument();
+  },
+};
+
+// --- フォルダ関連ストーリー ---
+
+export const WithFolders: Story = {
+  args: {
+    folders: [
+      createFolder({ id: "f1", name: "Logic Proofs" }),
+      createFolder({ id: "f2", name: "Set Theory" }),
+    ],
+    entries: [
+      createEntry({
+        id: "e1",
+        name: "Modus Ponens",
+        folderId: "f1",
+      }),
+      createEntry({
+        id: "e2",
+        name: "Hypothetical Syllogism",
+        folderId: "f1",
+      }),
+      createEntry({
+        id: "e3",
+        name: "ZFC Axiom of Choice",
+        folderId: "f2",
+      }),
+      createEntry({
+        id: "e4",
+        name: "Uncategorized Proof",
+        folderId: undefined,
+      }),
+    ],
+    onCreateFolder: fn(),
+    onRemoveFolder: fn(),
+    onRenameFolder: fn(),
+    onMoveEntry: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // フォルダヘッダーが表示される
+    await expect(canvas.getByTestId("panel-folder-f1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("panel-folder-f2")).toBeInTheDocument();
+    // ルートエントリが表示される
+    await expect(canvas.getByText("Uncategorized Proof")).toBeInTheDocument();
+    // フォルダ内エントリは最初非表示
+    await expect(canvas.queryByText("Modus Ponens")).not.toBeInTheDocument();
+    // フォルダを展開するとエントリが表示される
+    await userEvent.click(canvas.getByTestId("panel-folder-f1-toggle"));
+    await expect(canvas.getByText("Modus Ponens")).toBeInTheDocument();
+    await expect(
+      canvas.getByText("Hypothetical Syllogism"),
+    ).toBeInTheDocument();
+  },
+};
+
+export const CreateFolder: Story = {
+  args: {
+    entries: [],
+    onCreateFolder: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // フォルダ作成ボタンをクリック
+    await userEvent.click(canvas.getByTestId("panel-create-folder"));
+    // 入力フィールドが表示される
+    const input = canvas.getByTestId("panel-create-folder-input");
+    await expect(input).toBeInTheDocument();
+    // フォルダ名を入力してEnter
+    await userEvent.type(input, "New Folder{Enter}");
+    await expect(args.onCreateFolder).toHaveBeenCalledWith("New Folder");
+  },
+};
+
+export const MoveEntryToFolder: Story = {
+  args: {
+    folders: [createFolder({ id: "f1", name: "Target Folder" })],
+    entries: [
+      createEntry({
+        id: "e1",
+        name: "Movable Proof",
+        folderId: undefined,
+      }),
+    ],
+    onMoveEntry: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // 移動セレクトが表示される
+    const select = canvas.getByTestId("panel-entry-e1-move");
+    await expect(select).toBeInTheDocument();
+    // フォルダに移動
+    await userEvent.selectOptions(select, "f1");
+    await expect(args.onMoveEntry).toHaveBeenCalledWith("e1", "f1");
   },
 };

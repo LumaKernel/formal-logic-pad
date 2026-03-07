@@ -247,6 +247,19 @@ export interface ProofWorkspaceProps {
   readonly onUpdateCollectionMemo?: (id: string, memo: string) => void;
   /** コレクションエントリ削除 */
   readonly onRemoveCollectionEntry?: (id: string) => void;
+  /** コレクションフォルダ一覧 */
+  readonly collectionFolders?: readonly import("../proof-collection/proofCollectionState").ProofFolder[];
+  /** コレクションエントリのフォルダ移動 */
+  readonly onMoveCollectionEntry?: (
+    id: string,
+    folderId: string | undefined,
+  ) => void;
+  /** コレクションフォルダ作成 */
+  readonly onCreateCollectionFolder?: (name: string) => void;
+  /** コレクションフォルダ削除 */
+  readonly onRemoveCollectionFolder?: (id: string) => void;
+  /** コレクションフォルダ名変更 */
+  readonly onRenameCollectionFolder?: (id: string, newName: string) => void;
   /** 初期クリップボードデータ（テスト・ストーリー用） */
   readonly initialClipboardData?: ClipboardData;
   /** data-testid */
@@ -636,6 +649,11 @@ export function ProofWorkspace({
   onRenameCollectionEntry,
   onUpdateCollectionMemo,
   onRemoveCollectionEntry,
+  collectionFolders,
+  onMoveCollectionEntry,
+  onCreateCollectionFolder,
+  onRemoveCollectionFolder,
+  onRenameCollectionFolder,
   initialClipboardData,
   testId,
 }: ProofWorkspaceProps) {
@@ -4447,11 +4465,16 @@ export function ProofWorkspace({
       onRemoveCollectionEntry !== undefined ? (
         <ProofCollectionPanel
           entries={collectionEntries}
+          folders={collectionFolders ?? []}
           messages={msg}
           onRenameEntry={onRenameCollectionEntry}
           onUpdateMemo={onUpdateCollectionMemo}
           onRemoveEntry={onRemoveCollectionEntry}
           onImportEntry={handleImportFromCollection}
+          onMoveEntry={onMoveCollectionEntry}
+          onCreateFolder={onCreateCollectionFolder}
+          onRemoveFolder={onRemoveCollectionFolder}
+          onRenameFolder={onRenameCollectionFolder}
           onClose={() => setCollectionPanelOpen(false)}
           testId={
             testId ? `${testId satisfies string}-collection-panel` : undefined

@@ -9286,3 +9286,37 @@
   - importProofFromCollectionはpasteNodes()と同様にsyncInferenceEdgesで整合性を保つ
   - 後続タスク: フォルダ分け管理、公理系互換性チェック付きインポート
 ---
+
+## 2026-03-07 - [proof-collection] フォルダ分け管理UI
+- 実装した内容:
+  - proofCollectionPanelLogic.ts にフォルダ関連の純粋ロジック追加（展開状態、フォルダ名編集、フォルダ作成）
+  - ProofCollectionPanel.tsx にフォルダUI追加（フォルダヘッダー、展開/折りたたみ、作成、名前変更、削除、エントリ移動select）
+  - proofMessages.ts + messages/en.json + messages/ja.json に8つのi18nメッセージ追加
+  - WorkspaceContent.tsx, WorkspacePageView.tsx, ProofWorkspace.tsx にフォルダ関連propsを追加（4階層のpropチェーン）
+  - proofCollectionPanelLogic.test.ts: 5件→26件のテスト
+  - ProofCollectionPanel.test.tsx: 17件→31件のテスト
+  - ProofCollectionPanel.stories.tsx: 9→12ストーリー（WithFolders, CreateFolder, MoveEntryToFolder追加）
+- 変更したファイル:
+  - src/lib/proof-collection/proofCollectionPanelLogic.ts
+  - src/lib/proof-collection/proofCollectionPanelLogic.test.ts
+  - src/lib/proof-collection/ProofCollectionPanel.tsx
+  - src/lib/proof-collection/ProofCollectionPanel.test.tsx
+  - src/lib/proof-collection/ProofCollectionPanel.stories.tsx
+  - src/lib/proof-collection/index.ts
+  - src/lib/proof-pad/proofMessages.ts
+  - src/lib/proof-pad/ProofWorkspace.tsx
+  - src/app/workspace/[id]/WorkspacePageView.tsx
+  - src/app/workspace/[id]/WorkspaceContent.tsx
+  - messages/en.json
+  - messages/ja.json
+  - tasks/prd-inserted-tasks.md
+- カバレッジ: 98.96% → 98.86% Stmts（0.1%低下、新UIコンポーネントのイベントハンドラ分。純粋ロジック層は100%）
+- スクリーンショット: .screenshots/folder-ui-with-folders-story.png, .screenshots/folder-ui-create-folder-story.png, .screenshots/folder-ui-move-entry-story.png
+- **今後のイテレーションへの学び:**
+  - データモデル層（proofCollectionState.ts）が既にフォルダ完全対応していたため、UI層のみの実装で済んだ。3層分離（純粋ロジック→hook→UI）の恩恵
+  - パネル状態の排他制御: エントリ編集・フォルダ編集・フォルダ作成は同時に1つだけ。startEditing/startFolderEditing/startCreatingFolderで他をundefinedに
+  - ProofCollectionPanelのfoldersはrequired prop。既存テスト・ストーリーは全て folders={[]} を追加が必要
+  - Storybook play関数でgetByTextが複数要素にマッチする場合（folder headerとselect option）、getByTestIdで回避
+  - props chain: WorkspaceContent → WorkspacePageView → ProofWorkspace → ProofCollectionPanel の4階層。変更漏れ防止にはTypeScriptの型エラーが有効
+  - 後続タスク: 公理系互換性チェック付きインポート
+---
