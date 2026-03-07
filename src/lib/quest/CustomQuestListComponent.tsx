@@ -28,6 +28,8 @@ import {
 export type CustomQuestListProps = {
   readonly items: readonly QuestCatalogItem[];
   readonly onStartQuest: (questId: QuestId) => void;
+  readonly onDuplicateQuest?: (questId: QuestId) => void;
+  readonly onDeleteQuest?: (questId: QuestId) => void;
 };
 
 // --- Styles ---
@@ -160,6 +162,31 @@ const startButtonStyle: CSSProperties = {
   transition: "background 0.15s",
 };
 
+const actionButtonStyle: CSSProperties = {
+  padding: "4px 8px",
+  fontSize: 10,
+  fontWeight: 600,
+  borderRadius: 4,
+  border: "1px solid var(--color-border, #ccc)",
+  background: "transparent",
+  color: "var(--color-text-secondary, #666)",
+  cursor: "pointer",
+  flexShrink: 0,
+  transition: "background 0.15s, color 0.15s",
+};
+
+const deleteButtonStyle: CSSProperties = {
+  ...actionButtonStyle,
+  color: "var(--color-error, #d32f2f)",
+  borderColor: "var(--color-error, #d32f2f)",
+};
+
+const actionGroupStyle: CSSProperties = {
+  display: "flex",
+  gap: 4,
+  alignItems: "center",
+};
+
 const emptyStyle: CSSProperties = {
   textAlign: "center",
   padding: 32,
@@ -214,9 +241,13 @@ function RatingBadge({
 function CustomQuestItem({
   item,
   onStart,
+  onDuplicate,
+  onDelete,
 }: {
   readonly item: QuestCatalogItem;
   readonly onStart: (questId: QuestId) => void;
+  readonly onDuplicate?: (questId: QuestId) => void;
+  readonly onDelete?: (questId: QuestId) => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -246,24 +277,57 @@ function CustomQuestItem({
         </div>
       </div>
       <RatingBadge rating={item.rating} />
-      <button
-        data-testid={`custom-quest-start-btn-${item.quest.id satisfies string}`}
-        style={startButtonStyle}
-        onClick={(e) => {
-          e.stopPropagation();
-          onStart(item.quest.id);
-        }}
-        title={item.completed ? "再挑戦" : "開始"}
-      >
-        {item.completed ? "再挑戦" : "開始"}
-      </button>
+      <div style={actionGroupStyle}>
+        <button
+          data-testid={`custom-quest-start-btn-${item.quest.id satisfies string}`}
+          style={startButtonStyle}
+          onClick={(e) => {
+            e.stopPropagation();
+            onStart(item.quest.id);
+          }}
+          title={item.completed ? "再挑戦" : "開始"}
+        >
+          {item.completed ? "再挑戦" : "開始"}
+        </button>
+        {onDuplicate !== undefined && (
+          <button
+            data-testid={`custom-quest-duplicate-btn-${item.quest.id satisfies string}`}
+            style={actionButtonStyle}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDuplicate(item.quest.id);
+            }}
+            title="複製"
+          >
+            複製
+          </button>
+        )}
+        {onDelete !== undefined && (
+          <button
+            data-testid={`custom-quest-delete-btn-${item.quest.id satisfies string}`}
+            style={deleteButtonStyle}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(item.quest.id);
+            }}
+            title="削除"
+          >
+            削除
+          </button>
+        )}
+      </div>
     </div>
   );
 }
 
 // --- Main component ---
 
-export function CustomQuestList({ items, onStartQuest }: CustomQuestListProps) {
+export function CustomQuestList({
+  items,
+  onStartQuest,
+  onDuplicateQuest,
+  onDeleteQuest,
+}: CustomQuestListProps) {
   const totalCount = getCustomQuestCatalogCount(items);
   const completedCount = getCustomQuestCompletedCount(items);
 
@@ -286,6 +350,8 @@ export function CustomQuestList({ items, onStartQuest }: CustomQuestListProps) {
               key={item.quest.id}
               item={item}
               onStart={onStartQuest}
+              onDuplicate={onDuplicateQuest}
+              onDelete={onDeleteQuest}
             />
           ))}
         </div>

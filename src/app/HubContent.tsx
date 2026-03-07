@@ -14,6 +14,9 @@ import {
   enrichListItemsWithQuestProgress,
   mergeWithBuiltinQuests,
   findQuestById,
+  duplicateAsCustomQuest,
+  removeCustomQuest,
+  findCustomQuestById,
 } from "../lib/quest";
 import { ThemeProvider } from "../lib/theme/ThemeProvider";
 import type { DeductionSystem } from "../lib/logic-core/deductionSystem";
@@ -164,6 +167,37 @@ function HubInner() {
     [notebookCollection, router],
   );
 
+  // Duplicate custom quest
+  const handleDuplicateCustomQuest = useCallback(
+    (questId: string) => {
+      const source = findCustomQuestById(
+        customQuestCollection.collection,
+        questId,
+      );
+      if (source === undefined) return;
+      const result = duplicateAsCustomQuest(
+        customQuestCollection.collection,
+        source,
+        getNow(),
+      );
+      if (!result.ok) return;
+      customQuestCollection.setCollection(result.value.collection);
+    },
+    [customQuestCollection],
+  );
+
+  // Delete custom quest
+  const handleDeleteCustomQuest = useCallback(
+    (questId: string) => {
+      const updated = removeCustomQuest(
+        customQuestCollection.collection,
+        questId,
+      );
+      customQuestCollection.setCollection(updated);
+    },
+    [customQuestCollection],
+  );
+
   return (
     <HubMessagesProvider messages={hubMessages}>
       <HubPageView
@@ -177,6 +211,8 @@ function HubInner() {
         onStartQuest={handleStartQuest}
         onCreateNotebook={handleCreateNotebook}
         customQuestItems={customQuestItems}
+        onDuplicateCustomQuest={handleDuplicateCustomQuest}
+        onDeleteCustomQuest={handleDeleteCustomQuest}
         languageToggle={{ locale, onLocaleChange: switchLocale }}
         notebookCounts={notebookCounts}
       />

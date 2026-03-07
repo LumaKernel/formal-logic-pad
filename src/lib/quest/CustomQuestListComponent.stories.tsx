@@ -87,6 +87,8 @@ const meta = {
   component: CustomQuestList,
   args: {
     onStartQuest: fn(),
+    onDuplicateQuest: fn(),
+    onDeleteQuest: fn(),
   },
 } satisfies Meta<typeof CustomQuestList>;
 
@@ -108,6 +110,13 @@ export const Default: Story = {
     await expect(canvas.getByText("恒等律の練習")).toBeInTheDocument();
     await expect(canvas.getByText("ド・モルガンの法則")).toBeInTheDocument();
     await expect(canvas.getByText("対偶")).toBeInTheDocument();
+    // 複製・削除ボタンが表示されていること
+    await expect(
+      canvas.getByTestId("custom-quest-duplicate-btn-custom-1001"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("custom-quest-delete-btn-custom-1001"),
+    ).toBeInTheDocument();
   },
 };
 
@@ -148,5 +157,53 @@ export const ClickQuestItem: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByTestId("custom-quest-item-custom-1003"));
     await expect(args.onStartQuest).toHaveBeenCalledWith("custom-1003");
+  },
+};
+
+export const DuplicateQuest: Story = {
+  args: {
+    items: sampleItems,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByTestId("custom-quest-duplicate-btn-custom-1002"),
+    );
+    await expect(args.onDuplicateQuest).toHaveBeenCalledWith("custom-1002");
+    // onStartQuest は呼ばれていないこと（stopPropagation）
+    await expect(args.onStartQuest).not.toHaveBeenCalled();
+  },
+};
+
+export const DeleteQuest: Story = {
+  args: {
+    items: sampleItems,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByTestId("custom-quest-delete-btn-custom-1003"),
+    );
+    await expect(args.onDeleteQuest).toHaveBeenCalledWith("custom-1003");
+    // onStartQuest は呼ばれていないこと（stopPropagation）
+    await expect(args.onStartQuest).not.toHaveBeenCalled();
+  },
+};
+
+export const WithoutActions: Story = {
+  args: {
+    items: sampleItems,
+    onDuplicateQuest: undefined,
+    onDeleteQuest: undefined,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // 複製・削除ボタンが表示されないこと
+    await expect(
+      canvas.queryByTestId("custom-quest-duplicate-btn-custom-1001"),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId("custom-quest-delete-btn-custom-1001"),
+    ).not.toBeInTheDocument();
   },
 };
