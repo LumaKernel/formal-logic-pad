@@ -9178,3 +9178,32 @@
   - 同一 act() 内で createFolder + addEntry(folderId) を呼ぶと、setCollectionのバッチ更新でfolderIdが反映されないことがある。別の act() に分けるのが安全
   - 後続タスク: UI統合（ProofWorkspaceのメニューからの証明保存・呼び出し）、ノードメニューからの証明挿入
 ---
+## 2026-03-07 - [proof-collection] コンテキストメニューからの証明保存
+- 実装した内容:
+  - collectUsedAxiomIds: 証明サブグラフのノード群から使用公理IDを収集する純粋関数
+  - prepareProofSaveParams: getProofNodeIds → extractProofData → collectUsedAxiomIds を組み合わせてAddEntryParamsを構築
+  - ProofSaveParams型: AddEntryParamsからnowを除いた型（UI層とのインターフェース）
+  - ProofWorkspace: onSaveProofToCollection callbackプロップ追加、コンテキストメニューに「コレクションに保存」項目を条件付き表示
+  - axiomIdByNodeId マップ: 既存のaxiomNamesマップからaxiomIdだけを抽出するuseMemo
+  - proofMessages: saveToCollection / savedToCollection メッセージキー追加
+  - i18n: en.json / ja.json に翻訳追加
+  - WorkspaceContent: 新メッセージキーのintl連携
+- 変更したファイル:
+  - `src/lib/proof-collection/proofCollectionState.ts` (collectUsedAxiomIds, prepareProofSaveParams, ProofSaveParams 追加)
+  - `src/lib/proof-collection/proofCollectionState.test.ts` (10テスト追加)
+  - `src/lib/proof-collection/index.ts` (エクスポート追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (onSaveProofToCollection prop, ハンドラ, メニュー項目)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (3テスト追加)
+  - `src/lib/proof-pad/proofMessages.ts` (メッセージキー追加)
+  - `messages/en.json`, `messages/ja.json` (翻訳追加)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (intl連携)
+- カバレッジ: ベースライン Stmts 99.10% / Branch 94.06% → 完了後 Stmts 99.09% / Branch 94.01% (V8マージ誤差範囲、proofCollectionState.ts は100%維持)
+- テスト: 7616 → 7628 passed (+12)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Playwright MCPでStorybook確認。スクリーンショット: .screenshots/proof-collection-save-context-menu.png
+- **今後のイテレーションへの学び:**
+  - ProofWorkspaceは `axiomNames` mapを内部で計算済み。そこからaxiomIdByNodeIdを派生させればよい
+  - workspace.deductionSystem.style で DeductionStyle が取得可能
+  - コンテキストメニュー項目の条件付き表示は `{callback !== undefined ? <MenuItem /> : null}` パターン
+  - 後続タスク: 親コンポーネント（WorkspaceContent等）でonSaveProofToCollectionをuseProofCollectionに接続、コレクション管理UI、証明の挿入機能
+---
