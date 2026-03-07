@@ -7,6 +7,7 @@
  */
 
 import type { ProofEntryId, ProofFolderId } from "./proofCollectionState";
+import type { CompatibilityResult } from "./proofCollectionCompatibility";
 
 // --- 編集状態 ---
 
@@ -170,4 +171,48 @@ export function updateCreatingFolderValue(
 
 export function cancelCreatingFolder(state: PanelState): PanelState {
   return { ...state, creatingFolder: undefined };
+}
+
+// --- 互換性バッジ表示 ---
+
+/**
+ * 互換性チェック結果に基づくバッジ表示情報。
+ *
+ * - variant: "ok" → 互換性あり（バッジなし）
+ * - variant: "axiom-warning" → 公理不足の警告
+ * - variant: "style-mismatch" → スタイル不一致の警告
+ */
+export type CompatibilityBadge =
+  | { readonly variant: "ok" }
+  | {
+      readonly variant: "axiom-warning";
+      readonly missingAxiomIds: readonly string[];
+    }
+  | {
+      readonly variant: "style-mismatch";
+      readonly sourceStyle: string;
+      readonly targetStyle: string;
+    };
+
+/**
+ * 互換性チェック結果からバッジ表示情報を算出する。
+ */
+export function getCompatibilityBadge(
+  result: CompatibilityResult,
+): CompatibilityBadge {
+  switch (result._tag) {
+    case "FullyCompatible":
+      return { variant: "ok" };
+    case "CompatibleWithAxiomWarnings":
+      return {
+        variant: "axiom-warning",
+        missingAxiomIds: result.missingAxiomIds,
+      };
+    case "IncompatibleStyle":
+      return {
+        variant: "style-mismatch",
+        sourceStyle: result.sourceStyle,
+        targetStyle: result.targetStyle,
+      };
+  }
 }

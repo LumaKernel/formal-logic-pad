@@ -82,6 +82,7 @@ export type {
   EditingState,
   FolderEditingState,
   PanelState,
+  CompatibilityBadge,
 } from "./proofCollectionPanelLogic";
 
 export {
@@ -99,6 +100,7 @@ export {
   startCreatingFolder,
   updateCreatingFolderValue,
   cancelCreatingFolder,
+  getCompatibilityBadge,
 } from "./proofCollectionPanelLogic";
 
 // --- パネルUI ---

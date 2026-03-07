@@ -191,6 +191,7 @@ import type { ProofSaveParams } from "../proof-collection/proofCollectionState";
 import type { ProofEntry } from "../proof-collection/proofCollectionState";
 import { prepareProofSaveParams } from "../proof-collection/proofCollectionState";
 import { ProofCollectionPanel } from "../proof-collection/ProofCollectionPanel";
+import { checkProofCompatibility } from "../proof-collection/proofCollectionCompatibility";
 import { computeInferenceEdgeLabelDataForConnection } from "./inferenceEdgeLabelLogic";
 import { InferenceEdgeBadge } from "./InferenceEdgeBadge";
 import { EdgeParameterPopover } from "./EdgeParameterPopover";
@@ -2323,6 +2324,25 @@ export function ProofWorkspace({
     }
     setNodeMenuState(closeNodeMenu());
   }, [nodeMenuState, onSaveProofToCollection, workspace, axiomIdByNodeId]);
+
+  // コレクションの互換性チェック
+  const availableAxiomIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const item of availableAxioms) {
+      ids.add(item.id);
+    }
+    return ids;
+  }, [availableAxioms]);
+
+  const handleGetCompatibility = useCallback(
+    (entry: ProofEntry) =>
+      checkProofCompatibility(
+        entry,
+        workspace.deductionSystem.style,
+        availableAxiomIds,
+      ),
+    [workspace.deductionSystem.style, availableAxiomIds],
+  );
 
   // コレクションパネルからの証明インポート
   const handleImportFromCollection = useCallback(
@@ -4471,6 +4491,7 @@ export function ProofWorkspace({
           onUpdateMemo={onUpdateCollectionMemo}
           onRemoveEntry={onRemoveCollectionEntry}
           onImportEntry={handleImportFromCollection}
+          getCompatibility={handleGetCompatibility}
           onMoveEntry={onMoveCollectionEntry}
           onCreateFolder={onCreateCollectionFolder}
           onRemoveFolder={onRemoveCollectionFolder}

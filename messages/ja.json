@@ -184,6 +184,8 @@
     "collectionMoveToFolder": "移動先…",
     "collectionMoveToRoot": "(ルート)",
     "collectionRootEntries": "未分類",
-    "collectionFolderEntryCount": "{count}"
+    "collectionFolderEntryCount": "{count}",
+    "collectionAxiomWarning": "不足する公理: {axiomIds}",
+    "collectionStyleMismatch": "スタイル不一致: {sourceStyle} → {targetStyle}"
   }
 }

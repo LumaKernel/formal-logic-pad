@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { ProofCollectionPanel } from "./ProofCollectionPanel";
 import type { ProofEntry, ProofFolder } from "./proofCollectionState";
+import type { CompatibilityResult } from "./proofCollectionCompatibility";
 import { defaultProofMessages } from "../proof-pad/proofMessages";
 
 function createTestEntry(overrides: Partial<ProofEntry> = {}): ProofEntry {
@@ -609,6 +610,132 @@ describe("ProofCollectionPanel", () => {
         target: { value: "" },
       });
       expect(onMoveEntry).toHaveBeenCalledWith("e1", undefined);
+    });
+  });
+
+  describe("互換性バッジ", () => {
+    it("FullyCompatibleのときは警告バッジを表示しない", () => {
+      const entries = [createTestEntry({ id: "e1" })];
+      const getCompatibility = vi.fn(
+        (): CompatibilityResult => ({ _tag: "FullyCompatible" }),
+      );
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onImportEntry={vi.fn()}
+          getCompatibility={getCompatibility}
+          testId="panel"
+        />,
+      );
+      expect(screen.queryByTestId("panel-entry-e1-compat-badge")).toBeNull();
+      // インポートボタンは表示される
+      expect(screen.getByTestId("panel-entry-e1-import")).toBeDefined();
+    });
+
+    it("CompatibleWithAxiomWarningsのとき警告バッジとツールチップを表示する", () => {
+      const entries = [
+        createTestEntry({ id: "e1", usedAxiomIds: ["A1", "A2", "DNE"] }),
+      ];
+      const getCompatibility = vi.fn(
+        (): CompatibilityResult => ({
+          _tag: "CompatibleWithAxiomWarnings",
+          missingAxiomIds: ["A2", "DNE"],
+        }),
+      );
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onImportEntry={vi.fn()}
+          getCompatibility={getCompatibility}
+          testId="panel"
+        />,
+      );
+      const badge = screen.getByTestId("panel-entry-e1-compat-badge");
+      expect(badge).toBeDefined();
+      expect(badge.textContent).toBe("\u26A0");
+      expect(badge.getAttribute("title")).toBe("Missing axiom(s): A2, DNE");
+      // インポートボタンは引き続き表示される（警告があっても呼び出し可能）
+      expect(screen.getByTestId("panel-entry-e1-import")).toBeDefined();
+    });
+
+    it("IncompatibleStyleのとき警告バッジとスタイル不一致ツールチップを表示する", () => {
+      const entries = [
+        createTestEntry({
+          id: "e1",
+          deductionStyle: "natural-deduction",
+        }),
+      ];
+      const getCompatibility = vi.fn(
+        (): CompatibilityResult => ({
+          _tag: "IncompatibleStyle",
+          sourceStyle: "natural-deduction",
+          targetStyle: "hilbert",
+        }),
+      );
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onImportEntry={vi.fn()}
+          getCompatibility={getCompatibility}
+          testId="panel"
+        />,
+      );
+      const badge = screen.getByTestId("panel-entry-e1-compat-badge");
+      expect(badge).toBeDefined();
+      expect(badge.textContent).toBe("\u26A0");
+      expect(badge.getAttribute("title")).toBe(
+        "Style mismatch: natural-deduction \u2192 hilbert",
+      );
+      // スタイル不一致でもインポートボタンは表示される
+      expect(screen.getByTestId("panel-entry-e1-import")).toBeDefined();
+    });
+
+    it("getCompatibility未指定時はバッジを表示しない", () => {
+      const entries = [createTestEntry({ id: "e1" })];
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onImportEntry={vi.fn()}
+          testId="panel"
+        />,
+      );
+      expect(screen.queryByTestId("panel-entry-e1-compat-badge")).toBeNull();
+    });
+
+    it("警告があってもインポートボタンをクリックできる", () => {
+      const onImportEntry = vi.fn();
+      const entry = createTestEntry({ id: "e1" });
+      const getCompatibility = vi.fn(
+        (): CompatibilityResult => ({
+          _tag: "CompatibleWithAxiomWarnings",
+          missingAxiomIds: ["A3"],
+        }),
+      );
+      render(
+        <ProofCollectionPanel
+          entries={[entry]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onImportEntry={onImportEntry}
+          getCompatibility={getCompatibility}
+          testId="panel"
+        />,
+      );
+      fireEvent.click(screen.getByTestId("panel-entry-e1-import"));
+      expect(onImportEntry).toHaveBeenCalledWith(entry);
     });
   });
 });

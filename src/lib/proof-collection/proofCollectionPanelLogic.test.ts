@@ -14,7 +14,9 @@ import {
   startCreatingFolder,
   updateCreatingFolderValue,
   cancelCreatingFolder,
+  getCompatibilityBadge,
 } from "./proofCollectionPanelLogic";
+import type { CompatibilityResult } from "./proofCollectionCompatibility";
 
 describe("proofCollectionPanelLogic", () => {
   describe("createInitialPanelState", () => {
@@ -231,6 +233,40 @@ describe("proofCollectionPanelLogic", () => {
       state = startCreatingFolder(state);
       state = cancelCreatingFolder(state);
       expect(state.creatingFolder).toBeUndefined();
+    });
+  });
+
+  describe("getCompatibilityBadge", () => {
+    it("FullyCompatibleでvariant=okを返す", () => {
+      const result: CompatibilityResult = { _tag: "FullyCompatible" };
+      const badge = getCompatibilityBadge(result);
+      expect(badge.variant).toBe("ok");
+    });
+
+    it("CompatibleWithAxiomWarningsでvariant=axiom-warningを返す", () => {
+      const result: CompatibilityResult = {
+        _tag: "CompatibleWithAxiomWarnings",
+        missingAxiomIds: ["A1", "A2"],
+      };
+      const badge = getCompatibilityBadge(result);
+      expect(badge.variant).toBe("axiom-warning");
+      if (badge.variant === "axiom-warning") {
+        expect(badge.missingAxiomIds).toEqual(["A1", "A2"]);
+      }
+    });
+
+    it("IncompatibleStyleでvariant=style-mismatchを返す", () => {
+      const result: CompatibilityResult = {
+        _tag: "IncompatibleStyle",
+        sourceStyle: "hilbert",
+        targetStyle: "natural-deduction",
+      };
+      const badge = getCompatibilityBadge(result);
+      expect(badge.variant).toBe("style-mismatch");
+      if (badge.variant === "style-mismatch") {
+        expect(badge.sourceStyle).toBe("hilbert");
+        expect(badge.targetStyle).toBe("natural-deduction");
+      }
     });
   });
 });

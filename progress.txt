@@ -9320,3 +9320,32 @@
   - props chain: WorkspaceContent → WorkspacePageView → ProofWorkspace → ProofCollectionPanel の4階層。変更漏れ防止にはTypeScriptの型エラーが有効
   - 後続タスク: 公理系互換性チェック付きインポート
 ---
+
+## 2026-03-07 - [proof-collection] 互換性チェックUI
+- 実装した内容:
+  - ProofCollectionPanelに互換性チェックバッジ（⚠）を追加
+  - 3段階の互換性表示: FullyCompatible（バッジなし）/ CompatibleWithAxiomWarnings（不足公理表示）/ IncompatibleStyle（スタイル不一致表示）
+  - 警告がある場合もインポートボタンは有効（仕様通り: それでも呼び出し可能）
+  - i18n対応（en/ja）: collectionAxiomWarning, collectionStyleMismatch
+  - ProofWorkspaceからavailableAxiomIdsを算出し、checkProofCompatibilityを介してgetCompatibilityコールバックを構成
+- 変更したファイル:
+  - src/lib/proof-collection/proofCollectionPanelLogic.ts（CompatibilityBadge型 + getCompatibilityBadge関数追加）
+  - src/lib/proof-collection/ProofCollectionPanel.tsx（CompatibilityWarningBadgeサブコンポーネント + getCompatibility prop追加）
+  - src/lib/proof-collection/ProofCollectionPanel.test.tsx（互換性バッジ表示の5テスト追加）
+  - src/lib/proof-collection/proofCollectionPanelLogic.test.ts（getCompatibilityBadgeの3テスト追加）
+  - src/lib/proof-collection/ProofCollectionPanel.stories.tsx（WithAxiomWarnings, WithStyleMismatchストーリー追加）
+  - src/lib/proof-collection/index.ts（CompatibilityBadge型 + getCompatibilityBadge関数エクスポート追加）
+  - src/lib/proof-pad/ProofWorkspace.tsx（availableAxiomIds useMemo + handleGetCompatibility useCallback追加）
+  - src/lib/proof-pad/proofMessages.ts（2メッセージキー追加）
+  - src/app/workspace/[id]/WorkspaceContent.tsx（2メッセージキーの翻訳追加）
+  - messages/en.json, messages/ja.json（翻訳追加）
+- カバレッジ: 98.86% → 98.84% Stmts（0.02%はV8 coverage merging variance）
+- テスト: 7706 → 7716 passed（+10テスト）
+- スクリーンショット: .screenshots/proof-collection-axiom-warnings-panel.png, .screenshots/proof-collection-style-mismatch-panel.png
+- **今後のイテレーションへの学び:**
+  - 純粋ロジック層（proofCollectionCompatibility.ts）が既に完成していたため、UI統合のみで済んだ。3層分離の恩恵
+  - AxiomPaletteItemのaxiomフィールドは`.id`（`.axiomId`ではない）。型定義を確認してからコーディングすること
+  - getCompatibilityをコールバック形式propにしたことで、ProofCollectionPanelはワークスペース状態の詳細を知らない疎結合設計を維持
+  - CompatibilityBadge中間型でCompatibilityResult（_tag discriminated union）→ UI表示用データ（variant discriminated union）に変換。レイヤー間の依存を整理
+  - proof-collectionタスク全体が完了: 保存→インポート→フォルダ管理→互換性チェックの4段階で実装
+---

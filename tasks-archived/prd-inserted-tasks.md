@@ -212,3 +212,9 @@ Infinity Canvasについて。
   - notebookListLogic: QuestProgressInfo型 + questProgressText関数。NotebookListComponent: QuestProgressBadgeサブコンポーネント。questNotebookIntegration: computeNotebookQuestProgress/enrichListItemsWithQuestProgress。HubContent統合。テスト・ストーリー追加。
 - [x] ノートの体系タグの近くにボタン、または体系名そのものをクリックから、体系に関する解説ウィンドウを起動できるように
 - [x] 各公理呼び出しの近くにクリックから、体系に関する解説ウィンドウを起動できるような機能を追加
+- [x] 証明を保存する、マイなんたらみたいな、自分だけの証明コレクションを作れるようにしよう。
+  - [x] 目的は、再利用するための機能を提供すること。
+  - [x] フォルダ分けなどでの管理もできる
+  - [x] 証明は互換性があれば、公理系が違うものでも呼び出せる。
+    - 証明自体は、公理系の情報は忘れて、互換性が重要なノートのモードについてのみ知っている状態に
+  - [x] 公理の互換性がなくても呼びだせるが、単に、公理系にない公理が使われていたら、警告マークがついて、それでも呼び出すことができる、という仕組みにする

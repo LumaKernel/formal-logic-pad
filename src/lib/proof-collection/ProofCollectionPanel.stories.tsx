@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn, expect, within, userEvent } from "storybook/test";
 import { ProofCollectionPanel } from "./ProofCollectionPanel";
 import type { ProofEntry, ProofFolder } from "./proofCollectionState";
+import type { CompatibilityResult } from "./proofCollectionCompatibility";
 import { defaultProofMessages } from "../proof-pad/proofMessages";
 
 function createEntry(overrides: Partial<ProofEntry> = {}): ProofEntry {
@@ -296,5 +297,82 @@ export const MoveEntryToFolder: Story = {
     // フォルダに移動
     await userEvent.selectOptions(select, "f1");
     await expect(args.onMoveEntry).toHaveBeenCalledWith("e1", "f1");
+  },
+};
+
+// --- 互換性バッジ関連ストーリー ---
+
+export const WithAxiomWarnings: Story = {
+  args: {
+    entries: [
+      createEntry({
+        id: "e1",
+        name: "Proof with Missing Axioms",
+        usedAxiomIds: ["A1", "A2", "DNE"],
+      }),
+      createEntry({
+        id: "e2",
+        name: "Fully Compatible Proof",
+        usedAxiomIds: ["A1"],
+      }),
+    ],
+    onImportEntry: fn(),
+    getCompatibility: (entry: ProofEntry): CompatibilityResult =>
+      entry.id === "e1"
+        ? {
+            _tag: "CompatibleWithAxiomWarnings",
+            missingAxiomIds: ["A2", "DNE"],
+          }
+        : { _tag: "FullyCompatible" },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // 公理警告バッジが表示される
+    const badge = canvas.getByTestId("panel-entry-e1-compat-badge");
+    await expect(badge).toBeInTheDocument();
+    await expect(badge).toHaveAttribute("title", "Missing axiom(s): A2, DNE");
+    // 完全互換エントリにはバッジなし
+    await expect(
+      canvas.queryByTestId("panel-entry-e2-compat-badge"),
+    ).not.toBeInTheDocument();
+    // 両方ともインポートボタンあり
+    await expect(
+      canvas.getByTestId("panel-entry-e1-import"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("panel-entry-e2-import"),
+    ).toBeInTheDocument();
+  },
+};
+
+export const WithStyleMismatch: Story = {
+  args: {
+    entries: [
+      createEntry({
+        id: "e1",
+        name: "Natural Deduction Proof",
+        deductionStyle: "natural-deduction",
+      }),
+    ],
+    onImportEntry: fn(),
+    getCompatibility: (): CompatibilityResult => ({
+      _tag: "IncompatibleStyle",
+      sourceStyle: "natural-deduction",
+      targetStyle: "hilbert",
+    }),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // スタイル不一致バッジが表示される
+    const badge = canvas.getByTestId("panel-entry-e1-compat-badge");
+    await expect(badge).toBeInTheDocument();
+    await expect(badge).toHaveAttribute(
+      "title",
+      "Style mismatch: natural-deduction \u2192 hilbert",
+    );
+    // インポートボタンは表示される（非互換でも呼び出し可能）
+    await expect(
+      canvas.getByTestId("panel-entry-e1-import"),
+    ).toBeInTheDocument();
   },
 };

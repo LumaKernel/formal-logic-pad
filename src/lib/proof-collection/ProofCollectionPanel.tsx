@@ -21,7 +21,11 @@ import type {
   ProofFolder,
   ProofFolderId,
 } from "./proofCollectionState";
-import type { PanelState, EditingField } from "./proofCollectionPanelLogic";
+import type {
+  PanelState,
+  EditingField,
+  CompatibilityBadge,
+} from "./proofCollectionPanelLogic";
 import {
   createInitialPanelState,
   startEditing,
@@ -37,7 +41,9 @@ import {
   startCreatingFolder,
   updateCreatingFolderValue,
   cancelCreatingFolder,
+  getCompatibilityBadge,
 } from "./proofCollectionPanelLogic";
+import type { CompatibilityResult } from "./proofCollectionCompatibility";
 import type { ProofMessages } from "../proof-pad/proofMessages";
 import { formatMessage } from "../proof-pad/proofMessages";
 
@@ -58,6 +64,8 @@ export interface ProofCollectionPanelProps {
   readonly onRemoveEntry: (id: ProofEntryId) => void;
   /** エントリをワークスペースにインポートするコールバック */
   readonly onImportEntry?: (entry: ProofEntry) => void;
+  /** エントリの互換性チェック結果を取得する関数（未指定時はチェックしない） */
+  readonly getCompatibility?: (entry: ProofEntry) => CompatibilityResult;
   /** エントリのフォルダを変更するコールバック */
   readonly onMoveEntry?: (
     id: ProofEntryId,
@@ -206,6 +214,13 @@ const deductionStyleBadgeStyle: CSSProperties = {
   fontSize: 9,
   color: "var(--color-text-secondary, #aaa)",
   fontWeight: 400,
+};
+
+const warningBadgeStyle: CSSProperties = {
+  fontSize: 10,
+  color: "var(--color-warning, #d69e2e)",
+  cursor: "help",
+  flexShrink: 0,
 };
 
 const folderHeaderStyle: CSSProperties = {
@@ -360,6 +375,34 @@ function EditableField({
   );
 }
 
+function CompatibilityWarningBadge({
+  badge,
+  messages,
+  testId,
+}: {
+  readonly badge: CompatibilityBadge;
+  readonly messages: ProofMessages;
+  readonly testId: string | undefined;
+}) {
+  if (badge.variant === "ok") return null;
+
+  const tooltip =
+    badge.variant === "axiom-warning"
+      ? formatMessage(messages.collectionAxiomWarning, {
+          axiomIds: badge.missingAxiomIds.join(", "),
+        })
+      : formatMessage(messages.collectionStyleMismatch, {
+          sourceStyle: badge.sourceStyle,
+          targetStyle: badge.targetStyle,
+        });
+
+  return (
+    <span style={warningBadgeStyle} title={tooltip} data-testid={testId}>
+      {badge.variant === "axiom-warning" ? "\u26A0" : "\u26A0"}
+    </span>
+  );
+}
+
 function CollectionEntry({
   entry,
   panelState,
@@ -372,6 +415,7 @@ function CollectionEntry({
   onRemove,
   onImport,
   onMoveEntry,
+  compatibilityBadge,
   testId,
 }: {
   readonly entry: ProofEntry;
@@ -391,6 +435,7 @@ function CollectionEntry({
   readonly onMoveEntry:
     | ((id: ProofEntryId, folderId: ProofFolderId | undefined) => void)
     | undefined;
+  readonly compatibilityBadge: CompatibilityBadge | undefined;
   readonly testId: string | undefined;
 }) {
   const entryTestId =
@@ -458,6 +503,17 @@ function CollectionEntry({
               </option>
             ))}
           </select>
+        )}
+        {compatibilityBadge !== undefined && (
+          <CompatibilityWarningBadge
+            badge={compatibilityBadge}
+            messages={messages}
+            testId={
+              entryTestId !== undefined
+                ? `${entryTestId satisfies string}-compat-badge`
+                : undefined
+            }
+          />
         )}
         {onImport !== undefined && (
           <button
@@ -680,6 +736,7 @@ export function ProofCollectionPanel({
   onUpdateMemo,
   onRemoveEntry,
   onImportEntry,
+  getCompatibility,
   onMoveEntry,
   onCreateFolder,
   onRemoveFolder,
@@ -811,6 +868,11 @@ export function ProofCollectionPanel({
       onRemove={handleRemove}
       onImport={onImportEntry}
       onMoveEntry={onMoveEntry}
+      compatibilityBadge={
+        getCompatibility !== undefined
+          ? getCompatibilityBadge(getCompatibility(entry))
+          : undefined
+      }
       testId={testId}
     />
   );

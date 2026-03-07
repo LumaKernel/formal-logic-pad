@@ -184,6 +184,8 @@
     "collectionMoveToFolder": "Move to…",
     "collectionMoveToRoot": "(Root)",
     "collectionRootEntries": "Uncategorized",
-    "collectionFolderEntryCount": "{count}"
+    "collectionFolderEntryCount": "{count}",
+    "collectionAxiomWarning": "Missing axiom(s): {axiomIds}",
+    "collectionStyleMismatch": "Style mismatch: {sourceStyle} → {targetStyle}"
   }
 }

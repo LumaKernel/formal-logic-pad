@@ -210,6 +210,8 @@ function useProofMessagesFromIntl(): ProofMessages {
       collectionMoveToRoot: t("collectionMoveToRoot"),
       collectionRootEntries: t("collectionRootEntries"),
       collectionFolderEntryCount: String(t.raw("collectionFolderEntryCount")),
+      collectionAxiomWarning: t("collectionAxiomWarning"),
+      collectionStyleMismatch: t("collectionStyleMismatch"),
     }),
     [t],
   );

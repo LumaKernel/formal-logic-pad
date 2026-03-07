@@ -258,6 +258,12 @@ export type ProofMessages = {
   readonly collectionRootEntries: string;
   /** `{count}` プレースホルダーを含む */
   readonly collectionFolderEntryCount: string;
+
+  // --- 互換性チェック ---
+  /** 公理不足の警告。`{axiomIds}` プレースホルダーを含む */
+  readonly collectionAxiomWarning: string;
+  /** スタイル不一致の警告。`{sourceStyle}` と `{targetStyle}` プレースホルダーを含む */
+  readonly collectionStyleMismatch: string;
 };
 
 // --- デフォルトメッセージ（英語） ---
@@ -476,6 +482,10 @@ export const defaultProofMessages: ProofMessages = {
   collectionMoveToRoot: "(Root)",
   collectionRootEntries: "Uncategorized",
   collectionFolderEntryCount: "{count}",
+
+  // Compatibility check
+  collectionAxiomWarning: "Missing axiom(s): {axiomIds}",
+  collectionStyleMismatch: "Style mismatch: {sourceStyle} \u2192 {targetStyle}",
 };
 
 // --- エラー → メッセージキー変換（純粋関数） ---
