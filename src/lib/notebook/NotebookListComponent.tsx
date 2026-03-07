@@ -9,7 +9,7 @@
 
 import { useState, type CSSProperties } from "react";
 import type { NotebookListItem } from "./notebookListLogic";
-import { validateNotebookName } from "./notebookListLogic";
+import { validateNotebookName, questProgressText } from "./notebookListLogic";
 
 // --- Props ---
 
@@ -109,6 +109,18 @@ const questBadgeStyle: CSSProperties = {
   ...badgeStyle,
   background: "var(--color-badge-quest-bg)",
   color: "var(--color-badge-quest-text)",
+};
+
+const questProgressBadgeStyle: CSSProperties = {
+  ...badgeStyle,
+  background: "var(--color-quest-progress-partial-bg, #fff3e0)",
+  color: "var(--color-quest-progress-partial-text, #e65100)",
+};
+
+const questProgressCompleteBadgeStyle: CSSProperties = {
+  ...badgeStyle,
+  background: "var(--color-quest-progress-complete-bg, #e8f5e9)",
+  color: "var(--color-quest-progress-complete-text, #2e7d32)",
 };
 
 const actionsStyle: CSSProperties = {
@@ -248,6 +260,28 @@ function ModeBadge({ mode }: { readonly mode: "free" | "quest" }) {
   );
 }
 
+function QuestProgressBadge({
+  progress,
+}: {
+  readonly progress: NotebookListItem["questProgress"];
+}) {
+  if (progress === undefined) {
+    return null;
+  }
+  const text = questProgressText(progress);
+  const isComplete = progress.achievedCount >= progress.totalCount;
+  return (
+    <span
+      data-testid="quest-progress-badge"
+      style={
+        isComplete ? questProgressCompleteBadgeStyle : questProgressBadgeStyle
+      }
+    >
+      {text}
+    </span>
+  );
+}
+
 function NotebookItem({
   item,
   onOpen,
@@ -360,6 +394,7 @@ function NotebookItem({
             <div style={itemMetaStyle}>
               <span>{item.systemName}</span>
               <ModeBadge mode={item.mode} />
+              <QuestProgressBadge progress={item.questProgress} />
               <span>更新: {item.updatedAtLabel}</span>
             </div>
           </>

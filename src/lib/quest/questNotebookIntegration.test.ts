@@ -3,6 +3,8 @@ import {
   startQuestAndCreateNotebook,
   getQuestIdForNotebook,
   getNotebookIdsForQuest,
+  computeNotebookQuestProgress,
+  enrichListItemsWithQuestProgress,
 } from "./questNotebookIntegration";
 import {
   createEmptyCollection,
@@ -10,6 +12,13 @@ import {
   createQuestNotebook,
   findNotebook,
 } from "../notebook/notebookState";
+import type { Notebook } from "../notebook/notebookState";
+import type { NotebookListItem } from "../notebook/notebookListLogic";
+import {
+  createQuestWorkspace,
+  addNode,
+  createEmptyWorkspace,
+} from "../proof-pad/workspaceState";
 import type { QuestDefinition, SystemPresetId } from "./questDefinition";
 import { lukasiewiczSystem } from "../logic-core/inferenceRule";
 import { lkSystem } from "../logic-core/deductionSystem";
@@ -370,5 +379,139 @@ describe("getNotebookIdsForQuest", () => {
 
     const ids = getNotebookIdsForQuest(collection, "q-01");
     expect(ids).toEqual(["notebook-2"]);
+  });
+});
+
+describe("computeNotebookQuestProgress", () => {
+  it("自由帳ノートブックはundefinedを返す", () => {
+    const notebook: Notebook = {
+      meta: { id: "nb-1", name: "Free", createdAt: 0, updatedAt: 0 },
+      workspace: createEmptyWorkspace(lukasiewiczSystem),
+    };
+    expect(computeNotebookQuestProgress(notebook)).toBeUndefined();
+  });
+
+  it("ゴールなしのクエストノートブックはundefinedを返す", () => {
+    const workspace = createQuestWorkspace(lukasiewiczSystem, []);
+    const notebook: Notebook = {
+      meta: { id: "nb-1", name: "Quest", createdAt: 0, updatedAt: 0 },
+      workspace,
+      questId: "q-01",
+    };
+    expect(computeNotebookQuestProgress(notebook)).toBeUndefined();
+  });
+
+  it("未達成のクエストは0/totalを返す", () => {
+    const workspace = createQuestWorkspace(lukasiewiczSystem, [
+      { formulaText: "phi -> phi" },
+      { formulaText: "psi -> psi" },
+    ]);
+    const notebook: Notebook = {
+      meta: { id: "nb-1", name: "Quest", createdAt: 0, updatedAt: 0 },
+      workspace,
+      questId: "q-01",
+    };
+    const progress = computeNotebookQuestProgress(notebook);
+    expect(progress).toEqual({ achievedCount: 0, totalCount: 2 });
+  });
+
+  it("一部達成のクエストは正しい達成数を返す", () => {
+    let workspace = createQuestWorkspace(lukasiewiczSystem, [
+      { formulaText: "phi -> phi" },
+      { formulaText: "psi -> psi" },
+    ]);
+    // phi -> phi を達成するノードを追加
+    workspace = addNode(workspace, "axiom", "A", { x: 0, y: 0 }, "phi -> phi");
+    const notebook: Notebook = {
+      meta: { id: "nb-1", name: "Quest", createdAt: 0, updatedAt: 0 },
+      workspace,
+      questId: "q-01",
+    };
+    const progress = computeNotebookQuestProgress(notebook);
+    expect(progress).toEqual({ achievedCount: 1, totalCount: 2 });
+  });
+
+  it("全達成のクエストはtotalCount/totalCountを返す", () => {
+    let workspace = createQuestWorkspace(lukasiewiczSystem, [
+      { formulaText: "phi -> phi" },
+    ]);
+    workspace = addNode(workspace, "axiom", "A", { x: 0, y: 0 }, "phi -> phi");
+    const notebook: Notebook = {
+      meta: { id: "nb-1", name: "Quest", createdAt: 0, updatedAt: 0 },
+      workspace,
+      questId: "q-01",
+    };
+    const progress = computeNotebookQuestProgress(notebook);
+    expect(progress).toEqual({ achievedCount: 1, totalCount: 1 });
+  });
+});
+
+describe("enrichListItemsWithQuestProgress", () => {
+  const makeListItem = (
+    id: string,
+    mode: "free" | "quest",
+  ): NotebookListItem => ({
+    id,
+    name: `Notebook ${id satisfies string}`,
+    systemName: "Łukasiewicz",
+    mode,
+    updatedAtLabel: "たった今",
+    createdAtLabel: "たった今",
+  });
+
+  it("自由帳には進捗を付与しない", () => {
+    const items = [makeListItem("nb-1", "free")];
+    const notebooks: readonly Notebook[] = [
+      {
+        meta: { id: "nb-1", name: "Free", createdAt: 0, updatedAt: 0 },
+        workspace: createEmptyWorkspace(lukasiewiczSystem),
+      },
+    ];
+    const enriched = enrichListItemsWithQuestProgress(items, notebooks);
+    expect(enriched[0]?.questProgress).toBeUndefined();
+  });
+
+  it("クエストノートブックに進捗を付与する", () => {
+    const items = [makeListItem("nb-1", "quest")];
+    const workspace = createQuestWorkspace(lukasiewiczSystem, [
+      { formulaText: "phi -> phi" },
+    ]);
+    const notebooks: readonly Notebook[] = [
+      {
+        meta: { id: "nb-1", name: "Quest", createdAt: 0, updatedAt: 0 },
+        workspace,
+        questId: "q-01",
+      },
+    ];
+    const enriched = enrichListItemsWithQuestProgress(items, notebooks);
+    expect(enriched[0]?.questProgress).toEqual({
+      achievedCount: 0,
+      totalCount: 1,
+    });
+  });
+
+  it("混在リストで正しく処理する", () => {
+    const items = [makeListItem("nb-1", "free"), makeListItem("nb-2", "quest")];
+    const questWorkspace = createQuestWorkspace(lukasiewiczSystem, [
+      { formulaText: "phi -> phi" },
+      { formulaText: "psi -> psi" },
+    ]);
+    const notebooks: readonly Notebook[] = [
+      {
+        meta: { id: "nb-1", name: "Free", createdAt: 0, updatedAt: 0 },
+        workspace: createEmptyWorkspace(lukasiewiczSystem),
+      },
+      {
+        meta: { id: "nb-2", name: "Quest", createdAt: 0, updatedAt: 0 },
+        workspace: questWorkspace,
+        questId: "q-01",
+      },
+    ];
+    const enriched = enrichListItemsWithQuestProgress(items, notebooks);
+    expect(enriched[0]?.questProgress).toBeUndefined();
+    expect(enriched[1]?.questProgress).toEqual({
+      achievedCount: 0,
+      totalCount: 2,
+    });
   });
 });

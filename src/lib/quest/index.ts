@@ -94,6 +94,8 @@ export {
   startQuestAndCreateNotebook,
   getQuestIdForNotebook,
   getNotebookIdsForQuest,
+  computeNotebookQuestProgress,
+  enrichListItemsWithQuestProgress,
 } from "./questNotebookIntegration";
 
 export {

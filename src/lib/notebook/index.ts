@@ -35,12 +35,14 @@ export {
 
 export {
   type NotebookListItem,
+  type QuestProgressInfo,
   formatRelativeTime,
   toNotebookListItem,
   toNotebookListItems,
   filterNotebooksByQuestId,
   validateNotebookName,
   deleteConfirmMessage,
+  questProgressText,
 } from "./notebookListLogic";
 
 export { NotebookList, type NotebookListProps } from "./NotebookListComponent";

@@ -10,6 +10,12 @@ import type { Notebook, NotebookMeta } from "./notebookState";
 
 // --- 表示用データ ---
 
+/** クエスト進捗情報（ワークスペースから計算可能） */
+export type QuestProgressInfo = {
+  readonly achievedCount: number;
+  readonly totalCount: number;
+};
+
 /** ノートブック一覧の各項目の表示用データ */
 export type NotebookListItem = {
   readonly id: string;
@@ -20,6 +26,8 @@ export type NotebookListItem = {
   readonly createdAtLabel: string;
   /** クエストから作成された場合のクエストID（フィルタリング用） */
   readonly questId?: string;
+  /** クエストの進捗情報（クエストモードかつゴールがある場合のみ） */
+  readonly questProgress?: QuestProgressInfo;
 };
 
 /** 日時のフォーマット（相対表示） */
@@ -97,6 +105,14 @@ export function validateNotebookName(
     return { valid: false, reason: "名前は100文字以内にしてください" };
   }
   return { valid: true };
+}
+
+/** クエスト進捗の表示テキストを生成する */
+export function questProgressText(progress: QuestProgressInfo): string {
+  if (progress.achievedCount >= progress.totalCount) {
+    return "達成済み";
+  }
+  return `${String(progress.achievedCount) satisfies string}/${String(progress.totalCount) satisfies string}`;
 }
 
 /** 削除確認メッセージを生成する */

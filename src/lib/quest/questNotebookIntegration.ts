@@ -9,9 +9,15 @@
 
 import type { NotebookCollection, NotebookId } from "../notebook/notebookState";
 import { createQuestNotebook, findNotebook } from "../notebook/notebookState";
+import type {
+  NotebookListItem,
+  QuestProgressInfo,
+} from "../notebook/notebookListLogic";
+import type { Notebook } from "../notebook/notebookState";
 import type { QuestDefinition } from "./questDefinition";
 import type { QuestStartError } from "./questStartLogic";
 import { prepareQuestStart } from "./questStartLogic";
+import { checkQuestGoals } from "./questCompletionLogic";
 
 // --- クエスト開始→ノートブック作成 結果型 ---
 
@@ -114,4 +120,45 @@ export function getNotebookIdsForQuest(
   return collection.notebooks
     .filter((n) => n.questId === questId)
     .map((n) => n.meta.id);
+}
+
+/**
+ * 単一ノートブックのクエスト進捗を計算する。
+ * クエストモードかつゴールがある場合のみ進捗情報を返す。
+ */
+export function computeNotebookQuestProgress(
+  notebook: Notebook,
+): QuestProgressInfo | undefined {
+  if (notebook.workspace.mode !== "quest") return undefined;
+  const { goals, nodes } = notebook.workspace;
+  if (goals.length === 0) return undefined;
+  const result = checkQuestGoals(goals, nodes);
+  switch (result._tag) {
+    case "NoGoals":
+      return undefined;
+    case "AllAchieved":
+      return { achievedCount: goals.length, totalCount: goals.length };
+    case "NotAllAchieved":
+      return {
+        achievedCount: result.achievedCount,
+        totalCount: result.totalCount,
+      };
+  }
+}
+
+/**
+ * NotebookListItemにクエスト進捗情報を付与する。
+ * notebooksとlistItemsは同じ順序・同じ長さであること。
+ */
+export function enrichListItemsWithQuestProgress(
+  listItems: readonly NotebookListItem[],
+  notebooks: readonly Notebook[],
+): readonly NotebookListItem[] {
+  return listItems.map((item, i) => {
+    const notebook = notebooks[i];
+    if (notebook === undefined) return item;
+    const questProgress = computeNotebookQuestProgress(notebook);
+    if (questProgress === undefined) return item;
+    return { ...item, questProgress };
+  });
 }
