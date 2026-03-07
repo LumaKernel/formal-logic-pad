@@ -77,3 +77,41 @@ console.log(formatFormula(f));`,
     await expect(playButton.getAttribute("disabled")).toBeNull();
   },
 };
+
+export const WithSyntaxError: Story = {
+  args: {
+    initialCode: `// 構文エラーを含むコード
+var x = 1;
+function {`,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // エディタが表示される
+    const editor = canvas.getByTestId("script-editor");
+    await expect(editor).toBeDefined();
+
+    // Run ボタンが有効（実行はブラウザ環境でjs-interpreterが非対応のため省略）
+    const runButton = canvas.getByTestId("run-button");
+    await expect(runButton.getAttribute("disabled")).toBeNull();
+  },
+};
+
+export const WithRuntimeError: Story = {
+  args: {
+    initialCode: `// ランタイムエラーを含むコード
+var x = 1;
+null.property;`,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // エディタが表示される
+    const editor = canvas.getByTestId("script-editor");
+    await expect(editor).toBeDefined();
+
+    // Run ボタンが有効
+    const runButton = canvas.getByTestId("run-button");
+    await expect(runButton.getAttribute("disabled")).toBeNull();
+  },
+};

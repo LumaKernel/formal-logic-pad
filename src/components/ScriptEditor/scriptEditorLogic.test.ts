@@ -13,6 +13,7 @@ import {
   updateAutoPlayInterval,
   sliderToIntervalMs,
   intervalMsToSlider,
+  extractErrorLocation,
   DEFAULT_AUTO_PLAY_INTERVAL_MS,
   MIN_AUTO_PLAY_INTERVAL_MS,
   MAX_AUTO_PLAY_INTERVAL_MS,
@@ -317,6 +318,49 @@ describe("scriptEditorLogic", () => {
       const slider = 42;
       const interval = sliderToIntervalMs(slider);
       expect(intervalMsToSlider(interval)).toBe(slider);
+    });
+  });
+
+  describe("extractErrorLocation", () => {
+    it("SyntaxError の (行:列) パターンを抽出する", () => {
+      const result = extractErrorLocation("Unexpected token (3:9)", 1);
+      expect(result).toEqual({ line: 2, column: 10 });
+    });
+
+    it("行オフセットを差し引く", () => {
+      const result = extractErrorLocation("Unexpected token (5:0)", 2);
+      expect(result).toEqual({ line: 3, column: 1 });
+    });
+
+    it("オフセット0で行番号がそのまま返る", () => {
+      const result = extractErrorLocation("Unexpected token (1:4)", 0);
+      expect(result).toEqual({ line: 1, column: 5 });
+    });
+
+    it("位置情報がないメッセージではnullを返す", () => {
+      const result = extractErrorLocation(
+        "Cannot read property 'x' of null",
+        1,
+      );
+      expect(result).toBeNull();
+    });
+
+    it("オフセット差し引き後に行番号が0以下ならnullを返す", () => {
+      const result = extractErrorLocation("Unexpected token (1:0)", 2);
+      expect(result).toBeNull();
+    });
+
+    it("空文字列ではnullを返す", () => {
+      const result = extractErrorLocation("", 0);
+      expect(result).toBeNull();
+    });
+
+    it("SyntaxError プレフィックス付きメッセージから抽出する", () => {
+      const result = extractErrorLocation(
+        "SyntaxError: Unexpected token (2:5)",
+        1,
+      );
+      expect(result).toEqual({ line: 1, column: 6 });
     });
   });
 
