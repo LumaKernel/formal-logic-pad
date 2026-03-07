@@ -443,6 +443,21 @@ export function updateNodePosition(
   };
 }
 
+/** 複数ノードの位置を一括更新する（マルチセレクションドラッグ用） */
+export function updateMultipleNodePositions(
+  state: WorkspaceState,
+  positions: ReadonlyMap<string, Point>,
+): WorkspaceState {
+  if (positions.size === 0) return state;
+  return {
+    ...state,
+    nodes: state.nodes.map((node) => {
+      const newPos = positions.get(node.id);
+      return newPos !== undefined ? { ...node, position: newPos } : node;
+    }),
+  };
+}
+
 /** ノードの論理式テキストを更新する（保護ノードは更新不可） */
 export function updateNodeFormulaText(
   state: WorkspaceState,

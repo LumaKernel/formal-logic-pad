@@ -119,6 +119,7 @@ import {
   addNode,
   addConnection,
   updateNodePosition,
+  updateMultipleNodePositions,
   updateNodeFormulaText,
   updateNodeRole,
   findNode,
@@ -2924,9 +2925,28 @@ export function ProofWorkspace({
   /* v8 ignore start -- ドラッグ操作: PointerEvent シミュレーションが必要なためブラウザテストで検証 */
   const handlePositionChange = useCallback(
     (nodeId: string) => (position: Point) => {
+      // マルチセレクションドラッグ: 選択ノードが2つ以上かつドラッグ対象が選択に含まれる場合
+      if (selectedNodeIds.size >= 2 && selectedNodeIds.has(nodeId)) {
+        const draggedNode = workspace.nodes.find((n) => n.id === nodeId);
+        if (draggedNode !== undefined) {
+          const dx = position.x - draggedNode.position.x;
+          const dy = position.y - draggedNode.position.y;
+          const positions = new Map<string, Point>();
+          for (const node of workspace.nodes) {
+            if (selectedNodeIds.has(node.id)) {
+              positions.set(node.id, {
+                x: node.id === nodeId ? position.x : node.position.x + dx,
+                y: node.id === nodeId ? position.y : node.position.y + dy,
+              });
+            }
+          }
+          setWorkspace(updateMultipleNodePositions(workspace, positions));
+          return;
+        }
+      }
       setWorkspace(updateNodePosition(workspace, nodeId, position));
     },
-    [workspace, setWorkspace],
+    [workspace, setWorkspace, selectedNodeIds],
   );
   /* v8 ignore stop */
 

@@ -14,6 +14,7 @@ import {
   isNodeProtected,
   addNode,
   updateNodePosition,
+  updateMultipleNodePositions,
   updateNodeFormulaText,
   updateNodeRole,
   findNode,
@@ -184,6 +185,53 @@ describe("proofWorkspace", () => {
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       const result = updateNodePosition(ws, "non-existent", { x: 50, y: 75 });
       expect(result.nodes[0]!.position).toEqual({ x: 0, y: 0 });
+    });
+  });
+
+  describe("updateMultipleNodePositions", () => {
+    it("updates positions of multiple nodes at once", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A", { x: 0, y: 0 });
+      ws = addNode(ws, "axiom", "B", { x: 100, y: 0 });
+      ws = addNode(ws, "axiom", "C", { x: 200, y: 0 });
+      const positions = new Map([
+        ["node-1", { x: 10, y: 20 }],
+        ["node-2", { x: 110, y: 20 }],
+      ]);
+      const result = updateMultipleNodePositions(ws, positions);
+      expect(result.nodes[0]!.position).toEqual({ x: 10, y: 20 });
+      expect(result.nodes[1]!.position).toEqual({ x: 110, y: 20 });
+      expect(result.nodes[2]!.position).toEqual({ x: 200, y: 0 });
+    });
+
+    it("does not modify unselected nodes", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A", { x: 50, y: 60 });
+      ws = addNode(ws, "axiom", "B", { x: 150, y: 160 });
+      const positions = new Map([["node-1", { x: 70, y: 80 }]]);
+      const result = updateMultipleNodePositions(ws, positions);
+      expect(result.nodes[0]!.position).toEqual({ x: 70, y: 80 });
+      expect(result.nodes[1]!.position).toEqual({ x: 150, y: 160 });
+    });
+
+    it("returns same state when positions map is empty", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A", { x: 0, y: 0 });
+      const positions = new Map<string, { readonly x: number; readonly y: number }>();
+      const result = updateMultipleNodePositions(ws, positions);
+      expect(result).toBe(ws);
+    });
+
+    it("ignores non-existent node IDs in positions map", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A", { x: 0, y: 0 });
+      const positions = new Map([
+        ["node-1", { x: 10, y: 20 }],
+        ["non-existent", { x: 999, y: 999 }],
+      ]);
+      const result = updateMultipleNodePositions(ws, positions);
+      expect(result.nodes[0]!.position).toEqual({ x: 10, y: 20 });
+      expect(result.nodes).toHaveLength(1);
     });
   });
 

@@ -39,6 +39,7 @@ export {
   isNodeProtected,
   addNode,
   updateNodePosition,
+  updateMultipleNodePositions,
   updateNodeFormulaText,
   updateNodeRole,
   findNode,
