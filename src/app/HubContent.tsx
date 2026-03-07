@@ -6,10 +6,14 @@ import { useLocale, useTranslations } from "next-intl";
 import { useNotebookCollection, toNotebookListItems } from "../lib/notebook";
 import {
   useQuestProgress,
+  useCustomQuestCollection,
   builtinQuests,
   buildCatalogByCategory,
+  buildCustomQuestCatalogItems,
   computeQuestNotebookCounts,
   enrichListItemsWithQuestProgress,
+  mergeWithBuiltinQuests,
+  findQuestById,
 } from "../lib/quest";
 import { ThemeProvider } from "../lib/theme/ThemeProvider";
 import type { DeductionSystem } from "../lib/logic-core/deductionSystem";
@@ -48,6 +52,7 @@ function HubInner() {
   const router = useRouter();
   const notebookCollection = useNotebookCollection();
   const questProgress = useQuestProgress();
+  const customQuestCollection = useCustomQuestCollection();
   const hubMessages = useHubMessagesFromIntl();
   const rawLocale = useLocale();
   const locale = isLocale(rawLocale) ?? "en";
@@ -58,6 +63,23 @@ function HubInner() {
   const groups = useMemo(
     () => buildCatalogByCategory(builtinQuests, questProgress.progress),
     [questProgress.progress],
+  );
+
+  // Build custom quest catalog items
+  const customQuestItems = useMemo(
+    () =>
+      buildCustomQuestCatalogItems(
+        customQuestCollection.collection,
+        questProgress.progress,
+      ),
+    [customQuestCollection.collection, questProgress.progress],
+  );
+
+  // Merge builtin + custom quests for quest lookup
+  const allQuests = useMemo(
+    () =>
+      mergeWithBuiltinQuests(builtinQuests, customQuestCollection.collection),
+    [customQuestCollection.collection],
   );
 
   // Build notebook list items with quest progress
@@ -95,9 +117,9 @@ function HubInner() {
   // Start quest: resolve quest definition -> create notebook -> navigate
   const handleStartQuest = useCallback(
     (questId: string) => {
-      const result = prepareQuestStart(builtinQuests, questId);
+      const result = prepareQuestStart(allQuests, questId);
       if (!result.ok) return;
-      const quest = builtinQuests.find((q) => q.id === questId);
+      const quest = findQuestById(allQuests, questId);
       const { params } = result;
       const nextId = predictNextNotebookId();
       notebookCollection.createQuest(
@@ -109,7 +131,7 @@ function HubInner() {
       );
       router.push(`/workspace/${nextId satisfies string}`);
     },
-    [notebookCollection, router, predictNextNotebookId],
+    [allQuests, notebookCollection, router, predictNextNotebookId],
   );
 
   // Create notebook
@@ -154,6 +176,7 @@ function HubInner() {
         onConvertToFree={handleConvertToFree}
         onStartQuest={handleStartQuest}
         onCreateNotebook={handleCreateNotebook}
+        customQuestItems={customQuestItems}
         languageToggle={{ locale, onLocaleChange: switchLocale }}
         notebookCounts={notebookCounts}
       />

@@ -2,9 +2,14 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn, expect, within, userEvent } from "storybook/test";
 import { HubPageView } from "./HubPageView";
 import type { NotebookListItem } from "../lib/notebook";
-import type { CategoryGroup, QuestNotebookCounts } from "../lib/quest";
+import type {
+  CategoryGroup,
+  QuestNotebookCounts,
+  QuestCatalogItem,
+} from "../lib/quest";
 import { builtinQuests, buildCatalogByCategory } from "../lib/quest";
 import { createEmptyProgress } from "../lib/quest";
+import type { QuestDefinition } from "../lib/quest";
 import { ThemeProvider } from "../lib/theme/ThemeProvider";
 
 // --- Sample Data ---
@@ -47,6 +52,67 @@ const sampleGroups: readonly CategoryGroup[] = buildCatalogByCategory(
   builtinQuests,
   createEmptyProgress(),
 );
+
+function makeCustomQuest(
+  overrides: Partial<QuestDefinition> = {},
+): QuestDefinition {
+  return {
+    id: "custom-1000",
+    category: "propositional-basics",
+    title: "自作クエスト",
+    description: "自作テスト。",
+    difficulty: 1,
+    systemPresetId: "lukasiewicz",
+    goals: [{ formulaText: "p -> p" }],
+    hints: [],
+    estimatedSteps: 5,
+    learningPoint: "テスト",
+    order: 0,
+    version: 1,
+    ...overrides,
+  };
+}
+
+function makeCustomItem(
+  overrides: Partial<QuestCatalogItem> & {
+    readonly questOverrides?: Partial<QuestDefinition>;
+  } = {},
+): QuestCatalogItem {
+  const { questOverrides, ...rest } = overrides;
+  return {
+    quest: makeCustomQuest(questOverrides),
+    completed: false,
+    completionCount: 0,
+    bestStepCount: undefined,
+    rating: "not-completed",
+    ...rest,
+  };
+}
+
+const sampleCustomQuestItems: readonly QuestCatalogItem[] = [
+  makeCustomItem({
+    questOverrides: {
+      id: "custom-1001",
+      title: "恒等律の練習（自作）",
+      description: "φ → φ を証明せよ。自作バージョン。",
+      difficulty: 1,
+      estimatedSteps: 5,
+    },
+    completed: true,
+    completionCount: 1,
+    bestStepCount: 4,
+    rating: "perfect",
+  }),
+  makeCustomItem({
+    questOverrides: {
+      id: "custom-1002",
+      title: "ド・モルガンの法則（自作）",
+      description: "¬(p ∧ q) → (¬p ∨ ¬q) を証明せよ。",
+      difficulty: 3,
+      estimatedSteps: 12,
+    },
+  }),
+];
 
 // --- Meta ---
 
@@ -291,6 +357,57 @@ export const QuestStart: Story = {
     const startBtn = canvas.getByTestId("start-btn-prop-01");
     await userEvent.click(startBtn);
     await expect(args.onStartQuest).toHaveBeenCalledWith("prop-01");
+  },
+};
+
+/** クエストタブに自作クエストが表示される */
+export const WithCustomQuests: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+    customQuestItems: sampleCustomQuestItems,
+    initialTab: "quests",
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // ビルトインクエストカタログが表示される
+    await expect(canvas.getByTestId("quest-catalog")).toBeInTheDocument();
+    // 自作クエストセクションが表示される
+    await expect(canvas.getByTestId("custom-quest-list")).toBeInTheDocument();
+    await expect(canvas.getByText("自作クエスト")).toBeInTheDocument();
+    await expect(canvas.getByText("1 / 2")).toBeInTheDocument();
+    // 自作クエストのアイテムが表示される
+    await expect(
+      canvas.getByText("恒等律の練習（自作）"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByText("ド・モルガンの法則（自作）"),
+    ).toBeInTheDocument();
+    // 自作クエストの開始ボタンが動作する
+    await userEvent.click(
+      canvas.getByTestId("custom-quest-start-btn-custom-1002"),
+    );
+    await expect(args.onStartQuest).toHaveBeenCalledWith("custom-1002");
+  },
+};
+
+/** 自作クエストが空の状態 */
+export const WithEmptyCustomQuests: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+    customQuestItems: [],
+    initialTab: "quests",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("custom-quest-list")).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("custom-quest-list-empty"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByText("自作クエストはまだありません。"),
+    ).toBeInTheDocument();
   },
 };
 

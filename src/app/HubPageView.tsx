@@ -17,8 +17,10 @@ import {
 } from "../lib/notebook";
 import {
   QuestCatalog,
+  CustomQuestList,
   type CategoryGroup,
   type QuestNotebookCounts,
+  type QuestCatalogItem,
 } from "../lib/quest";
 import { ThemeToggle } from "../components/ThemeToggle/ThemeToggle";
 import {
@@ -55,6 +57,8 @@ export type HubPageViewProps = {
     readonly name: string;
     readonly deductionSystem: DeductionSystem;
   }) => void;
+  /** 自作クエストのカタログアイテム一覧 */
+  readonly customQuestItems?: readonly QuestCatalogItem[];
   /** 初期タブ（テスト用） */
   readonly initialTab?: HubTab;
   /** 言語切り替え（指定時に LanguageToggle を表示） */
@@ -199,6 +203,7 @@ export function HubPageView({
   onConvertToFree,
   onStartQuest,
   onCreateNotebook,
+  customQuestItems,
   initialTab = "notebooks",
   languageToggle,
   notebookCounts,
@@ -344,12 +349,20 @@ export function HubPageView({
         )}
 
         {tab === "quests" && (
-          <QuestCatalog
-            groups={groups}
-            onStartQuest={onStartQuest}
-            notebookCounts={notebookCounts}
-            onShowQuestNotebooks={handleShowQuestNotebooks}
-          />
+          <>
+            <QuestCatalog
+              groups={groups}
+              onStartQuest={onStartQuest}
+              notebookCounts={notebookCounts}
+              onShowQuestNotebooks={handleShowQuestNotebooks}
+            />
+            {customQuestItems !== undefined && (
+              <CustomQuestList
+                items={customQuestItems}
+                onStartQuest={onStartQuest}
+              />
+            )}
+          </>
         )}
       </div>
     </div>
