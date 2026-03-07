@@ -640,4 +640,128 @@ describe("ScriptRunner", () => {
       }
     });
   });
+
+  describe("runAsync (非同期チャンク実行)", () => {
+    it("単純な式を非同期で実行して結果を取得できる", async () => {
+      const runner = getRunner(createScriptRunner("1 + 2"));
+      const result = await runner.runAsync();
+      expect(result._tag).toBe("Ok");
+      if (result._tag === "Ok") {
+        expect(result.value).toBe(3);
+        expect(result.steps).toBeGreaterThan(0);
+      }
+    });
+
+    it("ループを非同期で実行できる", async () => {
+      const runner = getRunner(
+        createScriptRunner("var sum = 0; for (var i = 0; i < 100; i++) sum += i; sum;"),
+      );
+      const result = await runner.runAsync();
+      expect(result._tag).toBe("Ok");
+      if (result._tag === "Ok") {
+        expect(result.value).toBe(4950);
+      }
+    });
+
+    it("進捗コールバックが呼ばれる", async () => {
+      const onProgress = vi.fn();
+      // 十分なステップ数のループ（チャンクサイズを超える）
+      const runner = getRunner(
+        createScriptRunner(
+          "var x = 0; for (var i = 0; i < 500; i++) x += 1; x;",
+          { maxSteps: 100_000 },
+        ),
+      );
+      const result = await runner.runAsync(undefined, { onProgress }, 100);
+      expect(result._tag).toBe("Ok");
+      // 進捗コールバックが少なくとも1回は呼ばれるはず
+      expect(onProgress).toHaveBeenCalled();
+      // 引数はステップ数（number）
+      const firstCallArg = onProgress.mock.calls[0]?.[0];
+      expect(typeof firstCallArg).toBe("number");
+      expect(firstCallArg).toBeGreaterThan(0);
+    });
+
+    it("中断シグナルで実行を停止できる", async () => {
+      const signal = { aborted: false };
+      const onProgress = vi.fn().mockImplementation(() => {
+        // 最初のチャンク完了後に中断
+        signal.aborted = true;
+      });
+      const runner = getRunner(
+        createScriptRunner(
+          "var x = 0; for (var i = 0; i < 10000; i++) x += 1; x;",
+          { maxSteps: 100_000 },
+        ),
+      );
+      const result = await runner.runAsync(signal, { onProgress }, 100);
+      expect(result._tag).toBe("Error");
+      if (result._tag === "Error") {
+        expect(result.error._tag).toBe("RuntimeError");
+        if (result.error._tag === "RuntimeError") {
+          expect(result.error.message).toBe("Execution aborted");
+        }
+      }
+    });
+
+    it("ステップ制限で非同期実行が停止する", async () => {
+      const runner = getRunner(
+        createScriptRunner("while(true) {}", { maxSteps: 50 }),
+      );
+      const result = await runner.runAsync();
+      expect(result._tag).toBe("Error");
+      if (result._tag === "Error") {
+        expect(result.error._tag).toBe("StepLimitExceeded");
+      }
+    });
+
+    it("時間制限で非同期実行が停止する", async () => {
+      let now = 0;
+      const runner = getRunner(
+        createScriptRunner("while(true) {}", {
+          maxSteps: 1_000_000,
+          maxTimeMs: 100,
+          getNow: () => {
+            now += 1;
+            return now;
+          },
+        }),
+      );
+      const result = await runner.runAsync();
+      expect(result._tag).toBe("Error");
+      if (result._tag === "Error") {
+        expect(result.error._tag).toBe("TimeLimitExceeded");
+      }
+    });
+
+    it("構文エラーのコードはcreateScriptRunnerがScriptRunResultを返す（runAsyncは呼べない）", () => {
+      const result = createScriptRunner("function {");
+      expect(isScriptRunResult(result)).toBe(true);
+    });
+
+    it("カスタムチャンクサイズで動作する", async () => {
+      const onProgress = vi.fn();
+      const runner = getRunner(
+        createScriptRunner(
+          "var x = 0; for (var i = 0; i < 200; i++) x += 1; x;",
+          { maxSteps: 100_000 },
+        ),
+      );
+      const result = await runner.runAsync(undefined, { onProgress }, 50);
+      expect(result._tag).toBe("Ok");
+      // チャンクサイズが小さいので進捗コールバックが複数回呼ばれるはず
+      expect(onProgress.mock.calls.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("ランタイムエラーが非同期でも正しく返る", async () => {
+      const runner = getRunner(
+        createScriptRunner("undefined.foo"),
+      );
+      const result = await runner.runAsync();
+      expect(result._tag).toBe("Error");
+      if (result._tag === "Error") {
+        expect(result.error._tag).toBe("RuntimeError");
+      }
+    });
+  });
 });

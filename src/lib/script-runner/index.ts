@@ -21,6 +21,8 @@ export {
   type StepLocation,
   type StepStatus,
   type ScriptRunnerInstance,
+  type RunAsyncAbortSignal,
+  type RunAsyncCallbacks,
 } from "./scriptRunner";
 export {
   createProofBridges,

@@ -85,12 +85,39 @@ export type StepStatus =
       readonly steps: number;
     };
 
+/** 非同期実行の中断シグナル */
+export interface RunAsyncAbortSignal {
+  /** true にすると実行を中断する */
+  readonly aborted: boolean;
+}
+
+/** 非同期実行の進捗コールバック */
+export interface RunAsyncCallbacks {
+  /** チャンクごとに呼ばれる進捗コールバック。現在のステップ数を受け取る */
+  readonly onProgress?: (steps: number) => void;
+}
+
 /** ScriptRunner インスタンス */
 export interface ScriptRunnerInstance {
   /** 1ステップ実行して状態を返す */
   readonly step: () => StepStatus;
-  /** 全ステップ実行して結果を返す */
+  /** 全ステップ実行して結果を返す（同期版） */
   readonly run: () => ScriptRunResult;
+  /**
+   * 全ステップ実行して結果を返す（非同期版）。
+   *
+   * チャンク単位で実行し、各チャンクの間にUIスレッドへ制御を返す。
+   * これにより長時間実行中もUIが応答し、停止ボタン等が有効になる。
+   *
+   * @param signal 中断シグナル。aborted=true で実行を停止する
+   * @param callbacks 進捗通知コールバック
+   * @param chunkSize 1チャンクのステップ数（デフォルト: 1000）
+   */
+  readonly runAsync: (
+    signal?: RunAsyncAbortSignal,
+    callbacks?: RunAsyncCallbacks,
+    chunkSize?: number,
+  ) => Promise<ScriptRunResult>;
   /** 現在のステップ数を取得 */
   readonly getSteps: () => number;
 }
@@ -269,9 +296,56 @@ export const createScriptRunner = (
     }
   };
 
+  const DEFAULT_CHUNK_SIZE = 1000;
+
+  const runAsync = async (
+    signal?: RunAsyncAbortSignal,
+    callbacks?: RunAsyncCallbacks,
+    chunkSize: number = DEFAULT_CHUNK_SIZE,
+  ): Promise<ScriptRunResult> => {
+    for (;;) {
+      // チャンク単位で同期実行
+      for (let i = 0; i < chunkSize; i++) {
+        if (signal?.aborted === true) {
+          return {
+            _tag: "Error",
+            error: { _tag: "RuntimeError", message: "Execution aborted" },
+            steps,
+            elapsedMs: getNow() - startTime,
+          };
+        }
+
+        const status = stepOnce();
+        switch (status._tag) {
+          case "Running":
+            continue;
+          case "Done":
+            return {
+              _tag: "Ok",
+              value: status.value,
+              steps: status.steps,
+              elapsedMs: getNow() - startTime,
+            };
+          case "Error":
+            return {
+              _tag: "Error",
+              error: status.error,
+              steps: status.steps,
+              elapsedMs: getNow() - startTime,
+            };
+        }
+      }
+
+      // チャンク完了時にUIスレッドへ制御を返す
+      callbacks?.onProgress?.(steps);
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    }
+  };
+
   return {
     step: stepOnce,
     run: runAll,
+    runAsync,
     getSteps: () => steps,
   };
 };

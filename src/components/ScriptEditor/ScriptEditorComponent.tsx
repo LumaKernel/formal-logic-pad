@@ -28,6 +28,7 @@ import type {
   NativeFunctionBridge,
   ScriptRunnerInstance,
   WorkspaceCommandHandler,
+  RunAsyncAbortSignal,
 } from "@/lib/script-runner";
 import {
   initialScriptEditorState,
@@ -45,6 +46,7 @@ import {
   extractErrorLocation,
   adjustStepLocationLine,
   defaultEditorOptions,
+  computeSlowdownInterval,
 } from "./scriptEditorLogic";
 import type { ScriptEditorState } from "./scriptEditorLogic";
 import {
@@ -93,6 +95,9 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
   );
 
   const runnerRef = useRef<ScriptRunnerInstance | null>(null);
+  const abortSignalRef = useRef<RunAsyncAbortSignal & { aborted: boolean }>({
+    aborted: false,
+  });
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const autoPlayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
@@ -253,33 +258,54 @@ declare var console: {
     [onCodeChange],
   );
 
-  // ── Run (全実行) ──────────────────────────────────────────────
+  // ── Run (全実行 — 非同期チャンク) ───────────────────────────────
 
   const handleRun = useCallback(() => {
-    setState((prev) => {
-      const next = startExecution(prev);
-      const bridges = buildAllBridges();
-      const fullCode = consoleShimCode + prev.code;
-      const result = createScriptRunner(fullCode, {
-        bridges,
-        maxSteps: 100_000,
-        maxTimeMs: 10_000,
-      });
+    // 中断シグナルを新規作成
+    const signal: RunAsyncAbortSignal & { aborted: boolean } = {
+      aborted: false,
+    };
+    abortSignalRef.current = signal;
 
-      if (isScriptRunResult(result)) {
-        const final = setRunResult(next, result);
-        // 非同期ではないが次のレンダーでonRunCompleteを呼ぶ
+    setState((prev) => startExecution(prev));
+
+    const bridges = buildAllBridges();
+    const fullCode = consoleShimCode + state.code;
+    const result = createScriptRunner(fullCode, {
+      bridges,
+      maxSteps: 100_000,
+      maxTimeMs: 10_000,
+    });
+
+    if (isScriptRunResult(result)) {
+      setState((prev) => {
+        const final = setRunResult(prev, result);
         setTimeout(() => onRunComplete?.(final), 0);
         return final;
-      }
+      });
+      return;
+    }
 
-      // ScriptRunnerInstance が返った場合は run() で全実行
-      const runResult = result.run();
-      const final = setRunResult(next, runResult);
-      setTimeout(() => onRunComplete?.(final), 0);
-      return final;
-    });
-  }, [buildAllBridges, consoleShimCode, onRunComplete]);
+    // ScriptRunnerInstance → runAsync で非同期チャンク実行
+    runnerRef.current = result;
+    void result
+      .runAsync(signal, {
+        onProgress: (steps) => {
+          setState((prev) => ({
+            ...prev,
+            currentStep: steps,
+          }));
+        },
+      })
+      .then((runResult) => {
+        runnerRef.current = null;
+        setState((prev) => {
+          const final = setRunResult(prev, runResult);
+          onRunComplete?.(final);
+          return final;
+        });
+      });
+  }, [buildAllBridges, consoleShimCode, state.code, onRunComplete]);
 
   // ── Step (ステップ実行開始/続行) ──────────────────────────────
 
@@ -376,13 +402,18 @@ declare var console: {
     setIsAutoPlaying(false);
   }, []);
 
-  // ── 自動再生タイマー制御 ─────────────────────────────────────
+  // ── 自動再生タイマー制御（プログレッシブスローダウン付き）────────
+
+  const effectiveIntervalMs = computeSlowdownInterval(
+    state.autoPlayIntervalMs,
+    state.currentStep,
+  );
 
   useEffect(() => {
     if (isAutoPlaying) {
       autoPlayTimerRef.current = setInterval(
         executeOneStep,
-        state.autoPlayIntervalMs,
+        effectiveIntervalMs,
       );
     } else if (autoPlayTimerRef.current !== null) {
       clearInterval(autoPlayTimerRef.current);
@@ -394,7 +425,7 @@ declare var console: {
         autoPlayTimerRef.current = null;
       }
     };
-  }, [isAutoPlaying, state.autoPlayIntervalMs, executeOneStep]);
+  }, [isAutoPlaying, effectiveIntervalMs, executeOneStep]);
 
   // ── 速度スライダー ──────────────────────────────────────────
 
@@ -411,6 +442,7 @@ declare var console: {
 
   const handleReset = useCallback(() => {
     setIsAutoPlaying(false);
+    abortSignalRef.current.aborted = true;
     runnerRef.current = null;
     setState((prev) => resetExecution(prev));
   }, []);
@@ -730,7 +762,15 @@ declare var console: {
         <span
           className={styles["speedValue"]}
           data-testid="speed-value"
-        >{`${String(state.autoPlayIntervalMs) satisfies string}ms`}</span>
+        >{`${String(effectiveIntervalMs) satisfies string}ms`}</span>
+        {effectiveIntervalMs > state.autoPlayIntervalMs && (
+          <span
+            className={styles["slowdownBadge"]}
+            data-testid="slowdown-badge"
+          >
+            {`Slowdown x${String(Math.round(effectiveIntervalMs / state.autoPlayIntervalMs)) satisfies string}`}
+          </span>
+        )}
       </div>
 
       {state.errorMessage !== null && (
