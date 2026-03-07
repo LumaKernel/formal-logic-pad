@@ -73,6 +73,8 @@ export interface EditableProofNodeProps {
   readonly isProtected?: boolean;
   /** 自動判別された公理名（例: "A1 (K)"）。undefined = 公理でない or 判別不能 */
   readonly axiomName?: string;
+  /** 公理名バッジクリック時のコールバック。指定時はバッジがボタンになる */
+  readonly onClickAxiomBadge?: () => void;
   /** 依存する公理ノードのリスト（導出ノードのみ表示） */
   readonly dependencies?: readonly DependencyInfo[];
   /** 表示詳細度（ズームレベルに応じた簡略表示、デフォルト: "full"） */
@@ -186,6 +188,15 @@ const axiomNameBadgeStyle: CSSProperties = {
   background: "var(--color-badge-bg, #e8eaf0)",
   color: "var(--color-badge-text, #718096)",
   border: "1px solid var(--color-node-card-border, rgba(0,0,0,0.08))",
+};
+
+const axiomNameBadgeClickableStyle: CSSProperties = {
+  ...axiomNameBadgeStyle,
+  cursor: "pointer",
+  textDecoration: "underline",
+  textDecorationStyle: "dotted",
+  textUnderlineOffset: 2,
+  fontFamily: "inherit",
 };
 
 const dependencyContainerStyle: CSSProperties = {
@@ -351,6 +362,7 @@ export function EditableProofNode({
   onRoleChange,
   isProtected = false,
   axiomName,
+  onClickAxiomBadge,
   dependencies,
   detailLevel = "full",
   visibilityOverrides,
@@ -473,17 +485,36 @@ export function EditableProofNode({
       >
         <div style={labelStyle}>{label}</div>
         {visibility.showAxiomName && axiomName ? (
-          <div
-            style={axiomNameBadgeStyle}
-            title={formatMessage(msg.axiomIdentifiedTooltip, {
-              axiomName,
-            })}
-            data-testid={
-              testId ? `${testId satisfies string}-axiom-name` : undefined
-            }
-          >
-            {axiomName}
-          </div>
+          onClickAxiomBadge ? (
+            <button
+              type="button"
+              style={axiomNameBadgeClickableStyle}
+              title={formatMessage(msg.axiomIdentifiedTooltip, {
+                axiomName,
+              })}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClickAxiomBadge();
+              }}
+              data-testid={
+                testId ? `${testId satisfies string}-axiom-name` : undefined
+              }
+            >
+              {axiomName}
+            </button>
+          ) : (
+            <span
+              style={axiomNameBadgeStyle}
+              title={formatMessage(msg.axiomIdentifiedTooltip, {
+                axiomName,
+              })}
+              data-testid={
+                testId ? `${testId satisfies string}-axiom-name` : undefined
+              }
+            >
+              {axiomName}
+            </span>
+          )
         ) : null}
         {visibility.showProtectedBadge && isProtected ? (
           <div

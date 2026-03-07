@@ -42,6 +42,7 @@ import {
   getAvailableTabRules,
   getAvailableAtRules,
   getAvailableScRules,
+  getAxiomReferenceEntryId,
   type AxiomPaletteItem,
 } from "./axiomPaletteLogic";
 import { NdRulePalette } from "./NdRulePalette";
@@ -1986,23 +1987,39 @@ export function ProofWorkspace({
       string,
       {
         readonly displayName: string;
+        readonly axiomId: string | undefined;
       }
     >();
     for (const node of workspace.nodes) {
       const formula = parseNodeFormula(node);
       if (formula === undefined) continue;
       const result = identifyAxiomName(formula, workspace.system);
-      if (
-        result._tag === "Identified" ||
-        result._tag === "TheoryAxiomIdentified"
-      ) {
+      if (result._tag === "Identified") {
         names.set(node.id, {
           displayName: result.displayName,
+          axiomId: result.axiomId,
+        });
+      } else if (result._tag === "TheoryAxiomIdentified") {
+        names.set(node.id, {
+          displayName: result.displayName,
+          axiomId: undefined,
         });
       }
     }
     return names;
   }, [workspace.nodes, workspace.system]);
+
+  const handleAxiomBadgeClick = useCallback(
+    (nodeId: string) => {
+      if (!onOpenReferenceDetail) return;
+      const axiomInfo = axiomNames.get(nodeId);
+      if (axiomInfo?.axiomId === undefined) return;
+      const entryId = getAxiomReferenceEntryId(axiomInfo.axiomId);
+      if (entryId === undefined) return;
+      onOpenReferenceDetail(entryId);
+    },
+    [onOpenReferenceDetail, axiomNames],
+  );
 
   // --- 公理依存関係の計算 ---
 
@@ -3353,6 +3370,14 @@ export function ProofWorkspace({
               onRoleChange={handleRoleChange}
               isProtected={isNodeProtected(workspace, node.id)}
               axiomName={axiomNames.get(node.id)?.displayName}
+              onClickAxiomBadge={
+                axiomNames.get(node.id)?.axiomId !== undefined &&
+                onOpenReferenceDetail
+                  ? () => {
+                      handleAxiomBadgeClick(node.id);
+                    }
+                  : undefined
+              }
               dependencies={getNodeDependencyInfos(node.id)}
               detailLevel={detailLevel}
               visibilityOverrides={visibilityOverrides}
@@ -3402,6 +3427,8 @@ export function ProofWorkspace({
       handleNodeContextMenu,
       getNodeSizeRef,
       onOpenSyntaxHelp,
+      onOpenReferenceDetail,
+      handleAxiomBadgeClick,
       notifyDragMove,
       notifyDragEnd,
       editRequestNodeId,

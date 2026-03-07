@@ -499,10 +499,20 @@ function SubtreeSelectionWorkspace() {
 
 function WorkspaceWithReference() {
   const [detailId, setDetailId] = useState<string | null>(null);
+  const initial = addNode(
+    createEmptyWorkspace(lukasiewiczSystem),
+    "axiom",
+    "A1",
+    { x: 300, y: 100 },
+    "φ → (ψ → φ)",
+  );
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
       <ProofWorkspace
         system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={setWorkspace}
         referenceEntries={allReferenceEntries}
         locale="ja"
         onOpenReferenceDetail={(id) => setDetailId(id)}
@@ -567,6 +577,17 @@ export const WithReferencePopover: Story = {
     await expect(
       canvas.getByTestId("reference-detail-opened"),
     ).toHaveTextContent("Detail: system-lukasiewicz");
+
+    // Axiom name badge should be a clickable button (node has φ → (ψ → φ) = A1)
+    const axiomBadge = canvas.getByTestId("proof-node-node-1-axiom-name");
+    await expect(axiomBadge.tagName).toBe("BUTTON");
+    await expect(axiomBadge).toHaveTextContent("A1 (K)");
+
+    // Click axiom badge to open reference detail for that axiom
+    await userEvent.click(axiomBadge);
+    await expect(
+      canvas.getByTestId("reference-detail-opened"),
+    ).toHaveTextContent("Detail: axiom-a1");
   },
 };
 

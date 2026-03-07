@@ -2954,6 +2954,45 @@ describe("ProofWorkspace", () => {
     });
   });
 
+  describe("公理名バッジクリックでリファレンス詳細を開く", () => {
+    it("公理スキーマノードのバッジクリックでonOpenReferenceDetailが公理エントリIDで呼ばれる", async () => {
+      const user = userEvent.setup();
+      const handleDetail = vi.fn();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "φ → (ψ → φ)");
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          referenceEntries={allReferenceEntries}
+          locale="ja"
+          onOpenReferenceDetail={handleDetail}
+          testId="workspace"
+        />,
+      );
+      const axiomBadge = screen.getByTestId("proof-node-node-1-axiom-name");
+      expect(axiomBadge.tagName).toBe("BUTTON");
+      await user.click(axiomBadge);
+      expect(handleDetail).toHaveBeenCalledWith("axiom-a1");
+    });
+
+    it("onOpenReferenceDetail未指定時は公理名バッジがspanのまま", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "φ → (ψ → φ)");
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          referenceEntries={allReferenceEntries}
+          locale="ja"
+          testId="workspace"
+        />,
+      );
+      const axiomBadge = screen.getByTestId("proof-node-node-1-axiom-name");
+      expect(axiomBadge.tagName).toBe("SPAN");
+    });
+  });
+
   describe("構文ヘルプ伝播", () => {
     it("onOpenSyntaxHelp指定時、ノード編集モードでヘルプボタンが表示される", async () => {
       const user = userEvent.setup();

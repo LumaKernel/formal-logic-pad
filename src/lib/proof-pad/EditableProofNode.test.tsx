@@ -528,6 +528,26 @@ describe("EditableProofNode", () => {
       );
       expect(container.textContent).toContain("A1 (K)");
     });
+
+    it("onClickAxiomBadge指定時はバッジがbuttonになる", () => {
+      renderNode({ axiomName: "A1 (K)", onClickAxiomBadge: vi.fn() });
+      const badge = screen.getByTestId("test-node-axiom-name");
+      expect(badge.tagName).toBe("BUTTON");
+    });
+
+    it("onClickAxiomBadge未指定時はバッジがspanになる", () => {
+      renderNode({ axiomName: "A1 (K)" });
+      const badge = screen.getByTestId("test-node-axiom-name");
+      expect(badge.tagName).toBe("SPAN");
+    });
+
+    it("バッジクリックでonClickAxiomBadgeが呼ばれる", async () => {
+      const handler = vi.fn();
+      renderNode({ axiomName: "A1 (K)", onClickAxiomBadge: handler });
+      const badge = screen.getByTestId("test-node-axiom-name");
+      await userEvent.click(badge);
+      expect(handler).toHaveBeenCalledOnce();
+    });
   });
 
   describe("公理依存関係の表示", () => {
