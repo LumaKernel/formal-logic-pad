@@ -35,3 +35,10 @@ export {
   type WorkspaceCommandHandler,
   type WorkspaceNodeInfo,
 } from "./workspaceBridge";
+export {
+  createCutEliminationBridges,
+  CUT_ELIMINATION_BRIDGE_API_DEFS,
+  generateCutEliminationBridgeTypeDefs,
+  encodeScProofNode,
+  decodeScProofNode,
+} from "./cutEliminationBridge";
