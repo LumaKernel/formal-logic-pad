@@ -9427,3 +9427,28 @@
   - consoleShimCode行オフセット補正は`adjustStepLocationLine()`で純粋関数化。エラー位置と実行位置の両方で共通ロジック使用可能
   - 後続タスク: ステップ実行モード完成、証明図リアルタイム反映
 ---
+
+## 2026-03-07 - [script-editor] スクリプトからワークスペース操作のリアルタイム反映
+- US-004「各ステップ後の証明図の状態をキャンバス上にリアルタイム反映」を実装
+- ワークスペース操作ブリッジ（workspaceBridge.ts）を新規作成:
+  - addNode, setNodeFormula, getNodes, connectMP, addGoal, removeNode, setNodeRoleAxiom, applyLayout
+  - 全20テスト追加（workspaceBridge.test.ts）
+- ScriptEditorComponent に workspaceCommandHandler prop を追加
+  - buildAllBridges() でproof+console+workspaceブリッジを統合
+  - Monaco Editorにワークスペース操作API型定義を追加
+- WorkspaceIntegration ストーリーを追加（ScriptEditor + ProofWorkspace 並列表示）
+- 変更ファイル:
+  - src/lib/script-runner/workspaceBridge.ts（新規）
+  - src/lib/script-runner/workspaceBridge.test.ts（新規）
+  - src/lib/script-runner/index.ts
+  - src/components/ScriptEditor/ScriptEditorComponent.tsx
+  - src/components/ScriptEditor/ScriptEditorComponent.stories.tsx
+  - tasks/prd-scripted-proof-rewriting.md
+- カバレッジ: Stmts 98.84%→98.85%, Branch 93.3%→93.31%, Funcs 89.27%→89.33%, Lines 99.72%→99.72%
+- テスト数: 7744→7765 (+21)
+- スクリーンショット: .screenshots/script-editor-workspace-integration-*.png
+- **今後のイテレーションへの学び:**
+  - workspaceBridgeはproofBridgeとは異なりステートフル（コールバック方式）。proofBridgeは純粋関数のブリッジ
+  - js-interpreter はStorybook browser環境ではMonaco EditorのAMDローダーと競合する（UIレンダリングは正常だが実行時エラー）
+  - WorkspaceCommandHandler インターフェースでコマンドパターンを使い、React setStateから分離
+---
