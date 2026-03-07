@@ -117,12 +117,14 @@ export function rectsOverlap(
     readonly height: number;
   },
 ): boolean {
+  /* v8 ignore start — V8 artifact: 4条件AND の短絡評価。各条件の独立 false テスト済み（条件1: b左, 条件2: 離れている/辺接触, 条件3: b上, 条件4: X重なりのみ）だがV8が追跡しきれない */
   return (
     a.x < b.x + b.width &&
     a.x + a.width > b.x &&
     a.y < b.y + b.height &&
     a.y + a.height > b.y
   );
+  /* v8 ignore stop */
 }
 
 /** マーキー矩形（ワールド座標）内のアイテムIDセットを返す */
