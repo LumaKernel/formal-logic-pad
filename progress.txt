@@ -67,6 +67,7 @@
 - FormulaEditorのホバースタイルは`currentColor`ベース。不透明な背景色はEditableProofNode内（白文字+色付き背景）でコントラスト問題を起こすため禁止
 - パーサーは `phi`, `psi`, `chi` 等のギリシャ文字名を命題変数として認識する。`p`, `q` 等の単一文字は項変数として扱われ、`=` が期待される
 - コピペロジックも3層分離: `copyPasteLogic.ts`(純粋データ変換) → `workspaceState.ts`(状態統合) → `ProofWorkspace.tsx`(UI・クリップボードAPI)
+- 証明コレクション: `src/lib/proof-collection/` に配置。純粋CRUD（proofCollectionState.ts）+ 互換性チェック（proofCollectionCompatibility.ts）+ シリアライゼーション（proofCollectionSerialization.ts）。notebookState.tsのCRUDパターンとcopyPasteLogicの証明抽出パターンを組合せ
 - UIオーバーレイ（バナー等）のclickにはstopPropagationが必要（コンテナのclick解除を防ぐ）
 - マルチセレクションも3層分離: `multiSelection.ts`(純粋ロジック) → `useMarquee.ts`(React hook) → caller統合
 - InfiniteCanvasの`panEnabled`でパン/マーキーモード切り替え。空領域イベントは`onEmptyArea*`で転送
@@ -9125,4 +9126,32 @@
   - ProofWorkspace.test.tsx でviewport culling回避のため `workspace` prop（制御モード）を使う。`initialWorkspace`（非制御モード）はJSDOM環境でノードが描画されない
   - React Compiler: useCallback内で参照する変数は定義順序に注意。変数定義より前にuseCallbackを配置するとメモ化エラー
   - 体系バッジクリック（前回）と公理バッジクリック（今回）は同じUIパターン（callback有→button、無→span、dotted underline）。新しいクリッカブルバッジ追加時はこのパターンに従う
+---
+
+## 2026-03-07 - [proof-collection] 証明コレクションのデータモデル・純粋ロジック・シリアライゼーション基盤
+- 実装した内容:
+  - 証明コレクション機能の基盤レイヤー（純粋ロジックのみ、UIなし）を構築
+  - proofCollectionState.ts: 型定義（ProofEntry, ProofFolder, ProofCollection, SavedNode, SavedConnection）+ CRUD純粋関数（add/remove/rename/move/find/list）+ ワークスペースからの証明抽出（extractProofData）
+  - proofCollectionCompatibility.ts: 証明の互換性チェック。CompatibilityResult discriminated union（FullyCompatible | CompatibleWithAxiomWarnings | IncompatibleStyle）。isCallable/hasWarnings ヘルパー
+  - proofCollectionSerialization.ts: JSON serialize/deserialize。手動バリデーション付き（不正データはgraceful degradation）。DeductionStyle, folderId等の個別フィールドバリデーション
+  - index.ts: 公開APIエクスポート
+- 変更したファイル:
+  - `src/lib/proof-collection/proofCollectionState.ts` (新規: 型定義 + CRUD + 証明抽出)
+  - `src/lib/proof-collection/proofCollectionState.test.ts` (新規: 32テスト)
+  - `src/lib/proof-collection/proofCollectionCompatibility.ts` (新規: 互換性チェック)
+  - `src/lib/proof-collection/proofCollectionCompatibility.test.ts` (新規: 19テスト)
+  - `src/lib/proof-collection/proofCollectionSerialization.ts` (新規: serialize/deserialize)
+  - `src/lib/proof-collection/proofCollectionSerialization.test.ts` (新規: 34テスト)
+  - `src/lib/proof-collection/index.ts` (新規: エクスポート)
+  - `task-processing.md`, `tasks/prd-inserted-tasks.md`
+- カバレッジ: ベースライン Stmts 99.09% / Branch 93.98% → 完了後 Stmts 99.10% / Branch 94.01% (微増)
+- テスト: 7513 → 7585 passed (+72、ファイル222→225)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Playwright MCPでStorybook確認（純粋ロジックのためUIストーリーなし。Storybook自体が正常に動作することを確認）。スクリーンショット: .screenshots/proof-collection-storybook-check.png
+- **今後のイテレーションへの学び:**
+  - 証明コレクションはnotebookState.tsのCRUDパターンとcopyPasteLogic.tsの証明抽出パターンを組み合わせた設計
+  - extractProofDataはcopyPasteLogicのbuildClipboardDataと同様のロジック（選択ノード→相対位置→サブグラフ抽出）。SavedNode/SavedConnectionはClipboardDataと類似構造
+  - デシリアライゼーションは手動バリデーション。Effect.ts Schema.decodeは将来的に置き換え可能だが、現時点では手動で十分
+  - CompatibilityResult は全タグで isCallable=true（仕様）。スタイル不一致でも呼び出し可能（ユーザーに警告を出す用途）
+  - 後続タスク: useProofCollectionフック（StorageService統合）、UI統合（メニュー・証明リスト・フォルダ管理）、ノードメニューからの証明挿入
 ---
