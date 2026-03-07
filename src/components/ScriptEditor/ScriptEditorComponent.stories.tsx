@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, within } from "storybook/test";
+import { expect, within, userEvent } from "storybook/test";
 import { Either } from "effect";
 import { ScriptEditorComponent } from "./ScriptEditorComponent";
 import { lukasiewiczSystem } from "@/lib/logic-core/inferenceRule";
@@ -129,6 +129,71 @@ null.property;`,
     // Run ボタンが有効
     const runButton = canvas.getByTestId("run-button");
     await expect(runButton.getAttribute("disabled")).toBeNull();
+  },
+};
+
+// ── スクリプト保存・復元デモ ─────────────────────────────────────
+
+let mockNowCounter = 1000;
+
+export const SaveAndLoad: Story = {
+  args: {
+    initialCode: `// 保存テスト用コード
+console.log("hello world");`,
+    getNow: () => ++mockNowCounter,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Save ボタンが表示される
+    const saveButton = canvas.getByTestId("save-script-button");
+    await expect(saveButton).toBeDefined();
+    await expect(saveButton.textContent).toBe("Save");
+
+    // Save ボタンをクリック → ダイアログが開く
+    await userEvent.click(saveButton);
+    const dialog = canvas.getByTestId("save-dialog");
+    await expect(dialog).toBeDefined();
+
+    // タイトル入力
+    const titleInput = canvas.getByTestId("save-title-input");
+    await expect(titleInput).toBeDefined();
+    await userEvent.type(titleInput, "My Test Script");
+
+    // Save 確定ボタンをクリック
+    const confirmButton = canvas.getByTestId("save-confirm-button");
+    await userEvent.click(confirmButton);
+
+    // ダイアログが閉じる
+    const dialogAfterSave = canvas.queryByTestId("save-dialog");
+    await expect(dialogAfterSave).toBeNull();
+
+    // 保存されたスクリプトが表示される
+    const savedItem = canvas.getByText("My Test Script");
+    await expect(savedItem).toBeDefined();
+  },
+};
+
+export const SaveDialogCancel: Story = {
+  args: {
+    initialCode: `// キャンセルテスト
+console.log("cancel test");`,
+    getNow: () => ++mockNowCounter,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Save ボタンをクリック
+    await userEvent.click(canvas.getByTestId("save-script-button"));
+
+    // ダイアログが開く
+    await expect(canvas.getByTestId("save-dialog")).toBeDefined();
+
+    // キャンセルボタンをクリック
+    await userEvent.click(canvas.getByTestId("save-cancel-button"));
+
+    // ダイアログが閉じる
+    await expect(canvas.queryByTestId("save-dialog")).toBeNull();
   },
 };
 

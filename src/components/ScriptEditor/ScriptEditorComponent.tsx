@@ -4,7 +4,8 @@
  * 証明操作 API (proofBridge) の補完・型情報付きで JavaScript を編集し、
  * サンドボックス内でのスクリプト実行・ステップ実行を提供する。
  *
- * 変更時は scriptEditorLogic.ts, scriptEditorLogic.test.ts, index.ts も同期すること。
+ * 変更時は scriptEditorLogic.ts, scriptEditorLogic.test.ts,
+ * savedScriptsLogic.ts, savedScriptsLogic.test.ts, index.ts も同期すること。
  */
 "use client";
 
@@ -46,6 +47,16 @@ import {
   defaultEditorOptions,
 } from "./scriptEditorLogic";
 import type { ScriptEditorState } from "./scriptEditorLogic";
+import {
+  initialSavedScriptsState,
+  addScript,
+  removeScript,
+  serializeSavedScripts,
+  deserializeSavedScripts,
+  generateScriptId,
+  STORAGE_KEY,
+} from "./savedScriptsLogic";
+import type { SavedScriptsState } from "./savedScriptsLogic";
 import styles from "./ScriptEditorComponent.module.css";
 
 // ── Props ─────────────────────────────────────────────────────
@@ -61,6 +72,8 @@ export interface ScriptEditorComponentProps {
   readonly onRunComplete?: (result: ScriptEditorState) => void;
   /** ワークスペース操作ハンドラー（証明図リアルタイム反映用） */
   readonly workspaceCommandHandler?: WorkspaceCommandHandler;
+  /** 現在時刻取得関数（DI用。デフォルト: Date.now） */
+  readonly getNow?: () => number;
 }
 
 // ── Component ─────────────────────────────────────────────────
@@ -71,6 +84,7 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
   onCodeChange,
   onRunComplete,
   workspaceCommandHandler,
+  getNow = Date.now,
 }) => {
   const [state, setState] = useState<ScriptEditorState>(() =>
     initialCode
@@ -86,6 +100,65 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
   const decorationsRef = useRef<ReturnType<
     Parameters<OnMount>[0]["createDecorationsCollection"]
   > | null>(null);
+
+  // ── 保存スクリプト管理 ────────────────────────────────────────
+
+  const [savedScripts, setSavedScripts] = useState<SavedScriptsState>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored !== null
+        ? deserializeSavedScripts(stored)
+        : initialSavedScriptsState;
+    } catch {
+      return initialSavedScriptsState;
+    }
+  });
+
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveTitle, setSaveTitle] = useState("");
+  const saveTitleInputRef = useRef<HTMLInputElement | null>(null);
+
+  // localStorage への永続化
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, serializeSavedScripts(savedScripts));
+    } catch {
+      // localStorage がフルの場合等は無視
+    }
+  }, [savedScripts]);
+
+  // ダイアログ開いたときにフォーカス
+  useEffect(() => {
+    if (saveDialogOpen) {
+      saveTitleInputRef.current?.focus();
+    }
+  }, [saveDialogOpen]);
+
+  const handleOpenSaveDialog = useCallback(() => {
+    setSaveTitle("");
+    setSaveDialogOpen(true);
+  }, []);
+
+  const handleCloseSaveDialog = useCallback(() => {
+    setSaveDialogOpen(false);
+    setSaveTitle("");
+  }, []);
+
+  const handleSaveScript = useCallback(() => {
+    const trimmedTitle = saveTitle.trim();
+    if (trimmedTitle === "") return;
+    const now = getNow();
+    const id = generateScriptId(now);
+    setSavedScripts((prev) =>
+      addScript(prev, id, trimmedTitle, state.code, now),
+    );
+    setSaveDialogOpen(false);
+    setSaveTitle("");
+  }, [saveTitle, state.code, getNow]);
+
+  const handleDeleteSavedScript = useCallback((id: string) => {
+    setSavedScripts((prev) => removeScript(prev, id));
+  }, []);
 
   // ── console.log ブリッジ ────────────────────────────────────
 
@@ -342,6 +415,17 @@ declare var console: {
     setState((prev) => resetExecution(prev));
   }, []);
 
+  // ── 保存スクリプトのロード ─────────────────────────────────────
+
+  const handleLoadSavedScript = useCallback(
+    (code: string) => {
+      handleReset();
+      setState((prev) => updateCode(prev, code));
+      onCodeChange?.(code);
+    },
+    [handleReset, onCodeChange],
+  );
+
   // ── エラーマーカーの更新 ──────────────────────────────────────
 
   useEffect(() => {
@@ -492,7 +576,83 @@ declare var console: {
             {tmpl.title}
           </button>
         ))}
+        <span className={styles["templateSeparator"]} />
+        <button
+          type="button"
+          className={styles["saveButton"]}
+          onClick={handleOpenSaveDialog}
+          data-testid="save-script-button"
+          title="現在のスクリプトを保存"
+        >
+          Save
+        </button>
+        {savedScripts.scripts.length > 0 && (
+          <>
+            <span className={styles["templateLabel"]}>My Scripts:</span>
+            {savedScripts.scripts.map((script) => (
+              <span
+                key={script.id}
+                className={styles["savedScriptItem"]}
+                data-testid={`saved-script-${script.id satisfies string}`}
+              >
+                <button
+                  type="button"
+                  className={styles["templateButton"]}
+                  onClick={() => handleLoadSavedScript(script.code)}
+                  title={script.title}
+                  data-testid={`load-saved-${script.id satisfies string}`}
+                >
+                  {script.title}
+                </button>
+                <button
+                  type="button"
+                  className={styles["deleteButton"]}
+                  onClick={() => handleDeleteSavedScript(script.id)}
+                  data-testid={`delete-saved-${script.id satisfies string}`}
+                  title="削除"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </>
+        )}
       </div>
+
+      {saveDialogOpen && (
+        <div className={styles["saveDialog"]} data-testid="save-dialog">
+          <input
+            ref={saveTitleInputRef}
+            type="text"
+            className={styles["saveInput"]}
+            placeholder="スクリプト名を入力..."
+            value={saveTitle}
+            onChange={(e) => setSaveTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSaveScript();
+              if (e.key === "Escape") handleCloseSaveDialog();
+            }}
+            data-testid="save-title-input"
+          />
+          <button
+            type="button"
+            className={styles["button"]}
+            onClick={handleSaveScript}
+            disabled={saveTitle.trim() === ""}
+            data-testid="save-confirm-button"
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            className={styles["button"]}
+            onClick={handleCloseSaveDialog}
+            data-testid="save-cancel-button"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
 
       <div className={styles["toolbar"]} data-testid="script-editor-toolbar">
         <button
