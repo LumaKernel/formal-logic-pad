@@ -28,3 +28,10 @@ export {
   generateProofBridgeTypeDefs,
   type ProofBridgeApiDef,
 } from "./proofBridge";
+export {
+  createWorkspaceBridges,
+  WORKSPACE_BRIDGE_API_DEFS,
+  generateWorkspaceBridgeTypeDefs,
+  type WorkspaceCommandHandler,
+  type WorkspaceNodeInfo,
+} from "./workspaceBridge";

@@ -16,10 +16,13 @@ import {
   createProofBridges,
   generateProofBridgeTypeDefs,
   isScriptRunResult,
+  createWorkspaceBridges,
+  generateWorkspaceBridgeTypeDefs,
 } from "@/lib/script-runner";
 import type {
   NativeFunctionBridge,
   ScriptRunnerInstance,
+  WorkspaceCommandHandler,
 } from "@/lib/script-runner";
 import {
   initialScriptEditorState,
@@ -52,6 +55,8 @@ export interface ScriptEditorComponentProps {
   readonly onCodeChange?: (code: string) => void;
   /** 実行完了時コールバック */
   readonly onRunComplete?: (result: ScriptEditorState) => void;
+  /** ワークスペース操作ハンドラー（証明図リアルタイム反映用） */
+  readonly workspaceCommandHandler?: WorkspaceCommandHandler;
 }
 
 // ── Component ─────────────────────────────────────────────────
@@ -61,6 +66,7 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
   height = "400px",
   onCodeChange,
   onRunComplete,
+  workspaceCommandHandler,
 }) => {
   const [state, setState] = useState<ScriptEditorState>(() =>
     initialCode
@@ -100,6 +106,20 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
       ];
     }, []);
 
+  // ── 全ブリッジ構築 ────────────────────────────────────────
+
+  const buildAllBridges =
+    useCallback((): readonly NativeFunctionBridge[] => {
+      const all: NativeFunctionBridge[] = [
+        ...createProofBridges(),
+        ...createConsoleBridges(),
+      ];
+      if (workspaceCommandHandler) {
+        all.push(...createWorkspaceBridges(workspaceCommandHandler));
+      }
+      return all;
+    }, [createConsoleBridges, workspaceCommandHandler]);
+
   // ── コンソール初期化コード ────────────────────────────────
 
   const consoleShimCode = `var console = { log: console_log, error: console_error, warn: console_warn };\n`;
@@ -123,6 +143,7 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
     });
 
     const typeDefs = generateProofBridgeTypeDefs();
+    const workspaceTypeDefs = generateWorkspaceBridgeTypeDefs();
     const consoleTypeDefs = `
 declare var console: {
   log(...args: unknown[]): void;
@@ -131,7 +152,7 @@ declare var console: {
 };
 `;
     monaco.languages.typescript.javascriptDefaults.addExtraLib(
-      typeDefs + consoleTypeDefs,
+      typeDefs + workspaceTypeDefs + consoleTypeDefs,
       "file:///proof-bridge.d.ts",
     );
   }, []);
@@ -159,7 +180,7 @@ declare var console: {
   const handleRun = useCallback(() => {
     setState((prev) => {
       const next = startExecution(prev);
-      const bridges = [...createProofBridges(), ...createConsoleBridges()];
+      const bridges = buildAllBridges();
       const fullCode = consoleShimCode + prev.code;
       const result = createScriptRunner(fullCode, {
         bridges,
@@ -180,7 +201,7 @@ declare var console: {
       setTimeout(() => onRunComplete?.(final), 0);
       return final;
     });
-  }, [createConsoleBridges, consoleShimCode, onRunComplete]);
+  }, [buildAllBridges, consoleShimCode, onRunComplete]);
 
   // ── Step (ステップ実行開始/続行) ──────────────────────────────
 
@@ -192,7 +213,7 @@ declare var console: {
 
     if (runnerRef.current === null) {
       // 新規ステップ実行開始 — state.code を直接参照
-      const bridges = [...createProofBridges(), ...createConsoleBridges()];
+      const bridges = buildAllBridges();
       const fullCode = consoleShimCode + state.code;
       const result = createScriptRunner(fullCode, {
         bridges,
@@ -225,7 +246,7 @@ declare var console: {
   }, [
     state.executionStatus,
     state.code,
-    createConsoleBridges,
+    buildAllBridges,
     consoleShimCode,
   ]);
 
@@ -256,7 +277,7 @@ declare var console: {
     }
 
     if (runnerRef.current === null) {
-      const bridges = [...createProofBridges(), ...createConsoleBridges()];
+      const bridges = buildAllBridges();
       const fullCode = consoleShimCode + state.code;
       const result = createScriptRunner(fullCode, {
         bridges,
@@ -277,7 +298,7 @@ declare var console: {
   }, [
     state.executionStatus,
     state.code,
-    createConsoleBridges,
+    buildAllBridges,
     consoleShimCode,
   ]);
 

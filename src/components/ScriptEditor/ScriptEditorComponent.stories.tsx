@@ -1,6 +1,22 @@
+import { useState, useCallback, useRef, useEffect } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, within } from "storybook/test";
+import { Either } from "effect";
 import { ScriptEditorComponent } from "./ScriptEditorComponent";
+import { lukasiewiczSystem } from "@/lib/logic-core/inferenceRule";
+import { ProofWorkspace } from "@/lib/proof-pad/ProofWorkspace";
+import {
+  createEmptyWorkspace,
+  addNode,
+  updateNodeFormulaText,
+  updateNodeRole,
+  removeNode,
+  applyMPAndConnect,
+  applyTreeLayout,
+  addGoal,
+} from "@/lib/proof-pad/workspaceState";
+import type { WorkspaceState } from "@/lib/proof-pad/workspaceState";
+import type { WorkspaceCommandHandler } from "@/lib/script-runner";
 
 const meta = {
   title: "components/ScriptEditor",
@@ -109,6 +125,175 @@ null.property;`,
     // エディタが表示される
     const editor = canvas.getByTestId("script-editor");
     await expect(editor).toBeDefined();
+
+    // Run ボタンが有効
+    const runButton = canvas.getByTestId("run-button");
+    await expect(runButton.getAttribute("disabled")).toBeNull();
+  },
+};
+
+// ── ScriptEditor + ProofWorkspace 統合デモ ─────────────────────
+
+/** 自動レイアウト用のデフォルトY座標間隔 */
+const NODE_Y_SPACING = 120;
+
+function ScriptEditorWithWorkspace() {
+  const [workspace, setWorkspace] = useState<WorkspaceState>(() =>
+    createEmptyWorkspace(lukasiewiczSystem),
+  );
+
+  // ワークスペースへの参照（ブリッジコールバックから最新状態を取得するため）
+  const workspaceRef = useRef(workspace);
+  useEffect(() => {
+    workspaceRef.current = workspace;
+  }, [workspace]);
+
+  // 次のノード配置Y座標を計算
+  const nextYRef = useRef(50);
+
+  const handler: WorkspaceCommandHandler = useCallback(
+    () => ({
+      addNode: (formulaText: string) => {
+        let ws = workspaceRef.current;
+        const y = nextYRef.current;
+        nextYRef.current += NODE_Y_SPACING;
+        ws = addNode(ws, "axiom", "Node", { x: 200, y }, formulaText);
+        const newNodeId = `node-${String(ws.nextNodeId - 1) satisfies string}`;
+        setWorkspace(ws);
+        return newNodeId;
+      },
+      setNodeFormula: (nodeId: string, formulaText: string) => {
+        const ws = updateNodeFormulaText(
+          workspaceRef.current,
+          nodeId,
+          formulaText,
+        );
+        setWorkspace(ws);
+      },
+      getNodes: () =>
+        workspaceRef.current.nodes.map((n) => ({
+          id: n.id,
+          formulaText: n.formulaText,
+          label: n.label,
+          x: n.position.x,
+          y: n.position.y,
+        })),
+      connectMP: (antecedentId: string, conditionalId: string) => {
+        const y = nextYRef.current;
+        nextYRef.current += NODE_Y_SPACING;
+        const result = applyMPAndConnect(
+          workspaceRef.current,
+          antecedentId,
+          conditionalId,
+          { x: 200, y },
+        );
+        if (Either.isLeft(result.validation)) {
+          const tag = result.validation.left._tag satisfies string;
+          throw new Error(
+            `Modus Ponens failed: ${tag satisfies string}`,
+          );
+        }
+        setWorkspace(result.workspace);
+        return result.mpNodeId;
+      },
+      addGoal: (formulaText: string) => {
+        const ws = addGoal(workspaceRef.current, formulaText);
+        setWorkspace(ws);
+      },
+      removeNode: (nodeId: string) => {
+        const ws = removeNode(workspaceRef.current, nodeId);
+        setWorkspace(ws);
+      },
+      setNodeRoleAxiom: (nodeId: string) => {
+        const ws = updateNodeRole(workspaceRef.current, nodeId, "axiom");
+        setWorkspace(ws);
+      },
+      applyLayout: () => {
+        const ws = applyTreeLayout(
+          workspaceRef.current,
+          "bottom-to-top",
+        );
+        setWorkspace(ws);
+      },
+    }),
+    [],
+  )();
+
+  const handleWorkspaceChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div
+      style={{ display: "flex", width: "100vw", height: "100vh" }}
+      data-testid="script-workspace-integration"
+    >
+      <div style={{ width: "50%", height: "100%", borderRight: "1px solid #333" }}>
+        <ScriptEditorComponent
+          initialCode={`// ワークスペース操作デモ
+// addNode, setNodeFormula, connectMP, applyLayout が使えます
+
+// 公理を追加
+var n1 = addNode("phi -> (psi -> phi)");
+setNodeRoleAxiom(n1);
+
+var n2 = addNode("phi");
+setNodeRoleAxiom(n2);
+
+// MP適用: phi と phi -> (psi -> phi) から psi -> phi を導出
+var n3 = connectMP(n2, n1);
+
+// ゴール設定
+addGoal("psi -> phi");
+
+// 自動レイアウト
+applyLayout();
+
+// 結果確認
+var nodes = getNodes();
+console.log("Nodes: " + nodes.length);
+for (var i = 0; i < nodes.length; i++) {
+  console.log(nodes[i].id + ": " + nodes[i].formulaText);
+}`}
+          height="100%"
+          workspaceCommandHandler={handler}
+        />
+      </div>
+      <div style={{ width: "50%", height: "100%" }}>
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={workspace}
+          onWorkspaceChange={handleWorkspaceChange}
+          testId="proof-workspace"
+        />
+      </div>
+    </div>
+  );
+}
+
+export const WorkspaceIntegration: Story = {
+  args: {
+    height: "100%",
+  },
+  render: () => <ScriptEditorWithWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // 統合コンテナが表示される
+    const integration = canvas.getByTestId("script-workspace-integration");
+    await expect(integration).toBeDefined();
+
+    // ScriptEditorが表示される
+    const editor = canvas.getByTestId("script-editor");
+    await expect(editor).toBeDefined();
+
+    // ProofWorkspaceが表示される
+    const workspace = canvas.getByTestId("proof-workspace");
+    await expect(workspace).toBeDefined();
+
+    // ツールバーが表示される
+    const toolbar = canvas.getByTestId("script-editor-toolbar");
+    await expect(toolbar).toBeDefined();
 
     // Run ボタンが有効
     const runButton = canvas.getByTestId("run-button");
