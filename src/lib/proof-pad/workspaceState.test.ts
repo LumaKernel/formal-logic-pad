@@ -217,7 +217,10 @@ describe("proofWorkspace", () => {
     it("returns same state when positions map is empty", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A", { x: 0, y: 0 });
-      const positions = new Map<string, { readonly x: number; readonly y: number }>();
+      const positions = new Map<
+        string,
+        { readonly x: number; readonly y: number }
+      >();
       const result = updateMultipleNodePositions(ws, positions);
       expect(result).toBe(ws);
     });
