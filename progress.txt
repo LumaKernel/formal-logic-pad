@@ -103,6 +103,30 @@
 
 ---
 
+## 2026-03-08 - カバレッジ改善: ProofCollectionPanel フォルダ編集・キーボードアクセシビリティ・イベント伝播テスト
+- ProofCollectionPanel.test.tsx に+11テスト追加:
+  - フォルダ名編集Escapeキーキャンセル (line 623-624, 821カバー)
+  - フォルダ名編集Blur確定
+  - フォルダ名空白Enter無効
+  - フォルダ名編集中inputクリック伝播防止 (line 617カバー)
+  - エントリ名表示Enter/Spaceキーで編集モード (lines 366-368カバー)
+  - フォルダトグルEnter/Spaceキーで展開 (lines 596-600カバー)
+  - 展開済みフォルダ折りたたみ (panelLogic.ts line 99カバー)
+  - pointerDownイベント伝播防止 (line 885カバー)
+  - testId未指定レンダリング (testId ternaryブランチカバー)
+- ProofCollectionPanel.tsx に防御的コードv8 ignore追加 (lines 811, 836)
+- 変更ファイル:
+  - `src/lib/proof-collection/ProofCollectionPanel.test.tsx` (+11テスト)
+  - `src/lib/proof-collection/ProofCollectionPanel.tsx` (v8 ignore追加 ×2箇所)
+- テスト: 241ファイル、8160テスト全パス (+11テスト追加)
+- カバレッジ: Stmts 98.35% → 98.45%, Branch 93.23% → 93.57%, Lines 99.36% → 99.44%
+  - ProofCollectionPanel.tsx: Stmts 93.02% → 99.52%, Branch 77.27% → 93.91%, Funcs 94.91% → 100%, Lines 93.87% → 100%
+- **今後のイテレーションへの学び:**
+  - ProofCollectionPanel.tsx の未カバーブランチの多くは `testId !== undefined ? ... : undefined` のtestId未指定パス。testId無しでレンダリングするテストで一括カバー可能
+  - `handleCommitFolderEdit` / `handleCommitCreateFolder` の `if (prev.xxx === undefined) return prev` は防御的コードでUIから到達不能 → v8 ignoreが適切
+  - フォルダ名編集のEscape/Blurはエントリ名のEscape/Blurとは別パスで個別テストが必要
+---
+
 ## 2026-03-08 - カバレッジ改善: customQuestState・questNotebookIntegrationのBranchカバレッジ改善
 - customQuestState.test.ts: +4テスト追加
   - ゴール配列のnull/プリミティブ値テスト
