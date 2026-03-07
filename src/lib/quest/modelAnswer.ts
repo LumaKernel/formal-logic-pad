@@ -336,15 +336,15 @@ function applyNdStep(
 
   // バリデーション
   const validationResult = validateNdApplication(ws, edge);
+  /* v8 ignore start — defensive: correct model answers never fail ND validation */
   if (Either.isLeft(validationResult)) {
-    /* v8 ignore start — defensive: correct model answers never fail ND validation */
     return {
       _tag: "StepError",
       stepIndex,
       reason: `ND ${edge._tag satisfies string} validation failed: ${validationResult.left._tag satisfies string}`,
     };
-    /* v8 ignore stop */
   }
+  /* v8 ignore stop */
 
   // 結論テキストを決定
   const conclusionText = isNdEfqValidResult(validationResult.right)
@@ -407,7 +407,9 @@ export function buildModelAnswerWorkspace(
     }
     /* v8 ignore stop */
 
+    /* v8 ignore start — switch artifact: v8 creates branch per case at switch line */
     switch (step._tag) {
+      /* v8 ignore stop */
       case "axiom": {
         const nodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, step.formulaText);
@@ -445,15 +447,15 @@ export function buildModelAnswerWorkspace(
       }
       case "gen": {
         const premiseNodeId = stepNodeIds[step.premiseIndex];
+        /* v8 ignore start — defensive: invalid model answer data */
         if (premiseNodeId === undefined) {
-          /* v8 ignore start — defensive: invalid model answer data */
           return {
             _tag: "StepError",
             stepIndex: i,
             reason: `invalid index: premise=${String(step.premiseIndex) satisfies string}`,
           };
-          /* v8 ignore stop */
         }
+        /* v8 ignore stop */
         const genResult = applyGenAndConnect(
           ws,
           premiseNodeId,
@@ -461,15 +463,15 @@ export function buildModelAnswerWorkspace(
           { x: 0, y: 0 },
         );
         ws = genResult.workspace;
+        /* v8 ignore start — defensive: correct model answers never fail Gen validation */
         if (Either.isLeft(genResult.validation)) {
-          /* v8 ignore start — defensive: correct model answers never fail Gen validation */
           return {
             _tag: "StepError",
             stepIndex: i,
             reason: `Gen validation failed`,
           };
-          /* v8 ignore stop */
         }
+        /* v8 ignore stop */
         stepNodeIds.push(genResult.genNodeId);
         break;
       }
@@ -493,26 +495,30 @@ export function buildModelAnswerWorkspace(
           "premise",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(premiseRes)) return premiseRes;
+        /* v8 ignore stop */
         const dischRes = resolveNodeId(
           stepNodeIds,
           step.dischargedIndex,
           "discharged",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(dischRes)) return dischRes;
+        /* v8 ignore stop */
 
         // 打ち消す仮定のformulaTextを取得
         const dischNode = ws.nodes.find((n) => n.id === dischRes.nodeId);
+        /* v8 ignore start — defensive: node always exists for valid model answer */
         if (!dischNode) {
-          /* v8 ignore start — defensive: node always exists for valid model answer */
           return {
             _tag: "StepError",
             stepIndex: i,
             reason: "discharged node not found",
           };
-          /* v8 ignore stop */
         }
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "→I", { x: 0, y: 0 }, "");
@@ -529,21 +535,27 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       case "nd-implication-elim": {
         const leftRes = resolveNodeId(stepNodeIds, step.leftIndex, "left", i);
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(leftRes)) return leftRes;
+        /* v8 ignore stop */
         const rightRes = resolveNodeId(
           stepNodeIds,
           step.rightIndex,
           "right",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(rightRes)) return rightRes;
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "→E", { x: 0, y: 0 }, "");
@@ -558,21 +570,27 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       case "nd-conjunction-intro": {
         const leftRes = resolveNodeId(stepNodeIds, step.leftIndex, "left", i);
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(leftRes)) return leftRes;
+        /* v8 ignore stop */
         const rightRes = resolveNodeId(
           stepNodeIds,
           step.rightIndex,
           "right",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(rightRes)) return rightRes;
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∧I", { x: 0, y: 0 }, "");
@@ -587,7 +605,9 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
@@ -599,7 +619,9 @@ export function buildModelAnswerWorkspace(
           "premise",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(premiseRes)) return premiseRes;
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∧E_L", { x: 0, y: 0 }, "");
@@ -613,7 +635,9 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
@@ -625,7 +649,9 @@ export function buildModelAnswerWorkspace(
           "premise",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(premiseRes)) return premiseRes;
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∧E_R", { x: 0, y: 0 }, "");
@@ -639,7 +665,9 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
@@ -651,7 +679,9 @@ export function buildModelAnswerWorkspace(
           "premise",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(premiseRes)) return premiseRes;
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∨I_L", { x: 0, y: 0 }, "");
@@ -666,7 +696,9 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
@@ -678,7 +710,9 @@ export function buildModelAnswerWorkspace(
           "premise",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(premiseRes)) return premiseRes;
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∨I_R", { x: 0, y: 0 }, "");
@@ -693,7 +727,9 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
@@ -705,21 +741,27 @@ export function buildModelAnswerWorkspace(
           "disjunction",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(disjRes)) return disjRes;
+        /* v8 ignore stop */
         const leftCaseRes = resolveNodeId(
           stepNodeIds,
           step.leftCaseIndex,
           "leftCase",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(leftCaseRes)) return leftCaseRes;
+        /* v8 ignore stop */
         const rightCaseRes = resolveNodeId(
           stepNodeIds,
           step.rightCaseIndex,
           "rightCase",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(rightCaseRes)) return rightCaseRes;
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∨E", { x: 0, y: 0 }, "");
@@ -737,7 +779,9 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
@@ -745,14 +789,18 @@ export function buildModelAnswerWorkspace(
       /* v8 ignore start — unused until model answers for these ND step types are added */
       case "nd-weakening": {
         const keptRes = resolveNodeId(stepNodeIds, step.keptIndex, "kept", i);
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(keptRes)) return keptRes;
+        /* v8 ignore stop */
         const discardedRes = resolveNodeId(
           stepNodeIds,
           step.discardedIndex,
           "discarded",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(discardedRes)) return discardedRes;
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "w", { x: 0, y: 0 }, "");
@@ -767,7 +815,9 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
@@ -780,7 +830,9 @@ export function buildModelAnswerWorkspace(
           "premise",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(premiseRes)) return premiseRes;
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "EFQ", { x: 0, y: 0 }, step.conclusionText);
@@ -794,7 +846,9 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
@@ -806,7 +860,9 @@ export function buildModelAnswerWorkspace(
           "premise",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(premiseRes)) return premiseRes;
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "DNE", { x: 0, y: 0 }, "");
@@ -820,7 +876,9 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
@@ -832,7 +890,9 @@ export function buildModelAnswerWorkspace(
           "premise",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(premiseRes)) return premiseRes;
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∀I", { x: 0, y: 0 }, "");
@@ -847,7 +907,9 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
@@ -859,7 +921,9 @@ export function buildModelAnswerWorkspace(
           "premise",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(premiseRes)) return premiseRes;
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∀E", { x: 0, y: 0 }, "");
@@ -874,7 +938,9 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
@@ -886,7 +952,9 @@ export function buildModelAnswerWorkspace(
           "premise",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(premiseRes)) return premiseRes;
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∃I", { x: 0, y: 0 }, "");
@@ -902,7 +970,9 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
@@ -914,20 +984,24 @@ export function buildModelAnswerWorkspace(
           "existential",
           i,
         );
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(existRes)) return existRes;
+        /* v8 ignore stop */
         const caseRes = resolveNodeId(stepNodeIds, step.caseIndex, "case", i);
+        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
         if (isError(caseRes)) return caseRes;
+        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∃E", { x: 0, y: 0 }, "");
 
         // 打ち消す仮定のformulaTextを取得
         const dischNodeId = stepNodeIds[step.dischargedIndex];
+        /* v8 ignore start — defensive: correct model answers always have valid discharged node */
         const dischNode =
           dischNodeId !== undefined
             ? ws.nodes.find((n) => n.id === dischNodeId)
             : undefined;
-        /* v8 ignore start — defensive: correct model answers always have valid discharged node */
         if (!dischNode) {
           return {
             _tag: "StepError",
@@ -950,7 +1024,9 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
+        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
         if ("_tag" in ndResult) return ndResult;
+        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
