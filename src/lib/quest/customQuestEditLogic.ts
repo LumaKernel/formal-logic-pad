@@ -30,6 +30,21 @@ export type EditFormValues = {
   readonly learningPoint: string;
 };
 
+/** 新規作成用の空のフォーム初期値を生成する */
+export function createEmptyEditFormValues(): EditFormValues {
+  return {
+    title: "",
+    description: "",
+    category: "propositional-basics",
+    difficulty: 1,
+    systemPresetId: "lukasiewicz",
+    goalsText: "",
+    hints: "",
+    estimatedSteps: "3",
+    learningPoint: "",
+  };
+}
+
 /** QuestDefinition から EditFormValues に変換する */
 export function questToEditFormValues(quest: QuestDefinition): EditFormValues {
   return {

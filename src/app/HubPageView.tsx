@@ -22,6 +22,7 @@ import {
   type CategoryGroup,
   type QuestNotebookCounts,
   type QuestCatalogItem,
+  type CreateCustomQuestParams,
 } from "../lib/quest";
 import { ThemeToggle } from "../components/ThemeToggle/ThemeToggle";
 import {
@@ -66,6 +67,8 @@ export type HubPageViewProps = {
   readonly onDeleteCustomQuest?: (questId: string) => void;
   /** 自作クエストを編集する */
   readonly onEditCustomQuest?: (edit: CustomQuestEditParams) => void;
+  /** 自作クエストを新規作成する */
+  readonly onCreateCustomQuest?: (params: CreateCustomQuestParams) => void;
   /** 初期タブ（テスト用） */
   readonly initialTab?: HubTab;
   /** 言語切り替え（指定時に LanguageToggle を表示） */
@@ -214,6 +217,7 @@ export function HubPageView({
   onDuplicateCustomQuest,
   onDeleteCustomQuest,
   onEditCustomQuest,
+  onCreateCustomQuest,
   initialTab = "notebooks",
   languageToggle,
   notebookCounts,
@@ -373,6 +377,7 @@ export function HubPageView({
                 onDuplicateQuest={onDuplicateCustomQuest}
                 onDeleteQuest={onDeleteCustomQuest}
                 onEditQuest={onEditCustomQuest}
+                onCreateQuest={onCreateCustomQuest}
               />
             )}
           </>

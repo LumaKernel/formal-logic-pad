@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  createEmptyEditFormValues,
   questToEditFormValues,
   validateEditForm,
   getEditFieldError,
@@ -48,6 +49,35 @@ function makeValidValues(
     ...overrides,
   };
 }
+
+// --- createEmptyEditFormValues ---
+
+describe("createEmptyEditFormValues", () => {
+  it("空のフォーム初期値を生成する", () => {
+    const result = createEmptyEditFormValues();
+    expect(result.title).toBe("");
+    expect(result.description).toBe("");
+    expect(result.category).toBe("propositional-basics");
+    expect(result.difficulty).toBe(1);
+    expect(result.systemPresetId).toBe("lukasiewicz");
+    expect(result.goalsText).toBe("");
+    expect(result.hints).toBe("");
+    expect(result.estimatedSteps).toBe("3");
+    expect(result.learningPoint).toBe("");
+  });
+
+  it("バリデーションでタイトルとゴール式のエラーが出る", () => {
+    const values = createEmptyEditFormValues();
+    const validation = validateEditForm(values);
+    expect(validation.valid).toBe(false);
+    if (!validation.valid) {
+      expect(validation.errors.map((e) => e.field)).toEqual([
+        "title",
+        "goalsText",
+      ]);
+    }
+  });
+});
 
 // --- questToEditFormValues ---
 

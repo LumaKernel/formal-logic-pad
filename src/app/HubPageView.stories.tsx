@@ -140,6 +140,7 @@ const meta: Meta<typeof HubPageView> = {
     onDuplicateCustomQuest: fn(),
     onDeleteCustomQuest: fn(),
     onEditCustomQuest: fn(),
+    onCreateCustomQuest: fn(),
     languageToggle: { locale: "en", onLocaleChange: fn() },
   },
 };
@@ -398,6 +399,10 @@ export const WithCustomQuests: Story = {
     ).toBeInTheDocument();
     await expect(
       canvas.getByTestId("custom-quest-delete-btn-custom-1001"),
+    ).toBeInTheDocument();
+    // 新規作成ボタンが表示されている
+    await expect(
+      canvas.getByTestId("custom-quest-create-btn"),
     ).toBeInTheDocument();
   },
 };

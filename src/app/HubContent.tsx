@@ -14,11 +14,13 @@ import {
   enrichListItemsWithQuestProgress,
   mergeWithBuiltinQuests,
   findQuestById,
+  addCustomQuest,
   duplicateAsCustomQuest,
   removeCustomQuest,
   updateCustomQuest,
   findCustomQuestById,
   type CustomQuestEditParams,
+  type CreateCustomQuestParams,
 } from "../lib/quest";
 import { ThemeProvider } from "../lib/theme/ThemeProvider";
 import type { DeductionSystem } from "../lib/logic-core/deductionSystem";
@@ -200,6 +202,20 @@ function HubInner() {
     [customQuestCollection],
   );
 
+  // Create custom quest
+  const handleCreateCustomQuest = useCallback(
+    (params: CreateCustomQuestParams) => {
+      const result = addCustomQuest(
+        customQuestCollection.collection,
+        params,
+        getNow(),
+      );
+      if (!result.ok) return;
+      customQuestCollection.setCollection(result.value.collection);
+    },
+    [customQuestCollection],
+  );
+
   // Edit custom quest
   const handleEditCustomQuest = useCallback(
     (edit: CustomQuestEditParams) => {
@@ -230,6 +246,7 @@ function HubInner() {
         onDuplicateCustomQuest={handleDuplicateCustomQuest}
         onDeleteCustomQuest={handleDeleteCustomQuest}
         onEditCustomQuest={handleEditCustomQuest}
+        onCreateCustomQuest={handleCreateCustomQuest}
         languageToggle={{ locale, onLocaleChange: switchLocale }}
         notebookCounts={notebookCounts}
       />

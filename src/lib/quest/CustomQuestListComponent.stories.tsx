@@ -96,6 +96,7 @@ const meta = {
     onDuplicateQuest: fn(),
     onDeleteQuest: fn(),
     onEditQuest: fn(),
+    onCreateQuest: fn(),
   },
 } satisfies Meta<typeof CustomQuestList>;
 
@@ -304,5 +305,115 @@ export const EditQuestCancel: Story = {
 
     // onEditQuest は呼ばれていないこと
     await expect(args.onEditQuest).not.toHaveBeenCalled();
+  },
+};
+
+export const CreateNewQuest: Story = {
+  args: {
+    items: sampleItems,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // 新規作成ボタンが表示されていること
+    const createBtn = canvas.getByTestId("custom-quest-create-btn");
+    await expect(createBtn).toBeInTheDocument();
+    await expect(createBtn).toHaveTextContent("新規作成");
+
+    // 新規作成ボタンをクリックしてフォームを開く
+    await userEvent.click(createBtn);
+
+    // フォームが表示されること
+    await expect(
+      canvas.getByTestId("custom-quest-create-form"),
+    ).toBeInTheDocument();
+
+    // ボタンのテキストが「閉じる」に変わること
+    await expect(createBtn).toHaveTextContent("閉じる");
+
+    // フォームに値を入力
+    await userEvent.type(
+      canvas.getByTestId("create-title-input"),
+      "新しいクエスト",
+    );
+    await userEvent.type(
+      canvas.getByTestId("create-goals-input"),
+      "phi -> phi",
+    );
+
+    // 保存ボタンをクリック
+    await userEvent.click(canvas.getByTestId("create-save-btn"));
+
+    // onCreateQuest が正しいパラメータで呼ばれること
+    await expect(args.onCreateQuest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "新しいクエスト",
+        goals: [{ formulaText: "phi -> phi" }],
+      }),
+    );
+
+    // フォームが閉じること
+    await expect(
+      canvas.queryByTestId("custom-quest-create-form"),
+    ).not.toBeInTheDocument();
+  },
+};
+
+export const CreateNewQuestValidation: Story = {
+  args: {
+    items: [],
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // 新規作成ボタンをクリック
+    await userEvent.click(canvas.getByTestId("custom-quest-create-btn"));
+
+    // フォームが表示される
+    await expect(
+      canvas.getByTestId("custom-quest-create-form"),
+    ).toBeInTheDocument();
+
+    // 空のまま保存をクリック
+    await userEvent.click(canvas.getByTestId("create-save-btn"));
+
+    // バリデーションエラーが表示されること
+    await expect(
+      canvas.getByTestId("create-title-error"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("create-goals-error"),
+    ).toBeInTheDocument();
+
+    // onCreateQuest は呼ばれていないこと
+    await expect(args.onCreateQuest).not.toHaveBeenCalled();
+  },
+};
+
+export const CreateNewQuestCancel: Story = {
+  args: {
+    items: sampleItems,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // 新規作成ボタンをクリック
+    await userEvent.click(canvas.getByTestId("custom-quest-create-btn"));
+
+    // フォームが表示される
+    await expect(
+      canvas.getByTestId("custom-quest-create-form"),
+    ).toBeInTheDocument();
+
+    // キャンセルボタンをクリック
+    await userEvent.click(canvas.getByTestId("create-cancel-btn"));
+
+    // フォームが閉じること
+    await expect(
+      canvas.queryByTestId("custom-quest-create-form"),
+    ).not.toBeInTheDocument();
+
+    // onCreateQuest は呼ばれていないこと
+    await expect(args.onCreateQuest).not.toHaveBeenCalled();
   },
 };

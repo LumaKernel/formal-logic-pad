@@ -32,6 +32,7 @@ import {
 } from "./customQuestCatalogLogic";
 import { systemPresets } from "../notebook/notebookCreateLogic";
 import {
+  createEmptyEditFormValues,
   questToEditFormValues,
   validateEditForm,
   shouldShowEditFieldError,
@@ -55,6 +56,7 @@ export type CustomQuestListProps = {
   readonly onDuplicateQuest?: (questId: QuestId) => void;
   readonly onDeleteQuest?: (questId: QuestId) => void;
   readonly onEditQuest?: (edit: CustomQuestEditParams) => void;
+  readonly onCreateQuest?: (params: CreateCustomQuestParams) => void;
 };
 
 // --- Styles ---
@@ -210,6 +212,19 @@ const actionGroupStyle: CSSProperties = {
   display: "flex",
   gap: 4,
   alignItems: "center",
+};
+
+const createButtonStyle: CSSProperties = {
+  padding: "5px 14px",
+  fontSize: 11,
+  fontWeight: 600,
+  borderRadius: 4,
+  border: "none",
+  background: "var(--color-quest-start-bg)",
+  color: "#fff",
+  cursor: "pointer",
+  flexShrink: 0,
+  transition: "background 0.15s",
 };
 
 const emptyStyle: CSSProperties = {
@@ -639,6 +654,280 @@ function CustomQuestEditForm({
   );
 }
 
+// --- Create form ---
+
+function CustomQuestCreateForm({
+  onSave,
+  onCancel,
+}: {
+  readonly onSave: (params: CreateCustomQuestParams) => void;
+  readonly onCancel: () => void;
+}) {
+  const [values, setValues] = useState<EditFormValues>(
+    createEmptyEditFormValues,
+  );
+  const [submitted, setSubmitted] = useState(false);
+  const [titleTouched, setTitleTouched] = useState(false);
+  const [goalsTouched, setGoalsTouched] = useState(false);
+  const [stepsTouched, setStepsTouched] = useState(false);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const goalsRef = useRef<HTMLTextAreaElement>(null);
+  const stepsRef = useRef<HTMLInputElement>(null);
+
+  const validation = validateEditForm(values);
+
+  const titleError = shouldShowEditFieldError({
+    touched: titleTouched,
+    submitted,
+    validation,
+    field: "title",
+  });
+  const goalsError = shouldShowEditFieldError({
+    touched: goalsTouched,
+    submitted,
+    validation,
+    field: "goalsText",
+  });
+  const stepsError = shouldShowEditFieldError({
+    touched: stepsTouched,
+    submitted,
+    validation,
+    field: "estimatedSteps",
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSubmitted(true);
+
+    if (!validation.valid) {
+      const firstField = getFirstEditErrorField(validation);
+      if (firstField === "title") titleRef.current?.focus();
+      else if (firstField === "goalsText") goalsRef.current?.focus();
+      else if (firstField === "estimatedSteps") stepsRef.current?.focus();
+      return;
+    }
+
+    onSave({
+      title: values.title,
+      description: values.description,
+      category: values.category,
+      difficulty: values.difficulty,
+      systemPresetId: values.systemPresetId,
+      goals: goalsTextToDefinitions(values.goalsText),
+      hints: parseHintLines(values.hints),
+      estimatedSteps: Number(values.estimatedSteps),
+      learningPoint: values.learningPoint,
+    });
+  };
+
+  return (
+    <div
+      style={editFormOverlayStyle}
+      data-testid="custom-quest-create-form"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <form style={editFormStyle} onSubmit={handleSubmit}>
+        {/* タイトル */}
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>タイトル</label>
+          <input
+            ref={titleRef}
+            data-testid="create-title-input"
+            style={
+              titleError !== undefined ? editInputErrorStyle : editInputStyle
+            }
+            value={values.title}
+            onChange={(e) => setValues({ ...values, title: e.target.value })}
+            onBlur={() => setTitleTouched(true)}
+          />
+          {titleError !== undefined && (
+            <span style={editErrorTextStyle} data-testid="create-title-error">
+              {titleError}
+            </span>
+          )}
+        </div>
+
+        {/* 説明 */}
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>説明</label>
+          <textarea
+            data-testid="create-description-input"
+            style={editTextareaStyle}
+            value={values.description}
+            onChange={(e) =>
+              setValues({ ...values, description: e.target.value })
+            }
+            rows={2}
+          />
+        </div>
+
+        {/* カテゴリ・難易度 */}
+        <div style={editRowStyle}>
+          <div style={{ ...editFieldGroupStyle, flex: 1 }}>
+            <label style={editLabelStyle}>カテゴリ</label>
+            <select
+              data-testid="create-category-select"
+              style={editSelectStyle}
+              value={values.category}
+              onChange={(e) =>
+                setValues({
+                  ...values,
+                  category: e.target.value as QuestCategory,
+                })
+              }
+            >
+              {questCategories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div style={{ ...editFieldGroupStyle, flex: 0, minWidth: 100 }}>
+            <label style={editLabelStyle}>難易度</label>
+            <select
+              data-testid="create-difficulty-select"
+              style={editSelectStyle}
+              value={values.difficulty}
+              onChange={(e) =>
+                setValues({
+                  ...values,
+                  difficulty: Number(e.target.value) as DifficultyLevel,
+                })
+              }
+            >
+              {([1, 2, 3, 4, 5] as const).map((d) => (
+                <option key={d} value={d}>
+                  {`${"★".repeat(d) satisfies string}${"☆".repeat(5 - d) satisfies string}`}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* 体系 */}
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>体系</label>
+          <select
+            data-testid="create-system-select"
+            style={editSelectStyle}
+            value={values.systemPresetId}
+            onChange={(e) =>
+              setValues({
+                ...values,
+                systemPresetId: e.target.value as SystemPresetId,
+              })
+            }
+          >
+            {systemPresets.map((preset) => (
+              <option key={preset.id} value={preset.id}>
+                {preset.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* ゴール式 */}
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>ゴール式（1行に1つ）</label>
+          <textarea
+            ref={goalsRef}
+            data-testid="create-goals-input"
+            style={
+              goalsError !== undefined
+                ? editTextareaErrorStyle
+                : editTextareaStyle
+            }
+            value={values.goalsText}
+            onChange={(e) =>
+              setValues({ ...values, goalsText: e.target.value })
+            }
+            onBlur={() => setGoalsTouched(true)}
+            rows={3}
+          />
+          {goalsError !== undefined && (
+            <span style={editErrorTextStyle} data-testid="create-goals-error">
+              {goalsError}
+            </span>
+          )}
+        </div>
+
+        {/* ヒント */}
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>ヒント（1行に1つ、任意）</label>
+          <textarea
+            data-testid="create-hints-input"
+            style={editTextareaStyle}
+            value={values.hints}
+            onChange={(e) => setValues({ ...values, hints: e.target.value })}
+            rows={2}
+          />
+        </div>
+
+        {/* 推定ステップ数・学習ポイント */}
+        <div style={editRowStyle}>
+          <div style={{ ...editFieldGroupStyle, flex: 0, minWidth: 120 }}>
+            <label style={editLabelStyle}>推定ステップ数</label>
+            <input
+              ref={stepsRef}
+              data-testid="create-steps-input"
+              style={
+                stepsError !== undefined ? editInputErrorStyle : editInputStyle
+              }
+              type="number"
+              min="1"
+              value={values.estimatedSteps}
+              onChange={(e) =>
+                setValues({ ...values, estimatedSteps: e.target.value })
+              }
+              onBlur={() => setStepsTouched(true)}
+            />
+            {stepsError !== undefined && (
+              <span style={editErrorTextStyle} data-testid="create-steps-error">
+                {stepsError}
+              </span>
+            )}
+          </div>
+          <div style={{ ...editFieldGroupStyle, flex: 1 }}>
+            <label style={editLabelStyle}>学習ポイント</label>
+            <input
+              data-testid="create-learning-point-input"
+              style={editInputStyle}
+              value={values.learningPoint}
+              onChange={(e) =>
+                setValues({ ...values, learningPoint: e.target.value })
+              }
+            />
+          </div>
+        </div>
+
+        {/* ボタン */}
+        <div style={editActionsStyle}>
+          <button
+            type="button"
+            data-testid="create-cancel-btn"
+            style={editCancelButtonStyle}
+            onClick={(e) => {
+              e.stopPropagation();
+              onCancel();
+            }}
+          >
+            キャンセル
+          </button>
+          <button
+            type="submit"
+            data-testid="create-save-btn"
+            style={editSaveButtonStyle}
+          >
+            作成
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 // --- Quest item ---
 
 function CustomQuestItem({
@@ -762,44 +1051,75 @@ export function CustomQuestList({
   onDuplicateQuest,
   onDeleteQuest,
   onEditQuest,
+  onCreateQuest,
 }: CustomQuestListProps) {
   const totalCount = getCustomQuestCatalogCount(items);
   const completedCount = getCustomQuestCompletedCount(items);
   const [editingQuestId, setEditingQuestId] = useState<QuestId | undefined>(
     undefined,
   );
+  const [isCreating, setIsCreating] = useState(false);
 
   const handleToggleEdit = (questId: QuestId) => {
     setEditingQuestId((prev) => (prev === questId ? undefined : questId));
+    setIsCreating(false);
+  };
+
+  const handleToggleCreate = () => {
+    setIsCreating((prev) => !prev);
+    setEditingQuestId(undefined);
   };
 
   return (
     <div style={sectionStyle} data-testid="custom-quest-list">
       <div style={sectionHeaderStyle}>
         <div style={sectionTitleStyle}>自作クエスト</div>
-        <div style={sectionProgressStyle}>
-          {customQuestProgressText(completedCount, totalCount)}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={sectionProgressStyle}>
+            {customQuestProgressText(completedCount, totalCount)}
+          </div>
+          {onCreateQuest !== undefined && (
+            <button
+              type="button"
+              data-testid="custom-quest-create-btn"
+              style={createButtonStyle}
+              onClick={handleToggleCreate}
+            >
+              {isCreating ? "閉じる" : "新規作成"}
+            </button>
+          )}
         </div>
       </div>
-      {items.length === 0 ? (
+      {isCreating && onCreateQuest !== undefined && (
+        <CustomQuestCreateForm
+          onSave={(params) => {
+            onCreateQuest(params);
+            setIsCreating(false);
+          }}
+          onCancel={() => setIsCreating(false)}
+        />
+      )}
+      {items.length === 0 && !isCreating ? (
         <div style={emptyStyle} data-testid="custom-quest-list-empty">
           自作クエストはまだありません。
         </div>
       ) : (
-        <div style={questListStyle}>
-          {items.map((item) => (
-            <CustomQuestItem
-              key={item.quest.id}
-              item={item}
-              onStart={onStartQuest}
-              onDuplicate={onDuplicateQuest}
-              onDelete={onDeleteQuest}
-              onEdit={onEditQuest}
-              isEditing={editingQuestId === item.quest.id}
-              onToggleEdit={handleToggleEdit}
-            />
-          ))}
-        </div>
+        items.length > 0 && (
+          <div style={questListStyle}>
+            {items.map((item) => (
+              <CustomQuestItem
+                key={item.quest.id}
+                item={item}
+                onStart={onStartQuest}
+                onDuplicate={onDuplicateQuest}
+                onDelete={onDeleteQuest}
+                onEdit={onEditQuest}
+                isEditing={editingQuestId === item.quest.id}
+                onToggleEdit={handleToggleEdit}
+              />
+            ))}
+          </div>
+        )
       )}
     </div>
   );
