@@ -9224,3 +9224,35 @@
   - useProofCollection.addEntry の引数型は Omit<AddEntryParams, "now"> = ProofSaveParams なので直接渡せる
   - 後続タスク: コレクション管理UI（名前・メモ編集、フォルダ分け）、証明の呼び出し・挿入機能、互換性チェック
 ---
+## 2026-03-07 - [proof-collection] コレクション管理パネル（名前変更・メモ編集・削除）
+- 実装した内容:
+  - proofCollectionPanelLogic.ts: パネル編集状態の純粋ロジック（startEditing, updateEditingValue, cancelEditing, isEditing）
+  - ProofCollectionPanel.tsx: 右サイドバーパネルUI（GoalPanel風）。EditableField/CollectionEntryサブコンポーネント
+  - ProofWorkspace.tsx: ⋯メニューに「My Collection」項目追加、パネル開閉状態管理
+  - WorkspacePageView/WorkspaceContent: collectionEntries, onRenameCollectionEntry, onUpdateCollectionMemo, onRemoveCollectionEntry props接続
+  - proofMessages.ts: 6メッセージキー追加（openCollection, collectionPanelTitle, collectionEmpty等）
+  - en.json/ja.json: i18n翻訳追加
+- 変更したファイル:
+  - `src/lib/proof-collection/proofCollectionPanelLogic.ts` (NEW)
+  - `src/lib/proof-collection/proofCollectionPanelLogic.test.ts` (NEW, 9テスト)
+  - `src/lib/proof-collection/ProofCollectionPanel.tsx` (NEW)
+  - `src/lib/proof-collection/ProofCollectionPanel.test.tsx` (NEW, 14テスト)
+  - `src/lib/proof-collection/ProofCollectionPanel.stories.tsx` (NEW, 7ストーリー+play関数)
+  - `src/lib/proof-collection/index.ts` (パネルロジック・コンポーネントexport追加)
+  - `src/lib/proof-pad/proofMessages.ts` (6メッセージキー追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (メニュー項目、パネル表示、props追加)
+  - `src/app/workspace/[id]/WorkspacePageView.tsx` (collection props追加)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (proofCollection操作をViewに接続)
+  - `messages/en.json`, `messages/ja.json` (翻訳追加)
+- カバレッジ: ベースライン Stmts 99.09% / Branch 93.99% → 完了後 Stmts 99.01% / Branch 93.56% (微減: 新UIコンポーネントのuseRef/useEffect分岐)
+- テスト: 7651 passed (+23テスト追加)
+- 品質チェック: typecheck ✅, lint ✅, test ✅, prettier ✅
+- ブラウザテスト: Playwright MCPでStorybook・Next.jsアプリ確認。パネル表示、名前変更、メモ編集、すべて動作確認済み
+  - スクリーンショット: .screenshots/proof-collection-panel-storybook.png, .screenshots/proof-collection-panel-open.png, .screenshots/proof-collection-panel-edited.png
+- **今後のイテレーションへの学び:**
+  - GoalPanel風パネルは position:absolute + top:48 + right:12 パターン。zIndex:10で他要素の上に表示
+  - EditableField: display/input切替パターンはuseRef+useEffectでauto-focus。Enter確定/Escape取消/blur確定
+  - 名前は空文字不可、メモは空文字OK。handleCommitEditでfieldで分岐
+  - ProofCollectionPanel配置はproof-collectionモジュール内（proof-padではなく）。コレクション管理のUI
+  - 後続タスク: フォルダ分け管理、証明の呼び出し・挿入機能、互換性チェック
+---
