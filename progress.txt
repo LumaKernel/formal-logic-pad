@@ -9376,3 +9376,30 @@
   - CompatibilityBadge中間型でCompatibilityResult（_tag discriminated union）→ UI表示用データ（variant discriminated union）に変換。レイヤー間の依存を整理
   - proof-collectionタスク全体が完了: 保存→インポート→フォルダ管理→互換性チェックの4段階で実装
 ---
+
+## 2026-03-07 - [script-editor] エラーマーカー表示
+- 実装した内容:
+  - scriptEditorLogic.ts に `extractErrorLocation` 純粋関数を追加（エラーメッセージから行:列パターンを抽出、consoleShim行オフセット補正）
+  - ScriptEditorComponent.tsx にMonaco EditorのeditorRef/monacoRefを保持し、エラー発生時に `setModelMarkers` でエラーマーカー（波線）を設定
+  - SyntaxErrorの場合は正確な行:列にマーカー、RuntimeErrorは位置情報がないため先頭行にマーカー
+  - リセット/新規実行時にマーカーを自動クリア
+  - PRD US-004の「コンソール出力パネル」を既に実装済みとして完了マーク
+- 変更したファイル:
+  - `src/components/ScriptEditor/scriptEditorLogic.ts` (+ErrorLocation型, +extractErrorLocation関数)
+  - `src/components/ScriptEditor/scriptEditorLogic.test.ts` (+7テスト: extractErrorLocation)
+  - `src/components/ScriptEditor/ScriptEditorComponent.tsx` (editorRef/monacoRef追加, useEffectでマーカー更新)
+  - `src/components/ScriptEditor/ScriptEditorComponent.stories.tsx` (+2ストーリー: WithSyntaxError, WithRuntimeError)
+  - `src/components/ScriptEditor/index.ts` (extractErrorLocation, ErrorLocation のexport追加)
+  - `tasks/prd-scripted-proof-rewriting.md` (コンソール/エラー表示の完了マーク)
+- カバレッジ: ベースライン Stmts 98.84% → 完了後 Stmts 98.84% (変化なし)
+- テスト: 7726 → 7735 passed (+9テスト)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Playwright MCPでStorybook確認
+  - スクリーンショット: .screenshots/script-editor-syntax-error-story.png, .screenshots/script-editor-runtime-error-story.png
+- **今後のイテレーションへの学び:**
+  - JS-InterpreterのSyntaxErrorは "(行:列)" 形式で位置情報を含む。RuntimeErrorには位置情報がない
+  - consoleShimCode挿入による行オフセット（1行）をextractErrorLocationで差し引く必要がある
+  - Storybookブラウザ(chromium)テストではjs-interpreterのrequireが動作しない。実行を伴うplay関数は書けない
+  - Monaco EditorのsetModelMarkersでエラーマーカー表示。owner文字列 "script-runner" で管理、空配列でクリア
+  - 後続タスク: 現在の実行行ハイライト、証明図リアルタイム反映
+---
