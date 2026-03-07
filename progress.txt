@@ -9685,3 +9685,38 @@
   - optional callback props (undefined の場合はボタン非表示) パターンにより、コンポーネントの再利用性を保てる
   - action buttons はまとめて actionGroupStyle で flex layout にすると見た目が整う
 ---
+
+## 2026-03-07 - 自作クエストの編集UI
+- 自作クエストの編集（タイトル、説明、ゴール式、使用可能公理の変更）UIを実装
+- 純粋ロジック層 customQuestEditLogic.ts を新規作成
+  - フォームバリデーション（タイトル必須・100文字制限、ゴール式必須、推定ステップ数は正の整数）
+  - フォーム値変換（QuestDefinition ↔ EditFormValues）
+  - エラー表示判定（touched/submitted 状態管理）
+  - ゴール式・ヒントのパーサー（改行区切りテキスト ↔ 配列）
+- CustomQuestListComponent にインライン編集フォームを追加
+  - 「編集」ボタンクリックでクエスト下にフォーム展開
+  - タイトル、説明、カテゴリ、難易度、体系、ゴール式、ヒント、推定ステップ数、学習ポイントの全フィールド
+  - バリデーションエラー表示（touched/submitted で制御）
+  - 保存・キャンセル
+- HubPageView / HubContent に onEditCustomQuest コールバックを追加
+- Storybook に EditQuest / EditQuestCancel ストーリーを追加（play関数でインタラクションテスト）
+- テスト: 39テスト追加（customQuestEditLogic.test.ts）、合計 8020テスト（238ファイル）
+- 変更したファイル:
+  - src/lib/quest/customQuestEditLogic.ts（新規）
+  - src/lib/quest/customQuestEditLogic.test.ts（新規）
+  - src/lib/quest/CustomQuestListComponent.tsx
+  - src/lib/quest/CustomQuestListComponent.stories.tsx
+  - src/lib/quest/index.ts
+  - src/app/HubPageView.tsx
+  - src/app/HubPageView.stories.tsx
+  - src/app/HubContent.tsx
+  - tasks/prd-custom-quests.md
+- カバレッジ: Stmts 98.78%→98.66%, Branch 93.17%→93.04%, Funcs 88.84%→88.72%, Lines 99.63%→99.50%
+  - 微小な低下はUI層（CustomQuestListComponent.tsx）のマウス/キーボードイベントハンドラ未カバーが原因。純粋ロジック層は100%カバー
+- スクリーンショット: .screenshots/custom-quest-list-default-full.png, .screenshots/custom-quest-edit-form-full.png
+- **今後のイテレーションへの学び:**
+  - updateCustomQuest() は既に customQuestState.ts に実装済みだったため、UIのみ追加で完了
+  - NotebookCreateForm のバリデーションパターン（touched + submitted）を踏襲した
+  - インライン編集フォームは editingQuestId 状態で排他制御（1つだけ開ける）
+  - ESLint `require-satisfies-in-tls` はテンプレートリテラル内の式にも適用される（"★".repeat(d) satisfies string）
+---
