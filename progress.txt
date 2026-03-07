@@ -9720,3 +9720,33 @@
   - インライン編集フォームは editingQuestId 状態で排他制御（1つだけ開ける）
   - ESLint `require-satisfies-in-tls` はテンプレートリテラル内の式にも適用される（"★".repeat(d) satisfies string）
 ---
+
+## 2026-03-07 - custom-quest 自作クエストの新規作成UI
+- 実装した内容:
+  - createEmptyEditFormValues() を customQuestEditLogic.ts に追加（新規作成用の空フォーム初期値）
+  - CustomQuestCreateForm コンポーネントをCustomQuestListComponent.tsx に追加
+  - CustomQuestListに「新規作成」ボタンとフォーム表示/非表示トグルを追加
+  - HubPageView / HubContent に onCreateCustomQuest コールバックを追加
+  - addCustomQuest を HubContent で呼び出してlocalStorageに永続化
+  - Storybook に CreateNewQuest / CreateNewQuestValidation / CreateNewQuestCancel ストーリーを追加
+  - customQuestEditLogic.test.ts に createEmptyEditFormValues のテスト追加
+- 変更したファイル:
+  - src/lib/quest/customQuestEditLogic.ts
+  - src/lib/quest/customQuestEditLogic.test.ts
+  - src/lib/quest/CustomQuestListComponent.tsx
+  - src/lib/quest/CustomQuestListComponent.stories.tsx
+  - src/lib/quest/index.ts
+  - src/app/HubPageView.tsx
+  - src/app/HubPageView.stories.tsx
+  - src/app/HubContent.tsx
+  - tasks/prd-custom-quests.md
+- カバレッジ: Stmts 98.66%→98.58%, Branch 93.04%→92.98%, Funcs 88.66%→88.63%, Lines 99.50%→99.42%
+  - 微減はUI層（CustomQuestListComponent.tsx）の新規追加コード。純粋ロジック層は100%カバー
+- テスト数: 8020→8025 (+5)
+- スクリーンショット: .screenshots/custom-quest-create-initial.png, .screenshots/custom-quest-create-validation.png, .screenshots/hub-with-custom-quests-create-btn.png
+- **今後のイテレーションへの学び:**
+  - 新規作成と編集は同じフォームバリデーションロジックを共有。createEmptyEditFormValues()とquestToEditFormValues()でフォーム初期値だけ異なる
+  - CustomQuestCreateFormとCustomQuestEditFormはほぼ同一構造。将来的にはフォーム部分を共通化するリファクタリングの余地がある
+  - isCreating状態とeditingQuestIdは排他制御（作成中は編集クローズ、編集中は作成クローズ）
+  - onCreateQuest は optional prop なので、undefined の場合は「新規作成」ボタンが非表示になる
+---
