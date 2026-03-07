@@ -133,19 +133,15 @@ export function computeNotebookQuestProgress(
   const { goals, nodes } = notebook.workspace;
   if (goals.length === 0) return undefined;
   const result = checkQuestGoals(goals, nodes);
-  switch (result._tag) {
-    /* v8 ignore start -- 防御的コード: goals.length > 0 チェック後なので NoGoals は到達不能 */
-    case "NoGoals":
-      return undefined;
-    /* v8 ignore stop */
-    case "AllAchieved":
-      return { achievedCount: goals.length, totalCount: goals.length };
-    case "NotAllAchieved":
-      return {
-        achievedCount: result.achievedCount,
-        totalCount: result.totalCount,
-      };
-  }
+  if (result._tag === "AllAchieved")
+    return { achievedCount: goals.length, totalCount: goals.length };
+  /* v8 ignore start -- result._tag === "NoGoals" は goals.length > 0 チェック後なので到達不能 */
+  if (result._tag !== "NotAllAchieved") return undefined;
+  /* v8 ignore stop */
+  return {
+    achievedCount: result.achievedCount,
+    totalCount: result.totalCount,
+  };
 }
 
 /**

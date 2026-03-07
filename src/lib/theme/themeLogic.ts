@@ -40,40 +40,18 @@ export function resolveTheme(
   mode: ThemeMode,
   systemPrefersDark: boolean,
 ): ResolvedTheme {
-  switch (mode) {
-    case "light":
-      return "light";
-    case "dark":
-      return "dark";
-    case "system":
-      return systemPrefersDark ? "dark" : "light";
-    default: {
-      /* v8 ignore start */
-      const _exhaustive: never = mode;
-      void _exhaustive;
-      return "light";
-      /* v8 ignore stop */
-    }
-  }
+  if (mode === "light") return "light";
+  if (mode === "dark") return "dark";
+  // mode === "system" (exhaustive: only remaining value)
+  return systemPrefersDark ? "dark" : "light";
 }
 
 /**
  * Cycle to the next theme mode: light → dark → system → light.
  */
 export function nextThemeMode(current: ThemeMode): ThemeMode {
-  switch (current) {
-    case "light":
-      return "dark";
-    case "dark":
-      return "system";
-    case "system":
-      return "light";
-    default: {
-      /* v8 ignore start */
-      const _exhaustive: never = current;
-      void _exhaustive;
-      return "light";
-      /* v8 ignore stop */
-    }
-  }
+  if (current === "light") return "dark";
+  if (current === "dark") return "system";
+  // current === "system" (exhaustive: only remaining value)
+  return "light";
 }

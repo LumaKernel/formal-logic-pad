@@ -651,6 +651,40 @@ describe("inferenceEdge", () => {
     ] as const)("returns '$expected' for $edge._tag", ({ edge, expected }) => {
       expect(getInferenceEdgeLabel(edge)).toBe(expected);
     });
+
+    it("returns '∀I' for nd-universal-intro with empty variableName", () => {
+      const edge: NdUniversalIntroEdge = {
+        _tag: "nd-universal-intro",
+        conclusionNodeId: "c",
+        premiseNodeId: "p",
+        variableName: "",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabel(edge)).toBe("∀I");
+    });
+
+    it("returns '∀E' for nd-universal-elim with empty termText", () => {
+      const edge: NdUniversalElimEdge = {
+        _tag: "nd-universal-elim",
+        conclusionNodeId: "c",
+        premiseNodeId: "p",
+        termText: "",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabel(edge)).toBe("∀E");
+    });
+
+    it("returns '∃I' for nd-existential-intro with empty variableName", () => {
+      const edge: NdExistentialIntroEdge = {
+        _tag: "nd-existential-intro",
+        conclusionNodeId: "c",
+        premiseNodeId: "p",
+        variableName: "",
+        termText: "t",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgeLabel(edge)).toBe("∃I");
+    });
   });
 
   // ─── ND getInferenceEdgePremiseNodeIds ────────────────────
@@ -702,12 +736,23 @@ describe("inferenceEdge", () => {
         ]);
       });
 
-      it("handles undefined premises for 2-premise edge", () => {
+      it("handles left undefined for →E edge", () => {
         const edge: NdImplicationElimEdge = {
           _tag: "nd-implication-elim",
           conclusionNodeId: "c",
           leftPremiseNodeId: undefined,
           rightPremiseNodeId: "p",
+          conclusionText: "",
+        };
+        expect(getInferenceEdgePremiseNodeIds(edge)).toEqual(["p"]);
+      });
+
+      it("handles right undefined for →E edge", () => {
+        const edge: NdImplicationElimEdge = {
+          _tag: "nd-implication-elim",
+          conclusionNodeId: "c",
+          leftPremiseNodeId: "p",
+          rightPremiseNodeId: undefined,
           conclusionText: "",
         };
         expect(getInferenceEdgePremiseNodeIds(edge)).toEqual(["p"]);
@@ -1472,6 +1517,146 @@ describe("inferenceEdge", () => {
         conclusionText: "φ ⇒ φ",
       };
       expect(getInferenceEdgePremiseNodeIds(edge)).toEqual([]);
+    });
+
+    // ND 1前提エッジのundefined premise
+    it.each([
+      {
+        name: "nd-implication-intro",
+        edge: {
+          _tag: "nd-implication-intro",
+          conclusionNodeId: "c",
+          premiseNodeId: undefined,
+          dischargedFormulaText: "A",
+          dischargedAssumptionId: 1,
+          conclusionText: "",
+        } satisfies NdImplicationIntroEdge,
+      },
+      {
+        name: "nd-conjunction-elim-left",
+        edge: {
+          _tag: "nd-conjunction-elim-left",
+          conclusionNodeId: "c",
+          premiseNodeId: undefined,
+          conclusionText: "",
+        } satisfies NdConjunctionElimLeftEdge,
+      },
+      {
+        name: "nd-conjunction-elim-right",
+        edge: {
+          _tag: "nd-conjunction-elim-right",
+          conclusionNodeId: "c",
+          premiseNodeId: undefined,
+          conclusionText: "",
+        } satisfies NdConjunctionElimRightEdge,
+      },
+      {
+        name: "nd-disjunction-intro-left",
+        edge: {
+          _tag: "nd-disjunction-intro-left",
+          conclusionNodeId: "c",
+          premiseNodeId: undefined,
+          addedRightText: "B",
+          conclusionText: "",
+        } satisfies NdDisjunctionIntroLeftEdge,
+      },
+      {
+        name: "nd-disjunction-intro-right",
+        edge: {
+          _tag: "nd-disjunction-intro-right",
+          conclusionNodeId: "c",
+          premiseNodeId: undefined,
+          addedLeftText: "A",
+          conclusionText: "",
+        } satisfies NdDisjunctionIntroRightEdge,
+      },
+      {
+        name: "nd-efq",
+        edge: {
+          _tag: "nd-efq",
+          conclusionNodeId: "c",
+          premiseNodeId: undefined,
+          conclusionText: "",
+        } satisfies NdEfqEdge,
+      },
+      {
+        name: "nd-universal-intro",
+        edge: {
+          _tag: "nd-universal-intro",
+          conclusionNodeId: "c",
+          premiseNodeId: undefined,
+          variableName: "x",
+          conclusionText: "",
+        } satisfies NdUniversalIntroEdge,
+      },
+      {
+        name: "nd-universal-elim",
+        edge: {
+          _tag: "nd-universal-elim",
+          conclusionNodeId: "c",
+          premiseNodeId: undefined,
+          termText: "t",
+          conclusionText: "",
+        } satisfies NdUniversalElimEdge,
+      },
+      {
+        name: "nd-existential-intro",
+        edge: {
+          _tag: "nd-existential-intro",
+          conclusionNodeId: "c",
+          premiseNodeId: undefined,
+          variableName: "x",
+          termText: "t",
+          conclusionText: "",
+        } satisfies NdExistentialIntroEdge,
+      },
+    ] as const)("handles $name with undefined premise", ({ edge }) => {
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual([]);
+    });
+
+    // ND 2前提エッジのundefined premises
+    it("handles nd-conjunction-intro with all undefined premises", () => {
+      const edge: NdConjunctionIntroEdge = {
+        _tag: "nd-conjunction-intro",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: undefined,
+        rightPremiseNodeId: undefined,
+        conclusionText: "",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual([]);
+    });
+
+    it("handles nd-conjunction-intro with only right premise", () => {
+      const edge: NdConjunctionIntroEdge = {
+        _tag: "nd-conjunction-intro",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: undefined,
+        rightPremiseNodeId: "p",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual(["p"]);
+    });
+
+    it("handles nd-weakening with all undefined premises", () => {
+      const edge: NdWeakeningEdge = {
+        _tag: "nd-weakening",
+        conclusionNodeId: "c",
+        keptPremiseNodeId: undefined,
+        discardedPremiseNodeId: undefined,
+        conclusionText: "",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual([]);
+    });
+
+    it("handles nd-weakening with only discarded premise", () => {
+      const edge: NdWeakeningEdge = {
+        _tag: "nd-weakening",
+        conclusionNodeId: "c",
+        keptPremiseNodeId: undefined,
+        discardedPremiseNodeId: "p",
+        conclusionText: "",
+      };
+      expect(getInferenceEdgePremiseNodeIds(edge)).toEqual(["p"]);
     });
   });
 
