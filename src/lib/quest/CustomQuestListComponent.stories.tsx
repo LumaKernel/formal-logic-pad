@@ -540,9 +540,7 @@ export const ShareQuestUrl: Story = {
     const canvas = within(canvasElement);
 
     // URL共有ボタンが表示されていること
-    const shareBtn = canvas.getByTestId(
-      "custom-quest-share-btn-custom-1001",
-    );
+    const shareBtn = canvas.getByTestId("custom-quest-share-btn-custom-1001");
     await expect(shareBtn).toBeInTheDocument();
     await expect(shareBtn).toHaveTextContent("URL");
 
