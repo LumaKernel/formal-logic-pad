@@ -9561,3 +9561,42 @@
   - useEffectのsetIntervalは依存配列にeffectiveIntervalMsを含めることで、ステップ数変化に応じて自動的にインターバルが更新される
   - RunAsyncAbortSignalはmutableオブジェクト（{ aborted: boolean }）。Promiseベースの非同期実行でrefから中断制御可能
 ---
+
+## 2026-03-07 - [quest] ゴールに推論規則制限（allowedRuleIds）を追加
+- 実装内容:
+  - `InferenceRuleId` 型を `inferenceEdge.ts` に追加（`InferenceEdge["_tag"]` のunion型）
+  - `getNodeInferenceRuleIds` 関数を `dependencyLogic.ts` に追加（ノードの証明チェーンで使用される推論規則を収集）
+  - `WorkspaceGoal` / `QuestGoalDefinition` に `allowedRuleIds?: readonly InferenceRuleId[]` を追加
+  - `questCompletionLogic.ts` に規則制限チェック追加（`computeViolatingRuleIds`、`AllAchievedButRuleViolation` 結果型）
+  - `GoalAxiomCheckResult` に `usedRuleIds` / `allowedRuleIds` / `violatingRuleIds` フィールド追加
+  - `workspaceExport.ts` に `ALL_INFERENCE_RULE_IDS` 配列と `AllInferenceRuleIdSchema` 追加（JSON import/export対応）
+  - `ProofWorkspace.tsx` に規則制限違反バナーUI追加
+  - `proofMessages.ts` に `proofCompleteButRuleViolation` / `ruleViolationDetail` メッセージ追加
+  - `modelAnswer.ts` に `AllAchievedButRuleViolation` を Valid として許容する処理追加
+  - i18n: en.json / ja.json に規則制限違反メッセージ追加
+- テスト追加:
+  - `dependencyLogic.test.ts`: `getNodeInferenceRuleIds` 9テスト追加（単一規則、チェーン、ダイヤモンド、ルートノード、不存在ノード等）
+  - `questCompletionLogic.test.ts`: `computeViolatingRuleIds` 5テスト + 規則制限統合テスト 8テスト追加
+- 変更ファイル:
+  - src/lib/proof-pad/inferenceEdge.ts
+  - src/lib/proof-pad/dependencyLogic.ts, dependencyLogic.test.ts
+  - src/lib/proof-pad/workspaceState.ts
+  - src/lib/proof-pad/workspaceExport.ts
+  - src/lib/proof-pad/ProofWorkspace.tsx
+  - src/lib/proof-pad/proofMessages.ts
+  - src/lib/proof-pad/index.ts
+  - src/lib/quest/questCompletionLogic.ts, questCompletionLogic.test.ts
+  - src/lib/quest/modelAnswer.ts
+  - src/lib/quest/index.ts
+  - src/app/workspace/[id]/WorkspaceContent.tsx
+  - messages/en.json, messages/ja.json
+  - tasks/prd-scripted-proof-rewriting.md
+- カバレッジ: Stmts 98.85%→98.82%, Branch 93.34%→93.22%, Funcs 89.22%→89.17%, Lines 99.70%→99.66%（V8マージ誤差範囲内）
+- テスト数: 7869→7892 (+23)
+- スクリーンショット: .screenshots/rule-restriction-storybook-check.png
+- **今後のイテレーションへの学び:**
+  - `allowedAxiomIds` パターンをそのまま `allowedRuleIds` に適用可能。公理制限と規則制限の優先順序は「公理制限が先」
+  - テストでは goal の formulaText がスキーマノードと導出ノードの両方に一致する場合、スキーマ側にマッチしてしまい usedRuleIds が空になる。テストではゴール式を導出ノードのみが持つ式にする
+  - `InferenceRuleId` は `InferenceEdge["_tag"]` で定義することで、edge型追加時に自動追従する
+  - `ALL_INFERENCE_RULE_IDS` 配列に `satisfies readonly InferenceRuleId[]` を付けることでコンパイル時に網羅性を検証
+---
