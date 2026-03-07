@@ -30,10 +30,7 @@ export interface WorkspaceCommandHandler {
   /** 全ノード一覧を返す */
   readonly getNodes: () => readonly WorkspaceNodeInfo[];
   /** MP 適用でノードを接続。結論ノードの ID を返す。失敗時は throw */
-  readonly connectMP: (
-    antecedentId: string,
-    conditionalId: string,
-  ) => string;
+  readonly connectMP: (antecedentId: string, conditionalId: string) => string;
   /** ゴール式を設定する */
   readonly addGoal: (formulaText: string) => void;
   /** ノードを削除する */
@@ -51,9 +48,7 @@ const createAddNodeFn =
   (formulaText: unknown): unknown => {
     if (typeof formulaText !== "string") {
       const t = typeof formulaText satisfies string;
-      throw new Error(
-        `addNode: expected string, got ${t satisfies string}`,
-      );
+      throw new Error(`addNode: expected string, got ${t satisfies string}`);
     }
     return handler.addNode(formulaText);
   };
@@ -77,10 +72,9 @@ const createSetNodeFormulaFn =
     return undefined;
   };
 
-const createGetNodesFn =
-  (handler: WorkspaceCommandHandler) => (): unknown => {
-    return handler.getNodes();
-  };
+const createGetNodesFn = (handler: WorkspaceCommandHandler) => (): unknown => {
+  return handler.getNodes();
+};
 
 const createConnectMPFn =
   (handler: WorkspaceCommandHandler) =>
@@ -105,9 +99,7 @@ const createAddGoalFn =
   (formulaText: unknown): unknown => {
     if (typeof formulaText !== "string") {
       const t = typeof formulaText satisfies string;
-      throw new Error(
-        `addGoal: expected string, got ${t satisfies string}`,
-      );
+      throw new Error(`addGoal: expected string, got ${t satisfies string}`);
     }
     handler.addGoal(formulaText);
     return undefined;
@@ -195,8 +187,7 @@ export const WORKSPACE_BRIDGE_API_DEFS: readonly ProofBridgeApiDef[] = [
   },
   {
     name: "connectMP",
-    signature:
-      "(antecedentId: string, conditionalId: string) => string",
+    signature: "(antecedentId: string, conditionalId: string) => string",
     description:
       "Modus Ponens で2つのノードを接続し、結論ノードを作成する。結論ノードIDを返す。",
   },
@@ -218,8 +209,7 @@ export const WORKSPACE_BRIDGE_API_DEFS: readonly ProofBridgeApiDef[] = [
   {
     name: "applyLayout",
     signature: "() => void",
-    description:
-      "ワークスペース上のノードにツリーレイアウトを自動適用する。",
+    description: "ワークスペース上のノードにツリーレイアウトを自動適用する。",
   },
 ];
 

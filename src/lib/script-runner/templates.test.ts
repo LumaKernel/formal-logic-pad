@@ -38,13 +38,17 @@ describe("テンプレート実行テスト", () => {
     {
       name: "console_error",
       fn: (...args: readonly unknown[]) => {
-        consoleLogs.push(`ERROR: ${args.map(String).join(" ") satisfies string}`);
+        consoleLogs.push(
+          `ERROR: ${args.map(String).join(" ") satisfies string}`,
+        );
       },
     },
     {
       name: "console_warn",
       fn: (...args: readonly unknown[]) => {
-        consoleLogs.push(`WARN: ${args.map(String).join(" ") satisfies string}`);
+        consoleLogs.push(
+          `WARN: ${args.map(String).join(" ") satisfies string}`,
+        );
       },
     },
   ];

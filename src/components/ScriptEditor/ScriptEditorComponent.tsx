@@ -112,18 +112,17 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
 
   // ── 全ブリッジ構築 ────────────────────────────────────────
 
-  const buildAllBridges =
-    useCallback((): readonly NativeFunctionBridge[] => {
-      const all: NativeFunctionBridge[] = [
-        ...createProofBridges(),
-        ...createCutEliminationBridges(),
-        ...createConsoleBridges(),
-      ];
-      if (workspaceCommandHandler) {
-        all.push(...createWorkspaceBridges(workspaceCommandHandler));
-      }
-      return all;
-    }, [createConsoleBridges, workspaceCommandHandler]);
+  const buildAllBridges = useCallback((): readonly NativeFunctionBridge[] => {
+    const all: NativeFunctionBridge[] = [
+      ...createProofBridges(),
+      ...createCutEliminationBridges(),
+      ...createConsoleBridges(),
+    ];
+    if (workspaceCommandHandler) {
+      all.push(...createWorkspaceBridges(workspaceCommandHandler));
+    }
+    return all;
+  }, [createConsoleBridges, workspaceCommandHandler]);
 
   // ── コンソール初期化コード ────────────────────────────────
 
@@ -249,12 +248,7 @@ declare var console: {
         return next;
       });
     }
-  }, [
-    state.executionStatus,
-    state.code,
-    buildAllBridges,
-    consoleShimCode,
-  ]);
+  }, [state.executionStatus, state.code, buildAllBridges, consoleShimCode]);
 
   // ── 自動再生の1ステップ実行 ──────────────────────────────────
 
@@ -301,12 +295,7 @@ declare var console: {
     }
 
     setIsAutoPlaying(true);
-  }, [
-    state.executionStatus,
-    state.code,
-    buildAllBridges,
-    consoleShimCode,
-  ]);
+  }, [state.executionStatus, state.code, buildAllBridges, consoleShimCode]);
 
   // ── Pause (自動再生停止) ─────────────────────────────────────
 

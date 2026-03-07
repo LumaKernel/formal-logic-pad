@@ -13,9 +13,11 @@ import type { ScriptRunnerInstance, ScriptRunResult } from "./scriptRunner";
 const createMockHandler = (): WorkspaceCommandHandler => ({
   addNode: vi.fn().mockReturnValue("node-1"),
   setNodeFormula: vi.fn(),
-  getNodes: vi.fn().mockReturnValue([
-    { id: "node-1", formulaText: "phi", label: "Axiom", x: 0, y: 0 },
-  ]),
+  getNodes: vi
+    .fn()
+    .mockReturnValue([
+      { id: "node-1", formulaText: "phi", label: "Axiom", x: 0, y: 0 },
+    ]),
   connectMP: vi.fn().mockReturnValue("node-2"),
   addGoal: vi.fn(),
   removeNode: vi.fn(),
@@ -35,10 +37,7 @@ const getRunner = (
   return result;
 };
 
-const runCode = (
-  code: string,
-  handler: WorkspaceCommandHandler,
-): unknown => {
+const runCode = (code: string, handler: WorkspaceCommandHandler): unknown => {
   const bridges = createWorkspaceBridges(handler);
   const raw = createScriptRunner(code, { bridges, maxSteps: 100_000 });
   const runner = getRunner(raw);
@@ -139,10 +138,7 @@ describe("getNodes ブリッジ", () => {
 describe("connectMP ブリッジ", () => {
   it("2ノードをMPで接続し結論ノードIDを返す", () => {
     const handler = createMockHandler();
-    const result = runCode(
-      `connectMP("node-1", "node-2")`,
-      handler,
-    );
+    const result = runCode(`connectMP("node-1", "node-2")`, handler);
     expect(result).toBe("node-2");
     expect(handler.connectMP).toHaveBeenCalledWith("node-1", "node-2");
   });

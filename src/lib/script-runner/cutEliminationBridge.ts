@@ -248,16 +248,14 @@ export const decodeScProofNode = (input: unknown): ScProofNode => {
         _tag: "ScExchangeLeft",
         conclusion,
         premise: decodeScProofNode(obj["premise"]),
-        position:
-          typeof obj["position"] === "number" ? obj["position"] : 0,
+        position: typeof obj["position"] === "number" ? obj["position"] : 0,
       };
     case "ScExchangeRight":
       return {
         _tag: "ScExchangeRight",
         conclusion,
         premise: decodeScProofNode(obj["premise"]),
-        position:
-          typeof obj["position"] === "number" ? obj["position"] : 0,
+        position: typeof obj["position"] === "number" ? obj["position"] : 0,
       };
     case "ScImplicationLeft":
       return {
@@ -375,8 +373,7 @@ const eliminateCutsWithStepsFn = (
   maxStepsArg?: unknown,
 ): unknown => {
   const proof = decodeScProofNode(proofJson);
-  const maxSteps =
-    typeof maxStepsArg === "number" ? maxStepsArg : undefined;
+  const maxSteps = typeof maxStepsArg === "number" ? maxStepsArg : undefined;
   const { result, steps } = eliminateCutsWithSteps(proof, { maxSteps });
 
   const encodeStep = (step: CutEliminationStep): unknown => ({
@@ -452,7 +449,7 @@ export const CUT_ELIMINATION_BRIDGE_API_DEFS: readonly ProofBridgeApiDef[] = [
     name: "formatSequent",
     signature: "(sequent: SequentJson) => string",
     description:
-      "Sequent JSON を Unicode テキスト表現に変換する。例: \"φ, ψ ⇒ χ\"",
+      'Sequent JSON を Unicode テキスト表現に変換する。例: "φ, ψ ⇒ χ"',
   },
   {
     name: "eliminateCutsWithSteps",

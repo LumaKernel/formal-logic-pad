@@ -72,111 +72,79 @@ describe("encodeScProofNode / decodeScProofNode", () => {
 
   it("ScWeakeningLeft のラウンドトリップ", () => {
     const premise = scIdentity(sequent([phi], [phi]));
-    roundTrip(
-      scWeakeningLeft(premise, psi, sequent([psi, phi], [phi])),
-    );
+    roundTrip(scWeakeningLeft(premise, psi, sequent([psi, phi], [phi])));
   });
 
   it("ScWeakeningRight のラウンドトリップ", () => {
     const premise = scIdentity(sequent([phi], [phi]));
-    roundTrip(
-      scWeakeningRight(premise, psi, sequent([phi], [phi, psi])),
-    );
+    roundTrip(scWeakeningRight(premise, psi, sequent([phi], [phi, psi])));
   });
 
   it("ScContractionLeft のラウンドトリップ", () => {
     const premise = scIdentity(sequent([phi, phi], [phi]));
-    roundTrip(
-      scContractionLeft(premise, phi, sequent([phi], [phi])),
-    );
+    roundTrip(scContractionLeft(premise, phi, sequent([phi], [phi])));
   });
 
   it("ScContractionRight のラウンドトリップ", () => {
     const premise = scIdentity(sequent([phi], [phi, phi]));
-    roundTrip(
-      scContractionRight(premise, phi, sequent([phi], [phi])),
-    );
+    roundTrip(scContractionRight(premise, phi, sequent([phi], [phi])));
   });
 
   it("ScExchangeLeft のラウンドトリップ", () => {
     const premise = scIdentity(sequent([psi, phi], [phi]));
-    roundTrip(
-      scExchangeLeft(premise, 0, sequent([phi, psi], [phi])),
-    );
+    roundTrip(scExchangeLeft(premise, 0, sequent([phi, psi], [phi])));
   });
 
   it("ScExchangeRight のラウンドトリップ", () => {
     const premise = scIdentity(sequent([phi], [psi, phi]));
-    roundTrip(
-      scExchangeRight(premise, 0, sequent([phi], [phi, psi])),
-    );
+    roundTrip(scExchangeRight(premise, 0, sequent([phi], [phi, psi])));
   });
 
   it("ScImplicationLeft のラウンドトリップ", () => {
     const left = scIdentity(sequent([phi], [phi]));
     const right = scIdentity(sequent([psi], [psi]));
     roundTrip(
-      scImplicationLeft(
-        left,
-        right,
-        sequent([phiImplPsi, phi], [psi]),
-      ),
+      scImplicationLeft(left, right, sequent([phiImplPsi, phi], [psi])),
     );
   });
 
   it("ScImplicationRight のラウンドトリップ", () => {
     const premise = scIdentity(sequent([phi], [psi]));
-    roundTrip(
-      scImplicationRight(premise, sequent([], [phiImplPsi])),
-    );
+    roundTrip(scImplicationRight(premise, sequent([], [phiImplPsi])));
   });
 
   it("ScConjunctionLeft のラウンドトリップ", () => {
     const premise = scIdentity(sequent([phi], [phi]));
-    roundTrip(
-      scConjunctionLeft(premise, 1, sequent([phiAndPsi], [phi])),
-    );
+    roundTrip(scConjunctionLeft(premise, 1, sequent([phiAndPsi], [phi])));
   });
 
   it("ScConjunctionLeft componentIndex=2 のラウンドトリップ", () => {
     const premise = scIdentity(sequent([psi], [psi]));
-    roundTrip(
-      scConjunctionLeft(premise, 2, sequent([phiAndPsi], [psi])),
-    );
+    roundTrip(scConjunctionLeft(premise, 2, sequent([phiAndPsi], [psi])));
   });
 
   it("ScConjunctionRight のラウンドトリップ", () => {
     const left = scIdentity(sequent([phi], [phi]));
     const right = scIdentity(sequent([psi], [psi]));
     roundTrip(
-      scConjunctionRight(
-        left,
-        right,
-        sequent([phi, psi], [phiAndPsi]),
-      ),
+      scConjunctionRight(left, right, sequent([phi, psi], [phiAndPsi])),
     );
   });
 
   it("ScDisjunctionLeft のラウンドトリップ", () => {
     const left = scIdentity(sequent([phi], [chi]));
     const right = scIdentity(sequent([psi], [chi]));
-    roundTrip(
-      scDisjunctionLeft(left, right, sequent([phiOrPsi], [chi])),
-    );
+    roundTrip(scDisjunctionLeft(left, right, sequent([phiOrPsi], [chi])));
   });
 
   it("ScDisjunctionRight のラウンドトリップ", () => {
     const premise = scIdentity(sequent([phi], [phi]));
-    roundTrip(
-      scDisjunctionRight(premise, 1, sequent([phi], [phiOrPsi])),
-    );
+    roundTrip(scDisjunctionRight(premise, 1, sequent([phi], [phiOrPsi])));
   });
 
   it("ScDisjunctionRight componentIndex=2 のラウンドトリップ", () => {
     const premise = scIdentity(sequent([psi], [psi]));
-    roundTrip(
-      scDisjunctionRight(premise, 2, sequent([psi], [phiOrPsi])),
-    );
+    roundTrip(scDisjunctionRight(premise, 2, sequent([psi], [phiOrPsi])));
   });
 
   it("ScUniversalLeft のラウンドトリップ", () => {
@@ -327,32 +295,21 @@ describe("createCutEliminationBridges", () => {
       const result = fn(json) as Record<string, unknown>;
       expect(result).toHaveProperty("antecedents");
       expect(result).toHaveProperty("succedents");
-      expect(
-        (result["antecedents"] as readonly unknown[]).length,
-      ).toBe(1);
-      expect(
-        (result["succedents"] as readonly unknown[]).length,
-      ).toBe(1);
+      expect((result["antecedents"] as readonly unknown[]).length).toBe(1);
+      expect((result["succedents"] as readonly unknown[]).length).toBe(1);
     });
   });
 
   describe("eliminateCutsWithSteps", () => {
-    const fn = bridges.find(
-      (b) => b.name === "eliminateCutsWithSteps",
-    )!.fn;
+    const fn = bridges.find((b) => b.name === "eliminateCutsWithSteps")!.fn;
 
     it("カットフリー証明でステップなし", () => {
       const proof = scIdentity(sequent([phi], [phi]));
-      const result = fn(encodeScProofNode(proof)) as Record<
-        string,
-        unknown
-      >;
-      expect(
-        (result["result"] as Record<string, unknown>)["_tag"],
-      ).toBe("Success");
-      expect(
-        (result["steps"] as readonly unknown[]).length,
-      ).toBe(0);
+      const result = fn(encodeScProofNode(proof)) as Record<string, unknown>;
+      expect((result["result"] as Record<string, unknown>)["_tag"]).toBe(
+        "Success",
+      );
+      expect((result["steps"] as readonly unknown[]).length).toBe(0);
     });
 
     it("カットを含む証明でカット除去が実行される", () => {
@@ -363,21 +320,16 @@ describe("createCutEliminationBridges", () => {
       const right = scIdentity(sequent([phi], [phi]));
       const proof = scCut(left, right, phi, sequent([phi], [phi]));
 
-      const result = fn(encodeScProofNode(proof)) as Record<
-        string,
-        unknown
-      >;
-      expect(
-        (result["result"] as Record<string, unknown>)["_tag"],
-      ).toBe("Success");
+      const result = fn(encodeScProofNode(proof)) as Record<string, unknown>;
+      expect((result["result"] as Record<string, unknown>)["_tag"]).toBe(
+        "Success",
+      );
       // 結果の証明はカットフリー
-      const resultProof = (
-        result["result"] as Record<string, unknown>
-      )["proof"];
+      const resultProof = (result["result"] as Record<string, unknown>)[
+        "proof"
+      ];
       const bridges2 = createCutEliminationBridges();
-      const isCutFreeFn2 = bridges2.find(
-        (b) => b.name === "isCutFree",
-      )!.fn;
+      const isCutFreeFn2 = bridges2.find((b) => b.name === "isCutFree")!.fn;
       expect(isCutFreeFn2(resultProof)).toBe(true);
     });
 
@@ -390,9 +342,9 @@ describe("createCutEliminationBridges", () => {
         string,
         unknown
       >;
-      expect(
-        (result["result"] as Record<string, unknown>)["_tag"],
-      ).toBe("Success");
+      expect((result["result"] as Record<string, unknown>)["_tag"]).toBe(
+        "Success",
+      );
     });
 
     it("maxSteps=0 で StepLimitExceeded になる", () => {
@@ -400,10 +352,7 @@ describe("createCutEliminationBridges", () => {
       const right = scIdentity(sequent([phi], [phi]));
       const proof = scCut(left, right, phi, sequent([phi], [phi]));
 
-      const result = fn(encodeScProofNode(proof), 0) as Record<
-        string,
-        unknown
-      >;
+      const result = fn(encodeScProofNode(proof), 0) as Record<string, unknown>;
       const resultObj = result["result"] as Record<string, unknown>;
       expect(resultObj["_tag"]).toBe("StepLimitExceeded");
       expect(resultObj).toHaveProperty("proof");
@@ -435,9 +384,7 @@ describe("generateCutEliminationBridgeTypeDefs", () => {
 
 describe("カット除去ブリッジ スクリプト統合", () => {
   it("スクリプトからカット除去APIを呼べる", () => {
-    const b = [
-      ...createCutEliminationBridges(),
-    ];
+    const b = [...createCutEliminationBridges()];
     const code = `
       var proof = {
         _tag: "ScIdentity",
@@ -453,7 +400,9 @@ describe("カット除去ブリッジ スクリプト統合", () => {
     if ("run" in runner) {
       const result = runner.run();
       if (result._tag === "Error") {
-        throw new Error(`Script error: ${JSON.stringify(result.error) satisfies string}`);
+        throw new Error(
+          `Script error: ${JSON.stringify(result.error) satisfies string}`,
+        );
       }
       expect(result._tag).toBe("Ok");
       if (result._tag === "Ok") {
@@ -463,9 +412,7 @@ describe("カット除去ブリッジ スクリプト統合", () => {
   });
 
   it("スクリプトからカット除去を実行できる", () => {
-    const b = [
-      ...createCutEliminationBridges(),
-    ];
+    const b = [...createCutEliminationBridges()];
     const code = `
       var idProof = {
         _tag: "ScIdentity",
@@ -491,7 +438,9 @@ describe("カット除去ブリッジ スクリプト統合", () => {
     if ("run" in runner) {
       const result = runner.run();
       if (result._tag === "Error") {
-        throw new Error(`Script error: ${JSON.stringify(result.error) satisfies string}`);
+        throw new Error(
+          `Script error: ${JSON.stringify(result.error) satisfies string}`,
+        );
       }
       expect(result._tag).toBe("Ok");
       if (result._tag === "Ok") {
