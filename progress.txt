@@ -9155,3 +9155,26 @@
   - CompatibilityResult は全タグで isCallable=true（仕様）。スタイル不一致でも呼び出し可能（ユーザーに警告を出す用途）
   - 後続タスク: useProofCollectionフック（StorageService統合）、UI統合（メニュー・証明リスト・フォルダ管理）、ノードメニューからの証明挿入
 ---
+
+## 2026-03-07 - [proof-collection] useProofCollectionフック（localStorage永続化）
+- 実装した内容:
+  - useProofCollection React hook: localStorage永続化付きの証明コレクション管理
+  - localStorage adapter: loadProofCollection / saveProofCollection (純粋関数)
+  - 全CRUD操作のuseCallbackラッパー: addEntry, removeEntry, renameEntry, updateMemo, moveEntry, createFolder, removeFolder, renameFolder
+  - useMemoで派生データを提供: entries（更新日時降順）、folders（名前順）
+  - getNow DI パターンでテスト時の時刻制御
+  - index.ts にhook・adapter・型のエクスポートを追加
+- 変更したファイル:
+  - `src/lib/proof-collection/useProofCollection.ts` (新規: React hook + localStorage adapter)
+  - `src/lib/proof-collection/useProofCollection.test.tsx` (新規: 18テスト)
+  - `src/lib/proof-collection/index.ts` (エクスポート追加)
+- カバレッジ: ベースライン Stmts 99.10% / Branch 94.06% → 完了後 Stmts 99.10% / Branch 94.06% (維持)、proof-collection 100%/100%/100%/100%
+- テスト: 7598 → 7616 passed (+18、ファイル225→226)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Playwright MCPでStorybook確認（hookのみのためUIストーリーなし）。スクリーンショット: .screenshots/proof-collection-hook-storybook-check.png
+- **今後のイテレーションへの学び:**
+  - useNotebookCollection.ts のパターンをそのまま踏襲。useState初期化でload、useEffectでsave
+  - ProofNodeKind は "axiom" | "conclusion"（"formula" ではない）。テストデータの kind 値に注意
+  - 同一 act() 内で createFolder + addEntry(folderId) を呼ぶと、setCollectionのバッチ更新でfolderIdが反映されないことがある。別の act() に分けるのが安全
+  - 後続タスク: UI統合（ProofWorkspaceのメニューからの証明保存・呼び出し）、ノードメニューからの証明挿入
+---
