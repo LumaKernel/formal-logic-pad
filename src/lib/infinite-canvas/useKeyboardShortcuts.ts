@@ -20,6 +20,8 @@ export type KeyboardShortcutCallbacks = {
   readonly onOpenSearch?: () => void;
   /** Called when command palette is triggered (/) */
   readonly onOpenCommandPalette?: () => void;
+  /** Called when tree layout is triggered (Cmd/Ctrl+Shift+L) */
+  readonly onTreeLayout?: () => void;
 };
 
 /** Minimal keyboard event interface used by the hook.
@@ -82,6 +84,9 @@ export function useKeyboardShortcuts(
           return true;
         case "open-command-palette":
           callbacks.onOpenCommandPalette?.();
+          return true;
+        case "tree-layout":
+          callbacks.onTreeLayout?.();
           return true;
         case "enter-space-pan":
           setIsSpacePanActive(true);

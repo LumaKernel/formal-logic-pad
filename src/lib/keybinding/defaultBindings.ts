@@ -32,7 +32,8 @@ export type CanvasAction =
   | "zoom-to-selection"
   | "open-search"
   | "open-command-palette"
-  | "enter-space-pan";
+  | "enter-space-pan"
+  | "tree-layout";
 
 /** Default keybinding map for the canvas workspace.
  *
@@ -74,4 +75,7 @@ export const DEFAULT_CANVAS_BINDINGS: KeyBindingMap<CanvasAction> = [
 
   // Space pan mode
   { action: "enter-space-pan", binding: specialKey("space") },
+
+  // Tree layout (Cmd/Ctrl+Shift+L)
+  { action: "tree-layout", binding: charKey("l", "mod", "shift") },
 ];

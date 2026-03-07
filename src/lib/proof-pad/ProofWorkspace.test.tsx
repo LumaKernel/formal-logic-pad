@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   lukasiewiczSystem,
@@ -2696,95 +2696,28 @@ describe("ProofWorkspace", () => {
     });
   });
 
-  describe("auto layout toggle", () => {
-    it("shows auto layout toggle in header", () => {
-      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
-      expect(
-        screen.getByTestId("workspace-auto-layout-toggle"),
-      ).toBeInTheDocument();
-    });
-
-    it("direction selector appears when auto layout is enabled", async () => {
-      const user = userEvent.setup();
-      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
-
-      expect(
-        screen.queryByTestId("workspace-auto-layout-direction"),
-      ).not.toBeInTheDocument();
-
-      const toggle = screen.getByTestId("workspace-auto-layout-toggle");
-      await user.click(toggle);
-
-      expect(
-        screen.getByTestId("workspace-auto-layout-direction"),
-      ).toBeInTheDocument();
-    });
-
-    it("applies incremental layout when axiom is added with auto layout enabled", async () => {
-      const user = userEvent.setup();
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
-
-      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
-
-      // Enable auto layout
-      const toggle = screen.getByTestId("workspace-auto-layout-toggle");
-      await user.click(toggle);
-
-      // The toggle should be checked
-      expect(toggle).toBeChecked();
-
-      // Add an axiom by clicking the first palette item
-      const paletteItems = screen.getAllByRole("button", { name: /A1/i });
-      if (paletteItems.length > 0) {
-        await user.click(paletteItems[0]!);
-      }
-    });
-
-    it("auto layout enabled but node/connection count unchanged skips layout (SC identity)", async () => {
-      const user = userEvent.setup();
-      let ws = createEmptyWorkspace(sequentCalculusDeduction(lkSystem));
-      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "phi ⇒ phi");
-
-      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
-
-      // Enable auto layout
-      const toggle = screen.getByTestId("workspace-auto-layout-toggle");
-      await user.click(toggle);
-      expect(toggle).toBeChecked();
-
-      // Apply SC identity rule (axiom — no premise nodes or connections added)
-      await user.click(
-        screen.getByTestId("workspace-sc-rule-palette-rule-identity"),
+  describe("tree layout via context menu", () => {
+    it("shows tree layout options in canvas context menu", async () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const { container } = render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
       );
-      await user.click(screen.getByTestId("proof-node-node-1"));
 
-      await waitFor(() => {
-        expect(
-          screen.queryByTestId("workspace-sc-banner"),
-        ).not.toBeInTheDocument();
+      // キャンバスコンテナ上で右クリック
+      const canvas = container.querySelector("[data-testid='workspace']")!;
+      await userEvent.pointer({
+        target: canvas,
+        keys: "[MouseRight]",
+        coords: { clientX: 300, clientY: 200 },
       });
-    });
 
-    it("changes layout direction via direction selector", async () => {
-      const user = userEvent.setup();
-      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
-
-      // Enable auto layout first
-      const toggle = screen.getByTestId("workspace-auto-layout-toggle");
-      await user.click(toggle);
-
-      // Direction selector should appear
-      const directionSelect = screen.getByTestId(
-        "workspace-auto-layout-direction",
-      );
-      expect(directionSelect).toBeInTheDocument();
-
-      // Change direction to bottom-to-top
-      fireEvent.change(directionSelect, {
-        target: { value: "bottom-to-top" },
-      });
-      expect(directionSelect).toHaveValue("bottom-to-top");
+      // コンテキストメニューが開き、ツリー整列項目が表示される
+      expect(
+        screen.getByTestId("workspace-canvas-menu-tree-layout-tb"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-canvas-menu-tree-layout-bt"),
+      ).toBeInTheDocument();
     });
   });
 

@@ -127,6 +127,18 @@ describe("DEFAULT_CANVAS_BINDINGS", () => {
     expect(matchAction({ key: " " })).toBe("enter-space-pan");
   });
 
+  it("Cmd+Shift+L で tree-layout (macOS)", () => {
+    expect(
+      matchAction({ key: "l", metaKey: true, shiftKey: true }, "mac"),
+    ).toBe("tree-layout");
+  });
+
+  it("Ctrl+Shift+L で tree-layout (Windows)", () => {
+    expect(
+      matchAction({ key: "l", ctrlKey: true, shiftKey: true }, "windows"),
+    ).toBe("tree-layout");
+  });
+
   it("無関係なキーは null", () => {
     expect(matchAction({ key: "a" })).toBe(null);
     expect(matchAction({ key: "Enter" })).toBe(null);

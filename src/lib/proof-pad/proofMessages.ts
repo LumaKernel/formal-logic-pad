@@ -81,9 +81,8 @@ export type ProofMessages = {
   readonly questBadge: string;
   readonly convertToFree: string;
   readonly duplicateToFree: string;
-  readonly autoLayout: string;
-  readonly layoutTopToBottom: string;
-  readonly layoutBottomToTop: string;
+  readonly treeLayoutTopToBottom: string;
+  readonly treeLayoutBottomToTop: string;
   readonly exportJSON: string;
   readonly exportSVG: string;
   readonly exportPNG: string;
@@ -332,9 +331,8 @@ export const defaultProofMessages: ProofMessages = {
   questBadge: "Quest",
   convertToFree: "Convert to Free",
   duplicateToFree: "Duplicate as Free",
-  autoLayout: "Auto Layout",
-  layoutTopToBottom: "Top\u2192Bottom",
-  layoutBottomToTop: "Bottom\u2192Top",
+  treeLayoutTopToBottom: "Tree Layout (Top\u2192Bottom)",
+  treeLayoutBottomToTop: "Tree Layout (Bottom\u2192Top)",
   exportJSON: "Export JSON",
   exportSVG: "Export SVG",
   exportPNG: "Export PNG",

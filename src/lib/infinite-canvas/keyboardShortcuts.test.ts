@@ -487,6 +487,38 @@ describe("classifyKeyDown", () => {
     });
   });
 
+  describe("ツリーレイアウト", () => {
+    it("Cmd+Shift+L で tree-layout", () => {
+      const action = classifyKeyDown(
+        makeKeyEvent({ key: "l", metaKey: true, shiftKey: true }),
+        DEFAULT_VIEWPORT,
+        CONTAINER_SIZE,
+        false,
+      );
+      expect(action).toEqual({ type: "tree-layout" });
+    });
+
+    it("Ctrl+Shift+L で tree-layout", () => {
+      const action = classifyKeyDown(
+        makeKeyEvent({ key: "l", ctrlKey: true, shiftKey: true }),
+        DEFAULT_VIEWPORT,
+        CONTAINER_SIZE,
+        false,
+      );
+      expect(action).toEqual({ type: "tree-layout" });
+    });
+
+    it("Shift+L（modなし）は none", () => {
+      const action = classifyKeyDown(
+        makeKeyEvent({ key: "L", shiftKey: true }),
+        DEFAULT_VIEWPORT,
+        CONTAINER_SIZE,
+        false,
+      );
+      expect(action).toEqual({ type: "none" });
+    });
+  });
+
   describe("無関係なキー", () => {
     it("'a' は none", () => {
       const action = classifyKeyDown(
