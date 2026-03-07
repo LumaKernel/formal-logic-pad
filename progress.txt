@@ -9600,3 +9600,35 @@
   - `InferenceRuleId` は `InferenceEdge["_tag"]` で定義することで、edge型追加時に自動追従する
   - `ALL_INFERENCE_RULE_IDS` 配列に `satisfies readonly InferenceRuleId[]` を付けることでコンパイル時に網羅性を検証
 ---
+
+## 2026-03-07 - [custom-quest] 自作クエストの保存・管理の純粋ロジック層
+- 実装内容:
+  - `customQuestState.ts` を新規作成: 自作クエストのCRUD操作（add/update/remove/duplicate）、バリデーション、シリアライゼーション/デシリアライゼーション
+  - カスタムクエストIDは `custom-` プレフィックスで管理（`isCustomQuestId` で判定）
+  - `generateCustomQuestId(now)` でタイムスタンプベースのID自動生成
+  - `mergeWithBuiltinQuests` でビルトインとカスタムを統合
+  - バリデーション: EmptyTitle / EmptyGoals / DuplicateId の3種の結果型
+  - シリアライゼーション: JSON互換の中間表現を経由（questProgress.tsと同パターン）
+  - デシリアライゼーション: 不正データに対する防御的パース（各フィールドの型チェック）
+  - `CUSTOM_QUEST_STORAGE_KEY = "custom-quests"` でlocalStorage保存先を定義
+  - `index.ts` に全エクスポートを追加
+  - `prd-scripted-proof-rewriting.md` を全完了でアーカイブ
+- テスト追加:
+  - `customQuestState.test.ts`: 59テスト（ID管理、バリデーション、CRUD、複製、クエリ、マージ、シリアライゼーション、複合シナリオ）
+- 変更ファイル:
+  - src/lib/quest/customQuestState.ts（新規）
+  - src/lib/quest/customQuestState.test.ts（新規）
+  - src/lib/quest/index.ts
+  - tasks/prd-custom-quests.md
+  - tasks-archived/prd-scripted-proof-rewriting.md
+  - task-processing.md
+- カバレッジ: Stmts 98.82%→98.75%, Branch 93.22%→93.09%, Funcs 89.17%→88.86%, Lines 99.66%→99.66%
+  - customQuestState.ts単体: Stmts 95.49%, Branch 92.04%, Funcs 100%, Lines 100%（全体スイートではV8マージquirkで低く出る）
+- テスト数: 7892→7951 (+59)
+- **今後のイテレーションへの学び:**
+  - AxiomId/InferenceRuleIdは文字列リテラル型。デシリアライズ時に `as AxiomId` キャストが必要
+  - `parseStringArray` は1つでも非文字列があると全体をundefinedで返す（厳密パース）。寛容パースが必要なら別関数を用意する
+  - `CUSTOM_QUEST_ID_PREFIX` を使うことで、ビルトインとカスタムのID衝突を構造的に防止
+  - 自作クエストの `order` はデフォルト0。カタログ表示時にはビルトインの後に並ぶ
+  - V8カバレッジマージquirk: 単体で100%のFuncsが全体スイートでは55%になることがある（既知の問題）
+---
