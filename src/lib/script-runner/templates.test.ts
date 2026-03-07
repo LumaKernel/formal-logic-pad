@@ -1,0 +1,135 @@
+import { describe, it, expect } from "vitest";
+import { BUILTIN_TEMPLATES } from "./templates";
+import type { ScriptTemplate } from "./templates";
+import { createScriptRunner } from "./scriptRunner";
+import { createProofBridges } from "./proofBridge";
+import { createCutEliminationBridges } from "./cutEliminationBridge";
+import type { NativeFunctionBridge } from "./scriptRunner";
+
+describe("BUILTIN_TEMPLATES", () => {
+  it("3つのテンプレートを含む", () => {
+    expect(BUILTIN_TEMPLATES).toHaveLength(3);
+  });
+
+  it("各テンプレートが必須フィールドを持つ", () => {
+    for (const tmpl of BUILTIN_TEMPLATES) {
+      expect(tmpl.id).toBeTruthy();
+      expect(tmpl.title).toBeTruthy();
+      expect(tmpl.description).toBeTruthy();
+      expect(tmpl.code).toBeTruthy();
+    }
+  });
+
+  it("IDが一意", () => {
+    const ids = BUILTIN_TEMPLATES.map((t) => t.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+
+describe("テンプレート実行テスト", () => {
+  const consoleLogs: string[] = [];
+  const consoleBridges: readonly NativeFunctionBridge[] = [
+    {
+      name: "console_log",
+      fn: (...args: readonly unknown[]) => {
+        consoleLogs.push(args.map(String).join(" "));
+      },
+    },
+    {
+      name: "console_error",
+      fn: (...args: readonly unknown[]) => {
+        consoleLogs.push(`ERROR: ${args.map(String).join(" ") satisfies string}`);
+      },
+    },
+    {
+      name: "console_warn",
+      fn: (...args: readonly unknown[]) => {
+        consoleLogs.push(`WARN: ${args.map(String).join(" ") satisfies string}`);
+      },
+    },
+  ];
+
+  const consoleShim = `
+    var console = {
+      log: function() {
+        var args = [];
+        for (var i = 0; i < arguments.length; i++) { args.push(arguments[i]); }
+        console_log.apply(null, args);
+      },
+      error: function() {
+        var args = [];
+        for (var i = 0; i < arguments.length; i++) { args.push(arguments[i]); }
+        console_error.apply(null, args);
+      },
+      warn: function() {
+        var args = [];
+        for (var i = 0; i < arguments.length; i++) { args.push(arguments[i]); }
+        console_warn.apply(null, args);
+      }
+    };
+  `;
+
+  const runTemplate = (tmpl: ScriptTemplate) => {
+    consoleLogs.length = 0;
+    const bridges = [
+      ...createProofBridges(),
+      ...createCutEliminationBridges(),
+      ...consoleBridges,
+    ];
+    const code = consoleShim + tmpl.code;
+    const runner = createScriptRunner(code, {
+      bridges,
+      maxSteps: 50000,
+    });
+    if ("run" in runner) {
+      return runner.run();
+    }
+    return runner;
+  };
+
+  it("cut-elimination-simple: 正常に実行される", () => {
+    const tmpl = BUILTIN_TEMPLATES.find(
+      (t) => t.id === "cut-elimination-simple",
+    )!;
+    const result = runTemplate(tmpl);
+    if (result._tag === "Error") {
+      throw new Error(
+        `Template failed: ${JSON.stringify(result.error) satisfies string}`,
+      );
+    }
+    expect(result._tag).toBe("Ok");
+    expect(consoleLogs.some((l) => l.includes("カット数"))).toBe(true);
+    expect(consoleLogs.some((l) => l.includes("Success"))).toBe(true);
+  });
+
+  it("cut-elimination-implication: 正常に実行される", () => {
+    const tmpl = BUILTIN_TEMPLATES.find(
+      (t) => t.id === "cut-elimination-implication",
+    )!;
+    const result = runTemplate(tmpl);
+    if (result._tag === "Error") {
+      throw new Error(
+        `Template failed: ${JSON.stringify(result.error) satisfies string}`,
+      );
+    }
+    expect(result._tag).toBe("Ok");
+    expect(consoleLogs.some((l) => l.includes("カット除去定理の実演"))).toBe(
+      true,
+    );
+    expect(consoleLogs.some((l) => l.includes("Success"))).toBe(true);
+  });
+
+  it("build-identity-proof: 正常に実行される", () => {
+    const tmpl = BUILTIN_TEMPLATES.find(
+      (t) => t.id === "build-identity-proof",
+    )!;
+    const result = runTemplate(tmpl);
+    if (result._tag === "Error") {
+      throw new Error(
+        `Template failed: ${JSON.stringify(result.error) satisfies string}`,
+      );
+    }
+    expect(result._tag).toBe("Ok");
+    expect(consoleLogs.some((l) => l.includes("Q.E.D."))).toBe(true);
+  });
+});

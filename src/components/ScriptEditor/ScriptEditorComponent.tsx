@@ -18,7 +18,11 @@ import {
   isScriptRunResult,
   createWorkspaceBridges,
   generateWorkspaceBridgeTypeDefs,
+  createCutEliminationBridges,
+  generateCutEliminationBridgeTypeDefs,
 } from "@/lib/script-runner";
+import { BUILTIN_TEMPLATES } from "@/lib/script-runner/templates";
+import type { ScriptTemplate } from "@/lib/script-runner/templates";
 import type {
   NativeFunctionBridge,
   ScriptRunnerInstance,
@@ -112,6 +116,7 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
     useCallback((): readonly NativeFunctionBridge[] => {
       const all: NativeFunctionBridge[] = [
         ...createProofBridges(),
+        ...createCutEliminationBridges(),
         ...createConsoleBridges(),
       ];
       if (workspaceCommandHandler) {
@@ -144,6 +149,7 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
 
     const typeDefs = generateProofBridgeTypeDefs();
     const workspaceTypeDefs = generateWorkspaceBridgeTypeDefs();
+    const cutEliminationTypeDefs = generateCutEliminationBridgeTypeDefs();
     const consoleTypeDefs = `
 declare var console: {
   log(...args: unknown[]): void;
@@ -152,7 +158,7 @@ declare var console: {
 };
 `;
     monaco.languages.typescript.javascriptDefaults.addExtraLib(
-      typeDefs + workspaceTypeDefs + consoleTypeDefs,
+      typeDefs + workspaceTypeDefs + cutEliminationTypeDefs + consoleTypeDefs,
       "file:///proof-bridge.d.ts",
     );
   }, []);
@@ -432,6 +438,17 @@ declare var console: {
     }
   }, [state.currentLocation, consoleShimLineCount]);
 
+  // ── テンプレートロード ─────────────────────────────────────────
+
+  const handleLoadTemplate = useCallback(
+    (template: ScriptTemplate) => {
+      handleReset();
+      setState((prev) => updateCode(prev, template.code));
+      onCodeChange?.(template.code);
+    },
+    [handleReset, onCodeChange],
+  );
+
   // ── ステータスの CSS クラス ─────────────────────────────────────
 
   const statusClassName = (() => {
@@ -470,6 +487,22 @@ declare var console: {
           onChange={handleChange}
           options={defaultEditorOptions}
         />
+      </div>
+
+      <div className={styles["templateBar"]} data-testid="template-bar">
+        <span className={styles["templateLabel"]}>Templates:</span>
+        {BUILTIN_TEMPLATES.map((tmpl) => (
+          <button
+            key={tmpl.id}
+            type="button"
+            className={styles["templateButton"]}
+            onClick={() => handleLoadTemplate(tmpl)}
+            title={tmpl.description}
+            data-testid={`template-${tmpl.id satisfies string}`}
+          >
+            {tmpl.title}
+          </button>
+        ))}
       </div>
 
       <div className={styles["toolbar"]} data-testid="script-editor-toolbar">
