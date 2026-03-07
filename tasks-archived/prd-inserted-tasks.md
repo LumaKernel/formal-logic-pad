@@ -206,3 +206,5 @@ Infinity Canvasについて。
 - [x] セレクションのメニューに「ペースト」は必要だろうか？ → 既にセレクションバナーにペーストボタン実装済み。追加不要。
 - [x] セレクションしながら一個を移動したら、選択されてるすべてが同時に相対的な位置を保って平行に移動することを期待するのが通常だろう。ストーリーと機能追加を。
   - workspaceState.ts に `updateMultipleNodePositions` 純粋関数を追加。ProofWorkspace.tsx の `handlePositionChange` をマルチドラッグ対応に修正。MultiSelectionDrag ストーリー追加。Playwright MCP でブラウザ動作確認済み。
+- [x] クエストを自由帳に変換したら、ゴール一覧は消えるべきだろうし、そもそも適切にdiscriminated unionにして存在すらそもそもできないようにするべきだろう。変換された自由帳は、かつてクエストであったことを完全に忘却すべきだ。
+  - convertToFreeMode でゴール一覧をクリア。Notebook型を FreeNotebook | QuestNotebook のdiscriminated unionに変更。isQuestNotebook / isFreeNotebook 型ガード関数追加。シリアライゼーション対応。テスト追加。

@@ -9028,3 +9028,28 @@
   - `force: true` クリックは innermost element にディスパッチされるため、wrapper div の onClick ハンドラには到達しない。`page.evaluate` で直接 `.click()` を呼ぶか、適切なセレクタを使う
   - マルチドラッグは既存の `useDragItem` フック（オフセットベース）を変更せず、`handlePositionChange` でdelta計算＋一括更新する設計が最小限の変更で実現できる
 ---
+
+## 2026-03-07 - [notebook] クエスト→自由帳変換のゴール削除とNotebook型discriminated union化
+- 実装した内容:
+  - `convertToFreeMode` でゴール一覧をクリア（変換後の自由帳はクエストの痕跡を完全に忘却）
+  - `Notebook` 型を `FreeNotebook | QuestNotebook` のdiscriminated unionに変更
+  - `isQuestNotebook` / `isFreeNotebook` 型ガード関数追加（TypeScript 5.5自動推論、明示的return type predicateなし）
+  - `createQuestNotebook` を条件分岐でFreeNotebook/QuestNotebook適切に構築するよう修正
+  - `notebookSerialization.ts` の `parseNotebook` を明示的if/elseでdiscriminated unionに対応
+  - テスト追加: ゴールクリア確認、型ガード関数テスト（4件追加）
+- 変更したファイル:
+  - `src/lib/proof-pad/workspaceState.ts` (convertToFreeMode: goals: [] 追加)
+  - `src/lib/proof-pad/workspaceState.test.ts` (テスト更新: ゴールクリア確認)
+  - `src/lib/notebook/notebookState.ts` (FreeNotebook/QuestNotebook型定義、型ガード追加)
+  - `src/lib/notebook/notebookState.test.ts` (テスト追加: 4件)
+  - `src/lib/notebook/notebookSerialization.ts` (parseNotebook修正)
+  - `src/lib/notebook/index.ts` (エクスポート追加)
+- カバレッジ: ベースライン Stmts 99.12% / Branch 94.05% → 完了後 Stmts 99.12% / Branch 94.08% (微増、低下なし)
+- テスト: 7466 → 7470 passed (+4)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Playwright MCPでStorybook確認。Goal Achieved/Quest Mode/Hub With Notebooksストーリー正常表示。スクリーンショット: .screenshots/goal-achieved-story.png, .screenshots/quest-mode-story.png, .screenshots/notebook-list-with-notebooks.png
+- **今後のイテレーションへの学び:**
+  - TypeScript discriminated unionでspreadベースのオブジェクト構築は型が正しく絞れない。明示的if/elseで分岐してリテラル型を保持する
+  - `@luma-dev/luma-ts/no-explicit-return-is` により型ガード関数はreturn type annotationなしで書く。TypeScript 5.5の自動推論に委ねる
+  - WorkspaceState自体の `goals` をモード別のdiscriminated unionにするのは影響範囲が大きい（50+ファイル）。Notebook型レベルでの型安全性確保が現実的なステップ
+---
