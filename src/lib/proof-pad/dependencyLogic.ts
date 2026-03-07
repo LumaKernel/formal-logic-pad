@@ -14,7 +14,7 @@ import { identifyAxiom } from "../logic-core/inferenceRule";
 import { parseString } from "../logic-lang/parser";
 import type { DependencyInfo } from "./EditableProofNode";
 import type { WorkspaceNode } from "./workspaceState";
-import type { InferenceEdge } from "./inferenceEdge";
+import type { InferenceEdge, InferenceRuleId } from "./inferenceEdge";
 import { getInferenceEdgePremiseNodeIds } from "./inferenceEdge";
 import { isTrivialAxiomSubstitution } from "./axiomNameLogic";
 
@@ -224,6 +224,52 @@ export function getNodeAxiomIds(
     }
   }
 
+  return result;
+}
+
+// --- 推論規則ID依存関係 ---
+
+/**
+ * あるノードの証明チェーンで使用されている推論規則IDの集合を返す。
+ *
+ * InferenceEdgeを逆方向に辿り、対象ノードから到達可能な全エッジの
+ * _tag（規則ID）を収集する。
+ *
+ * @param nodeId 対象ノードのID
+ * @param inferenceEdges ワークスペースの全推論エッジ
+ * @returns 使用されている推論規則IDの集合
+ */
+export function getNodeInferenceRuleIds(
+  nodeId: string,
+  inferenceEdges: readonly InferenceEdge[],
+): ReadonlySet<InferenceRuleId> {
+  const result = new Set<InferenceRuleId>();
+  const visited = new Set<string>();
+
+  // conclusionNodeId → InferenceEdge のマップを構築
+  const edgeByConclusionId = new Map<string, InferenceEdge>();
+  for (const edge of inferenceEdges) {
+    edgeByConclusionId.set(edge.conclusionNodeId, edge);
+  }
+
+  function traverse(currentId: string): void {
+    if (visited.has(currentId)) return;
+    visited.add(currentId);
+
+    const edge = edgeByConclusionId.get(currentId);
+    if (edge === undefined) return;
+
+    // この規則IDを収集
+    result.add(edge._tag);
+
+    // 前提ノードを再帰的に辿る
+    const premiseIds = getInferenceEdgePremiseNodeIds(edge);
+    for (const premiseId of premiseIds) {
+      traverse(premiseId);
+    }
+  }
+
+  traverse(nodeId);
   return result;
 }
 

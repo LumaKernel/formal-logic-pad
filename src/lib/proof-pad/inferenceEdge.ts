@@ -611,6 +611,12 @@ export type InferenceEdge =
   | AtInferenceEdge
   | ScInferenceEdge;
 
+/**
+ * 推論規則のID型。InferenceEdge の _tag 値と一致する。
+ * クエストゴールの allowedRuleIds で使用可能な規則を制限するために使用する。
+ */
+export type InferenceRuleId = InferenceEdge["_tag"];
+
 // ─── 判別ヘルパー ────────────────────────────────────────
 
 /** Hilbert系のエッジかどうかを判定する */

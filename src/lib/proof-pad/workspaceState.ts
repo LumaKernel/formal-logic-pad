@@ -15,7 +15,7 @@ import {
 } from "../logic-core/deductionSystem";
 import type { Point } from "../infinite-canvas/types";
 import { type ProofNodeKind, getProofNodeKindLabel } from "./proofNodeUI";
-import type { InferenceEdge } from "./inferenceEdge";
+import type { InferenceEdge, InferenceRuleId } from "./inferenceEdge";
 import {
   isHilbertInferenceEdge,
   isNdInferenceEdge,
@@ -109,6 +109,11 @@ export type WorkspaceGoal = {
    * undefined の場合はシステムの全公理を許可する。
    */
   readonly allowedAxiomIds?: readonly AxiomId[];
+  /**
+   * このゴールを達成するために使ってよい推論規則IDのリスト。
+   * undefined の場合はすべての推論規則を許可する。
+   */
+  readonly allowedRuleIds?: readonly InferenceRuleId[];
 };
 
 // --- ワークスペースモード ---
@@ -298,6 +303,11 @@ export type QuestGoalDefinition = {
    * undefined の場合はシステムの全公理を許可する。
    */
   readonly allowedAxiomIds?: readonly AxiomId[];
+  /**
+   * このゴールを達成するために使ってよい推論規則IDのリスト。
+   * undefined の場合はすべての推論規則を許可する。
+   */
+  readonly allowedRuleIds?: readonly InferenceRuleId[];
 };
 
 /**
@@ -318,6 +328,7 @@ export function createQuestWorkspace(
     formulaText: goal.formulaText,
     label: goal.label,
     allowedAxiomIds: goal.allowedAxiomIds,
+    allowedRuleIds: goal.allowedRuleIds,
   }));
 
   return {

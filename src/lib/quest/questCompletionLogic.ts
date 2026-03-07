@@ -12,13 +12,17 @@
 
 import { Either, Effect } from "effect";
 import type { WorkspaceNode, WorkspaceGoal } from "../proof-pad/workspaceState";
-import type { InferenceEdge } from "../proof-pad/inferenceEdge";
+import type {
+  InferenceEdge,
+  InferenceRuleId,
+} from "../proof-pad/inferenceEdge";
 import type { ProofNodeKind } from "../proof-pad/proofNodeUI";
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
 import { equalFormula } from "../logic-core/equality";
 import { parseString } from "../logic-lang/parser";
 import {
   getNodeAxiomIds,
+  getNodeInferenceRuleIds,
   validateRootNodes,
   hasInstanceRoots,
 } from "../proof-pad/dependencyLogic";
@@ -144,7 +148,7 @@ export function checkQuestGoals(
 
 // --- 公理制限付きゴール達成チェック ---
 
-/** 公理制限チェック結果: ゴールごとの使用公理と制限違反 */
+/** 公理・規則制限チェック結果: ゴールごとの使用公理・規則と制限違反 */
 export type GoalAxiomCheckResult = {
   /** ゴールID */
   readonly goalId: string;
@@ -161,9 +165,15 @@ export type GoalAxiomCheckResult = {
    * true の場合、公理スキーマ → SubstitutionEdge → インスタンスの形式で導出すべき。
    */
   readonly hasInstanceRootNodes: boolean;
+  /** 使用された推論規則IDの集合 */
+  readonly usedRuleIds: ReadonlySet<InferenceRuleId>;
+  /** このゴールで許可された推論規則ID（undefinedは制限なし） */
+  readonly allowedRuleIds: readonly InferenceRuleId[] | undefined;
+  /** 制限違反の推論規則ID（制限なしまたは制限内の場合は空） */
+  readonly violatingRuleIds: ReadonlySet<InferenceRuleId>;
 };
 
-/** 公理制限付きゴールチェック結果 */
+/** 公理・規則制限付きゴールチェック結果 */
 export type QuestGoalCheckWithAxiomsResult =
   | { readonly _tag: "NoGoals" }
   | {
@@ -179,6 +189,11 @@ export type QuestGoalCheckWithAxiomsResult =
     }
   | {
       readonly _tag: "AllAchievedButAxiomViolation";
+      readonly stepCount: number;
+      readonly goalResults: readonly GoalAxiomCheckResult[];
+    }
+  | {
+      readonly _tag: "AllAchievedButRuleViolation";
       readonly stepCount: number;
       readonly goalResults: readonly GoalAxiomCheckResult[];
     };
@@ -206,6 +221,9 @@ const checkSingleGoalWithAxioms = (
         allowedAxiomIds: goal.allowedAxiomIds,
         violatingAxiomIds: new Set<AxiomId>(),
         hasInstanceRootNodes: false,
+        usedRuleIds: new Set<InferenceRuleId>(),
+        allowedRuleIds: goal.allowedRuleIds,
+        violatingRuleIds: new Set<InferenceRuleId>(),
       };
     }
 
@@ -230,6 +248,16 @@ const checkSingleGoalWithAxioms = (
       return hasInstanceRoots(rootValidations);
     });
 
+    // 使用された推論規則を特定
+    const usedRuleIds = yield* Effect.sync(() =>
+      getNodeInferenceRuleIds(matchingNode.id, inferenceEdges),
+    );
+
+    // 規則制限違反をチェック
+    const violatingRuleIds = yield* Effect.sync(() =>
+      computeViolatingRuleIds(usedRuleIds, goal.allowedRuleIds),
+    );
+
     return {
       goalId: goal.id,
       matchingNodeId: matchingNode.id,
@@ -237,6 +265,9 @@ const checkSingleGoalWithAxioms = (
       allowedAxiomIds: goal.allowedAxiomIds,
       violatingAxiomIds,
       hasInstanceRootNodes: goalHasInstanceRoots,
+      usedRuleIds,
+      allowedRuleIds: goal.allowedRuleIds,
+      violatingRuleIds,
     };
   });
 
@@ -281,6 +312,10 @@ export const checkQuestGoalsWithAxiomsEffect = (
       (r) => r.violatingAxiomIds.size > 0 || r.hasInstanceRootNodes,
     );
 
+    const hasRuleViolation = goalResults.some(
+      (r) => r.violatingRuleIds.size > 0,
+    );
+
     if (achievedCount < goals.length) {
       return {
         _tag: "NotAllAchieved",
@@ -293,6 +328,14 @@ export const checkQuestGoalsWithAxiomsEffect = (
     if (hasAxiomViolation) {
       return {
         _tag: "AllAchievedButAxiomViolation",
+        stepCount: computeStepCount(nodes),
+        goalResults,
+      } as const;
+    }
+
+    if (hasRuleViolation) {
+      return {
+        _tag: "AllAchievedButRuleViolation",
         stepCount: computeStepCount(nodes),
         goalResults,
       } as const;
@@ -338,6 +381,30 @@ export function computeViolatingAxiomIds(
   for (const axiomId of usedAxiomIds) {
     if (!allowedSet.has(axiomId)) {
       violations.add(axiomId);
+    }
+  }
+  return violations;
+}
+
+/**
+ * 使用された推論規則IDのうち、許可されていないものを返す。
+ *
+ * @param usedRuleIds 使用された推論規則IDの集合
+ * @param allowedRuleIds 許可された推論規則IDのリスト（undefinedは制限なし）
+ * @returns 制限違反の推論規則IDの集合
+ */
+export function computeViolatingRuleIds(
+  usedRuleIds: ReadonlySet<InferenceRuleId>,
+  allowedRuleIds: readonly InferenceRuleId[] | undefined,
+): ReadonlySet<InferenceRuleId> {
+  if (allowedRuleIds === undefined) {
+    return new Set();
+  }
+  const allowedSet = new Set(allowedRuleIds);
+  const violations = new Set<InferenceRuleId>();
+  for (const ruleId of usedRuleIds) {
+    if (!allowedSet.has(ruleId)) {
+      violations.add(ruleId);
     }
   }
   return violations;

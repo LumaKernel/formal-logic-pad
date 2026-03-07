@@ -98,6 +98,8 @@
     "proofCompleteButAxiomViolation": "証明完了（公理制限違反あり）",
     "axiomViolationDetail": "許可されていない公理が使用されています: {axiomIds}",
     "instanceRootViolationDetail": "公理インスタンスは代入操作で導出してください（直接配置不可）。",
+    "proofCompleteButRuleViolation": "証明完了（推論規則制限違反あり）",
+    "ruleViolationDetail": "許可されていない推論規則が使用されています: {ruleIds}",
     "tabBannerSelectNode": "{ruleName} を適用するシーケントノードをクリック",
     "tabCancel": "TABをキャンセル",
     "tabApplied": "TAB規則を適用しました",

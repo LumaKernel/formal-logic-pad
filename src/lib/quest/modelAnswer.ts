@@ -1187,7 +1187,8 @@ export type ValidateModelAnswerResult =
  * 模範解答がクエストのゴールを正しく達成しているか検証する。
  * テスト用の純粋関数。
  *
- * AllAchieved と AllAchievedButAxiomViolation の両方を Valid として扱う。
+ * AllAchieved, AllAchievedButAxiomViolation, AllAchievedButRuleViolation
+ * のいずれも Valid として扱う。
  * 模範解答は公理インスタンスを直接記述するため、SubstitutionEdge を経由しない。
  * そのため hasInstanceRootNodes が true になるが、これは正常な挙動。
  */
@@ -1203,7 +1204,8 @@ export function validateModelAnswer(
 
   if (
     buildResult.goalCheck._tag !== "AllAchieved" &&
-    buildResult.goalCheck._tag !== "AllAchievedButAxiomViolation"
+    buildResult.goalCheck._tag !== "AllAchievedButAxiomViolation" &&
+    buildResult.goalCheck._tag !== "AllAchievedButRuleViolation"
   ) {
     return { _tag: "GoalNotAchieved", goalCheck: buildResult.goalCheck };
   }

@@ -341,6 +341,7 @@ export {
   getSubtreeNodeIds,
   getProofNodeIds,
   getNodeAxiomIds,
+  getNodeInferenceRuleIds,
   validateRootNodes,
   getInstanceRootNodeIds,
   hasInstanceRoots,
@@ -447,4 +448,5 @@ export type {
   AtClosedEdge,
   AtInferenceEdge,
   InferenceEdge,
+  InferenceRuleId,
 } from "./inferenceEdge";
