@@ -516,7 +516,10 @@ describe("enrichListItemsWithQuestProgress", () => {
   });
 
   it("listItemsがnotebooksより多い場合、超過分はそのまま返す", () => {
-    const items = [makeListItem("nb-1", "quest"), makeListItem("nb-2", "quest")];
+    const items = [
+      makeListItem("nb-1", "quest"),
+      makeListItem("nb-2", "quest"),
+    ];
     const notebooks: readonly Notebook[] = [
       {
         meta: { id: "nb-1", name: "Quest", createdAt: 0, updatedAt: 0 },
