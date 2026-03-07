@@ -40,6 +40,8 @@ export type QuestCatalogProps = {
   readonly notebookCounts?: QuestNotebookCounts;
   /** ノートブック数クリック時のコールバック（ノート一覧を絞り込み表示） */
   readonly onShowQuestNotebooks?: (questId: QuestId) => void;
+  /** ビルトインクエストを自作クエストに複製するコールバック */
+  readonly onDuplicateToCustom?: (questId: QuestId) => void;
 };
 
 // --- Styles ---
@@ -273,6 +275,19 @@ const startButtonStyle: CSSProperties = {
   transition: "background 0.15s",
 };
 
+const duplicateToCustomButtonStyle: CSSProperties = {
+  padding: "4px 8px",
+  fontSize: 10,
+  fontWeight: 600,
+  borderRadius: 4,
+  border: "1px solid var(--color-border, #ccc)",
+  background: "transparent",
+  color: "var(--color-text-secondary, #666)",
+  cursor: "pointer",
+  flexShrink: 0,
+  transition: "background 0.15s, color 0.15s",
+};
+
 const emptyStyle: CSSProperties = {
   textAlign: "center",
   padding: 32,
@@ -385,11 +400,13 @@ function QuestItem({
   onStart,
   notebookCount,
   onShowNotebooks,
+  onDuplicateToCustom,
 }: {
   readonly item: QuestCatalogItem;
   readonly onStart: (questId: QuestId) => void;
   readonly notebookCount: number;
   readonly onShowNotebooks?: (questId: QuestId) => void;
+  readonly onDuplicateToCustom?: (questId: QuestId) => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -424,6 +441,19 @@ function QuestItem({
         </div>
       </div>
       <RatingBadge rating={item.rating} />
+      {onDuplicateToCustom !== undefined && (
+        <button
+          data-testid={`duplicate-to-custom-btn-${item.quest.id satisfies string}`}
+          style={duplicateToCustomButtonStyle}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDuplicateToCustom(item.quest.id);
+          }}
+          title="自作に複製"
+        >
+          自作に複製
+        </button>
+      )}
       <button
         data-testid={`start-btn-${item.quest.id satisfies string}`}
         style={startButtonStyle}
@@ -445,12 +475,14 @@ function CategorySection({
   onStart,
   notebookCounts,
   onShowNotebooks,
+  onDuplicateToCustom,
 }: {
   readonly group: CategoryGroup;
   readonly chapterNumber: number;
   readonly onStart: (questId: QuestId) => void;
   readonly notebookCounts?: QuestNotebookCounts;
   readonly onShowNotebooks?: (questId: QuestId) => void;
+  readonly onDuplicateToCustom?: (questId: QuestId) => void;
 }) {
   return (
     <div
@@ -492,6 +524,7 @@ function CategorySection({
                 : 0
             }
             onShowNotebooks={onShowNotebooks}
+            onDuplicateToCustom={onDuplicateToCustom}
           />
         ))}
       </div>
@@ -506,6 +539,7 @@ export function QuestCatalog({
   onStartQuest,
   notebookCounts,
   onShowQuestNotebooks,
+  onDuplicateToCustom,
 }: QuestCatalogProps) {
   const [filter, setFilter] = useState<CatalogFilterState>(defaultFilterState);
 
@@ -569,6 +603,7 @@ export function QuestCatalog({
             onStart={onStartQuest}
             notebookCounts={notebookCounts}
             onShowNotebooks={onShowQuestNotebooks}
+            onDuplicateToCustom={onDuplicateToCustom}
           />
         ))
       )}

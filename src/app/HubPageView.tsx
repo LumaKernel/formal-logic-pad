@@ -69,6 +69,8 @@ export type HubPageViewProps = {
   readonly onEditCustomQuest?: (edit: CustomQuestEditParams) => void;
   /** 自作クエストを新規作成する */
   readonly onCreateCustomQuest?: (params: CreateCustomQuestParams) => void;
+  /** ビルトインクエストを自作クエストに複製する */
+  readonly onDuplicateBuiltinToCustom?: (questId: string) => void;
   /** 初期タブ（テスト用） */
   readonly initialTab?: HubTab;
   /** 言語切り替え（指定時に LanguageToggle を表示） */
@@ -218,6 +220,7 @@ export function HubPageView({
   onDeleteCustomQuest,
   onEditCustomQuest,
   onCreateCustomQuest,
+  onDuplicateBuiltinToCustom,
   initialTab = "notebooks",
   languageToggle,
   notebookCounts,
@@ -369,6 +372,7 @@ export function HubPageView({
               onStartQuest={onStartQuest}
               notebookCounts={notebookCounts}
               onShowQuestNotebooks={handleShowQuestNotebooks}
+              onDuplicateToCustom={onDuplicateBuiltinToCustom}
             />
             {customQuestItems !== undefined && (
               <CustomQuestList

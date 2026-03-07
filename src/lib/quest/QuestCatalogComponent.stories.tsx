@@ -155,6 +155,7 @@ const meta = {
   args: {
     onStartQuest: fn(),
     onShowQuestNotebooks: fn(),
+    onDuplicateToCustom: fn(),
   },
 } satisfies Meta<typeof QuestCatalog>;
 
@@ -270,6 +271,24 @@ export const WithNotebookCounts: Story = {
     // バッジクリックで onShowQuestNotebooks が呼ばれる
     await userEvent.click(badge);
     await expect(args.onShowQuestNotebooks).toHaveBeenCalledWith("prop-01");
+  },
+};
+
+export const DuplicateToCustom: Story = {
+  args: {
+    groups: sampleGroups,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // 「自作に複製」ボタンが表示される
+    const btn = canvas.getByTestId("duplicate-to-custom-btn-prop-04");
+    await expect(btn).toBeInTheDocument();
+    await expect(btn.textContent).toBe("自作に複製");
+    // ボタンクリックで onDuplicateToCustom が呼ばれる
+    await userEvent.click(btn);
+    await expect(args.onDuplicateToCustom).toHaveBeenCalledWith("prop-04");
+    // onStartQuest は呼ばれないこと（stopPropagation）
+    await expect(args.onStartQuest).not.toHaveBeenCalled();
   },
 };
 
