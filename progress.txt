@@ -8985,3 +8985,23 @@
   - ペースト互換性チェックは2段構え: 明示的`sourceDeductionStyle` → InferenceEdgeからの推定（旧バージョンクリップボード対応）
   - 次のタスク（非互換ペーストエラー表示ストーリー）は今回の実装を基盤にできる（checkPasteCompatibilityが既にある）
 ---
+
+## 2026-03-07 - 非互換ペースト時のインラインエラー表示とストーリー追加
+- 実装した内容:
+  - `alert()` による互換性エラー表示をインラインエラーバナーに置換（5秒自動消去、✕ボタンで即消去）
+  - `ProofWorkspace` に `initialClipboardData` プロップ追加（テスト・ストーリー用クリップボード注入）
+  - `pasteErrorMessage` state + `showPasteError` callback で非ブロッキングなエラー表示
+  - `CopyPasteIncompatible` ストーリー追加: Hilbert系クリップボードデータをND系ワークスペースにペースト → エラーバナー表示を検証
+  - play関数: 右クリック → コンテキストメニューペースト → エラー表示確認 → ノード数変化なし確認
+- 変更したファイル:
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (alert→インラインエラーバナー、initialClipboardDataプロップ追加)
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` (+CopyPasteIncompatibleWorkspace, +CopyPasteIncompatibleストーリー)
+- カバレッジ: ベースライン Stmts 99.1% / Branch 94.02% → 完了後 Stmts 99.12% / Branch 94.02% (微増、低下なし)
+- テスト: 7460 → 7461 passed (+1)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Storybookで CopyPasteIncompatible ストーリーのインタラクション PASS、エラーバナー表示確認
+- **今後のイテレーションへの学び:**
+  - Storybook play関数でalert()はブロックされるため、テスタブルなエラー表示にはインラインUI（state管理）が必須
+  - StorybookのPhase切り替え（unmount→remount）はplay関数内で行うとDOMが破壊される。代わりに `initialClipboardData` のようなプロップ注入パターンでテストデータを提供する
+  - `clipboardRef` は内部refで外部アクセス不可。テスト用にはプロップ経由で初期値を注入する設計が有効
+---

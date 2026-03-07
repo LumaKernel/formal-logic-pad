@@ -201,3 +201,5 @@ Infinity Canvasについて。
   - キャンバス空白部分の右クリックコンテキストメニューに「ペースト」項目を追加。クリップボードが空の場合は disabled。右クリック位置にペーストされる。
 - [x] ノートAから証明図をコピーして、別の(近いタイプの)ノートBへペーストして証明を続きから書ける、というストーリーを作成しよう。必要に応じて機能追加もしよう。
   - ClipboardDataにsourceDeductionStyleを追加、checkPasteCompatibility純粋関数を実装、ProofWorkspaceのペーストハンドラに統合、CopyPasteCompatibleストーリー追加。
+- [x] ノートAから証明図をコピーして、別の(互換性のないタイプの)ノートBへペーストしようとするが、互換性がない旨のエラーが表示される、というストーリーを作成しよう。必要に応じて機能追加もしよう。
+  - alert()をインラインエラーバナーに置換（5秒自動消去、data-testid付き）。initialClipboardDataプロップ追加でテスト用クリップボード注入。CopyPasteIncompatibleストーリー追加（Hilbert→ND非互換ペースト検証）。
