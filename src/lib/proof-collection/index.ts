@@ -73,3 +73,22 @@ export {
   saveProofCollection,
   PROOF_COLLECTION_STORAGE_KEY,
 } from "./useProofCollection";
+
+// --- パネルロジック ---
+export type {
+  EditingField,
+  EditingState,
+  PanelState,
+} from "./proofCollectionPanelLogic";
+
+export {
+  createInitialPanelState,
+  startEditing,
+  updateEditingValue,
+  cancelEditing,
+  isEditing,
+} from "./proofCollectionPanelLogic";
+
+// --- パネルUI ---
+export { ProofCollectionPanel } from "./ProofCollectionPanel";
+export type { ProofCollectionPanelProps } from "./ProofCollectionPanel";

@@ -237,6 +237,15 @@ export type ProofMessages = {
 
   // --- アクセシビリティ ---
   readonly workspaceMenuAriaLabel: string;
+
+  // --- 証明コレクションパネル ---
+  readonly openCollection: string;
+  readonly collectionPanelTitle: string;
+  readonly collectionEmpty: string;
+  readonly collectionEntryDelete: string;
+  readonly collectionEntryMemoPlaceholder: string;
+  /** `{count}` プレースホルダーを含む */
+  readonly collectionEntryCount: string;
 };
 
 // --- デフォルトメッセージ（英語） ---
@@ -436,6 +445,14 @@ export const defaultProofMessages: ProofMessages = {
 
   // Accessibility
   workspaceMenuAriaLabel: "Workspace menu",
+
+  // Proof collection panel
+  openCollection: "My Collection",
+  collectionPanelTitle: "My Collection",
+  collectionEmpty: "No saved proofs yet",
+  collectionEntryDelete: "Delete",
+  collectionEntryMemoPlaceholder: "Add a memo…",
+  collectionEntryCount: "{count} proofs",
 };
 
 // --- エラー → メッセージキー変換（純粋関数） ---

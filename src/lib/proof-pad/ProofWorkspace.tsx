@@ -187,7 +187,9 @@ import { getInferenceRuleReferenceEntryId } from "./inferenceRuleReferenceLogic"
 import { getDeductionSystemReferenceEntryId } from "./deductionSystemReferenceLogic";
 import { findInferenceEdgeForConclusionNode } from "./inferenceEdge";
 import type { ProofSaveParams } from "../proof-collection/proofCollectionState";
+import type { ProofEntry } from "../proof-collection/proofCollectionState";
 import { prepareProofSaveParams } from "../proof-collection/proofCollectionState";
+import { ProofCollectionPanel } from "../proof-collection/ProofCollectionPanel";
 import { computeInferenceEdgeLabelDataForConnection } from "./inferenceEdgeLabelLogic";
 import { InferenceEdgeBadge } from "./InferenceEdgeBadge";
 import { EdgeParameterPopover } from "./EdgeParameterPopover";
@@ -236,6 +238,14 @@ export interface ProofWorkspaceProps {
   readonly onDuplicateToFree?: () => void;
   /** 証明をコレクションに保存するコールバック（指定時にコンテキストメニューに「コレクションに保存」を表示） */
   readonly onSaveProofToCollection?: (params: ProofSaveParams) => void;
+  /** コレクションエントリ一覧（指定時にコレクションパネルを有効化） */
+  readonly collectionEntries?: readonly ProofEntry[];
+  /** コレクションエントリ名変更 */
+  readonly onRenameCollectionEntry?: (id: string, newName: string) => void;
+  /** コレクションエントリメモ更新 */
+  readonly onUpdateCollectionMemo?: (id: string, memo: string) => void;
+  /** コレクションエントリ削除 */
+  readonly onRemoveCollectionEntry?: (id: string) => void;
   /** 初期クリップボードデータ（テスト・ストーリー用） */
   readonly initialClipboardData?: ClipboardData;
   /** data-testid */
@@ -621,6 +631,10 @@ export function ProofWorkspace({
   onOpenSyntaxHelp,
   onDuplicateToFree,
   onSaveProofToCollection,
+  collectionEntries,
+  onRenameCollectionEntry,
+  onUpdateCollectionMemo,
+  onRemoveCollectionEntry,
   initialClipboardData,
   testId,
 }: ProofWorkspaceProps) {
@@ -754,6 +768,9 @@ export function ProofWorkspace({
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
   const workspaceMenuRef = useRef<HTMLDivElement>(null);
   const workspaceMenuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // コレクションパネル
+  const [collectionPanelOpen, setCollectionPanelOpen] = useState(false);
 
   // キャンバス空白部分コンテキストメニュー
   const [canvasMenuState, setCanvasMenuState] = useState<{
@@ -3787,6 +3804,20 @@ export function ProofWorkspace({
                     : undefined
                 }
               />
+              {collectionEntries !== undefined ? (
+                <WorkspaceMenuItem
+                  label={msg.openCollection}
+                  onClick={() => {
+                    setCollectionPanelOpen((prev) => !prev);
+                    setWorkspaceMenuOpen(false);
+                  }}
+                  testId={
+                    testId
+                      ? `${testId satisfies string}-open-collection-button`
+                      : undefined
+                  }
+                />
+              ) : null}
             </div>
           ) : null}
           <input
@@ -4389,6 +4420,27 @@ export function ProofWorkspace({
         messages={msg}
         testId={testId ? `${testId satisfies string}-goal-panel` : undefined}
       />
+
+      {/* コレクション管理パネル */}
+      {collectionPanelOpen &&
+      collectionEntries !== undefined &&
+      onRenameCollectionEntry !== undefined &&
+      onUpdateCollectionMemo !== undefined &&
+      onRemoveCollectionEntry !== undefined ? (
+        <ProofCollectionPanel
+          entries={collectionEntries}
+          messages={msg}
+          onRenameEntry={onRenameCollectionEntry}
+          onUpdateMemo={onUpdateCollectionMemo}
+          onRemoveEntry={onRemoveCollectionEntry}
+          onClose={() => setCollectionPanelOpen(false)}
+          testId={
+            testId
+              ? `${testId satisfies string}-collection-panel`
+              : undefined
+          }
+        />
+      ) : null}
 
       {/* ノードコンテキストメニュー */}
       {nodeMenuState.open ? (

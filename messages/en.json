@@ -169,6 +169,12 @@
     "nodeLabelSequent": "Sequent",
     "nodeLabelSignedFormula": "SignedFormula",
     "pasteIncompatibleStyle": "Cannot paste: source ({sourceStyle}) is incompatible with target ({targetStyle})",
-    "workspaceMenuAriaLabel": "Workspace menu"
+    "workspaceMenuAriaLabel": "Workspace menu",
+    "openCollection": "My Collection",
+    "collectionPanelTitle": "My Collection",
+    "collectionEmpty": "No saved proofs yet",
+    "collectionEntryDelete": "Delete",
+    "collectionEntryMemoPlaceholder": "Add a memo…",
+    "collectionEntryCount": "{count} proofs"
   }
 }

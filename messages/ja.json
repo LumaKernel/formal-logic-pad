@@ -169,6 +169,12 @@
     "nodeLabelSequent": "シーケント",
     "nodeLabelSignedFormula": "署名付き論理式",
     "pasteIncompatibleStyle": "ペーストできません: ソース ({sourceStyle}) とターゲット ({targetStyle}) は互換性がありません",
-    "workspaceMenuAriaLabel": "ワークスペースメニュー"
+    "workspaceMenuAriaLabel": "ワークスペースメニュー",
+    "openCollection": "マイコレクション",
+    "collectionPanelTitle": "マイコレクション",
+    "collectionEmpty": "保存された証明はまだありません",
+    "collectionEntryDelete": "削除",
+    "collectionEntryMemoPlaceholder": "メモを追加…",
+    "collectionEntryCount": "{count} 件の証明"
   }
 }

@@ -14,7 +14,10 @@ import type { GoalAchievedInfo } from "../../../lib/proof-pad";
 import { ProofMessagesProvider } from "../../../lib/proof-pad";
 import type { ProofMessages } from "../../../lib/proof-pad";
 import type { WorkspaceState } from "../../../lib/proof-pad/workspaceState";
-import type { ProofSaveParams } from "../../../lib/proof-collection";
+import type {
+  ProofSaveParams,
+  ProofEntry,
+} from "../../../lib/proof-collection";
 import { ThemeToggle } from "../../../components/ThemeToggle/ThemeToggle";
 import {
   LanguageToggle,
@@ -48,6 +51,14 @@ export type WorkspacePageViewProps = {
       readonly onDuplicateToFree?: () => void;
       /** 証明をコレクションに保存するコールバック */
       readonly onSaveProofToCollection?: (params: ProofSaveParams) => void;
+      /** コレクションエントリ一覧 */
+      readonly collectionEntries?: readonly ProofEntry[];
+      /** コレクションエントリ名変更 */
+      readonly onRenameCollectionEntry?: (id: string, newName: string) => void;
+      /** コレクションエントリメモ更新 */
+      readonly onUpdateCollectionMemo?: (id: string, memo: string) => void;
+      /** コレクションエントリ削除 */
+      readonly onRemoveCollectionEntry?: (id: string) => void;
       /** クエストバージョン警告メッセージ（表示不要なら undefined） */
       readonly questVersionWarning?: string;
     }
@@ -187,6 +198,10 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
             onOpenSyntaxHelp={props.onOpenSyntaxHelp}
             onDuplicateToFree={props.onDuplicateToFree}
             onSaveProofToCollection={props.onSaveProofToCollection}
+            collectionEntries={props.collectionEntries}
+            onRenameCollectionEntry={props.onRenameCollectionEntry}
+            onUpdateCollectionMemo={props.onUpdateCollectionMemo}
+            onRemoveCollectionEntry={props.onRemoveCollectionEntry}
           />
         </ProofMessagesProvider>
       </div>

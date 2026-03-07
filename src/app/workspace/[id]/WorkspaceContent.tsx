@@ -191,6 +191,14 @@ function useProofMessagesFromIntl(): ProofMessages {
 
       // Accessibility
       workspaceMenuAriaLabel: t("workspaceMenuAriaLabel"),
+
+      // Proof collection panel
+      openCollection: t("openCollection"),
+      collectionPanelTitle: t("collectionPanelTitle"),
+      collectionEmpty: t("collectionEmpty"),
+      collectionEntryDelete: t("collectionEntryDelete"),
+      collectionEntryMemoPlaceholder: t("collectionEntryMemoPlaceholder"),
+      collectionEntryCount: String(t.raw("collectionEntryCount")),
     }),
     [t],
   );
@@ -299,6 +307,10 @@ function WorkspaceInner() {
       onGoalAchieved={handleGoalAchieved}
       onDuplicateToFree={handleDuplicateToFree}
       onSaveProofToCollection={handleSaveToCollection}
+      collectionEntries={proofCollection.entries}
+      onRenameCollectionEntry={proofCollection.renameEntry}
+      onUpdateCollectionMemo={proofCollection.updateMemo}
+      onRemoveCollectionEntry={proofCollection.removeEntry}
       questVersionWarning={questVersionWarning}
       languageToggle={languageToggle}
     />
