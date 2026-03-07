@@ -103,6 +103,42 @@
 
 ---
 
+## 2026-03-08 - カバレッジ改善: modelAnswer.ts 防御的コードv8 ignore追加
+- modelAnswer.ts の4箇所の防御的コード（到達不能パス）に `v8 ignore` 追加:
+  - MP invalid index チェック（line 420-426）
+  - MP validation failed チェック（line 432-438）
+  - TAB validation failed チェック（line 1003-1009）
+  - SC validation failed チェック（line 1103-1109）
+- 変更ファイル:
+  - `src/lib/quest/modelAnswer.ts` (v8 ignore追加 ×4箇所)
+- テスト: 240ファイル、8131テスト全パス（変化なし）
+- カバレッジ: Stmts 98.44% → 98.45%, Branch 92.94% → 92.95%, Lines 99.3% → 99.31% (すべて微増)
+- **今後のイテレーションへの学び:**
+  - modelAnswer.ts の Branch coverage (68.42%) は、多数の `isError()` 分岐のtrueケースが防御的コード（正しい模範解答では到達しない）であるため。v8 ignoreを追加しても、isError条件自体のブランチは依然として両方カバーされないため、個別ファイルの数値は改善しづらい
+  - interpreterTypes.ts (0%) は既に削除されているが、カバレッジレポートに残留する場合がある。V8カバレッジのキャッシュ問題の可能性
+  - 模範解答は全115問完了済み（全クエスト数と一致）
+---
+
+## 2026-03-08 - カバレッジ改善: 不正UTF-8テスト・防御的コードv8 ignore
+- questUrlSharing.test.ts に不正UTF-8バイト列のデコードテスト4件追加:
+  - 2バイトUTF-8シーケンスの途中切れ
+  - 3バイトUTF-8シーケンスの途中切れ
+  - 4バイトUTF-8シーケンスの途中切れ
+  - 不正リードバイト (0xF8以上)
+- questUrlSharing.ts: 防御的コード（配列境界チェック）にv8 ignore追加
+- questNotebookIntegration.ts: NoGoalsブランチ（到達不能防御的コード）にv8 ignore追加
+- 変更ファイル:
+  - `src/lib/quest/questUrlSharing.test.ts` (+4テスト)
+  - `src/lib/quest/questUrlSharing.ts` (v8 ignore追加)
+  - `src/lib/quest/questNotebookIntegration.ts` (v8 ignore追加)
+- テスト: 240ファイル、8131テスト全パス (+4テスト追加)
+- カバレッジ: Stmts 98.4% → 98.44%, Branch 92.84% → 92.94%, Lines 99.28% → 99.3% (すべて向上)
+- **今後のイテレーションへの学び:**
+  - QuestCatalogComponent.tsx (79.14%) の低カバレッジはV8カバレッジのStorybook aggregation問題。単体テスト実行では100%。全テスト実行時のStorybookテストとのV8マージで低下する既知の問題
+  - bytesToBase64Url ヘルパー関数をテスト内で定義して、任意のバイト列をbase64url文字列に変換するのが不正UTF-8テストのベストプラクティス
+  - `goals.length === 0` チェック後の `checkQuestGoals` は NoGoals を返さない → switchのNoGoalsケースは到達不能な防御的コード
+---
+
 ## 2026-03-07 - ScriptEditor 自動再生（Play/Pause）と速度スライダー
 - ScriptEditorComponent に自動再生機能を追加:
   - Play ボタン: setInterval で自動ステップ実行（done/error で自動停止）

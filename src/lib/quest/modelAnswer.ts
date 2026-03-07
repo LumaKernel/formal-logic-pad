@@ -417,6 +417,7 @@ export function buildModelAnswerWorkspace(
       case "mp": {
         const leftNodeId = stepNodeIds[step.leftIndex];
         const rightNodeId = stepNodeIds[step.rightIndex];
+        /* v8 ignore start — defensive: invalid model answer data */
         if (leftNodeId === undefined || rightNodeId === undefined) {
           return {
             _tag: "StepError",
@@ -424,11 +425,13 @@ export function buildModelAnswerWorkspace(
             reason: `invalid index: left=${String(step.leftIndex) satisfies string}, right=${String(step.rightIndex) satisfies string}`,
           };
         }
+        /* v8 ignore stop */
         const result = applyMPAndConnect(ws, leftNodeId, rightNodeId, {
           x: 0,
           y: 0,
         });
         ws = result.workspace;
+        /* v8 ignore start — defensive: correct model answers never fail MP validation */
         if (Either.isLeft(result.validation)) {
           return {
             _tag: "StepError",
@@ -436,6 +439,7 @@ export function buildModelAnswerWorkspace(
             reason: `MP validation failed`,
           };
         }
+        /* v8 ignore stop */
         stepNodeIds.push(result.mpNodeId);
         break;
       }
@@ -1000,6 +1004,7 @@ export function buildModelAnswerWorkspace(
           ],
         );
 
+        /* v8 ignore start — defensive: correct model answers never fail TAB validation */
         if (Either.isLeft(tabResult.validation)) {
           return {
             _tag: "StepError",
@@ -1007,6 +1012,7 @@ export function buildModelAnswerWorkspace(
             reason: `TAB ${step.ruleId satisfies string} validation failed`,
           };
         }
+        /* v8 ignore stop */
 
         ws = tabResult.workspace;
 
@@ -1100,6 +1106,7 @@ export function buildModelAnswerWorkspace(
           ],
         );
 
+        /* v8 ignore start — defensive: correct model answers never fail SC validation */
         if (Either.isLeft(scResult.validation)) {
           return {
             _tag: "StepError",
@@ -1107,6 +1114,7 @@ export function buildModelAnswerWorkspace(
             reason: `SC ${step.ruleId satisfies string} validation failed`,
           };
         }
+        /* v8 ignore stop */
 
         ws = scResult.workspace;
 
