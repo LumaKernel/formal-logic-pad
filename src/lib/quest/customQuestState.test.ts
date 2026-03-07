@@ -634,6 +634,29 @@ describe("customQuestState", () => {
       expect(quest?.goals[0]?.allowedRuleIds).toEqual(["mp", "gen"]);
     });
 
+    it("quest-level allowedAxiomIds付きクエストをシリアライズ/デシリアライズできる", () => {
+      // allowedAxiomIds付きビルトインクエストを複製して、シリアライズに含める
+      const sourceWithAxiomIds: QuestDefinition = {
+        ...sampleBuiltinQuest,
+        allowedAxiomIds: ["A1", "A2", "A3"],
+      };
+      const r = duplicateAsCustomQuest(
+        createEmptyCustomQuestCollection(),
+        sourceWithAxiomIds,
+        1000,
+      );
+      expect(r.ok).toBe(true);
+      if (!r.ok) return;
+
+      const serialized = serializeCustomQuestCollection(r.value.collection);
+      expect(serialized.quests[0]?.allowedAxiomIds).toEqual(["A1", "A2", "A3"]);
+
+      const json = JSON.parse(JSON.stringify(serialized)) as unknown;
+      const deserialized = deserializeCustomQuestCollection(json);
+      const quest = deserialized.quests.get("custom-1000");
+      expect(quest?.allowedAxiomIds).toEqual(["A1", "A2", "A3"]);
+    });
+
     it("不正なデータでは空コレクションを返す", () => {
       expect(deserializeCustomQuestCollection(null).quests.size).toBe(0);
       expect(deserializeCustomQuestCollection(undefined).quests.size).toBe(0);
@@ -666,6 +689,52 @@ describe("customQuestState", () => {
             difficulty: 1,
             systemPresetId: "lukasiewicz",
             goals: [{ noFormulaText: true }],
+            hints: [],
+            estimatedSteps: 5,
+            learningPoint: "lp",
+            order: 0,
+            version: 1,
+          },
+        ],
+      };
+      const result = deserializeCustomQuestCollection(data);
+      expect(result.quests.size).toBe(0);
+    });
+
+    it("ゴール配列にnullが含まれるクエストはスキップされる", () => {
+      const data = {
+        quests: [
+          {
+            id: "custom-1000",
+            category: "propositional-basics",
+            title: "test",
+            description: "desc",
+            difficulty: 1,
+            systemPresetId: "lukasiewicz",
+            goals: [null, { formulaText: "phi -> phi" }],
+            hints: [],
+            estimatedSteps: 5,
+            learningPoint: "lp",
+            order: 0,
+            version: 1,
+          },
+        ],
+      };
+      const result = deserializeCustomQuestCollection(data);
+      expect(result.quests.size).toBe(0);
+    });
+
+    it("ゴール配列にプリミティブ値が含まれるクエストはスキップされる", () => {
+      const data = {
+        quests: [
+          {
+            id: "custom-1000",
+            category: "propositional-basics",
+            title: "test",
+            description: "desc",
+            difficulty: 1,
+            systemPresetId: "lukasiewicz",
+            goals: [42, "string"],
             hints: [],
             estimatedSteps: 5,
             learningPoint: "lp",
@@ -857,6 +926,82 @@ describe("customQuestState", () => {
         ],
       };
       expect(deserializeCustomQuestCollection(data4).quests.size).toBe(0);
+
+      // description欠落
+      const data5a = {
+        quests: [
+          {
+            id: "custom-1000",
+            category: "propositional-basics",
+            title: "test",
+            difficulty: 1,
+            systemPresetId: "lukasiewicz",
+            goals: [{ formulaText: "phi" }],
+            hints: [],
+            estimatedSteps: 5,
+            learningPoint: "lp",
+            version: 1,
+          },
+        ],
+      };
+      expect(deserializeCustomQuestCollection(data5a).quests.size).toBe(0);
+
+      // hints欠落
+      const data5b = {
+        quests: [
+          {
+            id: "custom-1000",
+            category: "propositional-basics",
+            title: "test",
+            description: "desc",
+            difficulty: 1,
+            systemPresetId: "lukasiewicz",
+            goals: [{ formulaText: "phi" }],
+            estimatedSteps: 5,
+            learningPoint: "lp",
+            version: 1,
+          },
+        ],
+      };
+      expect(deserializeCustomQuestCollection(data5b).quests.size).toBe(0);
+
+      // estimatedSteps欠落
+      const data5c = {
+        quests: [
+          {
+            id: "custom-1000",
+            category: "propositional-basics",
+            title: "test",
+            description: "desc",
+            difficulty: 1,
+            systemPresetId: "lukasiewicz",
+            goals: [{ formulaText: "phi" }],
+            hints: [],
+            learningPoint: "lp",
+            version: 1,
+          },
+        ],
+      };
+      expect(deserializeCustomQuestCollection(data5c).quests.size).toBe(0);
+
+      // learningPoint欠落
+      const data5d = {
+        quests: [
+          {
+            id: "custom-1000",
+            category: "propositional-basics",
+            title: "test",
+            description: "desc",
+            difficulty: 1,
+            systemPresetId: "lukasiewicz",
+            goals: [{ formulaText: "phi" }],
+            hints: [],
+            estimatedSteps: 5,
+            version: 1,
+          },
+        ],
+      };
+      expect(deserializeCustomQuestCollection(data5d).quests.size).toBe(0);
 
       // version欠落
       const data5 = {
@@ -1060,6 +1205,19 @@ describe("customQuestState", () => {
       const parsed = JSON.parse(json) as ExportedCustomQuest;
 
       expect(parsed.quest.goals[0]?.allowedRuleIds).toEqual(["mp", "gen"]);
+    });
+
+    it("quest-level allowedAxiomIds付きクエストをエクスポートできる", () => {
+      const questWithAxiomIds: QuestDefinition = {
+        ...sampleBuiltinQuest,
+        id: "custom-3000",
+        allowedAxiomIds: ["A1", "A3"],
+      };
+
+      const json = exportCustomQuestAsJson(questWithAxiomIds);
+      const parsed = JSON.parse(json) as ExportedCustomQuest;
+
+      expect(parsed.quest.allowedAxiomIds).toEqual(["A1", "A3"]);
     });
 
     it("エクスポートJSONは整形済み（pretty-printed）", () => {
