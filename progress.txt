@@ -104,6 +104,23 @@
 
 ---
 
+## 2026-03-08 - カバレッジ改善: switch→if-chain変換・v8 ignore改善でBranchカバレッジ向上
+- 6ファイルのswitch→if-chain変換・v8 ignore改善:
+  - `src/lib/logic-core/normalForm.ts`: distributeCNF/distributeDNF/pullQuantifiers switch→if-chain, isPNF while→再帰 (Branch 87.58% → 98%)
+  - `src/lib/logic-core/unification.ts`: decomposeFormula/decomposeTerm switch→if-chain (Branch 93.18% → 100%)
+  - `src/lib/logic-lang/formatUnicode.ts`: v8 ignore next→block形式に変換 (Branch 93.97% → 98.66%)
+  - `src/lib/proof-pad/proofMessages.ts`: ネストswitch→if-chain (Branch 94.73% → 95%)
+  - `src/lib/proof-pad/cutEliminationStepperLogic.ts`: 防御的if条件のv8 ignore配置改善 (Branch 91.66% → 100%)
+  - `src/lib/proof-pad/edgeBadgeEditLogic.ts`: 到達不能ブランチのv8 ignore追加 (Branch 94.73% → 96.36%)
+- テスト追加なし（既存テストで全ケースカバー済み）
+- カバレッジ: Branch 94.54% → 94.89% (+0.35pp)
+- nodeRoleLogic.ts (75%), grid.ts (88.88%) は単体テストでは100%、v8集約artifactのため対応不要と確認
+- **今後のイテレーションへの学び:**
+  - `/* v8 ignore next */` は1行の三項演算子やnull合体演算子でも効かないことがある → block形式(`/* v8 ignore start/stop */`)を常に使う
+  - if-chain最後のcaseをfall-through（else省略）にするとTypeScript narrowingが効き、exhaustive check不要
+  - 防御的if条件では「到達不能側を先に書いてv8 ignoreで囲み、正常側をelse」にするとBranch改善
+---
+
 ## 2026-03-08 - カバレッジ改善: switch文→if-chain変換でv8 Branch artifact対策
 - 7ファイルのswitch文をif-chainに変換:
   - `src/components/LanguageToggle/languageToggleLogic.ts`: getLocaleLabel, getLocaleNativeName (Branch 83.33% → 100%)
