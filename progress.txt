@@ -9994,3 +9994,25 @@
   - V8カバレッジマージquirk: ユニットテスト追加でStmts微減することがある（分母変化）。Branch/Linesの方が安定的な指標
   - キーボードアクセシビリティのテスト: `fireEvent.keyDown(element, { key: "Enter" })` パターンが堅実
 ---
+
+## 2026-03-08 - [coverage] CustomQuestListComponent 編集・作成フォーム・ホバーのカバレッジ改善
+- 実装した内容:
+  - CustomQuestListComponent.test.tsx: 26テスト追加
+    - 編集フォームフィールド入力テスト (9テスト): description, category, difficulty, system, goalsText, goalsBlur, hints, estimatedSteps, estimatedStepsBlur, learningPoint
+    - 編集フォームバリデーションエラーフォーカステスト (3テスト): title空, goals空, steps不正
+    - 作成フォームフィールド入力テスト (9テスト): 同上
+    - 作成フォームバリデーションエラーフォーカステスト (3テスト): 同上
+    - ホバー状態テスト (1テスト): mouseLeave
+  - lcov分析で未カバー行を特定: EditForm行431-628, CreateForm行709-902, CustomQuestItem行965
+- 変更したファイル:
+  - src/lib/quest/CustomQuestListComponent.test.tsx (+26テスト)
+- カバレッジ:
+  - CustomQuestListComponent.tsx: Stmts 75.25%→99.65%, Branch 76.53%→94.89%, Funcs 75.37%→100%, Lines 82.85%→100%
+  - 全体: Stmts 98.45%→98.94%, Branch 93.57%→93.80%, Funcs 88.40%→89.13%, Lines 99.44%→99.75%
+- テスト数: 8160→8186 (+26)
+- **今後のイテレーションへの学び:**
+  - select要素のfireEvent.changeテスト: 実際のoption valueを確認してから使う（`systemPresets`のIDは`sk`, `classical`等で、`classical-propositional`ではない）
+  - lcovのDA行でカバレッジゼロの行を特定するパターン: `awk '/SF:.*FileName$/,/end_of_record/' coverage/lcov.info | grep "^DA:" | grep ",0$"`
+  - 編集/作成フォームのonChangeテスト: `fireEvent.change(element, { target: { value: "..." } })` が最も直接的
+  - バリデーションエラーフォーカステスト: `document.activeElement` でフォーカス先を確認可能
+---
