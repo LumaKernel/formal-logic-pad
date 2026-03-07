@@ -10,6 +10,12 @@ import {
   resetExecution,
   formatRunError,
   executionStatusLabel,
+  updateAutoPlayInterval,
+  sliderToIntervalMs,
+  intervalMsToSlider,
+  DEFAULT_AUTO_PLAY_INTERVAL_MS,
+  MIN_AUTO_PLAY_INTERVAL_MS,
+  MAX_AUTO_PLAY_INTERVAL_MS,
   defaultEditorOptions,
 } from "./scriptEditorLogic";
 import type {
@@ -27,6 +33,9 @@ describe("scriptEditorLogic", () => {
       expect(initialScriptEditorState.currentStep).toBe(0);
       expect(initialScriptEditorState.errorMessage).toBeNull();
       expect(initialScriptEditorState.code).toContain("Proof Bridge API");
+      expect(initialScriptEditorState.autoPlayIntervalMs).toBe(
+        DEFAULT_AUTO_PLAY_INTERVAL_MS,
+      );
     });
   });
 
@@ -245,6 +254,69 @@ describe("scriptEditorLogic", () => {
 
     it.each(cases)("%s → %s", (status, expected) => {
       expect(executionStatusLabel(status)).toBe(expected);
+    });
+  });
+
+  describe("updateAutoPlayInterval", () => {
+    it("間隔を更新する", () => {
+      const result = updateAutoPlayInterval(initialScriptEditorState, 500);
+      expect(result.autoPlayIntervalMs).toBe(500);
+    });
+
+    it("最小値でクランプされる", () => {
+      const result = updateAutoPlayInterval(initialScriptEditorState, 1);
+      expect(result.autoPlayIntervalMs).toBe(MIN_AUTO_PLAY_INTERVAL_MS);
+    });
+
+    it("最大値でクランプされる", () => {
+      const result = updateAutoPlayInterval(initialScriptEditorState, 99999);
+      expect(result.autoPlayIntervalMs).toBe(MAX_AUTO_PLAY_INTERVAL_MS);
+    });
+
+    it("他の状態を保持する", () => {
+      const state: ScriptEditorState = {
+        ...initialScriptEditorState,
+        executionStatus: "stepping",
+        currentStep: 42,
+      };
+      const result = updateAutoPlayInterval(state, 300);
+      expect(result.executionStatus).toBe("stepping");
+      expect(result.currentStep).toBe(42);
+      expect(result.autoPlayIntervalMs).toBe(300);
+    });
+  });
+
+  describe("sliderToIntervalMs", () => {
+    it("0 で最速（最小間隔）", () => {
+      expect(sliderToIntervalMs(0)).toBe(MIN_AUTO_PLAY_INTERVAL_MS);
+    });
+
+    it("100 で最遅（最大間隔）", () => {
+      expect(sliderToIntervalMs(100)).toBe(MAX_AUTO_PLAY_INTERVAL_MS);
+    });
+
+    it("50 で中間値", () => {
+      const expected = Math.round(
+        MIN_AUTO_PLAY_INTERVAL_MS +
+          0.5 * (MAX_AUTO_PLAY_INTERVAL_MS - MIN_AUTO_PLAY_INTERVAL_MS),
+      );
+      expect(sliderToIntervalMs(50)).toBe(expected);
+    });
+  });
+
+  describe("intervalMsToSlider", () => {
+    it("最小間隔で 0", () => {
+      expect(intervalMsToSlider(MIN_AUTO_PLAY_INTERVAL_MS)).toBe(0);
+    });
+
+    it("最大間隔で 100", () => {
+      expect(intervalMsToSlider(MAX_AUTO_PLAY_INTERVAL_MS)).toBe(100);
+    });
+
+    it("往復変換が一致する", () => {
+      const slider = 42;
+      const interval = sliderToIntervalMs(slider);
+      expect(intervalMsToSlider(interval)).toBe(slider);
     });
   });
 

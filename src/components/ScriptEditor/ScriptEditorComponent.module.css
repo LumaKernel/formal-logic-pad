@@ -86,6 +86,35 @@
   margin-left: auto;
 }
 
+.speedBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-top: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-badge-bg, #e8eaf0);
+  font-size: var(--font-size-xs, 11px);
+}
+
+.speedLabel {
+  color: var(--color-text-secondary, #666666);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.speedSlider {
+  flex: 1;
+  min-width: 80px;
+  cursor: pointer;
+}
+
+.speedValue {
+  color: var(--color-text-secondary, #666666);
+  min-width: 50px;
+  text-align: right;
+  white-space: nowrap;
+}
+
 .consoleArea {
   max-height: 150px;
   overflow-y: auto;

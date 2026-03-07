@@ -8,7 +8,7 @@
  */
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import type { OnMount, BeforeMount } from "@monaco-editor/react";
 import {
@@ -31,6 +31,9 @@ import {
   setRunResult,
   resetExecution,
   executionStatusLabel,
+  updateAutoPlayInterval,
+  sliderToIntervalMs,
+  intervalMsToSlider,
   defaultEditorOptions,
 } from "./scriptEditorLogic";
 import type { ScriptEditorState } from "./scriptEditorLogic";
@@ -64,6 +67,8 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
   );
 
   const runnerRef = useRef<ScriptRunnerInstance | null>(null);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+  const autoPlayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ── console.log ブリッジ ────────────────────────────────────
 
@@ -213,9 +218,99 @@ declare var console: {
     consoleShimCode,
   ]);
 
+  // ── 自動再生の1ステップ実行 ──────────────────────────────────
+
+  const executeOneStep = useCallback(() => {
+    const runner = runnerRef.current;
+    if (!runner) {
+      setIsAutoPlaying(false);
+      return;
+    }
+    const stepStatus = runner.step();
+    setState((prev) => {
+      const next = recordStep(prev, stepStatus);
+      if (stepStatus._tag === "Done" || stepStatus._tag === "Error") {
+        runnerRef.current = null;
+        setIsAutoPlaying(false);
+      }
+      return next;
+    });
+  }, []);
+
+  // ── Play (自動ステップ実行開始) ──────────────────────────────
+
+  const handlePlay = useCallback(() => {
+    if (state.executionStatus === "done" || state.executionStatus === "error") {
+      runnerRef.current = null;
+    }
+
+    if (runnerRef.current === null) {
+      const bridges = [...createProofBridges(), ...createConsoleBridges()];
+      const fullCode = consoleShimCode + state.code;
+      const result = createScriptRunner(fullCode, {
+        bridges,
+        maxSteps: 100_000,
+        maxTimeMs: 10_000,
+      });
+
+      if (isScriptRunResult(result)) {
+        setState((prev) => setRunResult(startStepping(prev), result));
+        return;
+      }
+
+      runnerRef.current = result;
+      setState((prev) => startStepping(prev));
+    }
+
+    setIsAutoPlaying(true);
+  }, [
+    state.executionStatus,
+    state.code,
+    createConsoleBridges,
+    consoleShimCode,
+  ]);
+
+  // ── Pause (自動再生停止) ─────────────────────────────────────
+
+  const handlePause = useCallback(() => {
+    setIsAutoPlaying(false);
+  }, []);
+
+  // ── 自動再生タイマー制御 ─────────────────────────────────────
+
+  useEffect(() => {
+    if (isAutoPlaying) {
+      autoPlayTimerRef.current = setInterval(
+        executeOneStep,
+        state.autoPlayIntervalMs,
+      );
+    } else if (autoPlayTimerRef.current !== null) {
+      clearInterval(autoPlayTimerRef.current);
+      autoPlayTimerRef.current = null;
+    }
+    return () => {
+      if (autoPlayTimerRef.current !== null) {
+        clearInterval(autoPlayTimerRef.current);
+        autoPlayTimerRef.current = null;
+      }
+    };
+  }, [isAutoPlaying, state.autoPlayIntervalMs, executeOneStep]);
+
+  // ── 速度スライダー ──────────────────────────────────────────
+
+  const handleSpeedChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const sliderValue = Number(e.target.value);
+      const intervalMs = sliderToIntervalMs(sliderValue);
+      setState((prev) => updateAutoPlayInterval(prev, intervalMs));
+    },
+    [],
+  );
+
   // ── Reset ──────────────────────────────────────────────────────
 
   const handleReset = useCallback(() => {
+    setIsAutoPlaying(false);
     runnerRef.current = null;
     setState((prev) => resetExecution(prev));
   }, []);
@@ -274,11 +369,31 @@ declare var console: {
           type="button"
           className={styles["button"]}
           onClick={handleStep}
-          disabled={state.executionStatus === "running"}
+          disabled={state.executionStatus === "running" || isAutoPlaying}
           data-testid="step-button"
         >
           Step
         </button>
+        {isAutoPlaying ? (
+          <button
+            type="button"
+            className={styles["button"]}
+            onClick={handlePause}
+            data-testid="pause-button"
+          >
+            Pause
+          </button>
+        ) : (
+          <button
+            type="button"
+            className={styles["button"]}
+            onClick={handlePlay}
+            disabled={state.executionStatus === "running"}
+            data-testid="play-button"
+          >
+            Play
+          </button>
+        )}
         <button
           type="button"
           className={styles["button"]}
@@ -297,6 +412,26 @@ declare var console: {
             data-testid="step-count"
           >{`${String(state.currentStep) satisfies string} steps`}</span>
         )}
+      </div>
+
+      <div className={styles["speedBar"]} data-testid="speed-bar">
+        <label className={styles["speedLabel"]} htmlFor="speed-slider">
+          Speed
+        </label>
+        <input
+          id="speed-slider"
+          type="range"
+          min={0}
+          max={100}
+          value={intervalMsToSlider(state.autoPlayIntervalMs)}
+          onChange={handleSpeedChange}
+          className={styles["speedSlider"]}
+          data-testid="speed-slider"
+        />
+        <span
+          className={styles["speedValue"]}
+          data-testid="speed-value"
+        >{`${String(state.autoPlayIntervalMs) satisfies string}ms`}</span>
       </div>
 
       {state.errorMessage !== null && (

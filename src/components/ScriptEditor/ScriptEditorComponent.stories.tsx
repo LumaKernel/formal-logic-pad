@@ -25,9 +25,11 @@ export const Default: Story = {
     // ボタンが存在する
     const runButton = canvas.getByTestId("run-button");
     const stepButton = canvas.getByTestId("step-button");
+    const playButton = canvas.getByTestId("play-button");
     const resetButton = canvas.getByTestId("reset-button");
     await expect(runButton).toBeDefined();
     await expect(stepButton).toBeDefined();
+    await expect(playButton).toBeDefined();
     await expect(resetButton).toBeDefined();
 
     // 初期状態は Ready
@@ -36,6 +38,16 @@ export const Default: Story = {
 
     // Reset は idle 時に disabled
     await expect(resetButton.getAttribute("disabled")).toBe("");
+
+    // 速度スライダーが表示される
+    const speedBar = canvas.getByTestId("speed-bar");
+    await expect(speedBar).toBeDefined();
+
+    const speedSlider = canvas.getByTestId("speed-slider");
+    await expect(speedSlider).toBeDefined();
+
+    const speedValue = canvas.getByTestId("speed-value");
+    await expect(speedValue.textContent).toContain("ms");
   },
 };
 
@@ -59,5 +71,9 @@ console.log(formatFormula(f));`,
     // Run ボタンが有効
     const runButton = canvas.getByTestId("run-button");
     await expect(runButton.getAttribute("disabled")).toBeNull();
+
+    // Play ボタンが有効
+    const playButton = canvas.getByTestId("play-button");
+    await expect(playButton.getAttribute("disabled")).toBeNull();
   },
 };
