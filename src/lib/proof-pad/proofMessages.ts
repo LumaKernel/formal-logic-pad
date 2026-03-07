@@ -129,6 +129,11 @@ export type ProofMessages = {
   /** 公理インスタンスが直接ルートノードに配置されている場合のメッセージ */
   readonly instanceRootViolationDetail: string;
 
+  // --- 推論規則制限 ---
+  readonly proofCompleteButRuleViolation: string;
+  /** `{ruleIds}` プレースホルダーを含む */
+  readonly ruleViolationDetail: string;
+
   // --- TAB ---
   /** `{ruleName}` プレースホルダーを含む */
   readonly tabBannerSelectNode: string;
@@ -372,6 +377,10 @@ export const defaultProofMessages: ProofMessages = {
   axiomViolationDetail: "Disallowed axiom(s) used: {axiomIds}",
   instanceRootViolationDetail:
     "Axiom instances must be derived via substitution, not placed directly.",
+
+  // Rule restriction
+  proofCompleteButRuleViolation: "Proof Complete (rule restriction violated)",
+  ruleViolationDetail: "Disallowed rule(s) used: {ruleIds}",
 
   // TAB
   tabBannerSelectNode: "Click a sequent node to apply {ruleName}",

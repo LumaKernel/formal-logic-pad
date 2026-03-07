@@ -98,6 +98,8 @@
     "proofCompleteButAxiomViolation": "Proof Complete (axiom restriction violated)",
     "axiomViolationDetail": "Disallowed axiom(s) used: {axiomIds}",
     "instanceRootViolationDetail": "Axiom instances must be derived via substitution, not placed directly.",
+    "proofCompleteButRuleViolation": "Proof Complete (rule restriction violated)",
+    "ruleViolationDetail": "Disallowed rule(s) used: {ruleIds}",
     "tabBannerSelectNode": "Click a sequent node to apply {ruleName}",
     "tabCancel": "Cancel TAB",
     "tabApplied": "TAB rule applied",

@@ -25,7 +25,7 @@ import type {
   WorkspaceMode,
   NodeRole,
 } from "./workspaceState";
-import type { InferenceEdge } from "./inferenceEdge";
+import type { InferenceEdge, InferenceRuleId } from "./inferenceEdge";
 import type { ProofNodeKind } from "./proofNodeUI";
 
 // --- 公理ID定数 ---
@@ -72,6 +72,46 @@ const PropositionalAxiomIdSchema = Schema.Literal(...PROPOSITIONAL_AXIOM_IDS);
 
 /** 全公理IDのSchema */
 const AllAxiomIdSchema = Schema.Literal(...ALL_AXIOM_IDS);
+
+const ALL_INFERENCE_RULE_IDS = [
+  // Hilbert
+  "mp",
+  "gen",
+  "substitution",
+  // ND
+  "nd-implication-intro",
+  "nd-implication-elim",
+  "nd-conjunction-intro",
+  "nd-conjunction-elim-left",
+  "nd-conjunction-elim-right",
+  "nd-disjunction-intro-left",
+  "nd-disjunction-intro-right",
+  "nd-disjunction-elim",
+  "nd-weakening",
+  "nd-efq",
+  "nd-dne",
+  "nd-universal-intro",
+  "nd-universal-elim",
+  "nd-existential-intro",
+  "nd-existential-elim",
+  // TAB
+  "tab-single",
+  "tab-branching",
+  "tab-axiom",
+  // AT
+  "at-alpha",
+  "at-beta",
+  "at-gamma",
+  "at-delta",
+  "at-closed",
+  // SC
+  "sc-single",
+  "sc-branching",
+  "sc-axiom",
+] as const satisfies readonly InferenceRuleId[];
+
+/** 全推論規則IDのSchema */
+const AllInferenceRuleIdSchema = Schema.Literal(...ALL_INFERENCE_RULE_IDS);
 
 /**
  * LogicSystemのSchema（JSON形式 ↔ LogicSystem）。
@@ -544,6 +584,7 @@ const WorkspaceGoalSchema = Schema.Struct({
   formulaText: Schema.String,
   label: Schema.optional(Schema.String),
   allowedAxiomIds: Schema.optional(Schema.Array(AllAxiomIdSchema)),
+  allowedRuleIds: Schema.optional(Schema.Array(AllInferenceRuleIdSchema)),
 });
 
 /** WorkspaceModeのSchema */

@@ -1986,9 +1986,13 @@ export function ProofWorkspace({
   const isGoalAchievedButAxiomViolation =
     questGoalResult?._tag === "AllAchievedButAxiomViolation";
 
+  const isGoalAchievedButRuleViolation =
+    questGoalResult?._tag === "AllAchievedButRuleViolation";
+
   const isGoalAchieved =
     (goalCheckResult._tag === "GoalAllAchieved" &&
-      !isGoalAchievedButAxiomViolation) ||
+      !isGoalAchievedButAxiomViolation &&
+      !isGoalAchievedButRuleViolation) ||
     questGoalResult?._tag === "AllAchieved";
 
   // --- ゴール達成コールバック（達成へ遷移した瞬間に1回だけ発火） ---
@@ -4402,6 +4406,38 @@ export function ProofWorkspace({
                     ) : null}
                   </>
                 );
+              })()}
+            </div>
+          ) : null}
+        </div>
+      ) : isGoalAchievedButRuleViolation ? (
+        <div
+          style={proofCompleteAxiomViolationBannerStyle}
+          data-testid={
+            testId
+              ? `${testId satisfies string}-proof-complete-banner-rule-violation`
+              : undefined
+          }
+        >
+          <div>{msg.proofCompleteButRuleViolation}</div>
+          {questGoalResult?._tag === "AllAchievedButRuleViolation" ? (
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 400,
+                marginTop: 4,
+                fontVariant: "normal" as const,
+              }}
+            >
+              {(() => {
+                const violatingIds = questGoalResult.goalResults
+                  .flatMap((r) => [...r.violatingRuleIds])
+                  .filter((v, i, a) => a.indexOf(v) === i);
+                return violatingIds.length > 0
+                  ? formatMessage(msg.ruleViolationDetail, {
+                      ruleIds: violatingIds.join(", "),
+                    })
+                  : null;
               })()}
             </div>
           ) : null}

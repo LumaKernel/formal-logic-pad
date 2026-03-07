@@ -7,9 +7,10 @@ import {
   checkQuestGoalsWithAxioms,
   checkQuestGoalsWithAxiomsEffect,
   computeViolatingAxiomIds,
+  computeViolatingRuleIds,
 } from "./questCompletionLogic";
 import type { WorkspaceNode, WorkspaceGoal } from "../proof-pad/workspaceState";
-import type { InferenceEdge } from "../proof-pad/inferenceEdge";
+import type { InferenceEdge, InferenceRuleId } from "../proof-pad/inferenceEdge";
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
 
 // --- ヘルパー ---
@@ -666,5 +667,361 @@ describe("checkQuestGoalsWithAxiomsEffect", () => {
       checkQuestGoalsWithAxiomsEffect(goals, nodes, [], lukasiewiczSystem),
     );
     expect(effectResult).toEqual(syncResult);
+  });
+
+  test("Effect版がSync版と同じAllAchievedButRuleViolation結果を返す", () => {
+    // ゴール式は導出ノードのみが持つ式（スキーマとは異なる）
+    const goals = [
+      makeGoal({
+        id: "g1",
+        formulaText: "phi -> ((phi -> phi) -> phi)",
+        allowedRuleIds: ["gen"],
+      }),
+    ];
+    const nodes = [
+      makeNode({
+        id: "a1-schema",
+        kind: "axiom",
+        formulaText: "phi -> (psi -> phi)",
+      }),
+      makeNode({
+        id: "a1-derived",
+        kind: "axiom",
+        formulaText: "phi -> ((phi -> phi) -> phi)",
+      }),
+    ];
+    const inferenceEdges: readonly InferenceEdge[] = [
+      {
+        _tag: "substitution",
+        conclusionNodeId: "a1-derived",
+        premiseNodeId: "a1-schema",
+        entries: [],
+        conclusionText: "phi -> ((phi -> phi) -> phi)",
+      },
+    ];
+    const syncResult = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      inferenceEdges,
+      lukasiewiczSystem,
+    );
+    const effectResult = Effect.runSync(
+      checkQuestGoalsWithAxiomsEffect(
+        goals,
+        nodes,
+        inferenceEdges,
+        lukasiewiczSystem,
+      ),
+    );
+    expect(effectResult).toEqual(syncResult);
+    expect(syncResult._tag).toBe("AllAchievedButRuleViolation");
+  });
+});
+
+// --- computeViolatingRuleIds ---
+
+describe("computeViolatingRuleIds", () => {
+  test("allowedRuleIdsがundefinedなら空集合を返す", () => {
+    const used: ReadonlySet<InferenceRuleId> = new Set(["mp", "gen"]);
+    const result = computeViolatingRuleIds(used, undefined);
+    expect(result).toEqual(new Set());
+  });
+
+  test("使用規則がすべて許可されていれば空集合を返す", () => {
+    const used: ReadonlySet<InferenceRuleId> = new Set(["mp", "gen"]);
+    const result = computeViolatingRuleIds(used, [
+      "mp",
+      "gen",
+      "substitution",
+    ]);
+    expect(result).toEqual(new Set());
+  });
+
+  test("許可されていない規則を返す", () => {
+    const used: ReadonlySet<InferenceRuleId> = new Set([
+      "mp",
+      "gen",
+      "substitution",
+    ]);
+    const result = computeViolatingRuleIds(used, ["mp", "gen"]);
+    expect(result).toEqual(new Set(["substitution"]));
+  });
+
+  test("使用規則が空なら空集合を返す", () => {
+    const used: ReadonlySet<InferenceRuleId> = new Set();
+    const result = computeViolatingRuleIds(used, ["mp"]);
+    expect(result).toEqual(new Set());
+  });
+
+  test("許可が空リストならすべて違反", () => {
+    const used: ReadonlySet<InferenceRuleId> = new Set(["mp", "gen"]);
+    const result = computeViolatingRuleIds(used, []);
+    expect(result).toEqual(new Set(["mp", "gen"]));
+  });
+});
+
+// --- 規則制限付きゴール達成チェック ---
+
+describe("checkQuestGoalsWithAxioms (rule restriction)", () => {
+  const lukasiewiczSystem: LogicSystem = {
+    name: "Łukasiewicz",
+    propositionalAxioms: new Set(["A1", "A2", "A3"]),
+    predicateLogic: false,
+    equalityLogic: false,
+    generalization: false,
+  };
+
+  function makeMPEdge(
+    conclusionNodeId: string,
+    leftPremiseNodeId: string,
+    rightPremiseNodeId: string,
+  ): InferenceEdge {
+    return {
+      _tag: "mp",
+      conclusionNodeId,
+      leftPremiseNodeId,
+      rightPremiseNodeId,
+      conclusionText: "",
+    };
+  }
+
+  test("ゴール達成・規則制限なしでAllAchievedを返す", () => {
+    // ゴール式は導出ノードのみが持つ式（スキーマとは異なる）
+    const goals = [
+      makeGoal({ id: "g1", formulaText: "phi -> ((phi -> phi) -> phi)" }),
+    ];
+    const nodes = [
+      makeNode({
+        id: "a1-schema",
+        kind: "axiom",
+        formulaText: "phi -> (psi -> phi)",
+      }),
+      makeNode({
+        id: "a1-derived",
+        kind: "axiom",
+        formulaText: "phi -> ((phi -> phi) -> phi)",
+      }),
+    ];
+    const inferenceEdges: readonly InferenceEdge[] = [
+      {
+        _tag: "substitution",
+        conclusionNodeId: "a1-derived",
+        premiseNodeId: "a1-schema",
+        entries: [],
+        conclusionText: "phi -> ((phi -> phi) -> phi)",
+      },
+    ];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      inferenceEdges,
+      lukasiewiczSystem,
+    );
+    expect(result._tag).toBe("AllAchieved");
+    if (result._tag === "AllAchieved") {
+      expect(result.goalResults[0]?.usedRuleIds).toEqual(
+        new Set(["substitution"]),
+      );
+      expect(result.goalResults[0]?.violatingRuleIds).toEqual(new Set());
+    }
+  });
+
+  test("ゴール達成・規則制限内でAllAchievedを返す", () => {
+    // ゴール式は導出ノードのみが持つ式（スキーマとは異なる）
+    const goals = [
+      makeGoal({
+        id: "g1",
+        formulaText: "phi -> ((phi -> phi) -> phi)",
+        allowedRuleIds: ["mp", "substitution"],
+      }),
+    ];
+    const nodes = [
+      makeNode({
+        id: "a1-schema",
+        kind: "axiom",
+        formulaText: "phi -> (psi -> phi)",
+      }),
+      makeNode({
+        id: "a1-derived",
+        kind: "axiom",
+        formulaText: "phi -> ((phi -> phi) -> phi)",
+      }),
+    ];
+    const inferenceEdges: readonly InferenceEdge[] = [
+      {
+        _tag: "substitution",
+        conclusionNodeId: "a1-derived",
+        premiseNodeId: "a1-schema",
+        entries: [],
+        conclusionText: "phi -> ((phi -> phi) -> phi)",
+      },
+    ];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      inferenceEdges,
+      lukasiewiczSystem,
+    );
+    expect(result._tag).toBe("AllAchieved");
+  });
+
+  test("ゴール達成・規則制限違反でAllAchievedButRuleViolationを返す", () => {
+    // ゴール式は導出ノードのみが持つ式（スキーマとは異なる）
+    const goals = [
+      makeGoal({
+        id: "g1",
+        formulaText: "phi -> ((phi -> phi) -> phi)",
+        allowedRuleIds: ["mp"],
+      }),
+    ];
+    const nodes = [
+      makeNode({
+        id: "a1-schema",
+        kind: "axiom",
+        formulaText: "phi -> (psi -> phi)",
+      }),
+      makeNode({
+        id: "a1-derived",
+        kind: "axiom",
+        formulaText: "phi -> ((phi -> phi) -> phi)",
+      }),
+    ];
+    const inferenceEdges: readonly InferenceEdge[] = [
+      {
+        _tag: "substitution",
+        conclusionNodeId: "a1-derived",
+        premiseNodeId: "a1-schema",
+        entries: [],
+        conclusionText: "phi -> ((phi -> phi) -> phi)",
+      },
+    ];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      inferenceEdges,
+      lukasiewiczSystem,
+    );
+    expect(result._tag).toBe("AllAchievedButRuleViolation");
+    if (result._tag === "AllAchievedButRuleViolation") {
+      expect(result.goalResults[0]?.violatingRuleIds).toEqual(
+        new Set(["substitution"]),
+      );
+    }
+  });
+
+  test("公理制限違反と規則制限違反が両方ある場合は公理違反が優先される", () => {
+    // A1インスタンスを直接配置（公理制限違反）+ substitution使用（規則制限違反）
+    const goals = [
+      makeGoal({
+        id: "g1",
+        formulaText: "phi -> ((phi -> phi) -> phi)",
+        allowedAxiomIds: ["A2"],
+        allowedRuleIds: ["mp"],
+      }),
+    ];
+    const nodes = [
+      makeNode({
+        id: "a1-instance",
+        kind: "axiom",
+        formulaText: "phi -> ((phi -> phi) -> phi)",
+      }),
+    ];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
+    // hasInstanceRootNodes = true なので公理違反が先にチェックされる
+    expect(result._tag).toBe("AllAchievedButAxiomViolation");
+  });
+
+  test("MP導出で規則制限違反をチェックする", () => {
+    // a1 + a3 → [mp] → mp1
+    // ゴールはmpを許可しない
+    const goals = [
+      makeGoal({
+        id: "g1",
+        formulaText: "psi -> phi",
+        allowedRuleIds: ["gen", "substitution"],
+      }),
+    ];
+    const nodes = [
+      makeNode({
+        id: "a1",
+        kind: "axiom",
+        formulaText: "phi -> (psi -> phi)",
+      }),
+      makeNode({
+        id: "a3",
+        kind: "axiom",
+        formulaText: "(~phi -> ~psi) -> (psi -> phi)",
+      }),
+      makeNode({
+        id: "mp1",
+        kind: "axiom",
+        formulaText: "psi -> phi",
+      }),
+    ];
+    const inferenceEdges = [makeMPEdge("mp1", "a1", "a3")];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      inferenceEdges,
+      lukasiewiczSystem,
+    );
+    expect(result._tag).toBe("AllAchievedButRuleViolation");
+    if (result._tag === "AllAchievedButRuleViolation") {
+      expect(result.goalResults[0]?.usedRuleIds).toEqual(new Set(["mp"]));
+      expect(result.goalResults[0]?.violatingRuleIds).toEqual(new Set(["mp"]));
+    }
+  });
+
+  test("推論規則なし（ルートノードのみ）で規則制限が空でもAllAchievedを返す", () => {
+    const goals = [
+      makeGoal({
+        id: "g1",
+        formulaText: "phi -> (psi -> phi)",
+        allowedRuleIds: [],
+      }),
+    ];
+    const nodes = [
+      makeNode({
+        id: "a1",
+        kind: "axiom",
+        formulaText: "phi -> (psi -> phi)",
+      }),
+    ];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
+    // ルートノードのみ（推論規則なし）→ 規則違反なし
+    expect(result._tag).toBe("AllAchieved");
+  });
+
+  test("未達成ゴールでもusedRuleIdsとviolatingRuleIdsが空集合で返る", () => {
+    const goals = [
+      makeGoal({
+        id: "g1",
+        formulaText: "phi -> phi",
+        allowedRuleIds: ["mp"],
+      }),
+    ];
+    const nodes: readonly WorkspaceNode[] = [];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
+    expect(result._tag).toBe("NotAllAchieved");
+    if (result._tag === "NotAllAchieved") {
+      expect(result.goalResults[0]?.usedRuleIds).toEqual(new Set());
+      expect(result.goalResults[0]?.violatingRuleIds).toEqual(new Set());
+      expect(result.goalResults[0]?.allowedRuleIds).toEqual(["mp"]);
+    }
   });
 });

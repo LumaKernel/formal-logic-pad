@@ -5,6 +5,7 @@ import {
   getSubtreeNodeIds,
   getProofNodeIds,
   getNodeAxiomIds,
+  getNodeInferenceRuleIds,
   validateRootNodes,
   getInstanceRootNodeIds,
   hasInstanceRoots,
@@ -870,6 +871,90 @@ describe("dependencyLogic", () => {
     it("単一要素の配列はそのまま返す", () => {
       const deps = [{ nodeId: "a1", displayName: "A1" }];
       expect(deduplicateDependencyInfos(deps)).toEqual(deps);
+    });
+  });
+
+  describe("getNodeInferenceRuleIds", () => {
+    it("InferenceEdgeがないノードは空集合を返す", () => {
+      const edges: readonly InferenceEdge[] = [];
+      const result = getNodeInferenceRuleIds("node-1", edges);
+      expect(result).toEqual(new Set());
+    });
+
+    it("MPエッジで導出されたノードは'mp'を含む", () => {
+      const edges = [makeMPEdge("mp-1", "axiom-1", "axiom-2")];
+      const result = getNodeInferenceRuleIds("mp-1", edges);
+      expect(result).toEqual(new Set(["mp"]));
+    });
+
+    it("Genエッジで導出されたノードは'gen'を含む", () => {
+      const edges = [makeGenEdge("gen-1", "axiom-1")];
+      const result = getNodeInferenceRuleIds("gen-1", edges);
+      expect(result).toEqual(new Set(["gen"]));
+    });
+
+    it("Substitutionエッジで導出されたノードは'substitution'を含む", () => {
+      const edges = [makeSubstEdge("subst-1", "axiom-1")];
+      const result = getNodeInferenceRuleIds("subst-1", edges);
+      expect(result).toEqual(new Set(["substitution"]));
+    });
+
+    it("チェーン状の導出で複数の規則IDを収集する", () => {
+      // axiom-1 → [subst] → subst-1 → [mp] → mp-1
+      const edges: readonly InferenceEdge[] = [
+        makeSubstEdge("subst-1", "axiom-1"),
+        makeMPEdge("mp-1", "subst-1", "axiom-2"),
+      ];
+      const result = getNodeInferenceRuleIds("mp-1", edges);
+      expect(result).toEqual(new Set(["mp", "substitution"]));
+    });
+
+    it("MP + Gen のチェーンで両方を収集する", () => {
+      // axiom-1, axiom-2 → [mp] → mp-1 → [gen] → gen-1
+      const edges: readonly InferenceEdge[] = [
+        makeMPEdge("mp-1", "axiom-1", "axiom-2"),
+        makeGenEdge("gen-1", "mp-1"),
+      ];
+      const result = getNodeInferenceRuleIds("gen-1", edges);
+      expect(result).toEqual(new Set(["mp", "gen"]));
+    });
+
+    it("ダイヤモンド形状でも重複なく規則IDを収集する", () => {
+      // axiom-1 → [subst] → s1
+      // axiom-2 → [subst] → s2
+      // s1, s2 → [mp] → mp-1
+      const edges: readonly InferenceEdge[] = [
+        makeSubstEdge("s1", "axiom-1"),
+        makeSubstEdge("s2", "axiom-2"),
+        makeMPEdge("mp-1", "s1", "s2"),
+      ];
+      const result = getNodeInferenceRuleIds("mp-1", edges);
+      expect(result).toEqual(new Set(["mp", "substitution"]));
+    });
+
+    it("ルートノードからは空集合を返す（上流にエッジなし）", () => {
+      const edges = [makeMPEdge("mp-1", "axiom-1", "axiom-2")];
+      const result = getNodeInferenceRuleIds("axiom-1", edges);
+      expect(result).toEqual(new Set());
+    });
+
+    it("存在しないノードIDは空集合を返す", () => {
+      const edges = [makeMPEdge("mp-1", "axiom-1", "axiom-2")];
+      const result = getNodeInferenceRuleIds("nonexistent", edges);
+      expect(result).toEqual(new Set());
+    });
+
+    it("深いチェーンで全規則を収集する", () => {
+      // axiom-1 → [subst] → s1
+      // s1, axiom-2 → [mp] → mp-1
+      // mp-1 → [gen] → gen-1
+      const edges: readonly InferenceEdge[] = [
+        makeSubstEdge("s1", "axiom-1"),
+        makeMPEdge("mp-1", "s1", "axiom-2"),
+        makeGenEdge("gen-1", "mp-1"),
+      ];
+      const result = getNodeInferenceRuleIds("gen-1", edges);
+      expect(result).toEqual(new Set(["substitution", "mp", "gen"]));
     });
   });
 });

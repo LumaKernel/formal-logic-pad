@@ -105,6 +105,7 @@ export {
   checkQuestGoalsWithAxioms,
   checkQuestGoalsWithAxiomsEffect,
   computeViolatingAxiomIds,
+  computeViolatingRuleIds,
   type QuestGoalCheckResult,
   type QuestGoalCheckWithAxiomsResult,
   type GoalAxiomCheckResult,

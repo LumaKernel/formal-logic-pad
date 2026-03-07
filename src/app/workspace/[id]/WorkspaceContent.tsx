@@ -107,6 +107,8 @@ function useProofMessagesFromIntl(): ProofMessages {
       proofCompleteButAxiomViolation: t("proofCompleteButAxiomViolation"),
       axiomViolationDetail: String(t.raw("axiomViolationDetail")),
       instanceRootViolationDetail: t("instanceRootViolationDetail"),
+      proofCompleteButRuleViolation: t("proofCompleteButRuleViolation"),
+      ruleViolationDetail: String(t.raw("ruleViolationDetail")),
       tabBannerSelectNode: String(t.raw("tabBannerSelectNode")),
       tabCancel: t("tabCancel"),
       tabApplied: t("tabApplied"),
