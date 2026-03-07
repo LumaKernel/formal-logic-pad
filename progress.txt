@@ -9632,3 +9632,33 @@
   - 自作クエストの `order` はデフォルト0。カタログ表示時にはビルトインの後に並ぶ
   - V8カバレッジマージquirk: 単体で100%のFuncsが全体スイートでは55%になることがある（既知の問題）
 ---
+
+## 2026-03-07 - custom-quest 自作クエスト一覧の表示UI
+- 実装した内容:
+  - 自作クエストをカタログアイテムに変換する純粋ロジック (customQuestCatalogLogic.ts)
+  - localStorage永続化 React hook (useCustomQuestCollection.ts)
+  - 自作クエスト一覧の表示コンポーネント (CustomQuestListComponent.tsx)
+  - HubPageViewに自作クエストセクションを追加
+  - HubContentで自作クエストデータの読込・接続
+- 変更したファイル:
+  - src/lib/quest/customQuestCatalogLogic.ts（新規）
+  - src/lib/quest/customQuestCatalogLogic.test.ts（新規）
+  - src/lib/quest/useCustomQuestCollection.ts（新規）
+  - src/lib/quest/useCustomQuestCollection.test.tsx（新規）
+  - src/lib/quest/CustomQuestListComponent.tsx（新規）
+  - src/lib/quest/CustomQuestListComponent.stories.tsx（新規）
+  - src/lib/quest/index.ts
+  - src/app/HubPageView.tsx
+  - src/app/HubPageView.stories.tsx
+  - src/app/HubContent.tsx
+  - tasks/prd-custom-quests.md
+- カバレッジ: Stmts 98.80%→98.78%, Branch 93.21%→93.17%, Funcs 88.86%→88.81%, Lines 99.66%→99.63%
+  - V8マージquirkの範囲内（0.04%以内の微減）
+- テスト数: 7951→7976 (+25)
+- **今後のイテレーションへの学び:**
+  - QuestCompletionRecordのタイムスタンプフィールドは `completedAt` であり `timestamp` ではない
+  - 既存の `toCatalogItem` を再利用すれば、ビルトインとカスタムクエストで一貫したカタログアイテム変換が可能
+  - HubContentの `handleStartQuest` はビルトインのみ参照していたので、カスタムクエスト追加時は `mergeWithBuiltinQuests` で統合した全クエストリストを使う
+  - useCustomQuestCollectionフックはuseQuestProgressと同パターン（Effect.ts Layer + localStorage）
+  - CustomQuestListは QuestCatalog とは異なりフラットリスト（カテゴリグルーピング不要）
+---
