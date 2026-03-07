@@ -9530,3 +9530,34 @@
   - `Bottom`はFormula型に存在しない。ScBottomLeftのテストでは通常のMetaVariableで結論シーケントを構成すればOK
   - Storybook環境では`js-interpreter`がMonaco AMDローダーと競合しRun不可（既知の制限）。単体テストで動作確認
 ---
+
+## 2026-03-07 - [script-editor] Run実行の非同期チャンク化とプログレッシブスローダウン
+- 実装した内容:
+  - scriptRunner.tsにrunAsync()メソッドを追加: チャンク単位（デフォルト1000ステップ）で実行し、各チャンク間にsetTimeout(0)でUIスレッドへ制御を返す
+  - RunAsyncAbortSignalによる中断シグナル: Reset時にaborted=trueで即停止
+  - RunAsyncCallbacksによる進捗通知: チャンクごとにonProgress(steps)を呼び出し
+  - scriptEditorLogic.tsにcomputeSlowdownInterval()を追加: ステップ数に応じてauto-playインターバルを段階的に拡大
+    - 10,000ステップ以上: x2倍
+    - 50,000ステップ以上: x4倍
+    - 100,000ステップ以上: x8倍
+  - ScriptEditorComponent.tsxのhandleRunを非同期化: setState内の同期実行からPromiseベースに変更
+  - スローダウンバッジ: effectiveIntervalMs > baseIntervalMsのときUI上に「Slowdown xN」を表示
+  - CSSにslowdownBadgeスタイルを追加
+- 変更ファイル:
+  - src/lib/script-runner/scriptRunner.ts（runAsync追加、RunAsyncAbortSignal/RunAsyncCallbacks型追加）
+  - src/lib/script-runner/scriptRunner.test.ts（+9テスト: runAsync基本・進捗コールバック・中断・制限）
+  - src/lib/script-runner/index.ts（型エクスポート追加）
+  - src/components/ScriptEditor/scriptEditorLogic.ts（computeSlowdownInterval、SlowdownThreshold追加）
+  - src/components/ScriptEditor/scriptEditorLogic.test.ts（+7テスト: スローダウン計算）
+  - src/components/ScriptEditor/ScriptEditorComponent.tsx（handleRun非同期化、スローダウンバッジ）
+  - src/components/ScriptEditor/ScriptEditorComponent.module.css（slowdownBadgeスタイル追加）
+  - tasks/prd-scripted-proof-rewriting.md（タスク完了マーク）
+- カバレッジ: Stmts 98.85%→98.85%, Branch 93.36%→93.34%, Funcs 89.21%→89.22%, Lines 99.70%→99.70%
+- テスト数: 7853→7869 (+16)
+- スクリーンショット: .screenshots/script-editor-async-run-default.png, .screenshots/script-editor-async-run-fullscreen.png
+- **今後のイテレーションへの学び:**
+  - setState内で同期的にrunner.run()を呼ぶとUIスレッドがブロックされる。非同期チャンク実行（runAsync + setTimeout(0)）でUIの応答性を確保
+  - プログレッシブスローダウンはcomputeSlowdownInterval純粋関数として分離。閾値はカスタマイズ可能（DEFAULT_SLOWDOWN_THRESHOLDS）
+  - useEffectのsetIntervalは依存配列にeffectiveIntervalMsを含めることで、ステップ数変化に応じて自動的にインターバルが更新される
+  - RunAsyncAbortSignalはmutableオブジェクト（{ aborted: boolean }）。Promiseベースの非同期実行でrefから中断制御可能
+---
