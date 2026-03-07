@@ -330,13 +330,14 @@ export function createQuestWorkspace(
 
 /**
  * クエストモードから自由帳モードに変換する。
- * ゴールは保持される（自由帳でもゴールは表示可能）。
+ * ゴールは削除される。変換された自由帳はクエストであったことを完全に忘却する。
  */
 export function convertToFreeMode(state: WorkspaceState): WorkspaceState {
   if (state.mode === "free") return state;
   return {
     ...state,
     mode: "free",
+    goals: [],
   };
 }
 

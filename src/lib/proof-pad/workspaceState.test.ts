@@ -1028,15 +1028,13 @@ describe("proofWorkspace", () => {
       expect(result.mode).toBe("free");
     });
 
-    it("preserves goals after conversion", () => {
+    it("clears goals after conversion", () => {
       const ws = createQuestWorkspace(lukasiewiczSystem, [
         { formulaText: "phi" },
         { formulaText: "psi" },
       ]);
       const result = convertToFreeMode(ws);
-      expect(result.goals).toHaveLength(2);
-      expect(result.goals[0]!.formulaText).toBe("phi");
-      expect(result.goals[1]!.formulaText).toBe("psi");
+      expect(result.goals).toHaveLength(0);
     });
 
     it("preserves node data after conversion", () => {

@@ -14,6 +14,8 @@ import {
   convertNotebookToFreeMode,
   listNotebooksByUpdatedAt,
   listNotebooksByCreatedAt,
+  isQuestNotebook,
+  isFreeNotebook,
   type NotebookCollection,
 } from "./notebookState";
 import { createEmptyWorkspace } from "../proof-pad/workspaceState";
@@ -299,6 +301,8 @@ describe("notebookState", () => {
       expect(duplicated!.meta.updatedAt).toBe(now2);
       // questId は複製先には含まれない
       expect(duplicated!.questId).toBeUndefined();
+      // ゴールは複製先で消去される
+      expect(duplicated!.workspace.goals).toHaveLength(0);
       // nextId が更新されている
       expect(result.collection.nextId).toBe(3);
       expect(result.collection.notebooks).toHaveLength(2);
@@ -322,6 +326,64 @@ describe("notebookState", () => {
       const result = convertNotebookToFreeMode(col, "notebook-999", now1);
       expect(result.newNotebookId).toBeUndefined();
       expect(result.collection.notebooks).toHaveLength(0);
+    });
+
+    it("converted notebook is recognized as free by type guard", () => {
+      const col = createQuestNotebook(createEmptyCollection(), {
+        name: "Quest",
+        system,
+        goals: [{ formulaText: "phi -> phi" }],
+        now: now1,
+        questId: "prop-01",
+      });
+
+      const result = convertNotebookToFreeMode(col, "notebook-1", now2);
+      const converted = findNotebook(result.collection, "notebook-2");
+      expect(converted).toBeDefined();
+      expect(isFreeNotebook(converted!)).toBe(true);
+      expect(isQuestNotebook(converted!)).toBe(false);
+    });
+  });
+
+  describe("isQuestNotebook / isFreeNotebook", () => {
+    it("returns true for quest notebook with questId", () => {
+      const col = createQuestNotebook(createEmptyCollection(), {
+        name: "Quest",
+        system,
+        goals: [{ formulaText: "phi" }],
+        now: now1,
+        questId: "prop-01",
+      });
+      const nb = findNotebook(col, "notebook-1");
+      expect(nb).toBeDefined();
+      expect(isQuestNotebook(nb!)).toBe(true);
+      expect(isFreeNotebook(nb!)).toBe(false);
+    });
+
+    it("returns true for free notebook without questId", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "Free",
+        system,
+        now: now1,
+      });
+      const nb = findNotebook(col, "notebook-1");
+      expect(nb).toBeDefined();
+      expect(isFreeNotebook(nb!)).toBe(true);
+      expect(isQuestNotebook(nb!)).toBe(false);
+    });
+
+    it("quest notebook without questId is free", () => {
+      const col = createQuestNotebook(createEmptyCollection(), {
+        name: "Quest without ID",
+        system,
+        goals: [{ formulaText: "phi" }],
+        now: now1,
+      });
+      const nb = findNotebook(col, "notebook-1");
+      expect(nb).toBeDefined();
+      // questIdなしで作成されたクエストモードノートブックは、型としてはFreeNotebook
+      expect(isFreeNotebook(nb!)).toBe(true);
+      expect(nb!.questId).toBeUndefined();
     });
   });
 

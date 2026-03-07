@@ -90,17 +90,22 @@ function parseNotebook(raw: unknown): Notebook | undefined {
     ? (workspace["inferenceEdges"] as readonly unknown[])
     : [];
 
-  return {
-    meta,
-    workspace: {
-      ...workspace,
-      system,
-      deductionSystem: hilbertDeduction(system),
-      inferenceEdges,
-    } as WorkspaceState,
-    ...(questId !== undefined ? { questId } : {}),
-    ...(questVersion !== undefined ? { questVersion } : {}),
-  };
+  const ws = {
+    ...workspace,
+    system,
+    deductionSystem: hilbertDeduction(system),
+    inferenceEdges,
+  } as WorkspaceState;
+
+  if (questId !== undefined) {
+    return {
+      meta,
+      workspace: ws,
+      questId,
+      ...(questVersion !== undefined ? { questVersion } : {}),
+    };
+  }
+  return { meta, workspace: ws };
 }
 
 function parseCollection(raw: unknown): NotebookCollection | undefined {
