@@ -139,6 +139,7 @@ const meta: Meta<typeof HubPageView> = {
     onCreateNotebook: fn(),
     onDuplicateCustomQuest: fn(),
     onDeleteCustomQuest: fn(),
+    onEditCustomQuest: fn(),
     languageToggle: { locale: "en", onLocaleChange: fn() },
   },
 };
@@ -388,7 +389,10 @@ export const WithCustomQuests: Story = {
       canvas.getByTestId("custom-quest-start-btn-custom-1002"),
     );
     await expect(args.onStartQuest).toHaveBeenCalledWith("custom-1002");
-    // 複製・削除ボタンが表示されている
+    // 編集・複製・削除ボタンが表示されている
+    await expect(
+      canvas.getByTestId("custom-quest-edit-btn-custom-1001"),
+    ).toBeInTheDocument();
     await expect(
       canvas.getByTestId("custom-quest-duplicate-btn-custom-1001"),
     ).toBeInTheDocument();
