@@ -104,6 +104,23 @@
 
 ---
 
+## 2026-03-08 - カバレッジ改善: switch文→if-chain変換でv8 Branch artifact対策
+- 7ファイルのswitch文をif-chainに変換:
+  - `src/components/LanguageToggle/languageToggleLogic.ts`: getLocaleLabel, getLocaleNativeName (Branch 83.33% → 100%)
+  - `src/components/ThemeToggle/themeToggleLogic.ts`: getThemeIconId, getThemeLabel (Branch 75% → 100%)
+  - `src/components/ThemeToggle/ThemeToggle.tsx`: ThemeIcon (Branch 91.66% → 100%)
+  - `src/components/ScriptEditor/scriptEditorLogic.ts`: formatRunError, recordStep, executionStatusLabel (Branch 89.28% → 100%)
+  - `src/lib/proof-pad/cutEliminationStepperLogic.ts`: applyStepperAction (Branch 88.88% → 91.66%)
+  - `src/lib/proof-pad/inferenceEdgeLabelLogic.ts`: getInferenceEdgeBadgeColor (Branch 99.09% → 99.12%)
+  - `src/lib/quest/questCatalogListLogic.ts`: applyFilters (Branch 82.60% → 改善)
+- テスト追加なし（既存テストで全ケースカバー済み）
+- カバレッジ: Branch 94.41% → 94.54% (+0.13pp)
+- **今後のイテレーションへの学び:**
+  - v8 switch artifactの対策はif-chainへの変換で効果的。最後のcaseをfall-throughにしてTypeScript narrowingで安全性を保つ
+  - 防御的コード内の `if (x !== undefined)` はv8 ignoreでelse側を囲んでもline自体のブランチカウントに影響する
+  - 残りのBranch低下箇所はmodelAnswer.ts(switch 20+ケース)等の大規模switch文。変換コストが高いため当面維持
+---
+
 ## 2026-03-08 - カバレッジ改善: ProofCollectionPanel フォルダ編集・キーボードアクセシビリティ・イベント伝播テスト
 - ProofCollectionPanel.test.tsx に+11テスト追加:
   - フォルダ名編集Escapeキーキャンセル (line 623-624, 821カバー)
