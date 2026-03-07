@@ -8,6 +8,8 @@ import {
   toggleNodeSelection,
   selectSingleNode,
   clearSelection,
+  getDeductionStyleForEdge,
+  checkPasteCompatibility,
   type ClipboardData,
 } from "./copyPasteLogic";
 import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
@@ -620,5 +622,241 @@ describe("clearSelection", () => {
   it("空のセットを返す", () => {
     const result = clearSelection();
     expect(result.size).toBe(0);
+  });
+});
+
+// --- buildClipboardData with sourceDeductionStyle ---
+
+describe("buildClipboardData with sourceDeductionStyle", () => {
+  it("sourceDeductionStyleを指定するとClipboardDataに含まれる", () => {
+    const result = buildClipboardData(
+      new Set(["node-1"]),
+      allNodes,
+      allConnections,
+      [],
+      "hilbert",
+    );
+    expect(result.sourceDeductionStyle).toBe("hilbert");
+  });
+
+  it("sourceDeductionStyleを省略するとClipboardDataに含まれない", () => {
+    const result = buildClipboardData(
+      new Set(["node-1"]),
+      allNodes,
+      allConnections,
+    );
+    expect(result.sourceDeductionStyle).toBeUndefined();
+  });
+
+  it("sourceDeductionStyleがシリアライズ/デシリアライズで保持される", () => {
+    const original = buildClipboardData(
+      new Set(["node-1"]),
+      allNodes,
+      allConnections,
+      [],
+      "natural-deduction",
+    );
+    const json = serializeClipboardData(original);
+    const restored = deserializeClipboardData(json);
+    expect(restored?.sourceDeductionStyle).toBe("natural-deduction");
+  });
+});
+
+// --- getDeductionStyleForEdge ---
+
+describe("getDeductionStyleForEdge", () => {
+  it("MPエッジからhilbertを推定する", () => {
+    const edge: InferenceEdge = {
+      _tag: "mp",
+      conclusionNodeId: "n1",
+      leftPremiseNodeId: "n2",
+      rightPremiseNodeId: "n3",
+      conclusionText: "",
+    };
+    expect(getDeductionStyleForEdge(edge)).toBe("hilbert");
+  });
+
+  it("Genエッジからhilbertを推定する", () => {
+    const edge: InferenceEdge = {
+      _tag: "gen",
+      conclusionNodeId: "n1",
+      premiseNodeId: "n2",
+      variableName: "x",
+      conclusionText: "",
+    };
+    expect(getDeductionStyleForEdge(edge)).toBe("hilbert");
+  });
+
+  it("SubstitutionエッジからHilbertを推定する", () => {
+    const edge: InferenceEdge = {
+      _tag: "substitution",
+      conclusionNodeId: "n1",
+      premiseNodeId: "n2",
+      entries: [],
+      conclusionText: "",
+    };
+    expect(getDeductionStyleForEdge(edge)).toBe("hilbert");
+  });
+
+  it("ND→Eエッジからnatural-deductionを推定する", () => {
+    const edge: InferenceEdge = {
+      _tag: "nd-implication-elim",
+      conclusionNodeId: "n1",
+      leftPremiseNodeId: "n2",
+      rightPremiseNodeId: "n3",
+      conclusionText: "",
+    };
+    expect(getDeductionStyleForEdge(edge)).toBe("natural-deduction");
+  });
+
+  it("TAB singleエッジからtableau-calculusを推定する", () => {
+    const edge: InferenceEdge = {
+      _tag: "tab-single",
+      conclusionNodeId: "n1",
+      premiseNodeId: "n2",
+      ruleId: "double-negation",
+      conclusionText: "",
+    };
+    expect(getDeductionStyleForEdge(edge)).toBe("tableau-calculus");
+  });
+
+  it("AT alphaエッジからanalytic-tableauを推定する", () => {
+    const edge: InferenceEdge = {
+      _tag: "at-alpha",
+      conclusionNodeId: "n1",
+      resultNodeId: "n2",
+      secondResultNodeId: undefined,
+      ruleId: "alpha-conj",
+      conclusionText: "",
+      resultText: "",
+      secondResultText: undefined,
+    };
+    expect(getDeductionStyleForEdge(edge)).toBe("analytic-tableau");
+  });
+
+  it("SC singleエッジからsequent-calculusを推定する", () => {
+    const edge: InferenceEdge = {
+      _tag: "sc-single",
+      conclusionNodeId: "n1",
+      premiseNodeId: "n2",
+      ruleId: "weakening-left",
+      conclusionText: "",
+    };
+    expect(getDeductionStyleForEdge(edge)).toBe("sequent-calculus");
+  });
+});
+
+// --- checkPasteCompatibility ---
+
+describe("checkPasteCompatibility", () => {
+  it("InferenceEdgeなしの場合は常に互換", () => {
+    const data: ClipboardData = {
+      _tag: "ProofPadClipboard",
+      version: 1,
+      nodes: [],
+      connections: [],
+    };
+    expect(checkPasteCompatibility(data, "hilbert")).toBeUndefined();
+    expect(checkPasteCompatibility(data, "natural-deduction")).toBeUndefined();
+  });
+
+  it("同じスタイルのsourceDeductionStyleなら互換", () => {
+    const data: ClipboardData = {
+      _tag: "ProofPadClipboard",
+      version: 1,
+      nodes: [],
+      connections: [],
+      inferenceEdges: [
+        {
+          _tag: "mp",
+          conclusionNodeId: "n1",
+          leftPremiseNodeId: "n2",
+          rightPremiseNodeId: "n3",
+          conclusionText: "",
+        },
+      ],
+      sourceDeductionStyle: "hilbert",
+    };
+    expect(checkPasteCompatibility(data, "hilbert")).toBeUndefined();
+  });
+
+  it("異なるスタイルのsourceDeductionStyleなら非互換エラー", () => {
+    const data: ClipboardData = {
+      _tag: "ProofPadClipboard",
+      version: 1,
+      nodes: [],
+      connections: [],
+      inferenceEdges: [
+        {
+          _tag: "mp",
+          conclusionNodeId: "n1",
+          leftPremiseNodeId: "n2",
+          rightPremiseNodeId: "n3",
+          conclusionText: "",
+        },
+      ],
+      sourceDeductionStyle: "hilbert",
+    };
+    const error = checkPasteCompatibility(data, "natural-deduction");
+    expect(error).toEqual({
+      _tag: "IncompatibleStyle",
+      sourceStyle: "hilbert",
+      targetStyle: "natural-deduction",
+    });
+  });
+
+  it("sourceDeductionStyleがない場合はInferenceEdgeから推定して互換判定", () => {
+    const data: ClipboardData = {
+      _tag: "ProofPadClipboard",
+      version: 1,
+      nodes: [],
+      connections: [],
+      inferenceEdges: [
+        {
+          _tag: "mp",
+          conclusionNodeId: "n1",
+          leftPremiseNodeId: "n2",
+          rightPremiseNodeId: "n3",
+          conclusionText: "",
+        },
+      ],
+    };
+    // Hilbert edge → Hilbert target = 互換
+    expect(checkPasteCompatibility(data, "hilbert")).toBeUndefined();
+  });
+
+  it("sourceDeductionStyleがない場合はInferenceEdgeから推定して非互換判定", () => {
+    const data: ClipboardData = {
+      _tag: "ProofPadClipboard",
+      version: 1,
+      nodes: [],
+      connections: [],
+      inferenceEdges: [
+        {
+          _tag: "nd-implication-elim",
+          conclusionNodeId: "n1",
+          leftPremiseNodeId: "n2",
+          rightPremiseNodeId: "n3",
+          conclusionText: "",
+        },
+      ],
+    };
+    const error = checkPasteCompatibility(data, "hilbert");
+    expect(error).toEqual({
+      _tag: "IncompatibleStyle",
+      sourceStyle: "natural-deduction",
+      targetStyle: "hilbert",
+    });
+  });
+
+  it("空のInferenceEdgesでも互換とする", () => {
+    const data: ClipboardData = {
+      _tag: "ProofPadClipboard",
+      version: 1,
+      nodes: [],
+      connections: [],
+      inferenceEdges: [],
+    };
+    expect(checkPasteCompatibility(data, "sequent-calculus")).toBeUndefined();
   });
 });

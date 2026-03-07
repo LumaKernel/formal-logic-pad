@@ -229,6 +229,10 @@ export type ProofMessages = {
   readonly nodeLabelSequent: string;
   readonly nodeLabelSignedFormula: string;
 
+  // --- ペースト互換性 ---
+  /** `{sourceStyle}` と `{targetStyle}` プレースホルダーを含む */
+  readonly pasteIncompatibleStyle: string;
+
   // --- アクセシビリティ ---
   readonly workspaceMenuAriaLabel: string;
 };
@@ -421,6 +425,10 @@ export const defaultProofMessages: ProofMessages = {
   nodeLabelAssumption: "Assumption",
   nodeLabelSequent: "Sequent",
   nodeLabelSignedFormula: "SignedFormula",
+
+  // Paste compatibility
+  pasteIncompatibleStyle:
+    "Cannot paste: source ({sourceStyle}) is incompatible with target ({targetStyle})",
 
   // Accessibility
   workspaceMenuAriaLabel: "Workspace menu",

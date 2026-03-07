@@ -182,6 +182,9 @@ function useProofMessagesFromIntl(): ProofMessages {
       nodeLabelSequent: t("nodeLabelSequent"),
       nodeLabelSignedFormula: t("nodeLabelSignedFormula"),
 
+      // Paste compatibility
+      pasteIncompatibleStyle: String(t.raw("pasteIncompatibleStyle")),
+
       // Accessibility
       workspaceMenuAriaLabel: t("workspaceMenuAriaLabel"),
     }),

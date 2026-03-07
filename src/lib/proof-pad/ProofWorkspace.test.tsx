@@ -3161,9 +3161,7 @@ describe("ProofWorkspace", () => {
       await user.click(screen.getByTestId("workspace-copy-button"));
 
       // 選択解除
-      await user.click(
-        container.querySelector("[data-testid='workspace']")!,
-      );
+      await user.click(container.querySelector("[data-testid='workspace']")!);
 
       // キャンバス上で右クリック
       const canvas = container.querySelector("[data-testid='workspace']")!;

@@ -166,6 +166,7 @@
     "nodeLabelAssumption": "仮定",
     "nodeLabelSequent": "シーケント",
     "nodeLabelSignedFormula": "署名付き論理式",
+    "pasteIncompatibleStyle": "ペーストできません: ソース ({sourceStyle}) とターゲット ({targetStyle}) は互換性がありません",
     "workspaceMenuAriaLabel": "ワークスペースメニュー"
   }
 }

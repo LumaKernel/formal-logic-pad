@@ -97,12 +97,15 @@ export {
   toggleNodeSelection,
   selectSingleNode,
   clearSelection,
+  getDeductionStyleForEdge,
+  checkPasteCompatibility,
 } from "./copyPasteLogic";
 export type {
   CopiedNode,
   CopiedConnection,
   ClipboardData,
   PasteResult,
+  PasteCompatibilityError,
 } from "./copyPasteLogic";
 export {
   getMPPremises,

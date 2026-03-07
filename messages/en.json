@@ -166,6 +166,7 @@
     "nodeLabelAssumption": "Assumption",
     "nodeLabelSequent": "Sequent",
     "nodeLabelSignedFormula": "SignedFormula",
+    "pasteIncompatibleStyle": "Cannot paste: source ({sourceStyle}) is incompatible with target ({targetStyle})",
     "workspaceMenuAriaLabel": "Workspace menu"
   }
 }

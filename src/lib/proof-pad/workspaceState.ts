@@ -1202,6 +1202,7 @@ export function copySelectedNodes(
     state.nodes,
     state.connections,
     state.inferenceEdges,
+    state.deductionSystem.style,
   );
 }
 
