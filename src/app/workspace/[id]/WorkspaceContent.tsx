@@ -7,6 +7,8 @@ import { useNotebookCollection, findNotebook } from "../../../lib/notebook";
 import type { GoalAchievedInfo } from "../../../lib/proof-pad";
 import type { ProofMessages } from "../../../lib/proof-pad";
 import type { WorkspaceState } from "../../../lib/proof-pad/workspaceState";
+import type { ProofSaveParams } from "../../../lib/proof-collection";
+import { useProofCollection } from "../../../lib/proof-collection";
 import { useQuestProgress, builtinQuests } from "../../../lib/quest";
 import {
   checkQuestVersion,
@@ -198,6 +200,7 @@ function WorkspaceInner() {
   const params = useParams();
   const router = useRouter();
   const notebookCollection = useNotebookCollection();
+  const proofCollection = useProofCollection();
   const questProgress = useQuestProgress();
   const proofMessages = useProofMessagesFromIntl();
   const rawLocale = useLocale();
@@ -254,6 +257,14 @@ function WorkspaceInner() {
     }
   }, [notebookId, notebookCollection, router]);
 
+  const addProofEntry = proofCollection.addEntry;
+  const handleSaveToCollection = useCallback(
+    (params: ProofSaveParams) => {
+      addProofEntry(params);
+    },
+    [addProofEntry],
+  );
+
   const questVersionWarning = useMemo(
     () =>
       notebook !== undefined
@@ -287,6 +298,7 @@ function WorkspaceInner() {
       onWorkspaceChange={handleWorkspaceChange}
       onGoalAchieved={handleGoalAchieved}
       onDuplicateToFree={handleDuplicateToFree}
+      onSaveProofToCollection={handleSaveToCollection}
       questVersionWarning={questVersionWarning}
       languageToggle={languageToggle}
     />
