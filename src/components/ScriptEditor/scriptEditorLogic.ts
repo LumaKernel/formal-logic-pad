@@ -27,7 +27,18 @@ export interface ScriptEditorState {
   readonly consoleOutput: readonly ConsoleEntry[];
   readonly currentStep: number;
   readonly errorMessage: string | null;
+  /** 自動再生のステップ間隔（ミリ秒）。スライダーで調整可能 */
+  readonly autoPlayIntervalMs: number;
 }
+
+/** デフォルトの自動再生間隔 (ms) */
+export const DEFAULT_AUTO_PLAY_INTERVAL_MS = 200;
+
+/** 自動再生間隔の最小値 (ms) */
+export const MIN_AUTO_PLAY_INTERVAL_MS = 10;
+
+/** 自動再生間隔の最大値 (ms) */
+export const MAX_AUTO_PLAY_INTERVAL_MS = 2000;
 
 export const initialScriptEditorState: ScriptEditorState = {
   code: `// Proof Bridge API が使えます\n// 例: const f = parseFormula("phi -> psi");\n`,
@@ -35,6 +46,7 @@ export const initialScriptEditorState: ScriptEditorState = {
   consoleOutput: [],
   currentStep: 0,
   errorMessage: null,
+  autoPlayIntervalMs: DEFAULT_AUTO_PLAY_INTERVAL_MS,
 };
 
 // ── エラー表示（recordStep, setRunResult が依存）────────────
@@ -184,6 +196,36 @@ export const executionStatusLabel = (status: ExecutionStatus): string => {
       /* v8 ignore stop */
     }
   }
+};
+
+// ── 自動再生速度 ────────────────────────────────────────────
+
+export const updateAutoPlayInterval = (
+  state: ScriptEditorState,
+  intervalMs: number,
+): ScriptEditorState => ({
+  ...state,
+  autoPlayIntervalMs: Math.max(
+    MIN_AUTO_PLAY_INTERVAL_MS,
+    Math.min(MAX_AUTO_PLAY_INTERVAL_MS, intervalMs),
+  ),
+});
+
+/** スライダー値(0-100)を間隔(ms)に変換。0=最速、100=最遅 */
+export const sliderToIntervalMs = (sliderValue: number): number => {
+  const ratio = sliderValue / 100;
+  return Math.round(
+    MIN_AUTO_PLAY_INTERVAL_MS +
+      ratio * (MAX_AUTO_PLAY_INTERVAL_MS - MIN_AUTO_PLAY_INTERVAL_MS),
+  );
+};
+
+/** 間隔(ms)をスライダー値(0-100)に変換 */
+export const intervalMsToSlider = (intervalMs: number): number => {
+  const ratio =
+    (intervalMs - MIN_AUTO_PLAY_INTERVAL_MS) /
+    (MAX_AUTO_PLAY_INTERVAL_MS - MIN_AUTO_PLAY_INTERVAL_MS);
+  return Math.round(ratio * 100);
 };
 
 // ── デフォルトのエディタオプション ────────────────────────────
