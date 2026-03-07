@@ -56,3 +56,17 @@ export {
   serializeProofCollection,
   deserializeProofCollection,
 } from "./proofCollectionSerialization";
+
+// --- React hook ---
+export type {
+  UseProofCollectionResult,
+  UseProofCollectionOptions,
+  GetNow,
+} from "./useProofCollection";
+
+export {
+  useProofCollection,
+  loadProofCollection,
+  saveProofCollection,
+  PROOF_COLLECTION_STORAGE_KEY,
+} from "./useProofCollection";
