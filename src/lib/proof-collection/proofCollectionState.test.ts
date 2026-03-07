@@ -649,9 +649,7 @@ describe("prepareProofSaveParams", () => {
 
 // --- importProofEntry テスト ---
 
-const createTestEntry = (
-  overrides?: Partial<ProofEntry>,
-): ProofEntry => ({
+const createTestEntry = (overrides?: Partial<ProofEntry>): ProofEntry => ({
   id: "proof-1",
   name: "テスト証明",
   memo: "",

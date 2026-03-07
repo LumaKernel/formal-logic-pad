@@ -323,9 +323,7 @@ describe("ProofCollectionPanel", () => {
           testId="panel"
         />,
       );
-      expect(
-        screen.queryByTestId("panel-entry-e1-import"),
-      ).toBeNull();
+      expect(screen.queryByTestId("panel-entry-e1-import")).toBeNull();
     });
   });
 });
