@@ -514,4 +514,24 @@ describe("enrichListItemsWithQuestProgress", () => {
       totalCount: 2,
     });
   });
+
+  it("listItemsがnotebooksより多い場合、超過分はそのまま返す", () => {
+    const items = [makeListItem("nb-1", "quest"), makeListItem("nb-2", "quest")];
+    const notebooks: readonly Notebook[] = [
+      {
+        meta: { id: "nb-1", name: "Quest", createdAt: 0, updatedAt: 0 },
+        workspace: createQuestWorkspace(lukasiewiczSystem, [
+          { formulaText: "phi -> phi" },
+        ]),
+        questId: "q-01",
+      },
+    ];
+    const enriched = enrichListItemsWithQuestProgress(items, notebooks);
+    expect(enriched[0]?.questProgress).toEqual({
+      achievedCount: 0,
+      totalCount: 1,
+    });
+    // notebooks[1] は undefined → item がそのまま返される
+    expect(enriched[1]?.questProgress).toBeUndefined();
+  });
 });

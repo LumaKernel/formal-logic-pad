@@ -403,7 +403,9 @@ export function parseCustomQuestFromRaw(
     difficulty: obj["difficulty"] as DifficultyLevel,
     systemPresetId: obj["systemPresetId"] as SystemPresetId,
     goals,
+    /* v8 ignore start -- 防御的コード: 上の `if (hints === undefined) return undefined` で ?? 右辺は到達不能 */
     hints: hints ?? [],
+    /* v8 ignore stop */
     estimatedSteps: obj["estimatedSteps"] as number,
     learningPoint: obj["learningPoint"] as string,
     order: typeof obj["order"] === "number" ? (obj["order"] as number) : 0,
