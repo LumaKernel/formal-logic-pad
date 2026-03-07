@@ -2888,6 +2888,72 @@ describe("ProofWorkspace", () => {
     });
   });
 
+  describe("体系バッジクリックでリファレンス詳細を開く", () => {
+    it("referenceEntries指定時に体系名がクリック可能なボタンになる", () => {
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          referenceEntries={allReferenceEntries}
+          locale="ja"
+          onOpenReferenceDetail={vi.fn()}
+          testId="workspace"
+        />,
+      );
+      const systemBadge = screen.getByTestId("workspace-system");
+      expect(systemBadge.tagName).toBe("BUTTON");
+      expect(systemBadge).toHaveTextContent("Łukasiewicz");
+    });
+
+    it("体系名クリックでonOpenReferenceDetailが体系エントリIDで呼ばれる", async () => {
+      const user = userEvent.setup();
+      const handleDetail = vi.fn();
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          referenceEntries={allReferenceEntries}
+          locale="ja"
+          onOpenReferenceDetail={handleDetail}
+          testId="workspace"
+        />,
+      );
+      await user.click(screen.getByTestId("workspace-system"));
+      expect(handleDetail).toHaveBeenCalledWith("system-lukasiewicz");
+    });
+
+    it("referenceEntries未指定時は体系名がspanのまま（クリック不可）", () => {
+      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
+      const systemBadge = screen.getByTestId("workspace-system");
+      expect(systemBadge.tagName).toBe("SPAN");
+    });
+
+    it("onOpenReferenceDetail未指定時は体系名がspanのまま", () => {
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          referenceEntries={allReferenceEntries}
+          locale="ja"
+          testId="workspace"
+        />,
+      );
+      const systemBadge = screen.getByTestId("workspace-system");
+      expect(systemBadge.tagName).toBe("SPAN");
+    });
+
+    it("リファレンスエントリがない体系では体系名がspanのまま", () => {
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          referenceEntries={[]}
+          locale="ja"
+          onOpenReferenceDetail={vi.fn()}
+          testId="workspace"
+        />,
+      );
+      const systemBadge = screen.getByTestId("workspace-system");
+      expect(systemBadge.tagName).toBe("SPAN");
+    });
+  });
+
   describe("構文ヘルプ伝播", () => {
     it("onOpenSyntaxHelp指定時、ノード編集モードでヘルプボタンが表示される", async () => {
       const user = userEvent.setup();
