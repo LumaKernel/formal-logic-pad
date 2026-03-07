@@ -128,6 +128,11 @@ export {
 export { QuestCatalog, type QuestCatalogProps } from "./QuestCatalogComponent";
 
 export {
+  CustomQuestList,
+  type CustomQuestListProps,
+} from "./CustomQuestListComponent";
+
+export {
   type ModelAnswerStep,
   type ModelAnswer,
   type BuildModelAnswerResult,
@@ -140,6 +145,20 @@ export {
   builtinModelAnswers,
   modelAnswerRegistry,
 } from "./builtinModelAnswers";
+
+export {
+  buildCustomQuestCatalogItems,
+  getCustomQuestCatalogCount,
+  getCustomQuestCompletedCount,
+  customQuestProgressText,
+} from "./customQuestCatalogLogic";
+
+export {
+  type UseCustomQuestCollectionResult,
+  useCustomQuestCollection,
+  loadCustomQuestsEffect,
+  saveCustomQuestsEffect,
+} from "./useCustomQuestCollection";
 
 export {
   CUSTOM_QUEST_ID_PREFIX,
