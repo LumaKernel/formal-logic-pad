@@ -1178,12 +1178,7 @@ export function ProofWorkspace({
         ),
       );
     },
-    [
-      workspace,
-      setWorkspace,
-      computeNewNodePosition,
-      msg.nodeLabelAxiom,
-    ],
+    [workspace, setWorkspace, computeNewNodePosition, msg.nodeLabelAxiom],
   );
 
   const handleAddAssumption = useCallback(() => {
@@ -1206,12 +1201,7 @@ export function ProofWorkspace({
     setWorkspace(
       addNode(workspace, "axiom", msg.nodeLabelSequent, position, ""),
     );
-  }, [
-    workspace,
-    setWorkspace,
-    computeNewNodePosition,
-    msg.nodeLabelSequent,
-  ]);
+  }, [workspace, setWorkspace, computeNewNodePosition, msg.nodeLabelSequent]);
 
   const handleAddSignedFormula = useCallback(() => {
     const position = computeNewNodePosition(workspace.nodes);
@@ -2531,12 +2521,7 @@ export function ProofWorkspace({
     setWorkspace(result.workspace);
     setSubstPromptNodeId(null);
     setSubstPromptEntries([{ kind: "formula", metaVar: "", value: "" }]);
-  }, [
-    substPromptNodeId,
-    substPromptEntries,
-    workspace,
-    setWorkspace,
-  ]);
+  }, [substPromptNodeId, substPromptEntries, workspace, setWorkspace]);
 
   const handleSubstPromptCancel = useCallback(() => {
     setSubstPromptNodeId(null);
