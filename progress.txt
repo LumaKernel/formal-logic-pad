@@ -9077,3 +9077,28 @@
   - NotebookListItemの拡張はoptionalフィールド追加+後付けenrichパターンで既存コードへの影響を最小化できる
   - CSS variables使用時は必ずfallback値を付ける（例: `var(--color-quest-progress-partial-bg, #fff3e0)`）
 ---
+
+## 2026-03-07 - [proof-pad] 体系バッジクリックでリファレンス解説ウィンドウ起動
+- 実装した内容:
+  - ProofWorkspace のヘッダー部にある体系名バッジをクリック可能に。クリックで onOpenReferenceDetail コールバック経由でリファレンス解説ウィンドウを起動
+  - `deductionSystemReferenceLogic.ts` を新規作成: DeductionSystem名 → ReferenceEntryId のマッピング（Hilbert系6体系 + 理論体系8体系のマッピング）
+  - referenceEntries + onOpenReferenceDetail が両方指定されている場合のみ button になり、それ以外は従来通り span 表示
+  - ストーリー (WithReferencePopover) を更新して体系バッジクリック → Detail表示の検証を追加
+- 変更したファイル:
+  - `src/lib/proof-pad/deductionSystemReferenceLogic.ts` (新規: マッピングロジック)
+  - `src/lib/proof-pad/deductionSystemReferenceLogic.test.ts` (新規: 13テスト)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (体系バッジのクリック機能追加)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (5テスト追加: バッジのbutton/span切替、クリックコールバック)
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` (WithReferencePopoverストーリーにonOpenReferenceDetail追加、体系バッジクリック検証)
+  - `src/lib/proof-pad/index.ts` (getDeductionSystemReferenceEntryIdエクスポート追加)
+  - `task-processing.md`, `tasks/prd-inserted-tasks.md`
+- カバレッジ: ベースライン Stmts 99.11% / Branch 94.07% → 完了後 Stmts 99.11% / Branch 94.00% (V8マージ誤差範囲、実質低下なし)
+- テスト: 7490 → 7508 passed (+18)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Playwright MCPでStorybook確認。体系バッジがクリック可能なボタンとして表示され、クリックで「Detail: system-lukasiewicz」が表示。スクリーンショット: .screenshots/system-badge-clickable.png
+- **今後のイテレーションへの学び:**
+  - 体系リファレンスマッピングは inferenceRuleReferenceLogic.ts と同じパターン（名前→エントリIDのMap）。新しい体系エントリ追加時は deductionSystemReferenceLogic.ts も更新必要
+  - ND/SC/TAB/AT系のリファレンスエントリは未作成。将来追加時にマッピングも追加する
+  - CSSProperties型アノテーションをスタイルオブジェクトに追加すると、spread構文での型安全性が向上する
+  - buttonのfontFamilyは明示的に `inherit` を指定しないとブラウザデフォルト（sans-serif等）になる
+---
