@@ -338,7 +338,12 @@ function HubInner() {
     clearQuestUrlParam();
     // Start the quest
     handleStartQuest(addResult.value.questId);
-  }, [sharedQuest, customQuestCollection, handleStartQuest, clearQuestUrlParam]);
+  }, [
+    sharedQuest,
+    customQuestCollection,
+    handleStartQuest,
+    clearQuestUrlParam,
+  ]);
 
   const handleSharedQuestAddToCollection = useCallback(() => {
     if (sharedQuest === null) return;

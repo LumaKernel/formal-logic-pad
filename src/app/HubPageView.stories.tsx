@@ -462,9 +462,7 @@ export const SharedQuestDialog: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     // ダイアログが表示されること
-    await expect(
-      canvas.getByTestId("shared-quest-dialog"),
-    ).toBeInTheDocument();
+    await expect(canvas.getByTestId("shared-quest-dialog")).toBeInTheDocument();
     // タイトルが表示される
     await expect(canvas.getByText("共有されたクエスト")).toBeInTheDocument();
     // 説明が表示される

@@ -252,9 +252,7 @@ export function encodeQuestToUrlParam(quest: QuestDefinition): string {
  * デコード結果は一時的なカスタムIDが付与される。
  * 実際にコレクションに追加する際は新しいIDが割り当てられる。
  */
-export function decodeQuestFromUrlParam(
-  param: string,
-): DecodeQuestUrlResult {
+export function decodeQuestFromUrlParam(param: string): DecodeQuestUrlResult {
   const json = base64UrlToUtf8(param);
   if (json === undefined) {
     return { _tag: "InvalidBase64" };

@@ -511,9 +511,7 @@ export function HubPageView({
             }}
           >
             <div style={sharedQuestDialogStyle}>
-              <h3 style={sharedQuestTitleStyle}>
-                {sharedQuest.title}
-              </h3>
+              <h3 style={sharedQuestTitleStyle}>{sharedQuest.title}</h3>
               <p style={sharedQuestDescStyle}>{sharedQuest.description}</p>
               <div style={sharedQuestMetaStyle}>
                 <span>
