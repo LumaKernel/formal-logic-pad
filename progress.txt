@@ -9005,3 +9005,26 @@
   - StorybookのPhase切り替え（unmount→remount）はplay関数内で行うとDOMが破壊される。代わりに `initialClipboardData` のようなプロップ注入パターンでテストデータを提供する
   - `clipboardRef` は内部refで外部アクセス不可。テスト用にはプロップ経由で初期値を注入する設計が有効
 ---
+
+## 2026-03-07 - マルチセレクションドラッグ機能追加
+- 実装した内容:
+  - `workspaceState.ts` に `updateMultipleNodePositions` 純粋関数を追加（ReadonlyMap<string, Point> で複数ノード一括位置更新）
+  - `ProofWorkspace.tsx` の `handlePositionChange` をマルチドラッグ対応に修正（選択ノード2つ以上 + ドラッグ対象が選択に含まれる場合、delta を他の選択ノードにも適用）
+  - `ProofWorkspace.stories.tsx` に `MultiSelectionDrag` ストーリー追加（2ノード選択 → バナー確認のplay関数付き）
+  - `index.ts` にエクスポート追加
+  - 「セレクションメニューにペースト」は既にセレクションバナーにペーストボタン実装済み → 追加不要と確認
+- 変更したファイル:
+  - `src/lib/proof-pad/workspaceState.ts` (+updateMultipleNodePositions)
+  - `src/lib/proof-pad/workspaceState.test.ts` (+4テスト)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (handlePositionChange修正)
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` (+MultiSelectionDragストーリー)
+  - `src/lib/proof-pad/index.ts` (エクスポート追加)
+- カバレッジ: ベースライン Stmts 99.12% / Branch 94.02% → 完了後 Stmts 99.12% / Branch 94.05% (微増、低下なし)
+- テスト: 7461 → 7466 passed (+5)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Playwright MCPで実際にドラッグ操作を確認。2ノード選択後、1つをドラッグしたら両方が同じdelta(dx=100, dy=60)で移動。スクリーンショット: .screenshots/multi-selection-drag-before.png, .screenshots/multi-selection-drag-after.png
+- **今後のイテレーションへの学び:**
+  - Storybook play関数でのドラッグシミュレーションは PointerEvent + setPointerCapture が必要で jsdom では困難。ドラッグ検証は Playwright MCP のネイティブ mouse API で行う
+  - `force: true` クリックは innermost element にディスパッチされるため、wrapper div の onClick ハンドラには到達しない。`page.evaluate` で直接 `.click()` を呼ぶか、適切なセレクタを使う
+  - マルチドラッグは既存の `useDragItem` フック（オフセットベース）を変更せず、`handlePositionChange` でdelta計算＋一括更新する設計が最小限の変更で実現できる
+---

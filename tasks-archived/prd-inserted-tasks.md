@@ -203,3 +203,6 @@ Infinity Canvasについて。
   - ClipboardDataにsourceDeductionStyleを追加、checkPasteCompatibility純粋関数を実装、ProofWorkspaceのペーストハンドラに統合、CopyPasteCompatibleストーリー追加。
 - [x] ノートAから証明図をコピーして、別の(互換性のないタイプの)ノートBへペーストしようとするが、互換性がない旨のエラーが表示される、というストーリーを作成しよう。必要に応じて機能追加もしよう。
   - alert()をインラインエラーバナーに置換（5秒自動消去、data-testid付き）。initialClipboardDataプロップ追加でテスト用クリップボード注入。CopyPasteIncompatibleストーリー追加（Hilbert→ND非互換ペースト検証）。
+- [x] セレクションのメニューに「ペースト」は必要だろうか？ → 既にセレクションバナーにペーストボタン実装済み。追加不要。
+- [x] セレクションしながら一個を移動したら、選択されてるすべてが同時に相対的な位置を保って平行に移動することを期待するのが通常だろう。ストーリーと機能追加を。
+  - workspaceState.ts に `updateMultipleNodePositions` 純粋関数を追加。ProofWorkspace.tsx の `handlePositionChange` をマルチドラッグ対応に修正。MultiSelectionDrag ストーリー追加。Playwright MCP でブラウザ動作確認済み。
