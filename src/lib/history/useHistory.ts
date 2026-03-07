@@ -57,11 +57,12 @@ export function useHistory<S>(
 
   const pushFn = useCallback(
     (newState: S) => {
-      setHistory((prev) =>
-        /* v8 ignore start — V8 artifact: 三項演算子の両分岐テスト済み（デフォルト=pushState, maxPastSize指定=pushStateWithLimit）だがV8が追跡しきれない */
-        maxPastSize === undefined
-          ? pushState(prev, newState)
-          : pushStateWithLimit(prev, newState, maxPastSize),
+      setHistory(
+        (prev) =>
+          /* v8 ignore start — V8 artifact: 三項演算子の両分岐テスト済み（デフォルト=pushState, maxPastSize指定=pushStateWithLimit）だがV8が追跡しきれない */
+          maxPastSize === undefined
+            ? pushState(prev, newState)
+            : pushStateWithLimit(prev, newState, maxPastSize),
         /* v8 ignore stop */
       );
     },
