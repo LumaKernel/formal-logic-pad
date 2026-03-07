@@ -9662,3 +9662,26 @@
   - useCustomQuestCollectionフックはuseQuestProgressと同パターン（Effect.ts Layer + localStorage）
   - CustomQuestListは QuestCatalog とは異なりフラットリスト（カテゴリグルーピング不要）
 ---
+
+## 2026-03-07 - custom-quest 自作クエストの複製・削除UI
+- 実装した内容:
+  - CustomQuestListComponent に「複製」「削除」ボタンを追加（optional props で表示切り替え可能）
+  - HubPageView に onDuplicateCustomQuest / onDeleteCustomQuest コールバック props を追加
+  - HubContent で duplicateAsCustomQuest / removeCustomQuest を使うハンドラを実装
+  - Storybook に DuplicateQuest / DeleteQuest / WithoutActions ストーリーを追加
+  - HubPageView WithCustomQuests ストーリーに複製・削除ボタン存在確認を追加
+- 変更したファイル:
+  - src/lib/quest/CustomQuestListComponent.tsx
+  - src/lib/quest/CustomQuestListComponent.stories.tsx
+  - src/app/HubPageView.tsx
+  - src/app/HubPageView.stories.tsx
+  - src/app/HubContent.tsx
+  - tasks/prd-custom-quests.md
+- カバレッジ: Stmts 98.78%→98.78%, Branch 93.17%→93.17%, Funcs 88.83%→88.84%, Lines 99.63%→99.63%
+  - カバレッジ低下なし
+- テスト数: 7976→7979 (+3)
+- **今後のイテレーションへの学び:**
+  - 複製・削除は既存の純粋ロジック関数（duplicateAsCustomQuest, removeCustomQuest）をそのまま活用できた。新しい純粋ロジックの追加は不要
+  - optional callback props (undefined の場合はボタン非表示) パターンにより、コンポーネントの再利用性を保てる
+  - action buttons はまとめて actionGroupStyle で flex layout にすると見た目が整う
+---
