@@ -298,6 +298,48 @@ export const adjustStepLocationLine = (
   return adjustedLine;
 };
 
+// ── プログレッシブスローダウン ────────────────────────────────
+
+/** プログレッシブスローダウンの閾値設定 */
+export interface SlowdownThreshold {
+  /** この閾値以上のステップ数で適用 */
+  readonly steps: number;
+  /** インターバル倍率 */
+  readonly multiplier: number;
+}
+
+/** デフォルトのスローダウン閾値（ステップ数の昇順） */
+export const DEFAULT_SLOWDOWN_THRESHOLDS: readonly SlowdownThreshold[] = [
+  { steps: 10_000, multiplier: 2 },
+  { steps: 50_000, multiplier: 4 },
+  { steps: 100_000, multiplier: 8 },
+];
+
+/**
+ * ステップ数に基づいてauto-playインターバルを調整する。
+ *
+ * ステップ数が閾値を超えると、ベースインターバルに倍率を掛けて
+ * 段階的に遅くなる。これにより長時間実行時にユーザーが介入しやすくなる。
+ *
+ * @param baseIntervalMs ユーザーが設定したベースインターバル
+ * @param currentSteps 現在のステップ数
+ * @param thresholds スローダウン閾値（デフォルト: DEFAULT_SLOWDOWN_THRESHOLDS）
+ * @returns 調整後のインターバル (ms)
+ */
+export const computeSlowdownInterval = (
+  baseIntervalMs: number,
+  currentSteps: number,
+  thresholds: readonly SlowdownThreshold[] = DEFAULT_SLOWDOWN_THRESHOLDS,
+): number => {
+  let multiplier = 1;
+  for (const threshold of thresholds) {
+    if (currentSteps >= threshold.steps) {
+      multiplier = threshold.multiplier;
+    }
+  }
+  return baseIntervalMs * multiplier;
+};
+
 // ── デフォルトのエディタオプション ────────────────────────────
 
 export const defaultEditorOptions = {

@@ -15,7 +15,9 @@ import {
   intervalMsToSlider,
   extractErrorLocation,
   adjustStepLocationLine,
+  computeSlowdownInterval,
   DEFAULT_AUTO_PLAY_INTERVAL_MS,
+  DEFAULT_SLOWDOWN_THRESHOLDS,
   MIN_AUTO_PLAY_INTERVAL_MS,
   MAX_AUTO_PLAY_INTERVAL_MS,
   defaultEditorOptions,
@@ -437,6 +439,59 @@ describe("scriptEditorLogic", () => {
       expect(defaultEditorOptions.automaticLayout).toBe(true);
       expect(defaultEditorOptions.fontSize).toBe(14);
       expect(defaultEditorOptions.glyphMargin).toBe(true);
+    });
+  });
+
+  describe("computeSlowdownInterval", () => {
+    it("閾値未満のステップ数ではベースインターバルがそのまま返る", () => {
+      expect(computeSlowdownInterval(200, 0)).toBe(200);
+      expect(computeSlowdownInterval(200, 5000)).toBe(200);
+      expect(computeSlowdownInterval(200, 9999)).toBe(200);
+    });
+
+    it("10,000ステップ以上で2倍になる", () => {
+      expect(computeSlowdownInterval(200, 10_000)).toBe(400);
+      expect(computeSlowdownInterval(200, 30_000)).toBe(400);
+      expect(computeSlowdownInterval(100, 10_000)).toBe(200);
+    });
+
+    it("50,000ステップ以上で4倍になる", () => {
+      expect(computeSlowdownInterval(200, 50_000)).toBe(800);
+      expect(computeSlowdownInterval(200, 80_000)).toBe(800);
+      expect(computeSlowdownInterval(100, 50_000)).toBe(400);
+    });
+
+    it("100,000ステップ以上で8倍になる", () => {
+      expect(computeSlowdownInterval(200, 100_000)).toBe(1600);
+      expect(computeSlowdownInterval(200, 500_000)).toBe(1600);
+      expect(computeSlowdownInterval(100, 100_000)).toBe(800);
+    });
+
+    it("カスタム閾値で動作する", () => {
+      const customThresholds = [
+        { steps: 100, multiplier: 3 },
+        { steps: 1000, multiplier: 10 },
+      ] as const;
+      expect(computeSlowdownInterval(50, 0, customThresholds)).toBe(50);
+      expect(computeSlowdownInterval(50, 100, customThresholds)).toBe(150);
+      expect(computeSlowdownInterval(50, 1000, customThresholds)).toBe(500);
+    });
+
+    it("空の閾値リストでは倍率なし", () => {
+      expect(computeSlowdownInterval(200, 100_000, [])).toBe(200);
+    });
+
+    it("デフォルトの閾値が正しい構造を持つ", () => {
+      expect(DEFAULT_SLOWDOWN_THRESHOLDS.length).toBe(3);
+      // 昇順であること
+      for (let i = 1; i < DEFAULT_SLOWDOWN_THRESHOLDS.length; i++) {
+        const prev = DEFAULT_SLOWDOWN_THRESHOLDS[i - 1];
+        const cur = DEFAULT_SLOWDOWN_THRESHOLDS[i];
+        if (prev !== undefined && cur !== undefined) {
+          expect(cur.steps).toBeGreaterThan(prev.steps);
+          expect(cur.multiplier).toBeGreaterThan(prev.multiplier);
+        }
+      }
     });
   });
 });
