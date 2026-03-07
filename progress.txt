@@ -9504,3 +9504,29 @@
   - localStorage初期化はuseStateの初期化関数内で実行（SSR互換のためtypeof window !== "undefined"チェック）
   - 保存ダイアログはuseRefでフォーカス管理（useEffect + autoFocus）
 ---
+
+## 2026-03-07 - [script-editor] カット除去テンプレートのキャンバス可視化（US-005完了）
+- 実装した内容:
+  - `clearWorkspace()` ブリッジ関数を WorkspaceCommandHandler + workspaceBridge に追加
+  - `displayScProof(proofJson)` ブリッジ関数を追加: SC証明木を再帰的にワークスペースノードとして展開
+  - `scTagToRuleName`: 全18種のSC推論規則タグ→表示名マッピング
+  - `formatSequentForDisplay`: シーケントをUnicodeテキスト表示
+  - `getScPremises`: SC証明ノードの直接前提を取得（0/1/2前提パターン）
+  - カット除去テンプレート2種を更新: 初期状態・各ステップ・最終結果で `displayScProof` を呼び出し
+  - 全18種のSC推論規則に対応するテストを追加（+15テスト）
+- 変更ファイル:
+  - src/lib/script-runner/workspaceBridge.ts（clearWorkspace + displayScProof + 内部ヘルパー追加）
+  - src/lib/script-runner/workspaceBridge.test.ts（+15テスト: 全SC規則カバレッジ）
+  - src/lib/script-runner/templates.ts（displayScProof呼び出し追加）
+  - src/lib/script-runner/templates.test.ts（ワークスペースブリッジ統合）
+  - src/components/ScriptEditor/ScriptEditorComponent.stories.tsx（clearWorkspaceハンドラー追加）
+  - tasks/prd-scripted-proof-rewriting.md（US-005完了マーク）
+- カバレッジ: Stmts 98.85%→98.85%, Branch 93.34%→93.36%, Lines 99.71%→99.70%
+- テスト数: 7838→7853 (+15)
+- スクリーンショット: .screenshots/script-editor-workspace-full.png, .screenshots/script-editor-default.png, .screenshots/script-editor-save-and-load.png
+- **今後のイテレーションへの学び:**
+  - displayScProofはclearWorkspace→再帰addNode→applyLayoutのパターン。SC証明木のフラット展開で、エッジ接続は不要（テキストに規則名を含む）
+  - `decodeScProofNode`は各タグごとに異なるフィールド要件あり（premise/left+right/weakenedFormula等）。テスト時はJSONオブジェクトを正確に構築する必要あり
+  - `Bottom`はFormula型に存在しない。ScBottomLeftのテストでは通常のMetaVariableで結論シーケントを構成すればOK
+  - Storybook環境では`js-interpreter`がMonaco AMDローダーと競合しRun不可（既知の制限）。単体テストで動作確認
+---
