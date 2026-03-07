@@ -99,7 +99,9 @@ export function utf8ToBase64Url(str: string): string {
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
   let result = "";
   for (let i = 0; i < bytes.length; i += 3) {
+    /* v8 ignore start -- 防御的コード: i < bytes.length で bytes[i] は常に定義済み */
     const b0 = bytes[i] ?? 0;
+    /* v8 ignore stop */
     const b1 = bytes[i + 1];
     const b2 = bytes[i + 2];
 
@@ -139,12 +141,14 @@ export function base64UrlToUtf8(base64url: string): string | undefined {
   const bytes: number[] = [];
 
   for (let i = 0; i < base64.length; i += 4) {
+    /* v8 ignore start -- 防御的コード: パディング補正済みbase64のインデックスアクセスは常に定義済み */
     const c0 = base64Chars.indexOf(base64[i] ?? "");
     const c1 = base64Chars.indexOf(base64[i + 1] ?? "");
     const c2Char = base64[i + 2];
     const c3Char = base64[i + 3];
     const c2 = c2Char === "=" ? 0 : base64Chars.indexOf(c2Char ?? "");
     const c3 = c3Char === "=" ? 0 : base64Chars.indexOf(c3Char ?? "");
+    /* v8 ignore stop */
 
     if (c0 === -1 || c1 === -1 || c2 === -1 || c3 === -1) {
       return undefined; // 不正な文字
@@ -164,7 +168,9 @@ export function base64UrlToUtf8(base64url: string): string | undefined {
   let i = 0;
   while (i < bytes.length) {
     const b0 = bytes[i];
+    /* v8 ignore start -- 防御的コード: i < bytes.length で bytes[i] は常に定義済み */
     if (b0 === undefined) break;
+    /* v8 ignore stop */
 
     if (b0 < 0x80) {
       result += String.fromCharCode(b0);
