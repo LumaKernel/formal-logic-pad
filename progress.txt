@@ -10104,3 +10104,31 @@
   - setPointerCapture/releasePointerCaptureの存在チェックは防御的コード。JSDOMでは常に存在するのでテストでfalseパスは通らない→v8 ignore適切
   - ContextMenuComponentのref callbackのnullチェックも同様に防御的コード→v8 ignore適切
 ---
+
+## 2026-03-08 - カバレッジ改善 (themeLogic, questNotebookIntegration, inferenceEdge)
+- 実装した内容:
+  - themeLogic.ts: switch文をif-chainに変換してV8 switch branch artifact解消
+    - resolveTheme: 最後のcaseを省略しfall-throughで処理（TypeScript narrowingにより安全）
+    - nextThemeMode: 同様のパターン
+  - questNotebookIntegration.ts: computeNotebookQuestProgressのswitch→if-chain変換
+    - NoGoalsケース（防御的・到達不能）をv8 ignoreでガード
+  - inferenceEdge.test.ts: 17テスト追加
+    - ND quantifierラベル空文字テスト (∀I, ∀E, ∃I の variableName/termText="")
+    - ND 1前提エッジのundefined premiseテスト (9エッジタイプ)
+    - ND 2前提エッジのundefined premisesテスト (conjunction-intro, weakening, implication-elim)
+- 変更したファイル:
+  - src/lib/theme/themeLogic.ts
+  - src/lib/quest/questNotebookIntegration.ts
+  - src/lib/proof-pad/inferenceEdge.test.ts
+- カバレッジ:
+  - 全体: Branch 94.14%→94.41% (+0.27%)
+  - themeLogic.ts: Branch 84.61%→100% (単体テスト)
+  - questNotebookIntegration.ts: Branch 84.61%→100% (単体テスト)
+  - inferenceEdge.ts: Branch 91.82%→100% (単体テスト)
+- テスト数: 8213→8230 (+17), テストファイル数: 242
+- **今後のイテレーションへの学び:**
+  - V8はswitch文のdefaultブランチを、v8 ignoreがdefaultボディにあっても、switch行自体のブランチとしてカウントする
+  - 解決策: switch文をif-chainに変換し、最後のcaseはfall-throughにする。TypeScript narrowingで安全性を保つ
+  - これをCLAUDE.mdのCodebase Patternsに追加すべき
+  - inferenceEdge.tsのND edge型は多い（15種）。各型のundefined premiseブランチは個別にテストが必要
+---
