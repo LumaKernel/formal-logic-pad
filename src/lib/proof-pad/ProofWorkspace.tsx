@@ -2286,12 +2286,7 @@ export function ProofWorkspace({
       onSaveProofToCollection(params);
     }
     setNodeMenuState(closeNodeMenu());
-  }, [
-    nodeMenuState,
-    onSaveProofToCollection,
-    workspace,
-    axiomIdByNodeId,
-  ]);
+  }, [nodeMenuState, onSaveProofToCollection, workspace, axiomIdByNodeId]);
 
   // コンテキストメニューから「論理式を編集」
   const handleEditFormula = useCallback(() => {
