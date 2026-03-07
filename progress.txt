@@ -103,6 +103,28 @@
 
 ---
 
+## 2026-03-08 - カバレッジ改善: customQuestState・questNotebookIntegrationのBranchカバレッジ改善
+- customQuestState.test.ts: +4テスト追加
+  - ゴール配列のnull/プリミティブ値テスト
+  - 必須フィールド欠落テスト (description, hints, estimatedSteps, learningPoint)
+  - quest-level allowedAxiomIds のシリアライズ/エクスポートテスト
+- questNotebookIntegration.test.ts: +1テスト追加
+  - listItemsがnotebooksより多い場合の防御的ブランチテスト
+- customQuestState.ts: hints ?? [] の到達不能ブランチにv8 ignore追加
+- 変更ファイル:
+  - `src/lib/quest/customQuestState.test.ts` (+4テスト)
+  - `src/lib/quest/customQuestState.ts` (v8 ignore追加)
+  - `src/lib/quest/questNotebookIntegration.test.ts` (+1テスト)
+- テスト: 240ファイル、8136テスト全パス (+5テスト追加)
+- カバレッジ: Stmts 98.45% → 98.49%, Branch 92.95% → 93.06%, Lines 99.31% → 99.31%
+  - customQuestState.ts: Branch 92.85% → 100% (単体テスト)
+  - questNotebookIntegration.ts: Branch 76.92% → 84.61%
+- **今後のイテレーションへの学び:**
+  - `parseCustomQuestFromRaw` の各フィールドチェックは1行1分岐。テストが特定フィールド欠落をカバーしないとBranch未カバーとして残る
+  - `hints ?? []` のような「上流で undefined チェック済みの ?? フォールバック」は到達不能な防御的コード → v8 ignore が適切
+  - questNotebookIntegration.ts の switch (result._tag) 136行目は全ケーステスト済みでも V8 が未カバーとする場合がある（V8計測の制約）
+---
+
 ## 2026-03-08 - カバレッジ改善: modelAnswer.ts 防御的コードv8 ignore追加
 - modelAnswer.ts の4箇所の防御的コード（到達不能パス）に `v8 ignore` 追加:
   - MP invalid index チェック（line 420-426）
@@ -9929,4 +9951,22 @@
   - 純粋なUTF-8エンコード: TextEncoder/TextDecoderはブラウザAPIなのでテスト困難。手動でUTF-8バイト列を構築する方がテスタブル
   - URL共有のコンパクトフォーマット: フィールド名を短縮（t, d, cat等）してURL長を最小化。圧縮なしでもシンプルなクエストなら十分短い
   - prd-custom-quests.md のすべてのタスクが完了 → tasks-archived/ にアーカイブ済み
+---
+
+## 2026-03-08 - [coverage] CustomQuestListComponent・ProofCollectionPanelのカバレッジ改善
+- 実装した内容:
+  - CustomQuestListComponent.test.tsx (新規): キーボードナビゲーション(Enter/Space/Tab)テスト、ファイルインポート(FileReader)テスト、空JSON submitガードテスト (7テスト)
+  - ProofCollectionPanel.test.tsx: クローズボタンキーボード操作(Enter/Space/Tab)テスト、フォルダ作成Escape/Blurキャンセルテスト、空フォルダ名Enterガードテスト (6テスト追加)
+- 変更したファイル:
+  - src/lib/quest/CustomQuestListComponent.test.tsx (新規, 7テスト)
+  - src/lib/proof-collection/ProofCollectionPanel.test.tsx (+6テスト)
+- カバレッジ: Stmts 98.49%→98.35%, Branch 93.06%→93.23%, Lines 99.31%→99.36%
+  - Branch/Lines向上。Stmts微減はV8カバレッジマージのquirk
+  - ProofCollectionPanel.tsx: Stmts 89.76%→93.02%, Branch 73.37%→77.27% (改善)
+  - CustomQuestListComponent.tsx: Branch 68.75%→76.53% (改善)
+- テスト数: 8136→8149 (+13)
+- **今後のイテレーションへの学び:**
+  - FileReaderのテスト: `userEvent.upload()` + `waitFor()` でFileReaderの非同期onloadコールバックをテスト可能
+  - V8カバレッジマージquirk: ユニットテスト追加でStmts微減することがある（分母変化）。Branch/Linesの方が安定的な指標
+  - キーボードアクセシビリティのテスト: `fireEvent.keyDown(element, { key: "Enter" })` パターンが堅実
 ---

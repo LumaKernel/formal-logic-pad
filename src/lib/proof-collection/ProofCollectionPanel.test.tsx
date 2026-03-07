@@ -277,6 +277,54 @@ describe("ProofCollectionPanel", () => {
       fireEvent.click(screen.getByTestId("panel-close"));
       expect(onClose).toHaveBeenCalledOnce();
     });
+
+    it("×ボタンでEnterキーを押すとonClose呼び出し", () => {
+      const onClose = vi.fn();
+      render(
+        <ProofCollectionPanel
+          entries={[]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onClose={onClose}
+          testId="panel"
+        />,
+      );
+      fireEvent.keyDown(screen.getByTestId("panel-close"), { key: "Enter" });
+      expect(onClose).toHaveBeenCalledOnce();
+    });
+
+    it("×ボタンでSpaceキーを押すとonClose呼び出し", () => {
+      const onClose = vi.fn();
+      render(
+        <ProofCollectionPanel
+          entries={[]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onClose={onClose}
+          testId="panel"
+        />,
+      );
+      fireEvent.keyDown(screen.getByTestId("panel-close"), { key: " " });
+      expect(onClose).toHaveBeenCalledOnce();
+    });
+
+    it("×ボタンで他のキーを押してもonCloseは呼ばれない", () => {
+      const onClose = vi.fn();
+      render(
+        <ProofCollectionPanel
+          entries={[]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onClose={onClose}
+          testId="panel"
+        />,
+      );
+      fireEvent.keyDown(screen.getByTestId("panel-close"), { key: "Tab" });
+      expect(onClose).not.toHaveBeenCalled();
+    });
   });
 
   describe("ヘッダー", () => {
@@ -479,6 +527,59 @@ describe("ProofCollectionPanel", () => {
       fireEvent.change(input, { target: { value: "New Folder" } });
       fireEvent.keyDown(input, { key: "Enter" });
       expect(onCreateFolder).toHaveBeenCalledWith("New Folder");
+    });
+
+    it("フォルダ作成入力でEscapeキーを押すと入力フォームが閉じる", () => {
+      render(
+        <ProofCollectionPanel
+          entries={[]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onCreateFolder={vi.fn()}
+          testId="panel"
+        />,
+      );
+      fireEvent.click(screen.getByTestId("panel-create-folder"));
+      const input = screen.getByTestId("panel-create-folder-input");
+      fireEvent.keyDown(input, { key: "Escape" });
+      expect(screen.queryByTestId("panel-create-folder-input")).toBeNull();
+    });
+
+    it("フォルダ作成入力でBlurすると入力フォームが閉じる", () => {
+      render(
+        <ProofCollectionPanel
+          entries={[]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onCreateFolder={vi.fn()}
+          testId="panel"
+        />,
+      );
+      fireEvent.click(screen.getByTestId("panel-create-folder"));
+      const input = screen.getByTestId("panel-create-folder-input");
+      fireEvent.blur(input);
+      expect(screen.queryByTestId("panel-create-folder-input")).toBeNull();
+    });
+
+    it("空のフォルダ名でEnterを押してもonCreateFolderは呼ばれない", () => {
+      const onCreateFolder = vi.fn();
+      render(
+        <ProofCollectionPanel
+          entries={[]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onCreateFolder={onCreateFolder}
+          testId="panel"
+        />,
+      );
+      fireEvent.click(screen.getByTestId("panel-create-folder"));
+      const input = screen.getByTestId("panel-create-folder-input");
+      // 空のままEnterを押す
+      fireEvent.keyDown(input, { key: "Enter" });
+      expect(onCreateFolder).not.toHaveBeenCalled();
     });
   });
 
