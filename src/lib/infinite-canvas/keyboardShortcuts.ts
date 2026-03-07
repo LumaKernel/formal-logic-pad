@@ -23,6 +23,7 @@ export type KeyboardAction =
   | { readonly type: "open-command-palette" }
   | { readonly type: "enter-space-pan" }
   | { readonly type: "exit-space-pan" }
+  | { readonly type: "tree-layout" }
   | { readonly type: "none" };
 
 /** Minimal keyboard event data needed for classification (testable without DOM) */
@@ -129,6 +130,11 @@ export function classifyKeyDown(
   // "/" key → open command palette (no modifier, not repeat)
   if (key === "/" && !mod && !shiftKey && !repeat) {
     return { type: "open-command-palette" };
+  }
+
+  // Cmd/Ctrl+Shift+L → tree layout
+  if (mod && shiftKey && key.toLowerCase() === "l") {
+    return { type: "tree-layout" };
   }
 
   // Space key → toggle space-pan mode (only on initial press, not repeat)

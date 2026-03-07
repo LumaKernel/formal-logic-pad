@@ -135,7 +135,7 @@ import {
   duplicateNode,
   cutSelectedNodes,
   applySubstitutionAndConnect,
-  applyIncrementalLayout,
+  applyTreeLayout,
   revalidateInferenceConclusions,
   updateInferenceEdgeGenVariableName,
   updateInferenceEdgeSubstitutionEntries,
@@ -873,29 +873,15 @@ export function ProofWorkspace({
     [minimapItems, selectedNodeIds],
   );
 
-  // 自動レイアウト機能
-  const [autoLayout, setAutoLayout] = useState(false);
-  const [autoLayoutDirection, setAutoLayoutDirection] =
-    useState<LayoutDirection>("top-to-bottom");
+  // --- ツリーレイアウト（ワンショット） ---
 
-  /** setWorkspace のラッパー。ノード数/接続数が変化した場合にインクリメンタルレイアウトを適用する。 */
-  const setWorkspaceWithAutoLayout = useCallback(
-    (ws: WorkspaceState) => {
-      if (!autoLayout) {
-        setWorkspace(ws);
-        return;
-      }
-      const nodeCountChanged = ws.nodes.length !== workspace.nodes.length;
-      const connectionCountChanged =
-        ws.connections.length !== workspace.connections.length;
-      if (nodeCountChanged || connectionCountChanged) {
-        const laid = applyIncrementalLayout(ws, autoLayoutDirection, nodeSizes);
-        setWorkspace(laid);
-      } else {
-        setWorkspace(ws);
-      }
+  /** 選択ノードまたは全ノードにツリーレイアウトを適用する。 */
+  const handleTreeLayout = useCallback(
+    (direction: LayoutDirection) => {
+      const laid = applyTreeLayout(workspace, direction, nodeSizes);
+      setWorkspace(laid);
     },
-    [autoLayout, autoLayoutDirection, workspace, nodeSizes, setWorkspace],
+    [workspace, nodeSizes, setWorkspace],
   );
 
   // --- ノード分類 ---
@@ -970,9 +956,9 @@ export function ProofWorkspace({
         result.toPortId,
       );
       newWs = revalidateInferenceConclusions(newWs);
-      setWorkspaceWithAutoLayout(newWs);
+      setWorkspace(newWs);
     },
-    [workspace, setWorkspaceWithAutoLayout],
+    [workspace, setWorkspace],
   );
   /* v8 ignore stop */
 
@@ -1182,7 +1168,7 @@ export function ProofWorkspace({
       const position = computeNewNodePosition(workspace.nodes);
       // ラベルは汎用的な "Axiom" を使用。具体的な公理名(A1, A2等)は
       // formulaText から自動計算される axiomName バッジで表示する。
-      setWorkspaceWithAutoLayout(
+      setWorkspace(
         addNode(
           workspace,
           "axiom",
@@ -1194,7 +1180,7 @@ export function ProofWorkspace({
     },
     [
       workspace,
-      setWorkspaceWithAutoLayout,
+      setWorkspace,
       computeNewNodePosition,
       msg.nodeLabelAxiom,
     ],
@@ -1203,12 +1189,12 @@ export function ProofWorkspace({
   const handleAddAssumption = useCallback(() => {
     const position = computeNewNodePosition(workspace.nodes);
     // NDでは仮定ノードを追加。formulaTextは空で、ユーザーが自由に入力する。
-    setWorkspaceWithAutoLayout(
+    setWorkspace(
       addNode(workspace, "axiom", msg.nodeLabelAssumption, position, ""),
     );
   }, [
     workspace,
-    setWorkspaceWithAutoLayout,
+    setWorkspace,
     computeNewNodePosition,
     msg.nodeLabelAssumption,
   ]);
@@ -1217,12 +1203,12 @@ export function ProofWorkspace({
     const position = computeNewNodePosition(workspace.nodes);
     // TABではシーケントノードを追加。formulaTextは空で、ユーザーが式を入力する。
     // TABシーケントは左辺（Γ）のみで右辺は常に空。
-    setWorkspaceWithAutoLayout(
+    setWorkspace(
       addNode(workspace, "axiom", msg.nodeLabelSequent, position, ""),
     );
   }, [
     workspace,
-    setWorkspaceWithAutoLayout,
+    setWorkspace,
     computeNewNodePosition,
     msg.nodeLabelSequent,
   ]);
@@ -1230,12 +1216,12 @@ export function ProofWorkspace({
   const handleAddSignedFormula = useCallback(() => {
     const position = computeNewNodePosition(workspace.nodes);
     // ATでは署名付き論理式ノードを追加。formulaTextは空で、ユーザーが "T:φ" / "F:φ" を入力する。
-    setWorkspaceWithAutoLayout(
+    setWorkspace(
       addNode(workspace, "axiom", msg.nodeLabelSignedFormula, position, ""),
     );
   }, [
     workspace,
-    setWorkspaceWithAutoLayout,
+    setWorkspace,
     computeNewNodePosition,
     msg.nodeLabelSignedFormula,
   ]);
@@ -1276,7 +1262,7 @@ export function ProofWorkspace({
           mpPosition,
         );
 
-        setWorkspaceWithAutoLayout(result.workspace);
+        setWorkspace(result.workspace);
         setMPSelection({ phase: "idle" });
       } else if (mpSelection.phase === "selecting-left-for-right") {
         // Right premise was pre-selected, now left is clicked
@@ -1298,11 +1284,11 @@ export function ProofWorkspace({
           mpPosition,
         );
 
-        setWorkspaceWithAutoLayout(result.workspace);
+        setWorkspace(result.workspace);
         setMPSelection({ phase: "idle" });
       }
     },
-    [mpSelection, workspace, setWorkspaceWithAutoLayout],
+    [mpSelection, workspace, setWorkspace],
   );
 
   // --- Gen選択モードハンドラ ---
@@ -1342,10 +1328,10 @@ export function ProofWorkspace({
         genPosition,
       );
 
-      setWorkspaceWithAutoLayout(result.workspace);
+      setWorkspace(result.workspace);
       setGenSelection({ phase: "idle" });
     },
-    [genSelection, workspace, setWorkspaceWithAutoLayout],
+    [genSelection, workspace, setWorkspace],
   );
 
   // --- マージ選択モードハンドラ ---
@@ -1363,11 +1349,11 @@ export function ProofWorkspace({
         [targetNodeId],
       );
       if (result._tag === "Success") {
-        setWorkspaceWithAutoLayout(result.workspace);
+        setWorkspace(result.workspace);
       }
       setMergeSelection({ phase: "idle" });
     },
-    [mergeSelection, workspace, setWorkspaceWithAutoLayout],
+    [mergeSelection, workspace, setWorkspace],
   );
 
   // --- TAB規則選択モードハンドラ ---
@@ -1475,7 +1461,7 @@ export function ProofWorkspace({
       );
 
       if (Either.isRight(result.validation)) {
-        setWorkspaceWithAutoLayout(result.workspace);
+        setWorkspace(result.workspace);
       } else {
         const errorMsg = getTabErrorMessage(result.validation.left);
         globalThis.alert(errorMsg);
@@ -1483,7 +1469,7 @@ export function ProofWorkspace({
 
       setTabSelection({ phase: "idle" });
     },
-    [tabSelection, workspace, setWorkspaceWithAutoLayout, msg],
+    [tabSelection, workspace, setWorkspace, msg],
   );
 
   // --- AT規則選択モードハンドラ ---
@@ -1538,7 +1524,7 @@ export function ProofWorkspace({
         );
 
         if (Either.isRight(result.validation)) {
-          setWorkspaceWithAutoLayout(result.workspace);
+          setWorkspace(result.workspace);
         } else {
           const errorMsg = getAtErrorMessage(result.validation.left);
           globalThis.alert(errorMsg);
@@ -1613,7 +1599,7 @@ export function ProofWorkspace({
       );
 
       if (Either.isRight(result.validation)) {
-        setWorkspaceWithAutoLayout(result.workspace);
+        setWorkspace(result.workspace);
       } else {
         const errorMsg = getAtErrorMessage(result.validation.left);
         globalThis.alert(errorMsg);
@@ -1621,7 +1607,7 @@ export function ProofWorkspace({
 
       setAtSelection({ phase: "idle" });
     },
-    [atSelection, workspace, setWorkspaceWithAutoLayout, msg],
+    [atSelection, workspace, setWorkspace, msg],
   );
 
   // --- SC規則選択モードハンドラ ---
@@ -1764,7 +1750,7 @@ export function ProofWorkspace({
       );
 
       if (Either.isRight(result.validation)) {
-        setWorkspaceWithAutoLayout(result.workspace);
+        setWorkspace(result.workspace);
       } else {
         const errorMsg = getScErrorMessage(result.validation.left);
         globalThis.alert(errorMsg);
@@ -1772,7 +1758,7 @@ export function ProofWorkspace({
 
       setScSelection({ phase: "idle" });
     },
-    [scSelection, workspace, setWorkspaceWithAutoLayout, msg],
+    [scSelection, workspace, setWorkspace, msg],
   );
 
   // 統合ノードクリックハンドラ
@@ -2356,13 +2342,13 @@ export function ProofWorkspace({
         y: -viewport.offsetY / viewport.scale + 300,
       };
       const result = importProofFromCollection(workspace, entry, center);
-      setWorkspaceWithAutoLayout(result);
+      setWorkspace(result);
       const newNodeIds = new Set(
         result.nodes.slice(workspace.nodes.length).map((n) => n.id),
       );
       setSelectedNodeIds(newNodeIds);
     },
-    [workspace, viewport, setWorkspaceWithAutoLayout],
+    [workspace, viewport, setWorkspace],
   );
 
   // コンテキストメニューから「論理式を編集」
@@ -2427,10 +2413,10 @@ export function ProofWorkspace({
       genPosition,
     );
 
-    setWorkspaceWithAutoLayout(result.workspace);
+    setWorkspace(result.workspace);
     setGenPromptNodeId(null);
     setGenPromptInput("");
-  }, [genPromptNodeId, genPromptInput, workspace, setWorkspaceWithAutoLayout]);
+  }, [genPromptNodeId, genPromptInput, workspace, setWorkspace]);
 
   const handleGenPromptCancel = useCallback(() => {
     setGenPromptNodeId(null);
@@ -2542,14 +2528,14 @@ export function ProofWorkspace({
       substPosition,
     );
 
-    setWorkspaceWithAutoLayout(result.workspace);
+    setWorkspace(result.workspace);
     setSubstPromptNodeId(null);
     setSubstPromptEntries([{ kind: "formula", metaVar: "", value: "" }]);
   }, [
     substPromptNodeId,
     substPromptEntries,
     workspace,
-    setWorkspaceWithAutoLayout,
+    setWorkspace,
   ]);
 
   const handleSubstPromptCancel = useCallback(() => {
@@ -2597,10 +2583,10 @@ export function ProofWorkspace({
         conclusionNodeId,
         variableName,
       );
-      setWorkspaceWithAutoLayout(updated);
+      setWorkspace(updated);
       setEdgeBadgeEditState(null);
     },
-    [workspace, setWorkspaceWithAutoLayout],
+    [workspace, setWorkspace],
   );
 
   const handleEdgeBadgeConfirmSubstitution = useCallback(
@@ -2611,10 +2597,10 @@ export function ProofWorkspace({
         conclusionNodeId,
         entries,
       );
-      setWorkspaceWithAutoLayout(updated);
+      setWorkspace(updated);
       setEdgeBadgeEditState(null);
     },
-    [workspace, setWorkspaceWithAutoLayout],
+    [workspace, setWorkspace],
   );
 
   const handleEdgeBadgeCancel = useCallback(() => {
@@ -2647,17 +2633,17 @@ export function ProofWorkspace({
   const handleDuplicateNode = useCallback(() => {
     if (!nodeMenuState.open) return;
     const result = duplicateNode(workspace, nodeMenuState.nodeId);
-    setWorkspaceWithAutoLayout(result.workspace);
+    setWorkspace(result.workspace);
     setSelectedNodeIds(result.newNodeIds);
     setNodeMenuState(closeNodeMenu());
-  }, [nodeMenuState, workspace, setWorkspaceWithAutoLayout]);
+  }, [nodeMenuState, workspace, setWorkspace]);
 
   const handleDeleteNode = useCallback(() => {
     if (!nodeMenuState.open) return;
     const result = removeNode(workspace, nodeMenuState.nodeId);
-    setWorkspaceWithAutoLayout(result);
+    setWorkspace(result);
     setNodeMenuState(closeNodeMenu());
-  }, [nodeMenuState, workspace, setWorkspaceWithAutoLayout]);
+  }, [nodeMenuState, workspace, setWorkspace]);
 
   // ノードコンテキストメニュー外クリックで閉じる
   useEffect(() => {
@@ -2689,9 +2675,9 @@ export function ProofWorkspace({
   const handleDeleteConnection = useCallback(() => {
     if (!lineMenuState.open) return;
     const result = removeConnection(workspace, lineMenuState.connectionId);
-    setWorkspaceWithAutoLayout(revalidateInferenceConclusions(result));
+    setWorkspace(revalidateInferenceConclusions(result));
     setLineMenuState(closeLineMenu());
-  }, [lineMenuState, workspace, setWorkspaceWithAutoLayout]);
+  }, [lineMenuState, workspace, setWorkspace]);
 
   // 接続線コンテキストメニュー外クリックで閉じる
   useEffect(() => {
@@ -2791,7 +2777,7 @@ export function ProofWorkspace({
       }
       const center = canvasMenuState.worldPosition;
       const result = pasteNodes(workspace, data, center);
-      setWorkspaceWithAutoLayout(result);
+      setWorkspace(result);
       const newNodeIds = new Set(
         result.nodes.slice(workspace.nodes.length).map((n) => n.id),
       );
@@ -2824,7 +2810,7 @@ export function ProofWorkspace({
   }, [
     workspace,
     canvasMenuState.worldPosition,
-    setWorkspaceWithAutoLayout,
+    setWorkspace,
     showPasteError,
     msg.pasteIncompatibleStyle,
   ]);
@@ -2887,7 +2873,7 @@ export function ProofWorkspace({
         y: -viewport.offsetY / viewport.scale + 300,
       };
       const result = pasteNodes(workspace, data, center);
-      setWorkspaceWithAutoLayout(result);
+      setWorkspace(result);
       // ペースト後、新しいノードを選択状態にする
       const newNodeIds = new Set(
         result.nodes.slice(workspace.nodes.length).map((n) => n.id),
@@ -2916,7 +2902,7 @@ export function ProofWorkspace({
   }, [
     workspace,
     viewport,
-    setWorkspaceWithAutoLayout,
+    setWorkspace,
     showPasteError,
     msg.pasteIncompatibleStyle,
   ]);
@@ -2930,23 +2916,23 @@ export function ProofWorkspace({
     navigator.clipboard.writeText(json).catch(() => {
       // クリップボードAPIが使えない環境でも内部保持で動作
     });
-    setWorkspaceWithAutoLayout(result.workspace);
+    setWorkspace(result.workspace);
     setSelectedNodeIds(clearSelection());
-  }, [selectedNodeIds, workspace, setWorkspaceWithAutoLayout]);
+  }, [selectedNodeIds, workspace, setWorkspace]);
 
   const handleDuplicate = useCallback(() => {
     if (selectedNodeIds.size === 0) return;
     const result = duplicateSelectedNodes(workspace, selectedNodeIds);
-    setWorkspaceWithAutoLayout(result.workspace);
+    setWorkspace(result.workspace);
     setSelectedNodeIds(result.newNodeIds);
-  }, [selectedNodeIds, workspace, setWorkspaceWithAutoLayout]);
+  }, [selectedNodeIds, workspace, setWorkspace]);
 
   const handleDeleteSelected = useCallback(() => {
     if (selectedNodeIds.size === 0) return;
     const result = removeSelectedNodes(workspace, selectedNodeIds);
-    setWorkspaceWithAutoLayout(result);
+    setWorkspace(result);
     setSelectedNodeIds(clearSelection());
-  }, [selectedNodeIds, workspace, setWorkspaceWithAutoLayout]);
+  }, [selectedNodeIds, workspace, setWorkspace]);
 
   const mergeEnabled = useMemo(() => {
     if (selectedNodeIds.size < 2) return false;
@@ -2991,11 +2977,11 @@ export function ProofWorkspace({
       }
     }
 
-    setWorkspaceWithAutoLayout(ws);
+    setWorkspace(ws);
     // マージ後はリーダーノードだけ選択
     const leaderIds = new Set(groups.map((g) => g.leaderNodeId));
     setSelectedNodeIds(leaderIds);
-  }, [selectedNodeIds, workspace, setWorkspaceWithAutoLayout]);
+  }, [selectedNodeIds, workspace, setWorkspace]);
 
   // --- キーボードショートカット ---
   /* v8 ignore start -- キーボードイベント: JSDOMではfocus制御が不安定なためブラウザテストで検証 */
@@ -3047,6 +3033,9 @@ export function ProofWorkspace({
         } else {
           setSelectedNodeIds(clearSelection());
         }
+      } else if (isModifier && e.shiftKey && e.key.toLowerCase() === "l") {
+        e.preventDefault();
+        handleTreeLayout("top-to-bottom");
       } else if (e.key === "Shift" && !e.repeat) {
         // Shiftキー押下でマーキー（矩形選択）モード有効化
         setIsShiftMarqueeActive(true);
@@ -3075,6 +3064,7 @@ export function ProofWorkspace({
     handleMergeSelected,
     mergeSelection,
     handleCancelMerge,
+    handleTreeLayout,
     workspace.nodes,
   ]);
   /* v8 ignore stop */
@@ -3697,71 +3687,6 @@ export function ProofWorkspace({
             )}
           </>
         ) : null}
-        {/* 自動レイアウトトグル */}
-        <span
-          style={{
-            borderLeft:
-              "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
-            paddingLeft: 8,
-            marginLeft: 4,
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 4,
-          }}
-        >
-          <label
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-              cursor: "pointer",
-              fontSize: 12,
-            }}
-            data-testid={
-              testId
-                ? `${testId satisfies string}-auto-layout-label`
-                : undefined
-            }
-          >
-            <input
-              type="checkbox"
-              checked={autoLayout}
-              onChange={(e) => setAutoLayout(e.target.checked)}
-              data-testid={
-                testId
-                  ? `${testId satisfies string}-auto-layout-toggle`
-                  : undefined
-              }
-            />
-            {msg.autoLayout}
-          </label>
-          {autoLayout ? (
-            <select
-              value={autoLayoutDirection}
-              onChange={(e) =>
-                setAutoLayoutDirection(e.target.value as LayoutDirection)
-              }
-              style={{
-                fontSize: 11,
-                padding: "1px 4px",
-                borderRadius: 6,
-                border:
-                  "1px solid var(--color-paper-button-border, rgba(180, 160, 130, 0.3))",
-                background:
-                  "var(--color-paper-button-bg, rgba(255, 253, 248, 0.9))",
-                color: "var(--color-text-primary, #171717)",
-              }}
-              data-testid={
-                testId
-                  ? `${testId satisfies string}-auto-layout-direction`
-                  : undefined
-              }
-            >
-              <option value="top-to-bottom">{msg.layoutTopToBottom}</option>
-              <option value="bottom-to-top">{msg.layoutBottomToTop}</option>
-            </select>
-          ) : null}
-        </span>
         {/* ワークスペース操作メニュー（Export/Import） */}
         <span
           style={{
@@ -4776,6 +4701,38 @@ export function ProofWorkspace({
             testId={
               testId
                 ? `${testId satisfies string}-canvas-menu-paste`
+                : undefined
+            }
+          />
+          {/* 区切り線 */}
+          <div
+            style={{
+              borderTop:
+                "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
+              margin: "4px 0",
+            }}
+          />
+          <WorkspaceMenuItem
+            label={msg.treeLayoutTopToBottom}
+            onClick={() => {
+              handleTreeLayout("top-to-bottom");
+              setCanvasMenuState((prev) => ({ ...prev, open: false }));
+            }}
+            testId={
+              testId
+                ? `${testId satisfies string}-canvas-menu-tree-layout-tb`
+                : undefined
+            }
+          />
+          <WorkspaceMenuItem
+            label={msg.treeLayoutBottomToTop}
+            onClick={() => {
+              handleTreeLayout("bottom-to-top");
+              setCanvasMenuState((prev) => ({ ...prev, open: false }));
+            }}
+            testId={
+              testId
+                ? `${testId satisfies string}-canvas-menu-tree-layout-bt`
                 : undefined
             }
           />
