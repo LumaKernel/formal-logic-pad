@@ -9452,3 +9452,31 @@
   - js-interpreter はStorybook browser環境ではMonaco EditorのAMDローダーと競合する（UIレンダリングは正常だが実行時エラー）
   - WorkspaceCommandHandler インターフェースでコマンドパターンを使い、React setStateから分離
 ---
+
+## 2026-03-07 - [script-editor] カット除去ブリッジとテンプレートスクリプト
+- US-005 の主要部分を実装: SC証明操作のブリッジ関数とテンプレートスクリプト
+- 実装内容:
+  - `cutEliminationBridge.ts`: SC証明のJSON serialize/deserialize（encodeScProofNode/decodeScProofNode）、5つのブリッジ関数（isCutFree, countCuts, formatSequent, eliminateCutsWithSteps, getScConclusion）
+  - `cutEliminationBridge.test.ts`: 43テスト（全18種ScProofNodeのラウンドトリップ、デコードエラー、ブリッジ関数、スクリプト統合）
+  - `templates.ts`: 3つのビルトインテンプレート（カット除去:単純/含意、φ→φ証明構築）
+  - `templates.test.ts`: 6テスト（テンプレート検証 + 実行テスト）
+  - ScriptEditorComponent: ブリッジ統合 + テンプレート選択UI
+- 変更ファイル:
+  - src/lib/script-runner/cutEliminationBridge.ts（新規）
+  - src/lib/script-runner/cutEliminationBridge.test.ts（新規）
+  - src/lib/script-runner/templates.ts（新規）
+  - src/lib/script-runner/templates.test.ts（新規）
+  - src/lib/script-runner/index.ts
+  - src/components/ScriptEditor/ScriptEditorComponent.tsx
+  - src/components/ScriptEditor/ScriptEditorComponent.module.css
+  - tasks/prd-scripted-proof-rewriting.md
+- カバレッジ: Stmts 98.85%→98.85%, Branch 93.31%→93.32%, Funcs 89.33%→89.19%, Lines 99.72%→99.71%
+- テスト数: 7765→7814 (+49)
+- スクリーンショット: .screenshots/script-editor-template-ui.png, .screenshots/script-editor-template-loaded.png
+- **今後のイテレーションへの学び:**
+  - ScProofNodeは18バリアントのdiscriminated union。encode/decodeは手動switch（Schema.TaggedClassではない）
+  - MetaVariable nameはUnicodeギリシャ文字（φ,ψ,χ等）が必須。"phi"のようなASCII名はSchema validationで弾かれる
+  - ScriptRunErrorは4バリアント（RuntimeError/SyntaxError/StepLimitExceeded/TimeLimitExceeded）。messageプロパティはRuntimeError/SyntaxErrorのみ
+  - eliminateCutsWithStepsのFailure分岐は正常入力では発生しないため、テストカバレッジは意図的に省略
+  - US-005の残り項目「キャンバス上で可視化」「ステップ実行で確認可能」はSCプルーフのワークスペース表示が未実装のため後回し
+---
