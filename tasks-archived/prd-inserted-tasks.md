@@ -210,3 +210,5 @@ Infinity Canvasについて。
   - convertToFreeMode でゴール一覧をクリア。Notebook型を FreeNotebook | QuestNotebook のdiscriminated unionに変更。isQuestNotebook / isFreeNotebook 型ガード関数追加。シリアライゼーション対応。テスト追加。
 - [x] http://localhost:13000/ ノートブック一覧側でも、クエストについては、クエストの進行状況(computable)を一覧からも確認できるようにしてほしい。
   - notebookListLogic: QuestProgressInfo型 + questProgressText関数。NotebookListComponent: QuestProgressBadgeサブコンポーネント。questNotebookIntegration: computeNotebookQuestProgress/enrichListItemsWithQuestProgress。HubContent統合。テスト・ストーリー追加。
+- [x] ノートの体系タグの近くにボタン、または体系名そのものをクリックから、体系に関する解説ウィンドウを起動できるように
+- [x] 各公理呼び出しの近くにクリックから、体系に関する解説ウィンドウを起動できるような機能を追加

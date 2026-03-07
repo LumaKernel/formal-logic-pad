@@ -9102,3 +9102,27 @@
   - CSSProperties型アノテーションをスタイルオブジェクトに追加すると、spread構文での型安全性が向上する
   - buttonのfontFamilyは明示的に `inherit` を指定しないとブラウザデフォルト（sans-serif等）になる
 ---
+
+## 2026-03-07 - [proof-pad] 公理名バッジクリックでリファレンス解説ウィンドウ起動
+- 実装した内容:
+  - EditableProofNode の公理名バッジ（A1 (K)等）をクリック可能に。クリックで onOpenReferenceDetail コールバック経由でリファレンス解説ウィンドウを起動
+  - EditableProofNode: `onClickAxiomBadge` コールバックprop追加。指定時はbutton（dotted underline + cursor pointer）、未指定時はspan
+  - ProofWorkspace: axiomNames Mapに axiomId を追加、handleAxiomBadgeClick でaxiomId→referenceEntryIdマッピング、EditableProofNodeへ伝達
+  - 理論公理（PA1等）はreferenceEntryIdが未定義のためクリック不可（将来対応）
+- 変更したファイル:
+  - `src/lib/proof-pad/EditableProofNode.tsx` (onClickAxiomBadge prop追加、button/span切替)
+  - `src/lib/proof-pad/EditableProofNode.test.tsx` (3テスト追加: button/span切替、クリックハンドラ)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (axiomNames Map拡張、handleAxiomBadgeClick追加)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (2テスト追加: クリックでonOpenReferenceDetail呼出、未指定時span)
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` (WorkspaceWithReference: 公理ノード追加、axiomバッジクリック検証play関数追加)
+  - `task-processing.md`, `tasks/prd-inserted-tasks.md`
+- カバレッジ: ベースライン Stmts 99.11% / Branch 94.00% → 完了後 Stmts 99.09% / Branch 93.97% (V8マージ誤差範囲、実質低下なし)
+- テスト: 7508 → 7513 passed (+5)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Playwright MCPでStorybook確認。公理名バッジがクリック可能なボタンとして表示、全15インタラクションステップPASS。スクリーンショット: .screenshots/axiom-badge-clickable-storybook.png, .screenshots/axiom-badge-interactions-pass.png, .screenshots/axiom-badge-fullscreen.png
+- **今後のイテレーションへの学び:**
+  - axiomNames Mapの拡張は displayName だけでなく axiomId も含めるパターン。将来的にさらにフィールドが必要になる場合は型を定義してMapの値を構造化する
+  - ProofWorkspace.test.tsx でviewport culling回避のため `workspace` prop（制御モード）を使う。`initialWorkspace`（非制御モード）はJSDOM環境でノードが描画されない
+  - React Compiler: useCallback内で参照する変数は定義順序に注意。変数定義より前にuseCallbackを配置するとメモ化エラー
+  - 体系バッジクリック（前回）と公理バッジクリック（今回）は同じUIパターン（callback有→button、無→span、dotted underline）。新しいクリッカブルバッジ追加時はこのパターンに従う
+---
