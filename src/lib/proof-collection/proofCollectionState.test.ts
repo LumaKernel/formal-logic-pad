@@ -539,7 +539,13 @@ describe("collectUsedAxiomIds", () => {
 describe("prepareProofSaveParams", () => {
   it("ノードの証明サブグラフからパラメータを組み立てる", () => {
     let workspace = createEmptyWorkspace(minimalLogicSystem);
-    workspace = addNode(workspace, "axiom", "公理", { x: 0, y: 0 }, "phi -> psi");
+    workspace = addNode(
+      workspace,
+      "axiom",
+      "公理",
+      { x: 0, y: 0 },
+      "phi -> psi",
+    );
 
     const axiomIdByNodeId = new Map<string, string | undefined>([
       ["node-1", "A1"],
