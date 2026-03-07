@@ -63,6 +63,12 @@ const sampleItems: readonly QuestCatalogItem[] = [
       description: "¬(p ∧ q) → (¬p ∨ ¬q) を証明せよ。",
       difficulty: 3,
       estimatedSteps: 12,
+      goals: [
+        { formulaText: "~(p & q) -> (~p | ~q)" },
+        { formulaText: "(~p | ~q) -> ~(p & q)" },
+      ],
+      hints: ["ヒント1: 対偶を使う", "ヒント2: ド・モルガンの変換"],
+      learningPoint: "ド・モルガンの法則の理解",
     },
   }),
   makeItem({
@@ -89,6 +95,7 @@ const meta = {
     onStartQuest: fn(),
     onDuplicateQuest: fn(),
     onDeleteQuest: fn(),
+    onEditQuest: fn(),
   },
 } satisfies Meta<typeof CustomQuestList>;
 
@@ -110,7 +117,10 @@ export const Default: Story = {
     await expect(canvas.getByText("恒等律の練習")).toBeInTheDocument();
     await expect(canvas.getByText("ド・モルガンの法則")).toBeInTheDocument();
     await expect(canvas.getByText("対偶")).toBeInTheDocument();
-    // 複製・削除ボタンが表示されていること
+    // 編集・複製・削除ボタンが表示されていること
+    await expect(
+      canvas.getByTestId("custom-quest-edit-btn-custom-1001"),
+    ).toBeInTheDocument();
     await expect(
       canvas.getByTestId("custom-quest-duplicate-btn-custom-1001"),
     ).toBeInTheDocument();
@@ -195,15 +205,104 @@ export const WithoutActions: Story = {
     items: sampleItems,
     onDuplicateQuest: undefined,
     onDeleteQuest: undefined,
+    onEditQuest: undefined,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // 複製・削除ボタンが表示されないこと
+    // 編集・複製・削除ボタンが表示されないこと
+    await expect(
+      canvas.queryByTestId("custom-quest-edit-btn-custom-1001"),
+    ).not.toBeInTheDocument();
     await expect(
       canvas.queryByTestId("custom-quest-duplicate-btn-custom-1001"),
     ).not.toBeInTheDocument();
     await expect(
       canvas.queryByTestId("custom-quest-delete-btn-custom-1001"),
     ).not.toBeInTheDocument();
+  },
+};
+
+export const EditQuest: Story = {
+  args: {
+    items: sampleItems,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // 編集ボタンをクリックしてフォームを開く
+    await userEvent.click(
+      canvas.getByTestId("custom-quest-edit-btn-custom-1002"),
+    );
+    // onStartQuest は呼ばれていないこと（stopPropagation）
+    await expect(args.onStartQuest).not.toHaveBeenCalled();
+
+    // 編集フォームが表示されること
+    await expect(
+      canvas.getByTestId("custom-quest-edit-form-custom-1002"),
+    ).toBeInTheDocument();
+
+    // フォームに既存値が入っていること
+    const titleInput = canvas.getByTestId("edit-title-input");
+    await expect(titleInput).toHaveValue("ド・モルガンの法則");
+
+    const goalsInput = canvas.getByTestId("edit-goals-input");
+    await expect(goalsInput).toHaveValue(
+      "~(p & q) -> (~p | ~q)\n(~p | ~q) -> ~(p & q)",
+    );
+
+    const hintsInput = canvas.getByTestId("edit-hints-input");
+    await expect(hintsInput).toHaveValue(
+      "ヒント1: 対偶を使う\nヒント2: ド・モルガンの変換",
+    );
+
+    // タイトルを変更して保存する
+    await userEvent.clear(titleInput);
+    await userEvent.type(titleInput, "ド・モルガン（修正版）");
+    await userEvent.click(canvas.getByTestId("edit-save-btn"));
+
+    // onEditQuest が正しいパラメータで呼ばれること
+    await expect(args.onEditQuest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        questId: "custom-1002",
+        params: expect.objectContaining({
+          title: "ド・モルガン（修正版）",
+        }),
+      }),
+    );
+
+    // フォームが閉じること
+    await expect(
+      canvas.queryByTestId("custom-quest-edit-form-custom-1002"),
+    ).not.toBeInTheDocument();
+  },
+};
+
+export const EditQuestCancel: Story = {
+  args: {
+    items: sampleItems,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // 編集ボタンをクリック
+    await userEvent.click(
+      canvas.getByTestId("custom-quest-edit-btn-custom-1001"),
+    );
+
+    // フォームが表示される
+    await expect(
+      canvas.getByTestId("custom-quest-edit-form-custom-1001"),
+    ).toBeInTheDocument();
+
+    // キャンセルボタンをクリック
+    await userEvent.click(canvas.getByTestId("edit-cancel-btn"));
+
+    // フォームが閉じること
+    await expect(
+      canvas.queryByTestId("custom-quest-edit-form-custom-1001"),
+    ).not.toBeInTheDocument();
+
+    // onEditQuest は呼ばれていないこと
+    await expect(args.onEditQuest).not.toHaveBeenCalled();
   },
 };

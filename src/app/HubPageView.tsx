@@ -18,6 +18,7 @@ import {
 import {
   QuestCatalog,
   CustomQuestList,
+  type CustomQuestEditParams,
   type CategoryGroup,
   type QuestNotebookCounts,
   type QuestCatalogItem,
@@ -63,6 +64,8 @@ export type HubPageViewProps = {
   readonly onDuplicateCustomQuest?: (questId: string) => void;
   /** 自作クエストを削除する */
   readonly onDeleteCustomQuest?: (questId: string) => void;
+  /** 自作クエストを編集する */
+  readonly onEditCustomQuest?: (edit: CustomQuestEditParams) => void;
   /** 初期タブ（テスト用） */
   readonly initialTab?: HubTab;
   /** 言語切り替え（指定時に LanguageToggle を表示） */
@@ -210,6 +213,7 @@ export function HubPageView({
   customQuestItems,
   onDuplicateCustomQuest,
   onDeleteCustomQuest,
+  onEditCustomQuest,
   initialTab = "notebooks",
   languageToggle,
   notebookCounts,
@@ -368,6 +372,7 @@ export function HubPageView({
                 onStartQuest={onStartQuest}
                 onDuplicateQuest={onDuplicateCustomQuest}
                 onDeleteQuest={onDeleteCustomQuest}
+                onEditQuest={onEditCustomQuest}
               />
             )}
           </>

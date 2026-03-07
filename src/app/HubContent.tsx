@@ -16,7 +16,9 @@ import {
   findQuestById,
   duplicateAsCustomQuest,
   removeCustomQuest,
+  updateCustomQuest,
   findCustomQuestById,
+  type CustomQuestEditParams,
 } from "../lib/quest";
 import { ThemeProvider } from "../lib/theme/ThemeProvider";
 import type { DeductionSystem } from "../lib/logic-core/deductionSystem";
@@ -198,6 +200,20 @@ function HubInner() {
     [customQuestCollection],
   );
 
+  // Edit custom quest
+  const handleEditCustomQuest = useCallback(
+    (edit: CustomQuestEditParams) => {
+      const result = updateCustomQuest(
+        customQuestCollection.collection,
+        edit.questId,
+        edit.params,
+      );
+      if (!result.ok) return;
+      customQuestCollection.setCollection(result.value.collection);
+    },
+    [customQuestCollection],
+  );
+
   return (
     <HubMessagesProvider messages={hubMessages}>
       <HubPageView
@@ -213,6 +229,7 @@ function HubInner() {
         customQuestItems={customQuestItems}
         onDuplicateCustomQuest={handleDuplicateCustomQuest}
         onDeleteCustomQuest={handleDeleteCustomQuest}
+        onEditCustomQuest={handleEditCustomQuest}
         languageToggle={{ locale, onLocaleChange: switchLocale }}
         notebookCounts={notebookCounts}
       />

@@ -130,6 +130,7 @@ export { QuestCatalog, type QuestCatalogProps } from "./QuestCatalogComponent";
 export {
   CustomQuestList,
   type CustomQuestListProps,
+  type CustomQuestEditParams,
 } from "./CustomQuestListComponent";
 
 export {
@@ -185,3 +186,17 @@ export {
   type SerializedCustomQuestCollection,
   type SerializedCustomQuest,
 } from "./customQuestState";
+
+export {
+  type EditFormValues,
+  type EditFormValidation,
+  type EditFormError,
+  questToEditFormValues,
+  validateEditForm,
+  getEditFieldError,
+  shouldShowEditFieldError,
+  getFirstEditErrorField,
+  parseGoalLines,
+  goalsTextToDefinitions,
+  parseHintLines,
+} from "./customQuestEditLogic";
