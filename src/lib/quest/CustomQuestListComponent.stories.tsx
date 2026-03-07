@@ -378,12 +378,8 @@ export const CreateNewQuestValidation: Story = {
     await userEvent.click(canvas.getByTestId("create-save-btn"));
 
     // バリデーションエラーが表示されること
-    await expect(
-      canvas.getByTestId("create-title-error"),
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("create-goals-error"),
-    ).toBeInTheDocument();
+    await expect(canvas.getByTestId("create-title-error")).toBeInTheDocument();
+    await expect(canvas.getByTestId("create-goals-error")).toBeInTheDocument();
 
     // onCreateQuest は呼ばれていないこと
     await expect(args.onCreateQuest).not.toHaveBeenCalled();
