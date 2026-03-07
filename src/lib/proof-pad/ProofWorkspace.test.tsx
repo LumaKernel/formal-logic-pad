@@ -3094,10 +3094,14 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("workspace-canvas-context-menu"),
       ).toBeInTheDocument();
 
-      // メニュー項目が表示される（統一された「Add Node」のみ）
+      // メニュー項目が表示される
       expect(
         screen.getByTestId("workspace-canvas-menu-add-node"),
       ).toBeInTheDocument();
+      // ペースト項目が表示される（クリップボード空なので disabled）
+      const pasteItem = screen.getByTestId("workspace-canvas-menu-paste");
+      expect(pasteItem).toBeInTheDocument();
+      expect(pasteItem).toBeDisabled();
       // "Add Axiom Node" and "Add Goal Node" are no longer separate items
       expect(
         screen.queryByTestId("workspace-canvas-menu-add-axiom"),
@@ -3134,6 +3138,57 @@ describe("ProofWorkspace", () => {
       // 新しいノードが追加されている
       expect(
         screen.getByTestId(`proof-node-${"node-1" satisfies string}`),
+      ).toBeInTheDocument();
+    });
+
+    it("enables paste in canvas context menu after copying a node", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A", { x: 100, y: 100 }, "phi");
+      const { container } = render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // ノードをクリックして選択
+      await user.click(screen.getByTestId("proof-node-node-1"));
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-selection-banner"),
+        ).toBeInTheDocument();
+      });
+
+      // コピー
+      await user.click(screen.getByTestId("workspace-copy-button"));
+
+      // 選択解除
+      await user.click(
+        container.querySelector("[data-testid='workspace']")!,
+      );
+
+      // キャンバス上で右クリック
+      const canvas = container.querySelector("[data-testid='workspace']")!;
+      await userEvent.pointer({
+        target: canvas,
+        keys: "[MouseRight]",
+        coords: { clientX: 400, clientY: 300 },
+      });
+
+      // ペースト項目が有効になっている
+      const pasteItem = screen.getByTestId("workspace-canvas-menu-paste");
+      expect(pasteItem).toBeInTheDocument();
+      expect(pasteItem).not.toBeDisabled();
+
+      // ペーストを実行
+      await user.click(pasteItem);
+
+      // メニューが閉じる
+      expect(
+        screen.queryByTestId("workspace-canvas-context-menu"),
+      ).not.toBeInTheDocument();
+
+      // 新しいノードが追加されている（node-1 + ペーストされた node-2）
+      expect(
+        screen.getByTestId(`proof-node-${"node-2" satisfies string}`),
       ).toBeInTheDocument();
     });
   });

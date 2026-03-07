@@ -80,6 +80,7 @@
     "selectSubtree": "サブツリーを選択",
     "selectProof": "証明を選択",
     "addNode": "ノードを追加",
+    "canvasMenuPaste": "ペースト",
     "useAsMPLeft": "MP左前提として使う (φ)",
     "useAsMPRight": "MP右前提として使う (φ→ψ)",
     "applyGenToNode": "Genを適用",

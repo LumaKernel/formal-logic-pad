@@ -8909,3 +8909,48 @@
   - ProofWorkspace からノートブック単位の操作（複製等）を行う場合、内部状態変更ではなくコールバック（onDuplicateToFree）で親に委譲するパターンが適切
   - `convertNotebookToFreeMode` のような「副作用的」な状態変更関数は、返り値で新しいID等の情報も返すと呼び出し側が便利
 ---
+
+## 2026-03-07 - infinite-canvas: ドラッグ中のブラウザネイティブセレクション防止
+- 実装した内容:
+  - InfiniteCanvas: コンテナ要素に `selectstart` イベントリスナーを追加し、常に `preventDefault()` で防止
+  - CanvasItem: ドラッグ中のみ `selectstart` を防止（`isDragging` 状態に連動）。非ドラッグ時はFormulaEditorのテキスト入力を妨げないよう許可
+  - CSS `user-select: none` だけでは一部ブラウザで不十分なため、イベントレベルでの防止を追加
+- 変更したファイル:
+  - `src/lib/infinite-canvas/InfiniteCanvas.tsx` (useEffect + selectstart防止追加)
+  - `src/lib/infinite-canvas/InfiniteCanvas.test.tsx` (selectstart防止テスト追加)
+  - `src/lib/infinite-canvas/CanvasItem.tsx` (useEffect + isDragging連動selectstart防止追加)
+  - `src/lib/infinite-canvas/CanvasItem.test.tsx` (ドラッグ中/非ドラッグ時のselectstart防止テスト追加)
+- カバレッジ: ベースライン Stmts 99.16% / Branch 94.04% → 完了後 Stmts 99.15% / Branch 94.02% (微小な低下、useEffect cleanup分)
+- テスト: 7439 → 7442 passed (+3)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Playwright MCPで動作確認。page.evaluateでselectstartイベントがpreventDefaultされることを実機で検証
+- スクリーンショット: `.screenshots/selectstart-prevention-canvas.png`, `.screenshots/selectstart-prevention-notebook.png`
+- **今後のイテレーションへの学び:**
+  - `selectstart` イベント防止はCSS `user-select: none` の補完として有効。特にポインターキャプチャ中のテキスト選択を確実に防ぐ
+  - CanvasItemではドラッグ中のみ防止し、FormulaEditorのテキスト入力は許可する設計が重要。InfiniteCanvasレベルでは常時防止でOK（キャンバス自体にはテキスト入力がない）
+  - `dispatchEvent` + `cancelable: true` でイベントの `preventDefault` をテスト可能。戻り値 `false` = 防止された
+---
+
+## 2026-03-07 - [proof-pad] キャンバス空白部分コンテキストメニューにペースト機能追加
+- 実装した内容:
+  - キャンバス空白部分の右クリックコンテキストメニューに「ペースト」項目を追加
+  - クリップボードが空の場合は disabled（グレーアウト）
+  - コピー/カット後はペーストが有効になり、右クリック位置にノードがペーストされる
+  - `hasClipboardData` state を追加して、render中の ref 読み込みを回避（ESLint react-hooks/refs 準拠）
+  - マージアクション disable は既に実装済みであることを確認（タスク完了）
+- 変更したファイル:
+  - `src/lib/proof-pad/proofMessages.ts` (+canvasMenuPaste キー追加)
+  - `messages/en.json`, `messages/ja.json` (+canvasMenuPaste 翻訳追加)
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` (+canvasMenuPaste i18nバインディング)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (+handleCanvasMenuPaste, +hasClipboardData state, +コンテキストメニューUI)
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx` (+2テスト: ペースト disabled確認, コピー後ペースト有効+実行確認)
+- カバレッジ: ベースライン Stmts 99.15% / Branch 94.02% → 完了後 Stmts 99.15% / Branch 93.99% (V8集約誤差範囲内)
+- テスト: 7442 → 7443 passed (+1)
+- 品質チェック: typecheck ✅, lint ✅, test ✅
+- ブラウザテスト: Storybook iframe で右クリックコンテキストメニューのペースト機能を実機確認
+- スクリーンショット: `.screenshots/canvas-context-menu-paste-disabled.png`, `.screenshots/canvas-context-menu-paste-enabled.png`, `.screenshots/canvas-context-menu-paste-result.png`
+- **今後のイテレーションへの学び:**
+  - `clipboardRef.current` をrender中に読むとESLint `react-hooks/refs` エラーになる。`hasClipboardData` のようなstateを併用してrender中はstateを参照する
+  - コンテキストメニュー項目追加時は proofMessages.ts(型+デフォルト), en/ja.json, WorkspaceContent.tsx, ProofWorkspace.tsx(handler+JSX) の4箇所を更新
+  - キャンバスコンテキストメニューはノードコンテキストメニューとは別。`canvasMenuState` で管理し、`handleCanvasContextMenu` で開く
+---

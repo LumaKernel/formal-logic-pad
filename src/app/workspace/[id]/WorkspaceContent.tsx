@@ -87,6 +87,7 @@ function useProofMessagesFromIntl(): ProofMessages {
       selectSubtree: t("selectSubtree"),
       selectProof: t("selectProof"),
       addNode: t("addNode"),
+      canvasMenuPaste: t("canvasMenuPaste"),
       useAsMPLeft: t("useAsMPLeft"),
       useAsMPRight: t("useAsMPRight"),
       applyGenToNode: t("applyGenToNode"),

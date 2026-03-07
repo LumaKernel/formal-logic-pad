@@ -694,6 +694,8 @@ export function ProofWorkspace({
 
   // クリップボードデータ（内部保持用、navigator.clipboard フォールバック）
   const clipboardRef = useRef<ClipboardData | null>(null);
+  // clipboardRef.current の有無を render 中に参照するための state
+  const [hasClipboardData, setHasClipboardData] = useState(false);
 
   // コンテナref（キーボードイベント用）
   const containerRef = useRef<HTMLDivElement>(null);
@@ -2581,6 +2583,46 @@ export function ProofWorkspace({
     msg.nodeLabelAxiom,
   ]);
 
+  const handleCanvasMenuPaste = useCallback(() => {
+    const doInternalPaste = (data: ClipboardData) => {
+      const center = canvasMenuState.worldPosition;
+      const result = pasteNodes(workspace, data, center);
+      setWorkspaceWithAutoLayout(result);
+      const newNodeIds = new Set(
+        result.nodes.slice(workspace.nodes.length).map((n) => n.id),
+      );
+      setSelectedNodeIds(newNodeIds);
+    };
+
+    if (clipboardRef.current) {
+      doInternalPaste(clipboardRef.current);
+    } else {
+      /* v8 ignore start -- ブラウザのClipboard API: JSDOMでは内部クリップボードが使われるため到達しない */
+      navigator.clipboard
+        .readText()
+        .then((text) => {
+          const data = deserializeClipboardData(text);
+          if (data) {
+            doInternalPaste(data);
+          }
+        })
+        .catch(() => {
+          // クリップボードAPIが使えない環境では何もしない
+        });
+      /* v8 ignore stop */
+    }
+
+    setCanvasMenuState({
+      open: false,
+      screenPosition: { x: 0, y: 0 },
+      worldPosition: { x: 0, y: 0 },
+    });
+  }, [
+    workspace,
+    canvasMenuState.worldPosition,
+    setWorkspaceWithAutoLayout,
+  ]);
+
   /* v8 ignore start -- キャンバスコンテキストメニュー外クリック: ref.contains使用でJSDOMではテスト不安定 */
   // キャンバスコンテキストメニュー外クリックで閉じる
   useEffect(() => {
@@ -2606,6 +2648,7 @@ export function ProofWorkspace({
     if (selectedNodeIds.size === 0) return;
     const data = copySelectedNodes(workspace, selectedNodeIds);
     clipboardRef.current = data;
+    setHasClipboardData(true);
     // ブラウザのクリップボードにも書き込む（非同期、失敗しても内部保持で動作）
     const json = serializeClipboardData(data);
     navigator.clipboard.writeText(json).catch(() => {
@@ -2653,6 +2696,7 @@ export function ProofWorkspace({
     if (selectedNodeIds.size === 0) return;
     const result = cutSelectedNodes(workspace, selectedNodeIds);
     clipboardRef.current = result.clipboardData;
+    setHasClipboardData(true);
     const json = serializeClipboardData(result.clipboardData);
     navigator.clipboard.writeText(json).catch(() => {
       // クリップボードAPIが使えない環境でも内部保持で動作
@@ -4322,6 +4366,16 @@ export function ProofWorkspace({
             testId={
               testId
                 ? `${testId satisfies string}-canvas-menu-add-node`
+                : undefined
+            }
+          />
+          <WorkspaceMenuItem
+            label={msg.canvasMenuPaste}
+            onClick={handleCanvasMenuPaste}
+            disabled={!hasClipboardData}
+            testId={
+              testId
+                ? `${testId satisfies string}-canvas-menu-paste`
                 : undefined
             }
           />

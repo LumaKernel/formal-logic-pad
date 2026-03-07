@@ -80,6 +80,7 @@
     "selectSubtree": "Select Subtree",
     "selectProof": "Select Proof",
     "addNode": "Add Node",
+    "canvasMenuPaste": "Paste",
     "useAsMPLeft": "Use as MP Left (φ)",
     "useAsMPRight": "Use as MP Right (φ→ψ)",
     "applyGenToNode": "Apply Gen",

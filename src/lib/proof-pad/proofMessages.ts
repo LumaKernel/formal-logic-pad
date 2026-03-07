@@ -103,6 +103,7 @@ export type ProofMessages = {
   readonly selectSubtree: string;
   readonly selectProof: string;
   readonly addNode: string;
+  readonly canvasMenuPaste: string;
   readonly useAsMPLeft: string;
   readonly useAsMPRight: string;
   readonly applyGenToNode: string;
@@ -315,6 +316,7 @@ export const defaultProofMessages: ProofMessages = {
   selectSubtree: "Select Subtree",
   selectProof: "Select Proof",
   addNode: "Add Node",
+  canvasMenuPaste: "Paste",
   useAsMPLeft: "Use as MP Left (\u03C6)",
   useAsMPRight: "Use as MP Right (\u03C6\u2192\u03C8)",
   applyGenToNode: "Apply Gen",
