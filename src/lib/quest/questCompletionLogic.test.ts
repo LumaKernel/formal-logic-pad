@@ -10,7 +10,10 @@ import {
   computeViolatingRuleIds,
 } from "./questCompletionLogic";
 import type { WorkspaceNode, WorkspaceGoal } from "../proof-pad/workspaceState";
-import type { InferenceEdge, InferenceRuleId } from "../proof-pad/inferenceEdge";
+import type {
+  InferenceEdge,
+  InferenceRuleId,
+} from "../proof-pad/inferenceEdge";
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
 
 // --- ヘルパー ---
@@ -729,11 +732,7 @@ describe("computeViolatingRuleIds", () => {
 
   test("使用規則がすべて許可されていれば空集合を返す", () => {
     const used: ReadonlySet<InferenceRuleId> = new Set(["mp", "gen"]);
-    const result = computeViolatingRuleIds(used, [
-      "mp",
-      "gen",
-      "substitution",
-    ]);
+    const result = computeViolatingRuleIds(used, ["mp", "gen", "substitution"]);
     expect(result).toEqual(new Set());
   });
 

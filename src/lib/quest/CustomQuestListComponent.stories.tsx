@@ -146,9 +146,7 @@ export const ClickQuestItem: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      canvas.getByTestId("custom-quest-item-custom-1003"),
-    );
+    await userEvent.click(canvas.getByTestId("custom-quest-item-custom-1003"));
     await expect(args.onStartQuest).toHaveBeenCalledWith("custom-1003");
   },
 };

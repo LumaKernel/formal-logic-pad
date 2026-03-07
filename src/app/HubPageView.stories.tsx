@@ -377,9 +377,7 @@ export const WithCustomQuests: Story = {
     await expect(canvas.getByText("自作クエスト")).toBeInTheDocument();
     await expect(canvas.getByText("1 / 2")).toBeInTheDocument();
     // 自作クエストのアイテムが表示される
-    await expect(
-      canvas.getByText("恒等律の練習（自作）"),
-    ).toBeInTheDocument();
+    await expect(canvas.getByText("恒等律の練習（自作）")).toBeInTheDocument();
     await expect(
       canvas.getByText("ド・モルガンの法則（自作）"),
     ).toBeInTheDocument();

@@ -263,10 +263,7 @@ function CustomQuestItem({
 
 // --- Main component ---
 
-export function CustomQuestList({
-  items,
-  onStartQuest,
-}: CustomQuestListProps) {
+export function CustomQuestList({ items, onStartQuest }: CustomQuestListProps) {
   const totalCount = getCustomQuestCatalogCount(items);
   const completedCount = getCustomQuestCompletedCount(items);
 

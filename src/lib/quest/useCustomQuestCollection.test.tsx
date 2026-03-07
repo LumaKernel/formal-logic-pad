@@ -48,10 +48,7 @@ describe("loadCustomQuestsEffect / saveCustomQuestsEffect", () => {
     if (!addResult.ok) return;
 
     Effect.runSync(
-      Effect.provide(
-        saveCustomQuestsEffect(addResult.value.collection),
-        layer,
-      ),
+      Effect.provide(saveCustomQuestsEffect(addResult.value.collection), layer),
     );
     const loaded = Effect.runSync(
       Effect.provide(loadCustomQuestsEffect, layer),
@@ -88,10 +85,7 @@ describe("loadCustomQuestsEffect / saveCustomQuestsEffect", () => {
     if (!addResult.ok) return;
 
     Effect.runSync(
-      Effect.provide(
-        saveCustomQuestsEffect(addResult.value.collection),
-        layer,
-      ),
+      Effect.provide(saveCustomQuestsEffect(addResult.value.collection), layer),
     );
     const store = getStore();
     expect(store.has(CUSTOM_QUEST_STORAGE_KEY)).toBe(true);

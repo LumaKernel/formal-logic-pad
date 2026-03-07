@@ -76,12 +76,9 @@ export function useCustomQuestCollection(): UseCustomQuestCollectionResult {
     );
   }, [state]);
 
-  const setCollection = useCallback(
-    (collection: CustomQuestCollection) => {
-      setState(collection);
-    },
-    [],
-  );
+  const setCollection = useCallback((collection: CustomQuestCollection) => {
+    setState(collection);
+  }, []);
 
   return useMemo(
     () => ({

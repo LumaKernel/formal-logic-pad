@@ -65,11 +65,10 @@ describe("buildCustomQuestCatalogItems", () => {
   it("完了済み自作クエストの進捗が反映される", () => {
     const quest = makeCustomQuest({ estimatedSteps: 5 });
     const collection = makeCollection([quest]);
-    const progress = recordCompletion(
-      createEmptyProgress(),
-      "custom-1000",
-      { stepCount: 4, completedAt: 1000 },
-    );
+    const progress = recordCompletion(createEmptyProgress(), "custom-1000", {
+      stepCount: 4,
+      completedAt: 1000,
+    });
     const items = buildCustomQuestCatalogItems(collection, progress);
 
     expect(items[0]!.completed).toBe(true);
@@ -100,7 +99,10 @@ describe("getCustomQuestCatalogCount", () => {
       makeCustomQuest({ id: "custom-1" }),
       makeCustomQuest({ id: "custom-2" }),
     ]);
-    const items = buildCustomQuestCatalogItems(collection, createEmptyProgress());
+    const items = buildCustomQuestCatalogItems(
+      collection,
+      createEmptyProgress(),
+    );
     expect(getCustomQuestCatalogCount(items)).toBe(2);
   });
 

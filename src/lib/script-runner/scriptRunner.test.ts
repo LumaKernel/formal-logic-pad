@@ -654,7 +654,9 @@ describe("ScriptRunner", () => {
 
     it("ループを非同期で実行できる", async () => {
       const runner = getRunner(
-        createScriptRunner("var sum = 0; for (var i = 0; i < 100; i++) sum += i; sum;"),
+        createScriptRunner(
+          "var sum = 0; for (var i = 0; i < 100; i++) sum += i; sum;",
+        ),
       );
       const result = await runner.runAsync();
       expect(result._tag).toBe("Ok");
@@ -754,9 +756,7 @@ describe("ScriptRunner", () => {
     });
 
     it("ランタイムエラーが非同期でも正しく返る", async () => {
-      const runner = getRunner(
-        createScriptRunner("undefined.foo"),
-      );
+      const runner = getRunner(createScriptRunner("undefined.foo"));
       const result = await runner.runAsync();
       expect(result._tag).toBe("Error");
       if (result._tag === "Error") {
