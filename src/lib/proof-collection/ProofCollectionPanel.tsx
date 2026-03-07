@@ -808,7 +808,10 @@ export function ProofCollectionPanel({
 
   const handleCommitFolderEdit = useCallback(() => {
     setPanelState((prev) => {
+      // 防御的コード: UI上はfolderEditing中のみ呼ばれる
+      /* v8 ignore start */
       if (prev.folderEditing === undefined) return prev;
+      /* v8 ignore stop */
       const { folderId, value } = prev.folderEditing;
       if (value.trim() !== "" && onRenameFolder !== undefined) {
         onRenameFolder(folderId, value.trim());
@@ -833,7 +836,10 @@ export function ProofCollectionPanel({
 
   const handleCommitCreateFolder = useCallback(() => {
     setPanelState((prev) => {
+      // 防御的コード: UI上はcreatingFolder中のみ呼ばれる
+      /* v8 ignore start */
       if (prev.creatingFolder === undefined) return prev;
+      /* v8 ignore stop */
       const name = prev.creatingFolder.trim();
       if (name !== "" && onCreateFolder !== undefined) {
         onCreateFolder(name);

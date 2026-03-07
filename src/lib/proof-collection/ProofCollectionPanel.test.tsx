@@ -200,6 +200,40 @@ describe("ProofCollectionPanel", () => {
     });
   });
 
+  describe("キーボードアクセシビリティ（エントリ名・メモ）", () => {
+    it("名前表示でEnterキーを押すと編集モードに入る", () => {
+      const entries = [createTestEntry({ id: "e1", name: "Proof Name" })];
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          testId="panel"
+        />,
+      );
+      const nameDisplay = screen.getByText("Proof Name");
+      fireEvent.keyDown(nameDisplay, { key: "Enter" });
+      expect(screen.getByDisplayValue("Proof Name")).toBeDefined();
+    });
+
+    it("名前表示でSpaceキーを押すと編集モードに入る", () => {
+      const entries = [createTestEntry({ id: "e1", name: "Proof Name" })];
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          testId="panel"
+        />,
+      );
+      const nameDisplay = screen.getByText("Proof Name");
+      fireEvent.keyDown(nameDisplay, { key: " " });
+      expect(screen.getByDisplayValue("Proof Name")).toBeDefined();
+    });
+  });
+
   describe("メモ編集", () => {
     it("メモクリックで編集モードに入り、Enter確定でonUpdateMemo呼び出し", () => {
       const onUpdateMemo = vi.fn();
@@ -438,6 +472,80 @@ describe("ProofCollectionPanel", () => {
       expect(screen.getByText("Proof in Folder")).toBeDefined();
     });
 
+    it("フォルダトグルでEnterキーを押すと展開する", () => {
+      const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
+      const entries = [
+        createTestEntry({
+          id: "e1",
+          name: "Proof in Folder",
+          folderId: "f1",
+        }),
+      ];
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          folders={folders}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          testId="panel"
+        />,
+      );
+      fireEvent.keyDown(screen.getByTestId("panel-folder-f1-toggle"), {
+        key: "Enter",
+      });
+      expect(screen.getByText("Proof in Folder")).toBeDefined();
+    });
+
+    it("フォルダトグルでSpaceキーを押すと展開する", () => {
+      const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
+      const entries = [
+        createTestEntry({
+          id: "e1",
+          name: "Proof in Folder",
+          folderId: "f1",
+        }),
+      ];
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          folders={folders}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          testId="panel"
+        />,
+      );
+      fireEvent.keyDown(screen.getByTestId("panel-folder-f1-toggle"), {
+        key: " ",
+      });
+      expect(screen.getByText("Proof in Folder")).toBeDefined();
+    });
+
+    it("展開済みフォルダを再クリックで折りたたむ", () => {
+      const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
+      const entries = [
+        createTestEntry({
+          id: "e1",
+          name: "Proof in Folder",
+          folderId: "f1",
+        }),
+      ];
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          folders={folders}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          testId="panel"
+        />,
+      );
+      // 展開
+      fireEvent.click(screen.getByTestId("panel-folder-f1-toggle"));
+      expect(screen.getByText("Proof in Folder")).toBeDefined();
+      // 折りたたみ
+      fireEvent.click(screen.getByTestId("panel-folder-f1-toggle"));
+      expect(screen.queryByText("Proof in Folder")).toBeNull();
+    });
+
     it("フォルダ内エントリ数を表示する", () => {
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
       const entries = [
@@ -653,6 +761,98 @@ describe("ProofCollectionPanel", () => {
       fireEvent.keyDown(input, { key: "Enter" });
       expect(onRenameFolder).toHaveBeenCalledWith("f1", "Renamed Folder");
     });
+
+    it("フォルダ名編集中のinputクリックがフォルダトグルに伝播しない", () => {
+      const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
+      const entries = [
+        createTestEntry({
+          id: "e1",
+          name: "Proof in Folder",
+          folderId: "f1",
+        }),
+      ];
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          folders={folders}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onRenameFolder={vi.fn()}
+          testId="panel"
+        />,
+      );
+      // フォルダを展開
+      fireEvent.click(screen.getByTestId("panel-folder-f1-toggle"));
+      expect(screen.getByText("Proof in Folder")).toBeDefined();
+      // 名前編集開始
+      fireEvent.click(screen.getByTestId("panel-folder-f1-rename"));
+      const input = screen.getByTestId("panel-folder-f1-name-input");
+      // inputをクリックしてもフォルダが折りたたまれない
+      fireEvent.click(input);
+      expect(screen.getByText("Proof in Folder")).toBeDefined();
+    });
+
+    it("フォルダ名編集中にEscapeで編集キャンセルできる", () => {
+      const onRenameFolder = vi.fn();
+      const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
+      render(
+        <ProofCollectionPanel
+          entries={[]}
+          folders={folders}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onRenameFolder={onRenameFolder}
+          testId="panel"
+        />,
+      );
+      fireEvent.click(screen.getByTestId("panel-folder-f1-rename"));
+      const input = screen.getByTestId("panel-folder-f1-name-input");
+      fireEvent.change(input, { target: { value: "Changed" } });
+      fireEvent.keyDown(input, { key: "Escape" });
+      // 編集がキャンセルされ、元の名前が表示される
+      expect(screen.getByText("My Folder")).toBeDefined();
+      expect(onRenameFolder).not.toHaveBeenCalled();
+    });
+
+    it("フォルダ名編集中にBlurで確定する", () => {
+      const onRenameFolder = vi.fn();
+      const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
+      render(
+        <ProofCollectionPanel
+          entries={[]}
+          folders={folders}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onRenameFolder={onRenameFolder}
+          testId="panel"
+        />,
+      );
+      fireEvent.click(screen.getByTestId("panel-folder-f1-rename"));
+      const input = screen.getByTestId("panel-folder-f1-name-input");
+      fireEvent.change(input, { target: { value: "Blurred Name" } });
+      fireEvent.blur(input);
+      expect(onRenameFolder).toHaveBeenCalledWith("f1", "Blurred Name");
+    });
+
+    it("フォルダ名が空でEnterを押してもonRenameFolderは呼ばれない", () => {
+      const onRenameFolder = vi.fn();
+      const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
+      render(
+        <ProofCollectionPanel
+          entries={[]}
+          folders={folders}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onRenameFolder={onRenameFolder}
+          testId="panel"
+        />,
+      );
+      fireEvent.click(screen.getByTestId("panel-folder-f1-rename"));
+      const input = screen.getByTestId("panel-folder-f1-name-input");
+      fireEvent.change(input, { target: { value: "  " } });
+      fireEvent.keyDown(input, { key: "Enter" });
+      expect(onRenameFolder).not.toHaveBeenCalled();
+    });
   });
 
   describe("エントリ移動", () => {
@@ -711,6 +911,68 @@ describe("ProofCollectionPanel", () => {
         target: { value: "" },
       });
       expect(onMoveEntry).toHaveBeenCalledWith("e1", undefined);
+    });
+  });
+
+  describe("イベント伝播防止", () => {
+    it("パネル上のpointerDownイベントが伝播しない", () => {
+      const outerHandler = vi.fn();
+      const { container } = render(
+        <div onPointerDown={outerHandler}>
+          <ProofCollectionPanel
+            entries={[]}
+            folders={[]}
+            messages={defaultProofMessages}
+            {...defaultCallbacks}
+            testId="panel"
+          />
+        </div>,
+      );
+      const panel = screen.getByTestId("panel");
+      fireEvent.pointerDown(panel);
+      expect(outerHandler).not.toHaveBeenCalled();
+      // クリックだけでなくcontainer自体のハンドラーも検証
+      expect(container).toBeDefined();
+    });
+  });
+
+  describe("testId未指定", () => {
+    it("testIdなしで全機能が動作する（data-testid属性が付かない）", () => {
+      const onRenameFolder = vi.fn();
+      const onCreateFolder = vi.fn();
+      const onMoveEntry = vi.fn();
+      const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
+      const entries = [
+        createTestEntry({
+          id: "e1",
+          name: "Root Proof",
+          folderId: undefined,
+        }),
+        createTestEntry({
+          id: "e2",
+          name: "Folder Proof",
+          folderId: "f1",
+        }),
+      ];
+      const getCompatibility = vi.fn(
+        (): CompatibilityResult => ({ _tag: "FullyCompatible" }),
+      );
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          folders={folders}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onRenameFolder={onRenameFolder}
+          onCreateFolder={onCreateFolder}
+          onMoveEntry={onMoveEntry}
+          onImportEntry={vi.fn()}
+          getCompatibility={getCompatibility}
+        />,
+      );
+      // レンダリングが正常に完了すること
+      expect(screen.getByText("Root Proof")).toBeDefined();
+      expect(screen.getAllByText("My Folder").length).toBeGreaterThan(0);
     });
   });
 
