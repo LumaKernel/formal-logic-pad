@@ -188,8 +188,7 @@ export function applyStepperAction(
   totalSteps: number,
   action: StepperAction,
 ): number {
-  if (action.type === "next")
-    return Math.min(currentIndex + 1, totalSteps - 1);
+  if (action.type === "next") return Math.min(currentIndex + 1, totalSteps - 1);
   if (action.type === "prev") return Math.max(currentIndex - 1, -1);
   if (action.type === "first") return -1;
   if (action.type === "last") return totalSteps - 1;

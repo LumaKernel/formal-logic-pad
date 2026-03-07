@@ -283,10 +283,7 @@ const decomposeTerm = (a: Term, b: Term): readonly Equation[] | null => {
   // BinaryOperation — fall-through for exhaustive narrowing
   const bBin = b as typeof a;
   if (a.operator !== bBin.operator) return null;
-  return [
-    termEquation(a.left, bBin.left),
-    termEquation(a.right, bBin.right),
-  ];
+  return [termEquation(a.left, bBin.left), termEquation(a.right, bBin.right)];
 };
 
 // ── Effect ベースの内部処理関数 ──────────────────────────────
