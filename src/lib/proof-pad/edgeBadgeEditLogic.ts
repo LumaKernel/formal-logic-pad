@@ -183,7 +183,11 @@ export function toSubstEditEntries(
         });
       }
 
-      if (extractedEntries.length > 0) {
+      /* v8 ignore start -- parse成功時はメタ変数が必ず存在するため extractedEntries は非空 */
+      if (extractedEntries.length === 0) {
+        // fall through to フォールバック
+      } else {
+        /* v8 ignore stop */
         return extractedEntries;
       }
     }

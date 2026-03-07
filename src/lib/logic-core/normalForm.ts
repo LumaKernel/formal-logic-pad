@@ -141,36 +141,35 @@ export const toCNF = (formula: Formula): Formula => {
  * A ∨ (B ∧ C) → (A ∨ B) ∧ (A ∨ C)
  */
 const distributeCNF = (formula: Formula): Formula => {
-  switch (formula._tag) {
-    case "MetaVariable":
-    case "Negation":
-      // リテラル（NNF なので ¬MetaVariable のみ）
-      return formula;
-    case "Conjunction":
-      return conjunction(
-        distributeCNF(formula.left),
-        distributeCNF(formula.right),
-      );
-    case "Disjunction":
-      return distributeOrOverAnd(
-        distributeCNF(formula.left),
-        distributeCNF(formula.right),
-      );
-    /* v8 ignore start */
-    // NNF 変換後は →, ↔ は出現しない（防御的エラー）
-    case "Implication":
-    case "Biconditional":
-    case "Universal":
-    case "Existential":
-    case "Predicate":
-    case "Equality":
-    case "FormulaSubstitution":
-      throw new Error(
-        `Unexpected formula node in CNF distribution: ${formula._tag satisfies string}. Input must be in NNF.`,
-      );
+  if (formula._tag === "MetaVariable" || formula._tag === "Negation") {
+    // リテラル（NNF なので ¬MetaVariable のみ）
+    return formula;
   }
-  formula satisfies never;
-  throw new Error("Unreachable");
+  if (formula._tag === "Conjunction") {
+    return conjunction(
+      distributeCNF(formula.left),
+      distributeCNF(formula.right),
+    );
+  }
+  if (formula._tag === "Disjunction") {
+    return distributeOrOverAnd(
+      distributeCNF(formula.left),
+      distributeCNF(formula.right),
+    );
+  }
+  /* v8 ignore start */
+  // NNF 変換後は →, ↔ は出現しない（防御的エラー）
+  formula satisfies
+    | { readonly _tag: "Implication" }
+    | { readonly _tag: "Biconditional" }
+    | { readonly _tag: "Universal" }
+    | { readonly _tag: "Existential" }
+    | { readonly _tag: "Predicate" }
+    | { readonly _tag: "Equality" }
+    | { readonly _tag: "FormulaSubstitution" };
+  throw new Error(
+    `Unexpected formula node in CNF distribution: ${formula._tag satisfies string}. Input must be in NNF.`,
+  );
   /* v8 ignore stop */
 };
 
@@ -218,36 +217,35 @@ export const toDNF = (formula: Formula): Formula => {
  * A ∧ (B ∨ C) → (A ∧ B) ∨ (A ∧ C)
  */
 const distributeDNF = (formula: Formula): Formula => {
-  switch (formula._tag) {
-    case "MetaVariable":
-    case "Negation":
-      // リテラル
-      return formula;
-    case "Disjunction":
-      return disjunction(
-        distributeDNF(formula.left),
-        distributeDNF(formula.right),
-      );
-    case "Conjunction":
-      return distributeAndOverOr(
-        distributeDNF(formula.left),
-        distributeDNF(formula.right),
-      );
-    /* v8 ignore start */
-    // NNF 変換後は →, ↔ は出現しない（防御的エラー）
-    case "Implication":
-    case "Biconditional":
-    case "Universal":
-    case "Existential":
-    case "Predicate":
-    case "Equality":
-    case "FormulaSubstitution":
-      throw new Error(
-        `Unexpected formula node in DNF distribution: ${formula._tag satisfies string}. Input must be in NNF.`,
-      );
+  if (formula._tag === "MetaVariable" || formula._tag === "Negation") {
+    // リテラル
+    return formula;
   }
-  formula satisfies never;
-  throw new Error("Unreachable");
+  if (formula._tag === "Disjunction") {
+    return disjunction(
+      distributeDNF(formula.left),
+      distributeDNF(formula.right),
+    );
+  }
+  if (formula._tag === "Conjunction") {
+    return distributeAndOverOr(
+      distributeDNF(formula.left),
+      distributeDNF(formula.right),
+    );
+  }
+  /* v8 ignore start */
+  // NNF 変換後は →, ↔ は出現しない（防御的エラー）
+  formula satisfies
+    | { readonly _tag: "Implication" }
+    | { readonly _tag: "Biconditional" }
+    | { readonly _tag: "Universal" }
+    | { readonly _tag: "Existential" }
+    | { readonly _tag: "Predicate" }
+    | { readonly _tag: "Equality" }
+    | { readonly _tag: "FormulaSubstitution" };
+  throw new Error(
+    `Unexpected formula node in DNF distribution: ${formula._tag satisfies string}. Input must be in NNF.`,
+  );
   /* v8 ignore stop */
 };
 
@@ -533,38 +531,40 @@ export const toPNF = (formula: Formula): Formula => {
  * - 原子式・否定原子式: そのまま
  */
 const pullQuantifiers = (formula: Formula): Formula => {
-  switch (formula._tag) {
-    case "MetaVariable":
-    case "Predicate":
-    case "Equality":
-    case "Negation":
-      // 原子式（NNFなので¬の直下は原子式）
-      return formula;
-    case "Universal":
-      return universal(formula.variable, pullQuantifiers(formula.formula));
-    case "Existential":
-      return existential(formula.variable, pullQuantifiers(formula.formula));
-    case "Conjunction": {
-      const left = pullQuantifiers(formula.left);
-      const right = pullQuantifiers(formula.right);
-      return liftQuantifiersFromBinary(left, right, "conjunction");
-    }
-    case "Disjunction": {
-      const left = pullQuantifiers(formula.left);
-      const right = pullQuantifiers(formula.right);
-      return liftQuantifiersFromBinary(left, right, "disjunction");
-    }
-    /* v8 ignore start */
-    // NNF 変換後は →, ↔ は出現しない
-    case "Implication":
-    case "Biconditional":
-    case "FormulaSubstitution":
-      throw new Error(
-        `Unexpected formula node in PNF quantifier lifting: ${formula._tag satisfies string}. Input must be in predicate NNF.`,
-      );
+  if (
+    formula._tag === "MetaVariable" ||
+    formula._tag === "Predicate" ||
+    formula._tag === "Equality" ||
+    formula._tag === "Negation"
+  ) {
+    // 原子式（NNFなので¬の直下は原子式）
+    return formula;
   }
-  formula satisfies never;
-  throw new Error("Unreachable");
+  if (formula._tag === "Universal") {
+    return universal(formula.variable, pullQuantifiers(formula.formula));
+  }
+  if (formula._tag === "Existential") {
+    return existential(formula.variable, pullQuantifiers(formula.formula));
+  }
+  if (formula._tag === "Conjunction") {
+    const left = pullQuantifiers(formula.left);
+    const right = pullQuantifiers(formula.right);
+    return liftQuantifiersFromBinary(left, right, "conjunction");
+  }
+  if (formula._tag === "Disjunction") {
+    const left = pullQuantifiers(formula.left);
+    const right = pullQuantifiers(formula.right);
+    return liftQuantifiersFromBinary(left, right, "disjunction");
+  }
+  /* v8 ignore start */
+  // NNF 変換後は →, ↔ は出現しない
+  formula satisfies
+    | { readonly _tag: "Implication" }
+    | { readonly _tag: "Biconditional" }
+    | { readonly _tag: "FormulaSubstitution" };
+  throw new Error(
+    `Unexpected formula node in PNF quantifier lifting: ${formula._tag satisfies string}. Input must be in predicate NNF.`,
+  );
   /* v8 ignore stop */
 };
 
@@ -667,13 +667,11 @@ const generateFreshName = (
  * FormulaSubstitution が含まれている場合はエラー。
  */
 export const isPNF = (formula: Formula): boolean => {
-  // 先頭の量化子列をスキップ
-  let current = formula;
-  while (current._tag === "Universal" || current._tag === "Existential") {
-    current = current.formula;
+  // 先頭の量化子列をスキップして行列部分に量化子が含まれていないことを確認
+  if (formula._tag === "Universal" || formula._tag === "Existential") {
+    return isPNF(formula.formula);
   }
-  // 行列部分に量化子が含まれていないことを確認
-  return isQuantifierFree(current);
+  return isQuantifierFree(formula);
 };
 
 /**
