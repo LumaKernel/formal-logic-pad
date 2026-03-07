@@ -15,36 +15,16 @@ export const LOCALE_COOKIE_NAME = "locale";
 
 /** Get the display label for a locale (shown in the toggle button). */
 export function getLocaleLabel(locale: Locale): string {
-  switch (locale) {
-    case "en":
-      return "EN";
-    case "ja":
-      return "JA";
-    default: {
-      /* v8 ignore start */
-      const _exhaustive: never = locale;
-      void _exhaustive;
-      return "EN";
-      /* v8 ignore stop */
-    }
-  }
+  if (locale === "en") return "EN";
+  // fall-through: TypeScript narrows to "ja"
+  return "JA";
 }
 
 /** Get the native language name for a locale (e.g. for aria-label). */
 export function getLocaleNativeName(locale: Locale): string {
-  switch (locale) {
-    case "en":
-      return "English";
-    case "ja":
-      return "日本語";
-    default: {
-      /* v8 ignore start */
-      const _exhaustive: never = locale;
-      void _exhaustive;
-      return "English";
-      /* v8 ignore stop */
-    }
-  }
+  if (locale === "en") return "English";
+  // fall-through: TypeScript narrows to "ja"
+  return "日本語";
 }
 
 /** Get the aria-label for the toggle button for a given locale. */

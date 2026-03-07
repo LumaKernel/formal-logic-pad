@@ -44,14 +44,10 @@ export function getInferenceEdgeBadgeColor(edge: InferenceEdge): string {
   if (!isHilbertInferenceEdge(edge)) {
     return ND_BADGE_COLOR;
   }
-  switch (edge._tag) {
-    case "mp":
-      return "var(--color-badge-mp, #6c5ce7)";
-    case "gen":
-      return "var(--color-badge-gen, #00b894)";
-    case "substitution":
-      return "var(--color-badge-subst, #e17055)";
-  }
+  if (edge._tag === "mp") return "var(--color-badge-mp, #6c5ce7)";
+  if (edge._tag === "gen") return "var(--color-badge-gen, #00b894)";
+  // fall-through: TypeScript narrows to "substitution"
+  return "var(--color-badge-subst, #e17055)";
 }
 
 // --- 前提ロール判定 ---

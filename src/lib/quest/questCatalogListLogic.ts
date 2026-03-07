@@ -49,24 +49,12 @@ export function applyFilters(
     result = filterByDifficulty(result, filter.difficulty);
   }
 
-  switch (filter.completion) {
-    case "all":
-      break;
-    case "completed":
-      result = filterCompleted(result);
-      break;
-    case "incomplete":
-      result = filterIncomplete(result);
-      break;
-    /* v8 ignore start */
-    default: {
-      const _: never = filter.completion;
-      throw new Error(
-        `Unknown completion filter: ${String(_) satisfies string}`,
-      );
-    }
-    /* v8 ignore stop */
+  if (filter.completion === "completed") {
+    result = filterCompleted(result);
+  } else if (filter.completion === "incomplete") {
+    result = filterIncomplete(result);
   }
+  // "all": no filtering needed
 
   return result;
 }

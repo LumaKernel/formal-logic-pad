@@ -61,22 +61,14 @@ export const initialScriptEditorState: ScriptEditorState = {
 export const formatRunError = (result: ScriptRunResult): string => {
   if (result._tag === "Ok") return "";
   const err = result.error;
-  switch (err._tag) {
-    case "SyntaxError":
-      return `SyntaxError: ${err.message satisfies string}`;
-    case "RuntimeError":
-      return `RuntimeError: ${err.message satisfies string}`;
-    case "StepLimitExceeded":
-      return `Step limit exceeded (${String(err.maxSteps) satisfies string} steps)`;
-    case "TimeLimitExceeded":
-      return `Time limit exceeded (${String(err.maxTimeMs) satisfies string}ms)`;
-    default: {
-      /* v8 ignore start */
-      const _exhaustive: never = err;
-      return String(_exhaustive);
-      /* v8 ignore stop */
-    }
-  }
+  if (err._tag === "SyntaxError")
+    return `SyntaxError: ${err.message satisfies string}`;
+  if (err._tag === "RuntimeError")
+    return `RuntimeError: ${err.message satisfies string}`;
+  if (err._tag === "StepLimitExceeded")
+    return `Step limit exceeded (${String(err.maxSteps) satisfies string} steps)`;
+  // fall-through: TypeScript narrows to "TimeLimitExceeded"
+  return `Time limit exceeded (${String(err.maxTimeMs) satisfies string}ms)`;
 };
 
 // ── 状態更新（純粋関数）───────────────────────────────────────
@@ -113,40 +105,32 @@ export const recordStep = (
   state: ScriptEditorState,
   stepStatus: StepStatus,
 ): ScriptEditorState => {
-  switch (stepStatus._tag) {
-    case "Running":
-      return {
-        ...state,
-        currentStep: stepStatus.steps,
-        currentLocation: stepStatus.location,
-      };
-    case "Done":
-      return {
-        ...state,
-        currentStep: stepStatus.steps,
-        executionStatus: "done",
-        currentLocation: null,
-      };
-    case "Error":
-      return {
-        ...state,
-        currentStep: stepStatus.steps,
-        executionStatus: "error",
-        errorMessage: formatRunError({
-          _tag: "Error",
-          error: stepStatus.error,
-          steps: stepStatus.steps,
-          elapsedMs: 0,
-        }),
-        currentLocation: null,
-      };
-    default: {
-      /* v8 ignore start */
-      const _exhaustive: never = stepStatus;
-      return _exhaustive;
-      /* v8 ignore stop */
-    }
-  }
+  if (stepStatus._tag === "Running")
+    return {
+      ...state,
+      currentStep: stepStatus.steps,
+      currentLocation: stepStatus.location,
+    };
+  if (stepStatus._tag === "Done")
+    return {
+      ...state,
+      currentStep: stepStatus.steps,
+      executionStatus: "done",
+      currentLocation: null,
+    };
+  // fall-through: TypeScript narrows to "Error"
+  return {
+    ...state,
+    currentStep: stepStatus.steps,
+    executionStatus: "error",
+    errorMessage: formatRunError({
+      _tag: "Error",
+      error: stepStatus.error,
+      steps: stepStatus.steps,
+      elapsedMs: 0,
+    }),
+    currentLocation: null,
+  };
 };
 
 export const appendConsole = (
@@ -193,24 +177,12 @@ export const resetExecution = (
 // ── 実行ステータスの表示文字列 ──────────────────────────────
 
 export const executionStatusLabel = (status: ExecutionStatus): string => {
-  switch (status) {
-    case "idle":
-      return "Ready";
-    case "running":
-      return "Running...";
-    case "stepping":
-      return "Stepping...";
-    case "done":
-      return "Done";
-    case "error":
-      return "Error";
-    default: {
-      /* v8 ignore start */
-      const _exhaustive: never = status;
-      return String(_exhaustive);
-      /* v8 ignore stop */
-    }
-  }
+  if (status === "idle") return "Ready";
+  if (status === "running") return "Running...";
+  if (status === "stepping") return "Stepping...";
+  if (status === "done") return "Done";
+  // fall-through: TypeScript narrows to "error"
+  return "Error";
 };
 
 // ── 自動再生速度 ────────────────────────────────────────────
