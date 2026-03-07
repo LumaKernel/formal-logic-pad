@@ -111,6 +111,44 @@ describe("useKeyboardShortcuts", () => {
     });
   });
 
+  it("ArrowLeft で左パン", () => {
+    const onViewportChange = vi.fn();
+    const { result } = renderHook(() =>
+      useKeyboardShortcuts(DEFAULT_VIEWPORT, CONTAINER_SIZE, false, {
+        onViewportChange,
+      }),
+    );
+
+    act(() => {
+      result.current.onKeyDown(createKeyboardEvent("ArrowLeft"));
+    });
+
+    expect(onViewportChange).toHaveBeenCalledWith({
+      offsetX: PAN_STEP,
+      offsetY: 0,
+      scale: 1,
+    });
+  });
+
+  it("ArrowRight で右パン", () => {
+    const onViewportChange = vi.fn();
+    const { result } = renderHook(() =>
+      useKeyboardShortcuts(DEFAULT_VIEWPORT, CONTAINER_SIZE, false, {
+        onViewportChange,
+      }),
+    );
+
+    act(() => {
+      result.current.onKeyDown(createKeyboardEvent("ArrowRight"));
+    });
+
+    expect(onViewportChange).toHaveBeenCalledWith({
+      offsetX: -PAN_STEP,
+      offsetY: 0,
+      scale: 1,
+    });
+  });
+
   it("Shift+ArrowDown で大きなステップのパン", () => {
     const onViewportChange = vi.fn();
     const { result } = renderHook(() =>
@@ -324,6 +362,23 @@ describe("useKeyboardShortcuts", () => {
     expect(onOpenCommandPalette).toHaveBeenCalledTimes(1);
   });
 
+  it("Ctrl+Shift+L で onTreeLayout が呼ばれる", () => {
+    const onTreeLayout = vi.fn();
+    const { result } = renderHook(() =>
+      useKeyboardShortcuts(DEFAULT_VIEWPORT, CONTAINER_SIZE, false, {
+        onTreeLayout,
+      }),
+    );
+
+    act(() => {
+      result.current.onKeyDown(
+        createKeyboardEvent("l", { ctrlKey: true, shiftKey: true }),
+      );
+    });
+
+    expect(onTreeLayout).toHaveBeenCalledTimes(1);
+  });
+
   it("コールバック未設定でもエラーにならない", () => {
     const { result } = renderHook(() =>
       useKeyboardShortcuts(DEFAULT_VIEWPORT, CONTAINER_SIZE, true, {}),
@@ -345,6 +400,12 @@ describe("useKeyboardShortcuts", () => {
     act(() => {
       result.current.onKeyDown(
         createKeyboardEvent("@", { code: "Digit2", shiftKey: true }),
+      );
+    });
+    // tree-layout with no callback
+    act(() => {
+      result.current.onKeyDown(
+        createKeyboardEvent("l", { ctrlKey: true, shiftKey: true }),
       );
     });
     // space pan with no pan callback

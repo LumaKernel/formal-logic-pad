@@ -320,6 +320,37 @@ describe("EdgeParameterPopover", () => {
       expect(screen.getByTestId("popover-value-0-input")).toHaveValue("S(0)");
     });
 
+    it("calls onConfirmSubstitution when term value is changed and confirmed", async () => {
+      const onConfirmSubstitution = vi.fn();
+      const user = userEvent.setup();
+      const termSubstState: EdgeBadgeEditState = {
+        _tag: "substitution",
+        conclusionNodeId: "node-2",
+        entries: [
+          {
+            _tag: "TermSubstitution",
+            metaVariableName: "τ",
+            termText: "S(0)",
+          },
+        ],
+        premiseFormulaText: undefined,
+      };
+      render(
+        <EdgeParameterPopover
+          editState={termSubstState}
+          onConfirmSubstitution={onConfirmSubstitution}
+          onCancel={() => {}}
+          testId="popover"
+        />,
+      );
+      const input = screen.getByTestId("popover-value-0-input");
+      await user.clear(input);
+      await user.type(input, "S(S(0))");
+      const confirmButton = screen.getByTestId("popover-confirm");
+      await user.click(confirmButton);
+      expect(onConfirmSubstitution).toHaveBeenCalledOnce();
+    });
+
     it("renders without testId (uses default data-testid values)", () => {
       render(
         <EdgeParameterPopover editState={substEditState} onCancel={() => {}} />,

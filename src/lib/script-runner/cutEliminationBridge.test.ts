@@ -224,6 +224,45 @@ describe("decodeScProofNode エラー", () => {
   });
 });
 
+// ── position フォールバック ──────────────────────────────────
+
+describe("decodeScProofNode position フォールバック", () => {
+  const validConclusion = {
+    antecedents: [{ _tag: "MetaVariable", name: "φ" }],
+    succedents: [{ _tag: "MetaVariable", name: "φ" }],
+  };
+  const validPremise = {
+    _tag: "ScIdentity",
+    conclusion: validConclusion,
+  };
+
+  it("ScExchangeLeft の position が未指定の場合は 0 にフォールバック", () => {
+    const decoded = decodeScProofNode({
+      _tag: "ScExchangeLeft",
+      conclusion: validConclusion,
+      premise: validPremise,
+      // position を省略
+    });
+    expect(decoded._tag).toBe("ScExchangeLeft");
+    if (decoded._tag === "ScExchangeLeft") {
+      expect(decoded.position).toBe(0);
+    }
+  });
+
+  it("ScExchangeRight の position が文字列の場合は 0 にフォールバック", () => {
+    const decoded = decodeScProofNode({
+      _tag: "ScExchangeRight",
+      conclusion: validConclusion,
+      premise: validPremise,
+      position: "invalid",
+    });
+    expect(decoded._tag).toBe("ScExchangeRight");
+    if (decoded._tag === "ScExchangeRight") {
+      expect(decoded.position).toBe(0);
+    }
+  });
+});
+
 // ── ブリッジ関数のテスト ────────────────────────────────────
 
 describe("createCutEliminationBridges", () => {

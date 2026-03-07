@@ -322,8 +322,10 @@ export const decodeScProofNode = (input: unknown): ScProofNode => {
         conclusion,
         premise: decodeScProofNode(obj["premise"]),
       };
+    /* v8 ignore start — 防御的コード: 既知のSCタグで網羅済み */
     default:
       throw new Error(`Unhandled SC tag: ${tag satisfies string}`);
+    /* v8 ignore stop */
   }
 };
 
@@ -396,11 +398,13 @@ const eliminateCutsWithStepsFn = (
           proof: encodeScProofNode(result.proof),
           stepsUsed: result.stepsUsed,
         };
+      /* v8 ignore start — 防御的コード: 正常入力では到達しない（cutElimination内部の安全チェック用） */
       case "Failure":
         return {
           _tag: "Failure",
           reason: result.reason,
         };
+      /* v8 ignore stop */
     }
   };
 

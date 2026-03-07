@@ -300,8 +300,10 @@ export function getDeductionStyleForEdge(
   if (isNdInferenceEdge(edge)) return "natural-deduction";
   if (isTabInferenceEdge(edge)) return "tableau-calculus";
   if (isAtInferenceEdge(edge)) return "analytic-tableau";
+  /* v8 ignore start — 防御的コード: InferenceEdge union の全メンバーは上記で網羅済み。SCチェックのfalseパスは到達不能 */
   if (isScInferenceEdge(edge)) return "sequent-calculus";
   return undefined;
+  /* v8 ignore stop */
 }
 
 /**

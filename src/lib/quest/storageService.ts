@@ -22,6 +22,7 @@ export class StorageService extends Context.Tag("StorageService")<
 
 // --- 本番 Layer ---
 
+/* v8 ignore start — 不純コード: ブラウザ実行時のみ使用。テストでは createInMemoryStorageLayer で差し替え */
 /** ブラウザの localStorage を使用する Layer */
 export const BrowserStorageLayer = Layer.succeed(StorageService, {
   getItem: (key: string) => Effect.sync(() => localStorage.getItem(key)),
@@ -30,6 +31,7 @@ export const BrowserStorageLayer = Layer.succeed(StorageService, {
       localStorage.setItem(key, value);
     }),
 });
+/* v8 ignore stop */
 
 // --- テスト用 Layer ---
 

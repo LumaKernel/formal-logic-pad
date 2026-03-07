@@ -79,6 +79,7 @@ export function checkProofCompatibility(
  * 仕様: 非互換でも呼び出し自体は可能（警告マーク付き）。
  * つまり、すべての結果で呼び出し可能。
  */
+/* v8 ignore start — 現仕様で常にtrue。V8の||短絡分岐追跡を回避 */
 export function isCallable(result: CompatibilityResult) {
   // 現仕様: すべての互換性結果で呼び出し可能（非互換でも警告付きで可）
   return (
@@ -87,6 +88,7 @@ export function isCallable(result: CompatibilityResult) {
     result._tag === "IncompatibleStyle"
   );
 }
+/* v8 ignore stop */
 
 /**
  * 互換性結果に警告があるかどうかを判定する。

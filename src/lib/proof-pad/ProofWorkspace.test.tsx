@@ -2719,6 +2719,54 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("workspace-canvas-menu-tree-layout-bt"),
       ).toBeInTheDocument();
     });
+
+    it("clicking top-to-bottom tree layout closes menu", async () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const { container } = render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      const canvas = container.querySelector("[data-testid='workspace']")!;
+      await userEvent.pointer({
+        target: canvas,
+        keys: "[MouseRight]",
+        coords: { clientX: 300, clientY: 200 },
+      });
+
+      const tbButton = screen.getByTestId(
+        "workspace-canvas-menu-tree-layout-tb",
+      );
+      await userEvent.click(tbButton);
+
+      // メニューが閉じるのを確認
+      expect(
+        screen.queryByTestId("workspace-canvas-menu-tree-layout-tb"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("clicking bottom-to-top tree layout closes menu", async () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const { container } = render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      const canvas = container.querySelector("[data-testid='workspace']")!;
+      await userEvent.pointer({
+        target: canvas,
+        keys: "[MouseRight]",
+        coords: { clientX: 300, clientY: 200 },
+      });
+
+      const btButton = screen.getByTestId(
+        "workspace-canvas-menu-tree-layout-bt",
+      );
+      await userEvent.click(btButton);
+
+      // メニューが閉じるのを確認
+      expect(
+        screen.queryByTestId("workspace-canvas-menu-tree-layout-bt"),
+      ).not.toBeInTheDocument();
+    });
   });
 
   describe("推論規則リファレンスポップオーバー統合", () => {
