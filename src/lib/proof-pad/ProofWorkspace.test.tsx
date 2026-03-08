@@ -35,6 +35,7 @@ import {
   duplicateNode,
   applyScRuleAndConnect,
 } from "./workspaceState";
+import type { ClipboardData } from "./copyPasteLogic";
 
 // --- 状態管理ラッパー（インタラクションテスト用） ---
 
@@ -2240,6 +2241,65 @@ describe("ProofWorkspace", () => {
 
       // node-2 should remain
       expect(screen.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+
+    it("paste with incompatible deduction style shows error banner", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi");
+
+      // ND スタイルのクリップボードデータをプリセット（InferenceEdge付き）
+      const ndClipboardData: ClipboardData = {
+        _tag: "ProofPadClipboard",
+        version: 1,
+        nodes: [
+          {
+            originalId: "nd-1",
+            kind: "axiom",
+            label: "",
+            formulaText: "phi",
+            relativePosition: { x: 0, y: 0 },
+          },
+        ],
+        connections: [],
+        inferenceEdges: [
+          {
+            _tag: "nd-implication-elim",
+            conclusionNodeId: "nd-1",
+            leftPremiseNodeId: undefined,
+            rightPremiseNodeId: undefined,
+            conclusionText: "phi",
+          },
+        ],
+        sourceDeductionStyle: "natural-deduction",
+      };
+
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          initialClipboardData={ndClipboardData}
+          testId="workspace"
+        />,
+      );
+
+      // ノードを選択してペーストボタンを表示
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.click(node);
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-selection-banner"),
+        ).toBeInTheDocument();
+      });
+
+      // ペーストボタンをクリック
+      const pasteButton = screen.getByTestId("workspace-paste-button");
+      await user.click(pasteButton);
+
+      // エラーバナーが表示される
+      await waitFor(() => {
+        expect(screen.getByTestId("workspace-paste-error")).toBeInTheDocument();
+      });
     });
   });
 
@@ -5482,6 +5542,74 @@ describe("ProofWorkspace", () => {
       expect(
         screen.queryByTestId("workspace-collection-panel"),
       ).not.toBeInTheDocument();
+    });
+
+    it("コレクションエントリのインポートボタンクリックでノードが追加される", async () => {
+      const user = userEvent.setup();
+      const initialWs = createEmptyWorkspace(lukasiewiczSystem);
+
+      const collectionWithNodes: readonly import("../proof-collection/proofCollectionState").ProofEntry[] =
+        [
+          {
+            id: "entry-with-nodes",
+            name: "Test Proof",
+            memo: "",
+            folderId: undefined,
+            createdAt: 1,
+            updatedAt: 1,
+            nodes: [
+              {
+                originalId: "src-1",
+                kind: "axiom",
+                label: "A1",
+                formulaText: "phi",
+                relativePosition: { x: 0, y: 0 },
+              },
+            ],
+            connections: [],
+            inferenceEdges: [],
+            deductionStyle: "hilbert",
+            usedAxiomIds: [],
+          },
+        ];
+
+      function CollectionImportWrapper() {
+        const [ws, setWs] = useState(initialWs);
+        const handleChange = useCallback((newWs: WorkspaceState) => {
+          setWs(newWs);
+        }, []);
+        return (
+          <ProofWorkspace
+            system={lukasiewiczSystem}
+            workspace={ws}
+            onWorkspaceChange={handleChange}
+            collectionEntries={collectionWithNodes}
+            onRenameCollectionEntry={vi.fn()}
+            onUpdateCollectionMemo={vi.fn()}
+            onRemoveCollectionEntry={vi.fn()}
+            testId="workspace"
+          />
+        );
+      }
+
+      render(<CollectionImportWrapper />);
+
+      // メニューを開いてコレクションパネルを表示
+      await user.click(screen.getByTestId("workspace-workspace-menu-button"));
+      await user.click(screen.getByTestId("workspace-open-collection-button"));
+
+      // インポートボタンをクリック
+      const importButton = screen.getByTestId(
+        "workspace-collection-panel-entry-entry-with-nodes-import",
+      );
+      await user.click(importButton);
+
+      // 新しいノードが追加される
+      await waitFor(() => {
+        expect(
+          screen.getByTestId(`proof-node-${"node-1" satisfies string}`),
+        ).toBeInTheDocument();
+      });
     });
   });
 
