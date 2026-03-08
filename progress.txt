@@ -11114,3 +11114,25 @@
   - nd-implication-elimの否定除去: ¬A は A→⊥ なので leftIndex=A(引数), rightIndex=¬A(関数)。前回学んだパターンと同じだが述語論理でも確認
   - 量化子のド・モルガン: ¬∃→∀¬ と ∀¬→¬∃ は両方NM（最小論理）で証明可能。∃→∀方向も¬∀→∃¬方向もNKが必要
 ---
+
+## 2026-03-09 - SCカット除去量化子クエスト追加（sc-ce-11〜sc-ce-14）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8550 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**
+- 変更内容:
+  - sc-ce-11: ∀の含意分配 (∀x.(P(x)→Q(x)))→((∀x.P(x))→(∀x.Q(x))) (LJ, difficulty 3) — 12ステップ: ⇒∀+∀⇒+→⇒で量化子版MP
+  - sc-ce-12: ∃の推移律 (∀x.(P(x)→Q(x)))→((∃x.P(x))→(∃x.Q(x))) (LJ, difficulty 3) — 14ステップ: ∃⇒+∀⇒+→⇒+⇒∃で量化子間推移
+  - sc-ce-13: 量化子のド・モルガン (∀x.¬P(x))→¬(∃x.P(x)) (LJ, difficulty 3) — 10ステップ: ∃⇒+∀⇒+¬⇒で否定と量化子の変換
+  - sc-ce-14: 量化子シフト (∀x.(P(x)→Q))→((∃x.P(x))→Q) (LJ, difficulty 3) — 10ステップ: ∃⇒+∀⇒+→⇒で∀/∃相互作用
+  - sc-cut-elimination カテゴリ: 10問→14問に拡充（全199クエスト）
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 195→199
+- テスト: 8562 passed (243 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/quest-catalog-199-sc-ce-quantifier.png
+- **今後のイテレーションへの学び:**
+  - SCカット除去の量化子クエストは sc-lj（直観主義）で証明可能。∀¬→¬∃ と ∀(P→Q)→(∃P→∃Q) は最小論理で十分
+  - SC模範解答は `axiom` 形式（ゴール式を直接配置）と `sc-root` + `sc-rule` 形式（ステップバイステップ）の2種類。量化子クエストは axiom 形式が簡便
+  - cutElimination.ts は量化子を完全サポート済み。量化子規則はsingle-premiseとして扱われ、depth reductionではdefaultケース（rank reduction）にフォールバック
+  - QuestCatalogComponent.stories.tsx の sampleGroups は2カテゴリ分のハードコードデータ。全クエストを表示しないため、新クエスト追加時にストーリー更新不要
+---
