@@ -197,6 +197,16 @@ import { InferenceEdgeBadge } from "./InferenceEdgeBadge";
 import { EdgeParameterPopover } from "./EdgeParameterPopover";
 import type { EdgeBadgeEditState } from "./edgeBadgeEditLogic";
 import { createEditStateFromEdge } from "./edgeBadgeEditLogic";
+import { CutEliminationStepper } from "./CutEliminationStepper";
+import type { CutEliminationStepperData } from "./cutEliminationStepperLogic";
+import {
+  computeCutEliminationStepperData,
+  resolveStepperState,
+} from "./cutEliminationStepperLogic";
+import type { CutEliminationStep } from "../logic-core/cutElimination";
+import { eliminateCutsWithSteps } from "../logic-core/cutElimination";
+import type { ScProofNode } from "../logic-core/sequentCalculus";
+import { findScRootNodeIds, buildScProofTree } from "./scTreeBuildLogic";
 import { useEdgeScroll } from "../infinite-canvas/useEdgeScroll";
 import { EdgeScrollIndicator } from "../infinite-canvas/EdgeScrollIndicator";
 import { useMarquee } from "../infinite-canvas/useMarquee";
@@ -729,6 +739,18 @@ export function ProofWorkspace({
   const [scSelection, setScSelection] = useState<ScSelectionState>({
     phase: "idle",
   });
+
+  // カット除去ステッパー状態
+  const [cutElimOpen, setCutElimOpen] = useState(false);
+  const [cutElimStepIndex, setCutElimStepIndex] = useState(-1);
+  const [cutElimProof, setCutElimProof] = useState<ScProofNode | null>(null);
+  const [cutElimBaseData, setCutElimBaseData] = useState<Omit<
+    CutEliminationStepperData,
+    "currentStepIndex"
+  > | null>(null);
+  const [cutElimRawSteps, setCutElimRawSteps] = useState<
+    readonly CutEliminationStep[]
+  >([]);
 
   // Gen変数名入力
   const [genVariableInput, setGenVariableInput] = useState("");
@@ -1764,6 +1786,76 @@ export function ProofWorkspace({
     },
     [scSelection, workspace, setWorkspace, msg],
   );
+
+  // --- カット除去ステッパー ---
+
+  const handleStartCutElimination = useCallback(() => {
+    const rootIds = findScRootNodeIds(
+      workspace.nodes,
+      workspace.inferenceEdges,
+    );
+    if (rootIds.length === 0) {
+      globalThis.alert(msg.cutEliminationNoRoot);
+      return;
+    }
+    if (rootIds.length > 1) {
+      globalThis.alert(msg.cutEliminationMultipleRoots);
+      return;
+    }
+    const rootId = rootIds[0];
+    /* v8 ignore start -- rootIds.length === 1 なので rootId は必ず defined */
+    if (rootId === undefined) return;
+    /* v8 ignore stop */
+    const treeResult = buildScProofTree(
+      rootId,
+      workspace.nodes,
+      workspace.inferenceEdges,
+    );
+    if (Either.isLeft(treeResult)) {
+      globalThis.alert(
+        formatMessage(msg.cutEliminationBuildError, {
+          error: treeResult.left._tag,
+        }),
+      );
+      return;
+    }
+    const proof = treeResult.right;
+    // rawSteps は resolveStepperState で proof 参照に使う
+    const { steps: rawSteps } = eliminateCutsWithSteps(proof);
+    // baseData は内部で eliminateCutsWithSteps を再計算するが、
+    // ステッパー起動は1回だけの操作なので許容
+    const baseData = computeCutEliminationStepperData(proof);
+    setCutElimProof(proof);
+    setCutElimBaseData(baseData);
+    setCutElimRawSteps(rawSteps);
+    setCutElimStepIndex(-1);
+    setCutElimOpen(true);
+  }, [workspace.nodes, workspace.inferenceEdges, msg]);
+
+  const handleCloseCutElimination = useCallback(() => {
+    setCutElimOpen(false);
+    setCutElimProof(null);
+    setCutElimBaseData(null);
+    setCutElimRawSteps([]);
+    setCutElimStepIndex(-1);
+  }, []);
+
+  const cutElimStepperData = useMemo((): CutEliminationStepperData | null => {
+    if (!cutElimOpen || cutElimBaseData === null || cutElimProof === null)
+      return null;
+    return resolveStepperState(
+      cutElimBaseData,
+      cutElimStepIndex,
+      cutElimProof,
+      cutElimRawSteps,
+    );
+  }, [
+    cutElimOpen,
+    cutElimBaseData,
+    cutElimStepIndex,
+    cutElimProof,
+    cutElimRawSteps,
+  ]);
 
   // 統合ノードクリックハンドラ
   const handleNodeClickForSelection = useCallback(
@@ -4489,19 +4581,53 @@ export function ProofWorkspace({
           }
         />
       ) : workspace.deductionSystem.style === "sequent-calculus" ? (
-        <ScRulePalette
-          rules={availableScRules}
-          onAddSequent={handleAddSequent}
-          onRuleClick={handleStartScRuleSelection}
-          selectedRuleId={
-            scSelection.phase === "selecting-node"
-              ? scSelection.ruleId
-              : undefined
-          }
-          testId={
-            testId ? `${testId satisfies string}-sc-rule-palette` : undefined
-          }
-        />
+        <>
+          <ScRulePalette
+            rules={availableScRules}
+            onAddSequent={handleAddSequent}
+            onRuleClick={handleStartScRuleSelection}
+            selectedRuleId={
+              scSelection.phase === "selecting-node"
+                ? scSelection.ruleId
+                : undefined
+            }
+            testId={
+              testId ? `${testId satisfies string}-sc-rule-palette` : undefined
+            }
+          />
+          {/* カット除去起動ボタン */}
+          {!cutElimOpen ? (
+            <button
+              type="button"
+              style={{
+                position: "absolute",
+                bottom: 12,
+                left: 12,
+                zIndex: 10,
+                padding: "6px 12px",
+                fontSize: 12,
+                borderRadius: 6,
+                border:
+                  "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.3))",
+                background:
+                  "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
+                cursor: "pointer",
+                color: "var(--color-text-primary, #333)",
+                fontFamily: "var(--font-ui)",
+                boxShadow:
+                  "0 1px 6px var(--color-panel-shadow, rgba(120, 100, 70, 0.1))",
+              }}
+              onClick={handleStartCutElimination}
+              data-testid={
+                testId
+                  ? `${testId satisfies string}-cut-elim-start`
+                  : undefined
+              }
+            >
+              {msg.cutEliminationStart}
+            </button>
+          ) : null}
+        </>
       ) : (
         <AxiomPalette
           axioms={availableAxioms}
@@ -4521,6 +4647,49 @@ export function ProofWorkspace({
         messages={msg}
         testId={testId ? `${testId satisfies string}-goal-panel` : undefined}
       />
+
+      {/* カット除去ステッパー */}
+      {cutElimStepperData !== null ? (
+        <>
+          <CutEliminationStepper
+            data={cutElimStepperData}
+            onStepChange={setCutElimStepIndex}
+            messages={msg}
+            testId={
+              testId
+                ? `${testId satisfies string}-cut-elim-stepper`
+                : undefined
+            }
+          />
+          <button
+            type="button"
+            style={{
+              position: "absolute",
+              bottom: 12,
+              left: 260,
+              zIndex: 11,
+              padding: "2px 8px",
+              borderRadius: 4,
+              border:
+                "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.3))",
+              background:
+                "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
+              cursor: "pointer",
+              fontSize: 10,
+              color: "var(--color-text-secondary, #666)",
+              fontFamily: "var(--font-ui)",
+            }}
+            onClick={handleCloseCutElimination}
+            data-testid={
+              testId
+                ? `${testId satisfies string}-cut-elim-close`
+                : undefined
+            }
+          >
+            {msg.cutEliminationClose}
+          </button>
+        </>
+      ) : null}
 
       {/* コレクション管理パネル */}
       {collectionPanelOpen &&

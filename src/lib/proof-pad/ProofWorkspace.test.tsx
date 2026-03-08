@@ -33,6 +33,7 @@ import {
   applyGenAndConnect,
   applySubstitutionAndConnect,
   duplicateNode,
+  applyScRuleAndConnect,
 } from "./workspaceState";
 
 // --- 状態管理ラッパー（インタラクションテスト用） ---
@@ -5059,6 +5060,186 @@ describe("ProofWorkspace", () => {
       expect(alertMock).toHaveBeenCalled();
 
       alertMock.mockRestore();
+    });
+
+    // --- カット除去ステッパー統合 ---
+
+    it("shows cut elimination start button in SC mode", () => {
+      const ws = createEmptyWorkspace(sequentCalculusDeduction(lkSystem));
+      render(
+        <ProofWorkspace
+          system={ws.system}
+          workspace={ws}
+          onWorkspaceChange={() => {}}
+          testId="workspace"
+        />,
+      );
+      expect(
+        screen.getByTestId("workspace-cut-elim-start"),
+      ).toBeInTheDocument();
+    });
+
+    it("does not show cut elimination start button in non-SC mode", () => {
+      render(
+        <ProofWorkspace system={lukasiewiczSystem} testId="workspace" />,
+      );
+      expect(
+        screen.queryByTestId("workspace-cut-elim-start"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("alerts when no SC root found", async () => {
+      const user = userEvent.setup();
+      const alertMock = vi.spyOn(globalThis, "alert").mockImplementation(() => {});
+      const ws = createEmptyWorkspace(sequentCalculusDeduction(lkSystem));
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(screen.getByTestId("workspace-cut-elim-start"));
+
+      expect(alertMock).toHaveBeenCalledWith(
+        expect.stringContaining("No SC proof root found"),
+      );
+      alertMock.mockRestore();
+    });
+
+    it("opens cut elimination stepper for a proof with cut and allows navigation", async () => {
+      const user = userEvent.setup();
+
+      // カット入り証明を構築:
+      // 結論: phi ⇒ phi (カット規則で phi をカット式に)
+      // 左前提: phi ⇒ phi (identity)
+      // 右前提: phi ⇒ phi (identity)
+      let ws = createEmptyWorkspace(sequentCalculusDeduction(lkSystem));
+      ws = addNode(ws, "axiom", "S1", { x: 200, y: 400 }, "phi ⇒ phi");
+
+      // カット規則を適用
+      const cutResult = applyScRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "cut",
+          sequentText: "phi ⇒ phi",
+          principalPosition: 0,
+          cutFormulaText: "phi",
+        },
+        [
+          { x: 100, y: 200 },
+          { x: 300, y: 200 },
+        ],
+      );
+      ws = cutResult.workspace;
+      const [leftId, rightId] = cutResult.premiseNodeIds;
+
+      // 左前提にidentity適用
+      if (leftId !== undefined) {
+        const leftResult = applyScRuleAndConnect(
+          ws,
+          leftId,
+          {
+            ruleId: "identity",
+            sequentText: ws.nodes.find((n) => n.id === leftId)?.formulaText ?? "",
+            principalPosition: 0,
+          },
+          [],
+        );
+        ws = leftResult.workspace;
+      }
+
+      // 右前提にidentity適用
+      if (rightId !== undefined) {
+        const rightResult = applyScRuleAndConnect(
+          ws,
+          rightId,
+          {
+            ruleId: "identity",
+            sequentText: ws.nodes.find((n) => n.id === rightId)?.formulaText ?? "",
+            principalPosition: 0,
+          },
+          [],
+        );
+        ws = rightResult.workspace;
+      }
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // ステッパーが表示されていないことを確認
+      expect(
+        screen.queryByTestId("workspace-cut-elim-stepper"),
+      ).not.toBeInTheDocument();
+
+      // カット除去起動
+      await user.click(screen.getByTestId("workspace-cut-elim-start"));
+
+      // ステッパーが表示される
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-cut-elim-stepper"),
+        ).toBeInTheDocument();
+      });
+
+      // 閉じるボタンが表示される
+      expect(
+        screen.getByTestId("workspace-cut-elim-close"),
+      ).toBeInTheDocument();
+
+      // 起動ボタンは非表示になる
+      expect(
+        screen.queryByTestId("workspace-cut-elim-start"),
+      ).not.toBeInTheDocument();
+
+      // 次ステップボタンをクリック
+      const nextButton = screen.getByTestId("workspace-cut-elim-stepper-next");
+      if (!nextButton.hasAttribute("disabled")) {
+        await user.click(nextButton);
+      }
+
+      // 閉じるボタンをクリック
+      await user.click(screen.getByTestId("workspace-cut-elim-close"));
+
+      // ステッパーが閉じる
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("workspace-cut-elim-stepper"),
+        ).not.toBeInTheDocument();
+      });
+
+      // 起動ボタンが再表示される
+      expect(
+        screen.getByTestId("workspace-cut-elim-start"),
+      ).toBeInTheDocument();
+    });
+
+    it("shows cut-free message when proof has no cuts", async () => {
+      const user = userEvent.setup();
+
+      // カットなし証明: phi ⇒ phi に identity を適用
+      let ws = createEmptyWorkspace(sequentCalculusDeduction(lkSystem));
+      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "phi ⇒ phi");
+
+      const idResult = applyScRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "identity",
+          sequentText: "phi ⇒ phi",
+          principalPosition: 0,
+        },
+        [],
+      );
+      ws = idResult.workspace;
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(screen.getByTestId("workspace-cut-elim-start"));
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-cut-elim-stepper"),
+        ).toBeInTheDocument();
+      });
+
+      // カットフリーメッセージが表示される
+      expect(screen.getByText("Cut-free")).toBeInTheDocument();
     });
   });
 

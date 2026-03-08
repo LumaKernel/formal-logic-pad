@@ -35,6 +35,7 @@ import {
   applyMPAndConnect,
   applySubstitutionAndConnect,
   copySelectedNodes,
+  applyScRuleAndConnect,
 } from "./workspaceState";
 import type { WorkspaceState } from "./workspaceState";
 
@@ -1724,5 +1725,145 @@ export const CopyPasteIncompatible: Story = {
 
     // ノードはペーストされない
     expect(canvas.queryByTestId("proof-node-node-1")).not.toBeInTheDocument();
+  },
+};
+
+// --- カット除去ステッパー統合 ---
+
+function CutEliminationWorkspace() {
+  // カット入り証明を構築:
+  // 結論: phi ⇒ phi (カット規則で phi をカット式に)
+  // 左前提: phi ⇒ phi (identity)
+  // 右前提: phi ⇒ phi (identity)
+  const initial = (() => {
+    let ws = createEmptyWorkspace(sequentCalculusDeduction(lkSystem));
+    ws = addNode(ws, "axiom", "S1", { x: 300, y: 400 }, "phi ⇒ phi");
+
+    const cutResult = applyScRuleAndConnect(
+      ws,
+      "node-1",
+      {
+        ruleId: "cut",
+        sequentText: "phi ⇒ phi",
+        principalPosition: 0,
+        cutFormulaText: "phi",
+      },
+      [
+        { x: 150, y: 200 },
+        { x: 450, y: 200 },
+      ],
+    );
+    ws = cutResult.workspace;
+    const [leftId, rightId] = cutResult.premiseNodeIds;
+
+    if (leftId !== undefined) {
+      const leftResult = applyScRuleAndConnect(
+        ws,
+        leftId,
+        {
+          ruleId: "identity",
+          sequentText:
+            ws.nodes.find((n) => n.id === leftId)?.formulaText ?? "",
+          principalPosition: 0,
+        },
+        [],
+      );
+      ws = leftResult.workspace;
+    }
+
+    if (rightId !== undefined) {
+      const rightResult = applyScRuleAndConnect(
+        ws,
+        rightId,
+        {
+          ruleId: "identity",
+          sequentText:
+            ws.nodes.find((n) => n.id === rightId)?.formulaText ?? "",
+          principalPosition: 0,
+        },
+        [],
+      );
+      ws = rightResult.workspace;
+    }
+
+    return ws;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={workspace.system}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/** カット入り SC 証明でカット除去ステッパーを起動・操作するストーリー */
+export const CutEliminationStepperIntegration: StoryObj<typeof meta> = {
+  render: () => <CutEliminationWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // カット除去起動ボタンが表示される
+    await expect(
+      canvas.getByTestId("workspace-cut-elim-start"),
+    ).toBeInTheDocument();
+
+    // ステッパーはまだ表示されていない
+    await expect(
+      canvas.queryByTestId("workspace-cut-elim-stepper"),
+    ).not.toBeInTheDocument();
+
+    // カット除去を起動
+    await userEvent.click(canvas.getByTestId("workspace-cut-elim-start"));
+
+    // ステッパーが表示される
+    await waitFor(() => {
+      expect(
+        canvas.getByTestId("workspace-cut-elim-stepper"),
+      ).toBeInTheDocument();
+    });
+
+    // カット除去タイトルが表示される
+    await expect(canvas.getByText("Cut Elimination")).toBeInTheDocument();
+
+    // 起動ボタンは非表示になる
+    await expect(
+      canvas.queryByTestId("workspace-cut-elim-start"),
+    ).not.toBeInTheDocument();
+
+    // 閉じるボタンが表示される
+    await expect(
+      canvas.getByTestId("workspace-cut-elim-close"),
+    ).toBeInTheDocument();
+
+    // 次ステップボタンをクリック
+    const nextButton = canvas.getByTestId("workspace-cut-elim-stepper-next");
+    if (!nextButton.hasAttribute("disabled")) {
+      await userEvent.click(nextButton);
+    }
+
+    // ステッパーを閉じる
+    await userEvent.click(canvas.getByTestId("workspace-cut-elim-close"));
+
+    // ステッパーが閉じる
+    await waitFor(() => {
+      expect(
+        canvas.queryByTestId("workspace-cut-elim-stepper"),
+      ).not.toBeInTheDocument();
+    });
+
+    // 起動ボタンが再表示される
+    await expect(
+      canvas.getByTestId("workspace-cut-elim-start"),
+    ).toBeInTheDocument();
   },
 };

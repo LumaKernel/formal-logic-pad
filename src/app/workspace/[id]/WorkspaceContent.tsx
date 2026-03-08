@@ -136,6 +136,11 @@ function useProofMessagesFromIntl(): ProofMessages {
       cutEliminationSuccess: t("cutEliminationSuccess"),
       cutEliminationFailure: t("cutEliminationFailure"),
       cutEliminationNoCuts: t("cutEliminationNoCuts"),
+      cutEliminationStart: t("cutEliminationStart"),
+      cutEliminationClose: t("cutEliminationClose"),
+      cutEliminationBuildError: String(t.raw("cutEliminationBuildError")),
+      cutEliminationNoRoot: t("cutEliminationNoRoot"),
+      cutEliminationMultipleRoots: t("cutEliminationMultipleRoots"),
 
       // Node labels / role badges
       roleAxiom: t("roleAxiom"),

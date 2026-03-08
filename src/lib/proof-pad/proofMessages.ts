@@ -180,6 +180,16 @@ export type ProofMessages = {
   readonly cutEliminationNoCuts: string;
   /** `{stepsUsed}` プレースホルダーを含む。ステップ上限超過時に表示 */
   readonly cutEliminationStepLimitExceeded?: string;
+  /** カット除去起動ボタンテキスト */
+  readonly cutEliminationStart: string;
+  /** カット除去閉じるボタンテキスト */
+  readonly cutEliminationClose: string;
+  /** 証明ツリー構築エラー: `{error}` プレースホルダーを含む */
+  readonly cutEliminationBuildError: string;
+  /** 証明ルートが見つからないエラー */
+  readonly cutEliminationNoRoot: string;
+  /** 複数ルートエラー */
+  readonly cutEliminationMultipleRoots: string;
 
   // --- ノードラベル・ロールバッジ ---
   readonly roleAxiom: string;
@@ -413,6 +423,11 @@ export const defaultProofMessages: ProofMessages = {
   cutEliminationFailure: "Cut elimination failed",
   cutEliminationNoCuts: "Proof is already cut-free",
   cutEliminationStepLimitExceeded: "Step limit exceeded ({stepsUsed} steps)",
+  cutEliminationStart: "Run Cut Elimination",
+  cutEliminationClose: "Close",
+  cutEliminationBuildError: "Failed to build proof tree: {error}",
+  cutEliminationNoRoot: "No SC proof root found",
+  cutEliminationMultipleRoots: "Multiple proof roots found (not supported yet)",
 
   // Node labels / role badges
   roleAxiom: "AXIOM",
