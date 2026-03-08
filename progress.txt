@@ -104,6 +104,29 @@
 
 ---
 
+## 2026-03-09 - 群論の等号推論クエスト追加（group-16〜group-19）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8526 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**
+- 変更内容:
+  - group-16: a·e = e·a (difficulty 3, 21 steps) — G2R+G2L+E2+E3で単位元の交換律
+  - group-17: i(a)·a = a·i(a) (difficulty 3, 21 steps) — G3L+G3R+E2+E3で逆元の交換律
+  - group-18: (a·e)·e = a (difficulty 3, 14 steps) — G2R二重適用+E3推移律チェーン
+  - group-19: i(e) = e (difficulty 4, 21 steps) — G3L+G2R+E2+E3で単位元の逆元
+  - group-proofs カテゴリ: 9問→13問に拡充（group全体: 15→19問）
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 187→191
+- テスト: 8538 passed (243 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/quest-catalog-191-overview.png
+- **今後のイテレーションへの学び:**
+  - E2+E3の等号チェーンパターン: 2つの等式 x=m, y=m から E2で片方を反転(m=y)、E3で連鎖(x=m, m=y → x=y)
+  - E2のA4消去は2段階(x,y)、E3は3段階(x,y,z)。合わせて11ステップが最小の等号チェーンコスト
+  - 同じ公理を異なるA4代入で再利用可能（group-18はG2Rを2回使用、1ノードを共有）
+  - E4（関数合同）は未実装のため、等号チェーンは中間項が完全一致する場合のみ適用可能
+  - 現在のカテゴリ別クエスト数: prop34, pred12, eq6, peano12, group19, nd31, tab18, at15, sc44（191合計）
+---
+
 ## 2026-03-09 - ATクエスト拡充（at-12〜at-15）
 - ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8514 tests
 - **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**
