@@ -627,13 +627,36 @@ describe("naturalDeduction - バリデーション", () => {
       expect(validateNdProof(efq)._tag).toBe("Valid");
     });
 
-    it("正しい∧導入+∧除去がValid", () => {
+    it("正しい∧導入+∧除去左がValid", () => {
       const a1 = assumption(phi, 1);
       const a2 = assumption(psi, 2);
       const conj = conjunctionIntro(a1, a2);
       const elimL = conjunctionElimLeft(conj);
       expect(validateNdProof(elimL)._tag).toBe("Valid");
       expect(getNdConclusion(elimL)).toEqual(phi);
+    });
+
+    it("正しい∧導入+∧除去右がValid", () => {
+      const a1 = assumption(phi, 1);
+      const a2 = assumption(psi, 2);
+      const conj = conjunctionIntro(a1, a2);
+      const elimR = conjunctionElimRight(conj);
+      expect(validateNdProof(elimR)._tag).toBe("Valid");
+      expect(getNdConclusion(elimR)).toEqual(psi);
+    });
+
+    it("正しい∨導入右がValid", () => {
+      const a = assumption(psi, 1);
+      const introR = disjunctionIntroRight(phi, a);
+      expect(validateNdProof(introR)._tag).toBe("Valid");
+      expect(getNdConclusion(introR)).toEqual(disjunction(phi, psi));
+    });
+
+    it("正しいDNEがValid", () => {
+      const a = assumption(negation(negation(phi)), 1);
+      const dne = dneRule(a);
+      expect(validateNdProof(dne)._tag).toBe("Valid");
+      expect(getNdConclusion(dne)).toEqual(phi);
     });
 
     it("正しい∨導入+∨除去がValid", () => {
