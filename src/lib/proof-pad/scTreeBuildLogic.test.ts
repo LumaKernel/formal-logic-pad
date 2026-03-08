@@ -8,7 +8,6 @@ import { describe, expect, it } from "vitest";
 import { Either } from "effect";
 import type { Formula } from "../logic-core/formula";
 import { MetaVariable } from "../logic-core/formula";
-import type { ScProofNode } from "../logic-core/sequentCalculus";
 import type {
   ScAxiomEdge,
   ScSinglePremiseEdge,
@@ -28,7 +27,6 @@ import {
 
 const phi: Formula = new MetaVariable({ name: "φ" });
 const psi: Formula = new MetaVariable({ name: "ψ" });
-const chi: Formula = new MetaVariable({ name: "χ" });
 
 function makeNode(
   id: string,
