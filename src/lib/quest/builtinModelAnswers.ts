@@ -4287,6 +4287,391 @@ const group15RightInverseCompound: ModelAnswer = {
   ],
 };
 
+// --- 群論の等号推論 ---
+
+/**
+ * group-16: a * e = e * a
+ *
+ * G2R[x→a] + G2L[x→a] + E2[x→e*a, y→a] + E3[x→a*e, y→a, z→e*a]。21ステップ。
+ * 0.  G2R: ∀x. x * e = x
+ * 1.  A4[x→a]: (∀x. x*e=x) → a*e=a
+ * 2.  MP(0,1): a*e=a
+ * 3.  G2L: ∀x. e * x = x
+ * 4.  A4[x→a]: (∀x. e*x=x) → e*a=a
+ * 5.  MP(3,4): e*a=a
+ * 6.  E2: ∀x.∀y. x=y → y=x
+ * 7.  A4[x→e*a]: (∀x.∀y. x=y→y=x) → ∀y. e*a=y → y=e*a
+ * 8.  MP(6,7): ∀y. e*a=y → y=e*a
+ * 9.  A4[y→a]: (∀y. e*a=y → y=e*a) → (e*a=a → a=e*a)
+ * 10. MP(8,9): e*a=a → a=e*a
+ * 11. MP(5,10): a=e*a
+ * 12. E3: ∀x.∀y.∀z. x=y → (y=z → x=z)
+ * 13. A4[x→a*e]: ... → ∀y.∀z. a*e=y → (y=z → a*e=z)
+ * 14. MP(12,13): ∀y.∀z. a*e=y → (y=z → a*e=z)
+ * 15. A4[y→a]: ... → ∀z. a*e=a → (a=z → a*e=z)
+ * 16. MP(14,15): ∀z. a*e=a → (a=z → a*e=z)
+ * 17. A4[z→e*a]: ... → (a*e=a → (a=e*a → a*e=e*a))
+ * 18. MP(16,17): a*e=a → (a=e*a → a*e=e*a)
+ * 19. MP(2,18): a=e*a → a*e=e*a
+ * 20. MP(11,19): a*e=e*a
+ */
+const group16IdentityCommutes: ModelAnswer = {
+  questId: "group-16",
+  steps: [
+    // 0: G2R
+    { _tag: "axiom", formulaText: "all x. x * e = x" },
+    // 1: A4[x→a]
+    { _tag: "axiom", formulaText: "(all x. x * e = x) -> a * e = a" },
+    // 2: MP(0,1)
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    // 3: G2L
+    { _tag: "axiom", formulaText: "all x. e * x = x" },
+    // 4: A4[x→a]
+    { _tag: "axiom", formulaText: "(all x. e * x = x) -> e * a = a" },
+    // 5: MP(3,4)
+    { _tag: "mp", leftIndex: 3, rightIndex: 4 },
+    // 6: E2
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. x = y -> y = x",
+    },
+    // 7: A4[x→e*a]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. x = y -> y = x) -> all y. e * a = y -> y = e * a",
+    },
+    // 8: MP(6,7)
+    { _tag: "mp", leftIndex: 6, rightIndex: 7 },
+    // 9: A4[y→a]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. e * a = y -> y = e * a) -> (e * a = a -> a = e * a)",
+    },
+    // 10: MP(8,9)
+    { _tag: "mp", leftIndex: 8, rightIndex: 9 },
+    // 11: MP(5,10)
+    { _tag: "mp", leftIndex: 5, rightIndex: 10 },
+    // 12: E3
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
+    },
+    // 13: A4[x→a*e]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. all z. x = y -> (y = z -> x = z)) -> all y. all z. a * e = y -> (y = z -> a * e = z)",
+    },
+    // 14: MP(12,13)
+    { _tag: "mp", leftIndex: 12, rightIndex: 13 },
+    // 15: A4[y→a]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. all z. a * e = y -> (y = z -> a * e = z)) -> all z. a * e = a -> (a = z -> a * e = z)",
+    },
+    // 16: MP(14,15)
+    { _tag: "mp", leftIndex: 14, rightIndex: 15 },
+    // 17: A4[z→e*a]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all z. a * e = a -> (a = z -> a * e = z)) -> (a * e = a -> (a = e * a -> a * e = e * a))",
+    },
+    // 18: MP(16,17)
+    { _tag: "mp", leftIndex: 16, rightIndex: 17 },
+    // 19: MP(2,18)
+    { _tag: "mp", leftIndex: 2, rightIndex: 18 },
+    // 20: MP(11,19)
+    { _tag: "mp", leftIndex: 11, rightIndex: 19 },
+  ],
+};
+
+/**
+ * group-17: i(a) * a = a * i(a)
+ *
+ * G3L[x→a] + G3R[x→a] + E2[x→a*i(a), y→e] + E3[x→i(a)*a, y→e, z→a*i(a)]。21ステップ。
+ * 0.  G3L: ∀x. i(x) * x = e
+ * 1.  A4[x→a]: (∀x. i(x)*x=e) → i(a)*a=e
+ * 2.  MP(0,1): i(a)*a=e
+ * 3.  G3R: ∀x. x * i(x) = e
+ * 4.  A4[x→a]: (∀x. x*i(x)=e) → a*i(a)=e
+ * 5.  MP(3,4): a*i(a)=e
+ * 6.  E2: ∀x.∀y. x=y → y=x
+ * 7.  A4[x→a*i(a)]: ... → ∀y. a*i(a)=y → y=a*i(a)
+ * 8.  MP(6,7): ∀y. a*i(a)=y → y=a*i(a)
+ * 9.  A4[y→e]: ... → (a*i(a)=e → e=a*i(a))
+ * 10. MP(8,9): a*i(a)=e → e=a*i(a)
+ * 11. MP(5,10): e=a*i(a)
+ * 12. E3: ∀x.∀y.∀z. x=y → (y=z → x=z)
+ * 13. A4[x→i(a)*a]: ... → ∀y.∀z. i(a)*a=y → (y=z → i(a)*a=z)
+ * 14. MP(12,13): ∀y.∀z. i(a)*a=y → (y=z → i(a)*a=z)
+ * 15. A4[y→e]: ... → ∀z. i(a)*a=e → (e=z → i(a)*a=z)
+ * 16. MP(14,15): ∀z. i(a)*a=e → (e=z → i(a)*a=z)
+ * 17. A4[z→a*i(a)]: ... → (i(a)*a=e → (e=a*i(a) → i(a)*a=a*i(a)))
+ * 18. MP(16,17): i(a)*a=e → (e=a*i(a) → i(a)*a=a*i(a))
+ * 19. MP(2,18): e=a*i(a) → i(a)*a=a*i(a)
+ * 20. MP(11,19): i(a)*a=a*i(a)
+ */
+const group17InverseCommutes: ModelAnswer = {
+  questId: "group-17",
+  steps: [
+    // 0: G3L
+    { _tag: "axiom", formulaText: "all x. i(x) * x = e" },
+    // 1: A4[x→a]
+    {
+      _tag: "axiom",
+      formulaText: "(all x. i(x) * x = e) -> i(a) * a = e",
+    },
+    // 2: MP(0,1)
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    // 3: G3R
+    { _tag: "axiom", formulaText: "all x. x * i(x) = e" },
+    // 4: A4[x→a]
+    {
+      _tag: "axiom",
+      formulaText: "(all x. x * i(x) = e) -> a * i(a) = e",
+    },
+    // 5: MP(3,4)
+    { _tag: "mp", leftIndex: 3, rightIndex: 4 },
+    // 6: E2
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. x = y -> y = x",
+    },
+    // 7: A4[x→a*i(a)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. x = y -> y = x) -> all y. a * i(a) = y -> y = a * i(a)",
+    },
+    // 8: MP(6,7)
+    { _tag: "mp", leftIndex: 6, rightIndex: 7 },
+    // 9: A4[y→e]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. a * i(a) = y -> y = a * i(a)) -> (a * i(a) = e -> e = a * i(a))",
+    },
+    // 10: MP(8,9)
+    { _tag: "mp", leftIndex: 8, rightIndex: 9 },
+    // 11: MP(5,10)
+    { _tag: "mp", leftIndex: 5, rightIndex: 10 },
+    // 12: E3
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
+    },
+    // 13: A4[x→i(a)*a]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. all z. x = y -> (y = z -> x = z)) -> all y. all z. i(a) * a = y -> (y = z -> i(a) * a = z)",
+    },
+    // 14: MP(12,13)
+    { _tag: "mp", leftIndex: 12, rightIndex: 13 },
+    // 15: A4[y→e]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. all z. i(a) * a = y -> (y = z -> i(a) * a = z)) -> all z. i(a) * a = e -> (e = z -> i(a) * a = z)",
+    },
+    // 16: MP(14,15)
+    { _tag: "mp", leftIndex: 14, rightIndex: 15 },
+    // 17: A4[z→a*i(a)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all z. i(a) * a = e -> (e = z -> i(a) * a = z)) -> (i(a) * a = e -> (e = a * i(a) -> i(a) * a = a * i(a)))",
+    },
+    // 18: MP(16,17)
+    { _tag: "mp", leftIndex: 16, rightIndex: 17 },
+    // 19: MP(2,18)
+    { _tag: "mp", leftIndex: 2, rightIndex: 18 },
+    // 20: MP(11,19)
+    { _tag: "mp", leftIndex: 11, rightIndex: 19 },
+  ],
+};
+
+/**
+ * group-18: (a * e) * e = a
+ *
+ * G2R[x→a*e] + G2R[x→a] + E3[x→(a*e)*e, y→a*e, z→a]。14ステップ。
+ * 0.  G2R: ∀x. x * e = x
+ * 1.  A4[x→a*e]: (∀x. x*e=x) → (a*e)*e=a*e
+ * 2.  MP(0,1): (a*e)*e=a*e
+ * 3.  A4[x→a]: (∀x. x*e=x) → a*e=a
+ * 4.  MP(0,3): a*e=a
+ * 5.  E3: ∀x.∀y.∀z. x=y → (y=z → x=z)
+ * 6.  A4[x→(a*e)*e]: ... → ∀y.∀z. (a*e)*e=y → (y=z → (a*e)*e=z)
+ * 7.  MP(5,6): ∀y.∀z. (a*e)*e=y → (y=z → (a*e)*e=z)
+ * 8.  A4[y→a*e]: ... → ∀z. (a*e)*e=a*e → (a*e=z → (a*e)*e=z)
+ * 9.  MP(7,8): ∀z. (a*e)*e=a*e → (a*e=z → (a*e)*e=z)
+ * 10. A4[z→a]: ... → ((a*e)*e=a*e → (a*e=a → (a*e)*e=a))
+ * 11. MP(9,10): (a*e)*e=a*e → (a*e=a → (a*e)*e=a)
+ * 12. MP(2,11): a*e=a → (a*e)*e=a
+ * 13. MP(4,12): (a*e)*e=a
+ */
+const group18DoubleRightIdentity: ModelAnswer = {
+  questId: "group-18",
+  steps: [
+    // 0: G2R
+    { _tag: "axiom", formulaText: "all x. x * e = x" },
+    // 1: A4[x→a*e]
+    {
+      _tag: "axiom",
+      formulaText: "(all x. x * e = x) -> (a * e) * e = a * e",
+    },
+    // 2: MP(0,1)
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    // 3: A4[x→a]
+    { _tag: "axiom", formulaText: "(all x. x * e = x) -> a * e = a" },
+    // 4: MP(0,3)
+    { _tag: "mp", leftIndex: 0, rightIndex: 3 },
+    // 5: E3
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
+    },
+    // 6: A4[x→(a*e)*e]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. all z. x = y -> (y = z -> x = z)) -> all y. all z. (a * e) * e = y -> (y = z -> (a * e) * e = z)",
+    },
+    // 7: MP(5,6)
+    { _tag: "mp", leftIndex: 5, rightIndex: 6 },
+    // 8: A4[y→a*e]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. all z. (a * e) * e = y -> (y = z -> (a * e) * e = z)) -> all z. (a * e) * e = a * e -> (a * e = z -> (a * e) * e = z)",
+    },
+    // 9: MP(7,8)
+    { _tag: "mp", leftIndex: 7, rightIndex: 8 },
+    // 10: A4[z→a]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all z. (a * e) * e = a * e -> (a * e = z -> (a * e) * e = z)) -> ((a * e) * e = a * e -> (a * e = a -> (a * e) * e = a))",
+    },
+    // 11: MP(9,10)
+    { _tag: "mp", leftIndex: 9, rightIndex: 10 },
+    // 12: MP(2,11)
+    { _tag: "mp", leftIndex: 2, rightIndex: 11 },
+    // 13: MP(4,12)
+    { _tag: "mp", leftIndex: 4, rightIndex: 12 },
+  ],
+};
+
+/**
+ * group-19: i(e) = e
+ *
+ * G3L[x→e] + G2R[x→i(e)] + E2[x→i(e)*e, y→i(e)] + E3[x→i(e), y→i(e)*e, z→e]。21ステップ。
+ * 0.  G3L: ∀x. i(x) * x = e
+ * 1.  A4[x→e]: (∀x. i(x)*x=e) → i(e)*e=e
+ * 2.  MP(0,1): i(e)*e=e
+ * 3.  G2R: ∀x. x * e = x
+ * 4.  A4[x→i(e)]: (∀x. x*e=x) → i(e)*e=i(e)
+ * 5.  MP(3,4): i(e)*e=i(e)
+ * 6.  E2: ∀x.∀y. x=y → y=x
+ * 7.  A4[x→i(e)*e]: ... → ∀y. i(e)*e=y → y=i(e)*e
+ * 8.  MP(6,7): ∀y. i(e)*e=y → y=i(e)*e
+ * 9.  A4[y→i(e)]: ... → (i(e)*e=i(e) → i(e)=i(e)*e)
+ * 10. MP(8,9): i(e)*e=i(e) → i(e)=i(e)*e
+ * 11. MP(5,10): i(e)=i(e)*e
+ * 12. E3: ∀x.∀y.∀z. x=y → (y=z → x=z)
+ * 13. A4[x→i(e)]: ... → ∀y.∀z. i(e)=y → (y=z → i(e)=z)
+ * 14. MP(12,13): ∀y.∀z. i(e)=y → (y=z → i(e)=z)
+ * 15. A4[y→i(e)*e]: ... → ∀z. i(e)=i(e)*e → (i(e)*e=z → i(e)=z)
+ * 16. MP(14,15): ∀z. i(e)=i(e)*e → (i(e)*e=z → i(e)=z)
+ * 17. A4[z→e]: ... → (i(e)=i(e)*e → (i(e)*e=e → i(e)=e))
+ * 18. MP(16,17): i(e)=i(e)*e → (i(e)*e=e → i(e)=e)
+ * 19. MP(11,18): i(e)*e=e → i(e)=e
+ * 20. MP(2,19): i(e)=e
+ */
+const group19InverseOfIdentity: ModelAnswer = {
+  questId: "group-19",
+  steps: [
+    // 0: G3L
+    { _tag: "axiom", formulaText: "all x. i(x) * x = e" },
+    // 1: A4[x→e]
+    {
+      _tag: "axiom",
+      formulaText: "(all x. i(x) * x = e) -> i(e) * e = e",
+    },
+    // 2: MP(0,1)
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    // 3: G2R
+    { _tag: "axiom", formulaText: "all x. x * e = x" },
+    // 4: A4[x→i(e)]
+    {
+      _tag: "axiom",
+      formulaText: "(all x. x * e = x) -> i(e) * e = i(e)",
+    },
+    // 5: MP(3,4)
+    { _tag: "mp", leftIndex: 3, rightIndex: 4 },
+    // 6: E2
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. x = y -> y = x",
+    },
+    // 7: A4[x→i(e)*e]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. x = y -> y = x) -> all y. i(e) * e = y -> y = i(e) * e",
+    },
+    // 8: MP(6,7)
+    { _tag: "mp", leftIndex: 6, rightIndex: 7 },
+    // 9: A4[y→i(e)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. i(e) * e = y -> y = i(e) * e) -> (i(e) * e = i(e) -> i(e) = i(e) * e)",
+    },
+    // 10: MP(8,9)
+    { _tag: "mp", leftIndex: 8, rightIndex: 9 },
+    // 11: MP(5,10)
+    { _tag: "mp", leftIndex: 5, rightIndex: 10 },
+    // 12: E3
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
+    },
+    // 13: A4[x→i(e)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. all z. x = y -> (y = z -> x = z)) -> all y. all z. i(e) = y -> (y = z -> i(e) = z)",
+    },
+    // 14: MP(12,13)
+    { _tag: "mp", leftIndex: 12, rightIndex: 13 },
+    // 15: A4[y→i(e)*e]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. all z. i(e) = y -> (y = z -> i(e) = z)) -> all z. i(e) = i(e) * e -> (i(e) * e = z -> i(e) = z)",
+    },
+    // 16: MP(14,15)
+    { _tag: "mp", leftIndex: 14, rightIndex: 15 },
+    // 17: A4[z→e]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all z. i(e) = i(e) * e -> (i(e) * e = z -> i(e) = z)) -> (i(e) = i(e) * e -> (i(e) * e = e -> i(e) = e))",
+    },
+    // 18: MP(16,17)
+    { _tag: "mp", leftIndex: 16, rightIndex: 17 },
+    // 19: MP(11,18)
+    { _tag: "mp", leftIndex: 11, rightIndex: 18 },
+    // 20: MP(2,19)
+    { _tag: "mp", leftIndex: 2, rightIndex: 19 },
+  ],
+};
+
 // ============================================================
 // predicate-basics: 述語論理の基礎（A1-A5 + MP + Gen）
 // A4: (∀x.φ) → φ[t/x]
@@ -7263,6 +7648,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   group13RightIdentityCompound,
   group14LeftInverseCompound,
   group15RightInverseCompound,
+  group16IdentityCommutes,
+  group17InverseCommutes,
+  group18DoubleRightIdentity,
+  group19InverseOfIdentity,
   // predicate-basics
   pred01UniversalElim,
   pred02IdentityQuantified,

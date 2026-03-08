@@ -1727,6 +1727,113 @@ const qG15RightInverseCompound: QuestDefinition = {
   version: 1,
 };
 
+// --- 群論の等号推論 ---
+
+const qG16IdentityCommutes: QuestDefinition = {
+  id: "group-16",
+  category: "group-proofs",
+  title: "a·e = e·a",
+  description:
+    "右単位元と左単位元の結果をE2（対称律）とE3（推移律）で連鎖させ、単位元の交換律を導出せよ。",
+  difficulty: 3,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "a * e = e * a",
+      label: "Goal: a·e = e·a",
+    },
+  ],
+  hints: [
+    "G2R[x→a]: a*e=a と G2L[x→a]: e*a=a を導出します。",
+    "E2で e*a=a を反転して a=e*a を得ます。",
+    "E3で a*e=a と a=e*a を連鎖させて a*e=e*a を導きます。",
+    "E2の∀消去は2段階、E3の∀消去は3段階です。",
+  ],
+  estimatedSteps: 21,
+  learningPoint:
+    "E2（対称律）で等式を反転し、E3（推移律）で等式を連鎖させるパターン。群論の等号推論の基本技法。",
+  order: 10,
+  version: 1,
+};
+
+const qG17InverseCommutes: QuestDefinition = {
+  id: "group-17",
+  category: "group-proofs",
+  title: "i(a)·a = a·i(a)",
+  description:
+    "左逆元と右逆元の結果をE2+E3で連鎖させ、逆元の交換律を導出せよ。group-16と同じパターン。",
+  difficulty: 3,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "i(a) * a = a * i(a)",
+      label: "Goal: i(a)·a = a·i(a)",
+    },
+  ],
+  hints: [
+    "G3L[x→a]: i(a)*a=e と G3R[x→a]: a*i(a)=e を導出します。",
+    "E2で a*i(a)=e を反転して e=a*i(a) を得ます。",
+    "E3で i(a)*a=e と e=a*i(a) を連鎖させて i(a)*a=a*i(a) を導きます。",
+  ],
+  estimatedSteps: 21,
+  learningPoint:
+    "group-16と対称的なパターン。2つの等式 x=m, y=m から E2+E3 で x=y を導くテクニック。",
+  order: 11,
+  version: 1,
+};
+
+const qG18DoubleRightIdentity: QuestDefinition = {
+  id: "group-18",
+  category: "group-proofs",
+  title: "(a·e)·e = a",
+  description:
+    "G2Rを2回異なるインスタンスで適用し、E3（推移律）で連鎖させる。推移律チェーンの基本。",
+  difficulty: 3,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "(a * e) * e = a",
+      label: "Goal: (a·e)·e = a",
+    },
+  ],
+  hints: [
+    "G2R[x→a*e]: (a*e)*e=a*e と G2R[x→a]: a*e=a を導出します。",
+    "E3で (a*e)*e=a*e と a*e=a を連鎖させて (a*e)*e=a を導きます。",
+    "E3の∀消去は3段階（x, y, z それぞれA4+MP）です。",
+  ],
+  estimatedSteps: 14,
+  learningPoint:
+    "同じ公理（G2R）を異なる代入で2回使い、推移律E3で結果を繋げるパターン。等号推論の効率的な連鎖。",
+  order: 12,
+  version: 1,
+};
+
+const qG19InverseOfIdentity: QuestDefinition = {
+  id: "group-19",
+  category: "group-proofs",
+  title: "i(e) = e",
+  description:
+    "単位元の逆元が単位元自身であることを証明せよ。G3LとG2Rの結果をE2+E3で連鎖させる。",
+  difficulty: 4,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "i(e) = e",
+      label: "Goal: i(e) = e",
+    },
+  ],
+  hints: [
+    "G3L[x→e]: i(e)*e=e と G2R[x→i(e)]: i(e)*e=i(e) を導出します。",
+    "E2で i(e)*e=i(e) を反転して i(e)=i(e)*e を得ます。",
+    "E3で i(e)=i(e)*e と i(e)*e=e を連鎖させて i(e)=e を導きます。",
+  ],
+  estimatedSteps: 21,
+  learningPoint:
+    "「2つの等式が共通の中間項を持つとき、E2で片方を反転してE3で連鎖」は等号推論の万能パターン。",
+  order: 13,
+  version: 1,
+};
+
 // --- 述語論理の基礎 ---
 
 const qPred01UniversalElim: QuestDefinition = {
@@ -5014,6 +5121,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qG13RightIdentityCompound,
   qG14LeftInverseCompound,
   qG15RightInverseCompound,
+  qG16IdentityCommutes,
+  qG17InverseCommutes,
+  qG18DoubleRightIdentity,
+  qG19InverseOfIdentity,
   qPred01UniversalElim,
   qPred02IdentityQuantified,
   qPred03UniversalSwap,
