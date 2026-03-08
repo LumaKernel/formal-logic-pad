@@ -5335,16 +5335,12 @@ const at07UniversalToExistential: ModelAnswer = {
 
 const at08ConjunctionCommute: ModelAnswer = {
   questId: "at-08",
-  steps: [
-    { _tag: "axiom", formulaText: "(phi /\\ psi) -> (psi /\\ phi)" },
-  ],
+  steps: [{ _tag: "axiom", formulaText: "(phi /\\ psi) -> (psi /\\ phi)" }],
 };
 
 const at09DisjunctionCommute: ModelAnswer = {
   questId: "at-09",
-  steps: [
-    { _tag: "axiom", formulaText: "(phi \\/ psi) -> (psi \\/ phi)" },
-  ],
+  steps: [{ _tag: "axiom", formulaText: "(phi \\/ psi) -> (psi \\/ phi)" }],
 };
 
 const at10Transitivity: ModelAnswer = {
@@ -5359,9 +5355,7 @@ const at10Transitivity: ModelAnswer = {
 
 const at11DeMorgan2: ModelAnswer = {
   questId: "at-11",
-  steps: [
-    { _tag: "axiom", formulaText: "~(phi \\/ psi) -> (~phi /\\ ~psi)" },
-  ],
+  steps: [{ _tag: "axiom", formulaText: "~(phi \\/ psi) -> (~phi /\\ ~psi)" }],
 };
 
 // ============================================================
