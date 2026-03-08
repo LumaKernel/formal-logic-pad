@@ -5301,6 +5301,93 @@ const nd27ConjunctionDisjunctionDistribution: ModelAnswer = {
   ],
 };
 
+const nd28DoubleNegationElim: ModelAnswer = {
+  questId: "nd-28",
+  steps: [
+    { _tag: "assumption", formulaText: "~~phi" },
+    { _tag: "nd-dne", premiseIndex: 0 },
+    { _tag: "nd-implication-intro", premiseIndex: 1, dischargedIndex: 0 },
+  ],
+};
+
+const nd29ContrapositiveReverse: ModelAnswer = {
+  questId: "nd-29",
+  steps: [
+    { _tag: "assumption", formulaText: "~psi -> ~phi" },
+    { _tag: "assumption", formulaText: "phi" },
+    { _tag: "assumption", formulaText: "~psi" },
+    { _tag: "nd-implication-elim", leftIndex: 2, rightIndex: 0 },
+    { _tag: "nd-implication-elim", leftIndex: 1, rightIndex: 3 },
+    { _tag: "nd-implication-intro", premiseIndex: 4, dischargedIndex: 2 },
+    { _tag: "nd-dne", premiseIndex: 5 },
+    { _tag: "nd-implication-intro", premiseIndex: 6, dischargedIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 7, dischargedIndex: 0 },
+  ],
+};
+
+const nd30PeirceLaw: ModelAnswer = {
+  questId: "nd-30",
+  steps: [
+    { _tag: "assumption", formulaText: "(phi -> psi) -> phi" },
+    { _tag: "assumption", formulaText: "~phi" },
+    { _tag: "assumption", formulaText: "phi" },
+    { _tag: "nd-implication-elim", leftIndex: 2, rightIndex: 1 },
+    { _tag: "nd-efq", premiseIndex: 3, conclusionText: "psi" },
+    { _tag: "nd-implication-intro", premiseIndex: 4, dischargedIndex: 2 },
+    { _tag: "nd-implication-elim", leftIndex: 5, rightIndex: 0 },
+    { _tag: "nd-implication-elim", leftIndex: 6, rightIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 7, dischargedIndex: 1 },
+    { _tag: "nd-dne", premiseIndex: 8 },
+    { _tag: "nd-implication-intro", premiseIndex: 9, dischargedIndex: 0 },
+  ],
+};
+
+const nd31DisjunctionConjunctionDistribution: ModelAnswer = {
+  questId: "nd-31",
+  steps: [
+    { _tag: "assumption", formulaText: "(phi \\/ psi) /\\ (phi \\/ chi)" },
+    { _tag: "nd-conjunction-elim-left", premiseIndex: 0 },
+    { _tag: "nd-conjunction-elim-right", premiseIndex: 0 },
+    { _tag: "assumption", formulaText: "phi" },
+    {
+      _tag: "nd-disjunction-intro-left",
+      premiseIndex: 3,
+      addedRightText: "psi /\\ chi",
+    },
+    { _tag: "assumption", formulaText: "psi" },
+    { _tag: "assumption", formulaText: "phi" },
+    {
+      _tag: "nd-disjunction-intro-left",
+      premiseIndex: 6,
+      addedRightText: "psi /\\ chi",
+    },
+    { _tag: "assumption", formulaText: "chi" },
+    { _tag: "nd-conjunction-intro", leftIndex: 5, rightIndex: 8 },
+    {
+      _tag: "nd-disjunction-intro-right",
+      premiseIndex: 9,
+      addedLeftText: "phi",
+    },
+    {
+      _tag: "nd-disjunction-elim",
+      disjunctionIndex: 2,
+      leftCaseIndex: 7,
+      leftDischargedIndex: 6,
+      rightCaseIndex: 10,
+      rightDischargedIndex: 8,
+    },
+    {
+      _tag: "nd-disjunction-elim",
+      disjunctionIndex: 1,
+      leftCaseIndex: 4,
+      leftDischargedIndex: 3,
+      rightCaseIndex: 11,
+      rightDischargedIndex: 5,
+    },
+    { _tag: "nd-implication-intro", premiseIndex: 12, dischargedIndex: 0 },
+  ],
+};
+
 // ==========================================
 // TAB（タブロー式シーケント計算）模範解答
 // ==========================================
@@ -7149,6 +7236,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   nd25DeMorganDisjunctionReverse,
   nd26DeMorganConjunction,
   nd27ConjunctionDisjunctionDistribution,
+  nd28DoubleNegationElim,
+  nd29ContrapositiveReverse,
+  nd30PeirceLaw,
+  nd31DisjunctionConjunctionDistribution,
   // tab-basics
   tab01Identity,
   tab02DoubleNegationElim,

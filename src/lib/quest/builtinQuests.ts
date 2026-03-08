@@ -2768,6 +2768,113 @@ const qNd27ConjunctionDisjunctionDistribution: QuestDefinition = {
   version: 1,
 };
 
+const qNd28DoubleNegationElim: QuestDefinition = {
+  id: "nd-28",
+  category: "nd-basics",
+  title: "二重否定除去 (NK)",
+  description:
+    "¬¬φ → φ を自然演繹 NK で証明せよ。DNE 規則を直接適用する最も基本的な古典論理の証明。",
+  difficulty: 2,
+  systemPresetId: "nd-nk",
+  goals: [
+    {
+      formulaText: "~~phi -> phi",
+      label: "Goal: ¬¬φ → φ",
+    },
+  ],
+  hints: [
+    "¬¬φ を仮定します。",
+    "DNE 規則を適用して ¬¬φ から φ を導きます。",
+    "→I で仮定を解消して完成です。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "二重否定除去（DNE）は古典論理 NK の特徴的な規則。直観主義論理では使えない。",
+  order: 28,
+  version: 1,
+};
+
+const qNd29ContrapositiveReverse: QuestDefinition = {
+  id: "nd-29",
+  category: "nd-basics",
+  title: "対偶の逆 (NK)",
+  description:
+    "(¬ψ → ¬φ) → (φ → ψ) を自然演繹 NK で証明せよ。対偶の逆方向は DNE が必要。",
+  difficulty: 3,
+  systemPresetId: "nd-nk",
+  goals: [
+    {
+      formulaText: "(~psi -> ~phi) -> (phi -> psi)",
+      label: "Goal: (¬ψ → ¬φ) → (φ → ψ)",
+    },
+  ],
+  hints: [
+    "¬ψ → ¬φ と φ を仮定します。",
+    "¬ψ を仮定し、→E で ¬φ を導き、さらに →E で ⊥ を得ます。",
+    "→I で ¬¬ψ を作り、DNE で ψ を得ます。",
+    "→I を2回適用して仮定を解消します。",
+  ],
+  estimatedSteps: 9,
+  learningPoint:
+    "対偶の逆方向は古典論理でのみ成り立つ。背理法的な推論で ¬¬ψ を構成し DNE で ψ を得る。",
+  order: 29,
+  version: 1,
+};
+
+const qNd30PeirceLaw: QuestDefinition = {
+  id: "nd-30",
+  category: "nd-basics",
+  title: "ピアースの法則 (NK)",
+  description:
+    "((φ → ψ) → φ) → φ を自然演繹 NK で証明せよ。古典論理の有名な定理。",
+  difficulty: 3,
+  systemPresetId: "nd-nk",
+  goals: [
+    {
+      formulaText: "((phi -> psi) -> phi) -> phi",
+      label: "Goal: ((φ → ψ) → φ) → φ",
+    },
+  ],
+  hints: [
+    "(φ → ψ) → φ を仮定します。",
+    "¬φ を仮定し、φ を仮定して ⊥ を導きます。",
+    "EFQ で ψ を得て、→I で φ → ψ を作ります。",
+    "→E で φ を得て、¬φ との矛盾から ¬¬φ を作り、DNE で φ を得ます。",
+  ],
+  estimatedSteps: 11,
+  learningPoint:
+    "ピアースの法則は直観主義論理では証明できない古典論理固有の定理。EFQ と DNE の組み合わせが鍵。",
+  order: 30,
+  version: 1,
+};
+
+const qNd31DisjunctionConjunctionDistribution: QuestDefinition = {
+  id: "nd-31",
+  category: "nd-basics",
+  title: "∨∧分配律の逆 (NM)",
+  description:
+    "(φ ∨ ψ) ∧ (φ ∨ χ) → φ ∨ (ψ ∧ χ) を自然演繹 NM で証明せよ。∨E を2回使用する。",
+  difficulty: 3,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "(phi \\/ psi) /\\ (phi \\/ chi) -> phi \\/ (psi /\\ chi)",
+      label: "Goal: (φ ∨ ψ) ∧ (φ ∨ χ) → φ ∨ (ψ ∧ χ)",
+    },
+  ],
+  hints: [
+    "(φ ∨ ψ) ∧ (φ ∨ χ) を仮定し、∧E で φ ∨ ψ と φ ∨ χ を取り出します。",
+    "φ ∨ ψ に ∨E を適用して場合分けします。",
+    "φ の場合: 直接 ∨I_L で φ ∨ (ψ ∧ χ)。",
+    "ψ の場合: さらに φ ∨ χ に ∨E を適用。φ なら ∨I_L、χ なら ψ ∧ χ を ∧I で作り ∨I_R。",
+  ],
+  estimatedSteps: 14,
+  learningPoint:
+    "∨E のネスト（二重場合分け）のテクニック。外側の ∨E の右ケースで内側の ∨E を使う構造。",
+  order: 31,
+  version: 1,
+};
+
 // --- TABクエスト: タブロー法の基礎 ---
 
 const qTab01Identity: QuestDefinition = {
@@ -4731,6 +4838,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qNd25DeMorganDisjunctionReverse,
   qNd26DeMorganConjunction,
   qNd27ConjunctionDisjunctionDistribution,
+  qNd28DoubleNegationElim,
+  qNd29ContrapositiveReverse,
+  qNd30PeirceLaw,
+  qNd31DisjunctionConjunctionDistribution,
   qTab01Identity,
   qTab02DoubleNegationElim,
   qTab03ExcludedMiddle,
