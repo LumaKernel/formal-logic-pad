@@ -104,6 +104,29 @@
 
 ---
 
+## 2026-03-09 - AT分析的タブロー量化子クエスト追加（at-16〜at-19）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8562 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8574 tests
+- 変更内容:
+  - at-16: ∃x.P(x) → ¬∀x.¬P(x) (difficulty 2) — δ規則(T∃)で固有変数導入 + γ規則(T∀)で具体項代入
+  - at-17: ∀x.(P(x)→Q(x)) → (∀x.P(x)→∀x.Q(x)) (difficulty 2) — γ規則×2 + F→β規則分解
+  - at-18: ∀x.(P(x)∧Q(x)) → (∀x.P(x)∧∀x.Q(x)) (difficulty 2) — γ規則 + F∧β規則
+  - at-19: (∃x.P(x) ∨ ∃x.Q(x)) → ∃x.(P(x) ∨ Q(x)) (difficulty 3) — T∨β規則 + δ規則
+  - at-basics カテゴリ: 15問→19問に拡充
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 199→203
+- テスト: 8574 passed (243 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/quest-catalog-203-overview.png, .screenshots/hub-quests-tab-203.png
+- **今後のイテレーションへの学び:**
+  - ATのγ規則(T∀, F∃)は任意項代入で繰り返し適用可能、δ規則(T∃, F∀)は固有変数導入で1回のみ
+  - δ規則で導入した固有変数をγ規則の具体項に使うのが基本パターン
+  - F∃はγ規則（任意項代入）なので、T∨β分岐の各枝で異なる固有変数を渡せる
+  - at-basicsは19問に到達。次のステップ: タブロー(tab)カテゴリにも述語論理クエスト追加、またはpred拡充が候補
+  - 現在のカテゴリ別クエスト数: prop34, pred12, eq6, peano12, group19, nd31, tab18, at19, sc44（203合計）
+---
+
 ## 2026-03-09 - 群論の等号推論クエスト追加（group-16〜group-19）
 - ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8526 tests
 - **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**
