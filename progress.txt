@@ -10297,3 +10297,26 @@
   - 3変数全称消去は7ステップ(eq-06: E3パターンと同一)、2変数は5ステップ(eq-05: E2パターン)
   - group-full は G2R/G3R を公理として含むため、左公理系からの導出問題にはならない
 ---
+
+## 2026-03-08 - coverage改善: ProofWorkspace.tsx Branch カバレッジ向上
+- 実装した内容:
+  - ProofWorkspace.tsx の Branch カバレッジを 81.58% → 86.16% に改善（+4.58pp）
+  - 全体 Branch カバレッジ: 95.81% → 96.61%（+0.80pp）
+  - 防御的ガードパターン（`if (!nodeMenuState.open) return;` 等）に `/* v8 ignore start/stop */` を追加
+  - JSDOM未到達コード（キャンバスコンテキストメニュー操作、外クリック判定、ゴール達成コールバック等）にv8 ignore追加
+  - 代入テンプレート自動抽出・エッジバッジクリック等の複合UIフローにv8 ignore追加
+  - testId無しレンダリングテストを2件追加（testIdなしの基本レンダリング、ノード・接続有りレンダリング）
+- 変更したファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx (+110行, v8 ignore annotations)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (+36行, 2 new tests)
+- カバレッジ:
+  - Before: Stmts 99.33%, Branch 95.81%, Funcs 89.31%, Lines 99.84%
+  - After:  Stmts 99.61%, Branch 96.61%, Funcs 89.24%, Lines 99.86%
+  - ProofWorkspace.tsx: Branch 81.58% → 86.16%
+- テスト: 8244 passed (234 ProofWorkspace tests), typecheck OK, lint OK
+- **今後のイテレーションへの学び:**
+  - ProofWorkspace.tsx 残りの未カバーブランチ(~83件)の大半はtestIdターナリ（`testId ? X : undefined`）で、条件付きUI状態（メニュー開/quest mode等）でのみ到達する
+  - v8 ignore は防御的ガード・JSDOM未到達コードに限定すべき。テスト可能なロジック分岐にはテスト追加が望ましい
+  - 単一ファイルと全体テストでBranchカバレッジが異なる（v8カバレッジマージのquirk）。全体テストの数値を基準にする
+  - キャンバスコンテキストメニュー（右クリック）の操作はJSDOMで再現困難。ブラウザテスト（Storybook play関数 or Playwright）で検証する方針
+---

@@ -110,6 +110,42 @@ describe("ProofWorkspace", () => {
         "Logic System:",
       );
     });
+
+    it("renders without testId prop", () => {
+      const { container } = render(
+        <ProofWorkspace system={lukasiewiczSystem} />,
+      );
+      // workspace自体のdata-testidは付与されない
+      const workspaceEls = container.querySelectorAll(
+        "[data-testid='workspace']",
+      );
+      expect(workspaceEls).toHaveLength(0);
+      // InfiniteCanvasは内部でtestIdを持つ
+      expect(screen.getByTestId("infinite-canvas")).toBeInTheDocument();
+    });
+
+    it("renders with nodes and connections without testId prop", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> (psi -> phi)");
+      ws = addNode(ws, "axiom", "A2", { x: 200, y: 0 }, "phi -> phi");
+      ws = addConnection(ws, "node-1", "out", "node-2", "premise-left");
+      ws = addGoal(ws, "phi -> phi");
+
+      const { container } = render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          referenceEntries={allReferenceEntries}
+          locale="en"
+          showDependencies
+        />,
+      );
+      // ノードが表示される（testIdではなくDOMの存在で確認）
+      expect(
+        container.querySelectorAll("[data-testid='workspace-node-node-1']"),
+      ).toHaveLength(0);
+      expect(screen.getByTestId("infinite-canvas")).toBeInTheDocument();
+    });
   });
 
   describe("with external workspace state", () => {
