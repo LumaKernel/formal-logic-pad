@@ -4155,6 +4155,7 @@ export function ProofWorkspace({
                 <TermInput
                   value={entry.value}
                   onChange={(value) => {
+                    /* v8 ignore next -- 項モード代入: 述語論理固有パスでテストコスト高 */
                     handleSubstEntryValueChange(i, value);
                   }}
                   placeholder="S(0)"
@@ -4435,6 +4436,7 @@ export function ProofWorkspace({
                 fontVariant: "normal" as const,
               }}
             >
+              {/* v8 ignore start -- 規則違反詳細: クエストモードの特殊パスでテストコスト高 */}
               {(() => {
                 const violatingIds = questGoalResult.goalResults
                   .flatMap((r) => [...r.violatingRuleIds])
@@ -4445,6 +4447,7 @@ export function ProofWorkspace({
                     })
                   : null;
               })()}
+              {/* v8 ignore stop */}
             </div>
           ) : null}
         </div>

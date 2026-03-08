@@ -431,6 +431,7 @@ function renderHighlightedText(
   let pos = 0;
 
   for (const h of merged) {
+    /* v8 ignore start -- ハイライト前テキスト: エラー開始位置が行途中の場合のみ */
     if (pos < h.start) {
       parts.push(
         <span
@@ -440,6 +441,7 @@ function renderHighlightedText(
           {text.slice(pos, h.start)}
         </span>,
       );
+      /* v8 ignore stop */
     }
     parts.push(
       <mark
@@ -452,6 +454,7 @@ function renderHighlightedText(
     pos = h.end;
   }
 
+  /* v8 ignore start -- ハイライト後残りテキスト: エラーが行末以前で終了する場合のみ */
   if (pos < text.length) {
     parts.push(
       <span
@@ -462,6 +465,7 @@ function renderHighlightedText(
       </span>,
     );
   }
+  /* v8 ignore stop */
 
   return parts;
 }

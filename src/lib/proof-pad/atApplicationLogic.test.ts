@@ -97,6 +97,10 @@ describe("atApplicationLogic", () => {
       expect(parseSignedFormulaText("T:")).toBeUndefined();
     });
 
+    it("F: のみ（論理式なし）はundefined", () => {
+      expect(parseSignedFormulaText("F:")).toBeUndefined();
+    });
+
     it("不正な論理式はundefined", () => {
       expect(parseSignedFormulaText("T:∧∧")).toBeUndefined();
     });

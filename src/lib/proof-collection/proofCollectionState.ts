@@ -499,7 +499,9 @@ export function importProofEntry(
   const newInferenceEdges: readonly InferenceEdge[] = entry.inferenceEdges
     .map((edge): InferenceEdge | undefined => {
       const newConclusionId = idMap.get(edge.conclusionNodeId);
+      /* v8 ignore start -- 防御的ガード: idMapは全ノードを含むため通常到達しない */
       if (newConclusionId === undefined) return undefined;
+      /* v8 ignore stop */
       return remapEdgeNodeIds(edge, (id) => idMap.get(id));
     })
     .filter((e) => e !== undefined);

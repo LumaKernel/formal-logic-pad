@@ -549,7 +549,9 @@ export function createAtEdgeFromResult(
         _tag: "at-closed",
         ruleId: "closure",
         conclusionNodeId,
+        /* v8 ignore start -- 防御的フォールバック: closureは常にcontradictionNodeIdが渡される */
         contradictionNodeId: contradictionNodeId ?? "",
+        /* v8 ignore stop */
         conclusionText: params.signedFormulaText,
       };
   }
