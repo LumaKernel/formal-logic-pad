@@ -3641,6 +3641,132 @@ const prop32DisjElim: ModelAnswer = {
 };
 
 // ============================================================
+// equality-basics: 等号付き述語論理の基礎
+// E1: ∀x. x = x
+// E2: ∀x.∀y. x = y → y = x
+// E3: ∀x.∀y.∀z. x = y → (y = z → x = z)
+// ============================================================
+
+/**
+ * eq-01: 反射律 (E1)
+ *
+ * E1を直接配置。1ステップ。
+ */
+const eq01Reflexivity: ModelAnswer = {
+  questId: "eq-01",
+  steps: [{ _tag: "axiom", formulaText: "all x. x = x" }],
+};
+
+/**
+ * eq-02: 対称律 (E2)
+ *
+ * E2を直接配置。1ステップ。
+ */
+const eq02Symmetry: ModelAnswer = {
+  questId: "eq-02",
+  steps: [{ _tag: "axiom", formulaText: "all x. all y. x = y -> y = x" }],
+};
+
+/**
+ * eq-03: 推移律 (E3)
+ *
+ * E3を直接配置。1ステップ。
+ */
+const eq03Transitivity: ModelAnswer = {
+  questId: "eq-03",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
+    },
+  ],
+};
+
+/**
+ * eq-04: 具体的な反射律 a = a
+ *
+ * E1 + A4(x→a) + MP。3ステップ。
+ * 1. E1: ∀x. x = x
+ * 2. A4[x→a]: (∀x. x=x) → a=a
+ * 3. MP(0,1): a = a
+ */
+const eq04ConcreteReflexivity: ModelAnswer = {
+  questId: "eq-04",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. x = x" },
+    { _tag: "axiom", formulaText: "(all x. x = x) -> a = a" },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * eq-05: 具体的な対称律 a = b → b = a
+ *
+ * E2 + A4(x→a) + MP + A4(y→b) + MP。5ステップ。
+ * 1. E2: ∀x.∀y. x = y → y = x
+ * 2. A4[x→a]: (∀x.∀y. x=y → y=x) → (∀y. a=y → y=a)
+ * 3. MP(0,1): ∀y. a = y → y = a
+ * 4. A4[y→b]: (∀y. a=y → y=a) → (a=b → b=a)
+ * 5. MP(2,3): a = b → b = a
+ */
+const eq05ConcreteSymmetry: ModelAnswer = {
+  questId: "eq-05",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. all y. x = y -> y = x" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. all y. x = y -> y = x) -> all y. a = y -> y = a",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    {
+      _tag: "axiom",
+      formulaText: "(all y. a = y -> y = a) -> (a = b -> b = a)",
+    },
+    { _tag: "mp", leftIndex: 2, rightIndex: 3 },
+  ],
+};
+
+/**
+ * eq-06: 具体的な推移律 a = b → (b = c → a = c)
+ *
+ * E3 + A4(x→a) + MP + A4(y→b) + MP + A4(z→c) + MP。7ステップ。
+ * 1. E3: ∀x.∀y.∀z. x = y → (y = z → x = z)
+ * 2. A4[x→a]: ... → ∀y.∀z. a = y → (y = z → a = z)
+ * 3. MP(0,1): ∀y.∀z. a = y → (y = z → a = z)
+ * 4. A4[y→b]: ... → ∀z. a = b → (b = z → a = z)
+ * 5. MP(2,3): ∀z. a = b → (b = z → a = z)
+ * 6. A4[z→c]: ... → a = b → (b = c → a = c)
+ * 7. MP(4,5): a = b → (b = c → a = c)
+ */
+const eq06ConcreteTransitivity: ModelAnswer = {
+  questId: "eq-06",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. all z. x = y -> (y = z -> x = z)) -> all y. all z. a = y -> (y = z -> a = z)",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. all z. a = y -> (y = z -> a = z)) -> all z. a = b -> (b = z -> a = z)",
+    },
+    { _tag: "mp", leftIndex: 2, rightIndex: 3 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all z. a = b -> (b = z -> a = z)) -> (a = b -> (b = c -> a = c))",
+    },
+    { _tag: "mp", leftIndex: 4, rightIndex: 5 },
+  ],
+};
+
+// ============================================================
 // peano-basics: ペアノ算術の基礎（公理配置のみ）
 // PA1: ∀x. ¬(S(x) = 0)
 // PA2: ∀x.∀y. S(x) = S(y) → x = y
@@ -5545,6 +5671,13 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   prop31ConjElimRight,
   prop24DeMorgan,
   prop32DisjElim,
+  // equality-basics
+  eq01Reflexivity,
+  eq02Symmetry,
+  eq03Transitivity,
+  eq04ConcreteReflexivity,
+  eq05ConcreteSymmetry,
+  eq06ConcreteTransitivity,
   // peano-basics
   peano01PA1,
   peano02PA3,
