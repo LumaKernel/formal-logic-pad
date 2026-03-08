@@ -1623,6 +1623,110 @@ const qG11CommutativityInstance: QuestDefinition = {
   version: 1,
 };
 
+const qG12LeftIdentityCompound: QuestDefinition = {
+  id: "group-12",
+  category: "group-proofs",
+  title: "e·(a·b) = a·b",
+  description:
+    "複合項a·bに対して左単位元G2Lを適用せよ。∀消去で項変数を複合項に代入するパターンを学ぶ。",
+  difficulty: 2,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "e * (a * b) = a * b",
+      label: "Goal: e·(a·b) = a·b",
+    },
+  ],
+  hints: [
+    "G2L: ∀x. e * x = x を配置します。",
+    "A4（∀消去）でxを複合項 a*b に代入します。",
+    "手順: G2L(公理) → A4インスタンス((∀x. e*x=x) → e*(a*b)=a*b) → MP",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "∀消去では変数を単一項だけでなく複合項（a*bなど）にも代入できる。これは項の構造に関する重要な性質。",
+  order: 6,
+  version: 1,
+};
+
+const qG13RightIdentityCompound: QuestDefinition = {
+  id: "group-13",
+  category: "group-proofs",
+  title: "(a·b)·e = a·b",
+  description:
+    "複合項a·bに対して右単位元G2Rを適用せよ。∀消去で複合項を代入するパターン。",
+  difficulty: 2,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "(a * b) * e = a * b",
+      label: "Goal: (a·b)·e = a·b",
+    },
+  ],
+  hints: [
+    "G2R: ∀x. x * e = x を配置します。",
+    "A4（∀消去）でxを複合項 a*b に代入します。",
+    "手順: G2R(公理) → A4インスタンス((∀x. x*e=x) → (a*b)*e=a*b) → MP",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "G2R（右単位元）もG2L（左単位元）と同様に複合項に適用できる。両側公理系ではどちらも自由に使える。",
+  order: 7,
+  version: 1,
+};
+
+const qG14LeftInverseCompound: QuestDefinition = {
+  id: "group-14",
+  category: "group-proofs",
+  title: "i(a·b)·(a·b) = e",
+  description:
+    "複合項a·bの左逆元を適用せよ。逆元関数iも複合項に適用でき、i(a·b)·(a·b) = e が成り立つ。",
+  difficulty: 2,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "i(a * b) * (a * b) = e",
+      label: "Goal: i(a·b)·(a·b) = e",
+    },
+  ],
+  hints: [
+    "G3L: ∀x. i(x) * x = e を配置します。",
+    "A4（∀消去）でxを複合項 a*b に代入します。",
+    "手順: G3L(公理) → A4インスタンス((∀x. i(x)*x=e) → i(a*b)*(a*b)=e) → MP",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "逆元関数iは任意の項に適用可能。i(a*b)は「a*bの逆元」を表し、必ずしもi(b)*i(a)とは限らない（一般の群では反転則が別途必要）。",
+  order: 8,
+  version: 1,
+};
+
+const qG15RightInverseCompound: QuestDefinition = {
+  id: "group-15",
+  category: "group-proofs",
+  title: "(a·b)·i(a·b) = e",
+  description:
+    "複合項a·bの右逆元を適用せよ。G3Rの∀消去で複合項に適用するパターン。",
+  difficulty: 2,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "(a * b) * i(a * b) = e",
+      label: "Goal: (a·b)·i(a·b) = e",
+    },
+  ],
+  hints: [
+    "G3R: ∀x. x * i(x) = e を配置します。",
+    "A4（∀消去）でxを複合項 a*b に代入します。",
+    "手順: G3R(公理) → A4インスタンス((∀x. x*i(x)=e) → (a*b)*i(a*b)=e) → MP",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "左逆元G3Lと右逆元G3Rは対称的。両側公理系では両方を自由に使え、i(t)*t=eとt*i(t)=eの両方が公理から直接導ける。",
+  order: 9,
+  version: 1,
+};
+
 // --- 述語論理の基礎 ---
 
 const qPred01UniversalElim: QuestDefinition = {
@@ -4151,6 +4255,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qG09AssociativityInstance,
   qG10RightInverseInstance,
   qG11CommutativityInstance,
+  qG12LeftIdentityCompound,
+  qG13RightIdentityCompound,
+  qG14LeftInverseCompound,
+  qG15RightInverseCompound,
   qPred01UniversalElim,
   qPred02IdentityQuantified,
   qPred03UniversalSwap,

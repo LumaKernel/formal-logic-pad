@@ -4207,6 +4207,86 @@ const group11CommutativityInstance: ModelAnswer = {
   ],
 };
 
+/**
+ * group-12: e * (a * b) = a * b
+ *
+ * G2L + A4(x→a*b) + MP。3ステップ。
+ * 0. G2L: ∀x. e * x = x
+ * 1. A4[x→a*b]: (∀x. e*x=x) → e*(a*b)=a*b
+ * 2. MP(0,1): e * (a * b) = a * b
+ */
+const group12LeftIdentityCompound: ModelAnswer = {
+  questId: "group-12",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. e * x = x" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. e * x = x) -> e * (a * b) = a * b",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * group-13: (a * b) * e = a * b
+ *
+ * G2R + A4(x→a*b) + MP。3ステップ。
+ * 0. G2R: ∀x. x * e = x
+ * 1. A4[x→a*b]: (∀x. x*e=x) → (a*b)*e=a*b
+ * 2. MP(0,1): (a * b) * e = a * b
+ */
+const group13RightIdentityCompound: ModelAnswer = {
+  questId: "group-13",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. x * e = x" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. x * e = x) -> (a * b) * e = a * b",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * group-14: i(a * b) * (a * b) = e
+ *
+ * G3L + A4(x→a*b) + MP。3ステップ。
+ * 0. G3L: ∀x. i(x) * x = e
+ * 1. A4[x→a*b]: (∀x. i(x)*x=e) → i(a*b)*(a*b)=e
+ * 2. MP(0,1): i(a * b) * (a * b) = e
+ */
+const group14LeftInverseCompound: ModelAnswer = {
+  questId: "group-14",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. i(x) * x = e" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. i(x) * x = e) -> i(a * b) * (a * b) = e",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * group-15: (a * b) * i(a * b) = e
+ *
+ * G3R + A4(x→a*b) + MP。3ステップ。
+ * 0. G3R: ∀x. x * i(x) = e
+ * 1. A4[x→a*b]: (∀x. x*i(x)=e) → (a*b)*i(a*b)=e
+ * 2. MP(0,1): (a * b) * i(a * b) = e
+ */
+const group15RightInverseCompound: ModelAnswer = {
+  questId: "group-15",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. x * i(x) = e" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. x * i(x) = e) -> (a * b) * i(a * b) = e",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
 // ============================================================
 // predicate-basics: 述語論理の基礎（A1-A5 + MP + Gen）
 // A4: (∀x.φ) → φ[t/x]
@@ -6558,6 +6638,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   group09AssociativityInstance,
   group10RightInverseInstance,
   group11CommutativityInstance,
+  group12LeftIdentityCompound,
+  group13RightIdentityCompound,
+  group14LeftInverseCompound,
+  group15RightInverseCompound,
   // predicate-basics
   pred01UniversalElim,
   pred02IdentityQuantified,
