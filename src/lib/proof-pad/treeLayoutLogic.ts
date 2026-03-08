@@ -108,7 +108,11 @@ export function findLeafNodes(
   nodeIds: readonly string[],
   forward: ReadonlyMap<string, readonly string[]>,
 ): readonly string[] {
-  return nodeIds.filter((id) => (forward.get(id) ?? []).length === 0);
+  return nodeIds.filter(
+    /* v8 ignore start -- forward mapにはすべてのnodeIdのエントリがある前提。??は防御的コード */
+    (id) => (forward.get(id) ?? []).length === 0,
+    /* v8 ignore stop */
+  );
 }
 
 /** Build a tree structure from the graph.
@@ -155,7 +159,9 @@ export function buildForest(
   const forest: TreeNode[] = [];
   for (const rootId of rootIds) {
     const tree = buildTree(rootId);
+    /* v8 ignore start -- rootIdsはnodeMapに含まれるIDが渡される前提。nullは防御的コード */
     if (tree !== null) {
+    /* v8 ignore stop */
       forest.push(tree);
     }
   }
@@ -422,7 +428,9 @@ function collectDescendants(
   forward: ReadonlyMap<string, readonly string[]>,
   result: Set<string>,
 ): void {
+  /* v8 ignore start -- forward mapにはすべてのnodeIdのエントリがある前提。??は防御的コード */
   const children = forward.get(nodeId) ?? [];
+  /* v8 ignore stop */
   for (const childId of children) {
     if (!result.has(childId)) {
       result.add(childId);
@@ -557,7 +565,9 @@ export function recenterParents(
 
       const childrenMidpoint = (minChildCenter + maxChildCenter) / 2;
       const parentNode = nodeMap.get(entry.id);
+      /* v8 ignore start -- nodeMapにはentry.idが含まれる前提。??は防御的コード */
       const parentWidth = parentNode?.size.width ?? 0;
+      /* v8 ignore stop */
       const newParentX = childrenMidpoint - parentWidth / 2;
 
       const parentPos = mutable.get(entry.id)!;

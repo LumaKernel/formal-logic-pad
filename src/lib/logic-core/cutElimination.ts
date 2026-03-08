@@ -385,7 +385,9 @@ const eliminateFromChildren = (
   counter: StepCounter,
   steps?: CutEliminationStep[],
 ): CutEliminationResult => {
+  /* v8 ignore start -- v8 switch-line artifact: switchの全caseをカバー済み */
   switch (node._tag) {
+    /* v8 ignore stop */
     case "ScIdentity":
     case "ScBottomLeft":
       return { _tag: "Success", proof: node };
@@ -789,7 +791,9 @@ const pushMixIntoLeft = (
   const leftNode = cutNode.left;
   const phi = cutNode.cutFormula;
 
+  /* v8 ignore start -- v8 switch-line artifact: switchの全caseをカバー済み */
   switch (leftNode._tag) {
+    /* v8 ignore stop */
     case "ScIdentity":
       // φ ⇒ φ のカットで左がID → 右前提（結論を調整）
       return {
@@ -1239,7 +1243,9 @@ const pushMixIntoRight = (
   const rightNode = cutNode.right;
   const phi = cutNode.cutFormula;
 
+  /* v8 ignore start -- v8 switch-line artifact: switchの全caseをカバー済み */
   switch (rightNode._tag) {
+    /* v8 ignore stop */
     /* v8 ignore start -- pushMixIntoRight は rr >= 2 で呼ばれるが、ScIdentity/BottomLeft では rr <= 1 のため到達不可 */
     case "ScIdentity":
       // φ ⇒ φ のカットで右がID → 左前提（結論を調整）

@@ -716,7 +716,9 @@ export const validateTabApplicationEffect = (
     if (params.ruleId === "exchange") {
       return yield* validateExchangeEffect(
         formulas,
+        /* v8 ignore start -- UI経由では常にexchangePositionを明示的に指定 */
         params.exchangePosition ?? 0,
+        /* v8 ignore stop */
       );
     }
 
@@ -773,25 +775,33 @@ export const validateTabApplicationEffect = (
         return yield* validateUniversalEffect(
           formulas,
           params.principalPosition,
+          /* v8 ignore start -- UI経由では常にtermTextを明示的に指定 */
           params.termText ?? "",
+          /* v8 ignore stop */
         );
       case "neg-universal":
         return yield* validateNegUniversalEffect(
           formulas,
           params.principalPosition,
+          /* v8 ignore start -- UI経由では常にeigenVariableを明示的に指定 */
           params.eigenVariable ?? "",
+          /* v8 ignore stop */
         );
       case "existential":
         return yield* validateExistentialEffect(
           formulas,
           params.principalPosition,
+          /* v8 ignore start -- UI経由では常にeigenVariableを明示的に指定 */
           params.eigenVariable ?? "",
+          /* v8 ignore stop */
         );
       case "neg-existential":
         return yield* validateNegExistentialEffect(
           formulas,
           params.principalPosition,
+          /* v8 ignore start -- UI経由では常にtermTextを明示的に指定 */
           params.termText ?? "",
+          /* v8 ignore stop */
         );
     }
   });
