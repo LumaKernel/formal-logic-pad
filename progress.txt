@@ -104,6 +104,27 @@
 
 ---
 
+## 2026-03-09 - 分析的タブロー(AT)クエスト追加
+- at-basicsカテゴリにATクエスト4問追加（141→145クエスト、at-basics: 7→11問）
+  - at-08: 連言の交換律 (difficulty 1) - (φ ∧ ψ) → (ψ ∧ φ)
+  - at-09: 選言の交換律 (difficulty 2) - (φ ∨ ψ) → (ψ ∨ φ)
+  - at-10: 推移律 (difficulty 2) - (φ → ψ) → ((ψ → χ) → (φ → χ))
+  - at-11: ド・モルガン2 (difficulty 2) - ¬(φ ∨ ψ) → (¬φ ∧ ¬ψ)
+- テスト: 243ファイル、8400テスト全パス（8388→8400: +12）
+- カバレッジ: Stmts 99.95%, Branch 100%, Funcs 89.07%, Lines 100%（維持）
+- 変更ファイル:
+  - `src/lib/quest/builtinQuests.ts` (4クエスト定義追加)
+  - `src/lib/quest/builtinModelAnswers.ts` (4模範解答追加)
+  - `src/lib/quest/builtinQuests.test.ts` (カウント更新 141→145)
+- スクリーンショット:
+  - `.screenshots/at-quests-catalog.png` (QuestCatalogストーリー確認)
+- **今後のイテレーションへの学び:**
+  - ATクエストの模範解答はSCと同じく`axiom`ステップ（ゴール式をaxiomノードとして配置）パターン
+  - AT系はα規則（非分岐: T∧, F∨, F→, T¬, F¬）とβ規則（分岐: T∨, F∧, T→）の使い分けが学習ポイント
+  - Storybookのパスは `quest-questcatalog--default` の形式（Storybook 10ではURLパスの命名規則が変わった）
+  - 現在のカテゴリ別クエスト数: prop系29, pred6, eq6, peano12, group11, nd23, tab10, at11, sc32（145合計）
+---
+
 ## 2026-03-09 - LK体系固有クエスト追加
 - sc-basicsカテゴリにLK体系固有クエスト4問追加（137→141クエスト、sc-basics: 22→26問）
   - sc-23: LK: パースの法則 (difficulty 3) - ((φ → ψ) → φ) → φ
