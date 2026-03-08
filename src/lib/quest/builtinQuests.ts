@@ -1042,6 +1042,106 @@ const qEq06ConcreteTransitivity: QuestDefinition = {
   version: 1,
 };
 
+const qEq07A1GenIntro: QuestDefinition = {
+  id: "eq-07",
+  category: "equality-basics",
+  title: "A1とGenの組合せ",
+  description:
+    "∀x. x = x → (x = x → x = x) を証明せよ。A1のインスタンスをGenで全称化する。",
+  difficulty: 1,
+  systemPresetId: "equality",
+  goals: [
+    {
+      formulaText: "all x. x = x -> (x = x -> x = x)",
+      label: "Goal: ∀x. x = x → (x = x → x = x)",
+    },
+  ],
+  hints: [
+    "A1のインスタンスとして x = x → (x = x → x = x) を配置します。",
+    "Gen[x] で全称化すれば完成です。",
+  ],
+  estimatedSteps: 2,
+  learningPoint:
+    "A1は任意の論理式に適用可能。等号式もφやψの代わりに使える。Genで自由変数を全称化する基本パターン。",
+  order: 7,
+  version: 1,
+};
+
+const qEq08IdentityEquality: QuestDefinition = {
+  id: "eq-08",
+  category: "equality-basics",
+  title: "恒等律（等号版）",
+  description: "a = b → a = b を証明せよ。恒等律 φ → φ の等号インスタンス。",
+  difficulty: 2,
+  systemPresetId: "equality",
+  goals: [
+    {
+      formulaText: "a = b -> a = b",
+      label: "Goal: a = b → a = b",
+    },
+  ],
+  hints: [
+    "prop-01の恒等律と同じ構造です。φ = (a = b) として A2+A1+MP パターンを適用します。",
+    "A2[φ/(a=b), ψ/((a=b)→(a=b)), χ/(a=b)] を使います。",
+    "A1でφ→(ψ→φ)の2パターンを組み合わせます。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "恒等律 φ → φ は任意の論理式φに対して成り立つ。等号式でも同じ A2+A1+MP パターンで証明できる。",
+  order: 8,
+  version: 1,
+};
+
+const qEq09IdentityComplex: QuestDefinition = {
+  id: "eq-09",
+  category: "equality-basics",
+  title: "複合恒等律",
+  description:
+    "(a = a → b = b) → (a = a → b = b) を証明せよ。含意で結合された等号式の恒等律。",
+  difficulty: 2,
+  systemPresetId: "equality",
+  goals: [
+    {
+      formulaText: "(a = a -> b = b) -> (a = a -> b = b)",
+      label: "Goal: (a = a → b = b) → (a = a → b = b)",
+    },
+  ],
+  hints: [
+    "恒等律 φ → φ のインスタンスです。φ = (a = a → b = b) として適用します。",
+    "A2+A1+MPのパターンはφの形に依存しません。prop-01と同じ手順です。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "恒等律パターンはφがどんなに複雑でも同じ5ステップで証明できる。含意で結合された等号式にも適用可能。",
+  order: 9,
+  version: 1,
+};
+
+const qEq10UniversalIdentity: QuestDefinition = {
+  id: "eq-10",
+  category: "equality-basics",
+  title: "全称化された恒等律",
+  description: "∀x.∀y. x = y → x = y を証明せよ。恒等律をGenで二重全称化する。",
+  difficulty: 3,
+  systemPresetId: "equality",
+  goals: [
+    {
+      formulaText: "all x. all y. x = y -> x = y",
+      label: "Goal: ∀x.∀y. x = y → x = y",
+    },
+  ],
+  hints: [
+    "まず恒等律パターンで x = y → x = y を導出します（5ステップ）。",
+    "Gen[y] で ∀y. x = y → x = y に全称化します。",
+    "Gen[x] で ∀x.∀y. x = y → x = y に全称化します。",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "恒等律 + Gen による全称化の組合せ。内側の量化子(y)から先にGenし、外側(x)を後にGenする。Gen適用時は自由変数の確認が重要。",
+  order: 10,
+  version: 1,
+};
+
 // --- ペアノ算術の基礎 ---
 
 const qPA01SuccessorNotZero: QuestDefinition = {
@@ -5751,6 +5851,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qEq04ConcreteReflexivity,
   qEq05ConcreteSymmetry,
   qEq06ConcreteTransitivity,
+  qEq07A1GenIntro,
+  qEq08IdentityEquality,
+  qEq09IdentityComplex,
+  qEq10UniversalIdentity,
   qPA01SuccessorNotZero,
   qPA02AdditionBase,
   qPA03MultiplicationBase,
