@@ -37,6 +37,7 @@ export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
  * - "nd-basics": 自然演繹の基礎（NM/NJ/NK）
  * - "tab-basics": タブロー法の基礎（TAB命題論理）
  * - "at-basics": 分析的タブローの基礎（AT命題論理）
+ * - "predicate-advanced": 述語論理の上級
  * - "sc-cut-elimination": カット除去の体験（カット規則の活用と除去）
  */
 export type QuestCategory =
@@ -45,6 +46,7 @@ export type QuestCategory =
   | "propositional-negation"
   | "propositional-advanced"
   | "predicate-basics"
+  | "predicate-advanced"
   | "equality-basics"
   | "peano-basics"
   | "peano-arithmetic"
@@ -98,68 +100,74 @@ export const questCategories: readonly QuestCategoryMeta[] = [
     order: 5,
   },
   {
+    id: "predicate-advanced",
+    label: "述語論理の上級",
+    description: "量化子の相互作用と否定の操作を含む高難度の証明。",
+    order: 6,
+  },
+  {
     id: "equality-basics",
     label: "等号付き述語論理",
     description: "等号公理を含む証明。",
-    order: 6,
+    order: 7,
   },
   {
     id: "peano-basics",
     label: "ペアノ算術の基礎",
     description: "PA公理（PA1-PA6）を直接利用する基本的な証明。",
-    order: 7,
+    order: 8,
   },
   {
     id: "peano-arithmetic",
     label: "ペアノ算術の推論",
     description: "PA公理を組み合わせた算術的性質の証明。",
-    order: 8,
+    order: 9,
   },
   {
     id: "group-basics",
     label: "群論の基礎",
     description: "群公理（G1-G3）を直接利用する基本的な証明。",
-    order: 9,
+    order: 10,
   },
   {
     id: "group-proofs",
     label: "群論の推論",
     description: "群公理を組み合わせた群の性質の証明。",
-    order: 10,
+    order: 11,
   },
   {
     id: "nd-basics",
     label: "自然演繹の基礎",
     description: "自然演繹体系（NM/NJ/NK）での仮定の導入・解消による証明。",
-    order: 11,
+    order: 12,
   },
   {
     id: "tab-basics",
     label: "タブロー法の基礎",
     description:
       "タブロー式シーケント計算（TAB）での反駁証明。否定して閉じたタブローを構築する。",
-    order: 12,
+    order: 13,
   },
   {
     id: "at-basics",
     label: "分析的タブローの基礎",
     description:
       "分析的タブロー（Analytic Tableau）での反駁証明。署名付き論理式のα/β規則を適用し、全枝を閉じる。",
-    order: 13,
+    order: 14,
   },
   {
     id: "sc-basics",
     label: "シーケント計算の基礎",
     description:
       "ゲンツェン流シーケント計算（LK/LJ）での証明。構造規則と論理規則を組み合わせてシーケントを導出する。",
-    order: 14,
+    order: 15,
   },
   {
     id: "sc-cut-elimination",
     label: "カット除去の体験",
     description:
       "カット規則を活用した証明を構成し、カット除去ステッパーで除去過程を体験する。カット除去定理（Gentzenの基本定理）の理解を深める。",
-    order: 15,
+    order: 16,
   },
 ] as const;
 
