@@ -3766,6 +3766,109 @@ const eq06ConcreteTransitivity: ModelAnswer = {
   ],
 };
 
+/**
+ * eq-07: A1とGenの組合せ ∀x. x = x → (x = x → x = x)
+ *
+ * A1[φ=(x=x), ψ=(x=x)] + Gen[x]。2ステップ。
+ * 1. A1: x = x → (x = x → x = x)
+ * 2. Gen[x]: ∀x. x = x → (x = x → x = x)
+ */
+const eq07A1GenIntro: ModelAnswer = {
+  questId: "eq-07",
+  steps: [
+    { _tag: "axiom", formulaText: "x = x -> (x = x -> x = x)" },
+    { _tag: "gen", premiseIndex: 0, variableName: "x" },
+  ],
+};
+
+/**
+ * eq-08: 恒等律（等号版） a = b → a = b
+ *
+ * prop-01と同パターン。φ = (a = b)。5ステップ。
+ * 1. A2[φ/(a=b), ψ/((a=b)→(a=b)), χ/(a=b)]
+ * 2. A1[φ/(a=b), ψ/((a=b)→(a=b))]
+ * 3. MP(1, 0)
+ * 4. A1[φ/(a=b), ψ/(a=b)]
+ * 5. MP(3, 2)
+ */
+const eq08IdentityEquality: ModelAnswer = {
+  questId: "eq-08",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "(a = b -> ((a = b -> a = b) -> a = b)) -> ((a = b -> (a = b -> a = b)) -> (a = b -> a = b))",
+    },
+    {
+      _tag: "axiom",
+      formulaText: "a = b -> ((a = b -> a = b) -> a = b)",
+    },
+    { _tag: "mp", leftIndex: 1, rightIndex: 0 },
+    { _tag: "axiom", formulaText: "a = b -> (a = b -> a = b)" },
+    { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+  ],
+};
+
+/**
+ * eq-09: 複合恒等律 (a = a → b = b) → (a = a → b = b)
+ *
+ * prop-01と同パターン。φ = (a = a → b = b)。5ステップ。
+ * 1. A2[φ/(a=a→b=b), ψ/((a=a→b=b)→(a=a→b=b)), χ/(a=a→b=b)]
+ * 2. A1[φ/(a=a→b=b), ψ/((a=a→b=b)→(a=a→b=b))]
+ * 3. MP(1, 0)
+ * 4. A1[φ/(a=a→b=b), ψ/(a=a→b=b)]
+ * 5. MP(3, 2)
+ */
+const eq09IdentityComplex: ModelAnswer = {
+  questId: "eq-09",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "((a = a -> b = b) -> (((a = a -> b = b) -> (a = a -> b = b)) -> (a = a -> b = b))) -> (((a = a -> b = b) -> ((a = a -> b = b) -> (a = a -> b = b))) -> ((a = a -> b = b) -> (a = a -> b = b)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(a = a -> b = b) -> (((a = a -> b = b) -> (a = a -> b = b)) -> (a = a -> b = b))",
+    },
+    { _tag: "mp", leftIndex: 1, rightIndex: 0 },
+    {
+      _tag: "axiom",
+      formulaText: "(a = a -> b = b) -> ((a = a -> b = b) -> (a = a -> b = b))",
+    },
+    { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+  ],
+};
+
+/**
+ * eq-10: 全称化された恒等律 ∀x.∀y. x = y → x = y
+ *
+ * 恒等律 + Gen[y] + Gen[x]。7ステップ。
+ * 1-5: prop-01パターンで x = y → x = y を導出
+ * 6. Gen[y]: ∀y. x = y → x = y
+ * 7. Gen[x]: ∀x.∀y. x = y → x = y
+ */
+const eq10UniversalIdentity: ModelAnswer = {
+  questId: "eq-10",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "(x = y -> ((x = y -> x = y) -> x = y)) -> ((x = y -> (x = y -> x = y)) -> (x = y -> x = y))",
+    },
+    {
+      _tag: "axiom",
+      formulaText: "x = y -> ((x = y -> x = y) -> x = y)",
+    },
+    { _tag: "mp", leftIndex: 1, rightIndex: 0 },
+    { _tag: "axiom", formulaText: "x = y -> (x = y -> x = y)" },
+    { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+    { _tag: "gen", premiseIndex: 4, variableName: "y" },
+    { _tag: "gen", premiseIndex: 5, variableName: "x" },
+  ],
+};
+
 // ============================================================
 // peano-basics: ペアノ算術の基礎（公理配置のみ）
 // PA1: ∀x. ¬(S(x) = 0)
@@ -4032,8 +4135,7 @@ const peano13ZeroPlusOne: ModelAnswer = {
     { _tag: "mp", leftIndex: 0, rightIndex: 1 },
     {
       _tag: "axiom",
-      formulaText:
-        "(all y. 0 + S(y) = S(0 + y)) -> 0 + S(0) = S(0 + 0)",
+      formulaText: "(all y. 0 + S(y) = S(0 + y)) -> 0 + S(0) = S(0 + 0)",
     },
     { _tag: "mp", leftIndex: 2, rightIndex: 3 },
     // PA3 instantiation: 0+0=0
@@ -4079,8 +4181,7 @@ const peano14ZeroTimesOne: ModelAnswer = {
     { _tag: "mp", leftIndex: 0, rightIndex: 1 },
     {
       _tag: "axiom",
-      formulaText:
-        "(all y. 0 * S(y) = 0 * y + 0) -> 0 * S(0) = 0 * 0 + 0",
+      formulaText: "(all y. 0 * S(y) = 0 * y + 0) -> 0 * S(0) = 0 * 0 + 0",
     },
     { _tag: "mp", leftIndex: 2, rightIndex: 3 },
     // PA3 instantiation: 0*0+0 = 0*0
@@ -4108,8 +4209,7 @@ const peano14ZeroTimesOne: ModelAnswer = {
     // E3: 0*S(0)=0*0 → (0*0=0 → 0*S(0)=0)
     {
       _tag: "axiom",
-      formulaText:
-        "0 * S(0) = 0 * 0 -> (0 * 0 = 0 -> 0 * S(0) = 0)",
+      formulaText: "0 * S(0) = 0 * 0 -> (0 * 0 = 0 -> 0 * S(0) = 0)",
     },
     { _tag: "mp", leftIndex: 10, rightIndex: 14 },
     { _tag: "mp", leftIndex: 13, rightIndex: 15 },
@@ -8345,6 +8445,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   eq04ConcreteReflexivity,
   eq05ConcreteSymmetry,
   eq06ConcreteTransitivity,
+  eq07A1GenIntro,
+  eq08IdentityEquality,
+  eq09IdentityComplex,
+  eq10UniversalIdentity,
   // peano-basics
   peano01PA1,
   peano02PA3,
