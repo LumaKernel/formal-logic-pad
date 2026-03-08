@@ -1839,6 +1839,60 @@ const qPredAdv02NegationOfExistence: QuestDefinition = {
   version: 1,
 };
 
+const qPredAdv03NegationOfUniversal: QuestDefinition = {
+  id: "pred-adv-03",
+  category: "predicate-advanced",
+  title: "全称の否定 → 存在の否定",
+  description:
+    "¬(∀x.P(x)) → (∃x.¬P(x)) を証明せよ。全称量化子の否定が存在量化子の否定に帰着することを示す。",
+  difficulty: 4,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "~(all x. P(x)) -> ex x. ~P(x)",
+      label: "Goal: ¬(∀x.P(x)) → (∃x.¬P(x))",
+    },
+  ],
+  hints: [
+    "∃x.¬P(x) は ¬∀x.¬¬P(x) の略記です。",
+    "ゴールを定義展開すると ¬(∀x.P(x)) → ¬(∀x.¬¬P(x)) になります。",
+    "二重否定除去 ¬¬P(x)→P(x) を Gen + Dist∀ で ∀x.¬¬P(x)→∀x.P(x) に変換します。",
+    "Modus Tollens で対偶を取ります。",
+  ],
+  estimatedSteps: 30,
+  learningPoint:
+    "¬∀x.P(x) → ∃x.¬P(x) は古典論理でのみ成り立つ。Hilbert系では DNE + Gen + Dist∀ + MT の組み合わせで証明。",
+  order: 3,
+  version: 1,
+};
+
+const qPredAdv04ExistentialImplicationDistribution: QuestDefinition = {
+  id: "pred-adv-04",
+  category: "predicate-advanced",
+  title: "存在の含意分配",
+  description:
+    "(∀x.(P(x)→Q(x))) → ((∃x.P(x)) → (∃x.Q(x))) を証明せよ。全称的な含意が存在量化子に対しても分配可能であることを示す。",
+  difficulty: 5,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "(all x. (P(x) -> Q(x))) -> ((ex x. P(x)) -> (ex x. Q(x)))",
+      label: "Goal: (∀x.(P(x)→Q(x))) → ((∃x.P(x)) → (∃x.Q(x)))",
+    },
+  ],
+  hints: [
+    "∃x.P(x) = ¬∀x.¬P(x) と ∃x.Q(x) = ¬∀x.¬Q(x) に定義展開します。",
+    "A4 で P(x)→Q(x) を取り出し、MT で ¬Q(x)→¬P(x) に変換します。",
+    "Gen + A5 で ∀x.(¬Q(x)→¬P(x)) を構成し、Dist∀ で ∀x.¬Q(x)→∀x.¬P(x) を導きます。",
+    "MT で対偶を取り、HS で全体を接続します。",
+  ],
+  estimatedSteps: 40,
+  learningPoint:
+    "∀は∃に対しても含意分配可能。∃の定義展開 + MT + Dist∀ のパターンが核心。",
+  order: 4,
+  version: 1,
+};
+
 // --- 自然演繹の基礎 ---
 
 const qNd01Identity: QuestDefinition = {
@@ -3944,6 +3998,8 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qPred06UnivNegToNegExist,
   qPredAdv01UniversalImplicationDistribution,
   qPredAdv02NegationOfExistence,
+  qPredAdv03NegationOfUniversal,
+  qPredAdv04ExistentialImplicationDistribution,
   qNd01Identity,
   qNd02KAxiom,
   qNd03Contraposition,
