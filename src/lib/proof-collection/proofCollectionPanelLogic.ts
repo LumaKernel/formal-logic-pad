@@ -200,19 +200,19 @@ export type CompatibilityBadge =
 export function getCompatibilityBadge(
   result: CompatibilityResult,
 ): CompatibilityBadge {
-  switch (result._tag) {
-    case "FullyCompatible":
-      return { variant: "ok" };
-    case "CompatibleWithAxiomWarnings":
-      return {
-        variant: "axiom-warning",
-        missingAxiomIds: result.missingAxiomIds,
-      };
-    case "IncompatibleStyle":
-      return {
-        variant: "style-mismatch",
-        sourceStyle: result.sourceStyle,
-        targetStyle: result.targetStyle,
-      };
+  if (result._tag === "FullyCompatible") {
+    return { variant: "ok" };
   }
+  if (result._tag === "CompatibleWithAxiomWarnings") {
+    return {
+      variant: "axiom-warning",
+      missingAxiomIds: result.missingAxiomIds,
+    };
+  }
+  // result._tag === "IncompatibleStyle" （TypeScript narrowingで型安全）
+  return {
+    variant: "style-mismatch",
+    sourceStyle: result.sourceStyle,
+    targetStyle: result.targetStyle,
+  };
 }

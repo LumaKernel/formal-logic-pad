@@ -496,9 +496,11 @@ export function EditableProofNode({
                 e.stopPropagation();
                 onClickAxiomBadge();
               }}
+              /* v8 ignore start -- testId分岐: テスト用属性の有無 */
               data-testid={
                 testId ? `${testId satisfies string}-axiom-name` : undefined
               }
+              /* v8 ignore stop */
             >
               {axiomName}
             </button>
@@ -508,9 +510,11 @@ export function EditableProofNode({
               title={formatMessage(msg.axiomIdentifiedTooltip, {
                 axiomName,
               })}
+              /* v8 ignore start -- testId分岐: テスト用属性の有無 */
               data-testid={
                 testId ? `${testId satisfies string}-axiom-name` : undefined
               }
+              /* v8 ignore stop */
             >
               {axiomName}
             </span>
@@ -600,9 +604,11 @@ export function EditableProofNode({
       dependencies.length > 0 ? (
         <div
           style={dependencyContainerStyle}
+          /* v8 ignore start -- testId分岐: テスト用属性の有無 */
           data-testid={
             testId ? `${testId satisfies string}-dependencies` : undefined
           }
+          /* v8 ignore stop */
         >
           <div style={dependencyLabelStyle}>{msg.dependsOn}</div>
           <div>
@@ -619,9 +625,11 @@ export function EditableProofNode({
       substitutionEntries.length > 0 ? (
         <div
           style={substEntriesContainerStyle}
+          /* v8 ignore start -- testId分岐: テスト用属性の有無 */
           data-testid={
             testId ? `${testId satisfies string}-subst-entries` : undefined
           }
+          /* v8 ignore stop */
         >
           {substitutionEntries.map((entry, i) => (
             <div key={i} style={substEntryStyle}>

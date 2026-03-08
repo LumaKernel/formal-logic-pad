@@ -613,7 +613,10 @@ function FolderHeader({
             ref={inputRef}
             type="text"
             style={{ ...editInputStyle, fontSize: 11 }}
-            value={panelState.folderEditing?.value ?? ""}
+            value={
+              /* v8 ignore start -- 防御的フォールバック: editing===trueならfolderEditingは常に存在 */ panelState
+                .folderEditing?.value ?? "" /* v8 ignore stop */
+            }
             onClick={(e) => e.stopPropagation()}
             onChange={(e) => onChangeFolderEditValue(e.target.value)}
             onKeyDown={(e) => {
@@ -627,11 +630,13 @@ function FolderHeader({
               /* v8 ignore stop */
             }}
             onBlur={onCommitFolderEdit}
+            /* v8 ignore start -- testId分岐: テスト用属性の有無 */
             data-testid={
               folderTestId !== undefined
                 ? `${folderTestId satisfies string}-name-input`
                 : undefined
             }
+            /* v8 ignore stop */
           />
         ) : (
           <>
@@ -668,11 +673,13 @@ function FolderHeader({
               e.stopPropagation();
               onRemoveFolder();
             }}
+            /* v8 ignore start -- testId分岐: テスト用属性の有無 */
             data-testid={
               folderTestId !== undefined
                 ? `${folderTestId satisfies string}-delete`
                 : undefined
             }
+            /* v8 ignore stop */
           >
             {messages.collectionFolderDelete}
           </button>

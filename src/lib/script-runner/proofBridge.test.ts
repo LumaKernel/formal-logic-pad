@@ -377,6 +377,28 @@ describe("identifyAxiom ブリッジ", () => {
     // 空システムでは公理が有効でないためError
     expect(result._tag).toBe("Error");
   });
+
+  it("theoryAxiomsが配列のシステムオブジェクトで動作する", () => {
+    const result = runCode(
+      [
+        "var f = parseFormula('phi -> (psi -> phi)');",
+        "var system = { name: 'Test', propositionalAxioms: ['A1'], predicateLogic: false, equalityLogic: false, generalization: false, theoryAxioms: [{ name: 'T1' }] };",
+        "identifyAxiom(f, system);",
+      ].join("\n"),
+    ) as Record<string, unknown>;
+    expect(result._tag).toBe("Ok");
+  });
+
+  it("theoryAxiomsが非配列の場合undefinedとして扱われる", () => {
+    const result = runCode(
+      [
+        "var f = parseFormula('phi -> (psi -> phi)');",
+        "var system = { name: 'Test', propositionalAxioms: ['A1'], predicateLogic: false, equalityLogic: false, generalization: false, theoryAxioms: 'invalid' };",
+        "identifyAxiom(f, system);",
+      ].join("\n"),
+    ) as Record<string, unknown>;
+    expect(result._tag).toBe("Ok");
+  });
 });
 
 describe("サンドボックス統合テスト", () => {

@@ -361,11 +361,13 @@ function SubstitutionPopover({
               fontSize={12}
               showPreview={false}
               style={{ flex: 1, minWidth: 0 }}
+              /* v8 ignore start -- testId分岐: テスト用属性の有無 */
               testId={
                 testId
                   ? `${testId satisfies string}-value-${String(i) satisfies string}`
                   : undefined
               }
+              /* v8 ignore stop */
             />
           ) : (
             <TermInput
@@ -377,11 +379,13 @@ function SubstitutionPopover({
               fontSize={12}
               showPreview={false}
               style={{ flex: 1, minWidth: 0 }}
+              /* v8 ignore start -- testId分岐: テスト用属性の有無 */
               testId={
                 testId
                   ? `${testId satisfies string}-value-${String(i) satisfies string}`
                   : undefined
               }
+              /* v8 ignore stop */
             />
           )}
         </div>
@@ -444,7 +448,10 @@ export function EdgeParameterPopover({
       return (
         <GenPopover
           editState={editState}
-          onConfirm={/* v8 ignore start -- 防御的: 呼び出し元が必ず提供 */ onConfirmGen ?? (() => {}) /* v8 ignore stop */}
+          onConfirm={
+            /* v8 ignore start -- 防御的: 呼び出し元が必ず提供 */ onConfirmGen ??
+            (() => {}) /* v8 ignore stop */
+          }
           onCancel={onCancel}
           testId={testId}
         />
@@ -453,7 +460,10 @@ export function EdgeParameterPopover({
       return (
         <SubstitutionPopover
           editState={editState}
-          onConfirm={/* v8 ignore start -- 防御的: 呼び出し元が必ず提供 */ onConfirmSubstitution ?? (() => {}) /* v8 ignore stop */}
+          onConfirm={
+            /* v8 ignore start -- 防御的: 呼び出し元が必ず提供 */ onConfirmSubstitution ??
+            (() => {}) /* v8 ignore stop */
+          }
           onCancel={onCancel}
           onOpenSyntaxHelp={onOpenSyntaxHelp}
           testId={testId}

@@ -74,23 +74,23 @@ export function createEditStateFromEdge(
   if (isScInferenceEdge(edge)) {
     return undefined;
   }
-  switch (edge._tag) {
-    case "mp":
-      return undefined;
-    case "gen":
-      return {
-        _tag: "gen",
-        conclusionNodeId: edge.conclusionNodeId,
-        variableName: edge.variableName,
-      };
-    case "substitution":
-      return {
-        _tag: "substitution",
-        conclusionNodeId: edge.conclusionNodeId,
-        entries: edge.entries,
-        premiseFormulaText,
-      };
+  if (edge._tag === "mp") {
+    return undefined;
   }
+  if (edge._tag === "gen") {
+    return {
+      _tag: "gen",
+      conclusionNodeId: edge.conclusionNodeId,
+      variableName: edge.variableName,
+    };
+  }
+  // edge._tag === "substitution"（TypeScript narrowingで型安全）
+  return {
+    _tag: "substitution",
+    conclusionNodeId: edge.conclusionNodeId,
+    entries: edge.entries,
+    premiseFormulaText,
+  };
 }
 
 // --- Gen編集操作 ---
@@ -198,20 +198,19 @@ export function toSubstEditEntries(
     return [{ kind: "formula", metaVar: "", value: "" }];
   }
   return entries.map((entry) => {
-    switch (entry._tag) {
-      case "FormulaSubstitution":
-        return {
-          kind: "formula" as const,
-          metaVar: entry.metaVariableName,
-          value: entry.formulaText,
-        };
-      case "TermSubstitution":
-        return {
-          kind: "term" as const,
-          metaVar: entry.metaVariableName,
-          value: entry.termText,
-        };
+    if (entry._tag === "FormulaSubstitution") {
+      return {
+        kind: "formula" as const,
+        metaVar: entry.metaVariableName,
+        value: entry.formulaText,
+      };
     }
+    // entry._tag === "TermSubstitution"（TypeScript narrowingで型安全）
+    return {
+      kind: "term" as const,
+      metaVar: entry.metaVariableName,
+      value: entry.termText,
+    };
   });
 }
 

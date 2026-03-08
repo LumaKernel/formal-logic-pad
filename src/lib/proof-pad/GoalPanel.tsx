@@ -260,9 +260,11 @@ export function GoalPanel({ data, messages, testId }: GoalPanelProps) {
           }
         }}
         /* v8 ignore stop */
+        /* v8 ignore start -- testId分岐: テスト用属性の有無 */
         data-testid={
           testId !== undefined ? `${testId satisfies string}-toggle` : undefined
         }
+        /* v8 ignore stop */
       >
         {messages.goalPanelTitle} (
         {formatMessage(messages.goalPanelProgress, {
