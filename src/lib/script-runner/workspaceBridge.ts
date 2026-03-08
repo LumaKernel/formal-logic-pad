@@ -154,7 +154,9 @@ const createClearWorkspaceFn =
  * SC証明ノードの推論規則名を取得する。
  */
 const scTagToRuleName = (tag: string): string => {
+  /* v8 ignore start -- switch行のv8ブランチアーティファクト。defaultは防御的コードでignore済み */
   switch (tag) {
+    /* v8 ignore stop */
     case "ScIdentity":
       return "ID";
     case "ScBottomLeft":

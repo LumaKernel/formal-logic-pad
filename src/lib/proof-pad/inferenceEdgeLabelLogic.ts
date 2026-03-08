@@ -175,38 +175,38 @@ export function getInferenceEdgeLabelForConnection(
   const role = getPremiseRole(edge, premiseNodeId);
   if (role === undefined || role === "premise") return baseLabel;
 
-  switch (edge._tag) {
-    // MP系: φ(antecedent) / →(conditional)
-    case "mp":
-    case "nd-implication-elim":
-      return role === "left"
-        ? `${baseLabel satisfies string}:φ`
-        : `${baseLabel satisfies string}:→`;
-    // ∧I: L / R
-    case "nd-conjunction-intro":
-      return role === "left"
-        ? `${baseLabel satisfies string}:L`
-        : `${baseLabel satisfies string}:R`;
-    // w: ✓(kept) / ✗(discarded)
-    case "nd-weakening":
-      return role === "kept"
-        ? `${baseLabel satisfies string}:✓`
-        : `${baseLabel satisfies string}:✗`;
-    // ∃E: ∃(existential) / φ(case)
-    case "nd-existential-elim":
-      return role === "existential"
-        ? `${baseLabel satisfies string}:∃`
-        : `${baseLabel satisfies string}:φ`;
-    // ∨E: ∨(disjunction) / L(leftCase) / R(rightCase)
-    case "nd-disjunction-elim":
-      if (role === "disjunction") return `${baseLabel satisfies string}:∨`;
-      if (role === "leftCase") return `${baseLabel satisfies string}:L`;
-      return `${baseLabel satisfies string}:R`;
-    /* v8 ignore start */
-    default:
-      return baseLabel;
-    /* v8 ignore stop */
+  // MP系: φ(antecedent) / →(conditional)
+  if (edge._tag === "mp" || edge._tag === "nd-implication-elim") {
+    return role === "left"
+      ? `${baseLabel satisfies string}:φ`
+      : `${baseLabel satisfies string}:→`;
   }
+  // ∧I: L / R
+  if (edge._tag === "nd-conjunction-intro") {
+    return role === "left"
+      ? `${baseLabel satisfies string}:L`
+      : `${baseLabel satisfies string}:R`;
+  }
+  // w: ✓(kept) / ✗(discarded)
+  if (edge._tag === "nd-weakening") {
+    return role === "kept"
+      ? `${baseLabel satisfies string}:✓`
+      : `${baseLabel satisfies string}:✗`;
+  }
+  // ∃E: ∃(existential) / φ(case)
+  if (edge._tag === "nd-existential-elim") {
+    return role === "existential"
+      ? `${baseLabel satisfies string}:∃`
+      : `${baseLabel satisfies string}:φ`;
+  }
+  // ∨E: ∨(disjunction) / L(leftCase) / R(rightCase)
+  if (edge._tag === "nd-disjunction-elim") {
+    if (role === "disjunction") return `${baseLabel satisfies string}:∨`;
+    if (role === "leftCase") return `${baseLabel satisfies string}:L`;
+    return `${baseLabel satisfies string}:R`;
+  }
+  // その他のエッジ: ベースラベルをそのまま返す
+  return baseLabel;
 }
 
 // --- ラベルデータ ---

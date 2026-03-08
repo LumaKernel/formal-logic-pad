@@ -71,7 +71,9 @@ export function parseSignedFormulaText(
   if (prefix !== "T:" && prefix !== "F:") return undefined;
   const sign: Sign = prefix === "T:" ? "T" : "F";
   const formulaText = trimmed.slice(2).trim();
+  /* v8 ignore start -- trimmedは末尾空白なし(trim済み)かつlength>=3なので、slice(2)は必ず非空白文字を含む。防御的ガード */
   if (formulaText === "") return undefined;
+  /* v8 ignore stop */
   const result = parseString(formulaText);
   if (Either.isLeft(result)) return undefined;
   return signedFormula(sign, result.right);

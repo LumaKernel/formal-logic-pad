@@ -119,6 +119,15 @@ describe("questUrlSharing", () => {
       expect(decoded).toBe(original);
     });
 
+    it("孤立サロゲート（high surrogateの後にlow surrogateが続かない）", () => {
+      // high surrogate (0xD800) + 通常のASCII文字 'A' (0x0041)
+      const loneHighSurrogate = String.fromCharCode(0xd800, 0x0041);
+      const encoded = utf8ToBase64Url(loneHighSurrogate);
+      // エンコード自体がエラーなく完了することを確認
+      expect(typeof encoded).toBe("string");
+      expect(encoded.length).toBeGreaterThan(0);
+    });
+
     // --- 不正UTF-8デコードのエッジケース ---
 
     // バイト配列→base64urlヘルパー（テスト専用）

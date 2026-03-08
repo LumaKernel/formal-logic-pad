@@ -128,12 +128,12 @@ export const validateGenApplicationEffect = (
     const genResult = yield* Either.mapLeft(
       applyGeneralization(premiseFormula, variable, state.system),
       (error) => {
-        if (error._tag === "GeneralizationNotEnabled") {
-          return new GenGeneralizationNotEnabled({});
+        /* v8 ignore start -- 防御的コード: GeneralizationNotEnabled以外のエラーは現時点では発生しない。if-else両分岐を丸ごとignore */
+        if (error._tag !== "GeneralizationNotEnabled") {
+          return new GenRuleError({ message: "Generalization failed" });
         }
-        /* v8 ignore start -- 防御的コード: GeneralizationNotEnabled以外のエラーは現時点では発生しない */
-        return new GenRuleError({ message: "Generalization failed" });
         /* v8 ignore stop */
+        return new GenGeneralizationNotEnabled({});
       },
     );
 

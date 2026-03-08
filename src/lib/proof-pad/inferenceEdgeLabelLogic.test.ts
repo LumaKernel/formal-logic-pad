@@ -459,6 +459,26 @@ describe("inferenceEdgeLabelLogic", () => {
       };
       expect(getInferenceEdgeLabelForConnection(edge, "a")).toBe("Subst");
     });
+
+    it("returns base label for SC branching edge (left/right role)", () => {
+      const edge: ScBranchingEdge = {
+        _tag: "sc-branching",
+        ruleId: "cut",
+        conclusionNodeId: "c",
+        leftPremiseNodeId: "l",
+        rightPremiseNodeId: "r",
+        leftConclusionText: "",
+        rightConclusionText: "",
+        conclusionText: "",
+      };
+      // SC branching has "left"/"right" roles but no specific label suffix
+      expect(getInferenceEdgeLabelForConnection(edge, "l")).toBe(
+        "カット (CUT)",
+      );
+      expect(getInferenceEdgeLabelForConnection(edge, "r")).toBe(
+        "カット (CUT)",
+      );
+    });
   });
 
   describe("computeInferenceEdgeLabelDataForConnection", () => {

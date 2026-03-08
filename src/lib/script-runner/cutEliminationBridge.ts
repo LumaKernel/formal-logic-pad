@@ -202,7 +202,9 @@ export const decodeScProofNode = (input: unknown): ScProofNode => {
 
   const conclusion = decodeSequentOrThrow(obj["conclusion"]);
 
+  /* v8 ignore start -- switch行のv8ブランチアーティファクト。defaultは防御的コードでignore済み */
   switch (tag) {
+    /* v8 ignore stop */
     case "ScIdentity":
       return { _tag: "ScIdentity", conclusion };
     case "ScBottomLeft":

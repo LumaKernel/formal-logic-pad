@@ -119,6 +119,28 @@ describe("ndApplicationLogic", () => {
       }
     });
 
+    it("打ち消し仮定が不正な論理式（パース失敗）の場合エラー", () => {
+      let ws = createNdWorkspace();
+      ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "psi");
+      ws = addNode(ws, "axiom", "conclusion", { x: 100, y: 100 });
+      ws = addNdEdge(ws, {
+        _tag: "nd-implication-intro",
+        conclusionNodeId: "node-2",
+        premiseNodeId: "node-1",
+        dischargedFormulaText: "∧∧invalid",
+        dischargedAssumptionId: 1,
+        conclusionText: "",
+      });
+      const result = validateNdApplication(
+        ws,
+        ws.inferenceEdges[0] as NdInferenceEdge,
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("NdDischargedFormulaParseError");
+      }
+    });
+
     it("前提が⊥の場合、¬φ（Negation）を生成する", () => {
       let ws = createNdWorkspace();
       ws = addNode(ws, "axiom", "premise", { x: 0, y: 0 }, "⊥");
