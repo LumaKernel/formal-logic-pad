@@ -6977,6 +6977,49 @@ const at15PeirceLaw: ModelAnswer = {
   ],
 };
 
+const at16ExistentialToNegUniversal: ModelAnswer = {
+  questId: "at-16",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "ex x. P(x) -> ~(all x. ~P(x))",
+    },
+  ],
+};
+
+const at17UniversalImplicationDistribution: ModelAnswer = {
+  questId: "at-17",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "all x. (P(x) -> Q(x)) -> (all x. P(x) -> all x. Q(x))",
+    },
+  ],
+};
+
+const at18UniversalConjunctionDistribution: ModelAnswer = {
+  questId: "at-18",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "all x. (P(x) /\\ Q(x)) -> (all x. P(x) /\\ all x. Q(x))",
+    },
+  ],
+};
+
+const at19ExistentialDisjunctionConverse: ModelAnswer = {
+  questId: "at-19",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "(ex x. P(x) \\/ ex x. Q(x)) -> ex x. (P(x) \\/ Q(x))",
+    },
+  ],
+};
+
 // ============================================================
 // シーケント計算 (SC) — sc-basics
 // SCステップタイプ追加後にリッチな模範解答に更新予定。
@@ -7909,6 +7952,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   at13DoubleNegationIntro,
   at14ImplicationDisjunction,
   at15PeirceLaw,
+  at16ExistentialToNegUniversal,
+  at17UniversalImplicationDistribution,
+  at18UniversalConjunctionDistribution,
+  at19ExistentialDisjunctionConverse,
   // sc-basics (axiom直接配置 — SCステップタイプ追加後にリッチな模範解答に更新予定)
   sc01Identity,
   sc02WeakeningLeft,

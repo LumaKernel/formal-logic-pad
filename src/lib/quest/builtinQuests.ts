@@ -3985,6 +3985,126 @@ const qAt15PeirceLaw: QuestDefinition = {
   version: 1,
 };
 
+const qAt16ExistentialToNegUniversal: QuestDefinition = {
+  id: "at-16",
+  category: "at-basics",
+  title: "存在から全称否定 (δ/γ規則)",
+  description:
+    "F:∃x.P(x) → ¬∀x.¬P(x) をルートに配置し、全枝を閉じて証明せよ。δ規則（T∃）で固有変数導入、γ規則（T∀）で具体項代入。",
+  difficulty: 2,
+  systemPresetId: "at",
+  goals: [
+    {
+      formulaText: "ex x. P(x) -> ~(all x. ~P(x))",
+      label: "Goal: ∃x.P(x) → ¬∀x.¬P(x)",
+    },
+  ],
+  hints: [
+    "F(∃x.P(x) → ¬∀x.¬P(x)) をルートに配置しましょう（テキスト: F:ex x. P(x) -> ~(all x. ~P(x))）。",
+    "F→ で T(∃x.P(x)) と F(¬∀x.¬P(x)) を得ます。",
+    "F¬ で F(¬∀x.¬P(x)) → T(∀x.¬P(x)) を得ます。",
+    "T(∃x.P(x)) にδ規則（T∃）を適用: T(P(a))（固有変数 a）。",
+    "T(∀x.¬P(x)) にγ規則（T∀）を適用（項 a）: T(¬P(a))。T¬ で F(P(a)) を得ます。",
+    "T(P(a)) と F(P(a)) で closure。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "δ規則で導入した固有変数をγ規則の具体項として再利用するパターン。∃ → ¬∀¬ は直観主義論理でも成立する。",
+  order: 16,
+  version: 1,
+};
+
+const qAt17UniversalImplicationDistribution: QuestDefinition = {
+  id: "at-17",
+  category: "at-basics",
+  title: "全称と含意の分配 (γ規則×2)",
+  description:
+    "F:∀x.(P(x) → Q(x)) → (∀x.P(x) → ∀x.Q(x)) をルートに配置し、全枝を閉じて証明せよ。γ規則を複数回適用する。",
+  difficulty: 2,
+  systemPresetId: "at",
+  goals: [
+    {
+      formulaText:
+        "all x. (P(x) -> Q(x)) -> (all x. P(x) -> all x. Q(x))",
+      label: "Goal: ∀x.(P(x)→Q(x)) → (∀x.P(x) → ∀x.Q(x))",
+    },
+  ],
+  hints: [
+    "F(∀x.(P(x) → Q(x)) → (∀x.P(x) → ∀x.Q(x))) をルートに配置しましょう。",
+    "F→ を2回適用: T(∀x.(P(x) → Q(x))), T(∀x.P(x)), F(∀x.Q(x)) を得ます。",
+    "F(∀x.Q(x)) にδ規則（F∀）を適用: F(Q(a))（固有変数 a）。",
+    "T(∀x.(P(x) → Q(x))) にγ規則（T∀、項 a）を適用: T(P(a) → Q(a))。",
+    "T(P(a) → Q(a)) にβ規則（T→）を適用: F(P(a)) と T(Q(a)) に分岐。",
+    "T(∀x.P(x)) にγ規則（T∀、項 a）を適用: T(P(a))。F(P(a)) と矛盾。T(Q(a)) は F(Q(a)) と矛盾。",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "γ規則は同じ全称式に対して複数回適用可能（異なる項で代入）。δ規則で導入した固有変数をγ規則の具体項として使うのが基本パターン。",
+  order: 17,
+  version: 1,
+};
+
+const qAt18UniversalConjunctionDistribution: QuestDefinition = {
+  id: "at-18",
+  category: "at-basics",
+  title: "全称と連言の分配 (γ規則+F∧)",
+  description:
+    "F:∀x.(P(x) ∧ Q(x)) → (∀x.P(x) ∧ ∀x.Q(x)) をルートに配置し、全枝を閉じて証明せよ。γ規則とF∧β規則を組み合わせる。",
+  difficulty: 2,
+  systemPresetId: "at",
+  goals: [
+    {
+      formulaText:
+        "all x. (P(x) /\\ Q(x)) -> (all x. P(x) /\\ all x. Q(x))",
+      label: "Goal: ∀x.(P(x)∧Q(x)) → (∀x.P(x) ∧ ∀x.Q(x))",
+    },
+  ],
+  hints: [
+    "F(∀x.(P(x) ∧ Q(x)) → (∀x.P(x) ∧ ∀x.Q(x))) をルートに配置しましょう。",
+    "F→ で T(∀x.(P(x) ∧ Q(x))) と F(∀x.P(x) ∧ ∀x.Q(x)) を得ます。",
+    "F∧（β規則）で F(∀x.P(x)) と F(∀x.Q(x)) に分岐。",
+    "各枝でδ規則（F∀）を適用して固有変数を導入: F(P(a)) / F(Q(b))。",
+    "T(∀x.(P(x) ∧ Q(x))) にγ規則（T∀）を適用して T(P(a) ∧ Q(a)) / T(P(b) ∧ Q(b)) を得ます。",
+    "T∧（α規則）で T(P(a)), T(Q(a)) / T(P(b)), T(Q(b)) を得て、各枝で矛盾。",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "F∧のβ規則で分岐した各枝で、それぞれ独立にδ規則の固有変数を導入する。各枝のγ規則では対応する固有変数を使い分ける。",
+  order: 18,
+  version: 1,
+};
+
+const qAt19ExistentialDisjunctionConverse: QuestDefinition = {
+  id: "at-19",
+  category: "at-basics",
+  title: "存在と選言 (T∨β+δ規則)",
+  description:
+    "F:(∃x.P(x) ∨ ∃x.Q(x)) → ∃x.(P(x) ∨ Q(x)) をルートに配置し、全枝を閉じて証明せよ。T∨β規則と量化子δ規則を組み合わせる。",
+  difficulty: 3,
+  systemPresetId: "at",
+  goals: [
+    {
+      formulaText:
+        "(ex x. P(x) \\/ ex x. Q(x)) -> ex x. (P(x) \\/ Q(x))",
+      label: "Goal: (∃x.P(x) ∨ ∃x.Q(x)) → ∃x.(P(x) ∨ Q(x))",
+    },
+  ],
+  hints: [
+    "F((∃x.P(x) ∨ ∃x.Q(x)) → ∃x.(P(x) ∨ Q(x))) をルートに配置しましょう。",
+    "F→ で T(∃x.P(x) ∨ ∃x.Q(x)) と F(∃x.(P(x) ∨ Q(x))) を得ます。",
+    "T∨（β規則）で T(∃x.P(x)) と T(∃x.Q(x)) に分岐。",
+    "各枝でδ規則（T∃）を適用: T(P(a)) / T(Q(b))。",
+    "F(∃x.(P(x) ∨ Q(x))) にγ規則（F∃→¬∃なので再考: F∃ はないため F¬∃ 経由ではなく、直接 F(∃x.(P(x)∨Q(x))) に δ 規則は適用不可。代わりに…）",
+    "F(∃x.(P(x) ∨ Q(x))) は ¬∃x.(P(x)∨Q(x)) と同じなので γ規則（F∃、任意項）を適用: F(P(a)∨Q(a)) / F(P(b)∨Q(b))。",
+    "F∨（α規則）で F(P(a)), F(Q(a)) / F(P(b)), F(Q(b)) を得て矛盾。",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "F∃はγ規則（任意項代入）なので同じ式に複数回適用可能。T∨のβ分岐の各枝でδ導入した固有変数をF∃のγ規則に渡す。",
+  order: 19,
+  version: 1,
+};
+
 // --- SCクエスト: シーケント計算の基礎 ---
 
 const qSc01Identity: QuestDefinition = {
@@ -5428,6 +5548,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qAt13DoubleNegationIntro,
   qAt14ImplicationDisjunction,
   qAt15PeirceLaw,
+  qAt16ExistentialToNegUniversal,
+  qAt17UniversalImplicationDistribution,
+  qAt18UniversalConjunctionDistribution,
+  qAt19ExistentialDisjunctionConverse,
   qSc01Identity,
   qSc02WeakeningLeft,
   qSc03ContractionLeft,
