@@ -3033,6 +3033,114 @@ const qTab14ImplicationConjDistrib: QuestDefinition = {
   version: 1,
 };
 
+const qTab15ConjunctionAssoc: QuestDefinition = {
+  id: "tab-15",
+  category: "tab-basics",
+  title: "連言の結合律 (∧, ¬∧)",
+  description:
+    "¬(((φ ∧ ψ) ∧ χ) → (φ ∧ (ψ ∧ χ))) を根として閉じたタブローを構築せよ。連言の結合律の定理。",
+  difficulty: 2,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~(((phi /\\ psi) /\\ chi) -> (phi /\\ (psi /\\ chi)))",
+      label: "Root: ¬(((φ ∧ ψ) ∧ χ) → (φ ∧ (ψ ∧ χ))) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で分解: (φ ∧ ψ) ∧ χ と ¬(φ ∧ (ψ ∧ χ)) を得ます。",
+    "∧ を2回適用して φ, ψ, χ を得ます。",
+    "¬∧ で分岐: ¬φ と ¬(ψ ∧ χ) の2枝。",
+    "¬φ の枝は φ と BS。¬(ψ ∧ χ) の枝はさらに ¬∧ で分岐して ¬ψ / ¬χ で BS。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "連言の結合律は ∧（α規則）と ¬∧（β規則）の組合せで証明する。ネストした ¬∧ が二段階の分岐を生む。",
+  order: 15,
+  version: 1,
+};
+
+const qTab16DisjunctionAssoc: QuestDefinition = {
+  id: "tab-16",
+  category: "tab-basics",
+  title: "選言の結合律 (∨, ¬∨)",
+  description:
+    "¬((φ ∨ (ψ ∨ χ)) → ((φ ∨ ψ) ∨ χ)) を根として閉じたタブローを構築せよ。選言の結合律の定理。",
+  difficulty: 3,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~((phi \\/ (psi \\/ chi)) -> ((phi \\/ psi) \\/ chi))",
+      label: "Root: ¬((φ ∨ (ψ ∨ χ)) → ((φ ∨ ψ) ∨ χ)) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で分解: φ ∨ (ψ ∨ χ) と ¬((φ ∨ ψ) ∨ χ) を得ます。",
+    "¬∨ を2回適用して ¬(φ ∨ ψ), ¬χ, さらに ¬φ, ¬ψ を得ます。",
+    "∨ で分岐: φ の枝は ¬φ と BS。ψ ∨ χ の枝はさらに ∨ で分岐。",
+    "ψ の枝は ¬ψ と BS。χ の枝は ¬χ と BS。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "選言の結合律は ¬∨（α規則）と ∨（β規則）の組合せ。二段階の ∨ 分岐が特徴的。",
+  order: 16,
+  version: 1,
+};
+
+const qTab17Absorption: QuestDefinition = {
+  id: "tab-17",
+  category: "tab-basics",
+  title: "吸収律 (→, ¬∧)",
+  description:
+    "¬((φ → ψ) → (φ → (φ ∧ ψ))) を根として閉じたタブローを構築せよ。吸収律の定理。",
+  difficulty: 2,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~((phi -> psi) -> (phi -> (phi /\\ psi)))",
+      label: "Root: ¬((φ → ψ) → (φ → (φ ∧ ψ))) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ を2回適用: φ → ψ, φ, ¬(φ ∧ ψ) を得ます。",
+    "¬∧ で分岐: ¬φ と ¬ψ の2枝。",
+    "¬φ の枝は φ と BS。",
+    "¬ψ の枝で φ → ψ に → 規則: ¬φ の枝は φ と BS、ψ の枝は ¬ψ と BS。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "吸収律は「前提が含まれる」性質。¬∧ と → の分岐を組合せて全枝を閉じる。",
+  order: 17,
+  version: 1,
+};
+
+const qTab18ImplicationDisjunction: QuestDefinition = {
+  id: "tab-18",
+  category: "tab-basics",
+  title: "含意の選言表現 (¬∨, →)",
+  description:
+    "¬((φ → ψ) → (¬φ ∨ ψ)) を根として閉じたタブローを構築せよ。含意を選言で表す古典的定理。",
+  difficulty: 2,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~((phi -> psi) -> (~phi \\/ psi))",
+      label: "Root: ¬((φ → ψ) → (¬φ ∨ ψ)) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で分解: φ → ψ と ¬(¬φ ∨ ψ) を得ます。",
+    "¬∨ で ¬¬φ, ¬ψ を得ます。",
+    "¬¬ で φ を得ます。",
+    "φ → ψ に → で分岐: ¬φ の枝は φ と BS、ψ の枝は ¬ψ と BS。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "含意 φ → ψ と選言 ¬φ ∨ ψ の同値性は古典論理の基本。¬∨ と ¬¬ で準備し、→ 分岐で閉じる。",
+  order: 18,
+  version: 1,
+};
+
 // --- ATクエスト: 分析的タブローの基礎 ---
 
 const qAt01ExcludedMiddle: QuestDefinition = {
@@ -4308,6 +4416,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qTab12ExFalso,
   qTab13DeMorgan3,
   qTab14ImplicationConjDistrib,
+  qTab15ConjunctionAssoc,
+  qTab16DisjunctionAssoc,
+  qTab17Absorption,
+  qTab18ImplicationDisjunction,
   qAt01ExcludedMiddle,
   qAt02Implication,
   qAt03DoubleNegation,
