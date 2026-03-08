@@ -4246,10 +4246,13 @@ export function ProofWorkspace({
               ) : (
                 <TermInput
                   value={entry.value}
-                  onChange={(value) => {
-                    /* v8 ignore next -- 項モード代入: 述語論理固有パスでテストコスト高 */
-                    handleSubstEntryValueChange(i, value);
-                  }}
+                  onChange={
+                    /* v8 ignore start -- 項モード代入: 述語論理固有パスでテストコスト高 */
+                    (value) => {
+                      handleSubstEntryValueChange(i, value);
+                    }
+                    /* v8 ignore stop */
+                  }
                   placeholder="S(0)"
                   fontSize={12}
                   showPreview={false}

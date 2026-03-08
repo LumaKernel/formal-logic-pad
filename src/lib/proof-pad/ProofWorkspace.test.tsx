@@ -5358,6 +5358,133 @@ describe("ProofWorkspace", () => {
     });
   });
 
+  describe("collection panel integration", () => {
+    const dummyCollectionEntries: readonly import("../proof-collection/proofCollectionState").ProofEntry[] =
+      [
+        {
+          id: "entry-1",
+          name: "Test Entry",
+          memo: "",
+          folderId: undefined,
+          createdAt: 1,
+          updatedAt: 1,
+          nodes: [],
+          connections: [],
+          inferenceEdges: [],
+          deductionStyle: "hilbert",
+          usedAxiomIds: [],
+        },
+      ];
+
+    it("collectionEntries指定時にメニューに「コレクションを開く」ボタンが表示される", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          collectionEntries={dummyCollectionEntries}
+          onRenameCollectionEntry={vi.fn()}
+          onUpdateCollectionMemo={vi.fn()}
+          onRemoveCollectionEntry={vi.fn()}
+          testId="workspace"
+        />,
+      );
+
+      // メニューを開く
+      await user.click(screen.getByTestId("workspace-workspace-menu-button"));
+
+      // 「コレクションを開く」ボタンが表示される
+      expect(
+        screen.getByTestId("workspace-open-collection-button"),
+      ).toBeInTheDocument();
+    });
+
+    it("collectionEntries未指定時にメニューに「コレクションを開く」ボタンが表示されない", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // メニューを開く
+      await user.click(screen.getByTestId("workspace-workspace-menu-button"));
+
+      // 「コレクションを開く」ボタンが表示されない
+      expect(
+        screen.queryByTestId("workspace-open-collection-button"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("「コレクションを開く」クリックでコレクションパネルが表示される", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          collectionEntries={dummyCollectionEntries}
+          onRenameCollectionEntry={vi.fn()}
+          onUpdateCollectionMemo={vi.fn()}
+          onRemoveCollectionEntry={vi.fn()}
+          testId="workspace"
+        />,
+      );
+
+      // メニューを開く
+      await user.click(screen.getByTestId("workspace-workspace-menu-button"));
+
+      // 「コレクションを開く」をクリック
+      await user.click(screen.getByTestId("workspace-open-collection-button"));
+
+      // コレクションパネルが表示される
+      expect(
+        screen.getByTestId("workspace-collection-panel"),
+      ).toBeInTheDocument();
+
+      // メニューが閉じる
+      expect(
+        screen.queryByTestId("workspace-workspace-menu"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("コレクションパネルの閉じるボタンでパネルが非表示になる", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          collectionEntries={dummyCollectionEntries}
+          onRenameCollectionEntry={vi.fn()}
+          onUpdateCollectionMemo={vi.fn()}
+          onRemoveCollectionEntry={vi.fn()}
+          testId="workspace"
+        />,
+      );
+
+      // メニューを開いてコレクションパネルを表示
+      await user.click(screen.getByTestId("workspace-workspace-menu-button"));
+      await user.click(screen.getByTestId("workspace-open-collection-button"));
+      expect(
+        screen.getByTestId("workspace-collection-panel"),
+      ).toBeInTheDocument();
+
+      // 閉じるボタンをクリック
+      const closeButton = screen.getByTestId(
+        "workspace-collection-panel-close",
+      );
+      await user.click(closeButton);
+
+      // パネルが非表示になる
+      expect(
+        screen.queryByTestId("workspace-collection-panel"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe("node context menu - save to collection", () => {
     it("onSaveProofToCollection未指定時はメニュー項目が表示されない", async () => {
       const user = userEvent.setup();
