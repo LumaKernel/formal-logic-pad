@@ -5303,6 +5303,87 @@ describe("ProofWorkspace", () => {
       // カットフリーメッセージが表示される
       expect(screen.getByText("Cut-free")).toBeInTheDocument();
     });
+
+    it("alerts when multiple SC roots found", async () => {
+      const user = userEvent.setup();
+      const alertMock = vi
+        .spyOn(globalThis, "alert")
+        .mockImplementation(() => {});
+
+      // 2つの独立したidentity証明を作成 → 2つのルート
+      let ws = createEmptyWorkspace(sequentCalculusDeduction(lkSystem));
+      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "phi ⇒ phi");
+      ws = addNode(ws, "axiom", "S2", { x: 400, y: 300 }, "psi ⇒ psi");
+
+      // 1つ目のidentity
+      const id1 = applyScRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "identity",
+          sequentText: "phi ⇒ phi",
+          principalPosition: 0,
+        },
+        [],
+      );
+      ws = id1.workspace;
+
+      // 2つ目のidentity
+      const id2 = applyScRuleAndConnect(
+        ws,
+        "node-2",
+        {
+          ruleId: "identity",
+          sequentText: "psi ⇒ psi",
+          principalPosition: 0,
+        },
+        [],
+      );
+      ws = id2.workspace;
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(screen.getByTestId("workspace-cut-elim-start"));
+
+      expect(alertMock).toHaveBeenCalledWith(
+        expect.stringContaining("Multiple proof roots found"),
+      );
+      alertMock.mockRestore();
+    });
+
+    it("alerts when SC proof tree build fails", async () => {
+      const user = userEvent.setup();
+      const alertMock = vi
+        .spyOn(globalThis, "alert")
+        .mockImplementation(() => {});
+
+      // SCエッジ付きだが結論テキストが不正なワークスペースを構築
+      let ws = createEmptyWorkspace(sequentCalculusDeduction(lkSystem));
+      ws = addNode(ws, "axiom", "S1", { x: 100, y: 300 }, "invalid!!!");
+
+      // 不正な conclusionText を持つ SC axiom エッジを手動追加
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "sc-axiom" as const,
+            ruleId: "identity" as const,
+            conclusionNodeId: "node-1",
+            conclusionText: "invalid!!!",
+          },
+        ],
+      };
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      await user.click(screen.getByTestId("workspace-cut-elim-start"));
+
+      expect(alertMock).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to build proof tree"),
+      );
+      alertMock.mockRestore();
+    });
   });
 
   describe("export menu item clicks", () => {
