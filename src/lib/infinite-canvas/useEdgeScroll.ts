@@ -79,7 +79,7 @@ export function useEdgeScroll(
 
         /* v8 ignore start -- rAF内: elapsedは常に正、deltaのidle判定は先にcursorチェック済み */
         if (!isEdgeScrollIdle(delta) && elapsed > 0) {
-        /* v8 ignore stop */
+          /* v8 ignore stop */
           const newOffset = applyEdgeScrollDelta(
             currentViewport.offsetX,
             currentViewport.offsetY,
