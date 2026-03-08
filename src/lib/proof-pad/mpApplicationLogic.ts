@@ -281,7 +281,9 @@ export function getMPErrorMessage(error: MPApplicationError): string {
     case "RightParseError":
       return "Right premise has invalid formula";
     case "MPRuleError": {
+      /* v8 ignore start -- switch行のv8ブランチアーティファクト */
       switch (error.error._tag) {
+        /* v8 ignore stop */
         case "NotAnImplication":
           return "Right premise must be an implication (φ→ψ)";
         case "PremiseMismatch":

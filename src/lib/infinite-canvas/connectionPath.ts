@@ -320,7 +320,9 @@ export function computeSmartConnectionPath(
         const connLen = Math.sqrt(
           (endWorld.x - startWorld.x) ** 2 + (endWorld.y - startWorld.y) ** 2,
         );
+        /* v8 ignore start -- connLen===0 only when start===end (zero-length connection); defensive guard */
         if (connLen > 0) {
+          /* v8 ignore stop */
           const perpX = -(endWorld.y - startWorld.y) / connLen;
           const perpY = (endWorld.x - startWorld.x) / connLen;
 

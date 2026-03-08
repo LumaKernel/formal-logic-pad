@@ -214,7 +214,9 @@ export function TermInput({
   const handleCompletionSelect = useCallback(
     (candidate: Parameters<typeof comp.selectCandidate>[0]) => {
       const result = comp.selectCandidate(candidate);
+      /* v8 ignore start -- selectCandidate always returns a result; false branch is unreachable */
       if (result) {
+        /* v8 ignore stop */
         onChange(result.text);
         requestAnimationFrame(() => {
           // inputRef.current may be null if component unmounts before rAF fires

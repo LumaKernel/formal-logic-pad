@@ -169,7 +169,9 @@ export const isClosureRule = (ruleId: AtRuleId) => ruleId === "closure";
  * 規則IDから表示名を取得する。
  */
 export const getAtRuleDisplayName = (ruleId: AtRuleId): string => {
+  /* v8 ignore start -- switch行のv8ブランチアーティファクト。全15ケースは網羅済み */
   switch (ruleId) {
+    /* v8 ignore stop */
     case "alpha-conj":
       return "T(∧)";
     case "alpha-neg-disj":

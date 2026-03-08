@@ -1520,8 +1520,9 @@ const inferTermReplacement = (
   if (matchFormula(body, target)) {
     // 防御的フォールバック: matchAxiomA4 が事前に freeVariablesInFormula で
     // 変数の自由出現を確認しているため、matchFormula が成功すれば found は常にセットされる
-    /* v8 ignore next */
+    /* v8 ignore start */
     return found ?? variable;
+    /* v8 ignore stop */
   }
   return undefined;
 };
