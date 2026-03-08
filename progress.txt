@@ -10951,3 +10951,24 @@
   - TAB模範解答のprependAndFormat順序: `[...added, principal, ...rest]`。principalは分解対象の式、addedは新しく導出された式
   - Storybookの QuestCatalog ストーリーはモックデータを使用。実際のbuiltinQuestsは表示されないため、テストでの検証が主な品質保証手段
 ---
+
+## 2026-03-09 - SC カット除去体験クエスト追加（sc-ce-07〜sc-ce-10）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8466 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**
+- 変更内容:
+  - sc-ce-07: カットで選言の導入 `φ → (φ ∨ ψ)` (difficulty 2) — axiomステップ
+  - sc-ce-08: カットと選言の可換性 `(φ ∨ ψ) → (ψ ∨ φ)` (difficulty 3) — axiomステップ
+  - sc-ce-09: カットで含意から選言 `(φ → ψ) → (¬φ ∨ ψ)` (difficulty 3, LK) — axiomステップ
+  - sc-ce-10: カットで対偶 `(φ → ψ) → (¬ψ → ¬φ)` (difficulty 3) — axiomステップ
+  - sc-cut-elimination カテゴリ: 6問→10問に拡充
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加（全てaxiomステップパターン）
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 167→171
+- テスト: 8478 passed (243 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/quest-sc-ce-new-quests.png
+- **今後のイテレーションへの学び:**
+  - SC CEクエストの模範解答はaxiomステップパターンが一貫して使える。SC体系ではツリー構築がインタラクティブなため、ゴール式をaxiomとして配置し、ユーザーがルール適用で証明を構築する方式
+  - sc-ce-09は¬φ∨ψを含むためLK体系（systemPresetId: "sc-lk"）が必要。LJでは後件に複数の式を置けない
+  - 選言・否定の組み合わせパターン（sc-ce-07〜10）で既存の含意・連言中心（sc-ce-01〜06）を補完
+---
