@@ -104,6 +104,30 @@
 
 ---
 
+## 2026-03-09 - LK体系固有クエスト追加
+- sc-basicsカテゴリにLK体系固有クエスト4問追加（137→141クエスト、sc-basics: 22→26問）
+  - sc-23: LK: パースの法則 (difficulty 3) - ((φ → ψ) → φ) → φ
+  - sc-24: LK: 逆対偶 (difficulty 3) - (¬ψ → ¬φ) → (φ → ψ)
+  - sc-25: LK: 含意の選言表現 (difficulty 3) - (φ → ψ) → (¬φ ∨ ψ)
+  - sc-26: LK: 弱排中律 (difficulty 2) - ¬φ ∨ ¬¬φ
+- 前回pushのCI失敗修正: prettier未適用のファイルをフォーマット
+- テスト: 243ファイル、8388テスト全パス（8376→8388: +12）
+- カバレッジ: Stmts 99.95%, Branch 100%, Funcs 89.07%, Lines 100%（維持）
+- 変更ファイル:
+  - `src/lib/quest/builtinQuests.ts` (4クエスト定義追加)
+  - `src/lib/quest/builtinModelAnswers.ts` (4模範解答追加)
+  - `src/lib/quest/builtinQuests.test.ts` (カウント更新 137→141)
+- スクリーンショット:
+  - `.screenshots/lk-quests-sc-basics-section.png` (SCカテゴリ 0/26表示)
+  - `.screenshots/lk-quests-new-sc23-26.png` (新4クエスト表示確認)
+- **今後のイテレーションへの学び:**
+  - LK固有定理（LJでは証明不可能）: パースの法則、逆対偶、含意の選言表現、弱排中律
+  - これらはすべてLKの右辺複数式を本質的に使う（LJではmaxSuccedentLength=1のため不可）
+  - sc-basicsは26問に到達。LK(10+4)とLJ(12)の基本性質を網羅的にカバー
+  - prettierのCI失敗: コミット前に`npx prettier --write`を必ず実行すること
+  - 次のステップとして: 量化子を含むSCクエスト、またはカット除去体験クエスト拡充が候補
+---
+
 ## 2026-03-09 - LJ体系クエスト追加（第3弾）
 - sc-basicsカテゴリにLJ体系クエスト4問追加（133→137クエスト、sc-basics: 18→22問）
   - sc-19: LJ選言導入 (difficulty 1) - φ → (φ ∨ ψ)
