@@ -11225,3 +11225,25 @@
   - TAB分岐規則(→, ¬∧, ¬∨)はstepNodeIdsに2エントリ生成。conclusionIndexで左枝(0)と右枝(1)を参照
   - TAB BS(Basic Sequent)規則: principalPositionは無視される。結論ノードのformulaを直接参照
 ---
+
+## 2026-03-09 - equality-basics クエスト拡充 (eq-07〜eq-10)
+- equality-basics カテゴリを6問→10問に拡充（全215→219クエスト）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8610 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）, 8610 tests**
+- 変更内容:
+  - eq-07: ∀x. x = x → (x = x → x = x) — A1インスタンス+Gen入門 (difficulty 1, 2 steps)
+  - eq-08: a = b → a = b — 恒等律の等号版 (difficulty 2, 5 steps)
+  - eq-09: (a = a → b = b) → (a = a → b = b) — 恒等律の応用 (difficulty 2, 5 steps)
+  - eq-10: ∀x.∀y. x = y → x = y — 恒等律+Gen×2で全称化 (difficulty 3, 7 steps)
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 215→219
+- テスト: 8610 passed, typecheck OK, lint OK, prettier OK
+- スクリーンショット: .screenshots/eq-basics-quest-catalog-overview.png, .screenshots/quest-catalog-component.png
+- **今後のイテレーションへの学び:**
+  - 等号基礎プリセット(equality)はE1(反射律)・E2(対称律)・E3(推移律)のみ利用可能。E4/E5は署名依存で動的生成されるため基本equalityプリセットには含まれない
+  - 恒等律パターン(φ→φ)はA2+A1+MP+A1+MPの5ステップで、任意の式φに適用可能（等号式含む）
+  - Gen規則の模範解答: `{ _tag: "gen", premiseIndex: N, variableName: "x" }` で直前の定理を全称化
+  - HubPageView.stories.tsxは`builtinQuests.slice(0, 20)`のためequality-basicsクエストはストーリーに表示されない（テストで検証）
+---
