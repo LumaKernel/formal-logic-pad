@@ -2751,8 +2751,7 @@ const qNd27ConjunctionDisjunctionDistribution: QuestDefinition = {
   systemPresetId: "nd-nm",
   goals: [
     {
-      formulaText:
-        "phi /\\ (psi \\/ chi) -> (phi /\\ psi) \\/ (phi /\\ chi)",
+      formulaText: "phi /\\ (psi \\/ chi) -> (phi /\\ psi) \\/ (phi /\\ chi)",
       label: "Goal: φ ∧ (ψ ∨ χ) → (φ ∧ ψ) ∨ (φ ∧ χ)",
     },
   ],
