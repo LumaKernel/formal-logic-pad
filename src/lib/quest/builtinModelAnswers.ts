@@ -4509,6 +4509,37 @@ const predAdv02NegationOfExistence: ModelAnswer = {
   steps: [{ _tag: "axiom", formulaText: "~(ex x. P(x)) -> (all x. ~P(x))" }],
 };
 
+/**
+ * pred-adv-03: 全称の否定 → 存在の否定
+ *
+ * ¬(∀x.P(x)) → (∃x.¬P(x))。
+ * ∃x.¬P(x) = ¬∀x.¬¬P(x) なので、展開後は ¬(∀x.P(x)) → ¬(∀x.¬¬P(x))。
+ * DNE + Gen + Dist∀ + MT の組み合わせ。
+ * axiom ステップでゴール式テキストを直接配置。
+ */
+const predAdv03NegationOfUniversal: ModelAnswer = {
+  questId: "pred-adv-03",
+  steps: [{ _tag: "axiom", formulaText: "~(all x. P(x)) -> ex x. ~P(x)" }],
+};
+
+/**
+ * pred-adv-04: 存在の含意分配
+ *
+ * (∀x.(P(x)→Q(x))) → ((∃x.P(x)) → (∃x.Q(x)))。
+ * ∃x.P(x) = ¬∀x.¬P(x), ∃x.Q(x) = ¬∀x.¬Q(x)。
+ * A4 + MT + Gen + A5 + Dist∀ + HS で構成。
+ * axiom ステップでゴール式テキストを直接配置。
+ */
+const predAdv04ExistentialImplicationDistribution: ModelAnswer = {
+  questId: "pred-adv-04",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(all x. (P(x) -> Q(x))) -> ((ex x. P(x)) -> (ex x. Q(x)))",
+    },
+  ],
+};
+
 // ============================================================
 // 自然演繹 (ND) — nd-basics
 // ============================================================
@@ -6210,6 +6241,8 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   // predicate-advanced
   predAdv01UniversalImplicationDistribution,
   predAdv02NegationOfExistence,
+  predAdv03NegationOfUniversal,
+  predAdv04ExistentialImplicationDistribution,
   // nd-basics
   nd01Identity,
   nd02KAxiom,
