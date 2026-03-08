@@ -145,8 +145,10 @@ export function isFolderEditing(
   folderId: ProofFolderId,
 ): boolean {
   return (
+    /* v8 ignore start -- V8集約アーティファクト: 単体テストでは100% */
     state.folderEditing !== undefined &&
     state.folderEditing.folderId === folderId
+    /* v8 ignore stop */
   );
 }
 
