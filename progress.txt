@@ -10278,3 +10278,22 @@
   - ⇒→は前件の式を左辺の先頭に追加する（末尾ではない）
   - Boolosの速度向上定理は referenceContent.ts の concept-speed-up-theorem で既に言及あり
 ---
+
+## 2026-03-08 - [quest] group-proofs カテゴリ拡充
+- group-proofs カテゴリに3問追加（2問→5問）
+  - group-09: 結合律G1の3変数∀消去 (a*b)*c = a*(b*c) — 7ステップ、難易度3
+  - group-10: 右逆元G3Rの∀消去 a*i(a) = e — 3ステップ、難易度2
+  - group-11: アーベル群の可換律G4の2変数∀消去 a*b = b*a — 5ステップ、難易度2
+- 背景: group-proofs は全15カテゴリ中最少の2問で、group-basics(6問)からの段階が急峻だった
+- 変更したファイル:
+  - src/lib/quest/builtinQuests.ts (+3 quest definitions)
+  - src/lib/quest/builtinModelAnswers.ts (+3 model answers)
+  - src/lib/quest/builtinQuests.test.ts (count 122→125)
+- カバレッジ:
+  - 変更なし（データ定義のみ）: Stmts 99.33%, Branch 95.81%, Funcs 89.31%, Lines 99.84%
+- テスト: 8242 passed, 242 test files
+- **今後のイテレーションへの学び:**
+  - 群論クエスト追加は eq-04/05/06 の等号公理インスタンス化と同じA4+MPパターン
+  - 3変数全称消去は7ステップ(eq-06: E3パターンと同一)、2変数は5ステップ(eq-05: E2パターン)
+  - group-full は G2R/G3R を公理として含むため、左公理系からの導出問題にはならない
+---
