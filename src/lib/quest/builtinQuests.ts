@@ -4449,6 +4449,111 @@ const qSc30LjUniversalSwap: QuestDefinition = {
   version: 1,
 };
 
+const qSc31LjExistentialElim: QuestDefinition = {
+  id: "sc-31",
+  category: "sc-basics",
+  title: "LJ: 存在除去 (∃⇒)",
+  description:
+    "∃x.(P(x) ∧ Q(x)) → ∃x.P(x) をLJ体系で証明せよ。∃⇒（存在左）規則で存在量化子を除去し、固有変数条件を満たしながら証明を構成する。",
+  difficulty: 2,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "exists x. (P(x) and Q(x)) -> exists x. P(x)",
+      label: "Goal: ∃x.(P(x) ∧ Q(x)) → ∃x.P(x)",
+    },
+  ],
+  hints: [
+    "⇒→ 規則で ∃x.(P(x) ∧ Q(x)) ⇒ ∃x.P(x) に帰着します。",
+    "∃⇒（存在左）規則で左辺の存在量化子を除去します。固有変数 a を導入します。",
+    "∧⇒ で P(a) を取り出し、⇒∃ で ∃x.P(x) を導入します。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "∃⇒ 規則はシーケントの左辺（前件）にある存在量化子を、固有変数で置き換える操作。固有変数は結論のシーケントに現れてはならない（固有変数条件）。",
+  order: 31,
+  version: 1,
+};
+
+const qSc32LjExistentialDistrib: QuestDefinition = {
+  id: "sc-32",
+  category: "sc-basics",
+  title: "LJ: 存在量化子の分配",
+  description:
+    "∃x.(P(x) ∨ Q(x)) → ∃x.P(x) ∨ ∃x.Q(x) をLJ体系で証明せよ。∃⇒ と ∨⇒ の組み合わせで、存在量化子を選言の外に分配する。",
+  difficulty: 3,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText:
+        "exists x. (P(x) or Q(x)) -> exists x. P(x) or exists x. Q(x)",
+      label: "Goal: ∃x.(P(x) ∨ Q(x)) → ∃x.P(x) ∨ ∃x.Q(x)",
+    },
+  ],
+  hints: [
+    "⇒→ 規則で ∃x.(P(x) ∨ Q(x)) ⇒ ∃x.P(x) ∨ ∃x.Q(x) に帰着します。",
+    "∃⇒ 規則で存在量化子を除去し、∨⇒ 規則で P(a) と Q(a) の場合分けをします。",
+    "各分岐で ⇒∃ と ⇒∨ を使って結論を導きます。",
+  ],
+  estimatedSteps: 8,
+  learningPoint:
+    "存在量化子と選言の分配は、∃⇒ で固有変数を導入した後、∨⇒ で場合分けし、各分岐で ⇒∃ と ⇒∨ を組み合わせる典型的なパターン。",
+  order: 32,
+  version: 1,
+};
+
+const qSc33LkNegUniversalToExistNeg: QuestDefinition = {
+  id: "sc-33",
+  category: "sc-basics",
+  title: "LK: 否定全称から存在否定",
+  description:
+    "¬(∀x.P(x)) → ∃x.¬P(x) をLK体系で証明せよ。LK固有の右辺複数式を活用した古典量化子等価性。直観主義論理（LJ）では証明できない。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "not (all x. P(x)) -> exists x. not P(x)",
+      label: "Goal: ¬(∀x.P(x)) → ∃x.¬P(x)",
+    },
+  ],
+  hints: [
+    "⇒→ 規則で ¬(∀x.P(x)) ⇒ ∃x.¬P(x) に帰着します。",
+    "¬⇒ 規則で左辺の否定を処理すると、右辺に ∀x.P(x) と ∃x.¬P(x) が並びます（LK固有）。",
+    "⇒∀ と ⇒∃ を使い、⇒¬ で P(a) ⇒ P(a) の Identity に帰着します。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "¬∀ → ∃¬ は古典論理固有の等価性。LKでは右辺に複数の式を置けるため、¬⇒ で否定を処理した後に ∀x.P(x) と ∃x.¬P(x) を同時に扱える。",
+  order: 33,
+  version: 1,
+};
+
+const qSc34LjUniversalImplDistrib: QuestDefinition = {
+  id: "sc-34",
+  category: "sc-basics",
+  title: "LJ: 全称と含意の分配",
+  description:
+    "∀x.(P(x) → Q(x)) → (∀x.P(x) → ∀x.Q(x)) をLJ体系で証明せよ。∀⇒ と ⇒∀ を組み合わせて、全称量化子を含意の外に分配する。",
+  difficulty: 2,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "all x. (P(x) -> Q(x)) -> (all x. P(x) -> all x. Q(x))",
+      label: "Goal: ∀x.(P(x) → Q(x)) → (∀x.P(x) → ∀x.Q(x))",
+    },
+  ],
+  hints: [
+    "⇒→ 規則を2回使って、∀x.(P(x) → Q(x)), ∀x.P(x) ⇒ ∀x.Q(x) に帰着します。",
+    "⇒∀ 規則で右辺の ∀x.Q(x) を Q(a) に。フレッシュ変数 a を導入します。",
+    "∀⇒ 規則を2回使って P(a) → Q(a) と P(a) を取り出し、→⇒ で Q(a) を導きます。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "全称量化子と含意の分配は、⇒∀ でフレッシュ変数を導入し、∀⇒ で具体化して →⇒ で結論を導く典型パターン。述語論理の重要な性質。",
+  order: 34,
+  version: 1,
+};
+
 // --- カット除去体験クエスト ---
 
 const qScCe01CutBasic: QuestDefinition = {
@@ -4901,6 +5006,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qSc28LjExistentialIntro,
   qSc29LjUniversalToExistential,
   qSc30LjUniversalSwap,
+  qSc31LjExistentialElim,
+  qSc32LjExistentialDistrib,
+  qSc33LkNegUniversalToExistNeg,
+  qSc34LjUniversalImplDistrib,
   qScCe01CutBasic,
   qScCe02CutModusPonens,
   qScCe03CutConjunctionCommute,

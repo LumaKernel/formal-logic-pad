@@ -6694,6 +6694,47 @@ const sc30LjUniversalSwap: ModelAnswer = {
   ],
 };
 
+const sc31LjExistentialElim: ModelAnswer = {
+  questId: "sc-31",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "exists x. (P(x) and Q(x)) -> exists x. P(x)",
+    },
+  ],
+};
+
+const sc32LjExistentialDistrib: ModelAnswer = {
+  questId: "sc-32",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "exists x. (P(x) or Q(x)) -> exists x. P(x) or exists x. Q(x)",
+    },
+  ],
+};
+
+const sc33LkNegUniversalToExistNeg: ModelAnswer = {
+  questId: "sc-33",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "not (all x. P(x)) -> exists x. not P(x)",
+    },
+  ],
+};
+
+const sc34LjUniversalImplDistrib: ModelAnswer = {
+  questId: "sc-34",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "all x. (P(x) -> Q(x)) -> (all x. P(x) -> all x. Q(x))",
+    },
+  ],
+};
+
 // ============================================================
 // シーケント計算カット除去 (SC-CE) — sc-cut-elimination
 // ============================================================
@@ -7303,6 +7344,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   sc28LjExistentialIntro,
   sc29LjUniversalToExistential,
   sc30LjUniversalSwap,
+  sc31LjExistentialElim,
+  sc32LjExistentialDistrib,
+  sc33LkNegUniversalToExistNeg,
+  sc34LjUniversalImplDistrib,
   // sc-cut-elimination
   sc_ce01Transitivity,
   sc_ce02ModusPonens,
