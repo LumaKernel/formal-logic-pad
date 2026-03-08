@@ -1762,8 +1762,7 @@ function CutEliminationWorkspace() {
         leftId,
         {
           ruleId: "identity",
-          sequentText:
-            ws.nodes.find((n) => n.id === leftId)?.formulaText ?? "",
+          sequentText: ws.nodes.find((n) => n.id === leftId)?.formulaText ?? "",
           principalPosition: 0,
         },
         [],

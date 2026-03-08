@@ -4609,8 +4609,7 @@ export function ProofWorkspace({
                 borderRadius: 6,
                 border:
                   "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.3))",
-                background:
-                  "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
+                background: "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
                 cursor: "pointer",
                 color: "var(--color-text-primary, #333)",
                 fontFamily: "var(--font-ui)",
@@ -4619,9 +4618,7 @@ export function ProofWorkspace({
               }}
               onClick={handleStartCutElimination}
               data-testid={
-                testId
-                  ? `${testId satisfies string}-cut-elim-start`
-                  : undefined
+                testId ? `${testId satisfies string}-cut-elim-start` : undefined
               }
             >
               {msg.cutEliminationStart}
@@ -4656,9 +4653,7 @@ export function ProofWorkspace({
             onStepChange={setCutElimStepIndex}
             messages={msg}
             testId={
-              testId
-                ? `${testId satisfies string}-cut-elim-stepper`
-                : undefined
+              testId ? `${testId satisfies string}-cut-elim-stepper` : undefined
             }
           />
           <button
@@ -4672,8 +4667,7 @@ export function ProofWorkspace({
               borderRadius: 4,
               border:
                 "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.3))",
-              background:
-                "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
+              background: "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
               cursor: "pointer",
               fontSize: 10,
               color: "var(--color-text-secondary, #666)",
@@ -4681,9 +4675,7 @@ export function ProofWorkspace({
             }}
             onClick={handleCloseCutElimination}
             data-testid={
-              testId
-                ? `${testId satisfies string}-cut-elim-close`
-                : undefined
+              testId ? `${testId satisfies string}-cut-elim-close` : undefined
             }
           >
             {msg.cutEliminationClose}
