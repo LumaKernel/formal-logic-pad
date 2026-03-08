@@ -4001,6 +4001,188 @@ const peano12Q7: ModelAnswer = {
   ],
 };
 
+/**
+ * peano-13: 0 + S(0) = S(0)
+ *
+ * PA4 + PA3 + E4(S) + E3(推移律)。13ステップ。
+ * 1. PA4: ∀x.∀y. x+S(y)=S(x+y)
+ * 2. A4[x→0]: → ∀y. 0+S(y)=S(0+y)
+ * 3. MP(0,1)
+ * 4. A4[y→0]: → 0+S(0)=S(0+0)
+ * 5. MP(2,3): 0+S(0)=S(0+0)
+ * 6. PA3: ∀x. x+0=x
+ * 7. A4[x→0]: → 0+0=0
+ * 8. MP(5,6): 0+0=0
+ * 9. E4(S): 0+0=0 → S(0+0)=S(0)
+ * 10. MP(7,8): S(0+0)=S(0)
+ * 11. E3: 0+S(0)=S(0+0) → (S(0+0)=S(0) → 0+S(0)=S(0))
+ * 12. MP(4,10): S(0+0)=S(0) → 0+S(0)=S(0)
+ * 13. MP(9,11): 0+S(0)=S(0)
+ */
+const peano13ZeroPlusOne: ModelAnswer = {
+  questId: "peano-13",
+  steps: [
+    // PA4 instantiation: 0+S(0)=S(0+0)
+    { _tag: "axiom", formulaText: "all x. all y. x + S(y) = S(x + y)" },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. x + S(y) = S(x + y)) -> all y. 0 + S(y) = S(0 + y)",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. 0 + S(y) = S(0 + y)) -> 0 + S(0) = S(0 + 0)",
+    },
+    { _tag: "mp", leftIndex: 2, rightIndex: 3 },
+    // PA3 instantiation: 0+0=0
+    { _tag: "axiom", formulaText: "all x. x + 0 = x" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. x + 0 = x) -> 0 + 0 = 0",
+    },
+    { _tag: "mp", leftIndex: 5, rightIndex: 6 },
+    // E4(S): 0+0=0 → S(0+0)=S(0)
+    {
+      _tag: "axiom",
+      formulaText: "0 + 0 = 0 -> S(0 + 0) = S(0)",
+    },
+    { _tag: "mp", leftIndex: 7, rightIndex: 8 },
+    // E3 transitivity: chain the two equalities
+    {
+      _tag: "axiom",
+      formulaText:
+        "0 + S(0) = S(0 + 0) -> (S(0 + 0) = S(0) -> 0 + S(0) = S(0))",
+    },
+    { _tag: "mp", leftIndex: 4, rightIndex: 10 },
+    { _tag: "mp", leftIndex: 9, rightIndex: 11 },
+  ],
+};
+
+/**
+ * peano-14: 0 × S(0) = 0
+ *
+ * PA6 + PA3 + PA5 + E3(推移律)×2。17ステップ。
+ * PA6で 0*S(0) = 0*0+0 を得て、PA3で 0*0+0=0*0、PA5で 0*0=0、E3で連結。
+ */
+const peano14ZeroTimesOne: ModelAnswer = {
+  questId: "peano-14",
+  steps: [
+    // PA6 instantiation: 0*S(0) = 0*0+0
+    { _tag: "axiom", formulaText: "all x. all y. x * S(y) = x * y + x" },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. x * S(y) = x * y + x) -> all y. 0 * S(y) = 0 * y + 0",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. 0 * S(y) = 0 * y + 0) -> 0 * S(0) = 0 * 0 + 0",
+    },
+    { _tag: "mp", leftIndex: 2, rightIndex: 3 },
+    // PA3 instantiation: 0*0+0 = 0*0
+    { _tag: "axiom", formulaText: "all x. x + 0 = x" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. x + 0 = x) -> 0 * 0 + 0 = 0 * 0",
+    },
+    { _tag: "mp", leftIndex: 5, rightIndex: 6 },
+    // E3: 0*S(0)=0*0+0 → (0*0+0=0*0 → 0*S(0)=0*0)
+    {
+      _tag: "axiom",
+      formulaText:
+        "0 * S(0) = 0 * 0 + 0 -> (0 * 0 + 0 = 0 * 0 -> 0 * S(0) = 0 * 0)",
+    },
+    { _tag: "mp", leftIndex: 4, rightIndex: 8 },
+    { _tag: "mp", leftIndex: 7, rightIndex: 9 },
+    // PA5 instantiation: 0*0=0
+    { _tag: "axiom", formulaText: "all x. x * 0 = 0" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. x * 0 = 0) -> 0 * 0 = 0",
+    },
+    { _tag: "mp", leftIndex: 11, rightIndex: 12 },
+    // E3: 0*S(0)=0*0 → (0*0=0 → 0*S(0)=0)
+    {
+      _tag: "axiom",
+      formulaText:
+        "0 * S(0) = 0 * 0 -> (0 * 0 = 0 -> 0 * S(0) = 0)",
+    },
+    { _tag: "mp", leftIndex: 10, rightIndex: 14 },
+    { _tag: "mp", leftIndex: 13, rightIndex: 15 },
+  ],
+};
+
+/**
+ * peano-15: S(S(0)) + S(0) = S(S(S(0)))
+ *
+ * PA4 + PA3 + E4(S) + E3(推移律)。13ステップ。peano-11と同じパターン。
+ * PA4で S(S(0))+S(0)=S(S(S(0))+0) → PA3で S(S(0))+0=S(S(0)) → E4(S)で S(S(S(0))+0)=S(S(S(0))) → E3で連結
+ */
+const peano15TwoPlusOne: ModelAnswer = {
+  questId: "peano-15",
+  steps: [
+    // PA4 instantiation: S(S(0))+S(0)=S(S(S(0))+0)
+    { _tag: "axiom", formulaText: "all x. all y. x + S(y) = S(x + y)" },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. x + S(y) = S(x + y)) -> all y. S(S(0)) + S(y) = S(S(S(0)) + y)",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. S(S(0)) + S(y) = S(S(S(0)) + y)) -> S(S(0)) + S(0) = S(S(S(0)) + 0)",
+    },
+    { _tag: "mp", leftIndex: 2, rightIndex: 3 },
+    // PA3 instantiation: S(S(0))+0=S(S(0))
+    { _tag: "axiom", formulaText: "all x. x + 0 = x" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. x + 0 = x) -> S(S(0)) + 0 = S(S(0))",
+    },
+    { _tag: "mp", leftIndex: 5, rightIndex: 6 },
+    // E4(S): S(S(0))+0=S(S(0)) → S(S(S(0))+0)=S(S(S(0)))
+    {
+      _tag: "axiom",
+      formulaText: "S(S(0)) + 0 = S(S(0)) -> S(S(S(0)) + 0) = S(S(S(0)))",
+    },
+    { _tag: "mp", leftIndex: 7, rightIndex: 8 },
+    // E3 transitivity: chain
+    {
+      _tag: "axiom",
+      formulaText:
+        "S(S(0)) + S(0) = S(S(S(0)) + 0) -> (S(S(S(0)) + 0) = S(S(S(0))) -> S(S(0)) + S(0) = S(S(S(0))))",
+    },
+    { _tag: "mp", leftIndex: 4, rightIndex: 10 },
+    { _tag: "mp", leftIndex: 9, rightIndex: 11 },
+  ],
+};
+
+/**
+ * peano-16: S(S(0)) × 0 = 0
+ *
+ * PA5 + A4(x→S(S(0))) + MP。3ステップ。
+ * 1. PA5: ∀x. x * 0 = 0
+ * 2. A4[x→S(S(0))]: (∀x. x*0=0) → S(S(0))*0=0
+ * 3. MP(0,1): S(S(0)) * 0 = 0
+ */
+const peano16TwoTimesZero: ModelAnswer = {
+  questId: "peano-16",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. x * 0 = 0" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. x * 0 = 0) -> S(S(0)) * 0 = 0",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
 // ============================================================
 // group-basics: 群論の公理（直接配置）
 // 両側公理系: G1(結合律) + G2L(左単位元) + G2R(右単位元) + G3L(左逆元) + G3R(右逆元)
@@ -8104,6 +8286,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   peano10SuccNotZero,
   peano11OnePlusOne,
   peano12Q7,
+  peano13ZeroPlusOne,
+  peano14ZeroTimesOne,
+  peano15TwoPlusOne,
+  peano16TwoTimesZero,
   // group-basics
   group01Associativity,
   group02LeftIdentity,

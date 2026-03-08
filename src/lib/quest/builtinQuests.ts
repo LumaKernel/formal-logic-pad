@@ -1343,6 +1343,112 @@ const qPA12RobinsonSurjectivity: QuestDefinition = {
   version: 1,
 };
 
+const qPA13ZeroPlusOne: QuestDefinition = {
+  id: "peano-13",
+  category: "peano-arithmetic",
+  title: "0 + S(0) = S(0)",
+  description:
+    "0 + S(0) = S(0) を証明せよ。0+1=1の形式的証明。PA4とPA3を等号公理で連結する。",
+  difficulty: 3,
+  systemPresetId: "peano",
+  goals: [
+    {
+      formulaText: "0 + S(0) = S(0)",
+      label: "Goal: 0 + 1 = 1",
+    },
+  ],
+  hints: [
+    "PA4: ∀x.∀y. x + S(y) = S(x + y) をx=0, y=0でインスタンス化します。",
+    "すると 0 + S(0) = S(0 + 0) が得られます。",
+    "PA3: ∀x. x + 0 = x をx=0でインスタンス化し、E4(S関数の合同性)で S(0+0)=S(0) を導きます。",
+    "E3(推移律)で 0+S(0)=S(0+0) と S(0+0)=S(0) を連結します。",
+  ],
+  estimatedSteps: 13,
+  learningPoint:
+    "左側が0の加法はPA4を使う。PA3(x+0=x)とPA4(x+S(y)=S(x+y))は異なる引数位置を扱う。",
+  order: 7,
+  version: 1,
+};
+
+const qPA14ZeroTimesOne: QuestDefinition = {
+  id: "peano-14",
+  category: "peano-arithmetic",
+  title: "0 × S(0) = 0",
+  description:
+    "0 × S(0) = 0 を証明せよ。0×1=0の形式的証明。PA6(乗法の再帰)を初めて使う。",
+  difficulty: 3,
+  systemPresetId: "peano",
+  goals: [
+    {
+      formulaText: "0 * S(0) = 0",
+      label: "Goal: 0 × 1 = 0",
+    },
+  ],
+  hints: [
+    "PA6: ∀x.∀y. x * S(y) = x * y + x をx=0, y=0でインスタンス化します。",
+    "すると 0 * S(0) = 0 * 0 + 0 が得られます。",
+    "PA3で 0*0+0 = 0*0 を、PA5で 0*0 = 0 を導きます。",
+    "E3(推移律)で等式を連結して 0 * S(0) = 0 を得ます。",
+  ],
+  estimatedSteps: 17,
+  learningPoint:
+    "PA6は乗法の再帰的定義。x*S(y)=x*y+xを展開し、PA5(x*0=0)とPA3(x+0=x)で基底に帰着させる。",
+  order: 8,
+  version: 1,
+};
+
+const qPA15TwoPlusOne: QuestDefinition = {
+  id: "peano-15",
+  category: "peano-arithmetic",
+  title: "S(S(0)) + S(0) = S(S(S(0)))",
+  description:
+    "S(S(0)) + S(0) = S(S(S(0))) を証明せよ。2+1=3の形式的証明。peano-11 (1+1=2) と同じ手法。",
+  difficulty: 3,
+  systemPresetId: "peano",
+  goals: [
+    {
+      formulaText: "S(S(0)) + S(0) = S(S(S(0)))",
+      label: "Goal: 2 + 1 = 3",
+    },
+  ],
+  hints: [
+    "PA4: ∀x.∀y. x + S(y) = S(x + y) をx=S(S(0)), y=0でインスタンス化します。",
+    "すると S(S(0)) + S(0) = S(S(S(0)) + 0) が得られます。",
+    "PA3: ∀x. x + 0 = x をx=S(S(0))でインスタンス化し、E4で S(S(S(0))+0)=S(S(S(0))) を導きます。",
+    "E3(推移律)で等式を連結します。",
+  ],
+  estimatedSteps: 13,
+  learningPoint:
+    "peano-11と同じPA4+PA3+E4+E3パターン。項が深くなっても手順は同一。計算の「繰り返し」構造。",
+  order: 9,
+  version: 1,
+};
+
+const qPA16TwoTimesZero: QuestDefinition = {
+  id: "peano-16",
+  category: "peano-arithmetic",
+  title: "S(S(0)) × 0 = 0",
+  description:
+    "S(S(0)) × 0 = 0 を証明せよ。2×0=0の形式的証明。PA5の∀消去で導く。",
+  difficulty: 2,
+  systemPresetId: "peano",
+  goals: [
+    {
+      formulaText: "S(S(0)) * 0 = 0",
+      label: "Goal: 2 × 0 = 0",
+    },
+  ],
+  hints: [
+    "PA5: ∀x. x * 0 = 0 を使います。",
+    "A4でxにS(S(0))を代入して S(S(0)) * 0 = 0 を得ます。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "PA5のインスタンス化でどんな自然数でもn×0=0が導ける。項の複雑さに関わらず手順は同じ。",
+  order: 10,
+  version: 1,
+};
+
 // --- 群論の基礎 ---
 
 const qG01Associativity: QuestDefinition = {
@@ -5555,6 +5661,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qPA10SuccessorNotZeroInstance,
   qPA11OnePlusOne,
   qPA12RobinsonSurjectivity,
+  qPA13ZeroPlusOne,
+  qPA14ZeroTimesOne,
+  qPA15TwoPlusOne,
+  qPA16TwoTimesZero,
   qG01Associativity,
   qG02LeftIdentity,
   qG03LeftInverse,
