@@ -104,6 +104,28 @@
 
 ---
 
+## 2026-03-09 - LJ体系クエスト追加（第3弾）
+- sc-basicsカテゴリにLJ体系クエスト4問追加（133→137クエスト、sc-basics: 18→22問）
+  - sc-19: LJ選言導入 (difficulty 1) - φ → (φ ∨ ψ)
+  - sc-20: LJカリー化 (difficulty 2) - ((φ ∧ ψ) → χ) → (φ → (ψ → χ))
+  - sc-21: LJ逆カリー化 (difficulty 2) - (φ → (ψ → χ)) → ((φ ∧ ψ) → χ)
+  - sc-22: LJ含意と連言の分配 (difficulty 3) - (φ → (ψ ∧ χ)) → ((φ → ψ) ∧ (φ → χ))
+- テスト: 243ファイル、8376テスト全パス（8364→8376: +12）
+- カバレッジ: Stmts 99.95%, Branch 100%, Funcs 89.07%, Lines 100%（維持）
+- 変更ファイル:
+  - `src/lib/quest/builtinQuests.ts` (4クエスト定義追加)
+  - `src/lib/quest/builtinModelAnswers.ts` (4模範解答追加)
+  - `src/lib/quest/builtinQuests.test.ts` (カウント更新 133→137)
+- スクリーンショット:
+  - `.screenshots/lj-quests-sc-basics-expanded.png` (SCカテゴリ 0/22表示)
+  - `.screenshots/lj-quests-new-sc19.png` (sc-19表示確認)
+  - `.screenshots/lj-quests-new-sc20-22.png` (sc-22表示確認)
+- **今後のイテレーションへの学び:**
+  - LJ体系で証明可能な基本定理のバリエーション: 選言導入、カリー化/逆カリー化、含意の連言分配
+  - sc-basics は22問に到達。LJ体系の選言・連言・含意の基本性質を網羅的にカバー
+  - 次のステップとして: 量化子を含むLJクエスト、またはLK固有（古典論理のみ証明可能）なクエスト追加が候補
+---
+
 ## 2026-03-08 - LJ体系クエスト追加（第2弾）
 - sc-basicsカテゴリにLJ体系クエスト4問追加（129→133クエスト、sc-basics: 14→18問）
   - sc-15: LJ連言除去 (difficulty 1) - (φ ∧ ψ) → φ
