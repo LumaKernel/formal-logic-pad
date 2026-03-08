@@ -89,6 +89,15 @@ describe("recoverContractedFormula", () => {
     expect(recoverContractedFormula([phi], [phi])).toBeUndefined();
     expect(recoverContractedFormula([phi, psi], [phi])).toBeUndefined();
   });
+
+  it("サイズは合うが論理式が一致しない場合はundefinedを返す", () => {
+    // 前提 [phi, psi] から1つ除いても結論 [phi] と一致しない
+    // phi, psi → 除いてpsiだけ残す → phiとは不一致
+    // phi, psi → 除いてphiだけ残す → phiと一致するので実はマッチする
+    // より確実なケース: 結論と前提で全く異なる論理式
+    const chi: Formula = new MetaVariable({ name: "χ" });
+    expect(recoverContractedFormula([chi], [phi, psi])).toBeUndefined();
+  });
 });
 
 // ── recoverCutFormula ────────────────────────────────────────
@@ -166,6 +175,57 @@ describe("findScRootNodeIds", () => {
       },
     ];
     expect(findScRootNodeIds(nodes, edges)).toEqual([]);
+  });
+
+  it("分岐エッジの前提ノードはルートにならない", () => {
+    const nodes = [
+      makeNode("n1", "⇒ ψ"),
+      makeNode("n2", "⇒ φ"),
+      makeNode("n3", "φ ⇒ ψ"),
+    ];
+    const edges: InferenceEdge[] = [
+      {
+        _tag: "sc-axiom",
+        ruleId: "identity",
+        conclusionNodeId: "n2",
+        conclusionText: "⇒ φ",
+      } satisfies ScAxiomEdge,
+      {
+        _tag: "sc-axiom",
+        ruleId: "identity",
+        conclusionNodeId: "n3",
+        conclusionText: "φ ⇒ ψ",
+      } satisfies ScAxiomEdge,
+      {
+        _tag: "sc-branching",
+        ruleId: "cut",
+        conclusionNodeId: "n1",
+        leftPremiseNodeId: "n2",
+        rightPremiseNodeId: "n3",
+        leftConclusionText: "⇒ φ",
+        rightConclusionText: "φ ⇒ ψ",
+        conclusionText: "⇒ ψ",
+      } satisfies ScBranchingEdge,
+    ];
+    // n1がルート、n2・n3は前提として参照されるのでルートではない
+    expect(findScRootNodeIds(nodes, edges)).toEqual(["n1"]);
+  });
+
+  it("分岐エッジの前提がundefinedの場合も正しく処理する", () => {
+    const nodes = [makeNode("n1", "⇒ ψ")];
+    const edges: InferenceEdge[] = [
+      {
+        _tag: "sc-branching",
+        ruleId: "cut",
+        conclusionNodeId: "n1",
+        leftPremiseNodeId: undefined,
+        rightPremiseNodeId: undefined,
+        leftConclusionText: "⇒ φ",
+        rightConclusionText: "φ ⇒ ψ",
+        conclusionText: "⇒ ψ",
+      } satisfies ScBranchingEdge,
+    ];
+    expect(findScRootNodeIds(nodes, edges)).toEqual(["n1"]);
   });
 });
 
@@ -701,6 +761,81 @@ describe("buildScProofTree", () => {
         expect(result.right._tag).toBe("ScUniversalLeft");
       }
     });
+
+    it("universal-rightを構築できる", () => {
+      const nodes = [makeNode("n1", "⇒ ∀p.phi"), makeNode("n2", "⇒ phi")];
+      const edges: InferenceEdge[] = [
+        {
+          _tag: "sc-axiom",
+          ruleId: "identity",
+          conclusionNodeId: "n2",
+          conclusionText: "⇒ phi",
+        } satisfies ScAxiomEdge,
+        {
+          _tag: "sc-single",
+          ruleId: "universal-right",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          conclusionText: "⇒ ∀p.phi",
+          termText: "p",
+        } satisfies ScSinglePremiseEdge,
+      ];
+      const result = buildScProofTree("n1", nodes, edges);
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right._tag).toBe("ScUniversalRight");
+      }
+    });
+
+    it("existential-leftを構築できる", () => {
+      const nodes = [makeNode("n1", "∃p.phi ⇒ ψ"), makeNode("n2", "phi ⇒ ψ")];
+      const edges: InferenceEdge[] = [
+        {
+          _tag: "sc-axiom",
+          ruleId: "identity",
+          conclusionNodeId: "n2",
+          conclusionText: "phi ⇒ ψ",
+        } satisfies ScAxiomEdge,
+        {
+          _tag: "sc-single",
+          ruleId: "existential-left",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          conclusionText: "∃p.phi ⇒ ψ",
+          termText: "p",
+        } satisfies ScSinglePremiseEdge,
+      ];
+      const result = buildScProofTree("n1", nodes, edges);
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right._tag).toBe("ScExistentialLeft");
+      }
+    });
+
+    it("existential-rightを構築できる", () => {
+      const nodes = [makeNode("n1", "⇒ ∃p.phi"), makeNode("n2", "⇒ phi")];
+      const edges: InferenceEdge[] = [
+        {
+          _tag: "sc-axiom",
+          ruleId: "identity",
+          conclusionNodeId: "n2",
+          conclusionText: "⇒ phi",
+        } satisfies ScAxiomEdge,
+        {
+          _tag: "sc-single",
+          ruleId: "existential-right",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          conclusionText: "⇒ ∃p.phi",
+          termText: "p",
+        } satisfies ScSinglePremiseEdge,
+      ];
+      const result = buildScProofTree("n1", nodes, edges);
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right._tag).toBe("ScExistentialRight");
+      }
+    });
   });
 
   describe("追加の分岐規則", () => {
@@ -775,6 +910,223 @@ describe("buildScProofTree", () => {
       expect(Either.isRight(result)).toBe(true);
       if (Either.isRight(result)) {
         expect(result.right._tag).toBe("ScDisjunctionLeft");
+      }
+    });
+  });
+
+  describe("論理式復元失敗エラー", () => {
+    it("weakening-rightで論理式復元が失敗するとFormulaRecoveryFailedエラーを返す", () => {
+      // 前提と結論のsuccedent数が同じ（弱化ではない）→ 復元失敗
+      const nodes = [makeNode("n1", "φ ⇒ φ"), makeNode("n2", "φ ⇒ φ")];
+      const edges: InferenceEdge[] = [
+        {
+          _tag: "sc-axiom",
+          ruleId: "identity",
+          conclusionNodeId: "n2",
+          conclusionText: "φ ⇒ φ",
+        } satisfies ScAxiomEdge,
+        {
+          _tag: "sc-single",
+          ruleId: "weakening-right",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          conclusionText: "φ ⇒ φ",
+        } satisfies ScSinglePremiseEdge,
+      ];
+      const result = buildScProofTree("n1", nodes, edges);
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScTreeFormulaRecoveryFailed");
+        if (result.left._tag === "ScTreeFormulaRecoveryFailed") {
+          expect(result.left.ruleId).toBe("weakening-right");
+        }
+      }
+    });
+
+    it("contraction-leftで論理式復元が失敗するとFormulaRecoveryFailedエラーを返す", () => {
+      // 前提と結論のantecedent数が同じ（縮約ではない）→ 復元失敗
+      const nodes = [makeNode("n1", "φ ⇒ ψ"), makeNode("n2", "φ ⇒ ψ")];
+      const edges: InferenceEdge[] = [
+        {
+          _tag: "sc-axiom",
+          ruleId: "identity",
+          conclusionNodeId: "n2",
+          conclusionText: "φ ⇒ ψ",
+        } satisfies ScAxiomEdge,
+        {
+          _tag: "sc-single",
+          ruleId: "contraction-left",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          conclusionText: "φ ⇒ ψ",
+        } satisfies ScSinglePremiseEdge,
+      ];
+      const result = buildScProofTree("n1", nodes, edges);
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScTreeFormulaRecoveryFailed");
+        if (result.left._tag === "ScTreeFormulaRecoveryFailed") {
+          expect(result.left.ruleId).toBe("contraction-left");
+        }
+      }
+    });
+
+    it("contraction-rightで論理式復元が失敗するとFormulaRecoveryFailedエラーを返す", () => {
+      // 前提と結論のsuccedent数が同じ（縮約ではない）→ 復元失敗
+      const nodes = [makeNode("n1", "φ ⇒ ψ"), makeNode("n2", "φ ⇒ ψ")];
+      const edges: InferenceEdge[] = [
+        {
+          _tag: "sc-axiom",
+          ruleId: "identity",
+          conclusionNodeId: "n2",
+          conclusionText: "φ ⇒ ψ",
+        } satisfies ScAxiomEdge,
+        {
+          _tag: "sc-single",
+          ruleId: "contraction-right",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          conclusionText: "φ ⇒ ψ",
+        } satisfies ScSinglePremiseEdge,
+      ];
+      const result = buildScProofTree("n1", nodes, edges);
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScTreeFormulaRecoveryFailed");
+        if (result.left._tag === "ScTreeFormulaRecoveryFailed") {
+          expect(result.left.ruleId).toBe("contraction-right");
+        }
+      }
+    });
+
+    it("cutでカット式復元が失敗するとFormulaRecoveryFailedエラーを返す", () => {
+      // 左前提テキストのsuccedentが複数 → カット式復元失敗
+      const nodes = [
+        makeNode("n1", "⇒ ψ"),
+        makeNode("n2", "⇒ φ, ψ"),
+        makeNode("n3", "φ ⇒ ψ"),
+      ];
+      const edges: InferenceEdge[] = [
+        {
+          _tag: "sc-axiom",
+          ruleId: "identity",
+          conclusionNodeId: "n2",
+          conclusionText: "⇒ φ, ψ",
+        } satisfies ScAxiomEdge,
+        {
+          _tag: "sc-axiom",
+          ruleId: "identity",
+          conclusionNodeId: "n3",
+          conclusionText: "φ ⇒ ψ",
+        } satisfies ScAxiomEdge,
+        {
+          _tag: "sc-branching",
+          ruleId: "cut",
+          conclusionNodeId: "n1",
+          leftPremiseNodeId: "n2",
+          rightPremiseNodeId: "n3",
+          leftConclusionText: "⇒ φ, ψ",
+          rightConclusionText: "φ ⇒ ψ",
+          conclusionText: "⇒ ψ",
+        } satisfies ScBranchingEdge,
+      ];
+      const result = buildScProofTree("n1", nodes, edges);
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScTreeFormulaRecoveryFailed");
+        if (result.left._tag === "ScTreeFormulaRecoveryFailed") {
+          expect(result.left.ruleId).toBe("cut");
+        }
+      }
+    });
+
+    it("前提テキストがパース不能な場合はFormulaRecoveryFailedエラーを返す", () => {
+      // 前提ノードの formulaText がパース不能 → premiseParsed === undefined
+      // エッジの conclusionText は有効（公理ノード構築に使用）だが
+      // 前提ノードの formulaText は無効（パラメータ復元に使用）
+      const nodes = [makeNode("n1", "φ, ψ ⇒ ψ"), makeNode("n2", "invalid %%")];
+      const edges: InferenceEdge[] = [
+        {
+          _tag: "sc-axiom",
+          ruleId: "identity",
+          conclusionNodeId: "n2",
+          conclusionText: "ψ ⇒ ψ",
+        } satisfies ScAxiomEdge,
+        {
+          _tag: "sc-single",
+          ruleId: "weakening-left",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          conclusionText: "φ, ψ ⇒ ψ",
+        } satisfies ScSinglePremiseEdge,
+      ];
+      const result = buildScProofTree("n1", nodes, edges);
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScTreeFormulaRecoveryFailed");
+        if (result.left._tag === "ScTreeFormulaRecoveryFailed") {
+          expect(result.left.ruleId).toBe("weakening-left");
+        }
+      }
+    });
+  });
+
+  describe("サイクル検出", () => {
+    it("グラフにサイクルがある場合はCycleDetectedエラーを返す", () => {
+      // n1 → n2 → n1 のサイクル
+      const nodes = [makeNode("n1", "φ ⇒ ψ"), makeNode("n2", "ψ ⇒ φ")];
+      const edges: InferenceEdge[] = [
+        {
+          _tag: "sc-single",
+          ruleId: "exchange-left",
+          conclusionNodeId: "n2",
+          premiseNodeId: "n1",
+          conclusionText: "ψ ⇒ φ",
+          exchangePosition: 0,
+        } satisfies ScSinglePremiseEdge,
+        {
+          _tag: "sc-single",
+          ruleId: "exchange-left",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          conclusionText: "φ ⇒ ψ",
+          exchangePosition: 0,
+        } satisfies ScSinglePremiseEdge,
+      ];
+      const result = buildScProofTree("n1", nodes, edges);
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScTreeCycleDetected");
+      }
+    });
+  });
+
+  describe("weakening-left論理式復元失敗", () => {
+    it("weakening-leftで論理式復元が失敗するとFormulaRecoveryFailedエラーを返す", () => {
+      // 結論と前提のantecedent数が同じ（弱化ではない）→ 復元失敗
+      const nodes = [makeNode("n1", "φ ⇒ ψ"), makeNode("n2", "φ ⇒ ψ")];
+      const edges: InferenceEdge[] = [
+        {
+          _tag: "sc-axiom",
+          ruleId: "identity",
+          conclusionNodeId: "n2",
+          conclusionText: "φ ⇒ ψ",
+        } satisfies ScAxiomEdge,
+        {
+          _tag: "sc-single",
+          ruleId: "weakening-left",
+          conclusionNodeId: "n1",
+          premiseNodeId: "n2",
+          conclusionText: "φ ⇒ ψ",
+        } satisfies ScSinglePremiseEdge,
+      ];
+      const result = buildScProofTree("n1", nodes, edges);
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScTreeFormulaRecoveryFailed");
+        if (result.left._tag === "ScTreeFormulaRecoveryFailed") {
+          expect(result.left.ruleId).toBe("weakening-left");
+        }
       }
     });
   });
