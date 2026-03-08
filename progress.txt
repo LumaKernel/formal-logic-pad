@@ -10805,3 +10805,24 @@
   - ツリー構築エラーテスト: addInferenceEdgeが非exportなので、wsスプレッド+inferenceEdges配列直接操作で手動エッジ追加
   - Lines coverage 100%達成。残りはBranch(98.79%)とFuncs(89.71%)の改善
 ---
+
+## 2026-03-09 - 述語論理の上級カテゴリ追加
+- predicate-advanced カテゴリを新規追加（QuestCategory union, questCategories配列, order番号の再採番）
+- Q-33 (pred-adv-01): 全称と含意の分配 — 28ステップのHilbert系証明を構築
+  - A4×2 + A1リフト + A2分配 + HS展開 + Gen + A5×2 の完全証明
+- Q-34 (pred-adv-02): 存在の否定 → 全称の否定 — 単一axiomステップ（直接配置パターン）
+- 変更ファイル:
+  - src/lib/quest/questDefinition.ts — カテゴリ型・メタデータ追加、order再採番(6→7, ..., 15→16)
+  - src/lib/quest/builtinQuests.ts — 2クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 2模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 145→147
+  - src/lib/quest/questDefinition.test.ts — カテゴリ数 15→16
+  - src/lib/quest/builtinModelAnswers.test.ts — predicate-advancedテストブロック追加
+- カバレッジ: Stmts 99.95%, Branch 100%, Lines 100% (変動なし)
+- テスト: 8406 passed, typecheck OK, lint OK, prettier OK
+- **今後のイテレーションへの学び:**
+  - Q-33の28ステップ証明構築: A1リフト→A2分配→HS展開のパターンが核心。(β→γ)をA1で(δ→(β→γ))にリフトし、HSで前提と接続、A2で分配するとα→(δ→γ)が得られる
+  - 存在量化子関連のクエスト(pred-05, pred-06, pred-adv-02)は単一axiomステップの直接配置パターンで模範解答を構成（定義展開によりパーサが処理してくれる）
+  - predicate-advancedカテゴリ追加時、後続カテゴリのorder再採番を忘れないこと（sc-cut-eliminationまで全て+1）
+  - Q-35〜Q-38は未実装（Level 4-5の高難度問題、30〜60+ステップ必要）
+---
