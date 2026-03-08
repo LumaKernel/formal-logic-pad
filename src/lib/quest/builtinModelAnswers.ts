@@ -5419,6 +5419,38 @@ const sc10DeMorgan: ModelAnswer = {
   ],
 };
 
+// --- LJ体系クエスト ---
+
+const sc11LjIdentity: ModelAnswer = {
+  questId: "sc-11",
+  steps: [{ _tag: "axiom", formulaText: "phi -> phi" }],
+};
+
+const sc12LjExFalso: ModelAnswer = {
+  questId: "sc-12",
+  steps: [{ _tag: "axiom", formulaText: "⊥ -> phi" }],
+};
+
+const sc13LjContraposition: ModelAnswer = {
+  questId: "sc-13",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> psi) -> (~psi -> ~phi)",
+    },
+  ],
+};
+
+const sc14LjDisjElim: ModelAnswer = {
+  questId: "sc-14",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))",
+    },
+  ],
+};
+
 // ============================================================
 // シーケント計算カット除去 (SC-CE) — sc-cut-elimination
 // ============================================================
@@ -5945,6 +5977,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   sc08DoubleNegation,
   sc09Contraposition,
   sc10DeMorgan,
+  sc11LjIdentity,
+  sc12LjExFalso,
+  sc13LjContraposition,
+  sc14LjDisjElim,
   // sc-cut-elimination
   sc_ce01Transitivity,
   sc_ce02ModusPonens,

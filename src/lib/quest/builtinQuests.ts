@@ -3112,6 +3112,110 @@ const qSc10DeMorgan: QuestDefinition = {
   version: 1,
 };
 
+// --- LJ体系（直観主義シーケント計算）クエスト ---
+
+const qSc11LjIdentity: QuestDefinition = {
+  id: "sc-11",
+  category: "sc-basics",
+  title: "LJ: 恒等律",
+  description:
+    "φ → φ を直観主義シーケント計算（LJ体系）で証明せよ。LJでは右辺が高々1つの式に制限される。この基本的な定理はLJでも証明可能。",
+  difficulty: 1,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "phi -> phi",
+      label: "Goal: φ → φ",
+    },
+  ],
+  hints: [
+    "LKと同じく ⇒→ 規則で φ ⇒ φ に帰着します。",
+    "φ ⇒ φ は Identity 公理そのものです。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "LJ体系では右辺が高々1つの式に制限されるが、恒等律のような基本的な定理は問題なく証明できる。",
+  order: 11,
+  version: 1,
+};
+
+const qSc12LjExFalso: QuestDefinition = {
+  id: "sc-12",
+  category: "sc-basics",
+  title: "LJ: 矛盾からの爆発 (Ex Falso)",
+  description:
+    "⊥ → φ をLJ体系で証明せよ。⊥⇒（矛盾左）規則を使い、矛盾から任意の命題を導く。直観主義論理の重要な原理。",
+  difficulty: 1,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "⊥ -> phi",
+      label: "Goal: ⊥ → φ",
+    },
+  ],
+  hints: [
+    "⇒→ 規則で ⊥ ⇒ φ に帰着します。",
+    "⊥⇒ 規則は ⊥ が左辺にあれば任意の結論を導けます。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "⊥⇒（bottom-left）規則は直観主義論理の特徴。矛盾（⊥）からは任意の命題を構成的に導ける。これはLM（最小論理）にはない規則。",
+  order: 12,
+  version: 1,
+};
+
+const qSc13LjContraposition: QuestDefinition = {
+  id: "sc-13",
+  category: "sc-basics",
+  title: "LJ: 対偶",
+  description:
+    "(φ → ψ) → (¬ψ → ¬φ) をLJ体系で証明せよ。対偶は直観主義論理でも成立する。右辺1式の制限のもとで否定の扱い方を学ぶ。",
+  difficulty: 3,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> (~psi -> ~phi)",
+      label: "Goal: (φ → ψ) → (¬ψ → ¬φ)",
+    },
+  ],
+  hints: [
+    "⇒→ を3回使い、φ → ψ, ¬ψ, φ ⇒ に帰着させます（右辺は空にできます）。",
+    "→⇒ 規則で φ → ψ を分解: φ ⇒ φ と ψ, ... ⇒ の前提に分岐。",
+    "¬⇒ 規則で ¬ψ を分解: ⇒ ψ の前提を要求します。この ψ を →⇒ の結果で供給します。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "対偶 (φ→ψ)→(¬ψ→¬φ) は直観主義でも成立する。ただし逆の (¬ψ→¬φ)→(φ→ψ) はLJでは証明不可能。",
+  order: 13,
+  version: 1,
+};
+
+const qSc14LjDisjElim: QuestDefinition = {
+  id: "sc-14",
+  category: "sc-basics",
+  title: "LJ: 選言除去",
+  description:
+    "(φ \\/ ψ) → ((φ → χ) → ((ψ → χ) → χ)) をLJ体系で証明せよ。構成的な選言除去はLJでも証明可能。",
+  difficulty: 3,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "(phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))",
+      label: "Goal: (φ ∨ ψ) → ((φ → χ) → ((ψ → χ) → χ))",
+    },
+  ],
+  hints: [
+    "⇒→ を3回使い、φ ∨ ψ, φ → χ, ψ → χ ⇒ χ に帰着します。",
+    "∨⇒ 規則で φ ∨ ψ を分解: φ, ... ⇒ χ と ψ, ... ⇒ χ の2つの前提に分岐。",
+    "各分岐で →⇒ を使って φ → χ（または ψ → χ）を分解し、Identity で閉じます。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "選言除去は構成的に正しい（各場合を尽くして結論を導く）ため、LJでも問題なく証明できる。右辺1式の制限は影響しない。",
+  order: 14,
+  version: 1,
+};
+
 // --- カット除去体験クエスト ---
 
 const qScCe01CutBasic: QuestDefinition = {
@@ -3403,6 +3507,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qSc08DoubleNegationElim,
   qSc09Contraposition,
   qSc10DeMorgan,
+  qSc11LjIdentity,
+  qSc12LjExFalso,
+  qSc13LjContraposition,
+  qSc14LjDisjElim,
   qScCe01CutBasic,
   qScCe02CutModusPonens,
   qScCe03CutConjunctionCommute,
