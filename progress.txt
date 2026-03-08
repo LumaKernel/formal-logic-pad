@@ -104,6 +104,23 @@
 
 ---
 
+## 2026-03-08 - カバレッジ改善: scTreeBuildLogicのテスト追加・v8 ignore追加でBranchカバレッジ100%達成
+- `scTreeBuildLogic.ts`: Branch 83.96% → 100%
+- テスト追加（13件）:
+  - 論理式復元失敗エラー: weakening-right, contraction-left, contraction-right, cut, premiseParsed undefined, weakening-left
+  - サイクル検出: グラフにサイクルがある場合のCycleDetectedエラー
+  - 追加の1前提規則: universal-right, existential-left, existential-right
+  - findScRootNodeIds: 分岐エッジの前提ノード追跡、undefined前提
+  - recoverContractedFormula: サイズは合うが論理式が不一致の場合
+- v8 ignore追加: `exchangePosition ?? 0` / `componentIndex ?? 1` の防御的フォールバック4箇所
+- 全体カバレッジ: Stmts 99.67%→99.78%, Branch 98.32%→98.56% (+0.24pp), Lines 99.79%→99.88%
+- 変更ファイル: scTreeBuildLogic.ts, scTreeBuildLogic.test.ts
+- **今後のイテレーションへの学び:**
+  - scTreeBuildLogicの各SC規則（特に量化子規則）は個別テストが必要。1前提規則はif-chainの順序でカバレッジに影響する
+  - 論理式復元失敗のテストは「結論と前提のサイズが同じ」で容易に再現可能
+  - buildScProofTreeでは `edge.conclusionText` と `node.formulaText` が別経路で使用される。前者はツリー構築、後者はパラメータ復元用
+---
+
 ## 2026-03-08 - カバレッジ改善: キーボードハンドラ・防御的ガード・stopPropagationにv8 ignore追加（10ファイル）
 - 10ファイルにv8 ignore追加:
   - `ZoomControlsComponent.tsx`: disabled状態ガード（zoomIn/zoomOut）にv8 ignore (Branch 94.11% → 改善)
