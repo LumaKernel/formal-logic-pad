@@ -5630,6 +5630,94 @@ const sc_ce05NegationCut: ModelAnswer = {
   steps: [{ _tag: "axiom", formulaText: "~~phi -> phi" }],
 };
 
+// ((φ ∧ ψ) → χ) → (φ → (ψ → χ)) — カリー化
+// ⇒→ ×3 → →⇒ → ⇒∧ → weakening-left ×2 → identity ×3
+const sc_ce06DontEliminateCut: ModelAnswer = {
+  questId: "sc-ce-06",
+  steps: [
+    // Step 0: Root sequent — [0]
+    {
+      _tag: "sc-root",
+      sequentText:
+        "⇒ ((phi /\\ psi) -> chi) -> (phi -> (psi -> chi))",
+    },
+    // Step 1: ⇒→ pos 0 → (φ ∧ ψ) → χ ⇒ φ → (ψ → χ) — [1]
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 0,
+      ruleId: "implication-right",
+      principalPosition: 0,
+    },
+    // Step 2: ⇒→ pos 0 → φ, (φ ∧ ψ) → χ ⇒ ψ → χ — [2]
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 1,
+      ruleId: "implication-right",
+      principalPosition: 0,
+    },
+    // Step 3: ⇒→ pos 0 → ψ, φ, (φ ∧ ψ) → χ ⇒ χ — [3]
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 2,
+      ruleId: "implication-right",
+      principalPosition: 0,
+    },
+    // Step 4: →⇒ pos 2 on (φ ∧ ψ) → χ
+    //   左: ψ, φ ⇒ φ ∧ ψ — [4]
+    //   右: χ ⇒ χ — [5]
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 3,
+      ruleId: "implication-left",
+      principalPosition: 2,
+    },
+    // Step 5: identity on [5] (χ ⇒ χ) — [6]
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 5,
+      ruleId: "identity",
+      principalPosition: 0,
+    },
+    // Step 6: ⇒∧ pos 0 on φ ∧ ψ in [4]
+    //   左: ψ, φ ⇒ φ — [7]
+    //   右: ψ, φ ⇒ ψ — [8]
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 4,
+      ruleId: "conjunction-right",
+      principalPosition: 0,
+    },
+    // Step 7: weakening-left pos 0 on [7] (ψ を削除) → φ ⇒ φ — [9]
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 7,
+      ruleId: "weakening-left",
+      principalPosition: 0,
+    },
+    // Step 8: identity on [9] (φ ⇒ φ) — [10]
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 9,
+      ruleId: "identity",
+      principalPosition: 0,
+    },
+    // Step 9: weakening-left pos 1 on [8] (φ を削除) → ψ ⇒ ψ — [11]
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 8,
+      ruleId: "weakening-left",
+      principalPosition: 1,
+    },
+    // Step 10: identity on [11] (ψ ⇒ ψ) — [12]
+    {
+      _tag: "sc-rule",
+      conclusionIndex: 11,
+      ruleId: "identity",
+      principalPosition: 0,
+    },
+  ],
+};
+
 // --- レジストリ ---
 
 /** 全ビルトイン模範解答 */
@@ -5771,6 +5859,7 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   sc_ce03ConjCommute,
   sc_ce04CutChain,
   sc_ce05NegationCut,
+  sc_ce06DontEliminateCut,
 ];
 
 /** QuestId → ModelAnswer のマップ */

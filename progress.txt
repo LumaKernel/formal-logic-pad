@@ -10256,3 +10256,25 @@
   - 複数の全称量化子: 外側から順にA4+MPで1つずつ消去。∀x.∀y.∀z.φ → φ[a/x,b/y,c/z] は7ステップ
   - peano-basicsにも既にE1クエスト(peano-04)があるが、systemPresetIdがpeanoなので別カテゴリとして適切
 ---
+
+## 2026-03-08 - [quest] Don't Eliminate Cut クエスト追加
+- Boolos (1984) "Don't Eliminate Cut" に基づくクエスト sc-ce-06 を追加
+  - 目標式: ((φ ∧ ψ) → χ) → (φ → (ψ → χ))（カリー化）
+  - 模範解答: カットなし11ステップ（⇒→×3 → →⇒ → ⇒∧ → weakening-left×2 → identity×3）
+  - ヒントでカットを使った方法と、カット除去ステッパーでの膨張観察を案内
+  - Boolosの H_n 族は一階述語論理+関数記号+等号が必要で命題LKでは直接表現不可
+  - 代わりに、カットと⇒∧の組み合わせで膨張を小規模に体験させる設計
+- 変更したファイル:
+  - src/lib/quest/builtinQuests.ts (+1 quest definition: sc-ce-06)
+  - src/lib/quest/builtinModelAnswers.ts (+1 model answer: sc_ce06DontEliminateCut)
+  - src/lib/quest/builtinQuests.test.ts (count 121→122)
+  - tasks/prd-logic-pad-world.md ([x] マーク)
+- カバレッジ:
+  - 変更なし（データ定義のみ）: Stmts 99.33%, Branch 95.81%, Funcs 89.31%, Lines 99.84%
+- テスト: 8233 passed, 242 test files
+- **今後のイテレーションへの学び:**
+  - SC模範解答のstepNodeIds追跡: 分岐規則(→⇒, ⇒∧)は2エントリ(left, right)をpush。0-前提規則(identity)はconclusionIdを再push。1-前提規則は premiseIdをpush
+  - 簡略化されたカット規則(Σ=empty, Π=empty): 結論 Γ ⇒ Δ に対し、左前提 = Γ ⇒ φ、右前提 = φ ⇒ Δ のみ
+  - ⇒→は前件の式を左辺の先頭に追加する（末尾ではない）
+  - Boolosの速度向上定理は referenceContent.ts の concept-speed-up-theorem で既に言及あり
+---

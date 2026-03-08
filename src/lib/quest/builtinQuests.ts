@@ -3174,6 +3174,34 @@ const qScCe05CutNegation: QuestDefinition = {
   version: 1,
 };
 
+const qScCe06DontEliminateCut: QuestDefinition = {
+  id: "sc-ce-06",
+  category: "sc-cut-elimination",
+  title: "Don't Eliminate Cut: 証明の膨張",
+  description:
+    "((φ ∧ ψ) → χ) → (φ → (ψ → χ)) をカット規則を使って証明し、カット除去ステッパーでカット除去による証明サイズの膨張を観察せよ。Boolos (1984) は、カットありの証明は短いがカット除去後は超指数的に膨張する例（H_n 族）を示した。この問題でその「膨張」を小規模に体験する。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "((phi /\\ psi) -> chi) -> (phi -> (psi -> chi))",
+      label: "Goal: ((φ ∧ ψ) → χ) → (φ → (ψ → χ))",
+    },
+  ],
+  hints: [
+    "⇒→ を3回使い、(φ ∧ ψ) → χ, φ, ψ ⇒ χ に帰着します。",
+    "カットなしの直接法: →⇒ で (φ ∧ ψ) → χ を分解し、⇒∧ で φ ∧ ψ を再構成する。",
+    "カットを使う方法: まず補題として φ, ψ ⇒ φ ∧ ψ を（⇒∧ + Identity で）導出。次にこの結果と (φ ∧ ψ) → χ の →⇒ をカット式 φ ∧ ψ で合成する。",
+    "カットを使った証明を完成させたら、ステッパーパネルでカット除去を最後まで進めてみましょう。ステップ数に注目。",
+    "Boolos (1984) \"Don't Eliminate Cut\": カットは「補題の再利用」。除去すると補題が展開されて証明が膨張する。リファレンスの「Speed-Up 定理」も参照。",
+  ],
+  estimatedSteps: 12,
+  learningPoint:
+    "Boolos (1984) \"Don't Eliminate Cut\" は、カット除去定理は理論的に正しいが、実用上はカット（= 補題の再利用）を排除すると証明サイズが爆発的に増大することを示した。H_n 族ではカットあり O(2^n) に対しカットなし > 2↑↑n（超指数的）。この問題でカット除去の「コスト」を実感し、なぜ自然な推論ではカット（補題）が不可欠かを理解しよう。",
+  order: 6,
+  version: 1,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -3299,4 +3327,5 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qScCe03CutConjunctionCommute,
   qScCe04CutChain,
   qScCe05CutNegation,
+  qScCe06DontEliminateCut,
 ];
