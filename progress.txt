@@ -104,6 +104,28 @@
 
 ---
 
+## 2026-03-09 - 述語論理基礎クエスト追加（pred-07〜pred-10）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8598 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8610 tests
+- 変更内容:
+  - pred-07: (∀x.(P(x)→Q(x))) → (P(x)→Q(x)) (difficulty 1, 1 step) — A4の含意式インスタンス
+  - pred-08: ∀x.(P(x) → (Q(x) → P(x))) (difficulty 2, 2 steps) — A1+Gen
+  - pred-09: ∀x.∀y.(P(x) → (P(y) → P(x))) (difficulty 2, 3 steps) — A1+Gen[y]+Gen[x]
+  - pred-10: (∀x.P(x)) → (∀y.P(y)) (difficulty 2, 4 steps) — A4+Gen[y]+A5+MP（α変換の形式証明）
+  - predicate-basics カテゴリ: 6問→10問に拡充
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 211→215
+- テスト: 8610 passed (243 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/pred-basics-quest-catalog-hub.png
+- **今後のイテレーションへの学び:**
+  - A4+Gen+A5パターン: A4で∀xを消去→Genで別変数yで再全称化→A5で含意の内側に移動。量化子操作の基本チェーン
+  - Gen[y]+Gen[x]の順序: 内側の量化子yから先にGenして、外側のxを後にGenする（∀x.∀y.φの構造）
+  - predicate-basicsは10問に到達。残り少ないカテゴリ: predicate-advanced(6), equality-basics(6), peano-basics(6), group-basics(6)
+  - 現在のカテゴリ別クエスト数: prop34, pred10, pred-adv6, eq6, peano16, group19, nd35, tab22, at19, sc48（215合計）
+---
+
 ## 2026-03-09 - ペアノ算術計算クエスト追加（peano-13〜peano-16）
 - ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8586 tests
 - **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8598 tests
