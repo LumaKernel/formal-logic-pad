@@ -10581,3 +10581,22 @@
   - eliminateCutsWithSteps と computeCutEliminationStepperData の二重呼び出しは、rawSteps（proof付き）がresolveStepperStateに必要なため意図的。一回限りの操作のためパフォーマンス問題なし
   - scTreeBuildLogic.ts はカバレッジ対象外にはしていない。新規ファイルなのでカバレッジ全体への影響は軽微
 ---
+
+## 2026-03-08 - カバレッジ改善（第6回）
+- ベースライン: Stmts 99.78%, Branch 98.56%, Funcs 89.52%, Lines 99.88%
+- **改善結果: Stmts 99.83% (+0.05pp), Branch 98.73% (+0.17pp), Funcs 89.65% (+0.13pp), Lines 99.91% (+0.03pp)**
+- 変更内容:
+  - ProofWorkspace.test.tsx: コレクションパネル統合テスト4件追加
+    - collectionEntries指定時のメニュー表示テスト
+    - collectionEntries未指定時の非表示テスト
+    - コレクションパネルのオープンテスト
+    - コレクションパネルの閉じるボタンテスト
+  - ProofWorkspace.tsx: v8 ignore next → v8 ignore start/stop 修正（TermInput onChange）
+- ProofWorkspace.tsx Branch: 86.6% → 88.22% (+1.62pp)
+- テスト: 8331 passed (243 test files), typecheck OK, lint OK, prettier OK
+- **今後のイテレーションへの学び:**
+  - ProofWorkspace.txsの未カバーBranch 87箇所中、約50箇所はtestId三項演算子のv8 artifact（テスト追加不可）
+  - 残りはonClickハンドラ、条件付きレンダリング、エッジコンテキストメニューのstopPropagation等。テスト追加で一部改善可能
+  - collectionEntries propテスト追加はBranch +1.62ppの効果。コレクションパネルの開閉は比較的テストしやすい
+  - v8 ignore next → start/stop への変換は依然として推奨。next形式はcallback式では効かないケースがある
+---
