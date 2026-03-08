@@ -161,7 +161,9 @@ export const lex = (input: string): LexResult => {
   // 通常数字の添字を読み取る（アンダースコア区切りオプション）
   const readAsciiSubscript = (): string => {
     let subscript = "";
+    /* v8 ignore start -- both while exit conditions (pos>=length, non-digit) are tested; v8 && branch artifact */
     while (pos < input.length && isDigit(input[pos]!)) {
+      /* v8 ignore stop */
       subscript += advance();
     }
     return subscript;

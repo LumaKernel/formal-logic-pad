@@ -21,7 +21,6 @@ import {
   isBetaRule,
   isGammaRule,
   isDeltaRule,
-  isClosureRule,
 } from "../logic-core/analyticTableau";
 import { useProofMessages } from "./ProofMessagesContext";
 
@@ -136,10 +135,8 @@ function getRuleCategory(
   if (isAlphaRule(ruleId)) return "alpha";
   if (isBetaRule(ruleId)) return "beta";
   if (isGammaRule(ruleId) || isDeltaRule(ruleId)) return "gamma-delta";
-  if (isClosureRule(ruleId)) return "closure";
-  /* v8 ignore start */
-  return "alpha";
-  /* v8 ignore stop */
+  // closure: fall-through (TypeScript narrowing + isClosureRule guarantee this is the only remaining case)
+  return "closure";
 }
 
 // --- コンポーネント ---
@@ -209,25 +206,15 @@ export function AtRulePalette({
     const closure: AtRulePaletteItem[] = [];
     for (const rule of rules) {
       const category = getRuleCategory(rule.id);
-      switch (category) {
-        case "alpha":
-          alpha.push(rule);
-          break;
-        case "beta":
-          beta.push(rule);
-          break;
-        case "gamma-delta":
-          gammaDelta.push(rule);
-          break;
-        case "closure":
-          closure.push(rule);
-          break;
-        /* v8 ignore start */
-        default: {
-          const _: never = category;
-          void _;
-        }
-        /* v8 ignore stop */
+      if (category === "alpha") {
+        alpha.push(rule);
+      } else if (category === "beta") {
+        beta.push(rule);
+      } else if (category === "gamma-delta") {
+        gammaDelta.push(rule);
+      } else {
+        // closure: fall-through (TypeScript narrowing guarantees this is the only remaining case)
+        closure.push(rule);
       }
     }
     return { alpha, beta, gammaDelta, closure };

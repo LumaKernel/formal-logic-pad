@@ -897,6 +897,24 @@ describe("Parser", () => {
       const errors = parseErr("f(x = y");
       expect(errors.length).toBeGreaterThanOrEqual(1);
     });
+
+    it("substitution with invalid term (line 256)", () => {
+      // "φ[/x]" → 置換項が / の前にないのでtermパース失敗
+      const errors = parseErr("φ[/x]");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("negation followed by EOF (line 295)", () => {
+      // "¬" → 否定の後にフォーミュラがないのでパース失敗
+      const errors = parseErr("¬");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("quantifier body is empty (line 345)", () => {
+      // "∀x." → 量化子の本体が空でパース失敗
+      const errors = parseErr("∀x.");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
   });
 
   // --- parseString convenience ---

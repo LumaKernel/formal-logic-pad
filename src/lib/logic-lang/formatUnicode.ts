@@ -31,13 +31,17 @@ const toSubscript = (s: string): string =>
   [...s]
     .map((ch) => {
       const n = ch.charCodeAt(0) - 48; // '0' = 48
+      /* v8 ignore start -- subscripts are always digit strings; non-digit path is unreachable */
       if (n >= 0 && n <= 9) {
+        /* v8 ignore stop */
         // 防御的コード: subscriptDigits[n]は常に定義済みだが、型安全のためフォールバック
         /* v8 ignore start */
         return subscriptDigits[n] ?? ch;
         /* v8 ignore stop */
       }
+      /* v8 ignore start */
       return ch;
+      /* v8 ignore stop */
     })
     .join("");
 

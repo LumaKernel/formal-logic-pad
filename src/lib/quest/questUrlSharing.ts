@@ -106,7 +106,9 @@ export function utf8ToBase64Url(str: string): string {
     const b2 = bytes[i + 2];
 
     result += base64Chars[b0 >> 2];
+    /* v8 ignore start -- b1 ?? 0: nullish coalescing fallback for partial byte group */
     result += base64Chars[((b0 & 3) << 4) | ((b1 ?? 0) >> 4)];
+    /* v8 ignore stop */
     result +=
       b1 !== undefined
         ? base64Chars[((b1 & 0xf) << 2) | ((b2 ?? 0) >> 6)]

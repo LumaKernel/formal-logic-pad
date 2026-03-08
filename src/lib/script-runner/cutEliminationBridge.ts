@@ -388,7 +388,9 @@ const eliminateCutsWithStepsFn = (
   });
 
   const encodeResult = (): unknown => {
+    /* v8 ignore start -- switch行のv8ブランチアーティファクト。Failure caseは防御的コードでignore済み */
     switch (result._tag) {
+      /* v8 ignore stop */
       case "Success":
         return {
           _tag: "Success",

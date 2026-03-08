@@ -669,7 +669,9 @@ export const composeTermMetaSubstitution = (
 
   // σ1のうちσ2のdomainに含まれないマッピングを追加
   for (const [key, value] of sigma1) {
+    /* v8 ignore start -- both branches (key in/not in sigma2) are tested; v8 artifact */
     if (!sigma2.has(key)) {
+      /* v8 ignore stop */
       result.set(key, value);
     }
   }

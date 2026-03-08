@@ -252,8 +252,10 @@ export const validateAtApplicationEffect = (
       );
     }
 
-    // δ規則
+    // δ規則 (fall-through: 前のガードでalpha/beta/gammaは排除済み。closure以外はdelta)
+    /* v8 ignore start -- isDeltaRuleのfalse分岐はclosureのみで到達不能 */
     if (isDeltaRule(params.ruleId)) {
+      /* v8 ignore stop */
       return yield* validateDeltaEffect(
         sf,
         params.ruleId,

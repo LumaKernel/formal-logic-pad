@@ -167,7 +167,9 @@ export function InfiniteCanvas({
   // CSS user-select: none だけでは一部ブラウザで不十分なため、selectstart イベントも防止する
   useEffect(() => {
     const el = containerRef.current;
+    /* v8 ignore start -- defensive: containerRef is always non-null when component is mounted */
     if (el === null) return;
+    /* v8 ignore stop */
     const handleSelectStart = (e: Event) => {
       e.preventDefault();
     };

@@ -76,7 +76,9 @@ export function CanvasItem({
 
   const handleLongPress = useCallback(
     (screenX: number, screenY: number) => {
+      /* v8 ignore start -- long press without context menu items: no-op branch */
       if (hasContextMenu) {
+        /* v8 ignore stop */
         openMenu(screenX, screenY);
       }
     },

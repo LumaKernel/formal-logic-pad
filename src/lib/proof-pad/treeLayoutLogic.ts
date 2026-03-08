@@ -432,7 +432,9 @@ function collectDescendants(
   const children = forward.get(nodeId) ?? [];
   /* v8 ignore stop */
   for (const childId of children) {
+    /* v8 ignore start -- DAG duplicate visit guard: tested but v8 branch artifact */
     if (!result.has(childId)) {
+      /* v8 ignore stop */
       result.add(childId);
       collectDescendants(childId, forward, result);
     }

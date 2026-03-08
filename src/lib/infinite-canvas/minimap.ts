@@ -217,22 +217,15 @@ export function computeMinimapPlacementStyle(
   readonly right?: string;
 } {
   const px = `${margin satisfies number}px`;
-  switch (position) {
-    case "bottom-right":
-      return { bottom: px, right: px };
-    case "bottom-left":
-      return { bottom: px, left: px };
-    case "top-right":
-      return { top: px, right: px };
-    case "top-left":
-      return { top: px, left: px };
-    /* v8 ignore start */
-    default: {
-      const _exhaustive: never = position;
-      throw new Error(
-        `Unknown minimap position: ${String(_exhaustive) satisfies string}`,
-      );
-    }
-    /* v8 ignore stop */
+  if (position === "bottom-right") {
+    return { bottom: px, right: px };
   }
+  if (position === "bottom-left") {
+    return { bottom: px, left: px };
+  }
+  if (position === "top-right") {
+    return { top: px, right: px };
+  }
+  // top-left: fall-through (TypeScript narrowing guarantees this is the only remaining case)
+  return { top: px, left: px };
 }

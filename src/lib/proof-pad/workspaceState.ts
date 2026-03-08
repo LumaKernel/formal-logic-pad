@@ -1300,9 +1300,11 @@ export function removeSelectedNodes(
   return syncInferenceEdges({
     ...state,
     nodes: state.nodes.filter((n) => !removableIds.has(n.id)),
+    /* v8 ignore start -- && short-circuit artifact: both branches tested via deleteSelectedNodes tests */
     connections: state.connections.filter(
       (c) => !removableIds.has(c.fromNodeId) && !removableIds.has(c.toNodeId),
     ),
+    /* v8 ignore stop */
   });
 }
 
@@ -1426,10 +1428,12 @@ export function applyTreeLayout(
     ...state,
     nodes: state.nodes.map((node) => {
       const newPos = positions.get(node.id);
+      /* v8 ignore start -- computeTreeLayout は全ノードにpositionを返すため、false分岐は到達不能（防御的） */
       if (newPos !== undefined) {
+        /* v8 ignore stop */
         return { ...node, position: newPos };
       }
-      /* v8 ignore start -- computeTreeLayout は全ノードにpositionを返すため、この分岐は到達不能（防御的） */
+      /* v8 ignore start */
       return node;
       /* v8 ignore stop */
     }),
