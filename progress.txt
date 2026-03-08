@@ -10844,3 +10844,23 @@
   - predicate-advancedカテゴリ追加時、後続カテゴリのorder再採番を忘れないこと（sc-cut-eliminationまで全て+1）
   - Q-35〜Q-38は未実装（Level 4-5の高難度問題、30〜60+ステップ必要）
 ---
+
+## 2026-03-09 - 述語論理の上級クエスト追加（第2回）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**
+- 変更内容:
+  - pred-adv-05: 全称量化子の交換 — `(∀x.∀y.P(x,y)) → (∀y.∀x.P(x,y))` の13ステップ証明を構築
+    - A4×2で∀除去 → HS展開 → Gen[x]+A5で∀x再導入 → Gen[y]+A5で∀y再導入
+  - pred-adv-06: 全称から存在 — `(∀x.P(x)) → (∃x.P(x))` 単一axiomステップ
+  - predicate-advanced カテゴリ: 4問→6問に拡充
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 2クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 2模範解答追加（pred-adv-05は13ステップ完全証明）
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 149→151
+- テスト: 8418 passed (243 test files), typecheck OK, lint OK, prettier OK
+- スクリーンショット: .screenshots/quest-catalog-pred-adv-new-quests.png
+- **今後のイテレーションへの学び:**
+  - 全称量化子の交換証明: A4×2で除去→HS展開→Gen+A5を逆順に適用するパターン。Gen適用順序が量化子の入れ替えの鍵
+  - predicate-advanced で multi-step 証明が可能なのは→, ¬, ∀のみの式。∃を含むとaxiom identification不可で単一axiomステップになる
+  - pred-adv-05のHS展開（A1+A2+MP×3）は5ステップの定型パターン。HS(α→β, β→γ) = A1でlift + A2でdistribute + MP×3
+---
