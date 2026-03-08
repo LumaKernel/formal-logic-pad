@@ -136,8 +136,9 @@ export function useZoom(
 
       if (pointersRef.current.length !== 2) return;
       const lastDist = lastPinchDistanceRef.current;
-      /* v8 ignore next -- defensive null guard on ref */
+      /* v8 ignore start -- defensive null guard on ref */
       if (lastDist === null) return;
+      /* v8 ignore stop */
 
       const [a, b] = pointersRef.current;
       const currentDist = getDistance(a!, b!);

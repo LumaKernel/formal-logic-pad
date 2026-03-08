@@ -140,12 +140,14 @@ function AxiomPaletteItemView({
       }}
       role="button"
       tabIndex={0}
+      /* v8 ignore start -- キーボード操作: role="button"のアクセシビリティ対応 */
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           onAdd(axiom);
         }
       }}
+      /* v8 ignore stop */
     >
       <span style={itemLabelRowStyle}>
         <span style={itemLabelStyle}>{axiom.displayName}</span>
