@@ -3408,8 +3408,7 @@ const qSc22LjImplicationConjDistrib: QuestDefinition = {
   systemPresetId: "sc-lj",
   goals: [
     {
-      formulaText:
-        "(phi -> (psi /\\ chi)) -> ((phi -> psi) /\\ (phi -> chi))",
+      formulaText: "(phi -> (psi /\\ chi)) -> ((phi -> psi) /\\ (phi -> chi))",
       label: "Goal: (φ → (ψ ∧ χ)) → ((φ → ψ) ∧ (φ → χ))",
     },
   ],
@@ -3422,6 +3421,116 @@ const qSc22LjImplicationConjDistrib: QuestDefinition = {
   learningPoint:
     "含意の連言に対する分配法則。⇒∧ で連言を分解し、各枝で →⇒ と ∧⇒ を組み合わせて証明する。複数の規則の統合的な運用が必要。",
   order: 22,
+  version: 1,
+};
+
+// --- LK固有クエスト（古典論理のみ証明可能） ---
+
+const qSc23LkPeirceLaw: QuestDefinition = {
+  id: "sc-23",
+  category: "sc-basics",
+  title: "LK: パースの法則",
+  description:
+    "((φ → ψ) → φ) → φ をシーケント計算（LK体系）で証明せよ。パースの法則は古典論理の特徴的定理で、直観主義論理（LJ）では証明不可能。LKの右辺複数式が本質的に必要。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "((phi -> psi) -> phi) -> phi",
+      label: "Goal: ((φ → ψ) → φ) → φ",
+    },
+  ],
+  hints: [
+    "⇒→ で (φ → ψ) → φ ⇒ φ に帰着します。",
+    "→⇒ で (φ → ψ) → φ を分解: ⇒ φ → ψ, φ と φ ⇒ φ の2つの前提。",
+    "φ ⇒ φ は Identity。⇒ φ → ψ, φ は ⇒→ で φ ⇒ ψ, φ に帰着。",
+    "φ ⇒ ψ, φ は右辺に2式あるので LK 特有。WR（右弱化）で ψ を追加して Identity で閉じます。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "パースの法則 ((φ→ψ)→φ)→φ は排中律と同値な古典論理の原理。LKでは右辺に複数の式を許すことで証明可能になる。LJでは右辺高々1式の制限により証明不可能。",
+  order: 23,
+  version: 1,
+};
+
+const qSc24LkConverseContraposition: QuestDefinition = {
+  id: "sc-24",
+  category: "sc-basics",
+  title: "LK: 逆対偶",
+  description:
+    "(¬ψ → ¬φ) → (φ → ψ) をシーケント計算（LK体系）で証明せよ。対偶の逆方向はLK固有の定理。LJでは証明不可能。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "(~psi -> ~phi) -> (phi -> psi)",
+      label: "Goal: (¬ψ → ¬φ) → (φ → ψ)",
+    },
+  ],
+  hints: [
+    "⇒→ を2回使い、¬ψ → ¬φ, φ ⇒ ψ に帰着します。",
+    "→⇒ で ¬ψ → ¬φ を分解: ⇒ ¬ψ, ψ と ¬φ, φ ⇒ ψ の2つの前提。",
+    "⇒¬ で ⇒ ¬ψ, ψ を ψ ⇒ ψ に帰着（LK: 右辺複数式が必要）。",
+    "¬⇒ で ¬φ を分解: φ ⇒ ψ は WR + Identity で閉じます。",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "逆対偶 (¬ψ→¬φ)→(φ→ψ) はLK固有。対偶 (φ→ψ)→(¬ψ→¬φ) はLJでも証明可能だが、その逆方向は古典論理の右辺複数式を本質的に使う。",
+  order: 24,
+  version: 1,
+};
+
+const qSc25LkImplicationAsDisjunction: QuestDefinition = {
+  id: "sc-25",
+  category: "sc-basics",
+  title: "LK: 含意の選言表現",
+  description:
+    "(φ → ψ) → (¬φ ∨ ψ) をシーケント計算（LK体系）で証明せよ。含意は古典論理では「否定と選言」で表現できる。この等価性はLK固有。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> (~phi \\/ psi)",
+      label: "Goal: (φ → ψ) → (¬φ ∨ ψ)",
+    },
+  ],
+  hints: [
+    "⇒→ で φ → ψ ⇒ ¬φ ∨ ψ に帰着します。",
+    "→⇒ で φ → ψ を分解: ⇒ φ, ¬φ ∨ ψ と ψ ⇒ ¬φ ∨ ψ の2つの前提。",
+    "右辺の ¬φ ∨ ψ は ⇒∨ で分解。⇒¬ と Identity を組み合わせます。",
+    "LKの右辺複数式を活用して、φ と ¬φ ∨ ψ を同時に右辺に持てるのがポイント。",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "古典論理では φ→ψ と ¬φ∨ψ は同値。この変換はLK固有で、右辺複数式と否定規則の組み合わせが必要。直観主義論理では含意は選言に還元できない。",
+  order: 25,
+  version: 1,
+};
+
+const qSc26LkWeakExcludedMiddle: QuestDefinition = {
+  id: "sc-26",
+  category: "sc-basics",
+  title: "LK: 弱排中律",
+  description:
+    "¬φ ∨ ¬¬φ をシーケント計算（LK体系）で証明せよ。弱排中律は排中律の変形で、LK固有の定理。",
+  difficulty: 2,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "~phi \\/ ~~phi",
+      label: "Goal: ¬φ ∨ ¬¬φ",
+    },
+  ],
+  hints: [
+    "排中律 φ ∨ ¬φ の証明パターンを応用します。",
+    "⇒∨ 規則と ⇒¬ 規則を組み合わせます。",
+    "⇒ ¬φ ∨ ¬¬φ から、⇒∨₂ で ⇒ ¬¬φ に帰着し、⇒¬ で ¬φ ⇒ に。",
+    "¬φ ⇒ ¬φ ∨ ¬¬φ は ⇒∨₁ + Identity。右縮約で結合します。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "弱排中律 ¬φ∨¬¬φ は排中律 φ∨¬φ と同様にLK固有。排中律の証明パターンを否定に適用した変形。LJでは証明不可能。",
+  order: 26,
   version: 1,
 };
 
@@ -3728,6 +3837,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qSc20LjCurry,
   qSc21LjUncurry,
   qSc22LjImplicationConjDistrib,
+  qSc23LkPeirceLaw,
+  qSc24LkConverseContraposition,
+  qSc25LkImplicationAsDisjunction,
+  qSc26LkWeakExcludedMiddle,
   qScCe01CutBasic,
   qScCe02CutModusPonens,
   qScCe03CutConjunctionCommute,

@@ -5511,10 +5511,46 @@ const sc22LjImplicationConjDistrib: ModelAnswer = {
   steps: [
     {
       _tag: "axiom",
-      formulaText:
-        "(phi -> (psi /\\ chi)) -> ((phi -> psi) /\\ (phi -> chi))",
+      formulaText: "(phi -> (psi /\\ chi)) -> ((phi -> psi) /\\ (phi -> chi))",
     },
   ],
+};
+
+// --- LK固有クエスト ---
+
+const sc23LkPeirceLaw: ModelAnswer = {
+  questId: "sc-23",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "((phi -> psi) -> phi) -> phi",
+    },
+  ],
+};
+
+const sc24LkConverseContraposition: ModelAnswer = {
+  questId: "sc-24",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(~psi -> ~phi) -> (phi -> psi)",
+    },
+  ],
+};
+
+const sc25LkImplicationAsDisjunction: ModelAnswer = {
+  questId: "sc-25",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> psi) -> (~phi \\/ psi)",
+    },
+  ],
+};
+
+const sc26LkWeakExcludedMiddle: ModelAnswer = {
+  questId: "sc-26",
+  steps: [{ _tag: "axiom", formulaText: "~phi \\/ ~~phi" }],
 };
 
 // ============================================================
@@ -6055,6 +6091,11 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   sc20LjCurry,
   sc21LjUncurry,
   sc22LjImplicationConjDistrib,
+  // LK固有
+  sc23LkPeirceLaw,
+  sc24LkConverseContraposition,
+  sc25LkImplicationAsDisjunction,
+  sc26LkWeakExcludedMiddle,
   // sc-cut-elimination
   sc_ce01Transitivity,
   sc_ce02ModusPonens,
