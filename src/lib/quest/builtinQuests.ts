@@ -2660,6 +2660,115 @@ const qNd23UniversalConjunction: QuestDefinition = {
   version: 1,
 };
 
+const qNd24DeMorganDisjunction: QuestDefinition = {
+  id: "nd-24",
+  category: "nd-basics",
+  title: "ド・モルガン ¬∨→∧¬ (NM)",
+  description:
+    "¬(φ ∨ ψ) → (¬φ ∧ ¬ψ) を自然演繹 NM で証明せよ。否定された選言を連言的な否定に分解する。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "~(phi \\/ psi) -> (~phi /\\ ~psi)",
+      label: "Goal: ¬(φ ∨ ψ) → (¬φ ∧ ¬ψ)",
+    },
+  ],
+  hints: [
+    "¬(φ ∨ ψ) を仮定します。",
+    "φ を仮定し、∨I で φ ∨ ψ を作り、¬(φ ∨ ψ) と →E で ⊥ を得ます。→I で ¬φ。",
+    "同様に ψ を仮定して ¬ψ を導きます。",
+    "∧I で ¬φ ∧ ¬ψ を作り、→I で仮定を解消。",
+  ],
+  estimatedSteps: 10,
+  learningPoint:
+    "ド・モルガンの法則の一方向。否定された選言から各成分の否定を取り出す。最小論理で証明可能。",
+  order: 24,
+  version: 1,
+};
+
+const qNd25DeMorganDisjunctionReverse: QuestDefinition = {
+  id: "nd-25",
+  category: "nd-basics",
+  title: "ド・モルガン ∧¬→¬∨ (NM)",
+  description:
+    "(¬φ ∧ ¬ψ) → ¬(φ ∨ ψ) を自然演繹 NM で証明せよ。各成分の否定の連言から選言の否定を導く。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "(~phi /\\ ~psi) -> ~(phi \\/ psi)",
+      label: "Goal: (¬φ ∧ ¬ψ) → ¬(φ ∨ ψ)",
+    },
+  ],
+  hints: [
+    "¬φ ∧ ¬ψ を仮定し、∧E で ¬φ と ¬ψ を取り出します。",
+    "φ ∨ ψ を仮定し、∨E で場合分けします。",
+    "φ の場合は ¬φ と →E で ⊥、ψ の場合は ¬ψ と →E で ⊥。",
+    "∨E で ⊥ を統合し、→I で φ ∨ ψ を解消して ¬(φ ∨ ψ) を得ます。",
+  ],
+  estimatedSteps: 10,
+  learningPoint:
+    "ド・モルガンの法則の逆方向。各成分の否定から選言全体の否定を構成する。最小論理で証明可能。",
+  order: 25,
+  version: 1,
+};
+
+const qNd26DeMorganConjunction: QuestDefinition = {
+  id: "nd-26",
+  category: "nd-basics",
+  title: "ド・モルガン ¬∧→∨¬ (NK)",
+  description:
+    "¬(φ ∧ ψ) → (¬φ ∨ ¬ψ) を自然演繹 NK で証明せよ。古典論理の DNE が必要な方向。",
+  difficulty: 3,
+  systemPresetId: "nd-nk",
+  goals: [
+    {
+      formulaText: "~(phi /\\ psi) -> (~phi \\/ ~psi)",
+      label: "Goal: ¬(φ ∧ ψ) → (¬φ ∨ ¬ψ)",
+    },
+  ],
+  hints: [
+    "¬(φ ∧ ψ) を仮定します。結論 ¬φ ∨ ¬ψ を直接構成するのは難しい。",
+    "¬(¬φ ∨ ¬ψ) を仮定して矛盾を導く戦略を取ります。",
+    "φ を仮定 → ψ を仮定 → φ ∧ ψ → ¬(φ∧ψ) と矛盾 → ¬ψ → ¬φ∨¬ψ → ¬(¬φ∨¬ψ) と矛盾 → ¬φ → 同様に矛盾。",
+    "¬¬(¬φ ∨ ¬ψ) を →I で得て、DNE で二重否定を除去。",
+  ],
+  estimatedSteps: 14,
+  learningPoint:
+    "ド・モルガンの法則のうち ¬∧→∨¬ 方向は直観主義では証明できず、古典論理の DNE が必要。直観主義と古典論理の違いを体験する重要な例。",
+  order: 26,
+  version: 1,
+};
+
+const qNd27ConjunctionDisjunctionDistribution: QuestDefinition = {
+  id: "nd-27",
+  category: "nd-basics",
+  title: "∧∨分配律 (NM)",
+  description:
+    "φ ∧ (ψ ∨ χ) → (φ ∧ ψ) ∨ (φ ∧ χ) を自然演繹 NM で証明せよ。連言を選言に分配する。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText:
+        "phi /\\ (psi \\/ chi) -> (phi /\\ psi) \\/ (phi /\\ chi)",
+      label: "Goal: φ ∧ (ψ ∨ χ) → (φ ∧ ψ) ∨ (φ ∧ χ)",
+    },
+  ],
+  hints: [
+    "φ ∧ (ψ ∨ χ) を仮定し、∧E で φ と ψ ∨ χ を取り出します。",
+    "ψ ∨ χ に ∨E を適用して場合分けします。",
+    "ψ の場合: φ ∧ ψ を ∧I で作り、∨I_L で (φ ∧ ψ) ∨ (φ ∧ χ)。",
+    "χ の場合: φ ∧ χ を ∧I で作り、∨I_R で (φ ∧ ψ) ∨ (φ ∧ χ)。∨E で統合し →I で仮定を解消。",
+  ],
+  estimatedSteps: 10,
+  learningPoint:
+    "連言と選言の分配律。∨E による場合分けで各ケースを処理し、∨I で統合する標準的なテクニック。",
+  order: 27,
+  version: 1,
+};
+
 // --- TABクエスト: タブロー法の基礎 ---
 
 const qTab01Identity: QuestDefinition = {
@@ -4619,6 +4728,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qNd21ExistentialTransitivity,
   qNd22ExistentialConjunctionDistribution,
   qNd23UniversalConjunction,
+  qNd24DeMorganDisjunction,
+  qNd25DeMorganDisjunctionReverse,
+  qNd26DeMorganConjunction,
+  qNd27ConjunctionDisjunctionDistribution,
   qTab01Identity,
   qTab02DoubleNegationElim,
   qTab03ExcludedMiddle,
