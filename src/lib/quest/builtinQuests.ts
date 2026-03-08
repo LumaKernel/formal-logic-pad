@@ -3572,6 +3572,115 @@ const qTab18ImplicationDisjunction: QuestDefinition = {
   version: 1,
 };
 
+const qTab19UniversalElim: QuestDefinition = {
+  id: "tab-19",
+  category: "tab-basics",
+  title: "全称除去 (∀規則)",
+  description:
+    "¬(∀x.P(x) → P(x)) を根として閉じたタブローを構築せよ。全称量化子に∀規則を適用する基本練習。",
+  difficulty: 1,
+  systemPresetId: "tab",
+  goals: [
+    {
+      formulaText: "~((forall x. P(x)) -> P(x))",
+      label: "Root: ¬(∀x.P(x) → P(x)) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で ∀x.P(x) と ¬P(x) を得ます。",
+    "∀ 規則で ∀x.P(x) に x を代入して P(x) を得ます。",
+    "P(x) と ¬P(x) の矛盾で BS。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "全称量化子 ∀x.P(x) に ∀ 規則で具体項を代入すると P(τ) が得られる。代入項は自由に選べる。",
+  order: 19,
+  version: 1,
+};
+
+const qTab20ExistentialToNegUniversal: QuestDefinition = {
+  id: "tab-20",
+  category: "tab-basics",
+  title: "存在→否定全称否定 (∃, ¬¬, ∀)",
+  description:
+    "¬(∃x.P(x) → ¬∀x.¬P(x)) を根として閉じたタブローを構築せよ。∃規則で固有変数を導入し、∀規則で同じ変数を代入する。",
+  difficulty: 2,
+  systemPresetId: "tab",
+  goals: [
+    {
+      formulaText: "~((exists x. P(x)) -> ~(forall x. ~P(x)))",
+      label: "Root: ¬(∃x.P(x) → ¬∀x.¬P(x)) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で ∃x.P(x) と ¬¬∀x.¬P(x) を得ます。",
+    "¬¬ で ∀x.¬P(x) を得ます。",
+    "∃ 規則で固有変数 a を導入して P(a) を得ます。",
+    "∀ 規則で ∀x.¬P(x) に a を代入して ¬P(a) を得ます。BS で閉じます。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "∃規則は固有変数条件付き: 導入する変数はシーケント中に自由出現してはならない。∀規則はその固有変数を代入項として再利用できる。",
+  order: 20,
+  version: 1,
+};
+
+const qTab21UniversalImplicationDist: QuestDefinition = {
+  id: "tab-21",
+  category: "tab-basics",
+  title: "全称含意分配 (¬∀, ∀, →分岐)",
+  description:
+    "¬(∀x.(P(x)→Q(x)) → (∀x.P(x) → ∀x.Q(x))) を根として閉じたタブローを構築せよ。¬∀で固有変数導入、∀で代入、→で分岐。",
+  difficulty: 2,
+  systemPresetId: "tab",
+  goals: [
+    {
+      formulaText:
+        "~((forall x. (P(x) -> Q(x))) -> ((forall x. P(x)) -> (forall x. Q(x))))",
+      label: "Root: ¬(∀x.(P(x)→Q(x)) → (∀x.P(x) → ∀x.Q(x))) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で2回分解: ∀x.(P(x)→Q(x)) と ∀x.P(x), ¬∀x.Q(x) を得ます。",
+    "¬∀ で固有変数 a を導入: ¬Q(a) を得ます。",
+    "∀ 規則で ∀x.P(x) と ∀x.(P(x)→Q(x)) に a を代入。",
+    "P(a) → Q(a) に → で分岐: 左枝 BS(¬P(a), P(a))、右枝 BS(Q(a), ¬Q(a))。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "¬∀で固有変数を導入した後、複数の∀量化式に同じ変数を代入できる。→分岐の各枝が独立に閉じる。",
+  order: 21,
+  version: 1,
+};
+
+const qTab22UniversalConjunctionDist: QuestDefinition = {
+  id: "tab-22",
+  category: "tab-basics",
+  title: "全称連言分配 (¬∧分岐, ¬∀, ∀, ∧)",
+  description:
+    "¬(∀x.(P(x)∧Q(x)) → (∀x.P(x) ∧ ∀x.Q(x))) を根として閉じたタブローを構築せよ。¬∧で分岐し、各枝で¬∀+∀+∧の組合せ。",
+  difficulty: 3,
+  systemPresetId: "tab",
+  goals: [
+    {
+      formulaText:
+        "~((forall x. (P(x) /\\ Q(x))) -> ((forall x. P(x)) /\\ (forall x. Q(x))))",
+      label: "Root: ¬(∀x.(P(x)∧Q(x)) → (∀x.P(x) ∧ ∀x.Q(x))) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で ∀x.(P(x)∧Q(x)) と ¬(∀x.P(x) ∧ ∀x.Q(x)) を得ます。",
+    "¬∧ で分岐: 左枝 ¬∀x.P(x)、右枝 ¬∀x.Q(x)。",
+    "各枝で ¬∀ → 固有変数導入 → ∀ で代入 → ∧ で分解 → BS。",
+    "左枝: ¬P(a) vs P(a)、右枝: ¬Q(a) vs Q(a) で閉じます。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "¬∧分岐は2つの独立した枝を生成する。各枝で¬∀→∀→∧のパイプラインを使って閉じるパターン。",
+  order: 22,
+  version: 1,
+};
+
 // --- ATクエスト: 分析的タブローの基礎 ---
 
 const qAt01ExcludedMiddle: QuestDefinition = {
@@ -5530,6 +5639,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qTab16DisjunctionAssoc,
   qTab17Absorption,
   qTab18ImplicationDisjunction,
+  qTab19UniversalElim,
+  qTab20ExistentialToNegUniversal,
+  qTab21UniversalImplicationDist,
+  qTab22UniversalConjunctionDist,
   qAt01ExcludedMiddle,
   qAt02Implication,
   qAt03DoubleNegation,
