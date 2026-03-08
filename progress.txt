@@ -104,6 +104,29 @@
 
 ---
 
+## 2026-03-09 - ATクエスト拡充（at-12〜at-15）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8514 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**
+- 変更内容:
+  - at-12: 含意のド・モルガン ¬(φ → ψ) → (φ ∧ ¬ψ) (difficulty 1) — α規則中心
+  - at-13: 二重否定導入 φ → ¬¬φ (difficulty 1) — α規則
+  - at-14: 含意と選言の変換 (φ → ψ) → (¬φ ∨ ψ) (difficulty 2) — β規則
+  - at-15: ピアースの法則 ((φ → ψ) → φ) → φ (difficulty 3) — 複合β規則
+  - at-basics カテゴリ: 11問→15問に拡充
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 183→187
+- テスト: 8526 passed (243 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/quest-catalog-overview-187.png
+- CI: 前回push分はグリーン
+- **今後のイテレーションへの学び:**
+  - ATピアースの法則はタブローではT→β規則1回で2枝→各枝短く閉じる。ND/Hilbertより圧倒的に簡潔
+  - ¬(φ → ψ)はα規則連鎖(T¬→F→)でT(φ)とF(ψ)に分解可能。F∧β規則だけが唯一の分岐
+  - at-basicsは15問に到達。次のステップ: 量化子γ/δ規則の追加クエスト、または述語論理上級(pred-adv)拡充が候補
+  - 現在のカテゴリ別クエスト数: prop34, pred12, eq6, peano12, group17, nd31, tab18, at15, sc44（187合計）
+---
+
 ## 2026-03-09 - SC量化子クエスト拡充（sc-31〜sc-34）
 - ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8502 tests
 - **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**
