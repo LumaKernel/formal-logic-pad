@@ -5080,9 +5080,7 @@ describe("ProofWorkspace", () => {
     });
 
     it("does not show cut elimination start button in non-SC mode", () => {
-      render(
-        <ProofWorkspace system={lukasiewiczSystem} testId="workspace" />,
-      );
+      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
       expect(
         screen.queryByTestId("workspace-cut-elim-start"),
       ).not.toBeInTheDocument();
@@ -5090,7 +5088,9 @@ describe("ProofWorkspace", () => {
 
     it("alerts when no SC root found", async () => {
       const user = userEvent.setup();
-      const alertMock = vi.spyOn(globalThis, "alert").mockImplementation(() => {});
+      const alertMock = vi
+        .spyOn(globalThis, "alert")
+        .mockImplementation(() => {});
       const ws = createEmptyWorkspace(sequentCalculusDeduction(lkSystem));
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
@@ -5137,7 +5137,8 @@ describe("ProofWorkspace", () => {
           leftId,
           {
             ruleId: "identity",
-            sequentText: ws.nodes.find((n) => n.id === leftId)?.formulaText ?? "",
+            sequentText:
+              ws.nodes.find((n) => n.id === leftId)?.formulaText ?? "",
             principalPosition: 0,
           },
           [],
@@ -5152,7 +5153,8 @@ describe("ProofWorkspace", () => {
           rightId,
           {
             ruleId: "identity",
-            sequentText: ws.nodes.find((n) => n.id === rightId)?.formulaText ?? "",
+            sequentText:
+              ws.nodes.find((n) => n.id === rightId)?.formulaText ?? "",
             principalPosition: 0,
           },
           [],

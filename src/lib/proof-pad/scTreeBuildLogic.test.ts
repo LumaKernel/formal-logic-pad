@@ -135,10 +135,7 @@ describe("findScRootNodeIds", () => {
   });
 
   it("前提として参照されているノードはルートにならない", () => {
-    const nodes = [
-      makeNode("n1", "phi ⇒ phi"),
-      makeNode("n2", "⇒ phi"),
-    ];
+    const nodes = [makeNode("n1", "phi ⇒ phi"), makeNode("n2", "⇒ phi")];
     const edges: InferenceEdge[] = [
       {
         _tag: "sc-axiom",
@@ -215,10 +212,7 @@ describe("buildScProofTree", () => {
 
   describe("1前提規則", () => {
     it("implication-rightを構築できる", () => {
-      const nodes = [
-        makeNode("n1", "⇒ φ → ψ"),
-        makeNode("n2", "φ ⇒ ψ"),
-      ];
+      const nodes = [makeNode("n1", "⇒ φ → ψ"), makeNode("n2", "φ ⇒ ψ")];
       const edges: InferenceEdge[] = [
         {
           _tag: "sc-axiom",
@@ -242,10 +236,7 @@ describe("buildScProofTree", () => {
     });
 
     it("weakening-leftを構築できる（論理式復元）", () => {
-      const nodes = [
-        makeNode("n1", "φ, ψ ⇒ ψ"),
-        makeNode("n2", "ψ ⇒ ψ"),
-      ];
+      const nodes = [makeNode("n1", "φ, ψ ⇒ ψ"), makeNode("n2", "ψ ⇒ ψ")];
       const edges: InferenceEdge[] = [
         {
           _tag: "sc-axiom",
@@ -272,10 +263,7 @@ describe("buildScProofTree", () => {
     });
 
     it("exchange-leftを構築できる（位置パラメータ使用）", () => {
-      const nodes = [
-        makeNode("n1", "ψ, φ ⇒ χ"),
-        makeNode("n2", "φ, ψ ⇒ χ"),
-      ];
+      const nodes = [makeNode("n1", "ψ, φ ⇒ χ"), makeNode("n2", "φ, ψ ⇒ χ")];
       const edges: InferenceEdge[] = [
         {
           _tag: "sc-axiom",
@@ -303,10 +291,7 @@ describe("buildScProofTree", () => {
     });
 
     it("conjunction-leftを構築できる（componentIndex使用）", () => {
-      const nodes = [
-        makeNode("n1", "φ ∧ ψ ⇒ χ"),
-        makeNode("n2", "φ ⇒ χ"),
-      ];
+      const nodes = [makeNode("n1", "φ ∧ ψ ⇒ χ"), makeNode("n2", "φ ⇒ χ")];
       const edges: InferenceEdge[] = [
         {
           _tag: "sc-axiom",
@@ -334,10 +319,7 @@ describe("buildScProofTree", () => {
     });
 
     it("contraction-leftを構築できる（論理式復元）", () => {
-      const nodes = [
-        makeNode("n1", "φ ⇒ ψ"),
-        makeNode("n2", "φ, φ ⇒ ψ"),
-      ];
+      const nodes = [makeNode("n1", "φ ⇒ ψ"), makeNode("n2", "φ, φ ⇒ ψ")];
       const edges: InferenceEdge[] = [
         {
           _tag: "sc-axiom",
@@ -517,10 +499,7 @@ describe("buildScProofTree", () => {
 
   describe("複合的な証明ツリー", () => {
     it("2段階の証明（identity → weakening → conclusion）を構築できる", () => {
-      const nodes = [
-        makeNode("root", "φ, ψ ⇒ ψ"),
-        makeNode("mid", "ψ ⇒ ψ"),
-      ];
+      const nodes = [makeNode("root", "φ, ψ ⇒ ψ"), makeNode("mid", "ψ ⇒ ψ")];
       const edges: InferenceEdge[] = [
         {
           _tag: "sc-axiom",
@@ -601,10 +580,7 @@ describe("buildScProofTree", () => {
 
   describe("追加の1前提規則", () => {
     it("weakening-rightを構築できる", () => {
-      const nodes = [
-        makeNode("n1", "φ ⇒ φ, ψ"),
-        makeNode("n2", "φ ⇒ φ"),
-      ];
+      const nodes = [makeNode("n1", "φ ⇒ φ, ψ"), makeNode("n2", "φ ⇒ φ")];
       const edges: InferenceEdge[] = [
         {
           _tag: "sc-axiom",
@@ -628,10 +604,7 @@ describe("buildScProofTree", () => {
     });
 
     it("contraction-rightを構築できる", () => {
-      const nodes = [
-        makeNode("n1", "φ ⇒ ψ"),
-        makeNode("n2", "φ ⇒ ψ, ψ"),
-      ];
+      const nodes = [makeNode("n1", "φ ⇒ ψ"), makeNode("n2", "φ ⇒ ψ, ψ")];
       const edges: InferenceEdge[] = [
         {
           _tag: "sc-axiom",
@@ -655,10 +628,7 @@ describe("buildScProofTree", () => {
     });
 
     it("exchange-rightを構築できる", () => {
-      const nodes = [
-        makeNode("n1", "φ ⇒ χ, ψ"),
-        makeNode("n2", "φ ⇒ ψ, χ"),
-      ];
+      const nodes = [makeNode("n1", "φ ⇒ χ, ψ"), makeNode("n2", "φ ⇒ ψ, χ")];
       const edges: InferenceEdge[] = [
         {
           _tag: "sc-axiom",
@@ -683,10 +653,7 @@ describe("buildScProofTree", () => {
     });
 
     it("disjunction-rightを構築できる", () => {
-      const nodes = [
-        makeNode("n1", "⇒ φ ∨ ψ"),
-        makeNode("n2", "⇒ φ"),
-      ];
+      const nodes = [makeNode("n1", "⇒ φ ∨ ψ"), makeNode("n2", "⇒ φ")];
       const edges: InferenceEdge[] = [
         {
           _tag: "sc-axiom",
@@ -711,10 +678,7 @@ describe("buildScProofTree", () => {
     });
 
     it("universal-leftを構築できる", () => {
-      const nodes = [
-        makeNode("n1", "∀p.phi ⇒ ψ"),
-        makeNode("n2", "phi ⇒ ψ"),
-      ];
+      const nodes = [makeNode("n1", "∀p.phi ⇒ ψ"), makeNode("n2", "phi ⇒ ψ")];
       const edges: InferenceEdge[] = [
         {
           _tag: "sc-axiom",

@@ -48,9 +48,7 @@ import { parseSequentText } from "./scApplicationLogic";
 // ─── エラー型 ────────────────────────────────────────────
 
 /** SC証明ツリー構築エラー */
-export class ScTreeNodeNotFound extends Data.TaggedError(
-  "ScTreeNodeNotFound",
-)<{
+export class ScTreeNodeNotFound extends Data.TaggedError("ScTreeNodeNotFound")<{
   readonly nodeId: string;
 }> {}
 
@@ -103,7 +101,8 @@ export function recoverWeakenedFormula(
   premiseFormulas: readonly Formula[],
 ): Formula | undefined {
   // 結論が前提より1つ多いはず
-  if (conclusionFormulas.length !== premiseFormulas.length + 1) return undefined;
+  if (conclusionFormulas.length !== premiseFormulas.length + 1)
+    return undefined;
 
   // 結論の各位置を試し、その位置を除くと前提と一致するか確認
   for (let i = 0; i < conclusionFormulas.length; i++) {
@@ -139,7 +138,8 @@ export function recoverContractedFormula(
   premiseFormulas: readonly Formula[],
 ): Formula | undefined {
   // 前提が結論より1つ多いはず
-  if (premiseFormulas.length !== conclusionFormulas.length + 1) return undefined;
+  if (premiseFormulas.length !== conclusionFormulas.length + 1)
+    return undefined;
 
   // 前提の各位置を試し、その位置を除くと結論と一致するか確認
   for (let i = 0; i < premiseFormulas.length; i++) {
