@@ -2850,6 +2850,116 @@ const qAt07UniversalToExistential: QuestDefinition = {
   version: 1,
 };
 
+const qAt08ConjunctionCommute: QuestDefinition = {
+  id: "at-08",
+  category: "at-basics",
+  title: "連言の交換律 (α規則)",
+  description:
+    "F:(φ ∧ ψ) → (ψ ∧ φ) をルートに配置し、全枝を閉じて連言の交換律を証明せよ。T∧/F∧のα/β規則を使い分ける。",
+  difficulty: 1,
+  systemPresetId: "at",
+  goals: [
+    {
+      formulaText: "(phi /\\ psi) -> (psi /\\ phi)",
+      label: "Goal: (φ ∧ ψ) → (ψ ∧ φ)",
+    },
+  ],
+  hints: [
+    "F((φ ∧ ψ) → (ψ ∧ φ)) をルートに配置しましょう（テキスト: F:(phi /\\ psi) -> (psi /\\ phi)）。",
+    "F→ で T(φ ∧ ψ) と F(ψ ∧ φ) を得ます。",
+    "T(φ ∧ ψ) にα規則（T∧）を適用: T(φ) と T(ψ) を得ます。",
+    "F(ψ ∧ φ) にβ規則（F∧）を適用: F(ψ) と F(φ) に分岐。それぞれ T(ψ)/T(φ) と矛盾。",
+  ],
+  estimatedSteps: 4,
+  learningPoint:
+    "T∧ はα規則（非分岐）で両成分を得る。F∧ はβ規則（分岐）で少なくとも一方が偽であることを表す。α規則を先に適用して情報を増やすのがコツ。",
+  order: 8,
+  version: 1,
+};
+
+const qAt09DisjunctionCommute: QuestDefinition = {
+  id: "at-09",
+  category: "at-basics",
+  title: "選言の交換律 (β規則)",
+  description:
+    "F:(φ ∨ ψ) → (ψ ∨ φ) をルートに配置し、全枝を閉じて選言の交換律を証明せよ。T∨/F∨のβ/α規則を使い分ける。",
+  difficulty: 2,
+  systemPresetId: "at",
+  goals: [
+    {
+      formulaText: "(phi \\/ psi) -> (psi \\/ phi)",
+      label: "Goal: (φ ∨ ψ) → (ψ ∨ φ)",
+    },
+  ],
+  hints: [
+    "F((φ ∨ ψ) → (ψ ∨ φ)) をルートに配置しましょう（テキスト: F:(phi \\/ psi) -> (psi \\/ phi)）。",
+    "F→ で T(φ ∨ ψ) と F(ψ ∨ φ) を得ます。",
+    "F(ψ ∨ φ) にα規則（F∨）を適用: F(ψ) と F(φ) を得ます。",
+    "T(φ ∨ ψ) にβ規則（T∨）を適用: T(φ) と T(ψ) に分岐。それぞれ F(φ)/F(ψ) と矛盾。",
+  ],
+  estimatedSteps: 4,
+  learningPoint:
+    "F∨ はα規則（非分岐）で両成分を否定に分解する。T∨ はβ規則（分岐）で少なくとも一方が真であることを表す。F∨を先に適用して非分岐の情報を増やすのが効率的。",
+  order: 9,
+  version: 1,
+};
+
+const qAt10Transitivity: QuestDefinition = {
+  id: "at-10",
+  category: "at-basics",
+  title: "推移律 (複数F→分解)",
+  description:
+    "F:(φ → ψ) → ((ψ → χ) → (φ → χ)) をルートに配置し、全枝を閉じて含意の推移律を証明せよ。",
+  difficulty: 2,
+  systemPresetId: "at",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
+      label: "Goal: (φ → ψ) → ((ψ → χ) → (φ → χ))",
+    },
+  ],
+  hints: [
+    "F((φ → ψ) → ((ψ → χ) → (φ → χ))) をルートに配置しましょう。",
+    "F→ を繰り返し適用: T(φ → ψ), T(ψ → χ), T(φ), F(χ) を得ます。",
+    "T(φ → ψ) にβ規則（T→）を適用: F(φ) と T(ψ) に分岐。",
+    "F(φ) は T(φ) と矛盾。T(ψ) の枝で T(ψ → χ) にβ規則を適用: F(ψ) と T(χ) に分岐。",
+    "F(ψ) は T(ψ) と矛盾。T(χ) は F(χ) と矛盾。全枝閉じる。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "F→ はα規則（非分岐）で前件をTに、後件をFにする。T→ はβ規則（分岐）で前件がFまたは後件がTに分岐する。F→を先に全て適用してからT→で分岐するのが効率的。",
+  order: 10,
+  version: 1,
+};
+
+const qAt11DeMorgan2: QuestDefinition = {
+  id: "at-11",
+  category: "at-basics",
+  title: "ド・モルガン 2 (α規則中心)",
+  description:
+    "F:¬(φ ∨ ψ) → (¬φ ∧ ¬ψ) をルートに配置し、全枝を閉じてド・モルガンの法則（選言版）を証明せよ。",
+  difficulty: 2,
+  systemPresetId: "at",
+  goals: [
+    {
+      formulaText: "~(phi \\/ psi) -> (~phi /\\ ~psi)",
+      label: "Goal: ¬(φ ∨ ψ) → (¬φ ∧ ¬ψ)",
+    },
+  ],
+  hints: [
+    "F(¬(φ ∨ ψ) → (¬φ ∧ ¬ψ)) をルートに配置しましょう（テキスト: F:~(phi \\/ psi) -> (~phi /\\ ~psi)）。",
+    "F→ で T(¬(φ ∨ ψ)) と F(¬φ ∧ ¬ψ) を得ます。",
+    "T¬ で T(¬(φ ∨ ψ)) から F(φ ∨ ψ) を得ます。",
+    "F∨（α規則）で F(φ) と F(ψ) を得ます。",
+    "F∧（β規則）で F(¬φ) と F(¬ψ) に分岐。F¬ で T(φ)/T(ψ) を得て矛盾。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "T¬ は F に、F¬ は T に符号を反転するα規則。¬(φ ∨ ψ) の分析ではまずT¬→F∨と進むと非分岐で情報が増える。",
+  order: 11,
+  version: 1,
+};
+
 // --- SCクエスト: シーケント計算の基礎 ---
 
 const qSc01Identity: QuestDefinition = {
@@ -3815,6 +3925,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qAt05DeMorgan,
   qAt06Distribution,
   qAt07UniversalToExistential,
+  qAt08ConjunctionCommute,
+  qAt09DisjunctionCommute,
+  qAt10Transitivity,
+  qAt11DeMorgan2,
   qSc01Identity,
   qSc02WeakeningLeft,
   qSc03ContractionLeft,
