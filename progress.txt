@@ -104,6 +104,28 @@
 
 ---
 
+## 2026-03-09 - タブロー法クエスト追加（連言結合律・選言結合律・吸収律・含意選言表現）
+- tab-basicsカテゴリにクエスト4問追加（159→163クエスト、tab-basics: 14→18問）
+  - tab-15: 連言の結合律 (∧, ¬∧) (difficulty 2) - ∧×2 → ¬∧二段分岐
+  - tab-16: 選言の結合律 (∨, ¬∨) (difficulty 3) - ¬∨×2 → ∨二段分岐
+  - tab-17: 吸収律 (→, ¬∧) (difficulty 2) - ¬→×2 → ¬∧ → →分岐
+  - tab-18: 含意の選言表現 (¬∨, →) (difficulty 2) - ¬→ → ¬∨ → ¬¬ → →分岐
+- テスト: 243ファイル、8454テスト全パス（8442→8454: +12）
+- カバレッジ: Stmts 99.95%, Branch 100%, Funcs 89.07%, Lines 100%（維持）
+- 変更ファイル:
+  - `src/lib/quest/builtinQuests.ts` (4クエスト定義追加)
+  - `src/lib/quest/builtinModelAnswers.ts` (4模範解答追加)
+  - `src/lib/quest/builtinQuests.test.ts` (カウント更新 159→163)
+- スクリーンショット:
+  - `.screenshots/tab-quests-new-4items.png` (新規4問の表示確認)
+  - `.screenshots/tab-quests-18items-header.png` (tab-basics 0/18表示確認)
+- **今後のイテレーションへの学び:**
+  - TABクエストの模範解答は分岐(β規則)が2段階になるとconclusionIndex/principalPositionの追跡が複雑化する
+  - 結合律の証明は連言版(∧→¬∧二段)と選言版(¬∨→∨二段)で対称的なパターン
+  - tab-basicsは18問に到達。次は含意と選言の分配、連言と選言の分配等が候補
+  - 現在のカテゴリ別クエスト数: prop系34, pred12, eq6, peano12, group17, nd23, tab18, at11, sc32（163合計）
+---
+
 ## 2026-03-09 - 群論の推論クエスト追加（複合項への公理適用）
 - group-proofsカテゴリにクエスト4問追加（155→159クエスト、group-proofs: 5→9問）
   - group-12: e·(a·b) = a·b (difficulty 2) - 複合項への左単位元G2L適用
