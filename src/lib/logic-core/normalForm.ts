@@ -151,26 +151,26 @@ const distributeCNF = (formula: Formula): Formula => {
       distributeCNF(formula.right),
     );
   }
-  if (formula._tag === "Disjunction") {
-    return distributeOrOverAnd(
-      distributeCNF(formula.left),
-      distributeCNF(formula.right),
+  /* v8 ignore start -- 防御的: NNF変換後はDisjunction以外出現しない */
+  if (formula._tag !== "Disjunction") {
+    formula satisfies
+      | { readonly _tag: "Implication" }
+      | { readonly _tag: "Biconditional" }
+      | { readonly _tag: "Universal" }
+      | { readonly _tag: "Existential" }
+      | { readonly _tag: "Predicate" }
+      | { readonly _tag: "Equality" }
+      | { readonly _tag: "FormulaSubstitution" };
+    throw new Error(
+      `Unexpected formula node in CNF distribution: ${formula._tag satisfies string}. Input must be in NNF.`,
     );
   }
-  /* v8 ignore start */
-  // NNF 変換後は →, ↔ は出現しない（防御的エラー）
-  formula satisfies
-    | { readonly _tag: "Implication" }
-    | { readonly _tag: "Biconditional" }
-    | { readonly _tag: "Universal" }
-    | { readonly _tag: "Existential" }
-    | { readonly _tag: "Predicate" }
-    | { readonly _tag: "Equality" }
-    | { readonly _tag: "FormulaSubstitution" };
-  throw new Error(
-    `Unexpected formula node in CNF distribution: ${formula._tag satisfies string}. Input must be in NNF.`,
-  );
   /* v8 ignore stop */
+  // fall-through: TypeScript narrows to Disjunction
+  return distributeOrOverAnd(
+    distributeCNF(formula.left),
+    distributeCNF(formula.right),
+  );
 };
 
 /**
@@ -227,26 +227,26 @@ const distributeDNF = (formula: Formula): Formula => {
       distributeDNF(formula.right),
     );
   }
-  if (formula._tag === "Conjunction") {
-    return distributeAndOverOr(
-      distributeDNF(formula.left),
-      distributeDNF(formula.right),
+  /* v8 ignore start -- 防御的: NNF変換後はConjunction以外出現しない */
+  if (formula._tag !== "Conjunction") {
+    formula satisfies
+      | { readonly _tag: "Implication" }
+      | { readonly _tag: "Biconditional" }
+      | { readonly _tag: "Universal" }
+      | { readonly _tag: "Existential" }
+      | { readonly _tag: "Predicate" }
+      | { readonly _tag: "Equality" }
+      | { readonly _tag: "FormulaSubstitution" };
+    throw new Error(
+      `Unexpected formula node in DNF distribution: ${formula._tag satisfies string}. Input must be in NNF.`,
     );
   }
-  /* v8 ignore start */
-  // NNF 変換後は →, ↔ は出現しない（防御的エラー）
-  formula satisfies
-    | { readonly _tag: "Implication" }
-    | { readonly _tag: "Biconditional" }
-    | { readonly _tag: "Universal" }
-    | { readonly _tag: "Existential" }
-    | { readonly _tag: "Predicate" }
-    | { readonly _tag: "Equality" }
-    | { readonly _tag: "FormulaSubstitution" };
-  throw new Error(
-    `Unexpected formula node in DNF distribution: ${formula._tag satisfies string}. Input must be in NNF.`,
-  );
   /* v8 ignore stop */
+  // fall-through: TypeScript narrows to Conjunction
+  return distributeAndOverOr(
+    distributeDNF(formula.left),
+    distributeDNF(formula.right),
+  );
 };
 
 /**
@@ -551,21 +551,21 @@ const pullQuantifiers = (formula: Formula): Formula => {
     const right = pullQuantifiers(formula.right);
     return liftQuantifiersFromBinary(left, right, "conjunction");
   }
-  if (formula._tag === "Disjunction") {
-    const left = pullQuantifiers(formula.left);
-    const right = pullQuantifiers(formula.right);
-    return liftQuantifiersFromBinary(left, right, "disjunction");
+  /* v8 ignore start -- 防御的: NNF変換後はDisjunction以外出現しない */
+  if (formula._tag !== "Disjunction") {
+    formula satisfies
+      | { readonly _tag: "Implication" }
+      | { readonly _tag: "Biconditional" }
+      | { readonly _tag: "FormulaSubstitution" };
+    throw new Error(
+      `Unexpected formula node in PNF quantifier lifting: ${formula._tag satisfies string}. Input must be in predicate NNF.`,
+    );
   }
-  /* v8 ignore start */
-  // NNF 変換後は →, ↔ は出現しない
-  formula satisfies
-    | { readonly _tag: "Implication" }
-    | { readonly _tag: "Biconditional" }
-    | { readonly _tag: "FormulaSubstitution" };
-  throw new Error(
-    `Unexpected formula node in PNF quantifier lifting: ${formula._tag satisfies string}. Input must be in predicate NNF.`,
-  );
   /* v8 ignore stop */
+  // fall-through: TypeScript narrows to Disjunction
+  const left = pullQuantifiers(formula.left);
+  const right = pullQuantifiers(formula.right);
+  return liftQuantifiersFromBinary(left, right, "disjunction");
 };
 
 /**

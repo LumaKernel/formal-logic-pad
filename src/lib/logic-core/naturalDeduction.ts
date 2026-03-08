@@ -255,14 +255,15 @@ export const implicationElim = (
 ): NdImplicationElim => {
   const rightConclusion = getNdConclusion(right);
   // rightはφ→ψの形であるべき（構築時はチェックせず、バリデーション時にチェック）
-  const conclusion =
-    rightConclusion instanceof Implication
-      ? rightConclusion.right
-      : /* v8 ignore start -- 防御的フォールバック: バリデーション時にエラーとなるため通常到達しない */
-        rightConclusion; /* v8 ignore stop */
+  /* v8 ignore start -- 防御的フォールバック: バリデーション時にエラーとなるため通常到達しない */
+  if (!(rightConclusion instanceof Implication)) {
+    return { _tag: "NdImplicationElim", formula: rightConclusion, left, right };
+  }
+  /* v8 ignore stop */
+  // fall-through: TypeScript narrows to Implication
   return {
     _tag: "NdImplicationElim",
-    formula: conclusion,
+    formula: rightConclusion.right,
     left,
     right,
   };
@@ -282,14 +283,15 @@ export const conjunctionElimLeft = (
   premise: NdProofNode,
 ): NdConjunctionElimLeft => {
   const premConclusion = getNdConclusion(premise);
-  const formula =
-    premConclusion instanceof Conjunction
-      ? premConclusion.left
-      : /* v8 ignore start -- 防御的フォールバック: バリデーション時にエラーとなるため通常到達しない */
-        premConclusion; /* v8 ignore stop */
+  /* v8 ignore start -- 防御的フォールバック: バリデーション時にエラーとなるため通常到達しない */
+  if (!(premConclusion instanceof Conjunction)) {
+    return { _tag: "NdConjunctionElimLeft", formula: premConclusion, premise };
+  }
+  /* v8 ignore stop */
+  // fall-through: TypeScript narrows to Conjunction
   return {
     _tag: "NdConjunctionElimLeft",
-    formula,
+    formula: premConclusion.left,
     premise,
   };
 };
@@ -298,14 +300,15 @@ export const conjunctionElimRight = (
   premise: NdProofNode,
 ): NdConjunctionElimRight => {
   const premConclusion = getNdConclusion(premise);
-  const formula =
-    premConclusion instanceof Conjunction
-      ? premConclusion.right
-      : /* v8 ignore start -- 防御的フォールバック: バリデーション時にエラーとなるため通常到達しない */
-        premConclusion; /* v8 ignore stop */
+  /* v8 ignore start -- 防御的フォールバック: バリデーション時にエラーとなるため通常到達しない */
+  if (!(premConclusion instanceof Conjunction)) {
+    return { _tag: "NdConjunctionElimRight", formula: premConclusion, premise };
+  }
+  /* v8 ignore stop */
+  // fall-through: TypeScript narrows to Conjunction
   return {
     _tag: "NdConjunctionElimRight",
-    formula,
+    formula: premConclusion.right,
     premise,
   };
 };
@@ -355,15 +358,20 @@ export const efqRule = (premise: NdProofNode, formula: Formula): NdEfq => ({
 export const dneRule = (premise: NdProofNode): NdDne => {
   const premConclusion = getNdConclusion(premise);
   // ¬¬φ → φ: 前提が ¬(¬φ) の形
-  const formula =
-    premConclusion instanceof Negation &&
-    premConclusion.formula instanceof Negation
-      ? premConclusion.formula.formula
-      : /* v8 ignore start -- 防御的フォールバック: バリデーション時にエラーとなるため通常到達しない */
-        premConclusion; /* v8 ignore stop */
+  /* v8 ignore start -- 防御的フォールバック: バリデーション時にエラーとなるため通常到達しない */
+  if (
+    !(
+      premConclusion instanceof Negation &&
+      premConclusion.formula instanceof Negation
+    )
+  ) {
+    return { _tag: "NdDne", formula: premConclusion, premise };
+  }
+  /* v8 ignore stop */
+  // fall-through: TypeScript narrows to Negation with nested Negation
   return {
     _tag: "NdDne",
-    formula,
+    formula: premConclusion.formula.formula,
     premise,
   };
 };
