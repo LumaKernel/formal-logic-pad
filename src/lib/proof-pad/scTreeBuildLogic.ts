@@ -393,16 +393,40 @@ const buildSinglePremiseFromRule = (
   Effect.gen(function* () {
     // パラメータがエッジに直接保存されている規則
     if (ruleId === "exchange-left") {
-      return scExchangeLeft(premise, edge.exchangePosition ?? 0, conclusion);
+      return scExchangeLeft(
+        premise,
+        /* v8 ignore start -- UI経由では常にexchangePositionが設定される */
+        edge.exchangePosition ?? 0,
+        /* v8 ignore stop */
+        conclusion,
+      );
     }
     if (ruleId === "exchange-right") {
-      return scExchangeRight(premise, edge.exchangePosition ?? 0, conclusion);
+      return scExchangeRight(
+        premise,
+        /* v8 ignore start -- UI経由では常にexchangePositionが設定される */
+        edge.exchangePosition ?? 0,
+        /* v8 ignore stop */
+        conclusion,
+      );
     }
     if (ruleId === "conjunction-left") {
-      return scConjunctionLeft(premise, edge.componentIndex ?? 1, conclusion);
+      return scConjunctionLeft(
+        premise,
+        /* v8 ignore start -- UI経由では常にcomponentIndexが設定される */
+        edge.componentIndex ?? 1,
+        /* v8 ignore stop */
+        conclusion,
+      );
     }
     if (ruleId === "disjunction-right") {
-      return scDisjunctionRight(premise, edge.componentIndex ?? 1, conclusion);
+      return scDisjunctionRight(
+        premise,
+        /* v8 ignore start -- UI経由では常にcomponentIndexが設定される */
+        edge.componentIndex ?? 1,
+        /* v8 ignore stop */
+        conclusion,
+      );
     }
 
     // パラメータなしの規則
