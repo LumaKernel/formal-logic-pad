@@ -6427,6 +6427,46 @@ const sc26LkWeakExcludedMiddle: ModelAnswer = {
   steps: [{ _tag: "axiom", formulaText: "~phi \\/ ~~phi" }],
 };
 
+const sc27LjUniversalElim: ModelAnswer = {
+  questId: "sc-27",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "all x. P(x) -> P(a)",
+    },
+  ],
+};
+
+const sc28LjExistentialIntro: ModelAnswer = {
+  questId: "sc-28",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "P(a) -> exists x. P(x)",
+    },
+  ],
+};
+
+const sc29LjUniversalToExistential: ModelAnswer = {
+  questId: "sc-29",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "all x. P(x) -> exists x. P(x)",
+    },
+  ],
+};
+
+const sc30LjUniversalSwap: ModelAnswer = {
+  questId: "sc-30",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. P(x, y) -> all y. all x. P(x, y)",
+    },
+  ],
+};
+
 // ============================================================
 // シーケント計算カット除去 (SC-CE) — sc-cut-elimination
 // ============================================================
@@ -6993,6 +7033,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   sc24LkConverseContraposition,
   sc25LkImplicationAsDisjunction,
   sc26LkWeakExcludedMiddle,
+  sc27LjUniversalElim,
+  sc28LjExistentialIntro,
+  sc29LjUniversalToExistential,
+  sc30LjUniversalSwap,
   // sc-cut-elimination
   sc_ce01Transitivity,
   sc_ce02ModusPonens,

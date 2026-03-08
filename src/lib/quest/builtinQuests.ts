@@ -4128,6 +4128,112 @@ const qSc26LkWeakExcludedMiddle: QuestDefinition = {
   version: 1,
 };
 
+// --- SC 量化子クエスト ---
+
+const qSc27LjUniversalElim: QuestDefinition = {
+  id: "sc-27",
+  category: "sc-basics",
+  title: "LJ: 全称消去 (∀⇒)",
+  description:
+    "∀x.P(x) → P(a) をLJ体系で証明せよ。∀⇒（全称左）規則で量化子を消去し、具体的な項に置き換える。シーケント計算における全称消去の基本操作。",
+  difficulty: 1,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "all x. P(x) -> P(a)",
+      label: "Goal: ∀x.P(x) → P(a)",
+    },
+  ],
+  hints: [
+    "⇒→ 規則で ∀x.P(x) ⇒ P(a) に帰着します。",
+    "∀⇒（全称左）規則で ∀x.P(x) を P(a) に置き換えます。項 a を代入します。",
+    "P(a) ⇒ P(a) は Identity（公理）です。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "∀⇒ 規則はシーケントの左辺（前件）にある全称量化子を、具体的な項で置き換える操作。Hilbert系のA4（全称消去）に相当する。",
+  order: 27,
+  version: 1,
+};
+
+const qSc28LjExistentialIntro: QuestDefinition = {
+  id: "sc-28",
+  category: "sc-basics",
+  title: "LJ: 存在導入 (⇒∃)",
+  description:
+    "P(a) → ∃x.P(x) をLJ体系で証明せよ。⇒∃（存在右）規則で具体的な項から存在量化子を導入する。",
+  difficulty: 1,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "P(a) -> exists x. P(x)",
+      label: "Goal: P(a) → ∃x.P(x)",
+    },
+  ],
+  hints: [
+    "⇒→ 規則で P(a) ⇒ ∃x.P(x) に帰着します。",
+    "⇒∃（存在右）規則で ∃x.P(x) の証人として項 a を指定します。",
+    "P(a) ⇒ P(a) は Identity（公理）です。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "⇒∃ 規則はシーケントの右辺（後件）に存在量化子を導入する操作。具体的な項（証人）を指定して、その項が条件を満たすことを示す。",
+  order: 28,
+  version: 1,
+};
+
+const qSc29LjUniversalToExistential: QuestDefinition = {
+  id: "sc-29",
+  category: "sc-basics",
+  title: "LJ: 全称から存在",
+  description:
+    "∀x.P(x) → ∃x.P(x) をLJ体系で証明せよ。∀⇒ と ⇒∃ を組み合わせて、全称から存在を導く。",
+  difficulty: 2,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "all x. P(x) -> exists x. P(x)",
+      label: "Goal: ∀x.P(x) → ∃x.P(x)",
+    },
+  ],
+  hints: [
+    "⇒→ 規則で ∀x.P(x) ⇒ ∃x.P(x) に帰着します。",
+    "∀⇒ 規則で左辺の ∀x.P(x) を P(a) に。⇒∃ 規則で右辺の ∃x.P(x) を P(a) に。",
+    "P(a) ⇒ P(a) は Identity（公理）です。",
+  ],
+  estimatedSteps: 4,
+  learningPoint:
+    "∀⇒ と ⇒∃ の組み合わせで全称から存在を導出。中間の項 a が全称消去と存在導入の両方で使われるのがポイント。",
+  order: 29,
+  version: 1,
+};
+
+const qSc30LjUniversalSwap: QuestDefinition = {
+  id: "sc-30",
+  category: "sc-basics",
+  title: "LJ: 全称量化子の交換",
+  description:
+    "∀x.∀y.P(x, y) → ∀y.∀x.P(x, y) をLJ体系で証明せよ。⇒∀（全称右）と ∀⇒（全称左）を組み合わせて量化子の順序を入れ替える。",
+  difficulty: 3,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "all x. all y. P(x, y) -> all y. all x. P(x, y)",
+      label: "Goal: ∀x.∀y.P(x,y) → ∀y.∀x.P(x,y)",
+    },
+  ],
+  hints: [
+    "⇒→ 規則で ∀x.∀y.P(x,y) ⇒ ∀y.∀x.P(x,y) に帰着します。",
+    "⇒∀ 規則を2回使って右辺の量化子を外します。フレッシュ変数の条件に注意。",
+    "∀⇒ 規則を2回使って左辺の量化子を消去し、P(a,b) ⇒ P(a,b) に帰着します。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "⇒∀ 規則のフレッシュ変数条件（固有変数条件）が、量化子の順序交換を正当化する鍵。固有変数はシーケント中の他の自由変数と重複してはならない。",
+  order: 30,
+  version: 1,
+};
+
 // --- カット除去体験クエスト ---
 
 const qScCe01CutBasic: QuestDefinition = {
@@ -4457,6 +4563,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qSc24LkConverseContraposition,
   qSc25LkImplicationAsDisjunction,
   qSc26LkWeakExcludedMiddle,
+  qSc27LjUniversalElim,
+  qSc28LjExistentialIntro,
+  qSc29LjUniversalToExistential,
+  qSc30LjUniversalSwap,
   qScCe01CutBasic,
   qScCe02CutModusPonens,
   qScCe03CutConjunctionCommute,
