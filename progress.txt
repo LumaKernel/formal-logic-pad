@@ -104,6 +104,28 @@
 
 ---
 
+## 2026-03-09 - SC量化子クエスト追加（全称消去・存在導入・全称→存在・量化子交換）
+- sc-basicsカテゴリにLJ体系の量化子クエスト4問追加（163→167クエスト、sc-basics: 26→30問）
+  - sc-27: LJ: 全称消去 (∀⇒) (difficulty 1) - ∀x.P(x) → P(a)
+  - sc-28: LJ: 存在導入 (⇒∃) (difficulty 1) - P(a) → ∃x.P(x)
+  - sc-29: LJ: 全称から存在 (difficulty 2) - ∀x.P(x) → ∃x.P(x)
+  - sc-30: LJ: 全称量化子の交換 (difficulty 3) - ∀x.∀y.P(x,y) → ∀y.∀x.P(x,y)
+- テスト: 243ファイル、8466テスト全パス（8454→8466: +12）
+- カバレッジ: Stmts 99.95%, Branch 100%, Funcs 89.07%, Lines 100%（維持）
+- 変更ファイル:
+  - `src/lib/quest/builtinQuests.ts` (4クエスト定義追加)
+  - `src/lib/quest/builtinModelAnswers.ts` (4模範解答追加)
+  - `src/lib/quest/builtinQuests.test.ts` (カウント更新 163→167)
+- スクリーンショット:
+  - `.screenshots/sc-quantifier-quests-new.png` (新規4問の表示確認)
+  - `.screenshots/sc-basics-30quests-header.png` (sc-basics 0/30表示確認)
+- **今後のイテレーションへの学び:**
+  - SC量化子クエストの模範解答もaxiomステップパターンで統一（ゴール式をaxiomノードとして配置）
+  - sc-basicsは30問に到達。LJ体系で∀⇒, ⇒∃, ⇒∀の基本操作を網羅
+  - 次のステップとして: LJ体系の∃⇒（存在除去）、LK固有の量化子クエスト、またはカット除去体験クエスト拡充が候補
+  - 現在のカテゴリ別クエスト数: prop系34, pred12, eq6, peano12, group17, nd23, tab18, at11, sc36(basics30+ce6)（167合計）
+---
+
 ## 2026-03-09 - タブロー法クエスト追加（連言結合律・選言結合律・吸収律・含意選言表現）
 - tab-basicsカテゴリにクエスト4問追加（159→163クエスト、tab-basics: 14→18問）
   - tab-15: 連言の結合律 (∧, ¬∧) (difficulty 2) - ∧×2 → ¬∧二段分岐
