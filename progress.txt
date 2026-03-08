@@ -10320,3 +10320,24 @@
   - 単一ファイルと全体テストでBranchカバレッジが異なる（v8カバレッジマージのquirk）。全体テストの数値を基準にする
   - キャンバスコンテキストメニュー（右クリック）の操作はJSDOMで再現困難。ブラウザテスト（Storybook play関数 or Playwright）で検証する方針
 ---
+
+## 2026-03-08 - coverage改善: naturalDeduction.ts Branch カバレッジ向上
+- 実装した内容:
+  - naturalDeduction.ts の Branch カバレッジを 92.55% → 95.74% に改善（+3.19pp）
+  - 全体 Branch カバレッジ: 96.61% → 96.65%（+0.04pp）
+  - validateNdProof の正常パス（Valid）テストを3件追加:
+    - 正しい∧導入+∧除去右がValid（724行の false 分岐をカバー）
+    - 正しい∨導入右がValid（754行の false 分岐をカバー）
+    - 正しいDNEがValid（805行の false 分岐をカバー）
+  - 既存テスト名を「∧除去」→「∧除去左」に明確化
+- 変更したファイル:
+  - src/lib/logic-core/naturalDeduction.test.ts (+24行, 3 new tests)
+- カバレッジ:
+  - Before: Stmts 99.61%, Branch 96.61%, Funcs 89.24%, Lines 99.86%
+  - After:  Stmts 99.61%, Branch 96.65%, Funcs 89.24%, Lines 99.86%
+  - naturalDeduction.ts: Branch 92.55% → 95.74%
+- テスト: 8247 passed (242 test files), typecheck OK, lint OK
+- **今後のイテレーションへの学び:**
+  - naturalDeduction.ts 残りの未カバーブランチ(259-359)は防御的フォールバック箇所で v8 ignore 済み。v8 の NaN ブランチカウントにより表示上 95.74% だが実質的に全分岐カバー済み
+  - バリデーション関数の正常パス（Valid）テストは、エラーケースだけでなく必ず追加すること。if の false 分岐がカバーされない
+---
