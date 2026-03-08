@@ -2099,6 +2099,108 @@ const qPred06UnivNegToNegExist: QuestDefinition = {
   version: 2,
 };
 
+const qPred07UniversalElimImplication: QuestDefinition = {
+  id: "pred-07",
+  category: "predicate-basics",
+  title: "全称消去（含意版）",
+  description:
+    "(∀x.(P(x)→Q(x))) → (P(x)→Q(x)) を証明せよ。A4 の含意式へのインスタンス化。",
+  difficulty: 1,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "(all x. (P(x) -> Q(x))) -> (P(x) -> Q(x))",
+      label: "Goal: (∀x.(P(x)→Q(x))) → (P(x)→Q(x))",
+    },
+  ],
+  hints: [
+    "A4 は (∀x.φ(x)) → φ(t) の形です。",
+    "φ(x) = P(x) → Q(x) とすれば、A4 の直接インスタンスになります。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "A4（全称消去）は任意の述語式に適用できる。φ(x) が複合式でも同じように使える。",
+  order: 7,
+  version: 1,
+};
+
+const qPred08A1Quantified: QuestDefinition = {
+  id: "pred-08",
+  category: "predicate-basics",
+  title: "A1の全称化",
+  description:
+    "∀x.(P(x) → (Q(x) → P(x))) を証明せよ。命題論理公理A1に Gen を適用する。",
+  difficulty: 2,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "all x. (P(x) -> (Q(x) -> P(x)))",
+      label: "Goal: ∀x.(P(x) → (Q(x) → P(x)))",
+    },
+  ],
+  hints: [
+    "A1 公理は φ → (ψ → φ) の形です。",
+    "P(x) と Q(x) で A1 をインスタンス化してから Gen で全称化します。",
+  ],
+  estimatedSteps: 2,
+  learningPoint:
+    "命題論理の公理は自由変数を含む式でもインスタンス化でき、Gen で全称化できる。",
+  order: 8,
+  version: 1,
+};
+
+const qPred09A1DoubleQuantified: QuestDefinition = {
+  id: "pred-09",
+  category: "predicate-basics",
+  title: "A1の二重全称化",
+  description:
+    "∀x.∀y.(P(x) → (P(y) → P(x))) を証明せよ。A1に Gen を2回適用する。",
+  difficulty: 2,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "all x. all y. (P(x) -> (P(y) -> P(x)))",
+      label: "Goal: ∀x.∀y.(P(x) → (P(y) → P(x)))",
+    },
+  ],
+  hints: [
+    "A1 公理を P(x) と P(y) でインスタンス化します。",
+    "Gen[y] で y について全称化し、さらに Gen[x] で x について全称化します。",
+    "Gen の適用順序に注意: 内側の量化子から順に適用します。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "Gen は繰り返し適用できる。内側の変数から順に全称化することで、二重全称量化が得られる。",
+  order: 9,
+  version: 1,
+};
+
+const qPred10QuantifierRenaming: QuestDefinition = {
+  id: "pred-10",
+  category: "predicate-basics",
+  title: "量化変数の改名",
+  description:
+    "(∀x.P(x)) → (∀y.P(y)) を証明せよ。束縛変数の名前を変更しても意味が変わらないことの形式的証明。",
+  difficulty: 2,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "(all x. P(x)) -> all y. P(y)",
+      label: "Goal: (∀x.P(x)) → (∀y.P(y))",
+    },
+  ],
+  hints: [
+    "A4 で ∀x.P(x) から P(y) を取り出します（x に y を代入）。",
+    "Gen[y] で P(y) を ∀y.P(y) に全称化します。",
+    "A5 で Gen の結果から含意を構成します。",
+  ],
+  estimatedSteps: 4,
+  learningPoint:
+    "α変換（束縛変数の改名）は A4 + Gen + A5 の組み合わせで形式的に証明できる。",
+  order: 10,
+  version: 1,
+};
+
 // --- 述語論理の上級 ---
 
 const qPredAdv01UniversalImplicationDistribution: QuestDefinition = {
@@ -5690,6 +5792,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qPred04ExistentialIntro,
   qPred05ExistNegToNegUniv,
   qPred06UnivNegToNegExist,
+  qPred07UniversalElimImplication,
+  qPred08A1Quantified,
+  qPred09A1DoubleQuantified,
+  qPred10QuantifierRenaming,
   qPredAdv01UniversalImplicationDistribution,
   qPredAdv02NegationOfExistence,
   qPredAdv03NegationOfUniversal,

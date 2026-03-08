@@ -4997,6 +4997,79 @@ const pred06UnivNegToNegExist: ModelAnswer = {
   steps: [{ _tag: "axiom", formulaText: "(all x. ~P(x)) -> ~(ex x. P(x))" }],
 };
 
+/**
+ * pred-07: 全称消去（含意版）
+ *
+ * (∀x.(P(x)→Q(x))) → (P(x)→Q(x))。A4の直接インスタンス。1ステップ。
+ */
+const pred07UniversalElimImplication: ModelAnswer = {
+  questId: "pred-07",
+  steps: [
+    { _tag: "axiom", formulaText: "(all x. (P(x) -> Q(x))) -> (P(x) -> Q(x))" },
+  ],
+};
+
+/**
+ * pred-08: A1の全称化
+ *
+ * ∀x.(P(x) → (Q(x) → P(x)))。A1をインスタンス化してGenで全称化。2ステップ。
+ */
+const pred08A1Quantified: ModelAnswer = {
+  questId: "pred-08",
+  steps: [
+    // Step 0: A1[φ/P(x), ψ/Q(x)]
+    { _tag: "axiom", formulaText: "P(x) -> (Q(x) -> P(x))" },
+    // Step 1: Gen[x]
+    { _tag: "gen", premiseIndex: 0, variableName: "x" },
+  ],
+};
+
+/**
+ * pred-09: A1の二重全称化
+ *
+ * ∀x.∀y.(P(x) → (P(y) → P(x)))。A1 + Gen[y] + Gen[x]。3ステップ。
+ */
+const pred09A1DoubleQuantified: ModelAnswer = {
+  questId: "pred-09",
+  steps: [
+    // Step 0: A1[φ/P(x), ψ/P(y)]
+    { _tag: "axiom", formulaText: "P(x) -> (P(y) -> P(x))" },
+    // Step 1: Gen[y] = ∀y.(P(x) → (P(y) → P(x)))
+    { _tag: "gen", premiseIndex: 0, variableName: "y" },
+    // Step 2: Gen[x] = ∀x.∀y.(P(x) → (P(y) → P(x)))
+    { _tag: "gen", premiseIndex: 1, variableName: "x" },
+  ],
+};
+
+/**
+ * pred-10: 量化変数の改名
+ *
+ * (∀x.P(x)) → (∀y.P(y))。A4 + Gen[y] + A5 + MP。4ステップ。
+ *
+ * 証明戦略:
+ * 1. A4[x/y]: (∀x.P(x)) → P(y)
+ * 2. Gen[y]: ∀y.((∀x.P(x)) → P(y))
+ * 3. A5: (∀y.((∀x.P(x)) → P(y))) → ((∀x.P(x)) → ∀y.P(y))
+ * 4. MP(2, 3): (∀x.P(x)) → ∀y.P(y)
+ */
+const pred10QuantifierRenaming: ModelAnswer = {
+  questId: "pred-10",
+  steps: [
+    // Step 0: A4 — (∀x.P(x)) → P(y)
+    { _tag: "axiom", formulaText: "(all x. P(x)) -> P(y)" },
+    // Step 1: Gen[y] = ∀y.((∀x.P(x)) → P(y))
+    { _tag: "gen", premiseIndex: 0, variableName: "y" },
+    // Step 2: A5 — (∀y.((∀x.P(x)) → P(y))) → ((∀x.P(x)) → ∀y.P(y))
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. ((all x. P(x)) -> P(y))) -> ((all x. P(x)) -> all y. P(y))",
+    },
+    // Step 3: MP(1, 2) = (∀x.P(x)) → ∀y.P(y)
+    { _tag: "mp", leftIndex: 1, rightIndex: 2 },
+  ],
+};
+
 // ============================================================
 // 述語論理の上級 — predicate-advanced
 // ============================================================
@@ -8318,6 +8391,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   pred04ExistentialIntro,
   pred05ExistNegToNegUniv,
   pred06UnivNegToNegExist,
+  pred07UniversalElimImplication,
+  pred08A1Quantified,
+  pred09A1DoubleQuantified,
+  pred10QuantifierRenaming,
   // predicate-advanced
   predAdv01UniversalImplicationDistribution,
   predAdv02NegationOfExistence,
