@@ -10477,3 +10477,22 @@
   - testId ternary（`testId ? ... : undefined`）はテスト用属性の有無で、カバレッジ上は防御的コード。v8 ignoreで対処
   - proofBridge.ts の decodeLogicSystem は private 関数だが、identifyAxiom ブリッジ経由でテスト可能
 ---
+
+## 2026-03-08 14:15 - カバレッジ改善（第3回）
+- ベースライン: Branch 97.98%
+- **改善結果: Branch 97.98% → 98.07% (+0.09pp)**
+- 変更内容:
+  - inferenceEdgeLabelLogic.ts: switch→if-chain変換 + SC branchingテスト追加 (Branch 99.12%→100%)
+  - workspaceBridge.ts: switch行v8 ignore追加 (Branch 98.18%→100%)
+  - genApplicationLogic.ts: v8 ignore配置修正（if自体をwrap）(Branch 94.11%→100%)
+  - ndApplicationLogic.ts: 不正論理式パーステスト追加 (Branch 98.8%→100%)
+  - atApplicationLogic.ts: 到達不能防御ガードにv8 ignore追加 (Branch 96.96%→98.43%)
+  - questUrlSharing.ts: 孤立サロゲートテスト追加 (Branch 97.54%→98.36%)
+  - cutEliminationBridge.ts: switch行v8 ignore追加 (Branch 97.22%→98.07%)
+- テスト: 8268 passed (242 test files), typecheck OK, lint OK
+- **今後のイテレーションへの学び:**
+  - `parseSignedFormulaText`のline 74 `if (formulaText === "")` は、trim()済み文字列のslice(2)が空白のみになることは不可能なため到達不能。v8 ignoreで対処
+  - switch行のv8 ignoreは、defaultのみがv8-ignoredの場合にも有効（NaN branchのBRFカウント問題が発生しない）
+  - inferenceEdgeLabelLogicのようにcaseが5つ程度ならif-chain変換が実用的。18ケースのworkspaceBridge/cutEliminationBridgeではswitch行v8 ignoreの方が可読性を維持できる
+  - SC branchingエッジはleft/right roleを持つが、ND固有のラベル付与対象外。getInferenceEdgeLabelForConnectionのフォールバック（baseLabel返却）でカバー
+---
