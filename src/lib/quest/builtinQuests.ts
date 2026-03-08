@@ -2982,6 +2982,115 @@ const qNd31DisjunctionConjunctionDistribution: QuestDefinition = {
   version: 1,
 };
 
+const qNd32UniversalConjunctionDistribution: QuestDefinition = {
+  id: "nd-32",
+  category: "nd-basics",
+  title: "∀の∧分配 (NM)",
+  description:
+    "∀x.(P(x) ∧ Q(x)) → (∀x.P(x)) ∧ (∀x.Q(x)) を自然演繹 NM で証明せよ。全称量化子を連言の外に分配する。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText:
+        "(all x. (P(x) /\\ Q(x))) -> (all x. P(x)) /\\ (all x. Q(x))",
+      label: "Goal: (∀x.(P(x) ∧ Q(x))) → (∀x.P(x)) ∧ (∀x.Q(x))",
+    },
+  ],
+  hints: [
+    "∀x.(P(x) ∧ Q(x)) を仮定します。",
+    "∀E で P(x) ∧ Q(x) を取り出し、∧E で P(x) と Q(x) に分解します。",
+    "それぞれに ∀I を適用して ∀x.P(x) と ∀x.Q(x) を作ります。",
+    "∧I で結合し、→I で仮定を解消します。",
+  ],
+  estimatedSteps: 8,
+  learningPoint:
+    "∀の∧分配は nd-23（逆方向）と対をなす。∀E → ∧E → ∀I のパターン。",
+  order: 32,
+  version: 1,
+};
+
+const qNd33ExistentialDisjunctionCombine: QuestDefinition = {
+  id: "nd-33",
+  category: "nd-basics",
+  title: "∃と∨の結合 (NM)",
+  description:
+    "(∃x.P(x)) ∨ (∃x.Q(x)) → ∃x.(P(x) ∨ Q(x)) を自然演繹 NM で証明せよ。存在量化子の選言を統合する。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "(ex x. P(x)) \\/ (ex x. Q(x)) -> ex x. (P(x) \\/ Q(x))",
+      label: "Goal: (∃x.P(x)) ∨ (∃x.Q(x)) → ∃x.(P(x) ∨ Q(x))",
+    },
+  ],
+  hints: [
+    "(∃x.P(x)) ∨ (∃x.Q(x)) を仮定し、∨E で場合分けします。",
+    "∃x.P(x) の場合: ∃E で P(x) を取り出し、∨I_L → ∃I で ∃x.(P(x) ∨ Q(x))。",
+    "∃x.Q(x) の場合: ∃E で Q(x) を取り出し、∨I_R → ∃I で ∃x.(P(x) ∨ Q(x))。",
+    "∨E で統合し →I で完成。",
+  ],
+  estimatedSteps: 13,
+  learningPoint:
+    "∨E と ∃E のネストが必要な証明。各場合で ∨I + ∃I を組み合わせるパターン。",
+  order: 33,
+  version: 1,
+};
+
+const qNd34NegExistentialToUniversalNeg: QuestDefinition = {
+  id: "nd-34",
+  category: "nd-basics",
+  title: "量化子のド・モルガン ¬∃→∀¬ (NM)",
+  description:
+    "¬∃x.P(x) → ∀x.¬P(x) を自然演繹 NM で証明せよ。存在の否定から全称的な否定を導く。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "~(ex x. P(x)) -> all x. ~P(x)",
+      label: "Goal: ¬∃x.P(x) → ∀x.¬P(x)",
+    },
+  ],
+  hints: [
+    "¬∃x.P(x) を仮定します。",
+    "P(x) を仮定し、∃I で ∃x.P(x) を作ります。",
+    "→E で ¬∃x.P(x) と ∃x.P(x) から ⊥ を得ます。",
+    "→I で P(x) を解消して ¬P(x)。∀I で ∀x.¬P(x)。→I で完成。",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "量化子のド・モルガン法則の一方向。∃I + →E で矛盾を作り、→I で否定を構成する基本パターン。最小論理で証明可能。",
+  order: 34,
+  version: 1,
+};
+
+const qNd35UniversalNegToNegExistential: QuestDefinition = {
+  id: "nd-35",
+  category: "nd-basics",
+  title: "量化子のド・モルガン ∀¬→¬∃ (NM)",
+  description:
+    "∀x.¬P(x) → ¬∃x.P(x) を自然演繹 NM で証明せよ。全称的な否定から存在の否定を導く。",
+  difficulty: 2,
+  systemPresetId: "nd-nm",
+  goals: [
+    {
+      formulaText: "(all x. ~P(x)) -> ~(ex x. P(x))",
+      label: "Goal: (∀x.¬P(x)) → ¬∃x.P(x)",
+    },
+  ],
+  hints: [
+    "∀x.¬P(x) を仮定します。",
+    "∃x.P(x) を仮定し、∃E で P(x) を取り出します。",
+    "∀E で ¬P(x) を取得し、→E で P(x) と合わせて ⊥ を導きます。",
+    "∃E で ⊥ を統合し、→I で ∃x.P(x) を解消して ¬∃x.P(x)。→I で完成。",
+  ],
+  estimatedSteps: 8,
+  learningPoint:
+    "量化子のド・モルガン法則の逆方向。∃E + ∀E + →E の組み合わせ。nd-34 と対をなす定理。最小論理で証明可能。",
+  order: 35,
+  version: 1,
+};
+
 // --- TABクエスト: タブロー法の基礎 ---
 
 const qTab01Identity: QuestDefinition = {
@@ -5168,6 +5277,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qNd29ContrapositiveReverse,
   qNd30PeirceLaw,
   qNd31DisjunctionConjunctionDistribution,
+  qNd32UniversalConjunctionDistribution,
+  qNd33ExistentialDisjunctionCombine,
+  qNd34NegExistentialToUniversalNeg,
+  qNd35UniversalNegToNegExistential,
   qTab01Identity,
   qTab02DoubleNegationElim,
   qTab03ExcludedMiddle,

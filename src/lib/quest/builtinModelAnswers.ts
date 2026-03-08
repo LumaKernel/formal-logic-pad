@@ -5773,6 +5773,134 @@ const nd31DisjunctionConjunctionDistribution: ModelAnswer = {
   ],
 };
 
+/**
+ * nd-32: ∀の∧分配 ∀x.(P(x) ∧ Q(x)) → (∀x.P(x)) ∧ (∀x.Q(x))
+ *
+ * ∀E → ∧E×2 → ∀I×2 → ∧I → →I
+ */
+const nd32UniversalConjunctionDistribution: ModelAnswer = {
+  questId: "nd-32",
+  steps: [
+    { _tag: "assumption", formulaText: "all x. (P(x) /\\ Q(x))" },
+    { _tag: "nd-universal-elim", premiseIndex: 0, termText: "x" },
+    { _tag: "nd-conjunction-elim-left", premiseIndex: 1 },
+    { _tag: "nd-conjunction-elim-right", premiseIndex: 1 },
+    { _tag: "nd-universal-intro", premiseIndex: 2, variableName: "x" },
+    { _tag: "nd-universal-intro", premiseIndex: 3, variableName: "x" },
+    { _tag: "nd-conjunction-intro", leftIndex: 4, rightIndex: 5 },
+    { _tag: "nd-implication-intro", premiseIndex: 6, dischargedIndex: 0 },
+  ],
+};
+
+/**
+ * nd-33: ∃と∨の結合 (∃x.P(x)) ∨ (∃x.Q(x)) → ∃x.(P(x) ∨ Q(x))
+ *
+ * ∨E で場合分け → 各 ∃E で取り出し → ∨I + ∃I → 統合
+ */
+const nd33ExistentialDisjunctionCombine: ModelAnswer = {
+  questId: "nd-33",
+  steps: [
+    {
+      _tag: "assumption",
+      formulaText: "(ex x. P(x)) \\/ (ex x. Q(x))",
+    },
+    { _tag: "assumption", formulaText: "P(x)" },
+    {
+      _tag: "nd-disjunction-intro-left",
+      premiseIndex: 1,
+      addedRightText: "Q(x)",
+    },
+    {
+      _tag: "nd-existential-intro",
+      premiseIndex: 2,
+      variableName: "x",
+      termText: "x",
+    },
+    { _tag: "assumption", formulaText: "ex x. P(x)" },
+    {
+      _tag: "nd-existential-elim",
+      existentialIndex: 4,
+      caseIndex: 3,
+      dischargedIndex: 1,
+    },
+    { _tag: "assumption", formulaText: "Q(x)" },
+    {
+      _tag: "nd-disjunction-intro-right",
+      premiseIndex: 6,
+      addedLeftText: "P(x)",
+    },
+    {
+      _tag: "nd-existential-intro",
+      premiseIndex: 7,
+      variableName: "x",
+      termText: "x",
+    },
+    { _tag: "assumption", formulaText: "ex x. Q(x)" },
+    {
+      _tag: "nd-existential-elim",
+      existentialIndex: 9,
+      caseIndex: 8,
+      dischargedIndex: 6,
+    },
+    {
+      _tag: "nd-disjunction-elim",
+      disjunctionIndex: 0,
+      leftCaseIndex: 5,
+      leftDischargedIndex: 4,
+      rightCaseIndex: 10,
+      rightDischargedIndex: 9,
+    },
+    { _tag: "nd-implication-intro", premiseIndex: 11, dischargedIndex: 0 },
+  ],
+};
+
+/**
+ * nd-34: 量化子のド・モルガン ¬∃x.P(x) → ∀x.¬P(x)
+ *
+ * P(x) 仮定 → ∃I → →E で ⊥ → →I で ¬P(x) → ∀I → →I
+ */
+const nd34NegExistentialToUniversalNeg: ModelAnswer = {
+  questId: "nd-34",
+  steps: [
+    { _tag: "assumption", formulaText: "~(ex x. P(x))" },
+    { _tag: "assumption", formulaText: "P(x)" },
+    {
+      _tag: "nd-existential-intro",
+      premiseIndex: 1,
+      variableName: "x",
+      termText: "x",
+    },
+    { _tag: "nd-implication-elim", leftIndex: 2, rightIndex: 0 },
+    { _tag: "nd-implication-intro", premiseIndex: 3, dischargedIndex: 1 },
+    { _tag: "nd-universal-intro", premiseIndex: 4, variableName: "x" },
+    { _tag: "nd-implication-intro", premiseIndex: 5, dischargedIndex: 0 },
+  ],
+};
+
+/**
+ * nd-35: 量化子のド・モルガン ∀x.¬P(x) → ¬∃x.P(x)
+ *
+ * ∃x.P(x) 仮定 → ∃E(P(x)) → ∀E(¬P(x)) → →E で ⊥ → →I → →I
+ */
+const nd35UniversalNegToNegExistential: ModelAnswer = {
+  questId: "nd-35",
+  steps: [
+    { _tag: "assumption", formulaText: "all x. ~P(x)" },
+    { _tag: "assumption", formulaText: "ex x. P(x)" },
+    { _tag: "assumption", formulaText: "P(x)" },
+    { _tag: "nd-universal-elim", premiseIndex: 0, termText: "x" },
+    { _tag: "nd-implication-elim", leftIndex: 2, rightIndex: 3 },
+    {
+      _tag: "nd-existential-elim",
+      existentialIndex: 1,
+      caseIndex: 4,
+      dischargedIndex: 2,
+    },
+    { _tag: "nd-implication-intro", premiseIndex: 5, dischargedIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 6, dischargedIndex: 0 },
+  ],
+};
+
 // ==========================================
 // TAB（タブロー式シーケント計算）模範解答
 // ==========================================
@@ -7700,6 +7828,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   nd29ContrapositiveReverse,
   nd30PeirceLaw,
   nd31DisjunctionConjunctionDistribution,
+  nd32UniversalConjunctionDistribution,
+  nd33ExistentialDisjunctionCombine,
+  nd34NegExistentialToUniversalNeg,
+  nd35UniversalNegToNegExistential,
   // tab-basics
   tab01Identity,
   tab02DoubleNegationElim,
