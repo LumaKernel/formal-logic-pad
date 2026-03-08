@@ -104,6 +104,28 @@
 
 ---
 
+## 2026-03-09 - ペアノ算術計算クエスト追加（peano-13〜peano-16）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8586 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8598 tests
+- 変更内容:
+  - peano-13: 0 + S(0) = S(0) (difficulty 3, 13 steps) — PA4+PA3+E4(S)+E3(推移律)
+  - peano-14: 0 × S(0) = 0 (difficulty 3, 17 steps) — PA6+PA3+PA5+E3(推移律)×2
+  - peano-15: S(S(0)) + S(0) = S(S(S(0))) (difficulty 3, 13 steps) — PA4+PA3+E4(S)+E3
+  - peano-16: S(S(0)) × 0 = 0 (difficulty 2, 3 steps) — PA5のインスタンス化
+  - peano-arithmetic カテゴリ: 6問→10問に拡充
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 207→211
+- テスト: 8598 passed (243 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/peano-quests-catalog.png
+- **今後のイテレーションへの学び:**
+  - PA計算証明のコアパターン: PA4/PA6でS(y)を展開 → PA3/PA5で基底ケースに帰着 → E4で関数合同 → E3で推移律で等式連結
+  - peano-13(0+1=1)とpeano-11(1+1=2)は同じPA4+PA3+E4+E3パターン。項のサイズだけ異なる
+  - PA6(乗法再帰)を使うpeano-14は17ステップと長め。PA6→PA3→PA5のチェーンで3段の推移律が必要
+  - 現在のカテゴリ別クエスト数: prop34, pred12, eq6, peano16, group19, nd35, tab22, at19, sc48（211合計）
+---
+
 ## 2026-03-09 - AT分析的タブロー量化子クエスト追加（at-16〜at-19）
 - ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8562 tests
 - **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8574 tests
