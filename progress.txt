@@ -10972,3 +10972,33 @@
   - sc-ce-09は¬φ∨ψを含むためLK体系（systemPresetId: "sc-lk"）が必要。LJでは後件に複数の式を置けない
   - 選言・否定の組み合わせパターン（sc-ce-07〜10）で既存の含意・連言中心（sc-ce-01〜06）を補完
 ---
+
+## 2026-03-09 - CI修正: HubPageView ストーリータイムアウト
+- **問題:** builtinQuestsが171件に増加し、HubPageView.stories.tsxのWithCustomQuests/WithEmptyCustomQuestsテストがCI環境で15秒タイムアウト超過
+- **修正:** sampleGroupsの生成に`builtinQuests.slice(0, 20)`を使用。描画時間: 7.8s→2.1s
+- 変更ファイル: src/app/HubPageView.stories.tsx
+- **今後のイテレーションへの学び:**
+  - HubPageView.stories.tsxはbuiltinQuests全件ではなくスライスを使用している。クエスト追加時にストーリー変更は不要
+  - CI環境はローカルより大幅に遅い。ストーリーで大量データを描画する場合はスライスで制限すること
+---
+
+## 2026-03-09 - ND自然演繹クエスト追加（nd-24〜nd-27）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8478 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**
+- 変更内容:
+  - nd-24: ド・モルガン ¬(φ∨ψ)→(¬φ∧¬ψ) (NM, difficulty 2) — 10ステップ: ∨I+→Eで各成分の否定を導出、∧Iで結合
+  - nd-25: ド・モルガン逆 (¬φ∧¬ψ)→¬(φ∨ψ) (NM, difficulty 2) — 10ステップ: ∧Eで分解、∨Eで場合分け、各ケースで→Eで矛盾
+  - nd-26: ド・モルガン ¬(φ∧ψ)→(¬φ∨¬ψ) (NK, difficulty 3) — 14ステップ: DNE必要。¬(¬φ∨¬ψ)仮定で矛盾を導き二重否定除去
+  - nd-27: ∧∨分配律 φ∧(ψ∨χ)→(φ∧ψ)∨(φ∧χ) (NM, difficulty 2) — 10ステップ: ∨Eで場合分け、各ケースで∧I+∨I
+  - nd-basics カテゴリ: 23問→27問に拡充
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 171→175
+- テスト: 8490 passed (243 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/quest-nd-de-morgan-overview.png
+- **今後のイテレーションへの学び:**
+  - ND模範解答の→E(implication-elim)は leftIndex=引数(antecedent), rightIndex=関数(implication)。例: leftIndex=φ, rightIndex=¬φ(=φ→⊥) → ⊥
+  - NDのド・モルガン ¬∧→∨¬ 方向はDNEが必要（NK体系）。他の3方向は最小論理（NM）で証明可能
+  - ND模範解答のdisjunction-elimはdisjunctionIndex+leftCaseIndex+leftDischargedIndex+rightCaseIndex+rightDischargedIndexの5フィールド
+---
