@@ -104,6 +104,27 @@
 
 ---
 
+## 2026-03-09 - 群論の推論クエスト追加（複合項への公理適用）
+- group-proofsカテゴリにクエスト4問追加（155→159クエスト、group-proofs: 5→9問）
+  - group-12: e·(a·b) = a·b (difficulty 2) - 複合項への左単位元G2L適用
+  - group-13: (a·b)·e = a·b (difficulty 2) - 複合項への右単位元G2R適用
+  - group-14: i(a·b)·(a·b) = e (difficulty 2) - 複合項への左逆元G3L適用
+  - group-15: (a·b)·i(a·b) = e (difficulty 2) - 複合項への右逆元G3R適用
+- テスト: 243ファイル、8442テスト全パス（8430→8442: +12）
+- カバレッジ: Stmts 99.95%, Branch 100%, Funcs 89.07%, Lines 100%（維持）
+- 変更ファイル:
+  - `src/lib/quest/builtinQuests.ts` (4クエスト定義追加)
+  - `src/lib/quest/builtinModelAnswers.ts` (4模範解答追加)
+  - `src/lib/quest/builtinQuests.test.ts` (カウント更新 155→159)
+- スクリーンショット:
+  - `.screenshots/group-proofs-9quests.png` (group-proofs 9問表示確認)
+  - `.screenshots/group-proofs-new-quests.png` (新規4問の詳細表示)
+- **今後のイテレーションへの学び:**
+  - 複合項(a*b)への∀消去は単一変数(a)と同じ3ステップパターン（公理→A4インスタンス→MP）
+  - group-proofsは9問に到達。次は等号推移律E3を組合せた証明（例: i(i(a))=a）や左公理系のみでの証明が候補
+  - 現在のカテゴリ別クエスト数: prop系34, pred12, eq6, peano12, group17(basics6+proofs9+abelian2?), nd23, tab14, at11, sc32（159合計）
+---
+
 ## 2026-03-09 - 述語論理の上級クエスト追加（第2弾）
 - predicate-advancedカテゴリにクエスト2問追加（147→149クエスト、predicate-advanced: 2→4問）
   - pred-adv-03: 全称の否定 → 存在の否定 (difficulty 4) - ¬(∀x.P(x)) → (∃x.¬P(x))
