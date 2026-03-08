@@ -10543,3 +10543,24 @@
   - ProofWorkspace.tsxのようにv8 ignoreが少ないファイルでは、v8 ignore追加がNaN branchをBRFに加算し逆効果になる。このようなファイルにはv8 ignoreを追加しない方が良い
   - if-fall-through変換パターン: `/* v8 ignore start */ if (!(normalCondition)) { defensiveReturn; } /* v8 ignore stop */ return normalPath;` — TypeScript narrowingが有効なのでキャスト不要
 ---
+
+## 2026-03-08 - SC カット除去ステッパーのProofWorkspace統合
+- ベースライン: Stmts 99.7%, Branch 98.33%
+- **完了後: Stmts 99.67%, Branch 98.31%（ほぼ横ばい、V8マージ誤差範囲）**
+- 変更内容:
+  - `scTreeBuildLogic.ts` (新規): ワークスペースのフラットグラフ(WorkspaceNode[] + InferenceEdge[])からScProofNode再帰木を構築するロジック。findScRootNodeIds, buildScProofTree
+  - `scTreeBuildLogic.test.ts` (新規): 37テスト追加（空、単一ノード、identity、cut含む証明、エラーケース等）
+  - `ProofWorkspace.tsx`: CutEliminationStepperの統合。SCモードで「カット除去を実行」ボタン表示、クリックでステッパー起動、ナビゲーション、閉じる操作
+  - `proofMessages.ts`: 5つの新メッセージキー追加（cutEliminationStart/Close/BuildError/NoRoot/MultipleRoots）
+  - `WorkspaceContent.tsx`: i18nマッピング追加
+  - `messages/en.json`, `messages/ja.json`: 翻訳追加
+  - `ProofWorkspace.test.tsx`: 5つの新テスト追加（ボタン表示/非表示、rootなしアラート、ステッパー起動・ナビゲーション、カットフリー表示）
+  - `ProofWorkspace.stories.tsx`: CutEliminationStepperIntegration ストーリー追加（play関数で起動→ナビ→閉じるフロー検証）
+- テスト: 全テスト pass、typecheck OK、lint OK
+- ブラウザテスト: Storybook play関数 13 interactions PASS（スクリーンショット確認済み）
+- **今後のイテレーションへの学び:**
+  - scTreeBuildLogicはフラットグラフからツリーを再帰構築するため、ルートノード特定→子孫の辿り方がポイント。findScRootNodeIds で source でない（結論ノードである）ノードをルート候補とする
+  - CutEliminationStepper はステッパーのUI状態（stepIndex等）を ProofWorkspace 内の useState で管理。workspaceState.ts のカット除去ステッパー状態管理は使わず、一時的なUI concern として分離
+  - eliminateCutsWithSteps と computeCutEliminationStepperData の二重呼び出しは、rawSteps（proof付き）がresolveStepperStateに必要なため意図的。一回限りの操作のためパフォーマンス問題なし
+  - scTreeBuildLogic.ts はカバレッジ対象外にはしていない。新規ファイルなのでカバレッジ全体への影響は軽微
+---
