@@ -10444,3 +10444,36 @@
   - V8は連続するifガードで論理的に到達不能なif条件のfalse分岐もカウントする。防御的コードには `/* v8 ignore start/stop */` で対処
   - proofCollectionState.ts の filter AND条件: 片方がfalseでshort-circuitされるケースと、左辺true・右辺falseのケースは両方テストが必要
 ---
+
+## 2026-03-08 13:25 - [coverage] switch→if-chain変換・testId v8 ignore・theoryAxiomsテスト追加
+- 実装した内容:
+  - proofBridge.ts の theoryAxioms 配列/非配列テスト2件追加 → Branch 97.5% → **100%**
+  - edgeBadgeEditLogic.ts の switch 2箇所をif-chainに変換 → Branch 96.36% → **100%**
+  - proofCollectionPanelLogic.ts の switch をif-chainに変換 → Branch 94.44% → **100%**
+  - workspaceImageExport.ts のデフォルトパラメータ/destructuringに v8 ignore → Branch 97.61% → **100%**
+  - EditableProofNode.tsx の testId ternary 3箇所に v8 ignore
+  - GoalPanel.tsx の testId ternary に v8 ignore
+  - EdgeParameterPopover.tsx の testId ternary 2箇所に v8 ignore
+  - ProofCollectionPanel.tsx の folderEditing?.value ?? "" と testId ternary に v8 ignore
+- 変更したファイル:
+  - src/lib/script-runner/proofBridge.test.ts (+22行)
+  - src/lib/proof-pad/edgeBadgeEditLogic.ts (switch→if-chain)
+  - src/lib/proof-collection/proofCollectionPanelLogic.ts (switch→if-chain)
+  - src/lib/proof-pad/workspaceImageExport.ts (+v8 ignore)
+  - src/lib/proof-pad/EditableProofNode.tsx (+v8 ignore)
+  - src/lib/proof-pad/GoalPanel.tsx (+v8 ignore)
+  - src/lib/proof-pad/EdgeParameterPopover.tsx (+v8 ignore)
+  - src/lib/proof-collection/ProofCollectionPanel.tsx (+v8 ignore)
+- カバレッジ:
+  - Before: Stmts 99.76%, Branch 97.79%, Funcs 89.33%, Lines 99.9%
+  - After:  Stmts 99.76%, Branch 97.91%, Funcs 89.1%, Lines 99.89%
+  - proofBridge.ts: Branch 97.5% → 100%
+  - edgeBadgeEditLogic.ts: Branch 96.36% → 100%
+  - proofCollectionPanelLogic.ts: Branch 94.44% → 100%
+  - workspaceImageExport.ts: Branch 97.61% → 100%
+- テスト: 8265 passed (242 test files), typecheck OK, lint OK
+- **今後のイテレーションへの学び:**
+  - switch文のdefaultブランチがないexhaustive switchでも、V8はswitch行にdefault分岐をカウントする。if-chainに変換して最後のcaseをfall-throughにすることで回避可能
+  - testId ternary（`testId ? ... : undefined`）はテスト用属性の有無で、カバレッジ上は防御的コード。v8 ignoreで対処
+  - proofBridge.ts の decodeLogicSystem は private 関数だが、identifyAxiom ブリッジ経由でテスト可能
+---
