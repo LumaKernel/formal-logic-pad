@@ -10623,3 +10623,19 @@
   - ProofWorkspace は `externalWorkspace` prop を渡した場合、`setWorkspace` が内部状態を更新しても外部ワークスペースが優先される。状態変更テストには `onWorkspaceChange` を通じた制御コンポーネントパターンが必要
   - `StatefulWorkspace` ラッパーはコレクション系propsを受け取れないため、コレクション統合テストでは独自の制御ラッパーを定義する
 ---
+
+## 2026-03-08 - カバレッジ改善（第8回）
+- ベースライン: Stmts 99.90%, Branch 98.76%, Funcs 89.71%, Lines 99.97%
+- **改善結果: Stmts 99.93% (+0.03pp), Branch 98.79% (+0.03pp), Lines 100% (達成!)**
+- 変更内容:
+  - ProofWorkspace.test.tsx: カット除去エラーパステスト2件追加
+    - 複数ルート検出時のアラート表示テスト（2つの独立identityでmultiple roots）
+    - ツリー構築エラー時のアラート表示テスト（不正conclusionTextでScTreeSequentParseError）
+- ProofWorkspace.tsx Branch: 88.36% → 88.63% (+0.27pp)
+- テスト: 8338 passed (243 test files), typecheck OK, lint OK, prettier OK
+- **今後のイテレーションへの学び:**
+  - ProofWorkspace.tsxの残り未カバーBranch: testId三項演算子v8 artifact (~50箇所)、genReferenceEntry条件レンダリング (L3847)、エッジコンテキストメニューのstopPropagation (L4892-4893)
+  - 複数ルートテスト: 2つの独立identityを作成するだけで2つのルートが発生する（シンプル）
+  - ツリー構築エラーテスト: addInferenceEdgeが非exportなので、wsスプレッド+inferenceEdges配列直接操作で手動エッジ追加
+  - Lines coverage 100%達成。残りはBranch(98.79%)とFuncs(89.71%)の改善
+---
