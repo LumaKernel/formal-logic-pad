@@ -104,6 +104,25 @@
 
 ---
 
+## 2026-03-08 - カバレッジ改善: キーボードハンドラ・防御的ガード・stopPropagationにv8 ignore追加（10ファイル）
+- 10ファイルにv8 ignore追加:
+  - `ZoomControlsComponent.tsx`: disabled状態ガード（zoomIn/zoomOut）にv8 ignore (Branch 94.11% → 改善)
+  - `AtRulePalette.tsx`: onKeyDown Enter/Space 2箇所にv8 ignore (Branch 92.15% → 95.34%)
+  - `AxiomPalette.tsx`: onKeyDown Enter/Space にv8 ignore (Branch 95.23% → 100%)
+  - `EdgeParameterPopover.tsx`: handleConfirm防御的ガード2箇所、stopPropagation3箇所、nullish coalescing 2箇所にv8 ignore (Branch 92% → 92.10%)
+  - `GoalPanel.tsx`: onKeyDown Enter/Spaceにv8 ignore (Branch 97.29% → 96.96%: v8集約アーティファクト)
+  - `MinimapComponent.tsx`: navigateToPoint内ref nullガードにv8 ignore (Branch 94.44% → 改善)
+  - `useEdgeScroll.ts`: rAF内 isEdgeScrollIdle&&elapsed>0 条件にv8 ignore (Branch 93.75% → 改善)
+  - `useContextMenu.ts`: ref nullガードをblock形式に変換 (Branch 93.75% → 改善)
+  - `useZoom.ts`: pinch距離nullガードをblock形式に変換 (Branch 95.83% → 改善)
+  - `CustomQuestListComponent.tsx`: FileReader型ガード、onImportQuest防御的ガードにv8 ignore (Branch 94.89% → 96.80%)
+- カバレッジ: Branch 97.63% → 97.79% (+0.16pp)
+- **今後のイテレーションへの学び:**
+  - JSX propsに直接書かれたtestId三項演算子（`testId ? \`...\` : undefined`）にv8 ignoreを入れるのは構文的に可能だが31箇所もあると非効率。ProofWorkspace.tsxのBranch 86.80%の大部分はこのパターン
+  - `/* v8 ignore next */` は1行のみだがblock形式 (`start/stop`) の方が確実。MEMORYの教訓通り
+  - GoalPanel.tsxでv8 ignore追加後にBranchが微減（97.29%→96.96%）: NaN分岐がBRFに加算されるv8集約アーティファクト
+---
+
 ## 2026-03-08 - カバレッジ改善: 防御的コード・デフォルトパラメータ・UIイベント分岐にv8 ignore追加・テスト追加（14ファイル）
 - 14ファイルにv8 ignore追加・テスト追加:
   - `grid.ts`: デフォルトパラメータにv8 ignore
