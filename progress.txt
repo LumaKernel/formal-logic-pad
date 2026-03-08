@@ -10232,3 +10232,27 @@
   - switch-line v8 ignore の不整合: modelAnswer.ts（case body内にv8 ignoreが多数ある）では switch行のv8 ignoreが効いたが、naturalDeduction.ts/cutElimination.ts（defaultのみv8 ignore）では逆にBRFが増加して悪化した。ファイル内のv8 ignore密度が影響する可能性
   - modelAnswer.ts の未カバーブランチは全て防御的コード（正しい模範解答データでは到達しない isError/Either.isLeft チェック）
 ---
+
+## 2026-03-08 - equality-basics クエスト6問追加
+- 実装した内容:
+  - equality-basics カテゴリ（既にスキーマ定義済みだがクエスト0問）に6問追加
+  - eq-01: E1反射律 (∀x. x=x) - 公理配置のみ、difficulty 1
+  - eq-02: E2対称律 (∀x.∀y. x=y→y=x) - 公理配置のみ、difficulty 1
+  - eq-03: E3推移律 (∀x.∀y.∀z. x=y→(y=z→x=z)) - 公理配置のみ、difficulty 1
+  - eq-04: 具体的な反射律 (a=a) - E1+A4+MP、3ステップ、difficulty 2
+  - eq-05: 具体的な対称律 (a=b→b=a) - E2+A4×2+MP×2、5ステップ、difficulty 2
+  - eq-06: 具体的な推移律 (a=b→(b=c→a=c)) - E3+A4×3+MP×3、7ステップ、difficulty 3
+  - 全模範解答のワークスペース構築・ゴール達成テストがパス
+- 変更したファイル:
+  - src/lib/quest/builtinQuests.ts (+6 quest definitions)
+  - src/lib/quest/builtinModelAnswers.ts (+6 model answers)
+  - src/lib/quest/builtinQuests.test.ts (count 115→121)
+- カバレッジ:
+  - 変更なし（データ定義のみ）: Stmts 99.33%, Branch 95.81%, Funcs 89.31%, Lines 99.84%
+- テスト: 8230 passed, 242 test files
+- **今後のイテレーションへの学び:**
+  - equality systemPresetId は "equality"（A1-A5 + E1-E3 + MP + Gen）。E4/E5はシグネチャ依存で未実装
+  - 全称量化子のインスタンス化パターン: 公理(∀x.φ) + A4インスタンス((∀x.φ)→φ[t/x]) + MP = 3ステップ
+  - 複数の全称量化子: 外側から順にA4+MPで1つずつ消去。∀x.∀y.∀z.φ → φ[a/x,b/y,c/z] は7ステップ
+  - peano-basicsにも既にE1クエスト(peano-04)があるが、systemPresetIdがpeanoなので別カテゴリとして適切
+---
