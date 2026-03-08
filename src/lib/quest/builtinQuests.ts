@@ -2822,6 +2822,113 @@ const qTab10HypotheticalSyllogism: QuestDefinition = {
   version: 1,
 };
 
+const qTab11DoubleNegationIntro: QuestDefinition = {
+  id: "tab-11",
+  category: "tab-basics",
+  title: "二重否定導入の反駁 (¬¬)",
+  description:
+    "¬(φ → ¬¬φ) を根として閉じたタブローを構築せよ。¬→ で分解し、¬¬ 規則で二重否定を除去する基本パターン。",
+  difficulty: 1,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~(phi -> ~~phi)",
+      label: "Root: ¬(φ → ¬¬φ) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で分解すると φ と ¬(¬¬φ) が得られます。",
+    "¬¬¬φ に ¬¬ 規則を適用して ¬φ を得ます。",
+    "φ と ¬φ が同一枝上にあるので BS で閉じます。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "二重否定導入（DNI）は TAB では ¬¬¬ の二重否定除去で単純に閉じる。DNEと対をなす基本パターン。",
+  order: 11,
+  version: 1,
+};
+
+const qTab12ExFalso: QuestDefinition = {
+  id: "tab-12",
+  category: "tab-basics",
+  title: "爆発律の反駁 (¬→, →)",
+  description:
+    "¬(¬φ → (φ → ψ)) を根として閉じたタブローを構築せよ。矛盾から何でも出る原理。",
+  difficulty: 2,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~(~phi -> (phi -> psi))",
+      label: "Root: ¬(¬φ → (φ → ψ)) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で分解すると ¬φ と ¬(φ → ψ) が得られます。",
+    "もう一度 ¬→ で ¬(φ → ψ) を分解して φ と ¬ψ を得ます。",
+    "¬φ と φ が同一枝上にあるので BS で閉じます。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "爆発律（EFQ）は矛盾した前提からは何でも導けることを示す。TAB では ¬→ の2回適用で機械的に閉じる。",
+  order: 12,
+  version: 1,
+};
+
+const qTab13DeMorgan3: QuestDefinition = {
+  id: "tab-13",
+  category: "tab-basics",
+  title: "ド・モルガン逆方向 (¬∧, ∨)",
+  description:
+    "¬((¬φ ∨ ¬ψ) → ¬(φ ∧ ψ)) を根として閉じたタブローを構築せよ。ド・モルガンの法則の逆方向を反駁する。",
+  difficulty: 2,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText: "~((~phi \\/ ~psi) -> ~(phi /\\ psi))",
+      label: "Root: ¬((¬φ ∨ ¬ψ) → ¬(φ ∧ ψ)) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で分解すると ¬φ ∨ ¬ψ と ¬(¬(φ ∧ ψ)) が得られます。",
+    "¬¬(φ ∧ ψ) に ¬¬ 規則を適用して φ ∧ ψ を得ます。",
+    "∧ 規則で φ と ψ を得ます。",
+    "∨ で分岐: ¬φ の枝は φ と BS、¬ψ の枝は ψ と BS。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "ド・モルガンの法則には4つの方向がある。TAB では ¬¬ 除去と ∧/∨ の分解で全方向を処理できる。",
+  order: 13,
+  version: 1,
+};
+
+const qTab14ImplicationConjDistrib: QuestDefinition = {
+  id: "tab-14",
+  category: "tab-basics",
+  title: "含意と連言の分配 (¬∧, →)",
+  description:
+    "¬((φ → (ψ ∧ χ)) → ((φ → ψ) ∧ (φ → χ))) を根として閉じたタブローを構築せよ。含意が連言を分配する定理。",
+  difficulty: 3,
+  systemPresetId: "tab-prop",
+  goals: [
+    {
+      formulaText:
+        "~((phi -> (psi /\\ chi)) -> ((phi -> psi) /\\ (phi -> chi)))",
+      label: "Root: ¬((φ → (ψ ∧ χ)) → ((φ → ψ) ∧ (φ → χ))) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で分解: φ → (ψ ∧ χ) と ¬((φ → ψ) ∧ (φ → χ)) を得ます。",
+    "¬∧ で分岐: ¬(φ → ψ) と ¬(φ → χ) の2枝。",
+    "各枝で ¬→ を適用して φ と ¬ψ（または ¬χ）を得ます。",
+    "φ → (ψ ∧ χ) に → で分岐: ¬φ / (ψ ∧ χ)。¬φ の枝は φ と BS。(ψ ∧ χ) の枝は ψ と χ を得て矛盾。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "含意が連言を分配する定理は、¬∧ のβ規則で2枝に分かれるが、各枝で同じ含意を → 規則で分岐させて閉じる。",
+  order: 14,
+  version: 1,
+};
+
 // --- ATクエスト: 分析的タブローの基礎 ---
 
 const qAt01ExcludedMiddle: QuestDefinition = {
@@ -4089,6 +4196,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qTab08DisjunctionCommute,
   qTab09ModusTollens,
   qTab10HypotheticalSyllogism,
+  qTab11DoubleNegationIntro,
+  qTab12ExFalso,
+  qTab13DeMorgan3,
+  qTab14ImplicationConjDistrib,
   qAt01ExcludedMiddle,
   qAt02Implication,
   qAt03DoubleNegation,
