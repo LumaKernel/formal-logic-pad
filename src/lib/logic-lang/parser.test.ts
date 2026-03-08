@@ -873,6 +873,30 @@ describe("Parser", () => {
         equality(functionApplication("f", []), termVariable("x")),
       );
     });
+
+    it("equality with invalid RHS (term variable path)", () => {
+      // "x = " → 等号の後に何もない → RHSパース失敗
+      const errors = parseErr("x = ");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("equality with invalid RHS (meta variable path)", () => {
+      // "τ = " → 等号の後に何もない → RHSパース失敗
+      const errors = parseErr("τ = ");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("function application with invalid args in term context", () => {
+      // "f(→) = x" → f( の後に → は項としてパース不可
+      const errors = parseErr("f(→) = x");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("function application missing RPAREN in term context", () => {
+      // "f(x = y" → f( の後に項リスト [x] 成功するがRPAREN前に = が来る
+      const errors = parseErr("f(x = y");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
   });
 
   // --- parseString convenience ---

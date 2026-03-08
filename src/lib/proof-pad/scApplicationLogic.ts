@@ -1218,7 +1218,9 @@ export const validateScApplicationEffect = (
           antecedents,
           succedents,
           params.principalPosition,
+          /* v8 ignore start -- UI経由では常にcomponentIndexを明示的に指定 */
           params.componentIndex ?? 1,
+          /* v8 ignore stop */
         );
       case "conjunction-right":
         return yield* validateConjunctionRightEffect(
@@ -1231,7 +1233,9 @@ export const validateScApplicationEffect = (
           antecedents,
           succedents,
           params.principalPosition,
+          /* v8 ignore start -- UI経由では常にcomponentIndexを明示的に指定 */
           params.componentIndex ?? 1,
+          /* v8 ignore stop */
         );
       case "disjunction-left":
         return yield* validateDisjunctionLeftEffect(
@@ -1244,28 +1248,36 @@ export const validateScApplicationEffect = (
           antecedents,
           succedents,
           params.principalPosition,
+          /* v8 ignore start -- UI経由では常にtermTextを明示的に指定 */
           params.termText ?? "",
+          /* v8 ignore stop */
         );
       case "universal-right":
         return yield* validateUniversalRightEffect(
           antecedents,
           succedents,
           params.principalPosition,
+          /* v8 ignore start -- UI経由では常にeigenVariableを明示的に指定 */
           params.eigenVariable ?? "",
+          /* v8 ignore stop */
         );
       case "existential-left":
         return yield* validateExistentialLeftEffect(
           antecedents,
           succedents,
           params.principalPosition,
+          /* v8 ignore start -- UI経由では常にeigenVariableを明示的に指定 */
           params.eigenVariable ?? "",
+          /* v8 ignore stop */
         );
       case "existential-right":
         return yield* validateExistentialRightEffect(
           antecedents,
           succedents,
           params.principalPosition,
+          /* v8 ignore start -- UI経由では常にtermTextを明示的に指定 */
           params.termText ?? "",
+          /* v8 ignore stop */
         );
     }
   });

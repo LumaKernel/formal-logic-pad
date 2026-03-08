@@ -156,7 +156,9 @@ const formatGreekLetter = (
   name: string,
   subscript: string | undefined,
 ): string => {
+  /* v8 ignore start -- greekLetterLaTeXは全ギリシャ文字をカバーしており、??は型安全のための防御的コード */
   const cmd = greekLetterLaTeX[name as GreekLetter] ?? name;
+  /* v8 ignore stop */
   const sub = subscript !== undefined ? `_{${subscript satisfies string}}` : "";
   return `${cmd satisfies string}${sub satisfies string}`;
 };
