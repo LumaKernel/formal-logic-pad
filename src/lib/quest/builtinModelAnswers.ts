@@ -5161,6 +5161,146 @@ const nd23UniversalConjunction: ModelAnswer = {
   ],
 };
 
+// nd-24: ド・モルガン ¬(φ∨ψ) → (¬φ∧¬ψ) (NM)
+// 0: [¬(φ∨ψ)]  1: [φ]  2: φ∨ψ (∨I_L, 1, addedRight="psi")
+// 3: ⊥ (→E, 2, 0)  4: ¬φ (→I, 3, discharge 1)
+// 5: [ψ]  6: φ∨ψ (∨I_R, 5, addedLeft="phi")
+// 7: ⊥ (→E, 6, 0)  8: ¬ψ (→I, 7, discharge 5)
+// 9: ¬φ∧¬ψ (∧I, 4, 8)  10: ¬(φ∨ψ)→(¬φ∧¬ψ) (→I, 9, discharge 0)
+const nd24DeMorganDisjunction: ModelAnswer = {
+  questId: "nd-24",
+  steps: [
+    { _tag: "assumption", formulaText: "~(phi \\/ psi)" },
+    { _tag: "assumption", formulaText: "phi" },
+    {
+      _tag: "nd-disjunction-intro-left",
+      premiseIndex: 1,
+      addedRightText: "psi",
+    },
+    { _tag: "nd-implication-elim", leftIndex: 2, rightIndex: 0 },
+    { _tag: "nd-implication-intro", premiseIndex: 3, dischargedIndex: 1 },
+    { _tag: "assumption", formulaText: "psi" },
+    {
+      _tag: "nd-disjunction-intro-right",
+      premiseIndex: 5,
+      addedLeftText: "phi",
+    },
+    { _tag: "nd-implication-elim", leftIndex: 6, rightIndex: 0 },
+    { _tag: "nd-implication-intro", premiseIndex: 7, dischargedIndex: 5 },
+    { _tag: "nd-conjunction-intro", leftIndex: 4, rightIndex: 8 },
+    { _tag: "nd-implication-intro", premiseIndex: 9, dischargedIndex: 0 },
+  ],
+};
+
+// nd-25: ド・モルガン逆 (¬φ∧¬ψ) → ¬(φ∨ψ) (NM)
+// 0: [¬φ∧¬ψ]  1: ¬φ (∧E_L, 0)  2: ¬ψ (∧E_R, 0)
+// 3: [φ∨ψ]  4: [φ]  5: ⊥ (→E, 4, 1)
+// 6: [ψ]  7: ⊥ (→E, 6, 2)
+// 8: ⊥ (∨E, disj=3, leftCase=5, leftDisch=4, rightCase=7, rightDisch=6)
+// 9: ¬(φ∨ψ) (→I, 8, discharge 3)
+// 10: (¬φ∧¬ψ)→¬(φ∨ψ) (→I, 9, discharge 0)
+const nd25DeMorganDisjunctionReverse: ModelAnswer = {
+  questId: "nd-25",
+  steps: [
+    { _tag: "assumption", formulaText: "~phi /\\ ~psi" },
+    { _tag: "nd-conjunction-elim-left", premiseIndex: 0 },
+    { _tag: "nd-conjunction-elim-right", premiseIndex: 0 },
+    { _tag: "assumption", formulaText: "phi \\/ psi" },
+    { _tag: "assumption", formulaText: "phi" },
+    { _tag: "nd-implication-elim", leftIndex: 4, rightIndex: 1 },
+    { _tag: "assumption", formulaText: "psi" },
+    { _tag: "nd-implication-elim", leftIndex: 6, rightIndex: 2 },
+    {
+      _tag: "nd-disjunction-elim",
+      disjunctionIndex: 3,
+      leftCaseIndex: 5,
+      leftDischargedIndex: 4,
+      rightCaseIndex: 7,
+      rightDischargedIndex: 6,
+    },
+    { _tag: "nd-implication-intro", premiseIndex: 8, dischargedIndex: 3 },
+    { _tag: "nd-implication-intro", premiseIndex: 9, dischargedIndex: 0 },
+  ],
+};
+
+// nd-26: ド・モルガン ¬(φ∧ψ) → (¬φ∨¬ψ) (NK, DNE)
+// 0: [¬(φ∧ψ)]  1: [¬(¬φ∨¬ψ)]
+// 2: [φ]  3: [ψ]  4: φ∧ψ (∧I, 2, 3)  5: ⊥ (→E, 4, 0)
+// 6: ¬ψ (→I, 5, discharge 3)
+// 7: ¬φ∨¬ψ (∨I_R, 6, addedLeft="~phi")  8: ⊥ (→E, 7, 1)
+// 9: ¬φ (→I, 8, discharge 2)
+// 10: ¬φ∨¬ψ (∨I_L, 9, addedRight="~psi")  11: ⊥ (→E, 10, 1)
+// 12: ¬¬(¬φ∨¬ψ) (→I, 11, discharge 1)  13: ¬φ∨¬ψ (DNE, 12)
+// 14: ¬(φ∧ψ)→(¬φ∨¬ψ) (→I, 13, discharge 0)
+const nd26DeMorganConjunction: ModelAnswer = {
+  questId: "nd-26",
+  steps: [
+    { _tag: "assumption", formulaText: "~(phi /\\ psi)" },
+    { _tag: "assumption", formulaText: "~(~phi \\/ ~psi)" },
+    { _tag: "assumption", formulaText: "phi" },
+    { _tag: "assumption", formulaText: "psi" },
+    { _tag: "nd-conjunction-intro", leftIndex: 2, rightIndex: 3 },
+    { _tag: "nd-implication-elim", leftIndex: 4, rightIndex: 0 },
+    { _tag: "nd-implication-intro", premiseIndex: 5, dischargedIndex: 3 },
+    {
+      _tag: "nd-disjunction-intro-right",
+      premiseIndex: 6,
+      addedLeftText: "~phi",
+    },
+    { _tag: "nd-implication-elim", leftIndex: 7, rightIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 8, dischargedIndex: 2 },
+    {
+      _tag: "nd-disjunction-intro-left",
+      premiseIndex: 9,
+      addedRightText: "~psi",
+    },
+    { _tag: "nd-implication-elim", leftIndex: 10, rightIndex: 1 },
+    { _tag: "nd-implication-intro", premiseIndex: 11, dischargedIndex: 1 },
+    { _tag: "nd-dne", premiseIndex: 12 },
+    { _tag: "nd-implication-intro", premiseIndex: 13, dischargedIndex: 0 },
+  ],
+};
+
+// nd-27: 分配律 φ∧(ψ∨χ) → (φ∧ψ)∨(φ∧χ) (NM)
+// 0: [φ∧(ψ∨χ)]  1: φ (∧E_L, 0)  2: ψ∨χ (∧E_R, 0)
+// 3: [ψ]  4: φ∧ψ (∧I, 1, 3)
+// 5: (φ∧ψ)∨(φ∧χ) (∨I_L, 4, addedRight="phi /\\ chi")
+// 6: [χ]  7: φ∧χ (∧I, 1, 6)
+// 8: (φ∧ψ)∨(φ∧χ) (∨I_R, 7, addedLeft="phi /\\ psi")
+// 9: (φ∧ψ)∨(φ∧χ) (∨E, disj=2, leftCase=5, leftDisch=3, rightCase=8, rightDisch=6)
+// 10: φ∧(ψ∨χ)→(φ∧ψ)∨(φ∧χ) (→I, 9, discharge 0)
+const nd27ConjunctionDisjunctionDistribution: ModelAnswer = {
+  questId: "nd-27",
+  steps: [
+    { _tag: "assumption", formulaText: "phi /\\ (psi \\/ chi)" },
+    { _tag: "nd-conjunction-elim-left", premiseIndex: 0 },
+    { _tag: "nd-conjunction-elim-right", premiseIndex: 0 },
+    { _tag: "assumption", formulaText: "psi" },
+    { _tag: "nd-conjunction-intro", leftIndex: 1, rightIndex: 3 },
+    {
+      _tag: "nd-disjunction-intro-left",
+      premiseIndex: 4,
+      addedRightText: "phi /\\ chi",
+    },
+    { _tag: "assumption", formulaText: "chi" },
+    { _tag: "nd-conjunction-intro", leftIndex: 1, rightIndex: 6 },
+    {
+      _tag: "nd-disjunction-intro-right",
+      premiseIndex: 7,
+      addedLeftText: "phi /\\ psi",
+    },
+    {
+      _tag: "nd-disjunction-elim",
+      disjunctionIndex: 2,
+      leftCaseIndex: 5,
+      leftDischargedIndex: 3,
+      rightCaseIndex: 8,
+      rightDischargedIndex: 6,
+    },
+    { _tag: "nd-implication-intro", premiseIndex: 9, dischargedIndex: 0 },
+  ],
+};
+
 // ==========================================
 // TAB（タブロー式シーケント計算）模範解答
 // ==========================================
@@ -7005,6 +7145,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   nd21ExistentialTransitivity,
   nd22ExistentialConjDistribution,
   nd23UniversalConjunction,
+  nd24DeMorganDisjunction,
+  nd25DeMorganDisjunctionReverse,
+  nd26DeMorganConjunction,
+  nd27ConjunctionDisjunctionDistribution,
   // tab-basics
   tab01Identity,
   tab02DoubleNegationElim,
