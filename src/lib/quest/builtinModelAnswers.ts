@@ -4134,8 +4134,7 @@ const group09AssociativityInstance: ModelAnswer = {
   steps: [
     {
       _tag: "axiom",
-      formulaText:
-        "all x. all y. all z. (x * y) * z = x * (y * z)",
+      formulaText: "all x. all y. all z. (x * y) * z = x * (y * z)",
     },
     {
       _tag: "axiom",
@@ -4197,8 +4196,7 @@ const group11CommutativityInstance: ModelAnswer = {
     },
     {
       _tag: "axiom",
-      formulaText:
-        "(all x. all y. x * y = y * x) -> all y. a * y = y * a",
+      formulaText: "(all x. all y. x * y = y * x) -> all y. a * y = y * a",
     },
     { _tag: "mp", leftIndex: 0, rightIndex: 1 },
     {
@@ -5730,8 +5728,7 @@ const sc_ce06DontEliminateCut: ModelAnswer = {
     // Step 0: Root sequent — [0]
     {
       _tag: "sc-root",
-      sequentText:
-        "⇒ ((phi /\\ psi) -> chi) -> (phi -> (psi -> chi))",
+      sequentText: "⇒ ((phi /\\ psi) -> chi) -> (phi -> (psi -> chi))",
     },
     // Step 1: ⇒→ pos 0 → (φ ∧ ψ) → χ ⇒ φ → (ψ → χ) — [1]
     {
