@@ -3320,6 +3320,111 @@ const qSc18LjBottomNegation: QuestDefinition = {
   version: 1,
 };
 
+const qSc19LjDisjIntro: QuestDefinition = {
+  id: "sc-19",
+  category: "sc-basics",
+  title: "LJ: 選言導入",
+  description:
+    "φ → (φ ∨ ψ) をLJ体系で証明せよ。⇒∨（選言右）規則で選言を導入する基本操作。",
+  difficulty: 1,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "phi -> (phi \\/ psi)",
+      label: "Goal: φ → (φ ∨ ψ)",
+    },
+  ],
+  hints: [
+    "⇒→ 規則で φ ⇒ φ ∨ ψ に帰着します。",
+    "⇒∨ 規則で右辺の φ ∨ ψ を導入: φ ⇒ φ に帰着。",
+    "φ ⇒ φ は Identity で閉じます。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "⇒∨（選言右）規則は、結論に選言を導入する基本操作。左右どちらの選言肢を選ぶかを指定する。",
+  order: 19,
+  version: 1,
+};
+
+const qSc20LjCurry: QuestDefinition = {
+  id: "sc-20",
+  category: "sc-basics",
+  title: "LJ: カリー化",
+  description:
+    "((φ ∧ ψ) → χ) → (φ → (ψ → χ)) をLJ体系で証明せよ。連言の前提を含意の連鎖に変換するカリー化の定理。",
+  difficulty: 2,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "((phi /\\ psi) -> chi) -> (phi -> (psi -> chi))",
+      label: "Goal: ((φ ∧ ψ) → χ) → (φ → (ψ → χ))",
+    },
+  ],
+  hints: [
+    "⇒→ を3回使い、(φ ∧ ψ) → χ, φ, ψ ⇒ χ に帰着します。",
+    "→⇒ 規則で (φ ∧ ψ) → χ を分解: ⇒ φ ∧ ψ と χ ⇒ χ に分岐。",
+    "⇒∧ 規則で φ ∧ ψ を構築: φ ⇒ φ と ψ ⇒ ψ （弱化で不要な前件を除去）。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "カリー化は関数型プログラミングの基本概念であり、論理学では連言前提と含意連鎖の等価性に対応する。LJでも証明可能。",
+  order: 20,
+  version: 1,
+};
+
+const qSc21LjUncurry: QuestDefinition = {
+  id: "sc-21",
+  category: "sc-basics",
+  title: "LJ: 逆カリー化",
+  description:
+    "(φ → (ψ → χ)) → ((φ ∧ ψ) → χ) をLJ体系で証明せよ。含意の連鎖を連言の前提に変換する逆カリー化の定理。",
+  difficulty: 2,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "(phi -> (psi -> chi)) -> ((phi /\\ psi) -> chi)",
+      label: "Goal: (φ → (ψ → χ)) → ((φ ∧ ψ) → χ)",
+    },
+  ],
+  hints: [
+    "⇒→ を2回使い、φ → (ψ → χ), φ ∧ ψ ⇒ χ に帰着します。",
+    "∧⇒ 規則で φ ∧ ψ を分解: φ, ψ, φ → (ψ → χ) ⇒ χ。",
+    "→⇒ を2回適用して φ → (ψ → χ) を分解し、Identity で閉じます。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "逆カリー化はカリー化の逆。∧⇒ で連言を分解し、→⇒ で含意を展開して組み合わせる。",
+  order: 21,
+  version: 1,
+};
+
+const qSc22LjImplicationConjDistrib: QuestDefinition = {
+  id: "sc-22",
+  category: "sc-basics",
+  title: "LJ: 含意と連言の分配",
+  description:
+    "(φ → (ψ ∧ χ)) → ((φ → ψ) ∧ (φ → χ)) をLJ体系で証明せよ。含意が連言に対して分配する性質。",
+  difficulty: 3,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText:
+        "(phi -> (psi /\\ chi)) -> ((phi -> psi) /\\ (phi -> chi))",
+      label: "Goal: (φ → (ψ ∧ χ)) → ((φ → ψ) ∧ (φ → χ))",
+    },
+  ],
+  hints: [
+    "⇒→ 規則で φ → (ψ ∧ χ) ⇒ (φ → ψ) ∧ (φ → χ) に帰着します。",
+    "⇒∧ 規則で右辺を分解: φ → (ψ ∧ χ) ⇒ φ → ψ と φ → (ψ ∧ χ) ⇒ φ → χ の2つの前提。",
+    "各前提で ⇒→ + →⇒ + ∧⇒ を使い、連言成分を取り出します。",
+  ],
+  estimatedSteps: 8,
+  learningPoint:
+    "含意の連言に対する分配法則。⇒∧ で連言を分解し、各枝で →⇒ と ∧⇒ を組み合わせて証明する。複数の規則の統合的な運用が必要。",
+  order: 22,
+  version: 1,
+};
+
 // --- カット除去体験クエスト ---
 
 const qScCe01CutBasic: QuestDefinition = {
@@ -3619,6 +3724,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qSc16LjConjCommute,
   qSc17LjImplicationTransitivity,
   qSc18LjBottomNegation,
+  qSc19LjDisjIntro,
+  qSc20LjCurry,
+  qSc21LjUncurry,
+  qSc22LjImplicationConjDistrib,
   qScCe01CutBasic,
   qScCe02CutModusPonens,
   qScCe03CutConjunctionCommute,
