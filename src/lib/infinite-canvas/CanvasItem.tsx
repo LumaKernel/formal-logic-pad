@@ -147,7 +147,9 @@ export function CanvasItem({
   useEffect(() => {
     if (!isDragging) return;
     const el = itemRef.current;
+    /* v8 ignore start -- defensive: ref is always attached when isDragging */
     if (el === null) return;
+    /* v8 ignore stop */
     const handleSelectStart = (e: Event) => {
       e.preventDefault();
     };

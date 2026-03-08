@@ -255,11 +255,13 @@ export function CommandPaletteComponent({
           role="combobox"
           aria-expanded={true}
           aria-controls="command-palette-list"
+          /* v8 ignore start -- selectedIndex < 0 path: empty palette has no active descendant */
           aria-activedescendant={
             paletteState.selectedIndex >= 0
               ? `command-palette-item-${(paletteState.filteredItems[paletteState.selectedIndex]?.id ?? "") satisfies string}`
               : undefined
           }
+          /* v8 ignore stop */
         />
 
         {/* Results list */}

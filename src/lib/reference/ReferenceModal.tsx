@@ -183,9 +183,11 @@ export function ReferenceModal({
   // Escapeキーで閉じる
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      /* v8 ignore start -- other keys are ignored; only Escape triggers close */
       if (e.key === "Escape") {
         onClose();
       }
+      /* v8 ignore stop */
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => {

@@ -560,6 +560,22 @@ describe("edgeBadgeEditLogic", () => {
           canConfirmSubstEdit([{ kind: "formula", metaVar: "φ", value: "" }]),
         ).toBe(false);
       });
+
+      it("returns false when metaVar is whitespace only", () => {
+        expect(
+          canConfirmSubstEdit([
+            { kind: "formula", metaVar: "  ", value: "alpha" },
+          ]),
+        ).toBe(false);
+      });
+
+      it("returns false when value is whitespace only", () => {
+        expect(
+          canConfirmSubstEdit([
+            { kind: "formula", metaVar: "φ", value: "   " },
+          ]),
+        ).toBe(false);
+      });
     });
 
     describe("toSubstEditEntries (with subscripted meta-variables)", () => {

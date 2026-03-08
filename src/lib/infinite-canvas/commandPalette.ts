@@ -112,5 +112,7 @@ export function getSelectedItem(
   ) {
     return null;
   }
+  /* v8 ignore start -- defensive: selectedIndex is validated in bounds above */
   return state.filteredItems[state.selectedIndex] ?? null;
+  /* v8 ignore stop */
 }
