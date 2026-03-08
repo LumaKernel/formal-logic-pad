@@ -891,6 +891,157 @@ const q32DisjunctionElim: QuestDefinition = {
   version: 1,
 };
 
+// --- 等号付き述語論理の基礎 ---
+
+const qEq01Reflexivity: QuestDefinition = {
+  id: "eq-01",
+  category: "equality-basics",
+  title: "反射律 (E1)",
+  description: "∀x. x = x を証明せよ。等号公理E1を配置する。",
+  difficulty: 1,
+  systemPresetId: "equality",
+  goals: [
+    {
+      formulaText: "all x. x = x",
+      label: "Goal: ∀x. x = x",
+    },
+  ],
+  hints: [
+    "E1は等号の反射律です。公理パレットから直接配置できます。",
+    "E1: ∀x. x = x — 任意のものは自分自身と等しい。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "E1（反射律）は等号の最も基本的な性質。「x = x」は無条件に成り立つ。",
+  order: 1,
+  version: 1,
+};
+
+const qEq02Symmetry: QuestDefinition = {
+  id: "eq-02",
+  category: "equality-basics",
+  title: "対称律 (E2)",
+  description: "∀x.∀y. x = y → y = x を証明せよ。等号公理E2を配置する。",
+  difficulty: 1,
+  systemPresetId: "equality",
+  goals: [
+    {
+      formulaText: "all x. all y. x = y -> y = x",
+      label: "Goal: ∀x.∀y. x = y → y = x",
+    },
+  ],
+  hints: [
+    "E2は等号の対称律です。公理パレットから直接配置できます。",
+    "E2: ∀x.∀y. x = y → y = x — 等式は左右を入れ替えられる。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "E2（対称律）は「x = y ならば y = x」を保証。等式の方向は自由に変えられる。",
+  order: 2,
+  version: 1,
+};
+
+const qEq03Transitivity: QuestDefinition = {
+  id: "eq-03",
+  category: "equality-basics",
+  title: "推移律 (E3)",
+  description:
+    "∀x.∀y.∀z. x = y → (y = z → x = z) を証明せよ。等号公理E3を配置する。",
+  difficulty: 1,
+  systemPresetId: "equality",
+  goals: [
+    {
+      formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
+      label: "Goal: ∀x.∀y.∀z. x = y → (y = z → x = z)",
+    },
+  ],
+  hints: [
+    "E3は等号の推移律です。公理パレットから直接配置できます。",
+    "E3: ∀x.∀y.∀z. x = y → (y = z → x = z) — 等式は鎖のように繋げられる。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "E3（推移律）は「x = y かつ y = z ならば x = z」を保証。等式の連鎖推論の基礎。",
+  order: 3,
+  version: 1,
+};
+
+const qEq04ConcreteReflexivity: QuestDefinition = {
+  id: "eq-04",
+  category: "equality-basics",
+  title: "具体的な反射律",
+  description: "a = a を証明せよ。E1（反射律）とA4（全称消去）を組み合わせる。",
+  difficulty: 2,
+  systemPresetId: "equality",
+  goals: [
+    {
+      formulaText: "a = a",
+      label: "Goal: a = a",
+    },
+  ],
+  hints: [
+    "E1: ∀x. x = x を配置します。",
+    "A4で∀xを消去して具体的な項aを代入します: (∀x. x=x) → a=a",
+    "MPで組み合わせれば完成です。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "全称量化された公理は、A4（全称消去）で具体的な項にインスタンス化できる。E1 + A4 + MPの基本パターン。",
+  order: 4,
+  version: 1,
+};
+
+const qEq05ConcreteSymmetry: QuestDefinition = {
+  id: "eq-05",
+  category: "equality-basics",
+  title: "具体的な対称律",
+  description:
+    "a = b → b = a を証明せよ。E2にA4を2回適用してインスタンス化する。",
+  difficulty: 2,
+  systemPresetId: "equality",
+  goals: [
+    {
+      formulaText: "a = b -> b = a",
+      label: "Goal: a = b → b = a",
+    },
+  ],
+  hints: [
+    "E2: ∀x.∀y. x = y → y = x を配置します。",
+    "A4で∀xを消去（x→a）して ∀y. a = y → y = a を導きます。",
+    "再度A4で∀yを消去（y→b）して a = b → b = a を導きます。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "複数の全称量化子がある公理は、A4を繰り返し適用して一つずつ消去する。E2のx→a, y→bの2段階インスタンス化。",
+  order: 5,
+  version: 1,
+};
+
+const qEq06ConcreteTransitivity: QuestDefinition = {
+  id: "eq-06",
+  category: "equality-basics",
+  title: "具体的な推移律",
+  description: "a = b → (b = c → a = c) を証明せよ。E3にA4を3回適用する。",
+  difficulty: 3,
+  systemPresetId: "equality",
+  goals: [
+    {
+      formulaText: "a = b -> (b = c -> a = c)",
+      label: "Goal: a = b → (b = c → a = c)",
+    },
+  ],
+  hints: [
+    "E3: ∀x.∀y.∀z. x = y → (y = z → x = z) を配置します。",
+    "A4で∀xを消去（x→a）、∀yを消去（y→b）、∀zを消去（z→c）の3段階。",
+    "各A4の後にMPで全称量化子を一つずつ外していきます。合計7ステップ。",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "3重全称量化の消去パターン。A4+MPを3回繰り返す機械的な手順だが、各ステップでどの変数を代入するか意識することが重要。",
+  order: 6,
+  version: 1,
+};
+
 // --- ペアノ算術の基礎 ---
 
 const qPA01SuccessorNotZero: QuestDefinition = {
@@ -3061,6 +3212,12 @@ export const builtinQuests: readonly QuestDefinition[] = [
   q30LawOfNonContradiction,
   q31ConjunctionElimRight,
   q32DisjunctionElim,
+  qEq01Reflexivity,
+  qEq02Symmetry,
+  qEq03Transitivity,
+  qEq04ConcreteReflexivity,
+  qEq05ConcreteSymmetry,
+  qEq06ConcreteTransitivity,
   qPA01SuccessorNotZero,
   qPA02AdditionBase,
   qPA03MultiplicationBase,
