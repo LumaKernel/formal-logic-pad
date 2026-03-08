@@ -10600,3 +10600,26 @@
   - collectionEntries propテスト追加はBranch +1.62ppの効果。コレクションパネルの開閉は比較的テストしやすい
   - v8 ignore next → start/stop への変換は依然として推奨。next形式はcallback式では効かないケースがある
 ---
+
+## 2026-03-08 - カバレッジ改善（第7回）
+- ベースライン: Stmts 99.83%, Branch 98.73%, Funcs 89.65%, Lines 99.91%
+- **改善結果: Stmts 99.90% (+0.07pp), Branch 98.76% (+0.03pp), Funcs 89.71% (+0.06pp), Lines 99.97% (+0.06pp)**
+- 変更内容:
+  - CustomQuestListComponent.test.tsx: 空状態テスト3件追加
+    - アイテム空で空メッセージ表示
+    - アイテム空＋作成中で空メッセージ非表示
+    - アイテム空＋インポート中で空メッセージ非表示
+  - ProofWorkspace.test.tsx: コレクションインポート＋互換性チェックテスト2件追加
+    - コレクションエントリのインポートボタンクリックでノード追加
+    - 互換性のないデュクションスタイルのペーストでエラーバナー表示
+  - ProofWorkspace.test.tsx: ClipboardData型インポート追加
+- ProofWorkspace.tsx Branch: 88.22% → 88.36% (+0.14pp)
+- proofCollectionPanelLogic.ts: 95.45% Branch は V8 マージ quirk（単体では100%）、テスト追加不要
+- テスト: 8336 passed (243 test files), typecheck OK, lint OK, prettier OK
+- スクリーンショット: .screenshots/coverage-improvement-7-storybook.png
+- **今後のイテレーションへの学び:**
+  - `checkPasteCompatibility` は `inferenceEdges` が空なら常に互換を返す（ノードのみのペースト）。互換性エラーを再現するにはInferenceEdge付きのClipboardDataが必要
+  - `initialClipboardData` prop でテスト用クリップボードデータをプリセットできる。これにより内部useRefに直接アクセスせずにペースト互換性テストが可能
+  - ProofWorkspace は `externalWorkspace` prop を渡した場合、`setWorkspace` が内部状態を更新しても外部ワークスペースが優先される。状態変更テストには `onWorkspaceChange` を通じた制御コンポーネントパターンが必要
+  - `StatefulWorkspace` ラッパーはコレクション系propsを受け取れないため、コレクション統合テストでは独自の制御ラッパーを定義する
+---
