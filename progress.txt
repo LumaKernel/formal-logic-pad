@@ -104,6 +104,28 @@
 
 ---
 
+## 2026-03-09 - SC量化子クエスト拡充（sc-31〜sc-34）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8502 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**
+- 変更内容:
+  - sc-31: LJ 存在除去 (∃⇒) difficulty 2 — ∃x.(P(x)∧Q(x))→∃x.P(x), 推定5ステップ
+  - sc-32: LJ 存在量化子の分配 difficulty 3 — ∃x.(P(x)∨Q(x))→∃x.P(x)∨∃x.Q(x), 推定8ステップ
+  - sc-33: LK 否定全称から存在否定 difficulty 3 — ¬(∀x.P(x))→∃x.¬P(x) (LK固有), 推定6ステップ
+  - sc-34: LJ 全称と含意の分配 difficulty 2 — ∀x.(P(x)→Q(x))→(∀x.P(x)→∀x.Q(x)), 推定6ステップ
+  - sc-basics カテゴリ: 30問→34問に拡充
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 179→183
+- テスト: 8514 passed (243 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/quest-catalog-overview-183.png, .screenshots/sc-quests-bottom.png
+- **今後のイテレーションへの学び:**
+  - ∃⇒規則は固有変数条件が重要: 導入する変数は結論のシーケントに現れてはならない
+  - ¬∀→∃¬はLK固有（右辺複数式が必須）。LJでは証明不可
+  - sc-basicsは34問に到達。量化子規則(∀⇒, ⇒∀, ∃⇒, ⇒∃)の基本操作をほぼ網羅
+  - 現在のカテゴリ別クエスト数: prop系34, pred12, eq6, peano12, group17, nd31, tab18, at11, sc40(basics34+ce6)（183合計）
+---
+
 ## 2026-03-09 - ND自然演繹上級クエスト追加（nd-28〜nd-31）
 - ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8490 tests
 - **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**
