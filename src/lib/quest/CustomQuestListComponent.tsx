@@ -1108,9 +1108,10 @@ function CustomQuestImportForm({
     const reader = new FileReader();
     reader.onload = (ev) => {
       const text = ev.target?.result;
-      if (typeof text === "string") {
-        setJsonText(text);
-      }
+      /* v8 ignore start -- 防御的: readAsTextは常にstringを返す */
+      if (typeof text !== "string") return;
+      /* v8 ignore stop */
+      setJsonText(text);
     };
     reader.readAsText(file);
   };
@@ -1217,7 +1218,9 @@ export function CustomQuestList({
   };
 
   const handleImport = (jsonString: string) => {
+    /* v8 ignore start -- 防御的: onImportQuestが存在する場合のみインポートボタンが表示される */
     if (onImportQuest === undefined) return;
+    /* v8 ignore stop */
     onImportQuest(jsonString);
     setIsImporting(false);
   };

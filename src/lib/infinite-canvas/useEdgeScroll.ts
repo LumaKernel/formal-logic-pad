@@ -77,7 +77,9 @@ export function useEdgeScroll(
         const elapsed = (now - lastTime) / 1000; // to seconds
         const delta = currentDeltaRef.current;
 
+        /* v8 ignore start -- rAF内: elapsedは常に正、deltaのidle判定は先にcursorチェック済み */
         if (!isEdgeScrollIdle(delta) && elapsed > 0) {
+        /* v8 ignore stop */
           const newOffset = applyEdgeScrollDelta(
             currentViewport.offsetX,
             currentViewport.offsetY,

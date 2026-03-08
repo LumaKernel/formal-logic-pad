@@ -84,7 +84,9 @@ export function MinimapComponent({
   const navigateToPoint = useCallback(
     (clientX: number, clientY: number) => {
       const el = minimapRef.current;
+      /* v8 ignore start -- 防御的: ref.currentはマウント後常にnon-null */
       if (el == null) return;
+      /* v8 ignore stop */
       const rect = el.getBoundingClientRect();
       const clickPos = {
         x: clientX - rect.left,

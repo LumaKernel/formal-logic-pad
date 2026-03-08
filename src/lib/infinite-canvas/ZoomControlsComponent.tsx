@@ -143,7 +143,9 @@ export function ZoomControlsComponent({
   );
 
   const handleZoomIn = useCallback(() => {
+    /* v8 ignore start -- disabled状態ではボタンがdisabledのため到達不能 */
     if (zoomInDisabled) return;
+    /* v8 ignore stop */
     const next = computeZoomInViewport(
       viewport,
       containerSize,
@@ -161,7 +163,9 @@ export function ZoomControlsComponent({
   ]);
 
   const handleZoomOut = useCallback(() => {
+    /* v8 ignore start -- disabled状態ではボタンがdisabledのため到達不能 */
     if (zoomOutDisabled) return;
+    /* v8 ignore stop */
     const next = computeZoomOutViewport(
       viewport,
       containerSize,

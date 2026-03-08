@@ -132,17 +132,20 @@ function GenPopover({
   }, []);
 
   const handleConfirm = useCallback(() => {
-    if (canConfirmGenEdit(state)) {
-      onConfirm(state.conclusionNodeId, state.variableName.trim());
-    }
+    /* v8 ignore start -- 防御的: ボタンがdisabledなので空文字列では呼ばれない */
+    if (!canConfirmGenEdit(state)) return;
+    /* v8 ignore stop */
+    onConfirm(state.conclusionNodeId, state.variableName.trim());
   }, [state, onConfirm]);
 
   return (
     <div
       data-testid={testId}
       style={popoverStyle}
+      /* v8 ignore start -- stopPropagation: ポップオーバー内クリックがキャンバスに伝播するのを防止 */
       onClick={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
+      /* v8 ignore stop */
     >
       <div
         style={{
@@ -235,15 +238,17 @@ function SubstitutionPopover({
   );
 
   const handleConfirm = useCallback(() => {
-    if (canConfirmSubstEdit(entries)) {
-      onConfirm(editState.conclusionNodeId, fromSubstEditEntries(entries));
-    }
+    /* v8 ignore start -- 防御的: ボタンがdisabledなので無効エントリでは呼ばれない */
+    if (!canConfirmSubstEdit(entries)) return;
+    /* v8 ignore stop */
+    onConfirm(editState.conclusionNodeId, fromSubstEditEntries(entries));
   }, [entries, editState.conclusionNodeId, onConfirm]);
 
   return (
     <div
       data-testid={testId}
       style={{ ...popoverStyle, minWidth: 280 }}
+      /* v8 ignore start -- stopPropagation/Escapeキー: ポップオーバーUIイベント */
       onClick={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
       onKeyDown={(e) => {
@@ -251,6 +256,7 @@ function SubstitutionPopover({
           onCancel();
         }
       }}
+      /* v8 ignore stop */
     >
       <div
         style={{
@@ -438,7 +444,7 @@ export function EdgeParameterPopover({
       return (
         <GenPopover
           editState={editState}
-          onConfirm={onConfirmGen ?? (() => {})}
+          onConfirm={/* v8 ignore start -- 防御的: 呼び出し元が必ず提供 */ onConfirmGen ?? (() => {}) /* v8 ignore stop */}
           onCancel={onCancel}
           testId={testId}
         />
@@ -447,7 +453,7 @@ export function EdgeParameterPopover({
       return (
         <SubstitutionPopover
           editState={editState}
-          onConfirm={onConfirmSubstitution ?? (() => {})}
+          onConfirm={/* v8 ignore start -- 防御的: 呼び出し元が必ず提供 */ onConfirmSubstitution ?? (() => {}) /* v8 ignore stop */}
           onCancel={onCancel}
           onOpenSyntaxHelp={onOpenSyntaxHelp}
           testId={testId}

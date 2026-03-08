@@ -113,8 +113,9 @@ export function useContextMenu(): UseContextMenuResult {
 
     const handleClick = (e: MouseEvent) => {
       const menu = menuRef.current;
-      /* v8 ignore next -- defensive null guard on ref */
+      /* v8 ignore start -- defensive null guard on ref */
       if (menu === null) return;
+      /* v8 ignore stop */
       const target = e.target;
       if (target instanceof Node && menu.contains(target)) return;
       setMenuState(closeContextMenu());
