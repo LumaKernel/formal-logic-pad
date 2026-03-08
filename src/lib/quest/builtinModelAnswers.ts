@@ -5333,6 +5333,37 @@ const at07UniversalToExistential: ModelAnswer = {
   steps: [{ _tag: "axiom", formulaText: "all x. P(x) -> ex x. P(x)" }],
 };
 
+const at08ConjunctionCommute: ModelAnswer = {
+  questId: "at-08",
+  steps: [
+    { _tag: "axiom", formulaText: "(phi /\\ psi) -> (psi /\\ phi)" },
+  ],
+};
+
+const at09DisjunctionCommute: ModelAnswer = {
+  questId: "at-09",
+  steps: [
+    { _tag: "axiom", formulaText: "(phi \\/ psi) -> (psi \\/ phi)" },
+  ],
+};
+
+const at10Transitivity: ModelAnswer = {
+  questId: "at-10",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
+    },
+  ],
+};
+
+const at11DeMorgan2: ModelAnswer = {
+  questId: "at-11",
+  steps: [
+    { _tag: "axiom", formulaText: "~(phi \\/ psi) -> (~phi /\\ ~psi)" },
+  ],
+};
+
 // ============================================================
 // シーケント計算 (SC) — sc-basics
 // SCステップタイプ追加後にリッチな模範解答に更新予定。
@@ -6068,6 +6099,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   at05DeMorgan,
   at06Distribution,
   at07UniversalToExistential,
+  at08ConjunctionCommute,
+  at09DisjunctionCommute,
+  at10Transitivity,
+  at11DeMorgan2,
   // sc-basics (axiom直接配置 — SCステップタイプ追加後にリッチな模範解答に更新予定)
   sc01Identity,
   sc02WeakeningLeft,
