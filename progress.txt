@@ -10398,3 +10398,30 @@
   - naturalDeduction.ts 残りの未カバーブランチ(259-359)は防御的フォールバック箇所で v8 ignore 済み。v8 の NaN ブランチカウントにより表示上 95.74% だが実質的に全分岐カバー済み
   - バリデーション関数の正常パス（Valid）テストは、エラーケースだけでなく必ず追加すること。if の false 分岐がカバーされない
 ---
+
+## 2026-03-08 12:30 - [coverage] ??フォールバック・filter条件テスト追加、防御的if v8 ignore
+- 実装した内容:
+  - atApplicationLogic.test.ts: δ規則のeigenVariable/branchFormulaTexts未指定(undefined)テスト追加 (+2 tests)
+  - scApplicationLogic.test.ts: succedentパースエラー、exchange/cutのundefinedフォールバックテスト追加 (+4 tests)
+  - proofCollectionState.test.ts: fromNodeIdが選択内だがtoNodeIdが選択外の接続フィルタテスト追加 (+1 test)
+  - mergeNodesLogic.ts: 前の2つのifガードで到達時にisFromAbsorbedが必ずtrueのifにv8 ignore追加
+  - treeLayoutLogic.ts: Prettierフォーマット修正
+- 変更したファイル:
+  - src/lib/proof-pad/atApplicationLogic.test.ts (+17行)
+  - src/lib/proof-pad/scApplicationLogic.test.ts (+52行)
+  - src/lib/proof-collection/proofCollectionState.test.ts (+23行)
+  - src/lib/proof-pad/mergeNodesLogic.ts (+2行)
+  - src/lib/proof-pad/treeLayoutLogic.ts (format fix)
+- カバレッジ:
+  - Before: Stmts 99.71%, Branch 97.55%, Funcs 89.35%, Lines 99.9%
+  - After:  Stmts 99.72%, Branch 97.63%, Funcs 89.35%, Lines 99.9%
+  - atApplicationLogic.ts: Branch 95.45% → 96.96%
+  - mergeNodesLogic.ts: Branch 97.82% → 100%
+  - scApplicationLogic.ts: Branch 97.76% → 98.8%+
+- テスト: 8263 passed (242 test files), typecheck OK, lint OK
+- CI: 前回push時にPrettier警告で失敗（treeLayoutLogic.ts, task-processing.md）→ 今回修正済み
+- **今後のイテレーションへの学び:**
+  - オプショナルパラメータの `??` フォールバック分岐は、UI経由では常に値が渡されるためテストで通りにくい。意図的にundefinedを渡すテストケースを追加することで分岐カバレッジを改善できる
+  - V8は連続するifガードで論理的に到達不能なif条件のfalse分岐もカウントする。防御的コードには `/* v8 ignore start/stop */` で対処
+  - proofCollectionState.ts の filter AND条件: 片方がfalseでshort-circuitされるケースと、左辺true・右辺falseのケースは両方テストが必要
+---
