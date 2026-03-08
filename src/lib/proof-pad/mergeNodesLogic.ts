@@ -170,7 +170,9 @@ export function mergeNodes(
       continue;
     }
 
+    /* v8 ignore start -- 前の2つのifガードにより、ここでは isFromAbsorbed は必ず true */
     if (isFromAbsorbed) {
+      /* v8 ignore stop */
       // 出力コネクション（定理として使われている） → リーダーに付替え
       const rewired: WorkspaceConnection = {
         ...conn,

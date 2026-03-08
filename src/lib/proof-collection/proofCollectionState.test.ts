@@ -442,6 +442,29 @@ describe("extractProofData", () => {
     expect(result.connections[0]?.fromOriginalNodeId).toBe("node-1");
   });
 
+  it("fromNodeIdが選択内でもtoNodeIdが選択外なら接続を除外する", () => {
+    // node-1(selected) → node-3(not selected) の接続を追加
+    const extraConnections: readonly WorkspaceConnection[] = [
+      ...connections,
+      {
+        id: "conn-3",
+        fromNodeId: "node-1",
+        fromPortId: "bottom",
+        toNodeId: "node-3",
+        toPortId: "top",
+      },
+    ];
+    const selected = new Set(["node-1", "node-2"]);
+    const result = extractProofData(selected, nodes, extraConnections, []);
+
+    // conn-1 (node-1 → node-2) のみ含まれる
+    // conn-2 (node-3 → node-2): fromNodeId が選択外
+    // conn-3 (node-1 → node-3): toNodeId が選択外
+    expect(result.connections).toHaveLength(1);
+    expect(result.connections[0]?.fromOriginalNodeId).toBe("node-1");
+    expect(result.connections[0]?.toOriginalNodeId).toBe("node-2");
+  });
+
   it("全前提が選択範囲内のInferenceEdgeのみ含める", () => {
     const selected = new Set(["node-1", "node-2"]);
     const result = extractProofData(selected, nodes, connections, [mpEdge]);

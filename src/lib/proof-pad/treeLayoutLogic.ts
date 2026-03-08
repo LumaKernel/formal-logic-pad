@@ -161,7 +161,7 @@ export function buildForest(
     const tree = buildTree(rootId);
     /* v8 ignore start -- rootIdsはnodeMapに含まれるIDが渡される前提。nullは防御的コード */
     if (tree !== null) {
-    /* v8 ignore stop */
+      /* v8 ignore stop */
       forest.push(tree);
     }
   }
