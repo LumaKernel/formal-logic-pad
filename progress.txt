@@ -10864,3 +10864,25 @@
   - predicate-advanced で multi-step 証明が可能なのは→, ¬, ∀のみの式。∃を含むとaxiom identification不可で単一axiomステップになる
   - pred-adv-05のHS展開（A1+A2+MP×3）は5ステップの定型パターン。HS(α→β, β→γ) = A1でlift + A2でdistribute + MP×3
 ---
+
+## 2026-03-09 - タブロー法クエスト追加（tab-11〜tab-14）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**
+- 変更内容:
+  - tab-11: 二重否定導入 `φ → ¬¬φ` (difficulty 1) — 4ステップ: tab-root→neg-implication→double-negation→bs
+  - tab-12: 爆発律 `¬φ → (φ → ψ)` (difficulty 2) — 4ステップ: tab-root→neg-implication×2→bs
+  - tab-13: ド・モルガン逆方向 `(¬φ ∨ ¬ψ) → ¬(φ ∧ ψ)` (difficulty 2) — 7ステップ: 分岐あり(disjunction)、両枝でbs閉鎖
+  - tab-14: 含意と連言の分配 `(φ → (ψ ∧ χ)) → ((φ → ψ) ∧ (φ → χ))` (difficulty 3) — 13ステップ: neg-conjunction分岐×1, implication分岐×2, 4枝すべてbs閉鎖
+  - tab-basics カテゴリ: 10問→14問に拡充
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 151→155
+- テスト: 8430 passed, typecheck OK, lint OK
+- スクリーンショット: .screenshots/quest-catalog-overview.png, .screenshots/quest-catalog-tab-basics-scroll.png
+- **今後のイテレーションへの学び:**
+  - TABモデル解答のconclusionIndex計算: BS(0-premise axiom)もstepNodeIdsにエントリを追加する。全ステップ（BS含む）でインデックスが+1、分岐ルールでは+2される
+  - TAB分岐ルール（neg-conjunction, disjunction, implication）: 左枝が先にpush、右枝が後。conclusionIndexは左枝=pushされた順、右枝=左枝+1
+  - TAB模範解答のprependAndFormat順序: `[...added, principal, ...rest]`。principalは分解対象の式、addedは新しく導出された式
+  - Storybookの QuestCatalog ストーリーはモックデータを使用。実際のbuiltinQuestsは表示されないため、テストでの検証が主な品質保証手段
+---
