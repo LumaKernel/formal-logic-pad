@@ -104,6 +104,29 @@
 
 ---
 
+## 2026-03-09 - ND自然演繹上級クエスト追加（nd-28〜nd-31）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8490 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**
+- 変更内容:
+  - nd-28: 二重否定除去 ¬¬φ→φ (NK, difficulty 2) — 3ステップ: DNE規則の直接適用
+  - nd-29: 対偶の逆 (¬ψ→¬φ)→(φ→ψ) (NK, difficulty 3) — 9ステップ: ¬ψ仮定→→E→→Eで矛盾→¬¬ψ→DNE
+  - nd-30: ピアースの法則 ((φ→ψ)→φ)→φ (NK, difficulty 3) — 11ステップ: ¬φ仮定→φ仮定→矛盾→EFQ→→I→→E→矛盾→¬¬φ→DNE
+  - nd-31: ∨∧分配律の逆 (φ∨ψ)∧(φ∨χ)→φ∨(ψ∧χ) (NM, difficulty 3) — 14ステップ: ∧E→∨E→∨E(ネスト)
+  - nd-basics カテゴリ: 27問→31問に拡充
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 175→179
+- テスト: 8502 passed (243 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/quest-catalog-overview.png, .screenshots/nd-quests-overview.png
+- CI: prettier修正後のCIはグリーン
+- **今後のイテレーションへの学び:**
+  - ND二重否定除去(nd-28)は最も短い証明(3ステップ)。DNE規則1つで完結
+  - ピアースの法則はEFQ+DNEの組み合わせが鍵。¬φ仮定→φ仮定→⊥→EFQ(ψ)→→I(φ→ψ)→→E(φ)→→E(⊥)→→I(¬¬φ)→DNE(φ)→→I
+  - ∨∧分配律の逆は∨Eのネスト構造: 外側∨E(φ∨ψ)の右ケース(ψ)で内側∨E(φ∨χ)を適用
+  - 現在のカテゴリ別クエスト数: prop系34, pred12, eq6, peano12, group17, nd31, tab18, at11, sc36(basics30+ce6)（179合計）
+---
+
 ## 2026-03-09 - SC量化子クエスト追加（全称消去・存在導入・全称→存在・量化子交換）
 - sc-basicsカテゴリにLJ体系の量化子クエスト4問追加（163→167クエスト、sc-basics: 26→30問）
   - sc-27: LJ: 全称消去 (∀⇒) (difficulty 1) - ∀x.P(x) → P(a)
