@@ -11159,3 +11159,25 @@
   - cutElimination.ts は量化子を完全サポート済み。量化子規則はsingle-premiseとして扱われ、depth reductionではdefaultケース（rank reduction）にフォールバック
   - QuestCatalogComponent.stories.tsx の sampleGroups は2カテゴリ分のハードコードデータ。全クエストを表示しないため、新クエスト追加時にストーリー更新不要
 ---
+
+## 2026-03-09 - TABタブロー量化子クエスト追加（tab-19〜tab-22）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8574 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）, 8586 tests**
+- 変更内容:
+  - tab-19: 全称除去 (∀x.P(x))→P(x) (difficulty 1) — 4ステップ: tab-root+¬→+∀+BS
+  - tab-20: 存在→否定全称否定 (∃x.P(x))→¬(∀x.¬P(x)) (difficulty 2) — 6ステップ: tab-root+¬→+¬¬+∃+∀+BS
+  - tab-21: 全称含意分配 (∀x.(P(x)→Q(x)))→((∀x.P(x))→(∀x.Q(x))) (difficulty 2) — 9ステップ: tab-root+2×¬→+¬∀+2×∀+→分岐+2×BS
+  - tab-22: 全称連言分配 (∀x.(P(x)∧Q(x)))→((∀x.P(x))∧(∀x.Q(x))) (difficulty 3) — 11ステップ: tab-root+¬→+¬∧分岐+各枝で¬∀+∀+∧+BS
+  - tab-basics カテゴリ: 18問→22問に拡充（全207クエスト）
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 203→207
+- テスト: 8586 passed (243 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/quest-catalog-207-overview.png, .screenshots/quest-catalog-207-fullpage.png
+- **今後のイテレーションへの学び:**
+  - TAB量化子規則: ∀/¬∃はtermText(任意項代入)、∃/¬∀はeigenVariable(固有変数導入)。SystemPresetIdは"tab"を使用
+  - パーサー優先度: `forall x. P(x) -> Q(x)` は `forall x. (P(x) -> Q(x))` と解釈される。`(forall x. P(x)) -> Q(x)` にするには明示的括弧が必須（AT/ND/SC共通の既知パターン再確認）
+  - TAB分岐規則(→, ¬∧, ¬∨)はstepNodeIdsに2エントリ生成。conclusionIndexで左枝(0)と右枝(1)を参照
+  - TAB BS(Basic Sequent)規則: principalPositionは無視される。結論ノードのformulaを直接参照
+---
