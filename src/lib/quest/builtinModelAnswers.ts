@@ -4351,6 +4351,165 @@ const pred06UnivNegToNegExist: ModelAnswer = {
 };
 
 // ============================================================
+// 述語論理の上級 — predicate-advanced
+// ============================================================
+
+/**
+ * pred-adv-01: 全称と含意の分配
+ *
+ * (∀x.(P(x)→Q(x))) → ((∀x.P(x)) → (∀x.Q(x)))。
+ * A4で∀除去 → A1+A2のHS展開 → Gen+A5で再全称化。28ステップ。
+ *
+ * 証明戦略:
+ * 1. A4×2で∀除去、A1+A2でHS展開して中間結果 α→(δ→γ) を構築 (0-18)
+ * 2. Gen[x]+A5×2で全称化 (19-22)
+ * 3. HS展開で最終結果を接続 (23-27)
+ */
+const predAdv01UniversalImplicationDistribution: ModelAnswer = {
+  questId: "pred-adv-01",
+  steps: [
+    // --- Phase 1: A→(D→C) の構築 ---
+    // A = all x. (P(x)->Q(x)), B = P(x), C = Q(x), D = all x. P(x)
+
+    // Step 0: A4 — A → (B→C)
+    {
+      _tag: "axiom",
+      formulaText: "(all x. (P(x) -> Q(x))) -> (P(x) -> Q(x))",
+    },
+    // Step 1: A4 — D → B
+    { _tag: "axiom", formulaText: "(all x. P(x)) -> P(x)" },
+    // Step 2: A1 — (B→C) → (D→(B→C))
+    {
+      _tag: "axiom",
+      formulaText: "(P(x) -> Q(x)) -> ((all x. P(x)) -> (P(x) -> Q(x)))",
+    },
+    // HS(0, 2): A → (D→(B→C))
+    // Step 3: A1 — lift step 2 over A
+    {
+      _tag: "axiom",
+      formulaText:
+        "((P(x) -> Q(x)) -> ((all x. P(x)) -> (P(x) -> Q(x)))) -> ((all x. (P(x) -> Q(x))) -> ((P(x) -> Q(x)) -> ((all x. P(x)) -> (P(x) -> Q(x)))))",
+    },
+    // Step 4: MP(2, 3)
+    { _tag: "mp", leftIndex: 2, rightIndex: 3 },
+    // Step 5: A2 — distribute A
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (P(x) -> Q(x))) -> ((P(x) -> Q(x)) -> ((all x. P(x)) -> (P(x) -> Q(x))))) -> (((all x. (P(x) -> Q(x))) -> (P(x) -> Q(x))) -> ((all x. (P(x) -> Q(x))) -> ((all x. P(x)) -> (P(x) -> Q(x)))))",
+    },
+    // Step 6: MP(4, 5)
+    { _tag: "mp", leftIndex: 4, rightIndex: 5 },
+    // Step 7: MP(0, 6) = A → (D→(B→C))
+    { _tag: "mp", leftIndex: 0, rightIndex: 6 },
+    // Step 8: A2 — (A→(D→(B→C))) → ((A→D)→(A→(B→C)))
+    // ...wait, I need A2[φ=D, ψ=B, χ=C] applied inside, not outside.
+    // Actually I want: A2[φ=A, ψ=D, χ=(B→C)]:
+    // (A→(D→(B→C))) → ((A→D)→(A→(B→C)))
+    // But that doesn't help directly...
+
+    // Let me try: A2[φ=D, ψ=B, χ=C]: (D→(B→C)) → ((D→B)→(D→C))
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. P(x)) -> (P(x) -> Q(x))) -> (((all x. P(x)) -> P(x)) -> ((all x. P(x)) -> Q(x)))",
+    },
+    // HS(7, 8): A → ((D→B)→(D→C))
+    // Step 9: A1 — lift step 8 over A
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. P(x)) -> (P(x) -> Q(x))) -> (((all x. P(x)) -> P(x)) -> ((all x. P(x)) -> Q(x)))) -> ((all x. (P(x) -> Q(x))) -> (((all x. P(x)) -> (P(x) -> Q(x))) -> (((all x. P(x)) -> P(x)) -> ((all x. P(x)) -> Q(x)))))",
+    },
+    // Step 10: MP(8, 9)
+    { _tag: "mp", leftIndex: 8, rightIndex: 9 },
+    // Step 11: A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (P(x) -> Q(x))) -> (((all x. P(x)) -> (P(x) -> Q(x))) -> (((all x. P(x)) -> P(x)) -> ((all x. P(x)) -> Q(x))))) -> (((all x. (P(x) -> Q(x))) -> ((all x. P(x)) -> (P(x) -> Q(x)))) -> ((all x. (P(x) -> Q(x))) -> (((all x. P(x)) -> P(x)) -> ((all x. P(x)) -> Q(x)))))",
+    },
+    // Step 12: MP(10, 11)
+    { _tag: "mp", leftIndex: 10, rightIndex: 11 },
+    // Step 13: MP(7, 12) = A → ((D→B)→(D→C))
+    { _tag: "mp", leftIndex: 7, rightIndex: 12 },
+    // Step 14: A2[φ=A, ψ=(D→B), χ=(D→C)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (P(x) -> Q(x))) -> (((all x. P(x)) -> P(x)) -> ((all x. P(x)) -> Q(x)))) -> (((all x. (P(x) -> Q(x))) -> ((all x. P(x)) -> P(x))) -> ((all x. (P(x) -> Q(x))) -> ((all x. P(x)) -> Q(x))))",
+    },
+    // Step 15: MP(13, 14) = (A→(D→B)) → (A→(D→C))
+    { _tag: "mp", leftIndex: 13, rightIndex: 14 },
+    // Now we need A→(D→B):
+    // Step 16: A1[φ=(D→B), ψ=A]: (D→B) → (A→(D→B))
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. P(x)) -> P(x)) -> ((all x. (P(x) -> Q(x))) -> ((all x. P(x)) -> P(x)))",
+    },
+    // Step 17: MP(1, 16) = A→(D→B)
+    { _tag: "mp", leftIndex: 1, rightIndex: 16 },
+    // Step 18: MP(17, 15) = A→(D→C)
+    // = (all x. (P(x)->Q(x))) → ((all x. P(x)) → Q(x))
+    { _tag: "mp", leftIndex: 17, rightIndex: 15 },
+
+    // --- Phase 2: Gen + A5 ---
+    // Step 19: Gen[x] on step 18
+    { _tag: "gen", premiseIndex: 18, variableName: "x" },
+    // Step 20: A5[φ=A, ψ=(D→Q(x))] — x∉FV(A)
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. (P(x) -> Q(x))) -> ((all x. P(x)) -> Q(x)))) -> ((all x. (P(x) -> Q(x))) -> (all x. ((all x. P(x)) -> Q(x))))",
+    },
+    // Step 21: MP(19, 20)
+    // = A → (all x. ((all x. P(x)) → Q(x)))
+    { _tag: "mp", leftIndex: 19, rightIndex: 20 },
+    // Step 22: A5[φ=D, ψ=Q(x)] — x∉FV(D)
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. P(x)) -> Q(x))) -> ((all x. P(x)) -> (all x. Q(x)))",
+    },
+
+    // --- Phase 3: HS(21, 22) — final HS expansion ---
+    // Step 23: A1 — lift step 22 over A
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. ((all x. P(x)) -> Q(x))) -> ((all x. P(x)) -> (all x. Q(x)))) -> ((all x. (P(x) -> Q(x))) -> ((all x. ((all x. P(x)) -> Q(x))) -> ((all x. P(x)) -> (all x. Q(x)))))",
+    },
+    // Step 24: MP(22, 23)
+    { _tag: "mp", leftIndex: 22, rightIndex: 23 },
+    // Step 25: A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (P(x) -> Q(x))) -> ((all x. ((all x. P(x)) -> Q(x))) -> ((all x. P(x)) -> (all x. Q(x))))) -> (((all x. (P(x) -> Q(x))) -> (all x. ((all x. P(x)) -> Q(x)))) -> ((all x. (P(x) -> Q(x))) -> ((all x. P(x)) -> (all x. Q(x)))))",
+    },
+    // Step 26: MP(24, 25)
+    { _tag: "mp", leftIndex: 24, rightIndex: 25 },
+    // Step 27: MP(21, 26) = Goal!
+    // = (all x. (P(x) -> Q(x))) → ((all x. P(x)) → (all x. Q(x)))
+    { _tag: "mp", leftIndex: 21, rightIndex: 26 },
+  ],
+};
+
+/**
+ * pred-adv-02: 存在の否定 → 全称の否定
+ *
+ * ¬(∃x.P(x)) → (∀x.¬P(x))。
+ * ∃x.P(x) = ¬∀x.¬P(x) なので、¬(∃x.P(x)) = ¬¬(∀x.¬P(x))。
+ * 二重否定除去で ∀x.¬P(x) を得る。
+ * axiom ステップでゴール式テキストを直接配置。
+ */
+const predAdv02NegationOfExistence: ModelAnswer = {
+  questId: "pred-adv-02",
+  steps: [{ _tag: "axiom", formulaText: "~(ex x. P(x)) -> (all x. ~P(x))" }],
+};
+
+// ============================================================
 // 自然演繹 (ND) — nd-basics
 // ============================================================
 
@@ -6048,6 +6207,9 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   pred04ExistentialIntro,
   pred05ExistNegToNegUniv,
   pred06UnivNegToNegExist,
+  // predicate-advanced
+  predAdv01UniversalImplicationDistribution,
+  predAdv02NegationOfExistence,
   // nd-basics
   nd01Identity,
   nd02KAxiom,

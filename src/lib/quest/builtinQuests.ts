@@ -1782,6 +1782,63 @@ const qPred06UnivNegToNegExist: QuestDefinition = {
   version: 2,
 };
 
+// --- 述語論理の上級 ---
+
+const qPredAdv01UniversalImplicationDistribution: QuestDefinition = {
+  id: "pred-adv-01",
+  category: "predicate-advanced",
+  title: "全称と含意の分配",
+  description:
+    "(∀x.(P(x)→Q(x))) → ((∀x.P(x)) → (∀x.Q(x))) を証明せよ。全称量化子と含意の基本的な相互作用。",
+  difficulty: 4,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText:
+        "(all x. (P(x) -> Q(x))) -> ((all x. P(x)) -> (all x. Q(x)))",
+      label: "Goal: (∀x.(P(x)→Q(x))) → ((∀x.P(x)) → (∀x.Q(x)))",
+    },
+  ],
+  hints: [
+    "A4で∀を除去し、A2で含意を分配します。",
+    "A4: (∀x.(P(x)→Q(x))) → (P(x)→Q(x)) と A4: (∀x.P(x)) → P(x) を組み合わせます。",
+    "(∀x.(P(x)→Q(x))) → ((∀x.P(x)) → Q(x)) を中間ステップとして構築し、Gen+A5で全称化します。",
+    "A1で持ち上げてA2で分配する「HS展開」パターンを活用します。",
+  ],
+  estimatedSteps: 28,
+  learningPoint:
+    "∀は含意に対して分配可能。述語論理で最も頻出するパターンの一つ。",
+  order: 1,
+  version: 1,
+};
+
+const qPredAdv02NegationOfExistence: QuestDefinition = {
+  id: "pred-adv-02",
+  category: "predicate-advanced",
+  title: "存在の否定 → 全称の否定",
+  description:
+    "¬(∃x.P(x)) → (∀x.¬P(x)) を証明せよ。存在量化子の否定が全称量化子の否定に帰着することを示す。",
+  difficulty: 4,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "~(ex x. P(x)) -> (all x. ~P(x))",
+      label: "Goal: ¬(∃x.P(x)) → (∀x.¬P(x))",
+    },
+  ],
+  hints: [
+    "∃x.P(x) は ¬∀x.¬P(x) の略記です。",
+    "¬(∃x.P(x)) = ¬¬(∀x.¬P(x)) です。",
+    "二重否定除去 ¬¬φ→φ のインスタンスを使います。",
+    "二重否定除去の証明は A3 を2回使います。",
+  ],
+  estimatedSteps: 12,
+  learningPoint:
+    "¬∃x.P(x) ↔ ∀x.¬P(x) は量化子と否定の基本関係。∃の定義（¬∀¬）を展開して二重否定除去で証明。",
+  order: 2,
+  version: 1,
+};
+
 // --- 自然演繹の基礎 ---
 
 const qNd01Identity: QuestDefinition = {
@@ -3885,6 +3942,8 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qPred04ExistentialIntro,
   qPred05ExistNegToNegUniv,
   qPred06UnivNegToNegExist,
+  qPredAdv01UniversalImplicationDistribution,
+  qPredAdv02NegationOfExistence,
   qNd01Identity,
   qNd02KAxiom,
   qNd03Contraposition,
