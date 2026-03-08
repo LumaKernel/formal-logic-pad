@@ -6855,6 +6855,37 @@ const sc_ce06DontEliminateCut: ModelAnswer = {
   ],
 };
 
+const sc_ce07DisjCommute: ModelAnswer = {
+  questId: "sc-ce-07",
+  steps: [{ _tag: "axiom", formulaText: "(phi \\/ psi) -> (psi \\/ phi)" }],
+};
+
+const sc_ce08Contraposition: ModelAnswer = {
+  questId: "sc-ce-08",
+  steps: [{ _tag: "axiom", formulaText: "(phi -> psi) -> (~psi -> ~phi)" }],
+};
+
+const sc_ce09DisjElimination: ModelAnswer = {
+  questId: "sc-ce-09",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> chi) -> ((psi -> chi) -> ((phi \\/ psi) -> chi))",
+    },
+  ],
+};
+
+const sc_ce10Distribution: ModelAnswer = {
+  questId: "sc-ce-10",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "(phi /\\ (psi \\/ chi)) -> ((phi /\\ psi) \\/ (phi /\\ chi))",
+    },
+  ],
+};
+
 // --- レジストリ ---
 
 /** 全ビルトイン模範解答 */
@@ -7044,6 +7075,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   sc_ce04CutChain,
   sc_ce05NegationCut,
   sc_ce06DontEliminateCut,
+  sc_ce07DisjCommute,
+  sc_ce08Contraposition,
+  sc_ce09DisjElimination,
+  sc_ce10Distribution,
 ];
 
 /** QuestId → ModelAnswer のマップ */
