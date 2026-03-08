@@ -48,8 +48,10 @@ const sampleNotebookCounts: QuestNotebookCounts = new Map([
   ["prop-02", 2],
 ]);
 
+// CI上でのタイムアウト防止のため、ストーリーには先頭20件のみ使用
+const sampleQuests = builtinQuests.slice(0, 20);
 const sampleGroups: readonly CategoryGroup[] = buildCatalogByCategory(
-  builtinQuests,
+  sampleQuests,
   createEmptyProgress(),
 );
 
