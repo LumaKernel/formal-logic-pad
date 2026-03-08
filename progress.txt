@@ -104,6 +104,23 @@
 
 ---
 
+## 2026-03-08 - テスト追加・Funcsカバレッジ調査
+- `createQuestNotebook` の `questVersion` パラメータのテスト2件追加（8338→8340テスト）
+- Funcsカバレッジ89.07%の原因調査: **全公開APIはテスト済み、低さはv8集約のartifact**
+  - 個別テスト実行では各ファイルFuncs 100%、全体実行でプライベート関数カウントにより低下
+  - interpreterTypes.ts (0%) は型定義のみのファイルで正常
+- prd-logic-pad-world.md の完了済み「Don't eliminate cut」タスクをアーカイブ
+- カバレッジ: Stmts 99.95%, Branch 100%, Funcs 89.07%, Lines 100%（維持）
+- 変更ファイル:
+  - `src/lib/notebook/notebookState.test.ts` (questVersionテスト追加)
+  - `tasks/prd-logic-pad-world.md` (完了項目削除)
+  - `tasks-archived/prd-logic-pad-world.md` (完了項目追加)
+- **今後のイテレーションへの学び:**
+  - Funcs 89.07%はv8集約artifactであり、実質的なカバレッジ問題ではない。全公開関数はテスト済み
+  - v8は全体テスト実行時にプライベート関数のカウントが個別実行と異なる（集約時の既知の問題）
+  - 残りのPRDタスクはハイレベルなゴール（クエストモード拡充・カット除去定理学習）のみ
+---
+
 ## 2026-03-08 - カバレッジ改善（第10回）: Branch 100%達成
 - ベースライン: Stmts 99.94%, Branch 99.83%, Funcs 89.66%, Lines 100%
 - **改善結果: Stmts 99.95%, Branch 100% (+0.17pp), Lines 100%**
