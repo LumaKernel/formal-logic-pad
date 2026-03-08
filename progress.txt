@@ -104,6 +104,28 @@
 
 ---
 
+## 2026-03-08 - LJ体系クエスト追加（第2弾）
+- sc-basicsカテゴリにLJ体系クエスト4問追加（129→133クエスト、sc-basics: 14→18問）
+  - sc-15: LJ連言除去 (difficulty 1) - (φ ∧ ψ) → φ
+  - sc-16: LJ連言の可換性 (difficulty 2) - (φ ∧ ψ) → (ψ ∧ φ)
+  - sc-17: LJ含意の推移律 (difficulty 2) - (φ → ψ) → ((ψ → χ) → (φ → χ))
+  - sc-18: LJ矛盾からの否定帰結 (difficulty 2) - (φ → ⊥) → (φ → ψ)
+- テスト: 243ファイル、8364テスト全パス（8352→8364: +12）
+- カバレッジ: Stmts 99.95%, Branch 100%, Funcs 89.07%, Lines 100%（維持）
+- 変更ファイル:
+  - `src/lib/quest/builtinQuests.ts` (4クエスト定義追加)
+  - `src/lib/quest/builtinModelAnswers.ts` (4模範解答追加)
+  - `src/lib/quest/builtinQuests.test.ts` (カウント更新 129→133)
+- スクリーンショット:
+  - `.screenshots/lj-quests-sc-basics.png` (SCカテゴリ 0/18表示)
+  - `.screenshots/lj-quests-new-quests.png` (sc-15表示確認)
+  - `.screenshots/lj-quests-bottom-negation.png` (sc-18表示確認)
+- **今後のイテレーションへの学び:**
+  - SC否定規則（¬⇒, ⇒¬）はノード型として未実装。否定を含むクエスト（sc-07〜sc-10等）のヒントでは参照されているが、実際のUIでの解法は¬φ=φ→⊥として扱う必要あり
+  - LJ体系で否定なしで証明可能な式のバリエーション: 連言操作、含意の推移、⊥を使った否定の代替表現
+  - Storybookの Hub > Quests Tab ストーリーでクエストカタログ全体を確認可能。URLは `?path=/story/pages-hub--quests-tab`
+---
+
 ## 2026-03-08 - LJ体系クエスト追加
 - sc-basicsカテゴリにLJ体系（直観主義シーケント計算）クエスト4問追加（125→129クエスト）
   - sc-11: LJ恒等律 (difficulty 1)
