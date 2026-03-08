@@ -104,6 +104,24 @@
 
 ---
 
+## 2026-03-09 - 述語論理の上級クエスト追加（第2弾）
+- predicate-advancedカテゴリにクエスト2問追加（147→149クエスト、predicate-advanced: 2→4問）
+  - pred-adv-03: 全称の否定 → 存在の否定 (difficulty 4) - ¬(∀x.P(x)) → (∃x.¬P(x))
+  - pred-adv-04: 存在の含意分配 (difficulty 5) - (∀x.(P(x)→Q(x))) → ((∃x.P(x)) → (∃x.Q(x)))
+- テスト: 243ファイル、8412テスト全パス（8406→8412: +6）
+- カバレッジ: Stmts 99.95%, Branch 100%, Funcs 89.07%, Lines 100%（維持）
+- 変更ファイル:
+  - `src/lib/quest/builtinQuests.ts` (2クエスト定義追加)
+  - `src/lib/quest/builtinModelAnswers.ts` (2模範解答追加)
+  - `src/lib/quest/builtinQuests.test.ts` (カウント更新 147→149)
+- スクリーンショット:
+  - `.screenshots/pred-adv-quests-4items.png` (predicate-advanced 4問表示確認)
+- **今後のイテレーションへの学び:**
+  - pred-adv-03/04ともに単一axiomステップで模範解答構成可能（∃はパーサーが¬∀¬に展開するため）
+  - Q-35〜Q-38のうちQ-35(pred-adv-03)とQ-36(pred-adv-04)を実装。Q-37(量化子入替, 50+steps)とQ-38(Drinker's Paradox, 60+steps)は未実装
+  - predicate-advancedは4問に到達。次はQ-37/Q-38の高難度問題か、他カテゴリ（group-proofs: 5問）の拡充が候補
+---
+
 ## 2026-03-09 - 分析的タブロー(AT)クエスト追加
 - at-basicsカテゴリにATクエスト4問追加（141→145クエスト、at-basics: 7→11問）
   - at-08: 連言の交換律 (difficulty 1) - (φ ∧ ψ) → (ψ ∧ φ)
