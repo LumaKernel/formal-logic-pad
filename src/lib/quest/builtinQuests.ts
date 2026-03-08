@@ -4402,6 +4402,117 @@ const qScCe06DontEliminateCut: QuestDefinition = {
   version: 1,
 };
 
+const qScCe07DisjunctionCommute: QuestDefinition = {
+  id: "sc-ce-07",
+  category: "sc-cut-elimination",
+  title: "カットで選言の可換性",
+  description:
+    "(φ ∨ ψ) → (ψ ∨ φ) をカット規則を使って証明せよ。選言の分解・再構成にカットがどう関わるかを観察する。証明完成後、カット除去ステッパーで ∨ の深さ減少を確認しよう。",
+  difficulty: 2,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "(phi \\/ psi) -> (psi \\/ phi)",
+      label: "Goal: (φ ∨ ψ) → (ψ ∨ φ)",
+    },
+  ],
+  hints: [
+    "⇒→ で φ ∨ ψ ⇒ ψ ∨ φ に帰着します。",
+    "∨⇒ で φ ∨ ψ を分解し、各分岐で ⇒∨ を使って ψ ∨ φ を構成します。",
+    "カットを使う方法: 補題として φ ⇒ ψ ∨ φ と ψ ⇒ ψ ∨ φ を個別に導出し、∨⇒ の各分岐をカットで接続する。",
+    "証明完成後、カット除去ステッパーで選言のカット除去を観察しましょう。",
+  ],
+  estimatedSteps: 8,
+  learningPoint:
+    "選言の可換性はカットなしでも ∨⇒ + ⇒∨ で直接証明できるが、カットを使うと「各成分の処理を独立した補題として分離」できる。カット除去ではこれらの補題が展開され、直接的な分岐証明に変換される。",
+  order: 7,
+  version: 1,
+};
+
+const qScCe08Contraposition: QuestDefinition = {
+  id: "sc-ce-08",
+  category: "sc-cut-elimination",
+  title: "カットで対偶",
+  description:
+    "(φ → ψ) → (¬ψ → ¬φ) をカット規則を使って証明せよ。否定 ¬α は α → ⊥ として扱われる。カット除去ステッパーで含意と否定のカット除去を確認しよう。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> (~psi -> ~phi)",
+      label: "Goal: (φ → ψ) → (¬ψ → ¬φ)",
+    },
+  ],
+  hints: [
+    "⇒→ を3回使い、φ, ¬ψ, φ → ψ ⇒ ⊥ に帰着します。",
+    "¬ψ は ψ → ⊥ なので →⇒ で分解できます。同様に φ → ψ も →⇒ で分解できます。",
+    "カットを使う方法: φ → ψ と φ ⇒ φ（Identity）をカット式 φ で合成し ψ を得る。次に ψ を ¬ψ（= ψ → ⊥）とカットで ⊥ を得る。",
+    "カット除去ステッパーで、含意と否定の相互作用によるカット除去を観察しましょう。",
+  ],
+  estimatedSteps: 10,
+  learningPoint:
+    "対偶は φ → ψ から ¬ψ → ¬φ を導く古典的な推論。否定を含意（α → ⊥）として扱うことで、カットは「φ → ψ の結論 ψ」を媒介として ¬ψ の前件と合致させる。カット除去後は →⇒ の直接的な分解に変換される。",
+  order: 8,
+  version: 1,
+};
+
+const qScCe09DisjunctionElimination: QuestDefinition = {
+  id: "sc-ce-09",
+  category: "sc-cut-elimination",
+  title: "カットで選言の消去",
+  description:
+    "(φ → χ) → ((ψ → χ) → ((φ ∨ ψ) → χ)) をカット規則を使って証明せよ。2つの含意と選言をカットで合成し、場合分けの構造を構築する。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "(phi -> chi) -> ((psi -> chi) -> ((phi \\/ psi) -> chi))",
+      label: "Goal: (φ → χ) → ((ψ → χ) → ((φ ∨ ψ) → χ))",
+    },
+  ],
+  hints: [
+    "⇒→ を3回使い、φ ∨ ψ, ψ → χ, φ → χ ⇒ χ に帰着します。",
+    "∨⇒ で φ ∨ ψ を分解し、左分岐（φ）と右分岐（ψ）を個別に処理します。",
+    "左分岐: φ, φ → χ ⇒ χ は →⇒ + Identity で解決。右分岐: ψ, ψ → χ ⇒ χ も同様。",
+    "カットを使う方法: 各分岐で φ → χ（または ψ → χ）と Identity をカットで合成する。",
+    "カット除去ステッパーで、選言の場合分けとカットの相互作用を観察しましょう。",
+  ],
+  estimatedSteps: 14,
+  learningPoint:
+    "選言の消去は「場合分け」に対応する。φ → χ と ψ → χ を持っていれば φ ∨ ψ から χ を導ける。カットは各場合の処理をモジュール化するが、カット除去後は ∨⇒ の分岐内で →⇒ が直接適用される形になる。",
+  order: 9,
+  version: 1,
+};
+
+const qScCe10Distribution: QuestDefinition = {
+  id: "sc-ce-10",
+  category: "sc-cut-elimination",
+  title: "カットで分配律",
+  description:
+    "(φ ∧ (ψ ∨ χ)) → ((φ ∧ ψ) ∨ (φ ∧ χ)) をカット規則を使って証明せよ。連言と選言の分配律は、カットが連言の分解と選言の構成を橋渡しする例。カット除去による証明サイズの増大を観察しよう。",
+  difficulty: 4,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText:
+        "(phi /\\ (psi \\/ chi)) -> ((phi /\\ psi) \\/ (phi /\\ chi))",
+      label: "Goal: (φ ∧ (ψ ∨ χ)) → ((φ ∧ ψ) ∨ (φ ∧ χ))",
+    },
+  ],
+  hints: [
+    "⇒→ で φ ∧ (ψ ∨ χ) ⇒ (φ ∧ ψ) ∨ (φ ∧ χ) に帰着します。",
+    "∧⇒ で φ と ψ ∨ χ を取り出し、∨⇒ で ψ ∨ χ を分解します。",
+    "各分岐で ⇒∧ と ⇒∨ を組み合わせて (φ ∧ ψ) ∨ (φ ∧ χ) を構成します。",
+    "カットを使う方法: φ ∧ (ψ ∨ χ) から「φ」を取り出す補題と「ψ ∨ χ」を取り出す補題をカットで合成する。",
+    "カット除去ステッパーで、分配律のカット除去が連言・選言の規則をどう展開するか確認しましょう。",
+  ],
+  estimatedSteps: 18,
+  learningPoint:
+    "分配律は連言と選言の相互作用を示す重要な法則。カットを使うと「φ の取り出し」を補題として再利用できるが、カット除去後は φ の取り出しが各分岐で独立に行われ、証明が膨張する。これはカット除去の計算コストの典型例。",
+  order: 10,
+  version: 1,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -4573,4 +4684,8 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qScCe04CutChain,
   qScCe05CutNegation,
   qScCe06DontEliminateCut,
+  qScCe07DisjunctionCommute,
+  qScCe08Contraposition,
+  qScCe09DisjunctionElimination,
+  qScCe10Distribution,
 ];
