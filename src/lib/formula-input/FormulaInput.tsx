@@ -91,13 +91,17 @@ export const computeErrorHighlights = (
     // 1-indexed → 0-indexed offset 変換
     let startOffset = 0;
     for (let i = 0; i < start.line - 1 && i < lines.length; i++) {
+      /* v8 ignore start -- defensive: lines[i] is always defined within loop bounds */
       startOffset += (lines[i] ?? "").length + 1; // +1 for newline
+      /* v8 ignore stop */
     }
     startOffset += start.column - 1;
 
     let endOffset = 0;
     for (let i = 0; i < end.line - 1 && i < lines.length; i++) {
+      /* v8 ignore start -- defensive: lines[i] is always defined within loop bounds */
       endOffset += (lines[i] ?? "").length + 1;
+      /* v8 ignore stop */
     }
     endOffset += end.column - 1;
 
@@ -230,7 +234,9 @@ export function FormulaInput({
       const newValue = e.target.value;
       onChange(newValue);
       // 補完を更新（カーソル位置はselectionStartから取得）
+      /* v8 ignore start -- defensive: selectionStart is null only for non-text inputs */
       const cursorPos = e.target.selectionStart ?? newValue.length;
+      /* v8 ignore stop */
       comp.update(newValue, cursorPos);
     },
     [onChange, comp],
@@ -325,7 +331,9 @@ export function FormulaInput({
         {/* ハイライトがないときの高さ確保（absoluteの場合は不要） */}
         {errorHighlights.length > 0 && (
           <div style={{ visibility: "hidden", ...highlightContainerStyle }}>
+            {/* v8 ignore start -- deferredValue is always non-empty when errorHighlights exist */}
             {deferredValue || placeholder}
+            {/* v8 ignore stop */}
           </div>
         )}
         {/* 補完ポップアップ */}

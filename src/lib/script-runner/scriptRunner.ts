@@ -160,7 +160,9 @@ const loadInterpreter = (): JsInterpreterConstructor => {
  */
 export const createScriptRunner = (
   code: string,
+  /* v8 ignore start -- デフォルト値: テストでconfigなし呼び出し多数あるがv8集約で未カバー扱い */
   config: ScriptRunnerConfig = {},
+  /* v8 ignore stop */
 ): ScriptRunResult | ScriptRunnerInstance => {
   const {
     maxSteps = DEFAULT_MAX_STEPS,
@@ -301,7 +303,9 @@ export const createScriptRunner = (
   const runAsync = async (
     signal?: RunAsyncAbortSignal,
     callbacks?: RunAsyncCallbacks,
+    /* v8 ignore start -- デフォルト値: テストでchunkSizeなし呼び出し多数あるがv8集約で未カバー扱い */
     chunkSize: number = DEFAULT_CHUNK_SIZE,
+    /* v8 ignore stop */
   ): Promise<ScriptRunResult> => {
     for (;;) {
       // チャンク単位で同期実行

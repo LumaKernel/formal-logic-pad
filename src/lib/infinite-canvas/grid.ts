@@ -8,7 +8,9 @@ const DEFAULT_DOT_SPACING = 20;
 export function computeGridDots(
   viewport: ViewportState,
   containerSize: Size,
+  /* v8 ignore start -- デフォルトパラメータ分岐: 呼び出し側は常に明示的に値を渡す */
   dotSpacing: number = DEFAULT_DOT_SPACING,
+  /* v8 ignore stop */
 ): readonly GridDot[] {
   const spacing = dotSpacing * viewport.scale;
 

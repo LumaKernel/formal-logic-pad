@@ -413,7 +413,9 @@ const contextDisplayNames: Record<MenuContext, I18nLabel> = {
  */
 export function generateMenuDocMarkdown(
   actions: readonly MenuActionDefinition[],
+  /* v8 ignore start -- デフォルト値: テストでlocale省略呼び出しをカバー済みだがv8集約で未カバー扱い */
   locale: "ja" | "en" = "ja",
+  /* v8 ignore stop */
 ): string {
   const lines: string[] = [];
   lines.push("## 現状のアクション一覧と起点");

@@ -247,4 +247,17 @@ describe("menuActionDefinition", () => {
       }
     });
   });
+
+  describe("generateMenuDocMarkdown デフォルト引数", () => {
+    it("デフォルト引数（locale省略）で正しく動作する", () => {
+      const result = generateMenuDocMarkdown(allMenuActions);
+      expect(result).toContain("現状のアクション一覧と起点");
+    });
+
+    it("明示的にjaを指定しても同じ結果になる", () => {
+      const defaultResult = generateMenuDocMarkdown(allMenuActions);
+      const jaResult = generateMenuDocMarkdown(allMenuActions, "ja");
+      expect(defaultResult).toBe(jaResult);
+    });
+  });
 });

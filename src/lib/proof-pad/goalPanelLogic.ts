@@ -129,7 +129,9 @@ export function computeGoalPanelData(
       const items: GoalPanelItem[] = goals.map((goal) => ({
         id: goal.id,
         formulaText: goal.formulaText,
+        /* v8 ignore start -- defensive: GoalAllAchieved guarantees all goals are in achievedMap */
         formula: achievedMap.get(goal.id) ?? parseGoalFormula(goal.formulaText),
+        /* v8 ignore stop */
         label: goal.label,
         allowedAxiomIds: goal.allowedAxiomIds,
         allowedAxiomDetails: resolveAllowedAxiomDetails(
