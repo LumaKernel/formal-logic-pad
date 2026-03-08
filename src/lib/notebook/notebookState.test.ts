@@ -118,6 +118,31 @@ describe("notebookState", () => {
 
       expect(col.notebooks[0]!.questId).toBeUndefined();
     });
+
+    it("stores questVersion when provided", () => {
+      const col = createQuestNotebook(createEmptyCollection(), {
+        name: "Quest Versioned",
+        system,
+        goals: [{ formulaText: "phi -> phi" }],
+        now: now1,
+        questId: "q-01",
+        questVersion: 3,
+      });
+
+      expect(col.notebooks[0]!.questVersion).toBe(3);
+    });
+
+    it("questVersion is undefined when not provided", () => {
+      const col = createQuestNotebook(createEmptyCollection(), {
+        name: "Quest No Version",
+        system,
+        goals: [{ formulaText: "phi -> phi" }],
+        now: now1,
+        questId: "q-01",
+      });
+
+      expect(col.notebooks[0]!.questVersion).toBeUndefined();
+    });
   });
 
   describe("findNotebook", () => {
