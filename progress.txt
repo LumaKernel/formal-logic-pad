@@ -104,6 +104,24 @@
 
 ---
 
+## 2026-03-08 - LJ体系クエスト追加
+- sc-basicsカテゴリにLJ体系（直観主義シーケント計算）クエスト4問追加（125→129クエスト）
+  - sc-11: LJ恒等律 (difficulty 1)
+  - sc-12: LJ矛盾からの爆発 Ex Falso (difficulty 1)
+  - sc-13: LJ対偶 (difficulty 3)
+  - sc-14: LJ選言除去 (difficulty 3)
+- テスト: 243ファイル、8352テスト全パス（8340→8352: +12）
+- カバレッジ: Stmts 99.95%, Branch 100%, Funcs 89.07%, Lines 100%（維持）
+- 変更ファイル:
+  - `src/lib/quest/builtinQuests.ts` (4クエスト定義追加)
+  - `src/lib/quest/builtinModelAnswers.ts` (4模範解答追加)
+  - `src/lib/quest/builtinQuests.test.ts` (カウント更新 125→129)
+- **今後のイテレーションへの学び:**
+  - ⊥（bottom）のパーサー記法はUnicode `⊥` のみ。`_|_` は未サポート。lexer.tsの `["⊥", "BOTTOM"]` を参照
+  - LJ体系ではmaxSuccedentLength=1（右辺高々1式）。LKのcontraction-right/exchange-rightは意味的に使えない
+  - SCクエストの模範解答は `axiom` ステップ1つのみ（ゴール式を公理ノードとして配置、ツリー構築はインタラクティブ）
+---
+
 ## 2026-03-08 - テスト追加・Funcsカバレッジ調査
 - `createQuestNotebook` の `questVersion` パラメータのテスト2件追加（8338→8340テスト）
 - Funcsカバレッジ89.07%の原因調査: **全公開APIはテスト済み、低さはv8集約のartifact**
