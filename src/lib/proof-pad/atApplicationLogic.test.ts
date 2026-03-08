@@ -358,6 +358,23 @@ describe("atApplicationLogic", () => {
       });
       expect(result._tag).toBe("at-delta-result");
     });
+
+    it("eigenVariable未指定（undefined）でも空文字列にフォールバックしてエラー", () => {
+      const tag = expectErrorTag({
+        ruleId: "delta-neg-univ",
+        signedFormulaText: "F:∀x.P(x)",
+      });
+      expect(tag).toBe("AtEigenVariableError");
+    });
+
+    it("branchFormulaTexts未指定（undefined）でも空配列にフォールバックして成功", () => {
+      const result = expectSuccess({
+        ruleId: "delta-neg-univ",
+        signedFormulaText: "F:∀x.P(x)",
+        eigenVariable: "z",
+      });
+      expect(result._tag).toBe("at-delta-result");
+    });
   });
 
   // ── closure ──

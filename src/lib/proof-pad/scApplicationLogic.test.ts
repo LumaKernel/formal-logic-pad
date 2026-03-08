@@ -108,8 +108,13 @@ describe("scApplicationLogic", () => {
       expect(result!.succedents).toHaveLength(1);
     });
 
-    it("無効な論理式テキストはundefinedを返す", () => {
+    it("前件に無効な論理式テキストがあるとundefinedを返す", () => {
       const result = parseSequentText("invalid!! ⇒ Q(x)");
+      expect(result).toBeUndefined();
+    });
+
+    it("後件に無効な論理式テキストがあるとundefinedを返す", () => {
+      const result = parseSequentText("P(x) ⇒ invalid!!");
       expect(result).toBeUndefined();
     });
 
@@ -428,6 +433,25 @@ describe("scApplicationLogic", () => {
       }
     });
 
+    it("exchangePosition省略（undefined）でデフォルト0にフォールバック", () => {
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "exchange-left",
+          sequentText: "P(x), Q(x) ⇒ R(x)",
+        }),
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right._tag).toBe("sc-single-result");
+        if (result.right._tag === "sc-single-result") {
+          const parsed = parseSequentText(result.right.premiseText);
+          expect(parsed).not.toBeUndefined();
+          // 位置0で交換: Q(x), P(x) ⇒ R(x)
+          expect(parsed!.antecedents).toHaveLength(2);
+        }
+      }
+    });
+
     it("左辺に3つ以上の論理式がある場合に中間で交換できる", () => {
       const result = validateScApplication(
         makeParams({
@@ -444,6 +468,19 @@ describe("scApplicationLogic", () => {
   });
 
   describe("exchange-right", () => {
+    it("exchangePosition省略（undefined）でデフォルト0にフォールバック", () => {
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "exchange-right",
+          sequentText: "P(x) ⇒ Q(x), R(x)",
+        }),
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right._tag).toBe("sc-single-result");
+      }
+    });
+
     it("右辺の隣接する2つの論理式を交換する", () => {
       const result = validateScApplication(
         makeParams({
@@ -502,6 +539,19 @@ describe("scApplicationLogic", () => {
           ruleId: "cut",
           sequentText: "P(x) ⇒ Q(x)",
           cutFormulaText: "",
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScPrincipalFormulaMismatch");
+      }
+    });
+
+    it("cutFormulaText省略（undefined）でデフォルト空文字列にフォールバックしてエラー", () => {
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "cut",
+          sequentText: "P(x) ⇒ Q(x)",
         }),
       );
       expect(Either.isLeft(result)).toBe(true);
