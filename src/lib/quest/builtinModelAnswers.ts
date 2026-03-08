@@ -5873,6 +5873,258 @@ const tab14ImplicationConjDistrib: ModelAnswer = {
   ],
 };
 
+/**
+ * tab-15: 連言の結合律 ¬(((φ ∧ ψ) ∧ χ) → (φ ∧ (ψ ∧ χ)))
+ *
+ * ¬→ → ∧ × 2 → ¬∧ (分岐) → 左枝 BS, 右枝 ¬∧ (分岐) → 各枝 BS
+ */
+const tab15ConjunctionAssoc: ModelAnswer = {
+  questId: "tab-15",
+  steps: [
+    {
+      _tag: "tab-root",
+      sequentText: "~(((phi /\\ psi) /\\ chi) -> (phi /\\ (psi /\\ chi)))",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "conjunction",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "conjunction",
+      principalPosition: 0,
+    },
+    // ¬∧ 分岐: stepNodeIds[4]=left(¬φ), stepNodeIds[5]=right(¬(ψ∧χ))
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "neg-conjunction",
+      principalPosition: 5,
+    },
+    // 左枝: BS (¬φ と φ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // 右枝: ¬∧ 分岐 on ¬(ψ∧χ): stepNodeIds[7]=left(¬ψ), stepNodeIds[8]=right(¬χ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 5,
+      ruleId: "neg-conjunction",
+      principalPosition: 0,
+    },
+    // BS: ¬ψ と ψ
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 7,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // BS: ¬χ と χ
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 8,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-16: 選言の結合律 ¬((φ ∨ (ψ ∨ χ)) → ((φ ∨ ψ) ∨ χ))
+ *
+ * ¬→ → ¬∨ × 2 → ∨ (分岐) → 左枝 BS, 右枝 ∨ (分岐) → 各枝 BS
+ */
+const tab16DisjunctionAssoc: ModelAnswer = {
+  questId: "tab-16",
+  steps: [
+    {
+      _tag: "tab-root",
+      sequentText: "~((phi \\/ (psi \\/ chi)) -> ((phi \\/ psi) \\/ chi))",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "neg-disjunction",
+      principalPosition: 1,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "neg-disjunction",
+      principalPosition: 0,
+    },
+    // ∨ 分岐 on φ∨(ψ∨χ): stepNodeIds[4]=left(φ), stepNodeIds[5]=right(ψ∨χ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "disjunction",
+      principalPosition: 5,
+    },
+    // 左枝: BS (φ と ¬φ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // 右枝: ∨ 分岐 on ψ∨χ: stepNodeIds[7]=left(ψ), stepNodeIds[8]=right(χ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 5,
+      ruleId: "disjunction",
+      principalPosition: 0,
+    },
+    // BS: ψ と ¬ψ
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 7,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // BS: χ と ¬χ
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 8,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-17: 吸収律 ¬((φ → ψ) → (φ → (φ ∧ ψ)))
+ *
+ * ¬→ × 2 → ¬∧ (分岐) → 左枝 BS, 右枝 → (分岐) → 各枝 BS
+ */
+const tab17Absorption: ModelAnswer = {
+  questId: "tab-17",
+  steps: [
+    {
+      _tag: "tab-root",
+      sequentText: "~((phi -> psi) -> (phi -> (phi /\\ psi)))",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "neg-implication",
+      principalPosition: 1,
+    },
+    // ¬∧ 分岐: stepNodeIds[3]=left(¬φ), stepNodeIds[4]=right(¬ψ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "neg-conjunction",
+      principalPosition: 1,
+    },
+    // 左枝: BS (¬φ と φ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // 右枝: → 分岐 on φ→ψ: stepNodeIds[6]=left(¬φ), stepNodeIds[7]=right(ψ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "implication",
+      principalPosition: 4,
+    },
+    // BS: ¬φ と φ
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 6,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // BS: ψ と ¬ψ
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 7,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-18: 含意の選言表現 ¬((φ → ψ) → (¬φ ∨ ψ))
+ *
+ * ¬→ → ¬∨ → ¬¬ → → (分岐) → 各枝 BS
+ */
+const tab18ImplicationDisjunction: ModelAnswer = {
+  questId: "tab-18",
+  steps: [
+    {
+      _tag: "tab-root",
+      sequentText: "~((phi -> psi) -> (~phi \\/ psi))",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "neg-disjunction",
+      principalPosition: 1,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "double-negation",
+      principalPosition: 0,
+    },
+    // → 分岐 on φ→ψ: stepNodeIds[4]=left(¬φ), stepNodeIds[5]=right(ψ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "implication",
+      principalPosition: 4,
+    },
+    // 左枝: BS (¬φ と φ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // 右枝: BS (ψ と ¬ψ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 5,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
 // ============================================================
 // 分析的タブロー (AT) — at-basics
 // ATステップタイプ追加後にリッチな模範解答（実際のタブロー展開）に更新予定。
@@ -6697,6 +6949,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   tab12ExFalso,
   tab13DeMorgan3,
   tab14ImplicationConjDistrib,
+  tab15ConjunctionAssoc,
+  tab16DisjunctionAssoc,
+  tab17Absorption,
+  tab18ImplicationDisjunction,
   // at-basics (axiom直接配置 — ATステップタイプ追加後にリッチな模範解答に更新予定)
   at01ExcludedMiddle,
   at02Implication,
