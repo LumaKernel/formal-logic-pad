@@ -4540,6 +4540,88 @@ const predAdv04ExistentialImplicationDistribution: ModelAnswer = {
   ],
 };
 
+/**
+ * pred-adv-05: 全称量化子の交換
+ *
+ * (∀x.∀y.P(x,y)) → (∀y.∀x.P(x,y))。
+ * A4×2で除去 → HS展開 → Gen[x]+A5 → Gen[y]+A5。13ステップ。
+ *
+ * 証明戦略:
+ * 1. A4×2で∀x,∀yを除去してP(x,y)を取り出す (0-1)
+ * 2. HS展開で接続 (2-6)
+ * 3. Gen[x]+A5で∀x再導入 (7-9)
+ * 4. Gen[y]+A5で∀y再導入 (10-12)
+ */
+const predAdv05QuantifierSwap: ModelAnswer = {
+  questId: "pred-adv-05",
+  steps: [
+    // Let A = ∀x.∀y.P(x,y)
+    // Step 0: A4 — A → ∀y.P(x,y)
+    {
+      _tag: "axiom",
+      formulaText: "(all x. (all y. P(x, y))) -> (all y. P(x, y))",
+    },
+    // Step 1: A4 — ∀y.P(x,y) → P(x,y)
+    { _tag: "axiom", formulaText: "(all y. P(x, y)) -> P(x, y)" },
+
+    // HS(0, 1): A → P(x,y)
+    // Step 2: A1 — lift step 1 over A
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. P(x, y)) -> P(x, y)) -> ((all x. (all y. P(x, y))) -> ((all y. P(x, y)) -> P(x, y)))",
+    },
+    // Step 3: MP(1, 2)
+    { _tag: "mp", leftIndex: 1, rightIndex: 2 },
+    // Step 4: A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (all y. P(x, y))) -> ((all y. P(x, y)) -> P(x, y))) -> (((all x. (all y. P(x, y))) -> (all y. P(x, y))) -> ((all x. (all y. P(x, y))) -> P(x, y)))",
+    },
+    // Step 5: MP(3, 4)
+    { _tag: "mp", leftIndex: 3, rightIndex: 4 },
+    // Step 6: MP(0, 5) = A → P(x,y)
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+
+    // Phase 2: Gen[x] + A5
+    // Step 7: Gen[x] on step 6
+    { _tag: "gen", premiseIndex: 6, variableName: "x" },
+    // Step 8: A5 — ∀x.(A→P(x,y)) → (A → ∀x.P(x,y))  [x∉FV(A)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. (all y. P(x, y))) -> P(x, y))) -> ((all x. (all y. P(x, y))) -> (all x. P(x, y)))",
+    },
+    // Step 9: MP(7, 8) = A → ∀x.P(x,y)
+    { _tag: "mp", leftIndex: 7, rightIndex: 8 },
+
+    // Phase 3: Gen[y] + A5
+    // Step 10: Gen[y] on step 9
+    { _tag: "gen", premiseIndex: 9, variableName: "y" },
+    // Step 11: A5 — ∀y.(A→∀x.P(x,y)) → (A → ∀y.∀x.P(x,y))  [y∉FV(A)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. ((all x. (all y. P(x, y))) -> (all x. P(x, y)))) -> ((all x. (all y. P(x, y))) -> (all y. (all x. P(x, y))))",
+    },
+    // Step 12: MP(10, 11) = A → ∀y.∀x.P(x,y) = Goal!
+    { _tag: "mp", leftIndex: 10, rightIndex: 11 },
+  ],
+};
+
+/**
+ * pred-adv-06: 全称から存在
+ *
+ * (∀x.P(x)) → (∃x.P(x))。
+ * ∃x.P(x) = ¬∀x.¬P(x) なので、定義展開でパーサーが処理。
+ * axiom ステップでゴール式テキストを直接配置。
+ */
+const predAdv06UniversalToExistential: ModelAnswer = {
+  questId: "pred-adv-06",
+  steps: [{ _tag: "axiom", formulaText: "(all x. P(x)) -> (ex x. P(x))" }],
+};
+
 // ============================================================
 // 自然演繹 (ND) — nd-basics
 // ============================================================
@@ -6243,6 +6325,8 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   predAdv02NegationOfExistence,
   predAdv03NegationOfUniversal,
   predAdv04ExistentialImplicationDistribution,
+  predAdv05QuantifierSwap,
+  predAdv06UniversalToExistential,
   // nd-basics
   nd01Identity,
   nd02KAxiom,

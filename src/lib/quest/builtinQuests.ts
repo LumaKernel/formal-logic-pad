@@ -1893,6 +1893,60 @@ const qPredAdv04ExistentialImplicationDistribution: QuestDefinition = {
   version: 1,
 };
 
+const qPredAdv05QuantifierSwap: QuestDefinition = {
+  id: "pred-adv-05",
+  category: "predicate-advanced",
+  title: "全称量化子の交換",
+  description:
+    "(∀x.∀y.P(x,y)) → (∀y.∀x.P(x,y)) を証明せよ。全称量化子の入れ替えが可能であることを示す。",
+  difficulty: 4,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "(all x. (all y. P(x, y))) -> (all y. (all x. P(x, y)))",
+      label: "Goal: (∀x.∀y.P(x,y)) → (∀y.∀x.P(x,y))",
+    },
+  ],
+  hints: [
+    "A4を2回使って∀x と ∀y を両方除去し、P(x,y) を取り出します。",
+    "Gen[x] で x を全称化し、A5 で含意の外に出します。",
+    "さらに Gen[y] で y を全称化し、A5 で含意の外に出します。",
+    "量化子の順序を入れ替える鍵は、Gen の適用順序です。",
+  ],
+  estimatedSteps: 13,
+  learningPoint:
+    "全称量化子は入れ替え可能。A4で除去→Genで逆順に再導入→A5で含意の外に出すパターン。",
+  order: 5,
+  version: 1,
+};
+
+const qPredAdv06UniversalToExistential: QuestDefinition = {
+  id: "pred-adv-06",
+  category: "predicate-advanced",
+  title: "全称から存在",
+  description:
+    "(∀x.P(x)) → (∃x.P(x)) を証明せよ。全称命題から存在命題への含意を示す。",
+  difficulty: 4,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "(all x. P(x)) -> (ex x. P(x))",
+      label: "Goal: (∀x.P(x)) → (∃x.P(x))",
+    },
+  ],
+  hints: [
+    "∃x.P(x) は ¬∀x.¬P(x) の略記です。",
+    "ゴールを定義展開すると (∀x.P(x)) → ¬(∀x.¬P(x)) になります。",
+    "A4 と A3 (対偶) を組み合わせて証明できます。",
+    "∀x.¬P(x) → ¬P(x) と ∀x.P(x) → P(x) から矛盾を導きます。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "全称命題は存在命題を含意する。∃x.P(x) = ¬∀x.¬P(x) の定義を理解する基本的な性質。",
+  order: 6,
+  version: 1,
+};
+
 // --- 自然演繹の基礎 ---
 
 const qNd01Identity: QuestDefinition = {
@@ -4000,6 +4054,8 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qPredAdv02NegationOfExistence,
   qPredAdv03NegationOfUniversal,
   qPredAdv04ExistentialImplicationDistribution,
+  qPredAdv05QuantifierSwap,
+  qPredAdv06UniversalToExistential,
   qNd01Identity,
   qNd02KAxiom,
   qNd03Contraposition,
