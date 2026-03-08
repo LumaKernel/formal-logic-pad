@@ -5159,6 +5159,120 @@ const qScCe10Distribution: QuestDefinition = {
   version: 1,
 };
 
+const qScCe11UniversalImplicationDistribution: QuestDefinition = {
+  id: "sc-ce-11",
+  category: "sc-cut-elimination",
+  title: "カットで ∀ の含意分配",
+  description:
+    "(∀x.(P(x) → Q(x))) → ((∀x.P(x)) → (∀x.Q(x))) をカット規則を使って証明せよ。∀E で個別インスタンスを取り出し、カットで含意と量化子を橋渡しする。カット除去で量化子規則がどう展開されるか観察しよう。",
+  difficulty: 3,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText:
+        "(all x. (P(x) -> Q(x))) -> ((all x. P(x)) -> (all x. Q(x)))",
+      label: "Goal: (∀x.(P(x)→Q(x))) → ((∀x.P(x)) → (∀x.Q(x)))",
+    },
+  ],
+  hints: [
+    "⇒→ を2回使い、∀x.(P(x) → Q(x)), ∀x.P(x) ⇒ ∀x.Q(x) に帰着します。",
+    "⇒∀ で右辺の ∀x.Q(x) を分解し、固有変数 ζ で ∀x.(P(x) → Q(x)), ∀x.P(x) ⇒ Q(ζ) にします。",
+    "∀⇒ で ∀x.P(x) を P(ζ) に、∀x.(P(x) → Q(x)) を P(ζ) → Q(ζ) にインスタンス化します。",
+    "カットを使う方法: P(ζ) を中間式として、∀x.P(x) ⇒ P(ζ) と P(ζ), P(ζ)→Q(ζ) ⇒ Q(ζ) をカットで合成。",
+    "カット除去ステッパーで、量化子インスタンスのカットがどう除去されるか観察しましょう。",
+  ],
+  estimatedSteps: 12,
+  learningPoint:
+    "∀ の含意分配は量化子版の Modus Ponens チェーン。カットを使うと「∀x.P(x) から P(ζ) を取り出す」補題を再利用できる。カット除去後は ∀⇒ が直接適用される形になり、量化子の透明性が見える。",
+  order: 11,
+  version: 1,
+};
+
+const qScCe12ExistentialTransitivity: QuestDefinition = {
+  id: "sc-ce-12",
+  category: "sc-cut-elimination",
+  title: "カットで ∃ の推移律",
+  description:
+    "(∀x.(P(x) → Q(x))) → ((∃x.P(x)) → (∃x.Q(x))) をカット規則を使って証明せよ。∀ の含意を ∃ に適用し、カットで量化子間の推移を実現する。",
+  difficulty: 3,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText:
+        "(all x. (P(x) -> Q(x))) -> ((exists x. P(x)) -> (exists x. Q(x)))",
+      label: "Goal: (∀x.(P(x)→Q(x))) → ((∃x.P(x)) → (∃x.Q(x)))",
+    },
+  ],
+  hints: [
+    "⇒→ を2回使い、∀x.(P(x) → Q(x)), ∃x.P(x) ⇒ ∃x.Q(x) に帰着します。",
+    "∃⇒ で左辺の ∃x.P(x) を固有変数 ζ で分解し、P(ζ), ∀x.(P(x)→Q(x)) ⇒ ∃x.Q(x) にします。",
+    "∀⇒ で ∀x.(P(x) → Q(x)) を P(ζ) → Q(ζ) にインスタンス化し、→⇒ で分解します。",
+    "⇒∃ で Q(ζ) から ∃x.Q(x) を構成します。",
+    "カットを使う方法: P(ζ)→Q(ζ) と P(ζ) をカットで合成して Q(ζ) を得る。",
+  ],
+  estimatedSteps: 14,
+  learningPoint:
+    "∃ の推移律は「すべての x で P(x)→Q(x) ならば、P を満たす x が存在すれば Q を満たす x も存在する」という自然な推論。カットは ∀⇒ で取り出した含意と ∃⇒ で取り出したインスタンスを橋渡しする。カット除去で量化子と含意のインスタンスが展開される過程を観察しよう。",
+  order: 12,
+  version: 1,
+};
+
+const qScCe13QuantifierDeMorgan: QuestDefinition = {
+  id: "sc-ce-13",
+  category: "sc-cut-elimination",
+  title: "カットで量化子のド・モルガン",
+  description:
+    "(∀x.¬P(x)) → ¬(∃x.P(x)) をカット規則を使って証明せよ。否定と量化子の変換にカットがどう関わるか体験する。",
+  difficulty: 3,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "(all x. ~P(x)) -> ~(exists x. P(x))",
+      label: "Goal: (∀x.¬P(x)) → ¬(∃x.P(x))",
+    },
+  ],
+  hints: [
+    "⇒→ で ∀x.¬P(x) ⇒ ¬(∃x.P(x)) に帰着します。",
+    "¬ は → ⊥ なので、⇒→ でさらに ∃x.P(x), ∀x.¬P(x) ⇒ ⊥ にします。",
+    "∃⇒ で ∃x.P(x) を固有変数 ζ で分解し、P(ζ), ∀x.¬P(x) ⇒ ⊥ にします。",
+    "∀⇒ で ∀x.¬P(x) を ¬P(ζ) にインスタンス化し、¬⇒ で分解します。",
+    "カットを使う方法: P(ζ) と ¬P(ζ) をカットで合成して ⊥ を導出。",
+  ],
+  estimatedSteps: 10,
+  learningPoint:
+    "量化子のド・モルガン（∀¬ → ¬∃）は否定と量化子の基本的な関係。カットは「∀⇒ で取り出した ¬P(ζ)」と「∃⇒ で取り出した P(ζ)」を媒介して矛盾を導く。カット除去後は否定と量化子の直接的な分解に変換される。",
+  order: 13,
+  version: 1,
+};
+
+const qScCe14QuantifierShift: QuestDefinition = {
+  id: "sc-ce-14",
+  category: "sc-cut-elimination",
+  title: "カットで量化子シフト",
+  description:
+    "(∀x.(P(x) → Q)) → ((∃x.P(x)) → Q) を証明せよ（Q に x は自由出現しない）。カット規則で ∀ と ∃ の相互作用を体験する。",
+  difficulty: 3,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "(all x. (P(x) -> Q)) -> ((exists x. P(x)) -> Q)",
+      label: "Goal: (∀x.(P(x)→Q)) → ((∃x.P(x)) → Q)",
+    },
+  ],
+  hints: [
+    "⇒→ を2回使い、∀x.(P(x)→Q), ∃x.P(x) ⇒ Q に帰着します。",
+    "∃⇒ で ∃x.P(x) を固有変数 ζ で分解し、P(ζ), ∀x.(P(x)→Q) ⇒ Q にします。",
+    "∀⇒ で ∀x.(P(x)→Q) を P(ζ)→Q にインスタンス化し、→⇒ で分解します。",
+    "カットを使う方法: P(ζ) を中間式として、P(ζ) ⇒ P(ζ)（Identity）と P(ζ)→Q の →⇒ をカットで合成。",
+    "カット除去ステッパーで量化子シフトのカットが除去される過程を観察しましょう。",
+  ],
+  estimatedSteps: 10,
+  learningPoint:
+    "量化子シフトは「すべての x で P(x)→Q ならば、ある x で P(x) ならば Q」という推論。Q に x が自由出現しないことが重要。カットは ∀ と ∃ の間の橋渡しをする。これは一階述語論理でのカット除去の典型的なパターンで、量化子が含意を跨いでシフトする構造を持つ。",
+  order: 14,
+  version: 1,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -5358,4 +5472,8 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qScCe08Contraposition,
   qScCe09DisjunctionElimination,
   qScCe10Distribution,
+  qScCe11UniversalImplicationDistribution,
+  qScCe12ExistentialTransitivity,
+  qScCe13QuantifierDeMorgan,
+  qScCe14QuantifierShift,
 ];

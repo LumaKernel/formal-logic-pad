@@ -7697,6 +7697,48 @@ const sc_ce10Distribution: ModelAnswer = {
   ],
 };
 
+const sc_ce11UniversalImplDistrib: ModelAnswer = {
+  questId: "sc-ce-11",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. (P(x) -> Q(x))) -> ((all x. P(x)) -> (all x. Q(x)))",
+    },
+  ],
+};
+
+const sc_ce12ExistentialTransitivity: ModelAnswer = {
+  questId: "sc-ce-12",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. (P(x) -> Q(x))) -> ((exists x. P(x)) -> (exists x. Q(x)))",
+    },
+  ],
+};
+
+const sc_ce13QuantifierDeMorgan: ModelAnswer = {
+  questId: "sc-ce-13",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(all x. ~P(x)) -> ~(exists x. P(x))",
+    },
+  ],
+};
+
+const sc_ce14QuantifierShift: ModelAnswer = {
+  questId: "sc-ce-14",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(all x. (P(x) -> Q)) -> ((exists x. P(x)) -> Q)",
+    },
+  ],
+};
+
 // --- レジストリ ---
 
 /** 全ビルトイン模範解答 */
@@ -7914,6 +7956,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   sc_ce08Contraposition,
   sc_ce09DisjElimination,
   sc_ce10Distribution,
+  sc_ce11UniversalImplDistrib,
+  sc_ce12ExistentialTransitivity,
+  sc_ce13QuantifierDeMorgan,
+  sc_ce14QuantifierShift,
 ];
 
 /** QuestId → ModelAnswer のマップ */
