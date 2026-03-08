@@ -5451,6 +5451,36 @@ const sc14LjDisjElim: ModelAnswer = {
   ],
 };
 
+const sc15LjConjElim: ModelAnswer = {
+  questId: "sc-15",
+  steps: [{ _tag: "axiom", formulaText: "(phi /\\ psi) -> phi" }],
+};
+
+const sc16LjConjCommute: ModelAnswer = {
+  questId: "sc-16",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi /\\ psi) -> (psi /\\ phi)",
+    },
+  ],
+};
+
+const sc17LjImplicationTransitivity: ModelAnswer = {
+  questId: "sc-17",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
+    },
+  ],
+};
+
+const sc18LjBottomNegation: ModelAnswer = {
+  questId: "sc-18",
+  steps: [{ _tag: "axiom", formulaText: "(phi -> ⊥) -> (phi -> psi)" }],
+};
+
 // ============================================================
 // シーケント計算カット除去 (SC-CE) — sc-cut-elimination
 // ============================================================
@@ -5981,6 +6011,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   sc12LjExFalso,
   sc13LjContraposition,
   sc14LjDisjElim,
+  sc15LjConjElim,
+  sc16LjConjCommute,
+  sc17LjImplicationTransitivity,
+  sc18LjBottomNegation,
   // sc-cut-elimination
   sc_ce01Transitivity,
   sc_ce02ModusPonens,

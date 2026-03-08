@@ -3216,6 +3216,110 @@ const qSc14LjDisjElim: QuestDefinition = {
   version: 1,
 };
 
+const qSc15LjConjElim: QuestDefinition = {
+  id: "sc-15",
+  category: "sc-basics",
+  title: "LJ: 連言除去",
+  description:
+    "(φ ∧ ψ) → φ をLJ体系で証明せよ。∧⇒（連言左）規則で連言を分解する基本操作。",
+  difficulty: 1,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "(phi /\\ psi) -> phi",
+      label: "Goal: (φ ∧ ψ) → φ",
+    },
+  ],
+  hints: [
+    "⇒→ 規則で φ ∧ ψ ⇒ φ に帰着します。",
+    "∧⇒ 規則で φ ∧ ψ を分解: φ, ψ ⇒ φ になります。",
+    "φ ⇒ φ は Identity、ψ は左弱化（weakening-left）で除去できます。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "∧⇒（連言左）規則は連言を前件から分解する基本操作。分解後に不要な成分は弱化で除去する。",
+  order: 15,
+  version: 1,
+};
+
+const qSc16LjConjCommute: QuestDefinition = {
+  id: "sc-16",
+  category: "sc-basics",
+  title: "LJ: 連言の可換性",
+  description:
+    "(φ ∧ ψ) → (ψ ∧ φ) をLJ体系で証明せよ。連言の左右を入れ替える。∧⇒ と ⇒∧ の組み合わせ。",
+  difficulty: 2,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "(phi /\\ psi) -> (psi /\\ phi)",
+      label: "Goal: (φ ∧ ψ) → (ψ ∧ φ)",
+    },
+  ],
+  hints: [
+    "⇒→ 規則で φ ∧ ψ ⇒ ψ ∧ φ に帰着します。",
+    "⇒∧ 規則で右辺の ψ ∧ φ を分解: φ ∧ ψ ⇒ ψ と φ ∧ ψ ⇒ φ の2つの前提。",
+    "各前提で ∧⇒ 規則を使って φ ∧ ψ を分解し、Identity と弱化で閉じます。",
+  ],
+  estimatedSteps: 6,
+  learningPoint:
+    "連言の可換性は ∧⇒（分解）と ⇒∧（導入）の組み合わせで証明する典型例。LJでも問題なく証明可能。",
+  order: 16,
+  version: 1,
+};
+
+const qSc17LjImplicationTransitivity: QuestDefinition = {
+  id: "sc-17",
+  category: "sc-basics",
+  title: "LJ: 含意の推移律",
+  description:
+    "(φ → ψ) → ((ψ → χ) → (φ → χ)) をLJ体系で証明せよ。含意の推移性は直観主義論理の基本定理。",
+  difficulty: 2,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
+      label: "Goal: (φ → ψ) → ((ψ → χ) → (φ → χ))",
+    },
+  ],
+  hints: [
+    "⇒→ を3回使い、φ → ψ, ψ → χ, φ ⇒ χ に帰着します。",
+    "→⇒ 規則で φ → ψ を分解: φ ⇒ φ と ψ, ψ → χ, ... ⇒ χ に分岐。",
+    "ψ, ψ → χ ⇒ χ は →⇒ + Identity で閉じます。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "含意の推移律は直観主義論理でも成立する基本定理。→⇒ 規則の繰り返し適用で証明できる。",
+  order: 17,
+  version: 1,
+};
+
+const qSc18LjBottomNegation: QuestDefinition = {
+  id: "sc-18",
+  category: "sc-basics",
+  title: "LJ: 矛盾からの否定帰結",
+  description:
+    "(φ → ⊥) → (φ → ψ) をLJ体系で証明せよ。¬φ（= φ → ⊥）から任意の帰結を導く。直観主義論理における否定の性質。",
+  difficulty: 2,
+  systemPresetId: "sc-lj",
+  goals: [
+    {
+      formulaText: "(phi -> ⊥) -> (phi -> psi)",
+      label: "Goal: (φ → ⊥) → (φ → ψ)",
+    },
+  ],
+  hints: [
+    "⇒→ を2回使い、φ → ⊥, φ ⇒ ψ に帰着します。",
+    "→⇒ 規則で φ → ⊥ を分解: φ ⇒ φ と ⊥, ... ⇒ ψ に分岐。",
+    "⊥⇒ 規則で ⊥ から任意の結論を導けます。",
+  ],
+  estimatedSteps: 4,
+  learningPoint:
+    "φ → ⊥ は否定 ¬φ のシーケント計算における表現。⊥⇒ 規則と →⇒ を組み合わせると、否定から爆発原理が導ける。",
+  order: 18,
+  version: 1,
+};
+
 // --- カット除去体験クエスト ---
 
 const qScCe01CutBasic: QuestDefinition = {
@@ -3511,6 +3615,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qSc12LjExFalso,
   qSc13LjContraposition,
   qSc14LjDisjElim,
+  qSc15LjConjElim,
+  qSc16LjConjCommute,
+  qSc17LjImplicationTransitivity,
+  qSc18LjBottomNegation,
   qScCe01CutBasic,
   qScCe02CutModusPonens,
   qScCe03CutConjunctionCommute,
