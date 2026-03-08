@@ -5548,6 +5548,251 @@ const tab10HypotheticalSyllogism: ModelAnswer = {
   ],
 };
 
+/**
+ * tab-11: 二重否定導入の反駁 ¬(φ → ¬¬φ)
+ *
+ * ¬→ → ¬¬ → BS
+ * 0. Root: ¬(φ → ¬¬φ)
+ * 1. ¬→: φ, ¬(¬¬φ), ¬(φ→¬¬φ)
+ * 2. ¬¬ on ¬¬¬φ: ¬φ, ¬¬¬φ, φ, ¬(φ→¬¬φ)
+ * 3. BS: φ と ¬φ
+ */
+const tab11DoubleNegationIntro: ModelAnswer = {
+  questId: "tab-11",
+  steps: [
+    { _tag: "tab-root", sequentText: "~(phi -> ~~phi)" },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "double-negation",
+      principalPosition: 1,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-12: 爆発律の反駁 ¬(¬φ → (φ → ψ))
+ *
+ * ¬→ × 2 → BS
+ * 0. Root: ¬(¬φ → (φ → ψ))
+ * 1. ¬→: ¬φ, ¬(φ→ψ), ¬(¬φ→(φ→ψ))
+ * 2. ¬→ on ¬(φ→ψ): φ, ¬ψ, ¬(φ→ψ), ¬φ, ¬(¬φ→(φ→ψ))
+ * 3. BS: φ と ¬φ
+ */
+const tab12ExFalso: ModelAnswer = {
+  questId: "tab-12",
+  steps: [
+    { _tag: "tab-root", sequentText: "~(~phi -> (phi -> psi))" },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "neg-implication",
+      principalPosition: 1,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-13: ド・モルガン逆方向 ¬((¬φ ∨ ¬ψ) → ¬(φ ∧ ψ))
+ *
+ * ¬→ → ¬¬ → ∧ → ∨ (分岐) → 各枝 BS
+ * 0. Root: ¬((¬φ∨¬ψ) → ¬(φ∧ψ))
+ * 1. ¬→: ¬φ∨¬ψ, ¬¬(φ∧ψ), ¬(orig)
+ * 2. ¬¬: φ∧ψ, ¬¬(φ∧ψ), ¬φ∨¬ψ, ¬(orig)
+ * 3. ∧: φ, ψ, φ∧ψ, ¬¬(φ∧ψ), ¬φ∨¬ψ, ¬(orig)
+ * 4. ∨ 分岐: 左=¬φ枝, 右=¬ψ枝
+ * 5. BS左: ¬φ と φ
+ * 6. BS右: ¬ψ と ψ
+ */
+const tab13DeMorgan3: ModelAnswer = {
+  questId: "tab-13",
+  steps: [
+    {
+      _tag: "tab-root",
+      sequentText: "~((~phi \\/ ~psi) -> ~(phi /\\ psi))",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "double-negation",
+      principalPosition: 1,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "conjunction",
+      principalPosition: 0,
+    },
+    // ∨ 分岐: stepNodeIds[4]=left, stepNodeIds[5]=right
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "disjunction",
+      principalPosition: 4,
+    },
+    // 左枝: BS (¬φ と φ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // 右枝: BS (¬ψ と ψ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 5,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-14: 含意と連言の分配 ¬((φ→(ψ∧χ)) → ((φ→ψ)∧(φ→χ)))
+ *
+ * ¬→ → ¬∧ (分岐) → 各枝 ¬→ → → (分岐) → BS / ∧ → BS
+ * 0. Root: ¬((φ→(ψ∧χ))→((φ→ψ)∧(φ→χ)))
+ * 1. ¬→: φ→(ψ∧χ), ¬((φ→ψ)∧(φ→χ)), ¬(orig)
+ * 2. ¬∧ 分岐: 左=¬(φ→ψ)枝, 右=¬(φ→χ)枝
+ *
+ * 左枝:
+ * 3. ¬→ on ¬(φ→ψ): φ, ¬ψ, ¬(φ→ψ), ...
+ * 4. → on φ→(ψ∧χ) 分岐: 左=¬φ, 右=ψ∧χ
+ * 5. BS左: ¬φ と φ
+ * 6. ∧右: ψ, χ, ...
+ * 7. BS: ψ と ¬ψ
+ *
+ * 右枝:
+ * 8. ¬→ on ¬(φ→χ): φ, ¬χ, ¬(φ→χ), ...
+ * 9. → on φ→(ψ∧χ) 分岐: 左=¬φ, 右=ψ∧χ
+ * 10. BS左: ¬φ と φ
+ * 11. ∧右: ψ, χ, ...
+ * 12. BS: χ と ¬χ
+ */
+const tab14ImplicationConjDistrib: ModelAnswer = {
+  questId: "tab-14",
+  steps: [
+    {
+      _tag: "tab-root",
+      sequentText:
+        "~((phi -> (psi /\\ chi)) -> ((phi -> psi) /\\ (phi -> chi)))",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    // ¬∧ 分岐: stepNodeIds[2]=left(¬(φ→ψ)), stepNodeIds[3]=right(¬(φ→χ))
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "neg-conjunction",
+      principalPosition: 1,
+    },
+    // --- 左枝: ¬(φ→ψ) ---
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    // → on φ→(ψ∧χ) 分岐: stepNodeIds[5]=left(¬φ), stepNodeIds[6]=right(ψ∧χ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "implication",
+      principalPosition: 4,
+    },
+    // BS左: ¬φ と φ
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 5,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // ∧右: ψ∧χ を分解
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 6,
+      ruleId: "conjunction",
+      principalPosition: 0,
+    },
+    // BS: ψ と ¬ψ (sNI[8] → sNI[9])
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 8,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // --- 右枝: ¬(φ→χ) --- (sNI[3] → sNI[10])
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    // → on φ→(ψ∧χ) 分岐: sNI[11]=left(¬φ), sNI[12]=right(ψ∧χ)
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 10,
+      ruleId: "implication",
+      principalPosition: 4,
+    },
+    // BS左: ¬φ と φ (sNI[11] → sNI[13])
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 11,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // ∧右: ψ∧χ を分解 (sNI[12] → sNI[14])
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 12,
+      ruleId: "conjunction",
+      principalPosition: 0,
+    },
+    // BS: χ と ¬χ (sNI[14] → sNI[15])
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 14,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
 // ============================================================
 // 分析的タブロー (AT) — at-basics
 // ATステップタイプ追加後にリッチな模範解答（実際のタブロー展開）に更新予定。
@@ -6364,6 +6609,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   tab08DisjunctionCommute,
   tab09ModusTollens,
   tab10HypotheticalSyllogism,
+  tab11DoubleNegationIntro,
+  tab12ExFalso,
+  tab13DeMorgan3,
+  tab14ImplicationConjDistrib,
   // at-basics (axiom直接配置 — ATステップタイプ追加後にリッチな模範解答に更新予定)
   at01ExcludedMiddle,
   at02Implication,
