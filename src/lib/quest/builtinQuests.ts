@@ -3659,6 +3659,116 @@ const qAt11DeMorgan2: QuestDefinition = {
   version: 1,
 };
 
+const qAt12ImplicationDeMorgan: QuestDefinition = {
+  id: "at-12",
+  category: "at-basics",
+  title: "含意のド・モルガン (α規則)",
+  description:
+    "F:¬(φ → ψ) → (φ ∧ ¬ψ) をルートに配置し、全枝を閉じて ¬(φ → ψ) → (φ ∧ ¬ψ) を証明せよ。α規則のみで完結する。",
+  difficulty: 1,
+  systemPresetId: "at",
+  goals: [
+    {
+      formulaText: "~(phi -> psi) -> (phi /\\ ~psi)",
+      label: "Goal: ¬(φ → ψ) → (φ ∧ ¬ψ)",
+    },
+  ],
+  hints: [
+    "F(¬(φ → ψ) → (φ ∧ ¬ψ)) をルートに配置しましょう（テキスト: F:~(phi -> psi) -> (phi /\\ ~psi)）。",
+    "F→ で T(¬(φ → ψ)) と F(φ ∧ ¬ψ) を得ます。",
+    "T¬ で T(¬(φ → ψ)) から F(φ → ψ) を得ます。F→（α規則）で T(φ) と F(ψ) を得ます。",
+    "F∧（β規則）で F(φ) と F(¬ψ) に分岐。F(φ) は T(φ) と矛盾。F¬ で F(¬ψ) → T(ψ) → F(ψ) と矛盾。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "¬(φ → ψ) はα規則の連鎖で T(φ) と F(ψ) に分解できる。F∧ のβ規則（分岐）だけが唯一の分岐点。",
+  order: 12,
+  version: 1,
+};
+
+const qAt13DoubleNegationIntro: QuestDefinition = {
+  id: "at-13",
+  category: "at-basics",
+  title: "二重否定導入 (α規則)",
+  description:
+    "F:φ → ¬¬φ をルートに配置し、全枝を閉じて φ → ¬¬φ を証明せよ。否定のα規則を使う。",
+  difficulty: 1,
+  systemPresetId: "at",
+  goals: [
+    {
+      formulaText: "phi -> ~~phi",
+      label: "Goal: φ → ¬¬φ",
+    },
+  ],
+  hints: [
+    "F(φ → ¬¬φ) をルートに配置しましょう（テキスト: F:phi -> ~~phi）。",
+    "F→ で T(φ) と F(¬¬φ) を得ます。",
+    "F¬ で F(¬¬φ) → T(¬φ) を得ます。T¬ で T(¬φ) → F(φ) を得ます。",
+    "T(φ) と F(φ) で closure。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "二重否定導入はF¬ → T¬ の2段階α規則で処理できる。at-03（二重否定除去）と対になる基本パターン。",
+  order: 13,
+  version: 1,
+};
+
+const qAt14ImplicationDisjunction: QuestDefinition = {
+  id: "at-14",
+  category: "at-basics",
+  title: "含意と選言の変換 (β規則)",
+  description:
+    "F:(φ → ψ) → (¬φ ∨ ψ) をルートに配置し、全枝を閉じて含意から選言への変換を証明せよ。T→のβ規則が鍵。",
+  difficulty: 2,
+  systemPresetId: "at",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> (~phi \\/ psi)",
+      label: "Goal: (φ → ψ) → (¬φ ∨ ψ)",
+    },
+  ],
+  hints: [
+    "F((φ → ψ) → (¬φ ∨ ψ)) をルートに配置しましょう。",
+    "F→ で T(φ → ψ) と F(¬φ ∨ ψ) を得ます。",
+    "F∨（α規則）で F(¬φ) と F(ψ) を得ます。F¬ で F(¬φ) → T(φ) を得ます。",
+    "T(φ → ψ) にβ規則（T→）を適用: F(φ) と T(ψ) に分岐。",
+    "F(φ) は T(φ) と矛盾。T(ψ) は F(ψ) と矛盾。全枝閉じる。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "含意 φ → ψ は ¬φ ∨ ψ と同値。T→ のβ規則で F(前件)/T(後件) に分岐するのは、この同値性を反映している。",
+  order: 14,
+  version: 1,
+};
+
+const qAt15PeirceLaw: QuestDefinition = {
+  id: "at-15",
+  category: "at-basics",
+  title: "ピアースの法則 (複合β規則)",
+  description:
+    "F:((φ → ψ) → φ) → φ をルートに配置し、全枝を閉じてピアースの法則を証明せよ。T→のβ規則を2回適用する。",
+  difficulty: 3,
+  systemPresetId: "at",
+  goals: [
+    {
+      formulaText: "((phi -> psi) -> phi) -> phi",
+      label: "Goal: ((φ → ψ) → φ) → φ",
+    },
+  ],
+  hints: [
+    "F(((φ → ψ) → φ) → φ) をルートに配置しましょう（テキスト: F:((phi -> psi) -> phi) -> phi）。",
+    "F→ で T((φ → ψ) → φ) と F(φ) を得ます。",
+    "T((φ → ψ) → φ) にβ規則（T→）を適用: F(φ → ψ) と T(φ) に分岐。",
+    "T(φ) の枝は F(φ) と矛盾で closure。",
+    "F(φ → ψ) の枝にα規則（F→）を適用: T(φ) と F(ψ) を得ます。T(φ) は F(φ) と矛盾で closure。",
+  ],
+  estimatedSteps: 4,
+  learningPoint:
+    "ピアースの法則は古典論理固有のトートロジー。タブローでは T→ のβ規則1つで2枝に分かれ、各枝が短く閉じる。Hilbert系やNDでは複雑な証明が必要だが、タブローでは効率的。",
+  order: 15,
+  version: 1,
+};
+
 // --- SCクエスト: シーケント計算の基礎 ---
 
 const qSc01Identity: QuestDefinition = {
@@ -4976,6 +5086,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qAt09DisjunctionCommute,
   qAt10Transitivity,
   qAt11DeMorgan2,
+  qAt12ImplicationDeMorgan,
+  qAt13DoubleNegationIntro,
+  qAt14ImplicationDisjunction,
+  qAt15PeirceLaw,
   qSc01Identity,
   qSc02WeakeningLeft,
   qSc03ContractionLeft,

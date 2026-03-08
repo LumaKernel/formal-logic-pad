@@ -6434,6 +6434,36 @@ const at11DeMorgan2: ModelAnswer = {
   steps: [{ _tag: "axiom", formulaText: "~(phi \\/ psi) -> (~phi /\\ ~psi)" }],
 };
 
+const at12ImplicationDeMorgan: ModelAnswer = {
+  questId: "at-12",
+  steps: [{ _tag: "axiom", formulaText: "~(phi -> psi) -> (phi /\\ ~psi)" }],
+};
+
+const at13DoubleNegationIntro: ModelAnswer = {
+  questId: "at-13",
+  steps: [{ _tag: "axiom", formulaText: "phi -> ~~phi" }],
+};
+
+const at14ImplicationDisjunction: ModelAnswer = {
+  questId: "at-14",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> psi) -> (~phi \\/ psi)",
+    },
+  ],
+};
+
+const at15PeirceLaw: ModelAnswer = {
+  questId: "at-15",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "((phi -> psi) -> phi) -> phi",
+    },
+  ],
+};
+
 // ============================================================
 // シーケント計算 (SC) — sc-basics
 // SCステップタイプ追加後にリッチな模範解答に更新予定。
@@ -7312,6 +7342,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   at09DisjunctionCommute,
   at10Transitivity,
   at11DeMorgan2,
+  at12ImplicationDeMorgan,
+  at13DoubleNegationIntro,
+  at14ImplicationDisjunction,
+  at15PeirceLaw,
   // sc-basics (axiom直接配置 — SCステップタイプ追加後にリッチな模範解答に更新予定)
   sc01Identity,
   sc02WeakeningLeft,
