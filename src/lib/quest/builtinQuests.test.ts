@@ -6,8 +6,8 @@ import { findPresetById } from "../notebook/notebookCreateLogic";
 import { parseString } from "../logic-lang/parser";
 
 describe("builtinQuests", () => {
-  it("クエスト数が137個である", () => {
-    expect(builtinQuests).toHaveLength(137);
+  it("クエスト数が141個である", () => {
+    expect(builtinQuests).toHaveLength(141);
   });
 
   it("全IDが一意である", () => {
