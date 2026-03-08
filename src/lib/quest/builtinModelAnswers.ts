@@ -4117,6 +4117,98 @@ const group08InverseIdentity: ModelAnswer = {
   ],
 };
 
+/**
+ * group-09: (a * b) * c = a * (b * c)
+ *
+ * G1 + A4(x→a) + MP + A4(y→b) + MP + A4(z→c) + MP。7ステップ。
+ * 0. G1: ∀x.∀y.∀z. (x*y)*z = x*(y*z)
+ * 1. A4[x→a]: (∀x.∀y.∀z. ...) → ∀y.∀z. (a*y)*z = a*(y*z)
+ * 2. MP(0,1): ∀y.∀z. (a*y)*z = a*(y*z)
+ * 3. A4[y→b]: (∀y.∀z. ...) → ∀z. (a*b)*z = a*(b*z)
+ * 4. MP(2,3): ∀z. (a*b)*z = a*(b*z)
+ * 5. A4[z→c]: (∀z. ...) → (a*b)*c = a*(b*c)
+ * 6. MP(4,5): (a*b)*c = a*(b*c)
+ */
+const group09AssociativityInstance: ModelAnswer = {
+  questId: "group-09",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "all x. all y. all z. (x * y) * z = x * (y * z)",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. all z. (x * y) * z = x * (y * z)) -> all y. all z. (a * y) * z = a * (y * z)",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. all z. (a * y) * z = a * (y * z)) -> all z. (a * b) * z = a * (b * z)",
+    },
+    { _tag: "mp", leftIndex: 2, rightIndex: 3 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all z. (a * b) * z = a * (b * z)) -> (a * b) * c = a * (b * c)",
+    },
+    { _tag: "mp", leftIndex: 4, rightIndex: 5 },
+  ],
+};
+
+/**
+ * group-10: a * i(a) = e
+ *
+ * G3R + A4(x→a) + MP。3ステップ。
+ * 0. G3R: ∀x. x * i(x) = e
+ * 1. A4[x→a]: (∀x. x*i(x)=e) → a*i(a)=e
+ * 2. MP(0,1): a * i(a) = e
+ */
+const group10RightInverseInstance: ModelAnswer = {
+  questId: "group-10",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. x * i(x) = e" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. x * i(x) = e) -> a * i(a) = e",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * group-11: a * b = b * a
+ *
+ * G4 + A4(x→a) + MP + A4(y→b) + MP。5ステップ。
+ * 0. G4: ∀x.∀y. x * y = y * x
+ * 1. A4[x→a]: (∀x.∀y. x*y=y*x) → ∀y. a*y=y*a
+ * 2. MP(0,1): ∀y. a * y = y * a
+ * 3. A4[y→b]: (∀y. a*y=y*a) → a*b=b*a
+ * 4. MP(2,3): a * b = b * a
+ */
+const group11CommutativityInstance: ModelAnswer = {
+  questId: "group-11",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. x * y = y * x",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. x * y = y * x) -> all y. a * y = y * a",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    {
+      _tag: "axiom",
+      formulaText: "(all y. a * y = y * a) -> a * b = b * a",
+    },
+    { _tag: "mp", leftIndex: 2, rightIndex: 3 },
+  ],
+};
+
 // ============================================================
 // predicate-basics: 述語論理の基礎（A1-A5 + MP + Gen）
 // A4: (∀x.φ) → φ[t/x]
@@ -5790,6 +5882,9 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   // group-proofs
   group07IdentityTimesIdentity,
   group08InverseIdentity,
+  group09AssociativityInstance,
+  group10RightInverseInstance,
+  group11CommutativityInstance,
   // predicate-basics
   pred01UniversalElim,
   pred02IdentityQuantified,

@@ -1545,6 +1545,84 @@ const qG08InverseIdentity: QuestDefinition = {
   version: 1,
 };
 
+const qG09AssociativityInstance: QuestDefinition = {
+  id: "group-09",
+  category: "group-proofs",
+  title: "(a·b)·c = a·(b·c)",
+  description:
+    "結合律G1の具体的なインスタンスを導出せよ。∀x.∀y.∀z形式の3変数全称量化子を段階的に消去する。",
+  difficulty: 3,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "(a * b) * c = a * (b * c)",
+      label: "Goal: (a·b)·c = a·(b·c)",
+    },
+  ],
+  hints: [
+    "G1: ∀x.∀y.∀z. (x*y)*z = x*(y*z) を配置します。",
+    "A4を3回使って、x→a, y→b, z→c の順に全称量化子を消去します。",
+    "手順: G1 → A4[x→a] → MP → A4[y→b] → MP → A4[z→c] → MP",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "多変数の全称量化子は外側から順にA4+MPで消去する。3段階の∀消去は等号推移律（E3）と同じパターン。",
+  order: 3,
+  version: 1,
+};
+
+const qG10RightInverseInstance: QuestDefinition = {
+  id: "group-10",
+  category: "group-proofs",
+  title: "a·i(a) = e",
+  description:
+    "右逆元公理G3Rの具体的なインスタンスを導出せよ。∀消去で特定の元aに適用する。",
+  difficulty: 2,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "a * i(a) = e",
+      label: "Goal: a·i(a) = e",
+    },
+  ],
+  hints: [
+    "G3R: ∀x. x * i(x) = e を使います。xをaに代入します。",
+    "A4（∀消去）で∀x.φ(x) から φ(a) を導出します。",
+    "手順: G3R(公理) → A4インスタンス((∀x. x*i(x)=e) → a*i(a)=e) → MP",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "G3L（左逆元: i(x)*x=e）とG3R（右逆元: x*i(x)=e）は群論の両側公理系で対称的。∀消去パターンはgroup-07/08と同一。",
+  order: 4,
+  version: 1,
+};
+
+const qG11CommutativityInstance: QuestDefinition = {
+  id: "group-11",
+  category: "group-proofs",
+  title: "a·b = b·a",
+  description:
+    "アーベル群の可換律G4の具体的なインスタンスを導出せよ。2変数の全称量化子を段階的に消去する。",
+  difficulty: 2,
+  systemPresetId: "abelian-group",
+  goals: [
+    {
+      formulaText: "a * b = b * a",
+      label: "Goal: a·b = b·a",
+    },
+  ],
+  hints: [
+    "G4: ∀x.∀y. x * y = y * x を配置します。",
+    "A4を2回使って、x→a, y→b の順に全称量化子を消去します。",
+    "手順: G4 → A4[x→a] → MP → A4[y→b] → MP",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "2段階の∀消去は対称律（E2）と同じパターン。アーベル群は通常の群公理に可換律G4を追加した体系。",
+  order: 5,
+  version: 1,
+};
+
 // --- 述語論理の基礎 ---
 
 const qPred01UniversalElim: QuestDefinition = {
@@ -3266,6 +3344,9 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qG06Commutativity,
   qG07IdentityTimesIdentity,
   qG08InverseIdentity,
+  qG09AssociativityInstance,
+  qG10RightInverseInstance,
+  qG11CommutativityInstance,
   qPred01UniversalElim,
   qPred02IdentityQuantified,
   qPred03UniversalSwap,
