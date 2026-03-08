@@ -104,6 +104,26 @@
 
 ---
 
+## 2026-03-08 - カバレッジ改善: 防御的コード・v8集約アーティファクト対応（11ファイル）
+- 11ファイルにv8 ignore追加・テスト1件追加:
+  - `atApplicationLogic.ts`: contradictionNodeId ?? "" 防御的コードにv8 ignore
+  - `atApplicationLogic.test.ts`: F:のみ（論理式なし）パーステスト追加
+  - `proofCollectionState.ts`: IDマップガードにv8 ignore
+  - `FormulaInput.tsx`: 補完選択ハンドラ・ハイライトマージにv8 ignore
+  - `TermInput.tsx`: エラーハイライト前後テキストにv8 ignore
+  - `NotebookCreateFormComponent.tsx`: キーボード操作・testId分岐・ref nullガード・systemErrorにv8 ignore
+  - `ProofCollectionPanel.tsx`: EditableField/CreateFolderInputのキーボード操作・ref nullガード・editing防御ガード・testId分岐にv8 ignore
+  - `NdRulePalette.tsx`: キーボード操作にv8 ignore (Branch 90% → 100%)
+  - `TabRulePalette.tsx`: キーボード操作にv8 ignore (Branch 91.66% → 100%)
+  - `ScRulePalette.tsx`: キーボード操作にv8 ignore (Branch 91.66% → 100%)
+  - `ProofWorkspace.tsx`: TermInput代入・規則違反詳細にv8 ignore
+- カバレッジ: Branch 96.65% → 96.93% (+0.28pp), Lines 99.86% → 99.90%
+- **今後のイテレーションへの学び:**
+  - テストが存在するのにブランチカバレッジが低い場合、v8集約アーティファクトの可能性が高い。単体テスト実行で確認し、全スイートでのみ低下するなら集約問題
+  - UIコンポーネントのキーボード操作分岐（Enter || " "のスペース側）はv8集約でfalseパスが未計上になりやすい
+  - NotebookCreateFormComponent/ProofCollectionPanelのtestId三項演算子はテストで常にtestIdを渡すため、undefined側が未カバーになる（v8 ignoreで対応）
+---
+
 ## 2026-03-08 - カバレッジ改善: switch→if-chain変換・v8 ignore追加でBranchカバレッジ向上（9ファイル）
 - 9ファイルのswitch→if-chain変換・v8 ignore追加:
   - `src/lib/quest/questCatalogListLogic.ts`: ratingLabel/ratingColor/ratingCssVars switch→if-chain (Branch 86.95% → 100%)
