@@ -567,4 +567,50 @@ describe("CustomQuestListComponent", () => {
       expect(hoveredBg).not.toBe(normalBg);
     });
   });
+
+  describe("空状態表示", () => {
+    it("アイテムが空で作成・インポート中でなければ空メッセージが表示される", () => {
+      render(<CustomQuestList items={[]} onStartQuest={vi.fn()} />);
+
+      expect(screen.getByTestId("custom-quest-list-empty")).toBeInTheDocument();
+    });
+
+    it("アイテムが空でも作成中なら空メッセージは表示されない", () => {
+      const onCreateQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={[]}
+          onStartQuest={vi.fn()}
+          onCreateQuest={onCreateQuest}
+        />,
+      );
+
+      // 作成ボタンをクリックして作成モードに入る
+      fireEvent.click(screen.getByTestId("custom-quest-create-btn"));
+
+      // 空メッセージは非表示
+      expect(
+        screen.queryByTestId("custom-quest-list-empty"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("アイテムが空でもインポート中なら空メッセージは表示されない", () => {
+      const onImportQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={[]}
+          onStartQuest={vi.fn()}
+          onImportQuest={onImportQuest}
+        />,
+      );
+
+      // インポートボタンをクリックしてインポートモードに入る
+      fireEvent.click(screen.getByTestId("custom-quest-import-btn"));
+
+      // 空メッセージは非表示
+      expect(
+        screen.queryByTestId("custom-quest-list-empty"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });
