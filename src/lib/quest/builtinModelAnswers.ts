@@ -6992,8 +6992,7 @@ const at17UniversalImplicationDistribution: ModelAnswer = {
   steps: [
     {
       _tag: "axiom",
-      formulaText:
-        "all x. (P(x) -> Q(x)) -> (all x. P(x) -> all x. Q(x))",
+      formulaText: "all x. (P(x) -> Q(x)) -> (all x. P(x) -> all x. Q(x))",
     },
   ],
 };
@@ -7003,8 +7002,7 @@ const at18UniversalConjunctionDistribution: ModelAnswer = {
   steps: [
     {
       _tag: "axiom",
-      formulaText:
-        "all x. (P(x) /\\ Q(x)) -> (all x. P(x) /\\ all x. Q(x))",
+      formulaText: "all x. (P(x) /\\ Q(x)) -> (all x. P(x) /\\ all x. Q(x))",
     },
   ],
 };
@@ -7014,8 +7012,7 @@ const at19ExistentialDisjunctionConverse: ModelAnswer = {
   steps: [
     {
       _tag: "axiom",
-      formulaText:
-        "(ex x. P(x) \\/ ex x. Q(x)) -> ex x. (P(x) \\/ Q(x))",
+      formulaText: "(ex x. P(x) \\/ ex x. Q(x)) -> ex x. (P(x) \\/ Q(x))",
     },
   ],
 };

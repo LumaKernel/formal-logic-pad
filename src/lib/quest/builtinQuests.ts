@@ -4024,8 +4024,7 @@ const qAt17UniversalImplicationDistribution: QuestDefinition = {
   systemPresetId: "at",
   goals: [
     {
-      formulaText:
-        "all x. (P(x) -> Q(x)) -> (all x. P(x) -> all x. Q(x))",
+      formulaText: "all x. (P(x) -> Q(x)) -> (all x. P(x) -> all x. Q(x))",
       label: "Goal: ∀x.(P(x)→Q(x)) → (∀x.P(x) → ∀x.Q(x))",
     },
   ],
@@ -4054,8 +4053,7 @@ const qAt18UniversalConjunctionDistribution: QuestDefinition = {
   systemPresetId: "at",
   goals: [
     {
-      formulaText:
-        "all x. (P(x) /\\ Q(x)) -> (all x. P(x) /\\ all x. Q(x))",
+      formulaText: "all x. (P(x) /\\ Q(x)) -> (all x. P(x) /\\ all x. Q(x))",
       label: "Goal: ∀x.(P(x)∧Q(x)) → (∀x.P(x) ∧ ∀x.Q(x))",
     },
   ],
@@ -4084,8 +4082,7 @@ const qAt19ExistentialDisjunctionConverse: QuestDefinition = {
   systemPresetId: "at",
   goals: [
     {
-      formulaText:
-        "(ex x. P(x) \\/ ex x. Q(x)) -> ex x. (P(x) \\/ Q(x))",
+      formulaText: "(ex x. P(x) \\/ ex x. Q(x)) -> ex x. (P(x) \\/ Q(x))",
       label: "Goal: (∃x.P(x) ∨ ∃x.Q(x)) → ∃x.(P(x) ∨ Q(x))",
     },
   ],
