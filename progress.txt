@@ -104,6 +104,28 @@
 
 ---
 
+## 2026-03-09 - 述語論理上級クエスト追加（pred-adv-07〜pred-adv-10）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8610 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8622 tests
+- 変更内容:
+  - pred-adv-07: (∀x.(P(x)→Q(x))) → ((∀x.(Q(x)→R(x))) → (P(x)→R(x))) (difficulty 4) — 全称含意の二重除去+HS
+  - pred-adv-08: (∀x.P(x)) → ¬(∃x.¬P(x)) (difficulty 3) — 全称→存在否定の否定
+  - pred-adv-09: (∃x.P(x)) → ¬(∀x.¬P(x)) (difficulty 2) — ∃の定義（恒等律のインスタンス）
+  - pred-adv-10: (∀x.(P(x)→Q(x))) → ((∀x.(Q(x)→R(x))) → (∀x.(P(x)→R(x)))) (difficulty 5) — 全称含意の推移律
+  - predicate-advanced カテゴリ: 6問→10問に拡充
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 219→223
+- テスト: 8622 passed (243 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/quest-catalog-223-overview.png
+- **今後のイテレーションへの学び:**
+  - pred-adv-09 (∃→¬∀¬) は∃の定義展開で恒等律に帰着。difficulty 2 で十分
+  - pred-adv-07 と pred-adv-10 の違い: 結論に∀xが付くかどうか。10はGen+A5の再全称化が必要で高難度
+  - 全称含意のHS連鎖はHilbert系で15+ステップになるため、axiomステップが現実的
+  - 現在のカテゴリ別クエスト数: prop34, pred10, pred-adv10, eq10, peano16, group19, nd35, tab22, at19, sc48（223合計）
+---
+
 ## 2026-03-09 - 述語論理基礎クエスト追加（pred-07〜pred-10）
 - ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8598 tests
 - **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8610 tests
