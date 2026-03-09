@@ -7,11 +7,12 @@
  * 変更時は GoalPanel.test.tsx, ProofWorkspace.tsx, index.ts も同期すること。
  */
 
-import { type CSSProperties, useState, useCallback } from "react";
+import { type CSSProperties, useState, useCallback, useMemo } from "react";
 import type { GoalPanelData, GoalPanelItem } from "./goalPanelLogic";
 import type { ProofMessages } from "./proofMessages";
 import { formatMessage } from "./proofMessages";
 import { FormulaDisplay } from "../formula-input/FormulaDisplay";
+import type { PanelPosition } from "./panelPositionLogic";
 
 // --- Props ---
 
@@ -20,6 +21,12 @@ export interface GoalPanelProps {
   readonly data: GoalPanelData;
   /** メッセージ（i18n） */
   readonly messages: ProofMessages;
+  /** パネル位置（指定時はleft/topで配置、省略時はデフォルトのright/topで配置） */
+  readonly position?: PanelPosition;
+  /** ドラッグハンドルのpointerdownイベント */
+  readonly onDragHandlePointerDown?: (
+    e: React.PointerEvent<HTMLElement>,
+  ) => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -249,12 +256,48 @@ function GoalItem({
   );
 }
 
-export function GoalPanel({ data, messages, testId }: GoalPanelProps) {
+export function GoalPanel({
+  data,
+  messages,
+  position,
+  onDragHandlePointerDown,
+  testId,
+}: GoalPanelProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   const handleToggle = useCallback(() => {
     setCollapsed((prev) => !prev);
   }, []);
+
+  const resolvedPanelStyle = useMemo(
+    (): CSSProperties =>
+      position !== undefined
+        ? { ...panelStyle, left: position.x, top: position.y, right: undefined }
+        : panelStyle,
+    [position],
+  );
+
+  const resolvedToggleStyle = useMemo(
+    (): CSSProperties =>
+      position !== undefined
+        ? {
+            ...toggleButtonStyle,
+            left: position.x,
+            top: position.y,
+            right: undefined,
+          }
+        : toggleButtonStyle,
+    [position],
+  );
+
+  const dragHeaderStyle = useMemo(
+    (): CSSProperties => ({
+      ...headerStyle,
+      cursor: onDragHandlePointerDown !== undefined ? "grab" : undefined,
+      userSelect: onDragHandlePointerDown !== undefined ? "none" : undefined,
+    }),
+    [onDragHandlePointerDown],
+  );
 
   if (data.items.length === 0) {
     return null;
@@ -263,7 +306,7 @@ export function GoalPanel({ data, messages, testId }: GoalPanelProps) {
   if (collapsed) {
     return (
       <div
-        style={toggleButtonStyle}
+        style={resolvedToggleStyle}
         role="button"
         tabIndex={0}
         onClick={handleToggle}
@@ -293,13 +336,13 @@ export function GoalPanel({ data, messages, testId }: GoalPanelProps) {
 
   return (
     <div
-      style={panelStyle}
+      style={resolvedPanelStyle}
       data-testid={testId}
       onClick={(e) => {
         e.stopPropagation();
       }}
     >
-      <div style={headerStyle}>
+      <div style={dragHeaderStyle} onPointerDown={onDragHandlePointerDown}>
         <span>{messages.goalPanelTitle}</span>
         <span style={progressStyle}>
           {formatMessage(messages.goalPanelProgress, {

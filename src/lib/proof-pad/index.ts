@@ -484,3 +484,5 @@ export type {
   DragStartInfo,
   DragOptions,
 } from "./panelPositionLogic";
+export { usePanelDrag } from "./usePanelDrag";
+export type { UsePanelDragConfig, UsePanelDragResult } from "./usePanelDrag";
