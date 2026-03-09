@@ -104,6 +104,22 @@
 
 ---
 
+## 2026-03-09 - FORMATTING_ERRORバグ修正（collectionAxiomWarning/collectionStyleMismatch）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8751 tests
+- **結果: カバレッジ変動なし** (変更は `src/app/` 配下のみ、カバレッジ除外対象)
+- 変更内容:
+  - `WorkspaceContent.tsx`: `t("collectionAxiomWarning")` → `String(t.raw("collectionAxiomWarning"))` に修正
+  - `WorkspaceContent.tsx`: `t("collectionStyleMismatch")` → `String(t.raw("collectionStyleMismatch"))` に修正
+  - i18nメッセージに `{axiomIds}` 等のプレースホルダーが含まれるのに `t()` で呼んでいたためnext-intlがFORMATTING_ERRORを出していた
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspaceContent.tsx
+- テスト: 8751 passed (244 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/formatting-error-fix-axiom-warnings-fullscreen.png
+- **今後のイテレーションへの学び:**
+  - i18nメッセージにプレースホルダーがある場合、`t()` ではなく `String(t.raw())` を使う。`formatMessage()` で独自テンプレート置換するパターンでは生テンプレート文字列が必要
+  - 既存コードで `collectionEntryCount`, `collectionFolderEntryCount`, `scBannerSelectNode`, `pasteIncompatibleStyle` が `String(t.raw())` パターンを使っている — これが正しいパターン
+---
+
 ## 2026-03-09 - 命題論理基礎クエスト4問追加（prop-48〜prop-51）
 - ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8682 tests
 - **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8694 tests (739 quest tests)
