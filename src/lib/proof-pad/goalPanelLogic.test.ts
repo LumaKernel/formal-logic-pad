@@ -4,6 +4,7 @@ import {
   computeGoalPanelData,
   type GoalPanelData,
   type GoalPanelItemStatus,
+  type GoalViolationInfo,
 } from "./goalPanelLogic";
 import type { GoalCheckResult } from "./goalCheckLogic";
 import type { WorkspaceGoal } from "./workspaceState";
@@ -430,6 +431,220 @@ describe("computeGoalPanelData", () => {
       const result = computeGoalPanelData(goals, checkResult);
       expect(result.items[0]?.formulaText).toBe("phi -> (psi -> phi)");
       expect(result.items[0]?.formula).toBe(phiImpliesPsiImpliesPhi);
+    });
+  });
+
+  describe("制限違反オーバーライド", () => {
+    it("GoalAllAchievedで公理違反がある場合、ステータスがachieved-but-axiom-violationになる", () => {
+      const goals = [
+        makeGoal("g1", "phi -> phi"),
+        makeGoal("g2", "psi -> psi"),
+      ];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalAllAchieved",
+        achievedGoals: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            matchingNodeId: "n1",
+          },
+          {
+            goalId: "g2",
+            goalFormula: psiImpliesPsi,
+            matchingNodeId: "n2",
+          },
+        ],
+      };
+      const violations: readonly GoalViolationInfo[] = [
+        {
+          goalId: "g1",
+          hasAxiomViolation: true,
+          hasRuleViolation: false,
+        },
+      ];
+
+      const result = computeGoalPanelData(goals, checkResult, [], violations);
+      expect(result.items[0]?.status).toBe(
+        "achieved-but-axiom-violation" satisfies GoalPanelItemStatus,
+      );
+      // g2は違反なし → achieved のまま
+      expect(result.items[1]?.status).toBe(
+        "achieved" satisfies GoalPanelItemStatus,
+      );
+      // 違反ゴールはachievedCountに含まれない
+      expect(result.achievedCount).toBe(1);
+      expect(result.totalCount).toBe(2);
+    });
+
+    it("GoalAllAchievedで規則違反がある場合、ステータスがachieved-but-rule-violationになる", () => {
+      const goals = [makeGoal("g1", "phi -> phi")];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalAllAchieved",
+        achievedGoals: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            matchingNodeId: "n1",
+          },
+        ],
+      };
+      const violations: readonly GoalViolationInfo[] = [
+        {
+          goalId: "g1",
+          hasAxiomViolation: false,
+          hasRuleViolation: true,
+        },
+      ];
+
+      const result = computeGoalPanelData(goals, checkResult, [], violations);
+      expect(result.items[0]?.status).toBe(
+        "achieved-but-rule-violation" satisfies GoalPanelItemStatus,
+      );
+      expect(result.achievedCount).toBe(0);
+    });
+
+    it("公理違反と規則違反の両方がある場合、公理違反が優先される", () => {
+      const goals = [makeGoal("g1", "phi -> phi")];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalAllAchieved",
+        achievedGoals: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            matchingNodeId: "n1",
+          },
+        ],
+      };
+      const violations: readonly GoalViolationInfo[] = [
+        {
+          goalId: "g1",
+          hasAxiomViolation: true,
+          hasRuleViolation: true,
+        },
+      ];
+
+      const result = computeGoalPanelData(goals, checkResult, [], violations);
+      expect(result.items[0]?.status).toBe(
+        "achieved-but-axiom-violation" satisfies GoalPanelItemStatus,
+      );
+    });
+
+    it("GoalPartiallyAchievedでも違反オーバーライドが適用される", () => {
+      const goals = [
+        makeGoal("g1", "phi -> phi"),
+        makeGoal("g2", "psi -> psi"),
+      ];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalPartiallyAchieved",
+        achievedCount: 1,
+        totalCount: 2,
+        goalStatuses: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            achieved: true,
+            matchingNodeId: "n1",
+          },
+          {
+            goalId: "g2",
+            goalFormula: psiImpliesPsi,
+            achieved: false,
+            matchingNodeId: undefined,
+          },
+        ],
+      };
+      const violations: readonly GoalViolationInfo[] = [
+        {
+          goalId: "g1",
+          hasAxiomViolation: true,
+          hasRuleViolation: false,
+        },
+      ];
+
+      const result = computeGoalPanelData(goals, checkResult, [], violations);
+      expect(result.items[0]?.status).toBe(
+        "achieved-but-axiom-violation" satisfies GoalPanelItemStatus,
+      );
+      expect(result.items[1]?.status).toBe(
+        "not-achieved" satisfies GoalPanelItemStatus,
+      );
+    });
+
+    it("未達成ゴールは違反情報があってもオーバーライドされない", () => {
+      const goals = [makeGoal("g1", "phi -> phi")];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalPartiallyAchieved",
+        achievedCount: 0,
+        totalCount: 1,
+        goalStatuses: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            achieved: false,
+            matchingNodeId: undefined,
+          },
+        ],
+      };
+      const violations: readonly GoalViolationInfo[] = [
+        {
+          goalId: "g1",
+          hasAxiomViolation: true,
+          hasRuleViolation: false,
+        },
+      ];
+
+      const result = computeGoalPanelData(goals, checkResult, [], violations);
+      // not-achieved のまま（violationはachieved時のみオーバーライド）
+      expect(result.items[0]?.status).toBe(
+        "not-achieved" satisfies GoalPanelItemStatus,
+      );
+    });
+
+    it("違反なし（hasAxiomViolation: false, hasRuleViolation: false）の場合はachievedのまま", () => {
+      const goals = [makeGoal("g1", "phi -> phi")];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalAllAchieved",
+        achievedGoals: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            matchingNodeId: "n1",
+          },
+        ],
+      };
+      const violations: readonly GoalViolationInfo[] = [
+        {
+          goalId: "g1",
+          hasAxiomViolation: false,
+          hasRuleViolation: false,
+        },
+      ];
+
+      const result = computeGoalPanelData(goals, checkResult, [], violations);
+      expect(result.items[0]?.status).toBe(
+        "achieved" satisfies GoalPanelItemStatus,
+      );
+      expect(result.achievedCount).toBe(1);
+    });
+
+    it("violationsが空配列の場合は通常通りachieved", () => {
+      const goals = [makeGoal("g1", "phi -> phi")];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalAllAchieved",
+        achievedGoals: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            matchingNodeId: "n1",
+          },
+        ],
+      };
+
+      const result = computeGoalPanelData(goals, checkResult, [], []);
+      expect(result.items[0]?.status).toBe(
+        "achieved" satisfies GoalPanelItemStatus,
+      );
+      expect(result.achievedCount).toBe(1);
     });
   });
 });

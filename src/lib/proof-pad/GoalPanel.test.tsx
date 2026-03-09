@@ -431,4 +431,76 @@ describe("GoalPanel", () => {
       expect(screen.getByTestId("gp-item-1")).toBeInTheDocument();
     });
   });
+
+  describe("制限違反の表示", () => {
+    it("公理制限違反のゴールは「Axiom violation」と表示される", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: ["A1"],
+            allowedAxiomDetails: undefined,
+            status: "achieved-but-axiom-violation",
+          },
+        ],
+        totalCount: 1,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+      expect(screen.getByText(msg.goalAxiomViolation)).toBeInTheDocument();
+      expect(screen.queryByText(msg.goalProved)).not.toBeInTheDocument();
+    });
+
+    it("規則制限違反のゴールは「Rule violation」と表示される", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            status: "achieved-but-rule-violation",
+          },
+        ],
+        totalCount: 1,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+      expect(screen.getByText(msg.goalRuleViolation)).toBeInTheDocument();
+      expect(screen.queryByText(msg.goalProved)).not.toBeInTheDocument();
+    });
+
+    it("違反あり・達成済みが混在する場合、それぞれ正しく表示される", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            status: "achieved-but-axiom-violation",
+          },
+          {
+            id: "g2",
+            formulaText: "psi -> psi",
+            formula: psiImpliesPsi,
+            label: "Goal 2",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            status: "achieved",
+          },
+        ],
+        achievedCount: 1,
+        totalCount: 2,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+      expect(screen.getByText(msg.goalAxiomViolation)).toBeInTheDocument();
+      expect(screen.getByText(msg.goalProved)).toBeInTheDocument();
+    });
+  });
 });

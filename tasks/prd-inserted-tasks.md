@@ -10,4 +10,4 @@
   - [ ] まずは純粋関数から
 - [ ] story customquestlist ← 結局カスタムクエストはどこから使えるのか？タブなどが無いように見えるが
   - [ ] 当時のコミットと意図から確認
-- [ ] Proof Complete (Axiom Restriction Violated) ← その場合はCompletedではないんよ。Goal一覧でもProofedとすべきではなく、そちらにナンタラviolatedと書いてあげるのがよいだろう。
+- [-] Proof Complete (Axiom Restriction Violated) ← その場合はCompletedではないんよ。Goal一覧でもProofedとすべきではなく、そちらにナンタラviolatedと書いてあげるのがよいだろう。

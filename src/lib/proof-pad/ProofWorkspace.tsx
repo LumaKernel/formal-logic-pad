@@ -85,7 +85,7 @@ import {
 } from "./proofMessages";
 import { useProofMessages } from "./ProofMessagesContext";
 import { checkGoal } from "./goalCheckLogic";
-import { computeGoalPanelData } from "./goalPanelLogic";
+import { computeGoalPanelData, type GoalViolationInfo } from "./goalPanelLogic";
 import { GoalPanel } from "./GoalPanel";
 import {
   computeStepCount,
@@ -2080,12 +2080,34 @@ export function ProofWorkspace({
     ],
   );
 
+  // --- ゴール制限違反情報（クエストモード時のみ） ---
+
+  const goalViolations: readonly GoalViolationInfo[] = useMemo(() => {
+    if (
+      questGoalResult === undefined ||
+      questGoalResult._tag === "NoGoals" ||
+      questGoalResult._tag === "NotAllAchieved"
+    ) {
+      return [];
+    }
+    return questGoalResult.goalResults.map((r) => ({
+      goalId: r.goalId,
+      hasAxiomViolation: r.violatingAxiomIds.size > 0 || r.hasInstanceRootNodes,
+      hasRuleViolation: r.violatingRuleIds.size > 0,
+    }));
+  }, [questGoalResult]);
+
   // --- ゴールパネルデータ ---
 
   const goalPanelData = useMemo(
     () =>
-      computeGoalPanelData(workspace.goals, goalCheckResult, availableAxioms),
-    [workspace.goals, goalCheckResult, availableAxioms],
+      computeGoalPanelData(
+        workspace.goals,
+        goalCheckResult,
+        availableAxioms,
+        goalViolations,
+      ),
+    [workspace.goals, goalCheckResult, availableAxioms, goalViolations],
   );
 
   const isGoalAchievedButAxiomViolation =

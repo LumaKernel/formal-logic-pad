@@ -44,7 +44,12 @@ export type GoalPanelItem = {
 };
 
 /** ゴールの達成状態 */
-export type GoalPanelItemStatus = "achieved" | "not-achieved" | "parse-error";
+export type GoalPanelItemStatus =
+  | "achieved"
+  | "not-achieved"
+  | "parse-error"
+  | "achieved-but-axiom-violation"
+  | "achieved-but-rule-violation";
 
 /** ゴールパネル全体の表示データ */
 export type GoalPanelData = {
@@ -56,6 +61,18 @@ export type GoalPanelData = {
   readonly totalCount: number;
 };
 
+/**
+ * 個別ゴールの制限違反情報（quest completionロジックから渡される）。
+ * proof-pad → quest への直接依存を避けるため、簡易的なインターフェースを定義。
+ */
+export type GoalViolationInfo = {
+  readonly goalId: string;
+  /** 公理制限に違反しているか */
+  readonly hasAxiomViolation: boolean;
+  /** 推論規則制限に違反しているか */
+  readonly hasRuleViolation: boolean;
+};
+
 // --- ゴールパネルデータ生成 ---
 
 /**
@@ -65,6 +82,20 @@ function toItemStatus(goalStatus: GoalStatus): GoalPanelItemStatus {
   if (goalStatus.achieved) return "achieved";
   if (goalStatus.goalFormula === undefined) return "parse-error";
   return "not-achieved";
+}
+
+/**
+ * 違反情報に基づいてステータスをオーバーライドする。
+ * "achieved" のゴールのみオーバーライド対象。
+ */
+function applyViolationOverride(
+  status: GoalPanelItemStatus,
+  violation: GoalViolationInfo | undefined,
+): GoalPanelItemStatus {
+  if (status !== "achieved" || violation === undefined) return status;
+  if (violation.hasAxiomViolation) return "achieved-but-axiom-violation";
+  if (violation.hasRuleViolation) return "achieved-but-rule-violation";
+  return status;
 }
 
 /**
@@ -99,12 +130,14 @@ function resolveAllowedAxiomDetails(
  * @param goals ワークスペースのゴール一覧
  * @param checkResult ゴールチェック結果
  * @param availableAxioms 論理体系で利用可能な全公理（公理詳細の解決に使用）
+ * @param goalViolations ゴールごとの制限違反情報（クエストモード時のみ）
  * @returns パネル表示データ
  */
 export function computeGoalPanelData(
   goals: readonly WorkspaceGoal[],
   checkResult: GoalCheckResult,
   availableAxioms: readonly AxiomPaletteItem[] = [],
+  goalViolations: readonly GoalViolationInfo[] = [],
 ): GoalPanelData {
   if (goals.length === 0) {
     return {
@@ -113,6 +146,8 @@ export function computeGoalPanelData(
       totalCount: 0,
     };
   }
+
+  const violationMap = new Map(goalViolations.map((v) => [v.goalId, v]));
 
   switch (checkResult._tag) {
     case "GoalNotSet":
@@ -138,11 +173,14 @@ export function computeGoalPanelData(
           goal.allowedAxiomIds,
           availableAxioms,
         ),
-        status: "achieved" as const,
+        status: applyViolationOverride("achieved", violationMap.get(goal.id)),
       }));
+      const achievedCount = items.filter(
+        (item) => item.status === "achieved",
+      ).length;
       return {
         items,
-        achievedCount: goals.length,
+        achievedCount,
         totalCount: goals.length,
       };
     }
@@ -153,6 +191,8 @@ export function computeGoalPanelData(
       );
       const items: GoalPanelItem[] = goals.map((goal) => {
         const gs = statusMap.get(goal.id);
+        const baseStatus =
+          gs !== undefined ? toItemStatus(gs) : computeFallbackStatus(goal);
         return {
           id: goal.id,
           formulaText: goal.formulaText,
@@ -163,8 +203,7 @@ export function computeGoalPanelData(
             goal.allowedAxiomIds,
             availableAxioms,
           ),
-          status:
-            gs !== undefined ? toItemStatus(gs) : computeFallbackStatus(goal),
+          status: applyViolationOverride(baseStatus, violationMap.get(goal.id)),
         };
       });
       return {
