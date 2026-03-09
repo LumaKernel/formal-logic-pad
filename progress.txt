@@ -11287,3 +11287,22 @@
   - 含意式をA1のメタ変数に代入する問題はaxiomインスタンス理解の良い段階的拡張
   - prop-39の結論弱化は、A1（弱化公理）+ A2（分配公理）の基本的な組み合わせパターン
 ---
+
+## 2026-03-09 - propositional-intermediate クエスト4問追加
+- prop-40〜prop-43を追加（propositional-intermediate: 9→13問）
+  - prop-40: 推移律逆順 (B' combinator) `(φ → ψ) → ((ψ → χ) → (φ → χ))` — B combinator+C combinator的合成, 15ステップ, difficulty 3
+  - prop-41: W combinator (自己適用) `(φ → (φ → ψ)) → (φ → ψ)` — A2[φ/φ, ψ/φ, χ/ψ]+恒等律+推移律, 11ステップ, difficulty 3
+  - prop-42: A2の前方適用 `((φ → (ψ → χ)) → (φ → ψ)) → ((φ → (ψ → χ)) → (φ → χ))` — A2をA2に適用, 3ステップ, difficulty 2
+  - prop-43: 含意の前方合成 `(φ → (ψ → χ)) → ((θ → φ) → (θ → (ψ → χ)))` — B combinator変数置換, 7ステップ, difficulty 3
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 227→231
+- テスト: 8646 passed, Stmts 99.95%, Branch 100%, Lines 100%
+- スクリーンショット: .screenshots/hub-quests-tab-231.png, .screenshots/quest-catalog-default-231.png
+- **今後のイテレーションへの学び:**
+  - B' combinator（推移律逆順）はB+C的に構成可能。C combinatorで前提を入れ替える手法が重要
+  - W combinator（自己適用）はA2の特殊ケース+恒等律。「前提を2回使う」パターン
+  - A2をA2自身に適用する（prop-42）は最短3ステップで、axiomの再帰適用の良い練習
+  - B combinatorの変数置換（prop-43）はprop-10と同じ証明構造。変数名だけ変える問題は理解確認に有効
+---
