@@ -249,6 +249,13 @@ const substEntryStyle: CSSProperties = {
 
 const substEntryValueFontSize = 10;
 
+const substEntryFallbackStyle: CSSProperties = {
+  fontFamily: "var(--font-formula)",
+  fontStyle: "italic",
+  fontSize: substEntryValueFontSize,
+  whiteSpace: "nowrap",
+};
+
 /** 代入エントリの値部分を数式レンダリングするコンポーネント */
 function SubstitutionEntryValue({
   entry,
@@ -265,7 +272,7 @@ function SubstitutionEntryValue({
         />
       );
     }
-    return <span>{entry.formulaText}</span>;
+    return <span style={substEntryFallbackStyle}>{entry.formulaText}</span>;
   }
   const parsed = parseTermString(entry.termText);
   if (Either.isRight(parsed)) {
@@ -273,7 +280,7 @@ function SubstitutionEntryValue({
       <TermDisplay term={parsed.right} fontSize={substEntryValueFontSize} />
     );
   }
-  return <span>{entry.termText}</span>;
+  return <span style={substEntryFallbackStyle}>{entry.termText}</span>;
 }
 
 /** メタ変数名（添字含む）を数式フォントで表示する */

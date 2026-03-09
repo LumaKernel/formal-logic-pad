@@ -13,6 +13,7 @@ import { getAxiomReferenceEntryId } from "./axiomPaletteLogic";
 import type { ReferenceEntry, Locale } from "../reference/referenceEntry";
 import { findEntryById } from "../reference/referenceEntry";
 import { ReferencePopover } from "../reference/ReferencePopover";
+import { FormulaDisplay } from "../formula-input/FormulaDisplay";
 import { useProofMessages } from "./ProofMessagesContext";
 
 // --- Props ---
@@ -166,7 +167,9 @@ function AxiomPaletteItemView({
           </span>
         )}
       </span>
-      <span style={itemFormulaStyle}>{axiom.unicodeDisplay}</span>
+      <span style={itemFormulaStyle}>
+        <FormulaDisplay formula={axiom.template} fontSize={11} />
+      </span>
     </div>
   );
 }

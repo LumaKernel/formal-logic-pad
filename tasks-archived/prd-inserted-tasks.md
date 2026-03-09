@@ -232,3 +232,8 @@ Infinity Canvasについて。
 - [x] コンテキストメニューからの論理式ノード追加をしたときは、編集中の状態へ自動移行したほうがよい
 - [x] Proof Complete (Axiom Restriction Violated) ← その場合はCompletedではないんよ。Goal一覧でもProofedとすべきではなく、そちらにナンタラviolatedと書いてあげるのがよいだろう。
   - GoalPanelItemStatus に "achieved-but-axiom-violation" / "achieved-but-rule-violation" を追加。バナーメッセージも "Axiom Restriction Violated" 等に変更。
+- [x] SHIFT押しながら、cmd(ctrl on win)押しながらで、選択を個別ノードごとに切り替える (選択なしなら選択を開始する) ことができるように
+  - 確認結果: handleNodeSelect で e.shiftKey || e.metaKey || e.ctrlKey でトグル選択実装済み。ShiftClickSelectionToggle ストーリー + copyPasteLogic toggleNodeSelection テスト済み。
+- [x] story customquestlist ← 結局カスタムクエストはどこから使えるのか？タブなどが無いように見えるが
+  - [x] 当時のコミットと意図から確認
+  - 確認結果: カスタムクエストは「Quests」タブ内でビルトインクエストカタログの下に表示される。WithCustomQuestsストーリーで動作確認済み。独立タブではなくQuestsタブ内統合が正しい設計。
