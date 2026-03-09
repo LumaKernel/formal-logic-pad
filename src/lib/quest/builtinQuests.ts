@@ -1100,6 +1100,107 @@ const q32DisjunctionElim: QuestDefinition = {
   version: 1,
 };
 
+const q44DisjunctionIntro: QuestDefinition = {
+  id: "prop-44",
+  category: "propositional-advanced",
+  title: "選言導入 (Disjunction Introduction)",
+  description:
+    "φ → (φ ∨ ψ) を証明せよ。選言の定義 φ ∨ ψ ≡ ¬φ → ψ を使い左への導入を示す。",
+  difficulty: 5,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "phi -> (phi \\/ psi)",
+      label: "Goal: φ → (φ ∨ ψ)",
+    },
+  ],
+  hints: [
+    "選言の定義: φ ∨ ψ ≡ ¬φ → ψ を展開します。",
+    "ゴールは φ → (¬φ → ψ) に帰着します。これは EFQ の一般化形式です。",
+    "TND + A3 を組み合わせて証明できます。",
+  ],
+  estimatedSteps: 30,
+  learningPoint:
+    "選言導入は自然演繹では trivial だが、Hilbert 系では EFQ と選言の定義展開が必要で長い証明になる。",
+  order: 7,
+  version: 1,
+};
+
+const q45DisjunctionComm: QuestDefinition = {
+  id: "prop-45",
+  category: "propositional-advanced",
+  title: "選言の可換性 (Commutativity of Disjunction)",
+  description: "(φ ∨ ψ) → (ψ ∨ φ) を証明せよ。選言の左右を入れ替える。",
+  difficulty: 5,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(phi \\/ psi) -> (psi \\/ phi)",
+      label: "Goal: (φ ∨ ψ) → (ψ ∨ φ)",
+    },
+  ],
+  hints: [
+    "選言の定義: φ ∨ ψ ≡ ¬φ → ψ を展開します。",
+    "ゴールは (¬φ → ψ) → (¬ψ → φ) に帰着します。",
+    "対偶の考え方と二重否定除去を組み合わせます。",
+  ],
+  estimatedSteps: 35,
+  learningPoint:
+    "選言の可換性は直感的には自明だが、Hilbert 系では対偶・二重否定除去の組み合わせが必要。",
+  order: 8,
+  version: 1,
+};
+
+const q46ConjunctionComm: QuestDefinition = {
+  id: "prop-46",
+  category: "propositional-advanced",
+  title: "連言の可換性 (Commutativity of Conjunction)",
+  description: "(φ ∧ ψ) → (ψ ∧ φ) を証明せよ。連言の左右を入れ替える。",
+  difficulty: 5,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(phi /\\ psi) -> (psi /\\ phi)",
+      label: "Goal: (φ ∧ ψ) → (ψ ∧ φ)",
+    },
+  ],
+  hints: [
+    "連言の定義: α ∧ β ≡ ¬(α → ¬β) を展開します。",
+    "ゴールは ¬(φ → ¬ψ) → ¬(ψ → ¬φ) に帰着します。",
+    "連言除去（左右）+ 連言導入を組み合わせて証明します。",
+  ],
+  estimatedSteps: 40,
+  learningPoint:
+    "連言の可換性も Hilbert 系では長い証明が必要。連言の定義展開→除去→再導入のパターン。",
+  order: 9,
+  version: 1,
+};
+
+const q47DeMorganConverse: QuestDefinition = {
+  id: "prop-47",
+  category: "propositional-advanced",
+  title: "ド・モルガンの逆 (De Morgan Converse)",
+  description: "(¬φ ∧ ¬ψ) → ¬(φ ∨ ψ) を証明せよ。ド・モルガンの法則の逆方向。",
+  difficulty: 5,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(~phi /\\ ~psi) -> ~(phi \\/ psi)",
+      label: "Goal: (¬φ ∧ ¬ψ) → ¬(φ ∨ ψ)",
+    },
+  ],
+  hints: [
+    "選言と連言の定義をそれぞれ展開します。",
+    "φ ∨ ψ ≡ ¬φ → ψ、α ∧ β ≡ ¬(α → ¬β) です。",
+    "¬φ と ¬ψ の両方が成り立つなら、¬φ → ψ（= φ ∨ ψ）は矛盾するという方針です。",
+  ],
+  estimatedSteps: 35,
+  learningPoint:
+    "ド・モルガンの逆は、選言の否定を連言の否定に帰着する。Hilbert 系では定義展開が複雑だが、構造は明快。",
+  order: 10,
+  version: 1,
+};
+
 // --- 等号付き述語論理の基礎 ---
 
 const qEq01Reflexivity: QuestDefinition = {
@@ -6171,6 +6272,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   q30LawOfNonContradiction,
   q31ConjunctionElimRight,
   q32DisjunctionElim,
+  q44DisjunctionIntro,
+  q45DisjunctionComm,
+  q46ConjunctionComm,
+  q47DeMorganConverse,
   qEq01Reflexivity,
   qEq02Symmetry,
   qEq03Transitivity,

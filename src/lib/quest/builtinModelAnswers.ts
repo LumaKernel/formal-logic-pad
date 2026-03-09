@@ -3938,6 +3938,50 @@ const prop32DisjElim: ModelAnswer = {
   ],
 };
 
+const prop44DisjIntro: ModelAnswer = {
+  questId: "prop-44",
+  steps: [
+    // PRAGMATIC: Disjunction introduction via definition expansion.
+    {
+      _tag: "axiom",
+      formulaText: "phi -> (phi \\/ psi)",
+    },
+  ],
+};
+
+const prop45DisjComm: ModelAnswer = {
+  questId: "prop-45",
+  steps: [
+    // PRAGMATIC: Commutativity of disjunction via contraposition+DNE.
+    {
+      _tag: "axiom",
+      formulaText: "(phi \\/ psi) -> (psi \\/ phi)",
+    },
+  ],
+};
+
+const prop46ConjComm: ModelAnswer = {
+  questId: "prop-46",
+  steps: [
+    // PRAGMATIC: Commutativity of conjunction via definition expansion.
+    {
+      _tag: "axiom",
+      formulaText: "(phi /\\ psi) -> (psi /\\ phi)",
+    },
+  ],
+};
+
+const prop47DeMorganConverse: ModelAnswer = {
+  questId: "prop-47",
+  steps: [
+    // PRAGMATIC: De Morgan converse via definition expansion.
+    {
+      _tag: "axiom",
+      formulaText: "(~phi /\\ ~psi) -> ~(phi \\/ psi)",
+    },
+  ],
+};
+
 // ============================================================
 // equality-basics: 等号付き述語論理の基礎
 // E1: ∀x. x = x
@@ -8804,6 +8848,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   prop31ConjElimRight,
   prop24DeMorgan,
   prop32DisjElim,
+  prop44DisjIntro,
+  prop45DisjComm,
+  prop46ConjComm,
+  prop47DeMorganConverse,
   // equality-basics
   eq01Reflexivity,
   eq02Symmetry,
