@@ -11367,3 +11367,15 @@
   - PA系の単純公理配置（difficulty 1）はmodelAnswerが1ステップのaxiomノード配置で完結する
   - peano-basicsは全10問でPA1-PA6 + E1-E3 + E4(S)をカバー。group-basicsも6→10問の拡充が次の候補
 ---
+
+## 2026-03-09 - セレクションバナーのwrap修正
+- セレクションバナー（ノード複数選択時の上部バナー）のアクションボタンのテキストが折り返されないよう修正
+- `mpSelectionBannerStyle`, `cancelButtonStyle`, `selectionActionButtonStyle` に `whiteSpace: "nowrap"` を追加
+- 変更ファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx — 3箇所のスタイルオブジェクトに `whiteSpace: "nowrap"` 追加
+- テスト: 8682 passed, Stmts 99.95%, Branch 100%, Lines 100%（変化なし）
+- スクリーンショット: .screenshots/selection-banner-nowrap-iframe.png, .screenshots/selection-banner-nowrap-narrow.png
+- **今後のイテレーションへの学び:**
+  - バナースタイルのベースオブジェクト(`mpSelectionBannerStyle`)を修正すると、すべての派生バナー（MP, Gen, SC等）にも反映される
+  - flexコンテナ内のボタンが収縮してテキスト折り返しする問題は`whiteSpace: "nowrap"`で解決
+---
