@@ -11462,3 +11462,20 @@
   - tab-26のprincipalPositionは∃規則適用後のシーケント配置を正確にトレースして決める必要がある（prependAndFormatの[...added, principal, ...rest]順序に注意）
   - タブローカテゴリは述語論理含め計26問に到達
 ---
+
+## 2026-03-09 - [proof-pad] ダブルクリック編集バグ修正
+- **タスク**: bug: 論理式ノードが結局、ダブルクリックで編集開始できない (tasks/prd-inserted-tasks.md)
+- **原因**: `useDragItem` の `onPointerDown` で `setPointerCapture` を即座に呼ぶことで、ブラウザの `dblclick` イベント合成のターゲットが FormulaEditor ではなく CanvasItem div にルーティングされていた
+- **修正**: `setPointerCapture` を `onPointerDown` から `onPointerMove`（最初のドラッグ移動時）に遅延させた。これにより dblclick 時は pointer capture が未適用で、正常なイベント合成が維持される
+- 変更ファイル:
+  - src/lib/infinite-canvas/useDragItem.ts（pointerIdRef/capturedRef追加、capture遅延）
+  - src/lib/infinite-canvas/useDragItem.test.tsx（テスト更新: capture が pointermove で呼ばれることを検証）
+  - task-processing.md（タスク記録）
+  - tasks/prd-inserted-tasks.md（バグ項目 [-] マーク）
+- テスト: 8751テスト全通過 (244ファイル), Stmts 99.95%, Branch 100%, Lines 100%（カバレッジ維持）
+- スクリーンショット: .screenshots/dblclick-bug-investigation.png, .screenshots/dblclick-bug-fixed-editing.png, .screenshots/dblclick-bug-fixed-drag-works.png
+- **今後のイテレーションへの学び:**
+  - `setPointerCapture` は dblclick イベント合成に干渉する。ドラッグ用の capture は pointermove 時に遅延適用すべき
+  - Playwright MCP でイベントリスナーを注入し、イベントターゲットやハンドラの発火を直接確認するデバッグ手法が有効
+  - v8 coverage: 防御的フォールバック (`?? e.pointerId`) のように到達不能だが安全のために残すコードは `/* v8 ignore start/stop */` で囲む
+---
