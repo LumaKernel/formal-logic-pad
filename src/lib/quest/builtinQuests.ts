@@ -4824,6 +4824,114 @@ const qTab22UniversalConjunctionDist: QuestDefinition = {
   version: 1,
 };
 
+const qTab23UniversalToExistential: QuestDefinition = {
+  id: "tab-23",
+  category: "tab-basics",
+  title: "全称から存在 (∀, ¬∃)",
+  description:
+    "¬(∀x.P(x) → ∃x.P(x)) を根として閉じたタブローを構築せよ。∀規則で具体化した後、¬∃規則で同じ変数を代入する。",
+  difficulty: 1,
+  systemPresetId: "tab",
+  goals: [
+    {
+      formulaText: "~((forall x. P(x)) -> (exists x. P(x)))",
+      label: "Root: ¬(∀x.P(x) → ∃x.P(x)) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で ∀x.P(x) と ¬∃x.P(x) を得ます。",
+    "∀ 規則で ∀x.P(x) に x を代入して P(x) を得ます。",
+    "¬∃ 規則で ¬∃x.P(x) に x を代入して ¬P(x) を得ます。",
+    "P(x) と ¬P(x) の矛盾で BS。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "¬∃規則は∀規則と同様に任意の項を代入できる。∀で得た項を¬∃にも適用して矛盾を導くパターン。",
+  order: 23,
+  version: 1,
+};
+
+const qTab24ExistentialConjunction: QuestDefinition = {
+  id: "tab-24",
+  category: "tab-basics",
+  title: "存在連言分配 (∃, ∧, ¬∃)",
+  description:
+    "¬(∃x.(P(x) ∧ Q(x)) → ∃x.P(x)) を根として閉じたタブローを構築せよ。∃規則で固有変数を導入し、∧分解後に¬∃で同変数を代入。",
+  difficulty: 2,
+  systemPresetId: "tab",
+  goals: [
+    {
+      formulaText: "~((exists x. (P(x) /\\ Q(x))) -> (exists x. P(x)))",
+      label: "Root: ¬(∃x.(P(x)∧Q(x)) → ∃x.P(x)) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で ∃x.(P(x)∧Q(x)) と ¬∃x.P(x) を得ます。",
+    "∃ 規則で固有変数 a を導入して P(a)∧Q(a) を得ます。",
+    "∧ 規則で P(a) と Q(a) に分解します。",
+    "¬∃ 規則で ¬∃x.P(x) に a を代入して ¬P(a) を得ます。BS で閉じます。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "∃規則で導入した固有変数を¬∃規則の代入項として再利用できる。∧分解→¬∃の流れで矛盾を導く。",
+  order: 24,
+  version: 1,
+};
+
+const qTab25NegUniversalToExistNeg: QuestDefinition = {
+  id: "tab-25",
+  category: "tab-basics",
+  title: "否定全称から存在否定 (¬∀, ¬∃, ¬¬)",
+  description:
+    "¬(¬∀x.P(x) → ∃x.¬P(x)) を根として閉じたタブローを構築せよ。¬∀で固有変数を導入し、¬∃+¬¬で矛盾を導く。",
+  difficulty: 2,
+  systemPresetId: "tab",
+  goals: [
+    {
+      formulaText: "~(~(forall x. P(x)) -> (exists x. ~P(x)))",
+      label: "Root: ¬(¬∀x.P(x) → ∃x.¬P(x)) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で ¬∀x.P(x) と ¬∃x.¬P(x) を得ます。",
+    "¬∀ 規則で固有変数 a を導入: ¬P(a) を得ます。",
+    "¬∃ 規則で ¬∃x.¬P(x) に a を代入: ¬¬P(a) を得ます。",
+    "¬¬ 規則で ¬¬P(a) → P(a)。P(a) と ¬P(a) で BS。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "¬∀で導入した固有変数を¬∃の代入項に使い、¬¬除去で元の述語を復元して矛盾を導くパターン。",
+  order: 25,
+  version: 1,
+};
+
+const qTab26ExistentialDisjunction: QuestDefinition = {
+  id: "tab-26",
+  category: "tab-basics",
+  title: "存在選言分配 (∨分岐, ∃, ¬∃, ¬∨)",
+  description:
+    "¬((∃x.P(x) ∨ ∃x.Q(x)) → ∃x.(P(x) ∨ Q(x))) を根として閉じたタブローを構築せよ。∨で分岐し、各枝で∃+¬∃+¬∨のパイプライン。",
+  difficulty: 3,
+  systemPresetId: "tab",
+  goals: [
+    {
+      formulaText:
+        "~(((exists x. P(x)) \\/ (exists x. Q(x))) -> (exists x. (P(x) \\/ Q(x))))",
+      label: "Root: ¬((∃x.P(x) ∨ ∃x.Q(x)) → ∃x.(P(x)∨Q(x))) ⇒",
+    },
+  ],
+  hints: [
+    "¬→ で ∃x.P(x)∨∃x.Q(x) と ¬∃x.(P(x)∨Q(x)) を得ます。",
+    "∨ 規則で分岐: 左枝 ∃x.P(x)、右枝 ∃x.Q(x)。",
+    "各枝で ∃ 規則で固有変数 a を導入 → ¬∃ で a を代入 → ¬∨ で分解 → BS。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "∨分岐で生じた各枝で独立に∃→¬∃→¬∨のパイプラインを適用する。各枝の固有変数は独立。",
+  order: 26,
+  version: 1,
+};
+
 // --- ATクエスト: 分析的タブローの基礎 ---
 
 const qAt01ExcludedMiddle: QuestDefinition = {
@@ -6830,6 +6938,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qTab20ExistentialToNegUniversal,
   qTab21UniversalImplicationDist,
   qTab22UniversalConjunctionDist,
+  qTab23UniversalToExistential,
+  qTab24ExistentialConjunction,
+  qTab25NegUniversalToExistNeg,
+  qTab26ExistentialDisjunction,
   qAt01ExcludedMiddle,
   qAt02Implication,
   qAt03DoubleNegation,

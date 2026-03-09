@@ -8215,6 +8215,271 @@ const tab22UniversalConjunctionDist: ModelAnswer = {
   ],
 };
 
+/**
+ * tab-23: 全称から存在 ¬(∀x.P(x) → ∃x.P(x))
+ *
+ * 0. Root: ¬(∀x.P(x) → ∃x.P(x))
+ * 1. ¬→(pos 0): [∀x.P(x), ¬∃x.P(x), ¬(root)]
+ * 2. ∀(pos 0, term "x"): [P(x), ∀x.P(x), ¬∃x.P(x), ¬(root)]
+ * 3. ¬∃(pos 2, term "x"): [¬P(x), ¬∃x.P(x), P(x), ∀x.P(x), ¬(root)]
+ * 4. BS: P(x) と ¬P(x)
+ */
+const tab23UniversalToExistential: ModelAnswer = {
+  questId: "tab-23",
+  steps: [
+    {
+      _tag: "tab-root",
+      sequentText: "~((forall x. P(x)) -> (exists x. P(x)))",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "universal",
+      principalPosition: 0,
+      termText: "x",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "neg-existential",
+      principalPosition: 2,
+      termText: "x",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-24: 存在連言分配 ¬(∃x.(P(x) ∧ Q(x)) → ∃x.P(x))
+ *
+ * 0. Root: ¬(∃x.(P(x)∧Q(x)) → ∃x.P(x))
+ * 1. ¬→(pos 0): [∃x.(P(x)∧Q(x)), ¬∃x.P(x), ¬(root)]
+ * 2. ∃(pos 0, eigen "a"): [P(a)∧Q(a), ∃x.(P(x)∧Q(x)), ¬∃x.P(x), ¬(root)]
+ * 3. ∧(pos 0): [P(a), Q(a), P(a)∧Q(a), ∃x.(...), ¬∃x.P(x), ¬(root)]
+ * 4. ¬∃(pos 4, term "a"): [¬P(a), ¬∃x.P(x), P(a), Q(a), ...]
+ * 5. BS: P(a) と ¬P(a)
+ */
+const tab24ExistentialConjunction: ModelAnswer = {
+  questId: "tab-24",
+  steps: [
+    {
+      _tag: "tab-root",
+      sequentText: "~((exists x. (P(x) /\\ Q(x))) -> (exists x. P(x)))",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "existential",
+      principalPosition: 0,
+      eigenVariable: "a",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "conjunction",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "neg-existential",
+      principalPosition: 4,
+      termText: "a",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-25: 否定全称から存在否定 ¬(¬∀x.P(x) → ∃x.¬P(x))
+ *
+ * 0. Root: ¬(¬∀x.P(x) → ∃x.¬P(x))
+ * 1. ¬→(pos 0): [¬∀x.P(x), ¬∃x.¬P(x), ¬(root)]
+ * 2. ¬∀(pos 0, eigen "a"): [¬P(a), ¬∀x.P(x), ¬∃x.¬P(x), ¬(root)]
+ * 3. ¬∃(pos 2, term "a"): [¬¬P(a), ¬∃x.¬P(x), ¬P(a), ¬∀x.P(x), ¬(root)]
+ * 4. ¬¬(pos 0): [P(a), ¬¬P(a), ¬∃x.¬P(x), ¬P(a), ...]
+ * 5. BS: P(a) と ¬P(a)
+ */
+const tab25NegUniversalToExistNeg: ModelAnswer = {
+  questId: "tab-25",
+  steps: [
+    {
+      _tag: "tab-root",
+      sequentText: "~(~(forall x. P(x)) -> (exists x. ~P(x)))",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "neg-universal",
+      principalPosition: 0,
+      eigenVariable: "a",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "neg-existential",
+      principalPosition: 2,
+      termText: "a",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "double-negation",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
+/**
+ * tab-26: 存在選言分配 ¬((∃x.P(x) ∨ ∃x.Q(x)) → ∃x.(P(x) ∨ Q(x)))
+ *
+ * 0. Root: ¬((∃x.P(x) ∨ ∃x.Q(x)) → ∃x.(P(x)∨Q(x)))
+ * sequent: [¬((∃x.P(x)∨∃x.Q(x))→∃x.(P(x)∨Q(x)))]
+ *
+ * 1. ¬→(pos 0):
+ * sequent: [∃x.P(x)∨∃x.Q(x), ¬∃x.(P(x)∨Q(x)), ¬(root)]
+ *
+ * 2. ∨(pos 0): 分岐
+ *   左: [∃x.P(x), ∃x.P(x)∨∃x.Q(x), ¬∃x.(P(x)∨Q(x)), ¬(root)]
+ *   右: [∃x.Q(x), ∃x.P(x)∨∃x.Q(x), ¬∃x.(P(x)∨Q(x)), ¬(root)]
+ *
+ * 左枝:
+ * 3. ∃(pos 0, eigen "a"):
+ *   [P(a), ∃x.P(x), ∃x.P(x)∨∃x.Q(x), ¬∃x.(P(x)∨Q(x)), ¬(root)]
+ *   positions: 0=P(a), 1=∃x.P(x), 2=∃x.P(x)∨∃x.Q(x), 3=¬∃x.(P(x)∨Q(x)), 4=¬(root)
+ *
+ * 4. ¬∃(pos 3, term "a"):
+ *   [¬(P(a)∨Q(a)), ¬∃x.(P(x)∨Q(x)), P(a), ∃x.P(x), ∃x.P(x)∨∃x.Q(x), ¬(root)]
+ *
+ * 5. ¬∨(pos 0):
+ *   [¬P(a), ¬Q(a), ¬(P(a)∨Q(a)), ¬∃x.(P(x)∨Q(x)), P(a), ...]
+ *
+ * 6. BS: P(a)(pos 4) と ¬P(a)(pos 0) で閉じる
+ *
+ * 右枝:
+ * 7. ∃(pos 0, eigen "a"):
+ *   [Q(a), ∃x.Q(x), ∃x.P(x)∨∃x.Q(x), ¬∃x.(P(x)∨Q(x)), ¬(root)]
+ *
+ * 8. ¬∃(pos 3, term "a"):
+ *   [¬(P(a)∨Q(a)), ¬∃x.(P(x)∨Q(x)), Q(a), ∃x.Q(x), ∃x.P(x)∨∃x.Q(x), ¬(root)]
+ *
+ * 9. ¬∨(pos 0):
+ *   [¬P(a), ¬Q(a), ¬(P(a)∨Q(a)), ¬∃x.(P(x)∨Q(x)), Q(a), ...]
+ *
+ * 10. BS: Q(a)(pos 4) と ¬Q(a)(pos 1) で閉じる
+ */
+const tab26ExistentialDisjunction: ModelAnswer = {
+  questId: "tab-26",
+  steps: [
+    {
+      _tag: "tab-root",
+      sequentText:
+        "~(((exists x. P(x)) \\/ (exists x. Q(x))) -> (exists x. (P(x) \\/ Q(x))))",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 0,
+      ruleId: "neg-implication",
+      principalPosition: 0,
+    },
+    // ∨ 分岐: stepNodeIds[2]=left(∃x.P(x)), stepNodeIds[3]=right(∃x.Q(x))
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 1,
+      ruleId: "disjunction",
+      principalPosition: 0,
+    },
+    // --- 左枝 (∃x.P(x)) ---
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 2,
+      ruleId: "existential",
+      principalPosition: 0,
+      eigenVariable: "a",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 4,
+      ruleId: "neg-existential",
+      principalPosition: 3,
+      termText: "a",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 5,
+      ruleId: "neg-disjunction",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 6,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+    // --- 右枝 (∃x.Q(x)) ---
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 3,
+      ruleId: "existential",
+      principalPosition: 0,
+      eigenVariable: "a",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 8,
+      ruleId: "neg-existential",
+      principalPosition: 3,
+      termText: "a",
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 9,
+      ruleId: "neg-disjunction",
+      principalPosition: 0,
+    },
+    {
+      _tag: "tab-rule",
+      conclusionIndex: 10,
+      ruleId: "bs",
+      principalPosition: 0,
+    },
+  ],
+};
+
 // ============================================================
 // 分析的タブロー (AT) — at-basics
 // ATステップタイプ追加後にリッチな模範解答（実際のタブロー展開）に更新予定。
@@ -9331,6 +9596,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   tab20ExistentialToNegUniversal,
   tab21UniversalImplicationDist,
   tab22UniversalConjunctionDist,
+  tab23UniversalToExistential,
+  tab24ExistentialConjunction,
+  tab25NegUniversalToExistNeg,
+  tab26ExistentialDisjunction,
   // at-basics (axiom直接配置 — ATステップタイプ追加後にリッチな模範解答に更新予定)
   at01ExcludedMiddle,
   at02Implication,
