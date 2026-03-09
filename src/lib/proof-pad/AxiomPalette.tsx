@@ -15,6 +15,7 @@ import { findEntryById } from "../reference/referenceEntry";
 import { ReferencePopover } from "../reference/ReferencePopover";
 import { FormulaDisplay } from "../formula-input/FormulaDisplay";
 import { useProofMessages } from "./ProofMessagesContext";
+import type { PanelPosition } from "./panelPositionLogic";
 
 // --- Props ---
 
@@ -29,6 +30,12 @@ export interface AxiomPaletteProps {
   readonly locale?: Locale;
   /** リファレンス詳細モーダルを開くコールバック */
   readonly onOpenReferenceDetail?: (entryId: string) => void;
+  /** パネル位置（指定時はleft/topで配置、省略時はデフォルトのleft/topで配置） */
+  readonly position?: PanelPosition;
+  /** ドラッグハンドルのpointerdownイベント */
+  readonly onDragHandlePointerDown?: (
+    e: React.PointerEvent<HTMLElement>,
+  ) => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -180,6 +187,8 @@ export function AxiomPalette({
   referenceEntries,
   locale,
   onOpenReferenceDetail,
+  position,
+  onDragHandlePointerDown,
   testId,
 }: AxiomPaletteProps) {
   const msg = useProofMessages();
@@ -217,13 +226,32 @@ export function AxiomPalette({
     ],
   );
 
+  const resolvedPanelStyle = useMemo(
+    (): CSSProperties =>
+      position !== undefined
+        ? { ...panelStyle, left: position.x, top: position.y }
+        : panelStyle,
+    [position],
+  );
+
+  const dragHeaderStyle = useMemo(
+    (): CSSProperties => ({
+      ...headerStyle,
+      cursor: onDragHandlePointerDown !== undefined ? "grab" : undefined,
+      userSelect: onDragHandlePointerDown !== undefined ? "none" : undefined,
+    }),
+    [onDragHandlePointerDown],
+  );
+
   if (axioms.length === 0) {
     return null;
   }
 
   return (
-    <div data-testid={testId} style={panelStyle}>
-      <div style={headerStyle}>{msg.axiomPaletteHeader}</div>
+    <div data-testid={testId} style={resolvedPanelStyle}>
+      <div style={dragHeaderStyle} onPointerDown={onDragHandlePointerDown}>
+        {msg.axiomPaletteHeader}
+      </div>
       {items}
     </div>
   );

@@ -87,6 +87,8 @@ import { useProofMessages } from "./ProofMessagesContext";
 import { checkGoal } from "./goalCheckLogic";
 import { computeGoalPanelData, type GoalViolationInfo } from "./goalPanelLogic";
 import { GoalPanel } from "./GoalPanel";
+import type { PanelPosition, PanelRect } from "./panelPositionLogic";
+import { usePanelDrag } from "./usePanelDrag";
 import {
   computeStepCount,
   checkQuestGoalsWithAxioms,
@@ -855,6 +857,82 @@ export function ProofWorkspace({
     };
   }, []);
   /* v8 ignore stop */
+
+  // パネル位置（ドラッグ可能なパネル用）
+  // デフォルト位置: AxiomPalette=左上(12,48), GoalPanel=右上
+  const [axiomPalettePos, setAxiomPalettePos] = useState<PanelPosition>({
+    x: 12,
+    y: 48,
+  });
+  // GoalPanelのユーザードラッグ位置（nullならデフォルト位置を使用）
+  const [goalPanelDragPos, setGoalPanelDragPos] =
+    useState<PanelPosition | null>(null);
+  // GoalPanelの実効位置: ドラッグ済みならドラッグ位置、未ドラッグならcontainerSizeから計算
+  const goalPanelPos = useMemo(
+    (): PanelPosition =>
+      goalPanelDragPos ?? {
+        x: Math.max(8, containerSize.width - 280 - 12),
+        y: 48,
+      },
+    [goalPanelDragPos, containerSize.width],
+  );
+
+  // パネルサイズの概算値（DOM実測は後のイテレーションで対応）
+  const axiomPalettePanelSize = useMemo(
+    () => ({ width: 200, height: 250 }),
+    [],
+  );
+  const goalPanelPanelSize = useMemo(() => ({ width: 280, height: 200 }), []);
+
+  // 他パネルの矩形（重なり回避用）
+  const axiomPaletteOtherPanels = useMemo(
+    (): readonly PanelRect[] => [
+      {
+        x: goalPanelPos.x,
+        y: goalPanelPos.y,
+        ...goalPanelPanelSize,
+      },
+    ],
+    [goalPanelPos, goalPanelPanelSize],
+  );
+
+  const goalPanelOtherPanels = useMemo(
+    (): readonly PanelRect[] => [
+      {
+        x: axiomPalettePos.x,
+        y: axiomPalettePos.y,
+        ...axiomPalettePanelSize,
+      },
+    ],
+    [axiomPalettePos, axiomPalettePanelSize],
+  );
+
+  const handleAxiomPalettePositionChange = useCallback(
+    (next: PanelPosition) => {
+      setAxiomPalettePos(next);
+    },
+    [],
+  );
+
+  const handleGoalPanelPositionChange = useCallback((next: PanelPosition) => {
+    setGoalPanelDragPos(next);
+  }, []);
+
+  const axiomPaletteDrag = usePanelDrag({
+    position: axiomPalettePos,
+    panelSize: axiomPalettePanelSize,
+    containerSize,
+    otherPanels: axiomPaletteOtherPanels,
+    onPositionChange: handleAxiomPalettePositionChange,
+  });
+
+  const goalPanelDrag = usePanelDrag({
+    position: goalPanelPos,
+    panelSize: goalPanelPanelSize,
+    containerSize,
+    otherPanels: goalPanelOtherPanels,
+    onPositionChange: handleGoalPanelPositionChange,
+  });
 
   // エッジスクロール（ドラッグ中にキャンバス端で自動パン）
   const { notifyDragMove, notifyDragEnd, edgePenetration } = useEdgeScroll(
@@ -4796,6 +4874,8 @@ export function ProofWorkspace({
           referenceEntries={referenceEntries}
           locale={locale}
           onOpenReferenceDetail={onOpenReferenceDetail}
+          position={axiomPalettePos}
+          onDragHandlePointerDown={axiomPaletteDrag.handleProps.onPointerDown}
           testId={
             /* v8 ignore start -- V8集約アーティファクト */
             testId ? `${testId satisfies string}-axiom-palette` : undefined
@@ -4808,6 +4888,8 @@ export function ProofWorkspace({
       <GoalPanel
         data={goalPanelData}
         messages={msg}
+        position={goalPanelPos}
+        onDragHandlePointerDown={goalPanelDrag.handleProps.onPointerDown}
         testId={
           /* v8 ignore start -- V8集約アーティファクト */ testId
             ? `${testId satisfies string}-goal-panel`
