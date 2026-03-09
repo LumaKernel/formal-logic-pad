@@ -2916,6 +2916,7 @@ export function ProofWorkspace({
 
   /* v8 ignore start -- キャンバスコンテキストメニュー操作: 右クリックメニューはJSDOMで再現困難。ブラウザテストで検証 */
   const handleCanvasMenuAddNode = useCallback(() => {
+    const newNodeId = `node-${String(workspace.nextNodeId) satisfies string}`;
     const ws = addNode(
       workspace,
       "axiom",
@@ -2923,6 +2924,7 @@ export function ProofWorkspace({
       canvasMenuState.worldPosition,
     );
     setWorkspace(ws);
+    setEditRequestNodeId(newNodeId);
     setCanvasMenuState({
       open: false,
       screenPosition: { x: 0, y: 0 },
