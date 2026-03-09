@@ -82,9 +82,7 @@ export const SmallProof: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     // ノードが存在することを確認
-    await expect(
-      canvas.getByTestId("workspace"),
-    ).toBeInTheDocument();
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
   },
 };
 
@@ -93,9 +91,7 @@ export const MediumProof: Story = {
   render: () => <ModelAnswerWorkspace questId="prop-04" />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(
-      canvas.getByTestId("workspace"),
-    ).toBeInTheDocument();
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
   },
 };
 
@@ -104,8 +100,6 @@ export const LargeProof: Story = {
   render: () => <ModelAnswerWorkspace questId="prop-16" />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(
-      canvas.getByTestId("workspace"),
-    ).toBeInTheDocument();
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
   },
 };
