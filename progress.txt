@@ -11379,3 +11379,17 @@
   - バナースタイルのベースオブジェクト(`mpSelectionBannerStyle`)を修正すると、すべての派生バナー（MP, Gen, SC等）にも反映される
   - flexコンテナ内のボタンが収縮してテキスト折り返しする問題は`whiteSpace: "nowrap"`で解決
 ---
+
+## 2026-03-09 - 模範解答デモストーリー追加
+- 模範解答をProofWorkspaceで表示するためのStorybookストーリーを新規作成
+- 小規模(prop-01: 5ステップ), 中規模(prop-04: 14ステップ), 巨大(prop-16: 107ステップ)をカバー
+- `buildModelAnswerWorkspace` で模範解答DAGからWorkspaceStateを生成し、ProofWorkspaceで描画
+- 変更ファイル:
+  - src/lib/proof-pad/ModelAnswerDemo.stories.tsx — 新規作成（SmallProof/MediumProof/LargeProof）
+- テスト: 8685 passed, Stmts 99.95%, Branch 100%, Lines 100%（変化なし）
+- スクリーンショット: .screenshots/model-answer-small-proof.png, .screenshots/model-answer-large-proof.png
+- **今後のイテレーションへの学び:**
+  - `buildModelAnswerWorkspace` の結果から `workspace.system` でLogicSystemを取得可能（別途resolveSystemPreset不要）
+  - 107ステップの巨大証明（prop-16）でもStorybookテストは2秒以内で完了
+  - play関数のtestIdは `workspace` が正（`workspace-canvas` ではない）
+---
