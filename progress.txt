@@ -104,6 +104,28 @@
 
 ---
 
+## 2026-03-09 - 命題論理上級クエスト追加（prop-44〜prop-47）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8646 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8658 tests
+- 変更内容:
+  - prop-44: φ → (φ ∨ ψ) (difficulty 5) — 選言導入。EFQ + 選言定義展開
+  - prop-45: (φ ∨ ψ) → (ψ ∨ φ) (difficulty 5) — 選言の可換性。対偶+DNE
+  - prop-46: (φ ∧ ψ) → (ψ ∧ φ) (difficulty 5) — 連言の可換性。連言定義展開
+  - prop-47: (¬φ ∧ ¬ψ) → ¬(φ ∨ ψ) (difficulty 5) — ド・モルガンの逆方向
+  - propositional-advanced カテゴリ: 6問→10問に拡充
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 231→235
+- テスト: 8658 passed (243 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/quest-catalog-235-overview.png
+- **今後のイテレーションへの学び:**
+  - propositional-advanced は difficulty 5 固定。Hilbert系では連言/選言の定義展開が長大で axiom ステップが現実的
+  - 選言導入 φ→(φ∨ψ) は EFQ の一般化。選言の定義 φ∨ψ≡¬φ→ψ を展開すると φ→(¬φ→ψ) に帰着
+  - 現在のカテゴリ別クエスト数: prop-basics11, prop-inter13, prop-neg12, prop-adv10, pred10, pred-adv10, eq10, peano16(basics6+arith10), group19(basics6+proofs13), nd35, tab22, at19, sc48(basics34+ce14)（235合計）
+  - 残りの6問カテゴリ: peano-basics(6), group-basics(6)
+---
+
 ## 2026-03-09 - 述語論理上級クエスト追加（pred-adv-07〜pred-adv-10）
 - ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8610 tests
 - **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8622 tests
