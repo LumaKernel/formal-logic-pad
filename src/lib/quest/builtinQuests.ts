@@ -291,6 +291,108 @@ const q39ConclusionWeakening: QuestDefinition = {
   version: 1,
 };
 
+const q48A3AxiomInstance: QuestDefinition = {
+  id: "prop-48",
+  category: "propositional-basics",
+  title: "否定公理の確認 (A3)",
+  description:
+    "(¬φ → ¬ψ) → ((¬φ → ψ) → φ) を証明せよ。A3公理のメタ変数をそのまま適用する練習。",
+  difficulty: 1,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(~phi -> ~psi) -> ((~phi -> psi) -> phi)",
+      label: "Goal: (¬φ → ¬ψ) → ((¬φ → ψ) → φ)",
+    },
+  ],
+  hints: [
+    "A3: (¬φ → ¬ψ) → ((¬φ → ψ) → φ) をそのまま使いましょう。",
+    "メタ変数φにφ、ψにψを代入すれば完成です。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "A3（否定公理）はLukasiewicz体系の基礎。二重否定除去や背理法の源。",
+  order: 12,
+  version: 1,
+};
+
+const q49A3LiftedInstance: QuestDefinition = {
+  id: "prop-49",
+  category: "propositional-basics",
+  title: "否定公理のA1持ち上げ",
+  description:
+    "φ → ((¬ψ → ¬χ) → ((¬ψ → χ) → ψ)) を証明せよ。A3をA1で前提の下に持ち上げる。",
+  difficulty: 2,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "phi -> ((~psi -> ~chi) -> ((~psi -> chi) -> psi))",
+      label: "Goal: φ → ((¬ψ → ¬χ) → ((¬ψ → χ) → ψ))",
+    },
+  ],
+  hints: [
+    "A3[φ/ψ, ψ/χ]: (¬ψ → ¬χ) → ((¬ψ → χ) → ψ) をまず作りましょう。",
+    "A1で持ち上げてMPすれば完成です。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "任意の定理はA1で前提の下に「埋め込む」ことができる。A3にも同様に適用可能。",
+  order: 13,
+  version: 1,
+};
+
+const q50A2LiftedInstance: QuestDefinition = {
+  id: "prop-50",
+  category: "propositional-basics",
+  title: "S公理のA1持ち上げ",
+  description:
+    "φ → ((ψ → (χ → θ)) → ((ψ → χ) → (ψ → θ))) を証明せよ。A2をA1で持ち上げる。",
+  difficulty: 2,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText:
+        "phi -> ((psi -> (chi -> theta)) -> ((psi -> chi) -> (psi -> theta)))",
+      label: "Goal: φ → ((ψ → (χ → θ)) → ((ψ → χ) → (ψ → θ)))",
+    },
+  ],
+  hints: [
+    "A2[φ/ψ, ψ/χ, χ/θ]: (ψ→(χ→θ)) → ((ψ→χ) → (ψ→θ)) をまず作りましょう。",
+    "A1で持ち上げてMPすれば完成です。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "A2（S公理）もA1で持ち上げ可能。この「定理の持ち上げ」パターンは帰納的に繰り返せる。",
+  order: 14,
+  version: 1,
+};
+
+const q51A1ChainedLift: QuestDefinition = {
+  id: "prop-51",
+  category: "propositional-basics",
+  title: "恒等律のA1二重持ち上げ",
+  description:
+    "φ → (ψ → (χ → χ)) を証明せよ。恒等律をA1で2回持ち上げる。",
+  difficulty: 2,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "phi -> (psi -> (chi -> chi))",
+      label: "Goal: φ → (ψ → (χ → χ))",
+    },
+  ],
+  hints: [
+    "まず恒等律 χ → χ をQ-01の手順で導出しましょう（5ステップ）。",
+    "A1で ψ → (χ → χ) に持ち上げましょう。",
+    "さらにA1で φ → (ψ → (χ → χ)) に持ち上げましょう。",
+  ],
+  estimatedSteps: 9,
+  learningPoint:
+    "恒等律の二重持ち上げ。A1を繰り返し適用して「入れ子の前提」を追加する基本操作。",
+  order: 15,
+  version: 1,
+};
+
 // --- Level 2-3: 命題論理の中級 ---
 
 const q08TransitivityChain: QuestDefinition = {
@@ -6556,6 +6658,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   q37ImplicationWeakeningA1,
   q38A2SelfSubstitution,
   q39ConclusionWeakening,
+  q48A3AxiomInstance,
+  q49A3LiftedInstance,
+  q50A2LiftedInstance,
+  q51A1ChainedLift,
   q08TransitivityChain,
   q10BComposition,
   q11PremiseConfluence,

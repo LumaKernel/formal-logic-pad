@@ -430,6 +430,129 @@ const prop39ConclusionWeakening: ModelAnswer = {
   ],
 };
 
+/**
+ * prop-48: 否定公理の確認 (¬φ → ¬ψ) → ((¬φ → ψ) → φ)
+ *
+ * A3[φ/φ, ψ/ψ] の直接インスタンス。1ステップ。
+ */
+const prop48A3AxiomInstance: ModelAnswer = {
+  questId: "prop-48",
+  steps: [
+    // 0. A3[φ/φ, ψ/ψ]: (¬φ → ¬ψ) → ((¬φ → ψ) → φ)
+    {
+      _tag: "axiom",
+      formulaText: "(~phi -> ~psi) -> ((~phi -> psi) -> phi)",
+    },
+  ],
+};
+
+/**
+ * prop-49: 否定公理のA1持ち上げ φ → ((¬ψ → ¬χ) → ((¬ψ → χ) → ψ))
+ *
+ * A3をA1で前提の下に持ち上げる。3ステップ。
+ *
+ * 証明:
+ * 0. A3[φ/ψ, ψ/χ]: (¬ψ → ¬χ) → ((¬ψ → χ) → ψ)
+ * 1. A1: ((¬ψ→¬χ)→((¬ψ→χ)→ψ)) → (φ → ((¬ψ→¬χ)→((¬ψ→χ)→ψ)))
+ * 2. MP(0, 1): φ → ((¬ψ→¬χ)→((¬ψ→χ)→ψ))
+ */
+const prop49A3LiftedInstance: ModelAnswer = {
+  questId: "prop-49",
+  steps: [
+    // 0. A3[φ/ψ, ψ/χ]: (¬ψ → ¬χ) → ((¬ψ → χ) → ψ)
+    {
+      _tag: "axiom",
+      formulaText: "(~psi -> ~chi) -> ((~psi -> chi) -> psi)",
+    },
+    // 1. A1: ((¬ψ→¬χ)→((¬ψ→χ)→ψ)) → (φ → ((¬ψ→¬χ)→((¬ψ→χ)→ψ)))
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~psi -> ~chi) -> ((~psi -> chi) -> psi)) -> (phi -> ((~psi -> ~chi) -> ((~psi -> chi) -> psi)))",
+    },
+    // 2. MP(0, 1): φ → ((¬ψ→¬χ)→((¬ψ→χ)→ψ))
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * prop-50: S公理のA1持ち上げ φ → ((ψ → (χ → θ)) → ((ψ → χ) → (ψ → θ)))
+ *
+ * A2をA1で前提の下に持ち上げる。3ステップ。
+ *
+ * 証明:
+ * 0. A2[φ/ψ, ψ/χ, χ/θ]: (ψ→(χ→θ)) → ((ψ→χ) → (ψ→θ))
+ * 1. A1: ((ψ→(χ→θ))→((ψ→χ)→(ψ→θ))) → (φ → ((ψ→(χ→θ))→((ψ→χ)→(ψ→θ))))
+ * 2. MP(0, 1): φ → ((ψ→(χ→θ))→((ψ→χ)→(ψ→θ)))
+ */
+const prop50A2LiftedInstance: ModelAnswer = {
+  questId: "prop-50",
+  steps: [
+    // 0. A2[φ/ψ, ψ/χ, χ/θ]: (ψ→(χ→θ)) → ((ψ→χ) → (ψ→θ))
+    {
+      _tag: "axiom",
+      formulaText:
+        "(psi -> (chi -> theta)) -> ((psi -> chi) -> (psi -> theta))",
+    },
+    // 1. A1: 上記を φ の下に持ち上げ
+    {
+      _tag: "axiom",
+      formulaText:
+        "((psi -> (chi -> theta)) -> ((psi -> chi) -> (psi -> theta))) -> (phi -> ((psi -> (chi -> theta)) -> ((psi -> chi) -> (psi -> theta))))",
+    },
+    // 2. MP(0, 1): φ → ((ψ→(χ→θ))→((ψ→χ)→(ψ→θ)))
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * prop-51: 恒等律のA1二重持ち上げ φ → (ψ → (χ → χ))
+ *
+ * まず恒等律 χ → χ を導出し、A1で2回持ち上げる。9ステップ。
+ *
+ * 証明:
+ * 0. A1[φ/χ, ψ/(χ→χ)]: χ → ((χ→χ) → χ)
+ * 1. A2[φ/χ, ψ/(χ→χ), χ/χ]: (χ→((χ→χ)→χ)) → ((χ→(χ→χ)) → (χ→χ))
+ * 2. MP(0, 1): (χ→(χ→χ)) → (χ→χ)
+ * 3. A1[φ/χ, ψ/χ]: χ → (χ → χ)
+ * 4. MP(3, 2): χ → χ
+ * 5. A1: (χ→χ) → (ψ → (χ→χ))
+ * 6. MP(4, 5): ψ → (χ→χ)
+ * 7. A1: (ψ→(χ→χ)) → (φ → (ψ→(χ→χ)))
+ * 8. MP(6, 7): φ → (ψ → (χ→χ))
+ */
+const prop51A1ChainedLift: ModelAnswer = {
+  questId: "prop-51",
+  steps: [
+    // 0. A1[φ/χ, ψ/(χ→χ)]: χ → ((χ→χ) → χ)
+    { _tag: "axiom", formulaText: "chi -> ((chi -> chi) -> chi)" },
+    // 1. A2[φ/χ, ψ/(χ→χ), χ/χ]: (χ→((χ→χ)→χ)) → ((χ→(χ→χ)) → (χ→χ))
+    {
+      _tag: "axiom",
+      formulaText:
+        "(chi -> ((chi -> chi) -> chi)) -> ((chi -> (chi -> chi)) -> (chi -> chi))",
+    },
+    // 2. MP(0, 1): (χ→(χ→χ)) → (χ→χ)
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    // 3. A1[φ/χ, ψ/χ]: χ → (χ → χ)
+    { _tag: "axiom", formulaText: "chi -> (chi -> chi)" },
+    // 4. MP(3, 2): χ → χ
+    { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+    // 5. A1: (χ→χ) → (ψ → (χ→χ))
+    { _tag: "axiom", formulaText: "(chi -> chi) -> (psi -> (chi -> chi))" },
+    // 6. MP(4, 5): ψ → (χ→χ)
+    { _tag: "mp", leftIndex: 4, rightIndex: 5 },
+    // 7. A1: (ψ→(χ→χ)) → (φ → (ψ→(χ→χ)))
+    {
+      _tag: "axiom",
+      formulaText:
+        "(psi -> (chi -> chi)) -> (phi -> (psi -> (chi -> chi)))",
+    },
+    // 8. MP(6, 7): φ → (ψ → (χ→χ))
+    { _tag: "mp", leftIndex: 6, rightIndex: 7 },
+  ],
+};
+
 // ============================================================
 // propositional-intermediate: 命題論理の中級（Łukasiewicz体系）
 // ============================================================
@@ -9022,6 +9145,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   prop37ImplicationWeakeningA1,
   prop38A2SelfSubstitution,
   prop39ConclusionWeakening,
+  prop48A3AxiomInstance,
+  prop49A3LiftedInstance,
+  prop50A2LiftedInstance,
+  prop51A1ChainedLift,
   // propositional-intermediate
   prop11PremiseMerge,
   prop13Frege,
