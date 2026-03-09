@@ -11393,3 +11393,20 @@
   - 107ステップの巨大証明（prop-16）でもStorybookテストは2秒以内で完了
   - play関数のtestIdは `workspace` が正（`workspace-canvas` ではない）
 ---
+
+## 2026-03-09 - クエストモード拡充（述語論理上級）
+- 述語論理上級カテゴリに4問追加（pred-adv-11〜pred-adv-14）
+  - pred-adv-11: 空虚な全称化 φ → (∀x.φ)（Gen + A5パターン、8ステップ模範解答付き）
+  - pred-adv-12: 存在量化子の交換 (∃x.∃y.P(x,y)) → (∃y.∃x.P(x,y))（axiomステップ）
+  - pred-adv-13: 全称下の対偶 (∀x.(P(x)→Q(x))) → (∀x.(¬Q(x)→¬P(x)))（axiomステップ）
+  - pred-adv-14: 全称下の弱化 (∀x.P(x)) → (∀x.(Q(x)→P(x)))（axiomステップ）
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts（4問定義追加）
+  - src/lib/quest/builtinModelAnswers.ts（4模範解答追加）
+  - src/lib/quest/builtinQuests.test.ts（クエスト数 243→247）
+- テスト: 8697テスト全通過、カバレッジ: Stmts 99.95%, Branch 100%, Lines 100%（低下なし）
+- スクリーンショット: .screenshots/pred-adv-quest-catalog-overview.png, .screenshots/pred-adv-hub-quests-tab.png
+- **今後のイテレーションへの学び:**
+  - 述語論理上級は全14問。次は自然演繹やシーケント計算のクエスト拡充が考えられる
+  - pred-adv-12〜14はaxiomステップのみ（ゴール式直接配置）。フル証明の模範解答は今後の課題
+---
