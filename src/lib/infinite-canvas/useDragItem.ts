@@ -33,6 +33,12 @@ export function useDragItem(
 ): UseDragItemResult {
   const [isDragging, setIsDragging] = useState(false);
   const grabOffsetRef = useRef<Point | null>(null);
+  // Pointer capture は pointermove 時に遅延適用する。
+  // pointerdown 時に即座にキャプチャすると、ブラウザの dblclick 合成の
+  // ターゲットが CanvasItem div にルーティングされ、子要素（FormulaEditor等）の
+  // onDoubleClick ハンドラに到達しなくなる。
+  const pointerIdRef = useRef<number | null>(null);
+  const capturedRef = useRef(false);
 
   // Keep viewport in a ref so onPointerMove always sees the latest value
   // (important when edge scroll changes the viewport between pointer events)
@@ -48,12 +54,9 @@ export function useDragItem(
       // Stop propagation to prevent canvas pan
       e.stopPropagation();
 
-      // ブラウザAPI可用性チェック（テスト環境ではモックされる場合がある）
-      /* v8 ignore start */
-      if (e.currentTarget.setPointerCapture) {
-        /* v8 ignore stop */
-        e.currentTarget.setPointerCapture(e.pointerId);
-      }
+      // setPointerCapture は pointermove 時に遅延適用する
+      pointerIdRef.current = e.pointerId;
+      capturedRef.current = false;
       setIsDragging(true);
       grabOffsetRef.current = computeGrabOffset(
         viewportRef.current,
@@ -70,6 +73,16 @@ export function useDragItem(
 
       // Stop propagation to prevent canvas pan
       e.stopPropagation();
+
+      // 最初の pointermove 時に pointer capture を適用
+      if (!capturedRef.current && pointerIdRef.current !== null) {
+        /* v8 ignore start -- ブラウザAPI可用性チェック */
+        if (e.currentTarget.setPointerCapture) {
+          /* v8 ignore stop */
+          e.currentTarget.setPointerCapture(pointerIdRef.current);
+        }
+        capturedRef.current = true;
+      }
 
       const screenCursor: Point = { x: e.clientX, y: e.clientY };
       const rawPosition = computeDragPosition(
@@ -90,12 +103,18 @@ export function useDragItem(
     // Stop propagation to prevent canvas pan
     e.stopPropagation();
 
-    // ブラウザAPI可用性チェック
-    /* v8 ignore start */
-    if (e.currentTarget.releasePointerCapture) {
+    // キャプチャ済みの場合のみ解放
+    if (capturedRef.current) {
+      /* v8 ignore start -- ブラウザAPI可用性チェック + 防御的フォールバック */
+      if (e.currentTarget.releasePointerCapture) {
+        e.currentTarget.releasePointerCapture(
+          pointerIdRef.current ?? e.pointerId,
+        );
+      }
       /* v8 ignore stop */
-      e.currentTarget.releasePointerCapture(e.pointerId);
     }
+    capturedRef.current = false;
+    pointerIdRef.current = null;
     setIsDragging(false);
     grabOffsetRef.current = null;
   }, []);

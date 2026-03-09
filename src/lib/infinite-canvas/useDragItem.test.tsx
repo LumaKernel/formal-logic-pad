@@ -221,11 +221,20 @@ describe("useDragItem", () => {
       clientY: 100,
       pointerId: 7,
     });
+    // setPointerCapture は pointermove まで遅延される（dblclick 互換性のため）
+    expect(Element.prototype.setPointerCapture).not.toHaveBeenCalled();
+
+    // pointermove でキャプチャが適用される
+    fireEvent.pointerMove(target, {
+      clientX: 110,
+      clientY: 110,
+      pointerId: 7,
+    });
     expect(Element.prototype.setPointerCapture).toHaveBeenCalledWith(7);
 
     fireEvent.pointerUp(target, {
-      clientX: 100,
-      clientY: 100,
+      clientX: 110,
+      clientY: 110,
       pointerId: 7,
     });
     expect(Element.prototype.releasePointerCapture).toHaveBeenCalledWith(7);
