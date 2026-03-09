@@ -893,10 +893,7 @@ export function ProofWorkspace({
     [],
   );
   const goalPanelPanelSize = useMemo(() => ({ width: 280, height: 200 }), []);
-  const collectionPanelSize = useMemo(
-    () => ({ width: 280, height: 250 }),
-    [],
-  );
+  const collectionPanelSize = useMemo(() => ({ width: 280, height: 250 }), []);
 
   // 他パネルの矩形（重なり回避用）
   const axiomPaletteOtherPanels = useMemo(
@@ -908,12 +905,7 @@ export function ProofWorkspace({
         ...collectionPanelSize,
       },
     ],
-    [
-      goalPanelPos,
-      goalPanelPanelSize,
-      collectionPanelPos,
-      collectionPanelSize,
-    ],
+    [goalPanelPos, goalPanelPanelSize, collectionPanelPos, collectionPanelSize],
   );
 
   const goalPanelOtherPanels = useMemo(
@@ -4991,7 +4983,9 @@ export function ProofWorkspace({
           onRemoveFolder={onRemoveCollectionFolder}
           onRenameFolder={onRenameCollectionFolder}
           position={collectionPanelPos}
-          onDragHandlePointerDown={collectionPanelDrag.handleProps.onPointerDown}
+          onDragHandlePointerDown={
+            collectionPanelDrag.handleProps.onPointerDown
+          }
           testId={
             /* v8 ignore start -- V8集約アーティファクト */
             testId ? `${testId satisfies string}-collection-panel` : undefined

@@ -8,7 +8,13 @@
  * 変更時は QuestCatalogComponent.test.tsx, QuestCatalogComponent.stories.tsx も同期すること。
  */
 
-import { useState, type CSSProperties } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  type CSSProperties,
+} from "react";
 import type { QuestCatalogItem, CategoryGroup } from "./questCatalog";
 import type { QuestId, DifficultyLevel } from "./questDefinition";
 import {
@@ -42,6 +48,8 @@ export type QuestCatalogProps = {
   readonly onShowQuestNotebooks?: (questId: QuestId) => void;
   /** ビルトインクエストを自作クエストに複製するコールバック */
   readonly onDuplicateToCustom?: (questId: QuestId) => void;
+  /** 模範解答を表示するコールバック */
+  readonly onShowModelAnswer?: (questId: QuestId) => void;
 };
 
 // --- Styles ---
@@ -275,17 +283,49 @@ const startButtonStyle: CSSProperties = {
   transition: "background 0.15s",
 };
 
-const duplicateToCustomButtonStyle: CSSProperties = {
-  padding: "4px 8px",
-  fontSize: 10,
-  fontWeight: 600,
-  borderRadius: 4,
-  border: "1px solid var(--color-border, #ccc)",
+const moreButtonStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 28,
+  height: 28,
+  borderRadius: "50%",
+  border: "none",
   background: "transparent",
   color: "var(--color-text-secondary, #666)",
   cursor: "pointer",
   flexShrink: 0,
-  transition: "background 0.15s, color 0.15s",
+  fontSize: 16,
+  lineHeight: 1,
+  transition: "background 0.15s",
+};
+
+const moreMenuStyle: CSSProperties = {
+  position: "absolute",
+  right: 0,
+  top: "100%",
+  zIndex: 10,
+  minWidth: 140,
+  background: "var(--color-quest-card-bg, #fff)",
+  border: "1px solid var(--color-quest-card-border, #e0e0e0)",
+  borderRadius: 6,
+  boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+  padding: "4px 0",
+};
+
+const moreMenuItemStyle: CSSProperties = {
+  display: "block",
+  width: "100%",
+  padding: "7px 14px",
+  fontSize: 12,
+  fontWeight: 500,
+  border: "none",
+  background: "transparent",
+  color: "var(--color-text-primary, #333)",
+  cursor: "pointer",
+  textAlign: "left",
+  transition: "background 0.12s",
+  whiteSpace: "nowrap",
 };
 
 const emptyStyle: CSSProperties = {
@@ -395,18 +435,109 @@ function NotebookCountBadge({
   );
 }
 
+function QuestItemMoreMenu({
+  questId,
+  onDuplicateToCustom,
+  onShowModelAnswer,
+}: {
+  readonly questId: QuestId;
+  readonly onDuplicateToCustom?: (questId: QuestId) => void;
+  readonly onShowModelAnswer?: (questId: QuestId) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const hasActions =
+    onDuplicateToCustom !== undefined || onShowModelAnswer !== undefined;
+
+  const handleToggle = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setOpen((prev) => !prev);
+  }, []);
+
+  // 外側クリックで閉じる
+  useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        menuRef.current !== null &&
+        !menuRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  if (!hasActions) return null;
+
+  return (
+    <div
+      ref={menuRef}
+      style={{ position: "relative", flexShrink: 0 }}
+      data-testid={`quest-more-menu-${questId satisfies string}`}
+    >
+      <button
+        data-testid={`quest-more-btn-${questId satisfies string}`}
+        style={moreButtonStyle}
+        onClick={handleToggle}
+        title="その他のアクション"
+        aria-label="その他のアクション"
+      >
+        {"\u22EE"}
+      </button>
+      {open && (
+        <div
+          style={moreMenuStyle}
+          data-testid={`quest-more-dropdown-${questId satisfies string}`}
+        >
+          {onShowModelAnswer !== undefined && (
+            <button
+              data-testid={`show-model-answer-btn-${questId satisfies string}`}
+              style={moreMenuItemStyle}
+              onClick={(e) => {
+                e.stopPropagation();
+                onShowModelAnswer(questId);
+                setOpen(false);
+              }}
+            >
+              模範解答を表示
+            </button>
+          )}
+          {onDuplicateToCustom !== undefined && (
+            <button
+              data-testid={`duplicate-to-custom-btn-${questId satisfies string}`}
+              style={moreMenuItemStyle}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDuplicateToCustom(questId);
+                setOpen(false);
+              }}
+            >
+              自作に複製
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function QuestItem({
   item,
   onStart,
   notebookCount,
   onShowNotebooks,
   onDuplicateToCustom,
+  onShowModelAnswer,
 }: {
   readonly item: QuestCatalogItem;
   readonly onStart: (questId: QuestId) => void;
   readonly notebookCount: number;
   readonly onShowNotebooks?: (questId: QuestId) => void;
   readonly onDuplicateToCustom?: (questId: QuestId) => void;
+  readonly onShowModelAnswer?: (questId: QuestId) => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -441,19 +572,11 @@ function QuestItem({
         </div>
       </div>
       <RatingBadge rating={item.rating} />
-      {onDuplicateToCustom !== undefined && (
-        <button
-          data-testid={`duplicate-to-custom-btn-${item.quest.id satisfies string}`}
-          style={duplicateToCustomButtonStyle}
-          onClick={(e) => {
-            e.stopPropagation();
-            onDuplicateToCustom(item.quest.id);
-          }}
-          title="自作に複製"
-        >
-          自作に複製
-        </button>
-      )}
+      <QuestItemMoreMenu
+        questId={item.quest.id}
+        onDuplicateToCustom={onDuplicateToCustom}
+        onShowModelAnswer={onShowModelAnswer}
+      />
       <button
         data-testid={`start-btn-${item.quest.id satisfies string}`}
         style={startButtonStyle}
@@ -476,6 +599,7 @@ function CategorySection({
   notebookCounts,
   onShowNotebooks,
   onDuplicateToCustom,
+  onShowModelAnswer,
 }: {
   readonly group: CategoryGroup;
   readonly chapterNumber: number;
@@ -483,6 +607,7 @@ function CategorySection({
   readonly notebookCounts?: QuestNotebookCounts;
   readonly onShowNotebooks?: (questId: QuestId) => void;
   readonly onDuplicateToCustom?: (questId: QuestId) => void;
+  readonly onShowModelAnswer?: (questId: QuestId) => void;
 }) {
   return (
     <div
@@ -525,6 +650,7 @@ function CategorySection({
             }
             onShowNotebooks={onShowNotebooks}
             onDuplicateToCustom={onDuplicateToCustom}
+            onShowModelAnswer={onShowModelAnswer}
           />
         ))}
       </div>
@@ -540,6 +666,7 @@ export function QuestCatalog({
   notebookCounts,
   onShowQuestNotebooks,
   onDuplicateToCustom,
+  onShowModelAnswer,
 }: QuestCatalogProps) {
   const [filter, setFilter] = useState<CatalogFilterState>(defaultFilterState);
 
@@ -604,6 +731,7 @@ export function QuestCatalog({
             notebookCounts={notebookCounts}
             onShowNotebooks={onShowQuestNotebooks}
             onDuplicateToCustom={onDuplicateToCustom}
+            onShowModelAnswer={onShowModelAnswer}
           />
         ))
       )}

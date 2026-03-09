@@ -156,6 +156,7 @@ const meta = {
     onStartQuest: fn(),
     onShowQuestNotebooks: fn(),
     onDuplicateToCustom: fn(),
+    onShowModelAnswer: fn(),
   },
 } satisfies Meta<typeof QuestCatalog>;
 
@@ -280,14 +281,40 @@ export const DuplicateToCustom: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    // 「自作に複製」ボタンが表示される
+    // 三点リーダーメニューを開く
+    const moreBtn = canvas.getByTestId("quest-more-btn-prop-04");
+    await expect(moreBtn).toBeInTheDocument();
+    await userEvent.click(moreBtn);
+    // 「自作に複製」がメニュー内に表示される
     const btn = canvas.getByTestId("duplicate-to-custom-btn-prop-04");
     await expect(btn).toBeInTheDocument();
     await expect(btn.textContent).toBe("自作に複製");
-    // ボタンクリックで onDuplicateToCustom が呼ばれる
+    // クリックで onDuplicateToCustom が呼ばれる
     await userEvent.click(btn);
     await expect(args.onDuplicateToCustom).toHaveBeenCalledWith("prop-04");
     // onStartQuest は呼ばれないこと（stopPropagation）
+    await expect(args.onStartQuest).not.toHaveBeenCalled();
+  },
+};
+
+export const ShowModelAnswer: Story = {
+  args: {
+    groups: sampleGroups,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // 三点リーダーメニューを開く
+    const moreBtn = canvas.getByTestId("quest-more-btn-prop-01");
+    await expect(moreBtn).toBeInTheDocument();
+    await userEvent.click(moreBtn);
+    // 「模範解答を表示」がメニュー内に表示される
+    const btn = canvas.getByTestId("show-model-answer-btn-prop-01");
+    await expect(btn).toBeInTheDocument();
+    await expect(btn.textContent).toBe("模範解答を表示");
+    // クリックで onShowModelAnswer が呼ばれる
+    await userEvent.click(btn);
+    await expect(args.onShowModelAnswer).toHaveBeenCalledWith("prop-01");
+    // onStartQuest は呼ばれないこと
     await expect(args.onStartQuest).not.toHaveBeenCalled();
   },
 };
