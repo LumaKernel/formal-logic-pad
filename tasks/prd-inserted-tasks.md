@@ -11,7 +11,7 @@
 - [ ] story customquestlist ← 結局カスタムクエストはどこから使えるのか？タブなどが無いように見えるが
   - [ ] 当時のコミットと意図から確認
 - [ ] Proof Complete (Axiom Restriction Violated) ← その場合はCompletedではないんよ。Goal一覧でもProofedとすべきではなく、そちらにナンタラviolatedと書いてあげるのがよいだろう。
-- [ ] FORMATTING_ERROR: The intl string context variable "axiomIds" was not provided to the string "不足する公理: {axiomIds}"
+- [-] FORMATTING_ERROR: The intl string context variable "axiomIds" was not provided to the string "不足する公理: {axiomIds}"
       src/app/workspace/[id]/WorkspaceContent.tsx (219:31) @ useProofMessagesFromIntl
 
           217 |       collectionRootEntries: t("collectionRootEntries"),
