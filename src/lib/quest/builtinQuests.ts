@@ -3090,6 +3090,116 @@ const qPredAdv10UniversalImplicationTransitivity: QuestDefinition = {
   version: 1,
 };
 
+// --- 述語論理の上級（追加） ---
+
+const qPredAdv11VacuousQuantification: QuestDefinition = {
+  id: "pred-adv-11",
+  category: "predicate-advanced",
+  title: "空虚な全称化",
+  description:
+    "φ → (∀x.φ) を証明せよ。自由変数を含まない式は全称量化しても同値であることを示す。",
+  difficulty: 3,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "phi -> (all x. phi)",
+      label: "Goal: φ → (∀x.φ)",
+    },
+  ],
+  hints: [
+    "恒等律 φ → φ を証明します。",
+    "Gen[x] で ∀x.(φ → φ) を得ます。x ∉ FV(φ) なので適用可能です。",
+    "A5: (∀x.(φ → φ)) → (φ → ∀x.φ) を使います。",
+    "MP で結合して完成です。",
+  ],
+  estimatedSteps: 8,
+  learningPoint:
+    "空虚な全称化は述語論理の基本性質。x が φ に出現しなければ、φ と ∀x.φ は同値。Gen + A5 パターンで証明。",
+  order: 11,
+  version: 1,
+};
+
+const qPredAdv12ExistentialSwap: QuestDefinition = {
+  id: "pred-adv-12",
+  category: "predicate-advanced",
+  title: "存在量化子の交換",
+  description:
+    "(∃x.∃y.P(x,y)) → (∃y.∃x.P(x,y)) を証明せよ。存在量化子も入れ替え可能であることを示す。",
+  difficulty: 4,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "(ex x. (ex y. P(x, y))) -> (ex y. (ex x. P(x, y)))",
+      label: "Goal: (∃x.∃y.P(x,y)) → (∃y.∃x.P(x,y))",
+    },
+  ],
+  hints: [
+    "∃ は ¬∀¬ の略記です。定義を展開して考えます。",
+    "pred-adv-05 の全称量化子交換 ∀x.∀y → ∀y.∀x の対偶的な構造です。",
+    "∀¬∀¬ を ∀¬∀¬ に変換する形になります。",
+    "pred-adv-05 + 否定の処理の組み合わせが核心です。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "存在量化子の交換は全称量化子の交換の双対。∃ = ¬∀¬ の定義展開で全称の交換に帰着させる。",
+  order: 12,
+  version: 1,
+};
+
+const qPredAdv13ContrapositiveUnderForall: QuestDefinition = {
+  id: "pred-adv-13",
+  category: "predicate-advanced",
+  title: "全称下の対偶",
+  description:
+    "(∀x.(P(x) → Q(x))) → (∀x.(¬Q(x) → ¬P(x))) を証明せよ。Modus Tollens を全称量化子で包む。",
+  difficulty: 4,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "(all x. (P(x) -> Q(x))) -> (all x. (~Q(x) -> ~P(x)))",
+      label: "Goal: (∀x.(P(x)→Q(x))) → (∀x.(¬Q(x)→¬P(x)))",
+    },
+  ],
+  hints: [
+    "A4 で P(x)→Q(x) を取り出し、A3（対偶律の片方向）で ¬Q(x)→¬P(x) に変換します。",
+    "HS展開で (∀x.(P(x)→Q(x))) → (¬Q(x)→¬P(x)) を構築します。",
+    "Gen[x] + A5 で再全称化します。",
+    "pred-adv-01 (Dist∀) と同様のパターンですが、A3 が加わります。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "対偶律を全称量化子の中に持ち込むパターン。A4 で ∀ 除去 → A3 で対偶 → Gen+A5 で再全称化。",
+  order: 13,
+  version: 1,
+};
+
+const qPredAdv14UniversalWeakening: QuestDefinition = {
+  id: "pred-adv-14",
+  category: "predicate-advanced",
+  title: "全称下の弱化",
+  description:
+    "(∀x.P(x)) → (∀x.(Q(x) → P(x))) を証明せよ。全称命題を弱化公理で包む。",
+  difficulty: 3,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "(all x. P(x)) -> (all x. (Q(x) -> P(x)))",
+      label: "Goal: (∀x.P(x)) → (∀x.(Q(x)→P(x)))",
+    },
+  ],
+  hints: [
+    "A4 で ∀x.P(x) から P(x) を取り出します。",
+    "A1 で P(x) → (Q(x) → P(x)) を得ます。",
+    "HS展開で (∀x.P(x)) → (Q(x) → P(x)) を構築します。",
+    "Gen[x] + A5 で再全称化: (∀x.P(x)) → ∀x.(Q(x) → P(x))。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "弱化公理 A1 を全称量化子の中に持ち込むパターン。A4 除去 → A1 適用 → Gen+A5 で再全称化。",
+  order: 14,
+  version: 1,
+};
+
 // --- 自然演繹の基礎 ---
 
 const qNd01Identity: QuestDefinition = {
@@ -6554,6 +6664,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qPredAdv08UniversalToNotExistNot,
   qPredAdv09ExistToNotUniversalNot,
   qPredAdv10UniversalImplicationTransitivity,
+  qPredAdv11VacuousQuantification,
+  qPredAdv12ExistentialSwap,
+  qPredAdv13ContrapositiveUnderForall,
+  qPredAdv14UniversalWeakening,
   qNd01Identity,
   qNd02KAxiom,
   qNd03Contraposition,
