@@ -818,9 +818,6 @@ export function ProofWorkspace({
   const workspaceMenuRef = useRef<HTMLDivElement>(null);
   const workspaceMenuButtonRef = useRef<HTMLButtonElement>(null);
 
-  // コレクションパネル
-  const [collectionPanelOpen, setCollectionPanelOpen] = useState(false);
-
   // キャンバス空白部分コンテキストメニュー
   const [canvasMenuState, setCanvasMenuState] = useState<{
     readonly open: boolean;
@@ -877,34 +874,71 @@ export function ProofWorkspace({
     [goalPanelDragPos, containerSize.width],
   );
 
+  // コレクションパネルのユーザードラッグ位置（nullならデフォルト位置を使用）
+  const [collectionPanelDragPos, setCollectionPanelDragPos] =
+    useState<PanelPosition | null>(null);
+  // コレクションパネルの実効位置: ドラッグ済みならドラッグ位置、未ドラッグならGoalPanelの下
+  const collectionPanelPos = useMemo(
+    (): PanelPosition =>
+      collectionPanelDragPos ?? {
+        x: Math.max(8, containerSize.width - 280 - 12),
+        y: 260,
+      },
+    [collectionPanelDragPos, containerSize.width],
+  );
+
   // パネルサイズの概算値（DOM実測は後のイテレーションで対応）
   const axiomPalettePanelSize = useMemo(
     () => ({ width: 200, height: 250 }),
     [],
   );
   const goalPanelPanelSize = useMemo(() => ({ width: 280, height: 200 }), []);
+  const collectionPanelSize = useMemo(
+    () => ({ width: 280, height: 250 }),
+    [],
+  );
 
   // 他パネルの矩形（重なり回避用）
   const axiomPaletteOtherPanels = useMemo(
     (): readonly PanelRect[] => [
+      { x: goalPanelPos.x, y: goalPanelPos.y, ...goalPanelPanelSize },
       {
-        x: goalPanelPos.x,
-        y: goalPanelPos.y,
-        ...goalPanelPanelSize,
+        x: collectionPanelPos.x,
+        y: collectionPanelPos.y,
+        ...collectionPanelSize,
       },
     ],
-    [goalPanelPos, goalPanelPanelSize],
+    [
+      goalPanelPos,
+      goalPanelPanelSize,
+      collectionPanelPos,
+      collectionPanelSize,
+    ],
   );
 
   const goalPanelOtherPanels = useMemo(
     (): readonly PanelRect[] => [
+      { x: axiomPalettePos.x, y: axiomPalettePos.y, ...axiomPalettePanelSize },
       {
-        x: axiomPalettePos.x,
-        y: axiomPalettePos.y,
-        ...axiomPalettePanelSize,
+        x: collectionPanelPos.x,
+        y: collectionPanelPos.y,
+        ...collectionPanelSize,
       },
     ],
-    [axiomPalettePos, axiomPalettePanelSize],
+    [
+      axiomPalettePos,
+      axiomPalettePanelSize,
+      collectionPanelPos,
+      collectionPanelSize,
+    ],
+  );
+
+  const collectionPanelOtherPanels = useMemo(
+    (): readonly PanelRect[] => [
+      { x: axiomPalettePos.x, y: axiomPalettePos.y, ...axiomPalettePanelSize },
+      { x: goalPanelPos.x, y: goalPanelPos.y, ...goalPanelPanelSize },
+    ],
+    [axiomPalettePos, axiomPalettePanelSize, goalPanelPos, goalPanelPanelSize],
   );
 
   const handleAxiomPalettePositionChange = useCallback(
@@ -917,6 +951,13 @@ export function ProofWorkspace({
   const handleGoalPanelPositionChange = useCallback((next: PanelPosition) => {
     setGoalPanelDragPos(next);
   }, []);
+
+  const handleCollectionPanelPositionChange = useCallback(
+    (next: PanelPosition) => {
+      setCollectionPanelDragPos(next);
+    },
+    [],
+  );
 
   const axiomPaletteDrag = usePanelDrag({
     position: axiomPalettePos,
@@ -932,6 +973,14 @@ export function ProofWorkspace({
     containerSize,
     otherPanels: goalPanelOtherPanels,
     onPositionChange: handleGoalPanelPositionChange,
+  });
+
+  const collectionPanelDrag = usePanelDrag({
+    position: collectionPanelPos,
+    panelSize: collectionPanelSize,
+    containerSize,
+    otherPanels: collectionPanelOtherPanels,
+    onPositionChange: handleCollectionPanelPositionChange,
   });
 
   // エッジスクロール（ドラッグ中にキャンバス端で自動パン）
@@ -4133,22 +4182,6 @@ export function ProofWorkspace({
                   /* v8 ignore stop */
                 }
               />
-              {collectionEntries !== undefined ? (
-                <WorkspaceMenuItem
-                  label={msg.openCollection}
-                  onClick={() => {
-                    setCollectionPanelOpen((prev) => !prev);
-                    setWorkspaceMenuOpen(false);
-                  }}
-                  testId={
-                    /* v8 ignore start -- V8集約アーティファクト */
-                    testId
-                      ? `${testId satisfies string}-open-collection-button`
-                      : undefined
-                    /* v8 ignore stop */
-                  }
-                />
-              ) : null}
             </div>
           ) : null}
           <input
@@ -4939,9 +4972,8 @@ export function ProofWorkspace({
         </>
       ) : null}
 
-      {/* コレクション管理パネル */}
-      {collectionPanelOpen &&
-      collectionEntries !== undefined &&
+      {/* コレクション管理パネル（常駐表示） */}
+      {collectionEntries !== undefined &&
       onRenameCollectionEntry !== undefined &&
       onUpdateCollectionMemo !== undefined &&
       onRemoveCollectionEntry !== undefined ? (
@@ -4958,7 +4990,8 @@ export function ProofWorkspace({
           onCreateFolder={onCreateCollectionFolder}
           onRemoveFolder={onRemoveCollectionFolder}
           onRenameFolder={onRenameCollectionFolder}
-          onClose={() => setCollectionPanelOpen(false)}
+          position={collectionPanelPos}
+          onDragHandlePointerDown={collectionPanelDrag.handleProps.onPointerDown}
           testId={
             /* v8 ignore start -- V8集約アーティファクト */
             testId ? `${testId satisfies string}-collection-panel` : undefined

@@ -35,7 +35,6 @@ const defaultCallbacks = {
   onRenameEntry: vi.fn(),
   onUpdateMemo: vi.fn(),
   onRemoveEntry: vi.fn(),
-  onClose: vi.fn(),
 };
 
 describe("ProofCollectionPanel", () => {
@@ -295,69 +294,92 @@ describe("ProofCollectionPanel", () => {
     });
   });
 
-  describe("閉じる", () => {
-    it("×ボタンクリックでonClose呼び出し", () => {
-      const onClose = vi.fn();
+  describe("折り畳み", () => {
+    it("×ボタンクリックで折り畳まれる", () => {
       render(
         <ProofCollectionPanel
-          entries={[]}
+          entries={[createTestEntry({ id: "e1" })]}
           folders={[]}
           messages={defaultProofMessages}
           {...defaultCallbacks}
-          onClose={onClose}
           testId="panel"
         />,
       );
-      fireEvent.click(screen.getByTestId("panel-close"));
-      expect(onClose).toHaveBeenCalledOnce();
+      // 展開状態でヘッダーが見える
+      expect(screen.getByTestId("panel")).toBeInTheDocument();
+      // ×ボタンで折り畳む
+      fireEvent.click(screen.getByTestId("panel-collapse"));
+      // 折り畳みトグルが表示される
+      expect(screen.getByTestId("panel-toggle")).toBeInTheDocument();
     });
 
-    it("×ボタンでEnterキーを押すとonClose呼び出し", () => {
-      const onClose = vi.fn();
+    it("折り畳みトグルクリックで展開される", () => {
       render(
         <ProofCollectionPanel
-          entries={[]}
+          entries={[createTestEntry({ id: "e1" })]}
           folders={[]}
           messages={defaultProofMessages}
           {...defaultCallbacks}
-          onClose={onClose}
           testId="panel"
         />,
       );
-      fireEvent.keyDown(screen.getByTestId("panel-close"), { key: "Enter" });
-      expect(onClose).toHaveBeenCalledOnce();
+      // 折り畳む
+      fireEvent.click(screen.getByTestId("panel-collapse"));
+      expect(screen.getByTestId("panel-toggle")).toBeInTheDocument();
+      // トグルクリックで展開
+      fireEvent.click(screen.getByTestId("panel-toggle"));
+      expect(screen.getByTestId("panel")).toBeInTheDocument();
     });
 
-    it("×ボタンでSpaceキーを押すとonClose呼び出し", () => {
-      const onClose = vi.fn();
+    it("折り畳み時にエントリ数が表示される", () => {
+      const entries = [
+        createTestEntry({ id: "e1" }),
+        createTestEntry({ id: "e2" }),
+      ];
       render(
         <ProofCollectionPanel
-          entries={[]}
+          entries={entries}
           folders={[]}
           messages={defaultProofMessages}
           {...defaultCallbacks}
-          onClose={onClose}
           testId="panel"
         />,
       );
-      fireEvent.keyDown(screen.getByTestId("panel-close"), { key: " " });
-      expect(onClose).toHaveBeenCalledOnce();
+      fireEvent.click(screen.getByTestId("panel-collapse"));
+      const toggle = screen.getByTestId("panel-toggle");
+      expect(toggle.textContent).toContain("2");
     });
 
-    it("×ボタンで他のキーを押してもonCloseは呼ばれない", () => {
-      const onClose = vi.fn();
+    it("×ボタンでEnterキーを押すと折り畳まれる", () => {
       render(
         <ProofCollectionPanel
-          entries={[]}
+          entries={[createTestEntry({ id: "e1" })]}
           folders={[]}
           messages={defaultProofMessages}
           {...defaultCallbacks}
-          onClose={onClose}
           testId="panel"
         />,
       );
-      fireEvent.keyDown(screen.getByTestId("panel-close"), { key: "Tab" });
-      expect(onClose).not.toHaveBeenCalled();
+      fireEvent.keyDown(screen.getByTestId("panel-collapse"), {
+        key: "Enter",
+      });
+      expect(screen.getByTestId("panel-toggle")).toBeInTheDocument();
+    });
+
+    it("×ボタンで他のキーを押しても折り畳まれない", () => {
+      render(
+        <ProofCollectionPanel
+          entries={[createTestEntry({ id: "e1" })]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          testId="panel"
+        />,
+      );
+      fireEvent.keyDown(screen.getByTestId("panel-collapse"), {
+        key: "Tab",
+      });
+      expect(screen.getByTestId("panel")).toBeInTheDocument();
     });
   });
 
