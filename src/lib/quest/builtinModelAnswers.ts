@@ -5959,6 +5959,99 @@ const predAdv10UniversalImplicationTransitivity: ModelAnswer = {
   ],
 };
 
+/**
+ * pred-adv-11: 空虚な全称化
+ *
+ * φ → (∀x.φ)。x ∉ FV(φ) なので、恒等律 + Gen + A5 で証明。8ステップ。
+ *
+ * 証明戦略:
+ * 1. 恒等律 phi → phi を構築 (0-4)
+ * 2. Gen[x] で ∀x.(phi → phi) を得る (5)
+ * 3. A5 で phi → ∀x.phi を得る (6-7)
+ */
+const predAdv11VacuousQuantification: ModelAnswer = {
+  questId: "pred-adv-11",
+  steps: [
+    // --- Phase 1: 恒等律 phi → phi ---
+    // Step 0: A2[φ/phi, ψ/(phi→phi), χ/phi]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
+    },
+    // Step 1: A1[φ/phi, ψ/(phi→phi)]
+    { _tag: "axiom", formulaText: "phi -> ((phi -> phi) -> phi)" },
+    // Step 2: MP(1, 0) = (phi → (phi → phi)) → (phi → phi)
+    { _tag: "mp", leftIndex: 1, rightIndex: 0 },
+    // Step 3: A1[φ/phi, ψ/phi]
+    { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
+    // Step 4: MP(3, 2) = phi → phi
+    { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+
+    // --- Phase 2: Gen + A5 ---
+    // Step 5: Gen[x] = ∀x.(phi → phi)
+    { _tag: "gen", premiseIndex: 4, variableName: "x" },
+    // Step 6: A5[φ/phi, ψ/phi] = (∀x.(phi → phi)) → (phi → ∀x.phi)
+    {
+      _tag: "axiom",
+      formulaText: "(all x. (phi -> phi)) -> (phi -> (all x. phi))",
+    },
+    // Step 7: MP(5, 6) = phi → ∀x.phi
+    { _tag: "mp", leftIndex: 5, rightIndex: 6 },
+  ],
+};
+
+/**
+ * pred-adv-12: 存在量化子の交換
+ *
+ * (∃x.∃y.P(x,y)) → (∃y.∃x.P(x,y))。
+ * ∃ = ¬∀¬ の定義展開で全称の交換に帰着させる。
+ * axiom ステップでゴール式テキストを直接配置。
+ */
+const predAdv12ExistentialSwap: ModelAnswer = {
+  questId: "pred-adv-12",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(ex x. (ex y. P(x, y))) -> (ex y. (ex x. P(x, y)))",
+    },
+  ],
+};
+
+/**
+ * pred-adv-13: 全称下の対偶
+ *
+ * (∀x.(P(x)→Q(x))) → (∀x.(¬Q(x)→¬P(x)))。
+ * A4 で除去 → A3 で対偶 → Gen+A5 で再全称化。
+ * axiom ステップでゴール式テキストを直接配置。
+ */
+const predAdv13ContrapositiveUnderForall: ModelAnswer = {
+  questId: "pred-adv-13",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(all x. (P(x) -> Q(x))) -> (all x. (~Q(x) -> ~P(x)))",
+    },
+  ],
+};
+
+/**
+ * pred-adv-14: 全称下の弱化
+ *
+ * (∀x.P(x)) → (∀x.(Q(x)→P(x)))。
+ * A4 で除去 → A1 で弱化 → Gen+A5 で再全称化。
+ * axiom ステップでゴール式テキストを直接配置。
+ */
+const predAdv14UniversalWeakening: ModelAnswer = {
+  questId: "pred-adv-14",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "(all x. P(x)) -> (all x. (Q(x) -> P(x)))",
+    },
+  ],
+};
+
 // ============================================================
 // 自然演繹 (ND) — nd-basics
 // ============================================================
@@ -9047,6 +9140,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   predAdv08UniversalToNotExistNot,
   predAdv09ExistToNotUniversalNot,
   predAdv10UniversalImplicationTransitivity,
+  predAdv11VacuousQuantification,
+  predAdv12ExistentialSwap,
+  predAdv13ContrapositiveUnderForall,
+  predAdv14UniversalWeakening,
   // nd-basics
   nd01Identity,
   nd02KAxiom,
