@@ -4282,6 +4282,55 @@ const peano06PA4: ModelAnswer = {
   steps: [{ _tag: "axiom", formulaText: "all x. all y. x + S(y) = S(x + y)" }],
 };
 
+/**
+ * peano-17: 乗法の再帰 (PA6)
+ *
+ * PA6を直接配置。1ステップ。
+ */
+const peano17PA6: ModelAnswer = {
+  questId: "peano-17",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. all y. x * S(y) = x * y + x" },
+  ],
+};
+
+/**
+ * peano-18: 等号の対称律 (E2)
+ *
+ * E2を直接配置。1ステップ。
+ */
+const peano18E2: ModelAnswer = {
+  questId: "peano-18",
+  steps: [{ _tag: "axiom", formulaText: "all x. all y. x = y -> y = x" }],
+};
+
+/**
+ * peano-19: 等号の推移律 (E3)
+ *
+ * E3を直接配置。1ステップ。
+ */
+const peano19E3: ModelAnswer = {
+  questId: "peano-19",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
+    },
+  ],
+};
+
+/**
+ * peano-20: 後者関数の合同性 (E4(S))
+ *
+ * E4(S)を直接入力して配置。1ステップ。
+ */
+const peano20E4S: ModelAnswer = {
+  questId: "peano-20",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. all y. x = y -> S(x) = S(y)" },
+  ],
+};
+
 // ============================================================
 // peano-arithmetic: ペアノ算術の計算
 // A4を使った全称除去(∀消去)パターン:
@@ -8870,6 +8919,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   peano04E1,
   peano05PA2,
   peano06PA4,
+  peano17PA6,
+  peano18E2,
+  peano19E3,
+  peano20E4S,
   // peano-arithmetic
   peano07ZeroPlusZero,
   peano08OnePlusZero,

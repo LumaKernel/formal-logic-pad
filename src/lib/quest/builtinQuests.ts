@@ -1602,6 +1602,107 @@ const qPA06AdditionRecursion: QuestDefinition = {
   version: 1,
 };
 
+const qPA17MultiplicationRecursion: QuestDefinition = {
+  id: "peano-17",
+  category: "peano-basics",
+  title: "乗法の再帰 (PA6)",
+  description:
+    "∀x.∀y. x * S(y) = x * y + x を証明せよ。乗法の再帰定義。PA4（加法の再帰）と対を成す。",
+  difficulty: 1,
+  systemPresetId: "peano",
+  goals: [
+    {
+      formulaText: "all x. all y. x * S(y) = x * y + x",
+      label: "Goal: ∀x.∀y. x × S(y) = x × y + x",
+    },
+  ],
+  hints: [
+    "PA6は乗法の再帰ステップを定義する公理です。",
+    "公理パレットからPA6を配置すればゴールと一致します。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "PA6は「x × S(y) = x × y + x」で乗法の再帰ステップを定義。PA5（基底）とペアで乗法を完全に定義する。",
+  order: 7,
+  version: 1,
+};
+
+const qPA18EqualitySymmetry: QuestDefinition = {
+  id: "peano-18",
+  category: "peano-basics",
+  title: "等号の対称律 (E2)",
+  description:
+    "∀x.∀y. x = y → y = x を証明せよ。等号の対称律は、等式の左右を入れ替えられることを保証する。",
+  difficulty: 1,
+  systemPresetId: "peano",
+  goals: [
+    {
+      formulaText: "all x. all y. x = y -> y = x",
+      label: "Goal: ∀x.∀y. x = y → y = x",
+    },
+  ],
+  hints: [
+    "E2は等号の対称律です。公理パレットから直接配置できます。",
+    "E2: ∀x.∀y. x = y → y = x — 等式は左右対称。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "E2（対称律）はE1（反射律）と並ぶ等号の基本公理。E1+E2+E3で等号が同値関係であることを保証する。",
+  order: 8,
+  version: 1,
+};
+
+const qPA19EqualityTransitivity: QuestDefinition = {
+  id: "peano-19",
+  category: "peano-basics",
+  title: "等号の推移律 (E3)",
+  description:
+    "∀x.∀y.∀z. x = y → (y = z → x = z) を証明せよ。等号の推移律は、等式を連鎖できることを保証する。",
+  difficulty: 1,
+  systemPresetId: "peano",
+  goals: [
+    {
+      formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
+      label: "Goal: ∀x.∀y.∀z. x = y → (y = z → x = z)",
+    },
+  ],
+  hints: [
+    "E3は等号の推移律です。公理パレットから直接配置できます。",
+    "E3: ∀x.∀y.∀z. x = y → (y = z → x = z) — 等式の連鎖。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "E3（推移律）は等号の連鎖推論を可能にする。ペアノ算術の計算では等式をE3で繋いでいく。",
+  order: 9,
+  version: 1,
+};
+
+const qPA20SuccessorCongruence: QuestDefinition = {
+  id: "peano-20",
+  category: "peano-basics",
+  title: "後者関数の合同性 (E4(S))",
+  description:
+    "∀x.∀y. x = y → S(x) = S(y) を証明せよ。等号の関数合同性E4のS関数バージョン。等しい数の後者も等しいことを示す。",
+  difficulty: 2,
+  systemPresetId: "peano",
+  goals: [
+    {
+      formulaText: "all x. all y. x = y -> S(x) = S(y)",
+      label: "Goal: ∀x.∀y. x = y → S(x) = S(y)",
+    },
+  ],
+  hints: [
+    "E4は関数の合同性を保証する等号公理スキーマです。",
+    "S関数版の E4(S): ∀x.∀y. x = y → S(x) = S(y) を直接入力して配置します。",
+    "公理パレットにはありませんが、正しい公理インスタンスとして配置できます。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "E4（関数合同性）はシグネチャの各関数に対して存在する公理スキーマ。S, +, × それぞれにE4のインスタンスがある。",
+  order: 10,
+  version: 1,
+};
+
 // --- ペアノ算術の推論 ---
 
 const qPA07ZeroPlusZero: QuestDefinition = {
@@ -6292,6 +6393,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qPA04Reflexivity,
   qPA05SuccessorInjective,
   qPA06AdditionRecursion,
+  qPA17MultiplicationRecursion,
+  qPA18EqualitySymmetry,
+  qPA19EqualityTransitivity,
+  qPA20SuccessorCongruence,
   qPA07ZeroPlusZero,
   qPA08OnePlusZero,
   qPA09ZeroTimesZero,
