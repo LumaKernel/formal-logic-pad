@@ -371,8 +371,7 @@ const q51A1ChainedLift: QuestDefinition = {
   id: "prop-51",
   category: "propositional-basics",
   title: "恒等律のA1二重持ち上げ",
-  description:
-    "φ → (ψ → (χ → χ)) を証明せよ。恒等律をA1で2回持ち上げる。",
+  description: "φ → (ψ → (χ → χ)) を証明せよ。恒等律をA1で2回持ち上げる。",
   difficulty: 2,
   systemPresetId: "lukasiewicz",
   goals: [

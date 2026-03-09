@@ -545,8 +545,7 @@ const prop51A1ChainedLift: ModelAnswer = {
     // 7. A1: (ψ→(χ→χ)) → (φ → (ψ→(χ→χ)))
     {
       _tag: "axiom",
-      formulaText:
-        "(psi -> (chi -> chi)) -> (phi -> (psi -> (chi -> chi)))",
+      formulaText: "(psi -> (chi -> chi)) -> (phi -> (psi -> (chi -> chi)))",
     },
     // 8. MP(6, 7): φ → (ψ → (χ→χ))
     { _tag: "mp", leftIndex: 6, rightIndex: 7 },
