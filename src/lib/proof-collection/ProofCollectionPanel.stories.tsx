@@ -40,7 +40,6 @@ const meta: Meta<typeof ProofCollectionPanel> = {
     onRenameEntry: fn(),
     onUpdateMemo: fn(),
     onRemoveEntry: fn(),
-    onClose: fn(),
     testId: "panel",
   },
   decorators: [
@@ -162,14 +161,28 @@ export const DeleteEntry: Story = {
   },
 };
 
-export const ClosePanel: Story = {
+export const CollapseAndExpand: Story = {
   args: {
-    entries: [],
+    entries: [
+      createEntry({ id: "e1", name: "Test Proof 1" }),
+      createEntry({ id: "e2", name: "Test Proof 2" }),
+    ],
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByTestId("panel-close"));
-    await expect(args.onClose).toHaveBeenCalledOnce();
+    // パネルが展開状態
+    await expect(canvas.getByTestId("panel")).toBeInTheDocument();
+    await expect(canvas.getByText("Test Proof 1")).toBeInTheDocument();
+    // ×ボタンで折り畳む
+    await userEvent.click(canvas.getByTestId("panel-collapse"));
+    // 折り畳みトグルが表示される（エントリ数含む）
+    const toggle = canvas.getByTestId("panel-toggle");
+    await expect(toggle).toBeInTheDocument();
+    await expect(toggle.textContent).toContain("2");
+    // トグルクリックで展開
+    await userEvent.click(toggle);
+    await expect(canvas.getByTestId("panel")).toBeInTheDocument();
+    await expect(canvas.getByText("Test Proof 1")).toBeInTheDocument();
   },
 };
 

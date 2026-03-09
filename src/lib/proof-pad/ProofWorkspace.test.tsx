@@ -5544,8 +5544,7 @@ describe("ProofWorkspace", () => {
         },
       ];
 
-    it("collectionEntries指定時にメニューに「コレクションを開く」ボタンが表示される", async () => {
-      const user = userEvent.setup();
+    it("collectionEntries指定時にコレクションパネルが常駐表示される", () => {
       const ws = createEmptyWorkspace(lukasiewiczSystem);
 
       render(
@@ -5560,96 +5559,63 @@ describe("ProofWorkspace", () => {
         />,
       );
 
-      // メニューを開く
-      await user.click(screen.getByTestId("workspace-workspace-menu-button"));
-
-      // 「コレクションを開く」ボタンが表示される
+      // コレクションパネルが常駐表示される
       expect(
-        screen.getByTestId("workspace-open-collection-button"),
+        screen.getByTestId("workspace-collection-panel"),
       ).toBeInTheDocument();
     });
 
-    it("collectionEntries未指定時にメニューに「コレクションを開く」ボタンが表示されない", async () => {
-      const user = userEvent.setup();
+    it("collectionEntries未指定時にコレクションパネルが表示されない", () => {
       const ws = createEmptyWorkspace(lukasiewiczSystem);
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
-      // メニューを開く
-      await user.click(screen.getByTestId("workspace-workspace-menu-button"));
-
-      // 「コレクションを開く」ボタンが表示されない
-      expect(
-        screen.queryByTestId("workspace-open-collection-button"),
-      ).not.toBeInTheDocument();
-    });
-
-    it("「コレクションを開く」クリックでコレクションパネルが表示される", async () => {
-      const user = userEvent.setup();
-      const ws = createEmptyWorkspace(lukasiewiczSystem);
-
-      render(
-        <ProofWorkspace
-          system={lukasiewiczSystem}
-          workspace={ws}
-          collectionEntries={dummyCollectionEntries}
-          onRenameCollectionEntry={vi.fn()}
-          onUpdateCollectionMemo={vi.fn()}
-          onRemoveCollectionEntry={vi.fn()}
-          testId="workspace"
-        />,
-      );
-
-      // メニューを開く
-      await user.click(screen.getByTestId("workspace-workspace-menu-button"));
-
-      // 「コレクションを開く」をクリック
-      await user.click(screen.getByTestId("workspace-open-collection-button"));
-
-      // コレクションパネルが表示される
-      expect(
-        screen.getByTestId("workspace-collection-panel"),
-      ).toBeInTheDocument();
-
-      // メニューが閉じる
-      expect(
-        screen.queryByTestId("workspace-workspace-menu"),
-      ).not.toBeInTheDocument();
-    });
-
-    it("コレクションパネルの閉じるボタンでパネルが非表示になる", async () => {
-      const user = userEvent.setup();
-      const ws = createEmptyWorkspace(lukasiewiczSystem);
-
-      render(
-        <ProofWorkspace
-          system={lukasiewiczSystem}
-          workspace={ws}
-          collectionEntries={dummyCollectionEntries}
-          onRenameCollectionEntry={vi.fn()}
-          onUpdateCollectionMemo={vi.fn()}
-          onRemoveCollectionEntry={vi.fn()}
-          testId="workspace"
-        />,
-      );
-
-      // メニューを開いてコレクションパネルを表示
-      await user.click(screen.getByTestId("workspace-workspace-menu-button"));
-      await user.click(screen.getByTestId("workspace-open-collection-button"));
-      expect(
-        screen.getByTestId("workspace-collection-panel"),
-      ).toBeInTheDocument();
-
-      // 閉じるボタンをクリック
-      const closeButton = screen.getByTestId(
-        "workspace-collection-panel-close",
-      );
-      await user.click(closeButton);
-
-      // パネルが非表示になる
+      // コレクションパネルが表示されない
       expect(
         screen.queryByTestId("workspace-collection-panel"),
       ).not.toBeInTheDocument();
+    });
+
+    it("コレクションパネルの折り畳み・展開ができる", async () => {
+      const user = userEvent.setup();
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          collectionEntries={dummyCollectionEntries}
+          onRenameCollectionEntry={vi.fn()}
+          onUpdateCollectionMemo={vi.fn()}
+          onRemoveCollectionEntry={vi.fn()}
+          testId="workspace"
+        />,
+      );
+
+      // パネルが展開状態で表示
+      expect(
+        screen.getByTestId("workspace-collection-panel"),
+      ).toBeInTheDocument();
+
+      // ×ボタンで折り畳む
+      await user.click(
+        screen.getByTestId("workspace-collection-panel-collapse"),
+      );
+
+      // 折り畳みトグルが表示される
+      expect(
+        screen.getByTestId("workspace-collection-panel-toggle"),
+      ).toBeInTheDocument();
+
+      // トグルクリックで展開
+      await user.click(
+        screen.getByTestId("workspace-collection-panel-toggle"),
+      );
+
+      // パネルが再表示される
+      expect(
+        screen.getByTestId("workspace-collection-panel"),
+      ).toBeInTheDocument();
     });
 
     it("コレクションエントリのインポートボタンクリックでノードが追加される", async () => {
@@ -5702,11 +5668,7 @@ describe("ProofWorkspace", () => {
 
       render(<CollectionImportWrapper />);
 
-      // メニューを開いてコレクションパネルを表示
-      await user.click(screen.getByTestId("workspace-workspace-menu-button"));
-      await user.click(screen.getByTestId("workspace-open-collection-button"));
-
-      // インポートボタンをクリック
+      // コレクションパネルが常駐表示されている — インポートボタンをクリック
       const importButton = screen.getByTestId(
         "workspace-collection-panel-entry-entry-with-nodes-import",
       );

@@ -3,7 +3,7 @@
  *
  * 保存済み証明の一覧表示・名前変更・メモ編集・削除を提供する。
  * フォルダによるエントリの分類・管理をサポートする。
- * GoalPanelと同様の右サイドバースタイルで表示される。
+ * GoalPanelと同様の常駐パネル。折り畳み可能・ドラッグ移動可能。
  *
  * 変更時は ProofCollectionPanel.test.tsx, ProofCollectionPanel.stories.tsx, index.ts も同期すること。
  */
@@ -12,6 +12,7 @@ import {
   type CSSProperties,
   useState,
   useCallback,
+  useMemo,
   useRef,
   useEffect,
 } from "react";
@@ -46,6 +47,7 @@ import {
 import type { CompatibilityResult } from "./proofCollectionCompatibility";
 import type { ProofMessages } from "../proof-pad/proofMessages";
 import { formatMessage } from "../proof-pad/proofMessages";
+import type { PanelPosition } from "../proof-pad/panelPositionLogic";
 
 // --- Props ---
 
@@ -77,8 +79,12 @@ export interface ProofCollectionPanelProps {
   readonly onRemoveFolder?: (id: ProofFolderId) => void;
   /** フォルダの名前を変更するコールバック */
   readonly onRenameFolder?: (id: ProofFolderId, newName: string) => void;
-  /** パネルを閉じるコールバック */
-  readonly onClose: () => void;
+  /** パネル位置（指定時はleft/topで配置、省略時はデフォルトのright/topで配置） */
+  readonly position?: PanelPosition;
+  /** ドラッグハンドルのpointerdownイベント */
+  readonly onDragHandlePointerDown?: (
+    e: React.PointerEvent<HTMLElement>,
+  ) => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -291,6 +297,26 @@ const sectionLabelStyle: CSSProperties = {
   color: "var(--color-text-secondary, #888)",
   textTransform: "uppercase",
   letterSpacing: 0.5,
+};
+
+const toggleButtonStyle: CSSProperties = {
+  position: "absolute",
+  top: 48,
+  right: 12,
+  zIndex: 10,
+  background: "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
+  borderRadius: 8,
+  border: "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.2))",
+  boxShadow: "0 2px 12px var(--color-panel-shadow, rgba(120, 100, 70, 0.1))",
+  padding: "6px 12px",
+  fontFamily: "var(--font-ui)",
+  fontSize: 11,
+  fontWeight: 700,
+  cursor: "pointer",
+  color: "var(--color-text-secondary, #666)",
+  textTransform: "uppercase",
+  letterSpacing: 1,
+  pointerEvents: "auto" as const,
 };
 
 const folderCountStyle: CSSProperties = {
@@ -758,11 +784,47 @@ export function ProofCollectionPanel({
   onCreateFolder,
   onRemoveFolder,
   onRenameFolder,
-  onClose,
+  position,
+  onDragHandlePointerDown,
   testId,
 }: ProofCollectionPanelProps) {
+  const [collapsed, setCollapsed] = useState(false);
   const [panelState, setPanelState] = useState<PanelState>(
     createInitialPanelState,
+  );
+
+  const handleToggle = useCallback(() => {
+    setCollapsed((prev) => !prev);
+  }, []);
+
+  const resolvedPanelStyle = useMemo(
+    (): CSSProperties =>
+      position !== undefined
+        ? { ...panelStyle, left: position.x, top: position.y, right: undefined }
+        : panelStyle,
+    [position],
+  );
+
+  const resolvedToggleStyle = useMemo(
+    (): CSSProperties =>
+      position !== undefined
+        ? {
+            ...toggleButtonStyle,
+            left: position.x,
+            top: position.y,
+            right: undefined,
+          }
+        : toggleButtonStyle,
+    [position],
+  );
+
+  const dragHeaderStyle = useMemo(
+    (): CSSProperties => ({
+      ...headerStyle,
+      cursor: onDragHandlePointerDown !== undefined ? "grab" : undefined,
+      userSelect: onDragHandlePointerDown !== undefined ? "none" : undefined,
+    }),
+    [onDragHandlePointerDown],
   );
 
   // --- エントリ編集ハンドラー ---
@@ -902,14 +964,44 @@ export function ProofCollectionPanel({
     />
   );
 
+  if (collapsed) {
+    return (
+      <div
+        style={resolvedToggleStyle}
+        role="button"
+        tabIndex={0}
+        onClick={handleToggle}
+        /* v8 ignore start -- キーボード操作: role="button"のアクセシビリティ対応 */
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleToggle();
+          }
+        }}
+        /* v8 ignore stop */
+        /* v8 ignore start -- testId分岐: テスト用属性の有無 */
+        data-testid={
+          testId !== undefined ? `${testId satisfies string}-toggle` : undefined
+        }
+        /* v8 ignore stop */
+      >
+        {messages.collectionPanelTitle} (
+        {formatMessage(messages.collectionEntryCount, {
+          count: String(entries.length),
+        })}
+        )
+      </div>
+    );
+  }
+
   return (
     <div
-      style={panelStyle}
+      style={resolvedPanelStyle}
       data-testid={testId}
       onClick={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
     >
-      <div style={headerStyle}>
+      <div style={dragHeaderStyle} onPointerDown={onDragHandlePointerDown}>
         <span>{messages.collectionPanelTitle}</span>
         <span style={countStyle}>
           {formatMessage(messages.collectionEntryCount, {
@@ -920,16 +1012,16 @@ export function ProofCollectionPanel({
           role="button"
           tabIndex={0}
           style={{ cursor: "pointer", fontSize: 14 }}
-          onClick={onClose}
+          onClick={handleToggle}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
-              onClose();
+              handleToggle();
             }
           }}
           data-testid={
             testId !== undefined
-              ? `${testId satisfies string}-close`
+              ? `${testId satisfies string}-collapse`
               : undefined
           }
         >
