@@ -11655,3 +11655,30 @@
   - collectionPanelのデフォルト位置もGoalPanelと同じnullable dragPos + useMemo fallbackパターンで実装
   - otherPanelsの相互設定は3パネルになると各パネルが他2つを参照する形に（N×(N-1)のメモ化）
   - ProofWorkspaceのメニュー項目削除時は、対応するテスト（メニュー経由操作）も一緒に書き換え必要
+---
+
+## 2026-03-09 - [quest] クエストカタログに三点リーダーメニューを追加
+- 実装した内容:
+  - QuestCatalogComponent に ⋮ (三点リーダー) メニューを追加
+  - メニュー内に「模範解答を表示」「自作に複製」の2アクションを配置
+  - click-outside-to-close パターン（useRef + useEffect + mousedown）
+  - HubContent に模範解答ワークスペース構築・遷移ロジックを追加
+  - テスト16件追加（メニュー開閉・アクション・stopPropagation・outside click）
+  - ShowModelAnswer ストーリー追加、DuplicateToCustom ストーリーをメニュー経由に更新
+- 変更ファイル:
+  - src/lib/quest/QuestCatalogComponent.tsx（QuestItemMoreMenu サブコンポーネント追加、ボタン→メニュー化）
+  - src/lib/quest/QuestCatalogComponent.test.tsx（三点リーダーメニュー・自作に複製・模範解答表示テスト追加）
+  - src/lib/quest/QuestCatalogComponent.stories.tsx（ShowModelAnswer ストーリー追加、DuplicateToCustom 更新）
+  - src/app/HubPageView.tsx（onShowModelAnswer プロップ追加）
+  - src/app/HubPageView.stories.tsx（onShowModelAnswer 追加）
+  - src/app/HubContent.tsx（handleShowModelAnswer コールバック追加、modelAnswerRegistry 統合）
+  - src/lib/proof-pad/ProofWorkspace.tsx, ProofWorkspace.test.tsx（pre-existing Prettier fix）
+  - tasks/prd-inserted-tasks.md
+- カバレッジ: 99.93% Stmts / 99.92% Branch / 99.97% Lines（変化なし）
+- ブラウザ確認: Playwright MCPでStorybook QuestCatalog Defaultストーリーを確認、⋮ボタンクリックでメニュー表示・外クリックで閉じるを検証
+- スクリーンショット: .screenshots/quest-catalog-more-menu-open.png
+- **今後のイテレーションへの学び:**
+  - QuestCatalogComponent のプロップスは CategorySection → QuestItem → QuestItemMoreMenu と3段threading
+  - modelAnswerRegistry は Map<string, ModelAnswer> で、buildModelAnswerWorkspace は純粋関数
+  - click-outside-to-close は mousedown イベントで実装（click だとボタン自身のクリックと干渉する可能性）
+  - HubContent の createQuest + updateWorkspace は setState updater function queue で安全に動作
