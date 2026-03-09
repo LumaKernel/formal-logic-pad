@@ -230,3 +230,5 @@ Infinity Canvasについて。
 - [x] FORMATTING_ERROR: The intl string context variable "axiomIds" was not provided to the string "不足する公理: {axiomIds}"
   - collectionAxiomWarning と collectionStyleMismatch で t() → String(t.raw()) に修正
 - [x] コンテキストメニューからの論理式ノード追加をしたときは、編集中の状態へ自動移行したほうがよい
+- [x] Proof Complete (Axiom Restriction Violated) ← その場合はCompletedではないんよ。Goal一覧でもProofedとすべきではなく、そちらにナンタラviolatedと書いてあげるのがよいだろう。
+  - GoalPanelItemStatus に "achieved-but-axiom-violation" / "achieved-but-rule-violation" を追加。バナーメッセージも "Axiom Restriction Violated" 等に変更。
