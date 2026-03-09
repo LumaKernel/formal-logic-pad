@@ -11631,3 +11631,27 @@
   - DraggablePanelラッパーは絶対配置の入れ子問題で断念。代わりに各パネルにoptional propsを直接追加が正解
   - テストでReact.PointerEventのモック: PointerEventSubset型 + as neverキャストが @luma-dev/luma-ts/no-as-unknown-as 対応のパターン（useMarquee.test.tsxに既存例あり）
   - パネルサイズはDOM実測ではなく推定値を使用。将来的にはResizeObserverで実測する余地あり
+---
+
+## 2026-03-09 - [proof-pad] マイコレクションパネル常駐ウィンドウ化
+- 実装した内容:
+  - ProofCollectionPanelをメニューから開く方式から常駐ウィンドウ方式に変更
+  - 折り畳み/展開トグル機能を追加（×ボタンで折り畳み、トグルクリックで展開）
+  - ドラッグ移動対応（usePanelDragフック、GoalPanel/AxiomPaletteと同様のパターン）
+  - 3パネル相互回避（AxiomPalette, GoalPanel, CollectionPanelのotherPanels設定）
+  - collectionEntries指定時のみ表示（未指定時は非表示）
+- 変更ファイル:
+  - src/lib/proof-collection/ProofCollectionPanel.tsx（onClose廃止、position/onDragHandlePointerDown追加、collapsed状態管理）
+  - src/lib/proof-collection/ProofCollectionPanel.test.tsx（close→collapse テスト書き換え）
+  - src/lib/proof-collection/ProofCollectionPanel.stories.tsx（ClosePanel→CollapseAndExpand ストーリー置換）
+  - src/lib/proof-pad/ProofWorkspace.tsx（collectionPanelOpen廃止、常駐表示化、ドラッグ・回避追加）
+  - src/lib/proof-pad/ProofWorkspace.test.tsx（メニュー操作テスト→常駐表示テスト書き換え）
+  - tasks/prd-inserted-tasks.md
+  - task-processing.md
+- カバレッジ: 99.94% → 99.93%（微減、v8集約quirk: setCollectionPanelDragPos setter、既存の同パターンと同様）
+- ブラウザ確認: Playwright MCPでStorybook CollapseAndExpandストーリー、ワークスペースでのパネル表示/非表示を確認
+- スクリーンショット: .screenshots/collection-panel-collapse-expand.png, .screenshots/collection-panel-iframe-after-play.png, .screenshots/workspace-empty-lukasiewicz-no-collection.png
+- **今後のイテレーションへの学び:**
+  - collectionPanelのデフォルト位置もGoalPanelと同じnullable dragPos + useMemo fallbackパターンで実装
+  - otherPanelsの相互設定は3パネルになると各パネルが他2つを参照する形に（N×(N-1)のメモ化）
+  - ProofWorkspaceのメニュー項目削除時は、対応するテスト（メニュー経由操作）も一緒に書き換え必要
