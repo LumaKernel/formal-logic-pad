@@ -701,6 +701,114 @@ const q35MendelsonIdentity: QuestDefinition = {
   version: 1,
 };
 
+// --- Level 2-3: 命題論理の中級（追加） ---
+
+const q40TransitivityReverse: QuestDefinition = {
+  id: "prop-40",
+  category: "propositional-intermediate",
+  title: "推移律逆順 (B' combinator)",
+  description:
+    "(φ → ψ) → ((ψ → χ) → (φ → χ)) を証明せよ。推移律 (Q-04) の前提を入れ替えた形。B combinator の変形。",
+  difficulty: 3,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
+      label: "Goal: (φ → ψ) → ((ψ → χ) → (φ → χ))",
+    },
+  ],
+  hints: [
+    "B combinator (Q-10): (ψ→χ)→((φ→ψ)→(φ→χ)) を出発点にします。",
+    "A2 で分配して (ψ→χ)→(φ→ψ) と (ψ→χ)→(φ→χ) を結びつけます。",
+    "A1 で (φ→ψ) を (ψ→χ) 前提付きに持ち上げて合成します。",
+  ],
+  estimatedSteps: 15,
+  learningPoint:
+    "B' combinator は推移律の前提交換版。B combinator + A2 + A1 で推移律合成するパターンの応用。",
+  order: 10,
+  version: 1,
+};
+
+const q41WCombinator: QuestDefinition = {
+  id: "prop-41",
+  category: "propositional-intermediate",
+  title: "W combinator (自己適用)",
+  description:
+    "(φ → (φ → ψ)) → (φ → ψ) を証明せよ。同じ前提を2回使う「自己適用」。A2と恒等律の組合せ。",
+  difficulty: 3,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(phi -> (phi -> psi)) -> (phi -> psi)",
+      label: "Goal: (φ → (φ → ψ)) → (φ → ψ)",
+    },
+  ],
+  hints: [
+    "A2[φ/φ, ψ/φ, χ/ψ] で (φ→(φ→ψ))→((φ→φ)→(φ→ψ)) を得ます。",
+    "恒等律 φ→φ (Q-01) を導出します。",
+    "A2 + A1 で (φ→(φ→ψ)) から (φ→φ)→(φ→ψ) と φ→φ を組合せて (φ→ψ) を得ます。",
+  ],
+  estimatedSteps: 11,
+  learningPoint:
+    "W combinator: Wxy = xyy。前提の「再利用」を形式化する。A2(S公理) + 恒等律(I) の組合せで導出。",
+  order: 11,
+  version: 1,
+};
+
+const q42A2ForwardApplication: QuestDefinition = {
+  id: "prop-42",
+  category: "propositional-intermediate",
+  title: "A2の前方適用",
+  description:
+    "((φ → (ψ → χ)) → (φ → ψ)) → ((φ → (ψ → χ)) → (φ → χ)) を証明せよ。A2を仮定の下で適用する。",
+  difficulty: 2,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText:
+        "((phi -> (psi -> chi)) -> (phi -> psi)) -> ((phi -> (psi -> chi)) -> (phi -> chi))",
+      label: "Goal",
+    },
+  ],
+  hints: [
+    "A2: (φ→(ψ→χ))→((φ→ψ)→(φ→χ)) を配置します。",
+    "もう1つのA2で、共通の前提 (φ→(ψ→χ)) の下で分配します。",
+    "A2をA2に適用するだけの短い証明です。",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "A2(S公理) を自身に適用するパターン。仮定の下での分配は A2 の反復適用で実現できる。",
+  order: 12,
+  version: 1,
+};
+
+const q43ForwardComposition: QuestDefinition = {
+  id: "prop-43",
+  category: "propositional-intermediate",
+  title: "含意の前方合成",
+  description:
+    "(φ → (ψ → χ)) → ((θ → φ) → (θ → (ψ → χ))) を証明せよ。B combinator の4変数版。前方の仮定を経由して合成する。",
+  difficulty: 3,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText:
+        "(phi -> (psi -> chi)) -> ((theta -> phi) -> (theta -> (psi -> chi)))",
+      label: "Goal: (φ → (ψ → χ)) → ((θ → φ) → (θ → (ψ → χ)))",
+    },
+  ],
+  hints: [
+    "B combinator (Q-10) のインスタンスとして考えましょう。",
+    "A1 で (φ→(ψ→χ)) を θ 前提付きに持ち上げます。",
+    "A2 で分配して推移律合成を行います。",
+  ],
+  estimatedSteps: 7,
+  learningPoint:
+    "B combinator の変数置換版。(ψ→χ)→((φ→ψ)→(φ→χ)) の ψ, χ を複合式に置き換えるだけで新しい定理が得られる。",
+  order: 13,
+  version: 1,
+};
+
 // --- Level 5: 挑戦問題（連言・選言の定義展開） ---
 
 const q22ConjunctionIntro: QuestDefinition = {
@@ -6041,6 +6149,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   q33ModusPonensImplication,
   q34ImplicationWeakeningElim,
   q35MendelsonIdentity,
+  q40TransitivityReverse,
+  q41WCombinator,
+  q42A2ForwardApplication,
+  q43ForwardComposition,
   q15DoubleNegationIntro,
   q16ModusTollens,
   q17DoubleNegationElim,

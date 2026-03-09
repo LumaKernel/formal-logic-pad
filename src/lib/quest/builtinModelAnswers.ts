@@ -1074,6 +1074,224 @@ const prop14DoubleImplDist: ModelAnswer = {
   ],
 };
 
+/**
+ * prop-40: 推移律逆順 (B' combinator) (φ→ψ)→((ψ→χ)→(φ→χ))
+ *
+ * B combinator (ψ→χ)→((φ→ψ)→(φ→χ)) を導出し、A2で分配、A1で(φ→ψ)を持ち上げて推移律合成。15ステップ。
+ *
+ * 証明:
+ * 0-6: B combinator インライン (= prop-10)
+ *   (ψ→χ)→((φ→ψ)→(φ→χ))
+ * 7: A2[(ψ→χ), (φ→ψ), (φ→χ)]: 分配
+ * 8: MP(6, 7): ((ψ→χ)→(φ→ψ))→((ψ→χ)→(φ→χ))
+ * 9: A1[(φ→ψ), (ψ→χ)]: (φ→ψ)→((ψ→χ)→(φ→ψ))
+ * 10-14: 推移律合成 step9 → step8
+ */
+const prop40TransitivityReverse: ModelAnswer = {
+  questId: "prop-40",
+  steps: [
+    // B combinator (prop-10 structure)
+    // 0. A2[φ/φ, ψ/ψ, χ/χ]: (φ→(ψ→χ))→((φ→ψ)→(φ→χ))
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
+    },
+    // 1. A1[φ/(ψ→χ), ψ/φ]: (ψ→χ) → (φ→(ψ→χ))
+    {
+      _tag: "axiom",
+      formulaText: "(psi -> chi) -> (phi -> (psi -> chi))",
+    },
+    // 2. A2[φ/(ψ→χ), ψ/(φ→(ψ→χ)), χ/((φ→ψ)→(φ→χ))]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((psi -> chi) -> ((phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi)))) -> (((psi -> chi) -> (phi -> (psi -> chi))) -> ((psi -> chi) -> ((phi -> psi) -> (phi -> chi))))",
+    },
+    // 3. A1: step0を(ψ→χ)で持ち上げ
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))) -> ((psi -> chi) -> ((phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))))",
+    },
+    // 4. MP(0, 3)
+    { _tag: "mp", leftIndex: 0, rightIndex: 3 },
+    // 5. MP(4, 2)
+    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+    // 6. MP(1, 5): (ψ→χ)→((φ→ψ)→(φ→χ))
+    { _tag: "mp", leftIndex: 1, rightIndex: 5 },
+
+    // A2で分配: ((ψ→χ)→((φ→ψ)→(φ→χ))) → (((ψ→χ)→(φ→ψ))→((ψ→χ)→(φ→χ)))
+    // 7. A2[φ/(ψ→χ), ψ/(φ→ψ), χ/(φ→χ)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((psi -> chi) -> ((phi -> psi) -> (phi -> chi))) -> (((psi -> chi) -> (phi -> psi)) -> ((psi -> chi) -> (phi -> chi)))",
+    },
+    // 8. MP(6, 7): ((ψ→χ)→(φ→ψ))→((ψ→χ)→(φ→χ))
+    { _tag: "mp", leftIndex: 6, rightIndex: 7 },
+
+    // A1で(φ→ψ)を持ち上げ
+    // 9. A1[φ/(φ→ψ), ψ/(ψ→χ)]: (φ→ψ)→((ψ→χ)→(φ→ψ))
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> psi))",
+    },
+
+    // 推移律合成: step9 → step8
+    // (φ→ψ)→((ψ→χ)→(φ→ψ)) と ((ψ→χ)→(φ→ψ))→((ψ→χ)→(φ→χ))
+    // → (φ→ψ)→((ψ→χ)→(φ→χ))
+    // 10. A2[φ/(φ→ψ), ψ/((ψ→χ)→(φ→ψ)), χ/((ψ→χ)→(φ→χ))]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi -> psi) -> (((psi -> chi) -> (phi -> psi)) -> ((psi -> chi) -> (phi -> chi)))) -> (((phi -> psi) -> ((psi -> chi) -> (phi -> psi))) -> ((phi -> psi) -> ((psi -> chi) -> (phi -> chi))))",
+    },
+    // 11. A1: step8を(φ→ψ)で持ち上げ
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((psi -> chi) -> (phi -> psi)) -> ((psi -> chi) -> (phi -> chi))) -> ((phi -> psi) -> (((psi -> chi) -> (phi -> psi)) -> ((psi -> chi) -> (phi -> chi))))",
+    },
+    // 12. MP(8, 11)
+    { _tag: "mp", leftIndex: 8, rightIndex: 11 },
+    // 13. MP(12, 10)
+    { _tag: "mp", leftIndex: 12, rightIndex: 10 },
+    // 14. MP(9, 13): (φ→ψ)→((ψ→χ)→(φ→χ))
+    { _tag: "mp", leftIndex: 9, rightIndex: 13 },
+  ],
+};
+
+/**
+ * prop-41: W combinator (φ→(φ→ψ))→(φ→ψ)
+ *
+ * A2[φ/φ, ψ/φ, χ/ψ]で(φ→(φ→ψ))→((φ→φ)→(φ→ψ))を得て、恒等律φ→φを導出し、合成。11ステップ。
+ *
+ * 証明:
+ * 0: A2[φ/φ, ψ/φ, χ/ψ]: (φ→(φ→ψ))→((φ→φ)→(φ→ψ))
+ * 1-5: 恒等律 φ→φ の導出
+ * 6-10: 合成
+ */
+const prop41WCombinator: ModelAnswer = {
+  questId: "prop-41",
+  steps: [
+    // 0. A2[φ/φ, ψ/φ, χ/ψ]: (φ→(φ→ψ))→((φ→φ)→(φ→ψ))
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> (phi -> psi)) -> ((phi -> phi) -> (phi -> psi))",
+    },
+    // 恒等律 φ→φ の導出 (5 steps)
+    // 1. A2[φ/φ, ψ/(φ→φ), χ/φ]: (φ→((φ→φ)→φ))→((φ→(φ→φ))→(φ→φ))
+    {
+      _tag: "axiom",
+      formulaText:
+        "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
+    },
+    // 2. A1[φ/φ, ψ/(φ→φ)]: φ→((φ→φ)→φ)
+    { _tag: "axiom", formulaText: "phi -> ((phi -> phi) -> phi)" },
+    // 3. MP(2, 1): (φ→(φ→φ))→(φ→φ)
+    { _tag: "mp", leftIndex: 2, rightIndex: 1 },
+    // 4. A1[φ/φ, ψ/φ]: φ→(φ→φ)
+    { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
+    // 5. MP(4, 3): φ→φ
+    { _tag: "mp", leftIndex: 4, rightIndex: 3 },
+
+    // 合成: step0 + step5 → (φ→(φ→ψ))→(φ→ψ)
+    // 6. A2[φ/(φ→(φ→ψ)), ψ/(φ→φ), χ/(φ→ψ)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi -> (phi -> psi)) -> ((phi -> phi) -> (phi -> psi))) -> (((phi -> (phi -> psi)) -> (phi -> phi)) -> ((phi -> (phi -> psi)) -> (phi -> psi)))",
+    },
+    // 7. MP(0, 6): ((φ→(φ→ψ))→(φ→φ))→((φ→(φ→ψ))→(φ→ψ))
+    { _tag: "mp", leftIndex: 0, rightIndex: 6 },
+    // 8. A1[φ/(φ→φ), ψ/(φ→(φ→ψ))]: (φ→φ)→((φ→(φ→ψ))→(φ→φ))
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> phi) -> ((phi -> (phi -> psi)) -> (phi -> phi))",
+    },
+    // 9. MP(5, 8): (φ→(φ→ψ))→(φ→φ)
+    { _tag: "mp", leftIndex: 5, rightIndex: 8 },
+    // 10. MP(9, 7): (φ→(φ→ψ))→(φ→ψ)
+    { _tag: "mp", leftIndex: 9, rightIndex: 7 },
+  ],
+};
+
+/**
+ * prop-42: A2の前方適用 ((φ→(ψ→χ))→(φ→ψ))→((φ→(ψ→χ))→(φ→χ))
+ *
+ * A2をA2に適用するだけ。3ステップ。
+ *
+ * 証明:
+ * 0: A2[φ/φ, ψ/ψ, χ/χ]: (φ→(ψ→χ))→((φ→ψ)→(φ→χ))
+ * 1: A2[φ/(φ→(ψ→χ)), ψ/(φ→ψ), χ/(φ→χ)]:
+ *    ((φ→(ψ→χ))→((φ→ψ)→(φ→χ)))→(((φ→(ψ→χ))→(φ→ψ))→((φ→(ψ→χ))→(φ→χ)))
+ * 2: MP(0, 1)
+ */
+const prop42A2ForwardApp: ModelAnswer = {
+  questId: "prop-42",
+  steps: [
+    // 0. A2[φ/φ, ψ/ψ, χ/χ]: (φ→(ψ→χ))→((φ→ψ)→(φ→χ))
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
+    },
+    // 1. A2[φ/(φ→(ψ→χ)), ψ/(φ→ψ), χ/(φ→χ)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))) -> (((phi -> (psi -> chi)) -> (phi -> psi)) -> ((phi -> (psi -> chi)) -> (phi -> chi)))",
+    },
+    // 2. MP(0, 1): ((φ→(ψ→χ))→(φ→ψ))→((φ→(ψ→χ))→(φ→χ))
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * prop-43: 含意の前方合成 (φ→(ψ→χ))→((θ→φ)→(θ→(ψ→χ)))
+ *
+ * B combinator の変数置換版。prop-10と同じ構造。7ステップ。
+ *
+ * 証明:
+ * 0: A2[φ/θ, ψ/φ, χ/(ψ→χ)]: (θ→(φ→(ψ→χ)))→((θ→φ)→(θ→(ψ→χ)))
+ * 1: A1[φ/(φ→(ψ→χ)), ψ/θ]: (φ→(ψ→χ))→(θ→(φ→(ψ→χ)))
+ * 2-6: 推移律合成 step1 → step0
+ */
+const prop43ForwardComposition: ModelAnswer = {
+  questId: "prop-43",
+  steps: [
+    // 0. A2[φ/θ, ψ/φ, χ/(ψ→χ)]: (θ→(φ→(ψ→χ)))→((θ→φ)→(θ→(ψ→χ)))
+    {
+      _tag: "axiom",
+      formulaText:
+        "(theta -> (phi -> (psi -> chi))) -> ((theta -> phi) -> (theta -> (psi -> chi)))",
+    },
+    // 1. A1[φ/(φ→(ψ→χ)), ψ/θ]: (φ→(ψ→χ))→(θ→(φ→(ψ→χ)))
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> (psi -> chi)) -> (theta -> (phi -> (psi -> chi)))",
+    },
+    // 推移律合成: step1 → step0
+    // 2. A2[φ/(φ→(ψ→χ)), ψ/(θ→(φ→(ψ→χ))), χ/((θ→φ)→(θ→(ψ→χ)))]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi -> (psi -> chi)) -> ((theta -> (phi -> (psi -> chi))) -> ((theta -> phi) -> (theta -> (psi -> chi))))) -> (((phi -> (psi -> chi)) -> (theta -> (phi -> (psi -> chi)))) -> ((phi -> (psi -> chi)) -> ((theta -> phi) -> (theta -> (psi -> chi)))))",
+    },
+    // 3. A1: step0を(φ→(ψ→χ))で持ち上げ
+    {
+      _tag: "axiom",
+      formulaText:
+        "((theta -> (phi -> (psi -> chi))) -> ((theta -> phi) -> (theta -> (psi -> chi)))) -> ((phi -> (psi -> chi)) -> ((theta -> (phi -> (psi -> chi))) -> ((theta -> phi) -> (theta -> (psi -> chi)))))",
+    },
+    // 4. MP(0, 3)
+    { _tag: "mp", leftIndex: 0, rightIndex: 3 },
+    // 5. MP(4, 2)
+    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+    // 6. MP(1, 5): (φ→(ψ→χ))→((θ→φ)→(θ→(ψ→χ)))
+    { _tag: "mp", leftIndex: 1, rightIndex: 5 },
+  ],
+};
+
 // ============================================================
 // propositional-negation: 否定の論理（Łukasiewicz体系）
 // ============================================================
@@ -8562,6 +8780,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   prop14DoubleImplDist,
   prop08TransitivityChain,
   prop12LeftAssociation,
+  prop40TransitivityReverse,
+  prop41WCombinator,
+  prop42A2ForwardApp,
+  prop43ForwardComposition,
   // propositional-negation
   prop19ContraposReverse,
   prop18ExFalso,
