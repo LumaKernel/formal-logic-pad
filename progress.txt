@@ -11539,3 +11539,60 @@
   - achievedCount の計算は violation を除外する必要がある（"achieved" のみカウント）
   - バナーとGoalPanelで別々のチェックパイプラインが走る: goalCheckResult (基本) と questGoalResult (制限付き)
 ---
+
+## 2026-03-09 - [proof-pad] 数式表示をFormulaDisplayコンポーネントに統一
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8762 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8762 tests
+- 変更内容:
+  - AxiomPalette.tsx: `axiom.unicodeDisplay` 文字列を `FormulaDisplay` コンポーネントに置換
+    - `role="math"`, `aria-label` が自動付与される
+    - fontFamily/fontStyleもFormulaDisplay内蔵のスタイルが適用される
+  - EditableProofNode.tsx: 代入エントリのパース失敗時フォールバックに `substEntryFallbackStyle`（数式フォント・イタリック）適用
+  - GoalPanel.tsx: ゴール数式パース失敗時フォールバックに `role="math"` と `aria-label` 付与
+  - GoalPanel.test.tsx: パースエラーフォールバックのアクセシビリティ属性テスト更新
+- 変更ファイル:
+  - src/lib/proof-pad/AxiomPalette.tsx
+  - src/lib/proof-pad/EditableProofNode.tsx
+  - src/lib/proof-pad/GoalPanel.tsx
+  - src/lib/proof-pad/GoalPanel.test.tsx
+- タスク管理:
+  - tasks/prd-inserted-tasks.md: 完了済み3タスク（shift-click, custom quest list, 数式表示統一）をアーカイブ
+  - tasks-archived/prd-inserted-tasks.md: 3タスク追記
+- スクリーンショット:
+  - .screenshots/axiom-palette-formula-display-fullscreen.png
+  - .screenshots/goal-panel-formula-display.png
+  - .screenshots/substitution-context-menu-formula-display.png
+- **今後のイテレーションへの学び:**
+  - FormulaDisplayはKaTeXではなくUnicodeテキスト表示（formatFormula使用）。KaTeX版はFormulaKaTeX
+  - EdgeParameterPopoverの代入入力は既にFormulaInput/TermInputを使用済み。追加対応不要
+  - パース失敗時のフォールバックはAST不要のため FormulaDisplay は使えない。スタイルとアクセシビリティ属性の一貫性確保で対応
+  - AxiomPaletteItem.template（Formula AST）が既に存在するので FormulaDisplay に直接渡せる
+---
+---
+
+## 2026-03-09 - [proof-pad] パネル位置管理の純粋ロジック実装
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8762 tests
+- **結果: カバレッジ維持（Stmts 99.95%, Branch 100%, Lines 100%）**, 8797 tests (+35)
+- 変更内容:
+  - panelPositionLogic.ts: 浮動パネルの位置管理純粋関数群を新規作成
+    - `clampToContainer`: コンテナ内制約
+    - `snapToEdges`: エッジスナップ（4辺独立、角スナップ自然発生）
+    - `rectsOverlap`: 矩形重なり判定（gap付き）
+    - `findNonOverlappingPosition`: 他パネル回避（4方向押し出し、反復解消）
+    - `computeDragPosition`: ドラッグ統合（clamp→snap→avoid）
+    - `computeInitialPosition`: 初期配置（好み位置+回避）
+  - panelPositionLogic.test.ts: 35テスト（全関数100%カバレッジ）
+  - index.ts: 全型・関数をエクスポート追加
+- 変更ファイル:
+  - src/lib/proof-pad/panelPositionLogic.ts（新規）
+  - src/lib/proof-pad/panelPositionLogic.test.ts（新規）
+  - src/lib/proof-pad/index.ts
+  - tasks/prd-inserted-tasks.md
+  - tasks-archived/prd-inserted-tasks.md
+- スクリーンショット:
+  - .screenshots/panel-position-logic-quest-mode-existing.png（既存UI正常動作確認）
+- **今後のイテレーションへの学び:**
+  - findNonOverlappingPositionのclamp後再重なりバグ: 押し出し候補をclampした後、元のパネルとまだ重なるかチェックが必要。コンテナが小さい場合に発生
+  - パネル位置のデフォルト値: GoalPanel(top:48,right:12), AxiomPalette(top:48,left:12), CutEliminationStepper(bottom:12,left:12)
+  - 全パネルzIndex:10、コンテキストメニューzIndex:2000、モーダルzIndex:1000の3層構造
+  - 次ステップ: usePanelDrag hookの実装 → 各パネルコンポーネントへのドラッグハンドル追加

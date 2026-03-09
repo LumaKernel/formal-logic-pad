@@ -237,3 +237,6 @@ Infinity Canvasについて。
 - [x] story customquestlist ← 結局カスタムクエストはどこから使えるのか？タブなどが無いように見えるが
   - [x] 当時のコミットと意図から確認
   - 確認結果: カスタムクエストは「Quests」タブ内でビルトインクエストカタログの下に表示される。WithCustomQuestsストーリーで動作確認済み。独立タブではなくQuestsタブ内統合が正しい設計。
+- [x] MP適用などのモーダルの、論理式入力のところは、論理式入力のための共通UIをせっかく作ったのだから、それを利用したクリックから開始して、離れたらrenderされるやつを使うほうがよいだろう
+  - [x] 基本すべての箇所において、 phi -> phi とかのままではなく、編集から離れたら render されるように共通化されるべき
+  - AxiomPalette: unicodeDisplay文字列をFormulaDisplayに置換。EditableProofNode: パース失敗時フォールバックに数式フォントスタイル適用。GoalPanel: フォールバックにrole="math"とaria-label付与。EdgeParameterPopover は既にFormulaInput/TermInput使用済み。
