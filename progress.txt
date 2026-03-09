@@ -11328,3 +11328,21 @@
   - A2をA2自身に適用する（prop-42）は最短3ステップで、axiomの再帰適用の良い練習
   - B combinatorの変数置換（prop-43）はprop-10と同じ証明構造。変数名だけ変える問題は理解確認に有効
 ---
+
+## 2026-03-09 - peano-basics クエスト4問追加
+- peano-17〜peano-20を追加（peano-basics: 6→10問）
+  - peano-17: PA6 乗法の再帰 `∀x.∀y. x*S(y) = x*y + x` — PA4と対の乗法定義, difficulty 1
+  - peano-18: E2 等号の対称律 `∀x.∀y. x=y → y=x` — 等号公理パレットから配置, difficulty 1
+  - peano-19: E3 等号の推移律 `∀x.∀y.∀z. x=y → (y=z → x=z)` — 等号公理パレットから配置, difficulty 1
+  - peano-20: E4(S) 後者関数の合同性 `∀x.∀y. x=y → S(x)=S(y)` — パレットにないが公理として有効, difficulty 2
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 235→239
+- テスト: 8670 passed, Stmts 99.95%, Branch 100%, Lines 100%
+- スクリーンショット: .screenshots/peano-basics-quest-catalog-239-overview.png
+- **今後のイテレーションへの学び:**
+  - E4/E5（シグネチャ依存の等号公理）はaxiomPaletteLogicに含まれない。identifyAxiomも未対応。公理としては有効だがUI入力が必要
+  - PA系の単純公理配置（difficulty 1）はmodelAnswerが1ステップのaxiomノード配置で完結する
+  - peano-basicsは全10問でPA1-PA6 + E1-E3 + E4(S)をカバー。group-basicsも6→10問の拡充が次の候補
+---
