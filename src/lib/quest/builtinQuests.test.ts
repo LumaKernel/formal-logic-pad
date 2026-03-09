@@ -7,7 +7,7 @@ import { parseString } from "../logic-lang/parser";
 
 describe("builtinQuests", () => {
   it("クエスト数が215個である", () => {
-    expect(builtinQuests).toHaveLength(219);
+    expect(builtinQuests).toHaveLength(223);
   });
 
   it("全IDが一意である", () => {

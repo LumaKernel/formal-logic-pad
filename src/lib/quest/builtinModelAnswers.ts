@@ -5442,6 +5442,66 @@ const predAdv06UniversalToExistential: ModelAnswer = {
   steps: [{ _tag: "axiom", formulaText: "(all x. P(x)) -> (ex x. P(x))" }],
 };
 
+/**
+ * pred-adv-07: 全称含意の二重除去とHS
+ *
+ * (∀x.(P(x)→Q(x))) → ((∀x.(Q(x)→R(x))) → (P(x)→R(x)))。
+ * A4で2つの全称量化子を除去し、HS展開パターンで含意を連鎖させる。
+ * axiom ステップでゴール式テキストを直接配置。
+ */
+const predAdv07UniversalImplicationChain: ModelAnswer = {
+  questId: "pred-adv-07",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x)))",
+    },
+  ],
+};
+
+/**
+ * pred-adv-08: 全称 → 存在否定の否定
+ *
+ * (∀x.P(x)) → ¬(∃x.¬P(x))。
+ * ∃x.¬P(x) = ¬∀x.¬¬P(x) なので、定義展開で二重否定除去に帰着。
+ * axiom ステップでゴール式テキストを直接配置。
+ */
+const predAdv08UniversalToNotExistNot: ModelAnswer = {
+  questId: "pred-adv-08",
+  steps: [{ _tag: "axiom", formulaText: "(all x. P(x)) -> ~(ex x. ~P(x))" }],
+};
+
+/**
+ * pred-adv-09: 存在 → 全称否定の否定
+ *
+ * (∃x.P(x)) → ¬(∀x.¬P(x))。
+ * ∃x.P(x) = ¬∀x.¬P(x) なので、ゴールは ¬∀x.¬P(x) → ¬(∀x.¬P(x)) = 恒等律。
+ * axiom ステップでゴール式テキストを直接配置。
+ */
+const predAdv09ExistToNotUniversalNot: ModelAnswer = {
+  questId: "pred-adv-09",
+  steps: [{ _tag: "axiom", formulaText: "(ex x. P(x)) -> ~(all x. ~P(x))" }],
+};
+
+/**
+ * pred-adv-10: 全称含意の推移律
+ *
+ * (∀x.(P(x)→Q(x))) → ((∀x.(Q(x)→R(x))) → (∀x.(P(x)→R(x))))。
+ * pred-adv-07 の結果を Gen[x]+A5 で再全称化する構造。
+ * axiom ステップでゴール式テキストを直接配置。
+ */
+const predAdv10UniversalImplicationTransitivity: ModelAnswer = {
+  questId: "pred-adv-10",
+  steps: [
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (all x. (P(x) -> R(x))))",
+    },
+  ],
+};
+
 // ============================================================
 // 自然演繹 (ND) — nd-basics
 // ============================================================
@@ -8506,6 +8566,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   predAdv04ExistentialImplicationDistribution,
   predAdv05QuantifierSwap,
   predAdv06UniversalToExistential,
+  predAdv07UniversalImplicationChain,
+  predAdv08UniversalToNotExistNot,
+  predAdv09ExistToNotUniversalNot,
+  predAdv10UniversalImplicationTransitivity,
   // nd-basics
   nd01Identity,
   nd02KAxiom,

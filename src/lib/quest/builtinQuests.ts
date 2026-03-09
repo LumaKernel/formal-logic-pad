@@ -2466,6 +2466,115 @@ const qPredAdv06UniversalToExistential: QuestDefinition = {
   version: 1,
 };
 
+const qPredAdv07UniversalImplicationChain: QuestDefinition = {
+  id: "pred-adv-07",
+  category: "predicate-advanced",
+  title: "全称含意の二重除去とHS",
+  description:
+    "(∀x.(P(x)→Q(x))) → ((∀x.(Q(x)→R(x))) → (P(x)→R(x))) を証明せよ。全称量化子を2回除去し、HSで含意を連鎖させる。",
+  difficulty: 4,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText:
+        "(all x. (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x)))",
+      label: "Goal: (∀x.(P(x)→Q(x))) → ((∀x.(Q(x)→R(x))) → (P(x)→R(x)))",
+    },
+  ],
+  hints: [
+    "A4で∀x.(P(x)→Q(x))からP(x)→Q(x)を取り出します。",
+    "同様にA4で∀x.(Q(x)→R(x))からQ(x)→R(x)を取り出します。",
+    "A1+A2のHS展開パターンでP(x)→Q(x)とQ(x)→R(x)を接続します。",
+    "全体をA1で持ち上げてA2で分配する「仮定導入」パターンを繰り返します。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "A4による全称除去とHS展開の組み合わせ。複数の全称命題から結論を導く基本パターン。",
+  order: 7,
+  version: 1,
+};
+
+const qPredAdv08UniversalToNotExistNot: QuestDefinition = {
+  id: "pred-adv-08",
+  category: "predicate-advanced",
+  title: "全称 → 存在否定の否定",
+  description:
+    "(∀x.P(x)) → ¬(∃x.¬P(x)) を証明せよ。全称命題から、その否定の存在命題を否定する。",
+  difficulty: 3,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "(all x. P(x)) -> ~(ex x. ~P(x))",
+      label: "Goal: (∀x.P(x)) → ¬(∃x.¬P(x))",
+    },
+  ],
+  hints: [
+    "∃x.¬P(x) = ¬∀x.¬¬P(x) なので、ゴールは (∀x.P(x)) → ¬¬(∀x.¬¬P(x)) になります。",
+    "∀x.P(x) → P(x) と ¬¬P(x) → P(x) の関係を使います。",
+    "対偶 (A3) で ¬P(x) → ¬(∀x.P(x)) を構成し、Gen+A5 で全称化できます。",
+    "最終的に ∀x.¬P(x) → ¬(∀x.P(x)) の対偶を取ります。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "∀x.P(x) → ¬∃x.¬P(x) は量化子の双対性の一方向。∃の定義展開で二重否定に帰着。",
+  order: 8,
+  version: 1,
+};
+
+const qPredAdv09ExistToNotUniversalNot: QuestDefinition = {
+  id: "pred-adv-09",
+  category: "predicate-advanced",
+  title: "存在 → 全称否定の否定",
+  description:
+    "(∃x.P(x)) → ¬(∀x.¬P(x)) を証明せよ。存在命題から全称否定の否定を導く。∃の定義そのもの。",
+  difficulty: 2,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText: "(ex x. P(x)) -> ~(all x. ~P(x))",
+      label: "Goal: (∃x.P(x)) → ¬(∀x.¬P(x))",
+    },
+  ],
+  hints: [
+    "∃x.P(x) は ¬∀x.¬P(x) の略記です。",
+    "ゴールを展開すると ¬(∀x.¬P(x)) → ¬(∀x.¬P(x)) になります。",
+    "これは恒等律 φ→φ のインスタンスです。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "∃x.P(x) = ¬∀x.¬P(x) なので、この命題は定義により自明（恒等律のインスタンス）。",
+  order: 9,
+  version: 1,
+};
+
+const qPredAdv10UniversalImplicationTransitivity: QuestDefinition = {
+  id: "pred-adv-10",
+  category: "predicate-advanced",
+  title: "全称含意の推移律",
+  description:
+    "(∀x.(P(x)→Q(x))) → ((∀x.(Q(x)→R(x))) → (∀x.(P(x)→R(x)))) を証明せよ。推移律を全称量化で包む。",
+  difficulty: 5,
+  systemPresetId: "predicate",
+  goals: [
+    {
+      formulaText:
+        "(all x. (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (all x. (P(x) -> R(x))))",
+      label: "Goal: (∀x.(P(x)→Q(x))) → ((∀x.(Q(x)→R(x))) → (∀x.(P(x)→R(x))))",
+    },
+  ],
+  hints: [
+    "まず pred-adv-07 と同様にA4で全称除去し、P(x)→R(x) を導きます。",
+    "その結果をGen[x]+A5で再全称化します。",
+    "pred-adv-01 (Dist∀) のパターンを参考に、HS展開+Gen+A5を組み合わせます。",
+    "全体の証明は pred-adv-07 の結果をGen+A5で包む構造です。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "全称含意の推移律。A4除去+HS展開で結論を得た後、Gen+A5で再全称化するパターン。",
+  order: 10,
+  version: 1,
+};
+
 // --- 自然演繹の基礎 ---
 
 const qNd01Identity: QuestDefinition = {
@@ -5906,6 +6015,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qPredAdv04ExistentialImplicationDistribution,
   qPredAdv05QuantifierSwap,
   qPredAdv06UniversalToExistential,
+  qPredAdv07UniversalImplicationChain,
+  qPredAdv08UniversalToNotExistNot,
+  qPredAdv09ExistToNotUniversalNot,
+  qPredAdv10UniversalImplicationTransitivity,
   qNd01Identity,
   qNd02KAxiom,
   qNd03Contraposition,
