@@ -190,6 +190,107 @@ const q07Permutation: QuestDefinition = {
   version: 1,
 };
 
+const q36SelfWeakening: QuestDefinition = {
+  id: "prop-36",
+  category: "propositional-basics",
+  title: "自己弱化",
+  description:
+    "φ → (φ → φ) を証明せよ。A1のメタ変数に同じ式を代入する最もシンプルな例。",
+  difficulty: 1,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "phi -> (phi -> phi)",
+      label: "Goal: φ → (φ → φ)",
+    },
+  ],
+  hints: [
+    "A1: φ → (ψ → φ) のψにφを代入してみましょう。",
+    "A1[φ/φ, ψ/φ] = φ → (φ → φ)。公理1回でOKです。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "A1のメタ変数に同じ式を代入できる。最もシンプルなA1インスタンス。",
+  order: 8,
+  version: 1,
+};
+
+const q37ImplicationWeakeningA1: QuestDefinition = {
+  id: "prop-37",
+  category: "propositional-basics",
+  title: "含意式の弱化",
+  description:
+    "(φ → ψ) → (χ → (φ → ψ)) を証明せよ。メタ変数に含意式を代入するA1の練習。",
+  difficulty: 1,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> (chi -> (phi -> psi))",
+      label: "Goal: (φ → ψ) → (χ → (φ → ψ))",
+    },
+  ],
+  hints: [
+    "A1: φ → (ψ → φ) のφに含意式を代入してみましょう。",
+    "A1[φ/(φ→ψ), ψ/χ] = (φ→ψ) → (χ → (φ→ψ))。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "A1のメタ変数にはどんな式でも代入可能。含意式全体をφに代入する例。",
+  order: 9,
+  version: 1,
+};
+
+const q38A2SelfSubstitution: QuestDefinition = {
+  id: "prop-38",
+  category: "propositional-basics",
+  title: "A2の自己変数適用",
+  description:
+    "(φ → (φ → ψ)) → ((φ → φ) → (φ → ψ)) を証明せよ。A2のメタ変数に同じ式を代入する。",
+  difficulty: 1,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(phi -> (phi -> psi)) -> ((phi -> phi) -> (phi -> psi))",
+      label: "Goal",
+    },
+  ],
+  hints: [
+    "A2: (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ)) のψにφを代入してみましょう。",
+    "A2[φ/φ, ψ/φ, χ/ψ] で完成です。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "A2のメタ変数も自由に代入可能。ψにφを代入すると「重複する前提」の処理パターンが見える。",
+  order: 10,
+  version: 1,
+};
+
+const q39ConclusionWeakening: QuestDefinition = {
+  id: "prop-39",
+  category: "propositional-basics",
+  title: "結論の弱化",
+  description:
+    "(φ → ψ) → (φ → (χ → ψ)) を証明せよ。「結論に不要な前提を追加する」操作。",
+  difficulty: 2,
+  systemPresetId: "lukasiewicz",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> (phi -> (chi -> psi))",
+      label: "Goal: (φ → ψ) → (φ → (χ → ψ))",
+    },
+  ],
+  hints: [
+    "A1: ψ → (χ → ψ) を使って、結論を弱化できます。",
+    "A1を持ち上げて φ → (ψ → (χ → ψ)) を作りましょう。",
+    "A2で分配すれば (φ→ψ) → (φ→(χ→ψ)) になります。",
+  ],
+  estimatedSteps: 5,
+  learningPoint:
+    "結論を弱化する操作は頻出パターン。A1とA2の組合せで「余分な前提を追加」できる。",
+  order: 11,
+  version: 1,
+};
+
 // --- Level 2-3: 命題論理の中級 ---
 
 const q08TransitivityChain: QuestDefinition = {
@@ -5927,6 +6028,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   q05ImplicationWeakening,
   q06SSpecialCase,
   q07Permutation,
+  q36SelfWeakening,
+  q37ImplicationWeakeningA1,
+  q38A2SelfSubstitution,
+  q39ConclusionWeakening,
   q08TransitivityChain,
   q10BComposition,
   q11PremiseConfluence,

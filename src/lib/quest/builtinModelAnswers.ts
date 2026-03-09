@@ -350,6 +350,86 @@ const prop07Permutation: ModelAnswer = {
   ],
 };
 
+/**
+ * prop-36: 自己弱化 φ → (φ → φ)
+ *
+ * A1[φ/φ, ψ/φ] の直接インスタンス。1ステップ。
+ */
+const prop36SelfWeakening: ModelAnswer = {
+  questId: "prop-36",
+  steps: [
+    // A1[φ/φ, ψ/φ]: φ → (φ → φ)
+    { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
+  ],
+};
+
+/**
+ * prop-37: 含意式の弱化 (φ → ψ) → (χ → (φ → ψ))
+ *
+ * A1[φ/(φ→ψ), ψ/χ] の直接インスタンス。1ステップ。
+ */
+const prop37ImplicationWeakeningA1: ModelAnswer = {
+  questId: "prop-37",
+  steps: [
+    // A1[φ/(φ→ψ), ψ/χ]: (φ→ψ) → (χ → (φ→ψ))
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> psi) -> (chi -> (phi -> psi))",
+    },
+  ],
+};
+
+/**
+ * prop-38: A2の自己変数適用 (φ → (φ → ψ)) → ((φ → φ) → (φ → ψ))
+ *
+ * A2[φ/φ, ψ/φ, χ/ψ] の直接インスタンス。1ステップ。
+ */
+const prop38A2SelfSubstitution: ModelAnswer = {
+  questId: "prop-38",
+  steps: [
+    // A2[φ/φ, ψ/φ, χ/ψ]: (φ→(φ→ψ)) → ((φ→φ)→(φ→ψ))
+    {
+      _tag: "axiom",
+      formulaText: "(phi -> (phi -> psi)) -> ((phi -> phi) -> (phi -> psi))",
+    },
+  ],
+};
+
+/**
+ * prop-39: 結論の弱化 (φ → ψ) → (φ → (χ → ψ))
+ *
+ * A1とA2の組合せ。5ステップ。
+ *
+ * 証明:
+ * 0. A1[φ/ψ, ψ/χ]: ψ → (χ → ψ)
+ * 1. A1: (ψ→(χ→ψ)) → (φ → (ψ→(χ→ψ)))
+ * 2. MP(0, 1): φ → (ψ → (χ → ψ))
+ * 3. A2[φ/φ, ψ/ψ, χ/(χ→ψ)]: (φ→(ψ→(χ→ψ))) → ((φ→ψ)→(φ→(χ→ψ)))
+ * 4. MP(2, 3): (φ→ψ) → (φ→(χ→ψ))
+ */
+const prop39ConclusionWeakening: ModelAnswer = {
+  questId: "prop-39",
+  steps: [
+    // 0. A1[φ/ψ, ψ/χ]: ψ → (χ → ψ)
+    { _tag: "axiom", formulaText: "psi -> (chi -> psi)" },
+    // 1. A1: (ψ→(χ→ψ)) → (φ → (ψ→(χ→ψ)))
+    {
+      _tag: "axiom",
+      formulaText: "(psi -> (chi -> psi)) -> (phi -> (psi -> (chi -> psi)))",
+    },
+    // 2. MP(0, 1): φ → (ψ → (χ → ψ))
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    // 3. A2[φ/φ, ψ/ψ, χ/(χ→ψ)]: (φ→(ψ→(χ→ψ))) → ((φ→ψ)→(φ→(χ→ψ)))
+    {
+      _tag: "axiom",
+      formulaText:
+        "(phi -> (psi -> (chi -> psi))) -> ((phi -> psi) -> (phi -> (chi -> psi)))",
+    },
+    // 4. MP(2, 3): (φ→ψ) → (φ→(χ→ψ))
+    { _tag: "mp", leftIndex: 2, rightIndex: 3 },
+  ],
+};
+
 // ============================================================
 // propositional-intermediate: 命題論理の中級（Łukasiewicz体系）
 // ============================================================
@@ -8468,6 +8548,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   prop05ImplicationWeakening,
   prop06SSpecialCase,
   prop07Permutation,
+  prop36SelfWeakening,
+  prop37ImplicationWeakeningA1,
+  prop38A2SelfSubstitution,
+  prop39ConclusionWeakening,
   // propositional-intermediate
   prop11PremiseMerge,
   prop13Frege,
