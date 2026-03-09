@@ -11269,3 +11269,21 @@
   - Gen規則の模範解答: `{ _tag: "gen", premiseIndex: N, variableName: "x" }` で直前の定理を全称化
   - HubPageView.stories.tsxは`builtinQuests.slice(0, 20)`のためequality-basicsクエストはストーリーに表示されない（テストで検証）
 ---
+
+## 2026-03-09 - propositional-basics クエスト4問追加
+- prop-36〜prop-39を追加（propositional-basics: 7→11問）
+  - prop-36: 自己弱化 `φ → (φ → φ)` — A1[φ/φ, ψ/φ], 1ステップ, difficulty 1
+  - prop-37: 含意式の弱化 `(φ → ψ) → (χ → (φ → ψ))` — A1[φ/(φ→ψ), ψ/χ], 1ステップ, difficulty 1
+  - prop-38: A2の自己変数適用 `(φ → (φ → ψ)) → ((φ → φ) → (φ → ψ))` — A2[φ/φ, ψ/φ, χ/ψ], 1ステップ, difficulty 1
+  - prop-39: 結論の弱化 `(φ → ψ) → (φ → (χ → ψ))` — A1+A1+MP+A2+MP, 5ステップ, difficulty 2
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 223→227
+- テスト: 8634 passed, Stmts 99.95%, Branch 100%, Lines 100%
+- スクリーンショット: .screenshots/prop-basics-quest-catalog-227.png, .screenshots/prop-basics-hub-quests-tab-227.png
+- **今後のイテレーションへの学び:**
+  - A1の自己代入（φ/φ, ψ/φ）は最もシンプルなaxiomインスタンス練習題となる
+  - 含意式をA1のメタ変数に代入する問題はaxiomインスタンス理解の良い段階的拡張
+  - prop-39の結論弱化は、A1（弱化公理）+ A2（分配公理）の基本的な組み合わせパターン
+---
