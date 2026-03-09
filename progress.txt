@@ -11596,3 +11596,38 @@
   - パネル位置のデフォルト値: GoalPanel(top:48,right:12), AxiomPalette(top:48,left:12), CutEliminationStepper(bottom:12,left:12)
   - 全パネルzIndex:10、コンテキストメニューzIndex:2000、モーダルzIndex:1000の3層構造
   - 次ステップ: usePanelDrag hookの実装 → 各パネルコンポーネントへのドラッグハンドル追加
+---
+
+## 2026-03-09 - [proof-pad] パネルドラッグ移動機能
+- 実装した内容:
+  - usePanelDrag.ts: ドラッグ移動hookを新規作成
+    - window-levelのpointermove/pointerupリスナーでパネル外ドラッグ継続
+    - panelPositionLogicのcomputeDragPositionを利用（clamp/snap/overlap回避統合）
+    - configRef + useEffectパターンでイベントハンドラ内の最新config参照
+  - usePanelDrag.test.ts: 8テスト（hook状態遷移・イベントハンドリング）
+    - PointerEventSubset + asPointerEvent(as never)パターンでESLint no-as-unknown-as対応
+  - GoalPanel.tsx: position + onDragHandlePointerDown optional propsを追加
+    - resolvedPanelStyle/resolvedToggleStyle/dragHeaderStyle をuseMemoで計算
+    - positionが指定されるとleft/topでの絶対配置、未指定時はright/topデフォルト
+  - AxiomPalette.tsx: 同様のposition + drag props追加
+  - ProofWorkspace.tsx: パネル位置stateとusePanelDrag hook統合
+    - axiomPalettePos (useState) / goalPanelDragPos (useState nullable) + goalPanelPos (useMemo)
+    - GoalPanelはデフォルトでcontainerSize.widthベースの右寄せ、ドラッグ後は固定位置
+    - パネルサイズ推定値（200x250, 280x200）で相互回避otherPanels設定
+  - index.ts: usePanelDrag, UsePanelDragConfig, UsePanelDragResult エクスポート追加
+- 変更ファイル:
+  - src/lib/proof-pad/usePanelDrag.ts（新規）
+  - src/lib/proof-pad/usePanelDrag.test.ts（新規）
+  - src/lib/proof-pad/GoalPanel.tsx
+  - src/lib/proof-pad/AxiomPalette.tsx
+  - src/lib/proof-pad/ProofWorkspace.tsx
+  - src/lib/proof-pad/index.ts
+  - tasks/prd-inserted-tasks.md
+- カバレッジ: 99.94% → 99.94%（維持）、usePanelDrag.ts 100%
+- **今後のイテレーションへの学び:**
+  - ESLint react-hooks/refs: render中のref.current書き込みは禁止。useEffect内で同期する
+  - ESLint react-hooks/set-state-in-effect: useEffect内でsetState→再レンダーループ防止。useMemoで派生stateを計算するパターンに切り替え
+  - GoalPanelのデフォルト位置がcontainerSize依存（right:12→left計算必要）: nullable dragPos + useMemo fallbackパターンで解決
+  - DraggablePanelラッパーは絶対配置の入れ子問題で断念。代わりに各パネルにoptional propsを直接追加が正解
+  - テストでReact.PointerEventのモック: PointerEventSubset型 + as neverキャストが @luma-dev/luma-ts/no-as-unknown-as 対応のパターン（useMarquee.test.tsxに既存例あり）
+  - パネルサイズはDOM実測ではなく推定値を使用。将来的にはResizeObserverで実測する余地あり
