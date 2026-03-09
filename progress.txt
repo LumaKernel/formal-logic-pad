@@ -11513,3 +11513,29 @@
   - Playwright MCP でイベントリスナーを注入し、イベントターゲットやハンドラの発火を直接確認するデバッグ手法が有効
   - v8 coverage: 防御的フォールバック (`?? e.pointerId`) のように到達不能だが安全のために残すコードは `/* v8 ignore start/stop */` で囲む
 ---
+
+## 2026-03-09 18:00 - [proof-pad] 公理/規則制限違反時のGoalPanel表示修正
+- 実装した内容:
+  - GoalPanelItemStatus に "achieved-but-axiom-violation" / "achieved-but-rule-violation" を追加
+  - GoalViolationInfo 型を追加し、ProofWorkspace から GoalPanel へ violation 情報を渡す
+  - バナーメッセージを "Proof Complete (axiom restriction violated)" → "Axiom Restriction Violated" に変更
+  - i18n対応 (en.json, ja.json): goalAxiomViolation, goalRuleViolation メッセージ追加
+  - achievedCount を violation を除外して計算するように修正
+- 変更したファイル:
+  - src/lib/proof-pad/goalPanelLogic.ts (GoalViolationInfo型, applyViolationOverride関数)
+  - src/lib/proof-pad/GoalPanel.tsx (violation バッジ表示)
+  - src/lib/proof-pad/ProofWorkspace.tsx (goalViolations memo, computeGoalPanelData呼び出し)
+  - src/lib/proof-pad/proofMessages.ts (メッセージキー追加)
+  - src/lib/proof-pad/index.ts (GoalViolationInfo export)
+  - src/app/workspace/[id]/WorkspaceContent.tsx (i18n mapping)
+  - messages/en.json, messages/ja.json
+  - src/lib/proof-pad/goalPanelLogic.test.ts (+7 tests)
+  - src/lib/proof-pad/GoalPanel.test.tsx (+3 tests)
+- カバレッジ: 99.95% Stmts, 100% Branch, 100% Lines (維持)
+- テスト: 8752 → 8762 (+10 tests)
+- スクリーンショット: .screenshots/goal-panel-quest-mode-not-achieved.png, .screenshots/goal-panel-achieved-state.png
+- **今後のイテレーションへの学び:**
+  - GoalPanel の violation 表示は GoalViolationInfo で proof-pad と quest モジュールを疎結合にしている
+  - achievedCount の計算は violation を除外する必要がある（"achieved" のみカウント）
+  - バナーとGoalPanelで別々のチェックパイプラインが走る: goalCheckResult (基本) と questGoalResult (制限付き)
+---
