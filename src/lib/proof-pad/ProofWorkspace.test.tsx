@@ -3324,6 +3324,33 @@ describe("ProofWorkspace", () => {
       ).toBeInTheDocument();
     });
 
+    it("auto-enters editing mode when node is added from context menu", async () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const { container } = render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // 右クリックでメニューを開く
+      const canvas = container.querySelector("[data-testid='workspace']")!;
+      await userEvent.pointer({
+        target: canvas,
+        keys: "[MouseRight]",
+        coords: { clientX: 300, clientY: 200 },
+      });
+
+      // 「Add Node」をクリック
+      await userEvent.click(
+        screen.getByTestId("workspace-canvas-menu-add-node"),
+      );
+
+      // 新しいノードが追加され、自動的に編集モードに入る
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("proof-node-node-1-editor-edit"),
+        ).toBeInTheDocument();
+      });
+    });
+
     it("enables paste in canvas context menu after copying a node", async () => {
       const user = userEvent.setup();
       let ws = createEmptyWorkspace(lukasiewiczSystem);
