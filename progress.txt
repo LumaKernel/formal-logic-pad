@@ -11431,3 +11431,16 @@
   - 述語論理上級は全14問。次は自然演繹やシーケント計算のクエスト拡充が考えられる
   - pred-adv-12〜14はaxiomステップのみ（ゴール式直接配置）。フル証明の模範解答は今後の課題
 ---
+
+## 2026-03-09 - equality-basics模範解答テスト追加
+- equality-basics カテゴリ（eq-01〜eq-10）の模範解答テストを追加
+  - 全16カテゴリ中、唯一テストが欠けていた equality-basics の describe ブロックを追加
+  - 10問 × 3テスト（ゴール達成・構築成功・レイアウト適用）= 30テスト追加
+- 変更ファイル:
+  - src/lib/quest/builtinModelAnswers.test.ts（equality-basics describe ブロック追加）
+- テスト: 8709→8739 (+30), Stmts 99.95%, Branch 100%, Lines 100%（低下なし）
+- 品質チェック: typecheck ✅, lint ✅, test ✅, prettier ✅
+- **今後のイテレーションへの学び:**
+  - 全16カテゴリの模範解答テストが完備された（251問すべてカバー）
+  - 新カテゴリ追加時は builtinModelAnswers.test.ts に describe ブロック追加を忘れないこと
+---
