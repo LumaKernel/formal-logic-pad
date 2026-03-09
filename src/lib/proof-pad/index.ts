@@ -465,3 +465,22 @@ export type {
   I18nLabel,
   MenuActionDefinition,
 } from "./menuActionDefinition";
+export {
+  clampToContainer,
+  snapToEdges,
+  rectsOverlap,
+  findNonOverlappingPosition,
+  computeDragPosition,
+  computeInitialPosition,
+  defaultDragOptions,
+} from "./panelPositionLogic";
+export type {
+  PanelPosition,
+  PanelSize,
+  PanelRect,
+  ContainerSize,
+  SnapResult,
+  SnapEdge,
+  DragStartInfo,
+  DragOptions,
+} from "./panelPositionLogic";
