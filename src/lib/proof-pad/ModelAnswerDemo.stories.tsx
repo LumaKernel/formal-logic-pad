@@ -95,9 +95,9 @@ export const MediumProof: Story = {
   },
 };
 
-/** prop-16: Modus Tollens (φ→ψ)→(¬ψ→¬φ)（107ステップ, 巨大） */
+/** prop-08: 推移律3段チェイン (φ→ψ)→((ψ→χ)→((χ→θ)→(φ→θ)))（43ステップ, 大規模） */
 export const LargeProof: Story = {
-  render: () => <ModelAnswerWorkspace questId="prop-16" />,
+  render: () => <ModelAnswerWorkspace questId="prop-08" />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
