@@ -112,6 +112,12 @@ const statusParseErrorStyle: CSSProperties = {
   fontSize: 10,
 };
 
+const statusViolationStyle: CSSProperties = {
+  color: "var(--color-warning, #b7791f)",
+  fontWeight: 700,
+  fontSize: 10,
+};
+
 const allowedAxiomsHeaderStyle: CSSProperties = {
   fontSize: 10,
   color: "var(--color-text-secondary, #999)",
@@ -164,16 +170,23 @@ function GoalItemStatusBadge({
   readonly status: GoalPanelItem["status"];
   readonly messages: ProofMessages;
 }) {
-  switch (status) {
-    case "achieved":
-      return <span style={statusAchievedStyle}>{messages.goalProved}</span>;
-    case "not-achieved":
-      return <span style={statusNotAchievedStyle}>{messages.goalNotYet}</span>;
-    case "parse-error":
-      return (
-        <span style={statusParseErrorStyle}>{messages.goalInvalidFormula}</span>
-      );
+  if (status === "achieved") {
+    return <span style={statusAchievedStyle}>{messages.goalProved}</span>;
   }
+  if (status === "not-achieved") {
+    return <span style={statusNotAchievedStyle}>{messages.goalNotYet}</span>;
+  }
+  if (status === "parse-error") {
+    return (
+      <span style={statusParseErrorStyle}>{messages.goalInvalidFormula}</span>
+    );
+  }
+  if (status === "achieved-but-axiom-violation") {
+    return (
+      <span style={statusViolationStyle}>{messages.goalAxiomViolation}</span>
+    );
+  }
+  return <span style={statusViolationStyle}>{messages.goalRuleViolation}</span>;
 }
 
 function GoalItem({

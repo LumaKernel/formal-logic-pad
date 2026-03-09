@@ -56,6 +56,10 @@ export type ProofMessages = {
   readonly goalProved: string;
   readonly goalNotYet: string;
   readonly goalInvalidFormula: string;
+  /** ゴールの式は一致しているが公理制限違反 */
+  readonly goalAxiomViolation: string;
+  /** ゴールの式は一致しているが推論規則制限違反 */
+  readonly goalRuleViolation: string;
   readonly proofComplete: string;
 
   // --- ゴールパネル ---
@@ -318,6 +322,8 @@ export const defaultProofMessages: ProofMessages = {
   goalProved: "Proved!",
   goalNotYet: "Not yet",
   goalInvalidFormula: "Invalid formula",
+  goalAxiomViolation: "Axiom violation",
+  goalRuleViolation: "Rule violation",
   proofComplete: "Proof Complete!",
 
   // Goal panel
@@ -381,13 +387,13 @@ export const defaultProofMessages: ProofMessages = {
   mergeNoTargets: "No mergeable nodes found",
 
   // Axiom restriction
-  proofCompleteButAxiomViolation: "Proof Complete (axiom restriction violated)",
+  proofCompleteButAxiomViolation: "Axiom Restriction Violated",
   axiomViolationDetail: "Disallowed axiom(s) used: {axiomIds}",
   instanceRootViolationDetail:
     "Axiom instances must be derived via substitution, not placed directly.",
 
   // Rule restriction
-  proofCompleteButRuleViolation: "Proof Complete (rule restriction violated)",
+  proofCompleteButRuleViolation: "Rule Restriction Violated",
   ruleViolationDetail: "Disallowed rule(s) used: {ruleIds}",
 
   // TAB

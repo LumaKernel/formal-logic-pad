@@ -54,6 +54,8 @@ function useProofMessagesFromIntl(): ProofMessages {
       goalProved: t("goalProved"),
       goalNotYet: t("goalNotYet"),
       goalInvalidFormula: t("goalInvalidFormula"),
+      goalAxiomViolation: t("goalAxiomViolation"),
+      goalRuleViolation: t("goalRuleViolation"),
       proofComplete: t("proofComplete"),
       goalPanelTitle: t("goalPanelTitle"),
       goalPanelProgress: String(t.raw("goalPanelProgress")),
