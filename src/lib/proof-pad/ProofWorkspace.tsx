@@ -421,6 +421,7 @@ const mpSelectionBannerStyle = {
   display: "flex",
   alignItems: "center",
   gap: 12,
+  whiteSpace: "nowrap" as const,
 };
 
 const cancelButtonStyle = {
@@ -432,6 +433,7 @@ const cancelButtonStyle = {
   cursor: "pointer",
   fontSize: 11,
   fontFamily: "var(--font-ui)",
+  whiteSpace: "nowrap" as const,
 };
 
 const genButtonStyle = {
@@ -587,6 +589,7 @@ const selectionActionButtonStyle = {
   cursor: "pointer",
   fontSize: 11,
   fontFamily: "var(--font-ui)",
+  whiteSpace: "nowrap" as const,
 };
 
 // --- ワークスペースメニュー項目 ---
