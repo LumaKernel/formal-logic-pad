@@ -242,3 +242,5 @@ Infinity Canvasについて。
   - AxiomPalette: unicodeDisplay文字列をFormulaDisplayに置換。EditableProofNode: パース失敗時フォールバックに数式フォントスタイル適用。GoalPanel: フォールバックにrole="math"とaria-label付与。EdgeParameterPopover は既にFormulaInput/TermInput使用済み。
 - [x] 各種浮いているウィンドウは移動できるように。パッド内の端にはスナップするように。また、他のウィンドウもよけて自動調整した場所にスナップされるように。
   - [x] まずは純粋関数から
+- [x] マイコレクションはメニューから開くものではなく、常駐ウィンドウとしてあってよいだろう。
+  - [x] 折り畳むなどはできてよさそうだ
