@@ -104,6 +104,27 @@
 
 ---
 
+## 2026-03-09 - 群論基礎クエスト4問追加（group-20〜group-23）
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8670 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8682 tests
+- 変更内容:
+  - group-20: ∀x.∀y. x=y → i(x)=i(y) (difficulty 2) — 逆元の合同性 E4(i)。公理スキーマのインスタンス配置
+  - group-21: e*a=a (difficulty 2) — 左単位元G2Lのインスタンス。A4+MP パターン
+  - group-22: a*e=a (difficulty 2) — 右単位元G2Rのインスタンス。A4+MP パターン
+  - group-23: i(a)*a=e (difficulty 2) — 左逆元G3Lのインスタンス。A4+MP パターン
+  - group-basics カテゴリ: 6問→10問に拡充
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts — 4クエスト定義追加
+  - src/lib/quest/builtinModelAnswers.ts — 4模範解答追加
+  - src/lib/quest/builtinQuests.test.ts — クエスト数 239→243
+- テスト: 8682 passed (243 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/quest-catalog-243-overview.png
+- **今後のイテレーションへの学び:**
+  - group-basics はdifficulty 1(公理配置)とdifficulty 2(A4+MPインスタンス化)の2段階。E4(i)は単一axiomステップ、他3問は3ステップ(公理+A4インスタンス+MP)
+  - group-01〜group-06はorder 1-6、group-20〜group-23はorder 7-10。IDは非連続(group-07〜group-19はgroup-proofs)
+  - 全カテゴリ10問以上に到達。残りの6問カテゴリなし
+---
+
 ## 2026-03-09 - 命題論理上級クエスト追加（prop-44〜prop-47）
 - ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8646 tests
 - **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8658 tests
