@@ -11444,3 +11444,21 @@
   - 全16カテゴリの模範解答テストが完備された（251問すべてカバー）
   - 新カテゴリ追加時は builtinModelAnswers.test.ts に describe ブロック追加を忘れないこと
 ---
+
+## 2026-03-09 - タブロー述語論理クエスト4問追加（tab-23〜tab-26）
+- タブロー(tab)カテゴリに述語論理クエスト4問追加
+  - tab-23: 全称から存在 ¬(∀x.P(x) → ∃x.P(x)) (difficulty 1, 5ステップ)
+  - tab-24: 存在連言分配 ¬(∃x.(P(x)∧Q(x)) → ∃x.P(x)) (difficulty 2, 6ステップ)
+  - tab-25: 否定全称から存在否定 ¬(¬∀x.P(x) → ∃x.¬P(x)) (difficulty 2, 6ステップ)
+  - tab-26: 存在選言分配 ¬((∃x.P(x) ∨ ∃x.Q(x)) → ∃x.(P(x) ∨ Q(x))) (difficulty 3, 11ステップ)
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts（4クエスト定義追加）
+  - src/lib/quest/builtinModelAnswers.ts（4模範解答追加）
+  - src/lib/quest/builtinQuests.test.ts（クエスト数 251→255）
+- テスト: 8738テスト通過, Stmts 99.58%, Branch 99.14%, Lines 99.67%（カバレッジ安定、flaky worker error 3件はインフラ起因）
+- スクリーンショット: .screenshots/tab-quests-catalog-overview.png, .screenshots/tab-quests-hub-quests-tab.png
+- **今後のイテレーションへの学び:**
+  - tab-25は当初P(x,y)を使う「全称量化子の交換」だったが、splitSequentTextのカンマ分割制限で失敗。単引数述語のみ使用すること
+  - tab-26のprincipalPositionは∃規則適用後のシーケント配置を正確にトレースして決める必要がある（prependAndFormatの[...added, principal, ...rest]順序に注意）
+  - タブローカテゴリは述語論理含め計26問に到達
+---
