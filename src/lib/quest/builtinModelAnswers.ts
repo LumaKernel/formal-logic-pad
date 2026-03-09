@@ -4289,9 +4289,7 @@ const peano06PA4: ModelAnswer = {
  */
 const peano17PA6: ModelAnswer = {
   questId: "peano-17",
-  steps: [
-    { _tag: "axiom", formulaText: "all x. all y. x * S(y) = x * y + x" },
-  ],
+  steps: [{ _tag: "axiom", formulaText: "all x. all y. x * S(y) = x * y + x" }],
 };
 
 /**
@@ -4326,9 +4324,7 @@ const peano19E3: ModelAnswer = {
  */
 const peano20E4S: ModelAnswer = {
   questId: "peano-20",
-  steps: [
-    { _tag: "axiom", formulaText: "all x. all y. x = y -> S(x) = S(y)" },
-  ],
+  steps: [{ _tag: "axiom", formulaText: "all x. all y. x = y -> S(x) = S(y)" }],
 };
 
 // ============================================================
@@ -4743,6 +4739,76 @@ const group05RightInverse: ModelAnswer = {
 const group06Commutativity: ModelAnswer = {
   questId: "group-06",
   steps: [{ _tag: "axiom", formulaText: "all x. all y. x * y = y * x" }],
+};
+
+/**
+ * group-20: 逆元の合同性 (E4(i))
+ *
+ * E4(i)を直接入力して配置。1ステップ。
+ */
+const group20InverseCongruence: ModelAnswer = {
+  questId: "group-20",
+  steps: [{ _tag: "axiom", formulaText: "all x. all y. x = y -> i(x) = i(y)" }],
+};
+
+/**
+ * group-21: e * a = a
+ *
+ * G2L + A4(x→a) + MP。3ステップ。
+ * 0. G2L: ∀x. e * x = x
+ * 1. A4[x→a]: (∀x. e * x = x) → e * a = a
+ * 2. MP(0,1): e * a = a
+ */
+const group21LeftIdentityInstance: ModelAnswer = {
+  questId: "group-21",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. e * x = x" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. e * x = x) -> e * a = a",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * group-22: a * e = a
+ *
+ * G2R + A4(x→a) + MP。3ステップ。
+ * 0. G2R: ∀x. x * e = x
+ * 1. A4[x→a]: (∀x. x * e = x) → a * e = a
+ * 2. MP(0,1): a * e = a
+ */
+const group22RightIdentityInstance: ModelAnswer = {
+  questId: "group-22",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. x * e = x" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. x * e = x) -> a * e = a",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
+};
+
+/**
+ * group-23: i(a) * a = e
+ *
+ * G3L + A4(x→a) + MP。3ステップ。
+ * 0. G3L: ∀x. i(x) * x = e
+ * 1. A4[x→a]: (∀x. i(x) * x = e) → i(a) * a = e
+ * 2. MP(0,1): i(a) * a = e
+ */
+const group23LeftInverseInstance: ModelAnswer = {
+  questId: "group-23",
+  steps: [
+    { _tag: "axiom", formulaText: "all x. i(x) * x = e" },
+    {
+      _tag: "axiom",
+      formulaText: "(all x. i(x) * x = e) -> i(a) * a = e",
+    },
+    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+  ],
 };
 
 // ============================================================
@@ -8941,6 +9007,10 @@ export const builtinModelAnswers: readonly ModelAnswer[] = [
   group04RightIdentity,
   group05RightInverse,
   group06Commutativity,
+  group20InverseCongruence,
+  group21LeftIdentityInstance,
+  group22RightIdentityInstance,
+  group23LeftInverseInstance,
   // group-proofs
   group07IdentityTimesIdentity,
   group08InverseIdentity,

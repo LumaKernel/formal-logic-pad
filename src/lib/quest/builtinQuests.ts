@@ -2108,6 +2108,110 @@ const qG06Commutativity: QuestDefinition = {
   version: 1,
 };
 
+const qG20InverseCongruence: QuestDefinition = {
+  id: "group-20",
+  category: "group-basics",
+  title: "逆元の合同性 (E4(i))",
+  description:
+    "∀x.∀y. x = y → i(x) = i(y) を証明せよ。等号の関数合同性E4の逆元関数バージョン。",
+  difficulty: 2,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "all x. all y. x = y -> i(x) = i(y)",
+      label: "Goal: ∀x.∀y. x = y → i(x) = i(y)",
+    },
+  ],
+  hints: [
+    "E4は関数の合同性を保証する等号公理スキーマです。",
+    "逆元関数i版の E4(i): ∀x.∀y. x = y → i(x) = i(y) を直接入力して配置します。",
+    "公理パレットにはありませんが、正しい公理インスタンスとして配置できます。",
+  ],
+  estimatedSteps: 1,
+  learningPoint:
+    "E4（関数合同性）はシグネチャの各関数に対して存在する公理スキーマ。群論では i と * にE4のインスタンスがある。",
+  order: 7,
+  version: 1,
+};
+
+const qG21LeftIdentityInstance: QuestDefinition = {
+  id: "group-21",
+  category: "group-basics",
+  title: "e·a = a",
+  description:
+    "左単位元公理G2Lの具体的なインスタンスを導出せよ。∀消去(A4)で特定の元aに適用する。",
+  difficulty: 2,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "e * a = a",
+      label: "Goal: e·a = a",
+    },
+  ],
+  hints: [
+    "G2L: ∀x. e * x = x を使います。xをaに代入すれば e * a = a が得られます。",
+    "A4（∀消去）のインスタンス: (∀x. e*x=x) → e*a=a を配置してMPします。",
+    "手順: G2L(公理) → A4インスタンス → MP",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "∀消去は「A4: (∀x.φ) → φ[t/x]」のインスタンスとMPの組み合わせ。群論でも同じパターンで公理を具体的な元に適用できる。",
+  order: 8,
+  version: 1,
+};
+
+const qG22RightIdentityInstance: QuestDefinition = {
+  id: "group-22",
+  category: "group-basics",
+  title: "a·e = a",
+  description:
+    "右単位元公理G2Rの具体的なインスタンスを導出せよ。∀消去(A4)で特定の元aに適用する。",
+  difficulty: 2,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "a * e = a",
+      label: "Goal: a·e = a",
+    },
+  ],
+  hints: [
+    "G2R: ∀x. x * e = x を使います。xをaに代入すれば a * e = a が得られます。",
+    "A4（∀消去）のインスタンス: (∀x. x*e=x) → a*e=a を配置してMPします。",
+    "手順: G2R(公理) → A4インスタンス → MP",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "右単位元G2Rも左と同じA4+MPパターンでインスタンス化する。group-fullでは左右両方が公理。",
+  order: 9,
+  version: 1,
+};
+
+const qG23LeftInverseInstance: QuestDefinition = {
+  id: "group-23",
+  category: "group-basics",
+  title: "i(a)·a = e",
+  description:
+    "左逆元公理G3Lの具体的なインスタンスを導出せよ。∀消去(A4)で特定の元aに適用する。",
+  difficulty: 2,
+  systemPresetId: "group-full",
+  goals: [
+    {
+      formulaText: "i(a) * a = e",
+      label: "Goal: i(a)·a = e",
+    },
+  ],
+  hints: [
+    "G3L: ∀x. i(x) * x = e を使います。xをaに代入すれば i(a) * a = e が得られます。",
+    "A4（∀消去）のインスタンス: (∀x. i(x)*x=e) → i(a)*a=e を配置してMPします。",
+    "手順: G3L(公理) → A4インスタンス → MP",
+  ],
+  estimatedSteps: 3,
+  learningPoint:
+    "左逆元G3Lのインスタンス化。group-proofsのgroup-10(右逆元)と同じA4+MPパターン。",
+  order: 10,
+  version: 1,
+};
+
 // --- 群論の推論 ---
 
 const qG07IdentityTimesIdentity: QuestDefinition = {
@@ -6413,6 +6517,10 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qG04RightIdentity,
   qG05RightInverse,
   qG06Commutativity,
+  qG20InverseCongruence,
+  qG21LeftIdentityInstance,
+  qG22RightIdentityInstance,
+  qG23LeftInverseInstance,
   qG07IdentityTimesIdentity,
   qG08InverseIdentity,
   qG09AssociativityInstance,
