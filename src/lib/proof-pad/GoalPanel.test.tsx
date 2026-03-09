@@ -120,7 +120,10 @@ describe("GoalPanel", () => {
       });
       render(<GoalPanel data={data} messages={msg} testId="gp" />);
       expect(screen.getByText("invalid !!!")).toBeInTheDocument();
-      expect(screen.queryByRole("math")).not.toBeInTheDocument();
+      // パースエラー時もフォールバックspan にrole="math"とaria-labelが付与される
+      const fallbackEl = screen.getByRole("math");
+      expect(fallbackEl).toBeInTheDocument();
+      expect(fallbackEl).toHaveAttribute("aria-label", "invalid !!!");
     });
 
     it("達成済みゴールは「Proved!」と表示される", () => {

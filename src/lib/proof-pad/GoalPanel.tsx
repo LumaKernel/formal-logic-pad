@@ -217,7 +217,9 @@ function GoalItem({
         {item.formula !== undefined ? (
           <FormulaDisplay formula={item.formula} fontSize={11} />
         ) : (
-          item.formulaText
+          <span role="math" aria-label={item.formulaText}>
+            {item.formulaText}
+          </span>
         )}
       </div>
       {item.allowedAxiomDetails !== undefined &&
