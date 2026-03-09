@@ -5608,9 +5608,7 @@ describe("ProofWorkspace", () => {
       ).toBeInTheDocument();
 
       // トグルクリックで展開
-      await user.click(
-        screen.getByTestId("workspace-collection-panel-toggle"),
-      );
+      await user.click(screen.getByTestId("workspace-collection-panel-toggle"));
 
       // パネルが再表示される
       expect(

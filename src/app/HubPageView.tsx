@@ -92,6 +92,8 @@ export type HubPageViewProps = {
   readonly onSharedQuestAddToCollection?: () => void;
   /** 共有クエストダイアログを閉じる */
   readonly onSharedQuestDismiss?: () => void;
+  /** 模範解答を表示するコールバック */
+  readonly onShowModelAnswer?: (questId: string) => void;
 };
 
 // --- Styles ---
@@ -330,6 +332,7 @@ export function HubPageView({
   onSharedQuestStart,
   onSharedQuestAddToCollection,
   onSharedQuestDismiss,
+  onShowModelAnswer,
 }: HubPageViewProps) {
   const m = useHubMessages();
   const [tab, setTab] = useState<HubTab>(initialTab);
@@ -479,6 +482,7 @@ export function HubPageView({
               notebookCounts={notebookCounts}
               onShowQuestNotebooks={handleShowQuestNotebooks}
               onDuplicateToCustom={onDuplicateBuiltinToCustom}
+              onShowModelAnswer={onShowModelAnswer}
             />
             {customQuestItems !== undefined && (
               <CustomQuestList

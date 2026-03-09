@@ -25,6 +25,8 @@ import {
   decodeQuestFromUrlParam,
   QUEST_URL_PARAM,
   prepareUrlQuestForImport,
+  modelAnswerRegistry,
+  buildModelAnswerWorkspace,
   type CustomQuestEditParams,
   type CreateCustomQuestParams,
 } from "../lib/quest";
@@ -287,6 +289,31 @@ function HubInner() {
     [customQuestCollection],
   );
 
+  // Show model answer: build workspace and navigate
+  const handleShowModelAnswer = useCallback(
+    (questId: string) => {
+      const quest = findQuestById(allQuests, questId);
+      if (quest === undefined) return;
+      const answer = modelAnswerRegistry.get(questId);
+      if (answer === undefined) return;
+      const result = buildModelAnswerWorkspace(quest, answer);
+      if (result._tag !== "Ok") return;
+      // 模範解答ノートブックを作成してワークスペースに遷移
+      const nextId = predictNextNotebookId();
+      notebookCollection.createQuest(
+        `${quest.title satisfies string} (模範解答)`,
+        result.workspace.system,
+        quest.goals,
+        questId,
+        quest.version,
+      );
+      // 作成直後のノートブックに模範解答のワークスペースを設定
+      notebookCollection.updateWorkspace(nextId, result.workspace);
+      router.push(`/workspace/${nextId satisfies string}`);
+    },
+    [allQuests, notebookCollection, router, predictNextNotebookId],
+  );
+
   // Share quest via URL (copy to clipboard)
   const handleShareQuestUrl = useCallback(
     (questId: string) => {
@@ -383,6 +410,7 @@ function HubInner() {
         onExportCustomQuest={handleExportCustomQuest}
         onImportCustomQuest={handleImportCustomQuest}
         onShareQuestUrl={handleShareQuestUrl}
+        onShowModelAnswer={handleShowModelAnswer}
         languageToggle={{ locale, onLocaleChange: switchLocale }}
         notebookCounts={notebookCounts}
         sharedQuest={sharedQuest}

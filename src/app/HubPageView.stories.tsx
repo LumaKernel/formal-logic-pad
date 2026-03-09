@@ -147,6 +147,7 @@ const meta: Meta<typeof HubPageView> = {
     onExportCustomQuest: fn(),
     onImportCustomQuest: fn(),
     onShareQuestUrl: fn(),
+    onShowModelAnswer: fn(),
     languageToggle: { locale: "en", onLocaleChange: fn() },
   },
 };
@@ -410,11 +411,13 @@ export const WithCustomQuests: Story = {
     await expect(
       canvas.getByTestId("custom-quest-create-btn"),
     ).toBeInTheDocument();
-    // ビルトインクエストの「自作に複製」ボタンが表示される
+    // ビルトインクエストの三点リーダーメニューを開く
+    await userEvent.click(canvas.getByTestId("quest-more-btn-prop-01"));
+    // メニュー内の「自作に複製」ボタンが表示される
     await expect(
       canvas.getByTestId("duplicate-to-custom-btn-prop-01"),
     ).toBeInTheDocument();
-    // ビルトインクエストの「自作に複製」ボタンをクリック
+    // 「自作に複製」ボタンをクリック
     await userEvent.click(
       canvas.getByTestId("duplicate-to-custom-btn-prop-01"),
     );

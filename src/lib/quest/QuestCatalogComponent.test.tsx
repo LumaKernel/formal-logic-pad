@@ -524,16 +524,15 @@ describe("ノートブック数バッジ", () => {
   });
 });
 
-// --- 自作に複製ボタン ---
+// --- 三点リーダーメニュー ---
 
-describe("自作に複製ボタン", () => {
-  it("onDuplicateToCustomが未指定のときボタンが表示されない", () => {
+describe("三点リーダーメニュー", () => {
+  it("アクションが未指定のときメニューボタンが表示されない", () => {
     render(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
-    expect(screen.queryByTestId("duplicate-to-custom-btn-q1")).toBeNull();
-    expect(screen.queryByTestId("duplicate-to-custom-btn-q2")).toBeNull();
+    expect(screen.queryByTestId("quest-more-btn-q1")).toBeNull();
   });
 
-  it("onDuplicateToCustomが指定されているとき各クエストにボタンが表示される", () => {
+  it("onDuplicateToCustomが指定されているときメニューボタンが表示される", () => {
     render(
       <QuestCatalog
         groups={[makeGroup()]}
@@ -541,38 +540,51 @@ describe("自作に複製ボタン", () => {
         onDuplicateToCustom={vi.fn()}
       />,
     );
-    expect(screen.getByTestId("duplicate-to-custom-btn-q1")).toBeTruthy();
-    expect(screen.getByTestId("duplicate-to-custom-btn-q2")).toBeTruthy();
+    expect(screen.getByTestId("quest-more-btn-q1")).toBeTruthy();
+    expect(screen.getByTestId("quest-more-btn-q2")).toBeTruthy();
   });
 
-  it("ボタンに「自作に複製」と表示される", () => {
+  it("onShowModelAnswerが指定されているときメニューボタンが表示される", () => {
     render(
       <QuestCatalog
         groups={[makeGroup()]}
         onStartQuest={vi.fn()}
-        onDuplicateToCustom={vi.fn()}
+        onShowModelAnswer={vi.fn()}
       />,
     );
-    expect(screen.getByTestId("duplicate-to-custom-btn-q1").textContent).toBe(
-      "自作に複製",
-    );
+    expect(screen.getByTestId("quest-more-btn-q1")).toBeTruthy();
   });
 
-  it("ボタンクリックでonDuplicateToCustomが呼ばれる", async () => {
+  it("メニューボタンクリックでドロップダウンが開く", async () => {
     const user = userEvent.setup();
-    const onDuplicate = vi.fn();
     render(
       <QuestCatalog
         groups={[makeGroup()]}
         onStartQuest={vi.fn()}
-        onDuplicateToCustom={onDuplicate}
+        onDuplicateToCustom={vi.fn()}
       />,
     );
-    await user.click(screen.getByTestId("duplicate-to-custom-btn-q1"));
-    expect(onDuplicate).toHaveBeenCalledWith("q1");
+    expect(screen.queryByTestId("quest-more-dropdown-q1")).toBeNull();
+    await user.click(screen.getByTestId("quest-more-btn-q1"));
+    expect(screen.getByTestId("quest-more-dropdown-q1")).toBeTruthy();
   });
 
-  it("ボタンクリックでonStartQuestが呼ばれない（stopPropagation）", async () => {
+  it("メニューボタン再クリックでドロップダウンが閉じる", async () => {
+    const user = userEvent.setup();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        onDuplicateToCustom={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("quest-more-btn-q1"));
+    expect(screen.getByTestId("quest-more-dropdown-q1")).toBeTruthy();
+    await user.click(screen.getByTestId("quest-more-btn-q1"));
+    expect(screen.queryByTestId("quest-more-dropdown-q1")).toBeNull();
+  });
+
+  it("メニューボタンクリックでonStartQuestが呼ばれない（stopPropagation）", async () => {
     const user = userEvent.setup();
     const onStart = vi.fn();
     render(
@@ -582,7 +594,164 @@ describe("自作に複製ボタン", () => {
         onDuplicateToCustom={vi.fn()}
       />,
     );
+    await user.click(screen.getByTestId("quest-more-btn-q1"));
+    expect(onStart).not.toHaveBeenCalled();
+  });
+
+  it("外側クリックでドロップダウンが閉じる", async () => {
+    const user = userEvent.setup();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        onDuplicateToCustom={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("quest-more-btn-q1"));
+    expect(screen.getByTestId("quest-more-dropdown-q1")).toBeTruthy();
+    // カタログの外側をクリック
+    await user.click(document.body);
+    expect(screen.queryByTestId("quest-more-dropdown-q1")).toBeNull();
+  });
+});
+
+// --- 自作に複製（メニュー内） ---
+
+describe("自作に複製（メニュー内）", () => {
+  it("メニュー内に「自作に複製」が表示される", async () => {
+    const user = userEvent.setup();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        onDuplicateToCustom={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("quest-more-btn-q1"));
+    expect(screen.getByTestId("duplicate-to-custom-btn-q1")).toBeTruthy();
+    expect(screen.getByTestId("duplicate-to-custom-btn-q1").textContent).toBe(
+      "自作に複製",
+    );
+  });
+
+  it("クリックでonDuplicateToCustomが呼ばれる", async () => {
+    const user = userEvent.setup();
+    const onDuplicate = vi.fn();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        onDuplicateToCustom={onDuplicate}
+      />,
+    );
+    await user.click(screen.getByTestId("quest-more-btn-q1"));
     await user.click(screen.getByTestId("duplicate-to-custom-btn-q1"));
+    expect(onDuplicate).toHaveBeenCalledWith("q1");
+  });
+
+  it("クリック後メニューが閉じる", async () => {
+    const user = userEvent.setup();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        onDuplicateToCustom={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("quest-more-btn-q1"));
+    await user.click(screen.getByTestId("duplicate-to-custom-btn-q1"));
+    expect(screen.queryByTestId("quest-more-dropdown-q1")).toBeNull();
+  });
+
+  it("クリックでonStartQuestが呼ばれない（stopPropagation）", async () => {
+    const user = userEvent.setup();
+    const onStart = vi.fn();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={onStart}
+        onDuplicateToCustom={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("quest-more-btn-q1"));
+    await user.click(screen.getByTestId("duplicate-to-custom-btn-q1"));
+    expect(onStart).not.toHaveBeenCalled();
+  });
+});
+
+// --- 模範解答を表示（メニュー内） ---
+
+describe("模範解答を表示（メニュー内）", () => {
+  it("onShowModelAnswerが未指定のとき模範解答ボタンが表示されない", async () => {
+    const user = userEvent.setup();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        onDuplicateToCustom={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("quest-more-btn-q1"));
+    expect(screen.queryByTestId("show-model-answer-btn-q1")).toBeNull();
+  });
+
+  it("onShowModelAnswerが指定されているとき模範解答ボタンが表示される", async () => {
+    const user = userEvent.setup();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        onShowModelAnswer={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("quest-more-btn-q1"));
+    expect(screen.getByTestId("show-model-answer-btn-q1")).toBeTruthy();
+    expect(screen.getByTestId("show-model-answer-btn-q1").textContent).toBe(
+      "模範解答を表示",
+    );
+  });
+
+  it("クリックでonShowModelAnswerが呼ばれる", async () => {
+    const user = userEvent.setup();
+    const onShow = vi.fn();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        onShowModelAnswer={onShow}
+      />,
+    );
+    await user.click(screen.getByTestId("quest-more-btn-q1"));
+    await user.click(screen.getByTestId("show-model-answer-btn-q1"));
+    expect(onShow).toHaveBeenCalledWith("q1");
+  });
+
+  it("クリック後メニューが閉じる", async () => {
+    const user = userEvent.setup();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        onShowModelAnswer={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("quest-more-btn-q1"));
+    await user.click(screen.getByTestId("show-model-answer-btn-q1"));
+    expect(screen.queryByTestId("quest-more-dropdown-q1")).toBeNull();
+  });
+
+  it("クリックでonStartQuestが呼ばれない（stopPropagation）", async () => {
+    const user = userEvent.setup();
+    const onStart = vi.fn();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={onStart}
+        onShowModelAnswer={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("quest-more-btn-q1"));
+    await user.click(screen.getByTestId("show-model-answer-btn-q1"));
     expect(onStart).not.toHaveBeenCalled();
   });
 });
