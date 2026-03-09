@@ -229,3 +229,4 @@ Infinity Canvasについて。
 - [x] bug: 論理式ノードが結局、ダブルクリックで編集開始できない
 - [x] FORMATTING_ERROR: The intl string context variable "axiomIds" was not provided to the string "不足する公理: {axiomIds}"
   - collectionAxiomWarning と collectionStyleMismatch で t() → String(t.raw()) に修正
+- [x] コンテキストメニューからの論理式ノード追加をしたときは、編集中の状態へ自動移行したほうがよい

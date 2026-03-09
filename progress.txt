@@ -104,6 +104,24 @@
 
 ---
 
+## 2026-03-09 - コンテキストメニューからのノード追加で自動編集モード移行
+- ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8751 tests
+- **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8752 tests (+1)
+- 変更内容:
+  - `handleCanvasMenuAddNode` に `setEditRequestNodeId(newNodeId)` を追加
+  - 新ノードID事前計算: `workspace.nextNodeId` から `node-${nextNodeId}` で算出
+  - 既存の `editRequestNodeId` + `forceEditMode` メカニズムを再利用
+- 変更ファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx — handleCanvasMenuAddNode に2行追加
+  - src/lib/proof-pad/ProofWorkspace.test.tsx — auto-enters editing mode テスト追加
+- テスト: 8752 passed (244 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/context-menu-add-node-auto-edit.png
+- **今後のイテレーションへの学び:**
+  - `editRequestNodeId` + `forceEditMode` は汎用的な編集要求メカニズム。ノード追加後の自動編集や、コンテキストメニューからの「論理式を編集」に同じ仕組みを使える
+  - 新ノードIDの事前計算は `workspace.nextNodeId` から可能。`addNode` の戻り値から逆算する必要なし
+  - v8 ignoreブロック内のコードでも、テスト側で右クリック→メニューアイテムクリックのフローで検証可能
+---
+
 ## 2026-03-09 - FORMATTING_ERRORバグ修正（collectionAxiomWarning/collectionStyleMismatch）
 - ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8751 tests
 - **結果: カバレッジ変動なし** (変更は `src/app/` 配下のみ、カバレッジ除外対象)
