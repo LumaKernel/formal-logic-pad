@@ -120,7 +120,10 @@ export function snapToEdges(
 
   // 右辺スナップ
   const rightSnapTarget = container.width - panelSize.width - margin;
-  if (rightSnapTarget >= margin && Math.abs(pos.x - rightSnapTarget) <= threshold) {
+  if (
+    rightSnapTarget >= margin &&
+    Math.abs(pos.x - rightSnapTarget) <= threshold
+  ) {
     x = rightSnapTarget;
     snappedEdges.push("right");
   }
@@ -133,7 +136,10 @@ export function snapToEdges(
 
   // 下辺スナップ
   const bottomSnapTarget = container.height - panelSize.height - margin;
-  if (bottomSnapTarget >= margin && Math.abs(pos.y - bottomSnapTarget) <= threshold) {
+  if (
+    bottomSnapTarget >= margin &&
+    Math.abs(pos.y - bottomSnapTarget) <= threshold
+  ) {
     y = bottomSnapTarget;
     snappedEdges.push("bottom");
   }
@@ -146,11 +152,7 @@ export function snapToEdges(
  *
  * gap分だけ余白を設けて判定する（gap > 0 なら近接も「重なり」とみなす）。
  */
-export function rectsOverlap(
-  a: PanelRect,
-  b: PanelRect,
-  gap: number,
-): boolean {
+export function rectsOverlap(a: PanelRect, b: PanelRect, gap: number): boolean {
   return (
     a.x < b.x + b.width + gap &&
     a.x + a.width + gap > b.x &&
@@ -214,7 +216,12 @@ export function findNonOverlappingPosition(
       ];
 
       for (const candidate of candidates) {
-        const clamped = clampToContainer(candidate, panelSize, container, margin);
+        const clamped = clampToContainer(
+          candidate,
+          panelSize,
+          container,
+          margin,
+        );
         // クランプ後に当該パネルとまだ重なる場合はスキップ
         const clampedRect: PanelRect = {
           x: clamped.x,
