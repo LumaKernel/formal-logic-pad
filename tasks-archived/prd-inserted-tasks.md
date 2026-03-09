@@ -227,3 +227,5 @@ Infinity Canvasについて。
 - [x] 模範解答ノートを開くためのルートは用意されていますか？ストーリーは？
   - [x] 巨大証明が必要なやつも開くストーリーは置くようにしたい
 - [x] bug: 論理式ノードが結局、ダブルクリックで編集開始できない
+- [x] FORMATTING_ERROR: The intl string context variable "axiomIds" was not provided to the string "不足する公理: {axiomIds}"
+  - collectionAxiomWarning と collectionStyleMismatch で t() → String(t.raw()) に修正
