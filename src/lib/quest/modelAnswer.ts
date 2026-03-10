@@ -1243,7 +1243,7 @@ export function buildModelAnswerWorkspace(
   }
 
   // 自動配置
-  ws = applyTreeLayout(ws, "bottom-to-top");
+  ws = applyTreeLayout(ws, "top-to-bottom");
 
   // ゴール達成チェック
   const goalCheck = checkQuestGoalsWithAxioms(
