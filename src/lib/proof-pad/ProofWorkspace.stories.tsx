@@ -1895,9 +1895,7 @@ export const UndoRedoBasic: Story = {
     // Ctrl+Z で undo → node-2 が消える
     await userEvent.keyboard("{Control>}z{/Control}");
     await waitFor(() => {
-      expect(
-        canvas.queryByTestId("proof-node-node-2"),
-      ).not.toBeInTheDocument();
+      expect(canvas.queryByTestId("proof-node-node-2")).not.toBeInTheDocument();
     });
     // node-1 はまだある
     expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
@@ -1905,9 +1903,7 @@ export const UndoRedoBasic: Story = {
     // もう一回 Ctrl+Z → node-1 も消える
     await userEvent.keyboard("{Control>}z{/Control}");
     await waitFor(() => {
-      expect(
-        canvas.queryByTestId("proof-node-node-1"),
-      ).not.toBeInTheDocument();
+      expect(canvas.queryByTestId("proof-node-node-1")).not.toBeInTheDocument();
     });
 
     // Ctrl+Shift+Z で redo → node-1 が復活
@@ -1947,9 +1943,7 @@ export const UndoRedoDeleteRestore: Story = {
 
     // node-1 が削除された
     await waitFor(() => {
-      expect(
-        canvas.queryByTestId("proof-node-node-1"),
-      ).not.toBeInTheDocument();
+      expect(canvas.queryByTestId("proof-node-node-1")).not.toBeInTheDocument();
     });
     // node-2 は残る
     expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
@@ -1969,9 +1963,7 @@ export const UndoRedoDeleteRestore: Story = {
     // Ctrl+Shift+Z で redo → node-1 が再度削除される
     await userEvent.keyboard("{Control>}{Shift>}z{/Shift}{/Control}");
     await waitFor(() => {
-      expect(
-        canvas.queryByTestId("proof-node-node-1"),
-      ).not.toBeInTheDocument();
+      expect(canvas.queryByTestId("proof-node-node-1")).not.toBeInTheDocument();
     });
     // node-2 は残る
     expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
@@ -2002,9 +1994,7 @@ export const UndoRedoFork: Story = {
     // Ctrl+Z → node-2 が消える
     await userEvent.keyboard("{Control>}z{/Control}");
     await waitFor(() => {
-      expect(
-        canvas.queryByTestId("proof-node-node-2"),
-      ).not.toBeInTheDocument();
+      expect(canvas.queryByTestId("proof-node-node-2")).not.toBeInTheDocument();
     });
 
     // ここで新操作（A3 を追加）→ redo future が消える
@@ -2030,9 +2020,7 @@ export const UndoRedoFork: Story = {
     // undo して元の node-2(A3) を取り消し、さらに undo して node-1 も消せる
     await userEvent.keyboard("{Control>}z{/Control}");
     await waitFor(() => {
-      expect(
-        canvas.queryByTestId("proof-node-node-2"),
-      ).not.toBeInTheDocument();
+      expect(canvas.queryByTestId("proof-node-node-2")).not.toBeInTheDocument();
     });
     // node-1 のみ
     expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
