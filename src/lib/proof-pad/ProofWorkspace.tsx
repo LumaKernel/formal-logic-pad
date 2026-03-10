@@ -219,6 +219,10 @@ import { MinimapComponent } from "../infinite-canvas/MinimapComponent";
 import type { MinimapItem } from "../infinite-canvas/minimap";
 import { ZoomControlsComponent } from "../infinite-canvas/ZoomControlsComponent";
 import type { ZoomItemBounds } from "../infinite-canvas/zoom";
+import {
+  computeZoomInViewport,
+  computeZoomOutViewport,
+} from "../infinite-canvas/zoomControls";
 import { useHistory } from "../history/useHistory";
 
 // --- Props ---
@@ -3432,6 +3436,12 @@ export function ProofWorkspace({
       } else if (isModifier && e.shiftKey && e.key.toLowerCase() === "l") {
         e.preventDefault();
         handleTreeLayout("top-to-bottom");
+      } else if (isModifier && (e.key === "+" || e.key === "=")) {
+        e.preventDefault();
+        setViewport((v) => computeZoomInViewport(v, containerSize));
+      } else if (isModifier && e.key === "-") {
+        e.preventDefault();
+        setViewport((v) => computeZoomOutViewport(v, containerSize));
       } else if (e.key === "Shift" && !e.repeat) {
         // Shiftキー押下でマーキー（矩形選択）モード有効化
         setIsShiftMarqueeActive(true);
@@ -3464,6 +3474,7 @@ export function ProofWorkspace({
     handleCancelMerge,
     handleTreeLayout,
     workspace.nodes,
+    containerSize,
   ]);
   /* v8 ignore stop */
 
