@@ -1677,7 +1677,7 @@ describe("ProofWorkspace", () => {
       expect(onDuplicateToFree).toHaveBeenCalledOnce();
     });
 
-    it("shows axiom violation banner when goal achieved with disallowed axiom", () => {
+    it("does not show any banner when goal achieved with disallowed axiom", () => {
       // allowedAxiomIds に A2 のみ → A1 を使ったら AllAchievedButAxiomViolation
       let ws = createQuestWorkspace(lukasiewiczSystem, [
         {
@@ -1696,18 +1696,13 @@ describe("ProofWorkspace", () => {
         />,
       );
 
-      // 通常の proof-complete-banner は表示されない
+      // 完全達成バナーは表示されない（公理制限違反のため）
       expect(
         screen.queryByTestId("workspace-proof-complete-banner"),
       ).not.toBeInTheDocument();
-
-      // axiom violation バナーが表示される
-      expect(
-        screen.getByTestId("workspace-proof-complete-banner-axiom-violation"),
-      ).toBeInTheDocument();
     });
 
-    it("shows axiom violation with instance root when instance is placed directly", () => {
+    it("does not show any banner when instance is placed directly", () => {
       // A1 の代入インスタンスをルートノードに直接配置
       let ws = createQuestWorkspace(lukasiewiczSystem, [
         {
@@ -1732,10 +1727,10 @@ describe("ProofWorkspace", () => {
         />,
       );
 
-      // axiom violation バナーが表示される（instance root violation）
+      // 完全達成バナーは表示されない（instance root violation のため）
       expect(
-        screen.getByTestId("workspace-proof-complete-banner-axiom-violation"),
-      ).toBeInTheDocument();
+        screen.queryByTestId("workspace-proof-complete-banner"),
+      ).not.toBeInTheDocument();
     });
   });
 

@@ -539,13 +539,6 @@ const proofCompleteBannerStyle: CSSProperties = {
   animation: "stamp-appear 0.4s cubic-bezier(0.22, 1, 0.36, 1) both",
 };
 
-const proofCompleteAxiomViolationBannerStyle: CSSProperties = {
-  ...proofCompleteBannerStyle,
-  color: "var(--color-proof-complete-axiom-text, #8a5a1e)",
-  background: "var(--color-proof-complete-axiom-bg, rgba(255,253,248,0.95))",
-  border: "3px solid var(--color-proof-complete-axiom-border, #d9944a)",
-  boxShadow: `2px 3px 8px var(--color-proof-complete-axiom-shadow, rgba(217,148,74,0.2))`,
-};
 
 const questModeBadgeStyle = {
   padding: "2px 8px",
@@ -4696,7 +4689,7 @@ export function ProofWorkspace({
       ) : null}
       {/* v8 ignore stop */}
 
-      {/* 証明完了バナー（スタンプ風） */}
+      {/* 証明完了バナー（スタンプ風） — 完全にクリアしたときだけ表示 */}
       {isGoalAchieved ? (
         <div
           style={proofCompleteBannerStyle}
@@ -4709,86 +4702,6 @@ export function ProofWorkspace({
           }
         >
           {msg.proofComplete}
-        </div>
-      ) : isGoalAchievedButAxiomViolation ? (
-        <div
-          style={proofCompleteAxiomViolationBannerStyle}
-          data-testid={
-            /* v8 ignore start -- V8集約アーティファクト */
-            testId
-              ? `${testId satisfies string}-proof-complete-banner-axiom-violation`
-              : undefined
-            /* v8 ignore stop */
-          }
-        >
-          <div>{msg.proofCompleteButAxiomViolation}</div>
-          {questGoalResult?._tag === "AllAchievedButAxiomViolation" ? (
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: 400,
-                marginTop: 4,
-                fontVariant: "normal" as const,
-              }}
-            >
-              {(() => {
-                const violatingIds = questGoalResult.goalResults
-                  .flatMap((r) => [...r.violatingAxiomIds])
-                  .filter((v, i, a) => a.indexOf(v) === i);
-                const hasInstanceRoots = questGoalResult.goalResults.some(
-                  (r) => r.hasInstanceRootNodes,
-                );
-                return (
-                  <>
-                    {violatingIds.length > 0
-                      ? formatMessage(msg.axiomViolationDetail, {
-                          axiomIds: violatingIds.join(", "),
-                        })
-                      : null}
-                    {hasInstanceRoots ? (
-                      <div style={{ marginTop: 2 }}>
-                        {msg.instanceRootViolationDetail}
-                      </div>
-                    ) : null}
-                  </>
-                );
-              })()}
-            </div>
-          ) : null}
-        </div>
-      ) : isGoalAchievedButRuleViolation ? (
-        <div
-          style={proofCompleteAxiomViolationBannerStyle}
-          data-testid={
-            testId
-              ? `${testId satisfies string}-proof-complete-banner-rule-violation`
-              : undefined
-          }
-        >
-          <div>{msg.proofCompleteButRuleViolation}</div>
-          {questGoalResult?._tag === "AllAchievedButRuleViolation" ? (
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: 400,
-                marginTop: 4,
-                fontVariant: "normal" as const,
-              }}
-            >
-              {/* v8 ignore start -- 規則違反詳細: クエストモードの特殊パスでテストコスト高 */}
-              {(() => {
-                const violatingIds = questGoalResult.goalResults
-                  .flatMap((r) => [...r.violatingRuleIds])
-                  .filter((v, i, a) => a.indexOf(v) === i);
-                return violatingIds.length > 0
-                  ? formatMessage(msg.ruleViolationDetail, {
-                      ruleIds: violatingIds.join(", "),
-                    })
-                  : null;
-              })()}
-              {/* v8 ignore stop */}
-            </div>
-          ) : null}
         </div>
       ) : null}
 

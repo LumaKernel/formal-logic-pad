@@ -125,18 +125,6 @@ export type ProofMessages = {
   readonly mergeCancel: string;
   readonly mergeNoTargets: string;
 
-  // --- 公理制限 ---
-  readonly proofCompleteButAxiomViolation: string;
-  /** `{axiomIds}` プレースホルダーを含む */
-  readonly axiomViolationDetail: string;
-  /** 公理インスタンスが直接ルートノードに配置されている場合のメッセージ */
-  readonly instanceRootViolationDetail: string;
-
-  // --- 推論規則制限 ---
-  readonly proofCompleteButRuleViolation: string;
-  /** `{ruleIds}` プレースホルダーを含む */
-  readonly ruleViolationDetail: string;
-
   // --- TAB ---
   /** `{ruleName}` プレースホルダーを含む */
   readonly tabBannerSelectNode: string;
@@ -204,8 +192,6 @@ export type ProofMessages = {
   /** `{axiomName}` プレースホルダーを含む */
   readonly axiomIdentifiedTooltip: string;
   readonly protectedQuestTooltip: string;
-  readonly protectedRoleLockedTooltip: string;
-  readonly clickToCycleRoleTooltip: string;
   readonly derivedNodeAutoTooltip: string;
   readonly formulaEditorPlaceholder: string;
   readonly formulaEditorPlaceholderDblclick: string;
@@ -386,16 +372,6 @@ export const defaultProofMessages: ProofMessages = {
   mergeCancel: "Cancel Merge",
   mergeNoTargets: "No mergeable nodes found",
 
-  // Axiom restriction
-  proofCompleteButAxiomViolation: "Axiom Restriction Violated",
-  axiomViolationDetail: "Disallowed axiom(s) used: {axiomIds}",
-  instanceRootViolationDetail:
-    "Axiom instances must be derived via substitution, not placed directly.",
-
-  // Rule restriction
-  proofCompleteButRuleViolation: "Rule Restriction Violated",
-  ruleViolationDetail: "Disallowed rule(s) used: {ruleIds}",
-
   // TAB
   tabBannerSelectNode: "Click a sequent node to apply {ruleName}",
   tabCancel: "Cancel TAB",
@@ -443,8 +419,6 @@ export const defaultProofMessages: ProofMessages = {
   protectedBadge: "QUEST",
   axiomIdentifiedTooltip: "Identified as axiom: {axiomName}",
   protectedQuestTooltip: "Protected quest goal (read-only)",
-  protectedRoleLockedTooltip: "Protected quest goal (role is locked)",
-  clickToCycleRoleTooltip: "Click to cycle role: Root \u2192 Axiom",
   derivedNodeAutoTooltip: "Derived node (role is automatic)",
   formulaEditorPlaceholder: "Click to edit formula...",
   formulaEditorPlaceholderDblclick: "Double-click to edit formula...",
