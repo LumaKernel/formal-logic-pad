@@ -556,10 +556,7 @@ export function HubPageView({
               <div style={sharedQuestMetaStyle}>
                 <span>
                   {m.sharedQuestMeta
-                    .replace(
-                      "{systemPresetId}",
-                      sharedQuest.systemPresetId,
-                    )
+                    .replace("{systemPresetId}", sharedQuest.systemPresetId)
                     .replace(
                       "{goalCount}",
                       `${sharedQuest.goals.length satisfies number}`,

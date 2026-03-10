@@ -248,14 +248,14 @@ Infinity Canvasについて。
   - [x] 三点リーダーをクエストに足してl、模範解答と、自作クエストとしての複製もボタンからそちらに移動してよいだろう
 
 - [x] フォーム管理はTanStack Formの利用は検討できますか → 不採用（既存パターンで十分）
-    - [x] 他にもTanStackのスタックが利用検討できないか、すべてについて検討してください → 現時点で導入すべきものなし。Virtual/DB/Table は将来候補として注目
+  - [x] 他にもTanStackのスタックが利用検討できないか、すべてについて検討してください → 現時点で導入すべきものなし。Virtual/DB/Table は将来候補として注目
 - [x] ノート一覧の複製、自由帳複製は、三点リーダーメニューに入れるでいいかな。
   - 三点メニュー（⋯）にアクション（名前変更・複製・自由帳として複製・削除）を統合。クリック外で閉じる、aria-expanded対応。テスト7件追加、ストーリー更新。
 - [x] BACKが日本語化されてないね
-    - [x] Light,Dark,Systemとかもそう。
-    - [x] Start Quest, Add to my quests, cancelなども
-    - [x] そもそもなぜ漏れる？地の文がないようにできてる？ → messages-as-props パターンでデフォルト英語＋next-intl注入方式に統一。Storybook等next-intl不可環境ではデフォルト英語が表示される設計
+  - [x] Light,Dark,Systemとかもそう。
+  - [x] Start Quest, Add to my quests, cancelなども
+  - [x] そもそもなぜ漏れる？地の文がないようにできてる？ → messages-as-props パターンでデフォルト英語＋next-intl注入方式に統一。Storybook等next-intl不可環境ではデフォルト英語が表示される設計
 - [x] ヘッダにGitHubへ飛べるボタンを控えめにおいておいて。
   - Hub・Workspace両ページのヘッダ右端にGitHub Octocat SVGアイコンリンク（opacity: 0.6）を配置
 - [x] Warning: Starting in Storybook 8.5.0-alpha.18, the "test.include" option in Vitest is discouraged.
-  → vitest.config.ts の top-level test.include を削除し、unit project のみに残すことで修正。
+      → vitest.config.ts の top-level test.include を削除し、unit project のみに残すことで修正。

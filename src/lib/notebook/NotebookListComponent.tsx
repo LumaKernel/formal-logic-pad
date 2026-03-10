@@ -148,8 +148,7 @@ const dropdownMenuStyle: CSSProperties = {
   top: "100%",
   marginTop: 4,
   background: "var(--color-notebook-card-bg, #fffdf8)",
-  border:
-    "1px solid var(--color-notebook-card-border, rgba(180,160,130,0.25))",
+  border: "1px solid var(--color-notebook-card-border, rgba(180,160,130,0.25))",
   borderRadius: 8,
   boxShadow:
     "0 4px 12px var(--color-notebook-card-shadow-hover, rgba(120,100,70,0.18))",
@@ -261,8 +260,7 @@ function MenuItem({
   readonly variant?: "default" | "danger";
 }) {
   const [hovered, setHovered] = useState(false);
-  const baseStyle =
-    variant === "danger" ? menuItemDangerStyle : menuItemStyle;
+  const baseStyle = variant === "danger" ? menuItemDangerStyle : menuItemStyle;
   const hStyle =
     variant === "danger" ? menuItemDangerHoverStyle : menuItemHoverStyle;
   return (
