@@ -19,6 +19,8 @@ import type {
   ProofSaveParams,
   ProofEntry,
 } from "../../../lib/proof-collection";
+import type { ReferenceEntry } from "../../../lib/reference/referenceEntry";
+import type { Locale } from "../../../lib/reference/referenceEntry";
 import {
   ThemeToggle,
   type ThemeToggleLabels,
@@ -86,6 +88,12 @@ export type WorkspacePageViewProps = {
       readonly questVersionWarning?: string;
       /** クエスト情報（ゴールパネルの詳細表示に使用） */
       readonly questInfo?: GoalQuestInfo;
+      /** リファレンスエントリ一覧（公理・推論規則等の解説） */
+      readonly referenceEntries?: readonly ReferenceEntry[];
+      /** リファレンス詳細を開くコールバック */
+      readonly onOpenReferenceDetail?: (entryId: string) => void;
+      /** ロケール（リファレンス表示言語） */
+      readonly locale?: Locale;
     }
   | {
       /** ノートブックが見つからない場合 */
@@ -267,6 +275,9 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
             onCreateCollectionFolder={props.onCreateCollectionFolder}
             onRemoveCollectionFolder={props.onRemoveCollectionFolder}
             onRenameCollectionFolder={props.onRenameCollectionFolder}
+            referenceEntries={props.referenceEntries}
+            onOpenReferenceDetail={props.onOpenReferenceDetail}
+            locale={props.locale}
           />
         </ProofMessagesProvider>
       </div>

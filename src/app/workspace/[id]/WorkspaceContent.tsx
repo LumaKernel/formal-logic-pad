@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import type { WorkspacePageMessages } from "./workspacePageMessages";
@@ -17,6 +17,10 @@ import {
   checkQuestVersion,
   getVersionWarningMessage,
 } from "../../../lib/quest/questVersionLogic";
+import { allReferenceEntries } from "../../../lib/reference/referenceContent";
+import { findEntryById } from "../../../lib/reference/referenceEntry";
+import { ReferenceModal } from "../../../lib/reference/ReferenceModal";
+import type { Locale as ReferenceLocale } from "../../../lib/reference/referenceEntry";
 import { ThemeProvider } from "../../../lib/theme/ThemeProvider";
 import { isLocale } from "../../../components/LanguageToggle/languageToggleLogic";
 import {
@@ -267,6 +271,10 @@ function WorkspaceInner() {
   const locale = isLocale(rawLocale) ?? "en";
   const localeSwitchDeps = useMemo(() => getBrowserLocaleSwitchDeps(), []);
   const { switchLocale } = useLocaleSwitch(localeSwitchDeps);
+  const [referenceDetailId, setReferenceDetailId] = useState<string | null>(
+    null,
+  );
+  const referenceLocale: ReferenceLocale = locale;
 
   const notebookId =
     typeof params.id === "string"
@@ -325,6 +333,22 @@ function WorkspaceInner() {
     [addProofEntry],
   );
 
+  const handleOpenReferenceDetail = useCallback((entryId: string) => {
+    setReferenceDetailId(entryId);
+  }, []);
+
+  const handleCloseReferenceDetail = useCallback(() => {
+    setReferenceDetailId(null);
+  }, []);
+
+  const referenceDetailEntry = useMemo(
+    () =>
+      referenceDetailId !== null
+        ? findEntryById(allReferenceEntries, referenceDetailId)
+        : undefined,
+    [referenceDetailId],
+  );
+
   const questInfo = useMemo((): GoalQuestInfo | undefined => {
     if (questId === undefined) return undefined;
     const quest = builtinQuests.find((q) => q.id === questId);
@@ -362,31 +386,45 @@ function WorkspaceInner() {
   }
 
   return (
-    <WorkspacePageView
-      found={true}
-      notebookName={notebook.meta.name}
-      workspace={notebook.workspace}
-      messages={proofMessages}
-      onBack={handleBack}
-      onWorkspaceChange={handleWorkspaceChange}
-      onGoalAchieved={handleGoalAchieved}
-      onDuplicateToFree={handleDuplicateToFree}
-      onSaveProofToCollection={handleSaveToCollection}
-      collectionEntries={proofCollection.entries}
-      onRenameCollectionEntry={proofCollection.renameEntry}
-      onUpdateCollectionMemo={proofCollection.updateMemo}
-      onRemoveCollectionEntry={proofCollection.removeEntry}
-      collectionFolders={proofCollection.folders}
-      onMoveCollectionEntry={proofCollection.moveEntry}
-      onCreateCollectionFolder={proofCollection.createFolder}
-      onRemoveCollectionFolder={proofCollection.removeFolder}
-      onRenameCollectionFolder={proofCollection.renameFolder}
-      questVersionWarning={questVersionWarning}
-      questInfo={questInfo}
-      languageToggle={languageToggle}
-      pageMessages={pageMessages}
-      themeLabels={themeLabels}
-    />
+    <>
+      <WorkspacePageView
+        found={true}
+        notebookName={notebook.meta.name}
+        workspace={notebook.workspace}
+        messages={proofMessages}
+        onBack={handleBack}
+        onWorkspaceChange={handleWorkspaceChange}
+        onGoalAchieved={handleGoalAchieved}
+        onDuplicateToFree={handleDuplicateToFree}
+        onSaveProofToCollection={handleSaveToCollection}
+        collectionEntries={proofCollection.entries}
+        onRenameCollectionEntry={proofCollection.renameEntry}
+        onUpdateCollectionMemo={proofCollection.updateMemo}
+        onRemoveCollectionEntry={proofCollection.removeEntry}
+        collectionFolders={proofCollection.folders}
+        onMoveCollectionEntry={proofCollection.moveEntry}
+        onCreateCollectionFolder={proofCollection.createFolder}
+        onRemoveCollectionFolder={proofCollection.removeFolder}
+        onRenameCollectionFolder={proofCollection.renameFolder}
+        questVersionWarning={questVersionWarning}
+        questInfo={questInfo}
+        referenceEntries={allReferenceEntries}
+        onOpenReferenceDetail={handleOpenReferenceDetail}
+        locale={referenceLocale}
+        languageToggle={languageToggle}
+        pageMessages={pageMessages}
+        themeLabels={themeLabels}
+      />
+      {referenceDetailEntry !== undefined ? (
+        <ReferenceModal
+          entry={referenceDetailEntry}
+          allEntries={allReferenceEntries}
+          locale={referenceLocale}
+          onClose={handleCloseReferenceDetail}
+          onNavigate={handleOpenReferenceDetail}
+        />
+      ) : null}
+    </>
   );
 }
 

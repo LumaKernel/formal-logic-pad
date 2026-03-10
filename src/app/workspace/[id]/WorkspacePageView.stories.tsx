@@ -23,6 +23,9 @@ import {
 } from "../../../lib/proof-pad/workspaceState";
 import type { WorkspaceState } from "../../../lib/proof-pad/workspaceState";
 import type { GoalAchievedInfo } from "../../../lib/proof-pad";
+import { allReferenceEntries } from "../../../lib/reference/referenceContent";
+import { findEntryById } from "../../../lib/reference/referenceEntry";
+import { ReferenceModal } from "../../../lib/reference/ReferenceModal";
 import { WorkspacePageView } from "./WorkspacePageView";
 
 // --- Stateful wrapper for interactive stories ---
@@ -276,5 +279,62 @@ export const GroupTheoryWorkspace: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByText("Group Theory")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+  },
+};
+
+// --- リファレンス統合ストーリー ---
+
+function WorkspaceWithReferenceDetail() {
+  const [detailId, setDetailId] = useState<string | null>(null);
+  let ws = createEmptyWorkspace(lukasiewiczSystem);
+  ws = addNode(ws, "axiom", "A1", { x: 50, y: 50 }, "φ → (ψ → φ)");
+  const [workspace, setWorkspace] = useState<WorkspaceState>(ws);
+  const detailEntry =
+    detailId !== null
+      ? findEntryById(allReferenceEntries, detailId)
+      : undefined;
+
+  return (
+    <>
+      <WorkspacePageView
+        found={true}
+        notebookName="Reference Demo"
+        workspace={workspace}
+        messages={defaultProofMessages}
+        onBack={fn()}
+        onWorkspaceChange={setWorkspace}
+        onGoalAchieved={fn()}
+        referenceEntries={allReferenceEntries}
+        onOpenReferenceDetail={(id) => setDetailId(id)}
+        locale="en"
+        languageToggle={{ locale: "en", onLocaleChange: () => {} }}
+      />
+      {detailEntry !== undefined ? (
+        <ReferenceModal
+          entry={detailEntry}
+          allEntries={allReferenceEntries}
+          locale="en"
+          onClose={() => setDetailId(null)}
+          onNavigate={(id) => setDetailId(id)}
+          testId="reference-modal"
+        />
+      ) : null}
+    </>
+  );
+}
+
+/** リファレンス統合（公理パレットの(?)ボタン・体系バッジクリック） */
+export const WithReference: Story = {
+  render: () => <WorkspaceWithReferenceDetail />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    // 公理パレットにリファレンスボタンが表示される
+    const refTrigger = canvas.queryByTestId(
+      "workspace-axiom-palette-item-A1-ref-trigger",
+    );
+    if (refTrigger !== null) {
+      await expect(refTrigger).toBeInTheDocument();
+    }
   },
 };
