@@ -36,6 +36,8 @@ export interface GoalPanelProps {
   readonly onDragHandlePointerDown?: (
     e: React.PointerEvent<HTMLElement>,
   ) => void;
+  /** 直前のドラッグ操作で実際に移動が発生したかのref（折り畳みトグルとドラッグの区別に使用） */
+  readonly wasDraggedRef?: React.RefObject<boolean>;
   /** リファレンスエントリ一覧（省略時は公理の(?)ボタン非表示） */
   readonly referenceEntries?: readonly ReferenceEntry[];
   /** ロケール（リファレンス表示用） */
@@ -667,6 +669,7 @@ export function GoalPanel({
   messages,
   position,
   onDragHandlePointerDown,
+  wasDraggedRef,
   referenceEntries,
   locale,
   onOpenReferenceDetail,
@@ -699,9 +702,13 @@ export function GoalPanel({
             left: position.x,
             top: position.y,
             right: undefined,
+            cursor: onDragHandlePointerDown !== undefined ? "grab" : "pointer",
           }
-        : toggleButtonStyle,
-    [position],
+        : {
+            ...toggleButtonStyle,
+            cursor: onDragHandlePointerDown !== undefined ? "grab" : "pointer",
+          },
+    [position, onDragHandlePointerDown],
   );
 
   const dragHeaderStyle = useMemo(
@@ -713,6 +720,12 @@ export function GoalPanel({
     [onDragHandlePointerDown],
   );
 
+  const handleCollapsedClick = useCallback(() => {
+    if (wasDraggedRef?.current !== true) {
+      handleToggle();
+    }
+  }, [wasDraggedRef, handleToggle]);
+
   if (data.items.length === 0) {
     return null;
   }
@@ -723,7 +736,8 @@ export function GoalPanel({
         style={resolvedToggleStyle}
         role="button"
         tabIndex={0}
-        onClick={handleToggle}
+        onPointerDown={onDragHandlePointerDown}
+        onClick={handleCollapsedClick}
         /* v8 ignore start -- キーボード操作: role="button"のアクセシビリティ対応 */
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {

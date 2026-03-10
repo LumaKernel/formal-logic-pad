@@ -4841,6 +4841,7 @@ export function ProofWorkspace({
         messages={msg}
         position={goalPanelPos}
         onDragHandlePointerDown={goalPanelDrag.handleProps.onPointerDown}
+        wasDraggedRef={goalPanelDrag.wasDraggedRef}
         referenceEntries={referenceEntries}
         locale={locale}
         onOpenReferenceDetail={onOpenReferenceDetail}

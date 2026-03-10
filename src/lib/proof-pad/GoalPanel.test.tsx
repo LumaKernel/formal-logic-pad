@@ -420,6 +420,205 @@ describe("GoalPanel", () => {
     });
   });
 
+  describe("折りたたみ状態でのドラッグ", () => {
+    it("折りたたみ状態でonDragHandlePointerDownが呼ばれる", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+      });
+      const onDragHandlePointerDown = vi.fn();
+      render(
+        <GoalPanel
+          data={data}
+          messages={msg}
+          testId="gp"
+          position={{ x: 100, y: 50 }}
+          onDragHandlePointerDown={onDragHandlePointerDown}
+        />,
+      );
+
+      // 折りたたむ
+      fireEvent.click(screen.getByTestId("gp-collapse"));
+      expect(screen.getByTestId("gp-toggle")).toBeInTheDocument();
+
+      // 折りたたみボタンのpointerdownでドラッグハンドルが呼ばれる
+      fireEvent.pointerDown(screen.getByTestId("gp-toggle"));
+      expect(onDragHandlePointerDown).toHaveBeenCalledTimes(1);
+    });
+
+    it("wasDraggedRef.current=falseの場合はクリックでトグルされる", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+      });
+      const wasDraggedRef = { current: false };
+      render(
+        <GoalPanel
+          data={data}
+          messages={msg}
+          testId="gp"
+          position={{ x: 100, y: 50 }}
+          onDragHandlePointerDown={vi.fn()}
+          wasDraggedRef={wasDraggedRef}
+        />,
+      );
+
+      // 折りたたむ
+      fireEvent.click(screen.getByTestId("gp-collapse"));
+      expect(screen.getByTestId("gp-toggle")).toBeInTheDocument();
+
+      // wasDraggedRef.current=falseなのでクリックでトグルされる
+      fireEvent.click(screen.getByTestId("gp-toggle"));
+      expect(screen.getByTestId("gp")).toBeInTheDocument();
+    });
+
+    it("wasDraggedRef.current=trueの場合はクリックでトグルされない", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+      });
+      const wasDraggedRef = { current: true };
+      render(
+        <GoalPanel
+          data={data}
+          messages={msg}
+          testId="gp"
+          position={{ x: 100, y: 50 }}
+          onDragHandlePointerDown={vi.fn()}
+          wasDraggedRef={wasDraggedRef}
+        />,
+      );
+
+      // 折りたたむ
+      fireEvent.click(screen.getByTestId("gp-collapse"));
+      expect(screen.getByTestId("gp-toggle")).toBeInTheDocument();
+
+      // wasDraggedRef.current=trueなのでクリックでトグルされない（ドラッグ後のクリック）
+      fireEvent.click(screen.getByTestId("gp-toggle"));
+      expect(screen.getByTestId("gp-toggle")).toBeInTheDocument();
+    });
+
+    it("折りたたみ状態のカーソルがgrabになる", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+      });
+      render(
+        <GoalPanel
+          data={data}
+          messages={msg}
+          testId="gp"
+          position={{ x: 100, y: 50 }}
+          onDragHandlePointerDown={vi.fn()}
+        />,
+      );
+
+      // 折りたたむ
+      fireEvent.click(screen.getByTestId("gp-collapse"));
+      const toggle = screen.getByTestId("gp-toggle");
+      expect(toggle.style.cursor).toBe("grab");
+    });
+
+    it("position未指定+ドラッグハンドルありでもカーソルがgrabになる", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+      });
+      render(
+        <GoalPanel
+          data={data}
+          messages={msg}
+          testId="gp"
+          onDragHandlePointerDown={vi.fn()}
+        />,
+      );
+
+      // 折りたたむ
+      fireEvent.click(screen.getByTestId("gp-collapse"));
+      const toggle = screen.getByTestId("gp-toggle");
+      expect(toggle.style.cursor).toBe("grab");
+    });
+
+    it("ドラッグハンドルなしの折りたたみカーソルがpointerになる", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+
+      // 折りたたむ
+      fireEvent.click(screen.getByTestId("gp-collapse"));
+      const toggle = screen.getByTestId("gp-toggle");
+      expect(toggle.style.cursor).toBe("pointer");
+    });
+  });
+
   describe("testId", () => {
     it("各アイテムにtestIdが付与される", () => {
       const data = makeData({

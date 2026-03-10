@@ -40,6 +40,8 @@ export interface UsePanelDragConfig {
 export interface UsePanelDragResult {
   /** ドラッグ中かどうか */
   readonly isDragging: boolean;
+  /** 直前のpointerdown〜pointerupで実際に移動が発生したかのref（クリックとドラッグの区別に使用。refなのでタイミング問題なし） */
+  readonly wasDraggedRef: React.RefObject<boolean>;
   /** ドラッグハンドル要素に付与するイベントハンドラ */
   readonly handleProps: {
     readonly onPointerDown: (e: React.PointerEvent<HTMLElement>) => void;
@@ -57,6 +59,7 @@ export interface UsePanelDragResult {
  */
 export function usePanelDrag(config: UsePanelDragConfig): UsePanelDragResult {
   const [isDragging, setIsDragging] = useState(false);
+  const wasDraggedRef = useRef(false);
   const dragStartRef = useRef<{
     readonly pointerPosition: PanelPosition;
     readonly panelPosition: PanelPosition;
@@ -79,12 +82,15 @@ export function usePanelDrag(config: UsePanelDragConfig): UsePanelDragResult {
       panelPosition: currentConfig.position,
     };
     setIsDragging(true);
+    wasDraggedRef.current = false;
 
     const handlePointerMove = (ev: PointerEvent): void => {
       const start = dragStartRef.current;
       /* v8 ignore start -- 防御的ガード: pointerdown後にのみ登録されるため到達不能 */
       if (start === null) return;
       /* v8 ignore stop */
+
+      wasDraggedRef.current = true;
 
       const cfg = configRef.current;
       const result = computeDragPosition(
@@ -112,6 +118,7 @@ export function usePanelDrag(config: UsePanelDragConfig): UsePanelDragResult {
 
   return {
     isDragging,
+    wasDraggedRef,
     handleProps: {
       onPointerDown,
     },

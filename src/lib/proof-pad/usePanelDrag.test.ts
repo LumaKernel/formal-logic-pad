@@ -140,6 +140,78 @@ describe("usePanelDrag", () => {
     expect(onPositionChange).not.toHaveBeenCalled();
   });
 
+  it("初期状態ではwasDraggedがfalse", () => {
+    const { result } = renderHook(() => usePanelDrag(baseConfig));
+    expect(result.current.wasDraggedRef.current).toBe(false);
+  });
+
+  it("pointermoveが発生するとwasDraggedがtrueになる", () => {
+    const onPositionChange = vi.fn();
+    const { result } = renderHook(() =>
+      usePanelDrag({ ...baseConfig, onPositionChange }),
+    );
+
+    act(() => {
+      result.current.handleProps.onPointerDown(createPointerEvent(150, 120));
+    });
+
+    expect(result.current.wasDraggedRef.current).toBe(false);
+
+    act(() => {
+      window.dispatchEvent(
+        new PointerEvent("pointermove", { clientX: 200, clientY: 170 }),
+      );
+    });
+
+    expect(result.current.wasDraggedRef.current).toBe(true);
+  });
+
+  it("次のpointerdownでwasDraggedがリセットされる", () => {
+    const onPositionChange = vi.fn();
+    const { result } = renderHook(() =>
+      usePanelDrag({ ...baseConfig, onPositionChange }),
+    );
+
+    // 最初のドラッグ
+    act(() => {
+      result.current.handleProps.onPointerDown(createPointerEvent(150, 120));
+    });
+    act(() => {
+      window.dispatchEvent(
+        new PointerEvent("pointermove", { clientX: 200, clientY: 170 }),
+      );
+    });
+    act(() => {
+      window.dispatchEvent(new PointerEvent("pointerup"));
+    });
+
+    expect(result.current.wasDraggedRef.current).toBe(true);
+
+    // 2回目のpointerdownでリセット
+    act(() => {
+      result.current.handleProps.onPointerDown(createPointerEvent(200, 170));
+    });
+
+    expect(result.current.wasDraggedRef.current).toBe(false);
+  });
+
+  it("pointermoveなしのpointerupではwasDraggedがfalseのまま", () => {
+    const onPositionChange = vi.fn();
+    const { result } = renderHook(() =>
+      usePanelDrag({ ...baseConfig, onPositionChange }),
+    );
+
+    act(() => {
+      result.current.handleProps.onPointerDown(createPointerEvent(150, 120));
+    });
+
+    act(() => {
+      window.dispatchEvent(new PointerEvent("pointerup"));
+    });
+
+    expect(result.current.wasDraggedRef.current).toBe(false);
+  });
+
   it("pointerup後はpointermoveが無視される", () => {
     const onPositionChange = vi.fn();
     const { result } = renderHook(() =>
