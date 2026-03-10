@@ -11912,3 +11912,32 @@
   - GoalPanelの展開はquestInfo有無で制御。questInfoがないとrole="button"にならずクリック展開不可
   - stopPropagationラッパーはReferencePopoverのクリックがGoalItem展開トグルに伝播するのを防ぐために必要
 ---
+
+## 2026-03-10 - [proof-pad] ゴールパネルに違反公理の具体表示を追加
+- 実装した内容: 公理制限違反時に「どの公理が違反しているか」を具体的に表示する機能
+  - GoalViolationInfoにviolatingAxiomIds（具体的な違反公理IDリスト）を追加
+  - GoalPanelItemにviolatingAxiomDetails（解決済み公理詳細）を追加
+  - computeGoalPanelDataでviolatingAxiomDetailsを解決（resolveViolatingAxiomDetails関数）
+  - GoalPanel.tsxで警告色の違反公理セクション（インライン/詳細パネル両対応）
+  - 違反公理にも参照リンク(?)ボタンを表示
+  - i18n: "Violating axioms: {axiomIds}" / "違反公理: {axiomIds}"
+- 変更したファイル:
+  - src/lib/proof-pad/goalPanelLogic.ts（GoalViolationInfo拡張、resolveViolatingAxiomDetails追加）
+  - src/lib/proof-pad/goalPanelLogic.test.ts（テスト5件追加）
+  - src/lib/proof-pad/GoalPanel.tsx（違反公理セクションUI、v8 ignore追加）
+  - src/lib/proof-pad/GoalPanel.test.tsx（テスト5件追加: インライン/詳細パネル/参照リンク）
+  - src/lib/proof-pad/ProofWorkspace.tsx（violatingAxiomIds伝達）
+  - src/lib/proof-pad/proofMessages.ts（goalPanelViolatingAxioms追加）
+  - messages/en.json, messages/ja.json（i18nメッセージ追加）
+  - src/app/workspace/[id]/WorkspaceContent.tsx（i18n接続）
+  - tasks/prd-2026-03-10.md（タスク完了マーク）
+- カバレッジ: Stmts 99.93%, Branch 99.77% (ベースライン: Stmts 99.92%, Branch 99.80%)
+  - Branch微減はGoalPanel.tsxの新しいtestId三項分岐（v8 artifact）による
+- テスト: 8855テスト全パス（+10テスト追加）
+- スクリーンショット:
+  - .screenshots/goal-panel-quest-mode.png — クエストモードGoalPanel表示確認
+- **今後のイテレーションへの学び:**
+  - questCompletionLogicはviolatingAxiomIds: ReadonlySet<AxiomId>を既に計算済み。GoalViolationInfoに渡すだけでUI層まで伝達可能
+  - resolveAllowedAxiomDetails関数は許可公理・違反公理両方の解決に再利用可能（同じaxiomId→AllowedAxiomDetail変換ロジック）
+  - JSXのtestId三項分岐（`testId !== undefined ? ... : undefined`）はv8が両ブランチをカウントするため、coverageに微小影響する（v8 artifact）
+---
