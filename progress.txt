@@ -11743,3 +11743,29 @@
   - click-outside-to-close は mousedown で実装（click だとボタン自身のクリックと干渉する可能性）
   - ESLint require-satisfies-in-tls: テストヘルパーのテンプレートリテラルでも `satisfies string` が必要
 ---
+
+## 2026-03-10 - [i18n] Back・Light/Dark/System・Start Quest等の日本語化対応
+- WorkspacePageView, ThemeToggle, HubPageView の英語ハードコードを messages-as-props パターンで i18n 化
+- 変更ファイル:
+  - messages/en.json (HubPage 4キー追加 + Workspace セクション新設)
+  - messages/ja.json (同上、日本語翻訳)
+  - src/app/workspace/[id]/workspacePageMessages.ts (新規: WorkspacePageMessages 型+デフォルト)
+  - src/app/workspace/[id]/WorkspacePageView.tsx (pageMessages + themeLabels props)
+  - src/app/workspace/[id]/WorkspaceContent.tsx (useWorkspacePageMessagesFromIntl + useThemeLabelsFromIntl hooks)
+  - src/components/ThemeToggle/ThemeToggle.tsx (ThemeToggleLabels 型 + labels? prop)
+  - src/components/ThemeToggle/ThemeToggle.test.tsx (カスタムラベルテスト追加)
+  - src/app/hubMessages.ts (4新キー追加)
+  - src/app/HubContent.tsx (useThemeLabelsFromIntl + useHubMessagesFromIntl 拡張)
+  - src/app/HubPageView.tsx (m.sharedQuestStart 等でハードコード置換)
+- スクリーンショット:
+  - .screenshots/i18n-workspace-not-found.png
+  - .screenshots/i18n-workspace-empty-lukasiewicz.png
+  - .screenshots/i18n-hub-shared-quest-dialog.png
+  - .screenshots/i18n-hub-shared-quest-full.png
+- カバレッジ: 99.94% Stmts / 99.92% Branch（ベースライン維持）
+- テスト: 8837 passed (ベースライン 8836 → +1)
+- **今後のイテレーションへの学び:**
+  - i18n の messages-as-props パターン: 純粋ロジック層でデフォルト英語を定義 → UI層(next-intl)で注入 → Storybook等はデフォルトを使用
+  - ThemeToggleLabels: optional props で既存 getThemeLabel() へのフォールバック。破壊的変更なし
+  - HubMessages の sharedQuestMeta: テンプレート変数 {systemPresetId}/{goalCount}/{estimatedSteps} は .replace() チェインで展開
+---
