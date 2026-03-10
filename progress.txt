@@ -12190,3 +12190,22 @@
   - Storybook URLパス: タイトル "ProofPad/ProofWorkspace" → `proofpad-proofworkspace--<kebab-case-story>`
   - undo/redoのplay関数テストでは、keyboard eventの後に`waitFor`で状態変化を待つのが安定する（setTimeout 200msも境界テストでは有効）
 ---
+
+## 2026-03-11 - [proof-pad] Cmd/Ctrl+/-でキャンバスのズームイン・ズームアウト
+- ベースライン: Stmts 99.7%, Branch 99.51%, Lines 99.68%, 9099 tests
+- **結果: Stmts 99.93%, Branch 99.75%, Lines 99.95%, 9135 tests（カバレッジ向上）**
+- 変更内容:
+  - ProofWorkspace.tsx: handleKeyDown に Cmd/Ctrl + +/= (zoom-in) と Cmd/Ctrl + - (zoom-out) を追加
+  - computeZoomInViewport/computeZoomOutViewport を使用し、ブラウザデフォルトのページズームを preventDefault
+  - containerSize を useEffect の依存配列に追加
+- 変更ファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx — キーボードズームショートカット追加
+  - tasks/prd-more-tasks.md → tasks-archived/prd-more-tasks.md（完了・アーカイブ）
+- テスト: 9135 passed, typecheck OK, lint OK
+- スクリーンショット: .screenshots/zoom-shortcuts-before.png, .screenshots/zoom-shortcuts-after-zoomin.png, .screenshots/zoom-shortcuts-after-zoomout.png
+- ブラウザ検証: Cmd+= で100%→173%、Cmd+- で173%→69% を確認
+- **今後のイテレーションへの学び:**
+  - InfiniteCanvas の useKeyboardShortcuts にはすでに zoom-in/out が実装されているが、ProofWorkspace は独自の handleKeyDown を使用しているため個別に追加が必要
+  - computeZoomInViewport/computeZoomOutViewport は containerSize の中心を基準にズーム（ZOOM_STEP_FACTOR=1.2）
+  - ProofWorkspace の keyboard handler は v8 ignore 領域内。JSDOM ではフォーカス制御が不安定なため、キーボードショートカットはブラウザテスト（Playwright MCP）で検証する
+---
