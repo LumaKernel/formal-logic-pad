@@ -69,6 +69,7 @@ function useHubMessagesFromIntl(): HubMessages {
     (): HubMessages => ({
       tabNotebooks: String(t.raw("tabNotebooks")),
       tabQuests: String(t.raw("tabQuests")),
+      tabCustomQuests: String(t.raw("tabCustomQuests")),
       newNotebook: String(t.raw("newNotebook")),
       emptyTitle: String(t.raw("emptyTitle")),
       emptyDescription: String(t.raw("emptyDescription")),
@@ -87,6 +88,7 @@ function useHubMessagesFromIntl(): HubMessages {
 const parseTabFromHash = (hash: string): HubTab => {
   const normalized = hash.replace(/^#/, "");
   if (normalized === "quests") return "quests";
+  if (normalized === "custom-quests") return "custom-quests";
   return "notebooks";
 };
 

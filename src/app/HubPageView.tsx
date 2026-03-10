@@ -38,7 +38,7 @@ import { useHubMessages } from "./HubMessagesContext";
 
 // --- Types ---
 
-export type HubTab = "notebooks" | "quests";
+export type HubTab = "notebooks" | "quests" | "custom-quests";
 type HubViewState = "list" | "create";
 
 export type HubPageViewProps = {
@@ -427,6 +427,16 @@ export function HubPageView({
         >
           {m.tabQuests}
         </button>
+        <button
+          type="button"
+          style={tab === "custom-quests" ? tabActiveStyle : tabStyle}
+          onClick={() => {
+            onTabChange("custom-quests");
+            setView("list");
+          }}
+        >
+          {m.tabCustomQuests}
+        </button>
       </nav>
 
       {/* Content */}
@@ -513,29 +523,28 @@ export function HubPageView({
         )}
 
         {tab === "quests" && (
-          <>
-            <QuestCatalog
-              groups={groups}
-              onStartQuest={onStartQuest}
-              notebookCounts={notebookCounts}
-              onShowQuestNotebooks={handleShowQuestNotebooks}
-              onDuplicateToCustom={onDuplicateBuiltinToCustom}
-              onShowModelAnswer={onShowModelAnswer}
-            />
-            {customQuestItems !== undefined && (
-              <CustomQuestList
-                items={customQuestItems}
-                onStartQuest={onStartQuest}
-                onDuplicateQuest={onDuplicateCustomQuest}
-                onDeleteQuest={onDeleteCustomQuest}
-                onEditQuest={onEditCustomQuest}
-                onCreateQuest={onCreateCustomQuest}
-                onExportQuest={onExportCustomQuest}
-                onImportQuest={onImportCustomQuest}
-                onShareQuestUrl={onShareQuestUrl}
-              />
-            )}
-          </>
+          <QuestCatalog
+            groups={groups}
+            onStartQuest={onStartQuest}
+            notebookCounts={notebookCounts}
+            onShowQuestNotebooks={handleShowQuestNotebooks}
+            onDuplicateToCustom={onDuplicateBuiltinToCustom}
+            onShowModelAnswer={onShowModelAnswer}
+          />
+        )}
+
+        {tab === "custom-quests" && customQuestItems !== undefined && (
+          <CustomQuestList
+            items={customQuestItems}
+            onStartQuest={onStartQuest}
+            onDuplicateQuest={onDuplicateCustomQuest}
+            onDeleteQuest={onDeleteCustomQuest}
+            onEditQuest={onEditCustomQuest}
+            onCreateQuest={onCreateCustomQuest}
+            onExportQuest={onExportCustomQuest}
+            onImportQuest={onImportCustomQuest}
+            onShareQuestUrl={onShareQuestUrl}
+          />
         )}
       </div>
 
