@@ -12056,3 +12056,33 @@
   - `window.history.replaceState` でハッシュ更新（pushStateだとブラウザ履歴に積みすぎる）
   - Storybookでタブ切り替えテストするには `render` でuseStateラッパーが必要（制御コンポーネント化のため）
 ---
+
+## 2026-03-11 - [hub] 自作クエスト独立タブ
+- 実装した内容:
+  - 自作クエストをクエストタブ内のセクションから独立した「Custom Quests」タブに分離
+  - HubTab型を2値→3値（notebooks | quests | custom-quests）に拡張
+  - ハッシュルーティング対応（/#custom-quests）
+  - hubMessages.tsにtabCustomQuestsキーを追加、en.json/ja.jsonに翻訳追加
+  - Storybookストーリー更新: WithCustomQuests/WithEmptyCustomQuestsをcustom-questsタブに移動
+  - DuplicateBuiltinToCustomストーリーを新設（クエストタブ側の機能テスト）
+  - TabSwitchストーリーを3タブ対応に拡張
+- 変更したファイル:
+  - src/app/HubPageView.tsx（HubTab 3値化、3rdタブボタン追加、CustomQuestListをcustom-questsタブに移動）
+  - src/app/HubContent.tsx（parseTabFromHash custom-quests対応、useHubMessagesFromIntl tabCustomQuests追加）
+  - src/app/hubMessages.ts（tabCustomQuests追加: type, defaults, keys）
+  - messages/en.json（tabCustomQuests: "Custom Quests"）
+  - messages/ja.json（tabCustomQuests: "自作クエスト"）
+  - src/app/HubPageView.stories.tsx（WithCustomQuests/WithEmptyCustomQuestsをcustom-questsタブ化、DuplicateBuiltinToCustom新設、TabSwitch 3タブ化）
+  - tasks/prd-2026-03-10.md（タスク完了マーク）
+- テスト: 9125テスト全パス（246ファイル）
+- スクリーンショット:
+  - .screenshots/hub-custom-quests-tab-switch.png（Storybook TabSwitch: 3タブ表示）
+  - .screenshots/hub-with-custom-quests-tab.png（Storybook WithCustomQuests: custom-questsタブ内容）
+  - .screenshots/hub-app-custom-quests-tab.png（アプリ /#custom-quests: 自作クエストタブ空状態）
+  - .screenshots/hub-app-quests-tab.png（アプリ /#quests: クエストタブ（自作なし）確認）
+  - .screenshots/hub-app-notebooks-tab.png（アプリ /: ノートブックタブ確認）
+- **今後のイテレーションへの学び:**
+  - 元々の自作クエスト実装はクエストタブ内のセクションだったが、ユーザー要望で独立タブ化。HubTab union型拡張だけで対応でき、型安全に変更できた
+  - Storybookストーリーのplay関数は、タブが変わるとDOMに表示されない要素をテストできなくなるので、ストーリー自体のtab引数を正しいタブに設定すること
+  - ビルトインクエスト側の「自作に複製」機能テストは別ストーリー（DuplicateBuiltinToCustom）に分離して保持
+---
