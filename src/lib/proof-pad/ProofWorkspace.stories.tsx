@@ -1866,3 +1866,60 @@ export const CutEliminationStepperIntegration: StoryObj<typeof meta> = {
     ).toBeInTheDocument();
   },
 };
+
+/** Undo/Redo 基本動作: ノード追加→Ctrl+Z→Ctrl+Shift+Z */
+export const UndoRedoBasic: Story = {
+  render: () => <LukasiewiczWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // 初期状態: ノードなし
+    expect(canvas.queryByTestId("proof-node-node-1")).not.toBeInTheDocument();
+
+    // A1 公理をパレットから追加
+    const a1Item = canvas.getByTestId("workspace-axiom-palette-item-A1");
+    await userEvent.click(a1Item);
+
+    // ノードが追加された
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+
+    // A2 公理を追加
+    const a2Item = canvas.getByTestId("workspace-axiom-palette-item-A2");
+    await userEvent.click(a2Item);
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+
+    // ワークスペースにフォーカスを当てる（キーボードイベント受信のため）
+    const workspaceEl = canvas.getByTestId("workspace");
+    workspaceEl.focus();
+
+    // Ctrl+Z で undo → node-2 が消える
+    await userEvent.keyboard("{Control>}z{/Control}");
+    await waitFor(() => {
+      expect(
+        canvas.queryByTestId("proof-node-node-2"),
+      ).not.toBeInTheDocument();
+    });
+    // node-1 はまだある
+    expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+
+    // もう一回 Ctrl+Z → node-1 も消える
+    await userEvent.keyboard("{Control>}z{/Control}");
+    await waitFor(() => {
+      expect(
+        canvas.queryByTestId("proof-node-node-1"),
+      ).not.toBeInTheDocument();
+    });
+
+    // Ctrl+Shift+Z で redo → node-1 が復活
+    await userEvent.keyboard("{Control>}{Shift>}z{/Shift}{/Control}");
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    });
+
+    // もう一回 redo → node-2 も復活
+    await userEvent.keyboard("{Control>}{Shift>}z{/Shift}{/Control}");
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+  },
+};

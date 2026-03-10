@@ -219,6 +219,7 @@ import { MinimapComponent } from "../infinite-canvas/MinimapComponent";
 import type { MinimapItem } from "../infinite-canvas/minimap";
 import { ZoomControlsComponent } from "../infinite-canvas/ZoomControlsComponent";
 import type { ZoomItemBounds } from "../infinite-canvas/zoom";
+import { useHistory } from "../history/useHistory";
 
 // --- Props ---
 
@@ -674,22 +675,60 @@ export function ProofWorkspace({
   // i18nメッセージ
   const msg = useProofMessages();
 
-  // 内部状態（外部制御がない場合）
-  const [internalWorkspace, setInternalWorkspace] = useState<WorkspaceState>(
-    () => createEmptyWorkspace(system),
+  // undo/redo 履歴管理
+  const initialWorkspace = useMemo(
+    () => externalWorkspace ?? createEmptyWorkspace(system),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- system は初期化時のみ使用
+    [],
+  );
+  const history = useHistory<WorkspaceState>(initialWorkspace, {
+    maxPastSize: 100,
+  });
+
+  // 外部からworkspaceが変更された場合、historyを同期
+  const lastExternalRef = useRef(externalWorkspace);
+  useEffect(() => {
+    if (
+      externalWorkspace !== undefined &&
+      externalWorkspace !== lastExternalRef.current &&
+      externalWorkspace !== history.state
+    ) {
+      // 外部から渡されたworkspaceが変わった（自分の更新ではない外部変更）
+      history.reset(externalWorkspace);
+    }
+    lastExternalRef.current = externalWorkspace;
+  }, [externalWorkspace, history]);
+
+  const workspace = history.state;
+
+  // history.state が変わったら onWorkspaceChange に通知
+  // undo/redo を含むすべての変更を一元的に通知する
+  const prevWorkspaceRef = useRef(workspace);
+  useEffect(() => {
+    if (workspace !== prevWorkspaceRef.current) {
+      prevWorkspaceRef.current = workspace;
+      onWorkspaceChange?.(workspace);
+    }
+  }, [workspace, onWorkspaceChange]);
+
+  // push: undo対象の操作（ノード追加・削除・接続・MP適用等）
+  const pushWorkspace = useCallback(
+    (ws: WorkspaceState) => {
+      history.push(ws);
+    },
+    [history],
   );
 
-  const workspace = externalWorkspace ?? internalWorkspace;
-  const setWorkspace = useCallback(
+  // replace: 一時更新（ドラッグ中等、undoエントリを作らない）
+  const replaceWorkspace = useCallback(
     (ws: WorkspaceState) => {
-      if (onWorkspaceChange) {
-        onWorkspaceChange(ws);
-      } else {
-        setInternalWorkspace(ws);
-      }
+      history.replace(ws);
     },
-    [onWorkspaceChange],
+    [history],
   );
+
+  // 下位互換: setWorkspace は pushWorkspace のエイリアス
+  const setWorkspace = pushWorkspace;
 
   // ビューポート状態
   const [viewport, setViewport] = useState<ViewportState>({
@@ -3321,6 +3360,16 @@ export function ProofWorkspace({
     setSelectedNodeIds(leaderIds);
   }, [selectedNodeIds, workspace, setWorkspace]);
 
+  // --- undo/redo ---
+
+  const handleUndo = useCallback(() => {
+    history.undo();
+  }, [history]);
+
+  const handleRedo = useCallback(() => {
+    history.redo();
+  }, [history]);
+
   // --- キーボードショートカット ---
   /* v8 ignore start -- キーボードイベント: JSDOMではfocus制御が不安定なためブラウザテストで検証 */
 
@@ -3343,7 +3392,16 @@ export function ProofWorkspace({
 
       const isModifier = e.metaKey || e.ctrlKey;
 
-      if (isModifier && e.key === "c") {
+      if (isModifier && e.shiftKey && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        handleRedo();
+      } else if (isModifier && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        handleUndo();
+      } else if (isModifier && e.key === "y") {
+        e.preventDefault();
+        handleRedo();
+      } else if (isModifier && e.key === "c") {
         e.preventDefault();
         handleCopy();
       } else if (isModifier && e.key === "v") {
@@ -3394,6 +3452,8 @@ export function ProofWorkspace({
     };
   }, [
     editingNodeIds,
+    handleUndo,
+    handleRedo,
     handleCopy,
     handlePaste,
     handleCut,
@@ -3427,22 +3487,22 @@ export function ProofWorkspace({
               });
             }
           }
-          setWorkspace(updateMultipleNodePositions(workspace, positions));
+          replaceWorkspace(updateMultipleNodePositions(workspace, positions));
           return;
         }
       }
-      setWorkspace(updateNodePosition(workspace, nodeId, position));
+      replaceWorkspace(updateNodePosition(workspace, nodeId, position));
     },
-    [workspace, setWorkspace, selectedNodeIds],
+    [workspace, replaceWorkspace, selectedNodeIds],
   );
   /* v8 ignore stop */
 
   const handleFormulaTextChange = useCallback(
     (nodeId: string, text: string) => {
       const updated = updateNodeFormulaText(workspace, nodeId, text);
-      setWorkspace(revalidateInferenceConclusions(updated));
+      replaceWorkspace(revalidateInferenceConclusions(updated));
     },
-    [workspace, setWorkspace],
+    [workspace, replaceWorkspace],
   );
 
   const handleFormulaParsed = useCallback(
@@ -3454,6 +3514,10 @@ export function ProofWorkspace({
 
   const handleModeChange = useCallback(
     (nodeId: string, mode: EditorMode) => {
+      if (mode === "editing") {
+        // 編集開始時: undo ポイントを作成（テキスト変更中は replace で一時更新）
+        pushWorkspace(workspace);
+      }
       setEditingNodeIds((prev) => {
         const next = new Set(prev);
         if (mode === "editing") {
@@ -3468,7 +3532,7 @@ export function ProofWorkspace({
         setEditRequestNodeId(null);
       }
     },
-    [editRequestNodeId],
+    [editRequestNodeId, pushWorkspace, workspace],
   );
 
   // --- ノードサイズ参照コールバック ---
