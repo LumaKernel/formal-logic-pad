@@ -11824,3 +11824,20 @@
   - .screenshots/proof-complete-goal-not-achieved.png
 - テスト: 8537 passed, coverage 99.52% statements / 99.62% branches
 ---
+
+## 2026-03-10 - [ui] MPチップクリックで接続削除メニュー表示
+- InferenceEdgeBadge: 全タイプでクリック可能に変更（MPも含む）
+- onBadgeClick: 座標(screenX, screenY)を渡すよう変更
+- MPなどパラメータなしエッジ: クリックで接続削除コンテキストメニューを表示
+- Gen/Substitution: 従来通りパラメータ編集ポップオーバーを表示
+- 変更ファイル:
+  - src/lib/proof-pad/InferenceEdgeBadge.tsx (全タイプinteractive化)
+  - src/lib/proof-pad/InferenceEdgeBadge.test.tsx (MPバッジテスト追加)
+  - src/lib/proof-pad/ProofWorkspace.tsx (バッジクリックハンドラ分岐)
+- スクリーンショット:
+  - .screenshots/mp-badge-delete-menu.png
+- テスト: 8538 passed, coverage 99.52% statements / 99.62% branches
+- **今後のイテレーションへの学び:**
+  - InferenceEdgeBadge.onBadgeClickは(screenX, screenY)を受け取る。座標が必要なUIアクション（コンテキストメニュー等）に対応可能
+  - edgeBadgeEditLogic.createEditStateFromEdgeがundefined返すタイプ（MP, ND, TAB, AT, SC）はすべて接続削除メニューにフォールバック
+---
