@@ -337,6 +337,10 @@ function WorkspaceInner() {
     setReferenceDetailId(entryId);
   }, []);
 
+  const handleOpenSyntaxHelp = useCallback(() => {
+    setReferenceDetailId("notation-input-methods");
+  }, []);
+
   const handleCloseReferenceDetail = useCallback(() => {
     setReferenceDetailId(null);
   }, []);
@@ -395,6 +399,7 @@ function WorkspaceInner() {
         onBack={handleBack}
         onWorkspaceChange={handleWorkspaceChange}
         onGoalAchieved={handleGoalAchieved}
+        onOpenSyntaxHelp={handleOpenSyntaxHelp}
         onDuplicateToFree={handleDuplicateToFree}
         onSaveProofToCollection={handleSaveToCollection}
         collectionEntries={proofCollection.entries}
