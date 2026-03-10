@@ -257,3 +257,5 @@ Infinity Canvasについて。
     - [x] そもそもなぜ漏れる？地の文がないようにできてる？ → messages-as-props パターンでデフォルト英語＋next-intl注入方式に統一。Storybook等next-intl不可環境ではデフォルト英語が表示される設計
 - [x] ヘッダにGitHubへ飛べるボタンを控えめにおいておいて。
   - Hub・Workspace両ページのヘッダ右端にGitHub Octocat SVGアイコンリンク（opacity: 0.6）を配置
+- [x] Warning: Starting in Storybook 8.5.0-alpha.18, the "test.include" option in Vitest is discouraged.
+  → vitest.config.ts の top-level test.include を削除し、unit project のみに残すことで修正。

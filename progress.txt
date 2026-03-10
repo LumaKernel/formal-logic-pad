@@ -11781,3 +11781,11 @@
   - .screenshots/github-link-workspace.png
 - テスト: 8655 passed（ベースライン維持、vitest worker timeout errorsは偽陽性）
 ---
+
+## 2026-03-10 - [config] Storybook test.include 非推奨警告修正
+- vitest.config.ts の top-level test.include を削除し、unit project のみに残す
+- Storybook project は storybookTest() plugin が stories フィールドから自動発見
+- 変更ファイル:
+  - vitest.config.ts (top-level test.include 削除)
+- テスト: unit 8544 passed / storybook 2 passed（ThemeToggle spot check）
+---
