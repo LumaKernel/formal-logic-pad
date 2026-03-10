@@ -539,7 +539,6 @@ const proofCompleteBannerStyle: CSSProperties = {
   animation: "stamp-appear 0.4s cubic-bezier(0.22, 1, 0.36, 1) both",
 };
 
-
 const questModeBadgeStyle = {
   padding: "2px 8px",
   background: "var(--color-warning-bg, rgba(255,215,0,0.3))",
