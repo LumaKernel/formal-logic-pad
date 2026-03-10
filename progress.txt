@@ -12131,3 +12131,24 @@
   - `isTrivialFormulaSubstitution` は MetaVariable のみを trivial と判定。具体的な論理式は non-trivial
   - A4公理テンプレートは `∀x.φ → φ`。φ が MetaVariable の場合のみ schema として Identified される
 ---
+
+## 2026-03-11 - [proof-pad] undo/redoコーナーケーステスト追加
+- ProofWorkspace.stories.tsx に3つの新しいundo/redoストーリーテストを追加:
+  - **UndoRedoDeleteRestore**: ノード追加→削除→undo（復元）→redo（再削除）
+  - **UndoRedoFork**: 操作→undo→新操作→redo不可（future消失の検証）
+  - **UndoRedoNoOp**: 空状態でundo/redo→何も起きない、操作直後にredo→何も起きない、Ctrl+Yも検証
+- 変更ファイル:
+  - `src/lib/proof-pad/ProofWorkspace.stories.tsx` — 3ストーリー追加
+  - `tasks/prd-2026-03-10.md` — タスク完了マーク
+  - `task-processing.md` — クリア
+- カバレッジ: 99.93% stmts / 99.75% branch / 99.95% lines（変化なし）
+- テスト: 9134 passed (3件追加), Storybook play関数含む
+- スクリーンショット:
+  - .screenshots/undo-redo-delete-restore-story.png
+  - .screenshots/undo-redo-fork-story.png
+  - .screenshots/undo-redo-no-op-story.png
+- **今後のイテレーションへの学び:**
+  - undo後にnextNodeIdもリセットされるため、新ノードはundo前と同じIDを再利用する（node-2が消えた後に新ノード追加するとnode-2になる）
+  - Storybook URLパス: タイトル "ProofPad/ProofWorkspace" → `proofpad-proofworkspace--<kebab-case-story>`
+  - undo/redoのplay関数テストでは、keyboard eventの後に`waitFor`で状態変化を待つのが安定する（setTimeout 200msも境界テストでは有効）
+---

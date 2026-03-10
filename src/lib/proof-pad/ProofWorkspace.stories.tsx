@@ -1923,3 +1923,161 @@ export const UndoRedoBasic: Story = {
     });
   },
 };
+
+/** Undo/Redo 削除復元: ノード追加→削除→undo(復元)→redo(再削除) */
+export const UndoRedoDeleteRestore: Story = {
+  render: () => <LukasiewiczWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // A1 公理を追加
+    const a1Item = canvas.getByTestId("workspace-axiom-palette-item-A1");
+    await userEvent.click(a1Item);
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+
+    // A2 公理を追加
+    const a2Item = canvas.getByTestId("workspace-axiom-palette-item-A2");
+    await userEvent.click(a2Item);
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+
+    // node-1 を右クリック → コンテキストメニュー → 削除
+    const node1 = canvas.getByTestId("proof-node-node-1");
+    await userEvent.pointer({ keys: "[MouseRight]", target: node1 });
+    await userEvent.click(canvas.getByTestId("workspace-delete-node"));
+
+    // node-1 が削除された
+    await waitFor(() => {
+      expect(
+        canvas.queryByTestId("proof-node-node-1"),
+      ).not.toBeInTheDocument();
+    });
+    // node-2 は残る
+    expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+
+    // ワークスペースにフォーカス
+    const workspaceEl = canvas.getByTestId("workspace");
+    workspaceEl.focus();
+
+    // Ctrl+Z で undo → node-1 が復活
+    await userEvent.keyboard("{Control>}z{/Control}");
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    });
+    // node-2 もまだある
+    expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+
+    // Ctrl+Shift+Z で redo → node-1 が再度削除される
+    await userEvent.keyboard("{Control>}{Shift>}z{/Shift}{/Control}");
+    await waitFor(() => {
+      expect(
+        canvas.queryByTestId("proof-node-node-1"),
+      ).not.toBeInTheDocument();
+    });
+    // node-2 は残る
+    expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+  },
+};
+
+/** Undo/Redo フォーク: undo後に新操作→redo不可（future消失の検証） */
+export const UndoRedoFork: Story = {
+  render: () => <LukasiewiczWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // A1, A2 を順に追加
+    await userEvent.click(
+      canvas.getByTestId("workspace-axiom-palette-item-A1"),
+    );
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+
+    await userEvent.click(
+      canvas.getByTestId("workspace-axiom-palette-item-A2"),
+    );
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+
+    // フォーカス
+    const workspaceEl = canvas.getByTestId("workspace");
+    workspaceEl.focus();
+
+    // Ctrl+Z → node-2 が消える
+    await userEvent.keyboard("{Control>}z{/Control}");
+    await waitFor(() => {
+      expect(
+        canvas.queryByTestId("proof-node-node-2"),
+      ).not.toBeInTheDocument();
+    });
+
+    // ここで新操作（A3 を追加）→ redo future が消える
+    // undo 後の nextNodeId=2 なので新ノードは node-2 になるが、
+    // 内容は A3 公理のテキスト
+    await userEvent.click(
+      canvas.getByTestId("workspace-axiom-palette-item-A3"),
+    );
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+
+    // フォーカス
+    workspaceEl.focus();
+
+    // Ctrl+Shift+Z で redo → 何も起きない（future が消えているため）
+    await userEvent.keyboard("{Control>}{Shift>}z{/Shift}{/Control}");
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    // ノード数は変わらない: node-1 と node-2 のみ
+    expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    expect(canvas.queryByTestId("proof-node-node-3")).not.toBeInTheDocument();
+
+    // undo して元の node-2(A3) を取り消し、さらに undo して node-1 も消せる
+    await userEvent.keyboard("{Control>}z{/Control}");
+    await waitFor(() => {
+      expect(
+        canvas.queryByTestId("proof-node-node-2"),
+      ).not.toBeInTheDocument();
+    });
+    // node-1 のみ
+    expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+  },
+};
+
+/** Undo/Redo 境界: 空状態でundo→何も起きない、操作後にredo→何も起きない */
+export const UndoRedoNoOp: Story = {
+  render: () => <LukasiewiczWorkspace />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // ワークスペースにフォーカス
+    const workspaceEl = canvas.getByTestId("workspace");
+    workspaceEl.focus();
+
+    // 空状態で Ctrl+Z → エラーなく何も起きない
+    await userEvent.keyboard("{Control>}z{/Control}");
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    // ワークスペースはまだ正常
+    expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // 空状態で Ctrl+Shift+Z → エラーなく何も起きない
+    await userEvent.keyboard("{Control>}{Shift>}z{/Shift}{/Control}");
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // A1 を追加
+    await userEvent.click(
+      canvas.getByTestId("workspace-axiom-palette-item-A1"),
+    );
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+
+    // フォーカス
+    workspaceEl.focus();
+
+    // 操作直後に Ctrl+Shift+Z (redo) → 何も起きない（future が空）
+    await userEvent.keyboard("{Control>}{Shift>}z{/Shift}{/Control}");
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    // ノードはそのまま
+    expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+
+    // Ctrl+Y (alternative redo) → 同様に何も起きない
+    await userEvent.keyboard("{Control>}y{/Control}");
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+  },
+};
