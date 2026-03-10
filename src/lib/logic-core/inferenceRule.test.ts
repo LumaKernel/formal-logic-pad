@@ -79,10 +79,7 @@ import {
   binaryOperation,
 } from "./term";
 import { buildFormulaSubstitutionMap } from "./substitution";
-import {
-  metaVariableKey,
-  termMetaVariableKey,
-} from "./metaVariable";
+import { metaVariableKey, termMetaVariableKey } from "./metaVariable";
 
 // ── ヘルパー ──────────────────────────────────────────────
 

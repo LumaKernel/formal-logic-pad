@@ -521,10 +521,7 @@ describe("axiomNameLogic", () => {
       it("リグレッション: PA A4インスタンス (all x. x + 0 = x) -> 0 + 0 = 0 は NotIdentified", () => {
         // バグ: 以前は matchAxiomA4 が空の代入マップを返していたため Identified だった
         const formula = parseFormula("(all x. x + 0 = x) -> 0 + 0 = 0");
-        const result = identifyAxiomName(
-          formula,
-          peanoArithmeticSystem,
-        );
+        const result = identifyAxiomName(formula, peanoArithmeticSystem);
         expect(result._tag).toBe("NotIdentified");
       });
     });

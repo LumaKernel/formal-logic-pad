@@ -12086,3 +12086,23 @@
   - Storybookストーリーのplay関数は、タブが変わるとDOMに表示されない要素をテストできなくなるので、ストーリー自体のtab引数を正しいタブに設定すること
   - ビルトインクエスト側の「自作に複製」機能テストは別ストーリー（DuplicateBuiltinToCustom）に分離して保持
 ---
+
+## 2026-03-11 - [logic-core] A4公理インスタンスの公理誤認識バグ修正
+- `matchAxiomA4` が空の代入マップ (`new Map(), new Map()`) を返していたため、`isTrivialAxiomSubstitution` がすべてのA4インスタンスを公理スキーマそのものと誤判定していた
+- 修正: `matchAxiomA4` が `formulaSubstitution` (φ→body) と `termSubstitution` (τ→t) を正しく返すよう変更
+  - x が body に自由出現しない場合: τ→τ (TermMetaVariable、trivial)
+  - x が body に自由出現する場合: τ→推論された項 (non-trivial)
+- 変更ファイル:
+  - `src/lib/logic-core/inferenceRule.ts` — matchAxiomA4の代入マップ構築を修正
+  - `src/lib/logic-core/inferenceRule.test.ts` — 代入マップ検証テスト4件追加
+  - `src/lib/proof-pad/axiomNameLogic.test.ts` — A4インスタンスの期待値をNotIdentifiedに変更、リグレッションテスト追加
+  - `tasks/prd-2026-03-10.md` — タスク完了マーク
+- カバレッジ: 99.93% stmts / 99.75% branch / 99.95% lines（変化なし）
+- テスト: 9130 passed, Storybook 295 passed
+- スクリーンショット: .screenshots/peano-07-quest-workspace.png
+- **今後のイテレーションへの学び:**
+  - matchAxiomA5も同様に空の代入マップを返している。A5のインスタンスも同様のバグがあるが、A5の代入マップは構造が異なる（φ/ψの2つのメタ変数＋変数xの自由変数制約）ため、別途対応が必要
+  - `isTrivialTermSubstitution` は TermMetaVariable のみを trivial と判定。TermVariable は non-trivial
+  - `isTrivialFormulaSubstitution` は MetaVariable のみを trivial と判定。具体的な論理式は non-trivial
+  - A4公理テンプレートは `∀x.φ → φ`。φ が MetaVariable の場合のみ schema として Identified される
+---
