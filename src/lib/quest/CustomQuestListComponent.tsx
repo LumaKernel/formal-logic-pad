@@ -78,7 +78,9 @@ const sectionHeaderStyle: CSSProperties = {
   padding: "12px 16px",
   borderRadius: "8px 8px 0 0",
   background: "var(--color-quest-chapter-bg)",
-  border: "1px solid var(--color-quest-chapter-border)",
+  borderTop: "1px solid var(--color-quest-chapter-border)",
+  borderRight: "1px solid var(--color-quest-chapter-border)",
+  borderLeft: "1px solid var(--color-quest-chapter-border)",
   borderBottom: "2px solid var(--color-quest-chapter-rule)",
 };
 
@@ -99,8 +101,9 @@ const questListStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
   gap: 0,
-  border: "1px solid var(--color-quest-card-border)",
-  borderTop: "none",
+  borderRight: "1px solid var(--color-quest-card-border)",
+  borderBottom: "1px solid var(--color-quest-card-border)",
+  borderLeft: "1px solid var(--color-quest-card-border)",
   borderRadius: "0 0 8px 8px",
   overflow: "hidden",
 };
@@ -237,8 +240,9 @@ const emptyStyle: CSSProperties = {
   fontSize: 13,
   background: "var(--color-quest-empty-bg)",
   borderRadius: "0 0 8px 8px",
-  border: "1px solid var(--color-quest-chapter-border)",
-  borderTop: "none",
+  borderRight: "1px solid var(--color-quest-chapter-border)",
+  borderBottom: "1px solid var(--color-quest-chapter-border)",
+  borderLeft: "1px solid var(--color-quest-chapter-border)",
 };
 
 // --- Edit form styles ---
