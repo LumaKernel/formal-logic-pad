@@ -637,3 +637,39 @@ describe("sc-cut-elimination 模範解答の検証", () => {
     }
   });
 });
+
+describe("全模範解答の公理制約チェック", () => {
+  const allAnswers = builtinModelAnswers.map(
+    (a) => [a.questId, a] as const,
+  );
+
+  it.each(allAnswers)(
+    "%s: 模範解答が公理制約に違反していない",
+    (questId, answer) => {
+      const quest = findQuest(questId);
+      const result = buildModelAnswerWorkspace(quest, answer);
+      if (result._tag !== "Ok") return;
+      if (
+        result.goalCheck._tag !== "AllAchieved" &&
+        result.goalCheck._tag !== "AllAchievedButAxiomViolation" &&
+        result.goalCheck._tag !== "AllAchievedButRuleViolation"
+      ) {
+        return;
+      }
+      // violatingAxiomIds が空であることを確認（真の公理制約違反がない）
+      for (const goalResult of result.goalCheck.goalResults) {
+        expect(
+          goalResult.violatingAxiomIds.size,
+          `Quest ${questId satisfies string}: goal ${goalResult.goalId satisfies string} has axiom violations: ${[...goalResult.violatingAxiomIds].join(", ") satisfies string}`,
+        ).toBe(0);
+      }
+      // violatingRuleIds が空であることを確認（真の規則制約違反がない）
+      for (const goalResult of result.goalCheck.goalResults) {
+        expect(
+          goalResult.violatingRuleIds.size,
+          `Quest ${questId satisfies string}: goal ${goalResult.goalId satisfies string} has rule violations: ${[...goalResult.violatingRuleIds].join(", ") satisfies string}`,
+        ).toBe(0);
+      }
+    },
+  );
+});
