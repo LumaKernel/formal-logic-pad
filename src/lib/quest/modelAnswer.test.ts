@@ -470,9 +470,7 @@ describe("buildModelAnswerWorkspace - ND steps", () => {
     const quest: QuestDefinition = {
       ...ndQuest,
       systemPresetId: "nd-nj",
-      goals: [
-        { formulaText: "(phi /\\ ~phi) -> psi", label: "Goal" },
-      ],
+      goals: [{ formulaText: "(phi /\\ ~phi) -> psi", label: "Goal" }],
     };
     const answer: ModelAnswer = {
       questId: "nd-test-01",
