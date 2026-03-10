@@ -1570,7 +1570,6 @@ describe("ProofWorkspace", () => {
       const mpBadge = screen.getByTestId("proof-node-node-3-role-badge");
       expect(mpBadge).toHaveTextContent("DERIVED");
     });
-
   });
 
   describe("testIdなしのレンダリング", () => {
