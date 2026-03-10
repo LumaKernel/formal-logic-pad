@@ -104,6 +104,31 @@
 
 ---
 
+## 2026-03-11 - [proof-pad] ワークスペースにundo/redo機能を統合
+- ベースライン: Stmts 99.93%, Branch 99.75%, Lines 99.95%, 9130 tests
+- **結果: ProofWorkspace.tsx 改善 (Stmts 98.97→99.03%, Lines 98.36→98.46%)。全体は V8 aggregation quirk で微減**
+- 変更内容:
+  - ProofWorkspace.tsx: `useHistory<WorkspaceState>` を統合。push/replace の使い分けで操作粒度を制御
+    - push: ノード追加/削除/接続/切断等のundo可能な操作
+    - replace: ドラッグ中・テキスト編集中の一時更新（undoエントリ不要）
+    - 編集モード開始時にpushでundoポイント作成（undo→編集前の状態に戻る）
+  - Ctrl+Z (undo), Ctrl+Shift+Z / Ctrl+Y (redo) キーボードショートカット追加
+  - 外部workspace変更の同期: ref追跡 + 参照等価性チェックで無限ループ防止
+  - onWorkspaceChange通知: useEffectベースで一元管理（React非同期state更新対応）
+  - ProofWorkspace.stories.tsx: UndoRedoBasic ストーリー追加（play関数付き）
+    - A1追加→A2追加→Ctrl+Z(A2消)→Ctrl+Z(A1消)→Ctrl+Shift+Z(A1復帰)→Ctrl+Shift+Z(A2復帰) のフロー検証
+- 変更ファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx — useHistory統合、undo/redo操作、キーボードショートカット
+  - src/lib/proof-pad/ProofWorkspace.stories.tsx — UndoRedoBasic ストーリー追加
+  - tasks/prd-2026-03-10.md — タスク進行状態更新
+- テスト: 9131 passed (+1), typecheck OK, lint OK
+- スクリーンショット: .screenshots/undo-redo-basic-story.png, .screenshots/undo-redo-basic-interactions.png
+- **今後のイテレーションへの学び:**
+  - useHistoryのpush/replace使い分けパターン: ドラッグやテキスト入力はreplace、意味のある操作はpush
+  - React非同期state更新のため、undo/redo後のonWorkspaceChange通知はuseEffectで行う（インライン呼び出しは古い値を参照）
+  - 編集開始時にpush(workspace)で同じ状態をpushしてundoポイントを作る。空編集時のダブルエントリは許容
+---
+
 ## 2026-03-11 - CSS border shorthand/longhand 競合修正
 - ベースライン: Stmts 99.93%, Branch 99.75%, Lines 99.95%, 9123 tests
 - **結果: カバレッジ変動なし**（スタイル修正のみ、ロジック変更なし）
