@@ -91,6 +91,7 @@ function useProofMessagesFromIntl(): ProofMessages {
       goalPanelTitle: t("goalPanelTitle"),
       goalPanelProgress: String(t.raw("goalPanelProgress")),
       goalPanelAllowedAxioms: String(t.raw("goalPanelAllowedAxioms")),
+      goalPanelViolatingAxioms: String(t.raw("goalPanelViolatingAxioms")),
       goalDetailDescription: t("goalDetailDescription"),
       goalDetailHints: t("goalDetailHints"),
       goalDetailHintLabel: String(t.raw("goalDetailHintLabel")),

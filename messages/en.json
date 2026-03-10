@@ -66,6 +66,7 @@
     "goalPanelTitle": "Goals",
     "goalPanelProgress": "{achieved} / {total}",
     "goalPanelAllowedAxioms": "Allowed axioms: {axiomIds}",
+    "goalPanelViolatingAxioms": "Violating axioms: {axiomIds}",
     "goalDetailDescription": "Description",
     "goalDetailHints": "Hints",
     "goalDetailHintLabel": "Hint {index}",

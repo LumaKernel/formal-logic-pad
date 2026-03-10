@@ -460,6 +460,7 @@ describe("computeGoalPanelData", () => {
           goalId: "g1",
           hasAxiomViolation: true,
           hasRuleViolation: false,
+          violatingAxiomIds: ["A3"],
         },
       ];
 
@@ -493,6 +494,7 @@ describe("computeGoalPanelData", () => {
           goalId: "g1",
           hasAxiomViolation: false,
           hasRuleViolation: true,
+          violatingAxiomIds: [],
         },
       ];
 
@@ -520,6 +522,7 @@ describe("computeGoalPanelData", () => {
           goalId: "g1",
           hasAxiomViolation: true,
           hasRuleViolation: true,
+          violatingAxiomIds: ["A3"],
         },
       ];
 
@@ -558,6 +561,7 @@ describe("computeGoalPanelData", () => {
           goalId: "g1",
           hasAxiomViolation: true,
           hasRuleViolation: false,
+          violatingAxiomIds: ["A3"],
         },
       ];
 
@@ -590,6 +594,7 @@ describe("computeGoalPanelData", () => {
           goalId: "g1",
           hasAxiomViolation: true,
           hasRuleViolation: false,
+          violatingAxiomIds: ["A3"],
         },
       ];
 
@@ -617,6 +622,7 @@ describe("computeGoalPanelData", () => {
           goalId: "g1",
           hasAxiomViolation: false,
           hasRuleViolation: false,
+          violatingAxiomIds: [],
         },
       ];
 
@@ -739,6 +745,175 @@ describe("computeGoalPanelData", () => {
         questInfo,
       );
       expect(result.questInfo).toBe(questInfo);
+    });
+  });
+
+  describe("violatingAxiomDetails", () => {
+    it("公理違反時にviolatingAxiomDetailsが解決される", () => {
+      const goals = [
+        makeGoal("g1", "phi -> phi", {
+          allowedAxiomIds: ["A1"],
+        }),
+      ];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalAllAchieved",
+        achievedGoals: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            matchingNodeId: "n1",
+          },
+        ],
+      };
+      const violations: readonly GoalViolationInfo[] = [
+        {
+          goalId: "g1",
+          hasAxiomViolation: true,
+          hasRuleViolation: false,
+          violatingAxiomIds: ["A2"],
+        },
+      ];
+
+      const result = computeGoalPanelData(
+        goals,
+        checkResult,
+        sampleAxioms,
+        violations,
+      );
+      expect(result.items[0]?.violatingAxiomDetails).toEqual([
+        {
+          id: "A2",
+          displayName: "A2 (S)",
+          formula: a2Template,
+        },
+      ]);
+    });
+
+    it("公理違反なしの場合はviolatingAxiomDetailsがundefined", () => {
+      const goals = [makeGoal("g1", "phi -> phi")];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalAllAchieved",
+        achievedGoals: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            matchingNodeId: "n1",
+          },
+        ],
+      };
+
+      const result = computeGoalPanelData(goals, checkResult, sampleAxioms);
+      expect(result.items[0]?.violatingAxiomDetails).toBeUndefined();
+    });
+
+    it("violatingAxiomIdsが空配列の場合もundefined", () => {
+      const goals = [makeGoal("g1", "phi -> phi")];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalAllAchieved",
+        achievedGoals: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            matchingNodeId: "n1",
+          },
+        ],
+      };
+      const violations: readonly GoalViolationInfo[] = [
+        {
+          goalId: "g1",
+          hasAxiomViolation: true,
+          hasRuleViolation: false,
+          violatingAxiomIds: [],
+        },
+      ];
+
+      const result = computeGoalPanelData(
+        goals,
+        checkResult,
+        sampleAxioms,
+        violations,
+      );
+      expect(result.items[0]?.violatingAxiomDetails).toBeUndefined();
+    });
+
+    it("GoalPartiallyAchievedでも違反公理の詳細が解決される", () => {
+      const goals = [
+        makeGoal("g1", "phi -> phi"),
+        makeGoal("g2", "psi -> psi"),
+      ];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalPartiallyAchieved",
+        achievedCount: 1,
+        totalCount: 2,
+        goalStatuses: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            achieved: true,
+            matchingNodeId: "n1",
+          },
+          {
+            goalId: "g2",
+            goalFormula: psiImpliesPsi,
+            achieved: false,
+            matchingNodeId: undefined,
+          },
+        ],
+      };
+      const violations: readonly GoalViolationInfo[] = [
+        {
+          goalId: "g1",
+          hasAxiomViolation: true,
+          hasRuleViolation: false,
+          violatingAxiomIds: ["A1"],
+        },
+      ];
+
+      const result = computeGoalPanelData(
+        goals,
+        checkResult,
+        sampleAxioms,
+        violations,
+      );
+      expect(result.items[0]?.violatingAxiomDetails).toEqual([
+        {
+          id: "A1",
+          displayName: "A1 (K)",
+          formula: a1Template,
+        },
+      ]);
+      // g2は違反なし
+      expect(result.items[1]?.violatingAxiomDetails).toBeUndefined();
+    });
+
+    it("hasAxiomViolationがfalseだとviolatingAxiomIdsがあってもundefined", () => {
+      const goals = [makeGoal("g1", "phi -> phi")];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalAllAchieved",
+        achievedGoals: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            matchingNodeId: "n1",
+          },
+        ],
+      };
+      const violations: readonly GoalViolationInfo[] = [
+        {
+          goalId: "g1",
+          hasAxiomViolation: false,
+          hasRuleViolation: false,
+          violatingAxiomIds: ["A2"],
+        },
+      ];
+
+      const result = computeGoalPanelData(
+        goals,
+        checkResult,
+        sampleAxioms,
+        violations,
+      );
+      expect(result.items[0]?.violatingAxiomDetails).toBeUndefined();
     });
   });
 });

@@ -168,6 +168,31 @@ const allowedAxiomNameStyle: CSSProperties = {
   flexShrink: 0,
 };
 
+const violatingAxiomSectionHeaderStyle: CSSProperties = {
+  fontWeight: 700,
+  fontSize: 10,
+  textTransform: "uppercase",
+  letterSpacing: 0.5,
+  color: "var(--color-warning, #b7791f)",
+  marginBottom: 4,
+};
+
+const violatingAxiomItemStyle: CSSProperties = {
+  fontSize: 10,
+  color: "var(--color-warning, #b7791f)",
+  display: "flex",
+  alignItems: "center",
+  gap: 4,
+  paddingLeft: 8,
+};
+
+const violatingAxiomNameStyle: CSSProperties = {
+  fontWeight: 700,
+  fontSize: 10,
+  color: "var(--color-warning, #b7791f)",
+  flexShrink: 0,
+};
+
 const toggleButtonStyle: CSSProperties = {
   position: "absolute",
   top: 48,
@@ -357,9 +382,11 @@ function GoalDetailPanel({
       data-testid={
         testId !== undefined ? `${testId satisfies string}-detail` : undefined
       }
+      /* v8 ignore start -- イベント伝播抑止: テスト環境では発火しない */
       onClick={(e) => {
         e.stopPropagation();
       }}
+      /* v8 ignore stop */
     >
       {/* 解説 */}
       <div style={detailSectionStyle}>
@@ -403,9 +430,7 @@ function GoalDetailPanel({
                 : undefined;
             return (
               <div key={axiom.id} style={allowedAxiomItemStyle}>
-                <span style={allowedAxiomNameStyle}>
-                  {axiom.displayName}:
-                </span>
+                <span style={allowedAxiomNameStyle}>{axiom.displayName}:</span>
                 <FormulaDisplay formula={axiom.formula} fontSize={10} />
                 {refEntry !== undefined && locale !== undefined && (
                   <span
@@ -437,6 +462,62 @@ function GoalDetailPanel({
               axiomIds: item.allowedAxiomIds.join(", "),
             })}
           </div>
+        </div>
+      ) : null}
+
+      {/* 違反公理 */}
+      {item.violatingAxiomDetails !== undefined &&
+      item.violatingAxiomDetails.length > 0 ? (
+        <div
+          style={detailSectionStyle}
+          data-testid={
+            testId !== undefined
+              ? `${testId satisfies string}-violating-axioms`
+              : undefined
+          }
+        >
+          <div style={violatingAxiomSectionHeaderStyle}>
+            {messages.goalPanelViolatingAxioms.replace(
+              "{axiomIds}",
+              item.violatingAxiomDetails.map((a) => a.id).join(", "),
+            )}
+          </div>
+          {item.violatingAxiomDetails.map((axiom) => {
+            const refEntryId = getAxiomReferenceEntryId(axiom.id);
+            const refEntry =
+              refEntryId !== undefined && referenceEntries !== undefined
+                ? findEntryById(referenceEntries, refEntryId)
+                : undefined;
+            return (
+              <div key={axiom.id} style={violatingAxiomItemStyle}>
+                <span style={violatingAxiomNameStyle}>
+                  {axiom.displayName}:
+                </span>
+                <FormulaDisplay formula={axiom.formula} fontSize={10} />
+                {refEntry !== undefined && locale !== undefined && (
+                  <span
+                    role="presentation"
+                    /* v8 ignore start -- イベント伝播抑止: テスト環境では発火しない */
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                    /* v8 ignore stop */
+                  >
+                    <ReferencePopover
+                      entry={refEntry}
+                      locale={locale}
+                      onOpenDetail={onOpenReferenceDetail}
+                      testId={
+                        testId !== undefined
+                          ? `${testId satisfies string}-violating-ref-${axiom.id satisfies string}`
+                          : undefined
+                      }
+                    />
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
       ) : null}
 
@@ -541,6 +622,26 @@ function GoalItem({
               {formatMessage(messages.goalPanelAllowedAxioms, {
                 axiomIds: item.allowedAxiomIds.join(", "),
               })}
+            </div>
+          ) : null}
+          {/* 違反公理のインライン表示 */}
+          {item.violatingAxiomDetails !== undefined &&
+          item.violatingAxiomDetails.length > 0 ? (
+            <div>
+              <div style={violatingAxiomSectionHeaderStyle}>
+                {messages.goalPanelViolatingAxioms.replace(
+                  "{axiomIds}",
+                  item.violatingAxiomDetails.map((a) => a.id).join(", "),
+                )}
+              </div>
+              {item.violatingAxiomDetails.map((axiom) => (
+                <div key={axiom.id} style={violatingAxiomItemStyle}>
+                  <span style={violatingAxiomNameStyle}>
+                    {axiom.displayName}:
+                  </span>
+                  <FormulaDisplay formula={axiom.formula} fontSize={10} />
+                </div>
+              ))}
             </div>
           ) : null}
         </>

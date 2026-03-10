@@ -67,6 +67,8 @@ export type ProofMessages = {
   /** `{achieved}` と `{total}` プレースホルダーを含む */
   readonly goalPanelProgress: string;
   readonly goalPanelAllowedAxioms: string;
+  /** ゴール詳細パネル: 違反公理セクションヘッダー `{axiomIds}` プレースホルダーを含む */
+  readonly goalPanelViolatingAxioms: string;
   /** ゴール詳細パネル: 説明セクションヘッダー */
   readonly goalDetailDescription: string;
   /** ゴール詳細パネル: ヒントセクションヘッダー */
@@ -324,6 +326,7 @@ export const defaultProofMessages: ProofMessages = {
   goalPanelTitle: "Goals",
   goalPanelProgress: "{achieved} / {total}",
   goalPanelAllowedAxioms: "Allowed axioms: {axiomIds}",
+  goalPanelViolatingAxioms: "Violating axioms: {axiomIds}",
   goalDetailDescription: "Description",
   goalDetailHints: "Hints",
   goalDetailHintLabel: "Hint {index}",

@@ -66,6 +66,7 @@
     "goalPanelTitle": "ゴール一覧",
     "goalPanelProgress": "{achieved} / {total}",
     "goalPanelAllowedAxioms": "使用可能な公理: {axiomIds}",
+    "goalPanelViolatingAxioms": "違反公理: {axiomIds}",
     "goalDetailDescription": "解説",
     "goalDetailHints": "ヒント",
     "goalDetailHintLabel": "ヒント {index}",

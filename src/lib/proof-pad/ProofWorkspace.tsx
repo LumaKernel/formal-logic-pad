@@ -2211,6 +2211,7 @@ export function ProofWorkspace({
       goalId: r.goalId,
       hasAxiomViolation: r.violatingAxiomIds.size > 0 || r.hasInstanceRootNodes,
       hasRuleViolation: r.violatingRuleIds.size > 0,
+      violatingAxiomIds: [...r.violatingAxiomIds],
     }));
   }, [questGoalResult]);
 

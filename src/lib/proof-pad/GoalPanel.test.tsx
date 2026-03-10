@@ -56,6 +56,7 @@ describe("GoalPanel", () => {
             label: "Goal: φ → φ",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -77,6 +78,7 @@ describe("GoalPanel", () => {
             label: "Goal: φ → φ",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
           {
@@ -86,6 +88,7 @@ describe("GoalPanel", () => {
             label: undefined,
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "achieved",
           },
         ],
@@ -114,6 +117,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "parse-error",
           },
         ],
@@ -137,6 +141,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "achieved",
           },
         ],
@@ -157,6 +162,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -176,6 +182,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "parse-error",
           },
         ],
@@ -208,6 +215,7 @@ describe("GoalPanel", () => {
                 formula: a2Template,
               },
             ],
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -232,6 +240,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -251,6 +260,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: ["UNKNOWN"],
             allowedAxiomDetails: [],
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -272,6 +282,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "achieved",
           },
           {
@@ -281,6 +292,7 @@ describe("GoalPanel", () => {
             label: "Goal 2",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -303,6 +315,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -331,6 +344,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -357,6 +371,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -383,6 +398,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -415,6 +431,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
           {
@@ -424,6 +441,7 @@ describe("GoalPanel", () => {
             label: "Goal 2",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "achieved",
           },
         ],
@@ -447,6 +465,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: ["A1"],
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "achieved-but-axiom-violation",
           },
         ],
@@ -467,6 +486,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "achieved-but-rule-violation",
           },
         ],
@@ -487,6 +507,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "achieved-but-axiom-violation",
           },
           {
@@ -496,6 +517,7 @@ describe("GoalPanel", () => {
             label: "Goal 2",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "achieved",
           },
         ],
@@ -505,6 +527,53 @@ describe("GoalPanel", () => {
       render(<GoalPanel data={data} messages={msg} testId="gp" />);
       expect(screen.getByText(msg.goalAxiomViolation)).toBeInTheDocument();
       expect(screen.getByText(msg.goalProved)).toBeInTheDocument();
+    });
+
+    it("violatingAxiomDetailsがある場合、違反公理名と数式がインライン表示される", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: ["A1"],
+            allowedAxiomDetails: undefined,
+            violatingAxiomDetails: [
+              {
+                id: "A2",
+                displayName: "A2 (S)",
+                formula: a2Template,
+              },
+            ],
+            status: "achieved-but-axiom-violation",
+          },
+        ],
+        totalCount: 1,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+      expect(screen.getByText("Violating axioms: A2")).toBeInTheDocument();
+      expect(screen.getByText("A2 (S):")).toBeInTheDocument();
+    });
+
+    it("violatingAxiomDetailsがundefinedの場合、違反公理セクションは表示されない", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+      expect(screen.queryByText(/Violating axioms/u)).not.toBeInTheDocument();
     });
   });
 
@@ -529,6 +598,7 @@ describe("GoalPanel", () => {
             label: "Goal: φ → φ",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -569,6 +639,7 @@ describe("GoalPanel", () => {
             label: "Goal: φ → φ",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -596,6 +667,7 @@ describe("GoalPanel", () => {
             label: undefined,
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -633,6 +705,7 @@ describe("GoalPanel", () => {
             label: "Goal 1",
             allowedAxiomIds: undefined,
             allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -643,6 +716,74 @@ describe("GoalPanel", () => {
       // 展開インジケータは表示されない
       expect(screen.queryByText("▶")).not.toBeInTheDocument();
       expect(screen.queryByText("▼")).not.toBeInTheDocument();
+    });
+
+    it("詳細パネルに違反公理が警告色で表示される", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: ["A1"],
+            allowedAxiomDetails: [
+              {
+                id: "A1",
+                displayName: "A1 (K)",
+                formula: a1Template,
+              },
+            ],
+            violatingAxiomDetails: [
+              {
+                id: "A2",
+                displayName: "A2 (S)",
+                formula: a2Template,
+              },
+            ],
+            status: "achieved-but-axiom-violation",
+          },
+        ],
+        totalCount: 1,
+        questInfo,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+
+      // 展開
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      // 違反公理セクションが詳細パネル内に表示される
+      expect(screen.getByTestId("gp-violating-axioms")).toBeInTheDocument();
+      expect(screen.getByText("Violating axioms: A2")).toBeInTheDocument();
+      expect(screen.getByText("A2 (S):")).toBeInTheDocument();
+    });
+
+    it("詳細パネルで違反公理がない場合はセクションが表示されない", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+        questInfo,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+
+      // 展開
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      // 違反公理セクションは非表示
+      expect(
+        screen.queryByTestId("gp-violating-axioms"),
+      ).not.toBeInTheDocument();
     });
 
     it("詳細パネルに使用可能な公理が表示される", () => {
@@ -666,6 +807,7 @@ describe("GoalPanel", () => {
                 formula: a2Template,
               },
             ],
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -711,6 +853,7 @@ describe("GoalPanel", () => {
                 formula: a2Template,
               },
             ],
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -751,6 +894,7 @@ describe("GoalPanel", () => {
                 formula: a1Template,
               },
             ],
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -782,6 +926,7 @@ describe("GoalPanel", () => {
                 formula: a1Template,
               },
             ],
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -821,6 +966,7 @@ describe("GoalPanel", () => {
                 formula: a1Template,
               },
             ],
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -864,6 +1010,7 @@ describe("GoalPanel", () => {
                 formula: a1Template,
               },
             ],
+            violatingAxiomDetails: undefined,
             status: "not-achieved",
           },
         ],
@@ -892,6 +1039,52 @@ describe("GoalPanel", () => {
       fireEvent.click(detailButton);
 
       expect(handleDetail).toHaveBeenCalledWith("axiom-a1");
+    });
+
+    it("違反公理にもreferenceEntries指定時に(?)ボタンが表示される", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: ["A1"],
+            allowedAxiomDetails: [
+              {
+                id: "A1",
+                displayName: "A1 (K)",
+                formula: a1Template,
+              },
+            ],
+            violatingAxiomDetails: [
+              {
+                id: "A2",
+                displayName: "A2 (S)",
+                formula: a2Template,
+              },
+            ],
+            status: "achieved-but-axiom-violation",
+          },
+        ],
+        totalCount: 1,
+        questInfo,
+      });
+      render(
+        <GoalPanel
+          data={data}
+          messages={msg}
+          referenceEntries={allReferenceEntries}
+          locale="ja"
+          testId="gp"
+        />,
+      );
+
+      // 展開
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      // 違反公理の(?)ボタンが表示される
+      expect(screen.getByTestId("gp-violating-ref-A2")).toBeInTheDocument();
     });
   });
 });
