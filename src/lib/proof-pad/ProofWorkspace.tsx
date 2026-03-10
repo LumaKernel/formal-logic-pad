@@ -85,7 +85,11 @@ import {
 } from "./proofMessages";
 import { useProofMessages } from "./ProofMessagesContext";
 import { checkGoal } from "./goalCheckLogic";
-import { computeGoalPanelData, type GoalViolationInfo, type GoalQuestInfo } from "./goalPanelLogic";
+import {
+  computeGoalPanelData,
+  type GoalViolationInfo,
+  type GoalQuestInfo,
+} from "./goalPanelLogic";
 import { GoalPanel } from "./GoalPanel";
 import type { PanelPosition, PanelRect } from "./panelPositionLogic";
 import { usePanelDrag } from "./usePanelDrag";
@@ -2221,7 +2225,13 @@ export function ProofWorkspace({
         goalViolations,
         questInfo,
       ),
-    [workspace.goals, goalCheckResult, availableAxioms, goalViolations, questInfo],
+    [
+      workspace.goals,
+      goalCheckResult,
+      availableAxioms,
+      goalViolations,
+      questInfo,
+    ],
   );
 
   const isGoalAchievedButAxiomViolation =

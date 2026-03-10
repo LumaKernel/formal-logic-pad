@@ -9,7 +9,11 @@
  */
 
 import { type CSSProperties, useState, useCallback, useMemo } from "react";
-import type { GoalPanelData, GoalPanelItem, GoalQuestInfo } from "./goalPanelLogic";
+import type {
+  GoalPanelData,
+  GoalPanelItem,
+  GoalQuestInfo,
+} from "./goalPanelLogic";
 import type { ProofMessages } from "./proofMessages";
 import { formatMessage } from "./proofMessages";
 import { FormulaDisplay } from "../formula-input/FormulaDisplay";
@@ -210,7 +214,8 @@ const hintTextStyle: CSSProperties = {
   color: "var(--color-text-primary, #333)",
   lineHeight: 1.5,
   paddingLeft: 8,
-  borderLeft: "2px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.3))",
+  borderLeft:
+    "2px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.3))",
   marginTop: 2,
   marginBottom: 4,
 };
@@ -279,7 +284,12 @@ function HintItem({
             : undefined
         }
       >
-        <div style={{ ...hintToggleStyle, color: "var(--color-text-secondary, #888)" }}>
+        <div
+          style={{
+            ...hintToggleStyle,
+            color: "var(--color-text-secondary, #888)",
+          }}
+        >
           {label}
         </div>
         <div style={hintTextStyle}>{hint}</div>
@@ -328,14 +338,18 @@ function GoalDetailPanel({
 }) {
   return (
     <div
-      data-testid={testId !== undefined ? `${testId satisfies string}-detail` : undefined}
+      data-testid={
+        testId !== undefined ? `${testId satisfies string}-detail` : undefined
+      }
       onClick={(e) => {
         e.stopPropagation();
       }}
     >
       {/* 解説 */}
       <div style={detailSectionStyle}>
-        <div style={detailSectionHeaderStyle}>{messages.goalDetailDescription}</div>
+        <div style={detailSectionHeaderStyle}>
+          {messages.goalDetailDescription}
+        </div>
         <div style={detailTextStyle}>{questInfo.description}</div>
       </div>
 
@@ -384,7 +398,9 @@ function GoalDetailPanel({
 
       {/* 学習ポイント */}
       <div style={detailSectionStyle}>
-        <div style={detailSectionHeaderStyle}>{messages.goalDetailLearningPoint}</div>
+        <div style={detailSectionHeaderStyle}>
+          {messages.goalDetailLearningPoint}
+        </div>
         <div style={detailTextStyle}>{questInfo.learningPoint}</div>
       </div>
     </div>
@@ -463,7 +479,9 @@ function GoalItem({
               </div>
               {item.allowedAxiomDetails.map((axiom) => (
                 <div key={axiom.id} style={allowedAxiomItemStyle}>
-                  <span style={allowedAxiomNameStyle}>{axiom.displayName}:</span>
+                  <span style={allowedAxiomNameStyle}>
+                    {axiom.displayName}:
+                  </span>
                   <FormulaDisplay formula={axiom.formula} fontSize={10} />
                 </div>
               ))}
