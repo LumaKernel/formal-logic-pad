@@ -11707,3 +11707,18 @@
   - modelAnswerRegistry は Map<string, ModelAnswer> で、buildModelAnswerWorkspace は純粋関数
   - click-outside-to-close は mousedown イベントで実装（click だとボタン自身のクリックと干渉する可能性）
   - HubContent の createQuest + updateWorkspace は setState updater function queue で安全に動作
+---
+
+## 2026-03-10 - [quest] predicate-advanced 模範解答の充実
+- pred-adv-14: 全称下の弱化 (∀x.P(x))→(∀x.(Q(x)→P(x))) の10ステップ証明を実装
+  - A4 + A1 + HS合成 + Gen + A5 + MP パターン
+- pred-adv-07: 全称含意のHS (∀x.(P(x)→Q(x)))→((∀x.(Q(x)→R(x)))→(P(x)→R(x))) の27ステップ証明を実装
+  - A4×2 + HS(prop-04パターン) + C combinator + lift パターン
+- pred-adv-09: AST構造の制約（Existential ≠ ¬Universal(¬...)）によりidentity proof不可、コメント追加のみ
+- 変更ファイル:
+  - src/lib/quest/builtinModelAnswers.ts
+- カバレッジ: 99.93% Stmts / 99.92% Branch / 99.97% Lines（変化なし）
+- **今後のイテレーションへの学び:**
+  - HS合成パターン: A→B, B→C から A→C を5ステップ(A1 lift + A2 dist + 3 MP)で導出可能
+  - 述語論理証明では A4 (∀x.φ→φ[t/x]) + Gen + A5 (∀x.(φ→ψ)→(φ→∀x.ψ)) の組み合わせが頻出
+  - Existential quantifier (∃x.φ) は AST 上 Negation(Universal(Negation(...))) とは別ノード。論理的同値でもAST構造が異なるためゴール達成にならない
