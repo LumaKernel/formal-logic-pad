@@ -104,6 +104,26 @@
 
 ---
 
+## 2026-03-11 - [proof-pad] アプリ側undo/redo動作検証
+- ベースライン: Stmts 99.91%, Branch 99.66%, Lines 99.92%, 9116 tests
+- **結果: Stmts 99.93%, Branch 99.75%, Lines 99.95%, 9135 tests（カバレッジ向上）**
+- 変更内容:
+  - WorkspacePageView.tsx: `workspaceTestId` プロパティ追加 → ProofWorkspaceの`testId`に転送
+  - WorkspacePageView.stories.tsx: UndoRedo ストーリー追加（play関数付き）
+    - A1追加→A2追加→Ctrl+Z(A2消)→Ctrl+Z(A1消)→Ctrl+Shift+Z(A1復帰)→Ctrl+Shift+Z(A2復帰) のフロー検証
+  - ProofWorkspaceの内部useHistoryが外部状態管理と参照等価性チェックで正しく連携していることを確認
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspacePageView.tsx — workspaceTestId prop追加
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx — UndoRedoストーリー追加
+  - tasks/prd-2026-03-10.md — undo/redoタスク完了マーク
+- テスト: 9135 passed (+19), typecheck OK, lint OK
+- スクリーンショット: .screenshots/workspace-undo-redo-story.png, .screenshots/app-undo-before.png, .screenshots/app-undo-after.png, .screenshots/app-redo-after.png
+- **今後のイテレーションへの学び:**
+  - ProofWorkspaceのundo/redoはuseHistoryで内部管理。外部のonWorkspaceChange → notebookCollection.updateWorkspace → 再render → externalWorkspace変更 → `history.state`との参照等価性チェックでresetスキップ。追加コードなしでアプリ側動作
+  - WorkspacePageViewにtestIdを透過させるには`workspaceTestId`プロパティ追加が必要。ProofWorkspaceのtestIdがないとAxiomPalette等の子コンポーネントのtestIdも生成されない
+  - `updateNotebookWorkspace` はworkspaceオブジェクトの参照をそのまま保持する（スプレッドしない）ため参照等価性が維持される
+---
+
 ## 2026-03-11 - [proof-pad] ワークスペースにundo/redo機能を統合
 - ベースライン: Stmts 99.93%, Branch 99.75%, Lines 99.95%, 9130 tests
 - **結果: ProofWorkspace.tsx 改善 (Stmts 98.97→99.03%, Lines 98.36→98.46%)。全体は V8 aggregation quirk で微減**
