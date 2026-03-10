@@ -181,4 +181,33 @@ describe("ThemeToggle", () => {
       expect(svg.getAttribute("aria-hidden")).toBe("true");
     }
   });
+
+  it("uses custom labels when labels prop is provided", () => {
+    renderWithProvider(
+      <ThemeToggle
+        labels={{
+          light: "ライト",
+          dark: "ダーク",
+          system: "システム",
+          ariaLabel: "テーマ選択",
+          switchAriaLabelTemplate: "テーマ切替（現在: {current}）",
+        }}
+      />,
+    );
+    expect(screen.getByText("ライト")).toBeDefined();
+    expect(screen.getByText("ダーク")).toBeDefined();
+    expect(screen.getByText("システム")).toBeDefined();
+    expect(screen.getByTestId("theme-toggle").getAttribute("aria-label")).toBe(
+      "テーマ選択",
+    );
+    expect(
+      screen.getByTestId("theme-toggle-light").getAttribute("aria-label"),
+    ).toBe("テーマ切替（現在: ライト）");
+    expect(
+      screen.getByTestId("theme-toggle-dark").getAttribute("aria-label"),
+    ).toBe("テーマ切替（現在: ダーク）");
+    expect(
+      screen.getByTestId("theme-toggle-system").getAttribute("aria-label"),
+    ).toBe("テーマ切替（現在: システム）");
+  });
 });

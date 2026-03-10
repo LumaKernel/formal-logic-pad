@@ -18,17 +18,26 @@ import type {
   ProofSaveParams,
   ProofEntry,
 } from "../../../lib/proof-collection";
-import { ThemeToggle } from "../../../components/ThemeToggle/ThemeToggle";
+import {
+  ThemeToggle,
+  type ThemeToggleLabels,
+} from "../../../components/ThemeToggle/ThemeToggle";
 import {
   LanguageToggle,
   type LanguageToggleProps,
 } from "../../../components/LanguageToggle/LanguageToggle";
+import type { WorkspacePageMessages } from "./workspacePageMessages";
+import { defaultWorkspacePageMessages } from "./workspacePageMessages";
 
 // --- Types ---
 
 export type WorkspacePageViewProps = {
   /** 言語切り替え（指定時に LanguageToggle を表示） */
   readonly languageToggle?: LanguageToggleProps;
+  /** ページレベルのi18nメッセージ */
+  readonly pageMessages?: WorkspacePageMessages;
+  /** テーマトグルのラベル */
+  readonly themeLabels?: ThemeToggleLabels;
 } & (
   | {
       /** ノートブックが見つかった場合 */
@@ -163,12 +172,16 @@ const notFoundStyle: CSSProperties = {
 // --- Component ---
 
 export function WorkspacePageView(props: WorkspacePageViewProps) {
+  const pm = props.pageMessages ?? defaultWorkspacePageMessages;
+
   if (!props.found) {
     return (
       <div style={notFoundStyle} data-testid="workspace-not-found">
-        <div style={{ fontSize: 18, fontWeight: 600 }}>Notebook not found</div>
+        <div style={{ fontSize: 18, fontWeight: 600 }}>
+          {pm.notebookNotFound}
+        </div>
         <button type="button" style={backButtonStyle} onClick={props.onBack}>
-          Back to Hub
+          {pm.backToHub}
         </button>
       </div>
     );
@@ -179,7 +192,7 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
       {/* Header */}
       <header style={headerStyle}>
         <button type="button" style={backButtonStyle} onClick={props.onBack}>
-          Back
+          {pm.back}
         </button>
         <span style={notebookNameStyle}>{props.notebookName}</span>
         <div style={headerActionsStyle}>
@@ -189,7 +202,7 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
               onLocaleChange={props.languageToggle.onLocaleChange}
             />
           ) : null}
-          <ThemeToggle />
+          <ThemeToggle labels={props.themeLabels} />
         </div>
       </header>
 

@@ -39,12 +39,28 @@ import {
   useLocaleSwitch,
   getBrowserLocaleSwitchDeps,
 } from "../components/LanguageToggle/useLocaleSwitch";
+import type { ThemeToggleLabels } from "../components/ThemeToggle/ThemeToggle";
 import { HubPageView } from "./HubPageView";
 import type { HubMessages } from "./hubMessages";
 import { HubMessagesProvider } from "./HubMessagesContext";
 
 // eslint-disable-next-line @luma-dev/luma-ts/no-date
 const getNow = (): number => Date.now();
+
+/** next-intl の翻訳から ThemeToggleLabels を構築するフック */
+function useThemeLabelsFromIntl(): ThemeToggleLabels {
+  const t = useTranslations("Workspace");
+  return useMemo(
+    (): ThemeToggleLabels => ({
+      light: t("themeLight"),
+      dark: t("themeDark"),
+      system: t("themeSystem"),
+      ariaLabel: t("themeSelectionAriaLabel"),
+      switchAriaLabelTemplate: String(t.raw("switchThemeAriaLabel")),
+    }),
+    [t],
+  );
+}
 
 /** next-intl の翻訳から HubMessages オブジェクトを構築するフック */
 function useHubMessagesFromIntl(): HubMessages {
@@ -59,6 +75,10 @@ function useHubMessagesFromIntl(): HubMessages {
       questFilterCount: String(t.raw("questFilterCount")),
       questFilterClear: String(t.raw("questFilterClear")),
       questFilterEmpty: String(t.raw("questFilterEmpty")),
+      sharedQuestStart: t("sharedQuestStart"),
+      sharedQuestAddToCollection: t("sharedQuestAddToCollection"),
+      sharedQuestCancel: t("sharedQuestCancel"),
+      sharedQuestMeta: String(t.raw("sharedQuestMeta")),
     }),
     [t],
   );
@@ -70,6 +90,7 @@ function HubInner() {
   const questProgress = useQuestProgress();
   const customQuestCollection = useCustomQuestCollection();
   const hubMessages = useHubMessagesFromIntl();
+  const themeLabels = useThemeLabelsFromIntl();
   const rawLocale = useLocale();
   const locale = isLocale(rawLocale) ?? "en";
   const localeSwitchDeps = useMemo(() => getBrowserLocaleSwitchDeps(), []);
@@ -417,6 +438,7 @@ function HubInner() {
         onSharedQuestStart={handleSharedQuestStart}
         onSharedQuestAddToCollection={handleSharedQuestAddToCollection}
         onSharedQuestDismiss={handleSharedQuestDismiss}
+        themeLabels={themeLabels}
       />
     </HubMessagesProvider>
   );

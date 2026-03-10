@@ -25,6 +25,10 @@ export type HubMessages = {
   readonly questFilterCount: string;
   readonly questFilterClear: string;
   readonly questFilterEmpty: string;
+  readonly sharedQuestStart: string;
+  readonly sharedQuestAddToCollection: string;
+  readonly sharedQuestCancel: string;
+  readonly sharedQuestMeta: string;
 };
 
 /**
@@ -41,6 +45,11 @@ export const defaultHubMessages: HubMessages = {
   questFilterCount: "Quest notebooks ({count})",
   questFilterClear: "Clear filter",
   questFilterEmpty: "No notebooks for this quest yet",
+  sharedQuestStart: "Start Quest",
+  sharedQuestAddToCollection: "Add to My Quests",
+  sharedQuestCancel: "Cancel",
+  sharedQuestMeta:
+    "{systemPresetId} | {goalCount} goal(s) | est. {estimatedSteps} steps",
 };
 
 /** HubMessages の全キー一覧（網羅性チェック用） */
@@ -53,4 +62,8 @@ export const hubMessageKeys: readonly (keyof HubMessages)[] = [
   "questFilterCount",
   "questFilterClear",
   "questFilterEmpty",
+  "sharedQuestStart",
+  "sharedQuestAddToCollection",
+  "sharedQuestCancel",
+  "sharedQuestMeta",
 ] as const;
