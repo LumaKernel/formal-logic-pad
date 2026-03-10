@@ -25,6 +25,7 @@ import {
   type Term,
   TermVariable,
   termVariable,
+  termMetaVariable,
   constant,
   functionApplication,
   binaryOperation,
@@ -87,6 +88,7 @@ const chi = metaVariable("χ");
 const xVar = termVariable("x");
 const yVar = termVariable("y");
 const zVar = termVariable("z");
+const tauTmv = termMetaVariable("τ");
 
 /**
  * A1: K公理 φ → (ψ → φ)
@@ -1109,10 +1111,14 @@ const getPropositionalAxiomTemplate = (
 };
 
 /**
- * A4のインスタンスか判定: ∀x.φ → φ[t/x]
+ * A4のインスタンスか判定: ∀x.φ → φ[τ/x]
  *
  * 論理式が ∀x.φ → ψ の形であり、ψ = φ[t/x] となる t が存在するかチェック。
  * A4は項代入を含むため、パターンマッチだけでは判定できず、専用ロジックが必要。
+ *
+ * 代入マップ:
+ * - formulaSubstitution: φ → body（テンプレートのφに対する代入）
+ * - termSubstitution: τ → t（推論された項代入。τはA4テンプレートの項メタ変数）
  */
 export const matchAxiomA4 = (formula: Formula): AxiomMatchResult => {
   // A4: ∀x.φ → φ[t/x] の形をチェック
@@ -1127,11 +1133,30 @@ export const matchAxiomA4 = (formula: Formula): AxiomMatchResult => {
   const body = formula.left.formula;
   const conclusion = formula.right;
 
+  // 代入マップを構築するヘルパー
+  const buildSubstitutionMaps = (
+    replacementTerm: Term,
+  ): {
+    readonly formulaSub: FormulaSubstitutionMap;
+    readonly termSub: TermMetaSubstitutionMap;
+  } => {
+    const formulaSub: Map<string, Formula> = new Map([
+      [metaVariableKey(phi), body],
+    ]);
+    const termSub: Map<string, Term> = new Map([
+      [termMetaVariableKey(tauTmv), replacementTerm],
+    ]);
+    return { formulaSub, termSub };
+  };
+
   // body 中で x の自由出現がない場合は body = conclusion であるべき
   const freeVars = freeVariablesInFormula(body);
   if (!freeVars.has(boundVar.name)) {
     if (equalFormula(body, conclusion)) {
-      return axiomMatchOk(new Map(), new Map());
+      // x が body に自由出現しないため [τ/x] は空操作 — τ は任意の項でよい
+      // TermMetaVariable のままにすることで isTrivialTermSubstitution が true を返す
+      const { formulaSub, termSub } = buildSubstitutionMaps(tauTmv);
+      return axiomMatchOk(formulaSub, termSub);
     }
     return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "A4", formula }));
   }
@@ -1162,7 +1187,8 @@ export const matchAxiomA4 = (formula: Formula): AxiomMatchResult => {
   }
   /* v8 ignore stop */
 
-  return axiomMatchOk(new Map(), new Map());
+  const { formulaSub, termSub } = buildSubstitutionMaps(replacementTerm);
+  return axiomMatchOk(formulaSub, termSub);
 };
 
 /**

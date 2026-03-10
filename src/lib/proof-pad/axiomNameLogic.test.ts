@@ -267,10 +267,10 @@ describe("axiomNameLogic", () => {
 
     // --- 述語論理公理 ---
     describe("predicate logic axioms", () => {
-      it("identifies A4 (UI) instance: ∀x.(x=x) → a=a", () => {
+      it("A4 instance ∀x.(x=x) → a=a is NotIdentified (non-trivial substitution: t=a)", () => {
         // A4: ∀x.φ → φ[t/x]
         // Instance: ∀x.(x=x) → a=a (φ = x=x, t = a)
-        // A4/A5マッチャーは専用ロジックで検証するため、代入マップは常に空 → trivial
+        // t=a は非自明な代入なので、公理スキーマそのものではなくインスタンス → NotIdentified
         const x = termVariable("x");
         const a = constant("a");
         const formula = implication(
@@ -278,11 +278,7 @@ describe("axiomNameLogic", () => {
           equality(a, a),
         );
         const result = identifyAxiomName(formula, equalityLogicSystem);
-        expect(result._tag).toBe("Identified");
-        if (result._tag === "Identified") {
-          expect(result.axiomId).toBe("A4");
-          expect(result.displayName).toBe("A4 (UI)");
-        }
+        expect(result._tag).toBe("NotIdentified");
       });
 
       it("does not identify A4 if predicate logic is disabled", () => {
@@ -499,7 +495,7 @@ describe("axiomNameLogic", () => {
         }
       });
 
-      it("A4のインスタンス ∀x.(x=x) → a=a も Identified (A4/A5マッチャーは常に空の代入マップを返す)", () => {
+      it("A4のインスタンス ∀x.(x=x) → a=a は NotIdentified (非自明な項代入τ=aを含む)", () => {
         const x = termVariable("x");
         const a = constant("a");
         const formula = implication(
@@ -507,10 +503,7 @@ describe("axiomNameLogic", () => {
           equality(a, a),
         );
         const result = identifyAxiomName(formula, equalityLogicSystem);
-        expect(result._tag).toBe("Identified");
-        if (result._tag === "Identified") {
-          expect(result.axiomId).toBe("A4");
-        }
+        expect(result._tag).toBe("NotIdentified");
       });
 
       it("A5のインスタンス ∀x.(P(a)→x=x) → (P(a)→∀x.x=x) も Identified", () => {
@@ -523,6 +516,16 @@ describe("axiomNameLogic", () => {
         if (result._tag === "Identified") {
           expect(result.axiomId).toBe("A5");
         }
+      });
+
+      it("リグレッション: PA A4インスタンス (all x. x + 0 = x) -> 0 + 0 = 0 は NotIdentified", () => {
+        // バグ: 以前は matchAxiomA4 が空の代入マップを返していたため Identified だった
+        const formula = parseFormula("(all x. x + 0 = x) -> 0 + 0 = 0");
+        const result = identifyAxiomName(
+          formula,
+          peanoArithmeticSystem,
+        );
+        expect(result._tag).toBe("NotIdentified");
       });
     });
 

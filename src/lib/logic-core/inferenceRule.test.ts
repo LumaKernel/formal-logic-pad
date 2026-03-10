@@ -79,6 +79,10 @@ import {
   binaryOperation,
 } from "./term";
 import { buildFormulaSubstitutionMap } from "./substitution";
+import {
+  metaVariableKey,
+  termMetaVariableKey,
+} from "./metaVariable";
 
 // ── ヘルパー ──────────────────────────────────────────────
 
@@ -487,6 +491,71 @@ describe("matchAxiomA4", () => {
     );
     const result = matchAxiomA4(instance);
     expectMatchOk(result);
+  });
+
+  // ── 代入マップ検証 ──────────────────────────────────────
+  const tauTmv = termMetaVariable("τ");
+
+  it("returns non-trivial substitution maps for ∀x.P(x) → P(a)", () => {
+    const instance = implication(
+      universal(x, predicate("P", [x])),
+      predicate("P", [a]),
+    );
+    const result = matchAxiomA4(instance);
+    const ok = expectMatchOk(result);
+    // formulaSubstitution: φ → P(x)
+    const phiSub = ok.formulaSubstitution.get(metaVariableKey(phi));
+    expect(phiSub).toBeDefined();
+    expect(phiSub?._tag).toBe("Predicate");
+    // termSubstitution: τ → a
+    const tauSub = ok.termSubstitution.get(termMetaVariableKey(tauTmv));
+    expect(tauSub).toBeDefined();
+    expect(tauSub?._tag).toBe("Constant");
+    if (tauSub?._tag === "Constant") {
+      expect(tauSub.name).toBe("a");
+    }
+  });
+
+  it("returns trivial term substitution when x is not free in body: ∀x.P(a) → P(a)", () => {
+    const instance = implication(
+      universal(x, predicate("P", [a])),
+      predicate("P", [a]),
+    );
+    const result = matchAxiomA4(instance);
+    const ok = expectMatchOk(result);
+    // formulaSubstitution: φ → P(a)
+    expect(ok.formulaSubstitution.get(metaVariableKey(phi))).toBeDefined();
+    // termSubstitution: τ → τ (TermMetaVariable — 空操作なのでtrivial)
+    const tauSub = ok.termSubstitution.get(termMetaVariableKey(tauTmv));
+    expect(tauSub).toBeDefined();
+    expect(tauSub?._tag).toBe("TermMetaVariable");
+  });
+
+  it("returns non-trivial substitution for ∀x.(x+0=x) → (a+0=a)", () => {
+    const zero = constant("0");
+    const instance = implication(
+      universal(x, equality(binaryOperation("+", x, zero), x)),
+      equality(binaryOperation("+", a, zero), a),
+    );
+    const result = matchAxiomA4(instance);
+    const ok = expectMatchOk(result);
+    // termSubstitution: τ → a
+    const tauSub = ok.termSubstitution.get(termMetaVariableKey(tauTmv));
+    expect(tauSub).toBeDefined();
+    expect(tauSub?._tag).toBe("Constant");
+  });
+
+  it("returns variable substitution for ∀x.P(x) → P(x) (t=x)", () => {
+    const instance = implication(
+      universal(x, predicate("P", [x])),
+      predicate("P", [x]),
+    );
+    const result = matchAxiomA4(instance);
+    const ok = expectMatchOk(result);
+    // termSubstitution: τ → x (TermVariable, not TermMetaVariable)
+    const tauSub = ok.termSubstitution.get(termMetaVariableKey(tauTmv));
+    expect(tauSub).toBeDefined();
+    expect(tauSub?._tag).toBe("TermVariable");
   });
 });
 
