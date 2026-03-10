@@ -104,6 +104,31 @@
 
 ---
 
+## 2026-03-10 - modelAnswer.ts カバレッジ改善（NDステップ・Gen直接テスト追加）
+- ベースライン: Stmts 98.75%, Branch 98.85%, Lines 98.73%, 7548 tests (一部タイムアウトあり)
+- **結果: Stmts 99.93%, Branch 99.92%, Lines 99.97%**, 8829 tests (+1281)
+- 変更内容:
+  - modelAnswer.test.ts にNDステップの直接テスト12件追加:
+    - assumption + nd-implication-intro (φ→φ)
+    - nd-implication-elim (→除去)
+    - nd-conjunction-intro / elim-left / elim-right (∧操作)
+    - nd-disjunction-intro-left / intro-right / elim (∨操作)
+    - nd-efq (EFQ, nd-njプリセット)
+    - nd-dne (DNE, nd-nkプリセット)
+    - nd-universal-intro / elim (∀操作)
+    - nd-existential-intro / elim (∃操作)
+  - gen ステップの直接テスト2件追加
+  - modelAnswer.ts: 27.53% → 100% (Stmts/Branch/Lines)
+- 変更ファイル:
+  - src/lib/quest/modelAnswer.test.ts — NDステップ・Genの直接テスト14件追加
+- テスト: 8829 passed (246 test files), typecheck OK, lint OK
+- **今後のイテレーションへの学び:**
+  - builtinModelAnswers.test.ts はテストスイート全体実行時にタイムアウトしやすい。modelAnswer.test.ts に直接テストを書くことで、カバレッジを安定的に計測可能
+  - NDステップのテストパターン: テスト用QuestDefinitionを作り、systemPresetIdを変えるだけで NM/NJ/NK を切り替え可能
+  - nd-efq はnd-njプリセット、nd-dne はnd-nkプリセットが必要（nd-nmでは利用不可）
+  - 量化子操作（∀I/∀E/∃I/∃E）はnd-nmプリセットでも利用可能
+---
+
 ## 2026-03-09 - コンテキストメニューからのノード追加で自動編集モード移行
 - ベースライン: Stmts 99.95%, Branch 100%, Lines 100%, 8751 tests
 - **結果: カバレッジ変動なし（Stmts 99.95%, Branch 100%, Lines 100%）**, 8752 tests (+1)
