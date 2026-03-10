@@ -11841,3 +11841,51 @@
   - InferenceEdgeBadge.onBadgeClickは(screenX, screenY)を受け取る。座標が必要なUIアクション（コンテキストメニュー等）に対応可能
   - edgeBadgeEditLogic.createEditStateFromEdgeがundefined返すタイプ（MP, ND, TAB, AT, SC）はすべて接続削除メニューにフォールバック
 ---
+
+## 2026-03-10 - ツリー自動整列方向修正
+- 実装した内容:
+  - `buildModelAnswerWorkspace` の `applyTreeLayout` を `"bottom-to-top"` → `"top-to-bottom"` に修正
+  - 公理ノードが上、結論ノードが下に配置されるようにした（証明木の標準的な表示規約に準拠）
+- 変更したファイル:
+  - src/lib/quest/modelAnswer.ts (1行: direction引数の変更)
+- スクリーンショット:
+  - .screenshots/tree-layout-before-fix-iframe.png (修正前: 公理が下、結論が上)
+  - .screenshots/tree-layout-after-fix-fitted.png (修正後: 公理が上、結論が下)
+- テスト: 8831 passed, coverage 99.93% statements
+- **今後のイテレーションへの学び:**
+  - `treeLayoutLogic.ts` のコメントに "top-to-bottom: axioms at top" と明記されている。方向の意味は: roots(=axioms) → leaves(=conclusions)
+  - CutEliminationStepper はノード位置を手動で設定しているため、`applyTreeLayout` は使わない
+  - ProofWorkspace の Shift+L ショートカットは正しく "top-to-bottom" を使用
+---
+
+## 2026-03-10 - ゴール詳細パネル（クリック展開）
+- ベースライン: Stmts 99.93%, Branch 100%, Lines 100%, 8831 tests
+- **結果: カバレッジ維持（GoalPanel.tsx 98.63% Stmts, goalPanelLogic.ts 100%）**, 8860 tests
+- 変更内容:
+  - ゴールをクリックすると解説・ヒント・使用可能公理・学習ポイントの詳細パネルが展開
+  - ヒントは段階的に開く（クリックで1つずつ表示）
+  - アコーディオン方式（同時に1つのゴールのみ展開）
+  - EN/JA i18n対応
+- 変更ファイル:
+  - src/lib/proof-pad/goalPanelLogic.ts — GoalQuestInfo型追加、computeGoalPanelDataにquestInfo引数
+  - src/lib/proof-pad/GoalPanel.tsx — GoalDetailPanel, HintItemコンポーネント追加、アコーディオン
+  - src/lib/proof-pad/proofMessages.ts — 4メッセージキー追加
+  - src/lib/proof-pad/ProofWorkspace.tsx — questInfo prop追加
+  - src/lib/proof-pad/index.ts — GoalQuestInfo export
+  - src/app/workspace/[id]/WorkspaceContent.tsx — questInfo計算・受け渡し
+  - src/app/workspace/[id]/WorkspacePageView.tsx — questInfo prop
+  - messages/en.json, messages/ja.json — i18nキー追加
+  - src/lib/proof-pad/goalPanelLogic.test.ts — questInfo伝搬テスト4件
+  - src/lib/proof-pad/GoalPanel.test.tsx — 詳細パネルテスト5件
+- テスト: 8860 passed, typecheck OK, lint OK
+- スクリーンショット:
+  - .screenshots/goal-detail-panel-workspace.png — 初期状態
+  - .screenshots/goal-detail-panel-expanded.png — 詳細パネル展開（EN）
+  - .screenshots/goal-detail-panel-hint-expanded.png — ヒント展開
+  - .screenshots/goal-detail-panel-japanese.png — JA表示
+  - .screenshots/goal-detail-panel-japanese-expanded.png — JA詳細パネル展開
+- **今後のイテレーションへの学び:**
+  - GoalQuestInfoをproof-pad内に簡易型として定義し、quest直接依存を避ける設計。WorkspaceContentで変換
+  - stopPropagationでネストクリックハンドラの伝播防止が必要（HintItem → GoalItem）
+  - 参照リンク・axiom violation詳細は未実装（将来タスク）
+---
