@@ -41,6 +41,8 @@ export type WorkspacePageViewProps = {
   readonly pageMessages?: WorkspacePageMessages;
   /** テーマトグルのラベル */
   readonly themeLabels?: ThemeToggleLabels;
+  /** テスト用ID（ProofWorkspaceに転送） */
+  readonly workspaceTestId?: string;
 } & (
   | {
       /** ノートブックが見つかった場合 */
@@ -263,6 +265,7 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
             onWorkspaceChange={props.onWorkspaceChange}
             onGoalAchieved={props.onGoalAchieved}
             onOpenSyntaxHelp={props.onOpenSyntaxHelp}
+            testId={props.workspaceTestId}
             questInfo={props.questInfo}
             onDuplicateToFree={props.onDuplicateToFree}
             onSaveProofToCollection={props.onSaveProofToCollection}

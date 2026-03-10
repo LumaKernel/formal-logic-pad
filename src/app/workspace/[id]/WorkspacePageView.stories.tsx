@@ -7,7 +7,7 @@
 
 import { useState, useCallback } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { fn, expect, within, userEvent } from "storybook/test";
+import { fn, expect, within, userEvent, waitFor } from "storybook/test";
 import { ThemeProvider } from "../../../lib/theme/ThemeProvider";
 import { defaultProofMessages } from "../../../lib/proof-pad";
 import {
@@ -35,11 +35,13 @@ function StatefulWorkspace({
   notebookName,
   onBack,
   onGoalAchieved,
+  workspaceTestId,
 }: {
   readonly initialWorkspace: WorkspaceState;
   readonly notebookName: string;
   readonly onBack: () => void;
   readonly onGoalAchieved: (info: GoalAchievedInfo) => void;
+  readonly workspaceTestId?: string;
 }) {
   const [workspace, setWorkspace] = useState(initialWorkspace);
   const handleChange = useCallback((ws: WorkspaceState) => {
@@ -56,6 +58,7 @@ function StatefulWorkspace({
       onWorkspaceChange={handleChange}
       onGoalAchieved={onGoalAchieved}
       languageToggle={{ locale: "en", onLocaleChange: () => {} }}
+      workspaceTestId={workspaceTestId}
     />
   );
 }
@@ -336,5 +339,73 @@ export const WithReference: Story = {
     if (refTrigger !== null) {
       await expect(refTrigger).toBeInTheDocument();
     }
+  },
+};
+
+/** Undo/Redo: アプリ層（WorkspacePageView）経由でundo/redoが動作する */
+export const UndoRedo: Story = {
+  render: () => (
+    <StatefulWorkspace
+      initialWorkspace={createEmptyWorkspace(lukasiewiczSystem)}
+      notebookName="Undo/Redo Test"
+      onBack={fn()}
+      onGoalAchieved={fn()}
+      workspaceTestId="workspace"
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // ヘッダーが表示される
+    await expect(canvas.getByText("Undo/Redo Test")).toBeInTheDocument();
+
+    // 初期状態: ノードなし
+    expect(canvas.queryByTestId("proof-node-node-1")).not.toBeInTheDocument();
+
+    // A1 公理をパレットから追加
+    await userEvent.click(
+      canvas.getByTestId("workspace-axiom-palette-item-A1"),
+    );
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+
+    // A2 公理を追加
+    await userEvent.click(
+      canvas.getByTestId("workspace-axiom-palette-item-A2"),
+    );
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+
+    // ワークスペースにフォーカスを当てる
+    const workspaceEl = canvas.getByTestId("workspace");
+    workspaceEl.focus();
+
+    // Ctrl+Z で undo → node-2 が消える
+    await userEvent.keyboard("{Control>}z{/Control}");
+    await waitFor(() => {
+      expect(
+        canvas.queryByTestId("proof-node-node-2"),
+      ).not.toBeInTheDocument();
+    });
+    // node-1 はまだある
+    expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+
+    // もう一回 Ctrl+Z → node-1 も消える
+    await userEvent.keyboard("{Control>}z{/Control}");
+    await waitFor(() => {
+      expect(
+        canvas.queryByTestId("proof-node-node-1"),
+      ).not.toBeInTheDocument();
+    });
+
+    // Ctrl+Shift+Z で redo → node-1 が復活
+    await userEvent.keyboard("{Control>}{Shift>}z{/Shift}{/Control}");
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    });
+
+    // もう一回 redo → node-2 も復活
+    await userEvent.keyboard("{Control>}{Shift>}z{/Shift}{/Control}");
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
   },
 };
