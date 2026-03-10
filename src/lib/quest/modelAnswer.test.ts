@@ -344,6 +344,348 @@ describe("buildModelAnswerWorkspace - SC steps", () => {
   });
 });
 
+// ND テスト用のクエスト定義
+const ndQuest: QuestDefinition = {
+  id: "nd-test-01",
+  category: "nd-basics",
+  title: "Test ND: φ → φ",
+  description: "NDで φ → φ を証明。",
+  difficulty: 1,
+  systemPresetId: "nd-nm",
+  goals: [{ formulaText: "phi -> phi", label: "Goal" }],
+  hints: [],
+  estimatedSteps: 2,
+  learningPoint: "test",
+  order: 1,
+  version: 1,
+};
+
+describe("buildModelAnswerWorkspace - ND steps", () => {
+  it("assumption + nd-implication-intro で φ→φ を証明できる", () => {
+    const answer: ModelAnswer = {
+      questId: "nd-test-01",
+      steps: [
+        { _tag: "assumption", formulaText: "phi" },
+        { _tag: "nd-implication-intro", premiseIndex: 0, dischargedIndex: 0 },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(ndQuest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    expect(
+      result.goalCheck._tag === "AllAchieved" ||
+        result.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+  });
+
+  it("nd-implication-elim で→除去を適用できる", () => {
+    const quest: QuestDefinition = {
+      ...ndQuest,
+      goals: [{ formulaText: "psi", label: "Goal" }],
+    };
+    const answer: ModelAnswer = {
+      questId: "nd-test-01",
+      steps: [
+        { _tag: "assumption", formulaText: "phi" },
+        { _tag: "assumption", formulaText: "phi -> psi" },
+        { _tag: "nd-implication-elim", leftIndex: 0, rightIndex: 1 },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(quest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    // ψ ノードが生成されているはず
+    const psiNode = result.workspace.nodes.find(
+      (n) => n.formulaText === "psi" || n.formulaText === "ψ",
+    );
+    expect(psiNode).toBeDefined();
+  });
+
+  it("nd-conjunction-intro / nd-conjunction-elim-left / nd-conjunction-elim-right で∧操作できる", () => {
+    const quest: QuestDefinition = {
+      ...ndQuest,
+      goals: [{ formulaText: "(phi /\\ psi) -> (psi /\\ phi)", label: "Goal" }],
+    };
+    const answer: ModelAnswer = {
+      questId: "nd-test-01",
+      steps: [
+        { _tag: "assumption", formulaText: "phi /\\ psi" },
+        { _tag: "nd-conjunction-elim-right", premiseIndex: 0 },
+        { _tag: "nd-conjunction-elim-left", premiseIndex: 0 },
+        { _tag: "nd-conjunction-intro", leftIndex: 1, rightIndex: 2 },
+        { _tag: "nd-implication-intro", premiseIndex: 3, dischargedIndex: 0 },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(quest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    expect(
+      result.goalCheck._tag === "AllAchieved" ||
+        result.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+  });
+
+  it("nd-disjunction-intro-left / nd-disjunction-intro-right / nd-disjunction-elim で∨操作できる", () => {
+    const quest: QuestDefinition = {
+      ...ndQuest,
+      goals: [{ formulaText: "(phi \\/ psi) -> (psi \\/ phi)", label: "Goal" }],
+    };
+    const answer: ModelAnswer = {
+      questId: "nd-test-01",
+      steps: [
+        { _tag: "assumption", formulaText: "phi \\/ psi" },
+        { _tag: "assumption", formulaText: "phi" },
+        {
+          _tag: "nd-disjunction-intro-right",
+          premiseIndex: 1,
+          addedLeftText: "psi",
+        },
+        { _tag: "assumption", formulaText: "psi" },
+        {
+          _tag: "nd-disjunction-intro-left",
+          premiseIndex: 3,
+          addedRightText: "phi",
+        },
+        {
+          _tag: "nd-disjunction-elim",
+          disjunctionIndex: 0,
+          leftCaseIndex: 2,
+          leftDischargedIndex: 1,
+          rightCaseIndex: 4,
+          rightDischargedIndex: 3,
+        },
+        { _tag: "nd-implication-intro", premiseIndex: 5, dischargedIndex: 0 },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(quest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    expect(
+      result.goalCheck._tag === "AllAchieved" ||
+        result.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+  });
+
+  it("nd-efq でEFQを適用できる", () => {
+    const quest: QuestDefinition = {
+      ...ndQuest,
+      systemPresetId: "nd-nj",
+      goals: [
+        { formulaText: "(phi /\\ ~phi) -> psi", label: "Goal" },
+      ],
+    };
+    const answer: ModelAnswer = {
+      questId: "nd-test-01",
+      steps: [
+        { _tag: "assumption", formulaText: "phi /\\ ~phi" },
+        { _tag: "nd-conjunction-elim-left", premiseIndex: 0 },
+        { _tag: "nd-conjunction-elim-right", premiseIndex: 0 },
+        { _tag: "nd-implication-elim", leftIndex: 1, rightIndex: 2 },
+        { _tag: "nd-efq", premiseIndex: 3, conclusionText: "psi" },
+        { _tag: "nd-implication-intro", premiseIndex: 4, dischargedIndex: 0 },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(quest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    expect(
+      result.goalCheck._tag === "AllAchieved" ||
+        result.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+  });
+
+  it("nd-dne でDNEを適用できる", () => {
+    const quest: QuestDefinition = {
+      ...ndQuest,
+      systemPresetId: "nd-nk",
+      goals: [{ formulaText: "~~phi -> phi", label: "Goal" }],
+    };
+    const answer: ModelAnswer = {
+      questId: "nd-test-01",
+      steps: [
+        { _tag: "assumption", formulaText: "~~phi" },
+        { _tag: "nd-dne", premiseIndex: 0 },
+        { _tag: "nd-implication-intro", premiseIndex: 1, dischargedIndex: 0 },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(quest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    expect(
+      result.goalCheck._tag === "AllAchieved" ||
+        result.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+  });
+
+  it("nd-universal-intro で∀導入を適用できる", () => {
+    const quest: QuestDefinition = {
+      ...ndQuest,
+      goals: [{ formulaText: "all x. (P(x) -> P(x))", label: "Goal" }],
+    };
+    const answer: ModelAnswer = {
+      questId: "nd-test-01",
+      steps: [
+        { _tag: "assumption", formulaText: "P(x)" },
+        { _tag: "nd-implication-intro", premiseIndex: 0, dischargedIndex: 0 },
+        { _tag: "nd-universal-intro", premiseIndex: 1, variableName: "x" },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(quest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    expect(
+      result.goalCheck._tag === "AllAchieved" ||
+        result.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+  });
+
+  it("nd-universal-elim で∀除去を適用できる", () => {
+    const quest: QuestDefinition = {
+      ...ndQuest,
+      goals: [{ formulaText: "P(x)", label: "Goal" }],
+    };
+    const answer: ModelAnswer = {
+      questId: "nd-test-01",
+      steps: [
+        { _tag: "assumption", formulaText: "all x. P(x)" },
+        { _tag: "nd-universal-elim", premiseIndex: 0, termText: "x" },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(quest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    // P(x)ノードが生成されているはず
+    const hasTarget = result.workspace.nodes.some(
+      (n) => n.formulaText === "P(x)",
+    );
+    expect(hasTarget).toBe(true);
+  });
+
+  it("nd-existential-intro で∃導入を適用できる", () => {
+    const quest: QuestDefinition = {
+      ...ndQuest,
+      goals: [{ formulaText: "P(x) -> exists x. P(x)", label: "Goal" }],
+    };
+    const answer: ModelAnswer = {
+      questId: "nd-test-01",
+      steps: [
+        { _tag: "assumption", formulaText: "P(x)" },
+        {
+          _tag: "nd-existential-intro",
+          premiseIndex: 0,
+          variableName: "x",
+          termText: "x",
+        },
+        { _tag: "nd-implication-intro", premiseIndex: 1, dischargedIndex: 0 },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(quest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    expect(
+      result.goalCheck._tag === "AllAchieved" ||
+        result.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+  });
+
+  it("nd-existential-elim で∃除去を適用できる", () => {
+    const quest: QuestDefinition = {
+      ...ndQuest,
+      goals: [
+        {
+          formulaText: "(exists x. P(x)) -> (exists x. P(x))",
+          label: "Goal",
+        },
+      ],
+    };
+    const answer: ModelAnswer = {
+      questId: "nd-test-01",
+      steps: [
+        { _tag: "assumption", formulaText: "exists x. P(x)" },
+        { _tag: "assumption", formulaText: "P(x)" },
+        {
+          _tag: "nd-existential-intro",
+          premiseIndex: 1,
+          variableName: "x",
+          termText: "x",
+        },
+        {
+          _tag: "nd-existential-elim",
+          existentialIndex: 0,
+          caseIndex: 2,
+          dischargedIndex: 1,
+        },
+        { _tag: "nd-implication-intro", premiseIndex: 3, dischargedIndex: 0 },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(quest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    expect(
+      result.goalCheck._tag === "AllAchieved" ||
+        result.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+  });
+});
+
+// Gen テスト用のクエスト定義
+const genQuest: QuestDefinition = {
+  id: "gen-test-01",
+  category: "predicate-basics",
+  title: "Test Gen: ∀x.(φ → φ)",
+  description: "Genで ∀x.(φ → φ) を証明。",
+  difficulty: 1,
+  systemPresetId: "predicate",
+  goals: [{ formulaText: "all x. (P(x) -> P(x))", label: "Goal" }],
+  hints: [],
+  estimatedSteps: 6,
+  learningPoint: "test",
+  order: 1,
+  version: 1,
+};
+
+describe("buildModelAnswerWorkspace - Gen step", () => {
+  it("gen でGen規則を適用できる", () => {
+    const answer: ModelAnswer = {
+      questId: "gen-test-01",
+      steps: [
+        {
+          _tag: "axiom",
+          formulaText:
+            "(P(x) -> ((P(x) -> P(x)) -> P(x))) -> ((P(x) -> (P(x) -> P(x))) -> (P(x) -> P(x)))",
+        },
+        {
+          _tag: "axiom",
+          formulaText: "P(x) -> ((P(x) -> P(x)) -> P(x))",
+        },
+        { _tag: "mp", leftIndex: 1, rightIndex: 0 },
+        { _tag: "axiom", formulaText: "P(x) -> (P(x) -> P(x))" },
+        { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+        { _tag: "gen", premiseIndex: 4, variableName: "x" },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(genQuest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    expect(
+      result.goalCheck._tag === "AllAchieved" ||
+        result.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+  });
+
+  it("不正なGenインデックスでStepErrorを返す", () => {
+    const answer: ModelAnswer = {
+      questId: "gen-test-01",
+      steps: [
+        { _tag: "axiom", formulaText: "P(x) -> P(x)" },
+        { _tag: "gen", premiseIndex: 99, variableName: "x" },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(genQuest, answer);
+    expect(result._tag).toBe("StepError");
+  });
+});
+
 describe("validateModelAnswer", () => {
   it("正しい模範解答はValidを返す", () => {
     const answer: ModelAnswer = {
