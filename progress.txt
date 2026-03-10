@@ -11722,3 +11722,24 @@
   - HS合成パターン: A→B, B→C から A→C を5ステップ(A1 lift + A2 dist + 3 MP)で導出可能
   - 述語論理証明では A4 (∀x.φ→φ[t/x]) + Gen + A5 (∀x.(φ→ψ)→(φ→∀x.ψ)) の組み合わせが頻出
   - Existential quantifier (∃x.φ) は AST 上 Negation(Universal(Negation(...))) とは別ノード。論理的同値でもAST構造が異なるためゴール達成にならない
+
+## 2026-03-10 - [notebook] ノート一覧の三点メニュー統合
+- ノート一覧のアクションボタン（名前変更・複製・自由帳として複製・削除）を三点メニュー（⋯）に統合
+- MoreMenu コンポーネント: useRef + useEffect(mousedown) でクリック外閉じ、aria-expanded 対応
+- MenuItem コンポーネント: ホバーエフェクト、危険操作用の赤スタイル
+- 変更ファイル:
+  - src/lib/notebook/NotebookListComponent.tsx (三点メニュー実装)
+  - src/lib/notebook/NotebookListComponent.test.tsx (テスト7件追加、既存テスト更新)
+  - src/lib/notebook/NotebookListComponent.stories.tsx (MoreMenuInteraction ストーリー追加、全ストーリー更新)
+  - src/app/HubPageView.stories.tsx (NotebookActions ストーリー更新)
+- スクリーンショット:
+  - .screenshots/notebook-list-three-dot-menu-closed.png
+  - .screenshots/notebook-list-three-dot-menu-open.png
+  - .screenshots/notebook-list-multiple-items.png
+- カバレッジ: 99.94% Stmts / 99.92% Branch / 99.97% Lines（ベースライン 99.93% Stmts → 微増）
+- テスト: 8836 passed (ベースライン 8829 → +7)
+- **今後のイテレーションへの学び:**
+  - 三点メニューの e.stopPropagation(): 外側コンテナの onClick で閉じる場合、内側のハンドラで stopPropagation すると閉じなくなる。外側の div で一括 stopPropagation し、内側は伝播を止めない
+  - click-outside-to-close は mousedown で実装（click だとボタン自身のクリックと干渉する可能性）
+  - ESLint require-satisfies-in-tls: テストヘルパーのテンプレートリテラルでも `satisfies string` が必要
+---

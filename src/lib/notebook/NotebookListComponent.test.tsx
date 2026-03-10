@@ -24,6 +24,11 @@ const defaultHandlers = {
   onConvertToFree: vi.fn(),
 };
 
+/** 三点メニューを開くヘルパー */
+function openMoreMenu(itemId: string): void {
+  fireEvent.click(screen.getByTestId(`more-btn-${itemId satisfies string}`));
+}
+
 describe("NotebookList", () => {
   describe("空の状態", () => {
     it("ノートがない場合にメッセージを表示する", () => {
@@ -83,6 +88,96 @@ describe("NotebookList", () => {
     });
   });
 
+  describe("三点メニュー", () => {
+    it("三点メニューボタンが表示される", () => {
+      render(
+        <NotebookList
+          items={[makeItem("nb-1", "テスト")]}
+          {...defaultHandlers}
+        />,
+      );
+      expect(screen.getByTestId("more-btn-nb-1")).toBeTruthy();
+    });
+
+    it("三点メニュークリックでドロップダウンが開く", () => {
+      render(
+        <NotebookList
+          items={[makeItem("nb-1", "テスト")]}
+          {...defaultHandlers}
+        />,
+      );
+      openMoreMenu("nb-1");
+      expect(screen.getByTestId("more-menu-nb-1")).toBeTruthy();
+    });
+
+    it("三点メニュー再クリックでドロップダウンが閉じる", () => {
+      render(
+        <NotebookList
+          items={[makeItem("nb-1", "テスト")]}
+          {...defaultHandlers}
+        />,
+      );
+      openMoreMenu("nb-1");
+      expect(screen.getByTestId("more-menu-nb-1")).toBeTruthy();
+      openMoreMenu("nb-1");
+      expect(screen.queryByTestId("more-menu-nb-1")).toBeNull();
+    });
+
+    it("メニュー項目クリック後にメニューが閉じる", () => {
+      const onDuplicate = vi.fn();
+      render(
+        <NotebookList
+          items={[makeItem("nb-1", "テスト")]}
+          {...defaultHandlers}
+          onDuplicate={onDuplicate}
+        />,
+      );
+      openMoreMenu("nb-1");
+      fireEvent.click(screen.getByTestId("duplicate-btn-nb-1"));
+      expect(screen.queryByTestId("more-menu-nb-1")).toBeNull();
+    });
+
+    it("メニュー外クリックでメニューが閉じる", () => {
+      render(
+        <NotebookList
+          items={[makeItem("nb-1", "テスト")]}
+          {...defaultHandlers}
+        />,
+      );
+      openMoreMenu("nb-1");
+      expect(screen.getByTestId("more-menu-nb-1")).toBeTruthy();
+      // メニュー外をクリック
+      fireEvent.mouseDown(document.body);
+      expect(screen.queryByTestId("more-menu-nb-1")).toBeNull();
+    });
+
+    it("三点メニュークリックでonOpenが呼ばれない（伝播停止）", () => {
+      const onOpen = vi.fn();
+      render(
+        <NotebookList
+          items={[makeItem("nb-1", "テスト")]}
+          {...defaultHandlers}
+          onOpen={onOpen}
+        />,
+      );
+      openMoreMenu("nb-1");
+      expect(onOpen).not.toHaveBeenCalled();
+    });
+
+    it("aria-expanded属性がメニュー開閉に連動する", () => {
+      render(
+        <NotebookList
+          items={[makeItem("nb-1", "テスト")]}
+          {...defaultHandlers}
+        />,
+      );
+      const btn = screen.getByTestId("more-btn-nb-1");
+      expect(btn.getAttribute("aria-expanded")).toBe("false");
+      openMoreMenu("nb-1");
+      expect(btn.getAttribute("aria-expanded")).toBe("true");
+    });
+  });
+
   describe("操作", () => {
     it("クリックでonOpenが呼ばれる", () => {
       const onOpen = vi.fn();
@@ -106,6 +201,7 @@ describe("NotebookList", () => {
           onDelete={onDelete}
         />,
       );
+      openMoreMenu("nb-1");
       fireEvent.click(screen.getByTestId("delete-btn-nb-1"));
       // まだonDeleteは呼ばれない
       expect(onDelete).not.toHaveBeenCalled();
@@ -122,6 +218,7 @@ describe("NotebookList", () => {
           onDelete={onDelete}
         />,
       );
+      openMoreMenu("nb-1");
       fireEvent.click(screen.getByTestId("delete-btn-nb-1"));
       fireEvent.click(screen.getByTestId("delete-confirm-btn-nb-1"));
       expect(onDelete).toHaveBeenCalledWith("nb-1");
@@ -136,26 +233,12 @@ describe("NotebookList", () => {
           onDelete={onDelete}
         />,
       );
+      openMoreMenu("nb-1");
       fireEvent.click(screen.getByTestId("delete-btn-nb-1"));
       fireEvent.click(screen.getByTestId("delete-cancel-btn-nb-1"));
       expect(onDelete).not.toHaveBeenCalled();
       // 確認UIが消える
       expect(screen.queryByTestId("delete-confirm-nb-1")).toBeNull();
-    });
-
-    it("削除ボタンクリックでonOpenが呼ばれない（伝播停止）", () => {
-      const onOpen = vi.fn();
-      const onDelete = vi.fn();
-      render(
-        <NotebookList
-          items={[makeItem("nb-1", "テスト")]}
-          {...defaultHandlers}
-          onOpen={onOpen}
-          onDelete={onDelete}
-        />,
-      );
-      fireEvent.click(screen.getByTestId("delete-btn-nb-1"));
-      expect(onOpen).not.toHaveBeenCalled();
     });
 
     it("複製ボタンでonDuplicateが呼ばれる", () => {
@@ -167,6 +250,7 @@ describe("NotebookList", () => {
           onDuplicate={onDuplicate}
         />,
       );
+      openMoreMenu("nb-1");
       fireEvent.click(screen.getByTestId("duplicate-btn-nb-1"));
       expect(onDuplicate).toHaveBeenCalledWith("nb-1");
     });
@@ -178,6 +262,7 @@ describe("NotebookList", () => {
           {...defaultHandlers}
         />,
       );
+      openMoreMenu("nb-1");
       expect(screen.getByTestId("convert-btn-nb-1")).toBeTruthy();
     });
 
@@ -188,6 +273,7 @@ describe("NotebookList", () => {
           {...defaultHandlers}
         />,
       );
+      openMoreMenu("nb-1");
       expect(screen.queryByTestId("convert-btn-nb-1")).toBeNull();
     });
 
@@ -200,6 +286,7 @@ describe("NotebookList", () => {
           onConvertToFree={onConvertToFree}
         />,
       );
+      openMoreMenu("nb-1");
       fireEvent.click(screen.getByTestId("convert-btn-nb-1"));
       expect(onConvertToFree).toHaveBeenCalledWith("nb-1");
     });
@@ -213,6 +300,7 @@ describe("NotebookList", () => {
           {...defaultHandlers}
         />,
       );
+      openMoreMenu("nb-1");
       fireEvent.click(screen.getByTestId("rename-btn-nb-1"));
       expect(screen.getByTestId("rename-input")).toBeTruthy();
     });
@@ -226,6 +314,7 @@ describe("NotebookList", () => {
           onRename={onRename}
         />,
       );
+      openMoreMenu("nb-1");
       fireEvent.click(screen.getByTestId("rename-btn-nb-1"));
       const input = screen.getByTestId("rename-input");
       fireEvent.change(input, { target: { value: "新名前" } });
@@ -242,6 +331,7 @@ describe("NotebookList", () => {
           onRename={onRename}
         />,
       );
+      openMoreMenu("nb-1");
       fireEvent.click(screen.getByTestId("rename-btn-nb-1"));
       const input = screen.getByTestId("rename-input");
       fireEvent.keyDown(input, { key: "Escape" });
@@ -259,6 +349,7 @@ describe("NotebookList", () => {
           onRename={onRename}
         />,
       );
+      openMoreMenu("nb-1");
       fireEvent.click(screen.getByTestId("rename-btn-nb-1"));
       const input = screen.getByTestId("rename-input");
       fireEvent.change(input, { target: { value: "" } });
@@ -276,6 +367,7 @@ describe("NotebookList", () => {
           onRename={onRename}
         />,
       );
+      openMoreMenu("nb-1");
       fireEvent.click(screen.getByTestId("rename-btn-nb-1"));
       const input = screen.getByTestId("rename-input");
       fireEvent.change(input, { target: { value: "変更後" } });
@@ -299,27 +391,28 @@ describe("NotebookList", () => {
       expect(item.style.transform).toBe("");
     });
 
-    it("アクションボタンのホバーでスタイルが切り替わる", () => {
+    it("三点メニューボタンのホバーでスタイルが切り替わる", () => {
       render(
         <NotebookList
           items={[makeItem("nb-1", "テスト")]}
           {...defaultHandlers}
         />,
       );
-      const btn = screen.getByTestId("rename-btn-nb-1");
+      const btn = screen.getByTestId("more-btn-nb-1");
       fireEvent.mouseEnter(btn);
       fireEvent.mouseLeave(btn);
       // ホバー状態の切り替えが正常に行われること（エラーなし）
       expect(btn).toBeTruthy();
     });
 
-    it("削除ボタンのホバーでスタイルが切り替わる", () => {
+    it("メニュー項目のホバーでスタイルが切り替わる", () => {
       render(
         <NotebookList
           items={[makeItem("nb-1", "テスト")]}
           {...defaultHandlers}
         />,
       );
+      openMoreMenu("nb-1");
       const btn = screen.getByTestId("delete-btn-nb-1");
       fireEvent.mouseEnter(btn);
       fireEvent.mouseLeave(btn);

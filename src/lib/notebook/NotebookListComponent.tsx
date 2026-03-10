@@ -7,7 +7,7 @@
  * 変更時は NotebookListComponent.test.tsx, NotebookListComponent.stories.tsx も同期すること。
  */
 
-import { useState, type CSSProperties } from "react";
+import { useState, useRef, useEffect, type CSSProperties } from "react";
 import type { NotebookListItem } from "./notebookListLogic";
 import { validateNotebookName, questProgressText } from "./notebookListLogic";
 
@@ -123,15 +123,10 @@ const questProgressCompleteBadgeStyle: CSSProperties = {
   color: "var(--color-quest-progress-complete-text, #2e7d32)",
 };
 
-const actionsStyle: CSSProperties = {
-  display: "flex",
-  gap: 4,
-  flexShrink: 0,
-};
-
-const actionButtonStyle: CSSProperties = {
-  padding: "4px 10px",
-  fontSize: 12,
+const moreButtonStyle: CSSProperties = {
+  padding: "4px 8px",
+  fontSize: 18,
+  lineHeight: 1,
   borderRadius: 6,
   border:
     "1px solid var(--color-notebook-action-border, rgba(180,160,130,0.3))",
@@ -139,21 +134,55 @@ const actionButtonStyle: CSSProperties = {
   color: "var(--color-text-primary, #333)",
   cursor: "pointer",
   transition: "background 0.15s ease",
+  flexShrink: 0,
 };
 
-const actionButtonHoverStyle: CSSProperties = {
-  ...actionButtonStyle,
+const moreButtonHoverStyle: CSSProperties = {
+  ...moreButtonStyle,
   background: "var(--color-notebook-action-hover-bg, rgba(245,240,230,0.95))",
 };
 
-const deleteButtonStyle: CSSProperties = {
-  ...actionButtonStyle,
-  color: "var(--color-notebook-delete-text, #c62828)",
-  borderColor: "var(--color-notebook-delete-border, rgba(198,40,40,0.25))",
+const dropdownMenuStyle: CSSProperties = {
+  position: "absolute",
+  right: 0,
+  top: "100%",
+  marginTop: 4,
+  background: "var(--color-notebook-card-bg, #fffdf8)",
+  border:
+    "1px solid var(--color-notebook-card-border, rgba(180,160,130,0.25))",
+  borderRadius: 8,
+  boxShadow:
+    "0 4px 12px var(--color-notebook-card-shadow-hover, rgba(120,100,70,0.18))",
+  zIndex: 10,
+  minWidth: 160,
+  overflow: "hidden",
 };
 
-const deleteButtonHoverStyle: CSSProperties = {
-  ...deleteButtonStyle,
+const menuItemStyle: CSSProperties = {
+  display: "block",
+  width: "100%",
+  padding: "10px 16px",
+  fontSize: 13,
+  textAlign: "left",
+  border: "none",
+  background: "transparent",
+  color: "var(--color-text-primary, #333)",
+  cursor: "pointer",
+  transition: "background 0.1s ease",
+};
+
+const menuItemHoverStyle: CSSProperties = {
+  ...menuItemStyle,
+  background: "var(--color-notebook-action-hover-bg, rgba(245,240,230,0.95))",
+};
+
+const menuItemDangerStyle: CSSProperties = {
+  ...menuItemStyle,
+  color: "var(--color-notebook-delete-text, #c62828)",
+};
+
+const menuItemDangerHoverStyle: CSSProperties = {
+  ...menuItemDangerStyle,
   background: "var(--color-notebook-delete-hover-bg, rgba(198,40,40,0.06))",
 };
 
@@ -220,35 +249,88 @@ const renameErrorStyle: CSSProperties = {
 
 // --- Sub-components ---
 
-function ActionButton({
+function MenuItem({
   children,
   onClick,
-  title,
   "data-testid": testId,
   variant = "default",
 }: {
   readonly children: React.ReactNode;
   readonly onClick: (e: React.MouseEvent) => void;
-  readonly title: string;
   readonly "data-testid": string;
   readonly variant?: "default" | "danger";
 }) {
   const [hovered, setHovered] = useState(false);
   const baseStyle =
-    variant === "danger" ? deleteButtonStyle : actionButtonStyle;
-  const hoverStyle =
-    variant === "danger" ? deleteButtonHoverStyle : actionButtonHoverStyle;
+    variant === "danger" ? menuItemDangerStyle : menuItemStyle;
+  const hStyle =
+    variant === "danger" ? menuItemDangerHoverStyle : menuItemHoverStyle;
   return (
     <button
       data-testid={testId}
-      style={hovered ? hoverStyle : baseStyle}
+      style={hovered ? hStyle : baseStyle}
       onClick={onClick}
-      title={title}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       {children}
     </button>
+  );
+}
+
+function MoreMenu({
+  itemId,
+  children,
+}: {
+  readonly itemId: string;
+  readonly children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        menuRef.current !== null &&
+        !menuRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  return (
+    <div
+      ref={menuRef}
+      style={{ position: "relative", flexShrink: 0 }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button
+        data-testid={`more-btn-${itemId satisfies string}`}
+        style={hovered ? moreButtonHoverStyle : moreButtonStyle}
+        onClick={() => setOpen(!open)}
+        title="その他の操作"
+        aria-label="その他の操作"
+        aria-expanded={open}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        ⋯
+      </button>
+      {open && (
+        <div
+          data-testid={`more-menu-${itemId satisfies string}`}
+          style={dropdownMenuStyle}
+          onClick={() => setOpen(false)}
+        >
+          {children}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -303,8 +385,7 @@ function NotebookItem({
   const [editError, setEditError] = useState<string | null>(null);
   const [isDeleteConfirming, setIsDeleteConfirming] = useState(false);
 
-  const handleRenameStart = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleRenameStart = () => {
     setEditName(item.name);
     setEditError(null);
     setIsEditing(true);
@@ -328,29 +409,24 @@ function NotebookItem({
     }
   };
 
-  const handleDeleteStart = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDeleteStart = () => {
     setIsDeleteConfirming(true);
   };
 
-  const handleDeleteConfirm = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDeleteConfirm = () => {
     onDelete(item.id);
     setIsDeleteConfirming(false);
   };
 
-  const handleDeleteCancel = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDeleteCancel = () => {
     setIsDeleteConfirming(false);
   };
 
-  const handleDuplicate = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDuplicate = () => {
     onDuplicate(item.id);
   };
 
-  const handleConvertToFree = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleConvertToFree = () => {
     onConvertToFree?.(item.id);
   };
 
@@ -400,39 +476,35 @@ function NotebookItem({
           </>
         )}
       </div>
-      <div style={actionsStyle} onClick={(e) => e.stopPropagation()}>
-        <ActionButton
+      <MoreMenu itemId={item.id}>
+        <MenuItem
           data-testid={`rename-btn-${item.id satisfies string}`}
           onClick={handleRenameStart}
-          title="名前変更"
         >
           名前変更
-        </ActionButton>
-        <ActionButton
+        </MenuItem>
+        <MenuItem
           data-testid={`duplicate-btn-${item.id satisfies string}`}
           onClick={handleDuplicate}
-          title="複製"
         >
           複製
-        </ActionButton>
+        </MenuItem>
         {item.mode === "quest" && onConvertToFree !== undefined && (
-          <ActionButton
+          <MenuItem
             data-testid={`convert-btn-${item.id satisfies string}`}
             onClick={handleConvertToFree}
-            title="自由帳として複製"
           >
             自由帳として複製
-          </ActionButton>
+          </MenuItem>
         )}
-        <ActionButton
+        <MenuItem
           data-testid={`delete-btn-${item.id satisfies string}`}
           onClick={handleDeleteStart}
-          title="削除"
           variant="danger"
         >
           削除
-        </ActionButton>
-      </div>
+        </MenuItem>
+      </MoreMenu>
       {isDeleteConfirming && (
         <div
           data-testid={`delete-confirm-${item.id satisfies string}`}

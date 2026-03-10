@@ -315,11 +315,13 @@ export const NotebookActions: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
 
-    // --- 複製 ---
+    // --- 複製（三点メニュー経由） ---
+    await userEvent.click(canvas.getByTestId("more-btn-notebook-1"));
     await userEvent.click(canvas.getByTestId("duplicate-btn-notebook-1"));
     await expect(args.onDuplicateNotebook).toHaveBeenCalledWith("notebook-1");
 
-    // --- リネーム ---
+    // --- リネーム（三点メニュー経由） ---
+    await userEvent.click(canvas.getByTestId("more-btn-notebook-1"));
     await userEvent.click(canvas.getByTestId("rename-btn-notebook-1"));
     const renameInput = canvas.getByTestId("rename-input");
     await userEvent.clear(renameInput);
@@ -330,11 +332,13 @@ export const NotebookActions: Story = {
       "Renamed Proof",
     );
 
-    // --- 自由帳として複製（questモードのnotebook-2のみ表示） ---
+    // --- 自由帳として複製（三点メニュー経由、questモードのnotebook-2のみ表示） ---
+    await userEvent.click(canvas.getByTestId("more-btn-notebook-2"));
     await userEvent.click(canvas.getByTestId("convert-btn-notebook-2"));
     await expect(args.onConvertToFree).toHaveBeenCalledWith("notebook-2");
 
-    // --- 削除（確認ダイアログ付き） ---
+    // --- 削除（三点メニュー経由、確認ダイアログ付き） ---
+    await userEvent.click(canvas.getByTestId("more-btn-notebook-3"));
     await userEvent.click(canvas.getByTestId("delete-btn-notebook-3"));
     // 確認ダイアログが表示される
     await expect(
@@ -346,7 +350,8 @@ export const NotebookActions: Story = {
       canvas.queryByTestId("delete-confirm-notebook-3"),
     ).not.toBeInTheDocument();
 
-    // 再度削除→今度は確定
+    // 再度削除→今度は確定（三点メニュー経由）
+    await userEvent.click(canvas.getByTestId("more-btn-notebook-3"));
     await userEvent.click(canvas.getByTestId("delete-btn-notebook-3"));
     await userEvent.click(canvas.getByTestId("delete-confirm-btn-notebook-3"));
     await expect(args.onDeleteNotebook).toHaveBeenCalledWith("notebook-3");

@@ -55,6 +55,8 @@ export const SingleItem: Story = {
     await expect(canvas.getByText("はじめてのノート")).toBeInTheDocument();
     await expect(canvas.getByText("Łukasiewicz")).toBeInTheDocument();
     await expect(canvas.getByText("自由帳")).toBeInTheDocument();
+    // 三点メニューボタンが存在する
+    await expect(canvas.getByTestId("more-btn-nb-1")).toBeInTheDocument();
   },
 };
 
@@ -83,8 +85,30 @@ export const MultipleItems: Story = {
     await expect(canvas.getByText("命題論理の証明")).toBeInTheDocument();
     await expect(canvas.getByText("述語論理チャレンジ")).toBeInTheDocument();
     await expect(canvas.getByText("等号付き論理")).toBeInTheDocument();
-    // クエストモードには自由帳化ボタンがある
+    // クエストモードのノートで三点メニューを開くと自由帳化ボタンがある
+    await userEvent.click(canvas.getByTestId("more-btn-nb-2"));
     await expect(canvas.getByTestId("convert-btn-nb-2")).toBeInTheDocument();
+  },
+};
+
+export const MoreMenuInteraction: Story = {
+  args: {
+    items: [makeItem("nb-1", "メニュー操作テスト")],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // メニューは閉じている
+    await expect(canvas.queryByTestId("more-menu-nb-1")).toBeNull();
+    // 三点メニューを開く
+    await userEvent.click(canvas.getByTestId("more-btn-nb-1"));
+    await expect(canvas.getByTestId("more-menu-nb-1")).toBeInTheDocument();
+    // メニュー内にアクションが表示される
+    await expect(canvas.getByTestId("rename-btn-nb-1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("duplicate-btn-nb-1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("delete-btn-nb-1")).toBeInTheDocument();
+    // 再クリックで閉じる
+    await userEvent.click(canvas.getByTestId("more-btn-nb-1"));
+    await expect(canvas.queryByTestId("more-menu-nb-1")).toBeNull();
   },
 };
 
@@ -94,8 +118,10 @@ export const DeleteAction: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    // 削除ボタンクリックで確認UIが表示される
+    // 三点メニューを開いて削除ボタンをクリック
+    await userEvent.click(canvas.getByTestId("more-btn-nb-1"));
     await userEvent.click(canvas.getByTestId("delete-btn-nb-1"));
+    // 確認UIが表示される
     await expect(canvas.getByTestId("delete-confirm-nb-1")).toBeInTheDocument();
     await expect(canvas.getByText("本当に削除しますか？")).toBeInTheDocument();
     // まだ削除されていない
@@ -112,7 +138,8 @@ export const DeleteCancel: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    // 削除ボタンクリックで確認UIが表示される
+    // 三点メニューを開いて削除ボタンをクリック
+    await userEvent.click(canvas.getByTestId("more-btn-nb-1"));
     await userEvent.click(canvas.getByTestId("delete-btn-nb-1"));
     await expect(canvas.getByTestId("delete-confirm-nb-1")).toBeInTheDocument();
     // キャンセルで確認UIが消える
@@ -128,6 +155,8 @@ export const DuplicateAction: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
+    // 三点メニューを開いて複製ボタンをクリック
+    await userEvent.click(canvas.getByTestId("more-btn-nb-1"));
     await userEvent.click(canvas.getByTestId("duplicate-btn-nb-1"));
     await expect(args.onDuplicate).toHaveBeenCalledWith("nb-1");
   },
@@ -139,7 +168,8 @@ export const RenameAction: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    // 名前変更ボタンをクリック
+    // 三点メニューを開いて名前変更ボタンをクリック
+    await userEvent.click(canvas.getByTestId("more-btn-nb-1"));
     await userEvent.click(canvas.getByTestId("rename-btn-nb-1"));
     // 入力フィールドが表示される
     const input = canvas.getByTestId("rename-input");
