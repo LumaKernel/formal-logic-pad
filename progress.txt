@@ -11889,3 +11889,26 @@
   - stopPropagationでネストクリックハンドラの伝播防止が必要（HintItem → GoalItem）
   - 参照リンク・axiom violation詳細は未実装（将来タスク）
 ---
+
+## 2026-03-10 - [proof-pad] ゴール詳細パネルに参照リンク追加
+- GoalDetailPanelの許可公理セクションにReferencePopover (?)ボタンを追加
+- AxiomPaletteと同じパターンで`getAxiomReferenceEntryId`→`findEntryById`→`ReferencePopover`
+- GoalPanel → GoalItem → GoalDetailPanelへの3層props threading（referenceEntries, locale, onOpenReferenceDetail）
+- ProofWorkspace.tsxからGoalPanelへのprops転送を追加
+- テスト5件追加（表示/非表示/ポップオーバー/onOpenReferenceDetail）
+- 変更ファイル:
+  - src/lib/proof-pad/GoalPanel.tsx（参照リンク実装）
+  - src/lib/proof-pad/GoalPanel.test.tsx（テスト5件追加）
+  - src/lib/proof-pad/ProofWorkspace.tsx（props転送）
+  - tasks/prd-2026-03-10.md（タスク完了マーク）
+- カバレッジ: Stmts 99.92%, Branch 99.80% (ベースライン 99.81% — v8 artifact差)
+- スクリーンショット:
+  - .screenshots/goal-panel-quest-mode-initial.png — クエストモード初期表示
+  - .screenshots/goal-detail-expanded.png — ゴール詳細パネル展開
+  - .screenshots/quest-hub-page.png — クエストハブページ
+  - .screenshots/goal-detail-with-descriptions.png — 実アプリでの詳細パネル
+- **今後のイテレーションへの学び:**
+  - 現在のビルトインクエストはallowedAxiomIdsを設定していないため、許可公理セクション自体が表示されない。参照リンクは制限付きクエスト追加時に活用される
+  - GoalPanelの展開はquestInfo有無で制御。questInfoがないとrole="button"にならずクリック展開不可
+  - stopPropagationラッパーはReferencePopoverのクリックがGoalItem展開トグルに伝播するのを防ぐために必要
+---
