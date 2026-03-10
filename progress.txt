@@ -11965,3 +11965,25 @@
   - `AllAchievedButAxiomViolation` は `hasInstanceRootNodes: true`（模範解答がSubstitutionEdgeを経由せず公理インスタンスを直接配置するため）と `violatingAxiomIds.size > 0`（真の公理制約違反）の両方で発火する。区別するには `violatingAxiomIds` の中身を確認する
   - 現在のビルトインクエストには `allowedAxiomIds` を設定しているものがないため、真の公理制約違反は発生しない。将来 `allowedAxiomIds` を設定するクエストが追加されたとき、テストが自動的に違反を検出する
 ---
+
+## 2026-03-11 - proof-pad
+- 実装した内容: 折りたたみ状態のゴールパネルをドラッグで移動可能に
+  - `usePanelDrag` に `wasDraggedRef` (useRef) を追加。pointermove発生時にtrue、次のpointerdownでリセット
+  - `GoalPanel` の折りたたみボタンに `onPointerDown` を付与してドラッグハンドルとして機能させた
+  - ドラッグ操作後のクリックではトグル（展開）されないよう `wasDraggedRef` で制御
+  - カーソルを `grab` に変更（ドラッグハンドルがある場合）
+- 変更したファイル:
+  - src/lib/proof-pad/usePanelDrag.ts（wasDraggedRef追加）
+  - src/lib/proof-pad/usePanelDrag.test.ts（wasDraggedRefテスト4件追加）
+  - src/lib/proof-pad/GoalPanel.tsx（折りたたみボタンにドラッグ対応、カーソル変更）
+  - src/lib/proof-pad/GoalPanel.test.tsx（折りたたみドラッグテスト6件追加）
+  - src/lib/proof-pad/ProofWorkspace.tsx（wasDraggedRef受け渡し）
+  - tasks/prd-2026-03-10.md（タスク完了マーク）
+- カバレッジ: Stmts 99.93%, Branch 99.75%, Funcs 89.32%, Lines 99.95%（Branch微減0.02%は新分岐追加による既存未カバー行の影響）
+- テスト: 7634テスト全パス（239ファイル）
+- スクリーンショット: .screenshots/collapsed-panel-drag-quest-mode.png, .screenshots/collapsed-panel-drag-collapsed-state.png
+- **今後のイテレーションへの学び:**
+  - `useRef` はイベントハンドラ間の同期的な値受け渡しに最適。`useState` だとReactのバッチ更新でpointerup→click間の値が古くなる可能性がある
+  - React hooks rules: `useCallback` 等のhookは早期return (`if (...) return null`) の前に配置する必要がある。条件分岐の後にhookを置くとrules-of-hooks違反
+  - GoalPanelの折りたたみボタンは `onPointerDown` でドラッグを開始し、`onClick` でトグルを行う。ドラッグ後のclickではトグルを抑制する必要がある
+---
