@@ -381,9 +381,7 @@ export const UndoRedo: Story = {
     // Ctrl+Z で undo → node-2 が消える
     await userEvent.keyboard("{Control>}z{/Control}");
     await waitFor(() => {
-      expect(
-        canvas.queryByTestId("proof-node-node-2"),
-      ).not.toBeInTheDocument();
+      expect(canvas.queryByTestId("proof-node-node-2")).not.toBeInTheDocument();
     });
     // node-1 はまだある
     expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
@@ -391,9 +389,7 @@ export const UndoRedo: Story = {
     // もう一回 Ctrl+Z → node-1 も消える
     await userEvent.keyboard("{Control>}z{/Control}");
     await waitFor(() => {
-      expect(
-        canvas.queryByTestId("proof-node-node-1"),
-      ).not.toBeInTheDocument();
+      expect(canvas.queryByTestId("proof-node-node-1")).not.toBeInTheDocument();
     });
 
     // Ctrl+Shift+Z で redo → node-1 が復活
