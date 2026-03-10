@@ -18,6 +18,10 @@ import type { ProofMessages } from "./proofMessages";
 import { formatMessage } from "./proofMessages";
 import { FormulaDisplay } from "../formula-input/FormulaDisplay";
 import type { PanelPosition } from "./panelPositionLogic";
+import type { ReferenceEntry, Locale } from "../reference/referenceEntry";
+import { findEntryById } from "../reference/referenceEntry";
+import { getAxiomReferenceEntryId } from "./axiomPaletteLogic";
+import { ReferencePopover } from "../reference/ReferencePopover";
 
 // --- Props ---
 
@@ -32,6 +36,12 @@ export interface GoalPanelProps {
   readonly onDragHandlePointerDown?: (
     e: React.PointerEvent<HTMLElement>,
   ) => void;
+  /** リファレンスエントリ一覧（省略時は公理の(?)ボタン非表示） */
+  readonly referenceEntries?: readonly ReferenceEntry[];
+  /** ロケール（リファレンス表示用） */
+  readonly locale?: Locale;
+  /** リファレンス詳細モーダルを開くコールバック */
+  readonly onOpenReferenceDetail?: (entryId: string) => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -329,11 +339,17 @@ function GoalDetailPanel({
   questInfo,
   item,
   messages,
+  referenceEntries,
+  locale,
+  onOpenReferenceDetail,
   testId,
 }: {
   readonly questInfo: GoalQuestInfo;
   readonly item: GoalPanelItem;
   readonly messages: ProofMessages;
+  readonly referenceEntries: readonly ReferenceEntry[] | undefined;
+  readonly locale: Locale | undefined;
+  readonly onOpenReferenceDetail: ((entryId: string) => void) | undefined;
   readonly testId: string | undefined;
 }) {
   return (
@@ -379,12 +395,40 @@ function GoalDetailPanel({
               item.allowedAxiomDetails.map((a) => a.id).join(", "),
             )}
           </div>
-          {item.allowedAxiomDetails.map((axiom) => (
-            <div key={axiom.id} style={allowedAxiomItemStyle}>
-              <span style={allowedAxiomNameStyle}>{axiom.displayName}:</span>
-              <FormulaDisplay formula={axiom.formula} fontSize={10} />
-            </div>
-          ))}
+          {item.allowedAxiomDetails.map((axiom) => {
+            const refEntryId = getAxiomReferenceEntryId(axiom.id);
+            const refEntry =
+              refEntryId !== undefined && referenceEntries !== undefined
+                ? findEntryById(referenceEntries, refEntryId)
+                : undefined;
+            return (
+              <div key={axiom.id} style={allowedAxiomItemStyle}>
+                <span style={allowedAxiomNameStyle}>
+                  {axiom.displayName}:
+                </span>
+                <FormulaDisplay formula={axiom.formula} fontSize={10} />
+                {refEntry !== undefined && locale !== undefined && (
+                  <span
+                    role="presentation"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <ReferencePopover
+                      entry={refEntry}
+                      locale={locale}
+                      onOpenDetail={onOpenReferenceDetail}
+                      testId={
+                        testId !== undefined
+                          ? `${testId satisfies string}-axiom-ref-${axiom.id satisfies string}`
+                          : undefined
+                      }
+                    />
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
       ) : item.allowedAxiomIds !== undefined ? (
         <div style={detailSectionStyle}>
@@ -414,6 +458,9 @@ function GoalItem({
   questInfo,
   expanded,
   onToggleExpand,
+  referenceEntries,
+  locale,
+  onOpenReferenceDetail,
   testId,
 }: {
   readonly item: GoalPanelItem;
@@ -422,6 +469,9 @@ function GoalItem({
   readonly questInfo: GoalQuestInfo | undefined;
   readonly expanded: boolean;
   readonly onToggleExpand: (() => void) | undefined;
+  readonly referenceEntries: readonly ReferenceEntry[] | undefined;
+  readonly locale: Locale | undefined;
+  readonly onOpenReferenceDetail: ((entryId: string) => void) | undefined;
   readonly testId: string | undefined;
 }) {
   const hasDetail = questInfo !== undefined;
@@ -501,6 +551,9 @@ function GoalItem({
           questInfo={questInfo}
           item={item}
           messages={messages}
+          referenceEntries={referenceEntries}
+          locale={locale}
+          onOpenReferenceDetail={onOpenReferenceDetail}
           testId={testId}
         />
       )}
@@ -513,6 +566,9 @@ export function GoalPanel({
   messages,
   position,
   onDragHandlePointerDown,
+  referenceEntries,
+  locale,
+  onOpenReferenceDetail,
   testId,
 }: GoalPanelProps) {
   const [collapsed, setCollapsed] = useState(false);
@@ -642,6 +698,9 @@ export function GoalPanel({
                 }
               : undefined
           }
+          referenceEntries={referenceEntries}
+          locale={locale}
+          onOpenReferenceDetail={onOpenReferenceDetail}
           testId={testId}
         />
       ))}

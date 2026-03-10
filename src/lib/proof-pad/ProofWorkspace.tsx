@@ -4840,6 +4840,9 @@ export function ProofWorkspace({
         messages={msg}
         position={goalPanelPos}
         onDragHandlePointerDown={goalPanelDrag.handleProps.onPointerDown}
+        referenceEntries={referenceEntries}
+        locale={locale}
+        onOpenReferenceDetail={onOpenReferenceDetail}
         testId={
           /* v8 ignore start -- V8集約アーティファクト */ testId
             ? `${testId satisfies string}-goal-panel`

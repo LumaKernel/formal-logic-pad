@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { Either } from "effect";
 import { GoalPanel } from "./GoalPanel";
@@ -6,6 +6,7 @@ import type { GoalPanelData } from "./goalPanelLogic";
 import { defaultProofMessages } from "./proofMessages";
 import { parseString } from "../logic-lang/parser";
 import type { Formula } from "../logic-core/formula";
+import { allReferenceEntries } from "../reference/referenceContent";
 
 // --- ヘルパー ---
 
@@ -679,6 +680,218 @@ describe("GoalPanel", () => {
       // 公理情報が詳細パネル内に表示される
       expect(screen.getByText("A1 (K):")).toBeInTheDocument();
       expect(screen.getByText("A2 (S):")).toBeInTheDocument();
+    });
+  });
+
+  describe("参照リンク（referenceEntries付き）", () => {
+    const questInfo = {
+      description: "φ → φ を証明せよ。",
+      hints: [],
+      learningPoint: "基本的な証明。",
+    };
+
+    it("referenceEntries指定時に公理の横に(?)ボタンが表示される", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: ["A1", "A2"],
+            allowedAxiomDetails: [
+              {
+                id: "A1",
+                displayName: "A1 (K)",
+                formula: a1Template,
+              },
+              {
+                id: "A2",
+                displayName: "A2 (S)",
+                formula: a2Template,
+              },
+            ],
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+        questInfo,
+      });
+      render(
+        <GoalPanel
+          data={data}
+          messages={msg}
+          referenceEntries={allReferenceEntries}
+          locale="ja"
+          testId="gp"
+        />,
+      );
+
+      // 展開
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      // 各公理の横に(?)ボタンが表示される
+      expect(screen.getByTestId("gp-axiom-ref-A1")).toBeInTheDocument();
+      expect(screen.getByTestId("gp-axiom-ref-A2")).toBeInTheDocument();
+    });
+
+    it("referenceEntries未指定時は(?)ボタンが表示されない", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: ["A1"],
+            allowedAxiomDetails: [
+              {
+                id: "A1",
+                displayName: "A1 (K)",
+                formula: a1Template,
+              },
+            ],
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+        questInfo,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+
+      // 展開
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      // (?)ボタンは非表示
+      expect(screen.queryByTestId("gp-axiom-ref-A1")).not.toBeInTheDocument();
+    });
+
+    it("リファレンスエントリに該当しない公理IDの場合は(?)が表示されない", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: ["PA1"],
+            allowedAxiomDetails: [
+              {
+                id: "PA1",
+                displayName: "PA1",
+                formula: a1Template,
+              },
+            ],
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+        questInfo,
+      });
+      render(
+        <GoalPanel
+          data={data}
+          messages={msg}
+          referenceEntries={allReferenceEntries}
+          locale="ja"
+          testId="gp"
+        />,
+      );
+
+      // 展開
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      // PA1にはリファレンスエントリがないので(?)非表示
+      expect(screen.queryByTestId("gp-axiom-ref-PA1")).not.toBeInTheDocument();
+    });
+
+    it("(?)ボタンクリックでポップオーバーが表示される", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: ["A1"],
+            allowedAxiomDetails: [
+              {
+                id: "A1",
+                displayName: "A1 (K)",
+                formula: a1Template,
+              },
+            ],
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+        questInfo,
+      });
+      render(
+        <GoalPanel
+          data={data}
+          messages={msg}
+          referenceEntries={allReferenceEntries}
+          locale="ja"
+          testId="gp"
+        />,
+      );
+
+      // 展開
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      // (?)トリガーボタンをクリック
+      fireEvent.click(screen.getByTestId("gp-axiom-ref-A1-trigger"));
+
+      // ポップオーバーが表示される
+      expect(screen.getByTestId("gp-axiom-ref-A1-popover")).toBeInTheDocument();
+    });
+
+    it("onOpenReferenceDetailが呼ばれる", () => {
+      const handleDetail = vi.fn();
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: ["A1"],
+            allowedAxiomDetails: [
+              {
+                id: "A1",
+                displayName: "A1 (K)",
+                formula: a1Template,
+              },
+            ],
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+        questInfo,
+      });
+      render(
+        <GoalPanel
+          data={data}
+          messages={msg}
+          referenceEntries={allReferenceEntries}
+          locale="ja"
+          onOpenReferenceDetail={handleDetail}
+          testId="gp"
+        />,
+      );
+
+      // 展開
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      // (?)トリガーボタンをクリック
+      fireEvent.click(screen.getByTestId("gp-axiom-ref-A1-trigger"));
+
+      // ポップオーバーの「詳しく見る」ボタンをクリック
+      const detailButton = screen.getByTestId("gp-axiom-ref-A1-detail-btn");
+      fireEvent.click(detailButton);
+
+      expect(handleDetail).toHaveBeenCalledWith("axiom-a1");
     });
   });
 });
