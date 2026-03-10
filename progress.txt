@@ -104,6 +104,24 @@
 
 ---
 
+## 2026-03-11 - [workspace] 構文ヘルプボタンをリファレンスモーダルに接続
+- ベースライン: Stmts 99.58%, Branch 98.65%, Lines 99.67%, 9095 tests
+- **結果: Stmts 99.57%, Branch 98.59%, Lines 99.65%, 9080 tests（変更は`src/app/`配下のカバレッジ除外対象、実質変動なし）**
+- 変更内容:
+  - `WorkspaceContent.tsx`: `handleOpenSyntaxHelp` コールバック追加。`notation-input-methods` リファレンスエントリのモーダルを開く
+  - `WorkspacePageView` に `onOpenSyntaxHelp={handleOpenSyntaxHelp}` を渡して接続
+  - FormulaEditor/TermInput/EdgeParameterPopoverの`?`ボタンがアプリ側で機能するようになった
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspaceContent.tsx — onOpenSyntaxHelp接続
+  - tasks/prd-2026-03-10.md — タスク完了マーク
+- テスト: 9080 passed, typecheck OK, lint OK, prettier OK
+- スクリーンショット: .screenshots/syntax-help-modal-open.png, .screenshots/syntax-help-modal-ja.png
+- **今後のイテレーションへの学び:**
+  - FormulaEditor/TermInput/EditableProofNode/EdgeParameterPopover/ProofWorkspace/WorkspacePageViewの全層に`onOpenSyntaxHelp`コールバックチェーンが既に実装済みだった。アプリの接続コンポーネント（WorkspaceContent.tsx）で`setReferenceDetailId("notation-input-methods")`を呼ぶだけで全UIの構文ヘルプボタンが有効化される
+  - リファレンスシステムのエントリID `notation-input-methods` が構文入力ヘルプとして使える
+  - `src/app/`配下はカバレッジ除外対象。アプリ接続のみの変更はカバレッジに影響しない
+---
+
 ## 2026-03-11 - [proof-pad] アプリ側undo/redo動作検証
 - ベースライン: Stmts 99.91%, Branch 99.66%, Lines 99.92%, 9116 tests
 - **結果: Stmts 99.93%, Branch 99.75%, Lines 99.95%, 9135 tests（カバレッジ向上）**
