@@ -639,9 +639,7 @@ describe("sc-cut-elimination 模範解答の検証", () => {
 });
 
 describe("全模範解答の公理制約チェック", () => {
-  const allAnswers = builtinModelAnswers.map(
-    (a) => [a.questId, a] as const,
-  );
+  const allAnswers = builtinModelAnswers.map((a) => [a.questId, a] as const);
 
   it.each(allAnswers)(
     "%s: 模範解答が公理制約に違反していない",
