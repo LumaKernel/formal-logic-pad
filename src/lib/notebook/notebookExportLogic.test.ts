@@ -130,7 +130,9 @@ describe("notebookExportLogic", () => {
       // 体系情報が保持される
       expect(imported.workspace.system.name).toBe("Łukasiewicz");
       expect(imported.workspace.system.propositionalAxioms).toBeInstanceOf(Set);
-      expect(imported.workspace.system.propositionalAxioms.has("A1")).toBe(true);
+      expect(imported.workspace.system.propositionalAxioms.has("A1")).toBe(
+        true,
+      );
     });
 
     it("クエストノートブックのquestId/questVersionが保持される", () => {
