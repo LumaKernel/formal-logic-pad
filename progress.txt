@@ -12209,3 +12209,24 @@
   - computeZoomInViewport/computeZoomOutViewport は containerSize の中心を基準にズーム（ZOOM_STEP_FACTOR=1.2）
   - ProofWorkspace の keyboard handler は v8 ignore 領域内。JSDOM ではフォーカス制御が不安定なため、キーボードショートカットはブラウザテスト（Playwright MCP）で検証する
 ---
+
+## 2026-03-11 - [notebook] ノートブックエクスポート/インポート機能
+- 実装した内容:
+  - notebookExportLogic.ts: バージョン付きJSON形式でのエクスポート/インポート純粋ロジック
+  - NotebookListComponent.tsx: 三点メニューに「エクスポート」項目追加
+  - HubPageView.tsx: アクションバーに「インポート」ボタン + ファイル選択UI追加
+  - HubContent.tsx: Blob + Object URL + anchorでダウンロード、FileReaderでインポートの副作用接続
+  - hubMessages.ts + messages/en.json + messages/ja.json: i18nメッセージ追加
+  - useNotebookCollection.ts: setCollectionをhookインターフェースに公開
+- 変更したファイル:
+  - 新規: src/lib/notebook/notebookExportLogic.ts, notebookExportLogic.test.ts
+  - 修正: NotebookListComponent.tsx, .test.tsx, .stories.tsx, index.ts, useNotebookCollection.ts
+  - 修正: HubPageView.tsx, .stories.tsx, HubContent.tsx, hubMessages.ts
+  - 修正: messages/en.json, messages/ja.json
+- テスト: 9166件全通過、カバレッジ維持 (Stmts 99.93%, Branch 99.75%, Lines 99.95%)
+- スクリーンショット: .screenshots/notebook-export-story-initial.png, notebook-export-menu-open.png, hub-notebook-import-button.png, hub-export-menu-open.png
+- **今後のイテレーションへの学び:**
+  - エクスポート/インポートのパターンはcustomQuestStateの先例に従う: _format + _version メタデータ、Blob + Object URL + anchorでダウンロード、FileReaderでインポート
+  - useNotebookCollectionにsetCollectionを公開することでインポート時のコレクション直接設定が可能に
+  - NotebookListComponent.tsxのMoreMenuは各項目がオプショナルなpropsコールバックで制御される設計
+---
