@@ -10,6 +10,7 @@
   "HubPage": {
     "tabNotebooks": "ノートブック",
     "tabQuests": "クエスト",
+    "tabCustomQuests": "自作クエスト",
     "newNotebook": "+ 新規ノートブック",
     "emptyTitle": "ノートブックがまだありません",
     "emptyDescription": "新しいノートブックを作成して形式的証明を始めましょう。クエストで基本を学ぶこともできます。",

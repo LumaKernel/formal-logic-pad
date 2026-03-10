@@ -174,6 +174,7 @@ export const EmptyNotebooks: Story = {
     // タブが表示されている
     await expect(canvas.getByText("Notebooks")).toBeInTheDocument();
     await expect(canvas.getByText("Quests")).toBeInTheDocument();
+    await expect(canvas.getByText("Custom Quests")).toBeInTheDocument();
   },
 };
 
@@ -240,11 +241,12 @@ export const QuestsTab: Story = {
   },
 };
 
-/** タブ切り替えのインタラクション */
+/** タブ切り替えのインタラクション（3タブ） */
 export const TabSwitch: Story = {
   args: {
     listItems: sampleNotebooks,
     groups: sampleGroups,
+    customQuestItems: sampleCustomQuestItems,
   },
   render: (args) => {
     const [currentTab, setCurrentTab] = useState<HubTab>("notebooks");
@@ -261,10 +263,22 @@ export const TabSwitch: Story = {
     await userEvent.click(canvas.getByText("Quests"));
     // ノートブック一覧は非表示になる
     await expect(canvas.queryByText("My First Proof")).not.toBeInTheDocument();
+    // クエストカタログが表示される
+    await expect(canvas.getByTestId("quest-catalog")).toBeInTheDocument();
+
+    // Custom Questsタブに切り替え
+    await userEvent.click(canvas.getByText("Custom Quests"));
+    // クエストカタログは非表示になる
+    await expect(canvas.queryByTestId("quest-catalog")).not.toBeInTheDocument();
+    // 自作クエストリストが表示される
+    await expect(canvas.getByTestId("custom-quest-list")).toBeInTheDocument();
 
     // Notebooksタブに戻す
     await userEvent.click(canvas.getByText("Notebooks"));
     await expect(canvas.getByText("My First Proof")).toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId("custom-quest-list"),
+    ).not.toBeInTheDocument();
   },
 };
 
@@ -391,18 +405,16 @@ export const QuestStart: Story = {
   },
 };
 
-/** クエストタブに自作クエストが表示される */
+/** 自作クエストタブに自作クエストが表示される */
 export const WithCustomQuests: Story = {
   args: {
     listItems: sampleNotebooks,
     groups: sampleGroups,
     customQuestItems: sampleCustomQuestItems,
-    tab: "quests",
+    tab: "custom-quests",
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    // ビルトインクエストカタログが表示される
-    await expect(canvas.getByTestId("quest-catalog")).toBeInTheDocument();
     // 自作クエストセクションが表示される
     await expect(canvas.getByTestId("custom-quest-list")).toBeInTheDocument();
     await expect(canvas.getByText("自作クエスト")).toBeInTheDocument();
@@ -431,6 +443,19 @@ export const WithCustomQuests: Story = {
     await expect(
       canvas.getByTestId("custom-quest-create-btn"),
     ).toBeInTheDocument();
+  },
+};
+
+/** クエストタブでビルトインクエストの「自作に複製」が動作する */
+export const DuplicateBuiltinToCustom: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+    customQuestItems: sampleCustomQuestItems,
+    tab: "quests",
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
     // ビルトインクエストの三点リーダーメニューを開く
     await userEvent.click(canvas.getByTestId("quest-more-btn-prop-01"));
     // メニュー内の「自作に複製」ボタンが表示される
@@ -453,7 +478,7 @@ export const WithEmptyCustomQuests: Story = {
     listItems: sampleNotebooks,
     groups: sampleGroups,
     customQuestItems: [],
-    tab: "quests",
+    tab: "custom-quests",
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
