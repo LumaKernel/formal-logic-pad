@@ -21,6 +21,7 @@ export type HubMessages = {
   readonly tabQuests: string;
   readonly tabCustomQuests: string;
   readonly newNotebook: string;
+  readonly importNotebook: string;
   readonly emptyTitle: string;
   readonly emptyDescription: string;
   readonly questFilterCount: string;
@@ -41,6 +42,7 @@ export const defaultHubMessages: HubMessages = {
   tabQuests: "Quests",
   tabCustomQuests: "Custom Quests",
   newNotebook: "+ New Notebook",
+  importNotebook: "Import",
   emptyTitle: "No notebooks yet",
   emptyDescription:
     "Create a new notebook to start building formal proofs, or try a quest to learn the basics.",
@@ -60,6 +62,7 @@ export const hubMessageKeys: readonly (keyof HubMessages)[] = [
   "tabQuests",
   "tabCustomQuests",
   "newNotebook",
+  "importNotebook",
   "emptyTitle",
   "emptyDescription",
   "questFilterCount",

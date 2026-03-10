@@ -228,6 +228,21 @@ export const QuestProgressComplete: Story = {
   },
 };
 
+export const ExportAction: Story = {
+  args: {
+    items: [makeItem("nb-1", "エクスポート対象ノート")],
+    onExport: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // 三点メニューを開いてエクスポートボタンをクリック
+    await userEvent.click(canvas.getByTestId("more-btn-nb-1"));
+    await expect(canvas.getByTestId("export-btn-nb-1")).toBeInTheDocument();
+    await userEvent.click(canvas.getByTestId("export-btn-nb-1"));
+    await expect(args.onExport).toHaveBeenCalledWith("nb-1");
+  },
+};
+
 export const QuestProgressMixed: Story = {
   args: {
     items: [

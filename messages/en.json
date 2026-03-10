@@ -12,6 +12,7 @@
     "tabQuests": "Quests",
     "tabCustomQuests": "Custom Quests",
     "newNotebook": "+ New Notebook",
+    "importNotebook": "Import",
     "emptyTitle": "No notebooks yet",
     "emptyDescription": "Create a new notebook to start building formal proofs, or try a quest to learn the basics.",
     "questFilterCount": "Quest notebooks ({count})",

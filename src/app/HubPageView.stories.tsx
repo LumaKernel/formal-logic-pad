@@ -147,6 +147,8 @@ const meta: Meta<typeof HubPageView> = {
     onEditCustomQuest: fn(),
     onCreateCustomQuest: fn(),
     onDuplicateBuiltinToCustom: fn(),
+    onExportNotebook: fn(),
+    onImportNotebook: fn(),
     onExportCustomQuest: fn(),
     onImportCustomQuest: fn(),
     onShareQuestUrl: fn(),
@@ -592,6 +594,37 @@ export const SharedQuestDismiss: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByTestId("shared-quest-dismiss-btn"));
     await expect(args.onSharedQuestDismiss).toHaveBeenCalled();
+  },
+};
+
+/** ノートブック一覧でエクスポートメニューが動作する */
+export const NotebookExport: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // 三点メニューを開いてエクスポートを確認
+    await userEvent.click(canvas.getByTestId("more-btn-notebook-1"));
+    await expect(
+      canvas.getByTestId("export-btn-notebook-1"),
+    ).toBeInTheDocument();
+    await userEvent.click(canvas.getByTestId("export-btn-notebook-1"));
+    await expect(args.onExportNotebook).toHaveBeenCalledWith("notebook-1");
+  },
+};
+
+/** インポートボタンが表示される */
+export const NotebookImport: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // インポートボタンが表示される
+    await expect(canvas.getByTestId("import-notebook-btn")).toBeInTheDocument();
   },
 };
 

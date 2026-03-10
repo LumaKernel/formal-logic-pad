@@ -81,6 +81,8 @@ export interface UseNotebookCollectionResult {
   readonly updateWorkspace: (id: NotebookId, workspace: WorkspaceState) => void;
   /** クエストモードを複製して自由帳モードに変換する（新しいノートブックIDを返す） */
   readonly convertToFree: (id: NotebookId) => NotebookId | undefined;
+  /** コレクション全体を直接設定する（インポート等で使用） */
+  readonly setCollection: (collection: NotebookCollection) => void;
 }
 
 export interface UseNotebookCollectionOptions {
@@ -238,6 +240,7 @@ export function useNotebookCollection(
       duplicate,
       updateWorkspace,
       convertToFree,
+      setCollection,
     }),
     [
       notebooks,

@@ -3,7 +3,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useNotebookCollection, toNotebookListItems } from "../lib/notebook";
+import {
+  useNotebookCollection,
+  toNotebookListItems,
+  findNotebook,
+  exportNotebookAsJson,
+  importNotebookFromJson,
+  generateExportFilename,
+} from "../lib/notebook";
 import {
   useQuestProgress,
   useCustomQuestCollection,
@@ -71,6 +78,7 @@ function useHubMessagesFromIntl(): HubMessages {
       tabQuests: String(t.raw("tabQuests")),
       tabCustomQuests: String(t.raw("tabCustomQuests")),
       newNotebook: String(t.raw("newNotebook")),
+      importNotebook: String(t.raw("importNotebook")),
       emptyTitle: String(t.raw("emptyTitle")),
       emptyDescription: String(t.raw("emptyDescription")),
       questFilterCount: String(t.raw("questFilterCount")),
@@ -445,6 +453,37 @@ function HubInner() {
     clearQuestUrlParam();
   }, [clearQuestUrlParam]);
 
+  // Export notebook as JSON file download
+  const handleExportNotebook = useCallback(
+    (id: string) => {
+      const notebook = findNotebook(notebookCollection.collection, id);
+      if (notebook === undefined) return;
+      const json = exportNotebookAsJson(notebook);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${generateExportFilename(notebook.meta.name) satisfies string}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+    [notebookCollection.collection],
+  );
+
+  // Import notebook from JSON string
+  const handleImportNotebook = useCallback(
+    (jsonString: string) => {
+      const result = importNotebookFromJson(
+        notebookCollection.collection,
+        jsonString,
+        getNow(),
+      );
+      if (result._tag !== "Ok") return;
+      notebookCollection.setCollection(result.collection);
+    },
+    [notebookCollection],
+  );
+
   return (
     <HubMessagesProvider messages={hubMessages}>
       <HubPageView
@@ -457,6 +496,8 @@ function HubInner() {
         onDuplicateNotebook={notebookCollection.duplicate}
         onRenameNotebook={notebookCollection.rename}
         onConvertToFree={handleConvertToFree}
+        onExportNotebook={handleExportNotebook}
+        onImportNotebook={handleImportNotebook}
         onStartQuest={handleStartQuest}
         onCreateNotebook={handleCreateNotebook}
         customQuestItems={customQuestItems}

@@ -20,6 +20,7 @@ export type NotebookListProps = {
   readonly onDuplicate: (id: string) => void;
   readonly onRename: (id: string, newName: string) => void;
   readonly onConvertToFree?: (id: string) => void;
+  readonly onExport?: (id: string) => void;
 };
 
 // --- Styles ---
@@ -369,6 +370,7 @@ function NotebookItem({
   onDuplicate,
   onRename,
   onConvertToFree,
+  onExport,
 }: {
   readonly item: NotebookListItem;
   readonly onOpen: (id: string) => void;
@@ -376,6 +378,7 @@ function NotebookItem({
   readonly onDuplicate: (id: string) => void;
   readonly onRename: (id: string, newName: string) => void;
   readonly onConvertToFree?: (id: string) => void;
+  readonly onExport?: (id: string) => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -426,6 +429,10 @@ function NotebookItem({
 
   const handleConvertToFree = () => {
     onConvertToFree?.(item.id);
+  };
+
+  const handleExport = () => {
+    onExport?.(item.id);
   };
 
   return (
@@ -487,6 +494,14 @@ function NotebookItem({
         >
           複製
         </MenuItem>
+        {onExport !== undefined && (
+          <MenuItem
+            data-testid={`export-btn-${item.id satisfies string}`}
+            onClick={handleExport}
+          >
+            エクスポート
+          </MenuItem>
+        )}
         {item.mode === "quest" && onConvertToFree !== undefined && (
           <MenuItem
             data-testid={`convert-btn-${item.id satisfies string}`}
@@ -539,6 +554,7 @@ export function NotebookList({
   onDuplicate,
   onRename,
   onConvertToFree,
+  onExport,
 }: NotebookListProps) {
   if (items.length === 0) {
     return (
@@ -561,6 +577,7 @@ export function NotebookList({
           onDuplicate={onDuplicate}
           onRename={onRename}
           onConvertToFree={onConvertToFree}
+          onExport={onExport}
         />
       ))}
     </div>

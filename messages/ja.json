@@ -12,6 +12,7 @@
     "tabQuests": "クエスト",
     "tabCustomQuests": "自作クエスト",
     "newNotebook": "+ 新規ノートブック",
+    "importNotebook": "インポート",
     "emptyTitle": "ノートブックがまだありません",
     "emptyDescription": "新しいノートブックを作成して形式的証明を始めましょう。クエストで基本を学ぶこともできます。",
     "questFilterCount": "クエストのノート（{count}件）",

@@ -8,7 +8,7 @@
  * 変更時は HubContent.tsx, HubPageView.stories.tsx も同期すること。
  */
 
-import { useState, type CSSProperties } from "react";
+import { useState, useRef, useCallback, type CSSProperties } from "react";
 import {
   NotebookList,
   NotebookCreateForm,
@@ -56,6 +56,10 @@ export type HubPageViewProps = {
   readonly onRenameNotebook: (id: string, newName: string) => void;
   /** クエストモードを自由帳モードに変換する */
   readonly onConvertToFree: (id: string) => void;
+  /** ノートブックをエクスポートする */
+  readonly onExportNotebook?: (id: string) => void;
+  /** JSONからノートブックをインポートする */
+  readonly onImportNotebook?: (jsonString: string) => void;
   /** クエストを開始する */
   readonly onStartQuest: (questId: string) => void;
   /** ノートブックを作成する */
@@ -182,6 +186,7 @@ const contentStyle: CSSProperties = {
 const actionBarStyle: CSSProperties = {
   display: "flex",
   justifyContent: "flex-end",
+  gap: 8,
   marginBottom: 16,
 };
 
@@ -195,6 +200,17 @@ const createButtonStyle: CSSProperties = {
   background: "var(--color-accent, #555ab9)",
   color: "#fff",
   transition: "opacity 0.15s",
+};
+
+const importButtonStyle: CSSProperties = {
+  padding: "8px 20px",
+  fontSize: 14,
+  fontWeight: 600,
+  borderRadius: 8,
+  cursor: "pointer",
+  border: "1px solid var(--color-border, #ccc)",
+  background: "transparent",
+  color: "var(--color-text-secondary, #666)",
 };
 
 const emptyHeroStyle: CSSProperties = {
@@ -333,6 +349,8 @@ export function HubPageView({
   onDuplicateNotebook,
   onRenameNotebook,
   onConvertToFree,
+  onExportNotebook,
+  onImportNotebook,
   onStartQuest,
   onCreateNotebook,
   customQuestItems,
@@ -358,6 +376,24 @@ export function HubPageView({
   const m = useHubMessages();
   const [view, setView] = useState<HubViewState>("list");
   const [questFilter, setQuestFilter] = useState<string | null>(null);
+  const importFileRef = useRef<HTMLInputElement>(null);
+
+  const handleImportFile = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file === undefined || onImportNotebook === undefined) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          onImportNotebook(reader.result);
+        }
+      };
+      reader.readAsText(file);
+      // 同じファイルを再選択可能にする
+      e.target.value = "";
+    },
+    [onImportNotebook],
+  );
 
   const handleShowQuestNotebooks = (questId: string) => {
     setQuestFilter(questId);
@@ -451,6 +487,26 @@ export function HubPageView({
               >
                 {m.newNotebook}
               </button>
+              {onImportNotebook !== undefined && (
+                <>
+                  <button
+                    type="button"
+                    style={importButtonStyle}
+                    data-testid="import-notebook-btn"
+                    onClick={() => importFileRef.current?.click()}
+                  >
+                    {m.importNotebook}
+                  </button>
+                  <input
+                    ref={importFileRef}
+                    type="file"
+                    accept=".json"
+                    style={{ display: "none" }}
+                    data-testid="import-notebook-file-input"
+                    onChange={handleImportFile}
+                  />
+                </>
+              )}
             </div>
             {questFilter !== null && (
               <div style={filterBannerStyle} data-testid="quest-filter-banner">
@@ -510,6 +566,7 @@ export function HubPageView({
                 onDuplicate={onDuplicateNotebook}
                 onRename={onRenameNotebook}
                 onConvertToFree={onConvertToFree}
+                onExport={onExportNotebook}
               />
             )}
           </>

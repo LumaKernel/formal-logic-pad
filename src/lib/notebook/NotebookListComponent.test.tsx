@@ -464,6 +464,47 @@ describe("NotebookList", () => {
     });
   });
 
+  describe("エクスポート", () => {
+    it("onExportが指定されているときエクスポートボタンが表示される", () => {
+      const onExport = vi.fn();
+      render(
+        <NotebookList
+          items={[makeItem("nb-1", "テスト")]}
+          {...defaultHandlers}
+          onExport={onExport}
+        />,
+      );
+      openMoreMenu("nb-1");
+      expect(screen.getByTestId("export-btn-nb-1")).toBeTruthy();
+      expect(screen.getByText("エクスポート")).toBeTruthy();
+    });
+
+    it("エクスポートボタンクリックでonExportが呼ばれる", () => {
+      const onExport = vi.fn();
+      render(
+        <NotebookList
+          items={[makeItem("nb-1", "テスト")]}
+          {...defaultHandlers}
+          onExport={onExport}
+        />,
+      );
+      openMoreMenu("nb-1");
+      fireEvent.click(screen.getByTestId("export-btn-nb-1"));
+      expect(onExport).toHaveBeenCalledWith("nb-1");
+    });
+
+    it("onExportが未指定のときエクスポートボタンが表示されない", () => {
+      render(
+        <NotebookList
+          items={[makeItem("nb-1", "テスト")]}
+          {...defaultHandlers}
+        />,
+      );
+      openMoreMenu("nb-1");
+      expect(screen.queryByTestId("export-btn-nb-1")).toBeNull();
+    });
+  });
+
   describe("キーボード操作", () => {
     it("EnterキーでonOpenが呼ばれる", () => {
       const onOpen = vi.fn();

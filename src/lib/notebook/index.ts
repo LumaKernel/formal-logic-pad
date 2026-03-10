@@ -29,6 +29,14 @@ export {
 } from "./notebookSerialization";
 
 export {
+  exportNotebookAsJson,
+  importNotebookFromJson,
+  generateExportFilename,
+  type ExportedNotebook,
+  type ImportNotebookResult,
+} from "./notebookExportLogic";
+
+export {
   useNotebookCollection,
   type UseNotebookCollectionResult,
 } from "./useNotebookCollection";
