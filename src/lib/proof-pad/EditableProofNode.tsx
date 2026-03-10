@@ -23,7 +23,6 @@ import {
 import type { ProofNodeKind } from "./proofNodeUI";
 import { getProofNodeStyle, getNodeClassificationStyle } from "./proofNodeUI";
 import type { NodeClassification } from "./nodeRoleLogic";
-import type { NodeRole } from "./workspaceState";
 import type { DetailLevel, DetailVisibilityOverrides } from "./levelOfDetail";
 import { getDetailVisibility } from "./levelOfDetail";
 import type {
@@ -67,8 +66,6 @@ export interface EditableProofNodeProps {
   readonly statusType?: "error" | "warning" | "success";
   /** ノードの分類（nodeRoleLogicで計算） */
   readonly classification?: NodeClassification;
-  /** ノードの役割変更時のコールバック */
-  readonly onRoleChange?: (id: string, role: NodeRole | undefined) => void;
   /** ノードが保護されているか（クエストモードのゴールノードなど） */
   readonly isProtected?: boolean;
   /** 自動判別された公理名（例: "A1 (K)"）。undefined = 公理でない or 判別不能 */
@@ -366,7 +363,6 @@ export function EditableProofNode({
   statusMessage,
   statusType,
   classification,
-  onRoleChange,
   isProtected = false,
   axiomName,
   onClickAxiomBadge,
@@ -431,30 +427,6 @@ export function EditableProofNode({
       onModeChange?.(id, mode);
     },
     [id, onModeChange],
-  );
-
-  /** 役割バッジクリック時: unmarked → axiom → unmarked のサイクル */
-  const handleRoleBadgeClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      /* v8 ignore start -- 防御コード: isProtected時はonClickがundefinedなので到達不能 */
-      if (isProtected) return;
-      /* v8 ignore stop */
-      if (!onRoleChange || !classification) return;
-      /* v8 ignore start -- 防御コード: onClick自体がderivedでundefinedなので到達不能 */
-      if (classification === "derived") return;
-      /* v8 ignore stop */
-
-      switch (classification) {
-        case "root-unmarked":
-          onRoleChange(id, "axiom");
-          break;
-        case "root-axiom":
-          onRoleChange(id, undefined);
-          break;
-      }
-    },
-    [id, classification, onRoleChange, isProtected],
   );
 
   /** 保護ノードかつ編集可能ノードの場合、編集を抑制する */
@@ -538,20 +510,15 @@ export function EditableProofNode({
             {msg.protectedBadge}
           </div>
         ) : null}
-        {visibility.showRoleBadge && classification ? (
+        {visibility.showRoleBadge &&
+        classification &&
+        classification !== "root-unmarked" ? (
           <div
             style={getRoleBadgeStyle(classification)}
-            onClick={
-              classification !== "derived" && !isProtected
-                ? handleRoleBadgeClick
-                : undefined
-            }
             title={
-              isProtected
-                ? msg.protectedRoleLockedTooltip
-                : classification !== "derived"
-                  ? msg.clickToCycleRoleTooltip
-                  : msg.derivedNodeAutoTooltip
+              classification === "derived"
+                ? msg.derivedNodeAutoTooltip
+                : undefined
             }
             data-testid={
               testId ? `${testId satisfies string}-role-badge` : undefined

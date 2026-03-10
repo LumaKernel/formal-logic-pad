@@ -1536,7 +1536,7 @@ describe("ProofWorkspace", () => {
   });
 
   describe("node role badges", () => {
-    it("axiom nodes show role badge", () => {
+    it("root-unmarked nodes do not show role badge", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
       render(
@@ -1546,10 +1546,10 @@ describe("ProofWorkspace", () => {
           testId="workspace"
         />,
       );
-      const badge = screen.getByTestId("proof-node-node-1-role-badge");
-      expect(badge).toBeInTheDocument();
-      // Root node without explicit role shows "ROOT"
-      expect(badge).toHaveTextContent("ROOT");
+      // Root node without explicit role no longer shows a badge
+      expect(
+        screen.queryByTestId("proof-node-node-1-role-badge"),
+      ).not.toBeInTheDocument();
     });
 
     it("derived (MP) nodes show DERIVED badge", () => {
@@ -1571,50 +1571,6 @@ describe("ProofWorkspace", () => {
       expect(mpBadge).toHaveTextContent("DERIVED");
     });
 
-    it("clicking role badge cycles role (external state)", async () => {
-      const user = userEvent.setup();
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-
-      const onWorkspaceChange = vi.fn();
-      render(
-        <ProofWorkspace
-          system={lukasiewiczSystem}
-          workspace={ws}
-          onWorkspaceChange={onWorkspaceChange}
-          testId="workspace"
-        />,
-      );
-      const badge = screen.getByTestId("proof-node-node-1-role-badge");
-      expect(badge).toHaveTextContent("ROOT");
-
-      // Click to cycle: ROOT -> AXIOM
-      await user.click(badge);
-      expect(onWorkspaceChange).toHaveBeenCalled();
-      const updatedWs = onWorkspaceChange.mock.calls[0]![0] as WorkspaceState;
-      expect(updatedWs.nodes[0]!.role).toBe("axiom");
-    });
-
-    it("cycles through all roles (internal state)", async () => {
-      const user = userEvent.setup();
-      let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-
-      render(<StatefulWorkspace initialWorkspace={ws} />);
-
-      const badge = screen.getByTestId("proof-node-node-1-role-badge");
-
-      // Initial: ROOT
-      expect(badge).toHaveTextContent("ROOT");
-
-      // Click: ROOT -> AXIOM
-      await user.click(badge);
-      expect(badge).toHaveTextContent("AXIOM");
-
-      // Click: AXIOM -> ROOT (goal is no longer a node role)
-      await user.click(badge);
-      expect(badge).toHaveTextContent("ROOT");
-    });
   });
 
   describe("testIdなしのレンダリング", () => {
