@@ -103,7 +103,7 @@ import {
   deduplicateDependencyInfos,
 } from "./dependencyLogic";
 import type { DependencyInfo } from "./EditableProofNode";
-import type { WorkspaceState, WorkspaceNode, NodeRole } from "./workspaceState";
+import type { WorkspaceState, WorkspaceNode } from "./workspaceState";
 import {
   type NodeMenuState,
   NODE_MENU_CLOSED,
@@ -124,7 +124,6 @@ import {
   updateNodePosition,
   updateMultipleNodePositions,
   updateNodeFormulaText,
-  updateNodeRole,
   findNode,
   applyMPAndConnect,
   applyGenAndConnect,
@@ -2354,13 +2353,6 @@ export function ProofWorkspace({
   );
   /* v8 ignore stop */
 
-  const handleRoleChange = useCallback(
-    (nodeId: string, role: NodeRole | undefined) => {
-      setWorkspace(updateNodeRole(workspace, nodeId, role));
-    },
-    [workspace, setWorkspace],
-  );
-
   const handleDuplicateToFree = useCallback(() => {
     onDuplicateToFree?.();
   }, [onDuplicateToFree]);
@@ -3815,7 +3807,6 @@ export function ProofWorkspace({
               statusMessage={nodeValidation?.message}
               statusType={nodeValidation?.type}
               classification={nodeClassifications.get(node.id)}
-              onRoleChange={handleRoleChange}
               isProtected={isNodeProtected(workspace, node.id)}
               axiomName={axiomNames.get(node.id)?.displayName}
               onClickAxiomBadge={
@@ -3869,7 +3860,6 @@ export function ProofWorkspace({
       handleFormulaTextChange,
       handleFormulaParsed,
       handleModeChange,
-      handleRoleChange,
       handleNodeClickForSelection,
       handleNodeSelect,
       handleNodeContextMenu,

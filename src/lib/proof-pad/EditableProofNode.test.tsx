@@ -318,51 +318,17 @@ describe("EditableProofNode", () => {
       expect(badge).toHaveTextContent("AXIOM");
     });
 
-    it("root-unmarked分類で'ROOT'バッジが表示される", () => {
+    it("root-unmarked分類ではバッジが表示されない", () => {
       renderNode({ classification: "root-unmarked" });
-      const badge = screen.getByTestId("test-node-role-badge");
-      expect(badge).toHaveTextContent("ROOT");
+      expect(
+        screen.queryByTestId("test-node-role-badge"),
+      ).not.toBeInTheDocument();
     });
 
     it("derived分類で'DERIVED'バッジが表示される", () => {
       renderNode({ classification: "derived" });
       const badge = screen.getByTestId("test-node-role-badge");
       expect(badge).toHaveTextContent("DERIVED");
-    });
-
-    it("root-unmarkedバッジクリックでonRoleChange('axiom')が呼ばれる", async () => {
-      const user = userEvent.setup();
-      const onRoleChange = vi.fn();
-      renderNode({ classification: "root-unmarked", onRoleChange });
-      const badge = screen.getByTestId("test-node-role-badge");
-      await user.click(badge);
-      expect(onRoleChange).toHaveBeenCalledWith("node-1", "axiom");
-    });
-
-    it("root-axiomバッジクリックでonRoleChange(undefined)が呼ばれる", async () => {
-      const user = userEvent.setup();
-      const onRoleChange = vi.fn();
-      renderNode({ classification: "root-axiom", onRoleChange });
-      const badge = screen.getByTestId("test-node-role-badge");
-      await user.click(badge);
-      expect(onRoleChange).toHaveBeenCalledWith("node-1", undefined);
-    });
-
-    it("derivedバッジクリックではonRoleChangeが呼ばれない", async () => {
-      const user = userEvent.setup();
-      const onRoleChange = vi.fn();
-      renderNode({ classification: "derived", onRoleChange });
-      const badge = screen.getByTestId("test-node-role-badge");
-      await user.click(badge);
-      expect(onRoleChange).not.toHaveBeenCalled();
-    });
-
-    it("onRoleChangeが未定義の場合、バッジクリックでエラーにならない", async () => {
-      const user = userEvent.setup();
-      renderNode({ classification: "root-unmarked" });
-      const badge = screen.getByTestId("test-node-role-badge");
-      await user.click(badge);
-      // Should not throw
     });
 
     it("testIdなしでclassificationを指定してもrole-badge testIdは出ない", () => {
@@ -454,19 +420,6 @@ describe("EditableProofNode", () => {
       expect(screen.getByTestId("test-node-formula")).toHaveTextContent(
         "φ → ψ",
       );
-    });
-
-    it("保護ノードのバッジクリックで役割が変わらない", async () => {
-      const user = userEvent.setup();
-      const onRoleChange = vi.fn();
-      renderNode({
-        isProtected: true,
-        classification: "root-axiom",
-        onRoleChange,
-      });
-      const badge = screen.getByTestId("test-node-role-badge");
-      await user.click(badge);
-      expect(onRoleChange).not.toHaveBeenCalled();
     });
 
     it("保護ノードでもヘッダー行が表示される（QUESTバッジのため）", () => {
