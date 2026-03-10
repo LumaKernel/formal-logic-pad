@@ -104,6 +104,23 @@
 
 ---
 
+## 2026-03-11 - CSS border shorthand/longhand 競合修正
+- ベースライン: Stmts 99.93%, Branch 99.75%, Lines 99.95%, 9123 tests
+- **結果: カバレッジ変動なし**（スタイル修正のみ、ロジック変更なし）
+- 変更内容:
+  - `CustomQuestListComponent.tsx`: `emptyStyle`, `questListStyle`, `sectionHeaderStyle` で `border` shorthand + `borderTop: "none"` の混在を解消。3辺個別指定に変更
+  - `QuestCatalogComponent.tsx`: `categoryHeaderStyle`, `questListStyle` で同様の修正
+  - React rerenderでの「Updating a style property during rerender (border) when a conflicting property is set (borderTop)」警告を解消
+- 変更ファイル:
+  - src/lib/quest/CustomQuestListComponent.tsx — 3スタイルオブジェクト修正
+  - src/lib/quest/QuestCatalogComponent.tsx — 2スタイルオブジェクト修正
+- テスト: 117 passed (4 test files), typecheck OK, lint OK
+- スクリーンショット: .screenshots/custom-quest-list-border-fix.png, .screenshots/custom-quest-empty-border-fix.png, .screenshots/quest-catalog-border-fix.png, .screenshots/app-quests-tab-border-fix.png
+- **今後のイテレーションへの学び:**
+  - CSSインラインスタイルでは `border` shorthand と `borderTop`/`borderBottom` longhand を混在させない。Reactのrerender diffが競合を検出しスタイリングバグを引き起こす
+  - 3辺だけボーダーが必要な場合は `borderRight`/`borderBottom`/`borderLeft` を個別指定する
+---
+
 ## 2026-03-10 - modelAnswer.ts カバレッジ改善（NDステップ・Gen直接テスト追加）
 - ベースライン: Stmts 98.75%, Branch 98.85%, Lines 98.73%, 7548 tests (一部タイムアウトあり)
 - **結果: Stmts 99.93%, Branch 99.92%, Lines 99.97%**, 8829 tests (+1281)
