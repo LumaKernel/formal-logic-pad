@@ -11807,3 +11807,20 @@
   - .screenshots/remove-role-toggle-add-axiom.png
 - テスト: 8537 passed, coverage 99.52% statements / 99.62% branches
 ---
+
+## 2026-03-10 - [ui] 公理制限違反バナー削除・Proof Complete表示条件修正
+- 公理制限違反・推論規則制限違反のバナーを完全に削除
+- Proof Complete!バナーは完全にクリアしたときだけ表示（isGoalAchievedの既存ロジックを利用）
+- 不要になったメッセージ定義を削除（proofCompleteButAxiomViolation, axiomViolationDetail等）
+- 前タスクで不要になったメッセージも削除（clickToCycleRoleTooltip, protectedRoleLockedTooltip）
+- 変更ファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx (バナーJSX削除、スタイル削除)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (テスト更新)
+  - src/lib/proof-pad/proofMessages.ts (メッセージ定義削除)
+  - src/app/workspace/[id]/WorkspaceContent.tsx (i18n割当削除)
+  - messages/en.json, messages/ja.json (翻訳キー削除)
+- スクリーンショット:
+  - .screenshots/proof-complete-only-on-full-clear.png
+  - .screenshots/proof-complete-goal-not-achieved.png
+- テスト: 8537 passed, coverage 99.52% statements / 99.62% branches
+---
