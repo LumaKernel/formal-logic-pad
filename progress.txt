@@ -12031,3 +12031,28 @@
   - `WorkspacePageView` は discriminated union props。`found: true` ブランチにのみリファレンス props を追加
   - アプリ側のモーダルは `WorkspacePageView` の外に配置（Fragment で囲む）。ポップオーバーは `ProofWorkspace` 内で完結
 ---
+
+## 2026-03-11 - [hub] URLハッシュベースのタブパス割り当て
+- 実装した内容: ノートブック・クエストタブにURLハッシュベースのパス割り当て
+  - `/#quests` でクエストタブ、`/` でノートブックタブ（デフォルト）
+  - `HubPageView` を制御コンポーネント化（`tab`/`onTabChange` props）
+  - `HubContent` でハッシュの読み書き・`hashchange` イベント監視
+  - Storybook のタブ切り替えストーリーを `useState` ラッパーに更新
+- 変更したファイル:
+  - src/app/HubPageView.tsx（HubTab export、tab/onTabChange props、useState削除）
+  - src/app/HubContent.tsx（parseTabFromHash、handleTabChange、useEffect hashchange）
+  - src/app/HubPageView.stories.tsx（tab/onTabChange args、TabSwitch/QuestNotebookFilter render wrapper）
+  - tasks/prd-2026-03-10.md（タスク完了マーク）
+- カバレッジ: Stmts 99.93%, Branch 99.75%, Funcs 89.32%, Lines 99.95%（変化なし）
+- テスト: 9124テスト全パス（246ファイル）
+- スクリーンショット:
+  - .screenshots/hub-notebooks-tab.png（ノートブックタブ）
+  - .screenshots/hub-quests-tab-hash.png（/#quests でクエストタブ直接アクセス）
+  - .screenshots/hub-notebooks-tab-after-switch.png（タブクリック後）
+  - .screenshots/hub-quests-tab-click.png（クエストタブクリック後、URL: /#quests）
+- **今後のイテレーションへの学び:**
+  - HubPageViewは純粋プレゼンテーション層のため、タブ状態を制御コンポーネント化（tab/onTabChange）してHubContent側でURL同期するのが正しい分離
+  - ハッシュベースルーティングはSSR無効化済み(ssr:false)のSPAに適合。query paramは既にクエスト共有で使用中のため競合回避
+  - `window.history.replaceState` でハッシュ更新（pushStateだとブラウザ履歴に積みすぎる）
+  - Storybookでタブ切り替えテストするには `render` でuseStateラッパーが必要（制御コンポーネント化のため）
+---
