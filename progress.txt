@@ -11941,3 +11941,27 @@
   - resolveAllowedAxiomDetails関数は許可公理・違反公理両方の解決に再利用可能（同じaxiomId→AllowedAxiomDetail変換ロジック）
   - JSXのtestId三項分岐（`testId !== undefined ? ... : undefined`）はv8が両ブランチをカウントするため、coverageに微小影響する（v8 artifact）
 ---
+
+## 2026-03-11 - [quest] 模範解答の公理・ルール制約違反検出
+- 実装した内容:
+  - `validateModelAnswer()` が `AllAchievedButAxiomViolation` を無条件に Valid として扱っていた問題を修正
+  - `hasInstanceRootNodes` のみが原因の場合（模範解答の正常動作）は Valid のまま
+  - `violatingAxiomIds` が空でない場合は `AxiomConstraintViolation` として報告
+  - `violatingRuleIds` が空でない場合は `RuleConstraintViolation` として報告
+  - `ValidateModelAnswerResult` に新しい2バリアント追加
+  - 全模範解答の公理・ルール制約違反テストを `builtinModelAnswers.test.ts` に追加
+  - `modelAnswer.test.ts` に `validateModelAnswer` の各バリアントのユニットテスト3件追加
+- 変更したファイル:
+  - src/lib/quest/modelAnswer.ts（ValidateModelAnswerResult拡張、validateModelAnswer修正）
+  - src/lib/quest/modelAnswer.test.ts（テスト3件追加）
+  - src/lib/quest/builtinModelAnswers.test.ts（全模範解答の制約違反チェックテスト追加）
+  - tasks/prd-2026-03-10.md（タスク完了マーク）
+  - tasks-archived/prd-2026-03-10.md（完了項目アーカイブ）
+  - task-processing.md（タスク記載・クリア）
+- カバレッジ: Stmts 99.93%, Branch 99.77%, Funcs 89.3%, Lines 99.95%（ベースライン同値、低下なし）
+- テスト: 8855テスト全パス
+- **今後のイテレーションへの学び:**
+  - `QuestGoalCheckWithAxiomsResult` は5バリアントのdiscriminated union。`goalResults` プロパティは `NoGoals` バリアントには存在しないため、アクセス前に型ナローイングが必要
+  - `AllAchievedButAxiomViolation` は `hasInstanceRootNodes: true`（模範解答がSubstitutionEdgeを経由せず公理インスタンスを直接配置するため）と `violatingAxiomIds.size > 0`（真の公理制約違反）の両方で発火する。区別するには `violatingAxiomIds` の中身を確認する
+  - 現在のビルトインクエストには `allowedAxiomIds` を設定しているものがないため、真の公理制約違反は発生しない。将来 `allowedAxiomIds` を設定するクエストが追加されたとき、テストが自動的に違反を検出する
+---
