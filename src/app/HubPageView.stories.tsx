@@ -1,6 +1,7 @@
+import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn, expect, within, userEvent } from "storybook/test";
-import { HubPageView } from "./HubPageView";
+import { HubPageView, type HubTab } from "./HubPageView";
 import type { NotebookListItem } from "../lib/notebook";
 import type {
   CategoryGroup,
@@ -132,6 +133,8 @@ const meta: Meta<typeof HubPageView> = {
     layout: "fullscreen",
   },
   args: {
+    tab: "notebooks",
+    onTabChange: fn(),
     onOpenNotebook: fn(),
     onDeleteNotebook: fn(),
     onDuplicateNotebook: fn(),
@@ -227,7 +230,7 @@ export const QuestsTab: Story = {
   args: {
     listItems: sampleNotebooks,
     groups: sampleGroups,
-    initialTab: "quests",
+    tab: "quests",
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -242,6 +245,12 @@ export const TabSwitch: Story = {
   args: {
     listItems: sampleNotebooks,
     groups: sampleGroups,
+  },
+  render: (args) => {
+    const [currentTab, setCurrentTab] = useState<HubTab>("notebooks");
+    return (
+      <HubPageView {...args} tab={currentTab} onTabChange={setCurrentTab} />
+    );
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -282,8 +291,14 @@ export const QuestNotebookFilter: Story = {
   args: {
     listItems: sampleNotebooks,
     groups: sampleGroups,
-    initialTab: "quests",
+    tab: "quests",
     notebookCounts: sampleNotebookCounts,
+  },
+  render: (args) => {
+    const [currentTab, setCurrentTab] = useState<HubTab>("quests");
+    return (
+      <HubPageView {...args} tab={currentTab} onTabChange={setCurrentTab} />
+    );
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -363,7 +378,7 @@ export const QuestStart: Story = {
   args: {
     listItems: sampleNotebooks,
     groups: sampleGroups,
-    initialTab: "quests",
+    tab: "quests",
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
@@ -382,7 +397,7 @@ export const WithCustomQuests: Story = {
     listItems: sampleNotebooks,
     groups: sampleGroups,
     customQuestItems: sampleCustomQuestItems,
-    initialTab: "quests",
+    tab: "quests",
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
@@ -438,7 +453,7 @@ export const WithEmptyCustomQuests: Story = {
     listItems: sampleNotebooks,
     groups: sampleGroups,
     customQuestItems: [],
-    initialTab: "quests",
+    tab: "quests",
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

@@ -38,7 +38,7 @@ import { useHubMessages } from "./HubMessagesContext";
 
 // --- Types ---
 
-type HubTab = "notebooks" | "quests";
+export type HubTab = "notebooks" | "quests";
 type HubViewState = "list" | "create";
 
 export type HubPageViewProps = {
@@ -81,8 +81,10 @@ export type HubPageViewProps = {
   readonly onImportCustomQuest?: (jsonString: string) => void;
   /** クエストをURL形式で共有する（クリップボードにコピー） */
   readonly onShareQuestUrl?: (questId: string) => void;
-  /** 初期タブ（テスト用） */
-  readonly initialTab?: HubTab;
+  /** 現在のタブ */
+  readonly tab: HubTab;
+  /** タブ変更コールバック */
+  readonly onTabChange: (tab: HubTab) => void;
   /** 言語切り替え（指定時に LanguageToggle を表示） */
   readonly languageToggle?: LanguageToggleProps;
   /** クエストIDごとのノートブック数（クエストカタログに表示） */
@@ -342,7 +344,8 @@ export function HubPageView({
   onExportCustomQuest,
   onImportCustomQuest,
   onShareQuestUrl,
-  initialTab = "notebooks",
+  tab,
+  onTabChange,
   languageToggle,
   notebookCounts,
   sharedQuest,
@@ -353,13 +356,12 @@ export function HubPageView({
   themeLabels,
 }: HubPageViewProps) {
   const m = useHubMessages();
-  const [tab, setTab] = useState<HubTab>(initialTab);
   const [view, setView] = useState<HubViewState>("list");
   const [questFilter, setQuestFilter] = useState<string | null>(null);
 
   const handleShowQuestNotebooks = (questId: string) => {
     setQuestFilter(questId);
-    setTab("notebooks");
+    onTabChange("notebooks");
     setView("list");
   };
 
@@ -408,7 +410,7 @@ export function HubPageView({
           type="button"
           style={tab === "notebooks" ? tabActiveStyle : tabStyle}
           onClick={() => {
-            setTab("notebooks");
+            onTabChange("notebooks");
             setView("list");
             setQuestFilter(null);
           }}
@@ -419,7 +421,7 @@ export function HubPageView({
           type="button"
           style={tab === "quests" ? tabActiveStyle : tabStyle}
           onClick={() => {
-            setTab("quests");
+            onTabChange("quests");
             setView("list");
           }}
         >

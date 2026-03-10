@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useNotebookCollection, toNotebookListItems } from "../lib/notebook";
@@ -40,7 +40,7 @@ import {
   getBrowserLocaleSwitchDeps,
 } from "../components/LanguageToggle/useLocaleSwitch";
 import type { ThemeToggleLabels } from "../components/ThemeToggle/ThemeToggle";
-import { HubPageView } from "./HubPageView";
+import { HubPageView, type HubTab } from "./HubPageView";
 import type { HubMessages } from "./hubMessages";
 import { HubMessagesProvider } from "./HubMessagesContext";
 
@@ -84,6 +84,12 @@ function useHubMessagesFromIntl(): HubMessages {
   );
 }
 
+const parseTabFromHash = (hash: string): HubTab => {
+  const normalized = hash.replace(/^#/, "");
+  if (normalized === "quests") return "quests";
+  return "notebooks";
+};
+
 function HubInner() {
   const router = useRouter();
   const notebookCollection = useNotebookCollection();
@@ -95,6 +101,33 @@ function HubInner() {
   const locale = isLocale(rawLocale) ?? "en";
   const localeSwitchDeps = useMemo(() => getBrowserLocaleSwitchDeps(), []);
   const { switchLocale } = useLocaleSwitch(localeSwitchDeps);
+
+  // Hash-based tab state
+  const [tab, setTab] = useState<HubTab>(() =>
+    parseTabFromHash(window.location.hash),
+  );
+
+  const handleTabChange = useCallback((newTab: HubTab) => {
+    setTab(newTab);
+    const hash = newTab === "notebooks" ? "" : `#${newTab satisfies string}`;
+    window.history.replaceState(
+      null,
+      "",
+      hash === ""
+        ? window.location.pathname + window.location.search
+        : `${window.location.pathname satisfies string}${window.location.search satisfies string}${hash satisfies string}`,
+    );
+  }, []);
+
+  useEffect(() => {
+    const onHashChange = () => {
+      setTab(parseTabFromHash(window.location.hash));
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => {
+      window.removeEventListener("hashchange", onHashChange);
+    };
+  }, []);
 
   // Build quest catalog groups
   const groups = useMemo(
@@ -413,6 +446,8 @@ function HubInner() {
   return (
     <HubMessagesProvider messages={hubMessages}>
       <HubPageView
+        tab={tab}
+        onTabChange={handleTabChange}
         listItems={listItems}
         groups={groups}
         onOpenNotebook={handleOpenNotebook}
