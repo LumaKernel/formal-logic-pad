@@ -12230,3 +12230,23 @@
   - useNotebookCollectionにsetCollectionを公開することでインポート時のコレクション直接設定が可能に
   - NotebookListComponent.tsxのMoreMenuは各項目がオプショナルなpropsコールバックで制御される設計
 ---
+
+## 2026-03-11 - InfiniteCanvas: Deferred Snap（遅延スナップ）
+- 実装した内容: ドラッグ中のスナップを廃止し、手を離した後にeaseOutCubicアニメーションでゆるやかにスナップする deferred snap 機能を追加
+- 新規ファイル:
+  - `src/lib/infinite-canvas/deferredSnap.ts` - 純粋ロジック（easeOutCubic, interpolatePosition, isSnapAnimationNeeded）
+  - `src/lib/infinite-canvas/deferredSnap.test.ts` - 19テスト
+  - `src/lib/infinite-canvas/useDeferredSnap.ts` - React hook（triggerSnap API、rAFアニメーション）
+  - `src/lib/infinite-canvas/useDeferredSnap.test.tsx` - 8テスト
+- 変更ファイル:
+  - `src/lib/infinite-canvas/ObjectSnapDemo.stories.tsx` - deferred snapパターンに更新、ドラッグ中は薄い(opacity 0.35)アライメントガイド表示
+  - `src/lib/infinite-canvas/GridSnapDemo.stories.tsx` - deferred snapパターンに更新
+  - `src/lib/infinite-canvas/index.ts` - 新エクスポート追加
+- テスト: 249ファイル, 9193件全通過
+- カバレッジ: Stmts 99.92%, Branch 99.74%, Lines 99.95% (ベースライン: 99.93%, 99.75%, 99.95% - V8集約の誤差範囲内)
+- スクリーンショット: .screenshots/object-snap-demo-default.png, grid-snap-demo-default.png, object-snap-demo-interactions-pass.png, grid-snap-demo-interactions.png
+- **今後のイテレーションへの学び:**
+  - V8 coverageはデフォルトパラメータのbranch覆率が50%になるアーティファクト有り。修正: デフォルトパラメータを使わず、呼び出し側で定数を明示的に渡す
+  - React hooks ESLintルール（react-hooks/refs, react-hooks/set-state-in-effect）により、refの直接render中参照やeffect内setStateが禁止。対策: useEffectでref更新、イベントハンドラからのimperativeなAPI設計（triggerSnap callback）
+  - deferred snapの3層設計: 純粋ロジック(deferredSnap.ts) → フック(useDeferredSnap.ts) → ストーリー/デモ。テスタビリティと再利用性を確保
+---
