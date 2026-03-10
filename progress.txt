@@ -12004,3 +12004,30 @@
   - React hooks rules: `useCallback` 等のhookは早期return (`if (...) return null`) の前に配置する必要がある。条件分岐の後にhookを置くとrules-of-hooks違反
   - GoalPanelの折りたたみボタンは `onPointerDown` でドラッグを開始し、`onClick` でトグルを行う。ドラッグ後のclickではトグルを抑制する必要がある
 ---
+
+## 2026-03-11 - リファレンスシステムのアプリ側適用
+- 実装した内容: 既に `src/lib/reference/` + `src/lib/proof-pad/` に完全実装済みだったリファレンスシステム（解説ポップオーバー・モーダル）を、アプリ側 (`src/app/workspace/`) に適用
+  - `WorkspacePageView.tsx` に `referenceEntries`, `onOpenReferenceDetail`, `locale` props を追加し `ProofWorkspace` へ転送
+  - `WorkspaceContent.tsx` に `referenceDetailId` state + `ReferenceModal` レンダリングを追加
+  - `WorkspacePageView.stories.tsx` に `WithReference` ストーリー（リファレンス統合テスト）を追加
+- 変更したファイル:
+  - src/app/workspace/[id]/WorkspacePageView.tsx（props追加、ProofWorkspaceへ転送）
+  - src/app/workspace/[id]/WorkspaceContent.tsx（reference state管理、ReferenceModal表示）
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx（WithReferenceストーリー追加）
+  - tasks/prd-2026-03-10.md（タスク完了マーク）
+- カバレッジ: Stmts 99.93%, Branch 99.75%, Funcs 89.32%, Lines 99.95%（変化なし）
+- テスト: 9124テスト全パス（246ファイル）
+- スクリーンショット:
+  - .screenshots/workspace-with-reference-story.png（Storybook WithReferenceストーリー）
+  - .screenshots/workspace-reference-popover.png（Storybook ポップオーバー）
+  - .screenshots/workspace-reference-modal.png（Storybook モーダル）
+  - .screenshots/app-workspace-reference-buttons.png（実アプリ：公理パレットの(?)ボタン）
+  - .screenshots/app-reference-popover.png（実アプリ：A1ポップオーバー）
+  - .screenshots/app-reference-modal.png（実アプリ：A1詳細モーダル）
+  - .screenshots/app-reference-modal-mp.png（実アプリ：MP詳細モーダル、関連エントリからの遷移）
+  - .screenshots/app-reference-modal-lukasiewicz.png（実アプリ：体系バッジクリックでŁukasiewicz体系モーダル）
+- **今後のイテレーションへの学び:**
+  - リファレンスシステムは3層構成: lib/reference（データ+コンポーネント）→ lib/proof-pad（統合）→ app/workspace（配線）。新しいリファレンス機能追加時もこの順で追跡
+  - `WorkspacePageView` は discriminated union props。`found: true` ブランチにのみリファレンス props を追加
+  - アプリ側のモーダルは `WorkspacePageView` の外に配置（Fragment で囲む）。ポップオーバーは `ProofWorkspace` 内で完結
+---
