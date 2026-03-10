@@ -76,6 +76,18 @@ export type {
   ObjectSnapResult,
   SnapTargetRect,
 } from "./objectSnap";
+export {
+  DEFERRED_SNAP_DURATION_MS,
+  DEFERRED_SNAP_MIN_DISTANCE,
+  easeOutCubic,
+  interpolatePosition,
+  isSnapAnimationNeeded,
+} from "./deferredSnap";
+export {
+  DEFERRED_SNAP_CONFIG_DISABLED,
+  useDeferredSnap,
+} from "./useDeferredSnap";
+export type { DeferredSnapConfig, DeferredSnapState } from "./useDeferredSnap";
 export { AlignmentGuidesComponent } from "./AlignmentGuidesComponent";
 export type { AlignmentGuidesProps } from "./AlignmentGuidesComponent";
 export type { GridDot, Point, Size, ViewportState } from "./types";

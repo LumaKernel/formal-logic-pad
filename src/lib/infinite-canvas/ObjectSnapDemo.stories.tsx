@@ -1,8 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, within } from "storybook/test";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlignmentGuidesComponent } from "./AlignmentGuidesComponent";
 import { CanvasItem } from "./CanvasItem";
+import {
+  DEFERRED_SNAP_DURATION_MS,
+  DEFERRED_SNAP_MIN_DISTANCE,
+  easeOutCubic,
+  interpolatePosition,
+  isSnapAnimationNeeded,
+} from "./deferredSnap";
 import { InfiniteCanvas } from "./InfiniteCanvas";
 import {
   computeObjectSnap,
@@ -45,6 +52,9 @@ const INITIAL_ITEMS: readonly ItemData[] = [
   },
 ];
 
+/** Guide opacity for preview during drag (faint glow). */
+const PREVIEW_GUIDE_OPACITY = 0.35;
+
 function ObjectSnapDemo() {
   const [viewport, setViewport] = useState<ViewportState>({
     offsetX: 0,
@@ -54,7 +64,9 @@ function ObjectSnapDemo() {
   const [items, setItems] = useState<readonly ItemData[]>(INITIAL_ITEMS);
   const [snapEnabled, setSnapEnabled] = useState(true);
   const [guides, setGuides] = useState<readonly AlignmentGuide[]>([]);
-  const draggingIdRef = useRef<string | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const animationRef = useRef<number | null>(null);
 
   const snapConfig: ObjectSnapConfig = useMemo(
     () => ({
@@ -64,47 +76,127 @@ function ObjectSnapDemo() {
     [snapEnabled],
   );
 
-  const snapTargets: readonly SnapTargetRect[] = items.map((item) => ({
-    id: item.id,
-    position: item.position,
-    size: item.size,
-  }));
+  const getSnapTargets = useCallback(
+    (): readonly SnapTargetRect[] =>
+      items.map((item) => ({
+        id: item.id,
+        position: item.position,
+        size: item.size,
+      })),
+    [items],
+  );
 
+  // During drag: move item freely, show snap preview guides
   const handlePositionChange = useCallback(
     (id: string, newPosition: Point) => {
       const item = items.find((i) => i.id === id);
       if (item === undefined) return;
 
-      draggingIdRef.current = id;
+      setIsDragging(true);
 
+      // Compute snap preview (guides only, don't snap position)
       const result = computeObjectSnap(
         newPosition,
+        item.size,
+        id,
+        getSnapTargets(),
+        snapConfig,
+      );
+
+      // Show guides as preview but keep raw position
+      setGuides(result.guides);
+      setItems((prev) =>
+        prev.map((it) =>
+          it.id === id ? { ...it, position: newPosition } : it,
+        ),
+      );
+    },
+    [items, getSnapTargets, snapConfig],
+  );
+
+  // On drag end: animate to snap position
+  const handleDragEnd = useCallback(
+    (id: string) => {
+      const item = items.find((i) => i.id === id);
+      if (item === undefined) return;
+
+      setIsDragging(false);
+
+      if (!snapConfig.enabled) {
+        setGuides([]);
+        return;
+      }
+
+      const snapTargets = getSnapTargets();
+      const result = computeObjectSnap(
+        item.position,
         item.size,
         id,
         snapTargets,
         snapConfig,
       );
 
+      const from = item.position;
+      const to = result.snappedPosition;
+
+      if (!isSnapAnimationNeeded(from, to, DEFERRED_SNAP_MIN_DISTANCE)) {
+        // Snap immediately if distance is negligible
+        setItems((prev) =>
+          prev.map((it) => (it.id === id ? { ...it, position: to } : it)),
+        );
+        setGuides([]);
+        return;
+      }
+
+      // Show guides at full opacity during animation
       setGuides(result.guides);
-      setItems((prev) =>
-        prev.map((it) =>
-          it.id === id ? { ...it, position: result.snappedPosition } : it,
-        ),
-      );
+      setIsAnimating(true);
+
+      const startTime = performance.now();
+
+      const animate = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / DEFERRED_SNAP_DURATION_MS, 1);
+        const eased = easeOutCubic(progress);
+        const pos = interpolatePosition(from, to, eased);
+
+        setItems((prev) =>
+          prev.map((it) => (it.id === id ? { ...it, position: pos } : it)),
+        );
+
+        if (progress < 1) {
+          animationRef.current = requestAnimationFrame(animate);
+        } else {
+          // Ensure exact final position
+          setItems((prev) =>
+            prev.map((it) => (it.id === id ? { ...it, position: to } : it)),
+          );
+          animationRef.current = null;
+          setIsAnimating(false);
+          setGuides([]);
+        }
+      };
+
+      animationRef.current = requestAnimationFrame(animate);
     },
-    [items, snapTargets, snapConfig],
+    [items, getSnapTargets, snapConfig],
   );
 
-  const handlePointerUp = useCallback(() => {
-    draggingIdRef.current = null;
-    setGuides([]);
-  }, []);
+  // Cleanup animation on unmount
+  useEffect(
+    () => () => {
+      if (animationRef.current !== null) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    },
+    [],
+  );
+
+  // Guide opacity: faint during drag preview, full during snap animation
+  const guideOpacity = isDragging ? PREVIEW_GUIDE_OPACITY : 1;
 
   return (
-    <div
-      style={{ width: "100vw", height: "100vh" }}
-      onPointerUp={handlePointerUp}
-    >
+    <div style={{ width: "100vw", height: "100vh" }}>
       <InfiniteCanvas viewport={viewport} onViewportChange={setViewport}>
         {items.map((item) => (
           <CanvasItem
@@ -113,6 +205,9 @@ function ObjectSnapDemo() {
             viewport={viewport}
             onPositionChange={(pos) => {
               handlePositionChange(item.id, pos);
+            }}
+            onDragEnd={() => {
+              handleDragEnd(item.id);
             }}
           >
             <div
@@ -138,7 +233,11 @@ function ObjectSnapDemo() {
             </div>
           </CanvasItem>
         ))}
-        <AlignmentGuidesComponent guides={guides} viewport={viewport} />
+        <AlignmentGuidesComponent
+          guides={guides}
+          viewport={viewport}
+          color={`rgba(249, 115, 22, ${String(guideOpacity) satisfies string})`}
+        />
       </InfiniteCanvas>
       <div
         style={{
@@ -181,6 +280,12 @@ function ObjectSnapDemo() {
           Threshold: {String(DEFAULT_OBJECT_SNAP_THRESHOLD) satisfies string}px
         </div>
         <div>Guides: {String(guides.length) satisfies string}</div>
+        <div>
+          Animating:{" "}
+          <span data-testid="animating-state">
+            {isAnimating ? "yes" : "no"}
+          </span>
+        </div>
         {items.map((item) => (
           <div key={item.id} data-testid={`pos-${item.id satisfies string}`}>
             {item.label}: ({item.position.x.toFixed(0)},{" "}
@@ -227,6 +332,10 @@ export const Default: Story = {
     await expect(posA).toBeInTheDocument();
     await expect(posB).toBeInTheDocument();
     await expect(posC).toBeInTheDocument();
+
+    // Animating state display visible
+    const animState = canvas.getByTestId("animating-state");
+    await expect(animState).toHaveTextContent("no");
 
     // Items have grab cursor
     const canvasItemA = itemA.closest("[data-testid='canvas-item']");
