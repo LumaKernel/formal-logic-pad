@@ -10,7 +10,10 @@
  */
 
 import type { Notebook, NotebookCollection } from "./notebookState";
-import { serializeCollection, deserializeCollection } from "./notebookSerialization";
+import {
+  serializeCollection,
+  deserializeCollection,
+} from "./notebookSerialization";
 
 // --- エクスポート形式 ---
 
