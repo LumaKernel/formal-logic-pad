@@ -506,4 +506,179 @@ describe("GoalPanel", () => {
       expect(screen.getByText(msg.goalProved)).toBeInTheDocument();
     });
   });
+
+  describe("ゴール詳細パネル（questInfo付き）", () => {
+    const questInfo = {
+      description: "φ → φ を証明せよ。SKK = I の対応を体験する。",
+      hints: [
+        "A1とA2の具体的なインスタンスを組み合わせます。",
+        "A1: φ → ((φ → φ) → φ) のインスタンスを作ってみましょう。",
+      ],
+      learningPoint:
+        "A2 (S公理) は「関数適用の分配」に相当する。この証明はSKK = I の対応。",
+    };
+
+    it("questInfo付きの場合、クリックで詳細パネルが展開される", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal: φ → φ",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+        questInfo,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+
+      // 詳細パネルは初期状態では非表示
+      expect(screen.queryByText(questInfo.description)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(msg.goalDetailDescription),
+      ).not.toBeInTheDocument();
+
+      // 展開インジケータ（▶）が表示される
+      expect(screen.getByText("▶")).toBeInTheDocument();
+
+      // ゴールアイテムをクリックして展開
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      // 詳細パネルが表示される
+      expect(screen.getByText(questInfo.description)).toBeInTheDocument();
+      expect(screen.getByText(msg.goalDetailDescription)).toBeInTheDocument();
+      expect(screen.getByText(msg.goalDetailLearningPoint)).toBeInTheDocument();
+      expect(screen.getByText(questInfo.learningPoint)).toBeInTheDocument();
+
+      // 展開インジケータが▼に変わる
+      expect(screen.getByText("▼")).toBeInTheDocument();
+    });
+
+    it("再クリックで詳細パネルが閉じる", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal: φ → φ",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+        questInfo,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+
+      // 展開
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+      expect(screen.getByText(questInfo.description)).toBeInTheDocument();
+
+      // 再クリックで閉じる
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+      expect(screen.queryByText(questInfo.description)).not.toBeInTheDocument();
+    });
+
+    it("ヒントは折り畳みで段階的に表示される", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: undefined,
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+        questInfo,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+
+      // 展開
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      // ヒントのトグルが表示される（ヒント本文はまだ非表示）
+      expect(screen.getByTestId("gp-hint-toggle-0")).toBeInTheDocument();
+      expect(screen.getByTestId("gp-hint-toggle-1")).toBeInTheDocument();
+      expect(screen.queryByText(questInfo.hints[0]!)).not.toBeInTheDocument();
+
+      // ヒント1を開く
+      fireEvent.click(screen.getByTestId("gp-hint-toggle-0"));
+      expect(screen.getByText(questInfo.hints[0]!)).toBeInTheDocument();
+      // ヒント2はまだ非表示
+      expect(screen.queryByText(questInfo.hints[1]!)).not.toBeInTheDocument();
+
+      // ヒント2を開く
+      fireEvent.click(screen.getByTestId("gp-hint-toggle-1"));
+      expect(screen.getByText(questInfo.hints[1]!)).toBeInTheDocument();
+    });
+
+    it("questInfoなしの場合は展開インジケータが表示されない", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+
+      // 展開インジケータは表示されない
+      expect(screen.queryByText("▶")).not.toBeInTheDocument();
+      expect(screen.queryByText("▼")).not.toBeInTheDocument();
+    });
+
+    it("詳細パネルに使用可能な公理が表示される", () => {
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal 1",
+            allowedAxiomIds: ["A1", "A2"],
+            allowedAxiomDetails: [
+              {
+                id: "A1",
+                displayName: "A1 (K)",
+                formula: a1Template,
+              },
+              {
+                id: "A2",
+                displayName: "A2 (S)",
+                formula: a2Template,
+              },
+            ],
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+        questInfo,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+
+      // 展開
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      // 公理情報が詳細パネル内に表示される
+      expect(screen.getByText("A1 (K):")).toBeInTheDocument();
+      expect(screen.getByText("A2 (S):")).toBeInTheDocument();
+    });
+  });
 });

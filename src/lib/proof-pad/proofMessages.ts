@@ -67,6 +67,14 @@ export type ProofMessages = {
   /** `{achieved}` と `{total}` プレースホルダーを含む */
   readonly goalPanelProgress: string;
   readonly goalPanelAllowedAxioms: string;
+  /** ゴール詳細パネル: 説明セクションヘッダー */
+  readonly goalDetailDescription: string;
+  /** ゴール詳細パネル: ヒントセクションヘッダー */
+  readonly goalDetailHints: string;
+  /** ゴール詳細パネル: 個別ヒントラベル `{index}` プレースホルダーを含む */
+  readonly goalDetailHintLabel: string;
+  /** ゴール詳細パネル: 学習ポイントセクションヘッダー */
+  readonly goalDetailLearningPoint: string;
 
   // --- 選択バナー ---
   /** `{count}` プレースホルダーを含む */
@@ -316,6 +324,10 @@ export const defaultProofMessages: ProofMessages = {
   goalPanelTitle: "Goals",
   goalPanelProgress: "{achieved} / {total}",
   goalPanelAllowedAxioms: "Allowed axioms: {axiomIds}",
+  goalDetailDescription: "Description",
+  goalDetailHints: "Hints",
+  goalDetailHintLabel: "Hint {index}",
+  goalDetailLearningPoint: "Learning Point",
 
   // Selection banner
   selectionCount: "{count} node(s) selected",
