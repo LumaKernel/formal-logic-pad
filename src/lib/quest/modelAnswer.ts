@@ -1265,16 +1265,27 @@ export type ValidateModelAnswerResult =
   | {
       readonly _tag: "GoalNotAchieved";
       readonly goalCheck: QuestGoalCheckWithAxiomsResult;
+    }
+  | {
+      readonly _tag: "AxiomConstraintViolation";
+      readonly goalCheck: QuestGoalCheckWithAxiomsResult;
+    }
+  | {
+      readonly _tag: "RuleConstraintViolation";
+      readonly goalCheck: QuestGoalCheckWithAxiomsResult;
     };
 
 /**
  * 模範解答がクエストのゴールを正しく達成しているか検証する。
  * テスト用の純粋関数。
  *
- * AllAchieved, AllAchievedButAxiomViolation, AllAchievedButRuleViolation
- * のいずれも Valid として扱う。
  * 模範解答は公理インスタンスを直接記述するため、SubstitutionEdge を経由しない。
- * そのため hasInstanceRootNodes が true になるが、これは正常な挙動。
+ * そのため hasInstanceRootNodes が true になるが、これは正常な挙動であり、
+ * AllAchievedButAxiomViolation でも hasInstanceRootNodes のみが原因なら Valid とする。
+ *
+ * ただし、violatingAxiomIds が空でない場合（真の公理制約違反）は
+ * AxiomConstraintViolation として報告する。
+ * violatingRuleIds が空でない場合も同様に RuleConstraintViolation として報告する。
  */
 export function validateModelAnswer(
   quest: QuestDefinition,
@@ -1292,6 +1303,32 @@ export function validateModelAnswer(
     buildResult.goalCheck._tag !== "AllAchievedButRuleViolation"
   ) {
     return { _tag: "GoalNotAchieved", goalCheck: buildResult.goalCheck };
+  }
+
+  // 真の公理制約違反を検出: violatingAxiomIds が空でないゴールがある場合
+  if (
+    buildResult.goalCheck._tag === "AllAchievedButAxiomViolation" ||
+    buildResult.goalCheck._tag === "AllAchievedButRuleViolation"
+  ) {
+    const hasRealAxiomViolation = buildResult.goalCheck.goalResults.some(
+      (r) => r.violatingAxiomIds.size > 0,
+    );
+    if (hasRealAxiomViolation) {
+      return {
+        _tag: "AxiomConstraintViolation",
+        goalCheck: buildResult.goalCheck,
+      };
+    }
+
+    const hasRealRuleViolation = buildResult.goalCheck.goalResults.some(
+      (r) => r.violatingRuleIds.size > 0,
+    );
+    if (hasRealRuleViolation) {
+      return {
+        _tag: "RuleConstraintViolation",
+        goalCheck: buildResult.goalCheck,
+      };
+    }
   }
 
   return { _tag: "Valid" };

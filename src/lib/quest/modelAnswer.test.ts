@@ -721,4 +721,115 @@ describe("validateModelAnswer", () => {
     const result = validateModelAnswer(testQuest, answer);
     expect(result._tag).toBe("GoalNotAchieved");
   });
+
+  it("公理制約違反がある場合AxiomConstraintViolationを返す", () => {
+    // A1のみ許可するクエストで、A2を使った模範解答
+    const constrainedQuest: QuestDefinition = {
+      id: "test-constrained",
+      category: "propositional-basics",
+      title: "Test: constrained",
+      description: "A1のみで解く。",
+      difficulty: 1,
+      systemPresetId: "lukasiewicz",
+      allowedAxiomIds: ["A1"],
+      goals: [{ formulaText: "phi -> phi", label: "Goal" }],
+      hints: [],
+      estimatedSteps: 5,
+      learningPoint: "test",
+      order: 1,
+      version: 1,
+    };
+    // A2 を使っている模範解答
+    const answer: ModelAnswer = {
+      questId: "test-constrained",
+      steps: [
+        {
+          _tag: "axiom",
+          formulaText:
+            "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
+        },
+        { _tag: "axiom", formulaText: "phi -> ((phi -> phi) -> phi)" },
+        { _tag: "mp", leftIndex: 1, rightIndex: 0 },
+        { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
+        { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+      ],
+    };
+    const result = validateModelAnswer(constrainedQuest, answer);
+    expect(result._tag).toBe("AxiomConstraintViolation");
+    if (result._tag === "AxiomConstraintViolation") {
+      const { goalCheck } = result;
+      if (
+        goalCheck._tag === "AllAchievedButAxiomViolation" ||
+        goalCheck._tag === "AllAchievedButRuleViolation" ||
+        goalCheck._tag === "AllAchieved"
+      ) {
+        const violations = goalCheck.goalResults.flatMap((r) => [
+          ...r.violatingAxiomIds,
+        ]);
+        expect(violations.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("hasInstanceRootNodesのみの場合はValidを返す（真の制約違反なし）", () => {
+    // 全公理許可（allowedAxiomIds未設定）だが、インスタンス直接配置のため
+    // AllAchievedButAxiomViolation になるが、violatingAxiomIds は空 → Valid
+    const answer: ModelAnswer = {
+      questId: "test-01",
+      steps: [
+        {
+          _tag: "axiom",
+          formulaText:
+            "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
+        },
+        { _tag: "axiom", formulaText: "phi -> ((phi -> phi) -> phi)" },
+        { _tag: "mp", leftIndex: 1, rightIndex: 0 },
+        { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
+        { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+      ],
+    };
+    const result = validateModelAnswer(testQuest, answer);
+    expect(result._tag).toBe("Valid");
+  });
+
+  it("規則制約違反がある場合RuleConstraintViolationを返す", () => {
+    // gen のみ許可でmpを禁止したクエスト
+    const ruleConstrainedQuest: QuestDefinition = {
+      id: "test-rule-constrained",
+      category: "propositional-basics",
+      title: "Test: rule constrained",
+      description: "mp禁止で解く。",
+      difficulty: 1,
+      systemPresetId: "lukasiewicz",
+      goals: [
+        {
+          formulaText: "phi -> phi",
+          label: "Goal",
+          allowedRuleIds: ["gen"],
+        },
+      ],
+      hints: [],
+      estimatedSteps: 5,
+      learningPoint: "test",
+      order: 1,
+      version: 1,
+    };
+    // mp を使った模範解答
+    const answer: ModelAnswer = {
+      questId: "test-rule-constrained",
+      steps: [
+        {
+          _tag: "axiom",
+          formulaText:
+            "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
+        },
+        { _tag: "axiom", formulaText: "phi -> ((phi -> phi) -> phi)" },
+        { _tag: "mp", leftIndex: 1, rightIndex: 0 },
+        { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
+        { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+      ],
+    };
+    const result = validateModelAnswer(ruleConstrainedQuest, answer);
+    expect(result._tag).toBe("RuleConstraintViolation");
+  });
 });
