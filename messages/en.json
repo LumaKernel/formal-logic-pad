@@ -15,7 +15,22 @@
     "emptyDescription": "Create a new notebook to start building formal proofs, or try a quest to learn the basics.",
     "questFilterCount": "Quest notebooks ({count})",
     "questFilterClear": "Clear filter",
-    "questFilterEmpty": "No notebooks for this quest yet"
+    "questFilterEmpty": "No notebooks for this quest yet",
+    "sharedQuestStart": "Start Quest",
+    "sharedQuestAddToCollection": "Add to My Quests",
+    "sharedQuestCancel": "Cancel",
+    "sharedQuestMeta": "{systemPresetId} | {goalCount} goal(s) | est. {estimatedSteps} steps"
+  },
+  "Workspace": {
+    "back": "Back",
+    "backToHub": "Back to Hub",
+    "notebookNotFound": "Notebook not found",
+    "themeSelectionAriaLabel": "Theme selection",
+    "languageSelectionAriaLabel": "Language selection",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "switchThemeAriaLabel": "Switch theme (current: {current})"
   },
   "ProofWorkspace": {
     "mpApply": "Apply MP",

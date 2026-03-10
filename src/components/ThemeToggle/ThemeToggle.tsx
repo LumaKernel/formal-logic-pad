@@ -84,13 +84,51 @@ function ThemeIcon({ iconId }: { readonly iconId: ThemeIconId }): ReactNode {
   return <MonitorIcon />;
 }
 
+/**
+ * テーマトグルのラベル。
+ * i18n対応のため外部から注入可能。未指定時はデフォルト英語ラベルを使用。
+ */
+export type ThemeToggleLabels = {
+  readonly light: string;
+  readonly dark: string;
+  readonly system: string;
+  readonly ariaLabel?: string;
+  readonly switchAriaLabelTemplate?: string;
+};
+
+function resolveThemeLabel(
+  labels: ThemeToggleLabels | undefined,
+  mode: ThemeMode,
+): string {
+  if (labels === undefined) return getThemeLabel(mode);
+  if (mode === "light") return labels.light;
+  if (mode === "dark") return labels.dark;
+  return labels.system;
+}
+
+function resolveThemeAriaLabel(
+  labels: ThemeToggleLabels | undefined,
+  mode: ThemeMode,
+): string {
+  if (labels?.switchAriaLabelTemplate !== undefined) {
+    return labels.switchAriaLabelTemplate.replace(
+      "{current}",
+      resolveThemeLabel(labels, mode),
+    );
+  }
+  return getThemeAriaLabel(mode);
+}
+
 export interface ThemeToggleProps {
   /** Whether to show text labels alongside icons. Default: true. */
   readonly showLabels?: boolean;
+  /** i18n labels for theme modes. */
+  readonly labels?: ThemeToggleLabels;
 }
 
 export function ThemeToggle({
   showLabels = true,
+  labels,
 }: ThemeToggleProps): ReactNode {
   const { mode, setMode } = useThemeContext();
 
@@ -105,20 +143,20 @@ export function ThemeToggle({
     <div
       className={styles.container}
       role="radiogroup"
-      aria-label="Theme selection"
+      aria-label={labels?.ariaLabel ?? "Theme selection"}
       data-testid="theme-toggle"
     >
       {THEME_MODES.map((m) => {
         const isActive = mode === m;
         const iconId = getThemeIconId(m);
-        const label = getThemeLabel(m);
+        const label = resolveThemeLabel(labels, m);
         return (
           <button
             key={m}
             type="button"
             role="radio"
             aria-checked={isActive}
-            aria-label={getThemeAriaLabel(m)}
+            aria-label={resolveThemeAriaLabel(labels, m)}
             className={[styles.button, isActive ? styles.active : ""]
               .filter(Boolean)
               .join(" ")}

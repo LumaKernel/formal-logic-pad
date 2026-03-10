@@ -3,6 +3,8 @@
 import { useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import type { WorkspacePageMessages } from "./workspacePageMessages";
+import type { ThemeToggleLabels } from "../../../components/ThemeToggle/ThemeToggle";
 import { useNotebookCollection, findNotebook } from "../../../lib/notebook";
 import type { GoalAchievedInfo } from "../../../lib/proof-pad";
 import type { ProofMessages } from "../../../lib/proof-pad";
@@ -21,6 +23,34 @@ import {
   getBrowserLocaleSwitchDeps,
 } from "../../../components/LanguageToggle/useLocaleSwitch";
 import { WorkspacePageView } from "./WorkspacePageView";
+
+/** next-intl の翻訳から WorkspacePageMessages オブジェクトを構築するフック */
+function useWorkspacePageMessagesFromIntl(): WorkspacePageMessages {
+  const t = useTranslations("Workspace");
+  return useMemo(
+    (): WorkspacePageMessages => ({
+      back: t("back"),
+      backToHub: t("backToHub"),
+      notebookNotFound: t("notebookNotFound"),
+    }),
+    [t],
+  );
+}
+
+/** next-intl の翻訳から ThemeToggleLabels オブジェクトを構築するフック */
+function useThemeLabelsFromIntl(): ThemeToggleLabels {
+  const t = useTranslations("Workspace");
+  return useMemo(
+    (): ThemeToggleLabels => ({
+      light: t("themeLight"),
+      dark: t("themeDark"),
+      system: t("themeSystem"),
+      ariaLabel: t("themeSelectionAriaLabel"),
+      switchAriaLabelTemplate: String(t.raw("switchThemeAriaLabel")),
+    }),
+    [t],
+  );
+}
 
 /** next-intl の翻訳から ProofMessages オブジェクトを構築するフック */
 function useProofMessagesFromIntl(): ProofMessages {
@@ -232,6 +262,8 @@ function WorkspaceInner() {
   const proofCollection = useProofCollection();
   const questProgress = useQuestProgress();
   const proofMessages = useProofMessagesFromIntl();
+  const pageMessages = useWorkspacePageMessagesFromIntl();
+  const themeLabels = useThemeLabelsFromIntl();
   const rawLocale = useLocale();
   const locale = isLocale(rawLocale) ?? "en";
   const localeSwitchDeps = useMemo(() => getBrowserLocaleSwitchDeps(), []);
@@ -313,6 +345,8 @@ function WorkspaceInner() {
         found={false}
         onBack={handleBack}
         languageToggle={languageToggle}
+        pageMessages={pageMessages}
+        themeLabels={themeLabels}
       />
     );
   }
@@ -339,6 +373,8 @@ function WorkspaceInner() {
       onRenameCollectionFolder={proofCollection.renameFolder}
       questVersionWarning={questVersionWarning}
       languageToggle={languageToggle}
+      pageMessages={pageMessages}
+      themeLabels={themeLabels}
     />
   );
 }

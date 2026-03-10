@@ -15,7 +15,22 @@
     "emptyDescription": "新しいノートブックを作成して形式的証明を始めましょう。クエストで基本を学ぶこともできます。",
     "questFilterCount": "クエストのノート（{count}件）",
     "questFilterClear": "フィルタ解除",
-    "questFilterEmpty": "このクエストのノートはまだありません"
+    "questFilterEmpty": "このクエストのノートはまだありません",
+    "sharedQuestStart": "クエストを開始",
+    "sharedQuestAddToCollection": "マイクエストに追加",
+    "sharedQuestCancel": "キャンセル",
+    "sharedQuestMeta": "{systemPresetId} | ゴール {goalCount} 個 | 推定 {estimatedSteps} ステップ"
+  },
+  "Workspace": {
+    "back": "戻る",
+    "backToHub": "ハブに戻る",
+    "notebookNotFound": "ノートブックが見つかりません",
+    "themeSelectionAriaLabel": "テーマ選択",
+    "languageSelectionAriaLabel": "言語選択",
+    "themeLight": "ライト",
+    "themeDark": "ダーク",
+    "themeSystem": "システム",
+    "switchThemeAriaLabel": "テーマ切替（現在: {current}）"
   },
   "ProofWorkspace": {
     "mpApply": "MP 適用",

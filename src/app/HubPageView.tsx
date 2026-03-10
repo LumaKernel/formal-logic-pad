@@ -25,7 +25,10 @@ import {
   type CreateCustomQuestParams,
 } from "../lib/quest";
 import type { QuestDefinition } from "../lib/quest/questDefinition";
-import { ThemeToggle } from "../components/ThemeToggle/ThemeToggle";
+import {
+  ThemeToggle,
+  type ThemeToggleLabels,
+} from "../components/ThemeToggle/ThemeToggle";
 import {
   LanguageToggle,
   type LanguageToggleProps,
@@ -94,6 +97,8 @@ export type HubPageViewProps = {
   readonly onSharedQuestDismiss?: () => void;
   /** 模範解答を表示するコールバック */
   readonly onShowModelAnswer?: (questId: string) => void;
+  /** テーマトグルのi18nラベル */
+  readonly themeLabels?: ThemeToggleLabels;
 };
 
 // --- Styles ---
@@ -333,6 +338,7 @@ export function HubPageView({
   onSharedQuestAddToCollection,
   onSharedQuestDismiss,
   onShowModelAnswer,
+  themeLabels,
 }: HubPageViewProps) {
   const m = useHubMessages();
   const [tab, setTab] = useState<HubTab>(initialTab);
@@ -362,7 +368,7 @@ export function HubPageView({
               onLocaleChange={languageToggle.onLocaleChange}
             />
           ) : null}
-          <ThemeToggle />
+          <ThemeToggle labels={themeLabels} />
         </div>
       </header>
 
@@ -519,7 +525,19 @@ export function HubPageView({
               <p style={sharedQuestDescStyle}>{sharedQuest.description}</p>
               <div style={sharedQuestMetaStyle}>
                 <span>
-                  {`${sharedQuest.systemPresetId satisfies string} | ${`${sharedQuest.goals.length satisfies number}` satisfies string} goal(s) | est. ${`${sharedQuest.estimatedSteps satisfies number}` satisfies string} steps`}
+                  {m.sharedQuestMeta
+                    .replace(
+                      "{systemPresetId}",
+                      sharedQuest.systemPresetId,
+                    )
+                    .replace(
+                      "{goalCount}",
+                      `${sharedQuest.goals.length satisfies number}`,
+                    )
+                    .replace(
+                      "{estimatedSteps}",
+                      `${sharedQuest.estimatedSteps satisfies number}`,
+                    )}
                 </span>
               </div>
               <div style={sharedQuestActionsStyle}>
@@ -530,7 +548,7 @@ export function HubPageView({
                     data-testid="shared-quest-start-btn"
                     onClick={onSharedQuestStart}
                   >
-                    Start Quest
+                    {m.sharedQuestStart}
                   </button>
                 )}
                 {onSharedQuestAddToCollection !== undefined && (
@@ -540,7 +558,7 @@ export function HubPageView({
                     data-testid="shared-quest-add-btn"
                     onClick={onSharedQuestAddToCollection}
                   >
-                    Add to My Quests
+                    {m.sharedQuestAddToCollection}
                   </button>
                 )}
                 <button
@@ -549,7 +567,7 @@ export function HubPageView({
                   data-testid="shared-quest-dismiss-btn"
                   onClick={onSharedQuestDismiss}
                 >
-                  Cancel
+                  {m.sharedQuestCancel}
                 </button>
               </div>
             </div>
