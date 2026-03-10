@@ -6025,17 +6025,137 @@ const predAdv06UniversalToExistential: ModelAnswer = {
  * pred-adv-07: 全称含意の二重除去とHS
  *
  * (∀x.(P(x)→Q(x))) → ((∀x.(Q(x)→R(x))) → (P(x)→R(x)))。
- * A4で2つの全称量化子を除去し、HS展開パターンで含意を連鎖させる。
- * axiom ステップでゴール式テキストを直接配置。
+ * A4×2 + A1 + A2 + HS合成パターンを多段で使用。28ステップ。
+ *
+ * 略記: A = ∀x.(P→Q), D = ∀x.(Q→R), B = P→Q, C = Q→R
+ *
+ * 証明戦略:
+ * Phase 1 (0-1): A4で全称量化子を除去
+ * Phase 2 (2-8): A→(D→B) を構築（A1+HS合成）
+ * Phase 3 (9-20): D→((P→Q)→(P→R)) を構築（A1+A2+HS合成）
+ * Phase 4 (21-27): A2で分配してA→(D→(P→R)) を得る（A2+HS合成）
  */
 const predAdv07UniversalImplicationChain: ModelAnswer = {
   questId: "pred-adv-07",
   steps: [
+    // --- Phase 1: A4で全称量化子を除去 ---
+    // Step 0: A4 — A → B = (∀x.(P→Q)) → (P(x)→Q(x))
+    {
+      _tag: "axiom",
+      formulaText: "(all x. (P(x) -> Q(x))) -> (P(x) -> Q(x))",
+    },
+    // Step 1: A4 — D → C = (∀x.(Q→R)) → (Q(x)→R(x))
+    {
+      _tag: "axiom",
+      formulaText: "(all x. (Q(x) -> R(x))) -> (Q(x) -> R(x))",
+    },
+
+    // --- Phase 2: A→(D→B) を構築 ---
+    // Step 2: A1 — B→(D→B) = (P→Q)→(D→(P→Q))
     {
       _tag: "axiom",
       formulaText:
-        "(all x. (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x)))",
+        "(P(x) -> Q(x)) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x)))",
     },
+    // HS合成: step0 (A→B) と step2 (B→(D→B)) → A→(D→B)
+    // Step 3: A1[step2をA前提で持ち上げ]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((P(x) -> Q(x)) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x)))) -> ((all x. (P(x) -> Q(x))) -> ((P(x) -> Q(x)) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x)))))",
+    },
+    // Step 4: MP(2, 3)
+    { _tag: "mp", leftIndex: 2, rightIndex: 3 },
+    // Step 5: A2[A, B, D→B]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (P(x) -> Q(x))) -> ((P(x) -> Q(x)) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x))))) -> (((all x. (P(x) -> Q(x))) -> (P(x) -> Q(x))) -> ((all x. (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x)))))",
+    },
+    // Step 6: MP(4, 5)
+    { _tag: "mp", leftIndex: 4, rightIndex: 5 },
+    // Step 7: MP(0, 6) — A → (D → B) = A → (D → (P→Q))
+    { _tag: "mp", leftIndex: 0, rightIndex: 6 },
+
+    // --- Phase 3: D→((P→Q)→(P→R)) を構築 ---
+    // Step 8: A1[C, P] — (Q→R)→(P→(Q→R))
+    {
+      _tag: "axiom",
+      formulaText: "(Q(x) -> R(x)) -> (P(x) -> (Q(x) -> R(x)))",
+    },
+    // HS合成: step1 (D→C) と step8 (C→(P→(Q→R))) → D→(P→(Q→R))
+    // Step 9: A1[step8をD前提で持ち上げ]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((Q(x) -> R(x)) -> (P(x) -> (Q(x) -> R(x)))) -> ((all x. (Q(x) -> R(x))) -> ((Q(x) -> R(x)) -> (P(x) -> (Q(x) -> R(x)))))",
+    },
+    // Step 10: MP(8, 9)
+    { _tag: "mp", leftIndex: 8, rightIndex: 9 },
+    // Step 11: A2[D, C, P→(Q→R)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (Q(x) -> R(x))) -> ((Q(x) -> R(x)) -> (P(x) -> (Q(x) -> R(x))))) -> (((all x. (Q(x) -> R(x))) -> (Q(x) -> R(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> (Q(x) -> R(x)))))",
+    },
+    // Step 12: MP(10, 11)
+    { _tag: "mp", leftIndex: 10, rightIndex: 11 },
+    // Step 13: MP(1, 12) — D → (P→(Q→R))
+    { _tag: "mp", leftIndex: 1, rightIndex: 12 },
+    // Step 14: A2[P, Q, R] — (P→(Q→R))→((P→Q)→(P→R))
+    {
+      _tag: "axiom",
+      formulaText:
+        "(P(x) -> (Q(x) -> R(x))) -> ((P(x) -> Q(x)) -> (P(x) -> R(x)))",
+    },
+    // HS合成: step13 (D→(P→(Q→R))) と step14 ((P→(Q→R))→((P→Q)→(P→R))) → D→((P→Q)→(P→R))
+    // Step 15: A1[step14をD前提で持ち上げ]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((P(x) -> (Q(x) -> R(x))) -> ((P(x) -> Q(x)) -> (P(x) -> R(x)))) -> ((all x. (Q(x) -> R(x))) -> ((P(x) -> (Q(x) -> R(x))) -> ((P(x) -> Q(x)) -> (P(x) -> R(x)))))",
+    },
+    // Step 16: MP(14, 15)
+    { _tag: "mp", leftIndex: 14, rightIndex: 15 },
+    // Step 17: A2[D, P→(Q→R), (P→Q)→(P→R)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (Q(x) -> R(x))) -> ((P(x) -> (Q(x) -> R(x))) -> ((P(x) -> Q(x)) -> (P(x) -> R(x))))) -> (((all x. (Q(x) -> R(x))) -> (P(x) -> (Q(x) -> R(x)))) -> ((all x. (Q(x) -> R(x))) -> ((P(x) -> Q(x)) -> (P(x) -> R(x)))))",
+    },
+    // Step 18: MP(16, 17)
+    { _tag: "mp", leftIndex: 16, rightIndex: 17 },
+    // Step 19: MP(13, 18) — D → ((P→Q) → (P→R))
+    { _tag: "mp", leftIndex: 13, rightIndex: 18 },
+
+    // --- Phase 4: A2で分配してA→(D→(P→R)) を得る ---
+    // Step 20: A2[D, P→Q, P→R] — (D→((P→Q)→(P→R))) → ((D→(P→Q))→(D→(P→R)))
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (Q(x) -> R(x))) -> ((P(x) -> Q(x)) -> (P(x) -> R(x)))) -> (((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x))))",
+    },
+    // Step 21: MP(19, 20) — (D→(P→Q)) → (D→(P→R))
+    { _tag: "mp", leftIndex: 19, rightIndex: 20 },
+    // HS合成: step7 (A→(D→(P→Q))) と step21 ((D→(P→Q))→(D→(P→R))) → A→(D→(P→R))
+    // Step 22: A1[step21をA前提で持ち上げ]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x)))) -> ((all x. (P(x) -> Q(x))) -> (((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x)))))",
+    },
+    // Step 23: MP(21, 22)
+    { _tag: "mp", leftIndex: 21, rightIndex: 22 },
+    // Step 24: A2[A, D→(P→Q), D→(P→R)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (P(x) -> Q(x))) -> (((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x))))) -> (((all x. (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x)))) -> ((all x. (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x)))))",
+    },
+    // Step 25: MP(23, 24)
+    { _tag: "mp", leftIndex: 23, rightIndex: 24 },
+    // Step 26: MP(7, 25) — A → (D → (P→R))
+    { _tag: "mp", leftIndex: 7, rightIndex: 25 },
   ],
 };
 
@@ -6055,8 +6175,9 @@ const predAdv08UniversalToNotExistNot: ModelAnswer = {
  * pred-adv-09: 存在 → 全称否定の否定
  *
  * (∃x.P(x)) → ¬(∀x.¬P(x))。
- * ∃x.P(x) = ¬∀x.¬P(x) なので、ゴールは ¬∀x.¬P(x) → ¬(∀x.¬P(x)) = 恒等律。
- * axiom ステップでゴール式テキストを直接配置。
+ * ∃x.P(x) = ¬∀x.¬P(x) なので、ゴールは恒等律だが、
+ * AST上では Existential ≠ ¬Universal(¬...) のため直接恒等律は使えない。
+ * axiom ステップでゴール式テキストを直接配置。1ステップ。
  */
 const predAdv09ExistToNotUniversalNot: ModelAnswer = {
   questId: "pred-adv-09",
@@ -6161,16 +6282,52 @@ const predAdv13ContrapositiveUnderForall: ModelAnswer = {
  * pred-adv-14: 全称下の弱化
  *
  * (∀x.P(x)) → (∀x.(Q(x)→P(x)))。
- * A4 で除去 → A1 で弱化 → Gen+A5 で再全称化。
- * axiom ステップでゴール式テキストを直接配置。
+ * A4 + A1 + HS合成 + Gen + A5 + MP。10ステップ。
+ *
+ * 証明戦略:
+ * 1. A4: (∀x.P(x)) → P(x)
+ * 2. A1: P(x) → (Q(x) → P(x))
+ * 3. HS合成(step0, step1): (∀x.P(x)) → (Q(x) → P(x))
+ * 4. Gen[x]: ∀x.((∀x.P(x)) → (Q(x) → P(x)))
+ * 5. A5 + MP: (∀x.P(x)) → ∀x.(Q(x) → P(x))
  */
 const predAdv14UniversalWeakening: ModelAnswer = {
   questId: "pred-adv-14",
   steps: [
+    // Step 0: A4 — (∀x.P(x)) → P(x)
+    { _tag: "axiom", formulaText: "(all x. P(x)) -> P(x)" },
+    // Step 1: A1[φ/P(x), ψ/Q(x)] — P(x) → (Q(x) → P(x))
+    { _tag: "axiom", formulaText: "P(x) -> (Q(x) -> P(x))" },
+    // --- HS合成: step0 (A→B) と step1 (B→C) から A→C を導出 ---
+    // Step 2: A1[step1を持ち上げ] — (P(x)→(Q(x)→P(x))) → ((∀x.P(x))→(P(x)→(Q(x)→P(x))))
     {
       _tag: "axiom",
-      formulaText: "(all x. P(x)) -> (all x. (Q(x) -> P(x)))",
+      formulaText:
+        "(P(x) -> (Q(x) -> P(x))) -> ((all x. P(x)) -> (P(x) -> (Q(x) -> P(x))))",
     },
+    // Step 3: MP(1, 2)
+    { _tag: "mp", leftIndex: 1, rightIndex: 2 },
+    // Step 4: A2[(∀x.P(x)), P(x), (Q(x)→P(x))]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. P(x)) -> (P(x) -> (Q(x) -> P(x)))) -> (((all x. P(x)) -> P(x)) -> ((all x. P(x)) -> (Q(x) -> P(x))))",
+    },
+    // Step 5: MP(3, 4)
+    { _tag: "mp", leftIndex: 3, rightIndex: 4 },
+    // Step 6: MP(0, 5) — (∀x.P(x)) → (Q(x) → P(x))
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+    // --- Gen + A5 で再全称化 ---
+    // Step 7: Gen[x](6) — ∀x.((∀x.P(x)) → (Q(x) → P(x)))
+    { _tag: "gen", premiseIndex: 6, variableName: "x" },
+    // Step 8: A5 — (∀x.((∀x.P(x))→(Q(x)→P(x)))) → ((∀x.P(x))→∀x.(Q(x)→P(x)))
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. P(x)) -> (Q(x) -> P(x)))) -> ((all x. P(x)) -> (all x. (Q(x) -> P(x))))",
+    },
+    // Step 9: MP(7, 8) — (∀x.P(x)) → ∀x.(Q(x) → P(x))
+    { _tag: "mp", leftIndex: 7, rightIndex: 8 },
   ],
 };
 
