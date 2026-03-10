@@ -93,17 +93,17 @@ describe("isSnapAnimationNeeded", () => {
   it("returns false when distance is below threshold", () => {
     const from = { x: 10, y: 20 };
     const to = { x: 10.1, y: 20.1 };
-    expect(
-      isSnapAnimationNeeded(from, to, DEFERRED_SNAP_MIN_DISTANCE),
-    ).toBe(false);
+    expect(isSnapAnimationNeeded(from, to, DEFERRED_SNAP_MIN_DISTANCE)).toBe(
+      false,
+    );
   });
 
   it("returns true when distance exceeds threshold", () => {
     const from = { x: 10, y: 20 };
     const to = { x: 15, y: 25 };
-    expect(
-      isSnapAnimationNeeded(from, to, DEFERRED_SNAP_MIN_DISTANCE),
-    ).toBe(true);
+    expect(isSnapAnimationNeeded(from, to, DEFERRED_SNAP_MIN_DISTANCE)).toBe(
+      true,
+    );
   });
 
   it("respects custom minDistance", () => {
@@ -118,9 +118,9 @@ describe("isSnapAnimationNeeded", () => {
     // Just above the default threshold
     const d = DEFERRED_SNAP_MIN_DISTANCE + 0.1;
     const to = { x: d, y: 0 };
-    expect(
-      isSnapAnimationNeeded(from, to, DEFERRED_SNAP_MIN_DISTANCE),
-    ).toBe(true);
+    expect(isSnapAnimationNeeded(from, to, DEFERRED_SNAP_MIN_DISTANCE)).toBe(
+      true,
+    );
   });
 });
 
