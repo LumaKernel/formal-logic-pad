@@ -11789,3 +11789,21 @@
   - vitest.config.ts (top-level test.include 削除)
 - テスト: unit 8544 passed / storybook 2 passed（ThemeToggle spot check）
 ---
+
+## 2026-03-10 - [ui] Root/Axiomトグルボタン削除
+- EditableProofNode から onRoleChange プロップ、handleRoleBadgeClick を完全削除
+- root-unmarked 分類のバッジ表示を非表示に変更（AXIOM/DERIVEDのみ表示）
+- ProofWorkspace から handleRoleChange コールバック削除
+- 関連テスト更新: トグル操作テスト6件削除、root-unmarked非表示テスト追加
+- 変更ファイル:
+  - src/lib/proof-pad/EditableProofNode.tsx (onRoleChange削除、バッジ非表示)
+  - src/lib/proof-pad/EditableProofNode.test.tsx (テスト更新)
+  - src/lib/proof-pad/ProofWorkspace.tsx (handleRoleChange削除)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (テスト更新)
+- スクリーンショット:
+  - .screenshots/remove-role-toggle-with-nodes.png
+  - .screenshots/remove-role-toggle-quest-mode.png
+  - .screenshots/remove-role-toggle-valid-mp.png
+  - .screenshots/remove-role-toggle-add-axiom.png
+- テスト: 8537 passed, coverage 99.52% statements / 99.62% branches
+---
