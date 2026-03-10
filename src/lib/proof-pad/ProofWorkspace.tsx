@@ -3604,7 +3604,16 @@ export function ProofWorkspace({
               onBadgeClick={
                 /* v8 ignore start -- V8集約アーティファクト: edgeBadgeクリック条件分岐 */
                 edgeBadgeConclusionNodeId !== undefined
-                  ? () => handleEdgeBadgeClick(edgeBadgeConclusionNodeId)
+                  ? (screenX, screenY) => {
+                      if (
+                        inferenceEdge._tag === "gen" ||
+                        inferenceEdge._tag === "substitution"
+                      ) {
+                        handleEdgeBadgeClick(edgeBadgeConclusionNodeId);
+                      } else {
+                        handleConnectionContextMenu(conn.id, screenX, screenY);
+                      }
+                    }
                   : undefined
                 /* v8 ignore stop */
               }

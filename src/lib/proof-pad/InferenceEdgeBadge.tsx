@@ -4,8 +4,8 @@
  * 接続線上に表示する推論規則名のバッジ。
  * PortConnectionのlabel propとして使用する。
  *
- * Gen/Substitutionバッジはクリックでパラメータ編集を開始できる。
- * MPバッジは編集不可（パラメータなし）。
+ * 全バッジタイプでクリック操作をサポート。
+ * Gen/Substitutionはパラメータ編集、MPは接続削除メニューを開く。
  *
  * 変更時は InferenceEdgeBadge.test.tsx も同期すること。
  */
@@ -17,32 +17,21 @@ export interface InferenceEdgeBadgeProps {
   readonly labelData: InferenceEdgeLabelData;
   /** data-testid */
   readonly testId?: string;
-  /** バッジクリック時のコールバック（Gen/Substitutionのパラメータ編集用） */
-  readonly onBadgeClick?: () => void;
-}
-
-/**
- * バッジがインタラクティブかどうかを判定する。
- * MPは編集可能なパラメータがないため、非インタラクティブ。
- */
-function isInteractive(
-  tag: InferenceEdgeLabelData["tag"],
-  onBadgeClick: (() => void) | undefined,
-): boolean {
-  return tag !== "mp" && onBadgeClick !== undefined;
+  /** バッジクリック時のコールバック（Gen/Substitutionはパラメータ編集、MPは接続削除メニュー） */
+  readonly onBadgeClick?: (screenX: number, screenY: number) => void;
 }
 
 /**
  * 推論エッジのラベルバッジ。
  * 接続線の中間点に配置される小さなバッジ。
- * Gen/Substitutionバッジはクリック可能。
+ * onBadgeClickが提供されていれば全タイプがクリック可能。
  */
 export function InferenceEdgeBadge({
   labelData,
   testId,
   onBadgeClick,
 }: InferenceEdgeBadgeProps) {
-  const interactive = isInteractive(labelData.tag, onBadgeClick);
+  const interactive = onBadgeClick !== undefined;
 
   return (
     <div
@@ -52,7 +41,7 @@ export function InferenceEdgeBadge({
         interactive
           ? (e) => {
               e.stopPropagation();
-              onBadgeClick?.();
+              onBadgeClick?.(e.clientX, e.clientY);
             }
           : undefined
       }

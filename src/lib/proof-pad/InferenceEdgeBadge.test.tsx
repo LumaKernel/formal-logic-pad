@@ -68,7 +68,7 @@ describe("InferenceEdgeBadge", () => {
     expect(badge).toHaveAttribute("role", "button");
   });
 
-  it("MP badge does not become interactive even with onBadgeClick", () => {
+  it("MP badge with onBadgeClick has role=button", () => {
     const labelData: InferenceEdgeLabelData = {
       label: "MP",
       badgeColor: "var(--color-badge-mp, #6c5ce7)",
@@ -83,7 +83,30 @@ describe("InferenceEdgeBadge", () => {
       />,
     );
     const badge = screen.getByTestId("badge-mp");
-    expect(badge).not.toHaveAttribute("role", "button");
+    expect(badge).toHaveAttribute("role", "button");
+  });
+
+  it("MP badge calls onBadgeClick with coordinates when clicked", async () => {
+    const user = userEvent.setup();
+    const labelData: InferenceEdgeLabelData = {
+      label: "MP:φ",
+      badgeColor: "var(--color-badge-mp, #6c5ce7)",
+      tag: "mp",
+    };
+    const onClick = vi.fn();
+    render(
+      <InferenceEdgeBadge
+        labelData={labelData}
+        testId="badge-mp"
+        onBadgeClick={onClick}
+      />,
+    );
+    await user.click(screen.getByTestId("badge-mp"));
+    expect(onClick).toHaveBeenCalledOnce();
+    expect(onClick).toHaveBeenCalledWith(
+      expect.any(Number),
+      expect.any(Number),
+    );
   });
 
   it("Gen badge calls onBadgeClick when clicked", async () => {
@@ -103,6 +126,10 @@ describe("InferenceEdgeBadge", () => {
     );
     await user.click(screen.getByTestId("badge-gen"));
     expect(onClick).toHaveBeenCalledOnce();
+    expect(onClick).toHaveBeenCalledWith(
+      expect.any(Number),
+      expect.any(Number),
+    );
   });
 
   it("Substitution badge calls onBadgeClick when clicked", async () => {
@@ -122,6 +149,10 @@ describe("InferenceEdgeBadge", () => {
     );
     await user.click(screen.getByTestId("badge-subst"));
     expect(onClick).toHaveBeenCalledOnce();
+    expect(onClick).toHaveBeenCalledWith(
+      expect.any(Number),
+      expect.any(Number),
+    );
   });
 
   it("Gen badge without onBadgeClick is not interactive", () => {
