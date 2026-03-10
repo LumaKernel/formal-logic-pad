@@ -1,6 +1,5 @@
 # 差し込みタスク
 
-- [x] ヘッダにGitHubへ飛べるボタンを控えめにおいておいて。
 - [ ] Warning: Starting in Storybook 8.5.0-alpha.18, the "test.include" option in Vitest is discouraged in favor of just using the "stories" field in yo
     ur Storybook configuration.
 

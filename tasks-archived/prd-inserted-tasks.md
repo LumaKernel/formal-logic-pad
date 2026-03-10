@@ -255,3 +255,5 @@ Infinity Canvasについて。
     - [x] Light,Dark,Systemとかもそう。
     - [x] Start Quest, Add to my quests, cancelなども
     - [x] そもそもなぜ漏れる？地の文がないようにできてる？ → messages-as-props パターンでデフォルト英語＋next-intl注入方式に統一。Storybook等next-intl不可環境ではデフォルト英語が表示される設計
+- [x] ヘッダにGitHubへ飛べるボタンを控えめにおいておいて。
+  - Hub・Workspace両ページのヘッダ右端にGitHub Octocat SVGアイコンリンク（opacity: 0.6）を配置

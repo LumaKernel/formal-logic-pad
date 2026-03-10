@@ -11769,3 +11769,15 @@
   - ThemeToggleLabels: optional props で既存 getThemeLabel() へのフォールバック。破壊的変更なし
   - HubMessages の sharedQuestMeta: テンプレート変数 {systemPresetId}/{goalCount}/{estimatedSteps} は .replace() チェインで展開
 ---
+
+## 2026-03-10 - [ui] ヘッダにGitHubリンクアイコン追加
+- Hub・Workspace両ページのヘッダ右端にGitHub Octocat SVGアイコンリンクを追加
+- opacity: 0.6 で控えめに表示、target=_blank + rel=noopener noreferrer
+- 変更ファイル:
+  - src/app/HubPageView.tsx (githubLinkStyle + GitHub SVG link追加)
+  - src/app/workspace/[id]/WorkspacePageView.tsx (同上)
+- スクリーンショット:
+  - .screenshots/github-link-hub.png
+  - .screenshots/github-link-workspace.png
+- テスト: 8655 passed（ベースライン維持、vitest worker timeout errorsは偽陽性）
+---
