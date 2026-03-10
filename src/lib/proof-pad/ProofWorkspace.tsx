@@ -85,7 +85,7 @@ import {
 } from "./proofMessages";
 import { useProofMessages } from "./ProofMessagesContext";
 import { checkGoal } from "./goalCheckLogic";
-import { computeGoalPanelData, type GoalViolationInfo } from "./goalPanelLogic";
+import { computeGoalPanelData, type GoalViolationInfo, type GoalQuestInfo } from "./goalPanelLogic";
 import { GoalPanel } from "./GoalPanel";
 import type { PanelPosition, PanelRect } from "./panelPositionLogic";
 import { usePanelDrag } from "./usePanelDrag";
@@ -247,6 +247,8 @@ export interface ProofWorkspaceProps {
   readonly showDependencies?: boolean;
   /** 構文ヘルプを開くコールバック（指定時に数式編集モードで?ボタンを表示） */
   readonly onOpenSyntaxHelp?: () => void;
+  /** クエスト情報（ゴールパネルの詳細表示に使用） */
+  readonly questInfo?: GoalQuestInfo;
   /** 自由帳として複製するコールバック（指定時にクエストモードで複製ボタンを表示） */
   readonly onDuplicateToFree?: () => void;
   /** 証明をコレクションに保存するコールバック（指定時にコンテキストメニューに「コレクションに保存」を表示） */
@@ -650,6 +652,7 @@ export function ProofWorkspace({
   onOpenReferenceDetail,
   showDependencies,
   onOpenSyntaxHelp,
+  questInfo,
   onDuplicateToFree,
   onSaveProofToCollection,
   collectionEntries,
@@ -2216,8 +2219,9 @@ export function ProofWorkspace({
         goalCheckResult,
         availableAxioms,
         goalViolations,
+        questInfo,
       ),
-    [workspace.goals, goalCheckResult, availableAxioms, goalViolations],
+    [workspace.goals, goalCheckResult, availableAxioms, goalViolations, questInfo],
   );
 
   const isGoalAchievedButAxiomViolation =

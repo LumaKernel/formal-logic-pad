@@ -25,6 +25,19 @@ export type AllowedAxiomDetail = {
   readonly formula: Formula;
 };
 
+/**
+ * クエスト関連の詳細情報（ProofWorkspace外部から渡される）。
+ * quest依存を避けるため、必要なフィールドだけを簡易型として定義。
+ */
+export type GoalQuestInfo = {
+  /** クエストの説明文 */
+  readonly description: string;
+  /** 段階的なヒント群 */
+  readonly hints: readonly string[];
+  /** 学習ポイント */
+  readonly learningPoint: string;
+};
+
 /** 個別ゴールの表示データ */
 export type GoalPanelItem = {
   /** ゴールID */
@@ -59,6 +72,8 @@ export type GoalPanelData = {
   readonly achievedCount: number;
   /** 総ゴール数 */
   readonly totalCount: number;
+  /** クエスト情報（クエストモード時のみ、省略時は詳細パネルなし） */
+  readonly questInfo?: GoalQuestInfo | undefined;
 };
 
 /**
@@ -131,6 +146,7 @@ function resolveAllowedAxiomDetails(
  * @param checkResult ゴールチェック結果
  * @param availableAxioms 論理体系で利用可能な全公理（公理詳細の解決に使用）
  * @param goalViolations ゴールごとの制限違反情報（クエストモード時のみ）
+ * @param questInfo クエスト関連の詳細情報（クエストモード時のみ）
  * @returns パネル表示データ
  */
 export function computeGoalPanelData(
@@ -138,12 +154,14 @@ export function computeGoalPanelData(
   checkResult: GoalCheckResult,
   availableAxioms: readonly AxiomPaletteItem[] = [],
   goalViolations: readonly GoalViolationInfo[] = [],
+  questInfo?: GoalQuestInfo,
 ): GoalPanelData {
   if (goals.length === 0) {
     return {
       items: [],
       achievedCount: 0,
       totalCount: 0,
+      questInfo,
     };
   }
 
@@ -155,6 +173,7 @@ export function computeGoalPanelData(
         items: [],
         achievedCount: 0,
         totalCount: 0,
+        questInfo,
       };
 
     case "GoalAllAchieved": {
@@ -182,6 +201,7 @@ export function computeGoalPanelData(
         items,
         achievedCount,
         totalCount: goals.length,
+        questInfo,
       };
     }
 
@@ -210,6 +230,7 @@ export function computeGoalPanelData(
         items,
         achievedCount: checkResult.achievedCount,
         totalCount: checkResult.totalCount,
+        questInfo,
       };
     }
   }

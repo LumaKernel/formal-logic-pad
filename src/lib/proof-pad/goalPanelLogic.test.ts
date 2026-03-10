@@ -647,4 +647,98 @@ describe("computeGoalPanelData", () => {
       expect(result.achievedCount).toBe(1);
     });
   });
+
+  describe("questInfo", () => {
+    it("questInfoが渡されるとGoalPanelDataに含まれる", () => {
+      const goals = [makeGoal("g1", "phi -> phi")];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalAllAchieved",
+        achievedGoals: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            matchingNodeId: "n1",
+          },
+        ],
+      };
+      const questInfo = {
+        description: "φ → φ を証明せよ。",
+        hints: ["A1を使う", "A2を使う"],
+        learningPoint: "SKK = I の対応",
+      };
+
+      const result = computeGoalPanelData(
+        goals,
+        checkResult,
+        [],
+        [],
+        questInfo,
+      );
+      expect(result.questInfo).toBe(questInfo);
+    });
+
+    it("questInfo省略時はundefined", () => {
+      const goals = [makeGoal("g1", "phi -> phi")];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalAllAchieved",
+        achievedGoals: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            matchingNodeId: "n1",
+          },
+        ],
+      };
+
+      const result = computeGoalPanelData(goals, checkResult);
+      expect(result.questInfo).toBeUndefined();
+    });
+
+    it("GoalNotSetでもquestInfoが保持される", () => {
+      const questInfo = {
+        description: "テスト",
+        hints: [],
+        learningPoint: "テスト",
+      };
+      const result = computeGoalPanelData(
+        [],
+        { _tag: "GoalNotSet" },
+        [],
+        [],
+        questInfo,
+      );
+      expect(result.questInfo).toBe(questInfo);
+    });
+
+    it("GoalPartiallyAchievedでもquestInfoが保持される", () => {
+      const goals = [makeGoal("g1", "phi -> phi")];
+      const checkResult: GoalCheckResult = {
+        _tag: "GoalPartiallyAchieved",
+        achievedCount: 0,
+        totalCount: 1,
+        goalStatuses: [
+          {
+            goalId: "g1",
+            goalFormula: phiImpliesPhi,
+            achieved: false,
+            matchingNodeId: undefined,
+          },
+        ],
+      };
+      const questInfo = {
+        description: "テスト",
+        hints: ["ヒント1"],
+        learningPoint: "学習ポイント",
+      };
+
+      const result = computeGoalPanelData(
+        goals,
+        checkResult,
+        [],
+        [],
+        questInfo,
+      );
+      expect(result.questInfo).toBe(questInfo);
+    });
+  });
 });

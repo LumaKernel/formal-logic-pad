@@ -3,12 +3,13 @@
  *
  * クエストモードのワークスペースで、証明すべきゴールの一覧と達成状況を表示する。
  * 右上にサイドパネル形式で表示される。
+ * クエスト情報がある場合、ゴールアイテムのクリックで詳細パネル（解説・ヒント・公理・学習ポイント）を展開する。
  *
  * 変更時は GoalPanel.test.tsx, ProofWorkspace.tsx, index.ts も同期すること。
  */
 
 import { type CSSProperties, useState, useCallback, useMemo } from "react";
-import type { GoalPanelData, GoalPanelItem } from "./goalPanelLogic";
+import type { GoalPanelData, GoalPanelItem, GoalQuestInfo } from "./goalPanelLogic";
 import type { ProofMessages } from "./proofMessages";
 import { formatMessage } from "./proofMessages";
 import { FormulaDisplay } from "../formula-input/FormulaDisplay";
@@ -80,6 +81,11 @@ const itemStyle: CSSProperties = {
   gap: 2,
   borderBottom:
     "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
+};
+
+const itemClickableStyle: CSSProperties = {
+  ...itemStyle,
+  cursor: "pointer",
 };
 
 const itemLabelStyle: CSSProperties = {
@@ -168,6 +174,53 @@ const toggleButtonStyle: CSSProperties = {
   pointerEvents: "auto" as const,
 };
 
+// --- 詳細パネル用スタイル ---
+
+const detailSectionStyle: CSSProperties = {
+  padding: "8px 12px",
+  borderBottom:
+    "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
+};
+
+const detailSectionHeaderStyle: CSSProperties = {
+  fontWeight: 700,
+  fontSize: 10,
+  textTransform: "uppercase",
+  letterSpacing: 0.5,
+  color: "var(--color-text-secondary, #888)",
+  marginBottom: 4,
+};
+
+const detailTextStyle: CSSProperties = {
+  fontSize: 11,
+  color: "var(--color-text-primary, #333)",
+  lineHeight: 1.5,
+};
+
+const hintToggleStyle: CSSProperties = {
+  fontSize: 10,
+  color: "var(--color-link, #2563eb)",
+  cursor: "pointer",
+  padding: "2px 0",
+  fontWeight: 500,
+};
+
+const hintTextStyle: CSSProperties = {
+  fontSize: 11,
+  color: "var(--color-text-primary, #333)",
+  lineHeight: 1.5,
+  paddingLeft: 8,
+  borderLeft: "2px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.3))",
+  marginTop: 2,
+  marginBottom: 4,
+};
+
+const expandIndicatorStyle: CSSProperties = {
+  fontSize: 10,
+  color: "var(--color-text-secondary, #999)",
+  marginLeft: "auto",
+};
+
 // --- コンポーネント ---
 
 function GoalItemStatusBadge({
@@ -196,43 +249,117 @@ function GoalItemStatusBadge({
   return <span style={statusViolationStyle}>{messages.goalRuleViolation}</span>;
 }
 
-function GoalItem({
-  item,
+function HintItem({
+  hint,
   index,
   messages,
   testId,
 }: {
-  readonly item: GoalPanelItem;
+  readonly hint: string;
   readonly index: number;
+  readonly messages: ProofMessages;
+  readonly testId: string | undefined;
+}) {
+  const [revealed, setRevealed] = useState(false);
+
+  const handleReveal = useCallback(() => {
+    setRevealed(true);
+  }, []);
+
+  const label = formatMessage(messages.goalDetailHintLabel, {
+    index: String(index + 1),
+  });
+
+  if (revealed) {
+    return (
+      <div
+        data-testid={
+          testId !== undefined
+            ? `${testId satisfies string}-hint-${String(index) satisfies string}`
+            : undefined
+        }
+      >
+        <div style={{ ...hintToggleStyle, color: "var(--color-text-secondary, #888)" }}>
+          {label}
+        </div>
+        <div style={hintTextStyle}>{hint}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      style={hintToggleStyle}
+      onClick={(e) => {
+        e.stopPropagation();
+        handleReveal();
+      }}
+      /* v8 ignore start -- キーボード操作: role="button"のアクセシビリティ対応 */
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleReveal();
+        }
+      }}
+      /* v8 ignore stop */
+      data-testid={
+        testId !== undefined
+          ? `${testId satisfies string}-hint-toggle-${String(index) satisfies string}`
+          : undefined
+      }
+    >
+      {`${label satisfies string} ▶`}
+    </div>
+  );
+}
+
+function GoalDetailPanel({
+  questInfo,
+  item,
+  messages,
+  testId,
+}: {
+  readonly questInfo: GoalQuestInfo;
+  readonly item: GoalPanelItem;
   readonly messages: ProofMessages;
   readonly testId: string | undefined;
 }) {
   return (
     <div
-      style={itemStyle}
-      data-testid={
-        testId !== undefined
-          ? `${testId satisfies string}-item-${String(index) satisfies string}`
-          : undefined
-      }
+      data-testid={testId !== undefined ? `${testId satisfies string}-detail` : undefined}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
     >
-      <div style={itemLabelStyle}>
-        <span>{item.label ?? `#${String(index + 1) satisfies string}`}</span>
-        <GoalItemStatusBadge status={item.status} messages={messages} />
+      {/* 解説 */}
+      <div style={detailSectionStyle}>
+        <div style={detailSectionHeaderStyle}>{messages.goalDetailDescription}</div>
+        <div style={detailTextStyle}>{questInfo.description}</div>
       </div>
-      <div style={itemFormulaStyle}>
-        {item.formula !== undefined ? (
-          <FormulaDisplay formula={item.formula} fontSize={11} />
-        ) : (
-          <span role="math" aria-label={item.formulaText}>
-            {item.formulaText}
-          </span>
-        )}
-      </div>
+
+      {/* ヒント */}
+      {questInfo.hints.length > 0 && (
+        <div style={detailSectionStyle}>
+          <div style={detailSectionHeaderStyle}>{messages.goalDetailHints}</div>
+          {questInfo.hints.map((hint, i) => (
+            <HintItem
+              key={String(i)}
+              hint={hint}
+              index={i}
+              messages={messages}
+              testId={testId}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* 使用可能な公理群 */}
       {item.allowedAxiomDetails !== undefined &&
       item.allowedAxiomDetails.length > 0 ? (
-        <div>
-          <div style={allowedAxiomsHeaderStyle}>
+        <div style={detailSectionStyle}>
+          <div style={detailSectionHeaderStyle}>
             {messages.goalPanelAllowedAxioms.replace(
               "{axiomIds}",
               item.allowedAxiomDetails.map((a) => a.id).join(", "),
@@ -246,12 +373,119 @@ function GoalItem({
           ))}
         </div>
       ) : item.allowedAxiomIds !== undefined ? (
-        <div style={allowedAxiomsHeaderStyle}>
-          {formatMessage(messages.goalPanelAllowedAxioms, {
-            axiomIds: item.allowedAxiomIds.join(", "),
-          })}
+        <div style={detailSectionStyle}>
+          <div style={allowedAxiomsHeaderStyle}>
+            {formatMessage(messages.goalPanelAllowedAxioms, {
+              axiomIds: item.allowedAxiomIds.join(", "),
+            })}
+          </div>
         </div>
       ) : null}
+
+      {/* 学習ポイント */}
+      <div style={detailSectionStyle}>
+        <div style={detailSectionHeaderStyle}>{messages.goalDetailLearningPoint}</div>
+        <div style={detailTextStyle}>{questInfo.learningPoint}</div>
+      </div>
+    </div>
+  );
+}
+
+function GoalItem({
+  item,
+  index,
+  messages,
+  questInfo,
+  expanded,
+  onToggleExpand,
+  testId,
+}: {
+  readonly item: GoalPanelItem;
+  readonly index: number;
+  readonly messages: ProofMessages;
+  readonly questInfo: GoalQuestInfo | undefined;
+  readonly expanded: boolean;
+  readonly onToggleExpand: (() => void) | undefined;
+  readonly testId: string | undefined;
+}) {
+  const hasDetail = questInfo !== undefined;
+  return (
+    <div
+      style={hasDetail ? itemClickableStyle : itemStyle}
+      role={hasDetail ? "button" : undefined}
+      tabIndex={hasDetail ? 0 : undefined}
+      onClick={onToggleExpand}
+      /* v8 ignore start -- キーボード操作: role="button"のアクセシビリティ対応 */
+      onKeyDown={
+        hasDetail
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onToggleExpand?.();
+              }
+            }
+          : undefined
+      }
+      /* v8 ignore stop */
+      data-testid={
+        testId !== undefined
+          ? `${testId satisfies string}-item-${String(index) satisfies string}`
+          : undefined
+      }
+    >
+      <div style={itemLabelStyle}>
+        <span>{item.label ?? `#${String(index + 1) satisfies string}`}</span>
+        <GoalItemStatusBadge status={item.status} messages={messages} />
+        {hasDetail && (
+          <span style={expandIndicatorStyle}>{expanded ? "▼" : "▶"}</span>
+        )}
+      </div>
+      <div style={itemFormulaStyle}>
+        {item.formula !== undefined ? (
+          <FormulaDisplay formula={item.formula} fontSize={11} />
+        ) : (
+          <span role="math" aria-label={item.formulaText}>
+            {item.formulaText}
+          </span>
+        )}
+      </div>
+      {/* 詳細なしの場合は従来通り公理情報をインライン表示 */}
+      {!hasDetail && (
+        <>
+          {item.allowedAxiomDetails !== undefined &&
+          item.allowedAxiomDetails.length > 0 ? (
+            <div>
+              <div style={allowedAxiomsHeaderStyle}>
+                {messages.goalPanelAllowedAxioms.replace(
+                  "{axiomIds}",
+                  item.allowedAxiomDetails.map((a) => a.id).join(", "),
+                )}
+              </div>
+              {item.allowedAxiomDetails.map((axiom) => (
+                <div key={axiom.id} style={allowedAxiomItemStyle}>
+                  <span style={allowedAxiomNameStyle}>{axiom.displayName}:</span>
+                  <FormulaDisplay formula={axiom.formula} fontSize={10} />
+                </div>
+              ))}
+            </div>
+          ) : item.allowedAxiomIds !== undefined ? (
+            <div style={allowedAxiomsHeaderStyle}>
+              {formatMessage(messages.goalPanelAllowedAxioms, {
+                axiomIds: item.allowedAxiomIds.join(", "),
+              })}
+            </div>
+          ) : null}
+        </>
+      )}
+      {/* 詳細パネル展開時 */}
+      {hasDetail && expanded && (
+        <GoalDetailPanel
+          questInfo={questInfo}
+          item={item}
+          messages={messages}
+          testId={testId}
+        />
+      )}
     </div>
   );
 }
@@ -264,9 +498,14 @@ export function GoalPanel({
   testId,
 }: GoalPanelProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
 
   const handleToggle = useCallback(() => {
     setCollapsed((prev) => !prev);
+  }, []);
+
+  const handleItemToggle = useCallback((itemId: string) => {
+    setExpandedItemId((prev) => (prev === itemId ? null : itemId));
   }, []);
 
   const resolvedPanelStyle = useMemo(
@@ -376,6 +615,15 @@ export function GoalPanel({
           item={item}
           index={i}
           messages={messages}
+          questInfo={data.questInfo}
+          expanded={expandedItemId === item.id}
+          onToggleExpand={
+            data.questInfo !== undefined
+              ? () => {
+                  handleItemToggle(item.id);
+                }
+              : undefined
+          }
           testId={testId}
         />
       ))}

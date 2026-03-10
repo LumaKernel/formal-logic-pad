@@ -14,6 +14,7 @@ import type { GoalAchievedInfo } from "../../../lib/proof-pad";
 import { ProofMessagesProvider } from "../../../lib/proof-pad";
 import type { ProofMessages } from "../../../lib/proof-pad";
 import type { WorkspaceState } from "../../../lib/proof-pad/workspaceState";
+import type { GoalQuestInfo } from "../../../lib/proof-pad";
 import type {
   ProofSaveParams,
   ProofEntry,
@@ -83,6 +84,8 @@ export type WorkspacePageViewProps = {
       readonly onRenameCollectionFolder?: (id: string, newName: string) => void;
       /** クエストバージョン警告メッセージ（表示不要なら undefined） */
       readonly questVersionWarning?: string;
+      /** クエスト情報（ゴールパネルの詳細表示に使用） */
+      readonly questInfo?: GoalQuestInfo;
     }
   | {
       /** ノートブックが見つからない場合 */
@@ -252,6 +255,7 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
             onWorkspaceChange={props.onWorkspaceChange}
             onGoalAchieved={props.onGoalAchieved}
             onOpenSyntaxHelp={props.onOpenSyntaxHelp}
+            questInfo={props.questInfo}
             onDuplicateToFree={props.onDuplicateToFree}
             onSaveProofToCollection={props.onSaveProofToCollection}
             collectionEntries={props.collectionEntries}

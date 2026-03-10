@@ -12,6 +12,7 @@ import type { WorkspaceState } from "../../../lib/proof-pad/workspaceState";
 import type { ProofSaveParams } from "../../../lib/proof-collection";
 import { useProofCollection } from "../../../lib/proof-collection";
 import { useQuestProgress, builtinQuests } from "../../../lib/quest";
+import type { GoalQuestInfo } from "../../../lib/proof-pad";
 import {
   checkQuestVersion,
   getVersionWarningMessage,
@@ -90,6 +91,10 @@ function useProofMessagesFromIntl(): ProofMessages {
       goalPanelTitle: t("goalPanelTitle"),
       goalPanelProgress: String(t.raw("goalPanelProgress")),
       goalPanelAllowedAxioms: String(t.raw("goalPanelAllowedAxioms")),
+      goalDetailDescription: t("goalDetailDescription"),
+      goalDetailHints: t("goalDetailHints"),
+      goalDetailHintLabel: String(t.raw("goalDetailHintLabel")),
+      goalDetailLearningPoint: t("goalDetailLearningPoint"),
       selectionCount: String(t.raw("selectionCount")),
       selectionCopy: t("selectionCopy"),
       selectionCut: t("selectionCut"),
@@ -319,6 +324,17 @@ function WorkspaceInner() {
     [addProofEntry],
   );
 
+  const questInfo = useMemo((): GoalQuestInfo | undefined => {
+    if (questId === undefined) return undefined;
+    const quest = builtinQuests.find((q) => q.id === questId);
+    if (quest === undefined) return undefined;
+    return {
+      description: quest.description,
+      hints: quest.hints,
+      learningPoint: quest.learningPoint,
+    };
+  }, [questId]);
+
   const questVersionWarning = useMemo(
     () =>
       notebook !== undefined
@@ -365,6 +381,7 @@ function WorkspaceInner() {
       onRemoveCollectionFolder={proofCollection.removeFolder}
       onRenameCollectionFolder={proofCollection.renameFolder}
       questVersionWarning={questVersionWarning}
+      questInfo={questInfo}
       languageToggle={languageToggle}
       pageMessages={pageMessages}
       themeLabels={themeLabels}
