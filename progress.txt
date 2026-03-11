@@ -12815,3 +12815,26 @@
   - クエスト定義の式は inferenceRule.ts のテンプレートと一致させること
   - peano-14 の E3 インスタンスは A4+MP でユニバーサルを剥がす正式なステップが必要
 ---
+
+## 2026-03-12 - [quest] E4（関数合同公理）マッチング実装
+- **実装内容:** `matchE4` 関数を `inferenceRule.ts` に追加
+  - E4 パターン: `t₁=s₁ → (... → (tₙ=sₙ → f(t₁,...,tₙ) = f(s₁,...,sₙ)))` を構造的にマッチ
+  - FunctionApplication と BinaryOperation の両方に対応
+  - ∀量化子の有無にかかわらずマッチ（スキーマもインスタンスも認識）
+  - `identifyAxiom` に E4 チェックを追加
+- **変更したファイル:**
+  - `src/lib/logic-core/inferenceRule.ts` - matchE4 関数追加、identifyAxiom 更新、コメント修正
+  - `src/lib/logic-core/inferenceRule.test.ts` - E4 テスト16件追加（249テスト）
+  - `src/lib/quest/builtinModelAnswers.test.ts` - peano-20, group-20 をスキップリストから削除（30→28件）
+  - `task-processing.md` - タスク計画記述
+- **カバレッジ:** Stmts 99.95%, Branch 99.91%（低下なし）、inferenceRule.ts は 100%
+- **残りの pragmatic quests (28件):**
+  - prop 11件: ∧/∨ 関連（定義公理が必要）
+  - peano 4件: E3 インスタンスの直接配置（A4+MP による正式な導出が必要）
+  - pred 12件: 導出定理の直接配置（本格的証明が必要）
+  - group 1件: 削除済み
+- **今後のイテレーションへの学び:**
+  - E4 はシグネチャ依存のため固定テンプレートではなく構造的マッチングが必要
+  - E3 インスタンス（∀なし）は E3 テンプレート（∀あり）にマッチしない — A4 で剥がす正式なステップが必要
+  - peano-11, 13, 14, 15 は E4 の問題は解消したが、E3 インスタンスの直接配置が残っている
+---
