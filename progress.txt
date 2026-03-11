@@ -12797,3 +12797,21 @@
   - `equalTerm` は _tag を最初にチェックするため、Constant と TermVariable は値が同じでも不一致になる
   - 残りの pragmatic quests (32件): prop 13件(∧/∨定義公理が必要)、peano 5件、group 1件(E4未実装)、pred 12件(∃処理)
 ---
+
+## 2026-03-12 - [quest] prop-48/49 のA3公理式修正
+- **発見したバグ:** prop-48/49 のクエスト定義で A3 公理の式が M3（Mendelson 背理法 `(¬φ→¬ψ)→((¬φ→ψ)→φ)`）と混同されていた。正しいŁukasiewicz A3（対偶）は `(¬φ→¬ψ)→(ψ→φ)`
+- **修正内容:**
+  - builtinQuests.ts: prop-48/49 のゴール式・タイトル・説明・ヒント・学習ポイントを修正
+  - builtinModelAnswers.ts: prop-48 の axiom 式、prop-49 の全ステップの式を修正
+  - builtinModelAnswers.test.ts: スキップリストから prop-48, prop-49 を削除（32→30件）
+- **カバレッジ:** Stmts 99.95%, Branch 99.91%, Funcs 89.94%, Lines 99.93%（低下なし）
+- **残りの pragmatic quests (30件):**
+  - prop 11件: ∧/∨ 関連の定理（定義公理が必要）
+  - peano 5件: E4（関数合同公理）未実装
+  - group 1件: E4 未実装
+  - pred 12件: 導出定理の直接配置（本格的証明が必要）
+- **今後のイテレーションへの学び:**
+  - A3（Łukasiewicz L3）= `(¬φ→¬ψ)→(ψ→φ)` 対偶、M3（Mendelson）= `(¬φ→¬ψ)→((¬φ→ψ)→φ)` 背理法。異なる公理
+  - クエスト定義の式は inferenceRule.ts のテンプレートと一致させること
+  - peano-14 の E3 インスタンスは A4+MP でユニバーサルを剥がす正式なステップが必要
+---
