@@ -182,6 +182,7 @@ export function CanvasItem({
               : undefined,
           zIndex: isDragging ? 1000 : undefined,
           touchAction: hasInteraction ? "none" : undefined,
+          width: "max-content",
           whiteSpace: "nowrap",
         }}
         onPointerDown={hasInteraction ? handlePointerDown : undefined}

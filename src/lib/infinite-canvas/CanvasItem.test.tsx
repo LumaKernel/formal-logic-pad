@@ -99,6 +99,19 @@ describe("CanvasItem", () => {
     expect(item.style.whiteSpace).toBe("nowrap");
   });
 
+  it("uses max-content width to prevent shrink-to-fit from constraining width at container edge", () => {
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+    const item = screen.getByTestId("canvas-item");
+    expect(item.style.width).toBe("max-content");
+  });
+
   it("allows pointer events on the item", () => {
     render(
       <CanvasItem
