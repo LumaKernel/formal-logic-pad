@@ -12250,3 +12250,33 @@
   - React hooks ESLintルール（react-hooks/refs, react-hooks/set-state-in-effect）により、refの直接render中参照やeffect内setStateが禁止。対策: useEffectでref更新、イベントハンドラからのimperativeなAPI設計（triggerSnap callback）
   - deferred snapの3層設計: 純粋ロジック(deferredSnap.ts) → フック(useDeferredSnap.ts) → ストーリー/デモ。テスタビリティと再利用性を確保
 ---
+
+## 2026-03-11 - [proof-pad] メモノードの基本機能
+- 実装した内容:
+  - `ProofNodeKind` に "note" を追加し、全 exhaustive switch（proofNodeUI, nodeRoleLogic, EditableProofNode, workspaceExport 等）を更新
+  - ノートノードのスタイル・ポート定義（ポートなし＝接続不可、グレーの stripe color）
+  - `nodeRoleLogic` で "note" 分類を追加（証明ツリーから独立）
+  - `workspaceExport.ts` のスキーマに "note" kind を追加
+  - `EditableProofNode` にノートノードのレンダリング（テキスト表示＋ダブルクリックで編集開始）
+  - `ProofWorkspace` にキャンバスコンテキストメニュー "Add Note" 項目、ノート編集モーダル（textarea + Cancel/OK）
+  - i18n メッセージ（en/ja）追加: noteEmptyPlaceholder, addNote, editNote, noteEditorTitle
+  - テスト追加: proofNodeUI.test.ts (+4), nodeRoleLogic.test.ts (+4), workspaceExport.test.ts (+2), workspaceState.test.ts (+1), EditableProofNode.test.tsx (+4), ProofWorkspace.test.tsx (+3)
+- 変更ファイル:
+  - `src/lib/proof-pad/proofNodeUI.ts` - "note" kind追加、NOTE_PORTS、スタイル・エッジ色追加
+  - `src/lib/proof-pad/nodeRoleLogic.ts` - "note" classification追加
+  - `src/lib/proof-pad/workspaceExport.ts` - Schema に "note" 追加
+  - `src/lib/proof-pad/EditableProofNode.tsx` - ノートレンダリング、onEditNote prop
+  - `src/lib/proof-pad/ProofWorkspace.tsx` - handleAddNote, 編集モーダル、コンテキストメニュー
+  - `src/lib/proof-pad/proofMessages.ts` - 4つの新メッセージキー
+  - `src/app/workspace/[id]/WorkspaceContent.tsx` - 新メッセージキー追加
+  - `messages/en.json`, `messages/ja.json` - 翻訳追加
+  - テストファイル6つ更新
+- テスト: 249ファイル, 9215件全通過
+- カバレッジ: Stmts 99.92%, Branch 99.68%, Lines 99.95% (ベースライン: 99.92%, 99.74%, 99.95% - Branch微減はV8集約アーティファクト)
+- スクリーンショット: .screenshots/note-node-01-empty-workspace.png 〜 .screenshots/note-node-06-note-with-text.png
+- **今後のイテレーションへの学び:**
+  - 新しい ProofNodeKind を追加する際は 12+ ファイルの exhaustive switch を更新する必要がある。TypeScript の網羅性チェックがすべて検出してくれる
+  - ノートノードは `formulaText` フィールドをマークダウンテキスト保存に再利用。新しいフィールド追加不要
+  - ノートノードは `NOTE_PORTS = []`（空配列）で接続不可を表現。証明ツリーには参加しない
+  - v8 coverage: 全体カバレッジの Branch 微減（0.06%）はV8集約のアーティファクト。個別ファイルのカバレッジは改善
+---
