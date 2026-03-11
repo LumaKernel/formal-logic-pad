@@ -24,8 +24,9 @@ export default defineConfig({
         "src/**/*.stories.{ts,tsx}",
         "src/**/index.ts",
         "src/**/types.ts",
-        // 純粋なデータ定義ファイル（ロジックなし）
+        // 純粋なデータ/型定義ファイル（ロジックなし）
         "src/lib/logic-lang/token.ts",
+        "src/lib/script-runner/jsInterpreterTypes.ts",
         // Storybookテンプレート（サンプルコード、プロジェクトコードではない）
         "src/stories/**",
         // 不純な領域: フレームワークエントリーポイント・I/O・環境依存

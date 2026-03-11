@@ -111,6 +111,7 @@ export class Equality extends Schema.TaggedClass<Equality>()("Equality", {
  * 例: A4公理 ∀x.φ → φ[τ/x] の右辺
  *     φ[f(x)/y] — φ の中の y を f(x) に置き換え
  */
+/* v8 ignore start — V8 coverage aggregation artifact: Schema.suspend lambda */
 export class FormulaSubstitution extends Schema.TaggedClass<FormulaSubstitution>()(
   "FormulaSubstitution",
   {
@@ -119,6 +120,7 @@ export class FormulaSubstitution extends Schema.TaggedClass<FormulaSubstitution>
     variable: TermVariable,
   },
 ) {}
+/* v8 ignore stop */
 
 // ── Formula Union ────────────────────────────────────────
 
