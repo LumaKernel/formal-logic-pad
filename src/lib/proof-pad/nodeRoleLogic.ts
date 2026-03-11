@@ -19,11 +19,16 @@ import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
  * - "root-axiom": ルートノードで公理としてマーク
  * - "root-unmarked": ルートノードで未マーク（暗黙公理）
  * - "derived": 他のノードから導出された（前提接続あり）
+ * - "note": メモノード（証明ツリーの一部ではない）
  *
  * ゴールはノード分類ではなくWorkspaceState.goalsで管理されるため、
  * "root-goal"は存在しない。
  */
-export type NodeClassification = "root-axiom" | "root-unmarked" | "derived";
+export type NodeClassification =
+  | "root-axiom"
+  | "root-unmarked"
+  | "derived"
+  | "note";
 
 /**
  * ノードがルート（前提への入力接続がない）かどうかを判定する。
@@ -49,6 +54,11 @@ export function classifyNode(
   node: WorkspaceNode,
   connections: readonly WorkspaceConnection[],
 ): NodeClassification {
+  // ノートノードは証明ツリーの一部ではない
+  if (node.kind === "note") {
+    return "note";
+  }
+
   // derived判定: コネクション（InferenceEdge由来）の有無で判定
   const isRoot = isRootNode(node.id, connections);
 

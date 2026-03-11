@@ -1405,6 +1405,42 @@ export function ProofWorkspace({
     msg.nodeLabelSignedFormula,
   ]);
 
+  const handleAddNote = useCallback(
+    (position?: Point) => {
+      const pos = position ?? computeNewNodePosition(workspace.nodes);
+      setWorkspace(addNode(workspace, "note", "Note", pos, ""));
+    },
+    [workspace, setWorkspace, computeNewNodePosition],
+  );
+
+  // --- ノート編集モーダル ---
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [noteEditorText, setNoteEditorText] = useState("");
+
+  const handleEditNote = useCallback(
+    (nodeId: string) => {
+      const node = workspace.nodes.find((n) => n.id === nodeId);
+      if (node && node.kind === "note") {
+        setEditingNoteId(nodeId);
+        setNoteEditorText(node.formulaText);
+      }
+    },
+    [workspace.nodes],
+  );
+
+  const handleNoteEditorSave = useCallback(() => {
+    if (editingNoteId) {
+      setWorkspace(
+        updateNodeFormulaText(workspace, editingNoteId, noteEditorText),
+      );
+      setEditingNoteId(null);
+    }
+  }, [editingNoteId, noteEditorText, workspace, setWorkspace]);
+
+  const handleNoteEditorCancel = useCallback(() => {
+    setEditingNoteId(null);
+  }, []);
+
   // --- MP選択モードハンドラ ---
 
   const handleStartMPSelection = useCallback(() => {
@@ -3120,6 +3156,15 @@ export function ProofWorkspace({
     msg.nodeLabelAxiom,
   ]);
 
+  const handleCanvasMenuAddNote = useCallback(() => {
+    handleAddNote(canvasMenuState.worldPosition);
+    setCanvasMenuState({
+      open: false,
+      screenPosition: { x: 0, y: 0 },
+      worldPosition: { x: 0, y: 0 },
+    });
+  }, [canvasMenuState.worldPosition, handleAddNote]);
+
   const handleCanvasMenuPaste = useCallback(() => {
     const doInternalPaste = (data: ClipboardData) => {
       const compatError = checkPasteCompatibility(
@@ -3922,6 +3967,7 @@ export function ProofWorkspace({
                   : undefined;
               })()}
               forceEditMode={editRequestNodeId === node.id}
+              onEditNote={handleEditNote}
               testId={`proof-node-${node.id satisfies string}`}
             />
           </div>
@@ -3961,6 +4007,7 @@ export function ProofWorkspace({
       notifyDragMove,
       notifyDragEnd,
       editRequestNodeId,
+      handleEditNote,
     ],
   );
 
@@ -5262,6 +5309,17 @@ export function ProofWorkspace({
             }
           />
           <WorkspaceMenuItem
+            label={msg.addNote}
+            onClick={handleCanvasMenuAddNote}
+            testId={
+              /* v8 ignore start -- testId未指定パス: V8集約アーティファクト */
+              testId
+                ? `${testId satisfies string}-canvas-menu-add-note`
+                : undefined
+              /* v8 ignore stop */
+            }
+          />
+          <WorkspaceMenuItem
             label={msg.canvasMenuPaste}
             onClick={handleCanvasMenuPaste}
             disabled={!hasClipboardData}
@@ -5411,6 +5469,128 @@ export function ProofWorkspace({
         />
       </InfiniteCanvas>
       <EdgeScrollIndicator edgePenetration={edgePenetration} />
+
+      {/* ノート編集モーダル */}
+      {editingNoteId !== null ? (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 3000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(0, 0, 0, 0.4)",
+          }}
+          onClick={handleNoteEditorCancel}
+          data-testid={
+            testId
+              ? `${testId satisfies string}-note-editor-overlay`
+              : undefined
+          }
+        >
+          <div
+            style={{
+              background: "var(--color-panel-bg, #fffdf8)",
+              borderRadius: 12,
+              padding: 20,
+              minWidth: 360,
+              maxWidth: 560,
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                fontFamily: "var(--font-ui)",
+                fontSize: 14,
+                fontWeight: 600,
+              }}
+            >
+              {msg.noteEditorTitle}
+            </div>
+            <textarea
+              value={noteEditorText}
+              onChange={(e) => {
+                setNoteEditorText(e.target.value);
+              }}
+              style={{
+                fontFamily: "var(--font-ui)",
+                fontSize: 13,
+                lineHeight: 1.6,
+                padding: 12,
+                borderRadius: 8,
+                border:
+                  "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.3))",
+                background: "var(--color-input-bg, #fff)",
+                color: "var(--color-input-text, #333)",
+                minHeight: 120,
+                resize: "vertical",
+              }}
+              autoFocus
+              data-testid={
+                testId
+                  ? `${testId satisfies string}-note-editor-textarea`
+                  : undefined
+              }
+            />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 8,
+              }}
+            >
+              <button
+                type="button"
+                onClick={handleNoteEditorCancel}
+                style={{
+                  fontFamily: "var(--font-ui)",
+                  fontSize: 13,
+                  padding: "6px 16px",
+                  borderRadius: 6,
+                  border:
+                    "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.3))",
+                  background: "transparent",
+                  cursor: "pointer",
+                }}
+                data-testid={
+                  testId
+                    ? `${testId satisfies string}-note-editor-cancel`
+                    : undefined
+                }
+              >
+                {msg.cancel}
+              </button>
+              <button
+                type="button"
+                onClick={handleNoteEditorSave}
+                style={{
+                  fontFamily: "var(--font-ui)",
+                  fontSize: 13,
+                  padding: "6px 16px",
+                  borderRadius: 6,
+                  border: "none",
+                  background: "var(--color-node-note, #a0a0a0)",
+                  color: "#fff",
+                  cursor: "pointer",
+                  fontWeight: 600,
+                }}
+                data-testid={
+                  testId
+                    ? `${testId satisfies string}-note-editor-save`
+                    : undefined
+                }
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

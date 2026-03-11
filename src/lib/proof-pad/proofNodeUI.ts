@@ -16,16 +16,18 @@ import type { ConnectorPort } from "../infinite-canvas/connector";
  * 証明ノードの種類（ストレージ上の種別）。
  * - axiom: 公理（通常の論理式ノード）— 編集可能
  * - conclusion: 最終結論（現在未使用だが互換性のため保持）
+ * - note: メモノード（マークダウンテキスト。証明ツリーの一部ではない）
  *
  * ノードが "derived" かどうかは InferenceEdge の有無から計算する（computed）。
  * ProofNodeKind には含めない。
  */
-export type ProofNodeKind = "axiom" | "conclusion";
+export type ProofNodeKind = "axiom" | "conclusion" | "note";
 
 /** すべてのProofNodeKindの値（exhaustive checkに使用） */
 export const PROOF_NODE_KINDS: readonly ProofNodeKind[] = [
   "axiom",
   "conclusion",
+  "note",
 ] as const;
 
 /**
@@ -39,6 +41,8 @@ export function getProofNodeKindLabel(kind: ProofNodeKind): string {
       return "Axiom";
     case "conclusion":
       return "Conclusion";
+    case "note":
+      return "Note";
   }
 }
 
@@ -64,6 +68,7 @@ const NODE_COLORS = {
   axiom: { varName: "--color-node-axiom", fallback: "#5b8bd9" },
   derived: { varName: "--color-node-derived", fallback: "#e6a84d" },
   conclusion: { varName: "--color-node-conclusion", fallback: "#4ad97a" },
+  note: { varName: "--color-node-note", fallback: "#a0a0a0" },
 } as const;
 
 /** CSS変数参照文字列を生成するヘルパー */
@@ -110,6 +115,11 @@ export function getProofNodeStyle(kind: ProofNodeKind): ProofNodeStyle {
           "0 6px 20px var(--color-node-conclusion-shadow, rgba(74,217,122,0.25))",
         stripeColor: cssVar(NODE_COLORS.conclusion),
       };
+    case "note":
+      return {
+        ...CARD_BASE,
+        stripeColor: cssVar(NODE_COLORS.note),
+      };
   }
 }
 
@@ -138,6 +148,9 @@ export const CONCLUSION_PORTS: readonly ConnectorPort[] = [
   { id: "premise-right", edge: "top", position: 0.7 },
 ];
 
+/** ノートノード: ポートなし（接続不可） */
+export const NOTE_PORTS: readonly ConnectorPort[] = [];
+
 /**
  * ノード種別に対応するポート定義を返す。
  * derived は computed なので、axiom kind のノードは常に全ポート（入出力両方）を持つ。
@@ -151,6 +164,8 @@ export function getProofNodePorts(
       return DERIVED_PORTS;
     case "conclusion":
       return CONCLUSION_PORTS;
+    case "note":
+      return NOTE_PORTS;
   }
 }
 
@@ -164,6 +179,7 @@ const EDGE_COLORS = {
   axiom: { varName: "--color-edge-axiom", fallback: "#7aa3e0" },
   derived: { varName: "--color-edge-derived", fallback: "#e6b870" },
   conclusion: { varName: "--color-edge-conclusion", fallback: "#7ae0a3" },
+  note: { varName: "--color-edge-note", fallback: "#c0c0c0" },
 } as const;
 
 /**
@@ -176,6 +192,8 @@ export function getProofEdgeColor(fromKind: ProofNodeKind): string {
       return cssVar(EDGE_COLORS.axiom);
     case "conclusion":
       return cssVar(EDGE_COLORS.conclusion);
+    case "note":
+      return cssVar(EDGE_COLORS.note);
   }
 }
 
@@ -204,6 +222,11 @@ export function getNodeClassificationStyle(
         ...CARD_BASE,
         stripeColor: cssVar(NODE_COLORS.derived),
       };
+    case "note":
+      return {
+        ...CARD_BASE,
+        stripeColor: cssVar(NODE_COLORS.note),
+      };
   }
 }
 
@@ -219,5 +242,7 @@ export function getNodeClassificationEdgeColor(
       return cssVar(EDGE_COLORS.axiom);
     case "derived":
       return cssVar(EDGE_COLORS.derived);
+    case "note":
+      return cssVar(EDGE_COLORS.note);
   }
 }

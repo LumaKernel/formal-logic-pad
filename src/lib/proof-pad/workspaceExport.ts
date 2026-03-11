@@ -157,7 +157,7 @@ const ProofNodeKindSchema = Schema.transform(Schema.String, Schema.String, {
     return mapped ?? kind;
   },
   encode: (kind) => kind,
-}).pipe(Schema.compose(Schema.Literal("axiom", "conclusion")));
+}).pipe(Schema.compose(Schema.Literal("axiom", "conclusion", "note")));
 
 /** NodeRoleのSchema（レガシー互換: 不明なroleはundefinedにフィルタ） */
 const NodeRoleSchema = Schema.Literal("axiom");
@@ -177,7 +177,7 @@ const WorkspaceNodeSchema = Schema.transform(
   Schema.typeSchema(
     Schema.Struct({
       id: Schema.String,
-      kind: Schema.Literal("axiom", "conclusion"),
+      kind: Schema.Literal("axiom", "conclusion", "note"),
       label: Schema.String,
       formulaText: Schema.String,
       position: PointSchema,

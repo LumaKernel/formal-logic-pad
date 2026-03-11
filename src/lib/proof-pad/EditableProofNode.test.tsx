@@ -79,7 +79,7 @@ describe("EditableProofNode", () => {
 
   describe("種別ごとのスタイル（紙カード風）", () => {
     it("全種別で紙カード背景色が適用される", () => {
-      for (const kind of ["axiom", "conclusion"] as const) {
+      for (const kind of ["axiom", "conclusion", "note"] as const) {
         cleanup();
         renderNode({ kind, label: kind.toUpperCase() });
         const node = screen.getByTestId("test-node");
@@ -93,8 +93,9 @@ describe("EditableProofNode", () => {
       const stripeColors: Record<ProofNodeKind, string> = {
         axiom: "var(--color-node-axiom, #5b8bd9)",
         conclusion: "var(--color-node-conclusion, #4ad97a)",
+        note: "var(--color-node-note, #a0a0a0)",
       };
-      for (const kind of ["axiom", "conclusion"] as const) {
+      for (const kind of ["axiom", "conclusion", "note"] as const) {
         cleanup();
         renderNode({ kind, label: kind.toUpperCase() });
         const node = screen.getByTestId("test-node");
@@ -256,6 +257,45 @@ describe("EditableProofNode", () => {
         formulaText: "φ → φ",
       });
       expect(screen.getByText("φ→φ")).toBeInTheDocument();
+    });
+
+    it("noteノードがメモテキストを表示する", () => {
+      renderNode({
+        kind: "note",
+        label: "Note",
+        formulaText: "This is a memo",
+      });
+      expect(screen.getByText("This is a memo")).toBeInTheDocument();
+    });
+
+    it("noteノードが空テキストでプレースホルダーを表示する", () => {
+      renderNode({
+        kind: "note",
+        label: "Note",
+        formulaText: "",
+      });
+      expect(
+        screen.getByText("Double-click to add a note..."),
+      ).toBeInTheDocument();
+    });
+
+    it("noteノードのダブルクリックでonEditNoteが呼ばれる", () => {
+      const onEditNote = vi.fn();
+      renderNode({
+        kind: "note",
+        label: "Note",
+        formulaText: "memo",
+        onEditNote,
+      });
+      const noteText = screen.getByText("memo");
+      fireEvent.doubleClick(noteText);
+      expect(onEditNote).toHaveBeenCalledWith("node-1");
+    });
+
+    it("note分類で'Note'バッジが表示される", () => {
+      renderNode({ kind: "note", classification: "note" });
+      const badge = screen.getByTestId("test-node-role-badge");
+      expect(badge).toHaveTextContent("Note");
     });
   });
 

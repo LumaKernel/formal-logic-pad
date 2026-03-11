@@ -221,6 +221,12 @@ function useProofMessagesFromIntl(): ProofMessages {
       atGammaDeltaRules: t("atGammaDeltaRules"),
       atClosureRules: t("atClosureRules"),
 
+      // Note
+      noteEmptyPlaceholder: t("noteEmptyPlaceholder"),
+      addNote: t("addNote"),
+      editNote: t("editNote"),
+      noteEditorTitle: t("noteEditorTitle"),
+
       // Node creation labels
       nodeLabelAxiom: t("nodeLabelAxiom"),
       nodeLabelAssumption: t("nodeLabelAssumption"),

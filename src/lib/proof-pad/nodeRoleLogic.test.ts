@@ -99,6 +99,18 @@ describe("nodeRoleLogic", () => {
       const connections = [makeConnection("node-1", "node-2")];
       expect(classifyNode(node, connections)).toBe("derived");
     });
+
+    it("returns 'note' for a note node regardless of connections", () => {
+      const node = makeNode("note-1", { kind: "note" });
+      const connections: readonly WorkspaceConnection[] = [];
+      expect(classifyNode(node, connections)).toBe("note");
+    });
+
+    it("returns 'note' for a note node even with incoming connections", () => {
+      const node = makeNode("note-1", { kind: "note" });
+      const connections = [makeConnection("node-1", "note-1")];
+      expect(classifyNode(node, connections)).toBe("note");
+    });
   });
 
   describe("classifyAllNodes", () => {
@@ -132,6 +144,18 @@ describe("nodeRoleLogic", () => {
       expect(result.get("node-1")).toBe("root-axiom");
       expect(result.get("node-2")).toBe("root-unmarked");
     });
+
+    it("classifies note nodes as 'note'", () => {
+      const nodes = [
+        makeNode("node-1", { role: "axiom" }),
+        makeNode("note-1", { kind: "note" }),
+      ];
+      const connections: readonly WorkspaceConnection[] = [];
+
+      const result = classifyAllNodes(nodes, connections);
+      expect(result.get("node-1")).toBe("root-axiom");
+      expect(result.get("note-1")).toBe("note");
+    });
   });
 
   describe("getAxiomNodeIds", () => {
@@ -155,6 +179,14 @@ describe("nodeRoleLogic", () => {
       const nodes = [makeNode("node-2", { kind: "axiom" })];
       const connections = [makeConnection("node-1", "node-2")];
       expect(getAxiomNodeIds(nodes, connections)).toEqual([]);
+    });
+
+    it("excludes note nodes from axiom list", () => {
+      const nodes = [
+        makeNode("node-1", { role: "axiom" }),
+        makeNode("note-1", { kind: "note" }),
+      ];
+      expect(getAxiomNodeIds(nodes, [])).toEqual(["node-1"]);
     });
   });
 });

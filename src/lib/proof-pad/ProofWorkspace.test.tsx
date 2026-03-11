@@ -5703,4 +5703,115 @@ describe("ProofWorkspace", () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe("note node - add and edit", () => {
+    it("adds a note node via canvas context menu 'Add Note'", async () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const { container } = render(
+        <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
+      );
+
+      // 右クリックでキャンバスコンテキストメニューを開く
+      const canvas = container.querySelector("[data-testid='workspace']")!;
+      await userEvent.pointer({
+        target: canvas,
+        keys: "[MouseRight]",
+        coords: { clientX: 300, clientY: 200 },
+      });
+
+      // 「Add Note」をクリック
+      await userEvent.click(
+        screen.getByTestId("workspace-canvas-menu-add-note"),
+      );
+
+      // メニューが閉じる
+      expect(
+        screen.queryByTestId("workspace-canvas-context-menu"),
+      ).not.toBeInTheDocument();
+
+      // ノートノードが追加されている
+      expect(
+        screen.getByTestId(`proof-node-${"node-1" satisfies string}`),
+      ).toBeInTheDocument();
+    });
+
+    it("opens note editor modal on double-click and saves", async () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "note", "Note", { x: 100, y: 100 }, "");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // ノートのプレースホルダーが表示される
+      const noteText = screen.getByTestId("proof-node-node-1-note-text");
+      expect(noteText).toHaveTextContent("Double-click to add a note...");
+
+      // ダブルクリックでモーダルを開く
+      await userEvent.dblClick(noteText);
+
+      // モーダルが開く
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-note-editor-overlay"),
+        ).toBeInTheDocument();
+      });
+
+      // テキストを入力
+      const textarea = screen.getByTestId("workspace-note-editor-textarea");
+      await userEvent.type(textarea, "My first note");
+
+      // OKをクリックして保存
+      await userEvent.click(screen.getByTestId("workspace-note-editor-save"));
+
+      // モーダルが閉じる
+      expect(
+        screen.queryByTestId("workspace-note-editor-overlay"),
+      ).not.toBeInTheDocument();
+
+      // ノートのテキストが更新されている
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("proof-node-node-1-note-text"),
+        ).toHaveTextContent("My first note");
+      });
+    });
+
+    it("cancels note editing without saving", async () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "note", "Note", { x: 100, y: 100 }, "Original text");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // ノートのテキストが表示される
+      const noteText = screen.getByTestId("proof-node-node-1-note-text");
+      expect(noteText).toHaveTextContent("Original text");
+
+      // ダブルクリックでモーダルを開く
+      await userEvent.dblClick(noteText);
+
+      // モーダルが開く
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-note-editor-overlay"),
+        ).toBeInTheDocument();
+      });
+
+      // テキストを変更
+      const textarea = screen.getByTestId("workspace-note-editor-textarea");
+      await userEvent.clear(textarea);
+      await userEvent.type(textarea, "Changed text");
+
+      // キャンセルをクリック
+      await userEvent.click(screen.getByTestId("workspace-note-editor-cancel"));
+
+      // モーダルが閉じる
+      expect(
+        screen.queryByTestId("workspace-note-editor-overlay"),
+      ).not.toBeInTheDocument();
+
+      // テキストが元のまま
+      expect(
+        screen.getByTestId("proof-node-node-1-note-text"),
+      ).toHaveTextContent("Original text");
+    });
+  });
 });

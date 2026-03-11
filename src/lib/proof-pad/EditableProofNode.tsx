@@ -86,6 +86,8 @@ export interface EditableProofNodeProps {
   readonly substitutionEntries?: SubstitutionEntries;
   /** 外部から編集モードを強制的に開始するフラグ */
   readonly forceEditMode?: boolean;
+  /** ノートノードの編集開始コールバック（kind="note"のダブルクリック時） */
+  readonly onEditNote?: (id: string) => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -107,6 +109,24 @@ const formulaContainerReadonlyStyle: CSSProperties = {
   fontStyle: "italic",
   whiteSpace: "nowrap",
   fontSize: 13,
+};
+
+const noteTextStyle: CSSProperties = {
+  fontFamily: "var(--font-ui)",
+  fontStyle: "normal",
+  fontSize: 12,
+  lineHeight: 1.5,
+  whiteSpace: "pre-wrap",
+  wordBreak: "break-word",
+  textAlign: "left",
+  maxWidth: 240,
+  cursor: "pointer",
+};
+
+const noteEmptyStyle: CSSProperties = {
+  ...noteTextStyle,
+  opacity: 0.5,
+  fontStyle: "italic",
 };
 
 const statusErrorStyle: CSSProperties = {
@@ -321,6 +341,12 @@ function getRoleBadgeStyle(classification: NodeClassification): CSSProperties {
         background: "var(--color-badge-bg, #e8eaf0)",
         color: "var(--color-badge-text, #718096)",
       };
+    case "note":
+      return {
+        ...roleBadgeBaseStyle,
+        background: "var(--color-badge-bg, #e8eaf0)",
+        color: "var(--color-badge-text, #718096)",
+      };
   }
 }
 
@@ -335,6 +361,8 @@ function getRoleBadgeLabel(
       return msg.roleRoot;
     case "derived":
       return msg.roleDerived;
+    case "note":
+      return "Note";
   }
 }
 
@@ -373,6 +401,7 @@ export function EditableProofNode({
   onOpenSyntaxHelp,
   substitutionEntries,
   forceEditMode,
+  onEditNote,
   testId,
 }: EditableProofNodeProps) {
   const nodeStyle = useMemo(
@@ -445,6 +474,9 @@ export function EditableProofNode({
   const handleMouseLeave = useCallback(() => {
     setIsHovered(false);
   }, []);
+  const handleNoteDoubleClick = useCallback(() => {
+    onEditNote?.(id);
+  }, [id, onEditNote]);
 
   return (
     <div
@@ -529,7 +561,17 @@ export function EditableProofNode({
         ) : null}
       </div>
       {visibility.showFormula ? (
-        effectiveEditable ? (
+        kind === "note" ? (
+          <div
+            style={formulaText.trim() ? noteTextStyle : noteEmptyStyle}
+            onDoubleClick={handleNoteDoubleClick}
+            data-testid={
+              testId ? `${testId satisfies string}-note-text` : undefined
+            }
+          >
+            {formulaText.trim() || msg.noteEmptyPlaceholder}
+          </div>
+        ) : effectiveEditable ? (
           <FormulaEditor
             value={formulaText}
             onChange={handleFormulaChange}

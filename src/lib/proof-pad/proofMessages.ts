@@ -239,6 +239,12 @@ export type ProofMessages = {
   readonly atGammaDeltaRules: string;
   readonly atClosureRules: string;
 
+  // --- ノート ---
+  readonly noteEmptyPlaceholder: string;
+  readonly addNote: string;
+  readonly editNote: string;
+  readonly noteEditorTitle: string;
+
   // --- ノード作成ラベル ---
   readonly nodeLabelAxiom: string;
   readonly nodeLabelAssumption: string;
@@ -467,6 +473,12 @@ export const defaultProofMessages: ProofMessages = {
   atBetaRules: "\u03B2 (branching)",
   atGammaDeltaRules: "\u03B3/\u03B4 (quantifiers)",
   atClosureRules: "Closure",
+
+  // Note
+  noteEmptyPlaceholder: "Double-click to add a note...",
+  addNote: "Add Note",
+  editNote: "Edit Note",
+  noteEditorTitle: "Edit Note",
 
   // Node creation labels
   nodeLabelAxiom: "Axiom",

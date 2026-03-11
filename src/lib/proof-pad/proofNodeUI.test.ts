@@ -2,16 +2,20 @@ import { describe, expect, it } from "vitest";
 import {
   CONCLUSION_PORTS,
   DERIVED_PORTS,
+  NOTE_PORTS,
   PROOF_NODE_KINDS,
   getProofEdgeColor,
   getProofNodePorts,
   getProofNodeStyle,
   getProofNodeKindLabel,
+  getNodeClassificationStyle,
+  getNodeClassificationEdgeColor,
 } from "./proofNodeUI";
 import type { ProofNodeKind } from "./proofNodeUI";
+import type { NodeClassification } from "./nodeRoleLogic";
 
 describe("getProofNodeStyle", () => {
-  it.each<ProofNodeKind>(["axiom", "conclusion"])(
+  it.each<ProofNodeKind>(["axiom", "conclusion", "note"])(
     "returns a style object for kind=%s",
     (kind) => {
       const style = getProofNodeStyle(kind);
@@ -81,6 +85,12 @@ describe("getProofNodePorts", () => {
     expect(ports).toHaveLength(2);
     expect(ports.map((p) => p.id)).toEqual(["premise-left", "premise-right"]);
   });
+
+  it("note has no ports (cannot participate in proof tree)", () => {
+    const ports = getProofNodePorts("note");
+    expect(ports).toBe(NOTE_PORTS);
+    expect(ports).toHaveLength(0);
+  });
 });
 
 describe("getProofEdgeColor", () => {
@@ -93,11 +103,15 @@ describe("getProofEdgeColor", () => {
   it("axiom edges use CSS variable with fallback", () => {
     expect(getProofEdgeColor("axiom")).toBe("var(--color-edge-axiom, #7aa3e0)");
   });
+
+  it("note edges use CSS variable with fallback", () => {
+    expect(getProofEdgeColor("note")).toBe("var(--color-edge-note, #c0c0c0)");
+  });
 });
 
 describe("PROOF_NODE_KINDS", () => {
-  it("contains all 2 kinds", () => {
-    expect(PROOF_NODE_KINDS).toEqual(["axiom", "conclusion"]);
+  it("contains all 3 kinds", () => {
+    expect(PROOF_NODE_KINDS).toEqual(["axiom", "conclusion", "note"]);
   });
 });
 
@@ -110,9 +124,56 @@ describe("getProofNodeKindLabel", () => {
     expect(getProofNodeKindLabel("conclusion")).toBe("Conclusion");
   });
 
+  it("returns 'Note' for note kind", () => {
+    expect(getProofNodeKindLabel("note")).toBe("Note");
+  });
+
   it("returns a label for every PROOF_NODE_KINDS entry", () => {
     for (const kind of PROOF_NODE_KINDS) {
       expect(getProofNodeKindLabel(kind)).toBeTruthy();
     }
+  });
+});
+
+describe("getNodeClassificationStyle", () => {
+  const allClassifications: readonly NodeClassification[] = [
+    "root-axiom",
+    "root-unmarked",
+    "derived",
+    "note",
+  ];
+
+  it("returns a style with stripeColor for every classification", () => {
+    for (const c of allClassifications) {
+      const style = getNodeClassificationStyle(c);
+      expect(style.stripeColor).toBeTruthy();
+      expect(style.backgroundColor).toBeTruthy();
+    }
+  });
+
+  it("note classification uses note stripe color", () => {
+    const style = getNodeClassificationStyle("note");
+    expect(style.stripeColor).toBe("var(--color-node-note, #a0a0a0)");
+  });
+});
+
+describe("getNodeClassificationEdgeColor", () => {
+  const allClassifications: readonly NodeClassification[] = [
+    "root-axiom",
+    "root-unmarked",
+    "derived",
+    "note",
+  ];
+
+  it("returns an edge color for every classification", () => {
+    for (const c of allClassifications) {
+      expect(getNodeClassificationEdgeColor(c)).toBeTruthy();
+    }
+  });
+
+  it("note classification uses note edge color", () => {
+    expect(getNodeClassificationEdgeColor("note")).toBe(
+      "var(--color-edge-note, #c0c0c0)",
+    );
   });
 });

@@ -308,6 +308,31 @@ describe("exportWorkspaceToJSON", () => {
     expect(parsed.workspace.inferenceEdges).toEqual([]);
   });
 
+  it("ノートノードがシリアライズされる", () => {
+    const state: WorkspaceState = {
+      ...createSampleWorkspace(),
+      nodes: [
+        ...createSampleWorkspace().nodes,
+        {
+          id: "note-1",
+          kind: "note",
+          label: "Note",
+          formulaText: "This is a memo",
+          position: { x: 500, y: 100 },
+        },
+      ],
+    };
+    const json = exportWorkspaceToJSON(state);
+    const parsed = JSON.parse(json);
+
+    const noteNode = parsed.workspace.nodes.find(
+      (n: { id: string }) => n.id === "note-1",
+    );
+    expect(noteNode).toBeDefined();
+    expect(noteNode.kind).toBe("note");
+    expect(noteNode.formulaText).toBe("This is a memo");
+  });
+
   it("出力はpretty-printされている", () => {
     const state = createSampleWorkspace();
     const json = exportWorkspaceToJSON(state);
@@ -351,6 +376,33 @@ describe("importWorkspaceFromJSON", () => {
     expect(result.workspace.goals).toHaveLength(1);
     expect(result.workspace.goals[0].formulaText).toBe("phi -> phi");
     expect(result.workspace.goals[0].label).toBe("Quest Goal");
+  });
+
+  it("ノートノードのラウンドトリップ", () => {
+    const original: WorkspaceState = {
+      ...createSampleWorkspace(),
+      nodes: [
+        ...createSampleWorkspace().nodes,
+        {
+          id: "note-1",
+          kind: "note",
+          label: "Note",
+          formulaText: "Some memo text",
+          position: { x: 500, y: 100 },
+        },
+      ],
+    };
+    const json = exportWorkspaceToJSON(original);
+    const result = importWorkspaceFromJSON(json);
+
+    expect(result._tag).toBe("Success");
+    if (result._tag !== "Success") return;
+
+    const noteNode = result.workspace.nodes.find((n) => n.id === "note-1");
+    expect(noteNode).toBeDefined();
+    expect(noteNode!.kind).toBe("note");
+    expect(noteNode!.formulaText).toBe("Some memo text");
+    expect(noteNode!.position).toEqual({ x: 500, y: 100 });
   });
 
   it("Gen変数名のラウンドトリップ（ノードにはgenVariableNameがない）", () => {

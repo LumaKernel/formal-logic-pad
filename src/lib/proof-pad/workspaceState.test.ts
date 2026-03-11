@@ -146,6 +146,15 @@ describe("proofWorkspace", () => {
       expect(result.nodes[0]!.kind).toBe("conclusion");
     });
 
+    it("adds a note node", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const result = addNode(ws, "note", "Note", { x: 200, y: 100 }, "Hello");
+      expect(result.nodes).toHaveLength(1);
+      expect(result.nodes[0]!.kind).toBe("note");
+      expect(result.nodes[0]!.label).toBe("Note");
+      expect(result.nodes[0]!.formulaText).toBe("Hello");
+    });
+
     it("increments node IDs", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
