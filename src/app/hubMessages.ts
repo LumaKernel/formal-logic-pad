@@ -20,6 +20,7 @@ export type HubMessages = {
   readonly tabNotebooks: string;
   readonly tabQuests: string;
   readonly tabCustomQuests: string;
+  readonly tabCollection: string;
   readonly newNotebook: string;
   readonly importNotebook: string;
   readonly emptyTitle: string;
@@ -37,6 +38,19 @@ export type HubMessages = {
   readonly landingStartFreeProof: string;
   readonly landingExploreQuests: string;
   readonly landingRecommendedQuests: string;
+  // --- Collection ---
+  readonly collectionEmpty: string;
+  readonly collectionEntryCount: string;
+  readonly collectionDelete: string;
+  readonly collectionMemoPlaceholder: string;
+  readonly collectionCreateFolder: string;
+  readonly collectionFolderNamePlaceholder: string;
+  readonly collectionFolderDelete: string;
+  readonly collectionFolderRename: string;
+  readonly collectionMoveToFolder: string;
+  readonly collectionMoveToRoot: string;
+  readonly collectionRootEntries: string;
+  readonly collectionFolderEntryCount: string;
 };
 
 /**
@@ -47,6 +61,7 @@ export const defaultHubMessages: HubMessages = {
   tabNotebooks: "Notebooks",
   tabQuests: "Quests",
   tabCustomQuests: "Custom Quests",
+  tabCollection: "Collection",
   newNotebook: "+ New Notebook",
   importNotebook: "Import",
   emptyTitle: "No notebooks yet",
@@ -67,6 +82,20 @@ export const defaultHubMessages: HubMessages = {
   landingStartFreeProof: "Start Free Proof",
   landingExploreQuests: "Explore Quests",
   landingRecommendedQuests: "Try a Quick Quest",
+  // Collection
+  collectionEmpty:
+    "No saved proofs yet. Save proofs from your workspace to manage them here.",
+  collectionEntryCount: "{count} proofs",
+  collectionDelete: "Delete",
+  collectionMemoPlaceholder: "Add a memo…",
+  collectionCreateFolder: "+ New Folder",
+  collectionFolderNamePlaceholder: "Folder name",
+  collectionFolderDelete: "Delete Folder",
+  collectionFolderRename: "Rename",
+  collectionMoveToFolder: "Move to…",
+  collectionMoveToRoot: "(Root)",
+  collectionRootEntries: "Uncategorized",
+  collectionFolderEntryCount: "{count}",
 };
 
 /** HubMessages の全キー一覧（網羅性チェック用） */
@@ -74,6 +103,7 @@ export const hubMessageKeys: readonly (keyof HubMessages)[] = [
   "tabNotebooks",
   "tabQuests",
   "tabCustomQuests",
+  "tabCollection",
   "newNotebook",
   "importNotebook",
   "emptyTitle",
@@ -91,4 +121,16 @@ export const hubMessageKeys: readonly (keyof HubMessages)[] = [
   "landingStartFreeProof",
   "landingExploreQuests",
   "landingRecommendedQuests",
+  "collectionEmpty",
+  "collectionEntryCount",
+  "collectionDelete",
+  "collectionMemoPlaceholder",
+  "collectionCreateFolder",
+  "collectionFolderNamePlaceholder",
+  "collectionFolderDelete",
+  "collectionFolderRename",
+  "collectionMoveToFolder",
+  "collectionMoveToRoot",
+  "collectionRootEntries",
+  "collectionFolderEntryCount",
 ] as const;

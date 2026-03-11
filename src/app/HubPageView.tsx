@@ -34,11 +34,15 @@ import {
   type LanguageToggleProps,
 } from "../components/LanguageToggle/LanguageToggle";
 import type { DeductionSystem } from "../lib/logic-core/deductionSystem";
+import {
+  ProofCollectionPageView,
+  type ProofCollectionPageViewProps,
+} from "../lib/proof-collection";
 import { useHubMessages } from "./HubMessagesContext";
 
 // --- Types ---
 
-export type HubTab = "notebooks" | "quests" | "custom-quests";
+export type HubTab = "notebooks" | "quests" | "custom-quests" | "collection";
 type HubViewState = "list" | "create";
 
 /** ランディングページに表示するおすすめクエスト */
@@ -115,6 +119,11 @@ export type HubPageViewProps = {
   readonly showLanding?: boolean;
   /** ランディングページに表示するおすすめクエスト */
   readonly recommendedQuests?: readonly RecommendedQuest[];
+  /** 証明コレクションのプロパティ（collectionタブ用） */
+  readonly collectionProps?: Omit<
+    ProofCollectionPageViewProps,
+    "messages" | "testId"
+  >;
 };
 
 // --- Styles ---
@@ -478,6 +487,7 @@ export function HubPageView({
   themeLabels,
   showLanding,
   recommendedQuests,
+  collectionProps,
 }: HubPageViewProps) {
   const m = useHubMessages();
   const [view, setView] = useState<HubViewState>("list");
@@ -636,6 +646,16 @@ export function HubPageView({
             >
               {m.tabCustomQuests}
             </button>
+            <button
+              type="button"
+              style={tab === "collection" ? tabActiveStyle : tabStyle}
+              onClick={() => {
+                onTabChange("collection");
+                setView("list");
+              }}
+            >
+              {m.tabCollection}
+            </button>
           </nav>
 
           {/* Content */}
@@ -767,6 +787,22 @@ export function HubPageView({
                 onExportQuest={onExportCustomQuest}
                 onImportQuest={onImportCustomQuest}
                 onShareQuestUrl={onShareQuestUrl}
+              />
+            )}
+
+            {tab === "collection" && collectionProps !== undefined && (
+              <ProofCollectionPageView
+                entries={collectionProps.entries}
+                folders={collectionProps.folders}
+                messages={m}
+                onRenameEntry={collectionProps.onRenameEntry}
+                onUpdateMemo={collectionProps.onUpdateMemo}
+                onRemoveEntry={collectionProps.onRemoveEntry}
+                onMoveEntry={collectionProps.onMoveEntry}
+                onCreateFolder={collectionProps.onCreateFolder}
+                onRemoveFolder={collectionProps.onRemoveFolder}
+                onRenameFolder={collectionProps.onRenameFolder}
+                testId="collection-page"
               />
             )}
           </div>

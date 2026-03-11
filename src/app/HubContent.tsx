@@ -55,6 +55,7 @@ import {
   updateHasEverHadNotebooks,
   recommendedQuestIds,
 } from "./landingPageLogic";
+import { useProofCollection } from "../lib/proof-collection";
 
 // eslint-disable-next-line @luma-dev/luma-ts/no-date
 const getNow = (): number => Date.now();
@@ -82,6 +83,7 @@ function useHubMessagesFromIntl(): HubMessages {
       tabNotebooks: String(t.raw("tabNotebooks")),
       tabQuests: String(t.raw("tabQuests")),
       tabCustomQuests: String(t.raw("tabCustomQuests")),
+      tabCollection: String(t.raw("tabCollection")),
       newNotebook: String(t.raw("newNotebook")),
       importNotebook: String(t.raw("importNotebook")),
       emptyTitle: String(t.raw("emptyTitle")),
@@ -99,6 +101,21 @@ function useHubMessagesFromIntl(): HubMessages {
       landingStartFreeProof: String(t.raw("landingStartFreeProof")),
       landingExploreQuests: String(t.raw("landingExploreQuests")),
       landingRecommendedQuests: String(t.raw("landingRecommendedQuests")),
+      // Collection
+      collectionEmpty: String(t.raw("collectionEmpty")),
+      collectionEntryCount: String(t.raw("collectionEntryCount")),
+      collectionDelete: String(t.raw("collectionDelete")),
+      collectionMemoPlaceholder: String(t.raw("collectionMemoPlaceholder")),
+      collectionCreateFolder: String(t.raw("collectionCreateFolder")),
+      collectionFolderNamePlaceholder: String(
+        t.raw("collectionFolderNamePlaceholder"),
+      ),
+      collectionFolderDelete: String(t.raw("collectionFolderDelete")),
+      collectionFolderRename: String(t.raw("collectionFolderRename")),
+      collectionMoveToFolder: String(t.raw("collectionMoveToFolder")),
+      collectionMoveToRoot: String(t.raw("collectionMoveToRoot")),
+      collectionRootEntries: String(t.raw("collectionRootEntries")),
+      collectionFolderEntryCount: String(t.raw("collectionFolderEntryCount")),
     }),
     [t],
   );
@@ -108,6 +125,7 @@ const parseTabFromHash = (hash: string): HubTab => {
   const normalized = hash.replace(/^#/, "");
   if (normalized === "quests") return "quests";
   if (normalized === "custom-quests") return "custom-quests";
+  if (normalized === "collection") return "collection";
   return "notebooks";
 };
 
@@ -116,6 +134,7 @@ function HubInner() {
   const notebookCollection = useNotebookCollection();
   const questProgress = useQuestProgress();
   const customQuestCollection = useCustomQuestCollection();
+  const proofCollection = useProofCollection();
   const hubMessages = useHubMessagesFromIntl();
   const themeLabels = useThemeLabelsFromIntl();
   const rawLocale = useLocale();
@@ -557,6 +576,17 @@ function HubInner() {
         themeLabels={themeLabels}
         showLanding={showLanding}
         recommendedQuests={recommendedQuests}
+        collectionProps={{
+          entries: proofCollection.entries,
+          folders: proofCollection.folders,
+          onRenameEntry: proofCollection.renameEntry,
+          onUpdateMemo: proofCollection.updateMemo,
+          onRemoveEntry: proofCollection.removeEntry,
+          onMoveEntry: proofCollection.moveEntry,
+          onCreateFolder: proofCollection.createFolder,
+          onRemoveFolder: proofCollection.removeFolder,
+          onRenameFolder: proofCollection.renameFolder,
+        }}
       />
     </HubMessagesProvider>
   );
