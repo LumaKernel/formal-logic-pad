@@ -25,6 +25,7 @@ import {
   getNodeInferenceRuleIds,
   validateRootNodes,
   hasInstanceRoots,
+  hasUnknownRoots,
 } from "../proof-pad/dependencyLogic";
 import { parseNodeFormula } from "../proof-pad/goalCheckLogic";
 
@@ -165,6 +166,11 @@ export type GoalAxiomCheckResult = {
    * true の場合、公理スキーマ → SubstitutionEdge → インスタンスの形式で導出すべき。
    */
   readonly hasInstanceRootNodes: boolean;
+  /**
+   * 未知のルートノード（公理パターンに一致しない）が存在するかどうか。
+   * true の場合、ルートノードとして配置された式が既知の公理テンプレートに一致しない。
+   */
+  readonly hasUnknownRootNodes: boolean;
   /** 使用された推論規則IDの集合 */
   readonly usedRuleIds: ReadonlySet<InferenceRuleId>;
   /** このゴールで許可された推論規則ID（undefinedは制限なし） */
@@ -221,6 +227,7 @@ const checkSingleGoalWithAxioms = (
         allowedAxiomIds: goal.allowedAxiomIds,
         violatingAxiomIds: new Set<AxiomId>(),
         hasInstanceRootNodes: false,
+        hasUnknownRootNodes: false,
         usedRuleIds: new Set<InferenceRuleId>(),
         allowedRuleIds: goal.allowedRuleIds,
         violatingRuleIds: new Set<InferenceRuleId>(),
@@ -237,16 +244,12 @@ const checkSingleGoalWithAxioms = (
       computeViolatingAxiomIds(usedAxiomIds, goal.allowedAxiomIds),
     );
 
-    // ルートノードのインスタンス直接配置をチェック
-    const goalHasInstanceRoots = yield* Effect.sync(() => {
-      const rootValidations = validateRootNodes(
-        matchingNode.id,
-        nodes,
-        inferenceEdges,
-        system,
-      );
-      return hasInstanceRoots(rootValidations);
-    });
+    // ルートノードのバリデーション
+    const rootValidations = yield* Effect.sync(() =>
+      validateRootNodes(matchingNode.id, nodes, inferenceEdges, system),
+    );
+    const goalHasInstanceRoots = hasInstanceRoots(rootValidations);
+    const goalHasUnknownRoots = hasUnknownRoots(rootValidations);
 
     // 使用された推論規則を特定
     const usedRuleIds = yield* Effect.sync(() =>
@@ -265,6 +268,7 @@ const checkSingleGoalWithAxioms = (
       allowedAxiomIds: goal.allowedAxiomIds,
       violatingAxiomIds,
       hasInstanceRootNodes: goalHasInstanceRoots,
+      hasUnknownRootNodes: goalHasUnknownRoots,
       usedRuleIds,
       allowedRuleIds: goal.allowedRuleIds,
       violatingRuleIds,

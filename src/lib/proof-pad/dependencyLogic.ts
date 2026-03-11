@@ -383,6 +383,16 @@ export function hasInstanceRoots(
 }
 
 /**
+ * ルートノードバリデーション結果に未知のルートノードがあるかどうかを返す。
+ * 未知のルートノードは公理パターンに一致しないルートノード。
+ */
+export function hasUnknownRoots(
+  validations: readonly RootNodeValidation[],
+): boolean {
+  return validations.some((v) => v._tag === "unknown");
+}
+
+/**
  * 依存公理リストをdisplayNameで重複排除する。
  *
  * 同じ公理スキーマの異なるインスタンス（例: A1[φ:=p] と A1[φ:=q]）が

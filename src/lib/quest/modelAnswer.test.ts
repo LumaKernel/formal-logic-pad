@@ -918,4 +918,43 @@ describe("validateModelAnswer", () => {
     const result = validateModelAnswer(ruleConstrainedQuest, answer);
     expect(result._tag).toBe("RuleConstraintViolation");
   });
+
+  it("公理パターンに一致しないルートノードがある場合hasUnknownRootNodesがtrueになる", () => {
+    // "phi /\\ psi" は公理パターンに一致しない
+    const unknownQuest: QuestDefinition = {
+      id: "test-unknown",
+      category: "propositional-basics",
+      title: "Test: unknown root",
+      description: "test",
+      difficulty: 1,
+      systemPresetId: "lukasiewicz",
+      goals: [{ formulaText: "phi /\\ psi", label: "Goal" }],
+      hints: [],
+      estimatedSteps: 1,
+      learningPoint: "test",
+      order: 1,
+      version: 1,
+    };
+    const answer: ModelAnswer = {
+      questId: "test-unknown",
+      steps: [{ _tag: "axiom", formulaText: "phi /\\ psi" }],
+    };
+    // validateModelAnswer は UnknownRootNodes を返さない（非Hilbert系対応のため）
+    // 代わりに buildModelAnswerWorkspace の goalResults で直接チェック
+    const buildResult = buildModelAnswerWorkspace(unknownQuest, answer);
+    expect(buildResult._tag).toBe("Ok");
+    if (buildResult._tag !== "Ok") return;
+    expect(
+      buildResult.goalCheck._tag === "AllAchieved" ||
+        buildResult.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+    if (
+      buildResult.goalCheck._tag !== "AllAchieved" &&
+      buildResult.goalCheck._tag !== "AllAchievedButAxiomViolation"
+    )
+      return;
+    expect(
+      buildResult.goalCheck.goalResults.some((r) => r.hasUnknownRootNodes),
+    ).toBe(true);
+  });
 });

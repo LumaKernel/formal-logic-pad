@@ -1299,9 +1299,13 @@ export type ValidateModelAnswerResult =
  * そのため hasInstanceRootNodes が true になるが、これは正常な挙動であり、
  * AllAchievedButAxiomViolation でも hasInstanceRootNodes のみが原因なら Valid とする。
  *
- * ただし、violatingAxiomIds が空でない場合（真の公理制約違反）は
- * AxiomConstraintViolation として報告する。
- * violatingRuleIds が空でない場合も同様に RuleConstraintViolation として報告する。
+ * ただし以下の場合は違反として報告する:
+ * - violatingAxiomIds が空でない（真の公理制約違反）→ AxiomConstraintViolation
+ * - violatingRuleIds が空でない（真の規則制約違反）→ RuleConstraintViolation
+ *
+ * 注: hasUnknownRootNodes は GoalAxiomCheckResult のデータフィールドとして提供される。
+ * validateModelAnswer ではチェックしない（非Hilbert系では全ルートが unknown になるため）。
+ * builtinModelAnswers.test.ts の専用テストで直接チェックする。
  */
 export function validateModelAnswer(
   quest: QuestDefinition,

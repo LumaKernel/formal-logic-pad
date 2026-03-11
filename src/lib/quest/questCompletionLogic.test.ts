@@ -588,6 +588,70 @@ describe("checkQuestGoalsWithAxioms", () => {
       expect(result.goalResults[0]?.hasInstanceRootNodes).toBe(false);
     }
   });
+
+  test("公理パターンに一致しないルートノードでhasUnknownRootNodesがtrue", () => {
+    // "phi /\\ psi" は公理パターンに一致しない
+    const goals = [
+      makeGoal({ id: "g1", formulaText: "phi /\\ psi" }),
+    ];
+    const nodes = [
+      makeNode({
+        id: "n1",
+        kind: "axiom",
+        formulaText: "phi /\\ psi",
+      }),
+    ];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
+    // hasUnknownRootNodes はデータとして保持するが、_tag には影響しない
+    expect(result._tag).toBe("AllAchieved");
+    if (result._tag === "AllAchieved") {
+      expect(result.goalResults[0]?.hasUnknownRootNodes).toBe(true);
+    }
+  });
+
+  test("正しい公理ルートノードではhasUnknownRootNodesがfalse", () => {
+    // A1 schema: phi -> (psi -> phi)
+    const goals = [
+      makeGoal({ id: "g1", formulaText: "phi -> (psi -> phi)" }),
+    ];
+    const nodes = [
+      makeNode({
+        id: "n1",
+        kind: "axiom",
+        formulaText: "phi -> (psi -> phi)",
+      }),
+    ];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
+    expect(result._tag).toBe("AllAchieved");
+    if (result._tag === "AllAchieved") {
+      expect(result.goalResults[0]?.hasUnknownRootNodes).toBe(false);
+    }
+  });
+
+  test("未達成ゴールのhasUnknownRootNodesはfalse", () => {
+    const goals = [makeGoal({ id: "g1", formulaText: "phi -> phi" })];
+    const nodes: readonly WorkspaceNode[] = [];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
+    expect(result._tag).toBe("NotAllAchieved");
+    if (result._tag === "NotAllAchieved") {
+      expect(result.goalResults[0]?.hasUnknownRootNodes).toBe(false);
+    }
+  });
 });
 
 // --- checkQuestGoalsWithAxiomsEffect ---

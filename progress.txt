@@ -12727,3 +12727,31 @@
   - ノードの種類（kind）ごとにコンテキストメニューの内容を分岐させるパターン: menuNodeIsNote的なuseMemoを追加し、JSXで三項演算子で分岐する
   - menuActionDefinition.tsにアクションを追加する際は、noteフィールドでどのノード種別専用かを明示すると良い
 ---
+
+## 2026-03-12 - 模範解答の公理パターン検証テスト強化
+- 実装した内容:
+  - GoalAxiomCheckResult に hasUnknownRootNodes フィールドを追加（questCompletionLogic.ts）
+  - dependencyLogic.ts に hasUnknownRoots() ヘルパー関数を追加、index.ts にエクスポート追加
+  - builtinModelAnswers.test.ts に全 Hilbert 模範解答のルートノード公理パターン検証テストセクションを追加
+  - 既知の pragmatic クエスト（65件）をスキップリストで管理
+  - questCompletionLogic.test.ts に hasUnknownRootNodes のテスト3件追加
+  - dependencyLogic.test.ts に hasUnknownRoots のテスト3件追加
+  - modelAnswer.test.ts に hasUnknownRootNodes の buildModelAnswerWorkspace テスト追加
+- 変更したファイル:
+  - src/lib/quest/questCompletionLogic.ts: GoalAxiomCheckResult に hasUnknownRootNodes 追加、checkSingleGoalWithAxioms で算出
+  - src/lib/proof-pad/dependencyLogic.ts: hasUnknownRoots() 追加
+  - src/lib/proof-pad/index.ts: hasUnknownRoots エクスポート追加
+  - src/lib/quest/modelAnswer.ts: ValidateModelAnswerResult から UnknownRootNodes を除去（非Hilbert系では全ルートが unknown になるため）
+  - src/lib/quest/builtinModelAnswers.test.ts: 全 Hilbert ルートノード検証テスト + pragmatic スキップリスト追加
+  - src/lib/quest/questCompletionLogic.test.ts: hasUnknownRootNodes テスト追加
+  - src/lib/proof-pad/dependencyLogic.test.ts: hasUnknownRoots テスト追加
+  - src/lib/quest/modelAnswer.test.ts: hasUnknownRootNodes テスト追加
+  - tasks/prd-inserted-tasks.md: タスク進捗更新
+- カバレッジ: Stmts 99.95%, Branch 99.94%, Lines 99.93% (維持)
+- テスト数: 9586 (+70)
+- **今後のイテレーションへの学び:**
+  - identifyAxiom() は公理テンプレートのメタ変数代入を含む完全な構造マッチングを行う。ルートノードが公理に一致するかは validateRootNodes() で確認できる
+  - 非Hilbert系（ND/SC/TAB）は emptyLogicSystem を使うため propositionalAxioms が空。全ルートが "unknown" になる。Hilbert系のみで公理パターン検証が意味を持つ
+  - validateModelAnswer でフラグを追加する場合、非Hilbert系への影響を必ず確認する。hasUnknownRootNodes は GoalAxiomCheckResult のデータフィールドとして提供し、validateModelAnswer では直接チェックしない設計が適切
+  - group-full/abelian-group プリセットもHilbert系。Hilbert系プリセットのフィルタは網羅的に管理する必要がある
+---

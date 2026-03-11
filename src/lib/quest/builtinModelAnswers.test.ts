@@ -672,3 +672,140 @@ describe("全模範解答の公理制約チェック", () => {
     10_000,
   );
 });
+
+/**
+ * 未知のルートノード（公理パターンに一致しない）が存在する模範解答のリスト。
+ *
+ * これらはゴール式を公理として直接配置しているか、理論公理のマッチングが
+ * 不完全なクエスト。正しい証明に書き換えるまでの間、明示的にスキップする。
+ *
+ * TODO: これらの模範解答を正しい証明に書き換えたら、このリストから削除する。
+ * リストが空になったら、このスキップリストとスキップ処理自体を削除する。
+ */
+const knownPragmaticQuests: ReadonlySet<string> = new Set([
+  // prop系: ∧/∨ 関連の定理をゴール式として直接配置
+  "prop-20",
+  "prop-22",
+  "prop-23",
+  "prop-24",
+  "prop-30",
+  "prop-31",
+  "prop-32",
+  "prop-44",
+  "prop-45",
+  "prop-46",
+  "prop-47",
+  "prop-48",
+  "prop-49",
+  // peano系: 理論公理の直接配置
+  "peano-01",
+  "peano-02",
+  "peano-03",
+  "peano-05",
+  "peano-06",
+  "peano-07",
+  "peano-08",
+  "peano-09",
+  "peano-10",
+  "peano-11",
+  "peano-12",
+  "peano-13",
+  "peano-14",
+  "peano-15",
+  "peano-16",
+  "peano-17",
+  "peano-20",
+  // group系: 理論公理の直接配置
+  "group-01",
+  "group-02",
+  "group-03",
+  "group-04",
+  "group-05",
+  "group-06",
+  "group-07",
+  "group-08",
+  "group-09",
+  "group-10",
+  "group-11",
+  "group-12",
+  "group-13",
+  "group-14",
+  "group-15",
+  "group-16",
+  "group-17",
+  "group-18",
+  "group-19",
+  "group-20",
+  "group-21",
+  "group-22",
+  "group-23",
+  // pred系: 述語論理の定理の直接配置
+  "pred-04",
+  "pred-05",
+  "pred-06",
+  "pred-adv-02",
+  "pred-adv-03",
+  "pred-adv-04",
+  "pred-adv-06",
+  "pred-adv-08",
+  "pred-adv-09",
+  "pred-adv-10",
+  "pred-adv-12",
+  "pred-adv-13",
+]);
+
+describe("全Hilbert模範解答のルートノード公理パターン検証", () => {
+  const hilbertAnswers = builtinModelAnswers
+    .filter((a) => {
+      const quest = findQuest(a.questId);
+      return (
+        quest.systemPresetId === "lukasiewicz" ||
+        quest.systemPresetId === "mendelson" ||
+        quest.systemPresetId === "classical" ||
+        quest.systemPresetId === "intuitionistic" ||
+        quest.systemPresetId === "minimal" ||
+        quest.systemPresetId === "predicate" ||
+        quest.systemPresetId === "equality" ||
+        quest.systemPresetId === "peano" ||
+        quest.systemPresetId === "robinson" ||
+        quest.systemPresetId === "group-full" ||
+        quest.systemPresetId === "abelian-group"
+      );
+    })
+    .filter((a) => !knownPragmaticQuests.has(a.questId))
+    .map((a) => [a.questId, a] as const);
+
+  it.each(hilbertAnswers)(
+    "%s: ルートノードが全て公理パターンに一致する",
+    (questId, answer) => {
+      const quest = findQuest(questId);
+      const result = buildModelAnswerWorkspace(quest, answer);
+      if (result._tag !== "Ok") return;
+      if (
+        result.goalCheck._tag !== "AllAchieved" &&
+        result.goalCheck._tag !== "AllAchievedButAxiomViolation" &&
+        result.goalCheck._tag !== "AllAchievedButRuleViolation"
+      ) {
+        return;
+      }
+      for (const goalResult of result.goalCheck.goalResults) {
+        expect(
+          goalResult.hasUnknownRootNodes,
+          `Quest ${questId satisfies string}: goal ${goalResult.goalId satisfies string} has unknown root nodes (axiom pattern mismatch)`,
+        ).toBe(false);
+      }
+    },
+    10_000,
+  );
+
+  it("既知のpragmaticクエストリストが最新であること", () => {
+    // pragmaticリストに含まれるクエストが実際にbuiltinModelAnswersに存在するか確認
+    for (const questId of knownPragmaticQuests) {
+      const answer = builtinModelAnswers.find((a) => a.questId === questId);
+      expect(
+        answer,
+        `knownPragmaticQuests に含まれる ${questId satisfies string} が builtinModelAnswers に存在しない`,
+      ).toBeDefined();
+    }
+  });
+});

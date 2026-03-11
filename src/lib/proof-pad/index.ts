@@ -347,6 +347,7 @@ export {
   validateRootNodes,
   getInstanceRootNodeIds,
   hasInstanceRoots,
+  hasUnknownRoots,
   deduplicateDependencyInfos,
 } from "./dependencyLogic";
 export type { RootNodeValidation } from "./dependencyLogic";

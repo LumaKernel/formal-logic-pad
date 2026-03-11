@@ -9,6 +9,7 @@ import {
   validateRootNodes,
   getInstanceRootNodeIds,
   hasInstanceRoots,
+  hasUnknownRoots,
   deduplicateDependencyInfos,
 } from "./dependencyLogic";
 import type { WorkspaceNode } from "./workspaceState";
@@ -813,6 +814,28 @@ describe("dependencyLogic", () => {
 
     it("空の配列ではfalseを返す", () => {
       expect(hasInstanceRoots([])).toBe(false);
+    });
+  });
+
+  describe("hasUnknownRoots", () => {
+    it("unknownタグがあればtrueを返す", () => {
+      const validations = [
+        { _tag: "schema" as const, nodeId: "a1", axiomId: "A1" as const },
+        { _tag: "unknown" as const, nodeId: "u1" },
+      ];
+      expect(hasUnknownRoots(validations)).toBe(true);
+    });
+
+    it("unknownタグがなければfalseを返す", () => {
+      const validations = [
+        { _tag: "schema" as const, nodeId: "a1", axiomId: "A1" as const },
+        { _tag: "instance" as const, nodeId: "a2", axiomId: "A1" as const },
+      ];
+      expect(hasUnknownRoots(validations)).toBe(false);
+    });
+
+    it("空の配列ではfalseを返す", () => {
+      expect(hasUnknownRoots([])).toBe(false);
     });
   });
 
