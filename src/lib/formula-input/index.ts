@@ -16,6 +16,18 @@ export { FormulaExpandedEditor } from "./FormulaExpandedEditor";
 export type { FormulaExpandedEditorProps } from "./FormulaExpandedEditor";
 export { canExitEditMode, computeExitAction } from "./editorLogic";
 export type { DisplayRenderer, EditTrigger, EditorMode } from "./editorLogic";
+export { FormulaListEditor } from "./FormulaListEditor";
+export type { FormulaListEditorProps } from "./FormulaListEditor";
+export {
+  addFormula,
+  removeFormula,
+  updateFormula,
+  moveUp,
+  moveDown,
+  validateFormulaList,
+  extractNonEmptyFormulas,
+} from "./formulaListLogic";
+export type { FormulaListValidation } from "./formulaListLogic";
 export { CompletionPopup } from "./CompletionPopup";
 export type { CompletionPopupProps } from "./CompletionPopup";
 export {

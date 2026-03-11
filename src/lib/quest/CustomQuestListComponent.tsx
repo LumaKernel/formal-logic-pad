@@ -9,6 +9,7 @@
  */
 
 import { useState, useRef, type CSSProperties } from "react";
+import { FormulaListEditor } from "../formula-input/FormulaListEditor";
 import type { QuestCatalogItem } from "./questCatalog";
 import type {
   QuestId,
@@ -35,7 +36,7 @@ import {
   validateEditForm,
   shouldShowEditFieldError,
   getFirstEditErrorField,
-  goalsTextToDefinitions,
+  goalFormulasToDefinitions,
   parseHintLines,
   parseEstimatedSteps,
   type EditFormValues,
@@ -292,11 +293,6 @@ const editTextareaStyle: CSSProperties = {
   fontFamily: "inherit",
 };
 
-const editTextareaErrorStyle: CSSProperties = {
-  ...editTextareaStyle,
-  border: "1px solid var(--color-error, #d32f2f)",
-};
-
 const editSelectStyle: CSSProperties = {
   ...editInputStyle,
   cursor: "pointer",
@@ -397,10 +393,8 @@ function CustomQuestEditForm({
   );
   const [submitted, setSubmitted] = useState(false);
   const [titleTouched, setTitleTouched] = useState(false);
-  const [goalsTouched, setGoalsTouched] = useState(false);
   const [stepsTouched, setStepsTouched] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
-  const goalsRef = useRef<HTMLTextAreaElement>(null);
   const stepsRef = useRef<HTMLInputElement>(null);
 
   const validation = validateEditForm(values);
@@ -412,10 +406,10 @@ function CustomQuestEditForm({
     field: "title",
   });
   const goalsError = shouldShowEditFieldError({
-    touched: goalsTouched,
+    touched: false,
     submitted,
     validation,
-    field: "goalsText",
+    field: "goalFormulas",
   });
   const stepsError = shouldShowEditFieldError({
     touched: stepsTouched,
@@ -433,7 +427,6 @@ function CustomQuestEditForm({
       const firstField = getFirstEditErrorField(validation);
       /* v8 ignore start -- focus routing: all branches tested but v8 inline callback artifact */
       if (firstField === "title") titleRef.current?.focus();
-      else if (firstField === "goalsText") goalsRef.current?.focus();
       else if (firstField === "estimatedSteps") stepsRef.current?.focus();
       /* v8 ignore stop */
       return;
@@ -446,7 +439,7 @@ function CustomQuestEditForm({
         description: values.description,
         difficulty: values.difficulty,
         systemPresetId: values.systemPresetId,
-        goals: goalsTextToDefinitions(values.goalsText),
+        goals: goalFormulasToDefinitions(values.goalFormulas),
         hints: parseHintLines(values.hints),
         estimatedSteps: parseEstimatedSteps(values.estimatedSteps),
         learningPoint: values.learningPoint,
@@ -541,27 +534,13 @@ function CustomQuestEditForm({
 
         {/* ゴール式 */}
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>ゴール式（1行に1つ）</label>
-          <textarea
-            ref={goalsRef}
-            data-testid="edit-goals-input"
-            style={
-              goalsError !== undefined
-                ? editTextareaErrorStyle
-                : editTextareaStyle
-            }
-            value={values.goalsText}
-            onChange={(e) =>
-              setValues({ ...values, goalsText: e.target.value })
-            }
-            onBlur={() => setGoalsTouched(true)}
-            rows={3}
+          <label style={editLabelStyle}>ゴール式</label>
+          <FormulaListEditor
+            formulas={values.goalFormulas}
+            onChange={(goalFormulas) => setValues({ ...values, goalFormulas })}
+            error={goalsError}
+            testId="edit-goals"
           />
-          {goalsError !== undefined && (
-            <span style={editErrorTextStyle} data-testid="edit-goals-error">
-              {goalsError}
-            </span>
-          )}
         </div>
 
         {/* ヒント */}
@@ -654,10 +633,8 @@ function CustomQuestCreateForm({
   );
   const [submitted, setSubmitted] = useState(false);
   const [titleTouched, setTitleTouched] = useState(false);
-  const [goalsTouched, setGoalsTouched] = useState(false);
   const [stepsTouched, setStepsTouched] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
-  const goalsRef = useRef<HTMLTextAreaElement>(null);
   const stepsRef = useRef<HTMLInputElement>(null);
 
   const validation = validateEditForm(values);
@@ -669,10 +646,10 @@ function CustomQuestCreateForm({
     field: "title",
   });
   const goalsError = shouldShowEditFieldError({
-    touched: goalsTouched,
+    touched: false,
     submitted,
     validation,
-    field: "goalsText",
+    field: "goalFormulas",
   });
   const stepsError = shouldShowEditFieldError({
     touched: stepsTouched,
@@ -690,7 +667,6 @@ function CustomQuestCreateForm({
       const firstField = getFirstEditErrorField(validation);
       /* v8 ignore start -- focus routing: all branches tested but v8 inline callback artifact */
       if (firstField === "title") titleRef.current?.focus();
-      else if (firstField === "goalsText") goalsRef.current?.focus();
       else if (firstField === "estimatedSteps") stepsRef.current?.focus();
       /* v8 ignore stop */
       return;
@@ -701,7 +677,7 @@ function CustomQuestCreateForm({
       description: values.description,
       difficulty: values.difficulty,
       systemPresetId: values.systemPresetId,
-      goals: goalsTextToDefinitions(values.goalsText),
+      goals: goalFormulasToDefinitions(values.goalFormulas),
       hints: parseHintLines(values.hints),
       estimatedSteps: Number(values.estimatedSteps),
       learningPoint: values.learningPoint,
@@ -795,27 +771,13 @@ function CustomQuestCreateForm({
 
         {/* ゴール式 */}
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>ゴール式（1行に1つ）</label>
-          <textarea
-            ref={goalsRef}
-            data-testid="create-goals-input"
-            style={
-              goalsError !== undefined
-                ? editTextareaErrorStyle
-                : editTextareaStyle
-            }
-            value={values.goalsText}
-            onChange={(e) =>
-              setValues({ ...values, goalsText: e.target.value })
-            }
-            onBlur={() => setGoalsTouched(true)}
-            rows={3}
+          <label style={editLabelStyle}>ゴール式</label>
+          <FormulaListEditor
+            formulas={values.goalFormulas}
+            onChange={(goalFormulas) => setValues({ ...values, goalFormulas })}
+            error={goalsError}
+            testId="create-goals"
           />
-          {goalsError !== undefined && (
-            <span style={editErrorTextStyle} data-testid="create-goals-error">
-              {goalsError}
-            </span>
-          )}
         </div>
 
         {/* ヒント */}
