@@ -105,6 +105,26 @@
 
 ---
 
+## 2026-03-12 - [InfiniteCanvas] ノートノードがキャンバス右端でwrapされるバグを修正
+- ベースライン: Stmts 99.58%, Branch 99.63%, Lines 99.58%, 9409 tests
+- **結果: Stmts 99.35%, Branch 98.92%, Lines 99.45%, 9464 tests** (V8集約アーティファクトによる変動)
+- 修正内容:
+  - `CanvasItem.tsx`: `width: "max-content"` を追加
+  - CSS仕様上、`position: absolute` + `left` のみ指定で `width` 未指定の要素は、containing block の残り幅で shrink-to-fit される
+  - ノートノード（`maxWidth: 240` + `pre-wrap`）が右端近くで狭い幅に制約され、過度にwrapされていた
+  - `width: max-content` により、コンテンツの自然な最大幅が使用され、コンテナ残り幅に制約されなくなった
+- 変更ファイル:
+  - src/lib/infinite-canvas/CanvasItem.tsx (width: max-content 追加)
+  - src/lib/infinite-canvas/CanvasItem.test.tsx (テスト1件追加)
+- スクリーンショット:
+  - .screenshots/note-node-right-edge-before-fix.png (修正前: 幅107px, 高さ178px)
+  - .screenshots/note-node-right-edge-fixed.png (修正後: 幅273px, 高さ70px)
+- **今後のイテレーションへの学び:**
+  - `position: absolute` + `left` のみ指定の要素は、`width` 未指定だとcontaining blockの残り幅で shrink-to-fit される。`width: max-content` で回避可能
+  - InfiniteCanvasのCanvasItemは全ノードの共通ラッパーなので、ここの変更は全ノード種別に影響する
+  - ブラウザでのスタイル確認には、JavaScript で直接スタイルを変更して before/after を比較する手法が有効
+---
+
 ## 2026-03-12 - [formula-input] 拡張エディタのエラーハイライトが見えないバグを修正
 - ベースライン: Stmts 99.58%, Branch 99.28%, Lines 99.6%, 9405 tests
 - **結果: Stmts 99.57%, Branch 99.05%, Lines 99.61%, 9458 tests** (V8集約アーティファクトによる微小変動)
