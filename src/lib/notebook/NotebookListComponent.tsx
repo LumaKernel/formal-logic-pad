@@ -153,7 +153,7 @@ const dropdownMenuStyle: CSSProperties = {
   borderRadius: 8,
   boxShadow:
     "0 4px 12px var(--color-notebook-card-shadow-hover, rgba(120,100,70,0.18))",
-  zIndex: 10,
+  zIndex: 1000,
   minWidth: 160,
   overflow: "hidden",
 };
@@ -280,13 +280,20 @@ function MenuItem({
 function MoreMenu({
   itemId,
   children,
+  onOpenChange,
 }: {
   readonly itemId: string;
   readonly children: React.ReactNode;
+  readonly onOpenChange?: (open: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const updateOpen = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    onOpenChange?.(nextOpen);
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -295,11 +302,12 @@ function MoreMenu({
         menuRef.current !== null &&
         !menuRef.current.contains(e.target as Node)
       ) {
-        setOpen(false);
+        updateOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   return (
@@ -311,7 +319,7 @@ function MoreMenu({
       <button
         data-testid={`more-btn-${itemId satisfies string}`}
         style={hovered ? moreButtonHoverStyle : moreButtonStyle}
-        onClick={() => setOpen(!open)}
+        onClick={() => updateOpen(!open)}
         title="その他の操作"
         aria-label="その他の操作"
         aria-expanded={open}
@@ -324,7 +332,7 @@ function MoreMenu({
         <div
           data-testid={`more-menu-${itemId satisfies string}`}
           style={dropdownMenuStyle}
-          onClick={() => setOpen(false)}
+          onClick={() => updateOpen(false)}
         >
           {children}
         </div>
@@ -385,6 +393,7 @@ function NotebookItem({
   const [editName, setEditName] = useState(item.name);
   const [editError, setEditError] = useState<string | null>(null);
   const [isDeleteConfirming, setIsDeleteConfirming] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleRenameStart = () => {
     setEditName(item.name);
@@ -435,10 +444,15 @@ function NotebookItem({
     onExport?.(item.id);
   };
 
+  const baseItemStyle = isHovered ? itemHoverStyle : itemStyle;
+  const currentItemStyle: CSSProperties = isMenuOpen
+    ? { ...baseItemStyle, zIndex: 100 }
+    : baseItemStyle;
+
   return (
     <div
       data-testid={`notebook-item-${item.id satisfies string}`}
-      style={isHovered ? itemHoverStyle : itemStyle}
+      style={currentItemStyle}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onOpen(item.id)}
@@ -481,7 +495,7 @@ function NotebookItem({
           </>
         )}
       </div>
-      <MoreMenu itemId={item.id}>
+      <MoreMenu itemId={item.id} onOpenChange={setIsMenuOpen}>
         <MenuItem
           data-testid={`rename-btn-${item.id satisfies string}`}
           onClick={handleRenameStart}
