@@ -223,9 +223,7 @@ describe("TermDisplay", () => {
     });
 
     it("変数に色CSS変数が設定される", () => {
-      render(
-        <TermDisplay term={termVariable("x")} highlight testId="term" />,
-      );
+      render(<TermDisplay term={termVariable("x")} highlight testId="term" />);
       const el = screen.getByTestId("term");
       const children = Array.from(el.children) as HTMLSpanElement[];
       expect(children[0]?.style.color).toBe("var(--color-syntax-variable)");

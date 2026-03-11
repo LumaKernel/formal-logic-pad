@@ -482,9 +482,7 @@ describe("FormulaInput", () => {
     });
 
     it("Unicode入力でもシンタックスハイライトが表示される", () => {
-      render(
-        <FormulaInput value="φ → ψ" onChange={() => {}} testId="fi" />,
-      );
+      render(<FormulaInput value="φ → ψ" onChange={() => {}} testId="fi" />);
       const highlight = screen.getByTestId("fi-syntax-highlight");
       expect(highlight).toBeInTheDocument();
     });

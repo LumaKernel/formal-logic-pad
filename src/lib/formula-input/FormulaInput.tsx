@@ -337,9 +337,7 @@ export function FormulaInput({
             style={highlightContainerStyle}
             aria-hidden="true"
             data-testid={
-              testId
-                ? `${testId satisfies string}-syntax-highlight`
-                : undefined
+              testId ? `${testId satisfies string}-syntax-highlight` : undefined
             }
           >
             {syntaxTokens.map((token, i) => (

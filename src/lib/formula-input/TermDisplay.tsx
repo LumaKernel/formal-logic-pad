@@ -11,10 +11,7 @@ import type { CSSProperties } from "react";
 import { useMemo } from "react";
 import type { Term } from "../logic-core/term";
 import type { FormulaTokenKind } from "../logic-lang/formulaHighlight";
-import {
-  tokenizeTerm,
-  tokensToText,
-} from "../logic-lang/formulaHighlight";
+import { tokenizeTerm, tokensToText } from "../logic-lang/formulaHighlight";
 import { formatTerm } from "../logic-lang/formatUnicode";
 
 /**

@@ -446,9 +446,9 @@ export const SyntaxHighlight: Story = {
     await expect(
       canvas.getByTestId("highlight-メタ変数+結合子"),
     ).toHaveTextContent("φ → ψ ∧ χ");
-    await expect(
-      canvas.getByTestId("highlight-量化子+述語"),
-    ).toHaveTextContent("∀x.P(x)");
+    await expect(canvas.getByTestId("highlight-量化子+述語")).toHaveTextContent(
+      "∀x.P(x)",
+    );
     await expect(
       canvas.getByTestId("highlight-等号+定数+関数"),
     ).toHaveTextContent("∀x.S(x) = x + 1");
