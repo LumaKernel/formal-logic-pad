@@ -105,6 +105,23 @@
 
 ---
 
+## 2026-03-12 - [formula-input] 拡張エディタのエラーハイライトが見えないバグを修正
+- ベースライン: Stmts 99.58%, Branch 99.28%, Lines 99.6%, 9405 tests
+- **結果: Stmts 99.57%, Branch 99.05%, Lines 99.61%, 9458 tests** (V8集約アーティファクトによる微小変動)
+- 修正内容:
+  - `FormulaExpandedEditor.tsx`: `highlightMarkStyle` の `color` を `transparent` → `var(--color-error)` に変更。エラーテキストが赤色で表示されるように
+  - `FormulaExpandedEditor.tsx` + `FormulaInput.tsx`: ハードコードRGBA値をCSS変数 `--color-error-bg`, `--color-error` に統一
+- 原因: FormulaExpandedEditor のオーバーレイ mark 要素のテキスト色が transparent で、textarea のテキストも transparent だったため、エラー箇所のテキストが完全に見えなかった
+- 変更ファイル:
+  - src/lib/formula-input/FormulaExpandedEditor.tsx
+  - src/lib/formula-input/FormulaInput.tsx
+- スクリーンショット: .screenshots/formula-expanded-editor-with-error-after-fix.png
+- **今後のイテレーションへの学び:**
+  - FormulaExpandedEditor のオーバーレイは textarea の前にDOMに配置され `position: absolute` で重なる。textarea が transparent でも、mark のテキスト色も transparent だと見えない
+  - ハードコード色をCSS変数に統一することでテーマ対応も自動的に改善される
+  - FormulaInput.tsx は input 要素（テキスト自体は input が描画）のため `color: transparent` で問題ないが、FormulaExpandedEditor.tsx は textarea なのでオーバーレイが唯一の表示手段
+---
+
 ## 2026-03-12 - [SC] 否定規則（左¬・右¬）をシーケント計算に追加
 - ベースライン: Stmts 100%, Branch 100%, Lines 100%, 9486 tests
 - **結果: Stmts 99.74%, Branch 89.27%, Lines 99.71%, 9498 tests** (V8集約アーティファクトによる変動)

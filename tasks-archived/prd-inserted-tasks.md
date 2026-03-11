@@ -259,3 +259,6 @@ Infinity Canvasについて。
   - Hub・Workspace両ページのヘッダ右端にGitHub Octocat SVGアイコンリンク（opacity: 0.6）を配置
 - [x] Warning: Starting in Storybook 8.5.0-alpha.18, the "test.include" option in Vitest is discouraged.
       → vitest.config.ts の top-level test.include を削除し、unit project のみに残すことで修正。
+
+- [x] visual bug: http://localhost:13006/?path=/story/formulainput-formulaeditor--multiline-auto-expand
+    - 拡張エディタのエラー状態のハイライトが真っ白でなにも見えない。
