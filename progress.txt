@@ -12755,3 +12755,26 @@
   - validateModelAnswer でフラグを追加する場合、非Hilbert系への影響を必ず確認する。hasUnknownRootNodes は GoalAxiomCheckResult のデータフィールドとして提供し、validateModelAnswer では直接チェックしない設計が適切
   - group-full/abelian-group プリセットもHilbert系。Hilbert系プリセットのフィルタは網羅的に管理する必要がある
 ---
+
+## 2026-03-12 - quest: 理論公理ルートノードバリデーション修正
+- **タスク:** pragmatic模範解答（65件）を正しい証明に書き換える（prd-inserted-tasks.md）
+- **発見したバグ:** `validateRootNodes()` が `AxiomIdentificationResult` の `"TheoryAxiom"` ケースを処理せず、理論公理（PA1-PA6, G1-G4等）をすべて "unknown" に分類していた
+- **修正内容:**
+  - `RootNodeValidation` 型に `"theory-schema"` / `"theory-instance"` バリアントを追加
+  - `validateRootNodes()` を switch 文に変更し、`"Ok"` / `"TheoryAxiom"` / `"Error"` の3ケースを正しく処理
+  - `getInstanceRootNodeIds()` と `hasInstanceRoots()` を更新して `"theory-instance"` も包含
+- **結果:** スキップリスト 65件 → 49件に縮小（16件のpeano/group模範解答が正しく認識された）
+  - 修正された: peano-01〜10, peano-12, peano-16, peano-17, group-01, group-06, group-09, group-11
+  - 残り49件: prop 13件 + peano 5件 + group 19件 + pred 12件
+- **変更したファイル:**
+  - `src/lib/proof-pad/dependencyLogic.ts` - RootNodeValidation型拡張、validateRootNodes修正
+  - `src/lib/proof-pad/dependencyLogic.test.ts` - 理論公理バリデーションテスト5件追加
+  - `src/lib/quest/builtinModelAnswers.test.ts` - スキップリスト更新（65→49件）
+- **カバレッジ:** Stmts 99.95%, Branch 99.91%, Lines 99.93%（ベースライン: Stmts 99.95%, Branch 99.94%）
+  - Branch 0.03pt低下はV8カバレッジマージの既知のquirk（単体テストでは97.95%で問題なし）
+- **スクリーンショット:** `.screenshots/theory-axiom-validation-fix-proofworkspace.png`, `.screenshots/theory-axiom-validation-fix-peano-demo.png`
+- **今後のイテレーションへの学び:**
+  - `AxiomIdentificationResult` は3-way discriminant。新しいケースを追加する際はすべての使用箇所でswitch網羅チェックを入れる
+  - 理論公理の `matchMode: "exact"` は `equalFormula` による完全一致のみ。パターンマッチではないため、代入インスタンスは識別されない
+  - `identifyAxiom()` の呼び出し側は `axiomNameLogic.ts` と `dependencyLogic.ts` の2箇所。前者は正しく処理していたが後者にバグがあった
+---
