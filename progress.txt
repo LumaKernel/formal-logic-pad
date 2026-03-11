@@ -104,6 +104,23 @@
 
 ---
 
+## 2026-03-11 - [formula-input] 複数行論理式で自動的に拡大エディタモーダルを起動
+- ベースライン: Stmts 99.88%, Branch 99.47%, Lines 99.91%, 9364 tests
+- **結果: Stmts 99.90%, Branch 99.58%, Lines 99.93%, 9392 tests（カバレッジ向上、テスト+28）**
+- 変更内容:
+  - `FormulaEditor.tsx`: `enterEditMode` で value に改行が含まれ、`onOpenExpanded` が設定されている場合、インライン編集モードではなく直接 `onOpenExpanded()` を呼び出してモーダルに遷移
+  - `FormulaEditor.test.tsx`: 複数行テキストの自動モーダル起動テスト7件追加（クリック、Enter、forceEditMode、dblclick、onOpenExpanded未指定時のフォールバック等）
+  - `FormulaEditor.stories.tsx`: MultilineAutoExpand ストーリー追加（FormulaExpandedEditor統合、play関数付き）
+  - `EditableProofNode.tsx`, `ProofWorkspace.tsx`: Prettier フォーマット修正（CI失敗修正）
+- テスト: 9392 passed (+28), typecheck OK, lint OK, prettier OK
+- スクリーンショット: .screenshots/multiline-auto-expand-initial.png, .screenshots/multiline-auto-expand-interactions-pass.png
+- タスク: `tasks/prd-syntax-highlight.md` の全タスク完了 → `tasks-archived/` へアーカイブ
+- **今後のイテレーションへの学び:**
+  - FormulaEditor の `enterEditMode` は複数箇所（click, dblclick, Enter, Space, forceEditMode）から呼ばれるので、ここで判定を入れれば全トリガーに一貫した挙動を提供できる
+  - 複数行判定は `value.includes("\n")` でシンプルに行える。パーサーレベルの判定は不要
+  - ストーリーでモーダルを統合テストする場合、`canvasElement.ownerDocument.body` を使って body 全体から検索する必要がある（モーダルは fixed 配置で iframe 内の body に直接レンダリングされるため）
+---
+
 ## 2026-03-11 - [quest] 模範解答にノートステップを追加可能にする
 - ベースライン: Stmts 99.92%, Branch 99.68%, Lines 99.95%, 9215 tests
 - **結果: Stmts 99.92%, Branch 99.68%, Lines 99.95%, 9218 tests（カバレッジ変動なし、テスト+3）**
