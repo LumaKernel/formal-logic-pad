@@ -202,8 +202,7 @@ export {
   getEditFieldError,
   shouldShowEditFieldError,
   getFirstEditErrorField,
-  parseGoalLines,
-  goalsTextToDefinitions,
+  goalFormulasToDefinitions,
   parseHintLines,
   parseEstimatedSteps,
 } from "./customQuestEditLogic";

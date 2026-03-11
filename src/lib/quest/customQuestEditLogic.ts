@@ -7,6 +7,7 @@
  * 変更時は customQuestEditLogic.test.ts, index.ts も同期すること。
  */
 
+import { extractNonEmptyFormulas } from "../formula-input/formulaListLogic";
 import type { QuestGoalDefinition } from "../proof-pad/workspaceState";
 import type {
   QuestDefinition,
@@ -25,7 +26,7 @@ export type EditFormValues = {
   readonly description: string;
   readonly difficulty: DifficultyLevel;
   readonly systemPresetId: SystemPresetId;
-  readonly goalsText: string;
+  readonly goalFormulas: readonly string[];
   readonly hints: string;
   readonly estimatedSteps: string;
   readonly learningPoint: string;
@@ -38,7 +39,7 @@ export function createEmptyEditFormValues(): EditFormValues {
     description: "",
     difficulty: 1,
     systemPresetId: "lukasiewicz",
-    goalsText: "",
+    goalFormulas: [],
     hints: "",
     estimatedSteps: "",
     learningPoint: "",
@@ -52,7 +53,7 @@ export function questToEditFormValues(quest: QuestDefinition): EditFormValues {
     description: quest.description,
     difficulty: quest.difficulty,
     systemPresetId: quest.systemPresetId,
-    goalsText: quest.goals.map((g) => g.formulaText).join("\n"),
+    goalFormulas: quest.goals.map((g) => g.formulaText),
     hints: quest.hints.join("\n"),
     estimatedSteps:
       quest.estimatedSteps !== undefined ? String(quest.estimatedSteps) : "",
@@ -70,7 +71,7 @@ export type EditFormValidation =
 /** バリデーションエラーの種類 */
 export type EditFormError =
   | { readonly field: "title"; readonly message: string }
-  | { readonly field: "goalsText"; readonly message: string }
+  | { readonly field: "goalFormulas"; readonly message: string }
   | { readonly field: "estimatedSteps"; readonly message: string };
 
 /** フォーム値のバリデーション */
@@ -86,10 +87,10 @@ export function validateEditForm(values: EditFormValues): EditFormValidation {
     });
   }
 
-  const goalLines = parseGoalLines(values.goalsText);
-  if (goalLines.length === 0) {
+  const nonEmpty = extractNonEmptyFormulas(values.goalFormulas);
+  if (nonEmpty.length === 0) {
     errors.push({
-      field: "goalsText",
+      field: "goalFormulas",
       message: "ゴール式を1つ以上入力してください",
     });
   }
@@ -146,21 +147,15 @@ export function getFirstEditErrorField(
   return validation.errors[0]?.field;
 }
 
-// --- ゴール式パース ---
+// --- ゴール式変換 ---
 
-/** goalsText（改行区切り）からゴール定義の配列に変換する */
-export function parseGoalLines(goalsText: string): readonly string[] {
-  return goalsText
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line !== "");
-}
-
-/** ゴール式テキストからQuestGoalDefinition配列に変換する */
-export function goalsTextToDefinitions(
-  goalsText: string,
+/** goalFormulas 配列からQuestGoalDefinition配列に変換する */
+export function goalFormulasToDefinitions(
+  goalFormulas: readonly string[],
 ): readonly QuestGoalDefinition[] {
-  return parseGoalLines(goalsText).map((formulaText) => ({ formulaText }));
+  return extractNonEmptyFormulas(goalFormulas).map((formulaText) => ({
+    formulaText,
+  }));
 }
 
 /** フォームの推定ステップ数文字列を number | undefined に変換する */

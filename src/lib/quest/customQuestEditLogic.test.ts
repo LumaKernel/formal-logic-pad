@@ -6,8 +6,7 @@ import {
   getEditFieldError,
   shouldShowEditFieldError,
   getFirstEditErrorField,
-  parseGoalLines,
-  goalsTextToDefinitions,
+  goalFormulasToDefinitions,
   parseHintLines,
   parseEstimatedSteps,
   type EditFormValues,
@@ -42,7 +41,7 @@ function makeValidValues(
     description: "説明",
     difficulty: 2,
     systemPresetId: "lukasiewicz",
-    goalsText: "p -> p",
+    goalFormulas: ["p -> p"],
     hints: "",
     estimatedSteps: "5",
     learningPoint: "学習ポイント",
@@ -59,7 +58,7 @@ describe("createEmptyEditFormValues", () => {
     expect(result.description).toBe("");
     expect(result.difficulty).toBe(1);
     expect(result.systemPresetId).toBe("lukasiewicz");
-    expect(result.goalsText).toBe("");
+    expect(result.goalFormulas).toEqual([]);
     expect(result.hints).toBe("");
     expect(result.estimatedSteps).toBe("");
     expect(result.learningPoint).toBe("");
@@ -73,7 +72,7 @@ describe("createEmptyEditFormValues", () => {
       // estimatedSteps="" は「未指定」として有効なのでエラーにならない
       expect(validation.errors.map((e) => e.field)).toEqual([
         "title",
-        "goalsText",
+        "goalFormulas",
       ]);
     }
   });
@@ -90,16 +89,16 @@ describe("questToEditFormValues", () => {
     expect(result.description).toBe("テスト用の自作クエスト。");
     expect(result.difficulty).toBe(2);
     expect(result.systemPresetId).toBe("lukasiewicz");
-    expect(result.goalsText).toBe("p -> p\np -> (q -> p)");
+    expect(result.goalFormulas).toEqual(["p -> p", "p -> (q -> p)"]);
     expect(result.hints).toBe("ヒント1\nヒント2");
     expect(result.estimatedSteps).toBe("5");
     expect(result.learningPoint).toBe("テスト学習ポイント");
   });
 
-  it("ゴールが1つの場合は改行なし", () => {
+  it("ゴールが1つの場合は1要素配列", () => {
     const quest = makeQuest({ goals: [{ formulaText: "p -> p" }] });
     const result = questToEditFormValues(quest);
-    expect(result.goalsText).toBe("p -> p");
+    expect(result.goalFormulas).toEqual(["p -> p"]);
   });
 
   it("ヒントが空の場合は空文字列", () => {
@@ -108,10 +107,10 @@ describe("questToEditFormValues", () => {
     expect(result.hints).toBe("");
   });
 
-  it("ゴールが空の場合は空文字列", () => {
+  it("ゴールが空の場合は空配列", () => {
     const quest = makeQuest({ goals: [] });
     const result = questToEditFormValues(quest);
-    expect(result.goalsText).toBe("");
+    expect(result.goalFormulas).toEqual([]);
   });
 
   it("estimatedStepsがundefinedの場合は空文字列", () => {
@@ -163,21 +162,21 @@ describe("validateEditForm", () => {
     expect(result.valid).toBe(true);
   });
 
-  it("ゴール式が空の場合はエラー", () => {
-    const result = validateEditForm(makeValidValues({ goalsText: "" }));
+  it("ゴール式が空配列の場合はエラー", () => {
+    const result = validateEditForm(makeValidValues({ goalFormulas: [] }));
     expect(result.valid).toBe(false);
     if (!result.valid) {
-      expect(result.errors[0]!.field).toBe("goalsText");
+      expect(result.errors[0]!.field).toBe("goalFormulas");
     }
   });
 
-  it("ゴール式が空白行のみの場合はエラー", () => {
+  it("ゴール式が空文字列のみの場合はエラー", () => {
     const result = validateEditForm(
-      makeValidValues({ goalsText: "  \n  \n  " }),
+      makeValidValues({ goalFormulas: ["  ", "  "] }),
     );
     expect(result.valid).toBe(false);
     if (!result.valid) {
-      expect(result.errors[0]!.field).toBe("goalsText");
+      expect(result.errors[0]!.field).toBe("goalFormulas");
     }
   });
 
@@ -216,33 +215,44 @@ describe("validateEditForm", () => {
 
   it("複数のエラーが同時に発生する", () => {
     const result = validateEditForm(
-      makeValidValues({ title: "", goalsText: "", estimatedSteps: "abc" }),
+      makeValidValues({
+        title: "",
+        goalFormulas: [],
+        estimatedSteps: "abc",
+      }),
     );
     expect(result.valid).toBe(false);
     if (!result.valid) {
       expect(result.errors).toHaveLength(3);
       expect(result.errors.map((e) => e.field)).toEqual([
         "title",
-        "goalsText",
+        "goalFormulas",
         "estimatedSteps",
       ]);
     }
   });
 
-  it("タイトルとゴールが空でestimatedStepsも空の場合はtitleとgoalsTextのみエラー", () => {
+  it("タイトルとゴールが空でestimatedStepsも空の場合はtitleとgoalFormulasのみエラー", () => {
     const result = validateEditForm(
-      makeValidValues({ title: "", goalsText: "", estimatedSteps: "" }),
+      makeValidValues({
+        title: "",
+        goalFormulas: [],
+        estimatedSteps: "",
+      }),
     );
     expect(result.valid).toBe(false);
     if (!result.valid) {
       expect(result.errors).toHaveLength(2);
-      expect(result.errors.map((e) => e.field)).toEqual(["title", "goalsText"]);
+      expect(result.errors.map((e) => e.field)).toEqual([
+        "title",
+        "goalFormulas",
+      ]);
     }
   });
 
-  it("複数行のゴール式は有効", () => {
+  it("複数ゴール式は有効", () => {
     const result = validateEditForm(
-      makeValidValues({ goalsText: "p -> p\nq -> q\nr -> r" }),
+      makeValidValues({ goalFormulas: ["p -> p", "q -> q", "r -> r"] }),
     );
     expect(result.valid).toBe(true);
   });
@@ -264,7 +274,7 @@ describe("getEditFieldError", () => {
 
   it("存在しないフィールドは undefined", () => {
     const validation = validateEditForm(makeValidValues({ title: "" }));
-    expect(getEditFieldError(validation, "goalsText")).toBeUndefined();
+    expect(getEditFieldError(validation, "goalFormulas")).toBeUndefined();
   });
 });
 
@@ -327,61 +337,38 @@ describe("getFirstEditErrorField", () => {
 
   it("最初のエラーフィールドを返す", () => {
     const validation = validateEditForm(
-      makeValidValues({ title: "", goalsText: "" }),
+      makeValidValues({ title: "", goalFormulas: [] }),
     );
     expect(getFirstEditErrorField(validation)).toBe("title");
   });
 
-  it("タイトルが有効でゴールがエラーの場合はgoalsTextを返す", () => {
-    const validation = validateEditForm(makeValidValues({ goalsText: "" }));
-    expect(getFirstEditErrorField(validation)).toBe("goalsText");
+  it("タイトルが有効でゴールがエラーの場合はgoalFormulasを返す", () => {
+    const validation = validateEditForm(makeValidValues({ goalFormulas: [] }));
+    expect(getFirstEditErrorField(validation)).toBe("goalFormulas");
   });
 });
 
-// --- parseGoalLines ---
+// --- goalFormulasToDefinitions ---
 
-describe("parseGoalLines", () => {
-  it("改行区切りの文字列を配列に変換する", () => {
-    expect(parseGoalLines("p -> p\nq -> q")).toEqual(["p -> p", "q -> q"]);
-  });
-
-  it("空行は無視する", () => {
-    expect(parseGoalLines("p -> p\n\nq -> q\n")).toEqual(["p -> p", "q -> q"]);
-  });
-
-  it("空白のみの行は無視する", () => {
-    expect(parseGoalLines("p -> p\n   \nq -> q")).toEqual(["p -> p", "q -> q"]);
-  });
-
-  it("前後の空白はトリムする", () => {
-    expect(parseGoalLines("  p -> p  \n  q -> q  ")).toEqual([
-      "p -> p",
-      "q -> q",
-    ]);
-  });
-
-  it("空文字列は空配列", () => {
-    expect(parseGoalLines("")).toEqual([]);
-  });
-
-  it("単一行", () => {
-    expect(parseGoalLines("p -> p")).toEqual(["p -> p"]);
-  });
-});
-
-// --- goalsTextToDefinitions ---
-
-describe("goalsTextToDefinitions", () => {
-  it("ゴール式テキストをQuestGoalDefinition配列に変換する", () => {
-    const result = goalsTextToDefinitions("p -> p\nq -> q");
+describe("goalFormulasToDefinitions", () => {
+  it("ゴール式配列をQuestGoalDefinition配列に変換する", () => {
+    const result = goalFormulasToDefinitions(["p -> p", "q -> q"]);
     expect(result).toEqual([
       { formulaText: "p -> p" },
       { formulaText: "q -> q" },
     ]);
   });
 
-  it("空文字列は空配列", () => {
-    expect(goalsTextToDefinitions("")).toEqual([]);
+  it("空配列は空配列", () => {
+    expect(goalFormulasToDefinitions([])).toEqual([]);
+  });
+
+  it("空文字列を含む場合はフィルタされる", () => {
+    const result = goalFormulasToDefinitions(["p -> p", "", "q -> q"]);
+    expect(result).toEqual([
+      { formulaText: "p -> p" },
+      { formulaText: "q -> q" },
+    ]);
   });
 });
 

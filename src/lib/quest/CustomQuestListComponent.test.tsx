@@ -244,22 +244,26 @@ describe("CustomQuestListComponent", () => {
       expect(select.value).toBe("classical");
     });
 
-    it("ゴール式を入力できる", () => {
+    it("ゴール式を追加・削除できる", () => {
       renderWithEditForm();
-      const textarea = screen.getByTestId(
-        "edit-goals-input",
-      ) as HTMLTextAreaElement;
-      fireEvent.change(textarea, { target: { value: "p -> q\nq -> p" } });
-      expect(textarea.value).toBe("p -> q\nq -> p");
+      // 初期状態で1つのゴール式がある（quest.goals = [{ formulaText: "p -> p" }]）
+      expect(screen.getByTestId("edit-goals-item-0")).toBeInTheDocument();
+      // 追加ボタンをクリック
+      fireEvent.click(screen.getByTestId("edit-goals-add"));
+      expect(screen.getByTestId("edit-goals-item-1")).toBeInTheDocument();
+      // 削除ボタンをクリック
+      fireEvent.click(screen.getByTestId("edit-goals-remove-1"));
+      expect(screen.queryByTestId("edit-goals-item-1")).toBeNull();
     });
 
-    it("ゴール式のblurでtouchedが設定される", () => {
+    it("ゴール式をすべて削除してsubmitするとエラーが表示される", () => {
       renderWithEditForm();
-      const textarea = screen.getByTestId("edit-goals-input");
-      // まずゴールを空にしてからblur
-      fireEvent.change(textarea, { target: { value: "" } });
-      fireEvent.blur(textarea);
-      // touchedがtrueになるとバリデーションエラーが表示される
+      // 唯一のゴール式を削除
+      fireEvent.click(screen.getByTestId("edit-goals-remove-0"));
+      // submitする
+      const form = screen.getByTestId("edit-save-btn").closest("form")!;
+      fireEvent.submit(form);
+      // エラーが表示される
       expect(screen.getByTestId("edit-goals-error")).toBeInTheDocument();
     });
 
@@ -321,7 +325,7 @@ describe("CustomQuestListComponent", () => {
       expect(onEditQuest).not.toHaveBeenCalled();
     });
 
-    it("ゴール空でsubmitするとゴールにフォーカスが移動する", () => {
+    it("ゴール空でsubmitするとエラーが表示される", () => {
       const onEditQuest = vi.fn();
       render(
         <CustomQuestList
@@ -332,15 +336,14 @@ describe("CustomQuestListComponent", () => {
       );
       fireEvent.click(screen.getByTestId("custom-quest-edit-btn-custom-1001"));
 
-      // ゴールを空にする
-      const goalsInput = screen.getByTestId("edit-goals-input");
-      fireEvent.change(goalsInput, { target: { value: "" } });
+      // ゴールをすべて削除
+      fireEvent.click(screen.getByTestId("edit-goals-remove-0"));
 
       // submitする
       const form = screen.getByTestId("edit-save-btn").closest("form")!;
       fireEvent.submit(form);
 
-      expect(document.activeElement).toBe(goalsInput);
+      expect(screen.getByTestId("edit-goals-error")).toBeInTheDocument();
       expect(onEditQuest).not.toHaveBeenCalled();
     });
 
@@ -410,13 +413,13 @@ describe("CustomQuestListComponent", () => {
       expect(select.value).toBe("classical");
     });
 
-    it("ゴール式を入力できる", () => {
+    it("ゴール式を追加できる", () => {
       renderWithCreateForm();
-      const textarea = screen.getByTestId(
-        "create-goals-input",
-      ) as HTMLTextAreaElement;
-      fireEvent.change(textarea, { target: { value: "p -> p" } });
-      expect(textarea.value).toBe("p -> p");
+      // 初期状態は空（追加メッセージが表示される）
+      expect(screen.getByText("式を追加してください")).toBeInTheDocument();
+      // 追加ボタンをクリック
+      fireEvent.click(screen.getByTestId("create-goals-add"));
+      expect(screen.getByTestId("create-goals-item-0")).toBeInTheDocument();
     });
 
     it("ヒントを入力できる", () => {
@@ -476,7 +479,7 @@ describe("CustomQuestListComponent", () => {
       expect(onCreateQuest).not.toHaveBeenCalled();
     });
 
-    it("ゴール空でsubmitするとゴールにフォーカスが移動する", () => {
+    it("ゴール空でsubmitするとエラーが表示される", () => {
       const onCreateQuest = vi.fn();
       render(
         <CustomQuestList
@@ -494,8 +497,7 @@ describe("CustomQuestListComponent", () => {
       const form = screen.getByTestId("create-save-btn").closest("form")!;
       fireEvent.submit(form);
 
-      const goalsInput = screen.getByTestId("create-goals-input");
-      expect(document.activeElement).toBe(goalsInput);
+      expect(screen.getByTestId("create-goals-error")).toBeInTheDocument();
       expect(onCreateQuest).not.toHaveBeenCalled();
     });
 
@@ -514,9 +516,11 @@ describe("CustomQuestListComponent", () => {
       fireEvent.change(screen.getByTestId("create-title-input"), {
         target: { value: "テスト" },
       });
-      fireEvent.change(screen.getByTestId("create-goals-input"), {
-        target: { value: "p -> p" },
-      });
+      // FormulaListEditor でゴール式を追加
+      fireEvent.click(screen.getByTestId("create-goals-add"));
+      fireEvent.click(screen.getByTestId("create-goals-editor-0-display"));
+      const goalInput = screen.getByTestId("create-goals-editor-0-input-input");
+      fireEvent.change(goalInput, { target: { value: "p -> p" } });
       // ステップ数を0にする
       fireEvent.change(screen.getByTestId("create-steps-input"), {
         target: { value: "0" },

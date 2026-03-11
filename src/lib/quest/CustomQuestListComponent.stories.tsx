@@ -273,10 +273,9 @@ export const EditQuest: Story = {
     const titleInput = canvas.getByTestId("edit-title-input");
     await expect(titleInput).toHaveValue("ド・モルガンの法則");
 
-    const goalsInput = canvas.getByTestId("edit-goals-input");
-    await expect(goalsInput).toHaveValue(
-      "~(p & q) -> (~p | ~q)\n(~p | ~q) -> ~(p & q)",
-    );
+    // ゴール式が FormulaListEditor で表示されていること
+    await expect(canvas.getByTestId("edit-goals-item-0")).toBeInTheDocument();
+    await expect(canvas.getByTestId("edit-goals-item-1")).toBeInTheDocument();
 
     const hintsInput = canvas.getByTestId("edit-hints-input");
     await expect(hintsInput).toHaveValue(
@@ -363,8 +362,11 @@ export const CreateNewQuest: Story = {
       canvas.getByTestId("create-title-input"),
       "新しいクエスト",
     );
+    // ゴール式を追加
+    await userEvent.click(canvas.getByTestId("create-goals-add"));
+    await userEvent.click(canvas.getByTestId("create-goals-editor-0-display"));
     await userEvent.type(
-      canvas.getByTestId("create-goals-input"),
+      canvas.getByTestId("create-goals-editor-0-input-input"),
       "phi -> phi",
     );
 
