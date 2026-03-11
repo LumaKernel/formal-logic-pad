@@ -236,10 +236,7 @@ describe("validateEditForm", () => {
     expect(result.valid).toBe(false);
     if (!result.valid) {
       expect(result.errors).toHaveLength(2);
-      expect(result.errors.map((e) => e.field)).toEqual([
-        "title",
-        "goalsText",
-      ]);
+      expect(result.errors.map((e) => e.field)).toEqual(["title", "goalsText"]);
     }
   });
 
