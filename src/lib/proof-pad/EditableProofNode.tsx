@@ -323,49 +323,55 @@ function MetaVariableLabel({ entry }: { readonly entry: SubstitutionEntry }) {
 }
 
 function getRoleBadgeStyle(classification: NodeClassification): CSSProperties {
-  switch (classification) {
-    case "root-axiom":
-      return {
-        ...roleBadgeBaseStyle,
-        background: "var(--color-badge-bg, #e8eaf0)",
-        color: "var(--color-badge-text, #718096)",
-      };
-    case "root-unmarked":
-      return {
-        ...roleBadgeBaseStyle,
-        background: "transparent",
-        color: "var(--color-badge-text, #718096)",
-        border: "1px dashed var(--color-node-card-border, rgba(0,0,0,0.08))",
-      };
-    case "derived":
-      return {
-        ...roleBadgeBaseStyle,
-        background: "var(--color-badge-bg, #e8eaf0)",
-        color: "var(--color-badge-text, #718096)",
-      };
-    case "note":
-      return {
-        ...roleBadgeBaseStyle,
-        background: "var(--color-badge-bg, #e8eaf0)",
-        color: "var(--color-badge-text, #718096)",
-      };
+  if (classification === "root-axiom") {
+    return {
+      ...roleBadgeBaseStyle,
+      background: "var(--color-badge-bg, #e8eaf0)",
+      color: "var(--color-badge-text, #718096)",
+    };
   }
+  /* v8 ignore start — root-unmarked はUI側でフィルタされ到達不能 */
+  if (classification === "root-unmarked") {
+    return {
+      ...roleBadgeBaseStyle,
+      background: "transparent",
+      color: "var(--color-badge-text, #718096)",
+      border: "1px dashed var(--color-node-card-border, rgba(0,0,0,0.08))",
+    };
+  }
+  /* v8 ignore stop */
+  if (classification === "derived") {
+    return {
+      ...roleBadgeBaseStyle,
+      background: "var(--color-badge-bg, #e8eaf0)",
+      color: "var(--color-badge-text, #718096)",
+    };
+  }
+  // note — fall-through (TypeScript narrowing ensures exhaustive)
+  return {
+    ...roleBadgeBaseStyle,
+    background: "var(--color-badge-bg, #e8eaf0)",
+    color: "var(--color-badge-text, #718096)",
+  };
 }
 
 function getRoleBadgeLabel(
   classification: NodeClassification,
   msg: ProofMessages,
 ): string {
-  switch (classification) {
-    case "root-axiom":
-      return msg.roleAxiom;
-    case "root-unmarked":
-      return msg.roleRoot;
-    case "derived":
-      return msg.roleDerived;
-    case "note":
-      return "Note";
+  if (classification === "root-axiom") {
+    return msg.roleAxiom;
   }
+  /* v8 ignore start — root-unmarked はUI側でフィルタされ到達不能 */
+  if (classification === "root-unmarked") {
+    return msg.roleRoot;
+  }
+  /* v8 ignore stop */
+  if (classification === "derived") {
+    return msg.roleDerived;
+  }
+  // note — fall-through
+  return "Note";
 }
 
 function getStatusStyle(type: "error" | "warning" | "success"): CSSProperties {

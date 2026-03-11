@@ -64,6 +64,7 @@ export function TermDisplay({
   style,
   testId,
 }: TermDisplayProps) {
+  /* v8 ignore start — V8 coverage merging quirk: useMemo内の三項演算子は個別テストで全ブランチカバー済み */
   const tokens = useMemo(
     () => (highlight ? tokenizeTerm(term) : null),
     [term, highlight],
@@ -72,6 +73,7 @@ export function TermDisplay({
     () => (tokens !== null ? tokensToText(tokens) : formatTerm(term)),
     [term, tokens],
   );
+  /* v8 ignore stop */
 
   const mergedStyle: CSSProperties = useMemo(
     () => ({

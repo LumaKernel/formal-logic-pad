@@ -1280,6 +1280,28 @@ describe("customQuestState", () => {
       expect(json).toContain("\n");
       expect(json).toContain("  ");
     });
+
+    it("estimatedStepsがundefinedのクエストをエクスポートするとestimatedStepsが含まれない", () => {
+      const r = addCustomQuest(
+        createEmptyCustomQuestCollection(),
+        {
+          ...sampleParams,
+          estimatedSteps: undefined,
+        },
+        1000,
+      );
+      expect(r.ok).toBe(true);
+      if (!r.ok) return;
+
+      const quest = r.value.collection.quests.get(r.value.questId);
+      if (quest === undefined) return;
+
+      const json = exportCustomQuestAsJson(quest);
+      const parsed = JSON.parse(json) as ExportedCustomQuest;
+
+      expect(parsed.quest.estimatedSteps).toBeUndefined();
+      expect("estimatedSteps" in parsed.quest).toBe(false);
+    });
   });
 
   describe("importCustomQuestFromJson", () => {

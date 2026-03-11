@@ -199,6 +199,27 @@ describe("rectsOverlap", () => {
     const b: PanelRect = { x: 0, y: 200, width: 100, height: 100 };
     expect(rectsOverlap(a, b, 0)).toBe(false);
   });
+
+  it("bがaの右側に離れている場合は重ならない（条件1がfalse）", () => {
+    // a.x < b.x + b.width + gap が false
+    const a: PanelRect = { x: 300, y: 0, width: 100, height: 100 };
+    const b: PanelRect = { x: 0, y: 0, width: 100, height: 100 };
+    expect(rectsOverlap(a, b, 0)).toBe(false);
+  });
+
+  it("bがaの上方に離れている場合は重ならない（条件3がfalse）", () => {
+    // 条件1,2はtrue、条件3: a.y < b.y + b.height + gap が false
+    const a: PanelRect = { x: 50, y: 300, width: 100, height: 100 };
+    const b: PanelRect = { x: 50, y: 0, width: 100, height: 100 };
+    expect(rectsOverlap(a, b, 0)).toBe(false);
+  });
+
+  it("bがaの下方に離れている場合は重ならない（条件4がfalse）", () => {
+    // 条件1,2,3はtrue、条件4: a.y + a.height + gap > b.y が false
+    const a: PanelRect = { x: 50, y: 0, width: 100, height: 100 };
+    const b: PanelRect = { x: 50, y: 100, width: 100, height: 100 };
+    expect(rectsOverlap(a, b, 0)).toBe(false);
+  });
 });
 
 // --- findNonOverlappingPosition ---
@@ -386,6 +407,23 @@ describe("computeDragPosition", () => {
     expect(
       rectsOverlap(resultRect, otherPanel, defaultDragOptions.panelGap),
     ).toBe(false);
+  });
+
+  it("デフォルトオプションで動作する", () => {
+    const dragStart: DragStartInfo = {
+      pointerPosition: { x: 200, y: 200 },
+      panelPosition: { x: 150, y: 150 },
+    };
+    const result = computeDragPosition(
+      dragStart,
+      { x: 250, y: 250 },
+      panelSize,
+      container,
+      [],
+    );
+    // デフォルトオプション使用: 中央付近なのでスナップなし
+    expect(result.position).toEqual({ x: 200, y: 200 });
+    expect(result.snappedEdges).toEqual([]);
   });
 });
 
