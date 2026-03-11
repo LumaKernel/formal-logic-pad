@@ -12351,3 +12351,28 @@
   - HubPageViewのshowLandingはbooleanプロップ。true時はタブバーを非表示にしランディングコンテンツを表示
   - ランディングの「自由に証明する」はview="create"に切り替え、同一ランディングコンテナ内にNotebookCreateFormをインライン表示
 ---
+
+## 2026-03-11 - formula-input シンタックスハイライト
+- FormulaDisplay / TermDisplay に `highlight` prop を追加
+- 純粋トークナイザー `formulaHighlight.ts` を実装（AST → FormulaToken[]）
+  - formatUnicode.ts と同じ BP アルゴリズムで最小限の括弧付け
+  - `tokensToText(tokenizeFormula(f)) === formatFormula(f)` をテストで保証
+- CSS 変数（12種）をライト/ダーク両テーマで定義
+- 変更ファイル:
+  - `src/lib/logic-lang/formulaHighlight.ts` (新規: 純粋トークナイザー)
+  - `src/lib/logic-lang/formulaHighlight.test.ts` (新規: 54テスト)
+  - `src/lib/logic-lang/index.ts` (エクスポート追加)
+  - `src/app/globals.css` (CSS変数追加)
+  - `src/lib/formula-input/FormulaDisplay.tsx` (highlight prop)
+  - `src/lib/formula-input/FormulaDisplay.test.tsx` (8テスト追加)
+  - `src/lib/formula-input/FormulaDisplay.stories.tsx` (SyntaxHighlight ストーリー)
+  - `src/lib/formula-input/TermDisplay.tsx` (highlight prop)
+  - `src/lib/formula-input/TermDisplay.test.tsx` (5テスト追加)
+- カバレッジ: Stmts 99.88% → 99.92%, Branch 99.48% → 99.62%, Lines 99.90% → 99.95%
+- テスト: 9193 → 9299 (106 追加)
+- スクリーンショット: .screenshots/syntax-highlight-story.png, syntax-highlight-dark-theme.png
+- **今後のイテレーションへの学び:**
+  - `tokenKindToVar` マッピングは FormulaDisplay と TermDisplay で重複しているが、logic-lang レイヤーが CSS を知るべきではないため意図的
+  - formulaHighlight.ts は formatUnicode.ts の BP ロジックを複製している — 将来的にリファクタリングで共通化を検討
+  - `tokensToText` でフォーマッタとの一致を保証するテストパターンは効果的
+---
