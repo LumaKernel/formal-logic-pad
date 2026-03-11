@@ -268,3 +268,7 @@ Infinity Canvasについて。
 
 - [x] MPのドキュメントなどでのブロック数式の描画で、元のコードが露出しているように思えます。
   - parseInlineMarkdownが**bold**のみ対応だったため、*italic*マークダウンがリファレンス本文で生テキストとして表示されていた。InlineElementにitalic型を追加し、<em>タグでレンダリングするように修正。
+
+- [x] ノート一覧の三点リーダーの開かれるメニューが、次のノートのカラムの後ろに隠れてしまう。
+  - [x] クエスト一覧なども同様。一番下のやつは見切れる
+  - 修正: NotebookListComponent.tsx ではメニュー表示中の親カードのzIndexを動的に100に昇格（CSSスタッキングコンテキスト対策）。QuestCatalogComponent.tsx ではoverflow:hiddenを削除し最終アイテムにborder-radiusを直接適用。
