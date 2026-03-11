@@ -104,6 +104,28 @@
 
 ---
 
+## 2026-03-11 - [quest] 模範解答にノートステップを追加可能にする
+- ベースライン: Stmts 99.92%, Branch 99.68%, Lines 99.95%, 9215 tests
+- **結果: Stmts 99.92%, Branch 99.68%, Lines 99.95%, 9218 tests（カバレッジ変動なし、テスト+3）**
+- 変更内容:
+  - `modelAnswer.ts`: `ModelAnswerStep` union に `note` タグを追加（`text` フィールドでマークダウン指定）
+  - `buildModelAnswerWorkspace` の switch に `note` ケース追加: `addNode(ws, "note", "Note", ...)` でノートノード作成
+  - ノートノードは証明DAGに参加せず、ゴールチェックに影響しない
+- テスト追加:
+  - ノートステップでノートノードが作成される
+  - ノートステップのインデックスがstepNodeIdsに正しく反映される（ノート前後の証明ステップのインデックス参照が正しい）
+  - ノート付き模範解答のバリデーションがValidを返す
+- 変更ファイル:
+  - src/lib/quest/modelAnswer.ts — ModelAnswerStep に note タグ追加、switch ケース追加
+  - src/lib/quest/modelAnswer.test.ts — note ステップのテスト3件追加
+  - tasks/prd-note-node.md — タスク完了マーク
+- スクリーンショット: .screenshots/model-answer-note-support-small-proof.png
+- **今後のイテレーションへの学び:**
+  - ノートノードは `kind: "note"` で作成される。`addNode(ws, "note", "Note", pos, text)` が標準パターン
+  - 模範解答の `stepNodeIds` にはノートノードIDも含まれるので、後続ステップのインデックスはノートを含めてカウントする必要がある
+  - `ModelAnswerStep` に新しいタグを追加するときは: (1) union定義 (2) switch case (3) テスト の3箇所を更新。exhaustive check がコンパイルエラーで漏れを検出する
+---
+
 ## 2026-03-11 - [workspace] 構文ヘルプボタンをリファレンスモーダルに接続
 - ベースライン: Stmts 99.58%, Branch 98.65%, Lines 99.67%, 9095 tests
 - **結果: Stmts 99.57%, Branch 98.59%, Lines 99.65%, 9080 tests（変更は`src/app/`配下のカバレッジ除外対象、実質変動なし）**
