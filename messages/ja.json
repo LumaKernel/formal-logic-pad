@@ -11,6 +11,7 @@
     "tabNotebooks": "ノートブック",
     "tabQuests": "クエスト",
     "tabCustomQuests": "自作クエスト",
+    "tabCollection": "コレクション",
     "newNotebook": "+ 新規ノートブック",
     "importNotebook": "インポート",
     "emptyTitle": "ノートブックがまだありません",
@@ -27,7 +28,19 @@
     "landingDescription": "形式的な証明体系をインタラクティブに探索しましょう。Hilbert系、自然演繹、シーケント計算などで証明を構築できます。",
     "landingStartFreeProof": "自由に証明する",
     "landingExploreQuests": "クエストを探索する",
-    "landingRecommendedQuests": "クイッククエスト"
+    "landingRecommendedQuests": "クイッククエスト",
+    "collectionEmpty": "保存済みの証明はまだありません。ワークスペースから証明を保存して、ここで管理できます。",
+    "collectionEntryCount": "{count} 件の証明",
+    "collectionDelete": "削除",
+    "collectionMemoPlaceholder": "メモを追加…",
+    "collectionCreateFolder": "+ 新規フォルダ",
+    "collectionFolderNamePlaceholder": "フォルダ名",
+    "collectionFolderDelete": "フォルダを削除",
+    "collectionFolderRename": "名前変更",
+    "collectionMoveToFolder": "移動先…",
+    "collectionMoveToRoot": "（ルート）",
+    "collectionRootEntries": "未分類",
+    "collectionFolderEntryCount": "{count}"
   },
   "Workspace": {
     "back": "戻る",

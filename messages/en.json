@@ -11,6 +11,7 @@
     "tabNotebooks": "Notebooks",
     "tabQuests": "Quests",
     "tabCustomQuests": "Custom Quests",
+    "tabCollection": "Collection",
     "newNotebook": "+ New Notebook",
     "importNotebook": "Import",
     "emptyTitle": "No notebooks yet",
@@ -27,7 +28,19 @@
     "landingDescription": "Explore formal proof systems interactively. Build proofs in Hilbert-style, natural deduction, sequent calculus, and more.",
     "landingStartFreeProof": "Start Free Proof",
     "landingExploreQuests": "Explore Quests",
-    "landingRecommendedQuests": "Try a Quick Quest"
+    "landingRecommendedQuests": "Try a Quick Quest",
+    "collectionEmpty": "No saved proofs yet. Save proofs from your workspace to manage them here.",
+    "collectionEntryCount": "{count} proofs",
+    "collectionDelete": "Delete",
+    "collectionMemoPlaceholder": "Add a memo…",
+    "collectionCreateFolder": "+ New Folder",
+    "collectionFolderNamePlaceholder": "Folder name",
+    "collectionFolderDelete": "Delete Folder",
+    "collectionFolderRename": "Rename",
+    "collectionMoveToFolder": "Move to…",
+    "collectionMoveToRoot": "(Root)",
+    "collectionRootEntries": "Uncategorized",
+    "collectionFolderEntryCount": "{count}"
   },
   "Workspace": {
     "back": "Back",

@@ -106,3 +106,10 @@ export {
 // --- パネルUI ---
 export { ProofCollectionPanel } from "./ProofCollectionPanel";
 export type { ProofCollectionPanelProps } from "./ProofCollectionPanel";
+
+// --- ページビューUI ---
+export { ProofCollectionPageView } from "./ProofCollectionPageView";
+export type {
+  ProofCollectionPageViewProps,
+  CollectionMessages,
+} from "./ProofCollectionPageView";
