@@ -265,3 +265,6 @@ Infinity Canvasについて。
 
 - [x] bug: ノートノードが、キャンバスのスクロールの右端にきたらそれにつられてwrapされてしまいます。
   - CanvasItem に width: max-content を追加し、position: absolute の shrink-to-fit 幅計算がコンテナの残り幅に制約されないようにした。
+
+- [x] MPのドキュメントなどでのブロック数式の描画で、元のコードが露出しているように思えます。
+  - parseInlineMarkdownが**bold**のみ対応だったため、*italic*マークダウンがリファレンス本文で生テキストとして表示されていた。InlineElementにitalic型を追加し、<em>タグでレンダリングするように修正。
