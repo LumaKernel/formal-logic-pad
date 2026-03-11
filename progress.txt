@@ -12399,3 +12399,31 @@
   - 透明テキスト+背面オーバーレイパターンは既存のエラーハイライトと同じ構造を共有
   - v8 coverage aggregation で ScRulePalette.tsx の一時的な低下が見られたが、再実行で正常値に戻った（既知のv8 quirk）
 ---
+
+## 2026-03-11 - [formula-input] 論理式の拡大編集モーダルを追加
+- 実装した内容: FormulaExpandedEditorコンポーネントを新規実装。広い画面でtextareaベースの複数行編集が可能なモーダルダイアログ
+  - FormulaExpandedEditor.tsx: モーダルオーバーレイ + textarea + リアルタイムプレビュー + エラーハイライト + シンタックスハイライト
+  - FormulaEditor.tsx: 拡大ボタン(⤢)を追加。mouseDown preventDefaultパターンで入力のblur防止
+  - EditableProofNode.tsx: onOpenExpanded propチェーンを追加
+  - ProofWorkspace.tsx: expandedEditorNodeId状態管理、handleExpandedChange（replaceWorkspace + revalidate）
+  - 閉じる操作: 閉じるボタン、オーバーレイクリック(e.target === e.currentTarget)、Escapeキー
+- 変更したファイル:
+  - `src/lib/formula-input/FormulaExpandedEditor.tsx` (新規 548行)
+  - `src/lib/formula-input/FormulaExpandedEditor.test.tsx` (新規 24テスト)
+  - `src/lib/formula-input/FormulaExpandedEditor.stories.tsx` (新規 6ストーリー+play関数)
+  - `src/lib/formula-input/FormulaEditor.tsx` (拡大ボタン追加)
+  - `src/lib/formula-input/FormulaEditor.test.tsx` (5テスト追加)
+  - `src/lib/formula-input/index.ts` (エクスポート追加)
+  - `src/lib/proof-pad/EditableProofNode.tsx` (onOpenExpanded prop追加)
+  - `src/lib/proof-pad/ProofWorkspace.tsx` (拡大エディタ状態管理+レンダリング)
+  - `tasks/prd-syntax-highlight.md` (タスク完了マーク)
+- カバレッジ: Stmts 99.6% → 99.9%, Branch 99% → 99.57%, Lines 99.67% → 99.93% (全て向上)
+- テスト: 9271 → 9384 (113テスト追加)
+- スクリーンショット: .screenshots/expanded-editor-default.png, expanded-editor-with-formula.png, expanded-editor-with-error.png, expanded-editor-syntax-highlight.png
+- **今後のイテレーションへの学び:**
+  - モーダルの閉じるパターン: ReferenceModal.tsxと同じ overlay click (e.target === e.currentTarget) + Escape keydown listener + close button
+  - FormulaEditorのボタン追加パターン: mouseDown preventDefaultでblur防止、stopPropagation、条件付きレンダリング (prop !== undefined)
+  - ProofWorkspaceのコールバックチェーン: FormulaEditor → EditableProofNode → ProofWorkspace (onOpenSyntaxHelpと同じパターン)
+  - 拡大エディタでの編集はreplaceWorkspace（pushではない）。テキスト変更後にrevalidateInferenceConclusionsを必ず呼ぶ
+  - 残タスク: 複数行論理式の自動モーダル突入はまだ未実装
+---
