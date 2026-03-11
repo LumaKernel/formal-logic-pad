@@ -20,7 +20,6 @@ import { createInMemoryStorageLayer } from "./storageService";
 const sampleParams: CreateCustomQuestParams = {
   title: "テストクエスト",
   description: "テスト用",
-  category: "propositional-basics",
   difficulty: 1,
   systemPresetId: "lukasiewicz",
   goals: [{ formulaText: "p -> p" }],

@@ -12471,3 +12471,22 @@
   - `parseEstimatedSteps`: フォーム文字列→number|undefinedの変換は専用関数に切り出すと再利用性が高い
   - カバレッジ微減はv8集計のゆらぎ（MEMORY.md記載済み）で、変更ファイル自体は100%カバー
 ---
+
+## 2026-03-11 - [quest] 自作クエストからカテゴリフィールドを削除
+- カテゴリはビルトインクエストのグループ化用であり、自作クエストでは不要なため削除
+- `CreateCustomQuestParams` から `category` を除去し、`addCustomQuest` で固定値 `"propositional-basics"` を設定
+- `EditFormValues` から `category` を除去
+- UIの作成/編集フォームからカテゴリ `<select>` を削除
+- 変更したファイル:
+  - `src/lib/quest/customQuestState.ts` (CreateCustomQuestParams型変更、addCustomQuest/updateCustomQuest修正)
+  - `src/lib/quest/customQuestEditLogic.ts` (EditFormValues型変更、createEmptyEditFormValues/questToEditFormValues修正)
+  - `src/lib/quest/CustomQuestListComponent.tsx` (UIフォームからカテゴリ選択削除)
+  - テスト4ファイル更新 (customQuestState.test.ts, customQuestEditLogic.test.ts, CustomQuestListComponent.test.tsx, useCustomQuestCollection.test.tsx)
+- カバレッジ: Stmts 99.88% → 99.88%, Branch 99.48% → 99.48%, Funcs 89.47% → 89.37% (v8集計ゆらぎ), Lines 99.91% → 99.91%
+- テスト: 9388 → 9380 (-8テスト、カテゴリ関連テスト削除)
+- スクリーンショット: .screenshots/custom-quest-edit-form-no-category.png, .screenshots/custom-quest-create-form-no-category.png
+- **今後のイテレーションへの学び:**
+  - ビルトイン概念の自作クエストへの混入に注意: `QuestDefinition` はビルトイン/自作共通だが、作成パラメータはそれぞれ固有の型にすべき
+  - `category` は `QuestDefinition` に残し（ビルトイン用）、`CreateCustomQuestParams` から除去して固定値でデフォルト設定するアプローチが最小影響
+  - シリアライゼーション (`parseCustomQuestFromRaw`) は既存データ互換のため `QuestCategory` 型を引き続き参照する必要あり
+---

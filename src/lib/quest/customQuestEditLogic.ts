@@ -10,18 +10,19 @@
 import type { QuestGoalDefinition } from "../proof-pad/workspaceState";
 import type {
   QuestDefinition,
-  QuestCategory,
   DifficultyLevel,
   SystemPresetId,
 } from "./questDefinition";
 
 // --- フォームの状態 ---
 
-/** 編集フォームの入力値 */
+/**
+ * 編集フォームの入力値。
+ * category はビルトインクエスト専用なのでフォームには含まない。
+ */
 export type EditFormValues = {
   readonly title: string;
   readonly description: string;
-  readonly category: QuestCategory;
   readonly difficulty: DifficultyLevel;
   readonly systemPresetId: SystemPresetId;
   readonly goalsText: string;
@@ -35,7 +36,6 @@ export function createEmptyEditFormValues(): EditFormValues {
   return {
     title: "",
     description: "",
-    category: "propositional-basics",
     difficulty: 1,
     systemPresetId: "lukasiewicz",
     goalsText: "",
@@ -50,7 +50,6 @@ export function questToEditFormValues(quest: QuestDefinition): EditFormValues {
   return {
     title: quest.title,
     description: quest.description,
-    category: quest.category,
     difficulty: quest.difficulty,
     systemPresetId: quest.systemPresetId,
     goalsText: quest.goals.map((g) => g.formulaText).join("\n"),

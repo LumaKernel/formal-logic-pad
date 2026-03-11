@@ -13,11 +13,9 @@ import type { QuestCatalogItem } from "./questCatalog";
 import type {
   QuestId,
   DifficultyLevel,
-  QuestCategory,
   SystemPresetId,
   QuestDefinition,
 } from "./questDefinition";
-import { questCategories } from "./questDefinition";
 import {
   difficultyShortLabel,
   ratingLabel,
@@ -446,7 +444,6 @@ function CustomQuestEditForm({
       params: {
         title: values.title,
         description: values.description,
-        category: values.category,
         difficulty: values.difficulty,
         systemPresetId: values.systemPresetId,
         goals: goalsTextToDefinitions(values.goalsText),
@@ -498,48 +495,26 @@ function CustomQuestEditForm({
           />
         </div>
 
-        {/* カテゴリ・難易度 */}
-        <div style={editRowStyle}>
-          <div style={{ ...editFieldGroupStyle, flex: 1 }}>
-            <label style={editLabelStyle}>カテゴリ</label>
-            <select
-              data-testid="edit-category-select"
-              style={editSelectStyle}
-              value={values.category}
-              onChange={(e) =>
-                setValues({
-                  ...values,
-                  category: e.target.value as QuestCategory,
-                })
-              }
-            >
-              {questCategories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div style={{ ...editFieldGroupStyle, flex: 0, minWidth: 100 }}>
-            <label style={editLabelStyle}>難易度</label>
-            <select
-              data-testid="edit-difficulty-select"
-              style={editSelectStyle}
-              value={values.difficulty}
-              onChange={(e) =>
-                setValues({
-                  ...values,
-                  difficulty: Number(e.target.value) as DifficultyLevel,
-                })
-              }
-            >
-              {([1, 2, 3, 4, 5] as const).map((d) => (
-                <option key={d} value={d}>
-                  {`${"★".repeat(d) satisfies string}${"☆".repeat(5 - d) satisfies string}`}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* 難易度 */}
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>難易度</label>
+          <select
+            data-testid="edit-difficulty-select"
+            style={editSelectStyle}
+            value={values.difficulty}
+            onChange={(e) =>
+              setValues({
+                ...values,
+                difficulty: Number(e.target.value) as DifficultyLevel,
+              })
+            }
+          >
+            {([1, 2, 3, 4, 5] as const).map((d) => (
+              <option key={d} value={d}>
+                {`${"★".repeat(d) satisfies string}${"☆".repeat(5 - d) satisfies string}`}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* 体系 */}
@@ -724,7 +699,6 @@ function CustomQuestCreateForm({
     onSave({
       title: values.title,
       description: values.description,
-      category: values.category,
       difficulty: values.difficulty,
       systemPresetId: values.systemPresetId,
       goals: goalsTextToDefinitions(values.goalsText),
@@ -775,48 +749,26 @@ function CustomQuestCreateForm({
           />
         </div>
 
-        {/* カテゴリ・難易度 */}
-        <div style={editRowStyle}>
-          <div style={{ ...editFieldGroupStyle, flex: 1 }}>
-            <label style={editLabelStyle}>カテゴリ</label>
-            <select
-              data-testid="create-category-select"
-              style={editSelectStyle}
-              value={values.category}
-              onChange={(e) =>
-                setValues({
-                  ...values,
-                  category: e.target.value as QuestCategory,
-                })
-              }
-            >
-              {questCategories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div style={{ ...editFieldGroupStyle, flex: 0, minWidth: 100 }}>
-            <label style={editLabelStyle}>難易度</label>
-            <select
-              data-testid="create-difficulty-select"
-              style={editSelectStyle}
-              value={values.difficulty}
-              onChange={(e) =>
-                setValues({
-                  ...values,
-                  difficulty: Number(e.target.value) as DifficultyLevel,
-                })
-              }
-            >
-              {([1, 2, 3, 4, 5] as const).map((d) => (
-                <option key={d} value={d}>
-                  {`${"★".repeat(d) satisfies string}${"☆".repeat(5 - d) satisfies string}`}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* 難易度 */}
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>難易度</label>
+          <select
+            data-testid="create-difficulty-select"
+            style={editSelectStyle}
+            value={values.difficulty}
+            onChange={(e) =>
+              setValues({
+                ...values,
+                difficulty: Number(e.target.value) as DifficultyLevel,
+              })
+            }
+          >
+            {([1, 2, 3, 4, 5] as const).map((d) => (
+              <option key={d} value={d}>
+                {`${"★".repeat(d) satisfies string}${"☆".repeat(5 - d) satisfies string}`}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* 体系 */}

@@ -31,7 +31,6 @@ import type { QuestDefinition } from "./questDefinition";
 const sampleParams: CreateCustomQuestParams = {
   title: "テストクエスト",
   description: "テストの説明",
-  category: "propositional-basics",
   difficulty: 2,
   systemPresetId: "lukasiewicz",
   goals: [{ formulaText: "phi -> phi" }],

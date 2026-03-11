@@ -47,11 +47,13 @@ export function createEmptyCustomQuestCollection(): CustomQuestCollection {
 
 // --- クエスト作成パラメータ ---
 
-/** 自作クエスト作成時の入力パラメータ */
+/**
+ * 自作クエスト作成時の入力パラメータ。
+ * category はビルトインクエスト専用なので含まない。
+ */
 export type CreateCustomQuestParams = {
   readonly title: string;
   readonly description: string;
-  readonly category: QuestCategory;
   readonly difficulty: DifficultyLevel;
   readonly systemPresetId: SystemPresetId;
   readonly goals: readonly QuestGoalDefinition[];
@@ -125,7 +127,7 @@ export function addCustomQuest(
 
   const quest: QuestDefinition = {
     id: questId,
-    category: params.category,
+    category: "propositional-basics",
     title: params.title.trim(),
     description: params.description.trim(),
     difficulty: params.difficulty,
@@ -171,7 +173,6 @@ export function updateCustomQuest(
 
   const updated: QuestDefinition = {
     ...existing,
-    category: params.category,
     title: params.title.trim(),
     description: params.description.trim(),
     difficulty: params.difficulty,

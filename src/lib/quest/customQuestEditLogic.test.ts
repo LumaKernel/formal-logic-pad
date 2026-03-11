@@ -40,7 +40,6 @@ function makeValidValues(
   return {
     title: "テストクエスト",
     description: "説明",
-    category: "propositional-basics",
     difficulty: 2,
     systemPresetId: "lukasiewicz",
     goalsText: "p -> p",
@@ -58,7 +57,6 @@ describe("createEmptyEditFormValues", () => {
     const result = createEmptyEditFormValues();
     expect(result.title).toBe("");
     expect(result.description).toBe("");
-    expect(result.category).toBe("propositional-basics");
     expect(result.difficulty).toBe(1);
     expect(result.systemPresetId).toBe("lukasiewicz");
     expect(result.goalsText).toBe("");
@@ -90,7 +88,6 @@ describe("questToEditFormValues", () => {
 
     expect(result.title).toBe("テストクエスト");
     expect(result.description).toBe("テスト用の自作クエスト。");
-    expect(result.category).toBe("propositional-basics");
     expect(result.difficulty).toBe(2);
     expect(result.systemPresetId).toBe("lukasiewicz");
     expect(result.goalsText).toBe("p -> p\np -> (q -> p)");

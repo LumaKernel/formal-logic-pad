@@ -226,15 +226,6 @@ describe("CustomQuestListComponent", () => {
       expect(textarea.value).toBe("新しい説明");
     });
 
-    it("カテゴリを変更できる", () => {
-      renderWithEditForm();
-      const select = screen.getByTestId(
-        "edit-category-select",
-      ) as HTMLSelectElement;
-      fireEvent.change(select, { target: { value: "propositional-advanced" } });
-      expect(select.value).toBe("propositional-advanced");
-    });
-
     it("難易度を変更できる", () => {
       renderWithEditForm();
       const select = screen.getByTestId(
@@ -399,15 +390,6 @@ describe("CustomQuestListComponent", () => {
       ) as HTMLTextAreaElement;
       fireEvent.change(textarea, { target: { value: "新しい説明" } });
       expect(textarea.value).toBe("新しい説明");
-    });
-
-    it("カテゴリを変更できる", () => {
-      renderWithCreateForm();
-      const select = screen.getByTestId(
-        "create-category-select",
-      ) as HTMLSelectElement;
-      fireEvent.change(select, { target: { value: "propositional-advanced" } });
-      expect(select.value).toBe("propositional-advanced");
     });
 
     it("難易度を変更できる", () => {
