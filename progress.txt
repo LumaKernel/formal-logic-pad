@@ -12674,3 +12674,22 @@
   - italicの閉じ`*`探索では`**`をスキップする必要がある（bold markerとの衝突回避）
   - referenceContent.tsのMP/Genエントリbodyに`*detachment*`等のitalic表記があるため、parseInlineMarkdownのitalic対応が必須
 ---
+
+## 2026-03-12 04:00 - [UI] ノート一覧・クエスト一覧のドロップダウンメニュー修正
+- タスク: ノート一覧の三点リーダーメニューが次のカードの後ろに隠れる、クエスト一覧も同様に見切れるバグを修正
+- NotebookListComponent.tsx:
+  - dropdownMenuStyle の zIndex を 10 → 1000 に変更
+  - MoreMenu に onOpenChange コールバックを追加
+  - NotebookItem にメニュー表示中の zIndex:100 動的昇格を追加（CSSスタッキングコンテキスト対策）
+- QuestCatalogComponent.tsx:
+  - questListStyle の overflow:"hidden" を削除（ドロップダウンのクリッピング原因）
+  - moreMenuStyle の zIndex を 10 → 1000 に変更
+  - QuestItem に isLast prop 追加、最終アイテムに borderRadius:"0 0 8px 8px" を直接適用
+- カバレッジ: Stmts 99.95%, Branch 99.94%, Lines 99.93% (維持)
+- テスト数: 9510 (変更なし)
+- スクリーンショット: .screenshots/notebook-dropdown-fix.png, .screenshots/quest-dropdown-fix.png
+- **今後のイテレーションへの学び:**
+  - position:relative を持つ要素は独立したスタッキングコンテキストを形成する。子要素のzIndexは親のスタッキングコンテキスト内でのみ有効
+  - ドロップダウンの表示問題は親要素のzIndex動的昇格（メニュー開閉時）で解決するパターンが確実
+  - overflow:hidden は position:absolute のドロップダウンをクリップする。削除後はborder-radiusを子要素に直接適用する必要がある
+---
