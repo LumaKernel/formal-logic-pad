@@ -147,6 +147,28 @@ describe("ReferenceModal", () => {
     expect(strongElements[0]?.textContent).toBe("bold");
   });
 
+  it("イタリックマークダウンがemタグとしてレンダリングされる", () => {
+    const entry = makeEntry({
+      body: {
+        en: ["Also called *detachment* rule."],
+        ja: ["*分離規則*とも呼ばれる。"],
+      },
+    });
+    render(
+      <ReferenceModal
+        entry={entry}
+        allEntries={[entry]}
+        locale="en"
+        onClose={vi.fn()}
+        testId="ref-modal"
+      />,
+    );
+    const modal = screen.getByTestId("ref-modal");
+    const emElements = modal.querySelectorAll("em");
+    expect(emElements.length).toBeGreaterThan(0);
+    expect(emElements[0]?.textContent).toBe("detachment");
+  });
+
   it("関連エントリがボタンとして表示される", () => {
     const allEntries = [makeEntry(), makeRelatedEntry()];
     render(

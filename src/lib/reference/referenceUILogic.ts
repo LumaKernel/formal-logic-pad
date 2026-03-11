@@ -18,15 +18,16 @@ import {
 
 /**
  * インラインマークダウンの要素。
- * テキストまたはボールド（**...**）のいずれか。
+ * テキスト、ボールド（**...**）、またはイタリック（*...*）のいずれか。
  */
 export type InlineElement =
   | { readonly type: "text"; readonly content: string }
-  | { readonly type: "bold"; readonly content: string };
+  | { readonly type: "bold"; readonly content: string }
+  | { readonly type: "italic"; readonly content: string };
 
 /**
  * 簡易インラインマークダウンをパースする。
- * **bold** のみサポート。
+ * **bold** と *italic* をサポート。
  */
 export function parseInlineMarkdown(text: string): readonly InlineElement[] {
   const result: InlineElement[] = [];
@@ -34,28 +35,81 @@ export function parseInlineMarkdown(text: string): readonly InlineElement[] {
 
   while (remaining.length > 0) {
     const boldStart = remaining.indexOf("**");
-    if (boldStart === -1) {
+    const italicStart = remaining.indexOf("*");
+
+    // * がまったくない場合 → 残り全部テキスト
+    if (italicStart === -1) {
       result.push({ type: "text", content: remaining });
       break;
     }
 
-    if (boldStart > 0) {
-      result.push({ type: "text", content: remaining.slice(0, boldStart) });
+    // ** が見つかり、* の位置と一致する場合 → bold を優先
+    if (boldStart === italicStart) {
+      // bold の処理
+      if (boldStart > 0) {
+        result.push({
+          type: "text",
+          content: remaining.slice(0, boldStart),
+        });
+      }
+
+      const boldEnd = remaining.indexOf("**", boldStart + 2);
+      if (boldEnd === -1) {
+        // 閉じ ** がない場合はそのままテキストとして扱う
+        result.push({ type: "text", content: remaining.slice(boldStart) });
+        break;
+      }
+
+      const boldContent = remaining.slice(boldStart + 2, boldEnd);
+      if (boldContent.length > 0) {
+        result.push({ type: "bold", content: boldContent });
+      }
+
+      remaining = remaining.slice(boldEnd + 2);
+      continue;
     }
 
-    const boldEnd = remaining.indexOf("**", boldStart + 2);
-    if (boldEnd === -1) {
-      // 閉じ ** がない場合はそのままテキストとして扱う
-      result.push({ type: "text", content: remaining.slice(boldStart) });
+    // * はあるが ** ではない、または * が ** より前にある → italic の処理
+    if (italicStart > 0) {
+      result.push({
+        type: "text",
+        content: remaining.slice(0, italicStart),
+      });
+    }
+
+    // 閉じ * を探す（** を避ける）
+    const afterOpen = remaining.slice(italicStart + 1);
+    let italicEnd = -1;
+    let searchPos = 0;
+    while (searchPos < afterOpen.length) {
+      const nextStar = afterOpen.indexOf("*", searchPos);
+      if (nextStar === -1) {
+        break;
+      }
+      // ** の場合はスキップ（bold marker）
+      if (
+        nextStar + 1 < afterOpen.length &&
+        afterOpen[nextStar + 1] === "*"
+      ) {
+        searchPos = nextStar + 2;
+        continue;
+      }
+      italicEnd = nextStar;
       break;
     }
 
-    const boldContent = remaining.slice(boldStart + 2, boldEnd);
-    if (boldContent.length > 0) {
-      result.push({ type: "bold", content: boldContent });
+    if (italicEnd === -1) {
+      // 閉じ * がない場合はそのままテキストとして扱う
+      result.push({ type: "text", content: remaining.slice(italicStart) });
+      break;
     }
 
-    remaining = remaining.slice(boldEnd + 2);
+    const italicContent = afterOpen.slice(0, italicEnd);
+    if (italicContent.length > 0) {
+      result.push({ type: "italic", content: italicContent });
+    }
+
+    remaining = afterOpen.slice(italicEnd + 1);
   }
 
   return result;

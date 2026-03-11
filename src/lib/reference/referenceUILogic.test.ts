@@ -102,6 +102,95 @@ describe("parseInlineMarkdown", () => {
       { type: "text", content: " after" },
     ]);
   });
+
+  // --- italic ---
+
+  it("イタリックを正しくパースする", () => {
+    const result = parseInlineMarkdown("before *italic* after");
+    expect(result).toEqual([
+      { type: "text", content: "before " },
+      { type: "italic", content: "italic" },
+      { type: "text", content: " after" },
+    ]);
+  });
+
+  it("イタリックのみの文字列を処理する", () => {
+    const result = parseInlineMarkdown("*only italic*");
+    expect(result).toEqual([{ type: "italic", content: "only italic" }]);
+  });
+
+  it("複数のイタリックをパースする", () => {
+    const result = parseInlineMarkdown("*a* text *b*");
+    expect(result).toEqual([
+      { type: "italic", content: "a" },
+      { type: "text", content: " text " },
+      { type: "italic", content: "b" },
+    ]);
+  });
+
+  it("閉じ*がない場合はテキストとして扱う", () => {
+    const result = parseInlineMarkdown("before *unclosed");
+    expect(result).toEqual([
+      { type: "text", content: "before " },
+      { type: "text", content: "*unclosed" },
+    ]);
+  });
+
+  it("空のイタリック(**)はスキップする", () => {
+    // ** は bold の開始マーカーとして扱われる
+    const result = parseInlineMarkdown("text ** more");
+    expect(result).toEqual([
+      { type: "text", content: "text " },
+      { type: "text", content: "** more" },
+    ]);
+  });
+
+  // --- bold と italic の混在 ---
+
+  it("太字とイタリックの混在をパースする", () => {
+    const result = parseInlineMarkdown("**bold** and *italic*");
+    expect(result).toEqual([
+      { type: "bold", content: "bold" },
+      { type: "text", content: " and " },
+      { type: "italic", content: "italic" },
+    ]);
+  });
+
+  it("イタリック→太字の順でパースする", () => {
+    const result = parseInlineMarkdown("*italic* then **bold**");
+    expect(result).toEqual([
+      { type: "italic", content: "italic" },
+      { type: "text", content: " then " },
+      { type: "bold", content: "bold" },
+    ]);
+  });
+
+  it("MPリファレンスの実際のテキストをパースする", () => {
+    const result = parseInlineMarkdown(
+      "**Modus ponens** (MP, also called *detachment*) is the sole inference rule.",
+    );
+    expect(result).toEqual([
+      { type: "bold", content: "Modus ponens" },
+      { type: "text", content: " (MP, also called " },
+      { type: "italic", content: "detachment" },
+      { type: "text", content: ") is the sole inference rule." },
+    ]);
+  });
+
+  it("日本語のMPリファレンスのテキストをパースする", () => {
+    const result = parseInlineMarkdown(
+      "**モーダスポネンス** (MP、*分離規則*とも呼ばれる) はHilbert系証明体系における唯一の推論規則です。",
+    );
+    expect(result).toEqual([
+      { type: "bold", content: "モーダスポネンス" },
+      { type: "text", content: " (MP、" },
+      { type: "italic", content: "分離規則" },
+      {
+        type: "text",
+        content: "とも呼ばれる) はHilbert系証明体系における唯一の推論規則です。",
+      },
+    ]);
+  });
 });
 
 // --- buildPopoverData ---

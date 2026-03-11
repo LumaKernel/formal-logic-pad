@@ -167,6 +167,23 @@ describe("ReferencePopover", () => {
     expect(strongElements[0]?.textContent).toBe("bold");
   });
 
+  it("イタリックマークダウンがemタグとしてレンダリングされる", () => {
+    const entry = makeEntry({
+      summary: {
+        en: "Also called *detachment*.",
+        ja: "*分離規則*とも呼ばれる。",
+      },
+    });
+    render(
+      <ReferencePopover entry={entry} locale="en" testId="ref-pop" />,
+    );
+    fireEvent.click(screen.getByTestId("ref-pop-trigger"));
+    const popover = screen.getByTestId("ref-pop-popover");
+    const emElements = popover.querySelectorAll("em");
+    expect(emElements.length).toBeGreaterThan(0);
+    expect(emElements[0]?.textContent).toBe("detachment");
+  });
+
   it("aria-expanded属性が正しく更新される", () => {
     render(
       <ReferencePopover entry={makeEntry()} locale="en" testId="ref-pop" />,

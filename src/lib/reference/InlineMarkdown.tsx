@@ -1,7 +1,7 @@
 /**
  * 簡易インラインマークダウンレンダラー。
  *
- * **bold** テキストをReact要素に変換する。
+ * **bold** と *italic* テキストをReact要素に変換する。
  * リファレンスのbody/summaryテキスト表示に使用。
  *
  * 変更時は referenceUILogic.test.ts（parseInlineMarkdown）も同期すること。
@@ -24,6 +24,9 @@ export function InlineMarkdown({ text }: InlineMarkdownProps) {
         const key = `${el.type satisfies string}-${String(i) satisfies string}`;
         if (el.type === "bold") {
           return <strong key={key}>{el.content}</strong>;
+        }
+        if (el.type === "italic") {
+          return <em key={key}>{el.content}</em>;
         }
         return <span key={key}>{el.content}</span>;
       })}
