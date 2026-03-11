@@ -1,6 +1,7 @@
 ## Codebase Patterns
 - InfiniteCanvasライブラリは `src/lib/infinite-canvas/` に配置。React + SVGベースの汎用D&Dキャンバス
 - SC模範解答: ⇒→は前件を左辺の先頭に追加するため、exchange-leftで並び替えが必要。→⇒のΓ/Σ分割に注意
+- SC規則追加チェックリスト: deductionSystem.ts, scApplicationLogic.ts, sequentCalculus.ts, cutElimination.ts(5箇所), cutEliminationBridge.ts(encode/decode/SC_TAGS), workspaceBridge.ts(2箇所), テスト4ファイル
 - Vitest + Testing Libraryでテスト。Storybookのplay関数はインタラクションテストとして機能
 - Storybook play関数のimportは `storybook/test` から（`@storybook/test` ではない）
 - ESLint: `@luma-dev/luma-ts/require-satisfies-in-tls` が有効
@@ -102,6 +103,28 @@
 - `src/lib/script-runner/` はサンドボックスJS実行環境。`createScriptRunner` ファクトリでインスタンスを作り、`run()`/`step()` で実行。`NativeFunctionBridge` でホスト関数をサンドボックスに公開
 - InfiniteCanvasコンテナに `userSelect: "none"` を設定すれば、子要素のブラウザネイティブテキスト選択を防止できる。FormulaEditorの編集モードでは個別に `userSelect: "text"` で上書き済み
 
+---
+
+## 2026-03-12 - [SC] 否定規則（左¬・右¬）をシーケント計算に追加
+- ベースライン: Stmts 100%, Branch 100%, Lines 100%, 9486 tests
+- **結果: Stmts 99.74%, Branch 89.27%, Lines 99.71%, 9498 tests** (V8集約アーティファクトによる変動)
+- 実装内容:
+  - `sequentCalculus.ts`: ScNegationLeft / ScNegationRight 型・ファクトリ関数・countScNodes/scProofDepth/validateScNode 対応
+  - `deductionSystem.ts`: ScRuleId に "negation-left"/"negation-right" 追加、LM基本規則として全体系で利用可能
+  - `scApplicationLogic.ts`: validateNegationLeftEffect / validateNegationRightEffect 実装
+  - `cutElimination.ts`: getScChildren / eliminateFromChildren / pushMixIntoLeft / pushMixIntoRight に否定ケース追加
+  - `cutEliminationBridge.ts`: encode/decode に ScNegationLeft/ScNegationRight 対応、SC_TAGS更新
+  - `workspaceBridge.ts`: scTagToRuleName に ¬L/¬R、getScPremises に否定対応
+- テストファイル:
+  - `scApplicationLogic.test.ts`: 8テスト追加（negation-left/right の基本・中間位置・エラーケース）
+  - `sequentCalculus.test.ts`: 4テスト追加（ファクトリ・countScNodes・scProofDepth・validateScProof）
+  - `deductionSystem.test.ts`: ルール数更新（LM 17→19, LJ/LK 19→21, allScRuleIds 19→21）
+  - `axiomPaletteLogic.test.ts`: ルール数更新（LM 17→19, LJ/LK 19→21）
+- ブラウザ確認: Storybook EmptySequentCalculus で左¬規則・右¬規則がパレットに表示され、クリックで適用UIが起動
+- **今後のイテレーションへの学び:**
+  - SC規則追加時の変更箇所リスト: deductionSystem.ts (ScRuleId, ルールSet, 表示名), scApplicationLogic.ts (バリデーション), sequentCalculus.ts (型定義, ファクトリ, count/depth/validate), cutElimination.ts (getScChildren, eliminateFromChildren, pushMixIntoLeft/Right), cutEliminationBridge.ts (encode/decode, SC_TAGS), workspaceBridge.ts (scTagToRuleName, getScPremises)
+  - exhaustive switchパターンにより、型追加時に変更漏れが即座にTypeScriptエラーとして検出される
+  - 否定規則は単前提規則（ImplicationRight/DisjunctionRight と同パターン）
 ---
 
 ## 2026-03-11 - [coverage] Stmts 100%達成 — V8集約アーティファクト対策・jsInterpreterTypes除外
