@@ -197,6 +197,20 @@
   --color-quest-difficulty-text: #8b7355;
   --color-quest-empty-bg: rgba(252, 249, 243, 0.96);
 
+  /* Formula Syntax Highlight */
+  --color-syntax-connective: #7b3fa0;
+  --color-syntax-quantifier: #1a6b50;
+  --color-syntax-variable: #2c5ea0;
+  --color-syntax-metaVariable: #9b4d2b;
+  --color-syntax-predicate: #6b5b00;
+  --color-syntax-function: #5b4080;
+  --color-syntax-constant: #b5500a;
+  --color-syntax-subscript: #888888;
+  --color-syntax-equality: #7b3fa0;
+  --color-syntax-punctuation: #555555;
+  --color-syntax-negation: #c03030;
+  --color-syntax-substitution: #666666;
+
   /* Legacy compat (used by page.module.css) */
   --background: #ffffff;
   --foreground: #171717;
@@ -368,6 +382,20 @@
   --color-quest-difficulty-bg: rgba(100, 90, 75, 0.15);
   --color-quest-difficulty-text: #c8b898;
   --color-quest-empty-bg: rgba(36, 33, 30, 0.96);
+
+  /* Formula Syntax Highlight */
+  --color-syntax-connective: #c89bdf;
+  --color-syntax-quantifier: #6dd8b0;
+  --color-syntax-variable: #7cb8f0;
+  --color-syntax-metaVariable: #e8a878;
+  --color-syntax-predicate: #d8c858;
+  --color-syntax-function: #c8a0e0;
+  --color-syntax-constant: #f0a050;
+  --color-syntax-subscript: #999999;
+  --color-syntax-equality: #c89bdf;
+  --color-syntax-punctuation: #aaaaaa;
+  --color-syntax-negation: #f08080;
+  --color-syntax-substitution: #aaaaaa;
 
   /* Legacy compat (used by page.module.css) */
   --background: #0a0a0a;

@@ -194,4 +194,62 @@ describe("TermDisplay", () => {
       expect(el.style.whiteSpace).toBe("nowrap");
     });
   });
+
+  describe("シンタックスハイライト", () => {
+    it("highlight=false（デフォルト）ではプレーンテキスト", () => {
+      render(
+        <TermDisplay
+          term={binaryOperation("+", termVariable("x"), termVariable("y"))}
+          testId="term"
+        />,
+      );
+      const el = screen.getByTestId("term");
+      expect(el.children).toHaveLength(0);
+      expect(el).toHaveTextContent("x + y");
+    });
+
+    it("highlight=true では各トークンが<span>でラップされる", () => {
+      render(
+        <TermDisplay
+          term={binaryOperation("+", termVariable("x"), termVariable("y"))}
+          highlight
+          testId="term"
+        />,
+      );
+      const el = screen.getByTestId("term");
+      // x, " ", +, " ", y の5トークン → 5つの子span
+      expect(el.children).toHaveLength(5);
+      expect(el).toHaveTextContent("x + y");
+    });
+
+    it("変数に色CSS変数が設定される", () => {
+      render(
+        <TermDisplay term={termVariable("x")} highlight testId="term" />,
+      );
+      const el = screen.getByTestId("term");
+      const children = Array.from(el.children) as HTMLSpanElement[];
+      expect(children[0]?.style.color).toBe("var(--color-syntax-variable)");
+    });
+
+    it("定数に色CSS変数が設定される", () => {
+      render(<TermDisplay term={constant("0")} highlight testId="term" />);
+      const el = screen.getByTestId("term");
+      const children = Array.from(el.children) as HTMLSpanElement[];
+      expect(children[0]?.style.color).toBe("var(--color-syntax-constant)");
+    });
+
+    it("関数名に色CSS変数が設定される", () => {
+      render(
+        <TermDisplay
+          term={functionApplication("f", [termVariable("x")])}
+          highlight
+          testId="term"
+        />,
+      );
+      const el = screen.getByTestId("term");
+      const children = Array.from(el.children) as HTMLSpanElement[];
+      expect(children[0]?.textContent).toBe("f");
+      expect(children[0]?.style.color).toBe("var(--color-syntax-function)");
+    });
+  });
 });

@@ -233,4 +233,132 @@ describe("FormulaDisplay", () => {
       expect(el.style.whiteSpace).toBe("nowrap");
     });
   });
+
+  describe("シンタックスハイライト", () => {
+    it("highlight=false（デフォルト）ではプレーンテキスト", () => {
+      render(
+        <FormulaDisplay
+          formula={implication(metaVariable("φ"), metaVariable("ψ"))}
+          testId="formula"
+        />,
+      );
+      const el = screen.getByTestId("formula");
+      // 子要素がないプレーンテキスト
+      expect(el.children).toHaveLength(0);
+      expect(el).toHaveTextContent("φ → ψ");
+    });
+
+    it("highlight=true では各トークンが<span>でラップされる", () => {
+      render(
+        <FormulaDisplay
+          formula={implication(metaVariable("φ"), metaVariable("ψ"))}
+          highlight
+          testId="formula"
+        />,
+      );
+      const el = screen.getByTestId("formula");
+      // φ, " ", →, " ", ψ の5トークン → 5つの子span
+      expect(el.children).toHaveLength(5);
+      // テキスト全体は同じ
+      expect(el).toHaveTextContent("φ → ψ");
+      expect(el).toHaveAttribute("aria-label", "φ → ψ");
+    });
+
+    it("highlight=true のトークンに色CSS変数が設定される", () => {
+      render(
+        <FormulaDisplay
+          formula={implication(metaVariable("φ"), metaVariable("ψ"))}
+          highlight
+          testId="formula"
+        />,
+      );
+      const el = screen.getByTestId("formula");
+      const children = Array.from(el.children) as HTMLSpanElement[];
+      // φ = metaVariable → --color-syntax-metaVariable
+      expect(children[0]?.style.color).toBe("var(--color-syntax-metaVariable)");
+      // → = connective → --color-syntax-connective
+      expect(children[2]?.style.color).toBe("var(--color-syntax-connective)");
+      // ψ = metaVariable
+      expect(children[4]?.style.color).toBe("var(--color-syntax-metaVariable)");
+    });
+
+    it("複合式 (φ → ψ) ∧ χ のハイライトが正しい", () => {
+      render(
+        <FormulaDisplay
+          formula={conjunction(
+            implication(metaVariable("φ"), metaVariable("ψ")),
+            metaVariable("χ"),
+          )}
+          highlight
+          testId="formula"
+        />,
+      );
+      const el = screen.getByTestId("formula");
+      expect(el).toHaveTextContent("(φ → ψ) ∧ χ");
+      // 括弧 punctuation の色確認
+      const children = Array.from(el.children) as HTMLSpanElement[];
+      expect(children[0]?.textContent).toBe("(");
+      expect(children[0]?.style.color).toBe("var(--color-syntax-punctuation)");
+    });
+
+    it("量化子のハイライト", () => {
+      render(
+        <FormulaDisplay
+          formula={universal(termVariable("x"), metaVariable("φ"))}
+          highlight
+          testId="formula"
+        />,
+      );
+      const el = screen.getByTestId("formula");
+      const children = Array.from(el.children) as HTMLSpanElement[];
+      // ∀ = quantifier
+      expect(children[0]?.textContent).toBe("∀");
+      expect(children[0]?.style.color).toBe("var(--color-syntax-quantifier)");
+      // x = variable
+      expect(children[1]?.textContent).toBe("x");
+      expect(children[1]?.style.color).toBe("var(--color-syntax-variable)");
+    });
+
+    it("否定のハイライト", () => {
+      render(
+        <FormulaDisplay
+          formula={negation(metaVariable("φ"))}
+          highlight
+          testId="formula"
+        />,
+      );
+      const el = screen.getByTestId("formula");
+      const children = Array.from(el.children) as HTMLSpanElement[];
+      expect(children[0]?.textContent).toBe("¬");
+      expect(children[0]?.style.color).toBe("var(--color-syntax-negation)");
+    });
+
+    it("等号のハイライト", () => {
+      render(
+        <FormulaDisplay
+          formula={equality(termVariable("x"), termVariable("y"))}
+          highlight
+          testId="formula"
+        />,
+      );
+      const el = screen.getByTestId("formula");
+      const children = Array.from(el.children) as HTMLSpanElement[];
+      const eqToken = children.find((c) => c.textContent === "=");
+      expect(eqToken?.style.color).toBe("var(--color-syntax-equality)");
+    });
+
+    it("述語のハイライト", () => {
+      render(
+        <FormulaDisplay
+          formula={predicate("P", [termVariable("x")])}
+          highlight
+          testId="formula"
+        />,
+      );
+      const el = screen.getByTestId("formula");
+      const children = Array.from(el.children) as HTMLSpanElement[];
+      expect(children[0]?.textContent).toBe("P");
+      expect(children[0]?.style.color).toBe("var(--color-syntax-predicate)");
+    });
+  });
 });

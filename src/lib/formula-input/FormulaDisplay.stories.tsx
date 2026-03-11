@@ -373,6 +373,92 @@ export const ComplexFormulas: Story = {
 };
 
 /**
+ * シンタックスハイライト: 各トークンが色分けされた表示。
+ */
+export const SyntaxHighlight: Story = {
+  args: { formula: phi },
+  render: () => {
+    // 様々な種類のトークンを含む式
+    const formulas: readonly {
+      readonly label: string;
+      readonly formula: Formula;
+    }[] = [
+      {
+        label: "メタ変数+結合子",
+        formula: implication(phi, conjunction(psi, chi)),
+      },
+      {
+        label: "量化子+述語",
+        formula: universal(
+          termVariable("x"),
+          predicate("P", [termVariable("x")]),
+        ),
+      },
+      {
+        label: "等号+定数+関数",
+        formula: universal(
+          termVariable("x"),
+          equality(
+            functionApplication("S", [termVariable("x")]),
+            binaryOperation("+", termVariable("x"), constant("1")),
+          ),
+        ),
+      },
+      { label: "否定+双条件", formula: negation(biconditional(phi, psi)) },
+      {
+        label: "S公理",
+        formula: implication(
+          implication(phi, implication(psi, chi)),
+          implication(implication(phi, psi), implication(phi, chi)),
+        ),
+      },
+    ];
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {formulas.map(({ label, formula }) => (
+          <div key={label}>
+            <div
+              style={{
+                fontFamily: "var(--font-ui)",
+                fontSize: 11,
+                color: "#888",
+                marginBottom: 4,
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
+              {label}
+            </div>
+            <FormulaDisplay
+              formula={formula}
+              fontSize={20}
+              highlight
+              testId={`highlight-${label satisfies string}`}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // テキスト内容が正しいこと
+    await expect(
+      canvas.getByTestId("highlight-メタ変数+結合子"),
+    ).toHaveTextContent("φ → ψ ∧ χ");
+    await expect(
+      canvas.getByTestId("highlight-量化子+述語"),
+    ).toHaveTextContent("∀x.P(x)");
+    await expect(
+      canvas.getByTestId("highlight-等号+定数+関数"),
+    ).toHaveTextContent("∀x.S(x) = x + 1");
+    // 子span（ハイライトトークン）が存在すること
+    const el = canvas.getByTestId("highlight-メタ変数+結合子");
+    await expect(el.children.length).toBeGreaterThan(0);
+  },
+};
+
+/**
  * フォントサイズと色のカスタマイズ。
  */
 export const CustomStyling: Story = {

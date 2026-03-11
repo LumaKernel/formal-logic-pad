@@ -6,3 +6,9 @@ export type { LexResult, Position, Span, Token, TokenKind } from "./token";
 export { TOKEN_KINDS } from "./token";
 export { formatFormula, formatTerm } from "./formatUnicode";
 export { formatFormulaLaTeX, formatTermLaTeX } from "./formatLaTeX";
+export {
+  tokenizeFormula,
+  tokenizeTerm,
+  tokensToText,
+} from "./formulaHighlight";
+export type { FormulaToken, FormulaTokenKind } from "./formulaHighlight";

@@ -10,7 +10,30 @@
 import type { CSSProperties } from "react";
 import { useMemo } from "react";
 import type { Term } from "../logic-core/term";
+import type { FormulaTokenKind } from "../logic-lang/formulaHighlight";
+import {
+  tokenizeTerm,
+  tokensToText,
+} from "../logic-lang/formulaHighlight";
 import { formatTerm } from "../logic-lang/formatUnicode";
+
+/**
+ * FormulaTokenKind → CSS変数名の対応。
+ */
+const tokenKindToVar: Readonly<Record<FormulaTokenKind, string>> = {
+  connective: "var(--color-syntax-connective)",
+  quantifier: "var(--color-syntax-quantifier)",
+  variable: "var(--color-syntax-variable)",
+  metaVariable: "var(--color-syntax-metaVariable)",
+  predicate: "var(--color-syntax-predicate)",
+  function: "var(--color-syntax-function)",
+  constant: "var(--color-syntax-constant)",
+  subscript: "var(--color-syntax-subscript)",
+  equality: "var(--color-syntax-equality)",
+  punctuation: "var(--color-syntax-punctuation)",
+  negation: "var(--color-syntax-negation)",
+  substitution: "var(--color-syntax-substitution)",
+};
 
 export interface TermDisplayProps {
   /** 表示する項 AST */
@@ -19,6 +42,8 @@ export interface TermDisplayProps {
   readonly fontSize?: CSSProperties["fontSize"];
   /** テキスト色 (CSS値) */
   readonly color?: CSSProperties["color"];
+  /** シンタックスハイライトを有効にする */
+  readonly highlight?: boolean;
   /** 追加の className */
   readonly className?: string;
   /** 追加のスタイル */
@@ -37,11 +62,19 @@ export function TermDisplay({
   term,
   fontSize,
   color,
+  highlight = false,
   className,
   style,
   testId,
 }: TermDisplayProps) {
-  const text = useMemo(() => formatTerm(term), [term]);
+  const tokens = useMemo(
+    () => (highlight ? tokenizeTerm(term) : null),
+    [term, highlight],
+  );
+  const text = useMemo(
+    () => (tokens !== null ? tokensToText(tokens) : formatTerm(term)),
+    [term, tokens],
+  );
 
   const mergedStyle: CSSProperties = useMemo(
     () => ({
@@ -63,7 +96,13 @@ export function TermDisplay({
       role="math"
       aria-label={text}
     >
-      {text}
+      {highlight && tokens !== null
+        ? tokens.map((token, i) => (
+            <span key={i} style={{ color: tokenKindToVar[token.kind] }}>
+              {token.text}
+            </span>
+          ))
+        : text}
     </span>
   );
 }
