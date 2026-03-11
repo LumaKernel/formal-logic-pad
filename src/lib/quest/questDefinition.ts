@@ -232,8 +232,8 @@ export type QuestDefinition = {
   readonly goals: readonly QuestGoalDefinition[];
   /** ヒントテキスト（段階的に表示可能） */
   readonly hints: readonly string[];
-  /** 推定ステップ数（目安） */
-  readonly estimatedSteps: number;
+  /** 推定ステップ数（目安）。未指定の場合は undefined */
+  readonly estimatedSteps: number | undefined;
   /** 学習ポイント */
   readonly learningPoint: string;
   /** カテゴリ内の表示順 */

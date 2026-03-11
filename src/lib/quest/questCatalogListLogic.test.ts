@@ -299,6 +299,14 @@ describe("stepCountText", () => {
   it("完了の場合はベストと目安を表示", () => {
     expect(stepCountText(3, 5)).toBe("ベスト: 3 / 目安: 5");
   });
+
+  it("目安未指定・未完了の場合は空文字列", () => {
+    expect(stepCountText(undefined, undefined)).toBe("");
+  });
+
+  it("目安未指定・完了の場合はベストのみ表示", () => {
+    expect(stepCountText(3, undefined)).toBe("ベスト: 3ステップ");
+  });
 });
 
 // --- フィルタ選択肢 ---

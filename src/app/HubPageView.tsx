@@ -797,7 +797,9 @@ export function HubPageView({
                         )
                         .replace(
                           "{estimatedSteps}",
-                          `${sharedQuest.estimatedSteps satisfies number}`,
+                          sharedQuest.estimatedSteps !== undefined
+                            ? `${sharedQuest.estimatedSteps satisfies number}`
+                            : "-",
                         )}
                     </span>
                   </div>

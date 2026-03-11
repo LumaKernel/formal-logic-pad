@@ -9,6 +9,7 @@ import {
   parseGoalLines,
   goalsTextToDefinitions,
   parseHintLines,
+  parseEstimatedSteps,
   type EditFormValues,
 } from "./customQuestEditLogic";
 import type { QuestDefinition } from "./questDefinition";
@@ -62,7 +63,7 @@ describe("createEmptyEditFormValues", () => {
     expect(result.systemPresetId).toBe("lukasiewicz");
     expect(result.goalsText).toBe("");
     expect(result.hints).toBe("");
-    expect(result.estimatedSteps).toBe("3");
+    expect(result.estimatedSteps).toBe("");
     expect(result.learningPoint).toBe("");
   });
 
@@ -71,6 +72,7 @@ describe("createEmptyEditFormValues", () => {
     const validation = validateEditForm(values);
     expect(validation.valid).toBe(false);
     if (!validation.valid) {
+      // estimatedSteps="" は「未指定」として有効なのでエラーにならない
       expect(validation.errors.map((e) => e.field)).toEqual([
         "title",
         "goalsText",
@@ -113,6 +115,12 @@ describe("questToEditFormValues", () => {
     const quest = makeQuest({ goals: [] });
     const result = questToEditFormValues(quest);
     expect(result.goalsText).toBe("");
+  });
+
+  it("estimatedStepsがundefinedの場合は空文字列", () => {
+    const quest = makeQuest({ estimatedSteps: undefined });
+    const result = questToEditFormValues(quest);
+    expect(result.estimatedSteps).toBe("");
   });
 });
 
@@ -176,12 +184,14 @@ describe("validateEditForm", () => {
     }
   });
 
-  it("推定ステップ数が空の場合はエラー", () => {
+  it("推定ステップ数が空の場合は有効（未指定）", () => {
     const result = validateEditForm(makeValidValues({ estimatedSteps: "" }));
-    expect(result.valid).toBe(false);
-    if (!result.valid) {
-      expect(result.errors[0]!.field).toBe("estimatedSteps");
-    }
+    expect(result.valid).toBe(true);
+  });
+
+  it("推定ステップ数が空白のみの場合も有効（未指定）", () => {
+    const result = validateEditForm(makeValidValues({ estimatedSteps: "   " }));
+    expect(result.valid).toBe(true);
   });
 
   it("推定ステップ数が0の場合はエラー", () => {
@@ -218,6 +228,20 @@ describe("validateEditForm", () => {
         "title",
         "goalsText",
         "estimatedSteps",
+      ]);
+    }
+  });
+
+  it("タイトルとゴールが空でestimatedStepsも空の場合はtitleとgoalsTextのみエラー", () => {
+    const result = validateEditForm(
+      makeValidValues({ title: "", goalsText: "", estimatedSteps: "" }),
+    );
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.errors).toHaveLength(2);
+      expect(result.errors.map((e) => e.field)).toEqual([
+        "title",
+        "goalsText",
       ]);
     }
   });
@@ -383,5 +407,29 @@ describe("parseHintLines", () => {
 
   it("空文字列は空配列", () => {
     expect(parseHintLines("")).toEqual([]);
+  });
+});
+
+// --- parseEstimatedSteps ---
+
+describe("parseEstimatedSteps", () => {
+  it("空文字列はundefined", () => {
+    expect(parseEstimatedSteps("")).toBeUndefined();
+  });
+
+  it("空白のみはundefined", () => {
+    expect(parseEstimatedSteps("   ")).toBeUndefined();
+  });
+
+  it("数値文字列はnumberに変換", () => {
+    expect(parseEstimatedSteps("5")).toBe(5);
+  });
+
+  it("小数も変換される", () => {
+    expect(parseEstimatedSteps("1.5")).toBe(1.5);
+  });
+
+  it("不正な文字列はNaN", () => {
+    expect(parseEstimatedSteps("abc")).toBeNaN();
   });
 });

@@ -39,6 +39,7 @@ import {
   getFirstEditErrorField,
   goalsTextToDefinitions,
   parseHintLines,
+  parseEstimatedSteps,
   type EditFormValues,
 } from "./customQuestEditLogic";
 import type { CreateCustomQuestParams } from "./customQuestState";
@@ -450,7 +451,7 @@ function CustomQuestEditForm({
         systemPresetId: values.systemPresetId,
         goals: goalsTextToDefinitions(values.goalsText),
         hints: parseHintLines(values.hints),
-        estimatedSteps: Number(values.estimatedSteps),
+        estimatedSteps: parseEstimatedSteps(values.estimatedSteps),
         learningPoint: values.learningPoint,
       },
     });
@@ -603,7 +604,7 @@ function CustomQuestEditForm({
         {/* 推定ステップ数・学習ポイント */}
         <div style={editRowStyle}>
           <div style={{ ...editFieldGroupStyle, flex: 0, minWidth: 120 }}>
-            <label style={editLabelStyle}>推定ステップ数</label>
+            <label style={editLabelStyle}>推定ステップ数（任意）</label>
             <input
               ref={stepsRef}
               data-testid="edit-steps-input"
@@ -612,6 +613,7 @@ function CustomQuestEditForm({
               }
               type="number"
               min="1"
+              placeholder="未指定"
               value={values.estimatedSteps}
               onChange={(e) =>
                 setValues({ ...values, estimatedSteps: e.target.value })
@@ -879,7 +881,7 @@ function CustomQuestCreateForm({
         {/* 推定ステップ数・学習ポイント */}
         <div style={editRowStyle}>
           <div style={{ ...editFieldGroupStyle, flex: 0, minWidth: 120 }}>
-            <label style={editLabelStyle}>推定ステップ数</label>
+            <label style={editLabelStyle}>推定ステップ数（任意）</label>
             <input
               ref={stepsRef}
               data-testid="create-steps-input"
@@ -888,6 +890,7 @@ function CustomQuestCreateForm({
               }
               type="number"
               min="1"
+              placeholder="未指定"
               value={values.estimatedSteps}
               onChange={(e) =>
                 setValues({ ...values, estimatedSteps: e.target.value })
