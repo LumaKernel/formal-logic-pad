@@ -696,9 +696,7 @@ const knownPragmaticQuests: ReadonlySet<string> = new Set([
   "prop-45",
   "prop-46",
   "prop-47",
-  "prop-48",
-  "prop-49",
-  // peano系: 代入インスタンスの直接配置
+  // peano系: E4未実装のため識別不可
   "peano-11",
   "peano-13",
   "peano-14",

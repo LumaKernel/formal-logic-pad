@@ -294,24 +294,24 @@ const q39ConclusionWeakening: QuestDefinition = {
 const q48A3AxiomInstance: QuestDefinition = {
   id: "prop-48",
   category: "propositional-basics",
-  title: "否定公理の確認 (A3)",
+  title: "対偶公理の確認 (A3)",
   description:
-    "(¬φ → ¬ψ) → ((¬φ → ψ) → φ) を証明せよ。A3公理のメタ変数をそのまま適用する練習。",
+    "(¬φ → ¬ψ) → (ψ → φ) を証明せよ。A3公理（対偶）のメタ変数をそのまま適用する練習。",
   difficulty: 1,
   systemPresetId: "lukasiewicz",
   goals: [
     {
-      formulaText: "(~phi -> ~psi) -> ((~phi -> psi) -> phi)",
-      label: "Goal: (¬φ → ¬ψ) → ((¬φ → ψ) → φ)",
+      formulaText: "(~phi -> ~psi) -> (psi -> phi)",
+      label: "Goal: (¬φ → ¬ψ) → (ψ → φ)",
     },
   ],
   hints: [
-    "A3: (¬φ → ¬ψ) → ((¬φ → ψ) → φ) をそのまま使いましょう。",
+    "A3: (¬φ → ¬ψ) → (ψ → φ) をそのまま使いましょう。",
     "メタ変数φにφ、ψにψを代入すれば完成です。",
   ],
   estimatedSteps: 1,
   learningPoint:
-    "A3（否定公理）はLukasiewicz体系の基礎。二重否定除去や背理法の源。",
+    "A3（対偶公理）はŁukasiewicz体系の基礎。「¬φが¬ψを含意するなら、ψがφを含意する」。",
   order: 12,
   version: 1,
 };
@@ -319,24 +319,24 @@ const q48A3AxiomInstance: QuestDefinition = {
 const q49A3LiftedInstance: QuestDefinition = {
   id: "prop-49",
   category: "propositional-basics",
-  title: "否定公理のA1持ち上げ",
+  title: "対偶公理のA1持ち上げ",
   description:
-    "φ → ((¬ψ → ¬χ) → ((¬ψ → χ) → ψ)) を証明せよ。A3をA1で前提の下に持ち上げる。",
+    "φ → ((¬ψ → ¬χ) → (χ → ψ)) を証明せよ。A3（対偶）をA1で前提の下に持ち上げる。",
   difficulty: 2,
   systemPresetId: "lukasiewicz",
   goals: [
     {
-      formulaText: "phi -> ((~psi -> ~chi) -> ((~psi -> chi) -> psi))",
-      label: "Goal: φ → ((¬ψ → ¬χ) → ((¬ψ → χ) → ψ))",
+      formulaText: "phi -> ((~psi -> ~chi) -> (chi -> psi))",
+      label: "Goal: φ → ((¬ψ → ¬χ) → (χ → ψ))",
     },
   ],
   hints: [
-    "A3[φ/ψ, ψ/χ]: (¬ψ → ¬χ) → ((¬ψ → χ) → ψ) をまず作りましょう。",
+    "A3[φ/ψ, ψ/χ]: (¬ψ → ¬χ) → (χ → ψ) をまず作りましょう。",
     "A1で持ち上げてMPすれば完成です。",
   ],
   estimatedSteps: 3,
   learningPoint:
-    "任意の定理はA1で前提の下に「埋め込む」ことができる。A3にも同様に適用可能。",
+    "任意の定理はA1で前提の下に「埋め込む」ことができる。A3（対偶公理）にも同様に適用可能。",
   order: 13,
   version: 1,
 };
