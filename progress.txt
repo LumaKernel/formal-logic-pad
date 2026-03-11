@@ -12302,3 +12302,27 @@
   - ノートノードは `NOTE_PORTS = []`（空配列）で接続不可を表現。証明ツリーには参加しない
   - v8 coverage: 全体カバレッジの Branch 微減（0.06%）はV8集約のアーティファクト。個別ファイルのカバレッジは改善
 ---
+
+## 2026-03-11 - [quest] 模範解答に解説ノートを付与（prop-01〜prop-06）
+- ベースライン: Stmts 99.46%, Branch 98.81%, Lines 99.42%（全テストスイート）
+- **結果: テスト全通過（1071 quest関連テスト通過）、カバレッジ変動なし（データ追加のみ）**
+- 変更内容:
+  - `builtinModelAnswers.ts`: prop-01〜prop-06 の模範解答にnoteステップを追加
+    - prop-01: 証明概要（SKK=I対応）+ 中間結果の解説
+    - prop-02: A1の「持ち上げ」操作の解説
+    - prop-03: A1インスタンス化の説明
+    - prop-04: 推移律の証明戦略（分配＋持ち上げ）
+    - prop-05: A1二重適用の解説
+    - prop-06: 自己適用圧縮の戦略
+  - noteステップ追加に伴い、後続ステップのインデックスを再計算（noteはstepNodeIdsに含まれるため）
+  - `builtinQuests.test.ts`: テストのtimeoutを30秒に延長（大量のクエストパース処理のため）
+- 変更ファイル:
+  - src/lib/quest/builtinModelAnswers.ts — prop-01〜prop-06にnoteステップ追加、インデックス再計算
+  - src/lib/quest/builtinQuests.test.ts — timeout延長
+  - tasks/prd-note-node.md → tasks-archived/ — 全タスク完了でアーカイブ
+- スクリーンショット: .screenshots/model-answer-notes-prop01.png
+- **今後のイテレーションへの学び:**
+  - noteステップ追加時はstepNodeIdsのインデックスがずれるので、後続のMP leftIndex/rightIndex を全て再計算する必要がある
+  - 基礎レベル（difficulty 1-2）の解説は「この公理/規則は何をしているか」「証明の全体戦略」を重点的に説明すると効果的
+  - builtinModelAnswers.test.ts は1022テストあり約48秒かかる。個別テスト実行で十分確認可能
+---

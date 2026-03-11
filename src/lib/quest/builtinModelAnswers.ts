@@ -32,14 +32,22 @@ const prop01Identity: ModelAnswer = {
   questId: "prop-01",
   steps: [
     {
+      _tag: "note",
+      text: "## 証明の概要\n\nφ → φ は最も基本的な定理です。\n\n**Hilbert系**では公理と推論規則（MP: Modus Ponens）だけで証明を構成します。\n\n使う公理:\n- **A1** (K公理): φ → (ψ → φ)\n- **A2** (S公理): (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))\n\nこの証明は λ計算の **SKK = I** に対応しています。",
+    },
+    {
       _tag: "axiom",
       formulaText:
         "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
     },
     { _tag: "axiom", formulaText: "phi -> ((phi -> phi) -> phi)" },
-    { _tag: "mp", leftIndex: 1, rightIndex: 0 },
+    { _tag: "mp", leftIndex: 2, rightIndex: 1 },
+    {
+      _tag: "note",
+      text: "ここまでで (φ → (φ → φ)) → (φ → φ) が得られました。\n\nあとは A1 のインスタンス φ → (φ → φ) を用意して MP で組み合わせれば完成です。",
+    },
     { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
-    { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+    { _tag: "mp", leftIndex: 5, rightIndex: 3 },
   ],
 };
 
@@ -51,6 +59,10 @@ const prop01Identity: ModelAnswer = {
 const prop02ConstantComposition: ModelAnswer = {
   questId: "prop-02",
   steps: [
+    {
+      _tag: "note",
+      text: "## 証明の方針\n\nψ → (φ → φ) を証明します。\n\nまず Q-01 と同じ手順で φ → φ を導出し、**A1（K公理）で「持ち上げ」**ます。\n\nA1 は「すでに証明した定理を、任意の前提の下に持ち込める」という役割を果たします。",
+    },
     // φ → φ の導出（prop-01と同じ5ステップ）
     {
       _tag: "axiom",
@@ -58,15 +70,19 @@ const prop02ConstantComposition: ModelAnswer = {
         "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
     },
     { _tag: "axiom", formulaText: "phi -> ((phi -> phi) -> phi)" },
-    { _tag: "mp", leftIndex: 1, rightIndex: 0 },
+    { _tag: "mp", leftIndex: 2, rightIndex: 1 },
     { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
-    { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+    { _tag: "mp", leftIndex: 4, rightIndex: 3 },
+    {
+      _tag: "note",
+      text: "φ → φ が得られました。次に A1 を使って ψ の前提を追加します。\n\nA1: (φ → φ) → (ψ → (φ → φ)) のインスタンスを作り、MP で組み合わせれば完成です。",
+    },
     // A1で持ち上げ
     {
       _tag: "axiom",
       formulaText: "(phi -> phi) -> (psi -> (phi -> phi))",
     },
-    { _tag: "mp", leftIndex: 4, rightIndex: 5 },
+    { _tag: "mp", leftIndex: 5, rightIndex: 7 },
   ],
 };
 
@@ -78,6 +94,10 @@ const prop02ConstantComposition: ModelAnswer = {
 const prop03TransitivityPrep: ModelAnswer = {
   questId: "prop-03",
   steps: [
+    {
+      _tag: "note",
+      text: "## 証明の方針\n\nこの定理は A1（K公理）の直接のインスタンスです。\n\nA1: φ → (ψ → φ) において、φ に (φ → ψ) を、ψ に (ψ → χ) を代入すると、そのまま目標が得られます。\n\n公理スキーマのメタ変数に具体的な式を代入する操作を「**インスタンス化**」と呼びます。",
+    },
     {
       _tag: "axiom",
       formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> psi))",
@@ -97,6 +117,10 @@ const prop03TransitivityPrep: ModelAnswer = {
 const prop04HypotheticalSyllogism: ModelAnswer = {
   questId: "prop-04",
   steps: [
+    {
+      _tag: "note",
+      text: "## 推移律の証明方針\n\n(φ → ψ) → ((ψ → χ) → (φ → χ)) を証明します。\n\nこれは「φ ならば ψ」と「ψ ならば χ」から「φ ならば χ」を導けることを意味します。\n\n**Hilbert系ではこの証明が長く複雑になります**が、以降の証明で頻繁に使う最重要補題です。\n\n基本戦略:\n1. A2 で「分配」し、A1 で「持ち上げ」る操作を繰り返す\n2. まず (ψ→χ) → ((φ→ψ)→(φ→χ)) を導出\n3. 次にその結果を A2 で再分配して最終形に変換",
+    },
     // S公理インスタンス: (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))
     {
       _tag: "axiom",
@@ -124,20 +148,20 @@ const prop04HypotheticalSyllogism: ModelAnswer = {
       formulaText:
         "((phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))) -> ((psi -> chi) -> ((phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))))",
     },
-    // MP(step0, step3): (ψ→χ) → ((φ→(ψ→χ)) → ((φ→ψ)→(φ→χ)))
-    { _tag: "mp", leftIndex: 0, rightIndex: 3 },
-    // MP(step4, step2): ((ψ→χ)→(φ→(ψ→χ))) → ((ψ→χ)→((φ→ψ)→(φ→χ)))
-    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
-    // MP(step1, step5): (ψ→χ) → ((φ→ψ)→(φ→χ))
-    { _tag: "mp", leftIndex: 1, rightIndex: 5 },
+    // MP(step1, step4): (ψ→χ) → ((φ→(ψ→χ)) → ((φ→ψ)→(φ→χ)))
+    { _tag: "mp", leftIndex: 1, rightIndex: 4 },
+    // MP(step5, step3): ((ψ→χ)→(φ→(ψ→χ))) → ((ψ→χ)→((φ→ψ)→(φ→χ)))
+    { _tag: "mp", leftIndex: 5, rightIndex: 3 },
+    // MP(step2, step6): (ψ→χ) → ((φ→ψ)→(φ→χ))
+    { _tag: "mp", leftIndex: 2, rightIndex: 6 },
     // A2: ((ψ→χ)→((φ→ψ)→(φ→χ))) → (((ψ→χ)→(φ→ψ))→((ψ→χ)→(φ→χ)))
     {
       _tag: "axiom",
       formulaText:
         "((psi -> chi) -> ((phi -> psi) -> (phi -> chi))) -> (((psi -> chi) -> (phi -> psi)) -> ((psi -> chi) -> (phi -> chi)))",
     },
-    // MP(step6, step7): ((ψ→χ)→(φ→ψ)) → ((ψ→χ)→(φ→χ))
-    { _tag: "mp", leftIndex: 6, rightIndex: 7 },
+    // MP(step7, step8): ((ψ→χ)→(φ→ψ)) → ((ψ→χ)→(φ→χ))
+    { _tag: "mp", leftIndex: 7, rightIndex: 8 },
     // A1: (φ→ψ) → ((ψ→χ)→(φ→ψ))
     {
       _tag: "axiom",
@@ -156,12 +180,12 @@ const prop04HypotheticalSyllogism: ModelAnswer = {
       formulaText:
         "(((psi -> chi) -> (phi -> psi)) -> ((psi -> chi) -> (phi -> chi))) -> ((phi -> psi) -> (((psi -> chi) -> (phi -> psi)) -> ((psi -> chi) -> (phi -> chi))))",
     },
-    // MP(step8, step11): (φ→ψ) → (((ψ→χ)→(φ→ψ))→((ψ→χ)→(φ→χ)))
-    { _tag: "mp", leftIndex: 8, rightIndex: 11 },
-    // MP(step12, step10): ((φ→ψ)→((ψ→χ)→(φ→ψ))) → ((φ→ψ)→((ψ→χ)→(φ→χ)))
-    { _tag: "mp", leftIndex: 12, rightIndex: 10 },
-    // MP(step9, step13): (φ→ψ) → ((ψ→χ)→(φ→χ))
-    { _tag: "mp", leftIndex: 9, rightIndex: 13 },
+    // MP(step9, step12): (φ→ψ) → (((ψ→χ)→(φ→ψ))→((ψ→χ)→(φ→χ)))
+    { _tag: "mp", leftIndex: 9, rightIndex: 12 },
+    // MP(step13, step11): ((φ→ψ)→((ψ→χ)→(φ→ψ))) → ((φ→ψ)→((ψ→χ)→(φ→χ)))
+    { _tag: "mp", leftIndex: 13, rightIndex: 11 },
+    // MP(step10, step14): (φ→ψ) → ((ψ→χ)→(φ→χ))
+    { _tag: "mp", leftIndex: 10, rightIndex: 14 },
   ],
 };
 
@@ -173,6 +197,10 @@ const prop04HypotheticalSyllogism: ModelAnswer = {
 const prop05ImplicationWeakening: ModelAnswer = {
   questId: "prop-05",
   steps: [
+    {
+      _tag: "note",
+      text: "## 証明の方針\n\nφ → (ψ → (χ → ψ)) を証明します。\n\nA1（K公理）を2回使う単純な証明です。\n\n1. まず A1 で ψ → (χ → ψ) を得る\n2. さらに A1 で φ の前提を追加する",
+    },
     // A1: ψ → (χ → ψ)
     { _tag: "axiom", formulaText: "psi -> (chi -> psi)" },
     // A1: (ψ → (χ → ψ)) → (φ → (ψ → (χ → ψ)))
@@ -180,8 +208,8 @@ const prop05ImplicationWeakening: ModelAnswer = {
       _tag: "axiom",
       formulaText: "(psi -> (chi -> psi)) -> (phi -> (psi -> (chi -> psi)))",
     },
-    // MP(0, 1): φ → (ψ → (χ → ψ))
-    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    // MP(1, 2): φ → (ψ → (χ → ψ))
+    { _tag: "mp", leftIndex: 1, rightIndex: 2 },
   ],
 };
 
@@ -203,6 +231,10 @@ const prop05ImplicationWeakening: ModelAnswer = {
 const prop06SSpecialCase: ModelAnswer = {
   questId: "prop-06",
   steps: [
+    {
+      _tag: "note",
+      text: "## 証明の方針\n\n(φ → (φ → ψ)) → (φ → ψ) を証明します。\n\n直感的には「φ が2回必要な含意」を「1回で済む形」に圧縮します。\n\n**戦略:**\n1. A2 でψをφに特殊化: (φ→(φ→ψ)) → ((φ→φ)→(φ→ψ))\n2. φ→φ を導出して (φ→(φ→ψ)) → (φ→φ) を得る\n3. 上の2つを組み合わせて結論を導く",
+    },
     // A2[φ/φ, ψ/φ, χ/ψ]: (φ→(φ→ψ)) → ((φ→φ)→(φ→ψ))
     {
       _tag: "axiom",
@@ -215,8 +247,8 @@ const prop06SSpecialCase: ModelAnswer = {
       formulaText:
         "((phi -> (phi -> psi)) -> ((phi -> phi) -> (phi -> psi))) -> (((phi -> (phi -> psi)) -> (phi -> phi)) -> ((phi -> (phi -> psi)) -> (phi -> psi)))",
     },
-    // MP(0, 1): ((φ→(φ→ψ))→(φ→φ)) → ((φ→(φ→ψ))→(φ→ψ))
-    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    // MP(1, 2): ((φ→(φ→ψ))→(φ→φ)) → ((φ→(φ→ψ))→(φ→ψ))
+    { _tag: "mp", leftIndex: 1, rightIndex: 2 },
     // φ → φ の導出
     {
       _tag: "axiom",
@@ -224,18 +256,18 @@ const prop06SSpecialCase: ModelAnswer = {
         "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
     },
     { _tag: "axiom", formulaText: "phi -> ((phi -> phi) -> phi)" },
-    { _tag: "mp", leftIndex: 4, rightIndex: 3 },
+    { _tag: "mp", leftIndex: 5, rightIndex: 4 },
     { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
-    { _tag: "mp", leftIndex: 6, rightIndex: 5 },
+    { _tag: "mp", leftIndex: 7, rightIndex: 6 },
     // A1: (φ→φ) → ((φ→(φ→ψ)) → (φ→φ))
     {
       _tag: "axiom",
       formulaText: "(phi -> phi) -> ((phi -> (phi -> psi)) -> (phi -> phi))",
     },
-    // MP(7, 8): (φ→(φ→ψ)) → (φ→φ)
-    { _tag: "mp", leftIndex: 7, rightIndex: 8 },
-    // MP(9, 2): (φ→(φ→ψ)) → (φ→ψ)
-    { _tag: "mp", leftIndex: 9, rightIndex: 2 },
+    // MP(8, 9): (φ→(φ→ψ)) → (φ→φ)
+    { _tag: "mp", leftIndex: 8, rightIndex: 9 },
+    // MP(10, 3): (φ→(φ→ψ)) → (φ→ψ)
+    { _tag: "mp", leftIndex: 10, rightIndex: 3 },
   ],
 };
 
@@ -260,6 +292,10 @@ const prop06SSpecialCase: ModelAnswer = {
 const prop07Permutation: ModelAnswer = {
   questId: "prop-07",
   steps: [
+    {
+      _tag: "note",
+      text: "## 証明の方針\n\n(φ → (ψ → χ)) → (ψ → (φ → χ)) を証明します。\n\nこれは「前提の順序を入れ替える」定理で、λ計算の **C combinator** に対応します。\n\n基本アイデア:\n- A2 の結果 (φ→(ψ→χ))→((φ→ψ)→(φ→χ)) から出発\n- A1 の ψ→(φ→ψ) を使って、(φ→ψ) を ψ に置き換える\n- 複数回の推移律的合成で完成させる",
+    },
     // 0. A2: (φ→(ψ→χ)) → ((φ→ψ)→(φ→χ))
     {
       _tag: "axiom",
@@ -298,16 +334,16 @@ const prop07Permutation: ModelAnswer = {
       formulaText:
         "(((phi -> psi) -> (phi -> chi)) -> (psi -> ((phi -> psi) -> (phi -> chi)))) -> ((phi -> (psi -> chi)) -> (((phi -> psi) -> (phi -> chi)) -> (psi -> ((phi -> psi) -> (phi -> chi)))))",
     },
-    // MP(3, 5): (φ→(ψ→χ)) → (((φ→ψ)→(φ→χ)) → (ψ→((φ→ψ)→(φ→χ))))
-    { _tag: "mp", leftIndex: 3, rightIndex: 5 },
-    // MP(6, 4): ((φ→(ψ→χ))→((φ→ψ)→(φ→χ))) → ((φ→(ψ→χ)) → (ψ→((φ→ψ)→(φ→χ))))
-    { _tag: "mp", leftIndex: 6, rightIndex: 4 },
-    // MP(0, 7): (φ→(ψ→χ)) → (ψ→((φ→ψ)→(φ→χ)))
-    { _tag: "mp", leftIndex: 0, rightIndex: 7 },
+    // MP(4, 6): (φ→(ψ→χ)) → (((φ→ψ)→(φ→χ)) → (ψ→((φ→ψ)→(φ→χ))))
+    { _tag: "mp", leftIndex: 4, rightIndex: 6 },
+    // MP(7, 5): ((φ→(ψ→χ))→((φ→ψ)→(φ→χ))) → ((φ→(ψ→χ)) → (ψ→((φ→ψ)→(φ→χ))))
+    { _tag: "mp", leftIndex: 7, rightIndex: 5 },
+    // MP(1, 8): (φ→(ψ→χ)) → (ψ→((φ→ψ)→(φ→χ)))
+    { _tag: "mp", leftIndex: 1, rightIndex: 8 },
 
     // 次に ψ→((φ→ψ)→(φ→χ)) と ψ→(φ→ψ) → ψ→(φ→χ) への変換
-    // A2[φ/ψ, ψ/(φ→ψ), χ/(φ→χ)] を使う (= step2)
-    // step8の結果をstep2に通す
+    // A2[φ/ψ, ψ/(φ→ψ), χ/(φ→χ)] を使う (= step3)
+    // step9の結果をstep3に通す
 
     // A2[φ/(φ→(ψ→χ)), ψ/(ψ→((φ→ψ)→(φ→χ))), χ/((ψ→(φ→ψ))→(ψ→(φ→χ)))]
     {
@@ -321,12 +357,12 @@ const prop07Permutation: ModelAnswer = {
       formulaText:
         "((psi -> ((phi -> psi) -> (phi -> chi))) -> ((psi -> (phi -> psi)) -> (psi -> (phi -> chi)))) -> ((phi -> (psi -> chi)) -> ((psi -> ((phi -> psi) -> (phi -> chi))) -> ((psi -> (phi -> psi)) -> (psi -> (phi -> chi)))))",
     },
-    // MP(2, 10): (φ→(ψ→χ)) → ((ψ→((φ→ψ)→(φ→χ))) → ((ψ→(φ→ψ))→(ψ→(φ→χ))))
-    { _tag: "mp", leftIndex: 2, rightIndex: 10 },
-    // MP(11, 9): ((φ→(ψ→χ))→(ψ→((φ→ψ)→(φ→χ)))) → ((φ→(ψ→χ))→((ψ→(φ→ψ))→(ψ→(φ→χ))))
-    { _tag: "mp", leftIndex: 11, rightIndex: 9 },
-    // MP(8, 12): (φ→(ψ→χ)) → ((ψ→(φ→ψ))→(ψ→(φ→χ)))
-    { _tag: "mp", leftIndex: 8, rightIndex: 12 },
+    // MP(3, 11): (φ→(ψ→χ)) → ((ψ→((φ→ψ)→(φ→χ))) → ((ψ→(φ→ψ))→(ψ→(φ→χ))))
+    { _tag: "mp", leftIndex: 3, rightIndex: 11 },
+    // MP(12, 10): ((φ→(ψ→χ))→(ψ→((φ→ψ)→(φ→χ)))) → ((φ→(ψ→χ))→((ψ→(φ→ψ))→(ψ→(φ→χ))))
+    { _tag: "mp", leftIndex: 12, rightIndex: 10 },
+    // MP(9, 13): (φ→(ψ→χ)) → ((ψ→(φ→ψ))→(ψ→(φ→χ)))
+    { _tag: "mp", leftIndex: 9, rightIndex: 13 },
 
     // 最後: (φ→(ψ→χ))→((ψ→(φ→ψ))→(ψ→(φ→χ))) と (ψ→(φ→ψ)) [= step1] を合成
     // A2[φ/(φ→(ψ→χ)), ψ/(ψ→(φ→ψ)), χ/(ψ→(φ→χ))]
@@ -335,18 +371,18 @@ const prop07Permutation: ModelAnswer = {
       formulaText:
         "((phi -> (psi -> chi)) -> ((psi -> (phi -> psi)) -> (psi -> (phi -> chi)))) -> (((phi -> (psi -> chi)) -> (psi -> (phi -> psi))) -> ((phi -> (psi -> chi)) -> (psi -> (phi -> chi))))",
     },
-    // MP(13, 14): ((φ→(ψ→χ))→(ψ→(φ→ψ))) → ((φ→(ψ→χ))→(ψ→(φ→χ)))
-    { _tag: "mp", leftIndex: 13, rightIndex: 14 },
-    // A1: step1を持ち上げ: (ψ→(φ→ψ)) → ((φ→(ψ→χ))→(ψ→(φ→ψ)))
+    // MP(14, 15): ((φ→(ψ→χ))→(ψ→(φ→ψ))) → ((φ→(ψ→χ))→(ψ→(φ→χ)))
+    { _tag: "mp", leftIndex: 14, rightIndex: 15 },
+    // A1: step2を持ち上げ: (ψ→(φ→ψ)) → ((φ→(ψ→χ))→(ψ→(φ→ψ)))
     {
       _tag: "axiom",
       formulaText:
         "(psi -> (phi -> psi)) -> ((phi -> (psi -> chi)) -> (psi -> (phi -> psi)))",
     },
-    // MP(1, 16): (φ→(ψ→χ)) → (ψ→(φ→ψ))
-    { _tag: "mp", leftIndex: 1, rightIndex: 16 },
-    // MP(17, 15): (φ→(ψ→χ)) → (ψ→(φ→χ))
-    { _tag: "mp", leftIndex: 17, rightIndex: 15 },
+    // MP(2, 17): (φ→(ψ→χ)) → (ψ→(φ→ψ))
+    { _tag: "mp", leftIndex: 2, rightIndex: 17 },
+    // MP(18, 16): (φ→(ψ→χ)) → (ψ→(φ→χ))
+    { _tag: "mp", leftIndex: 18, rightIndex: 16 },
   ],
 };
 
@@ -524,6 +560,10 @@ const prop50A2LiftedInstance: ModelAnswer = {
 const prop51A1ChainedLift: ModelAnswer = {
   questId: "prop-51",
   steps: [
+    {
+      _tag: "note",
+      text: "## 証明の方針\n\nφ → (ψ → (χ → χ)) を証明します。\n\n1. まず Q-01 と同じ手順で χ → χ を導出\n2. A1 で ψ → (χ → χ) に持ち上げ\n3. さらに A1 で φ → (ψ → (χ → χ)) に持ち上げ\n\nA1 を繰り返して「入れ子の前提」を追加する基本パターンです。",
+    },
     // 0. A1[φ/χ, ψ/(χ→χ)]: χ → ((χ→χ) → χ)
     { _tag: "axiom", formulaText: "chi -> ((chi -> chi) -> chi)" },
     // 1. A2[φ/χ, ψ/(χ→χ), χ/χ]: (χ→((χ→χ)→χ)) → ((χ→(χ→χ)) → (χ→χ))
@@ -532,23 +572,27 @@ const prop51A1ChainedLift: ModelAnswer = {
       formulaText:
         "(chi -> ((chi -> chi) -> chi)) -> ((chi -> (chi -> chi)) -> (chi -> chi))",
     },
-    // 2. MP(0, 1): (χ→(χ→χ)) → (χ→χ)
-    { _tag: "mp", leftIndex: 0, rightIndex: 1 },
+    // 2. MP(1, 2): (χ→(χ→χ)) → (χ→χ)
+    { _tag: "mp", leftIndex: 1, rightIndex: 2 },
     // 3. A1[φ/χ, ψ/χ]: χ → (χ → χ)
     { _tag: "axiom", formulaText: "chi -> (chi -> chi)" },
-    // 4. MP(3, 2): χ → χ
-    { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+    // 4. MP(4, 3): χ → χ
+    { _tag: "mp", leftIndex: 4, rightIndex: 3 },
+    {
+      _tag: "note",
+      text: "χ → χ が得られました。ここから A1 で2回持ち上げます。",
+    },
     // 5. A1: (χ→χ) → (ψ → (χ→χ))
     { _tag: "axiom", formulaText: "(chi -> chi) -> (psi -> (chi -> chi))" },
-    // 6. MP(4, 5): ψ → (χ→χ)
-    { _tag: "mp", leftIndex: 4, rightIndex: 5 },
+    // 6. MP(5, 7): ψ → (χ→χ)
+    { _tag: "mp", leftIndex: 5, rightIndex: 7 },
     // 7. A1: (ψ→(χ→χ)) → (φ → (ψ→(χ→χ)))
     {
       _tag: "axiom",
       formulaText: "(psi -> (chi -> chi)) -> (phi -> (psi -> (chi -> chi)))",
     },
-    // 8. MP(6, 7): φ → (ψ → (χ→χ))
-    { _tag: "mp", leftIndex: 6, rightIndex: 7 },
+    // 8. MP(8, 9): φ → (ψ → (χ→χ))
+    { _tag: "mp", leftIndex: 8, rightIndex: 9 },
   ],
 };
 

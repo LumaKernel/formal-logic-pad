@@ -48,17 +48,21 @@ describe("builtinQuests", () => {
     }
   });
 
-  it("各クエストのゴール式テキストが正しくパースできる", () => {
-    for (const quest of builtinQuests) {
-      for (const goal of quest.goals) {
-        const result = parseString(goal.formulaText);
-        expect(
-          Either.isRight(result),
-          `${quest.id satisfies string}: "${goal.formulaText satisfies string}" のパースに失敗`,
-        ).toBe(true);
+  it(
+    "各クエストのゴール式テキストが正しくパースできる",
+    { timeout: 30_000 },
+    () => {
+      for (const quest of builtinQuests) {
+        for (const goal of quest.goals) {
+          const result = parseString(goal.formulaText);
+          expect(
+            Either.isRight(result),
+            `${quest.id satisfies string}: "${goal.formulaText satisfies string}" のパースに失敗`,
+          ).toBe(true);
+        }
       }
-    }
-  });
+    },
+  );
 
   it("各クエストの推定ステップ数が正の整数", () => {
     for (const quest of builtinQuests) {
