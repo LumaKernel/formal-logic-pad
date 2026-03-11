@@ -195,6 +195,10 @@ const scTagToRuleName = (tag: string): string => {
       return "∃L";
     case "ScExistentialRight":
       return "∃R";
+    case "ScNegationLeft":
+      return "¬L";
+    case "ScNegationRight":
+      return "¬R";
     /* v8 ignore start — 防御的コード: 既知のSCルールタグで網羅済み。将来のタグ追加時のフォールバック */
     default:
       return tag;
@@ -237,6 +241,8 @@ const getScPremises = (node: ScProofNode): readonly ScProofNode[] => {
     case "ScUniversalRight":
     case "ScExistentialLeft":
     case "ScExistentialRight":
+    case "ScNegationLeft":
+    case "ScNegationRight":
       return [node.premise];
   }
   /* v8 ignore start */

@@ -524,19 +524,19 @@ describe("axiomPalette", () => {
   });
 
   describe("getAvailableScRules", () => {
-    it("LK全体系の19規則すべてを返す", () => {
+    it("LK全体系の21規則すべてを返す", () => {
       const items = getAvailableScRules(lkSystem);
-      expect(items).toHaveLength(19);
+      expect(items).toHaveLength(21);
     });
 
-    it("LJ全体系の19規則すべてを返す", () => {
+    it("LJ全体系の21規則すべてを返す", () => {
       const items = getAvailableScRules(ljSystem);
-      expect(items).toHaveLength(19);
+      expect(items).toHaveLength(21);
     });
 
-    it("LM体系の17規則を返す", () => {
+    it("LM体系の19規則を返す", () => {
       const items = getAvailableScRules(lmSystem);
-      expect(items).toHaveLength(17);
+      expect(items).toHaveLength(19);
     });
 
     it("LM体系には⊥公理と右弱化が含まれない", () => {

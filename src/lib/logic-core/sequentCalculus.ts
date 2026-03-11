@@ -271,6 +271,32 @@ export type ScDisjunctionRight = {
 };
 
 /**
+ * 左¬規則 (¬⇒):
+ *    Γ ⇒ Δ,φ
+ *   ──────────
+ *   ¬φ,Γ ⇒ Δ
+ * 戸次本 定義10.4
+ */
+export type ScNegationLeft = {
+  readonly _tag: "ScNegationLeft";
+  readonly conclusion: Sequent;
+  readonly premise: ScProofNode;
+};
+
+/**
+ * 右¬規則 (⇒¬):
+ *   φ,Γ ⇒ Δ
+ *   ──────────
+ *   Γ ⇒ Δ,¬φ
+ * 戸次本 定義10.4
+ */
+export type ScNegationRight = {
+  readonly _tag: "ScNegationRight";
+  readonly conclusion: Sequent;
+  readonly premise: ScProofNode;
+};
+
+/**
  * 左∀規則 (∀⇒):
  *   φ[τ/ξ],Γ ⇒ Δ
  *   ──────────────
@@ -351,6 +377,8 @@ export type ScProofNode =
   | ScConjunctionRight
   | ScDisjunctionLeft
   | ScDisjunctionRight
+  | ScNegationLeft
+  | ScNegationRight
   | ScUniversalLeft
   | ScUniversalRight
   | ScExistentialLeft
@@ -511,6 +539,24 @@ export const scDisjunctionRight = (
   componentIndex,
 });
 
+export const scNegationLeft = (
+  premise: ScProofNode,
+  conclusion: Sequent,
+): ScNegationLeft => ({
+  _tag: "ScNegationLeft",
+  conclusion,
+  premise,
+});
+
+export const scNegationRight = (
+  premise: ScProofNode,
+  conclusion: Sequent,
+): ScNegationRight => ({
+  _tag: "ScNegationRight",
+  conclusion,
+  premise,
+});
+
 export const scUniversalLeft = (
   premise: ScProofNode,
   conclusion: Sequent,
@@ -583,6 +629,9 @@ export const countScNodes = (node: ScProofNode): number => {
       return 1 + countScNodes(node.left) + countScNodes(node.right);
     case "ScDisjunctionRight":
       return 1 + countScNodes(node.premise);
+    case "ScNegationLeft":
+    case "ScNegationRight":
+      return 1 + countScNodes(node.premise);
     case "ScUniversalLeft":
     case "ScUniversalRight":
     case "ScExistentialLeft":
@@ -623,6 +672,9 @@ export const scProofDepth = (node: ScProofNode): number => {
     case "ScDisjunctionLeft":
       return 1 + Math.max(scProofDepth(node.left), scProofDepth(node.right));
     case "ScDisjunctionRight":
+      return 1 + scProofDepth(node.premise);
+    case "ScNegationLeft":
+    case "ScNegationRight":
       return 1 + scProofDepth(node.premise);
     case "ScUniversalLeft":
     case "ScUniversalRight":
@@ -735,6 +787,10 @@ const validateScNode = (
       validateScNode(node.right, errors);
       return;
     case "ScDisjunctionRight":
+      validateScNode(node.premise, errors);
+      return;
+    case "ScNegationLeft":
+    case "ScNegationRight":
       validateScNode(node.premise, errors);
       return;
     case "ScUniversalLeft":

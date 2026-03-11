@@ -886,6 +886,152 @@ describe("scApplicationLogic", () => {
     });
   });
 
+  // --- 否定規則 ---
+
+  describe("negation-left", () => {
+    it("左辺の¬φを分解して前提を返す", () => {
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "negation-left",
+          sequentText: "¬P(x) ⇒ Q(x)",
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right._tag).toBe("sc-single-result");
+        if (result.right._tag === "sc-single-result") {
+          // 前提: ⇒ Q(x), P(x)（¬P(x)を前件から除去、P(x)を後件に追加）
+          const parsed = parseSequentText(result.right.premiseText);
+          expect(parsed).not.toBeUndefined();
+          expect(parsed!.antecedents).toHaveLength(0);
+          expect(parsed!.succedents).toHaveLength(2);
+        }
+      }
+    });
+
+    it("左辺の途中位置の¬φも分解できる", () => {
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "negation-left",
+          sequentText: "P(x), ¬Q(x), R(x) ⇒ S(x)",
+          principalPosition: 1,
+        }),
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right._tag).toBe("sc-single-result");
+        if (result.right._tag === "sc-single-result") {
+          // 前提: P(x), R(x) ⇒ S(x), Q(x)
+          const parsed = parseSequentText(result.right.premiseText);
+          expect(parsed).not.toBeUndefined();
+          expect(parsed!.antecedents).toHaveLength(2);
+          expect(parsed!.succedents).toHaveLength(2);
+        }
+      }
+    });
+
+    it("主論理式が否定でなければエラー", () => {
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "negation-left",
+          sequentText: "P(x) ⇒ Q(x)",
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScPrincipalFormulaMismatch");
+      }
+    });
+
+    it("位置が範囲外ならエラー", () => {
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "negation-left",
+          sequentText: "¬P(x) ⇒ Q(x)",
+          principalPosition: 5,
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScPrincipalPositionOutOfRange");
+      }
+    });
+  });
+
+  describe("negation-right", () => {
+    it("右辺の¬φを分解して前提を返す", () => {
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "negation-right",
+          sequentText: "P(x) ⇒ ¬Q(x)",
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right._tag).toBe("sc-single-result");
+        if (result.right._tag === "sc-single-result") {
+          // 前提: Q(x), P(x) ⇒（Q(x)を前件の先頭に追加、¬Q(x)を後件から除去）
+          const parsed = parseSequentText(result.right.premiseText);
+          expect(parsed).not.toBeUndefined();
+          expect(parsed!.antecedents).toHaveLength(2);
+          expect(parsed!.succedents).toHaveLength(0);
+        }
+      }
+    });
+
+    it("右辺の途中位置の¬φも分解できる", () => {
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "negation-right",
+          sequentText: "P(x) ⇒ Q(x), ¬R(x), S(x)",
+          principalPosition: 1,
+        }),
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect(result.right._tag).toBe("sc-single-result");
+        if (result.right._tag === "sc-single-result") {
+          // 前提: R(x), P(x) ⇒ Q(x), S(x)
+          const parsed = parseSequentText(result.right.premiseText);
+          expect(parsed).not.toBeUndefined();
+          expect(parsed!.antecedents).toHaveLength(2);
+          expect(parsed!.succedents).toHaveLength(2);
+        }
+      }
+    });
+
+    it("主論理式が否定でなければエラー", () => {
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "negation-right",
+          sequentText: "P(x) ⇒ Q(x)",
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScPrincipalFormulaMismatch");
+      }
+    });
+
+    it("位置が範囲外ならエラー", () => {
+      const result = validateScApplication(
+        makeParams({
+          ruleId: "negation-right",
+          sequentText: "P(x) ⇒ ¬Q(x)",
+          principalPosition: 5,
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left._tag).toBe("ScPrincipalPositionOutOfRange");
+      }
+    });
+  });
+
   // --- 量化子規則 ---
 
   describe("universal-left", () => {

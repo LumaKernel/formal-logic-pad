@@ -120,6 +120,8 @@ export const encodeScProofNode = (node: ScProofNode): unknown => {
     case "ScUniversalRight":
     case "ScExistentialLeft":
     case "ScExistentialRight":
+    case "ScNegationLeft":
+    case "ScNegationRight":
       return {
         _tag: node._tag,
         conclusion: encodeSequent(node.conclusion),
@@ -154,6 +156,8 @@ const SC_TAGS = new Set([
   "ScUniversalRight",
   "ScExistentialLeft",
   "ScExistentialRight",
+  "ScNegationLeft",
+  "ScNegationRight",
 ]);
 
 const decodeFormulaOrThrow = (input: unknown): Formula => {
@@ -321,6 +325,18 @@ export const decodeScProofNode = (input: unknown): ScProofNode => {
     case "ScExistentialRight":
       return {
         _tag: "ScExistentialRight",
+        conclusion,
+        premise: decodeScProofNode(obj["premise"]),
+      };
+    case "ScNegationLeft":
+      return {
+        _tag: "ScNegationLeft",
+        conclusion,
+        premise: decodeScProofNode(obj["premise"]),
+      };
+    case "ScNegationRight":
+      return {
+        _tag: "ScNegationRight",
         conclusion,
         premise: decodeScProofNode(obj["premise"]),
       };

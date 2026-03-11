@@ -21,6 +21,8 @@ import {
   scUniversalRight,
   scExistentialLeft,
   scExistentialRight,
+  scNegationLeft,
+  scNegationRight,
   getScConclusion,
   countScNodes,
   scProofDepth,
@@ -363,6 +365,26 @@ describe("ScExistentialRight (⇒∃)", () => {
   });
 });
 
+describe("ScNegationLeft (¬⇒)", () => {
+  it("左¬規則ノードを作成できる", () => {
+    const premise = scIdentity(idSequent);
+    const node = scNegationLeft(premise, idSequent);
+    expect(node._tag).toBe("ScNegationLeft");
+    expect(countScNodes(node)).toBe(2);
+    expect(scProofDepth(node)).toBe(1);
+  });
+});
+
+describe("ScNegationRight (⇒¬)", () => {
+  it("右¬規則ノードを作成できる", () => {
+    const premise = scIdentity(idSequent);
+    const node = scNegationRight(premise, idSequent);
+    expect(node._tag).toBe("ScNegationRight");
+    expect(countScNodes(node)).toBe(2);
+    expect(scProofDepth(node)).toBe(1);
+  });
+});
+
 // ── 複合的な証明図 ──────────────────────────────────────────
 
 describe("複合証明図", () => {
@@ -508,6 +530,20 @@ describe("validateScProof", () => {
   it("右∃の前提がバリデーションされる", () => {
     const badPremise = scIdentity(sequent([], []));
     const node = scExistentialRight(badPremise, sequent([], []));
+    const result = validateScProof(node);
+    expect(result._tag).toBe("Invalid");
+  });
+
+  it("左¬の前提がバリデーションされる", () => {
+    const badPremise = scIdentity(sequent([], []));
+    const node = scNegationLeft(badPremise, sequent([], []));
+    const result = validateScProof(node);
+    expect(result._tag).toBe("Invalid");
+  });
+
+  it("右¬の前提がバリデーションされる", () => {
+    const badPremise = scIdentity(sequent([], []));
+    const node = scNegationRight(badPremise, sequent([], []));
     const result = validateScProof(node);
     expect(result._tag).toBe("Invalid");
   });

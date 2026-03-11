@@ -276,8 +276,8 @@ describe("LM (シーケント計算・最小論理)", () => {
     expect(lmSystem.name).toBe("Sequent Calculus LM");
   });
 
-  it("基本規則17種を含む", () => {
-    expect(lmSystem.rules.size).toBe(17);
+  it("基本規則19種を含む", () => {
+    expect(lmSystem.rules.size).toBe(19);
   });
 
   it("公理(ID)とカット(CUT)を含む", () => {
@@ -303,6 +303,8 @@ describe("LM (シーケント計算・最小論理)", () => {
     expect(lmSystem.rules.has("conjunction-right")).toBe(true);
     expect(lmSystem.rules.has("disjunction-left")).toBe(true);
     expect(lmSystem.rules.has("disjunction-right")).toBe(true);
+    expect(lmSystem.rules.has("negation-left")).toBe(true);
+    expect(lmSystem.rules.has("negation-right")).toBe(true);
     expect(lmSystem.rules.has("universal-left")).toBe(true);
     expect(lmSystem.rules.has("universal-right")).toBe(true);
     expect(lmSystem.rules.has("existential-left")).toBe(true);
@@ -327,8 +329,8 @@ describe("LJ (シーケント計算・直観主義論理)", () => {
     expect(ljSystem.name).toBe("Sequent Calculus LJ");
   });
 
-  it("LMの基本規則 + ⊥公理 + 右弱化 = 19種", () => {
-    expect(ljSystem.rules.size).toBe(19);
+  it("LMの基本規則 + ⊥公理 + 右弱化 = 21種", () => {
+    expect(ljSystem.rules.size).toBe(21);
   });
 
   it("⊥公理を含む", () => {
@@ -355,8 +357,8 @@ describe("LK (シーケント計算・古典論理)", () => {
     expect(lkSystem.name).toBe("Sequent Calculus LK");
   });
 
-  it("LJと同じ19種の規則を含む", () => {
-    expect(lkSystem.rules.size).toBe(19);
+  it("LJと同じ21種の規則を含む", () => {
+    expect(lkSystem.rules.size).toBe(21);
   });
 
   it("LJの全規則を含む", () => {
@@ -416,8 +418,8 @@ describe("isScRuleEnabled", () => {
 // ── allScRuleIds のテスト ───────────────────────────────────
 
 describe("allScRuleIds", () => {
-  it("19種の規則IDを含む", () => {
-    expect(allScRuleIds).toHaveLength(19);
+  it("21種の規則IDを含む", () => {
+    expect(allScRuleIds).toHaveLength(21);
   });
 
   it("重複がない", () => {

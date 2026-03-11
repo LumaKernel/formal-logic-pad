@@ -18,6 +18,7 @@ import {
   Conjunction,
   Disjunction,
   Implication,
+  Negation,
   Universal,
   Existential,
 } from "../logic-core/formula";
@@ -581,6 +582,94 @@ const validateImplicationLeftEffect = (
       _tag: "sc-branching-result",
       leftPremiseText,
       rightPremiseText,
+    };
+  });
+
+/**
+ * negation-left (¬⇒): Γ ⇒ Δ,φ から ¬φ,Γ ⇒ Δ を導出。
+ * principalPosition は結論左辺での ¬φ の位置。
+ * 前件の ¬φ を除去し、その中身 φ を後件に追加する。
+ */
+const validateNegationLeftEffect = (
+  antecedents: readonly Formula[],
+  succedents: readonly Formula[],
+  principalPosition: number,
+): Effect.Effect<ScSinglePremiseResult, ScApplicationError> =>
+  Effect.gen(function* () {
+    if (principalPosition < 0 || principalPosition >= antecedents.length) {
+      return yield* Effect.fail(
+        new ScPrincipalPositionOutOfRange({
+          side: "left",
+          position: principalPosition,
+          formulaCount: antecedents.length,
+        }),
+      );
+    }
+    const principal = antecedents[principalPosition]!;
+    if (!(principal instanceof Negation)) {
+      return yield* Effect.fail(
+        new ScPrincipalFormulaMismatch({
+          ruleId: "negation-left",
+          message: "Principal formula must be ¬φ",
+        }),
+      );
+    }
+    // 前提: Γ ⇒ Δ,φ（¬φを前件から除去し、φを後件の末尾に追加）
+    const premiseAntecedents = [
+      ...antecedents.slice(0, principalPosition),
+      ...antecedents.slice(principalPosition + 1),
+    ];
+    const premiseSuccedents = [...succedents, principal.formula];
+    return {
+      _tag: "sc-single-result",
+      premiseText: formatSequentTextFromFormulas(
+        premiseAntecedents,
+        premiseSuccedents,
+      ),
+    };
+  });
+
+/**
+ * negation-right (⇒¬): φ,Γ ⇒ Δ から Γ ⇒ Δ,¬φ を導出。
+ * principalPosition は結論右辺での ¬φ の位置。
+ * 後件の ¬φ を除去し、その中身 φ を前件の先頭に追加する。
+ */
+const validateNegationRightEffect = (
+  antecedents: readonly Formula[],
+  succedents: readonly Formula[],
+  principalPosition: number,
+): Effect.Effect<ScSinglePremiseResult, ScApplicationError> =>
+  Effect.gen(function* () {
+    if (principalPosition < 0 || principalPosition >= succedents.length) {
+      return yield* Effect.fail(
+        new ScPrincipalPositionOutOfRange({
+          side: "right",
+          position: principalPosition,
+          formulaCount: succedents.length,
+        }),
+      );
+    }
+    const principal = succedents[principalPosition]!;
+    if (!(principal instanceof Negation)) {
+      return yield* Effect.fail(
+        new ScPrincipalFormulaMismatch({
+          ruleId: "negation-right",
+          message: "Principal formula must be ¬φ",
+        }),
+      );
+    }
+    // 前提: φ,Γ ⇒ Δ（¬φを後件から除去し、φを前件の先頭に追加）
+    const premiseAntecedents = [principal.formula, ...antecedents];
+    const premiseSuccedents = [
+      ...succedents.slice(0, principalPosition),
+      ...succedents.slice(principalPosition + 1),
+    ];
+    return {
+      _tag: "sc-single-result",
+      premiseText: formatSequentTextFromFormulas(
+        premiseAntecedents,
+        premiseSuccedents,
+      ),
     };
   });
 
@@ -1239,6 +1328,18 @@ export const validateScApplicationEffect = (
         );
       case "disjunction-left":
         return yield* validateDisjunctionLeftEffect(
+          antecedents,
+          succedents,
+          params.principalPosition,
+        );
+      case "negation-left":
+        return yield* validateNegationLeftEffect(
+          antecedents,
+          succedents,
+          params.principalPosition,
+        );
+      case "negation-right":
+        return yield* validateNegationRightEffect(
           antecedents,
           succedents,
           params.principalPosition,

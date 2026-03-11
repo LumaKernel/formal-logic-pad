@@ -209,6 +209,9 @@ export const getScChildren = (node: ScProofNode): readonly ScProofNode[] => {
       return [node.left, node.right];
     case "ScDisjunctionRight":
       return [node.premise];
+    case "ScNegationLeft":
+    case "ScNegationRight":
+      return [node.premise];
     case "ScUniversalLeft":
     case "ScUniversalRight":
     case "ScExistentialLeft":
@@ -535,6 +538,8 @@ const eliminateFromChildren = (
         ),
       };
     }
+    case "ScNegationLeft":
+    case "ScNegationRight":
     case "ScUniversalLeft":
     case "ScUniversalRight":
     case "ScExistentialLeft":
@@ -1192,7 +1197,9 @@ const pushMixIntoLeft = (
     case "ScUniversalLeft":
     case "ScUniversalRight":
     case "ScExistentialLeft":
-    case "ScExistentialRight": {
+    case "ScExistentialRight":
+    case "ScNegationLeft":
+    case "ScNegationRight": {
       const innerCut = scCut(
         leftNode.premise,
         cutNode.right,
@@ -1635,7 +1642,9 @@ const pushMixIntoRight = (
     case "ScUniversalLeft":
     case "ScUniversalRight":
     case "ScExistentialLeft":
-    case "ScExistentialRight": {
+    case "ScExistentialRight":
+    case "ScNegationLeft":
+    case "ScNegationRight": {
       const innerCut = scCut(
         cutNode.left,
         rightNode.premise,

@@ -187,6 +187,8 @@ export type ScRuleId =
   | "disjunction-right"
   | "universal-left"
   | "universal-right"
+  | "negation-left"
+  | "negation-right"
   | "existential-left"
   | "existential-right";
 
@@ -205,6 +207,8 @@ const lmBaseRules: ReadonlySet<ScRuleId> = new Set([
   "conjunction-right",
   "disjunction-left",
   "disjunction-right",
+  "negation-left",
+  "negation-right",
   "universal-left",
   "universal-right",
   "existential-left",
@@ -557,6 +561,8 @@ export const allScRuleIds: readonly ScRuleId[] = [
   "conjunction-right",
   "disjunction-left",
   "disjunction-right",
+  "negation-left",
+  "negation-right",
   "universal-left",
   "universal-right",
   "existential-left",
@@ -582,6 +588,8 @@ export function getScRuleDisplayName(ruleId: ScRuleId): string {
   if (ruleId === "disjunction-right") return "右∨規則 (⇒∨)";
   if (ruleId === "universal-left") return "左∀規則 (∀⇒)";
   if (ruleId === "universal-right") return "右∀規則 (⇒∀)";
+  if (ruleId === "negation-left") return "左¬規則 (¬⇒)";
+  if (ruleId === "negation-right") return "右¬規則 (⇒¬)";
   if (ruleId === "existential-left") return "左∃規則 (∃⇒)";
   // ruleId: "existential-right" (TypeScript narrowing)
   return "右∃規則 (⇒∃)";
