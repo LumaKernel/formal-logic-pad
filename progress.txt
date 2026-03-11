@@ -12778,3 +12778,22 @@
   - 理論公理の `matchMode: "exact"` は `equalFormula` による完全一致のみ。パターンマッチではないため、代入インスタンスは識別されない
   - `identifyAxiom()` の呼び出し側は `axiomNameLogic.ts` と `dependencyLogic.ts` の2箇所。前者は正しく処理していたが後者にバグがあった
 ---
+
+## 2026-03-12 - [quest] 群論公理テンプレートのConstant/TermVariable不一致修正
+- **発見したバグ:** `inferenceRule.ts` の群論公理テンプレートで単位元 `e` を `constant("e")` (Constant _tag) として構築していたが、パーサーは `e` を `termVariable("e")` (TermVariable _tag) としてパースする。`matchTheoryAxiom` の `matchMode: "exact"` は `equalFormula` → `equalTerm` を使い、_tag を最初にチェックするため、Constant !== TermVariable で常に不一致となっていた
+- **PA系は影響なし:** パーサーは `0` を `Constant("0")` としてパースする（数字は特別扱い）
+- **修正内容:**
+  - `inferenceRule.ts`: `const groupIdentity = constant("e")` → `termVariable("e")` に変更
+  - group-02〜23（group-20除く）の17クエストが正しく理論公理として認識されるようになった
+  - スキップリスト: 49件 → 32件に縮小
+  - group-20 は E4（等号公理）未実装のため引き続きスキップ
+- **変更したファイル:**
+  - `src/lib/logic-core/inferenceRule.ts` - groupIdentity を constant → termVariable に変更
+  - `src/lib/quest/builtinModelAnswers.test.ts` - スキップリストからgroup系17件削除（49→32件）
+  - `task-processing.md` - タスク計画記述
+- **カバレッジ:** Stmts 99.95%, Branch 99.91%, Lines 99.93%（低下なし）
+- **今後のイテレーションへの学び:**
+  - 理論公理テンプレートの Term 構築では、パーサーが生成する _tag と一致させる必要がある。パーサーは英字をTermVariable、数字をConstant としてパースする
+  - `equalTerm` は _tag を最初にチェックするため、Constant と TermVariable は値が同じでも不一致になる
+  - 残りの pragmatic quests (32件): prop 13件(∧/∨定義公理が必要)、peano 5件、group 1件(E4未実装)、pred 12件(∃処理)
+---
