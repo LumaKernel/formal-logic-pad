@@ -281,6 +281,8 @@ export function getNodeInferenceRuleIds(
  * - "schema": 公理スキーマそのもの（メタ変数の命名違いのみ）。正当なルートノード。
  * - "instance": 公理スキーマの代入インスタンスがルートに直接配置されている。
  *   SubstitutionEdge を介してスキーマから導出すべき。
+ * - "theory-schema": 理論公理スキーマそのもの（メタ変数の命名違いのみ）。正当なルートノード。
+ * - "theory-instance": 理論公理スキーマの代入インスタンスがルートに直接配置されている。
  * - "unknown": 公理として識別できないルートノード。
  */
 export type RootNodeValidation =
@@ -293,6 +295,16 @@ export type RootNodeValidation =
       readonly _tag: "instance";
       readonly nodeId: string;
       readonly axiomId: AxiomId;
+    }
+  | {
+      readonly _tag: "theory-schema";
+      readonly nodeId: string;
+      readonly theoryAxiomId: string;
+    }
+  | {
+      readonly _tag: "theory-instance";
+      readonly nodeId: string;
+      readonly theoryAxiomId: string;
     }
   | {
       readonly _tag: "unknown";
@@ -338,26 +350,50 @@ export function validateRootNodes(
     }
 
     const identification = identifyAxiom(parsed.right, system);
-    if (identification._tag === "Ok") {
-      const isTrivial = isTrivialAxiomSubstitution(
-        identification.formulaSubstitution,
-        identification.termSubstitution,
-      );
-      if (isTrivial) {
-        results.push({
-          _tag: "schema",
-          nodeId: rootId,
-          axiomId: identification.axiomId,
-        });
-      } else {
-        results.push({
-          _tag: "instance",
-          nodeId: rootId,
-          axiomId: identification.axiomId,
-        });
+    switch (identification._tag) {
+      case "Ok": {
+        const isTrivial = isTrivialAxiomSubstitution(
+          identification.formulaSubstitution,
+          identification.termSubstitution,
+        );
+        if (isTrivial) {
+          results.push({
+            _tag: "schema",
+            nodeId: rootId,
+            axiomId: identification.axiomId,
+          });
+        } else {
+          results.push({
+            _tag: "instance",
+            nodeId: rootId,
+            axiomId: identification.axiomId,
+          });
+        }
+        break;
       }
-    } else {
-      results.push({ _tag: "unknown", nodeId: rootId });
+      case "TheoryAxiom": {
+        const isTrivial = isTrivialAxiomSubstitution(
+          identification.formulaSubstitution,
+          identification.termSubstitution,
+        );
+        if (isTrivial) {
+          results.push({
+            _tag: "theory-schema",
+            nodeId: rootId,
+            theoryAxiomId: identification.theoryAxiomId,
+          });
+        } else {
+          results.push({
+            _tag: "theory-instance",
+            nodeId: rootId,
+            theoryAxiomId: identification.theoryAxiomId,
+          });
+        }
+        break;
+      }
+      case "Error":
+        results.push({ _tag: "unknown", nodeId: rootId });
+        break;
     }
   }
 
@@ -366,20 +402,26 @@ export function validateRootNodes(
 
 /**
  * ルートノードバリデーション結果からインスタンス直接配置のノードIDを返す。
+ * 命題論理公理・理論公理の両方のインスタンスを含む。
  */
 export function getInstanceRootNodeIds(
   validations: readonly RootNodeValidation[],
 ): readonly string[] {
-  return validations.filter((v) => v._tag === "instance").map((v) => v.nodeId);
+  return validations
+    .filter((v) => v._tag === "instance" || v._tag === "theory-instance")
+    .map((v) => v.nodeId);
 }
 
 /**
  * ルートノードバリデーション結果に不正なインスタンス直接配置があるかどうかを返す。
+ * 命題論理公理・理論公理の両方のインスタンスを含む。
  */
 export function hasInstanceRoots(
   validations: readonly RootNodeValidation[],
 ): boolean {
-  return validations.some((v) => v._tag === "instance");
+  return validations.some(
+    (v) => v._tag === "instance" || v._tag === "theory-instance",
+  );
 }
 
 /**
