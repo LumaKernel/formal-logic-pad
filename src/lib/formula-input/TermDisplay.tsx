@@ -59,7 +59,7 @@ export function TermDisplay({
   term,
   fontSize,
   color,
-  highlight = false,
+  highlight = true,
   className,
   style,
   testId,

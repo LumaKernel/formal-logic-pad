@@ -322,18 +322,21 @@ export const CustomStyling: Story = {
           term={term}
           fontSize={14}
           color="#666"
+          highlight={false}
           testId="term-small"
         />
         <TermDisplay
           term={term}
           fontSize={24}
           color="#2c3e50"
+          highlight={false}
           testId="term-medium"
         />
         <TermDisplay
           term={term}
           fontSize={36}
           color="#e74c3c"
+          highlight={false}
           testId="term-large"
         />
       </div>

@@ -471,18 +471,21 @@ export const CustomStyling: Story = {
           formula={formula}
           fontSize={14}
           color="#666"
+          highlight={false}
           testId="formula-small"
         />
         <FormulaDisplay
           formula={formula}
           fontSize={24}
           color="#2c3e50"
+          highlight={false}
           testId="formula-medium"
         />
         <FormulaDisplay
           formula={formula}
           fontSize={36}
           color="#e74c3c"
+          highlight={false}
           testId="formula-large"
         />
       </div>

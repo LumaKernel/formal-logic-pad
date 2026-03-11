@@ -196,10 +196,24 @@ describe("TermDisplay", () => {
   });
 
   describe("シンタックスハイライト", () => {
-    it("highlight=false（デフォルト）ではプレーンテキスト", () => {
+    it("デフォルトでハイライトが有効", () => {
       render(
         <TermDisplay
           term={binaryOperation("+", termVariable("x"), termVariable("y"))}
+          testId="term"
+        />,
+      );
+      const el = screen.getByTestId("term");
+      // デフォルトでトークン化される（子span要素あり）
+      expect(el.children.length).toBeGreaterThan(0);
+      expect(el).toHaveTextContent("x + y");
+    });
+
+    it("highlight=false ではプレーンテキスト", () => {
+      render(
+        <TermDisplay
+          term={binaryOperation("+", termVariable("x"), termVariable("y"))}
+          highlight={false}
           testId="term"
         />,
       );

@@ -12693,3 +12693,20 @@
   - ドロップダウンの表示問題は親要素のzIndex動的昇格（メニュー開閉時）で解決するパターンが確実
   - overflow:hidden は position:absolute のドロップダウンをクリップする。削除後はborder-radiusを子要素に直接適用する必要がある
 ---
+
+## 2026-03-12 05:00 - [formula-input] シンタックスハイライトをデフォルト有効化
+- タスク: FormulaDisplay/TermDisplayのhighlight propデフォルトをfalse→trueに変更
+- 変更ファイル:
+  - FormulaDisplay.tsx: highlight default false→true
+  - TermDisplay.tsx: highlight default false→true
+  - FormulaDisplay.test.tsx: デフォルトハイライト有効テスト追加、highlight=falseテスト分離
+  - TermDisplay.test.tsx: 同上
+  - FormulaDisplay.stories.tsx: CustomStylingにhighlight={false}追加（color propのデモ用）
+  - TermDisplay.stories.tsx: 同上
+- カバレッジ: Stmts 99.95%, Branch 99.94%, Lines 99.93% (維持)
+- テスト数: 9512 (+2)
+- スクリーンショット: .screenshots/formula-display-complex-highlight-default-verified.png, .screenshots/proof-workspace-with-nodes-fullscreen.png
+- **今後のイテレーションへの学び:**
+  - FormulaDisplay/TermDisplayのhighlight=trueはCSS変数でトークン色を制御。color propを使うストーリーではhighlight={false}を明示しないとトークン色が優先される
+  - Storybook Controls パネルにdefault値が表示されるので、prop defaultの変更が反映されているか確認可能
+---

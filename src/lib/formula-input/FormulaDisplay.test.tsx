@@ -235,10 +235,24 @@ describe("FormulaDisplay", () => {
   });
 
   describe("シンタックスハイライト", () => {
-    it("highlight=false（デフォルト）ではプレーンテキスト", () => {
+    it("デフォルトでハイライトが有効", () => {
       render(
         <FormulaDisplay
           formula={implication(metaVariable("φ"), metaVariable("ψ"))}
+          testId="formula"
+        />,
+      );
+      const el = screen.getByTestId("formula");
+      // デフォルトでトークン化される（子span要素あり）
+      expect(el.children.length).toBeGreaterThan(0);
+      expect(el).toHaveTextContent("φ → ψ");
+    });
+
+    it("highlight=false ではプレーンテキスト", () => {
+      render(
+        <FormulaDisplay
+          formula={implication(metaVariable("φ"), metaVariable("ψ"))}
+          highlight={false}
           testId="formula"
         />,
       );

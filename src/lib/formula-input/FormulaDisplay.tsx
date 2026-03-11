@@ -59,7 +59,7 @@ export function FormulaDisplay({
   formula,
   fontSize,
   color,
-  highlight = false,
+  highlight = true,
   className,
   style,
   testId,
