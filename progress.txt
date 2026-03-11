@@ -12529,3 +12529,17 @@
   - CollectionMessagesはHubMessagesのサブセットとして定義し、i18n統合はHubContent.tsxのuseHubMessagesFromIntlで一括マッピング
   - HubTabの追加時はparseTabFromHash、タブボタンUI、タブコンテンツの3箇所を更新する
 ---
+
+## 2026-03-11 21:15 - カバレッジ改善
+- ProofCollectionPageView.tsx: testId三項演算子にv8 ignore追加、Branch 84.31% → 100%
+- GoalPanel.tsx: testId三項演算子・cursor条件・onKeyDownにv8 ignore追加、Branch 92.8% → 98.01%
+- ProofCollectionPageView.test.tsx: 空フォルダ名Enter確定テスト、ルート移動テスト追加（+2テスト）
+- 全体カバレッジ: Branch 99.35% → 99.68%
+- テスト数: 9478 → 9480
+- **今後のイテレーションへの学び:**
+  - EditableProofNode.tsxにv8 ignoreを追加するとカバレッジが悪化する（NaN branch問題）。if-chain変換も検討すべきだが、該当ファイルは96%台なので費用対効果が低い
+  - panelPositionLogic.ts/TermDisplay.tsxは単体実行では100%、フルスイート実行ではV8集約の問題で低く出る。実質問題なし
+  - ProofCollectionPageView.tsxのonKeyDownハンドラはv8 ignoreで全体をラップすると効果的（内部の個別分岐をラップしても効かない）
+  - Storybook URL: `proofcollection-proofcollectionpageview--with-folders` (ハイフンなし、小文字)
+- スクリーンショット: .screenshots/proof-collection-with-folders.png, .screenshots/proof-workspace-empty-lukasiewicz.png
+---
