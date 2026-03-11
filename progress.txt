@@ -12490,3 +12490,23 @@
   - `category` は `QuestDefinition` に残し（ビルトイン用）、`CreateCustomQuestParams` から除去して固定値でデフォルト設定するアプローチが最小影響
   - シリアライゼーション (`parseCustomQuestFromRaw`) は既存データ互換のため `QuestCategory` 型を引き続き参照する必要あり
 ---
+
+## 2026-03-11 - formula-input / quest
+- 実装した内容: ゴール式入力をtextareaからFormulaListEditorコンポーネントに置換
+  - formulaListLogic.ts: 純粋ロジック（add/remove/update/moveUp/moveDown/validate/extractNonEmpty）25テスト
+  - FormulaListEditor.tsx: FormulaEditorを各行で利用するUIコンポーネント（追加・削除・並び替えボタン付き）16テスト
+  - FormulaListEditor.stories.tsx: 6ストーリー（Default, Empty, AddFormula, RemoveFormula, MoveFormula, WithError）
+  - customQuestEditLogic.ts: goalsText(string)→goalFormulas(readonly string[])に移行、parseGoalLines削除→extractNonEmptyFormulas利用
+  - CustomQuestListComponent.tsx: textarea→FormulaListEditor統合（EditForm, CreateForm両方）
+  - CustomQuestListComponent.stories.tsx: textarea操作→FormulaListEditor操作に全ストーリー更新
+- 変更したファイル:
+  - 新規: src/lib/formula-input/formulaListLogic.ts, formulaListLogic.test.ts, FormulaListEditor.tsx, FormulaListEditor.test.tsx, FormulaListEditor.stories.tsx
+  - 変更: src/lib/formula-input/index.ts, src/lib/quest/customQuestEditLogic.ts, customQuestEditLogic.test.ts, CustomQuestListComponent.tsx, CustomQuestListComponent.test.tsx, CustomQuestListComponent.stories.tsx, index.ts
+- カバレッジ: Stmts 99.9% → 99.9%, Branch 99.57% → 99.57%, Lines 99.93% → 99.93% (維持)
+- テスト: 9404 → 9446 (+42テスト)
+- スクリーンショット: .screenshots/formula-list-editor-default.png, .screenshots/custom-quest-edit-quest.png, .screenshots/custom-quest-create-new.png, .screenshots/custom-quest-create-validation.png
+- **今後のイテレーションへの学び:**
+  - FormulaEditorのtestIdパターン: `{testId}-display`(表示モード), `{testId}-input-input`(入力欄)。クリック→入力の2段階操作が必要
+  - Storybook play関数でFormulaListEditorを操作する場合: addボタンクリック→display領域クリック→input-inputにtype
+  - EditFormValues型の変更（goalsText→goalFormulas）は6ファイル以上に影響する。型エラーで追跡可能だが、ストーリーのtestIdは型チェックで検出できないため注意
+---
