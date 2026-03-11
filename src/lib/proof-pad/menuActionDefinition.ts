@@ -174,6 +174,14 @@ export const allMenuActions: readonly MenuActionDefinition[] = [
     label: { en: "Edit Formula", ja: "数式を編集" },
     contexts: ["node-context-menu"],
     group: "node-edit",
+    note: "Formula nodes only",
+  },
+  {
+    id: "edit-note",
+    label: { en: "Edit Note", ja: "ノートを編集" },
+    contexts: ["node-context-menu"],
+    group: "node-edit",
+    note: "Note nodes only",
   },
   {
     id: "merge-with-node",
