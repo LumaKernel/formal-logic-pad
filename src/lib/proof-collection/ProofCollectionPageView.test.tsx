@@ -284,6 +284,46 @@ describe("ProofCollectionPageView", () => {
       expect(onCreateFolder).toHaveBeenCalledWith("New Folder");
     });
 
+    it("フォルダ作成入力で空文字名をEnter確定してもonCreateFolderが呼ばれない", () => {
+      const onCreateFolder = vi.fn();
+      render(
+        <ProofCollectionPageView
+          entries={[]}
+          folders={[]}
+          messages={testMessages}
+          {...defaultCallbacks}
+          onCreateFolder={onCreateFolder}
+          testId="page"
+        />,
+      );
+      fireEvent.click(screen.getByTestId("page-create-folder"));
+      const input = screen.getByTestId("page-create-folder-input");
+      // 空文字のままEnterで確定を試みる
+      fireEvent.keyDown(input, { key: "Enter" });
+      expect(onCreateFolder).not.toHaveBeenCalled();
+    });
+
+    it("移動セレクトでルートに戻すとundefinedが渡される", () => {
+      const onMoveEntry = vi.fn();
+      const folders = [createTestFolder({ id: "f1", name: "Folder" })];
+      const entries = [createTestEntry({ id: "e1", folderId: "f1" })];
+      render(
+        <ProofCollectionPageView
+          entries={entries}
+          folders={folders}
+          messages={testMessages}
+          {...defaultCallbacks}
+          onMoveEntry={onMoveEntry}
+          testId="page"
+        />,
+      );
+      // フォルダ展開してフォルダ内エントリの移動セレクトを操作
+      fireEvent.click(screen.getByTestId("page-folder-f1-toggle"));
+      const select = screen.getByTestId("page-entry-e1-move");
+      fireEvent.change(select, { target: { value: "" } });
+      expect(onMoveEntry).toHaveBeenCalledWith("e1", undefined);
+    });
+
     it("フォルダヘッダーを表示する", () => {
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
       const entries = [
