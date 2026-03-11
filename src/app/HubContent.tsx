@@ -47,9 +47,14 @@ import {
   getBrowserLocaleSwitchDeps,
 } from "../components/LanguageToggle/useLocaleSwitch";
 import type { ThemeToggleLabels } from "../components/ThemeToggle/ThemeToggle";
-import { HubPageView, type HubTab } from "./HubPageView";
+import { HubPageView, type HubTab, type RecommendedQuest } from "./HubPageView";
 import type { HubMessages } from "./hubMessages";
 import { HubMessagesProvider } from "./HubMessagesContext";
+import {
+  shouldShowLandingPage,
+  updateHasEverHadNotebooks,
+  recommendedQuestIds,
+} from "./landingPageLogic";
 
 // eslint-disable-next-line @luma-dev/luma-ts/no-date
 const getNow = (): number => Date.now();
@@ -88,6 +93,12 @@ function useHubMessagesFromIntl(): HubMessages {
       sharedQuestAddToCollection: t("sharedQuestAddToCollection"),
       sharedQuestCancel: t("sharedQuestCancel"),
       sharedQuestMeta: String(t.raw("sharedQuestMeta")),
+      landingTitle: String(t.raw("landingTitle")),
+      landingSubtitle: String(t.raw("landingSubtitle")),
+      landingDescription: String(t.raw("landingDescription")),
+      landingStartFreeProof: String(t.raw("landingStartFreeProof")),
+      landingExploreQuests: String(t.raw("landingExploreQuests")),
+      landingRecommendedQuests: String(t.raw("landingRecommendedQuests")),
     }),
     [t],
   );
@@ -170,6 +181,33 @@ function HubInner() {
         notebookCollection.notebooks,
       ),
     [notebookCollection.notebooks],
+  );
+
+  // Landing page logic: track if session has ever had notebooks
+  // setState during render (React-supported pattern for derived state)
+  const [hasEverHadNotebooks, setHasEverHadNotebooks] = useState(false);
+  const nextHasEver = updateHasEverHadNotebooks(
+    hasEverHadNotebooks,
+    listItems.length,
+  );
+  if (nextHasEver !== hasEverHadNotebooks) {
+    setHasEverHadNotebooks(nextHasEver);
+  }
+
+  const showLanding = shouldShowLandingPage(
+    listItems.length,
+    hasEverHadNotebooks,
+  );
+
+  // Build recommended quests for landing page
+  const recommendedQuests = useMemo(
+    (): readonly RecommendedQuest[] =>
+      recommendedQuestIds.flatMap((id) => {
+        const quest = findQuestById(allQuests, id);
+        if (quest === undefined) return [];
+        return [{ id: quest.id, title: quest.title }];
+      }),
+    [allQuests],
   );
 
   // Compute notebook counts per quest
@@ -517,6 +555,8 @@ function HubInner() {
         onSharedQuestAddToCollection={handleSharedQuestAddToCollection}
         onSharedQuestDismiss={handleSharedQuestDismiss}
         themeLabels={themeLabels}
+        showLanding={showLanding}
+        recommendedQuests={recommendedQuests}
       />
     </HubMessagesProvider>
   );

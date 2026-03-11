@@ -31,6 +31,12 @@ export type HubMessages = {
   readonly sharedQuestAddToCollection: string;
   readonly sharedQuestCancel: string;
   readonly sharedQuestMeta: string;
+  readonly landingTitle: string;
+  readonly landingSubtitle: string;
+  readonly landingDescription: string;
+  readonly landingStartFreeProof: string;
+  readonly landingExploreQuests: string;
+  readonly landingRecommendedQuests: string;
 };
 
 /**
@@ -54,6 +60,13 @@ export const defaultHubMessages: HubMessages = {
   sharedQuestCancel: "Cancel",
   sharedQuestMeta:
     "{systemPresetId} | {goalCount} goal(s) | est. {estimatedSteps} steps",
+  landingTitle: "Formal Logic Pad",
+  landingSubtitle: "Interactive Proof Assistant for Formal Logic",
+  landingDescription:
+    "Explore formal proof systems interactively. Build proofs in Hilbert-style, natural deduction, sequent calculus, and more.",
+  landingStartFreeProof: "Start Free Proof",
+  landingExploreQuests: "Explore Quests",
+  landingRecommendedQuests: "Try a Quick Quest",
 };
 
 /** HubMessages の全キー一覧（網羅性チェック用） */
@@ -72,4 +85,10 @@ export const hubMessageKeys: readonly (keyof HubMessages)[] = [
   "sharedQuestAddToCollection",
   "sharedQuestCancel",
   "sharedQuestMeta",
+  "landingTitle",
+  "landingSubtitle",
+  "landingDescription",
+  "landingStartFreeProof",
+  "landingExploreQuests",
+  "landingRecommendedQuests",
 ] as const;

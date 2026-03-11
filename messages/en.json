@@ -21,7 +21,13 @@
     "sharedQuestStart": "Start Quest",
     "sharedQuestAddToCollection": "Add to My Quests",
     "sharedQuestCancel": "Cancel",
-    "sharedQuestMeta": "{systemPresetId} | {goalCount} goal(s) | est. {estimatedSteps} steps"
+    "sharedQuestMeta": "{systemPresetId} | {goalCount} goal(s) | est. {estimatedSteps} steps",
+    "landingTitle": "Formal Logic Pad",
+    "landingSubtitle": "Interactive Proof Assistant for Formal Logic",
+    "landingDescription": "Explore formal proof systems interactively. Build proofs in Hilbert-style, natural deduction, sequent calculus, and more.",
+    "landingStartFreeProof": "Start Free Proof",
+    "landingExploreQuests": "Explore Quests",
+    "landingRecommendedQuests": "Try a Quick Quest"
   },
   "Workspace": {
     "back": "Back",

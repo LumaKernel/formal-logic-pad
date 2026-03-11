@@ -21,7 +21,13 @@
     "sharedQuestStart": "クエストを開始",
     "sharedQuestAddToCollection": "マイクエストに追加",
     "sharedQuestCancel": "キャンセル",
-    "sharedQuestMeta": "{systemPresetId} | ゴール {goalCount} 個 | 推定 {estimatedSteps} ステップ"
+    "sharedQuestMeta": "{systemPresetId} | ゴール {goalCount} 個 | 推定 {estimatedSteps} ステップ",
+    "landingTitle": "Formal Logic Pad",
+    "landingSubtitle": "形式論理のインタラクティブ証明アシスタント",
+    "landingDescription": "形式的な証明体系をインタラクティブに探索しましょう。Hilbert系、自然演繹、シーケント計算などで証明を構築できます。",
+    "landingStartFreeProof": "自由に証明する",
+    "landingExploreQuests": "クエストを探索する",
+    "landingRecommendedQuests": "クイッククエスト"
   },
   "Workspace": {
     "back": "戻る",

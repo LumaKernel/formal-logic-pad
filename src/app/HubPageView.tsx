@@ -41,6 +41,12 @@ import { useHubMessages } from "./HubMessagesContext";
 export type HubTab = "notebooks" | "quests" | "custom-quests";
 type HubViewState = "list" | "create";
 
+/** ランディングページに表示するおすすめクエスト */
+export type RecommendedQuest = {
+  readonly id: string;
+  readonly title: string;
+};
+
 export type HubPageViewProps = {
   /** ノートブック一覧の表示用データ */
   readonly listItems: readonly NotebookListItem[];
@@ -105,6 +111,10 @@ export type HubPageViewProps = {
   readonly onShowModelAnswer?: (questId: string) => void;
   /** テーマトグルのi18nラベル */
   readonly themeLabels?: ThemeToggleLabels;
+  /** ランディングページを表示するかどうか */
+  readonly showLanding?: boolean;
+  /** ランディングページに表示するおすすめクエスト */
+  readonly recommendedQuests?: readonly RecommendedQuest[];
 };
 
 // --- Styles ---
@@ -257,6 +267,100 @@ const clearFilterButtonStyle: CSSProperties = {
   marginLeft: "auto",
 };
 
+// --- Landing Page Styles ---
+
+const landingContainerStyle: CSSProperties = {
+  maxWidth: 640,
+  margin: "0 auto",
+  padding: "80px 24px 60px",
+  textAlign: "center",
+};
+
+const landingTitleStyle: CSSProperties = {
+  fontSize: 32,
+  fontWeight: 800,
+  letterSpacing: -1,
+  marginBottom: 8,
+  color: "var(--color-text-primary, #333)",
+};
+
+const landingSubtitleStyle: CSSProperties = {
+  fontSize: 16,
+  fontWeight: 500,
+  color: "var(--color-accent, #555ab9)",
+  marginBottom: 20,
+};
+
+const landingDescriptionStyle: CSSProperties = {
+  fontSize: 15,
+  lineHeight: 1.7,
+  color: "var(--color-text-secondary, #666)",
+  marginBottom: 36,
+};
+
+const landingActionsStyle: CSSProperties = {
+  display: "flex",
+  gap: 12,
+  justifyContent: "center",
+  marginBottom: 40,
+};
+
+const landingPrimaryButtonStyle: CSSProperties = {
+  padding: "12px 28px",
+  fontSize: 15,
+  fontWeight: 700,
+  border: "none",
+  borderRadius: 10,
+  cursor: "pointer",
+  background: "var(--color-accent, #555ab9)",
+  color: "#fff",
+  transition: "opacity 0.15s",
+};
+
+const landingSecondaryButtonStyle: CSSProperties = {
+  padding: "12px 28px",
+  fontSize: 15,
+  fontWeight: 700,
+  borderRadius: 10,
+  cursor: "pointer",
+  border: "2px solid var(--color-accent, #555ab9)",
+  background: "transparent",
+  color: "var(--color-accent, #555ab9)",
+  transition: "opacity 0.15s",
+};
+
+const landingQuestSectionStyle: CSSProperties = {
+  textAlign: "center",
+};
+
+const landingQuestLabelStyle: CSSProperties = {
+  fontSize: 13,
+  fontWeight: 600,
+  color: "var(--color-text-secondary, #999)",
+  textTransform: "uppercase",
+  letterSpacing: 1,
+  marginBottom: 12,
+};
+
+const landingQuestListStyle: CSSProperties = {
+  display: "flex",
+  gap: 10,
+  justifyContent: "center",
+  flexWrap: "wrap",
+};
+
+const landingQuestButtonStyle: CSSProperties = {
+  padding: "8px 18px",
+  fontSize: 13,
+  fontWeight: 600,
+  borderRadius: 8,
+  cursor: "pointer",
+  border: "1px solid var(--color-border, #ddd)",
+  background: "var(--color-surface, #fff)",
+  color: "var(--color-text-primary, #333)",
+  transition: "border-color 0.15s, box-shadow 0.15s",
+};
+
 const sharedQuestOverlayStyle: CSSProperties = {
   position: "fixed",
   top: 0,
@@ -372,6 +476,8 @@ export function HubPageView({
   onSharedQuestDismiss,
   onShowModelAnswer,
   themeLabels,
+  showLanding,
+  recommendedQuests,
 }: HubPageViewProps) {
   const m = useHubMessages();
   const [view, setView] = useState<HubViewState>("list");
@@ -440,115 +546,103 @@ export function HubPageView({
         </div>
       </header>
 
-      {/* Tab Bar */}
-      <nav style={tabBarStyle}>
-        <button
-          type="button"
-          style={tab === "notebooks" ? tabActiveStyle : tabStyle}
-          onClick={() => {
-            onTabChange("notebooks");
-            setView("list");
-            setQuestFilter(null);
-          }}
-        >
-          {m.tabNotebooks}
-        </button>
-        <button
-          type="button"
-          style={tab === "quests" ? tabActiveStyle : tabStyle}
-          onClick={() => {
-            onTabChange("quests");
-            setView("list");
-          }}
-        >
-          {m.tabQuests}
-        </button>
-        <button
-          type="button"
-          style={tab === "custom-quests" ? tabActiveStyle : tabStyle}
-          onClick={() => {
-            onTabChange("custom-quests");
-            setView("list");
-          }}
-        >
-          {m.tabCustomQuests}
-        </button>
-      </nav>
-
-      {/* Content */}
-      <div style={contentStyle}>
-        {tab === "notebooks" && view === "list" && (
-          <>
-            <div style={actionBarStyle}>
-              <button
-                type="button"
-                style={createButtonStyle}
-                onClick={() => setView("create")}
-              >
-                {m.newNotebook}
-              </button>
-              {onImportNotebook !== undefined && (
-                <>
-                  <button
-                    type="button"
-                    style={importButtonStyle}
-                    data-testid="import-notebook-btn"
-                    onClick={() => importFileRef.current?.click()}
-                  >
-                    {m.importNotebook}
-                  </button>
-                  <input
-                    ref={importFileRef}
-                    type="file"
-                    accept=".json"
-                    style={{ display: "none" }}
-                    data-testid="import-notebook-file-input"
-                    onChange={handleImportFile}
-                  />
-                </>
-              )}
-            </div>
-            {questFilter !== null && (
-              <div style={filterBannerStyle} data-testid="quest-filter-banner">
-                <span>
-                  {m.questFilterCount.replace(
-                    "{count}",
-                    String(displayedItems.length),
-                  )}
-                </span>
-                <button
-                  type="button"
-                  style={clearFilterButtonStyle}
-                  data-testid="clear-quest-filter"
-                  onClick={() => setQuestFilter(null)}
-                >
-                  {m.questFilterClear}
-                </button>
+      {/* Landing Page */}
+      {showLanding === true ? (
+        <div style={landingContainerStyle} data-testid="landing-page">
+          <h1 style={landingTitleStyle}>{m.landingTitle}</h1>
+          <p style={landingSubtitleStyle}>{m.landingSubtitle}</p>
+          <p style={landingDescriptionStyle}>{m.landingDescription}</p>
+          <div style={landingActionsStyle}>
+            <button
+              type="button"
+              style={landingPrimaryButtonStyle}
+              data-testid="landing-start-free"
+              onClick={() => setView("create")}
+            >
+              {m.landingStartFreeProof}
+            </button>
+            <button
+              type="button"
+              style={landingSecondaryButtonStyle}
+              data-testid="landing-explore-quests"
+              onClick={() => onTabChange("quests")}
+            >
+              {m.landingExploreQuests}
+            </button>
+          </div>
+          {recommendedQuests !== undefined && recommendedQuests.length > 0 && (
+            <div style={landingQuestSectionStyle}>
+              <div style={landingQuestLabelStyle}>
+                {m.landingRecommendedQuests}
               </div>
-            )}
-            {displayedItems.length === 0 ? (
-              questFilter !== null ? (
-                <div style={emptyHeroStyle}>
-                  <div
-                    style={{
-                      ...emptyHeroTitleStyle,
-                      fontSize: 16,
-                    }}
-                  >
-                    {m.questFilterEmpty}
-                  </div>
+              <div style={landingQuestListStyle}>
+                {recommendedQuests.map((q) => (
                   <button
+                    key={q.id}
                     type="button"
-                    style={clearFilterButtonStyle}
-                    onClick={() => setQuestFilter(null)}
+                    style={landingQuestButtonStyle}
+                    data-testid={`landing-quest-${q.id satisfies string}`}
+                    onClick={() => onStartQuest(q.id)}
                   >
-                    {m.questFilterClear}
+                    {q.title}
                   </button>
-                </div>
-              ) : (
-                <div style={emptyHeroStyle}>
-                  <div style={emptyHeroTitleStyle}>{m.emptyTitle}</div>
-                  <p style={emptyHeroDescStyle}>{m.emptyDescription}</p>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Landing view=create: show form instead of landing */}
+          {view === "create" && (
+            <div style={{ marginTop: 32, textAlign: "left" }}>
+              <NotebookCreateForm
+                onSubmit={onCreateNotebook}
+                onCancel={() => setView("list")}
+              />
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* Tab Bar */}
+          <nav style={tabBarStyle}>
+            <button
+              type="button"
+              style={tab === "notebooks" ? tabActiveStyle : tabStyle}
+              onClick={() => {
+                onTabChange("notebooks");
+                setView("list");
+                setQuestFilter(null);
+              }}
+            >
+              {m.tabNotebooks}
+            </button>
+            <button
+              type="button"
+              style={tab === "quests" ? tabActiveStyle : tabStyle}
+              onClick={() => {
+                onTabChange("quests");
+                setView("list");
+              }}
+            >
+              {m.tabQuests}
+            </button>
+            <button
+              type="button"
+              style={tab === "custom-quests" ? tabActiveStyle : tabStyle}
+              onClick={() => {
+                onTabChange("custom-quests");
+                setView("list");
+              }}
+            >
+              {m.tabCustomQuests}
+            </button>
+          </nav>
+
+          {/* Content */}
+          <div style={contentStyle}>
+            {tab === "notebooks" && view === "list" && (
+              <>
+                <div style={actionBarStyle}>
                   <button
                     type="button"
                     style={createButtonStyle}
@@ -556,118 +650,192 @@ export function HubPageView({
                   >
                     {m.newNotebook}
                   </button>
+                  {onImportNotebook !== undefined && (
+                    <>
+                      <button
+                        type="button"
+                        style={importButtonStyle}
+                        data-testid="import-notebook-btn"
+                        onClick={() => importFileRef.current?.click()}
+                      >
+                        {m.importNotebook}
+                      </button>
+                      <input
+                        ref={importFileRef}
+                        type="file"
+                        accept=".json"
+                        style={{ display: "none" }}
+                        data-testid="import-notebook-file-input"
+                        onChange={handleImportFile}
+                      />
+                    </>
+                  )}
                 </div>
-              )
-            ) : (
-              <NotebookList
-                items={displayedItems}
-                onOpen={onOpenNotebook}
-                onDelete={onDeleteNotebook}
-                onDuplicate={onDuplicateNotebook}
-                onRename={onRenameNotebook}
-                onConvertToFree={onConvertToFree}
-                onExport={onExportNotebook}
+                {questFilter !== null && (
+                  <div
+                    style={filterBannerStyle}
+                    data-testid="quest-filter-banner"
+                  >
+                    <span>
+                      {m.questFilterCount.replace(
+                        "{count}",
+                        String(displayedItems.length),
+                      )}
+                    </span>
+                    <button
+                      type="button"
+                      style={clearFilterButtonStyle}
+                      data-testid="clear-quest-filter"
+                      onClick={() => setQuestFilter(null)}
+                    >
+                      {m.questFilterClear}
+                    </button>
+                  </div>
+                )}
+                {displayedItems.length === 0 ? (
+                  questFilter !== null ? (
+                    <div style={emptyHeroStyle}>
+                      <div
+                        style={{
+                          ...emptyHeroTitleStyle,
+                          fontSize: 16,
+                        }}
+                      >
+                        {m.questFilterEmpty}
+                      </div>
+                      <button
+                        type="button"
+                        style={clearFilterButtonStyle}
+                        onClick={() => setQuestFilter(null)}
+                      >
+                        {m.questFilterClear}
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={emptyHeroStyle}>
+                      <div style={emptyHeroTitleStyle}>{m.emptyTitle}</div>
+                      <p style={emptyHeroDescStyle}>{m.emptyDescription}</p>
+                      <button
+                        type="button"
+                        style={createButtonStyle}
+                        onClick={() => setView("create")}
+                      >
+                        {m.newNotebook}
+                      </button>
+                    </div>
+                  )
+                ) : (
+                  <NotebookList
+                    items={displayedItems}
+                    onOpen={onOpenNotebook}
+                    onDelete={onDeleteNotebook}
+                    onDuplicate={onDuplicateNotebook}
+                    onRename={onRenameNotebook}
+                    onConvertToFree={onConvertToFree}
+                    onExport={onExportNotebook}
+                  />
+                )}
+              </>
+            )}
+
+            {tab === "notebooks" && view === "create" && (
+              <NotebookCreateForm
+                onSubmit={onCreateNotebook}
+                onCancel={() => setView("list")}
               />
             )}
-          </>
-        )}
 
-        {tab === "notebooks" && view === "create" && (
-          <NotebookCreateForm
-            onSubmit={onCreateNotebook}
-            onCancel={() => setView("list")}
-          />
-        )}
+            {tab === "quests" && (
+              <QuestCatalog
+                groups={groups}
+                onStartQuest={onStartQuest}
+                notebookCounts={notebookCounts}
+                onShowQuestNotebooks={handleShowQuestNotebooks}
+                onDuplicateToCustom={onDuplicateBuiltinToCustom}
+                onShowModelAnswer={onShowModelAnswer}
+              />
+            )}
 
-        {tab === "quests" && (
-          <QuestCatalog
-            groups={groups}
-            onStartQuest={onStartQuest}
-            notebookCounts={notebookCounts}
-            onShowQuestNotebooks={handleShowQuestNotebooks}
-            onDuplicateToCustom={onDuplicateBuiltinToCustom}
-            onShowModelAnswer={onShowModelAnswer}
-          />
-        )}
-
-        {tab === "custom-quests" && customQuestItems !== undefined && (
-          <CustomQuestList
-            items={customQuestItems}
-            onStartQuest={onStartQuest}
-            onDuplicateQuest={onDuplicateCustomQuest}
-            onDeleteQuest={onDeleteCustomQuest}
-            onEditQuest={onEditCustomQuest}
-            onCreateQuest={onCreateCustomQuest}
-            onExportQuest={onExportCustomQuest}
-            onImportQuest={onImportCustomQuest}
-            onShareQuestUrl={onShareQuestUrl}
-          />
-        )}
-      </div>
-
-      {/* Shared Quest Dialog */}
-      {sharedQuest !== undefined &&
-        sharedQuest !== null &&
-        onSharedQuestDismiss !== undefined && (
-          <div
-            style={sharedQuestOverlayStyle}
-            data-testid="shared-quest-dialog"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                onSharedQuestDismiss();
-              }
-            }}
-          >
-            <div style={sharedQuestDialogStyle}>
-              <h3 style={sharedQuestTitleStyle}>{sharedQuest.title}</h3>
-              <p style={sharedQuestDescStyle}>{sharedQuest.description}</p>
-              <div style={sharedQuestMetaStyle}>
-                <span>
-                  {m.sharedQuestMeta
-                    .replace("{systemPresetId}", sharedQuest.systemPresetId)
-                    .replace(
-                      "{goalCount}",
-                      `${sharedQuest.goals.length satisfies number}`,
-                    )
-                    .replace(
-                      "{estimatedSteps}",
-                      `${sharedQuest.estimatedSteps satisfies number}`,
-                    )}
-                </span>
-              </div>
-              <div style={sharedQuestActionsStyle}>
-                {onSharedQuestStart !== undefined && (
-                  <button
-                    type="button"
-                    style={sharedQuestStartButtonStyle}
-                    data-testid="shared-quest-start-btn"
-                    onClick={onSharedQuestStart}
-                  >
-                    {m.sharedQuestStart}
-                  </button>
-                )}
-                {onSharedQuestAddToCollection !== undefined && (
-                  <button
-                    type="button"
-                    style={sharedQuestAddButtonStyle}
-                    data-testid="shared-quest-add-btn"
-                    onClick={onSharedQuestAddToCollection}
-                  >
-                    {m.sharedQuestAddToCollection}
-                  </button>
-                )}
-                <button
-                  type="button"
-                  style={sharedQuestCancelButtonStyle}
-                  data-testid="shared-quest-dismiss-btn"
-                  onClick={onSharedQuestDismiss}
-                >
-                  {m.sharedQuestCancel}
-                </button>
-              </div>
-            </div>
+            {tab === "custom-quests" && customQuestItems !== undefined && (
+              <CustomQuestList
+                items={customQuestItems}
+                onStartQuest={onStartQuest}
+                onDuplicateQuest={onDuplicateCustomQuest}
+                onDeleteQuest={onDeleteCustomQuest}
+                onEditQuest={onEditCustomQuest}
+                onCreateQuest={onCreateCustomQuest}
+                onExportQuest={onExportCustomQuest}
+                onImportQuest={onImportCustomQuest}
+                onShareQuestUrl={onShareQuestUrl}
+              />
+            )}
           </div>
-        )}
+
+          {/* Shared Quest Dialog */}
+          {sharedQuest !== undefined &&
+            sharedQuest !== null &&
+            onSharedQuestDismiss !== undefined && (
+              <div
+                style={sharedQuestOverlayStyle}
+                data-testid="shared-quest-dialog"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) {
+                    onSharedQuestDismiss();
+                  }
+                }}
+              >
+                <div style={sharedQuestDialogStyle}>
+                  <h3 style={sharedQuestTitleStyle}>{sharedQuest.title}</h3>
+                  <p style={sharedQuestDescStyle}>{sharedQuest.description}</p>
+                  <div style={sharedQuestMetaStyle}>
+                    <span>
+                      {m.sharedQuestMeta
+                        .replace("{systemPresetId}", sharedQuest.systemPresetId)
+                        .replace(
+                          "{goalCount}",
+                          `${sharedQuest.goals.length satisfies number}`,
+                        )
+                        .replace(
+                          "{estimatedSteps}",
+                          `${sharedQuest.estimatedSteps satisfies number}`,
+                        )}
+                    </span>
+                  </div>
+                  <div style={sharedQuestActionsStyle}>
+                    {onSharedQuestStart !== undefined && (
+                      <button
+                        type="button"
+                        style={sharedQuestStartButtonStyle}
+                        data-testid="shared-quest-start-btn"
+                        onClick={onSharedQuestStart}
+                      >
+                        {m.sharedQuestStart}
+                      </button>
+                    )}
+                    {onSharedQuestAddToCollection !== undefined && (
+                      <button
+                        type="button"
+                        style={sharedQuestAddButtonStyle}
+                        data-testid="shared-quest-add-btn"
+                        onClick={onSharedQuestAddToCollection}
+                      >
+                        {m.sharedQuestAddToCollection}
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      style={sharedQuestCancelButtonStyle}
+                      data-testid="shared-quest-dismiss-btn"
+                      onClick={onSharedQuestDismiss}
+                    >
+                      {m.sharedQuestCancel}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+        </>
+      )}
     </div>
   );
 }

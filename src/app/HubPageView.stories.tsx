@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn, expect, within, userEvent } from "storybook/test";
-import { HubPageView, type HubTab } from "./HubPageView";
+import { HubPageView, type HubTab, type RecommendedQuest } from "./HubPageView";
 import type { NotebookListItem } from "../lib/notebook";
 import type {
   CategoryGroup,
@@ -48,6 +48,12 @@ const sampleNotebookCounts: QuestNotebookCounts = new Map([
   ["prop-01", 1],
   ["prop-02", 2],
 ]);
+
+const sampleRecommendedQuests: readonly RecommendedQuest[] = [
+  { id: "prop-01", title: "φ → φ を証明しよう" },
+  { id: "prop-03", title: "公理のインスタンス化" },
+  { id: "prop-05", title: "K公理の二重適用" },
+];
 
 // CI上でのタイムアウト防止のため、ストーリーには先頭20件のみ使用
 const sampleQuests = builtinQuests.slice(0, 20);
@@ -653,5 +659,93 @@ export const CreateNotebookSubmit: Story = {
     // 送信
     await userEvent.click(canvas.getByTestId("create-submit-btn"));
     await expect(args.onCreateNotebook).toHaveBeenCalled();
+  },
+};
+
+/** ランディングページ表示（ノートブック0件・初回訪問） */
+export const Landing: Story = {
+  args: {
+    listItems: [],
+    groups: sampleGroups,
+    showLanding: true,
+    recommendedQuests: sampleRecommendedQuests,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // ランディングページが表示される
+    await expect(canvas.getByTestId("landing-page")).toBeInTheDocument();
+    // タイトルが表示される（ヘッダーとランディングの両方に存在）
+    const titles = canvas.getAllByText("Formal Logic Pad");
+    await expect(titles.length).toBeGreaterThanOrEqual(2);
+    // アクションボタンが表示される
+    await expect(canvas.getByTestId("landing-start-free")).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("landing-explore-quests"),
+    ).toBeInTheDocument();
+    // おすすめクエストが表示される
+    await expect(
+      canvas.getByTestId("landing-quest-prop-01"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("landing-quest-prop-03"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("landing-quest-prop-05"),
+    ).toBeInTheDocument();
+    // タブバーは表示されない（ランディング表示中）
+    await expect(canvas.queryByText("Notebooks")).not.toBeInTheDocument();
+    await expect(canvas.queryByText("Quests")).not.toBeInTheDocument();
+  },
+};
+
+/** ランディングページから「自由に証明する」をクリック → 作成フォーム表示 */
+export const LandingStartFreeProof: Story = {
+  args: {
+    listItems: [],
+    groups: sampleGroups,
+    showLanding: true,
+    recommendedQuests: sampleRecommendedQuests,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // 「自由に証明する」ボタンをクリック
+    await userEvent.click(canvas.getByTestId("landing-start-free"));
+    // 作成フォームが表示される
+    await expect(
+      canvas.getByTestId("notebook-create-form"),
+    ).toBeInTheDocument();
+  },
+};
+
+/** ランディングページから「クエストを探索する」をクリック → onTabChange呼び出し */
+export const LandingExploreQuests: Story = {
+  args: {
+    listItems: [],
+    groups: sampleGroups,
+    showLanding: true,
+    recommendedQuests: sampleRecommendedQuests,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // 「クエストを探索する」ボタンをクリック
+    await userEvent.click(canvas.getByTestId("landing-explore-quests"));
+    // onTabChange("quests") が呼ばれる
+    await expect(args.onTabChange).toHaveBeenCalledWith("quests");
+  },
+};
+
+/** ランディングページからおすすめクエストをクリック → onStartQuest呼び出し */
+export const LandingRecommendedQuest: Story = {
+  args: {
+    listItems: [],
+    groups: sampleGroups,
+    showLanding: true,
+    recommendedQuests: sampleRecommendedQuests,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // おすすめクエストボタンをクリック
+    await userEvent.click(canvas.getByTestId("landing-quest-prop-01"));
+    await expect(args.onStartQuest).toHaveBeenCalledWith("prop-01");
   },
 };

@@ -12326,3 +12326,28 @@
   - 基礎レベル（difficulty 1-2）の解説は「この公理/規則は何をしているか」「証明の全体戦略」を重点的に説明すると効果的
   - builtinModelAnswers.test.ts は1022テストあり約48秒かかる。個別テスト実行で十分確認可能
 ---
+
+## 2026-03-11 - [hub] ランディングページ
+- 実装した内容:
+  - ノートブックが0件かつ初回訪問時にランディングページを表示する機能
+  - 純粋ロジック: `landingPageLogic.ts` — `shouldShowLandingPage`, `updateHasEverHadNotebooks`, `recommendedQuestIds`
+  - i18n: `hubMessages.ts`, `en.json`, `ja.json` に6メッセージ追加（landingTitle, landingSubtitle, landingDescription, landingStartFreeProof, landingExploreQuests, landingRecommendedQuests）
+  - UI: `HubPageView.tsx` にランディングページレイアウト（タイトル・説明・アクションボタン・おすすめクエスト）
+  - 統合: `HubContent.tsx` でセッション中のノート存在フラグ管理、おすすめクエスト解決
+  - Storybookストーリー4件: Landing, LandingStartFreeProof, LandingExploreQuests, LandingRecommendedQuest（各play関数付き）
+- 変更ファイル:
+  - src/app/landingPageLogic.ts — 新規（純粋ロジック）
+  - src/app/landingPageLogic.test.ts — 新規（9テスト）
+  - src/app/hubMessages.ts — 6メッセージ追加
+  - src/app/HubPageView.tsx — ランディングページUI追加、RecommendedQuest型
+  - src/app/HubPageView.stories.tsx — 4ストーリー追加
+  - src/app/HubContent.tsx — hasEverHadNotebooks管理、recommendedQuests生成
+  - messages/en.json, messages/ja.json — i18n翻訳追加
+  - tasks/prd-start.md → tasks-archived/ — 全タスク完了でアーカイブ
+- スクリーンショット: .screenshots/landing-page-storybook.png, .screenshots/landing-start-free-proof.png
+- **今後のイテレーションへの学び:**
+  - `react-hooks/set-state-in-effect` ESLintルール: useEffect内でsetStateは禁止。代替パターン: render中のsetState（条件付き、React公式サポート）
+  - `react-hooks/refs` ESLintルール: render中のref.current読み取りも禁止。useState + render中のsetState（値変化時のみ）パターンを使う
+  - HubPageViewのshowLandingはbooleanプロップ。true時はタブバーを非表示にしランディングコンテンツを表示
+  - ランディングの「自由に証明する」はview="create"に切り替え、同一ランディングコンテナ内にNotebookCreateFormをインライン表示
+---
