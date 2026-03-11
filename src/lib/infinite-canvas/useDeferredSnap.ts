@@ -99,7 +99,9 @@ export function useDeferredSnap(
 
       const animate = (now: number) => {
         const anim = animationStartRef.current;
+        /* v8 ignore start -- defensive: anim is set non-null before rAF starts */
         if (anim === null) return;
+        /* v8 ignore stop */
 
         const elapsed = now - anim.startTime;
         const progress = Math.min(elapsed / durationMsRef.current, 1);

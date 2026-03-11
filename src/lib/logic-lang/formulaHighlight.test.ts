@@ -369,7 +369,7 @@ describe("formulaHighlight", () => {
       expect(tokens[2]?.text).toBe("+");
     });
 
-    it("括弧が必要な二項演算", () => {
+    it("左辺に括弧が必要な二項演算", () => {
       // (x + y) * z — 左辺に括弧必要
       const tokens = tokenizeTerm(
         binaryOperation(
@@ -383,6 +383,30 @@ describe("formulaHighlight", () => {
         .map((t) => t.text);
       expect(punctuationTexts).toContain("(");
       expect(punctuationTexts).toContain(")");
+    });
+
+    it("右辺に括弧が必要な二項演算", () => {
+      // x * (y + z) — 右辺に括弧必要
+      const tokens = tokenizeTerm(
+        binaryOperation(
+          "*",
+          termVariable("x"),
+          binaryOperation("+", termVariable("y"), termVariable("z")),
+        ),
+      );
+      const texts = tokens.map((t) => t.text);
+      // x × (y + z) — 右辺に括弧がある
+      expect(texts).toContain("(");
+      expect(texts).toContain(")");
+      expect(tokensToText(tokens)).toBe(
+        formatTerm(
+          binaryOperation(
+            "*",
+            termVariable("x"),
+            binaryOperation("+", termVariable("y"), termVariable("z")),
+          ),
+        ),
+      );
     });
   });
 

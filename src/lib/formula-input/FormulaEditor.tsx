@@ -233,10 +233,12 @@ export function FormulaEditor({
     [onOpenSyntaxHelp],
   );
 
+  /* v8 ignore start -- mouseDown handler prevents blur; not triggerable in JSDOM */
   const handleExpandMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
   }, []);
+  /* v8 ignore stop */
 
   const handleExpandClick = useCallback(
     (e: React.MouseEvent) => {
