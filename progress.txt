@@ -12510,3 +12510,22 @@
   - Storybook play関数でFormulaListEditorを操作する場合: addボタンクリック→display領域クリック→input-inputにtype
   - EditFormValues型の変更（goalsText→goalFormulas）は6ファイル以上に影響する。型エラーで追跡可能だが、ストーリーのtestIdは型チェックで検出できないため注意
 ---
+
+## 2026-03-11 - [collection] ハブページに証明コレクション管理タブを追加
+- ProofCollectionPageView.tsx: フルページレイアウトの証明コレクション管理ビュー（~990行）
+- フォルダ管理: 作成、展開/折りたたみ、リネーム（blur確定）、削除
+- エントリ管理: 名前編集（Enter確定/Escape取消）、メモ編集（blur確定）、削除、フォルダ間移動
+- HubTab型: "notebooks" | "quests" | "custom-quests" | "collection"（ハッシュナビゲーション）
+- HubMessages / i18n: collectionEmpty, collectionEntryCount 等13キーを追加（en/ja）
+- HubContent.tsx: useProofCollectionフック統合、collectionPropsをHubPageViewに渡す
+- テスト: 23テストケース（ProofCollectionPageView.test.tsx）
+- ストーリー: 9ストーリー（play関数付き）- Empty, SingleEntry, MultipleEntries, RenameEntry, EditMemo, DeleteEntry, WithFolders, CreateFolder, MoveEntryToFolder
+- カバレッジ: Stmts 99.91%, Branch 99.38%, Lines 99.93%（ベースライン: Stmts 99.9%, Branch 99.57%, Lines 99.93%）
+  - Branch微減は新コンポーネントのv8 ignore NaN branch artifact（既知の問題）
+- 変更ファイル: hubMessages.ts, HubPageView.tsx, HubContent.tsx, messages/en.json, messages/ja.json, proof-collection/index.ts, ProofCollectionPageView.tsx(新), .test.tsx(新), .stories.tsx(新)
+- スクリーンショット: .screenshots/collection-page-empty.png, collection-page-with-folders.png, collection-page-multiple-entries.png
+- **今後のイテレーションへの学び:**
+  - ProofCollectionPageViewはproofCollectionPanelLogic.tsの純粋ロジックを再利用。Panel（ワークスペースサイドバー）とPageView（ハブタブ）で同じstate管理ロジックを共有
+  - CollectionMessagesはHubMessagesのサブセットとして定義し、i18n統合はHubContent.tsxのuseHubMessagesFromIntlで一括マッピング
+  - HubTabの追加時はparseTabFromHash、タブボタンUI、タブコンテンツの3箇所を更新する
+---
