@@ -15,6 +15,11 @@ import {
 import type { WorkspaceNode } from "./workspaceState";
 import type { InferenceEdge } from "./inferenceEdge";
 import type { LogicSystem } from "../logic-core/inferenceRule";
+import {
+  peanoArithmeticSystem,
+  axiomA1Template,
+} from "../logic-core/inferenceRule";
+import type { TheoryAxiom } from "../logic-core/inferenceRule";
 
 // --- ヘルパー ---
 
@@ -752,6 +757,102 @@ describe("dependencyLogic", () => {
       });
     });
 
+    it("理論公理スキーマはtheory-schemaとして識別する", () => {
+      // PA1: all x. ~(S(x) = 0) はペアノ算術の理論公理スキーマそのもの
+      const nodes = [makeAxiomNode("pa1", "all x. ~(S(x) = 0)")];
+      const edges: readonly InferenceEdge[] = [];
+
+      const result = validateRootNodes(
+        "pa1",
+        nodes,
+        edges,
+        peanoArithmeticSystem,
+      );
+      expect(result).toEqual([
+        { _tag: "theory-schema", nodeId: "pa1", theoryAxiomId: "PA1" },
+      ]);
+    });
+
+    it("理論公理の代入インスタンスはexactマッチモードではunknownとなる", () => {
+      // PA3のexactマッチ: all x. x + 0 = x と完全一致のみ認識
+      // 0 + 0 = 0 は代入インスタンスだがexactマッチでは認識されない
+      const nodes = [makeAxiomNode("pa3-inst", "0 + 0 = 0")];
+      const edges: readonly InferenceEdge[] = [];
+
+      const result = validateRootNodes(
+        "pa3-inst",
+        nodes,
+        edges,
+        peanoArithmeticSystem,
+      );
+      expect(result).toEqual([{ _tag: "unknown", nodeId: "pa3-inst" }]);
+    });
+
+    it("パターンマッチ理論公理の代入インスタンスはtheory-instanceとして識別する", () => {
+      // A1テンプレート(φ→(ψ→φ))をパターンマッチ理論公理として登録
+      const patternTheoryAxiom: TheoryAxiom = {
+        id: "T1",
+        displayName: "T1 (test)",
+        template: axiomA1Template,
+        dslText: "phi -> (psi -> phi)",
+        matchMode: "pattern",
+      };
+      const systemWithPatternTheory: LogicSystem = {
+        name: "Test",
+        propositionalAxioms: new Set([]), // A1を命題論理公理に含めない
+        predicateLogic: false,
+        equalityLogic: false,
+        generalization: false,
+        theoryAxioms: [patternTheoryAxiom],
+      };
+      // phi -> ((phi -> phi) -> phi) はA1の代入インスタンス
+      const nodes = [
+        makeAxiomNode("t1-inst", "phi -> ((phi -> phi) -> phi)"),
+      ];
+      const edges: readonly InferenceEdge[] = [];
+
+      const result = validateRootNodes(
+        "t1-inst",
+        nodes,
+        edges,
+        systemWithPatternTheory,
+      );
+      expect(result).toEqual([
+        {
+          _tag: "theory-instance",
+          nodeId: "t1-inst",
+          theoryAxiomId: "T1",
+        },
+      ]);
+    });
+
+    it("理論公理と命題論理公理が混在するルートノードを正しく分類する", () => {
+      const nodes = [
+        makeAxiomNode("a1", "phi -> (psi -> phi)"),
+        makeAxiomNode("pa1", "all x. ~(S(x) = 0)"),
+        { ...makeNode("mp1", "axiom"), formulaText: "" },
+      ];
+      const edges = [makeMPEdge("mp1", "a1", "pa1")];
+
+      const result = validateRootNodes(
+        "mp1",
+        nodes,
+        edges,
+        peanoArithmeticSystem,
+      );
+      expect(result).toHaveLength(2);
+      expect(result).toContainEqual({
+        _tag: "schema",
+        nodeId: "a1",
+        axiomId: "A1",
+      });
+      expect(result).toContainEqual({
+        _tag: "theory-schema",
+        nodeId: "pa1",
+        theoryAxiomId: "PA1",
+      });
+    });
+
     it("SubstitutionEdge経由の導出ではルートはスキーマ元を指す", () => {
       // a1-schema → [SubstitutionEdge] → a1-derived
       const nodes = [
@@ -793,6 +894,19 @@ describe("dependencyLogic", () => {
       ];
       expect(getInstanceRootNodeIds(validations)).toEqual([]);
     });
+
+    it("theory-instanceタグのノードIDも返す", () => {
+      const validations = [
+        { _tag: "schema" as const, nodeId: "a1", axiomId: "A1" as const },
+        {
+          _tag: "theory-instance" as const,
+          nodeId: "pa3",
+          theoryAxiomId: "PA3",
+        },
+        { _tag: "instance" as const, nodeId: "a2", axiomId: "A1" as const },
+      ];
+      expect(getInstanceRootNodeIds(validations)).toEqual(["pa3", "a2"]);
+    });
   });
 
   describe("hasInstanceRoots", () => {
@@ -810,6 +924,18 @@ describe("dependencyLogic", () => {
         { _tag: "unknown" as const, nodeId: "u1" },
       ];
       expect(hasInstanceRoots(validations)).toBe(false);
+    });
+
+    it("theory-instanceタグがあればtrueを返す", () => {
+      const validations = [
+        { _tag: "schema" as const, nodeId: "a1", axiomId: "A1" as const },
+        {
+          _tag: "theory-instance" as const,
+          nodeId: "pa3",
+          theoryAxiomId: "PA3",
+        },
+      ];
+      expect(hasInstanceRoots(validations)).toBe(true);
     });
 
     it("空の配列ではfalseを返す", () => {
@@ -830,6 +956,22 @@ describe("dependencyLogic", () => {
       const validations = [
         { _tag: "schema" as const, nodeId: "a1", axiomId: "A1" as const },
         { _tag: "instance" as const, nodeId: "a2", axiomId: "A1" as const },
+      ];
+      expect(hasUnknownRoots(validations)).toBe(false);
+    });
+
+    it("theory-schema/theory-instanceのみではfalseを返す", () => {
+      const validations = [
+        {
+          _tag: "theory-schema" as const,
+          nodeId: "pa1",
+          theoryAxiomId: "PA1",
+        },
+        {
+          _tag: "theory-instance" as const,
+          nodeId: "pa3",
+          theoryAxiomId: "PA3",
+        },
       ];
       expect(hasUnknownRoots(validations)).toBe(false);
     });
