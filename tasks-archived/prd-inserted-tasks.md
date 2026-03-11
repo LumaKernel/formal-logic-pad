@@ -273,3 +273,4 @@ Infinity Canvasについて。
   - [x] クエスト一覧なども同様。一番下のやつは見切れる
   - 修正: NotebookListComponent.tsx ではメニュー表示中の親カードのzIndexを動的に100に昇格（CSSスタッキングコンテキスト対策）。QuestCatalogComponent.tsx ではoverflow:hiddenを削除し最終アイテムにborder-radiusを直接適用。
 - [x] せっかく論理式のrendered側のシンタックスハイライトも作られてるのだから、共通論理式入力のコンポーネントのほうで標準搭載しよう
+- [x] ノートノードのコンテキストメニューは、ノートノード専用のものを設計しましょう

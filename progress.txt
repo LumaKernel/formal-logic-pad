@@ -12710,3 +12710,20 @@
   - FormulaDisplay/TermDisplayのhighlight=trueはCSS変数でトークン色を制御。color propを使うストーリーではhighlight={false}を明示しないとトークン色が優先される
   - Storybook Controls パネルにdefault値が表示されるので、prop defaultの変更が反映されているか確認可能
 ---
+
+## 2026-03-12 - [proof-pad] ノートノード専用コンテキストメニュー
+- ノートノード右クリック時に証明ノードと同じメニューが表示される問題を修正
+- ノートノード専用コンテキストメニュー（ノートを編集・ノード複製・ノード削除）を実装
+- 推論規則やサブツリー選択など無関係なアクションをノートノードで非表示に
+- 変更ファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx: menuNodeIsNote判定追加、handleEditNoteFromMenu追加、メニューレンダリング分岐
+  - src/lib/proof-pad/menuActionDefinition.ts: edit-noteアクション定義追加
+  - src/lib/proof-pad/menuActionDefinition.test.ts: edit-noteの存在確認テスト追加
+  - src/lib/proof-pad/ProofWorkspace.test.tsx: ノートノードコンテキストメニューテスト3件追加
+- カバレッジ: Stmts 99.95%, Branch 99.94%, Lines 99.93% (維持)
+- テスト数: 9516 (+4)
+- スクリーンショット: .screenshots/note-node-context-menu.png, .screenshots/note-edit-modal-from-context-menu.png, .screenshots/formula-node-context-menu.png
+- **今後のイテレーションへの学び:**
+  - ノードの種類（kind）ごとにコンテキストメニューの内容を分岐させるパターン: menuNodeIsNote的なuseMemoを追加し、JSXで三項演算子で分岐する
+  - menuActionDefinition.tsにアクションを追加する際は、noteフィールドでどのノード種別専用かを明示すると良い
+---
