@@ -180,7 +180,6 @@ const questListStyle: CSSProperties = {
   borderBottom: "1px solid var(--color-quest-card-border)",
   borderLeft: "1px solid var(--color-quest-card-border)",
   borderRadius: "0 0 8px 8px",
-  overflow: "hidden",
 };
 
 const questItemStyle: CSSProperties = {
@@ -307,7 +306,7 @@ const moreMenuStyle: CSSProperties = {
   position: "absolute",
   right: 0,
   top: "100%",
-  zIndex: 10,
+  zIndex: 1000,
   minWidth: 140,
   background: "var(--color-quest-card-bg, #fff)",
   border: "1px solid var(--color-quest-card-border, #e0e0e0)",
@@ -534,6 +533,7 @@ function QuestItem({
   onShowNotebooks,
   onDuplicateToCustom,
   onShowModelAnswer,
+  isLast,
 }: {
   readonly item: QuestCatalogItem;
   readonly onStart: (questId: QuestId) => void;
@@ -541,13 +541,18 @@ function QuestItem({
   readonly onShowNotebooks?: (questId: QuestId) => void;
   readonly onDuplicateToCustom?: (questId: QuestId) => void;
   readonly onShowModelAnswer?: (questId: QuestId) => void;
+  readonly isLast: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
+  const baseStyle = isHovered ? questItemHoverStyle : questItemStyle;
+  const style: CSSProperties = isLast
+    ? { ...baseStyle, borderRadius: "0 0 8px 8px" }
+    : baseStyle;
 
   return (
     <div
       data-testid={`quest-item-${item.quest.id satisfies string}`}
-      style={isHovered ? questItemHoverStyle : questItemStyle}
+      style={style}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onStart(item.quest.id)}
@@ -641,7 +646,7 @@ function CategorySection({
         </div>
       </div>
       <div style={questListStyle}>
-        {group.items.map((item) => (
+        {group.items.map((item, index) => (
           <QuestItem
             key={item.quest.id}
             item={item}
@@ -654,6 +659,7 @@ function CategorySection({
             onShowNotebooks={onShowNotebooks}
             onDuplicateToCustom={onDuplicateToCustom}
             onShowModelAnswer={onShowModelAnswer}
+            isLast={index === group.items.length - 1}
           />
         ))}
       </div>
