@@ -87,10 +87,7 @@ export function parseInlineMarkdown(text: string): readonly InlineElement[] {
         break;
       }
       // ** の場合はスキップ（bold marker）
-      if (
-        nextStar + 1 < afterOpen.length &&
-        afterOpen[nextStar + 1] === "*"
-      ) {
+      if (nextStar + 1 < afterOpen.length && afterOpen[nextStar + 1] === "*") {
         searchPos = nextStar + 2;
         continue;
       }

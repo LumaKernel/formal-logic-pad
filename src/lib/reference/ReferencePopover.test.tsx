@@ -174,9 +174,7 @@ describe("ReferencePopover", () => {
         ja: "*分離規則*とも呼ばれる。",
       },
     });
-    render(
-      <ReferencePopover entry={entry} locale="en" testId="ref-pop" />,
-    );
+    render(<ReferencePopover entry={entry} locale="en" testId="ref-pop" />);
     fireEvent.click(screen.getByTestId("ref-pop-trigger"));
     const popover = screen.getByTestId("ref-pop-popover");
     const emElements = popover.querySelectorAll("em");

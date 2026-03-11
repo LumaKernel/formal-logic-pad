@@ -187,7 +187,8 @@ describe("parseInlineMarkdown", () => {
       { type: "italic", content: "分離規則" },
       {
         type: "text",
-        content: "とも呼ばれる) はHilbert系証明体系における唯一の推論規則です。",
+        content:
+          "とも呼ばれる) はHilbert系証明体系における唯一の推論規則です。",
       },
     ]);
   });
