@@ -189,9 +189,9 @@ const highlightContainerStyle: CSSProperties = {
 };
 
 const highlightMarkStyle: CSSProperties = {
-  backgroundColor: "rgba(229, 62, 62, 0.2)",
+  backgroundColor: "var(--color-error-bg, rgba(229, 62, 62, 0.3))",
   textDecoration: "underline",
-  textDecorationColor: "#e53e3e",
+  textDecorationColor: "var(--color-error, #e53e3e)",
   textDecorationStyle: "wavy",
   color: "transparent",
 };
