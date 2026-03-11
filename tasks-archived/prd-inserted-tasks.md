@@ -261,7 +261,7 @@ Infinity Canvasについて。
       → vitest.config.ts の top-level test.include を削除し、unit project のみに残すことで修正。
 
 - [x] visual bug: http://localhost:13006/?path=/story/formulainput-formulaeditor--multiline-auto-expand
-    - 拡張エディタのエラー状態のハイライトが真っ白でなにも見えない。
+  - 拡張エディタのエラー状態のハイライトが真っ白でなにも見えない。
 
 - [x] bug: ノートノードが、キャンバスのスクロールの右端にきたらそれにつられてwrapされてしまいます。
-    - CanvasItem に width: max-content を追加し、position: absolute の shrink-to-fit 幅計算がコンテナの残り幅に制約されないようにした。
+  - CanvasItem に width: max-content を追加し、position: absolute の shrink-to-fit 幅計算がコンテナの残り幅に制約されないようにした。
