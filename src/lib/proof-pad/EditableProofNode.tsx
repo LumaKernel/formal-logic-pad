@@ -82,6 +82,8 @@ export interface EditableProofNodeProps {
   readonly editTrigger?: EditTrigger;
   /** 構文ヘルプを開くコールバック（指定時にFormulaEditor編集モードで?ボタンを表示） */
   readonly onOpenSyntaxHelp?: () => void;
+  /** 拡大編集を開くコールバック（指定時にFormulaEditor編集モードで拡大ボタンを表示） */
+  readonly onOpenExpanded?: (id: string) => void;
   /** 代入ノードの代入エントリ一覧（表示用） */
   readonly substitutionEntries?: SubstitutionEntries;
   /** 外部から編集モードを強制的に開始するフラグ */
@@ -399,6 +401,7 @@ export function EditableProofNode({
   visibilityOverrides,
   editTrigger,
   onOpenSyntaxHelp,
+  onOpenExpanded,
   substitutionEntries,
   forceEditMode,
   onEditNote,
@@ -456,6 +459,12 @@ export function EditableProofNode({
       onModeChange?.(id, mode);
     },
     [id, onModeChange],
+  );
+
+  const handleOpenExpanded = useMemo(
+    () =>
+      onOpenExpanded !== undefined ? () => onOpenExpanded(id) : undefined,
+    [id, onOpenExpanded],
   );
 
   /** 保護ノードかつ編集可能ノードの場合、編集を抑制する */
@@ -586,6 +595,7 @@ export function EditableProofNode({
             editTrigger={editTrigger}
             forceEditMode={forceEditMode}
             onOpenSyntaxHelp={onOpenSyntaxHelp}
+            onOpenExpanded={handleOpenExpanded}
             testId={testId ? `${testId satisfies string}-editor` : undefined}
             style={{
               color: nodeStyle.textColor,
