@@ -12444,3 +12444,30 @@
   - 拡大エディタでの編集はreplaceWorkspace（pushではない）。テキスト変更後にrevalidateInferenceConclusionsを必ず呼ぶ
   - 残タスク: 複数行論理式の自動モーダル突入はまだ未実装
 ---
+
+## 2026-03-11 - [quest] 自作クエストの推定ステップ数を任意入力に変更
+- `QuestDefinition.estimatedSteps` を `number` → `number | undefined` に変更
+- フォーム: デフォルト値を空（未指定）に、バリデーションで空文字列を「未指定」として許可
+- シリアライズ/デシリアライズ: undefined時はフィールド省略、欠落は undefined として受理（後方互換）
+- URL共有: `SharedQuestPayload.est` をオプショナルに
+- 表示: estimatedSteps未指定時の表示テキスト対応（stepCountText, HubPageView）
+- 評価: estimatedSteps未指定で完了済み → "completed" 評価
+- 変更したファイル:
+  - `src/lib/quest/questDefinition.ts` (型変更)
+  - `src/lib/quest/customQuestEditLogic.ts` (フォームロジック変更+parseEstimatedSteps追加)
+  - `src/lib/quest/customQuestState.ts` (シリアライズ/デシリアライズ対応)
+  - `src/lib/quest/questCatalog.ts` (computeRating対応)
+  - `src/lib/quest/questCatalogListLogic.ts` (stepCountText対応)
+  - `src/lib/quest/questUrlSharing.ts` (URL共有対応)
+  - `src/lib/quest/CustomQuestListComponent.tsx` (UIフォーム変更)
+  - `src/app/HubPageView.tsx` (表示対応)
+  - `src/lib/quest/index.ts` (エクスポート追加)
+  - テスト5ファイル更新 (+13テスト)
+- カバレッジ: Stmts 99.68% → 99.53%, Branch 99.35% → 98.84% (v8集計ゆらぎ、変更ファイルは100%)
+- テスト: 9370 → 9383 (+13テスト)
+- スクリーンショット: .screenshots/custom-quest-list-default.png, .screenshots/custom-quest-create-new.png
+- **今後のイテレーションへの学び:**
+  - 型変更の波及: `number | undefined` に変えると、シリアライズ・デシリアライズ・URL共有・UI表示・評価計算すべてに波及する。型エラーを追えば漏れなく対応できる
+  - `parseEstimatedSteps`: フォーム文字列→number|undefinedの変換は専用関数に切り出すと再利用性が高い
+  - カバレッジ微減はv8集計のゆらぎ（MEMORY.md記載済み）で、変更ファイル自体は100%カバー
+---
