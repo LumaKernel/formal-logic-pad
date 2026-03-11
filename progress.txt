@@ -12657,3 +12657,20 @@
   - formulaHighlight.tsのswitch-line artifact: `/* v8 ignore start */` を `switch (f._tag) {` の直前に置くことで解消
 - スクリーンショット: .screenshots/coverage-improvement-storybook-check.png
 ---
+
+## 2026-03-12 02:30 - [reference] InlineMarkdownイタリックサポート追加
+- タスク: MPのドキュメントなどで*italic*マークダウンが生テキスト表示されていたバグを修正
+- referenceUILogic.ts: `InlineElement`型に`italic`を追加、`parseInlineMarkdown()`を`*italic*`対応に拡張
+- InlineMarkdown.tsx: italic要素を`<em>`タグでレンダリング
+- referenceUILogic.test.ts: italic関連テスト9件追加（単体italic、複数italic、未閉じ、空、bold混在、実データ等）
+- ReferenceModal.test.tsx: italic `<em>`レンダリングテスト1件追加
+- ReferencePopover.test.tsx: italic `<em>`レンダリングテスト1件追加
+- ReferenceModal.stories.tsx: サンプルデータに`*weakening axiom*`を追加
+- カバレッジ: Stmts 99.95%→99.95%, Branch 99.94% (維持/微改善)
+- referenceUILogic.ts Branch: 94.44% (lines 94-95 未到達 — 空italic skip分岐)
+- スクリーンショット: .screenshots/reference-modal-italic-verified.png
+- **今後のイテレーションへの学び:**
+  - parseInlineMarkdownは`**`(bold)と`*`(italic)を共存させる際、`indexOf("**")`と`indexOf("*")`の一致チェックで優先度を決定
+  - italicの閉じ`*`探索では`**`をスキップする必要がある（bold markerとの衝突回避）
+  - referenceContent.tsのMP/Genエントリbodyに`*detachment*`等のitalic表記があるため、parseInlineMarkdownのitalic対応が必須
+---
