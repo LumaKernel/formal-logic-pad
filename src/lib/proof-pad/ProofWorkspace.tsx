@@ -3032,6 +3032,24 @@ export function ProofWorkspace({
     return nodeClassifications.get(nodeMenuState.nodeId) !== "derived";
   }, [nodeMenuState, menuNodeIsProtected, nodeClassifications]);
 
+  const menuNodeIsNote = useMemo(() => {
+    if (!nodeMenuState.open) return false;
+    const node = findNode(workspace, nodeMenuState.nodeId);
+    /* v8 ignore start -- 防御的: メニューが開いているノードは存在する */
+    if (!node) return false;
+    /* v8 ignore stop */
+    return node.kind === "note";
+  }, [nodeMenuState, workspace]);
+
+  // コンテキストメニューから「ノートを編集する」（ノートノード専用）
+  const handleEditNoteFromMenu = useCallback(() => {
+    /* v8 ignore start -- 防御的: メニューが開いている時のみ呼ばれる */
+    if (!nodeMenuState.open) return;
+    /* v8 ignore stop */
+    handleEditNote(nodeMenuState.nodeId);
+    setNodeMenuState(closeNodeMenu());
+  }, [nodeMenuState, handleEditNote]);
+
   // コンテキストメニューから「ノードを削除する」
   const handleDuplicateNode = useCallback(() => {
     /* v8 ignore start -- 防御的: メニューが開いている時のみ呼ばれる */
@@ -5112,147 +5130,200 @@ export function ProofWorkspace({
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
-          <WorkspaceMenuItem
-            label={msg.selectSubtree}
-            onClick={handleSelectSubtree}
-            testId={
-              /* v8 ignore start -- V8集約アーティファクト */
-              testId
-                ? `${testId satisfies string}-select-subtree`
-                : "select-subtree"
-              /* v8 ignore stop */
-            }
-          />
-          <WorkspaceMenuItem
-            label={msg.selectProof}
-            onClick={handleSelectProof}
-            testId={
-              /* v8 ignore start -- V8集約アーティファクト */
-              testId
-                ? `${testId satisfies string}-select-proof`
-                : "select-proof"
-              /* v8 ignore stop */
-            }
-          />
-          {onSaveProofToCollection !== undefined ? (
-            <WorkspaceMenuItem
-              label={msg.saveToCollection}
-              onClick={handleSaveToCollection}
-              testId={
-                /* v8 ignore start -- V8集約アーティファクト */
-                testId
-                  ? `${testId satisfies string}-save-to-collection`
-                  : "save-to-collection"
-                /* v8 ignore stop */
-              }
-            />
-          ) : null}
-          <WorkspaceMenuItem
-            label={msg.editFormula}
-            onClick={handleEditFormula}
-            disabled={!menuNodeIsEditable}
-            testId={
-              /* v8 ignore start -- V8集約アーティファクト */
-              testId
-                ? `${testId satisfies string}-edit-formula`
-                : "edit-formula"
-              /* v8 ignore stop */
-            }
-          />
-          <div
-            style={{
-              height: 1,
-              background: "var(--color-panel-border, rgba(180, 160, 130, 0.2))",
-              margin: "4px 0",
-            }}
-          />
-          <WorkspaceMenuItem
-            label={msg.useAsMPLeft}
-            onClick={handleUseAsMPLeft}
-            testId={
-              /* v8 ignore start -- V8集約アーティファクト */
-              testId
-                ? `${testId satisfies string}-use-as-mp-left`
-                : "use-as-mp-left"
-              /* v8 ignore stop */
-            }
-          />
-          <WorkspaceMenuItem
-            label={msg.useAsMPRight}
-            onClick={handleUseAsMPRight}
-            disabled={!menuNodeIsImplication}
-            testId={
-              /* v8 ignore start -- V8集約アーティファクト */
-              testId
-                ? `${testId satisfies string}-use-as-mp-right`
-                : "use-as-mp-right"
-              /* v8 ignore stop */
-            }
-          />
-          {menuNodeHasGenEnabled ? (
-            <WorkspaceMenuItem
-              label={msg.applyGenToNode}
-              onClick={handleApplyGenToNode}
-              testId={
-                /* v8 ignore start -- V8集約アーティファクト */
-                testId
-                  ? `${testId satisfies string}-apply-gen-to-node`
-                  : "apply-gen-to-node"
-                /* v8 ignore stop */
-              }
-            />
-          ) : null}
-          <WorkspaceMenuItem
-            label={msg.applySubstitutionToNode}
-            onClick={handleApplySubstitutionToNode}
-            testId={
-              /* v8 ignore start -- V8集約アーティファクト */
-              testId
-                ? `${testId satisfies string}-apply-substitution-to-node`
-                : "apply-substitution-to-node"
-              /* v8 ignore stop */
-            }
-          />
-          <WorkspaceMenuItem
-            label={msg.mergeWithNode}
-            onClick={handleStartMergeFromMenu}
-            disabled={menuNodeIsProtected}
-            testId={
-              /* v8 ignore start -- V8集約アーティファクト */
-              testId
-                ? `${testId satisfies string}-merge-with-node`
-                : "merge-with-node"
-              /* v8 ignore stop */
-            }
-          />
-          <div
-            style={{
-              height: 1,
-              background: "var(--color-panel-border, rgba(180, 160, 130, 0.2))",
-              margin: "4px 0",
-            }}
-          />
-          <WorkspaceMenuItem
-            label={msg.duplicateNode}
-            onClick={handleDuplicateNode}
-            testId={
-              /* v8 ignore start -- V8集約アーティファクト */
-              testId
-                ? `${testId satisfies string}-duplicate-node`
-                : "duplicate-node"
-              /* v8 ignore stop */
-            }
-          />
-          <WorkspaceMenuItem
-            label={msg.deleteNode}
-            onClick={handleDeleteNode}
-            disabled={menuNodeIsProtected}
-            testId={
-              /* v8 ignore start -- V8集約アーティファクト */
-              testId ? `${testId satisfies string}-delete-node` : "delete-node"
-              /* v8 ignore stop */
-            }
-          />
+          {menuNodeIsNote ? (
+            <>
+              <WorkspaceMenuItem
+                label={msg.editNote}
+                onClick={handleEditNoteFromMenu}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-edit-note`
+                    : "edit-note"
+                  /* v8 ignore stop */
+                }
+              />
+              <div
+                style={{
+                  height: 1,
+                  background:
+                    "var(--color-panel-border, rgba(180, 160, 130, 0.2))",
+                  margin: "4px 0",
+                }}
+              />
+              <WorkspaceMenuItem
+                label={msg.duplicateNode}
+                onClick={handleDuplicateNode}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-duplicate-node`
+                    : "duplicate-node"
+                  /* v8 ignore stop */
+                }
+              />
+              <WorkspaceMenuItem
+                label={msg.deleteNode}
+                onClick={handleDeleteNode}
+                disabled={menuNodeIsProtected}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-delete-node`
+                    : "delete-node"
+                  /* v8 ignore stop */
+                }
+              />
+            </>
+          ) : (
+            <>
+              <WorkspaceMenuItem
+                label={msg.selectSubtree}
+                onClick={handleSelectSubtree}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-select-subtree`
+                    : "select-subtree"
+                  /* v8 ignore stop */
+                }
+              />
+              <WorkspaceMenuItem
+                label={msg.selectProof}
+                onClick={handleSelectProof}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-select-proof`
+                    : "select-proof"
+                  /* v8 ignore stop */
+                }
+              />
+              {onSaveProofToCollection !== undefined ? (
+                <WorkspaceMenuItem
+                  label={msg.saveToCollection}
+                  onClick={handleSaveToCollection}
+                  testId={
+                    /* v8 ignore start -- V8集約アーティファクト */
+                    testId
+                      ? `${testId satisfies string}-save-to-collection`
+                      : "save-to-collection"
+                    /* v8 ignore stop */
+                  }
+                />
+              ) : null}
+              <WorkspaceMenuItem
+                label={msg.editFormula}
+                onClick={handleEditFormula}
+                disabled={!menuNodeIsEditable}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-edit-formula`
+                    : "edit-formula"
+                  /* v8 ignore stop */
+                }
+              />
+              <div
+                style={{
+                  height: 1,
+                  background:
+                    "var(--color-panel-border, rgba(180, 160, 130, 0.2))",
+                  margin: "4px 0",
+                }}
+              />
+              <WorkspaceMenuItem
+                label={msg.useAsMPLeft}
+                onClick={handleUseAsMPLeft}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-use-as-mp-left`
+                    : "use-as-mp-left"
+                  /* v8 ignore stop */
+                }
+              />
+              <WorkspaceMenuItem
+                label={msg.useAsMPRight}
+                onClick={handleUseAsMPRight}
+                disabled={!menuNodeIsImplication}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-use-as-mp-right`
+                    : "use-as-mp-right"
+                  /* v8 ignore stop */
+                }
+              />
+              {menuNodeHasGenEnabled ? (
+                <WorkspaceMenuItem
+                  label={msg.applyGenToNode}
+                  onClick={handleApplyGenToNode}
+                  testId={
+                    /* v8 ignore start -- V8集約アーティファクト */
+                    testId
+                      ? `${testId satisfies string}-apply-gen-to-node`
+                      : "apply-gen-to-node"
+                    /* v8 ignore stop */
+                  }
+                />
+              ) : null}
+              <WorkspaceMenuItem
+                label={msg.applySubstitutionToNode}
+                onClick={handleApplySubstitutionToNode}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-apply-substitution-to-node`
+                    : "apply-substitution-to-node"
+                  /* v8 ignore stop */
+                }
+              />
+              <WorkspaceMenuItem
+                label={msg.mergeWithNode}
+                onClick={handleStartMergeFromMenu}
+                disabled={menuNodeIsProtected}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-merge-with-node`
+                    : "merge-with-node"
+                  /* v8 ignore stop */
+                }
+              />
+              <div
+                style={{
+                  height: 1,
+                  background:
+                    "var(--color-panel-border, rgba(180, 160, 130, 0.2))",
+                  margin: "4px 0",
+                }}
+              />
+              <WorkspaceMenuItem
+                label={msg.duplicateNode}
+                onClick={handleDuplicateNode}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-duplicate-node`
+                    : "duplicate-node"
+                  /* v8 ignore stop */
+                }
+              />
+              <WorkspaceMenuItem
+                label={msg.deleteNode}
+                onClick={handleDeleteNode}
+                disabled={menuNodeIsProtected}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-delete-node`
+                    : "delete-node"
+                  /* v8 ignore stop */
+                }
+              />
+            </>
+          )}
         </div>
       ) : null}
 

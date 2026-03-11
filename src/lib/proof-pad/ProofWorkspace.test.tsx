@@ -5813,5 +5813,104 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("proof-node-node-1-note-text"),
       ).toHaveTextContent("Original text");
     });
+
+    it("note node context menu shows note-specific items only", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "note", "Note", { x: 100, y: 100 }, "Test note");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // ノートノードを右クリック
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      // ノートノード専用メニューが表示される
+      expect(screen.getByTestId("workspace-edit-note")).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-duplicate-node"),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId("workspace-delete-node")).toBeInTheDocument();
+
+      // 推論規則系のメニュー項目は表示されない
+      expect(
+        screen.queryByTestId("workspace-select-subtree"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("workspace-select-proof"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("workspace-edit-formula"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("workspace-use-as-mp-left"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("workspace-use-as-mp-right"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("workspace-apply-substitution-to-node"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("workspace-merge-with-node"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("note node context menu 'Edit Note' opens note editor modal", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "note", "Note", { x: 100, y: 100 }, "Test note");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // ノートノードを右クリック
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      // 「ノートを編集」をクリック
+      await user.click(screen.getByTestId("workspace-edit-note"));
+
+      // メニューが閉じる
+      expect(
+        screen.queryByTestId("workspace-node-context-menu"),
+      ).not.toBeInTheDocument();
+
+      // ノート編集モーダルが開く
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-note-editor-overlay"),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("formula node context menu still shows all proof-related items", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi -> phi");
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // 通常ノードを右クリック
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      // 証明ノード用のメニュー項目が表示される
+      expect(
+        screen.getByTestId("workspace-select-subtree"),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId("workspace-select-proof")).toBeInTheDocument();
+      expect(screen.getByTestId("workspace-edit-formula")).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-use-as-mp-left"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-use-as-mp-right"),
+      ).toBeInTheDocument();
+
+      // ノートノード用のメニュー項目は表示されない
+      expect(
+        screen.queryByTestId("workspace-edit-note"),
+      ).not.toBeInTheDocument();
+    });
   });
 });
