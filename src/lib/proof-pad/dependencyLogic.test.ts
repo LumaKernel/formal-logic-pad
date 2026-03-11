@@ -806,9 +806,7 @@ describe("dependencyLogic", () => {
         theoryAxioms: [patternTheoryAxiom],
       };
       // phi -> ((phi -> phi) -> phi) はA1の代入インスタンス
-      const nodes = [
-        makeAxiomNode("t1-inst", "phi -> ((phi -> phi) -> phi)"),
-      ];
+      const nodes = [makeAxiomNode("t1-inst", "phi -> ((phi -> phi) -> phi)")];
       const edges: readonly InferenceEdge[] = [];
 
       const result = validateRootNodes(

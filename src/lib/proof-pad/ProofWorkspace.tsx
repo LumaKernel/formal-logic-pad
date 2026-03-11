@@ -5137,9 +5137,7 @@ export function ProofWorkspace({
                 onClick={handleEditNoteFromMenu}
                 testId={
                   /* v8 ignore start -- V8集約アーティファクト */
-                  testId
-                    ? `${testId satisfies string}-edit-note`
-                    : "edit-note"
+                  testId ? `${testId satisfies string}-edit-note` : "edit-note"
                   /* v8 ignore stop */
                 }
               />

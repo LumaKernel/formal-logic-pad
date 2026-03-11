@@ -591,9 +591,7 @@ describe("checkQuestGoalsWithAxioms", () => {
 
   test("公理パターンに一致しないルートノードでhasUnknownRootNodesがtrue", () => {
     // "phi /\\ psi" は公理パターンに一致しない
-    const goals = [
-      makeGoal({ id: "g1", formulaText: "phi /\\ psi" }),
-    ];
+    const goals = [makeGoal({ id: "g1", formulaText: "phi /\\ psi" })];
     const nodes = [
       makeNode({
         id: "n1",
@@ -616,9 +614,7 @@ describe("checkQuestGoalsWithAxioms", () => {
 
   test("正しい公理ルートノードではhasUnknownRootNodesがfalse", () => {
     // A1 schema: phi -> (psi -> phi)
-    const goals = [
-      makeGoal({ id: "g1", formulaText: "phi -> (psi -> phi)" }),
-    ];
+    const goals = [makeGoal({ id: "g1", formulaText: "phi -> (psi -> phi)" })];
     const nodes = [
       makeNode({
         id: "n1",
