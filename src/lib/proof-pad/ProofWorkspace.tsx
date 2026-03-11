@@ -17,6 +17,7 @@ import { getDeductionSystemName } from "../logic-core/deductionSystem";
 import type { Formula } from "../logic-core/formula";
 import type { EditorMode } from "../formula-input/editorLogic";
 import { FormulaInput } from "../formula-input/FormulaInput";
+import { FormulaExpandedEditor } from "../formula-input/FormulaExpandedEditor";
 import { TermInput } from "../formula-input/TermInput";
 import { InfiniteCanvas } from "../infinite-canvas/InfiniteCanvas";
 import { CanvasItem } from "../infinite-canvas/CanvasItem";
@@ -755,6 +756,11 @@ export function ProofWorkspace({
   const [editRequestNodeId, setEditRequestNodeId] = useState<string | null>(
     null,
   );
+
+  // 拡大エディタで編集中のノードID
+  const [expandedEditorNodeId, setExpandedEditorNodeId] = useState<
+    string | null
+  >(null);
 
   // MP選択モード
   const [mpSelection, setMPSelection] = useState<MPSelectionState>({
@@ -3568,6 +3574,30 @@ export function ProofWorkspace({
     [onFormulaParsed],
   );
 
+  const handleOpenExpanded = useCallback(
+    (nodeId: string) => {
+      setExpandedEditorNodeId(nodeId);
+    },
+    [],
+  );
+
+  const handleCloseExpanded = useCallback(() => {
+    setExpandedEditorNodeId(null);
+  }, []);
+
+  const handleExpandedChange = useCallback(
+    (text: string) => {
+      if (expandedEditorNodeId === null) return;
+      const updated = updateNodeFormulaText(
+        workspace,
+        expandedEditorNodeId,
+        text,
+      );
+      replaceWorkspace(revalidateInferenceConclusions(updated));
+    },
+    [expandedEditorNodeId, workspace, replaceWorkspace],
+  );
+
   const handleModeChange = useCallback(
     (nodeId: string, mode: EditorMode) => {
       if (mode === "editing") {
@@ -3957,6 +3987,7 @@ export function ProofWorkspace({
               detailLevel={detailLevel}
               visibilityOverrides={visibilityOverrides}
               onOpenSyntaxHelp={onOpenSyntaxHelp}
+              onOpenExpanded={handleOpenExpanded}
               substitutionEntries={(() => {
                 const edge = workspace.inferenceEdges.find(
                   (e) =>
@@ -4002,6 +4033,7 @@ export function ProofWorkspace({
       handleNodeContextMenu,
       getNodeSizeRef,
       onOpenSyntaxHelp,
+      handleOpenExpanded,
       onOpenReferenceDetail,
       handleAxiomBadgeClick,
       notifyDragMove,
@@ -5590,6 +5622,29 @@ export function ProofWorkspace({
             </div>
           </div>
         </div>
+      ) : null}
+      {/* 拡大エディタモーダル */}
+      {expandedEditorNodeId !== null &&
+      (() => {
+        const node = workspace.nodes.find(
+          (n) => n.id === expandedEditorNodeId,
+        );
+        return node !== undefined;
+      })() ? (
+        <FormulaExpandedEditor
+          value={
+            workspace.nodes.find((n) => n.id === expandedEditorNodeId)
+              ?.formulaText ?? ""
+          }
+          onChange={handleExpandedChange}
+          onClose={handleCloseExpanded}
+          onOpenSyntaxHelp={onOpenSyntaxHelp}
+          testId={
+            testId
+              ? `${testId satisfies string}-expanded-editor`
+              : "expanded-editor"
+          }
+        />
       ) : null}
     </div>
   );

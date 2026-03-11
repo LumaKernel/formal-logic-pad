@@ -19,6 +19,7 @@ function EditorWrapper({
   fontSize,
   editTrigger,
   onOpenSyntaxHelp,
+  onOpenExpanded,
   forceEditMode,
 }: {
   readonly initialValue?: string;
@@ -30,6 +31,7 @@ function EditorWrapper({
   readonly fontSize?: CSSProperties["fontSize"];
   readonly editTrigger?: EditTrigger;
   readonly onOpenSyntaxHelp?: () => void;
+  readonly onOpenExpanded?: () => void;
   readonly forceEditMode?: boolean;
 }) {
   const [value, setValue] = useState(initialValue);
@@ -45,6 +47,7 @@ function EditorWrapper({
       fontSize={fontSize}
       editTrigger={editTrigger}
       onOpenSyntaxHelp={onOpenSyntaxHelp}
+      onOpenExpanded={onOpenExpanded}
       forceEditMode={forceEditMode}
     />
   );
@@ -735,5 +738,96 @@ describe("Spaceキーによる編集モード", () => {
     // 表示モードのまま
     expect(screen.getByTestId("editor-display")).toBeInTheDocument();
     expect(screen.queryByTestId("editor-edit")).not.toBeInTheDocument();
+  });
+});
+
+// --- 拡大ボタンのテスト ---
+
+describe("FormulaEditor - 拡大ボタン", () => {
+  it("onOpenExpanded指定時、編集モードで拡大ボタンが表示される", async () => {
+    const handleExpand = vi.fn();
+    render(
+      <EditorWrapper initialValue="φ → ψ" onOpenExpanded={handleExpand} />,
+    );
+
+    // 表示モードでは拡大ボタンは非表示
+    expect(screen.queryByTestId("editor-expand")).not.toBeInTheDocument();
+
+    // 編集モードに入る
+    await userEvent.click(screen.getByTestId("editor-display"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    });
+
+    // 拡大ボタンが表示される
+    expect(screen.getByTestId("editor-expand")).toBeInTheDocument();
+    expect(screen.getByTestId("editor-expand")).toHaveAttribute(
+      "aria-label",
+      "拡大編集",
+    );
+  });
+
+  it("onOpenExpanded未指定時、編集モードでも拡大ボタンは表示されない", async () => {
+    render(<EditorWrapper initialValue="φ → ψ" />);
+
+    // 編集モードに入る
+    await userEvent.click(screen.getByTestId("editor-display"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    });
+
+    // 拡大ボタンは非表示
+    expect(screen.queryByTestId("editor-expand")).not.toBeInTheDocument();
+  });
+
+  it("拡大ボタンクリックでonOpenExpandedが呼ばれる", async () => {
+    const handleExpand = vi.fn();
+    render(
+      <EditorWrapper initialValue="φ → ψ" onOpenExpanded={handleExpand} />,
+    );
+
+    // 編集モードに入る
+    await userEvent.click(screen.getByTestId("editor-display"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    });
+
+    // 拡大ボタンをクリック
+    fireEvent.click(screen.getByTestId("editor-expand"));
+    expect(handleExpand).toHaveBeenCalledOnce();
+  });
+
+  it("拡大ボタンクリック後も編集モードに留まる", async () => {
+    const handleExpand = vi.fn();
+    render(
+      <EditorWrapper initialValue="φ → ψ" onOpenExpanded={handleExpand} />,
+    );
+
+    // 編集モードに入る
+    await userEvent.click(screen.getByTestId("editor-display"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    });
+
+    // 拡大ボタンをクリック
+    fireEvent.click(screen.getByTestId("editor-expand"));
+
+    // 編集モードに留まっている
+    expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    expect(screen.queryByTestId("editor-display")).not.toBeInTheDocument();
+  });
+
+  it("testIdがundefinedでも拡大ボタン付きでエラーなくレンダリングできる", () => {
+    render(
+      <FormulaEditor
+        value="φ → ψ"
+        onChange={vi.fn()}
+        testId={undefined}
+        forceEditMode={true}
+        onOpenExpanded={vi.fn()}
+      />,
+    );
+    // 編集モードのinputが存在する
+    expect(document.querySelector("input")).toBeInTheDocument();
   });
 });

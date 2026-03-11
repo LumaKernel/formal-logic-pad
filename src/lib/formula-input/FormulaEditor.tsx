@@ -42,6 +42,8 @@ export interface FormulaEditorProps {
   readonly editTrigger?: EditTrigger;
   /** 構文ヘルプを開くコールバック（指定時に編集モードで?ボタンを表示） */
   readonly onOpenSyntaxHelp?: () => void;
+  /** 拡大エディタを開くコールバック（指定時に編集モードで拡大ボタンを表示） */
+  readonly onOpenExpanded?: () => void;
   /** 外部から編集モードを強制的に開始するフラグ（trueにすると編集モードに遷移、使用後はfalseに戻すこと） */
   readonly forceEditMode?: boolean;
   /** data-testid */
@@ -107,6 +109,24 @@ const syntaxHelpButtonStyle: CSSProperties = {
   marginTop: 6,
 };
 
+const expandButtonStyle: CSSProperties = {
+  flexShrink: 0,
+  width: 18,
+  height: 18,
+  borderRadius: 4,
+  border: "1px solid currentColor",
+  backgroundColor: "transparent",
+  color: "inherit",
+  fontSize: 11,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 0,
+  opacity: 0.6,
+  marginTop: 6,
+};
+
 // --- コンポーネント ---
 
 export function FormulaEditor({
@@ -121,6 +141,7 @@ export function FormulaEditor({
   style,
   editTrigger = "click",
   onOpenSyntaxHelp,
+  onOpenExpanded,
   forceEditMode,
   testId,
 }: FormulaEditorProps) {
@@ -204,6 +225,20 @@ export function FormulaEditor({
       onOpenSyntaxHelp?.();
     },
     [onOpenSyntaxHelp],
+  );
+
+  const handleExpandMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleExpandClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onOpenExpanded?.();
+    },
+    [onOpenExpanded],
   );
 
   const handleDisplayKeyDown = useCallback(
@@ -320,6 +355,20 @@ export function FormulaEditor({
               showPreview={false}
             />
           </div>
+          {onOpenExpanded !== undefined && (
+            <button
+              type="button"
+              style={expandButtonStyle}
+              onMouseDown={handleExpandMouseDown}
+              onClick={handleExpandClick}
+              aria-label="拡大編集"
+              data-testid={
+                testId ? `${testId satisfies string}-expand` : undefined
+              }
+            >
+              ⤢
+            </button>
+          )}
           {onOpenSyntaxHelp !== undefined && (
             <button
               type="button"

@@ -12,6 +12,8 @@ export { TermInput } from "./TermInput";
 export type { TermInputProps, TermParseState } from "./TermInput";
 export { FormulaEditor } from "./FormulaEditor";
 export type { FormulaEditorProps } from "./FormulaEditor";
+export { FormulaExpandedEditor } from "./FormulaExpandedEditor";
+export type { FormulaExpandedEditorProps } from "./FormulaExpandedEditor";
 export { canExitEditMode, computeExitAction } from "./editorLogic";
 export type { DisplayRenderer, EditTrigger, EditorMode } from "./editorLogic";
 export { CompletionPopup } from "./CompletionPopup";
