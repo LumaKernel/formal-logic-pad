@@ -3574,12 +3574,9 @@ export function ProofWorkspace({
     [onFormulaParsed],
   );
 
-  const handleOpenExpanded = useCallback(
-    (nodeId: string) => {
-      setExpandedEditorNodeId(nodeId);
-    },
-    [],
-  );
+  const handleOpenExpanded = useCallback((nodeId: string) => {
+    setExpandedEditorNodeId(nodeId);
+  }, []);
 
   const handleCloseExpanded = useCallback(() => {
     setExpandedEditorNodeId(null);
@@ -5626,9 +5623,7 @@ export function ProofWorkspace({
       {/* 拡大エディタモーダル */}
       {expandedEditorNodeId !== null &&
       (() => {
-        const node = workspace.nodes.find(
-          (n) => n.id === expandedEditorNodeId,
-        );
+        const node = workspace.nodes.find((n) => n.id === expandedEditorNodeId);
         return node !== undefined;
       })() ? (
         <FormulaExpandedEditor

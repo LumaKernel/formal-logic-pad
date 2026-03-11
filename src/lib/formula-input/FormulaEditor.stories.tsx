@@ -7,6 +7,7 @@ import { findEntryById } from "../reference/referenceEntry";
 import { ReferenceModal } from "../reference/ReferenceModal";
 import type { EditTrigger } from "./editorLogic";
 import { FormulaEditor } from "./FormulaEditor";
+import { FormulaExpandedEditor } from "./FormulaExpandedEditor";
 
 // --- Wrapper: 制御コンポーネント用ステート管理 ---
 
@@ -16,12 +17,14 @@ function FormulaEditorWrapper({
   placeholder,
   editTrigger,
   testId = "editor",
+  onOpenExpanded,
 }: {
   readonly initialValue?: string;
   readonly displayRenderer?: "unicode" | "katex";
   readonly placeholder?: string;
   readonly editTrigger?: EditTrigger;
   readonly testId?: string;
+  readonly onOpenExpanded?: () => void;
 }) {
   const [value, setValue] = useState(initialValue);
   const [parsedTag, setParsedTag] = useState<string>("");
@@ -39,6 +42,7 @@ function FormulaEditorWrapper({
         displayRenderer={displayRenderer}
         placeholder={placeholder}
         editTrigger={editTrigger}
+        onOpenExpanded={onOpenExpanded}
         testId={testId}
       />
       {parsedTag && (
@@ -391,6 +395,93 @@ export const EditTriggerComparison: Story = {
       canvas.getByTestId("cmp-dblclick-display"),
     ).toBeInTheDocument();
     await expect(canvas.getByTestId("cmp-none-display")).toBeInTheDocument();
+  },
+};
+
+/**
+ * 複数行テキストの自動モーダル起動。
+ * 改行を含むテキストでクリックすると、インライン編集ではなく拡大エディタモーダルが直接開く。
+ */
+function MultilineAutoExpandWrapper() {
+  const [value, setValue] = useState("φ → ψ\nχ → φ");
+  const [expandedOpen, setExpandedOpen] = useState(false);
+
+  return (
+    <div style={{ width: 400 }}>
+      <FormulaEditor
+        value={value}
+        onChange={setValue}
+        onOpenExpanded={() => setExpandedOpen(true)}
+        testId="multiline-editor"
+      />
+      {expandedOpen && (
+        <FormulaExpandedEditor
+          value={value}
+          onChange={setValue}
+          onClose={() => setExpandedOpen(false)}
+          testId="multiline-expanded"
+        />
+      )}
+      <div
+        data-testid="expanded-status"
+        style={{
+          marginTop: 8,
+          fontSize: 12,
+          color: "var(--color-text-secondary, #888)",
+        }}
+      >
+        {expandedOpen ? "拡大エディタ: 開いている" : "拡大エディタ: 閉じている"}
+      </div>
+    </div>
+  );
+}
+
+export const MultilineAutoExpand: Story = {
+  render: () => <MultilineAutoExpandWrapper />,
+  args: {
+    value: "",
+    onChange: () => {},
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const rootEl = canvasElement.ownerDocument.body;
+    const root = within(rootEl);
+
+    // 初期状態: 表示モード
+    await expect(
+      canvas.getByTestId("multiline-editor-display"),
+    ).toBeInTheDocument();
+    await expect(canvas.getByTestId("expanded-status")).toHaveTextContent(
+      "拡大エディタ: 閉じている",
+    );
+
+    // クリックすると拡大エディタが自動で開く（インライン編集にならない）
+    await userEvent.click(canvas.getByTestId("multiline-editor-display"));
+
+    await waitFor(() => {
+      expect(canvas.getByTestId("expanded-status")).toHaveTextContent(
+        "拡大エディタ: 開いている",
+      );
+    });
+
+    // インライン編集モードにはならない
+    await expect(
+      canvas.getByTestId("multiline-editor-display"),
+    ).toBeInTheDocument();
+    expect(
+      canvas.queryByTestId("multiline-editor-edit"),
+    ).not.toBeInTheDocument();
+
+    // 拡大エディタモーダルが開いている
+    await expect(root.getByTestId("multiline-expanded")).toBeInTheDocument();
+
+    // Escapeでモーダルを閉じる
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => {
+      expect(canvas.getByTestId("expanded-status")).toHaveTextContent(
+        "拡大エディタ: 閉じている",
+      );
+    });
   },
 };
 

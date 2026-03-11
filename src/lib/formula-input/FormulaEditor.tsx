@@ -167,8 +167,14 @@ export function FormulaEditor({
   // --- イベントハンドラ ---
 
   const enterEditMode = useCallback(() => {
+    // 複数行テキストは一行インライン編集に適さないため、
+    // onOpenExpandedがあれば直接モーダルに遷移する
+    if (value.includes("\n") && onOpenExpanded !== undefined) {
+      onOpenExpanded();
+      return;
+    }
     setMode("editing");
-  }, [setMode]);
+  }, [setMode, value, onOpenExpanded]);
 
   // 外部から編集モードを強制開始
   useEffect(() => {

@@ -831,3 +831,118 @@ describe("FormulaEditor - 拡大ボタン", () => {
     expect(document.querySelector("input")).toBeInTheDocument();
   });
 });
+
+// --- 複数行テキストの自動モーダル起動テスト ---
+
+describe("FormulaEditor - 複数行テキストの自動モーダル起動", () => {
+  it("複数行テキストでクリックするとonOpenExpandedが自動で呼ばれる", () => {
+    const handleExpand = vi.fn();
+    render(
+      <EditorWrapper
+        initialValue={"φ → ψ\nχ → φ"}
+        onOpenExpanded={handleExpand}
+      />,
+    );
+
+    // 表示モードでクリック
+    fireEvent.click(screen.getByTestId("editor-display"));
+
+    // 自動でonOpenExpandedが呼ばれる
+    expect(handleExpand).toHaveBeenCalledOnce();
+  });
+
+  it("複数行テキストでクリックしても編集モードには遷移しない", () => {
+    const handleExpand = vi.fn();
+    render(
+      <EditorWrapper
+        initialValue={"φ → ψ\nχ → φ"}
+        onOpenExpanded={handleExpand}
+      />,
+    );
+
+    // 表示モードでクリック
+    fireEvent.click(screen.getByTestId("editor-display"));
+
+    // 編集モードには遷移しない（モーダルが代わりに開く）
+    expect(screen.getByTestId("editor-display")).toBeInTheDocument();
+    expect(screen.queryByTestId("editor-edit")).not.toBeInTheDocument();
+  });
+
+  it("複数行テキストでもonOpenExpandedが未指定なら通常の編集モードに入る", () => {
+    render(<EditorWrapper initialValue={"φ → ψ\nχ → φ"} />);
+
+    // 表示モードでクリック
+    fireEvent.click(screen.getByTestId("editor-display"));
+
+    // onOpenExpandedがないので通常の編集モードに入る
+    expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+  });
+
+  it("単一行テキストではonOpenExpandedが自動で呼ばれない", () => {
+    const handleExpand = vi.fn();
+    render(
+      <EditorWrapper initialValue="φ → ψ" onOpenExpanded={handleExpand} />,
+    );
+
+    // 表示モードでクリック
+    fireEvent.click(screen.getByTestId("editor-display"));
+
+    // onOpenExpandedは自動では呼ばれない（手動拡大ボタンからのみ）
+    expect(handleExpand).not.toHaveBeenCalled();
+    // 通常の編集モードに入る
+    expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+  });
+
+  it("複数行テキストでEnterキーでもonOpenExpandedが自動で呼ばれる", () => {
+    const handleExpand = vi.fn();
+    render(
+      <EditorWrapper
+        initialValue={"φ → ψ\nχ → φ"}
+        onOpenExpanded={handleExpand}
+      />,
+    );
+
+    const display = screen.getByTestId("editor-display");
+    fireEvent.keyDown(display, { key: "Enter" });
+
+    expect(handleExpand).toHaveBeenCalledOnce();
+  });
+
+  it("複数行テキストでforceEditModeでもonOpenExpandedが自動で呼ばれる", async () => {
+    const handleExpand = vi.fn();
+    const { rerender } = render(
+      <EditorWrapper
+        initialValue={"φ → ψ\nχ → φ"}
+        onOpenExpanded={handleExpand}
+        forceEditMode={false}
+      />,
+    );
+
+    rerender(
+      <EditorWrapper
+        initialValue={"φ → ψ\nχ → φ"}
+        onOpenExpanded={handleExpand}
+        forceEditMode={true}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(handleExpand).toHaveBeenCalledOnce();
+    });
+  });
+
+  it("複数行テキストでdblclickトリガーでもonOpenExpandedが自動で呼ばれる", () => {
+    const handleExpand = vi.fn();
+    render(
+      <EditorWrapper
+        initialValue={"φ → ψ\nχ → φ"}
+        onOpenExpanded={handleExpand}
+        editTrigger="dblclick"
+      />,
+    );
+
+    fireEvent.doubleClick(screen.getByTestId("editor-display"));
+
+    expect(handleExpand).toHaveBeenCalledOnce();
+  });
+});

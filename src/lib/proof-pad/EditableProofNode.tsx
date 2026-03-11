@@ -462,8 +462,7 @@ export function EditableProofNode({
   );
 
   const handleOpenExpanded = useMemo(
-    () =>
-      onOpenExpanded !== undefined ? () => onOpenExpanded(id) : undefined,
+    () => (onOpenExpanded !== undefined ? () => onOpenExpanded(id) : undefined),
     [id, onOpenExpanded],
   );
 
