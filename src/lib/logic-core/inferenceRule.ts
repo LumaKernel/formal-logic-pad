@@ -191,8 +191,8 @@ export const axiomA5Template: Formula = implication(
   implication(phi, universal(xVar, psi)),
 );
 
-// E4, E5 はシグネチャ依存（関数記号・述語記号ごとに生成）のため、テンプレートではなく
-// 検証関数内で動的に処理する。
+// E4 はシグネチャ依存（関数記号ごとに生成）のため、テンプレートではなく
+// matchE4 で構造的にマッチングする。E5（述語記号の合同）は将来的に実装。
 
 // ── 理論公理（非論理的公理） ──────────────────────────────
 
@@ -1249,7 +1249,7 @@ export const matchAxiomA5 = (formula: Formula): AxiomMatchResult => {
 /**
  * 等号公理 (E1, E2, E3) のインスタンスか判定。
  * 一方向パターンマッチングを使用。
- * E4, E5 はシグネチャ依存のため将来的に別途実装。
+ * E4 は matchE4 で別途実装。E5 は将来的に別途実装。
  */
 export const matchEqualityAxiom = (
   axiomId: "E1" | "E2" | "E3",
@@ -1261,6 +1261,116 @@ export const matchEqualityAxiom = (
     return axiomMatchErr(new NotAnAxiomInstance({ axiomId, formula }));
   }
   return axiomMatchOk(result.formulaSub, result.termSub);
+};
+
+/**
+ * E4: 関数合同公理のインスタンスか判定。
+ *
+ * E4 は関数記号ごとに生成される公理で、テンプレートではなく構造的にマッチングする。
+ *
+ * n引数関数 f の E4:
+ *   ∀x₁.∀y₁...∀xₙ.∀yₙ. x₁=y₁ → (... → (xₙ=yₙ → f(x₁,...,xₙ) = f(y₁,...,yₙ)))
+ *
+ * n引数二項演算子 op の E4:
+ *   ∀x₁.∀y₁.∀x₂.∀y₂. x₁=y₁ → (x₂=y₂ → (x₁ op x₂) = (y₁ op y₂))
+ *
+ * ユニバーサル量化子の有無にかかわらずマッチする（インスタンスもマッチ）。
+ */
+export const matchE4 = (formula: Formula): AxiomMatchResult => {
+  // ∀量化子を剥がす
+  let body: Formula = formula;
+  while (body._tag === "Universal") {
+    body = body.formula;
+  }
+
+  // body は含意のチェーン: t₁=s₁ → (t₂=s₂ → ... → (tₙ=sₙ → conclusion))
+  // conclusion は f(t₁,...,tₙ) = f(s₁,...,sₙ) の形
+  const collectPremises = (
+    f: Formula,
+  ):
+    | {
+        readonly premises: readonly {
+          readonly left: Term;
+          readonly right: Term;
+        }[];
+        readonly conclusion: Formula;
+      }
+    | undefined => {
+    const collected: { readonly left: Term; readonly right: Term }[] = [];
+    let current: Formula = f;
+    while (current._tag === "Implication") {
+      const antecedent = current.left;
+      if (antecedent._tag !== "Equality") return undefined;
+      collected.push({ left: antecedent.left, right: antecedent.right });
+      current = current.right;
+    }
+    if (collected.length === 0) return undefined;
+    return { premises: collected, conclusion: current };
+  };
+
+  const result = collectPremises(body);
+  if (result === undefined) {
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "E4", formula }));
+  }
+
+  const { conclusion } = result;
+  const premiseList = result.premises;
+
+  // conclusion は Equality で、両辺が同じ関数/演算子の適用
+  if (conclusion._tag !== "Equality") {
+    return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "E4", formula }));
+  }
+
+  const { left: lhs, right: rhs } = conclusion;
+
+  // FunctionApplication の場合
+  if (
+    lhs._tag === "FunctionApplication" &&
+    rhs._tag === "FunctionApplication"
+  ) {
+    if (lhs.name !== rhs.name) {
+      return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "E4", formula }));
+    }
+    if (lhs.args.length !== rhs.args.length) {
+      return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "E4", formula }));
+    }
+    if (premiseList.length !== lhs.args.length) {
+      return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "E4", formula }));
+    }
+    // 各前提 (tᵢ = sᵢ) の tᵢ が f の左辺の i 番目の引数、sᵢ が右辺の i 番目の引数と一致
+    for (let i = 0; i < premiseList.length; i++) {
+      if (
+        !equalTerm(premiseList[i].left, lhs.args[i]) ||
+        !equalTerm(premiseList[i].right, rhs.args[i])
+      ) {
+        return axiomMatchErr(
+          new NotAnAxiomInstance({ axiomId: "E4", formula }),
+        );
+      }
+    }
+    return axiomMatchOk(new Map(), new Map());
+  }
+
+  // BinaryOperation の場合
+  if (lhs._tag === "BinaryOperation" && rhs._tag === "BinaryOperation") {
+    if (lhs.operator !== rhs.operator) {
+      return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "E4", formula }));
+    }
+    if (premiseList.length !== 2) {
+      return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "E4", formula }));
+    }
+    if (
+      !equalTerm(premiseList[0].left, lhs.left) ||
+      !equalTerm(premiseList[0].right, rhs.left) ||
+      !equalTerm(premiseList[1].left, lhs.right) ||
+      !equalTerm(premiseList[1].right, rhs.right)
+    ) {
+      return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "E4", formula }));
+    }
+    return axiomMatchOk(new Map(), new Map());
+  }
+
+  return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "E4", formula }));
 };
 
 const getEqualityAxiomTemplate = (axiomId: "E1" | "E2" | "E3"): Formula => {
@@ -1411,6 +1521,16 @@ export const identifyAxiom = (
           termSubstitution: result.right.termSubstitution,
         };
       }
+    }
+
+    const e4Result = matchE4(formula);
+    if (Either.isRight(e4Result)) {
+      return {
+        _tag: "Ok",
+        axiomId: "E4",
+        formulaSubstitution: e4Result.right.formulaSubstitution,
+        termSubstitution: e4Result.right.termSubstitution,
+      };
     }
   }
 
