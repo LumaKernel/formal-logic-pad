@@ -7,6 +7,7 @@ import {
   matchAxiomA4,
   matchAxiomA5,
   matchEqualityAxiom,
+  matchE4,
   matchTheoryAxiom,
   matchFormulaPattern,
   applySubstitution,
@@ -681,6 +682,199 @@ describe("matchEqualityAxiom", () => {
     it("should match the template", () => {
       const result = matchEqualityAxiom("E3", axiomE3Template);
       expectMatchOk(result);
+    });
+  });
+});
+
+// ── E4: 関数合同公理 ──────────────────────────────────────
+
+describe("matchE4", () => {
+  const x = termVariable("x");
+  const y = termVariable("y");
+  const x1 = termVariable("x1");
+  const y1 = termVariable("y1");
+  const x2 = termVariable("x2");
+  const y2 = termVariable("y2");
+
+  describe("1引数関数の合同公理", () => {
+    it("∀x.∀y. x = y → S(x) = S(y) がマッチする", () => {
+      const f = universal(
+        x,
+        universal(
+          y,
+          implication(
+            equality(x, y),
+            equality(
+              functionApplication("S", [x]),
+              functionApplication("S", [y]),
+            ),
+          ),
+        ),
+      );
+      expectMatchOk(matchE4(f));
+    });
+
+    it("∀x.∀y. x = y → i(x) = i(y) がマッチする", () => {
+      const f = universal(
+        x,
+        universal(
+          y,
+          implication(
+            equality(x, y),
+            equality(
+              functionApplication("i", [x]),
+              functionApplication("i", [y]),
+            ),
+          ),
+        ),
+      );
+      expectMatchOk(matchE4(f));
+    });
+
+    it("具体的なインスタンス a = b → S(a) = S(b) がマッチする", () => {
+      const a = functionApplication("S", [constant("0")]);
+      const b = constant("0");
+      const f = implication(
+        equality(a, b),
+        equality(functionApplication("S", [a]), functionApplication("S", [b])),
+      );
+      expectMatchOk(matchE4(f));
+    });
+  });
+
+  describe("2引数二項演算子の合同公理", () => {
+    it("∀x₁.∀y₁.∀x₂.∀y₂. x₁=y₁ → (x₂=y₂ → x₁+x₂ = y₁+y₂) がマッチする", () => {
+      const f = universal(
+        x1,
+        universal(
+          y1,
+          universal(
+            x2,
+            universal(
+              y2,
+              implication(
+                equality(x1, y1),
+                implication(
+                  equality(x2, y2),
+                  equality(
+                    binaryOperation("+", x1, x2),
+                    binaryOperation("+", y1, y2),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      expectMatchOk(matchE4(f));
+    });
+
+    it("具体的なインスタンス a=b → (c=d → a+c = b+d) がマッチする", () => {
+      const a = constant("0");
+      const b = functionApplication("S", [constant("0")]);
+      const c = constant("0");
+      const d = constant("0");
+      const f = implication(
+        equality(a, b),
+        implication(
+          equality(c, d),
+          equality(binaryOperation("+", a, c), binaryOperation("+", b, d)),
+        ),
+      );
+      expectMatchOk(matchE4(f));
+    });
+  });
+
+  describe("マッチしないケース", () => {
+    it("E3（推移律）はマッチしない", () => {
+      expectMatchErr(matchE4(axiomE3Template));
+    });
+
+    it("単なる等式はマッチしない", () => {
+      expectMatchErr(matchE4(equality(x, y)));
+    });
+
+    it("関数名が異なる場合はマッチしない", () => {
+      const f = implication(
+        equality(x, y),
+        equality(functionApplication("S", [x]), functionApplication("T", [y])),
+      );
+      expectMatchErr(matchE4(f));
+    });
+
+    it("前提の項と結論の関数引数が一致しない場合はマッチしない", () => {
+      const f = implication(
+        equality(x, y),
+        equality(functionApplication("S", [y]), functionApplication("S", [x])),
+      );
+      expectMatchErr(matchE4(f));
+    });
+
+    it("命題論理の含意はマッチしない", () => {
+      expectMatchErr(matchE4(implication(phi, psi)));
+    });
+
+    it("結論がEqualityでない場合はマッチしない", () => {
+      // x = y → P(x)（結論がPredicateで、Equalityではない）
+      const f = implication(equality(x, y), predicate("P", [x]));
+      expectMatchErr(matchE4(f));
+    });
+
+    it("関数の引数数が左右で異なる場合はマッチしない", () => {
+      const f = implication(
+        equality(x, y),
+        equality(
+          functionApplication("f", [x]),
+          functionApplication("f", [x, y]),
+        ),
+      );
+      expectMatchErr(matchE4(f));
+    });
+
+    it("前提数と関数の引数数が一致しない場合はマッチしない", () => {
+      // 2つの前提だが1引数関数
+      const f = implication(
+        equality(x, y),
+        implication(
+          equality(x1, y1),
+          equality(
+            functionApplication("S", [x]),
+            functionApplication("S", [y]),
+          ),
+        ),
+      );
+      expectMatchErr(matchE4(f));
+    });
+
+    it("二項演算子名が異なる場合はマッチしない", () => {
+      const f = implication(
+        equality(x1, y1),
+        implication(
+          equality(x2, y2),
+          equality(binaryOperation("+", x1, x2), binaryOperation("*", y1, y2)),
+        ),
+      );
+      expectMatchErr(matchE4(f));
+    });
+
+    it("二項演算子で前提数が2でない場合はマッチしない", () => {
+      // 1つの前提だが二項演算子
+      const f = implication(
+        equality(x1, y1),
+        equality(binaryOperation("+", x1, x2), binaryOperation("+", y1, y2)),
+      );
+      expectMatchErr(matchE4(f));
+    });
+
+    it("二項演算子で前提の項と結論の引数が一致しない場合はマッチしない", () => {
+      const f = implication(
+        equality(x1, y1),
+        implication(
+          equality(x2, y2),
+          equality(binaryOperation("+", x2, x1), binaryOperation("+", y1, y2)),
+        ),
+      );
+      expectMatchErr(matchE4(f));
     });
   });
 });

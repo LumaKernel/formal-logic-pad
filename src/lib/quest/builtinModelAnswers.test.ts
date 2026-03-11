@@ -696,14 +696,11 @@ const knownPragmaticQuests: ReadonlySet<string> = new Set([
   "prop-45",
   "prop-46",
   "prop-47",
-  // peano系: E4未実装のため識別不可
+  // peano系: E3インスタンスを直接配置（A4+MPによる正式な導出が必要）
   "peano-11",
   "peano-13",
   "peano-14",
   "peano-15",
-  "peano-20",
-  // group系: E4未実装のため識別不可
-  "group-20",
   // pred系: 述語論理の定理の直接配置
   "pred-04",
   "pred-05",
