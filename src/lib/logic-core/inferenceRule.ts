@@ -399,8 +399,8 @@ export const robinsonAxioms: readonly TheoryAxiom[] = [
 // ── 群論の公理テンプレート ─────────────────────────────────
 
 // ヘルパー: 群論の定数・演算
-/** 群の単位元 e */
-const groupIdentity = constant("e");
+/** 群の単位元 e（パーサーが TermVariable としてパースするため termVariable を使用） */
+const groupIdentity = termVariable("e");
 /** 群の逆元関数 i(x) */
 const inverseOfX = functionApplication("i", [xVar]);
 
