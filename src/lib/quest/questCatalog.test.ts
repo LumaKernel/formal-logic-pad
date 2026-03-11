@@ -70,6 +70,14 @@ describe("computeRating", () => {
     expect(computeRating(1, 1)).toBe("perfect");
     expect(computeRating(2, 1)).toBe("completed");
   });
+
+  it("推定ステップ数がundefinedで未完了の場合は'not-completed'", () => {
+    expect(computeRating(undefined, undefined)).toBe("not-completed");
+  });
+
+  it("推定ステップ数がundefinedで完了の場合は'completed'", () => {
+    expect(computeRating(3, undefined)).toBe("completed");
+  });
 });
 
 // --- toCatalogItem ---

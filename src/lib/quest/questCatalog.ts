@@ -49,9 +49,10 @@ export type QuestRating = "perfect" | "good" | "completed" | "not-completed";
 /** ベストステップ数と推定ステップ数から評価を算出する */
 export function computeRating(
   bestStepCount: number | undefined,
-  estimatedSteps: number,
+  estimatedSteps: number | undefined,
 ): QuestRating {
   if (bestStepCount === undefined) return "not-completed";
+  if (estimatedSteps === undefined) return "completed";
   if (bestStepCount <= estimatedSteps) return "perfect";
   if (bestStepCount <= estimatedSteps * 1.5) return "good";
   return "completed";

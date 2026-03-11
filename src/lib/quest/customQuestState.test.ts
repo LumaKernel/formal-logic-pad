@@ -634,6 +634,30 @@ describe("customQuestState", () => {
       expect(quest?.goals[0]?.allowedRuleIds).toEqual(["mp", "gen"]);
     });
 
+    it("estimatedStepsがundefinedのクエストをラウンドトリップできる", () => {
+      const paramsUndefinedSteps: CreateCustomQuestParams = {
+        ...sampleParams,
+        estimatedSteps: undefined,
+      };
+      const r = addCustomQuest(
+        createEmptyCustomQuestCollection(),
+        paramsUndefinedSteps,
+        1000,
+      );
+      expect(r.ok).toBe(true);
+      if (!r.ok) return;
+
+      const quest = r.value.collection.quests.get("custom-1000");
+      expect(quest?.estimatedSteps).toBeUndefined();
+
+      const serialized = serializeCustomQuestCollection(r.value.collection);
+      const json = JSON.parse(JSON.stringify(serialized)) as unknown;
+      const deserialized = deserializeCustomQuestCollection(json);
+
+      const roundTripped = deserialized.quests.get("custom-1000");
+      expect(roundTripped?.estimatedSteps).toBeUndefined();
+    });
+
     it("quest-level allowedAxiomIds付きクエストをシリアライズ/デシリアライズできる", () => {
       // allowedAxiomIds付きビルトインクエストを複製して、シリアライズに含める
       const sourceWithAxiomIds: QuestDefinition = {
@@ -965,7 +989,7 @@ describe("customQuestState", () => {
       };
       expect(deserializeCustomQuestCollection(data5b).quests.size).toBe(0);
 
-      // estimatedSteps欠落
+      // estimatedSteps欠落 → undefinedとして有効
       const data5c = {
         quests: [
           {
@@ -982,7 +1006,29 @@ describe("customQuestState", () => {
           },
         ],
       };
-      expect(deserializeCustomQuestCollection(data5c).quests.size).toBe(0);
+      const col5c = deserializeCustomQuestCollection(data5c);
+      expect(col5c.quests.size).toBe(1);
+      expect(col5c.quests.get("custom-1000")?.estimatedSteps).toBeUndefined();
+
+      // estimatedStepsが不正な型の場合は無効
+      const data5c2 = {
+        quests: [
+          {
+            id: "custom-1000",
+            category: "propositional-basics",
+            title: "test",
+            description: "desc",
+            difficulty: 1,
+            systemPresetId: "lukasiewicz",
+            goals: [{ formulaText: "phi" }],
+            hints: [],
+            estimatedSteps: "not-a-number",
+            learningPoint: "lp",
+            version: 1,
+          },
+        ],
+      };
+      expect(deserializeCustomQuestCollection(data5c2).quests.size).toBe(0);
 
       // learningPoint欠落
       const data5d = {

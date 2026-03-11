@@ -41,7 +41,7 @@ type SharedQuestPayload = {
   readonly sys: string; // systemPresetId
   readonly g: readonly SharedGoal[]; // goals
   readonly h: readonly string[]; // hints
-  readonly est: number; // estimatedSteps
+  readonly est?: number; // estimatedSteps
   readonly lp: string; // learningPoint
   readonly ax?: readonly string[]; // allowedAxiomIds (quest-level)
 };
@@ -244,7 +244,9 @@ export function encodeQuestToUrlParam(quest: QuestDefinition): string {
       }),
     ),
     h: [...quest.hints],
-    est: quest.estimatedSteps,
+    ...(quest.estimatedSteps !== undefined
+      ? { est: quest.estimatedSteps }
+      : {}),
     lp: quest.learningPoint,
     ...(quest.allowedAxiomIds !== undefined
       ? { ax: [...quest.allowedAxiomIds] }
@@ -296,7 +298,9 @@ export function decodeQuestFromUrlParam(param: string): DecodeQuestUrlResult {
     return { _tag: "InvalidQuest" };
   }
   if (!Array.isArray(obj["h"])) return { _tag: "InvalidQuest" };
-  if (typeof obj["est"] !== "number") return { _tag: "InvalidQuest" };
+  if (obj["est"] !== undefined && typeof obj["est"] !== "number") {
+    return { _tag: "InvalidQuest" };
+  }
   if (typeof obj["lp"] !== "string") return { _tag: "InvalidQuest" };
 
   // ゴールのパース
@@ -351,7 +355,7 @@ export function decodeQuestFromUrlParam(param: string): DecodeQuestUrlResult {
     systemPresetId: obj["sys"] as QuestDefinition["systemPresetId"],
     goals,
     hints,
-    estimatedSteps: obj["est"] as number,
+    estimatedSteps: obj["est"] as number | undefined,
     learningPoint: obj["lp"] as string,
     order: 0,
     version: 1,
@@ -401,7 +405,7 @@ export function prepareUrlQuestForImport(quest: QuestDefinition): {
   readonly systemPresetId: QuestDefinition["systemPresetId"];
   readonly goals: readonly QuestGoalDefinition[];
   readonly hints: readonly string[];
-  readonly estimatedSteps: number;
+  readonly estimatedSteps: number | undefined;
   readonly learningPoint: string;
 } {
   return {

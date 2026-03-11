@@ -231,6 +231,21 @@ describe("questUrlSharing", () => {
       expect(result.quest.allowedAxiomIds).toEqual(["A1", "A2", "A3"]);
     });
 
+    it("estimatedStepsがundefinedのクエストのラウンドトリップ", () => {
+      const questNoSteps: QuestDefinition = {
+        ...sampleQuest,
+        estimatedSteps: undefined,
+      };
+      const encoded = encodeQuestToUrlParam(questNoSteps);
+      const result = decodeQuestFromUrlParam(encoded);
+
+      expect(result._tag).toBe("Ok");
+      if (result._tag !== "Ok") return;
+
+      expect(result.quest.estimatedSteps).toBeUndefined();
+      expect(result.quest.title).toBe("テストクエスト");
+    });
+
     it("ビルトインクエストもエンコードできる", () => {
       const builtinQuest: QuestDefinition = {
         id: "prop-01",
@@ -453,7 +468,7 @@ describe("questUrlSharing", () => {
       );
       expect(decodeQuestFromUrlParam(missingHints)._tag).toBe("InvalidQuest");
 
-      // estimatedSteps欠落
+      // estimatedSteps欠落 → undefinedとして有効
       const missingEst = utf8ToBase64Url(
         JSON.stringify({
           _f: "ifp-quest",
@@ -468,7 +483,29 @@ describe("questUrlSharing", () => {
           lp: "lp",
         }),
       );
-      expect(decodeQuestFromUrlParam(missingEst)._tag).toBe("InvalidQuest");
+      const missingEstResult = decodeQuestFromUrlParam(missingEst);
+      expect(missingEstResult._tag).toBe("Ok");
+      if (missingEstResult._tag === "Ok") {
+        expect(missingEstResult.quest.estimatedSteps).toBeUndefined();
+      }
+
+      // estimatedStepsが不正な型の場合はInvalidQuest
+      const invalidEst = utf8ToBase64Url(
+        JSON.stringify({
+          _f: "ifp-quest",
+          _v: 1,
+          t: "test",
+          d: "desc",
+          cat: "cat",
+          diff: 1,
+          sys: "sys",
+          g: [{ f: "phi" }],
+          h: [],
+          est: "not-a-number",
+          lp: "lp",
+        }),
+      );
+      expect(decodeQuestFromUrlParam(invalidEst)._tag).toBe("InvalidQuest");
 
       // learningPoint欠落
       const missingLp = utf8ToBase64Url(

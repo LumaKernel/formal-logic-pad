@@ -56,7 +56,7 @@ export type CreateCustomQuestParams = {
   readonly systemPresetId: SystemPresetId;
   readonly goals: readonly QuestGoalDefinition[];
   readonly hints: readonly string[];
-  readonly estimatedSteps: number;
+  readonly estimatedSteps: number | undefined;
   readonly learningPoint: string;
 };
 
@@ -295,7 +295,7 @@ export type SerializedCustomQuest = {
     readonly allowedRuleIds?: readonly string[];
   }[];
   readonly hints: readonly string[];
-  readonly estimatedSteps: number;
+  readonly estimatedSteps?: number;
   readonly learningPoint: string;
   readonly order: number;
   readonly version: number;
@@ -325,7 +325,9 @@ export function serializeCustomQuestCollection(
           : {}),
       })),
       hints: [...q.hints],
-      estimatedSteps: q.estimatedSteps,
+      ...(q.estimatedSteps !== undefined
+        ? { estimatedSteps: q.estimatedSteps }
+        : {}),
       learningPoint: q.learningPoint,
       order: q.order,
       version: q.version,
@@ -379,7 +381,12 @@ export function parseCustomQuestFromRaw(
   if (typeof obj["systemPresetId"] !== "string") return undefined;
   if (!Array.isArray(obj["goals"])) return undefined;
   if (!Array.isArray(obj["hints"])) return undefined;
-  if (typeof obj["estimatedSteps"] !== "number") return undefined;
+  if (
+    obj["estimatedSteps"] !== undefined &&
+    typeof obj["estimatedSteps"] !== "number"
+  ) {
+    return undefined;
+  }
   if (typeof obj["learningPoint"] !== "string") return undefined;
   if (typeof obj["version"] !== "number") return undefined;
 
@@ -406,7 +413,7 @@ export function parseCustomQuestFromRaw(
     /* v8 ignore start -- 防御的コード: 上の `if (hints === undefined) return undefined` で ?? 右辺は到達不能 */
     hints: hints ?? [],
     /* v8 ignore stop */
-    estimatedSteps: obj["estimatedSteps"] as number,
+    estimatedSteps: obj["estimatedSteps"] as number | undefined,
     learningPoint: obj["learningPoint"] as string,
     order: typeof obj["order"] === "number" ? (obj["order"] as number) : 0,
     version: obj["version"] as number,
@@ -488,7 +495,9 @@ export function exportCustomQuestAsJson(quest: QuestDefinition): string {
         : {}),
     })),
     hints: [...quest.hints],
-    estimatedSteps: quest.estimatedSteps,
+    ...(quest.estimatedSteps !== undefined
+      ? { estimatedSteps: quest.estimatedSteps }
+      : {}),
     learningPoint: quest.learningPoint,
     order: quest.order,
     version: quest.version,

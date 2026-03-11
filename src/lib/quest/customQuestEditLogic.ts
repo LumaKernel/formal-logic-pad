@@ -40,7 +40,7 @@ export function createEmptyEditFormValues(): EditFormValues {
     systemPresetId: "lukasiewicz",
     goalsText: "",
     hints: "",
-    estimatedSteps: "3",
+    estimatedSteps: "",
     learningPoint: "",
   };
 }
@@ -55,7 +55,8 @@ export function questToEditFormValues(quest: QuestDefinition): EditFormValues {
     systemPresetId: quest.systemPresetId,
     goalsText: quest.goals.map((g) => g.formulaText).join("\n"),
     hints: quest.hints.join("\n"),
-    estimatedSteps: String(quest.estimatedSteps),
+    estimatedSteps:
+      quest.estimatedSteps !== undefined ? String(quest.estimatedSteps) : "",
     learningPoint: quest.learningPoint,
   };
 }
@@ -94,17 +95,15 @@ export function validateEditForm(values: EditFormValues): EditFormValidation {
     });
   }
 
-  const steps = Number(values.estimatedSteps);
-  if (
-    values.estimatedSteps.trim() === "" ||
-    !Number.isFinite(steps) ||
-    steps < 1 ||
-    !Number.isInteger(steps)
-  ) {
-    errors.push({
-      field: "estimatedSteps",
-      message: "推定ステップ数は1以上の整数で入力してください",
-    });
+  // 空文字列は「未指定」として許可
+  if (values.estimatedSteps.trim() !== "") {
+    const steps = Number(values.estimatedSteps);
+    if (!Number.isFinite(steps) || steps < 1 || !Number.isInteger(steps)) {
+      errors.push({
+        field: "estimatedSteps",
+        message: "推定ステップ数は1以上の整数で入力してください",
+      });
+    }
   }
 
   if (errors.length > 0) {
@@ -163,6 +162,12 @@ export function goalsTextToDefinitions(
   goalsText: string,
 ): readonly QuestGoalDefinition[] {
   return parseGoalLines(goalsText).map((formulaText) => ({ formulaText }));
+}
+
+/** フォームの推定ステップ数文字列を number | undefined に変換する */
+export function parseEstimatedSteps(text: string): number | undefined {
+  if (text.trim() === "") return undefined;
+  return Number(text);
 }
 
 /** ヒントテキスト（改行区切り）からヒント配列に変換する */

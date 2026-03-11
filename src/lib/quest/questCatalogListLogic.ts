@@ -158,10 +158,16 @@ export function categoryProgressText(
 /** ステップ数の表示テキスト */
 export function stepCountText(
   bestStepCount: number | undefined,
-  estimatedSteps: number,
+  estimatedSteps: number | undefined,
 ): string {
+  if (bestStepCount === undefined && estimatedSteps === undefined) {
+    return "";
+  }
   if (bestStepCount === undefined) {
     return `目安: ${String(estimatedSteps) satisfies string}ステップ`;
+  }
+  if (estimatedSteps === undefined) {
+    return `ベスト: ${String(bestStepCount) satisfies string}ステップ`;
   }
   return `ベスト: ${String(bestStepCount) satisfies string} / 目安: ${String(estimatedSteps) satisfies string}`;
 }

@@ -205,6 +205,7 @@ export {
   parseGoalLines,
   goalsTextToDefinitions,
   parseHintLines,
+  parseEstimatedSteps,
 } from "./customQuestEditLogic";
 
 export {
