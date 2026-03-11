@@ -626,6 +626,92 @@ describe("buildModelAnswerWorkspace - ND steps", () => {
   });
 });
 
+describe("buildModelAnswerWorkspace - note step", () => {
+  it("ノートステップでノートノードが作成される", () => {
+    const answer: ModelAnswer = {
+      questId: "test-01",
+      steps: [
+        { _tag: "note", text: "この証明では A2 公理を使います。" },
+        {
+          _tag: "axiom",
+          formulaText:
+            "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
+        },
+        { _tag: "axiom", formulaText: "phi -> ((phi -> phi) -> phi)" },
+        { _tag: "mp", leftIndex: 2, rightIndex: 1 },
+        { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
+        { _tag: "mp", leftIndex: 4, rightIndex: 3 },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(testQuest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+
+    // ノートノードが存在する
+    const noteNodes = result.workspace.nodes.filter((n) => n.kind === "note");
+    expect(noteNodes.length).toBe(1);
+    expect(noteNodes[0]?.formulaText).toBe("この証明では A2 公理を使います。");
+
+    // ゴールは達成される（ノートはゴールチェックに影響しない）
+    expect(
+      result.goalCheck._tag === "AllAchieved" ||
+        result.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+  });
+
+  it("ノートステップのインデックスがstepNodeIdsに正しく反映される", () => {
+    const answer: ModelAnswer = {
+      questId: "test-01",
+      steps: [
+        { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
+        { _tag: "note", text: "上の公理は A1 です。" },
+        {
+          _tag: "axiom",
+          formulaText:
+            "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
+        },
+        { _tag: "note", text: "上の公理は A2 です。" },
+        { _tag: "axiom", formulaText: "phi -> ((phi -> phi) -> phi)" },
+        { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+        { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(testQuest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+
+    // ノートノード2つ + 公理3つ + MP結論2つ + ゴール1つ = 8ノード
+    const noteNodes = result.workspace.nodes.filter((n) => n.kind === "note");
+    expect(noteNodes.length).toBe(2);
+
+    // ゴールが達成される（ノートをスキップしてインデックスが正しく参照される）
+    expect(
+      result.goalCheck._tag === "AllAchieved" ||
+        result.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+  });
+
+  it("ノート付き模範解答のバリデーションがValidを返す", () => {
+    const answer: ModelAnswer = {
+      questId: "test-01",
+      steps: [
+        { _tag: "note", text: "# 証明の概要\nφ → φ を証明します。" },
+        {
+          _tag: "axiom",
+          formulaText:
+            "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
+        },
+        { _tag: "axiom", formulaText: "phi -> ((phi -> phi) -> phi)" },
+        { _tag: "mp", leftIndex: 2, rightIndex: 1 },
+        { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
+        { _tag: "mp", leftIndex: 4, rightIndex: 3 },
+      ],
+    };
+    const result = validateModelAnswer(testQuest, answer);
+    expect(result._tag).toBe("Valid");
+  });
+});
+
 // Gen テスト用のクエスト定義
 const genQuest: QuestDefinition = {
   id: "gen-test-01",

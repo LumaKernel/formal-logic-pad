@@ -2,7 +2,7 @@
  * クエスト模範解答の型定義・ビルダー・バリデーション。
  *
  * 模範解答は証明図の構造として保持し、ワークスペースへの変換は純粋関数で行う。
- * ノート自体ではなく、ステップのDAG構造で表現する。
+ * ステップのDAG構造で表現する。ノートステップで解説テキストも含められる。
  *
  * 変更時は modelAnswer.test.ts, builtinModelAnswers.ts も同期すること。
  *
@@ -74,6 +74,9 @@ import type { ScRuleApplicationParams } from "../proof-pad/scApplicationLogic";
  * SC（シーケント計算）:
  * - sc-root: ルートノード（結論のシーケント）を配置
  * - sc-rule: SC規則を前ステップに適用（ruleId + principalPosition 等で指定）
+ *
+ * メタデータ:
+ * - note: 解説ノートを配置（証明DAGの一部ではない、表示専用）
  */
 export type ModelAnswerStep =
   // Hilbert系ステップ
@@ -264,6 +267,12 @@ export type ModelAnswerStep =
       readonly componentIndex?: 1 | 2;
       /** カット式テキスト（cut規則用） */
       readonly cutFormulaText?: string;
+    }
+  // メタデータステップ
+  | {
+      readonly _tag: "note";
+      /** ノートのマークダウンテキスト */
+      readonly text: string;
     };
 
 // --- 模範解答定義 ---
@@ -1227,6 +1236,13 @@ export function buildModelAnswerWorkspace(
           stepNodeIds.push(leftId);
           stepNodeIds.push(rightId);
         }
+        break;
+      }
+      // --- メタデータステップ ---
+      case "note": {
+        const nodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addNode(ws, "note", "Note", { x: 0, y: 0 }, step.text);
+        stepNodeIds.push(nodeId);
         break;
       }
       /* v8 ignore start — exhaustive check */
