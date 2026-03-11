@@ -9,6 +9,7 @@ export { formatFormulaLaTeX, formatTermLaTeX } from "./formatLaTeX";
 export {
   tokenizeFormula,
   tokenizeTerm,
+  tokenizeDslInput,
   tokensToText,
 } from "./formulaHighlight";
 export type { FormulaToken, FormulaTokenKind } from "./formulaHighlight";

@@ -17,6 +17,8 @@ import {
 } from "react";
 import { Either } from "effect";
 import type { Term } from "../logic-core/term";
+import type { FormulaTokenKind } from "../logic-lang/formulaHighlight";
+import { tokenizeDslInput } from "../logic-lang/formulaHighlight";
 import type { ParseError } from "../logic-lang/parser";
 import { parseTermString } from "../logic-lang/parser";
 import { CompletionPopup } from "./CompletionPopup";
@@ -148,6 +150,24 @@ const transparentTextStyle: CSSProperties = {
   color: "transparent",
 };
 
+/**
+ * FormulaTokenKind → CSS変数名の対応（FormulaDisplay.tsx と同一）。
+ */
+const tokenKindToVar: Readonly<Record<FormulaTokenKind, string>> = {
+  connective: "var(--color-syntax-connective)",
+  quantifier: "var(--color-syntax-quantifier)",
+  variable: "var(--color-syntax-variable)",
+  metaVariable: "var(--color-syntax-metaVariable)",
+  predicate: "var(--color-syntax-predicate)",
+  function: "var(--color-syntax-function)",
+  constant: "var(--color-syntax-constant)",
+  subscript: "var(--color-syntax-subscript)",
+  equality: "var(--color-syntax-equality)",
+  punctuation: "var(--color-syntax-punctuation)",
+  negation: "var(--color-syntax-negation)",
+  substitution: "var(--color-syntax-substitution)",
+};
+
 const syntaxHelpButtonStyle: CSSProperties = {
   flexShrink: 0,
   width: 18,
@@ -252,6 +272,16 @@ export function TermInput({
     [parseState, deferredValue],
   );
 
+  // シンタックスハイライト用トークン（エラーがない場合のみ）
+  const syntaxTokens = useMemo(
+    () =>
+      errorHighlights.length === 0 ? tokenizeDslInput(deferredValue) : null,
+    [deferredValue, errorHighlights.length],
+  );
+
+  // オーバーレイが必要か（エラーハイライトまたはシンタックスハイライト）
+  const hasOverlay = errorHighlights.length > 0 || syntaxTokens !== null;
+
   const handleSyntaxHelpMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -287,6 +317,24 @@ export function TermInput({
               {renderHighlightedText(deferredValue, errorHighlights)}
             </div>
           )}
+          {/* シンタックスハイライト（エラーがない場合、入力欄の背後） */}
+          {syntaxTokens !== null && (
+            <div
+              style={highlightContainerStyle}
+              aria-hidden="true"
+              data-testid={
+                testId
+                  ? `${testId satisfies string}-syntax-highlight`
+                  : undefined
+              }
+            >
+              {syntaxTokens.map((token, i) => (
+                <span key={i} style={{ color: tokenKindToVar[token.kind] }}>
+                  {token.text}
+                </span>
+              ))}
+            </div>
+          )}
           <input
             ref={inputRef}
             type="text"
@@ -296,12 +344,14 @@ export function TermInput({
             style={{
               ...currentInputStyle,
               ...(fontSize !== undefined ? { fontSize } : {}),
-              ...(errorHighlights.length > 0
+              ...(hasOverlay
                 ? {
                     position: "absolute",
                     top: 0,
                     left: 0,
                     backgroundColor: "transparent",
+                    color: "transparent",
+                    caretColor: "var(--color-text-primary, #171717)",
                   }
                 : {}),
             }}
@@ -316,10 +366,10 @@ export function TermInput({
             }
             onBlur={onBlur}
           />
-          {/* ハイライトがないときの高さ確保 */}
-          {errorHighlights.length > 0 && (
+          {/* オーバーレイがあるときの高さ確保（inputがabsoluteのため） */}
+          {hasOverlay && (
             <div style={{ visibility: "hidden", ...highlightContainerStyle }}>
-              {/* v8 ignore start -- deferredValue is always non-empty when errorHighlights exist */}
+              {/* v8 ignore start -- deferredValue is always non-empty when overlay exists */}
               {deferredValue || placeholder}
               {/* v8 ignore stop */}
             </div>

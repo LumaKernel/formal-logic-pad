@@ -23,6 +23,7 @@ import { formatFormula, formatTerm } from "./formatUnicode";
 import {
   tokenizeFormula,
   tokenizeTerm,
+  tokenizeDslInput,
   tokensToText,
 } from "./formulaHighlight";
 import type { FormulaToken, FormulaTokenKind } from "./formulaHighlight";
@@ -388,6 +389,184 @@ describe("formulaHighlight", () => {
   describe("tokensToText", () => {
     it("空配列は空文字列", () => {
       expect(tokensToText([])).toBe("");
+    });
+  });
+
+  describe("tokenizeDslInput", () => {
+    describe("基本動作", () => {
+      it("空入力は null を返す", () => {
+        expect(tokenizeDslInput("")).toBeNull();
+      });
+
+      it("空白のみの入力は null を返す", () => {
+        expect(tokenizeDslInput("   ")).toBeNull();
+      });
+
+      it("不正な入力（lexerエラー）は null を返す", () => {
+        expect(tokenizeDslInput("@@@@")).toBeNull();
+      });
+    });
+
+    describe("テキスト復元", () => {
+      it.each([
+        ["メタ変数", "phi"],
+        ["含意", "phi -> psi"],
+        ["否定", "~phi"],
+        ["連言", "phi /\\ psi"],
+        ["選言", "phi \\/ psi"],
+        ["同値", "phi <-> psi"],
+        ["述語", "P(x)"],
+        ["等式", "x = y"],
+        ["全称", "forall x. P(x)"],
+        ["存在", "exists x. P(x)"],
+        ["複合式", "phi -> (psi /\\ chi)"],
+        ["Unicode記号", "φ → ψ"],
+        ["添字付き", "phi1 -> psi2"],
+        ["項演算子", "x + y = z"],
+        ["数値リテラル", "x = 0"],
+        ["角括弧（代入）", "phi[x]"],
+      ] as const)("%s: トークン結合 === 元テキスト", (_name, input) => {
+        const tokens = tokenizeDslInput(input);
+        expect(tokens).not.toBeNull();
+        expect(tokensToText(tokens!)).toBe(input);
+      });
+    });
+
+    describe("トークン種別", () => {
+      it("メタ変数は metaVariable", () => {
+        const tokens = tokenizeDslInput("phi")!;
+        expect(tokens).toEqual([{ text: "phi", kind: "metaVariable" }]);
+      });
+
+      it("含意の矢印は connective", () => {
+        const tokens = tokenizeDslInput("phi -> psi")!;
+        const arrowToken = tokens.find((t) => t.text === "->");
+        expect(arrowToken?.kind).toBe("connective");
+      });
+
+      it("否定は negation", () => {
+        const tokens = tokenizeDslInput("~phi")!;
+        expect(tokens[0]).toEqual({ text: "~", kind: "negation" });
+      });
+
+      it("全称量化子は quantifier", () => {
+        const tokens = tokenizeDslInput("forall x. P(x)")!;
+        expect(tokens[0]).toEqual({ text: "forall", kind: "quantifier" });
+      });
+
+      it("存在量化子は quantifier", () => {
+        const tokens = tokenizeDslInput("exists x. P(x)")!;
+        expect(tokens[0]).toEqual({ text: "exists", kind: "quantifier" });
+      });
+
+      it("大文字識別子は predicate", () => {
+        const tokens = tokenizeDslInput("P(x)")!;
+        expect(tokens[0]).toEqual({ text: "P", kind: "predicate" });
+      });
+
+      it("小文字識別子は variable", () => {
+        const tokens = tokenizeDslInput("forall x. P(x)")!;
+        const xTokens = tokens.filter((t) => t.text === "x");
+        expect(xTokens.every((t) => t.kind === "variable")).toBe(true);
+      });
+
+      it("等号は equality", () => {
+        const tokens = tokenizeDslInput("x = y")!;
+        const eqToken = tokens.find((t) => t.text === "=");
+        expect(eqToken?.kind).toBe("equality");
+      });
+
+      it("括弧は punctuation", () => {
+        const tokens = tokenizeDslInput("P(x)")!;
+        const parenTokens = tokens.filter(
+          (t) => t.text === "(" || t.text === ")",
+        );
+        expect(parenTokens.every((t) => t.kind === "punctuation")).toBe(true);
+      });
+
+      it("角括弧は substitution", () => {
+        const tokens = tokenizeDslInput("phi[x]")!;
+        const bracketTokens = tokens.filter(
+          (t) => t.text === "[" || t.text === "]",
+        );
+        expect(bracketTokens.every((t) => t.kind === "substitution")).toBe(
+          true,
+        );
+      });
+
+      it("空白は punctuation として保持される", () => {
+        const tokens = tokenizeDslInput("phi -> psi")!;
+        const spaceTokens = tokens.filter((t) => t.text.trim() === "");
+        expect(spaceTokens.length).toBeGreaterThan(0);
+        expect(spaceTokens.every((t) => t.kind === "punctuation")).toBe(true);
+      });
+
+      it("数値は constant", () => {
+        const tokens = tokenizeDslInput("x = 0")!;
+        const numToken = tokens.find((t) => t.text === "0");
+        expect(numToken?.kind).toBe("constant");
+      });
+
+      it("Unicode ¬ は negation", () => {
+        const tokens = tokenizeDslInput("¬φ")!;
+        expect(tokens[0]).toEqual({ text: "¬", kind: "negation" });
+      });
+
+      it("Unicode → は connective", () => {
+        const tokens = tokenizeDslInput("φ → ψ")!;
+        const arrowToken = tokens.find((t) => t.text === "→");
+        expect(arrowToken?.kind).toBe("connective");
+      });
+
+      it("Unicode ∧ は connective", () => {
+        const tokens = tokenizeDslInput("φ ∧ ψ")!;
+        const andToken = tokens.find((t) => t.text === "∧");
+        expect(andToken?.kind).toBe("connective");
+      });
+
+      it("Unicode ∨ は connective", () => {
+        const tokens = tokenizeDslInput("φ ∨ ψ")!;
+        const orToken = tokens.find((t) => t.text === "∨");
+        expect(orToken?.kind).toBe("connective");
+      });
+
+      it("Unicode ∀ は quantifier", () => {
+        const tokens = tokenizeDslInput("∀x.P(x)")!;
+        expect(tokens[0]).toEqual({ text: "∀", kind: "quantifier" });
+      });
+
+      it("Unicode ∃ は quantifier", () => {
+        const tokens = tokenizeDslInput("∃x.P(x)")!;
+        expect(tokens[0]).toEqual({ text: "∃", kind: "quantifier" });
+      });
+
+      it("⊥ は connective", () => {
+        const tokens = tokenizeDslInput("⊥")!;
+        expect(tokens[0]).toEqual({ text: "⊥", kind: "connective" });
+      });
+
+      it("項演算子 +, -, *, / は connective", () => {
+        const tokens = tokenizeDslInput("x + y")!;
+        const plusToken = tokens.find((t) => t.text === "+");
+        expect(plusToken?.kind).toBe("connective");
+      });
+
+      it("末尾空白もトークンとして保持される", () => {
+        const tokens = tokenizeDslInput("phi ")!;
+        expect(tokensToText(tokens)).toBe("phi ");
+      });
+
+      it("ドットは punctuation", () => {
+        const tokens = tokenizeDslInput("forall x. P(x)")!;
+        const dotToken = tokens.find((t) => t.text === ".");
+        expect(dotToken?.kind).toBe("punctuation");
+      });
+
+      it("カンマは punctuation", () => {
+        const tokens = tokenizeDslInput("P(x, y)")!;
+        const commaToken = tokens.find((t) => t.text === ",");
+        expect(commaToken?.kind).toBe("punctuation");
+      });
     });
   });
 });

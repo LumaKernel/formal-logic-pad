@@ -441,6 +441,80 @@ describe("FormulaInput", () => {
     });
   });
 
+  describe("シンタックスハイライト", () => {
+    it("有効な論理式入力時にシンタックスハイライトが表示される", () => {
+      render(
+        <FormulaInput value="phi -> psi" onChange={() => {}} testId="fi" />,
+      );
+      const highlight = screen.getByTestId("fi-syntax-highlight");
+      expect(highlight).toBeInTheDocument();
+      expect(highlight).toHaveAttribute("aria-hidden", "true");
+    });
+
+    it("シンタックスハイライトのspan要素が色分けされている", () => {
+      render(
+        <FormulaInput value="phi -> psi" onChange={() => {}} testId="fi" />,
+      );
+      const highlight = screen.getByTestId("fi-syntax-highlight");
+      const spans = highlight.querySelectorAll("span");
+      expect(spans.length).toBeGreaterThan(0);
+      // 少なくとも1つのspanにcolor スタイルがある
+      const hasColoredSpan = Array.from(spans).some(
+        (span) => span.style.color !== "",
+      );
+      expect(hasColoredSpan).toBe(true);
+    });
+
+    it("空入力時にはシンタックスハイライトが表示されない", () => {
+      render(<FormulaInput value="" onChange={() => {}} testId="fi" />);
+      expect(
+        screen.queryByTestId("fi-syntax-highlight"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("パースエラー時にはシンタックスハイライトが表示されない（エラーハイライトが優先）", () => {
+      render(<FormulaInput value="→" onChange={() => {}} testId="fi" />);
+      expect(
+        screen.queryByTestId("fi-syntax-highlight"),
+      ).not.toBeInTheDocument();
+      // エラーハイライトは表示される
+      expect(screen.getByTestId("fi-highlights")).toBeInTheDocument();
+    });
+
+    it("Unicode入力でもシンタックスハイライトが表示される", () => {
+      render(
+        <FormulaInput value="φ → ψ" onChange={() => {}} testId="fi" />,
+      );
+      const highlight = screen.getByTestId("fi-syntax-highlight");
+      expect(highlight).toBeInTheDocument();
+    });
+
+    it("入力テキストがtransparentで表示される（ハイライト時）", () => {
+      render(
+        <FormulaInput value="phi -> psi" onChange={() => {}} testId="fi" />,
+      );
+      const input = screen.getByTestId("fi-input");
+      expect(input.style.color).toBe("transparent");
+    });
+
+    it("カーソル色が維持される（ハイライト時）", () => {
+      render(
+        <FormulaInput value="phi -> psi" onChange={() => {}} testId="fi" />,
+      );
+      const input = screen.getByTestId("fi-input");
+      expect(input.style.caretColor).not.toBe("");
+    });
+
+    it("lexerエラーの入力ではシンタックスハイライトが表示されない", () => {
+      // "@@@@" はlexerが不正文字エラーを出すが、parserに到達しない可能性
+      // parserエラーとして扱われるケースでも適切に動作すること
+      render(<FormulaInput value="@@@@" onChange={() => {}} testId="fi" />);
+      expect(
+        screen.queryByTestId("fi-syntax-highlight"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe("testIdなしのレンダリング", () => {
     it("testIdなしでも正常にレンダリングされる", () => {
       const { container } = render(

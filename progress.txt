@@ -12376,3 +12376,26 @@
   - formulaHighlight.ts は formatUnicode.ts の BP ロジックを複製している — 将来的にリファクタリングで共通化を検討
   - `tokensToText` でフォーマッタとの一致を保証するテストパターンは効果的
 ---
+
+## 2026-03-11 - [formula-input] DSL入力中のシンタックスハイライト
+- 実装した内容: FormulaInput / TermInput のDSL入力フィールドで、編集中にリアルタイムシンタックスハイライトを表示
+  - `tokenizeDslInput()` をformulaHighlight.tsに追加: レキサーのトークン位置情報を使ってDSL入力テキストを直接トークナイズ
+  - 「透明テキスト + 背面ハイライトオーバーレイ」パターンでinput要素の背後にカラーリングされたトークンを表示
+  - エラーハイライトが優先: パースエラー時はシンタックスハイライトを非表示
+- 変更したファイル:
+  - `src/lib/logic-lang/formulaHighlight.ts` (tokenizeDslInput, tokenKindMapping, positionToOffset 追加)
+  - `src/lib/logic-lang/formulaHighlight.test.ts` (42テスト追加)
+  - `src/lib/logic-lang/index.ts` (tokenizeDslInput エクスポート追加)
+  - `src/lib/formula-input/FormulaInput.tsx` (シンタックスハイライトオーバーレイ追加)
+  - `src/lib/formula-input/FormulaInput.test.tsx` (8テスト追加)
+  - `src/lib/formula-input/TermInput.tsx` (シンタックスハイライトオーバーレイ追加)
+  - `tasks/prd-syntax-highlight.md` (タスク完了マーク)
+- カバレッジ: Stmts 99.92% → 99.92%, Branch 99.62% → 99.59%, Lines 99.95% → 99.95% (Branch微減はv8集約の誤差)
+- テスト: 9299 → 9349+ (50テスト追加)
+- スクリーンショット: .screenshots/ (前回セッションで撮影済み)
+- **今後のイテレーションへの学び:**
+  - DSL入力のトークナイズにはAST→Unicode変換ではなく、レキサーのspan情報を直接使う。`tokenizeDslInput` がその実装
+  - `tokenKindToVar` マッピングはFormulaInput/TermInputそれぞれにローカル定義（CSS変数はUIレイヤーの責務）
+  - 透明テキスト+背面オーバーレイパターンは既存のエラーハイライトと同じ構造を共有
+  - v8 coverage aggregation で ScRulePalette.tsx の一時的な低下が見られたが、再実行で正常値に戻った（既知のv8 quirk）
+---

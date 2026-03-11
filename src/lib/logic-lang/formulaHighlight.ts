@@ -8,8 +8,11 @@
  * 変更時は formulaHighlight.test.ts, index.ts も同期すること。
  */
 
+import { Either } from "effect";
 import type { Formula } from "../logic-core/formula";
 import type { BinaryOperator, Term } from "../logic-core/term";
+import { lex } from "./lexer";
+import type { TokenKind } from "./token";
 
 // ── トークン種別 ──────────────────────────────────────────
 
@@ -403,3 +406,122 @@ export const tokenizeTerm = (term: Term): readonly FormulaToken[] =>
  */
 export const tokensToText = (tokens: readonly FormulaToken[]): string =>
   tokens.map((t) => t.text).join("");
+
+// ── DSL入力テキスト用トークナイザー ──────────────────────────
+
+/**
+ * TokenKind → FormulaTokenKind の対応表。
+ * lexer のトークン種別をシンタックスハイライトの色分けカテゴリに変換する。
+ */
+const tokenKindMapping: Readonly<Record<TokenKind, FormulaTokenKind>> = {
+  // 論理演算子
+  NOT: "negation",
+  AND: "connective",
+  OR: "connective",
+  IMPLIES: "connective",
+  IFF: "connective",
+  // 量化子
+  FORALL: "quantifier",
+  EXISTS: "quantifier",
+  // 等号
+  EQUALS: "equality",
+  // 項の二項演算子
+  PLUS: "connective",
+  MINUS: "connective",
+  TIMES: "connective",
+  DIVIDE: "connective",
+  POWER: "connective",
+  // 区切り文字
+  LPAREN: "punctuation",
+  RPAREN: "punctuation",
+  LBRACKET: "substitution",
+  RBRACKET: "substitution",
+  DOT: "punctuation",
+  COMMA: "punctuation",
+  // 識別子
+  META_VARIABLE: "metaVariable",
+  UPPER_IDENT: "predicate",
+  LOWER_IDENT: "variable",
+  // リテラル
+  NUMBER: "constant",
+  // 特殊
+  BOTTOM: "connective",
+  EOF: "punctuation",
+};
+
+/**
+ * Position (1-indexed line/column) → 0-indexed offset 変換。
+ * 1行のみの入力を前提とする（FormulaInput は <input type="text"> で単一行）。
+ */
+const positionToOffset = (
+  input: string,
+  pos: { readonly line: number; readonly column: number },
+): number => {
+  const lines = input.split("\n");
+  let offset = 0;
+  for (let i = 0; i < pos.line - 1 && i < lines.length; i++) {
+    /* v8 ignore start -- defensive: lines[i] is always defined within loop bounds */
+    offset += (lines[i] ?? "").length + 1;
+    /* v8 ignore stop */
+  }
+  return offset + pos.column - 1;
+};
+
+/**
+ * DSL入力テキストをシンタックスハイライト用トークン配列に変換する。
+ * lexer のトークン位置情報を使い、入力テキスト中の各部分を色分けカテゴリに分類する。
+ *
+ * lexer がエラーを返した場合は null を返す（エラー時はハイライトしない）。
+ * 空入力の場合も null を返す。
+ *
+ * 結果のトークンを結合すると元の入力テキストと同じ文字列になる
+ * （空白もトークンとして含まれる）。
+ */
+export const tokenizeDslInput = (
+  input: string,
+): readonly FormulaToken[] | null => {
+  if (input.trim() === "") return null;
+
+  const lexResult = lex(input);
+  if (Either.isLeft(lexResult)) return null;
+
+  const tokens = lexResult.right;
+  const result: FormulaToken[] = [];
+  let currentOffset = 0;
+
+  for (const token of tokens) {
+    if (token.kind === "EOF") break;
+
+    const tokenStart = positionToOffset(input, token.span.start);
+    const tokenEnd = positionToOffset(input, token.span.end);
+
+    // トークン間の空白を punctuation として追加
+    if (currentOffset < tokenStart) {
+      result.push({
+        text: input.slice(currentOffset, tokenStart),
+        kind: "punctuation",
+      });
+    }
+
+    // トークン本体
+    const tokenText = input.slice(tokenStart, tokenEnd);
+    if (tokenText.length > 0) {
+      result.push({
+        text: tokenText,
+        kind: tokenKindMapping[token.kind],
+      });
+    }
+
+    currentOffset = tokenEnd;
+  }
+
+  // 末尾の空白
+  if (currentOffset < input.length) {
+    result.push({
+      text: input.slice(currentOffset),
+      kind: "punctuation",
+    });
+  }
+
+  return result;
+};
