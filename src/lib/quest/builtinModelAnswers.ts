@@ -3902,99 +3902,254 @@ const prop30LNC: ModelAnswer = {
  * prop-22: 連言の導入 φ → (ψ → (φ ∧ ψ))
  *
  * 連言の定義: φ ∧ ψ ≡ ¬(φ → ¬ψ)
- * ゴール: φ → (ψ → ¬(φ → ¬ψ))
+ * ゴール（→/¬形式）: φ → (ψ → ¬(φ → ¬ψ))
  *
- * 証明の核心:
- *   A3[φ/(φ→¬ψ), ψ/ψ]: (¬ψ → ¬(φ→¬ψ)) → ((φ→¬ψ) → ψ) ... no
- *   ψ を仮定して φ → ¬ψ が矛盾することを示す。
- *
- * 含意/否定での同値式: phi -> (psi -> ~(phi -> ~psi))
+ * 証明戦略（59ステップ）:
+ * 1. DNE for (φ → ¬ψ): ¬¬(φ→¬ψ) → (φ→¬ψ) [prop-17 inline, 35 steps]
+ * 2. A2: distribute → φ → (¬¬(φ→¬ψ) → ¬ψ) [+8 steps]
+ * 3. A3 + compose: φ → (ψ → ¬(φ→¬ψ)) [+6 steps]
+ * 4. CONJ-DEF backward + inner compose: φ → (ψ → (φ ∧ ψ)) [+10 steps]
  */
 const prop22ConjIntro: ModelAnswer = {
   questId: "prop-22",
   steps: [
-    // Core proof: phi -> (psi -> ~(phi -> ~psi))
-    // By deduction theorem thinking:
-    // Assume phi, assume psi.
-    // Want: ~(phi -> ~psi)
-    // phi -> ~psi would give ~psi (by MP with phi), contradicting psi.
-    // So ~(phi -> ~psi) by reductio.
-    //
-    // In Hilbert system:
-    // 1. psi -> (phi -> psi)   [A1]
-    // (we can get phi -> psi from assumption of psi)
-    //
-    // Actually: We need to show phi -> (psi -> ~(phi -> ~psi))
-    //
-    // Key insight: if we have psi and phi -> ~psi, we get contradiction.
-    // A3 gives us: (~A -> ~B) -> (B -> A)
-    //
-    // Let's think of it differently using A3:
-    // A3[phi/~psi, psi/(phi->~psi)]: (~~(phi->~psi) -> ~~psi) -> (~psi -> ~(phi->~psi))
-    // Hmm, too complex.
-    //
-    // Simpler approach using Clavius-like reasoning:
-    // We want: phi -> (psi -> ~(phi -> ~psi))
-    //
-    // Step 1: MP rule + A1 gives: phi -> ((phi -> ~psi) -> ~psi)
-    //   (prop-33: phi -> ((phi -> psi) -> psi) with psi replaced by ~psi)
-    //
-    // Step 2: A3[phi/(phi->~psi), psi/psi]:
-    //   (~psi -> ~(phi->~psi)) -> ((phi->~psi) -> psi)
-    //   Wait, A3 is (¬α → ¬β) → (β → α), so:
-    //   A3[α/(phi->~psi), β/psi]: (¬psi → ¬(phi->~psi)) → (psi → (phi->~psi))
-    //   That's wrong direction.
-    //
-    //   A3[α/psi, β/(phi->~psi)]: (¬(phi->~psi) → ¬psi) → ((phi->~psi) → psi)
-    //   Hmm still not what we want.
-    //
-    // Let me try:
-    // From step 1: phi -> ((phi -> ~psi) -> ~psi)
-    // We want to convert (phi -> ~psi) -> ~psi to psi -> ~(phi -> ~psi)
-    //
-    // A3[alpha/~(phi->~psi), beta/~psi]:
-    //   (~~psi -> ~~(phi->~psi)) -> (~(phi->~psi) -> ~psi)
-    //   ... still wrong direction.
-    //
-    // A3[alpha/psi, beta/(phi->~psi)]:
-    //   (~(phi->~psi) -> ~psi) -> ((phi->~psi) -> psi)  ... wrong direction
-    //
-    // Contraposition of (phi->~psi) -> ~psi:
-    // A3 gives: (~(~psi) -> ~(phi->~psi)) -> ((phi->~psi) -> ~psi)  ... nope
-    //
-    // Actually, contrapositive of "A -> B" is "~B -> ~A".
-    // Contrapositive of "(phi->~psi) -> ~psi" is "~~psi -> ~(phi->~psi)" = "psi -> ~(phi->~psi)" (via DNE/DNI)
-    //
-    // Hmm but getting the contrapositive in Hilbert system is via A3.
-    // A3: (¬α → ¬β) → (β → α)
-    // For contrapositive of (A → B), we need (~B → ~A):
-    //   This is NOT directly A3. A3 gives us the converse.
-    //
-    // Actually Łukasiewicz A3: (¬φ → ¬ψ) → (ψ → φ)
-    // This is the "reverse contrapositive".
-    // The "forward contrapositive" (α → β) → (¬β → ¬α) is prop-16 (Modus Tollens).
-    //
-    // So: Modus Tollens gives us:
-    //   ((phi->~psi) -> ~psi) -> (~~psi -> ~(phi->~psi))
-    // And then DNE gives ~~psi -> psi direction, but we need psi -> ~~psi (= DNI) + compose.
-    // Actually we need: psi -> ~(phi->~psi)
-    // We have: ~~psi -> ~(phi->~psi)  [from MT applied to (phi->~psi) -> ~psi]
-    // And: psi -> ~~psi  [DNI]
-    // Compose: psi -> ~~psi -> ~(phi->~psi) = psi -> ~(phi->~psi)
-    //
-    // So the full proof is:
-    // 1. phi -> ((phi->~psi) -> ~psi)       [prop-33 variant]
-    // 2. ((phi->~psi) -> ~psi) -> (~~psi -> ~(phi->~psi))  [MT variant]
-    // 3. phi -> (~~psi -> ~(phi->~psi))     [compose 1, 2]
-    // 4. psi -> ~~psi                        [DNI]
-    // 5. (~~psi -> ~(phi->~psi)) -> (psi -> ~(phi->~psi))  [compose with DNI, using B combinator]
-    // 6. phi -> (psi -> ~(phi->~psi))        [compose 3, 5]
-    //
-    // This would need: prop-33 + MT + DNI inline + B combinator compositions
-    // Very long (hundreds of steps).
-    //
-    // PRAGMATIC: Just place the goal formula.
-    { _tag: "axiom", formulaText: "phi -> (psi -> (phi /\\ psi))" },
+    // --- DNE for (φ → ¬ψ): prop-17 inline with φ := (φ → ¬ψ), 35 steps ---
+    // 0.
+    {
+      _tag: "axiom",
+      formulaText: "~~(phi -> ~psi) -> (~(phi -> ~psi) -> ~~(phi -> ~psi))",
+    },
+    // 1.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(phi -> ~psi) -> ~~(phi -> ~psi)) -> (~(phi -> ~psi) -> (phi -> ~psi))",
+    },
+    // 2.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> ((~(phi -> ~psi) -> ~~(phi -> ~psi)) -> (~(phi -> ~psi) -> (phi -> ~psi)))) -> ((~~(phi -> ~psi) -> (~(phi -> ~psi) -> ~~(phi -> ~psi))) -> (~~(phi -> ~psi) -> (~(phi -> ~psi) -> (phi -> ~psi))))",
+    },
+    // 3.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(phi -> ~psi) -> ~~(phi -> ~psi)) -> (~(phi -> ~psi) -> (phi -> ~psi))) -> (~~(phi -> ~psi) -> ((~(phi -> ~psi) -> ~~(phi -> ~psi)) -> (~(phi -> ~psi) -> (phi -> ~psi))))",
+    },
+    // 4. MP(1, 3)
+    { _tag: "mp", leftIndex: 1, rightIndex: 3 },
+    // 5. MP(4, 2)
+    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+    // 6. MP(0, 5)
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+    // --- Clavius inline with φ := (φ → ¬ψ) ---
+    // 7.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~(phi -> ~psi) -> (phi -> ~psi)) -> ~(phi -> ~psi)) -> ((phi -> ~psi) -> ~(~(phi -> ~psi) -> (phi -> ~psi)))",
+    },
+    // 8.
+    {
+      _tag: "axiom",
+      formulaText:
+        "~(phi -> ~psi) -> (~~(~(phi -> ~psi) -> (phi -> ~psi)) -> ~(phi -> ~psi))",
+    },
+    // 9.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(phi -> ~psi) -> ((~~(~(phi -> ~psi) -> (phi -> ~psi)) -> ~(phi -> ~psi)) -> ((phi -> ~psi) -> ~(~(phi -> ~psi) -> (phi -> ~psi))))) -> ((~(phi -> ~psi) -> (~~(~(phi -> ~psi) -> (phi -> ~psi)) -> ~(phi -> ~psi))) -> (~(phi -> ~psi) -> ((phi -> ~psi) -> ~(~(phi -> ~psi) -> (phi -> ~psi)))))",
+    },
+    // 10.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~(phi -> ~psi) -> (phi -> ~psi)) -> ~(phi -> ~psi)) -> ((phi -> ~psi) -> ~(~(phi -> ~psi) -> (phi -> ~psi)))) -> (~(phi -> ~psi) -> ((~~(~(phi -> ~psi) -> (phi -> ~psi)) -> ~(phi -> ~psi)) -> ((phi -> ~psi) -> ~(~(phi -> ~psi) -> (phi -> ~psi)))))",
+    },
+    // 11. MP(7, 10)
+    { _tag: "mp", leftIndex: 7, rightIndex: 10 },
+    // 12. MP(11, 9)
+    { _tag: "mp", leftIndex: 11, rightIndex: 9 },
+    // 13. MP(8, 12)
+    { _tag: "mp", leftIndex: 8, rightIndex: 12 },
+    // 14.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(phi -> ~psi) -> ((phi -> ~psi) -> ~(~(phi -> ~psi) -> (phi -> ~psi)))) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> (~(phi -> ~psi) -> ~(~(phi -> ~psi) -> (phi -> ~psi))))",
+    },
+    // 15. MP(13, 14)
+    { _tag: "mp", leftIndex: 13, rightIndex: 14 },
+    // 16.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(phi -> ~psi) -> ~(~(phi -> ~psi) -> (phi -> ~psi))) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> (phi -> ~psi))",
+    },
+    // 17.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(phi -> ~psi) -> (phi -> ~psi)) -> ((~(phi -> ~psi) -> ~(~(phi -> ~psi) -> (phi -> ~psi))) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> (phi -> ~psi)))) -> (((~(phi -> ~psi) -> (phi -> ~psi)) -> (~(phi -> ~psi) -> ~(~(phi -> ~psi) -> (phi -> ~psi)))) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> (phi -> ~psi))))",
+    },
+    // 18.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(phi -> ~psi) -> ~(~(phi -> ~psi) -> (phi -> ~psi))) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> (phi -> ~psi))) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> ((~(phi -> ~psi) -> ~(~(phi -> ~psi) -> (phi -> ~psi))) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> (phi -> ~psi))))",
+    },
+    // 19. MP(16, 18)
+    { _tag: "mp", leftIndex: 16, rightIndex: 18 },
+    // 20. MP(19, 17)
+    { _tag: "mp", leftIndex: 19, rightIndex: 17 },
+    // 21. MP(15, 20)
+    { _tag: "mp", leftIndex: 15, rightIndex: 20 },
+    // 22.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(phi -> ~psi) -> (phi -> ~psi)) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> (phi -> ~psi))) -> (((~(phi -> ~psi) -> (phi -> ~psi)) -> (~(phi -> ~psi) -> (phi -> ~psi))) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> (phi -> ~psi)))",
+    },
+    // 23. MP(21, 22)
+    { _tag: "mp", leftIndex: 21, rightIndex: 22 },
+    // 24.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(phi -> ~psi) -> (phi -> ~psi)) -> (((~(phi -> ~psi) -> (phi -> ~psi)) -> (~(phi -> ~psi) -> (phi -> ~psi))) -> (~(phi -> ~psi) -> (phi -> ~psi)))) -> (((~(phi -> ~psi) -> (phi -> ~psi)) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> (~(phi -> ~psi) -> (phi -> ~psi)))) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> (~(phi -> ~psi) -> (phi -> ~psi))))",
+    },
+    // 25.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(phi -> ~psi) -> (phi -> ~psi)) -> (((~(phi -> ~psi) -> (phi -> ~psi)) -> (~(phi -> ~psi) -> (phi -> ~psi))) -> (~(phi -> ~psi) -> (phi -> ~psi)))",
+    },
+    // 26. MP(25, 24)
+    { _tag: "mp", leftIndex: 25, rightIndex: 24 },
+    // 27.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(phi -> ~psi) -> (phi -> ~psi)) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> (~(phi -> ~psi) -> (phi -> ~psi)))",
+    },
+    // 28. MP(27, 26)
+    { _tag: "mp", leftIndex: 27, rightIndex: 26 },
+    // 29. MP(28, 23)
+    { _tag: "mp", leftIndex: 28, rightIndex: 23 },
+    // --- compose: ¬¬(φ→¬ψ) → (φ→¬ψ) ---
+    // 30.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> (phi -> ~psi))) -> ((~~(phi -> ~psi) -> (~(phi -> ~psi) -> (phi -> ~psi))) -> (~~(phi -> ~psi) -> (phi -> ~psi)))",
+    },
+    // 31.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(phi -> ~psi) -> (phi -> ~psi)) -> (phi -> ~psi)) -> (~~(phi -> ~psi) -> ((~(phi -> ~psi) -> (phi -> ~psi)) -> (phi -> ~psi)))",
+    },
+    // 32. MP(29, 31)
+    { _tag: "mp", leftIndex: 29, rightIndex: 31 },
+    // 33. MP(32, 30)
+    { _tag: "mp", leftIndex: 32, rightIndex: 30 },
+    // 34. MP(6, 33): ¬¬(φ→¬ψ) → (φ→¬ψ) [DNE]
+    { _tag: "mp", leftIndex: 6, rightIndex: 33 },
+    // --- A2 + A1 + compose: φ → (¬¬(φ→¬ψ) → ¬ψ) ---
+    // 35. A2[φ:=¬¬(φ→¬ψ), ψ:=φ, χ:=¬ψ]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> (phi -> ~psi)) -> ((~~(phi -> ~psi) -> phi) -> (~~(phi -> ~psi) -> ~psi))",
+    },
+    // 36. MP(34, 35)
+    { _tag: "mp", leftIndex: 34, rightIndex: 35 },
+    // 37. A1[φ:=φ, ψ:=¬¬(φ→¬ψ)]
+    { _tag: "axiom", formulaText: "phi -> (~~(phi -> ~psi) -> phi)" },
+    // 38. A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(phi -> ((~~(phi -> ~psi) -> phi) -> (~~(phi -> ~psi) -> ~psi))) -> ((phi -> (~~(phi -> ~psi) -> phi)) -> (phi -> (~~(phi -> ~psi) -> ~psi)))",
+    },
+    // 39. A1
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi -> ~psi) -> phi) -> (~~(phi -> ~psi) -> ~psi)) -> (phi -> ((~~(phi -> ~psi) -> phi) -> (~~(phi -> ~psi) -> ~psi)))",
+    },
+    // 40. MP(36, 39)
+    { _tag: "mp", leftIndex: 36, rightIndex: 39 },
+    // 41. MP(40, 38)
+    { _tag: "mp", leftIndex: 40, rightIndex: 38 },
+    // 42. MP(37, 41): φ → (¬¬(φ→¬ψ) → ¬ψ)
+    { _tag: "mp", leftIndex: 37, rightIndex: 41 },
+    // --- A3 + compose: φ → (ψ → ¬(φ→¬ψ)) ---
+    // 43. A3[φ:=¬(φ→¬ψ), ψ:=ψ]
+    {
+      _tag: "axiom",
+      formulaText: "(~~(phi -> ~psi) -> ~psi) -> (psi -> ~(phi -> ~psi))",
+    },
+    // 44. A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(phi -> ((~~(phi -> ~psi) -> ~psi) -> (psi -> ~(phi -> ~psi)))) -> ((phi -> (~~(phi -> ~psi) -> ~psi)) -> (phi -> (psi -> ~(phi -> ~psi))))",
+    },
+    // 45. A1
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi -> ~psi) -> ~psi) -> (psi -> ~(phi -> ~psi))) -> (phi -> ((~~(phi -> ~psi) -> ~psi) -> (psi -> ~(phi -> ~psi))))",
+    },
+    // 46. MP(43, 45)
+    { _tag: "mp", leftIndex: 43, rightIndex: 45 },
+    // 47. MP(46, 44)
+    { _tag: "mp", leftIndex: 46, rightIndex: 44 },
+    // 48. MP(42, 47): φ → (ψ → ¬(φ→¬ψ))
+    { _tag: "mp", leftIndex: 42, rightIndex: 47 },
+    // --- CONJ-DEF backward + inner compose: φ → (ψ → (φ ∧ ψ)) ---
+    // 49. CONJ-DEF backward
+    {
+      _tag: "axiom",
+      formulaText: "~(phi -> ~psi) -> (phi /\\ psi)",
+    },
+    // 50. A2[φ:=ψ, ψ:=¬(φ→¬ψ), χ:=(φ∧ψ)]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(psi -> (~(phi -> ~psi) -> (phi /\\ psi))) -> ((psi -> ~(phi -> ~psi)) -> (psi -> (phi /\\ psi)))",
+    },
+    // 51. A1
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(phi -> ~psi) -> (phi /\\ psi)) -> (psi -> (~(phi -> ~psi) -> (phi /\\ psi)))",
+    },
+    // 52. MP(49, 51)
+    { _tag: "mp", leftIndex: 49, rightIndex: 51 },
+    // 53. MP(52, 50): (ψ → ¬(φ→¬ψ)) → (ψ → (φ ∧ ψ))
+    { _tag: "mp", leftIndex: 52, rightIndex: 50 },
+    // 54. A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(phi -> ((psi -> ~(phi -> ~psi)) -> (psi -> (phi /\\ psi)))) -> ((phi -> (psi -> ~(phi -> ~psi))) -> (phi -> (psi -> (phi /\\ psi))))",
+    },
+    // 55. A1
+    {
+      _tag: "axiom",
+      formulaText:
+        "((psi -> ~(phi -> ~psi)) -> (psi -> (phi /\\ psi))) -> (phi -> ((psi -> ~(phi -> ~psi)) -> (psi -> (phi /\\ psi))))",
+    },
+    // 56. MP(53, 55)
+    { _tag: "mp", leftIndex: 53, rightIndex: 55 },
+    // 57. MP(56, 54)
+    { _tag: "mp", leftIndex: 56, rightIndex: 54 },
+    // 58. MP(48, 57): φ → (ψ → (φ ∧ ψ))
+    { _tag: "mp", leftIndex: 48, rightIndex: 57 },
   ],
 };
 
@@ -4002,47 +4157,243 @@ const prop22ConjIntro: ModelAnswer = {
  * prop-23: 連言の除去(左) (φ ∧ ψ) → φ
  *
  * 連言の定義: φ ∧ ψ ≡ ¬(φ → ¬ψ)
- * ゴール: ¬(φ → ¬ψ) → φ
+ * ゴールの→/¬等価形: ¬(φ → ¬ψ) → φ
  *
- * 含意/否定での同値式: ~(phi -> ~psi) -> phi
+ * 証明戦略:
+ *   1. DNI for (φ → ¬ψ): (φ → ¬ψ) → ¬¬(φ → ¬ψ)  [37 steps]
+ *   2. EFQ variant: ¬φ → (φ → ¬ψ)  [7 steps]
+ *   3. Compose: ¬φ → ¬¬(φ → ¬ψ)  [5 steps]
+ *   4. A3: (¬φ → ¬¬(φ → ¬ψ)) → (¬(φ → ¬ψ) → φ)
+ *   5. CONJ-DEF forward + compose: (φ ∧ ψ) → φ
  */
 const prop23ConjElimLeft: ModelAnswer = {
   questId: "prop-23",
   steps: [
-    // 爆発律とA3を使って ~(phi -> ~psi) -> phi を証明する方法:
-    // ~(phi -> ~psi) を仮定。
-    // phi -> ~psi が偽なので、特に phi が偽なら trivially true、
-    // phi が真なら phi。
-    //
-    // Hilbert approach: use A3 contrapositive.
-    // ~phi -> (phi -> ~psi)  [A1 variant: from ~phi, get phi -> anything, specifically phi -> ~psi]
-    // Wait: A1 is phi -> (psi -> phi). So:
-    // A1[phi/~psi, psi/phi]: ~psi -> (phi -> ~psi)
-    // Hmm, that gives us ~psi -> (phi -> ~psi) but we need ~phi -> (phi -> ~psi).
-    //
-    // Actually: phi -> ~psi can be derived from ~phi using ex falso:
-    // Ex falso: ~phi -> (phi -> alpha) for any alpha [prop-18]
-    //
-    // So: ~phi -> (phi -> ~psi)  [ex falso instance]
-    // A3[alpha/~(phi->~psi), beta/phi]:
-    //   (~phi -> ~(~(phi->~psi))) -> (~(phi->~psi) -> phi)  ... hmm
-    //
-    // Wait: A3: (~A -> ~B) -> (B -> A)
-    // A3[A/phi, B/~(phi->~psi)]:
-    //   (~phi -> ~~(phi->~psi)) -> (~(phi->~psi) -> phi)
-    //
-    // So we need: ~phi -> ~~(phi->~psi)
-    // From ex falso: ~phi -> (phi -> ~psi)  [prop-18 instance]
-    // Then DNI: (phi -> ~psi) -> ~~(phi -> ~psi)
-    // Compose: ~phi -> ~~(phi -> ~psi)
-    //
-    // Then A3 gives: ~(phi -> ~psi) -> phi  ✓
-    //
-    // Total: ex falso + DNI + A3 + compositions
-    // Very long but doable.
-    //
-    // PRAGMATIC: Just place the goal formula.
-    { _tag: "axiom", formulaText: "(phi /\\ psi) -> phi" },
+    // --- prop-25 inline with φ := (φ → ¬ψ), 35 steps (same as prop-31) ---
+    // 0.
+    {
+      _tag: "axiom",
+      formulaText: "~~~(phi -> ~psi) -> (~~(phi -> ~psi) -> ~~~(phi -> ~psi))",
+    },
+    // 1.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> ~~~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))",
+    },
+    // 2.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(phi -> ~psi) -> ((~~(phi -> ~psi) -> ~~~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi)))) -> ((~~~(phi -> ~psi) -> (~~(phi -> ~psi) -> ~~~(phi -> ~psi))) -> (~~~(phi -> ~psi) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))))",
+    },
+    // 3.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi -> ~psi) -> ~~~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))) -> (~~~(phi -> ~psi) -> ((~~(phi -> ~psi) -> ~~~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))))",
+    },
+    // 4. MP(1, 3)
+    { _tag: "mp", leftIndex: 1, rightIndex: 3 },
+    // 5. MP(4, 2)
+    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+    // 6. MP(0, 5)
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+    // 7.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~~(phi -> ~psi)) -> (~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi)))",
+    },
+    // 8.
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~(phi -> ~psi) -> (~~(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~~(phi -> ~psi))",
+    },
+    // 9.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> ((~~(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~~(phi -> ~psi)) -> (~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi))))) -> ((~~(phi -> ~psi) -> (~~(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~~(phi -> ~psi))) -> (~~(phi -> ~psi) -> (~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi)))))",
+    },
+    // 10.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~~(phi -> ~psi)) -> (~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi)))) -> (~~(phi -> ~psi) -> ((~~(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~~(phi -> ~psi)) -> (~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi)))))",
+    },
+    // 11. MP(7, 10)
+    { _tag: "mp", leftIndex: 7, rightIndex: 10 },
+    // 12. MP(11, 9)
+    { _tag: "mp", leftIndex: 11, rightIndex: 9 },
+    // 13. MP(8, 12)
+    { _tag: "mp", leftIndex: 8, rightIndex: 12 },
+    // 14.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> (~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi)))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi))))",
+    },
+    // 15. MP(13, 14)
+    { _tag: "mp", leftIndex: 13, rightIndex: 14 },
+    // 16.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi))",
+    },
+    // 17.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ((~~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi)))) -> (((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi)))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi))))",
+    },
+    // 18.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ((~~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi))))",
+    },
+    // 19. MP(16, 18)
+    { _tag: "mp", leftIndex: 16, rightIndex: 18 },
+    // 20. MP(19, 17)
+    { _tag: "mp", leftIndex: 19, rightIndex: 17 },
+    // 21. MP(15, 20)
+    { _tag: "mp", leftIndex: 15, rightIndex: 20 },
+    // 22.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi))) -> (((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi)))",
+    },
+    // 23. MP(21, 22)
+    { _tag: "mp", leftIndex: 21, rightIndex: 22 },
+    // 24.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))) -> (~~(phi -> ~psi) -> ~(phi -> ~psi)))) -> (((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi)))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))))",
+    },
+    // 25.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))) -> (~~(phi -> ~psi) -> ~(phi -> ~psi)))",
+    },
+    // 26. MP(25, 24)
+    { _tag: "mp", leftIndex: 25, rightIndex: 24 },
+    // 27.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi)))",
+    },
+    // 28. MP(27, 26)
+    { _tag: "mp", leftIndex: 27, rightIndex: 26 },
+    // 29. MP(28, 23)
+    { _tag: "mp", leftIndex: 28, rightIndex: 23 },
+    // 30.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(phi -> ~psi) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi))) -> ((~~~(phi -> ~psi) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))) -> (~~~(phi -> ~psi) -> ~(phi -> ~psi)))",
+    },
+    // 31.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi)) -> (~~~(phi -> ~psi) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi)))",
+    },
+    // 32. MP(29, 31)
+    { _tag: "mp", leftIndex: 29, rightIndex: 31 },
+    // 33. MP(32, 30)
+    { _tag: "mp", leftIndex: 32, rightIndex: 30 },
+    // 34. MP(6, 33): ¬¬¬(φ→¬ψ) → ¬(φ→¬ψ) [prop-25]
+    { _tag: "mp", leftIndex: 6, rightIndex: 33 },
+    // --- A3 + MP: DNI for (φ → ¬ψ) ---
+    // 35. A3
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ((phi -> ~psi) -> ~~(phi -> ~psi))",
+    },
+    // 36. MP(34, 35): (φ→¬ψ) → ¬¬(φ→¬ψ)
+    { _tag: "mp", leftIndex: 34, rightIndex: 35 },
+    // --- EFQ variant: ¬φ → (φ → ¬ψ) ---
+    // 37. A1[φ:=¬φ, ψ:=¬¬ψ]
+    { _tag: "axiom", formulaText: "~phi -> (~~psi -> ~phi)" },
+    // 38. A3[φ:=¬ψ, ψ:=φ]: (¬¬ψ → ¬φ) → (φ → ¬ψ)
+    { _tag: "axiom", formulaText: "(~~psi -> ~phi) -> (phi -> ~psi)" },
+    // B-combinator: compose 37 and 38 → ¬φ → (φ → ¬ψ)
+    // 39. A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~phi -> ((~~psi -> ~phi) -> (phi -> ~psi))) -> ((~phi -> (~~psi -> ~phi)) -> (~phi -> (phi -> ~psi)))",
+    },
+    // 40. A1
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~psi -> ~phi) -> (phi -> ~psi)) -> (~phi -> ((~~psi -> ~phi) -> (phi -> ~psi)))",
+    },
+    // 41. MP(38, 40)
+    { _tag: "mp", leftIndex: 38, rightIndex: 40 },
+    // 42. MP(41, 39)
+    { _tag: "mp", leftIndex: 41, rightIndex: 39 },
+    // 43. MP(37, 42): ¬φ → (φ → ¬ψ)
+    { _tag: "mp", leftIndex: 37, rightIndex: 42 },
+    // --- Compose: ¬φ → ¬¬(φ → ¬ψ) ---
+    // B-combinator: compose 43 (¬φ → (φ→¬ψ)) and 36 ((φ→¬ψ) → ¬¬(φ→¬ψ))
+    // 44. A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~phi -> ((phi -> ~psi) -> ~~(phi -> ~psi))) -> ((~phi -> (phi -> ~psi)) -> (~phi -> ~~(phi -> ~psi)))",
+    },
+    // 45. A1
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi -> ~psi) -> ~~(phi -> ~psi)) -> (~phi -> ((phi -> ~psi) -> ~~(phi -> ~psi)))",
+    },
+    // 46. MP(36, 45)
+    { _tag: "mp", leftIndex: 36, rightIndex: 45 },
+    // 47. MP(46, 44)
+    { _tag: "mp", leftIndex: 46, rightIndex: 44 },
+    // 48. MP(43, 47): ¬φ → ¬¬(φ → ¬ψ)
+    { _tag: "mp", leftIndex: 43, rightIndex: 47 },
+    // --- A3: conclude ¬(φ → ¬ψ) → φ ---
+    // 49. A3[φ:=φ, ψ:=¬(φ → ¬ψ)]
+    {
+      _tag: "axiom",
+      formulaText: "(~phi -> ~~(phi -> ~psi)) -> (~(phi -> ~psi) -> phi)",
+    },
+    // 50. MP(48, 49): ¬(φ → ¬ψ) → φ
+    { _tag: "mp", leftIndex: 48, rightIndex: 49 },
+    // --- CONJ-DEF forward + B-combinator: (φ ∧ ψ) → φ ---
+    // 51. CONJ-DEF forward
+    { _tag: "axiom", formulaText: "(phi /\\ psi) -> ~(phi -> ~psi)" },
+    // B-combinator: compose 51 and 50
+    // 52. A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi /\\ psi) -> (~(phi -> ~psi) -> phi)) -> (((phi /\\ psi) -> ~(phi -> ~psi)) -> ((phi /\\ psi) -> phi))",
+    },
+    // 53. A1
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(phi -> ~psi) -> phi) -> ((phi /\\ psi) -> (~(phi -> ~psi) -> phi))",
+    },
+    // 54. MP(50, 53)
+    { _tag: "mp", leftIndex: 50, rightIndex: 53 },
+    // 55. MP(54, 52)
+    { _tag: "mp", leftIndex: 54, rightIndex: 52 },
+    // 56. MP(51, 55): (φ ∧ ψ) → φ
+    { _tag: "mp", leftIndex: 51, rightIndex: 55 },
   ],
 };
 
@@ -4050,20 +4401,219 @@ const prop23ConjElimLeft: ModelAnswer = {
  * prop-31: 連言の右除去 (φ ∧ ψ) → ψ
  *
  * 連言の定義: φ ∧ ψ ≡ ¬(φ → ¬ψ)
- * ゴール: ¬(φ → ¬ψ) → ψ
+ * ゴールの→/¬等価形: ¬(φ → ¬ψ) → ψ
  *
- * 含意/否定での同値式: ~(phi -> ~psi) -> psi
+ * 証明戦略:
+ *   1. DNI for (φ → ¬ψ): (φ → ¬ψ) → ¬¬(φ → ¬ψ)  [37 steps: prop-25 inline + A3 + MP]
+ *   2. A1: ¬ψ → (φ → ¬ψ)
+ *   3. Compose: ¬ψ → ¬¬(φ → ¬ψ)
+ *   4. A3: (¬ψ → ¬¬(φ → ¬ψ)) → (¬(φ → ¬ψ) → ψ)
+ *   5. CONJ-DEF forward + compose: (φ ∧ ψ) → ψ
  */
 const prop31ConjElimRight: ModelAnswer = {
   questId: "prop-31",
   steps: [
-    // 同様のアプローチ。
-    // DNE[psi]: ~~psi -> psi
-    // plus ~(phi -> ~psi) -> ~~psi
-    // (from A1: ~psi -> (phi -> ~psi), contrapose with A3)
-    //
-    // PRAGMATIC: Just place the goal formula.
-    { _tag: "axiom", formulaText: "(phi /\\ psi) -> psi" },
+    // --- prop-25 inline with φ := (φ → ¬ψ), 35 steps ---
+    // 0.
+    {
+      _tag: "axiom",
+      formulaText: "~~~(phi -> ~psi) -> (~~(phi -> ~psi) -> ~~~(phi -> ~psi))",
+    },
+    // 1.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> ~~~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))",
+    },
+    // 2.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(phi -> ~psi) -> ((~~(phi -> ~psi) -> ~~~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi)))) -> ((~~~(phi -> ~psi) -> (~~(phi -> ~psi) -> ~~~(phi -> ~psi))) -> (~~~(phi -> ~psi) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))))",
+    },
+    // 3.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi -> ~psi) -> ~~~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))) -> (~~~(phi -> ~psi) -> ((~~(phi -> ~psi) -> ~~~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))))",
+    },
+    // 4. MP(1, 3)
+    { _tag: "mp", leftIndex: 1, rightIndex: 3 },
+    // 5. MP(4, 2)
+    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+    // 6. MP(0, 5)
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+    // 7.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~~(phi -> ~psi)) -> (~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi)))",
+    },
+    // 8.
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~(phi -> ~psi) -> (~~(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~~(phi -> ~psi))",
+    },
+    // 9.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> ((~~(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~~(phi -> ~psi)) -> (~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi))))) -> ((~~(phi -> ~psi) -> (~~(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~~(phi -> ~psi))) -> (~~(phi -> ~psi) -> (~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi)))))",
+    },
+    // 10.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~~(phi -> ~psi)) -> (~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi)))) -> (~~(phi -> ~psi) -> ((~~(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~~(phi -> ~psi)) -> (~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi)))))",
+    },
+    // 11. MP(7, 10)
+    { _tag: "mp", leftIndex: 7, rightIndex: 10 },
+    // 12. MP(11, 9)
+    { _tag: "mp", leftIndex: 11, rightIndex: 9 },
+    // 13. MP(8, 12)
+    { _tag: "mp", leftIndex: 8, rightIndex: 12 },
+    // 14.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> (~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi)))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi))))",
+    },
+    // 15. MP(13, 14)
+    { _tag: "mp", leftIndex: 13, rightIndex: 14 },
+    // 16.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi))",
+    },
+    // 17.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ((~~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi)))) -> (((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi)))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi))))",
+    },
+    // 18.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ((~~(phi -> ~psi) -> ~(~~(phi -> ~psi) -> ~(phi -> ~psi))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi))))",
+    },
+    // 19. MP(16, 18)
+    { _tag: "mp", leftIndex: 16, rightIndex: 18 },
+    // 20. MP(19, 17)
+    { _tag: "mp", leftIndex: 19, rightIndex: 17 },
+    // 21. MP(15, 20)
+    { _tag: "mp", leftIndex: 15, rightIndex: 20 },
+    // 22.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi))) -> (((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi)))",
+    },
+    // 23. MP(21, 22)
+    { _tag: "mp", leftIndex: 21, rightIndex: 22 },
+    // 24.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))) -> (~~(phi -> ~psi) -> ~(phi -> ~psi)))) -> (((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi)))) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))))",
+    },
+    // 25.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))) -> (~~(phi -> ~psi) -> ~(phi -> ~psi)))",
+    },
+    // 26. MP(25, 24)
+    { _tag: "mp", leftIndex: 25, rightIndex: 24 },
+    // 27.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> (~~(phi -> ~psi) -> ~(phi -> ~psi)))",
+    },
+    // 28. MP(27, 26)
+    { _tag: "mp", leftIndex: 27, rightIndex: 26 },
+    // 29. MP(28, 23)
+    { _tag: "mp", leftIndex: 28, rightIndex: 23 },
+    // 30.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(phi -> ~psi) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi))) -> ((~~~(phi -> ~psi) -> (~~(phi -> ~psi) -> ~(phi -> ~psi))) -> (~~~(phi -> ~psi) -> ~(phi -> ~psi)))",
+    },
+    // 31.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi)) -> (~~~(phi -> ~psi) -> ((~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ~(phi -> ~psi)))",
+    },
+    // 32. MP(29, 31)
+    { _tag: "mp", leftIndex: 29, rightIndex: 31 },
+    // 33. MP(32, 30)
+    { _tag: "mp", leftIndex: 32, rightIndex: 30 },
+    // 34. MP(6, 33): ¬¬¬(φ→¬ψ) → ¬(φ→¬ψ) [prop-25]
+    { _tag: "mp", leftIndex: 6, rightIndex: 33 },
+    // --- A3 + MP: DNI for (φ → ¬ψ) ---
+    // 35. A3
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(phi -> ~psi) -> ~(phi -> ~psi)) -> ((phi -> ~psi) -> ~~(phi -> ~psi))",
+    },
+    // 36. MP(34, 35): (φ→¬ψ) → ¬¬(φ→¬ψ)
+    { _tag: "mp", leftIndex: 34, rightIndex: 35 },
+    // --- A1 + B-combinator: ¬ψ → ¬¬(φ → ¬ψ) ---
+    // 37. A1
+    { _tag: "axiom", formulaText: "~psi -> (phi -> ~psi)" },
+    // 38. A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~psi -> ((phi -> ~psi) -> ~~(phi -> ~psi))) -> ((~psi -> (phi -> ~psi)) -> (~psi -> ~~(phi -> ~psi)))",
+    },
+    // 39. A1
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi -> ~psi) -> ~~(phi -> ~psi)) -> (~psi -> ((phi -> ~psi) -> ~~(phi -> ~psi)))",
+    },
+    // 40. MP(36, 39)
+    { _tag: "mp", leftIndex: 36, rightIndex: 39 },
+    // 41. MP(40, 38)
+    { _tag: "mp", leftIndex: 40, rightIndex: 38 },
+    // 42. MP(37, 41): ¬ψ → ¬¬(φ → ¬ψ)
+    { _tag: "mp", leftIndex: 37, rightIndex: 41 },
+    // --- A3: conclude ¬(φ → ¬ψ) → ψ ---
+    // 43. A3[φ:=ψ, ψ:=¬(φ → ¬ψ)]
+    {
+      _tag: "axiom",
+      formulaText: "(~psi -> ~~(phi -> ~psi)) -> (~(phi -> ~psi) -> psi)",
+    },
+    // 44. MP(42, 43): ¬(φ → ¬ψ) → ψ
+    { _tag: "mp", leftIndex: 42, rightIndex: 43 },
+    // --- CONJ-DEF forward + B-combinator: (φ ∧ ψ) → ψ ---
+    // 45. CONJ-DEF forward
+    { _tag: "axiom", formulaText: "(phi /\\ psi) -> ~(phi -> ~psi)" },
+    // 46. A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi /\\ psi) -> (~(phi -> ~psi) -> psi)) -> (((phi /\\ psi) -> ~(phi -> ~psi)) -> ((phi /\\ psi) -> psi))",
+    },
+    // 47. A1
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(phi -> ~psi) -> psi) -> ((phi /\\ psi) -> (~(phi -> ~psi) -> psi))",
+    },
+    // 48. MP(44, 47)
+    { _tag: "mp", leftIndex: 44, rightIndex: 47 },
+    // 49. MP(48, 46)
+    { _tag: "mp", leftIndex: 48, rightIndex: 46 },
+    // 50. MP(45, 49): (φ ∧ ψ) → ψ
+    { _tag: "mp", leftIndex: 45, rightIndex: 49 },
   ],
 };
 
@@ -4107,14 +4657,97 @@ const prop32DisjElim: ModelAnswer = {
   ],
 };
 
+/**
+ * prop-44: 選言導入左 φ → (φ ∨ ψ)
+ *
+ * 選言の定義: φ ∨ ψ ≡ ¬φ → ψ
+ * ゴールの→/¬等価形: φ → (¬φ → ψ)
+ *
+ * 証明戦略:
+ *   1. A1 + A3 + B-combinator: ¬φ → (φ → ψ)  （EFQ）
+ *   2. flip: φ → (¬φ → ψ)
+ *   3. DISJ-DEF backward + B-combinator: φ → (φ ∨ ψ)
+ */
 const prop44DisjIntro: ModelAnswer = {
   questId: "prop-44",
   steps: [
-    // PRAGMATIC: Disjunction introduction via definition expansion.
+    // --- EFQ: ¬φ → (φ → ψ) ---
+    // 0. A1[φ:=¬φ, ψ:=¬ψ]
+    { _tag: "axiom", formulaText: "~phi -> (~psi -> ~phi)" },
+    // 1. A3[φ:=ψ, ψ:=φ]
+    { _tag: "axiom", formulaText: "(~psi -> ~phi) -> (phi -> psi)" },
+    // B-combinator: compose 0 and 1 → ¬φ → (φ → ψ)
+    // 2. A2
     {
       _tag: "axiom",
-      formulaText: "phi -> (phi \\/ psi)",
+      formulaText:
+        "(~phi -> ((~psi -> ~phi) -> (phi -> psi))) -> ((~phi -> (~psi -> ~phi)) -> (~phi -> (phi -> psi)))",
     },
+    // 3. A1: lift step 1 into ¬φ context
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~psi -> ~phi) -> (phi -> psi)) -> (~phi -> ((~psi -> ~phi) -> (phi -> psi)))",
+    },
+    // 4. MP(1, 3)
+    { _tag: "mp", leftIndex: 1, rightIndex: 3 },
+    // 5. MP(4, 2)
+    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+    // 6. MP(0, 5): ¬φ → (φ → ψ)
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+
+    // --- flip: φ → (¬φ → ψ) ---
+    // 7. A2[φ:=¬φ, ψ:=φ, χ:=ψ]
+    {
+      _tag: "axiom",
+      formulaText: "(~phi -> (phi -> psi)) -> ((~phi -> phi) -> (~phi -> psi))",
+    },
+    // 8. MP(6, 7): (¬φ → φ) → (¬φ → ψ)
+    { _tag: "mp", leftIndex: 6, rightIndex: 7 },
+    // 9. A1[φ:=φ, ψ:=¬φ]
+    { _tag: "axiom", formulaText: "phi -> (~phi -> phi)" },
+    // B-combinator: compose 9 and 8 → φ → (¬φ → ψ)
+    // 10. A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(phi -> ((~phi -> phi) -> (~phi -> psi))) -> ((phi -> (~phi -> phi)) -> (phi -> (~phi -> psi)))",
+    },
+    // 11. A1: lift step 8 into φ context
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~phi -> phi) -> (~phi -> psi)) -> (phi -> ((~phi -> phi) -> (~phi -> psi)))",
+    },
+    // 12. MP(8, 11)
+    { _tag: "mp", leftIndex: 8, rightIndex: 11 },
+    // 13. MP(12, 10)
+    { _tag: "mp", leftIndex: 12, rightIndex: 10 },
+    // 14. MP(9, 13): φ → (¬φ → ψ)
+    { _tag: "mp", leftIndex: 9, rightIndex: 13 },
+
+    // --- DISJ-DEF backward + compose: φ → (φ ∨ ψ) ---
+    // 15. DISJ-DEF backward[φ:=φ, ψ:=ψ]
+    { _tag: "axiom", formulaText: "(~phi -> psi) -> (phi \\/ psi)" },
+    // B-combinator: compose 14 and 15 → φ → (φ ∨ ψ)
+    // 16. A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(phi -> ((~phi -> psi) -> (phi \\/ psi))) -> ((phi -> (~phi -> psi)) -> (phi -> (phi \\/ psi)))",
+    },
+    // 17. A1: lift step 15 into φ context
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~phi -> psi) -> (phi \\/ psi)) -> (phi -> ((~phi -> psi) -> (phi \\/ psi)))",
+    },
+    // 18. MP(15, 17)
+    { _tag: "mp", leftIndex: 15, rightIndex: 17 },
+    // 19. MP(18, 16)
+    { _tag: "mp", leftIndex: 18, rightIndex: 16 },
+    // 20. MP(14, 19): φ → (φ ∨ ψ)
+    { _tag: "mp", leftIndex: 14, rightIndex: 19 },
   ],
 };
 

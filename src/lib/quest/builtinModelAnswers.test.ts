@@ -685,13 +685,9 @@ describe("全模範解答の公理制約チェック", () => {
  */
 const knownPragmaticQuests: ReadonlySet<string> = new Set([
   // prop系: ∧/∨ 関連の定理をゴール式として直接配置
-  "prop-22",
-  "prop-23",
   "prop-24",
   "prop-30",
-  "prop-31",
   "prop-32",
-  "prop-44",
   "prop-45",
   "prop-46",
   "prop-47",

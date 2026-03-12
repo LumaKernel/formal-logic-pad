@@ -12861,3 +12861,38 @@
   - peano-14は2回のE3使用があり最複雑（29ステップ）。インデックス管理が重要
   - peano系の公理書き換えパターンは確立済み。同様のパターンは他のquests(pred等)にも応用可能
 ---
+
+## 2026-03-12 - [quest] CONJ-DEF/DISJ-DEF定義公理実装・prop-20模範解答の正式化
+- ベースライン: Stmts 99.95%, Branch 99.91%
+- **結果: Stmts 99.95%, Branch 99.89%（v8 if-chain分岐カウントによる微小変動）**
+- **実装内容:**
+  1. CONJ-DEF (∧-Def) / DISJ-DEF (∨-Def) 定義公理をPropositionalAxiomIdに追加
+     - CONJ-DEF: (φ∧ψ) → ¬(φ→¬ψ) / ¬(φ→¬ψ) → (φ∧ψ) の双方向マッチング
+     - DISJ-DEF: (φ∨ψ) → (¬φ→ψ) / (¬φ→ψ) → (φ∨ψ) の双方向マッチング
+     - 全Hilbert体系（minimal/SK以外）に組み込み
+  2. prop-20（排中律 ¬φ∨φ）の模範解答をDISJ-DEF backward + MPで正式化
+     - 既存のDNE証明(35ステップ) + DISJ-DEF backward + MP = 37ステップ
+- **変更したファイル:**
+  - `src/lib/logic-core/inferenceRule.ts` - PropositionalAxiomId拡張、テンプレート追加、マッチング関数改修
+  - `src/lib/logic-core/inferenceRule.test.ts` - CONJ-DEF/DISJ-DEFマッチングテスト17件追加
+  - `src/lib/logic-core/index.ts` - 新テンプレートエクスポート
+  - `src/lib/proof-pad/axiomNameLogic.ts` - 表示名追加
+  - `src/lib/proof-pad/axiomPaletteLogic.ts` - パレットメタデータ追加
+  - `src/lib/proof-pad/axiomPaletteLogic.test.ts` - 期待値更新
+  - `src/lib/proof-pad/workspaceExport.ts` - スキーマ更新
+  - `src/lib/notebook/notebookSerialization.ts` - シリアライゼーション更新
+  - `src/lib/notebook/notebookSerialization.test.ts` - 期待値更新
+  - `src/lib/notebook/notebookCreateLogic.test.ts` - 期待値更新
+  - `src/lib/quest/builtinModelAnswers.ts` - prop-20修正
+  - `src/lib/quest/builtinModelAnswers.test.ts` - prop-20をスキップリストから削除（24→23件）
+- **カバレッジ:** Stmts 99.95%, Branch 99.89%（getPropositionalAxiomTemplatesのif-chainによるv8分岐カウント増加）
+- **残りの pragmatic quests (23件):**
+  - prop 10件: 全て∧/∨を含む定理。完全なHilbert証明には各30-120+ステップ必要（DNE/DNI/Claviusインライン展開が必須）
+  - pred 12件: 述語論理の定理の直接配置
+  - prop-30の分析: ¬(φ∧¬φ) = ¬¬(φ→¬¬φ) by CONJ-DEF。DNIを(φ→¬¬φ)に適用するには37ステップ追加 + AST表現の橋渡し（さらに35+ステップ）。合計80-120ステップとなり現状は保留
+- **今後のイテレーションへの学び:**
+  - CONJ-DEF/DISJ-DEFは双方向テンプレート（forward/backward）。getPropositionalAxiomTemplatesは配列を返す設計
+  - prop系pragmatic questsは∧/∨の定義展開がボトルネック。各定理のHilbert証明は30-120+ステップで、DNE/DNI/prop-25のインライン展開が必要
+  - prop-20は最も簡単なケース（DISJ-DEF backward 1ステップ + MP）。他のpropはCONJ-DEFの「対偶方向」が必要で、それにDNE/prop-25のインライン展開が必要
+  - ∧/∨定義公理の追加で全体系のpropositionalAxioms Setが変わるため、テストの期待値更新が広範囲に及ぶ
+---
