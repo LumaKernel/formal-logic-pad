@@ -217,4 +217,15 @@ describe("ReferencePopover", () => {
     fireEvent.click(screen.getByTestId("ref-pop-detail-btn"));
     expect(screen.queryByTestId("ref-pop-popover")).toBeNull();
   });
+
+  it("新しいタブで開くリンクがポップオーバー内に表示される", () => {
+    render(
+      <ReferencePopover entry={makeEntry()} locale="en" testId="ref-pop" />,
+    );
+    fireEvent.click(screen.getByTestId("ref-pop-trigger"));
+    const link = screen.getByTestId("ref-pop-open-new-tab");
+    expect(link).toBeDefined();
+    expect(link.getAttribute("href")).toBe("/reference/test-entry");
+    expect(link.getAttribute("target")).toBe("_blank");
+  });
 });

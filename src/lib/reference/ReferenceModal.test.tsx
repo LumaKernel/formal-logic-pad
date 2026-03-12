@@ -391,4 +391,35 @@ describe("ReferenceModal", () => {
     const modal = screen.getByTestId("ref-modal");
     expect(modal.getAttribute("aria-label")).toBe("Test Axiom");
   });
+
+  it("新しいタブで開くリンクが表示される", () => {
+    render(
+      <ReferenceModal
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        testId="ref-modal"
+      />,
+    );
+    const link = screen.getByTestId("ref-modal-open-new-tab");
+    expect(link).toBeDefined();
+    expect(link.getAttribute("href")).toBe("/reference/test-entry");
+    expect(link.getAttribute("target")).toBe("_blank");
+    expect(link.getAttribute("rel")).toBe("noopener noreferrer");
+  });
+
+  it("日本語で新しいタブで開くリンクのaria-labelが設定される", () => {
+    render(
+      <ReferenceModal
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="ja"
+        onClose={vi.fn()}
+        testId="ref-modal"
+      />,
+    );
+    const link = screen.getByTestId("ref-modal-open-new-tab");
+    expect(link.getAttribute("aria-label")).toBe("新しいタブで開く");
+  });
 });

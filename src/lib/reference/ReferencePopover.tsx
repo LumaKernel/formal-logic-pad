@@ -21,6 +21,7 @@ import katex from "katex";
 import type { Locale, ReferenceEntry } from "./referenceEntry";
 import { buildPopoverData } from "./referenceUILogic";
 import { InlineMarkdown } from "./InlineMarkdown";
+import { buildReferenceViewerUrl } from "./referenceViewerLogic";
 
 // --- Props ---
 
@@ -116,6 +117,21 @@ const detailButtonStyle: CSSProperties = {
   padding: "4px 0 0",
   fontFamily: "var(--font-ui)",
   textDecoration: "underline",
+};
+
+const popoverFooterStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingTop: "4px",
+};
+
+const openInNewTabLinkStyle: CSSProperties = {
+  display: "inline-block",
+  fontSize: "var(--font-size-xs, 11px)",
+  color: "var(--color-node-axiom, #5b8bd9)",
+  textDecoration: "none",
+  padding: "4px 0 0",
 };
 
 // --- コンポーネント ---
@@ -265,22 +281,44 @@ export function ReferencePopover({
           }
         />
       )}
-      {data.hasDetail && onOpenDetail !== undefined && (
-        <button
-          type="button"
-          style={detailButtonStyle}
-          onClick={handleDetailClick}
-          /* v8 ignore start -- testId is always provided in test contexts */
+      <div style={popoverFooterStyle}>
+        <div>
+          {data.hasDetail && onOpenDetail !== undefined && (
+            <button
+              type="button"
+              style={detailButtonStyle}
+              onClick={handleDetailClick}
+              /* v8 ignore start -- testId is always provided in test contexts */
+              data-testid={
+                testId !== undefined
+                  ? `${testId satisfies string}-detail-btn`
+                  : undefined
+              }
+              /* v8 ignore stop */
+            >
+              {locale === "ja" ? "詳しく見る →" : "See details →"}
+            </button>
+          )}
+        </div>
+        <a
+          href={buildReferenceViewerUrl(entry.id)}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={openInNewTabLinkStyle}
+          aria-label={
+            locale === "ja"
+              ? "新しいタブで開く"
+              : "Open in new tab"
+          }
           data-testid={
             testId !== undefined
-              ? `${testId satisfies string}-detail-btn`
+              ? `${testId satisfies string}-open-new-tab`
               : undefined
           }
-          /* v8 ignore stop */
         >
-          {locale === "ja" ? "詳しく見る →" : "See details →"}
-        </button>
-      )}
+          ↗
+        </a>
+      </div>
     </div>
   ) : null;
 
