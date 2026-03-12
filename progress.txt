@@ -13275,3 +13275,31 @@
   - WorkspacePageViewのストーリーで体系名をnotebookNameと同じにすると「Found multiple elements」エラー。getByTestId("notebook-title") / getByTestId("workspace-system") で分けて検証する
   - Storybook dev server(6006)とは別に13006が動いている場合がある。新ストーリーが認識されない場合は別ポートを試す
 ---
+
+## 2026-03-13 - quest-stories
+- 実装した内容:
+  - 各体系の最初のクエスト完了状態のストーリーを5つ追加
+    - QuestCompleteProp01: Hilbert φ→φ（模範解答はインスタンス公理のためAxiom violation表示）
+    - QuestCompleteNd01: ND φ→φ（Proved!, Proof Complete!バナー）
+    - QuestCompleteTab01: TAB ¬(φ→φ)反駁（Proved!, Proof Complete!バナー）
+    - QuestCompleteSc01: SC φ→φ（Proved!, Proof Complete!バナー）
+    - QuestCompleteAt01: AT φ∨¬φ（Proved!, Proof Complete!バナー）
+  - buildCompletedQuestWorkspace ヘルパー関数追加
+  - StatefulWorkspace に questInfo prop を追加
+  - prd-run-q-stories.md 全タスク完了 → tasks-archived/ にアーカイブ
+- 変更したファイル:
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx (+180行)
+  - tasks/prd-run-q-stories.md → tasks-archived/prd-run-q-stories.md
+- テスト: 全260ファイル9924テストパス（前回9919 → +5）
+- カバレッジ: 維持（ストーリーファイルはカバレッジ対象外）
+- ブラウザ検証: Playwright MCPで5ストーリーすべて確認、スクリーンショット撮影済み
+  - .screenshots/quest-complete-prop-01.png
+  - .screenshots/quest-complete-nd-01.png
+  - .screenshots/quest-complete-tab-01.png
+  - .screenshots/quest-complete-sc-01.png
+  - .screenshots/quest-complete-at-01.png
+- **今後のイテレーションへの学び:**
+  - buildModelAnswerWorkspaceで作成されるAxiomノードは具体的な論理式テキスト（インスタンス）を持つ。validateRootNodesはこれを"instance"型に分類し、checkQuestGoalsWithAxiomsがhasInstanceRootNodes=trueとしてAxiom violationを返す。UIで手動構築した場合はスキーマ照合でaxiomとして認識される
+  - Storybook story IDはタイトルのkebab-case: "Pages/Workspace" → "pages-workspace--story-name"
+  - prop-01のみAxiom violation（0/1）、他4体系（nd/tab/sc/at）はProved!（1/1）
+---
