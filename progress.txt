@@ -12968,3 +12968,19 @@
   - debug scriptの文字列比較では括弧の冗長性(例: (~X) vs ~X)による偽陽性に注意。実際のシステムはAST比較
   - 残り: pred系13件のみ（述語論理はfirst-order axiomが必要で別のアプローチ）
 ---
+
+## 2026-03-12 - proof-pad リファレンスポップオーバー見切れバグ修正
+- 実装した内容: ReferencePopoverのポップオーバーをcreatePortalでdocument.bodyにレンダリングするよう変更。position: fixedで表示位置をビューポート座標から計算
+- 原因: 公理パレット(AxiomPalette)にoverflowY: "auto" + maxHeightが設定されており、position: absoluteのポップオーバーがクリップされていた
+- 変更したファイル:
+  - src/lib/reference/ReferencePopover.tsx — createPortal + position: fixed + computePopoverPosition()
+  - src/lib/reference/ReferencePopover.stories.tsx — portal対応: within(document.body)でポップオーバー要素を検索
+  - src/lib/proof-pad/ProofWorkspace.stories.tsx — 同上
+  - src/lib/notebook/NotebookCreateFormComponent.stories.tsx — 同上
+- カバレッジ: 99.94% (変化なし)
+- スクリーンショット: .screenshots/reference-popover-portal-fix-verified.png, .screenshots/reference-popover-mp-portal.png
+- **今後のイテレーションへの学び:**
+  - createPortalでbodyにレンダリングする場合、Storybookのplay関数ではwithin(canvasElement)ではポータル要素が見つからない。within(document.body)を使う
+  - outside-clickハンドラはポータル要素(popoverRef)とトリガー要素(containerRef)の両方をチェックする必要がある
+  - ReferencePopoverを使っているストーリーファイルが3箇所あるので、変更時は全て更新すること
+---
