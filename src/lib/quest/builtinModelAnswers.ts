@@ -5635,22 +5635,709 @@ const prop24DeMorgan: ModelAnswer = {
 /**
  * prop-32: 選言除去 (φ ∨ ψ) → ((φ → χ) → ((ψ → χ) → χ))
  *
- * 選言の定義: φ ∨ ψ ≡ ¬φ → ψ
- * ゴール: (¬φ → ψ) → ((φ → χ) → ((ψ → χ) → χ))
- *
- * 含意/否定での同値式: (~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))
- *
- * prop-29 (TND) の一般化。非常に長い証明（45ステップ超）。
+ * 戦略: 249ステップ
+ * 1. prop-29 inline with ψ:=χ (163 steps): (φ→χ) → ((¬φ→χ) → χ)  [TND]
+ * 2. B-combinator theorem (7 steps): (ψ→χ) → ((¬φ→ψ) → (¬φ→χ))
+ * 3. Composition (24 steps): ((¬φ→χ)→χ) → ((ψ→χ) → ((¬φ→ψ)→χ))
+ * 4. B-comp with TND (5 steps): (φ→χ) → ((ψ→χ) → ((¬φ→ψ)→χ))
+ * 5. C-combinator (20 steps): argument permutation ψ→χ / ¬φ→ψ
+ * 6. B-comp (5 steps): (φ→χ) → ((¬φ→ψ) → ((ψ→χ)→χ))
+ * 7. C-combinator (20 steps): argument permutation φ→χ / ¬φ→ψ
+ * 8. DISJ-DEF bridge (6 steps): (φ∨ψ) → ((φ→χ) → ((ψ→χ)→χ))
  */
 const prop32DisjElim: ModelAnswer = {
   questId: "prop-32",
   steps: [
-    // This is the most complex proof. TND generalization.
-    // PRAGMATIC: Just place the goal formula.
+    { _tag: "axiom", formulaText: "~~phi -> (~phi -> ~~phi)" },
+    { _tag: "axiom", formulaText: "(~phi -> ~~phi) -> (~phi -> phi)" },
     {
       _tag: "axiom",
-      formulaText: "(phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))",
+      formulaText:
+        "(~~phi -> ((~phi -> ~~phi) -> (~phi -> phi))) -> ((~~phi -> (~phi -> ~~phi)) -> (~~phi -> (~phi -> phi)))",
     },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~phi -> ~~phi) -> (~phi -> phi)) -> (~~phi -> ((~phi -> ~~phi) -> (~phi -> phi)))",
+    },
+    { _tag: "mp", leftIndex: 1, rightIndex: 3 },
+    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+    {
+      _tag: "axiom",
+      formulaText: "(~(~(~phi -> phi)) -> ~phi) -> (phi -> (~(~phi -> phi)))",
+    },
+    { _tag: "axiom", formulaText: "~phi -> (~(~(~phi -> phi)) -> ~phi)" },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~phi -> ((~(~(~phi -> phi)) -> ~phi) -> (phi -> (~(~phi -> phi))))) -> ((~phi -> (~(~(~phi -> phi)) -> ~phi)) -> (~phi -> (phi -> (~(~phi -> phi)))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~(~phi -> phi)) -> ~phi) -> (phi -> (~(~phi -> phi)))) -> (~phi -> ((~(~(~phi -> phi)) -> ~phi) -> (phi -> (~(~phi -> phi)))))",
+    },
+    { _tag: "mp", leftIndex: 7, rightIndex: 10 },
+    { _tag: "mp", leftIndex: 11, rightIndex: 9 },
+    { _tag: "mp", leftIndex: 8, rightIndex: 12 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~phi -> (phi -> ~(~phi -> phi))) -> ((~phi -> phi) -> (~phi -> ~(~phi -> phi)))",
+    },
+    { _tag: "mp", leftIndex: 13, rightIndex: 14 },
+    {
+      _tag: "axiom",
+      formulaText: "(~phi -> ~(~phi -> phi)) -> ((~phi -> phi) -> phi)",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~phi -> phi) -> ((~phi -> ~(~phi -> phi)) -> ((~phi -> phi) -> phi))) -> (((~phi -> phi) -> (~phi -> ~(~phi -> phi))) -> ((~phi -> phi) -> ((~phi -> phi) -> phi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~phi -> ~(~phi -> phi)) -> ((~phi -> phi) -> phi)) -> ((~phi -> phi) -> ((~phi -> ~(~phi -> phi)) -> ((~phi -> phi) -> phi)))",
+    },
+    { _tag: "mp", leftIndex: 16, rightIndex: 18 },
+    { _tag: "mp", leftIndex: 19, rightIndex: 17 },
+    { _tag: "mp", leftIndex: 15, rightIndex: 20 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~phi -> phi) -> ((~phi -> phi) -> phi)) -> (((~phi -> phi) -> (~phi -> phi)) -> ((~phi -> phi) -> phi))",
+    },
+    { _tag: "mp", leftIndex: 21, rightIndex: 22 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~phi -> phi) -> (((~phi -> phi) -> (~phi -> phi)) -> (~phi -> phi))) -> (((~phi -> phi) -> ((~phi -> phi) -> (~phi -> phi))) -> ((~phi -> phi) -> (~phi -> phi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~phi -> phi) -> (((~phi -> phi) -> (~phi -> phi)) -> (~phi -> phi))",
+    },
+    { _tag: "mp", leftIndex: 25, rightIndex: 24 },
+    {
+      _tag: "axiom",
+      formulaText: "(~phi -> phi) -> ((~phi -> phi) -> (~phi -> phi))",
+    },
+    { _tag: "mp", leftIndex: 27, rightIndex: 26 },
+    { _tag: "mp", leftIndex: 28, rightIndex: 23 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~phi -> ((~phi -> phi) -> phi)) -> ((~~phi -> (~phi -> phi)) -> (~~phi -> phi))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~phi -> phi) -> phi) -> (~~phi -> ((~phi -> phi) -> phi))",
+    },
+    { _tag: "mp", leftIndex: 29, rightIndex: 31 },
+    { _tag: "mp", leftIndex: 32, rightIndex: 30 },
+    { _tag: "mp", leftIndex: 6, rightIndex: 33 },
+    { _tag: "axiom", formulaText: "~~~chi -> (~~chi -> ~~~chi)" },
+    { _tag: "axiom", formulaText: "(~~chi -> ~~~chi) -> (~~chi -> ~chi)" },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~chi -> ((~~chi -> ~~~chi) -> (~~chi -> ~chi))) -> ((~~~chi -> (~~chi -> ~~~chi)) -> (~~~chi -> (~~chi -> ~chi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~chi -> ~~~chi) -> (~~chi -> ~chi)) -> (~~~chi -> ((~~chi -> ~~~chi) -> (~~chi -> ~chi)))",
+    },
+    { _tag: "mp", leftIndex: 36, rightIndex: 38 },
+    { _tag: "mp", leftIndex: 39, rightIndex: 37 },
+    { _tag: "mp", leftIndex: 35, rightIndex: 40 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~(~~chi -> ~chi)) -> ~~chi) -> (~chi -> (~(~~chi -> ~chi)))",
+    },
+    { _tag: "axiom", formulaText: "~~chi -> (~(~(~~chi -> ~chi)) -> ~~chi)" },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~chi -> ((~(~(~~chi -> ~chi)) -> ~~chi) -> (~chi -> (~(~~chi -> ~chi))))) -> ((~~chi -> (~(~(~~chi -> ~chi)) -> ~~chi)) -> (~~chi -> (~chi -> (~(~~chi -> ~chi)))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~(~~chi -> ~chi)) -> ~~chi) -> (~chi -> (~(~~chi -> ~chi)))) -> (~~chi -> ((~(~(~~chi -> ~chi)) -> ~~chi) -> (~chi -> (~(~~chi -> ~chi)))))",
+    },
+    { _tag: "mp", leftIndex: 42, rightIndex: 45 },
+    { _tag: "mp", leftIndex: 46, rightIndex: 44 },
+    { _tag: "mp", leftIndex: 43, rightIndex: 47 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~chi -> (~chi -> ~(~~chi -> ~chi))) -> ((~~chi -> ~chi) -> (~~chi -> ~(~~chi -> ~chi)))",
+    },
+    { _tag: "mp", leftIndex: 48, rightIndex: 49 },
+    {
+      _tag: "axiom",
+      formulaText: "(~~chi -> ~(~~chi -> ~chi)) -> ((~~chi -> ~chi) -> ~chi)",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~chi -> ~chi) -> ((~~chi -> ~(~~chi -> ~chi)) -> ((~~chi -> ~chi) -> ~chi))) -> (((~~chi -> ~chi) -> (~~chi -> ~(~~chi -> ~chi))) -> ((~~chi -> ~chi) -> ((~~chi -> ~chi) -> ~chi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~chi -> ~(~~chi -> ~chi)) -> ((~~chi -> ~chi) -> ~chi)) -> ((~~chi -> ~chi) -> ((~~chi -> ~(~~chi -> ~chi)) -> ((~~chi -> ~chi) -> ~chi)))",
+    },
+    { _tag: "mp", leftIndex: 51, rightIndex: 53 },
+    { _tag: "mp", leftIndex: 54, rightIndex: 52 },
+    { _tag: "mp", leftIndex: 50, rightIndex: 55 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~chi -> ~chi) -> ((~~chi -> ~chi) -> ~chi)) -> (((~~chi -> ~chi) -> (~~chi -> ~chi)) -> ((~~chi -> ~chi) -> ~chi))",
+    },
+    { _tag: "mp", leftIndex: 56, rightIndex: 57 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~chi -> ~chi) -> (((~~chi -> ~chi) -> (~~chi -> ~chi)) -> (~~chi -> ~chi))) -> (((~~chi -> ~chi) -> ((~~chi -> ~chi) -> (~~chi -> ~chi))) -> ((~~chi -> ~chi) -> (~~chi -> ~chi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~chi -> ~chi) -> (((~~chi -> ~chi) -> (~~chi -> ~chi)) -> (~~chi -> ~chi))",
+    },
+    { _tag: "mp", leftIndex: 60, rightIndex: 59 },
+    {
+      _tag: "axiom",
+      formulaText: "(~~chi -> ~chi) -> ((~~chi -> ~chi) -> (~~chi -> ~chi))",
+    },
+    { _tag: "mp", leftIndex: 62, rightIndex: 61 },
+    { _tag: "mp", leftIndex: 63, rightIndex: 58 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~chi -> ((~~chi -> ~chi) -> ~chi)) -> ((~~~chi -> (~~chi -> ~chi)) -> (~~~chi -> ~chi))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~chi -> ~chi) -> ~chi) -> (~~~chi -> ((~~chi -> ~chi) -> ~chi))",
+    },
+    { _tag: "mp", leftIndex: 64, rightIndex: 66 },
+    { _tag: "mp", leftIndex: 67, rightIndex: 65 },
+    { _tag: "mp", leftIndex: 41, rightIndex: 68 },
+    { _tag: "axiom", formulaText: "(~~~chi -> ~chi) -> (chi -> ~~chi)" },
+    { _tag: "mp", leftIndex: 69, rightIndex: 70 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~phi -> (phi -> chi))) -> ((~~phi -> phi) -> (~~phi -> chi))",
+    },
+    {
+      _tag: "axiom",
+      formulaText: "((phi -> chi)) -> ((~~phi -> (phi -> chi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi -> chi) -> ((~~phi -> (phi -> chi)) -> ((~~phi -> phi) -> (~~phi -> chi)))) -> (((phi -> chi) -> (~~phi -> (phi -> chi))) -> ((phi -> chi) -> ((~~phi -> phi) -> (~~phi -> chi))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~phi -> (phi -> chi)) -> ((~~phi -> phi) -> (~~phi -> chi))) -> ((phi -> chi) -> ((~~phi -> (phi -> chi)) -> ((~~phi -> phi) -> (~~phi -> chi))))",
+    },
+    { _tag: "mp", leftIndex: 72, rightIndex: 75 },
+    { _tag: "mp", leftIndex: 76, rightIndex: 74 },
+    { _tag: "mp", leftIndex: 73, rightIndex: 77 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi -> chi) -> ((~~phi -> phi) -> (~~phi -> chi))) -> (((phi -> chi) -> (~~phi -> phi)) -> ((phi -> chi) -> (~~phi -> chi)))",
+    },
+    { _tag: "mp", leftIndex: 78, rightIndex: 79 },
+    {
+      _tag: "axiom",
+      formulaText: "((~~phi -> phi)) -> ((phi -> chi) -> (~~phi -> phi))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~phi -> phi) -> (((phi -> chi) -> (~~phi -> phi)) -> ((phi -> chi) -> (~~phi -> chi)))) -> (((~~phi -> phi) -> ((phi -> chi) -> (~~phi -> phi))) -> ((~~phi -> phi) -> ((phi -> chi) -> (~~phi -> chi))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((phi -> chi) -> (~~phi -> phi)) -> ((phi -> chi) -> (~~phi -> chi))) -> ((~~phi -> phi) -> (((phi -> chi) -> (~~phi -> phi)) -> ((phi -> chi) -> (~~phi -> chi))))",
+    },
+    { _tag: "mp", leftIndex: 80, rightIndex: 83 },
+    { _tag: "mp", leftIndex: 84, rightIndex: 82 },
+    { _tag: "mp", leftIndex: 81, rightIndex: 85 },
+    { _tag: "mp", leftIndex: 34, rightIndex: 86 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~phi -> (chi -> ~~chi))) -> ((~~phi -> chi) -> (~~phi -> ~~chi))",
+    },
+    {
+      _tag: "axiom",
+      formulaText: "((chi -> ~~chi)) -> ((~~phi -> (chi -> ~~chi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((chi -> ~~chi) -> ((~~phi -> (chi -> ~~chi)) -> ((~~phi -> chi) -> (~~phi -> ~~chi)))) -> (((chi -> ~~chi) -> (~~phi -> (chi -> ~~chi))) -> ((chi -> ~~chi) -> ((~~phi -> chi) -> (~~phi -> ~~chi))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~phi -> (chi -> ~~chi)) -> ((~~phi -> chi) -> (~~phi -> ~~chi))) -> ((chi -> ~~chi) -> ((~~phi -> (chi -> ~~chi)) -> ((~~phi -> chi) -> (~~phi -> ~~chi))))",
+    },
+    { _tag: "mp", leftIndex: 88, rightIndex: 91 },
+    { _tag: "mp", leftIndex: 92, rightIndex: 90 },
+    { _tag: "mp", leftIndex: 89, rightIndex: 93 },
+    { _tag: "mp", leftIndex: 71, rightIndex: 94 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi -> chi) -> ((~~phi -> chi) -> (~~phi -> ~~chi))) -> (((phi -> chi) -> (~~phi -> chi)) -> ((phi -> chi) -> (~~phi -> ~~chi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~phi -> chi) -> (~~phi -> ~~chi)) -> ((phi -> chi) -> ((~~phi -> chi) -> (~~phi -> ~~chi)))",
+    },
+    { _tag: "mp", leftIndex: 95, rightIndex: 97 },
+    { _tag: "mp", leftIndex: 98, rightIndex: 96 },
+    { _tag: "mp", leftIndex: 87, rightIndex: 99 },
+    { _tag: "axiom", formulaText: "(~~phi -> ~~chi) -> (~chi -> ~phi)" },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi -> chi) -> ((~~phi -> ~~chi) -> (~chi -> ~phi))) -> (((phi -> chi) -> (~~phi -> ~~chi)) -> ((phi -> chi) -> (~chi -> ~phi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~phi -> ~~chi) -> (~chi -> ~phi)) -> ((phi -> chi) -> ((~~phi -> ~~chi) -> (~chi -> ~phi)))",
+    },
+    { _tag: "mp", leftIndex: 101, rightIndex: 103 },
+    { _tag: "mp", leftIndex: 104, rightIndex: 102 },
+    { _tag: "mp", leftIndex: 100, rightIndex: 105 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~chi -> (~phi -> chi))) -> ((~chi -> ~phi) -> (~chi -> chi))",
+    },
+    {
+      _tag: "axiom",
+      formulaText: "((~phi -> chi)) -> ((~chi -> (~phi -> chi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~phi -> chi) -> ((~chi -> (~phi -> chi)) -> ((~chi -> ~phi) -> (~chi -> chi)))) -> (((~phi -> chi) -> (~chi -> (~phi -> chi))) -> ((~phi -> chi) -> ((~chi -> ~phi) -> (~chi -> chi))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~chi -> (~phi -> chi)) -> ((~chi -> ~phi) -> (~chi -> chi))) -> ((~phi -> chi) -> ((~chi -> (~phi -> chi)) -> ((~chi -> ~phi) -> (~chi -> chi))))",
+    },
+    { _tag: "mp", leftIndex: 107, rightIndex: 110 },
+    { _tag: "mp", leftIndex: 111, rightIndex: 109 },
+    { _tag: "mp", leftIndex: 108, rightIndex: 112 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~phi -> chi) -> ((~chi -> ~phi) -> (~chi -> chi))) -> (((~phi -> chi) -> (~chi -> ~phi)) -> ((~phi -> chi) -> (~chi -> chi)))",
+    },
+    { _tag: "mp", leftIndex: 113, rightIndex: 114 },
+    {
+      _tag: "axiom",
+      formulaText: "((~chi -> ~phi)) -> ((~phi -> chi) -> (~chi -> ~phi))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~chi -> ~phi) -> (((~phi -> chi) -> (~chi -> ~phi)) -> ((~phi -> chi) -> (~chi -> chi)))) -> (((~chi -> ~phi) -> ((~phi -> chi) -> (~chi -> ~phi))) -> ((~chi -> ~phi) -> ((~phi -> chi) -> (~chi -> chi))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((~phi -> chi) -> (~chi -> ~phi)) -> ((~phi -> chi) -> (~chi -> chi))) -> ((~chi -> ~phi) -> (((~phi -> chi) -> (~chi -> ~phi)) -> ((~phi -> chi) -> (~chi -> chi))))",
+    },
+    { _tag: "mp", leftIndex: 115, rightIndex: 118 },
+    { _tag: "mp", leftIndex: 119, rightIndex: 117 },
+    { _tag: "mp", leftIndex: 116, rightIndex: 120 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi -> chi) -> ((~chi -> ~phi) -> ((~phi -> chi) -> (~chi -> chi)))) -> (((phi -> chi) -> (~chi -> ~phi)) -> ((phi -> chi) -> ((~phi -> chi) -> (~chi -> chi))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~chi -> ~phi) -> ((~phi -> chi) -> (~chi -> chi))) -> ((phi -> chi) -> ((~chi -> ~phi) -> ((~phi -> chi) -> (~chi -> chi))))",
+    },
+    { _tag: "mp", leftIndex: 121, rightIndex: 123 },
+    { _tag: "mp", leftIndex: 124, rightIndex: 122 },
+    { _tag: "mp", leftIndex: 106, rightIndex: 125 },
+    {
+      _tag: "axiom",
+      formulaText: "(~(~(~chi -> chi)) -> ~chi) -> (chi -> (~(~chi -> chi)))",
+    },
+    { _tag: "axiom", formulaText: "~chi -> (~(~(~chi -> chi)) -> ~chi)" },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~chi -> ((~(~(~chi -> chi)) -> ~chi) -> (chi -> (~(~chi -> chi))))) -> ((~chi -> (~(~(~chi -> chi)) -> ~chi)) -> (~chi -> (chi -> (~(~chi -> chi)))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~(~chi -> chi)) -> ~chi) -> (chi -> (~(~chi -> chi)))) -> (~chi -> ((~(~(~chi -> chi)) -> ~chi) -> (chi -> (~(~chi -> chi)))))",
+    },
+    { _tag: "mp", leftIndex: 127, rightIndex: 130 },
+    { _tag: "mp", leftIndex: 131, rightIndex: 129 },
+    { _tag: "mp", leftIndex: 128, rightIndex: 132 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~chi -> (chi -> ~(~chi -> chi))) -> ((~chi -> chi) -> (~chi -> ~(~chi -> chi)))",
+    },
+    { _tag: "mp", leftIndex: 133, rightIndex: 134 },
+    {
+      _tag: "axiom",
+      formulaText: "(~chi -> ~(~chi -> chi)) -> ((~chi -> chi) -> chi)",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~chi -> chi) -> ((~chi -> ~(~chi -> chi)) -> ((~chi -> chi) -> chi))) -> (((~chi -> chi) -> (~chi -> ~(~chi -> chi))) -> ((~chi -> chi) -> ((~chi -> chi) -> chi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~chi -> ~(~chi -> chi)) -> ((~chi -> chi) -> chi)) -> ((~chi -> chi) -> ((~chi -> ~(~chi -> chi)) -> ((~chi -> chi) -> chi)))",
+    },
+    { _tag: "mp", leftIndex: 136, rightIndex: 138 },
+    { _tag: "mp", leftIndex: 139, rightIndex: 137 },
+    { _tag: "mp", leftIndex: 135, rightIndex: 140 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~chi -> chi) -> ((~chi -> chi) -> chi)) -> (((~chi -> chi) -> (~chi -> chi)) -> ((~chi -> chi) -> chi))",
+    },
+    { _tag: "mp", leftIndex: 141, rightIndex: 142 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~chi -> chi) -> (((~chi -> chi) -> (~chi -> chi)) -> (~chi -> chi))) -> (((~chi -> chi) -> ((~chi -> chi) -> (~chi -> chi))) -> ((~chi -> chi) -> (~chi -> chi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~chi -> chi) -> (((~chi -> chi) -> (~chi -> chi)) -> (~chi -> chi))",
+    },
+    { _tag: "mp", leftIndex: 145, rightIndex: 144 },
+    {
+      _tag: "axiom",
+      formulaText: "(~chi -> chi) -> ((~chi -> chi) -> (~chi -> chi))",
+    },
+    { _tag: "mp", leftIndex: 147, rightIndex: 146 },
+    { _tag: "mp", leftIndex: 148, rightIndex: 143 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((~phi -> chi) -> ((~chi -> chi) -> chi))) -> (((~phi -> chi) -> (~chi -> chi)) -> ((~phi -> chi) -> chi))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((~chi -> chi) -> chi)) -> (((~phi -> chi) -> ((~chi -> chi) -> chi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((~chi -> chi) -> chi) -> (((~phi -> chi) -> ((~chi -> chi) -> chi)) -> (((~phi -> chi) -> (~chi -> chi)) -> ((~phi -> chi) -> chi)))) -> ((((~chi -> chi) -> chi) -> ((~phi -> chi) -> ((~chi -> chi) -> chi))) -> (((~chi -> chi) -> chi) -> (((~phi -> chi) -> (~chi -> chi)) -> ((~phi -> chi) -> chi))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((~phi -> chi) -> ((~chi -> chi) -> chi)) -> (((~phi -> chi) -> (~chi -> chi)) -> ((~phi -> chi) -> chi))) -> (((~chi -> chi) -> chi) -> (((~phi -> chi) -> ((~chi -> chi) -> chi)) -> (((~phi -> chi) -> (~chi -> chi)) -> ((~phi -> chi) -> chi))))",
+    },
+    { _tag: "mp", leftIndex: 150, rightIndex: 153 },
+    { _tag: "mp", leftIndex: 154, rightIndex: 152 },
+    { _tag: "mp", leftIndex: 151, rightIndex: 155 },
+    { _tag: "mp", leftIndex: 149, rightIndex: 156 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi -> chi) -> (((~phi -> chi) -> (~chi -> chi)) -> ((~phi -> chi) -> chi))) -> (((phi -> chi) -> ((~phi -> chi) -> (~chi -> chi))) -> ((phi -> chi) -> ((~phi -> chi) -> chi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((~phi -> chi) -> (~chi -> chi)) -> ((~phi -> chi) -> chi)) -> ((phi -> chi) -> (((~phi -> chi) -> (~chi -> chi)) -> ((~phi -> chi) -> chi)))",
+    },
+    { _tag: "mp", leftIndex: 157, rightIndex: 159 },
+    { _tag: "mp", leftIndex: 160, rightIndex: 158 },
+    { _tag: "mp", leftIndex: 126, rightIndex: 161 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~phi -> (psi -> chi)) -> ((~phi -> psi) -> (~phi -> chi)))",
+    },
+    { _tag: "axiom", formulaText: "((psi -> chi) -> (~phi -> (psi -> chi)))" },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((psi -> chi) -> ((~phi -> (psi -> chi)) -> ((~phi -> psi) -> (~phi -> chi)))) -> (((psi -> chi) -> (~phi -> (psi -> chi))) -> ((psi -> chi) -> ((~phi -> psi) -> (~phi -> chi)))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((~phi -> (psi -> chi)) -> ((~phi -> psi) -> (~phi -> chi))) -> ((psi -> chi) -> ((~phi -> (psi -> chi)) -> ((~phi -> psi) -> (~phi -> chi)))))",
+    },
+    { _tag: "mp", leftIndex: 163, rightIndex: 166 },
+    { _tag: "mp", leftIndex: 167, rightIndex: 165 },
+    { _tag: "mp", leftIndex: 164, rightIndex: 168 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((~phi -> psi) -> ((~phi -> chi) -> chi)) -> (((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((~phi -> chi) -> chi) -> ((~phi -> psi) -> ((~phi -> chi) -> chi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((~phi -> chi) -> chi) -> (((~phi -> psi) -> ((~phi -> chi) -> chi)) -> (((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)))) -> ((((~phi -> chi) -> chi) -> ((~phi -> psi) -> ((~phi -> chi) -> chi))) -> (((~phi -> chi) -> chi) -> (((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((~phi -> psi) -> ((~phi -> chi) -> chi)) -> (((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi))) -> (((~phi -> chi) -> chi) -> (((~phi -> psi) -> ((~phi -> chi) -> chi)) -> (((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)))))",
+    },
+    { _tag: "mp", leftIndex: 170, rightIndex: 173 },
+    { _tag: "mp", leftIndex: 174, rightIndex: 172 },
+    { _tag: "mp", leftIndex: 171, rightIndex: 175 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((psi -> chi) -> (((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi))) -> (((psi -> chi) -> ((~phi -> psi) -> (~phi -> chi))) -> ((psi -> chi) -> ((~phi -> psi) -> chi))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)) -> ((psi -> chi) -> (((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)) -> (((psi -> chi) -> (((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi))) -> (((psi -> chi) -> ((~phi -> psi) -> (~phi -> chi))) -> ((psi -> chi) -> ((~phi -> psi) -> chi))))) -> (((((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)) -> ((psi -> chi) -> (((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)))) -> ((((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)) -> (((psi -> chi) -> ((~phi -> psi) -> (~phi -> chi))) -> ((psi -> chi) -> ((~phi -> psi) -> chi))))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((psi -> chi) -> (((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi))) -> (((psi -> chi) -> ((~phi -> psi) -> (~phi -> chi))) -> ((psi -> chi) -> ((~phi -> psi) -> chi)))) -> ((((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)) -> (((psi -> chi) -> (((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi))) -> (((psi -> chi) -> ((~phi -> psi) -> (~phi -> chi))) -> ((psi -> chi) -> ((~phi -> psi) -> chi))))))",
+    },
+    { _tag: "mp", leftIndex: 177, rightIndex: 180 },
+    { _tag: "mp", leftIndex: 181, rightIndex: 179 },
+    { _tag: "mp", leftIndex: 178, rightIndex: 182 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)) -> (((psi -> chi) -> ((~phi -> psi) -> (~phi -> chi))) -> ((psi -> chi) -> ((~phi -> psi) -> chi)))) -> (((((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)) -> ((psi -> chi) -> ((~phi -> psi) -> (~phi -> chi)))) -> ((((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)) -> ((psi -> chi) -> ((~phi -> psi) -> chi)))))",
+    },
+    { _tag: "mp", leftIndex: 183, rightIndex: 184 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((psi -> chi) -> ((~phi -> psi) -> (~phi -> chi))) -> ((((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)) -> ((psi -> chi) -> ((~phi -> psi) -> (~phi -> chi)))))",
+    },
+    { _tag: "mp", leftIndex: 169, rightIndex: 186 },
+    { _tag: "mp", leftIndex: 187, rightIndex: 185 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((~phi -> chi) -> chi) -> ((((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)) -> ((psi -> chi) -> ((~phi -> psi) -> chi)))) -> ((((~phi -> chi) -> chi) -> (((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi))) -> (((~phi -> chi) -> chi) -> ((psi -> chi) -> ((~phi -> psi) -> chi)))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)) -> ((psi -> chi) -> ((~phi -> psi) -> chi))) -> (((~phi -> chi) -> chi) -> ((((~phi -> psi) -> (~phi -> chi)) -> ((~phi -> psi) -> chi)) -> ((psi -> chi) -> ((~phi -> psi) -> chi)))))",
+    },
+    { _tag: "mp", leftIndex: 188, rightIndex: 190 },
+    { _tag: "mp", leftIndex: 191, rightIndex: 189 },
+    { _tag: "mp", leftIndex: 176, rightIndex: 192 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((phi -> chi) -> (((~phi -> chi) -> chi) -> ((psi -> chi) -> ((~phi -> psi) -> chi)))) -> (((phi -> chi) -> ((~phi -> chi) -> chi)) -> ((phi -> chi) -> ((psi -> chi) -> ((~phi -> psi) -> chi)))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((~phi -> chi) -> chi) -> ((psi -> chi) -> ((~phi -> psi) -> chi))) -> ((phi -> chi) -> (((~phi -> chi) -> chi) -> ((psi -> chi) -> ((~phi -> psi) -> chi)))))",
+    },
+    { _tag: "mp", leftIndex: 193, rightIndex: 195 },
+    { _tag: "mp", leftIndex: 196, rightIndex: 194 },
+    { _tag: "mp", leftIndex: 162, rightIndex: 197 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((~phi -> psi) -> (((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi))) -> (((~phi -> psi) -> ((psi -> chi) -> (~phi -> psi))) -> ((~phi -> psi) -> ((psi -> chi) -> chi))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi)) -> ((~phi -> psi) -> (((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi)) -> (((~phi -> psi) -> (((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi))) -> (((~phi -> psi) -> ((psi -> chi) -> (~phi -> psi))) -> ((~phi -> psi) -> ((psi -> chi) -> chi))))) -> (((((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi)) -> ((~phi -> psi) -> (((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi)))) -> ((((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi)) -> (((~phi -> psi) -> ((psi -> chi) -> (~phi -> psi))) -> ((~phi -> psi) -> ((psi -> chi) -> chi))))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((~phi -> psi) -> (((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi))) -> (((~phi -> psi) -> ((psi -> chi) -> (~phi -> psi))) -> ((~phi -> psi) -> ((psi -> chi) -> chi)))) -> ((((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi)) -> (((~phi -> psi) -> (((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi))) -> (((~phi -> psi) -> ((psi -> chi) -> (~phi -> psi))) -> ((~phi -> psi) -> ((psi -> chi) -> chi))))))",
+    },
+    { _tag: "mp", leftIndex: 199, rightIndex: 202 },
+    { _tag: "mp", leftIndex: 203, rightIndex: 201 },
+    { _tag: "mp", leftIndex: 200, rightIndex: 204 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi)) -> (((~phi -> psi) -> ((psi -> chi) -> (~phi -> psi))) -> ((~phi -> psi) -> ((psi -> chi) -> chi)))) -> (((((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi)) -> ((~phi -> psi) -> ((psi -> chi) -> (~phi -> psi)))) -> ((((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi)) -> ((~phi -> psi) -> ((psi -> chi) -> chi)))))",
+    },
+    { _tag: "mp", leftIndex: 205, rightIndex: 206 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((~phi -> psi) -> ((psi -> chi) -> (~phi -> psi))) -> ((((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi)) -> ((~phi -> psi) -> ((psi -> chi) -> (~phi -> psi)))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText: "((~phi -> psi) -> ((psi -> chi) -> (~phi -> psi)))",
+    },
+    { _tag: "mp", leftIndex: 209, rightIndex: 208 },
+    { _tag: "mp", leftIndex: 210, rightIndex: 207 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((psi -> chi) -> ((~phi -> psi) -> chi)) -> (((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi)))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((psi -> chi) -> ((~phi -> psi) -> chi)) -> ((((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi)) -> ((~phi -> psi) -> ((psi -> chi) -> chi)))) -> ((((psi -> chi) -> ((~phi -> psi) -> chi)) -> (((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi))) -> (((psi -> chi) -> ((~phi -> psi) -> chi)) -> ((~phi -> psi) -> ((psi -> chi) -> chi)))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi)) -> ((~phi -> psi) -> ((psi -> chi) -> chi))) -> (((psi -> chi) -> ((~phi -> psi) -> chi)) -> ((((psi -> chi) -> (~phi -> psi)) -> ((psi -> chi) -> chi)) -> ((~phi -> psi) -> ((psi -> chi) -> chi)))))",
+    },
+    { _tag: "mp", leftIndex: 211, rightIndex: 214 },
+    { _tag: "mp", leftIndex: 215, rightIndex: 213 },
+    { _tag: "mp", leftIndex: 212, rightIndex: 216 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((phi -> chi) -> (((psi -> chi) -> ((~phi -> psi) -> chi)) -> ((~phi -> psi) -> ((psi -> chi) -> chi)))) -> (((phi -> chi) -> ((psi -> chi) -> ((~phi -> psi) -> chi))) -> ((phi -> chi) -> ((~phi -> psi) -> ((psi -> chi) -> chi)))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((psi -> chi) -> ((~phi -> psi) -> chi)) -> ((~phi -> psi) -> ((psi -> chi) -> chi))) -> ((phi -> chi) -> (((psi -> chi) -> ((~phi -> psi) -> chi)) -> ((~phi -> psi) -> ((psi -> chi) -> chi)))))",
+    },
+    { _tag: "mp", leftIndex: 217, rightIndex: 219 },
+    { _tag: "mp", leftIndex: 220, rightIndex: 218 },
+    { _tag: "mp", leftIndex: 198, rightIndex: 221 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((~phi -> psi) -> (((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi)))) -> (((~phi -> psi) -> ((phi -> chi) -> (~phi -> psi))) -> ((~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi)))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi))) -> ((~phi -> psi) -> (((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi)))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi))) -> (((~phi -> psi) -> (((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi)))) -> (((~phi -> psi) -> ((phi -> chi) -> (~phi -> psi))) -> ((~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi)))))) -> (((((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi))) -> ((~phi -> psi) -> (((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi))))) -> ((((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi))) -> (((~phi -> psi) -> ((phi -> chi) -> (~phi -> psi))) -> ((~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi)))))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((~phi -> psi) -> (((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi)))) -> (((~phi -> psi) -> ((phi -> chi) -> (~phi -> psi))) -> ((~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))))) -> ((((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi))) -> (((~phi -> psi) -> (((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi)))) -> (((~phi -> psi) -> ((phi -> chi) -> (~phi -> psi))) -> ((~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi)))))))",
+    },
+    { _tag: "mp", leftIndex: 223, rightIndex: 226 },
+    { _tag: "mp", leftIndex: 227, rightIndex: 225 },
+    { _tag: "mp", leftIndex: 224, rightIndex: 228 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi))) -> (((~phi -> psi) -> ((phi -> chi) -> (~phi -> psi))) -> ((~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))))) -> (((((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi))) -> ((~phi -> psi) -> ((phi -> chi) -> (~phi -> psi)))) -> ((((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi))) -> ((~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))))))",
+    },
+    { _tag: "mp", leftIndex: 229, rightIndex: 230 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((~phi -> psi) -> ((phi -> chi) -> (~phi -> psi))) -> ((((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi))) -> ((~phi -> psi) -> ((phi -> chi) -> (~phi -> psi)))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText: "((~phi -> psi) -> ((phi -> chi) -> (~phi -> psi)))",
+    },
+    { _tag: "mp", leftIndex: 233, rightIndex: 232 },
+    { _tag: "mp", leftIndex: 234, rightIndex: 231 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((phi -> chi) -> ((~phi -> psi) -> ((psi -> chi) -> chi))) -> (((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((phi -> chi) -> ((~phi -> psi) -> ((psi -> chi) -> chi))) -> ((((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi))) -> ((~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))))) -> ((((phi -> chi) -> ((~phi -> psi) -> ((psi -> chi) -> chi))) -> (((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi)))) -> (((phi -> chi) -> ((~phi -> psi) -> ((psi -> chi) -> chi))) -> ((~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi))) -> ((~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi)))) -> (((phi -> chi) -> ((~phi -> psi) -> ((psi -> chi) -> chi))) -> ((((phi -> chi) -> (~phi -> psi)) -> ((phi -> chi) -> ((psi -> chi) -> chi))) -> ((~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))))))",
+    },
+    { _tag: "mp", leftIndex: 235, rightIndex: 238 },
+    { _tag: "mp", leftIndex: 239, rightIndex: 237 },
+    { _tag: "mp", leftIndex: 236, rightIndex: 240 },
+    { _tag: "mp", leftIndex: 222, rightIndex: 241 },
+    { _tag: "axiom", formulaText: "(phi \\/ psi) -> (~phi -> psi)" },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((phi \\/ psi) -> ((~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi)))) -> (((phi \\/ psi) -> (~phi -> psi)) -> ((phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi)))))",
+    },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))) -> ((phi \\/ psi) -> ((~phi -> psi) -> ((phi -> chi) -> ((psi -> chi) -> chi)))))",
+    },
+    { _tag: "mp", leftIndex: 242, rightIndex: 245 },
+    { _tag: "mp", leftIndex: 246, rightIndex: 244 },
+    { _tag: "mp", leftIndex: 243, rightIndex: 247 },
   ],
 };
 
