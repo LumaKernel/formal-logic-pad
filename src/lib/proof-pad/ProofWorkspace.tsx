@@ -5666,9 +5666,7 @@ export function ProofWorkspace({
             <div
               style={{ flex: 1, minHeight: 300, overflow: "auto" }}
               data-testid={
-                testId
-                  ? `${testId satisfies string}-note-editor-md`
-                  : undefined
+                testId ? `${testId satisfies string}-note-editor-md` : undefined
               }
             >
               <MdEditor
