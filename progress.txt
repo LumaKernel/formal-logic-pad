@@ -13233,3 +13233,21 @@
   - `emptyLogicSystem` は non-Hilbert 体系の `workspace.system` に設定される。`generalization: false` で Gen は自動非表示だが、MP は明示的ガードが必要だった
   - 非Hilbert体系の残課題: axiomsパレットのレイアウト回避、体系名表示、ルート/ページストーリー作成
 ---
+
+## 2026-03-13 - [non-hilbert] ノートブック一覧体系名修正・パレットレイアウト調査
+- 実装した内容:
+  - notebookListLogic.ts: `workspace.system.name` → `getDeductionSystemName(workspace.deductionSystem)` に修正
+    - 非Hilbert体系で「Empty (non-Hilbert)」ではなく正しい体系名が表示されるように
+  - パレットレイアウト回避を調査: 全パレット(Axiom/ND/SC/TAB/AT)が同じ位置(left:12, top:48, minWidth:200)なので、250pxオフセットは全体系で正しい
+  - prd-non-hilbert.md のaxiomレイアウトタスクと体系名タスクを完了マーク
+- 変更したファイル:
+  - src/lib/notebook/notebookListLogic.ts (systemName修正)
+  - src/lib/notebook/notebookListLogic.test.ts (非Hilbert体系テスト1件追加)
+  - tasks/prd-non-hilbert.md (2タスク完了)
+- テスト: 全260ファイル9915テストパス（前回9914 → +1）
+- カバレッジ: 維持
+- **今後のイテレーションへの学び:**
+  - `workspace.system.name` は Hilbert の LogicSystem 名のみ。非Hilbert体系では `getDeductionSystemName(workspace.deductionSystem)` を使う
+  - `notebookSerialization.ts` の `parseNotebook` は `hilbertDeduction(system)` 固定 — 非Hilbert体系のシリアライゼーションは未対応（将来の課題）
+  - 全パレット(AxiomPalette/NdRulePalette/ScRulePalette/TabRulePalette/AtRulePalette)は同じ position: absolute, left:12, top:48, minWidth:200
+---
