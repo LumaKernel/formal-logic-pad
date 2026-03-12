@@ -6,8 +6,15 @@ import {
   waitFor,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import React from "react";
+import React, { createElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+// MdPreview は jsdom 環境では動作しないため、テスト用にモック化
+vi.mock("md-editor-rt", () => ({
+  MdPreview: ({ modelValue }: { readonly modelValue: string }) =>
+    createElement("div", { "data-testid": "md-preview-mock" }, modelValue),
+}));
+vi.mock("md-editor-rt/lib/preview.css", () => ({}));
 import { EditableProofNode } from "./EditableProofNode";
 import type { ProofNodeKind } from "./proofNodeUI";
 

@@ -21,6 +21,7 @@
     "effect": "^3.19.19",
     "js-interpreter": "^6.0.1",
     "katex": "^0.16.33",
+    "md-editor-rt": "^6.4.0",
     "next": "16.1.6",
     "next-intl": "^4.8.2",
     "react": "19.2.3",

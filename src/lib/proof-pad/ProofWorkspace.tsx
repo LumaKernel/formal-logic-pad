@@ -12,6 +12,8 @@
 import { Either } from "effect";
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { MdEditor } from "md-editor-rt";
+import "md-editor-rt/lib/style.css";
 import type { LogicSystem } from "../logic-core/inferenceRule";
 import { getDeductionSystemName } from "../logic-core/deductionSystem";
 import type { Formula } from "../logic-core/formula";
@@ -225,6 +227,49 @@ import {
   computeZoomOutViewport,
 } from "../infinite-canvas/zoomControls";
 import { useHistory } from "../history/useHistory";
+
+// --- ノート編集用ツールバー定数 ---
+const NOTE_EDITOR_TOOLBARS: (
+  | "bold"
+  | "underline"
+  | "italic"
+  | "-"
+  | "strikeThrough"
+  | "quote"
+  | "unorderedList"
+  | "orderedList"
+  | "task"
+  | "codeRow"
+  | "code"
+  | "link"
+  | "table"
+  | "revoke"
+  | "next"
+  | "="
+  | "preview"
+  | "previewOnly"
+)[] = [
+  "bold",
+  "underline",
+  "italic",
+  "-",
+  "strikeThrough",
+  "quote",
+  "unorderedList",
+  "orderedList",
+  "task",
+  "-",
+  "codeRow",
+  "code",
+  "link",
+  "table",
+  "-",
+  "revoke",
+  "next",
+  "=",
+  "preview",
+  "previewOnly",
+];
 
 // --- Props ---
 
@@ -5598,8 +5643,10 @@ export function ProofWorkspace({
               background: "var(--color-panel-bg, #fffdf8)",
               borderRadius: 12,
               padding: 20,
-              minWidth: 360,
-              maxWidth: 560,
+              minWidth: 600,
+              maxWidth: 800,
+              width: "80vw",
+              maxHeight: "80vh",
               boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
               display: "flex",
               flexDirection: "column",
@@ -5616,31 +5663,28 @@ export function ProofWorkspace({
             >
               {msg.noteEditorTitle}
             </div>
-            <textarea
-              value={noteEditorText}
-              onChange={(e) => {
-                setNoteEditorText(e.target.value);
-              }}
-              style={{
-                fontFamily: "var(--font-ui)",
-                fontSize: 13,
-                lineHeight: 1.6,
-                padding: 12,
-                borderRadius: 8,
-                border:
-                  "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.3))",
-                background: "var(--color-input-bg, #fff)",
-                color: "var(--color-input-text, #333)",
-                minHeight: 120,
-                resize: "vertical",
-              }}
-              autoFocus
+            <div
+              style={{ flex: 1, minHeight: 300, overflow: "auto" }}
               data-testid={
                 testId
-                  ? `${testId satisfies string}-note-editor-textarea`
+                  ? `${testId satisfies string}-note-editor-md`
                   : undefined
               }
-            />
+            >
+              <MdEditor
+                modelValue={noteEditorText}
+                onChange={setNoteEditorText}
+                theme={
+                  (document.documentElement.getAttribute("data-theme") ===
+                  "dark"
+                    ? "dark"
+                    : "light") satisfies string
+                }
+                language="en-US"
+                noUploadImg
+                toolbars={NOTE_EDITOR_TOOLBARS}
+              />
+            </div>
             <div
               style={{
                 display: "flex",

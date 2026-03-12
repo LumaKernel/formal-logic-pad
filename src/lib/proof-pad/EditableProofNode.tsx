@@ -9,6 +9,8 @@
 
 import type { CSSProperties } from "react";
 import { useCallback, useMemo, useState } from "react";
+import { MdPreview } from "md-editor-rt";
+import "md-editor-rt/lib/preview.css";
 import { Either } from "effect";
 import type { Formula } from "../logic-core/formula";
 import type { EditTrigger, EditorMode } from "../formula-input/editorLogic";
@@ -588,7 +590,20 @@ export function EditableProofNode({
               /* v8 ignore stop */
             }
           >
-            {formulaText.trim() || msg.noteEmptyPlaceholder}
+            {formulaText.trim() ? (
+              <MdPreview
+                modelValue={formulaText}
+                theme={
+                  (document.documentElement.getAttribute("data-theme") ===
+                  "dark"
+                    ? "dark"
+                    : "light") satisfies string
+                }
+                style={{ background: "transparent", padding: 0 }}
+              />
+            ) : (
+              msg.noteEmptyPlaceholder
+            )}
           </div>
         ) : effectiveEditable ? (
           <FormulaEditor

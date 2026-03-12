@@ -1,7 +1,28 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, createElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+
+// MdEditor / MdPreview は jsdom 環境では動作しないため、テスト用にモック化
+vi.mock("md-editor-rt", () => ({
+  MdEditor: ({
+    modelValue,
+    onChange,
+  }: {
+    readonly modelValue: string;
+    readonly onChange: (v: string) => void;
+  }) =>
+    createElement("textarea", {
+      value: modelValue,
+      onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+        onChange(e.target.value),
+      "data-testid": "md-editor-mock-textarea",
+    }),
+  MdPreview: ({ modelValue }: { readonly modelValue: string }) =>
+    createElement("div", { "data-testid": "md-preview-mock" }, modelValue),
+}));
+vi.mock("md-editor-rt/lib/style.css", () => ({}));
+vi.mock("md-editor-rt/lib/preview.css", () => ({}));
 import {
   lukasiewiczSystem,
   predicateLogicSystem,
@@ -5755,8 +5776,13 @@ describe("ProofWorkspace", () => {
         ).toBeInTheDocument();
       });
 
-      // テキストを入力
-      const textarea = screen.getByTestId("workspace-note-editor-textarea");
+      // MdEditorコンテナが表示される
+      expect(
+        screen.getByTestId("workspace-note-editor-md"),
+      ).toBeInTheDocument();
+
+      // モックMdEditor内のtextareaに入力
+      const textarea = screen.getByTestId("md-editor-mock-textarea");
       await userEvent.type(textarea, "My first note");
 
       // OKをクリックして保存
@@ -5795,8 +5821,13 @@ describe("ProofWorkspace", () => {
         ).toBeInTheDocument();
       });
 
-      // テキストを変更
-      const textarea = screen.getByTestId("workspace-note-editor-textarea");
+      // MdEditorコンテナが表示される
+      expect(
+        screen.getByTestId("workspace-note-editor-md"),
+      ).toBeInTheDocument();
+
+      // モックMdEditor内のtextareaを変更
+      const textarea = screen.getByTestId("md-editor-mock-textarea");
       await userEvent.clear(textarea);
       await userEvent.type(textarea, "Changed text");
 
