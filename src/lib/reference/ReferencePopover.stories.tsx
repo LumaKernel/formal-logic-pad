@@ -33,6 +33,7 @@ const sampleEntry: ReferenceEntry = {
         en: "Hilbert system (Wikipedia)",
         ja: "ヒルベルト体系 (Wikipedia)",
       },
+      documentLanguage: "en",
     },
   ],
   keywords: ["K", "weakening", "A1"],

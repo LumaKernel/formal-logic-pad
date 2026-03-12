@@ -26,6 +26,7 @@ const makeEntry = (
       type: "wikipedia-en",
       url: "https://example.com/wiki",
       label: { en: "Wikipedia", ja: "ウィキペディア" },
+      documentLanguage: "en",
     },
   ],
   keywords: [],
@@ -219,6 +220,44 @@ describe("ReferenceModal", () => {
     expect(link.getAttribute("href")).toBe("https://example.com/wiki");
     expect(link.getAttribute("target")).toBe("_blank");
     expect(link.getAttribute("rel")).toBe("noopener noreferrer");
+  });
+
+  it("外部リンクにドキュメント言語タグが表示される", () => {
+    render(
+      <ReferenceModal
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        testId="ref-modal"
+      />,
+    );
+    const link = screen.getByTestId("ref-modal-link-0");
+    expect(link.textContent).toContain("en");
+  });
+
+  it("日本語リンクにjaタグが表示される", () => {
+    const entry = makeEntry({
+      externalLinks: [
+        {
+          type: "wikipedia-ja",
+          url: "https://ja.wikipedia.org/wiki/test",
+          label: { en: "Wikipedia JA", ja: "ウィキペディア" },
+          documentLanguage: "ja",
+        },
+      ],
+    });
+    render(
+      <ReferenceModal
+        entry={entry}
+        allEntries={[entry]}
+        locale="en"
+        onClose={vi.fn()}
+        testId="ref-modal"
+      />,
+    );
+    const link = screen.getByTestId("ref-modal-link-0");
+    expect(link.textContent).toContain("ja");
   });
 
   it("閉じるボタンでonCloseが呼ばれる", () => {

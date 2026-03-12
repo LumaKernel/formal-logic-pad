@@ -159,6 +159,7 @@ export type ModalData = {
   readonly externalLinks: readonly {
     readonly url: string;
     readonly label: string;
+    readonly documentLanguage: Locale;
   }[];
 };
 
@@ -180,9 +181,11 @@ export function buildModalData(
   const externalLinks: readonly {
     readonly url: string;
     readonly label: string;
+    readonly documentLanguage: Locale;
   }[] = entry.externalLinks.map((link: ExternalLink) => ({
     url: link.url,
     label: getLocalizedText(link.label, locale),
+    documentLanguage: link.documentLanguage,
   }));
 
   return {

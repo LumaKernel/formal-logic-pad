@@ -29,6 +29,7 @@ const makeEntry = (
       type: "wikipedia-en",
       url: "https://example.com",
       label: { en: "Example Link", ja: "サンプルリンク" },
+      documentLanguage: "en",
     },
   ],
   keywords: ["test"],
@@ -301,7 +302,11 @@ describe("buildModalData", () => {
       { id: "related-1", title: "Related Entry" },
     ]);
     expect(result.externalLinks).toEqual([
-      { url: "https://example.com", label: "Example Link" },
+      {
+        url: "https://example.com",
+        label: "Example Link",
+        documentLanguage: "en",
+      },
     ]);
   });
 
@@ -320,7 +325,11 @@ describe("buildModalData", () => {
       { id: "related-1", title: "関連エントリ" },
     ]);
     expect(result.externalLinks).toEqual([
-      { url: "https://example.com", label: "サンプルリンク" },
+      {
+        url: "https://example.com",
+        label: "サンプルリンク",
+        documentLanguage: "en",
+      },
     ]);
   });
 

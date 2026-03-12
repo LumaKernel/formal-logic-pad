@@ -139,6 +139,8 @@ export type ExternalLink = {
   readonly type: ExternalLinkType;
   readonly url: string;
   readonly label: LocalizedText;
+  /** リンク先ドキュメントの言語 */
+  readonly documentLanguage: Locale;
 };
 
 // --- リファレンスエントリ ---

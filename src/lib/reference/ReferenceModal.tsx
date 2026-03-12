@@ -154,6 +154,18 @@ const externalLinkStyle: CSSProperties = {
   padding: "4px 0",
 };
 
+const languageTagStyle: CSSProperties = {
+  display: "inline-block",
+  fontSize: "var(--font-size-xs, 11px)",
+  color: "var(--color-text-secondary, #6b7280)",
+  border: "1px solid var(--color-border, #e2e8f0)",
+  borderRadius: "3px",
+  padding: "0 4px",
+  marginLeft: "6px",
+  verticalAlign: "middle",
+  lineHeight: "1.4",
+};
+
 // --- コンポーネント ---
 
 export function ReferenceModal({
@@ -324,6 +336,9 @@ export function ReferenceModal({
                     }
                   >
                     {link.label} ↗
+                    <span style={languageTagStyle}>
+                      {link.documentLanguage}
+                    </span>
                   </a>
                 ))}
               </div>

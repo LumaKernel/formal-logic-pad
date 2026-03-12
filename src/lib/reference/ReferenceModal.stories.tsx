@@ -35,6 +35,7 @@ const sampleEntry: ReferenceEntry = {
         en: "Hilbert system (Wikipedia)",
         ja: "ヒルベルト体系 (Wikipedia)",
       },
+      documentLanguage: "en",
     },
     {
       type: "wikipedia-ja",
@@ -43,6 +44,7 @@ const sampleEntry: ReferenceEntry = {
         en: "Hilbert-style system (Wikipedia JA)",
         ja: "ヒルベルト流演繹体系 (Wikipedia)",
       },
+      documentLanguage: "ja",
     },
   ],
   keywords: ["K", "weakening", "A1"],

@@ -44,6 +44,7 @@ const sampleEntry1: ReferenceEntry = {
       type: "wikipedia-en",
       url: "https://en.wikipedia.org/wiki/Hilbert_system",
       label: { en: "Hilbert system", ja: "ヒルベルト体系" },
+      documentLanguage: "en",
     },
   ],
   keywords: ["K", "K axiom", "weakening"],

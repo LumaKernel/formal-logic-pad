@@ -90,6 +90,31 @@ describe("外部リンクの整合性", () => {
       }
     },
   );
+
+  it.each(allReferenceEntries.map((e) => [e.id, e]))(
+    "%s: 外部リンクのdocumentLanguageが有効なロケール",
+    (_id, entry) => {
+      const e = entry as ReferenceEntry;
+      for (const link of e.externalLinks) {
+        expect(allLocales).toContain(link.documentLanguage);
+      }
+    },
+  );
+
+  it.each(allReferenceEntries.map((e) => [e.id, e]))(
+    "%s: wikipedia-en/jaのdocumentLanguageがtype値と一致する",
+    (_id, entry) => {
+      const e = entry as ReferenceEntry;
+      for (const link of e.externalLinks) {
+        if (link.type === "wikipedia-en") {
+          expect(link.documentLanguage).toBe("en");
+        }
+        if (link.type === "wikipedia-ja") {
+          expect(link.documentLanguage).toBe("ja");
+        }
+      }
+    },
+  );
 });
 
 describe("関連エントリの整合性", () => {
