@@ -46,6 +46,8 @@ import {
   axiomM3Template,
   axiomEFQTemplate,
   axiomDNETemplate,
+  axiomConjDefForwardTemplate,
+  axiomDisjDefForwardTemplate,
   axiomA4Template,
   axiomA5Template,
   axiomE1Template,
@@ -116,6 +118,18 @@ const propositionalAxiomMetas: readonly PropositionalAxiomMeta[] = [
     displayName: "DNE",
     template: axiomDNETemplate,
     dslText: "~~phi -> phi",
+  },
+  {
+    id: "CONJ-DEF",
+    displayName: "∧-Def",
+    template: axiomConjDefForwardTemplate,
+    dslText: "(phi /\\ psi) -> ~(phi -> ~psi)",
+  },
+  {
+    id: "DISJ-DEF",
+    displayName: "∨-Def",
+    template: axiomDisjDefForwardTemplate,
+    dslText: "(phi \\/ psi) -> (~phi -> psi)",
   },
 ];
 

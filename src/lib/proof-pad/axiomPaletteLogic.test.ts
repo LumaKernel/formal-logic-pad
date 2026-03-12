@@ -41,10 +41,10 @@ import type { AtRuleId } from "../logic-core/analyticTableau";
 
 describe("axiomPalette", () => {
   describe("getAvailableAxioms", () => {
-    it("returns A1, A2, A3 for Łukasiewicz system", () => {
+    it("returns A1, A2, A3, CONJ-DEF, DISJ-DEF for Łukasiewicz system", () => {
       const items = getAvailableAxioms(lukasiewiczSystem);
       const ids = items.map((i) => i.id);
-      expect(ids).toEqual(["A1", "A2", "A3"]);
+      expect(ids).toEqual(["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"]);
     });
 
     it("returns A1, A2 only for minimal logic system", () => {
@@ -53,10 +53,10 @@ describe("axiomPalette", () => {
       expect(ids).toEqual(["A1", "A2"]);
     });
 
-    it("returns A1, A2, M3 for Mendelson system", () => {
+    it("returns A1, A2, M3, CONJ-DEF, DISJ-DEF for Mendelson system", () => {
       const items = getAvailableAxioms(mendelsonSystem);
       const ids = items.map((i) => i.id);
-      expect(ids).toEqual(["A1", "A2", "M3"]);
+      expect(ids).toEqual(["A1", "A2", "M3", "CONJ-DEF", "DISJ-DEF"]);
     });
 
     it("provides correct displayName for Mendelson axioms", () => {
@@ -72,10 +72,10 @@ describe("axiomPalette", () => {
       expect(m3?.dslText).toBe("(~phi -> ~psi) -> ((~phi -> psi) -> phi)");
     });
 
-    it("returns A1, A2, EFQ for intuitionistic system", () => {
+    it("returns A1, A2, EFQ, CONJ-DEF, DISJ-DEF for intuitionistic system", () => {
       const items = getAvailableAxioms(intuitionisticSystem);
       const ids = items.map((i) => i.id);
-      expect(ids).toEqual(["A1", "A2", "EFQ"]);
+      expect(ids).toEqual(["A1", "A2", "EFQ", "CONJ-DEF", "DISJ-DEF"]);
     });
 
     it("provides correct displayName for intuitionistic axioms", () => {
@@ -91,10 +91,10 @@ describe("axiomPalette", () => {
       expect(efq?.dslText).toBe("~phi -> (phi -> psi)");
     });
 
-    it("returns A1, A2, DNE for classical logic system", () => {
+    it("returns A1, A2, DNE, CONJ-DEF, DISJ-DEF for classical logic system", () => {
       const items = getAvailableAxioms(classicalLogicSystem);
       const ids = items.map((i) => i.id);
-      expect(ids).toEqual(["A1", "A2", "DNE"]);
+      expect(ids).toEqual(["A1", "A2", "DNE", "CONJ-DEF", "DISJ-DEF"]);
     });
 
     it("provides correct displayName for classical axioms", () => {
@@ -110,16 +110,35 @@ describe("axiomPalette", () => {
       expect(dne?.dslText).toBe("~~phi -> phi");
     });
 
-    it("returns A1-A5 for predicate logic system", () => {
+    it("returns A1-A5, CONJ-DEF, DISJ-DEF for predicate logic system", () => {
       const items = getAvailableAxioms(predicateLogicSystem);
       const ids = items.map((i) => i.id);
-      expect(ids).toEqual(["A1", "A2", "A3", "A4", "A5"]);
+      expect(ids).toEqual([
+        "A1",
+        "A2",
+        "A3",
+        "CONJ-DEF",
+        "DISJ-DEF",
+        "A4",
+        "A5",
+      ]);
     });
 
-    it("returns A1-A5, E1-E3 for equality logic system", () => {
+    it("returns A1-A5, CONJ-DEF, DISJ-DEF, E1-E3 for equality logic system", () => {
       const items = getAvailableAxioms(equalityLogicSystem);
       const ids = items.map((i) => i.id);
-      expect(ids).toEqual(["A1", "A2", "A3", "A4", "A5", "E1", "E2", "E3"]);
+      expect(ids).toEqual([
+        "A1",
+        "A2",
+        "A3",
+        "CONJ-DEF",
+        "DISJ-DEF",
+        "A4",
+        "A5",
+        "E1",
+        "E2",
+        "E3",
+      ]);
     });
 
     it("provides correct displayName for each axiom", () => {

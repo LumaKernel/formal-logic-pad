@@ -29,6 +29,8 @@ const VALID_AXIOM_IDS: ReadonlySet<string> = new Set([
   "M3",
   "EFQ",
   "DNE",
+  "CONJ-DEF",
+  "DISJ-DEF",
 ]);
 
 function validateAxiomId(value: unknown): PropositionalAxiomId | undefined {

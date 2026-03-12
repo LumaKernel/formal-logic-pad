@@ -30,7 +30,16 @@ import type { ProofNodeKind } from "./proofNodeUI";
 
 // --- 公理ID定数 ---
 
-const PROPOSITIONAL_AXIOM_IDS = ["A1", "A2", "A3", "M3", "EFQ", "DNE"] as const;
+const PROPOSITIONAL_AXIOM_IDS = [
+  "A1",
+  "A2",
+  "A3",
+  "M3",
+  "EFQ",
+  "DNE",
+  "CONJ-DEF",
+  "DISJ-DEF",
+] as const;
 
 const ALL_AXIOM_IDS = [
   "A1",
@@ -39,6 +48,8 @@ const ALL_AXIOM_IDS = [
   "M3",
   "EFQ",
   "DNE",
+  "CONJ-DEF",
+  "DISJ-DEF",
   "A4",
   "A5",
   "E1",
