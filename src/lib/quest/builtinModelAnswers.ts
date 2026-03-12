@@ -4755,18 +4755,880 @@ const prop31ConjElimRight: ModelAnswer = {
 /**
  * prop-24: De Morgan の法則 ¬(φ ∨ ψ) → (¬φ ∧ ¬ψ)
  *
- * 選言の定義: φ ∨ ψ ≡ ¬φ → ψ
- * 連言の定義: ¬φ ∧ ¬ψ ≡ ¬(¬φ → ¬¬ψ)
- * ゴール: ¬(¬φ → ψ) → ¬(¬φ → ¬¬ψ)
- *
- * 含意/否定での同値式: ~(~phi -> psi) -> ~(~phi -> ~~psi)
+ * 戦略: 219ステップ
+ * 1. DNE for ψ (prop-17 inline, 35 steps): ¬¬ψ → ψ
+ * 2. Inner compose (4 steps): (¬φ→¬¬ψ) → (¬φ→ψ)
+ * 3. DNE for (¬φ→¬¬ψ) (prop-17 inline, 35 steps): ~~(¬φ→¬¬ψ) → (¬φ→¬¬ψ)
+ * 4. DNI for (¬φ→ψ) (prop-25 inline, 37 steps): (¬φ→ψ) → ~~(¬φ→ψ)
+ * 5. Triple compose (10 steps): ~~(¬φ→¬¬ψ) → ~~(¬φ→ψ)
+ * 6. A3 + MP (2 steps): ¬(¬φ→ψ) → ¬(¬φ→¬¬ψ)
+ * 7. DISJ-DEF bridge (85 steps): ¬(φ∨ψ) → ¬(¬φ→ψ)
+ *    - DISJ-DEF backward + DNE(¬φ→ψ) + DNI(φ∨ψ) + compose + A3
+ * 8. Final compose (11 steps): ¬(φ∨ψ) → (¬φ∧¬ψ)
+ *    - compose with keyLemma + CONJ-DEF backward
  */
 const prop24DeMorgan: ModelAnswer = {
   questId: "prop-24",
   steps: [
-    // Complex proof involving DNI applied to subformulas.
-    // PRAGMATIC: Just place the goal formula.
-    { _tag: "axiom", formulaText: "~(phi \\/ psi) -> (~phi /\\ ~psi)" },
+    // --- DNE for ψ: prop-17 inline, 35 steps ---
+    // 0.
+    { _tag: "axiom", formulaText: "~~psi -> (~psi -> ~~psi)" },
+    // 1.
+    { _tag: "axiom", formulaText: "(~psi -> ~~psi) -> (~psi -> psi)" },
+    // 2.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~psi -> ((~psi -> ~~psi) -> (~psi -> psi))) -> ((~~psi -> (~psi -> ~~psi)) -> (~~psi -> (~psi -> psi)))",
+    },
+    // 3.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~psi -> ~~psi) -> (~psi -> psi)) -> (~~psi -> ((~psi -> ~~psi) -> (~psi -> psi)))",
+    },
+    // 4. MP(1, 3)
+    { _tag: "mp", leftIndex: 1, rightIndex: 3 },
+    // 5. MP(4, 2)
+    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+    // 6. MP(0, 5)
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+    // 7.
+    {
+      _tag: "axiom",
+      formulaText: "(~~(~psi -> psi) -> ~psi) -> (psi -> ~(~psi -> psi))",
+    },
+    // 8.
+    { _tag: "axiom", formulaText: "~psi -> (~~(~psi -> psi) -> ~psi)" },
+    // 9.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~psi -> ((~~(~psi -> psi) -> ~psi) -> (psi -> ~(~psi -> psi)))) -> ((~psi -> (~~(~psi -> psi) -> ~psi)) -> (~psi -> (psi -> ~(~psi -> psi))))",
+    },
+    // 10.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~psi -> psi) -> ~psi) -> (psi -> ~(~psi -> psi))) -> (~psi -> ((~~(~psi -> psi) -> ~psi) -> (psi -> ~(~psi -> psi))))",
+    },
+    // 11. MP(7, 10)
+    { _tag: "mp", leftIndex: 7, rightIndex: 10 },
+    // 12. MP(11, 9)
+    { _tag: "mp", leftIndex: 11, rightIndex: 9 },
+    // 13. MP(8, 12)
+    { _tag: "mp", leftIndex: 8, rightIndex: 12 },
+    // 14.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~psi -> (psi -> ~(~psi -> psi))) -> ((~psi -> psi) -> (~psi -> ~(~psi -> psi)))",
+    },
+    // 15. MP(13, 14)
+    { _tag: "mp", leftIndex: 13, rightIndex: 14 },
+    // 16.
+    {
+      _tag: "axiom",
+      formulaText: "(~psi -> ~(~psi -> psi)) -> ((~psi -> psi) -> psi)",
+    },
+    // 17.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~psi -> psi) -> ((~psi -> ~(~psi -> psi)) -> ((~psi -> psi) -> psi))) -> (((~psi -> psi) -> (~psi -> ~(~psi -> psi))) -> ((~psi -> psi) -> ((~psi -> psi) -> psi)))",
+    },
+    // 18.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~psi -> ~(~psi -> psi)) -> ((~psi -> psi) -> psi)) -> ((~psi -> psi) -> ((~psi -> ~(~psi -> psi)) -> ((~psi -> psi) -> psi)))",
+    },
+    // 19. MP(16, 18)
+    { _tag: "mp", leftIndex: 16, rightIndex: 18 },
+    // 20. MP(19, 17)
+    { _tag: "mp", leftIndex: 19, rightIndex: 17 },
+    // 21. MP(15, 20)
+    { _tag: "mp", leftIndex: 15, rightIndex: 20 },
+    // 22.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~psi -> psi) -> ((~psi -> psi) -> psi)) -> (((~psi -> psi) -> (~psi -> psi)) -> ((~psi -> psi) -> psi))",
+    },
+    // 23. MP(21, 22)
+    { _tag: "mp", leftIndex: 21, rightIndex: 22 },
+    // 24.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~psi -> psi) -> (((~psi -> psi) -> (~psi -> psi)) -> (~psi -> psi))) -> (((~psi -> psi) -> ((~psi -> psi) -> (~psi -> psi))) -> ((~psi -> psi) -> (~psi -> psi)))",
+    },
+    // 25.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~psi -> psi) -> (((~psi -> psi) -> (~psi -> psi)) -> (~psi -> psi))",
+    },
+    // 26. MP(25, 24)
+    { _tag: "mp", leftIndex: 25, rightIndex: 24 },
+    // 27.
+    {
+      _tag: "axiom",
+      formulaText: "(~psi -> psi) -> ((~psi -> psi) -> (~psi -> psi))",
+    },
+    // 28. MP(27, 26)
+    { _tag: "mp", leftIndex: 27, rightIndex: 26 },
+    // 29. MP(28, 23)
+    { _tag: "mp", leftIndex: 28, rightIndex: 23 },
+    // 30.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~psi -> ((~psi -> psi) -> psi)) -> ((~~psi -> (~psi -> psi)) -> (~~psi -> psi))",
+    },
+    // 31.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~psi -> psi) -> psi) -> (~~psi -> ((~psi -> psi) -> psi))",
+    },
+    // 32. MP(29, 31)
+    { _tag: "mp", leftIndex: 29, rightIndex: 31 },
+    // 33. MP(32, 30)
+    { _tag: "mp", leftIndex: 32, rightIndex: 30 },
+    // 34. MP(6, 33)
+    { _tag: "mp", leftIndex: 6, rightIndex: 33 },
+    // --- inner compose: (~φ→~~ψ) → (~φ→ψ) ---
+    // 35.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~phi -> (~~psi -> psi)) -> ((~phi -> ~~psi) -> (~phi -> psi))",
+    },
+    // 36.
+    {
+      _tag: "axiom",
+      formulaText: "(~~psi -> psi) -> (~phi -> (~~psi -> psi))",
+    },
+    // 37. MP(34, 36)
+    { _tag: "mp", leftIndex: 34, rightIndex: 36 },
+    // 38. MP(37, 35)
+    { _tag: "mp", leftIndex: 37, rightIndex: 35 },
+    // --- DNE for (~φ→~~ψ): prop-17 inline, 35 steps ---
+    // 39.
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~(~phi -> ~~psi) -> (~(~phi -> ~~psi) -> ~~(~phi -> ~~psi))",
+    },
+    // 40.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~phi -> ~~psi) -> ~~(~phi -> ~~psi)) -> (~(~phi -> ~~psi) -> (~phi -> ~~psi))",
+    },
+    // 41.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> ~~psi) -> ((~(~phi -> ~~psi) -> ~~(~phi -> ~~psi)) -> (~(~phi -> ~~psi) -> (~phi -> ~~psi)))) -> ((~~(~phi -> ~~psi) -> (~(~phi -> ~~psi) -> ~~(~phi -> ~~psi))) -> (~~(~phi -> ~~psi) -> (~(~phi -> ~~psi) -> (~phi -> ~~psi))))",
+    },
+    // 42.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~phi -> ~~psi) -> ~~(~phi -> ~~psi)) -> (~(~phi -> ~~psi) -> (~phi -> ~~psi))) -> (~~(~phi -> ~~psi) -> ((~(~phi -> ~~psi) -> ~~(~phi -> ~~psi)) -> (~(~phi -> ~~psi) -> (~phi -> ~~psi))))",
+    },
+    // 43. MP(40, 42)
+    { _tag: "mp", leftIndex: 40, rightIndex: 42 },
+    // 44. MP(43, 41)
+    { _tag: "mp", leftIndex: 43, rightIndex: 41 },
+    // 45. MP(39, 44)
+    { _tag: "mp", leftIndex: 39, rightIndex: 44 },
+    // 46.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> ~(~phi -> ~~psi)) -> ((~phi -> ~~psi) -> ~(~(~phi -> ~~psi) -> (~phi -> ~~psi)))",
+    },
+    // 47.
+    {
+      _tag: "axiom",
+      formulaText:
+        "~(~phi -> ~~psi) -> (~~(~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> ~(~phi -> ~~psi))",
+    },
+    // 48.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~phi -> ~~psi) -> ((~~(~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> ~(~phi -> ~~psi)) -> ((~phi -> ~~psi) -> ~(~(~phi -> ~~psi) -> (~phi -> ~~psi))))) -> ((~(~phi -> ~~psi) -> (~~(~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> ~(~phi -> ~~psi))) -> (~(~phi -> ~~psi) -> ((~phi -> ~~psi) -> ~(~(~phi -> ~~psi) -> (~phi -> ~~psi)))))",
+    },
+    // 49.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> ~(~phi -> ~~psi)) -> ((~phi -> ~~psi) -> ~(~(~phi -> ~~psi) -> (~phi -> ~~psi)))) -> (~(~phi -> ~~psi) -> ((~~(~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> ~(~phi -> ~~psi)) -> ((~phi -> ~~psi) -> ~(~(~phi -> ~~psi) -> (~phi -> ~~psi)))))",
+    },
+    // 50. MP(46, 49)
+    { _tag: "mp", leftIndex: 46, rightIndex: 49 },
+    // 51. MP(50, 48)
+    { _tag: "mp", leftIndex: 50, rightIndex: 48 },
+    // 52. MP(47, 51)
+    { _tag: "mp", leftIndex: 47, rightIndex: 51 },
+    // 53.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~phi -> ~~psi) -> ((~phi -> ~~psi) -> ~(~(~phi -> ~~psi) -> (~phi -> ~~psi)))) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~(~phi -> ~~psi) -> ~(~(~phi -> ~~psi) -> (~phi -> ~~psi))))",
+    },
+    // 54. MP(52, 53)
+    { _tag: "mp", leftIndex: 52, rightIndex: 53 },
+    // 55.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~phi -> ~~psi) -> ~(~(~phi -> ~~psi) -> (~phi -> ~~psi))) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~phi -> ~~psi))",
+    },
+    // 56.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> ((~(~phi -> ~~psi) -> ~(~(~phi -> ~~psi) -> (~phi -> ~~psi))) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~phi -> ~~psi)))) -> (((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~(~phi -> ~~psi) -> ~(~(~phi -> ~~psi) -> (~phi -> ~~psi)))) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~phi -> ~~psi))))",
+    },
+    // 57.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~phi -> ~~psi) -> ~(~(~phi -> ~~psi) -> (~phi -> ~~psi))) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~phi -> ~~psi))) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> ((~(~phi -> ~~psi) -> ~(~(~phi -> ~~psi) -> (~phi -> ~~psi))) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~phi -> ~~psi))))",
+    },
+    // 58. MP(55, 57)
+    { _tag: "mp", leftIndex: 55, rightIndex: 57 },
+    // 59. MP(58, 56)
+    { _tag: "mp", leftIndex: 58, rightIndex: 56 },
+    // 60. MP(54, 59)
+    { _tag: "mp", leftIndex: 54, rightIndex: 59 },
+    // 61.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~phi -> ~~psi))) -> (((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~(~phi -> ~~psi) -> (~phi -> ~~psi))) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~phi -> ~~psi)))",
+    },
+    // 62. MP(60, 61)
+    { _tag: "mp", leftIndex: 60, rightIndex: 61 },
+    // 63.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~(~phi -> ~~psi) -> (~phi -> ~~psi))) -> (~(~phi -> ~~psi) -> (~phi -> ~~psi)))) -> (((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~(~phi -> ~~psi) -> (~phi -> ~~psi)))) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~(~phi -> ~~psi) -> (~phi -> ~~psi))))",
+    },
+    // 64.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~(~phi -> ~~psi) -> (~phi -> ~~psi))) -> (~(~phi -> ~~psi) -> (~phi -> ~~psi)))",
+    },
+    // 65. MP(64, 63)
+    { _tag: "mp", leftIndex: 64, rightIndex: 63 },
+    // 66.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~(~phi -> ~~psi) -> (~phi -> ~~psi)))",
+    },
+    // 67. MP(66, 65)
+    { _tag: "mp", leftIndex: 66, rightIndex: 65 },
+    // 68. MP(67, 62)
+    { _tag: "mp", leftIndex: 67, rightIndex: 62 },
+    // 69.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> ~~psi) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~phi -> ~~psi))) -> ((~~(~phi -> ~~psi) -> (~(~phi -> ~~psi) -> (~phi -> ~~psi))) -> (~~(~phi -> ~~psi) -> (~phi -> ~~psi)))",
+    },
+    // 70.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~phi -> ~~psi)) -> (~~(~phi -> ~~psi) -> ((~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~phi -> ~~psi)))",
+    },
+    // 71. MP(68, 70)
+    { _tag: "mp", leftIndex: 68, rightIndex: 70 },
+    // 72. MP(71, 69)
+    { _tag: "mp", leftIndex: 71, rightIndex: 69 },
+    // 73. MP(45, 72)
+    { _tag: "mp", leftIndex: 45, rightIndex: 72 },
+    // --- DNI for (~φ→ψ): prop-25 inline, 37 steps ---
+    // 74.
+    {
+      _tag: "axiom",
+      formulaText: "~~~(~phi -> psi) -> (~~(~phi -> psi) -> ~~~(~phi -> psi))",
+    },
+    // 75.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> psi) -> ~~~(~phi -> psi)) -> (~~(~phi -> psi) -> ~(~phi -> psi))",
+    },
+    // 76.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(~phi -> psi) -> ((~~(~phi -> psi) -> ~~~(~phi -> psi)) -> (~~(~phi -> psi) -> ~(~phi -> psi)))) -> ((~~~(~phi -> psi) -> (~~(~phi -> psi) -> ~~~(~phi -> psi))) -> (~~~(~phi -> psi) -> (~~(~phi -> psi) -> ~(~phi -> psi))))",
+    },
+    // 77.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~phi -> psi) -> ~~~(~phi -> psi)) -> (~~(~phi -> psi) -> ~(~phi -> psi))) -> (~~~(~phi -> psi) -> ((~~(~phi -> psi) -> ~~~(~phi -> psi)) -> (~~(~phi -> psi) -> ~(~phi -> psi))))",
+    },
+    // 78. MP(75, 77)
+    { _tag: "mp", leftIndex: 75, rightIndex: 77 },
+    // 79. MP(78, 76)
+    { _tag: "mp", leftIndex: 78, rightIndex: 76 },
+    // 80. MP(74, 79)
+    { _tag: "mp", leftIndex: 74, rightIndex: 79 },
+    // 81.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~~(~phi -> psi) -> ~(~phi -> psi)) -> ~~(~phi -> psi)) -> (~(~phi -> psi) -> ~(~~(~phi -> psi) -> ~(~phi -> psi)))",
+    },
+    // 82.
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~(~phi -> psi) -> (~~(~~(~phi -> psi) -> ~(~phi -> psi)) -> ~~(~phi -> psi))",
+    },
+    // 83.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> psi) -> ((~~(~~(~phi -> psi) -> ~(~phi -> psi)) -> ~~(~phi -> psi)) -> (~(~phi -> psi) -> ~(~~(~phi -> psi) -> ~(~phi -> psi))))) -> ((~~(~phi -> psi) -> (~~(~~(~phi -> psi) -> ~(~phi -> psi)) -> ~~(~phi -> psi))) -> (~~(~phi -> psi) -> (~(~phi -> psi) -> ~(~~(~phi -> psi) -> ~(~phi -> psi)))))",
+    },
+    // 84.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~~(~phi -> psi) -> ~(~phi -> psi)) -> ~~(~phi -> psi)) -> (~(~phi -> psi) -> ~(~~(~phi -> psi) -> ~(~phi -> psi)))) -> (~~(~phi -> psi) -> ((~~(~~(~phi -> psi) -> ~(~phi -> psi)) -> ~~(~phi -> psi)) -> (~(~phi -> psi) -> ~(~~(~phi -> psi) -> ~(~phi -> psi)))))",
+    },
+    // 85. MP(81, 84)
+    { _tag: "mp", leftIndex: 81, rightIndex: 84 },
+    // 86. MP(85, 83)
+    { _tag: "mp", leftIndex: 85, rightIndex: 83 },
+    // 87. MP(82, 86)
+    { _tag: "mp", leftIndex: 82, rightIndex: 86 },
+    // 88.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> psi) -> (~(~phi -> psi) -> ~(~~(~phi -> psi) -> ~(~phi -> psi)))) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> (~~(~phi -> psi) -> ~(~~(~phi -> psi) -> ~(~phi -> psi))))",
+    },
+    // 89. MP(87, 88)
+    { _tag: "mp", leftIndex: 87, rightIndex: 88 },
+    // 90.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> psi) -> ~(~~(~phi -> psi) -> ~(~phi -> psi))) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> ~(~phi -> psi))",
+    },
+    // 91.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~phi -> psi) -> ~(~phi -> psi)) -> ((~~(~phi -> psi) -> ~(~~(~phi -> psi) -> ~(~phi -> psi))) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> ~(~phi -> psi)))) -> (((~~(~phi -> psi) -> ~(~phi -> psi)) -> (~~(~phi -> psi) -> ~(~~(~phi -> psi) -> ~(~phi -> psi)))) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> ~(~phi -> psi))))",
+    },
+    // 92.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~phi -> psi) -> ~(~~(~phi -> psi) -> ~(~phi -> psi))) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> ~(~phi -> psi))) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> ((~~(~phi -> psi) -> ~(~~(~phi -> psi) -> ~(~phi -> psi))) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> ~(~phi -> psi))))",
+    },
+    // 93. MP(90, 92)
+    { _tag: "mp", leftIndex: 90, rightIndex: 92 },
+    // 94. MP(93, 91)
+    { _tag: "mp", leftIndex: 93, rightIndex: 91 },
+    // 95. MP(89, 94)
+    { _tag: "mp", leftIndex: 89, rightIndex: 94 },
+    // 96.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~phi -> psi) -> ~(~phi -> psi)) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> ~(~phi -> psi))) -> (((~~(~phi -> psi) -> ~(~phi -> psi)) -> (~~(~phi -> psi) -> ~(~phi -> psi))) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> ~(~phi -> psi)))",
+    },
+    // 97. MP(95, 96)
+    { _tag: "mp", leftIndex: 95, rightIndex: 96 },
+    // 98.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~phi -> psi) -> ~(~phi -> psi)) -> (((~~(~phi -> psi) -> ~(~phi -> psi)) -> (~~(~phi -> psi) -> ~(~phi -> psi))) -> (~~(~phi -> psi) -> ~(~phi -> psi)))) -> (((~~(~phi -> psi) -> ~(~phi -> psi)) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> (~~(~phi -> psi) -> ~(~phi -> psi)))) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> (~~(~phi -> psi) -> ~(~phi -> psi))))",
+    },
+    // 99.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> psi) -> ~(~phi -> psi)) -> (((~~(~phi -> psi) -> ~(~phi -> psi)) -> (~~(~phi -> psi) -> ~(~phi -> psi))) -> (~~(~phi -> psi) -> ~(~phi -> psi)))",
+    },
+    // 100. MP(99, 98)
+    { _tag: "mp", leftIndex: 99, rightIndex: 98 },
+    // 101.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> psi) -> ~(~phi -> psi)) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> (~~(~phi -> psi) -> ~(~phi -> psi)))",
+    },
+    // 102. MP(101, 100)
+    { _tag: "mp", leftIndex: 101, rightIndex: 100 },
+    // 103. MP(102, 97)
+    { _tag: "mp", leftIndex: 102, rightIndex: 97 },
+    // 104.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(~phi -> psi) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> ~(~phi -> psi))) -> ((~~~(~phi -> psi) -> (~~(~phi -> psi) -> ~(~phi -> psi))) -> (~~~(~phi -> psi) -> ~(~phi -> psi)))",
+    },
+    // 105.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~phi -> psi) -> ~(~phi -> psi)) -> ~(~phi -> psi)) -> (~~~(~phi -> psi) -> ((~~(~phi -> psi) -> ~(~phi -> psi)) -> ~(~phi -> psi)))",
+    },
+    // 106. MP(103, 105)
+    { _tag: "mp", leftIndex: 103, rightIndex: 105 },
+    // 107. MP(106, 104)
+    { _tag: "mp", leftIndex: 106, rightIndex: 104 },
+    // 108. MP(80, 107)
+    { _tag: "mp", leftIndex: 80, rightIndex: 107 },
+    // 109.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(~phi -> psi) -> ~(~phi -> psi)) -> ((~phi -> psi) -> ~~(~phi -> psi))",
+    },
+    // 110. MP(108, 109)
+    { _tag: "mp", leftIndex: 108, rightIndex: 109 },
+    // --- triple compose: ~~(~φ→~~ψ) → ~~(~φ→ψ) ---
+    // 111.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> ~~psi) -> ((~phi -> ~~psi) -> (~phi -> psi))) -> ((~~(~phi -> ~~psi) -> (~phi -> ~~psi)) -> (~~(~phi -> ~~psi) -> (~phi -> psi)))",
+    },
+    // 112.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~phi -> ~~psi) -> (~phi -> psi)) -> (~~(~phi -> ~~psi) -> ((~phi -> ~~psi) -> (~phi -> psi)))",
+    },
+    // 113. MP(38, 112)
+    { _tag: "mp", leftIndex: 38, rightIndex: 112 },
+    // 114. MP(113, 111)
+    { _tag: "mp", leftIndex: 113, rightIndex: 111 },
+    // 115. MP(73, 114)
+    { _tag: "mp", leftIndex: 73, rightIndex: 114 },
+    // 116.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> ~~psi) -> ((~phi -> psi) -> ~~(~phi -> psi))) -> ((~~(~phi -> ~~psi) -> (~phi -> psi)) -> (~~(~phi -> ~~psi) -> ~~(~phi -> psi)))",
+    },
+    // 117.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~phi -> psi) -> ~~(~phi -> psi)) -> (~~(~phi -> ~~psi) -> ((~phi -> psi) -> ~~(~phi -> psi)))",
+    },
+    // 118. MP(110, 117)
+    { _tag: "mp", leftIndex: 110, rightIndex: 117 },
+    // 119. MP(118, 116)
+    { _tag: "mp", leftIndex: 118, rightIndex: 116 },
+    // 120. MP(115, 119)
+    { _tag: "mp", leftIndex: 115, rightIndex: 119 },
+    // --- A3 + MP: ¬(~φ→ψ) → ¬(~φ→~~ψ) ---
+    // 121.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> ~~psi) -> ~~(~phi -> psi)) -> (~(~phi -> psi) -> ~(~phi -> ~~psi))",
+    },
+    // 122. MP(120, 121)
+    { _tag: "mp", leftIndex: 120, rightIndex: 121 },
+    // --- DISJ-DEF bridge: ¬(φ∨ψ) → ¬(~φ→ψ) ---
+    // 123.
+    { _tag: "axiom", formulaText: "(~phi -> psi) -> (phi \\/ psi)" },
+    // 124.
+    {
+      _tag: "axiom",
+      formulaText: "~~(~phi -> psi) -> (~(~phi -> psi) -> ~~(~phi -> psi))",
+    },
+    // 125.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~phi -> psi) -> ~~(~phi -> psi)) -> (~(~phi -> psi) -> (~phi -> psi))",
+    },
+    // 126.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> psi) -> ((~(~phi -> psi) -> ~~(~phi -> psi)) -> (~(~phi -> psi) -> (~phi -> psi)))) -> ((~~(~phi -> psi) -> (~(~phi -> psi) -> ~~(~phi -> psi))) -> (~~(~phi -> psi) -> (~(~phi -> psi) -> (~phi -> psi))))",
+    },
+    // 127.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~phi -> psi) -> ~~(~phi -> psi)) -> (~(~phi -> psi) -> (~phi -> psi))) -> (~~(~phi -> psi) -> ((~(~phi -> psi) -> ~~(~phi -> psi)) -> (~(~phi -> psi) -> (~phi -> psi))))",
+    },
+    // 128. MP(125, 127)
+    { _tag: "mp", leftIndex: 125, rightIndex: 127 },
+    // 129. MP(128, 126)
+    { _tag: "mp", leftIndex: 128, rightIndex: 126 },
+    // 130. MP(124, 129)
+    { _tag: "mp", leftIndex: 124, rightIndex: 129 },
+    // 131.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~(~phi -> psi) -> (~phi -> psi)) -> ~(~phi -> psi)) -> ((~phi -> psi) -> ~(~(~phi -> psi) -> (~phi -> psi)))",
+    },
+    // 132.
+    {
+      _tag: "axiom",
+      formulaText:
+        "~(~phi -> psi) -> (~~(~(~phi -> psi) -> (~phi -> psi)) -> ~(~phi -> psi))",
+    },
+    // 133.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~phi -> psi) -> ((~~(~(~phi -> psi) -> (~phi -> psi)) -> ~(~phi -> psi)) -> ((~phi -> psi) -> ~(~(~phi -> psi) -> (~phi -> psi))))) -> ((~(~phi -> psi) -> (~~(~(~phi -> psi) -> (~phi -> psi)) -> ~(~phi -> psi))) -> (~(~phi -> psi) -> ((~phi -> psi) -> ~(~(~phi -> psi) -> (~phi -> psi)))))",
+    },
+    // 134.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~(~phi -> psi) -> (~phi -> psi)) -> ~(~phi -> psi)) -> ((~phi -> psi) -> ~(~(~phi -> psi) -> (~phi -> psi)))) -> (~(~phi -> psi) -> ((~~(~(~phi -> psi) -> (~phi -> psi)) -> ~(~phi -> psi)) -> ((~phi -> psi) -> ~(~(~phi -> psi) -> (~phi -> psi)))))",
+    },
+    // 135. MP(131, 134)
+    { _tag: "mp", leftIndex: 131, rightIndex: 134 },
+    // 136. MP(135, 133)
+    { _tag: "mp", leftIndex: 135, rightIndex: 133 },
+    // 137. MP(132, 136)
+    { _tag: "mp", leftIndex: 132, rightIndex: 136 },
+    // 138.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~phi -> psi) -> ((~phi -> psi) -> ~(~(~phi -> psi) -> (~phi -> psi)))) -> ((~(~phi -> psi) -> (~phi -> psi)) -> (~(~phi -> psi) -> ~(~(~phi -> psi) -> (~phi -> psi))))",
+    },
+    // 139. MP(137, 138)
+    { _tag: "mp", leftIndex: 137, rightIndex: 138 },
+    // 140.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~phi -> psi) -> ~(~(~phi -> psi) -> (~phi -> psi))) -> ((~(~phi -> psi) -> (~phi -> psi)) -> (~phi -> psi))",
+    },
+    // 141.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~phi -> psi) -> (~phi -> psi)) -> ((~(~phi -> psi) -> ~(~(~phi -> psi) -> (~phi -> psi))) -> ((~(~phi -> psi) -> (~phi -> psi)) -> (~phi -> psi)))) -> (((~(~phi -> psi) -> (~phi -> psi)) -> (~(~phi -> psi) -> ~(~(~phi -> psi) -> (~phi -> psi)))) -> ((~(~phi -> psi) -> (~phi -> psi)) -> ((~(~phi -> psi) -> (~phi -> psi)) -> (~phi -> psi))))",
+    },
+    // 142.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~phi -> psi) -> ~(~(~phi -> psi) -> (~phi -> psi))) -> ((~(~phi -> psi) -> (~phi -> psi)) -> (~phi -> psi))) -> ((~(~phi -> psi) -> (~phi -> psi)) -> ((~(~phi -> psi) -> ~(~(~phi -> psi) -> (~phi -> psi))) -> ((~(~phi -> psi) -> (~phi -> psi)) -> (~phi -> psi))))",
+    },
+    // 143. MP(140, 142)
+    { _tag: "mp", leftIndex: 140, rightIndex: 142 },
+    // 144. MP(143, 141)
+    { _tag: "mp", leftIndex: 143, rightIndex: 141 },
+    // 145. MP(139, 144)
+    { _tag: "mp", leftIndex: 139, rightIndex: 144 },
+    // 146.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~phi -> psi) -> (~phi -> psi)) -> ((~(~phi -> psi) -> (~phi -> psi)) -> (~phi -> psi))) -> (((~(~phi -> psi) -> (~phi -> psi)) -> (~(~phi -> psi) -> (~phi -> psi))) -> ((~(~phi -> psi) -> (~phi -> psi)) -> (~phi -> psi)))",
+    },
+    // 147. MP(145, 146)
+    { _tag: "mp", leftIndex: 145, rightIndex: 146 },
+    // 148.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~phi -> psi) -> (~phi -> psi)) -> (((~(~phi -> psi) -> (~phi -> psi)) -> (~(~phi -> psi) -> (~phi -> psi))) -> (~(~phi -> psi) -> (~phi -> psi)))) -> (((~(~phi -> psi) -> (~phi -> psi)) -> ((~(~phi -> psi) -> (~phi -> psi)) -> (~(~phi -> psi) -> (~phi -> psi)))) -> ((~(~phi -> psi) -> (~phi -> psi)) -> (~(~phi -> psi) -> (~phi -> psi))))",
+    },
+    // 149.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~phi -> psi) -> (~phi -> psi)) -> (((~(~phi -> psi) -> (~phi -> psi)) -> (~(~phi -> psi) -> (~phi -> psi))) -> (~(~phi -> psi) -> (~phi -> psi)))",
+    },
+    // 150. MP(149, 148)
+    { _tag: "mp", leftIndex: 149, rightIndex: 148 },
+    // 151.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~phi -> psi) -> (~phi -> psi)) -> ((~(~phi -> psi) -> (~phi -> psi)) -> (~(~phi -> psi) -> (~phi -> psi)))",
+    },
+    // 152. MP(151, 150)
+    { _tag: "mp", leftIndex: 151, rightIndex: 150 },
+    // 153. MP(152, 147)
+    { _tag: "mp", leftIndex: 152, rightIndex: 147 },
+    // 154.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> psi) -> ((~(~phi -> psi) -> (~phi -> psi)) -> (~phi -> psi))) -> ((~~(~phi -> psi) -> (~(~phi -> psi) -> (~phi -> psi))) -> (~~(~phi -> psi) -> (~phi -> psi)))",
+    },
+    // 155.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(~phi -> psi) -> (~phi -> psi)) -> (~phi -> psi)) -> (~~(~phi -> psi) -> ((~(~phi -> psi) -> (~phi -> psi)) -> (~phi -> psi)))",
+    },
+    // 156. MP(153, 155)
+    { _tag: "mp", leftIndex: 153, rightIndex: 155 },
+    // 157. MP(156, 154)
+    { _tag: "mp", leftIndex: 156, rightIndex: 154 },
+    // 158. MP(130, 157)
+    { _tag: "mp", leftIndex: 130, rightIndex: 157 },
+    // 159.
+    {
+      _tag: "axiom",
+      formulaText: "~~~(phi \\/ psi) -> (~~(phi \\/ psi) -> ~~~(phi \\/ psi))",
+    },
+    // 160.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi \\/ psi) -> ~~~(phi \\/ psi)) -> (~~(phi \\/ psi) -> ~(phi \\/ psi))",
+    },
+    // 161.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(phi \\/ psi) -> ((~~(phi \\/ psi) -> ~~~(phi \\/ psi)) -> (~~(phi \\/ psi) -> ~(phi \\/ psi)))) -> ((~~~(phi \\/ psi) -> (~~(phi \\/ psi) -> ~~~(phi \\/ psi))) -> (~~~(phi \\/ psi) -> (~~(phi \\/ psi) -> ~(phi \\/ psi))))",
+    },
+    // 162.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi \\/ psi) -> ~~~(phi \\/ psi)) -> (~~(phi \\/ psi) -> ~(phi \\/ psi))) -> (~~~(phi \\/ psi) -> ((~~(phi \\/ psi) -> ~~~(phi \\/ psi)) -> (~~(phi \\/ psi) -> ~(phi \\/ psi))))",
+    },
+    // 163. MP(160, 162)
+    { _tag: "mp", leftIndex: 160, rightIndex: 162 },
+    // 164. MP(163, 161)
+    { _tag: "mp", leftIndex: 163, rightIndex: 161 },
+    // 165. MP(159, 164)
+    { _tag: "mp", leftIndex: 159, rightIndex: 164 },
+    // 166.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~~(phi \\/ psi)) -> (~(phi \\/ psi) -> ~(~~(phi \\/ psi) -> ~(phi \\/ psi)))",
+    },
+    // 167.
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~(phi \\/ psi) -> (~~(~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~~(phi \\/ psi))",
+    },
+    // 168.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi \\/ psi) -> ((~~(~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~~(phi \\/ psi)) -> (~(phi \\/ psi) -> ~(~~(phi \\/ psi) -> ~(phi \\/ psi))))) -> ((~~(phi \\/ psi) -> (~~(~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~~(phi \\/ psi))) -> (~~(phi \\/ psi) -> (~(phi \\/ psi) -> ~(~~(phi \\/ psi) -> ~(phi \\/ psi)))))",
+    },
+    // 169.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~~(phi \\/ psi)) -> (~(phi \\/ psi) -> ~(~~(phi \\/ psi) -> ~(phi \\/ psi)))) -> (~~(phi \\/ psi) -> ((~~(~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~~(phi \\/ psi)) -> (~(phi \\/ psi) -> ~(~~(phi \\/ psi) -> ~(phi \\/ psi)))))",
+    },
+    // 170. MP(166, 169)
+    { _tag: "mp", leftIndex: 166, rightIndex: 169 },
+    // 171. MP(170, 168)
+    { _tag: "mp", leftIndex: 170, rightIndex: 168 },
+    // 172. MP(167, 171)
+    { _tag: "mp", leftIndex: 167, rightIndex: 171 },
+    // 173.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi \\/ psi) -> (~(phi \\/ psi) -> ~(~~(phi \\/ psi) -> ~(phi \\/ psi)))) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> (~~(phi \\/ psi) -> ~(~~(phi \\/ psi) -> ~(phi \\/ psi))))",
+    },
+    // 174. MP(172, 173)
+    { _tag: "mp", leftIndex: 172, rightIndex: 173 },
+    // 175.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi \\/ psi) -> ~(~~(phi \\/ psi) -> ~(phi \\/ psi))) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~(phi \\/ psi))",
+    },
+    // 176.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ((~~(phi \\/ psi) -> ~(~~(phi \\/ psi) -> ~(phi \\/ psi))) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~(phi \\/ psi)))) -> (((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> (~~(phi \\/ psi) -> ~(~~(phi \\/ psi) -> ~(phi \\/ psi)))) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~(phi \\/ psi))))",
+    },
+    // 177.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi \\/ psi) -> ~(~~(phi \\/ psi) -> ~(phi \\/ psi))) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~(phi \\/ psi))) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ((~~(phi \\/ psi) -> ~(~~(phi \\/ psi) -> ~(phi \\/ psi))) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~(phi \\/ psi))))",
+    },
+    // 178. MP(175, 177)
+    { _tag: "mp", leftIndex: 175, rightIndex: 177 },
+    // 179. MP(178, 176)
+    { _tag: "mp", leftIndex: 178, rightIndex: 176 },
+    // 180. MP(174, 179)
+    { _tag: "mp", leftIndex: 174, rightIndex: 179 },
+    // 181.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~(phi \\/ psi))) -> (((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> (~~(phi \\/ psi) -> ~(phi \\/ psi))) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~(phi \\/ psi)))",
+    },
+    // 182. MP(180, 181)
+    { _tag: "mp", leftIndex: 180, rightIndex: 181 },
+    // 183.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> (((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> (~~(phi \\/ psi) -> ~(phi \\/ psi))) -> (~~(phi \\/ psi) -> ~(phi \\/ psi)))) -> (((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> (~~(phi \\/ psi) -> ~(phi \\/ psi)))) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> (~~(phi \\/ psi) -> ~(phi \\/ psi))))",
+    },
+    // 184.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi \\/ psi) -> ~(phi \\/ psi)) -> (((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> (~~(phi \\/ psi) -> ~(phi \\/ psi))) -> (~~(phi \\/ psi) -> ~(phi \\/ psi)))",
+    },
+    // 185. MP(184, 183)
+    { _tag: "mp", leftIndex: 184, rightIndex: 183 },
+    // 186.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> (~~(phi \\/ psi) -> ~(phi \\/ psi)))",
+    },
+    // 187. MP(186, 185)
+    { _tag: "mp", leftIndex: 186, rightIndex: 185 },
+    // 188. MP(187, 182)
+    { _tag: "mp", leftIndex: 187, rightIndex: 182 },
+    // 189.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(phi \\/ psi) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~(phi \\/ psi))) -> ((~~~(phi \\/ psi) -> (~~(phi \\/ psi) -> ~(phi \\/ psi))) -> (~~~(phi \\/ psi) -> ~(phi \\/ psi)))",
+    },
+    // 190.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~(phi \\/ psi)) -> (~~~(phi \\/ psi) -> ((~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ~(phi \\/ psi)))",
+    },
+    // 191. MP(188, 190)
+    { _tag: "mp", leftIndex: 188, rightIndex: 190 },
+    // 192. MP(191, 189)
+    { _tag: "mp", leftIndex: 191, rightIndex: 189 },
+    // 193. MP(165, 192)
+    { _tag: "mp", leftIndex: 165, rightIndex: 192 },
+    // 194.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(phi \\/ psi) -> ~(phi \\/ psi)) -> ((phi \\/ psi) -> ~~(phi \\/ psi))",
+    },
+    // 195. MP(193, 194)
+    { _tag: "mp", leftIndex: 193, rightIndex: 194 },
+    // 196.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> psi) -> ((~phi -> psi) -> (phi \\/ psi))) -> ((~~(~phi -> psi) -> (~phi -> psi)) -> (~~(~phi -> psi) -> (phi \\/ psi)))",
+    },
+    // 197.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~phi -> psi) -> (phi \\/ psi)) -> (~~(~phi -> psi) -> ((~phi -> psi) -> (phi \\/ psi)))",
+    },
+    // 198. MP(123, 197)
+    { _tag: "mp", leftIndex: 123, rightIndex: 197 },
+    // 199. MP(198, 196)
+    { _tag: "mp", leftIndex: 198, rightIndex: 196 },
+    // 200. MP(158, 199)
+    { _tag: "mp", leftIndex: 158, rightIndex: 199 },
+    // 201.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> psi) -> ((phi \\/ psi) -> ~~(phi \\/ psi))) -> ((~~(~phi -> psi) -> (phi \\/ psi)) -> (~~(~phi -> psi) -> ~~(phi \\/ psi)))",
+    },
+    // 202.
+    {
+      _tag: "axiom",
+      formulaText:
+        "((phi \\/ psi) -> ~~(phi \\/ psi)) -> (~~(~phi -> psi) -> ((phi \\/ psi) -> ~~(phi \\/ psi)))",
+    },
+    // 203. MP(195, 202)
+    { _tag: "mp", leftIndex: 195, rightIndex: 202 },
+    // 204. MP(203, 201)
+    { _tag: "mp", leftIndex: 203, rightIndex: 201 },
+    // 205. MP(200, 204)
+    { _tag: "mp", leftIndex: 200, rightIndex: 204 },
+    // 206.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~phi -> psi) -> ~~(phi \\/ psi)) -> (~(phi \\/ psi) -> ~(~phi -> psi))",
+    },
+    // 207. MP(205, 206)
+    { _tag: "mp", leftIndex: 205, rightIndex: 206 },
+    // --- final compose: ¬(φ∨ψ) → (¬φ∧¬ψ) ---
+    // 208.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(phi \\/ psi) -> (~(~phi -> psi) -> ~(~phi -> ~~psi))) -> ((~(phi \\/ psi) -> ~(~phi -> psi)) -> (~(phi \\/ psi) -> ~(~phi -> ~~psi)))",
+    },
+    // 209.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~phi -> psi) -> ~(~phi -> ~~psi)) -> (~(phi \\/ psi) -> (~(~phi -> psi) -> ~(~phi -> ~~psi)))",
+    },
+    // 210. MP(122, 209)
+    { _tag: "mp", leftIndex: 122, rightIndex: 209 },
+    // 211. MP(210, 208)
+    { _tag: "mp", leftIndex: 210, rightIndex: 208 },
+    // 212. MP(207, 211)
+    { _tag: "mp", leftIndex: 207, rightIndex: 211 },
+    // 213.
+    { _tag: "axiom", formulaText: "~(~phi -> ~~psi) -> (~phi /\\ ~psi)" },
+    // 214.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(phi \\/ psi) -> (~(~phi -> ~~psi) -> (~phi /\\ ~psi))) -> ((~(phi \\/ psi) -> ~(~phi -> ~~psi)) -> (~(phi \\/ psi) -> (~phi /\\ ~psi)))",
+    },
+    // 215.
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(~phi -> ~~psi) -> (~phi /\\ ~psi)) -> (~(phi \\/ psi) -> (~(~phi -> ~~psi) -> (~phi /\\ ~psi)))",
+    },
+    // 216. MP(213, 215)
+    { _tag: "mp", leftIndex: 213, rightIndex: 215 },
+    // 217. MP(216, 214)
+    { _tag: "mp", leftIndex: 216, rightIndex: 214 },
+    // 218. MP(212, 217)
+    { _tag: "mp", leftIndex: 212, rightIndex: 217 },
   ],
 };
 
