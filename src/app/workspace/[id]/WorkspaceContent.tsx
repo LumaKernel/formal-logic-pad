@@ -19,7 +19,7 @@ import {
 } from "../../../lib/quest/questVersionLogic";
 import { allReferenceEntries } from "../../../lib/reference/referenceContent";
 import { findEntryById } from "../../../lib/reference/referenceEntry";
-import { ReferenceModal } from "../../../lib/reference/ReferenceModal";
+import { ReferenceFloatingWindow } from "../../../lib/reference/ReferenceFloatingWindow";
 import type { Locale as ReferenceLocale } from "../../../lib/reference/referenceEntry";
 import { ThemeProvider } from "../../../lib/theme/ThemeProvider";
 import { isLocale } from "../../../components/LanguageToggle/languageToggleLogic";
@@ -439,7 +439,7 @@ function WorkspaceInner() {
         themeLabels={themeLabels}
       />
       {referenceDetailEntry !== undefined ? (
-        <ReferenceModal
+        <ReferenceFloatingWindow
           entry={referenceDetailEntry}
           allEntries={allReferenceEntries}
           locale={referenceLocale}
