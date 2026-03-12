@@ -220,18 +220,14 @@ describe("ReferenceViewerPageView", () => {
 
 describe("ReferenceViewerNotFound", () => {
   it("英語のNotFoundが表示される", () => {
-    render(
-      <ReferenceViewerNotFound locale="en" testId="ref-not-found" />,
-    );
+    render(<ReferenceViewerNotFound locale="en" testId="ref-not-found" />);
     const el = screen.getByTestId("ref-not-found");
     expect(el.textContent).toContain("Reference Not Found");
     expect(el.textContent).toContain("Back to Reference");
   });
 
   it("日本語のNotFoundが表示される", () => {
-    render(
-      <ReferenceViewerNotFound locale="ja" testId="ref-not-found" />,
-    );
+    render(<ReferenceViewerNotFound locale="ja" testId="ref-not-found" />);
     const el = screen.getByTestId("ref-not-found");
     expect(el.textContent).toContain("リファレンスが見つかりません");
     expect(el.textContent).toContain("リファレンス一覧に戻る");
