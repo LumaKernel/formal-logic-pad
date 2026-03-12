@@ -13002,3 +13002,33 @@
   - テーマ検出はdocument.documentElement.getAttribute("data-theme")で行う（useThemeフック等ではなく直接DOM参照）
   - MdEditorの除外ツールバー: image, mermaid, katex, save, github, fullscreen, pageFullscreen, htmlPreview, catalog
 ---
+
+## 2026-03-12 - logic-core EX-DEF公理追加・pred模範解答正式化
+- 実装した内容:
+  - EX-DEF公理（存在量化子定義）をHilbert系に追加
+    - Forward: (∃x.φ) → ¬(∀x.¬φ)、Backward: ¬(∀x.¬φ) → (∃x.φ)
+  - matchExDefは手動構造マッチング方式（CONJ-DEF/DISJ-DEFのテンプレート方式はTermMetaVariable型制約で使用不可）
+  - axiomNameLogic, axiomPaletteLogic, referenceContent, workspaceExport対応
+  - pred-adv-09: EX-DEF forward方向のインスタンス（1ステップ）に正式化
+  - pred-adv-10: 36ステップの正式証明に書き換え（pred-adv-07拡張+Gen+A5）
+  - pragmatic模範解答: 13→10件に縮小
+- 変更したファイル:
+  - src/lib/logic-core/inferenceRule.ts — PredicateAxiomId拡張, axiomExDefForwardTemplate, matchExDef, identifyAxiom更新
+  - src/lib/logic-core/inferenceRule.test.ts — matchExDef 14テスト追加
+  - src/lib/proof-pad/axiomNameLogic.ts — EX-DEF表示名追加
+  - src/lib/proof-pad/axiomPaletteLogic.ts — パレット項目・リファレンスマップ追加
+  - src/lib/proof-pad/axiomPaletteLogic.test.ts — テスト期待値更新
+  - src/lib/proof-pad/workspaceExport.ts — ALL_AXIOM_IDS更新
+  - src/lib/quest/builtinModelAnswers.ts — pred-adv-09/pred-adv-10正式化
+  - src/lib/quest/builtinModelAnswers.test.ts — knownPragmaticQuestsから2件削除
+  - src/lib/reference/referenceContent.ts — axiomExDefエントリ追加
+  - src/lib/reference/referenceContent.test.ts — エントリ数60→61
+  - tasks/prd-inserted-tasks.md — 進捗更新
+- カバレッジ: inferenceRule.ts Stmts 99.73%, Branch 98.81%（14テスト追加で維持）
+- スクリーンショット: .screenshots/ex-def-predicate-scrolled.png
+- **今後のイテレーションへの学び:**
+  - Universal/ExistentialクラスのvariableフィールドはTermVariable型に固定（Schema.TaggedClassの制約）。TermMetaVariableは入れられない
+  - EX-DEFのようなExistential/Universalを含む公理のマッチングは、テンプレート方式ではなくA4/A5と同様の手動構造マッチングが必要
+  - 残り10件のpred pragmatic模範解答は、対偶（107ステップ）やDNE（100+ステップ）のインライン展開が必要で50-200+ステップになる
+  - pred-adv-10の36ステップ証明はpred-adv-07の構造を再利用+Phase5でGen[x]+A5でラップする構成
+---
