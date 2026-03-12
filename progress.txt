@@ -13251,3 +13251,27 @@
   - `notebookSerialization.ts` の `parseNotebook` は `hilbertDeduction(system)` 固定 — 非Hilbert体系のシリアライゼーションは未対応（将来の課題）
   - 全パレット(AxiomPalette/NdRulePalette/ScRulePalette/TabRulePalette/AtRulePalette)は同じ position: absolute, left:12, top:48, minWidth:200
 ---
+
+## 2026-03-13 - [non-hilbert] WorkspacePageView非Hilbert体系ストーリー追加
+- 実装した内容:
+  - WorkspacePageView.stories.tsx に非Hilbert体系の4ストーリーを追加:
+    - EmptyNaturalDeduction (ND/NJ): NDルールパレット表示、MPボタン非表示、体系バッジ確認
+    - EmptySequentCalculus (SC/LK): SCルールパレット表示、MPボタン非表示、体系バッジ確認
+    - EmptyTableauCalculus (TAB/Prop): TABルールパレット表示、MPボタン非表示、体系バッジ確認
+    - EmptyAnalyticTableau (AT): ATルールパレット表示、MPボタン非表示、体系バッジ確認
+  - 各ストーリーにplay関数: notebook-title, workspace-system, workspace-page, 各rule-palette, mp-button非表示, axiom-palette非表示を検証
+  - prd-non-hilbert.md 全タスク完了 → tasks-archived/ にアーカイブ
+- 変更したファイル:
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx (+162行)
+  - tasks/prd-non-hilbert.md → tasks-archived/prd-non-hilbert.md
+- テスト: 全260ファイル9919テストパス（前回9915 → +4）
+- カバレッジ: 維持
+- ブラウザ検証: Playwright MCPで4ストーリーすべて確認、スクリーンショット撮影済み
+  - .screenshots/non-hilbert-nd-workspace.png
+  - .screenshots/non-hilbert-sc-workspace.png
+  - .screenshots/non-hilbert-tab-workspace.png
+  - .screenshots/non-hilbert-at-workspace.png
+- **今後のイテレーションへの学び:**
+  - WorkspacePageViewのストーリーで体系名をnotebookNameと同じにすると「Found multiple elements」エラー。getByTestId("notebook-title") / getByTestId("workspace-system") で分けて検証する
+  - Storybook dev server(6006)とは別に13006が動いている場合がある。新ストーリーが認識されない場合は別ポートを試す
+---
