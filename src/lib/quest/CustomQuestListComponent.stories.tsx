@@ -121,22 +121,18 @@ export const Default: Story = {
     await expect(canvas.getByText("恒等律の練習")).toBeInTheDocument();
     await expect(canvas.getByText("ド・モルガンの法則")).toBeInTheDocument();
     await expect(canvas.getByText("対偶")).toBeInTheDocument();
-    // 編集・エクスポート・複製・削除ボタンが表示されていること
+    // 編集・共有・複製・削除ボタンが表示されていること
     await expect(
       canvas.getByTestId("custom-quest-edit-btn-custom-1001"),
     ).toBeInTheDocument();
     await expect(
-      canvas.getByTestId("custom-quest-export-btn-custom-1001"),
+      canvas.getByTestId("custom-quest-share-btn-custom-1001"),
     ).toBeInTheDocument();
     await expect(
       canvas.getByTestId("custom-quest-duplicate-btn-custom-1001"),
     ).toBeInTheDocument();
     await expect(
       canvas.getByTestId("custom-quest-delete-btn-custom-1001"),
-    ).toBeInTheDocument();
-    // URL共有ボタンが表示されていること
-    await expect(
-      canvas.getByTestId("custom-quest-share-btn-custom-1001"),
     ).toBeInTheDocument();
     // インポートボタンがヘッダーに表示されていること
     await expect(
@@ -251,12 +247,9 @@ export const WithoutActions: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // 編集・エクスポート・URL共有・複製・削除ボタンが表示されないこと
+    // 編集・共有・複製・削除ボタンが表示されないこと
     await expect(
       canvas.queryByTestId("custom-quest-edit-btn-custom-1001"),
-    ).not.toBeInTheDocument();
-    await expect(
-      canvas.queryByTestId("custom-quest-export-btn-custom-1001"),
     ).not.toBeInTheDocument();
     await expect(
       canvas.queryByTestId("custom-quest-share-btn-custom-1001"),
@@ -467,21 +460,48 @@ export const CreateNewQuestCancel: Story = {
   },
 };
 
-export const ExportQuest: Story = {
+export const SharePanel: Story = {
   args: {
     items: sampleItems,
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
 
-    // JSONエクスポートボタンが表示されていること
-    const exportBtn = canvas.getByTestId("custom-quest-export-btn-custom-1001");
-    await expect(exportBtn).toBeInTheDocument();
-    await expect(exportBtn).toHaveTextContent("JSON");
+    // 共有ボタンが表示されていること
+    const shareBtn = canvas.getByTestId("custom-quest-share-btn-custom-1001");
+    await expect(shareBtn).toBeInTheDocument();
+    await expect(shareBtn).toHaveTextContent("共有");
 
-    // クリックするとonExportQuestが呼ばれる
-    await userEvent.click(exportBtn);
+    // 共有ボタンクリック → 共有パネルが開く
+    await userEvent.click(shareBtn);
+    await expect(
+      canvas.getByTestId("custom-quest-share-panel-custom-1001"),
+    ).toBeInTheDocument();
+
+    // JSONエクスポートボタンをクリック
+    await userEvent.click(
+      canvas.getByTestId("custom-quest-share-export-btn-custom-1001"),
+    );
     await expect(args.onExportQuest).toHaveBeenCalledWith("custom-1001");
+
+    // URLコピーボタンをクリック
+    await userEvent.click(
+      canvas.getByTestId("custom-quest-share-url-btn-custom-1001"),
+    );
+    await expect(args.onShareQuestUrl).toHaveBeenCalledWith("custom-1001");
+
+    // コピーフィードバックが表示される
+    await expect(
+      canvas.getByTestId("custom-quest-share-url-btn-custom-1001"),
+    ).toHaveTextContent("コピーしました!");
+
+    // 閉じるボタンクリック → パネルが閉じる
+    await userEvent.click(
+      canvas.getByTestId("custom-quest-share-close-btn-custom-1001"),
+    );
+    await expect(
+      canvas.queryByTestId("custom-quest-share-panel-custom-1001"),
+    ).not.toBeInTheDocument();
 
     // onStartQuestは呼ばれないこと（stopPropagation）
     await expect(args.onStartQuest).not.toHaveBeenCalled();
@@ -555,26 +575,5 @@ export const ImportQuestCancel: Story = {
 
     // onImportQuestは呼ばれないこと
     await expect(args.onImportQuest).not.toHaveBeenCalled();
-  },
-};
-
-export const ShareQuestUrl: Story = {
-  args: {
-    items: sampleItems,
-  },
-  play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement);
-
-    // URL共有ボタンが表示されていること
-    const shareBtn = canvas.getByTestId("custom-quest-share-btn-custom-1001");
-    await expect(shareBtn).toBeInTheDocument();
-    await expect(shareBtn).toHaveTextContent("URL");
-
-    // クリックするとonShareQuestUrlが呼ばれる
-    await userEvent.click(shareBtn);
-    await expect(args.onShareQuestUrl).toHaveBeenCalledWith("custom-1001");
-
-    // onStartQuestは呼ばれないこと（stopPropagation）
-    await expect(args.onStartQuest).not.toHaveBeenCalled();
   },
 };

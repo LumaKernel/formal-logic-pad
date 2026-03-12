@@ -8,7 +8,7 @@
  * 変更時は CustomQuestListComponent.stories.tsx, index.ts も同期すること。
  */
 
-import { useState, useRef, type CSSProperties } from "react";
+import { useState, useRef, useEffect, type CSSProperties } from "react";
 import { FormulaListEditor } from "../formula-input/FormulaListEditor";
 import type { QuestCatalogItem } from "./questCatalog";
 import type {
@@ -253,6 +253,55 @@ const deleteCancelBtnStyle: CSSProperties = {
   border: "1px solid var(--color-border, rgba(180,160,130,0.3))",
   background: "var(--color-quest-card-bg, rgba(255,253,248,0.9))",
   color: "var(--color-text-primary, #333)",
+  cursor: "pointer",
+};
+
+const sharePanelOverlayStyle: CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+  background: "var(--color-quest-card-bg, rgba(255,253,248,0.97))",
+  borderRadius: 0,
+  zIndex: 1,
+  padding: "0 18px",
+};
+
+const sharePanelTitleStyle: CSSProperties = {
+  fontSize: 12,
+  fontWeight: 600,
+  color: "var(--color-text-primary, #333)",
+  flexShrink: 0,
+};
+
+const sharePanelBtnStyle: CSSProperties = {
+  padding: "6px 14px",
+  fontSize: 12,
+  borderRadius: 6,
+  border: "1px solid var(--color-border, rgba(180,160,130,0.3))",
+  background: "var(--color-quest-card-bg, rgba(255,253,248,0.9))",
+  color: "var(--color-text-primary, #333)",
+  cursor: "pointer",
+  fontWeight: 600,
+  transition: "background 0.15s",
+};
+
+const sharePanelCopiedBtnStyle: CSSProperties = {
+  ...sharePanelBtnStyle,
+  background: "var(--color-quest-start-bg, #4caf50)",
+  color: "#fff",
+  border: "1px solid var(--color-quest-start-bg, #4caf50)",
+};
+
+const sharePanelCloseBtnStyle: CSSProperties = {
+  padding: "6px 10px",
+  fontSize: 12,
+  borderRadius: 6,
+  border: "1px solid var(--color-border, rgba(180,160,130,0.3))",
+  background: "transparent",
+  color: "var(--color-text-secondary, #666)",
   cursor: "pointer",
 };
 
@@ -923,9 +972,24 @@ function CustomQuestItem({
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isDeleteConfirming, setIsDeleteConfirming] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [urlCopied, setUrlCopied] = useState(false);
+  const urlCopiedTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+
+  useEffect(
+    () => () => {
+      if (urlCopiedTimerRef.current !== undefined) {
+        clearTimeout(urlCopiedTimerRef.current);
+      }
+    },
+    [],
+  );
 
   const handleDeleteStart = () => {
     setIsDeleteConfirming(true);
+    setIsShareOpen(false);
   };
 
   const handleDeleteConfirm = () => {
@@ -939,6 +1003,40 @@ function CustomQuestItem({
   const handleDeleteCancel = () => {
     setIsDeleteConfirming(false);
   };
+
+  const handleShareOpen = () => {
+    setIsShareOpen(true);
+    setIsDeleteConfirming(false);
+    setUrlCopied(false);
+  };
+
+  const handleShareClose = () => {
+    setIsShareOpen(false);
+    setUrlCopied(false);
+  };
+
+  const handleShareExport = () => {
+    /* v8 ignore start -- 防御的: onExportが存在する場合のみ共有ボタンが表示される */
+    if (onExport === undefined) return;
+    /* v8 ignore stop */
+    onExport(item.quest.id);
+  };
+
+  const handleShareUrl = () => {
+    /* v8 ignore start -- 防御的: onShareUrlが存在する場合のみ共有ボタンが表示される */
+    if (onShareUrl === undefined) return;
+    /* v8 ignore stop */
+    onShareUrl(item.quest.id);
+    setUrlCopied(true);
+    if (urlCopiedTimerRef.current !== undefined) {
+      clearTimeout(urlCopiedTimerRef.current);
+    }
+    urlCopiedTimerRef.current = setTimeout(() => {
+      setUrlCopied(false);
+    }, 2000);
+  };
+
+  const hasShareActions = onExport !== undefined || onShareUrl !== undefined;
 
   return (
     <>
@@ -995,30 +1093,17 @@ function CustomQuestItem({
               編集
             </button>
           )}
-          {onExport !== undefined && (
-            <button
-              data-testid={`custom-quest-export-btn-${item.quest.id satisfies string}`}
-              style={actionButtonStyle}
-              onClick={(e) => {
-                e.stopPropagation();
-                onExport(item.quest.id);
-              }}
-              title="エクスポート"
-            >
-              JSON
-            </button>
-          )}
-          {onShareUrl !== undefined && (
+          {hasShareActions && (
             <button
               data-testid={`custom-quest-share-btn-${item.quest.id satisfies string}`}
               style={actionButtonStyle}
               onClick={(e) => {
                 e.stopPropagation();
-                onShareUrl(item.quest.id);
+                handleShareOpen();
               }}
-              title="URL共有"
+              title="共有"
             >
-              URL
+              共有
             </button>
           )}
           {onDuplicate !== undefined && (
@@ -1048,6 +1133,42 @@ function CustomQuestItem({
             </button>
           )}
         </div>
+        {isShareOpen && (
+          <div
+            data-testid={`custom-quest-share-panel-${item.quest.id satisfies string}`}
+            style={sharePanelOverlayStyle}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span style={sharePanelTitleStyle}>共有</span>
+            {onExport !== undefined && (
+              <button
+                data-testid={`custom-quest-share-export-btn-${item.quest.id satisfies string}`}
+                style={sharePanelBtnStyle}
+                onClick={handleShareExport}
+              >
+                JSONエクスポート
+              </button>
+            )}
+            {onShareUrl !== undefined && (
+              <button
+                data-testid={`custom-quest-share-url-btn-${item.quest.id satisfies string}`}
+                style={
+                  urlCopied ? sharePanelCopiedBtnStyle : sharePanelBtnStyle
+                }
+                onClick={handleShareUrl}
+              >
+                {urlCopied ? "コピーしました!" : "URLをコピー"}
+              </button>
+            )}
+            <button
+              data-testid={`custom-quest-share-close-btn-${item.quest.id satisfies string}`}
+              style={sharePanelCloseBtnStyle}
+              onClick={handleShareClose}
+            >
+              閉じる
+            </button>
+          </div>
+        )}
         {isDeleteConfirming && (
           <div
             data-testid={`custom-quest-delete-confirm-${item.quest.id satisfies string}`}
