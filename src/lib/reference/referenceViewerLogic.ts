@@ -68,6 +68,7 @@ export type ViewerPageData = {
     readonly title: string;
     readonly href: string;
   }[];
+  readonly relatedQuestIds: readonly string[];
   readonly externalLinks: readonly {
     readonly url: string;
     readonly label: string;
@@ -111,6 +112,7 @@ export function buildViewerPageData(
     formalNotation: entry.formalNotation,
     bodyParagraphs: getLocalizedParagraphs(entry.body, locale),
     relatedEntries,
+    relatedQuestIds: entry.relatedQuestIds ?? [],
     externalLinks,
     breadcrumbs: buildBreadcrumbs(entry, locale),
   };

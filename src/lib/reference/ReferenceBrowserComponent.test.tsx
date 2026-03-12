@@ -201,4 +201,81 @@ describe("ReferenceBrowserComponent", () => {
     ).toBeInTheDocument();
     vi.unstubAllGlobals();
   });
+
+  it("モーダルで関連クエストが表示される", async () => {
+    const user = userEvent.setup();
+    const entryWithQuests = makeEntry({
+      id: "axiom-a1",
+      category: "axiom",
+      order: 1,
+      relatedQuestIds: ["prop-01", "prop-02"],
+    });
+    const resolveQuestTitle = (questId: string) =>
+      questId === "prop-01"
+        ? "Quest 1"
+        : questId === "prop-02"
+          ? "Quest 2"
+          : undefined;
+    render(
+      <ReferenceBrowserComponent
+        entries={[entryWithQuests]}
+        locale="en"
+        testId="ref"
+        resolveQuestTitle={resolveQuestTitle}
+        onStartQuest={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("ref-entry-axiom-a1"));
+    expect(screen.getByTestId("ref-modal")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("ref-modal-quest-prop-01"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("ref-modal-quest-prop-02"),
+    ).toBeInTheDocument();
+  });
+
+  it("モーダルでクエストクリック時にonStartQuestが呼ばれる", async () => {
+    const user = userEvent.setup();
+    const onStartQuest = vi.fn();
+    const entryWithQuests = makeEntry({
+      id: "axiom-a1",
+      category: "axiom",
+      order: 1,
+      relatedQuestIds: ["prop-01"],
+    });
+    render(
+      <ReferenceBrowserComponent
+        entries={[entryWithQuests]}
+        locale="en"
+        testId="ref"
+        resolveQuestTitle={() => "Quest 1"}
+        onStartQuest={onStartQuest}
+      />,
+    );
+    await user.click(screen.getByTestId("ref-entry-axiom-a1"));
+    await user.click(screen.getByTestId("ref-modal-quest-prop-01"));
+    expect(onStartQuest).toHaveBeenCalledWith("prop-01");
+  });
+
+  it("resolveQuestTitleがない場合はクエストセクションを表示しない", async () => {
+    const user = userEvent.setup();
+    const entryWithQuests = makeEntry({
+      id: "axiom-a1",
+      category: "axiom",
+      order: 1,
+      relatedQuestIds: ["prop-01"],
+    });
+    render(
+      <ReferenceBrowserComponent
+        entries={[entryWithQuests]}
+        locale="en"
+        testId="ref"
+        onStartQuest={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("ref-entry-axiom-a1"));
+    const modal = screen.getByTestId("ref-modal");
+    expect(modal.textContent).not.toContain("Related Quests");
+  });
 });

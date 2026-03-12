@@ -17,6 +17,12 @@ import { buildReferenceViewerUrl } from "./referenceViewerLogic";
 
 // --- Props ---
 
+/** 関連クエスト情報（親で解決済み） */
+export type RelatedQuestInfo = {
+  readonly id: string;
+  readonly title: string;
+};
+
 export interface ReferenceModalProps {
   /** 表示するリファレンスエントリ */
   readonly entry: ReferenceEntry;
@@ -28,6 +34,10 @@ export interface ReferenceModalProps {
   readonly onClose: () => void;
   /** 関連エントリへのナビゲーション */
   readonly onNavigate?: (entryId: string) => void;
+  /** 関連クエスト（IDとタイトルの解決済みリスト） */
+  readonly relatedQuests?: readonly RelatedQuestInfo[];
+  /** クエスト開始コールバック */
+  readonly onStartQuest?: (questId: string) => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -189,6 +199,22 @@ const languageTagStyle: CSSProperties = {
   lineHeight: "1.4",
 };
 
+const questButtonStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "6px",
+  fontSize: "var(--font-size-sm, 13px)",
+  color: "var(--color-accent, #555ab9)",
+  background: "none",
+  border: "1px solid var(--color-accent, #555ab9)",
+  borderRadius: "4px",
+  padding: "4px 10px",
+  margin: "0 6px 6px 0",
+  cursor: "pointer",
+  fontFamily: "var(--font-ui)",
+  transition: "background-color 0.1s ease",
+};
+
 // --- コンポーネント ---
 
 export function ReferenceModal({
@@ -197,6 +223,8 @@ export function ReferenceModal({
   locale,
   onClose,
   onNavigate,
+  relatedQuests,
+  onStartQuest,
   testId,
 }: ReferenceModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
@@ -355,6 +383,36 @@ export function ReferenceModal({
               </div>
             </div>
           )}
+
+          {/* 関連クエスト */}
+          {relatedQuests !== undefined &&
+            relatedQuests.length > 0 &&
+            onStartQuest !== undefined && (
+              <div>
+                <div style={sectionTitleStyle}>
+                  {locale === "ja" ? "関連クエスト" : "Related Quests"}
+                </div>
+                <div>
+                  {relatedQuests.map((quest) => (
+                    <button
+                      key={quest.id}
+                      type="button"
+                      style={questButtonStyle}
+                      onClick={() => {
+                        onStartQuest(quest.id);
+                      }}
+                      data-testid={
+                        testId !== undefined
+                          ? `${testId satisfies string}-quest-${quest.id satisfies string}`
+                          : undefined
+                      }
+                    >
+                      {quest.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
           {/* 外部リンク */}
           {data.externalLinks.length > 0 && (

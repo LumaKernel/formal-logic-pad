@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ReferenceEntry } from "./referenceEntry";
 import {
@@ -215,6 +215,73 @@ describe("ReferenceViewerPageView", () => {
     const viewer = screen.getByTestId("ref-viewer");
     expect(viewer.textContent).toContain("First paragraph");
     expect(viewer.textContent).toContain("Second paragraph");
+  });
+
+  it("関連クエストボタンが表示される", () => {
+    const relatedQuests = [
+      { id: "prop-01", title: "Quest 1" },
+      { id: "prop-02", title: "Quest 2" },
+    ];
+    render(
+      <ReferenceViewerPageView
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        relatedQuests={relatedQuests}
+        onStartQuest={vi.fn()}
+        testId="ref-viewer"
+      />,
+    );
+    expect(screen.getByTestId("ref-viewer-quest-prop-01")).toBeDefined();
+    expect(screen.getByTestId("ref-viewer-quest-prop-02")).toBeDefined();
+    expect(screen.getByTestId("ref-viewer-quest-prop-01").textContent).toBe(
+      "Quest 1",
+    );
+  });
+
+  it("関連クエストクリックでonStartQuestが呼ばれる", () => {
+    const onStartQuest = vi.fn();
+    render(
+      <ReferenceViewerPageView
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        relatedQuests={[{ id: "prop-01", title: "Quest 1" }]}
+        onStartQuest={onStartQuest}
+        testId="ref-viewer"
+      />,
+    );
+    fireEvent.click(screen.getByTestId("ref-viewer-quest-prop-01"));
+    expect(onStartQuest).toHaveBeenCalledWith("prop-01");
+  });
+
+  it("関連クエストがない場合はクエストセクションを表示しない", () => {
+    render(
+      <ReferenceViewerPageView
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onStartQuest={vi.fn()}
+        testId="ref-viewer"
+      />,
+    );
+    const viewer = screen.getByTestId("ref-viewer");
+    expect(viewer.textContent).not.toContain("Related Quests");
+  });
+
+  it("日本語で関連クエストセクションが表示される", () => {
+    render(
+      <ReferenceViewerPageView
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="ja"
+        relatedQuests={[{ id: "prop-01", title: "クエスト1" }]}
+        onStartQuest={vi.fn()}
+        testId="ref-viewer"
+      />,
+    );
+    const viewer = screen.getByTestId("ref-viewer");
+    expect(viewer.textContent).toContain("関連クエスト");
   });
 });
 

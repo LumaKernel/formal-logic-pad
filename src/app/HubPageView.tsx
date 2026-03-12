@@ -535,6 +535,20 @@ export function HubPageView({
       ? filterNotebooksByQuestId(listItems, questFilter)
       : listItems;
 
+  const resolveQuestTitle = useCallback(
+    (questId: string): string | undefined => {
+      for (const group of groups) {
+        for (const item of group.items) {
+          if (item.quest.id === questId) {
+            return item.quest.title;
+          }
+        }
+      }
+      return undefined;
+    },
+    [groups],
+  );
+
   return (
     <div style={pageStyle} data-testid="hub-page">
       {/* Header */}
@@ -835,6 +849,8 @@ export function HubPageView({
                 locale={referenceLocale}
                 searchPlaceholder={m.referenceSearchPlaceholder}
                 emptyMessage={m.referenceEmpty}
+                resolveQuestTitle={resolveQuestTitle}
+                onStartQuest={onStartQuest}
                 testId="reference-browser"
               />
             )}

@@ -169,6 +169,8 @@ export type ReferenceEntry = {
   readonly formalNotation?: string;
   /** 関連するリファレンスエントリID */
   readonly relatedEntryIds: readonly ReferenceEntryId[];
+  /** 関連するクエストID（ドキュメントからクエストを開始できるようにする） */
+  readonly relatedQuestIds?: readonly string[];
   /** 外部リンク */
   readonly externalLinks: readonly ExternalLink[];
   /** 検索用キーワード（ロケール非依存） */

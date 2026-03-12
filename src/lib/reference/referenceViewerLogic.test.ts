@@ -181,6 +181,20 @@ describe("buildViewerPageData", () => {
     const data = buildViewerPageData(unknownRelated, allEntries, "en");
     expect(data.relatedEntries).toEqual([]);
   });
+
+  it("relatedQuestIdsを返す", () => {
+    const entryWithQuests: ReferenceEntry = {
+      ...sampleEntry,
+      relatedQuestIds: ["prop-01", "prop-02"],
+    };
+    const data = buildViewerPageData(entryWithQuests, allEntries, "en");
+    expect(data.relatedQuestIds).toEqual(["prop-01", "prop-02"]);
+  });
+
+  it("relatedQuestIdsがない場合は空配列を返す", () => {
+    const data = buildViewerPageData(sampleEntry, allEntries, "en");
+    expect(data.relatedQuestIds).toEqual([]);
+  });
 });
 
 // --- resolveEntryById ---

@@ -109,6 +109,7 @@ export function buildPopoverData(
     hasDetail:
       getLocalizedParagraphs(entry.body, locale).length > 0 ||
       entry.relatedEntryIds.length > 0 ||
+      (entry.relatedQuestIds ?? []).length > 0 ||
       entry.externalLinks.length > 0,
   };
 }
@@ -126,6 +127,7 @@ export type ModalData = {
     readonly id: string;
     readonly title: string;
   }[];
+  readonly relatedQuestIds: readonly string[];
   readonly externalLinks: readonly {
     readonly url: string;
     readonly label: string;
@@ -167,6 +169,7 @@ export function buildModalData(
     formalNotation: entry.formalNotation,
     bodyParagraphs: getLocalizedParagraphs(entry.body, locale),
     relatedEntries,
+    relatedQuestIds: entry.relatedQuestIds ?? [],
     externalLinks,
   };
 }
