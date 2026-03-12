@@ -13212,3 +13212,24 @@
   - findMergeableGroupsのようなグルーピングで文字列キーが使えない場合（AST等価判定）、linear scanで既存グループと比較する方式が有効
   - V8集約アーティファクトで関数定義行が未カバーになる場合、`/* v8 ignore start/stop */`で関数定義行を囲む
 ---
+
+## 2026-03-13 - [non-hilbert] Hilbert以外の体系でMP/Genボタン・コンテキストメニューを非表示に
+- 実装した内容:
+  - ProofWorkspace.tsx に `isHilbertStyle` 判定変数を追加（`workspace.deductionSystem.style === "hilbert"`）
+  - MPボタン（ツールバー）をHilbert体系でのみ表示するよう条件分岐を追加
+  - MPリファレンスポップオーバーも同様にHilbert体系のみ
+  - ノードコンテキストメニューの「Use as MP Left」「Use as MP Right」「Apply Gen to Node」をHilbert体系のみ表示に変更
+  - `menuNodeHasGenEnabled` に `isHilbertStyle` ガードを追加（二重保護）
+  - Gen ボタン条件を `isHilbertStyle && workspace.system.generalization` に明確化
+- 変更したファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx (isHilbertStyle追加、MP/Gen条件分岐修正)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (6テスト追加: ND/SC/TAB/AT各体系でMP非表示、Hilbert体系でMP表示、NDコンテキストメニューMP非表示)
+  - tasks/prd-non-hilbert.md (MP適用タスクを完了マーク)
+- テスト: 全260ファイル9914テストパス（ベースライン9908 → +6）
+- カバレッジ: ベースライン維持
+- スクリーンショット: .screenshots/nd-workspace-no-mp-button.png, .screenshots/hilbert-workspace-with-mp-button.png
+- **今後のイテレーションへの学び:**
+  - `workspace.deductionSystem.style` がUI要素の表示制御の正しい判定基準。`workspace.system` はHilbert固有のLogicSystem型
+  - `emptyLogicSystem` は non-Hilbert 体系の `workspace.system` に設定される。`generalization: false` で Gen は自動非表示だが、MP は明示的ガードが必要だった
+  - 非Hilbert体系の残課題: axiomsパレットのレイアウト回避、体系名表示、ルート/ページストーリー作成
+---
