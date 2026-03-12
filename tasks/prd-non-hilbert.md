@@ -3,4 +3,4 @@
   - [ ] ストーリーでしっかり、ルート、ページの実際のストーリーを作って保証、確認
   - [ ] 対応することが多ければ、専用のタスクファイルとタスクリストを作って計画を立てて対応
   - [x] MP適用などがすべて出てくるが、これも正しいのか？上部メニューやコンテキストメニューはノートの体系によって変わるべきではないか
-  - [ ] そもそも全部、体系が Empty (non-Hilbert) になるが、正しいのか
+  - [x] そもそも全部、体系が Empty (non-Hilbert) になるが、正しいのか (notebookListLogic.tsのsystemName修正。ProofWorkspaceは既にgetDeductionSystemName使用で正しい)
