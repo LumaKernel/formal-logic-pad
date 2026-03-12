@@ -38,11 +38,13 @@ import {
   ProofCollectionPageView,
   type ProofCollectionPageViewProps,
 } from "../lib/proof-collection";
+import type { ReferenceEntry, Locale } from "../lib/reference/referenceEntry";
+import { ReferenceBrowserComponent } from "../lib/reference/ReferenceBrowserComponent";
 import { useHubMessages } from "./HubMessagesContext";
 
 // --- Types ---
 
-export type HubTab = "notebooks" | "quests" | "custom-quests" | "collection";
+export type HubTab = "notebooks" | "quests" | "custom-quests" | "collection" | "reference";
 type HubViewState = "list" | "create";
 
 /** ランディングページに表示するおすすめクエスト */
@@ -124,6 +126,10 @@ export type HubPageViewProps = {
     ProofCollectionPageViewProps,
     "messages" | "testId"
   >;
+  /** リファレンスエントリ一覧（referenceタブ用） */
+  readonly referenceEntries?: readonly ReferenceEntry[];
+  /** リファレンス表示用ロケール */
+  readonly referenceLocale?: Locale;
 };
 
 // --- Styles ---
@@ -488,6 +494,8 @@ export function HubPageView({
   showLanding,
   recommendedQuests,
   collectionProps,
+  referenceEntries,
+  referenceLocale = "en",
 }: HubPageViewProps) {
   const m = useHubMessages();
   const [view, setView] = useState<HubViewState>("list");
@@ -656,6 +664,16 @@ export function HubPageView({
             >
               {m.tabCollection}
             </button>
+            <button
+              type="button"
+              style={tab === "reference" ? tabActiveStyle : tabStyle}
+              onClick={() => {
+                onTabChange("reference");
+                setView("list");
+              }}
+            >
+              {m.tabReference}
+            </button>
           </nav>
 
           {/* Content */}
@@ -803,6 +821,16 @@ export function HubPageView({
                 onRemoveFolder={collectionProps.onRemoveFolder}
                 onRenameFolder={collectionProps.onRenameFolder}
                 testId="collection-page"
+              />
+            )}
+
+            {tab === "reference" && referenceEntries !== undefined && (
+              <ReferenceBrowserComponent
+                entries={referenceEntries}
+                locale={referenceLocale}
+                searchPlaceholder={m.referenceSearchPlaceholder}
+                emptyMessage={m.referenceEmpty}
+                testId="reference-browser"
               />
             )}
           </div>

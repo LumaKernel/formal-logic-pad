@@ -38,6 +38,10 @@ export type HubMessages = {
   readonly landingStartFreeProof: string;
   readonly landingExploreQuests: string;
   readonly landingRecommendedQuests: string;
+  // --- Reference ---
+  readonly tabReference: string;
+  readonly referenceSearchPlaceholder: string;
+  readonly referenceEmpty: string;
   // --- Collection ---
   readonly collectionEmpty: string;
   readonly collectionEntryCount: string;
@@ -82,6 +86,10 @@ export const defaultHubMessages: HubMessages = {
   landingStartFreeProof: "Start Free Proof",
   landingExploreQuests: "Explore Quests",
   landingRecommendedQuests: "Try a Quick Quest",
+  // Reference
+  tabReference: "Reference",
+  referenceSearchPlaceholder: "Search reference…",
+  referenceEmpty: "No matching entries found.",
   // Collection
   collectionEmpty:
     "No saved proofs yet. Save proofs from your workspace to manage them here.",
@@ -121,6 +129,9 @@ export const hubMessageKeys: readonly (keyof HubMessages)[] = [
   "landingStartFreeProof",
   "landingExploreQuests",
   "landingRecommendedQuests",
+  "tabReference",
+  "referenceSearchPlaceholder",
+  "referenceEmpty",
   "collectionEmpty",
   "collectionEntryCount",
   "collectionDelete",
