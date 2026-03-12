@@ -14,99 +14,69 @@ import {
   getLocalizedText,
 } from "./referenceEntry";
 
-// --- 簡易マークダウンパース ---
+// --- インラインHTMLタグパース ---
 
 /**
- * インラインマークダウンの要素。
- * テキスト、ボールド（**...**）、またはイタリック（*...*）のいずれか。
+ * インラインHTMLタグの要素。
+ * テキスト、ボールド（<b>...</b>）、イタリック（<i>...</i>）、
+ * またはコード（<code>...</code>）のいずれか。
  */
 export type InlineElement =
   | { readonly type: "text"; readonly content: string }
   | { readonly type: "bold"; readonly content: string }
-  | { readonly type: "italic"; readonly content: string };
+  | { readonly type: "italic"; readonly content: string }
+  | { readonly type: "code"; readonly content: string };
+
+/** サポートするHTMLタグとInlineElement typeの対応 */
+const tagTypeMap: ReadonlyMap<string, InlineElement["type"]> = new Map([
+  ["b", "bold"],
+  ["i", "italic"],
+  ["code", "code"],
+]);
 
 /**
- * 簡易インラインマークダウンをパースする。
- * **bold** と *italic* をサポート。
+ * インラインHTMLタグをパースする。
+ * <b>bold</b>, <i>italic</i>, <code>code</code> をサポート。
+ * ネストはサポートしない（フラットなインライン要素のみ）。
  */
 export function parseInlineMarkdown(text: string): readonly InlineElement[] {
   const result: InlineElement[] = [];
-  let remaining = text;
+  // <b>, <i>, <code> の開きタグにマッチする正規表現
+  const openTagRegex = /<(b|i|code)>/g;
+  let lastIndex = 0;
 
-  while (remaining.length > 0) {
-    const boldStart = remaining.indexOf("**");
-    const italicStart = remaining.indexOf("*");
+  let match: RegExpExecArray | null;
+  while ((match = openTagRegex.exec(text)) !== null) {
+    const tagName = match[1];
+    const closeTag = `</${tagName satisfies string}>`;
+    const closeIndex = text.indexOf(closeTag, match.index + match[0].length);
 
-    // * がまったくない場合 → 残り全部テキスト
-    if (italicStart === -1) {
-      result.push({ type: "text", content: remaining });
-      break;
-    }
-
-    // ** が見つかり、* の位置と一致する場合 → bold を優先
-    if (boldStart === italicStart) {
-      // bold の処理
-      if (boldStart > 0) {
-        result.push({
-          type: "text",
-          content: remaining.slice(0, boldStart),
-        });
-      }
-
-      const boldEnd = remaining.indexOf("**", boldStart + 2);
-      if (boldEnd === -1) {
-        // 閉じ ** がない場合はそのままテキストとして扱う
-        result.push({ type: "text", content: remaining.slice(boldStart) });
-        break;
-      }
-
-      const boldContent = remaining.slice(boldStart + 2, boldEnd);
-      if (boldContent.length > 0) {
-        result.push({ type: "bold", content: boldContent });
-      }
-
-      remaining = remaining.slice(boldEnd + 2);
+    if (closeIndex === -1) {
+      // 閉じタグがない場合はテキストとして扱う
       continue;
     }
 
-    // * はあるが ** ではない、または * が ** より前にある → italic の処理
-    if (italicStart > 0) {
+    // 開きタグ前のテキスト
+    if (match.index > lastIndex) {
       result.push({
         type: "text",
-        content: remaining.slice(0, italicStart),
+        content: text.slice(lastIndex, match.index),
       });
     }
 
-    // 閉じ * を探す（** を避ける）
-    const afterOpen = remaining.slice(italicStart + 1);
-    let italicEnd = -1;
-    let searchPos = 0;
-    while (searchPos < afterOpen.length) {
-      const nextStar = afterOpen.indexOf("*", searchPos);
-      if (nextStar === -1) {
-        break;
-      }
-      // ** の場合はスキップ（bold marker）
-      if (nextStar + 1 < afterOpen.length && afterOpen[nextStar + 1] === "*") {
-        searchPos = nextStar + 2;
-        continue;
-      }
-      italicEnd = nextStar;
-      break;
+    const content = text.slice(match.index + match[0].length, closeIndex);
+    const elementType = tagTypeMap.get(tagName);
+    if (content.length > 0 && elementType !== undefined) {
+      result.push({ type: elementType, content });
     }
 
-    if (italicEnd === -1) {
-      // 閉じ * がない場合はそのままテキストとして扱う
-      result.push({ type: "text", content: remaining.slice(italicStart) });
-      break;
-    }
+    lastIndex = closeIndex + closeTag.length;
+    openTagRegex.lastIndex = lastIndex;
+  }
 
-    const italicContent = afterOpen.slice(0, italicEnd);
-    if (italicContent.length > 0) {
-      result.push({ type: "italic", content: italicContent });
-    }
-
-    remaining = afterOpen.slice(italicEnd + 1);
+  // 残りのテキスト
+  if (lastIndex < text.length) {
+    result.push({ type: "text", content: text.slice(lastIndex) });
   }
 
   return result;

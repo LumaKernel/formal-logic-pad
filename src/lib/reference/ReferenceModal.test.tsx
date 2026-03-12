@@ -16,8 +16,8 @@ const makeEntry = (
     ja: "テスト要約。",
   },
   body: {
-    en: ["First paragraph with **bold** text.", "Second paragraph."],
-    ja: ["**太字**を含む第1パラグラフ。", "第2パラグラフ。"],
+    en: ["First paragraph with <b>bold</b> text.", "Second paragraph."],
+    ja: ["<b>太字</b>を含む第1パラグラフ。", "第2パラグラフ。"],
   },
   formalNotation: "\\varphi \\to \\psi",
   relatedEntryIds: ["related-1"],
@@ -151,8 +151,8 @@ describe("ReferenceModal", () => {
   it("イタリックマークダウンがemタグとしてレンダリングされる", () => {
     const entry = makeEntry({
       body: {
-        en: ["Also called *detachment* rule."],
-        ja: ["*分離規則*とも呼ばれる。"],
+        en: ["Also called <i>detachment</i> rule."],
+        ja: ["<i>分離規則</i>とも呼ばれる。"],
       },
     });
     render(

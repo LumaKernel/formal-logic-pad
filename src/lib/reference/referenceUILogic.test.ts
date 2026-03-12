@@ -19,8 +19,8 @@ const makeEntry = (
     ja: "テスト要約。",
   },
   body: {
-    en: ["First paragraph.", "Second paragraph with **bold** text."],
-    ja: ["第1パラグラフ。", "**太字**を含む第2パラグラフ。"],
+    en: ["First paragraph.", "Second paragraph with <b>bold</b> text."],
+    ja: ["第1パラグラフ。", "<b>太字</b>を含む第2パラグラフ。"],
   },
   formalNotation: "\\varphi \\to \\psi",
   relatedEntryIds: ["related-1"],
@@ -52,8 +52,8 @@ describe("parseInlineMarkdown", () => {
     expect(result).toEqual([{ type: "text", content: "Hello world" }]);
   });
 
-  it("太字を正しくパースする", () => {
-    const result = parseInlineMarkdown("before **bold** after");
+  it("太字(<b>)を正しくパースする", () => {
+    const result = parseInlineMarkdown("before <b>bold</b> after");
     expect(result).toEqual([
       { type: "text", content: "before " },
       { type: "bold", content: "bold" },
@@ -62,7 +62,7 @@ describe("parseInlineMarkdown", () => {
   });
 
   it("複数の太字をパースする", () => {
-    const result = parseInlineMarkdown("**a** text **b**");
+    const result = parseInlineMarkdown("<b>a</b> text <b>b</b>");
     expect(result).toEqual([
       { type: "bold", content: "a" },
       { type: "text", content: " text " },
@@ -70,11 +70,10 @@ describe("parseInlineMarkdown", () => {
     ]);
   });
 
-  it("閉じ**がない場合はテキストとして扱う", () => {
-    const result = parseInlineMarkdown("before **unclosed");
+  it("閉じ</b>がない場合はテキストとして扱う", () => {
+    const result = parseInlineMarkdown("before <b>unclosed");
     expect(result).toEqual([
-      { type: "text", content: "before " },
-      { type: "text", content: "**unclosed" },
+      { type: "text", content: "before <b>unclosed" },
     ]);
   });
 
@@ -84,20 +83,20 @@ describe("parseInlineMarkdown", () => {
   });
 
   it("太字のみの文字列を処理する", () => {
-    const result = parseInlineMarkdown("**only bold**");
+    const result = parseInlineMarkdown("<b>only bold</b>");
     expect(result).toEqual([{ type: "bold", content: "only bold" }]);
   });
 
   it("連続する太字をパースする", () => {
-    const result = parseInlineMarkdown("**a****b**");
+    const result = parseInlineMarkdown("<b>a</b><b>b</b>");
     expect(result).toEqual([
       { type: "bold", content: "a" },
       { type: "bold", content: "b" },
     ]);
   });
 
-  it("空の太字(***)はスキップする", () => {
-    const result = parseInlineMarkdown("before **** after");
+  it("空の太字(<b></b>)はスキップする", () => {
+    const result = parseInlineMarkdown("before <b></b> after");
     expect(result).toEqual([
       { type: "text", content: "before " },
       { type: "text", content: " after" },
@@ -106,8 +105,8 @@ describe("parseInlineMarkdown", () => {
 
   // --- italic ---
 
-  it("イタリックを正しくパースする", () => {
-    const result = parseInlineMarkdown("before *italic* after");
+  it("イタリック(<i>)を正しくパースする", () => {
+    const result = parseInlineMarkdown("before <i>italic</i> after");
     expect(result).toEqual([
       { type: "text", content: "before " },
       { type: "italic", content: "italic" },
@@ -116,12 +115,12 @@ describe("parseInlineMarkdown", () => {
   });
 
   it("イタリックのみの文字列を処理する", () => {
-    const result = parseInlineMarkdown("*only italic*");
+    const result = parseInlineMarkdown("<i>only italic</i>");
     expect(result).toEqual([{ type: "italic", content: "only italic" }]);
   });
 
   it("複数のイタリックをパースする", () => {
-    const result = parseInlineMarkdown("*a* text *b*");
+    const result = parseInlineMarkdown("<i>a</i> text <i>b</i>");
     expect(result).toEqual([
       { type: "italic", content: "a" },
       { type: "text", content: " text " },
@@ -129,27 +128,40 @@ describe("parseInlineMarkdown", () => {
     ]);
   });
 
-  it("閉じ*がない場合はテキストとして扱う", () => {
-    const result = parseInlineMarkdown("before *unclosed");
+  it("閉じ</i>がない場合はテキストとして扱う", () => {
+    const result = parseInlineMarkdown("before <i>unclosed");
+    expect(result).toEqual([
+      { type: "text", content: "before <i>unclosed" },
+    ]);
+  });
+
+  // --- code ---
+
+  it("コード(<code>)を正しくパースする", () => {
+    const result = parseInlineMarkdown("before <code>code</code> after");
     expect(result).toEqual([
       { type: "text", content: "before " },
-      { type: "text", content: "*unclosed" },
+      { type: "code", content: "code" },
+      { type: "text", content: " after" },
     ]);
   });
 
-  it("空のイタリック(**)はスキップする", () => {
-    // ** は bold の開始マーカーとして扱われる
-    const result = parseInlineMarkdown("text ** more");
+  it("コードのみの文字列を処理する", () => {
+    const result = parseInlineMarkdown("<code>only code</code>");
+    expect(result).toEqual([{ type: "code", content: "only code" }]);
+  });
+
+  it("閉じ</code>がない場合はテキストとして扱う", () => {
+    const result = parseInlineMarkdown("before <code>unclosed");
     expect(result).toEqual([
-      { type: "text", content: "text " },
-      { type: "text", content: "** more" },
+      { type: "text", content: "before <code>unclosed" },
     ]);
   });
 
-  // --- bold と italic の混在 ---
+  // --- 混在 ---
 
   it("太字とイタリックの混在をパースする", () => {
-    const result = parseInlineMarkdown("**bold** and *italic*");
+    const result = parseInlineMarkdown("<b>bold</b> and <i>italic</i>");
     expect(result).toEqual([
       { type: "bold", content: "bold" },
       { type: "text", content: " and " },
@@ -158,7 +170,7 @@ describe("parseInlineMarkdown", () => {
   });
 
   it("イタリック→太字の順でパースする", () => {
-    const result = parseInlineMarkdown("*italic* then **bold**");
+    const result = parseInlineMarkdown("<i>italic</i> then <b>bold</b>");
     expect(result).toEqual([
       { type: "italic", content: "italic" },
       { type: "text", content: " then " },
@@ -166,9 +178,22 @@ describe("parseInlineMarkdown", () => {
     ]);
   });
 
+  it("太字・イタリック・コードの混在をパースする", () => {
+    const result = parseInlineMarkdown(
+      "<b>bold</b> and <i>italic</i> and <code>code</code>",
+    );
+    expect(result).toEqual([
+      { type: "bold", content: "bold" },
+      { type: "text", content: " and " },
+      { type: "italic", content: "italic" },
+      { type: "text", content: " and " },
+      { type: "code", content: "code" },
+    ]);
+  });
+
   it("MPリファレンスの実際のテキストをパースする", () => {
     const result = parseInlineMarkdown(
-      "**Modus ponens** (MP, also called *detachment*) is the sole inference rule.",
+      "<b>Modus ponens</b> (MP, also called <i>detachment</i>) is the sole inference rule.",
     );
     expect(result).toEqual([
       { type: "bold", content: "Modus ponens" },
@@ -180,7 +205,7 @@ describe("parseInlineMarkdown", () => {
 
   it("日本語のMPリファレンスのテキストをパースする", () => {
     const result = parseInlineMarkdown(
-      "**モーダスポネンス** (MP、*分離規則*とも呼ばれる) はHilbert系証明体系における唯一の推論規則です。",
+      "<b>モーダスポネンス</b> (MP、<i>分離規則</i>とも呼ばれる) はHilbert系証明体系における唯一の推論規則です。",
     );
     expect(result).toEqual([
       { type: "bold", content: "モーダスポネンス" },
@@ -191,6 +216,13 @@ describe("parseInlineMarkdown", () => {
         content:
           "とも呼ばれる) はHilbert系証明体系における唯一の推論規則です。",
       },
+    ]);
+  });
+
+  it("未知のHTMLタグはテキストとして扱う", () => {
+    const result = parseInlineMarkdown("text <span>span</span> more");
+    expect(result).toEqual([
+      { type: "text", content: "text <span>span</span> more" },
     ]);
   });
 });
@@ -296,7 +328,7 @@ describe("buildModalData", () => {
     expect(result.formalNotation).toBe("\\varphi \\to \\psi");
     expect(result.bodyParagraphs).toEqual([
       "First paragraph.",
-      "Second paragraph with **bold** text.",
+      "Second paragraph with <b>bold</b> text.",
     ]);
     expect(result.relatedEntries).toEqual([
       { id: "related-1", title: "Related Entry" },
@@ -319,7 +351,7 @@ describe("buildModalData", () => {
     expect(result.categoryLabel).toBe("公理");
     expect(result.bodyParagraphs).toEqual([
       "第1パラグラフ。",
-      "**太字**を含む第2パラグラフ。",
+      "<b>太字</b>を含む第2パラグラフ。",
     ]);
     expect(result.relatedEntries).toEqual([
       { id: "related-1", title: "関連エントリ" },

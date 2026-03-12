@@ -15,11 +15,11 @@ const sampleEntry: ReferenceEntry = {
   },
   body: {
     en: [
-      "Axiom A1, also called the **K axiom** or **weakening axiom**, states that if φ is true, then ψ → φ holds for any ψ.",
+      "Axiom A1, also called the <b>K axiom</b> or <b>weakening axiom</b>, states that if φ is true, then ψ → φ holds for any ψ.",
       "In combinatory logic, this corresponds to the K combinator: K = λx.λy.x.",
     ],
     ja: [
-      "公理A1は**K公理**（弱化公理）とも呼ばれ、φが真ならば、任意のψに対してψ → φが成り立つことを述べます。",
+      "公理A1は<b>K公理</b>（弱化公理）とも呼ばれ、φが真ならば、任意のψに対してψ → φが成り立つことを述べます。",
       "コンビネータ論理では、Kコンビネータ K = λx.λy.x に対応します。",
     ],
   },

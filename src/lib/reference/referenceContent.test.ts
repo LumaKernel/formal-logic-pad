@@ -1319,3 +1319,82 @@ describe("分析的タブローエントリの個別チェック", () => {
     expect(entry?.externalLinks.length).toBeGreaterThan(0);
   });
 });
+
+// --- Markdownフォーマット禁止チェッカー ---
+
+describe("Markdownフォーマット禁止チェッカー", () => {
+  /**
+   * Markdown記法（**bold**, *italic*, __underline__）が
+   * ビルトインドキュメントのテキストフィールドに使用されていないことを検証する。
+   *
+   * 許可されるフォーマット: <b>, <i>, <code> のHTMLタグのみ。
+   */
+  const markdownBoldRegex = /\*\*[^*]+\*\*/;
+  const markdownUnderscoreBoldRegex = /__[^_]+__/;
+  // Markdown italicの検出: <i>タグの外にある * で囲まれたテキスト
+  // HTMLタグ内の * は除外
+  const markdownItalicRegex = /(?<![<\/])\*(?!\*)([^*]+?)\*(?![>*])/;
+
+  /** テキストフィールドを全て収集する */
+  function collectTextFields(
+    entry: ReferenceEntry,
+  ): readonly { readonly field: string; readonly text: string }[] {
+    const fields: { readonly field: string; readonly text: string }[] = [];
+    for (const locale of allLocales) {
+      fields.push({
+        field: `title.${locale satisfies string}`,
+        text: entry.title[locale],
+      });
+      fields.push({
+        field: `summary.${locale satisfies string}`,
+        text: entry.summary[locale],
+      });
+      for (const [idx, paragraph] of entry.body[locale].entries()) {
+        fields.push({
+          field: `body.${locale satisfies string}[${String(idx) satisfies string}]`,
+          text: paragraph,
+        });
+      }
+    }
+    return fields;
+  }
+
+  it.each(allReferenceEntries.map((e) => [e.id, e]))(
+    "%s: **bold** Markdown記法が使用されていない",
+    (_id, entry) => {
+      const e = entry as ReferenceEntry;
+      for (const { field, text } of collectTextFields(e)) {
+        expect(
+          markdownBoldRegex.test(text),
+          `${e.id satisfies string}.${field satisfies string} contains **bold** markdown: "${text satisfies string}"`,
+        ).toBe(false);
+      }
+    },
+  );
+
+  it.each(allReferenceEntries.map((e) => [e.id, e]))(
+    "%s: __underline__ Markdown記法が使用されていない",
+    (_id, entry) => {
+      const e = entry as ReferenceEntry;
+      for (const { field, text } of collectTextFields(e)) {
+        expect(
+          markdownUnderscoreBoldRegex.test(text),
+          `${e.id satisfies string}.${field satisfies string} contains __underline__ markdown: "${text satisfies string}"`,
+        ).toBe(false);
+      }
+    },
+  );
+
+  it.each(allReferenceEntries.map((e) => [e.id, e]))(
+    "%s: *italic* Markdown記法が使用されていない",
+    (_id, entry) => {
+      const e = entry as ReferenceEntry;
+      for (const { field, text } of collectTextFields(e)) {
+        expect(
+          markdownItalicRegex.test(text),
+          `${e.id satisfies string}.${field satisfies string} contains *italic* markdown: "${text satisfies string}"`,
+        ).toBe(false);
+      }
+    },
+  );
+});

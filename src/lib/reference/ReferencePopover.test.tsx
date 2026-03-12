@@ -12,8 +12,8 @@ const makeEntry = (
   category: "axiom",
   title: { en: "Test Axiom", ja: "テスト公理" },
   summary: {
-    en: "A test summary with **bold** text.",
-    ja: "**太字**を含むテスト要約。",
+    en: "A test summary with <b>bold</b> text.",
+    ja: "<b>太字</b>を含むテスト要約。",
   },
   body: {
     en: ["First paragraph."],
@@ -170,8 +170,8 @@ describe("ReferencePopover", () => {
   it("イタリックマークダウンがemタグとしてレンダリングされる", () => {
     const entry = makeEntry({
       summary: {
-        en: "Also called *detachment*.",
-        ja: "*分離規則*とも呼ばれる。",
+        en: "Also called <i>detachment</i>.",
+        ja: "<i>分離規則</i>とも呼ばれる。",
       },
     });
     render(<ReferencePopover entry={entry} locale="en" testId="ref-pop" />);
