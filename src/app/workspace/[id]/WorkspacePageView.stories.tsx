@@ -36,6 +36,13 @@ import type { GoalAchievedInfo } from "../../../lib/proof-pad";
 import { allReferenceEntries } from "../../../lib/reference/referenceContent";
 import { findEntryById } from "../../../lib/reference/referenceEntry";
 import { ReferenceModal } from "../../../lib/reference/ReferenceModal";
+import {
+  builtinQuests,
+  findQuestById,
+  modelAnswerRegistry,
+  buildModelAnswerWorkspace,
+} from "../../../lib/quest";
+import type { GoalQuestInfo } from "../../../lib/proof-pad";
 import { WorkspacePageView } from "./WorkspacePageView";
 
 // --- Stateful wrapper for interactive stories ---
@@ -47,6 +54,7 @@ function StatefulWorkspace({
   onGoalAchieved,
   onNotebookRename,
   onDuplicateToFree,
+  questInfo,
   workspaceTestId,
 }: {
   readonly initialWorkspace: WorkspaceState;
@@ -55,6 +63,7 @@ function StatefulWorkspace({
   readonly onGoalAchieved: (info: GoalAchievedInfo) => void;
   readonly onNotebookRename?: (newName: string) => void;
   readonly onDuplicateToFree?: () => void;
+  readonly questInfo?: GoalQuestInfo;
   readonly workspaceTestId?: string;
 }) {
   const [workspace, setWorkspace] = useState(initialWorkspace);
@@ -81,6 +90,7 @@ function StatefulWorkspace({
       onWorkspaceChange={handleChange}
       onGoalAchieved={onGoalAchieved}
       onDuplicateToFree={onDuplicateToFree}
+      questInfo={questInfo}
       languageToggle={{ locale: "en", onLocaleChange: () => {} }}
       workspaceTestId={workspaceTestId}
     />
@@ -699,5 +709,175 @@ export const EmptyAnalyticTableau: Story = {
     expect(
       canvas.queryByTestId("workspace-axiom-palette"),
     ).not.toBeInTheDocument();
+  },
+};
+
+// --- クエスト完了ストーリー ---
+
+/**
+ * 模範解答でクエスト完了状態のワークスペースを構築するヘルパー。
+ * WorkspaceState と GoalQuestInfo を返す。
+ */
+function buildCompletedQuestWorkspace(questId: string): {
+  readonly workspace: WorkspaceState;
+  readonly questInfo: GoalQuestInfo;
+  readonly title: string;
+} {
+  const quest = findQuestById(builtinQuests, questId);
+  if (quest === undefined) {
+    throw new Error(`Quest not found: ${questId satisfies string}`);
+  }
+  const answer = modelAnswerRegistry.get(questId);
+  if (answer === undefined) {
+    throw new Error(`Model answer not found: ${questId satisfies string}`);
+  }
+  const result = buildModelAnswerWorkspace(quest, answer);
+  if (result._tag !== "Ok") {
+    throw new Error(
+      `Failed to build model answer: ${result._tag satisfies string}`,
+    );
+  }
+  return {
+    workspace: result.workspace,
+    questInfo: {
+      description: quest.description,
+      hints: quest.hints,
+      learningPoint: quest.learningPoint,
+    },
+    title: quest.title,
+  };
+}
+
+/** prop-01: Hilbert体系 φ→φ 完了（模範解答はインスタンス公理のためAxiom violation表示） */
+export const QuestCompleteProp01: Story = {
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("prop-01");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // ワークスペースが表示される
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    // ゴールパネルが表示される
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toBeInTheDocument();
+    // 模範解答はインスタンス公理を使用するため、Axiom violation が表示される
+    // （UIからスキーマベースで構築した場合は Proved! になる）
+    await expect(goalPanel).toHaveTextContent("0 / 1");
+    await expect(goalPanel).toHaveTextContent("Axiom violation");
+  },
+};
+
+/** nd-01: 自然演繹 NM φ→φ 完了 */
+export const QuestCompleteNd01: Story = {
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("nd-01");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toBeInTheDocument();
+    await expect(goalPanel).toHaveTextContent("1 / 1");
+    await expect(goalPanel).toHaveTextContent("Proved!");
+  },
+};
+
+/** tab-01: タブロー ¬(φ→φ)反駁 完了 */
+export const QuestCompleteTab01: Story = {
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("tab-01");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toBeInTheDocument();
+    await expect(goalPanel).toHaveTextContent("1 / 1");
+    await expect(goalPanel).toHaveTextContent("Proved!");
+  },
+};
+
+/** sc-01: シーケント計算 LK φ→φ 完了 */
+export const QuestCompleteSc01: Story = {
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("sc-01");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toBeInTheDocument();
+    await expect(goalPanel).toHaveTextContent("1 / 1");
+    await expect(goalPanel).toHaveTextContent("Proved!");
+  },
+};
+
+/** at-01: 分析的タブロー φ∨¬φ 完了 */
+export const QuestCompleteAt01: Story = {
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("at-01");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toBeInTheDocument();
+    await expect(goalPanel).toHaveTextContent("1 / 1");
+    await expect(goalPanel).toHaveTextContent("Proved!");
   },
 };
