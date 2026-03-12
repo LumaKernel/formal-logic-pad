@@ -12,10 +12,17 @@ export { TermInput } from "./TermInput";
 export type { TermInputProps, TermParseState } from "./TermInput";
 export { FormulaEditor } from "./FormulaEditor";
 export type { FormulaEditorProps } from "./FormulaEditor";
+export { TermEditor } from "./TermEditor";
+export type { TermEditorProps } from "./TermEditor";
 export { FormulaExpandedEditor } from "./FormulaExpandedEditor";
 export type { FormulaExpandedEditorProps } from "./FormulaExpandedEditor";
 export { canExitEditMode, computeExitAction } from "./editorLogic";
-export type { DisplayRenderer, EditTrigger, EditorMode } from "./editorLogic";
+export type {
+  DisplayRenderer,
+  EditTrigger,
+  EditorMode,
+  ParseStateStatus,
+} from "./editorLogic";
 export { FormulaListEditor } from "./FormulaListEditor";
 export type { FormulaListEditorProps } from "./FormulaListEditor";
 export {

@@ -11,8 +11,8 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FormulaInput } from "../formula-input/FormulaInput";
-import { TermInput } from "../formula-input/TermInput";
+import { FormulaEditor } from "../formula-input/FormulaEditor";
+import { TermEditor } from "../formula-input/TermEditor";
 import { useProofMessages } from "./ProofMessagesContext";
 import type { EdgeBadgeEditState, SubstEditEntry } from "./edgeBadgeEditLogic";
 import {
@@ -90,24 +90,6 @@ const confirmButtonStyle: React.CSSProperties = {
   backgroundColor: "var(--color-badge-gen, #00b894)",
   color: "#fff",
   border: "none",
-};
-
-const syntaxHelpButtonStyle: React.CSSProperties = {
-  flexShrink: 0,
-  width: 18,
-  height: 18,
-  borderRadius: "50%",
-  border: "1px solid currentColor",
-  background: "transparent",
-  color: "inherit",
-  fontSize: 11,
-  fontWeight: 700,
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: 0,
-  opacity: 0.6,
 };
 
 // --- Gen Popover ---
@@ -264,35 +246,9 @@ function SubstitutionPopover({
           fontSize: 11,
           color: "var(--color-text-muted, #b2bec3)",
           fontWeight: 600,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
         }}
       >
-        <span>{msg.substEntryPrompt}</span>
-        {onOpenSyntaxHelp !== undefined ? (
-          <button
-            type="button"
-            style={syntaxHelpButtonStyle}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onOpenSyntaxHelp();
-            }}
-            title="Syntax help"
-            data-testid={
-              testId
-                ? `${testId satisfies string}-syntax-help`
-                : "edge-popover-syntax-help"
-            }
-          >
-            ?
-          </button>
-        ) : null}
+        {msg.substEntryPrompt}
       </div>
       {entries.map((entry, i) => (
         <div
@@ -352,15 +308,17 @@ function SubstitutionPopover({
             :=
           </span>
           {entry.kind === "formula" ? (
-            <FormulaInput
+            <FormulaEditor
               value={entry.value}
               onChange={(value) => {
                 setEntries(updateSubstEditEntryValue(entries, i, value));
               }}
               placeholder="alpha -> beta"
               fontSize={12}
-              showPreview={false}
               style={{ flex: 1, minWidth: 0 }}
+              onOpenSyntaxHelp={onOpenSyntaxHelp}
+              editTrigger="none"
+              forceEditMode={true}
               /* v8 ignore start -- testId分岐: テスト用属性の有無 */
               testId={
                 testId
@@ -370,15 +328,17 @@ function SubstitutionPopover({
               /* v8 ignore stop */
             />
           ) : (
-            <TermInput
+            <TermEditor
               value={entry.value}
               onChange={(value) => {
                 setEntries(updateSubstEditEntryValue(entries, i, value));
               }}
               placeholder="S(0)"
               fontSize={12}
-              showPreview={false}
               style={{ flex: 1, minWidth: 0 }}
+              onOpenSyntaxHelp={onOpenSyntaxHelp}
+              editTrigger="none"
+              forceEditMode={true}
               /* v8 ignore start -- testId分岐: テスト用属性の有無 */
               testId={
                 testId

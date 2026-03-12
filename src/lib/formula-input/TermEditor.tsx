@@ -1,32 +1,33 @@
 /**
- * 編集/表示モード切替コンポーネント。
+ * 項の編集/表示モード切替コンポーネント。
  *
- * 論理式を美しいレンダリングで表示しつつ、クリックで編集モードに切り替える。
+ * 項を美しいレンダリングで表示しつつ、クリックで編集モードに切り替える。
  * パースエラー時は編集モードに留まる。
+ * FormulaEditor の Term 版。
  *
- * 変更時は FormulaEditor.test.tsx, FormulaEditor.stories.tsx, formulaEditor.ts, index.ts も同期すること。
+ * 変更時は TermEditor.test.tsx, TermEditor.stories.tsx, editorLogic.ts, index.ts も同期すること。
  */
 
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Formula } from "../logic-core/formula";
-import { formatFormula } from "../logic-lang/formatUnicode";
-import { FormulaDisplay } from "./FormulaDisplay";
-import { computeParseState, FormulaInput } from "./FormulaInput";
-import { FormulaKaTeX } from "./FormulaKaTeX";
+import type { Term } from "../logic-core/term";
+import { formatTerm } from "../logic-lang/formatUnicode";
+import { TermDisplay } from "./TermDisplay";
+import { computeTermParseState, TermInput } from "./TermInput";
+import { TermKaTeX } from "./TermKaTeX";
 import type { DisplayRenderer, EditTrigger, EditorMode } from "./editorLogic";
 import { computeExitAction } from "./editorLogic";
 
 // --- Props ---
 
-export interface FormulaEditorProps {
+export interface TermEditorProps {
   /** 現在の入力テキスト */
   readonly value: string;
   /** テキスト変更時のコールバック */
   readonly onChange: (value: string) => void;
-  /** パース成功時にFormula ASTを通知するコールバック */
-  readonly onParsed?: (formula: Formula) => void;
-  /** モード変更時のコールバック（CanvasItem統合時にドラッグ制御に使用） */
+  /** パース成功時にTerm ASTを通知するコールバック */
+  readonly onParsed?: (term: Term) => void;
+  /** モード変更時のコールバック */
   readonly onModeChange?: (mode: EditorMode) => void;
   /** 表示レンダラーの種類 */
   readonly displayRenderer?: DisplayRenderer;
@@ -42,9 +43,7 @@ export interface FormulaEditorProps {
   readonly editTrigger?: EditTrigger;
   /** 構文ヘルプを開くコールバック（指定時に編集モードで?ボタンを表示） */
   readonly onOpenSyntaxHelp?: () => void;
-  /** 拡大エディタを開くコールバック（指定時に編集モードで拡大ボタンを表示） */
-  readonly onOpenExpanded?: () => void;
-  /** 外部から編集モードを強制的に開始するフラグ（trueにすると編集モードに遷移、使用後はfalseに戻すこと） */
+  /** 外部から編集モードを強制的に開始するフラグ */
   readonly forceEditMode?: boolean;
   /** data-testid */
   readonly testId?: string;
@@ -109,42 +108,23 @@ const syntaxHelpButtonStyle: CSSProperties = {
   marginTop: 6,
 };
 
-const expandButtonStyle: CSSProperties = {
-  flexShrink: 0,
-  width: 18,
-  height: 18,
-  borderRadius: 4,
-  border: "1px solid currentColor",
-  backgroundColor: "transparent",
-  color: "inherit",
-  fontSize: 11,
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: 0,
-  opacity: 0.6,
-  marginTop: 6,
-};
-
 // --- コンポーネント ---
 
-export function FormulaEditor({
+export function TermEditor({
   value,
   onChange,
   onParsed,
   onModeChange,
   displayRenderer = "unicode",
-  placeholder = "クリックして論理式を入力...",
+  placeholder = "クリックして項を入力...",
   fontSize,
   className,
   style,
   editTrigger = "click",
   onOpenSyntaxHelp,
-  onOpenExpanded,
   forceEditMode,
   testId,
-}: FormulaEditorProps) {
+}: TermEditorProps) {
   const [mode, setModeInternal] = useState<EditorMode>("display");
 
   const setMode = useCallback(
@@ -157,29 +137,23 @@ export function FormulaEditor({
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // パース状態を計算（表示モードでのFormula取得と、editモード離脱判定の両方に使う）
-  const parseState = useMemo(() => computeParseState(value), [value]);
+  // パース状態を計算（表示モードでのTerm取得と、editモード離脱判定の両方に使う）
+  const parseState = useMemo(() => computeTermParseState(value), [value]);
 
-  // 現在のFormula AST（パース成功時のみ）
-  const formula: Formula | null =
-    parseState.status === "success" ? parseState.formula : null;
+  // 現在のTerm AST（パース成功時のみ）
+  const term: Term | null =
+    parseState.status === "success" ? parseState.term : null;
 
   // --- イベントハンドラ ---
 
   const enterEditMode = useCallback(() => {
-    // 複数行テキストは一行インライン編集に適さないため、
-    // onOpenExpandedがあれば直接モーダルに遷移する
-    if (value.includes("\n") && onOpenExpanded !== undefined) {
-      onOpenExpanded();
-      return;
-    }
     setMode("editing");
-  }, [setMode, value, onOpenExpanded]);
+  }, [setMode]);
 
   // 外部から編集モードを強制開始
   useEffect(() => {
     if (forceEditMode && mode !== "editing") {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot event-driven transition from context menu
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot event-driven transition
       enterEditMode();
     }
   }, [forceEditMode, mode, enterEditMode]);
@@ -187,7 +161,7 @@ export function FormulaEditor({
   const tryExitEditMode = useCallback(() => {
     // forceEditMode が有効な場合は編集モードに留まる
     if (forceEditMode) return;
-    const currentParseState = computeParseState(value);
+    const currentParseState = computeTermParseState(value);
     const result = computeExitAction(currentParseState);
     if (result !== null) {
       setMode(result);
@@ -208,9 +182,6 @@ export function FormulaEditor({
     enterEditMode();
   }, [enterEditMode]);
 
-  // CanvasItem内配置時: 編集モード中はPointerCaptureによるドラッグを防止するため
-  // pointerDownの伝播を停止する。表示モードでは伝播を許可してドラッグ/クリックが
-  // 親（CanvasItem）に伝わるようにする。
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
       if (mode === "editing") {
@@ -221,7 +192,6 @@ export function FormulaEditor({
   );
 
   const handleSyntaxHelpMouseDown = useCallback((e: React.MouseEvent) => {
-    // mousedownでpreventDefaultすることでinputのblurを防ぐ
     e.preventDefault();
     e.stopPropagation();
   }, []);
@@ -233,22 +203,6 @@ export function FormulaEditor({
       onOpenSyntaxHelp?.();
     },
     [onOpenSyntaxHelp],
-  );
-
-  /* v8 ignore start -- mouseDown handler prevents blur; not triggerable in JSDOM */
-  const handleExpandMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
-  /* v8 ignore stop */
-
-  const handleExpandClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      onOpenExpanded?.();
-    },
-    [onOpenExpanded],
   );
 
   const handleDisplayKeyDown = useCallback(
@@ -265,12 +219,10 @@ export function FormulaEditor({
   useEffect(() => {
     if (mode === "editing") {
       const input = containerRef.current?.querySelector("input");
-      // DOM要素が見つからない場合は何もしない（防御コード）
       /* v8 ignore start */
       if (!input) return;
       /* v8 ignore stop */
       input.focus();
-      // カーソルを末尾に
       input.setSelectionRange(input.value.length, input.value.length);
     }
   }, [mode]);
@@ -286,10 +238,7 @@ export function FormulaEditor({
   );
 
   // Unicode表示テキスト（表示モード用）
-  const displayText = useMemo(
-    () => (formula ? formatFormula(formula) : null),
-    [formula],
-  );
+  const displayText = useMemo(() => (term ? formatTerm(term) : null), [term]);
 
   return (
     <div
@@ -318,19 +267,19 @@ export function FormulaEditor({
           aria-label={
             displayText
               ? `${displayText satisfies string} - ${(editTrigger === "dblclick" ? "ダブルクリックして編集" : "クリックして編集") satisfies string}`
-              : `${(editTrigger === "dblclick" ? "ダブルクリックして論理式を入力" : "クリックして論理式を入力") satisfies string}`
+              : `${(editTrigger === "dblclick" ? "ダブルクリックして項を入力" : "クリックして項を入力") satisfies string}`
           }
         >
-          {formula ? (
+          {term ? (
             displayRenderer === "katex" ? (
-              <FormulaKaTeX
-                formula={formula}
+              <TermKaTeX
+                term={term}
                 fontSize={fontSize}
                 testId={testId ? `${testId satisfies string}-katex` : undefined}
               />
             ) : (
-              <FormulaDisplay
-                formula={formula}
+              <TermDisplay
+                term={term}
                 fontSize={fontSize}
                 testId={
                   testId ? `${testId satisfies string}-unicode` : undefined
@@ -354,7 +303,7 @@ export function FormulaEditor({
           data-testid={testId ? `${testId satisfies string}-edit` : undefined}
         >
           <div style={{ flexGrow: 1, minWidth: 0 }}>
-            <FormulaInput
+            <TermInput
               value={value}
               onChange={onChange}
               onParsed={onParsed}
@@ -365,20 +314,6 @@ export function FormulaEditor({
               showPreview={false}
             />
           </div>
-          {onOpenExpanded !== undefined && (
-            <button
-              type="button"
-              style={expandButtonStyle}
-              onMouseDown={handleExpandMouseDown}
-              onClick={handleExpandClick}
-              aria-label="拡大編集"
-              data-testid={
-                testId ? `${testId satisfies string}-expand` : undefined
-              }
-            >
-              ⤢
-            </button>
-          )}
           {onOpenSyntaxHelp !== undefined && (
             <button
               type="button"

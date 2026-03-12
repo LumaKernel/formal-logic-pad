@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EdgeParameterPopover } from "./EdgeParameterPopover";
 import type { EdgeBadgeEditState } from "./edgeBadgeEditLogic";
@@ -99,7 +99,6 @@ describe("EdgeParameterPopover", () => {
       );
       const confirmBtn = screen.getByTestId("popover-confirm");
       expect(confirmBtn).toBeDisabled();
-      // Type something to enable
       const input = screen.getByTestId("popover-gen-input");
       await user.type(input, "x");
       expect(confirmBtn).not.toBeDisabled();
@@ -120,7 +119,15 @@ describe("EdgeParameterPopover", () => {
       premiseFormulaText: undefined,
     };
 
-    it("renders with current entries (read-only metaVar and kind)", () => {
+    /**
+     * ヘルパー: FormulaEditor/TermEditor内の<input>要素を取得する。
+     * forceEditMode=true なので常に edit モードで開始される。
+     * testId チェーン: popover-value-N → -input (FormulaInput) → -input (<input>)
+     */
+    const getValueInput = (valueTestId: string) =>
+      screen.getByTestId(`${valueTestId satisfies string}-input-input`);
+
+    it("renders with current entries in edit mode (read-only metaVar and kind)", async () => {
       render(
         <EdgeParameterPopover
           editState={substEditState}
@@ -134,9 +141,11 @@ describe("EdgeParameterPopover", () => {
       // kind is displayed as read-only text
       const kindLabel = screen.getByTestId("popover-kind-0");
       expect(kindLabel).toHaveTextContent("Formula");
-      // value is editable (FormulaInput places input at ${testId}-input)
-      const valueInput = screen.getByTestId("popover-value-0-input");
-      expect(valueInput).toHaveValue("alpha");
+      // FormulaEditor with forceEditMode=true: always in edit mode
+      await waitFor(() => {
+        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
+      });
+      expect(getValueInput("popover-value-0")).toHaveValue("alpha");
     });
 
     it("calls onConfirmSubstitution with updated value", async () => {
@@ -150,7 +159,10 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      const valueInput = screen.getByTestId("popover-value-0-input");
+      await waitFor(() => {
+        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
+      });
+      const valueInput = getValueInput("popover-value-0");
       await user.clear(valueInput);
       await user.type(valueInput, "beta");
       await user.click(screen.getByTestId("popover-confirm"));
@@ -171,12 +183,11 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      // No add/remove buttons exist
       expect(screen.queryByTestId("popover-add-entry")).not.toBeInTheDocument();
       expect(screen.queryByTestId("popover-remove-0")).not.toBeInTheDocument();
     });
 
-    it("auto-extracts meta-variables from premiseFormulaText", () => {
+    it("auto-extracts meta-variables from premiseFormulaText", async () => {
       const stateWithPremise: EdgeBadgeEditState = {
         _tag: "substitution",
         conclusionNodeId: "node-2",
@@ -199,10 +210,15 @@ describe("EdgeParameterPopover", () => {
       // Two entries should be rendered (φ and ψ)
       expect(screen.getByTestId("popover-metavar-0")).toHaveTextContent("φ");
       expect(screen.getByTestId("popover-metavar-1")).toHaveTextContent("ψ");
+      // Both entries in edit mode (forceEditMode=true)
+      await waitFor(() => {
+        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
+        expect(screen.getByTestId("popover-value-1-edit")).toBeInTheDocument();
+      });
       // φ entry should have existing value merged
-      expect(screen.getByTestId("popover-value-0-input")).toHaveValue("alpha");
+      expect(getValueInput("popover-value-0")).toHaveValue("alpha");
       // ψ entry should be empty (no existing value)
-      expect(screen.getByTestId("popover-value-1-input")).toHaveValue("");
+      expect(getValueInput("popover-value-1")).toHaveValue("");
     });
 
     it("calls onCancel on Cancel button", async () => {
@@ -219,8 +235,7 @@ describe("EdgeParameterPopover", () => {
       expect(onCancel).toHaveBeenCalledOnce();
     });
 
-    it("calls onCancel on Escape from value input", async () => {
-      const user = userEvent.setup();
+    it("calls onCancel on Escape key from popover", () => {
       const onCancel = vi.fn();
       render(
         <EdgeParameterPopover
@@ -229,8 +244,8 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      const input = screen.getByTestId("popover-value-0-input");
-      await user.type(input, "{Escape}");
+      const popover = screen.getByTestId("popover");
+      fireEvent.keyDown(popover, { key: "Escape" });
       expect(onCancel).toHaveBeenCalledOnce();
     });
 
@@ -252,7 +267,7 @@ describe("EdgeParameterPopover", () => {
       expect(confirmBtn).toBeDisabled();
     });
 
-    it("shows syntax help button when onOpenSyntaxHelp is provided", () => {
+    it("shows per-field syntax help button in edit mode when onOpenSyntaxHelp is provided", async () => {
       const onOpenSyntaxHelp = vi.fn();
       render(
         <EdgeParameterPopover
@@ -262,11 +277,14 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      const helpButton = screen.getByTestId("popover-syntax-help");
+      await waitFor(() => {
+        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
+      });
+      const helpButton = screen.getByTestId("popover-value-0-syntax-help");
       expect(helpButton).toBeInTheDocument();
     });
 
-    it("does not show syntax help button when onOpenSyntaxHelp is not provided", () => {
+    it("does not show syntax help button when onOpenSyntaxHelp is not provided", async () => {
       render(
         <EdgeParameterPopover
           editState={substEditState}
@@ -274,13 +292,15 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
+      await waitFor(() => {
+        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
+      });
       expect(
-        screen.queryByTestId("popover-syntax-help"),
+        screen.queryByTestId("popover-value-0-syntax-help"),
       ).not.toBeInTheDocument();
     });
 
-    it("calls onOpenSyntaxHelp when syntax help button is clicked", async () => {
-      const user = userEvent.setup();
+    it("calls onOpenSyntaxHelp when per-field syntax help button is clicked", async () => {
       const onOpenSyntaxHelp = vi.fn();
       render(
         <EdgeParameterPopover
@@ -290,12 +310,15 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      const helpButton = screen.getByTestId("popover-syntax-help");
-      await user.click(helpButton);
+      await waitFor(() => {
+        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
+      });
+      const helpButton = screen.getByTestId("popover-value-0-syntax-help");
+      fireEvent.click(helpButton);
       expect(onOpenSyntaxHelp).toHaveBeenCalledOnce();
     });
 
-    it("renders term entry kind label correctly", () => {
+    it("renders term entry kind label correctly in edit mode", async () => {
       const termSubstState: EdgeBadgeEditState = {
         _tag: "substitution",
         conclusionNodeId: "node-2",
@@ -317,7 +340,10 @@ describe("EdgeParameterPopover", () => {
       );
       const kindLabel = screen.getByTestId("popover-kind-0");
       expect(kindLabel).toHaveTextContent("Term");
-      expect(screen.getByTestId("popover-value-0-input")).toHaveValue("S(0)");
+      await waitFor(() => {
+        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
+      });
+      expect(getValueInput("popover-value-0")).toHaveValue("S(0)");
     });
 
     it("calls onConfirmSubstitution when term value is changed and confirmed", async () => {
@@ -343,7 +369,10 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      const input = screen.getByTestId("popover-value-0-input");
+      await waitFor(() => {
+        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
+      });
+      const input = getValueInput("popover-value-0");
       await user.clear(input);
       await user.type(input, "S(S(0))");
       const confirmButton = screen.getByTestId("popover-confirm");
@@ -355,7 +384,6 @@ describe("EdgeParameterPopover", () => {
       render(
         <EdgeParameterPopover editState={substEditState} onCancel={() => {}} />,
       );
-      // default testids
       expect(screen.getByTestId("edge-popover-cancel")).toBeInTheDocument();
       expect(screen.getByTestId("edge-popover-confirm")).toBeInTheDocument();
     });
@@ -380,22 +408,7 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      // Clicking confirm should not throw (uses default no-op)
       await user.click(screen.getByTestId("popover-confirm"));
-    });
-
-    it("renders syntax help button without testId (default data-testid)", () => {
-      const onOpenSyntaxHelp = vi.fn();
-      render(
-        <EdgeParameterPopover
-          editState={substEditState}
-          onCancel={() => {}}
-          onOpenSyntaxHelp={onOpenSyntaxHelp}
-        />,
-      );
-      expect(
-        screen.getByTestId("edge-popover-syntax-help"),
-      ).toBeInTheDocument();
     });
 
     it("does not show syntax help button for gen popover", () => {
