@@ -8,7 +8,15 @@
  */
 
 import type { CSSProperties } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
 import katex from "katex";
 import type { Locale, ReferenceEntry } from "./referenceEntry";
 import { buildPopoverData } from "./referenceUILogic";
@@ -50,8 +58,8 @@ const triggerButtonStyle: CSSProperties = {
   transition: "background-color 0.1s ease, color 0.1s ease",
 };
 
-const popoverStyle: CSSProperties = {
-  position: "absolute",
+const popoverBaseStyle: CSSProperties = {
+  position: "fixed",
   zIndex: 1000,
   width: "320px",
   maxWidth: "90vw",
@@ -112,6 +120,36 @@ const detailButtonStyle: CSSProperties = {
 
 // --- コンポーネント ---
 
+/**
+ * ポップオーバーの表示位置をトリガーボタンのビューポート座標から計算する。
+ * position: fixed でポータル先に描画するため、親要素の overflow に影響されない。
+ */
+function computePopoverPosition(triggerRect: DOMRect): {
+  readonly top: number;
+  readonly left: number;
+} {
+  const popoverWidth = 320;
+  const margin = 8;
+
+  // トリガーの右側に表示（デフォルト）
+  let left = triggerRect.right + margin;
+  // 右に収まらない場合は左側に表示
+  if (left + popoverWidth > window.innerWidth) {
+    left = triggerRect.left - popoverWidth - margin;
+  }
+  // それでも収まらない場合はビューポート左端
+  /* v8 ignore start -- very small viewport edge case */
+  if (left < margin) {
+    left = margin;
+  }
+  /* v8 ignore stop */
+
+  // 上端はトリガーの上端に合わせる
+  const top = triggerRect.top;
+
+  return { top, left };
+}
+
 export function ReferencePopover({
   entry,
   locale,
@@ -122,6 +160,11 @@ export function ReferencePopover({
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLSpanElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [popoverPos, setPopoverPos] = useState<{
+    readonly top: number;
+    readonly left: number;
+  }>({ top: 0, left: 0 });
 
   const data = useMemo(() => buildPopoverData(entry, locale), [entry, locale]);
 
@@ -147,15 +190,24 @@ export function ReferencePopover({
     onOpenDetail?.(entry.id);
   }, [entry.id, onOpenDetail]);
 
-  // クリック外で閉じる
+  // ポップオーバー表示位置の計算
+  useLayoutEffect(() => {
+    if (!isOpen || triggerRef.current === null) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    setPopoverPos(computePopoverPosition(rect));
+  }, [isOpen]);
+
+  // クリック外で閉じる（ポータル内の要素も考慮）
   useEffect(() => {
     if (!isOpen) return;
 
     const handleOutsideClick = (e: MouseEvent) => {
-      if (
-        containerRef.current !== null &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
+      const target = e.target as Node;
+      const clickedInsideTrigger =
+        containerRef.current !== null && containerRef.current.contains(target);
+      const clickedInsidePopover =
+        popoverRef.current !== null && popoverRef.current.contains(target);
+      if (!clickedInsideTrigger && !clickedInsidePopover) {
         handleClose();
       }
     };
@@ -184,6 +236,54 @@ export function ReferencePopover({
     };
   }, [isOpen, handleClose]);
 
+  const popoverContent = isOpen ? (
+    <div
+      ref={popoverRef}
+      role="tooltip"
+      style={{
+        ...popoverBaseStyle,
+        top: popoverPos.top,
+        left: popoverPos.left,
+      }}
+      data-testid={
+        testId !== undefined ? `${testId satisfies string}-popover` : undefined
+      }
+    >
+      <div style={categoryBadgeStyle}>{data.categoryLabel}</div>
+      <div style={titleStyle}>{data.title}</div>
+      <div style={summaryStyle}>
+        <InlineMarkdown text={data.summary} />
+      </div>
+      {formulaHtml !== undefined && (
+        <div
+          style={formulaStyle}
+          dangerouslySetInnerHTML={{ __html: formulaHtml }}
+          data-testid={
+            testId !== undefined
+              ? `${testId satisfies string}-formula`
+              : undefined
+          }
+        />
+      )}
+      {data.hasDetail && onOpenDetail !== undefined && (
+        <button
+          type="button"
+          style={detailButtonStyle}
+          onClick={handleDetailClick}
+          /* v8 ignore start -- testId is always provided in test contexts */
+          data-testid={
+            testId !== undefined
+              ? `${testId satisfies string}-detail-btn`
+              : undefined
+          }
+          /* v8 ignore stop */
+        >
+          {locale === "ja" ? "詳しく見る →" : "See details →"}
+        </button>
+      )}
+    </div>
+  ) : null;
+
   return (
     <span
       ref={containerRef}
@@ -191,6 +291,7 @@ export function ReferencePopover({
       data-testid={testId}
     >
       <button
+        ref={triggerRef}
         type="button"
         onClick={handleToggle}
         style={{ ...triggerButtonStyle, ...customTriggerStyle }}
@@ -205,51 +306,7 @@ export function ReferencePopover({
         ?
       </button>
 
-      {isOpen && (
-        <div
-          ref={popoverRef}
-          role="tooltip"
-          style={popoverStyle}
-          data-testid={
-            testId !== undefined
-              ? `${testId satisfies string}-popover`
-              : undefined
-          }
-        >
-          <div style={categoryBadgeStyle}>{data.categoryLabel}</div>
-          <div style={titleStyle}>{data.title}</div>
-          <div style={summaryStyle}>
-            <InlineMarkdown text={data.summary} />
-          </div>
-          {formulaHtml !== undefined && (
-            <div
-              style={formulaStyle}
-              dangerouslySetInnerHTML={{ __html: formulaHtml }}
-              data-testid={
-                testId !== undefined
-                  ? `${testId satisfies string}-formula`
-                  : undefined
-              }
-            />
-          )}
-          {data.hasDetail && onOpenDetail !== undefined && (
-            <button
-              type="button"
-              style={detailButtonStyle}
-              onClick={handleDetailClick}
-              /* v8 ignore start -- testId is always provided in test contexts */
-              data-testid={
-                testId !== undefined
-                  ? `${testId satisfies string}-detail-btn`
-                  : undefined
-              }
-              /* v8 ignore stop */
-            >
-              {locale === "ja" ? "詳しく見る →" : "See details →"}
-            </button>
-          )}
-        </div>
-      )}
+      {popoverContent !== null && createPortal(popoverContent, document.body)}
     </span>
   );
 }
