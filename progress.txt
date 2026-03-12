@@ -13056,3 +13056,30 @@
   - distForall: ∀v.(φ→ψ) → ((∀v.φ)→(∀v.ψ)) はGen+A5+HSで約30ステップ。Gen/A5パターンの基本構成要素
   - 大規模証明の自動統合: regex置換は危険（JSDoc `*/` や `};` で誤マッチ）。行ベースのbrace-depth追跡で正確に置換
 ---
+
+## 2026-03-12 - formula-input 置換入力統一
+- 実装した内容:
+  - editorLogic.ts を汎化: ParseStateStatus型を追加し、canExitEditMode/computeExitActionをFormulaParseState/TermParseState両対応に
+  - TermEditor コンポーネントを新規作成（FormulaEditorのTerm版）: 表示/編集モード切替、構文ヘルプ、forceEditMode対応
+  - EdgeParameterPopover の置換入力をFormulaInput/TermInputからFormulaEditor/TermEditorに置換
+    - forceEditMode=true + editTrigger="none" で常時編集モード
+    - フィールドごとの構文ヘルプボタン表示
+  - FormulaEditor/TermEditor: forceEditMode時はblur/Escapeで編集モードを離脱しないよう修正
+  - テスト: editorLogic(TermParseState互換)、TermEditor(35テスト)、EdgeParameterPopover(22テスト)を追加・更新
+- 変更したファイル:
+  - src/lib/formula-input/editorLogic.ts (ParseStateStatus型追加、関数の型汎化)
+  - src/lib/formula-input/editorLogic.test.ts (TermParseState互換テスト追加)
+  - src/lib/formula-input/TermEditor.tsx (新規: FormulaEditorのTerm版)
+  - src/lib/formula-input/TermEditor.test.tsx (新規: 35テスト)
+  - src/lib/formula-input/FormulaEditor.tsx (forceEditMode時のblur抑制)
+  - src/lib/formula-input/index.ts (TermEditor/TermEditorProps/ParseStateStatus エクスポート追加)
+  - src/lib/proof-pad/EdgeParameterPopover.tsx (FormulaEditor/TermEditorに置換)
+  - src/lib/proof-pad/EdgeParameterPopover.test.tsx (テスト全面更新)
+- カバレッジ: ベースライン 99.94%/99.85%/89.94%/99.93% → 結果 99.94%/99.80%/89.98%/99.93% (Stmts/Branches/Functions/Lines)
+  - Branches -0.05%はV8カバレッジ集約の既知quirk
+- **今後のイテレーションへの学び:**
+  - FormulaEditor/TermEditorのforceEditMode=trueではblur/Escapeで編集モードを離脱させてはいけない（ポップオーバー内での使用時にblurで消えてしまう問題が発生する）
+  - ポップオーバー内のエディタには editTrigger="none" + forceEditMode=true パターンが適切。表示/編集トグルの必要がなく、常時入力可能にする
+  - FormulaInput→FormulaEditor置換時のtestIdパスの変化に注意: 入力要素は `{testId}-input` から `{testId}-input-input` になる（Editorが1層ラッピングするため）
+  - user.clear(input) はblurを発火するため、FormulaEditorがforceEditModeなしだとdisplay modeに戻ってしまい、次のtype()操作がhangする
+---
