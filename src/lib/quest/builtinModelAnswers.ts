@@ -4586,7 +4586,7 @@ const peano10SuccNotZero: ModelAnswer = {
  *   E4(S)             → S(S(0) + 0) = S(S(0))
  *   E3                → S(0) + S(0) = S(S(0))
  *
- * 14ステップ:
+ * 19ステップ:
  *   0. PA4: ∀x.∀y. x+S(y)=S(x+y)
  *   1. A4(PA4,x→S(0)): ... → ∀y. S(0)+S(y)=S(S(0)+y)
  *   2. MP(0,1): ∀y. S(0)+S(y)=S(S(0)+y)
@@ -4597,14 +4597,20 @@ const peano10SuccNotZero: ModelAnswer = {
  *   7. MP(5,6): S(0)+0=S(0)
  *   8. E4(S)[S(0)+0,S(0)]: S(0)+0=S(0) → S(S(0)+0)=S(S(0))
  *   9. MP(7,8): S(S(0)+0)=S(S(0))
- *   10. E3[S(0)+S(0), S(S(0)+0), S(S(0))]: S(0)+S(0)=S(S(0)+0) → (S(S(0)+0)=S(S(0)) → S(0)+S(0)=S(S(0)))
- *   11. MP(4,10): S(S(0)+0)=S(S(0)) → S(0)+S(0)=S(S(0))
- *   12. MP(9,11): S(0)+S(0)=S(S(0))
+ *   10. E3: ∀x.∀y.∀z. x=y→(y=z→x=z)
+ *   11. A4[x/S(0)+S(0)]
+ *   12. MP(10,11)
+ *   13. A4[y/S(S(0)+0)]
+ *   14. MP(12,13)
+ *   15. A4[z/S(S(0))]
+ *   16. MP(14,15): E3インスタンス
+ *   17. MP(4,16): S(S(0)+0)=S(S(0)) → S(0)+S(0)=S(S(0))
+ *   18. MP(9,17): S(0)+S(0)=S(S(0))
  */
 const peano11OnePlusOne: ModelAnswer = {
   questId: "peano-11",
   steps: [
-    // PA4 instantiation: S(0)+S(0)=S(S(0)+0)
+    // 0-4: PA4 instantiation: S(0)+S(0)=S(S(0)+0)
     { _tag: "axiom", formulaText: "all x. all y. x + S(y) = S(x + y)" },
     {
       _tag: "axiom",
@@ -4618,27 +4624,45 @@ const peano11OnePlusOne: ModelAnswer = {
         "(all y. S(0) + S(y) = S(S(0) + y)) -> S(0) + S(0) = S(S(0) + 0)",
     },
     { _tag: "mp", leftIndex: 2, rightIndex: 3 },
-    // PA3 instantiation: S(0)+0=S(0)
+    // 5-7: PA3 instantiation: S(0)+0=S(0)
     { _tag: "axiom", formulaText: "all x. x + 0 = x" },
     {
       _tag: "axiom",
       formulaText: "(all x. x + 0 = x) -> S(0) + 0 = S(0)",
     },
     { _tag: "mp", leftIndex: 5, rightIndex: 6 },
-    // E4(S): S(0)+0=S(0) → S(S(0)+0)=S(S(0))
+    // 8-9: E4(S): S(0)+0=S(0) → S(S(0)+0)=S(S(0))
     {
       _tag: "axiom",
       formulaText: "S(0) + 0 = S(0) -> S(S(0) + 0) = S(S(0))",
     },
     { _tag: "mp", leftIndex: 7, rightIndex: 8 },
-    // E3 transitivity: chain the two equalities
+    // 10-16: E3 transitivity derivation via A4+MP
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
+    },
     {
       _tag: "axiom",
       formulaText:
-        "S(0) + S(0) = S(S(0) + 0) -> (S(S(0) + 0) = S(S(0)) -> S(0) + S(0) = S(S(0)))",
+        "(all x. all y. all z. x = y -> (y = z -> x = z)) -> all y. all z. S(0) + S(0) = y -> (y = z -> S(0) + S(0) = z)",
     },
-    { _tag: "mp", leftIndex: 4, rightIndex: 10 },
-    { _tag: "mp", leftIndex: 9, rightIndex: 11 },
+    { _tag: "mp", leftIndex: 10, rightIndex: 11 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. all z. S(0) + S(0) = y -> (y = z -> S(0) + S(0) = z)) -> all z. S(0) + S(0) = S(S(0) + 0) -> (S(S(0) + 0) = z -> S(0) + S(0) = z)",
+    },
+    { _tag: "mp", leftIndex: 12, rightIndex: 13 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all z. S(0) + S(0) = S(S(0) + 0) -> (S(S(0) + 0) = z -> S(0) + S(0) = z)) -> S(0) + S(0) = S(S(0) + 0) -> (S(S(0) + 0) = S(S(0)) -> S(0) + S(0) = S(S(0)))",
+    },
+    { _tag: "mp", leftIndex: 14, rightIndex: 15 },
+    // 17-18: chain the equalities
+    { _tag: "mp", leftIndex: 4, rightIndex: 16 },
+    { _tag: "mp", leftIndex: 9, rightIndex: 17 },
   ],
 };
 
@@ -4660,25 +4684,17 @@ const peano12Q7: ModelAnswer = {
 /**
  * peano-13: 0 + S(0) = S(0)
  *
- * PA4 + PA3 + E4(S) + E3(推移律)。13ステップ。
- * 1. PA4: ∀x.∀y. x+S(y)=S(x+y)
- * 2. A4[x→0]: → ∀y. 0+S(y)=S(0+y)
- * 3. MP(0,1)
- * 4. A4[y→0]: → 0+S(0)=S(0+0)
- * 5. MP(2,3): 0+S(0)=S(0+0)
- * 6. PA3: ∀x. x+0=x
- * 7. A4[x→0]: → 0+0=0
- * 8. MP(5,6): 0+0=0
- * 9. E4(S): 0+0=0 → S(0+0)=S(0)
- * 10. MP(7,8): S(0+0)=S(0)
- * 11. E3: 0+S(0)=S(0+0) → (S(0+0)=S(0) → 0+S(0)=S(0))
- * 12. MP(4,10): S(0+0)=S(0) → 0+S(0)=S(0)
- * 13. MP(9,11): 0+S(0)=S(0)
+ * PA4 + PA3 + E4(S) + E3(推移律)。19ステップ。
+ * 0-4: PA4 A4+MP で 0+S(0)=S(0+0) を導出
+ * 5-7: PA3 A4+MP で 0+0=0 を導出
+ * 8-9: E4(S) で S(0+0)=S(0) を導出
+ * 10-16: E3 A4+MP で推移律インスタンスを導出
+ * 17-18: MP で連結
  */
 const peano13ZeroPlusOne: ModelAnswer = {
   questId: "peano-13",
   steps: [
-    // PA4 instantiation: 0+S(0)=S(0+0)
+    // 0-4: PA4 instantiation: 0+S(0)=S(0+0)
     { _tag: "axiom", formulaText: "all x. all y. x + S(y) = S(x + y)" },
     {
       _tag: "axiom",
@@ -4691,40 +4707,67 @@ const peano13ZeroPlusOne: ModelAnswer = {
       formulaText: "(all y. 0 + S(y) = S(0 + y)) -> 0 + S(0) = S(0 + 0)",
     },
     { _tag: "mp", leftIndex: 2, rightIndex: 3 },
-    // PA3 instantiation: 0+0=0
+    // 5-7: PA3 instantiation: 0+0=0
     { _tag: "axiom", formulaText: "all x. x + 0 = x" },
     {
       _tag: "axiom",
       formulaText: "(all x. x + 0 = x) -> 0 + 0 = 0",
     },
     { _tag: "mp", leftIndex: 5, rightIndex: 6 },
-    // E4(S): 0+0=0 → S(0+0)=S(0)
+    // 8-9: E4(S): 0+0=0 → S(0+0)=S(0)
     {
       _tag: "axiom",
       formulaText: "0 + 0 = 0 -> S(0 + 0) = S(0)",
     },
     { _tag: "mp", leftIndex: 7, rightIndex: 8 },
-    // E3 transitivity: chain the two equalities
+    // 10-16: E3 transitivity derivation via A4+MP
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
+    },
     {
       _tag: "axiom",
       formulaText:
-        "0 + S(0) = S(0 + 0) -> (S(0 + 0) = S(0) -> 0 + S(0) = S(0))",
+        "(all x. all y. all z. x = y -> (y = z -> x = z)) -> all y. all z. 0 + S(0) = y -> (y = z -> 0 + S(0) = z)",
     },
-    { _tag: "mp", leftIndex: 4, rightIndex: 10 },
-    { _tag: "mp", leftIndex: 9, rightIndex: 11 },
+    { _tag: "mp", leftIndex: 10, rightIndex: 11 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. all z. 0 + S(0) = y -> (y = z -> 0 + S(0) = z)) -> all z. 0 + S(0) = S(0 + 0) -> (S(0 + 0) = z -> 0 + S(0) = z)",
+    },
+    { _tag: "mp", leftIndex: 12, rightIndex: 13 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all z. 0 + S(0) = S(0 + 0) -> (S(0 + 0) = z -> 0 + S(0) = z)) -> 0 + S(0) = S(0 + 0) -> (S(0 + 0) = S(0) -> 0 + S(0) = S(0))",
+    },
+    { _tag: "mp", leftIndex: 14, rightIndex: 15 },
+    // 17-18: chain the equalities
+    { _tag: "mp", leftIndex: 4, rightIndex: 16 },
+    { _tag: "mp", leftIndex: 9, rightIndex: 17 },
   ],
 };
 
 /**
  * peano-14: 0 × S(0) = 0
  *
- * PA6 + PA3 + PA5 + E3(推移律)×2。17ステップ。
+ * PA6 + PA3 + PA5 + E3(推移律)×2。29ステップ。
  * PA6で 0*S(0) = 0*0+0 を得て、PA3で 0*0+0=0*0、PA5で 0*0=0、E3で連結。
+ *
+ * 構造:
+ *   0-4: PA6 A4+MP で 0*S(0)=0*0+0 を導出
+ *   5-7: PA3 A4+MP で 0*0+0=0*0 を導出
+ *   8-14: E3 A4+MP で推移律インスタンス#1を導出 (x=0*S(0), y=0*0+0, z=0*0)
+ *   15-16: MP で連結 → 0*S(0)=0*0
+ *   17-19: PA5 A4+MP で 0*0=0 を導出
+ *   20-26: E3 A4+MP で推移律インスタンス#2を導出 (x=0*S(0), y=0*0, z=0)
+ *   27-28: MP で連結 → 0*S(0)=0
  */
 const peano14ZeroTimesOne: ModelAnswer = {
   questId: "peano-14",
   steps: [
-    // PA6 instantiation: 0*S(0) = 0*0+0
+    // 0-4: PA6 instantiation: 0*S(0) = 0*0+0
     { _tag: "axiom", formulaText: "all x. all y. x * S(y) = x * y + x" },
     {
       _tag: "axiom",
@@ -4737,48 +4780,85 @@ const peano14ZeroTimesOne: ModelAnswer = {
       formulaText: "(all y. 0 * S(y) = 0 * y + 0) -> 0 * S(0) = 0 * 0 + 0",
     },
     { _tag: "mp", leftIndex: 2, rightIndex: 3 },
-    // PA3 instantiation: 0*0+0 = 0*0
+    // 5-7: PA3 instantiation: 0*0+0 = 0*0
     { _tag: "axiom", formulaText: "all x. x + 0 = x" },
     {
       _tag: "axiom",
       formulaText: "(all x. x + 0 = x) -> 0 * 0 + 0 = 0 * 0",
     },
     { _tag: "mp", leftIndex: 5, rightIndex: 6 },
-    // E3: 0*S(0)=0*0+0 → (0*0+0=0*0 → 0*S(0)=0*0)
+    // 8-14: E3 transitivity derivation #1 via A4+MP (x=0*S(0), y=0*0+0, z=0*0)
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
+    },
     {
       _tag: "axiom",
       formulaText:
-        "0 * S(0) = 0 * 0 + 0 -> (0 * 0 + 0 = 0 * 0 -> 0 * S(0) = 0 * 0)",
+        "(all x. all y. all z. x = y -> (y = z -> x = z)) -> all y. all z. 0 * S(0) = y -> (y = z -> 0 * S(0) = z)",
     },
-    { _tag: "mp", leftIndex: 4, rightIndex: 8 },
-    { _tag: "mp", leftIndex: 7, rightIndex: 9 },
-    // PA5 instantiation: 0*0=0
+    { _tag: "mp", leftIndex: 8, rightIndex: 9 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. all z. 0 * S(0) = y -> (y = z -> 0 * S(0) = z)) -> all z. 0 * S(0) = 0 * 0 + 0 -> (0 * 0 + 0 = z -> 0 * S(0) = z)",
+    },
+    { _tag: "mp", leftIndex: 10, rightIndex: 11 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all z. 0 * S(0) = 0 * 0 + 0 -> (0 * 0 + 0 = z -> 0 * S(0) = z)) -> 0 * S(0) = 0 * 0 + 0 -> (0 * 0 + 0 = 0 * 0 -> 0 * S(0) = 0 * 0)",
+    },
+    { _tag: "mp", leftIndex: 12, rightIndex: 13 },
+    // 15-16: chain equalities #1 → 0*S(0)=0*0
+    { _tag: "mp", leftIndex: 4, rightIndex: 14 },
+    { _tag: "mp", leftIndex: 7, rightIndex: 15 },
+    // 17-19: PA5 instantiation: 0*0=0
     { _tag: "axiom", formulaText: "all x. x * 0 = 0" },
     {
       _tag: "axiom",
       formulaText: "(all x. x * 0 = 0) -> 0 * 0 = 0",
     },
-    { _tag: "mp", leftIndex: 11, rightIndex: 12 },
-    // E3: 0*S(0)=0*0 → (0*0=0 → 0*S(0)=0)
+    { _tag: "mp", leftIndex: 17, rightIndex: 18 },
+    // 20-26: E3 transitivity derivation #2 via A4+MP (x=0*S(0), y=0*0, z=0)
     {
       _tag: "axiom",
-      formulaText: "0 * S(0) = 0 * 0 -> (0 * 0 = 0 -> 0 * S(0) = 0)",
+      formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
     },
-    { _tag: "mp", leftIndex: 10, rightIndex: 14 },
-    { _tag: "mp", leftIndex: 13, rightIndex: 15 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. all y. all z. x = y -> (y = z -> x = z)) -> all y. all z. 0 * S(0) = y -> (y = z -> 0 * S(0) = z)",
+    },
+    { _tag: "mp", leftIndex: 20, rightIndex: 21 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. all z. 0 * S(0) = y -> (y = z -> 0 * S(0) = z)) -> all z. 0 * S(0) = 0 * 0 -> (0 * 0 = z -> 0 * S(0) = z)",
+    },
+    { _tag: "mp", leftIndex: 22, rightIndex: 23 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all z. 0 * S(0) = 0 * 0 -> (0 * 0 = z -> 0 * S(0) = z)) -> 0 * S(0) = 0 * 0 -> (0 * 0 = 0 -> 0 * S(0) = 0)",
+    },
+    { _tag: "mp", leftIndex: 24, rightIndex: 25 },
+    // 27-28: chain equalities #2 → 0*S(0)=0
+    { _tag: "mp", leftIndex: 16, rightIndex: 26 },
+    { _tag: "mp", leftIndex: 19, rightIndex: 27 },
   ],
 };
 
 /**
  * peano-15: S(S(0)) + S(0) = S(S(S(0)))
  *
- * PA4 + PA3 + E4(S) + E3(推移律)。13ステップ。peano-11と同じパターン。
+ * PA4 + PA3 + E4(S) + E3(推移律)。19ステップ。peano-11と同じパターン。
  * PA4で S(S(0))+S(0)=S(S(S(0))+0) → PA3で S(S(0))+0=S(S(0)) → E4(S)で S(S(S(0))+0)=S(S(S(0))) → E3で連結
  */
 const peano15TwoPlusOne: ModelAnswer = {
   questId: "peano-15",
   steps: [
-    // PA4 instantiation: S(S(0))+S(0)=S(S(S(0))+0)
+    // 0-4: PA4 instantiation: S(S(0))+S(0)=S(S(S(0))+0)
     { _tag: "axiom", formulaText: "all x. all y. x + S(y) = S(x + y)" },
     {
       _tag: "axiom",
@@ -4792,27 +4872,45 @@ const peano15TwoPlusOne: ModelAnswer = {
         "(all y. S(S(0)) + S(y) = S(S(S(0)) + y)) -> S(S(0)) + S(0) = S(S(S(0)) + 0)",
     },
     { _tag: "mp", leftIndex: 2, rightIndex: 3 },
-    // PA3 instantiation: S(S(0))+0=S(S(0))
+    // 5-7: PA3 instantiation: S(S(0))+0=S(S(0))
     { _tag: "axiom", formulaText: "all x. x + 0 = x" },
     {
       _tag: "axiom",
       formulaText: "(all x. x + 0 = x) -> S(S(0)) + 0 = S(S(0))",
     },
     { _tag: "mp", leftIndex: 5, rightIndex: 6 },
-    // E4(S): S(S(0))+0=S(S(0)) → S(S(S(0))+0)=S(S(S(0)))
+    // 8-9: E4(S): S(S(0))+0=S(S(0)) → S(S(S(0))+0)=S(S(S(0)))
     {
       _tag: "axiom",
       formulaText: "S(S(0)) + 0 = S(S(0)) -> S(S(S(0)) + 0) = S(S(S(0)))",
     },
     { _tag: "mp", leftIndex: 7, rightIndex: 8 },
-    // E3 transitivity: chain
+    // 10-16: E3 transitivity derivation via A4+MP
+    {
+      _tag: "axiom",
+      formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
+    },
     {
       _tag: "axiom",
       formulaText:
-        "S(S(0)) + S(0) = S(S(S(0)) + 0) -> (S(S(S(0)) + 0) = S(S(S(0))) -> S(S(0)) + S(0) = S(S(S(0))))",
+        "(all x. all y. all z. x = y -> (y = z -> x = z)) -> all y. all z. S(S(0)) + S(0) = y -> (y = z -> S(S(0)) + S(0) = z)",
     },
-    { _tag: "mp", leftIndex: 4, rightIndex: 10 },
-    { _tag: "mp", leftIndex: 9, rightIndex: 11 },
+    { _tag: "mp", leftIndex: 10, rightIndex: 11 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. all z. S(S(0)) + S(0) = y -> (y = z -> S(S(0)) + S(0) = z)) -> all z. S(S(0)) + S(0) = S(S(S(0)) + 0) -> (S(S(S(0)) + 0) = z -> S(S(0)) + S(0) = z)",
+    },
+    { _tag: "mp", leftIndex: 12, rightIndex: 13 },
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all z. S(S(0)) + S(0) = S(S(S(0)) + 0) -> (S(S(S(0)) + 0) = z -> S(S(0)) + S(0) = z)) -> S(S(0)) + S(0) = S(S(S(0)) + 0) -> (S(S(S(0)) + 0) = S(S(S(0))) -> S(S(0)) + S(0) = S(S(S(0))))",
+    },
+    { _tag: "mp", leftIndex: 14, rightIndex: 15 },
+    // 17-18: chain the equalities
+    { _tag: "mp", leftIndex: 4, rightIndex: 16 },
+    { _tag: "mp", leftIndex: 9, rightIndex: 17 },
   ],
 };
 
