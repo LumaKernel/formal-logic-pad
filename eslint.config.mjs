@@ -20,6 +20,7 @@ const eslintConfig = defineConfig([
     ".trash/**",
     "coverage/**",
     "storybook-static/**",
+    "scripts/**",
     "**/*.local.*",
   ]),
   ...storybook.configs["flat/recommended"],
