@@ -300,6 +300,18 @@ describe("buildPopoverData", () => {
     expect(result.hasDetail).toBe(true);
   });
 
+  it("bodyも関連も外部リンクもないがrelatedQuestIdsがあればhasDetailはtrue", () => {
+    const entry = makeEntry({
+      body: { en: [], ja: [] },
+      relatedEntryIds: [],
+      externalLinks: [],
+      relatedQuestIds: ["prop-01"],
+    });
+    const result = buildPopoverData(entry, "en");
+
+    expect(result.hasDetail).toBe(true);
+  });
+
   it("不明なカテゴリの場合はcategory文字列をそのまま使う", () => {
     const entry = makeEntry({
       category: "unknown-category" as "axiom",
@@ -389,5 +401,21 @@ describe("buildModalData", () => {
     const result = buildModalData(entry, [entry], "en");
 
     expect(result.categoryLabel).toBe("unknown-category");
+  });
+
+  it("relatedQuestIdsを返す", () => {
+    const entry = makeEntry({
+      relatedQuestIds: ["prop-01", "prop-02"],
+    });
+    const result = buildModalData(entry, [entry], "en");
+
+    expect(result.relatedQuestIds).toEqual(["prop-01", "prop-02"]);
+  });
+
+  it("relatedQuestIdsがない場合は空配列を返す", () => {
+    const entry = makeEntry();
+    const result = buildModalData(entry, [entry], "en");
+
+    expect(result.relatedQuestIds).toEqual([]);
   });
 });

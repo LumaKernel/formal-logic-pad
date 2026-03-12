@@ -9,7 +9,7 @@
 
 import { useState, useCallback, useMemo, type CSSProperties } from "react";
 import type { ReferenceEntry, Locale } from "./referenceEntry";
-import { ReferenceModal } from "./ReferenceModal";
+import { ReferenceModal, type RelatedQuestInfo } from "./ReferenceModal";
 import {
   filterEntries,
   buildCategoryBadges,
@@ -31,6 +31,10 @@ export type ReferenceBrowserProps = {
   readonly searchPlaceholder?: string;
   /** 結果なしメッセージ */
   readonly emptyMessage?: string;
+  /** クエストIDからタイトルを解決する関数（undefinedなら非表示） */
+  readonly resolveQuestTitle?: (questId: string) => string | undefined;
+  /** クエスト開始コールバック */
+  readonly onStartQuest?: (questId: string) => void;
   /** data-testid */
   readonly testId?: string;
 };
@@ -161,6 +165,8 @@ export function ReferenceBrowserComponent({
   locale,
   searchPlaceholder = "Search reference…",
   emptyMessage = "No matching entries found.",
+  resolveQuestTitle,
+  onStartQuest,
   testId,
 }: ReferenceBrowserProps) {
   const [state, setState] =
@@ -215,6 +221,24 @@ export function ReferenceBrowserComponent({
         : undefined,
     [entries, detailEntryId],
   );
+
+  const relatedQuests: readonly RelatedQuestInfo[] | undefined = useMemo(() => {
+    if (
+      detailEntry === undefined ||
+      resolveQuestTitle === undefined ||
+      onStartQuest === undefined
+    )
+      return undefined;
+    const questIds = detailEntry.relatedQuestIds ?? [];
+    const resolved: RelatedQuestInfo[] = [];
+    for (const qid of questIds) {
+      const title = resolveQuestTitle(qid);
+      if (title !== undefined) {
+        resolved.push({ id: qid, title });
+      }
+    }
+    return resolved.length > 0 ? resolved : undefined;
+  }, [detailEntry, resolveQuestTitle, onStartQuest]);
 
   return (
     <div style={containerStyle} data-testid={testId}>
@@ -316,6 +340,8 @@ export function ReferenceBrowserComponent({
           locale={locale}
           onClose={handleCloseModal}
           onNavigate={handleNavigate}
+          relatedQuests={relatedQuests}
+          onStartQuest={onStartQuest}
           testId={
             testId !== undefined
               ? `${testId satisfies string}-modal`

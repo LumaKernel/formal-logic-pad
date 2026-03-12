@@ -37,6 +37,7 @@ const axiomA1: ReferenceEntry = {
   },
   formalNotation: "\\varphi \\to (\\psi \\to \\varphi)",
   relatedEntryIds: ["axiom-a2", "axiom-a3", "rule-mp", "system-lukasiewicz"],
+  relatedQuestIds: ["prop-02", "prop-03", "prop-05"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -93,6 +94,7 @@ const axiomA2: ReferenceEntry = {
   formalNotation:
     "(\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi))",
   relatedEntryIds: ["axiom-a1", "axiom-a3", "rule-mp", "system-lukasiewicz"],
+  relatedQuestIds: ["prop-01", "prop-04", "prop-06"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -152,6 +154,7 @@ const axiomA3: ReferenceEntry = {
     "axiom-dne",
     "system-lukasiewicz",
   ],
+  relatedQuestIds: ["prop-10", "prop-11", "prop-17"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -371,6 +374,7 @@ const axiomA4: ReferenceEntry = {
   },
   formalNotation: "\\forall x. \\varphi \\to \\varphi[t/x]",
   relatedEntryIds: ["axiom-a5", "rule-gen", "concept-substitution"],
+  relatedQuestIds: ["pred-01", "pred-02", "pred-03"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -430,6 +434,7 @@ const axiomA5: ReferenceEntry = {
   formalNotation:
     "\\forall x.(\\varphi \\to \\psi) \\to (\\varphi \\to \\forall x.\\psi)",
   relatedEntryIds: ["axiom-a4", "rule-gen", "concept-free-variable"],
+  relatedQuestIds: ["pred-04", "pred-05", "pred-06"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -819,6 +824,7 @@ const ruleMP: ReferenceEntry = {
   },
   formalNotation: "\\dfrac{\\varphi \\qquad \\varphi \\to \\psi}{\\psi}",
   relatedEntryIds: ["axiom-a1", "axiom-a2", "rule-gen"],
+  relatedQuestIds: ["prop-01", "prop-02", "prop-03"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -889,6 +895,7 @@ const ruleGen: ReferenceEntry = {
   },
   formalNotation: "\\dfrac{\\varphi}{\\forall x. \\varphi}",
   relatedEntryIds: ["rule-mp", "axiom-a4", "axiom-a5"],
+  relatedQuestIds: ["pred-01", "pred-04", "pred-05"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -954,6 +961,7 @@ const ruleNdOverview: ReferenceEntry = {
     "rule-nd-disjunction",
     "rule-sc-overview",
   ],
+  relatedQuestIds: ["nd-01", "nd-02", "nd-03"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -1227,6 +1235,7 @@ const ruleScOverview: ReferenceEntry = {
     "rule-sc-logical",
     "rule-mp",
   ],
+  relatedQuestIds: ["sc-01", "sc-02", "sc-03"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -1507,6 +1516,7 @@ const systemLukasiewicz: ReferenceEntry = {
     "system-classical",
     "system-minimal",
   ],
+  relatedQuestIds: ["prop-01", "prop-02", "prop-03", "prop-04"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -1973,6 +1983,7 @@ const systemPredicateLogic: ReferenceEntry = {
     "concept-free-variable",
     "concept-substitution",
   ],
+  relatedQuestIds: ["pred-01", "pred-02", "pred-03"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -3011,6 +3022,7 @@ const conceptCutElimination: ReferenceEntry = {
     "concept-axiom-independence",
     "concept-speed-up-theorem",
   ],
+  relatedQuestIds: ["sc-ce-01", "sc-ce-02", "sc-ce-03"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -3935,6 +3947,7 @@ const conceptAnalyticTableau: ReferenceEntry = {
     "concept-soundness",
     "concept-completeness",
   ],
+  relatedQuestIds: ["at-01", "at-02", "at-03"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -4095,6 +4108,7 @@ const theoryPeanoArithmetic: ReferenceEntry = {
     ],
   },
   relatedEntryIds: ["theory-group", "axiom-e1", "axiom-a4"],
+  relatedQuestIds: ["pa-01", "pa-02", "pa-03"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -4166,6 +4180,7 @@ const theoryGroupTheory: ReferenceEntry = {
     ],
   },
   relatedEntryIds: ["theory-peano", "axiom-e1"],
+  relatedQuestIds: ["grp-01", "grp-02", "grp-03"],
   externalLinks: [
     {
       type: "wikipedia-en",

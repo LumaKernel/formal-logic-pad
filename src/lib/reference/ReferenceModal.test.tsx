@@ -422,4 +422,90 @@ describe("ReferenceModal", () => {
     const link = screen.getByTestId("ref-modal-open-new-tab");
     expect(link.getAttribute("aria-label")).toBe("新しいタブで開く");
   });
+
+  it("関連クエストボタンが表示される", () => {
+    const relatedQuests = [
+      { id: "prop-01", title: "Quest 1" },
+      { id: "prop-02", title: "Quest 2" },
+    ];
+    render(
+      <ReferenceModal
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        relatedQuests={relatedQuests}
+        onStartQuest={vi.fn()}
+        testId="ref-modal"
+      />,
+    );
+    expect(screen.getByTestId("ref-modal-quest-prop-01")).toBeDefined();
+    expect(screen.getByTestId("ref-modal-quest-prop-02")).toBeDefined();
+    expect(screen.getByTestId("ref-modal-quest-prop-01").textContent).toBe(
+      "Quest 1",
+    );
+  });
+
+  it("関連クエストクリックでonStartQuestが呼ばれる", () => {
+    const onStartQuest = vi.fn();
+    render(
+      <ReferenceModal
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        relatedQuests={[{ id: "prop-01", title: "Quest 1" }]}
+        onStartQuest={onStartQuest}
+        testId="ref-modal"
+      />,
+    );
+    fireEvent.click(screen.getByTestId("ref-modal-quest-prop-01"));
+    expect(onStartQuest).toHaveBeenCalledWith("prop-01");
+  });
+
+  it("関連クエストがない場合はクエストセクションを表示しない", () => {
+    render(
+      <ReferenceModal
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        onStartQuest={vi.fn()}
+        testId="ref-modal"
+      />,
+    );
+    const modal = screen.getByTestId("ref-modal");
+    expect(modal.textContent).not.toContain("Related Quests");
+  });
+
+  it("onStartQuestがない場合はクエストセクションを表示しない", () => {
+    render(
+      <ReferenceModal
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        relatedQuests={[{ id: "prop-01", title: "Quest 1" }]}
+        testId="ref-modal"
+      />,
+    );
+    const modal = screen.getByTestId("ref-modal");
+    expect(modal.textContent).not.toContain("Related Quests");
+  });
+
+  it("日本語で関連クエストセクションが表示される", () => {
+    render(
+      <ReferenceModal
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="ja"
+        onClose={vi.fn()}
+        relatedQuests={[{ id: "prop-01", title: "クエスト1" }]}
+        onStartQuest={vi.fn()}
+        testId="ref-modal"
+      />,
+    );
+    const modal = screen.getByTestId("ref-modal");
+    expect(modal.textContent).toContain("関連クエスト");
+  });
 });

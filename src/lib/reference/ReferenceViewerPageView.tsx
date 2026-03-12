@@ -20,6 +20,12 @@ import {
 
 // --- Props ---
 
+/** 関連クエスト情報（親で解決済み） */
+export type RelatedQuestInfo = {
+  readonly id: string;
+  readonly title: string;
+};
+
 export type ReferenceViewerPageViewProps = {
   /** 表示するリファレンスエントリ */
   readonly entry: ReferenceEntry;
@@ -29,6 +35,10 @@ export type ReferenceViewerPageViewProps = {
   readonly locale: Locale;
   /** 関連エントリクリック時のコールバック */
   readonly onNavigate?: (entryId: string) => void;
+  /** 関連クエスト（IDとタイトルの解決済みリスト） */
+  readonly relatedQuests?: readonly RelatedQuestInfo[];
+  /** クエスト開始コールバック */
+  readonly onStartQuest?: (questId: string) => void;
   /** data-testid */
   readonly testId?: string;
 };
@@ -195,17 +205,37 @@ const backLinkStyle: CSSProperties = {
   textDecoration: "none",
 };
 
+const questButtonStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "6px",
+  fontSize: "var(--font-size-sm, 13px)",
+  color: "var(--color-accent, #555ab9)",
+  background: "none",
+  border: "1px solid var(--color-accent, #555ab9)",
+  borderRadius: "6px",
+  padding: "6px 12px",
+  margin: "0 8px 8px 0",
+  cursor: "pointer",
+  fontFamily: "var(--font-ui)",
+  transition: "background-color 0.1s ease, border-color 0.1s ease",
+};
+
 // --- Components ---
 
 function ViewerContent({
   data,
   locale,
   onNavigate,
+  relatedQuests,
+  onStartQuest,
   testId,
 }: {
   readonly data: ViewerPageData;
   readonly locale: Locale;
   readonly onNavigate?: (entryId: string) => void;
+  readonly relatedQuests?: readonly RelatedQuestInfo[];
+  readonly onStartQuest?: (questId: string) => void;
   readonly testId?: string;
 }) {
   const formulaHtml = useMemo(() => {
@@ -288,6 +318,36 @@ function ViewerContent({
         </div>
       )}
 
+      {/* 関連クエスト */}
+      {relatedQuests !== undefined &&
+        relatedQuests.length > 0 &&
+        onStartQuest !== undefined && (
+          <div>
+            <div style={sectionTitleStyle}>
+              {locale === "ja" ? "関連クエスト" : "Related Quests"}
+            </div>
+            <div>
+              {relatedQuests.map((quest) => (
+                <button
+                  key={quest.id}
+                  type="button"
+                  style={questButtonStyle}
+                  onClick={() => {
+                    onStartQuest(quest.id);
+                  }}
+                  data-testid={
+                    testId !== undefined
+                      ? `${testId satisfies string}-quest-${quest.id satisfies string}`
+                      : undefined
+                  }
+                >
+                  {quest.title}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
       {/* 外部リンク */}
       {data.externalLinks.length > 0 && (
         <div>
@@ -324,6 +384,8 @@ export function ReferenceViewerPageView({
   allEntries,
   locale,
   onNavigate,
+  relatedQuests,
+  onStartQuest,
   testId,
 }: ReferenceViewerPageViewProps) {
   const data = useMemo(
@@ -364,6 +426,8 @@ export function ReferenceViewerPageView({
         data={data}
         locale={locale}
         onNavigate={onNavigate}
+        relatedQuests={relatedQuests}
+        onStartQuest={onStartQuest}
         testId={testId}
       />
     </div>

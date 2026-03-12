@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, fn, within } from "storybook/test";
+import { expect, fn, userEvent, within } from "storybook/test";
 import {
   ReferenceViewerPageView,
   ReferenceViewerNotFound,
@@ -150,6 +150,42 @@ export const WithExternalLinks: Story = {
       "href",
       "https://en.wikipedia.org/wiki/Hilbert_system",
     );
+  },
+};
+
+export const WithRelatedQuests: Story = {
+  args: {
+    relatedQuests: [
+      { id: "prop-02", title: "A1 Basic: φ → (ψ → φ)" },
+      { id: "prop-03", title: "A1 Chain: φ → (ψ → (χ → φ))" },
+    ],
+    onStartQuest: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const questBtn = canvas.getByTestId("ref-viewer-quest-prop-02");
+    await expect(questBtn).toBeInTheDocument();
+    await expect(questBtn).toHaveTextContent("A1 Basic: φ → (ψ → φ)");
+    await userEvent.click(questBtn);
+    await expect(args.onStartQuest).toHaveBeenCalledWith("prop-02");
+  },
+};
+
+export const WithRelatedQuestsJapanese: Story = {
+  args: {
+    locale: "ja",
+    relatedQuests: [
+      { id: "prop-02", title: "A1基本: φ → (ψ → φ)" },
+    ],
+    onStartQuest: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const viewer = canvas.getByTestId("ref-viewer");
+    await expect(viewer).toHaveTextContent("関連クエスト");
+    await expect(
+      canvas.getByTestId("ref-viewer-quest-prop-02"),
+    ).toBeInTheDocument();
   },
 };
 
