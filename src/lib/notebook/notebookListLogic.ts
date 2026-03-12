@@ -6,6 +6,7 @@
  * 変更時は notebookListLogic.test.ts も同期すること。
  */
 
+import { getDeductionSystemName } from "../logic-core/deductionSystem";
 import type { Notebook, NotebookMeta } from "./notebookState";
 
 // --- 表示用データ ---
@@ -67,7 +68,7 @@ export function toNotebookListItem(
   return {
     id: notebook.meta.id,
     name: notebook.meta.name,
-    systemName: notebook.workspace.system.name,
+    systemName: getDeductionSystemName(notebook.workspace.deductionSystem),
     mode: notebook.workspace.mode,
     updatedAtLabel: formatRelativeTime(now, notebook.meta.updatedAt),
     createdAtLabel: formatRelativeTime(now, notebook.meta.createdAt),

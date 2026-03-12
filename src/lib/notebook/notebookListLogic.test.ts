@@ -9,6 +9,7 @@ import {
   questProgressText,
 } from "./notebookListLogic";
 import { lukasiewiczSystem } from "../logic-core/inferenceRule";
+import { naturalDeduction, njSystem } from "../logic-core/deductionSystem";
 import type { Notebook, NotebookMeta } from "./notebookState";
 import { createEmptyWorkspace } from "../proof-pad/workspaceState";
 
@@ -67,6 +68,16 @@ describe("toNotebookListItem", () => {
     expect(item.updatedAtLabel).toBe("たった今");
     expect(item.createdAtLabel).toBe("たった今");
     expect(item.questId).toBeUndefined();
+  });
+
+  it("非Hilbert体系のsystemNameが正しく表示される", () => {
+    const now = 100_000;
+    const notebook: Notebook = {
+      meta: { id: "nb-nd", name: "ND", createdAt: 50_000, updatedAt: 90_000 },
+      workspace: createEmptyWorkspace(naturalDeduction(njSystem)),
+    };
+    const item = toNotebookListItem(notebook, now);
+    expect(item.systemName).toBe("Natural Deduction NJ");
   });
 
   it("クエストノートブックのquestIdが保持される", () => {
