@@ -151,6 +151,7 @@ export const WithReference: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const body = within(document.body);
     // Łukasiewiczプリセットに(?)ボタンが表示される
     await expect(
       canvas.getByTestId("form-preset-lukasiewicz-ref-trigger"),
@@ -163,8 +164,9 @@ export const WithReference: Story = {
     await userEvent.click(
       canvas.getByTestId("form-preset-lukasiewicz-ref-trigger"),
     );
+    // Popover is portaled to document.body
     await expect(
-      canvas.getByTestId("form-preset-lukasiewicz-ref-popover"),
+      body.getByTestId("form-preset-lukasiewicz-ref-popover"),
     ).toBeInTheDocument();
   },
 };

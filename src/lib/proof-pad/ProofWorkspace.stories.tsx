@@ -544,6 +544,7 @@ export const WithReferencePopover: Story = {
   render: () => <WorkspaceWithReference />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const body = within(document.body);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
     // Reference (?) buttons should be visible on each axiom
     await expect(
@@ -563,9 +564,9 @@ export const WithReferencePopover: Story = {
 
     // Click MP (?) to open popover
     await userEvent.click(canvas.getByTestId("workspace-mp-ref-trigger"));
-    // Popover should be visible
+    // Popover should be visible (portaled to document.body)
     await expect(
-      canvas.getByTestId("workspace-mp-ref-popover"),
+      body.getByTestId("workspace-mp-ref-popover"),
     ).toBeInTheDocument();
 
     // System badge should be a clickable button
@@ -612,6 +613,7 @@ export const WithPredicateReferencePopover: Story = {
   render: () => <WorkspaceWithPredicateReference />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const body = within(document.body);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
 
     // MP reference (?) should be visible
@@ -626,9 +628,9 @@ export const WithPredicateReferencePopover: Story = {
 
     // Click Gen (?) to open popover
     await userEvent.click(canvas.getByTestId("workspace-gen-ref-trigger"));
-    // Popover should be visible
+    // Popover should be visible (portaled to document.body)
     await expect(
-      canvas.getByTestId("workspace-gen-ref-popover"),
+      body.getByTestId("workspace-gen-ref-popover"),
     ).toBeInTheDocument();
   },
 };

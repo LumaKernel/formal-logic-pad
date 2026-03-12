@@ -79,9 +79,10 @@ export const Default: Story = {
 export const OpenPopover: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const body = within(document.body);
     const trigger = canvas.getByTestId("ref-pop-trigger");
     await userEvent.click(trigger);
-    const popover = canvas.getByTestId("ref-pop-popover");
+    const popover = body.getByTestId("ref-pop-popover");
     await expect(popover).toBeInTheDocument();
     await expect(popover).toHaveTextContent("Axiom A1 (K)");
     await expect(popover).toHaveTextContent("Axioms");
@@ -91,8 +92,9 @@ export const OpenPopover: Story = {
 export const WithFormula: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const body = within(document.body);
     await userEvent.click(canvas.getByTestId("ref-pop-trigger"));
-    const formula = canvas.getByTestId("ref-pop-formula");
+    const formula = body.getByTestId("ref-pop-formula");
     await expect(formula).toBeInTheDocument();
   },
 };
@@ -103,10 +105,9 @@ export const WithoutFormula: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const body = within(document.body);
     await userEvent.click(canvas.getByTestId("ref-pop-trigger"));
-    await expect(
-      canvas.queryByTestId("ref-pop-formula"),
-    ).not.toBeInTheDocument();
+    await expect(body.queryByTestId("ref-pop-formula")).not.toBeInTheDocument();
   },
 };
 
@@ -116,8 +117,9 @@ export const WithDetailButton: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
+    const body = within(document.body);
     await userEvent.click(canvas.getByTestId("ref-pop-trigger"));
-    const detailBtn = canvas.getByTestId("ref-pop-detail-btn");
+    const detailBtn = body.getByTestId("ref-pop-detail-btn");
     await expect(detailBtn).toBeInTheDocument();
     await userEvent.click(detailBtn);
     await expect(args.onOpenDetail).toHaveBeenCalledWith("axiom-a1");
@@ -130,8 +132,9 @@ export const Japanese: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const body = within(document.body);
     await userEvent.click(canvas.getByTestId("ref-pop-trigger"));
-    const popover = canvas.getByTestId("ref-pop-popover");
+    const popover = body.getByTestId("ref-pop-popover");
     await expect(popover).toHaveTextContent("公理 A1 (K)");
     await expect(popover).toHaveTextContent("公理");
   },
@@ -140,24 +143,22 @@ export const Japanese: Story = {
 export const CloseOnEscape: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const body = within(document.body);
     await userEvent.click(canvas.getByTestId("ref-pop-trigger"));
-    await expect(canvas.getByTestId("ref-pop-popover")).toBeInTheDocument();
+    await expect(body.getByTestId("ref-pop-popover")).toBeInTheDocument();
     await userEvent.keyboard("{Escape}");
-    await expect(
-      canvas.queryByTestId("ref-pop-popover"),
-    ).not.toBeInTheDocument();
+    await expect(body.queryByTestId("ref-pop-popover")).not.toBeInTheDocument();
   },
 };
 
 export const ToggleOpen: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const body = within(document.body);
     const trigger = canvas.getByTestId("ref-pop-trigger");
     await userEvent.click(trigger);
-    await expect(canvas.getByTestId("ref-pop-popover")).toBeInTheDocument();
+    await expect(body.getByTestId("ref-pop-popover")).toBeInTheDocument();
     await userEvent.click(trigger);
-    await expect(
-      canvas.queryByTestId("ref-pop-popover"),
-    ).not.toBeInTheDocument();
+    await expect(body.queryByTestId("ref-pop-popover")).not.toBeInTheDocument();
   },
 };
