@@ -227,12 +227,8 @@ describe("ReferenceBrowserComponent", () => {
     );
     await user.click(screen.getByTestId("ref-entry-axiom-a1"));
     expect(screen.getByTestId("ref-modal")).toBeInTheDocument();
-    expect(
-      screen.getByTestId("ref-modal-quest-prop-01"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("ref-modal-quest-prop-02"),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("ref-modal-quest-prop-01")).toBeInTheDocument();
+    expect(screen.getByTestId("ref-modal-quest-prop-02")).toBeInTheDocument();
   });
 
   it("モーダルでクエストクリック時にonStartQuestが呼ばれる", async () => {

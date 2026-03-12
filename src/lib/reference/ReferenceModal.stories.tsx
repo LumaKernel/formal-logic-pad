@@ -205,9 +205,7 @@ export const WithRelatedQuests: Story = {
 export const WithRelatedQuestsJapanese: Story = {
   args: {
     locale: "ja",
-    relatedQuests: [
-      { id: "prop-02", title: "A1基本: φ → (ψ → φ)" },
-    ],
+    relatedQuests: [{ id: "prop-02", title: "A1基本: φ → (ψ → φ)" }],
     onStartQuest: fn(),
   },
   play: async ({ canvasElement }) => {
