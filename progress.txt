@@ -12984,3 +12984,21 @@
   - outside-clickハンドラはポータル要素(popoverRef)とトリガー要素(containerRef)の両方をチェックする必要がある
   - ReferencePopoverを使っているストーリーファイルが3箇所あるので、変更時は全て更新すること
 ---
+
+## 2026-03-12 - proof-pad ノートノードマークダウンエディタ対応
+- 実装した内容: ノートノードの編集モーダルをtextareaからmd-editor-rt（MdEditor）に置換。ノート表示をプレーンテキストからMdPreviewに置換
+- 変更したファイル:
+  - package.json, package-lock.json — md-editor-rt依存追加
+  - src/lib/proof-pad/ProofWorkspace.tsx — ノート編集モーダルをMdEditorに置換、モーダルサイズ拡大(minWidth:600,maxWidth:800)、noUploadImg・toolbars制限・テーマ対応
+  - src/lib/proof-pad/EditableProofNode.tsx — ノート表示をMdPreviewに置換（マークダウンレンダリング対応）
+  - src/lib/proof-pad/ProofWorkspace.test.tsx — md-editor-rtモック追加（jsdom非対応のため）
+  - src/lib/proof-pad/EditableProofNode.test.tsx — MdPreviewモック追加
+  - tasks/prd-2026-03-11.md → tasks-archived/ — タスク完了・アーカイブ
+- カバレッジ: Stmts 99.94%, Branch 99.87%, Funcs 89.96%, Lines 99.93%（変化なし）
+- スクリーンショット: .screenshots/note-editor-md-modal.png, .screenshots/note-editor-md-with-content.png, .screenshots/note-node-md-preview.png
+- **今後のイテレーションへの学び:**
+  - md-editor-rtはjsdom環境では内部DOMをレンダリングしないため、テストではvi.mockで簡易的なHTML要素に置換する必要がある
+  - MdEditorのtoolbarsプロパティはunion型で、`as const`を使うとreadonly配列になり型エラーになる。明示的なmutable型注釈を使う
+  - テーマ検出はdocument.documentElement.getAttribute("data-theme")で行う（useThemeフック等ではなく直接DOM参照）
+  - MdEditorの除外ツールバー: image, mermaid, katex, save, github, fullscreen, pageFullscreen, htmlPreview, catalog
+---
