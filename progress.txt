@@ -13136,3 +13136,29 @@
   - 三点メニューの外部クリック閉じは useEffect + document.addEventListener("mousedown") パターンが有効。ref.contains(target) で判定
   - WorkspacePageMessages にフィールド追加時は、workspacePageMessages.ts, en.json, ja.json, WorkspaceContent.tsx の4箇所を同期
 ---
+
+## 2026-03-12 - [node-merge] マージ等価判定をAST構造比較に改善・UIラベル更新
+- 実装した内容:
+  - マージの等価判定を文字列一致からAST構造比較に変更（areFormulasEquivalent関数を追加）
+  - parseNodeFormula（goalCheckLogic.ts）でパースし、equalFormula（equality.ts）でAST構造比較
+  - 括弧・スペースの差異を吸収してマージ可能に（例: `p -> (q -> r)` と `p -> q -> r` をマージ可能）
+  - UIラベルを「Merge Equivalent Schema…」/「同一スキーマをマージ…」に更新
+  - 16個のテストを追加（areFormulasEquivalent単体11 + AST等価マージ統合5）
+  - findMergeableGroupsをMap方式からlinear scan + areFormulasEquivalentに設計変更
+- 変更したファイル:
+  - src/lib/proof-pad/mergeNodesLogic.ts (areFormulasEquivalent追加、mergeNodes/findMergeableGroups/findMergeTargets/canMergeSelectedNodesの等価判定をAST比較に変更)
+  - src/lib/proof-pad/mergeNodesLogic.test.ts (16テスト追加)
+  - src/lib/proof-pad/index.ts (areFormulasEquivalentエクスポート追加)
+  - src/lib/proof-pad/proofMessages.ts (デフォルトラベル更新)
+  - src/lib/proof-pad/menuActionDefinition.ts (メニュー定義ラベル更新)
+  - messages/en.json (selectionMerge, mergeWithNode, mergeBannerSelectTarget更新)
+  - messages/ja.json (selectionMerge, mergeWithNode, mergeBannerSelectTarget更新)
+  - tasks/prd-node-merge.md → tasks-archived/prd-node-merge.md
+- テスト: 全54テストパス（mergeNodesLogic.test.ts単体、全体テストも通過）
+- カバレッジ: 個別テスト100%維持（V8集約アーティファクトにはv8 ignoreコメント追加済み）
+- スクリーンショット: .screenshots/merge-label-context-menu-en.png
+- **今後のイテレーションへの学び:**
+  - parseNodeFormula（goalCheckLogic.ts）は通常の論理式とシーケントテキスト（"Γ ⇒ Δ"形式）の両方をパース可能。マージのようなAST等価判定に再利用できる
+  - findMergeableGroupsのようなグルーピングで文字列キーが使えない場合（AST等価判定）、linear scanで既存グループと比較する方式が有効
+  - V8集約アーティファクトで関数定義行が未カバーになる場合、`/* v8 ignore start/stop */`で関数定義行を囲む
+---
