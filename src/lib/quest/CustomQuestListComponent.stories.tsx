@@ -206,8 +206,32 @@ export const DeleteQuest: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
+
+    // 削除ボタンクリック → 確認オーバーレイ表示
     await userEvent.click(
       canvas.getByTestId("custom-quest-delete-btn-custom-1003"),
+    );
+    // まだ onDeleteQuest は呼ばれていない
+    await expect(args.onDeleteQuest).not.toHaveBeenCalled();
+    // 確認オーバーレイが表示される
+    await expect(
+      canvas.getByTestId("custom-quest-delete-confirm-custom-1003"),
+    ).toBeInTheDocument();
+
+    // キャンセルボタンクリック → オーバーレイが閉じる
+    await userEvent.click(
+      canvas.getByTestId("custom-quest-delete-cancel-btn-custom-1003"),
+    );
+    await expect(
+      canvas.queryByTestId("custom-quest-delete-confirm-custom-1003"),
+    ).not.toBeInTheDocument();
+
+    // 再度削除ボタンクリック → 確認 → 削除実行
+    await userEvent.click(
+      canvas.getByTestId("custom-quest-delete-btn-custom-1003"),
+    );
+    await userEvent.click(
+      canvas.getByTestId("custom-quest-delete-confirm-btn-custom-1003"),
     );
     await expect(args.onDeleteQuest).toHaveBeenCalledWith("custom-1003");
     // onStartQuest は呼ばれていないこと（stopPropagation）

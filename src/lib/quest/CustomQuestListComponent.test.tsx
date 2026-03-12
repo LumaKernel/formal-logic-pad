@@ -599,4 +599,137 @@ describe("CustomQuestListComponent", () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe("削除確認", () => {
+    it("削除ボタンクリックで確認オーバーレイが表示される", () => {
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onDeleteQuest={vi.fn()}
+        />,
+      );
+
+      fireEvent.click(
+        screen.getByTestId("custom-quest-delete-btn-custom-1001"),
+      );
+
+      expect(
+        screen.getByTestId("custom-quest-delete-confirm-custom-1001"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("本当に削除しますか？")).toBeInTheDocument();
+    });
+
+    it("確認ボタンクリックでonDeleteQuestが呼ばれる", () => {
+      const onDeleteQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onDeleteQuest={onDeleteQuest}
+        />,
+      );
+
+      // 削除ボタンクリック → 確認オーバーレイ表示
+      fireEvent.click(
+        screen.getByTestId("custom-quest-delete-btn-custom-1001"),
+      );
+
+      // 確認ボタンクリック → onDeleteQuest呼び出し
+      fireEvent.click(
+        screen.getByTestId("custom-quest-delete-confirm-btn-custom-1001"),
+      );
+
+      expect(onDeleteQuest).toHaveBeenCalledWith("custom-1001");
+    });
+
+    it("キャンセルボタンクリックでオーバーレイが閉じる", () => {
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onDeleteQuest={vi.fn()}
+        />,
+      );
+
+      // 削除ボタンクリック → 確認オーバーレイ表示
+      fireEvent.click(
+        screen.getByTestId("custom-quest-delete-btn-custom-1001"),
+      );
+      expect(
+        screen.getByTestId("custom-quest-delete-confirm-custom-1001"),
+      ).toBeInTheDocument();
+
+      // キャンセルボタンクリック → オーバーレイが閉じる
+      fireEvent.click(
+        screen.getByTestId("custom-quest-delete-cancel-btn-custom-1001"),
+      );
+      expect(
+        screen.queryByTestId("custom-quest-delete-confirm-custom-1001"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("確認前にonDeleteQuestが呼ばれない", () => {
+      const onDeleteQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onDeleteQuest={onDeleteQuest}
+        />,
+      );
+
+      // 削除ボタンクリックだけでは onDeleteQuest は呼ばれない
+      fireEvent.click(
+        screen.getByTestId("custom-quest-delete-btn-custom-1001"),
+      );
+
+      expect(onDeleteQuest).not.toHaveBeenCalled();
+    });
+
+    it("確認後にオーバーレイが閉じる", () => {
+      const onDeleteQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onDeleteQuest={onDeleteQuest}
+        />,
+      );
+
+      fireEvent.click(
+        screen.getByTestId("custom-quest-delete-btn-custom-1001"),
+      );
+      fireEvent.click(
+        screen.getByTestId("custom-quest-delete-confirm-btn-custom-1001"),
+      );
+
+      // 確認後にオーバーレイが閉じる
+      expect(
+        screen.queryByTestId("custom-quest-delete-confirm-custom-1001"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("確認オーバーレイクリックでonStartQuestが呼ばれない（stopPropagation）", () => {
+      const onStartQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={onStartQuest}
+          onDeleteQuest={vi.fn()}
+        />,
+      );
+
+      fireEvent.click(
+        screen.getByTestId("custom-quest-delete-btn-custom-1001"),
+      );
+
+      // 確認オーバーレイをクリック
+      fireEvent.click(
+        screen.getByTestId("custom-quest-delete-confirm-custom-1001"),
+      );
+
+      expect(onStartQuest).not.toHaveBeenCalled();
+    });
+  });
 });

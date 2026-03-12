@@ -214,6 +214,48 @@ const deleteButtonStyle: CSSProperties = {
   borderColor: "var(--color-error, #d32f2f)",
 };
 
+const deleteConfirmOverlayStyle: CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+  background: "var(--color-quest-card-bg, rgba(255,253,248,0.97))",
+  borderRadius: 0,
+  zIndex: 1,
+  padding: "0 18px",
+};
+
+const deleteConfirmTextStyle: CSSProperties = {
+  fontSize: 13,
+  color: "var(--color-error, #c62828)",
+  fontWeight: 600,
+  flex: 1,
+  textAlign: "center",
+};
+
+const deleteConfirmBtnStyle: CSSProperties = {
+  padding: "6px 14px",
+  fontSize: 12,
+  borderRadius: 6,
+  border: "1px solid var(--color-error, rgba(198,40,40,0.4))",
+  background: "var(--color-error, #c62828)",
+  color: "#fff",
+  cursor: "pointer",
+  fontWeight: 600,
+};
+
+const deleteCancelBtnStyle: CSSProperties = {
+  padding: "6px 14px",
+  fontSize: 12,
+  borderRadius: 6,
+  border: "1px solid var(--color-border, rgba(180,160,130,0.3))",
+  background: "var(--color-quest-card-bg, rgba(255,253,248,0.9))",
+  color: "var(--color-text-primary, #333)",
+  cursor: "pointer",
+};
+
 const actionGroupStyle: CSSProperties = {
   display: "flex",
   gap: 4,
@@ -880,12 +922,32 @@ function CustomQuestItem({
   readonly onToggleEdit: (questId: QuestId) => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isDeleteConfirming, setIsDeleteConfirming] = useState(false);
+
+  const handleDeleteStart = () => {
+    setIsDeleteConfirming(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    /* v8 ignore start -- 防御的: onDeleteが存在する場合のみ削除ボタンが表示される */
+    if (onDelete === undefined) return;
+    /* v8 ignore stop */
+    onDelete(item.quest.id);
+    setIsDeleteConfirming(false);
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteConfirming(false);
+  };
 
   return (
     <>
       <div
         data-testid={`custom-quest-item-${item.quest.id satisfies string}`}
-        style={isHovered ? questItemHoverStyle : questItemStyle}
+        style={{
+          ...(isHovered ? questItemHoverStyle : questItemStyle),
+          position: "relative" as const,
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={() => onStart(item.quest.id)}
@@ -978,7 +1040,7 @@ function CustomQuestItem({
               style={deleteButtonStyle}
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete(item.quest.id);
+                handleDeleteStart();
               }}
               title="削除"
             >
@@ -986,6 +1048,29 @@ function CustomQuestItem({
             </button>
           )}
         </div>
+        {isDeleteConfirming && (
+          <div
+            data-testid={`custom-quest-delete-confirm-${item.quest.id satisfies string}`}
+            style={deleteConfirmOverlayStyle}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span style={deleteConfirmTextStyle}>本当に削除しますか？</span>
+            <button
+              data-testid={`custom-quest-delete-cancel-btn-${item.quest.id satisfies string}`}
+              style={deleteCancelBtnStyle}
+              onClick={handleDeleteCancel}
+            >
+              キャンセル
+            </button>
+            <button
+              data-testid={`custom-quest-delete-confirm-btn-${item.quest.id satisfies string}`}
+              style={deleteConfirmBtnStyle}
+              onClick={handleDeleteConfirm}
+            >
+              削除する
+            </button>
+          </div>
+        )}
       </div>
       {isEditing && onEdit !== undefined && (
         <CustomQuestEditForm
