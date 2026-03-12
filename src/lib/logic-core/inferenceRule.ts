@@ -76,7 +76,7 @@ export type PropositionalAxiomId =
 /**
  * 述語論理の追加公理スキーマID。
  */
-export type PredicateAxiomId = "A4" | "A5";
+export type PredicateAxiomId = "A4" | "A5" | "EX-DEF";
 
 /**
  * 等号公理スキーマID。
@@ -228,6 +228,24 @@ export const axiomA4Template: Formula = implication(universal(xVar, phi), phi);
 export const axiomA5Template: Formula = implication(
   universal(xVar, implication(phi, psi)),
   implication(phi, universal(xVar, psi)),
+);
+
+/**
+ * EX-DEF: 存在量化子定義（両方向）
+ * Forward: (∃x.φ) → ¬(∀x.¬φ)
+ * Backward: ¬(∀x.¬φ) → (∃x.φ)
+ *
+ * 存在量化子 ∃x.φ は ¬∀x.¬φ の略記として定義される。
+ * この公理により、Existential ASTノードと ¬∀¬ 形式の相互変換が可能になる。
+ *
+ * テンプレートベースのパターンマッチが使えない（Universal/Existentialの
+ * variable フィールドが TermVariable 型で TermMetaVariable を許容しない）ため、
+ * A4/A5と同様に matchExDef で構造的にマッチングする。
+ * パレット表示用のテンプレートは Forward 方向のみ提供する。
+ */
+export const axiomExDefForwardTemplate: Formula = implication(
+  existential(xVar, phi),
+  negation(universal(xVar, negation(phi))),
 );
 
 // E4 はシグネチャ依存（関数記号ごとに生成）のため、テンプレートではなく
@@ -1285,6 +1303,59 @@ export const matchAxiomA5 = (formula: Formula): AxiomMatchResult => {
 };
 
 /**
+ * EX-DEFのインスタンスか判定: 両方向マッチ
+ * Forward: (∃x.φ) → ¬(∀x.¬φ)
+ * Backward: ¬(∀x.¬φ) → (∃x.φ)
+ *
+ * A4/A5と同様に構造的にマッチングする。
+ * Universal/Existential の variable フィールドが TermVariable 型のため、
+ * TermMetaVariable を含むテンプレートは使えない。
+ */
+export const matchExDef = (formula: Formula): AxiomMatchResult => {
+  if (formula._tag !== "Implication") {
+    return axiomMatchErr(
+      new NotAnAxiomInstance({ axiomId: "EX-DEF", formula }),
+    );
+  }
+
+  // Forward: (∃x.φ) → ¬(∀x.¬φ)
+  if (
+    formula.left._tag === "Existential" &&
+    formula.right._tag === "Negation" &&
+    formula.right.formula._tag === "Universal" &&
+    formula.right.formula.formula._tag === "Negation"
+  ) {
+    const exVar = formula.left.variable;
+    const univVar = formula.right.formula.variable;
+    const exBody = formula.left.formula;
+    const univInnerBody = formula.right.formula.formula.formula;
+
+    if (equalTerm(exVar, univVar) && equalFormula(exBody, univInnerBody)) {
+      return axiomMatchOk(new Map(), new Map());
+    }
+  }
+
+  // Backward: ¬(∀x.¬φ) → (∃x.φ)
+  if (
+    formula.left._tag === "Negation" &&
+    formula.left.formula._tag === "Universal" &&
+    formula.left.formula.formula._tag === "Negation" &&
+    formula.right._tag === "Existential"
+  ) {
+    const univVar = formula.left.formula.variable;
+    const exVar = formula.right.variable;
+    const univInnerBody = formula.left.formula.formula.formula;
+    const exBody = formula.right.formula;
+
+    if (equalTerm(exVar, univVar) && equalFormula(exBody, univInnerBody)) {
+      return axiomMatchOk(new Map(), new Map());
+    }
+  }
+
+  return axiomMatchErr(new NotAnAxiomInstance({ axiomId: "EX-DEF", formula }));
+};
+
+/**
  * 等号公理 (E1, E2, E3) のインスタンスか判定。
  * 一方向パターンマッチングを使用。
  * E4 は matchE4 で別途実装。E5 は将来的に別途実装。
@@ -1545,6 +1616,16 @@ export const identifyAxiom = (
         axiomId: "A5",
         formulaSubstitution: a5Result.right.formulaSubstitution,
         termSubstitution: a5Result.right.termSubstitution,
+      };
+    }
+
+    const exDefResult = matchExDef(formula);
+    if (Either.isRight(exDefResult)) {
+      return {
+        _tag: "Ok",
+        axiomId: "EX-DEF",
+        formulaSubstitution: exDefResult.right.formulaSubstitution,
+        termSubstitution: exDefResult.right.termSubstitution,
       };
     }
   }

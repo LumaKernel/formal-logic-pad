@@ -52,6 +52,7 @@ const ALL_AXIOM_IDS = [
   "DISJ-DEF",
   "A4",
   "A5",
+  "EX-DEF",
   "E1",
   "E2",
   "E3",

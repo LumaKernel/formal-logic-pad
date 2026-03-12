@@ -110,7 +110,7 @@ describe("axiomPalette", () => {
       expect(dne?.dslText).toBe("~~phi -> phi");
     });
 
-    it("returns A1-A5, CONJ-DEF, DISJ-DEF for predicate logic system", () => {
+    it("returns A1-A5, CONJ-DEF, DISJ-DEF, EX-DEF for predicate logic system", () => {
       const items = getAvailableAxioms(predicateLogicSystem);
       const ids = items.map((i) => i.id);
       expect(ids).toEqual([
@@ -121,10 +121,11 @@ describe("axiomPalette", () => {
         "DISJ-DEF",
         "A4",
         "A5",
+        "EX-DEF",
       ]);
     });
 
-    it("returns A1-A5, CONJ-DEF, DISJ-DEF, E1-E3 for equality logic system", () => {
+    it("returns A1-A5, CONJ-DEF, DISJ-DEF, EX-DEF, E1-E3 for equality logic system", () => {
       const items = getAvailableAxioms(equalityLogicSystem);
       const ids = items.map((i) => i.id);
       expect(ids).toEqual([
@@ -135,6 +136,7 @@ describe("axiomPalette", () => {
         "DISJ-DEF",
         "A4",
         "A5",
+        "EX-DEF",
         "E1",
         "E2",
         "E3",
@@ -532,6 +534,7 @@ describe("axiomPalette", () => {
         "DNE",
         "A4",
         "A5",
+        "EX-DEF",
         "E1",
         "E2",
         "E3",

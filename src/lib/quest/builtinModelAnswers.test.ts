@@ -693,8 +693,6 @@ const knownPragmaticQuests: ReadonlySet<string> = new Set([
   "pred-adv-04",
   "pred-adv-06",
   "pred-adv-08",
-  "pred-adv-09",
-  "pred-adv-10",
   "pred-adv-12",
   "pred-adv-13",
 ]);

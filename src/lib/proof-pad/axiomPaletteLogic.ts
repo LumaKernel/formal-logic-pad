@@ -50,6 +50,7 @@ import {
   axiomDisjDefForwardTemplate,
   axiomA4Template,
   axiomA5Template,
+  axiomExDefForwardTemplate,
   axiomE1Template,
   axiomE2Template,
   axiomE3Template,
@@ -183,6 +184,7 @@ const axiomIdToReferenceEntryId: ReadonlyMap<string, ReferenceEntryId> =
     ["DNE", "axiom-dne"],
     ["A4", "axiom-a4"],
     ["A5", "axiom-a5"],
+    ["EX-DEF", "axiom-ex-def"],
     ["E1", "axiom-e1"],
     ["E2", "axiom-e2"],
     ["E3", "axiom-e3"],
@@ -239,6 +241,13 @@ export function getAvailableAxioms(
       template: axiomA5Template,
       unicodeDisplay: formatFormula(axiomA5Template),
       dslText: "(all x. (phi -> psi)) -> (phi -> all x. psi)",
+    });
+    items.push({
+      id: "EX-DEF",
+      displayName: "∃-Def",
+      template: axiomExDefForwardTemplate,
+      unicodeDisplay: formatFormula(axiomExDefForwardTemplate),
+      dslText: "(ex x. phi) -> ~(all x. ~phi)",
     });
   }
 

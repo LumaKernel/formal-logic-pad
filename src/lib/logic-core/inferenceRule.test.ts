@@ -6,6 +6,7 @@ import {
   matchPropositionalAxiom,
   matchAxiomA4,
   matchAxiomA5,
+  matchExDef,
   matchEqualityAxiom,
   matchE4,
   matchTheoryAxiom,
@@ -22,6 +23,7 @@ import {
   axiomConjDefBackwardTemplate,
   axiomDisjDefForwardTemplate,
   axiomDisjDefBackwardTemplate,
+  axiomExDefForwardTemplate,
   axiomE1Template,
   axiomE2Template,
   axiomE3Template,
@@ -1035,6 +1037,133 @@ describe("identifyAxiom CONJ-DEF/DISJ-DEF", () => {
     expect(r1._tag).toBe("Error");
     const r2 = identifyAxiom(axiomDisjDefForwardTemplate, minimalLogicSystem);
     expect(r2._tag).toBe("Error");
+  });
+});
+
+// ── EX-DEF ───────────────────────────────────────────────
+
+describe("matchExDef", () => {
+  describe("正方向: (∃x.φ) → ¬(∀x.¬φ)", () => {
+    it("テンプレートそのものがマッチする", () => {
+      expectMatchOk(matchExDef(axiomExDefForwardTemplate));
+    });
+
+    it("具体式のインスタンスがマッチする", () => {
+      const px = predicate("P", [x]);
+      const f = implication(
+        existential(x, px),
+        negation(universal(x, negation(px))),
+      );
+      expectMatchOk(matchExDef(f));
+    });
+
+    it("異なる変数名でもマッチする", () => {
+      const py = predicate("P", [y]);
+      const f = implication(
+        existential(y, py),
+        negation(universal(y, negation(py))),
+      );
+      expectMatchOk(matchExDef(f));
+    });
+
+    it("複合式でもマッチする", () => {
+      const body = implication(predicate("P", [x]), predicate("Q", [x]));
+      const f = implication(
+        existential(x, body),
+        negation(universal(x, negation(body))),
+      );
+      expectMatchOk(matchExDef(f));
+    });
+  });
+
+  describe("逆方向: ¬(∀x.¬φ) → (∃x.φ)", () => {
+    it("具体式のインスタンスがマッチする", () => {
+      const px = predicate("P", [x]);
+      const f = implication(
+        negation(universal(x, negation(px))),
+        existential(x, px),
+      );
+      expectMatchOk(matchExDef(f));
+    });
+
+    it("異なる変数名でもマッチする", () => {
+      const pz = predicate("P", [z]);
+      const f = implication(
+        negation(universal(z, negation(pz))),
+        existential(z, pz),
+      );
+      expectMatchOk(matchExDef(f));
+    });
+  });
+
+  describe("マッチしないケース", () => {
+    it("Implicationでない式はマッチしない", () => {
+      expectMatchErr(matchExDef(predicate("P", [x])));
+    });
+
+    it("量化変数が異なるとマッチしない", () => {
+      const f = implication(
+        existential(x, predicate("P", [x])),
+        negation(universal(y, negation(predicate("P", [y])))),
+      );
+      expectMatchErr(matchExDef(f));
+    });
+
+    it("本体が異なるとマッチしない", () => {
+      const f = implication(
+        existential(x, predicate("P", [x])),
+        negation(universal(x, negation(predicate("Q", [x])))),
+      );
+      expectMatchErr(matchExDef(f));
+    });
+
+    it("構造が異なるとマッチしない（∃→∀、否定なし）", () => {
+      const px = predicate("P", [x]);
+      const f = implication(existential(x, px), universal(x, px));
+      expectMatchErr(matchExDef(f));
+    });
+
+    it("A1はEX-DEFにマッチしない", () => {
+      expectMatchErr(matchExDef(axiomA1Template));
+    });
+  });
+});
+
+describe("identifyAxiom EX-DEF", () => {
+  it("EX-DEF正方向が述語論理体系で識別される", () => {
+    const px = predicate("P", [x]);
+    const f = implication(
+      existential(x, px),
+      negation(universal(x, negation(px))),
+    );
+    const result = identifyAxiom(f, predicateLogicSystem);
+    expect(result._tag).toBe("Ok");
+    if (result._tag === "Ok") {
+      expect(result.axiomId).toBe("EX-DEF");
+    }
+  });
+
+  it("EX-DEF逆方向が述語論理体系で識別される", () => {
+    const px = predicate("P", [x]);
+    const f = implication(
+      negation(universal(x, negation(px))),
+      existential(x, px),
+    );
+    const result = identifyAxiom(f, predicateLogicSystem);
+    expect(result._tag).toBe("Ok");
+    if (result._tag === "Ok") {
+      expect(result.axiomId).toBe("EX-DEF");
+    }
+  });
+
+  it("EX-DEFは命題論理体系では識別されない", () => {
+    const px = predicate("P", [x]);
+    const f = implication(
+      existential(x, px),
+      negation(universal(x, negation(px))),
+    );
+    const result = identifyAxiom(f, lukasiewiczSystem);
+    expect(result._tag).toBe("Error");
   });
 });
 

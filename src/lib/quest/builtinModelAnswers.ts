@@ -10487,9 +10487,7 @@ const predAdv08UniversalToNotExistNot: ModelAnswer = {
  * pred-adv-09: 存在 → 全称否定の否定
  *
  * (∃x.P(x)) → ¬(∀x.¬P(x))。
- * ∃x.P(x) = ¬∀x.¬P(x) なので、ゴールは恒等律だが、
- * AST上では Existential ≠ ¬Universal(¬...) のため直接恒等律は使えない。
- * axiom ステップでゴール式テキストを直接配置。1ステップ。
+ * EX-DEF公理の正方向インスタンス。1ステップ。
  */
 const predAdv09ExistToNotUniversalNot: ModelAnswer = {
   questId: "pred-adv-09",
@@ -10500,17 +10498,168 @@ const predAdv09ExistToNotUniversalNot: ModelAnswer = {
  * pred-adv-10: 全称含意の推移律
  *
  * (∀x.(P(x)→Q(x))) → ((∀x.(Q(x)→R(x))) → (∀x.(P(x)→R(x))))。
- * pred-adv-07 の結果を Gen[x]+A5 で再全称化する構造。
- * axiom ステップでゴール式テキストを直接配置。
+ * pred-adv-07 と同じ構造 + Gen[x] + A5 で ∀x を結論に導入。31ステップ。
+ *
+ * 証明戦略:
+ * Phase 1-4 (0-26): pred-adv-07 と同一 — A→(D→(P(x)→R(x)))
+ * Phase 5 (27-30): Gen[x]+A5 で結論を ∀x.(P(x)→R(x)) に全称化
  */
 const predAdv10UniversalImplicationTransitivity: ModelAnswer = {
   questId: "pred-adv-10",
   steps: [
+    // --- Phase 1-4: pred-adv-07 と同じ構造 (A→(D→(P(x)→R(x)))) ---
+    // A = ∀x.(P(x)→Q(x)), D = ∀x.(Q(x)→R(x))
+
+    // Step 0: A4 — A → (P(x)→Q(x))
+    {
+      _tag: "axiom",
+      formulaText: "(all x. (P(x) -> Q(x))) -> (P(x) -> Q(x))",
+    },
+    // Step 1: A4 — D → (Q(x)→R(x))
+    {
+      _tag: "axiom",
+      formulaText: "(all x. (Q(x) -> R(x))) -> (Q(x) -> R(x))",
+    },
+    // Step 2: A1 — (P→Q)→(D→(P→Q))
     {
       _tag: "axiom",
       formulaText:
-        "(all x. (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (all x. (P(x) -> R(x))))",
+        "(P(x) -> Q(x)) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x)))",
     },
+    // Step 3: A1[step2をA前提で持ち上げ]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((P(x) -> Q(x)) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x)))) -> ((all x. (P(x) -> Q(x))) -> ((P(x) -> Q(x)) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x)))))",
+    },
+    // Step 4: MP(2, 3)
+    { _tag: "mp", leftIndex: 2, rightIndex: 3 },
+    // Step 5: A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (P(x) -> Q(x))) -> ((P(x) -> Q(x)) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x))))) -> (((all x. (P(x) -> Q(x))) -> (P(x) -> Q(x))) -> ((all x. (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x)))))",
+    },
+    // Step 6: MP(4, 5)
+    { _tag: "mp", leftIndex: 4, rightIndex: 5 },
+    // Step 7: MP(0, 6) — A → (D → (P→Q))
+    { _tag: "mp", leftIndex: 0, rightIndex: 6 },
+
+    // Step 8: A1 — (Q→R)→(P→(Q→R))
+    {
+      _tag: "axiom",
+      formulaText: "(Q(x) -> R(x)) -> (P(x) -> (Q(x) -> R(x)))",
+    },
+    // Step 9: A1[step8をD前提で持ち上げ]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((Q(x) -> R(x)) -> (P(x) -> (Q(x) -> R(x)))) -> ((all x. (Q(x) -> R(x))) -> ((Q(x) -> R(x)) -> (P(x) -> (Q(x) -> R(x)))))",
+    },
+    // Step 10: MP(8, 9)
+    { _tag: "mp", leftIndex: 8, rightIndex: 9 },
+    // Step 11: A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (Q(x) -> R(x))) -> ((Q(x) -> R(x)) -> (P(x) -> (Q(x) -> R(x))))) -> (((all x. (Q(x) -> R(x))) -> (Q(x) -> R(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> (Q(x) -> R(x)))))",
+    },
+    // Step 12: MP(10, 11)
+    { _tag: "mp", leftIndex: 10, rightIndex: 11 },
+    // Step 13: MP(1, 12) — D → (P→(Q→R))
+    { _tag: "mp", leftIndex: 1, rightIndex: 12 },
+    // Step 14: A2[P, Q, R]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(P(x) -> (Q(x) -> R(x))) -> ((P(x) -> Q(x)) -> (P(x) -> R(x)))",
+    },
+    // Step 15: A1[step14をD前提で持ち上げ]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((P(x) -> (Q(x) -> R(x))) -> ((P(x) -> Q(x)) -> (P(x) -> R(x)))) -> ((all x. (Q(x) -> R(x))) -> ((P(x) -> (Q(x) -> R(x))) -> ((P(x) -> Q(x)) -> (P(x) -> R(x)))))",
+    },
+    // Step 16: MP(14, 15)
+    { _tag: "mp", leftIndex: 14, rightIndex: 15 },
+    // Step 17: A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (Q(x) -> R(x))) -> ((P(x) -> (Q(x) -> R(x))) -> ((P(x) -> Q(x)) -> (P(x) -> R(x))))) -> (((all x. (Q(x) -> R(x))) -> (P(x) -> (Q(x) -> R(x)))) -> ((all x. (Q(x) -> R(x))) -> ((P(x) -> Q(x)) -> (P(x) -> R(x)))))",
+    },
+    // Step 18: MP(16, 17)
+    { _tag: "mp", leftIndex: 16, rightIndex: 17 },
+    // Step 19: MP(13, 18) — D → ((P→Q) → (P→R))
+    { _tag: "mp", leftIndex: 13, rightIndex: 18 },
+    // Step 20: A2[D, P→Q, P→R]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (Q(x) -> R(x))) -> ((P(x) -> Q(x)) -> (P(x) -> R(x)))) -> (((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x))))",
+    },
+    // Step 21: MP(19, 20)
+    { _tag: "mp", leftIndex: 19, rightIndex: 20 },
+    // HS合成: step7 (A→(D→(P→Q))) と step21 ((D→(P→Q))→(D→(P→R))) → A→(D→(P→R))
+    // Step 22: A1[step21をA前提で持ち上げ]
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x)))) -> ((all x. (P(x) -> Q(x))) -> (((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x)))))",
+    },
+    // Step 23: MP(21, 22)
+    { _tag: "mp", leftIndex: 21, rightIndex: 22 },
+    // Step 24: A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (P(x) -> Q(x))) -> (((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x))))) -> (((all x. (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> Q(x)))) -> ((all x. (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x)))))",
+    },
+    // Step 25: MP(23, 24)
+    { _tag: "mp", leftIndex: 23, rightIndex: 24 },
+    // Step 26: MP(7, 25) — A → (D → (P(x)→R(x)))
+    { _tag: "mp", leftIndex: 7, rightIndex: 25 },
+
+    // --- Phase 5: Gen[x] + A5 で ∀x を結論内に導入 ---
+    // Step 27: Gen[x] — ∀x.(A → (D → (P(x)→R(x))))
+    { _tag: "gen", premiseIndex: 26, variableName: "x" },
+    // Step 28: A5 — ∀x.(A→(D→(P(x)→R(x)))) → (A → ∀x.(D→(P(x)→R(x))))
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x))))) -> ((all x. (P(x) -> Q(x))) -> (all x. ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x)))))",
+    },
+    // Step 29: MP(27, 28) — A → ∀x.(D→(P(x)→R(x)))
+    { _tag: "mp", leftIndex: 27, rightIndex: 28 },
+    // Now we need: ∀x.(D→(P(x)→R(x))) → (D → ∀x.(P(x)→R(x)))
+    // This is A5 since x∉FV(D)
+    // But wait — we have A → ∀x.(D→(P(x)→R(x)))
+    // We need to apply A5 to the inner ∀x, getting A → (D → ∀x.(P(x)→R(x)))
+    // Step 30: A5 — ∀x.(D→(P(x)→R(x))) → (D → ∀x.(P(x)→R(x)))
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x)))) -> ((all x. (Q(x) -> R(x))) -> (all x. (P(x) -> R(x))))",
+    },
+    // HS(29, 30): A → (D → ∀x.(P(x)→R(x)))
+    // Step 31: A1[step30をA前提で持ち上げ]
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x)))) -> ((all x. (Q(x) -> R(x))) -> (all x. (P(x) -> R(x))))) -> ((all x. (P(x) -> Q(x))) -> ((all x. ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x)))) -> ((all x. (Q(x) -> R(x))) -> (all x. (P(x) -> R(x))))))",
+    },
+    // Step 32: MP(30, 31)
+    { _tag: "mp", leftIndex: 30, rightIndex: 31 },
+    // Step 33: A2
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (P(x) -> Q(x))) -> ((all x. ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x)))) -> ((all x. (Q(x) -> R(x))) -> (all x. (P(x) -> R(x)))))) -> (((all x. (P(x) -> Q(x))) -> (all x. ((all x. (Q(x) -> R(x))) -> (P(x) -> R(x))))) -> ((all x. (P(x) -> Q(x))) -> ((all x. (Q(x) -> R(x))) -> (all x. (P(x) -> R(x))))))",
+    },
+    // Step 34: MP(32, 33)
+    { _tag: "mp", leftIndex: 32, rightIndex: 33 },
+    // Step 35: MP(29, 34) — A → (D → ∀x.(P(x)→R(x))) = Goal!
+    { _tag: "mp", leftIndex: 29, rightIndex: 34 },
   ],
 };
 

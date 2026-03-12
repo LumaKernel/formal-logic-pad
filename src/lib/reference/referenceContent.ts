@@ -447,6 +447,62 @@ const axiomA5: ReferenceEntry = {
   order: 8,
 };
 
+const axiomExDef: ReferenceEntry = {
+  id: "axiom-ex-def",
+  category: "axiom",
+  title: {
+    en: "Axiom EX-DEF (Existential Definition)",
+    ja: "公理 EX-DEF (存在量化子定義)",
+  },
+  summary: {
+    en: "∃x.φ ↔ ¬∀x.¬φ — Existential quantifier defined as negated universal negation (bidirectional).",
+    ja: "∃x.φ ↔ ¬∀x.¬φ — 存在量化子を全称量化子の否定で定義（双方向）。",
+  },
+  body: {
+    en: [
+      "The existential quantifier ∃x.φ is a shorthand for ¬∀x.¬φ. This axiom provides bidirectional conversion between the two forms.",
+      "Forward direction: (∃x.φ) → ¬(∀x.¬φ). If there exists an x satisfying φ, then it is not the case that all x fail to satisfy φ.",
+      "Backward direction: ¬(∀x.¬φ) → (∃x.φ). If not all x fail to satisfy φ, then there exists an x satisfying φ.",
+      "This definition axiom is analogous to CONJ-DEF and DISJ-DEF, which define conjunction and disjunction in terms of implication and negation.",
+    ],
+    ja: [
+      "存在量化子 ∃x.φ は ¬∀x.¬φ の略記です。この公理は2つの形式の間の双方向変換を提供します。",
+      "正方向: (∃x.φ) → ¬(∀x.¬φ)。φを満たすxが存在するなら、すべてのxがφを満たさないということはありません。",
+      "逆方向: ¬(∀x.¬φ) → (∃x.φ)。すべてのxがφを満たさないのではないなら、φを満たすxが存在します。",
+      "この定義公理はCONJ-DEFやDISJ-DEFと類似しており、それらが連言と選言を含意と否定で定義するのと同様です。",
+    ],
+  },
+  formalNotation:
+    "\\exists x.\\varphi \\leftrightarrow \\lnot\\forall x.\\lnot\\varphi",
+  relatedEntryIds: ["axiom-a4", "axiom-a5", "notation-quantifiers"],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Existential_quantification",
+      label: {
+        en: "Existential quantification (Wikipedia)",
+        ja: "存在量化 (Wikipedia)",
+      },
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E5%AD%98%E5%9C%A8%E9%87%8F%E5%8C%96",
+      label: {
+        en: "Existential quantification (Wikipedia JA)",
+        ja: "存在量化 (Wikipedia)",
+      },
+    },
+  ],
+  keywords: [
+    "EX-DEF",
+    "existential definition",
+    "存在量化子定義",
+    "∃-Def",
+    "existential",
+  ],
+  order: 9,
+};
+
 const axiomE1: ReferenceEntry = {
   id: "axiom-e1",
   category: "axiom",
@@ -4501,6 +4557,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   axiomDne,
   axiomA4,
   axiomA5,
+  axiomExDef,
   axiomE1,
   axiomE2,
   axiomE3,
