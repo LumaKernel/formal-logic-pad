@@ -18,6 +18,10 @@ import {
   axiomM3Template,
   axiomEFQTemplate,
   axiomDNETemplate,
+  axiomConjDefForwardTemplate,
+  axiomConjDefBackwardTemplate,
+  axiomDisjDefForwardTemplate,
+  axiomDisjDefBackwardTemplate,
   axiomE1Template,
   axiomE2Template,
   axiomE3Template,
@@ -879,6 +883,161 @@ describe("matchE4", () => {
   });
 });
 
+// ── CONJ-DEF / DISJ-DEF ──────────────────────────────────
+
+describe("matchPropositionalAxiom CONJ-DEF", () => {
+  const phi = metaVariable("φ");
+  const psi = metaVariable("ψ");
+
+  describe("正方向: (φ ∧ ψ) → ¬(φ → ¬ψ)", () => {
+    it("テンプレートそのものがマッチする", () => {
+      expectMatchOk(
+        matchPropositionalAxiom("CONJ-DEF", axiomConjDefForwardTemplate),
+      );
+    });
+
+    it("具体式のインスタンスがマッチする", () => {
+      const p = predicate("P", []);
+      const q = predicate("Q", []);
+      const f = implication(
+        conjunction(p, q),
+        negation(implication(p, negation(q))),
+      );
+      expectMatchOk(matchPropositionalAxiom("CONJ-DEF", f));
+    });
+  });
+
+  describe("逆方向: ¬(φ → ¬ψ) → (φ ∧ ψ)", () => {
+    it("テンプレートそのものがマッチする", () => {
+      expectMatchOk(
+        matchPropositionalAxiom("CONJ-DEF", axiomConjDefBackwardTemplate),
+      );
+    });
+
+    it("具体式のインスタンスがマッチする", () => {
+      const p = predicate("P", []);
+      const q = predicate("Q", []);
+      const f = implication(
+        negation(implication(p, negation(q))),
+        conjunction(p, q),
+      );
+      expectMatchOk(matchPropositionalAxiom("CONJ-DEF", f));
+    });
+  });
+
+  describe("マッチしないケース", () => {
+    it("A1はCONJ-DEFにマッチしない", () => {
+      expectMatchErr(matchPropositionalAxiom("CONJ-DEF", axiomA1Template));
+    });
+
+    it("φ ∧ ψだけではマッチしない", () => {
+      expectMatchErr(
+        matchPropositionalAxiom("CONJ-DEF", conjunction(phi, psi)),
+      );
+    });
+  });
+});
+
+describe("matchPropositionalAxiom DISJ-DEF", () => {
+  const phi = metaVariable("φ");
+  const psi = metaVariable("ψ");
+
+  describe("正方向: (φ ∨ ψ) → (¬φ → ψ)", () => {
+    it("テンプレートそのものがマッチする", () => {
+      expectMatchOk(
+        matchPropositionalAxiom("DISJ-DEF", axiomDisjDefForwardTemplate),
+      );
+    });
+
+    it("具体式のインスタンスがマッチする", () => {
+      const p = predicate("P", []);
+      const q = predicate("Q", []);
+      const f = implication(disjunction(p, q), implication(negation(p), q));
+      expectMatchOk(matchPropositionalAxiom("DISJ-DEF", f));
+    });
+  });
+
+  describe("逆方向: (¬φ → ψ) → (φ ∨ ψ)", () => {
+    it("テンプレートそのものがマッチする", () => {
+      expectMatchOk(
+        matchPropositionalAxiom("DISJ-DEF", axiomDisjDefBackwardTemplate),
+      );
+    });
+
+    it("具体式のインスタンスがマッチする", () => {
+      const p = predicate("P", []);
+      const q = predicate("Q", []);
+      const f = implication(implication(negation(p), q), disjunction(p, q));
+      expectMatchOk(matchPropositionalAxiom("DISJ-DEF", f));
+    });
+  });
+
+  describe("マッチしないケース", () => {
+    it("A1はDISJ-DEFにマッチしない", () => {
+      expectMatchErr(matchPropositionalAxiom("DISJ-DEF", axiomA1Template));
+    });
+
+    it("φ ∨ ψだけではマッチしない", () => {
+      expectMatchErr(
+        matchPropositionalAxiom("DISJ-DEF", disjunction(phi, psi)),
+      );
+    });
+  });
+});
+
+describe("identifyAxiom CONJ-DEF/DISJ-DEF", () => {
+  it("CONJ-DEF正方向がŁukasiewicz体系で識別される", () => {
+    const result = identifyAxiom(
+      axiomConjDefForwardTemplate,
+      lukasiewiczSystem,
+    );
+    expect(result._tag).toBe("Ok");
+    if (result._tag === "Ok") {
+      expect(result.axiomId).toBe("CONJ-DEF");
+    }
+  });
+
+  it("CONJ-DEF逆方向がŁukasiewicz体系で識別される", () => {
+    const result = identifyAxiom(
+      axiomConjDefBackwardTemplate,
+      lukasiewiczSystem,
+    );
+    expect(result._tag).toBe("Ok");
+    if (result._tag === "Ok") {
+      expect(result.axiomId).toBe("CONJ-DEF");
+    }
+  });
+
+  it("DISJ-DEF正方向がŁukasiewicz体系で識別される", () => {
+    const result = identifyAxiom(
+      axiomDisjDefForwardTemplate,
+      lukasiewiczSystem,
+    );
+    expect(result._tag).toBe("Ok");
+    if (result._tag === "Ok") {
+      expect(result.axiomId).toBe("DISJ-DEF");
+    }
+  });
+
+  it("DISJ-DEF逆方向がŁukasiewicz体系で識別される", () => {
+    const result = identifyAxiom(
+      axiomDisjDefBackwardTemplate,
+      lukasiewiczSystem,
+    );
+    expect(result._tag).toBe("Ok");
+    if (result._tag === "Ok") {
+      expect(result.axiomId).toBe("DISJ-DEF");
+    }
+  });
+
+  it("CONJ-DEF/DISJ-DEFはminimalLogicSystemでは識別されない", () => {
+    const r1 = identifyAxiom(axiomConjDefForwardTemplate, minimalLogicSystem);
+    expect(r1._tag).toBe("Error");
+    const r2 = identifyAxiom(axiomDisjDefForwardTemplate, minimalLogicSystem);
+    expect(r2._tag).toBe("Error");
+  });
+});
+
 // ── 代入の適用 ────────────────────────────────────────────
 
 describe("applySubstitution", () => {
@@ -929,13 +1088,15 @@ describe("LogicSystem", () => {
     expect(minimalLogicSystem.generalization).toBe(false);
   });
 
-  it("Intuitionistic system has A1, A2, EFQ", () => {
+  it("Intuitionistic system has A1, A2, EFQ, CONJ-DEF, DISJ-DEF", () => {
     expect(intuitionisticSystem.propositionalAxioms.has("A1")).toBe(true);
     expect(intuitionisticSystem.propositionalAxioms.has("A2")).toBe(true);
     expect(intuitionisticSystem.propositionalAxioms.has("EFQ")).toBe(true);
+    expect(intuitionisticSystem.propositionalAxioms.has("CONJ-DEF")).toBe(true);
+    expect(intuitionisticSystem.propositionalAxioms.has("DISJ-DEF")).toBe(true);
     expect(intuitionisticSystem.propositionalAxioms.has("A3")).toBe(false);
     expect(intuitionisticSystem.propositionalAxioms.has("M3")).toBe(false);
-    expect(intuitionisticSystem.propositionalAxioms.size).toBe(3);
+    expect(intuitionisticSystem.propositionalAxioms.size).toBe(5);
     expect(intuitionisticSystem.predicateLogic).toBe(false);
     expect(intuitionisticSystem.equalityLogic).toBe(false);
     expect(intuitionisticSystem.generalization).toBe(false);
@@ -2035,7 +2196,7 @@ describe("robinsonArithmeticSystem", () => {
 describe("PA流儀バリアント", () => {
   it("peanoArithmeticHKSystem: DNEベース + PA1-PA6", () => {
     expect(peanoArithmeticHKSystem.propositionalAxioms).toEqual(
-      new Set(["A1", "A2", "DNE"]),
+      new Set(["A1", "A2", "DNE", "CONJ-DEF", "DISJ-DEF"]),
     );
     expect(peanoArithmeticHKSystem.predicateLogic).toBe(true);
     expect(peanoArithmeticHKSystem.equalityLogic).toBe(true);
@@ -2046,7 +2207,7 @@ describe("PA流儀バリアント", () => {
 
   it("peanoArithmeticMendelsonSystem: M3ベース + PA1-PA6", () => {
     expect(peanoArithmeticMendelsonSystem.propositionalAxioms).toEqual(
-      new Set(["A1", "A2", "M3"]),
+      new Set(["A1", "A2", "M3", "CONJ-DEF", "DISJ-DEF"]),
     );
     expect(peanoArithmeticMendelsonSystem.predicateLogic).toBe(true);
     expect(peanoArithmeticMendelsonSystem.equalityLogic).toBe(true);
@@ -2056,7 +2217,7 @@ describe("PA流儀バリアント", () => {
 
   it("heytingArithmeticSystem: EFQベース + PA1-PA6", () => {
     expect(heytingArithmeticSystem.propositionalAxioms).toEqual(
-      new Set(["A1", "A2", "EFQ"]),
+      new Set(["A1", "A2", "EFQ", "CONJ-DEF", "DISJ-DEF"]),
     );
     expect(heytingArithmeticSystem.predicateLogic).toBe(true);
     expect(heytingArithmeticSystem.equalityLogic).toBe(true);

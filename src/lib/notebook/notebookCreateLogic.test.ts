@@ -153,7 +153,7 @@ describe("systemPresets", () => {
     expect(preset).toBeDefined();
     if (preset?.deductionSystem.style === "hilbert") {
       expect(preset.deductionSystem.system.propositionalAxioms).toEqual(
-        new Set(["A1", "A2", "DNE"]),
+        new Set(["A1", "A2", "DNE", "CONJ-DEF", "DISJ-DEF"]),
       );
       expect(preset.deductionSystem.system.theoryAxioms?.length).toBe(6);
     }
@@ -164,7 +164,7 @@ describe("systemPresets", () => {
     expect(preset).toBeDefined();
     if (preset?.deductionSystem.style === "hilbert") {
       expect(preset.deductionSystem.system.propositionalAxioms).toEqual(
-        new Set(["A1", "A2", "M3"]),
+        new Set(["A1", "A2", "M3", "CONJ-DEF", "DISJ-DEF"]),
       );
       expect(preset.deductionSystem.system.theoryAxioms?.length).toBe(6);
     }
@@ -175,7 +175,7 @@ describe("systemPresets", () => {
     expect(preset).toBeDefined();
     if (preset?.deductionSystem.style === "hilbert") {
       expect(preset.deductionSystem.system.propositionalAxioms).toEqual(
-        new Set(["A1", "A2", "EFQ"]),
+        new Set(["A1", "A2", "EFQ", "CONJ-DEF", "DISJ-DEF"]),
       );
       expect(preset.deductionSystem.system.theoryAxioms?.length).toBe(6);
     }

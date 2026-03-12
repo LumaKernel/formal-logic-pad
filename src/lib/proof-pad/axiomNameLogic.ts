@@ -34,6 +34,8 @@ const axiomDisplayNames: Readonly<Record<AxiomId, string>> = {
   M3: "M3",
   EFQ: "EFQ",
   DNE: "DNE",
+  "CONJ-DEF": "∧-Def",
+  "DISJ-DEF": "∨-Def",
   A4: "A4 (UI)",
   A5: "A5 (∀-Dist)",
   E1: "E1 (Refl)",

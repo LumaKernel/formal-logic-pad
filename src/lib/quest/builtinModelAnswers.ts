@@ -3710,8 +3710,11 @@ const prop20LEM: ModelAnswer = {
     { _tag: "mp", leftIndex: 32, rightIndex: 30 },
     // 34. MP(6, 33): ¬¬φ→φ (= DNE, 含意/否定バージョン)
     { _tag: "mp", leftIndex: 6, rightIndex: 33 },
-    // 35. ゴール式テキスト（選言の定義展開: ¬φ ∨ φ ≡ ¬¬φ → φ）
-    { _tag: "axiom", formulaText: "~phi \\/ phi" },
+    // --- DISJ-DEF backward で ¬φ ∨ φ を構成 ---
+    // 35. DISJ-DEF backward: (¬¬φ→φ) → (¬φ ∨ φ)  [φ:=¬φ, ψ:=φ]
+    { _tag: "axiom", formulaText: "(~~phi -> phi) -> (~phi \\/ phi)" },
+    // 36. MP(34, 35): ¬φ ∨ φ
+    { _tag: "mp", leftIndex: 34, rightIndex: 35 },
   ],
 };
 

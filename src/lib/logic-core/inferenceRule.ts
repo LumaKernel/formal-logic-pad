@@ -18,6 +18,7 @@ import {
   metaVariable,
   universal,
   existential,
+  conjunction,
   disjunction,
   equality,
 } from "./formula";
@@ -62,7 +63,15 @@ import { freeVariablesInFormula } from "./freeVariables";
  *   5. axiomPaletteLogic.ts の propositionalAxiomMetas に追加
  *   6. notebookSerialization.ts の VALID_AXIOM_IDS に追加
  */
-export type PropositionalAxiomId = "A1" | "A2" | "A3" | "M3" | "EFQ" | "DNE";
+export type PropositionalAxiomId =
+  | "A1"
+  | "A2"
+  | "A3"
+  | "M3"
+  | "EFQ"
+  | "DNE"
+  | "CONJ-DEF"
+  | "DISJ-DEF";
 
 /**
  * 述語論理の追加公理スキーマID。
@@ -142,6 +151,36 @@ export const axiomEFQTemplate: Formula = implication(
 export const axiomDNETemplate: Formula = implication(
   negation(negation(phi)),
   phi,
+);
+
+/**
+ * CONJ-DEF: 連言定義（両方向）
+ * (φ ∧ ψ) → ¬(φ → ¬ψ)   と   ¬(φ → ¬ψ) → (φ ∧ ψ)
+ * の両方をマッチする。テンプレートは正方向のみ保持。
+ * @see dev/logic-reference/07-axiom-systems-survey.md §5
+ */
+export const axiomConjDefForwardTemplate: Formula = implication(
+  conjunction(phi, psi),
+  negation(implication(phi, negation(psi))),
+);
+export const axiomConjDefBackwardTemplate: Formula = implication(
+  negation(implication(phi, negation(psi))),
+  conjunction(phi, psi),
+);
+
+/**
+ * DISJ-DEF: 選言定義（両方向）
+ * (φ ∨ ψ) → (¬φ → ψ)   と   (¬φ → ψ) → (φ ∨ ψ)
+ * の両方をマッチする。テンプレートは正方向のみ保持。
+ * @see dev/logic-reference/07-axiom-systems-survey.md §5
+ */
+export const axiomDisjDefForwardTemplate: Formula = implication(
+  disjunction(phi, psi),
+  implication(negation(phi), psi),
+);
+export const axiomDisjDefBackwardTemplate: Formula = implication(
+  implication(negation(phi), psi),
+  disjunction(phi, psi),
 );
 
 /**
@@ -598,7 +637,7 @@ export const skSystem: LogicSystem = minimalLogicSystem;
  */
 export const intuitionisticSystem: LogicSystem = {
   name: "Intuitionistic Logic",
-  propositionalAxioms: new Set(["A1", "A2", "EFQ"]),
+  propositionalAxioms: new Set(["A1", "A2", "EFQ", "CONJ-DEF", "DISJ-DEF"]),
   predicateLogic: false,
   equalityLogic: false,
   generalization: false,
@@ -609,7 +648,7 @@ export const intuitionisticSystem: LogicSystem = {
  */
 export const lukasiewiczSystem: LogicSystem = {
   name: "Łukasiewicz",
-  propositionalAxioms: new Set(["A1", "A2", "A3"]),
+  propositionalAxioms: new Set(["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"]),
   predicateLogic: false,
   equalityLogic: false,
   generalization: false,
@@ -623,7 +662,7 @@ export const lukasiewiczSystem: LogicSystem = {
  */
 export const mendelsonSystem: LogicSystem = {
   name: "Mendelson",
-  propositionalAxioms: new Set(["A1", "A2", "M3"]),
+  propositionalAxioms: new Set(["A1", "A2", "M3", "CONJ-DEF", "DISJ-DEF"]),
   predicateLogic: false,
   equalityLogic: false,
   generalization: false,
@@ -639,7 +678,7 @@ export const mendelsonSystem: LogicSystem = {
  */
 export const classicalLogicSystem: LogicSystem = {
   name: "Classical Logic (HK)",
-  propositionalAxioms: new Set(["A1", "A2", "DNE"]),
+  propositionalAxioms: new Set(["A1", "A2", "DNE", "CONJ-DEF", "DISJ-DEF"]),
   predicateLogic: false,
   equalityLogic: false,
   generalization: false,
@@ -650,7 +689,7 @@ export const classicalLogicSystem: LogicSystem = {
  */
 export const predicateLogicSystem: LogicSystem = {
   name: "Predicate Logic",
-  propositionalAxioms: new Set(["A1", "A2", "A3"]),
+  propositionalAxioms: new Set(["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"]),
   predicateLogic: true,
   equalityLogic: false,
   generalization: true,
@@ -661,7 +700,7 @@ export const predicateLogicSystem: LogicSystem = {
  */
 export const equalityLogicSystem: LogicSystem = {
   name: "Predicate Logic with Equality",
-  propositionalAxioms: new Set(["A1", "A2", "A3"]),
+  propositionalAxioms: new Set(["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"]),
   predicateLogic: true,
   equalityLogic: true,
   generalization: true,
@@ -676,7 +715,7 @@ export const equalityLogicSystem: LogicSystem = {
  */
 export const peanoArithmeticSystem: LogicSystem = {
   name: "Peano Arithmetic",
-  propositionalAxioms: new Set(["A1", "A2", "A3"]),
+  propositionalAxioms: new Set(["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"]),
   predicateLogic: true,
   equalityLogic: true,
   generalization: true,
@@ -691,7 +730,7 @@ export const peanoArithmeticSystem: LogicSystem = {
  */
 export const robinsonArithmeticSystem: LogicSystem = {
   name: "Robinson Arithmetic (Q)",
-  propositionalAxioms: new Set(["A1", "A2", "A3"]),
+  propositionalAxioms: new Set(["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"]),
   predicateLogic: true,
   equalityLogic: true,
   generalization: true,
@@ -705,7 +744,7 @@ export const robinsonArithmeticSystem: LogicSystem = {
  */
 export const peanoArithmeticHKSystem: LogicSystem = {
   name: "Peano Arithmetic (HK)",
-  propositionalAxioms: new Set(["A1", "A2", "DNE"]),
+  propositionalAxioms: new Set(["A1", "A2", "DNE", "CONJ-DEF", "DISJ-DEF"]),
   predicateLogic: true,
   equalityLogic: true,
   generalization: true,
@@ -719,7 +758,7 @@ export const peanoArithmeticHKSystem: LogicSystem = {
  */
 export const peanoArithmeticMendelsonSystem: LogicSystem = {
   name: "Peano Arithmetic (Mendelson)",
-  propositionalAxioms: new Set(["A1", "A2", "M3"]),
+  propositionalAxioms: new Set(["A1", "A2", "M3", "CONJ-DEF", "DISJ-DEF"]),
   predicateLogic: true,
   equalityLogic: true,
   generalization: true,
@@ -733,7 +772,7 @@ export const peanoArithmeticMendelsonSystem: LogicSystem = {
  */
 export const heytingArithmeticSystem: LogicSystem = {
   name: "Heyting Arithmetic (HA)",
-  propositionalAxioms: new Set(["A1", "A2", "EFQ"]),
+  propositionalAxioms: new Set(["A1", "A2", "EFQ", "CONJ-DEF", "DISJ-DEF"]),
   predicateLogic: true,
   equalityLogic: true,
   generalization: true,
@@ -749,7 +788,7 @@ export const heytingArithmeticSystem: LogicSystem = {
  */
 export const groupTheoryLeftSystem: LogicSystem = {
   name: "Group Theory (Left Axioms)",
-  propositionalAxioms: new Set(["A1", "A2", "A3"]),
+  propositionalAxioms: new Set(["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"]),
   predicateLogic: true,
   equalityLogic: true,
   generalization: true,
@@ -765,7 +804,7 @@ export const groupTheoryLeftSystem: LogicSystem = {
  */
 export const groupTheoryFullSystem: LogicSystem = {
   name: "Group Theory (Full Axioms)",
-  propositionalAxioms: new Set(["A1", "A2", "A3"]),
+  propositionalAxioms: new Set(["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"]),
   predicateLogic: true,
   equalityLogic: true,
   generalization: true,
@@ -780,7 +819,7 @@ export const groupTheoryFullSystem: LogicSystem = {
  */
 export const abelianGroupSystem: LogicSystem = {
   name: "Abelian Group",
-  propositionalAxioms: new Set(["A1", "A2", "A3"]),
+  propositionalAxioms: new Set(["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"]),
   predicateLogic: true,
   equalityLogic: true,
   generalization: true,
@@ -1073,40 +1112,39 @@ const axiomMatchErr = (error: RuleApplicationError): AxiomMatchResult =>
   Either.left(error);
 
 /**
- * 命題論理公理 (A1, A2, A3, M3, EFQ, DNE) のインスタンスか判定。
+ * 命題論理公理のインスタンスか判定。
+ * CONJ-DEF, DISJ-DEF は両方向マッチする。
  */
 export const matchPropositionalAxiom = (
   axiomId: PropositionalAxiomId,
   formula: Formula,
 ): AxiomMatchResult => {
-  const template = getPropositionalAxiomTemplate(axiomId);
-  const result = matchFormulaPattern(template, formula);
-  if (result === undefined) {
-    return axiomMatchErr(new NotAnAxiomInstance({ axiomId, formula }));
+  const templates = getPropositionalAxiomTemplates(axiomId);
+  for (const template of templates) {
+    const result = matchFormulaPattern(template, formula);
+    if (result !== undefined) {
+      return axiomMatchOk(result.formulaSub, result.termSub);
+    }
   }
-  return axiomMatchOk(result.formulaSub, result.termSub);
+  return axiomMatchErr(new NotAnAxiomInstance({ axiomId, formula }));
 };
 
-const getPropositionalAxiomTemplate = (
+const getPropositionalAxiomTemplates = (
   axiomId: PropositionalAxiomId,
-): Formula => {
-  switch (axiomId) {
-    case "A1":
-      return axiomA1Template;
-    case "A2":
-      return axiomA2Template;
-    case "A3":
-      return axiomA3Template;
-    case "M3":
-      return axiomM3Template;
-    case "EFQ":
-      return axiomEFQTemplate;
-    case "DNE":
-      return axiomDNETemplate;
-  }
+): readonly Formula[] => {
+  if (axiomId === "A1") return [axiomA1Template];
+  if (axiomId === "A2") return [axiomA2Template];
+  if (axiomId === "A3") return [axiomA3Template];
+  if (axiomId === "M3") return [axiomM3Template];
+  if (axiomId === "EFQ") return [axiomEFQTemplate];
+  if (axiomId === "DNE") return [axiomDNETemplate];
+  if (axiomId === "CONJ-DEF")
+    return [axiomConjDefForwardTemplate, axiomConjDefBackwardTemplate];
+  if (axiomId === "DISJ-DEF")
+    return [axiomDisjDefForwardTemplate, axiomDisjDefBackwardTemplate];
   /* v8 ignore start */
   axiomId satisfies never;
-  return axiomA1Template;
+  return [axiomA1Template];
   /* v8 ignore stop */
 };
 
@@ -1472,6 +1510,8 @@ export const identifyAxiom = (
     "M3",
     "EFQ",
     "DNE",
+    "CONJ-DEF",
+    "DISJ-DEF",
   ];
   for (const axiomId of propAxiomIds) {
     if (system.propositionalAxioms.has(axiomId)) {

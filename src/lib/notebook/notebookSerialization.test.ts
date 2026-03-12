@@ -792,7 +792,7 @@ describe("notebookSerialization", () => {
         ),
       ).toBe(true);
       expect(parsed.notebooks[0]?.workspace.system.propositionalAxioms).toEqual(
-        ["A1", "A2", "A3"],
+        ["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"],
       );
     });
 
@@ -811,7 +811,7 @@ describe("notebookSerialization", () => {
         }[];
       };
       expect(parsed.notebooks[0]?.workspace.system.propositionalAxioms).toEqual(
-        ["A1", "A2", "M3"],
+        ["A1", "A2", "M3", "CONJ-DEF", "DISJ-DEF"],
       );
     });
   });
