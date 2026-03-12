@@ -13388,3 +13388,34 @@
   - ReferenceBrowserComponentは3層アーキテクチャ: referenceBrowserLogic.ts(純粋ロジック) → ReferenceBrowserComponent.tsx(React UI) → HubContent.tsx(統合)
   - referenceEntry.tsの既存ユーティリティ(searchEntries, filterByCategory, sortByOrder)を最大活用し、新規ロジックは最小限に
 ---
+
+## 2026-03-13 - [docs] リファレンスビューアーページ追加・新規タブで開くボタン
+- 実装内容:
+  - /reference/[id] ルートでリファレンスエントリを全画面表示するビューアーページを追加
+  - ReferenceModal, ReferencePopoverに「新規タブで開く」(↗)ボタンを追加
+  - 3層アーキテクチャ: referenceViewerLogic.ts(純粋ロジック) → ReferenceViewerPageView.tsx(プレゼンテーション) → ReferenceViewerContent.tsx(コントローラー/不純)
+- 新規ファイル:
+  - src/lib/reference/referenceViewerLogic.ts (URL生成、パンくず、ページデータ)
+  - src/lib/reference/referenceViewerLogic.test.ts (15テスト)
+  - src/lib/reference/ReferenceViewerPageView.tsx (全画面ビューアーコンポーネント + NotFound)
+  - src/lib/reference/ReferenceViewerPageView.test.tsx (14テスト)
+  - src/lib/reference/ReferenceViewerPageView.stories.tsx (7ストーリー)
+  - src/app/reference/[id]/page.tsx (Next.jsルートエントリ)
+  - src/app/reference/[id]/ReferenceViewerContent.tsx (コントローラー)
+- 変更ファイル:
+  - src/lib/reference/ReferenceModal.tsx (↗ボタン追加)
+  - src/lib/reference/ReferencePopover.tsx (↗ボタン追加)
+  - 各test/stories更新
+- カバレッジ: All files 99.94% Stmts (+0.01%), 99.56% Branch (-0.06%), 90.54% Functions (+0.04%), 99.93% Lines (維持)
+- テスト: 265 files passed, 10189 tests passed
+- スクリーンショット:
+  - .screenshots/reference-viewer-axiom-a1.png
+  - .screenshots/reference-modal-open-in-new-tab-story.png
+  - .screenshots/reference-viewer-storybook-default.png
+  - .screenshots/reference-popover-open-in-new-tab-story.png
+- **今後のイテレーションへの学び:**
+  - Next.jsデバッグ: 開発サーバーは13000番、Storybookは13006番。ポートを混同しないこと
+  - src/lib/配下のpureコンポーネントで<a href="/">を使う場合、ESLint @next/next/no-html-link-for-pagesが発火 → eslint-disable-next-lineで抑制（pureコンポーネントにnext/link依存を入れないため）
+  - isLocale()はbooleanではなくLocale | undefinedを返す → `isLocale(x) ?? "en"` パターンで使う
+  - v8 ignore: findCategoryMetaの防御的ternaryなど、型的に到達不可能な分岐にはv8 ignore start/stopを使用
+---
