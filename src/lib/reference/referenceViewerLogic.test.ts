@@ -115,9 +115,7 @@ describe("buildViewerPageData", () => {
     expect(data.title).toBe("Axiom A1");
     expect(data.categoryLabel).toBe("Axioms");
     expect(data.summary).toBe("The simplest axiom schema.");
-    expect(data.formalNotation).toBe(
-      "\\varphi \\to (\\psi \\to \\varphi)",
-    );
+    expect(data.formalNotation).toBe("\\varphi \\to (\\psi \\to \\varphi)");
     expect(data.bodyParagraphs).toEqual([
       "First paragraph.",
       "Second paragraph.",

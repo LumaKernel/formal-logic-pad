@@ -305,11 +305,7 @@ export function ReferencePopover({
           target="_blank"
           rel="noopener noreferrer"
           style={openInNewTabLinkStyle}
-          aria-label={
-            locale === "ja"
-              ? "新しいタブで開く"
-              : "Open in new tab"
-          }
+          aria-label={locale === "ja" ? "新しいタブで開く" : "Open in new tab"}
           data-testid={
             testId !== undefined
               ? `${testId satisfies string}-open-new-tab`

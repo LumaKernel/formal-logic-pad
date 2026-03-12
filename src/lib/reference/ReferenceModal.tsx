@@ -275,9 +275,7 @@ export function ReferenceModal({
               rel="noopener noreferrer"
               style={openInNewTabStyle}
               aria-label={
-                locale === "ja"
-                  ? "新しいタブで開く"
-                  : "Open in new tab"
+                locale === "ja" ? "新しいタブで開く" : "Open in new tab"
               }
               data-testid={
                 testId !== undefined

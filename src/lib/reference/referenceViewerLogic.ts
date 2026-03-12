@@ -45,7 +45,10 @@ export function buildBreadcrumbs(
 
   return [
     { label: "Home", href: "/" },
-    { label: locale === "ja" ? "リファレンス" : "Reference", href: "/#reference" },
+    {
+      label: locale === "ja" ? "リファレンス" : "Reference",
+      href: "/#reference",
+    },
     { label: categoryLabel, href: undefined },
     { label: title, href: undefined },
   ];

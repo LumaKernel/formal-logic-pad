@@ -338,9 +338,7 @@ export function ReferenceViewerPageView({
         <nav style={breadcrumbStyle} aria-label="breadcrumb">
           {data.breadcrumbs.map((crumb, i) => (
             <span key={`bc-${String(i) satisfies string}`}>
-              {i > 0 && (
-                <span style={breadcrumbSeparatorStyle}>{" / "}</span>
-              )}
+              {i > 0 && <span style={breadcrumbSeparatorStyle}>{" / "}</span>}
               {crumb.href !== undefined ? (
                 <a
                   href={crumb.href}
@@ -385,9 +383,7 @@ export function ReferenceViewerNotFound({
       </div>
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- pure lib component, no next/link dependency */}
       <a href="/#reference" style={backLinkStyle}>
-        {locale === "ja"
-          ? "← リファレンス一覧に戻る"
-          : "← Back to Reference"}
+        {locale === "ja" ? "← リファレンス一覧に戻る" : "← Back to Reference"}
       </a>
     </div>
   );
