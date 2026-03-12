@@ -72,9 +72,7 @@ describe("parseInlineMarkdown", () => {
 
   it("閉じ</b>がない場合はテキストとして扱う", () => {
     const result = parseInlineMarkdown("before <b>unclosed");
-    expect(result).toEqual([
-      { type: "text", content: "before <b>unclosed" },
-    ]);
+    expect(result).toEqual([{ type: "text", content: "before <b>unclosed" }]);
   });
 
   it("空文字列を処理する", () => {
@@ -130,9 +128,7 @@ describe("parseInlineMarkdown", () => {
 
   it("閉じ</i>がない場合はテキストとして扱う", () => {
     const result = parseInlineMarkdown("before <i>unclosed");
-    expect(result).toEqual([
-      { type: "text", content: "before <i>unclosed" },
-    ]);
+    expect(result).toEqual([{ type: "text", content: "before <i>unclosed" }]);
   });
 
   // --- code ---
