@@ -105,6 +105,31 @@
 
 ---
 
+## 2026-03-13 - [quest] 自作クエストのJSON/URLボタンを共有パネルに統合
+- ベースライン: 9897 tests passed
+- **結果: 9908 tests passed (+11)**
+- 実装内容:
+  - `CustomQuestListComponent.tsx`: 個別の「JSON」「URL」ボタンを廃止し、単一の「共有」ボタンに統合
+  - 共有ボタンクリックで共有パネル（overlay）が開き、「JSONエクスポート」「URLをコピー」の操作が可能
+  - URLコピー後に「コピーしました!」フィードバックを2秒間表示（setTimeout + useRef でクリーンアップ）
+  - 削除確認オーバーレイと共有パネルの排他制御（削除ボタン押下で共有パネルが閉じる等）
+- テスト追加:
+  - `CustomQuestListComponent.test.tsx`: 共有パネルテスト12件追加（パネル表示、ボタンテキスト、JSONエクスポート、URLコピー、フィードバック表示、2秒タイマー、閉じる、stopPropagation、条件付き表示3件、排他制御）
+- ストーリー更新:
+  - `CustomQuestListComponent.stories.tsx`: ExportQuest/ShareQuestUrl を SharePanel に統合。Default/WithoutActions のアサーション更新
+- 変更ファイル:
+  - src/lib/quest/CustomQuestListComponent.tsx
+  - src/lib/quest/CustomQuestListComponent.test.tsx
+  - src/lib/quest/CustomQuestListComponent.stories.tsx
+- スクリーンショット:
+  - .screenshots/custom-quest-share-panel-story.png
+  - .screenshots/custom-quest-share-btn-default.png
+- **今後のイテレーションへの学び:**
+  - CSSのborder shorthand と borderColor non-shorthand を混ぜるとReactの警告が出る。spread + 上書きする場合は同じプロパティ（borderならborder）で上書きする
+  - 共有パネルと削除確認の排他制御: 一方を開いたら他方を閉じるパターン（`setIsShareOpen(false)` in `handleDeleteStart`）
+  - useRef + setTimeout パターン: フィードバック表示のタイマーはuseRefで保持し、useEffectのクリーンアップで解放
+---
+
 ## 2026-03-12 - [quest] 自作クエスト削除に確認ステップを追加
 - ベースライン: 9890 tests passed
 - **結果: 9896 tests passed (+6)**
