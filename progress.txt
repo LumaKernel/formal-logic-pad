@@ -13110,3 +13110,29 @@
   - ExternalLinkTypeの値（wikipedia-en等）から言語を推測する設計と、明示的なdocumentLanguageフィールドの両方があるが、明示的フィールドが堅牢（paper/otherタイプでは推測できないため）
   - 型にフィールドを追加するとTypeScriptが全箇所のコンパイルエラーを出すので変更漏れが防げる（CLAUDE.mdの再発防止方針どおり）
 ---
+
+## 2026-03-12 - [workspace] ノートタイトル編集・三点メニュー
+- 実装した内容:
+  - ヘッダーのノートブック名をクリックでインライン編集可能に（Enter確定/Escape取消/blur確定）
+  - validateNotebookName（空文字不可・100文字以内）によるバリデーション付き
+  - 三点メニュー（⋮）ボタンを新設し、「自由帳として複製」をそこに集約
+  - WorkspacePageMessages に duplicateToFree, titleEditPlaceholder を追加
+  - i18n (en.json/ja.json) 対応
+  - Storybook play関数付きストーリー3件追加（TitleEdit, TitleEditCancel, MoreMenuDuplicateToFree）
+  - WorkspacePageViewFound内部コンポーネントに分離し、propsを全destructure（React Compiler互換）
+- 変更したファイル:
+  - src/app/workspace/[id]/WorkspacePageView.tsx (タイトル編集UI・三点メニューUI)
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx (3ストーリー追加、StatefulWorkspace拡張)
+  - src/app/workspace/[id]/WorkspaceContent.tsx (onNotebookRename, handleNotebookRename追加)
+  - src/app/workspace/[id]/workspacePageMessages.ts (duplicateToFree, titleEditPlaceholder追加)
+  - messages/en.json (Workspace翻訳2件追加)
+  - messages/ja.json (Workspace翻訳2件追加)
+  - tasks/prd-title-edit.md → tasks-archived/prd-title-edit.md
+- テスト: 全260ファイル9875テストパス
+- カバレッジ: ベースライン維持（UIコンポーネントはカバレッジ対象外のsrc/app/**）
+- スクリーンショット: .screenshots/title-edit-story.png, .screenshots/more-menu-story.png, .screenshots/empty-lukasiewicz-title-edit.png
+- **今後のイテレーションへの学び:**
+  - WorkspacePageViewProps は discriminated union なので、内部コンポーネントに分離して props を全 destructure する必要がある（React Compiler が props.xxx の deps を正しく追跡できない）
+  - 三点メニューの外部クリック閉じは useEffect + document.addEventListener("mousedown") パターンが有効。ref.contains(target) で判定
+  - WorkspacePageMessages にフィールド追加時は、workspacePageMessages.ts, en.json, ja.json, WorkspaceContent.tsx の4箇所を同期
+---
