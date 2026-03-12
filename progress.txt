@@ -13083,3 +13083,30 @@
   - FormulaInput→FormulaEditor置換時のtestIdパスの変化に注意: 入力要素は `{testId}-input` から `{testId}-input-input` になる（Editorが1層ラッピングするため）
   - user.clear(input) はblurを発火するため、FormulaEditorがforceEditModeなしだとdisplay modeに戻ってしまい、次のtype()操作がhangする
 ---
+
+## 2026-03-12 - [reference] 外部リンクにdocumentLanguage追加
+- タスク: prd-inserted-tasks.md「ドキュメントの外部参照は何の言語で書かれたものか、という情報を構造としてすべて持つようにして。」
+- 実装内容:
+  - ExternalLink型にdocumentLanguage: Localeフィールドを追加
+  - referenceContent.tsの全192件の外部リンクにdocumentLanguageを設定（wikipedia-en→"en", wikipedia-ja→"ja", nlab→"en", mathworld→"en"）
+  - referenceUILogic.tsのModalDataにdocumentLanguageをパススルー
+  - ReferenceModal.tsxに言語タグUI（小さなボーダー付きタグ）を表示
+  - テスト追加: referenceContent.test.ts（documentLanguage検証、wikipedia型整合性）、ReferenceModal.test.tsx（言語タグ表示2件）、referenceUILogic.test.ts更新
+  - ストーリー更新: ReferenceModal.stories.tsx, ReferencePopover.stories.tsx
+- 変更したファイル:
+  - src/lib/reference/referenceEntry.ts (ExternalLinkにdocumentLanguage追加)
+  - src/lib/reference/referenceContent.ts (192箇所にdocumentLanguage追加)
+  - src/lib/reference/referenceUILogic.ts (ModalDataにdocumentLanguageパススルー)
+  - src/lib/reference/ReferenceModal.tsx (languageTagStyle + 言語タグUI)
+  - src/lib/reference/referenceEntry.test.ts (テストデータ更新)
+  - src/lib/reference/referenceContent.test.ts (新テスト2件)
+  - src/lib/reference/referenceUILogic.test.ts (テストデータ・期待値更新)
+  - src/lib/reference/ReferenceModal.test.tsx (新テスト2件)
+  - src/lib/reference/ReferenceModal.stories.tsx (ストーリーデータ更新)
+  - src/lib/reference/ReferencePopover.stories.tsx (ストーリーデータ更新)
+- カバレッジ: ベースライン維持（低下なし）
+- **今後のイテレーションへの学び:**
+  - ExternalLinkにフィールド追加する際はreferenceContent.tsの全エントリ（192箇所）を更新する必要がある。手動は非現実的なのでスクリプトによる一括置換が有効
+  - ExternalLinkTypeの値（wikipedia-en等）から言語を推測する設計と、明示的なdocumentLanguageフィールドの両方があるが、明示的フィールドが堅牢（paper/otherタイプでは推測できないため）
+  - 型にフィールドを追加するとTypeScriptが全箇所のコンパイルエラーを出すので変更漏れが防げる（CLAUDE.mdの再発防止方針どおり）
+---
