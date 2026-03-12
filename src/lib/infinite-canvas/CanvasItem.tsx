@@ -3,9 +3,15 @@ import type { ContextMenuItem } from "./contextMenu";
 import { ContextMenuComponent } from "./ContextMenuComponent";
 import { worldToScreen } from "./coordinate";
 import { isClick } from "./nodeMenu";
+import { SNAP_DISABLED } from "./snap";
 import type { SnapConfig } from "./snap";
 import type { Point, ViewportState } from "./types";
 import { useContextMenu, useLongPress } from "./useContextMenu";
+import {
+  DEFERRED_SNAP_CONFIG_DISABLED,
+  useDeferredSnap,
+  type DeferredSnapConfig,
+} from "./useDeferredSnap";
 import { useDragItem } from "./useDragItem";
 
 export interface CanvasItemProps {
@@ -20,8 +26,13 @@ export interface CanvasItemProps {
   /** Explicitly control drag enabled state (default: true when onPositionChange is provided).
    *  Set to false to temporarily disable drag, e.g. during inline editing. */
   readonly dragEnabled?: boolean;
-  /** Snap configuration for grid snapping during drag (default: disabled) */
+  /** Snap configuration for grid snapping during drag (default: disabled).
+   *  Mutually exclusive with deferredSnapConfig. */
   readonly snapConfig?: SnapConfig;
+  /** Deferred snap configuration: item follows cursor freely during drag,
+   *  then animates to snap position on release. Shows a ghost preview at the
+   *  snap target during drag. Mutually exclusive with snapConfig. */
+  readonly deferredSnapConfig?: DeferredSnapConfig;
   /** Context menu items (enables context menu when provided) */
   readonly contextMenuItems?: readonly ContextMenuItem[];
   /** Callback when a context menu item is selected */
@@ -48,6 +59,7 @@ export function CanvasItem({
   onPositionChange = NOOP,
   dragEnabled,
   snapConfig,
+  deferredSnapConfig = DEFERRED_SNAP_CONFIG_DISABLED,
   contextMenuItems = EMPTY_ITEMS,
   onContextMenuSelect = NOOP,
   onClick,
@@ -59,12 +71,30 @@ export function CanvasItem({
   const draggable = hasDragCallback && (dragEnabled ?? true);
   const hasContextMenu = contextMenuItems !== EMPTY_ITEMS;
   const clickStartRef = useRef<Point | null>(null);
+
+  // Deferred snap: disable immediate snap, use animation on release instead
+  const useDeferredMode = deferredSnapConfig.snapConfig.enabled;
+  const effectiveSnapConfig = useDeferredMode ? SNAP_DISABLED : snapConfig;
+
   const { isDragging, onPointerDown, onPointerMove, onPointerUp } = useDragItem(
     position,
     viewport,
     onPositionChange,
-    snapConfig,
+    effectiveSnapConfig,
   );
+
+  // Deferred snap: compute snap target preview during drag, animate on release
+  const { snapTarget, triggerSnap } = useDeferredSnap(
+    position,
+    deferredSnapConfig,
+    onPositionChange,
+  );
+
+  // Compute snap target screen position for ghost preview
+  const snapTargetScreenPos =
+    isDragging && useDeferredMode && snapTarget !== null
+      ? worldToScreen(viewport, snapTarget)
+      : null;
 
   const {
     menuState,
@@ -134,11 +164,25 @@ export function CanvasItem({
         longPress.onPointerUp(e);
       }
       if (draggable) {
+        // Trigger deferred snap animation before ending drag
+        if (useDeferredMode) {
+          triggerSnap(position);
+        }
         onPointerUp(e);
         onDragEnd?.();
       }
     },
-    [hasContextMenu, longPress, draggable, onPointerUp, onClick, onDragEnd],
+    [
+      hasContextMenu,
+      longPress,
+      draggable,
+      onPointerUp,
+      onClick,
+      onDragEnd,
+      useDeferredMode,
+      triggerSnap,
+      position,
+    ],
   );
 
   const hasInteraction =
@@ -161,8 +205,35 @@ export function CanvasItem({
     };
   }, [isDragging]);
 
+  // Check if snap target differs from current position (worth showing ghost)
+  const showGhost =
+    snapTargetScreenPos !== null &&
+    (Math.abs(snapTargetScreenPos.x - screenPos.x) > 0.5 ||
+      Math.abs(snapTargetScreenPos.y - screenPos.y) > 0.5);
+
   return (
     <>
+      {/* Snap target ghost preview (glow effect during deferred snap drag) */}
+      {showGhost && snapTargetScreenPos !== null && (
+        <div
+          data-testid="snap-ghost"
+          style={{
+            position: "absolute",
+            left: snapTargetScreenPos.x,
+            top: snapTargetScreenPos.y,
+            transformOrigin: "0 0",
+            transform: `scale(${String(viewport.scale) satisfies string})`,
+            pointerEvents: "none",
+            opacity: 0.3,
+            filter: "blur(1px)",
+            zIndex: 999,
+            width: "max-content",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {children}
+        </div>
+      )}
       <div
         ref={itemRef}
         data-testid="canvas-item"
