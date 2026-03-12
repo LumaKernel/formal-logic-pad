@@ -687,7 +687,6 @@ const knownPragmaticQuests: ReadonlySet<string> = new Set([
   // prop系: ∧/∨ 関連の定理をゴール式として直接配置
   "prop-24",
   "prop-32",
-  "prop-46",
   // pred系: 述語論理の定理の直接配置
   "pred-04",
   "pred-05",
