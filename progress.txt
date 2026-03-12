@@ -13450,3 +13450,28 @@
   - ReferenceBrowserComponentにはresolveQuestTitle関数を渡すことで、quest moduleへの直接依存を避ける
   - HubPageViewのgroupsからクエストタイトルを線形探索で解決（クエスト数が少ないため十分）
 ---
+
+## 2026-03-13 - リファレンスフローティングウィンドウ
+- 実装した内容: ワークスペースのリファレンス詳細表示をフルスクリーンモーダルからフローティングウィンドウに変更
+- 新規ファイル:
+  - src/lib/reference/floatingWindowLogic.ts - ドラッグ/リサイズの純粋ロジック
+  - src/lib/reference/floatingWindowLogic.test.ts - 15テスト
+  - src/lib/reference/ReferenceFloatingWindow.tsx - フローティングウィンドウUI
+  - src/lib/reference/ReferenceFloatingWindow.test.tsx - 15テスト
+  - src/lib/reference/ReferenceFloatingWindow.stories.tsx - 8ストーリー
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspaceContent.tsx - ReferenceModal → ReferenceFloatingWindow
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx - 同上
+- ベースライン: 10210 tests passed
+- 完了時: 10248 tests passed (+38)
+- カバレッジ: reference module 99.62% statements (ベースライン 99.54% → 向上)
+- スクリーンショット:
+  - .screenshots/floating-window-storybook-default.png
+  - .screenshots/floating-window-storybook-japanese.png
+  - .screenshots/floating-window-with-related.png
+- **今後のイテレーションへの学び:**
+  - ドラッグ/リサイズのイベントハンドラは不純コード（DOM API依存）なので、計算ロジックを純粋関数に分離してテスト
+  - React ESLint: useRef.current への代入はレンダー中に行ってはいけない。useEffect内で同期する
+  - フローティングウィンドウはcreatePortalでdocument.bodyに描画。z-index 1500（ポップオーバー1000とモーダル2000の間）
+  - Storybook play関数でPortal要素にアクセスするには within(canvasElement.ownerDocument.body) を使う
+---
