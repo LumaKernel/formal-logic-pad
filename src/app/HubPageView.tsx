@@ -44,7 +44,12 @@ import { useHubMessages } from "./HubMessagesContext";
 
 // --- Types ---
 
-export type HubTab = "notebooks" | "quests" | "custom-quests" | "collection" | "reference";
+export type HubTab =
+  | "notebooks"
+  | "quests"
+  | "custom-quests"
+  | "collection"
+  | "reference";
 type HubViewState = "list" | "create";
 
 /** ランディングページに表示するおすすめクエスト */

@@ -163,7 +163,8 @@ export function ReferenceBrowserComponent({
   emptyMessage = "No matching entries found.",
   testId,
 }: ReferenceBrowserProps) {
-  const [state, setState] = useState<ReferenceBrowserState>(initialBrowserState);
+  const [state, setState] =
+    useState<ReferenceBrowserState>(initialBrowserState);
   const [detailEntryId, setDetailEntryId] = useState<string | null>(null);
 
   const handleSearchChange = useCallback(
@@ -173,17 +174,11 @@ export function ReferenceBrowserComponent({
     [],
   );
 
-  const handleCategoryClick = useCallback(
-    (categoryId: string) => {
-      setState((prev) =>
-        toggleCategory(
-          prev,
-          categoryId as Parameters<typeof toggleCategory>[1],
-        ),
-      );
-    },
-    [],
-  );
+  const handleCategoryClick = useCallback((categoryId: string) => {
+    setState((prev) =>
+      toggleCategory(prev, categoryId as Parameters<typeof toggleCategory>[1]),
+    );
+  }, []);
 
   const handleEntryClick = useCallback((entryId: string) => {
     setDetailEntryId(entryId);
@@ -266,13 +261,25 @@ export function ReferenceBrowserComponent({
       </div>
 
       {/* Result count */}
-      <div style={resultCountStyle} data-testid={testId !== undefined ? `${testId satisfies string}-count` : undefined}>
+      <div
+        style={resultCountStyle}
+        data-testid={
+          testId !== undefined ? `${testId satisfies string}-count` : undefined
+        }
+      >
         {entryItems.length} / {entries.length}
       </div>
 
       {/* Entry list */}
       {entryItems.length === 0 ? (
-        <div style={emptyStyle} data-testid={testId !== undefined ? `${testId satisfies string}-empty` : undefined}>
+        <div
+          style={emptyStyle}
+          data-testid={
+            testId !== undefined
+              ? `${testId satisfies string}-empty`
+              : undefined
+          }
+        >
           {emptyMessage}
         </div>
       ) : (

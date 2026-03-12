@@ -17,7 +17,10 @@ import {
 const makeEntry = (
   overrides: Partial<ReferenceEntry> & Pick<ReferenceEntry, "id" | "category">,
 ): ReferenceEntry => ({
-  title: { en: `Title ${overrides.id satisfies string}`, ja: `タイトル ${overrides.id satisfies string}` },
+  title: {
+    en: `Title ${overrides.id satisfies string}`,
+    ja: `タイトル ${overrides.id satisfies string}`,
+  },
   summary: {
     en: `Summary ${overrides.id satisfies string}`,
     ja: `要約 ${overrides.id satisfies string}`,

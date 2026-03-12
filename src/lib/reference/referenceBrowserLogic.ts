@@ -106,8 +106,7 @@ export function toggleCategory(
 ): ReferenceBrowserState {
   return {
     ...state,
-    selectedCategory:
-      state.selectedCategory === category ? null : category,
+    selectedCategory: state.selectedCategory === category ? null : category,
   };
 }
 

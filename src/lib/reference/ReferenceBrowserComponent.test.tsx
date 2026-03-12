@@ -9,7 +9,10 @@ import { ReferenceBrowserComponent } from "./ReferenceBrowserComponent";
 const makeEntry = (
   overrides: Partial<ReferenceEntry> & Pick<ReferenceEntry, "id" | "category">,
 ): ReferenceEntry => ({
-  title: { en: `Title ${overrides.id satisfies string}`, ja: `タイトル ${overrides.id satisfies string}` },
+  title: {
+    en: `Title ${overrides.id satisfies string}`,
+    ja: `タイトル ${overrides.id satisfies string}`,
+  },
   summary: {
     en: `Summary ${overrides.id satisfies string}`,
     ja: `要約 ${overrides.id satisfies string}`,
@@ -63,7 +66,9 @@ describe("ReferenceBrowserComponent", () => {
       />,
     );
     expect(screen.getByTestId("ref-category-axiom")).toBeInTheDocument();
-    expect(screen.getByTestId("ref-category-inference-rule")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("ref-category-inference-rule"),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("ref-category-concept")).toBeInTheDocument();
   });
 
@@ -191,7 +196,9 @@ describe("ReferenceBrowserComponent", () => {
         searchPlaceholder="Type to search..."
       />,
     );
-    expect(screen.getByPlaceholderText("Type to search...")).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("Type to search..."),
+    ).toBeInTheDocument();
     vi.unstubAllGlobals();
   });
 });
