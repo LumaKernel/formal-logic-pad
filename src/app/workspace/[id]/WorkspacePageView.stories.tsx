@@ -35,7 +35,7 @@ import type { WorkspaceState } from "../../../lib/proof-pad/workspaceState";
 import type { GoalAchievedInfo } from "../../../lib/proof-pad";
 import { allReferenceEntries } from "../../../lib/reference/referenceContent";
 import { findEntryById } from "../../../lib/reference/referenceEntry";
-import { ReferenceModal } from "../../../lib/reference/ReferenceModal";
+import { ReferenceFloatingWindow } from "../../../lib/reference/ReferenceFloatingWindow";
 import {
   builtinQuests,
   findQuestById,
@@ -467,13 +467,13 @@ function WorkspaceWithReferenceDetail() {
         languageToggle={{ locale: "en", onLocaleChange: () => {} }}
       />
       {detailEntry !== undefined ? (
-        <ReferenceModal
+        <ReferenceFloatingWindow
           entry={detailEntry}
           allEntries={allReferenceEntries}
           locale="en"
           onClose={() => setDetailId(null)}
           onNavigate={(id) => setDetailId(id)}
-          testId="reference-modal"
+          testId="reference-floating"
         />
       ) : null}
     </>
