@@ -1310,6 +1310,10 @@ export function ProofWorkspace({
   }, [connectionPreviewState, endConnectionDrag]);
   /* v8 ignore stop */
 
+  // --- 演繹スタイル判定 ---
+
+  const isHilbertStyle = workspace.deductionSystem.style === "hilbert";
+
   // --- 公理パレット ---
 
   const availableAxioms = useMemo(
@@ -3060,7 +3064,8 @@ export function ProofWorkspace({
     return isNodeImplication(node);
   }, [nodeMenuState, workspace]);
 
-  const menuNodeHasGenEnabled = workspace.system.generalization;
+  const menuNodeHasGenEnabled =
+    isHilbertStyle && workspace.system.generalization;
 
   const menuNodeIsProtected = useMemo(() => {
     /* v8 ignore start -- 防御的: メニューが開いている時のみ値を参照する */
@@ -4193,41 +4198,47 @@ export function ProofWorkspace({
             ) : null}
           </>
         ) : null}
-        <button
-          type="button"
-          style={
-            mpSelection.phase !== "idle" ? mpButtonActiveStyle : mpButtonStyle
-          }
-          onClick={
-            mpSelection.phase !== "idle"
-              ? handleCancelMPSelection
-              : handleStartMPSelection
-          }
-          data-testid={
-            /* v8 ignore start -- V8集約アーティファクト */
-            testId ? `${testId satisfies string}-mp-button` : undefined
-            /* v8 ignore stop */
-          }
-        >
-          {mpSelection.phase !== "idle" ? msg.mpCancel : msg.mpApply}
-        </button>
-        {mpReferenceEntry !== undefined && locale !== undefined && (
-          <span role="presentation" onClick={(e) => e.stopPropagation()}>
-            <ReferencePopover
-              entry={mpReferenceEntry}
-              locale={locale}
-              onOpenDetail={onOpenReferenceDetail}
-              testId={
+        {isHilbertStyle ? (
+          <>
+            <button
+              type="button"
+              style={
+                mpSelection.phase !== "idle"
+                  ? mpButtonActiveStyle
+                  : mpButtonStyle
+              }
+              onClick={
+                mpSelection.phase !== "idle"
+                  ? handleCancelMPSelection
+                  : handleStartMPSelection
+              }
+              data-testid={
                 /* v8 ignore start -- V8集約アーティファクト */
-                testId !== undefined
-                  ? `${testId satisfies string}-mp-ref`
-                  : undefined
+                testId ? `${testId satisfies string}-mp-button` : undefined
                 /* v8 ignore stop */
               }
-            />
-          </span>
-        )}
-        {workspace.system.generalization ? (
+            >
+              {mpSelection.phase !== "idle" ? msg.mpCancel : msg.mpApply}
+            </button>
+            {mpReferenceEntry !== undefined && locale !== undefined && (
+              <span role="presentation" onClick={(e) => e.stopPropagation()}>
+                <ReferencePopover
+                  entry={mpReferenceEntry}
+                  locale={locale}
+                  onOpenDetail={onOpenReferenceDetail}
+                  testId={
+                    /* v8 ignore start -- V8集約アーティファクト */
+                    testId !== undefined
+                      ? `${testId satisfies string}-mp-ref`
+                      : undefined
+                    /* v8 ignore stop */
+                  }
+                />
+              </span>
+            )}
+          </>
+        ) : null}
+        {isHilbertStyle && workspace.system.generalization ? (
           <>
             <input
               type="text"
@@ -5275,41 +5286,45 @@ export function ProofWorkspace({
                   margin: "4px 0",
                 }}
               />
-              <WorkspaceMenuItem
-                label={msg.useAsMPLeft}
-                onClick={handleUseAsMPLeft}
-                testId={
-                  /* v8 ignore start -- V8集約アーティファクト */
-                  testId
-                    ? `${testId satisfies string}-use-as-mp-left`
-                    : "use-as-mp-left"
-                  /* v8 ignore stop */
-                }
-              />
-              <WorkspaceMenuItem
-                label={msg.useAsMPRight}
-                onClick={handleUseAsMPRight}
-                disabled={!menuNodeIsImplication}
-                testId={
-                  /* v8 ignore start -- V8集約アーティファクト */
-                  testId
-                    ? `${testId satisfies string}-use-as-mp-right`
-                    : "use-as-mp-right"
-                  /* v8 ignore stop */
-                }
-              />
-              {menuNodeHasGenEnabled ? (
-                <WorkspaceMenuItem
-                  label={msg.applyGenToNode}
-                  onClick={handleApplyGenToNode}
-                  testId={
-                    /* v8 ignore start -- V8集約アーティファクト */
-                    testId
-                      ? `${testId satisfies string}-apply-gen-to-node`
-                      : "apply-gen-to-node"
-                    /* v8 ignore stop */
-                  }
-                />
+              {isHilbertStyle ? (
+                <>
+                  <WorkspaceMenuItem
+                    label={msg.useAsMPLeft}
+                    onClick={handleUseAsMPLeft}
+                    testId={
+                      /* v8 ignore start -- V8集約アーティファクト */
+                      testId
+                        ? `${testId satisfies string}-use-as-mp-left`
+                        : "use-as-mp-left"
+                      /* v8 ignore stop */
+                    }
+                  />
+                  <WorkspaceMenuItem
+                    label={msg.useAsMPRight}
+                    onClick={handleUseAsMPRight}
+                    disabled={!menuNodeIsImplication}
+                    testId={
+                      /* v8 ignore start -- V8集約アーティファクト */
+                      testId
+                        ? `${testId satisfies string}-use-as-mp-right`
+                        : "use-as-mp-right"
+                      /* v8 ignore stop */
+                    }
+                  />
+                  {menuNodeHasGenEnabled ? (
+                    <WorkspaceMenuItem
+                      label={msg.applyGenToNode}
+                      onClick={handleApplyGenToNode}
+                      testId={
+                        /* v8 ignore start -- V8集約アーティファクト */
+                        testId
+                          ? `${testId satisfies string}-apply-gen-to-node`
+                          : "apply-gen-to-node"
+                        /* v8 ignore stop */
+                      }
+                    />
+                  ) : null}
+                </>
               ) : null}
               <WorkspaceMenuItem
                 label={msg.applySubstitutionToNode}
