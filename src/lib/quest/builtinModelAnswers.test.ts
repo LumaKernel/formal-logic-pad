@@ -684,8 +684,6 @@ describe("全模範解答の公理制約チェック", () => {
  * リストが空になったら、このスキップリストとスキップ処理自体を削除する。
  */
 const knownPragmaticQuests: ReadonlySet<string> = new Set([
-  // prop系: ∧/∨ 関連の定理をゴール式として直接配置
-  "prop-32",
   // pred系: 述語論理の定理の直接配置
   "pred-04",
   "pred-05",
