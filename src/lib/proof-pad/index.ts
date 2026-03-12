@@ -88,6 +88,7 @@ export {
   findMergeableGroups,
   canMergeSelectedNodes,
   findMergeTargets,
+  areFormulasEquivalent,
 } from "./mergeNodesLogic";
 export type { MergeResult, MergeError } from "./mergeNodesLogic";
 export {

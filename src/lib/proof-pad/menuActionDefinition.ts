@@ -185,7 +185,10 @@ export const allMenuActions: readonly MenuActionDefinition[] = [
   },
   {
     id: "merge-with-node",
-    label: { en: "Merge with\u2026", ja: "ノードをマージ\u2026" },
+    label: {
+      en: "Merge Equivalent Schema\u2026",
+      ja: "同一スキーマをマージ\u2026",
+    },
     contexts: ["node-context-menu"],
     shortcut: "Cmd+M",
     group: "node-edit",

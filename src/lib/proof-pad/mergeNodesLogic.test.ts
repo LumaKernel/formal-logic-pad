@@ -4,6 +4,7 @@ import {
   findMergeableGroups,
   canMergeSelectedNodes,
   findMergeTargets,
+  areFormulasEquivalent,
 } from "./mergeNodesLogic";
 import type { WorkspaceNode, WorkspaceConnection } from "./workspaceState";
 import type { InferenceEdge } from "./inferenceEdge";
@@ -710,5 +711,118 @@ describe("canMergeSelectedNodes", () => {
   it("1ノードの場合falseを返す", () => {
     const nodes = [makeNode("n1", "phi")];
     expect(canMergeSelectedNodes(["n1"], nodes, emptyProtected)).toBe(false);
+  });
+});
+
+// --- areFormulasEquivalent ---
+
+describe("areFormulasEquivalent", () => {
+  it("同一文字列はtrue", () => {
+    expect(areFormulasEquivalent("phi", "phi")).toBe(true);
+  });
+
+  it("異なる論理式はfalse", () => {
+    expect(areFormulasEquivalent("phi", "psi")).toBe(false);
+  });
+
+  it("余分な括弧があってもAST等価ならtrue", () => {
+    expect(areFormulasEquivalent("(phi)", "phi")).toBe(true);
+  });
+
+  it("含意の右結合で括弧の有無が異なっても等価", () => {
+    expect(
+      areFormulasEquivalent("phi -> psi -> chi", "phi -> (psi -> chi)"),
+    ).toBe(true);
+  });
+
+  it("含意の左結合括弧があると非等価", () => {
+    expect(
+      areFormulasEquivalent("(phi -> psi) -> chi", "phi -> psi -> chi"),
+    ).toBe(false);
+  });
+
+  it("パース不可能な文字列は文字列一致にフォールバック", () => {
+    // 不正な構文同士 — 同じ文字列ならtrue
+    expect(areFormulasEquivalent("???", "???")).toBe(true);
+  });
+
+  it("パース不可能な異なる文字列はfalse", () => {
+    expect(areFormulasEquivalent("???", "!!!")).toBe(false);
+  });
+
+  it("片方だけパース可能な場合はfalse", () => {
+    expect(areFormulasEquivalent("phi", "???")).toBe(false);
+  });
+
+  it("否定の括弧が異なっても等価", () => {
+    expect(areFormulasEquivalent("~phi", "(~phi)")).toBe(true);
+  });
+
+  it("連言の括弧が異なっても等価", () => {
+    expect(areFormulasEquivalent("phi /\\ psi", "(phi /\\ psi)")).toBe(true);
+  });
+
+  it("空文字列同士はtrue（同一文字列）", () => {
+    expect(areFormulasEquivalent("", "")).toBe(true);
+  });
+});
+
+// --- AST等価によるマージ ---
+
+describe("AST等価マージ", () => {
+  it("括弧の異なるノードがマージできる", () => {
+    const nodes = [
+      makeNode("n1", "phi -> psi"),
+      makeNode("n2", "(phi -> psi)"),
+    ];
+    const result = mergeNodes("n1", ["n2"], nodes, [], [], emptyProtected);
+    expect(result._tag).toBe("Success");
+    if (result._tag !== "Success") return;
+    expect(result.nodes).toHaveLength(1);
+    expect(result.nodes[0].id).toBe("n1");
+  });
+
+  it("AST非等価なノードはマージエラー", () => {
+    const nodes = [makeNode("n1", "phi -> psi"), makeNode("n2", "psi -> phi")];
+    const result = mergeNodes("n1", ["n2"], nodes, [], [], emptyProtected);
+    expect(result._tag).toBe("Error");
+    if (result._tag !== "Error") return;
+    expect(result.error._tag).toBe("FormulaTextMismatch");
+  });
+
+  it("findMergeableGroupsがAST等価ノードをグループ化する", () => {
+    const nodes = [
+      makeNode("n1", "phi -> psi"),
+      makeNode("n2", "(phi -> psi)"),
+      makeNode("n3", "chi"),
+    ];
+    const groups = findMergeableGroups(
+      ["n1", "n2", "n3"],
+      nodes,
+      emptyProtected,
+    );
+    expect(groups).toHaveLength(1);
+    expect(groups[0].leaderNodeId).toBe("n1");
+    expect(groups[0].absorbedNodeIds).toEqual(["n2"]);
+  });
+
+  it("findMergeTargetsがAST等価ノードを候補に含める", () => {
+    const nodes = [
+      makeNode("n1", "phi -> psi"),
+      makeNode("n2", "(phi -> psi)"),
+      makeNode("n3", "chi"),
+    ];
+    const targets = findMergeTargets("n1", nodes, emptyProtected);
+    expect(targets).toEqual(new Set(["n2"]));
+  });
+
+  it("canMergeSelectedNodesがAST等価ノードでtrue", () => {
+    const nodes = [
+      makeNode("n1", "phi -> psi"),
+      makeNode("n2", "(phi -> psi)"),
+    ];
+    expect(canMergeSelectedNodes(["n1", "n2"], nodes, emptyProtected)).toBe(
+      true,
+    );
   });
 });

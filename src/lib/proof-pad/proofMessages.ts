@@ -345,7 +345,7 @@ export const defaultProofMessages: ProofMessages = {
   selectionPaste: "Paste",
   selectionDuplicate: "Duplicate",
   selectionDelete: "Delete",
-  selectionMerge: "Merge",
+  selectionMerge: "Merge Equivalent",
   selectionClear: "Clear",
   cancel: "Cancel",
 
@@ -380,7 +380,7 @@ export const defaultProofMessages: ProofMessages = {
   useAsMPRight: "Use as MP Right (\u03C6\u2192\u03C8)",
   applyGenToNode: "Apply Gen",
   applySubstitutionToNode: "Apply Substitution",
-  mergeWithNode: "Merge with\u2026",
+  mergeWithNode: "Merge Equivalent Schema\u2026",
   duplicateNode: "Duplicate Node",
   deleteNode: "Delete Node",
   deleteConnection: "Delete Connection",
@@ -389,7 +389,8 @@ export const defaultProofMessages: ProofMessages = {
   genVariablePrompt: "Variable name:",
 
   // Merge selection
-  mergeBannerSelectTarget: "Click a node with the same formula to merge",
+  mergeBannerSelectTarget:
+    "Click a node with an equivalent formula schema to merge",
   mergeCancel: "Cancel Merge",
   mergeNoTargets: "No mergeable nodes found",
 
