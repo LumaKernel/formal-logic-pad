@@ -12909,3 +12909,22 @@
   - 残り prop: prop-24, prop-32, prop-46 — 全て MT inline 必要、100-200+ ステップ
   - B-combinator compose の step index 参照は相対計算でなく絶対インデックスを使う方が安全
 ---
+
+## 2026-03-12 11:46 - quest/模範解答正式化（prop-46）
+- prop-46 (連言の可換性: (φ∧ψ)→(ψ∧φ)) 模範解答を257ステップの正式Hilbert証明に書き換え
+  - 戦略: DNI(37) + MT(107) + compose(17) + DNE(35) + DNI(37) + triple-compose(10) + A3+MP(2) + CONJ-DEF(12) = 257
+  - Key lemma: ¬(φ→¬ψ) → ¬(ψ→¬φ) をA3経由で証明
+  - Part 3の合成に「flipped B-combinator」（12ステップ）が必要: A→Bから(B→C)→(A→C)を導出
+- バグ修正: Part 3Aの「S2 instance」が実際には有効なA2インスタンスでなかった問題を修正
+  - 原因: (p→(q→r))→((p→q)→(p→r)) の代入で q=phi, r=(~~phi→~psi) とすると
+    (p→q) = (p→phi) ≠ (p→(phi→~~phi)) となり公理パターン不一致
+  - 修正: A2とA1を正しく合成（compose A1 and A2 to get (B→C)→((A→B)→(A→C)), then apply A→B with A2）
+- スキップリスト: 16→15件（prop-46除去）
+- 変更ファイル: builtinModelAnswers.ts, builtinModelAnswers.test.ts, prd-inserted-tasks.md
+- テスト: 9677 passed, typecheck OK, lint OK
+- **今後のイテレーションへの学び:**
+  - standard B-combinator: B→Cから(A→B)→(A→C)を4ステップで導出可能（A2+A1+2MP）
+  - flipped B-combinator: A→Bから(B→C)→(A→C)を12ステップで導出（A2+A1をcompose+A1+A2で閉じる）
+  - A2(p,q,r)の代入を行う際は、(p→(q→r))と((p→q)→(p→r))の両方が構造的に一致することを必ず確認
+  - 残り prop: prop-24, prop-32 — 全て MT inline 必要
+---
