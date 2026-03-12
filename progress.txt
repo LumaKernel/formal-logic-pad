@@ -13355,3 +13355,36 @@
   - ストーリーファイルのサンプルデータもreferenceContent.tsと同じフォーマットルールに従う必要がある。チェッカーテストはreferenceContent.tsのみが対象のため、ストーリーは手動で確認が必要
   - `tagTypeMap`（Map）を使ったHTMLタグ→InlineElement typeの対応付けパターンは拡張しやすい
 ---
+
+## 2026-03-13 - [docs] HubPageViewにリファレンスタブ追加
+- 実装した内容:
+  - HubPageViewにReferenceタブを追加（5番目のタブ）
+  - referenceBrowserLogic.ts: カテゴリフィルタ・テキスト検索・エントリ一覧の純粋ロジック
+  - ReferenceBrowserComponent.tsx: 検索バー、カテゴリバッジ、エントリリスト、モーダル表示のUIコンポーネント
+  - HubContent.tsx: referenceEntries/referenceLocale propsの統合、#reference ハッシュルーティング
+  - hubMessages.ts: tabReference, referenceSearchPlaceholder, referenceEmpty メッセージキー追加
+  - messages/en.json, messages/ja.json: i18n翻訳追加
+  - HubPageView.stories.tsx: ReferenceTabストーリー（play関数でタブ表示・検索・カテゴリフィルタをテスト）
+- 変更したファイル:
+  - src/lib/reference/referenceBrowserLogic.ts (NEW)
+  - src/lib/reference/referenceBrowserLogic.test.ts (NEW - 21テスト)
+  - src/lib/reference/ReferenceBrowserComponent.tsx (NEW)
+  - src/lib/reference/ReferenceBrowserComponent.test.tsx (NEW - 10テスト)
+  - src/app/HubPageView.tsx
+  - src/app/HubContent.tsx
+  - src/app/hubMessages.ts
+  - src/app/HubPageView.stories.tsx
+  - messages/en.json
+  - messages/ja.json
+  - tasks/prd-docs-improve.md
+- カバレッジ: All files 99.93% Stmts, 99.62% Branch, 90.5% Functions, 99.93% Lines (維持)
+- テスト: 261 passed (1 failed: debug-prop24.local.test.ts - 既知の無関係テスト), 10147 tests passed
+- スクリーンショット:
+  - .screenshots/reference-tab-axioms-filtered.png
+  - .screenshots/reference-tab-all-entries.png
+  - .screenshots/reference-tab-modal-open.png
+- **今後のイテレーションへの学び:**
+  - HubPageViewへの新タブ追加手順: HubTab union型にリテラル追加 → HubPageViewProps追加 → hubMessages.ts キー追加 → HubContent.tsx parseTabFromHash + useHubMessagesFromIntl + props → messages/*.json
+  - ReferenceBrowserComponentは3層アーキテクチャ: referenceBrowserLogic.ts(純粋ロジック) → ReferenceBrowserComponent.tsx(React UI) → HubContent.tsx(統合)
+  - referenceEntry.tsの既存ユーティリティ(searchEntries, filterByCategory, sortByOrder)を最大活用し、新規ロジックは最小限に
+---
