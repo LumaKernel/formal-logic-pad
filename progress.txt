@@ -105,6 +105,31 @@
 
 ---
 
+## 2026-03-12 - [quest] 自作クエスト削除に確認ステップを追加
+- ベースライン: 9890 tests passed
+- **結果: 9896 tests passed (+6)**
+- 実装内容:
+  - `CustomQuestListComponent.tsx`: 削除ボタンクリック時に確認オーバーレイ表示。「本当に削除しますか？」「キャンセル」「削除する」の3要素
+  - NotebookListComponent.tsxの既存パターンに合わせた実装: `isDeleteConfirming` state + overlay + stopPropagation
+  - `position: relative` をquestItemに追加して、`position: absolute; inset: 0` のオーバーレイを正しく配置
+- テスト追加:
+  - `CustomQuestListComponent.test.tsx`: 削除確認テスト6件追加（オーバーレイ表示、確認で削除実行、キャンセルで閉じる、確認前にonDelete未呼出、確認後にオーバーレイ閉じる、stopPropagation）
+- ストーリー更新:
+  - `CustomQuestListComponent.stories.tsx`: DeleteQuest ストーリーを確認フロー対応に更新（削除→確認未→キャンセル→再削除→確認→削除実行）
+- 変更ファイル:
+  - src/lib/quest/CustomQuestListComponent.tsx
+  - src/lib/quest/CustomQuestListComponent.test.tsx
+  - src/lib/quest/CustomQuestListComponent.stories.tsx
+- スクリーンショット:
+  - .screenshots/custom-quest-delete-confirm-story.png
+  - .screenshots/custom-quest-delete-confirm-interactions-pass.png
+  - .screenshots/custom-quest-delete-confirm-overlay.png
+- **今後のイテレーションへの学び:**
+  - 削除確認パターンはNotebookListComponent.tsxに既存実装あり。`isDeleteConfirming` state + overlay + stopPropagation の組み合わせ
+  - `position: relative` を親要素に追加して `position: absolute; inset: 0` のオーバーレイが正しく配置される
+  - CSS変数はquest固有のもの（`--color-quest-card-bg`等）を使い、notebook用（`--color-notebook-*`）と混ぜない
+---
+
 ## 2026-03-12 - [InfiniteCanvas] ノートノードがキャンバス右端でwrapされるバグを修正
 - ベースライン: Stmts 99.58%, Branch 99.63%, Lines 99.58%, 9409 tests
 - **結果: Stmts 99.35%, Branch 98.92%, Lines 99.45%, 9464 tests** (V8集約アーティファクトによる変動)
