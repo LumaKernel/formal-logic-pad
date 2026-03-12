@@ -1,16 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, within } from "storybook/test";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { CanvasItem } from "./CanvasItem";
-import {
-  DEFERRED_SNAP_DURATION_MS,
-  DEFERRED_SNAP_MIN_DISTANCE,
-  easeOutCubic,
-  interpolatePosition,
-  isSnapAnimationNeeded,
-} from "./deferredSnap";
 import { InfiniteCanvas } from "./InfiniteCanvas";
-import { applySnap, type SnapConfig } from "./snap";
+import type { DeferredSnapConfig } from "./useDeferredSnap";
 import type { Point, ViewportState } from "./types";
 
 interface ItemData {
@@ -45,18 +38,18 @@ function GridSnapDemo() {
   });
   const [items, setItems] = useState<readonly ItemData[]>(INITIAL_ITEMS);
   const [snapEnabled, setSnapEnabled] = useState(true);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const animationRef = useRef<number | null>(null);
 
-  const snapConfig: SnapConfig = useMemo(
+  const deferredSnapConfig: DeferredSnapConfig = useMemo(
     () => ({
-      enabled: snapEnabled,
-      gridSpacing: GRID_SPACING,
+      snapConfig: {
+        enabled: snapEnabled,
+        gridSpacing: GRID_SPACING,
+      },
+      durationMs: 150,
     }),
     [snapEnabled],
   );
 
-  // During drag: move freely (no snap applied)
   const handlePositionChange = (id: string, newPosition: Point) => {
     setItems((prev) =>
       prev.map((item) =>
@@ -64,63 +57,6 @@ function GridSnapDemo() {
       ),
     );
   };
-
-  // On drag end: animate to snap position
-  const handleDragEnd = useCallback(
-    (id: string) => {
-      if (!snapConfig.enabled || id !== "snap") return;
-
-      const item = items.find((i) => i.id === id);
-      if (item === undefined) return;
-
-      const from = item.position;
-      const to = applySnap(from, snapConfig);
-
-      if (!isSnapAnimationNeeded(from, to, DEFERRED_SNAP_MIN_DISTANCE)) {
-        setItems((prev) =>
-          prev.map((it) => (it.id === id ? { ...it, position: to } : it)),
-        );
-        return;
-      }
-
-      setIsAnimating(true);
-      const startTime = performance.now();
-
-      const animate = (now: number) => {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / DEFERRED_SNAP_DURATION_MS, 1);
-        const eased = easeOutCubic(progress);
-        const pos = interpolatePosition(from, to, eased);
-
-        setItems((prev) =>
-          prev.map((it) => (it.id === id ? { ...it, position: pos } : it)),
-        );
-
-        if (progress < 1) {
-          animationRef.current = requestAnimationFrame(animate);
-        } else {
-          setItems((prev) =>
-            prev.map((it) => (it.id === id ? { ...it, position: to } : it)),
-          );
-          animationRef.current = null;
-          setIsAnimating(false);
-        }
-      };
-
-      animationRef.current = requestAnimationFrame(animate);
-    },
-    [items, snapConfig],
-  );
-
-  // Cleanup animation on unmount
-  useEffect(
-    () => () => {
-      if (animationRef.current !== null) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    },
-    [],
-  );
 
   const snapItem = items.find((i) => i.id === "snap");
   const freeItem = items.find((i) => i.id === "free");
@@ -136,9 +72,9 @@ function GridSnapDemo() {
             onPositionChange={(pos) => {
               handlePositionChange(item.id, pos);
             }}
-            onDragEnd={() => {
-              handleDragEnd(item.id);
-            }}
+            deferredSnapConfig={
+              item.id === "snap" ? deferredSnapConfig : undefined
+            }
           >
             <div
               data-testid={`item-${item.id satisfies string}`}
@@ -199,12 +135,6 @@ function GridSnapDemo() {
           </button>
         </div>
         <div>Grid: {String(GRID_SPACING) satisfies string}px</div>
-        <div>
-          Animating:{" "}
-          <span data-testid="animating-state">
-            {isAnimating ? "yes" : "no"}
-          </span>
-        </div>
         {snapItem !== undefined && (
           <div data-testid="snap-position">
             Snap: ({snapItem.position.x.toFixed(0)},{" "}
@@ -251,10 +181,6 @@ export const Default: Story = {
     const toggleBtn = canvas.getByTestId("toggle-snap");
     await expect(toggleBtn).toBeInTheDocument();
     await expect(toggleBtn).toHaveTextContent("ON");
-
-    // Animating state display visible
-    const animState = canvas.getByTestId("animating-state");
-    await expect(animState).toHaveTextContent("no");
 
     // Position displays are visible
     const snapPos = canvas.getByTestId("snap-position");

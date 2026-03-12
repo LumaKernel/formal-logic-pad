@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CanvasItem } from "./CanvasItem";
 import type { ContextMenuItem } from "./contextMenu";
 import type { SnapConfig } from "./snap";
+import type { DeferredSnapConfig } from "./useDeferredSnap";
 
 describe("CanvasItem", () => {
   it("renders children", () => {
@@ -779,6 +780,170 @@ describe("CanvasItem snapConfig", () => {
     });
 
     expect(onPositionChange).toHaveBeenCalledWith({ x: 12, y: 18 });
+  });
+
+  it("does not snap during drag when deferredSnapConfig is enabled", () => {
+    const onPositionChange = vi.fn();
+    const deferredSnapConfig: DeferredSnapConfig = {
+      snapConfig: { enabled: true, gridSpacing: 20 },
+      durationMs: 150,
+    };
+    render(
+      <CanvasItem
+        position={{ x: 0, y: 0 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onPositionChange={onPositionChange}
+        deferredSnapConfig={deferredSnapConfig}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+
+    const item = screen.getByTestId("canvas-item");
+
+    fireEvent.pointerDown(item, {
+      button: 0,
+      clientX: 50,
+      clientY: 50,
+      pointerId: 1,
+    });
+    // Move by (12, 18) from origin → raw (12, 18) → NOT snapped to (20, 20)
+    fireEvent.pointerMove(item, {
+      clientX: 62,
+      clientY: 68,
+      pointerId: 1,
+    });
+
+    // Should be raw position, not snapped
+    expect(onPositionChange).toHaveBeenCalledWith({ x: 12, y: 18 });
+  });
+
+  it("shows snap ghost during drag with deferredSnapConfig", () => {
+    const deferredSnapConfig: DeferredSnapConfig = {
+      snapConfig: { enabled: true, gridSpacing: 20 },
+      durationMs: 150,
+    };
+    // Position at (13, 17) — will snap to (20, 20)
+    render(
+      <CanvasItem
+        position={{ x: 13, y: 17 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onPositionChange={vi.fn()}
+        deferredSnapConfig={deferredSnapConfig}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+
+    const item = screen.getByTestId("canvas-item");
+
+    // Start dragging
+    fireEvent.pointerDown(item, {
+      button: 0,
+      clientX: 50,
+      clientY: 50,
+      pointerId: 1,
+    });
+
+    // Ghost should appear showing snap target
+    const ghost = screen.queryByTestId("snap-ghost");
+    expect(ghost).toBeInTheDocument();
+    // Ghost position should be at snap target (20, 20) screen coords
+    expect(ghost?.style.left).toBe("20px");
+    expect(ghost?.style.top).toBe("20px");
+    expect(ghost?.style.opacity).toBe("0.3");
+    expect(ghost?.style.pointerEvents).toBe("none");
+  });
+
+  it("does not show snap ghost when position is already on grid", () => {
+    const deferredSnapConfig: DeferredSnapConfig = {
+      snapConfig: { enabled: true, gridSpacing: 20 },
+      durationMs: 150,
+    };
+    // Position at (20, 20) — already on grid
+    render(
+      <CanvasItem
+        position={{ x: 20, y: 20 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onPositionChange={vi.fn()}
+        deferredSnapConfig={deferredSnapConfig}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+
+    const item = screen.getByTestId("canvas-item");
+
+    // Start dragging
+    fireEvent.pointerDown(item, {
+      button: 0,
+      clientX: 50,
+      clientY: 50,
+      pointerId: 1,
+    });
+
+    // Ghost should NOT appear since already on grid
+    expect(screen.queryByTestId("snap-ghost")).not.toBeInTheDocument();
+  });
+
+  it("does not show snap ghost when not dragging", () => {
+    const deferredSnapConfig: DeferredSnapConfig = {
+      snapConfig: { enabled: true, gridSpacing: 20 },
+      durationMs: 150,
+    };
+    render(
+      <CanvasItem
+        position={{ x: 13, y: 17 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onPositionChange={vi.fn()}
+        deferredSnapConfig={deferredSnapConfig}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+
+    // No dragging, no ghost
+    expect(screen.queryByTestId("snap-ghost")).not.toBeInTheDocument();
+  });
+
+  it("triggers deferred snap on pointer up (immediate snap for close distance)", () => {
+    const onPositionChange = vi.fn();
+    const deferredSnapConfig: DeferredSnapConfig = {
+      snapConfig: { enabled: true, gridSpacing: 20 },
+      durationMs: 150,
+    };
+    // Position very close to grid (20, 20) — within DEFERRED_SNAP_MIN_DISTANCE
+    // so triggerSnap will snap immediately without animation
+    render(
+      <CanvasItem
+        position={{ x: 19.8, y: 20.1 }}
+        viewport={{ offsetX: 0, offsetY: 0, scale: 1 }}
+        onPositionChange={onPositionChange}
+        deferredSnapConfig={deferredSnapConfig}
+      >
+        <span>Item</span>
+      </CanvasItem>,
+    );
+
+    const item = screen.getByTestId("canvas-item");
+
+    // Start drag
+    fireEvent.pointerDown(item, {
+      button: 0,
+      clientX: 50,
+      clientY: 50,
+      pointerId: 1,
+    });
+
+    // End drag — should trigger deferred snap (immediate since close to grid)
+    fireEvent.pointerUp(item, {
+      clientX: 50,
+      clientY: 50,
+      pointerId: 1,
+    });
+
+    // triggerSnap is called, snaps immediately to (20, 20)
+    expect(onPositionChange).toHaveBeenCalledWith({ x: 20, y: 20 });
   });
 
   it("calls onDragMove with screen coordinates during drag", () => {
