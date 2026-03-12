@@ -46,6 +46,8 @@
     "back": "Back",
     "backToHub": "Back to Hub",
     "notebookNotFound": "Notebook not found",
+    "duplicateToFree": "Duplicate as Free",
+    "titleEditPlaceholder": "Notebook name",
     "themeSelectionAriaLabel": "Theme selection",
     "languageSelectionAriaLabel": "Language selection",
     "themeLight": "Light",

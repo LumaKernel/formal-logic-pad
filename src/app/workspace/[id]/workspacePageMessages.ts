@@ -16,6 +16,8 @@ export type WorkspacePageMessages = {
   readonly back: string;
   readonly backToHub: string;
   readonly notebookNotFound: string;
+  readonly duplicateToFree: string;
+  readonly titleEditPlaceholder: string;
 };
 
 /**
@@ -26,4 +28,6 @@ export const defaultWorkspacePageMessages: WorkspacePageMessages = {
   back: "Back",
   backToHub: "Back to Hub",
   notebookNotFound: "Notebook not found",
+  duplicateToFree: "Duplicate as Free",
+  titleEditPlaceholder: "Notebook name",
 };

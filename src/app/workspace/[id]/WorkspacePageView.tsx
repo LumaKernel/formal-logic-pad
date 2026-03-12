@@ -8,7 +8,13 @@
  * 変更時は WorkspaceContent.tsx, WorkspacePageView.stories.tsx も同期すること。
  */
 
-import type { CSSProperties } from "react";
+import {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  type CSSProperties,
+} from "react";
 import { ProofWorkspace } from "../../../lib/proof-pad";
 import type { GoalAchievedInfo } from "../../../lib/proof-pad";
 import { ProofMessagesProvider } from "../../../lib/proof-pad";
@@ -29,6 +35,7 @@ import {
   LanguageToggle,
   type LanguageToggleProps,
 } from "../../../components/LanguageToggle/LanguageToggle";
+import { validateNotebookName } from "../../../lib/notebook/notebookListLogic";
 import type { WorkspacePageMessages } from "./workspacePageMessages";
 import { defaultWorkspacePageMessages } from "./workspacePageMessages";
 
@@ -49,6 +56,8 @@ export type WorkspacePageViewProps = {
       readonly found: true;
       /** ノートブック名 */
       readonly notebookName: string;
+      /** ノートブック名変更コールバック */
+      readonly onNotebookRename?: (newName: string) => void;
       /** ワークスペース状態 */
       readonly workspace: WorkspaceState;
       /** i18nメッセージ */
@@ -147,6 +156,41 @@ const notebookNameStyle: CSSProperties = {
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
   padding: "0 12px",
+  cursor: "pointer",
+  borderRadius: 4,
+};
+
+const notebookNameEditStyle: CSSProperties = {
+  fontSize: 16,
+  fontWeight: 600,
+  flex: 1,
+  textAlign: "center",
+  padding: "2px 12px",
+  border: "1px solid var(--color-primary, #4a90d9)",
+  borderRadius: 4,
+  outline: "none",
+  background: "var(--color-bg-primary, #fff)",
+  color: "var(--color-text-primary, #333)",
+  fontFamily: "inherit",
+};
+
+const titleErrorStyle: CSSProperties = {
+  position: "absolute",
+  top: "100%",
+  left: "50%",
+  transform: "translateX(-50%)",
+  fontSize: 11,
+  color: "var(--color-error, #dc3545)",
+  whiteSpace: "nowrap",
+  marginTop: 2,
+};
+
+const titleContainerStyle: CSSProperties = {
+  flex: 1,
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+  minWidth: 0,
 };
 
 const headerActionsStyle: CSSProperties = {
@@ -165,6 +209,49 @@ const githubLinkStyle: CSSProperties = {
   color: "var(--color-text-secondary, #666)",
   opacity: 0.6,
   transition: "opacity 0.15s",
+};
+
+const moreMenuButtonStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 28,
+  height: 28,
+  borderRadius: 6,
+  border: "none",
+  background: "transparent",
+  cursor: "pointer",
+  color: "var(--color-text-secondary, #666)",
+  fontSize: 18,
+  lineHeight: 1,
+  padding: 0,
+};
+
+const moreMenuDropdownStyle: CSSProperties = {
+  position: "absolute",
+  top: "100%",
+  right: 0,
+  marginTop: 4,
+  background: "var(--color-surface, #fff)",
+  border: "1px solid var(--color-border, #e0e0e0)",
+  borderRadius: 6,
+  boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+  zIndex: 100,
+  minWidth: 180,
+  padding: "4px 0",
+};
+
+const moreMenuItemStyle: CSSProperties = {
+  display: "block",
+  width: "100%",
+  padding: "8px 16px",
+  fontSize: 13,
+  textAlign: "left",
+  border: "none",
+  background: "transparent",
+  cursor: "pointer",
+  color: "var(--color-text-primary, #333)",
+  whiteSpace: "nowrap",
 };
 
 const workspaceContainerStyle: CSSProperties = {
@@ -212,22 +299,229 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
     );
   }
 
+  return <WorkspacePageViewFound props={props} pm={pm} />;
+}
+
+function WorkspacePageViewFound({
+  props,
+  pm,
+}: {
+  readonly props: Extract<WorkspacePageViewProps, { readonly found: true }>;
+  readonly pm: WorkspacePageMessages;
+}) {
+  const {
+    notebookName,
+    onNotebookRename,
+    onDuplicateToFree,
+    workspace,
+    messages,
+    onBack,
+    onWorkspaceChange,
+    onGoalAchieved,
+    onOpenSyntaxHelp,
+    onSaveProofToCollection,
+    collectionEntries,
+    onRenameCollectionEntry,
+    onUpdateCollectionMemo,
+    onRemoveCollectionEntry,
+    collectionFolders,
+    onMoveCollectionEntry,
+    onCreateCollectionFolder,
+    onRemoveCollectionFolder,
+    onRenameCollectionFolder,
+    questVersionWarning,
+    questInfo,
+    referenceEntries,
+    onOpenReferenceDetail,
+    locale,
+    languageToggle,
+    themeLabels,
+    workspaceTestId,
+  } = props;
+
+  // --- Title editing state ---
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editTitleValue, setEditTitleValue] = useState("");
+  const [titleError, setTitleError] = useState<string | null>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  // --- More menu state ---
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  const handleTitleClick = useCallback(() => {
+    if (onNotebookRename === undefined) return;
+    setIsEditingTitle(true);
+    setEditTitleValue(notebookName);
+    setTitleError(null);
+  }, [onNotebookRename, notebookName]);
+
+  const handleTitleSubmit = useCallback(() => {
+    const trimmed = editTitleValue.trim();
+    const validation = validateNotebookName(trimmed);
+    if (!validation.valid) {
+      setTitleError(validation.reason);
+      return;
+    }
+    if (trimmed !== notebookName) {
+      onNotebookRename?.(trimmed);
+    }
+    setIsEditingTitle(false);
+    setTitleError(null);
+  }, [editTitleValue, notebookName, onNotebookRename]);
+
+  const handleTitleCancel = useCallback(() => {
+    setIsEditingTitle(false);
+    setTitleError(null);
+  }, []);
+
+  const handleTitleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleTitleSubmit();
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleTitleCancel();
+      }
+    },
+    [handleTitleSubmit, handleTitleCancel],
+  );
+
+  const handleTitleBlur = useCallback(() => {
+    handleTitleSubmit();
+  }, [handleTitleSubmit]);
+
+  useEffect(() => {
+    if (isEditingTitle && titleInputRef.current !== null) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
+    }
+  }, [isEditingTitle]);
+
+  // --- More menu handlers ---
+  const handleMoreMenuToggle = useCallback(() => {
+    setIsMoreMenuOpen((prev) => !prev);
+  }, []);
+
+  const handleDuplicateToFree = useCallback(() => {
+    onDuplicateToFree?.();
+    setIsMoreMenuOpen(false);
+  }, [onDuplicateToFree]);
+
+  // Close more menu on outside click
+  useEffect(() => {
+    if (!isMoreMenuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        moreMenuRef.current !== null &&
+        !moreMenuRef.current.contains(e.target as Node)
+      ) {
+        setIsMoreMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMoreMenuOpen]);
+
+  const hasMoreMenuItems = onDuplicateToFree !== undefined;
+
   return (
     <div style={pageStyle} data-testid="workspace-page">
       {/* Header */}
       <header style={headerStyle}>
-        <button type="button" style={backButtonStyle} onClick={props.onBack}>
+        <button type="button" style={backButtonStyle} onClick={onBack}>
           {pm.back}
         </button>
-        <span style={notebookNameStyle}>{props.notebookName}</span>
+        <div style={titleContainerStyle}>
+          {isEditingTitle ? (
+            <>
+              <input
+                ref={titleInputRef}
+                type="text"
+                value={editTitleValue}
+                onChange={(e) => {
+                  setEditTitleValue(e.target.value);
+                  setTitleError(null);
+                }}
+                onKeyDown={handleTitleKeyDown}
+                onBlur={handleTitleBlur}
+                style={notebookNameEditStyle}
+                placeholder={pm.titleEditPlaceholder}
+                data-testid="notebook-title-input"
+              />
+              {titleError !== null ? (
+                <span
+                  style={titleErrorStyle}
+                  data-testid="notebook-title-error"
+                >
+                  {titleError}
+                </span>
+              ) : null}
+            </>
+          ) : (
+            <span
+              style={notebookNameStyle}
+              onClick={handleTitleClick}
+              data-testid="notebook-title"
+              role={onNotebookRename !== undefined ? "button" : undefined}
+              tabIndex={onNotebookRename !== undefined ? 0 : undefined}
+              onKeyDown={
+                onNotebookRename !== undefined
+                  ? (e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleTitleClick();
+                      }
+                    }
+                  : undefined
+              }
+            >
+              {notebookName}
+            </span>
+          )}
+        </div>
         <div style={headerActionsStyle}>
-          {props.languageToggle ? (
+          {hasMoreMenuItems ? (
+            <div style={{ position: "relative" }} ref={moreMenuRef}>
+              <button
+                type="button"
+                style={moreMenuButtonStyle}
+                onClick={handleMoreMenuToggle}
+                aria-label="More actions"
+                data-testid="workspace-more-menu-button"
+              >
+                ⋮
+              </button>
+              {isMoreMenuOpen ? (
+                <div
+                  style={moreMenuDropdownStyle}
+                  data-testid="workspace-more-menu-dropdown"
+                >
+                  {onDuplicateToFree !== undefined ? (
+                    <button
+                      type="button"
+                      style={moreMenuItemStyle}
+                      onClick={handleDuplicateToFree}
+                      data-testid="workspace-more-menu-duplicate-free"
+                    >
+                      {pm.duplicateToFree}
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+          {languageToggle !== undefined ? (
             <LanguageToggle
-              locale={props.languageToggle.locale}
-              onLocaleChange={props.languageToggle.onLocaleChange}
+              locale={languageToggle.locale}
+              onLocaleChange={languageToggle.onLocaleChange}
             />
           ) : null}
-          <ThemeToggle labels={props.themeLabels} />
+          <ThemeToggle labels={themeLabels} />
           <a
             href="https://github.com/LumaKernel/formal-logic-pad"
             target="_blank"
@@ -250,37 +544,37 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
       </header>
 
       {/* Quest version warning */}
-      {props.questVersionWarning !== undefined ? (
+      {questVersionWarning !== undefined ? (
         <div style={versionWarningStyle} data-testid="quest-version-warning">
-          {props.questVersionWarning}
+          {questVersionWarning}
         </div>
       ) : null}
 
       {/* Workspace */}
       <div style={workspaceContainerStyle}>
-        <ProofMessagesProvider messages={props.messages}>
+        <ProofMessagesProvider messages={messages}>
           <ProofWorkspace
-            system={props.workspace.system}
-            workspace={props.workspace}
-            onWorkspaceChange={props.onWorkspaceChange}
-            onGoalAchieved={props.onGoalAchieved}
-            onOpenSyntaxHelp={props.onOpenSyntaxHelp}
-            testId={props.workspaceTestId}
-            questInfo={props.questInfo}
-            onDuplicateToFree={props.onDuplicateToFree}
-            onSaveProofToCollection={props.onSaveProofToCollection}
-            collectionEntries={props.collectionEntries}
-            onRenameCollectionEntry={props.onRenameCollectionEntry}
-            onUpdateCollectionMemo={props.onUpdateCollectionMemo}
-            onRemoveCollectionEntry={props.onRemoveCollectionEntry}
-            collectionFolders={props.collectionFolders}
-            onMoveCollectionEntry={props.onMoveCollectionEntry}
-            onCreateCollectionFolder={props.onCreateCollectionFolder}
-            onRemoveCollectionFolder={props.onRemoveCollectionFolder}
-            onRenameCollectionFolder={props.onRenameCollectionFolder}
-            referenceEntries={props.referenceEntries}
-            onOpenReferenceDetail={props.onOpenReferenceDetail}
-            locale={props.locale}
+            system={workspace.system}
+            workspace={workspace}
+            onWorkspaceChange={onWorkspaceChange}
+            onGoalAchieved={onGoalAchieved}
+            onOpenSyntaxHelp={onOpenSyntaxHelp}
+            testId={workspaceTestId}
+            questInfo={questInfo}
+            onDuplicateToFree={onDuplicateToFree}
+            onSaveProofToCollection={onSaveProofToCollection}
+            collectionEntries={collectionEntries}
+            onRenameCollectionEntry={onRenameCollectionEntry}
+            onUpdateCollectionMemo={onUpdateCollectionMemo}
+            onRemoveCollectionEntry={onRemoveCollectionEntry}
+            collectionFolders={collectionFolders}
+            onMoveCollectionEntry={onMoveCollectionEntry}
+            onCreateCollectionFolder={onCreateCollectionFolder}
+            onRemoveCollectionFolder={onRemoveCollectionFolder}
+            onRenameCollectionFolder={onRenameCollectionFolder}
+            referenceEntries={referenceEntries}
+            onOpenReferenceDetail={onOpenReferenceDetail}
+            locale={locale}
           />
         </ProofMessagesProvider>
       </div>

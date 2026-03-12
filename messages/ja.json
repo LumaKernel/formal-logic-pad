@@ -46,6 +46,8 @@
     "back": "戻る",
     "backToHub": "ハブに戻る",
     "notebookNotFound": "ノートブックが見つかりません",
+    "duplicateToFree": "自由帳として複製",
+    "titleEditPlaceholder": "ノートブック名",
     "themeSelectionAriaLabel": "テーマ選択",
     "languageSelectionAriaLabel": "言語選択",
     "themeLight": "ライト",

@@ -37,6 +37,8 @@ function useWorkspacePageMessagesFromIntl(): WorkspacePageMessages {
       back: t("back"),
       backToHub: t("backToHub"),
       notebookNotFound: t("notebookNotFound"),
+      duplicateToFree: t("duplicateToFree"),
+      titleEditPlaceholder: t("titleEditPlaceholder"),
     }),
     [t],
   );
@@ -322,6 +324,15 @@ function WorkspaceInner() {
     [questId, questRecord],
   );
 
+  const handleNotebookRename = useCallback(
+    (newName: string) => {
+      if (notebookId !== undefined) {
+        notebookCollection.rename(notebookId, newName);
+      }
+    },
+    [notebookId, notebookCollection],
+  );
+
   const handleDuplicateToFree = useCallback(() => {
     if (notebookId !== undefined) {
       const newId = notebookCollection.convertToFree(notebookId);
@@ -400,6 +411,7 @@ function WorkspaceInner() {
       <WorkspacePageView
         found={true}
         notebookName={notebook.meta.name}
+        onNotebookRename={handleNotebookRename}
         workspace={notebook.workspace}
         messages={proofMessages}
         onBack={handleBack}
