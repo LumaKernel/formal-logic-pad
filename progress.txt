@@ -13326,3 +13326,32 @@
   - ゴーストプレビューはshowGhost条件（位置差>0.5px）で表示制御。グリッド上にある場合は表示しない
   - テスト: requestAnimationFrameが動かない環境では、DEFERRED_SNAP_MIN_DISTANCE以内の位置を使って即座にスナップさせる
 ---
+
+## 2026-03-13 - [docs] ビルトインドキュメントのインライン記法HTMLタグ統一
+- 実装した内容:
+  - `parseInlineMarkdown`をMarkdown記法(`**bold**`, `*italic*`)からHTMLタグ(`<b>`, `<i>`, `<code>`)ベースに変更
+  - `referenceContent.ts`の全61エントリ(643箇所のbold, 62箇所のitalic)をHTMLタグに変換
+  - `InlineMarkdown.tsx`に`<code>`レンダリングサポートを追加
+  - `referenceContent.test.ts`にMarkdownフォーマット禁止チェッカー(183テスト)をCIで強制
+  - ストーリーファイルのサンプルデータも統一
+- 変更したファイル:
+  - src/lib/reference/referenceUILogic.ts (パーサー書き換え)
+  - src/lib/reference/InlineMarkdown.tsx (<code>レンダリング追加)
+  - src/lib/reference/referenceContent.ts (全エントリ変換)
+  - src/lib/reference/referenceUILogic.test.ts (テスト書き換え)
+  - src/lib/reference/referenceContent.test.ts (チェッカーテスト追加)
+  - src/lib/reference/ReferencePopover.test.tsx (テストデータ更新)
+  - src/lib/reference/ReferenceModal.test.tsx (テストデータ更新)
+  - src/lib/reference/ReferenceModal.stories.tsx (サンプルデータ更新)
+  - src/lib/reference/ReferencePopover.stories.tsx (サンプルデータ更新)
+- カバレッジ: referenceUILogic.ts 100%, referenceContent.ts 100%, lib/reference全体 99.32%/97.24%/92.52%/99.56%
+- スクリーンショット:
+  - .screenshots/reference-popover-with-detail.png
+  - .screenshots/reference-popover-open.png
+  - .screenshots/reference-modal-default.png
+  - .screenshots/reference-modal-japanese.png
+- **今後のイテレーションへの学び:**
+  - referenceContent.tsの文字列変換はJSDocコメント内の`*`を壊す可能性がある。文字列リテラル内のみを対象にする変換スクリプトが必要
+  - ストーリーファイルのサンプルデータもreferenceContent.tsと同じフォーマットルールに従う必要がある。チェッカーテストはreferenceContent.tsのみが対象のため、ストーリーは手動で確認が必要
+  - `tagTypeMap`（Map）を使ったHTMLタグ→InlineElement typeの対応付けパターンは拡張しやすい
+---
