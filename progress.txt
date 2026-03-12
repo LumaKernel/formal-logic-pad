@@ -12946,3 +12946,25 @@
   - 生成スクリプト→出力ファイル→TS解釈のチェーンを意識すること
   - 残り prop: prop-32 のみ — 選言消去（最も複雑、推定300+ステップ）
 ---
+
+## 2026-03-12 12:51 - quest/模範解答正式化（prop-32）
+- prop-32 (選言除去: (φ∨ψ)→((φ→χ)→((ψ→χ)→χ))) 模範解答を249ステップの正式Hilbert証明に書き換え
+  - 戦略: prop-29-TND(163) + B-comb(7) + compose(24) + B-comp(5) + C-comb×2(40) + compose(5) + DISJ(6) = ~249
+  - Key: prop-29 inline (ψ:=χ) + B-comb for (ψ→χ)→((¬φ→ψ)→(¬φ→χ)) + C-combinator for argument permutation
+  - C-combinator導出: A2+B-comb+A1で(Q→R)→(S→R)を構成し、A2と合成
+- 生成スクリプト改善: formula builder関数（impl, a1Formula, a2Formula）で正確な公理インスタンス生成
+  - bCombinator(a,b,c): 7ステップでB結合子定理を証明
+  - bCompose(p,q,r,pqIdx,qrIdx): 5ステップでB合成を実行
+  - 手書き公理インスタンスの括弧エラーを完全に排除
+- 命題論理の全prop模範解答が正式化完了 🎉
+- スキップリスト: 14→13件（prop-32除去、残りはpred系のみ）
+- 変更ファイル: builtinModelAnswers.ts, builtinModelAnswers.test.ts, prd-inserted-tasks.md
+- テスト: 9680 passed, typecheck OK, lint OK
+- **今後のイテレーションへの学び:**
+  - formula builder関数アプローチ: impl(), a1Formula(), a2Formula() で公理インスタンスを構築すると、手書きの括弧エラーを完全排除できる
+  - bCombinator(a,b,c)関数: 7ステップ（4 axiom + 3 MP）で(B→C)→((A→B)→(A→C))を証明
+  - bCompose(p,q,r,pqIdx,qrIdx)関数: 5ステップ（2 axiom + 3 MP）でP→Q, Q→RからP→Rを導出
+  - C-combinator: (A→(B→C))→(B→(A→C))の導出は A2 + B-comb + A1による段階的構成
+  - debug scriptの文字列比較では括弧の冗長性(例: (~X) vs ~X)による偽陽性に注意。実際のシステムはAST比較
+  - 残り: pred系13件のみ（述語論理はfirst-order axiomが必要で別のアプローチ）
+---
