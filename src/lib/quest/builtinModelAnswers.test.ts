@@ -673,30 +673,6 @@ describe("全模範解答の公理制約チェック", () => {
   );
 });
 
-/**
- * 未知のルートノード（公理パターンに一致しない）が存在する模範解答のリスト。
- *
- * これらはゴール式を公理として直接配置しているか、理論公理の代入インスタンスを
- * ルートに直接配置しているクエスト。正しい証明に書き換えるまでの間、
- * 明示的にスキップする。
- *
- * TODO: これらの模範解答を正しい証明に書き換えたら、このリストから削除する。
- * リストが空になったら、このスキップリストとスキップ処理自体を削除する。
- */
-const knownPragmaticQuests: ReadonlySet<string> = new Set([
-  // pred系: 述語論理の定理の直接配置
-  "pred-04",
-  "pred-05",
-  "pred-06",
-  "pred-adv-02",
-  "pred-adv-03",
-  "pred-adv-04",
-  "pred-adv-06",
-  "pred-adv-08",
-  "pred-adv-12",
-  "pred-adv-13",
-]);
-
 describe("全Hilbert模範解答のルートノード公理パターン検証", () => {
   const hilbertAnswers = builtinModelAnswers
     .filter((a) => {
@@ -715,7 +691,6 @@ describe("全Hilbert模範解答のルートノード公理パターン検証", 
         quest.systemPresetId === "abelian-group"
       );
     })
-    .filter((a) => !knownPragmaticQuests.has(a.questId))
     .map((a) => [a.questId, a] as const);
 
   it.each(hilbertAnswers)(
@@ -740,15 +715,4 @@ describe("全Hilbert模範解答のルートノード公理パターン検証", 
     },
     10_000,
   );
-
-  it("既知のpragmaticクエストリストが最新であること", () => {
-    // pragmaticリストに含まれるクエストが実際にbuiltinModelAnswersに存在するか確認
-    for (const questId of knownPragmaticQuests) {
-      const answer = builtinModelAnswers.find((a) => a.questId === questId);
-      expect(
-        answer,
-        `knownPragmaticQuests に含まれる ${questId satisfies string} が builtinModelAnswers に存在しない`,
-      ).toBeDefined();
-    }
-  });
 });

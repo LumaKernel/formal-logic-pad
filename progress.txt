@@ -13032,3 +13032,27 @@
   - 残り10件のpred pragmatic模範解答は、対偶（107ステップ）やDNE（100+ステップ）のインライン展開が必要で50-200+ステップになる
   - pred-adv-10の36ステップ証明はpred-adv-07の構造を再利用+Phase5でGen[x]+A5でラップする構成
 ---
+
+## 2026-03-12 - [logic-core] 残りpred系10件の模範解答正式化完了
+- 実装した内容:
+  - 残り10件のpragmatic模範解答を全て正しいHilbert形式証明に書き換え
+  - pred-adv-02 (45 steps), pred-06 (43 steps), pred-04 (49 steps), pred-adv-06 (55 steps)
+  - pred-adv-08 (94 steps), pred-adv-13 (108 steps), pred-05 (152 steps)
+  - pred-adv-03 (171 steps), pred-adv-04 (281 steps), pred-adv-12 (262 steps)
+  - knownPragmaticQuestsスキップリスト完全削除（0件に）
+  - 証明生成スクリプト: scripts/pred-proof-gen.ts, scripts/integrate-proofs.ts
+- 変更したファイル:
+  - src/lib/quest/builtinModelAnswers.ts — 10件の模範解答を正式化
+  - src/lib/quest/builtinModelAnswers.test.ts — knownPragmaticQuestsとskipロジック削除
+  - scripts/pred-proof-gen.ts — 証明生成器（ProofBuilder + 10クエスト分のgenerator）
+  - scripts/integrate-proofs.ts — 生成された証明をbuiltinModelAnswers.tsに自動統合
+  - tasks/prd-inserted-tasks.md — タスク完了
+  - tasks-archived/prd-inserted-tasks.md — 完了項目アーカイブ
+- テスト: 全259ファイル9712テストパス
+- **今後のイテレーションへの学び:**
+  - 論理式文字列の括弧化が重要: `->` は右結合なので、HS/MT関数のパラメータに `->` を含む式を渡す際は必ず `(${x})` でラップする。ラップしないとMPバリデーション失敗になる
+  - ProofBuilder.p() ヘルパーで一貫して括弧化: hs() では a,b,c を、mt() では phi,psi と A を全て this.p() でラップ
+  - EX-DEF axiom bridges: ∃x.φ は ¬∀x.¬φ と構造的に異なるAST。equalFormula()は厳密構造比較。EX-DEF fwd/bwd公理でブリッジが必要
+  - distForall: ∀v.(φ→ψ) → ((∀v.φ)→(∀v.ψ)) はGen+A5+HSで約30ステップ。Gen/A5パターンの基本構成要素
+  - 大規模証明の自動統合: regex置換は危険（JSDoc `*/` や `};` で誤マッチ）。行ベースのbrace-depth追跡で正確に置換
+---

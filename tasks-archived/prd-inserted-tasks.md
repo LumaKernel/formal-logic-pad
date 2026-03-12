@@ -274,3 +274,10 @@ Infinity Canvasについて。
   - 修正: NotebookListComponent.tsx ではメニュー表示中の親カードのzIndexを動的に100に昇格（CSSスタッキングコンテキスト対策）。QuestCatalogComponent.tsx ではoverflow:hiddenを削除し最終アイテムにborder-radiusを直接適用。
 - [x] せっかく論理式のrendered側のシンタックスハイライトも作られてるのだから、共通論理式入力のコンポーネントのほうで標準搭載しよう
 - [x] ノートノードのコンテキストメニューは、ノートノード専用のものを設計しましょう
+
+- [x] まだ模範解答には公理制約違反のものがほとんど
+  - [x] 証明ツリーチェックでちゃんと検証されていないように思われる。代入するのも必須で、形が公理と完全に一致している必要がある。
+    - hasUnknownRootNodes フィールドを GoalAxiomCheckResult に追加済み
+    - builtinModelAnswers.test.ts に全 Hilbert 模範解答のルートノード公理パターン検証テスト追加済み
+    - 既知の pragmatic クエスト（65件）をスキップリストで管理
+  - [x] pragmatic 模範解答を正しい証明に書き換える（65→0件。全prop+pred正式化完了）

@@ -9958,34 +9958,979 @@ const pred03UniversalSwap: ModelAnswer = {
 /**
  * pred-04: 存在導入 P(x) → ∃x.P(x)
  *
- * ∃x.P(x) は独立した AST ノード (Existential)。
- * Hilbert系の A4/A5 は Universal のみを扱い、∃ の直接公理はない。
- * axiom ステップでゴール式テキストを直接配置。1ステップ。
+ * DNE[(∀x.¬P(x))] + A4 + HS + A3 + EX-DEF bwd + HS。
+ * 49ステップ。
  */
 const pred04ExistentialIntro: ModelAnswer = {
   questId: "pred-04",
-  steps: [{ _tag: "axiom", formulaText: "P(x) -> ex x. P(x)" }],
+  steps: [
+    // Step 0
+    {
+      _tag: "axiom",
+      formulaText: "~~(all x. ~P(x)) -> (~(all x. ~P(x)) -> ~~(all x. ~P(x)))",
+    },
+    // Step 1
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> ~~(all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x)))",
+    },
+    // Step 2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all x. ~P(x)) -> ((~(all x. ~P(x)) -> ~~(all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x))))) -> ((~~(all x. ~P(x)) -> (~(all x. ~P(x)) -> ~~(all x. ~P(x)))) -> (~~(all x. ~P(x)) -> (~(all x. ~P(x)) -> (all x. ~P(x)))))",
+    },
+    // Step 3
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x)) -> ~~(all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x)))) -> (~~(all x. ~P(x)) -> ((~(all x. ~P(x)) -> ~~(all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x)))))",
+    },
+    // Step 4
+    { _tag: "mp", leftIndex: 1, rightIndex: 3 },
+    // Step 5
+    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+    // Step 6
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+    // Step 7
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~(all x. ~P(x)) -> (all x. ~P(x))) -> ~(all x. ~P(x))) -> ((all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x))))",
+    },
+    // Step 8
+    {
+      _tag: "axiom",
+      formulaText:
+        "~(all x. ~P(x)) -> (~~(~(all x. ~P(x)) -> (all x. ~P(x))) -> ~(all x. ~P(x)))",
+    },
+    // Step 9
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> ((~~(~(all x. ~P(x)) -> (all x. ~P(x))) -> ~(all x. ~P(x))) -> ((all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x)))))) -> ((~(all x. ~P(x)) -> (~~(~(all x. ~P(x)) -> (all x. ~P(x))) -> ~(all x. ~P(x)))) -> (~(all x. ~P(x)) -> ((all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x))))))",
+    },
+    // Step 10
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~(all x. ~P(x)) -> (all x. ~P(x))) -> ~(all x. ~P(x))) -> ((all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x))))) -> (~(all x. ~P(x)) -> ((~~(~(all x. ~P(x)) -> (all x. ~P(x))) -> ~(all x. ~P(x))) -> ((all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x))))))",
+    },
+    // Step 11
+    { _tag: "mp", leftIndex: 7, rightIndex: 10 },
+    // Step 12
+    { _tag: "mp", leftIndex: 11, rightIndex: 9 },
+    // Step 13
+    { _tag: "mp", leftIndex: 8, rightIndex: 12 },
+    // Step 14
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> ((all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x))))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x)))))",
+    },
+    // Step 15
+    { _tag: "mp", leftIndex: 13, rightIndex: 14 },
+    // Step 16
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x)))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x)))",
+    },
+    // Step 17
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x)) -> (all x. ~P(x))) -> ((~(all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x)))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x))))) -> (((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x))))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x)))))",
+    },
+    // Step 18
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x)))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x)))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> ((~(all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x)))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x)))))",
+    },
+    // Step 19
+    { _tag: "mp", leftIndex: 16, rightIndex: 18 },
+    // Step 20
+    { _tag: "mp", leftIndex: 19, rightIndex: 17 },
+    // Step 21
+    { _tag: "mp", leftIndex: 15, rightIndex: 20 },
+    // Step 22
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x)) -> (all x. ~P(x))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x)))) -> (((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x)))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x))))",
+    },
+    // Step 23
+    { _tag: "mp", leftIndex: 21, rightIndex: 22 },
+    // Step 24
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x)) -> (all x. ~P(x))) -> (((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x)))) -> (~(all x. ~P(x)) -> (all x. ~P(x))))) -> (((~(all x. ~P(x)) -> (all x. ~P(x))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x))))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x)))))",
+    },
+    // Step 25
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> (all x. ~P(x))) -> (((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x)))) -> (~(all x. ~P(x)) -> (all x. ~P(x))))",
+    },
+    // Step 26
+    { _tag: "mp", leftIndex: 25, rightIndex: 24 },
+    // Step 27
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> (all x. ~P(x))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x))))",
+    },
+    // Step 28
+    { _tag: "mp", leftIndex: 27, rightIndex: 26 },
+    // Step 29
+    { _tag: "mp", leftIndex: 28, rightIndex: 23 },
+    // Step 30
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all x. ~P(x)) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x)))) -> ((~~(all x. ~P(x)) -> (~(all x. ~P(x)) -> (all x. ~P(x)))) -> (~~(all x. ~P(x)) -> (all x. ~P(x))))",
+    },
+    // Step 31
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x))) -> (~~(all x. ~P(x)) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x))))",
+    },
+    // Step 32
+    { _tag: "mp", leftIndex: 29, rightIndex: 31 },
+    // Step 33
+    { _tag: "mp", leftIndex: 32, rightIndex: 30 },
+    // Step 34
+    { _tag: "mp", leftIndex: 6, rightIndex: 33 },
+    // Step 35
+    { _tag: "axiom", formulaText: "(all x. ~P(x)) -> ~P(x)" },
+    // Step 36
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. ~P(x))) -> (~P(x))) -> ((~~(all x. ~P(x))) -> (((all x. ~P(x))) -> (~P(x))))",
+    },
+    // Step 37
+    { _tag: "mp", leftIndex: 35, rightIndex: 36 },
+    // Step 38
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(all x. ~P(x))) -> (((all x. ~P(x))) -> (~P(x)))) -> (((~~(all x. ~P(x))) -> ((all x. ~P(x)))) -> ((~~(all x. ~P(x))) -> (~P(x))))",
+    },
+    // Step 39
+    { _tag: "mp", leftIndex: 37, rightIndex: 38 },
+    // Step 40
+    { _tag: "mp", leftIndex: 34, rightIndex: 39 },
+    // Step 41
+    {
+      _tag: "axiom",
+      formulaText: "(~~(all x. ~P(x)) -> ~P(x)) -> (P(x) -> ~(all x. ~P(x)))",
+    },
+    // Step 42
+    { _tag: "mp", leftIndex: 40, rightIndex: 41 },
+    // Step 43
+    { _tag: "axiom", formulaText: "~(all x. ~P(x)) -> (ex x. P(x))" },
+    // Step 44
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x))) -> (ex x. P(x))) -> ((P(x)) -> ((~(all x. ~P(x))) -> (ex x. P(x))))",
+    },
+    // Step 45
+    { _tag: "mp", leftIndex: 43, rightIndex: 44 },
+    // Step 46
+    {
+      _tag: "axiom",
+      formulaText:
+        "((P(x)) -> ((~(all x. ~P(x))) -> (ex x. P(x)))) -> (((P(x)) -> (~(all x. ~P(x)))) -> ((P(x)) -> (ex x. P(x))))",
+    },
+    // Step 47
+    { _tag: "mp", leftIndex: 45, rightIndex: 46 },
+    // Step 48
+    { _tag: "mp", leftIndex: 42, rightIndex: 47 },
+  ],
 };
 
 /**
  * pred-05: ∃x.¬P(x) → ¬∀x.P(x)
  *
- * ∃ を含む命題。Hilbert系では ∃ の直接操作ができないため、
- * axiom ステップでゴール式テキストを直接配置。1ステップ。
+ * DNI[P(x)] + A4 + Gen + A5 → (∀x.P(x))→(∀x.~~P(x))。
+ * MT[(∀x.P(x)),(∀x.~~P(x))] → ¬(∀x.~~P(x))→¬(∀x.P(x))。
+ * EX-DEF fwd + HS。152ステップ。
  */
 const pred05ExistNegToNegUniv: ModelAnswer = {
   questId: "pred-05",
-  steps: [{ _tag: "axiom", formulaText: "(ex x. ~P(x)) -> ~(all x. P(x))" }],
+  steps: [
+    // Step 0
+    { _tag: "axiom", formulaText: "~~~P(x) -> (~~P(x) -> ~~~P(x))" },
+    // Step 1
+    { _tag: "axiom", formulaText: "(~~P(x) -> ~~~P(x)) -> (~~P(x) -> ~P(x))" },
+    // Step 2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~P(x) -> ((~~P(x) -> ~~~P(x)) -> (~~P(x) -> ~P(x)))) -> ((~~~P(x) -> (~~P(x) -> ~~~P(x))) -> (~~~P(x) -> (~~P(x) -> ~P(x))))",
+    },
+    // Step 3
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~P(x) -> ~~~P(x)) -> (~~P(x) -> ~P(x))) -> (~~~P(x) -> ((~~P(x) -> ~~~P(x)) -> (~~P(x) -> ~P(x))))",
+    },
+    // Step 4
+    { _tag: "mp", leftIndex: 1, rightIndex: 3 },
+    // Step 5
+    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+    // Step 6
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+    // Step 7
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~~P(x) -> ~P(x)) -> ~~P(x)) -> (~P(x) -> ~(~~P(x) -> ~P(x)))",
+    },
+    // Step 8
+    { _tag: "axiom", formulaText: "~~P(x) -> (~~(~~P(x) -> ~P(x)) -> ~~P(x))" },
+    // Step 9
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~P(x) -> ((~~(~~P(x) -> ~P(x)) -> ~~P(x)) -> (~P(x) -> ~(~~P(x) -> ~P(x))))) -> ((~~P(x) -> (~~(~~P(x) -> ~P(x)) -> ~~P(x))) -> (~~P(x) -> (~P(x) -> ~(~~P(x) -> ~P(x)))))",
+    },
+    // Step 10
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~~P(x) -> ~P(x)) -> ~~P(x)) -> (~P(x) -> ~(~~P(x) -> ~P(x)))) -> (~~P(x) -> ((~~(~~P(x) -> ~P(x)) -> ~~P(x)) -> (~P(x) -> ~(~~P(x) -> ~P(x)))))",
+    },
+    // Step 11
+    { _tag: "mp", leftIndex: 7, rightIndex: 10 },
+    // Step 12
+    { _tag: "mp", leftIndex: 11, rightIndex: 9 },
+    // Step 13
+    { _tag: "mp", leftIndex: 8, rightIndex: 12 },
+    // Step 14
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~P(x) -> (~P(x) -> ~(~~P(x) -> ~P(x)))) -> ((~~P(x) -> ~P(x)) -> (~~P(x) -> ~(~~P(x) -> ~P(x))))",
+    },
+    // Step 15
+    { _tag: "mp", leftIndex: 13, rightIndex: 14 },
+    // Step 16
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~P(x) -> ~(~~P(x) -> ~P(x))) -> ((~~P(x) -> ~P(x)) -> ~P(x))",
+    },
+    // Step 17
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~P(x) -> ~P(x)) -> ((~~P(x) -> ~(~~P(x) -> ~P(x))) -> ((~~P(x) -> ~P(x)) -> ~P(x)))) -> (((~~P(x) -> ~P(x)) -> (~~P(x) -> ~(~~P(x) -> ~P(x)))) -> ((~~P(x) -> ~P(x)) -> ((~~P(x) -> ~P(x)) -> ~P(x))))",
+    },
+    // Step 18
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~P(x) -> ~(~~P(x) -> ~P(x))) -> ((~~P(x) -> ~P(x)) -> ~P(x))) -> ((~~P(x) -> ~P(x)) -> ((~~P(x) -> ~(~~P(x) -> ~P(x))) -> ((~~P(x) -> ~P(x)) -> ~P(x))))",
+    },
+    // Step 19
+    { _tag: "mp", leftIndex: 16, rightIndex: 18 },
+    // Step 20
+    { _tag: "mp", leftIndex: 19, rightIndex: 17 },
+    // Step 21
+    { _tag: "mp", leftIndex: 15, rightIndex: 20 },
+    // Step 22
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~P(x) -> ~P(x)) -> ((~~P(x) -> ~P(x)) -> ~P(x))) -> (((~~P(x) -> ~P(x)) -> (~~P(x) -> ~P(x))) -> ((~~P(x) -> ~P(x)) -> ~P(x)))",
+    },
+    // Step 23
+    { _tag: "mp", leftIndex: 21, rightIndex: 22 },
+    // Step 24
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~P(x) -> ~P(x)) -> (((~~P(x) -> ~P(x)) -> (~~P(x) -> ~P(x))) -> (~~P(x) -> ~P(x)))) -> (((~~P(x) -> ~P(x)) -> ((~~P(x) -> ~P(x)) -> (~~P(x) -> ~P(x)))) -> ((~~P(x) -> ~P(x)) -> (~~P(x) -> ~P(x))))",
+    },
+    // Step 25
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~P(x) -> ~P(x)) -> (((~~P(x) -> ~P(x)) -> (~~P(x) -> ~P(x))) -> (~~P(x) -> ~P(x)))",
+    },
+    // Step 26
+    { _tag: "mp", leftIndex: 25, rightIndex: 24 },
+    // Step 27
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~P(x) -> ~P(x)) -> ((~~P(x) -> ~P(x)) -> (~~P(x) -> ~P(x)))",
+    },
+    // Step 28
+    { _tag: "mp", leftIndex: 27, rightIndex: 26 },
+    // Step 29
+    { _tag: "mp", leftIndex: 28, rightIndex: 23 },
+    // Step 30
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~P(x) -> ((~~P(x) -> ~P(x)) -> ~P(x))) -> ((~~~P(x) -> (~~P(x) -> ~P(x))) -> (~~~P(x) -> ~P(x)))",
+    },
+    // Step 31
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~P(x) -> ~P(x)) -> ~P(x)) -> (~~~P(x) -> ((~~P(x) -> ~P(x)) -> ~P(x)))",
+    },
+    // Step 32
+    { _tag: "mp", leftIndex: 29, rightIndex: 31 },
+    // Step 33
+    { _tag: "mp", leftIndex: 32, rightIndex: 30 },
+    // Step 34
+    { _tag: "mp", leftIndex: 6, rightIndex: 33 },
+    // Step 35
+    { _tag: "axiom", formulaText: "(~~~P(x) -> ~P(x)) -> (P(x) -> ~~P(x))" },
+    // Step 36
+    { _tag: "mp", leftIndex: 34, rightIndex: 35 },
+    // Step 37
+    { _tag: "axiom", formulaText: "(all x. P(x)) -> P(x)" },
+    // Step 38
+    {
+      _tag: "axiom",
+      formulaText:
+        "((P(x)) -> (~~P(x))) -> (((all x. P(x))) -> ((P(x)) -> (~~P(x))))",
+    },
+    // Step 39
+    { _tag: "mp", leftIndex: 36, rightIndex: 38 },
+    // Step 40
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. P(x))) -> ((P(x)) -> (~~P(x)))) -> ((((all x. P(x))) -> (P(x))) -> (((all x. P(x))) -> (~~P(x))))",
+    },
+    // Step 41
+    { _tag: "mp", leftIndex: 39, rightIndex: 40 },
+    // Step 42
+    { _tag: "mp", leftIndex: 37, rightIndex: 41 },
+    // Step 43
+    { _tag: "gen", premiseIndex: 42, variableName: "x" },
+    // Step 44
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. P(x)) -> ~~P(x))) -> ((all x. P(x)) -> (all x. ~~P(x)))",
+    },
+    // Step 45
+    { _tag: "mp", leftIndex: 43, rightIndex: 44 },
+    // Step 46
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~((all x. P(x))) -> (~((all x. P(x))) -> ~~((all x. P(x))))",
+    },
+    // Step 47
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. P(x))) -> ~~((all x. P(x)))) -> (~((all x. P(x))) -> ((all x. P(x))))",
+    },
+    // Step 48
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. P(x))) -> ((~((all x. P(x))) -> ~~((all x. P(x)))) -> (~((all x. P(x))) -> ((all x. P(x)))))) -> ((~~((all x. P(x))) -> (~((all x. P(x))) -> ~~((all x. P(x))))) -> (~~((all x. P(x))) -> (~((all x. P(x))) -> ((all x. P(x))))))",
+    },
+    // Step 49
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. P(x))) -> ~~((all x. P(x)))) -> (~((all x. P(x))) -> ((all x. P(x))))) -> (~~((all x. P(x))) -> ((~((all x. P(x))) -> ~~((all x. P(x)))) -> (~((all x. P(x))) -> ((all x. P(x))))))",
+    },
+    // Step 50
+    { _tag: "mp", leftIndex: 47, rightIndex: 49 },
+    // Step 51
+    { _tag: "mp", leftIndex: 50, rightIndex: 48 },
+    // Step 52
+    { _tag: "mp", leftIndex: 46, rightIndex: 51 },
+    // Step 53
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~((all x. P(x))) -> ((all x. P(x)))) -> ~((all x. P(x)))) -> (((all x. P(x))) -> ~(~((all x. P(x))) -> ((all x. P(x)))))",
+    },
+    // Step 54
+    {
+      _tag: "axiom",
+      formulaText:
+        "~((all x. P(x))) -> (~~(~((all x. P(x))) -> ((all x. P(x)))) -> ~((all x. P(x))))",
+    },
+    // Step 55
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. P(x))) -> ((~~(~((all x. P(x))) -> ((all x. P(x)))) -> ~((all x. P(x)))) -> (((all x. P(x))) -> ~(~((all x. P(x))) -> ((all x. P(x))))))) -> ((~((all x. P(x))) -> (~~(~((all x. P(x))) -> ((all x. P(x)))) -> ~((all x. P(x))))) -> (~((all x. P(x))) -> (((all x. P(x))) -> ~(~((all x. P(x))) -> ((all x. P(x)))))))",
+    },
+    // Step 56
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~((all x. P(x))) -> ((all x. P(x)))) -> ~((all x. P(x)))) -> (((all x. P(x))) -> ~(~((all x. P(x))) -> ((all x. P(x)))))) -> (~((all x. P(x))) -> ((~~(~((all x. P(x))) -> ((all x. P(x)))) -> ~((all x. P(x)))) -> (((all x. P(x))) -> ~(~((all x. P(x))) -> ((all x. P(x)))))))",
+    },
+    // Step 57
+    { _tag: "mp", leftIndex: 53, rightIndex: 56 },
+    // Step 58
+    { _tag: "mp", leftIndex: 57, rightIndex: 55 },
+    // Step 59
+    { _tag: "mp", leftIndex: 54, rightIndex: 58 },
+    // Step 60
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. P(x))) -> (((all x. P(x))) -> ~(~((all x. P(x))) -> ((all x. P(x)))))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> (~((all x. P(x))) -> ~(~((all x. P(x))) -> ((all x. P(x))))))",
+    },
+    // Step 61
+    { _tag: "mp", leftIndex: 59, rightIndex: 60 },
+    // Step 62
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. P(x))) -> ~(~((all x. P(x))) -> ((all x. P(x))))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> ((all x. P(x))))",
+    },
+    // Step 63
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. P(x))) -> ((all x. P(x)))) -> ((~((all x. P(x))) -> ~(~((all x. P(x))) -> ((all x. P(x))))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> ((all x. P(x)))))) -> (((~((all x. P(x))) -> ((all x. P(x)))) -> (~((all x. P(x))) -> ~(~((all x. P(x))) -> ((all x. P(x)))))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> ((all x. P(x))))))",
+    },
+    // Step 64
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. P(x))) -> ~(~((all x. P(x))) -> ((all x. P(x))))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> ((all x. P(x))))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> ((~((all x. P(x))) -> ~(~((all x. P(x))) -> ((all x. P(x))))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> ((all x. P(x))))))",
+    },
+    // Step 65
+    { _tag: "mp", leftIndex: 62, rightIndex: 64 },
+    // Step 66
+    { _tag: "mp", leftIndex: 65, rightIndex: 63 },
+    // Step 67
+    { _tag: "mp", leftIndex: 61, rightIndex: 66 },
+    // Step 68
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. P(x))) -> ((all x. P(x)))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> ((all x. P(x))))) -> (((~((all x. P(x))) -> ((all x. P(x)))) -> (~((all x. P(x))) -> ((all x. P(x))))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> ((all x. P(x)))))",
+    },
+    // Step 69
+    { _tag: "mp", leftIndex: 67, rightIndex: 68 },
+    // Step 70
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. P(x))) -> ((all x. P(x)))) -> (((~((all x. P(x))) -> ((all x. P(x)))) -> (~((all x. P(x))) -> ((all x. P(x))))) -> (~((all x. P(x))) -> ((all x. P(x)))))) -> (((~((all x. P(x))) -> ((all x. P(x)))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> (~((all x. P(x))) -> ((all x. P(x)))))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> (~((all x. P(x))) -> ((all x. P(x))))))",
+    },
+    // Step 71
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. P(x))) -> ((all x. P(x)))) -> (((~((all x. P(x))) -> ((all x. P(x)))) -> (~((all x. P(x))) -> ((all x. P(x))))) -> (~((all x. P(x))) -> ((all x. P(x)))))",
+    },
+    // Step 72
+    { _tag: "mp", leftIndex: 71, rightIndex: 70 },
+    // Step 73
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. P(x))) -> ((all x. P(x)))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> (~((all x. P(x))) -> ((all x. P(x)))))",
+    },
+    // Step 74
+    { _tag: "mp", leftIndex: 73, rightIndex: 72 },
+    // Step 75
+    { _tag: "mp", leftIndex: 74, rightIndex: 69 },
+    // Step 76
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. P(x))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> ((all x. P(x))))) -> ((~~((all x. P(x))) -> (~((all x. P(x))) -> ((all x. P(x))))) -> (~~((all x. P(x))) -> ((all x. P(x)))))",
+    },
+    // Step 77
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. P(x))) -> ((all x. P(x)))) -> ((all x. P(x)))) -> (~~((all x. P(x))) -> ((~((all x. P(x))) -> ((all x. P(x)))) -> ((all x. P(x)))))",
+    },
+    // Step 78
+    { _tag: "mp", leftIndex: 75, rightIndex: 77 },
+    // Step 79
+    { _tag: "mp", leftIndex: 78, rightIndex: 76 },
+    // Step 80
+    { _tag: "mp", leftIndex: 52, rightIndex: 79 },
+    // Step 81
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. P(x))) -> (((all x. P(x))) -> ((all x. ~~P(x)))))",
+    },
+    // Step 82
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. P(x))) -> (((all x. P(x))) -> ((all x. ~~P(x))))) -> ((~~((all x. P(x))) -> ((all x. P(x)))) -> (~~((all x. P(x))) -> ((all x. ~~P(x)))))",
+    },
+    // Step 83
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. P(x))) -> (((all x. P(x))) -> ((all x. ~~P(x))))) -> ((~~((all x. P(x))) -> ((all x. P(x)))) -> (~~((all x. P(x))) -> ((all x. ~~P(x)))))) -> ((((all x. P(x))) -> ((all x. ~~P(x)))) -> ((~~((all x. P(x))) -> (((all x. P(x))) -> ((all x. ~~P(x))))) -> ((~~((all x. P(x))) -> ((all x. P(x)))) -> (~~((all x. P(x))) -> ((all x. ~~P(x)))))))",
+    },
+    // Step 84
+    { _tag: "mp", leftIndex: 82, rightIndex: 83 },
+    // Step 85
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((all x. P(x))) -> ((all x. ~~P(x)))) -> ((~~((all x. P(x))) -> (((all x. P(x))) -> ((all x. ~~P(x))))) -> ((~~((all x. P(x))) -> ((all x. P(x)))) -> (~~((all x. P(x))) -> ((all x. ~~P(x))))))) -> (((((all x. P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. P(x))) -> (((all x. P(x))) -> ((all x. ~~P(x)))))) -> ((((all x. P(x))) -> ((all x. ~~P(x)))) -> ((~~((all x. P(x))) -> ((all x. P(x)))) -> (~~((all x. P(x))) -> ((all x. ~~P(x)))))))",
+    },
+    // Step 86
+    { _tag: "mp", leftIndex: 84, rightIndex: 85 },
+    // Step 87
+    { _tag: "mp", leftIndex: 81, rightIndex: 86 },
+    // Step 88
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. P(x))) -> ((all x. P(x)))) -> ((((all x. P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. P(x))) -> ((all x. P(x)))))",
+    },
+    // Step 89
+    { _tag: "mp", leftIndex: 80, rightIndex: 88 },
+    // Step 90
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((all x. P(x))) -> ((all x. ~~P(x)))) -> ((~~((all x. P(x))) -> ((all x. P(x)))) -> (~~((all x. P(x))) -> ((all x. ~~P(x)))))) -> (((((all x. P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. P(x))) -> ((all x. P(x))))) -> ((((all x. P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. P(x))) -> ((all x. ~~P(x))))))",
+    },
+    // Step 91
+    { _tag: "mp", leftIndex: 87, rightIndex: 90 },
+    // Step 92
+    { _tag: "mp", leftIndex: 89, rightIndex: 91 },
+    // Step 93
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~~((all x. ~~P(x))) -> (~~((all x. ~~P(x))) -> ~~~((all x. ~~P(x))))",
+    },
+    // Step 94
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~~P(x))) -> ~~~((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))",
+    },
+    // Step 95
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~((all x. ~~P(x))) -> ((~~((all x. ~~P(x))) -> ~~~((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))))) -> ((~~~((all x. ~~P(x))) -> (~~((all x. ~~P(x))) -> ~~~((all x. ~~P(x))))) -> (~~~((all x. ~~P(x))) -> (~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))))",
+    },
+    // Step 96
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~~P(x))) -> ~~~((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))) -> (~~~((all x. ~~P(x))) -> ((~~((all x. ~~P(x))) -> ~~~((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))))",
+    },
+    // Step 97
+    { _tag: "mp", leftIndex: 94, rightIndex: 96 },
+    // Step 98
+    { _tag: "mp", leftIndex: 97, rightIndex: 95 },
+    // Step 99
+    { _tag: "mp", leftIndex: 93, rightIndex: 98 },
+    // Step 100
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~~((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))))",
+    },
+    // Step 101
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~((all x. ~~P(x))) -> (~~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~~((all x. ~~P(x))))",
+    },
+    // Step 102
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~~P(x))) -> ((~~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~~((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))))) -> ((~~((all x. ~~P(x))) -> (~~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~~((all x. ~~P(x))))) -> (~~((all x. ~~P(x))) -> (~((all x. ~~P(x))) -> ~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))))))",
+    },
+    // Step 103
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~~((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))))) -> (~~((all x. ~~P(x))) -> ((~~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~~((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))))))",
+    },
+    // Step 104
+    { _tag: "mp", leftIndex: 100, rightIndex: 103 },
+    // Step 105
+    { _tag: "mp", leftIndex: 104, rightIndex: 102 },
+    // Step 106
+    { _tag: "mp", leftIndex: 101, rightIndex: 105 },
+    // Step 107
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~~P(x))) -> (~((all x. ~~P(x))) -> ~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))))",
+    },
+    // Step 108
+    { _tag: "mp", leftIndex: 106, rightIndex: 107 },
+    // Step 109
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~~P(x))) -> ~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~((all x. ~~P(x))))",
+    },
+    // Step 110
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ((~~((all x. ~~P(x))) -> ~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~((all x. ~~P(x)))))) -> (((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~((all x. ~~P(x))))))",
+    },
+    // Step 111
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~~P(x))) -> ~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~((all x. ~~P(x))))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ((~~((all x. ~~P(x))) -> ~(~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~((all x. ~~P(x))))))",
+    },
+    // Step 112
+    { _tag: "mp", leftIndex: 109, rightIndex: 111 },
+    // Step 113
+    { _tag: "mp", leftIndex: 112, rightIndex: 110 },
+    // Step 114
+    { _tag: "mp", leftIndex: 108, rightIndex: 113 },
+    // Step 115
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~((all x. ~~P(x))))) -> (((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~((all x. ~~P(x)))))",
+    },
+    // Step 116
+    { _tag: "mp", leftIndex: 114, rightIndex: 115 },
+    // Step 117
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> (((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))) -> (~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))))) -> (((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))))",
+    },
+    // Step 118
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> (((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))) -> (~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))))",
+    },
+    // Step 119
+    { _tag: "mp", leftIndex: 118, rightIndex: 117 },
+    // Step 120
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))))",
+    },
+    // Step 121
+    { _tag: "mp", leftIndex: 120, rightIndex: 119 },
+    // Step 122
+    { _tag: "mp", leftIndex: 121, rightIndex: 116 },
+    // Step 123
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~((all x. ~~P(x))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~((all x. ~~P(x))))) -> ((~~~((all x. ~~P(x))) -> (~~((all x. ~~P(x))) -> ~((all x. ~~P(x))))) -> (~~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))))",
+    },
+    // Step 124
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~((all x. ~~P(x)))) -> (~~~((all x. ~~P(x))) -> ((~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> ~((all x. ~~P(x)))))",
+    },
+    // Step 125
+    { _tag: "mp", leftIndex: 122, rightIndex: 124 },
+    // Step 126
+    { _tag: "mp", leftIndex: 125, rightIndex: 123 },
+    // Step 127
+    { _tag: "mp", leftIndex: 99, rightIndex: 126 },
+    // Step 128
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~((all x. ~~P(x))) -> ~((all x. ~~P(x)))) -> (((all x. ~~P(x))) -> ~~((all x. ~~P(x))))",
+    },
+    // Step 129
+    { _tag: "mp", leftIndex: 127, rightIndex: 128 },
+    // Step 130
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. ~~P(x))) -> ~~((all x. ~~P(x)))) -> (~~((all x. P(x))) -> (((all x. ~~P(x))) -> ~~((all x. ~~P(x)))))",
+    },
+    // Step 131
+    { _tag: "mp", leftIndex: 129, rightIndex: 130 },
+    // Step 132
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. P(x))) -> (((all x. ~~P(x))) -> ~~((all x. ~~P(x))))) -> ((~~((all x. P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. P(x))) -> ~~((all x. ~~P(x)))))",
+    },
+    // Step 133
+    { _tag: "mp", leftIndex: 131, rightIndex: 132 },
+    // Step 134
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. P(x))) -> ~~((all x. ~~P(x))))) -> ((((all x. P(x))) -> ((all x. ~~P(x)))) -> ((~~((all x. P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. P(x))) -> ~~((all x. ~~P(x))))))",
+    },
+    // Step 135
+    { _tag: "mp", leftIndex: 133, rightIndex: 134 },
+    // Step 136
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((all x. P(x))) -> ((all x. ~~P(x)))) -> ((~~((all x. P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. P(x))) -> ~~((all x. ~~P(x)))))) -> (((((all x. P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. P(x))) -> ((all x. ~~P(x))))) -> ((((all x. P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. P(x))) -> ~~((all x. ~~P(x))))))",
+    },
+    // Step 137
+    { _tag: "mp", leftIndex: 135, rightIndex: 136 },
+    // Step 138
+    { _tag: "mp", leftIndex: 92, rightIndex: 137 },
+    // Step 139
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. P(x))) -> ~~((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ~((all x. P(x))))",
+    },
+    // Step 140
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. P(x))) -> ~~((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ~((all x. P(x))))) -> ((((all x. P(x))) -> ((all x. ~~P(x)))) -> ((~~((all x. P(x))) -> ~~((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ~((all x. P(x))))))",
+    },
+    // Step 141
+    { _tag: "mp", leftIndex: 139, rightIndex: 140 },
+    // Step 142
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((all x. P(x))) -> ((all x. ~~P(x)))) -> ((~~((all x. P(x))) -> ~~((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ~((all x. P(x)))))) -> (((((all x. P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. P(x))) -> ~~((all x. ~~P(x))))) -> ((((all x. P(x))) -> ((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ~((all x. P(x))))))",
+    },
+    // Step 143
+    { _tag: "mp", leftIndex: 141, rightIndex: 142 },
+    // Step 144
+    { _tag: "mp", leftIndex: 138, rightIndex: 143 },
+    // Step 145
+    { _tag: "mp", leftIndex: 45, rightIndex: 144 },
+    // Step 146
+    { _tag: "axiom", formulaText: "(ex x. ~P(x)) -> ~(all x. ~~P(x))" },
+    // Step 147
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~~P(x))) -> (~(all x. P(x)))) -> (((ex x. ~P(x))) -> ((~(all x. ~~P(x))) -> (~(all x. P(x)))))",
+    },
+    // Step 148
+    { _tag: "mp", leftIndex: 145, rightIndex: 147 },
+    // Step 149
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((ex x. ~P(x))) -> ((~(all x. ~~P(x))) -> (~(all x. P(x))))) -> ((((ex x. ~P(x))) -> (~(all x. ~~P(x)))) -> (((ex x. ~P(x))) -> (~(all x. P(x)))))",
+    },
+    // Step 150
+    { _tag: "mp", leftIndex: 148, rightIndex: 149 },
+    // Step 151
+    { _tag: "mp", leftIndex: 146, rightIndex: 150 },
+  ],
 };
 
 /**
  * pred-06: ∀x.¬P(x) → ¬∃x.P(x)
  *
- * ∃ を含む命題。axiom ステップでゴール式テキストを直接配置。1ステップ。
+ * A3[α=¬(∃x.P(x)),β=(∀x.¬P(x))] + DNE + EX-DEF fwd + HS。
+ * 43ステップ。
  */
 const pred06UnivNegToNegExist: ModelAnswer = {
   questId: "pred-06",
-  steps: [{ _tag: "axiom", formulaText: "(all x. ~P(x)) -> ~(ex x. P(x))" }],
+  steps: [
+    // Step 0
+    {
+      _tag: "axiom",
+      formulaText: "~~(ex x. P(x)) -> (~(ex x. P(x)) -> ~~(ex x. P(x)))",
+    },
+    // Step 1
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex x. P(x)) -> ~~(ex x. P(x))) -> (~(ex x. P(x)) -> (ex x. P(x)))",
+    },
+    // Step 2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x)) -> ((~(ex x. P(x)) -> ~~(ex x. P(x))) -> (~(ex x. P(x)) -> (ex x. P(x))))) -> ((~~(ex x. P(x)) -> (~(ex x. P(x)) -> ~~(ex x. P(x)))) -> (~~(ex x. P(x)) -> (~(ex x. P(x)) -> (ex x. P(x)))))",
+    },
+    // Step 3
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex x. P(x)) -> ~~(ex x. P(x))) -> (~(ex x. P(x)) -> (ex x. P(x)))) -> (~~(ex x. P(x)) -> ((~(ex x. P(x)) -> ~~(ex x. P(x))) -> (~(ex x. P(x)) -> (ex x. P(x)))))",
+    },
+    // Step 4
+    { _tag: "mp", leftIndex: 1, rightIndex: 3 },
+    // Step 5
+    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+    // Step 6
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+    // Step 7
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~(ex x. P(x)) -> (ex x. P(x))) -> ~(ex x. P(x))) -> ((ex x. P(x)) -> ~(~(ex x. P(x)) -> (ex x. P(x))))",
+    },
+    // Step 8
+    {
+      _tag: "axiom",
+      formulaText:
+        "~(ex x. P(x)) -> (~~(~(ex x. P(x)) -> (ex x. P(x))) -> ~(ex x. P(x)))",
+    },
+    // Step 9
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex x. P(x)) -> ((~~(~(ex x. P(x)) -> (ex x. P(x))) -> ~(ex x. P(x))) -> ((ex x. P(x)) -> ~(~(ex x. P(x)) -> (ex x. P(x)))))) -> ((~(ex x. P(x)) -> (~~(~(ex x. P(x)) -> (ex x. P(x))) -> ~(ex x. P(x)))) -> (~(ex x. P(x)) -> ((ex x. P(x)) -> ~(~(ex x. P(x)) -> (ex x. P(x))))))",
+    },
+    // Step 10
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~(ex x. P(x)) -> (ex x. P(x))) -> ~(ex x. P(x))) -> ((ex x. P(x)) -> ~(~(ex x. P(x)) -> (ex x. P(x))))) -> (~(ex x. P(x)) -> ((~~(~(ex x. P(x)) -> (ex x. P(x))) -> ~(ex x. P(x))) -> ((ex x. P(x)) -> ~(~(ex x. P(x)) -> (ex x. P(x))))))",
+    },
+    // Step 11
+    { _tag: "mp", leftIndex: 7, rightIndex: 10 },
+    // Step 12
+    { _tag: "mp", leftIndex: 11, rightIndex: 9 },
+    // Step 13
+    { _tag: "mp", leftIndex: 8, rightIndex: 12 },
+    // Step 14
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex x. P(x)) -> ((ex x. P(x)) -> ~(~(ex x. P(x)) -> (ex x. P(x))))) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> (~(ex x. P(x)) -> ~(~(ex x. P(x)) -> (ex x. P(x)))))",
+    },
+    // Step 15
+    { _tag: "mp", leftIndex: 13, rightIndex: 14 },
+    // Step 16
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex x. P(x)) -> ~(~(ex x. P(x)) -> (ex x. P(x)))) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> (ex x. P(x)))",
+    },
+    // Step 17
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex x. P(x)) -> (ex x. P(x))) -> ((~(ex x. P(x)) -> ~(~(ex x. P(x)) -> (ex x. P(x)))) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> (ex x. P(x))))) -> (((~(ex x. P(x)) -> (ex x. P(x))) -> (~(ex x. P(x)) -> ~(~(ex x. P(x)) -> (ex x. P(x))))) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> (ex x. P(x)))))",
+    },
+    // Step 18
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex x. P(x)) -> ~(~(ex x. P(x)) -> (ex x. P(x)))) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> (ex x. P(x)))) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> ((~(ex x. P(x)) -> ~(~(ex x. P(x)) -> (ex x. P(x)))) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> (ex x. P(x)))))",
+    },
+    // Step 19
+    { _tag: "mp", leftIndex: 16, rightIndex: 18 },
+    // Step 20
+    { _tag: "mp", leftIndex: 19, rightIndex: 17 },
+    // Step 21
+    { _tag: "mp", leftIndex: 15, rightIndex: 20 },
+    // Step 22
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex x. P(x)) -> (ex x. P(x))) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> (ex x. P(x)))) -> (((~(ex x. P(x)) -> (ex x. P(x))) -> (~(ex x. P(x)) -> (ex x. P(x)))) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> (ex x. P(x))))",
+    },
+    // Step 23
+    { _tag: "mp", leftIndex: 21, rightIndex: 22 },
+    // Step 24
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex x. P(x)) -> (ex x. P(x))) -> (((~(ex x. P(x)) -> (ex x. P(x))) -> (~(ex x. P(x)) -> (ex x. P(x)))) -> (~(ex x. P(x)) -> (ex x. P(x))))) -> (((~(ex x. P(x)) -> (ex x. P(x))) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> (~(ex x. P(x)) -> (ex x. P(x))))) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> (~(ex x. P(x)) -> (ex x. P(x)))))",
+    },
+    // Step 25
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex x. P(x)) -> (ex x. P(x))) -> (((~(ex x. P(x)) -> (ex x. P(x))) -> (~(ex x. P(x)) -> (ex x. P(x)))) -> (~(ex x. P(x)) -> (ex x. P(x))))",
+    },
+    // Step 26
+    { _tag: "mp", leftIndex: 25, rightIndex: 24 },
+    // Step 27
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex x. P(x)) -> (ex x. P(x))) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> (~(ex x. P(x)) -> (ex x. P(x))))",
+    },
+    // Step 28
+    { _tag: "mp", leftIndex: 27, rightIndex: 26 },
+    // Step 29
+    { _tag: "mp", leftIndex: 28, rightIndex: 23 },
+    // Step 30
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x)) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> (ex x. P(x)))) -> ((~~(ex x. P(x)) -> (~(ex x. P(x)) -> (ex x. P(x)))) -> (~~(ex x. P(x)) -> (ex x. P(x))))",
+    },
+    // Step 31
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex x. P(x)) -> (ex x. P(x))) -> (ex x. P(x))) -> (~~(ex x. P(x)) -> ((~(ex x. P(x)) -> (ex x. P(x))) -> (ex x. P(x))))",
+    },
+    // Step 32
+    { _tag: "mp", leftIndex: 29, rightIndex: 31 },
+    // Step 33
+    { _tag: "mp", leftIndex: 32, rightIndex: 30 },
+    // Step 34
+    { _tag: "mp", leftIndex: 6, rightIndex: 33 },
+    // Step 35
+    { _tag: "axiom", formulaText: "(ex x. P(x)) -> ~(all x. ~P(x))" },
+    // Step 36
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((ex x. P(x))) -> (~(all x. ~P(x)))) -> ((~~(ex x. P(x))) -> (((ex x. P(x))) -> (~(all x. ~P(x)))))",
+    },
+    // Step 37
+    { _tag: "mp", leftIndex: 35, rightIndex: 36 },
+    // Step 38
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex x. P(x))) -> (((ex x. P(x))) -> (~(all x. ~P(x))))) -> (((~~(ex x. P(x))) -> ((ex x. P(x)))) -> ((~~(ex x. P(x))) -> (~(all x. ~P(x)))))",
+    },
+    // Step 39
+    { _tag: "mp", leftIndex: 37, rightIndex: 38 },
+    // Step 40
+    { _tag: "mp", leftIndex: 34, rightIndex: 39 },
+    // Step 41
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x)) -> ~(all x. ~P(x))) -> ((all x. ~P(x)) -> ~(ex x. P(x)))",
+    },
+    // Step 42
+    { _tag: "mp", leftIndex: 40, rightIndex: 41 },
+  ],
 };
 
 /**
@@ -10211,43 +11156,1960 @@ const predAdv01UniversalImplicationDistribution: ModelAnswer = {
  * pred-adv-02: 存在の否定 → 全称の否定
  *
  * ¬(∃x.P(x)) → (∀x.¬P(x))。
- * ∃x.P(x) = ¬∀x.¬P(x) なので、¬(∃x.P(x)) = ¬¬(∀x.¬P(x))。
- * 二重否定除去で ∀x.¬P(x) を得る。
- * axiom ステップでゴール式テキストを直接配置。
+ * A3[α=(∀x.¬P(x)),β=¬(∃x.P(x))] + EX-DEF bwd + DNI + HS。
+ * 45ステップ。
  */
 const predAdv02NegationOfExistence: ModelAnswer = {
   questId: "pred-adv-02",
-  steps: [{ _tag: "axiom", formulaText: "~(ex x. P(x)) -> (all x. ~P(x))" }],
+  steps: [
+    // Step 0
+    { _tag: "axiom", formulaText: "~(all x. ~P(x)) -> (ex x. P(x))" },
+    // Step 1
+    {
+      _tag: "axiom",
+      formulaText: "~~~(ex x. P(x)) -> (~~(ex x. P(x)) -> ~~~(ex x. P(x)))",
+    },
+    // Step 2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x)) -> ~~~(ex x. P(x))) -> (~~(ex x. P(x)) -> ~(ex x. P(x)))",
+    },
+    // Step 3
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(ex x. P(x)) -> ((~~(ex x. P(x)) -> ~~~(ex x. P(x))) -> (~~(ex x. P(x)) -> ~(ex x. P(x))))) -> ((~~~(ex x. P(x)) -> (~~(ex x. P(x)) -> ~~~(ex x. P(x)))) -> (~~~(ex x. P(x)) -> (~~(ex x. P(x)) -> ~(ex x. P(x)))))",
+    },
+    // Step 4
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex x. P(x)) -> ~~~(ex x. P(x))) -> (~~(ex x. P(x)) -> ~(ex x. P(x)))) -> (~~~(ex x. P(x)) -> ((~~(ex x. P(x)) -> ~~~(ex x. P(x))) -> (~~(ex x. P(x)) -> ~(ex x. P(x)))))",
+    },
+    // Step 5
+    { _tag: "mp", leftIndex: 2, rightIndex: 4 },
+    // Step 6
+    { _tag: "mp", leftIndex: 5, rightIndex: 3 },
+    // Step 7
+    { _tag: "mp", leftIndex: 1, rightIndex: 6 },
+    // Step 8
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~~(ex x. P(x))) -> (~(ex x. P(x)) -> ~(~~(ex x. P(x)) -> ~(ex x. P(x))))",
+    },
+    // Step 9
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~(ex x. P(x)) -> (~~(~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~~(ex x. P(x)))",
+    },
+    // Step 10
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x)) -> ((~~(~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~~(ex x. P(x))) -> (~(ex x. P(x)) -> ~(~~(ex x. P(x)) -> ~(ex x. P(x)))))) -> ((~~(ex x. P(x)) -> (~~(~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~~(ex x. P(x)))) -> (~~(ex x. P(x)) -> (~(ex x. P(x)) -> ~(~~(ex x. P(x)) -> ~(ex x. P(x))))))",
+    },
+    // Step 11
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~~(ex x. P(x))) -> (~(ex x. P(x)) -> ~(~~(ex x. P(x)) -> ~(ex x. P(x))))) -> (~~(ex x. P(x)) -> ((~~(~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~~(ex x. P(x))) -> (~(ex x. P(x)) -> ~(~~(ex x. P(x)) -> ~(ex x. P(x))))))",
+    },
+    // Step 12
+    { _tag: "mp", leftIndex: 8, rightIndex: 11 },
+    // Step 13
+    { _tag: "mp", leftIndex: 12, rightIndex: 10 },
+    // Step 14
+    { _tag: "mp", leftIndex: 9, rightIndex: 13 },
+    // Step 15
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x)) -> (~(ex x. P(x)) -> ~(~~(ex x. P(x)) -> ~(ex x. P(x))))) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> (~~(ex x. P(x)) -> ~(~~(ex x. P(x)) -> ~(ex x. P(x)))))",
+    },
+    // Step 16
+    { _tag: "mp", leftIndex: 14, rightIndex: 15 },
+    // Step 17
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x)) -> ~(~~(ex x. P(x)) -> ~(ex x. P(x)))) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~(ex x. P(x)))",
+    },
+    // Step 18
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ((~~(ex x. P(x)) -> ~(~~(ex x. P(x)) -> ~(ex x. P(x)))) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~(ex x. P(x))))) -> (((~~(ex x. P(x)) -> ~(ex x. P(x))) -> (~~(ex x. P(x)) -> ~(~~(ex x. P(x)) -> ~(ex x. P(x))))) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~(ex x. P(x)))))",
+    },
+    // Step 19
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex x. P(x)) -> ~(~~(ex x. P(x)) -> ~(ex x. P(x)))) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~(ex x. P(x)))) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ((~~(ex x. P(x)) -> ~(~~(ex x. P(x)) -> ~(ex x. P(x)))) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~(ex x. P(x)))))",
+    },
+    // Step 20
+    { _tag: "mp", leftIndex: 17, rightIndex: 19 },
+    // Step 21
+    { _tag: "mp", leftIndex: 20, rightIndex: 18 },
+    // Step 22
+    { _tag: "mp", leftIndex: 16, rightIndex: 21 },
+    // Step 23
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~(ex x. P(x)))) -> (((~~(ex x. P(x)) -> ~(ex x. P(x))) -> (~~(ex x. P(x)) -> ~(ex x. P(x)))) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~(ex x. P(x))))",
+    },
+    // Step 24
+    { _tag: "mp", leftIndex: 22, rightIndex: 23 },
+    // Step 25
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex x. P(x)) -> ~(ex x. P(x))) -> (((~~(ex x. P(x)) -> ~(ex x. P(x))) -> (~~(ex x. P(x)) -> ~(ex x. P(x)))) -> (~~(ex x. P(x)) -> ~(ex x. P(x))))) -> (((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> (~~(ex x. P(x)) -> ~(ex x. P(x))))) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> (~~(ex x. P(x)) -> ~(ex x. P(x)))))",
+    },
+    // Step 26
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x)) -> ~(ex x. P(x))) -> (((~~(ex x. P(x)) -> ~(ex x. P(x))) -> (~~(ex x. P(x)) -> ~(ex x. P(x)))) -> (~~(ex x. P(x)) -> ~(ex x. P(x))))",
+    },
+    // Step 27
+    { _tag: "mp", leftIndex: 26, rightIndex: 25 },
+    // Step 28
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x)) -> ~(ex x. P(x))) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> (~~(ex x. P(x)) -> ~(ex x. P(x))))",
+    },
+    // Step 29
+    { _tag: "mp", leftIndex: 28, rightIndex: 27 },
+    // Step 30
+    { _tag: "mp", leftIndex: 29, rightIndex: 24 },
+    // Step 31
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(ex x. P(x)) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~(ex x. P(x)))) -> ((~~~(ex x. P(x)) -> (~~(ex x. P(x)) -> ~(ex x. P(x)))) -> (~~~(ex x. P(x)) -> ~(ex x. P(x))))",
+    },
+    // Step 32
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~(ex x. P(x))) -> (~~~(ex x. P(x)) -> ((~~(ex x. P(x)) -> ~(ex x. P(x))) -> ~(ex x. P(x))))",
+    },
+    // Step 33
+    { _tag: "mp", leftIndex: 30, rightIndex: 32 },
+    // Step 34
+    { _tag: "mp", leftIndex: 33, rightIndex: 31 },
+    // Step 35
+    { _tag: "mp", leftIndex: 7, rightIndex: 34 },
+    // Step 36
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(ex x. P(x)) -> ~(ex x. P(x))) -> ((ex x. P(x)) -> ~~(ex x. P(x)))",
+    },
+    // Step 37
+    { _tag: "mp", leftIndex: 35, rightIndex: 36 },
+    // Step 38
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((ex x. P(x))) -> (~~(ex x. P(x)))) -> ((~(all x. ~P(x))) -> (((ex x. P(x))) -> (~~(ex x. P(x)))))",
+    },
+    // Step 39
+    { _tag: "mp", leftIndex: 37, rightIndex: 38 },
+    // Step 40
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x))) -> (((ex x. P(x))) -> (~~(ex x. P(x))))) -> (((~(all x. ~P(x))) -> ((ex x. P(x)))) -> ((~(all x. ~P(x))) -> (~~(ex x. P(x)))))",
+    },
+    // Step 41
+    { _tag: "mp", leftIndex: 39, rightIndex: 40 },
+    // Step 42
+    { _tag: "mp", leftIndex: 0, rightIndex: 41 },
+    // Step 43
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> ~~(ex x. P(x))) -> (~(ex x. P(x)) -> (all x. ~P(x)))",
+    },
+    // Step 44
+    { _tag: "mp", leftIndex: 42, rightIndex: 43 },
+  ],
 };
 
 /**
  * pred-adv-03: 全称の否定 → 存在の否定
  *
  * ¬(∀x.P(x)) → (∃x.¬P(x))。
- * ∃x.¬P(x) = ¬∀x.¬¬P(x) なので、展開後は ¬(∀x.P(x)) → ¬(∀x.¬¬P(x))。
- * DNE + Gen + Dist∀ + MT の組み合わせ。
- * axiom ステップでゴール式テキストを直接配置。
+ * DNE[P(x)] + Gen + distForall → (∀x.~~P(x))→(∀x.P(x))。
+ * MT + EX-DEF bwd + HS。171ステップ。
  */
 const predAdv03NegationOfUniversal: ModelAnswer = {
   questId: "pred-adv-03",
-  steps: [{ _tag: "axiom", formulaText: "~(all x. P(x)) -> ex x. ~P(x)" }],
+  steps: [
+    // Step 0
+    { _tag: "axiom", formulaText: "~~P(x) -> (~P(x) -> ~~P(x))" },
+    // Step 1
+    { _tag: "axiom", formulaText: "(~P(x) -> ~~P(x)) -> (~P(x) -> P(x))" },
+    // Step 2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~P(x) -> ((~P(x) -> ~~P(x)) -> (~P(x) -> P(x)))) -> ((~~P(x) -> (~P(x) -> ~~P(x))) -> (~~P(x) -> (~P(x) -> P(x))))",
+    },
+    // Step 3
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~P(x) -> ~~P(x)) -> (~P(x) -> P(x))) -> (~~P(x) -> ((~P(x) -> ~~P(x)) -> (~P(x) -> P(x))))",
+    },
+    // Step 4
+    { _tag: "mp", leftIndex: 1, rightIndex: 3 },
+    // Step 5
+    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+    // Step 6
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+    // Step 7
+    {
+      _tag: "axiom",
+      formulaText: "(~~(~P(x) -> P(x)) -> ~P(x)) -> (P(x) -> ~(~P(x) -> P(x)))",
+    },
+    // Step 8
+    { _tag: "axiom", formulaText: "~P(x) -> (~~(~P(x) -> P(x)) -> ~P(x))" },
+    // Step 9
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~P(x) -> ((~~(~P(x) -> P(x)) -> ~P(x)) -> (P(x) -> ~(~P(x) -> P(x))))) -> ((~P(x) -> (~~(~P(x) -> P(x)) -> ~P(x))) -> (~P(x) -> (P(x) -> ~(~P(x) -> P(x)))))",
+    },
+    // Step 10
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~P(x) -> P(x)) -> ~P(x)) -> (P(x) -> ~(~P(x) -> P(x)))) -> (~P(x) -> ((~~(~P(x) -> P(x)) -> ~P(x)) -> (P(x) -> ~(~P(x) -> P(x)))))",
+    },
+    // Step 11
+    { _tag: "mp", leftIndex: 7, rightIndex: 10 },
+    // Step 12
+    { _tag: "mp", leftIndex: 11, rightIndex: 9 },
+    // Step 13
+    { _tag: "mp", leftIndex: 8, rightIndex: 12 },
+    // Step 14
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~P(x) -> (P(x) -> ~(~P(x) -> P(x)))) -> ((~P(x) -> P(x)) -> (~P(x) -> ~(~P(x) -> P(x))))",
+    },
+    // Step 15
+    { _tag: "mp", leftIndex: 13, rightIndex: 14 },
+    // Step 16
+    {
+      _tag: "axiom",
+      formulaText: "(~P(x) -> ~(~P(x) -> P(x))) -> ((~P(x) -> P(x)) -> P(x))",
+    },
+    // Step 17
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~P(x) -> P(x)) -> ((~P(x) -> ~(~P(x) -> P(x))) -> ((~P(x) -> P(x)) -> P(x)))) -> (((~P(x) -> P(x)) -> (~P(x) -> ~(~P(x) -> P(x)))) -> ((~P(x) -> P(x)) -> ((~P(x) -> P(x)) -> P(x))))",
+    },
+    // Step 18
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~P(x) -> ~(~P(x) -> P(x))) -> ((~P(x) -> P(x)) -> P(x))) -> ((~P(x) -> P(x)) -> ((~P(x) -> ~(~P(x) -> P(x))) -> ((~P(x) -> P(x)) -> P(x))))",
+    },
+    // Step 19
+    { _tag: "mp", leftIndex: 16, rightIndex: 18 },
+    // Step 20
+    { _tag: "mp", leftIndex: 19, rightIndex: 17 },
+    // Step 21
+    { _tag: "mp", leftIndex: 15, rightIndex: 20 },
+    // Step 22
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~P(x) -> P(x)) -> ((~P(x) -> P(x)) -> P(x))) -> (((~P(x) -> P(x)) -> (~P(x) -> P(x))) -> ((~P(x) -> P(x)) -> P(x)))",
+    },
+    // Step 23
+    { _tag: "mp", leftIndex: 21, rightIndex: 22 },
+    // Step 24
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~P(x) -> P(x)) -> (((~P(x) -> P(x)) -> (~P(x) -> P(x))) -> (~P(x) -> P(x)))) -> (((~P(x) -> P(x)) -> ((~P(x) -> P(x)) -> (~P(x) -> P(x)))) -> ((~P(x) -> P(x)) -> (~P(x) -> P(x))))",
+    },
+    // Step 25
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~P(x) -> P(x)) -> (((~P(x) -> P(x)) -> (~P(x) -> P(x))) -> (~P(x) -> P(x)))",
+    },
+    // Step 26
+    { _tag: "mp", leftIndex: 25, rightIndex: 24 },
+    // Step 27
+    {
+      _tag: "axiom",
+      formulaText: "(~P(x) -> P(x)) -> ((~P(x) -> P(x)) -> (~P(x) -> P(x)))",
+    },
+    // Step 28
+    { _tag: "mp", leftIndex: 27, rightIndex: 26 },
+    // Step 29
+    { _tag: "mp", leftIndex: 28, rightIndex: 23 },
+    // Step 30
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~P(x) -> ((~P(x) -> P(x)) -> P(x))) -> ((~~P(x) -> (~P(x) -> P(x))) -> (~~P(x) -> P(x)))",
+    },
+    // Step 31
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~P(x) -> P(x)) -> P(x)) -> (~~P(x) -> ((~P(x) -> P(x)) -> P(x)))",
+    },
+    // Step 32
+    { _tag: "mp", leftIndex: 29, rightIndex: 31 },
+    // Step 33
+    { _tag: "mp", leftIndex: 32, rightIndex: 30 },
+    // Step 34
+    { _tag: "mp", leftIndex: 6, rightIndex: 33 },
+    // Step 35
+    { _tag: "gen", premiseIndex: 34, variableName: "x" },
+    // Step 36
+    {
+      _tag: "axiom",
+      formulaText: "(all x. (~~P(x) -> P(x))) -> (~~P(x) -> P(x))",
+    },
+    // Step 37
+    { _tag: "axiom", formulaText: "(all x. ~~P(x)) -> ~~P(x)" },
+    // Step 38
+    {
+      _tag: "axiom",
+      formulaText: "(~~P(x) -> P(x)) -> ((all x. ~~P(x)) -> (~~P(x) -> P(x)))",
+    },
+    // Step 39
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~P(x) -> P(x)) -> ((all x. ~~P(x)) -> (~~P(x) -> P(x)))) -> ((all x. (~~P(x) -> P(x))) -> ((~~P(x) -> P(x)) -> ((all x. ~~P(x)) -> (~~P(x) -> P(x)))))",
+    },
+    // Step 40
+    { _tag: "mp", leftIndex: 38, rightIndex: 39 },
+    // Step 41
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (~~P(x) -> P(x))) -> ((~~P(x) -> P(x)) -> ((all x. ~~P(x)) -> (~~P(x) -> P(x))))) -> (((all x. (~~P(x) -> P(x))) -> (~~P(x) -> P(x))) -> ((all x. (~~P(x) -> P(x))) -> ((all x. ~~P(x)) -> (~~P(x) -> P(x)))))",
+    },
+    // Step 42
+    { _tag: "mp", leftIndex: 40, rightIndex: 41 },
+    // Step 43
+    { _tag: "mp", leftIndex: 36, rightIndex: 42 },
+    // Step 44
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. ~~P(x)) -> (~~P(x) -> P(x))) -> (((all x. ~~P(x)) -> ~~P(x)) -> ((all x. ~~P(x)) -> P(x)))",
+    },
+    // Step 45
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. ~~P(x)) -> (~~P(x) -> P(x))) -> (((all x. ~~P(x)) -> ~~P(x)) -> ((all x. ~~P(x)) -> P(x)))) -> ((all x. (~~P(x) -> P(x))) -> (((all x. ~~P(x)) -> (~~P(x) -> P(x))) -> (((all x. ~~P(x)) -> ~~P(x)) -> ((all x. ~~P(x)) -> P(x)))))",
+    },
+    // Step 46
+    { _tag: "mp", leftIndex: 44, rightIndex: 45 },
+    // Step 47
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (~~P(x) -> P(x))) -> (((all x. ~~P(x)) -> (~~P(x) -> P(x))) -> (((all x. ~~P(x)) -> ~~P(x)) -> ((all x. ~~P(x)) -> P(x))))) -> (((all x. (~~P(x) -> P(x))) -> ((all x. ~~P(x)) -> (~~P(x) -> P(x)))) -> ((all x. (~~P(x) -> P(x))) -> (((all x. ~~P(x)) -> ~~P(x)) -> ((all x. ~~P(x)) -> P(x)))))",
+    },
+    // Step 48
+    { _tag: "mp", leftIndex: 46, rightIndex: 47 },
+    // Step 49
+    { _tag: "mp", leftIndex: 43, rightIndex: 48 },
+    // Step 50
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. ~~P(x)) -> ~~P(x)) -> ((all x. (~~P(x) -> P(x))) -> ((all x. ~~P(x)) -> ~~P(x)))",
+    },
+    // Step 51
+    { _tag: "mp", leftIndex: 37, rightIndex: 50 },
+    // Step 52
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (~~P(x) -> P(x))) -> (((all x. ~~P(x)) -> ~~P(x)) -> ((all x. ~~P(x)) -> P(x)))) -> (((all x. (~~P(x) -> P(x))) -> ((all x. ~~P(x)) -> ~~P(x))) -> ((all x. (~~P(x) -> P(x))) -> ((all x. ~~P(x)) -> P(x))))",
+    },
+    // Step 53
+    { _tag: "mp", leftIndex: 49, rightIndex: 52 },
+    // Step 54
+    { _tag: "mp", leftIndex: 51, rightIndex: 53 },
+    // Step 55
+    { _tag: "gen", premiseIndex: 54, variableName: "x" },
+    // Step 56
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. (~~P(x) -> P(x))) -> ((all x. ~~P(x)) -> P(x)))) -> ((all x. (~~P(x) -> P(x))) -> (all x. ((all x. ~~P(x)) -> P(x))))",
+    },
+    // Step 57
+    { _tag: "mp", leftIndex: 55, rightIndex: 56 },
+    // Step 58
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. ~~P(x)) -> P(x))) -> ((all x. ~~P(x)) -> (all x. P(x)))",
+    },
+    // Step 59
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. ((all x. ~~P(x)) -> P(x))) -> ((all x. ~~P(x)) -> (all x. P(x)))) -> ((all x. (~~P(x) -> P(x))) -> ((all x. ((all x. ~~P(x)) -> P(x))) -> ((all x. ~~P(x)) -> (all x. P(x)))))",
+    },
+    // Step 60
+    { _tag: "mp", leftIndex: 58, rightIndex: 59 },
+    // Step 61
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (~~P(x) -> P(x))) -> ((all x. ((all x. ~~P(x)) -> P(x))) -> ((all x. ~~P(x)) -> (all x. P(x))))) -> (((all x. (~~P(x) -> P(x))) -> (all x. ((all x. ~~P(x)) -> P(x)))) -> ((all x. (~~P(x) -> P(x))) -> ((all x. ~~P(x)) -> (all x. P(x)))))",
+    },
+    // Step 62
+    { _tag: "mp", leftIndex: 60, rightIndex: 61 },
+    // Step 63
+    { _tag: "mp", leftIndex: 57, rightIndex: 62 },
+    // Step 64
+    { _tag: "mp", leftIndex: 35, rightIndex: 63 },
+    // Step 65
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~((all x. ~~P(x))) -> (~((all x. ~~P(x))) -> ~~((all x. ~~P(x))))",
+    },
+    // Step 66
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. ~~P(x))) -> ~~((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ((all x. ~~P(x))))",
+    },
+    // Step 67
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~~P(x))) -> ((~((all x. ~~P(x))) -> ~~((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ((all x. ~~P(x)))))) -> ((~~((all x. ~~P(x))) -> (~((all x. ~~P(x))) -> ~~((all x. ~~P(x))))) -> (~~((all x. ~~P(x))) -> (~((all x. ~~P(x))) -> ((all x. ~~P(x))))))",
+    },
+    // Step 68
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. ~~P(x))) -> ~~((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ((all x. ~~P(x))))) -> (~~((all x. ~~P(x))) -> ((~((all x. ~~P(x))) -> ~~((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ((all x. ~~P(x))))))",
+    },
+    // Step 69
+    { _tag: "mp", leftIndex: 66, rightIndex: 68 },
+    // Step 70
+    { _tag: "mp", leftIndex: 69, rightIndex: 67 },
+    // Step 71
+    { _tag: "mp", leftIndex: 65, rightIndex: 70 },
+    // Step 72
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ~((all x. ~~P(x)))) -> (((all x. ~~P(x))) -> ~(~((all x. ~~P(x))) -> ((all x. ~~P(x)))))",
+    },
+    // Step 73
+    {
+      _tag: "axiom",
+      formulaText:
+        "~((all x. ~~P(x))) -> (~~(~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ~((all x. ~~P(x))))",
+    },
+    // Step 74
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. ~~P(x))) -> ((~~(~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ~((all x. ~~P(x)))) -> (((all x. ~~P(x))) -> ~(~((all x. ~~P(x))) -> ((all x. ~~P(x))))))) -> ((~((all x. ~~P(x))) -> (~~(~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ~((all x. ~~P(x))))) -> (~((all x. ~~P(x))) -> (((all x. ~~P(x))) -> ~(~((all x. ~~P(x))) -> ((all x. ~~P(x)))))))",
+    },
+    // Step 75
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ~((all x. ~~P(x)))) -> (((all x. ~~P(x))) -> ~(~((all x. ~~P(x))) -> ((all x. ~~P(x)))))) -> (~((all x. ~~P(x))) -> ((~~(~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ~((all x. ~~P(x)))) -> (((all x. ~~P(x))) -> ~(~((all x. ~~P(x))) -> ((all x. ~~P(x)))))))",
+    },
+    // Step 76
+    { _tag: "mp", leftIndex: 72, rightIndex: 75 },
+    // Step 77
+    { _tag: "mp", leftIndex: 76, rightIndex: 74 },
+    // Step 78
+    { _tag: "mp", leftIndex: 73, rightIndex: 77 },
+    // Step 79
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. ~~P(x))) -> (((all x. ~~P(x))) -> ~(~((all x. ~~P(x))) -> ((all x. ~~P(x)))))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ~(~((all x. ~~P(x))) -> ((all x. ~~P(x))))))",
+    },
+    // Step 80
+    { _tag: "mp", leftIndex: 78, rightIndex: 79 },
+    // Step 81
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. ~~P(x))) -> ~(~((all x. ~~P(x))) -> ((all x. ~~P(x))))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((all x. ~~P(x))))",
+    },
+    // Step 82
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((~((all x. ~~P(x))) -> ~(~((all x. ~~P(x))) -> ((all x. ~~P(x))))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((all x. ~~P(x)))))) -> (((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ~(~((all x. ~~P(x))) -> ((all x. ~~P(x)))))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((all x. ~~P(x))))))",
+    },
+    // Step 83
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. ~~P(x))) -> ~(~((all x. ~~P(x))) -> ((all x. ~~P(x))))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((all x. ~~P(x))))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((~((all x. ~~P(x))) -> ~(~((all x. ~~P(x))) -> ((all x. ~~P(x))))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((all x. ~~P(x))))))",
+    },
+    // Step 84
+    { _tag: "mp", leftIndex: 81, rightIndex: 83 },
+    // Step 85
+    { _tag: "mp", leftIndex: 84, rightIndex: 82 },
+    // Step 86
+    { _tag: "mp", leftIndex: 80, rightIndex: 85 },
+    // Step 87
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((all x. ~~P(x))))) -> (((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ((all x. ~~P(x))))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((all x. ~~P(x)))))",
+    },
+    // Step 88
+    { _tag: "mp", leftIndex: 86, rightIndex: 87 },
+    // Step 89
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ((all x. ~~P(x))))) -> (~((all x. ~~P(x))) -> ((all x. ~~P(x)))))) -> (((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ((all x. ~~P(x)))))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ((all x. ~~P(x))))))",
+    },
+    // Step 90
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ((all x. ~~P(x))))) -> (~((all x. ~~P(x))) -> ((all x. ~~P(x)))))",
+    },
+    // Step 91
+    { _tag: "mp", leftIndex: 90, rightIndex: 89 },
+    // Step 92
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (~((all x. ~~P(x))) -> ((all x. ~~P(x)))))",
+    },
+    // Step 93
+    { _tag: "mp", leftIndex: 92, rightIndex: 91 },
+    // Step 94
+    { _tag: "mp", leftIndex: 93, rightIndex: 88 },
+    // Step 95
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~~P(x))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((all x. ~~P(x))))) -> ((~~((all x. ~~P(x))) -> (~((all x. ~~P(x))) -> ((all x. ~~P(x))))) -> (~~((all x. ~~P(x))) -> ((all x. ~~P(x)))))",
+    },
+    // Step 96
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ((~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((all x. ~~P(x)))))",
+    },
+    // Step 97
+    { _tag: "mp", leftIndex: 94, rightIndex: 96 },
+    // Step 98
+    { _tag: "mp", leftIndex: 97, rightIndex: 95 },
+    // Step 99
+    { _tag: "mp", leftIndex: 71, rightIndex: 98 },
+    // Step 100
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. ~~P(x))) -> ((all x. P(x)))) -> (~~((all x. ~~P(x))) -> (((all x. ~~P(x))) -> ((all x. P(x)))))",
+    },
+    // Step 101
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~~P(x))) -> (((all x. ~~P(x))) -> ((all x. P(x))))) -> ((~~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ((all x. P(x)))))",
+    },
+    // Step 102
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~~P(x))) -> (((all x. ~~P(x))) -> ((all x. P(x))))) -> ((~~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ((all x. P(x)))))) -> ((((all x. ~~P(x))) -> ((all x. P(x)))) -> ((~~((all x. ~~P(x))) -> (((all x. ~~P(x))) -> ((all x. P(x))))) -> ((~~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ((all x. P(x)))))))",
+    },
+    // Step 103
+    { _tag: "mp", leftIndex: 101, rightIndex: 102 },
+    // Step 104
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((all x. ~~P(x))) -> ((all x. P(x)))) -> ((~~((all x. ~~P(x))) -> (((all x. ~~P(x))) -> ((all x. P(x))))) -> ((~~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ((all x. P(x))))))) -> (((((all x. ~~P(x))) -> ((all x. P(x)))) -> (~~((all x. ~~P(x))) -> (((all x. ~~P(x))) -> ((all x. P(x)))))) -> ((((all x. ~~P(x))) -> ((all x. P(x)))) -> ((~~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ((all x. P(x)))))))",
+    },
+    // Step 105
+    { _tag: "mp", leftIndex: 103, rightIndex: 104 },
+    // Step 106
+    { _tag: "mp", leftIndex: 100, rightIndex: 105 },
+    // Step 107
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> ((((all x. ~~P(x))) -> ((all x. P(x)))) -> (~~((all x. ~~P(x))) -> ((all x. ~~P(x)))))",
+    },
+    // Step 108
+    { _tag: "mp", leftIndex: 99, rightIndex: 107 },
+    // Step 109
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((all x. ~~P(x))) -> ((all x. P(x)))) -> ((~~((all x. ~~P(x))) -> ((all x. ~~P(x)))) -> (~~((all x. ~~P(x))) -> ((all x. P(x)))))) -> (((((all x. ~~P(x))) -> ((all x. P(x)))) -> (~~((all x. ~~P(x))) -> ((all x. ~~P(x))))) -> ((((all x. ~~P(x))) -> ((all x. P(x)))) -> (~~((all x. ~~P(x))) -> ((all x. P(x))))))",
+    },
+    // Step 110
+    { _tag: "mp", leftIndex: 106, rightIndex: 109 },
+    // Step 111
+    { _tag: "mp", leftIndex: 108, rightIndex: 110 },
+    // Step 112
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~~((all x. P(x))) -> (~~((all x. P(x))) -> ~~~((all x. P(x))))",
+    },
+    // Step 113
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. P(x))) -> ~~~((all x. P(x)))) -> (~~((all x. P(x))) -> ~((all x. P(x))))",
+    },
+    // Step 114
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~((all x. P(x))) -> ((~~((all x. P(x))) -> ~~~((all x. P(x)))) -> (~~((all x. P(x))) -> ~((all x. P(x)))))) -> ((~~~((all x. P(x))) -> (~~((all x. P(x))) -> ~~~((all x. P(x))))) -> (~~~((all x. P(x))) -> (~~((all x. P(x))) -> ~((all x. P(x))))))",
+    },
+    // Step 115
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. P(x))) -> ~~~((all x. P(x)))) -> (~~((all x. P(x))) -> ~((all x. P(x))))) -> (~~~((all x. P(x))) -> ((~~((all x. P(x))) -> ~~~((all x. P(x)))) -> (~~((all x. P(x))) -> ~((all x. P(x))))))",
+    },
+    // Step 116
+    { _tag: "mp", leftIndex: 113, rightIndex: 115 },
+    // Step 117
+    { _tag: "mp", leftIndex: 116, rightIndex: 114 },
+    // Step 118
+    { _tag: "mp", leftIndex: 112, rightIndex: 117 },
+    // Step 119
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~~((all x. P(x))) -> ~((all x. P(x)))) -> ~~((all x. P(x)))) -> (~((all x. P(x))) -> ~(~~((all x. P(x))) -> ~((all x. P(x)))))",
+    },
+    // Step 120
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~((all x. P(x))) -> (~~(~~((all x. P(x))) -> ~((all x. P(x)))) -> ~~((all x. P(x))))",
+    },
+    // Step 121
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. P(x))) -> ((~~(~~((all x. P(x))) -> ~((all x. P(x)))) -> ~~((all x. P(x)))) -> (~((all x. P(x))) -> ~(~~((all x. P(x))) -> ~((all x. P(x))))))) -> ((~~((all x. P(x))) -> (~~(~~((all x. P(x))) -> ~((all x. P(x)))) -> ~~((all x. P(x))))) -> (~~((all x. P(x))) -> (~((all x. P(x))) -> ~(~~((all x. P(x))) -> ~((all x. P(x)))))))",
+    },
+    // Step 122
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~~((all x. P(x))) -> ~((all x. P(x)))) -> ~~((all x. P(x)))) -> (~((all x. P(x))) -> ~(~~((all x. P(x))) -> ~((all x. P(x)))))) -> (~~((all x. P(x))) -> ((~~(~~((all x. P(x))) -> ~((all x. P(x)))) -> ~~((all x. P(x)))) -> (~((all x. P(x))) -> ~(~~((all x. P(x))) -> ~((all x. P(x)))))))",
+    },
+    // Step 123
+    { _tag: "mp", leftIndex: 119, rightIndex: 122 },
+    // Step 124
+    { _tag: "mp", leftIndex: 123, rightIndex: 121 },
+    // Step 125
+    { _tag: "mp", leftIndex: 120, rightIndex: 124 },
+    // Step 126
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. P(x))) -> (~((all x. P(x))) -> ~(~~((all x. P(x))) -> ~((all x. P(x)))))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> (~~((all x. P(x))) -> ~(~~((all x. P(x))) -> ~((all x. P(x))))))",
+    },
+    // Step 127
+    { _tag: "mp", leftIndex: 125, rightIndex: 126 },
+    // Step 128
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. P(x))) -> ~(~~((all x. P(x))) -> ~((all x. P(x))))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> ~((all x. P(x))))",
+    },
+    // Step 129
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. P(x))) -> ~((all x. P(x)))) -> ((~~((all x. P(x))) -> ~(~~((all x. P(x))) -> ~((all x. P(x))))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> ~((all x. P(x)))))) -> (((~~((all x. P(x))) -> ~((all x. P(x)))) -> (~~((all x. P(x))) -> ~(~~((all x. P(x))) -> ~((all x. P(x)))))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> ~((all x. P(x))))))",
+    },
+    // Step 130
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. P(x))) -> ~(~~((all x. P(x))) -> ~((all x. P(x))))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> ~((all x. P(x))))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> ((~~((all x. P(x))) -> ~(~~((all x. P(x))) -> ~((all x. P(x))))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> ~((all x. P(x))))))",
+    },
+    // Step 131
+    { _tag: "mp", leftIndex: 128, rightIndex: 130 },
+    // Step 132
+    { _tag: "mp", leftIndex: 131, rightIndex: 129 },
+    // Step 133
+    { _tag: "mp", leftIndex: 127, rightIndex: 132 },
+    // Step 134
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. P(x))) -> ~((all x. P(x)))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> ~((all x. P(x))))) -> (((~~((all x. P(x))) -> ~((all x. P(x)))) -> (~~((all x. P(x))) -> ~((all x. P(x))))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> ~((all x. P(x)))))",
+    },
+    // Step 135
+    { _tag: "mp", leftIndex: 133, rightIndex: 134 },
+    // Step 136
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. P(x))) -> ~((all x. P(x)))) -> (((~~((all x. P(x))) -> ~((all x. P(x)))) -> (~~((all x. P(x))) -> ~((all x. P(x))))) -> (~~((all x. P(x))) -> ~((all x. P(x)))))) -> (((~~((all x. P(x))) -> ~((all x. P(x)))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> (~~((all x. P(x))) -> ~((all x. P(x)))))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> (~~((all x. P(x))) -> ~((all x. P(x))))))",
+    },
+    // Step 137
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. P(x))) -> ~((all x. P(x)))) -> (((~~((all x. P(x))) -> ~((all x. P(x)))) -> (~~((all x. P(x))) -> ~((all x. P(x))))) -> (~~((all x. P(x))) -> ~((all x. P(x)))))",
+    },
+    // Step 138
+    { _tag: "mp", leftIndex: 137, rightIndex: 136 },
+    // Step 139
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. P(x))) -> ~((all x. P(x)))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> (~~((all x. P(x))) -> ~((all x. P(x)))))",
+    },
+    // Step 140
+    { _tag: "mp", leftIndex: 139, rightIndex: 138 },
+    // Step 141
+    { _tag: "mp", leftIndex: 140, rightIndex: 135 },
+    // Step 142
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~((all x. P(x))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> ~((all x. P(x))))) -> ((~~~((all x. P(x))) -> (~~((all x. P(x))) -> ~((all x. P(x))))) -> (~~~((all x. P(x))) -> ~((all x. P(x)))))",
+    },
+    // Step 143
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. P(x))) -> ~((all x. P(x)))) -> ~((all x. P(x)))) -> (~~~((all x. P(x))) -> ((~~((all x. P(x))) -> ~((all x. P(x)))) -> ~((all x. P(x)))))",
+    },
+    // Step 144
+    { _tag: "mp", leftIndex: 141, rightIndex: 143 },
+    // Step 145
+    { _tag: "mp", leftIndex: 144, rightIndex: 142 },
+    // Step 146
+    { _tag: "mp", leftIndex: 118, rightIndex: 145 },
+    // Step 147
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~((all x. P(x))) -> ~((all x. P(x)))) -> (((all x. P(x))) -> ~~((all x. P(x))))",
+    },
+    // Step 148
+    { _tag: "mp", leftIndex: 146, rightIndex: 147 },
+    // Step 149
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. P(x))) -> ~~((all x. P(x)))) -> (~~((all x. ~~P(x))) -> (((all x. P(x))) -> ~~((all x. P(x)))))",
+    },
+    // Step 150
+    { _tag: "mp", leftIndex: 148, rightIndex: 149 },
+    // Step 151
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~~P(x))) -> (((all x. P(x))) -> ~~((all x. P(x))))) -> ((~~((all x. ~~P(x))) -> ((all x. P(x)))) -> (~~((all x. ~~P(x))) -> ~~((all x. P(x)))))",
+    },
+    // Step 152
+    { _tag: "mp", leftIndex: 150, rightIndex: 151 },
+    // Step 153
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~~P(x))) -> ((all x. P(x)))) -> (~~((all x. ~~P(x))) -> ~~((all x. P(x))))) -> ((((all x. ~~P(x))) -> ((all x. P(x)))) -> ((~~((all x. ~~P(x))) -> ((all x. P(x)))) -> (~~((all x. ~~P(x))) -> ~~((all x. P(x))))))",
+    },
+    // Step 154
+    { _tag: "mp", leftIndex: 152, rightIndex: 153 },
+    // Step 155
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((all x. ~~P(x))) -> ((all x. P(x)))) -> ((~~((all x. ~~P(x))) -> ((all x. P(x)))) -> (~~((all x. ~~P(x))) -> ~~((all x. P(x)))))) -> (((((all x. ~~P(x))) -> ((all x. P(x)))) -> (~~((all x. ~~P(x))) -> ((all x. P(x))))) -> ((((all x. ~~P(x))) -> ((all x. P(x)))) -> (~~((all x. ~~P(x))) -> ~~((all x. P(x))))))",
+    },
+    // Step 156
+    { _tag: "mp", leftIndex: 154, rightIndex: 155 },
+    // Step 157
+    { _tag: "mp", leftIndex: 111, rightIndex: 156 },
+    // Step 158
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~~P(x))) -> ~~((all x. P(x)))) -> (~((all x. P(x))) -> ~((all x. ~~P(x))))",
+    },
+    // Step 159
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~~P(x))) -> ~~((all x. P(x)))) -> (~((all x. P(x))) -> ~((all x. ~~P(x))))) -> ((((all x. ~~P(x))) -> ((all x. P(x)))) -> ((~~((all x. ~~P(x))) -> ~~((all x. P(x)))) -> (~((all x. P(x))) -> ~((all x. ~~P(x))))))",
+    },
+    // Step 160
+    { _tag: "mp", leftIndex: 158, rightIndex: 159 },
+    // Step 161
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((all x. ~~P(x))) -> ((all x. P(x)))) -> ((~~((all x. ~~P(x))) -> ~~((all x. P(x)))) -> (~((all x. P(x))) -> ~((all x. ~~P(x)))))) -> (((((all x. ~~P(x))) -> ((all x. P(x)))) -> (~~((all x. ~~P(x))) -> ~~((all x. P(x))))) -> ((((all x. ~~P(x))) -> ((all x. P(x)))) -> (~((all x. P(x))) -> ~((all x. ~~P(x))))))",
+    },
+    // Step 162
+    { _tag: "mp", leftIndex: 160, rightIndex: 161 },
+    // Step 163
+    { _tag: "mp", leftIndex: 157, rightIndex: 162 },
+    // Step 164
+    { _tag: "mp", leftIndex: 64, rightIndex: 163 },
+    // Step 165
+    { _tag: "axiom", formulaText: "~(all x. ~~P(x)) -> (ex x. ~P(x))" },
+    // Step 166
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~~P(x))) -> (ex x. ~P(x))) -> ((~(all x. P(x))) -> ((~(all x. ~~P(x))) -> (ex x. ~P(x))))",
+    },
+    // Step 167
+    { _tag: "mp", leftIndex: 165, rightIndex: 166 },
+    // Step 168
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. P(x))) -> ((~(all x. ~~P(x))) -> (ex x. ~P(x)))) -> (((~(all x. P(x))) -> (~(all x. ~~P(x)))) -> ((~(all x. P(x))) -> (ex x. ~P(x))))",
+    },
+    // Step 169
+    { _tag: "mp", leftIndex: 167, rightIndex: 168 },
+    // Step 170
+    { _tag: "mp", leftIndex: 164, rightIndex: 169 },
+  ],
 };
 
 /**
  * pred-adv-04: 存在の含意分配
  *
  * (∀x.(P(x)→Q(x))) → ((∃x.P(x)) → (∃x.Q(x)))。
- * ∃x.P(x) = ¬∀x.¬P(x), ∃x.Q(x) = ¬∀x.¬Q(x)。
- * A4 + MT + Gen + A5 + Dist∀ + HS で構成。
- * axiom ステップでゴール式テキストを直接配置。
+ * MT[P(x),Q(x)] + Gen + distForall + MT外 + EX-DEF両方向 + HS合成。
+ * 281ステップ。
  */
 const predAdv04ExistentialImplicationDistribution: ModelAnswer = {
   questId: "pred-adv-04",
   steps: [
+    // Step 0
+    { _tag: "axiom", formulaText: "(all x. (P(x) -> Q(x))) -> (P(x) -> Q(x))" },
+    // Step 1
+    { _tag: "axiom", formulaText: "~~(P(x)) -> (~(P(x)) -> ~~(P(x)))" },
+    // Step 2
     {
       _tag: "axiom",
-      formulaText: "(all x. (P(x) -> Q(x))) -> ((ex x. P(x)) -> (ex x. Q(x)))",
+      formulaText: "(~(P(x)) -> ~~(P(x))) -> (~(P(x)) -> (P(x)))",
     },
+    // Step 3
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(P(x)) -> ((~(P(x)) -> ~~(P(x))) -> (~(P(x)) -> (P(x))))) -> ((~~(P(x)) -> (~(P(x)) -> ~~(P(x)))) -> (~~(P(x)) -> (~(P(x)) -> (P(x)))))",
+    },
+    // Step 4
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(P(x)) -> ~~(P(x))) -> (~(P(x)) -> (P(x)))) -> (~~(P(x)) -> ((~(P(x)) -> ~~(P(x))) -> (~(P(x)) -> (P(x)))))",
+    },
+    // Step 5
+    { _tag: "mp", leftIndex: 2, rightIndex: 4 },
+    // Step 6
+    { _tag: "mp", leftIndex: 5, rightIndex: 3 },
+    // Step 7
+    { _tag: "mp", leftIndex: 1, rightIndex: 6 },
+    // Step 8
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~(P(x)) -> (P(x))) -> ~(P(x))) -> ((P(x)) -> ~(~(P(x)) -> (P(x))))",
+    },
+    // Step 9
+    {
+      _tag: "axiom",
+      formulaText: "~(P(x)) -> (~~(~(P(x)) -> (P(x))) -> ~(P(x)))",
+    },
+    // Step 10
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(P(x)) -> ((~~(~(P(x)) -> (P(x))) -> ~(P(x))) -> ((P(x)) -> ~(~(P(x)) -> (P(x)))))) -> ((~(P(x)) -> (~~(~(P(x)) -> (P(x))) -> ~(P(x)))) -> (~(P(x)) -> ((P(x)) -> ~(~(P(x)) -> (P(x))))))",
+    },
+    // Step 11
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~(P(x)) -> (P(x))) -> ~(P(x))) -> ((P(x)) -> ~(~(P(x)) -> (P(x))))) -> (~(P(x)) -> ((~~(~(P(x)) -> (P(x))) -> ~(P(x))) -> ((P(x)) -> ~(~(P(x)) -> (P(x))))))",
+    },
+    // Step 12
+    { _tag: "mp", leftIndex: 8, rightIndex: 11 },
+    // Step 13
+    { _tag: "mp", leftIndex: 12, rightIndex: 10 },
+    // Step 14
+    { _tag: "mp", leftIndex: 9, rightIndex: 13 },
+    // Step 15
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(P(x)) -> ((P(x)) -> ~(~(P(x)) -> (P(x))))) -> ((~(P(x)) -> (P(x))) -> (~(P(x)) -> ~(~(P(x)) -> (P(x)))))",
+    },
+    // Step 16
+    { _tag: "mp", leftIndex: 14, rightIndex: 15 },
+    // Step 17
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(P(x)) -> ~(~(P(x)) -> (P(x)))) -> ((~(P(x)) -> (P(x))) -> (P(x)))",
+    },
+    // Step 18
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(P(x)) -> (P(x))) -> ((~(P(x)) -> ~(~(P(x)) -> (P(x)))) -> ((~(P(x)) -> (P(x))) -> (P(x))))) -> (((~(P(x)) -> (P(x))) -> (~(P(x)) -> ~(~(P(x)) -> (P(x))))) -> ((~(P(x)) -> (P(x))) -> ((~(P(x)) -> (P(x))) -> (P(x)))))",
+    },
+    // Step 19
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(P(x)) -> ~(~(P(x)) -> (P(x)))) -> ((~(P(x)) -> (P(x))) -> (P(x)))) -> ((~(P(x)) -> (P(x))) -> ((~(P(x)) -> ~(~(P(x)) -> (P(x)))) -> ((~(P(x)) -> (P(x))) -> (P(x)))))",
+    },
+    // Step 20
+    { _tag: "mp", leftIndex: 17, rightIndex: 19 },
+    // Step 21
+    { _tag: "mp", leftIndex: 20, rightIndex: 18 },
+    // Step 22
+    { _tag: "mp", leftIndex: 16, rightIndex: 21 },
+    // Step 23
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(P(x)) -> (P(x))) -> ((~(P(x)) -> (P(x))) -> (P(x)))) -> (((~(P(x)) -> (P(x))) -> (~(P(x)) -> (P(x)))) -> ((~(P(x)) -> (P(x))) -> (P(x))))",
+    },
+    // Step 24
+    { _tag: "mp", leftIndex: 22, rightIndex: 23 },
+    // Step 25
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(P(x)) -> (P(x))) -> (((~(P(x)) -> (P(x))) -> (~(P(x)) -> (P(x)))) -> (~(P(x)) -> (P(x))))) -> (((~(P(x)) -> (P(x))) -> ((~(P(x)) -> (P(x))) -> (~(P(x)) -> (P(x))))) -> ((~(P(x)) -> (P(x))) -> (~(P(x)) -> (P(x)))))",
+    },
+    // Step 26
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(P(x)) -> (P(x))) -> (((~(P(x)) -> (P(x))) -> (~(P(x)) -> (P(x)))) -> (~(P(x)) -> (P(x))))",
+    },
+    // Step 27
+    { _tag: "mp", leftIndex: 26, rightIndex: 25 },
+    // Step 28
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(P(x)) -> (P(x))) -> ((~(P(x)) -> (P(x))) -> (~(P(x)) -> (P(x))))",
+    },
+    // Step 29
+    { _tag: "mp", leftIndex: 28, rightIndex: 27 },
+    // Step 30
+    { _tag: "mp", leftIndex: 29, rightIndex: 24 },
+    // Step 31
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(P(x)) -> ((~(P(x)) -> (P(x))) -> (P(x)))) -> ((~~(P(x)) -> (~(P(x)) -> (P(x)))) -> (~~(P(x)) -> (P(x))))",
+    },
+    // Step 32
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(P(x)) -> (P(x))) -> (P(x))) -> (~~(P(x)) -> ((~(P(x)) -> (P(x))) -> (P(x))))",
+    },
+    // Step 33
+    { _tag: "mp", leftIndex: 30, rightIndex: 32 },
+    // Step 34
+    { _tag: "mp", leftIndex: 33, rightIndex: 31 },
+    // Step 35
+    { _tag: "mp", leftIndex: 7, rightIndex: 34 },
+    // Step 36
+    {
+      _tag: "axiom",
+      formulaText: "((P(x)) -> (Q(x))) -> (~~(P(x)) -> ((P(x)) -> (Q(x))))",
+    },
+    // Step 37
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(P(x)) -> ((P(x)) -> (Q(x)))) -> ((~~(P(x)) -> (P(x))) -> (~~(P(x)) -> (Q(x))))",
+    },
+    // Step 38
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(P(x)) -> ((P(x)) -> (Q(x)))) -> ((~~(P(x)) -> (P(x))) -> (~~(P(x)) -> (Q(x))))) -> (((P(x)) -> (Q(x))) -> ((~~(P(x)) -> ((P(x)) -> (Q(x)))) -> ((~~(P(x)) -> (P(x))) -> (~~(P(x)) -> (Q(x))))))",
+    },
+    // Step 39
+    { _tag: "mp", leftIndex: 37, rightIndex: 38 },
+    // Step 40
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((P(x)) -> (Q(x))) -> ((~~(P(x)) -> ((P(x)) -> (Q(x)))) -> ((~~(P(x)) -> (P(x))) -> (~~(P(x)) -> (Q(x)))))) -> ((((P(x)) -> (Q(x))) -> (~~(P(x)) -> ((P(x)) -> (Q(x))))) -> (((P(x)) -> (Q(x))) -> ((~~(P(x)) -> (P(x))) -> (~~(P(x)) -> (Q(x))))))",
+    },
+    // Step 41
+    { _tag: "mp", leftIndex: 39, rightIndex: 40 },
+    // Step 42
+    { _tag: "mp", leftIndex: 36, rightIndex: 41 },
+    // Step 43
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(P(x)) -> (P(x))) -> (((P(x)) -> (Q(x))) -> (~~(P(x)) -> (P(x))))",
+    },
+    // Step 44
+    { _tag: "mp", leftIndex: 35, rightIndex: 43 },
+    // Step 45
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((P(x)) -> (Q(x))) -> ((~~(P(x)) -> (P(x))) -> (~~(P(x)) -> (Q(x))))) -> ((((P(x)) -> (Q(x))) -> (~~(P(x)) -> (P(x)))) -> (((P(x)) -> (Q(x))) -> (~~(P(x)) -> (Q(x)))))",
+    },
+    // Step 46
+    { _tag: "mp", leftIndex: 42, rightIndex: 45 },
+    // Step 47
+    { _tag: "mp", leftIndex: 44, rightIndex: 46 },
+    // Step 48
+    { _tag: "axiom", formulaText: "~~~(Q(x)) -> (~~(Q(x)) -> ~~~(Q(x)))" },
+    // Step 49
+    {
+      _tag: "axiom",
+      formulaText: "(~~(Q(x)) -> ~~~(Q(x))) -> (~~(Q(x)) -> ~(Q(x)))",
+    },
+    // Step 50
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(Q(x)) -> ((~~(Q(x)) -> ~~~(Q(x))) -> (~~(Q(x)) -> ~(Q(x))))) -> ((~~~(Q(x)) -> (~~(Q(x)) -> ~~~(Q(x)))) -> (~~~(Q(x)) -> (~~(Q(x)) -> ~(Q(x)))))",
+    },
+    // Step 51
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(Q(x)) -> ~~~(Q(x))) -> (~~(Q(x)) -> ~(Q(x)))) -> (~~~(Q(x)) -> ((~~(Q(x)) -> ~~~(Q(x))) -> (~~(Q(x)) -> ~(Q(x)))))",
+    },
+    // Step 52
+    { _tag: "mp", leftIndex: 49, rightIndex: 51 },
+    // Step 53
+    { _tag: "mp", leftIndex: 52, rightIndex: 50 },
+    // Step 54
+    { _tag: "mp", leftIndex: 48, rightIndex: 53 },
+    // Step 55
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~~(Q(x)) -> ~(Q(x))) -> ~~(Q(x))) -> (~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x))))",
+    },
+    // Step 56
+    {
+      _tag: "axiom",
+      formulaText: "~~(Q(x)) -> (~~(~~(Q(x)) -> ~(Q(x))) -> ~~(Q(x)))",
+    },
+    // Step 57
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(Q(x)) -> ((~~(~~(Q(x)) -> ~(Q(x))) -> ~~(Q(x))) -> (~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x)))))) -> ((~~(Q(x)) -> (~~(~~(Q(x)) -> ~(Q(x))) -> ~~(Q(x)))) -> (~~(Q(x)) -> (~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x))))))",
+    },
+    // Step 58
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~~(Q(x)) -> ~(Q(x))) -> ~~(Q(x))) -> (~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x))))) -> (~~(Q(x)) -> ((~~(~~(Q(x)) -> ~(Q(x))) -> ~~(Q(x))) -> (~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x))))))",
+    },
+    // Step 59
+    { _tag: "mp", leftIndex: 55, rightIndex: 58 },
+    // Step 60
+    { _tag: "mp", leftIndex: 59, rightIndex: 57 },
+    // Step 61
+    { _tag: "mp", leftIndex: 56, rightIndex: 60 },
+    // Step 62
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(Q(x)) -> (~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x))))) -> ((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x)))))",
+    },
+    // Step 63
+    { _tag: "mp", leftIndex: 61, rightIndex: 62 },
+    // Step 64
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x)))) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x)))",
+    },
+    // Step 65
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(Q(x)) -> ~(Q(x))) -> ((~~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x)))) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x))))) -> (((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x))))) -> ((~~(Q(x)) -> ~(Q(x))) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x)))))",
+    },
+    // Step 66
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x)))) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x)))) -> ((~~(Q(x)) -> ~(Q(x))) -> ((~~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x)))) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x)))))",
+    },
+    // Step 67
+    { _tag: "mp", leftIndex: 64, rightIndex: 66 },
+    // Step 68
+    { _tag: "mp", leftIndex: 67, rightIndex: 65 },
+    // Step 69
+    { _tag: "mp", leftIndex: 63, rightIndex: 68 },
+    // Step 70
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(Q(x)) -> ~(Q(x))) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x)))) -> (((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(Q(x)))) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x))))",
+    },
+    // Step 71
+    { _tag: "mp", leftIndex: 69, rightIndex: 70 },
+    // Step 72
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(Q(x)) -> ~(Q(x))) -> (((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(Q(x)))) -> (~~(Q(x)) -> ~(Q(x))))) -> (((~~(Q(x)) -> ~(Q(x))) -> ((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(Q(x))))) -> ((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(Q(x)))))",
+    },
+    // Step 73
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(Q(x)) -> ~(Q(x))) -> (((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(Q(x)))) -> (~~(Q(x)) -> ~(Q(x))))",
+    },
+    // Step 74
+    { _tag: "mp", leftIndex: 73, rightIndex: 72 },
+    // Step 75
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(Q(x)) -> ~(Q(x))) -> ((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(Q(x))))",
+    },
+    // Step 76
+    { _tag: "mp", leftIndex: 75, rightIndex: 74 },
+    // Step 77
+    { _tag: "mp", leftIndex: 76, rightIndex: 71 },
+    // Step 78
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(Q(x)) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x)))) -> ((~~~(Q(x)) -> (~~(Q(x)) -> ~(Q(x)))) -> (~~~(Q(x)) -> ~(Q(x))))",
+    },
+    // Step 79
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x))) -> (~~~(Q(x)) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x))))",
+    },
+    // Step 80
+    { _tag: "mp", leftIndex: 77, rightIndex: 79 },
+    // Step 81
+    { _tag: "mp", leftIndex: 80, rightIndex: 78 },
+    // Step 82
+    { _tag: "mp", leftIndex: 54, rightIndex: 81 },
+    // Step 83
+    {
+      _tag: "axiom",
+      formulaText: "(~~~(Q(x)) -> ~(Q(x))) -> ((Q(x)) -> ~~(Q(x)))",
+    },
+    // Step 84
+    { _tag: "mp", leftIndex: 82, rightIndex: 83 },
+    // Step 85
+    {
+      _tag: "axiom",
+      formulaText: "((Q(x)) -> ~~(Q(x))) -> (~~(P(x)) -> ((Q(x)) -> ~~(Q(x))))",
+    },
+    // Step 86
+    { _tag: "mp", leftIndex: 84, rightIndex: 85 },
+    // Step 87
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(P(x)) -> ((Q(x)) -> ~~(Q(x)))) -> ((~~(P(x)) -> (Q(x))) -> (~~(P(x)) -> ~~(Q(x))))",
+    },
+    // Step 88
+    { _tag: "mp", leftIndex: 86, rightIndex: 87 },
+    // Step 89
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(P(x)) -> (Q(x))) -> (~~(P(x)) -> ~~(Q(x)))) -> (((P(x)) -> (Q(x))) -> ((~~(P(x)) -> (Q(x))) -> (~~(P(x)) -> ~~(Q(x)))))",
+    },
+    // Step 90
+    { _tag: "mp", leftIndex: 88, rightIndex: 89 },
+    // Step 91
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((P(x)) -> (Q(x))) -> ((~~(P(x)) -> (Q(x))) -> (~~(P(x)) -> ~~(Q(x))))) -> ((((P(x)) -> (Q(x))) -> (~~(P(x)) -> (Q(x)))) -> (((P(x)) -> (Q(x))) -> (~~(P(x)) -> ~~(Q(x)))))",
+    },
+    // Step 92
+    { _tag: "mp", leftIndex: 90, rightIndex: 91 },
+    // Step 93
+    { _tag: "mp", leftIndex: 47, rightIndex: 92 },
+    // Step 94
+    {
+      _tag: "axiom",
+      formulaText: "(~~(P(x)) -> ~~(Q(x))) -> (~(Q(x)) -> ~(P(x)))",
+    },
+    // Step 95
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(P(x)) -> ~~(Q(x))) -> (~(Q(x)) -> ~(P(x)))) -> (((P(x)) -> (Q(x))) -> ((~~(P(x)) -> ~~(Q(x))) -> (~(Q(x)) -> ~(P(x)))))",
+    },
+    // Step 96
+    { _tag: "mp", leftIndex: 94, rightIndex: 95 },
+    // Step 97
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((P(x)) -> (Q(x))) -> ((~~(P(x)) -> ~~(Q(x))) -> (~(Q(x)) -> ~(P(x))))) -> ((((P(x)) -> (Q(x))) -> (~~(P(x)) -> ~~(Q(x)))) -> (((P(x)) -> (Q(x))) -> (~(Q(x)) -> ~(P(x)))))",
+    },
+    // Step 98
+    { _tag: "mp", leftIndex: 96, rightIndex: 97 },
+    // Step 99
+    { _tag: "mp", leftIndex: 93, rightIndex: 98 },
+    // Step 100
+    {
+      _tag: "axiom",
+      formulaText:
+        "((P(x) -> Q(x)) -> (~Q(x) -> ~P(x))) -> (((all x. (P(x) -> Q(x)))) -> ((P(x) -> Q(x)) -> (~Q(x) -> ~P(x))))",
+    },
+    // Step 101
+    { _tag: "mp", leftIndex: 99, rightIndex: 100 },
+    // Step 102
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. (P(x) -> Q(x)))) -> ((P(x) -> Q(x)) -> (~Q(x) -> ~P(x)))) -> ((((all x. (P(x) -> Q(x)))) -> (P(x) -> Q(x))) -> (((all x. (P(x) -> Q(x)))) -> (~Q(x) -> ~P(x))))",
+    },
+    // Step 103
+    { _tag: "mp", leftIndex: 101, rightIndex: 102 },
+    // Step 104
+    { _tag: "mp", leftIndex: 0, rightIndex: 103 },
+    // Step 105
+    { _tag: "gen", premiseIndex: 104, variableName: "x" },
+    // Step 106
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. (P(x) -> Q(x))) -> (~Q(x) -> ~P(x)))) -> ((all x. (P(x) -> Q(x))) -> (all x. (~Q(x) -> ~P(x))))",
+    },
+    // Step 107
+    { _tag: "mp", leftIndex: 105, rightIndex: 106 },
+    // Step 108
+    {
+      _tag: "axiom",
+      formulaText: "(all x. (~Q(x) -> ~P(x))) -> (~Q(x) -> ~P(x))",
+    },
+    // Step 109
+    { _tag: "axiom", formulaText: "(all x. ~Q(x)) -> ~Q(x)" },
+    // Step 110
+    {
+      _tag: "axiom",
+      formulaText: "(~Q(x) -> ~P(x)) -> ((all x. ~Q(x)) -> (~Q(x) -> ~P(x)))",
+    },
+    // Step 111
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~Q(x) -> ~P(x)) -> ((all x. ~Q(x)) -> (~Q(x) -> ~P(x)))) -> ((all x. (~Q(x) -> ~P(x))) -> ((~Q(x) -> ~P(x)) -> ((all x. ~Q(x)) -> (~Q(x) -> ~P(x)))))",
+    },
+    // Step 112
+    { _tag: "mp", leftIndex: 110, rightIndex: 111 },
+    // Step 113
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (~Q(x) -> ~P(x))) -> ((~Q(x) -> ~P(x)) -> ((all x. ~Q(x)) -> (~Q(x) -> ~P(x))))) -> (((all x. (~Q(x) -> ~P(x))) -> (~Q(x) -> ~P(x))) -> ((all x. (~Q(x) -> ~P(x))) -> ((all x. ~Q(x)) -> (~Q(x) -> ~P(x)))))",
+    },
+    // Step 114
+    { _tag: "mp", leftIndex: 112, rightIndex: 113 },
+    // Step 115
+    { _tag: "mp", leftIndex: 108, rightIndex: 114 },
+    // Step 116
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. ~Q(x)) -> (~Q(x) -> ~P(x))) -> (((all x. ~Q(x)) -> ~Q(x)) -> ((all x. ~Q(x)) -> ~P(x)))",
+    },
+    // Step 117
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. ~Q(x)) -> (~Q(x) -> ~P(x))) -> (((all x. ~Q(x)) -> ~Q(x)) -> ((all x. ~Q(x)) -> ~P(x)))) -> ((all x. (~Q(x) -> ~P(x))) -> (((all x. ~Q(x)) -> (~Q(x) -> ~P(x))) -> (((all x. ~Q(x)) -> ~Q(x)) -> ((all x. ~Q(x)) -> ~P(x)))))",
+    },
+    // Step 118
+    { _tag: "mp", leftIndex: 116, rightIndex: 117 },
+    // Step 119
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (~Q(x) -> ~P(x))) -> (((all x. ~Q(x)) -> (~Q(x) -> ~P(x))) -> (((all x. ~Q(x)) -> ~Q(x)) -> ((all x. ~Q(x)) -> ~P(x))))) -> (((all x. (~Q(x) -> ~P(x))) -> ((all x. ~Q(x)) -> (~Q(x) -> ~P(x)))) -> ((all x. (~Q(x) -> ~P(x))) -> (((all x. ~Q(x)) -> ~Q(x)) -> ((all x. ~Q(x)) -> ~P(x)))))",
+    },
+    // Step 120
+    { _tag: "mp", leftIndex: 118, rightIndex: 119 },
+    // Step 121
+    { _tag: "mp", leftIndex: 115, rightIndex: 120 },
+    // Step 122
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. ~Q(x)) -> ~Q(x)) -> ((all x. (~Q(x) -> ~P(x))) -> ((all x. ~Q(x)) -> ~Q(x)))",
+    },
+    // Step 123
+    { _tag: "mp", leftIndex: 109, rightIndex: 122 },
+    // Step 124
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (~Q(x) -> ~P(x))) -> (((all x. ~Q(x)) -> ~Q(x)) -> ((all x. ~Q(x)) -> ~P(x)))) -> (((all x. (~Q(x) -> ~P(x))) -> ((all x. ~Q(x)) -> ~Q(x))) -> ((all x. (~Q(x) -> ~P(x))) -> ((all x. ~Q(x)) -> ~P(x))))",
+    },
+    // Step 125
+    { _tag: "mp", leftIndex: 121, rightIndex: 124 },
+    // Step 126
+    { _tag: "mp", leftIndex: 123, rightIndex: 125 },
+    // Step 127
+    { _tag: "gen", premiseIndex: 126, variableName: "x" },
+    // Step 128
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. (~Q(x) -> ~P(x))) -> ((all x. ~Q(x)) -> ~P(x)))) -> ((all x. (~Q(x) -> ~P(x))) -> (all x. ((all x. ~Q(x)) -> ~P(x))))",
+    },
+    // Step 129
+    { _tag: "mp", leftIndex: 127, rightIndex: 128 },
+    // Step 130
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. ~Q(x)) -> ~P(x))) -> ((all x. ~Q(x)) -> (all x. ~P(x)))",
+    },
+    // Step 131
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. ((all x. ~Q(x)) -> ~P(x))) -> ((all x. ~Q(x)) -> (all x. ~P(x)))) -> ((all x. (~Q(x) -> ~P(x))) -> ((all x. ((all x. ~Q(x)) -> ~P(x))) -> ((all x. ~Q(x)) -> (all x. ~P(x)))))",
+    },
+    // Step 132
+    { _tag: "mp", leftIndex: 130, rightIndex: 131 },
+    // Step 133
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (~Q(x) -> ~P(x))) -> ((all x. ((all x. ~Q(x)) -> ~P(x))) -> ((all x. ~Q(x)) -> (all x. ~P(x))))) -> (((all x. (~Q(x) -> ~P(x))) -> (all x. ((all x. ~Q(x)) -> ~P(x)))) -> ((all x. (~Q(x) -> ~P(x))) -> ((all x. ~Q(x)) -> (all x. ~P(x)))))",
+    },
+    // Step 134
+    { _tag: "mp", leftIndex: 132, rightIndex: 133 },
+    // Step 135
+    { _tag: "mp", leftIndex: 129, rightIndex: 134 },
+    // Step 136
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (~Q(x) -> ~P(x))) -> ((all x. ~Q(x)) -> (all x. ~P(x)))) -> (((all x. (P(x) -> Q(x)))) -> ((all x. (~Q(x) -> ~P(x))) -> ((all x. ~Q(x)) -> (all x. ~P(x)))))",
+    },
+    // Step 137
+    { _tag: "mp", leftIndex: 135, rightIndex: 136 },
+    // Step 138
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. (P(x) -> Q(x)))) -> ((all x. (~Q(x) -> ~P(x))) -> ((all x. ~Q(x)) -> (all x. ~P(x))))) -> ((((all x. (P(x) -> Q(x)))) -> (all x. (~Q(x) -> ~P(x)))) -> (((all x. (P(x) -> Q(x)))) -> ((all x. ~Q(x)) -> (all x. ~P(x)))))",
+    },
+    // Step 139
+    { _tag: "mp", leftIndex: 137, rightIndex: 138 },
+    // Step 140
+    { _tag: "mp", leftIndex: 107, rightIndex: 139 },
+    // Step 141
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~((all x. ~Q(x))) -> (~((all x. ~Q(x))) -> ~~((all x. ~Q(x))))",
+    },
+    // Step 142
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. ~Q(x))) -> ~~((all x. ~Q(x)))) -> (~((all x. ~Q(x))) -> ((all x. ~Q(x))))",
+    },
+    // Step 143
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~Q(x))) -> ((~((all x. ~Q(x))) -> ~~((all x. ~Q(x)))) -> (~((all x. ~Q(x))) -> ((all x. ~Q(x)))))) -> ((~~((all x. ~Q(x))) -> (~((all x. ~Q(x))) -> ~~((all x. ~Q(x))))) -> (~~((all x. ~Q(x))) -> (~((all x. ~Q(x))) -> ((all x. ~Q(x))))))",
+    },
+    // Step 144
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. ~Q(x))) -> ~~((all x. ~Q(x)))) -> (~((all x. ~Q(x))) -> ((all x. ~Q(x))))) -> (~~((all x. ~Q(x))) -> ((~((all x. ~Q(x))) -> ~~((all x. ~Q(x)))) -> (~((all x. ~Q(x))) -> ((all x. ~Q(x))))))",
+    },
+    // Step 145
+    { _tag: "mp", leftIndex: 142, rightIndex: 144 },
+    // Step 146
+    { _tag: "mp", leftIndex: 145, rightIndex: 143 },
+    // Step 147
+    { _tag: "mp", leftIndex: 141, rightIndex: 146 },
+    // Step 148
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ~((all x. ~Q(x)))) -> (((all x. ~Q(x))) -> ~(~((all x. ~Q(x))) -> ((all x. ~Q(x)))))",
+    },
+    // Step 149
+    {
+      _tag: "axiom",
+      formulaText:
+        "~((all x. ~Q(x))) -> (~~(~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ~((all x. ~Q(x))))",
+    },
+    // Step 150
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. ~Q(x))) -> ((~~(~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ~((all x. ~Q(x)))) -> (((all x. ~Q(x))) -> ~(~((all x. ~Q(x))) -> ((all x. ~Q(x))))))) -> ((~((all x. ~Q(x))) -> (~~(~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ~((all x. ~Q(x))))) -> (~((all x. ~Q(x))) -> (((all x. ~Q(x))) -> ~(~((all x. ~Q(x))) -> ((all x. ~Q(x)))))))",
+    },
+    // Step 151
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ~((all x. ~Q(x)))) -> (((all x. ~Q(x))) -> ~(~((all x. ~Q(x))) -> ((all x. ~Q(x)))))) -> (~((all x. ~Q(x))) -> ((~~(~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ~((all x. ~Q(x)))) -> (((all x. ~Q(x))) -> ~(~((all x. ~Q(x))) -> ((all x. ~Q(x)))))))",
+    },
+    // Step 152
+    { _tag: "mp", leftIndex: 148, rightIndex: 151 },
+    // Step 153
+    { _tag: "mp", leftIndex: 152, rightIndex: 150 },
+    // Step 154
+    { _tag: "mp", leftIndex: 149, rightIndex: 153 },
+    // Step 155
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. ~Q(x))) -> (((all x. ~Q(x))) -> ~(~((all x. ~Q(x))) -> ((all x. ~Q(x)))))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (~((all x. ~Q(x))) -> ~(~((all x. ~Q(x))) -> ((all x. ~Q(x))))))",
+    },
+    // Step 156
+    { _tag: "mp", leftIndex: 154, rightIndex: 155 },
+    // Step 157
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. ~Q(x))) -> ~(~((all x. ~Q(x))) -> ((all x. ~Q(x))))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((all x. ~Q(x))))",
+    },
+    // Step 158
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((~((all x. ~Q(x))) -> ~(~((all x. ~Q(x))) -> ((all x. ~Q(x))))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((all x. ~Q(x)))))) -> (((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (~((all x. ~Q(x))) -> ~(~((all x. ~Q(x))) -> ((all x. ~Q(x)))))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((all x. ~Q(x))))))",
+    },
+    // Step 159
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. ~Q(x))) -> ~(~((all x. ~Q(x))) -> ((all x. ~Q(x))))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((all x. ~Q(x))))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((~((all x. ~Q(x))) -> ~(~((all x. ~Q(x))) -> ((all x. ~Q(x))))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((all x. ~Q(x))))))",
+    },
+    // Step 160
+    { _tag: "mp", leftIndex: 157, rightIndex: 159 },
+    // Step 161
+    { _tag: "mp", leftIndex: 160, rightIndex: 158 },
+    // Step 162
+    { _tag: "mp", leftIndex: 156, rightIndex: 161 },
+    // Step 163
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((all x. ~Q(x))))) -> (((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (~((all x. ~Q(x))) -> ((all x. ~Q(x))))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((all x. ~Q(x)))))",
+    },
+    // Step 164
+    { _tag: "mp", leftIndex: 162, rightIndex: 163 },
+    // Step 165
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (~((all x. ~Q(x))) -> ((all x. ~Q(x))))) -> (~((all x. ~Q(x))) -> ((all x. ~Q(x)))))) -> (((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (~((all x. ~Q(x))) -> ((all x. ~Q(x)))))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (~((all x. ~Q(x))) -> ((all x. ~Q(x))))))",
+    },
+    // Step 166
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (~((all x. ~Q(x))) -> ((all x. ~Q(x))))) -> (~((all x. ~Q(x))) -> ((all x. ~Q(x)))))",
+    },
+    // Step 167
+    { _tag: "mp", leftIndex: 166, rightIndex: 165 },
+    // Step 168
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (~((all x. ~Q(x))) -> ((all x. ~Q(x)))))",
+    },
+    // Step 169
+    { _tag: "mp", leftIndex: 168, rightIndex: 167 },
+    // Step 170
+    { _tag: "mp", leftIndex: 169, rightIndex: 164 },
+    // Step 171
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~Q(x))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((all x. ~Q(x))))) -> ((~~((all x. ~Q(x))) -> (~((all x. ~Q(x))) -> ((all x. ~Q(x))))) -> (~~((all x. ~Q(x))) -> ((all x. ~Q(x)))))",
+    },
+    // Step 172
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((all x. ~Q(x)))) -> (~~((all x. ~Q(x))) -> ((~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((all x. ~Q(x)))))",
+    },
+    // Step 173
+    { _tag: "mp", leftIndex: 170, rightIndex: 172 },
+    // Step 174
+    { _tag: "mp", leftIndex: 173, rightIndex: 171 },
+    // Step 175
+    { _tag: "mp", leftIndex: 147, rightIndex: 174 },
+    // Step 176
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. ~Q(x))) -> ((all x. ~P(x)))) -> (~~((all x. ~Q(x))) -> (((all x. ~Q(x))) -> ((all x. ~P(x)))))",
+    },
+    // Step 177
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~Q(x))) -> (((all x. ~Q(x))) -> ((all x. ~P(x))))) -> ((~~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (~~((all x. ~Q(x))) -> ((all x. ~P(x)))))",
+    },
+    // Step 178
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~Q(x))) -> (((all x. ~Q(x))) -> ((all x. ~P(x))))) -> ((~~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (~~((all x. ~Q(x))) -> ((all x. ~P(x)))))) -> ((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> ((~~((all x. ~Q(x))) -> (((all x. ~Q(x))) -> ((all x. ~P(x))))) -> ((~~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (~~((all x. ~Q(x))) -> ((all x. ~P(x)))))))",
+    },
+    // Step 179
+    { _tag: "mp", leftIndex: 177, rightIndex: 178 },
+    // Step 180
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> ((~~((all x. ~Q(x))) -> (((all x. ~Q(x))) -> ((all x. ~P(x))))) -> ((~~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (~~((all x. ~Q(x))) -> ((all x. ~P(x))))))) -> (((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> (~~((all x. ~Q(x))) -> (((all x. ~Q(x))) -> ((all x. ~P(x)))))) -> ((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> ((~~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (~~((all x. ~Q(x))) -> ((all x. ~P(x)))))))",
+    },
+    // Step 181
+    { _tag: "mp", leftIndex: 179, rightIndex: 180 },
+    // Step 182
+    { _tag: "mp", leftIndex: 176, rightIndex: 181 },
+    // Step 183
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> ((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> (~~((all x. ~Q(x))) -> ((all x. ~Q(x)))))",
+    },
+    // Step 184
+    { _tag: "mp", leftIndex: 175, rightIndex: 183 },
+    // Step 185
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> ((~~((all x. ~Q(x))) -> ((all x. ~Q(x)))) -> (~~((all x. ~Q(x))) -> ((all x. ~P(x)))))) -> (((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> (~~((all x. ~Q(x))) -> ((all x. ~Q(x))))) -> ((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> (~~((all x. ~Q(x))) -> ((all x. ~P(x))))))",
+    },
+    // Step 186
+    { _tag: "mp", leftIndex: 182, rightIndex: 185 },
+    // Step 187
+    { _tag: "mp", leftIndex: 184, rightIndex: 186 },
+    // Step 188
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~~((all x. ~P(x))) -> (~~((all x. ~P(x))) -> ~~~((all x. ~P(x))))",
+    },
+    // Step 189
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~P(x))) -> ~~~((all x. ~P(x)))) -> (~~((all x. ~P(x))) -> ~((all x. ~P(x))))",
+    },
+    // Step 190
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~((all x. ~P(x))) -> ((~~((all x. ~P(x))) -> ~~~((all x. ~P(x)))) -> (~~((all x. ~P(x))) -> ~((all x. ~P(x)))))) -> ((~~~((all x. ~P(x))) -> (~~((all x. ~P(x))) -> ~~~((all x. ~P(x))))) -> (~~~((all x. ~P(x))) -> (~~((all x. ~P(x))) -> ~((all x. ~P(x))))))",
+    },
+    // Step 191
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~P(x))) -> ~~~((all x. ~P(x)))) -> (~~((all x. ~P(x))) -> ~((all x. ~P(x))))) -> (~~~((all x. ~P(x))) -> ((~~((all x. ~P(x))) -> ~~~((all x. ~P(x)))) -> (~~((all x. ~P(x))) -> ~((all x. ~P(x))))))",
+    },
+    // Step 192
+    { _tag: "mp", leftIndex: 189, rightIndex: 191 },
+    // Step 193
+    { _tag: "mp", leftIndex: 192, rightIndex: 190 },
+    // Step 194
+    { _tag: "mp", leftIndex: 188, rightIndex: 193 },
+    // Step 195
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~~((all x. ~P(x)))) -> (~((all x. ~P(x))) -> ~(~~((all x. ~P(x))) -> ~((all x. ~P(x)))))",
+    },
+    // Step 196
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~((all x. ~P(x))) -> (~~(~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~~((all x. ~P(x))))",
+    },
+    // Step 197
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~P(x))) -> ((~~(~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~~((all x. ~P(x)))) -> (~((all x. ~P(x))) -> ~(~~((all x. ~P(x))) -> ~((all x. ~P(x))))))) -> ((~~((all x. ~P(x))) -> (~~(~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~~((all x. ~P(x))))) -> (~~((all x. ~P(x))) -> (~((all x. ~P(x))) -> ~(~~((all x. ~P(x))) -> ~((all x. ~P(x)))))))",
+    },
+    // Step 198
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~~((all x. ~P(x)))) -> (~((all x. ~P(x))) -> ~(~~((all x. ~P(x))) -> ~((all x. ~P(x)))))) -> (~~((all x. ~P(x))) -> ((~~(~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~~((all x. ~P(x)))) -> (~((all x. ~P(x))) -> ~(~~((all x. ~P(x))) -> ~((all x. ~P(x)))))))",
+    },
+    // Step 199
+    { _tag: "mp", leftIndex: 195, rightIndex: 198 },
+    // Step 200
+    { _tag: "mp", leftIndex: 199, rightIndex: 197 },
+    // Step 201
+    { _tag: "mp", leftIndex: 196, rightIndex: 200 },
+    // Step 202
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~P(x))) -> (~((all x. ~P(x))) -> ~(~~((all x. ~P(x))) -> ~((all x. ~P(x)))))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> (~~((all x. ~P(x))) -> ~(~~((all x. ~P(x))) -> ~((all x. ~P(x))))))",
+    },
+    // Step 203
+    { _tag: "mp", leftIndex: 201, rightIndex: 202 },
+    // Step 204
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~P(x))) -> ~(~~((all x. ~P(x))) -> ~((all x. ~P(x))))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~((all x. ~P(x))))",
+    },
+    // Step 205
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ((~~((all x. ~P(x))) -> ~(~~((all x. ~P(x))) -> ~((all x. ~P(x))))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~((all x. ~P(x)))))) -> (((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> (~~((all x. ~P(x))) -> ~(~~((all x. ~P(x))) -> ~((all x. ~P(x)))))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~((all x. ~P(x))))))",
+    },
+    // Step 206
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~P(x))) -> ~(~~((all x. ~P(x))) -> ~((all x. ~P(x))))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~((all x. ~P(x))))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ((~~((all x. ~P(x))) -> ~(~~((all x. ~P(x))) -> ~((all x. ~P(x))))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~((all x. ~P(x))))))",
+    },
+    // Step 207
+    { _tag: "mp", leftIndex: 204, rightIndex: 206 },
+    // Step 208
+    { _tag: "mp", leftIndex: 207, rightIndex: 205 },
+    // Step 209
+    { _tag: "mp", leftIndex: 203, rightIndex: 208 },
+    // Step 210
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~((all x. ~P(x))))) -> (((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> (~~((all x. ~P(x))) -> ~((all x. ~P(x))))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~((all x. ~P(x)))))",
+    },
+    // Step 211
+    { _tag: "mp", leftIndex: 209, rightIndex: 210 },
+    // Step 212
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> (((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> (~~((all x. ~P(x))) -> ~((all x. ~P(x))))) -> (~~((all x. ~P(x))) -> ~((all x. ~P(x)))))) -> (((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> (~~((all x. ~P(x))) -> ~((all x. ~P(x)))))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> (~~((all x. ~P(x))) -> ~((all x. ~P(x))))))",
+    },
+    // Step 213
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> (((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> (~~((all x. ~P(x))) -> ~((all x. ~P(x))))) -> (~~((all x. ~P(x))) -> ~((all x. ~P(x)))))",
+    },
+    // Step 214
+    { _tag: "mp", leftIndex: 213, rightIndex: 212 },
+    // Step 215
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> (~~((all x. ~P(x))) -> ~((all x. ~P(x)))))",
+    },
+    // Step 216
+    { _tag: "mp", leftIndex: 215, rightIndex: 214 },
+    // Step 217
+    { _tag: "mp", leftIndex: 216, rightIndex: 211 },
+    // Step 218
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~((all x. ~P(x))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~((all x. ~P(x))))) -> ((~~~((all x. ~P(x))) -> (~~((all x. ~P(x))) -> ~((all x. ~P(x))))) -> (~~~((all x. ~P(x))) -> ~((all x. ~P(x)))))",
+    },
+    // Step 219
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~((all x. ~P(x)))) -> (~~~((all x. ~P(x))) -> ((~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> ~((all x. ~P(x)))))",
+    },
+    // Step 220
+    { _tag: "mp", leftIndex: 217, rightIndex: 219 },
+    // Step 221
+    { _tag: "mp", leftIndex: 220, rightIndex: 218 },
+    // Step 222
+    { _tag: "mp", leftIndex: 194, rightIndex: 221 },
+    // Step 223
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~((all x. ~P(x))) -> ~((all x. ~P(x)))) -> (((all x. ~P(x))) -> ~~((all x. ~P(x))))",
+    },
+    // Step 224
+    { _tag: "mp", leftIndex: 222, rightIndex: 223 },
+    // Step 225
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. ~P(x))) -> ~~((all x. ~P(x)))) -> (~~((all x. ~Q(x))) -> (((all x. ~P(x))) -> ~~((all x. ~P(x)))))",
+    },
+    // Step 226
+    { _tag: "mp", leftIndex: 224, rightIndex: 225 },
+    // Step 227
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~Q(x))) -> (((all x. ~P(x))) -> ~~((all x. ~P(x))))) -> ((~~((all x. ~Q(x))) -> ((all x. ~P(x)))) -> (~~((all x. ~Q(x))) -> ~~((all x. ~P(x)))))",
+    },
+    // Step 228
+    { _tag: "mp", leftIndex: 226, rightIndex: 227 },
+    // Step 229
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~Q(x))) -> ((all x. ~P(x)))) -> (~~((all x. ~Q(x))) -> ~~((all x. ~P(x))))) -> ((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> ((~~((all x. ~Q(x))) -> ((all x. ~P(x)))) -> (~~((all x. ~Q(x))) -> ~~((all x. ~P(x))))))",
+    },
+    // Step 230
+    { _tag: "mp", leftIndex: 228, rightIndex: 229 },
+    // Step 231
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> ((~~((all x. ~Q(x))) -> ((all x. ~P(x)))) -> (~~((all x. ~Q(x))) -> ~~((all x. ~P(x)))))) -> (((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> (~~((all x. ~Q(x))) -> ((all x. ~P(x))))) -> ((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> (~~((all x. ~Q(x))) -> ~~((all x. ~P(x))))))",
+    },
+    // Step 232
+    { _tag: "mp", leftIndex: 230, rightIndex: 231 },
+    // Step 233
+    { _tag: "mp", leftIndex: 187, rightIndex: 232 },
+    // Step 234
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~((all x. ~Q(x))) -> ~~((all x. ~P(x)))) -> (~((all x. ~P(x))) -> ~((all x. ~Q(x))))",
+    },
+    // Step 235
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~((all x. ~Q(x))) -> ~~((all x. ~P(x)))) -> (~((all x. ~P(x))) -> ~((all x. ~Q(x))))) -> ((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> ((~~((all x. ~Q(x))) -> ~~((all x. ~P(x)))) -> (~((all x. ~P(x))) -> ~((all x. ~Q(x))))))",
+    },
+    // Step 236
+    { _tag: "mp", leftIndex: 234, rightIndex: 235 },
+    // Step 237
+    {
+      _tag: "axiom",
+      formulaText:
+        "((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> ((~~((all x. ~Q(x))) -> ~~((all x. ~P(x)))) -> (~((all x. ~P(x))) -> ~((all x. ~Q(x)))))) -> (((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> (~~((all x. ~Q(x))) -> ~~((all x. ~P(x))))) -> ((((all x. ~Q(x))) -> ((all x. ~P(x)))) -> (~((all x. ~P(x))) -> ~((all x. ~Q(x))))))",
+    },
+    // Step 238
+    { _tag: "mp", leftIndex: 236, rightIndex: 237 },
+    // Step 239
+    { _tag: "mp", leftIndex: 233, rightIndex: 238 },
+    // Step 240
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. ~Q(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> ~(all x. ~Q(x)))) -> (((all x. (P(x) -> Q(x)))) -> (((all x. ~Q(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> ~(all x. ~Q(x)))))",
+    },
+    // Step 241
+    { _tag: "mp", leftIndex: 239, rightIndex: 240 },
+    // Step 242
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. (P(x) -> Q(x)))) -> (((all x. ~Q(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> ~(all x. ~Q(x))))) -> ((((all x. (P(x) -> Q(x)))) -> ((all x. ~Q(x)) -> (all x. ~P(x)))) -> (((all x. (P(x) -> Q(x)))) -> (~(all x. ~P(x)) -> ~(all x. ~Q(x)))))",
+    },
+    // Step 243
+    { _tag: "mp", leftIndex: 241, rightIndex: 242 },
+    // Step 244
+    { _tag: "mp", leftIndex: 140, rightIndex: 243 },
+    // Step 245
+    { _tag: "axiom", formulaText: "(ex x. P(x)) -> ~(all x. ~P(x))" },
+    // Step 246
+    { _tag: "axiom", formulaText: "~(all x. ~Q(x)) -> (ex x. Q(x))" },
+    // Step 247
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~Q(x)) -> (ex x. Q(x))) -> ((all x. (P(x) -> Q(x))) -> (~(all x. ~Q(x)) -> (ex x. Q(x))))",
+    },
+    // Step 248
+    { _tag: "mp", leftIndex: 246, rightIndex: 247 },
+    // Step 249
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~Q(x)) -> (ex x. Q(x))) -> (~(all x. ~P(x)) -> (~(all x. ~Q(x)) -> (ex x. Q(x))))",
+    },
+    // Step 250
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~Q(x)) -> (ex x. Q(x))) -> (~(all x. ~P(x)) -> (~(all x. ~Q(x)) -> (ex x. Q(x))))) -> (((all x. (P(x) -> Q(x)))) -> ((~(all x. ~Q(x)) -> (ex x. Q(x))) -> (~(all x. ~P(x)) -> (~(all x. ~Q(x)) -> (ex x. Q(x))))))",
+    },
+    // Step 251
+    { _tag: "mp", leftIndex: 249, rightIndex: 250 },
+    // Step 252
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. (P(x) -> Q(x)))) -> ((~(all x. ~Q(x)) -> (ex x. Q(x))) -> (~(all x. ~P(x)) -> (~(all x. ~Q(x)) -> (ex x. Q(x)))))) -> ((((all x. (P(x) -> Q(x)))) -> (~(all x. ~Q(x)) -> (ex x. Q(x)))) -> (((all x. (P(x) -> Q(x)))) -> (~(all x. ~P(x)) -> (~(all x. ~Q(x)) -> (ex x. Q(x))))))",
+    },
+    // Step 253
+    { _tag: "mp", leftIndex: 251, rightIndex: 252 },
+    // Step 254
+    { _tag: "mp", leftIndex: 248, rightIndex: 253 },
+    // Step 255
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> (~(all x. ~Q(x)) -> (ex x. Q(x)))) -> ((~(all x. ~P(x)) -> ~(all x. ~Q(x))) -> (~(all x. ~P(x)) -> (ex x. Q(x))))",
+    },
+    // Step 256
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x)) -> (~(all x. ~Q(x)) -> (ex x. Q(x)))) -> ((~(all x. ~P(x)) -> ~(all x. ~Q(x))) -> (~(all x. ~P(x)) -> (ex x. Q(x))))) -> (((all x. (P(x) -> Q(x)))) -> ((~(all x. ~P(x)) -> (~(all x. ~Q(x)) -> (ex x. Q(x)))) -> ((~(all x. ~P(x)) -> ~(all x. ~Q(x))) -> (~(all x. ~P(x)) -> (ex x. Q(x))))))",
+    },
+    // Step 257
+    { _tag: "mp", leftIndex: 255, rightIndex: 256 },
+    // Step 258
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. (P(x) -> Q(x)))) -> ((~(all x. ~P(x)) -> (~(all x. ~Q(x)) -> (ex x. Q(x)))) -> ((~(all x. ~P(x)) -> ~(all x. ~Q(x))) -> (~(all x. ~P(x)) -> (ex x. Q(x)))))) -> ((((all x. (P(x) -> Q(x)))) -> (~(all x. ~P(x)) -> (~(all x. ~Q(x)) -> (ex x. Q(x))))) -> (((all x. (P(x) -> Q(x)))) -> ((~(all x. ~P(x)) -> ~(all x. ~Q(x))) -> (~(all x. ~P(x)) -> (ex x. Q(x))))))",
+    },
+    // Step 259
+    { _tag: "mp", leftIndex: 257, rightIndex: 258 },
+    // Step 260
+    { _tag: "mp", leftIndex: 254, rightIndex: 259 },
+    // Step 261
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (P(x) -> Q(x))) -> ((~(all x. ~P(x)) -> ~(all x. ~Q(x))) -> (~(all x. ~P(x)) -> (ex x. Q(x))))) -> (((all x. (P(x) -> Q(x))) -> (~(all x. ~P(x)) -> ~(all x. ~Q(x)))) -> ((all x. (P(x) -> Q(x))) -> (~(all x. ~P(x)) -> (ex x. Q(x)))))",
+    },
+    // Step 262
+    { _tag: "mp", leftIndex: 260, rightIndex: 261 },
+    // Step 263
+    { _tag: "mp", leftIndex: 244, rightIndex: 262 },
+    // Step 264
+    {
+      _tag: "axiom",
+      formulaText:
+        "((ex x. P(x)) -> ~(all x. ~P(x))) -> ((all x. (P(x) -> Q(x))) -> ((ex x. P(x)) -> ~(all x. ~P(x))))",
+    },
+    // Step 265
+    { _tag: "mp", leftIndex: 245, rightIndex: 264 },
+    // Step 266
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> (ex x. Q(x))) -> ((ex x. P(x)) -> (~(all x. ~P(x)) -> (ex x. Q(x))))",
+    },
+    // Step 267
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x)) -> (ex x. Q(x))) -> ((ex x. P(x)) -> (~(all x. ~P(x)) -> (ex x. Q(x))))) -> (((all x. (P(x) -> Q(x)))) -> ((~(all x. ~P(x)) -> (ex x. Q(x))) -> ((ex x. P(x)) -> (~(all x. ~P(x)) -> (ex x. Q(x))))))",
+    },
+    // Step 268
+    { _tag: "mp", leftIndex: 266, rightIndex: 267 },
+    // Step 269
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. (P(x) -> Q(x)))) -> ((~(all x. ~P(x)) -> (ex x. Q(x))) -> ((ex x. P(x)) -> (~(all x. ~P(x)) -> (ex x. Q(x)))))) -> ((((all x. (P(x) -> Q(x)))) -> (~(all x. ~P(x)) -> (ex x. Q(x)))) -> (((all x. (P(x) -> Q(x)))) -> ((ex x. P(x)) -> (~(all x. ~P(x)) -> (ex x. Q(x))))))",
+    },
+    // Step 270
+    { _tag: "mp", leftIndex: 268, rightIndex: 269 },
+    // Step 271
+    { _tag: "mp", leftIndex: 263, rightIndex: 270 },
+    // Step 272
+    {
+      _tag: "axiom",
+      formulaText:
+        "((ex x. P(x)) -> (~(all x. ~P(x)) -> (ex x. Q(x)))) -> (((ex x. P(x)) -> ~(all x. ~P(x))) -> ((ex x. P(x)) -> (ex x. Q(x))))",
+    },
+    // Step 273
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((ex x. P(x)) -> (~(all x. ~P(x)) -> (ex x. Q(x)))) -> (((ex x. P(x)) -> ~(all x. ~P(x))) -> ((ex x. P(x)) -> (ex x. Q(x))))) -> (((all x. (P(x) -> Q(x)))) -> (((ex x. P(x)) -> (~(all x. ~P(x)) -> (ex x. Q(x)))) -> (((ex x. P(x)) -> ~(all x. ~P(x))) -> ((ex x. P(x)) -> (ex x. Q(x))))))",
+    },
+    // Step 274
+    { _tag: "mp", leftIndex: 272, rightIndex: 273 },
+    // Step 275
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. (P(x) -> Q(x)))) -> (((ex x. P(x)) -> (~(all x. ~P(x)) -> (ex x. Q(x)))) -> (((ex x. P(x)) -> ~(all x. ~P(x))) -> ((ex x. P(x)) -> (ex x. Q(x)))))) -> ((((all x. (P(x) -> Q(x)))) -> ((ex x. P(x)) -> (~(all x. ~P(x)) -> (ex x. Q(x))))) -> (((all x. (P(x) -> Q(x)))) -> (((ex x. P(x)) -> ~(all x. ~P(x))) -> ((ex x. P(x)) -> (ex x. Q(x))))))",
+    },
+    // Step 276
+    { _tag: "mp", leftIndex: 274, rightIndex: 275 },
+    // Step 277
+    { _tag: "mp", leftIndex: 271, rightIndex: 276 },
+    // Step 278
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (P(x) -> Q(x))) -> (((ex x. P(x)) -> ~(all x. ~P(x))) -> ((ex x. P(x)) -> (ex x. Q(x))))) -> (((all x. (P(x) -> Q(x))) -> ((ex x. P(x)) -> ~(all x. ~P(x)))) -> ((all x. (P(x) -> Q(x))) -> ((ex x. P(x)) -> (ex x. Q(x)))))",
+    },
+    // Step 279
+    { _tag: "mp", leftIndex: 277, rightIndex: 278 },
+    // Step 280
+    { _tag: "mp", leftIndex: 265, rightIndex: 279 },
   ],
 };
 
@@ -10325,12 +13187,221 @@ const predAdv05QuantifierSwap: ModelAnswer = {
  * pred-adv-06: 全称から存在
  *
  * (∀x.P(x)) → (∃x.P(x))。
- * ∃x.P(x) = ¬∀x.¬P(x) なので、定義展開でパーサーが処理。
- * axiom ステップでゴール式テキストを直接配置。
+ * pred-04のインライン(P(x)→∃x.P(x)) + A4外 + HS。
+ * 55ステップ。
  */
 const predAdv06UniversalToExistential: ModelAnswer = {
   questId: "pred-adv-06",
-  steps: [{ _tag: "axiom", formulaText: "(all x. P(x)) -> (ex x. P(x))" }],
+  steps: [
+    // Step 0
+    {
+      _tag: "axiom",
+      formulaText: "~~(all x. ~P(x)) -> (~(all x. ~P(x)) -> ~~(all x. ~P(x)))",
+    },
+    // Step 1
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> ~~(all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x)))",
+    },
+    // Step 2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all x. ~P(x)) -> ((~(all x. ~P(x)) -> ~~(all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x))))) -> ((~~(all x. ~P(x)) -> (~(all x. ~P(x)) -> ~~(all x. ~P(x)))) -> (~~(all x. ~P(x)) -> (~(all x. ~P(x)) -> (all x. ~P(x)))))",
+    },
+    // Step 3
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x)) -> ~~(all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x)))) -> (~~(all x. ~P(x)) -> ((~(all x. ~P(x)) -> ~~(all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x)))))",
+    },
+    // Step 4
+    { _tag: "mp", leftIndex: 1, rightIndex: 3 },
+    // Step 5
+    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+    // Step 6
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+    // Step 7
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~(all x. ~P(x)) -> (all x. ~P(x))) -> ~(all x. ~P(x))) -> ((all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x))))",
+    },
+    // Step 8
+    {
+      _tag: "axiom",
+      formulaText:
+        "~(all x. ~P(x)) -> (~~(~(all x. ~P(x)) -> (all x. ~P(x))) -> ~(all x. ~P(x)))",
+    },
+    // Step 9
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> ((~~(~(all x. ~P(x)) -> (all x. ~P(x))) -> ~(all x. ~P(x))) -> ((all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x)))))) -> ((~(all x. ~P(x)) -> (~~(~(all x. ~P(x)) -> (all x. ~P(x))) -> ~(all x. ~P(x)))) -> (~(all x. ~P(x)) -> ((all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x))))))",
+    },
+    // Step 10
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~(all x. ~P(x)) -> (all x. ~P(x))) -> ~(all x. ~P(x))) -> ((all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x))))) -> (~(all x. ~P(x)) -> ((~~(~(all x. ~P(x)) -> (all x. ~P(x))) -> ~(all x. ~P(x))) -> ((all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x))))))",
+    },
+    // Step 11
+    { _tag: "mp", leftIndex: 7, rightIndex: 10 },
+    // Step 12
+    { _tag: "mp", leftIndex: 11, rightIndex: 9 },
+    // Step 13
+    { _tag: "mp", leftIndex: 8, rightIndex: 12 },
+    // Step 14
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> ((all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x))))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x)))))",
+    },
+    // Step 15
+    { _tag: "mp", leftIndex: 13, rightIndex: 14 },
+    // Step 16
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x)))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x)))",
+    },
+    // Step 17
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x)) -> (all x. ~P(x))) -> ((~(all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x)))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x))))) -> (((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x))))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x)))))",
+    },
+    // Step 18
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x)))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x)))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> ((~(all x. ~P(x)) -> ~(~(all x. ~P(x)) -> (all x. ~P(x)))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x)))))",
+    },
+    // Step 19
+    { _tag: "mp", leftIndex: 16, rightIndex: 18 },
+    // Step 20
+    { _tag: "mp", leftIndex: 19, rightIndex: 17 },
+    // Step 21
+    { _tag: "mp", leftIndex: 15, rightIndex: 20 },
+    // Step 22
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x)) -> (all x. ~P(x))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x)))) -> (((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x)))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x))))",
+    },
+    // Step 23
+    { _tag: "mp", leftIndex: 21, rightIndex: 22 },
+    // Step 24
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x)) -> (all x. ~P(x))) -> (((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x)))) -> (~(all x. ~P(x)) -> (all x. ~P(x))))) -> (((~(all x. ~P(x)) -> (all x. ~P(x))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x))))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x)))))",
+    },
+    // Step 25
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> (all x. ~P(x))) -> (((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x)))) -> (~(all x. ~P(x)) -> (all x. ~P(x))))",
+    },
+    // Step 26
+    { _tag: "mp", leftIndex: 25, rightIndex: 24 },
+    // Step 27
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x)) -> (all x. ~P(x))) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (~(all x. ~P(x)) -> (all x. ~P(x))))",
+    },
+    // Step 28
+    { _tag: "mp", leftIndex: 27, rightIndex: 26 },
+    // Step 29
+    { _tag: "mp", leftIndex: 28, rightIndex: 23 },
+    // Step 30
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all x. ~P(x)) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x)))) -> ((~~(all x. ~P(x)) -> (~(all x. ~P(x)) -> (all x. ~P(x)))) -> (~~(all x. ~P(x)) -> (all x. ~P(x))))",
+    },
+    // Step 31
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x))) -> (~~(all x. ~P(x)) -> ((~(all x. ~P(x)) -> (all x. ~P(x))) -> (all x. ~P(x))))",
+    },
+    // Step 32
+    { _tag: "mp", leftIndex: 29, rightIndex: 31 },
+    // Step 33
+    { _tag: "mp", leftIndex: 32, rightIndex: 30 },
+    // Step 34
+    { _tag: "mp", leftIndex: 6, rightIndex: 33 },
+    // Step 35
+    { _tag: "axiom", formulaText: "(all x. ~P(x)) -> ~P(x)" },
+    // Step 36
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. ~P(x))) -> (~P(x))) -> ((~~(all x. ~P(x))) -> (((all x. ~P(x))) -> (~P(x))))",
+    },
+    // Step 37
+    { _tag: "mp", leftIndex: 35, rightIndex: 36 },
+    // Step 38
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(all x. ~P(x))) -> (((all x. ~P(x))) -> (~P(x)))) -> (((~~(all x. ~P(x))) -> ((all x. ~P(x)))) -> ((~~(all x. ~P(x))) -> (~P(x))))",
+    },
+    // Step 39
+    { _tag: "mp", leftIndex: 37, rightIndex: 38 },
+    // Step 40
+    { _tag: "mp", leftIndex: 34, rightIndex: 39 },
+    // Step 41
+    {
+      _tag: "axiom",
+      formulaText: "(~~(all x. ~P(x)) -> ~P(x)) -> (P(x) -> ~(all x. ~P(x)))",
+    },
+    // Step 42
+    { _tag: "mp", leftIndex: 40, rightIndex: 41 },
+    // Step 43
+    { _tag: "axiom", formulaText: "~(all x. ~P(x)) -> (ex x. P(x))" },
+    // Step 44
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x))) -> (ex x. P(x))) -> ((P(x)) -> ((~(all x. ~P(x))) -> (ex x. P(x))))",
+    },
+    // Step 45
+    { _tag: "mp", leftIndex: 43, rightIndex: 44 },
+    // Step 46
+    {
+      _tag: "axiom",
+      formulaText:
+        "((P(x)) -> ((~(all x. ~P(x))) -> (ex x. P(x)))) -> (((P(x)) -> (~(all x. ~P(x)))) -> ((P(x)) -> (ex x. P(x))))",
+    },
+    // Step 47
+    { _tag: "mp", leftIndex: 45, rightIndex: 46 },
+    // Step 48
+    { _tag: "mp", leftIndex: 42, rightIndex: 47 },
+    // Step 49
+    { _tag: "axiom", formulaText: "(all x. P(x)) -> P(x)" },
+    // Step 50
+    {
+      _tag: "axiom",
+      formulaText:
+        "((P(x)) -> (ex x. P(x))) -> (((all x. P(x))) -> ((P(x)) -> (ex x. P(x))))",
+    },
+    // Step 51
+    { _tag: "mp", leftIndex: 48, rightIndex: 50 },
+    // Step 52
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. P(x))) -> ((P(x)) -> (ex x. P(x)))) -> ((((all x. P(x))) -> (P(x))) -> (((all x. P(x))) -> (ex x. P(x))))",
+    },
+    // Step 53
+    { _tag: "mp", leftIndex: 51, rightIndex: 52 },
+    // Step 54
+    { _tag: "mp", leftIndex: 49, rightIndex: 53 },
+  ],
 };
 
 /**
@@ -10475,12 +13546,365 @@ const predAdv07UniversalImplicationChain: ModelAnswer = {
  * pred-adv-08: 全称 → 存在否定の否定
  *
  * (∀x.P(x)) → ¬(∃x.¬P(x))。
- * ∃x.¬P(x) = ¬∀x.¬¬P(x) なので、定義展開で二重否定除去に帰着。
- * axiom ステップでゴール式テキストを直接配置。
+ * DNI[P(x)] + A4 + Gen + A5 → (∀x.P(x))→(∀x.~~P(x))。
+ * A3 + DNE + EX-DEF fwd → (∀x.~~P(x))→¬(∃x.¬P(x))。
+ * HS合成。94ステップ。
  */
 const predAdv08UniversalToNotExistNot: ModelAnswer = {
   questId: "pred-adv-08",
-  steps: [{ _tag: "axiom", formulaText: "(all x. P(x)) -> ~(ex x. ~P(x))" }],
+  steps: [
+    // Step 0
+    { _tag: "axiom", formulaText: "~~~P(x) -> (~~P(x) -> ~~~P(x))" },
+    // Step 1
+    { _tag: "axiom", formulaText: "(~~P(x) -> ~~~P(x)) -> (~~P(x) -> ~P(x))" },
+    // Step 2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~P(x) -> ((~~P(x) -> ~~~P(x)) -> (~~P(x) -> ~P(x)))) -> ((~~~P(x) -> (~~P(x) -> ~~~P(x))) -> (~~~P(x) -> (~~P(x) -> ~P(x))))",
+    },
+    // Step 3
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~P(x) -> ~~~P(x)) -> (~~P(x) -> ~P(x))) -> (~~~P(x) -> ((~~P(x) -> ~~~P(x)) -> (~~P(x) -> ~P(x))))",
+    },
+    // Step 4
+    { _tag: "mp", leftIndex: 1, rightIndex: 3 },
+    // Step 5
+    { _tag: "mp", leftIndex: 4, rightIndex: 2 },
+    // Step 6
+    { _tag: "mp", leftIndex: 0, rightIndex: 5 },
+    // Step 7
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~~P(x) -> ~P(x)) -> ~~P(x)) -> (~P(x) -> ~(~~P(x) -> ~P(x)))",
+    },
+    // Step 8
+    { _tag: "axiom", formulaText: "~~P(x) -> (~~(~~P(x) -> ~P(x)) -> ~~P(x))" },
+    // Step 9
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~P(x) -> ((~~(~~P(x) -> ~P(x)) -> ~~P(x)) -> (~P(x) -> ~(~~P(x) -> ~P(x))))) -> ((~~P(x) -> (~~(~~P(x) -> ~P(x)) -> ~~P(x))) -> (~~P(x) -> (~P(x) -> ~(~~P(x) -> ~P(x)))))",
+    },
+    // Step 10
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~~P(x) -> ~P(x)) -> ~~P(x)) -> (~P(x) -> ~(~~P(x) -> ~P(x)))) -> (~~P(x) -> ((~~(~~P(x) -> ~P(x)) -> ~~P(x)) -> (~P(x) -> ~(~~P(x) -> ~P(x)))))",
+    },
+    // Step 11
+    { _tag: "mp", leftIndex: 7, rightIndex: 10 },
+    // Step 12
+    { _tag: "mp", leftIndex: 11, rightIndex: 9 },
+    // Step 13
+    { _tag: "mp", leftIndex: 8, rightIndex: 12 },
+    // Step 14
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~P(x) -> (~P(x) -> ~(~~P(x) -> ~P(x)))) -> ((~~P(x) -> ~P(x)) -> (~~P(x) -> ~(~~P(x) -> ~P(x))))",
+    },
+    // Step 15
+    { _tag: "mp", leftIndex: 13, rightIndex: 14 },
+    // Step 16
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~P(x) -> ~(~~P(x) -> ~P(x))) -> ((~~P(x) -> ~P(x)) -> ~P(x))",
+    },
+    // Step 17
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~P(x) -> ~P(x)) -> ((~~P(x) -> ~(~~P(x) -> ~P(x))) -> ((~~P(x) -> ~P(x)) -> ~P(x)))) -> (((~~P(x) -> ~P(x)) -> (~~P(x) -> ~(~~P(x) -> ~P(x)))) -> ((~~P(x) -> ~P(x)) -> ((~~P(x) -> ~P(x)) -> ~P(x))))",
+    },
+    // Step 18
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~P(x) -> ~(~~P(x) -> ~P(x))) -> ((~~P(x) -> ~P(x)) -> ~P(x))) -> ((~~P(x) -> ~P(x)) -> ((~~P(x) -> ~(~~P(x) -> ~P(x))) -> ((~~P(x) -> ~P(x)) -> ~P(x))))",
+    },
+    // Step 19
+    { _tag: "mp", leftIndex: 16, rightIndex: 18 },
+    // Step 20
+    { _tag: "mp", leftIndex: 19, rightIndex: 17 },
+    // Step 21
+    { _tag: "mp", leftIndex: 15, rightIndex: 20 },
+    // Step 22
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~P(x) -> ~P(x)) -> ((~~P(x) -> ~P(x)) -> ~P(x))) -> (((~~P(x) -> ~P(x)) -> (~~P(x) -> ~P(x))) -> ((~~P(x) -> ~P(x)) -> ~P(x)))",
+    },
+    // Step 23
+    { _tag: "mp", leftIndex: 21, rightIndex: 22 },
+    // Step 24
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~P(x) -> ~P(x)) -> (((~~P(x) -> ~P(x)) -> (~~P(x) -> ~P(x))) -> (~~P(x) -> ~P(x)))) -> (((~~P(x) -> ~P(x)) -> ((~~P(x) -> ~P(x)) -> (~~P(x) -> ~P(x)))) -> ((~~P(x) -> ~P(x)) -> (~~P(x) -> ~P(x))))",
+    },
+    // Step 25
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~P(x) -> ~P(x)) -> (((~~P(x) -> ~P(x)) -> (~~P(x) -> ~P(x))) -> (~~P(x) -> ~P(x)))",
+    },
+    // Step 26
+    { _tag: "mp", leftIndex: 25, rightIndex: 24 },
+    // Step 27
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~P(x) -> ~P(x)) -> ((~~P(x) -> ~P(x)) -> (~~P(x) -> ~P(x)))",
+    },
+    // Step 28
+    { _tag: "mp", leftIndex: 27, rightIndex: 26 },
+    // Step 29
+    { _tag: "mp", leftIndex: 28, rightIndex: 23 },
+    // Step 30
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~P(x) -> ((~~P(x) -> ~P(x)) -> ~P(x))) -> ((~~~P(x) -> (~~P(x) -> ~P(x))) -> (~~~P(x) -> ~P(x)))",
+    },
+    // Step 31
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~P(x) -> ~P(x)) -> ~P(x)) -> (~~~P(x) -> ((~~P(x) -> ~P(x)) -> ~P(x)))",
+    },
+    // Step 32
+    { _tag: "mp", leftIndex: 29, rightIndex: 31 },
+    // Step 33
+    { _tag: "mp", leftIndex: 32, rightIndex: 30 },
+    // Step 34
+    { _tag: "mp", leftIndex: 6, rightIndex: 33 },
+    // Step 35
+    { _tag: "axiom", formulaText: "(~~~P(x) -> ~P(x)) -> (P(x) -> ~~P(x))" },
+    // Step 36
+    { _tag: "mp", leftIndex: 34, rightIndex: 35 },
+    // Step 37
+    { _tag: "axiom", formulaText: "(all x. P(x)) -> P(x)" },
+    // Step 38
+    {
+      _tag: "axiom",
+      formulaText:
+        "((P(x)) -> (~~P(x))) -> (((all x. P(x))) -> ((P(x)) -> (~~P(x))))",
+    },
+    // Step 39
+    { _tag: "mp", leftIndex: 36, rightIndex: 38 },
+    // Step 40
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. P(x))) -> ((P(x)) -> (~~P(x)))) -> ((((all x. P(x))) -> (P(x))) -> (((all x. P(x))) -> (~~P(x))))",
+    },
+    // Step 41
+    { _tag: "mp", leftIndex: 39, rightIndex: 40 },
+    // Step 42
+    { _tag: "mp", leftIndex: 37, rightIndex: 41 },
+    // Step 43
+    { _tag: "gen", premiseIndex: 42, variableName: "x" },
+    // Step 44
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. P(x)) -> ~~P(x))) -> ((all x. P(x)) -> (all x. ~~P(x)))",
+    },
+    // Step 45
+    { _tag: "mp", leftIndex: 43, rightIndex: 44 },
+    // Step 46
+    {
+      _tag: "axiom",
+      formulaText: "~~(ex x. ~P(x)) -> (~(ex x. ~P(x)) -> ~~(ex x. ~P(x)))",
+    },
+    // Step 47
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex x. ~P(x)) -> ~~(ex x. ~P(x))) -> (~(ex x. ~P(x)) -> (ex x. ~P(x)))",
+    },
+    // Step 48
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. ~P(x)) -> ((~(ex x. ~P(x)) -> ~~(ex x. ~P(x))) -> (~(ex x. ~P(x)) -> (ex x. ~P(x))))) -> ((~~(ex x. ~P(x)) -> (~(ex x. ~P(x)) -> ~~(ex x. ~P(x)))) -> (~~(ex x. ~P(x)) -> (~(ex x. ~P(x)) -> (ex x. ~P(x)))))",
+    },
+    // Step 49
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex x. ~P(x)) -> ~~(ex x. ~P(x))) -> (~(ex x. ~P(x)) -> (ex x. ~P(x)))) -> (~~(ex x. ~P(x)) -> ((~(ex x. ~P(x)) -> ~~(ex x. ~P(x))) -> (~(ex x. ~P(x)) -> (ex x. ~P(x)))))",
+    },
+    // Step 50
+    { _tag: "mp", leftIndex: 47, rightIndex: 49 },
+    // Step 51
+    { _tag: "mp", leftIndex: 50, rightIndex: 48 },
+    // Step 52
+    { _tag: "mp", leftIndex: 46, rightIndex: 51 },
+    // Step 53
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~(ex x. ~P(x)) -> (ex x. ~P(x))) -> ~(ex x. ~P(x))) -> ((ex x. ~P(x)) -> ~(~(ex x. ~P(x)) -> (ex x. ~P(x))))",
+    },
+    // Step 54
+    {
+      _tag: "axiom",
+      formulaText:
+        "~(ex x. ~P(x)) -> (~~(~(ex x. ~P(x)) -> (ex x. ~P(x))) -> ~(ex x. ~P(x)))",
+    },
+    // Step 55
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex x. ~P(x)) -> ((~~(~(ex x. ~P(x)) -> (ex x. ~P(x))) -> ~(ex x. ~P(x))) -> ((ex x. ~P(x)) -> ~(~(ex x. ~P(x)) -> (ex x. ~P(x)))))) -> ((~(ex x. ~P(x)) -> (~~(~(ex x. ~P(x)) -> (ex x. ~P(x))) -> ~(ex x. ~P(x)))) -> (~(ex x. ~P(x)) -> ((ex x. ~P(x)) -> ~(~(ex x. ~P(x)) -> (ex x. ~P(x))))))",
+    },
+    // Step 56
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~(ex x. ~P(x)) -> (ex x. ~P(x))) -> ~(ex x. ~P(x))) -> ((ex x. ~P(x)) -> ~(~(ex x. ~P(x)) -> (ex x. ~P(x))))) -> (~(ex x. ~P(x)) -> ((~~(~(ex x. ~P(x)) -> (ex x. ~P(x))) -> ~(ex x. ~P(x))) -> ((ex x. ~P(x)) -> ~(~(ex x. ~P(x)) -> (ex x. ~P(x))))))",
+    },
+    // Step 57
+    { _tag: "mp", leftIndex: 53, rightIndex: 56 },
+    // Step 58
+    { _tag: "mp", leftIndex: 57, rightIndex: 55 },
+    // Step 59
+    { _tag: "mp", leftIndex: 54, rightIndex: 58 },
+    // Step 60
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex x. ~P(x)) -> ((ex x. ~P(x)) -> ~(~(ex x. ~P(x)) -> (ex x. ~P(x))))) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (~(ex x. ~P(x)) -> ~(~(ex x. ~P(x)) -> (ex x. ~P(x)))))",
+    },
+    // Step 61
+    { _tag: "mp", leftIndex: 59, rightIndex: 60 },
+    // Step 62
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex x. ~P(x)) -> ~(~(ex x. ~P(x)) -> (ex x. ~P(x)))) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (ex x. ~P(x)))",
+    },
+    // Step 63
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> ((~(ex x. ~P(x)) -> ~(~(ex x. ~P(x)) -> (ex x. ~P(x)))) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (ex x. ~P(x))))) -> (((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (~(ex x. ~P(x)) -> ~(~(ex x. ~P(x)) -> (ex x. ~P(x))))) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (ex x. ~P(x)))))",
+    },
+    // Step 64
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex x. ~P(x)) -> ~(~(ex x. ~P(x)) -> (ex x. ~P(x)))) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (ex x. ~P(x)))) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> ((~(ex x. ~P(x)) -> ~(~(ex x. ~P(x)) -> (ex x. ~P(x)))) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (ex x. ~P(x)))))",
+    },
+    // Step 65
+    { _tag: "mp", leftIndex: 62, rightIndex: 64 },
+    // Step 66
+    { _tag: "mp", leftIndex: 65, rightIndex: 63 },
+    // Step 67
+    { _tag: "mp", leftIndex: 61, rightIndex: 66 },
+    // Step 68
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (ex x. ~P(x)))) -> (((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (~(ex x. ~P(x)) -> (ex x. ~P(x)))) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (ex x. ~P(x))))",
+    },
+    // Step 69
+    { _tag: "mp", leftIndex: 67, rightIndex: 68 },
+    // Step 70
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (~(ex x. ~P(x)) -> (ex x. ~P(x)))) -> (~(ex x. ~P(x)) -> (ex x. ~P(x))))) -> (((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (~(ex x. ~P(x)) -> (ex x. ~P(x))))) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (~(ex x. ~P(x)) -> (ex x. ~P(x)))))",
+    },
+    // Step 71
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (~(ex x. ~P(x)) -> (ex x. ~P(x)))) -> (~(ex x. ~P(x)) -> (ex x. ~P(x))))",
+    },
+    // Step 72
+    { _tag: "mp", leftIndex: 71, rightIndex: 70 },
+    // Step 73
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex x. ~P(x)) -> (ex x. ~P(x))) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (~(ex x. ~P(x)) -> (ex x. ~P(x))))",
+    },
+    // Step 74
+    { _tag: "mp", leftIndex: 73, rightIndex: 72 },
+    // Step 75
+    { _tag: "mp", leftIndex: 74, rightIndex: 69 },
+    // Step 76
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. ~P(x)) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (ex x. ~P(x)))) -> ((~~(ex x. ~P(x)) -> (~(ex x. ~P(x)) -> (ex x. ~P(x)))) -> (~~(ex x. ~P(x)) -> (ex x. ~P(x))))",
+    },
+    // Step 77
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (ex x. ~P(x))) -> (~~(ex x. ~P(x)) -> ((~(ex x. ~P(x)) -> (ex x. ~P(x))) -> (ex x. ~P(x))))",
+    },
+    // Step 78
+    { _tag: "mp", leftIndex: 75, rightIndex: 77 },
+    // Step 79
+    { _tag: "mp", leftIndex: 78, rightIndex: 76 },
+    // Step 80
+    { _tag: "mp", leftIndex: 52, rightIndex: 79 },
+    // Step 81
+    { _tag: "axiom", formulaText: "(ex x. ~P(x)) -> ~(all x. ~~P(x))" },
+    // Step 82
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((ex x. ~P(x))) -> (~(all x. ~~P(x)))) -> ((~~(ex x. ~P(x))) -> (((ex x. ~P(x))) -> (~(all x. ~~P(x)))))",
+    },
+    // Step 83
+    { _tag: "mp", leftIndex: 81, rightIndex: 82 },
+    // Step 84
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex x. ~P(x))) -> (((ex x. ~P(x))) -> (~(all x. ~~P(x))))) -> (((~~(ex x. ~P(x))) -> ((ex x. ~P(x)))) -> ((~~(ex x. ~P(x))) -> (~(all x. ~~P(x)))))",
+    },
+    // Step 85
+    { _tag: "mp", leftIndex: 83, rightIndex: 84 },
+    // Step 86
+    { _tag: "mp", leftIndex: 80, rightIndex: 85 },
+    // Step 87
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. ~P(x)) -> ~(all x. ~~P(x))) -> ((all x. ~~P(x)) -> ~(ex x. ~P(x)))",
+    },
+    // Step 88
+    { _tag: "mp", leftIndex: 86, rightIndex: 87 },
+    // Step 89
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. ~~P(x))) -> (~(ex x. ~P(x)))) -> (((all x. P(x))) -> (((all x. ~~P(x))) -> (~(ex x. ~P(x)))))",
+    },
+    // Step 90
+    { _tag: "mp", leftIndex: 88, rightIndex: 89 },
+    // Step 91
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. P(x))) -> (((all x. ~~P(x))) -> (~(ex x. ~P(x))))) -> ((((all x. P(x))) -> ((all x. ~~P(x)))) -> (((all x. P(x))) -> (~(ex x. ~P(x)))))",
+    },
+    // Step 92
+    { _tag: "mp", leftIndex: 90, rightIndex: 91 },
+    // Step 93
+    { _tag: "mp", leftIndex: 45, rightIndex: 92 },
+  ],
 };
 
 /**
@@ -10709,16 +14133,1035 @@ const predAdv11VacuousQuantification: ModelAnswer = {
  * pred-adv-12: 存在量化子の交換
  *
  * (∃x.∃y.P(x,y)) → (∃y.∃x.P(x,y))。
- * ∃ = ¬∀¬ の定義展開で全称の交換に帰着させる。
- * axiom ステップでゴール式テキストを直接配置。
+ * pred-adv-02[x] + Gen + distForall + forall-swap + pred-06[y] + Gen + A5
+ * + MT + EX-DEF両方向。262ステップ。
  */
 const predAdv12ExistentialSwap: ModelAnswer = {
   questId: "pred-adv-12",
   steps: [
+    // Step 0
+    { _tag: "axiom", formulaText: "~(all x. ~P(x, y)) -> (ex x. P(x, y))" },
+    // Step 1
     {
       _tag: "axiom",
-      formulaText: "(ex x. (ex y. P(x, y))) -> (ex y. (ex x. P(x, y)))",
+      formulaText:
+        "~~~(ex x. P(x, y)) -> (~~(ex x. P(x, y)) -> ~~~(ex x. P(x, y)))",
     },
+    // Step 2
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x, y)) -> ~~~(ex x. P(x, y))) -> (~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))",
+    },
+    // Step 3
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(ex x. P(x, y)) -> ((~~(ex x. P(x, y)) -> ~~~(ex x. P(x, y))) -> (~~(ex x. P(x, y)) -> ~(ex x. P(x, y))))) -> ((~~~(ex x. P(x, y)) -> (~~(ex x. P(x, y)) -> ~~~(ex x. P(x, y)))) -> (~~~(ex x. P(x, y)) -> (~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))))",
+    },
+    // Step 4
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex x. P(x, y)) -> ~~~(ex x. P(x, y))) -> (~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))) -> (~~~(ex x. P(x, y)) -> ((~~(ex x. P(x, y)) -> ~~~(ex x. P(x, y))) -> (~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))))",
+    },
+    // Step 5
+    { _tag: "mp", leftIndex: 2, rightIndex: 4 },
+    // Step 6
+    { _tag: "mp", leftIndex: 5, rightIndex: 3 },
+    // Step 7
+    { _tag: "mp", leftIndex: 1, rightIndex: 6 },
+    // Step 8
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> ~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y))))",
+    },
+    // Step 9
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~(ex x. P(x, y)) -> (~~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~~(ex x. P(x, y)))",
+    },
+    // Step 10
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x, y)) -> ((~~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> ~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))))) -> ((~~(ex x. P(x, y)) -> (~~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~~(ex x. P(x, y)))) -> (~~(ex x. P(x, y)) -> (~(ex x. P(x, y)) -> ~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y))))))",
+    },
+    // Step 11
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> ~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y))))) -> (~~(ex x. P(x, y)) -> ((~~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> ~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y))))))",
+    },
+    // Step 12
+    { _tag: "mp", leftIndex: 8, rightIndex: 11 },
+    // Step 13
+    { _tag: "mp", leftIndex: 12, rightIndex: 10 },
+    // Step 14
+    { _tag: "mp", leftIndex: 9, rightIndex: 13 },
+    // Step 15
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x, y)) -> (~(ex x. P(x, y)) -> ~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y))))) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> (~~(ex x. P(x, y)) -> ~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))))",
+    },
+    // Step 16
+    { _tag: "mp", leftIndex: 14, rightIndex: 15 },
+    // Step 17
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x, y)) -> ~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~(ex x. P(x, y)))",
+    },
+    // Step 18
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ((~~(ex x. P(x, y)) -> ~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~(ex x. P(x, y))))) -> (((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> (~~(ex x. P(x, y)) -> ~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y))))) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~(ex x. P(x, y)))))",
+    },
+    // Step 19
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex x. P(x, y)) -> ~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~(ex x. P(x, y)))) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ((~~(ex x. P(x, y)) -> ~(~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~(ex x. P(x, y)))))",
+    },
+    // Step 20
+    { _tag: "mp", leftIndex: 17, rightIndex: 19 },
+    // Step 21
+    { _tag: "mp", leftIndex: 20, rightIndex: 18 },
+    // Step 22
+    { _tag: "mp", leftIndex: 16, rightIndex: 21 },
+    // Step 23
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~(ex x. P(x, y)))) -> (((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> (~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~(ex x. P(x, y))))",
+    },
+    // Step 24
+    { _tag: "mp", leftIndex: 22, rightIndex: 23 },
+    // Step 25
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> (((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> (~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))) -> (~~(ex x. P(x, y)) -> ~(ex x. P(x, y))))) -> (((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> (~~(ex x. P(x, y)) -> ~(ex x. P(x, y))))) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> (~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))))",
+    },
+    // Step 26
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> (((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> (~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))) -> (~~(ex x. P(x, y)) -> ~(ex x. P(x, y))))",
+    },
+    // Step 27
+    { _tag: "mp", leftIndex: 26, rightIndex: 25 },
+    // Step 28
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> (~~(ex x. P(x, y)) -> ~(ex x. P(x, y))))",
+    },
+    // Step 29
+    { _tag: "mp", leftIndex: 28, rightIndex: 27 },
+    // Step 30
+    { _tag: "mp", leftIndex: 29, rightIndex: 24 },
+    // Step 31
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(ex x. P(x, y)) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~(ex x. P(x, y)))) -> ((~~~(ex x. P(x, y)) -> (~~(ex x. P(x, y)) -> ~(ex x. P(x, y)))) -> (~~~(ex x. P(x, y)) -> ~(ex x. P(x, y))))",
+    },
+    // Step 32
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~(ex x. P(x, y))) -> (~~~(ex x. P(x, y)) -> ((~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ~(ex x. P(x, y))))",
+    },
+    // Step 33
+    { _tag: "mp", leftIndex: 30, rightIndex: 32 },
+    // Step 34
+    { _tag: "mp", leftIndex: 33, rightIndex: 31 },
+    // Step 35
+    { _tag: "mp", leftIndex: 7, rightIndex: 34 },
+    // Step 36
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(ex x. P(x, y)) -> ~(ex x. P(x, y))) -> ((ex x. P(x, y)) -> ~~(ex x. P(x, y)))",
+    },
+    // Step 37
+    { _tag: "mp", leftIndex: 35, rightIndex: 36 },
+    // Step 38
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((ex x. P(x, y))) -> (~~(ex x. P(x, y)))) -> ((~(all x. ~P(x, y))) -> (((ex x. P(x, y))) -> (~~(ex x. P(x, y)))))",
+    },
+    // Step 39
+    { _tag: "mp", leftIndex: 37, rightIndex: 38 },
+    // Step 40
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~P(x, y))) -> (((ex x. P(x, y))) -> (~~(ex x. P(x, y))))) -> (((~(all x. ~P(x, y))) -> ((ex x. P(x, y)))) -> ((~(all x. ~P(x, y))) -> (~~(ex x. P(x, y)))))",
+    },
+    // Step 41
+    { _tag: "mp", leftIndex: 39, rightIndex: 40 },
+    // Step 42
+    { _tag: "mp", leftIndex: 0, rightIndex: 41 },
+    // Step 43
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all x. ~P(x, y)) -> ~~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y)))",
+    },
+    // Step 44
+    { _tag: "mp", leftIndex: 42, rightIndex: 43 },
+    // Step 45
+    { _tag: "gen", premiseIndex: 44, variableName: "y" },
+    // Step 46
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y)))",
+    },
+    // Step 47
+    {
+      _tag: "axiom",
+      formulaText: "(all y. ~(ex x. P(x, y))) -> ~(ex x. P(x, y))",
+    },
+    // Step 48
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex x. P(x, y)) -> (all x. ~P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y))))",
+    },
+    // Step 49
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex x. P(x, y)) -> (all x. ~P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y))))) -> ((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> ((~(ex x. P(x, y)) -> (all x. ~P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y))))))",
+    },
+    // Step 50
+    { _tag: "mp", leftIndex: 48, rightIndex: 49 },
+    // Step 51
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> ((~(ex x. P(x, y)) -> (all x. ~P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y)))))) -> (((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> ((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y))))))",
+    },
+    // Step 52
+    { _tag: "mp", leftIndex: 50, rightIndex: 51 },
+    // Step 53
+    { _tag: "mp", leftIndex: 46, rightIndex: 52 },
+    // Step 54
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. ~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> (((all y. ~(ex x. P(x, y))) -> ~(ex x. P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~P(x, y))))",
+    },
+    // Step 55
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all y. ~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> (((all y. ~(ex x. P(x, y))) -> ~(ex x. P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~P(x, y))))) -> ((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> (((all y. ~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> (((all y. ~(ex x. P(x, y))) -> ~(ex x. P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~P(x, y))))))",
+    },
+    // Step 56
+    { _tag: "mp", leftIndex: 54, rightIndex: 55 },
+    // Step 57
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> (((all y. ~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> (((all y. ~(ex x. P(x, y))) -> ~(ex x. P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~P(x, y)))))) -> (((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y))))) -> ((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> (((all y. ~(ex x. P(x, y))) -> ~(ex x. P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~P(x, y))))))",
+    },
+    // Step 58
+    { _tag: "mp", leftIndex: 56, rightIndex: 57 },
+    // Step 59
+    { _tag: "mp", leftIndex: 53, rightIndex: 58 },
+    // Step 60
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. ~(ex x. P(x, y))) -> ~(ex x. P(x, y))) -> ((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> ~(ex x. P(x, y))))",
+    },
+    // Step 61
+    { _tag: "mp", leftIndex: 47, rightIndex: 60 },
+    // Step 62
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> (((all y. ~(ex x. P(x, y))) -> ~(ex x. P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~P(x, y))))) -> (((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> ~(ex x. P(x, y)))) -> ((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~P(x, y)))))",
+    },
+    // Step 63
+    { _tag: "mp", leftIndex: 59, rightIndex: 62 },
+    // Step 64
+    { _tag: "mp", leftIndex: 61, rightIndex: 63 },
+    // Step 65
+    { _tag: "gen", premiseIndex: 64, variableName: "y" },
+    // Step 66
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. ((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~P(x, y))))) -> ((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> (all y. ((all y. ~(ex x. P(x, y))) -> (all x. ~P(x, y)))))",
+    },
+    // Step 67
+    { _tag: "mp", leftIndex: 65, rightIndex: 66 },
+    // Step 68
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. ((all y. ~(ex x. P(x, y))) -> (all x. ~P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> (all y. (all x. ~P(x, y))))",
+    },
+    // Step 69
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. ((all y. ~(ex x. P(x, y))) -> (all x. ~P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> (all y. (all x. ~P(x, y))))) -> ((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> ((all y. ((all y. ~(ex x. P(x, y))) -> (all x. ~P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> (all y. (all x. ~P(x, y))))))",
+    },
+    // Step 70
+    { _tag: "mp", leftIndex: 68, rightIndex: 69 },
+    // Step 71
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> ((all y. ((all y. ~(ex x. P(x, y))) -> (all x. ~P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> (all y. (all x. ~P(x, y)))))) -> (((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> (all y. ((all y. ~(ex x. P(x, y))) -> (all x. ~P(x, y))))) -> ((all y. (~(ex x. P(x, y)) -> (all x. ~P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> (all y. (all x. ~P(x, y))))))",
+    },
+    // Step 72
+    { _tag: "mp", leftIndex: 70, rightIndex: 71 },
+    // Step 73
+    { _tag: "mp", leftIndex: 67, rightIndex: 72 },
+    // Step 74
+    { _tag: "mp", leftIndex: 45, rightIndex: 73 },
+    // Step 75
+    {
+      _tag: "axiom",
+      formulaText: "(all y. (all x. ~P(x, y))) -> (all x. ~P(x, y))",
+    },
+    // Step 76
+    { _tag: "axiom", formulaText: "(all x. ~P(x, y)) -> ~P(x, y)" },
+    // Step 77
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. ~P(x, y)) -> (~P(x, y))) -> ((all y. (all x. ~P(x, y))) -> ((all x. ~P(x, y)) -> (~P(x, y))))",
+    },
+    // Step 78
+    { _tag: "mp", leftIndex: 76, rightIndex: 77 },
+    // Step 79
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. (all x. ~P(x, y))) -> ((all x. ~P(x, y)) -> (~P(x, y)))) -> (((all y. (all x. ~P(x, y))) -> (all x. ~P(x, y))) -> ((all y. (all x. ~P(x, y))) -> (~P(x, y))))",
+    },
+    // Step 80
+    { _tag: "mp", leftIndex: 78, rightIndex: 79 },
+    // Step 81
+    { _tag: "mp", leftIndex: 75, rightIndex: 80 },
+    // Step 82
+    { _tag: "gen", premiseIndex: 81, variableName: "y" },
+    // Step 83
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all y. ((all y. (all x. ~P(x, y))) -> ~P(x, y))) -> ((all y. (all x. ~P(x, y))) -> (all y. ~P(x, y)))",
+    },
+    // Step 84
+    { _tag: "mp", leftIndex: 82, rightIndex: 83 },
+    // Step 85
+    { _tag: "gen", premiseIndex: 84, variableName: "x" },
+    // Step 86
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all y. (all x. ~P(x, y))) -> (all y. ~P(x, y)))) -> ((all y. (all x. ~P(x, y))) -> (all x. (all y. ~P(x, y))))",
+    },
+    // Step 87
+    { _tag: "mp", leftIndex: 85, rightIndex: 86 },
+    // Step 88
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~(ex y. P(x, y)) -> (~(ex y. P(x, y)) -> ~~(ex y. P(x, y)))",
+    },
+    // Step 89
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex y. P(x, y)) -> ~~(ex y. P(x, y))) -> (~(ex y. P(x, y)) -> (ex y. P(x, y)))",
+    },
+    // Step 90
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex y. P(x, y)) -> ((~(ex y. P(x, y)) -> ~~(ex y. P(x, y))) -> (~(ex y. P(x, y)) -> (ex y. P(x, y))))) -> ((~~(ex y. P(x, y)) -> (~(ex y. P(x, y)) -> ~~(ex y. P(x, y)))) -> (~~(ex y. P(x, y)) -> (~(ex y. P(x, y)) -> (ex y. P(x, y)))))",
+    },
+    // Step 91
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex y. P(x, y)) -> ~~(ex y. P(x, y))) -> (~(ex y. P(x, y)) -> (ex y. P(x, y)))) -> (~~(ex y. P(x, y)) -> ((~(ex y. P(x, y)) -> ~~(ex y. P(x, y))) -> (~(ex y. P(x, y)) -> (ex y. P(x, y)))))",
+    },
+    // Step 92
+    { _tag: "mp", leftIndex: 89, rightIndex: 91 },
+    // Step 93
+    { _tag: "mp", leftIndex: 92, rightIndex: 90 },
+    // Step 94
+    { _tag: "mp", leftIndex: 88, rightIndex: 93 },
+    // Step 95
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~(ex y. P(x, y)) -> (ex y. P(x, y))) -> ~(ex y. P(x, y))) -> ((ex y. P(x, y)) -> ~(~(ex y. P(x, y)) -> (ex y. P(x, y))))",
+    },
+    // Step 96
+    {
+      _tag: "axiom",
+      formulaText:
+        "~(ex y. P(x, y)) -> (~~(~(ex y. P(x, y)) -> (ex y. P(x, y))) -> ~(ex y. P(x, y)))",
+    },
+    // Step 97
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex y. P(x, y)) -> ((~~(~(ex y. P(x, y)) -> (ex y. P(x, y))) -> ~(ex y. P(x, y))) -> ((ex y. P(x, y)) -> ~(~(ex y. P(x, y)) -> (ex y. P(x, y)))))) -> ((~(ex y. P(x, y)) -> (~~(~(ex y. P(x, y)) -> (ex y. P(x, y))) -> ~(ex y. P(x, y)))) -> (~(ex y. P(x, y)) -> ((ex y. P(x, y)) -> ~(~(ex y. P(x, y)) -> (ex y. P(x, y))))))",
+    },
+    // Step 98
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~(ex y. P(x, y)) -> (ex y. P(x, y))) -> ~(ex y. P(x, y))) -> ((ex y. P(x, y)) -> ~(~(ex y. P(x, y)) -> (ex y. P(x, y))))) -> (~(ex y. P(x, y)) -> ((~~(~(ex y. P(x, y)) -> (ex y. P(x, y))) -> ~(ex y. P(x, y))) -> ((ex y. P(x, y)) -> ~(~(ex y. P(x, y)) -> (ex y. P(x, y))))))",
+    },
+    // Step 99
+    { _tag: "mp", leftIndex: 95, rightIndex: 98 },
+    // Step 100
+    { _tag: "mp", leftIndex: 99, rightIndex: 97 },
+    // Step 101
+    { _tag: "mp", leftIndex: 96, rightIndex: 100 },
+    // Step 102
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex y. P(x, y)) -> ((ex y. P(x, y)) -> ~(~(ex y. P(x, y)) -> (ex y. P(x, y))))) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (~(ex y. P(x, y)) -> ~(~(ex y. P(x, y)) -> (ex y. P(x, y)))))",
+    },
+    // Step 103
+    { _tag: "mp", leftIndex: 101, rightIndex: 102 },
+    // Step 104
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex y. P(x, y)) -> ~(~(ex y. P(x, y)) -> (ex y. P(x, y)))) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (ex y. P(x, y)))",
+    },
+    // Step 105
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> ((~(ex y. P(x, y)) -> ~(~(ex y. P(x, y)) -> (ex y. P(x, y)))) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (ex y. P(x, y))))) -> (((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (~(ex y. P(x, y)) -> ~(~(ex y. P(x, y)) -> (ex y. P(x, y))))) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (ex y. P(x, y)))))",
+    },
+    // Step 106
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex y. P(x, y)) -> ~(~(ex y. P(x, y)) -> (ex y. P(x, y)))) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (ex y. P(x, y)))) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> ((~(ex y. P(x, y)) -> ~(~(ex y. P(x, y)) -> (ex y. P(x, y)))) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (ex y. P(x, y)))))",
+    },
+    // Step 107
+    { _tag: "mp", leftIndex: 104, rightIndex: 106 },
+    // Step 108
+    { _tag: "mp", leftIndex: 107, rightIndex: 105 },
+    // Step 109
+    { _tag: "mp", leftIndex: 103, rightIndex: 108 },
+    // Step 110
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (ex y. P(x, y)))) -> (((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (~(ex y. P(x, y)) -> (ex y. P(x, y)))) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (ex y. P(x, y))))",
+    },
+    // Step 111
+    { _tag: "mp", leftIndex: 109, rightIndex: 110 },
+    // Step 112
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (~(ex y. P(x, y)) -> (ex y. P(x, y)))) -> (~(ex y. P(x, y)) -> (ex y. P(x, y))))) -> (((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (~(ex y. P(x, y)) -> (ex y. P(x, y))))) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (~(ex y. P(x, y)) -> (ex y. P(x, y)))))",
+    },
+    // Step 113
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (~(ex y. P(x, y)) -> (ex y. P(x, y)))) -> (~(ex y. P(x, y)) -> (ex y. P(x, y))))",
+    },
+    // Step 114
+    { _tag: "mp", leftIndex: 113, rightIndex: 112 },
+    // Step 115
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(ex y. P(x, y)) -> (ex y. P(x, y))) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (~(ex y. P(x, y)) -> (ex y. P(x, y))))",
+    },
+    // Step 116
+    { _tag: "mp", leftIndex: 115, rightIndex: 114 },
+    // Step 117
+    { _tag: "mp", leftIndex: 116, rightIndex: 111 },
+    // Step 118
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex y. P(x, y)) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (ex y. P(x, y)))) -> ((~~(ex y. P(x, y)) -> (~(ex y. P(x, y)) -> (ex y. P(x, y)))) -> (~~(ex y. P(x, y)) -> (ex y. P(x, y))))",
+    },
+    // Step 119
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (ex y. P(x, y))) -> (~~(ex y. P(x, y)) -> ((~(ex y. P(x, y)) -> (ex y. P(x, y))) -> (ex y. P(x, y))))",
+    },
+    // Step 120
+    { _tag: "mp", leftIndex: 117, rightIndex: 119 },
+    // Step 121
+    { _tag: "mp", leftIndex: 120, rightIndex: 118 },
+    // Step 122
+    { _tag: "mp", leftIndex: 94, rightIndex: 121 },
+    // Step 123
+    { _tag: "axiom", formulaText: "(ex y. P(x, y)) -> ~(all y. ~P(x, y))" },
+    // Step 124
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((ex y. P(x, y))) -> (~(all y. ~P(x, y)))) -> ((~~(ex y. P(x, y))) -> (((ex y. P(x, y))) -> (~(all y. ~P(x, y)))))",
+    },
+    // Step 125
+    { _tag: "mp", leftIndex: 123, rightIndex: 124 },
+    // Step 126
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(ex y. P(x, y))) -> (((ex y. P(x, y))) -> (~(all y. ~P(x, y))))) -> (((~~(ex y. P(x, y))) -> ((ex y. P(x, y)))) -> ((~~(ex y. P(x, y))) -> (~(all y. ~P(x, y)))))",
+    },
+    // Step 127
+    { _tag: "mp", leftIndex: 125, rightIndex: 126 },
+    // Step 128
+    { _tag: "mp", leftIndex: 122, rightIndex: 127 },
+    // Step 129
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(ex y. P(x, y)) -> ~(all y. ~P(x, y))) -> ((all y. ~P(x, y)) -> ~(ex y. P(x, y)))",
+    },
+    // Step 130
+    { _tag: "mp", leftIndex: 128, rightIndex: 129 },
+    // Step 131
+    {
+      _tag: "axiom",
+      formulaText: "(all x. (all y. ~P(x, y))) -> (all y. ~P(x, y))",
+    },
+    // Step 132
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. ~P(x, y)) -> (~(ex y. P(x, y)))) -> ((all x. (all y. ~P(x, y))) -> ((all y. ~P(x, y)) -> (~(ex y. P(x, y)))))",
+    },
+    // Step 133
+    { _tag: "mp", leftIndex: 130, rightIndex: 132 },
+    // Step 134
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (all y. ~P(x, y))) -> ((all y. ~P(x, y)) -> (~(ex y. P(x, y))))) -> (((all x. (all y. ~P(x, y))) -> (all y. ~P(x, y))) -> ((all x. (all y. ~P(x, y))) -> (~(ex y. P(x, y)))))",
+    },
+    // Step 135
+    { _tag: "mp", leftIndex: 133, rightIndex: 134 },
+    // Step 136
+    { _tag: "mp", leftIndex: 131, rightIndex: 135 },
+    // Step 137
+    { _tag: "gen", premiseIndex: 136, variableName: "x" },
+    // Step 138
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. (all y. ~P(x, y))) -> ~(ex y. P(x, y)))) -> ((all x. (all y. ~P(x, y))) -> (all x. ~(ex y. P(x, y))))",
+    },
+    // Step 139
+    { _tag: "mp", leftIndex: 137, rightIndex: 138 },
+    // Step 140
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. (all x. ~P(x, y))) -> (all x. (all y. ~P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> ((all y. (all x. ~P(x, y))) -> (all x. (all y. ~P(x, y)))))",
+    },
+    // Step 141
+    { _tag: "mp", leftIndex: 87, rightIndex: 140 },
+    // Step 142
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. ~(ex x. P(x, y))) -> ((all y. (all x. ~P(x, y))) -> (all x. (all y. ~P(x, y))))) -> (((all y. ~(ex x. P(x, y))) -> (all y. (all x. ~P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> (all x. (all y. ~P(x, y)))))",
+    },
+    // Step 143
+    { _tag: "mp", leftIndex: 141, rightIndex: 142 },
+    // Step 144
+    { _tag: "mp", leftIndex: 74, rightIndex: 143 },
+    // Step 145
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. (all y. ~P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> ((all x. (all y. ~P(x, y))) -> (all x. ~(ex y. P(x, y)))))",
+    },
+    // Step 146
+    { _tag: "mp", leftIndex: 139, rightIndex: 145 },
+    // Step 147
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. ~(ex x. P(x, y))) -> ((all x. (all y. ~P(x, y))) -> (all x. ~(ex y. P(x, y))))) -> (((all y. ~(ex x. P(x, y))) -> (all x. (all y. ~P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))))",
+    },
+    // Step 148
+    { _tag: "mp", leftIndex: 146, rightIndex: 147 },
+    // Step 149
+    { _tag: "mp", leftIndex: 144, rightIndex: 148 },
+    // Step 150
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~(all y. ~(ex x. P(x, y))) -> (~(all y. ~(ex x. P(x, y))) -> ~~(all y. ~(ex x. P(x, y))))",
+    },
+    // Step 151
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all y. ~(ex x. P(x, y))) -> ~~(all y. ~(ex x. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))",
+    },
+    // Step 152
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all y. ~(ex x. P(x, y))) -> ((~(all y. ~(ex x. P(x, y))) -> ~~(all y. ~(ex x. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))))) -> ((~~(all y. ~(ex x. P(x, y))) -> (~(all y. ~(ex x. P(x, y))) -> ~~(all y. ~(ex x. P(x, y))))) -> (~~(all y. ~(ex x. P(x, y))) -> (~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))))",
+    },
+    // Step 153
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all y. ~(ex x. P(x, y))) -> ~~(all y. ~(ex x. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))) -> (~~(all y. ~(ex x. P(x, y))) -> ((~(all y. ~(ex x. P(x, y))) -> ~~(all y. ~(ex x. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))))",
+    },
+    // Step 154
+    { _tag: "mp", leftIndex: 151, rightIndex: 153 },
+    // Step 155
+    { _tag: "mp", leftIndex: 154, rightIndex: 152 },
+    // Step 156
+    { _tag: "mp", leftIndex: 150, rightIndex: 155 },
+    // Step 157
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> ~(all y. ~(ex x. P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> ~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))))",
+    },
+    // Step 158
+    {
+      _tag: "axiom",
+      formulaText:
+        "~(all y. ~(ex x. P(x, y))) -> (~~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> ~(all y. ~(ex x. P(x, y))))",
+    },
+    // Step 159
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all y. ~(ex x. P(x, y))) -> ((~~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> ~(all y. ~(ex x. P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> ~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))))) -> ((~(all y. ~(ex x. P(x, y))) -> (~~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> ~(all y. ~(ex x. P(x, y))))) -> (~(all y. ~(ex x. P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> ~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))))))",
+    },
+    // Step 160
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> ~(all y. ~(ex x. P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> ~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))))) -> (~(all y. ~(ex x. P(x, y))) -> ((~~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> ~(all y. ~(ex x. P(x, y)))) -> ((all y. ~(ex x. P(x, y))) -> ~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))))))",
+    },
+    // Step 161
+    { _tag: "mp", leftIndex: 157, rightIndex: 160 },
+    // Step 162
+    { _tag: "mp", leftIndex: 161, rightIndex: 159 },
+    // Step 163
+    { _tag: "mp", leftIndex: 158, rightIndex: 162 },
+    // Step 164
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all y. ~(ex x. P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> ~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))) -> ~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))))",
+    },
+    // Step 165
+    { _tag: "mp", leftIndex: 163, rightIndex: 164 },
+    // Step 166
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all y. ~(ex x. P(x, y))) -> ~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (all y. ~(ex x. P(x, y))))",
+    },
+    // Step 167
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> ((~(all y. ~(ex x. P(x, y))) -> ~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (all y. ~(ex x. P(x, y)))))) -> (((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))) -> ~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (all y. ~(ex x. P(x, y))))))",
+    },
+    // Step 168
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all y. ~(ex x. P(x, y))) -> ~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (all y. ~(ex x. P(x, y))))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> ((~(all y. ~(ex x. P(x, y))) -> ~(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (all y. ~(ex x. P(x, y))))))",
+    },
+    // Step 169
+    { _tag: "mp", leftIndex: 166, rightIndex: 168 },
+    // Step 170
+    { _tag: "mp", leftIndex: 169, rightIndex: 167 },
+    // Step 171
+    { _tag: "mp", leftIndex: 165, rightIndex: 170 },
+    // Step 172
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (all y. ~(ex x. P(x, y))))) -> (((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (all y. ~(ex x. P(x, y)))))",
+    },
+    // Step 173
+    { _tag: "mp", leftIndex: 171, rightIndex: 172 },
+    // Step 174
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))) -> (~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))))) -> (((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))))",
+    },
+    // Step 175
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))) -> (~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))))",
+    },
+    // Step 176
+    { _tag: "mp", leftIndex: 175, rightIndex: 174 },
+    // Step 177
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))))",
+    },
+    // Step 178
+    { _tag: "mp", leftIndex: 177, rightIndex: 176 },
+    // Step 179
+    { _tag: "mp", leftIndex: 178, rightIndex: 173 },
+    // Step 180
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all y. ~(ex x. P(x, y))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (all y. ~(ex x. P(x, y))))) -> ((~~(all y. ~(ex x. P(x, y))) -> (~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))) -> (~~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))))",
+    },
+    // Step 181
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (all y. ~(ex x. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> ((~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (all y. ~(ex x. P(x, y)))))",
+    },
+    // Step 182
+    { _tag: "mp", leftIndex: 179, rightIndex: 181 },
+    // Step 183
+    { _tag: "mp", leftIndex: 182, rightIndex: 180 },
+    // Step 184
+    { _tag: "mp", leftIndex: 156, rightIndex: 183 },
+    // Step 185
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))))",
+    },
+    // Step 186
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all y. ~(ex x. P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y))))) -> ((~~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))))",
+    },
+    // Step 187
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(all y. ~(ex x. P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y))))) -> ((~~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))))) -> (((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> ((~~(all y. ~(ex x. P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y))))) -> ((~~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))))))",
+    },
+    // Step 188
+    { _tag: "mp", leftIndex: 186, rightIndex: 187 },
+    // Step 189
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> ((~~(all y. ~(ex x. P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y))))) -> ((~~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y))))))) -> ((((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> ((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))))) -> (((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> ((~~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))))))",
+    },
+    // Step 190
+    { _tag: "mp", leftIndex: 188, rightIndex: 189 },
+    // Step 191
+    { _tag: "mp", leftIndex: 185, rightIndex: 190 },
+    // Step 192
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))))",
+    },
+    // Step 193
+    { _tag: "mp", leftIndex: 184, rightIndex: 192 },
+    // Step 194
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> ((~~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))))) -> ((((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> (all y. ~(ex x. P(x, y))))) -> (((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y))))))",
+    },
+    // Step 195
+    { _tag: "mp", leftIndex: 191, rightIndex: 194 },
+    // Step 196
+    { _tag: "mp", leftIndex: 193, rightIndex: 195 },
+    // Step 197
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~~(all x. ~(ex y. P(x, y))) -> (~~(all x. ~(ex y. P(x, y))) -> ~~~(all x. ~(ex y. P(x, y))))",
+    },
+    // Step 198
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all x. ~(ex y. P(x, y))) -> ~~~(all x. ~(ex y. P(x, y)))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))",
+    },
+    // Step 199
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(all x. ~(ex y. P(x, y))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~~~(all x. ~(ex y. P(x, y)))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))))) -> ((~~~(all x. ~(ex y. P(x, y))) -> (~~(all x. ~(ex y. P(x, y))) -> ~~~(all x. ~(ex y. P(x, y))))) -> (~~~(all x. ~(ex y. P(x, y))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))))",
+    },
+    // Step 200
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(all x. ~(ex y. P(x, y))) -> ~~~(all x. ~(ex y. P(x, y)))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))) -> (~~~(all x. ~(ex y. P(x, y))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~~~(all x. ~(ex y. P(x, y)))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))))",
+    },
+    // Step 201
+    { _tag: "mp", leftIndex: 198, rightIndex: 200 },
+    // Step 202
+    { _tag: "mp", leftIndex: 201, rightIndex: 199 },
+    // Step 203
+    { _tag: "mp", leftIndex: 197, rightIndex: 202 },
+    // Step 204
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~~(all x. ~(ex y. P(x, y)))) -> (~(all x. ~(ex y. P(x, y))) -> ~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))))",
+    },
+    // Step 205
+    {
+      _tag: "axiom",
+      formulaText:
+        "~~(all x. ~(ex y. P(x, y))) -> (~~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~~(all x. ~(ex y. P(x, y))))",
+    },
+    // Step 206
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all x. ~(ex y. P(x, y))) -> ((~~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~~(all x. ~(ex y. P(x, y)))) -> (~(all x. ~(ex y. P(x, y))) -> ~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))))) -> ((~~(all x. ~(ex y. P(x, y))) -> (~~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~~(all x. ~(ex y. P(x, y))))) -> (~~(all x. ~(ex y. P(x, y))) -> (~(all x. ~(ex y. P(x, y))) -> ~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))))))",
+    },
+    // Step 207
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~~(all x. ~(ex y. P(x, y)))) -> (~(all x. ~(ex y. P(x, y))) -> ~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))))) -> (~~(all x. ~(ex y. P(x, y))) -> ((~~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~~(all x. ~(ex y. P(x, y)))) -> (~(all x. ~(ex y. P(x, y))) -> ~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))))))",
+    },
+    // Step 208
+    { _tag: "mp", leftIndex: 204, rightIndex: 207 },
+    // Step 209
+    { _tag: "mp", leftIndex: 208, rightIndex: 206 },
+    // Step 210
+    { _tag: "mp", leftIndex: 205, rightIndex: 209 },
+    // Step 211
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all x. ~(ex y. P(x, y))) -> (~(all x. ~(ex y. P(x, y))) -> ~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))))",
+    },
+    // Step 212
+    { _tag: "mp", leftIndex: 210, rightIndex: 211 },
+    // Step 213
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all x. ~(ex y. P(x, y))) -> ~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~(all x. ~(ex y. P(x, y))))",
+    },
+    // Step 214
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~(all x. ~(ex y. P(x, y)))))) -> (((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~(all x. ~(ex y. P(x, y))))))",
+    },
+    // Step 215
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(all x. ~(ex y. P(x, y))) -> ~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~(all x. ~(ex y. P(x, y))))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~(all x. ~(ex y. P(x, y))))))",
+    },
+    // Step 216
+    { _tag: "mp", leftIndex: 213, rightIndex: 215 },
+    // Step 217
+    { _tag: "mp", leftIndex: 216, rightIndex: 214 },
+    // Step 218
+    { _tag: "mp", leftIndex: 212, rightIndex: 217 },
+    // Step 219
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~(all x. ~(ex y. P(x, y))))) -> (((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~(all x. ~(ex y. P(x, y)))))",
+    },
+    // Step 220
+    { _tag: "mp", leftIndex: 218, rightIndex: 219 },
+    // Step 221
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> (((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))))) -> (((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))))",
+    },
+    // Step 222
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> (((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))))",
+    },
+    // Step 223
+    { _tag: "mp", leftIndex: 222, rightIndex: 221 },
+    // Step 224
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))))",
+    },
+    // Step 225
+    { _tag: "mp", leftIndex: 224, rightIndex: 223 },
+    // Step 226
+    { _tag: "mp", leftIndex: 225, rightIndex: 220 },
+    // Step 227
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(all x. ~(ex y. P(x, y))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~(all x. ~(ex y. P(x, y))))) -> ((~~~(all x. ~(ex y. P(x, y))) -> (~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y))))) -> (~~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))))",
+    },
+    // Step 228
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~(all x. ~(ex y. P(x, y)))) -> (~~~(all x. ~(ex y. P(x, y))) -> ((~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ~(all x. ~(ex y. P(x, y)))))",
+    },
+    // Step 229
+    { _tag: "mp", leftIndex: 226, rightIndex: 228 },
+    // Step 230
+    { _tag: "mp", leftIndex: 229, rightIndex: 227 },
+    // Step 231
+    { _tag: "mp", leftIndex: 203, rightIndex: 230 },
+    // Step 232
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(all x. ~(ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))) -> ((all x. ~(ex y. P(x, y))) -> ~~(all x. ~(ex y. P(x, y))))",
+    },
+    // Step 233
+    { _tag: "mp", leftIndex: 231, rightIndex: 232 },
+    // Step 234
+    {
+      _tag: "axiom",
+      formulaText:
+        "((all x. ~(ex y. P(x, y))) -> ~~(all x. ~(ex y. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> ((all x. ~(ex y. P(x, y))) -> ~~(all x. ~(ex y. P(x, y)))))",
+    },
+    // Step 235
+    { _tag: "mp", leftIndex: 233, rightIndex: 234 },
+    // Step 236
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all y. ~(ex x. P(x, y))) -> ((all x. ~(ex y. P(x, y))) -> ~~(all x. ~(ex y. P(x, y))))) -> ((~~(all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> ~~(all x. ~(ex y. P(x, y)))))",
+    },
+    // Step 237
+    { _tag: "mp", leftIndex: 235, rightIndex: 236 },
+    // Step 238
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> ~~(all x. ~(ex y. P(x, y))))) -> (((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> ((~~(all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> ~~(all x. ~(ex y. P(x, y))))))",
+    },
+    // Step 239
+    { _tag: "mp", leftIndex: 237, rightIndex: 238 },
+    // Step 240
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> ((~~(all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> ~~(all x. ~(ex y. P(x, y)))))) -> ((((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y))))) -> (((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> ~~(all x. ~(ex y. P(x, y))))))",
+    },
+    // Step 241
+    { _tag: "mp", leftIndex: 239, rightIndex: 240 },
+    // Step 242
+    { _tag: "mp", leftIndex: 196, rightIndex: 241 },
+    // Step 243
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(all y. ~(ex x. P(x, y))) -> ~~(all x. ~(ex y. P(x, y)))) -> (~(all x. ~(ex y. P(x, y))) -> ~(all y. ~(ex x. P(x, y))))",
+    },
+    // Step 244
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(all y. ~(ex x. P(x, y))) -> ~~(all x. ~(ex y. P(x, y)))) -> (~(all x. ~(ex y. P(x, y))) -> ~(all y. ~(ex x. P(x, y))))) -> (((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> ((~~(all y. ~(ex x. P(x, y))) -> ~~(all x. ~(ex y. P(x, y)))) -> (~(all x. ~(ex y. P(x, y))) -> ~(all y. ~(ex x. P(x, y))))))",
+    },
+    // Step 245
+    { _tag: "mp", leftIndex: 243, rightIndex: 244 },
+    // Step 246
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> ((~~(all y. ~(ex x. P(x, y))) -> ~~(all x. ~(ex y. P(x, y)))) -> (~(all x. ~(ex y. P(x, y))) -> ~(all y. ~(ex x. P(x, y)))))) -> ((((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> (~~(all y. ~(ex x. P(x, y))) -> ~~(all x. ~(ex y. P(x, y))))) -> (((all y. ~(ex x. P(x, y))) -> (all x. ~(ex y. P(x, y)))) -> (~(all x. ~(ex y. P(x, y))) -> ~(all y. ~(ex x. P(x, y))))))",
+    },
+    // Step 247
+    { _tag: "mp", leftIndex: 245, rightIndex: 246 },
+    // Step 248
+    { _tag: "mp", leftIndex: 242, rightIndex: 247 },
+    // Step 249
+    { _tag: "mp", leftIndex: 149, rightIndex: 248 },
+    // Step 250
+    {
+      _tag: "axiom",
+      formulaText: "(ex x. (ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))",
+    },
+    // Step 251
+    {
+      _tag: "axiom",
+      formulaText: "~(all y. ~(ex x. P(x, y))) -> (ex y. (ex x. P(x, y)))",
+    },
+    // Step 252
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all x. ~(ex y. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))))) -> (((ex x. (ex y. P(x, y)))) -> ((~(all x. ~(ex y. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))))))",
+    },
+    // Step 253
+    { _tag: "mp", leftIndex: 249, rightIndex: 252 },
+    // Step 254
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((ex x. (ex y. P(x, y)))) -> ((~(all x. ~(ex y. P(x, y)))) -> (~(all y. ~(ex x. P(x, y)))))) -> ((((ex x. (ex y. P(x, y)))) -> (~(all x. ~(ex y. P(x, y))))) -> (((ex x. (ex y. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))))))",
+    },
+    // Step 255
+    { _tag: "mp", leftIndex: 253, rightIndex: 254 },
+    // Step 256
+    { _tag: "mp", leftIndex: 250, rightIndex: 255 },
+    // Step 257
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(all y. ~(ex x. P(x, y)))) -> ((ex y. (ex x. P(x, y))))) -> (((ex x. (ex y. P(x, y)))) -> ((~(all y. ~(ex x. P(x, y)))) -> ((ex y. (ex x. P(x, y))))))",
+    },
+    // Step 258
+    { _tag: "mp", leftIndex: 251, rightIndex: 257 },
+    // Step 259
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((ex x. (ex y. P(x, y)))) -> ((~(all y. ~(ex x. P(x, y)))) -> ((ex y. (ex x. P(x, y)))))) -> ((((ex x. (ex y. P(x, y)))) -> (~(all y. ~(ex x. P(x, y))))) -> (((ex x. (ex y. P(x, y)))) -> ((ex y. (ex x. P(x, y))))))",
+    },
+    // Step 260
+    { _tag: "mp", leftIndex: 258, rightIndex: 259 },
+    // Step 261
+    { _tag: "mp", leftIndex: 256, rightIndex: 260 },
   ],
 };
 
@@ -10726,16 +15169,423 @@ const predAdv12ExistentialSwap: ModelAnswer = {
  * pred-adv-13: 全称下の対偶
  *
  * (∀x.(P(x)→Q(x))) → (∀x.(¬Q(x)→¬P(x)))。
- * A4 で除去 → A3 で対偶 → Gen+A5 で再全称化。
- * axiom ステップでゴール式テキストを直接配置。
+ * A4 + MT[P(x),Q(x)] + HS + Gen + A5。108ステップ。
  */
 const predAdv13ContrapositiveUnderForall: ModelAnswer = {
   questId: "pred-adv-13",
   steps: [
+    // Step 0
+    { _tag: "axiom", formulaText: "(all x. (P(x) -> Q(x))) -> (P(x) -> Q(x))" },
+    // Step 1
+    { _tag: "axiom", formulaText: "~~(P(x)) -> (~(P(x)) -> ~~(P(x)))" },
+    // Step 2
     {
       _tag: "axiom",
-      formulaText: "(all x. (P(x) -> Q(x))) -> (all x. (~Q(x) -> ~P(x)))",
+      formulaText: "(~(P(x)) -> ~~(P(x))) -> (~(P(x)) -> (P(x)))",
     },
+    // Step 3
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(P(x)) -> ((~(P(x)) -> ~~(P(x))) -> (~(P(x)) -> (P(x))))) -> ((~~(P(x)) -> (~(P(x)) -> ~~(P(x)))) -> (~~(P(x)) -> (~(P(x)) -> (P(x)))))",
+    },
+    // Step 4
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(P(x)) -> ~~(P(x))) -> (~(P(x)) -> (P(x)))) -> (~~(P(x)) -> ((~(P(x)) -> ~~(P(x))) -> (~(P(x)) -> (P(x)))))",
+    },
+    // Step 5
+    { _tag: "mp", leftIndex: 2, rightIndex: 4 },
+    // Step 6
+    { _tag: "mp", leftIndex: 5, rightIndex: 3 },
+    // Step 7
+    { _tag: "mp", leftIndex: 1, rightIndex: 6 },
+    // Step 8
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~(P(x)) -> (P(x))) -> ~(P(x))) -> ((P(x)) -> ~(~(P(x)) -> (P(x))))",
+    },
+    // Step 9
+    {
+      _tag: "axiom",
+      formulaText: "~(P(x)) -> (~~(~(P(x)) -> (P(x))) -> ~(P(x)))",
+    },
+    // Step 10
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(P(x)) -> ((~~(~(P(x)) -> (P(x))) -> ~(P(x))) -> ((P(x)) -> ~(~(P(x)) -> (P(x)))))) -> ((~(P(x)) -> (~~(~(P(x)) -> (P(x))) -> ~(P(x)))) -> (~(P(x)) -> ((P(x)) -> ~(~(P(x)) -> (P(x))))))",
+    },
+    // Step 11
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~(P(x)) -> (P(x))) -> ~(P(x))) -> ((P(x)) -> ~(~(P(x)) -> (P(x))))) -> (~(P(x)) -> ((~~(~(P(x)) -> (P(x))) -> ~(P(x))) -> ((P(x)) -> ~(~(P(x)) -> (P(x))))))",
+    },
+    // Step 12
+    { _tag: "mp", leftIndex: 8, rightIndex: 11 },
+    // Step 13
+    { _tag: "mp", leftIndex: 12, rightIndex: 10 },
+    // Step 14
+    { _tag: "mp", leftIndex: 9, rightIndex: 13 },
+    // Step 15
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(P(x)) -> ((P(x)) -> ~(~(P(x)) -> (P(x))))) -> ((~(P(x)) -> (P(x))) -> (~(P(x)) -> ~(~(P(x)) -> (P(x)))))",
+    },
+    // Step 16
+    { _tag: "mp", leftIndex: 14, rightIndex: 15 },
+    // Step 17
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(P(x)) -> ~(~(P(x)) -> (P(x)))) -> ((~(P(x)) -> (P(x))) -> (P(x)))",
+    },
+    // Step 18
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(P(x)) -> (P(x))) -> ((~(P(x)) -> ~(~(P(x)) -> (P(x)))) -> ((~(P(x)) -> (P(x))) -> (P(x))))) -> (((~(P(x)) -> (P(x))) -> (~(P(x)) -> ~(~(P(x)) -> (P(x))))) -> ((~(P(x)) -> (P(x))) -> ((~(P(x)) -> (P(x))) -> (P(x)))))",
+    },
+    // Step 19
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(P(x)) -> ~(~(P(x)) -> (P(x)))) -> ((~(P(x)) -> (P(x))) -> (P(x)))) -> ((~(P(x)) -> (P(x))) -> ((~(P(x)) -> ~(~(P(x)) -> (P(x)))) -> ((~(P(x)) -> (P(x))) -> (P(x)))))",
+    },
+    // Step 20
+    { _tag: "mp", leftIndex: 17, rightIndex: 19 },
+    // Step 21
+    { _tag: "mp", leftIndex: 20, rightIndex: 18 },
+    // Step 22
+    { _tag: "mp", leftIndex: 16, rightIndex: 21 },
+    // Step 23
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(P(x)) -> (P(x))) -> ((~(P(x)) -> (P(x))) -> (P(x)))) -> (((~(P(x)) -> (P(x))) -> (~(P(x)) -> (P(x)))) -> ((~(P(x)) -> (P(x))) -> (P(x))))",
+    },
+    // Step 24
+    { _tag: "mp", leftIndex: 22, rightIndex: 23 },
+    // Step 25
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(P(x)) -> (P(x))) -> (((~(P(x)) -> (P(x))) -> (~(P(x)) -> (P(x)))) -> (~(P(x)) -> (P(x))))) -> (((~(P(x)) -> (P(x))) -> ((~(P(x)) -> (P(x))) -> (~(P(x)) -> (P(x))))) -> ((~(P(x)) -> (P(x))) -> (~(P(x)) -> (P(x)))))",
+    },
+    // Step 26
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(P(x)) -> (P(x))) -> (((~(P(x)) -> (P(x))) -> (~(P(x)) -> (P(x)))) -> (~(P(x)) -> (P(x))))",
+    },
+    // Step 27
+    { _tag: "mp", leftIndex: 26, rightIndex: 25 },
+    // Step 28
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~(P(x)) -> (P(x))) -> ((~(P(x)) -> (P(x))) -> (~(P(x)) -> (P(x))))",
+    },
+    // Step 29
+    { _tag: "mp", leftIndex: 28, rightIndex: 27 },
+    // Step 30
+    { _tag: "mp", leftIndex: 29, rightIndex: 24 },
+    // Step 31
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(P(x)) -> ((~(P(x)) -> (P(x))) -> (P(x)))) -> ((~~(P(x)) -> (~(P(x)) -> (P(x)))) -> (~~(P(x)) -> (P(x))))",
+    },
+    // Step 32
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~(P(x)) -> (P(x))) -> (P(x))) -> (~~(P(x)) -> ((~(P(x)) -> (P(x))) -> (P(x))))",
+    },
+    // Step 33
+    { _tag: "mp", leftIndex: 30, rightIndex: 32 },
+    // Step 34
+    { _tag: "mp", leftIndex: 33, rightIndex: 31 },
+    // Step 35
+    { _tag: "mp", leftIndex: 7, rightIndex: 34 },
+    // Step 36
+    {
+      _tag: "axiom",
+      formulaText: "((P(x)) -> (Q(x))) -> (~~(P(x)) -> ((P(x)) -> (Q(x))))",
+    },
+    // Step 37
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(P(x)) -> ((P(x)) -> (Q(x)))) -> ((~~(P(x)) -> (P(x))) -> (~~(P(x)) -> (Q(x))))",
+    },
+    // Step 38
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(P(x)) -> ((P(x)) -> (Q(x)))) -> ((~~(P(x)) -> (P(x))) -> (~~(P(x)) -> (Q(x))))) -> (((P(x)) -> (Q(x))) -> ((~~(P(x)) -> ((P(x)) -> (Q(x)))) -> ((~~(P(x)) -> (P(x))) -> (~~(P(x)) -> (Q(x))))))",
+    },
+    // Step 39
+    { _tag: "mp", leftIndex: 37, rightIndex: 38 },
+    // Step 40
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((P(x)) -> (Q(x))) -> ((~~(P(x)) -> ((P(x)) -> (Q(x)))) -> ((~~(P(x)) -> (P(x))) -> (~~(P(x)) -> (Q(x)))))) -> ((((P(x)) -> (Q(x))) -> (~~(P(x)) -> ((P(x)) -> (Q(x))))) -> (((P(x)) -> (Q(x))) -> ((~~(P(x)) -> (P(x))) -> (~~(P(x)) -> (Q(x))))))",
+    },
+    // Step 41
+    { _tag: "mp", leftIndex: 39, rightIndex: 40 },
+    // Step 42
+    { _tag: "mp", leftIndex: 36, rightIndex: 41 },
+    // Step 43
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(P(x)) -> (P(x))) -> (((P(x)) -> (Q(x))) -> (~~(P(x)) -> (P(x))))",
+    },
+    // Step 44
+    { _tag: "mp", leftIndex: 35, rightIndex: 43 },
+    // Step 45
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((P(x)) -> (Q(x))) -> ((~~(P(x)) -> (P(x))) -> (~~(P(x)) -> (Q(x))))) -> ((((P(x)) -> (Q(x))) -> (~~(P(x)) -> (P(x)))) -> (((P(x)) -> (Q(x))) -> (~~(P(x)) -> (Q(x)))))",
+    },
+    // Step 46
+    { _tag: "mp", leftIndex: 42, rightIndex: 45 },
+    // Step 47
+    { _tag: "mp", leftIndex: 44, rightIndex: 46 },
+    // Step 48
+    { _tag: "axiom", formulaText: "~~~(Q(x)) -> (~~(Q(x)) -> ~~~(Q(x)))" },
+    // Step 49
+    {
+      _tag: "axiom",
+      formulaText: "(~~(Q(x)) -> ~~~(Q(x))) -> (~~(Q(x)) -> ~(Q(x)))",
+    },
+    // Step 50
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(Q(x)) -> ((~~(Q(x)) -> ~~~(Q(x))) -> (~~(Q(x)) -> ~(Q(x))))) -> ((~~~(Q(x)) -> (~~(Q(x)) -> ~~~(Q(x)))) -> (~~~(Q(x)) -> (~~(Q(x)) -> ~(Q(x)))))",
+    },
+    // Step 51
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(Q(x)) -> ~~~(Q(x))) -> (~~(Q(x)) -> ~(Q(x)))) -> (~~~(Q(x)) -> ((~~(Q(x)) -> ~~~(Q(x))) -> (~~(Q(x)) -> ~(Q(x)))))",
+    },
+    // Step 52
+    { _tag: "mp", leftIndex: 49, rightIndex: 51 },
+    // Step 53
+    { _tag: "mp", leftIndex: 52, rightIndex: 50 },
+    // Step 54
+    { _tag: "mp", leftIndex: 48, rightIndex: 53 },
+    // Step 55
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(~~(Q(x)) -> ~(Q(x))) -> ~~(Q(x))) -> (~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x))))",
+    },
+    // Step 56
+    {
+      _tag: "axiom",
+      formulaText: "~~(Q(x)) -> (~~(~~(Q(x)) -> ~(Q(x))) -> ~~(Q(x)))",
+    },
+    // Step 57
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(Q(x)) -> ((~~(~~(Q(x)) -> ~(Q(x))) -> ~~(Q(x))) -> (~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x)))))) -> ((~~(Q(x)) -> (~~(~~(Q(x)) -> ~(Q(x))) -> ~~(Q(x)))) -> (~~(Q(x)) -> (~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x))))))",
+    },
+    // Step 58
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(~~(Q(x)) -> ~(Q(x))) -> ~~(Q(x))) -> (~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x))))) -> (~~(Q(x)) -> ((~~(~~(Q(x)) -> ~(Q(x))) -> ~~(Q(x))) -> (~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x))))))",
+    },
+    // Step 59
+    { _tag: "mp", leftIndex: 55, rightIndex: 58 },
+    // Step 60
+    { _tag: "mp", leftIndex: 59, rightIndex: 57 },
+    // Step 61
+    { _tag: "mp", leftIndex: 56, rightIndex: 60 },
+    // Step 62
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(Q(x)) -> (~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x))))) -> ((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x)))))",
+    },
+    // Step 63
+    { _tag: "mp", leftIndex: 61, rightIndex: 62 },
+    // Step 64
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x)))) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x)))",
+    },
+    // Step 65
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(Q(x)) -> ~(Q(x))) -> ((~~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x)))) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x))))) -> (((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x))))) -> ((~~(Q(x)) -> ~(Q(x))) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x)))))",
+    },
+    // Step 66
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x)))) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x)))) -> ((~~(Q(x)) -> ~(Q(x))) -> ((~~(Q(x)) -> ~(~~(Q(x)) -> ~(Q(x)))) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x)))))",
+    },
+    // Step 67
+    { _tag: "mp", leftIndex: 64, rightIndex: 66 },
+    // Step 68
+    { _tag: "mp", leftIndex: 67, rightIndex: 65 },
+    // Step 69
+    { _tag: "mp", leftIndex: 63, rightIndex: 68 },
+    // Step 70
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(Q(x)) -> ~(Q(x))) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x)))) -> (((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(Q(x)))) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x))))",
+    },
+    // Step 71
+    { _tag: "mp", leftIndex: 69, rightIndex: 70 },
+    // Step 72
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(Q(x)) -> ~(Q(x))) -> (((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(Q(x)))) -> (~~(Q(x)) -> ~(Q(x))))) -> (((~~(Q(x)) -> ~(Q(x))) -> ((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(Q(x))))) -> ((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(Q(x)))))",
+    },
+    // Step 73
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(Q(x)) -> ~(Q(x))) -> (((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(Q(x)))) -> (~~(Q(x)) -> ~(Q(x))))",
+    },
+    // Step 74
+    { _tag: "mp", leftIndex: 73, rightIndex: 72 },
+    // Step 75
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(Q(x)) -> ~(Q(x))) -> ((~~(Q(x)) -> ~(Q(x))) -> (~~(Q(x)) -> ~(Q(x))))",
+    },
+    // Step 76
+    { _tag: "mp", leftIndex: 75, rightIndex: 74 },
+    // Step 77
+    { _tag: "mp", leftIndex: 76, rightIndex: 71 },
+    // Step 78
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~~(Q(x)) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x)))) -> ((~~~(Q(x)) -> (~~(Q(x)) -> ~(Q(x)))) -> (~~~(Q(x)) -> ~(Q(x))))",
+    },
+    // Step 79
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x))) -> (~~~(Q(x)) -> ((~~(Q(x)) -> ~(Q(x))) -> ~(Q(x))))",
+    },
+    // Step 80
+    { _tag: "mp", leftIndex: 77, rightIndex: 79 },
+    // Step 81
+    { _tag: "mp", leftIndex: 80, rightIndex: 78 },
+    // Step 82
+    { _tag: "mp", leftIndex: 54, rightIndex: 81 },
+    // Step 83
+    {
+      _tag: "axiom",
+      formulaText: "(~~~(Q(x)) -> ~(Q(x))) -> ((Q(x)) -> ~~(Q(x)))",
+    },
+    // Step 84
+    { _tag: "mp", leftIndex: 82, rightIndex: 83 },
+    // Step 85
+    {
+      _tag: "axiom",
+      formulaText: "((Q(x)) -> ~~(Q(x))) -> (~~(P(x)) -> ((Q(x)) -> ~~(Q(x))))",
+    },
+    // Step 86
+    { _tag: "mp", leftIndex: 84, rightIndex: 85 },
+    // Step 87
+    {
+      _tag: "axiom",
+      formulaText:
+        "(~~(P(x)) -> ((Q(x)) -> ~~(Q(x)))) -> ((~~(P(x)) -> (Q(x))) -> (~~(P(x)) -> ~~(Q(x))))",
+    },
+    // Step 88
+    { _tag: "mp", leftIndex: 86, rightIndex: 87 },
+    // Step 89
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(P(x)) -> (Q(x))) -> (~~(P(x)) -> ~~(Q(x)))) -> (((P(x)) -> (Q(x))) -> ((~~(P(x)) -> (Q(x))) -> (~~(P(x)) -> ~~(Q(x)))))",
+    },
+    // Step 90
+    { _tag: "mp", leftIndex: 88, rightIndex: 89 },
+    // Step 91
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((P(x)) -> (Q(x))) -> ((~~(P(x)) -> (Q(x))) -> (~~(P(x)) -> ~~(Q(x))))) -> ((((P(x)) -> (Q(x))) -> (~~(P(x)) -> (Q(x)))) -> (((P(x)) -> (Q(x))) -> (~~(P(x)) -> ~~(Q(x)))))",
+    },
+    // Step 92
+    { _tag: "mp", leftIndex: 90, rightIndex: 91 },
+    // Step 93
+    { _tag: "mp", leftIndex: 47, rightIndex: 92 },
+    // Step 94
+    {
+      _tag: "axiom",
+      formulaText: "(~~(P(x)) -> ~~(Q(x))) -> (~(Q(x)) -> ~(P(x)))",
+    },
+    // Step 95
+    {
+      _tag: "axiom",
+      formulaText:
+        "((~~(P(x)) -> ~~(Q(x))) -> (~(Q(x)) -> ~(P(x)))) -> (((P(x)) -> (Q(x))) -> ((~~(P(x)) -> ~~(Q(x))) -> (~(Q(x)) -> ~(P(x)))))",
+    },
+    // Step 96
+    { _tag: "mp", leftIndex: 94, rightIndex: 95 },
+    // Step 97
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((P(x)) -> (Q(x))) -> ((~~(P(x)) -> ~~(Q(x))) -> (~(Q(x)) -> ~(P(x))))) -> ((((P(x)) -> (Q(x))) -> (~~(P(x)) -> ~~(Q(x)))) -> (((P(x)) -> (Q(x))) -> (~(Q(x)) -> ~(P(x)))))",
+    },
+    // Step 98
+    { _tag: "mp", leftIndex: 96, rightIndex: 97 },
+    // Step 99
+    { _tag: "mp", leftIndex: 93, rightIndex: 98 },
+    // Step 100
+    {
+      _tag: "axiom",
+      formulaText:
+        "((P(x) -> Q(x)) -> (~Q(x) -> ~P(x))) -> (((all x. (P(x) -> Q(x)))) -> ((P(x) -> Q(x)) -> (~Q(x) -> ~P(x))))",
+    },
+    // Step 101
+    { _tag: "mp", leftIndex: 99, rightIndex: 100 },
+    // Step 102
+    {
+      _tag: "axiom",
+      formulaText:
+        "(((all x. (P(x) -> Q(x)))) -> ((P(x) -> Q(x)) -> (~Q(x) -> ~P(x)))) -> ((((all x. (P(x) -> Q(x)))) -> (P(x) -> Q(x))) -> (((all x. (P(x) -> Q(x)))) -> (~Q(x) -> ~P(x))))",
+    },
+    // Step 103
+    { _tag: "mp", leftIndex: 101, rightIndex: 102 },
+    // Step 104
+    { _tag: "mp", leftIndex: 0, rightIndex: 103 },
+    // Step 105
+    { _tag: "gen", premiseIndex: 104, variableName: "x" },
+    // Step 106
+    {
+      _tag: "axiom",
+      formulaText:
+        "(all x. ((all x. (P(x) -> Q(x))) -> (~Q(x) -> ~P(x)))) -> ((all x. (P(x) -> Q(x))) -> (all x. (~Q(x) -> ~P(x))))",
+    },
+    // Step 107
+    { _tag: "mp", leftIndex: 105, rightIndex: 106 },
   ],
 };
 
