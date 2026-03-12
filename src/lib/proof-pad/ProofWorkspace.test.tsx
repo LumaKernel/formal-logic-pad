@@ -492,6 +492,86 @@ describe("ProofWorkspace", () => {
     });
   });
 
+  describe("non-Hilbert system UI controls", () => {
+    it("does not render MP button for ND system", () => {
+      const ws = createEmptyWorkspace(naturalDeduction(njSystem));
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          testId="workspace"
+        />,
+      );
+      expect(
+        screen.queryByTestId("workspace-mp-button"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("does not render MP button for SC system", () => {
+      const ws = createEmptyWorkspace(sequentCalculusDeduction(lkSystem));
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          testId="workspace"
+        />,
+      );
+      expect(
+        screen.queryByTestId("workspace-mp-button"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("does not render MP button for TAB system", () => {
+      const ws = createEmptyWorkspace(tableauCalculusDeduction(tabPropSystem));
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          testId="workspace"
+        />,
+      );
+      expect(
+        screen.queryByTestId("workspace-mp-button"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("does not render MP button for AT system", () => {
+      const ws = createEmptyWorkspace(analyticTableauDeduction(atSystem));
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          testId="workspace"
+        />,
+      );
+      expect(
+        screen.queryByTestId("workspace-mp-button"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("renders MP button for Hilbert system", () => {
+      render(<ProofWorkspace system={lukasiewiczSystem} testId="workspace" />);
+      expect(screen.getByTestId("workspace-mp-button")).toBeInTheDocument();
+    });
+
+    it("does not show MP context menu items for ND system", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(naturalDeduction(njSystem));
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+      // Open node context menu via right click
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+      // MP items should NOT be present
+      expect(
+        screen.queryByTestId("workspace-use-as-mp-left"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("workspace-use-as-mp-right"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe("node interaction callbacks", () => {
     it("updates formula text when user types in a node", async () => {
       const user = userEvent.setup();
