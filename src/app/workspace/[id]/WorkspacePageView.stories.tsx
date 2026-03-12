@@ -16,6 +16,16 @@ import {
   groupTheoryLeftSystem,
 } from "../../../lib/logic-core/inferenceRule";
 import {
+  naturalDeduction,
+  njSystem,
+  sequentCalculusDeduction,
+  lkSystem,
+  tableauCalculusDeduction,
+  tabPropSystem,
+  analyticTableauDeduction,
+  atSystem,
+} from "../../../lib/logic-core/deductionSystem";
+import {
   createEmptyWorkspace,
   addNode,
   addGoal,
@@ -537,5 +547,157 @@ export const UndoRedo: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
     });
+  },
+};
+
+// --- 非Hilbert体系のワークスペースストーリー ---
+
+/** 自然演繹（NJ）の空ワークスペース */
+export const EmptyNaturalDeduction: Story = {
+  render: () => (
+    <StatefulWorkspace
+      initialWorkspace={createEmptyWorkspace(naturalDeduction(njSystem))}
+      initialNotebookName="ND Proof Notebook"
+      onBack={fn()}
+      onGoalAchieved={fn()}
+      workspaceTestId="workspace"
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // ノートブック名が表示される
+    await expect(canvas.getByTestId("notebook-title")).toHaveTextContent(
+      "ND Proof Notebook",
+    );
+    // 体系バッジに正しい体系名が表示される
+    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
+      "Natural Deduction NJ",
+    );
+    // ワークスペースページが表示される
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    // NDルールパレットが表示される
+    await expect(
+      canvas.getByTestId("workspace-nd-rule-palette"),
+    ).toBeInTheDocument();
+    // MPボタンが表示されない
+    expect(canvas.queryByTestId("workspace-mp-button")).not.toBeInTheDocument();
+    // 公理パレットは非表示
+    expect(
+      canvas.queryByTestId("workspace-axiom-palette"),
+    ).not.toBeInTheDocument();
+  },
+};
+
+/** シーケント計算（LK）の空ワークスペース */
+export const EmptySequentCalculus: Story = {
+  render: () => (
+    <StatefulWorkspace
+      initialWorkspace={createEmptyWorkspace(
+        sequentCalculusDeduction(lkSystem),
+      )}
+      initialNotebookName="SC Proof Notebook"
+      onBack={fn()}
+      onGoalAchieved={fn()}
+      workspaceTestId="workspace"
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // ノートブック名が表示される
+    await expect(canvas.getByTestId("notebook-title")).toHaveTextContent(
+      "SC Proof Notebook",
+    );
+    // 体系バッジに正しい体系名が表示される
+    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
+      "Sequent Calculus LK",
+    );
+    // ワークスペースページが表示される
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    // SCルールパレットが表示される
+    await expect(
+      canvas.getByTestId("workspace-sc-rule-palette"),
+    ).toBeInTheDocument();
+    // MPボタンが表示されない
+    expect(canvas.queryByTestId("workspace-mp-button")).not.toBeInTheDocument();
+    // 公理パレットは非表示
+    expect(
+      canvas.queryByTestId("workspace-axiom-palette"),
+    ).not.toBeInTheDocument();
+  },
+};
+
+/** タブロー式シーケント計算（TAB）の空ワークスペース */
+export const EmptyTableauCalculus: Story = {
+  render: () => (
+    <StatefulWorkspace
+      initialWorkspace={createEmptyWorkspace(
+        tableauCalculusDeduction(tabPropSystem),
+      )}
+      initialNotebookName="TAB Proof Notebook"
+      onBack={fn()}
+      onGoalAchieved={fn()}
+      workspaceTestId="workspace"
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // ノートブック名が表示される
+    await expect(canvas.getByTestId("notebook-title")).toHaveTextContent(
+      "TAB Proof Notebook",
+    );
+    // 体系バッジに正しい体系名が表示される
+    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
+      "Tableau Calculus TAB (Propositional)",
+    );
+    // ワークスペースページが表示される
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    // TABルールパレットが表示される
+    await expect(
+      canvas.getByTestId("workspace-tab-rule-palette"),
+    ).toBeInTheDocument();
+    // MPボタンが表示されない
+    expect(canvas.queryByTestId("workspace-mp-button")).not.toBeInTheDocument();
+    // 公理パレットは非表示
+    expect(
+      canvas.queryByTestId("workspace-axiom-palette"),
+    ).not.toBeInTheDocument();
+  },
+};
+
+/** 分析的タブロー（AT）の空ワークスペース */
+export const EmptyAnalyticTableau: Story = {
+  render: () => (
+    <StatefulWorkspace
+      initialWorkspace={createEmptyWorkspace(
+        analyticTableauDeduction(atSystem),
+      )}
+      initialNotebookName="AT Proof Notebook"
+      onBack={fn()}
+      onGoalAchieved={fn()}
+      workspaceTestId="workspace"
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // ノートブック名が表示される
+    await expect(canvas.getByTestId("notebook-title")).toHaveTextContent(
+      "AT Proof Notebook",
+    );
+    // 体系バッジに正しい体系名が表示される
+    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
+      "Analytic Tableau",
+    );
+    // ワークスペースページが表示される
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    // ATルールパレットが表示される
+    await expect(
+      canvas.getByTestId("workspace-at-rule-palette"),
+    ).toBeInTheDocument();
+    // MPボタンが表示されない
+    expect(canvas.queryByTestId("workspace-mp-button")).not.toBeInTheDocument();
+    // 公理パレットは非表示
+    expect(
+      canvas.queryByTestId("workspace-axiom-palette"),
+    ).not.toBeInTheDocument();
   },
 };
