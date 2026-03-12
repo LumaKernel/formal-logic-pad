@@ -1,5 +1,11 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CustomQuestList } from "./CustomQuestListComponent";
 import type { QuestCatalogItem } from "./questCatalog";
@@ -730,6 +736,261 @@ describe("CustomQuestListComponent", () => {
       );
 
       expect(onStartQuest).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("共有パネル", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("共有ボタンクリックで共有パネルが表示される", () => {
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onExportQuest={vi.fn()}
+          onShareQuestUrl={vi.fn()}
+        />,
+      );
+
+      fireEvent.click(screen.getByTestId("custom-quest-share-btn-custom-1001"));
+
+      const panel = screen.getByTestId("custom-quest-share-panel-custom-1001");
+      expect(panel).toBeInTheDocument();
+      expect(
+        screen.getByTestId("custom-quest-share-export-btn-custom-1001"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("custom-quest-share-url-btn-custom-1001"),
+      ).toBeInTheDocument();
+    });
+
+    it("共有ボタンのテキストが「共有」である", () => {
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onExportQuest={vi.fn()}
+          onShareQuestUrl={vi.fn()}
+        />,
+      );
+
+      const shareBtn = screen.getByTestId("custom-quest-share-btn-custom-1001");
+      expect(shareBtn).toHaveTextContent("共有");
+    });
+
+    it("JSONエクスポートボタンクリックでonExportQuestが呼ばれる", () => {
+      const onExportQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onExportQuest={onExportQuest}
+          onShareQuestUrl={vi.fn()}
+        />,
+      );
+
+      // 共有パネルを開く
+      fireEvent.click(screen.getByTestId("custom-quest-share-btn-custom-1001"));
+
+      // JSONエクスポートボタンをクリック
+      fireEvent.click(
+        screen.getByTestId("custom-quest-share-export-btn-custom-1001"),
+      );
+
+      expect(onExportQuest).toHaveBeenCalledWith("custom-1001");
+    });
+
+    it("URLコピーボタンクリックでonShareQuestUrlが呼ばれる", () => {
+      const onShareQuestUrl = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onExportQuest={vi.fn()}
+          onShareQuestUrl={onShareQuestUrl}
+        />,
+      );
+
+      // 共有パネルを開く
+      fireEvent.click(screen.getByTestId("custom-quest-share-btn-custom-1001"));
+
+      // URLコピーボタンをクリック
+      fireEvent.click(
+        screen.getByTestId("custom-quest-share-url-btn-custom-1001"),
+      );
+
+      expect(onShareQuestUrl).toHaveBeenCalledWith("custom-1001");
+    });
+
+    it("URLコピー後に「コピーしました!」フィードバックが表示される", () => {
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onExportQuest={vi.fn()}
+          onShareQuestUrl={vi.fn()}
+        />,
+      );
+
+      // 共有パネルを開く
+      fireEvent.click(screen.getByTestId("custom-quest-share-btn-custom-1001"));
+
+      // URLコピーボタンをクリック
+      fireEvent.click(
+        screen.getByTestId("custom-quest-share-url-btn-custom-1001"),
+      );
+
+      // フィードバックが表示される
+      expect(
+        screen.getByTestId("custom-quest-share-url-btn-custom-1001"),
+      ).toHaveTextContent("コピーしました!");
+    });
+
+    it("URLコピーのフィードバックが2秒後に消える", () => {
+      vi.useFakeTimers();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onExportQuest={vi.fn()}
+          onShareQuestUrl={vi.fn()}
+        />,
+      );
+
+      // 共有パネルを開く
+      fireEvent.click(screen.getByTestId("custom-quest-share-btn-custom-1001"));
+
+      // URLコピーボタンをクリック
+      fireEvent.click(
+        screen.getByTestId("custom-quest-share-url-btn-custom-1001"),
+      );
+
+      expect(
+        screen.getByTestId("custom-quest-share-url-btn-custom-1001"),
+      ).toHaveTextContent("コピーしました!");
+
+      // 2秒後にフィードバックが消える
+      act(() => {
+        vi.advanceTimersByTime(2000);
+      });
+
+      expect(
+        screen.getByTestId("custom-quest-share-url-btn-custom-1001"),
+      ).toHaveTextContent("URLをコピー");
+    });
+
+    it("閉じるボタンクリックでパネルが閉じる", () => {
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onExportQuest={vi.fn()}
+          onShareQuestUrl={vi.fn()}
+        />,
+      );
+
+      // 共有パネルを開く
+      fireEvent.click(screen.getByTestId("custom-quest-share-btn-custom-1001"));
+      expect(
+        screen.getByTestId("custom-quest-share-panel-custom-1001"),
+      ).toBeInTheDocument();
+
+      // 閉じるボタンクリック
+      fireEvent.click(
+        screen.getByTestId("custom-quest-share-close-btn-custom-1001"),
+      );
+      expect(
+        screen.queryByTestId("custom-quest-share-panel-custom-1001"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("共有パネルクリックでonStartQuestが呼ばれない（stopPropagation）", () => {
+      const onStartQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={onStartQuest}
+          onExportQuest={vi.fn()}
+          onShareQuestUrl={vi.fn()}
+        />,
+      );
+
+      // 共有パネルを開く
+      fireEvent.click(screen.getByTestId("custom-quest-share-btn-custom-1001"));
+
+      // パネルをクリック
+      fireEvent.click(
+        screen.getByTestId("custom-quest-share-panel-custom-1001"),
+      );
+
+      expect(onStartQuest).not.toHaveBeenCalled();
+    });
+
+    it("onExportQuestのみの場合でも共有ボタンが表示される", () => {
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onExportQuest={vi.fn()}
+        />,
+      );
+
+      expect(
+        screen.getByTestId("custom-quest-share-btn-custom-1001"),
+      ).toBeInTheDocument();
+    });
+
+    it("onShareQuestUrlのみの場合でも共有ボタンが表示される", () => {
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onShareQuestUrl={vi.fn()}
+        />,
+      );
+
+      expect(
+        screen.getByTestId("custom-quest-share-btn-custom-1001"),
+      ).toBeInTheDocument();
+    });
+
+    it("両方ない場合は共有ボタンが表示されない", () => {
+      render(<CustomQuestList items={sampleItems} onStartQuest={vi.fn()} />);
+
+      expect(
+        screen.queryByTestId("custom-quest-share-btn-custom-1001"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("削除ボタンクリックで共有パネルが閉じる", () => {
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onExportQuest={vi.fn()}
+          onShareQuestUrl={vi.fn()}
+          onDeleteQuest={vi.fn()}
+        />,
+      );
+
+      // 共有パネルを開く
+      fireEvent.click(screen.getByTestId("custom-quest-share-btn-custom-1001"));
+      expect(
+        screen.getByTestId("custom-quest-share-panel-custom-1001"),
+      ).toBeInTheDocument();
+
+      // 削除ボタンクリック → 共有パネルが閉じ、削除確認が表示される
+      fireEvent.click(
+        screen.getByTestId("custom-quest-delete-btn-custom-1001"),
+      );
+      expect(
+        screen.queryByTestId("custom-quest-share-panel-custom-1001"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByTestId("custom-quest-delete-confirm-custom-1001"),
+      ).toBeInTheDocument();
     });
   });
 });
