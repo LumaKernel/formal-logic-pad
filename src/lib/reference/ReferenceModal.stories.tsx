@@ -173,3 +173,13 @@ export const CloseOnEscape: Story = {
     await expect(args.onClose).toHaveBeenCalled();
   },
 };
+
+export const OpenInNewTab: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const link = canvas.getByTestId("ref-modal-open-new-tab");
+    await expect(link).toBeInTheDocument();
+    await expect(link).toHaveAttribute("href", "/reference/axiom-a1");
+    await expect(link).toHaveAttribute("target", "_blank");
+  },
+};

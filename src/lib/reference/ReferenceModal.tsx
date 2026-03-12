@@ -13,6 +13,7 @@ import katex from "katex";
 import type { Locale, ReferenceEntry } from "./referenceEntry";
 import { buildModalData } from "./referenceUILogic";
 import { InlineMarkdown } from "./InlineMarkdown";
+import { buildReferenceViewerUrl } from "./referenceViewerLogic";
 
 // --- Props ---
 
@@ -68,6 +69,12 @@ const headerStyle: CSSProperties = {
   borderBottom: "1px solid var(--color-border, #e2e8f0)",
 };
 
+const headerButtonsStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "4px",
+};
+
 const closeButtonStyle: CSSProperties = {
   background: "none",
   border: "none",
@@ -78,6 +85,22 @@ const closeButtonStyle: CSSProperties = {
   borderRadius: "4px",
   lineHeight: 1,
   fontFamily: "var(--font-ui)",
+};
+
+const openInNewTabStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "none",
+  border: "none",
+  fontSize: "var(--font-size-sm, 13px)",
+  color: "var(--color-text-secondary, #666666)",
+  cursor: "pointer",
+  padding: "4px 6px",
+  borderRadius: "4px",
+  lineHeight: 1,
+  textDecoration: "none",
+  transition: "color 0.1s ease",
 };
 
 const categoryBadgeStyle: CSSProperties = {
@@ -245,19 +268,39 @@ export function ReferenceModal({
             <div style={categoryBadgeStyle}>{data.categoryLabel}</div>
             <div style={titleStyle}>{data.title}</div>
           </div>
-          <button
-            type="button"
-            style={closeButtonStyle}
-            onClick={onClose}
-            aria-label={locale === "ja" ? "閉じる" : "Close"}
-            data-testid={
-              testId !== undefined
-                ? `${testId satisfies string}-close`
-                : undefined
-            }
-          >
-            ✕
-          </button>
+          <div style={headerButtonsStyle}>
+            <a
+              href={buildReferenceViewerUrl(entry.id)}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={openInNewTabStyle}
+              aria-label={
+                locale === "ja"
+                  ? "新しいタブで開く"
+                  : "Open in new tab"
+              }
+              data-testid={
+                testId !== undefined
+                  ? `${testId satisfies string}-open-new-tab`
+                  : undefined
+              }
+            >
+              ↗
+            </a>
+            <button
+              type="button"
+              style={closeButtonStyle}
+              onClick={onClose}
+              aria-label={locale === "ja" ? "閉じる" : "Close"}
+              data-testid={
+                testId !== undefined
+                  ? `${testId satisfies string}-close`
+                  : undefined
+              }
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {/* 本体 */}

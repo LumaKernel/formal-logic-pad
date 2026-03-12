@@ -163,3 +163,15 @@ export const ToggleOpen: Story = {
     await expect(body.queryByTestId("ref-pop-popover")).not.toBeInTheDocument();
   },
 };
+
+export const OpenInNewTab: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+    await userEvent.click(canvas.getByTestId("ref-pop-trigger"));
+    const link = body.getByTestId("ref-pop-open-new-tab");
+    await expect(link).toBeInTheDocument();
+    await expect(link).toHaveAttribute("href", "/reference/axiom-a1");
+    await expect(link).toHaveAttribute("target", "_blank");
+  },
+};
