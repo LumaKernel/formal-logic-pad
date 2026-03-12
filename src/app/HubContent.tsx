@@ -47,6 +47,8 @@ import {
   getBrowserLocaleSwitchDeps,
 } from "../components/LanguageToggle/useLocaleSwitch";
 import type { ThemeToggleLabels } from "../components/ThemeToggle/ThemeToggle";
+import { allReferenceEntries } from "../lib/reference/referenceContent";
+import type { Locale as ReferenceLocale } from "../lib/reference/referenceEntry";
 import { HubPageView, type HubTab, type RecommendedQuest } from "./HubPageView";
 import type { HubMessages } from "./hubMessages";
 import { HubMessagesProvider } from "./HubMessagesContext";
@@ -101,6 +103,10 @@ function useHubMessagesFromIntl(): HubMessages {
       landingStartFreeProof: String(t.raw("landingStartFreeProof")),
       landingExploreQuests: String(t.raw("landingExploreQuests")),
       landingRecommendedQuests: String(t.raw("landingRecommendedQuests")),
+      // Reference
+      tabReference: String(t.raw("tabReference")),
+      referenceSearchPlaceholder: String(t.raw("referenceSearchPlaceholder")),
+      referenceEmpty: String(t.raw("referenceEmpty")),
       // Collection
       collectionEmpty: String(t.raw("collectionEmpty")),
       collectionEntryCount: String(t.raw("collectionEntryCount")),
@@ -126,6 +132,7 @@ const parseTabFromHash = (hash: string): HubTab => {
   if (normalized === "quests") return "quests";
   if (normalized === "custom-quests") return "custom-quests";
   if (normalized === "collection") return "collection";
+  if (normalized === "reference") return "reference";
   return "notebooks";
 };
 
@@ -139,6 +146,7 @@ function HubInner() {
   const themeLabels = useThemeLabelsFromIntl();
   const rawLocale = useLocale();
   const locale = isLocale(rawLocale) ?? "en";
+  const refLocale: ReferenceLocale = rawLocale === "ja" ? "ja" : "en";
   const localeSwitchDeps = useMemo(() => getBrowserLocaleSwitchDeps(), []);
   const { switchLocale } = useLocaleSwitch(localeSwitchDeps);
 
@@ -576,6 +584,8 @@ function HubInner() {
         themeLabels={themeLabels}
         showLanding={showLanding}
         recommendedQuests={recommendedQuests}
+        referenceEntries={allReferenceEntries}
+        referenceLocale={refLocale}
         collectionProps={{
           entries: proofCollection.entries,
           folders: proofCollection.folders,

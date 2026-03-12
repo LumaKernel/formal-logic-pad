@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn, expect, within, userEvent } from "storybook/test";
+import { allReferenceEntries } from "../lib/reference/referenceContent";
 import { HubPageView, type HubTab, type RecommendedQuest } from "./HubPageView";
 import type { NotebookListItem } from "../lib/notebook";
 import type {
@@ -747,5 +748,62 @@ export const LandingRecommendedQuest: Story = {
     // おすすめクエストボタンをクリック
     await userEvent.click(canvas.getByTestId("landing-quest-prop-01"));
     await expect(args.onStartQuest).toHaveBeenCalledWith("prop-01");
+  },
+};
+
+/** リファレンスタブ: カテゴリフィルタ・検索・エントリ一覧 */
+export const ReferenceTab: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+    tab: "reference",
+    referenceEntries: allReferenceEntries,
+    referenceLocale: "en",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Referenceタブがアクティブ
+    await expect(canvas.getByText("Reference")).toBeInTheDocument();
+    // ブラウザが表示されている
+    await expect(
+      canvas.getByTestId("reference-browser"),
+    ).toBeInTheDocument();
+    // 検索バーが表示
+    await expect(
+      canvas.getByTestId("reference-browser-search"),
+    ).toBeInTheDocument();
+    // カテゴリバッジが表示
+    await expect(
+      canvas.getByTestId("reference-browser-category-axiom"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("reference-browser-category-concept"),
+    ).toBeInTheDocument();
+    // エントリが表示されている
+    await expect(
+      canvas.getByTestId("reference-browser-count"),
+    ).toBeInTheDocument();
+    // 検索でフィルタ
+    await userEvent.type(
+      canvas.getByTestId("reference-browser-search"),
+      "modus ponens",
+    );
+    // フィルタ後のカウントが変わっている
+    const count = canvas.getByTestId("reference-browser-count");
+    const totalCount = String(allReferenceEntries.length);
+    await expect(count.textContent).not.toBe(
+      `${totalCount satisfies string} / ${totalCount satisfies string}`,
+    );
+    // 検索をクリア
+    await userEvent.clear(canvas.getByTestId("reference-browser-search"));
+    // カテゴリフィルタをクリック
+    await userEvent.click(
+      canvas.getByTestId("reference-browser-category-axiom"),
+    );
+    // 公理だけが表示されている
+    const countAfterFilter = canvas.getByTestId("reference-browser-count");
+    await expect(countAfterFilter.textContent).toContain(
+      `/ ${totalCount satisfies string}`,
+    );
   },
 };
