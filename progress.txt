@@ -13419,3 +13419,34 @@
   - isLocale()はbooleanではなくLocale | undefinedを返す → `isLocale(x) ?? "en"` パターンで使う
   - v8 ignore: findCategoryMetaの防御的ternaryなど、型的に到達不可能な分岐にはv8 ignore start/stopを使用
 ---
+
+## 2026-03-13 - [docs] リファレンスに関連クエスト機能を追加
+- 実装した内容:
+  - ReferenceEntry型にrelatedQuestIds?: readonly string[]を追加
+  - referenceContent.tsの15エントリに関連クエストIDを設定
+  - referenceUILogic.ts: ModalDataにrelatedQuestIds追加、PopoverDataのhasDetailにrelatedQuestIds考慮を追加
+  - referenceViewerLogic.ts: ViewerPageDataにrelatedQuestIds追加
+  - ReferenceModal.tsx: 関連クエストセクション追加（ボタン表示、onStartQuestコールバック）
+  - ReferenceViewerPageView.tsx: 関連クエストセクション追加（同上）
+  - ReferenceBrowserComponent.tsx: resolveQuestTitle/onStartQuest props追加、モーダルにクエスト情報を渡す
+  - HubPageView.tsx: resolveQuestTitle関数を構築し、ReferenceBrowserComponentに渡す
+- 変更したファイル:
+  - src/lib/reference/referenceEntry.ts
+  - src/lib/reference/referenceContent.ts
+  - src/lib/reference/referenceUILogic.ts, referenceUILogic.test.ts
+  - src/lib/reference/referenceViewerLogic.ts, referenceViewerLogic.test.ts
+  - src/lib/reference/ReferenceModal.tsx, ReferenceModal.test.tsx, ReferenceModal.stories.tsx
+  - src/lib/reference/ReferenceViewerPageView.tsx, ReferenceViewerPageView.test.tsx, ReferenceViewerPageView.stories.tsx
+  - src/lib/reference/ReferenceBrowserComponent.tsx, ReferenceBrowserComponent.test.tsx
+  - src/app/HubPageView.tsx
+- ベースライン: 10188 tests passed, 1 failed (debug-prop24.local.test.ts)
+- 完了時: 10209 tests passed (+21), 1 failed (同上の既知問題)
+- カバレッジ: reference module 99.54% statements
+- スクリーンショット:
+  - .screenshots/reference-modal-with-quests.png
+  - .screenshots/reference-viewer-with-quests.png
+- **今後のイテレーションへの学び:**
+  - クエスト解決は親コンポーネントで行い、RelatedQuestInfo {id, title} として渡す設計でモジュール間の疎結合を維持
+  - ReferenceBrowserComponentにはresolveQuestTitle関数を渡すことで、quest moduleへの直接依存を避ける
+  - HubPageViewのgroupsからクエストタイトルを線形探索で解決（クエスト数が少ないため十分）
+---
