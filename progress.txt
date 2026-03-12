@@ -12896,3 +12896,16 @@
   - prop-20は最も簡単なケース（DISJ-DEF backward 1ステップ + MP）。他のpropはCONJ-DEFの「対偶方向」が必要で、それにDNE/prop-25のインライン展開が必要
   - ∧/∨定義公理の追加で全体系のpropositionalAxioms Setが変わるため、テストの期待値更新が広範囲に及ぶ
 ---
+
+## 2026-03-12 11:15 - quest/模範解答正式化
+- prop-47 (De Morgan converse: (¬φ∧¬ψ)→¬(φ∨ψ)) 模範解答を161ステップの正式Hilbert証明に書き換え
+  - 戦略: DNI(37) + inner compose(4) + DISJ-DEF forward + compose(6) + MT inline(107) + MP + CONJ-DEF forward + compose(7) = 161
+  - CONJ-DEF forward with α:=¬φ, β:=¬ψ gives (¬φ∧¬ψ) → ¬(¬φ→¬¬ψ), which bridges conjunction to implication form
+- スキップリスト: 17→16件（prop-47除去）
+- 変更ファイル: builtinModelAnswers.ts, builtinModelAnswers.test.ts, prd-inserted-tasks.md
+- **今後のイテレーションへの学び:**
+  - MT inline (107 steps) を変数代入して利用するパターンが確立された
+  - CONJ-DEF forward: (α∧β) → ¬(α→¬β) は α, β に ¬φ, ¬ψ を入れると conjunction AST と implication/negation AST の橋渡しができる
+  - 残り prop: prop-24, prop-32, prop-46 — 全て MT inline 必要、100-200+ ステップ
+  - B-combinator compose の step index 参照は相対計算でなく絶対インデックスを使う方が安全
+---

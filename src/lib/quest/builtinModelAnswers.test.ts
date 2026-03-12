@@ -688,7 +688,6 @@ const knownPragmaticQuests: ReadonlySet<string> = new Set([
   "prop-24",
   "prop-32",
   "prop-46",
-  "prop-47",
   // pred系: 述語論理の定理の直接配置
   "pred-04",
   "pred-05",
