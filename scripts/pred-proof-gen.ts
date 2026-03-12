@@ -10,8 +10,16 @@
 
 type Step =
   | { readonly _tag: "axiom"; readonly formulaText: string }
-  | { readonly _tag: "mp"; readonly leftIndex: number; readonly rightIndex: number }
-  | { readonly _tag: "gen"; readonly premiseIndex: number; readonly variableName: string };
+  | {
+      readonly _tag: "mp";
+      readonly leftIndex: number;
+      readonly rightIndex: number;
+    }
+  | {
+      readonly _tag: "gen";
+      readonly premiseIndex: number;
+      readonly variableName: string;
+    };
 
 class ProofBuilder {
   readonly steps: Step[] = [];
@@ -27,7 +35,11 @@ class ProofBuilder {
   }
 
   gen(premise: number, varName: string): number {
-    this.steps.push({ _tag: "gen", premiseIndex: premise, variableName: varName });
+    this.steps.push({
+      _tag: "gen",
+      premiseIndex: premise,
+      variableName: varName,
+    });
     return this.steps.length - 1;
   }
 
@@ -38,10 +50,14 @@ class ProofBuilder {
 
   /** HS: from a→b and b→c, derive a→c (5 steps) */
   hs(ab: number, bc: number, a: string, b: string, c: string): number {
-    const pa = this.p(a), pb = this.p(b), pc = this.p(c);
+    const pa = this.p(a),
+      pb = this.p(b),
+      pc = this.p(c);
     const s1 = this.axiom(`(${pb} -> ${pc}) -> (${pa} -> (${pb} -> ${pc}))`);
     const s2 = this.mp(bc, s1);
-    const s3 = this.axiom(`(${pa} -> (${pb} -> ${pc})) -> ((${pa} -> ${pb}) -> (${pa} -> ${pc}))`);
+    const s3 = this.axiom(
+      `(${pa} -> (${pb} -> ${pc})) -> ((${pa} -> ${pb}) -> (${pa} -> ${pc}))`,
+    );
     const s4 = this.mp(s2, s3);
     return this.mp(ab, s4);
   }
@@ -51,36 +67,58 @@ class ProofBuilder {
     const h = `~${phi} -> ${phi}`;
     const s0 = this.axiom(`~~${phi} -> (~${phi} -> ~~${phi})`);
     const s1 = this.axiom(`(~${phi} -> ~~${phi}) -> (~${phi} -> ${phi})`);
-    const s2 = this.axiom(`(~~${phi} -> ((~${phi} -> ~~${phi}) -> (~${phi} -> ${phi}))) -> ((~~${phi} -> (~${phi} -> ~~${phi})) -> (~~${phi} -> (~${phi} -> ${phi})))`);
-    const s3 = this.axiom(`((~${phi} -> ~~${phi}) -> (~${phi} -> ${phi})) -> (~~${phi} -> ((~${phi} -> ~~${phi}) -> (~${phi} -> ${phi})))`);
+    const s2 = this.axiom(
+      `(~~${phi} -> ((~${phi} -> ~~${phi}) -> (~${phi} -> ${phi}))) -> ((~~${phi} -> (~${phi} -> ~~${phi})) -> (~~${phi} -> (~${phi} -> ${phi})))`,
+    );
+    const s3 = this.axiom(
+      `((~${phi} -> ~~${phi}) -> (~${phi} -> ${phi})) -> (~~${phi} -> ((~${phi} -> ~~${phi}) -> (~${phi} -> ${phi})))`,
+    );
     const s4 = this.mp(s1, s3);
     const s5 = this.mp(s4, s2);
     const s6 = this.mp(s0, s5);
     const s7 = this.axiom(`(~~(${h}) -> ~${phi}) -> (${phi} -> ~(${h}))`);
     const s8 = this.axiom(`~${phi} -> (~~(${h}) -> ~${phi})`);
-    const s9 = this.axiom(`(~${phi} -> ((~~(${h}) -> ~${phi}) -> (${phi} -> ~(${h})))) -> ((~${phi} -> (~~(${h}) -> ~${phi})) -> (~${phi} -> (${phi} -> ~(${h}))))`);
-    const s10 = this.axiom(`((~~(${h}) -> ~${phi}) -> (${phi} -> ~(${h}))) -> (~${phi} -> ((~~(${h}) -> ~${phi}) -> (${phi} -> ~(${h}))))`);
+    const s9 = this.axiom(
+      `(~${phi} -> ((~~(${h}) -> ~${phi}) -> (${phi} -> ~(${h})))) -> ((~${phi} -> (~~(${h}) -> ~${phi})) -> (~${phi} -> (${phi} -> ~(${h}))))`,
+    );
+    const s10 = this.axiom(
+      `((~~(${h}) -> ~${phi}) -> (${phi} -> ~(${h}))) -> (~${phi} -> ((~~(${h}) -> ~${phi}) -> (${phi} -> ~(${h}))))`,
+    );
     const s11 = this.mp(s7, s10);
     const s12 = this.mp(s11, s9);
     const s13 = this.mp(s8, s12);
-    const s14 = this.axiom(`(~${phi} -> (${phi} -> ~(${h}))) -> ((${h}) -> (~${phi} -> ~(${h})))`);
+    const s14 = this.axiom(
+      `(~${phi} -> (${phi} -> ~(${h}))) -> ((${h}) -> (~${phi} -> ~(${h})))`,
+    );
     const s15 = this.mp(s13, s14);
     const s16 = this.axiom(`(~${phi} -> ~(${h})) -> ((${h}) -> ${phi})`);
-    const s17 = this.axiom(`((${h}) -> ((~${phi} -> ~(${h})) -> ((${h}) -> ${phi}))) -> (((${h}) -> (~${phi} -> ~(${h}))) -> ((${h}) -> ((${h}) -> ${phi})))`);
-    const s18 = this.axiom(`((~${phi} -> ~(${h})) -> ((${h}) -> ${phi})) -> ((${h}) -> ((~${phi} -> ~(${h})) -> ((${h}) -> ${phi})))`);
+    const s17 = this.axiom(
+      `((${h}) -> ((~${phi} -> ~(${h})) -> ((${h}) -> ${phi}))) -> (((${h}) -> (~${phi} -> ~(${h}))) -> ((${h}) -> ((${h}) -> ${phi})))`,
+    );
+    const s18 = this.axiom(
+      `((~${phi} -> ~(${h})) -> ((${h}) -> ${phi})) -> ((${h}) -> ((~${phi} -> ~(${h})) -> ((${h}) -> ${phi})))`,
+    );
     const s19 = this.mp(s16, s18);
     const s20 = this.mp(s19, s17);
     const s21 = this.mp(s15, s20);
-    const s22 = this.axiom(`((${h}) -> ((${h}) -> ${phi})) -> (((${h}) -> (${h})) -> ((${h}) -> ${phi}))`);
+    const s22 = this.axiom(
+      `((${h}) -> ((${h}) -> ${phi})) -> (((${h}) -> (${h})) -> ((${h}) -> ${phi}))`,
+    );
     const s23 = this.mp(s21, s22);
-    const s24 = this.axiom(`((${h}) -> (((${h}) -> (${h})) -> (${h}))) -> (((${h}) -> ((${h}) -> (${h}))) -> ((${h}) -> (${h})))`);
+    const s24 = this.axiom(
+      `((${h}) -> (((${h}) -> (${h})) -> (${h}))) -> (((${h}) -> ((${h}) -> (${h}))) -> ((${h}) -> (${h})))`,
+    );
     const s25 = this.axiom(`(${h}) -> (((${h}) -> (${h})) -> (${h}))`);
     const s26 = this.mp(s25, s24);
     const s27 = this.axiom(`(${h}) -> ((${h}) -> (${h}))`);
     const s28 = this.mp(s27, s26);
     const s29 = this.mp(s28, s23);
-    const s30 = this.axiom(`(~~${phi} -> ((${h}) -> ${phi})) -> ((~~${phi} -> (${h})) -> (~~${phi} -> ${phi}))`);
-    const s31 = this.axiom(`((${h}) -> ${phi}) -> (~~${phi} -> ((${h}) -> ${phi}))`);
+    const s30 = this.axiom(
+      `(~~${phi} -> ((${h}) -> ${phi})) -> ((~~${phi} -> (${h})) -> (~~${phi} -> ${phi}))`,
+    );
+    const s31 = this.axiom(
+      `((${h}) -> ${phi}) -> (~~${phi} -> ((${h}) -> ${phi}))`,
+    );
     const s32 = this.mp(s29, s31);
     const s33 = this.mp(s32, s30);
     return this.mp(s6, s33);
@@ -95,7 +133,8 @@ class ProofBuilder {
 
   /** MT: (phi→psi) → (~psi→~phi) (108 steps) */
   mt(phi: string, psi: string): number {
-    const pphi = this.p(phi), ppsi = this.p(psi);
+    const pphi = this.p(phi),
+      ppsi = this.p(psi);
     const A = `${pphi} -> ${ppsi}`;
     const pA = this.p(A);
     const nnPhi = `~~${pphi}`;
@@ -105,23 +144,51 @@ class ProofBuilder {
 
     const dneResult = this.dne(pphi);
     const lift1 = this.axiom(`${pA} -> (${nnPhi} -> ${pA})`);
-    const a2_1 = this.axiom(`(${nnPhi} -> ${pA}) -> ((${nnPhi} -> ${pphi}) -> (${nnPhi} -> ${ppsi}))`);
-    const bComb = this.hs(lift1, a2_1, A, `${nnPhi} -> ${pA}`, `(${nnPhi} -> ${pphi}) -> (${nnPhi} -> ${ppsi})`);
-    const liftDne = this.axiom(`(${nnPhi} -> ${pphi}) -> (${pA} -> (${nnPhi} -> ${pphi}))`);
+    const a2_1 = this.axiom(
+      `(${nnPhi} -> ${pA}) -> ((${nnPhi} -> ${pphi}) -> (${nnPhi} -> ${ppsi}))`,
+    );
+    const bComb = this.hs(
+      lift1,
+      a2_1,
+      A,
+      `${nnPhi} -> ${pA}`,
+      `(${nnPhi} -> ${pphi}) -> (${nnPhi} -> ${ppsi})`,
+    );
+    const liftDne = this.axiom(
+      `(${nnPhi} -> ${pphi}) -> (${pA} -> (${nnPhi} -> ${pphi}))`,
+    );
     const dneInA = this.mp(dneResult, liftDne);
-    const a2_2 = this.axiom(`(${pA} -> ((${nnPhi} -> ${pphi}) -> (${nnPhi} -> ${ppsi}))) -> ((${pA} -> (${nnPhi} -> ${pphi})) -> (${pA} -> (${nnPhi} -> ${ppsi})))`);
+    const a2_2 = this.axiom(
+      `(${pA} -> ((${nnPhi} -> ${pphi}) -> (${nnPhi} -> ${ppsi}))) -> ((${pA} -> (${nnPhi} -> ${pphi})) -> (${pA} -> (${nnPhi} -> ${ppsi})))`,
+    );
     const bComb2 = this.mp(bComb, a2_2);
     const aToNnPhiToPsi = this.mp(dneInA, bComb2);
 
     const dniResult = this.dni(ppsi);
-    const b1 = this.axiom(`(${ppsi} -> ${nnPsi}) -> (${nnPhi} -> (${ppsi} -> ${nnPsi}))`);
+    const b1 = this.axiom(
+      `(${ppsi} -> ${nnPsi}) -> (${nnPhi} -> (${ppsi} -> ${nnPsi}))`,
+    );
     const b2 = this.mp(dniResult, b1);
-    const b3 = this.axiom(`(${nnPhi} -> (${ppsi} -> ${nnPsi})) -> ((${nnPhi} -> ${ppsi}) -> (${nnPhi} -> ${nnPsi}))`);
+    const b3 = this.axiom(
+      `(${nnPhi} -> (${ppsi} -> ${nnPsi})) -> ((${nnPhi} -> ${ppsi}) -> (${nnPhi} -> ${nnPsi}))`,
+    );
     const b4 = this.mp(b2, b3);
-    const aToNnPhiToNnPsi = this.hs(aToNnPhiToPsi, b4, A, `${nnPhi} -> ${ppsi}`, `${nnPhi} -> ${nnPsi}`);
+    const aToNnPhiToNnPsi = this.hs(
+      aToNnPhiToPsi,
+      b4,
+      A,
+      `${nnPhi} -> ${ppsi}`,
+      `${nnPhi} -> ${nnPsi}`,
+    );
 
     const a3inst = this.axiom(`(${nnPhi} -> ${nnPsi}) -> (${nPsi} -> ${nPhi})`);
-    return this.hs(aToNnPhiToNnPsi, a3inst, A, `${nnPhi} -> ${nnPsi}`, `${nPsi} -> ${nPhi}`);
+    return this.hs(
+      aToNnPhiToNnPsi,
+      a3inst,
+      A,
+      `${nnPhi} -> ${nnPsi}`,
+      `${nPsi} -> ${nPhi}`,
+    );
   }
 
   /** distForall: ∀v.(φ→ψ) → ((∀v.φ)→(∀v.ψ)) */
@@ -134,22 +201,47 @@ class ProofBuilder {
     const s0 = this.axiom(`(${allPhiPsi}) -> (${phiImpl})`);
     const s1 = this.axiom(`(${allPhi}) -> ${phiBody}`);
     const s2 = this.axiom(`(${phiImpl}) -> ((${allPhi}) -> (${phiImpl}))`);
-    const s7 = this.hs(s0, s2, allPhiPsi, phiImpl, `(${allPhi}) -> (${phiImpl})`);
-    const s8 = this.axiom(`((${allPhi}) -> (${phiImpl})) -> (((${allPhi}) -> ${phiBody}) -> ((${allPhi}) -> ${psiBody}))`);
-    const s13 = this.hs(s7, s8, allPhiPsi, `(${allPhi}) -> (${phiImpl})`,
-      `((${allPhi}) -> ${phiBody}) -> ((${allPhi}) -> ${psiBody})`);
-    const s14 = this.axiom(`((${allPhi}) -> ${phiBody}) -> ((${allPhiPsi}) -> ((${allPhi}) -> ${phiBody}))`);
+    const s7 = this.hs(
+      s0,
+      s2,
+      allPhiPsi,
+      phiImpl,
+      `(${allPhi}) -> (${phiImpl})`,
+    );
+    const s8 = this.axiom(
+      `((${allPhi}) -> (${phiImpl})) -> (((${allPhi}) -> ${phiBody}) -> ((${allPhi}) -> ${psiBody}))`,
+    );
+    const s13 = this.hs(
+      s7,
+      s8,
+      allPhiPsi,
+      `(${allPhi}) -> (${phiImpl})`,
+      `((${allPhi}) -> ${phiBody}) -> ((${allPhi}) -> ${psiBody})`,
+    );
+    const s14 = this.axiom(
+      `((${allPhi}) -> ${phiBody}) -> ((${allPhiPsi}) -> ((${allPhi}) -> ${phiBody}))`,
+    );
     const s15 = this.mp(s1, s14);
-    const s16 = this.axiom(`((${allPhiPsi}) -> (((${allPhi}) -> ${phiBody}) -> ((${allPhi}) -> ${psiBody}))) -> (((${allPhiPsi}) -> ((${allPhi}) -> ${phiBody})) -> ((${allPhiPsi}) -> ((${allPhi}) -> ${psiBody})))`);
+    const s16 = this.axiom(
+      `((${allPhiPsi}) -> (((${allPhi}) -> ${phiBody}) -> ((${allPhi}) -> ${psiBody}))) -> (((${allPhiPsi}) -> ((${allPhi}) -> ${phiBody})) -> ((${allPhiPsi}) -> ((${allPhi}) -> ${psiBody})))`,
+    );
     const s17 = this.mp(s13, s16);
     const s18 = this.mp(s15, s17);
     const s19 = this.gen(s18, varName);
-    const s20 = this.axiom(`(all ${varName}. ((${allPhiPsi}) -> ((${allPhi}) -> ${psiBody}))) -> ((${allPhiPsi}) -> (all ${varName}. ((${allPhi}) -> ${psiBody})))`);
+    const s20 = this.axiom(
+      `(all ${varName}. ((${allPhiPsi}) -> ((${allPhi}) -> ${psiBody}))) -> ((${allPhiPsi}) -> (all ${varName}. ((${allPhi}) -> ${psiBody})))`,
+    );
     const s21 = this.mp(s19, s20);
-    const s22 = this.axiom(`(all ${varName}. ((${allPhi}) -> ${psiBody})) -> ((${allPhi}) -> (${allPsi}))`);
-    return this.hs(s21, s22, allPhiPsi,
+    const s22 = this.axiom(
+      `(all ${varName}. ((${allPhi}) -> ${psiBody})) -> ((${allPhi}) -> (${allPsi}))`,
+    );
+    return this.hs(
+      s21,
+      s22,
+      allPhiPsi,
       `all ${varName}. ((${allPhi}) -> ${psiBody})`,
-      `(${allPhi}) -> (${allPsi})`);
+      `(${allPhi}) -> (${allPsi})`,
+    );
   }
 
   emitTS(): string {
@@ -189,9 +281,16 @@ function genPredAdv02(): ProofBuilder {
   const b = new ProofBuilder();
   const exDef = b.axiom("~(all x. ~P(x)) -> (ex x. P(x))"); // EX-DEF bwd
   const dniEx = b.dni("(ex x. P(x))"); // (ex x. P(x)) → ~~(ex x. P(x))
-  const hsResult = b.hs(exDef, dniEx,
-    "~(all x. ~P(x))", "(ex x. P(x))", "~~(ex x. P(x))");
-  const a3 = b.axiom("(~(all x. ~P(x)) -> ~~(ex x. P(x))) -> (~(ex x. P(x)) -> (all x. ~P(x)))");
+  const hsResult = b.hs(
+    exDef,
+    dniEx,
+    "~(all x. ~P(x))",
+    "(ex x. P(x))",
+    "~~(ex x. P(x))",
+  );
+  const a3 = b.axiom(
+    "(~(all x. ~P(x)) -> ~~(ex x. P(x))) -> (~(ex x. P(x)) -> (all x. ~P(x)))",
+  );
   b.mp(hsResult, a3);
   return b;
 }
@@ -211,9 +310,16 @@ function genPred06(): ProofBuilder {
   const b = new ProofBuilder();
   const dneEx = b.dne("(ex x. P(x))"); // ~~(ex x. P(x)) → (ex x. P(x))
   const exDef = b.axiom("(ex x. P(x)) -> ~(all x. ~P(x))"); // EX-DEF fwd
-  const hsResult = b.hs(dneEx, exDef,
-    "~~(ex x. P(x))", "(ex x. P(x))", "~(all x. ~P(x))");
-  const a3 = b.axiom("(~~(ex x. P(x)) -> ~(all x. ~P(x))) -> ((all x. ~P(x)) -> ~(ex x. P(x)))");
+  const hsResult = b.hs(
+    dneEx,
+    exDef,
+    "~~(ex x. P(x))",
+    "(ex x. P(x))",
+    "~(all x. ~P(x))",
+  );
+  const a3 = b.axiom(
+    "(~~(ex x. P(x)) -> ~(all x. ~P(x))) -> ((all x. ~P(x)) -> ~(ex x. P(x)))",
+  );
   b.mp(hsResult, a3);
   return b;
 }
@@ -241,8 +347,16 @@ function genPred04(): ProofBuilder {
   const b = new ProofBuilder();
   const dneResult = b.dne("(all x. ~P(x))");
   const a4 = b.axiom("(all x. ~P(x)) -> ~P(x)");
-  const hs1 = b.hs(dneResult, a4, "~~(all x. ~P(x))", "(all x. ~P(x))", "~P(x)");
-  const a3 = b.axiom("(~~(all x. ~P(x)) -> ~P(x)) -> (P(x) -> ~(all x. ~P(x)))");
+  const hs1 = b.hs(
+    dneResult,
+    a4,
+    "~~(all x. ~P(x))",
+    "(all x. ~P(x))",
+    "~P(x)",
+  );
+  const a3 = b.axiom(
+    "(~~(all x. ~P(x)) -> ~P(x)) -> (P(x) -> ~(all x. ~P(x)))",
+  );
   const pToNotAll = b.mp(hs1, a3); // P(x) → ~(all x. ~P(x))
   const exDef = b.axiom("~(all x. ~P(x)) -> (ex x. P(x))"); // EX-DEF bwd
   b.hs(pToNotAll, exDef, "P(x)", "~(all x. ~P(x))", "ex x. P(x)");
@@ -259,11 +373,25 @@ function genPredAdv06(): ProofBuilder {
   // pred-04 inline: P(x) → (ex x. P(x))
   const dneResult = b.dne("(all x. ~P(x))");
   const a4_inner = b.axiom("(all x. ~P(x)) -> ~P(x)");
-  const hs1 = b.hs(dneResult, a4_inner, "~~(all x. ~P(x))", "(all x. ~P(x))", "~P(x)");
-  const a3 = b.axiom("(~~(all x. ~P(x)) -> ~P(x)) -> (P(x) -> ~(all x. ~P(x)))");
+  const hs1 = b.hs(
+    dneResult,
+    a4_inner,
+    "~~(all x. ~P(x))",
+    "(all x. ~P(x))",
+    "~P(x)",
+  );
+  const a3 = b.axiom(
+    "(~~(all x. ~P(x)) -> ~P(x)) -> (P(x) -> ~(all x. ~P(x)))",
+  );
   const pToNotAll = b.mp(hs1, a3);
   const exDef = b.axiom("~(all x. ~P(x)) -> (ex x. P(x))");
-  const pred04 = b.hs(pToNotAll, exDef, "P(x)", "~(all x. ~P(x))", "ex x. P(x)");
+  const pred04 = b.hs(
+    pToNotAll,
+    exDef,
+    "P(x)",
+    "~(all x. ~P(x))",
+    "ex x. P(x)",
+  );
   // A4
   const a4_outer = b.axiom("(all x. P(x)) -> P(x)");
   // HS
@@ -296,20 +424,34 @@ function genPredAdv08(): ProofBuilder {
   const a4 = b.axiom("(all x. P(x)) -> P(x)");
   const hs1 = b.hs(a4, dniPx, "(all x. P(x))", "P(x)", "~~P(x)");
   const gen1 = b.gen(hs1, "x");
-  const a5 = b.axiom("(all x. ((all x. P(x)) -> ~~P(x))) -> ((all x. P(x)) -> (all x. ~~P(x)))");
+  const a5 = b.axiom(
+    "(all x. ((all x. P(x)) -> ~~P(x))) -> ((all x. P(x)) -> (all x. ~~P(x)))",
+  );
   const allPToAllNNP = b.mp(gen1, a5);
 
   // Phase 2: (all x. ~~P(x)) → ~(ex x. ~P(x))
   const dneEx = b.dne("(ex x. ~P(x))"); // ~~(ex x. ~P(x)) → (ex x. ~P(x))
   const exDefFwd = b.axiom("(ex x. ~P(x)) -> ~(all x. ~~P(x))"); // EX-DEF fwd
-  const hsExDne = b.hs(dneEx, exDefFwd,
-    "~~(ex x. ~P(x))", "(ex x. ~P(x))", "~(all x. ~~P(x))");
-  const a3 = b.axiom("(~~(ex x. ~P(x)) -> ~(all x. ~~P(x))) -> ((all x. ~~P(x)) -> ~(ex x. ~P(x)))");
+  const hsExDne = b.hs(
+    dneEx,
+    exDefFwd,
+    "~~(ex x. ~P(x))",
+    "(ex x. ~P(x))",
+    "~(all x. ~~P(x))",
+  );
+  const a3 = b.axiom(
+    "(~~(ex x. ~P(x)) -> ~(all x. ~~P(x))) -> ((all x. ~~P(x)) -> ~(ex x. ~P(x)))",
+  );
   const allNNPToNotExNot = b.mp(hsExDne, a3);
 
   // Phase 3: compose
-  b.hs(allPToAllNNP, allNNPToNotExNot,
-    "(all x. P(x))", "(all x. ~~P(x))", "~(ex x. ~P(x))");
+  b.hs(
+    allPToAllNNP,
+    allNNPToNotExNot,
+    "(all x. P(x))",
+    "(all x. ~~P(x))",
+    "~(ex x. ~P(x))",
+  );
   return b;
 }
 
@@ -322,10 +464,17 @@ function genPredAdv13(): ProofBuilder {
   const b = new ProofBuilder();
   const a4 = b.axiom("(all x. (P(x) -> Q(x))) -> (P(x) -> Q(x))");
   const mtResult = b.mt("P(x)", "Q(x)");
-  const hs1 = b.hs(a4, mtResult,
-    "(all x. (P(x) -> Q(x)))", "P(x) -> Q(x)", "~Q(x) -> ~P(x)");
+  const hs1 = b.hs(
+    a4,
+    mtResult,
+    "(all x. (P(x) -> Q(x)))",
+    "P(x) -> Q(x)",
+    "~Q(x) -> ~P(x)",
+  );
   const gen1 = b.gen(hs1, "x");
-  const a5 = b.axiom("(all x. ((all x. (P(x) -> Q(x))) -> (~Q(x) -> ~P(x)))) -> ((all x. (P(x) -> Q(x))) -> (all x. (~Q(x) -> ~P(x))))");
+  const a5 = b.axiom(
+    "(all x. ((all x. (P(x) -> Q(x))) -> (~Q(x) -> ~P(x)))) -> ((all x. (P(x) -> Q(x))) -> (all x. (~Q(x) -> ~P(x))))",
+  );
   b.mp(gen1, a5);
   return b;
 }
@@ -362,7 +511,9 @@ function genPred05(): ProofBuilder {
   const a4 = b.axiom("(all x. P(x)) -> P(x)");
   const hs1 = b.hs(a4, dniPx, "(all x. P(x))", "P(x)", "~~P(x)");
   const gen1 = b.gen(hs1, "x");
-  const a5 = b.axiom("(all x. ((all x. P(x)) -> ~~P(x))) -> ((all x. P(x)) -> (all x. ~~P(x)))");
+  const a5 = b.axiom(
+    "(all x. ((all x. P(x)) -> ~~P(x))) -> ((all x. P(x)) -> (all x. ~~P(x)))",
+  );
   const fwdStep = b.mp(gen1, a5); // (all x. P(x)) → (all x. ~~P(x))
 
   // Phase 2: MT[(all x. P(x)), (all x. ~~P(x))]
@@ -373,8 +524,13 @@ function genPred05(): ProofBuilder {
   const exDefFwd = b.axiom("(ex x. ~P(x)) -> ~(all x. ~~P(x))");
 
   // Phase 4: HS
-  b.hs(exDefFwd, mtApplied,
-    "(ex x. ~P(x))", "~(all x. ~~P(x))", "~(all x. P(x))");
+  b.hs(
+    exDefFwd,
+    mtApplied,
+    "(ex x. ~P(x))",
+    "~(all x. ~~P(x))",
+    "~(all x. P(x))",
+  );
   return b;
 }
 
@@ -404,8 +560,13 @@ function genPredAdv03(): ProofBuilder {
   const exDefBwd = b.axiom("~(all x. ~~P(x)) -> (ex x. ~P(x))");
 
   // Phase 4: HS
-  b.hs(mtApplied, exDefBwd,
-    "~(all x. P(x))", "~(all x. ~~P(x))", "ex x. ~P(x)");
+  b.hs(
+    mtApplied,
+    exDefBwd,
+    "~(all x. P(x))",
+    "~(all x. ~~P(x))",
+    "ex x. ~P(x)",
+  );
   return b;
 }
 
@@ -449,20 +610,30 @@ function genPredAdv04(): ProofBuilder {
   const mtElem = b.mt("P(x)", "Q(x)");
   const hs1 = b.hs(a4, mtElem, allPQ, "P(x) -> Q(x)", "~Q(x) -> ~P(x)");
   const gen1 = b.gen(hs1, "x");
-  const a5 = b.axiom(`(all x. (${allPQ} -> (~Q(x) -> ~P(x)))) -> (${allPQ} -> (all x. (~Q(x) -> ~P(x))))`);
+  const a5 = b.axiom(
+    `(all x. (${allPQ} -> (~Q(x) -> ~P(x)))) -> (${allPQ} -> (all x. (~Q(x) -> ~P(x))))`,
+  );
   const step4 = b.mp(gen1, a5);
   const dist = b.distForall("~Q(x)", "~P(x)", "x");
-  const allPQToInner = b.hs(step4, dist, allPQ,
+  const allPQToInner = b.hs(
+    step4,
+    dist,
+    allPQ,
     "all x. (~Q(x) -> ~P(x))",
-    "(all x. ~Q(x)) -> (all x. ~P(x))");
+    "(all x. ~Q(x)) -> (all x. ~P(x))",
+  );
 
   // Phase 2: MT[(all x. ~Q(x)), (all x. ~P(x))]
   const mtOuter = b.mt("(all x. ~Q(x))", "(all x. ~P(x))");
 
   // Phase 3: allPQ → (~(all x. ~P(x)) → ~(all x. ~Q(x)))
-  const allPQToNeg = b.hs(allPQToInner, mtOuter, allPQ,
+  const allPQToNeg = b.hs(
+    allPQToInner,
+    mtOuter,
+    allPQ,
     "(all x. ~Q(x)) -> (all x. ~P(x))",
-    "~(all x. ~P(x)) -> ~(all x. ~Q(x))");
+    "~(all x. ~P(x)) -> ~(all x. ~Q(x))",
+  );
 
   // Phase 4: Bridge with EX-DEF
   // EX-DEF fwd: (ex x. P(x)) → ~(all x. ~P(x))
@@ -490,7 +661,9 @@ function genPredAdv04(): ProofBuilder {
   // So HS(allPQToNeg, exDefQ) inside allPQ context:
   // allPQ → (A → B), and B → C.
   // lift B→C over allPQ: A1
-  const liftExDefQ = b.axiom(`(~(all x. ~Q(x)) -> (ex x. Q(x))) -> (${allPQ} -> (~(all x. ~Q(x)) -> (ex x. Q(x))))`);
+  const liftExDefQ = b.axiom(
+    `(~(all x. ~Q(x)) -> (ex x. Q(x))) -> (${allPQ} -> (~(all x. ~Q(x)) -> (ex x. Q(x))))`,
+  );
   const allPQExDefQ = b.mp(exDefQ, liftExDefQ); // allPQ → (B → C)
   // A2[allPQ, A→B, B→C → ... ]: need allPQ → (A → C)
   // From allPQ → (A → B) and allPQ → (B → C):
@@ -506,19 +679,33 @@ function genPredAdv04(): ProofBuilder {
   const C_inner = "(ex x. Q(x))";
 
   // Lift B→C into A context: A1
-  const a1Lift = b.axiom(`(${B_inner} -> ${C_inner}) -> (${A_inner} -> (${B_inner} -> ${C_inner}))`);
+  const a1Lift = b.axiom(
+    `(${B_inner} -> ${C_inner}) -> (${A_inner} -> (${B_inner} -> ${C_inner}))`,
+  );
   // HS(allPQExDefQ, a1Lift): allPQ → (A → (B → C))
-  const allPQA_BC = b.hs(allPQExDefQ, a1Lift, allPQ,
+  const allPQA_BC = b.hs(
+    allPQExDefQ,
+    a1Lift,
+    allPQ,
     `${B_inner} -> ${C_inner}`,
-    `${A_inner} -> (${B_inner} -> ${C_inner})`);
-  // A2[A, B, C]: (A→(B→C)) → ((A→B)→(A→C))
-  const a2inst = b.axiom(`(${A_inner} -> (${B_inner} -> ${C_inner})) -> ((${A_inner} -> ${B_inner}) -> (${A_inner} -> ${C_inner}))`);
-  // HS(allPQA_BC, a2inst): allPQ → ((A→B)→(A→C))
-  const allPQAB_AC = b.hs(allPQA_BC, a2inst, allPQ,
     `${A_inner} -> (${B_inner} -> ${C_inner})`,
-    `(${A_inner} -> ${B_inner}) -> (${A_inner} -> ${C_inner})`);
+  );
+  // A2[A, B, C]: (A→(B→C)) → ((A→B)→(A→C))
+  const a2inst = b.axiom(
+    `(${A_inner} -> (${B_inner} -> ${C_inner})) -> ((${A_inner} -> ${B_inner}) -> (${A_inner} -> ${C_inner}))`,
+  );
+  // HS(allPQA_BC, a2inst): allPQ → ((A→B)→(A→C))
+  const allPQAB_AC = b.hs(
+    allPQA_BC,
+    a2inst,
+    allPQ,
+    `${A_inner} -> (${B_inner} -> ${C_inner})`,
+    `(${A_inner} -> ${B_inner}) -> (${A_inner} -> ${C_inner})`,
+  );
   // A2[allPQ, A→B, A→C]: ... → (allPQ→(A→B)) → (allPQ→(A→C))
-  const a2outer = b.axiom(`(${allPQ} -> ((${A_inner} -> ${B_inner}) -> (${A_inner} -> ${C_inner}))) -> ((${allPQ} -> (${A_inner} -> ${B_inner})) -> (${allPQ} -> (${A_inner} -> ${C_inner})))`);
+  const a2outer = b.axiom(
+    `(${allPQ} -> ((${A_inner} -> ${B_inner}) -> (${A_inner} -> ${C_inner}))) -> ((${allPQ} -> (${A_inner} -> ${B_inner})) -> (${allPQ} -> (${A_inner} -> ${C_inner})))`,
+  );
   const step_ab_ac = b.mp(allPQAB_AC, a2outer);
   const allPQ_A_C = b.mp(allPQToNeg, step_ab_ac); // allPQ → (A → C) = allPQ → (~(all x. ~P(x)) → (ex x. Q(x)))
 
@@ -528,7 +715,9 @@ function genPredAdv04(): ProofBuilder {
   // Compose exDefP before ~(all x. ~P(x)):
   // exDefP: (ex x. P(x)) → ~(all x. ~P(x))
   // Lift exDefP over allPQ context:
-  const liftExDefP = b.axiom(`((ex x. P(x)) -> ~(all x. ~P(x))) -> (${allPQ} -> ((ex x. P(x)) -> ~(all x. ~P(x))))`);
+  const liftExDefP = b.axiom(
+    `((ex x. P(x)) -> ~(all x. ~P(x))) -> (${allPQ} -> ((ex x. P(x)) -> ~(all x. ~P(x))))`,
+  );
   const allPQExDefP = b.mp(exDefP, liftExDefP); // allPQ → (exP → A)
 
   // Now compose allPQ → (exP → A) with allPQ → (A → exQ)
@@ -542,19 +731,33 @@ function genPredAdv04(): ProofBuilder {
 
   // Lift (A → exQ) into exP context inside allPQ:
   // A1[(A→exQ), exP]: (A→exQ) → (exP → (A→exQ))
-  const a1Lift2 = b.axiom(`(${A_inner} -> ${exQ}) -> (${exP} -> (${A_inner} -> ${exQ}))`);
+  const a1Lift2 = b.axiom(
+    `(${A_inner} -> ${exQ}) -> (${exP} -> (${A_inner} -> ${exQ}))`,
+  );
   // HS(allPQ_A_C, a1Lift2): allPQ → (exP → (A→exQ))
-  const allPQ_exP_A_exQ = b.hs(allPQ_A_C, a1Lift2, allPQ,
+  const allPQ_exP_A_exQ = b.hs(
+    allPQ_A_C,
+    a1Lift2,
+    allPQ,
     `${A_inner} -> ${exQ}`,
-    `${exP} -> (${A_inner} -> ${exQ})`);
-  // A2[exP, A, exQ]: (exP→(A→exQ)) → ((exP→A)→(exP→exQ))
-  const a2inst2 = b.axiom(`(${exP} -> (${A_inner} -> ${exQ})) -> ((${exP} -> ${A_inner}) -> (${exP} -> ${exQ}))`);
-  // HS: allPQ → ((exP→A) → (exP→exQ))
-  const allPQ_exPA_exPexQ = b.hs(allPQ_exP_A_exQ, a2inst2, allPQ,
     `${exP} -> (${A_inner} -> ${exQ})`,
-    `(${exP} -> ${A_inner}) -> (${exP} -> ${exQ})`);
+  );
+  // A2[exP, A, exQ]: (exP→(A→exQ)) → ((exP→A)→(exP→exQ))
+  const a2inst2 = b.axiom(
+    `(${exP} -> (${A_inner} -> ${exQ})) -> ((${exP} -> ${A_inner}) -> (${exP} -> ${exQ}))`,
+  );
+  // HS: allPQ → ((exP→A) → (exP→exQ))
+  const allPQ_exPA_exPexQ = b.hs(
+    allPQ_exP_A_exQ,
+    a2inst2,
+    allPQ,
+    `${exP} -> (${A_inner} -> ${exQ})`,
+    `(${exP} -> ${A_inner}) -> (${exP} -> ${exQ})`,
+  );
   // A2[allPQ, exP→A, exP→exQ]
-  const a2final = b.axiom(`(${allPQ} -> ((${exP} -> ${A_inner}) -> (${exP} -> ${exQ}))) -> ((${allPQ} -> (${exP} -> ${A_inner})) -> (${allPQ} -> (${exP} -> ${exQ})))`);
+  const a2final = b.axiom(
+    `(${allPQ} -> ((${exP} -> ${A_inner}) -> (${exP} -> ${exQ}))) -> ((${allPQ} -> (${exP} -> ${A_inner})) -> (${allPQ} -> (${exP} -> ${exQ})))`,
+  );
   const step_final_a = b.mp(allPQ_exPA_exPexQ, a2final);
   b.mp(allPQExDefP, step_final_a); // allPQ → (exP → exQ)
 
@@ -697,9 +900,16 @@ function genPredAdv12(): ProofBuilder {
   // ~(ex x. P(x,y)) → (all x. ~P(x,y))
   const exDefBwdX = b.axiom("~(all x. ~P(x, y)) -> (ex x. P(x, y))"); // EX-DEF bwd
   const dniExX = b.dni("(ex x. P(x, y))");
-  const hsA = b.hs(exDefBwdX, dniExX,
-    "~(all x. ~P(x, y))", "(ex x. P(x, y))", "~~(ex x. P(x, y))");
-  const a3A = b.axiom("(~(all x. ~P(x, y)) -> ~~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y)))");
+  const hsA = b.hs(
+    exDefBwdX,
+    dniExX,
+    "~(all x. ~P(x, y))",
+    "(ex x. P(x, y))",
+    "~~(ex x. P(x, y))",
+  );
+  const a3A = b.axiom(
+    "(~(all x. ~P(x, y)) -> ~~(ex x. P(x, y))) -> (~(ex x. P(x, y)) -> (all x. ~P(x, y)))",
+  );
   const predAdv02X = b.mp(hsA, a3A); // ~(ex x. P(x,y)) → (all x. ~P(x,y))
 
   // Step B: Gen[y] + distForall: (all y. ~(ex x. P(x,y))) → (all y. (all x. ~P(x,y)))
@@ -714,34 +924,63 @@ function genPredAdv12(): ProofBuilder {
   const sw1 = b.axiom("(all x. ~P(x, y)) -> ~P(x, y)");
   const sw6 = b.hs(sw0, sw1, allYAllX, "all x. ~P(x, y)", "~P(x, y)");
   const fsw1 = b.gen(sw6, "y");
-  const fsw2 = b.axiom(`(all y. ((${allYAllX}) -> ~P(x, y))) -> ((${allYAllX}) -> (all y. ~P(x, y)))`);
+  const fsw2 = b.axiom(
+    `(all y. ((${allYAllX}) -> ~P(x, y))) -> ((${allYAllX}) -> (all y. ~P(x, y)))`,
+  );
   const fsw3 = b.mp(fsw1, fsw2);
   const fsw4 = b.gen(fsw3, "x");
-  const fsw5 = b.axiom(`(all x. ((${allYAllX}) -> (all y. ~P(x, y)))) -> ((${allYAllX}) -> (${allXAllY}))`);
+  const fsw5 = b.axiom(
+    `(all x. ((${allYAllX}) -> (all y. ~P(x, y)))) -> ((${allYAllX}) -> (${allXAllY}))`,
+  );
   const forallSwap = b.mp(fsw4, fsw5);
 
   // Step D: pred-06 pattern [var=y, body=P(x,y)]:
   // (all y. ~P(x,y)) → ~(ex y. P(x,y))
   const dneExY = b.dne("(ex y. P(x, y))");
   const exDefFwdY = b.axiom("(ex y. P(x, y)) -> ~(all y. ~P(x, y))");
-  const hsD = b.hs(dneExY, exDefFwdY,
-    "~~(ex y. P(x, y))", "(ex y. P(x, y))", "~(all y. ~P(x, y))");
-  const a3D = b.axiom("(~~(ex y. P(x, y)) -> ~(all y. ~P(x, y))) -> ((all y. ~P(x, y)) -> ~(ex y. P(x, y)))");
+  const hsD = b.hs(
+    dneExY,
+    exDefFwdY,
+    "~~(ex y. P(x, y))",
+    "(ex y. P(x, y))",
+    "~(all y. ~P(x, y))",
+  );
+  const a3D = b.axiom(
+    "(~~(ex y. P(x, y)) -> ~(all y. ~P(x, y))) -> ((all y. ~P(x, y)) -> ~(ex y. P(x, y)))",
+  );
   const pred06Y = b.mp(hsD, a3D); // (all y. ~P(x,y)) → ~(ex y. P(x,y))
 
   // Step E: Gen[x] + distForall: (all x. (all y. ~P(x,y))) → (all x. ~(ex y. P(x,y)))
   // First need: allXAllY → (all y. ~P(x,y)) via A4
   const a4e = b.axiom(`(${allXAllY}) -> (all y. ~P(x, y))`);
-  const allXAllYToNotExY = b.hs(a4e, pred06Y, allXAllY, "all y. ~P(x, y)", "~(ex y. P(x, y))");
+  const allXAllYToNotExY = b.hs(
+    a4e,
+    pred06Y,
+    allXAllY,
+    "all y. ~P(x, y)",
+    "~(ex y. P(x, y))",
+  );
   const genE = b.gen(allXAllYToNotExY, "x");
-  const a5E = b.axiom(`(all x. ((${allXAllY}) -> ~(ex y. P(x, y)))) -> ((${allXAllY}) -> (all x. ~(ex y. P(x, y))))`);
+  const a5E = b.axiom(
+    `(all x. ((${allXAllY}) -> ~(ex y. P(x, y)))) -> ((${allXAllY}) -> (all x. ~(ex y. P(x, y))))`,
+  );
   const stepE = b.mp(genE, a5E);
 
   // Step F: Compose B + C + E
-  const bToSwap = b.hs(stepB, forallSwap,
-    "all y. ~(ex x. P(x, y))", allYAllX, allXAllY);
-  const fullFwd = b.hs(bToSwap, stepE,
-    "all y. ~(ex x. P(x, y))", allXAllY, "all x. ~(ex y. P(x, y))");
+  const bToSwap = b.hs(
+    stepB,
+    forallSwap,
+    "all y. ~(ex x. P(x, y))",
+    allYAllX,
+    allXAllY,
+  );
+  const fullFwd = b.hs(
+    bToSwap,
+    stepE,
+    "all y. ~(ex x. P(x, y))",
+    allXAllY,
+    "all x. ~(ex y. P(x, y))",
+  );
 
   // Step G: MT
   const mtResult = b.mt("all y. ~(ex x. P(x, y))", "all x. ~(ex y. P(x, y))");
@@ -749,20 +988,30 @@ function genPredAdv12(): ProofBuilder {
   // ~(all x. ~(ex y. P(x,y))) → ~(all y. ~(ex x. P(x,y)))
 
   // Step H: EX-DEF fwd (outer x): (ex x. (ex y. P(x,y))) → ~(all x. ~(ex y. P(x,y)))
-  const exDefFwdOuter = b.axiom("(ex x. (ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))");
+  const exDefFwdOuter = b.axiom(
+    "(ex x. (ex y. P(x, y))) -> ~(all x. ~(ex y. P(x, y)))",
+  );
 
   // Step I: EX-DEF bwd (outer y): ~(all y. ~(ex x. P(x,y))) → (ex y. (ex x. P(x,y)))
-  const exDefBwdOuter = b.axiom("~(all y. ~(ex x. P(x, y))) -> (ex y. (ex x. P(x, y)))");
+  const exDefBwdOuter = b.axiom(
+    "~(all y. ~(ex x. P(x, y))) -> (ex y. (ex x. P(x, y)))",
+  );
 
   // Final composition:
-  const hs1 = b.hs(exDefFwdOuter, mtApplied,
+  const hs1 = b.hs(
+    exDefFwdOuter,
+    mtApplied,
     "(ex x. (ex y. P(x, y)))",
     "~(all x. ~(ex y. P(x, y)))",
-    "~(all y. ~(ex x. P(x, y)))");
-  b.hs(hs1, exDefBwdOuter,
+    "~(all y. ~(ex x. P(x, y)))",
+  );
+  b.hs(
+    hs1,
+    exDefBwdOuter,
     "(ex x. (ex y. P(x, y)))",
     "~(all y. ~(ex x. P(x, y)))",
-    "(ex y. (ex x. P(x, y)))");
+    "(ex y. (ex x. P(x, y)))",
+  );
 
   return b;
 }
