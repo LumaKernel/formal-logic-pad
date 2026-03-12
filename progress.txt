@@ -12928,3 +12928,21 @@
   - A2(p,q,r)の代入を行う際は、(p→(q→r))と((p→q)→(p→r))の両方が構造的に一致することを必ず確認
   - 残り prop: prop-24, prop-32 — 全て MT inline 必要
 ---
+
+## 2026-03-12 12:15 - quest/模範解答正式化（prop-24）
+- prop-24 (De Morgan の法則: ¬(φ∨ψ)→(¬φ∧¬ψ)) 模範解答を219ステップの正式Hilbert証明に書き換え
+  - 戦略: DNE(35) + inner-compose(4) + DNE(35) + DNI(37) + triple-compose(10) + A3+MP(2) + DISJ-bridge(85) + final-compose(11) = 219
+  - DISJ-DEF: φ∨ψ = ¬φ→ψ, CONJ-DEF: ¬φ∧¬ψ = ¬(¬φ→¬¬ψ)
+  - 核心: ~~(¬φ→¬¬ψ) → ~~(¬φ→ψ) を DNE + inner-compose + DNI で構成し、A3で反転
+  - Part 7: DISJ-DEFブリッジ（85ステップ）— ¬(φ∨ψ)→¬(¬φ→ψ) をDNE/DNI/A3で構成
+- バグ修正: 選言 \/ のバックスラッシュエスケープ問題
+  - 生成スクリプトで `\\/ psi` → `\\\\/ psi` に修正
+  - エスケープチェーン: ソース `\\\\/` → ランタイム `\\/` → 出力ファイル `\\/` → TSが `\/` (選言演算子) として解釈
+- スキップリスト: 15→14件（prop-24除去）
+- 変更ファイル: builtinModelAnswers.ts, builtinModelAnswers.test.ts, prd-inserted-tasks.md
+- テスト: 9679 passed, typecheck OK, lint OK
+- **今後のイテレーションへの学び:**
+  - 選言 `\/` を含む論理式を生成する際、テンプレートリテラルで出力する場合はバックスラッシュが4段階のエスケープを経る
+  - 生成スクリプト→出力ファイル→TS解釈のチェーンを意識すること
+  - 残り prop: prop-32 のみ — 選言消去（最も複雑、推定300+ステップ）
+---
