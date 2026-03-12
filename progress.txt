@@ -13303,3 +13303,26 @@
   - Storybook story IDはタイトルのkebab-case: "Pages/Workspace" → "pages-workspace--story-name"
   - prop-01のみAxiom violation（0/1）、他4体系（nd/tab/sc/at）はProved!（1/1）
 ---
+
+## 2026-03-13 - [drag-drop] ドラッグ中のスナッププレビュー表示・リリース時のスナップアニメーション
+- CanvasItemにdeferredSnapConfig propを追加。ドラッグ中はカーソルに絶対追従、リリース時にスナップ位置へアニメーション移動
+- ドラッグ中にスナップ先をゴーストプレビュー（半透明+blur）で表示
+- 変更ファイル:
+  - src/lib/infinite-canvas/CanvasItem.tsx (+77行: deferredSnapConfig, ゴーストプレビュー, triggerSnap統合)
+  - src/lib/infinite-canvas/CanvasItem.test.tsx (+165行: deferred snap 5テスト追加)
+  - src/lib/infinite-canvas/GridSnapDemo.stories.tsx (deferredSnapConfig prop使用に簡素化)
+  - tasks/prd-drag-drop.md → tasks-archived/prd-drag-drop.md
+- テスト: CanvasItem 46テスト全パス、全体9857パス
+- カバレッジ: CanvasItem.tsx 100% statements/branches 維持
+- ブラウザ検証: Playwright MCPで確認、スクリーンショット撮影済み
+  - .screenshots/grid-snap-deferred-default.png
+  - .screenshots/grid-snap-deferred-dragging.png
+  - .screenshots/grid-snap-deferred-after-release.png
+  - .screenshots/grid-snap-ghost-visible.png
+  - .screenshots/proof-workspace-still-works.png
+- **今後のイテレーションへの学び:**
+  - useDeferredSnapとdeferredSnap.tsは既にアニメーション基盤として存在していた。新機能はCanvasItemへの統合のみで済んだ
+  - deferredSnapConfigはsnapConfigと排他的。useDeferredMode=trueのときSNAP_DISABLEDで即時スナップを無効化
+  - ゴーストプレビューはshowGhost条件（位置差>0.5px）で表示制御。グリッド上にある場合は表示しない
+  - テスト: requestAnimationFrameが動かない環境では、DEFERRED_SNAP_MIN_DISTANCE以内の位置を使って即座にスナップさせる
+---
