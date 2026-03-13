@@ -145,8 +145,7 @@ export type HubPageViewProps = {
 
 // --- Style class names ---
 
-const pageClassName =
-  "min-h-screen bg-background text-foreground";
+const pageClassName = "min-h-screen bg-background text-foreground";
 
 const headerClassName =
   "flex items-center justify-between px-6 py-4 border-b border-ui-border bg-card";
@@ -307,10 +306,19 @@ export function HubPageView({
 
       {/* Landing Page */}
       {showLanding === true ? (
-        <div className="max-w-[640px] mx-auto pt-20 pb-15 px-6 text-center" data-testid="landing-page">
-          <h1 className="text-[32px] font-extrabold -tracking-wide mb-2 text-foreground">{m.landingTitle}</h1>
-          <p className="text-base font-medium text-primary mb-5">{m.landingSubtitle}</p>
-          <p className="text-[15px] leading-relaxed text-muted-foreground mb-9">{m.landingDescription}</p>
+        <div
+          className="max-w-[640px] mx-auto pt-20 pb-15 px-6 text-center"
+          data-testid="landing-page"
+        >
+          <h1 className="text-[32px] font-extrabold -tracking-wide mb-2 text-foreground">
+            {m.landingTitle}
+          </h1>
+          <p className="text-base font-medium text-primary mb-5">
+            {m.landingSubtitle}
+          </p>
+          <p className="text-[15px] leading-relaxed text-muted-foreground mb-9">
+            {m.landingDescription}
+          </p>
           <div className="flex gap-3 justify-center mb-10">
             <button
               type="button"
@@ -495,8 +503,12 @@ export function HubPageView({
                     </div>
                   ) : (
                     <div className="text-center py-15 px-5 text-muted-foreground">
-                      <div className="text-2xl font-bold mb-2 text-foreground">{m.emptyTitle}</div>
-                      <p className="text-[15px] mb-6 leading-relaxed">{m.emptyDescription}</p>
+                      <div className="text-2xl font-bold mb-2 text-foreground">
+                        {m.emptyTitle}
+                      </div>
+                      <p className="text-[15px] mb-6 leading-relaxed">
+                        {m.emptyDescription}
+                      </p>
                       <button
                         type="button"
                         className={createButtonClassName}
@@ -597,8 +609,12 @@ export function HubPageView({
                 }}
               >
                 <div className="bg-card rounded-xl p-6 max-w-[480px] w-[90%] shadow-2xl">
-                  <h3 className="text-lg font-bold mb-2 text-foreground">{sharedQuest.title}</h3>
-                  <p className="text-sm text-muted-foreground mb-3 leading-normal">{sharedQuest.description}</p>
+                  <h3 className="text-lg font-bold mb-2 text-foreground">
+                    {sharedQuest.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-3 leading-normal">
+                    {sharedQuest.description}
+                  </p>
                   <div className="text-xs text-muted-foreground mb-5 py-2 px-3 bg-muted rounded-md">
                     <span>
                       {m.sharedQuestMeta

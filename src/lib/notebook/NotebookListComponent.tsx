@@ -43,7 +43,11 @@ function MenuItem({
       ? "text-destructive hover:bg-destructive/5"
       : "text-foreground hover:bg-muted";
   return (
-    <button data-testid={testId} className={`${base satisfies string} ${variantClass satisfies string}`} onClick={onClick}>
+    <button
+      data-testid={testId}
+      className={`${base satisfies string} ${variantClass satisfies string}`}
+      onClick={onClick}
+    >
       {children}
     </button>
   );
@@ -111,13 +115,16 @@ function MoreMenu({
 }
 
 function ModeBadge({ mode }: { readonly mode: "free" | "quest" }) {
-  const base = "inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold tracking-wide";
+  const base =
+    "inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold tracking-wide";
   const variantClass =
     mode === "quest"
       ? "bg-[var(--color-badge-quest-bg)] text-[var(--color-badge-quest-text)]"
       : "bg-[var(--color-badge-free-bg)] text-[var(--color-badge-free-text)]";
   return (
-    <span className={`${base satisfies string} ${variantClass satisfies string}`}>
+    <span
+      className={`${base satisfies string} ${variantClass satisfies string}`}
+    >
       {mode === "quest" ? "クエスト" : "自由帳"}
     </span>
   );

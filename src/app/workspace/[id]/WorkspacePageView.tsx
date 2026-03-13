@@ -110,8 +110,7 @@ export type WorkspacePageViewProps = {
 
 // --- Style class names ---
 
-const pageClassName =
-  "flex flex-col h-screen bg-background text-foreground";
+const pageClassName = "flex flex-col h-screen bg-background text-foreground";
 
 const headerClassName =
   "flex items-center justify-between px-4 py-2 border-b border-ui-border bg-card shrink-0";
@@ -125,8 +124,7 @@ const notebookNameClassName =
 const notebookNameEditClassName =
   "text-base font-semibold flex-1 text-center py-0.5 px-3 border border-primary rounded outline-none bg-background text-foreground font-[inherit]";
 
-const titleContainerClassName =
-  "flex-1 relative flex items-center min-w-0";
+const titleContainerClassName = "flex-1 relative flex items-center min-w-0";
 
 const headerActionsClassName = "flex items-center gap-2";
 
@@ -142,8 +140,7 @@ const moreMenuDropdownClassName =
 const moreMenuItemClassName =
   "block w-full py-2 px-4 text-[13px] text-left border-none bg-transparent cursor-pointer text-foreground whitespace-nowrap hover:bg-muted";
 
-const workspaceContainerClassName =
-  "flex-1 relative overflow-hidden";
+const workspaceContainerClassName = "flex-1 relative overflow-hidden";
 
 const notFoundClassName =
   "flex flex-col items-center justify-center h-screen gap-4 text-muted-foreground";
@@ -156,10 +153,12 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
   if (!props.found) {
     return (
       <div className={notFoundClassName} data-testid="workspace-not-found">
-        <div className="text-lg font-semibold">
-          {pm.notebookNotFound}
-        </div>
-        <button type="button" className={backButtonClassName} onClick={props.onBack}>
+        <div className="text-lg font-semibold">{pm.notebookNotFound}</div>
+        <button
+          type="button"
+          className={backButtonClassName}
+          onClick={props.onBack}
+        >
           {pm.backToHub}
         </button>
       </div>
@@ -412,7 +411,10 @@ function WorkspacePageViewFound({
 
       {/* Quest version warning */}
       {questVersionWarning !== undefined ? (
-        <div className="py-1.5 px-4 text-[13px] font-medium bg-[var(--color-warning-bg,rgba(255,215,0,0.15))] text-[var(--color-warning,#b8860b)] border-b border-[var(--color-warning-border,rgba(255,215,0,0.4))] text-center shrink-0" data-testid="quest-version-warning">
+        <div
+          className="py-1.5 px-4 text-[13px] font-medium bg-[var(--color-warning-bg,rgba(255,215,0,0.15))] text-[var(--color-warning,#b8860b)] border-b border-[var(--color-warning-border,rgba(255,215,0,0.4))] text-center shrink-0"
+          data-testid="quest-version-warning"
+        >
           {questVersionWarning}
         </div>
       ) : null}

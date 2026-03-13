@@ -1036,7 +1036,9 @@ function CustomQuestItem({
               <button
                 data-testid={`custom-quest-share-url-btn-${item.quest.id satisfies string}`}
                 className={
-                  urlCopied ? sharePanelCopiedBtnClassName : sharePanelBtnClassName
+                  urlCopied
+                    ? sharePanelCopiedBtnClassName
+                    : sharePanelBtnClassName
                 }
                 onClick={handleShareUrl}
               >
@@ -1058,7 +1060,9 @@ function CustomQuestItem({
             className={deleteConfirmOverlayClassName}
             onClick={(e) => e.stopPropagation()}
           >
-            <span className={deleteConfirmTextClassName}>本当に削除しますか？</span>
+            <span className={deleteConfirmTextClassName}>
+              本当に削除しますか？
+            </span>
             <button
               data-testid={`custom-quest-delete-cancel-btn-${item.quest.id satisfies string}`}
               className={deleteCancelBtnClassName}
