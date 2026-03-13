@@ -71,6 +71,81 @@ const guideWhatIsFormalProof: ReferenceEntry = {
   order: 1,
 };
 
+const guideBasicOperations: ReferenceEntry = {
+  id: "guide-basic-operations",
+  category: "guide",
+  title: {
+    en: "Basic Operations of This Site",
+    ja: "このサイトの基本操作",
+  },
+  summary: {
+    en: "Learn how to use the workspace, add and edit nodes, and connect them to build proofs.",
+    ja: "ワークスペースの使い方、ノードの追加・編集・接続方法を学び、証明を構築する。",
+  },
+  body: {
+    en: [
+      "Welcome to the interactive proof construction workspace! This guide will walk you through the basic operations you need to know to start building formal proofs.",
+
+      "<b>1. Opening the Workspace</b>\nFrom the home page, click on any quest to open the proof workspace. You can also create a new empty workspace from the 'New Workspace' button. The workspace consists of a canvas where you'll build your proof tree, and panels for goals, axioms, and other tools.",
+
+      "<b>2. Understanding the Interface</b>\nThe workspace has several key components:\n• <b>Canvas:</b> The main area where you build your proof tree\n• <b>Goal Panel:</b> Shows what you need to prove (right side)\n• <b>Axiom Palette:</b> Available axioms and rules you can use (bottom)\n• <b>Context Menu:</b> Right-click on the canvas to add nodes",
+
+      "<b>3. Adding Nodes</b>\nTo add a formula node:\n1. Right-click on the empty canvas\n2. Select 'Add Formula Schema' from the context menu\n3. Type your formula using the formula editor\n4. Press Enter or click outside to confirm\n\nYou can use keyboard shortcuts like 'phi' for φ, 'psi' for ψ, and '->' for →.",
+
+      "<b>4. Connecting Nodes</b>\nTo apply an inference rule:\n1. Select one or more premise nodes (click to select, Ctrl/Cmd+click for multiple)\n2. Click on an inference rule from the axiom palette, or right-click and choose from the menu\n3. The conclusion will be automatically generated\n4. Connect nodes by dragging from the output port of one node to the input port of another",
+
+      "<b>5. Editing and Deleting</b>\n• <b>Edit a formula:</b> Double-click on a formula node to edit its content\n• <b>Delete nodes:</b> Select a node and press Delete, or right-click and choose 'Delete'\n• <b>Undo/Redo:</b> Use Ctrl/Cmd+Z to undo, Ctrl/Cmd+Shift+Z to redo",
+
+      "<b>6. Checking Your Proof</b>\nThe system automatically validates your proof:\n• <b>Green nodes:</b> Valid and correctly connected\n• <b>Red nodes:</b> Have errors that need fixing\n• <b>Yellow nodes:</b> Warnings or incomplete connections\n\nHover over any node to see detailed validation messages.",
+
+      "<b>7. Saving and Loading</b>\nYour work is automatically saved locally in your browser. You can:\n• Export your proof as JSON or image\n• Import previously saved proofs\n• Share your proof via a generated link",
+
+      "<b>8. Tips for Success</b>\n• Start with simple quests and gradually move to complex ones\n• Use the axiom palette to quickly find relevant rules\n• Organize your proof tree from top (premises) to bottom (conclusion)\n• Reference the documentation (?) for detailed explanations of axioms and rules\n• Try the keyboard shortcuts: press '?' to see the full list",
+
+      "Now you're ready to start building formal proofs! Begin with the first quest in the Propositional Logic section to practice these operations.",
+    ],
+    ja: [
+      "インタラクティブな証明構築ワークスペースへようこそ！このガイドでは、形式証明の構築を始めるために知っておくべき基本操作を説明します。",
+
+      "<b>1. ワークスペースを開く</b>\nホームページから任意のクエストをクリックして証明ワークスペースを開きます。「新規ワークスペース」ボタンから空のワークスペースを作成することもできます。ワークスペースは、証明ツリーを構築するキャンバスと、ゴール、公理、その他のツールのパネルで構成されています。",
+
+      "<b>2. インターフェースの理解</b>\nワークスペースには以下の主要コンポーネントがあります：\n• <b>キャンバス：</b>証明ツリーを構築するメインエリア\n• <b>ゴールパネル：</b>証明すべき内容を表示（右側）\n• <b>公理パレット：</b>使用できる公理と規則（下部）\n• <b>コンテキストメニュー：</b>キャンバス上で右クリックしてノードを追加",
+
+      "<b>3. ノードの追加</b>\n論理式ノードを追加するには：\n1. 空のキャンバス上で右クリック\n2. コンテキストメニューから「論理式スキーマを追加」を選択\n3. 論理式エディタで論理式を入力\n4. Enterキーを押すか、外側をクリックして確定\n\nキーボードショートカット：'phi'でφ、'psi'でψ、'->'で→が入力できます。",
+
+      "<b>4. ノードの接続</b>\n推論規則を適用するには：\n1. 前提となるノードを選択（クリックで選択、Ctrl/Cmd+クリックで複数選択）\n2. 公理パレットから推論規則をクリック、または右クリックメニューから選択\n3. 結論が自動的に生成される\n4. ノードの出力ポートから別のノードの入力ポートへドラッグして接続",
+
+      "<b>5. 編集と削除</b>\n• <b>論理式の編集：</b>論理式ノードをダブルクリックして内容を編集\n• <b>ノードの削除：</b>ノードを選択してDeleteキーを押す、または右クリックして「削除」を選択\n• <b>元に戻す/やり直す：</b>Ctrl/Cmd+Zで元に戻す、Ctrl/Cmd+Shift+Zでやり直す",
+
+      "<b>6. 証明のチェック</b>\nシステムは自動的に証明を検証します：\n• <b>緑色のノード：</b>有効で正しく接続されている\n• <b>赤色のノード：</b>修正が必要なエラーがある\n• <b>黄色のノード：</b>警告または不完全な接続\n\nノードにカーソルを合わせると詳細な検証メッセージが表示されます。",
+
+      "<b>7. 保存と読み込み</b>\n作業内容はブラウザにローカルで自動保存されます。以下が可能です：\n• 証明をJSONや画像としてエクスポート\n• 以前に保存した証明をインポート\n• 生成されたリンクで証明を共有",
+
+      "<b>8. 成功のためのヒント</b>\n• 簡単なクエストから始めて、徐々に複雑なものへ進む\n• 公理パレットを使って関連する規則を素早く見つける\n• 証明ツリーを上（前提）から下（結論）へ整理する\n• 公理と規則の詳細な説明はドキュメント（?）を参照\n• キーボードショートカットを試す：'?'で全リストを表示",
+
+      "これで形式証明の構築を始める準備ができました！命題論理セクションの最初のクエストから始めて、これらの操作を練習しましょう。",
+    ],
+  },
+  relatedEntryIds: ["guide-what-is-formal-proof", "axiom-a1", "rule-mp"],
+  relatedQuestIds: ["prop-01", "prop-02"],
+  externalLinks: [],
+  keywords: [
+    "workspace",
+    "canvas",
+    "node",
+    "connection",
+    "interface",
+    "basic operations",
+    "ワークスペース",
+    "キャンバス",
+    "ノード",
+    "接続",
+    "インターフェース",
+    "基本操作",
+  ],
+  order: 2,
+};
+
 // ============================================================
 // 公理 (Axioms)
 // ============================================================
@@ -4817,6 +4892,7 @@ const notationInputMethods: ReferenceEntry = {
 export const allReferenceEntries: readonly ReferenceEntry[] = [
   // Guides
   guideWhatIsFormalProof,
+  guideBasicOperations,
   // Axioms
   axiomA1,
   axiomA2,
