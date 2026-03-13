@@ -13542,3 +13542,15 @@
   - NotebookCountBadge と同じパターンで ReferenceDocBadge を実装。stopPropagation でクエスト開始を防止
   - QuestCatalogComponent の props threading: QuestCatalog → CategorySection → QuestItem → Badge の4層を通す
 ---
+
+## 2026-03-13 12:50 - proof-pad/script
+- スクリプトノードの導入を実装
+- ProofNodeKindに"script"タイプを追加
+- ScriptNodeDataクラスを実装（Schema.TaggedClassを使用）
+- スクリプトノードのテストを追加
+- workspaceにaddScriptNode関数を追加
+- **今後のイテレーションへの学び:**
+  - ProofNodeKindに新しい種別を追加する際は、getProofNodeStyle, getProofNodePorts, getProofEdgeColorなどの関数も更新が必要
+  - workspaceExport.tsのSchema.Literalも更新が必要
+  - Effect.tsのTaggedClassは()()の二重括弧で定義する
+---
