@@ -38,7 +38,7 @@ export function LanguageToggle({
 
   return (
     <div
-      className="inline-flex gap-0.5 p-0.5 rounded-lg bg-[var(--color-badge-bg,#e8eaf0)] border border-[var(--color-border,#e2e8f0)] transition-[background-color,border-color] duration-[var(--theme-transition-duration,0s)] ease-in-out"
+      className="inline-flex gap-0.5 rounded-lg border border-ui-border bg-muted p-0.5"
       role="radiogroup"
       aria-label="Language selection"
       data-testid="language-toggle"
@@ -53,11 +53,11 @@ export function LanguageToggle({
             aria-checked={isActive}
             aria-label={getLocaleAriaLabel(l)}
             className={cn(
-              "inline-flex items-center justify-center gap-1 px-2.5 py-1.5 border-none rounded-md bg-transparent text-[var(--color-text-secondary,#666666)] cursor-pointer text-[length:var(--font-size-sm)] leading-none font-medium transition-[background-color,color] duration-150",
-              "hover:bg-[var(--color-surface-hover,#f0f0f0)] hover:text-[var(--color-text-primary,#171717)]",
-              "focus-visible:outline-2 focus-visible:outline-[var(--color-accent,#555ab9)] focus-visible:outline-offset-[-2px]",
+              "inline-flex cursor-pointer items-center justify-center gap-1 rounded-md border-none px-2.5 py-1.5 text-sm leading-none font-medium transition-colors duration-150",
+              "text-muted-foreground hover:bg-ui-accent hover:text-foreground",
+              "focus-visible:outline-2 focus-visible:outline-ring focus-visible:-outline-offset-2",
               isActive &&
-                "bg-[var(--color-surface,#ffffff)] text-[var(--color-text-primary,#171717)] shadow-sm hover:bg-[var(--color-surface,#ffffff)]",
+                "bg-background text-foreground shadow-sm hover:bg-background",
             )}
             data-testid={`language-toggle-${l satisfies string}`}
             onClick={() => handleClick(l)}

@@ -151,38 +151,15 @@ const pageStyle: CSSProperties = {
   fontFamily: "var(--font-ui)",
 };
 
-const headerStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: "16px 24px",
-  borderBottom: "1px solid var(--color-border, #e0e0e0)",
-  background: "var(--color-surface, #fff)",
-};
+const headerClassName =
+  "flex items-center justify-between px-6 py-4 border-b border-ui-border bg-card";
 
-const titleStyle: CSSProperties = {
-  fontSize: 20,
-  fontWeight: 700,
-  letterSpacing: -0.5,
-};
+const titleClassName = "text-xl font-bold tracking-tight text-foreground";
 
-const headerActionsStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-};
+const headerActionsClassName = "flex items-center gap-2";
 
-const githubLinkStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 28,
-  height: 28,
-  borderRadius: 6,
-  color: "var(--color-text-secondary, #666)",
-  opacity: 0.6,
-  transition: "opacity 0.15s",
-};
+const githubLinkClassName =
+  "inline-flex items-center justify-center size-7 rounded-md text-muted-foreground opacity-60 transition-opacity duration-150 hover:opacity-100";
 
 const tabBarStyle: CSSProperties = {
   display: "flex",
@@ -559,9 +536,9 @@ export function HubPageView({
   return (
     <div style={pageStyle} data-testid="hub-page">
       {/* Header */}
-      <header style={headerStyle}>
-        <span style={titleStyle}>Formal Logic Pad</span>
-        <div style={headerActionsStyle}>
+      <header className={headerClassName}>
+        <span className={titleClassName}>Formal Logic Pad</span>
+        <div className={headerActionsClassName}>
           {languageToggle ? (
             <LanguageToggle
               locale={languageToggle.locale}
@@ -574,7 +551,7 @@ export function HubPageView({
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub"
-            style={githubLinkStyle}
+            className={githubLinkClassName}
             data-testid="github-link"
           >
             <svg

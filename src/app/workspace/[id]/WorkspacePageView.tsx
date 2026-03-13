@@ -125,15 +125,8 @@ const pageStyle: CSSProperties = {
   fontFamily: "var(--font-ui)",
 };
 
-const headerStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: "8px 16px",
-  borderBottom: "1px solid var(--color-border, #e0e0e0)",
-  background: "var(--color-surface, #fff)",
-  flexShrink: 0,
-};
+const headerClassName =
+  "flex items-center justify-between px-4 py-2 border-b border-ui-border bg-card shrink-0";
 
 const backButtonStyle: CSSProperties = {
   padding: "6px 14px",
@@ -193,23 +186,10 @@ const titleContainerStyle: CSSProperties = {
   minWidth: 0,
 };
 
-const headerActionsStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-};
+const headerActionsClassName = "flex items-center gap-2";
 
-const githubLinkStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 28,
-  height: 28,
-  borderRadius: 6,
-  color: "var(--color-text-secondary, #666)",
-  opacity: 0.6,
-  transition: "opacity 0.15s",
-};
+const githubLinkClassName =
+  "inline-flex items-center justify-center size-7 rounded-md text-muted-foreground opacity-60 transition-opacity duration-150 hover:opacity-100";
 
 const moreMenuButtonStyle: CSSProperties = {
   display: "inline-flex",
@@ -432,7 +412,7 @@ function WorkspacePageViewFound({
   return (
     <div style={pageStyle} data-testid="workspace-page">
       {/* Header */}
-      <header style={headerStyle}>
+      <header className={headerClassName}>
         <button type="button" style={backButtonStyle} onClick={onBack}>
           {pm.back}
         </button>
@@ -484,7 +464,7 @@ function WorkspacePageViewFound({
             </span>
           )}
         </div>
-        <div style={headerActionsStyle}>
+        <div className={headerActionsClassName}>
           {hasMoreMenuItems ? (
             <div style={{ position: "relative" }} ref={moreMenuRef}>
               <button
@@ -527,7 +507,7 @@ function WorkspacePageViewFound({
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub"
-            style={githubLinkStyle}
+            className={githubLinkClassName}
             data-testid="github-link"
           >
             <svg
