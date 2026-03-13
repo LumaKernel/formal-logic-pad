@@ -41,7 +41,6 @@ import {
 import type { ReferenceEntry, Locale } from "../lib/reference/referenceEntry";
 import { ReferenceBrowserComponent } from "../lib/reference/ReferenceBrowserComponent";
 import type { QuestReferenceMap } from "../lib/quest/questReferenceMappingLogic";
-import { Sigma } from "lucide-react";
 import { useHubMessages } from "./HubMessagesContext";
 
 // --- Types ---
@@ -272,7 +271,33 @@ export function HubPageView({
       {/* Header */}
       <header className={headerClassName}>
         <span className={brandClassName}>
-          <Sigma className={brandIconClassName} aria-hidden="true" />
+          <svg
+            className={brandIconClassName}
+            viewBox="0 0 32 32"
+            fill="none"
+            aria-hidden="true"
+          >
+            <rect
+              width="32"
+              height="32"
+              rx="7"
+              fill="currentColor"
+              opacity="0.12"
+            />
+            <path
+              d="M10 7L10 25"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+            <path
+              d="M10 16L23 16"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+            <circle cx="23" cy="16" r="1.5" fill="currentColor" opacity="0.5" />
+          </svg>
           Formal Logic Pad
         </span>
         <div className={headerActionsClassName}>
