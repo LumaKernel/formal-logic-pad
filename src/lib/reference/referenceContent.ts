@@ -159,7 +159,7 @@ const guideFirstQuestWalkthrough: ReferenceEntry = {
   },
   body: {
     en: [
-      "In this guide, we'll walk through the very first quest: proving <b>φ → φ</b> (the identity principle). This might seem obviously true — \"φ implies φ\" — but in a formal proof system, we cannot take anything for granted. We must derive it from axioms using only the allowed inference rules.",
+      'In this guide, we\'ll walk through the very first quest: proving <b>φ → φ</b> (the identity principle). This might seem obviously true — "φ implies φ" — but in a formal proof system, we cannot take anything for granted. We must derive it from axioms using only the allowed inference rules.',
 
       "<b>The Setup</b>\nOpen quest prop-01 from the quest catalog. You'll see a workspace with a goal: <b>φ → φ</b>. The Łukasiewicz axiom system gives you three axioms and one inference rule:\n• <b>A1 (K):</b> φ → (ψ → φ)\n• <b>A2 (S):</b> (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))\n• <b>A3:</b> (¬φ → ¬ψ) → (ψ → φ)\n• <b>MP (Modus Ponens):</b> From φ → ψ and φ, derive ψ",
 
