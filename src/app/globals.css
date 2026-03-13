@@ -1,3 +1,39 @@
+@import "tailwindcss";
+
+/* ============================================
+ * shadcn-ui Theme Variables (Tailwind v4)
+ *
+ * These CSS custom properties are referenced by shadcn-ui components
+ * via Tailwind utility classes like bg-primary, text-foreground, etc.
+ * Values are set in the [data-theme] selectors below.
+ * ============================================ */
+
+@theme inline {
+  --color-background: var(--ui-background);
+  --color-foreground: var(--ui-foreground);
+  --color-card: var(--ui-card);
+  --color-card-foreground: var(--ui-card-foreground);
+  --color-popover: var(--ui-popover);
+  --color-popover-foreground: var(--ui-popover-foreground);
+  --color-primary: var(--ui-primary);
+  --color-primary-foreground: var(--ui-primary-foreground);
+  --color-secondary: var(--ui-secondary);
+  --color-secondary-foreground: var(--ui-secondary-foreground);
+  --color-muted: var(--ui-muted);
+  --color-muted-foreground: var(--ui-muted-foreground);
+  --color-ui-accent: var(--ui-accent);
+  --color-ui-accent-foreground: var(--ui-accent-foreground);
+  --color-destructive: var(--ui-destructive);
+  --color-destructive-foreground: var(--ui-destructive-foreground);
+  --color-ui-border: var(--ui-border);
+  --color-input: var(--ui-input);
+  --color-ring: var(--ui-ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
 /* ============================================
  * Theme Tokens (CSS Variables)
  *
@@ -33,6 +69,28 @@
 
 :root,
 [data-theme="light"] {
+  /* shadcn-ui theme tokens (referenced by @theme via --ui-* prefix) */
+  --radius: 0.5rem;
+  --ui-background: #ffffff;
+  --ui-foreground: #171717;
+  --ui-card: #ffffff;
+  --ui-card-foreground: #171717;
+  --ui-popover: #ffffff;
+  --ui-popover-foreground: #171717;
+  --ui-primary: #171717;
+  --ui-primary-foreground: #fafafa;
+  --ui-secondary: #f5f5f5;
+  --ui-secondary-foreground: #171717;
+  --ui-muted: #f5f5f5;
+  --ui-muted-foreground: #737373;
+  --ui-accent: #f5f5f5;
+  --ui-accent-foreground: #171717;
+  --ui-destructive: #ef4444;
+  --ui-destructive-foreground: #fafafa;
+  --ui-border: #e5e5e5;
+  --ui-input: #e5e5e5;
+  --ui-ring: #171717;
+
   /* Background */
   --color-bg-primary: #ffffff;
   --color-bg-secondary: #fafafa;
@@ -219,6 +277,27 @@
 }
 
 [data-theme="dark"] {
+  /* shadcn-ui theme tokens (dark) */
+  --ui-background: #0a0a0a;
+  --ui-foreground: #fafafa;
+  --ui-card: #0a0a0a;
+  --ui-card-foreground: #fafafa;
+  --ui-popover: #0a0a0a;
+  --ui-popover-foreground: #fafafa;
+  --ui-primary: #fafafa;
+  --ui-primary-foreground: #171717;
+  --ui-secondary: #262626;
+  --ui-secondary-foreground: #fafafa;
+  --ui-muted: #262626;
+  --ui-muted-foreground: #a3a3a3;
+  --ui-accent: #262626;
+  --ui-accent-foreground: #fafafa;
+  --ui-destructive: #7f1d1d;
+  --ui-destructive-foreground: #fafafa;
+  --ui-border: #262626;
+  --ui-input: #262626;
+  --ui-ring: #d4d4d4;
+
   /* Background */
   --color-bg-primary: #0a0a0a;
   --color-bg-secondary: #111111;

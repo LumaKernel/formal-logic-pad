@@ -18,14 +18,21 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@tailwindcss/postcss": "^4.2.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "effect": "^3.19.19",
     "js-interpreter": "^6.0.1",
     "katex": "^0.16.33",
+    "lucide-react": "^0.577.0",
     "md-editor-rt": "^6.4.0",
     "next": "16.1.6",
     "next-intl": "^4.8.2",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss": "^4.2.1"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.0.1",
