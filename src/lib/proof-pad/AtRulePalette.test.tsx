@@ -224,9 +224,9 @@ describe("AtRulePalette", () => {
       />,
     );
     const selectedEl = screen.getByTestId("palette-rule-alpha-conj");
-    expect(selectedEl.style.fontWeight).toBe("600");
+    expect(selectedEl.className).toContain("font-semibold");
     const nonSelectedEl = screen.getByTestId("palette-rule-beta-disj");
-    expect(nonSelectedEl.style.fontWeight).not.toBe("600");
+    expect(nonSelectedEl.className).not.toContain("font-semibold");
   });
 
   it("onRuleClickなしでも規則はレンダリングされる", () => {

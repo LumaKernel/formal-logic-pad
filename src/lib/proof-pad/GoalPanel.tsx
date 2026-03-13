@@ -87,116 +87,49 @@ const headerStyle: CSSProperties = {
   alignItems: "center",
 };
 
-const progressStyle: CSSProperties = {
-  fontWeight: 400,
-  fontSize: 10,
-  color: "var(--color-text-secondary, #666)",
-};
+const progressClassName =
+  "font-normal text-[10px] text-[var(--color-text-secondary,#666)]";
 
-const itemStyle: CSSProperties = {
-  padding: "6px 12px",
-  display: "flex",
-  flexDirection: "column",
-  gap: 2,
-  borderBottom:
-    "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
-};
+const itemClassName =
+  "px-3 py-1.5 flex flex-col gap-0.5 border-b border-[var(--color-panel-rule-line,rgba(180,160,130,0.15))]";
 
-const itemClickableStyle: CSSProperties = {
-  ...itemStyle,
-  cursor: "pointer",
-};
+const itemClickableClassName = `${itemClassName satisfies string} cursor-pointer`;
 
-const itemLabelStyle: CSSProperties = {
-  fontWeight: 600,
-  fontSize: 12,
-  color: "var(--color-text-primary, #333)",
-  display: "flex",
-  alignItems: "center",
-  gap: 6,
-};
+const itemLabelClassName =
+  "font-semibold text-xs text-[var(--color-text-primary,#333)] flex items-center gap-1.5";
 
-const itemFormulaStyle: CSSProperties = {
-  fontFamily: "var(--font-formula)",
-  fontStyle: "italic",
-  fontSize: 11,
-  color: "var(--color-text-secondary, #666)",
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-};
+const itemFormulaClassName =
+  "font-[var(--font-formula)] italic text-[11px] text-[var(--color-text-secondary,#666)] whitespace-nowrap overflow-hidden text-ellipsis";
 
-const statusAchievedStyle: CSSProperties = {
-  color: "var(--color-proof-complete-text, #2d6a3f)",
-  fontWeight: 700,
-  fontSize: 10,
-};
+const statusAchievedClassName =
+  "text-[var(--color-proof-complete-text,#2d6a3f)] font-bold text-[10px]";
 
-const statusNotAchievedStyle: CSSProperties = {
-  color: "var(--color-text-secondary, #666)",
-  fontWeight: 400,
-  fontSize: 10,
-};
+const statusNotAchievedClassName =
+  "text-[var(--color-text-secondary,#666)] font-normal text-[10px]";
 
-const statusParseErrorStyle: CSSProperties = {
-  color: "var(--color-error, #c53030)",
-  fontWeight: 400,
-  fontSize: 10,
-};
+const statusParseErrorClassName =
+  "text-[var(--color-error,#c53030)] font-normal text-[10px]";
 
-const statusViolationStyle: CSSProperties = {
-  color: "var(--color-warning, #b7791f)",
-  fontWeight: 700,
-  fontSize: 10,
-};
+const statusViolationClassName =
+  "text-[var(--color-warning,#b7791f)] font-bold text-[10px]";
 
-const allowedAxiomsHeaderStyle: CSSProperties = {
-  fontSize: 10,
-  color: "var(--color-text-secondary, #999)",
-  fontStyle: "italic",
-  marginTop: 2,
-};
+const allowedAxiomsHeaderClassName =
+  "text-[10px] text-[var(--color-text-secondary,#999)] italic mt-0.5";
 
-const allowedAxiomItemStyle: CSSProperties = {
-  fontSize: 10,
-  color: "var(--color-text-secondary, #888)",
-  display: "flex",
-  alignItems: "center",
-  gap: 4,
-  paddingLeft: 8,
-};
+const allowedAxiomItemClassName =
+  "text-[10px] text-[var(--color-text-secondary,#888)] flex items-center gap-1 pl-2";
 
-const allowedAxiomNameStyle: CSSProperties = {
-  fontWeight: 600,
-  fontSize: 10,
-  color: "var(--color-text-secondary, #777)",
-  flexShrink: 0,
-};
+const allowedAxiomNameClassName =
+  "font-semibold text-[10px] text-[var(--color-text-secondary,#777)] shrink-0";
 
-const violatingAxiomSectionHeaderStyle: CSSProperties = {
-  fontWeight: 700,
-  fontSize: 10,
-  textTransform: "uppercase",
-  letterSpacing: 0.5,
-  color: "var(--color-warning, #b7791f)",
-  marginBottom: 4,
-};
+const violatingAxiomSectionHeaderClassName =
+  "font-bold text-[10px] uppercase tracking-[0.5px] text-[var(--color-warning,#b7791f)] mb-1";
 
-const violatingAxiomItemStyle: CSSProperties = {
-  fontSize: 10,
-  color: "var(--color-warning, #b7791f)",
-  display: "flex",
-  alignItems: "center",
-  gap: 4,
-  paddingLeft: 8,
-};
+const violatingAxiomItemClassName =
+  "text-[10px] text-[var(--color-warning,#b7791f)] flex items-center gap-1 pl-2";
 
-const violatingAxiomNameStyle: CSSProperties = {
-  fontWeight: 700,
-  fontSize: 10,
-  color: "var(--color-warning, #b7791f)",
-  flexShrink: 0,
-};
+const violatingAxiomNameClassName =
+  "font-bold text-[10px] text-[var(--color-warning,#b7791f)] shrink-0";
 
 const toggleButtonStyle: CSSProperties = {
   position: "absolute",
@@ -220,51 +153,23 @@ const toggleButtonStyle: CSSProperties = {
 
 // --- 詳細パネル用スタイル ---
 
-const detailSectionStyle: CSSProperties = {
-  padding: "8px 12px",
-  borderBottom:
-    "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
-};
+const detailSectionClassName =
+  "px-3 py-2 border-b border-[var(--color-panel-rule-line,rgba(180,160,130,0.15))]";
 
-const detailSectionHeaderStyle: CSSProperties = {
-  fontWeight: 700,
-  fontSize: 10,
-  textTransform: "uppercase",
-  letterSpacing: 0.5,
-  color: "var(--color-text-secondary, #888)",
-  marginBottom: 4,
-};
+const detailSectionHeaderClassName =
+  "font-bold text-[10px] uppercase tracking-[0.5px] text-[var(--color-text-secondary,#888)] mb-1";
 
-const detailTextStyle: CSSProperties = {
-  fontSize: 11,
-  color: "var(--color-text-primary, #333)",
-  lineHeight: 1.5,
-};
+const detailTextClassName =
+  "text-[11px] text-[var(--color-text-primary,#333)] leading-normal";
 
-const hintToggleStyle: CSSProperties = {
-  fontSize: 10,
-  color: "var(--color-link, #2563eb)",
-  cursor: "pointer",
-  padding: "2px 0",
-  fontWeight: 500,
-};
+const hintToggleClassName =
+  "text-[10px] text-[var(--color-link,#2563eb)] cursor-pointer py-0.5 font-medium";
 
-const hintTextStyle: CSSProperties = {
-  fontSize: 11,
-  color: "var(--color-text-primary, #333)",
-  lineHeight: 1.5,
-  paddingLeft: 8,
-  borderLeft:
-    "2px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.3))",
-  marginTop: 2,
-  marginBottom: 4,
-};
+const hintTextClassName =
+  "text-[11px] text-[var(--color-text-primary,#333)] leading-normal pl-2 border-l-2 border-[var(--color-panel-rule-line,rgba(180,160,130,0.3))] mt-0.5 mb-1";
 
-const expandIndicatorStyle: CSSProperties = {
-  fontSize: 10,
-  color: "var(--color-text-secondary, #999)",
-  marginLeft: "auto",
-};
+const expandIndicatorClassName =
+  "text-[10px] text-[var(--color-text-secondary,#999)] ml-auto";
 
 // --- コンポーネント ---
 
@@ -276,22 +181,22 @@ function GoalItemStatusBadge({
   readonly messages: ProofMessages;
 }) {
   if (status === "achieved") {
-    return <span style={statusAchievedStyle}>{messages.goalProved}</span>;
+    return <span className={statusAchievedClassName}>{messages.goalProved}</span>;
   }
   if (status === "not-achieved") {
-    return <span style={statusNotAchievedStyle}>{messages.goalNotYet}</span>;
+    return <span className={statusNotAchievedClassName}>{messages.goalNotYet}</span>;
   }
   if (status === "parse-error") {
     return (
-      <span style={statusParseErrorStyle}>{messages.goalInvalidFormula}</span>
+      <span className={statusParseErrorClassName}>{messages.goalInvalidFormula}</span>
     );
   }
   if (status === "achieved-but-axiom-violation") {
     return (
-      <span style={statusViolationStyle}>{messages.goalAxiomViolation}</span>
+      <span className={statusViolationClassName}>{messages.goalAxiomViolation}</span>
     );
   }
-  return <span style={statusViolationStyle}>{messages.goalRuleViolation}</span>;
+  return <span className={statusViolationClassName}>{messages.goalRuleViolation}</span>;
 }
 
 function HintItem({
@@ -327,14 +232,11 @@ function HintItem({
         }
       >
         <div
-          style={{
-            ...hintToggleStyle,
-            color: "var(--color-text-secondary, #888)",
-          }}
+          className={`${hintToggleClassName satisfies string} !text-[var(--color-text-secondary,#888)]`}
         >
           {label}
         </div>
-        <div style={hintTextStyle}>
+        <div className={hintTextClassName}>
           <InlineMarkdown text={hint} />
         </div>
       </div>
@@ -345,7 +247,7 @@ function HintItem({
     <div
       role="button"
       tabIndex={0}
-      style={hintToggleStyle}
+      className={hintToggleClassName}
       onClick={(e) => {
         e.stopPropagation();
         handleReveal();
@@ -402,19 +304,19 @@ function GoalDetailPanel({
       /* v8 ignore stop */
     >
       {/* 解説 */}
-      <div style={detailSectionStyle}>
-        <div style={detailSectionHeaderStyle}>
+      <div className={detailSectionClassName}>
+        <div className={detailSectionHeaderClassName}>
           {messages.goalDetailDescription}
         </div>
-        <div style={detailTextStyle}>
+        <div className={detailTextClassName}>
           <InlineMarkdown text={questInfo.description} />
         </div>
       </div>
 
       {/* ヒント */}
       {questInfo.hints.length > 0 && (
-        <div style={detailSectionStyle}>
-          <div style={detailSectionHeaderStyle}>{messages.goalDetailHints}</div>
+        <div className={detailSectionClassName}>
+          <div className={detailSectionHeaderClassName}>{messages.goalDetailHints}</div>
           {questInfo.hints.map((hint, i) => (
             <HintItem
               key={String(i)}
@@ -432,8 +334,8 @@ function GoalDetailPanel({
       {item.allowedAxiomDetails !== undefined &&
       item.allowedAxiomDetails.length > 0 ? (
         /* v8 ignore stop */
-        <div style={detailSectionStyle}>
-          <div style={detailSectionHeaderStyle}>
+        <div className={detailSectionClassName}>
+          <div className={detailSectionHeaderClassName}>
             {messages.goalPanelAllowedAxioms.replace(
               "{axiomIds}",
               item.allowedAxiomDetails.map((a) => a.id).join(", "),
@@ -446,8 +348,8 @@ function GoalDetailPanel({
                 ? findEntryById(referenceEntries, refEntryId)
                 : undefined;
             return (
-              <div key={axiom.id} style={allowedAxiomItemStyle}>
-                <span style={allowedAxiomNameStyle}>{axiom.displayName}:</span>
+              <div key={axiom.id} className={allowedAxiomItemClassName}>
+                <span className={allowedAxiomNameClassName}>{axiom.displayName}:</span>
                 <FormulaDisplay formula={axiom.formula} fontSize={10} />
                 {refEntry !== undefined && locale !== undefined && (
                   <span
@@ -477,8 +379,8 @@ function GoalDetailPanel({
       ) : /* v8 ignore start -- v8 ternary branch artifact */
       item.allowedAxiomIds !== undefined ? (
         /* v8 ignore stop */
-        <div style={detailSectionStyle}>
-          <div style={allowedAxiomsHeaderStyle}>
+        <div className={detailSectionClassName}>
+          <div className={allowedAxiomsHeaderClassName}>
             {formatMessage(messages.goalPanelAllowedAxioms, {
               axiomIds: item.allowedAxiomIds.join(", "),
             })}
@@ -490,7 +392,7 @@ function GoalDetailPanel({
       {item.violatingAxiomDetails !== undefined &&
       item.violatingAxiomDetails.length > 0 ? (
         <div
-          style={detailSectionStyle}
+          className={detailSectionClassName}
           data-testid={
             /* v8 ignore start -- testId always provided in tests */
             testId !== undefined
@@ -499,7 +401,7 @@ function GoalDetailPanel({
             /* v8 ignore stop */
           }
         >
-          <div style={violatingAxiomSectionHeaderStyle}>
+          <div className={violatingAxiomSectionHeaderClassName}>
             {messages.goalPanelViolatingAxioms.replace(
               "{axiomIds}",
               item.violatingAxiomDetails.map((a) => a.id).join(", "),
@@ -512,8 +414,8 @@ function GoalDetailPanel({
                 ? findEntryById(referenceEntries, refEntryId)
                 : undefined;
             return (
-              <div key={axiom.id} style={violatingAxiomItemStyle}>
-                <span style={violatingAxiomNameStyle}>
+              <div key={axiom.id} className={violatingAxiomItemClassName}>
+                <span className={violatingAxiomNameClassName}>
                   {axiom.displayName}:
                 </span>
                 <FormulaDisplay formula={axiom.formula} fontSize={10} />
@@ -547,11 +449,11 @@ function GoalDetailPanel({
       ) : null}
 
       {/* 学習ポイント */}
-      <div style={detailSectionStyle}>
-        <div style={detailSectionHeaderStyle}>
+      <div className={detailSectionClassName}>
+        <div className={detailSectionHeaderClassName}>
           {messages.goalDetailLearningPoint}
         </div>
-        <div style={detailTextStyle}>
+        <div className={detailTextClassName}>
           <InlineMarkdown text={questInfo.learningPoint} />
         </div>
       </div>
@@ -585,7 +487,7 @@ function GoalItem({
   const hasDetail = questInfo !== undefined;
   return (
     <div
-      style={hasDetail ? itemClickableStyle : itemStyle}
+      className={hasDetail ? itemClickableClassName : itemClassName}
       role={hasDetail ? "button" : undefined}
       tabIndex={hasDetail ? 0 : undefined}
       onClick={onToggleExpand}
@@ -609,14 +511,14 @@ function GoalItem({
         /* v8 ignore stop */
       }
     >
-      <div style={itemLabelStyle}>
+      <div className={itemLabelClassName}>
         <span>{item.label ?? `#${String(index + 1) satisfies string}`}</span>
         <GoalItemStatusBadge status={item.status} messages={messages} />
         {hasDetail && (
-          <span style={expandIndicatorStyle}>{expanded ? "▼" : "▶"}</span>
+          <span className={expandIndicatorClassName}>{expanded ? "▼" : "▶"}</span>
         )}
       </div>
-      <div style={itemFormulaStyle}>
+      <div className={itemFormulaClassName}>
         {item.formula !== undefined ? (
           <FormulaDisplay formula={item.formula} fontSize={11} />
         ) : (
@@ -631,15 +533,15 @@ function GoalItem({
           {item.allowedAxiomDetails !== undefined &&
           item.allowedAxiomDetails.length > 0 ? (
             <div>
-              <div style={allowedAxiomsHeaderStyle}>
+              <div className={allowedAxiomsHeaderClassName}>
                 {messages.goalPanelAllowedAxioms.replace(
                   "{axiomIds}",
                   item.allowedAxiomDetails.map((a) => a.id).join(", "),
                 )}
               </div>
               {item.allowedAxiomDetails.map((axiom) => (
-                <div key={axiom.id} style={allowedAxiomItemStyle}>
-                  <span style={allowedAxiomNameStyle}>
+                <div key={axiom.id} className={allowedAxiomItemClassName}>
+                  <span className={allowedAxiomNameClassName}>
                     {axiom.displayName}:
                   </span>
                   <FormulaDisplay formula={axiom.formula} fontSize={10} />
@@ -647,7 +549,7 @@ function GoalItem({
               ))}
             </div>
           ) : item.allowedAxiomIds !== undefined ? (
-            <div style={allowedAxiomsHeaderStyle}>
+            <div className={allowedAxiomsHeaderClassName}>
               {formatMessage(messages.goalPanelAllowedAxioms, {
                 axiomIds: item.allowedAxiomIds.join(", "),
               })}
@@ -657,15 +559,15 @@ function GoalItem({
           {item.violatingAxiomDetails !== undefined &&
           item.violatingAxiomDetails.length > 0 ? (
             <div>
-              <div style={violatingAxiomSectionHeaderStyle}>
+              <div className={violatingAxiomSectionHeaderClassName}>
                 {messages.goalPanelViolatingAxioms.replace(
                   "{axiomIds}",
                   item.violatingAxiomDetails.map((a) => a.id).join(", "),
                 )}
               </div>
               {item.violatingAxiomDetails.map((axiom) => (
-                <div key={axiom.id} style={violatingAxiomItemStyle}>
-                  <span style={violatingAxiomNameStyle}>
+                <div key={axiom.id} className={violatingAxiomItemClassName}>
+                  <span className={violatingAxiomNameClassName}>
                     {axiom.displayName}:
                   </span>
                   <FormulaDisplay formula={axiom.formula} fontSize={10} />
@@ -806,7 +708,7 @@ export function GoalPanel({
     >
       <div style={dragHeaderStyle} onPointerDown={onDragHandlePointerDown}>
         <span>{messages.goalPanelTitle}</span>
-        <span style={progressStyle}>
+        <span className={progressClassName}>
           {formatMessage(messages.goalPanelProgress, {
             achieved: String(data.achievedCount),
             total: String(data.totalCount),

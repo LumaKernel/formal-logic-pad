@@ -227,11 +227,11 @@ describe("TabRulePalette", () => {
       />,
     );
     const selectedEl = screen.getByTestId("palette-rule-conjunction");
-    // 選択時はfontWeight 600
-    expect(selectedEl.style.fontWeight).toBe("600");
-    // 非選択の要素はfontWeightが600ではない
+    // 選択時はfont-semiboldクラスが付く
+    expect(selectedEl.className).toContain("font-semibold");
+    // 非選択の要素はfont-semiboldクラスが付かない
     const nonSelectedEl = screen.getByTestId("palette-rule-disjunction");
-    expect(nonSelectedEl.style.fontWeight).not.toBe("600");
+    expect(nonSelectedEl.className).not.toContain("font-semibold");
   });
 
   it("onRuleClickなしでも規則はレンダリングされる", () => {

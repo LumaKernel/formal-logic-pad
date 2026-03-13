@@ -7,7 +7,7 @@
  * 変更時は CutEliminationStepper.test.tsx, ProofWorkspace.tsx, index.ts も同期すること。
  */
 
-import { type CSSProperties, useCallback } from "react";
+import { useCallback } from "react";
 import type { CutEliminationStepperData } from "./cutEliminationStepperLogic";
 import {
   applyStepperAction,
@@ -30,114 +30,41 @@ export interface CutEliminationStepperProps {
   readonly testId?: string;
 }
 
-// --- スタイル ---
+// --- スタイル (Tailwind className) ---
 
-const panelStyle: CSSProperties = {
-  position: "absolute",
-  bottom: 12,
-  left: 12,
-  zIndex: 10,
-  background: "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
-  borderRadius: 8,
-  border: "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.2))",
-  boxShadow: "0 2px 12px var(--color-panel-shadow, rgba(120, 100, 70, 0.1))",
-  padding: "8px 12px",
-  fontFamily: "var(--font-ui)",
-  fontSize: 12,
-  minWidth: 240,
-  maxWidth: 360,
-  pointerEvents: "auto" as const,
-};
+const panelClassName =
+  "absolute bottom-3 left-3 z-10 bg-[var(--color-panel-bg,rgba(252,249,243,0.96))] rounded-lg border border-[var(--color-panel-border,rgba(180,160,130,0.2))] shadow-[0_2px_12px_var(--color-panel-shadow,rgba(120,100,70,0.1))] px-3 py-2 font-[var(--font-ui)] text-xs min-w-60 max-w-[360px] pointer-events-auto";
 
-const headerStyle: CSSProperties = {
-  fontWeight: 700,
-  fontSize: 11,
-  textTransform: "uppercase",
-  letterSpacing: 1,
-  color: "var(--color-text-secondary, #666)",
-  marginBottom: 6,
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-};
+const headerClassName =
+  "font-bold text-[11px] uppercase tracking-[1px] text-[var(--color-text-secondary,#666)] mb-1.5 flex justify-between items-center";
 
-const controlsStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 4,
-  marginBottom: 6,
-};
+const controlsClassName = "flex items-center gap-1 mb-1.5";
 
-const buttonStyle: CSSProperties = {
-  padding: "2px 8px",
-  fontSize: 12,
-  borderRadius: 4,
-  border: "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.3))",
-  background: "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
-  cursor: "pointer",
-  color: "var(--color-text-primary, #333)",
-  fontFamily: "var(--font-ui)",
-};
+const buttonClassName =
+  "px-2 py-0.5 text-xs rounded border border-[var(--color-panel-border,rgba(180,160,130,0.3))] bg-[var(--color-panel-bg,rgba(252,249,243,0.96))] cursor-pointer text-[var(--color-text-primary,#333)] font-[var(--font-ui)]";
 
-const disabledButtonStyle: CSSProperties = {
-  ...buttonStyle,
-  opacity: 0.4,
-  cursor: "default",
-};
+const disabledButtonClassName = `${buttonClassName satisfies string} opacity-40 cursor-default`;
 
-const infoRowStyle: CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  fontSize: 11,
-  color: "var(--color-text-secondary, #666)",
-  marginBottom: 4,
-};
+const infoRowClassName =
+  "flex justify-between items-center text-[11px] text-[var(--color-text-secondary,#666)] mb-1";
 
-const descriptionStyle: CSSProperties = {
-  fontSize: 11,
-  color: "var(--color-text-primary, #333)",
-  padding: "4px 0",
-  borderTop:
-    "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-};
+const descriptionClassName =
+  "text-[11px] text-[var(--color-text-primary,#333)] py-1 border-t border-[var(--color-panel-rule-line,rgba(180,160,130,0.15))] whitespace-nowrap overflow-hidden text-ellipsis";
 
-const conclusionStyle: CSSProperties = {
-  fontSize: 11,
-  fontFamily: "var(--font-formula)",
-  fontStyle: "italic",
-  color: "var(--color-text-secondary, #666)",
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-};
+const conclusionClassName =
+  "text-[11px] font-[var(--font-formula)] italic text-[var(--color-text-secondary,#666)] whitespace-nowrap overflow-hidden text-ellipsis";
 
-const successStyle: CSSProperties = {
-  color: "var(--color-proof-complete-text, #2d6a3f)",
-  fontWeight: 700,
-  fontSize: 10,
-};
+const successClassName =
+  "text-[var(--color-proof-complete-text,#2d6a3f)] font-bold text-[10px]";
 
-const failureStyle: CSSProperties = {
-  color: "var(--color-error, #c53030)",
-  fontWeight: 700,
-  fontSize: 10,
-};
+const failureClassName =
+  "text-[var(--color-error,#c53030)] font-bold text-[10px]";
 
-const stepLimitStyle: CSSProperties = {
-  color: "var(--color-warning, #c57600)",
-  fontWeight: 700,
-  fontSize: 10,
-};
+const stepLimitClassName =
+  "text-[var(--color-warning,#c57600)] font-bold text-[10px]";
 
-const cutFreeStyle: CSSProperties = {
-  color: "var(--color-proof-complete-text, #2d6a3f)",
-  fontWeight: 600,
-  fontSize: 10,
-};
+const cutFreeClassName =
+  "text-[var(--color-proof-complete-text,#2d6a3f)] font-semibold text-[10px]";
 
 // --- コンポーネント ---
 
@@ -179,13 +106,15 @@ export function CutEliminationStepper({
   // カットフリーな証明の場合はコンパクト表示
   if (initialInfo.isCutFree) {
     return (
-      <div style={panelStyle} data-testid={testId}>
-        <div style={headerStyle}>
+      <div className={panelClassName} data-testid={testId}>
+        <div className={headerClassName}>
           <span>{messages.cutEliminationTitle}</span>
-          <span style={cutFreeStyle}>{messages.cutEliminationCutFree}</span>
+          <span className={cutFreeClassName}>
+            {messages.cutEliminationCutFree}
+          </span>
         </div>
-        <div style={conclusionStyle}>{initialInfo.conclusionText}</div>
-        <div style={{ ...infoRowStyle, marginBottom: 0 }}>
+        <div className={conclusionClassName}>{initialInfo.conclusionText}</div>
+        <div className={`${infoRowClassName satisfies string} mb-0`}>
           <span>{messages.cutEliminationNoCuts}</span>
         </div>
       </div>
@@ -218,22 +147,22 @@ export function CutEliminationStepper({
 
   return (
     <div
-      style={panelStyle}
+      className={panelClassName}
       data-testid={testId}
       onClick={(e) => {
         e.stopPropagation();
       }}
     >
-      <div style={headerStyle}>
+      <div className={headerClassName}>
         <span>{messages.cutEliminationTitle}</span>
         <span>{cutCountText}</span>
       </div>
 
       {/* コントロール */}
-      <div style={controlsStyle}>
+      <div className={controlsClassName}>
         <button
           type="button"
-          style={backward ? buttonStyle : disabledButtonStyle}
+          className={backward ? buttonClassName : disabledButtonClassName}
           disabled={!backward}
           onClick={handleFirst}
           data-testid={
@@ -246,7 +175,7 @@ export function CutEliminationStepper({
         </button>
         <button
           type="button"
-          style={backward ? buttonStyle : disabledButtonStyle}
+          className={backward ? buttonClassName : disabledButtonClassName}
           disabled={!backward}
           onClick={handlePrev}
           data-testid={
@@ -267,7 +196,7 @@ export function CutEliminationStepper({
         </span>
         <button
           type="button"
-          style={forward ? buttonStyle : disabledButtonStyle}
+          className={forward ? buttonClassName : disabledButtonClassName}
           disabled={!forward}
           onClick={handleNext}
           data-testid={
@@ -278,7 +207,7 @@ export function CutEliminationStepper({
         </button>
         <button
           type="button"
-          style={forward ? buttonStyle : disabledButtonStyle}
+          className={forward ? buttonClassName : disabledButtonClassName}
           disabled={!forward}
           onClick={handleLast}
           data-testid={
@@ -292,7 +221,7 @@ export function CutEliminationStepper({
       {/* ステップ情報 */}
       {currentStep !== undefined ? (
         <>
-          <div style={infoRowStyle}>
+          <div className={infoRowClassName}>
             <span>
               {formatMessage(messages.cutEliminationStepInfo, {
                 depth: String(currentStep.depth),
@@ -300,14 +229,14 @@ export function CutEliminationStepper({
               })}
             </span>
           </div>
-          <div style={descriptionStyle} title={currentStep.description}>
+          <div className={descriptionClassName} title={currentStep.description}>
             {currentStep.description}
           </div>
         </>
       ) : null}
 
       {/* 結論 */}
-      <div style={conclusionStyle}>
+      <div className={conclusionClassName}>
         {/* v8 ignore start -- 防御的コード: currentStepIndex >= 0 なら steps[i] は存在する */}
         {currentStepIndex === -1
           ? initialInfo.conclusionText
@@ -317,10 +246,12 @@ export function CutEliminationStepper({
 
       {/* 結果ステータス */}
       {isAtEnd ? (
-        <div style={{ ...infoRowStyle, marginBottom: 0, marginTop: 4 }}>
+        <div
+          className={`${infoRowClassName satisfies string} mb-0 mt-1`}
+        >
           {result._tag === "Success" ? (
             <span
-              style={successStyle}
+              className={successClassName}
               data-testid={
                 testId !== undefined
                   ? `${testId satisfies string}-result`
@@ -331,7 +262,7 @@ export function CutEliminationStepper({
             </span>
           ) : result._tag === "StepLimitExceeded" ? (
             <span
-              style={stepLimitStyle}
+              className={stepLimitClassName}
               data-testid={
                 testId !== undefined
                   ? `${testId satisfies string}-result`
@@ -350,7 +281,7 @@ export function CutEliminationStepper({
             </span>
           ) : (
             <span
-              style={failureStyle}
+              className={failureClassName}
               data-testid={
                 testId !== undefined
                   ? `${testId satisfies string}-result`
