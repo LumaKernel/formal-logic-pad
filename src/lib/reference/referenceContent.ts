@@ -371,6 +371,140 @@ const guideIntroToPropositionalLogic: ReferenceEntry = {
   order: 4,
 };
 
+const guideHilbertProofMethod: ReferenceEntry = {
+  id: "guide-hilbert-proof-method",
+  category: "guide",
+  title: {
+    en: "How to Construct Proofs in the Hilbert System",
+    ja: "Hilbert系における証明の組み立て方",
+  },
+  summary: {
+    en: "A practical guide to building formal proofs using only axioms and Modus Ponens in the Łukasiewicz system.",
+    ja: "Łukasiewicz体系において公理とModus Ponensのみで形式証明を組み立てる実践的方法論。",
+  },
+  body: {
+    en: [
+      '<b>The Challenge of Hilbert-Style Proofs</b>\nIn the Hilbert system, every proof step must be either an axiom instance or the result of applying Modus Ponens to two earlier steps. Unlike natural deduction, you cannot "assume" a hypothesis and discharge it later — every formula in the proof must be unconditionally derived. This constraint makes proofs rigorous but also makes them harder to discover. This guide presents strategies for overcoming that difficulty.',
+
+      '<b>The Building Blocks: Axioms and Modus Ponens</b>\nRecall the Łukasiewicz axiom schemas:\n• <b>A1 (K):</b> φ → (ψ → φ) — any true formula can be "weakened" by adding an antecedent\n• <b>A2 (S):</b> (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ)) — distributes implication over implication\n• <b>A3:</b> (¬φ → ¬ψ) → (ψ → φ) — contraposition: reversing a negated implication\n\nModus Ponens (MP) is the sole inference rule: from φ → ψ and φ, conclude ψ. The art of Hilbert proofs lies in choosing the right axiom instances and chaining them with MP.',
+
+      '<b>Strategy 1: Work Backward from the Goal</b>\nThe most effective strategy is <b>backward reasoning</b> (goal-directed search). Given a goal formula G, ask: "What MP application could produce G?" This means finding formulas A and A → G such that both are provable. Often, A → G can be an axiom instance, reducing the problem to proving A.\n\nFor example, to prove (φ → φ) → (φ → φ), observe that A1 gives φ₁ → (ψ₁ → φ₁). Setting φ₁ = (φ → φ) and ψ₁ to anything yields the goal directly as an axiom instance.',
+
+      '<b>Strategy 2: The Identity Proof as a Template</b>\nThe proof of φ → φ (identity) is the most fundamental Hilbert proof and illustrates a core technique:\n1. A2: (φ → ((ψ → φ) → φ)) → ((φ → (ψ → φ)) → (φ → φ))\n2. A1: φ → ((ψ → φ) → φ)\n3. MP(1,2): (φ → (ψ → φ)) → (φ → φ)\n4. A1: φ → (ψ → φ)\n5. MP(3,4): φ → φ\n\nThe key pattern: A2 "distributes" a nested implication, and A1 provides the premises. Most proofs of the form φ → ψ can be built by combining A2 distributions with A1 weakenings.',
+
+      "<b>Strategy 3: Leveraging the Deduction Theorem</b>\nThe <b>Deduction Theorem</b> states: if you can derive ψ from the assumption φ (i.e., {φ} ⊢ ψ), then ⊢ φ → ψ. While the Hilbert system does not allow assumptions directly, you can <b>plan</b> your proof as if it did, then mechanically translate the result.\n\nThe translation works by induction on the proof under the assumption:\n• If ψ is an axiom or is φ itself, the translation is straightforward (using A1 or the identity proof).\n• If ψ was obtained by MP from α and α → ψ, use A2 to combine (φ → α) and (φ → (α → ψ)) into (φ → ψ).\n\nThis is why A2 has its particular form — it is precisely the combinator needed for the Deduction Theorem translation.",
+
+      "<b>Strategy 4: Reusing Known Lemmas</b>\nOnce you have proved a result, you can treat it as a derived rule. Common lemmas that appear in many proofs:\n• <b>Identity:</b> φ → φ\n• <b>Hypothetical Syllogism (HS):</b> (φ → ψ) → ((ψ → χ) → (φ → χ)) — chaining implications\n• <b>Double Negation Introduction:</b> φ → ¬¬φ\n• <b>Double Negation Elimination:</b> ¬¬φ → φ (requires A3)\n• <b>Contraposition:</b> (φ → ψ) → (¬ψ → ¬φ)\n\nIn practice, many proofs become much shorter once these lemmas are available. The quests are arranged so that earlier results serve as building blocks for later ones.",
+
+      "<b>Strategy 5: Matching Axiom Schemas</b>\nA crucial skill is recognizing when a formula is an instance of an axiom schema. Given a target formula, try to <b>unify</b> it with each axiom schema by finding a substitution for the metavariables.\n\nFor example, given the target (p → q) → ((r → s) → (p → q)):\n• Compare with A1: φ → (ψ → φ)\n• Set φ = (p → q), ψ = (r → s)\n• It matches — this is an A1 instance.\n\nThis application supports automatic axiom identification: when you enter a formula, the system checks if it matches any axiom schema and annotates it accordingly.",
+
+      "<b>Common Pitfalls</b>\nBeginners in Hilbert proofs often encounter these issues:\n• <b>Forgetting the direction of MP:</b> MP requires exactly φ → ψ and φ to produce ψ. You cannot apply MP to ψ → φ and φ.\n• <b>Parenthesization errors:</b> The arrow → is right-associative, so φ → ψ → χ means φ → (ψ → χ), not (φ → ψ) → χ. Misreading this leads to incorrect axiom instantiations.\n• <b>Overcomplicating proofs:</b> If a formula is directly an axiom instance, there is no need to derive it. Always check axiom matching first.\n• <b>Ignoring A3:</b> Proofs involving negation almost always require A3 (contraposition). If your goal involves ¬, consider what contrapositive form might help.",
+
+      "<b>The Proof Search Process in Practice</b>\nHere is a systematic approach to finding a proof:\n1. <b>Check axiom match:</b> Is the goal directly an axiom instance? If yes, done.\n2. <b>Decompose with MP:</b> Write the goal as ψ. Search for a formula φ such that φ → ψ and φ are both easier to prove.\n3. <b>Apply the Deduction Theorem mentally:</b> If the goal is α → β, think about how to derive β assuming α, then translate.\n4. <b>Use known lemmas:</b> Can HS, contraposition, or other previously proved results shorten the proof?\n5. <b>Work from both ends:</b> Sometimes it helps to derive consequences of available axioms forward while also reasoning backward from the goal, looking for a meeting point.",
+
+      "<b>Practice and Progression</b>\nThe quests in this application are carefully sequenced to build proof skills progressively:\n• <b>prop-01 to prop-03:</b> Direct axiom usage and simple MP chains — learn to instantiate axiom schemas correctly.\n• <b>prop-04 to prop-07:</b> The identity proof, weakening, and transitivity — master the A1+A2 combination.\n• <b>prop-08 to prop-15:</b> Hypothetical syllogism and more complex chains — develop backward reasoning skills.\n• <b>prop-16 to prop-25:</b> Negation, contraposition, and double negation — learn to work with A3.\n• <b>prop-26 onwards:</b> Advanced theorems combining all techniques — synthesize everything learned.\n\nEach proof you complete adds to your toolkit. The Deduction Theorem and Hypothetical Syllogism, once internalized, make even complex proofs approachable.",
+    ],
+    ja: [
+      "<b>Hilbert系の証明の難しさ</b>\nHilbert系では、証明の各ステップは公理のインスタンスか、2つの先行ステップへのModus Ponensの適用結果でなければなりません。自然演繹とは異なり、仮定を「仮定」してあとで放出することはできません — 証明の各論理式は無条件に導出される必要があります。この制約により証明は厳密になりますが、発見が難しくなります。本ガイドでは、その難しさを克服するための戦略を紹介します。",
+
+      "<b>構成要素：公理とModus Ponens</b>\nŁukasiewicz公理スキーマを確認しましょう：\n• <b>A1（K）：</b> φ → (ψ → φ) — 真な論理式に前件を追加して「弱化」できる\n• <b>A2（S）：</b> (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ)) — 含意を含意の上に分配する\n• <b>A3：</b> (¬φ → ¬ψ) → (ψ → φ) — 対偶：否定された含意を反転する\n\nModus Ponens（MP）が唯一の推論規則です：φ → ψ と φ から ψ を導出します。Hilbert系の証明の技は、適切な公理インスタンスを選び、MPで連鎖させることにあります。",
+
+      "<b>戦略1：ゴールから逆向きに考える</b>\n最も効果的な戦略は<b>逆向き推論</b>（ゴール指向探索）です。ゴール論理式 G が与えられたとき、「どのMP適用が G を生み出せるか？」と考えます。つまり、A と A → G の両方が証明可能な論理式を見つけます。A → G が公理インスタンスであることも多く、その場合、問題は A の証明に帰着されます。\n\n例えば、(φ → φ) → (φ → φ) を証明するには、A1が φ₁ → (ψ₁ → φ₁) を与えることに注目します。φ₁ = (φ → φ)、ψ₁ を任意に設定すれば、ゴールが直接公理インスタンスとして得られます。",
+
+      "<b>戦略2：恒等証明をテンプレートとして使う</b>\nφ → φ（恒等律）の証明は、最も基本的なHilbert系の証明であり、核心的な技法を示しています：\n1. A2: (φ → ((ψ → φ) → φ)) → ((φ → (ψ → φ)) → (φ → φ))\n2. A1: φ → ((ψ → φ) → φ)\n3. MP(1,2): (φ → (ψ → φ)) → (φ → φ)\n4. A1: φ → (ψ → φ)\n5. MP(3,4): φ → φ\n\n重要なパターン：A2が入れ子の含意を「分配」し、A1が前提を提供します。φ → ψ の形の定理の多くは、A2の分配とA1の弱化の組み合わせで構築できます。",
+
+      "<b>戦略3：演繹定理を活用する</b>\n<b>演繹定理</b>は次のように述べます：仮定 φ から ψ を導出できる（すなわち {φ} ⊢ ψ）ならば、⊢ φ → ψ である。Hilbert系は直接的な仮定を許しませんが、仮定があるかのように証明を<b>計画</b>し、その結果を機械的に翻訳できます。\n\n翻訳は仮定のもとでの証明に対する帰納法で行います：\n• ψ が公理であるか φ 自身である場合、翻訳は直接的です（A1または恒等証明を使用）。\n• ψ が α と α → ψ からMPで得られた場合、A2を使って (φ → α) と (φ → (α → ψ)) を (φ → ψ) に合成します。\n\nA2がまさにこの特定の形を持つのは、演繹定理の翻訳に必要な結合子だからです。",
+
+      "<b>戦略4：既知の補題を再利用する</b>\n一度証明した結果は、導出規則として扱えます。多くの証明に登場する共通の補題：\n• <b>恒等律：</b> φ → φ\n• <b>仮言三段論法（HS）：</b> (φ → ψ) → ((ψ → χ) → (φ → χ)) — 含意の連鎖\n• <b>二重否定導入：</b> φ → ¬¬φ\n• <b>二重否定除去：</b> ¬¬φ → φ（A3が必要）\n• <b>対偶：</b> (φ → ψ) → (¬ψ → ¬φ)\n\n実際には、これらの補題が使えるようになると、多くの証明がはるかに短くなります。クエストは、先の結果が後の構成要素となるように配列されています。",
+
+      "<b>戦略5：公理スキーマのマッチング</b>\n重要なスキルは、論理式が公理スキーマのインスタンスであることを認識することです。対象の論理式に対して、メタ変数への代入を見つけて各公理スキーマとの<b>単一化</b>を試みます。\n\n例えば、対象が (p → q) → ((r → s) → (p → q)) の場合：\n• A1と比較：φ → (ψ → φ)\n• φ = (p → q)、ψ = (r → s) と設定\n• 一致 — これはA1のインスタンスです。\n\nこのアプリケーションは自動的な公理識別をサポートしています：論理式を入力すると、システムが公理スキーマと一致するかを確認し、それに応じて注釈を付けます。",
+
+      "<b>よくある落とし穴</b>\nHilbert系の証明の初心者は、以下の問題に遭遇しがちです：\n• <b>MPの方向を忘れる：</b> MPは正確に φ → ψ と φ から ψ を導出します。ψ → φ と φ にMPを適用することはできません。\n• <b>括弧の誤り：</b> 矢印 → は右結合なので、φ → ψ → χ は φ → (ψ → χ) であって (φ → ψ) → χ ではありません。この読み違いは誤った公理インスタンス化につながります。\n• <b>証明の過度な複雑化：</b> 論理式が直接公理インスタンスであれば、導出する必要はありません。常に公理マッチングを最初に確認しましょう。\n• <b>A3の無視：</b> 否定を含む証明はほぼ常にA3（対偶）を必要とします。ゴールに ¬ が含まれる場合、どのような対偶形が役立つか考えましょう。",
+
+      "<b>実践における証明探索プロセス</b>\n証明を見つけるための体系的なアプローチ：\n1. <b>公理マッチの確認：</b> ゴールは直接公理インスタンスか？もしそうなら完了。\n2. <b>MPで分解：</b> ゴールを ψ と書く。φ → ψ と φ の両方がより証明しやすい論理式 φ を探す。\n3. <b>演繹定理を頭の中で適用：</b> ゴールが α → β ならば、α を仮定して β を導出する方法を考え、翻訳する。\n4. <b>既知の補題を使う：</b> HS、対偶、その他の既証明結果で証明を短縮できないか？\n5. <b>両端から攻める：</b> 利用可能な公理から順方向に帰結を導きつつ、ゴールから逆方向にも推論し、合流点を探すと有効なことがあります。",
+
+      "<b>実践と段階的進歩</b>\nこのアプリケーションのクエストは、証明スキルを段階的に構築するよう注意深く配列されています：\n• <b>prop-01〜prop-03：</b> 直接的な公理使用と単純なMP連鎖 — 公理スキーマの正しいインスタンス化を学ぶ。\n• <b>prop-04〜prop-07：</b> 恒等証明、弱化、推移律 — A1+A2の組み合わせを習得する。\n• <b>prop-08〜prop-15：</b> 仮言三段論法とより複雑な連鎖 — 逆向き推論のスキルを磨く。\n• <b>prop-16〜prop-25：</b> 否定、対偶、二重否定 — A3の扱いを学ぶ。\n• <b>prop-26以降：</b> すべてのテクニックを組み合わせた上級定理 — 学んだことを統合する。\n\n完了した各証明がツールキットに加わります。演繹定理と仮言三段論法を内面化すれば、複雑な証明にも取り組めるようになります。",
+    ],
+  },
+  relatedEntryIds: [
+    "guide-intro-propositional-logic",
+    "axiom-a1",
+    "axiom-a2",
+    "axiom-a3",
+    "rule-mp",
+    "concept-deduction-theorem",
+    "concept-formula-schema",
+  ],
+  relatedQuestIds: [
+    "prop-01",
+    "prop-02",
+    "prop-03",
+    "prop-04",
+    "prop-05",
+    "prop-06",
+    "prop-07",
+    "prop-08",
+    "prop-09",
+    "prop-10",
+    "prop-11",
+    "prop-12",
+    "prop-13",
+    "prop-14",
+    "prop-15",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Hilbert_system",
+      label: {
+        en: "Hilbert System",
+        ja: "Hilbert系",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%83%92%E3%83%AB%E3%83%99%E3%83%AB%E3%83%88%E6%B5%81%E3%81%AE%E8%A8%BC%E6%98%8E%E8%AB%96",
+      label: {
+        en: "Hilbert-Style Proof Theory",
+        ja: "ヒルベルト流の証明論",
+      },
+      documentLanguage: "ja",
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/Hilbert+system",
+      label: {
+        en: "Hilbert System (nLab)",
+        ja: "Hilbert系（nLab）",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "Hilbert system",
+    "proof method",
+    "proof strategy",
+    "backward reasoning",
+    "Modus Ponens",
+    "deduction theorem",
+    "hypothetical syllogism",
+    "axiom instantiation",
+    "identity proof",
+    "contraposition",
+    "Hilbert系",
+    "証明方法",
+    "証明戦略",
+    "逆向き推論",
+    "演繹定理",
+    "仮言三段論法",
+    "公理インスタンス化",
+    "恒等証明",
+    "対偶",
+  ],
+  order: 5,
+};
+
 // ============================================================
 // 公理 (Axioms)
 // ============================================================
@@ -5220,6 +5354,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   guideBasicOperations,
   guideFirstQuestWalkthrough,
   guideIntroToPropositionalLogic,
+  guideHilbertProofMethod,
   // Axioms
   axiomA1,
   axiomA2,
