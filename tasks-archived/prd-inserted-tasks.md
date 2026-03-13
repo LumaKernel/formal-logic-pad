@@ -284,3 +284,10 @@ Infinity Canvasについて。
 - [x] 置換のところの論理式入力は、普通に、論理式ノードと同様の編集コンポーネントを利用して、クリックで編集、拡張編集やヘルプ、とできればよいが、なぜ統一れていない??
   - [x] 自作クエストでのゴール論理式一覧なども同様だ。共通化の単位を見直すべきだ。（調査済み: FormulaListEditorは既にFormulaEditorを使用している。統一完了。）
 - [x] ドキュメントの外部参照は何の言語で書かれたものか、という情報を構造としてすべて持つようにして。
+
+## Archived 2026-03-13
+
+- [x] コードがレンダーされていなさそう。バックティック？の囲みマークがそのまま出てきてしまっている。 http://localhost:13000/reference/guide-basic-operations など
+- [x] トップページのタブはハッシュではなく、ルートとして管理しよう — Next.js App Routerで /quests, /custom-quests, /collection, /reference ルートを作成
+- [x] ドキュメントの一行説明文、こちらにもマークダウンとtexを使えるようにして、\_LKとかじゃなくて、綺麗にレンダーされるようにしよう — InlineMarkdownに下付き文字(_XYZ→<sub>)パースを追加、ReferenceBrowserComponentのsummaryにInlineMarkdown適用
+- [x] (?) を押したときのポップアップが、ドキュメントウィンドウより下にくる。上に来てほしい — z-index 1000→1600に修正（FloatingWindow 1500より上、Modal 2000より下）
