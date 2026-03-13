@@ -1447,4 +1447,20 @@ describe("Markdownフォーマット禁止チェッカー", () => {
       }
     },
   );
+
+  // バックティック（`code`）はparseInlineMarkdownが解釈しないため、<code>タグを使うべき
+  const backtickCodeRegex = /`[^`]+`/;
+
+  it.each(allReferenceEntries.map((e) => [e.id, e]))(
+    "%s: バックティック記法が使用されていない（<code>タグを使用すべき）",
+    (_id, entry) => {
+      const e = entry as ReferenceEntry;
+      for (const { field, text } of collectTextFields(e)) {
+        expect(
+          backtickCodeRegex.test(text),
+          `${e.id satisfies string}.${field satisfies string} contains backtick code: "${text satisfies string}"`,
+        ).toBe(false);
+      }
+    },
+  );
 });
