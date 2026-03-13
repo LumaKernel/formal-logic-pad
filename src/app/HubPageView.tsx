@@ -41,6 +41,7 @@ import {
 import type { ReferenceEntry, Locale } from "../lib/reference/referenceEntry";
 import { ReferenceBrowserComponent } from "../lib/reference/ReferenceBrowserComponent";
 import type { QuestReferenceMap } from "../lib/quest/questReferenceMappingLogic";
+import { Sigma } from "lucide-react";
 import { useHubMessages } from "./HubMessagesContext";
 
 // --- Types ---
@@ -154,7 +155,10 @@ const pageStyle: CSSProperties = {
 const headerClassName =
   "flex items-center justify-between px-6 py-4 border-b border-ui-border bg-card";
 
-const titleClassName = "text-xl font-bold tracking-tight text-foreground";
+const brandClassName =
+  "inline-flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground select-none";
+
+const brandIconClassName = "size-5 text-primary";
 
 const headerActionsClassName = "flex items-center gap-2";
 
@@ -537,7 +541,10 @@ export function HubPageView({
     <div style={pageStyle} data-testid="hub-page">
       {/* Header */}
       <header className={headerClassName}>
-        <span className={titleClassName}>Formal Logic Pad</span>
+        <span className={brandClassName}>
+          <Sigma className={brandIconClassName} aria-hidden="true" />
+          Formal Logic Pad
+        </span>
         <div className={headerActionsClassName}>
           {languageToggle ? (
             <LanguageToggle
