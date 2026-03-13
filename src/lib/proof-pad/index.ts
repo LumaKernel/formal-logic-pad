@@ -39,6 +39,7 @@ export {
   extractLogicSystem,
   isNodeProtected,
   addNode,
+  addScriptNode,
   updateNodePosition,
   updateMultipleNodePositions,
   updateNodeFormulaText,
@@ -489,3 +490,11 @@ export type {
 } from "./panelPositionLogic";
 export { usePanelDrag } from "./usePanelDrag";
 export type { UsePanelDragConfig, UsePanelDragResult } from "./usePanelDrag";
+export {
+  ScriptNodeData,
+  ScriptNodeDataSchema,
+  createDefaultScriptNodeData,
+  getScriptNodeLabel,
+  getScriptCode,
+  setScriptCode,
+} from "./scriptNode";
