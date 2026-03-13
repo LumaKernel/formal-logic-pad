@@ -4705,6 +4705,114 @@ const conceptFormulaSchema: ReferenceEntry = {
   order: 24,
 };
 
+const conceptTautology: ReferenceEntry = {
+  id: "concept-tautology",
+  category: "concept",
+  title: {
+    en: "Tautology and Valid Formula",
+    ja: "トートロジーと恒真式",
+  },
+  summary: {
+    en: "A tautology is a propositional formula that evaluates to true under every truth-value assignment. Tautologies are the semantic counterpart of provable formulas in sound and complete proof systems.",
+    ja: "トートロジー（恒真式）とは、すべての真理値割当のもとで真となる命題論理の論理式である。健全かつ完全な証明体系において、恒真式は証明可能な論理式の意味論的対応物である。",
+  },
+  body: {
+    en: [
+      `<b>Definition.</b> A propositional formula φ is a <b>tautology</b> (also called a <b>valid formula</b> or <b>logically valid formula</b>) if φ evaluates to true under every possible truth-value assignment to its propositional variables. Formally, for every assignment v: {P₁, …, Pₙ} → {T, F}, we have ⟦φ⟧_v = T. Equivalently, the truth table of φ has T in every row of its output column. The notation ⊨ φ (read "φ is valid") expresses this property.`,
+
+      `<b>Examples.</b> The formula φ → φ is a tautology: regardless of whether φ is true or false, the implication φ → φ is always true. Similarly, φ ∨ ¬φ (the law of excluded middle) and ¬(φ ∧ ¬φ) (the law of non-contradiction) are tautologies. In contrast, φ → ψ is not a tautology because it is false when φ is true and ψ is false. A formula like φ ∧ ¬φ is a <b>contradiction</b> — false under every assignment — the dual notion of a tautology.`,
+
+      `<b>Truth table method.</b> For propositional logic, tautologyhood is <b>decidable</b>: given a formula with n distinct propositional variables, one can enumerate all 2ⁿ truth-value assignments and verify that the formula evaluates to true in each case. This brute-force method is conceptually simple but exponential in the number of variables. More efficient methods exist (e.g., BDDs, DPLL-based SAT solvers applied to ¬φ), but the truth table remains the standard introductory approach.`,
+
+      `<b>Tautological implication and equivalence.</b> A formula φ <b>tautologically implies</b> ψ (written φ ⊨ ψ) if every assignment making φ true also makes ψ true. Two formulas φ and ψ are <b>tautologically equivalent</b> (written φ ⊨⊨ ψ or φ ≡ ψ) if they have the same truth value under every assignment, i.e., φ ⊨ ψ and ψ ⊨ φ. Tautological equivalence preserves intersubstitutability in any context: replacing a subformula by a tautologically equivalent one yields a tautologically equivalent result.`,
+
+      `<b>Soundness and completeness.</b> The relationship between tautologies (semantic notion) and provable formulas (syntactic notion) is governed by two fundamental metatheorems. <b>Soundness</b>: if ⊢ φ (φ is provable in the proof system), then ⊨ φ (φ is a tautology). This ensures the proof system never proves a non-tautology. <b>Completeness</b> (Gödel, 1930 for first-order logic; straightforward for propositional logic): if ⊨ φ, then ⊢ φ. This ensures every tautology has a proof. For the Łukasiewicz system used in this application, both properties hold: the set of provable formulas coincides exactly with the set of tautologies.`,
+
+      `<b>Tautology in predicate logic.</b> The concept of tautology extends to predicate logic in two ways. (1) A <b>propositional tautology instance</b> is a first-order formula obtained from a propositional tautology by uniformly substituting first-order formulas for propositional variables — such a formula is valid in predicate logic as well. (2) A first-order formula is <b>valid</b> (⊨ φ) if it is true in every interpretation (every domain with every interpretation of predicates, functions, and constants). Unlike propositional tautologies, first-order validity is not decidable (Church's theorem, 1936) but is semi-decidable by completeness.`,
+    ],
+    ja: [
+      `<b>定義。</b> 命題論理の論理式 φ が<b>トートロジー</b>（<b>恒真式</b>、<b>論理的妥当式</b>とも呼ぶ）であるとは、命題変数へのすべての可能な真理値割当のもとで φ が真と評価されることです。形式的には、すべての割当 v: {P₁, …, Pₙ} → {T, F} について ⟦φ⟧_v = T です。同値的に、φ の真理値表の出力列がすべての行で T です。⊨ φ（「φ は妥当である」と読む）という記法でこの性質を表します。`,
+
+      `<b>例。</b> 論理式 φ → φ はトートロジーです: φ が真でも偽でも、含意 φ → φ は常に真です。同様に、φ ∨ ¬φ（排中律）や ¬(φ ∧ ¬φ)（矛盾律）もトートロジーです。一方、φ → ψ はトートロジーではありません。φ が真で ψ が偽のとき偽となるからです。φ ∧ ¬φ のような論理式は<b>矛盾</b> — すべての割当のもとで偽 — であり、トートロジーの双対概念です。`,
+
+      `<b>真理値表法。</b> 命題論理において、恒真性は<b>決定可能</b>です: n 個の異なる命題変数を持つ論理式に対し、2ⁿ 通りの真理値割当をすべて列挙し、各場合に論理式が真と評価されることを検証できます。この総当たり法は概念的に単純ですが、変数の数に対して指数的です。より効率的な方法（BDD、¬φ に対する DPLL ベースの SAT ソルバーなど）が存在しますが、真理値表は標準的な入門的アプローチのままです。`,
+
+      `<b>恒真含意と恒真同値。</b> 論理式 φ が ψ を<b>恒真含意</b>する（φ ⊨ ψ と書く）とは、φ を真にするすべての割当が ψ も真にすることです。2つの論理式 φ と ψ が<b>恒真同値</b>（φ ⊨⊨ ψ または φ ≡ ψ と書く）であるとは、すべての割当のもとで同じ真理値を持つこと、すなわち φ ⊨ ψ かつ ψ ⊨ φ です。恒真同値は任意の文脈での置換可能性を保存します: 部分式を恒真同値なものに置き換えると、恒真同値な結果が得られます。`,
+
+      `<b>健全性と完全性。</b> トートロジー（意味論的概念）と証明可能な論理式（構文論的概念）の関係は、2つの基本的なメタ定理によって支配されます。<b>健全性</b>: ⊢ φ（φ が証明体系で証明可能）ならば ⊨ φ（φ はトートロジー）。これは証明体系がトートロジーでないものを証明しないことを保証します。<b>完全性</b>（一階述語論理ではゲーデル, 1930年; 命題論理では直接的）: ⊨ φ ならば ⊢ φ。これはすべてのトートロジーが証明を持つことを保証します。本アプリケーションで使用するŁukasiewicz体系について、両方の性質が成立します: 証明可能な論理式の集合とトートロジーの集合は完全に一致します。`,
+
+      `<b>述語論理におけるトートロジー。</b> トートロジーの概念は述語論理に2つの方法で拡張されます。(1) <b>命題論理的トートロジーのインスタンス</b>は、命題論理のトートロジーの命題変数を一階論理式で一様に代入して得られる一階論理式で、述語論理でも妥当です。(2) 一階論理式が<b>妥当</b>（⊨ φ）であるとは、すべての解釈（述語・関数・定数のすべての解釈を持つすべての領域）で真であることです。命題論理のトートロジーとは異なり、一階論理の妥当性は決定可能ではなく（チャーチの定理, 1936年）、完全性により半決定可能にとどまります。`,
+    ],
+  },
+  formalNotation: `\\vDash \\varphi \\;\\overset{\\text{def}}{\\iff}\\; \\forall v\\!:\\!\\{P_1,\\ldots,P_n\\}\\to\\{\\top,\\bot\\},\\; \\llbracket\\varphi\\rrbracket_v = \\top`,
+  relatedEntryIds: [
+    "concept-soundness",
+    "concept-completeness",
+    "concept-semantic-validity",
+    "notation-connectives",
+    "system-lukasiewicz",
+    "concept-deduction-theorem",
+  ],
+  relatedQuestIds: [
+    "prop-01",
+    "prop-02",
+    "prop-03",
+    "prop-04",
+    "prop-05",
+    "prop-06",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Tautology_(logic)",
+      label: {
+        en: "Tautology (Wikipedia)",
+        ja: "トートロジー (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E6%81%92%E7%9C%9F%E5%BC%8F",
+      label: {
+        en: "Tautology (Wikipedia JA)",
+        ja: "恒真式 (Wikipedia)",
+      },
+      documentLanguage: "ja",
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/tautology",
+      label: {
+        en: "Tautology (nLab)",
+        ja: "トートロジー (nLab)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "tautology",
+    "トートロジー",
+    "valid formula",
+    "恒真式",
+    "truth table",
+    "真理値表",
+    "logically valid",
+    "論理的妥当",
+    "truth-value assignment",
+    "真理値割当",
+    "soundness",
+    "健全性",
+    "completeness",
+    "完全性",
+    "decidable",
+    "決定可能",
+    "contradiction",
+    "矛盾",
+  ],
+  order: 25,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -5448,6 +5556,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptAnalyticTableau,
   conceptSpeedUpTheorem,
   conceptFormulaSchema,
+  conceptTautology,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,

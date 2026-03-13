@@ -21,7 +21,7 @@ Hilbert系命題論理（Łukasiewicz体系ベース）の理解。
 - [x] `[guide]` 命題論理入門 — 真理値、論理結合子の直観的理解から公理体系へ（guide-intro-propositional-logic、10段落、prop-01〜10関連）
 - [x] `[guide]` Hilbert 系の証明の進め方 — 公理と推論規則のみで証明を構築する方法論（guide-hilbert-proof-method、10段落、prop-01〜15関連）
 - [x] `[ref]` 演繹定理 (deduction theorem) の証明と意義 — concept-deduction-theorem を拡充（基底ケース・帰納ステップ・恒等定理・構成的性質の詳細追加、関連クエスト設定）
-- [ ] `[ref]` トートロジーと恒真式 — 意味論的な妥当性の概念
+- [x] `[ref]` トートロジーと恒真式 — concept-tautology として追加。命題論理の恒真式に特化、真理値表法・恒真含意/同値・健全性完全性との関係・述語論理への拡張を解説
 
 ## 3. 述語論理
 
