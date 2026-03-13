@@ -13739,3 +13739,26 @@
   - ResizeObserverはJSDOMで利用不可、getBoundingClientRectの初回計測テストに注力
   - ドラッグの3層分離パターン: 純粋ロジック(panelPositionLogic) → フック(usePanelDrag) → UI(ProofWorkspace)が安定している
 ---
+
+## 2026-03-13 - [reference] 最初のクエスト（prop-01）解説ガイドを追加
+- ベースライン: 10143 tests passed (referenceContent: 889 tests)
+- **結果: 10155 tests passed (referenceContent: 901 tests, +12)** カバレッジ変化なし（データ追加のみ）
+- 実装内容:
+  - `guide-first-quest-walkthrough` リファレンスエントリを新規作成（order:3）
+  - 10段落の en/ja 対称コンテンツ: セットアップ→戦略→5ステップ解説→証明ツリー全体像→SKK=I解説
+  - 関連エントリ: guide-basic-operations, axiom-a1, axiom-a2, rule-mp, system-lukasiewicz
+  - 関連クエスト: prop-01
+  - 外部リンク: SKI Combinator Calculus (Wikipedia)
+  - allReferenceEntries: 63→64エントリ
+- 変更ファイル:
+  - src/lib/reference/referenceContent.ts（ガイドエントリ追加）
+  - src/lib/reference/referenceContent.test.ts（エントリ数更新 63→64）
+- スクリーンショット:
+  - .screenshots/reference-modal-default.png
+  - .screenshots/reference-viewer-with-new-guide.png
+  - .screenshots/hub-reference-tab-with-guide.png
+- **今後のイテレーションへの学び:**
+  - Storybook story IDはファイルパスから自動生成: `src/lib/reference/X.stories.tsx` → `lib-reference-x--story-name`（ハイフン区切り小文字）
+  - リファレンスエントリ追加はデータのみの変更。テスト数は段落数×2（en/ja一致チェック等）で自動増加
+  - ガイド系エントリの body は `<b>`, `<code>`, `\n•` でフォーマット。段落ごとに配列要素を分ける
+---
