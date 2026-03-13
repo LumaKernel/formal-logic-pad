@@ -13635,3 +13635,25 @@
   - cn()ユーティリティ（clsx + tailwind-merge）は条件付きクラス適用のパターンとして使用
   - ThemeToggleのテストはdata-testidとaria-checkedベースなので、CSS→Tailwind移行でテストコード変更不要
 ---
+
+## 2026-03-13 19:30 - ui
+- 実装した内容: 既存コンポーネント4件のCSS Modules→Tailwind CSS移行
+  - LanguageToggle: CSS Modules→cn()ユーティリティクラス、条件付きactive状態
+  - TruthTableComponent: バッジ・セル・テーマ遷移をTailwindに移行、v8 ignoreブロック不要化
+  - ScriptEditorComponent: 最大規模の移行（318行のCSS削除）、barBg/templateBtnCls等の再利用定数定義
+  - page.module.css: 未使用（page.tsxからインポートなし）のため削除
+  - Monaco Editorグローバルデコレーション（currentLineHighlight, currentLineGlyph）はglobals.cssに移動
+- 変更ファイル:
+  - src/components/LanguageToggle/LanguageToggle.tsx, .module.css削除
+  - src/lib/truth-table/TruthTableComponent.tsx, .module.css削除
+  - src/components/ScriptEditor/ScriptEditorComponent.tsx, .module.css削除
+  - src/app/globals.css (Monacoデコレーション追加、レガシー変数削除)
+  - src/app/page.module.css 削除
+- テスト: 10306件全通過、カバレッジ 99.53% (変動なし)
+- スクリーンショット: .screenshots/language-toggle-tailwind.png, .screenshots/truth-table-tailwind.png, .screenshots/script-editor-tailwind.png
+- **今後のイテレーションへの学び:**
+  - Monaco Editorのデコレーション（addDecorationsCollection）はCSS class名を文字列で参照するため、Tailwind化不可→globals.cssにグローバルクラスとして定義
+  - TruthTableのv8 ignoreブロックはCSS Modules undefined対策だったが、Tailwind文字列は常に定義済みなので不要に
+  - ScriptEditorのような大規模移行ではモジュールレベル定数（barBg, templateBtnClsなど）で再利用性を確保
+  - page.module.cssはどこからもインポートされていなかったデッドコード
+---
