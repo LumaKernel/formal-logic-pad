@@ -14028,3 +14028,15 @@
   - CSSProperties import は非ボタン domain styles に残る場合がある（QuestCatalogComponent等）
   - Storybook story URLのパスはstoryファイルのtitle階層に依存。sidebar clickで確実にナビゲーション可能
 ---
+
+## 2026-03-14 - [UI] 各種フォーム shadcn-ui変換
+- NotebookCreateFormComponent.tsx: 16 CSSProperties → Tailwind className変換（form, fieldGroup, label, input, error, systemCard, buttons, category details/summary）
+- CustomQuestListComponent.tsx: edit/create/importフォームの13 CSSProperties → Tailwind className変換（editFormOverlay, editForm, editFieldGroup, editLabel, editInput, editTextarea, editSelect, editError, editRow, editActions, importFormOverlay, importForm）
+- CSSPropertiesインポート: NotebookCreateFormComponentからは完全除去、CustomQuestListComponentはドメインスタイル（questItem等）で残存
+- テスト: 10466 tests passed (271 files)、ホバーテストはCSSProperties questItem系のため影響なし
+- ファイル: src/lib/notebook/NotebookCreateFormComponent.tsx, src/lib/quest/CustomQuestListComponent.tsx
+- **今後のイテレーションへの学び:**
+  - フォームスタイルはshadcn-uiトークン(bg-card, border-ui-border, text-foreground, text-muted-foreground等)で統一的に変換可能
+  - ESLint require-satisfies-in-tls: テンプレートリテラル内の三項演算子は全体を括弧で囲んで satisfies string が必要
+  - ドメイン固有CSS変数（--color-quest-*, --color-accent-light等）はTailwind arbitrary value `bg-[var(...)]` で対応
+---
