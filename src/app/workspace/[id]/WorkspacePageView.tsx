@@ -8,13 +8,7 @@
  * 変更時は WorkspaceContent.tsx, WorkspacePageView.stories.tsx も同期すること。
  */
 
-import {
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-  type CSSProperties,
-} from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { ProofWorkspace } from "../../../lib/proof-pad";
 import type { GoalAchievedInfo } from "../../../lib/proof-pad";
 import { ProofMessagesProvider } from "../../../lib/proof-pad";
@@ -114,152 +108,45 @@ export type WorkspacePageViewProps = {
     }
 );
 
-// --- Styles ---
+// --- Style class names ---
 
-const pageStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  height: "100vh",
-  background: "var(--color-bg-primary)",
-  color: "var(--color-text-primary)",
-  fontFamily: "var(--font-ui)",
-};
+const pageClassName =
+  "flex flex-col h-screen bg-background text-foreground";
 
 const headerClassName =
   "flex items-center justify-between px-4 py-2 border-b border-ui-border bg-card shrink-0";
 
-const backButtonStyle: CSSProperties = {
-  padding: "6px 14px",
-  fontSize: 13,
-  fontWeight: 600,
-  border: "1px solid var(--color-border, #e0e0e0)",
-  borderRadius: 6,
-  cursor: "pointer",
-  background: "transparent",
-  color: "var(--color-text-primary, #333)",
-  transition: "background 0.15s",
-};
+const backButtonClassName =
+  "py-1.5 px-3.5 text-[13px] font-semibold border border-ui-border rounded-md cursor-pointer bg-transparent text-foreground transition-colors hover:bg-muted";
 
-const notebookNameStyle: CSSProperties = {
-  fontSize: 16,
-  fontWeight: 600,
-  flex: 1,
-  textAlign: "center",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  whiteSpace: "nowrap",
-  padding: "0 12px",
-  cursor: "pointer",
-  borderRadius: 4,
-};
+const notebookNameClassName =
+  "text-base font-semibold flex-1 text-center overflow-hidden text-ellipsis whitespace-nowrap px-3 cursor-pointer rounded";
 
-const notebookNameEditStyle: CSSProperties = {
-  fontSize: 16,
-  fontWeight: 600,
-  flex: 1,
-  textAlign: "center",
-  padding: "2px 12px",
-  border: "1px solid var(--color-primary, #4a90d9)",
-  borderRadius: 4,
-  outline: "none",
-  background: "var(--color-bg-primary, #fff)",
-  color: "var(--color-text-primary, #333)",
-  fontFamily: "inherit",
-};
+const notebookNameEditClassName =
+  "text-base font-semibold flex-1 text-center py-0.5 px-3 border border-primary rounded outline-none bg-background text-foreground font-[inherit]";
 
-const titleErrorStyle: CSSProperties = {
-  position: "absolute",
-  top: "100%",
-  left: "50%",
-  transform: "translateX(-50%)",
-  fontSize: 11,
-  color: "var(--color-error, #dc3545)",
-  whiteSpace: "nowrap",
-  marginTop: 2,
-};
-
-const titleContainerStyle: CSSProperties = {
-  flex: 1,
-  position: "relative",
-  display: "flex",
-  alignItems: "center",
-  minWidth: 0,
-};
+const titleContainerClassName =
+  "flex-1 relative flex items-center min-w-0";
 
 const headerActionsClassName = "flex items-center gap-2";
 
 const githubLinkClassName =
   "inline-flex items-center justify-center size-7 rounded-md text-muted-foreground opacity-60 transition-opacity duration-150 hover:opacity-100";
 
-const moreMenuButtonStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 28,
-  height: 28,
-  borderRadius: 6,
-  border: "none",
-  background: "transparent",
-  cursor: "pointer",
-  color: "var(--color-text-secondary, #666)",
-  fontSize: 18,
-  lineHeight: 1,
-  padding: 0,
-};
+const moreMenuButtonClassName =
+  "inline-flex items-center justify-center size-7 rounded-md border-none bg-transparent cursor-pointer text-muted-foreground text-lg leading-none p-0 hover:bg-muted";
 
-const moreMenuDropdownStyle: CSSProperties = {
-  position: "absolute",
-  top: "100%",
-  right: 0,
-  marginTop: 4,
-  background: "var(--color-surface, #fff)",
-  border: "1px solid var(--color-border, #e0e0e0)",
-  borderRadius: 6,
-  boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-  zIndex: 100,
-  minWidth: 180,
-  padding: "4px 0",
-};
+const moreMenuDropdownClassName =
+  "absolute top-full right-0 mt-1 bg-card border border-ui-border rounded-md shadow-lg z-[100] min-w-[180px] py-1";
 
-const moreMenuItemStyle: CSSProperties = {
-  display: "block",
-  width: "100%",
-  padding: "8px 16px",
-  fontSize: 13,
-  textAlign: "left",
-  border: "none",
-  background: "transparent",
-  cursor: "pointer",
-  color: "var(--color-text-primary, #333)",
-  whiteSpace: "nowrap",
-};
+const moreMenuItemClassName =
+  "block w-full py-2 px-4 text-[13px] text-left border-none bg-transparent cursor-pointer text-foreground whitespace-nowrap hover:bg-muted";
 
-const workspaceContainerStyle: CSSProperties = {
-  flex: 1,
-  position: "relative",
-  overflow: "hidden",
-};
+const workspaceContainerClassName =
+  "flex-1 relative overflow-hidden";
 
-const versionWarningStyle: CSSProperties = {
-  padding: "6px 16px",
-  fontSize: 13,
-  fontWeight: 500,
-  background: "var(--color-warning-bg, rgba(255,215,0,0.15))",
-  color: "var(--color-warning, #b8860b)",
-  borderBottom: "1px solid var(--color-warning-border, rgba(255,215,0,0.4))",
-  textAlign: "center",
-  flexShrink: 0,
-};
-
-const notFoundStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  height: "100vh",
-  gap: 16,
-  color: "var(--color-text-secondary, #666)",
-};
+const notFoundClassName =
+  "flex flex-col items-center justify-center h-screen gap-4 text-muted-foreground";
 
 // --- Component ---
 
@@ -268,11 +155,11 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
 
   if (!props.found) {
     return (
-      <div style={notFoundStyle} data-testid="workspace-not-found">
-        <div style={{ fontSize: 18, fontWeight: 600 }}>
+      <div className={notFoundClassName} data-testid="workspace-not-found">
+        <div className="text-lg font-semibold">
           {pm.notebookNotFound}
         </div>
-        <button type="button" style={backButtonStyle} onClick={props.onBack}>
+        <button type="button" className={backButtonClassName} onClick={props.onBack}>
           {pm.backToHub}
         </button>
       </div>
@@ -410,13 +297,13 @@ function WorkspacePageViewFound({
   const hasMoreMenuItems = onDuplicateToFree !== undefined;
 
   return (
-    <div style={pageStyle} data-testid="workspace-page">
+    <div className={pageClassName} data-testid="workspace-page">
       {/* Header */}
       <header className={headerClassName}>
-        <button type="button" style={backButtonStyle} onClick={onBack}>
+        <button type="button" className={backButtonClassName} onClick={onBack}>
           {pm.back}
         </button>
-        <div style={titleContainerStyle}>
+        <div className={titleContainerClassName}>
           {isEditingTitle ? (
             <>
               <input
@@ -429,13 +316,13 @@ function WorkspacePageViewFound({
                 }}
                 onKeyDown={handleTitleKeyDown}
                 onBlur={handleTitleBlur}
-                style={notebookNameEditStyle}
+                className={notebookNameEditClassName}
                 placeholder={pm.titleEditPlaceholder}
                 data-testid="notebook-title-input"
               />
               {titleError !== null ? (
                 <span
-                  style={titleErrorStyle}
+                  className="absolute top-full left-1/2 -translate-x-1/2 text-[11px] text-destructive whitespace-nowrap mt-0.5"
                   data-testid="notebook-title-error"
                 >
                   {titleError}
@@ -444,7 +331,7 @@ function WorkspacePageViewFound({
             </>
           ) : (
             <span
-              style={notebookNameStyle}
+              className={notebookNameClassName}
               onClick={handleTitleClick}
               data-testid="notebook-title"
               role={onNotebookRename !== undefined ? "button" : undefined}
@@ -466,10 +353,10 @@ function WorkspacePageViewFound({
         </div>
         <div className={headerActionsClassName}>
           {hasMoreMenuItems ? (
-            <div style={{ position: "relative" }} ref={moreMenuRef}>
+            <div className="relative" ref={moreMenuRef}>
               <button
                 type="button"
-                style={moreMenuButtonStyle}
+                className={moreMenuButtonClassName}
                 onClick={handleMoreMenuToggle}
                 aria-label="More actions"
                 data-testid="workspace-more-menu-button"
@@ -478,13 +365,13 @@ function WorkspacePageViewFound({
               </button>
               {isMoreMenuOpen ? (
                 <div
-                  style={moreMenuDropdownStyle}
+                  className={moreMenuDropdownClassName}
                   data-testid="workspace-more-menu-dropdown"
                 >
                   {onDuplicateToFree !== undefined ? (
                     <button
                       type="button"
-                      style={moreMenuItemStyle}
+                      className={moreMenuItemClassName}
                       onClick={handleDuplicateToFree}
                       data-testid="workspace-more-menu-duplicate-free"
                     >
@@ -525,13 +412,13 @@ function WorkspacePageViewFound({
 
       {/* Quest version warning */}
       {questVersionWarning !== undefined ? (
-        <div style={versionWarningStyle} data-testid="quest-version-warning">
+        <div className="py-1.5 px-4 text-[13px] font-medium bg-[var(--color-warning-bg,rgba(255,215,0,0.15))] text-[var(--color-warning,#b8860b)] border-b border-[var(--color-warning-border,rgba(255,215,0,0.4))] text-center shrink-0" data-testid="quest-version-warning">
           {questVersionWarning}
         </div>
       ) : null}
 
       {/* Workspace */}
-      <div style={workspaceContainerStyle}>
+      <div className={workspaceContainerClassName}>
         <ProofMessagesProvider messages={messages}>
           <ProofWorkspace
             system={workspace.system}

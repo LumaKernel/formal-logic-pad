@@ -15,6 +15,8 @@ import {
   useCallback,
   type CSSProperties,
 } from "react";
+// NOTE: CSSProperties is still used for domain-specific quest styles with CSS variables.
+// Button/menu styles have been converted to Tailwind classes.
 import type { QuestCatalogItem, CategoryGroup } from "./questCatalog";
 import type { QuestId, DifficultyLevel } from "./questDefinition";
 import {
@@ -89,27 +91,11 @@ const filterLabelStyle: CSSProperties = {
   textTransform: "uppercase" as const,
 };
 
-const filterButtonStyle: CSSProperties = {
-  padding: "4px 10px",
-  fontSize: 11,
-  borderRadius: 10,
-  borderWidth: 1,
-  borderStyle: "solid",
-  borderColor: "var(--color-quest-filter-border)",
-  background: "var(--color-quest-filter-bg)",
-  color: "var(--color-text-primary, #333)",
-  cursor: "pointer",
-  transition: "all 0.15s",
-  fontWeight: 500,
-};
+const filterButtonClassName =
+  "py-1 px-2.5 text-[11px] rounded-full border border-[var(--color-quest-filter-border)] bg-[var(--color-quest-filter-bg)] text-foreground cursor-pointer transition-all font-medium";
 
-const filterButtonActiveStyle: CSSProperties = {
-  ...filterButtonStyle,
-  background: "var(--color-quest-filter-active-bg)",
-  color: "#fff",
-  borderColor: "var(--color-quest-filter-active-border)",
-  fontWeight: 600,
-};
+const filterButtonActiveClassName =
+  "py-1 px-2.5 text-[11px] rounded-full border border-[var(--color-quest-filter-active-border)] bg-[var(--color-quest-filter-active-bg)] text-white cursor-pointer transition-all font-semibold";
 
 const categoryContainerStyle: CSSProperties = {
   display: "flex",
@@ -264,79 +250,20 @@ const ratingBadgeBaseStyle: CSSProperties = {
   whiteSpace: "nowrap",
 };
 
-const notebookCountBadgeStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 3,
-  fontSize: 10,
-  fontWeight: 600,
-  padding: "2px 8px",
-  borderRadius: 10,
-  background: "var(--color-quest-notebook-badge-bg, #e8eaf6)",
-  color: "var(--color-quest-notebook-badge-text, #3949ab)",
-  cursor: "pointer",
-  whiteSpace: "nowrap",
-  transition: "background 0.15s",
-  border: "none",
-};
+const notebookCountBadgeClassName =
+  "inline-flex items-center gap-0.5 text-[10px] font-semibold py-0.5 px-2 rounded-full bg-[var(--color-quest-notebook-badge-bg,#e8eaf6)] text-[var(--color-quest-notebook-badge-text,#3949ab)] cursor-pointer whitespace-nowrap transition-colors border-none";
 
-const startButtonStyle: CSSProperties = {
-  padding: "5px 12px",
-  fontSize: 11,
-  fontWeight: 600,
-  borderRadius: 6,
-  border: "none",
-  background: "var(--color-quest-start-bg)",
-  color: "#fff",
-  cursor: "pointer",
-  flexShrink: 0,
-  transition: "background 0.15s",
-};
+const startButtonClassName =
+  "py-1.5 px-3 text-[11px] font-semibold rounded-md border-none bg-[var(--color-quest-start-bg)] text-white cursor-pointer shrink-0 transition-colors";
 
-const moreButtonStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 28,
-  height: 28,
-  borderRadius: "50%",
-  border: "none",
-  background: "transparent",
-  color: "var(--color-text-secondary, #666)",
-  cursor: "pointer",
-  flexShrink: 0,
-  fontSize: 16,
-  lineHeight: 1,
-  transition: "background 0.15s",
-};
+const moreButtonClassName =
+  "inline-flex items-center justify-center size-7 rounded-full border-none bg-transparent text-muted-foreground cursor-pointer shrink-0 text-base leading-none transition-colors hover:bg-muted";
 
-const moreMenuStyle: CSSProperties = {
-  position: "absolute",
-  right: 0,
-  top: "100%",
-  zIndex: 1000,
-  minWidth: 140,
-  background: "var(--color-quest-card-bg, #fff)",
-  border: "1px solid var(--color-quest-card-border, #e0e0e0)",
-  borderRadius: 6,
-  boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-  padding: "4px 0",
-};
+const moreMenuClassName =
+  "absolute right-0 top-full z-[1000] min-w-[140px] bg-card border border-ui-border rounded-md shadow-lg py-1";
 
-const moreMenuItemStyle: CSSProperties = {
-  display: "block",
-  width: "100%",
-  padding: "7px 14px",
-  fontSize: 12,
-  fontWeight: 500,
-  border: "none",
-  background: "transparent",
-  color: "var(--color-text-primary, #333)",
-  cursor: "pointer",
-  textAlign: "left",
-  transition: "background 0.12s",
-  whiteSpace: "nowrap",
-};
+const moreMenuItemClassName =
+  "block w-full py-1.5 px-3.5 text-xs font-medium border-none bg-transparent text-foreground cursor-pointer text-left transition-colors whitespace-nowrap hover:bg-muted";
 
 const emptyStyle: CSSProperties = {
   textAlign: "center",
@@ -433,7 +360,7 @@ function NotebookCountBadge({
   return (
     <button
       data-testid={`notebook-count-${questId satisfies string}`}
-      style={notebookCountBadgeStyle}
+      className={notebookCountBadgeClassName}
       onClick={(e) => {
         e.stopPropagation();
         onShow?.(questId);
@@ -445,21 +372,8 @@ function NotebookCountBadge({
   );
 }
 
-const referenceDocBadgeStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 3,
-  fontSize: 10,
-  fontWeight: 600,
-  padding: "2px 8px",
-  borderRadius: 10,
-  background: "var(--color-quest-reference-badge-bg, #e8f5e9)",
-  color: "var(--color-quest-reference-badge-text, #2e7d32)",
-  cursor: "pointer",
-  whiteSpace: "nowrap",
-  transition: "background 0.15s",
-  border: "none",
-};
+const referenceDocBadgeClassName =
+  "inline-flex items-center gap-0.5 text-[10px] font-semibold py-0.5 px-2 rounded-full bg-[var(--color-quest-reference-badge-bg,#e8f5e9)] text-[var(--color-quest-reference-badge-text,#2e7d32)] cursor-pointer whitespace-nowrap transition-colors border-none";
 
 function ReferenceDocBadge({
   count,
@@ -476,7 +390,7 @@ function ReferenceDocBadge({
   return (
     <button
       data-testid={`reference-doc-${questId satisfies string}`}
-      style={referenceDocBadgeStyle}
+      className={referenceDocBadgeClassName}
       onClick={(e) => {
         e.stopPropagation();
         onShow?.(questId);
@@ -529,12 +443,12 @@ function QuestItemMoreMenu({
   return (
     <div
       ref={menuRef}
-      style={{ position: "relative", flexShrink: 0 }}
+      className="relative shrink-0"
       data-testid={`quest-more-menu-${questId satisfies string}`}
     >
       <button
         data-testid={`quest-more-btn-${questId satisfies string}`}
-        style={moreButtonStyle}
+        className={moreButtonClassName}
         onClick={handleToggle}
         title="その他のアクション"
         aria-label="その他のアクション"
@@ -543,13 +457,13 @@ function QuestItemMoreMenu({
       </button>
       {open && (
         <div
-          style={moreMenuStyle}
+          className={moreMenuClassName}
           data-testid={`quest-more-dropdown-${questId satisfies string}`}
         >
           {onShowModelAnswer !== undefined && (
             <button
               data-testid={`show-model-answer-btn-${questId satisfies string}`}
-              style={moreMenuItemStyle}
+              className={moreMenuItemClassName}
               onClick={(e) => {
                 e.stopPropagation();
                 onShowModelAnswer(questId);
@@ -562,7 +476,7 @@ function QuestItemMoreMenu({
           {onDuplicateToCustom !== undefined && (
             <button
               data-testid={`duplicate-to-custom-btn-${questId satisfies string}`}
-              style={moreMenuItemStyle}
+              className={moreMenuItemClassName}
               onClick={(e) => {
                 e.stopPropagation();
                 onDuplicateToCustom(questId);
@@ -648,7 +562,7 @@ function QuestItem({
       />
       <button
         data-testid={`start-btn-${item.quest.id satisfies string}`}
-        style={startButtonStyle}
+        className={startButtonClassName}
         onClick={(e) => {
           e.stopPropagation();
           onStart(item.quest.id);
@@ -771,10 +685,10 @@ export function QuestCatalog({
           <button
             key={String(opt.value)}
             data-testid={`difficulty-filter-${String(opt.value) satisfies string}`}
-            style={
+            className={
               filter.difficulty === opt.value
-                ? filterButtonActiveStyle
-                : filterButtonStyle
+                ? filterButtonActiveClassName
+                : filterButtonClassName
             }
             onClick={() => handleDifficultyChange(opt.value)}
           >
@@ -786,10 +700,10 @@ export function QuestCatalog({
           <button
             key={opt.value}
             data-testid={`completion-filter-${opt.value satisfies string}`}
-            style={
+            className={
               filter.completion === opt.value
-                ? filterButtonActiveStyle
-                : filterButtonStyle
+                ? filterButtonActiveClassName
+                : filterButtonClassName
             }
             onClick={() => handleCompletionChange(opt.value)}
           >

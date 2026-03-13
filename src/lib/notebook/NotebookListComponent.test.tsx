@@ -377,7 +377,7 @@ describe("NotebookList", () => {
   });
 
   describe("ホバーインタラクション", () => {
-    it("カードのホバーで浮き上がりスタイルが適用される", () => {
+    it("カードにホバー用のTailwindクラスが適用されている", () => {
       render(
         <NotebookList
           items={[makeItem("nb-1", "テスト")]}
@@ -385,10 +385,9 @@ describe("NotebookList", () => {
         />,
       );
       const item = screen.getByTestId("notebook-item-nb-1");
-      fireEvent.mouseEnter(item);
-      expect(item.style.transform).toBe("translateY(-1px)");
-      fireEvent.mouseLeave(item);
-      expect(item.style.transform).toBe("");
+      // Tailwind hover:-translate-y-px クラスが適用されていること
+      expect(item.className).toContain("hover:-translate-y-px");
+      expect(item.className).toContain("hover:bg-muted");
     });
 
     it("三点メニューボタンのホバーでスタイルが切り替わる", () => {
