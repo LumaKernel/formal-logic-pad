@@ -8,7 +8,7 @@
  * 変更時は NotebookCreateFormComponent.test.tsx, NotebookCreateFormComponent.stories.tsx も同期すること。
  */
 
-import { useState, useRef, useCallback, type CSSProperties } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
   systemPresets,
   groupPresetsByCategory,
@@ -49,133 +49,48 @@ export type NotebookCreateFormProps = {
 
 // --- Styles ---
 
-const formStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 16,
-  padding: 24,
-  maxWidth: 480,
-  fontFamily: "var(--font-ui)",
-};
+const formClassName =
+  "flex flex-col gap-4 p-6 max-w-[480px] font-[var(--font-ui)]";
 
-const fieldGroupStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 4,
-};
+const fieldGroupClassName = "flex flex-col gap-1";
 
-const labelStyle: CSSProperties = {
-  fontSize: 13,
-  fontWeight: 600,
-  color: "var(--color-text-primary, #333)",
-};
+const labelClassName = "text-[13px] font-semibold text-foreground";
 
-const inputStyle: CSSProperties = {
-  fontSize: 15,
-  padding: "8px 12px",
-  border: "1px solid var(--color-border, #ccc)",
-  borderRadius: 6,
-  outline: "none",
-  background: "var(--color-surface, #fff)",
-  color: "var(--color-text-primary, #333)",
-};
+const inputClassName =
+  "text-[15px] py-2 px-3 border border-ui-border rounded-md outline-none bg-card text-foreground";
 
-const inputErrorStyle: CSSProperties = {
-  ...inputStyle,
-  border: "1px solid var(--color-error, #d32f2f)",
-};
+const inputErrorClassName =
+  "text-[15px] py-2 px-3 border border-destructive rounded-md outline-none bg-card text-foreground";
 
-const errorTextStyle: CSSProperties = {
-  fontSize: 12,
-  color: "var(--color-error, #d32f2f)",
-};
+const errorTextClassName = "text-xs text-destructive";
 
-const systemCardStyle: CSSProperties = {
-  padding: "10px 14px",
-  borderRadius: 8,
-  border: "2px solid var(--color-border, #e0e0e0)",
-  cursor: "pointer",
-  transition: "border-color 0.15s, background 0.15s",
-  background: "var(--color-surface, #fff)",
-};
+const systemCardClassName =
+  "py-2.5 px-3.5 rounded-lg border-2 border-ui-border cursor-pointer transition-[border-color,background] duration-150 bg-card";
 
-const systemCardSelectedStyle: CSSProperties = {
-  ...systemCardStyle,
-  border: "2px solid var(--color-accent, #555ab9)",
-  background: "var(--color-surface-selected, #ebf8ff)",
-};
+const systemCardSelectedClassName =
+  "py-2.5 px-3.5 rounded-lg border-2 border-primary cursor-pointer transition-[border-color,background] duration-150 bg-primary/5";
 
-const systemCardLabelStyle: CSSProperties = {
-  fontSize: 14,
-  fontWeight: 600,
-  color: "var(--color-text-primary, #333)",
-};
+const systemCardLabelClassName = "text-sm font-semibold text-foreground";
 
-const systemCardDescStyle: CSSProperties = {
-  fontSize: 12,
-  color: "var(--color-text-secondary, #666)",
-  marginTop: 2,
-};
+const systemCardDescClassName = "text-xs text-muted-foreground mt-0.5";
 
-const buttonRowStyle: CSSProperties = {
-  display: "flex",
-  gap: 8,
-  justifyContent: "flex-end",
-  marginTop: 8,
-};
+const buttonRowClassName = "flex gap-2 justify-end mt-2";
 
-const submitButtonStyle: CSSProperties = {
-  padding: "8px 20px",
-  fontSize: 14,
-  fontWeight: 600,
-  borderRadius: 6,
-  border: "none",
-  background: "var(--color-accent, #555ab9)",
-  color: "#fff",
-  cursor: "pointer",
-};
+const submitButtonClassName =
+  "py-2 px-5 text-sm font-semibold rounded-md border-none bg-primary text-primary-foreground cursor-pointer";
 
-const cancelButtonStyle: CSSProperties = {
-  padding: "8px 20px",
-  fontSize: 14,
-  borderRadius: 6,
-  border: "1px solid var(--color-border, #ccc)",
-  background: "var(--color-surface, #fff)",
-  color: "var(--color-text-primary, #333)",
-  cursor: "pointer",
-};
+const cancelButtonClassName =
+  "py-2 px-5 text-sm rounded-md border border-ui-border bg-card text-foreground cursor-pointer";
 
-const categoryDetailsStyle: CSSProperties = {
-  borderRadius: 8,
-  border: "1px solid var(--color-border, #e0e0e0)",
-  overflow: "hidden",
-};
+const categoryDetailsClassName =
+  "rounded-lg border border-ui-border overflow-hidden";
 
-const categorySummaryStyle: CSSProperties = {
-  padding: "8px 12px",
-  fontSize: 13,
-  fontWeight: 600,
-  cursor: "pointer",
-  background: "var(--color-surface-alt, #f8f8fa)",
-  color: "var(--color-text-primary, #333)",
-  listStyle: "none",
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-};
+const categorySummaryClassName =
+  "py-2 px-3 text-[13px] font-semibold cursor-pointer bg-muted text-foreground list-none flex items-center gap-2";
 
-const categoryDescStyle: CSSProperties = {
-  fontSize: 11,
-  fontWeight: 400,
-  color: "var(--color-text-secondary, #666)",
-};
+const categoryDescClassName = "text-[11px] font-normal text-muted-foreground";
 
-const categoryPresetsContainerStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 6,
-  padding: "8px 10px",
-};
+const categoryPresetsContainerClassName = "flex flex-col gap-1.5 py-2 px-2.5";
 
 /** プリセットをカテゴリごとにグルーピング（静的データなのでモジュールレベルで計算） */
 const presetGroups = groupPresetsByCategory(systemPresets);
@@ -210,7 +125,7 @@ function PresetCard({
   return (
     <div
       data-testid={`system-preset-${preset.id satisfies string}`}
-      style={selected ? systemCardSelectedStyle : systemCardStyle}
+      className={selected ? systemCardSelectedClassName : systemCardClassName}
       onClick={onSelect}
       role="radio"
       aria-checked={selected}
@@ -225,28 +140,14 @@ function PresetCard({
       }}
     >
       <div
-        style={{
-          ...systemCardLabelStyle,
-          display: "flex",
-          alignItems: "center",
-        }}
+        className={`${systemCardLabelClassName satisfies string} flex items-center`}
       >
         <span
-          style={{
-            fontSize: 10,
-            fontWeight: 500,
-            padding: "1px 6px",
-            borderRadius: 4,
-            background:
-              preset.deductionSystem.style === "hilbert"
-                ? "var(--color-accent-light, #e8e9f5)"
-                : "var(--color-warning-light, #fff3e0)",
-            color:
-              preset.deductionSystem.style === "hilbert"
-                ? "var(--color-accent, #555ab9)"
-                : "var(--color-warning, #e65100)",
-            marginRight: 6,
-          }}
+          className={`text-[10px] font-medium py-px px-1.5 rounded mr-1.5 ${
+            (preset.deductionSystem.style === "hilbert"
+              ? "bg-[var(--color-accent-light,#e8e9f5)] text-[var(--color-accent,#555ab9)]"
+              : "bg-[var(--color-warning-light,#fff3e0)] text-[var(--color-warning,#e65100)]") satisfies string
+          }`}
         >
           {getDeductionStyleLabel(preset.deductionSystem.style)}
         </span>
@@ -255,7 +156,7 @@ function PresetCard({
           <span
             role="presentation"
             onClick={(e) => e.stopPropagation()}
-            style={{ marginLeft: 4 }}
+            className="ml-1"
           >
             <ReferencePopover
               entry={refEntry}
@@ -272,7 +173,7 @@ function PresetCard({
           </span>
         )}
       </div>
-      <div style={systemCardDescStyle}>{preset.description}</div>
+      <div className={systemCardDescClassName}>{preset.description}</div>
     </div>
   );
 }
@@ -342,20 +243,22 @@ export function NotebookCreateForm({
 
   return (
     <form
-      style={formStyle}
+      className={formClassName}
       onSubmit={handleSubmit}
       data-testid="notebook-create-form"
     >
       {/* 名前入力 */}
-      <div style={fieldGroupStyle}>
-        <label style={labelStyle} htmlFor="notebook-name">
+      <div className={fieldGroupClassName}>
+        <label className={labelClassName} htmlFor="notebook-name">
           ノート名
         </label>
         <input
           ref={nameInputRef}
           id="notebook-name"
           data-testid="create-name-input"
-          style={nameError !== undefined ? inputErrorStyle : inputStyle}
+          className={
+            nameError !== undefined ? inputErrorClassName : inputClassName
+          }
           type="text"
           placeholder="新しいノート"
           value={values.name}
@@ -370,7 +273,7 @@ export function NotebookCreateForm({
         {nameError !== undefined && (
           <span
             id="create-name-error-msg"
-            style={errorTextStyle}
+            className={errorTextClassName}
             data-testid="create-name-error"
             role="alert"
           >
@@ -380,26 +283,23 @@ export function NotebookCreateForm({
       </div>
 
       {/* 体系選択 */}
-      <div style={fieldGroupStyle}>
-        <span style={labelStyle}>体系</span>
-        <div
-          style={{ display: "flex", flexDirection: "column", gap: 8 }}
-          data-testid="create-system-list"
-        >
+      <div className={fieldGroupClassName}>
+        <span className={labelClassName}>体系</span>
+        <div className="flex flex-col gap-2" data-testid="create-system-list">
           {presetGroups.map((group) => (
             <details
               key={group.category.id}
               open
-              style={categoryDetailsStyle}
+              className={categoryDetailsClassName}
               data-testid={`preset-category-${group.category.id satisfies string}`}
             >
-              <summary style={categorySummaryStyle}>
+              <summary className={categorySummaryClassName}>
                 <span>{group.category.label}</span>
-                <span style={categoryDescStyle}>
+                <span className={categoryDescClassName}>
                   {group.category.description}
                 </span>
               </summary>
-              <div style={categoryPresetsContainerStyle}>
+              <div className={categoryPresetsContainerClassName}>
                 {group.presets.map((preset) => (
                   <PresetCard
                     key={preset.id}
@@ -421,7 +321,7 @@ export function NotebookCreateForm({
         {/* v8 ignore start -- systemError表示: 通常のバリデーションフローでは到達しない */}
         {systemError !== undefined && (
           <span
-            style={errorTextStyle}
+            className={errorTextClassName}
             data-testid="create-system-error"
             role="alert"
           >
@@ -432,10 +332,10 @@ export function NotebookCreateForm({
       </div>
 
       {/* ボタン */}
-      <div style={buttonRowStyle}>
+      <div className={buttonRowClassName}>
         <button
           type="button"
-          style={cancelButtonStyle}
+          className={cancelButtonClassName}
           onClick={onCancel}
           data-testid="create-cancel-btn"
         >
@@ -443,7 +343,7 @@ export function NotebookCreateForm({
         </button>
         <button
           type="submit"
-          style={submitButtonStyle}
+          className={submitButtonClassName}
           data-testid="create-submit-btn"
         >
           作成

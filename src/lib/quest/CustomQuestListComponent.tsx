@@ -237,73 +237,32 @@ const emptyStyle: CSSProperties = {
 
 // --- Edit form styles ---
 
-const editFormOverlayStyle: CSSProperties = {
-  padding: "16px 14px",
-  background: "var(--color-surface, #fff)",
-  borderBottom: "1px solid var(--color-quest-card-border)",
-};
+const editFormOverlayClassName =
+  "py-4 px-3.5 bg-card border-b border-[var(--color-quest-card-border)]";
 
-const editFormStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 10,
-};
+const editFormClassName = "flex flex-col gap-2.5";
 
-const editFieldGroupStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 3,
-};
+const editFieldGroupClassName = "flex flex-col gap-0.5";
 
-const editLabelStyle: CSSProperties = {
-  fontSize: 11,
-  fontWeight: 600,
-  color: "var(--color-text-secondary, #666)",
-};
+const editLabelClassName = "text-[11px] font-semibold text-muted-foreground";
 
-const editInputStyle: CSSProperties = {
-  fontSize: 12,
-  padding: "6px 10px",
-  border: "1px solid var(--color-border, #ccc)",
-  borderRadius: 4,
-  outline: "none",
-  background: "var(--color-surface, #fff)",
-  color: "var(--color-text-primary, #333)",
-};
+const editInputClassName =
+  "text-xs py-1.5 px-2.5 border border-ui-border rounded outline-none bg-card text-foreground";
 
-const editInputErrorStyle: CSSProperties = {
-  ...editInputStyle,
-  border: "1px solid var(--color-error, #d32f2f)",
-};
+const editInputErrorClassName =
+  "text-xs py-1.5 px-2.5 border border-destructive rounded outline-none bg-card text-foreground";
 
-const editTextareaStyle: CSSProperties = {
-  ...editInputStyle,
-  resize: "vertical" as const,
-  minHeight: 60,
-  fontFamily: "inherit",
-};
+const editTextareaClassName =
+  "text-xs py-1.5 px-2.5 border border-ui-border rounded outline-none bg-card text-foreground resize-y min-h-[60px] font-[inherit]";
 
-const editSelectStyle: CSSProperties = {
-  ...editInputStyle,
-  cursor: "pointer",
-};
+const editSelectClassName =
+  "text-xs py-1.5 px-2.5 border border-ui-border rounded outline-none bg-card text-foreground cursor-pointer";
 
-const editErrorTextStyle: CSSProperties = {
-  fontSize: 10,
-  color: "var(--color-error, #d32f2f)",
-};
+const editErrorTextClassName = "text-[10px] text-destructive";
 
-const editRowStyle: CSSProperties = {
-  display: "flex",
-  gap: 8,
-};
+const editRowClassName = "flex gap-2";
 
-const editActionsStyle: CSSProperties = {
-  display: "flex",
-  gap: 6,
-  justifyContent: "flex-end",
-  marginTop: 4,
-};
+const editActionsClassName = "flex gap-1.5 justify-end mt-1";
 
 const editSaveButtonClassName =
   "py-1.5 px-3.5 text-[11px] font-semibold rounded border-none bg-[var(--color-quest-start-bg)] text-white cursor-pointer";
@@ -423,37 +382,42 @@ function CustomQuestEditForm({
 
   return (
     <div
-      style={editFormOverlayStyle}
+      className={editFormOverlayClassName}
       data-testid={`custom-quest-edit-form-${quest.id satisfies string}`}
       onClick={(e) => e.stopPropagation()}
     >
-      <form style={editFormStyle} onSubmit={handleSubmit}>
+      <form className={editFormClassName} onSubmit={handleSubmit}>
         {/* タイトル */}
-        <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>タイトル</label>
+        <div className={editFieldGroupClassName}>
+          <label className={editLabelClassName}>タイトル</label>
           <input
             ref={titleRef}
             data-testid="edit-title-input"
-            style={
-              titleError !== undefined ? editInputErrorStyle : editInputStyle
+            className={
+              titleError !== undefined
+                ? editInputErrorClassName
+                : editInputClassName
             }
             value={values.title}
             onChange={(e) => setValues({ ...values, title: e.target.value })}
             onBlur={() => setTitleTouched(true)}
           />
           {titleError !== undefined && (
-            <span style={editErrorTextStyle} data-testid="edit-title-error">
+            <span
+              className={editErrorTextClassName}
+              data-testid="edit-title-error"
+            >
               {titleError}
             </span>
           )}
         </div>
 
         {/* 説明 */}
-        <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>説明</label>
+        <div className={editFieldGroupClassName}>
+          <label className={editLabelClassName}>説明</label>
           <textarea
             data-testid="edit-description-input"
-            style={editTextareaStyle}
+            className={editTextareaClassName}
             value={values.description}
             onChange={(e) =>
               setValues({ ...values, description: e.target.value })
@@ -463,11 +427,11 @@ function CustomQuestEditForm({
         </div>
 
         {/* 難易度 */}
-        <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>難易度</label>
+        <div className={editFieldGroupClassName}>
+          <label className={editLabelClassName}>難易度</label>
           <select
             data-testid="edit-difficulty-select"
-            style={editSelectStyle}
+            className={editSelectClassName}
             value={values.difficulty}
             onChange={(e) =>
               setValues({
@@ -485,11 +449,11 @@ function CustomQuestEditForm({
         </div>
 
         {/* 体系 */}
-        <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>体系</label>
+        <div className={editFieldGroupClassName}>
+          <label className={editLabelClassName}>体系</label>
           <select
             data-testid="edit-system-select"
-            style={editSelectStyle}
+            className={editSelectClassName}
             value={values.systemPresetId}
             onChange={(e) =>
               setValues({
@@ -507,8 +471,8 @@ function CustomQuestEditForm({
         </div>
 
         {/* ゴール式 */}
-        <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>ゴール式</label>
+        <div className={editFieldGroupClassName}>
+          <label className={editLabelClassName}>ゴール式</label>
           <FormulaListEditor
             formulas={values.goalFormulas}
             onChange={(goalFormulas) => setValues({ ...values, goalFormulas })}
@@ -518,11 +482,11 @@ function CustomQuestEditForm({
         </div>
 
         {/* ヒント */}
-        <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>ヒント（1行に1つ、任意）</label>
+        <div className={editFieldGroupClassName}>
+          <label className={editLabelClassName}>ヒント（1行に1つ、任意）</label>
           <textarea
             data-testid="edit-hints-input"
-            style={editTextareaStyle}
+            className={editTextareaClassName}
             value={values.hints}
             onChange={(e) => setValues({ ...values, hints: e.target.value })}
             rows={2}
@@ -530,14 +494,18 @@ function CustomQuestEditForm({
         </div>
 
         {/* 推定ステップ数・学習ポイント */}
-        <div style={editRowStyle}>
-          <div style={{ ...editFieldGroupStyle, flex: 0, minWidth: 120 }}>
-            <label style={editLabelStyle}>推定ステップ数（任意）</label>
+        <div className={editRowClassName}>
+          <div
+            className={`${editFieldGroupClassName satisfies string} flex-none min-w-[120px]`}
+          >
+            <label className={editLabelClassName}>推定ステップ数（任意）</label>
             <input
               ref={stepsRef}
               data-testid="edit-steps-input"
-              style={
-                stepsError !== undefined ? editInputErrorStyle : editInputStyle
+              className={
+                stepsError !== undefined
+                  ? editInputErrorClassName
+                  : editInputClassName
               }
               type="number"
               min="1"
@@ -549,16 +517,19 @@ function CustomQuestEditForm({
               onBlur={() => setStepsTouched(true)}
             />
             {stepsError !== undefined && (
-              <span style={editErrorTextStyle} data-testid="edit-steps-error">
+              <span
+                className={editErrorTextClassName}
+                data-testid="edit-steps-error"
+              >
                 {stepsError}
               </span>
             )}
           </div>
-          <div style={{ ...editFieldGroupStyle, flex: 1 }}>
-            <label style={editLabelStyle}>学習ポイント</label>
+          <div className={`${editFieldGroupClassName satisfies string} flex-1`}>
+            <label className={editLabelClassName}>学習ポイント</label>
             <input
               data-testid="edit-learning-point-input"
-              style={editInputStyle}
+              className={editInputClassName}
               value={values.learningPoint}
               onChange={(e) =>
                 setValues({ ...values, learningPoint: e.target.value })
@@ -568,7 +539,7 @@ function CustomQuestEditForm({
         </div>
 
         {/* ボタン */}
-        <div style={editActionsStyle}>
+        <div className={editActionsClassName}>
           <button
             type="button"
             data-testid="edit-cancel-btn"
@@ -660,37 +631,42 @@ function CustomQuestCreateForm({
 
   return (
     <div
-      style={editFormOverlayStyle}
+      className={editFormOverlayClassName}
       data-testid="custom-quest-create-form"
       onClick={(e) => e.stopPropagation()}
     >
-      <form style={editFormStyle} onSubmit={handleSubmit}>
+      <form className={editFormClassName} onSubmit={handleSubmit}>
         {/* タイトル */}
-        <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>タイトル</label>
+        <div className={editFieldGroupClassName}>
+          <label className={editLabelClassName}>タイトル</label>
           <input
             ref={titleRef}
             data-testid="create-title-input"
-            style={
-              titleError !== undefined ? editInputErrorStyle : editInputStyle
+            className={
+              titleError !== undefined
+                ? editInputErrorClassName
+                : editInputClassName
             }
             value={values.title}
             onChange={(e) => setValues({ ...values, title: e.target.value })}
             onBlur={() => setTitleTouched(true)}
           />
           {titleError !== undefined && (
-            <span style={editErrorTextStyle} data-testid="create-title-error">
+            <span
+              className={editErrorTextClassName}
+              data-testid="create-title-error"
+            >
               {titleError}
             </span>
           )}
         </div>
 
         {/* 説明 */}
-        <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>説明</label>
+        <div className={editFieldGroupClassName}>
+          <label className={editLabelClassName}>説明</label>
           <textarea
             data-testid="create-description-input"
-            style={editTextareaStyle}
+            className={editTextareaClassName}
             value={values.description}
             onChange={(e) =>
               setValues({ ...values, description: e.target.value })
@@ -700,11 +676,11 @@ function CustomQuestCreateForm({
         </div>
 
         {/* 難易度 */}
-        <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>難易度</label>
+        <div className={editFieldGroupClassName}>
+          <label className={editLabelClassName}>難易度</label>
           <select
             data-testid="create-difficulty-select"
-            style={editSelectStyle}
+            className={editSelectClassName}
             value={values.difficulty}
             onChange={(e) =>
               setValues({
@@ -722,11 +698,11 @@ function CustomQuestCreateForm({
         </div>
 
         {/* 体系 */}
-        <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>体系</label>
+        <div className={editFieldGroupClassName}>
+          <label className={editLabelClassName}>体系</label>
           <select
             data-testid="create-system-select"
-            style={editSelectStyle}
+            className={editSelectClassName}
             value={values.systemPresetId}
             onChange={(e) =>
               setValues({
@@ -744,8 +720,8 @@ function CustomQuestCreateForm({
         </div>
 
         {/* ゴール式 */}
-        <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>ゴール式</label>
+        <div className={editFieldGroupClassName}>
+          <label className={editLabelClassName}>ゴール式</label>
           <FormulaListEditor
             formulas={values.goalFormulas}
             onChange={(goalFormulas) => setValues({ ...values, goalFormulas })}
@@ -755,11 +731,11 @@ function CustomQuestCreateForm({
         </div>
 
         {/* ヒント */}
-        <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>ヒント（1行に1つ、任意）</label>
+        <div className={editFieldGroupClassName}>
+          <label className={editLabelClassName}>ヒント（1行に1つ、任意）</label>
           <textarea
             data-testid="create-hints-input"
-            style={editTextareaStyle}
+            className={editTextareaClassName}
             value={values.hints}
             onChange={(e) => setValues({ ...values, hints: e.target.value })}
             rows={2}
@@ -767,14 +743,18 @@ function CustomQuestCreateForm({
         </div>
 
         {/* 推定ステップ数・学習ポイント */}
-        <div style={editRowStyle}>
-          <div style={{ ...editFieldGroupStyle, flex: 0, minWidth: 120 }}>
-            <label style={editLabelStyle}>推定ステップ数（任意）</label>
+        <div className={editRowClassName}>
+          <div
+            className={`${editFieldGroupClassName satisfies string} flex-none min-w-[120px]`}
+          >
+            <label className={editLabelClassName}>推定ステップ数（任意）</label>
             <input
               ref={stepsRef}
               data-testid="create-steps-input"
-              style={
-                stepsError !== undefined ? editInputErrorStyle : editInputStyle
+              className={
+                stepsError !== undefined
+                  ? editInputErrorClassName
+                  : editInputClassName
               }
               type="number"
               min="1"
@@ -786,16 +766,19 @@ function CustomQuestCreateForm({
               onBlur={() => setStepsTouched(true)}
             />
             {stepsError !== undefined && (
-              <span style={editErrorTextStyle} data-testid="create-steps-error">
+              <span
+                className={editErrorTextClassName}
+                data-testid="create-steps-error"
+              >
                 {stepsError}
               </span>
             )}
           </div>
-          <div style={{ ...editFieldGroupStyle, flex: 1 }}>
-            <label style={editLabelStyle}>学習ポイント</label>
+          <div className={`${editFieldGroupClassName satisfies string} flex-1`}>
+            <label className={editLabelClassName}>学習ポイント</label>
             <input
               data-testid="create-learning-point-input"
-              style={editInputStyle}
+              className={editInputClassName}
               value={values.learningPoint}
               onChange={(e) =>
                 setValues({ ...values, learningPoint: e.target.value })
@@ -805,7 +788,7 @@ function CustomQuestCreateForm({
         </div>
 
         {/* ボタン */}
-        <div style={editActionsStyle}>
+        <div className={editActionsClassName}>
           <button
             type="button"
             data-testid="create-cancel-btn"
@@ -1098,17 +1081,10 @@ function CustomQuestItem({
 
 // --- Import form ---
 
-const importFormOverlayStyle: CSSProperties = {
-  padding: "16px 14px",
-  background: "var(--color-surface, #fff)",
-  borderBottom: "1px solid var(--color-quest-card-border)",
-};
+const importFormOverlayClassName =
+  "py-4 px-3.5 bg-card border-b border-[var(--color-quest-card-border)]";
 
-const importFormStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 10,
-};
+const importFormClassName = "flex flex-col gap-2.5";
 
 function CustomQuestImportForm({
   onImport,
@@ -1143,34 +1119,34 @@ function CustomQuestImportForm({
 
   return (
     <div
-      style={importFormOverlayStyle}
+      className={importFormOverlayClassName}
       data-testid="custom-quest-import-form"
       onClick={(e) => e.stopPropagation()}
     >
-      <form style={importFormStyle} onSubmit={handleSubmit}>
-        <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>JSONファイルを選択</label>
+      <form className={importFormClassName} onSubmit={handleSubmit}>
+        <div className={editFieldGroupClassName}>
+          <label className={editLabelClassName}>JSONファイルを選択</label>
           <input
             ref={fileInputRef}
             data-testid="import-file-input"
             type="file"
             accept=".json"
             onChange={handleFileChange}
-            style={{ fontSize: 12 }}
+            className="text-xs"
           />
         </div>
-        <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>またはJSONを貼り付け</label>
+        <div className={editFieldGroupClassName}>
+          <label className={editLabelClassName}>またはJSONを貼り付け</label>
           <textarea
             data-testid="import-json-input"
-            style={editTextareaStyle}
+            className={editTextareaClassName}
             value={jsonText}
             onChange={(e) => setJsonText(e.target.value)}
             rows={5}
             placeholder={'{\n  "_format": "intro-formal-proof-quest",\n  ...'}
           />
         </div>
-        <div style={editActionsStyle}>
+        <div className={editActionsClassName}>
           <button
             type="button"
             data-testid="import-cancel-btn"
