@@ -49,6 +49,7 @@ import {
 import type { ThemeToggleLabels } from "../components/ThemeToggle/ThemeToggle";
 import { allReferenceEntries } from "../lib/reference/referenceContent";
 import type { Locale as ReferenceLocale } from "../lib/reference/referenceEntry";
+import { buildQuestToReferenceMap } from "../lib/quest/questReferenceMappingLogic";
 import { HubPageView, type HubTab, type RecommendedQuest } from "./HubPageView";
 import type { HubMessages } from "./hubMessages";
 import { HubMessagesProvider } from "./HubMessagesContext";
@@ -242,6 +243,17 @@ function HubInner() {
     () => computeQuestNotebookCounts(notebookCollection.collection),
     [notebookCollection.collection],
   );
+
+  // Build quest → reference reverse mapping
+  const questReferenceMap = useMemo(
+    () => buildQuestToReferenceMap(allReferenceEntries),
+    [],
+  );
+
+  // Show reference: switch to reference tab
+  const handleShowReference = useCallback(() => {
+    handleTabChange("reference");
+  }, [handleTabChange]);
 
   // Navigate to workspace
   const handleOpenNotebook = useCallback(
@@ -586,6 +598,8 @@ function HubInner() {
         recommendedQuests={recommendedQuests}
         referenceEntries={allReferenceEntries}
         referenceLocale={refLocale}
+        questReferenceMap={questReferenceMap}
+        onShowReference={handleShowReference}
         collectionProps={{
           entries: proofCollection.entries,
           folders: proofCollection.folders,
