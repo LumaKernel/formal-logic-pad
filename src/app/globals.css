@@ -272,10 +272,6 @@
   --color-syntax-negation: #c03030;
   --color-syntax-substitution: #666666;
 
-  /* Legacy compat (used by page.module.css) */
-  --background: #ffffff;
-  --foreground: #171717;
-
   color-scheme: light;
 }
 
@@ -479,9 +475,7 @@
   --color-syntax-negation: #f08080;
   --color-syntax-substitution: #aaaaaa;
 
-  /* Legacy compat (used by page.module.css) */
-  --background: #0a0a0a;
-  --foreground: #e0e0e0;
+
 
   color-scheme: dark;
 }
@@ -571,4 +565,20 @@ a {
       transform: translateX(-50%) rotate(-3deg);
     }
   }
+}
+
+/* ============================================
+ * Monaco Editor — Step execution line highlight
+ * These class names are referenced by Monaco decoration options
+ * (not Tailwind-controllable).
+ * ============================================ */
+
+.currentLineHighlight {
+  background: rgba(255, 255, 0, 0.15);
+}
+
+.currentLineGlyph {
+  background: #e2e210;
+  width: 4px !important;
+  margin-left: 3px;
 }

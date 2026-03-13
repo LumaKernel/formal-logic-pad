@@ -10,13 +10,13 @@
 import { useMemo } from "react";
 import type { Formula } from "../logic-core/formula";
 import { FormulaKaTeX } from "../formula-input/FormulaKaTeX";
+import { cn } from "@/lib/utils";
 import {
   buildTruthTableDisplayData,
   formatTruthValue,
   getClassificationLabel,
 } from "./truthTableLogic";
 import type { FormulaClassification } from "./truthTableLogic";
-import styles from "./TruthTableComponent.module.css";
 
 export interface TruthTableComponentProps {
   /** 表示する命題論理式 */
@@ -27,23 +27,34 @@ export interface TruthTableComponentProps {
   readonly testId?: string;
 }
 
-// 防御的コード: テスト環境(vitest)ではCSSモジュールがundefinedを返すため、
-// ?? "" のフォールバックは本番では到達しない（常に文字列が返る）。
-/* v8 ignore start */
+const badgeBase =
+  "inline-flex items-center gap-1 px-2 py-0.5 rounded text-[length:var(--font-size-sm)] font-medium";
+
 const badgeClassNames: Record<FormulaClassification, string> = {
-  tautology: [styles["badge"] ?? "", styles["badgeTautology"] ?? ""].join(" "),
-  satisfiable: [styles["badge"] ?? "", styles["badgeSatisfiable"] ?? ""].join(
-    " ",
+  tautology: cn(
+    badgeBase,
+    "bg-[var(--color-success-bg,#dcfce7)] text-[var(--color-success,#16a34a)]",
   ),
-  contradiction: [
-    styles["badge"] ?? "",
-    styles["badgeContradiction"] ?? "",
-  ].join(" "),
+  satisfiable: cn(
+    badgeBase,
+    "bg-[var(--color-warning-bg,#fef9c3)] text-[var(--color-warning,#ca8a04)]",
+  ),
+  contradiction: cn(
+    badgeBase,
+    "bg-[var(--color-error-bg,#fee2e2)] text-[var(--color-error,#dc2626)]",
+  ),
 };
-/* v8 ignore stop */
 
 const badgeClassName = (classification: FormulaClassification): string =>
   badgeClassNames[classification];
+
+const themeTransition =
+  "transition-[background-color,border-color,color] duration-[var(--theme-transition-duration,0s)] ease-in-out";
+
+const cellBase = cn(
+  "px-3 py-1 text-center border border-[var(--color-border,#e2e8f0)]",
+  themeTransition,
+);
 
 /**
  * 命題論理式の真理値表を表形式で表示するコンポーネント。
@@ -66,18 +77,11 @@ export function TruthTableComponent({
   const badgeTestId = testId !== undefined ? testId + "-badge" : undefined;
   const tableTestId = testId !== undefined ? testId + "-table" : undefined;
 
-  // 防御的コード: テスト環境(vitest)ではCSSモジュールがundefinedを返すため、
-  // ?? "" のフォールバックは本番では到達しない。
-  /* v8 ignore start */
-  const resultCellClassName = (result: boolean): string =>
-    [
-      styles["resultCell"] ?? "",
-      result ? (styles["trueValue"] ?? "") : (styles["falseValue"] ?? ""),
-    ].join(" ");
-  /* v8 ignore stop */
-
   return (
-    <div className={styles["container"]} data-testid={testId}>
+    <div
+      className="flex flex-col gap-2 font-[family-name:var(--font-ui)]"
+      data-testid={testId}
+    >
       <div>
         <span
           className={badgeClassName(displayData.classification)}
@@ -86,13 +90,29 @@ export function TruthTableComponent({
           {classificationLabel}
         </span>
       </div>
-      <table className={styles["table"]} data-testid={tableTestId}>
+      <table
+        className="border-collapse font-[family-name:var(--font-mono)] text-[length:var(--font-size-sm)]"
+        data-testid={tableTestId}
+      >
         <thead>
           <tr>
             {displayData.variables.map((v) => (
-              <th key={v}>{v}</th>
+              <th
+                key={v}
+                className={cn(
+                  cellBase,
+                  "bg-[var(--color-bg-secondary,#f5f5f5)] font-semibold whitespace-nowrap",
+                )}
+              >
+                {v}
+              </th>
             ))}
-            <th className={styles["resultHeader"]}>
+            <th
+              className={cn(
+                cellBase,
+                "bg-[var(--color-bg-secondary,#f5f5f5)] font-semibold whitespace-nowrap border-l-2 border-l-[var(--color-text-secondary,#666666)]",
+              )}
+            >
               <FormulaKaTeX formula={formula} fontSize="0.85em" />
             </th>
           </tr>
@@ -103,12 +123,25 @@ export function TruthTableComponent({
               {row.values.map((v, j) => (
                 <td
                   key={j}
-                  className={v ? styles["trueValue"] : styles["falseValue"]}
+                  className={cn(
+                    cellBase,
+                    v
+                      ? "text-[var(--color-success,#16a34a)]"
+                      : "text-[var(--color-error,#dc2626)]",
+                  )}
                 >
                   {formatTruthValue(v)}
                 </td>
               ))}
-              <td className={resultCellClassName(row.result)}>
+              <td
+                className={cn(
+                  cellBase,
+                  "border-l-2 border-l-[var(--color-text-secondary,#666666)] font-semibold",
+                  row.result
+                    ? "text-[var(--color-success,#16a34a)]"
+                    : "text-[var(--color-error,#dc2626)]",
+                )}
+              >
                 {formatTruthValue(row.result)}
               </td>
             </tr>

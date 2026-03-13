@@ -59,7 +59,21 @@ import {
   STORAGE_KEY,
 } from "./savedScriptsLogic";
 import type { SavedScriptsState } from "./savedScriptsLogic";
-import styles from "./ScriptEditorComponent.module.css";
+import { cn } from "@/lib/utils";
+
+// ── Tailwind class constants ──────────────────────────────────
+
+const barBg =
+  "bg-[var(--color-badge-bg,#e8eaf0)] border-t border-[var(--color-border,#e2e8f0)]";
+
+const templateBtnCls =
+  "inline-flex items-center px-2.5 py-1 border border-[var(--color-border,#e2e8f0)] rounded bg-[var(--color-surface,#ffffff)] text-[var(--color-text-primary,#171717)] cursor-pointer text-[length:var(--font-size-xs,11px)] font-medium leading-none whitespace-nowrap transition-[background-color,border-color] duration-150 hover:bg-[var(--color-surface-hover,#f0f0f0)] hover:border-[var(--color-accent,#555ab9)] focus-visible:outline-2 focus-visible:outline-[var(--color-accent,#555ab9)] focus-visible:outline-offset-[-2px]";
+
+const toolbarBtnCls =
+  "inline-flex items-center gap-1 px-3 py-1.5 border border-[var(--color-border,#e2e8f0)] rounded-md bg-[var(--color-surface,#ffffff)] text-[var(--color-text-primary,#171717)] cursor-pointer text-[length:var(--font-size-sm,13px)] font-medium leading-none transition-[background-color,border-color] duration-150 hover:bg-[var(--color-surface-hover,#f0f0f0)] focus-visible:outline-2 focus-visible:outline-[var(--color-accent,#555ab9)] focus-visible:outline-offset-[-2px] disabled:opacity-50 disabled:cursor-not-allowed";
+
+const statusBadgeBase =
+  "inline-flex items-center px-2 py-1 rounded text-[length:var(--font-size-xs,11px)] font-medium bg-[var(--color-badge-bg,#e8eaf0)] text-[var(--color-text-secondary,#666666)]";
 
 // ── Props ─────────────────────────────────────────────────────
 
@@ -559,14 +573,23 @@ declare var console: {
   const statusClassName = (() => {
     switch (state.executionStatus) {
       case "done":
-        return `${styles["statusBadge"] satisfies string} ${styles["statusDone"] satisfies string}`;
+        return cn(
+          statusBadgeBase,
+          "bg-[var(--color-success-bg,#d4edda)] text-[var(--color-success-text,#155724)]",
+        );
       case "error":
-        return `${styles["statusBadge"] satisfies string} ${styles["statusError"] satisfies string}`;
+        return cn(
+          statusBadgeBase,
+          "bg-[var(--color-error-bg,#f8d7da)] text-[var(--color-error-text,#721c24)]",
+        );
       case "running":
       case "stepping":
-        return `${styles["statusBadge"] satisfies string} ${styles["statusRunning"] satisfies string}`;
+        return cn(
+          statusBadgeBase,
+          "bg-[var(--color-info-bg,#cce5ff)] text-[var(--color-info-text,#004085)]",
+        );
       case "idle":
-        return styles["statusBadge"] ?? "";
+        return statusBadgeBase;
       default: {
         /* v8 ignore start */
         const _exhaustive: never = state.executionStatus;
@@ -580,8 +603,11 @@ declare var console: {
     state.executionStatus === "running" || state.executionStatus === "stepping";
 
   return (
-    <div className={styles["container"]} data-testid="script-editor">
-      <div className={styles["editorArea"]} style={{ height }}>
+    <div
+      className="flex flex-col h-full border border-[var(--color-border,#e2e8f0)] rounded-lg overflow-hidden bg-[var(--color-surface,#ffffff)]"
+      data-testid="script-editor"
+    >
+      <div className="flex-1 min-h-[200px]" style={{ height }}>
         <Editor
           height="100%"
           defaultLanguage="javascript"
@@ -594,13 +620,18 @@ declare var console: {
         />
       </div>
 
-      <div className={styles["templateBar"]} data-testid="template-bar">
-        <span className={styles["templateLabel"]}>Templates:</span>
+      <div
+        className={cn("flex items-center gap-1.5 px-3 py-1.5 overflow-x-auto", barBg)}
+        data-testid="template-bar"
+      >
+        <span className="text-[length:var(--font-size-xs,11px)] font-semibold text-[var(--color-text-secondary,#666666)] whitespace-nowrap">
+          Templates:
+        </span>
         {BUILTIN_TEMPLATES.map((tmpl) => (
           <button
             key={tmpl.id}
             type="button"
-            className={styles["templateButton"]}
+            className={templateBtnCls}
             onClick={() => handleLoadTemplate(tmpl)}
             title={tmpl.description}
             data-testid={`template-${tmpl.id satisfies string}`}
@@ -608,10 +639,10 @@ declare var console: {
             {tmpl.title}
           </button>
         ))}
-        <span className={styles["templateSeparator"]} />
+        <span className="inline-block w-px h-4 bg-[var(--color-border,#e2e8f0)] mx-0.5" />
         <button
           type="button"
-          className={styles["saveButton"]}
+          className="inline-flex items-center px-2.5 py-1 border border-[var(--color-accent,#555ab9)] rounded bg-[var(--color-accent,#555ab9)] text-white cursor-pointer text-[length:var(--font-size-xs,11px)] font-semibold leading-none whitespace-nowrap transition-[background-color,border-color] duration-150 hover:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-accent,#555ab9)] focus-visible:outline-offset-2"
           onClick={handleOpenSaveDialog}
           data-testid="save-script-button"
           title="現在のスクリプトを保存"
@@ -620,16 +651,18 @@ declare var console: {
         </button>
         {savedScripts.scripts.length > 0 && (
           <>
-            <span className={styles["templateLabel"]}>My Scripts:</span>
+            <span className="text-[length:var(--font-size-xs,11px)] font-semibold text-[var(--color-text-secondary,#666666)] whitespace-nowrap">
+              My Scripts:
+            </span>
             {savedScripts.scripts.map((script) => (
               <span
                 key={script.id}
-                className={styles["savedScriptItem"]}
+                className="inline-flex items-center gap-0"
                 data-testid={`saved-script-${script.id satisfies string}`}
               >
                 <button
                   type="button"
-                  className={styles["templateButton"]}
+                  className={cn(templateBtnCls, "rounded-r-none")}
                   onClick={() => handleLoadSavedScript(script.code)}
                   title={script.title}
                   data-testid={`load-saved-${script.id satisfies string}`}
@@ -638,7 +671,7 @@ declare var console: {
                 </button>
                 <button
                   type="button"
-                  className={styles["deleteButton"]}
+                  className="inline-flex items-center justify-center w-5 h-5 p-0 border border-[var(--color-border,#e2e8f0)] border-l-0 rounded-r bg-[var(--color-surface,#ffffff)] text-[var(--color-text-secondary,#666666)] cursor-pointer text-xs leading-none transition-[background-color,color] duration-150 hover:bg-[var(--color-error-bg,#f8d7da)] hover:text-[var(--color-error-text,#721c24)] focus-visible:outline-2 focus-visible:outline-[var(--color-accent,#555ab9)] focus-visible:outline-offset-[-2px]"
                   onClick={() => handleDeleteSavedScript(script.id)}
                   data-testid={`delete-saved-${script.id satisfies string}`}
                   title="削除"
@@ -652,11 +685,14 @@ declare var console: {
       </div>
 
       {saveDialogOpen && (
-        <div className={styles["saveDialog"]} data-testid="save-dialog">
+        <div
+          className={cn("flex items-center gap-1.5 px-3 py-1.5", barBg)}
+          data-testid="save-dialog"
+        >
           <input
             ref={saveTitleInputRef}
             type="text"
-            className={styles["saveInput"]}
+            className="flex-1 px-2 py-1 border border-[var(--color-border,#e2e8f0)] rounded text-[length:var(--font-size-xs,11px)] bg-[var(--color-surface,#ffffff)] text-[var(--color-text-primary,#171717)] min-w-[120px] focus:outline-2 focus:outline-[var(--color-accent,#555ab9)] focus:outline-offset-[-2px]"
             placeholder="スクリプト名を入力..."
             value={saveTitle}
             onChange={(e) => setSaveTitle(e.target.value)}
@@ -668,7 +704,7 @@ declare var console: {
           />
           <button
             type="button"
-            className={styles["button"]}
+            className={toolbarBtnCls}
             onClick={handleSaveScript}
             disabled={saveTitle.trim() === ""}
             data-testid="save-confirm-button"
@@ -677,7 +713,7 @@ declare var console: {
           </button>
           <button
             type="button"
-            className={styles["button"]}
+            className={toolbarBtnCls}
             onClick={handleCloseSaveDialog}
             data-testid="save-cancel-button"
           >
@@ -686,10 +722,13 @@ declare var console: {
         </div>
       )}
 
-      <div className={styles["toolbar"]} data-testid="script-editor-toolbar">
+      <div
+        className={cn("flex items-center gap-2 px-3 py-2", barBg)}
+        data-testid="script-editor-toolbar"
+      >
         <button
           type="button"
-          className={styles["button"]}
+          className={toolbarBtnCls}
           onClick={handleRun}
           disabled={isExecuting}
           data-testid="run-button"
@@ -698,7 +737,7 @@ declare var console: {
         </button>
         <button
           type="button"
-          className={styles["button"]}
+          className={toolbarBtnCls}
           onClick={handleStep}
           disabled={state.executionStatus === "running" || isAutoPlaying}
           data-testid="step-button"
@@ -708,7 +747,7 @@ declare var console: {
         {isAutoPlaying ? (
           <button
             type="button"
-            className={styles["button"]}
+            className={toolbarBtnCls}
             onClick={handlePause}
             data-testid="pause-button"
           >
@@ -717,7 +756,7 @@ declare var console: {
         ) : (
           <button
             type="button"
-            className={styles["button"]}
+            className={toolbarBtnCls}
             onClick={handlePlay}
             disabled={state.executionStatus === "running"}
             data-testid="play-button"
@@ -727,7 +766,7 @@ declare var console: {
         )}
         <button
           type="button"
-          className={styles["button"]}
+          className={toolbarBtnCls}
           onClick={handleReset}
           disabled={state.executionStatus === "idle"}
           data-testid="reset-button"
@@ -739,14 +778,23 @@ declare var console: {
         </span>
         {state.currentStep > 0 && (
           <span
-            className={styles["stepCount"]}
+            className="text-[length:var(--font-size-xs,11px)] text-[var(--color-text-secondary,#666666)] ml-auto"
             data-testid="step-count"
           >{`${String(state.currentStep) satisfies string} steps`}</span>
         )}
       </div>
 
-      <div className={styles["speedBar"]} data-testid="speed-bar">
-        <label className={styles["speedLabel"]} htmlFor="speed-slider">
+      <div
+        className={cn(
+          "flex items-center gap-2 px-3 py-1 text-[length:var(--font-size-xs,11px)]",
+          barBg,
+        )}
+        data-testid="speed-bar"
+      >
+        <label
+          className="text-[var(--color-text-secondary,#666666)] font-medium whitespace-nowrap"
+          htmlFor="speed-slider"
+        >
           Speed
         </label>
         <input
@@ -756,16 +804,16 @@ declare var console: {
           max={100}
           value={intervalMsToSlider(state.autoPlayIntervalMs)}
           onChange={handleSpeedChange}
-          className={styles["speedSlider"]}
+          className="flex-1 min-w-[80px] cursor-pointer"
           data-testid="speed-slider"
         />
         <span
-          className={styles["speedValue"]}
+          className="text-[var(--color-text-secondary,#666666)] min-w-[50px] text-right whitespace-nowrap"
           data-testid="speed-value"
         >{`${String(effectiveIntervalMs) satisfies string}ms`}</span>
         {effectiveIntervalMs > state.autoPlayIntervalMs && (
           <span
-            className={styles["slowdownBadge"]}
+            className="inline-flex items-center px-1.5 py-0.5 rounded-[3px] text-[length:var(--font-size-xs,11px)] font-medium bg-[var(--color-warn-bg,#fff3cd)] text-[var(--color-warn-text,#856404)] whitespace-nowrap"
             data-testid="slowdown-badge"
           >
             {`Slowdown x${String(Math.round(effectiveIntervalMs / state.autoPlayIntervalMs)) satisfies string}`}
@@ -774,29 +822,31 @@ declare var console: {
       </div>
 
       {state.errorMessage !== null && (
-        <div className={styles["errorBar"]} data-testid="error-bar">
+        <div
+          className="px-3 py-1.5 bg-[var(--color-error-bg,#f8d7da)] text-[var(--color-error-text,#721c24)] text-[length:var(--font-size-xs,11px)] font-mono border-t border-[var(--color-border,#e2e8f0)]"
+          data-testid="error-bar"
+        >
           {state.errorMessage}
         </div>
       )}
 
       {state.consoleOutput.length > 0 && (
-        <div className={styles["consoleArea"]} data-testid="console-output">
-          {state.consoleOutput.map((entry, i) => {
-            const typeClass =
-              entry.type === "error"
-                ? ` ${styles["consoleError"] satisfies string}`
-                : entry.type === "warn"
-                  ? ` ${styles["consoleWarn"] satisfies string}`
-                  : "";
-            return (
-              <div
-                key={i}
-                className={`${styles["consoleEntry"] satisfies string}${typeClass satisfies string}`}
-              >
-                {entry.message}
-              </div>
-            );
-          })}
+        <div
+          className="max-h-[150px] overflow-y-auto px-3 py-2 border-t border-[var(--color-border,#e2e8f0)] bg-[var(--color-code-bg,#1e1e1e)] text-[var(--color-code-text,#d4d4d4)] font-mono text-[length:var(--font-size-xs,11px)] leading-relaxed"
+          data-testid="console-output"
+        >
+          {state.consoleOutput.map((entry, i) => (
+            <div
+              key={i}
+              className={cn(
+                "whitespace-pre-wrap break-all",
+                entry.type === "error" && "text-[#f44747]",
+                entry.type === "warn" && "text-[#cca700]",
+              )}
+            >
+              {entry.message}
+            </div>
+          ))}
         </div>
       )}
     </div>

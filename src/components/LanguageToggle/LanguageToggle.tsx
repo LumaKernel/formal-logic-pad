@@ -9,12 +9,12 @@
 
 import { useCallback, type ReactNode } from "react";
 import type { Locale } from "../../i18n/config";
+import { cn } from "@/lib/utils";
 import {
   getLocaleAriaLabel,
   getLocaleLabel,
   SUPPORTED_LOCALES,
 } from "./languageToggleLogic";
-import styles from "./LanguageToggle.module.css";
 
 export interface LanguageToggleProps {
   /** Currently active locale. */
@@ -38,7 +38,7 @@ export function LanguageToggle({
 
   return (
     <div
-      className={styles.container}
+      className="inline-flex gap-0.5 p-0.5 rounded-lg bg-[var(--color-badge-bg,#e8eaf0)] border border-[var(--color-border,#e2e8f0)] transition-[background-color,border-color] duration-[var(--theme-transition-duration,0s)] ease-in-out"
       role="radiogroup"
       aria-label="Language selection"
       data-testid="language-toggle"
@@ -52,9 +52,13 @@ export function LanguageToggle({
             role="radio"
             aria-checked={isActive}
             aria-label={getLocaleAriaLabel(l)}
-            className={[styles.button, isActive ? styles.active : ""]
-              .filter(Boolean)
-              .join(" ")}
+            className={cn(
+              "inline-flex items-center justify-center gap-1 px-2.5 py-1.5 border-none rounded-md bg-transparent text-[var(--color-text-secondary,#666666)] cursor-pointer text-[length:var(--font-size-sm)] leading-none font-medium transition-[background-color,color] duration-150",
+              "hover:bg-[var(--color-surface-hover,#f0f0f0)] hover:text-[var(--color-text-primary,#171717)]",
+              "focus-visible:outline-2 focus-visible:outline-[var(--color-accent,#555ab9)] focus-visible:outline-offset-[-2px]",
+              isActive &&
+                "bg-[var(--color-surface,#ffffff)] text-[var(--color-text-primary,#171717)] shadow-sm hover:bg-[var(--color-surface,#ffffff)]",
+            )}
             data-testid={`language-toggle-${l satisfies string}`}
             onClick={() => handleClick(l)}
           >
