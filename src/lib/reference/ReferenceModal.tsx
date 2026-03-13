@@ -236,9 +236,10 @@ export function ReferenceModal({
 
   const formulaHtmlItems = useMemo(() => {
     if (data.formalNotation === undefined) return undefined;
-    const notations = typeof data.formalNotation === "string"
-      ? [data.formalNotation]
-      : data.formalNotation;
+    const notations =
+      typeof data.formalNotation === "string"
+        ? [data.formalNotation]
+        : data.formalNotation;
     return notations.map((notation) =>
       katex.renderToString(notation, {
         displayMode: true,
