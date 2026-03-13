@@ -13773,3 +13773,23 @@
   - 既存のnotationMetavariablesエントリは記法のみ、conceptFormulaSchemaは概念的意義を解説（スコープが異なる）
   - Storybookのストーリーパス: pages-hub--reference-tab でReference Tabを確認可能
 ---
+
+## 2026-03-13 - [reference] 命題論理入門ガイドエントリ追加
+- ベースライン: 913テスト（referenceContent.test.ts）
+- **結果: 925テスト全パス（+12テスト: 新エントリのバリデーション自動生成）**
+- カバレッジ: 変化なし（データ追加のみ）
+- 実装内容:
+  - guide-intro-propositional-logic エントリを追加（10段落 en/ja）
+  - 内容: 命題とは何か、真理値と論理結合子、真理値表、トートロジー、公理的アプローチ、→と¬のみの理由、公理スキーマ、形式証明、健全性と完全性、実践と次のステップ
+  - prop-01〜prop-10の基礎クエストを関連付け
+  - Wikipedia(en/ja)、nLabの外部リンク追加
+- 変更ファイル:
+  - src/lib/reference/referenceContent.ts
+  - src/lib/reference/referenceContent.test.ts（エントリ数 65→66）
+  - tasks/prd-docs-contents.md
+- スクリーンショット:
+  - .screenshots/reference-modal-default.png
+- **今後のイテレーションへの学び:**
+  - guideカテゴリのorder: 1=形式証明とは, 2=基本操作, 3=最初のクエスト, 4=命題論理入門
+  - リファレンスエントリ追加時はallReferenceEntries配列への追加とテストのエントリ数更新を忘れずに
+---
