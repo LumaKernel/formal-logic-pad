@@ -137,7 +137,7 @@ export const allMenuActions: readonly MenuActionDefinition[] = [
   // --- キャンバスメニュー ---
   {
     id: "add-node",
-    label: { en: "Add Node", ja: "ノード追加" },
+    label: { en: "Add Formula Schema", ja: "論理式スキーマを追加" },
     contexts: ["canvas-context-menu"],
     group: "node-edit",
   },

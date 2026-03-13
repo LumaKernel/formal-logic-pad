@@ -374,7 +374,7 @@ export const defaultProofMessages: ProofMessages = {
   // Context menu
   selectSubtree: "Select Subtree",
   selectProof: "Select Proof",
-  addNode: "Add Node",
+  addNode: "Add Formula Schema",
   canvasMenuPaste: "Paste",
   useAsMPLeft: "Use as MP Left (\u03C6)",
   useAsMPRight: "Use as MP Right (\u03C6\u2192\u03C8)",
