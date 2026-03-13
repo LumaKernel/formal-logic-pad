@@ -295,3 +295,8 @@ Infinity Canvasについて。
 - [x] トップページのタブはハッシュではなく、ルートとして管理しよう — Next.js App Routerで /quests, /custom-quests, /collection, /reference ルートを作成
 - [x] ドキュメントの一行説明文、こちらにもマークダウンとtexを使えるようにして、\_LKとかじゃなくて、綺麗にレンダーされるようにしよう — InlineMarkdownに下付き文字(\_XYZ→<sub>)パースを追加、ReferenceBrowserComponentのsummaryにInlineMarkdown適用
 - [x] (?) を押したときのポップアップが、ドキュメントウィンドウより下にくる。上に来てほしい — z-index 1000→1600に修正（FloatingWindow 1500より上、Modal 2000より下）
+
+- [x] 以下のタスクが修正されきってない。
+    - [x] コードがレンダーされていなさそう。バックティック？の囲みマークがそのまま出てきてしまっている。
+    - [x] バックティック禁止・`<code>`タグ利用の自動チェック追加
+    → 全6エントリのバックティックを<code>タグに置換。referenceContent.test.tsにバックティック禁止テスト追加済み。

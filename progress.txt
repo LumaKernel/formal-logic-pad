@@ -13854,3 +13854,14 @@
   - guideカテゴリのorder: 1=形式証明とは, 2=基本操作, 3=最初のクエスト, 4=命題論理入門
   - リファレンスエントリ追加時はallReferenceEntries配列への追加とテストのエントリ数更新を忘れずに
 ---
+
+## 2026-03-14 01:45 - [reference] バックティック→<code>タグ置換
+- referenceContent.ts: 全6エントリ（notation-connectives, notation-quantifiers, notation-equality, notation-metavariables, notation-term-operations, notation-input-methods）のバックティック記法を<code>HTMLタグに置換
+- referenceContent.test.ts: バックティック禁止テスト追加（既存の**禁止テストと同様のパターン）
+- 変更ファイル: src/lib/reference/referenceContent.ts, src/lib/reference/referenceContent.test.ts
+- カバレッジ: referenceContent.ts 100%維持
+- **今後のイテレーションへの学び:**
+  - referenceContent.tsの文字列内にバックティックが混入すると、parseInlineMarkdownが解釈できずそのまま表示される
+  - 許可フォーマットは<b>, <i>, <code>のHTMLタグのみ（referenceUILogic.tsのparseInlineMarkdown参照）
+  - テストで禁止フォーマットを自動検出する仕組みがあるので、新規エントリ追加時も安心
+---
