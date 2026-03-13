@@ -552,6 +552,55 @@ describe("概念エントリの個別チェック", () => {
     expect(entry?.body.ja.some((p) => p.includes("汎化規則"))).toBe(true);
   });
 
+  it("演繹定理に証明の基底ケースの記載がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-deduction-theorem",
+    );
+    expect(entry?.body.en.some((p) => p.includes("Base cases"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("基底ケース"))).toBe(true);
+  });
+
+  it("演繹定理に帰納ステップの記載がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-deduction-theorem",
+    );
+    expect(entry?.body.en.some((p) => p.includes("Inductive step"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("帰納ステップ"))).toBe(true);
+  });
+
+  it("演繹定理に恒等定理の証明が記載されている", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-deduction-theorem",
+    );
+    expect(entry?.body.en.some((p) => p.includes("identity theorem"))).toBe(
+      true,
+    );
+    expect(entry?.body.ja.some((p) => p.includes("恒等定理"))).toBe(true);
+  });
+
+  it("演繹定理に構成的性質の記載がある", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-deduction-theorem",
+    );
+    expect(entry?.body.en.some((p) => p.includes("Constructive nature"))).toBe(
+      true,
+    );
+    expect(entry?.body.ja.some((p) => p.includes("構成的"))).toBe(true);
+  });
+
+  it("演繹定理に関連クエストIDが設定されている", () => {
+    const entry = findEntryById(
+      allReferenceEntries,
+      "concept-deduction-theorem",
+    );
+    expect(entry?.relatedQuestIds?.length).toBeGreaterThan(0);
+    expect(entry?.relatedQuestIds).toContain("prop-01");
+  });
+
   it("演繹定理を検索できる", () => {
     const resultEn = searchEntries(
       allReferenceEntries,
