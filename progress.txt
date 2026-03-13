@@ -13475,3 +13475,19 @@
   - フローティングウィンドウはcreatePortalでdocument.bodyに描画。z-index 1500（ポップオーバー1000とモーダル2000の間）
   - Storybook play関数でPortal要素にアクセスするには within(canvasElement.ownerDocument.body) を使う
 ---
+
+## 2026-03-13 - コンテキストメニューラベルリネーム
+- コンテキストメニューの「ノードを追加」/「Add Node」を「論理式スキーマを追加」/「Add Formula Schema」にリネーム
+- 変更ファイル:
+  - src/lib/proof-pad/proofMessages.ts (デフォルト英語メッセージ)
+  - src/lib/proof-pad/menuActionDefinition.ts (宣言的メニュー定義)
+  - messages/en.json, messages/ja.json (i18n翻訳)
+  - dev/menu-ux-design.md (自動生成セクション再生成 + 自由テキスト修正)
+  - tasks/prd-docs-improve.md (タスク完了)
+- テスト: 10248件全通過、カバレッジ変化なし（ラベルのみの変更）
+- スクリーンショット: .screenshots/context-menu-add-formula-schema.png
+- **今後のイテレーションへの学び:**
+  - UIラベル変更は proofMessages.ts, menuActionDefinition.ts, messages/{en,ja}.json, WorkspaceContent.tsx の4箇所を同期する必要がある
+  - dev/menu-ux-design.md の自動生成セクションは scripts/generate-menu-docs.ts で再生成可能
+  - 自動生成セクション以外の自由テキストにも同じ用語が使われている可能性があるので手動確認が必要
+---
