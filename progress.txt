@@ -102,7 +102,30 @@
 - 未接続コネクタポートは `dimmed` (opacity:0) で非表示。接続ドラッグ中は全ポート表示
 - `src/lib/script-runner/` はサンドボックスJS実行環境。`createScriptRunner` ファクトリでインスタンスを作り、`run()`/`step()` で実行。`NativeFunctionBridge` でホスト関数をサンドボックスに公開
 - InfiniteCanvasコンテナに `userSelect: "none"` を設定すれば、子要素のブラウザネイティブテキスト選択を防止できる。FormulaEditorの編集モードでは個別に `userSelect: "text"` で上書き済み
+- Storybook + Tailwind v4: `.storybook/main.ts`のviteFinalで`@tailwindcss/postcss`を明示設定が必要。postcss.config.mjsの自動検出は動作しない
+- shadcn-uiカラートークン: `bg-card`, `border-ui-border`, `text-muted-foreground`, `text-foreground`, `bg-muted`, `bg-background`, `bg-ui-accent`
 
+---
+
+## 2026-03-14 - [UI] アップバーの言語選択・テーマ選択をshadcn-ui wayに変換
+- ベースライン: カバレッジ変化なし（スタイル変更のみ、ロジック変更なし）
+- **結果: 全テストパス (101テスト: LanguageToggle/ThemeToggle/HubPageView/WorkspacePageView)**
+- 実装内容:
+  - LanguageToggleのCSS変数ベースインラインスタイルをshadcnパターンのTailwindユーティリティクラスに統一
+  - HubPageView/WorkspacePageViewのヘッダーCSSPropertiesオブジェクトをTailwindクラス文字列に変換
+  - `.storybook/main.ts`にviteFinalで`@tailwindcss/postcss`プラグインを明示的に設定（Storybook環境でTailwind v4ユーティリティが生成されなかった問題を修正）
+- 変更ファイル:
+  - src/components/LanguageToggle/LanguageToggle.tsx
+  - src/app/HubPageView.tsx
+  - src/app/workspace/[id]/WorkspacePageView.tsx
+  - .storybook/main.ts
+- スクリーンショット:
+  - .screenshots/hub-header-shadcn-after-restart.png
+  - .screenshots/workspace-header-shadcn.png
+- **今後のイテレーションへの学び:**
+  - Storybook 10 + @storybook/nextjs-vite では postcss.config.mjs の自動検出が動作しない場合がある。viteFinalで `@tailwindcss/postcss` を明示的にプラグイン設定する必要がある
+  - ThemeToggleは以前からshadcn Tailwindクラスを使っていたが、Storybook環境では実はユーティリティが効いていなかった。今回の修正で初めて全コンポーネントのTailwindが正しく動作
+  - shadcn-uiのカラートークン: `bg-card`(サーフェス背景), `border-ui-border`(ボーダー), `text-muted-foreground`(セカンダリテキスト), `text-foreground`(プライマリテキスト)
 ---
 
 ## 2026-03-14 - [proof-collection] マイコレクションパネルの折り畳みドラッグ修正
