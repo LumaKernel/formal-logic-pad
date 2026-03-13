@@ -104,7 +104,30 @@
 - InfiniteCanvasコンテナに `userSelect: "none"` を設定すれば、子要素のブラウザネイティブテキスト選択を防止できる。FormulaEditorの編集モードでは個別に `userSelect: "text"` で上書き済み
 - Storybook + Tailwind v4: `.storybook/main.ts`のviteFinalで`@tailwindcss/postcss`を明示設定が必要。postcss.config.mjsの自動検出は動作しない
 - shadcn-uiカラートークン: `bg-card`, `border-ui-border`, `text-muted-foreground`, `text-foreground`, `bg-muted`, `bg-background`, `bg-ui-accent`
+- shadcn-ui変換パターン: 選択バッジは`bg-primary text-primary-foreground border-primary`、非選択は`bg-card text-muted-foreground border-ui-border hover:bg-muted`
 
+---
+
+## 2026-03-14 - [UI] リファレンスブラウザの検索欄・カテゴリバッジ・ドキュメントカードをshadcn-ui wayに変換
+- ベースライン: カバレッジ変化なし（スタイル変更のみ、ロジック変更なし）
+- **結果: 全テストパス (13テスト ReferenceBrowserComponent.test.tsx、24テスト HubPageView.stories.tsx)**
+- 実装内容:
+  - ReferenceBrowserComponentの全CSSPropertiesオブジェクト（12個）をTailwindユーティリティクラスに変換
+  - 検索入力: `bg-card text-foreground border-ui-border rounded-lg focus:ring-2 focus:ring-ring`
+  - カテゴリバッジ（選択時）: `bg-primary text-primary-foreground border-primary rounded-full`
+  - カテゴリバッジ（非選択）: `bg-card text-muted-foreground border-ui-border hover:bg-muted rounded-full`
+  - ドキュメントカード: `bg-card border-ui-border hover:bg-muted rounded-lg`
+  - カテゴリラベル: `bg-muted text-muted-foreground rounded`
+  - `type CSSProperties` importの削除
+- 変更ファイル:
+  - src/lib/reference/ReferenceBrowserComponent.tsx
+- スクリーンショット:
+  - .screenshots/reference-browser-shadcn.png (ライトテーマ)
+  - .screenshots/reference-browser-shadcn-dark.png (ダークテーマ)
+- **今後のイテレーションへの学び:**
+  - 選択状態のバッジは`bg-primary text-primary-foreground`が最も適切（`bg-accent`はshadcn-uiでは薄い背景色で選択感が弱い）
+  - `focus:ring-2 focus:ring-ring`でshadcn-ui標準のフォーカスリングが適用できる
+  - Storybook story IDは`title`フィールドのスラッシュ→ハイフン変換。`Pages/Hub`→`pages-hub--reference-tab`
 ---
 
 ## 2026-03-14 - [UI] アップバーの言語選択・テーマ選択をshadcn-ui wayに変換
