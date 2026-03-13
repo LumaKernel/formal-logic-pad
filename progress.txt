@@ -13506,3 +13506,18 @@
   - ドキュメントコンテンツ追加時は referenceContent.ts に [ref] エントリを追加する流れ
   - [guide] 系コンテンツは前後関係を持つ連続的な学習パスとして設計する
 ---
+
+## 2026-03-13 - ゴールパネルのインラインマークダウン対応
+- GoalPanelの description, hints, learningPoint テキストに InlineMarkdown レンダリングを追加
+- 既存の InlineMarkdown コンポーネント（<b>, <i>, <code> 対応）をリファレンスモジュールから再利用
+- 変更ファイル:
+  - src/lib/proof-pad/GoalPanel.tsx (InlineMarkdown import + 3箇所の plain text → InlineMarkdown 置き換え)
+  - src/lib/proof-pad/GoalPanel.test.tsx (4テスト追加: bold/italic/code/プレーンテキスト)
+  - tasks/prd-docs-improve.md (タスク完了マーク)
+- テスト: 10252件全通過（+4）、GoalPanel 100% カバレッジ維持
+- スクリーンショット: .screenshots/goal-panel-inline-markdown.png
+- **今後のイテレーションへの学び:**
+  - InlineMarkdown は reference モジュールに配置されているが、GoalPanel（proof-pad）からも利用可能。モジュール間共有パターン
+  - 既存テストは getByText() によるテキスト内容マッチングで、InlineMarkdown（<span>ラップ）でも問題なく通る
+  - 自作クエストも同じ GoalPanel を通るため、自動的にマークダウン対応される
+---
