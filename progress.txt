@@ -13704,3 +13704,14 @@
   - ScriptEditorのような大規模移行ではモジュールレベル定数（barBg, templateBtnClsなど）で再利用性を確保
   - page.module.cssはどこからもインポートされていなかったデッドコード
 ---
+
+## 2026-03-13 - reference UI (下付き文字レンダリング)
+- parseInlineMarkdownに下付き文字(_XYZ→<sub>)パースを追加（2パス方式: HTML→subscript）
+- InlineMarkdownコンポーネントに<sub>レンダリングを追加
+- ReferenceBrowserComponentのsummaryをInlineMarkdown化
+- テスト: referenceUILogic.test.tsに下付き文字テスト6件追加（44テスト全パス、カバレッジ100%）
+- 変更ファイル: referenceUILogic.ts, InlineMarkdown.tsx, ReferenceBrowserComponent.tsx, referenceUILogic.test.ts
+- **今後のイテレーションへの学び:**
+  - InlineMarkdownは既にReferenceModal, ReferencePopover, ReferenceFloatingWindow, ReferenceViewerPageViewで使用済み。ReferenceBrowserComponentのみがプレーンテキストだった
+  - 下付き文字パースは2パス方式（HTML tags→subscripts in text elements）で実装。これにより既存パーサーへの影響を最小化
+---
