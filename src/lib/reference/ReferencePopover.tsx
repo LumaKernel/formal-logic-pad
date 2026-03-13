@@ -61,7 +61,7 @@ const triggerButtonStyle: CSSProperties = {
 
 const popoverBaseStyle: CSSProperties = {
   position: "fixed",
-  zIndex: 1000,
+  zIndex: 1600,
   width: "320px",
   maxWidth: "90vw",
   backgroundColor: "var(--color-surface, #ffffff)",

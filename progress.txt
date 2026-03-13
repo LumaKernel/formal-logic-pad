@@ -105,6 +105,22 @@
 
 ---
 
+## 2026-03-13 - [reference] (?)ポップオーバーのz-index修正
+- ベースライン: カバレッジ変化なし（CSS値のみの変更）
+- **結果: 全テストパス**
+- 実装内容:
+  - ReferencePopover の z-index を 1000 → 1600 に変更
+  - ReferenceFloatingWindow (z-index: 1500) の上にポップオーバーが表示されるように修正
+  - ReferenceModal (z-index: 2000) より下なのでモーダルの動作に影響なし
+- 変更ファイル:
+  - src/lib/reference/ReferencePopover.tsx
+- スクリーンショット:
+  - .screenshots/popover-above-floating-window.png（修正後の確認）
+- **今後のイテレーションへの学び:**
+  - z-index階層: panels(10) < popover(1600) < floatingWindow(1500→1600の上) < modal(2000)
+  - ポップオーバーは一時的な表示なので、常駐するフローティングウィンドウより上に置くのが自然
+---
+
 ## 2026-03-13 - [ui] shadcn-uiとTailwind CSS v4の初期セットアップ
 - ベースライン: 10141 tests passed（unit 9942 + storybook）
 - **結果: テスト数変化なし、全テストパス**
