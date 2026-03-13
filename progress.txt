@@ -105,6 +105,27 @@
 
 ---
 
+## 2026-03-14 - [reference] Hilbert系の証明の進め方ガイド追加
+- ベースライン: カバレッジ変化なし（リファレンスコンテンツデータ追加のみ）
+- **結果: 全テストパス (937テスト referenceContent.test.ts)**
+- 実装内容:
+  - `guide-hilbert-proof-method` ガイドエントリを追加（10段落、en/ja両対応）
+  - 内容: Hilbert系証明の戦略（逆向き推論、恒等証明テンプレート、演繹定理活用、補題再利用、公理マッチング）
+  - prop-01〜prop-15のクエストと関連付け
+  - Wikipedia EN/JA + nLab の外部リンク
+  - referenceContent.test.ts のエントリ数を66→67に更新
+- 変更ファイル:
+  - src/lib/reference/referenceContent.ts
+  - src/lib/reference/referenceContent.test.ts
+  - tasks/prd-docs-contents.md
+- スクリーンショット:
+  - .screenshots/hub-reference-tab-with-hilbert-guide.png（Guides (5) 確認）
+- **今後のイテレーションへの学び:**
+  - ガイドエントリのorder値はカテゴリ内での表示順。現在guides: 1-5
+  - 10段落構成が標準的なガイドの分量（intro-propositional-logicも同様）
+  - 証明戦略ガイドは実際のクエスト番号範囲と対応させると学習パスが明確になる
+---
+
 ## 2026-03-13 - [routing] トップページのタブをハッシュからルートベースに移行
 - ベースライン: カバレッジ変化なし（ルーティング変更のみ）
 - **結果: 全テストパス (268ファイル, 9156テスト)**
