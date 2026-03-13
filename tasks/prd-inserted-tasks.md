@@ -2,7 +2,7 @@
 
 - [-] shadcn-ui wayに以下を変えていって
   - [x] アップバーの言語選択やテーマ選択（LanguageToggle/ThemeToggle/ヘッダーをTailwindユーティリティに統一、Storybook Tailwind v4設定修正）
-  - [-] アップバーのタイトルブランド
+  - [x] アップバーのタイトルブランド（Sigmaアイコン追加、font-semibold/text-lg/select-none、text-primary アイコン色）
   - [ ] トップページのタブ
   - [ ] リファレンスの検索欄、各検索ボタン、検索結果のドキュメントカード
   - [ ] 各タブのボタンやアイコンボタン(三点リーダーなど)

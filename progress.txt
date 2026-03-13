@@ -13958,3 +13958,16 @@
   - KaTeX CSS は `.storybook/preview.ts` でのみインポートされていた。Storybookでは正常でもメインアプリで壊れるパターンに注意
   - `output: "htmlAndMathml"` を使う場合、KaTeX CSS がないと mathml と html の両方が表示される
 ---
+
+## 2026-03-14 03:50 - UI (shadcn-ui ブランドタイトル)
+- アップバーのタイトルブランドをshadcn-ui wayに変換
+- Sigmaアイコン（lucide-react）をブランド名の左に追加
+- スタイル: text-lg font-semibold tracking-tight text-foreground select-none + text-primary アイコン
+- 変更ファイル: src/app/HubPageView.tsx
+- テスト: 既存24ストーリーテスト全パス、typecheck/lint/prettier OK
+- スクリーンショット: .screenshots/brand-title-hub-empty.png, brand-title-hub-dark.png, brand-title-landing.png
+- カバレッジ: スタイル変更のみ、低下なし
+- **今後のイテレーションへの学び:**
+  - lucide-react はThemeToggleで既に使用しているため、追加依存なしでアイコン利用可能
+  - shadcn-ui wayのブランド: inline-flex + gap + アイコン + テキスト、font-semibold（boldより軽い）、select-none で選択不可
+---
