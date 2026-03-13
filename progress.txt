@@ -13925,3 +13925,13 @@
   - formalNotationを配列にすると、toContainの挙動が変わる（文字列→部分文字列検索、配列→要素一致検索）
   - ESLint require-satisfies-in-tls: テンプレートリテラル内の三項演算子も全体にsatisfies stringが必要
 ---
+
+## 2026-03-14 - KaTeX CSS修正
+- KaTeX CSSがメインアプリ（layout.tsx）にインポートされていなかったため、リファレンスページでmathml spanとhtml spanの両方が表示される問題を修正
+- 変更ファイル: src/app/layout.tsx（`import "katex/dist/katex.min.css"` 追加）
+- カバレッジ: layout.tsxはsrc/app/**で除外対象のため影響なし（99.91%維持）
+- スクリーンショット: .screenshots/katex-app-axiom-a1-after-fix.png, .screenshots/katex-app-rule-mp-after-fix.png
+- **今後のイテレーションへの学び:**
+  - KaTeX CSS は `.storybook/preview.ts` でのみインポートされていた。Storybookでは正常でもメインアプリで壊れるパターンに注意
+  - `output: "htmlAndMathml"` を使う場合、KaTeX CSS がないと mathml と html の両方が表示される
+---
