@@ -19,6 +19,7 @@ import {
   initialBrowserState,
   type ReferenceBrowserState,
 } from "./referenceBrowserLogic";
+import { InlineMarkdown } from "./InlineMarkdown";
 
 // --- Props ---
 
@@ -325,7 +326,9 @@ export function ReferenceBrowserComponent({
               <span style={entryCategoryStyle}>{item.categoryLabel}</span>
               <div>
                 <div style={entryTitleStyle}>{item.title}</div>
-                <div style={entrySummaryStyle}>{item.summary}</div>
+                <div style={entrySummaryStyle}>
+                  <InlineMarkdown text={item.summary} />
+                </div>
               </div>
             </button>
           ))}

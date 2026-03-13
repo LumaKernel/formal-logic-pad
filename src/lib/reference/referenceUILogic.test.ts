@@ -221,6 +221,61 @@ describe("parseInlineMarkdown", () => {
       { type: "text", content: "text <span>span</span> more" },
     ]);
   });
+
+  // --- subscript ---
+
+  it("下付き文字(_XYZ)をパースする", () => {
+    const result = parseInlineMarkdown("⊢_LK φ");
+    expect(result).toEqual([
+      { type: "text", content: "⊢" },
+      { type: "subscript", content: "LK" },
+      { type: "text", content: " φ" },
+    ]);
+  });
+
+  it("複数の下付き文字をパースする", () => {
+    const result = parseInlineMarkdown("⊢_LK φ ⟺ ⊢_LJ ¬¬φ");
+    expect(result).toEqual([
+      { type: "text", content: "⊢" },
+      { type: "subscript", content: "LK" },
+      { type: "text", content: " φ ⟺ ⊢" },
+      { type: "subscript", content: "LJ" },
+      { type: "text", content: " ¬¬φ" },
+    ]);
+  });
+
+  it("単一文字の下付き文字をパースする", () => {
+    const result = parseInlineMarkdown("⊢_K Δ");
+    expect(result).toEqual([
+      { type: "text", content: "⊢" },
+      { type: "subscript", content: "K" },
+      { type: "text", content: " Δ" },
+    ]);
+  });
+
+  it("下付き文字とHTMLタグの混在をパースする", () => {
+    const result = parseInlineMarkdown(
+      "<b>Soundness</b>: ⊢_K Δ implies ⊨ Δ",
+    );
+    expect(result).toEqual([
+      { type: "bold", content: "Soundness" },
+      { type: "text", content: ": ⊢" },
+      { type: "subscript", content: "K" },
+      { type: "text", content: " Δ implies ⊨ Δ" },
+    ]);
+  });
+
+  it("下付き文字のみの文字列をパースする", () => {
+    const result = parseInlineMarkdown("_TAB");
+    expect(result).toEqual([{ type: "subscript", content: "TAB" }]);
+  });
+
+  it("アンダースコアの後に英数字がない場合はテキストとして扱う", () => {
+    const result = parseInlineMarkdown("test_ end");
+    expect(result).toEqual([
+      { type: "text", content: "test_ end" },
+    ]);
+  });
 });
 
 // --- buildPopoverData ---

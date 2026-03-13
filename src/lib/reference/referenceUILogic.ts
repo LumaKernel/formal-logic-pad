@@ -25,7 +25,8 @@ export type InlineElement =
   | { readonly type: "text"; readonly content: string }
   | { readonly type: "bold"; readonly content: string }
   | { readonly type: "italic"; readonly content: string }
-  | { readonly type: "code"; readonly content: string };
+  | { readonly type: "code"; readonly content: string }
+  | { readonly type: "subscript"; readonly content: string };
 
 /** サポートするHTMLタグとInlineElement typeの対応 */
 const tagTypeMap: ReadonlyMap<string, InlineElement["type"]> = new Map([
@@ -35,12 +36,45 @@ const tagTypeMap: ReadonlyMap<string, InlineElement["type"]> = new Map([
 ]);
 
 /**
+ * テキスト要素内の下付き文字（_XYZ）をパースする。
+ * _に続くアルファベット・数字の連続を下付き文字として抽出する。
+ */
+function parseSubscriptsInText(
+  content: string,
+): readonly InlineElement[] {
+  const result: InlineElement[] = [];
+  const subscriptRegex = /_([A-Za-z0-9]+)/g;
+  let lastIndex = 0;
+
+  let match: RegExpExecArray | null;
+  while ((match = subscriptRegex.exec(content)) !== null) {
+    // _の前のテキスト
+    if (match.index > lastIndex) {
+      result.push({
+        type: "text",
+        content: content.slice(lastIndex, match.index),
+      });
+    }
+
+    result.push({ type: "subscript", content: match[1] });
+    lastIndex = match.index + match[0].length;
+  }
+
+  // 残りのテキスト
+  if (lastIndex < content.length) {
+    result.push({ type: "text", content: content.slice(lastIndex) });
+  }
+
+  return result;
+}
+
+/**
  * インラインHTMLタグをパースする。
- * <b>bold</b>, <i>italic</i>, <code>code</code> をサポート。
+ * <b>bold</b>, <i>italic</i>, <code>code</code>, _subscript をサポート。
  * ネストはサポートしない（フラットなインライン要素のみ）。
  */
 export function parseInlineMarkdown(text: string): readonly InlineElement[] {
-  const result: InlineElement[] = [];
+  const rawElements: InlineElement[] = [];
   // <b>, <i>, <code> の開きタグにマッチする正規表現
   const openTagRegex = /<(b|i|code)>/g;
   let lastIndex = 0;
@@ -58,7 +92,7 @@ export function parseInlineMarkdown(text: string): readonly InlineElement[] {
 
     // 開きタグ前のテキスト
     if (match.index > lastIndex) {
-      result.push({
+      rawElements.push({
         type: "text",
         content: text.slice(lastIndex, match.index),
       });
@@ -67,7 +101,7 @@ export function parseInlineMarkdown(text: string): readonly InlineElement[] {
     const content = text.slice(match.index + match[0].length, closeIndex);
     const elementType = tagTypeMap.get(tagName);
     if (content.length > 0 && elementType !== undefined) {
-      result.push({ type: elementType, content });
+      rawElements.push({ type: elementType, content });
     }
 
     lastIndex = closeIndex + closeTag.length;
@@ -76,7 +110,17 @@ export function parseInlineMarkdown(text: string): readonly InlineElement[] {
 
   // 残りのテキスト
   if (lastIndex < text.length) {
-    result.push({ type: "text", content: text.slice(lastIndex) });
+    rawElements.push({ type: "text", content: text.slice(lastIndex) });
+  }
+
+  // テキスト要素内の下付き文字をパース（2nd pass）
+  const result: InlineElement[] = [];
+  for (const el of rawElements) {
+    if (el.type === "text") {
+      result.push(...parseSubscriptsInText(el.content));
+    } else {
+      result.push(el);
+    }
   }
 
   return result;
