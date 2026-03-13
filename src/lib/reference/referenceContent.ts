@@ -4308,6 +4308,106 @@ const conceptSpeedUpTheorem: ReferenceEntry = {
   order: 23,
 };
 
+const conceptFormulaSchema: ReferenceEntry = {
+  id: "concept-formula-schema",
+  category: "concept",
+  title: {
+    en: "Formula Schemas vs. Formulas",
+    ja: "論理式スキーマと論理式",
+  },
+  summary: {
+    en: "This site proves formula schemas — patterns with metavariables — rather than specific formulas, giving every proof maximal generality.",
+    ja: "このサイトでは具体的な論理式ではなく、メタ変数を含むパターン（論理式スキーマ）を証明し、すべての証明に最大の一般性を持たせる。",
+  },
+  body: {
+    en: [
+      "<b>What is a formula schema?</b> A <b>formula schema</b> (also called an <b>axiom schema</b> when used as an axiom) is a pattern that represents an infinite family of formulas. For example, the schema φ → (ψ → φ) contains metavariables φ and ψ, each of which can be replaced by any well-formed formula. Substituting φ with (P → Q) and ψ with R yields the concrete formula (P → Q) → (R → (P → Q)), but equally valid would be any other substitution. A single schema thus captures infinitely many specific formulas.",
+
+      "<b>Formulas vs. schemas.</b> A <b>formula</b> in propositional logic is built from propositional variables (P, Q, R, ...) and logical connectives (→, ¬, ∧, ∨). Every propositional variable denotes a fixed (though unspecified) truth value. A <b>schema</b>, by contrast, uses <b>metavariables</b> — Greek letters like φ, ψ, χ — that stand for arbitrary formulas, not just propositional variables. The distinction is subtle but crucial: a propositional variable P is part of the object language, while a metavariable φ belongs to the metalanguage and can be replaced by any formula, no matter how complex.",
+
+      "<b>Why prove schemas?</b> Proving a schema is strictly stronger than proving any single instance of it. When you prove φ → (ψ → φ), you simultaneously prove P → (Q → P), (A ∧ B) → (C → (A ∧ B)), (¬P → ¬Q) → ((R ∨ S) → (¬P → ¬Q)), and every other possible substitution. A proof of the schema is a proof of the <b>logical principle itself</b>, not merely one example of it. This is why axiomatic systems state their axioms as schemas: they need to assert the principle in full generality.",
+
+      "<b>The approach of this site.</b> In this application, you work entirely with formula schemas. When you write φ → (ψ → φ) on the proof canvas, φ and ψ are metavariables that can be instantiated to any formula. This means:\n• Every proof you construct is maximally general.\n• You prove logical <b>laws</b>, not particular instances.\n• Your proofs directly correspond to the way axiom systems are formally defined.\n• A single completed proof serves as a template for infinitely many concrete proofs.",
+
+      "<b>Schemas in predicate logic.</b> The concept extends naturally to predicate logic. A schema like ∀x.φ → φ[x := t] contains the metavariable φ and the meta-term t. Here φ can be any formula, and t can be any term free for x in φ. The substitution notation [x := t] is itself part of the schema mechanism, specifying how the instantiation should be performed. This schema-level reasoning is what makes predicate logic axioms (like A4 and A5) applicable to every formula and every term.",
+
+      "<b>Schema-level proof and rigor.</b> Working with schemas makes the logical structure of proofs transparent. Every application of Modus Ponens, every axiom instantiation, and every generalization step operates at the schema level. There are no hidden assumptions about specific formulas — the proof works for <b>all</b> formulas uniformly. This is not just a pedagogical convenience but reflects how formal proof theory actually works: metatheorems about deductive systems are proved at the schema level, establishing results that hold for the entire system at once.",
+    ],
+    ja: [
+      "<b>論理式スキーマとは？</b> <b>論理式スキーマ</b>（公理として用いる場合は<b>公理スキーマ</b>とも呼ぶ）は、無限個の論理式の族を表すパターンです。例えばスキーマ φ → (ψ → φ) にはメタ変数 φ と ψ が含まれ、それぞれ任意の整形式論理式に置き換えることができます。φ を (P → Q) に、ψ を R に代入すると具体的な論理式 (P → Q) → (R → (P → Q)) が得られますが、他のどのような代入も同様に有効です。一つのスキーマが無限個の具体的な論理式を捉えているのです。",
+
+      "<b>論理式とスキーマの違い。</b> 命題論理における<b>論理式</b>は、命題変数（P, Q, R, ...）と論理結合子（→, ¬, ∧, ∨）から構成されます。各命題変数は固定された（ただし未指定の）真理値を指します。一方<b>スキーマ</b>は<b>メタ変数</b> — ギリシャ文字の φ, ψ, χ など — を使い、これらは命題変数だけでなく任意の論理式を表します。この区別は微妙ですが決定的に重要です：命題変数 P は対象言語の一部であるのに対し、メタ変数 φ はメタ言語に属し、どれほど複雑な論理式にも置き換えることができます。",
+
+      "<b>なぜスキーマを証明するのか？</b> スキーマの証明は、そのいかなる具体例の証明よりも厳密に強力です。φ → (ψ → φ) を証明すれば、P → (Q → P) も (A ∧ B) → (C → (A ∧ B)) も (¬P → ¬Q) → ((R ∨ S) → (¬P → ¬Q)) も、その他すべての可能な代入結果も同時に証明したことになります。スキーマの証明は単なる一例の証明ではなく、<b>論理法則そのもの</b>の証明です。公理系が公理をスキーマとして述べるのはこのためです：原理を完全な一般性で主張する必要があるからです。",
+
+      "<b>このサイトのアプローチ。</b> 本アプリケーションでは、すべての作業を論理式スキーマで行います。証明キャンバスに φ → (ψ → φ) と書くとき、φ と ψ は任意の論理式にインスタンス化できるメタ変数です。これは以下を意味します：\n• 構築するすべての証明が最大限に一般的である。\n• 個別の事例ではなく、論理<b>法則</b>を証明する。\n• 証明が公理系の形式的定義に直接対応する。\n• 完成した一つの証明が、無限個の具体的な証明のテンプレートとなる。",
+
+      "<b>述語論理におけるスキーマ。</b> この概念は述語論理にも自然に拡張されます。∀x.φ → φ[x := t] というスキーマにはメタ変数 φ とメタ項 t が含まれます。ここで φ は任意の論理式、t は φ において x に対して自由な任意の項です。代入記法 [x := t] 自体がスキーマ機構の一部であり、インスタンス化の方法を指定しています。このスキーマレベルの推論こそが、述語論理の公理（A4やA5など）をあらゆる論理式とあらゆる項に適用可能にしているのです。",
+
+      "<b>スキーマレベルの証明と厳密さ。</b> スキーマで作業することで、証明の論理構造が透明になります。Modus Ponensの適用も、公理のインスタンス化も、一般化のステップも、すべてスキーマレベルで行われます。特定の論理式についての暗黙の仮定は存在しません — 証明は<b>すべての</b>論理式に一様に機能します。これは単なる教育的便宜ではなく、形式的証明論が実際にどう機能するかを反映しています：演繹体系に関するメタ定理はスキーマレベルで証明され、体系全体に一度に成り立つ結果を確立するのです。",
+    ],
+  },
+  relatedEntryIds: [
+    "notation-metavariables",
+    "axiom-a1",
+    "axiom-a2",
+    "axiom-a3",
+    "axiom-a4",
+    "axiom-a5",
+    "guide-what-is-formal-proof",
+    "concept-substitution",
+  ],
+  relatedQuestIds: ["prop-01", "prop-02", "prop-03"],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Axiom_schema",
+      label: {
+        en: "Axiom schema (Wikipedia)",
+        ja: "公理スキーマ (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E5%85%AC%E7%90%86%E5%9E%8B",
+      label: {
+        en: "Axiom schema (Wikipedia, ja)",
+        ja: "公理型 (Wikipedia)",
+      },
+      documentLanguage: "ja",
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/axiom+scheme",
+      label: {
+        en: "Axiom scheme (nLab)",
+        ja: "公理スキーム (nLab)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "formula schema",
+    "論理式スキーマ",
+    "axiom schema",
+    "公理スキーマ",
+    "metavariable",
+    "メタ変数",
+    "schema",
+    "スキーマ",
+    "generality",
+    "一般性",
+    "instantiation",
+    "インスタンス化",
+    "object language",
+    "対象言語",
+    "metalanguage",
+    "メタ言語",
+  ],
+  order: 24,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -5048,6 +5148,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptAxiomIndependence,
   conceptAnalyticTableau,
   conceptSpeedUpTheorem,
+  conceptFormulaSchema,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
