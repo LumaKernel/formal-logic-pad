@@ -254,9 +254,7 @@ describe("parseInlineMarkdown", () => {
   });
 
   it("下付き文字とHTMLタグの混在をパースする", () => {
-    const result = parseInlineMarkdown(
-      "<b>Soundness</b>: ⊢_K Δ implies ⊨ Δ",
-    );
+    const result = parseInlineMarkdown("<b>Soundness</b>: ⊢_K Δ implies ⊨ Δ");
     expect(result).toEqual([
       { type: "bold", content: "Soundness" },
       { type: "text", content: ": ⊢" },
@@ -272,9 +270,7 @@ describe("parseInlineMarkdown", () => {
 
   it("アンダースコアの後に英数字がない場合はテキストとして扱う", () => {
     const result = parseInlineMarkdown("test_ end");
-    expect(result).toEqual([
-      { type: "text", content: "test_ end" },
-    ]);
+    expect(result).toEqual([{ type: "text", content: "test_ end" }]);
   });
 });
 

@@ -39,9 +39,7 @@ const tagTypeMap: ReadonlyMap<string, InlineElement["type"]> = new Map([
  * テキスト要素内の下付き文字（_XYZ）をパースする。
  * _に続くアルファベット・数字の連続を下付き文字として抽出する。
  */
-function parseSubscriptsInText(
-  content: string,
-): readonly InlineElement[] {
+function parseSubscriptsInText(content: string): readonly InlineElement[] {
   const result: InlineElement[] = [];
   const subscriptRegex = /_([A-Za-z0-9]+)/g;
   let lastIndex = 0;
