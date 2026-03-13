@@ -45,6 +45,8 @@ export interface GoalPanelProps {
   readonly locale?: Locale;
   /** リファレンス詳細モーダルを開くコールバック */
   readonly onOpenReferenceDetail?: (entryId: string) => void;
+  /** パネルDOM要素へのcallback ref（サイズ計測用） */
+  readonly panelRef?: (node: HTMLElement | null) => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -695,6 +697,7 @@ export function GoalPanel({
   position,
   onDragHandlePointerDown,
   wasDraggedRef,
+  panelRef,
   referenceEntries,
   locale,
   onOpenReferenceDetail,
@@ -762,6 +765,7 @@ export function GoalPanel({
   if (collapsed) {
     return (
       <div
+        ref={panelRef}
         style={resolvedToggleStyle}
         role="button"
         tabIndex={0}
@@ -793,6 +797,7 @@ export function GoalPanel({
 
   return (
     <div
+      ref={panelRef}
       style={resolvedPanelStyle}
       data-testid={testId}
       onClick={(e) => {

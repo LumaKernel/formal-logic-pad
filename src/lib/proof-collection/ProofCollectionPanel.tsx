@@ -85,6 +85,8 @@ export interface ProofCollectionPanelProps {
   readonly onDragHandlePointerDown?: (
     e: React.PointerEvent<HTMLElement>,
   ) => void;
+  /** パネルDOM要素へのcallback ref（サイズ計測用） */
+  readonly panelRef?: (node: HTMLElement | null) => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -786,6 +788,7 @@ export function ProofCollectionPanel({
   onRenameFolder,
   position,
   onDragHandlePointerDown,
+  panelRef,
   testId,
 }: ProofCollectionPanelProps) {
   const [collapsed, setCollapsed] = useState(false);
@@ -967,6 +970,7 @@ export function ProofCollectionPanel({
   if (collapsed) {
     return (
       <div
+        ref={panelRef}
         style={resolvedToggleStyle}
         role="button"
         tabIndex={0}
@@ -996,6 +1000,7 @@ export function ProofCollectionPanel({
 
   return (
     <div
+      ref={panelRef}
       style={resolvedPanelStyle}
       data-testid={testId}
       onClick={(e) => e.stopPropagation()}

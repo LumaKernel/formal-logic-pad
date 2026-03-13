@@ -36,6 +36,8 @@ export interface AxiomPaletteProps {
   readonly onDragHandlePointerDown?: (
     e: React.PointerEvent<HTMLElement>,
   ) => void;
+  /** パネルDOM要素へのcallback ref（サイズ計測用） */
+  readonly panelRef?: (node: HTMLElement | null) => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -189,6 +191,7 @@ export function AxiomPalette({
   onOpenReferenceDetail,
   position,
   onDragHandlePointerDown,
+  panelRef,
   testId,
 }: AxiomPaletteProps) {
   const msg = useProofMessages();
@@ -248,7 +251,7 @@ export function AxiomPalette({
   }
 
   return (
-    <div data-testid={testId} style={resolvedPanelStyle}>
+    <div ref={panelRef} data-testid={testId} style={resolvedPanelStyle}>
       <div style={dragHeaderStyle} onPointerDown={onDragHandlePointerDown}>
         {msg.axiomPaletteHeader}
       </div>

@@ -239,4 +239,120 @@ describe("usePanelDrag", () => {
 
     expect(onPositionChange).not.toHaveBeenCalled();
   });
+
+  it("ドラッグ中はスナップせずマウスに追従する", () => {
+    const onPositionChange = vi.fn();
+    const { result } = renderHook(() =>
+      usePanelDrag({
+        ...baseConfig,
+        position: { x: 50, y: 50 },
+        onPositionChange,
+      }),
+    );
+
+    act(() => {
+      result.current.handleProps.onPointerDown(createPointerEvent(100, 100));
+    });
+
+    // ポインタを左辺近く（スナップ閾値内）に移動
+    act(() => {
+      window.dispatchEvent(
+        new PointerEvent("pointermove", { clientX: 70, clientY: 100 }),
+      );
+    });
+
+    // ドラッグ中: スナップせずマウスに追従 (50 + (70 - 100) = 20)
+    const pos = onPositionChange.mock.calls[0]![0];
+    expect(pos.x).toBe(20);
+  });
+
+  it("ドロップ時にスナップが適用される", () => {
+    // configRef.currentのpositionを追跡するため、position stateを使う
+    let currentPosition = { x: 50, y: 50 };
+    const onPositionChange = vi.fn((next: { readonly x: number; readonly y: number }) => {
+      currentPosition = next;
+    });
+    const { result, rerender } = renderHook(
+      (props: { readonly position: { readonly x: number; readonly y: number } }) =>
+        usePanelDrag({
+          ...baseConfig,
+          position: props.position,
+          onPositionChange,
+        }),
+      { initialProps: { position: currentPosition } },
+    );
+
+    act(() => {
+      result.current.handleProps.onPointerDown(createPointerEvent(100, 100));
+    });
+
+    // ポインタを左辺近く（スナップ閾値内）に移動
+    act(() => {
+      window.dispatchEvent(
+        new PointerEvent("pointermove", { clientX: 70, clientY: 100 }),
+      );
+    });
+
+    // configRef.currentを更新するためrerender
+    rerender({ position: currentPosition });
+
+    // ドロップ
+    act(() => {
+      window.dispatchEvent(new PointerEvent("pointerup"));
+    });
+
+    // ドロップ時にスナップが適用される（最後のonPositionChange呼び出し）
+    const lastCall =
+      onPositionChange.mock.calls[onPositionChange.mock.calls.length - 1]![0];
+    // x=20 → margin(8)までの距離12 < threshold(16) → スナップでx=8
+    expect(lastCall.x).toBe(8);
+  });
+
+  it("初期状態ではsnapPreviewがnull", () => {
+    const { result } = renderHook(() => usePanelDrag(baseConfig));
+    expect(result.current.snapPreview).toBe(null);
+  });
+
+  it("ドラッグ中にsnapPreviewが更新される", () => {
+    const onPositionChange = vi.fn();
+    const { result } = renderHook(() =>
+      usePanelDrag({ ...baseConfig, onPositionChange }),
+    );
+
+    act(() => {
+      result.current.handleProps.onPointerDown(createPointerEvent(150, 120));
+    });
+
+    act(() => {
+      window.dispatchEvent(
+        new PointerEvent("pointermove", { clientX: 200, clientY: 170 }),
+      );
+    });
+
+    expect(result.current.snapPreview).not.toBe(null);
+    expect(result.current.snapPreview?.position).toBeDefined();
+  });
+
+  it("ドロップ後にsnapPreviewがnullに戻る", () => {
+    const onPositionChange = vi.fn();
+    const { result } = renderHook(() =>
+      usePanelDrag({ ...baseConfig, onPositionChange }),
+    );
+
+    act(() => {
+      result.current.handleProps.onPointerDown(createPointerEvent(150, 120));
+    });
+
+    act(() => {
+      window.dispatchEvent(
+        new PointerEvent("pointermove", { clientX: 200, clientY: 170 }),
+      );
+    });
+
+    act(() => {
+      window.dispatchEvent(new PointerEvent("pointerup"));
+    });
+
+    expect(result.current.snapPreview).toBe(null);
+  });
 });
