@@ -13618,3 +13618,20 @@
   - InlineMarkdownコンポーネントはHTMLタグ（<code>）をパースするが、Markdown記法（バックティック）はサポートしていない
   - リファレンスコンテンツでコード表現する場合は必ず<code>タグを使用
 ---
+
+## 2026-03-13 18:00 - ui
+- 実装した内容: Tailwind v4のdark:バリアントをdata-theme属性に統合、ThemeToggleをCSS ModulesからTailwind utility classesに移行
+- 変更ファイル:
+  - src/app/globals.css (@custom-variant dark追加)
+  - src/components/ThemeToggle/ThemeToggle.tsx (CSS Modules→Tailwind utilities, インラインSVG→lucide-react)
+  - src/components/ThemeToggle/ThemeToggle.stories.tsx (inline style→Tailwind class)
+  - src/components/ThemeToggle/ThemeToggle.module.css (削除)
+- テスト: 10217件全通過、ThemeToggle 100%カバレッジ維持
+- スクリーンショット: .screenshots/theme-toggle-tailwind-light.png, .screenshots/theme-toggle-tailwind-dark.png
+- **今後のイテレーションへの学び:**
+  - Tailwind v4のdarkモードカスタマイズは `@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));` で設定
+  - shadcn-uiのCSS変数トークン（--ui-*）とTailwindの@theme inlineの組み合わせで、bg-background, text-foreground等のユーティリティがそのまま動く
+  - lucide-reactアイコンはshadcn-ui依存として既にインストール済み。インラインSVGの代替として使える
+  - cn()ユーティリティ（clsx + tailwind-merge）は条件付きクラス適用のパターンとして使用
+  - ThemeToggleのテストはdata-testidとaria-checkedベースなので、CSS→Tailwind移行でテストコード変更不要
+---
