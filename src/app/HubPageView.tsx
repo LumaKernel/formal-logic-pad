@@ -8,7 +8,8 @@
  * 変更時は HubContent.tsx, HubPageView.stories.tsx も同期すること。
  */
 
-import { useState, useRef, useCallback, type CSSProperties } from "react";
+import { useState, useRef, useCallback } from "react";
+import type { CSSProperties } from "react";
 import {
   NotebookList,
   NotebookCreateForm,
@@ -165,33 +166,13 @@ const headerActionsClassName = "flex items-center gap-2";
 const githubLinkClassName =
   "inline-flex items-center justify-center size-7 rounded-md text-muted-foreground opacity-60 transition-opacity duration-150 hover:opacity-100";
 
-const tabBarStyle: CSSProperties = {
-  display: "flex",
-  gap: 0,
-  borderBottom: "1px solid var(--color-border, #e0e0e0)",
-  padding: "0 24px",
-  background: "var(--color-surface, #fff)",
-};
+const tabBarClassName = "flex border-b border-ui-border px-6 bg-card";
 
-const tabStyle: CSSProperties = {
-  padding: "12px 20px",
-  fontSize: 14,
-  fontWeight: 600,
-  cursor: "pointer",
-  border: "none",
-  background: "transparent",
-  color: "var(--color-text-secondary, #666)",
-  borderBottomWidth: 2,
-  borderBottomStyle: "solid",
-  borderBottomColor: "transparent",
-  transition: "color 0.15s, border-color 0.15s",
-};
+const tabClassName =
+  "px-5 py-3 text-sm font-semibold cursor-pointer border-b-2 border-transparent bg-transparent text-muted-foreground transition-colors duration-150";
 
-const tabActiveStyle: CSSProperties = {
-  ...tabStyle,
-  color: "var(--color-accent, #555ab9)",
-  borderBottomColor: "var(--color-accent, #555ab9)",
-};
+const tabActiveClassName =
+  "px-5 py-3 text-sm font-semibold cursor-pointer border-b-2 border-primary text-primary bg-transparent transition-colors duration-150";
 
 const contentStyle: CSSProperties = {
   maxWidth: 800,
@@ -632,10 +613,12 @@ export function HubPageView({
       ) : (
         <>
           {/* Tab Bar */}
-          <nav style={tabBarStyle}>
+          <nav className={tabBarClassName}>
             <button
               type="button"
-              style={tab === "notebooks" ? tabActiveStyle : tabStyle}
+              className={
+                tab === "notebooks" ? tabActiveClassName : tabClassName
+              }
               onClick={() => {
                 onTabChange("notebooks");
                 setView("list");
@@ -646,7 +629,7 @@ export function HubPageView({
             </button>
             <button
               type="button"
-              style={tab === "quests" ? tabActiveStyle : tabStyle}
+              className={tab === "quests" ? tabActiveClassName : tabClassName}
               onClick={() => {
                 onTabChange("quests");
                 setView("list");
@@ -656,7 +639,9 @@ export function HubPageView({
             </button>
             <button
               type="button"
-              style={tab === "custom-quests" ? tabActiveStyle : tabStyle}
+              className={
+                tab === "custom-quests" ? tabActiveClassName : tabClassName
+              }
               onClick={() => {
                 onTabChange("custom-quests");
                 setView("list");
@@ -666,7 +651,9 @@ export function HubPageView({
             </button>
             <button
               type="button"
-              style={tab === "collection" ? tabActiveStyle : tabStyle}
+              className={
+                tab === "collection" ? tabActiveClassName : tabClassName
+              }
               onClick={() => {
                 onTabChange("collection");
                 setView("list");
@@ -676,7 +663,9 @@ export function HubPageView({
             </button>
             <button
               type="button"
-              style={tab === "reference" ? tabActiveStyle : tabStyle}
+              className={
+                tab === "reference" ? tabActiveClassName : tabClassName
+              }
               onClick={() => {
                 onTabChange("reference");
                 setView("list");
