@@ -13521,3 +13521,24 @@
   - 既存テストは getByText() によるテキスト内容マッチングで、InlineMarkdown（<span>ラップ）でも問題なく通る
   - 自作クエストも同じ GoalPanel を通るため、自動的にマークダウン対応される
 ---
+
+## 2026-03-13 - クエストカタログにドキュメントバッジ追加
+- クエスト→リファレンスの逆マッピングロジックを純粋関数として実装
+- QuestCatalogComponent にリファレンスドキュメントバッジ（緑色、📄+件数）を追加
+- バッジクリックでリファレンスタブに切り替わるよう HubContent で接続
+- 新規ファイル:
+  - src/lib/quest/questReferenceMappingLogic.ts (純粋ロジック: buildQuestToReferenceMap, getQuestReferenceCount, getQuestReferenceIds)
+  - src/lib/quest/questReferenceMappingLogic.test.ts (12テスト)
+- 変更ファイル:
+  - src/lib/quest/QuestCatalogComponent.tsx (ReferenceDocBadge追加, props threading)
+  - src/lib/quest/QuestCatalogComponent.test.tsx (+5テスト: ドキュメントバッジ表示/非表示/クリック)
+  - src/lib/quest/QuestCatalogComponent.stories.tsx (WithReferenceDocBadges ストーリー追加)
+  - src/app/HubPageView.tsx (questReferenceMap, onShowReference props追加)
+  - src/app/HubContent.tsx (buildQuestToReferenceMap useMemo + handleShowReference callback)
+- テスト: 255ファイル全通過（8455テスト）、カバレッジ維持
+- スクリーンショット: .screenshots/quest-reference-badge.png
+- **今後のイテレーションへの学び:**
+  - 逆マッピングパターン: referenceEntry.relatedQuestIds (reference→quest) の逆を buildQuestToReferenceMap で構築。既存の前方マッピングを逆引きするパターンは汎用的
+  - NotebookCountBadge と同じパターンで ReferenceDocBadge を実装。stopPropagation でクエスト開始を防止
+  - QuestCatalogComponent の props threading: QuestCatalog → CategorySection → QuestItem → Badge の4層を通す
+---
