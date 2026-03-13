@@ -289,5 +289,5 @@ Infinity Canvasについて。
 
 - [x] コードがレンダーされていなさそう。バックティック？の囲みマークがそのまま出てきてしまっている。 http://localhost:13000/reference/guide-basic-operations など
 - [x] トップページのタブはハッシュではなく、ルートとして管理しよう — Next.js App Routerで /quests, /custom-quests, /collection, /reference ルートを作成
-- [x] ドキュメントの一行説明文、こちらにもマークダウンとtexを使えるようにして、\_LKとかじゃなくて、綺麗にレンダーされるようにしよう — InlineMarkdownに下付き文字(_XYZ→<sub>)パースを追加、ReferenceBrowserComponentのsummaryにInlineMarkdown適用
+- [x] ドキュメントの一行説明文、こちらにもマークダウンとtexを使えるようにして、\_LKとかじゃなくて、綺麗にレンダーされるようにしよう — InlineMarkdownに下付き文字(\_XYZ→<sub>)パースを追加、ReferenceBrowserComponentのsummaryにInlineMarkdown適用
 - [x] (?) を押したときのポップアップが、ドキュメントウィンドウより下にくる。上に来てほしい — z-index 1000→1600に修正（FloatingWindow 1500より上、Modal 2000より下）
