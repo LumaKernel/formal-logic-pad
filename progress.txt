@@ -14014,3 +14014,17 @@
   - タブのアクティブ状態は`border-primary text-primary`で表現。非アクティブは`border-transparent text-muted-foreground`
   - CSSPropertiesからTailwindクラスへの変換は、shadcn-uiカラートークンを使えばCSS変数の直接参照が不要になる
 ---
+
+## 2026-03-14 - [UI] 各タブのボタンやアイコンボタンをshadcn-ui wayに変換
+- CSSProperties → Tailwind className変換: NotebookListComponent, HubPageView, WorkspacePageView, QuestCatalogComponent, CustomQuestListComponent, ProofCollectionPanel
+- ボタン、三点リーダーメニュー、削除確認オーバーレイ、共有パネルを変換
+- hover状態をuseState管理からTailwind hover:修飾子に移行（NotebookListComponentのisHovered削除）
+- ドメイン固有CSS変数はarbitrary value構文 bg-[var(--color-xxx)] で保持
+- shadcn-uiトークン使用: bg-card, border-ui-border, text-foreground, text-muted-foreground, bg-muted, bg-destructive, text-destructive, text-destructive-foreground, text-primary
+- テスト1件修正: NotebookListComponentのホバーテストをstyle.transform検証→className検証に変更
+- 変更ファイル: src/lib/notebook/NotebookListComponent.tsx, .test.tsx, src/app/HubPageView.tsx, src/app/workspace/[id]/WorkspacePageView.tsx, src/lib/quest/QuestCatalogComponent.tsx, src/lib/quest/CustomQuestListComponent.tsx, src/lib/proof-collection/ProofCollectionPanel.tsx
+- **今後のイテレーションへの学び:**
+  - Tailwind hover: 修飾子でuseState hover管理が不要になる。テストもclassName検証に変更必要
+  - CSSProperties import は非ボタン domain styles に残る場合がある（QuestCatalogComponent等）
+  - Storybook story URLのパスはstoryファイルのtitle階層に依存。sidebar clickで確実にナビゲーション可能
+---
