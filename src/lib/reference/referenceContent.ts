@@ -146,6 +146,96 @@ const guideBasicOperations: ReferenceEntry = {
   order: 2,
 };
 
+const guideFirstQuestWalkthrough: ReferenceEntry = {
+  id: "guide-first-quest-walkthrough",
+  category: "guide",
+  title: {
+    en: "Solving Your First Quest (prop-01)",
+    ja: "最初のクエスト（prop-01）を解いてみよう",
+  },
+  summary: {
+    en: "A step-by-step walkthrough of proving φ → φ using the Łukasiewicz axiom system.",
+    ja: "Łukasiewicz公理体系を使ってφ → φを証明するステップバイステップのチュートリアル。",
+  },
+  body: {
+    en: [
+      "In this guide, we'll walk through the very first quest: proving <b>φ → φ</b> (the identity principle). This might seem obviously true — \"φ implies φ\" — but in a formal proof system, we cannot take anything for granted. We must derive it from axioms using only the allowed inference rules.",
+
+      "<b>The Setup</b>\nOpen quest prop-01 from the quest catalog. You'll see a workspace with a goal: <b>φ → φ</b>. The Łukasiewicz axiom system gives you three axioms and one inference rule:\n• <b>A1 (K):</b> φ → (ψ → φ)\n• <b>A2 (S):</b> (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))\n• <b>A3:</b> (¬φ → ¬ψ) → (ψ → φ)\n• <b>MP (Modus Ponens):</b> From φ → ψ and φ, derive ψ",
+
+      "<b>The Strategy</b>\nWe need to somehow get φ → φ from these axioms. Notice that we don't have a direct axiom for identity. The key insight is that <b>A2 (the S axiom) distributes implication</b>: if we know φ → (ψ → χ) and φ → ψ, we can derive φ → χ. If we cleverly choose ψ and χ, we can make the conclusion be φ → φ.",
+
+      "<b>Step 1: Place Axiom A2</b>\nClick on <b>A2</b> in the axiom palette. A new node appears with the A2 schema. We need to substitute φ → φ for ψ and φ for χ:\n<code>(φ → ((φ → φ) → φ)) → ((φ → (φ → φ)) → (φ → φ))</code>\nNotice: the conclusion of this instance ends with <b>(φ → φ)</b> — exactly our goal! But to use it, we need to provide the antecedent.",
+
+      "<b>Step 2: Place Axiom A1 (first instance)</b>\nClick on <b>A1</b> in the axiom palette. Substitute φ for φ and (φ → φ) for ψ:\n<code>φ → ((φ → φ) → φ)</code>\nThis is exactly the antecedent of our A2 instance from Step 1.",
+
+      "<b>Step 3: Apply Modus Ponens</b>\nSelect the A2 node (Step 1) and the A1 node (Step 2), then apply <b>MP</b>. Since A1 gives us the antecedent of A2, MP produces:\n<code>(φ → (φ → φ)) → (φ → φ)</code>\nWe're getting close! Now we need <b>φ → (φ → φ)</b> to apply MP again.",
+
+      "<b>Step 4: Place Axiom A1 (second instance)</b>\nAdd another <b>A1</b> node, this time with φ for φ and φ for ψ:\n<code>φ → (φ → φ)</code>\nThis is exactly what we need as the antecedent for Step 3.",
+
+      "<b>Step 5: Apply Modus Ponens Again</b>\nSelect the result of Step 3 and the A1 node from Step 4, then apply <b>MP</b>. The result:\n<code>φ → φ</code>\nThe goal is achieved! The system confirms that the proof is complete.",
+
+      "<b>The Complete Proof Tree</b>\n\n<code>A2: (φ→((φ→φ)→φ)) → ((φ→(φ→φ)) → (φ→φ))</code>\n<code>A1: φ → ((φ→φ)→φ)</code>\n<code>MP: (φ→(φ→φ)) → (φ→φ)</code>\n<code>A1: φ → (φ→φ)</code>\n<code>MP: φ → φ  ✓</code>",
+
+      "<b>Why This Matters: SKK = I</b>\nThis proof has a beautiful connection to combinatory logic. The A1 axiom corresponds to the <b>K combinator</b> (K = λx.λy.x, which returns its first argument), and A2 corresponds to the <b>S combinator</b> (S = λf.λg.λx.f(x)(g(x)), which distributes application). Our proof shows that <b>S(K)(K) = I</b>, where I is the identity combinator. This is a famous result: the identity function can be built from just S and K!",
+    ],
+    ja: [
+      "このガイドでは、最初のクエスト「<b>φ → φ</b>（恒等律）の証明」を一歩ずつ進めていきます。「φならばφ」は当たり前に見えるかもしれませんが、形式証明体系では何も当然とはできません。許された推論規則だけを使って、公理から導出しなければなりません。",
+
+      "<b>準備</b>\nクエストカタログからprop-01を開きます。ワークスペースにゴール「<b>φ → φ</b>」が表示されます。Łukasiewicz公理体系では3つの公理と1つの推論規則が使えます：\n• <b>A1 (K)：</b> φ → (ψ → φ)\n• <b>A2 (S)：</b> (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))\n• <b>A3：</b> (¬φ → ¬ψ) → (ψ → φ)\n• <b>MP (Modus Ponens)：</b> φ → ψ と φ から ψ を導出",
+
+      "<b>戦略</b>\nこれらの公理からφ → φを導く必要があります。恒等律に直接対応する公理はありません。鍵となる洞察は、<b>A2（S公理）が含意を分配する</b>ことです：φ → (ψ → χ) と φ → ψ がわかっていれば、φ → χ を導けます。ψとχを巧妙に選べば、結論をφ → φにできます。",
+
+      "<b>ステップ1：公理A2を配置</b>\n公理パレットで<b>A2</b>をクリックします。A2スキーマの新しいノードが現れます。ψを（φ → φ）に、χをφに代入します：\n<code>(φ → ((φ → φ) → φ)) → ((φ → (φ → φ)) → (φ → φ))</code>\n注目：このインスタンスの結論部分は<b>(φ → φ)</b>で終わっています — まさにゴールです！ただし、前件を提供する必要があります。",
+
+      "<b>ステップ2：公理A1を配置（1回目）</b>\n公理パレットで<b>A1</b>をクリックします。φにφを、ψに（φ → φ）を代入します：\n<code>φ → ((φ → φ) → φ)</code>\nこれはステップ1のA2インスタンスの前件そのものです。",
+
+      "<b>ステップ3：Modus Ponensを適用</b>\nA2ノード（ステップ1）とA1ノード（ステップ2）を選択し、<b>MP</b>を適用します。A1がA2の前件を与えるので、MPにより以下が得られます：\n<code>(φ → (φ → φ)) → (φ → φ)</code>\nあと少しです！MP をもう一度適用するために<b>φ → (φ → φ)</b>が必要です。",
+
+      "<b>ステップ4：公理A1を配置（2回目）</b>\nもう一つ<b>A1</b>ノードを追加します。今度はφにφを、ψにφを代入します：\n<code>φ → (φ → φ)</code>\nこれはステップ3の結果の前件にちょうど必要なものです。",
+
+      "<b>ステップ5：Modus Ponensをもう一度適用</b>\nステップ3の結果とステップ4のA1ノードを選択し、<b>MP</b>を適用します。結果：\n<code>φ → φ</code>\nゴール達成です！システムが証明の完了を確認します。",
+
+      "<b>証明ツリーの全体像</b>\n\n<code>A2: (φ→((φ→φ)→φ)) → ((φ→(φ→φ)) → (φ→φ))</code>\n<code>A1: φ → ((φ→φ)→φ)</code>\n<code>MP: (φ→(φ→φ)) → (φ→φ)</code>\n<code>A1: φ → (φ→φ)</code>\n<code>MP: φ → φ  ✓</code>",
+
+      "<b>なぜこれが重要か：SKK = I</b>\nこの証明は組合せ論理との美しい対応を持っています。A1公理は<b>Kコンビネータ</b>（K = λx.λy.x、最初の引数を返す）に対応し、A2は<b>Sコンビネータ</b>（S = λf.λg.λx.f(x)(g(x))、適用を分配する）に対応します。この証明は<b>S(K)(K) = I</b>を示しており、Iは恒等コンビネータです。これは有名な結果で、恒等関数はSとKだけから構成できることを意味します！",
+    ],
+  },
+  relatedEntryIds: [
+    "guide-basic-operations",
+    "axiom-a1",
+    "axiom-a2",
+    "rule-mp",
+    "system-lukasiewicz",
+  ],
+  relatedQuestIds: ["prop-01"],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/SKI_combinator_calculus",
+      label: {
+        en: "SKI Combinator Calculus",
+        ja: "SKIコンビネータ計算",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "first quest",
+    "prop-01",
+    "identity",
+    "phi implies phi",
+    "walkthrough",
+    "tutorial",
+    "SKK",
+    "最初のクエスト",
+    "恒等律",
+    "チュートリアル",
+    "ウォークスルー",
+  ],
+  order: 3,
+};
+
 // ============================================================
 // 公理 (Axioms)
 // ============================================================
@@ -4893,6 +4983,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   // Guides
   guideWhatIsFormalProof,
   guideBasicOperations,
+  guideFirstQuestWalkthrough,
   // Axioms
   axiomA1,
   axiomA2,
