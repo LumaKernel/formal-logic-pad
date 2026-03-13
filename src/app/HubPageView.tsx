@@ -40,6 +40,7 @@ import {
 } from "../lib/proof-collection";
 import type { ReferenceEntry, Locale } from "../lib/reference/referenceEntry";
 import { ReferenceBrowserComponent } from "../lib/reference/ReferenceBrowserComponent";
+import type { QuestReferenceMap } from "../lib/quest/questReferenceMappingLogic";
 import { useHubMessages } from "./HubMessagesContext";
 
 // --- Types ---
@@ -135,6 +136,10 @@ export type HubPageViewProps = {
   readonly referenceEntries?: readonly ReferenceEntry[];
   /** リファレンス表示用ロケール */
   readonly referenceLocale?: Locale;
+  /** クエストIDからリファレンスエントリIDへの逆マッピング（クエストカタログに表示） */
+  readonly questReferenceMap?: QuestReferenceMap;
+  /** クエストのドキュメントバッジクリック時のコールバック */
+  readonly onShowReference?: (questId: string) => void;
 };
 
 // --- Styles ---
@@ -501,6 +506,8 @@ export function HubPageView({
   collectionProps,
   referenceEntries,
   referenceLocale = "en",
+  questReferenceMap,
+  onShowReference,
 }: HubPageViewProps) {
   const m = useHubMessages();
   const [view, setView] = useState<HubViewState>("list");
@@ -810,6 +817,8 @@ export function HubPageView({
                 onShowQuestNotebooks={handleShowQuestNotebooks}
                 onDuplicateToCustom={onDuplicateBuiltinToCustom}
                 onShowModelAnswer={onShowModelAnswer}
+                questReferenceMap={questReferenceMap}
+                onShowReference={onShowReference}
               />
             )}
 

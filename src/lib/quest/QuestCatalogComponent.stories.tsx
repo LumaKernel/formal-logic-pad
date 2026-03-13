@@ -4,6 +4,7 @@ import { QuestCatalog } from "./QuestCatalogComponent";
 import type { CategoryGroup, QuestCatalogItem } from "./questCatalog";
 import type { QuestDefinition } from "./questDefinition";
 import type { QuestNotebookCounts } from "./questNotebookFilterLogic";
+import type { QuestReferenceMap } from "./questReferenceMappingLogic";
 
 // --- ヘルパー ---
 
@@ -149,6 +150,13 @@ const sampleNotebookCounts: QuestNotebookCounts = new Map([
   ["neg-01", 0],
 ]);
 
+const sampleQuestReferenceMap: QuestReferenceMap = new Map([
+  ["prop-01", ["axiom-a2"]],
+  ["prop-02", ["axiom-a1"]],
+  ["prop-03", ["axiom-a1"]],
+  ["prop-05", ["axiom-a1"]],
+]);
+
 const meta = {
   title: "Quest/QuestCatalog",
   component: QuestCatalog,
@@ -157,6 +165,7 @@ const meta = {
     onShowQuestNotebooks: fn(),
     onDuplicateToCustom: fn(),
     onShowModelAnswer: fn(),
+    onShowReference: fn(),
   },
 } satisfies Meta<typeof QuestCatalog>;
 
@@ -334,5 +343,30 @@ export const RatingBadges: Story = {
     // 未クリアバッジ
     const q4 = canvas.getByTestId("quest-item-prop-04");
     await expect(within(q4).getByText("未クリア")).toBeInTheDocument();
+  },
+};
+
+export const WithReferenceDocBadges: Story = {
+  args: {
+    groups: sampleGroups,
+    questReferenceMap: sampleQuestReferenceMap,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // prop-01: 1件のリファレンスバッジが表示される
+    const badge1 = canvas.getByTestId("reference-doc-prop-01");
+    await expect(badge1).toBeInTheDocument();
+    await expect(badge1.textContent).toContain("1");
+    // prop-04: リファレンスなし → バッジ非表示
+    await expect(
+      canvas.queryByTestId("reference-doc-prop-04"),
+    ).not.toBeInTheDocument();
+    // neg-01: リファレンスなし → バッジ非表示
+    await expect(
+      canvas.queryByTestId("reference-doc-neg-01"),
+    ).not.toBeInTheDocument();
+    // バッジクリックで onShowReference が呼ばれる
+    await userEvent.click(badge1);
+    await expect(args.onShowReference).toHaveBeenCalledWith("prop-01");
   },
 };

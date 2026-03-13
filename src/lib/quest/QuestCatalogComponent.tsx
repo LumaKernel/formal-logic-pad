@@ -36,6 +36,10 @@ import {
   notebookCountText,
   type QuestNotebookCounts,
 } from "./questNotebookFilterLogic";
+import {
+  getQuestReferenceCount,
+  type QuestReferenceMap,
+} from "./questReferenceMappingLogic";
 
 // --- Props ---
 
@@ -50,6 +54,10 @@ export type QuestCatalogProps = {
   readonly onDuplicateToCustom?: (questId: QuestId) => void;
   /** 模範解答を表示するコールバック */
   readonly onShowModelAnswer?: (questId: QuestId) => void;
+  /** クエストIDからリファレンスエントリIDへの逆マッピング（指定するとドキュメントバッジを表示） */
+  readonly questReferenceMap?: QuestReferenceMap;
+  /** ドキュメントバッジクリック時のコールバック（リファレンスを表示） */
+  readonly onShowReference?: (questId: QuestId) => void;
 };
 
 // --- Styles ---
@@ -437,6 +445,50 @@ function NotebookCountBadge({
   );
 }
 
+const referenceDocBadgeStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 3,
+  fontSize: 10,
+  fontWeight: 600,
+  padding: "2px 8px",
+  borderRadius: 10,
+  background: "var(--color-quest-reference-badge-bg, #e8f5e9)",
+  color: "var(--color-quest-reference-badge-text, #2e7d32)",
+  cursor: "pointer",
+  whiteSpace: "nowrap",
+  transition: "background 0.15s",
+  border: "none",
+};
+
+function ReferenceDocBadge({
+  count,
+  questId,
+  onShow,
+}: {
+  readonly count: number;
+  readonly questId: QuestId;
+  readonly onShow?: (questId: QuestId) => void;
+}) {
+  if (count === 0) {
+    return null;
+  }
+  return (
+    <button
+      data-testid={`reference-doc-${questId satisfies string}`}
+      style={referenceDocBadgeStyle}
+      onClick={(e) => {
+        e.stopPropagation();
+        onShow?.(questId);
+      }}
+      title={`関連ドキュメント: ${String(count) satisfies string}件`}
+    >
+      {"\uD83D\uDCC4"}
+      {String(count) satisfies string}
+    </button>
+  );
+}
+
 function QuestItemMoreMenu({
   questId,
   onDuplicateToCustom,
@@ -533,6 +585,8 @@ function QuestItem({
   onShowNotebooks,
   onDuplicateToCustom,
   onShowModelAnswer,
+  referenceCount,
+  onShowReference,
   isLast,
 }: {
   readonly item: QuestCatalogItem;
@@ -541,6 +595,8 @@ function QuestItem({
   readonly onShowNotebooks?: (questId: QuestId) => void;
   readonly onDuplicateToCustom?: (questId: QuestId) => void;
   readonly onShowModelAnswer?: (questId: QuestId) => void;
+  readonly referenceCount: number;
+  readonly onShowReference?: (questId: QuestId) => void;
   readonly isLast: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -577,6 +633,11 @@ function QuestItem({
             questId={item.quest.id}
             onShow={onShowNotebooks}
           />
+          <ReferenceDocBadge
+            count={referenceCount}
+            questId={item.quest.id}
+            onShow={onShowReference}
+          />
         </div>
       </div>
       <RatingBadge rating={item.rating} />
@@ -608,6 +669,8 @@ function CategorySection({
   onShowNotebooks,
   onDuplicateToCustom,
   onShowModelAnswer,
+  questReferenceMap,
+  onShowReference,
 }: {
   readonly group: CategoryGroup;
   readonly chapterNumber: number;
@@ -616,6 +679,8 @@ function CategorySection({
   readonly onShowNotebooks?: (questId: QuestId) => void;
   readonly onDuplicateToCustom?: (questId: QuestId) => void;
   readonly onShowModelAnswer?: (questId: QuestId) => void;
+  readonly questReferenceMap?: QuestReferenceMap;
+  readonly onShowReference?: (questId: QuestId) => void;
 }) {
   return (
     <div
@@ -659,6 +724,12 @@ function CategorySection({
             onShowNotebooks={onShowNotebooks}
             onDuplicateToCustom={onDuplicateToCustom}
             onShowModelAnswer={onShowModelAnswer}
+            referenceCount={
+              questReferenceMap
+                ? getQuestReferenceCount(questReferenceMap, item.quest.id)
+                : 0
+            }
+            onShowReference={onShowReference}
             isLast={index === group.items.length - 1}
           />
         ))}
@@ -676,6 +747,8 @@ export function QuestCatalog({
   onShowQuestNotebooks,
   onDuplicateToCustom,
   onShowModelAnswer,
+  questReferenceMap,
+  onShowReference,
 }: QuestCatalogProps) {
   const [filter, setFilter] = useState<CatalogFilterState>(defaultFilterState);
 
@@ -741,6 +814,8 @@ export function QuestCatalog({
             onShowNotebooks={onShowQuestNotebooks}
             onDuplicateToCustom={onDuplicateToCustom}
             onShowModelAnswer={onShowModelAnswer}
+            questReferenceMap={questReferenceMap}
+            onShowReference={onShowReference}
           />
         ))
       )}

@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { QuestCatalog } from "./QuestCatalogComponent";
 import type { CategoryGroup, QuestCatalogItem } from "./questCatalog";
 import type { QuestDefinition } from "./questDefinition";
+import type { QuestReferenceMap } from "./questReferenceMappingLogic";
 
 // --- テストヘルパー ---
 
@@ -752,6 +753,81 @@ describe("模範解答を表示（メニュー内）", () => {
     );
     await user.click(screen.getByTestId("quest-more-btn-q1"));
     await user.click(screen.getByTestId("show-model-answer-btn-q1"));
+    expect(onStart).not.toHaveBeenCalled();
+  });
+});
+
+// --- ドキュメントバッジ ---
+
+describe("ドキュメントバッジ", () => {
+  it("questReferenceMapが未指定のときバッジが表示されない", () => {
+    render(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    expect(screen.queryByTestId("reference-doc-q1")).toBeNull();
+    expect(screen.queryByTestId("reference-doc-q2")).toBeNull();
+  });
+
+  it("関連リファレンスが0件のクエストにはバッジが表示されない", () => {
+    const refMap: QuestReferenceMap = new Map([["other-quest", ["ref-1"]]]);
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        questReferenceMap={refMap}
+      />,
+    );
+    expect(screen.queryByTestId("reference-doc-q1")).toBeNull();
+    expect(screen.queryByTestId("reference-doc-q2")).toBeNull();
+  });
+
+  it("関連リファレンスがあるクエストにバッジが表示される", () => {
+    const refMap: QuestReferenceMap = new Map([
+      ["q1", ["axiom-a1", "axiom-a2"]],
+      ["q2", ["rule-mp"]],
+    ]);
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        questReferenceMap={refMap}
+      />,
+    );
+    const badge1 = screen.getByTestId("reference-doc-q1");
+    expect(badge1).toBeTruthy();
+    expect(badge1.textContent).toContain("2");
+    const badge2 = screen.getByTestId("reference-doc-q2");
+    expect(badge2).toBeTruthy();
+    expect(badge2.textContent).toContain("1");
+  });
+
+  it("バッジクリックでonShowReferenceが呼ばれる", async () => {
+    const user = userEvent.setup();
+    const refMap: QuestReferenceMap = new Map([["q1", ["axiom-a1"]]]);
+    const onShow = vi.fn();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={vi.fn()}
+        questReferenceMap={refMap}
+        onShowReference={onShow}
+      />,
+    );
+    await user.click(screen.getByTestId("reference-doc-q1"));
+    expect(onShow).toHaveBeenCalledWith("q1");
+  });
+
+  it("バッジクリックでonStartQuestが呼ばれない（stopPropagation）", async () => {
+    const user = userEvent.setup();
+    const refMap: QuestReferenceMap = new Map([["q1", ["axiom-a1"]]]);
+    const onStart = vi.fn();
+    render(
+      <QuestCatalog
+        groups={[makeGroup()]}
+        onStartQuest={onStart}
+        questReferenceMap={refMap}
+        onShowReference={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("reference-doc-q1"));
     expect(onStart).not.toHaveBeenCalled();
   });
 });
