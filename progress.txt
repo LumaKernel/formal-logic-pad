@@ -105,6 +105,28 @@
 
 ---
 
+## 2026-03-14 - [reference] 演繹定理リファレンスエントリ拡充
+- ベースライン: カバレッジ変化なし（リファレンスコンテンツデータ拡充のみ）
+- **結果: 全テストパス (942テスト referenceContent.test.ts、+5新規テスト)**
+- 実装内容:
+  - `concept-deduction-theorem` エントリを5段落→10段落に拡充
+  - 追加内容: 証明の基底ケース（公理/仮説/φ自身）、帰納ステップ（MPケースでのSコンビネータ活用）、逆方向の証明、恒等定理φ→φの5ステップ構成、構成的性質（アルゴリズム的変換、約3倍の長さ）
+  - 制限事項の段落に述語論理での具体的反例（P(x) ⊢ ∀x.P(x)）を追加
+  - 関連クエストID（prop-01〜08）を追加
+  - 関連エントリにconcept-soundness, concept-completenessを追加
+  - キーワード追加: induction, 帰納法, identity theorem, 恒等定理, S combinator, K combinator
+- 変更ファイル:
+  - src/lib/reference/referenceContent.ts
+  - src/lib/reference/referenceContent.test.ts
+  - tasks/prd-docs-contents.md
+- スクリーンショット:
+  - .screenshots/reference-viewer-deduction-theorem-verification.png
+- **今後のイテレーションへの学び:**
+  - 既存エントリの拡充は新規追加よりもテスト影響が少ない（エントリ数変更なし）
+  - 証明の詳細を書く際はen/jaで段落数・構造を揃えること
+  - relatedQuestIdsは後から追加可能（型がoptional）
+---
+
 ## 2026-03-14 - [reference] Hilbert系の証明の進め方ガイド追加
 - ベースライン: カバレッジ変化なし（リファレンスコンテンツデータ追加のみ）
 - **結果: 全テストパス (937テスト referenceContent.test.ts)**
