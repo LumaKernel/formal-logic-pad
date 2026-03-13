@@ -105,6 +105,37 @@
 
 ---
 
+## 2026-03-13 - [routing] トップページのタブをハッシュからルートベースに移行
+- ベースライン: カバレッジ変化なし（ルーティング変更のみ）
+- **結果: 全テストパス (268ファイル, 9156テスト)**
+- 実装内容:
+  - ハッシュベースタブ（/#quests等）をNext.js App Routerルート（/quests等）に移行
+  - 各タブ用のページファイルを作成: quests/page.tsx, custom-quests/page.tsx, collection/page.tsx, reference/page.tsx
+  - HubContent.tsxにinitialTab propsを追加し、parseTabFromHash + hashchangeリスナーを削除
+  - handleTabChangeがrouter.push()でルート遷移するように変更
+  - リファレンスビューアーのパンくずリンクを /#reference → /reference に更新
+  - ランディングページをnotebooksタブ（/ルート）限定表示に修正
+- 変更ファイル:
+  - src/app/HubContent.tsx
+  - src/app/page.tsx
+  - src/app/quests/page.tsx (新規)
+  - src/app/custom-quests/page.tsx (新規)
+  - src/app/collection/page.tsx (新規)
+  - src/app/reference/page.tsx (新規)
+  - src/lib/reference/referenceViewerLogic.ts
+  - src/lib/reference/ReferenceViewerPageView.tsx
+  - src/lib/reference/referenceViewerLogic.test.ts
+  - src/lib/reference/ReferenceViewerPageView.test.tsx
+- スクリーンショット:
+  - .screenshots/quests-route-tab.png
+  - .screenshots/reference-route-tab.png
+  - .screenshots/collection-route-tab.png
+- **今後のイテレーションへの学び:**
+  - Next.js App Routerで /reference/page.tsx と /reference/[id]/page.tsx は共存可能（静的ルートが優先）
+  - ランディングページはタブとルートが分離した場合、表示条件にタブ名も含める必要がある
+  - HubContentのinitialTabは各ルートページから渡すパターンで、プレゼンテーション層（HubPageView）は変更不要
+---
+
 ## 2026-03-13 - [reference] (?)ポップオーバーのz-index修正
 - ベースライン: カバレッジ変化なし（CSS値のみの変更）
 - **結果: 全テストパス**
