@@ -105,6 +105,24 @@
 
 ---
 
+## 2026-03-14 - [reference] トートロジーと恒真式リファレンスエントリ追加
+- ベースライン: カバレッジ変化なし（リファレンスコンテンツデータ追加のみ）
+- **結果: 全テストパス (954テスト referenceContent.test.ts)**
+- 実装内容:
+  - `concept-tautology` エントリを新規追加（6段落、en/ja両対応）
+  - 内容: トートロジーの定義、具体例（φ→φ, 排中律, 矛盾律）、真理値表法（決定可能性）、恒真含意と恒真同値、健全性・完全性との関係、述語論理への拡張
+  - 関連エントリ: concept-soundness, concept-completeness, concept-semantic-validity, notation-connectives, system-lukasiewicz, concept-deduction-theorem
+  - 関連クエスト: prop-01〜06
+  - 外部リンク: Wikipedia(en/ja), nLab
+- 変更ファイル:
+  - src/lib/reference/referenceContent.ts
+  - src/lib/reference/referenceContent.test.ts（エントリ数67→68）
+  - tasks/prd-docs-contents.md
+- **今後のイテレーションへの学び:**
+  - concept-semantic-validityは述語論理含む一般的な意味論的妥当性。concept-tautologyは命題論理のトートロジーに特化しており共存可能
+  - order番号は同一category内で連番にする（concept: 25）
+---
+
 ## 2026-03-14 - [reference] 演繹定理リファレンスエントリ拡充
 - ベースライン: カバレッジ変化なし（リファレンスコンテンツデータ拡充のみ）
 - **結果: 全テストパス (942テスト referenceContent.test.ts、+5新規テスト)**
