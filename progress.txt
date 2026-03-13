@@ -105,6 +105,27 @@
 
 ---
 
+## 2026-03-14 - [proof-collection] マイコレクションパネルの折り畳みドラッグ修正
+- ベースライン: カバレッジ変化なし（既存パターンの適用のみ）
+- **結果: 全テストパス (57テスト ProofCollectionPanel.test.tsx、+3新規テスト)**
+- 実装内容:
+  - ProofCollectionPanelに`wasDraggedRef`プロップを追加
+  - 折り畳み状態のJSXに`onPointerDown={onDragHandlePointerDown}`を追加
+  - `handleCollapsedClick`コールバックでドラッグとクリック（トグル）を区別
+  - ProofWorkspace.tsxから`collectionPanelDrag.wasDraggedRef`を渡すよう修正
+- 変更ファイル:
+  - src/lib/proof-collection/ProofCollectionPanel.tsx
+  - src/lib/proof-collection/ProofCollectionPanel.test.tsx（+3テスト）
+  - src/lib/proof-pad/ProofWorkspace.tsx
+- スクリーンショット:
+  - .screenshots/goal-achieved-workspace.png
+  - .screenshots/copy-paste-compatible-workspace.png
+  - .screenshots/app-landing-page.png
+- **今後のイテレーションへの学び:**
+  - パネルの折り畳みドラッグにはwasDraggedRefパターンが必須。新しいパネル追加時はGoalPanelパターンを踏襲すること
+  - ProofCollectionPanelとGoalPanelは同じパネル仕組みだが、独立して実装されているため片方の修正が他方に自動反映されない。変更時は両方確認
+---
+
 ## 2026-03-14 - [reference] トートロジーと恒真式リファレンスエントリ追加
 - ベースライン: カバレッジ変化なし（リファレンスコンテンツデータ追加のみ）
 - **結果: 全テストパス (954テスト referenceContent.test.ts)**
