@@ -13971,3 +13971,23 @@
   - lucide-react はThemeToggleで既に使用しているため、追加依存なしでアイコン利用可能
   - shadcn-ui wayのブランド: inline-flex + gap + アイコン + テキスト、font-semibold（boldより軽い）、select-none で選択不可
 ---
+
+## 2026-03-14 - [UI] トップページのタブをshadcn-ui wayに変換
+- ベースライン: カバレッジ変化なし（スタイル変更のみ、ロジック変更なし）
+- **結果: 全テストパス (24テスト HubPageView.stories.tsx)**
+- 実装内容:
+  - タブバー（nav）のCSSPropertiesインラインスタイルをTailwindクラスに変換
+  - tabBarStyle → tabBarClassName: `flex border-b border-ui-border px-6 bg-card`
+  - tabStyle → tabClassName: `px-5 py-3 text-sm font-semibold cursor-pointer border-b-2 border-transparent bg-transparent text-muted-foreground transition-colors duration-150`
+  - tabActiveStyle → tabActiveClassName: 同上 + `border-primary text-primary`
+  - JSXのstyle属性をclassName属性に置換
+- 変更ファイル:
+  - src/app/HubPageView.tsx
+- スクリーンショット:
+  - .screenshots/hub-tabs-shadcn-quests.png
+  - .screenshots/hub-tabs-shadcn-notebooks.png
+  - .screenshots/hub-tabs-shadcn-reference.png
+- **今後のイテレーションへの学び:**
+  - タブのアクティブ状態は`border-primary text-primary`で表現。非アクティブは`border-transparent text-muted-foreground`
+  - CSSPropertiesからTailwindクラスへの変換は、shadcn-uiカラートークンを使えばCSS変数の直接参照が不要になる
+---
