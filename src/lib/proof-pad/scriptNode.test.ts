@@ -105,4 +105,3 @@ function test() { return 42; }`;
     expect(setScriptCode(code)).toBe(code);
   });
 });
-

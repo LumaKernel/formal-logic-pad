@@ -3,6 +3,7 @@ import {
   CONCLUSION_PORTS,
   DERIVED_PORTS,
   NOTE_PORTS,
+  SCRIPT_PORTS,
   PROOF_NODE_KINDS,
   getProofEdgeColor,
   getProofNodePorts,
@@ -15,7 +16,7 @@ import type { ProofNodeKind } from "./proofNodeUI";
 import type { NodeClassification } from "./nodeRoleLogic";
 
 describe("getProofNodeStyle", () => {
-  it.each<ProofNodeKind>(["axiom", "conclusion", "note"])(
+  it.each<ProofNodeKind>(["axiom", "conclusion", "note", "script"])(
     "returns a style object for kind=%s",
     (kind) => {
       const style = getProofNodeStyle(kind);
@@ -91,6 +92,12 @@ describe("getProofNodePorts", () => {
     expect(ports).toBe(NOTE_PORTS);
     expect(ports).toHaveLength(0);
   });
+
+  it("script has no ports (cannot participate in proof tree)", () => {
+    const ports = getProofNodePorts("script");
+    expect(ports).toBe(SCRIPT_PORTS);
+    expect(ports).toHaveLength(0);
+  });
 });
 
 describe("getProofEdgeColor", () => {
@@ -107,11 +114,17 @@ describe("getProofEdgeColor", () => {
   it("note edges use CSS variable with fallback", () => {
     expect(getProofEdgeColor("note")).toBe("var(--color-edge-note, #c0c0c0)");
   });
+
+  it("script edges use CSS variable with fallback", () => {
+    expect(getProofEdgeColor("script")).toBe(
+      "var(--color-edge-script, #b19cd9)",
+    );
+  });
 });
 
 describe("PROOF_NODE_KINDS", () => {
-  it("contains all 3 kinds", () => {
-    expect(PROOF_NODE_KINDS).toEqual(["axiom", "conclusion", "note"]);
+  it("contains all 4 kinds", () => {
+    expect(PROOF_NODE_KINDS).toEqual(["axiom", "conclusion", "note", "script"]);
   });
 });
 
@@ -126,6 +139,10 @@ describe("getProofNodeKindLabel", () => {
 
   it("returns 'Note' for note kind", () => {
     expect(getProofNodeKindLabel("note")).toBe("Note");
+  });
+
+  it("returns 'Script' for script kind", () => {
+    expect(getProofNodeKindLabel("script")).toBe("Script");
   });
 
   it("returns a label for every PROOF_NODE_KINDS entry", () => {

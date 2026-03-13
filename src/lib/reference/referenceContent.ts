@@ -12,6 +12,66 @@
 import type { ReferenceEntry } from "./referenceEntry";
 
 // ============================================================
+// ガイド (Guides)
+// ============================================================
+
+const guideWhatIsFormalProof: ReferenceEntry = {
+  id: "guide-what-is-formal-proof",
+  category: "guide",
+  title: {
+    en: "What is Formal Proof?",
+    ja: "形式証明とは何か",
+  },
+  summary: {
+    en: "Understanding the difference between informal mathematical proofs and formal proofs.",
+    ja: "自然言語による数学的証明と形式証明の違いを理解する。",
+  },
+  body: {
+    en: [
+      'In mathematics, we typically write proofs in a mixture of natural language and mathematical notation. For example, we might say: "Let n be an odd number. Then n = 2k + 1 for some integer k. Therefore n² = (2k + 1)² = 4k² + 4k + 1 = 2(2k² + 2k) + 1 is also odd."',
+
+      'While such proofs can be perfectly rigorous, they rely on the reader\'s mathematical intuition and shared understanding of concepts like "odd number," "integer," and algebraic manipulation rules. Different readers might interpret certain steps differently, and there\'s room for ambiguity or hidden assumptions.',
+
+      "<b>Formal proof</b>, in contrast, is written entirely in a precise logical language with explicit rules. Every step must follow from axioms or previously proven statements using only the allowed inference rules. Nothing is left to interpretation.",
+
+      "In a formal proof system:\n• Every statement is a well-formed formula in the logical language\n• Every inference follows an explicit rule (like Modus Ponens)\n• Every assumption is explicitly stated as an axiom or hypothesis\n• The proof can be mechanically verified by a computer",
+
+      "Why formalize proofs? Several reasons:\n<b>1. Absolute certainty:</b> A formal proof leaves no room for error or misinterpretation.\n<b>2. Computer verification:</b> Formal proofs can be checked automatically.\n<b>3. Foundation of mathematics:</b> Understanding how mathematics can be built from first principles.\n<b>4. Discovering proof patterns:</b> Formal systems reveal common proof structures that might be hidden in informal arguments.",
+
+      "This application lets you construct formal proofs interactively. You'll work with <b>formula schemas</b> (patterns like φ → ψ) rather than specific formulas, making your proofs maximally general. Each proof you create here could be instantiated with any specific formulas, demonstrating universal logical principles.",
+
+      "As you work through the quests, you'll develop intuition for how formal reasoning works. What seems mechanical at first will reveal deep patterns in logical thinking. Welcome to the world of formal proof!",
+    ],
+    ja: [
+      "数学では通常、自然言語と数学記号を混ぜて証明を書きます。例えば「nを奇数とする。するとある整数kに対してn = 2k + 1と書ける。したがってn² = (2k + 1)² = 4k² + 4k + 1 = 2(2k² + 2k) + 1となり、これも奇数である」というように。",
+
+      "このような証明は十分に厳密でありえますが、「奇数」「整数」といった概念や代数的操作の規則について、読者の数学的直観と共通理解に依存しています。異なる読者が特定のステップを異なって解釈する可能性があり、曖昧さや暗黙の仮定が入り込む余地があります。",
+
+      "対照的に<b>形式証明</b>は、明示的な規則を持つ厳密な論理言語で完全に記述されます。すべてのステップは、許可された推論規則のみを使用して、公理または以前に証明された文から従わなければなりません。解釈の余地は一切ありません。",
+
+      "形式証明体系では：\n• すべての文は論理言語の整形式である\n• すべての推論は明示的な規則（Modus Ponensなど）に従う\n• すべての仮定は公理または仮説として明示的に述べられる\n• 証明はコンピュータによって機械的に検証できる",
+
+      "なぜ証明を形式化するのでしょうか？いくつかの理由があります：\n<b>1. 絶対的な確実性：</b>形式証明には誤りや誤解の余地がありません。\n<b>2. コンピュータ検証：</b>形式証明は自動的にチェックできます。\n<b>3. 数学の基礎：</b>数学が第一原理からどのように構築できるかを理解する。\n<b>4. 証明パターンの発見：</b>形式体系は、非形式的な議論では隠れている共通の証明構造を明らかにします。",
+
+      "このアプリケーションでは、形式証明をインタラクティブに構築できます。特定の論理式ではなく<b>論理式スキーマ</b>（φ → ψのようなパターン）を扱い、証明を最大限一般的にします。ここで作成する各証明は、任意の具体的な論理式でインスタンス化でき、普遍的な論理原理を示しています。",
+
+      "クエストを進めていくうちに、形式推論の仕組みについて直観が養われるでしょう。最初は機械的に見えるものが、論理的思考の深いパターンを明らかにします。形式証明の世界へようこそ！",
+    ],
+  },
+  relatedEntryIds: ["axiom-a1", "rule-mp", "system-lukasiewicz"],
+  externalLinks: [],
+  keywords: [
+    "formal proof",
+    "mathematical proof",
+    "natural language",
+    "形式証明",
+    "数学的証明",
+    "自然言語",
+  ],
+  order: 1,
+};
+
+// ============================================================
 // 公理 (Axioms)
 // ============================================================
 
@@ -4755,6 +4815,8 @@ const notationInputMethods: ReferenceEntry = {
  * referenceContent.test.ts にもテストを追加すること。
  */
 export const allReferenceEntries: readonly ReferenceEntry[] = [
+  // Guides
+  guideWhatIsFormalProof,
   // Axioms
   axiomA1,
   axiomA2,

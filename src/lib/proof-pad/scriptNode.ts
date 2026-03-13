@@ -71,4 +71,3 @@ export function createDefaultScriptNodeData(title: string): ScriptNodeData {
 export function getScriptNodeLabel(data: ScriptNodeData): string {
   return `Script: ${data.title satisfies string}`;
 }
-

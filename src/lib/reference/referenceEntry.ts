@@ -39,6 +39,7 @@ export type LocalizedParagraphs = {
 
 /**
  * リファレンスエントリのカテゴリ。
+ * - "guide": ガイド・チュートリアル（入門、使い方、学習パス）
  * - "axiom": 公理（A1, A2, A3, M3, EFQ, DNE, A4, A5, E1-E5）
  * - "inference-rule": 推論規則（MP, Gen, 自然演繹ルール, シーケント計算ルール）
  * - "logic-system": 論理体系（Łukasiewicz, Mendelson, 直観主義, 古典, etc.）
@@ -47,6 +48,7 @@ export type LocalizedParagraphs = {
  * - "theory": 理論（ペアノ算術, 群論, etc.）
  */
 export type ReferenceCategory =
+  | "guide"
   | "axiom"
   | "inference-rule"
   | "logic-system"
@@ -56,6 +58,7 @@ export type ReferenceCategory =
 
 /** 全カテゴリ一覧 */
 export const allCategories: readonly ReferenceCategory[] = [
+  "guide",
   "axiom",
   "inference-rule",
   "logic-system",
@@ -73,6 +76,14 @@ export type ReferenceCategoryMeta = {
 
 /** カテゴリメタデータ定義 */
 export const categoryMetas: readonly ReferenceCategoryMeta[] = [
+  {
+    id: "guide",
+    label: { en: "Guides", ja: "ガイド" },
+    description: {
+      en: "Introductory guides and tutorials for learning formal logic.",
+      ja: "形式論理を学ぶための入門ガイドとチュートリアル。",
+    },
+  },
   {
     id: "axiom",
     label: { en: "Axioms", ja: "公理" },
