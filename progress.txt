@@ -105,6 +105,35 @@
 
 ---
 
+## 2026-03-13 - [ui] shadcn-uiとTailwind CSS v4の初期セットアップ
+- ベースライン: 10141 tests passed（unit 9942 + storybook）
+- **結果: テスト数変化なし、全テストパス**
+- 実装内容:
+  - Tailwind CSS v4 (`tailwindcss`, `@tailwindcss/postcss`) をインストール
+  - PostCSS設定 (`postcss.config.mjs`) を作成
+  - `globals.css` に `@import "tailwindcss"` と `@theme inline` ブロックを追加
+  - shadcn-ui テーマ変数を `--ui-*` プレフィックスで定義（既存 `--color-*` 変数との衝突回避）
+  - `cn()` ユーティリティ関数 (`src/lib/utils.ts`) を作成
+  - shadcn-ui Button コンポーネントを追加（`src/components/ui/button.tsx`）
+  - `components.json` (shadcn-ui設定) を作成
+  - shadcn dependencies: `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`, `@radix-ui/react-slot`
+- 変更ファイル:
+  - package.json, package-lock.json
+  - postcss.config.mjs (新規)
+  - components.json (新規)
+  - src/app/globals.css
+  - src/lib/utils.ts (新規)
+  - src/components/ui/button.tsx (新規)
+- スクリーンショット:
+  - .screenshots/hub-empty-notebooks-after-tailwind.png
+- **今後のイテレーションへの学び:**
+  - Tailwind v4 `@theme inline` の `--color-*` は既存CSS変数と名前衝突する（`--color-accent`, `--color-border`）。`--ui-*` プレフィックスのソース変数で回避
+  - shadcn-ui コンポーネントの Tailwind クラス（`bg-accent`, `border-input`）も `bg-ui-accent`, `border-input` のように調整が必要
+  - Tailwind CSS v4 の preflight は既存の `* { padding: 0; margin: 0; }` リセットと共存可能
+  - `npx shadcn@latest add <component>` で個別コンポーネントを追加可能。自動で依存パッケージもインストールされる
+  - shadcn Button の `React.forwardRef` は React 19 では不要。通常の関数コンポーネントに変換
+---
+
 ## 2026-03-13 - [quest] 自作クエストのJSON/URLボタンを共有パネルに統合
 - ベースライン: 9897 tests passed
 - **結果: 9908 tests passed (+11)**
