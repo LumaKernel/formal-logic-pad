@@ -13554,3 +13554,15 @@
   - workspaceExport.tsのSchema.Literalも更新が必要
   - Effect.tsのTaggedClassは()()の二重括弧で定義する
 ---
+
+## 2026-03-13 13:57 - リファレンスドキュメント
+- 実装した内容: 初心者向けガイド「形式証明とは何か」を追加
+- 変更したファイル: 
+  - src/lib/reference/referenceEntry.ts (guideカテゴリ追加)
+  - src/lib/reference/referenceContent.ts (ガイドエントリ追加)
+  - テストファイルの更新（カテゴリ数6→7対応）
+- **今後のイテレーションへの学び:**
+  - 新カテゴリ追加時はcategoryMetasの順序がUIに影響する
+  - buildCategoryBadgesはcategoryMetas順でバッジを生成する
+  - リファレンスエントリには externalLinks と keywords が必須
+---
