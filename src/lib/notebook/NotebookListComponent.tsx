@@ -43,7 +43,7 @@ function MenuItem({
       ? "text-destructive hover:bg-destructive/5"
       : "text-foreground hover:bg-muted";
   return (
-    <button data-testid={testId} className={`${base} ${variantClass}`} onClick={onClick}>
+    <button data-testid={testId} className={`${base satisfies string} ${variantClass satisfies string}`} onClick={onClick}>
       {children}
     </button>
   );
@@ -117,7 +117,7 @@ function ModeBadge({ mode }: { readonly mode: "free" | "quest" }) {
       ? "bg-[var(--color-badge-quest-bg)] text-[var(--color-badge-quest-text)]"
       : "bg-[var(--color-badge-free-bg)] text-[var(--color-badge-free-text)]";
   return (
-    <span className={`${base} ${variantClass}`}>
+    <span className={`${base satisfies string} ${variantClass satisfies string}`}>
       {mode === "quest" ? "クエスト" : "自由帳"}
     </span>
   );
@@ -139,7 +139,7 @@ function QuestProgressBadge({
   return (
     <span
       data-testid="quest-progress-badge"
-      className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold tracking-wide ${variantClass}`}
+      className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold tracking-wide ${variantClass satisfies string}`}
     >
       {text}
     </span>
@@ -221,7 +221,7 @@ function NotebookItem({
   return (
     <div
       data-testid={`notebook-item-${item.id satisfies string}`}
-      className={`flex items-center py-3.5 px-4.5 rounded-lg border border-ui-border bg-card cursor-pointer transition-all gap-3 shadow-sm relative hover:bg-muted hover:shadow-md hover:-translate-y-px ${isMenuOpen ? "z-[100]" : ""}`}
+      className={`flex items-center py-3.5 px-4.5 rounded-lg border border-ui-border bg-card cursor-pointer transition-all gap-3 shadow-sm relative hover:bg-muted hover:shadow-md hover:-translate-y-px ${(isMenuOpen ? "z-[100]" : "") satisfies string}`}
       onClick={() => onOpen(item.id)}
       role="button"
       tabIndex={0}
