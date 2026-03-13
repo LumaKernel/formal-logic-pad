@@ -85,6 +85,8 @@ export interface ProofCollectionPanelProps {
   readonly onDragHandlePointerDown?: (
     e: React.PointerEvent<HTMLElement>,
   ) => void;
+  /** 直前のドラッグ操作で実際に移動が発生したかのref（折り畳みトグルとドラッグの区別に使用） */
+  readonly wasDraggedRef?: React.RefObject<boolean>;
   /** パネルDOM要素へのcallback ref（サイズ計測用） */
   readonly panelRef?: (node: HTMLElement | null) => void;
   /** data-testid */
@@ -788,6 +790,7 @@ export function ProofCollectionPanel({
   onRenameFolder,
   position,
   onDragHandlePointerDown,
+  wasDraggedRef,
   panelRef,
   testId,
 }: ProofCollectionPanelProps) {
@@ -799,6 +802,12 @@ export function ProofCollectionPanel({
   const handleToggle = useCallback(() => {
     setCollapsed((prev) => !prev);
   }, []);
+
+  const handleCollapsedClick = useCallback(() => {
+    if (wasDraggedRef?.current !== true) {
+      handleToggle();
+    }
+  }, [wasDraggedRef, handleToggle]);
 
   const resolvedPanelStyle = useMemo(
     (): CSSProperties =>
@@ -974,7 +983,8 @@ export function ProofCollectionPanel({
         style={resolvedToggleStyle}
         role="button"
         tabIndex={0}
-        onClick={handleToggle}
+        onPointerDown={onDragHandlePointerDown}
+        onClick={handleCollapsedClick}
         /* v8 ignore start -- キーボード操作: role="button"のアクセシビリティ対応 */
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {

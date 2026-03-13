@@ -331,6 +331,67 @@ describe("ProofCollectionPanel", () => {
       expect(screen.getByTestId("panel")).toBeInTheDocument();
     });
 
+    it("折り畳み状態でpointerdownイベントがonDragHandlePointerDownに伝播する", () => {
+      const onDragHandlePointerDown = vi.fn();
+      render(
+        <ProofCollectionPanel
+          entries={[createTestEntry({ id: "e1" })]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          testId="panel"
+          onDragHandlePointerDown={onDragHandlePointerDown}
+        />,
+      );
+      // 折り畳む
+      fireEvent.click(screen.getByTestId("panel-collapse"));
+      // 折り畳みボタンのpointerdownでドラッグハンドルが呼ばれる
+      fireEvent.pointerDown(screen.getByTestId("panel-toggle"));
+      expect(onDragHandlePointerDown).toHaveBeenCalledTimes(1);
+    });
+
+    it("wasDraggedRef.current=falseの場合はクリックでトグルされる", () => {
+      const wasDraggedRef = { current: false };
+      render(
+        <ProofCollectionPanel
+          entries={[createTestEntry({ id: "e1" })]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          testId="panel"
+          onDragHandlePointerDown={vi.fn()}
+          wasDraggedRef={wasDraggedRef}
+        />,
+      );
+      // 折り畳む
+      fireEvent.click(screen.getByTestId("panel-collapse"));
+      expect(screen.getByTestId("panel-toggle")).toBeInTheDocument();
+      // wasDraggedRef.current=falseなのでクリックでトグルされる
+      fireEvent.click(screen.getByTestId("panel-toggle"));
+      expect(screen.getByTestId("panel")).toBeInTheDocument();
+    });
+
+    it("wasDraggedRef.current=trueの場合はクリックでトグルされない", () => {
+      const wasDraggedRef = { current: true };
+      render(
+        <ProofCollectionPanel
+          entries={[createTestEntry({ id: "e1" })]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          testId="panel"
+          onDragHandlePointerDown={vi.fn()}
+          wasDraggedRef={wasDraggedRef}
+        />,
+      );
+      // 折り畳む
+      fireEvent.click(screen.getByTestId("panel-collapse"));
+      expect(screen.getByTestId("panel-toggle")).toBeInTheDocument();
+      // wasDraggedRef.current=trueなのでクリックでトグルされない（ドラッグ後のクリック）
+      fireEvent.click(screen.getByTestId("panel-toggle"));
+      expect(screen.getByTestId("panel-toggle")).toBeInTheDocument();
+    });
+
     it("折り畳み時にエントリ数が表示される", () => {
       const entries = [
         createTestEntry({ id: "e1" }),

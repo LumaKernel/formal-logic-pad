@@ -5152,6 +5152,7 @@ export function ProofWorkspace({
           onDragHandlePointerDown={
             collectionPanelDrag.handleProps.onPointerDown
           }
+          wasDraggedRef={collectionPanelDrag.wasDraggedRef}
           testId={
             /* v8 ignore start -- V8集約アーティファクト */
             testId ? `${testId satisfies string}-collection-panel` : undefined
