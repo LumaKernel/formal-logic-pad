@@ -90,7 +90,7 @@ describe("buildBreadcrumbs", () => {
     const breadcrumbs = buildBreadcrumbs(sampleEntry, "en");
     expect(breadcrumbs).toEqual([
       { label: "Home", href: "/" },
-      { label: "Reference", href: "/#reference" },
+      { label: "Reference", href: "/reference" },
       { label: "Axioms", href: undefined },
       { label: "Axiom A1", href: undefined },
     ]);
@@ -100,7 +100,7 @@ describe("buildBreadcrumbs", () => {
     const breadcrumbs = buildBreadcrumbs(sampleEntry, "ja");
     expect(breadcrumbs).toEqual([
       { label: "Home", href: "/" },
-      { label: "リファレンス", href: "/#reference" },
+      { label: "リファレンス", href: "/reference" },
       { label: "公理", href: undefined },
       { label: "公理A1", href: undefined },
     ]);

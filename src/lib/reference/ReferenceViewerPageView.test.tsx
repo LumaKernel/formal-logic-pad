@@ -124,7 +124,7 @@ describe("ReferenceViewerPageView", () => {
     expect(breadcrumb0.getAttribute("href")).toBe("/");
     const breadcrumb1 = screen.getByTestId("ref-viewer-breadcrumb-1");
     expect(breadcrumb1.textContent).toBe("Reference");
-    expect(breadcrumb1.getAttribute("href")).toBe("/#reference");
+    expect(breadcrumb1.getAttribute("href")).toBe("/reference");
   });
 
   it("関連エントリがリンクとして表示される", () => {

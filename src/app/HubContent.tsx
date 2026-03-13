@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -59,6 +59,19 @@ import {
   recommendedQuestIds,
 } from "./landingPageLogic";
 import { useProofCollection } from "../lib/proof-collection";
+
+/** タブ名からパスへのマッピング */
+const tabToPath: Record<HubTab, string> = {
+  notebooks: "/",
+  quests: "/quests",
+  "custom-quests": "/custom-quests",
+  collection: "/collection",
+  reference: "/reference",
+};
+
+export type HubContentProps = {
+  readonly initialTab: HubTab;
+};
 
 // eslint-disable-next-line @luma-dev/luma-ts/no-date
 const getNow = (): number => Date.now();
@@ -128,16 +141,7 @@ function useHubMessagesFromIntl(): HubMessages {
   );
 }
 
-const parseTabFromHash = (hash: string): HubTab => {
-  const normalized = hash.replace(/^#/, "");
-  if (normalized === "quests") return "quests";
-  if (normalized === "custom-quests") return "custom-quests";
-  if (normalized === "collection") return "collection";
-  if (normalized === "reference") return "reference";
-  return "notebooks";
-};
-
-function HubInner() {
+function HubInner({ initialTab }: HubContentProps) {
   const router = useRouter();
   const notebookCollection = useNotebookCollection();
   const questProgress = useQuestProgress();
@@ -151,32 +155,16 @@ function HubInner() {
   const localeSwitchDeps = useMemo(() => getBrowserLocaleSwitchDeps(), []);
   const { switchLocale } = useLocaleSwitch(localeSwitchDeps);
 
-  // Hash-based tab state
-  const [tab, setTab] = useState<HubTab>(() =>
-    parseTabFromHash(window.location.hash),
+  // Route-based tab state
+  const tab = initialTab;
+
+  const handleTabChange = useCallback(
+    (newTab: HubTab) => {
+      const path = tabToPath[newTab];
+      router.push(path);
+    },
+    [router],
   );
-
-  const handleTabChange = useCallback((newTab: HubTab) => {
-    setTab(newTab);
-    const hash = newTab === "notebooks" ? "" : `#${newTab satisfies string}`;
-    window.history.replaceState(
-      null,
-      "",
-      hash === ""
-        ? window.location.pathname + window.location.search
-        : `${window.location.pathname satisfies string}${window.location.search satisfies string}${hash satisfies string}`,
-    );
-  }, []);
-
-  useEffect(() => {
-    const onHashChange = () => {
-      setTab(parseTabFromHash(window.location.hash));
-    };
-    window.addEventListener("hashchange", onHashChange);
-    return () => {
-      window.removeEventListener("hashchange", onHashChange);
-    };
-  }, []);
 
   // Build quest catalog groups
   const groups = useMemo(
@@ -222,10 +210,10 @@ function HubInner() {
     setHasEverHadNotebooks(nextHasEver);
   }
 
-  const showLanding = shouldShowLandingPage(
-    listItems.length,
-    hasEverHadNotebooks,
-  );
+  // ランディングページはnotebooksタブ（ルート/）でのみ表示
+  const showLanding =
+    tab === "notebooks" &&
+    shouldShowLandingPage(listItems.length, hasEverHadNotebooks);
 
   // Build recommended quests for landing page
   const recommendedQuests = useMemo(
@@ -616,10 +604,10 @@ function HubInner() {
   );
 }
 
-export default function HubContent() {
+export default function HubContent({ initialTab }: HubContentProps) {
   return (
     <ThemeProvider>
-      <HubInner />
+      <HubInner initialTab={initialTab} />
     </ThemeProvider>
   );
 }

@@ -446,7 +446,7 @@ export function ReferenceViewerNotFound({
           : "Reference Not Found"}
       </div>
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- pure lib component, no next/link dependency */}
-      <a href="/#reference" style={backLinkStyle}>
+      <a href="/reference" style={backLinkStyle}>
         {locale === "ja" ? "← リファレンス一覧に戻る" : "← Back to Reference"}
       </a>
     </div>
