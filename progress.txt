@@ -13865,3 +13865,15 @@
   - 許可フォーマットは<b>, <i>, <code>のHTMLタグのみ（referenceUILogic.tsのparseInlineMarkdown参照）
   - テストで禁止フォーマットを自動検出する仕組みがあるので、新規エントリ追加時も安心
 ---
+
+## 2026-03-14 - proof-pad ノードクリック選択無効化
+- 論理式ノードの通常クリックでノード選択されないよう修正
+- ダブルクリック時の誤選択（1回目clickで選択→2回目dblclickで編集）を解消
+- Shift/Ctrl/Cmd+クリックによるトグル選択は維持
+- 変更ファイル: ProofWorkspace.tsx, ProofWorkspace.test.tsx, ProofWorkspace.stories.tsx
+- スクリーンショット: .screenshots/node-click-no-selection.png, .screenshots/node-dblclick-edit-no-selection.png, .screenshots/node-shift-click-selection.png
+- **今後のイテレーションへの学び:**
+  - ノードクリックのonClickハンドラ内で`isSelectionActive`分岐とmodifierキー分岐を明確に分離する設計が良い
+  - テストで「クリックで選択」を前提とする箇所が多い場合、Shift+clickパターンへの一括変更が必要
+  - prettierフォーマットエラーはCI失敗の原因になる。タスクファイル編集後は`npx prettier --write`を忘れずに
+---
