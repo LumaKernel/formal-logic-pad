@@ -303,3 +303,6 @@ Infinity Canvasについて。
 
 - [x] 論理式ノードについて。編集のためにダブルクリックしたときにノード選択にならないでほしい — 通常クリックで選択しない、Shift/Ctrl+クリックでトグル選択維持
   - [x] 単なるクリックでも、どのノードも選択に入らないで
+
+- [x] http://localhost:13000/reference/rule-sc-structural こういう系は全部一気にTeX描画せずに、項目ごとに分けて — formalNotation型をstring | readonly string[]に拡張、5エントリ分割
+  - [x] 他にも似た系統のドキュメントがあれば同様に — concept-admissible-derivable, concept-context-sharing-independence, concept-predicate-semantics, concept-semantic-validity も分割済み

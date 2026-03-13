@@ -13877,3 +13877,30 @@
   - テストで「クリックで選択」を前提とする箇所が多い場合、Shift+clickパターンへの一括変更が必要
   - prettierフォーマットエラーはCI失敗の原因になる。タスクファイル編集後は`npx prettier --write`を忘れずに
 ---
+
+## 2026-03-14 02:20 - [reference] formalNotation項目別分割表示
+
+- 実装した内容:
+  - formalNotation型をstring | readonly string[]に拡張
+  - 4つのレンダラー（PageView, Modal, FloatingWindow, Popover）を配列対応に更新
+  - rule-sc-structural（構造規則: ID, Cut, Weakening, Contraction, Exchange）を5項目に分割
+  - concept-admissible-derivable（派生規則・許容規則）を2項目に分割
+  - concept-context-sharing-independence（構造共有形・構造独立形）を2項目に分割
+  - concept-predicate-semantics（述語意味論: 構造・項・量化子）を3項目に分割
+  - concept-semantic-validity（妥当性・充足可能性・充足不能性）を3項目に分割
+  - テスト修正（toContainが配列に対して要素チェックになるため、some+includesに変更）
+- 変更したファイル:
+  - src/lib/reference/referenceEntry.ts（型定義変更）
+  - src/lib/reference/referenceViewerLogic.ts（ViewerPageData型更新）
+  - src/lib/reference/referenceUILogic.ts（PopoverData, ModalData型更新）
+  - src/lib/reference/ReferenceViewerPageView.tsx（配列対応レンダリング）
+  - src/lib/reference/ReferenceModal.tsx（同上）
+  - src/lib/reference/ReferenceFloatingWindow.tsx（同上）
+  - src/lib/reference/ReferencePopover.tsx（同上）
+  - src/lib/reference/referenceContent.ts（5エントリのformalNotationを配列に分割）
+  - src/lib/reference/referenceContent.test.ts（toContain→some+includesに修正）
+- カバレッジ: reference 99.49% statements（低下なし）
+- **今後のイテレーションへの学び:**
+  - formalNotationを配列にすると、toContainの挙動が変わる（文字列→部分文字列検索、配列→要素一致検索）
+  - ESLint require-satisfies-in-tls: テンプレートリテラル内の三項演算子も全体にsatisfies stringが必要
+---

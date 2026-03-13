@@ -16,7 +16,4 @@
   - [x] MPのドキュメントなどでのブロック数式の描画で、元のコードが露出しているように思えます。
         http://localhost:13000/reference/axiom-a1 などを開くと、 `<span class="katex-mathml">...` と `<span class="katex-html" aria-hidden="true">...` が並んでおり、そのどちらもが表示されているようです。 KaTeX のセットアップが成功していない、などではないでしょうか。 pw mcp などで、確実に片方がvisibleになるまでしっかり修正してほしい。
 
-- [-] http://localhost:13000/reference/rule-sc-structural こういう系は全部一気にTeX描画せずに、項目ごとに分けて
-  - [ ] 他にも似た系統のドキュメントがあれば同様に
-
 - [ ] ゴール一覧は閉じても移動できるのに、マイコレクションはできない。もしかして同じ仕組みを使っていない？
