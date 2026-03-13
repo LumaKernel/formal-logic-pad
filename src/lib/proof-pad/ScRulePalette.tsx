@@ -53,8 +53,7 @@ const sectionHeaderClassName =
 const ruleItemClassName =
   "py-1 px-3 flex items-center gap-1 text-[11px] text-[var(--color-text-secondary,#666)] cursor-pointer transition-[background] duration-150";
 
-const ruleItemSelectedClassName =
-  `${ruleItemClassName satisfies string} bg-[var(--color-tab-rule-selected-bg,rgba(90,140,200,0.15))] text-[var(--color-text-primary,#333)] font-semibold`;
+const ruleItemSelectedClassName = `${ruleItemClassName satisfies string} bg-[var(--color-tab-rule-selected-bg,rgba(90,140,200,0.15))] text-[var(--color-text-primary,#333)] font-semibold`;
 
 const ruleItemHoverBg =
   "var(--color-paper-button-hover-bg, rgba(245, 240, 230, 0.95))";
@@ -104,7 +103,9 @@ function ScRuleItemView({
       }}
     >
       <span>{rule.displayName}</span>
-      {rule.isBranching && <span className={branchingBadgeClassName}>分岐</span>}
+      {rule.isBranching && (
+        <span className={branchingBadgeClassName}>分岐</span>
+      )}
     </div>
   );
 }

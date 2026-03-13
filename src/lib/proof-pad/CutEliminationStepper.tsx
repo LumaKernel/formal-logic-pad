@@ -246,9 +246,7 @@ export function CutEliminationStepper({
 
       {/* 結果ステータス */}
       {isAtEnd ? (
-        <div
-          className={`${infoRowClassName satisfies string} mb-0 mt-1`}
-        >
+        <div className={`${infoRowClassName satisfies string} mb-0 mt-1`}>
           {result._tag === "Success" ? (
             <span
               className={successClassName}
