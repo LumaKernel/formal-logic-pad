@@ -181,10 +181,6 @@ $COVERAGE_REPORT
       || true
   fi
 
-  # Post-iteration coverage for human visibility
-  echo ""
-  echo "--- Post-iteration coverage ---"
-  capture_coverage
   echo "---"
 
   # The only meaningful progress indicator: did a new commit appear?
