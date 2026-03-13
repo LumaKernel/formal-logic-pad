@@ -14054,3 +14054,16 @@
   - スタイルテスト（style.fontWeight等）はclassName検証に書き換える必要がある
   - 477行追加、891行削除 — Tailwindクラスの方がコンパクト
 ---
+
+## 2026-03-14 - Favicon・ブランドアイコン
+- ターンスタイル⊢モチーフのSVGファビコン作成 (`src/app/icon.svg`)
+- favicon.icoをSVGから生成し置き換え
+- apple-icon.png追加
+- アップバーのブランドアイコンをlucide-react Sigma → カスタムSVGターンスタイルに変更
+- 変更ファイル: src/app/icon.svg, src/app/favicon.ico, src/app/apple-icon.png, src/app/HubPageView.tsx
+- カバレッジ: 変化なし（99.91%）
+- **今後のイテレーションへの学び:**
+  - Next.js App Routerではsrc/app/にicon.svg, apple-icon.png, favicon.icoを置けば自動的にメタデータが生成される
+  - ImageMagick (magick) でSVG→ICO/PNG変換が可能。`magick icon.svg -define icon:auto-resize=48,32,16 favicon.ico`
+  - ブランドアイコンはlucide-reactの既存アイコンよりカスタムSVGの方がテーマの一貫性を保てる
+---
