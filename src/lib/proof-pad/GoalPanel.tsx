@@ -181,22 +181,34 @@ function GoalItemStatusBadge({
   readonly messages: ProofMessages;
 }) {
   if (status === "achieved") {
-    return <span className={statusAchievedClassName}>{messages.goalProved}</span>;
+    return (
+      <span className={statusAchievedClassName}>{messages.goalProved}</span>
+    );
   }
   if (status === "not-achieved") {
-    return <span className={statusNotAchievedClassName}>{messages.goalNotYet}</span>;
+    return (
+      <span className={statusNotAchievedClassName}>{messages.goalNotYet}</span>
+    );
   }
   if (status === "parse-error") {
     return (
-      <span className={statusParseErrorClassName}>{messages.goalInvalidFormula}</span>
+      <span className={statusParseErrorClassName}>
+        {messages.goalInvalidFormula}
+      </span>
     );
   }
   if (status === "achieved-but-axiom-violation") {
     return (
-      <span className={statusViolationClassName}>{messages.goalAxiomViolation}</span>
+      <span className={statusViolationClassName}>
+        {messages.goalAxiomViolation}
+      </span>
     );
   }
-  return <span className={statusViolationClassName}>{messages.goalRuleViolation}</span>;
+  return (
+    <span className={statusViolationClassName}>
+      {messages.goalRuleViolation}
+    </span>
+  );
 }
 
 function HintItem({
@@ -316,7 +328,9 @@ function GoalDetailPanel({
       {/* ヒント */}
       {questInfo.hints.length > 0 && (
         <div className={detailSectionClassName}>
-          <div className={detailSectionHeaderClassName}>{messages.goalDetailHints}</div>
+          <div className={detailSectionHeaderClassName}>
+            {messages.goalDetailHints}
+          </div>
           {questInfo.hints.map((hint, i) => (
             <HintItem
               key={String(i)}
@@ -349,7 +363,9 @@ function GoalDetailPanel({
                 : undefined;
             return (
               <div key={axiom.id} className={allowedAxiomItemClassName}>
-                <span className={allowedAxiomNameClassName}>{axiom.displayName}:</span>
+                <span className={allowedAxiomNameClassName}>
+                  {axiom.displayName}:
+                </span>
                 <FormulaDisplay formula={axiom.formula} fontSize={10} />
                 {refEntry !== undefined && locale !== undefined && (
                   <span
@@ -515,7 +531,9 @@ function GoalItem({
         <span>{item.label ?? `#${String(index + 1) satisfies string}`}</span>
         <GoalItemStatusBadge status={item.status} messages={messages} />
         {hasDetail && (
-          <span className={expandIndicatorClassName}>{expanded ? "▼" : "▶"}</span>
+          <span className={expandIndicatorClassName}>
+            {expanded ? "▼" : "▶"}
+          </span>
         )}
       </div>
       <div className={itemFormulaClassName}>

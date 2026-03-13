@@ -89,8 +89,7 @@ const itemFormulaClassName =
 
 // --- コンポーネント ---
 
-const itemLabelRowClassName =
-  `flex items-center gap-1` satisfies string;
+const itemLabelRowClassName = `flex items-center gap-1` satisfies string;
 
 function AxiomPaletteItemView({
   axiom,

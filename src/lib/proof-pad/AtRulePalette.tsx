@@ -179,7 +179,9 @@ function AtRuleItemView({
       /* v8 ignore stop */
     >
       <span>{rule.displayName}</span>
-      {rule.isBranching && <span className={branchingBadgeClassName}>分岐</span>}
+      {rule.isBranching && (
+        <span className={branchingBadgeClassName}>分岐</span>
+      )}
     </div>
   );
 }

@@ -202,7 +202,9 @@ function SubstitutionPopover({
   return (
     <div
       data-testid={testId}
-      className={`${popoverClassName satisfies string} min-w-[280px]` satisfies string}
+      className={
+        `${popoverClassName satisfies string} min-w-[280px]` satisfies string
+      }
       /* v8 ignore start -- stopPropagation/Escapeキー: ポップオーバーUIイベント */
       onClick={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}

@@ -107,20 +107,16 @@ const formulaContainerReadonlyClassName =
 const noteTextClassName =
   "font-[family-name:var(--font-ui)] not-italic text-xs leading-[1.5] whitespace-pre-wrap break-words text-left max-w-60 cursor-pointer";
 
-const noteEmptyClassName =
-  `${noteTextClassName satisfies string} opacity-50 italic`;
+const noteEmptyClassName = `${noteTextClassName satisfies string} opacity-50 italic`;
 
 const statusBaseClassName =
   "text-[10px] font-[family-name:var(--font-ui)] not-italic mt-1 px-1.5 py-[2px] rounded";
 
-const statusErrorClassName =
-  `${statusBaseClassName satisfies string} bg-[var(--color-error-bg,rgba(255,60,60,0.25))] text-[var(--color-error,#e06060)]`;
+const statusErrorClassName = `${statusBaseClassName satisfies string} bg-[var(--color-error-bg,rgba(255,60,60,0.25))] text-[var(--color-error,#e06060)]`;
 
-const statusWarningClassName =
-  `${statusBaseClassName satisfies string} bg-[var(--color-warning-bg,rgba(255,215,0,0.3))] text-[var(--color-warning,#d9944a)]`;
+const statusWarningClassName = `${statusBaseClassName satisfies string} bg-[var(--color-warning-bg,rgba(255,215,0,0.3))] text-[var(--color-warning,#d9944a)]`;
 
-const statusSuccessClassName =
-  `${statusBaseClassName satisfies string} bg-[var(--color-success-bg,rgba(60,255,60,0.25))] text-[var(--color-success,#2ecc71)]`;
+const statusSuccessClassName = `${statusBaseClassName satisfies string} bg-[var(--color-success-bg,rgba(60,255,60,0.25))] text-[var(--color-success,#2ecc71)]`;
 
 const roleBadgeBaseStyle: CSSProperties = {
   fontSize: 9,
@@ -133,8 +129,7 @@ const roleBadgeBaseStyle: CSSProperties = {
   letterSpacing: 0.5,
 };
 
-const headerRowClassName =
-  "flex items-center justify-center gap-1.5 mb-[2px]";
+const headerRowClassName = "flex items-center justify-center gap-1.5 mb-[2px]";
 
 const protectedBadgeClassName =
   "text-[9px] font-[family-name:var(--font-ui)] font-semibold px-1.5 py-[1px] rounded-[3px] select-none tracking-[0.5px] bg-[var(--color-warning-bg,rgba(255,215,0,0.3))] text-[var(--color-warning,#d9944a)] border border-solid border-[var(--color-warning-border,rgba(255,215,0,0.5))]";
@@ -142,8 +137,7 @@ const protectedBadgeClassName =
 const axiomNameBadgeClassName =
   "text-[9px] font-[family-name:var(--font-ui)] font-semibold px-1.5 py-[1px] rounded-[3px] select-none tracking-[0.5px] bg-[var(--color-badge-bg,#e8eaf0)] text-[var(--color-badge-text,#718096)] border border-solid border-[var(--color-node-card-border,rgba(0,0,0,0.08))]";
 
-const axiomNameBadgeClickableClassName =
-  `${axiomNameBadgeClassName satisfies string} cursor-pointer underline decoration-dotted underline-offset-2 font-[family-name:inherit]`;
+const axiomNameBadgeClickableClassName = `${axiomNameBadgeClassName satisfies string} cursor-pointer underline decoration-dotted underline-offset-2 font-[family-name:inherit]`;
 
 const dependencyContainerClassName =
   "text-[9px] font-[family-name:var(--font-ui)] not-italic mt-1 px-1.5 py-[3px] bg-[var(--color-badge-bg,#e8eaf0)] rounded text-[var(--color-badge-text,#718096)] text-left";
@@ -181,7 +175,9 @@ function SubstitutionEntryValue({
         />
       );
     }
-    return <span className={substEntryFallbackClassName}>{entry.formulaText}</span>;
+    return (
+      <span className={substEntryFallbackClassName}>{entry.formulaText}</span>
+    );
   }
   const parsed = parseTermString(entry.termText);
   if (Either.isRight(parsed)) {
@@ -470,7 +466,9 @@ export function EditableProofNode({
       {visibility.showFormula ? (
         kind === "note" ? (
           <div
-            className={formulaText.trim() ? noteTextClassName : noteEmptyClassName}
+            className={
+              formulaText.trim() ? noteTextClassName : noteEmptyClassName
+            }
             onDoubleClick={handleNoteDoubleClick}
             data-testid={
               /* v8 ignore start -- testId always provided in tests */
