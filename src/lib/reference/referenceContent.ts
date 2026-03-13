@@ -90,7 +90,7 @@ const guideBasicOperations: ReferenceEntry = {
 
       "<b>2. Understanding the Interface</b>\nThe workspace has several key components:\n• <b>Canvas:</b> The main area where you build your proof tree\n• <b>Goal Panel:</b> Shows what you need to prove (right side)\n• <b>Axiom Palette:</b> Available axioms and rules you can use (bottom)\n• <b>Context Menu:</b> Right-click on the canvas to add nodes",
 
-      "<b>3. Adding Nodes</b>\nTo add a formula node:\n1. Right-click on the empty canvas\n2. Select 'Add Formula Schema' from the context menu\n3. Type your formula using the formula editor\n4. Press Enter or click outside to confirm\n\nYou can use keyboard shortcuts like 'phi' for φ, 'psi' for ψ, and '->' for →.",
+      "<b>3. Adding Nodes</b>\nTo add a formula node:\n1. Right-click on the empty canvas\n2. Select 'Add Formula Schema' from the context menu\n3. Type your formula using the formula editor\n4. Press Enter or click outside to confirm\n\nYou can use keyboard shortcuts like <code>phi</code> for φ, <code>psi</code> for ψ, and <code>-></code> for →.",
 
       "<b>4. Connecting Nodes</b>\nTo apply an inference rule:\n1. Select one or more premise nodes (click to select, Ctrl/Cmd+click for multiple)\n2. Click on an inference rule from the axiom palette, or right-click and choose from the menu\n3. The conclusion will be automatically generated\n4. Connect nodes by dragging from the output port of one node to the input port of another",
 
@@ -100,7 +100,7 @@ const guideBasicOperations: ReferenceEntry = {
 
       "<b>7. Saving and Loading</b>\nYour work is automatically saved locally in your browser. You can:\n• Export your proof as JSON or image\n• Import previously saved proofs\n• Share your proof via a generated link",
 
-      "<b>8. Tips for Success</b>\n• Start with simple quests and gradually move to complex ones\n• Use the axiom palette to quickly find relevant rules\n• Organize your proof tree from top (premises) to bottom (conclusion)\n• Reference the documentation (?) for detailed explanations of axioms and rules\n• Try the keyboard shortcuts: press '?' to see the full list",
+      "<b>8. Tips for Success</b>\n• Start with simple quests and gradually move to complex ones\n• Use the axiom palette to quickly find relevant rules\n• Organize your proof tree from top (premises) to bottom (conclusion)\n• Reference the documentation (?) for detailed explanations of axioms and rules\n• Try the keyboard shortcuts: press <code>?</code> to see the full list",
 
       "Now you're ready to start building formal proofs! Begin with the first quest in the Propositional Logic section to practice these operations.",
     ],
@@ -111,7 +111,7 @@ const guideBasicOperations: ReferenceEntry = {
 
       "<b>2. インターフェースの理解</b>\nワークスペースには以下の主要コンポーネントがあります：\n• <b>キャンバス：</b>証明ツリーを構築するメインエリア\n• <b>ゴールパネル：</b>証明すべき内容を表示（右側）\n• <b>公理パレット：</b>使用できる公理と規則（下部）\n• <b>コンテキストメニュー：</b>キャンバス上で右クリックしてノードを追加",
 
-      "<b>3. ノードの追加</b>\n論理式ノードを追加するには：\n1. 空のキャンバス上で右クリック\n2. コンテキストメニューから「論理式スキーマを追加」を選択\n3. 論理式エディタで論理式を入力\n4. Enterキーを押すか、外側をクリックして確定\n\nキーボードショートカット：'phi'でφ、'psi'でψ、'->'で→が入力できます。",
+      "<b>3. ノードの追加</b>\n論理式ノードを追加するには：\n1. 空のキャンバス上で右クリック\n2. コンテキストメニューから「論理式スキーマを追加」を選択\n3. 論理式エディタで論理式を入力\n4. Enterキーを押すか、外側をクリックして確定\n\nキーボードショートカット：<code>phi</code>でφ、<code>psi</code>でψ、<code>-></code>で→が入力できます。",
 
       "<b>4. ノードの接続</b>\n推論規則を適用するには：\n1. 前提となるノードを選択（クリックで選択、Ctrl/Cmd+クリックで複数選択）\n2. 公理パレットから推論規則をクリック、または右クリックメニューから選択\n3. 結論が自動的に生成される\n4. ノードの出力ポートから別のノードの入力ポートへドラッグして接続",
 
@@ -121,7 +121,7 @@ const guideBasicOperations: ReferenceEntry = {
 
       "<b>7. 保存と読み込み</b>\n作業内容はブラウザにローカルで自動保存されます。以下が可能です：\n• 証明をJSONや画像としてエクスポート\n• 以前に保存した証明をインポート\n• 生成されたリンクで証明を共有",
 
-      "<b>8. 成功のためのヒント</b>\n• 簡単なクエストから始めて、徐々に複雑なものへ進む\n• 公理パレットを使って関連する規則を素早く見つける\n• 証明ツリーを上（前提）から下（結論）へ整理する\n• 公理と規則の詳細な説明はドキュメント（?）を参照\n• キーボードショートカットを試す：'?'で全リストを表示",
+      "<b>8. 成功のためのヒント</b>\n• 簡単なクエストから始めて、徐々に複雑なものへ進む\n• 公理パレットを使って関連する規則を素早く見つける\n• 証明ツリーを上（前提）から下（結論）へ整理する\n• 公理と規則の詳細な説明はドキュメント（?）を参照\n• キーボードショートカットを試す：<code>?</code>で全リストを表示",
 
       "これで形式証明の構築を始める準備ができました！命題論理セクションの最初のクエストから始めて、これらの操作を練習しましょう。",
     ],
