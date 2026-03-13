@@ -621,7 +621,10 @@ declare var console: {
       </div>
 
       <div
-        className={cn("flex items-center gap-1.5 px-3 py-1.5 overflow-x-auto", barBg)}
+        className={cn(
+          "flex items-center gap-1.5 px-3 py-1.5 overflow-x-auto",
+          barBg,
+        )}
         data-testid="template-bar"
       >
         <span className="text-[length:var(--font-size-xs,11px)] font-semibold text-[var(--color-text-secondary,#666666)] whitespace-nowrap">
