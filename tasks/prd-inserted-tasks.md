@@ -5,7 +5,7 @@
   - [x] アップバーのタイトルブランド（Sigmaアイコン追加、font-semibold/text-lg/select-none、text-primary アイコン色）
   - [x] トップページのタブ（タブバー・タブボタンのCSSProperties→Tailwindクラス変換。bg-card/border-ui-border/text-primary/text-muted-foreground使用）
   - [x] リファレンスの検索欄、各検索ボタン、検索結果のドキュメントカード（CSSProperties→Tailwindクラス変換、bg-card/border-ui-border/text-foreground/text-muted-foreground/bg-primary使用）
-  - [ ] 各タブのボタンやアイコンボタン(三点リーダーなど)
+  - [x] 各タブのボタンやアイコンボタン(三点リーダーなど)（NotebookList/HubPageView/WorkspacePageView/QuestCatalog/CustomQuestList/ProofCollectionPanelのボタン・メニュー・削除確認・共有パネル変換完了）
   - [ ] 各種フォーム(ノートやクエスト作成)
   - [ ] パッド内の各種アクションをするための起点、ボタンなど
 - [ ] かっこいいfaviconを作って置き換えて。アップバーのタイトルブランドもテーマにちなんだ形にかっこいいものに
