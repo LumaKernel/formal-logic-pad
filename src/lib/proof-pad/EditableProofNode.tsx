@@ -98,73 +98,29 @@ export interface EditableProofNodeProps {
 
 // --- スタイル ---
 
-const labelStyle: CSSProperties = {
-  fontSize: 10,
-  fontFamily: "var(--font-ui)",
-  fontWeight: 700,
-  opacity: 0.8,
-  marginBottom: 2,
-  letterSpacing: 1,
-  textTransform: "uppercase",
-};
+const labelClassName =
+  "text-[10px] font-[family-name:var(--font-ui)] font-bold opacity-80 mb-[2px] tracking-[1px] uppercase";
 
-const formulaContainerReadonlyStyle: CSSProperties = {
-  fontFamily: "var(--font-formula)",
-  fontStyle: "italic",
-  whiteSpace: "nowrap",
-  fontSize: 13,
-};
+const formulaContainerReadonlyClassName =
+  "font-[family-name:var(--font-formula)] italic whitespace-nowrap text-[13px]";
 
-const noteTextStyle: CSSProperties = {
-  fontFamily: "var(--font-ui)",
-  fontStyle: "normal",
-  fontSize: 12,
-  lineHeight: 1.5,
-  whiteSpace: "pre-wrap",
-  wordBreak: "break-word",
-  textAlign: "left",
-  maxWidth: 240,
-  cursor: "pointer",
-};
+const noteTextClassName =
+  "font-[family-name:var(--font-ui)] not-italic text-xs leading-[1.5] whitespace-pre-wrap break-words text-left max-w-60 cursor-pointer";
 
-const noteEmptyStyle: CSSProperties = {
-  ...noteTextStyle,
-  opacity: 0.5,
-  fontStyle: "italic",
-};
+const noteEmptyClassName =
+  `${noteTextClassName satisfies string} opacity-50 italic`;
 
-const statusErrorStyle: CSSProperties = {
-  fontSize: 10,
-  fontFamily: "var(--font-ui)",
-  fontStyle: "normal",
-  marginTop: 4,
-  padding: "2px 6px",
-  background: "var(--color-error-bg, rgba(255,60,60,0.25))",
-  borderRadius: 4,
-  color: "var(--color-error, #e06060)",
-};
+const statusBaseClassName =
+  "text-[10px] font-[family-name:var(--font-ui)] not-italic mt-1 px-1.5 py-[2px] rounded";
 
-const statusWarningStyle: CSSProperties = {
-  fontSize: 10,
-  fontFamily: "var(--font-ui)",
-  fontStyle: "normal",
-  marginTop: 4,
-  padding: "2px 6px",
-  background: "var(--color-warning-bg, rgba(255,215,0,0.3))",
-  borderRadius: 4,
-  color: "var(--color-warning, #d9944a)",
-};
+const statusErrorClassName =
+  `${statusBaseClassName satisfies string} bg-[var(--color-error-bg,rgba(255,60,60,0.25))] text-[var(--color-error,#e06060)]`;
 
-const statusSuccessStyle: CSSProperties = {
-  fontSize: 10,
-  fontFamily: "var(--font-ui)",
-  fontStyle: "normal",
-  marginTop: 4,
-  padding: "2px 6px",
-  background: "var(--color-success-bg, rgba(60,255,60,0.25))",
-  borderRadius: 4,
-  color: "var(--color-success, #2ecc71)",
-};
+const statusWarningClassName =
+  `${statusBaseClassName satisfies string} bg-[var(--color-warning-bg,rgba(255,215,0,0.3))] text-[var(--color-warning,#d9944a)]`;
+
+const statusSuccessClassName =
+  `${statusBaseClassName satisfies string} bg-[var(--color-success-bg,rgba(60,255,60,0.25))] text-[var(--color-success,#2ecc71)]`;
 
 const roleBadgeBaseStyle: CSSProperties = {
   fontSize: 9,
@@ -177,105 +133,37 @@ const roleBadgeBaseStyle: CSSProperties = {
   letterSpacing: 0.5,
 };
 
-const headerRowStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 6,
-  marginBottom: 2,
-};
+const headerRowClassName =
+  "flex items-center justify-center gap-1.5 mb-[2px]";
 
-const protectedBadgeStyle: CSSProperties = {
-  fontSize: 9,
-  fontFamily: "var(--font-ui)",
-  fontWeight: 600,
-  padding: "1px 6px",
-  borderRadius: 3,
-  userSelect: "none",
-  letterSpacing: 0.5,
-  background: "var(--color-warning-bg, rgba(255,215,0,0.3))",
-  color: "var(--color-warning, #d9944a)",
-  border: "1px solid var(--color-warning-border, rgba(255,215,0,0.5))",
-};
+const protectedBadgeClassName =
+  "text-[9px] font-[family-name:var(--font-ui)] font-semibold px-1.5 py-[1px] rounded-[3px] select-none tracking-[0.5px] bg-[var(--color-warning-bg,rgba(255,215,0,0.3))] text-[var(--color-warning,#d9944a)] border border-solid border-[var(--color-warning-border,rgba(255,215,0,0.5))]";
 
-const axiomNameBadgeStyle: CSSProperties = {
-  fontSize: 9,
-  fontFamily: "var(--font-ui)",
-  fontWeight: 600,
-  padding: "1px 6px",
-  borderRadius: 3,
-  userSelect: "none",
-  letterSpacing: 0.5,
-  background: "var(--color-badge-bg, #e8eaf0)",
-  color: "var(--color-badge-text, #718096)",
-  border: "1px solid var(--color-node-card-border, rgba(0,0,0,0.08))",
-};
+const axiomNameBadgeClassName =
+  "text-[9px] font-[family-name:var(--font-ui)] font-semibold px-1.5 py-[1px] rounded-[3px] select-none tracking-[0.5px] bg-[var(--color-badge-bg,#e8eaf0)] text-[var(--color-badge-text,#718096)] border border-solid border-[var(--color-node-card-border,rgba(0,0,0,0.08))]";
 
-const axiomNameBadgeClickableStyle: CSSProperties = {
-  ...axiomNameBadgeStyle,
-  cursor: "pointer",
-  textDecoration: "underline",
-  textDecorationStyle: "dotted",
-  textUnderlineOffset: 2,
-  fontFamily: "inherit",
-};
+const axiomNameBadgeClickableClassName =
+  `${axiomNameBadgeClassName satisfies string} cursor-pointer underline decoration-dotted underline-offset-2 font-[family-name:inherit]`;
 
-const dependencyContainerStyle: CSSProperties = {
-  fontSize: 9,
-  fontFamily: "var(--font-ui)",
-  fontStyle: "normal",
-  marginTop: 4,
-  padding: "3px 6px",
-  background: "var(--color-badge-bg, #e8eaf0)",
-  borderRadius: 4,
-  color: "var(--color-badge-text, #718096)",
-  textAlign: "left",
-};
+const dependencyContainerClassName =
+  "text-[9px] font-[family-name:var(--font-ui)] not-italic mt-1 px-1.5 py-[3px] bg-[var(--color-badge-bg,#e8eaf0)] rounded text-[var(--color-badge-text,#718096)] text-left";
 
-const dependencyLabelStyle: CSSProperties = {
-  fontWeight: 600,
-  marginBottom: 2,
-  letterSpacing: 0.5,
-  opacity: 0.7,
-};
+const dependencyLabelClassName =
+  "font-semibold mb-[2px] tracking-[0.5px] opacity-70";
 
-const dependencyItemStyle: CSSProperties = {
-  display: "inline-block",
-  padding: "1px 4px",
-  margin: "1px 2px",
-  background: "var(--color-node-card-border, rgba(0,0,0,0.08))",
-  borderRadius: 3,
-  fontSize: 9,
-};
+const dependencyItemClassName =
+  "inline-block px-1 py-[1px] m-[1px_2px] bg-[var(--color-node-card-border,rgba(0,0,0,0.08))] rounded-[3px] text-[9px]";
 
-const substEntriesContainerStyle: CSSProperties = {
-  fontSize: 10,
-  fontFamily: "var(--font-formula)",
-  fontStyle: "italic",
-  marginTop: 4,
-  padding: "3px 6px",
-  background: "var(--color-badge-bg, #e8eaf0)",
-  borderRadius: 4,
-  color: "var(--color-badge-text, #718096)",
-  textAlign: "left",
-};
+const substEntriesContainerClassName =
+  "text-[10px] font-[family-name:var(--font-formula)] italic mt-1 px-1.5 py-[3px] bg-[var(--color-badge-bg,#e8eaf0)] rounded text-[var(--color-badge-text,#718096)] text-left";
 
-const substEntryStyle: CSSProperties = {
-  padding: "1px 0",
-  whiteSpace: "nowrap",
-  display: "flex",
-  alignItems: "baseline",
-  gap: 2,
-};
+const substEntryClassName =
+  "py-[1px] px-0 whitespace-nowrap flex items-baseline gap-0.5";
 
 const substEntryValueFontSize = 10;
 
-const substEntryFallbackStyle: CSSProperties = {
-  fontFamily: "var(--font-formula)",
-  fontStyle: "italic",
-  fontSize: substEntryValueFontSize,
-  whiteSpace: "nowrap",
-};
+const substEntryFallbackClassName =
+  "font-[family-name:var(--font-formula)] italic text-[10px] whitespace-nowrap";
 
 /** 代入エントリの値部分を数式レンダリングするコンポーネント */
 function SubstitutionEntryValue({
@@ -293,7 +181,7 @@ function SubstitutionEntryValue({
         />
       );
     }
-    return <span style={substEntryFallbackStyle}>{entry.formulaText}</span>;
+    return <span className={substEntryFallbackClassName}>{entry.formulaText}</span>;
   }
   const parsed = parseTermString(entry.termText);
   if (Either.isRight(parsed)) {
@@ -301,7 +189,7 @@ function SubstitutionEntryValue({
       <TermDisplay term={parsed.right} fontSize={substEntryValueFontSize} />
     );
   }
-  return <span style={substEntryFallbackStyle}>{entry.termText}</span>;
+  return <span className={substEntryFallbackClassName}>{entry.termText}</span>;
 }
 
 /** メタ変数名（添字含む）を数式フォントで表示する */
@@ -376,14 +264,14 @@ function getRoleBadgeLabel(
   return "Note";
 }
 
-function getStatusStyle(type: "error" | "warning" | "success"): CSSProperties {
+function getStatusClassName(type: "error" | "warning" | "success"): string {
   switch (type) {
     case "error":
-      return statusErrorStyle;
+      return statusErrorClassName;
     case "warning":
-      return statusWarningStyle;
+      return statusWarningClassName;
     case "success":
-      return statusSuccessStyle;
+      return statusSuccessClassName;
   }
 }
 
@@ -505,20 +393,20 @@ export function EditableProofNode({
       onMouseLeave={handleMouseLeave}
     >
       <div
-        style={
+        className={
           (visibility.showRoleBadge && classification) ||
           (visibility.showProtectedBadge && isProtected) ||
           (visibility.showAxiomName && axiomName)
-            ? headerRowStyle
+            ? headerRowClassName
             : undefined
         }
       >
-        <div style={labelStyle}>{label}</div>
+        <div className={labelClassName}>{label}</div>
         {visibility.showAxiomName && axiomName ? (
           onClickAxiomBadge ? (
             <button
               type="button"
-              style={axiomNameBadgeClickableStyle}
+              className={axiomNameBadgeClickableClassName}
               title={formatMessage(msg.axiomIdentifiedTooltip, {
                 axiomName,
               })}
@@ -536,7 +424,7 @@ export function EditableProofNode({
             </button>
           ) : (
             <span
-              style={axiomNameBadgeStyle}
+              className={axiomNameBadgeClassName}
               title={formatMessage(msg.axiomIdentifiedTooltip, {
                 axiomName,
               })}
@@ -552,7 +440,7 @@ export function EditableProofNode({
         ) : null}
         {visibility.showProtectedBadge && isProtected ? (
           <div
-            style={protectedBadgeStyle}
+            className={protectedBadgeClassName}
             title={msg.protectedQuestTooltip}
             data-testid={
               testId ? `${testId satisfies string}-protected-badge` : undefined
@@ -582,7 +470,7 @@ export function EditableProofNode({
       {visibility.showFormula ? (
         kind === "note" ? (
           <div
-            style={formulaText.trim() ? noteTextStyle : noteEmptyStyle}
+            className={formulaText.trim() ? noteTextClassName : noteEmptyClassName}
             onDoubleClick={handleNoteDoubleClick}
             data-testid={
               /* v8 ignore start -- testId always provided in tests */
@@ -629,7 +517,7 @@ export function EditableProofNode({
           />
         ) : (
           <div
-            style={formulaContainerReadonlyStyle}
+            className={formulaContainerReadonlyClassName}
             data-testid={
               testId ? `${testId satisfies string}-formula` : undefined
             }
@@ -644,7 +532,7 @@ export function EditableProofNode({
       ) : null}
       {visibility.showStatus && statusMessage && statusType ? (
         <div
-          style={getStatusStyle(statusType)}
+          className={getStatusClassName(statusType)}
           data-testid={testId ? `${testId satisfies string}-status` : undefined}
         >
           {statusMessage}
@@ -654,17 +542,17 @@ export function EditableProofNode({
       dependencies &&
       dependencies.length > 0 ? (
         <div
-          style={dependencyContainerStyle}
+          className={dependencyContainerClassName}
           /* v8 ignore start -- testId分岐: テスト用属性の有無 */
           data-testid={
             testId ? `${testId satisfies string}-dependencies` : undefined
           }
           /* v8 ignore stop */
         >
-          <div style={dependencyLabelStyle}>{msg.dependsOn}</div>
+          <div className={dependencyLabelClassName}>{msg.dependsOn}</div>
           <div>
             {dependencies.map((dep) => (
-              <span key={dep.nodeId} style={dependencyItemStyle}>
+              <span key={dep.nodeId} className={dependencyItemClassName}>
                 {dep.displayName}
               </span>
             ))}
@@ -675,7 +563,7 @@ export function EditableProofNode({
       substitutionEntries &&
       substitutionEntries.length > 0 ? (
         <div
-          style={substEntriesContainerStyle}
+          className={substEntriesContainerClassName}
           /* v8 ignore start -- testId分岐: テスト用属性の有無 */
           data-testid={
             testId ? `${testId satisfies string}-subst-entries` : undefined
@@ -683,7 +571,7 @@ export function EditableProofNode({
           /* v8 ignore stop */
         >
           {substitutionEntries.map((entry, i) => (
-            <div key={i} style={substEntryStyle}>
+            <div key={i} className={substEntryClassName}>
               <MetaVariableLabel entry={entry} />
               <span>{" := "}</span>
               <SubstitutionEntryValue entry={entry} />

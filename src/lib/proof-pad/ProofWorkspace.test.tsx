@@ -4131,12 +4131,12 @@ describe("ProofWorkspace", () => {
       const ruleEl = screen.getByTestId(
         "workspace-tab-rule-palette-rule-conjunction",
       );
-      // クリック前はfontWeight 600でない
-      expect(ruleEl.style.fontWeight).not.toBe("600");
+      // クリック前はfont-semiboldクラスが付かない
+      expect(ruleEl.className).not.toContain("font-semibold");
       // 規則をクリック
       await user.click(ruleEl);
-      // 選択後はfontWeight 600
-      expect(ruleEl.style.fontWeight).toBe("600");
+      // 選択後はfont-semiboldクラスが付く
+      expect(ruleEl.className).toContain("font-semibold");
     });
 
     it("applies conjunction rule when node is clicked during TAB selection", async () => {

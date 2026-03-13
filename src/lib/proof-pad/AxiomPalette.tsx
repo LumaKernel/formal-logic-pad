@@ -8,6 +8,7 @@
  */
 
 import { type CSSProperties, useCallback, useMemo } from "react";
+// NOTE: CSSProperties is still needed for panelStyle, headerStyle (dynamically spread in useMemo)
 import type { AxiomPaletteItem } from "./axiomPaletteLogic";
 import { getAxiomReferenceEntryId } from "./axiomPaletteLogic";
 import type { ReferenceEntry, Locale } from "../reference/referenceEntry";
@@ -74,45 +75,22 @@ const headerStyle: CSSProperties = {
   marginBottom: 4,
 };
 
-const itemStyle: CSSProperties = {
-  padding: "6px 12px",
-  cursor: "pointer",
-  display: "flex",
-  flexDirection: "column",
-  gap: 2,
-  transition: "background 0.15s, box-shadow 0.15s",
-  borderBottom:
-    "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
-};
+const itemClassName =
+  `flex cursor-pointer flex-col gap-0.5 px-3 py-1.5 transition-[background,box-shadow] duration-150 border-b border-[var(--color-panel-rule-line,rgba(180,160,130,0.15))]` satisfies string;
 
-const itemHoverStyle: CSSProperties = {
-  ...itemStyle,
-  background: "var(--color-paper-button-hover-bg, rgba(245, 240, 230, 0.95))",
-};
+const itemHoverBg =
+  "var(--color-paper-button-hover-bg, rgba(245, 240, 230, 0.95))";
 
-const itemLabelStyle: CSSProperties = {
-  fontWeight: 600,
-  fontSize: 12,
-  color: "var(--color-text-primary, #333)",
-};
+const itemLabelClassName =
+  `text-xs font-semibold text-[var(--color-text-primary,#333)]` satisfies string;
 
-const itemFormulaStyle: CSSProperties = {
-  fontFamily: "var(--font-formula)",
-  fontStyle: "italic",
-  fontSize: 11,
-  color: "var(--color-text-secondary, #666)",
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-};
+const itemFormulaClassName =
+  `font-[var(--font-formula)] italic text-[11px] text-[var(--color-text-secondary,#666)] whitespace-nowrap overflow-hidden text-ellipsis` satisfies string;
 
 // --- コンポーネント ---
 
-const itemLabelRowStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 4,
-};
+const itemLabelRowClassName =
+  `flex items-center gap-1` satisfies string;
 
 function AxiomPaletteItemView({
   axiom,
@@ -140,13 +118,13 @@ function AxiomPaletteItemView({
   return (
     <div
       data-testid={testId}
-      style={itemStyle}
+      className={itemClassName}
       onClick={handleClick}
       onMouseEnter={(e) => {
-        Object.assign(e.currentTarget.style, itemHoverStyle);
+        e.currentTarget.style.background = itemHoverBg;
       }}
       onMouseLeave={(e) => {
-        Object.assign(e.currentTarget.style, { background: "" });
+        e.currentTarget.style.background = "";
       }}
       role="button"
       tabIndex={0}
@@ -159,8 +137,8 @@ function AxiomPaletteItemView({
       }}
       /* v8 ignore stop */
     >
-      <span style={itemLabelRowStyle}>
-        <span style={itemLabelStyle}>{axiom.displayName}</span>
+      <span className={itemLabelRowClassName}>
+        <span className={itemLabelClassName}>{axiom.displayName}</span>
         {referenceEntry !== undefined && locale !== undefined && (
           <span role="presentation" onClick={handlePopoverClick}>
             <ReferencePopover
@@ -176,7 +154,7 @@ function AxiomPaletteItemView({
           </span>
         )}
       </span>
-      <span style={itemFormulaStyle}>
+      <span className={itemFormulaClassName}>
         <FormulaDisplay formula={axiom.template} fontSize={11} />
       </span>
     </div>

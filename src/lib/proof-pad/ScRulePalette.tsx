@@ -13,7 +13,7 @@
  * 変更時は ScRulePalette.test.tsx, ProofWorkspace.tsx, index.ts も同期すること。
  */
 
-import { type CSSProperties, useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import type { ScRulePaletteItem } from "./axiomPaletteLogic";
 import type { ScRuleId } from "../logic-core/deductionSystem";
 import { useProofMessages } from "./ProofMessagesContext";
@@ -35,91 +35,32 @@ export interface ScRulePaletteProps {
 
 // --- スタイル ---
 
-const panelStyle: CSSProperties = {
-  position: "absolute",
-  top: 48,
-  left: 12,
-  zIndex: 10,
-  background: "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
-  borderRadius: 8,
-  border: "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.2))",
-  boxShadow: "0 2px 12px var(--color-panel-shadow, rgba(120, 100, 70, 0.1))",
-  padding: "8px 0",
-  fontFamily: "var(--font-ui)",
-  fontSize: 12,
-  maxHeight: "calc(100% - 80px)",
-  overflowY: "auto" as const,
-  minWidth: 200,
-  pointerEvents: "auto" as const,
-};
+const panelClassName =
+  "absolute top-12 left-3 z-10 bg-[var(--color-panel-bg,rgba(252,249,243,0.96))] rounded-lg border border-[var(--color-panel-border,rgba(180,160,130,0.2))] shadow-[0_2px_12px_var(--color-panel-shadow,rgba(120,100,70,0.1))] py-2 px-0 font-[var(--font-ui)] text-xs max-h-[calc(100%-80px)] overflow-y-auto min-w-[200px] pointer-events-auto";
 
-const headerStyle: CSSProperties = {
-  padding: "4px 12px 8px",
-  fontWeight: 700,
-  fontSize: 11,
-  textTransform: "uppercase",
-  letterSpacing: 1,
-  color: "var(--color-text-secondary, #666)",
-  borderBottom:
-    "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
-  marginBottom: 4,
-};
+const headerClassName =
+  "pt-1 px-3 pb-2 font-bold text-[11px] uppercase tracking-[1px] text-[var(--color-text-secondary,#666)] border-b border-b-[var(--color-panel-rule-line,rgba(180,160,130,0.15))] mb-1";
 
-const addButtonStyle: CSSProperties = {
-  padding: "8px 12px",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  gap: 6,
-  transition: "background 0.15s",
-  borderBottom:
-    "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
-  fontWeight: 600,
-  fontSize: 12,
-  color: "var(--color-text-primary, #333)",
-};
+const addButtonClassName =
+  "py-2 px-3 cursor-pointer flex items-center gap-1.5 transition-[background] duration-150 border-b border-b-[var(--color-panel-rule-line,rgba(180,160,130,0.15))] font-semibold text-xs text-[var(--color-text-primary,#333)]";
 
 const addButtonHoverBg =
   "var(--color-paper-button-hover-bg, rgba(245, 240, 230, 0.95))";
 
-const sectionHeaderStyle: CSSProperties = {
-  padding: "8px 12px 4px",
-  fontWeight: 700,
-  fontSize: 10,
-  textTransform: "uppercase",
-  letterSpacing: 0.8,
-  color: "var(--color-text-secondary, #888)",
-};
+const sectionHeaderClassName =
+  "pt-2 px-3 pb-1 font-bold text-[10px] uppercase tracking-[0.8px] text-[var(--color-text-secondary,#888)]";
 
-const ruleItemStyle: CSSProperties = {
-  padding: "4px 12px",
-  display: "flex",
-  alignItems: "center",
-  gap: 4,
-  fontSize: 11,
-  color: "var(--color-text-secondary, #666)",
-  cursor: "pointer",
-  transition: "background 0.15s",
-};
+const ruleItemClassName =
+  "py-1 px-3 flex items-center gap-1 text-[11px] text-[var(--color-text-secondary,#666)] cursor-pointer transition-[background] duration-150";
 
-const ruleItemSelectedStyle: CSSProperties = {
-  ...ruleItemStyle,
-  background: "var(--color-tab-rule-selected-bg, rgba(90, 140, 200, 0.15))",
-  color: "var(--color-text-primary, #333)",
-  fontWeight: 600,
-};
+const ruleItemSelectedClassName =
+  `${ruleItemClassName satisfies string} bg-[var(--color-tab-rule-selected-bg,rgba(90,140,200,0.15))] text-[var(--color-text-primary,#333)] font-semibold`;
 
 const ruleItemHoverBg =
   "var(--color-paper-button-hover-bg, rgba(245, 240, 230, 0.95))";
 
-const branchingBadgeStyle: CSSProperties = {
-  fontSize: 9,
-  padding: "1px 4px",
-  borderRadius: 3,
-  background: "var(--color-badge-branching-bg, rgba(200, 160, 60, 0.15))",
-  color: "var(--color-badge-branching-text, #8a6d20)",
-  fontWeight: 600,
-};
+const branchingBadgeClassName =
+  "text-[9px] py-px px-1 rounded-sm bg-[var(--color-badge-branching-bg,rgba(200,160,60,0.15))] text-[var(--color-badge-branching-text,#8a6d20)] font-semibold";
 
 // --- コンポーネント ---
 
@@ -137,7 +78,7 @@ function ScRuleItemView({
   return (
     <div
       data-testid={testId}
-      style={isSelected ? ruleItemSelectedStyle : ruleItemStyle}
+      className={isSelected ? ruleItemSelectedClassName : ruleItemClassName}
       onClick={onClick}
       onMouseEnter={(e) => {
         if (!isSelected) {
@@ -163,7 +104,7 @@ function ScRuleItemView({
       }}
     >
       <span>{rule.displayName}</span>
-      {rule.isBranching && <span style={branchingBadgeStyle}>分岐</span>}
+      {rule.isBranching && <span className={branchingBadgeClassName}>分岐</span>}
     </div>
   );
 }
@@ -203,13 +144,13 @@ export function ScRulePalette({
   }
 
   return (
-    <div data-testid={testId} style={panelStyle}>
-      <div style={headerStyle}>{msg.scPaletteHeader}</div>
+    <div data-testid={testId} className={panelClassName}>
+      <div className={headerClassName}>{msg.scPaletteHeader}</div>
       <div
         data-testid={
           testId ? `${testId satisfies string}-add-sequent` : undefined
         }
-        style={addButtonStyle}
+        className={addButtonClassName}
         onClick={handleAddClick}
         onMouseEnter={(e) => {
           Object.assign(e.currentTarget.style, {
@@ -232,7 +173,7 @@ export function ScRulePalette({
       >
         {msg.scAddSequent}
       </div>
-      <div style={sectionHeaderStyle}>{msg.scRulesSection}</div>
+      <div className={sectionHeaderClassName}>{msg.scRulesSection}</div>
       {ruleItems}
     </div>
   );

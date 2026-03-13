@@ -50,47 +50,20 @@ export interface EdgeParameterPopoverProps {
 
 // --- スタイル ---
 
-const popoverStyle: React.CSSProperties = {
-  position: "absolute",
-  zIndex: 1000,
-  backgroundColor: "var(--color-surface, #2d3436)",
-  border: "1px solid var(--color-border, #636e72)",
-  borderRadius: 8,
-  padding: 8,
-  boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-  minWidth: 200,
-};
+const popoverClassName =
+  "absolute z-[1000] bg-[var(--color-surface,#2d3436)] border border-solid border-[var(--color-border,#636e72)] rounded-lg p-2 shadow-[0_4px_12px_rgba(0,0,0,0.3)] min-w-[200px]";
 
-const inputStyle: React.CSSProperties = {
-  backgroundColor: "var(--color-input-bg, #1a1a2e)",
-  color: "var(--color-input-text, #fff)",
-  border: "1px solid var(--color-border, #636e72)",
-  borderRadius: 4,
-  padding: "4px 8px",
-  fontSize: 12,
-  fontFamily: "var(--font-mono, monospace)",
-  outline: "none",
-  width: "100%",
-  boxSizing: "border-box",
-};
+const inputClassName =
+  "bg-[var(--color-input-bg,#1a1a2e)] text-[var(--color-input-text,#fff)] border border-solid border-[var(--color-border,#636e72)] rounded-[4px] px-2 py-1 text-xs font-[var(--font-mono,monospace)] outline-none w-full box-border";
 
-const buttonStyle: React.CSSProperties = {
-  padding: "4px 10px",
-  fontSize: 11,
-  fontWeight: 600,
-  borderRadius: 4,
-  border: "1px solid var(--color-border, #636e72)",
-  cursor: "pointer",
-  backgroundColor: "var(--color-surface, #2d3436)",
-  color: "var(--color-text, #dfe6e9)",
-};
+const buttonClassName =
+  "px-2.5 py-1 text-[11px] font-semibold rounded-[4px] border border-solid border-[var(--color-border,#636e72)] cursor-pointer bg-[var(--color-surface,#2d3436)] text-[var(--color-text,#dfe6e9)]";
 
-const confirmButtonStyle: React.CSSProperties = {
-  ...buttonStyle,
-  backgroundColor: "var(--color-badge-gen, #00b894)",
-  color: "#fff",
-  border: "none",
-};
+const confirmButtonClassName =
+  `${buttonClassName satisfies string} bg-[var(--color-badge-gen,#00b894)] text-white border-none` satisfies string;
+
+const substConfirmButtonClassName =
+  `${buttonClassName satisfies string} bg-[var(--color-badge-subst,#e17055)] text-white border-none` satisfies string;
 
 // --- Gen Popover ---
 
@@ -123,7 +96,7 @@ function GenPopover({
   return (
     <div
       data-testid={testId}
-      style={popoverStyle}
+      className={popoverClassName}
       /* v8 ignore start -- stopPropagation: ポップオーバー内クリックがキャンバスに伝播するのを防止 */
       onClick={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
@@ -153,7 +126,7 @@ function GenPopover({
             onCancel();
           }
         }}
-        style={inputStyle}
+        className={inputClassName}
         data-testid={
           testId
             ? `${testId satisfies string}-gen-input`
@@ -170,7 +143,7 @@ function GenPopover({
       >
         <button
           type="button"
-          style={buttonStyle}
+          className={buttonClassName}
           onClick={onCancel}
           data-testid={
             testId ? `${testId satisfies string}-cancel` : "edge-popover-cancel"
@@ -180,7 +153,7 @@ function GenPopover({
         </button>
         <button
           type="button"
-          style={confirmButtonStyle}
+          className={confirmButtonClassName}
           onClick={handleConfirm}
           disabled={!canConfirmGenEdit(state)}
           data-testid={
@@ -229,7 +202,7 @@ function SubstitutionPopover({
   return (
     <div
       data-testid={testId}
-      style={{ ...popoverStyle, minWidth: 280 }}
+      className={`${popoverClassName satisfies string} min-w-[280px]` satisfies string}
       /* v8 ignore start -- stopPropagation/Escapeキー: ポップオーバーUIイベント */
       onClick={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
@@ -360,7 +333,7 @@ function SubstitutionPopover({
       >
         <button
           type="button"
-          style={buttonStyle}
+          className={buttonClassName}
           onClick={onCancel}
           data-testid={
             testId ? `${testId satisfies string}-cancel` : "edge-popover-cancel"
@@ -370,10 +343,7 @@ function SubstitutionPopover({
         </button>
         <button
           type="button"
-          style={{
-            ...confirmButtonStyle,
-            backgroundColor: "var(--color-badge-subst, #e17055)",
-          }}
+          className={substConfirmButtonClassName}
           onClick={handleConfirm}
           disabled={!canConfirmSubstEdit(entries)}
           data-testid={
