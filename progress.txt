@@ -13566,3 +13566,15 @@
   - buildCategoryBadgesはcategoryMetas順でバッジを生成する
   - リファレンスエントリには externalLinks と keywords が必須
 ---
+
+## [2026-03-13 15:31] - docs
+- 実装した内容: 「このサイトの基本操作」ガイドを追加
+- 変更したファイル:
+  - src/lib/reference/referenceContent.ts (guide-basic-operations エントリ追加)
+  - src/lib/reference/referenceContent.test.ts (エントリ数62→63)
+- スクリーンショット: screenshots.local/basic-operations-guide.png
+- **今後のイテレーションへの学び:**
+  - ガイドコンテンツは body の各パラグラフにHTMLタグ（<b>、改行など）を使用可能
+  - relatedQuestIds で関連クエストを紐付けできる
+  - orderプロパティでカテゴリ内の表示順を制御
+---
