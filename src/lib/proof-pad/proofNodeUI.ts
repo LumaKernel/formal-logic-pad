@@ -21,13 +21,14 @@ import type { ConnectorPort } from "../infinite-canvas/connector";
  * ノードが "derived" かどうかは InferenceEdge の有無から計算する（computed）。
  * ProofNodeKind には含めない。
  */
-export type ProofNodeKind = "axiom" | "conclusion" | "note";
+export type ProofNodeKind = "axiom" | "conclusion" | "note" | "script";
 
 /** すべてのProofNodeKindの値（exhaustive checkに使用） */
 export const PROOF_NODE_KINDS: readonly ProofNodeKind[] = [
   "axiom",
   "conclusion",
   "note",
+  "script",
 ] as const;
 
 /**
@@ -43,6 +44,8 @@ export function getProofNodeKindLabel(kind: ProofNodeKind): string {
       return "Conclusion";
     case "note":
       return "Note";
+    case "script":
+      return "Script";
   }
 }
 
@@ -69,6 +72,7 @@ const NODE_COLORS = {
   derived: { varName: "--color-node-derived", fallback: "#e6a84d" },
   conclusion: { varName: "--color-node-conclusion", fallback: "#4ad97a" },
   note: { varName: "--color-node-note", fallback: "#a0a0a0" },
+  script: { varName: "--color-node-script", fallback: "#9b59b6" },
 } as const;
 
 /** CSS変数参照文字列を生成するヘルパー */
@@ -120,6 +124,11 @@ export function getProofNodeStyle(kind: ProofNodeKind): ProofNodeStyle {
         ...CARD_BASE,
         stripeColor: cssVar(NODE_COLORS.note),
       };
+    case "script":
+      return {
+        ...CARD_BASE,
+        stripeColor: cssVar(NODE_COLORS.script),
+      };
   }
 }
 
@@ -151,6 +160,9 @@ export const CONCLUSION_PORTS: readonly ConnectorPort[] = [
 /** ノートノード: ポートなし（接続不可） */
 export const NOTE_PORTS: readonly ConnectorPort[] = [];
 
+/** スクリプトノード: ポートなし（接続不可） */
+export const SCRIPT_PORTS: readonly ConnectorPort[] = [];
+
 /**
  * ノード種別に対応するポート定義を返す。
  * derived は computed なので、axiom kind のノードは常に全ポート（入出力両方）を持つ。
@@ -166,6 +178,8 @@ export function getProofNodePorts(
       return CONCLUSION_PORTS;
     case "note":
       return NOTE_PORTS;
+    case "script":
+      return SCRIPT_PORTS;
   }
 }
 
@@ -180,6 +194,7 @@ const EDGE_COLORS = {
   derived: { varName: "--color-edge-derived", fallback: "#e6b870" },
   conclusion: { varName: "--color-edge-conclusion", fallback: "#7ae0a3" },
   note: { varName: "--color-edge-note", fallback: "#c0c0c0" },
+  script: { varName: "--color-edge-script", fallback: "#b19cd9" },
 } as const;
 
 /**
@@ -194,6 +209,8 @@ export function getProofEdgeColor(fromKind: ProofNodeKind): string {
       return cssVar(EDGE_COLORS.conclusion);
     case "note":
       return cssVar(EDGE_COLORS.note);
+    case "script":
+      return cssVar(EDGE_COLORS.script);
   }
 }
 

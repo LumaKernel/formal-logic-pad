@@ -101,6 +101,7 @@ describe("EditableProofNode", () => {
         axiom: "var(--color-node-axiom, #5b8bd9)",
         conclusion: "var(--color-node-conclusion, #4ad97a)",
         note: "var(--color-node-note, #a0a0a0)",
+        script: "var(--color-node-script, #9b59b6)",
       };
       for (const kind of ["axiom", "conclusion", "note"] as const) {
         cleanup();

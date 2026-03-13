@@ -453,6 +453,19 @@ export function addNode(
   });
 }
 
+/**
+ * スクリプトノードを追加する。
+ * スクリプトコードはformulaTextフィールドに格納される。
+ */
+export function addScriptNode(
+  state: WorkspaceState,
+  label: string,
+  position: Point,
+  scriptCode: string = "// スクリプトコード\n",
+): WorkspaceState {
+  return addNode(state, "script", label, position, scriptCode);
+}
+
 /** ノードの位置を更新する */
 /* v8 ignore start — V8 coverage aggregation artifact: function definition */
 export function updateNodePosition(
