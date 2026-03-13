@@ -13762,3 +13762,14 @@
   - リファレンスエントリ追加はデータのみの変更。テスト数は段落数×2（en/ja一致チェック等）で自動増加
   - ガイド系エントリの body は `<b>`, `<code>`, `\n•` でフォーマット。段落ごとに配列要素を分ける
 ---
+
+## 2026-03-13 - [reference] 論理式スキーマとは
+- concept-formula-schema リファレンスエントリを追加（en/ja 6段落）
+- メタ変数・論理式スキーマの一般性・対象言語とメタ言語の区別を解説
+- 変更ファイル: referenceContent.ts, referenceContent.test.ts, prd-docs-contents.md
+- カバレッジ: ベースライン維持（referenceContent.ts 100%）、テスト数 64→65エントリ
+- prd-docs-contents.md セクション1（超入門）全4タスク完了、アーカイブ済み
+- **今後のイテレーションへの学び:**
+  - 既存のnotationMetavariablesエントリは記法のみ、conceptFormulaSchemaは概念的意義を解説（スコープが異なる）
+  - Storybookのストーリーパス: pages-hub--reference-tab でReference Tabを確認可能
+---
