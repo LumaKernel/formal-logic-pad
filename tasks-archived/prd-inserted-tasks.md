@@ -306,3 +306,9 @@ Infinity Canvasについて。
 
 - [x] http://localhost:13000/reference/rule-sc-structural こういう系は全部一気にTeX描画せずに、項目ごとに分けて — formalNotation型をstring | readonly string[]に拡張、5エントリ分割
   - [x] 他にも似た系統のドキュメントがあれば同様に — concept-admissible-derivable, concept-context-sharing-independence, concept-predicate-semantics, concept-semantic-validity も分割済み
+
+- [x] ゴール一覧は閉じても移動できるのに、マイコレクションはできない。もしかして同じ仕組みを使っていない？
+  - GoalPanelと同じwasDraggedRefパターンをProofCollectionPanelに適用
+
+- [x] 過去の以下のタスクが修正されていません。
+  - [x] MPのドキュメントなどでのブロック数式の描画で、元のコードが露出している → layout.tsxにKaTeX CSSをインポートすることで修正
