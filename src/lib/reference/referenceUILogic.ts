@@ -131,7 +131,7 @@ export type PopoverData = {
   readonly title: string;
   readonly categoryLabel: string;
   readonly summary: string;
-  readonly formalNotation: string | undefined;
+  readonly formalNotation: string | readonly string[] | undefined;
   readonly hasDetail: boolean;
 };
 
@@ -163,7 +163,7 @@ export type ModalData = {
   readonly title: string;
   readonly categoryLabel: string;
   readonly summary: string;
-  readonly formalNotation: string | undefined;
+  readonly formalNotation: string | readonly string[] | undefined;
   readonly bodyParagraphs: readonly string[];
   readonly relatedEntries: readonly {
     readonly id: string;

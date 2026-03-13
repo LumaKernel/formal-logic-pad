@@ -238,13 +238,18 @@ function ViewerContent({
   readonly onStartQuest?: (questId: string) => void;
   readonly testId?: string;
 }) {
-  const formulaHtml = useMemo(() => {
+  const formulaHtmlItems = useMemo(() => {
     if (data.formalNotation === undefined) return undefined;
-    return katex.renderToString(data.formalNotation, {
-      displayMode: true,
-      throwOnError: false,
-      output: "htmlAndMathml",
-    });
+    const notations = typeof data.formalNotation === "string"
+      ? [data.formalNotation]
+      : data.formalNotation;
+    return notations.map((notation) =>
+      katex.renderToString(notation, {
+        displayMode: true,
+        throwOnError: false,
+        output: "htmlAndMathml",
+      }),
+    );
   }, [data.formalNotation]);
 
   return (
@@ -268,17 +273,19 @@ function ViewerContent({
       </div>
 
       {/* 形式表記 */}
-      {formulaHtml !== undefined && (
-        <div
-          style={formulaStyle}
-          dangerouslySetInnerHTML={{ __html: formulaHtml }}
-          data-testid={
-            testId !== undefined
-              ? `${testId satisfies string}-formula`
-              : undefined
-          }
-        />
-      )}
+      {formulaHtmlItems !== undefined &&
+        formulaHtmlItems.map((html, i) => (
+          <div
+            key={`formula-${String(i) satisfies string}`}
+            style={formulaStyle}
+            dangerouslySetInnerHTML={{ __html: html }}
+            data-testid={
+              testId !== undefined
+                ? `${testId satisfies string}-formula${(formulaHtmlItems.length > 1 ? `-${String(i) satisfies string}` : "") satisfies string}`
+                : undefined
+            }
+          />
+        ))}
 
       {/* 本文パラグラフ */}
       {data.bodyParagraphs.map((paragraph, i) => (

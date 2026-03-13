@@ -1816,8 +1816,13 @@ const ruleScStructural: ReferenceEntry = {
       "<b>許容性とカット除去</b>: カット除去定理（定理11.2）はLK, LJ, LMすべてで成り立ちます。カット除去後の証明は、同一律公理、カット以外の構造規則、論理規則のみを使用します。TAB（タブロー式シーケント計算）では、弱化と縮約は基本規則ではなく<i>許容規則</i>です（定理12.9, 12.11）。つまり、証明可能性を失うことなく証明から常に除去できます。",
     ],
   },
-  formalNotation:
-    "\\text{Cut}: \\dfrac{\\Gamma \\Rightarrow \\Pi, \\varphi \\qquad \\varphi, \\Sigma \\Rightarrow \\Delta}{\\Gamma, \\Sigma \\Rightarrow \\Pi, \\Delta} \\\\ \\text{w}\\Rightarrow: \\dfrac{\\Gamma \\Rightarrow \\Delta}{\\varphi, \\Gamma \\Rightarrow \\Delta} \\qquad \\Rightarrow\\text{w}: \\dfrac{\\Gamma \\Rightarrow \\Delta}{\\Gamma \\Rightarrow \\Delta, \\varphi} \\\\ \\text{c}\\Rightarrow: \\dfrac{\\varphi, \\varphi, \\Gamma \\Rightarrow \\Delta}{\\varphi, \\Gamma \\Rightarrow \\Delta} \\qquad \\Rightarrow\\text{c}: \\dfrac{\\Gamma \\Rightarrow \\Delta, \\varphi, \\varphi}{\\Gamma \\Rightarrow \\Delta, \\varphi}",
+  formalNotation: [
+    "\\text{ID}: \\quad \\varphi \\Rightarrow \\varphi",
+    "\\text{Cut}: \\quad \\dfrac{\\Gamma \\Rightarrow \\Pi, \\varphi \\qquad \\varphi, \\Sigma \\Rightarrow \\Delta}{\\Gamma, \\Sigma \\Rightarrow \\Pi, \\Delta}",
+    "\\text{w}\\Rightarrow: \\dfrac{\\Gamma \\Rightarrow \\Delta}{\\varphi, \\Gamma \\Rightarrow \\Delta} \\qquad \\Rightarrow\\text{w}: \\dfrac{\\Gamma \\Rightarrow \\Delta}{\\Gamma \\Rightarrow \\Delta, \\varphi}",
+    "\\text{c}\\Rightarrow: \\dfrac{\\varphi, \\varphi, \\Gamma \\Rightarrow \\Delta}{\\varphi, \\Gamma \\Rightarrow \\Delta} \\qquad \\Rightarrow\\text{c}: \\dfrac{\\Gamma \\Rightarrow \\Delta, \\varphi, \\varphi}{\\Gamma \\Rightarrow \\Delta, \\varphi}",
+    "\\text{e}\\Rightarrow: \\dfrac{\\Gamma, \\varphi, \\psi, \\Sigma \\Rightarrow \\Delta}{\\Gamma, \\psi, \\varphi, \\Sigma \\Rightarrow \\Delta} \\qquad \\Rightarrow\\text{e}: \\dfrac{\\Gamma \\Rightarrow \\Delta, \\varphi, \\psi}{\\Gamma \\Rightarrow \\Delta, \\psi, \\varphi}",
+  ],
   relatedEntryIds: [
     "rule-sc-overview",
     "rule-sc-logical",
@@ -3709,8 +3714,10 @@ const conceptAdmissibleDerivable: ReferenceEntry = {
       `<b>証明論における意義。</b> 許容規則と派生規則の区別は、証明体系の構造を理解するうえで中心的です。論理を設計・分析する際には、ある規則（弱化、縮約、カット）が体系に組み込まれている（派生可能）のか、単に定理を保存する（許容的）だけなのかを判定する必要があります。この区別はカリー・ハワード対応のもとでの証明の計算的内容にも影響します: 派生規則は定義可能な関数に対応しますが、許容規則は直接的な計算的対応物を持たない大域的変換を要求する場合があります。`,
     ],
   },
-  formalNotation: `\\text{Derivable: } \\exists\\text{proof tree in }\\mathcal{K}\\text{ from }S_1,\\ldots,S_n\\text{ to }S \\\\
-\\text{Admissible: } \\vdash_{\\mathcal{K}} S_1,\\ldots,\\vdash_{\\mathcal{K}} S_n \\implies \\vdash_{\\mathcal{K}} S`,
+  formalNotation: [
+    "\\text{Derivable: } \\exists\\text{proof tree in }\\mathcal{K}\\text{ from }S_1,\\ldots,S_n\\text{ to }S",
+    "\\text{Admissible: } \\vdash_{\\mathcal{K}} S_1,\\ldots,\\vdash_{\\mathcal{K}} S_n \\implies \\vdash_{\\mathcal{K}} S",
+  ],
   relatedEntryIds: [
     "concept-cut-elimination",
     "concept-curry-howard",
@@ -3799,8 +3806,10 @@ const conceptContextSharingIndependence: ReferenceEntry = {
       `<b>弱化・縮約との関係。</b> 構造共有形と構造独立形は、弱化と縮約がある体系では相互に導出可能です。構造共有形は、両前提を弱化して共通のコンテキストを持たせることで構造独立形を模倣でき、逆に構造独立形は同一のコンテキストΓを両前提に使う（Γ' = Γ, Δ' = Δ とする）ことで構造共有形を模倣できます。つまり、2つの定式化は同じ証明可能シーケントの集合を与えます。`,
     ],
   },
-  formalNotation: `\\text{Context-sharing: } (\\to\\Rightarrow)\\; \\dfrac{\\Gamma \\Rightarrow \\Delta, \\varphi \\qquad \\psi, \\Gamma \\Rightarrow \\Delta}{\\varphi \\to \\psi, \\Gamma \\Rightarrow \\Delta} \\\\[12pt]
-\\text{Context-independent: } (\\to\\Rightarrow)\\; \\dfrac{\\Gamma \\Rightarrow \\Delta, \\varphi \\qquad \\psi, \\Gamma' \\Rightarrow \\Delta'}{\\varphi \\to \\psi, \\Gamma, \\Gamma' \\Rightarrow \\Delta, \\Delta'}`,
+  formalNotation: [
+    "\\text{Context-sharing: } (\\to\\Rightarrow)\\; \\dfrac{\\Gamma \\Rightarrow \\Delta, \\varphi \\qquad \\psi, \\Gamma \\Rightarrow \\Delta}{\\varphi \\to \\psi, \\Gamma \\Rightarrow \\Delta}",
+    "\\text{Context-independent: } (\\to\\Rightarrow)\\; \\dfrac{\\Gamma \\Rightarrow \\Delta, \\varphi \\qquad \\psi, \\Gamma' \\Rightarrow \\Delta'}{\\varphi \\to \\psi, \\Gamma, \\Gamma' \\Rightarrow \\Delta, \\Delta'}",
+  ],
   relatedEntryIds: [
     "rule-sc-overview",
     "rule-sc-structural",
@@ -3898,9 +3907,11 @@ const conceptPredicateSemantics: ReferenceEntry = {
       `<b>意味論的含意。</b> 解釈 (M, g) が論理式 φ を<b>充足する</b>（(M, g) ⊨ φ と書く）とは ⟦φ⟧_{M,g} = 1 のことです。集合 Γ が Δ を<b>意味論的に含意する</b>（Γ ⊨ Δ と書く）とは、Γ のすべての論理式を充足するすべての解釈が Δ の少なくとも1つの論理式も充足することです（戸次 定義5.66）。論理式 φ が<b>恒真</b>（論理的に妥当）であるとは ⊨ φ のこと、すなわちすべての解釈のもとで真であることです。これらの意味論的概念は命題論理のトートロジーや含意の述語論理版であり、健全性定理と完全性定理によって証明論的概念（⊢）と結びつけられます。`,
     ],
   },
-  formalNotation: `M = (D_M, F_M) \\\\
-\\llbracket \\tau \\rrbracket_{M,g} \\in D_M \\\\
-\\llbracket \\forall \\xi \\, \\varphi \\rrbracket_{M,g} = 1 \\;\\Longleftrightarrow\\; \\text{for all } a \\in D_M,\\; \\llbracket \\varphi \\rrbracket_{M,g[\\xi \\mapsto a]} = 1`,
+  formalNotation: [
+    "M = (D_M, F_M)",
+    "\\llbracket \\tau \\rrbracket_{M,g} \\in D_M",
+    "\\llbracket \\forall \\xi \\, \\varphi \\rrbracket_{M,g} = 1 \\;\\Longleftrightarrow\\; \\text{for all } a \\in D_M,\\; \\llbracket \\varphi \\rrbracket_{M,g[\\xi \\mapsto a]} = 1",
+  ],
   relatedEntryIds: [
     "concept-soundness",
     "concept-completeness",
@@ -4008,9 +4019,11 @@ const conceptSemanticValidity: ReferenceEntry = {
       `<b>命題論理と述語論理。</b> 命題論理では、妥当性は決定可能です: n 個の変数に対する 2^n 通りの真理値割当をすべて検査できます。真理値表法が完全な決定手続きを提供します。しかし述語論理では、妥当性は半決定可能にすぎません（チャーチの定理, 1936年）: φ が妥当であれば証明はいずれ見つかりますが、φ が妥当でない場合、有限時間でそれを常に検出するアルゴリズムは存在しません。この非対称性は完全性定理をいっそう注目すべきものにします — 一般的な妥当性問題の決定不能性にもかかわらず、すべての妥当な論理式は有限の証明を持つのです。`,
     ],
   },
-  formalNotation: `\\vDash \\varphi \\;\\Longleftrightarrow\\; \\text{for all } (M, g),\\; (M,g) \\vDash \\varphi \\\\
-\\varphi \\text{ satisfiable} \\;\\Longleftrightarrow\\; \\exists (M,g),\\; (M,g) \\vDash \\varphi \\\\
-\\varphi \\text{ unsatisfiable} \\;\\Longleftrightarrow\\; \\lnot(\\exists (M,g),\\; (M,g) \\vDash \\varphi)`,
+  formalNotation: [
+    "\\vDash \\varphi \\;\\Longleftrightarrow\\; \\text{for all } (M, g),\\; (M,g) \\vDash \\varphi",
+    "\\varphi \\text{ satisfiable} \\;\\Longleftrightarrow\\; \\exists (M,g),\\; (M,g) \\vDash \\varphi",
+    "\\varphi \\text{ unsatisfiable} \\;\\Longleftrightarrow\\; \\lnot(\\exists (M,g),\\; (M,g) \\vDash \\varphi)",
+  ],
   relatedEntryIds: [
     "concept-soundness",
     "concept-completeness",
