@@ -13578,3 +13578,14 @@
   - relatedQuestIds で関連クエストを紐付けできる
   - orderプロパティでカテゴリ内の表示順を制御
 ---
+## 2026-03-13 16:38 - docs
+- 実装した内容: リファレンスガイドのコード表示不具合修正
+- 変更したファイル:
+  - src/lib/reference/referenceContent.ts (シングルクォートを<code>タグに置換)
+  - tasks/prd-inserted-tasks.md (タスク完了)
+- テスト: 既存テスト38件通過、カバレッジ変化なし
+- スクリーンショット: .screenshots/reference-guide-fixed.png
+- **今後のイテレーションへの学び:**
+  - InlineMarkdownコンポーネントはHTMLタグ（<code>）をパースするが、Markdown記法（バックティック）はサポートしていない
+  - リファレンスコンテンツでコード表現する場合は必ず<code>タグを使用
+---
