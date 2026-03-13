@@ -22,6 +22,7 @@ import type { ReferenceEntry, Locale } from "../reference/referenceEntry";
 import { findEntryById } from "../reference/referenceEntry";
 import { getAxiomReferenceEntryId } from "./axiomPaletteLogic";
 import { ReferencePopover } from "../reference/ReferencePopover";
+import { InlineMarkdown } from "../reference/InlineMarkdown";
 
 // --- Props ---
 
@@ -331,7 +332,9 @@ function HintItem({
         >
           {label}
         </div>
-        <div style={hintTextStyle}>{hint}</div>
+        <div style={hintTextStyle}>
+          <InlineMarkdown text={hint} />
+        </div>
       </div>
     );
   }
@@ -401,7 +404,9 @@ function GoalDetailPanel({
         <div style={detailSectionHeaderStyle}>
           {messages.goalDetailDescription}
         </div>
-        <div style={detailTextStyle}>{questInfo.description}</div>
+        <div style={detailTextStyle}>
+          <InlineMarkdown text={questInfo.description} />
+        </div>
       </div>
 
       {/* ヒント */}
@@ -544,7 +549,9 @@ function GoalDetailPanel({
         <div style={detailSectionHeaderStyle}>
           {messages.goalDetailLearningPoint}
         </div>
-        <div style={detailTextStyle}>{questInfo.learningPoint}</div>
+        <div style={detailTextStyle}>
+          <InlineMarkdown text={questInfo.learningPoint} />
+        </div>
       </div>
     </div>
   );
