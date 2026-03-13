@@ -352,7 +352,13 @@ export function computeDragPosition(
     options,
   );
 
-  return computeDropPosition(clamped, panelSize, container, otherPanels, options);
+  return computeDropPosition(
+    clamped,
+    panelSize,
+    container,
+    otherPanels,
+    options,
+  );
 }
 
 /**

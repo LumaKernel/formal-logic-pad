@@ -269,11 +269,15 @@ describe("usePanelDrag", () => {
   it("ドロップ時にスナップが適用される", () => {
     // configRef.currentのpositionを追跡するため、position stateを使う
     let currentPosition = { x: 50, y: 50 };
-    const onPositionChange = vi.fn((next: { readonly x: number; readonly y: number }) => {
-      currentPosition = next;
-    });
+    const onPositionChange = vi.fn(
+      (next: { readonly x: number; readonly y: number }) => {
+        currentPosition = next;
+      },
+    );
     const { result, rerender } = renderHook(
-      (props: { readonly position: { readonly x: number; readonly y: number } }) =>
+      (props: {
+        readonly position: { readonly x: number; readonly y: number };
+      }) =>
         usePanelDrag({
           ...baseConfig,
           position: props.position,
