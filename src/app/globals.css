@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Override Tailwind's dark: variant to use our data-theme attribute */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /* ============================================
  * shadcn-ui Theme Variables (Tailwind v4)
  *

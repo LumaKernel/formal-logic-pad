@@ -7,15 +7,7 @@ import type { ReactNode } from "react";
 function ThemeToggleWithProvider(): ReactNode {
   return (
     <ThemeProvider>
-      <div
-        style={{
-          padding: "2rem",
-          background: "var(--color-bg-primary, #ffffff)",
-          color: "var(--color-text-primary, #171717)",
-          minHeight: "100px",
-          fontFamily: "var(--font-ui)",
-        }}
-      >
+      <div className="min-h-[100px] bg-background p-8 font-[var(--font-ui)] text-foreground">
         <ThemeToggle />
       </div>
     </ThemeProvider>
@@ -65,15 +57,7 @@ export const Default: Story = {
 function ThemeToggleIconsOnly(): ReactNode {
   return (
     <ThemeProvider>
-      <div
-        style={{
-          padding: "2rem",
-          background: "var(--color-bg-primary, #ffffff)",
-          color: "var(--color-text-primary, #171717)",
-          minHeight: "100px",
-          fontFamily: "var(--font-ui)",
-        }}
-      >
+      <div className="min-h-[100px] bg-background p-8 font-[var(--font-ui)] text-foreground">
         <ThemeToggle showLabels={false} />
       </div>
     </ThemeProvider>
