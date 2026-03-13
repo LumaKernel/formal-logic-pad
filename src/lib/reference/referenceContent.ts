@@ -236,6 +236,141 @@ const guideFirstQuestWalkthrough: ReferenceEntry = {
   order: 3,
 };
 
+const guideIntroToPropositionalLogic: ReferenceEntry = {
+  id: "guide-intro-propositional-logic",
+  category: "guide",
+  title: {
+    en: "Introduction to Propositional Logic",
+    ja: "命題論理入門",
+  },
+  summary: {
+    en: "From truth values and logical connectives to the axiomatic approach of propositional logic.",
+    ja: "真理値と論理結合子の直観的理解から、命題論理の公理的アプローチへ。",
+  },
+  body: {
+    en: [
+      '<b>What is Propositional Logic?</b>\nPropositional logic is the study of how the truth or falsehood of compound statements depends on the truth or falsehood of their parts. A <b>proposition</b> is a statement that is either true or false — for example, "It is raining" or "2 + 2 = 4." Propositional logic does not analyze the internal structure of these statements; it only considers how they combine using <b>logical connectives</b>.',
+
+      "<b>Truth Values and Logical Connectives</b>\nEvery proposition has a <b>truth value</b>: either <b>true (T)</b> or <b>false (F)</b>. Logical connectives build compound propositions from simpler ones:\n• <b>Negation ¬φ</b> (not φ): true when φ is false, false when φ is true\n• <b>Conjunction φ ∧ ψ</b> (φ and ψ): true only when both φ and ψ are true\n• <b>Disjunction φ ∨ ψ</b> (φ or ψ): true when at least one of φ, ψ is true\n• <b>Implication φ → ψ</b> (if φ then ψ): false only when φ is true and ψ is false\n• <b>Biconditional φ ↔ ψ</b> (φ if and only if ψ): true when both have the same truth value",
+
+      '<b>Truth Tables</b>\nThe meaning of each connective can be fully specified by a <b>truth table</b>, which lists the output for every combination of input truth values. For example, the truth table for implication (→) is:\n\n<code>φ | ψ | φ → ψ</code>\n<code>T | T |   T</code>\n<code>T | F |   F</code>\n<code>F | T |   T</code>\n<code>F | F |   T</code>\n\nNote: <b>φ → ψ is false only when φ is true and ψ is false.</b> This is the key property of material implication. In particular, a false hypothesis implies anything ("ex falso quodlibet").',
+
+      "<b>Tautologies</b>\nA formula that is true under <b>every possible assignment</b> of truth values to its propositional variables is called a <b>tautology</b>. For example, φ ∨ ¬φ (law of excluded middle) is a tautology: whether φ is true or false, the disjunction is always true. Tautologies represent the universally valid principles of logic.",
+
+      "<b>From Semantics to Syntax: The Axiomatic Approach</b>\nTruth tables give us a <b>semantic</b> (model-theoretic) way to check validity: just enumerate all possibilities. But there is another approach — the <b>syntactic</b> (proof-theoretic) one: we choose a small set of formulas as <b>axioms</b> and a set of <b>inference rules</b>, and we derive new formulas step by step.\n\nThe Łukasiewicz axiom system, used in this application, has three axiom schemas and one rule:\n• <b>A1:</b> φ → (ψ → φ)\n• <b>A2:</b> (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))\n• <b>A3:</b> (¬φ → ¬ψ) → (ψ → φ)\n• <b>MP:</b> From φ → ψ and φ, derive ψ",
+
+      "<b>Why Only → and ¬?</b>\nAlthough we introduced five connectives above, the Łukasiewicz system uses only <b>implication (→)</b> and <b>negation (¬)</b> as primitives. This is sufficient because the other connectives can be <b>defined</b> in terms of these two:\n• φ ∨ ψ ≡ ¬φ → ψ\n• φ ∧ ψ ≡ ¬(φ → ¬ψ)\n• φ ↔ ψ ≡ (φ → ψ) ∧ (ψ → φ)\n\nUsing fewer primitives simplifies the axiom system and makes proofs about the system (like completeness) easier to carry out.",
+
+      "<b>What is an Axiom Schema?</b>\nThe axioms listed above are not single formulas but <b>schemas</b> — they represent infinitely many formulas. When we write φ → (ψ → φ), the Greek letters φ and ψ are <b>metavariables</b> that can be replaced by any formula. So A1 gives us p → (q → p), (p → q) → (r → (p → q)), and infinitely many other instances. In this application, you work directly with schemas, making your proofs maximally general.",
+
+      "<b>Proofs in the Axiomatic System</b>\nA <b>formal proof</b> (or derivation) is a finite sequence of formulas where each formula is either:\n1. An instance of an axiom schema, or\n2. Derived from two earlier formulas by Modus Ponens.\n\nThe last formula in the sequence is the <b>theorem</b> being proved. For example, the proof of φ → φ (identity) uses two instances of A1 and one instance of A2, connected by two applications of MP.",
+
+      "<b>Soundness and Completeness</b>\nThe axiomatic approach is connected to truth tables by two fundamental theorems:\n• <b>Soundness:</b> Every theorem derivable from the axioms is a tautology. (Proofs only produce truths.)\n• <b>Completeness (Gödel, 1930):</b> Every tautology is derivable from the axioms. (Every truth can be proved.)\n\nTogether, these mean that the syntactic (proof-based) and semantic (truth-table-based) notions of validity coincide for propositional logic. This is a remarkable fact — the axioms capture exactly the tautologies, no more and no less.",
+
+      "<b>Practice and Next Steps</b>\nThe best way to build intuition for propositional logic proofs is to work through the quests. Start with the prop-01 through prop-10 quests, which cover fundamental patterns like identity (φ → φ), weakening, syllogism, and contraposition. As you progress, you'll discover that seemingly different proofs share common structures — the formal system makes these patterns explicit.\n\nFor deeper exploration, see the references on the Deduction Theorem (which simplifies proofs dramatically), the relationship between classical and intuitionistic logic, and the Curry-Howard correspondence (connecting proofs to programs).",
+    ],
+    ja: [
+      "<b>命題論理とは？</b>\n命題論理は、複合的な文の真偽がその構成部分の真偽にどのように依存するかを研究する分野です。<b>命題</b>とは、真か偽のいずれかである文のことです — 例えば「雨が降っている」や「2 + 2 = 4」。命題論理はこれらの文の内部構造を分析しません。<b>論理結合子</b>を使ってそれらがどのように組み合わされるかだけを考えます。",
+
+      "<b>真理値と論理結合子</b>\nすべての命題は<b>真理値</b>を持ちます：<b>真 (T)</b> か <b>偽 (F)</b> のいずれかです。論理結合子は、単純な命題から複合命題を構築します：\n• <b>否定 ¬φ</b>（φでない）：φが偽のとき真、φが真のとき偽\n• <b>連言 φ ∧ ψ</b>（φかつψ）：φとψの両方が真のときのみ真\n• <b>選言 φ ∨ ψ</b>（φまたはψ）：φ、ψの少なくとも一方が真のとき真\n• <b>含意 φ → ψ</b>（φならばψ）：φが真でψが偽のときのみ偽\n• <b>双条件 φ ↔ ψ</b>（φであることとψであることは同値）：両方が同じ真理値のとき真",
+
+      "<b>真理値表</b>\n各結合子の意味は<b>真理値表</b>で完全に指定できます。真理値表は、入力の真理値のすべての組み合わせに対する出力を列挙します。例えば、含意（→）の真理値表は：\n\n<code>φ | ψ | φ → ψ</code>\n<code>T | T |   T</code>\n<code>T | F |   F</code>\n<code>F | T |   T</code>\n<code>F | F |   T</code>\n\n注意：<b>φ → ψが偽になるのは、φが真でψが偽のときだけ</b>です。これが質料的含意の重要な性質です。特に、偽の仮定からは何でも導けます（「矛盾からは何でも従う」）。",
+
+      "<b>トートロジー</b>\n命題変数への<b>すべての可能な真理値割り当て</b>のもとで真となる論理式を<b>トートロジー</b>（恒真式）と呼びます。例えば、φ ∨ ¬φ（排中律）はトートロジーです：φが真でも偽でも、選言は常に真になります。トートロジーは、論理の普遍的に妥当な原理を表しています。",
+
+      "<b>意味論から構文論へ：公理的アプローチ</b>\n真理値表は妥当性を確認する<b>意味論的</b>（モデル理論的）な方法を提供します：すべての可能性を列挙するだけです。しかし別のアプローチがあります — <b>構文論的</b>（証明論的）なものです：少数の論理式を<b>公理</b>として選び、<b>推論規則</b>を定めて、段階的に新しい論理式を導出します。\n\nこのアプリケーションで使用するŁukasiewicz公理体系は、3つの公理スキーマと1つの規則を持ちます：\n• <b>A1：</b> φ → (ψ → φ)\n• <b>A2：</b> (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ))\n• <b>A3：</b> (¬φ → ¬ψ) → (ψ → φ)\n• <b>MP：</b> φ → ψ と φ から ψ を導出",
+
+      "<b>なぜ → と ¬ だけ？</b>\n上で5つの結合子を紹介しましたが、Łukasiewicz体系では<b>含意（→）</b>と<b>否定（¬）</b>のみを原始結合子として使います。他の結合子はこの2つで<b>定義</b>できるため、これで十分です：\n• φ ∨ ψ ≡ ¬φ → ψ\n• φ ∧ ψ ≡ ¬(φ → ¬ψ)\n• φ ↔ ψ ≡ (φ → ψ) ∧ (ψ → φ)\n\n原始結合子を少なくすることで、公理体系が単純になり、体系についての証明（完全性など）がより容易になります。",
+
+      "<b>公理スキーマとは？</b>\n上に挙げた公理は単一の論理式ではなく<b>スキーマ</b>です — 無限に多くの論理式を表しています。φ → (ψ → φ) と書くとき、ギリシャ文字のφとψは任意の論理式に置き換えられる<b>メタ変数</b>です。したがってA1からは p → (q → p)、(p → q) → (r → (p → q)) など、無限個のインスタンスが得られます。このアプリケーションではスキーマを直接扱うため、証明は最大限に一般的になります。",
+
+      "<b>公理体系での証明</b>\n<b>形式証明</b>（導出）とは、各論理式が以下のいずれかである有限の論理式列です：\n1. 公理スキーマのインスタンス、または\n2. それ以前の2つの論理式からModus Ponensによって導出されたもの。\n\n列の最後の論理式が証明される<b>定理</b>です。例えば、φ → φ（恒等律）の証明は、A1の2つのインスタンスとA2の1つのインスタンスを、2回のMP適用で結合しています。",
+
+      "<b>健全性と完全性</b>\n公理的アプローチと真理値表は、2つの基本定理で結びつけられています：\n• <b>健全性：</b> 公理から導出可能なすべての定理はトートロジーである。（証明は真理のみを生み出す。）\n• <b>完全性（ゲーデル、1930年）：</b> すべてのトートロジーは公理から導出可能である。（すべての真理は証明できる。）\n\nこれらを合わせると、命題論理において構文論的（証明に基づく）妥当性と意味論的（真理値表に基づく）妥当性の概念が一致することがわかります。これは注目に値する事実です — 公理はトートロジーを過不足なく正確に捉えています。",
+
+      "<b>実践と次のステップ</b>\n命題論理の証明の直観を養う最善の方法は、クエストを解くことです。prop-01からprop-10のクエストから始めてみましょう。恒等律（φ → φ）、弱化、三段論法、対偶などの基本的なパターンを扱います。進めていくうちに、一見異なる証明が共通の構造を持つことに気づくでしょう — 形式体系はこれらのパターンを明示的にします。\n\nより深い探求のためには、演繹定理（証明を劇的に簡略化する）、古典論理と直観主義論理の関係、Curry-Howard対応（証明とプログラムの結びつき）のリファレンスも参照してください。",
+    ],
+  },
+  relatedEntryIds: [
+    "guide-first-quest-walkthrough",
+    "axiom-a1",
+    "axiom-a2",
+    "axiom-a3",
+    "rule-mp",
+    "notation-connectives",
+    "concept-formula-schema",
+    "concept-deduction-theorem",
+    "concept-soundness",
+    "concept-completeness",
+  ],
+  relatedQuestIds: [
+    "prop-01",
+    "prop-02",
+    "prop-03",
+    "prop-04",
+    "prop-05",
+    "prop-06",
+    "prop-07",
+    "prop-08",
+    "prop-09",
+    "prop-10",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Propositional_calculus",
+      label: {
+        en: "Propositional Calculus",
+        ja: "命題計算",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E5%91%BD%E9%A1%8C%E8%AB%96%E7%90%86",
+      label: {
+        en: "Propositional Logic",
+        ja: "命題論理",
+      },
+      documentLanguage: "ja",
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/propositional+logic",
+      label: {
+        en: "Propositional Logic (nLab)",
+        ja: "命題論理（nLab）",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "propositional logic",
+    "truth value",
+    "truth table",
+    "tautology",
+    "connective",
+    "implication",
+    "negation",
+    "conjunction",
+    "disjunction",
+    "axiomatic system",
+    "Łukasiewicz",
+    "命題論理",
+    "真理値",
+    "真理値表",
+    "トートロジー",
+    "恒真式",
+    "結合子",
+    "含意",
+    "否定",
+    "連言",
+    "選言",
+    "公理体系",
+  ],
+  order: 4,
+};
+
 // ============================================================
 // 公理 (Axioms)
 // ============================================================
@@ -5084,6 +5219,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   guideWhatIsFormalProof,
   guideBasicOperations,
   guideFirstQuestWalkthrough,
+  guideIntroToPropositionalLogic,
   // Axioms
   axiomA1,
   axiomA2,

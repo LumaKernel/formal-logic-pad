@@ -18,7 +18,7 @@ Hilbert系命題論理（Łukasiewicz体系ベース）の理解。
 - [ref✓] 公理A1 (K), A2 (S), A3 (contraposition) — 既存
 - [ref✓] Modus Ponens (MP) — 既存
 - [ref✓] 含意 (→), 否定 (¬), 連言 (∧), 選言 (∨) の記法 — 既存
-- [ ] `[guide]` 命題論理入門 — 真理値、論理結合子の直観的理解から公理体系へ
+- [-] `[guide]` 命題論理入門 — 真理値、論理結合子の直観的理解から公理体系へ
 - [ ] `[guide]` Hilbert 系の証明の進め方 — 公理と推論規則のみで証明を構築する方法論
 - [ ] `[ref]` 演繹定理 (deduction theorem) の証明と意義 — concept-deduction-theorem は既存だが、証明の詳細ドキュメントを充実させる
 - [ ] `[ref]` トートロジーと恒真式 — 意味論的な妥当性の概念
