@@ -2063,23 +2063,21 @@ describe("ProofWorkspace", () => {
   });
 
   describe("selection and copy-paste", () => {
-    it("shows selection banner when node is clicked", async () => {
+    it("does not select node on regular click", async () => {
       const user = userEvent.setup();
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       ws = addNode(ws, "axiom", "A1", { x: 100, y: 100 }, "phi -> psi");
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
-      // Click on the node
+      // Click on the node (regular click)
       const node = screen.getByTestId("proof-node-node-1");
       await user.click(node);
 
-      // Selection banner should appear
-      await waitFor(() => {
-        expect(
-          screen.getByTestId("workspace-selection-banner"),
-        ).toHaveTextContent("1 node(s) selected");
-      });
+      // Selection banner should NOT appear
+      expect(
+        screen.queryByTestId("workspace-selection-banner"),
+      ).not.toBeInTheDocument();
     });
 
     it("selects multiple nodes with Ctrl+click", async () => {
@@ -2090,9 +2088,11 @@ describe("ProofWorkspace", () => {
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
-      // Click first node
+      // Ctrl+click first node
       const node1 = screen.getByTestId("proof-node-node-1");
+      await user.keyboard("{Control>}");
       await user.click(node1);
+      await user.keyboard("{/Control}");
 
       // Ctrl+click second node
       const node2 = screen.getByTestId("proof-node-node-2");
@@ -2115,9 +2115,11 @@ describe("ProofWorkspace", () => {
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
-      // Click first node
+      // Shift+click first node
       const node1 = screen.getByTestId("proof-node-node-1");
+      await user.keyboard("{Shift>}");
       await user.click(node1);
+      await user.keyboard("{/Shift}");
 
       // Shift+click second node
       const node2 = screen.getByTestId("proof-node-node-2");
@@ -2140,9 +2142,11 @@ describe("ProofWorkspace", () => {
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
-      // Click first node
+      // Shift+click first node
       const node1 = screen.getByTestId("proof-node-node-1");
+      await user.keyboard("{Shift>}");
       await user.click(node1);
+      await user.keyboard("{/Shift}");
 
       // Shift+click second node to add
       const node2 = screen.getByTestId("proof-node-node-2");
@@ -2175,9 +2179,11 @@ describe("ProofWorkspace", () => {
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
-      // Click the node to select
+      // Shift+click the node to select
       const node = screen.getByTestId("proof-node-node-1");
+      await user.keyboard("{Shift>}");
       await user.click(node);
+      await user.keyboard("{/Shift}");
 
       await waitFor(() => {
         expect(
@@ -2204,9 +2210,11 @@ describe("ProofWorkspace", () => {
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
-      // Select node-1
+      // Shift+click to select node-1
       const node1 = screen.getByTestId("proof-node-node-1");
+      await user.keyboard("{Shift>}");
       await user.click(node1);
+      await user.keyboard("{/Shift}");
 
       // Click delete button
       const deleteButton = screen.getByTestId("workspace-delete-button");
@@ -2228,9 +2236,11 @@ describe("ProofWorkspace", () => {
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
-      // Select node
+      // Shift+click to select node
       const node = screen.getByTestId("proof-node-node-1");
+      await user.keyboard("{Shift>}");
       await user.click(node);
+      await user.keyboard("{/Shift}");
 
       // Click copy button
       const copyButton = screen.getByTestId("workspace-copy-button");
@@ -2253,9 +2263,11 @@ describe("ProofWorkspace", () => {
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
-      // Select node
+      // Shift+click to select node
       const node = screen.getByTestId("proof-node-node-1");
+      await user.keyboard("{Shift>}");
       await user.click(node);
+      await user.keyboard("{/Shift}");
 
       // Click duplicate button
       const duplicateButton = screen.getByTestId("workspace-duplicate-button");
@@ -2275,9 +2287,11 @@ describe("ProofWorkspace", () => {
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
-      // Select node-1
+      // Shift+click to select node-1
       const node = screen.getByTestId("proof-node-node-1");
+      await user.keyboard("{Shift>}");
       await user.click(node);
+      await user.keyboard("{/Shift}");
 
       // Click cut button
       const cutButton = screen.getByTestId("workspace-cut-button");
@@ -2334,9 +2348,11 @@ describe("ProofWorkspace", () => {
         />,
       );
 
-      // ノードを選択してペーストボタンを表示
+      // Shift+クリックでノードを選択してペーストボタンを表示
       const node = screen.getByTestId("proof-node-node-1");
+      await user.keyboard("{Shift>}");
       await user.click(node);
+      await user.keyboard("{/Shift}");
       await waitFor(() => {
         expect(
           screen.getByTestId("workspace-selection-banner"),
@@ -3410,8 +3426,10 @@ describe("ProofWorkspace", () => {
         <StatefulWorkspace initialWorkspace={ws} testId="workspace" />,
       );
 
-      // ノードをクリックして選択
+      // Shift+クリックでノードを選択
+      await user.keyboard("{Shift>}");
       await user.click(screen.getByTestId("proof-node-node-1"));
+      await user.keyboard("{/Shift}");
       await waitFor(() => {
         expect(
           screen.getByTestId("workspace-selection-banner"),
@@ -5517,8 +5535,10 @@ describe("ProofWorkspace", () => {
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
-      // ノードをクリックして選択
+      // Shift+クリックでノードを選択
+      await user.keyboard("{Shift>}");
       await user.click(screen.getByTestId("proof-node-node-1"));
+      await user.keyboard("{/Shift}");
 
       await waitFor(() => {
         expect(
@@ -5552,9 +5572,9 @@ describe("ProofWorkspace", () => {
 
       render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
 
-      // 2ノードを選択
-      await user.click(screen.getByTestId("proof-node-node-1"));
+      // 2ノードをCtrl+clickで選択
       await user.keyboard("{Control>}");
+      await user.click(screen.getByTestId("proof-node-node-1"));
       await user.click(screen.getByTestId("proof-node-node-2"));
       await user.keyboard("{/Control}");
 

@@ -1130,8 +1130,10 @@ export const ShiftClickSelectionToggle: Story = {
     const node3 = canvas.getByTestId("proof-node-node-3");
     const user = userEvent.setup();
 
-    // 1. 通常クリックでnode1を選択
+    // 1. Shift+クリックでnode1を選択
+    await user.keyboard("{Shift>}");
     await user.click(node1);
+    await user.keyboard("{/Shift}");
     await expect(
       canvas.getByTestId("workspace-selection-banner"),
     ).toHaveTextContent("1 node(s) selected");
@@ -1176,8 +1178,10 @@ export const MultiSelectionDrag: Story = {
     const node2 = canvas.getByTestId("proof-node-node-2");
     const user = userEvent.setup();
 
-    // 1. クリックでnode1を選択
+    // 1. Shift+クリックでnode1を選択
+    await user.keyboard("{Shift>}");
     await user.click(node1);
+    await user.keyboard("{/Shift}");
     await expect(
       canvas.getByTestId("workspace-selection-banner"),
     ).toHaveTextContent("1 node(s) selected");

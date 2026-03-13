@@ -4011,13 +4011,14 @@ export function ProofWorkspace({
           <div
             ref={getNodeSizeRef(node.id)}
             onClick={(e) => {
+              e.stopPropagation();
               if (isSelectionActive) {
-                e.stopPropagation();
                 handleNodeClickForSelection(node.id);
-              } else {
-                e.stopPropagation();
+              } else if (e.shiftKey || e.metaKey || e.ctrlKey) {
+                // 修飾キー+クリック: トグル選択（マルチセレクション用）
                 handleNodeSelect(node.id, e);
               }
+              // 通常クリックではノード選択しない（ダブルクリック編集時の誤選択も防止）
             }}
             onContextMenu={(e) => {
               handleNodeContextMenu(node.id, e);
