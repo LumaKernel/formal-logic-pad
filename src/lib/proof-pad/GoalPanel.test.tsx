@@ -1286,4 +1286,134 @@ describe("GoalPanel", () => {
       expect(screen.getByTestId("gp-violating-ref-A2")).toBeInTheDocument();
     });
   });
+
+  describe("InlineMarkdown対応", () => {
+    it("descriptionの<b>タグが<strong>としてレンダリングされる", () => {
+      const questInfoWithMarkup = {
+        description:
+          "これは<b>重要な</b>証明です。<code>SKK = I</code> の対応。",
+        hints: [],
+        learningPoint: "基本的な学習ポイント。",
+      };
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal: φ → φ",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+        questInfo: questInfoWithMarkup,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      const detail = screen.getByTestId("gp-detail");
+      expect(detail.querySelector("strong")?.textContent).toBe("重要な");
+      expect(detail.querySelector("code")?.textContent).toBe("SKK = I");
+    });
+
+    it("hintの<i>タグが<em>としてレンダリングされる", () => {
+      const questInfoWithMarkup = {
+        description: "説明文。",
+        hints: ["<i>ヒント</i>: A1を使います。"],
+        learningPoint: "学習ポイント。",
+      };
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal: φ → φ",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+        questInfo: questInfoWithMarkup,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      // ヒントを展開
+      fireEvent.click(screen.getByTestId("gp-hint-toggle-0"));
+
+      const hint = screen.getByTestId("gp-hint-0");
+      expect(hint.querySelector("em")?.textContent).toBe("ヒント");
+    });
+
+    it("learningPointの<b>タグが<strong>としてレンダリングされる", () => {
+      const questInfoWithMarkup = {
+        description: "説明文。",
+        hints: [],
+        learningPoint: "<b>S公理</b>は「関数適用の分配」に相当する。",
+      };
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal: φ → φ",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+        questInfo: questInfoWithMarkup,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      const detail = screen.getByTestId("gp-detail");
+      // description部分のstrongではなくlearningPoint部分のstrongをチェック
+      const strongs = detail.querySelectorAll("strong");
+      const found = Array.from(strongs).some(
+        (el) => el.textContent === "S公理",
+      );
+      expect(found).toBe(true);
+    });
+
+    it("タグなしのテキストは従来通り表示される", () => {
+      const questInfoPlain = {
+        description: "タグなしの普通のテキスト。",
+        hints: ["普通のヒント。"],
+        learningPoint: "普通の学習ポイント。",
+      };
+      const data = makeData({
+        items: [
+          {
+            id: "g1",
+            formulaText: "phi -> phi",
+            formula: phiImpliesPhi,
+            label: "Goal: φ → φ",
+            allowedAxiomIds: undefined,
+            allowedAxiomDetails: undefined,
+            violatingAxiomDetails: undefined,
+            status: "not-achieved",
+          },
+        ],
+        totalCount: 1,
+        questInfo: questInfoPlain,
+      });
+      render(<GoalPanel data={data} messages={msg} testId="gp" />);
+      fireEvent.click(screen.getByTestId("gp-item-0"));
+
+      expect(
+        screen.getByText("タグなしの普通のテキスト。"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("普通の学習ポイント。")).toBeInTheDocument();
+    });
+  });
 });
