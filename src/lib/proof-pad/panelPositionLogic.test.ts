@@ -4,6 +4,8 @@ import {
   snapToEdges,
   rectsOverlap,
   findNonOverlappingPosition,
+  computeDragMovingPosition,
+  computeDropPosition,
   computeDragPosition,
   computeInitialPosition,
   defaultDragOptions,
@@ -474,5 +476,126 @@ describe("computeInitialPosition", () => {
       height: panelSize.height,
     };
     expect(rectsOverlap(resultRect, others[0]!, gap)).toBe(false);
+  });
+});
+
+// --- computeDragMovingPosition ---
+
+describe("computeDragMovingPosition", () => {
+  it("ドラッグ開始位置からの相対移動を計算する（クランプのみ）", () => {
+    const dragStart: DragStartInfo = {
+      pointerPosition: { x: 150, y: 120 },
+      panelPosition: { x: 100, y: 100 },
+    };
+    const result = computeDragMovingPosition(
+      dragStart,
+      { x: 200, y: 170 },
+      panelSize,
+      container,
+    );
+    expect(result).toEqual({ x: 150, y: 150 });
+  });
+
+  it("コンテナ外への移動をクランプする", () => {
+    const dragStart: DragStartInfo = {
+      pointerPosition: { x: 100, y: 100 },
+      panelPosition: { x: 50, y: 50 },
+    };
+    const result = computeDragMovingPosition(
+      dragStart,
+      { x: -200, y: -200 },
+      panelSize,
+      container,
+    );
+    expect(result.x).toBeGreaterThanOrEqual(defaultDragOptions.edgeMargin);
+    expect(result.y).toBeGreaterThanOrEqual(defaultDragOptions.edgeMargin);
+  });
+
+  it("端に近くてもスナップしない（クランプのみ）", () => {
+    const dragStart: DragStartInfo = {
+      pointerPosition: { x: 100, y: 100 },
+      panelPosition: { x: 50, y: 50 },
+    };
+    // ポインタを移動して左辺近くに → スナップしない
+    const result = computeDragMovingPosition(
+      dragStart,
+      { x: 70, y: 100 },
+      panelSize,
+      container,
+    );
+    // x = 50 + (70 - 100) = 20 → クランプのみ（marginは8）、スナップしない
+    expect(result.x).toBe(20);
+  });
+
+  it("デフォルトオプションで動作する", () => {
+    const dragStart: DragStartInfo = {
+      pointerPosition: { x: 200, y: 200 },
+      panelPosition: { x: 150, y: 150 },
+    };
+    const result = computeDragMovingPosition(
+      dragStart,
+      { x: 250, y: 250 },
+      panelSize,
+      container,
+    );
+    expect(result).toEqual({ x: 200, y: 200 });
+  });
+});
+
+// --- computeDropPosition ---
+
+describe("computeDropPosition", () => {
+  it("端に近い場合にスナップする", () => {
+    // x=20 はmargin(8)までの距離12 < threshold(16) → スナップ
+    const result = computeDropPosition(
+      { x: 20, y: 100 },
+      panelSize,
+      container,
+      [],
+      defaultDragOptions,
+    );
+    expect(result.position.x).toBe(defaultDragOptions.edgeMargin);
+    expect(result.snappedEdges).toContain("left");
+  });
+
+  it("中央付近ではスナップしない", () => {
+    const result = computeDropPosition(
+      { x: 200, y: 200 },
+      panelSize,
+      container,
+      [],
+      defaultDragOptions,
+    );
+    expect(result.position).toEqual({ x: 200, y: 200 });
+    expect(result.snappedEdges).toEqual([]);
+  });
+
+  it("他パネルとの重なりを回避する", () => {
+    const otherPanel: PanelRect = { x: 140, y: 140, width: 200, height: 150 };
+    const result = computeDropPosition(
+      { x: 150, y: 150 },
+      panelSize,
+      container,
+      [otherPanel],
+      { ...defaultDragOptions, snapThreshold: 0 },
+    );
+    const resultRect: PanelRect = {
+      ...result.position,
+      width: panelSize.width,
+      height: panelSize.height,
+    };
+    expect(
+      rectsOverlap(resultRect, otherPanel, defaultDragOptions.panelGap),
+    ).toBe(false);
+  });
+
+  it("デフォルトオプションで動作する", () => {
+    const result = computeDropPosition(
+      { x: 200, y: 200 },
+      panelSize,
+      container,
+      [],
+    );
+    expect(result.position).toEqual({ x: 200, y: 200 });
   });
 });

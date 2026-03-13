@@ -13715,3 +13715,27 @@
   - InlineMarkdownは既にReferenceModal, ReferencePopover, ReferenceFloatingWindow, ReferenceViewerPageViewで使用済み。ReferenceBrowserComponentのみがプレーンテキストだった
   - 下付き文字パースは2パス方式（HTML tags→subscripts in text elements）で実装。これにより既存パーサーへの影響を最小化
 ---
+
+## 2026-03-13 - [proof-pad] ウィンドウドラッグ修正・サイズ実測
+- ドラッグ中はマウス追従、ドロップ時にスナップ+重なり回避に分離
+  - `computeDragMovingPosition`（クランプのみ）と`computeDropPosition`（スナップ+重なり回避）を新設
+  - `usePanelDrag.ts`を更新: pointermoveでは`computeDragMovingPosition`、pointerupで`computeDropPosition`
+  - `snapPreview`フィールド追加（ドラッグ中のスナップ先プレビュー用）
+- パネルサイズをResizeObserverで実測する`usePanelSize`フック新設
+  - AxiomPalette, GoalPanel, ProofCollectionPanelにpanelRef prop追加
+  - ProofWorkspace.tsxでハードコード概算値→usePanelSize実測値に置換
+- スクロールは既にmaxHeight + overflowY: autoで対応済み
+- 変更ファイル:
+  - panelPositionLogic.ts (computeDragMovingPosition/computeDropPosition追加)
+  - usePanelDrag.ts (ドラッグ中/ドロップ時の分離)
+  - usePanelSize.ts (新規: ResizeObserverフック)
+  - AxiomPalette.tsx, GoalPanel.tsx, ProofCollectionPanel.tsx (panelRef prop)
+  - ProofWorkspace.tsx (usePanelSize統合)
+  - panelPositionLogic.test.ts (+8テスト), usePanelDrag.test.ts (+5テスト), usePanelSize.test.ts (新規5テスト)
+  - index.ts (エクスポート追加)
+- カバレッジ: usePanelDrag.ts 100%, usePanelSize.ts 100%, panelPositionLogic.ts 100%
+- **今後のイテレーションへの学び:**
+  - usePanelSizeのcallback refは複数のルートdivに同じrefを渡す必要がある（collapsed/expanded状態）
+  - ResizeObserverはJSDOMで利用不可、getBoundingClientRectの初回計測テストに注力
+  - ドラッグの3層分離パターン: 純粋ロジック(panelPositionLogic) → フック(usePanelDrag) → UI(ProofWorkspace)が安定している
+---

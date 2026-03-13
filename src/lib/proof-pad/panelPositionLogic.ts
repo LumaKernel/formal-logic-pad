@@ -256,21 +256,20 @@ export function findNonOverlappingPosition(
 }
 
 /**
- * ドラッグ中のパネル位置を計算する。
+ * ドラッグ移動中のパネル位置を計算する。
  *
- * ドラッグ開始時のオフセットを保持し、ポインタ移動に追従する。
- * clamp → snap → overlap回避 の順で適用する。
+ * ドラッグ中はマウスに追従し、コンテナ内のクランプのみを適用する。
+ * スナップや重なり回避はドロップ時に適用する（computeDropPosition参照）。
  */
-export function computeDragPosition(
+export function computeDragMovingPosition(
   dragStart: DragStartInfo,
   currentPointer: PanelPosition,
   panelSize: PanelSize,
   container: ContainerSize,
-  otherPanels: readonly PanelRect[],
   /* v8 ignore start — V8 coverage merging quirk: デフォルト引数は個別テストで100%だが全体テストで計測漏れ */
   options: DragOptions = defaultDragOptions,
   /* v8 ignore stop */
-): SnapResult {
+): PanelPosition {
   // オフセットベースの位置計算
   const rawX =
     dragStart.panelPosition.x +
@@ -279,24 +278,39 @@ export function computeDragPosition(
     dragStart.panelPosition.y +
     (currentPointer.y - dragStart.pointerPosition.y);
 
-  // 1. コンテナ内に制約
-  const clamped = clampToContainer(
+  // コンテナ内に制約のみ（スナップ・重なり回避はドロップ時）
+  return clampToContainer(
     { x: rawX, y: rawY },
     panelSize,
     container,
     options.edgeMargin,
   );
+}
 
-  // 2. エッジスナップ
+/**
+ * ドロップ時のスナップ先を計算する（プレビュー用にドラッグ中も使用可能）。
+ *
+ * clamp → snap → overlap回避 の順で適用する。
+ */
+export function computeDropPosition(
+  pos: PanelPosition,
+  panelSize: PanelSize,
+  container: ContainerSize,
+  otherPanels: readonly PanelRect[],
+  /* v8 ignore start — V8 coverage merging quirk: デフォルト引数は個別テストで100%だが全体テストで計測漏れ */
+  options: DragOptions = defaultDragOptions,
+  /* v8 ignore stop */
+): SnapResult {
+  // 1. エッジスナップ
   const snapped = snapToEdges(
-    clamped,
+    pos,
     panelSize,
     container,
     options.snapThreshold,
     options.edgeMargin,
   );
 
-  // 3. 他パネルとの重なり回避
+  // 2. 他パネルとの重なり回避
   const resolved = findNonOverlappingPosition(
     snapped.position,
     panelSize,
@@ -310,6 +324,35 @@ export function computeDragPosition(
     position: resolved,
     snappedEdges: snapped.snappedEdges,
   };
+}
+
+/**
+ * ドラッグ中のパネル位置を計算する（レガシー互換）。
+ *
+ * ドラッグ開始時のオフセットを保持し、ポインタ移動に追従する。
+ * clamp → snap → overlap回避 の順で適用する。
+ *
+ * @deprecated computeDragMovingPosition + computeDropPosition に分離して使用する。
+ */
+export function computeDragPosition(
+  dragStart: DragStartInfo,
+  currentPointer: PanelPosition,
+  panelSize: PanelSize,
+  container: ContainerSize,
+  otherPanels: readonly PanelRect[],
+  /* v8 ignore start — V8 coverage merging quirk: デフォルト引数は個別テストで100%だが全体テストで計測漏れ */
+  options: DragOptions = defaultDragOptions,
+  /* v8 ignore stop */
+): SnapResult {
+  const clamped = computeDragMovingPosition(
+    dragStart,
+    currentPointer,
+    panelSize,
+    container,
+    options,
+  );
+
+  return computeDropPosition(clamped, panelSize, container, otherPanels, options);
 }
 
 /**

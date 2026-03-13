@@ -2,8 +2,8 @@
  * パネルドラッグフック。
  *
  * 浮動パネルのドラッグ移動を管理するReact hook。
- * panelPositionLogic の computeDragPosition を利用して
- * クランプ・スナップ・重なり回避を統合的に処理する。
+ * ドラッグ中はマウスに追従（クランプのみ）、
+ * ドロップ時にスナップ・重なり回避を適用する。
  *
  * 変更時は usePanelDrag.test.ts, ProofWorkspace.tsx, index.ts も同期すること。
  */
@@ -15,8 +15,13 @@ import type {
   ContainerSize,
   PanelRect,
   DragOptions,
+  SnapResult,
 } from "./panelPositionLogic";
-import { computeDragPosition, defaultDragOptions } from "./panelPositionLogic";
+import {
+  computeDragMovingPosition,
+  computeDropPosition,
+  defaultDragOptions,
+} from "./panelPositionLogic";
 
 // --- 型定義 ---
 
@@ -42,6 +47,8 @@ export interface UsePanelDragResult {
   readonly isDragging: boolean;
   /** 直前のpointerdown〜pointerupで実際に移動が発生したかのref（クリックとドラッグの区別に使用。refなのでタイミング問題なし） */
   readonly wasDraggedRef: React.RefObject<boolean>;
+  /** ドラッグ中のスナッププレビュー位置（ドロップ時にスナップされる先） */
+  readonly snapPreview: SnapResult | null;
   /** ドラッグハンドル要素に付与するイベントハンドラ */
   readonly handleProps: {
     readonly onPointerDown: (e: React.PointerEvent<HTMLElement>) => void;
@@ -56,9 +63,14 @@ export interface UsePanelDragResult {
  * ドラッグハンドル（ヘッダー等）に `handleProps` を spread する。
  * pointermove/pointerup は window に登録するため、
  * パネル外にポインタが出てもドラッグが継続する。
+ *
+ * ドラッグ中はマウスに追従し（クランプのみ）、
+ * ドロップ時にスナップ・重なり回避を適用する。
+ * snapPreview でドロップ先のプレビュー位置を提供する。
  */
 export function usePanelDrag(config: UsePanelDragConfig): UsePanelDragResult {
   const [isDragging, setIsDragging] = useState(false);
+  const [snapPreview, setSnapPreview] = useState<SnapResult | null>(null);
   const wasDraggedRef = useRef(false);
   const dragStartRef = useRef<{
     readonly pointerPosition: PanelPosition;
@@ -82,6 +94,7 @@ export function usePanelDrag(config: UsePanelDragConfig): UsePanelDragResult {
       panelPosition: currentConfig.position,
     };
     setIsDragging(true);
+    setSnapPreview(null);
     wasDraggedRef.current = false;
 
     const handlePointerMove = (ev: PointerEvent): void => {
@@ -93,21 +106,48 @@ export function usePanelDrag(config: UsePanelDragConfig): UsePanelDragResult {
       wasDraggedRef.current = true;
 
       const cfg = configRef.current;
-      const result = computeDragPosition(
+      const opts = cfg.options ?? defaultDragOptions;
+
+      // ドラッグ中: マウスに追従（クランプのみ）
+      const movingPos = computeDragMovingPosition(
         start,
         { x: ev.clientX, y: ev.clientY },
         cfg.panelSize,
         cfg.containerSize,
-        cfg.otherPanels,
-        cfg.options ?? defaultDragOptions,
+        opts,
       );
 
-      cfg.onPositionChange(result.position);
+      cfg.onPositionChange(movingPos);
+
+      // スナッププレビュー: ドロップ時にスナップされる先を計算
+      const preview = computeDropPosition(
+        movingPos,
+        cfg.panelSize,
+        cfg.containerSize,
+        cfg.otherPanels,
+        opts,
+      );
+      setSnapPreview(preview);
     };
 
     const handlePointerUp = (): void => {
+      if (wasDraggedRef.current) {
+        // ドロップ時: スナップ・重なり回避を適用
+        const cfg = configRef.current;
+        const opts = cfg.options ?? defaultDragOptions;
+        const dropResult = computeDropPosition(
+          cfg.position,
+          cfg.panelSize,
+          cfg.containerSize,
+          cfg.otherPanels,
+          opts,
+        );
+        cfg.onPositionChange(dropResult.position);
+      }
+
       dragStartRef.current = null;
       setIsDragging(false);
+      setSnapPreview(null);
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
     };
@@ -119,6 +159,7 @@ export function usePanelDrag(config: UsePanelDragConfig): UsePanelDragResult {
   return {
     isDragging,
     wasDraggedRef,
+    snapPreview,
     handleProps: {
       onPointerDown,
     },

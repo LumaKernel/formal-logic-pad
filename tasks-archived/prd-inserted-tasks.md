@@ -285,6 +285,10 @@ Infinity Canvasについて。
   - [x] 自作クエストでのゴール論理式一覧なども同様だ。共通化の単位を見直すべきだ。（調査済み: FormulaListEditorは既にFormulaEditorを使用している。統一完了。）
 - [x] ドキュメントの外部参照は何の言語で書かれたものか、という情報を構造としてすべて持つようにして。
 
+- [x] アクセシビリティ基準がバラバラだから、shadcn-uiを入れよう — shadcn-ui + Tailwind CSS v4セットアップ済み
+  - [x] ダークモードや、色の使い方、切り替えなども基本的にフレームワークの仕組みにのせよう
+  - [x] 既存のコンポーネントをそれぞれできるかぎり移行しよう（LanguageToggle, TruthTable, ScriptEditor, page.module.css削除）
+
 ## Archived 2026-03-13
 
 - [x] コードがレンダーされていなさそう。バックティック？の囲みマークがそのまま出てきてしまっている。 http://localhost:13000/reference/guide-basic-operations など

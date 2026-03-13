@@ -96,6 +96,7 @@ import {
 import { GoalPanel } from "./GoalPanel";
 import type { PanelPosition, PanelRect } from "./panelPositionLogic";
 import { usePanelDrag } from "./usePanelDrag";
+import { usePanelSize } from "./usePanelSize";
 import {
   computeStepCount,
   checkQuestGoalsWithAxioms,
@@ -979,13 +980,13 @@ export function ProofWorkspace({
     [collectionPanelDragPos, containerSize.width],
   );
 
-  // パネルサイズの概算値（DOM実測は後のイテレーションで対応）
-  const axiomPalettePanelSize = useMemo(
-    () => ({ width: 200, height: 250 }),
-    [],
-  );
-  const goalPanelPanelSize = useMemo(() => ({ width: 280, height: 200 }), []);
-  const collectionPanelSize = useMemo(() => ({ width: 280, height: 250 }), []);
+  // パネルサイズ（ResizeObserverでDOM実測、初期値はフォールバック）
+  const axiomPaletteSize = usePanelSize({ width: 200, height: 250 });
+  const goalPanelSize = usePanelSize({ width: 280, height: 200 });
+  const collectionSize = usePanelSize({ width: 280, height: 250 });
+  const axiomPalettePanelSize = axiomPaletteSize.size;
+  const goalPanelPanelSize = goalPanelSize.size;
+  const collectionPanelSize = collectionSize.size;
 
   // 他パネルの矩形（重なり回避用）
   const axiomPaletteOtherPanels = useMemo(
@@ -5058,6 +5059,7 @@ export function ProofWorkspace({
           onOpenReferenceDetail={onOpenReferenceDetail}
           position={axiomPalettePos}
           onDragHandlePointerDown={axiomPaletteDrag.handleProps.onPointerDown}
+          panelRef={axiomPaletteSize.ref}
           testId={
             /* v8 ignore start -- V8集約アーティファクト */
             testId ? `${testId satisfies string}-axiom-palette` : undefined
@@ -5072,6 +5074,7 @@ export function ProofWorkspace({
         messages={msg}
         position={goalPanelPos}
         onDragHandlePointerDown={goalPanelDrag.handleProps.onPointerDown}
+        panelRef={goalPanelSize.ref}
         wasDraggedRef={goalPanelDrag.wasDraggedRef}
         referenceEntries={referenceEntries}
         locale={locale}
@@ -5144,6 +5147,7 @@ export function ProofWorkspace({
           onRemoveFolder={onRemoveCollectionFolder}
           onRenameFolder={onRenameCollectionFolder}
           position={collectionPanelPos}
+          panelRef={collectionSize.ref}
           onDragHandlePointerDown={
             collectionPanelDrag.handleProps.onPointerDown
           }

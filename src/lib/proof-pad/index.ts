@@ -474,6 +474,8 @@ export {
   snapToEdges,
   rectsOverlap,
   findNonOverlappingPosition,
+  computeDragMovingPosition,
+  computeDropPosition,
   computeDragPosition,
   computeInitialPosition,
   defaultDragOptions,
@@ -490,6 +492,8 @@ export type {
 } from "./panelPositionLogic";
 export { usePanelDrag } from "./usePanelDrag";
 export type { UsePanelDragConfig, UsePanelDragResult } from "./usePanelDrag";
+export { usePanelSize } from "./usePanelSize";
+export type { UsePanelSizeResult } from "./usePanelSize";
 export {
   ScriptNodeData,
   ScriptNodeDataSchema,
