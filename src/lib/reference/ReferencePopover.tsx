@@ -184,13 +184,18 @@ export function ReferencePopover({
 
   const data = useMemo(() => buildPopoverData(entry, locale), [entry, locale]);
 
-  const formulaHtml = useMemo(() => {
+  const formulaHtmlItems = useMemo(() => {
     if (data.formalNotation === undefined) return undefined;
-    return katex.renderToString(data.formalNotation, {
-      displayMode: false,
-      throwOnError: false,
-      output: "htmlAndMathml",
-    });
+    const notations = typeof data.formalNotation === "string"
+      ? [data.formalNotation]
+      : data.formalNotation;
+    return notations.map((notation) =>
+      katex.renderToString(notation, {
+        displayMode: false,
+        throwOnError: false,
+        output: "htmlAndMathml",
+      }),
+    );
   }, [data.formalNotation]);
 
   const handleToggle = useCallback(() => {
@@ -270,17 +275,19 @@ export function ReferencePopover({
       <div style={summaryStyle}>
         <InlineMarkdown text={data.summary} />
       </div>
-      {formulaHtml !== undefined && (
-        <div
-          style={formulaStyle}
-          dangerouslySetInnerHTML={{ __html: formulaHtml }}
-          data-testid={
-            testId !== undefined
-              ? `${testId satisfies string}-formula`
-              : undefined
-          }
-        />
-      )}
+      {formulaHtmlItems !== undefined &&
+        formulaHtmlItems.map((html, i) => (
+          <div
+            key={`formula-${String(i) satisfies string}`}
+            style={formulaStyle}
+            dangerouslySetInnerHTML={{ __html: html }}
+            data-testid={
+              testId !== undefined
+                ? `${testId satisfies string}-formula${(formulaHtmlItems.length > 1 ? `-${String(i) satisfies string}` : "") satisfies string}`
+                : undefined
+            }
+          />
+        ))}
       <div style={popoverFooterStyle}>
         <div>
           {data.hasDetail && onOpenDetail !== undefined && (

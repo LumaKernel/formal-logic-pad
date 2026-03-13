@@ -875,8 +875,11 @@ describe("構造共有形と構造独立形エントリの個別チェック", (
       "concept-context-sharing-independence",
     );
     expect(entry?.formalNotation).toBeTruthy();
-    expect(entry?.formalNotation).toContain("Context-sharing");
-    expect(entry?.formalNotation).toContain("Context-independent");
+    const notations = entry?.formalNotation;
+    expect(Array.isArray(notations)).toBe(true);
+    const arr = notations as readonly string[];
+    expect(arr.some((s) => s.includes("Context-sharing"))).toBe(true);
+    expect(arr.some((s) => s.includes("Context-independent"))).toBe(true);
   });
 
   it("英語本文にGentzenとTroelstraの言及がある", () => {
@@ -1019,8 +1022,11 @@ describe("concept-predicate-semanticsエントリのテスト", () => {
       "concept-predicate-semantics",
     );
     expect(entry?.formalNotation).toBeTruthy();
-    expect(entry?.formalNotation).toContain("D_M");
-    expect(entry?.formalNotation).toContain("\\forall");
+    const notations = entry?.formalNotation;
+    expect(Array.isArray(notations)).toBe(true);
+    const arr = notations as readonly string[];
+    expect(arr.some((s) => s.includes("D_M"))).toBe(true);
+    expect(arr.some((s) => s.includes("\\forall"))).toBe(true);
   });
 
   it("関連エントリに健全性・完全性が含まれる", () => {

@@ -176,8 +176,8 @@ export type ReferenceEntry = {
   readonly summary: LocalizedText;
   /** 本文（パラグラフ単位のマークダウン） */
   readonly body: LocalizedParagraphs;
-  /** 形式的な表記（LaTeX文字列、数式表現用）。なければundefined */
-  readonly formalNotation?: string;
+  /** 形式的な表記（LaTeX文字列、数式表現用）。なければundefined。配列の場合は項目ごとに分けて表示 */
+  readonly formalNotation?: string | readonly string[];
   /** 関連するリファレンスエントリID */
   readonly relatedEntryIds: readonly ReferenceEntryId[];
   /** 関連するクエストID（ドキュメントからクエストを開始できるようにする） */
