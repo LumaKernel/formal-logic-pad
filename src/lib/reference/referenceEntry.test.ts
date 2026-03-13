@@ -162,13 +162,14 @@ describe("allLocales", () => {
 
 describe("allCategories", () => {
   it("全カテゴリを含む", () => {
+    expect(allCategories).toContain("guide");
     expect(allCategories).toContain("axiom");
     expect(allCategories).toContain("inference-rule");
     expect(allCategories).toContain("logic-system");
     expect(allCategories).toContain("notation");
     expect(allCategories).toContain("concept");
     expect(allCategories).toContain("theory");
-    expect(allCategories).toHaveLength(6);
+    expect(allCategories).toHaveLength(7);
   });
 });
 

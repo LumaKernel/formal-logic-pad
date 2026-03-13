@@ -147,10 +147,14 @@ describe("computeCategoryCounts", () => {
 describe("buildCategoryBadges", () => {
   it("カテゴリバッジ一覧を生成する", () => {
     const badges = buildCategoryBadges(sampleEntries, null, "en");
-    expect(badges).toHaveLength(6);
-    expect(badges[0]?.label).toBe("Axioms");
-    expect(badges[0]?.count).toBe(2);
-    expect(badges[0]?.isSelected).toBe(false);
+    expect(badges).toHaveLength(7);
+    // "guide" is now the first category in categoryMetas
+    expect(badges[0]?.label).toBe("Guides");
+    expect(badges[0]?.count).toBe(0); // No guide entries in sampleEntries
+    // "axiom" is now the second category
+    expect(badges[1]?.label).toBe("Axioms");
+    expect(badges[1]?.count).toBe(2);
+    expect(badges[1]?.isSelected).toBe(false);
   });
 
   it("選択されたカテゴリのisSelectedがtrue", () => {
@@ -163,7 +167,8 @@ describe("buildCategoryBadges", () => {
 
   it("日本語ロケールでラベルが日本語", () => {
     const badges = buildCategoryBadges(sampleEntries, null, "ja");
-    expect(badges[0]?.label).toBe("公理");
+    expect(badges[0]?.label).toBe("ガイド"); // "guide" is first
+    expect(badges[1]?.label).toBe("公理"); // "axiom" is second
   });
 });
 
