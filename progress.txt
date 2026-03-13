@@ -14040,3 +14040,17 @@
   - ESLint require-satisfies-in-tls: テンプレートリテラル内の三項演算子は全体を括弧で囲んで satisfies string が必要
   - ドメイン固有CSS変数（--color-quest-*, --color-accent-light等）はTailwind arbitrary value `bg-[var(...)]` で対応
 ---
+
+## 2026-03-14 - [UI] パッド内ボタン・パネルのshadcn-ui way変換
+- 9ファイルのproof-padコンポーネントでCSSPropertiesをTailwindクラスに変換
+  - AtRulePalette.tsx, ScRulePalette.tsx, TabRulePalette.tsx, NdRulePalette.tsx
+  - EdgeParameterPopover.tsx, CutEliminationStepper.tsx
+  - AxiomPalette.tsx, GoalPanel.tsx, EditableProofNode.tsx
+- テスト4件修正（style.fontWeight → className.contains("font-semibold")）
+- カバレッジ: 99.91% statements, 99.19% branches（低下なし）
+- **今後のイテレーションへの学び:**
+  - 動的position override（resolvedPanelStyle）がある場合はCSSPropertiesを維持する必要がある
+  - Object.assignによるhoverパターンはCSS変数を使っているためTailwind hover:に変換不可
+  - スタイルテスト（style.fontWeight等）はclassName検証に書き換える必要がある
+  - 477行追加、891行削除 — Tailwindクラスの方がコンパクト
+---
