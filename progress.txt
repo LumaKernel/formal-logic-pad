@@ -14242,3 +14242,18 @@
   - テーマトークンは globals.css の CSS変数値と一致させる（colorPrimary等）
   - Phase 2（41ファイルのTailwind置換）が次の最大作業
 ---
+
+## 2026-03-14 - [UI] shadcn-ui→Ant Design移行完了（Phase 2〜5）
+- Phase 2: 28ファイルのTailwindユーティリティクラスをReact CSSPropertiesインラインスタイルに変換
+  - hover/focus擬似クラスはglobals.cssのCSS定義に移行
+  - テストのTailwindクラスアサーション（5ファイル）をインラインスタイルアサーションに更新
+- Phase 3: shadcnカラートークンは既にCSS変数参照済みのため追加作業不要
+- Phase 4: lucide-react→@ant-design/icons移行（Sun/Moon/Monitor→SunOutlined/MoonOutlined/DesktopOutlined）
+- Phase 5: clsx/lucide-react/utils.ts削除、全品質チェック通過（272テストファイル、10950テスト）
+- ブラウザ確認: Storybook ThemeToggle, Hub — スクリーンショット撮影済み
+- 変更ファイル: 33ファイル（28コンポーネント + 5テスト + package.json等）
+- **今後のイテレーションへの学び:**
+  - Storybook Viteキャッシュ: npm install後にnode_modules/.cache/storybookが古くなる。Storybookを再起動する必要がある
+  - Phase 2パターン: モジュールレベルの`Readonly<CSSProperties>`定数で静的スタイル、CSSクラスはhover/focus擬似クラスのみ
+  - Ant Design icons: `@ant-design/icons`はSVGベースでstyle propを受け付ける。lucide-reactからの移行は直接的
+---

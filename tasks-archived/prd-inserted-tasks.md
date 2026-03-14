@@ -328,3 +328,7 @@ Infinity Canvasについて。
   - referenceContent.tsの全Unicode数学記号をTeX記法に変換（~1500箇所）
   - dev/配下24ファイルのmarkdownも同様に変換
   - bold/italic内でもネストされたTeX数式を描画可能に
+- [x] shadcn-ui を完全に削除し、 https://ant.design/ に置き換えてください。
+  - [x] package.jsonから入れたものは削除。tailwindなどもあれば削除 — Phase 0完了、shadcn-ui/Tailwind関連パッケージ全削除
+  - [x] ant designの要素に置き換えていくためのタスクリスト prd-replace-with-ant.md を作成して、どこを置き換えるか、というタスクリストをまず作成 — `tasks/prd-replace-with-ant.md` に5フェーズの詳細タスクリスト作成済み
+  - [x] ダークモードやカラーシステムなども乗り換える — AntDesignThemeProvider(darkAlgorithm連携)導入、CSS変数ベースのテーマシステム維持、全Phase完了
