@@ -6596,6 +6596,286 @@ const conceptTabScCorrespondence: ReferenceEntry = {
   order: 40,
 };
 
+const guideMetaTheorems: ReferenceEntry = {
+  id: "guide-meta-theorems",
+  category: "guide",
+  title: {
+    en: "The World of Meta-Theorems",
+    ja: "メタ定理の世界",
+  },
+  summary: {
+    en: "How soundness, completeness, cut elimination, and compactness interrelate.",
+    ja: "健全性・完全性・カット除去・コンパクト性の相互関係。",
+  },
+  body: {
+    en: [
+      "<b>Meta-theorems</b> are theorems <i>about</i> logical systems rather than theorems <i>within</i> them. They tell us what a proof system can and cannot do, and how different systems relate to each other. Understanding meta-theorems is essential for appreciating why formal proof systems are designed the way they are.",
+      "<b>Soundness</b> says: if a formula is provable in the system, then it is semantically valid (true in all models). Soundness ensures that the proof system does not prove anything false. Every well-designed proof system must be sound — an unsound system is useless.",
+      "<b>Completeness</b> says: if a formula is semantically valid, then it is provable. Completeness ensures that the proof system is powerful enough to prove every valid formula. Godel's completeness theorem (1930) establishes this for first-order logic with respect to standard semantics.",
+      "Together, soundness and completeness give a <b>correspondence</b>: provability $\\Leftrightarrow$ validity. This means we can use syntactic proof methods to settle semantic questions, and vice versa. This correspondence is the foundation of mathematical logic.",
+      "<b>Cut elimination</b> (Gentzen's Hauptsatz) is specific to sequent calculus. It says that the cut rule — which allows using lemmas — can always be removed. The resulting cut-free proofs have the <b>subformula property</b>: every formula in the proof is a subformula of the conclusion. This property is the key to many decidability and interpolation results.",
+      "<b>Compactness</b> says: if every finite subset of a set of formulas is satisfiable, then the whole set is satisfiable. Equivalently, if a set of formulas entails $\\varphi$, then some finite subset already entails $\\varphi$. Compactness follows from completeness and is a powerful tool in model theory.",
+      "These meta-theorems interact in important ways. Soundness + completeness give us the equivalence of syntax and semantics. Cut elimination gives us the subformula property, which can be used to prove completeness. Compactness is a consequence of completeness, and conversely can be used to prove completeness in some settings.",
+      "For <b>intuitionistic logic</b>, completeness holds with respect to Kripke semantics (not classical truth-value semantics). Cut elimination holds for LJ. Compactness fails for some intermediate logics.",
+      "Godel's <b>incompleteness theorems</b> (1931) show that for sufficiently strong theories (like Peano arithmetic), completeness in a different sense fails: there are true statements that cannot be proved. This is not a failure of the proof system's logical rules, but a fundamental limitation of formal systems for arithmetic.",
+      "In this application, these meta-theorems motivate the design of the proof systems. Soundness is verified for each rule implementation. The equivalence of systems (Hilbert $\\leftrightarrow$ ND $\\leftrightarrow$ SC $\\leftrightarrow$ Tableau) is a consequence of soundness and completeness of each with respect to the same semantics.",
+    ],
+    ja: [
+      "<b>メタ定理</b>は論理体系<i>の中の</i>定理ではなく、論理体系<i>についての</i>定理です。証明体系が何をできて何ができないか、異なる体系がどう関係するかを教えてくれます。形式的証明体系がなぜそのように設計されているかを理解するにはメタ定理の理解が不可欠です。",
+      "<b>健全性</b>は：体系で証明可能な論理式は意味論的に妥当（すべてのモデルで真）であると述べます。健全性は証明体系が偽の命題を証明しないことを保証します。適切に設計された証明体系はすべて健全でなければなりません。",
+      "<b>完全性</b>は：意味論的に妥当な論理式は証明可能であると述べます。完全性は証明体系がすべての妥当な論理式を証明するのに十分な力を持つことを保証します。ゲーデルの完全性定理（1930）は標準的な意味論に関して一階論理でこれを確立します。",
+      "健全性と完全性を合わせると<b>対応</b>が得られます：証明可能性 $\\Leftrightarrow$ 妥当性。これは構文的な証明法で意味論的な問題を解決でき、逆もまた然りであることを意味します。この対応は数理論理学の基盤です。",
+      "<b>カット除去</b>（Gentzenの基本定理）はシーケント計算に特有です。補題の使用を可能にするカット規則が常に除去可能であることを述べます。結果として得られるカットなし証明は<b>部分式性質</b>を持ちます：証明のすべての論理式は結論の部分式です。この性質は多くの決定可能性や内挿の結果の鍵です。",
+      "<b>コンパクト性</b>は：論理式の集合のすべての有限部分集合が充足可能なら、全体の集合も充足可能であると述べます。同値に、論理式の集合が$\\varphi$を含意するなら、ある有限部分集合がすでに$\\varphi$を含意します。コンパクト性は完全性から従い、モデル論の強力なツールです。",
+      "これらのメタ定理は重要な相互作用を持ちます。健全性＋完全性は構文と意味論の等価性を与えます。カット除去は部分式性質を与え、それは完全性の証明に使えます。コンパクト性は完全性の帰結であり、逆にある設定では完全性の証明に使えます。",
+      "<b>直観主義論理</b>では、完全性はクリプケ意味論（古典的真理値意味論ではなく）に関して成り立ちます。カット除去はLJで成り立ちます。コンパクト性は一部の中間論理では失敗します。",
+      "ゲーデルの<b>不完全性定理</b>（1931）は、十分に強い理論（ペアノ算術など）では、別の意味での完全性が失敗することを示します：真であるが証明できない命題が存在します。これは証明体系の論理規則の失敗ではなく、算術のための形式体系の根本的限界です。",
+      "本アプリケーションでは、これらのメタ定理が証明体系の設計を動機づけています。健全性は各規則の実装で検証されます。体系の等価性（Hilbert $\\leftrightarrow$ ND $\\leftrightarrow$ SC $\\leftrightarrow$ タブロー）は、各体系が同じ意味論に関して健全かつ完全であることの帰結です。",
+    ],
+  },
+  relatedEntryIds: [
+    "concept-soundness",
+    "concept-completeness",
+    "concept-cut-elimination",
+    "concept-system-equivalence",
+    "concept-glivenko",
+    "concept-kuroda-translation",
+    "concept-curry-howard",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Metatheorem",
+      label: {
+        en: "Metatheorem (Wikipedia)",
+        ja: "メタ定理 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "metatheorem",
+    "soundness",
+    "completeness",
+    "cut elimination",
+    "compactness",
+    "subformula property",
+    "メタ定理",
+    "健全性",
+    "完全性",
+    "カット除去",
+    "コンパクト性",
+    "部分式性質",
+  ],
+  order: 12,
+};
+
+const conceptProofSystemTranslation: ReferenceEntry = {
+  id: "concept-proof-system-translation",
+  category: "concept",
+  title: {
+    en: "Translation between Proof Systems",
+    ja: "証明体系間の翻訳",
+  },
+  summary: {
+    en: "How proofs in Hilbert systems, natural deduction, and sequent calculus can be translated into each other.",
+    ja: "Hilbert系・自然演繹・シーケント計算間での証明の相互変換。",
+  },
+  body: {
+    en: [
+      "The three main proof systems — Hilbert systems, natural deduction (ND), and sequent calculus (SC) — prove the same set of theorems (for a given logic). This equivalence is witnessed by <b>translations</b>: algorithms that convert a proof in one system into a proof in another.",
+      "<b>Hilbert $\\to$ ND.</b> Every Hilbert-style proof can be translated into an ND proof. Axioms become leaves justified by the axiom's derivation in ND. Modus ponens becomes $\\to$E (implication elimination). The translation is structurally straightforward.",
+      "<b>ND $\\to$ SC.</b> Every ND proof can be translated into an SC proof. $\\to$I becomes $\\to$R (moving the discharged assumption to the antecedent). $\\to$E becomes a combination of $\\to$L and cut. Assumption discharge in ND corresponds to the antecedent in SC.",
+      "<b>SC $\\to$ Hilbert.</b> Translating from SC back to Hilbert is harder because Hilbert systems lack the structural flexibility of SC. The deduction theorem is the key tool: it converts sequents $\\Gamma \\Rightarrow \\varphi$ into Hilbert derivations from assumptions $\\Gamma$.",
+      "The translations typically increase proof size. Hilbert $\\to$ ND is linear. ND $\\to$ SC is polynomial. SC $\\to$ Hilbert can be exponential (the deduction theorem introduces repeated subproofs). This is related to the <b>speed-up theorem</b>: some systems give much shorter proofs than others.",
+      "In this application, users work in a single proof system at a time (Hilbert, ND, SC, or Tableau). The equivalence of systems is referenced in the meta-theory, and the relationships between rules across systems are highlighted in the reference entries.",
+    ],
+    ja: [
+      "3つの主要な証明体系——Hilbert系、自然演繹（ND）、シーケント計算（SC）——は（与えられた論理について）同じ定理の集合を証明します。この等価性は<b>翻訳</b>：ある体系の証明を別の体系の証明に変換するアルゴリズムによって証言されます。",
+      "<b>Hilbert $\\to$ ND。</b> すべてのHilbert式証明はND証明に翻訳できます。公理はNDでの公理の導出によって正当化される葉になります。モーダスポネンスは$\\to$E（含意除去）になります。翻訳は構造的に直接的です。",
+      "<b>ND $\\to$ SC。</b> すべてのND証明はSC証明に翻訳できます。$\\to$Iは$\\to$R（放出された仮定を前件に移動）になります。$\\to$Eは$\\to$Lとカットの組み合わせになります。NDの仮定放出はSCの前件に対応します。",
+      "<b>SC $\\to$ Hilbert。</b> SCからHilbertへの翻訳は、Hilbert系がSCの構造的柔軟性を欠くため困難です。演繹定理が鍵となるツールです：シーケント$\\Gamma \\Rightarrow \\varphi$を仮定$\\Gamma$からのHilbert導出に変換します。",
+      "翻訳は一般に証明サイズを増大させます。Hilbert $\\to$ NDは線形。ND $\\to$ SCは多項式。SC $\\to$ Hilbertは指数的になりえます（演繹定理が繰り返しの部分証明を導入）。これは<b>スピードアップ定理</b>に関連します：ある体系は他よりはるかに短い証明を与えます。",
+      "本アプリケーションでは、ユーザは一度に1つの証明体系（Hilbert、ND、SC、またはタブロー）で作業します。体系の等価性はメタ理論で参照され、体系間の規則の関係はリファレンスエントリで強調されています。",
+    ],
+  },
+  relatedEntryIds: [
+    "concept-system-equivalence",
+    "concept-deduction-theorem",
+    "concept-speed-up-theorem",
+    "rule-nd-overview",
+    "rule-sc-overview",
+    "guide-meta-theorems",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Proof_system",
+      label: {
+        en: "Proof system (Wikipedia)",
+        ja: "証明体系 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "translation",
+    "equivalence",
+    "Hilbert",
+    "natural deduction",
+    "sequent calculus",
+    "deduction theorem",
+    "翻訳",
+    "等価性",
+    "演繹定理",
+  ],
+  order: 41,
+};
+
+const conceptNormalizationReduction: ReferenceEntry = {
+  id: "concept-normalization-reduction",
+  category: "concept",
+  title: {
+    en: "Normalization and Proof Reduction",
+    ja: "正規化と証明の簡約",
+  },
+  summary: {
+    en: "Normal forms in natural deduction, and their relationship to cut elimination.",
+    ja: "自然演繹における正規形と、カット除去との関係。",
+  },
+  body: {
+    en: [
+      "In natural deduction, a <b>detour</b> occurs when an introduction rule is immediately followed by the corresponding elimination rule — for example, introducing $\\varphi \\land \\psi$ with $\\land$I and then immediately extracting $\\varphi$ with $\\land$E. Such detours can always be simplified away.",
+      "A proof in <b>normal form</b> is one with no detours. The <b>normalization theorem</b> (Prawitz, 1965) states that every natural deduction proof can be transformed into a normal form. The transformation process — called <b>proof reduction</b> — eliminates introduction-elimination pairs.",
+      "The reduction rules correspond to $\\beta$-reduction in the typed lambda calculus via the Curry-Howard correspondence. $\\to$I followed by $\\to$E reduces like $(\\lambda x. M)\\, N \\to M[N/x]$. $\\land$I followed by $\\land$E reduces like $\\pi_1(M, N) \\to M$.",
+      "Normalization in ND corresponds to <b>cut elimination</b> in SC. A cut in SC is analogous to a detour in ND: both introduce a formula only to immediately use and discard it. Gentzen's cut elimination and Prawitz's normalization are two views of the same phenomenon.",
+      "Normal proofs have the <b>subformula property</b>: every formula in the proof is a subformula of the conclusion or of an open assumption. This parallels the subformula property of cut-free sequent proofs.",
+      "In practice, normalization can dramatically increase proof size — the blowup can be non-elementary (a tower of exponentials). This is why mathematicians naturally use non-normal proofs (with lemmas/detours) and why the cut rule is practically useful despite being theoretically eliminable.",
+    ],
+    ja: [
+      "自然演繹では、導入規則の直後に対応する除去規則が続くとき<b>迂回</b>（detour）が発生します——例えば$\\land$Iで$\\varphi \\land \\psi$を導入し、直後に$\\land$Eで$\\varphi$を取り出す場合。このような迂回は常に簡約で除去できます。",
+      "<b>正規形</b>の証明は迂回のない証明です。<b>正規化定理</b>（Prawitz, 1965）は、すべての自然演繹の証明が正規形に変換可能であることを述べます。変換過程は<b>証明簡約</b>と呼ばれ、導入-除去の対を除去します。",
+      "簡約規則はCurry-Howard対応を通じて型付きラムダ計算の$\\beta$簡約に対応します。$\\to$Iの後に$\\to$Eは$(\\lambda x. M)\\, N \\to M[N/x]$のように簡約されます。$\\land$Iの後に$\\land$Eは$\\pi_1(M, N) \\to M$のように簡約されます。",
+      "NDの正規化はSCの<b>カット除去</b>に対応します。SCのカットはNDの迂回に類似します：どちらも論理式を導入し直ちに使用して破棄します。Gentzenのカット除去とPrawitzの正規化は同じ現象の2つの見方です。",
+      "正規形の証明は<b>部分式性質</b>を持ちます：証明のすべての論理式は結論または未放出仮定の部分式です。カットなしシーケント証明の部分式性質と並行します。",
+      "実際には、正規化は証明サイズを劇的に増大させえます——非初等的な（指数の塔のような）爆発が起こりえます。数学者が自然に非正規形の証明（補題/迂回付き）を使い、カット規則が理論的に除去可能であるにもかかわらず実践的に有用である理由です。",
+    ],
+  },
+  relatedEntryIds: [
+    "concept-cut-elimination",
+    "concept-curry-howard",
+    "rule-nd-overview",
+    "concept-proof-system-translation",
+    "guide-meta-theorems",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Natural_deduction#Normalization",
+      label: {
+        en: "Normalization in natural deduction (Wikipedia)",
+        ja: "自然演繹の正規化 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "normalization",
+    "normal form",
+    "detour",
+    "proof reduction",
+    "beta reduction",
+    "Prawitz",
+    "正規化",
+    "正規形",
+    "迂回",
+    "証明簡約",
+  ],
+  order: 42,
+};
+
+const conceptClassicalIntuitionisticRelation: ReferenceEntry = {
+  id: "concept-classical-intuitionistic-relation",
+  category: "concept",
+  title: {
+    en: "Relationship between Classical and Intuitionistic Logic",
+    ja: "古典論理と直観主義論理の関係",
+  },
+  summary: {
+    en: "DNE, EFQ, LEM interchangeability and double negation translations.",
+    ja: "DNE・EFQ・LEMの互換性と二重否定変換。",
+  },
+  body: {
+    en: [
+      "Classical logic (CL) and intuitionistic logic (IL) differ in which principles of negation are accepted. Understanding their relationship is key to navigating between proof systems in this application.",
+      "Three principles characterize the difference: <b>DNE</b> ($\\lnot\\lnot\\varphi \\to \\varphi$), <b>LEM</b> ($\\varphi \\lor \\lnot\\varphi$), and <b>Peirce's law</b> ($((\\varphi \\to \\psi) \\to \\varphi) \\to \\varphi$). In the presence of intuitionistic logic, any one of these implies the other two. Adding any of them to IL yields CL.",
+      "IL is strictly weaker than CL: every intuitionistically provable formula is classically provable, but not vice versa. However, IL is not simply CL minus some axioms — it has a rich constructive content that CL lacks.",
+      "<b>Glivenko's theorem</b> provides a bridge: $\\varphi$ is a classical tautology if and only if $\\lnot\\lnot\\varphi$ is intuitionistically provable. For propositional logic, this gives a complete characterization of the relationship.",
+      "For predicate logic, <b>double negation translations</b> (Godel-Gentzen, Kuroda, Kolmogorov) systematically embed classical logic into intuitionistic logic. Each translation $\\varphi^{\\ast}$ satisfies: CL proves $\\varphi$ if and only if IL proves $\\varphi^{\\ast}$. The <b>Kuroda translation</b> adds $\\lnot\\lnot$ in front of each universal quantifier.",
+      "The constructive content of IL is made precise by the <b>BHK interpretation</b>: a proof of $\\varphi \\lor \\psi$ must specify which disjunct holds (unlike CL, where LEM gives disjunctions for free). This is why IL is the logic of constructive mathematics and type theory.",
+      "In this application, users can switch between classical and intuitionistic systems. Classical systems (HK, NK, LK) allow DNE/LEM. Intuitionistic systems (HJ, NJ, LJ) allow only EFQ. Minimal systems (HM, NM, LM) have neither EFQ nor DNE.",
+    ],
+    ja: [
+      "古典論理（CL）と直観主義論理（IL）は否定に関するどの原理を受け入れるかで異なります。両者の関係を理解することは、本アプリケーションで証明体系間を行き来するための鍵です。",
+      "3つの原理が違いを特徴づけます：<b>DNE</b>（$\\lnot\\lnot\\varphi \\to \\varphi$）、<b>LEM</b>（$\\varphi \\lor \\lnot\\varphi$）、<b>Peirceの法則</b>（$((\\varphi \\to \\psi) \\to \\varphi) \\to \\varphi$）。直観主義論理の存在下で、これらのいずれか1つは他の2つを含意します。ILにこれらのいずれかを加えるとCLになります。",
+      "ILはCLより厳密に弱い体系です：直観主義的に証明可能な論理式はすべて古典的に証明可能ですが、逆は成り立ちません。しかしILは単にCLからいくつかの公理を除いたものではなく、CLにはない豊かな構成的内容を持ちます。",
+      "<b>Glivenkoの定理</b>は橋渡しを提供します：$\\varphi$が古典的トートロジーであるのは、$\\lnot\\lnot\\varphi$が直観主義的に証明可能であるときかつそのときに限ります。命題論理については、これが関係の完全な特徴づけを与えます。",
+      "述語論理については、<b>二重否定変換</b>（Godel-Gentzen、黒田、Kolmogorov）が古典論理を直観主義論理に体系的に埋め込みます。各変換$\\varphi^{\\ast}$は以下を満たします：CLが$\\varphi$を証明 $\\Leftrightarrow$ ILが$\\varphi^{\\ast}$を証明。<b>黒田変換</b>は各全称量化子の前に$\\lnot\\lnot$を追加します。",
+      "ILの構成的内容は<b>BHK解釈</b>によって正確にされます：$\\varphi \\lor \\psi$の証明はどちらの選言肢が成り立つかを指定しなければなりません（LEMが選言を無料で与えるCLとは異なります）。ILが構成的数学と型理論の論理である理由です。",
+      "本アプリケーションでは、古典と直観主義の体系を切り替えられます。古典体系（HK, NK, LK）はDNE/LEMを許します。直観主義体系（HJ, NJ, LJ）はEFQのみを許します。最小体系（HM, NM, LM）はEFQもDNEも持ちません。",
+    ],
+  },
+  relatedEntryIds: [
+    "axiom-dne",
+    "axiom-efq",
+    "concept-glivenko",
+    "concept-kuroda-translation",
+    "concept-nd-variants",
+    "concept-lk-lj-difference",
+    "system-classical",
+    "system-intuitionistic",
+    "system-minimal",
+    "guide-meta-theorems",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Intuitionistic_logic",
+      label: {
+        en: "Intuitionistic logic (Wikipedia)",
+        ja: "直観主義論理 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E7%9B%B4%E8%A6%B3%E4%B8%BB%E7%BE%A9%E8%AB%96%E7%90%86",
+      label: {
+        en: "Intuitionistic logic (Wikipedia JA)",
+        ja: "直観主義論理 (Wikipedia)",
+      },
+      documentLanguage: "ja",
+    },
+  ],
+  keywords: [
+    "classical logic",
+    "intuitionistic logic",
+    "DNE",
+    "LEM",
+    "Peirce",
+    "double negation translation",
+    "Glivenko",
+    "Kuroda",
+    "BHK interpretation",
+    "古典論理",
+    "直観主義論理",
+    "排中律",
+    "二重否定変換",
+    "BHK解釈",
+  ],
+  order: 43,
+};
+
 const conceptAbelianGroup: ReferenceEntry = {
   id: "concept-abelian-group",
   category: "concept",
@@ -7427,6 +7707,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   guideIntroNaturalDeduction,
   guideIntroSequentCalculus,
   guideIntroTableau,
+  guideMetaTheorems,
   // Axioms
   axiomA1,
   axiomA2,
@@ -7516,6 +7797,9 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptAnalyticTableauRules,
   conceptTableauClosure,
   conceptTabScCorrespondence,
+  conceptProofSystemTranslation,
+  conceptNormalizationReduction,
+  conceptClassicalIntuitionisticRelation,
   conceptAbelianGroup,
   // Theories
   theoryPeanoArithmetic,
