@@ -426,6 +426,15 @@ export type {
   CutEliminationOptions,
 } from "./cutElimination";
 
+// ── Proof Search ────────────────────────────────────────────
+export {
+  proveSequentLK,
+  NotProvable,
+  StepLimitExceeded,
+  DEFAULT_SEARCH_STEP_LIMIT,
+} from "./proofSearch";
+export type { ProofSearchError } from "./proofSearch";
+
 // ── Serialization (Schema decode/encode) ─────────────────────
 export {
   decodeFormula,
