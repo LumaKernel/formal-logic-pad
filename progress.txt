@@ -14152,3 +14152,12 @@
   - ReferenceEntry には externalLinks が必須（空配列でもOK）。省略するとTS2741エラー
   - PA公理の番号体系: このアプリでは6公理方式（PA6が帰納法）を採用
 ---
+
+## 2026-03-14 11:37 - Reference: Robinson算術・G1-G3・アーベル群
+- concept-robinson-arithmetic を追加（PA1-PA5共有・帰納法なし・本質的決定不能）
+- axiom-g1〜g3 を追加（結合律・単位元・逆元、order:20-22）
+- concept-abelian-group を追加（G4交換律、order:28）
+- theory-group の relatedEntryIds 更新
+- referenceContent.test.ts のエントリ数を77→82に更新
+- 変更ファイル: referenceContent.ts, referenceContent.test.ts, tasks/prd-docs-contents.md
+---

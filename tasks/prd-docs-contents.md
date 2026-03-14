@@ -16,8 +16,8 @@
 等号付き一階述語論理と具体的な理論の解説。
 - [x] `[ref]` Peano 算術の公理 PA1-PA6 — 6個の個別公理エントリ追加（axiom-pa1〜pa6, order:14-19）、theory-peanoの関連エントリ・説明文も更新
 - [x] `[ref]` Robinson 算術 (Q) — concept-robinson-arithmetic として追加。PA1-PA5共有・帰納法なし・本質的決定不能・Σ1完全
-- [ ] `[ref]` 群論の公理 G1-G3 — 結合律、単位元、逆元の個別エントリ
-- [ ] `[ref]` Abel群（可換群）— 交換律の追加
+- [x] `[ref]` 群論の公理 G1-G3 — axiom-g1〜g3 (order:20-22)、theory-groupのrelatedEntryIds更新
+- [x] `[ref]` Abel群（可換群）— concept-abelian-group (order:28)、G4交換律・反例・アーベル/非アーベルの区別
 - [ ] `[guide]` 具体的な理論で証明する — Peano 算術・群論での証明の実際
 
 ## 5. 自然演繹 (Natural Deduction)
