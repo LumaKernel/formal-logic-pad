@@ -5371,6 +5371,74 @@ const conceptPredicateAxiomSystem: ReferenceEntry = {
   order: 26,
 };
 
+const conceptRobinsonArithmetic: ReferenceEntry = {
+  id: "concept-robinson-arithmetic",
+  category: "concept",
+  title: { en: "Robinson Arithmetic (Q)", ja: "Robinson算術 (Q)" },
+  summary: {
+    en: "A finitely axiomatized fragment of Peano arithmetic without the induction schema.",
+    ja: "帰納法スキーマを持たないペアノ算術の有限公理化された断片。",
+  },
+  body: {
+    en: [
+      "<b>Robinson arithmetic</b> (Q), named after Raphael Robinson, is a first-order theory of arithmetic that shares the basic axioms of Peano arithmetic (PA1–PA5) but <i>omits the induction schema</i> (PA6).",
+      "Q has only finitely many axioms. It consists of: (1) $\\forall x.\\ \\lnot(S(x) = 0)$ (zero is not a successor), (2) $\\forall x. \\forall y.\\ S(x) = S(y) \\to x = y$ (successor is injective), (3)–(4) recursive definition of addition, (5) base case for multiplication, and (6) $\\forall x.\\ x = 0 \\lor \\exists y.\\ x = S(y)$ (every number is either zero or a successor).",
+      "Without the induction schema, Q is dramatically weaker than PA. Basic facts like commutativity of addition ($x + y = y + x$) are <i>not provable</i> in Q. Induction is needed to prove properties that hold for all natural numbers.",
+      "Despite its weakness, Q is remarkably important in mathematical logic. It is <b>essentially undecidable</b>: any consistent extension of Q (including PA itself) is undecidable. This is a key ingredient in Gödel's incompleteness theorems.",
+      "Q is also <b>$\\Sigma_1$-complete</b>: every true $\\Sigma_1$ sentence (existential statement about natural numbers) is provable in Q. This means Q can verify any concrete numerical computation, even though it cannot prove general laws about all numbers.",
+      "The relationship between Q and PA illustrates a fundamental trade-off in formal theories: finite axiomatizability versus expressive power. Q is finitely axiomatizable but weak; PA has infinitely many axiom instances (one per formula in the induction schema) but can prove far more.",
+    ],
+    ja: [
+      "<b>Robinson算術</b> (Q) は、Raphael Robinsonにちなんで名付けられた算術の一階理論で、ペアノ算術の基本公理（PA1–PA5）を共有しますが、<i>帰納法スキーマ</i>（PA6）を<i>省略</i>します。",
+      "Qは有限個の公理のみを持ちます。(1) $\\forall x.\\ \\lnot(S(x) = 0)$（0は後者ではない）、(2) $\\forall x. \\forall y.\\ S(x) = S(y) \\to x = y$（後者は単射）、(3)–(4) 加法の再帰的定義、(5) 乗法の基底ケース、(6) $\\forall x.\\ x = 0 \\lor \\exists y.\\ x = S(y)$（すべての数は0か後者）から構成されます。",
+      "帰納法スキーマなしでは、QはPAに比べて劇的に弱くなります。加法の交換律（$x + y = y + x$）のような基本的事実でさえQでは<i>証明できません</i>。すべての自然数について成り立つ性質を証明するには帰納法が必要です。",
+      "その弱さにもかかわらず、Qは数理論理学において非常に重要です。Qは<b>本質的に決定不能</b>です：Qの任意の無矛盾な拡大（PA自体を含む）は決定不能です。これはゲーデルの不完全性定理の重要な構成要素です。",
+      "Qはまた<b>$\\Sigma_1$完全</b>です：自然数に関するすべての真な$\\Sigma_1$文（存在文）はQで証明可能です。つまり、Qは具体的な数値計算を検証できますが、すべての数に関する一般法則は証明できません。",
+      "QとPAの関係は、形式理論における根本的なトレードオフを示しています：有限公理化可能性と表現力の間のトレードオフです。Qは有限公理化可能ですが弱い。PAは無限個の公理インスタンス（帰納法スキーマの各論理式に対して1つ）を持ちますが、はるかに多くのことが証明できます。",
+    ],
+  },
+  relatedEntryIds: [
+    "theory-peano",
+    "axiom-pa1",
+    "axiom-pa2",
+    "axiom-pa3",
+    "axiom-pa4",
+    "axiom-pa5",
+    "axiom-pa6",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Robinson_arithmetic",
+      label: {
+        en: "Robinson arithmetic (Wikipedia)",
+        ja: "Robinson算術 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/Robinson+arithmetic",
+      label: {
+        en: "Robinson arithmetic (nLab)",
+        ja: "Robinson算術 (nLab)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "Robinson",
+    "Q",
+    "arithmetic",
+    "undecidable",
+    "essentially undecidable",
+    "Sigma-1 complete",
+    "Robinson算術",
+    "本質的決定不能",
+  ],
+  order: 27,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -6135,6 +6203,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptFormulaSchema,
   conceptTautology,
   conceptPredicateAxiomSystem,
+  conceptRobinsonArithmetic,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
