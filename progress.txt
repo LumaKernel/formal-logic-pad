@@ -14169,3 +14169,11 @@
 - セクション2, 3, 4 の完了済み項目をすべて tasks-archived/ に移動
 - 変更ファイル: referenceContent.ts, referenceContent.test.ts, tasks/prd-docs-contents.md, tasks-archived/prd-docs-contents.md
 ---
+
+## 2026-03-14 11:45 - 自然演繹入門ガイド
+- guideIntroNaturalDeduction エントリ追加 (guide-intro-natural-deduction, order:9, 10段落)
+- Hilbert系との比較、導入/除去規則、仮定と放出、証明木、NM/NJ/NK分類をカバー
+- 変更ファイル: referenceContent.ts, referenceContent.test.ts (83→84)
+- **今後のイテレーションへの学び:**
+  - セクション5残り: NM/NJ/NK、仮定管理、否定規則、量化子規則の4エントリ
+---
