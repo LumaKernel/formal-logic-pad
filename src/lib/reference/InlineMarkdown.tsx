@@ -65,15 +65,11 @@ export function InlineMarkdown({ text }: InlineMarkdownProps) {
         const key = `${el.type satisfies string}-${String(i) satisfies string}`;
         if (el.type === "bold") {
           return (
-            <strong key={key}>
-              {renderContentWithMath(el.content, key)}
-            </strong>
+            <strong key={key}>{renderContentWithMath(el.content, key)}</strong>
           );
         }
         if (el.type === "italic") {
-          return (
-            <em key={key}>{renderContentWithMath(el.content, key)}</em>
-          );
+          return <em key={key}>{renderContentWithMath(el.content, key)}</em>;
         }
         if (el.type === "code") {
           return <code key={key}>{el.content}</code>;
@@ -89,11 +85,7 @@ export function InlineMarkdown({ text }: InlineMarkdownProps) {
             />
           );
         }
-        return (
-          <span key={key}>
-            {renderContentWithMath(el.content, key)}
-          </span>
-        );
+        return <span key={key}>{renderContentWithMath(el.content, key)}</span>;
       })}
     </>
   );

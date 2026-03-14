@@ -10,8 +10,8 @@
 
 **例:**
 
-- $p \to (q \to p)$ — 命題変数  p ,  q  を含む論理式
-- $\lnot p \to (p \to q)$ — 命題変数  p ,  q  を含む論理式
+- $p \to (q \to p)$ — 命題変数 p , q を含む論理式
+- $\lnot p \to (p \to q)$ — 命題変数 p , q を含む論理式
 
 ### 論理式スキーマ（Formula Schema）
 
@@ -21,7 +21,7 @@
 
 - $\varphi \to (\psi \to \varphi)$ — メタ変数 $\varphi , \psi$ を含むスキーマ
 
-このスキーマにおいて $\varphi$ に  p , $\psi$ に  q  を代入すると論理式 $p \to (q \to p)$ が得られる。同じスキーマに $\varphi$ に $p \to q , \psi$ に  r  を代入すると $(p \to q) \to (r \to (p \to q))$ が得られる。
+このスキーマにおいて $\varphi$ に p , $\psi$ に q を代入すると論理式 $p \to (q \to p)$ が得られる。同じスキーマに $\varphi$ に $p \to q , \psi$ に r を代入すると $(p \to q) \to (r \to (p \to q))$ が得られる。
 
 ### 本プロジェクトでの扱い
 
@@ -38,7 +38,7 @@
 
 ### A1: K公理（含意の導入）
 
- \varphi \to (\psi \to \varphi) 
+\varphi \to (\psi \to \varphi)
 
 **直感的な意味:** $\varphi$ が真ならば、$\psi$ が何であっても $\psi \to \varphi$ が成り立つ。「すでに分かっていることは、余分な仮定を付けても成り立つ」。
 
@@ -48,15 +48,15 @@
 
 **具体例（代入によるインスタンス）:**
 
-| 代入                              | 得られる論理式                    |
-| --------------------------------- | --------------------------------- |
+| 代入                             | 得られる論理式                    |
+| -------------------------------- | --------------------------------- |
 | $\varphi := p , \psi := q$       | $p \to (q \to p)$                 |
 | $\varphi := p \to q , \psi := r$ | $(p \to q) \to (r \to (p \to q))$ |
 | $\varphi := \lnot p , \psi := p$ | $\lnot p \to (p \to \lnot p)$     |
 
 ### A2: S公理（含意の分配）
 
- (\varphi \to (\psi \to \chi)) \to ((\varphi \to \psi) \to (\varphi \to \chi)) 
+(\varphi \to (\psi \to \chi)) \to ((\varphi \to \psi) \to (\varphi \to \chi))
 
 **直感的な意味:** 「$\varphi$ から $\psi$ を経由して $\chi$ に至る」ことと「$\varphi$ から $\psi$ に至る」ことから、「$\varphi$ から直接 $\chi$ に至る」ことが導ける。含意の推移性の一般化。
 
@@ -66,14 +66,14 @@
 
 **具体例:**
 
-| 代入                                           | 得られる論理式                                                    |
-| ---------------------------------------------- | ----------------------------------------------------------------- |
+| 代入                                         | 得られる論理式                                                    |
+| -------------------------------------------- | ----------------------------------------------------------------- |
 | $\varphi := p , \psi := p , \chi := p$       | $(p \to (p \to p)) \to ((p \to p) \to (p \to p))$                 |
 | $\varphi := p , \psi := q \to p , \chi := p$ | $(p \to ((q \to p) \to p)) \to ((p \to (q \to p)) \to (p \to p))$ |
 
 ### A3: 対偶公理（否定と含意の関係）
 
- (\lnot \varphi \to \lnot \psi) \to (\psi \to \varphi) 
+(\lnot \varphi \to \lnot \psi) \to (\psi \to \varphi)
 
 **直感的な意味:** 「$\varphi$ でないならば $\psi$ でない」が成り立つならば、対偶として「$\psi$ ならば $\varphi$」が成り立つ。古典論理の本質（排中律と同値の性質）を規定する公理。
 
@@ -81,8 +81,8 @@
 
 **具体例:**
 
-| 代入                              | 得られる論理式                                    |
-| --------------------------------- | ------------------------------------------------- |
+| 代入                             | 得られる論理式                                    |
+| -------------------------------- | ------------------------------------------------- |
 | $\varphi := p , \psi := q$       | $(\lnot p \to \lnot q) \to (q \to p)$             |
 | $\varphi := \lnot p , \psi := p$ | $(\lnot \lnot p \to \lnot p) \to (p \to \lnot p)$ |
 
@@ -102,7 +102,7 @@
 
 ### 定義
 
- \frac{\varphi \qquad \varphi \to \psi}{\psi} \quad (\text{MP}) 
+\frac{\varphi \qquad \varphi \to \psi}{\psi} \quad (\text{MP})
 
 **前提（premises）:** $\varphi$ と $\varphi \to \psi$ の2つ
 
@@ -130,13 +130,13 @@ conclusion: $\beta$
 
 ### 具体例
 
-**例1:**  p  と $p \to q$ から  q  を導出
+**例1:** p と $p \to q$ から q を導出
 
- \frac{p \qquad p \to q}{q} \quad (\text{MP}) 
+\frac{p \qquad p \to q}{q} \quad (\text{MP})
 
 **例2:** $p \to q$ と $(p \to q) \to (r \to (p \to q))$ から $r \to (p \to q)$ を導出
 
- \frac{p \to q \qquad (p \to q) \to (r \to (p \to q))}{r \to (p \to q)} \quad (\text{MP}) 
+\frac{p \to q \qquad (p \to q) \to (r \to (p \to q))}{r \to (p \to q)} \quad (\text{MP})
 
 ## 4. 証明図（木構造）の表記法
 
@@ -172,8 +172,8 @@ Hilbert系における**証明**とは、公理のインスタンスとModus Pon
 
 ### 内部ノードの種類
 
-| 種類         | ラベル | 前提数 | 説明                                                       |
-| ------------ | ------ | ------ | ---------------------------------------------------------- |
+| 種類         | ラベル | 前提数 | 説明                                                         |
+| ------------ | ------ | ------ | ------------------------------------------------------------ |
 | Modus Ponens | MP     | 2      | 前提1: $\alpha$, 前提2: $\alpha \to \beta \to$ 結論: $\beta$ |
 
 ## 5. 具体例: $\varphi \to \varphi$ の証明（I combinator）
@@ -182,13 +182,13 @@ $\varphi \to \varphi$ は公理に含まれていないが、A1, A2, MPのみで
 
 ### ステップごとの証明
 
-| ステップ | 式                                                                                                                      | 根拠                                                 |
-| -------- | ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| ステップ | 式                                                                                                                      | 根拠                                                |
+| -------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
 | 1        | $(\varphi \to ((\varphi \to \varphi) \to \varphi)) \to ((\varphi \to (\varphi \to \varphi)) \to (\varphi \to \varphi))$ | A2: $\psi := \varphi \to \varphi , \chi := \varphi$ |
-| 2        | $\varphi \to ((\varphi \to \varphi) \to \varphi)$                                                                       | A1: $\psi := \varphi \to \varphi$                    |
-| 3        | $(\varphi \to (\varphi \to \varphi)) \to (\varphi \to \varphi)$                                                         | MP: 2, 1                                             |
-| 4        | $\varphi \to (\varphi \to \varphi)$                                                                                     | A1: $\psi := \varphi$                                |
-| 5        | $\varphi \to \varphi$                                                                                                   | MP: 4, 3                                             |
+| 2        | $\varphi \to ((\varphi \to \varphi) \to \varphi)$                                                                       | A1: $\psi := \varphi \to \varphi$                   |
+| 3        | $(\varphi \to (\varphi \to \varphi)) \to (\varphi \to \varphi)$                                                         | MP: 2, 1                                            |
+| 4        | $\varphi \to (\varphi \to \varphi)$                                                                                     | A1: $\psi := \varphi$                               |
+| 5        | $\varphi \to \varphi$                                                                                                   | MP: 4, 3                                            |
 
 ### 証明図（木構造）
 
@@ -216,13 +216,13 @@ $\varphi \to \varphi$ は公理に含まれていないが、A1, A2, MPのみで
 
 ### ステップごとの証明
 
-| ステップ | 式                                                                                                                                                            | 根拠                                                                                         |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| 1        | $(\lnot \varphi \to \lnot \lnot \lnot \varphi) \to (\lnot \lnot \varphi \to \varphi)$                                                                         | A3: $\varphi := \varphi , \psi := \lnot \lnot \varphi$                                      |
-| 2        | $\lnot \varphi \to (\lnot \lnot \lnot \varphi \to \lnot \varphi)$                                                                                             | A1: $\varphi := \lnot \varphi , \psi := \lnot \lnot \lnot \varphi$                          |
+| ステップ | 式                                                                                                                                                            | 根拠                                                                                       |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| 1        | $(\lnot \varphi \to \lnot \lnot \lnot \varphi) \to (\lnot \lnot \varphi \to \varphi)$                                                                         | A3: $\varphi := \varphi , \psi := \lnot \lnot \varphi$                                     |
+| 2        | $\lnot \varphi \to (\lnot \lnot \lnot \varphi \to \lnot \varphi)$                                                                                             | A1: $\varphi := \lnot \varphi , \psi := \lnot \lnot \lnot \varphi$                         |
 | 3        | $(\lnot \varphi \to (\lnot \lnot \lnot \varphi \to \lnot \varphi)) \to ((\lnot \varphi \to \lnot \lnot \lnot \varphi) \to (\lnot \varphi \to \lnot \varphi))$ | A2: $\varphi := \lnot \varphi , \psi := \lnot \lnot \lnot \varphi , \chi := \lnot \varphi$ |
-| 4        | $(\lnot \varphi \to \lnot \lnot \lnot \varphi) \to (\lnot \varphi \to \lnot \varphi)$                                                                         | MP: 2, 3                                                                                     |
-| 5        | $(\lnot \lnot \lnot \varphi \to \lnot \lnot \varphi) \to (\lnot \varphi \to \lnot \lnot \lnot \varphi)$                                                       | A3: $\varphi := \lnot \lnot \varphi , \psi := \lnot \varphi \to$ 結果を変形                   |
+| 4        | $(\lnot \varphi \to \lnot \lnot \lnot \varphi) \to (\lnot \varphi \to \lnot \varphi)$                                                                         | MP: 2, 3                                                                                   |
+| 5        | $(\lnot \lnot \lnot \varphi \to \lnot \lnot \varphi) \to (\lnot \varphi \to \lnot \lnot \lnot \varphi)$                                                       | A3: $\varphi := \lnot \lnot \varphi , \psi := \lnot \varphi \to$ 結果を変形                |
 
 この証明は比較的長くなるため、要点を示す。完全な証明は以下の中間定理を経由する：
 
@@ -236,8 +236,8 @@ $\varphi \to \varphi$ は公理に含まれていないが、A1, A2, MPのみで
 
 ### 補題: 二重否定導入 $\varphi \to \lnot \lnot \varphi$
 
-| ステップ | 式                                                                                 | 根拠             |
-| -------- | ---------------------------------------------------------------------------------- | ---------------- |
+| ステップ | 式                                                                                | 根拠             |
+| -------- | --------------------------------------------------------------------------------- | ---------------- |
 | 1        | $(\lnot \lnot \varphi \to \lnot \varphi) \to (\varphi \to \lnot \varphi \to ...)$ | A3のインスタンス |
 
 **注:** 完全な形式的証明は十数ステップに及ぶ。ここでは証明戦略と鍵となるステップを示す。完全な証明はMendelson "Introduction to Mathematical Logic" の Proposition 1.12 を参照。

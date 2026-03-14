@@ -1190,7 +1190,9 @@ describe("記法エントリの個別チェック", () => {
     expect(entry?.body.en.some((p) => p.includes("\\land"))).toBe(true);
     expect(entry?.body.en.some((p) => p.includes("\\lor"))).toBe(true);
     expect(entry?.body.en.some((p) => p.includes("\\lnot"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("\\leftrightarrow"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\leftrightarrow"))).toBe(
+      true,
+    );
     expect(entry?.formalNotation).toBeTruthy();
   });
 

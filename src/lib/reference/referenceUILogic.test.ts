@@ -295,9 +295,7 @@ describe("parseInlineMarkdown", () => {
 
   it("数式のみの文字列をパースする", () => {
     const result = parseInlineMarkdown("$\\varphi \\to \\psi$");
-    expect(result).toEqual([
-      { type: "math", content: "\\varphi \\to \\psi" },
-    ]);
+    expect(result).toEqual([{ type: "math", content: "\\varphi \\to \\psi" }]);
   });
 
   it("HTMLタグとインライン数式の混在をパースする", () => {

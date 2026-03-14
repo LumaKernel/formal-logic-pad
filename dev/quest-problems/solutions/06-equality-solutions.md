@@ -202,7 +202,7 @@ B = b = c -> a = c, C = c = b -> a = c, A = a = b:
 
 | #   | 式                                                        | 根拠                                         |
 | --- | --------------------------------------------------------- | -------------------------------------------- |
-| 1   | `P(a) -> ex x. P(x)`                                      | Q-31 ($\exists$intro)                                |
+| 1   | `P(a) -> ex x. P(x)`                                      | Q-31 ($\exists$intro)                        |
 | 2   | `(P(a) -> ex x. P(x)) -> (a = b -> (P(a) -> ex x. P(x)))` | A1 [phi := P(a) -> ex x. P(x), psi := a = b] |
 | 3   | `a = b -> (P(a) -> ex x. P(x))`                           | MP(1, 2)                                     |
 
@@ -231,11 +231,11 @@ B = b = c -> a = c, C = c = b -> a = c, A = a = b:
 
 ### 述語論理
 
-| 補題名 | 式                                                      | 初出 |
-| ------ | ------------------------------------------------------- | ---- |
-| Dist$\forall$  | `all x. (P(x) -> Q(x)) -> (all x. P(x) -> all x. Q(x))` | Q-26 |
-| $\forall$swap  | `all x. all y. P(x, y) -> all y. all x. P(x, y)`        | Q-28 |
-| $\exists$intro | `P(t) -> ex x. P(x)`                                    | Q-31 |
-| $\lnot \exists \to \forall \lnot$  | `~(ex x. P(x)) -> all x. ~P(x)`                         | Q-34 |
-| $\lnot \forall \to \exists \lnot$  | `~(all x. P(x)) -> ex x. ~P(x)`                         | Q-35 |
-| Dist$\exists$  | `all x. (P(x) -> Q(x)) -> (ex x. P(x) -> ex x. Q(x))`   | Q-36 |
+| 補題名                            | 式                                                      | 初出 |
+| --------------------------------- | ------------------------------------------------------- | ---- |
+| Dist$\forall$                     | `all x. (P(x) -> Q(x)) -> (all x. P(x) -> all x. Q(x))` | Q-26 |
+| $\forall$swap                     | `all x. all y. P(x, y) -> all y. all x. P(x, y)`        | Q-28 |
+| $\exists$intro                    | `P(t) -> ex x. P(x)`                                    | Q-31 |
+| $\lnot \exists \to \forall \lnot$ | `~(ex x. P(x)) -> all x. ~P(x)`                         | Q-34 |
+| $\lnot \forall \to \exists \lnot$ | `~(all x. P(x)) -> ex x. ~P(x)`                         | Q-35 |
+| Dist$\exists$                     | `all x. (P(x) -> Q(x)) -> (ex x. P(x) -> ex x. Q(x))`   | Q-36 |

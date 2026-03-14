@@ -11,9 +11,7 @@ describe("InlineMarkdown", () => {
   });
 
   it("<b>タグをstrongで表示する", () => {
-    const { container } = render(
-      <InlineMarkdown text="<b>bold</b> text" />,
-    );
+    const { container } = render(<InlineMarkdown text="<b>bold</b> text" />);
     const strong = container.querySelector("strong");
     expect(strong).not.toBeNull();
     expect(strong?.textContent).toBe("bold");
@@ -27,9 +25,7 @@ describe("InlineMarkdown", () => {
   });
 
   it("<code>タグをcodeで表示する", () => {
-    const { container } = render(
-      <InlineMarkdown text="<code>code</code>" />,
-    );
+    const { container } = render(<InlineMarkdown text="<code>code</code>" />);
     const code = container.querySelector("code");
     expect(code).not.toBeNull();
     expect(code?.textContent).toBe("code");
@@ -79,9 +75,7 @@ describe("InlineMarkdown", () => {
 
   it("$を含むが数式でない場合はテキストとして扱う（renderContentWithMath分岐）", () => {
     // <b>内で$が1つだけ（閉じなし）→ renderContentWithMathの$含むが分割不要な分岐
-    const { container } = render(
-      <InlineMarkdown text="<b>price is $5</b>" />,
-    );
+    const { container } = render(<InlineMarkdown text="<b>price is $5</b>" />);
     const strong = container.querySelector("strong");
     expect(strong).not.toBeNull();
     expect(strong?.textContent).toBe("price is $5");
@@ -110,9 +104,7 @@ describe("InlineMarkdown", () => {
 
   it("空の内容はnullとして扱われる（renderContentWithMathの空文字列分岐）", () => {
     // $...$で分割すると空文字列パーツが生成される場合
-    const { container } = render(
-      <InlineMarkdown text="<b>$\\varphi$</b>" />,
-    );
+    const { container } = render(<InlineMarkdown text="<b>$\\varphi$</b>" />);
     const strong = container.querySelector("strong");
     expect(strong).not.toBeNull();
     const katexInStrong = strong?.querySelector(".katex");
