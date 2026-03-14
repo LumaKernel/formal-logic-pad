@@ -19,20 +19,20 @@ A3: `(~phi -> ~psi) -> (psi -> phi)` は対偶の原理を表す。
 **解法の概略:**
 
 1. A3: `(~~phi -> ~phi) -> (phi -> ~phi)` のインスタンスを利用（ただし方向に注意）
-2. 実際は A3: `(~phi -> ~psi) -> (psi -> phi)` にφ=¬φ、ψ=φを代入:
+2. 実際は A3: `(~phi -> ~psi) -> (psi -> phi)` に$\varphi = \lnot \varphi$、$\psi = \varphi$を代入:
    `(~~phi -> ~phi) -> (phi -> ~phi)` — これは使えない方向
-3. 正しいアプローチ: A3 にφ=φ、ψ=¬φを代入:
+3. 正しいアプローチ: A3 に$\varphi = \varphi$、$\psi = \lnot \varphi$を代入:
    `(~phi -> ~~phi) -> (~phi -> phi)` — これも違う
 4. 最終的に: A1で `phi -> (~phi -> phi)` を作り、A3の適切なインスタンスと組み合わせる
 
 **正しい証明:**
 
-1. A1: `phi -> (~phi -> phi)` — φをφ、ψを¬φに
-2. A3: `(~(~phi) -> ~phi) -> (phi -> ~~phi)` — (¬¬φ→¬φ) → (φ→¬¬φ) — φを~~phi、ψをphiに
+1. A1: `phi -> (~phi -> phi)` — $\varphi$を$\varphi$、$\psi$を$\lnot \varphi$に
+2. A3: `(~(~phi) -> ~phi) -> (phi -> ~~phi)` — ($\lnot \lnot \varphi \to \lnot \varphi) \to (\varphi \to \lnot \lnot \varphi$) — $\varphi$を~~phi、$\psi$をphiに
    これも使いにくい。もう少し工夫が必要。
 3. 恒等律 `~phi -> ~phi` を利用
 4. A3: `(~phi -> ~phi) -> (phi -> phi)` ではなく
-   A3(φ=~~phi, ψ=phi): `(~~~phi -> ~phi) -> (phi -> ~~phi)` ...
+   A3($\varphi$=~~phi, $\psi$=phi): `(~~~phi -> ~phi) -> (phi -> ~~phi)` ...
 
    実際の証明は多段階になる。完全な証明は解答ノートで提供する。
 
@@ -66,10 +66,10 @@ A3: `(~phi -> ~psi) -> (psi -> phi)` は対偶の原理を表す。
 
 **解法の概略:**
 
-1. `~phi -> ~phi` を恒等律 (Q-01の¬φ版) で証明
-2. A3(φ=phi, ψ=~phi): `(~phi -> ~~phi) -> (~phi -> phi)` — 違う方向
-   A3を確認: `(~φ → ~ψ) → (ψ → φ)`
-   φ=phi, ψ=~phi: `(~phi -> ~~~phi) -> (~~phi -> phi)`
+1. `~phi -> ~phi` を恒等律 (Q-01の$\lnot \varphi$版) で証明
+2. A3($\varphi$=phi, $\psi$=~phi): `(~phi -> ~~phi) -> (~phi -> phi)` — 違う方向
+   A3を確認: `(~$\varphi \to$ ~$\psi) \to (\psi \to \varphi$)`
+   $\varphi$=phi, $\psi$=~phi: `(~phi -> ~~~phi) -> (~~phi -> phi)`
    これは二重否定除去の証明の一部になる
 3. 恒等律 + 二重否定導入 + A3 の組み合わせ
 
@@ -88,9 +88,9 @@ A3: `(~phi -> ~psi) -> (psi -> phi)` は対偶の原理を表す。
 
 **解法の概略:**
 
-1. A1: `~phi -> (~~psi -> ~phi)` — ¬φを前提に持ち上げ
-2. A3(φ=psi, ψ=phi): `(~psi -> ~phi) -> (phi -> psi)`
-   実際は A3: `(~φ → ~ψ) → (ψ → φ)` のφ=psi, ψ=phi:
+1. A1: `~phi -> (~~psi -> ~phi)` — $\lnot \varphi$を前提に持ち上げ
+2. A3($\varphi$=psi, $\psi$=phi): `(~psi -> ~phi) -> (phi -> psi)`
+   実際は A3: `(~$\varphi \to$ ~$\psi) \to (\psi \to \varphi$)` の$\varphi$=psi, $\psi$=phi:
    `(~psi -> ~phi) -> (phi -> psi)`
 3. 推移律と二重否定で接続
 
@@ -118,14 +118,14 @@ A3: `(~phi -> ~psi) -> (psi -> phi)` は対偶の原理を表す。
 
 **難易度:** Level 4
 **ゴール:** `~phi \/ phi`
-**ヒント:** 選言 `α ∨ β` は `¬α → β` として定義される。つまりゴールは `~~phi -> phi`。
+**ヒント:** 選言 `$\alpha \lor \beta$` は `$\lnot \alpha \to \beta$` として定義される。つまりゴールは `~~phi -> phi`。
 
 **解法の概略:**
 定義により `~phi \/ phi` = `~~phi -> phi` = 二重否定除去 (Q-17)。
 よって Q-17 と同一の証明。
 
 **ステップ数:** 約18
-**学習ポイント:** 選言の定義 `α ∨ β ≡ ¬α → β` を使えば、排中律は二重否定除去と等価。
+**学習ポイント:** 選言の定義 `$\alpha \lor \beta \equiv \lnot \alpha \to \beta$` を使えば、排中律は二重否定除去と等価。
 
 ---
 
@@ -151,7 +151,7 @@ A3: `(~phi -> ~psi) -> (psi -> phi)` は対偶の原理を表す。
 
 **難易度:** Level 5
 **ゴール:** `phi -> (psi -> (phi /\ psi))`
-**ヒント:** 連言 `α ∧ β` は `¬(α → ¬β)` として定義される。つまりゴールは `phi -> (psi -> ~(phi -> ~psi))`。
+**ヒント:** 連言 `$\alpha \land \beta$` は `$\lnot (\alpha \to \lnot \beta)$` として定義される。つまりゴールは `phi -> (psi -> ~(phi -> ~psi))`。
 
 **解法の概略:**
 
@@ -168,7 +168,7 @@ A3: `(~phi -> ~psi) -> (psi -> phi)` は対偶の原理を表す。
 
 **難易度:** Level 5
 **ゴール:** `(phi /\ psi) -> phi`
-**ヒント:** `φ ∧ ψ ≡ ¬(φ → ¬ψ)` を展開し、二重否定除去を使う。
+**ヒント:** `$\varphi \land \psi \equiv \lnot (\varphi \to \lnot \psi)$` を展開し、二重否定除去を使う。
 
 **解法の概略:**
 
@@ -177,7 +177,7 @@ A3: `(~phi -> ~psi) -> (psi -> phi)` は対偶の原理を表す。
 3. A1, A3, 推移律の組合せ
 
 **ステップ数:** 約25
-**学習ポイント:** 連言の除去も定義の展開が必要。左射影 (φ∧ψ→φ) と右射影 (φ∧ψ→ψ) は別々に証明する。
+**学習ポイント:** 連言の除去も定義の展開が必要。左射影 ($\varphi \land \psi \to \varphi$) と右射影 ($\varphi \land \psi \to \psi$) は別々に証明する。
 
 ---
 

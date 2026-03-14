@@ -272,6 +272,54 @@ describe("parseInlineMarkdown", () => {
     const result = parseInlineMarkdown("test_ end");
     expect(result).toEqual([{ type: "text", content: "test_ end" }]);
   });
+
+  // --- インライン数式 ($...$) ---
+
+  it("インライン数式($...$)をパースする", () => {
+    const result = parseInlineMarkdown("text $\\varphi$ more");
+    expect(result).toEqual([
+      { type: "text", content: "text " },
+      { type: "math", content: "\\varphi" },
+      { type: "text", content: " more" },
+    ]);
+  });
+
+  it("複数のインライン数式をパースする", () => {
+    const result = parseInlineMarkdown("$\\varphi$ and $\\psi$");
+    expect(result).toEqual([
+      { type: "math", content: "\\varphi" },
+      { type: "text", content: " and " },
+      { type: "math", content: "\\psi" },
+    ]);
+  });
+
+  it("数式のみの文字列をパースする", () => {
+    const result = parseInlineMarkdown("$\\varphi \\to \\psi$");
+    expect(result).toEqual([
+      { type: "math", content: "\\varphi \\to \\psi" },
+    ]);
+  });
+
+  it("HTMLタグとインライン数式の混在をパースする", () => {
+    const result = parseInlineMarkdown(
+      "<b>A1:</b> $\\varphi \\to (\\psi \\to \\varphi)$",
+    );
+    expect(result).toEqual([
+      { type: "bold", content: "A1:" },
+      { type: "text", content: " " },
+      { type: "math", content: "\\varphi \\to (\\psi \\to \\varphi)" },
+    ]);
+  });
+
+  it("閉じ$がない場合はテキストとして扱う", () => {
+    const result = parseInlineMarkdown("text $unclosed");
+    expect(result).toEqual([{ type: "text", content: "text $unclosed" }]);
+  });
+
+  it("空の数式($$)はテキストとして扱う", () => {
+    const result = parseInlineMarkdown("text $$ more");
+    expect(result).toEqual([{ type: "text", content: "text $$ more" }]);
+  });
 });
 
 // --- buildPopoverData ---

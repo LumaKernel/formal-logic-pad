@@ -10,7 +10,7 @@
 
 推論規則:
 
-- MP: φ と φ → ψ から ψ を導出
+- MP: $\varphi$ と $\varphi \to \psi$ から $\psi$ を導出
 
 ---
 
@@ -24,10 +24,10 @@
 
 **解法の概略:**
 
-1. A1: `phi -> ((phi -> phi) -> phi)` — φに`phi`、ψに`phi -> phi`を代入
-2. A2: `(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))` — φに`phi`、ψに`phi -> phi`、χに`phi`を代入
+1. A1: `phi -> ((phi -> phi) -> phi)` — $\varphi$に`phi`、$\psi$に`phi -> phi`を代入
+2. A2: `(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))` — $\varphi$に`phi`、$\psi$に`phi -> phi`、$\chi$に`phi`を代入
 3. MP(1, 2): `(phi -> (phi -> phi)) -> (phi -> phi)`
-4. A1: `phi -> (phi -> phi)` — φに`phi`、ψに`phi`を代入
+4. A1: `phi -> (phi -> phi)` — $\varphi$に`phi`、$\psi$に`phi`を代入
 5. MP(4, 3): `phi -> phi`
 
 **ステップ数:** 5
@@ -44,7 +44,7 @@
 **解法の概略:**
 
 1. Q-01の手順で `phi -> phi` を導出
-2. A1: `(phi -> phi) -> (psi -> (phi -> phi))` — φに`phi -> phi`、ψに`psi`を代入
+2. A1: `(phi -> phi) -> (psi -> (phi -> phi))` — $\varphi$に`phi -> phi`、$\psi$に`psi`を代入
 3. MP(1, 2): `psi -> (phi -> phi)`
 
 **ステップ数:** 7 (Q-01の5 + 2)
@@ -60,7 +60,7 @@
 
 **解法の概略:**
 
-1. A1: `(phi -> psi) -> ((psi -> chi) -> (phi -> psi))` — φに`phi -> psi`、ψに`psi -> chi`を代入
+1. A1: `(phi -> psi) -> ((psi -> chi) -> (phi -> psi))` — $\varphi$に`phi -> psi`、$\psi$に`psi -> chi`を代入
 
 **ステップ数:** 1 (公理インスタンス)
 **学習ポイント:** 公理のメタ変数にはどんな式でも代入できる。単純な式だけでなく、含意式も代入可能。
@@ -73,18 +73,18 @@
 
 **難易度:** Level 2
 **ゴール:** `(phi -> psi) -> ((psi -> chi) -> (phi -> chi))`
-**ヒント:** A2でφ→(ψ→χ)の形を作り、A1で前提を持ち上げる。
+**ヒント:** A2で$\varphi \to (\psi \to \chi)$の形を作り、A1で前提を持ち上げる。
 
 **解法の概略:**
 
 1. A2: `(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))` — そのまま
 2. A1: `(phi -> (psi -> chi)) -> ((psi -> chi) -> (phi -> (psi -> chi)))` を使って変形
-   - 実際には: A1でψ→χを持ち上げ、S公理で分配する多段チェイン
+   - 実際には: A1で$\psi \to \chi$を持ち上げ、S公理で分配する多段チェイン
 
 **完全な証明:**
 
 1. A2: `(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))`
-2. A1: `(psi -> chi) -> (phi -> (psi -> chi))` — φに`psi -> chi`、ψに`phi`
+2. A1: `(psi -> chi) -> (phi -> (psi -> chi))` — $\varphi$に`psi -> chi`、$\psi$に`phi`
 3. 推移律の構成: ステップ2の結論とステップ1をS公理で組み合わせる
 
 **ステップ数:** 約11
@@ -113,16 +113,16 @@
 
 **難易度:** Level 2
 **ゴール:** `(phi -> (phi -> psi)) -> (phi -> psi)`
-**ヒント:** A2でψをφに置き換える。
+**ヒント:** A2で$\psi$を$\varphi$に置き換える。
 
 **解法の概略:**
 
-1. A2: `(phi -> (phi -> psi)) -> ((phi -> phi) -> (phi -> psi))` — ψにφを代入
+1. A2: `(phi -> (phi -> psi)) -> ((phi -> phi) -> (phi -> psi))` — $\psi$に$\varphi$を代入
 2. Q-01の手順で `phi -> phi` を導出
 3. 推移律的な構成で組み合わせる
 
 **ステップ数:** 約12
-**学習ポイント:** 「φ → (φ → ψ)」は「φが2回必要な含意」。S公理で1回分に圧縮できる。
+**学習ポイント:** 「$\varphi \to (\varphi \to \psi)$」は「$\varphi$が2回必要な含意」。S公理で1回分に圧縮できる。
 
 ---
 
@@ -135,7 +135,7 @@
 **解法の概略:**
 A1で`psi`を`phi -> ...`の中に持ち上げ、S公理で分配する。
 
-1. A1: `psi -> (phi -> psi)` — ψをφの前提に持ち上げ
+1. A1: `psi -> (phi -> psi)` — $\psi$を$\varphi$の前提に持ち上げ
 2. A2を使って分配
 3. 推移律で接続
 

@@ -9,9 +9,9 @@
 | #   | ファイル                                                                   | 概要                                                                                                                                                                       |
 | --- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 01  | [01-notation.md](./01-notation.md)                                         | **記法・記号の一覧** — 論理結合子、量化子、等号、二項演算子の表記法と優先順位。メタ変数の命名規則。AST型との対応表                                                         |
-| 02  | [02-propositional-logic.md](./02-propositional-logic.md)                   | **命題論理の基礎（Hilbert 系）** — Łukasiewicz の 3 公理（K, S, 対偶）、Modus Ponens、φ→φ の証明例、演繹定理、健全性・完全性                                               |
+| 02  | [02-propositional-logic.md](./02-propositional-logic.md)                   | **命題論理の基礎（Hilbert 系）** — Łukasiewicz の 3 公理（K, S, 対偶）、Modus Ponens、$\varphi \to \varphi$ の証明例、演繹定理、健全性・完全性                                               |
 | 03  | [03-predicate-logic.md](./03-predicate-logic.md)                           | **述語論理の基礎（一階述語論理）** — 項・述語・量化子の定義、自由変数・束縛変数、代入可能性、追加公理 A4・A5、汎化規則                                                     |
-| 04  | [04-substitution-and-unification.md](./04-substitution-and-unification.md) | **代入とユニフィケーション** — メタ変数代入 vs 項変数代入の 2 レベル、変数捕獲、α 変換、代入の合成、Martelli-Montanari アルゴリズム                                        |
+| 04  | [04-substitution-and-unification.md](./04-substitution-and-unification.md) | **代入とユニフィケーション** — メタ変数代入 vs 項変数代入の 2 レベル、変数捕獲、$\alpha$ 変換、代入の合成、Martelli-Montanari アルゴリズム                                        |
 | 05  | [05-equality-logic.md](./05-equality-logic.md)                             | **等号付き論理** — 等号公理 E1〜E5（反射・対称・推移・関数合同・述語合同）、代入律、オプション機能としての設計指針                                                         |
 | 06  | [06-dsl-specification.md](./06-dsl-specification.md)                       | **DSL 言語仕様（Logic Schema Language）** — EBNF 文法、トークン一覧、演算子優先順位、入力例と AST 対応、Unicode/LaTeX 出力仕様                                             |
 | 07  | [07-axiom-systems-survey.md](./07-axiom-systems-survey.md)                 | **公理体系の比較と柔軟な設計** — 否定の扱いの流儀比較、主要体系（Łukasiewicz/Mendelson/Church/Hilbert-Ackermann）の詳細、最小/直観主義/古典論理の階層、LogicSystem設計指針 |
@@ -27,7 +27,7 @@
 | **US-011**: メタ変数への代入操作           | [04-substitution-and-unification](./04-substitution-and-unification.md)（メタ変数代入・変数捕獲セクション）                                                                                                                                                                     |
 | **US-012**: スキーマ間のユニフィケーション | [04-substitution-and-unification](./04-substitution-and-unification.md)（ユニフィケーションセクション）                                                                                                                                                                         |
 | **US-013**: 推論規則の定義                 | [02-propositional-logic](./02-propositional-logic.md)（公理・MP）, [03-predicate-logic](./03-predicate-logic.md)（A4, A5, Gen）, [05-equality-logic](./05-equality-logic.md)（E1〜E5）, [07-axiom-systems-survey](./07-axiom-systems-survey.md)（公理体系の柔軟な切り替え設計） |
-| **US-014**: 証明図の表現と検証             | [02-propositional-logic](./02-propositional-logic.md)（証明図の表記法・φ→φ の証明）                                                                                                                                                                                             |
+| **US-014**: 証明図の表現と検証             | [02-propositional-logic](./02-propositional-logic.md)（証明図の表記法・$\varphi \to \varphi$ の証明）                                                                                                                                                                                             |
 | **US-015**: 言語のトークン定義と Lexer     | [06-dsl-specification](./06-dsl-specification.md)（トークン一覧・Lexer 実装指針）                                                                                                                                                                                               |
 | **US-016**: 言語のパーサー                 | [06-dsl-specification](./06-dsl-specification.md)（EBNF 文法・Parser 実装指針・入力例）                                                                                                                                                                                         |
 | **US-017**: Unicode フォーマッター         | [06-dsl-specification](./06-dsl-specification.md)（Unicode 出力フォーマット仕様）, [01-notation](./01-notation.md)（記号の表記法）                                                                                                                                              |
@@ -58,7 +58,7 @@
   - 参照箇所: 02, 07
 
 - **Church, A.** _Introduction to Mathematical Logic_ (Princeton University Press, 1956)
-  - ⊥ベース公理体系（C1, C2, C3）の出典
+  - $\bot$ベース公理体系（C1, C2, C3）の出典
   - 参照箇所: 07
 
 - **Hilbert, D. & Ackermann, W.** _Grundzüge der theoretischen Logik_ (Springer, 1928)
@@ -122,37 +122,37 @@
 
 | 日本語   | 英語                       | 記号 | 記載箇所 |
 | -------- | -------------------------- | ---- | -------- |
-| 否定     | negation                   | ¬    | 01, 02   |
-| 含意     | implication                | →    | 01, 02   |
-| 連言     | conjunction                | ∧    | 01, 02   |
-| 選言     | disjunction                | ∨    | 01, 02   |
-| 双条件   | biconditional              | ↔    | 01, 02   |
-| 全称量化 | universal quantification   | ∀    | 01, 03   |
-| 存在量化 | existential quantification | ∃    | 01, 03   |
+| 否定     | negation                   | $\lnot$    | 01, 02   |
+| 含意     | implication                | $\to$    | 01, 02   |
+| 連言     | conjunction                | $\land$    | 01, 02   |
+| 選言     | disjunction                | $\lor$    | 01, 02   |
+| 双条件   | biconditional              | $\leftrightarrow$    | 01, 02   |
+| 全称量化 | universal quantification   | $\forall$    | 01, 03   |
+| 存在量化 | existential quantification | $\exists$    | 01, 03   |
 | 等号     | equality                   | =    | 01, 05   |
 
 ### 公理・推論規則
 
 | 日本語           | 英語                         | 記号                                | 記載箇所 |
 | ---------------- | ---------------------------- | ----------------------------------- | -------- |
-| K 公理           | K axiom (A1)                 | φ → (ψ → φ)                         | 02       |
-| S 公理           | S axiom (A2)                 | (φ → (ψ → χ)) → ((φ → ψ) → (φ → χ)) | 02       |
-| 対偶公理         | contrapositive axiom (A3)    | (¬ψ → ¬φ) → (φ → ψ)                 | 02       |
-| 全称例化         | universal instantiation (A4) | ∀x.φ(x) → φ(t)                      | 03       |
-| 全称分配         | universal distribution (A5)  | ∀x.(φ → ψ) → (φ → ∀x.ψ)             | 03       |
-| モーダスポネンス | Modus Ponens (MP)            | φ, φ→ψ ⊢ ψ                          | 02       |
-| 汎化規則         | generalization (Gen)         | φ ⊢ ∀x.φ                            | 03       |
+| K 公理           | K axiom (A1)                 | $\varphi \to (\psi \to \varphi)$                         | 02       |
+| S 公理           | S axiom (A2)                 | ($\varphi \to (\psi \to \chi)) \to ((\varphi \to \psi) \to (\varphi \to \chi)$) | 02       |
+| 対偶公理         | contrapositive axiom (A3)    | ($\lnot \psi \to \lnot \varphi) \to (\varphi \to \psi$)                 | 02       |
+| 全称例化         | universal instantiation (A4) | $\forall x. \varphi (x) \to \varphi$(t)                      | 03       |
+| 全称分配         | universal distribution (A5)  | $\forall x.(\varphi \to \psi) \to (\varphi \to \forall x. \psi)$             | 03       |
+| モーダスポネンス | Modus Ponens (MP)            | $\varphi , \varphi \to \psi \vdash \psi$                          | 02       |
+| 汎化規則         | generalization (Gen)         | $\varphi \vdash \forall x. \varphi$                            | 03       |
 
 ### 等号公理
 
 | 日本語     | 英語                             | 記号                              | 記載箇所 |
 | ---------- | -------------------------------- | --------------------------------- | -------- |
-| 反射律     | reflexivity (E1)                 | ∀x. x = x                         | 05       |
-| 対称律     | symmetry (E2)                    | ∀x.∀y. x = y → y = x              | 05       |
-| 推移律     | transitivity (E3)                | ∀x.∀y.∀z. x = y ∧ y = z → x = z   | 05       |
-| 関数合同律 | function congruence (E4)         | t₁ = t₂ → f(…,t₁,…) = f(…,t₂,…)   | 05       |
-| 述語合同律 | predicate congruence (E5)        | t₁ = t₂ → (P(…,t₁,…) → P(…,t₂,…)) | 05       |
-| 代入律     | substitution law / Leibniz's law | t₁ = t₂ → (φ[t₁/x] → φ[t₂/x])     | 05       |
+| 反射律     | reflexivity (E1)                 | $\forall$x. x = x                         | 05       |
+| 対称律     | symmetry (E2)                    | $\forall x. \forall y. x = y \to$ y = x              | 05       |
+| 推移律     | transitivity (E3)                | $\forall x. \forall y. \forall z. x = y \land y = z \to$ x = z   | 05       |
+| 関数合同律 | function congruence (E4)         | t₁ = t₂ $\to$ f(…,t₁,…) = f(…,t₂,…)   | 05       |
+| 述語合同律 | predicate congruence (E5)        | t₁ = t₂ $\to$ (P(…,t₁,…) $\to$ P(…,t₂,…)) | 05       |
+| 代入律     | substitution law / Leibniz's law | t₁ = t₂ $\to (\varphi$[t₁/x] $\to \varphi$[t₂/x])     | 05       |
 
 ### 代入・ユニフィケーション
 
@@ -163,7 +163,7 @@
 | 項変数代入         | term variable substitution | 03, 04   |
 | 変数捕獲           | variable capture           | 03, 04   |
 | 代入可能           | free for substitution      | 03, 04   |
-| α 変換             | α-conversion / α-renaming  | 03, 04   |
+| $\alpha$ 変換             | $\alpha$-conversion / $\alpha$-renaming  | 03, 04   |
 | 代入の合成         | substitution composition   | 04       |
 | ユニフィケーション | unification                | 04       |
 | 最汎単一化子       | most general unifier (MGU) | 04       |
@@ -199,7 +199,7 @@
 | 最小論理       | minimal logic                     | 07       |
 | 直観主義論理   | intuitionistic logic (IPC)        | 07       |
 | 古典論理       | classical logic (CPC)             | 02, 07   |
-| falsum（矛盾） | falsum / bottom (⊥)               | 07       |
+| falsum（矛盾） | falsum / bottom ($\bot$)               | 07       |
 
 ### 証明論
 

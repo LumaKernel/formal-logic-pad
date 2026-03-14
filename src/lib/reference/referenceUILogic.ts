@@ -26,7 +26,8 @@ export type InlineElement =
   | { readonly type: "bold"; readonly content: string }
   | { readonly type: "italic"; readonly content: string }
   | { readonly type: "code"; readonly content: string }
-  | { readonly type: "subscript"; readonly content: string };
+  | { readonly type: "subscript"; readonly content: string }
+  | { readonly type: "math"; readonly content: string };
 
 /** サポートするHTMLタグとInlineElement typeの対応 */
 const tagTypeMap: ReadonlyMap<string, InlineElement["type"]> = new Map([
@@ -67,18 +68,36 @@ function parseSubscriptsInText(content: string): readonly InlineElement[] {
 }
 
 /**
- * インラインHTMLタグをパースする。
- * <b>bold</b>, <i>italic</i>, <code>code</code>, _subscript をサポート。
+ * インラインHTMLタグおよびインライン数式をパースする。
+ * <b>bold</b>, <i>italic</i>, <code>code</code>, $math$, _subscript をサポート。
  * ネストはサポートしない（フラットなインライン要素のみ）。
+ *
+ * 変更時は referenceUILogic.test.ts（parseInlineMarkdown）も同期すること。
  */
 export function parseInlineMarkdown(text: string): readonly InlineElement[] {
   const rawElements: InlineElement[] = [];
-  // <b>, <i>, <code> の開きタグにマッチする正規表現
-  const openTagRegex = /<(b|i|code)>/g;
+  // HTMLタグまたは $...$ にマッチする正規表現
+  // $...$ は非貪欲マッチで、$ の直後が空白でないものにマッチ
+  const tokenRegex = /<(b|i|code)>|\$([^$]+?)\$/g;
   let lastIndex = 0;
 
   let match: RegExpExecArray | null;
-  while ((match = openTagRegex.exec(text)) !== null) {
+  while ((match = tokenRegex.exec(text)) !== null) {
+    // $...$ 数式マッチ
+    if (match[2] !== undefined) {
+      // $の前のテキスト
+      if (match.index > lastIndex) {
+        rawElements.push({
+          type: "text",
+          content: text.slice(lastIndex, match.index),
+        });
+      }
+      rawElements.push({ type: "math", content: match[2] });
+      lastIndex = match.index + match[0].length;
+      continue;
+    }
+
+    // HTMLタグマッチ
     const tagName = match[1];
     const closeTag = `</${tagName satisfies string}>`;
     const closeIndex = text.indexOf(closeTag, match.index + match[0].length);
@@ -103,7 +122,7 @@ export function parseInlineMarkdown(text: string): readonly InlineElement[] {
     }
 
     lastIndex = closeIndex + closeTag.length;
-    openTagRegex.lastIndex = lastIndex;
+    tokenRegex.lastIndex = lastIndex;
   }
 
   // 残りのテキスト

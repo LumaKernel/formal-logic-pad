@@ -53,8 +53,8 @@
 
 演繹定理的に:
 
-- `all x. (P(x) -> Q(x))` を仮定 → ステップ1で `P(x) -> Q(x)` を得る
-- `all x. P(x)` を仮定 → ステップ2で `P(x)` を得る
+- `all x. (P(x) -> Q(x))` を仮定 $\to$ ステップ1で `P(x) -> Q(x)` を得る
+- `all x. P(x)` を仮定 $\to$ ステップ2で `P(x)` を得る
 - MP: `Q(x)`
 - Gen: `all x. Q(x)`
 
@@ -254,6 +254,6 @@ alpha = all x. ~P(x), beta = ~P(a):
 
 | 補題名 | 式                                                      | 初出 |
 | ------ | ------------------------------------------------------- | ---- |
-| Dist∀  | `all x. (P(x) -> Q(x)) -> (all x. P(x) -> all x. Q(x))` | Q-26 |
-| ∀swap  | `all x. all y. P(x, y) -> all y. all x. P(x, y)`        | Q-28 |
-| ∃intro | `P(t) -> ex x. P(x)`                                    | Q-31 |
+| Dist$\forall$  | `all x. (P(x) -> Q(x)) -> (all x. P(x) -> all x. Q(x))` | Q-26 |
+| $\forall$swap  | `all x. all y. P(x, y) -> all y. all x. P(x, y)`        | Q-28 |
+| $\exists$intro | `P(t) -> ex x. P(x)`                                    | Q-31 |

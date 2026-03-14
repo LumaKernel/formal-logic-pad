@@ -217,22 +217,22 @@ describe("推論規則エントリの個別チェック", () => {
 
   it("自然演繹の含意規則に→I/→Eが記載されている", () => {
     const entry = findEntryById(allReferenceEntries, "rule-nd-implication");
-    expect(entry?.body.en.some((p) => p.includes("→I"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("→E"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\to$I"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\to$E"))).toBe(true);
     expect(entry?.formalNotation).toBeTruthy();
   });
 
   it("自然演繹の連言規則に∧I/∧Eが記載されている", () => {
     const entry = findEntryById(allReferenceEntries, "rule-nd-conjunction");
-    expect(entry?.body.en.some((p) => p.includes("∧I"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("∧E"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\land$I"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\land$E"))).toBe(true);
     expect(entry?.formalNotation).toBeTruthy();
   });
 
   it("自然演繹の選言規則に∨I/∨Eが記載されている", () => {
     const entry = findEntryById(allReferenceEntries, "rule-nd-disjunction");
-    expect(entry?.body.en.some((p) => p.includes("∨I"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("∨E"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\lor$I"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\lor$E"))).toBe(true);
     expect(entry?.formalNotation).toBeTruthy();
   });
 
@@ -356,7 +356,7 @@ describe("論理体系エントリの個別チェック", () => {
 
   it("Łukasiewicz体系に他の結合子の定義が記載されている", () => {
     const entry = findEntryById(allReferenceEntries, "system-lukasiewicz");
-    expect(entry?.body.en.some((p) => p.includes("≡"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\equiv"))).toBe(true);
   });
 
   it("Łukasiewicz体系にアプリ内での拡張方法が記載されている", () => {
@@ -638,10 +638,10 @@ describe("概念エントリの個別チェック", () => {
       allReferenceEntries,
       "concept-kuroda-translation",
     );
-    expect(entry?.body.en.some((p) => p.includes("∀"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("¬¬"))).toBe(true);
-    expect(entry?.body.ja.some((p) => p.includes("∀"))).toBe(true);
-    expect(entry?.body.ja.some((p) => p.includes("¬¬"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\forall"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\lnot \\lnot"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("\\forall"))).toBe(true);
+    expect(entry?.body.ja.some((p) => p.includes("\\lnot \\lnot"))).toBe(true);
   });
 
   it("黒田の否定翻訳にグリヴェンコとの関連の記載がある", () => {
@@ -1012,8 +1012,8 @@ describe("concept-predicate-semanticsエントリのテスト", () => {
       allReferenceEntries,
       "concept-predicate-semantics",
     );
-    expect(entry?.body.en.some((p) => p.includes("∀"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("∃"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\forall"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\exists"))).toBe(true);
   });
 
   it("形式的記法が含まれる", () => {
@@ -1186,18 +1186,18 @@ describe("記法エントリの個別チェック", () => {
 
   it("論理結合子エントリに→, ∧, ∨, ¬, ↔が記載されている", () => {
     const entry = findEntryById(allReferenceEntries, "notation-connectives");
-    expect(entry?.body.en.some((p) => p.includes("→"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("∧"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("∨"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("¬"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("↔"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\to"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\land"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\lor"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\lnot"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\leftrightarrow"))).toBe(true);
     expect(entry?.formalNotation).toBeTruthy();
   });
 
   it("量化子エントリに∀, ∃が記載されている", () => {
     const entry = findEntryById(allReferenceEntries, "notation-quantifiers");
-    expect(entry?.body.en.some((p) => p.includes("∀"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("∃"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\forall"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\exists"))).toBe(true);
     expect(entry?.formalNotation).toBeTruthy();
   });
 
@@ -1209,9 +1209,9 @@ describe("記法エントリの個別チェック", () => {
 
   it("メタ変数エントリにφ, ψ, χが記載されている", () => {
     const entry = findEntryById(allReferenceEntries, "notation-metavariables");
-    expect(entry?.body.en.some((p) => p.includes("φ"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("ψ"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("χ"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\varphi"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\psi"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\chi"))).toBe(true);
   });
 
   it("メタ変数エントリに添字の説明がある", () => {
@@ -1238,10 +1238,10 @@ describe("記法エントリの個別チェック", () => {
 
   it("優先順位エントリに優先順位の一覧がある", () => {
     const entry = findEntryById(allReferenceEntries, "notation-precedence");
-    expect(entry?.body.en.some((p) => p.includes("¬"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("→"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("∧"))).toBe(true);
-    expect(entry?.body.en.some((p) => p.includes("∨"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\lnot"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\to"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\land"))).toBe(true);
+    expect(entry?.body.en.some((p) => p.includes("\\lor"))).toBe(true);
   });
 
   it("入力方法エントリにASCII入力の説明がある", () => {

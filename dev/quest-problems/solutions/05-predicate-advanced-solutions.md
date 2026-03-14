@@ -5,7 +5,7 @@
 **既証の補題:**
 
 - 命題論理: Id, HS, W, C, B, DNI, DNE, MT, EFQ
-- 述語論理: Dist∀ (Q-26), ∀swap (Q-28), ∃intro (Q-31)
+- 述語論理: Dist$\forall$ (Q-26), $\forall$swap (Q-28), $\exists$intro (Q-31)
 
 ---
 
@@ -55,7 +55,7 @@ Q-26 と同一の定理。証明は Q-26 を参照。
 | --- | ------------------------------------------------------------------------ | --------------------------- |
 | 1   | `~~P(x) -> P(x)`                                                         | DNE [alpha := P(x)]         |
 | 2   | `all x. (~~P(x) -> P(x))`                                                | Gen [x]                     |
-| 3   | `all x. (~~P(x) -> P(x)) -> (all x. ~~P(x) -> all x. P(x))`              | Dist∀ (Q-26) のインスタンス |
+| 3   | `all x. (~~P(x) -> P(x)) -> (all x. ~~P(x) -> all x. P(x))`              | Dist$\forall$ (Q-26) のインスタンス |
 | 4   | `all x. ~~P(x) -> all x. P(x)`                                           | MP(2, 3)                    |
 | 5   | `(all x. ~~P(x) -> all x. P(x)) -> (~(all x. P(x)) -> ~(all x. ~~P(x)))` | MT                          |
 | 6   | `~(all x. P(x)) -> ~(all x. ~~P(x))`                                     | MP(4, 5)                    |
@@ -85,7 +85,7 @@ Q-26 と同一の定理。証明は Q-26 を参照。
 | 4   | `all x. (all x. (P(x) -> Q(x)) -> (~Q(x) -> ~P(x)))`                                                       | Gen [x]                                                                                    |
 | 5   | `all x. (all x. (P(x) -> Q(x)) -> (~Q(x) -> ~P(x))) -> (all x. (P(x) -> Q(x)) -> all x. (~Q(x) -> ~P(x)))` | A5 [phi := all x. (P(x) -> Q(x)), psi := ~Q(x) -> ~P(x)] — x ∉ FV(all x. (P(x) -> Q(x))) ✓ |
 | 6   | `all x. (P(x) -> Q(x)) -> all x. (~Q(x) -> ~P(x))`                                                         | MP(4, 5)                                                                                   |
-| 7   | `all x. (~Q(x) -> ~P(x)) -> (all x. ~Q(x) -> all x. ~P(x))`                                                | Dist∀ のインスタンス                                                                       |
+| 7   | `all x. (~Q(x) -> ~P(x)) -> (all x. ~Q(x) -> all x. ~P(x))`                                                | Dist$\forall$ のインスタンス                                                                       |
 | 8   | `all x. (P(x) -> Q(x)) -> (all x. ~Q(x) -> all x. ~P(x))`                                                  | HS(6, 7)                                                                                   |
 | 9   | `(all x. ~Q(x) -> all x. ~P(x)) -> (~(all x. ~P(x)) -> ~(all x. ~Q(x)))`                                   | MT                                                                                         |
 | 10  | `all x. (P(x) -> Q(x)) -> (~(all x. ~P(x)) -> ~(all x. ~Q(x)))`                                            | HS(8, 9)                                                                                   |
@@ -94,7 +94,7 @@ Q-26 と同一の定理。証明は Q-26 を参照。
 
 ---
 
-## Q-37: 量化子の入れ替え（存在→全称方向）
+## Q-37: 量化子の入れ替え（存在$\to$全称方向）
 
 **ゴール:** `ex x. all y. P(x, y) -> all y. ex x. P(x, y)`
 
@@ -109,7 +109,7 @@ Q-26 と同一の定理。証明は Q-26 を参照。
 
 1. `all y. P(x, y) -> P(x, y)` (A4)
 2. `all y. P(x, y)` から `P(x, y)` を得る
-3. `P(x, y) -> ex x. P(x, y)` (∃intro のインスタンス — ただし変数が x)
+3. `P(x, y) -> ex x. P(x, y)` ($\exists$intro のインスタンス — ただし変数が x)
    具体的には: `P(x, y) -> ~(all x. ~P(x, y))`
 4. `all y. P(x, y) -> ~(all x. ~P(x, y))` (HS)
 5. MT: `~~(all x. ~P(x, y)) -> ~(all y. P(x, y))`
@@ -126,7 +126,7 @@ Q-26 と同一の定理。証明は Q-26 を参照。
 
 1. `all y. P(x, y) -> P(x, y)` (A4) — y を固定して P(x, y) を取り出す
 2. MT を使って: `~P(x, y) -> ~(all y. P(x, y))` (MT + A4 から)
-3. 対偶: Gen + Dist∀ で `all x. ~P(x, y) -> all x. ~(all y. P(x, y))` に変換
+3. 対偶: Gen + Dist$\forall$ で `all x. ~P(x, y) -> all x. ~(all y. P(x, y))` に変換
 4. MT: `~(all x. ~(all y. P(x, y))) -> ~(all x. ~P(x, y))` — これで `ex x. P(x, y)` が得られる
 5. Gen [y] + A5 で `all y. ex x. P(x, y)` を構成
 6. HS で全体をまとめる
@@ -148,21 +148,21 @@ Q-26 と同一の定理。証明は Q-26 を参照。
 **Case 1:** `all y. P(y)` が成り立つ場合
 
 - 任意の a について `P(a) -> all y. P(y)` は A1 で `all y. P(y)` を持ち上げて得られる
-- `ex x. (P(x) -> all y. P(y))` は ∃intro で得られる
+- `ex x. (P(x) -> all y. P(y))` は $\exists$intro で得られる
 
 **Case 2:** `~(all y. P(y))` が成り立つ場合
 
 - `~(all y. P(y))` から (Q-35 で) `ex y. ~P(y)` を得る
 - ある a について `~P(a)` が存在
 - `~P(a) -> (P(a) -> all y. P(y))` は爆発律 (EFQ) で得られる
-- `ex x. (P(x) -> all y. P(y))` は ∃intro で得られる
+- `ex x. (P(x) -> all y. P(y))` は $\exists$intro で得られる
 
 **形式化の骨格:**
 
 | #   | 式                                                     | 根拠     |
 | --- | ------------------------------------------------------ | -------- |
 | 1   | `(all y. P(y)) -> (P(a) -> all y. P(y))`               | A1       |
-| 2   | `(P(a) -> all y. P(y)) -> ex x. (P(x) -> all y. P(y))` | ∃intro   |
+| 2   | `(P(a) -> all y. P(y)) -> ex x. (P(x) -> all y. P(y))` | $\exists$intro   |
 | 3   | `(all y. P(y)) -> ex x. (P(x) -> all y. P(y))`         | HS(1, 2) |
 
 ただし、`all y. P(y)` を無条件に仮定はできない。排中律で場合分けが必要。
@@ -173,7 +173,7 @@ Hilbert 系では直接的な場合分けはできないので、対偶・二重
 
 `~(ex x. (P(x) -> all y. P(y)))` を仮定すると矛盾を導く (DNE で元に戻す):
 
-- 仮定: `all x. ~(P(x) -> all y. P(y))` (∃ の否定を展開)
+- 仮定: `all x. ~(P(x) -> all y. P(y))` ($\exists$ の否定を展開)
 - 特に x = a: `~(P(a) -> all y. P(y))`
 - `~(P(a) -> all y. P(y))` は `P(a)` かつ `~(all y. P(y))` を意味する
   - 連言の展開: `~(alpha -> ~beta)` 的なパターン
@@ -192,6 +192,6 @@ Hilbert 系では直接的な場合分けはできないので、対偶・二重
 
 | 補題名 | 式                                                    | 初出 |
 | ------ | ----------------------------------------------------- | ---- |
-| ¬∃→∀¬  | `~(ex x. P(x)) -> all x. ~P(x)`                       | Q-34 |
-| ¬∀→∃¬  | `~(all x. P(x)) -> ex x. ~P(x)`                       | Q-35 |
-| Dist∃  | `all x. (P(x) -> Q(x)) -> (ex x. P(x) -> ex x. Q(x))` | Q-36 |
+| $\lnot \exists \to \forall \lnot$  | `~(ex x. P(x)) -> all x. ~P(x)`                       | Q-34 |
+| $\lnot \forall \to \exists \lnot$  | `~(all x. P(x)) -> ex x. ~P(x)`                       | Q-35 |
+| Dist$\exists$  | `all x. (P(x) -> Q(x)) -> (ex x. P(x) -> ex x. Q(x))` | Q-36 |

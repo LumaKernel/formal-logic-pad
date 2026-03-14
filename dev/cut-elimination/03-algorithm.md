@@ -63,8 +63,8 @@ type Term =
 ```typescript
 // 多重集合は配列で表現（順序は問わない）
 type Sequent = {
-  readonly antecedent: readonly Formula[]; // Γ（前件）
-  readonly succedent: readonly Formula[]; // Δ（後件）
+  readonly antecedent: readonly Formula[]; // $\Gamma$（前件）
+  readonly succedent: readonly Formula[]; // $\Delta$（後件）
 };
 ```
 
@@ -304,18 +304,18 @@ function reduceTopCut(proof: Proof): Proof {
 /**
  * 単一のカットを削減する。
  *
- *   leftProof: Γ ⊢ Δ, A を証明
- *   rightProof: A, Σ ⊢ Π を証明
+ *   leftProof: $\Gamma \vdash \Delta$, A を証明
+ *   rightProof: A, $\Sigma \vdash$ Π を証明
  *   cutFormula: A（カット式）
  *
- * 結果: Γ, Σ ⊢ Δ, Π のカットなし（または複雑度の低いカット）証明
+ * 結果: $\Gamma , \Sigma \vdash \Delta$, Π のカットなし（または複雑度の低いカット）証明
  *
  * 【場合分けの構造】
  * 左前提と右前提の「最後の規則」に応じて4つのケースに分かれる:
- *   Case 1: 左 or 右が公理 → カットを即座に除去
- *   Case 2: A がどちらかの前提で非主式 → カットを上に持ち上げ（段数減少）
- *   Case 3: A が両方で主式 → カット式を分解（複雑度減少）
- *   Case 4: 構造規則との相互作用 → 特別な処理
+ *   Case 1: 左 or 右が公理 $\to$ カットを即座に除去
+ *   Case 2: A がどちらかの前提で非主式 $\to$ カットを上に持ち上げ（段数減少）
+ *   Case 3: A が両方で主式 $\to$ カット式を分解（複雑度減少）
+ *   Case 4: 構造規則との相互作用 $\to$ 特別な処理
  */
 function reduceCut(
   cutFormula: Formula,
@@ -355,7 +355,7 @@ function reduceCut(
   }
 
   // ── Case 2: 非主式 (Non-principal Case) ──
-  // カット式がどちらかで非主式 → カットを上に持ち上げる
+  // カット式がどちらかで非主式 $\to$ カットを上に持ち上げる
   if (!isPrincipal(leftProof, cutFormula)) {
     return pushCutUpLeft(cutFormula, leftProof, rightProof);
   }
@@ -369,43 +369,43 @@ function reduceCut(
 
 ```typescript
 /**
- * Case 1a: 左前提が公理 A ⊢ A の場合
+ * Case 1a: 左前提が公理 A $\vdash$ A の場合
  *
- *     A ⊢ A     A, Σ ⊢ Π
- *   ──────────────────────── (Cut)    ⟹    A, Σ ⊢ Π
- *        A, Σ ⊢ Π
+ *     A $\vdash$ A     A, $\Sigma \vdash$ Π
+ *   ──────────────────────── (Cut)    ⟹    A, $\Sigma \vdash$ Π
+ *        A, $\Sigma \vdash$ Π
  *
  * Reasoning:
- *   公理 A ⊢ A は「A が成り立つなら A が成り立つ」という自明な主張。
- *   左前提が公理の場合、カットの結論 A, Σ ⊢ Π は右前提そのものに一致する。
- *   （カット規則の定義: Γ=A, Δ=∅ なので、結論は A, Σ ⊢ Π。）
+ *   公理 A $\vdash$ A は「A が成り立つなら A が成り立つ」という自明な主張。
+ *   左前提が公理の場合、カットの結論 A, $\Sigma \vdash$ Π は右前提そのものに一致する。
+ *   （カット規則の定義: $\Gamma$=A, $\Delta$=∅ なので、結論は A, $\Sigma \vdash$ Π。）
  *   よってカットは不要であり、右前提をそのまま返せばよい。
  */
 function reduceCutAxiomLeft(
   cutFormula: Formula,
-  leftProof: Proof, // Axiom: A ⊢ A
-  rightProof: Proof, // A, Σ ⊢ Π
+  leftProof: Proof, // Axiom: A $\vdash$ A
+  rightProof: Proof, // A, $\Sigma \vdash$ Π
 ): Proof {
   // 右前提がそのまま答え
   return rightProof;
 }
 
 /**
- * Case 1b: 右前提が公理 A ⊢ A の場合
+ * Case 1b: 右前提が公理 A $\vdash$ A の場合
  *
- *   Γ ⊢ Δ, A     A ⊢ A
- *   ──────────────────── (Cut)    ⟹    Γ ⊢ Δ, A
- *       Γ ⊢ Δ, A
+ *   $\Gamma \vdash \Delta$, A     A $\vdash$ A
+ *   ──────────────────── (Cut)    ⟹    $\Gamma \vdash \Delta$, A
+ *       $\Gamma \vdash \Delta$, A
  *
  * Reasoning:
- *   右前提が公理 A ⊢ A の場合、Σ=∅, Π=A なので、
- *   カットの結論は Γ ⊢ Δ, A（弱化で A を後件に追加したもの）。
- *   しかし左前提が既に Γ ⊢ Δ, A を証明しているので、カットは不要。
+ *   右前提が公理 A $\vdash$ A の場合、$\Sigma$=∅, Π=A なので、
+ *   カットの結論は $\Gamma \vdash \Delta$, A（弱化で A を後件に追加したもの）。
+ *   しかし左前提が既に $\Gamma \vdash \Delta$, A を証明しているので、カットは不要。
  */
 function reduceCutAxiomRight(
   cutFormula: Formula,
-  leftProof: Proof, // Γ ⊢ Δ, A
-  rightProof: Proof, // Axiom: A ⊢ A
+  leftProof: Proof, // $\Gamma \vdash \Delta$, A
+  rightProof: Proof, // Axiom: A $\vdash$ A
 ): Proof {
   // 左前提がそのまま答え
   return leftProof;
@@ -418,26 +418,26 @@ function reduceCutAxiomRight(
 
 ```
 変換前:
-    P ⊢ P     P, Q ⊢ R
+    P $\vdash$ P     P, Q $\vdash$ R
   ────────────────────── (Cut on P)
-       P, Q ⊢ R
+       P, Q $\vdash$ R
 
 変換後:
-    P, Q ⊢ R
+    P, Q $\vdash$ R
 ```
 
-カットの結論 `P, Q ⊢ R` は右前提そのものなので、カットを除去しても証明は成立する。
+カットの結論 `P, Q $\vdash$ R` は右前提そのものなので、カットを除去しても証明は成立する。
 
 **例: 右前提が公理**
 
 ```
 変換前:
-  P → Q ⊢ P, P → Q     P → Q ⊢ P → Q
-  ──────────────────────────────────── (Cut on P → Q)
-         P → Q ⊢ P, P → Q
+  P $\to$ Q $\vdash$ P, P $\to$ Q     P $\to$ Q $\vdash$ P $\to$ Q
+  ──────────────────────────────────── (Cut on P $\to$ Q)
+         P $\to$ Q $\vdash$ P, P $\to$ Q
 
 変換後:
-  P → Q ⊢ P, P → Q
+  P $\to$ Q $\vdash$ P, P $\to$ Q
 ```
 
 ## 4. Case 2: 非主式ケース（Non-principal Case）
@@ -460,20 +460,20 @@ function reduceCutAxiomRight(
  *
  *        π₁
  *     ─────────── (R)      π₂
- *    Γ ⊢ Δ, A          A, Σ ⊢ Π
+ *    $\Gamma \vdash \Delta$, A          A, $\Sigma \vdash$ Π
  *   ──────────────────────────── (Cut)
- *           Γ', Σ ⊢ Δ', Π
+ *           $\Gamma$', $\Sigma \vdash \Delta$', Π
  *
  * ここで R は A を主式として導入していない（A はコンテキストの一部）。
  *
  * 変換後:
  *
  *      π₁           π₂
- *    ─────────  A, Σ ⊢ Π
+ *    ─────────  A, $\Sigma \vdash$ Π
  *   ──────────────────── (Cut)    ← カットの段数が減少
  *        ...
  *   ─────────── (R)
- *    Γ', Σ ⊢ Δ', Π
+ *    $\Gamma$', $\Sigma \vdash \Delta$', Π
  *
  * Reasoning:
  *   規則 R は A を操作していないので、R をカットの下に「降ろす」ことができる。
@@ -490,25 +490,25 @@ function pushCutUpLeft(
 
     case "NegationR": {
       // 左前提:
-      //     π: B, Γ ⊢ Δ, A
-      //   ──────────────────── (¬R)
-      //    Γ ⊢ Δ, ¬B, A        （A は ¬B ではない = 非主式）
+      //     π: B, $\Gamma \vdash \Delta$, A
+      //   ──────────────────── ($\lnot$R)
+      //    $\Gamma \vdash \Delta , \lnot$B, A        （A は $\lnot$B ではない = 非主式）
       //
       // 変換: カットを π の位置に持ち上げる
-      //     π: B, Γ ⊢ Δ, A     A, Σ ⊢ Π
+      //     π: B, $\Gamma \vdash \Delta$, A     A, $\Sigma \vdash$ Π
       //   ──────────────────────────────── (Cut on A)
-      //          B, Γ, Σ ⊢ Δ, Π
-      //   ──────────────────────── (¬R)
-      //        Γ, Σ ⊢ Δ, Π, ¬B
+      //          B, $\Gamma , \Sigma \vdash \Delta$, Π
+      //   ──────────────────────── ($\lnot$R)
+      //        $\Gamma , \Sigma \vdash \Delta$, Π, $\lnot$B
       const newCut = reduceCut(cutFormula, leftProof.premise, rightProof);
       return { tag: "NegationR", formula: leftProof.formula, premise: newCut };
     }
 
     case "ImplicationR": {
       // 左前提:
-      //     π: B, Γ ⊢ Δ, C, A
-      //   ──────────────────────── (→R)
-      //    Γ ⊢ Δ, B → C, A        （A は B → C ではない = 非主式）
+      //     π: B, $\Gamma \vdash \Delta$, C, A
+      //   ──────────────────────── ($\to$R)
+      //    $\Gamma \vdash \Delta$, B $\to$ C, A        （A は B $\to$ C ではない = 非主式）
       //
       // 変換: カットを π に持ち上げ
       const newCut = reduceCut(cutFormula, leftProof.premise, rightProof);
@@ -521,29 +521,29 @@ function pushCutUpLeft(
 
     case "ImplicationL": {
       // 左前提:
-      //     π₁: Γ₁ ⊢ Δ₁, B, A     π₂: C, Γ₂ ⊢ Δ₂, A
-      //   ──────────────────────────────────────────────── (→L)
-      //        B → C, Γ₁, Γ₂ ⊢ Δ₁, Δ₂, A
+      //     π₁: $\Gamma$₁ $\vdash \Delta$₁, B, A     π₂: C, $\Gamma$₂ $\vdash \Delta$₂, A
+      //   ──────────────────────────────────────────────── ($\to$L)
+      //        B $\to$ C, $\Gamma$₁, $\Gamma$₂ $\vdash \Delta$₁, $\Delta$₂, A
       //
-      // A が非主式 = A は B → C ではない
+      // A が非主式 = A は B $\to$ C ではない
       // A は π₁ と π₂ の両方に出現しうる
       //
       // 変換: 両方の前提でカットを行う
-      //     π₁: Γ₁ ⊢ Δ₁, B, A     A, Σ ⊢ Π
+      //     π₁: $\Gamma$₁ $\vdash \Delta$₁, B, A     A, $\Sigma \vdash$ Π
       //   ────────────────────────────────── (Cut)
-      //        Γ₁, Σ ⊢ Δ₁, B, Π
+      //        $\Gamma$₁, $\Sigma \vdash \Delta$₁, B, Π
       //
-      //     π₂: C, Γ₂ ⊢ Δ₂, A     A, Σ ⊢ Π
+      //     π₂: C, $\Gamma$₂ $\vdash \Delta$₂, A     A, $\Sigma \vdash$ Π
       //   ────────────────────────────────── (Cut)
-      //        C, Γ₂, Σ ⊢ Δ₂, Π
+      //        C, $\Gamma$₂, $\Sigma \vdash \Delta$₂, Π
       //
-      //   ──────────────────────────────── (→L)
-      //     B → C, Γ₁, Γ₂, Σ, Σ ⊢ Δ₁, Δ₂, B, Π, Π
+      //   ──────────────────────────────── ($\to$L)
+      //     B $\to$ C, $\Gamma$₁, $\Gamma$₂, $\Sigma , \Sigma \vdash \Delta$₁, $\Delta$₂, B, Π, Π
       //
       // Reasoning:
       //   2前提規則の場合、A は両前提に出現しうる。
       //   各前提でカットを行い、元の規則を再適用する。
-      //   注意: Σ と Π が重複するが、必要に応じて縮約で整理できる。
+      //   注意: $\Sigma$ と Π が重複するが、必要に応じて縮約で整理できる。
       //   段数はいずれの場合も減少する。
       const newLeft = reduceCut(cutFormula, leftProof.leftPremise, rightProof);
       const newRight = reduceCut(
@@ -712,19 +712,19 @@ function pushCutUpLeft(
  * 一般形:
  *
  *    π₁                 π₂
- *   Γ ⊢ Δ, A        ─────── (R)
- *                   A, Σ ⊢ Π
+ *   $\Gamma \vdash \Delta$, A        ─────── (R)
+ *                   A, $\Sigma \vdash$ Π
  *   ──────────────────────── (Cut)
- *        Γ, Σ' ⊢ Δ, Π'
+ *        $\Gamma , \Sigma$' $\vdash \Delta$, Π'
  *
  * 変換後:
  *
  *   π₁            π₂
- *   Γ ⊢ Δ, A    ─────
+ *   $\Gamma \vdash \Delta$, A    ─────
  *   ──────────────── (Cut)    ← 段数減少
  *        ...
  *   ─────── (R)
- *   Γ, Σ' ⊢ Δ, Π'
+ *   $\Gamma , \Sigma$' $\vdash \Delta$, Π'
  */
 function pushCutUpRight(
   cutFormula: Formula,
@@ -738,14 +738,14 @@ function pushCutUpRight(
   switch (rightProof.tag) {
     case "NegationL": {
       // 右前提:
-      //     π: Γ₂ ⊢ Δ₂, B
-      //   ──────────────── (¬L)
-      //    A, ¬B, Γ₂ ⊢ Δ₂       （A は ¬B ではない）
+      //     π: $\Gamma$₂ $\vdash \Delta$₂, B
+      //   ──────────────── ($\lnot$L)
+      //    A, $\lnot$B, $\Gamma$₂ $\vdash \Delta$₂       （A は $\lnot$B ではない）
       //
       // 変換:
-      //   Γ ⊢ Δ, A     π: Γ₂ ⊢ Δ₂, B
+      //   $\Gamma \vdash \Delta$, A     π: $\Gamma$₂ $\vdash \Delta$₂, B
       //   ... ここで A が π の前件に出現する場合はカットを行う ...
-      //   ──────────── (¬L)
+      //   ──────────── ($\lnot$L)
       const newCut = reduceCut(cutFormula, leftProof, rightProof.premise);
       return { tag: "NegationL", formula: rightProof.formula, premise: newCut };
     }
@@ -765,38 +765,38 @@ function pushCutUpRight(
 
 ```
 変換前:
-       P ⊢ P        (Ax)
-    ──────────── (WL)           P, Q ⊢ R
-     Q, P ⊢ P
+       P $\vdash$ P        (Ax)
+    ──────────── (WL)           P, Q $\vdash$ R
+     Q, P $\vdash$ P
   ──────────────────────── (Cut on P)
-        Q, P, Q ⊢ R
+        Q, P, Q $\vdash$ R
 
 変換後:
-    P ⊢ P     P, Q ⊢ R
+    P $\vdash$ P     P, Q $\vdash$ R
   ──────────────────────── (Cut on P)     ← 段数 1 減少
-        P, Q ⊢ R
+        P, Q $\vdash$ R
   ──────────────── (WL)
-     Q, P, Q ⊢ R
+     Q, P, Q $\vdash$ R
 ```
 
 弱化規則 (WL) はカット式 `P` を操作していない（`Q` を追加しただけ）ので、カットを弱化の前提に持ち上げることができる。
 
-**例: 左前提で →R（非主式）後にカット**
+**例: 左前提で $\to$R（非主式）後にカット**
 
 ```
 変換前:
-       B, Γ ⊢ Δ, C, A
-    ────────────────────── (→R)         A, Σ ⊢ Π
-     Γ ⊢ Δ, B → C, A
+       B, $\Gamma \vdash \Delta$, C, A
+    ────────────────────── ($\to$R)         A, $\Sigma \vdash$ Π
+     $\Gamma \vdash \Delta$, B $\to$ C, A
   ──────────────────────────────── (Cut on A)
-        Γ, Σ ⊢ Δ, B → C, Π
+        $\Gamma , \Sigma \vdash \Delta$, B $\to$ C, Π
 
 変換後:
-    B, Γ ⊢ Δ, C, A     A, Σ ⊢ Π
+    B, $\Gamma \vdash \Delta$, C, A     A, $\Sigma \vdash$ Π
   ──────────────────────────────── (Cut on A)     ← 段数 1 減少
-        B, Γ, Σ ⊢ Δ, C, Π
-  ──────────────────────── (→R)
-     Γ, Σ ⊢ Δ, B → C, Π
+        B, $\Gamma , \Sigma \vdash \Delta$, C, Π
+  ──────────────────────── ($\to$R)
+     $\Gamma , \Sigma \vdash \Delta$, B $\to$ C, Π
 ```
 
 ## 5. Case 3: 主式ケース（Principal Case / Key Case）
@@ -849,36 +849,36 @@ function reducePrincipalCut(
 }
 ```
 
-### 5.2 否定のケース: A = ¬B
+### 5.2 否定のケース: A = $\lnot$B
 
 ```typescript
 /**
  * 否定の Principal Cut
  *
- * 左前提（¬R を適用）:         右前提（¬L を適用）:
+ * 左前提（$\lnot$R を適用）:         右前提（$\lnot$L を適用）:
  *
- *     Γ ⊢ Δ, B                   B, Σ ⊢ Π
- *   ────────────── (¬R)        ──────────── (¬L)
- *    Γ ⊢ Δ, ¬B                 ¬B, Σ ⊢ Π
+ *     $\Gamma \vdash \Delta$, B                   B, $\Sigma \vdash$ Π
+ *   ────────────── ($\lnot$R)        ──────────── ($\lnot$L)
+ *    $\Gamma \vdash \Delta , \lnot$B                 $\lnot$B, $\Sigma \vdash$ Π
  *
  * カット（変換前）:
  *
- *    Γ ⊢ Δ, ¬B     ¬B, Σ ⊢ Π
- *   ──────────────────────────── (Cut on ¬B)
- *         Γ, Σ ⊢ Δ, Π
+ *    $\Gamma \vdash \Delta , \lnot$B     $\lnot$B, $\Sigma \vdash$ Π
+ *   ──────────────────────────── (Cut on $\lnot$B)
+ *         $\Gamma , \Sigma \vdash \Delta$, Π
  *
  * 変換後:
  *
- *    Γ ⊢ Δ, B     B, Σ ⊢ Π
+ *    $\Gamma \vdash \Delta$, B     B, $\Sigma \vdash$ Π
  *   ──────────────────────────── (Cut on B)
- *         Γ, Σ ⊢ Δ, Π
+ *         $\Gamma , \Sigma \vdash \Delta$, Π
  *
  * Reasoning:
- *   ¬R は「Γ ⊢ Δ, B を証明して ¬B を後件に導入」する規則。
- *   ¬L は「B, Σ ⊢ Π を証明して ¬B を前件に導入」する規則。
- *   つまり、¬B を介さずとも B で直接カットできる。
- *   新しいカット式 B は ¬B の真部分式なので、
- *   complexity(B) < complexity(¬B) = complexity(B) + 1。
+ *   $\lnot$R は「$\Gamma \vdash \Delta$, B を証明して $\lnot$B を後件に導入」する規則。
+ *   $\lnot$L は「B, $\Sigma \vdash$ Π を証明して $\lnot$B を前件に導入」する規則。
+ *   つまり、$\lnot$B を介さずとも B で直接カットできる。
+ *   新しいカット式 B は $\lnot$B の真部分式なので、
+ *   complexity(B) < complexity($\lnot$B) = complexity(B) + 1。
  *   外側の帰納法の指標が 1 減少する。
  */
 function reducePrincipalNegation(
@@ -886,13 +886,13 @@ function reducePrincipalNegation(
   leftProof: Proof, // tag === "NegationR"
   rightProof: Proof, // tag === "NegationL"
 ): Proof {
-  // leftProof.premise: Γ ⊢ Δ, B を証明
-  // rightProof.premise: B, Σ ⊢ Π を証明
+  // leftProof.premise: $\Gamma \vdash \Delta$, B を証明
+  // rightProof.premise: B, $\Sigma \vdash$ Π を証明
   const innerCutFormula = cutFormula.body; // B
   return reduceCut(
     innerCutFormula,
-    (leftProof as { readonly premise: Proof }).premise, // Γ ⊢ Δ, B
-    (rightProof as { readonly premise: Proof }).premise, // B, Σ ⊢ Π
+    (leftProof as { readonly premise: Proof }).premise, // $\Gamma \vdash \Delta$, B
+    (rightProof as { readonly premise: Proof }).premise, // B, $\Sigma \vdash$ Π
   );
 }
 ```
@@ -901,57 +901,57 @@ function reducePrincipalNegation(
 
 ```
 変換前:
-       P ⊢ P, Q    (WR)             Q, R ⊢ R    (WL)
-    ──────────────── (¬R)          ──────────── (¬L)
-     P ⊢ P, ¬Q                    ¬Q, R ⊢ R
-  ──────────────────────────────── (Cut on ¬Q)
-           P, R ⊢ P, R
+       P $\vdash$ P, Q    (WR)             Q, R $\vdash$ R    (WL)
+    ──────────────── ($\lnot$R)          ──────────── ($\lnot$L)
+     P $\vdash$ P, $\lnot$Q                    $\lnot$Q, R $\vdash$ R
+  ──────────────────────────────── (Cut on $\lnot$Q)
+           P, R $\vdash$ P, R
 
 変換後:
-    P ⊢ P, Q     Q, R ⊢ R
-  ────────────────────────── (Cut on Q)     ← complexity: 1 → 0
-         P, R ⊢ P, R
+    P $\vdash$ P, Q     Q, R $\vdash$ R
+  ────────────────────────── (Cut on Q)     ← complexity: 1 $\to$ 0
+         P, R $\vdash$ P, R
 ```
 
-### 5.3 含意のケース: A = B → C
+### 5.3 含意のケース: A = B $\to$ C
 
 ```typescript
 /**
  * 含意の Principal Cut
  *
- * 左前提（→R を適用）:         右前提（→L を適用）:
+ * 左前提（$\to$R を適用）:         右前提（$\to$L を適用）:
  *
- *     B, Γ ⊢ Δ, C                Σ₁ ⊢ Π₁, B     C, Σ₂ ⊢ Π₂
- *   ──────────────── (→R)      ──────────────────────────────── (→L)
- *    Γ ⊢ Δ, B → C              B → C, Σ₁, Σ₂ ⊢ Π₁, Π₂
+ *     B, $\Gamma \vdash \Delta$, C                $\Sigma$₁ $\vdash$ Π₁, B     C, $\Sigma$₂ $\vdash$ Π₂
+ *   ──────────────── ($\to$R)      ──────────────────────────────── ($\to$L)
+ *    $\Gamma \vdash \Delta$, B $\to$ C              B $\to$ C, $\Sigma$₁, $\Sigma$₂ $\vdash$ Π₁, Π₂
  *
  * カット（変換前）:
  *
- *    Γ ⊢ Δ, B → C     B → C, Σ₁, Σ₂ ⊢ Π₁, Π₂
- *   ──────────────────────────────────────────── (Cut on B → C)
- *              Γ, Σ₁, Σ₂ ⊢ Δ, Π₁, Π₂
+ *    $\Gamma \vdash \Delta$, B $\to$ C     B $\to$ C, $\Sigma$₁, $\Sigma$₂ $\vdash$ Π₁, Π₂
+ *   ──────────────────────────────────────────── (Cut on B $\to$ C)
+ *              $\Gamma , \Sigma$₁, $\Sigma$₂ $\vdash \Delta$, Π₁, Π₂
  *
  * 変換後:
  *
- *                          Σ₁ ⊢ Π₁, B     B, Γ ⊢ Δ, C
+ *                          $\Sigma$₁ $\vdash$ Π₁, B     B, $\Gamma \vdash \Delta$, C
  *                         ────────────────────────────── (Cut on B)
- *                              Σ₁, Γ ⊢ Π₁, Δ, C
- *                                                        C, Σ₂ ⊢ Π₂
+ *                              $\Sigma$₁, $\Gamma \vdash$ Π₁, $\Delta$, C
+ *                                                        C, $\Sigma$₂ $\vdash$ Π₂
  *                         ──────────────────────────────────────── (Cut on C)
- *                              Σ₁, Γ, Σ₂ ⊢ Π₁, Δ, Π₂
+ *                              $\Sigma$₁, $\Gamma , \Sigma$₂ $\vdash$ Π₁, $\Delta$, Π₂
  *
  * Reasoning:
- *   →R は「B を仮定して C を証明」することで B → C を導入。
- *   →L は「B を証明する部分」と「C を仮定して使う部分」に分解。
+ *   $\to$R は「B を仮定して C を証明」することで B $\to$ C を導入。
+ *   $\to$L は「B を証明する部分」と「C を仮定して使う部分」に分解。
  *
- *   B → C を介さず、直接:
- *   (1) →L の左前提 Σ₁ ⊢ Π₁, B で得られる B を、
- *       →R の前提 B, Γ ⊢ Δ, C と B でカットして C を得る
- *   (2) 得られた C を、→L の右前提 C, Σ₂ ⊢ Π₂ とカットする
+ *   B $\to$ C を介さず、直接:
+ *   (1) $\to$L の左前提 $\Sigma$₁ $\vdash$ Π₁, B で得られる B を、
+ *       $\to$R の前提 B, $\Gamma \vdash \Delta$, C と B でカットして C を得る
+ *   (2) 得られた C を、$\to$L の右前提 C, $\Sigma$₂ $\vdash$ Π₂ とカットする
  *
- *   新しいカット式 B と C はそれぞれ B → C の真部分式:
- *     complexity(B) < complexity(B → C)
- *     complexity(C) < complexity(B → C)
+ *   新しいカット式 B と C はそれぞれ B $\to$ C の真部分式:
+ *     complexity(B) < complexity(B $\to$ C)
+ *     complexity(C) < complexity(B $\to$ C)
  *   外側の帰納法の指標が厳密に減少する。
  */
 function reducePrincipalImplication(
@@ -962,23 +962,23 @@ function reducePrincipalImplication(
   const B = cutFormula.left;
   const C = cutFormula.right;
 
-  // leftProof.premise: B, Γ ⊢ Δ, C
-  // rightProof.leftPremise: Σ₁ ⊢ Π₁, B
-  // rightProof.rightPremise: C, Σ₂ ⊢ Π₂
+  // leftProof.premise: B, $\Gamma \vdash \Delta$, C
+  // rightProof.leftPremise: $\Sigma$₁ $\vdash$ Π₁, B
+  // rightProof.rightPremise: C, $\Sigma$₂ $\vdash$ Π₂
   const leftInner = (leftProof as { readonly premise: Proof }).premise;
   const rightLeft = (rightProof as { readonly leftPremise: Proof }).leftPremise;
   const rightRight = (rightProof as { readonly rightPremise: Proof })
     .rightPremise;
 
   // Step 1: B でカット
-  //   rightLeft: Σ₁ ⊢ Π₁, B  と  leftInner: B, Γ ⊢ Δ, C
+  //   rightLeft: $\Sigma$₁ $\vdash$ Π₁, B  と  leftInner: B, $\Gamma \vdash \Delta$, C
   const cutOnB = reduceCut(B, rightLeft, leftInner);
-  // 結果: Σ₁, Γ ⊢ Π₁, Δ, C
+  // 結果: $\Sigma$₁, $\Gamma \vdash$ Π₁, $\Delta$, C
 
   // Step 2: C でカット
-  //   cutOnB: Σ₁, Γ ⊢ Π₁, Δ, C  と  rightRight: C, Σ₂ ⊢ Π₂
+  //   cutOnB: $\Sigma$₁, $\Gamma \vdash$ Π₁, $\Delta$, C  と  rightRight: C, $\Sigma$₂ $\vdash$ Π₂
   const cutOnC = reduceCut(C, cutOnB, rightRight);
-  // 結果: Σ₁, Γ, Σ₂ ⊢ Π₁, Δ, Π₂
+  // 結果: $\Sigma$₁, $\Gamma , \Sigma$₂ $\vdash$ Π₁, $\Delta$, Π₂
 
   return cutOnC;
 }
@@ -989,202 +989,202 @@ function reducePrincipalImplication(
 ```
 変換前:
 
-     A, P ⊢ Q, B         (π₁)
-  ──────────────────── (→R)            R ⊢ S, A    (π₂)    B, T ⊢ U    (π₃)
-   P ⊢ Q, A → B                     ─────────────────────────────── (→L)
-                                       A → B, R, T ⊢ S, U
-  ──────────────────────────────────────────────────────── (Cut on A → B)
-                    P, R, T ⊢ Q, S, U
+     A, P $\vdash$ Q, B         (π₁)
+  ──────────────────── ($\to$R)            R $\vdash$ S, A    (π₂)    B, T $\vdash$ U    (π₃)
+   P $\vdash$ Q, A $\to$ B                     ─────────────────────────────── ($\to$L)
+                                       A $\to$ B, R, T $\vdash$ S, U
+  ──────────────────────────────────────────────────────── (Cut on A $\to$ B)
+                    P, R, T $\vdash$ Q, S, U
 
 変換後:
 
-                     R ⊢ S, A    (π₂)    A, P ⊢ Q, B    (π₁)
+                     R $\vdash$ S, A    (π₂)    A, P $\vdash$ Q, B    (π₁)
                     ──────────────────────────────────── (Cut on A)
-                           R, P ⊢ S, Q, B
-                                                  B, T ⊢ U    (π₃)
+                           R, P $\vdash$ S, Q, B
+                                                  B, T $\vdash$ U    (π₃)
                     ──────────────────────────────────── (Cut on B)
-                           R, P, T ⊢ S, Q, U
+                           R, P, T $\vdash$ S, Q, U
 
-complexity(A) < complexity(A → B), complexity(B) < complexity(A → B)
+complexity(A) < complexity(A $\to$ B), complexity(B) < complexity(A $\to$ B)
 ```
 
-### 5.4 連言のケース: A = B ∧ C
+### 5.4 連言のケース: A = B $\land$ C
 
 ```typescript
 /**
  * 連言の Principal Cut
  *
- * 左前提（∧R を適用）:
+ * 左前提（$\land$R を適用）:
  *
- *   Γ ⊢ Δ, B     Γ ⊢ Δ, C
- *  ────────────────────────── (∧R)
- *       Γ ⊢ Δ, B ∧ C
+ *   $\Gamma \vdash \Delta$, B     $\Gamma \vdash \Delta$, C
+ *  ────────────────────────── ($\land$R)
+ *       $\Gamma \vdash \Delta$, B $\land$ C
  *
- * 右前提（∧L₁ を適用した場合）:
+ * 右前提（$\land$L₁ を適用した場合）:
  *
- *     B, Σ ⊢ Π
- *   ────────────── (∧L₁)
- *    B ∧ C, Σ ⊢ Π
+ *     B, $\Sigma \vdash$ Π
+ *   ────────────── ($\land$L₁)
+ *    B $\land$ C, $\Sigma \vdash$ Π
  *
  * 変換後:
  *
- *   Γ ⊢ Δ, B     B, Σ ⊢ Π
+ *   $\Gamma \vdash \Delta$, B     B, $\Sigma \vdash$ Π
  *  ──────────────────────────── (Cut on B)
- *        Γ, Σ ⊢ Δ, Π
+ *        $\Gamma , \Sigma \vdash \Delta$, Π
  *
  * Reasoning:
- *   ∧R は B と C の両方を証明して B ∧ C を導入。
- *   ∧L₁ は B ∧ C から B だけを取り出す。
- *   よって B の証明（∧R の左前提）を直接使えばよい。
- *   C の証明（∧R の右前提）は使われない。
- *   新カット式 B は B ∧ C の真部分式なので複雑度が減少。
+ *   $\land$R は B と C の両方を証明して B $\land$ C を導入。
+ *   $\land$L₁ は B $\land$ C から B だけを取り出す。
+ *   よって B の証明（$\land$R の左前提）を直接使えばよい。
+ *   C の証明（$\land$R の右前提）は使われない。
+ *   新カット式 B は B $\land$ C の真部分式なので複雑度が減少。
  *
- * 右前提が ∧L₂ の場合は対称的に C でカットする。
+ * 右前提が $\land$L₂ の場合は対称的に C でカットする。
  */
 function reducePrincipalConjunction(
   cutFormula: Formula & { readonly tag: "Conjunction" },
   leftProof: Proof, // tag === "ConjunctionR"
   rightProof: Proof, // tag === "ConjunctionL1" or "ConjunctionL2"
 ): Proof {
-  const leftL = (leftProof as { readonly leftPremise: Proof }).leftPremise; // Γ ⊢ Δ, B
-  const leftR = (leftProof as { readonly rightPremise: Proof }).rightPremise; // Γ ⊢ Δ, C
+  const leftL = (leftProof as { readonly leftPremise: Proof }).leftPremise; // $\Gamma \vdash \Delta$, B
+  const leftR = (leftProof as { readonly rightPremise: Proof }).rightPremise; // $\Gamma \vdash \Delta$, C
   const rightInner = (rightProof as { readonly premise: Proof }).premise;
 
   if (rightProof.tag === "ConjunctionL1") {
-    // ∧L₁: B, Σ ⊢ Π
+    // $\land$L₁: B, $\Sigma \vdash$ Π
     return reduceCut(cutFormula.left, leftL, rightInner); // Cut on B
   } else {
-    // ∧L₂: C, Σ ⊢ Π
+    // $\land$L₂: C, $\Sigma \vdash$ Π
     return reduceCut(cutFormula.right, leftR, rightInner); // Cut on C
   }
 }
 ```
 
-**具体例 (∧L₁):**
+**具体例 ($\land$L₁):**
 
 ```
 変換前:
-   P ⊢ P, Q    (WR)     P ⊢ P, R    (WR)
-  ────────────────────────────────── (∧R)       Q, S ⊢ T   (π₃)
-       P ⊢ P, Q ∧ R                          ──────────── (∧L₁)
-                                               Q ∧ R, S ⊢ T
-  ──────────────────────────────────────────── (Cut on Q ∧ R)
-              P, S ⊢ P, T
+   P $\vdash$ P, Q    (WR)     P $\vdash$ P, R    (WR)
+  ────────────────────────────────── ($\land$R)       Q, S $\vdash$ T   (π₃)
+       P $\vdash$ P, Q $\land$ R                          ──────────── ($\land$L₁)
+                                               Q $\land$ R, S $\vdash$ T
+  ──────────────────────────────────────────── (Cut on Q $\land$ R)
+              P, S $\vdash$ P, T
 
 変換後:
-   P ⊢ P, Q     Q, S ⊢ T
+   P $\vdash$ P, Q     Q, S $\vdash$ T
   ────────────────────────── (Cut on Q)     ← complexity 減少
-        P, S ⊢ P, T
+        P, S $\vdash$ P, T
 ```
 
-### 5.5 選言のケース: A = B ∨ C
+### 5.5 選言のケース: A = B $\lor$ C
 
 ```typescript
 /**
  * 選言の Principal Cut
  *
- * 左前提（∨R₁ を適用した場合）:
+ * 左前提（$\lor$R₁ を適用した場合）:
  *
- *    Γ ⊢ Δ, B
- *   ────────────── (∨R₁)
- *    Γ ⊢ Δ, B ∨ C
+ *    $\Gamma \vdash \Delta$, B
+ *   ────────────── ($\lor$R₁)
+ *    $\Gamma \vdash \Delta$, B $\lor$ C
  *
- * 右前提（∨L を適用）:
+ * 右前提（$\lor$L を適用）:
  *
- *   B, Σ₁ ⊢ Π₁     C, Σ₂ ⊢ Π₂
- *  ──────────────────────────────── (∨L)
- *      B ∨ C, Σ₁, Σ₂ ⊢ Π₁, Π₂
+ *   B, $\Sigma$₁ $\vdash$ Π₁     C, $\Sigma$₂ $\vdash$ Π₂
+ *  ──────────────────────────────── ($\lor$L)
+ *      B $\lor$ C, $\Sigma$₁, $\Sigma$₂ $\vdash$ Π₁, Π₂
  *
  * 変換後:
  *
- *   Γ ⊢ Δ, B     B, Σ₁ ⊢ Π₁
+ *   $\Gamma \vdash \Delta$, B     B, $\Sigma$₁ $\vdash$ Π₁
  *  ──────────────────────────── (Cut on B)
- *        Γ, Σ₁ ⊢ Δ, Π₁
- *  （Σ₂, Π₂ の分は弱化で補う）
+ *        $\Gamma , \Sigma$₁ $\vdash \Delta$, Π₁
+ *  （$\Sigma$₂, Π₂ の分は弱化で補う）
  *
  * Reasoning:
- *   ∨R₁ は B を証明して B ∨ C を導入。
- *   ∨L は B のケースと C のケースに場合分け。
- *   左前提で B が証明されているので、B のケース（∨L の左前提）のみが関連。
- *   C のケース（∨L の右前提）は使われない。
- *   新カット式 B は B ∨ C の真部分式なので複雑度が減少。
+ *   $\lor$R₁ は B を証明して B $\lor$ C を導入。
+ *   $\lor$L は B のケースと C のケースに場合分け。
+ *   左前提で B が証明されているので、B のケース（$\lor$L の左前提）のみが関連。
+ *   C のケース（$\lor$L の右前提）は使われない。
+ *   新カット式 B は B $\lor$ C の真部分式なので複雑度が減少。
  *
- * ∨R₂ の場合は対称的に C でカットする。
+ * $\lor$R₂ の場合は対称的に C でカットする。
  */
 function reducePrincipalDisjunction(
   cutFormula: Formula & { readonly tag: "Disjunction" },
   leftProof: Proof, // tag === "DisjunctionR1" or "DisjunctionR2"
   rightProof: Proof, // tag === "DisjunctionL"
 ): Proof {
-  const rightL = (rightProof as { readonly leftPremise: Proof }).leftPremise; // B, Σ₁ ⊢ Π₁
-  const rightR = (rightProof as { readonly rightPremise: Proof }).rightPremise; // C, Σ₂ ⊢ Π₂
+  const rightL = (rightProof as { readonly leftPremise: Proof }).leftPremise; // B, $\Sigma$₁ $\vdash$ Π₁
+  const rightR = (rightProof as { readonly rightPremise: Proof }).rightPremise; // C, $\Sigma$₂ $\vdash$ Π₂
 
   if (leftProof.tag === "DisjunctionR1") {
-    // ∨R₁: Γ ⊢ Δ, B
+    // $\lor$R₁: $\Gamma \vdash \Delta$, B
     const leftInner = (leftProof as { readonly premise: Proof }).premise;
     return reduceCut(cutFormula.left, leftInner, rightL); // Cut on B
   } else {
-    // ∨R₂: Γ ⊢ Δ, C
+    // $\lor$R₂: $\Gamma \vdash \Delta$, C
     const leftInner = (leftProof as { readonly premise: Proof }).premise;
     return reduceCut(cutFormula.right, leftInner, rightR); // Cut on C
   }
 }
 ```
 
-**具体例 (∨R₁):**
+**具体例 ($\lor$R₁):**
 
 ```
 変換前:
-     P ⊢ P          (Ax)
-  ──────────── (∨R₁)            P, Q ⊢ R    (π₂)    S, T ⊢ U    (π₃)
-   P ⊢ P ∨ S                  ──────────────────────────────── (∨L)
-                                P ∨ S, Q, T ⊢ R, U
-  ──────────────────────────────────────────────── (Cut on P ∨ S)
-              P, Q, T ⊢ P, R, U
+     P $\vdash$ P          (Ax)
+  ──────────── ($\lor$R₁)            P, Q $\vdash$ R    (π₂)    S, T $\vdash$ U    (π₃)
+   P $\vdash$ P $\lor$ S                  ──────────────────────────────── ($\lor$L)
+                                P $\lor$ S, Q, T $\vdash$ R, U
+  ──────────────────────────────────────────────── (Cut on P $\lor$ S)
+              P, Q, T $\vdash$ P, R, U
 
 変換後:
-   P ⊢ P     P, Q ⊢ R
+   P $\vdash$ P     P, Q $\vdash$ R
   ──────────────────── (Cut on P)     ← complexity 減少
-       P, Q ⊢ P, R
+       P, Q $\vdash$ P, R
   （T, U の分は弱化で補う）
 ```
 
-### 5.6 全称量化のケース: A = ∀x.B
+### 5.6 全称量化のケース: A = $\forall$x.B
 
 ```typescript
 /**
  * 全称量化の Principal Cut
  *
- * 左前提（∀R を適用）:           右前提（∀L を適用）:
+ * 左前提（$\forall$R を適用）:           右前提（$\forall$L を適用）:
  *
- *    Γ ⊢ Δ, B[y/x]                B[t/x], Σ ⊢ Π
- *   ──────────────── (∀R)       ──────────────── (∀L)
- *    Γ ⊢ Δ, ∀x.B                ∀x.B, Σ ⊢ Π
+ *    $\Gamma \vdash \Delta$, B[y/x]                B[t/x], $\Sigma \vdash$ Π
+ *   ──────────────── ($\forall$R)       ──────────────── ($\forall$L)
+ *    $\Gamma \vdash \Delta , \forall$x.B                $\forall$x.B, $\Sigma \vdash$ Π
  *
- * ここで y は ∀R の固有変数（Γ, Δ に自由に出現しない）
+ * ここで y は $\forall$R の固有変数（$\Gamma , \Delta$ に自由に出現しない）
  *
  * 変換後:
  *
- *   Γ ⊢ Δ, B[t/x]     B[t/x], Σ ⊢ Π
+ *   $\Gamma \vdash \Delta$, B[t/x]     B[t/x], $\Sigma \vdash$ Π
  *  ──────────────────────────────────── (Cut on B[t/x])
- *           Γ, Σ ⊢ Δ, Π
+ *           $\Gamma , \Sigma \vdash \Delta$, Π
  *
  * Reasoning:
- *   ∀R は固有変数 y で B[y/x] を証明し、∀x.B を導入。
- *   ∀L は項 t で例化して B[t/x] を前件に入れる。
+ *   $\forall$R は固有変数 y で B[y/x] を証明し、$\forall$x.B を導入。
+ *   $\forall$L は項 t で例化して B[t/x] を前件に入れる。
  *
- *   y は固有変数（Γ, Δ に自由に出現しない）なので、
+ *   y は固有変数（$\Gamma , \Delta$ に自由に出現しない）なので、
  *   左前提の証明 π₁ 中の y を t で置き換えても証明は有効。
- *   これにより π₁ は Γ ⊢ Δ, B[t/x] の証明になる。
+ *   これにより π₁ は $\Gamma \vdash \Delta$, B[t/x] の証明になる。
  *
- *   新カット式 B[t/x] は ∀x.B の真部分式（の代入例）:
- *     complexity(B[t/x]) = complexity(B) < complexity(∀x.B) = complexity(B) + 1
+ *   新カット式 B[t/x] は $\forall$x.B の真部分式（の代入例）:
+ *     complexity(B[t/x]) = complexity(B) < complexity($\forall$x.B) = complexity(B) + 1
  *   （代入は複雑度を変えない — 構造的な深さは同じ。）
  *   外側の帰納法の指標が 1 減少する。
  *
  * 注意:
  *   固有変数条件が y の t による置換を正当化する。
- *   y が Γ, Δ に出現しないため、置換は証明の他の部分に影響しない。
+ *   y が $\Gamma , \Delta$ に出現しないため、置換は証明の他の部分に影響しない。
  */
 function reducePrincipalUniversal(
   cutFormula: Formula & { readonly tag: "Universal" },
@@ -1197,15 +1197,15 @@ function reducePrincipalUniversal(
   const t = (rightProof as { readonly term: Term }).term;
 
   // 左前提の証明で y を t に置換
-  // leftProof.premise は Γ ⊢ Δ, B[y/x] を証明
-  // y → t の置換で Γ ⊢ Δ, B[t/x] の証明になる
+  // leftProof.premise は $\Gamma \vdash \Delta$, B[y/x] を証明
+  // y $\to$ t の置換で $\Gamma \vdash \Delta$, B[t/x] の証明になる
   const leftSubstituted = substituteInProof(
     (leftProof as { readonly premise: Proof }).premise,
     y,
     t,
   );
 
-  // 右前提の前提: B[t/x], Σ ⊢ Π
+  // 右前提の前提: B[t/x], $\Sigma \vdash$ Π
   const rightInner = (rightProof as { readonly premise: Proof }).premise;
 
   // B[t/x] でカット
@@ -1218,23 +1218,23 @@ function reducePrincipalUniversal(
 
 ```
 変換前:
-       P(y) ⊢ P(y)       (Ax)
-    ──────────────────── (∀R)     y は固有変数        P(f(a)), Q ⊢ R    (π₂)
-     ⊢ ∀x.P(x)                                     ──────────────── (∀L, t=f(a))
-                                                     ∀x.P(x), Q ⊢ R
-  ──────────────────────────────────────────── (Cut on ∀x.P(x))
-                  Q ⊢ R
+       P(y) $\vdash$ P(y)       (Ax)
+    ──────────────────── ($\forall$R)     y は固有変数        P(f(a)), Q $\vdash$ R    (π₂)
+     $\vdash \forall$x.P(x)                                     ──────────────── ($\forall$L, t=f(a))
+                                                     $\forall$x.P(x), Q $\vdash$ R
+  ──────────────────────────────────────────── (Cut on $\forall$x.P(x))
+                  Q $\vdash$ R
 
 変換後:
 
-    P(f(a)) ⊢ P(f(a))     (Ax, y→f(a) 置換)     P(f(a)), Q ⊢ R    (π₂)
+    P(f(a)) $\vdash$ P(f(a))     (Ax, y$\to$f(a) 置換)     P(f(a)), Q $\vdash$ R    (π₂)
   ──────────────────────────────────────────── (Cut on P(f(a)))
-                  Q ⊢ R
+                  Q $\vdash$ R
 
-（P(f(a)) は ∀x.P(x) より complexity が 1 小さい）
+（P(f(a)) は $\forall$x.P(x) より complexity が 1 小さい）
 ```
 
-### 5.7 存在量化のケース: A = ∃x.B
+### 5.7 存在量化のケース: A = $\exists$x.B
 
 ```typescript
 /**
@@ -1242,23 +1242,23 @@ function reducePrincipalUniversal(
  *
  * 全称のケースと対称的。
  *
- * 左前提（∃R を適用）:           右前提（∃L を適用）:
+ * 左前提（$\exists$R を適用）:           右前提（$\exists$L を適用）:
  *
- *    Γ ⊢ Δ, B[t/x]                B[y/x], Σ ⊢ Π
- *   ──────────────── (∃R)       ──────────────── (∃L)
- *    Γ ⊢ Δ, ∃x.B                ∃x.B, Σ ⊢ Π
+ *    $\Gamma \vdash \Delta$, B[t/x]                B[y/x], $\Sigma \vdash$ Π
+ *   ──────────────── ($\exists$R)       ──────────────── ($\exists$L)
+ *    $\Gamma \vdash \Delta , \exists$x.B                $\exists$x.B, $\Sigma \vdash$ Π
  *
- * ここで y は ∃L の固有変数（Σ, Π に自由に出現しない）
+ * ここで y は $\exists$L の固有変数（$\Sigma$, Π に自由に出現しない）
  *
  * 変換後:
  *
- *   Γ ⊢ Δ, B[t/x]     B[t/x], Σ ⊢ Π
+ *   $\Gamma \vdash \Delta$, B[t/x]     B[t/x], $\Sigma \vdash$ Π
  *  ──────────────────────────────────── (Cut on B[t/x])
- *           Γ, Σ ⊢ Δ, Π
+ *           $\Gamma , \Sigma \vdash \Delta$, Π
  *
  * Reasoning:
- *   ∃R は項 t で B[t/x] を証明し、∃x.B を導入。
- *   ∃L は固有変数 y で展開して B[y/x] を前件に入れる。
+ *   $\exists$R は項 t で B[t/x] を証明し、$\exists$x.B を導入。
+ *   $\exists$L は固有変数 y で展開して B[y/x] を前件に入れる。
  *   y は固有変数なので、右前提の証明中の y を t で置換しても有効。
  *   これにより B[t/x] で直接カットできる。
  *   複雑度は全称のケースと同様に 1 減少する。
@@ -1280,7 +1280,7 @@ function reducePrincipalExistential(
     t,
   );
 
-  // 左前提の前提: Γ ⊢ Δ, B[t/x]
+  // 左前提の前提: $\Gamma \vdash \Delta$, B[t/x]
   const leftInner = (leftProof as { readonly premise: Proof }).premise;
 
   // B[t/x] でカット
@@ -1299,17 +1299,17 @@ function reducePrincipalExistential(
 /**
  * Case 4a: 左前提の弱化でカット式 A が後件に追加された場合
  *
- *       Γ ⊢ Δ
- *   ──────────── (WR)          A, Σ ⊢ Π
- *    Γ ⊢ Δ, A
+ *       $\Gamma \vdash \Delta$
+ *   ──────────── (WR)          A, $\Sigma \vdash$ Π
+ *    $\Gamma \vdash \Delta$, A
  *   ─────────────────────── (Cut on A)
- *        Γ, Σ ⊢ Δ, Π
+ *        $\Gamma , \Sigma \vdash \Delta$, Π
  *
  * 変換後:
  *
- *    Γ ⊢ Δ                    Σ ⊢ Π
- *   ──── (WL×|Σ|, WR×|Π|)    ──── (WL×|Γ|, WR×|Δ|)
- *    Γ, Σ ⊢ Δ, Π             （弱化で拡張）
+ *    $\Gamma \vdash \Delta \Sigma \vdash$ Π
+ *   ──── (WL×|$\Sigma$|, WR×|Π|)    ──── (WL×|$\Gamma$|, WR×|$\Delta$|)
+ *    $\Gamma , \Sigma \vdash \Delta$, Π             （弱化で拡張）
  *
  * Reasoning:
  *   左前提で A は弱化により追加されただけ — 実際に証明されていない。
@@ -1318,8 +1318,8 @@ function reducePrincipalExistential(
  *   するか、あるいは左前提のカット式なし証明に弱化を適用して結論に到達する。
  *
  *   より正確には:
- *   - Γ ⊢ Δ の証明が存在する（弱化の前提）
- *   - 結論 Γ, Σ ⊢ Δ, Π は弱化を繰り返し適用することで得られる
+ *   - $\Gamma \vdash \Delta$ の証明が存在する（弱化の前提）
+ *   - 結論 $\Gamma , \Sigma \vdash \Delta$, Π は弱化を繰り返し適用することで得られる
  *   カットは完全に除去される（新しいカットは生じない）。
  */
 function reduceCutWeakeningLeft(
@@ -1327,12 +1327,12 @@ function reduceCutWeakeningLeft(
   leftProof: Proof, // tag === "WeakeningR", added === cutFormula
   rightProof: Proof,
 ): Proof {
-  // leftProof.premise: Γ ⊢ Δ を証明
-  // 結論 Γ, Σ ⊢ Δ, Π を弱化で構築
+  // leftProof.premise: $\Gamma \vdash \Delta$ を証明
+  // 結論 $\Gamma , \Sigma \vdash \Delta$, Π を弱化で構築
   const basePremise = (leftProof as { readonly premise: Proof }).premise;
   const rightConclusion = conclusion(rightProof);
 
-  // Σ の各式を WL で追加し、Π の各式を WR で追加
+  // $\Sigma$ の各式を WL で追加し、Π の各式を WR で追加
   let result = basePremise;
   for (const formula of rightConclusion.antecedent) {
     if (!formulaEquals(formula, cutFormula)) {
@@ -1348,13 +1348,13 @@ function reduceCutWeakeningLeft(
 /**
  * Case 4b: 右前提の弱化でカット式 A が前件に追加された場合
  *
- *                         Σ ⊢ Π
- *   Γ ⊢ Δ, A         ──────────── (WL)
- *                      A, Σ ⊢ Π
+ *                         $\Sigma \vdash$ Π
+ *   $\Gamma \vdash \Delta$, A         ──────────── (WL)
+ *                      A, $\Sigma \vdash$ Π
  *   ─────────────────────────── (Cut on A)
- *        Γ, Σ ⊢ Δ, Π
+ *        $\Gamma , \Sigma \vdash \Delta$, Π
  *
- * 変換後: 右前提 Σ ⊢ Π に弱化を適用して Γ, Σ ⊢ Δ, Π を構築
+ * 変換後: 右前提 $\Sigma \vdash$ Π に弱化を適用して $\Gamma , \Sigma \vdash \Delta$, Π を構築
  *
  * Reasoning: Case 4a と対称的。
  */
@@ -1383,18 +1383,18 @@ function reduceCutWeakeningRight(
 
 ```
 変換前:
-      P ⊢ Q
-   ──────────── (WR)          P → Q, R ⊢ S    (π₂)
-    P ⊢ Q, P → Q
-  ──────────────────────────────────── (Cut on P → Q)
-        P, R ⊢ Q, S
+      P $\vdash$ Q
+   ──────────── (WR)          P $\to$ Q, R $\vdash$ S    (π₂)
+    P $\vdash$ Q, P $\to$ Q
+  ──────────────────────────────────── (Cut on P $\to$ Q)
+        P, R $\vdash$ Q, S
 
 変換後:
-    P ⊢ Q
+    P $\vdash$ Q
   ──────── (WL)
-   P, R ⊢ Q
+   P, R $\vdash$ Q
   ──────── (WR)
-   P, R ⊢ Q, S
+   P, R $\vdash$ Q, S
 
 カットは完全に除去された（新しいカットなし）。
 ```
@@ -1405,30 +1405,30 @@ function reduceCutWeakeningRight(
 /**
  * Case 4c: 左前提の縮約でカット式 A が後件で縮約された場合
  *
- *   Γ ⊢ Δ, A, A
- *  ────────────── (CR)          A, Σ ⊢ Π
- *    Γ ⊢ Δ, A
+ *   $\Gamma \vdash \Delta$, A, A
+ *  ────────────── (CR)          A, $\Sigma \vdash$ Π
+ *    $\Gamma \vdash \Delta$, A
  *  ────────────────────────── (Cut on A)
- *       Γ, Σ ⊢ Δ, Π
+ *       $\Gamma , \Sigma \vdash \Delta$, Π
  *
  * 変換後:
  *
- *   Γ ⊢ Δ, A, A     A, Σ ⊢ Π
+ *   $\Gamma \vdash \Delta$, A, A     A, $\Sigma \vdash$ Π
  *  ──────────────────────────── (Cut on first A)    ← 段数減少
- *       Γ, Σ ⊢ Δ, A, Π
- *                        A, Σ ⊢ Π
+ *       $\Gamma , \Sigma \vdash \Delta$, A, Π
+ *                        A, $\Sigma \vdash$ Π
  *  ──────────────────────────────── (Cut on remaining A)    ← 段数減少
- *       Γ, Σ, Σ ⊢ Δ, Π, Π
+ *       $\Gamma , \Sigma , \Sigma \vdash \Delta$, Π, Π
  *  (縮約で整理)
- *       Γ, Σ ⊢ Δ, Π
+ *       $\Gamma , \Sigma \vdash \Delta$, Π
  *
  * Reasoning:
- *   縮約前の前提 Γ ⊢ Δ, A, A には A が2回出現。
+ *   縮約前の前提 $\Gamma \vdash \Delta$, A, A には A が2回出現。
  *   1回目のカットで A を1つ消費し、2回目のカットで残りを消費。
  *   各カットの段数は元のカットより小さい（縮約を飛ばしたため）。
  *   内側の帰納法により処理可能。
  *
- *   注意: Σ と Π が重複するが、縮約規則で整理できる。
+ *   注意: $\Sigma$ と Π が重複するが、縮約規則で整理できる。
  *   これが証明サイズ増大の一因である（証明が複製される）。
  */
 function reduceCutContractionLeft(
@@ -1436,18 +1436,18 @@ function reduceCutContractionLeft(
   leftProof: Proof, // tag === "ContractionR", formula === cutFormula
   rightProof: Proof,
 ): Proof {
-  // leftProof.premise: Γ ⊢ Δ, A, A
+  // leftProof.premise: $\Gamma \vdash \Delta$, A, A
   const innerPremise = (leftProof as { readonly premise: Proof }).premise;
 
   // 1回目のカット: A を1つ消す（A がまだ1つ残る）
   const firstCut = reduceCut(cutFormula, innerPremise, rightProof);
-  // 結果: Γ, Σ ⊢ Δ, Π, A   (A が1つ残っている)
+  // 結果: $\Gamma , \Sigma \vdash \Delta$, Π, A   (A が1つ残っている)
 
   // 2回目のカット: 残りの A を消す
   const secondCut = reduceCut(cutFormula, firstCut, rightProof);
-  // 結果: Γ, Σ, Σ ⊢ Δ, Π, Π
+  // 結果: $\Gamma , \Sigma , \Sigma \vdash \Delta$, Π, Π
 
-  // 必要なら Σ と Π の重複を縮約で整理
+  // 必要なら $\Sigma$ と Π の重複を縮約で整理
   return applyContractions(secondCut);
 }
 
@@ -1462,7 +1462,7 @@ function reduceCutContractionRight(
   rightProof: Proof, // tag === "ContractionL", formula === cutFormula
 ): Proof {
   const innerPremise = (rightProof as { readonly premise: Proof }).premise;
-  // innerPremise: A, A, Σ ⊢ Π
+  // innerPremise: A, A, $\Sigma \vdash$ Π
 
   const firstCut = reduceCut(cutFormula, leftProof, innerPremise);
   const secondCut = reduceCut(cutFormula, leftProof, firstCut);
@@ -1474,23 +1474,23 @@ function reduceCutContractionRight(
 
 ```
 変換前:
-   P ⊢ P, P           (π₁)
-  ────────── (CR)              P, Q ⊢ R    (π₂)
-   P ⊢ P
+   P $\vdash$ P, P           (π₁)
+  ────────── (CR)              P, Q $\vdash$ R    (π₂)
+   P $\vdash$ P
   ──────────────────── (Cut on P)
-       P, Q ⊢ R
+       P, Q $\vdash$ R
 
 変換後:
-   P ⊢ P, P     P, Q ⊢ R
+   P $\vdash$ P, P     P, Q $\vdash$ R
   ────────────────────────── (Cut on P)     ← 段数減少
-       P, Q ⊢ P, R
-                     P, Q ⊢ R
+       P, Q $\vdash$ P, R
+                     P, Q $\vdash$ R
   ──────────────────────────── (Cut on P)     ← 段数減少
-       P, Q, Q ⊢ R, R
+       P, Q, Q $\vdash$ R, R
   ────── (CL)
-   P, Q ⊢ R, R
+   P, Q $\vdash$ R, R
   ────── (CR)
-   P, Q ⊢ R
+   P, Q $\vdash$ R
 ```
 
 ## 7. Mix 規則による代替アプローチ
@@ -1500,9 +1500,9 @@ function reduceCutContractionRight(
 ### 7.1 Mix 規則の定義（再掲）
 
 ```
-  Γ ⊢ Δ, A, ..., A     A, ..., A, Σ ⊢ Π
+  $\Gamma \vdash \Delta$, A, ..., A     A, ..., A, $\Sigma \vdash$ Π
 ──────────────────────────────────────────── (Mix)
-              Γ, Σ ⊢ Δ, Π
+              $\Gamma , \Sigma \vdash \Delta$, Π
 ```
 
 Mix はカット式 `A` の**すべての出現**を一度に除去する。
@@ -1536,17 +1536,17 @@ Mix はカット式 `A` の**すべての出現**を一度に除去する。
 | `c`  | カット式の複雑度（外側）    | 自然数 ≥ 0 |
 | `d`  | カットの段数 / 深さ（内側） | 自然数 ≥ 0 |
 
-辞書式順序: `(c₁, d₁) < (c₂, d₂)` ⟺ `c₁ < c₂` または（`c₁ = c₂` かつ `d₁ < d₂`）
+辞書式順序: `(c₁, d₁) < (c₂, d₂)` $\iff$ `c₁ < c₂` または（`c₁ = c₂` かつ `d₁ < d₂`）
 
 ### 8.2 各ケースの指標変化
 
 | ケース          | c（複雑度） | d（段数）        | 辞書式順序                     |
 | --------------- | ----------- | ---------------- | ------------------------------ |
 | Case 1: 公理    | —           | —                | カット除去完了                 |
-| Case 2: 非主式  | 不変        | 減少             | (c, d) → (c, d') where d' < d  |
-| Case 3: 主式    | 減少        | 増加の可能性あり | (c, d) → (c', d') where c' < c |
+| Case 2: 非主式  | 不変        | 減少             | (c, d) $\to$ (c, d') where d' < d  |
+| Case 3: 主式    | 減少        | 増加の可能性あり | (c, d) $\to$ (c', d') where c' < c |
 | Case 4a/b: 弱化 | —           | —                | カット除去完了                 |
-| Case 4c/d: 縮約 | 不変        | 減少             | (c, d) → (c, d') where d' < d  |
+| Case 4c/d: 縮約 | 不変        | 減少             | (c, d) $\to$ (c, d') where d' < d  |
 
 ### 8.3 厳密な停止性証明の概略
 
@@ -1570,14 +1570,14 @@ Mix はカット式 `A` の**すべての出現**を一度に除去する。
 
 **命題論理の場合:**
 
-- 入力の証明サイズ $n$ に対し、カット除去後の証明サイズの上界:
-  $2_n(1)$ （高さ $n$ の2の塔 = $2^{2^{2^{\cdots}}}$, $n$ 段）
+- 入力の証明サイズ  n  に対し、カット除去後の証明サイズの上界:
+  $2_n(1)$ （高さ  n  の2の塔 = $2^{2^{2^{\cdots}}}$,  n  段）
 - 下界: Statman (1979) により、この非初等的爆発は避けられないことが証明されている
 
 **主な爆発の原因:**
 
-1. **Case 3（含意）:** 1つのカットが2つのカットに分裂 → 指数的増大
-2. **Case 4c/d（縮約）:** 証明が複製される → 指数的増大
+1. **Case 3（含意）:** 1つのカットが2つのカットに分裂 $\to$ 指数的増大
+2. **Case 4c/d（縮約）:** 証明が複製される $\to$ 指数的増大
 3. **これらの組み合わせ:** 非初等的な爆発
 
 **一階述語論理の場合:** さらに悪化する。項の代入により複雑度は変わらないが、証明の構造が変わりうるため、上界はさらに大きくなる。
@@ -1591,18 +1591,18 @@ Mix はカット式 `A` の**すべての出現**を一度に除去する。
  * 証明の最後の規則でカット式 A が主式（導入された式）かを判定
  *
  * 主式とは: その規則によって新たに導入された（構築された）論理式。
- * 例: →R の主式は B → C、∧L₁ の主式は B ∧ C
+ * 例: $\to$R の主式は B $\to$ C、$\land$L₁ の主式は B $\land$ C
  */
 function isPrincipal(proof: Proof, cutFormula: Formula): boolean {
   switch (proof.tag) {
     case "NegationR":
-      // ¬R の主式は ¬B（後件に導入）
+      // $\lnot$R の主式は $\lnot$B（後件に導入）
       return formulaEquals(
         { tag: "Negation", body: extractBodyFromNegationR(proof) },
         cutFormula,
       );
     case "NegationL":
-      // ¬L の主式は ¬B（前件に導入）
+      // $\lnot$L の主式は $\lnot$B（前件に導入）
       return formulaEquals(
         { tag: "Negation", body: extractBodyFromNegationL(proof) },
         cutFormula,
@@ -1659,29 +1659,29 @@ function substituteInProof(proof: Proof, variable: string, term: Term): Proof {
 ```
 eliminateCuts(proof)
   │
-  ├─ カット階数 = 0 → 完了
+  ├─ カット階数 = 0 $\to$ 完了
   │
-  └─ カット階数 > 0 → reduceTopCut(proof)
+  └─ カット階数 > 0 $\to$ reduceTopCut(proof)
        │
        └─ 最も上のカットを見つける
             │
             └─ reduceCut(A, π_L, π_R)
                  │
-                 ├─ Case 1: 公理 → π_L or π_R をそのまま返す
+                 ├─ Case 1: 公理 $\to$ π_L or π_R をそのまま返す
                  │
-                 ├─ Case 4a/b: 弱化 → 弱化で結論を構築（カット除去完了）
+                 ├─ Case 4a/b: 弱化 $\to$ 弱化で結論を構築（カット除去完了）
                  │
-                 ├─ Case 4c/d: 縮約 → 2回カット + 縮約（段数減少）
+                 ├─ Case 4c/d: 縮約 $\to$ 2回カット + 縮約（段数減少）
                  │
-                 ├─ Case 3: Principal → 論理結合子ごとの分解
-                 │   ├─ ¬: Cut(¬B) → Cut(B)
-                 │   ├─ →: Cut(B→C) → Cut(B) + Cut(C)
-                 │   ├─ ∧: Cut(B∧C) → Cut(B) or Cut(C)
-                 │   ├─ ∨: Cut(B∨C) → Cut(B) or Cut(C)
-                 │   ├─ ∀: Cut(∀x.B) → Cut(B[t/x])
-                 │   └─ ∃: Cut(∃x.B) → Cut(B[t/x])
+                 ├─ Case 3: Principal $\to$ 論理結合子ごとの分解
+                 │   ├─ $\lnot$: Cut($\lnot$B) $\to$ Cut(B)
+                 │   ├─ $\to$: Cut(B$\to$C) $\to$ Cut(B) + Cut(C)
+                 │   ├─ $\land$: Cut(B$\land$C) $\to$ Cut(B) or Cut(C)
+                 │   ├─ $\lor$: Cut(B$\lor$C) $\to$ Cut(B) or Cut(C)
+                 │   ├─ $\forall$: Cut($\forall$x.B) $\to$ Cut(B[t/x])
+                 │   └─ $\exists$: Cut($\exists$x.B) $\to$ Cut(B[t/x])
                  │
-                 └─ Case 2: Non-principal → カットを上に持ち上げ（段数減少）
+                 └─ Case 2: Non-principal $\to$ カットを上に持ち上げ（段数減少）
 ```
 
 ## 参考文献
