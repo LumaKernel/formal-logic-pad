@@ -14514,3 +14514,15 @@
   - 3層分離パターン（純粋ロジック→状態管理→UI）は簡約操作にもそのまま適用可能
   - substitution.ts の normalizeFormula は Prettier でフォーマットが変わるため、新ファイル作成後にprettier --writeが必要
 ---
+
+## 2026-03-15 - Logic Core: 自動証明探索
+- `src/lib/logic-core/proofSearch.ts` を新規作成: 命題論理LKの自動証明探索（backward proof search）
+- `src/lib/logic-core/proofSearch.test.ts` を新規作成: 38テスト（公理、各結合子、トートロジー、証明不可能、ステップ制限）
+- `src/lib/logic-core/index.ts` にエクスポート追加
+- カバレッジ: proofSearch.ts 100%（Stmts/Branch/Funcs/Lines）
+- **今後のイテレーションへの学び:**
+  - MetaVariable名はギリシャ文字のみ（"P"等は使えない）。テストでは φ, ψ, χ 等を使う
+  - ⊥ は Predicate("⊥", []) で表現（専用のFormula variantなし）
+  - ∧⇒ と ⇒∨ は成分選択型だが可逆性により両成分同時展開+構造規則（exchange+contraction）で対処
+  - SC規則は主論理式の位置に制約あり（左規則: pos 0、右規則: 末尾）。exchange規則で調整が必要
+---
