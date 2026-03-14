@@ -44,6 +44,7 @@ export type HubMessages = {
   readonly referenceEmpty: string;
   readonly referenceGuideTitle: string;
   readonly referenceGuideDescription: string;
+  readonly referenceRelatedTopics: string;
   // --- Collection ---
   readonly collectionEmpty: string;
   readonly collectionEntryCount: string;
@@ -92,9 +93,10 @@ export const defaultHubMessages: HubMessages = {
   tabReference: "Reference",
   referenceSearchPlaceholder: "Search reference…",
   referenceEmpty: "No matching entries found.",
-  referenceGuideTitle: "Getting Started",
+  referenceGuideTitle: "Learning Path",
   referenceGuideDescription:
-    "New to formal logic? Follow these guides in order.",
+    "A structured introduction to formal logic. Follow these guides sequentially, exploring related reference articles along the way.",
+  referenceRelatedTopics: "related topics",
   // Collection
   collectionEmpty:
     "No saved proofs yet. Save proofs from your workspace to manage them here.",
@@ -139,6 +141,7 @@ export const hubMessageKeys: readonly (keyof HubMessages)[] = [
   "referenceEmpty",
   "referenceGuideTitle",
   "referenceGuideDescription",
+  "referenceRelatedTopics",
   "collectionEmpty",
   "collectionEntryCount",
   "collectionDelete",

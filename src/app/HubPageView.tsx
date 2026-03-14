@@ -959,6 +959,7 @@ export function HubPageView({
                 emptyMessage={m.referenceEmpty}
                 guideSectionTitle={m.referenceGuideTitle}
                 guideSectionDescription={m.referenceGuideDescription}
+                relatedTopicsLabel={m.referenceRelatedTopics}
                 resolveQuestTitle={resolveQuestTitle}
                 onStartQuest={onStartQuest}
                 testId="reference-browser"

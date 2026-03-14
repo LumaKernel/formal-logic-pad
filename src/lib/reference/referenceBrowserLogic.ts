@@ -121,18 +121,24 @@ export type GuideCardData = {
   readonly title: string;
   readonly summary: string;
   readonly order: number;
+  /** このガイドに関連するリファレンスエントリの数 */
+  readonly relatedEntryCount: number;
 };
 
 export function buildGuideCards(
   entries: readonly ReferenceEntry[],
   locale: Locale,
 ): readonly GuideCardData[] {
+  const entryIdSet = new Set(entries.map((e) => e.id));
   return sortByOrder(filterByCategory(entries, "guide")).map(
     (entry): GuideCardData => ({
       id: entry.id,
       title: getLocalizedText(entry.title, locale),
       summary: getLocalizedText(entry.summary, locale),
       order: entry.order,
+      relatedEntryCount: entry.relatedEntryIds.filter((rid) =>
+        entryIdSet.has(rid),
+      ).length,
     }),
   );
 }

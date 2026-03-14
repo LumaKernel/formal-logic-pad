@@ -111,6 +111,15 @@ const guideCardSummaryStyle: Readonly<CSSProperties> = {
   overflow: "hidden",
 };
 
+const guideCardRelatedStyle: Readonly<CSSProperties> = {
+  fontSize: "10px",
+  color: "var(--ui-muted-foreground)",
+  marginTop: "4px",
+  display: "flex",
+  alignItems: "center",
+  gap: "4px",
+};
+
 const searchBarStyle: Readonly<CSSProperties> = {
   display: "flex",
   gap: "8px",
@@ -255,6 +264,8 @@ export type ReferenceBrowserProps = {
   readonly guideSectionTitle?: string;
   /** ガイドセクションの説明文 */
   readonly guideSectionDescription?: string;
+  /** 関連トピック数のラベル */
+  readonly relatedTopicsLabel?: string;
   /** クエストIDからタイトルを解決する関数（undefinedなら非表示） */
   readonly resolveQuestTitle?: (questId: string) => string | undefined;
   /** クエスト開始コールバック */
@@ -272,6 +283,7 @@ export function ReferenceBrowserComponent({
   emptyMessage = "No matching entries found.",
   guideSectionTitle = "Getting Started",
   guideSectionDescription = "New to formal logic? Start here.",
+  relatedTopicsLabel = "related topics",
   resolveQuestTitle,
   onStartQuest,
   testId,
@@ -390,6 +402,13 @@ export function ReferenceBrowserComponent({
                   <div style={guideCardSummaryStyle}>
                     <InlineMarkdown text={card.summary} />
                   </div>
+                  {card.relatedEntryCount > 0 && (
+                    <div style={guideCardRelatedStyle}>
+                      <span>
+                        + {card.relatedEntryCount} {relatedTopicsLabel}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </button>
             ))}
