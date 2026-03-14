@@ -5607,6 +5607,86 @@ const guideIntroNaturalDeduction: ReferenceEntry = {
   order: 9,
 };
 
+const conceptNdVariants: ReferenceEntry = {
+  id: "concept-nd-variants",
+  category: "concept",
+  title: {
+    en: "NM, NJ, NK — Variants of Natural Deduction",
+    ja: "NM・NJ・NK — 自然演繹の変種",
+  },
+  summary: {
+    en: "Classification of natural deduction by the presence or absence of EFQ and DNE.",
+    ja: "EFQ と DNE の有無による自然演繹の分類。",
+  },
+  body: {
+    en: [
+      "Natural deduction systems are classified into three variants depending on which rules for negation are included. <b>NM</b> (minimal logic), <b>NJ</b> (intuitionistic logic), and <b>NK</b> (classical logic) form a strict hierarchy: NM $\\subset$ NJ $\\subset$ NK.",
+      "<b>NM (Minimal Logic)</b>: Only negation introduction ($\\lnot$I) is included. There is no explosion principle and no double negation elimination. The system corresponds to Johansson's minimal calculus. $\\bot$ (falsum) has no special deductive power.",
+      "<b>NJ (Intuitionistic Logic)</b>: Adds <b>EFQ</b> (ex falso quodlibet, $\\bot \\to \\varphi$) to NM. From a contradiction, any proposition follows. This matches the Brouwer–Heyting–Kolmogorov interpretation where a proof of $\\bot$ (an impossibility) can be transformed into a proof of anything.",
+      "<b>NK (Classical Logic)</b>: Adds <b>DNE</b> (double negation elimination, $\\lnot\\lnot\\varphi \\to \\varphi$) to NJ. This recovers full classical reasoning, including the law of excluded middle ($\\varphi \\lor \\lnot\\varphi$) and proof by contradiction.",
+      "The choice of variant determines which theorems are provable. For example, $\\lnot\\lnot(\\varphi \\lor \\lnot\\varphi)$ is provable in NJ but $\\varphi \\lor \\lnot\\varphi$ itself requires NK. In NM, even $\\lnot\\varphi \\to (\\varphi \\to \\psi)$ is not provable.",
+      "By the Curry–Howard correspondence, NM corresponds to simply typed lambda calculus, NJ to lambda calculus with the empty type, and NK to lambda calculus with continuations (call/cc).",
+    ],
+    ja: [
+      "自然演繹体系は、否定に関するどの規則を含むかによって3つの変種に分類されます。<b>NM</b>（最小論理）、<b>NJ</b>（直観主義論理）、<b>NK</b>（古典論理）は厳密な階層を成します：NM $\\subset$ NJ $\\subset$ NK。",
+      "<b>NM（最小論理）</b>：否定導入（$\\lnot$I）のみを含みます。爆発律も二重否定除去もありません。Johanssonの最小計算に対応します。$\\bot$（矛盾）には特別な演繹力がありません。",
+      "<b>NJ（直観主義論理）</b>：NMに<b>EFQ</b>（爆発律、$\\bot \\to \\varphi$）を追加します。矛盾から任意の命題が導けます。これはBrouwer–Heyting–Kolmogorov解釈に対応し、$\\bot$の証明（不可能性）は任意の命題の証明に変換できます。",
+      "<b>NK（古典論理）</b>：NJに<b>DNE</b>（二重否定除去、$\\lnot\\lnot\\varphi \\to \\varphi$）を追加します。排中律（$\\varphi \\lor \\lnot\\varphi$）や背理法を含む完全な古典的推論が可能になります。",
+      "変種の選択は証明可能な定理を決定します。例えば、$\\lnot\\lnot(\\varphi \\lor \\lnot\\varphi)$ はNJで証明可能ですが、$\\varphi \\lor \\lnot\\varphi$ 自体はNKが必要です。NMでは $\\lnot\\varphi \\to (\\varphi \\to \\psi)$ すら証明できません。",
+      "Curry–Howard対応により、NMは単純型付きラムダ計算に、NJは空型を持つラムダ計算に、NKは継続（call/cc）を持つラムダ計算に対応します。",
+    ],
+  },
+  formalNotation: [
+    "\\text{NM}: \\text{ND rules without EFQ and DNE}",
+    "\\text{NJ}: \\text{NM} + \\text{EFQ}\\ (\\bot \\to \\varphi)",
+    "\\text{NK}: \\text{NJ} + \\text{DNE}\\ (\\lnot\\lnot\\varphi \\to \\varphi)",
+  ],
+  relatedEntryIds: [
+    "rule-nd-overview",
+    "axiom-efq",
+    "axiom-dne",
+    "system-minimal",
+    "system-intuitionistic",
+    "system-classical",
+    "concept-curry-howard",
+    "guide-intro-natural-deduction",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Natural_deduction",
+      label: {
+        en: "Natural deduction (Wikipedia)",
+        ja: "自然演繹 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E8%87%AA%E7%84%B6%E6%BC%94%E7%B9%B9",
+      label: {
+        en: "Natural deduction (Wikipedia JA)",
+        ja: "自然演繹 (Wikipedia)",
+      },
+      documentLanguage: "ja",
+    },
+  ],
+  keywords: [
+    "NM",
+    "NJ",
+    "NK",
+    "minimal logic",
+    "intuitionistic logic",
+    "classical logic",
+    "EFQ",
+    "DNE",
+    "最小論理",
+    "直観主義論理",
+    "古典論理",
+  ],
+  order: 29,
+};
+
 const conceptAbelianGroup: ReferenceEntry = {
   id: "concept-abelian-group",
   category: "concept",
@@ -6513,6 +6593,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptTautology,
   conceptPredicateAxiomSystem,
   conceptRobinsonArithmetic,
+  conceptNdVariants,
   conceptAbelianGroup,
   // Theories
   theoryPeanoArithmetic,
