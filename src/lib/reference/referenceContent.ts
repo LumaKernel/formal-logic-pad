@@ -5521,6 +5521,92 @@ const guideProvingInTheories: ReferenceEntry = {
   order: 8,
 };
 
+const guideIntroNaturalDeduction: ReferenceEntry = {
+  id: "guide-intro-natural-deduction",
+  category: "guide",
+  title: {
+    en: "Introduction to Natural Deduction",
+    ja: "自然演繹入門",
+  },
+  summary: {
+    en: "How natural deduction differs from Hilbert systems: introduction and elimination rules, assumption management, and discharge.",
+    ja: "自然演繹とHilbert系の違い：導入規則と除去規則、仮定の管理と放出。",
+  },
+  body: {
+    en: [
+      "In a Hilbert-style system, proofs are linear sequences of formulas derived from a small number of axiom schemas and one or two inference rules (typically Modus Ponens). <b>Natural deduction</b>, introduced by Gerhard Gentzen in 1934, takes a fundamentally different approach: each logical connective has its own <b>introduction</b> and <b>elimination</b> rules, and proofs can introduce and later <b>discharge</b> (cancel) temporary assumptions.",
+      "<b>Introduction rules</b> tell us how to <i>prove</i> a formula with a given connective. For example, $\\to$-introduction says: if we can derive $\\psi$ from a temporary assumption $\\varphi$, then we may conclude $\\varphi \\to \\psi$ and discharge the assumption $\\varphi$.",
+      "<b>Elimination rules</b> tell us how to <i>use</i> a formula with a given connective. For example, $\\to$-elimination (Modus Ponens) says: from $\\varphi \\to \\psi$ and $\\varphi$, conclude $\\psi$.",
+      "<b>Assumptions and discharge.</b> The key innovation of natural deduction is the management of assumptions. A proof may introduce a temporary assumption at any point. When an introduction rule 'uses up' that assumption, we say the assumption is <b>discharged</b> (or cancelled). Undischarged assumptions remain as the hypotheses of the final theorem.",
+      "<b>Proof trees.</b> Natural deduction proofs are typically represented as trees, not linear sequences. Each leaf is either an axiom instance or an assumption, and each internal node is an application of an inference rule. Discharged assumptions are marked (often with a bracket or number) to show which rule cancelled them.",
+      "<b>Example: proving $\\varphi \\to \\varphi$.</b> Assume $\\varphi$ (as a temporary assumption). We have $\\varphi$ as a conclusion. Apply $\\to$-introduction to obtain $\\varphi \\to \\varphi$, discharging the assumption. In a Hilbert system, this same proof requires multiple steps using axioms A1 and A2.",
+      "<b>Comparison with Hilbert systems.</b> Hilbert systems are axiom-rich and rule-poor (many axiom schemas, few inference rules). Natural deduction is the opposite: axiom-poor and rule-rich (few or no axiom schemas, many inference rules — one pair per connective). Natural deduction proofs are often shorter and closer to informal mathematical reasoning.",
+      "<b>Three variants.</b> There are three main variants of natural deduction, differing in how they handle classical reasoning: <b>NM</b> (minimal logic — no negation rules beyond $\\lnot$-introduction), <b>NJ</b> (intuitionistic — adds <i>ex falso quodlibet</i>: from $\\bot$, conclude anything), and <b>NK</b> (classical — adds double negation elimination: from $\\lnot\\lnot\\varphi$, conclude $\\varphi$).",
+      "<b>Connective rules summary.</b> For each connective: $\\to$ (implication introduction/elimination), $\\land$ (conjunction introduction/elimination-left/elimination-right), $\\lor$ (disjunction introduction-left/introduction-right/elimination), $\\lnot$ (negation introduction/elimination), $\\forall$ (universal introduction/elimination), $\\exists$ (existential introduction/elimination).",
+      "<b>Natural deduction in this application.</b> This application supports natural deduction proofs as tree-structured workspaces. Each node in the tree corresponds to a formula, and edges represent the application of inference rules. Assumptions are explicitly tracked, and the system verifies that all rules are correctly applied.",
+    ],
+    ja: [
+      "Hilbert系では、証明は少数の公理スキーマと1つか2つの推論規則（典型的にはModus Ponens）から導出される論理式の線形列です。<b>自然演繹</b>はGerhard Gentzenが1934年に導入した根本的に異なるアプローチです：各論理結合子が独自の<b>導入規則</b>と<b>除去規則</b>を持ち、証明は一時的な仮定を導入し、後でそれを<b>放出</b>（取り消し）できます。",
+      "<b>導入規則</b>は、特定の結合子を持つ論理式をどう<i>証明する</i>かを示します。たとえば$\\to$導入は：一時的な仮定$\\varphi$から$\\psi$を導出できるなら、$\\varphi \\to \\psi$を結論でき、仮定$\\varphi$を放出します。",
+      "<b>除去規則</b>は、特定の結合子を持つ論理式をどう<i>使う</i>かを示します。たとえば$\\to$除去（Modus Ponens）は：$\\varphi \\to \\psi$と$\\varphi$から$\\psi$を結論します。",
+      "<b>仮定と放出。</b>自然演繹の核心的な革新は仮定の管理です。証明の任意の時点で一時的な仮定を導入できます。導入規則がその仮定を「消費」すると、仮定は<b>放出</b>（取り消し）されたと言います。放出されなかった仮定は最終的な定理の前提として残ります。",
+      "<b>証明木。</b>自然演繹の証明は線形列ではなく木として表現されます。各葉は公理インスタンスまたは仮定であり、各内部ノードは推論規則の適用です。放出された仮定は（括弧や番号で）どの規則が取り消したかを示すために印が付けられます。",
+      "<b>例：$\\varphi \\to \\varphi$の証明。</b>$\\varphi$を一時的な仮定として導入します。$\\varphi$が結論として得られます。$\\to$導入を適用して$\\varphi \\to \\varphi$を得、仮定を放出します。Hilbert系では、同じ証明に公理A1とA2を使う複数のステップが必要です。",
+      "<b>Hilbert系との比較。</b>Hilbert系は公理が多く規則が少ない（多数の公理スキーマ、少数の推論規則）。自然演繹はその逆で：公理が少なく規則が多い（公理スキーマがほぼなく、多数の推論規則 — 各結合子に1組）。自然演繹の証明はしばしば短く、非形式的な数学的推論に近いものです。",
+      "<b>3つの変種。</b>自然演繹には古典的推論の扱い方が異なる3つの主要な変種があります：<b>NM</b>（最小論理 — $\\lnot$導入以外の否定規則なし）、<b>NJ</b>（直観主義 — <i>爆発律</i>を追加：$\\bot$から何でも結論できる）、<b>NK</b>（古典 — 二重否定除去を追加：$\\lnot\\lnot\\varphi$から$\\varphi$を結論できる）。",
+      "<b>結合子規則の概要。</b>各結合子に対して：$\\to$（含意の導入/除去）、$\\land$（連言の導入/左除去/右除去）、$\\lor$（選言の左導入/右導入/除去）、$\\lnot$（否定の導入/除去）、$\\forall$（全称の導入/除去）、$\\exists$（存在の導入/除去）。",
+      "<b>本アプリケーションにおける自然演繹。</b>本アプリケーションは木構造のワークスペースとして自然演繹の証明をサポートします。木の各ノードは論理式に対応し、辺は推論規則の適用を表します。仮定は明示的に追跡され、システムがすべての規則が正しく適用されていることを検証します。",
+    ],
+  },
+  relatedEntryIds: [
+    "rule-nd-overview",
+    "rule-nd-implication",
+    "rule-nd-conjunction",
+    "rule-nd-disjunction",
+    "axiom-efq",
+    "axiom-dne",
+    "guide-hilbert-proof-method",
+    "guide-intro-propositional-logic",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Natural_deduction",
+      label: {
+        en: "Natural deduction (Wikipedia)",
+        ja: "自然演繹 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E8%87%AA%E7%84%B6%E6%BC%94%E7%B9%B9",
+      label: {
+        en: "Natural deduction (Wikipedia JA)",
+        ja: "自然演繹 (Wikipedia)",
+      },
+      documentLanguage: "ja",
+    },
+  ],
+  keywords: [
+    "natural deduction",
+    "introduction",
+    "elimination",
+    "assumption",
+    "discharge",
+    "Gentzen",
+    "NM",
+    "NJ",
+    "NK",
+    "自然演繹",
+    "導入規則",
+    "除去規則",
+    "仮定",
+    "放出",
+  ],
+  order: 9,
+};
+
 const conceptAbelianGroup: ReferenceEntry = {
   id: "concept-abelian-group",
   category: "concept",
@@ -6349,6 +6435,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   guideIntroPredicateLogic,
   guideEqualityAxiomSystem,
   guideProvingInTheories,
+  guideIntroNaturalDeduction,
   // Axioms
   axiomA1,
   axiomA2,
