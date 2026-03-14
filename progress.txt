@@ -14210,3 +14210,21 @@
   - 既存エントリが十分詳細な場合は追加不要と判断して良い（概念エントリ5-6段落あれば十分）
   - 学習パスの順序はガイドのorder値で実現（1-13の連番）
 ---
+
+## 2026-03-14 12:40 - shadcn-ui/Tailwind 削除 (Phase 0)
+- prd-replace-with-ant.md 作成: 5フェーズの詳細移行タスクリスト
+  - 41ファイル・409箇所のTailwindクラス使用を特定
+  - shadcnコンポーネントは button.tsx 1つのみ（未使用）
+- Phase 0 実施: shadcn-ui/Tailwind インフラ完全削除
+  - パッケージ削除: @radix-ui/react-slot, class-variance-authority, tailwind-merge, tailwindcss, @tailwindcss/postcss
+  - components.json, button.tsx 削除
+  - cn() を clsx のみに変更
+  - postcss.config.mjs, .storybook/main.ts, globals.css から Tailwind 設定除去
+- 変更ファイル: package.json, package-lock.json, .storybook/main.ts, postcss.config.mjs, src/app/globals.css, src/lib/utils.ts, tasks/prd-replace-with-ant.md, tasks/prd-inserted-tasks.md
+- typecheck ✅, lint ✅, test ✅ (265 passed, 9333 tests)
+- **今後のイテレーションへの学び:**
+  - shadcn-uiコンポーネント自体は button.tsx 1つだけで未使用だった。実質的な移行対象はTailwindユーティリティクラス（41ファイル）
+  - globals.css の CSS変数システム（--color-*, --font-*）はTailwindに依存せず、そのまま維持可能
+  - @theme inline ブロックがTailwindとCSS変数の橋渡しをしていた。これを削除してもCSS変数自体は有効
+  - Phase 2（Tailwindクラス置き換え）が最大の作業量。CustomQuestListComponent.tsx が90箇所で最多
+---
