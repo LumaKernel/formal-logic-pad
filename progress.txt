@@ -14435,3 +14435,17 @@
   - HubTab union型にタブを追加する際: tabToPath, HubPageViewのナビゲーション、stories、page.tsxルートも追加
   - ScriptEditor関連ファイルは src/components/ScriptEditor/ に配置
 ---
+
+## 2026-03-15 - [Script] 模範解答にスクリプトノード追加
+- ModelAnswerStep union に `script` タグを追加（modelAnswer.ts）
+- buildModelAnswerWorkspace の switch に script ケースを追加（addScriptNode 利用）
+- 全14個のカット除去クエスト（sc-ce-01〜sc-ce-14）の模範解答にカット除去デモスクリプトを付与
+- builtinModelAnswers.ts に CUT_ELIMINATION_DEMO_SCRIPT 定数と cutEliminationScriptStep を追加
+- テスト3件追加（modelAnswer.test.ts）: スクリプトノード生成、stepNodeIds反映、バリデーション
+- カバレッジ: modelAnswer.ts 100%維持
+- 変更ファイル: modelAnswer.ts, modelAnswer.test.ts, builtinModelAnswers.ts
+- **今後のイテレーションへの学び:**
+  - addScriptNode は (ws, title, position, code) の引数順。code は formulaText フィールドに格納される
+  - ModelAnswerStep に新タグ追加時は exhaustive switch が型エラーで変更漏れを検知してくれる
+  - builtinModelAnswers.ts は 500KB超の大きなファイル。ESLint/Babel が deoptimize 警告を出すが正常動作
+---
