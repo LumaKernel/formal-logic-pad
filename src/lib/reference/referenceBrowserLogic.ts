@@ -61,7 +61,10 @@ export function computeCategoryCounts(
     counts.set(category, 0);
   }
   for (const entry of entries) {
-    const current = counts.get(entry.category) /* v8 ignore next -- Mapは全カテゴリで初期化済み */ ?? 0;
+    const current =
+      counts.get(
+        entry.category,
+      ) /* v8 ignore next -- Mapは全カテゴリで初期化済み */ ?? 0;
     counts.set(entry.category, current + 1);
   }
   return counts;
@@ -85,7 +88,10 @@ export function buildCategoryBadges(
     (meta): CategoryBadgeData => ({
       id: meta.id,
       label: getLocalizedText(meta.label, locale),
-      count: counts.get(meta.id) /* v8 ignore next -- Mapは全カテゴリで初期化済み */ ?? 0,
+      count:
+        counts.get(
+          meta.id,
+        ) /* v8 ignore next -- Mapは全カテゴリで初期化済み */ ?? 0,
       isSelected: meta.id === selectedCategory,
     }),
   );

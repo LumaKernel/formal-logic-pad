@@ -195,9 +195,7 @@ describe("proofWorkspace", () => {
         { x: 0, y: 0 },
         "workspace.addAxiom('A1');",
       );
-      expect(result.nodes[0]!.formulaText).toBe(
-        "workspace.addAxiom('A1');",
-      );
+      expect(result.nodes[0]!.formulaText).toBe("workspace.addAxiom('A1');");
     });
   });
 
