@@ -14228,3 +14228,17 @@
   - @theme inline ブロックがTailwindとCSS変数の橋渡しをしていた。これを削除してもCSS変数自体は有効
   - Phase 2（Tailwindクラス置き換え）が最大の作業量。CustomQuestListComponent.tsx が90箇所で最多
 ---
+
+## 2026-03-14 12:55 - Ant Design 導入 (Phase 1)
+- antd, @ant-design/icons インストール
+- AntDesignThemeProvider 作成: useResolvedTheme() → ConfigProvider + darkAlgorithm/defaultAlgorithm
+- 3つのContent コンポーネント（Hub, Workspace, ReferenceViewer）に統合
+- Storybook preview.ts に AntThemeWrapper デコレータ追加
+- 変更ファイル: package.json, .storybook/preview.ts, src/lib/theme/AntDesignThemeProvider.tsx, src/lib/theme/index.ts, src/app/HubContent.tsx, src/app/workspace/[id]/WorkspaceContent.tsx, src/app/reference/[id]/ReferenceViewerContent.tsx
+- typecheck ✅, lint ✅, test ✅ (272 passed, 10950 tests)
+- **今後のイテレーションへの学び:**
+  - AntDesignThemeProvider は ThemeProvider の中に配置（useResolvedTheme を使うため）
+  - Storybook preview.ts は JSX 使えない。React.createElement で ConfigProvider をラップ
+  - テーマトークンは globals.css の CSS変数値と一致させる（colorPrimary等）
+  - Phase 2（41ファイルのTailwind置換）が次の最大作業
+---

@@ -9,13 +9,12 @@
 - [x] `globals.css` から Tailwind ディレクティブ除去
 - [x] typecheck・lint・test 通過確認
 
-## Phase 1: Ant Design 導入・テーマ基盤
+## Phase 1: Ant Design 導入・テーマ基盤 ✅ 完了
 
-- [ ] `antd` と `@ant-design/icons` をインストール
-- [ ] Ant Design の ConfigProvider + theme を設定（Next.js App Router 対応）
-- [ ] 既存 CSS 変数 (`--color-*`, `--font-*`) を Ant Design トークンシステムにマッピング
-- [ ] ダークモード切替: ThemeProvider を Ant Design の `theme.algorithm` (darkAlgorithm) と連携
-- [ ] Storybook に Ant Design テーマプロバイダーを設定
+- [x] `antd` と `@ant-design/icons` をインストール
+- [x] AntDesignThemeProvider 作成（ConfigProvider + darkAlgorithm 連携）
+- [x] HubContent, WorkspaceContent, ReferenceViewerContent に統合
+- [x] Storybook decorator に AntThemeWrapper 追加（light/dark/side-by-side対応）
 
 ## Phase 2: Tailwind ユーティリティクラスの置き換え（41 ファイル・409 箇所）
 
