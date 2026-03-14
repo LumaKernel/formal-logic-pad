@@ -108,6 +108,29 @@
 
 ---
 
+## 2026-03-15 - [Logic Core] 論理式の正規化と置換等価性判定
+- ベースライン: カバレッジ変化なし（equality.ts 100%, substitution.ts 97.65% — 既存の防御的コード未カバー分）
+- **結果: 全テストパス (203テスト: equality 59 + substitution 144)**
+- 実装内容:
+  - `normalizeFormula` を substitution.ts に追加: FormulaSubstitution の解決 + FreeVariableAbsence の簡約
+    - 変数が自由でない FreeVariableAbsence は除去（例: P(y)[/x] → P(y)）
+    - 変数が自由な FreeVariableAbsence は保持（例: P(x)[/x] — 正当だが簡約不可）
+    - 内側の FormulaSubstitution 解決後に FreeVariableAbsence 判定（例: P(x)[a/x][/x] → P(a)）
+  - `equivalentFormula` を equality.ts に追加: 正規化ベースの意味的等価性判定
+    - `P(x)[a/x]` ≡ `P(a)` を正しく判定
+  - index.ts に `normalizeFormula`, `equivalentFormula` をエクスポート
+- 変更ファイル:
+  - src/lib/logic-core/substitution.ts（normalizeFormula追加）
+  - src/lib/logic-core/equality.ts（equivalentFormula追加）
+  - src/lib/logic-core/index.ts（エクスポート追加）
+  - src/lib/logic-core/substitution.test.ts（+19テスト）
+  - src/lib/logic-core/equality.test.ts（+8テスト）
+- **今後のイテレーションへの学び:**
+  - `normalizeFormula` は `resolveFormulaSubstitution` の上位互換（FreeVariableAbsence 簡約も行う）
+  - FreeVariableAbsence の簡約判定は正規化後の式に対して `freeVariablesInFormula` で行う
+  - 等価性の残タスク: 置換の交換律（phi[../x][../y] ≡ phi[../y][../x]）は normalizeFormula では対応できない。専用の正規化ロジック（置換のソート等）が必要
+---
+
 ## 2026-03-14 - [Coverage] ブランチカバレッジ改善
 - ベースライン: Stmts 99.59%, Branch 98.61%, Funcs 98.82%, Lines 99.59%
 - **結果: Stmts 99.64%, Branch 99.03%, Funcs 98.97%, Lines 99.65%**
