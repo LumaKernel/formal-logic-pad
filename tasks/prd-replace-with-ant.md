@@ -1,21 +1,13 @@
 # shadcn-ui → Ant Design 移行タスクリスト
 
-## Phase 0: パッケージ削除・インフラ整理
+## Phase 0: パッケージ削除・インフラ整理 ✅ 完了
 
-- [ ] shadcn-ui 関連パッケージを package.json から削除
-  - `@radix-ui/react-slot` (button.tsx のみで使用)
-  - `class-variance-authority` (button.tsx のみで使用)
-  - `tailwind-merge` (utils.ts の cn() で使用)
-  - `tailwindcss` (CSS フレームワーク本体)
-  - `@tailwindcss/postcss` (PostCSS プラグイン)
-- [ ] `components.json` (shadcn 設定ファイル) を削除
-- [ ] `src/components/ui/button.tsx` を削除（インポートなし・未使用）
-- [ ] `src/lib/utils.ts` の cn() を clsx のみに変更（`twMerge` 除去）
-- [ ] `postcss.config.mjs` から `@tailwindcss/postcss` を除去（空 or 不要なら削除）
-- [ ] `.storybook/main.ts` から Tailwind PostCSS 設定を除去
-- [ ] `src/app/globals.css` から `@import "tailwindcss"` と `@theme inline` ブロック、`@custom-variant dark` を除去
-- [ ] `npm install` で依存関係をクリーンアップ
-- [ ] typecheck・lint・test が通ることを確認
+- [x] shadcn-ui 関連パッケージを package.json から削除
+- [x] `components.json` 削除、`src/components/ui/button.tsx` 削除
+- [x] `src/lib/utils.ts` の cn() を clsx のみに変更
+- [x] `postcss.config.mjs`, `.storybook/main.ts` から Tailwind 除去
+- [x] `globals.css` から Tailwind ディレクティブ除去
+- [x] typecheck・lint・test 通過確認
 
 ## Phase 1: Ant Design 導入・テーマ基盤
 
