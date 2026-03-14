@@ -49,9 +49,7 @@ export class NotProvable extends Data.TaggedError("NotProvable")<
 > {}
 
 /** ステップ数制限超過 */
-export class StepLimitExceeded extends Data.TaggedError(
-  "StepLimitExceeded",
-)<{
+export class StepLimitExceeded extends Data.TaggedError("StepLimitExceeded")<{
   readonly stepsUsed: number;
 }> {}
 

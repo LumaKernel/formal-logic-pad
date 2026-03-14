@@ -6750,6 +6750,88 @@ const qScCe14QuantifierShift: QuestDefinition = {
   version: 1,
 };
 
+// --- 自動証明探索クエスト ---
+
+const qScAp01AutoIdentity: QuestDefinition = {
+  id: "sc-ap-01",
+  category: "sc-auto-proof",
+  title: "自動証明: 恒等律",
+  description:
+    "スクリプトを使って φ → φ を自動証明せよ。proveSequentLK でシーケント ⇒ φ → φ の証明木を生成し、displayScProof でワークスペースに表示する。",
+  difficulty: 1,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "phi -> phi",
+      label: "Goal: φ → φ",
+    },
+  ],
+  hints: [
+    "スクリプトエディタを開き、parseFormula でゴール式をパースしましょう。",
+    "シーケントオブジェクト { antecedents: [], succedents: [formula] } を作成します。",
+    "proveSequentLK(sequent) を呼び出すと証明木が返されます。",
+    "displayScProof(proof) で証明木をワークスペースに展開できます。",
+  ],
+  estimatedSteps: undefined,
+  learningPoint:
+    "proveSequentLK は命題論理 LK の決定手続き。妥当な論理式なら必ず証明が見つかる。これは命題論理の完全性の実践的な体験。",
+  order: 1,
+  version: 1,
+};
+
+const qScAp02AutoContraposition: QuestDefinition = {
+  id: "sc-ap-02",
+  category: "sc-auto-proof",
+  title: "自動証明: 対偶律",
+  description:
+    "スクリプトで (φ → ψ) → (¬ψ → ¬φ) を自動証明せよ。proveSequentLK を使って証明木を生成し、どのような規則適用が行われたか観察しよう。",
+  difficulty: 2,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> (~psi -> ~phi)",
+      label: "Goal: (φ → ψ) → (¬ψ → ¬φ)",
+    },
+  ],
+  hints: [
+    "parseFormula('(phi -> psi) -> (~psi -> ~phi)') でゴール式をパースします。",
+    "antecedents を空配列、succedents にゴール式を入れたシーケントを作ります。",
+    "proveSequentLK で証明木を生成し、displayScProof で表示します。",
+    "生成された証明木のノードを確認し、⇒→、¬⇒、⇒¬ 等の規則がどう使われたか観察しましょう。",
+  ],
+  estimatedSteps: undefined,
+  learningPoint:
+    "自動証明探索は含意と否定の組み合わせも正しく処理する。生成される証明木の構造を読み解くことでシーケント計算の規則適用パターンが理解できる。",
+  order: 2,
+  version: 1,
+};
+
+const qScAp03AutoDeMorgan: QuestDefinition = {
+  id: "sc-ap-03",
+  category: "sc-auto-proof",
+  title: "自動証明: ド・モルガン律",
+  description:
+    "スクリプトで ¬(φ ∧ ψ) → (¬φ ∨ ¬ψ) を自動証明せよ。古典論理 (LK) でのみ成り立つ定理を自動証明し、証明構造を確認しよう。",
+  difficulty: 2,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "~(phi /\\ psi) -> (~phi \\/ ~psi)",
+      label: "Goal: ¬(φ ∧ ψ) → (¬φ ∨ ¬ψ)",
+    },
+  ],
+  hints: [
+    "parseFormula で ¬(φ ∧ ψ) → (¬φ ∨ ¬ψ) をパースします。",
+    "proveSequentLK で証明木を生成します。この定理は古典論理 (LK) でのみ成り立ちます。",
+    "displayScProof で証明木を表示し、∧⇒ や ⇒∨ の規則がどう使われたか確認しましょう。",
+  ],
+  estimatedSteps: undefined,
+  learningPoint:
+    "ド・モルガン律 ¬(φ∧ψ) → (¬φ∨¬ψ) は古典論理の定理（直観主義論理では証明不可能）。自動証明探索で生成される証明を観察することで、古典論理特有の推論パターンが理解できる。",
+  order: 3,
+  version: 1,
+};
+
 // --- 全ビルトインクエスト ---
 
 /** 全ビルトインクエスト定義 */
@@ -7009,4 +7091,7 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qScCe12ExistentialTransitivity,
   qScCe13QuantifierDeMorgan,
   qScCe14QuantifierShift,
+  qScAp01AutoIdentity,
+  qScAp02AutoContraposition,
+  qScAp03AutoDeMorgan,
 ];

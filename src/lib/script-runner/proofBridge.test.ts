@@ -67,6 +67,7 @@ describe("createProofBridges", () => {
     expect(names).toContain("equalFormula");
     expect(names).toContain("equalTerm");
     expect(names).toContain("formatTerm");
+    expect(names).toContain("proveSequentLK");
   });
 });
 
@@ -401,6 +402,95 @@ describe("identifyAxiom ブリッジ", () => {
   });
 });
 
+describe("proveSequentLK ブリッジ", () => {
+  it("妥当なシーケントの証明木を返す", () => {
+    const result = runCode(
+      [
+        "var goal = { antecedents: [], succedents: [parseFormula('phi -> phi')] };",
+        "proveSequentLK(goal);",
+      ].join("\n"),
+    ) as Record<string, unknown>;
+    expect(result).toHaveProperty("_tag");
+    expect(result).toHaveProperty("conclusion");
+  });
+
+  it("含意と連言を含むシーケントの証明に成功する", () => {
+    const result = runCode(
+      [
+        "var goal = { antecedents: [parseFormula('phi /\\\\ psi')], succedents: [parseFormula('psi')] };",
+        "proveSequentLK(goal);",
+      ].join("\n"),
+    ) as Record<string, unknown>;
+    expect(result).toHaveProperty("_tag");
+  });
+
+  it("証明不可能なシーケントで例外をスロー", () => {
+    const msg = runCodeError(
+      [
+        "var goal = { antecedents: [], succedents: [parseFormula('phi')] };",
+        "proveSequentLK(goal);",
+      ].join("\n"),
+    );
+    expect(msg).toContain("Proof search failed");
+    expect(msg).toContain("NotProvable");
+  });
+
+  it("ステップ数制限超過で例外をスロー", () => {
+    const msg = runCodeError(
+      [
+        "var goal = { antecedents: [], succedents: [parseFormula('phi -> phi')] };",
+        "proveSequentLK(goal, { stepLimit: 0 });",
+      ].join("\n"),
+    );
+    expect(msg).toContain("Proof search failed");
+    expect(msg).toContain("StepLimitExceeded");
+  });
+
+  it("非オブジェクトのシーケントで例外をスロー", () => {
+    const msg = runCodeError("proveSequentLK(42);");
+    expect(msg).toContain("sequent must be an object");
+  });
+
+  it("antecedentsが配列でない場合例外をスロー", () => {
+    const msg = runCodeError(
+      "proveSequentLK({ antecedents: 'invalid', succedents: [] });",
+    );
+    expect(msg).toContain("antecedents must be an array");
+  });
+
+  it("succedentsが配列でない場合例外をスロー", () => {
+    const msg = runCodeError(
+      "proveSequentLK({ antecedents: [], succedents: 'invalid' });",
+    );
+    expect(msg).toContain("succedents must be an array");
+  });
+
+  it("nullシーケントで例外をスロー", () => {
+    const msg = runCodeError("proveSequentLK(null);");
+    expect(msg).toContain("sequent must be an object");
+  });
+
+  it("オプションなしで動作する", () => {
+    const result = runCode(
+      [
+        "var goal = { antecedents: [], succedents: [parseFormula('phi -> phi')] };",
+        "proveSequentLK(goal);",
+      ].join("\n"),
+    ) as Record<string, unknown>;
+    expect(result).toHaveProperty("_tag");
+  });
+
+  it("stepLimitが数値でない場合はデフォルト値で動作する", () => {
+    const result = runCode(
+      [
+        "var goal = { antecedents: [], succedents: [parseFormula('phi -> phi')] };",
+        "proveSequentLK(goal, { stepLimit: 'invalid' });",
+      ].join("\n"),
+    ) as Record<string, unknown>;
+    expect(result).toHaveProperty("_tag");
+  });
+});
+
 describe("サンドボックス統合テスト", () => {
   it("parseFormula → applyMP → formatFormula のパイプライン", () => {
     const result = runCode(
@@ -464,5 +554,6 @@ describe("generateProofBridgeTypeDefs", () => {
     expect(typeDefs).toContain("declare function parseFormula");
     expect(typeDefs).toContain("declare function applyMP");
     expect(typeDefs).toContain("declare function identifyAxiom");
+    expect(typeDefs).toContain("declare function proveSequentLK");
   });
 });

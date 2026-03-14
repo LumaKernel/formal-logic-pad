@@ -24,6 +24,7 @@ import {
   encodeFormula,
   encodeTerm,
   termVariable,
+  proveSequentLK,
 } from "../logic-core";
 import type { Formula } from "../logic-core/formula";
 import type { Term } from "../logic-core/term";
@@ -31,6 +32,7 @@ import type { LogicSystem } from "../logic-core/inferenceRule";
 import { substituteFormulaMetaVariables } from "../logic-core/substitution";
 import type { FormulaSubstitutionMap } from "../logic-core/substitution";
 import type { NativeFunctionBridge } from "./scriptRunner";
+import { encodeScProofNode } from "./cutEliminationBridge";
 
 // ── ヘルパー: デコード・バリデーション ─────────────────────
 
@@ -279,6 +281,60 @@ const applyGeneralizationFn = (
   return encodeFormula(result.right.conclusion);
 };
 
+/**
+ * シーケント計算の自動証明探索 (LK)。
+ * sequent: { antecedents: FormulaJson[], succedents: FormulaJson[] }
+ * options?: { stepLimit?: number }
+ * 成功時は ScProofNodeJson を返す。失敗時は throw。
+ */
+const proveSequentLKFn = (
+  sequentJson: unknown,
+  optionsArg?: unknown,
+): unknown => {
+  if (
+    sequentJson === null ||
+    sequentJson === undefined ||
+    typeof sequentJson !== "object"
+  ) {
+    throw new Error("proveSequentLK: sequent must be an object");
+  }
+  const seq = sequentJson as Record<string, unknown>;
+  if (!Array.isArray(seq["antecedents"])) {
+    throw new Error("proveSequentLK: sequent.antecedents must be an array");
+  }
+  if (!Array.isArray(seq["succedents"])) {
+    throw new Error("proveSequentLK: sequent.succedents must be an array");
+  }
+  const antecedents = (seq["antecedents"] as readonly unknown[]).map(
+    decodeFormulaOrThrow,
+  );
+  const succedents = (seq["succedents"] as readonly unknown[]).map(
+    decodeFormulaOrThrow,
+  );
+
+  const options: { readonly stepLimit?: number } | undefined =
+    optionsArg !== null &&
+    optionsArg !== undefined &&
+    typeof optionsArg === "object"
+      ? {
+          stepLimit:
+            typeof (optionsArg as Record<string, unknown>)["stepLimit"] ===
+            "number"
+              ? ((optionsArg as Record<string, unknown>)["stepLimit"] as number)
+              : undefined,
+        }
+      : undefined;
+
+  const result = proveSequentLK({ antecedents, succedents }, options);
+
+  if (Either.isLeft(result)) {
+    const tag = result.left._tag satisfies string;
+    throw new Error(`Proof search failed: ${tag satisfies string}`);
+  }
+
+  return encodeScProofNode(result.right);
+};
+
 // ── ブリッジ生成 ──────────────────────────────────────────────
 
 /**
@@ -309,6 +365,7 @@ export const createProofBridges = (): readonly NativeFunctionBridge[] => [
   { name: "unifyTerms", fn: unifyTermsFn },
   { name: "substituteFormula", fn: substituteFormulaFn },
   { name: "identifyAxiom", fn: identifyAxiomFn },
+  { name: "proveSequentLK", fn: proveSequentLKFn },
 ];
 
 // ── API 定義（Monaco Editor 補完用）──────────────────────────
@@ -392,6 +449,13 @@ export const PROOF_BRIDGE_API_DEFS: readonly ProofBridgeApiDef[] = [
     signature:
       "(formula: FormulaJson, system: LogicSystemJson) => AxiomIdentificationResult",
     description: "Formula が指定体系の公理インスタンスかどうか識別する。",
+  },
+  {
+    name: "proveSequentLK",
+    signature:
+      "(sequent: SequentJson, options?: { stepLimit?: number }) => ScProofNodeJson",
+    description:
+      "命題論理シーケント計算（LK）の自動証明探索。シーケントが妥当なら証明木を返す。証明不可能またはステップ数超過時は例外をスロー。",
   },
 ];
 
