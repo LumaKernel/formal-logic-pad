@@ -39,6 +39,7 @@ export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
  * - "at-basics": 分析的タブローの基礎（AT命題論理）
  * - "predicate-advanced": 述語論理の上級
  * - "sc-cut-elimination": カット除去の体験（カット規則の活用と除去）
+ * - "sc-auto-proof": 自動証明探索（スクリプトで証明木を生成）
  */
 export type QuestCategory =
   | "propositional-basics"
@@ -56,7 +57,8 @@ export type QuestCategory =
   | "tab-basics"
   | "at-basics"
   | "sc-basics"
-  | "sc-cut-elimination";
+  | "sc-cut-elimination"
+  | "sc-auto-proof";
 
 /** カテゴリのメタデータ */
 export type QuestCategoryMeta = {
@@ -168,6 +170,13 @@ export const questCategories: readonly QuestCategoryMeta[] = [
     description:
       "カット規則を活用した証明を構成し、カット除去ステッパーで除去過程を体験する。カット除去定理（Gentzenの基本定理）の理解を深める。",
     order: 16,
+  },
+  {
+    id: "sc-auto-proof",
+    label: "自動証明探索",
+    description:
+      "スクリプトで proveSequentLK を呼び出し、命題論理の定理を自動的に証明する。完全性定理の実践的理解を目指す。",
+    order: 17,
   },
 ] as const;
 

@@ -6,11 +6,7 @@ import {
   StepLimitExceeded,
   DEFAULT_SEARCH_STEP_LIMIT,
 } from "./proofSearch";
-import {
-  sequent,
-  getScConclusion,
-  validateScProof,
-} from "./sequentCalculus";
+import { sequent, getScConclusion, validateScProof } from "./sequentCalculus";
 import {
   metaVariable,
   negation,
@@ -154,10 +150,7 @@ describe("左規則", () => {
 
   it("∨⇒: P ∨ Q, P → R, Q → R ⇒ R", () => {
     expectProvable(
-      sequent(
-        [disjunction(p, q), implication(p, r), implication(q, r)],
-        [r],
-      ),
+      sequent([disjunction(p, q), implication(p, r), implication(q, r)], [r]),
     );
   });
 });
@@ -211,28 +204,19 @@ describe("古典論理のトートロジー", () => {
 
   it("対偶: (P → Q) ⇒ (¬Q → ¬P)", () => {
     expectProvable(
-      sequent(
-        [implication(p, q)],
-        [implication(negation(q), negation(p))],
-      ),
+      sequent([implication(p, q)], [implication(negation(q), negation(p))]),
     );
   });
 
   it("Peirceの法則: ⇒ ((P → Q) → P) → P", () => {
     expectProvable(
-      sequent(
-        [],
-        [implication(implication(implication(p, q), p), p)],
-      ),
+      sequent([], [implication(implication(implication(p, q), p), p)]),
     );
   });
 
   it("三段論法: (P → Q), (Q → R) ⇒ (P → R)", () => {
     expectProvable(
-      sequent(
-        [implication(p, q), implication(q, r)],
-        [implication(p, r)],
-      ),
+      sequent([implication(p, q), implication(q, r)], [implication(p, r)]),
     );
   });
 
@@ -278,10 +262,9 @@ describe("ステップ数制限", () => {
   });
 
   it("制限を1に設定すると複合式で超過する", () => {
-    const result = proveSequentLK(
-      sequent([], [implication(p, p)]),
-      { stepLimit: 1 },
-    );
+    const result = proveSequentLK(sequent([], [implication(p, p)]), {
+      stepLimit: 1,
+    });
     expect(Either.isLeft(result)).toBe(true);
     if (!Either.isLeft(result)) throw new Error("unreachable");
     expect(result.left._tag).toBe("StepLimitExceeded");

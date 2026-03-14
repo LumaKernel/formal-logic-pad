@@ -9,8 +9,8 @@ import type { WorkspaceCommandHandler } from "./workspaceBridge";
 import type { NativeFunctionBridge } from "./scriptRunner";
 
 describe("BUILTIN_TEMPLATES", () => {
-  it("3つのテンプレートを含む", () => {
-    expect(BUILTIN_TEMPLATES).toHaveLength(3);
+  it("4つのテンプレートを含む", () => {
+    expect(BUILTIN_TEMPLATES).toHaveLength(4);
   });
 
   it("各テンプレートが必須フィールドを持つ", () => {
@@ -151,6 +151,19 @@ describe("テンプレート実行テスト", () => {
       );
     }
     expect(result._tag).toBe("Ok");
+    expect(consoleLogs.some((l) => l.includes("Q.E.D."))).toBe(true);
+  });
+
+  it("auto-prove-lk: 正常に実行される", () => {
+    const tmpl = BUILTIN_TEMPLATES.find((t) => t.id === "auto-prove-lk")!;
+    const result = runTemplate(tmpl);
+    if (result._tag === "Error") {
+      throw new Error(
+        `Template failed: ${JSON.stringify(result.error) satisfies string}`,
+      );
+    }
+    expect(result._tag).toBe("Ok");
+    expect(consoleLogs.some((l) => l.includes("自動証明探索"))).toBe(true);
     expect(consoleLogs.some((l) => l.includes("Q.E.D."))).toBe(true);
   });
 });

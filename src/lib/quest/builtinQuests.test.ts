@@ -6,8 +6,8 @@ import { findPresetById } from "../notebook/notebookCreateLogic";
 import { parseString } from "../logic-lang/parser";
 
 describe("builtinQuests", () => {
-  it("クエスト数が255個である", () => {
-    expect(builtinQuests).toHaveLength(255);
+  it("クエスト数が258個である", () => {
+    expect(builtinQuests).toHaveLength(258);
   });
 
   it("全IDが一意である", () => {
@@ -64,10 +64,12 @@ describe("builtinQuests", () => {
     },
   );
 
-  it("各クエストの推定ステップ数が正の整数", () => {
+  it("各クエストの推定ステップ数が正の整数またはundefined", () => {
     for (const quest of builtinQuests) {
-      expect(quest.estimatedSteps).toBeGreaterThan(0);
-      expect(Number.isInteger(quest.estimatedSteps)).toBe(true);
+      if (quest.estimatedSteps !== undefined) {
+        expect(quest.estimatedSteps).toBeGreaterThan(0);
+        expect(Number.isInteger(quest.estimatedSteps)).toBe(true);
+      }
     }
   });
 

@@ -247,10 +247,44 @@ console.log("Q.E.D.");
 };
 
 /**
+ * 自動証明探索テンプレート: proveSequentLK で証明木を生成する例。
+ */
+const autoProveTemplate: ScriptTemplate = {
+  id: "auto-prove-lk",
+  title: "自動証明探索 (LK)",
+  description:
+    "proveSequentLK を使って命題論理の定理を自動的に証明し、証明木をキャンバスに表示する。",
+  code: `// 自動証明探索 (LK) の実演
+//
+// proveSequentLK を使って、命題論理の定理を自動的に証明します。
+// 証明木は displayScProof でキャンバスに表示されます。
+
+// 証明したいシーケント: ⇒ φ → φ
+var goal = {
+  antecedents: [],
+  succedents: [parseFormula("phi -> phi")]
+};
+
+console.log("=== 自動証明探索 (LK) ===");
+console.log("ゴール: ⇒ φ → φ");
+console.log("");
+
+// 証明探索を実行
+var proof = proveSequentLK(goal);
+
+// 証明木をキャンバスに表示
+console.log("証明が見つかりました！");
+displayScProof(proof);
+console.log("Q.E.D.");
+`,
+};
+
+/**
  * ビルトインテンプレート一覧。
  */
 export const BUILTIN_TEMPLATES: readonly ScriptTemplate[] = [
   cutEliminationSimple,
   cutEliminationImplication,
   buildIdentityProof,
+  autoProveTemplate,
 ];
