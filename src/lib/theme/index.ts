@@ -28,3 +28,9 @@ export {
   useThemeContext,
   useThemeMode,
 } from "./ThemeProvider";
+
+// Ant Design integration
+export {
+  AntDesignThemeProvider,
+  type AntDesignThemeProviderProps,
+} from "./AntDesignThemeProvider";

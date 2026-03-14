@@ -38,6 +38,7 @@ import {
   type CreateCustomQuestParams,
 } from "../lib/quest";
 import { ThemeProvider } from "../lib/theme/ThemeProvider";
+import { AntDesignThemeProvider } from "../lib/theme/AntDesignThemeProvider";
 import type { DeductionSystem } from "../lib/logic-core/deductionSystem";
 import type { QuestDefinition } from "../lib/quest/questDefinition";
 import { prepareQuestStart } from "../lib/quest/questStartLogic";
@@ -609,7 +610,9 @@ function HubInner({ initialTab }: HubContentProps) {
 export default function HubContent({ initialTab }: HubContentProps) {
   return (
     <ThemeProvider>
-      <HubInner initialTab={initialTab} />
+      <AntDesignThemeProvider>
+        <HubInner initialTab={initialTab} />
+      </AntDesignThemeProvider>
     </ThemeProvider>
   );
 }
