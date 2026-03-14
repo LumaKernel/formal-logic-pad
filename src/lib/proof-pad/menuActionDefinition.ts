@@ -133,6 +133,13 @@ export const allMenuActions: readonly MenuActionDefinition[] = [
     contexts: ["node-context-menu"],
     group: "inference-rules",
   },
+  {
+    id: "normalize-formula",
+    label: { en: "Normalize Formula", ja: "論理式を簡約" },
+    contexts: ["node-context-menu"],
+    group: "node-edit",
+    note: "Resolves substitution chains and simplifies FreeVariableAbsence",
+  },
 
   // --- キャンバスメニュー ---
   {

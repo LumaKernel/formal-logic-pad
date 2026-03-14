@@ -144,6 +144,7 @@ import {
   duplicateNode,
   cutSelectedNodes,
   applySubstitutionAndConnect,
+  applyNormalize,
   applyTreeLayout,
   revalidateInferenceConclusions,
   updateInferenceEdgeGenVariableName,
@@ -3011,6 +3012,17 @@ export function ProofWorkspace({
     [],
   );
 
+  // --- 論理式簡約（Normalize） ---
+  const handleNormalizeFormula = useCallback(() => {
+    /* v8 ignore start -- 防御的: メニューが開いている時のみ呼ばれる */
+    if (!nodeMenuState.open) return;
+    /* v8 ignore stop */
+    const nodeId = nodeMenuState.nodeId;
+    const result = applyNormalize(workspace, nodeId);
+    setWorkspace(result.workspace);
+    setNodeMenuState(closeNodeMenu());
+  }, [nodeMenuState, workspace, setWorkspace]);
+
   // --- エッジバッジ編集（ポップオーバー） ---
   const [edgeBadgeEditState, setEdgeBadgeEditState] =
     useState<EdgeBadgeEditState | null>(null);
@@ -5642,6 +5654,17 @@ export function ProofWorkspace({
                   testId
                     ? `${testId satisfies string}-apply-substitution-to-node`
                     : "apply-substitution-to-node"
+                  /* v8 ignore stop */
+                }
+              />
+              <WorkspaceMenuItem
+                label={msg.normalizeFormula}
+                onClick={handleNormalizeFormula}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-normalize-formula`
+                    : "normalize-formula"
                   /* v8 ignore stop */
                 }
               />

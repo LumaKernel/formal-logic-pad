@@ -11,6 +11,7 @@ import {
   getMPErrorMessageKey,
   getGenErrorMessageKey,
   getSubstitutionErrorMessageKey,
+  getNormalizeErrorMessageKey,
   processValidationResult,
   formatMessage,
   type ProofMessages,
@@ -40,6 +41,12 @@ import {
   SubstFormulaParseError,
   SubstTermParseError,
 } from "./substitutionApplicationLogic";
+import type { NormalizeApplicationError } from "./normalizeApplicationLogic";
+import {
+  NormalizeParseError,
+  NormalizeNoChange,
+  NormalizeEmptyFormula,
+} from "./normalizeApplicationLogic";
 import { metaVariable } from "../logic-core/formula";
 import { NotAnImplication, PremiseMismatch } from "../logic-core/inferenceRule";
 
@@ -231,6 +238,37 @@ describe("getSubstitutionErrorMessageKey", () => {
 
     for (const error of errors) {
       const key = getSubstitutionErrorMessageKey(error);
+      expect(key in defaultProofMessages).toBe(true);
+      expect(defaultProofMessages[key]).toBeTruthy();
+    }
+  });
+});
+
+describe("getNormalizeErrorMessageKey", () => {
+  it("should return normalizeParseError for NormalizeParseError", () => {
+    const error: NormalizeApplicationError = new NormalizeParseError({});
+    expect(getNormalizeErrorMessageKey(error)).toBe("normalizeParseError");
+  });
+
+  it("should return normalizeNoChange for NormalizeNoChange", () => {
+    const error: NormalizeApplicationError = new NormalizeNoChange({});
+    expect(getNormalizeErrorMessageKey(error)).toBe("normalizeNoChange");
+  });
+
+  it("should return normalizeEmptyFormula for NormalizeEmptyFormula", () => {
+    const error: NormalizeApplicationError = new NormalizeEmptyFormula({});
+    expect(getNormalizeErrorMessageKey(error)).toBe("normalizeEmptyFormula");
+  });
+
+  it("should return a valid key for all error types", () => {
+    const errors: readonly NormalizeApplicationError[] = [
+      new NormalizeParseError({}),
+      new NormalizeNoChange({}),
+      new NormalizeEmptyFormula({}),
+    ];
+
+    for (const error of errors) {
+      const key = getNormalizeErrorMessageKey(error);
       expect(key in defaultProofMessages).toBe(true);
       expect(defaultProofMessages[key]).toBeTruthy();
     }

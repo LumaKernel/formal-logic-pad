@@ -14,6 +14,7 @@
 import type { MPApplicationError } from "./mpApplicationLogic";
 import type { GenApplicationError } from "./genApplicationLogic";
 import type { SubstitutionApplicationError } from "./substitutionApplicationLogic";
+import type { NormalizeApplicationError } from "./normalizeApplicationLogic";
 
 // --- メッセージキー定義 ---
 
@@ -111,6 +112,13 @@ export type ProofMessages = {
   readonly substErrorFormulaParse: string;
   readonly substErrorTermParse: string;
   readonly substEntryPrompt: string;
+
+  // --- Normalize ---
+  readonly normalizeFormula: string;
+  readonly normalizeApplied: string;
+  readonly normalizeNoChange: string;
+  readonly normalizeParseError: string;
+  readonly normalizeEmptyFormula: string;
 
   // --- コンテキストメニュー ---
   readonly selectSubtree: string;
@@ -376,6 +384,13 @@ export const defaultProofMessages: ProofMessages = {
   substErrorTermParse: "Invalid term in substitution entry",
   substEntryPrompt: "Substitution entries:",
 
+  // Normalize
+  normalizeFormula: "Normalize Formula",
+  normalizeApplied: "Formula normalized",
+  normalizeNoChange: "Formula is already normalized",
+  normalizeParseError: "Cannot normalize: invalid formula",
+  normalizeEmptyFormula: "Cannot normalize: empty formula",
+
   // Context menu
   selectSubtree: "Select Subtree",
   selectProof: "Select Proof",
@@ -597,6 +612,22 @@ export function getSubstitutionErrorMessageKey(
       return "substErrorFormulaParse";
     case "SubstTermParseError":
       return "substErrorTermParse";
+  }
+}
+
+/**
+ * Normalize適用エラーに対応するメッセージキーを返す。
+ */
+export function getNormalizeErrorMessageKey(
+  error: NormalizeApplicationError,
+): keyof ProofMessages {
+  switch (error._tag) {
+    case "NormalizeParseError":
+      return "normalizeParseError";
+    case "NormalizeNoChange":
+      return "normalizeNoChange";
+    case "NormalizeEmptyFormula":
+      return "normalizeEmptyFormula";
   }
 }
 

@@ -886,7 +886,11 @@ const collectSubstitutionChain = (
     current._tag === "FreeVariableAbsence"
   ) {
     if (current._tag === "FormulaSubstitution") {
-      ops.push({ kind: "subst", variable: current.variable, term: current.term });
+      ops.push({
+        kind: "subst",
+        variable: current.variable,
+        term: current.term,
+      });
     } else {
       ops.push({ kind: "absence", variable: current.variable });
     }
@@ -963,7 +967,10 @@ const removeRedundantAbsences = (
     // この absence より後に同変数の subst があれば冗長
     for (let j = idx + 1; j < ops.length; j++) {
       const laterOp = ops[j];
-      if (laterOp.kind === "subst" && laterOp.variable.name === op.variable.name) {
+      if (
+        laterOp.kind === "subst" &&
+        laterOp.variable.name === op.variable.name
+      ) {
         return false;
       }
     }
@@ -1076,7 +1083,8 @@ const normalizeFormulaRec = (f: Formula): Formula => {
 
       // MetaVariable ベースの場合: 置換を解決できないためチェーン正規化
       if (hasMetaVariableBase(resolvedInner)) {
-        const { base, ops: existingOps } = collectSubstitutionChain(resolvedInner);
+        const { base, ops: existingOps } =
+          collectSubstitutionChain(resolvedInner);
         const allOps: readonly SubstitutionOp[] = [
           ...existingOps,
           { kind: "subst" as const, variable: f.variable, term: f.term },
@@ -1093,7 +1101,8 @@ const normalizeFormulaRec = (f: Formula): Formula => {
 
       // MetaVariable ベースの場合: FreeVariableAbsence を保持してチェーン正規化
       if (hasMetaVariableBase(normalizedInner)) {
-        const { base, ops: existingOps } = collectSubstitutionChain(normalizedInner);
+        const { base, ops: existingOps } =
+          collectSubstitutionChain(normalizedInner);
         const allOps: readonly SubstitutionOp[] = [
           ...existingOps,
           { kind: "absence" as const, variable: f.variable },

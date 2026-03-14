@@ -47,6 +47,7 @@ import {
   applyScRuleAndConnect,
   importProofFromCollection,
   addScriptNode,
+  applyNormalize,
 } from "./workspaceState";
 import {
   hilbertDeduction,
@@ -781,6 +782,63 @@ describe("proofWorkspace", () => {
 
       expect(ws.nodes).toHaveLength(1);
       expect(ws.connections).toHaveLength(0);
+    });
+  });
+
+  describe("applyNormalize", () => {
+    it("normalizes formula with resolvable substitution", () => {
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "P(x)[a/x]");
+      const result = applyNormalize(ws, "node-1");
+      expect(Either.isRight(result.validation)).toBe(true);
+      if (Either.isRight(result.validation)) {
+        expect(result.validation.right.normalizedText).toBe("P(a)");
+      }
+      // ノードのformulaTextが更新されている
+      const node = result.workspace.nodes.find((n) => n.id === "node-1");
+      expect(node?.formulaText).toBe("P(a)");
+    });
+
+    it("returns NormalizeNoChange for already normalized formula", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> psi");
+      const result = applyNormalize(ws, "node-1");
+      expect(Either.isLeft(result.validation)).toBe(true);
+      if (Either.isLeft(result.validation)) {
+        expect(result.validation.left._tag).toBe("NormalizeNoChange");
+      }
+      // ワークスペースは変更されない
+      expect(result.workspace).toBe(ws);
+    });
+
+    it("returns NormalizeEmptyFormula for empty formula", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "");
+      const result = applyNormalize(ws, "node-1");
+      expect(Either.isLeft(result.validation)).toBe(true);
+      if (Either.isLeft(result.validation)) {
+        expect(result.validation.left._tag).toBe("NormalizeEmptyFormula");
+      }
+    });
+
+    it("returns NormalizeParseError for invalid formula", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "-> bad");
+      const result = applyNormalize(ws, "node-1");
+      expect(Either.isLeft(result.validation)).toBe(true);
+      if (Either.isLeft(result.validation)) {
+        expect(result.validation.left._tag).toBe("NormalizeParseError");
+      }
+    });
+
+    it("triggers syncInferenceEdges after normalization", () => {
+      // ノード1の論理式を変更すると、それに依存するMP結論が再検証される
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "P(x)[a/x]");
+      const result = applyNormalize(ws, "node-1");
+      // 正常に更新される（syncInferenceEdgesが走っても問題ない）
+      expect(Either.isRight(result.validation)).toBe(true);
+      expect(result.workspace.nodes[0]?.formulaText).toBe("P(a)");
     });
   });
 

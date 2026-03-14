@@ -52,6 +52,7 @@ export {
   applyMPAndConnect,
   applyGenAndConnect,
   applySubstitutionAndConnect,
+  applyNormalize,
   applyTabRuleAndConnect,
   applyAtRuleAndConnect,
   applyScRuleAndConnect,
@@ -79,6 +80,7 @@ export type {
   ApplyMPResult,
   ApplyGenResult,
   ApplySubstitutionResult,
+  ApplyNormalizeResult,
   ApplyTabRuleResult,
   ApplyAtRuleResult,
   ApplyScRuleResult,
@@ -168,6 +170,18 @@ export type {
   SubstitutionApplicationError,
   SubstitutionApplicationResult,
 } from "./substitutionApplicationLogic";
+export {
+  validateNormalizeApplicationEffect,
+  validateNormalizeApplication,
+  NormalizeParseError,
+  NormalizeNoChange,
+  NormalizeEmptyFormula,
+} from "./normalizeApplicationLogic";
+export type {
+  NormalizeApplicationSuccess,
+  NormalizeApplicationError,
+  NormalizeApplicationResult,
+} from "./normalizeApplicationLogic";
 export {
   validateNdApplicationEffect,
   validateNdApplication,
@@ -404,6 +418,7 @@ export {
   getMPErrorMessageKey,
   getGenErrorMessageKey,
   getSubstitutionErrorMessageKey,
+  getNormalizeErrorMessageKey,
   formatMessage,
 } from "./proofMessages";
 export type { ProofMessages } from "./proofMessages";

@@ -36,6 +36,10 @@ import {
   type SubstitutionApplicationResult,
   type SubstitutionEntries,
 } from "./substitutionApplicationLogic";
+import {
+  validateNormalizeApplication,
+  type NormalizeApplicationResult,
+} from "./normalizeApplicationLogic";
 import { validateNdApplication } from "./ndApplicationLogic";
 import {
   validateTabApplication,
@@ -880,6 +884,52 @@ export function applySubstitutionAndConnect(
   }
 
   return { workspace: ws, substitutionNodeId, validation };
+}
+
+// --- 論理式簡約（Normalize）操作 ---
+
+/** 簡約操作の結果 */
+export type ApplyNormalizeResult = {
+  readonly workspace: WorkspaceState;
+  readonly validation: NormalizeApplicationResult;
+};
+
+/**
+ * ノードの論理式を簡約（正規化）する。
+ * 置換チェーンの解決や FreeVariableAbsence の簡約を行い、
+ * 論理式テキストを簡約後のテキストに置き換える。
+ *
+ * @param state 現在のワークスペース状態
+ * @param nodeId 簡約対象のノードID
+ * @returns 新しいワークスペース状態と検証結果
+ */
+export function applyNormalize(
+  state: WorkspaceState,
+  nodeId: string,
+): ApplyNormalizeResult {
+  const node = state.nodes.find((n) => n.id === nodeId);
+
+  /* v8 ignore start -- 防御的コード: ノードが存在しない場合（通常UIから到達不能） */
+  if (!node) {
+    return {
+      workspace: state,
+      validation: validateNormalizeApplication(""),
+    };
+  }
+  /* v8 ignore stop */
+
+  const validation = validateNormalizeApplication(node.formulaText);
+
+  if (Either.isRight(validation)) {
+    const ws = updateNodeFormulaText(
+      state,
+      nodeId,
+      validation.right.normalizedText,
+    );
+    return { workspace: ws, validation };
+  }
+
+  return { workspace: state, validation };
 }
 
 // --- TAB規則適用（ノード作成 + InferenceEdge + 前提シーケント自動生成） ---

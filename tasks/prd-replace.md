@@ -5,7 +5,8 @@
   - [x] x[/x] はあくまでも、なににも変換(簡約)できないだけで、正当なものになる。
     - normalizeFormula で FreeVariableAbsence の変数が自由な場合は保持、自由でない場合は除去
   - [x] 等価性の判定はより柔軟にする — 置換チェーン正規化で実現済み（archived）
-  - [ ] 簡約化のサポートをしよう。簡約処理をなるべくした論理式へ置き換える操作として、MPなどと同じようにコンテキストメニューから起動できるものにしよう
+  - [x] 簡約化のサポートをしよう。簡約処理をなるべくした論理式へ置き換える操作として、MPなどと同じようにコンテキストメニューから起動できるものにしよう
+    - normalizeApplicationLogic.ts で純粋バリデーション、workspaceState.ts で状態管理、ProofWorkspace.tsx でUI統合。menuActionDefinition.ts に "normalize-formula" メニュー項目追加
 
 === 参考の過去タスク ===
 
