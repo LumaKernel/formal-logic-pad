@@ -764,4 +764,87 @@ describe("ScriptRunner", () => {
       }
     });
   });
+
+  describe("getScope", () => {
+    it("ユーザー定義変数を取得できる", () => {
+      const runner = getRunner(
+        createScriptRunner('var x = 42; var y = "hello";'),
+      );
+      runner.run();
+      const scope = runner.getScope();
+      expect(scope).toEqual(
+        expect.arrayContaining([
+          { name: "x", value: 42 },
+          { name: "y", value: "hello" },
+        ]),
+      );
+    });
+
+    it("オブジェクトや配列も取得できる", () => {
+      const runner = getRunner(
+        createScriptRunner("var obj = {a: 1, b: [2, 3]};"),
+      );
+      runner.run();
+      const scope = runner.getScope();
+      const objVar = scope.find((v) => v.name === "obj");
+      expect(objVar).toBeDefined();
+      expect(objVar?.value).toEqual({ a: 1, b: [2, 3] });
+    });
+
+    it("ビルトインプロパティを除外する", () => {
+      const runner = getRunner(createScriptRunner("var x = 1;"));
+      runner.run();
+      const scope = runner.getScope();
+      const names = scope.map((v) => v.name);
+      expect(names).not.toContain("NaN");
+      expect(names).not.toContain("Array");
+      expect(names).not.toContain("Math");
+      expect(names).not.toContain("console");
+      expect(names).toContain("x");
+    });
+
+    it("ブリッジ関数を除外する", () => {
+      const runner = getRunner(
+        createScriptRunner("var x = 1;", {
+          bridges: [{ name: "myBridge", fn: () => 42 }],
+        }),
+      );
+      runner.run();
+      const scope = runner.getScope();
+      const names = scope.map((v) => v.name);
+      expect(names).not.toContain("myBridge");
+      expect(names).toContain("x");
+    });
+
+    it("ステップ実行中の途中状態を取得できる", () => {
+      const runner = getRunner(
+        createScriptRunner("var a = 1; var b = 2; var c = a + b;"),
+      );
+      // 実行完了前にステップ実行して途中の変数を確認
+      let scopeAtEnd;
+      for (;;) {
+        const status = runner.step();
+        if (status._tag !== "Running") {
+          scopeAtEnd = runner.getScope();
+          break;
+        }
+      }
+      expect(scopeAtEnd).toEqual(
+        expect.arrayContaining([
+          { name: "a", value: 1 },
+          { name: "b", value: 2 },
+          { name: "c", value: 3 },
+        ]),
+      );
+    });
+
+    it("実行前はhoistingされた変数がundefinedで表示される", () => {
+      const runner = getRunner(createScriptRunner("var x = 1;"));
+      const scope = runner.getScope();
+      // JS-Interpreterはhoistingにより変数宣言をパース時に登録する
+      const xVar = scope.find((v) => v.name === "x");
+      expect(xVar).toBeDefined();
+      expect(xVar?.value).toBeUndefined();
+    });
+  });
 });

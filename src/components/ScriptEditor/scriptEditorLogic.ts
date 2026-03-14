@@ -9,6 +9,7 @@ import type {
   ScriptRunResult,
   StepLocation,
   StepStatus,
+  ScopeVariable,
 } from "@/lib/script-runner";
 
 // ── 実行状態 ─────────────────────────────────────────────────
@@ -35,6 +36,8 @@ export interface ScriptEditorState {
   readonly autoPlayIntervalMs: number;
   /** 現在のステップ実行位置（ハイライト用）。null = 位置情報なし */
   readonly currentLocation: StepLocation | null;
+  /** ステップ実行中のグローバルスコープ変数 */
+  readonly variables: readonly ScopeVariable[];
 }
 
 /** デフォルトの自動再生間隔 (ms) */
@@ -54,6 +57,7 @@ export const initialScriptEditorState: ScriptEditorState = {
   errorMessage: null,
   autoPlayIntervalMs: DEFAULT_AUTO_PLAY_INTERVAL_MS,
   currentLocation: null,
+  variables: [],
 };
 
 // ── エラー表示（recordStep, setRunResult が依存）────────────
@@ -90,6 +94,7 @@ export const startExecution = (
   currentStep: 0,
   errorMessage: null,
   currentLocation: null,
+  variables: [],
 });
 
 export const startStepping = (state: ScriptEditorState): ScriptEditorState => ({
@@ -99,17 +104,21 @@ export const startStepping = (state: ScriptEditorState): ScriptEditorState => ({
   currentStep: 0,
   errorMessage: null,
   currentLocation: null,
+  variables: [],
 });
 
 export const recordStep = (
   state: ScriptEditorState,
   stepStatus: StepStatus,
+  variables?: readonly ScopeVariable[],
 ): ScriptEditorState => {
+  const vars = variables ?? state.variables;
   if (stepStatus._tag === "Running")
     return {
       ...state,
       currentStep: stepStatus.steps,
       currentLocation: stepStatus.location,
+      variables: vars,
     };
   if (stepStatus._tag === "Done")
     return {
@@ -117,6 +126,7 @@ export const recordStep = (
       currentStep: stepStatus.steps,
       executionStatus: "done",
       currentLocation: null,
+      variables: vars,
     };
   // fall-through: TypeScript narrows to "Error"
   return {
@@ -130,6 +140,7 @@ export const recordStep = (
       elapsedMs: 0,
     }),
     currentLocation: null,
+    variables: vars,
   };
 };
 
@@ -144,7 +155,9 @@ export const appendConsole = (
 export const setRunResult = (
   state: ScriptEditorState,
   result: ScriptRunResult,
+  variables?: readonly ScopeVariable[],
 ): ScriptEditorState => {
+  const vars = variables ?? state.variables;
   if (result._tag === "Ok") {
     return {
       ...state,
@@ -152,6 +165,7 @@ export const setRunResult = (
       currentStep: result.steps,
       errorMessage: null,
       currentLocation: null,
+      variables: vars,
     };
   }
   return {
@@ -160,6 +174,7 @@ export const setRunResult = (
     currentStep: result.steps,
     errorMessage: formatRunError(result),
     currentLocation: null,
+    variables: vars,
   };
 };
 
@@ -172,6 +187,7 @@ export const resetExecution = (
   currentStep: 0,
   errorMessage: null,
   currentLocation: null,
+  variables: [],
 });
 
 // ── 実行ステータスの表示文字列 ──────────────────────────────
@@ -310,6 +326,25 @@ export const computeSlowdownInterval = (
     }
   }
   return baseIntervalMs * multiplier;
+};
+
+// ── 変数値のフォーマット ────────────────────────────────────
+
+/** 変数値を表示用文字列に変換する（最大 maxLength 文字に切り詰め） */
+export const formatVariableValue = (
+  value: unknown,
+  maxLength: number = 200,
+): string => {
+  try {
+    const str =
+      typeof value === "string" ? JSON.stringify(value) : JSON.stringify(value);
+    if (str.length > maxLength) {
+      return `${str.slice(0, maxLength) satisfies string}...`;
+    }
+    return str;
+  } catch {
+    return String(value);
+  }
 };
 
 // ── デフォルトのエディタオプション ────────────────────────────

@@ -66,6 +66,10 @@ export interface JsInterpreterInstance {
   value: JsInterpreterValue;
   /** 実行ステートスタック。最後の要素が現在実行中のノード */
   readonly stateStack: readonly JsInterpreterState[];
+  /** グローバルオブジェクト（properties にグローバル変数を格納） */
+  readonly globalObject: JsInterpreterObject & {
+    readonly properties?: Readonly<Record<string, JsInterpreterValue>>;
+  };
 
   /** ネイティブ値を JS-Interpreter のオブジェクトに変換 */
   nativeToPseudo(nativeObj: unknown): JsInterpreterValue;
