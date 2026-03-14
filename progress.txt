@@ -14483,3 +14483,16 @@
   - パーサーの `[/x]` vs `[τ/x]` の区別: LBRACKET直後に DIVIDE トークンがあるかで判別
   - unification.ts の decomposeFormula は最後の case を fall-through として使っているため、新ケース追加時はその前に explicit if を挿入する必要がある
 ---
+
+## 2026-03-15 - Logic Core: 置換チェーン正規化と等価性判定
+- MetaVariable ベースの置換チェーンを正規化する機能を substitution.ts に追加
+- φ[a/x][b/y] と φ[b/y][a/x] の交換等価性、FreeVariableAbsence の冗長性除去を実現
+- 主な追加関数: hasMetaVariableBase, collectSubstitutionChain, canonicalizeSubstitutionChain, removeRedundantAbsences, toSimultaneousForm
+- 変更ファイル: substitution.ts, substitution.test.ts
+- テスト10件追加（交換等価性、冗長性除去、同変数マージ、依存置換伝搬等）
+- カバレッジ: substitution.ts Stmts 97.87% (ベースライン 97.81% — 微増)
+- **今後のイテレーションへの学び:**
+  - MetaVariable に対する substituteTermVariableInFormula は no-op（MetaVariable は具体的な自由変数を持たない）。MetaVariable ベースの置換チェーンは解決せず正規化のみ行う
+  - 同時代入変換: 後の置換を前の項に伝搬させることで順序非依存にする。同変数エントリは最初（最内）のものを採用（伝搬済みのため）
+  - removeRedundantAbsences はインデックスベースで判定（より外側に同変数の subst があるときのみ除去）
+---

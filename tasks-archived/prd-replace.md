@@ -1,0 +1,5 @@
+- [x] 等価性の判定はより柔軟にする必要がある。
+  - [x] phi[../x][../y] と phi[../y][../x] は等価 — 置換チェーン正規化（同時代入変換+変数名ソート）で実現
+  - [x] phi[../x][../y] と phi[..[/y]/x][../y] は等価 — 後続置換がある FreeVariableAbsence の冗長性除去で実現
+  - [x] phi[../x] と 実際にxをなにかに統一的に置換したものは等価
+    - normalizeFormula + equivalentFormula で実装。正規化ベースの等価性判定
