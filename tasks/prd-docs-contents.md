@@ -18,7 +18,7 @@
 - [x] `[ref]` Robinson 算術 (Q) — concept-robinson-arithmetic として追加。PA1-PA5共有・帰納法なし・本質的決定不能・Σ1完全
 - [x] `[ref]` 群論の公理 G1-G3 — axiom-g1〜g3 (order:20-22)、theory-groupのrelatedEntryIds更新
 - [x] `[ref]` Abel群（可換群）— concept-abelian-group (order:28)、G4交換律・反例・アーベル/非アーベルの区別
-- [ ] `[guide]` 具体的な理論で証明する — Peano 算術・群論での証明の実際
+- [-] `[guide]` 具体的な理論で証明する — Peano 算術・群論での証明の実際
 
 ## 5. 自然演繹 (Natural Deduction)
 
