@@ -14308,3 +14308,17 @@
   - GuideCardData に新フィールド追加時は buildGuideCards と対応テストの両方を更新
   - hubMessages.ts にキー追加時は HubContent.tsx の useHubMessagesFromIntl、HubPageView.tsx のコンポーネント props、en.json/ja.json すべて同期が必要
 ---
+
+## 2026-03-14 15:45 JST - [Docs] ガイドエントリのアカデミック論調化
+- 14件のガイドエントリのEN/JAテキストをアカデミックな論調に統一
+  - EN: カジュアル表現（"Welcome!", "you'll", "We're getting close!", "The art"等）を学術的・客観的表現に変換
+  - JA: です/ます調をである調に統一（"ようこそ！"→削除、"しましょう"→"以下の通りである"、"できます"→"可能である"等）
+- 変更ファイル: src/lib/reference/referenceContent.ts (86行変更)
+- テスト: 1490テスト全パス、カバレッジ変化なし（コンテンツテキストのみの修正）
+- tasks/prd-docs-improve.md 全タスク完了 → tasks-archived/ に移動
+- スクリーンショット: .screenshots/reference-academic-tone-guide-what-is-formal-proof.png, .screenshots/reference-academic-tone-guide-list.png
+- **今後のイテレーションへの学び:**
+  - referenceContent.tsは約8000行あり、ガイドエントリのテキスト修正はパラグラフ数を変えないよう注意（テストがパラグラフ数を検証）
+  - JA学術論調: です→である、ます→る、でしょう→であろう、ましょう→以下の通りである、ください→こと
+  - Storybookの言語切り替えはReference Tabストーリーでは一部コンテンツに反映されない場合がある
+---
