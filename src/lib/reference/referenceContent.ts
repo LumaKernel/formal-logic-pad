@@ -1114,17 +1114,29 @@ const axiomExDef: ReferenceEntry = {
       "Forward direction: ($\\exists x. \\varphi) \\to \\lnot (\\forall x. \\lnot \\varphi$). If there exists an x satisfying $\\varphi$, then it is not the case that all x fail to satisfy $\\varphi$.",
       "Backward direction: $\\lnot (\\forall x. \\lnot \\varphi) \\to (\\exists x. \\varphi)$. If not all x fail to satisfy $\\varphi$, then there exists an x satisfying $\\varphi$.",
       "This definition axiom is analogous to CONJ-DEF and DISJ-DEF, which define conjunction and disjunction in terms of implication and negation.",
+      "<b>Why this definition is natural.</b> In classical logic, quantifiers are dual: $\\exists x. \\varphi$ means 'not all x fail to satisfy $\\varphi$'. This parallels the propositional duality $\\varphi \\lor \\psi \\equiv \\lnot(\\lnot\\varphi \\land \\lnot\\psi)$. By reducing $\\exists$ to $\\forall$ and $\\lnot$, the axiom system remains minimal — only one quantifier is primitive, and the other is derived.",
+      "<b>Semantic justification.</b> Under the standard (Tarskian) semantics, $\\exists x. \\varphi$ is true in a model $\\mathcal{M}$ iff some assignment to $x$ makes $\\varphi$ true. This is equivalent to saying it is not the case that every assignment makes $\\varphi$ false, which is exactly $\\lnot\\forall x.\\lnot\\varphi$. The equivalence thus holds in every model, making EX-DEF a valid axiom schema.",
+      "<b>Difference with intuitionistic logic.</b> In intuitionistic logic, the backward direction ($\\lnot\\forall x.\\lnot\\varphi \\to \\exists x.\\varphi$) is <i>not</i> generally valid. Intuitionistic existence requires a constructive witness: to assert $\\exists x. \\varphi$, one must exhibit a specific term $t$ such that $\\varphi[t/x]$ holds. Merely showing that universal negation leads to contradiction does not provide such a witness. Consequently, in intuitionistic systems $\\exists$ is introduced as a primitive quantifier with its own introduction and elimination rules, rather than defined via $\\forall$ and $\\lnot$.",
     ],
     ja: [
       "存在量化子 $\\exists x. \\varphi$ は $\\lnot \\forall x. \\lnot \\varphi$ の略記です。この公理は2つの形式の間の双方向変換を提供します。",
       "正方向: ($\\exists x. \\varphi) \\to \\lnot (\\forall x. \\lnot \\varphi$)。$\\varphi$を満たすxが存在するなら、すべてのxが$\\varphi$を満たさないということはありません。",
       "逆方向: $\\lnot (\\forall x. \\lnot \\varphi) \\to (\\exists x. \\varphi)$。すべてのxが$\\varphi$を満たさないのではないなら、$\\varphi$を満たすxが存在します。",
       "この定義公理はCONJ-DEFやDISJ-DEFと類似しており、それらが連言と選言を含意と否定で定義するのと同様です。",
+      "<b>なぜこの定義が自然なのか。</b>古典論理では量化子は双対関係にあります：$\\exists x. \\varphi$は「すべてのxが$\\varphi$を満たさないわけではない」ことを意味します。これは命題論理の双対性$\\varphi \\lor \\psi \\equiv \\lnot(\\lnot\\varphi \\land \\lnot\\psi)$と並行しています。$\\exists$を$\\forall$と$\\lnot$に還元することで、公理体系は最小限に保たれます。原始的な量化子は1つだけで、もう1つは導出されます。",
+      "<b>意味論的正当化。</b>標準的な（タルスキ流の）意味論のもとで、$\\exists x. \\varphi$がモデル$\\mathcal{M}$で真であるのは、$x$へのある付値が$\\varphi$を真にする場合です。これは、すべての付値が$\\varphi$を偽にするのではないこと、すなわち$\\lnot\\forall x.\\lnot\\varphi$と同値です。したがってこの同値性はすべてのモデルで成り立ち、EX-DEFは妥当な公理スキーマとなります。",
+      "<b>直観主義論理との違い。</b>直観主義論理では、逆方向（$\\lnot\\forall x.\\lnot\\varphi \\to \\exists x.\\varphi$）は一般に妥当では<i>ありません</i>。直観主義的な存在主張には構成的な証拠（witness）が必要です：$\\exists x. \\varphi$を主張するには、$\\varphi[t/x]$が成り立つ具体的な項$t$を呈示しなければなりません。全称否定が矛盾を導くことを示すだけでは、そのような証拠にはなりません。そのため直観主義的な体系では$\\exists$は$\\forall$と$\\lnot$で定義されるのではなく、独自の導入規則と除去規則を持つ原始的な量化子として導入されます。",
     ],
   },
   formalNotation:
     "\\exists x.\\varphi \\leftrightarrow \\lnot\\forall x.\\lnot\\varphi",
-  relatedEntryIds: ["axiom-a4", "axiom-a5", "notation-quantifiers"],
+  relatedEntryIds: [
+    "axiom-a4",
+    "axiom-a5",
+    "notation-quantifiers",
+    "concept-predicate-axiom-system",
+    "guide-intro-predicate-logic",
+  ],
   externalLinks: [
     {
       type: "wikipedia-en",
