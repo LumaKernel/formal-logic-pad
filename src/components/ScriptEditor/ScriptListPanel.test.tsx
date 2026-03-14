@@ -1,7 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ScriptListPanel, type ScriptListPanelMessages } from "./ScriptListPanel";
+import {
+  ScriptListPanel,
+  type ScriptListPanelMessages,
+} from "./ScriptListPanel";
 import type { ScriptListItem } from "./scriptListPanelLogic";
 
 const defaultMessages: ScriptListPanelMessages = {
@@ -20,9 +23,7 @@ const sampleItems: readonly ScriptListItem[] = [
 describe("ScriptListPanel", () => {
   describe("空状態", () => {
     it("空メッセージが表示される", () => {
-      render(
-        <ScriptListPanel items={[]} messages={defaultMessages} />,
-      );
+      render(<ScriptListPanel items={[]} messages={defaultMessages} />);
       expect(screen.getByText("No saved scripts yet")).toBeInTheDocument();
       expect(
         screen.getByText("Save scripts from the workspace."),

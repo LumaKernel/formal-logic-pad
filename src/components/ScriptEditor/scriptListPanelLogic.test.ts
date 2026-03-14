@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  formatSavedAtLabel,
-  toScriptListItems,
-} from "./scriptListPanelLogic";
+import { formatSavedAtLabel, toScriptListItems } from "./scriptListPanelLogic";
 import type { SavedScript } from "./savedScriptsLogic";
 
 describe("formatSavedAtLabel", () => {
