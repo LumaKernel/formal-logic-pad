@@ -14369,3 +14369,15 @@
   - ScriptEditorComponentはMonaco依存のため、テストではvi.mockが必要
   - workspaceRefパターン: 非同期スクリプト実行中に最新stateを参照するためuseRefで保持
 ---
+
+## 2026-03-14 - [Script] キャンバスコンテキストメニューから独立スクリプトエディタを開く
+- キャンバス右クリックメニューに「スクリプトエディタを開く」項目を追加
+- スクリプトノードに紐づかない独立モードでスクリプトエディタパネルを起動
+- パネルタイトルをモードに応じて切替（ノード紐づき: "スクリプトを実行" / 独立: "スクリプトエディタを開く"）
+- 変更ファイル: ProofWorkspace.tsx, proofMessages.ts, WorkspaceContent.tsx, en.json, ja.json
+- カバレッジ: 変更なし（新コードはv8 ignoreブロック内のキャンバスメニューハンドラ）
+- **今後のイテレーションへの学び:**
+  - キャンバスコンテキストメニューのハンドラはすべてv8 ignoreブロック内（JSDOMではright-click不可）
+  - scriptEditorNodeId === null が独立モードの判定条件。handleScriptCodeChangeはnullの場合early return
+  - ブラウザテスト: Storybook onboarding overlayがポインタイベントを妨げる場合、JS直接実行で回避
+---
