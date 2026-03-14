@@ -38,9 +38,9 @@ const guideWhatIsFormalProof: ReferenceEntry = {
 
       "Why formalize proofs? Several reasons:\n<b>1. Absolute certainty:</b> A formal proof leaves no room for error or misinterpretation.\n<b>2. Computer verification:</b> Formal proofs can be checked automatically.\n<b>3. Foundation of mathematics:</b> Understanding how mathematics can be built from first principles.\n<b>4. Discovering proof patterns:</b> Formal systems reveal common proof structures that might be hidden in informal arguments.",
 
-      "This application lets you construct formal proofs interactively. You'll work with <b>formula schemas</b> (patterns like $\\varphi \\to \\psi$) rather than specific formulas, making your proofs maximally general. Each proof you create here could be instantiated with any specific formulas, demonstrating universal logical principles.",
+      "This application provides an environment for constructing formal proofs interactively. The proofs are constructed using <b>formula schemas</b> (patterns like $\\varphi \\to \\psi$) rather than specific formulas, ensuring maximal generality. Each completed proof can be instantiated with any specific formulas, thereby demonstrating universal logical principles.",
 
-      "As you work through the quests, you'll develop intuition for how formal reasoning works. What seems mechanical at first will reveal deep patterns in logical thinking. Welcome to the world of formal proof!",
+      "Working through the exercises develops intuition for how formal reasoning operates. What initially appears mechanical gradually reveals the deep structural patterns underlying logical thought.",
     ],
     ja: [
       "数学では通常、自然言語と数学記号を混ぜて証明を書きます。例えば「nを奇数とする。するとある整数kに対してn = 2k + 1と書ける。したがってn² = (2k + 1)² = 4k² + 4k + 1 = 2(2k² + 2k) + 1となり、これも奇数である」というように。",
@@ -53,9 +53,9 @@ const guideWhatIsFormalProof: ReferenceEntry = {
 
       "なぜ証明を形式化するのでしょうか？いくつかの理由があります：\n<b>1. 絶対的な確実性：</b>形式証明には誤りや誤解の余地がありません。\n<b>2. コンピュータ検証：</b>形式証明は自動的にチェックできます。\n<b>3. 数学の基礎：</b>数学が第一原理からどのように構築できるかを理解する。\n<b>4. 証明パターンの発見：</b>形式体系は、非形式的な議論では隠れている共通の証明構造を明らかにします。",
 
-      "このアプリケーションでは、形式証明をインタラクティブに構築できます。特定の論理式ではなく<b>論理式スキーマ</b>（$\\varphi \\to \\psi$のようなパターン）を扱い、証明を最大限一般的にします。ここで作成する各証明は、任意の具体的な論理式でインスタンス化でき、普遍的な論理原理を示しています。",
+      "本アプリケーションは、形式証明をインタラクティブに構築する環境を提供する。特定の論理式ではなく<b>論理式スキーマ</b>（$\\varphi \\to \\psi$のようなパターン）を扱うことで、証明の一般性を最大化する。構築された各証明は、任意の具体的な論理式でインスタンス化でき、普遍的な論理原理を表現する。",
 
-      "クエストを進めていくうちに、形式推論の仕組みについて直観が養われるでしょう。最初は機械的に見えるものが、論理的思考の深いパターンを明らかにします。形式証明の世界へようこそ！",
+      "演習を通じて形式推論の仕組みに対する直観が涵養される。最初は機械的に見える操作が、やがて論理的思考の深い構造的パターンを明らかにする。",
     ],
   },
   relatedEntryIds: ["axiom-a1", "rule-mp", "system-lukasiewicz"],
@@ -84,9 +84,9 @@ const guideBasicOperations: ReferenceEntry = {
   },
   body: {
     en: [
-      "Welcome to the interactive proof construction workspace! This guide will walk you through the basic operations you need to know to start building formal proofs.",
+      "This guide describes the basic operations of the proof construction workspace. It covers the essential procedures for building formal proofs within the application.",
 
-      "<b>1. Opening the Workspace</b>\nFrom the home page, click on any quest to open the proof workspace. You can also create a new empty workspace from the 'New Workspace' button. The workspace consists of a canvas where you'll build your proof tree, and panels for goals, axioms, and other tools.",
+      "<b>1. Opening the Workspace</b>\nFrom the home page, selecting any quest opens the proof workspace. A new empty workspace can also be created from the 'New Workspace' button. The workspace consists of a canvas for building proof trees, along with panels for goals, axioms, and other tools.",
 
       "<b>2. Understanding the Interface</b>\nThe workspace has several key components:\n• <b>Canvas:</b> The main area where you build your proof tree\n• <b>Goal Panel:</b> Shows what you need to prove (right side)\n• <b>Axiom Palette:</b> Available axioms and rules you can use (bottom)\n• <b>Context Menu:</b> Right-click on the canvas to add nodes",
 
@@ -102,12 +102,12 @@ const guideBasicOperations: ReferenceEntry = {
 
       "<b>8. Tips for Success</b>\n• Start with simple quests and gradually move to complex ones\n• Use the axiom palette to quickly find relevant rules\n• Organize your proof tree from top (premises) to bottom (conclusion)\n• Reference the documentation (?) for detailed explanations of axioms and rules\n• Try the keyboard shortcuts: press <code>?</code> to see the full list",
 
-      "Now you're ready to start building formal proofs! Begin with the first quest in the Propositional Logic section to practice these operations.",
+      "With these operations, one can begin constructing formal proofs. The first quest in the Propositional Logic section provides an opportunity to practice these procedures.",
     ],
     ja: [
-      "インタラクティブな証明構築ワークスペースへようこそ！このガイドでは、形式証明の構築を始めるために知っておくべき基本操作を説明します。",
+      "本ガイドでは、証明構築ワークスペースの基本操作について解説する。形式証明の構築に必要な基本的手順を網羅している。",
 
-      "<b>1. ワークスペースを開く</b>\nホームページから任意のクエストをクリックして証明ワークスペースを開きます。「新規ワークスペース」ボタンから空のワークスペースを作成することもできます。ワークスペースは、証明ツリーを構築するキャンバスと、ゴール、公理、その他のツールのパネルで構成されています。",
+      "<b>1. ワークスペースを開く</b>\nホームページから任意のクエストを選択すると、証明ワークスペースが開く。「新規ワークスペース」ボタンから空のワークスペースを作成することも可能である。ワークスペースは、証明ツリーを構築するキャンバスと、ゴール、公理、その他のツールのパネルで構成される。",
 
       "<b>2. インターフェースの理解</b>\nワークスペースには以下の主要コンポーネントがあります：\n• <b>キャンバス：</b>証明ツリーを構築するメインエリア\n• <b>ゴールパネル：</b>証明すべき内容を表示（右側）\n• <b>公理パレット：</b>使用できる公理と規則（下部）\n• <b>コンテキストメニュー：</b>キャンバス上で右クリックしてノードを追加",
 
@@ -123,7 +123,7 @@ const guideBasicOperations: ReferenceEntry = {
 
       "<b>8. 成功のためのヒント</b>\n• 簡単なクエストから始めて、徐々に複雑なものへ進む\n• 公理パレットを使って関連する規則を素早く見つける\n• 証明ツリーを上（前提）から下（結論）へ整理する\n• 公理と規則の詳細な説明はドキュメント（?）を参照\n• キーボードショートカットを試す：<code>?</code>で全リストを表示",
 
-      "これで形式証明の構築を始める準備ができました！命題論理セクションの最初のクエストから始めて、これらの操作を練習しましょう。",
+      "以上の操作を習得すれば、形式証明の構築を開始できる。命題論理セクションの最初のクエストが、これらの手順を練習する機会を提供する。",
     ],
   },
   relatedEntryIds: ["guide-what-is-formal-proof", "axiom-a1", "rule-mp"],
@@ -159,17 +159,17 @@ const guideFirstQuestWalkthrough: ReferenceEntry = {
   },
   body: {
     en: [
-      'In this guide, we\'ll walk through the very first quest: proving <b>$\\varphi \\to \\varphi$</b> (the identity principle). This might seem obviously true — "$\\varphi$ implies $\\varphi$" — but in a formal proof system, we cannot take anything for granted. We must derive it from axioms using only the allowed inference rules.',
+      'This guide presents a step-by-step derivation of <b>$\\varphi \\to \\varphi$</b> (the identity principle). Although "$\\varphi$ implies $\\varphi$" is semantically trivial, in a formal proof system nothing can be taken for granted. The formula must be derived from axioms using only the permitted inference rules.',
 
-      "<b>The Setup</b>\nOpen quest prop-01 from the quest catalog. You'll see a workspace with a goal: <b>$\\varphi \\to \\varphi$</b>. The Łukasiewicz axiom system gives you three axioms and one inference rule:\n• <b>A1 (K):</b> $\\varphi \\to (\\psi \\to \\varphi)$\n• <b>A2 (S):</b> ($\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi)$)\n• <b>A3:</b> ($\\lnot \\varphi \\to \\lnot \\psi) \\to (\\psi \\to \\varphi$)\n• <b>MP (Modus Ponens):</b> From $\\varphi \\to \\psi$ and $\\varphi$, derive $\\psi$",
+      "<b>The Setup</b>\nOpen quest prop-01 from the quest catalog. The workspace displays a goal: <b>$\\varphi \\to \\varphi$</b>. The Łukasiewicz axiom system provides three axioms and one inference rule:\n• <b>A1 (K):</b> $\\varphi \\to (\\psi \\to \\varphi)$\n• <b>A2 (S):</b> ($\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi)$)\n• <b>A3:</b> ($\\lnot \\varphi \\to \\lnot \\psi) \\to (\\psi \\to \\varphi$)\n• <b>MP (Modus Ponens):</b> From $\\varphi \\to \\psi$ and $\\varphi$, derive $\\psi$",
 
-      "<b>The Strategy</b>\nWe need to somehow get $\\varphi \\to \\varphi$ from these axioms. Notice that we don't have a direct axiom for identity. The key insight is that <b>A2 (the S axiom) distributes implication</b>: if we know $\\varphi \\to (\\psi \\to \\chi)$ and $\\varphi \\to \\psi$, we can derive $\\varphi \\to \\chi$. If we cleverly choose $\\psi$ and $\\chi$, we can make the conclusion be $\\varphi \\to \\varphi$.",
+      "<b>The Strategy</b>\nThe goal is to derive $\\varphi \\to \\varphi$ from these axioms. There is no direct axiom for identity. The key observation is that <b>A2 (the S axiom) distributes implication</b>: given $\\varphi \\to (\\psi \\to \\chi)$ and $\\varphi \\to \\psi$, one can derive $\\varphi \\to \\chi$. By choosing appropriate substitutions for $\\psi$ and $\\chi$, the conclusion becomes $\\varphi \\to \\varphi$.",
 
       "<b>Step 1: Place Axiom A2</b>\nClick on <b>A2</b> in the axiom palette. A new node appears with the A2 schema. We need to substitute $\\varphi \\to \\varphi$ for $\\psi$ and $\\varphi$ for $\\chi$:\n($\\varphi \\to ((\\varphi \\to \\varphi) \\to \\varphi)) \\to ((\\varphi \\to (\\varphi \\to \\varphi)) \\to (\\varphi \\to \\varphi)$)\nNotice: the conclusion of this instance ends with <b>($\\varphi \\to \\varphi$)</b> — exactly our goal! But to use it, we need to provide the antecedent.",
 
       "<b>Step 2: Place Axiom A1 (first instance)</b>\nClick on <b>A1</b> in the axiom palette. Substitute $\\varphi$ for $\\varphi$ and ($\\varphi \\to \\varphi$) for $\\psi$:\n$\\varphi \\to ((\\varphi \\to \\varphi) \\to \\varphi)$\nThis is exactly the antecedent of our A2 instance from Step 1.",
 
-      "<b>Step 3: Apply Modus Ponens</b>\nSelect the A2 node (Step 1) and the A1 node (Step 2), then apply <b>MP</b>. Since A1 gives us the antecedent of A2, MP produces:\n($\\varphi \\to (\\varphi \\to \\varphi)) \\to (\\varphi \\to \\varphi$)\nWe're getting close! Now we need <b>$\\varphi \\to (\\varphi \\to \\varphi)$</b> to apply MP again.",
+      "<b>Step 3: Apply Modus Ponens</b>\nSelect the A2 node (Step 1) and the A1 node (Step 2), then apply <b>MP</b>. Since A1 gives us the antecedent of A2, MP produces:\n($\\varphi \\to (\\varphi \\to \\varphi)) \\to (\\varphi \\to \\varphi$)\nIt remains to establish <b>$\\varphi \\to (\\varphi \\to \\varphi)$</b> in order to apply MP once more.",
 
       "<b>Step 4: Place Axiom A1 (second instance)</b>\nAdd another <b>A1</b> node, this time with $\\varphi$ for $\\varphi$ and $\\varphi$ for $\\psi$:\n$\\varphi \\to (\\varphi \\to \\varphi)$\nThis is exactly what we need as the antecedent for Step 3.",
 
@@ -180,17 +180,17 @@ const guideFirstQuestWalkthrough: ReferenceEntry = {
       "<b>Why This Matters: SKK = I</b>\nThis proof has a beautiful connection to combinatory logic. The A1 axiom corresponds to the <b>K combinator</b> (K = λx.λy.x, which returns its first argument), and A2 corresponds to the <b>S combinator</b> (S = λf.λg.λx.f(x)(g(x)), which distributes application). Our proof shows that <b>S(K)(K) = I</b>, where I is the identity combinator. This is a famous result: the identity function can be built from just S and K!",
     ],
     ja: [
-      "このガイドでは、最初のクエスト「<b>$\\varphi \\to \\varphi$</b>（恒等律）の証明」を一歩ずつ進めていきます。「$\\varphi$ならば$\\varphi$」は当たり前に見えるかもしれませんが、形式証明体系では何も当然とはできません。許された推論規則だけを使って、公理から導出しなければなりません。",
+      "本ガイドでは、最初のクエスト「<b>$\\varphi \\to \\varphi$</b>（恒等律）の証明」を段階的に解説する。「$\\varphi$ならば$\\varphi$」は意味論的には自明であるが、形式証明体系においては何も前提とできない。許された推論規則のみを用いて、公理から導出する必要がある。",
 
-      "<b>準備</b>\nクエストカタログからprop-01を開きます。ワークスペースにゴール「<b>$\\varphi \\to \\varphi$</b>」が表示されます。Łukasiewicz公理体系では3つの公理と1つの推論規則が使えます：\n• <b>A1 (K)：</b> $\\varphi \\to (\\psi \\to \\varphi)$\n• <b>A2 (S)：</b> ($\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi)$)\n• <b>A3：</b> ($\\lnot \\varphi \\to \\lnot \\psi) \\to (\\psi \\to \\varphi$)\n• <b>MP (Modus Ponens)：</b> $\\varphi \\to \\psi$ と $\\varphi$ から $\\psi$ を導出",
+      "<b>準備</b>\nクエストカタログからprop-01を開く。ワークスペースにゴール「<b>$\\varphi \\to \\varphi$</b>」が表示される。Łukasiewicz公理体系では以下の3つの公理と1つの推論規則が利用可能である：\n• <b>A1 (K)：</b> $\\varphi \\to (\\psi \\to \\varphi)$\n• <b>A2 (S)：</b> ($\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi)$)\n• <b>A3：</b> ($\\lnot \\varphi \\to \\lnot \\psi) \\to (\\psi \\to \\varphi$)\n• <b>MP (Modus Ponens)：</b> $\\varphi \\to \\psi$ と $\\varphi$ から $\\psi$ を導出",
 
-      "<b>戦略</b>\nこれらの公理から$\\varphi \\to \\varphi$を導く必要があります。恒等律に直接対応する公理はありません。鍵となる洞察は、<b>A2（S公理）が含意を分配する</b>ことです：$\\varphi \\to (\\psi \\to \\chi)$ と $\\varphi \\to \\psi$ がわかっていれば、$\\varphi \\to \\chi$ を導けます。$\\psi$と$\\chi$を巧妙に選べば、結論を$\\varphi \\to \\varphi$にできます。",
+      "<b>戦略</b>\n目標はこれらの公理から$\\varphi \\to \\varphi$を導出することである。恒等律に直接対応する公理は存在しない。鍵となる観察は、<b>A2（S公理）が含意を分配する</b>という点である：$\\varphi \\to (\\psi \\to \\chi)$ と $\\varphi \\to \\psi$ から $\\varphi \\to \\chi$ を導出できる。$\\psi$と$\\chi$に適切な代入を選択すれば、結論を$\\varphi \\to \\varphi$とすることができる。",
 
       "<b>ステップ1：公理A2を配置</b>\n公理パレットで<b>A2</b>をクリックします。A2スキーマの新しいノードが現れます。$\\psi$を（$\\varphi \\to \\varphi$）に、$\\chi$を$\\varphi$に代入します：\n($\\varphi \\to ((\\varphi \\to \\varphi) \\to \\varphi)) \\to ((\\varphi \\to (\\varphi \\to \\varphi)) \\to (\\varphi \\to \\varphi)$)\n注目：このインスタンスの結論部分は<b>($\\varphi \\to \\varphi$)</b>で終わっています — まさにゴールです！ただし、前件を提供する必要があります。",
 
       "<b>ステップ2：公理A1を配置（1回目）</b>\n公理パレットで<b>A1</b>をクリックします。$\\varphi$に$\\varphi$を、$\\psi$に（$\\varphi \\to \\varphi$）を代入します：\n$\\varphi \\to ((\\varphi \\to \\varphi) \\to \\varphi)$\nこれはステップ1のA2インスタンスの前件そのものです。",
 
-      "<b>ステップ3：Modus Ponensを適用</b>\nA2ノード（ステップ1）とA1ノード（ステップ2）を選択し、<b>MP</b>を適用します。A1がA2の前件を与えるので、MPにより以下が得られます：\n($\\varphi \\to (\\varphi \\to \\varphi)) \\to (\\varphi \\to \\varphi$)\nあと少しです！MP をもう一度適用するために<b>$\\varphi \\to (\\varphi \\to \\varphi)$</b>が必要です。",
+      "<b>ステップ3：Modus Ponensを適用</b>\nA2ノード（ステップ1）とA1ノード（ステップ2）を選択し、<b>MP</b>を適用します。A1がA2の前件を与えるので、MPにより以下が得られます：\n($\\varphi \\to (\\varphi \\to \\varphi)) \\to (\\varphi \\to \\varphi$)\nMPをもう一度適用するためには<b>$\\varphi \\to (\\varphi \\to \\varphi)$</b>を確立する必要がある。",
 
       "<b>ステップ4：公理A1を配置（2回目）</b>\nもう一つ<b>A1</b>ノードを追加します。今度は$\\varphi$に$\\varphi$を、$\\psi$に$\\varphi$を代入します：\n$\\varphi \\to (\\varphi \\to \\varphi)$\nこれはステップ3の結果の前件にちょうど必要なものです。",
 
@@ -267,7 +267,7 @@ const guideIntroToPropositionalLogic: ReferenceEntry = {
 
       "<b>Soundness and Completeness</b>\nThe axiomatic approach is connected to truth tables by two fundamental theorems:\n• <b>Soundness:</b> Every theorem derivable from the axioms is a tautology. (Proofs only produce truths.)\n• <b>Completeness (Gödel, 1930):</b> Every tautology is derivable from the axioms. (Every truth can be proved.)\n\nTogether, these mean that the syntactic (proof-based) and semantic (truth-table-based) notions of validity coincide for propositional logic. This is a remarkable fact — the axioms capture exactly the tautologies, no more and no less.",
 
-      "<b>Practice and Next Steps</b>\nThe best way to build intuition for propositional logic proofs is to work through the quests. Start with the prop-01 through prop-10 quests, which cover fundamental patterns like identity ($\\varphi \\to \\varphi$), weakening, syllogism, and contraposition. As you progress, you'll discover that seemingly different proofs share common structures — the formal system makes these patterns explicit.\n\nFor deeper exploration, see the references on the Deduction Theorem (which simplifies proofs dramatically), the relationship between classical and intuitionistic logic, and the Curry-Howard correspondence (connecting proofs to programs).",
+      "<b>Practice and Next Steps</b>\nThe most effective way to develop intuition for propositional logic proofs is through the quest system. The prop-01 through prop-10 quests cover fundamental patterns including the identity principle ($\\varphi \\to \\varphi$), weakening, syllogism, and contraposition. With practice, it becomes apparent that seemingly distinct proofs share common structures — the formal system makes these patterns explicit.\n\nFor further study, the references on the Deduction Theorem (which enables dramatic simplification of proofs), the relationship between classical and intuitionistic logic, and the Curry-Howard correspondence (connecting proofs to programs) are recommended.",
     ],
     ja: [
       "<b>命題論理とは？</b>\n命題論理は、複合的な文の真偽がその構成部分の真偽にどのように依存するかを研究する分野です。<b>命題</b>とは、真か偽のいずれかである文のことです — 例えば「雨が降っている」や「2 + 2 = 4」。命題論理はこれらの文の内部構造を分析しません。<b>論理結合子</b>を使ってそれらがどのように組み合わされるかだけを考えます。",
@@ -288,7 +288,7 @@ const guideIntroToPropositionalLogic: ReferenceEntry = {
 
       "<b>健全性と完全性</b>\n公理的アプローチと真理値表は、2つの基本定理で結びつけられています：\n• <b>健全性：</b> 公理から導出可能なすべての定理はトートロジーである。（証明は真理のみを生み出す。）\n• <b>完全性（ゲーデル、1930年）：</b> すべてのトートロジーは公理から導出可能である。（すべての真理は証明できる。）\n\nこれらを合わせると、命題論理において構文論的（証明に基づく）妥当性と意味論的（真理値表に基づく）妥当性の概念が一致することがわかります。これは注目に値する事実です — 公理はトートロジーを過不足なく正確に捉えています。",
 
-      "<b>実践と次のステップ</b>\n命題論理の証明の直観を養う最善の方法は、クエストを解くことです。prop-01からprop-10のクエストから始めてみましょう。恒等律（$\\varphi \\to \\varphi$）、弱化、三段論法、対偶などの基本的なパターンを扱います。進めていくうちに、一見異なる証明が共通の構造を持つことに気づくでしょう — 形式体系はこれらのパターンを明示的にします。\n\nより深い探求のためには、演繹定理（証明を劇的に簡略化する）、古典論理と直観主義論理の関係、Curry-Howard対応（証明とプログラムの結びつき）のリファレンスも参照してください。",
+      "<b>実践と次のステップ</b>\n命題論理の証明に対する直観を養う最善の方法は、クエストを通じた実践である。prop-01からprop-10のクエストが、恒等律（$\\varphi \\to \\varphi$）、弱化、三段論法、対偶などの基本的パターンを扱っている。進展するにつれ、一見異なる証明が共通の構造を持つことが明らかになる — 形式体系はこれらのパターンを明示的に提示する。\n\nより深い探求のためには、演繹定理（証明の劇的な簡略化を可能にする）、古典論理と直観主義論理の関係、Curry-Howard対応（証明とプログラムの対応関係）に関するリファレンスも参照されたい。",
     ],
   },
   relatedEntryIds: [
@@ -386,7 +386,7 @@ const guideHilbertProofMethod: ReferenceEntry = {
     en: [
       '<b>The Challenge of Hilbert-Style Proofs</b>\nIn the Hilbert system, every proof step must be either an axiom instance or the result of applying Modus Ponens to two earlier steps. Unlike natural deduction, you cannot "assume" a hypothesis and discharge it later — every formula in the proof must be unconditionally derived. This constraint makes proofs rigorous but also makes them harder to discover. This guide presents strategies for overcoming that difficulty.',
 
-      '<b>The Building Blocks: Axioms and Modus Ponens</b>\nRecall the Łukasiewicz axiom schemas:\n• <b>A1 (K):</b> $\\varphi \\to (\\psi \\to \\varphi)$ — any true formula can be "weakened" by adding an antecedent\n• <b>A2 (S):</b> ($\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi)$) — distributes implication over implication\n• <b>A3:</b> ($\\lnot \\varphi \\to \\lnot \\psi) \\to (\\psi \\to \\varphi$) — contraposition: reversing a negated implication\n\nModus Ponens (MP) is the sole inference rule: from $\\varphi \\to \\psi$ and $\\varphi$, conclude $\\psi$. The art of Hilbert proofs lies in choosing the right axiom instances and chaining them with MP.',
+      '<b>The Building Blocks: Axioms and Modus Ponens</b>\nRecall the Łukasiewicz axiom schemas:\n• <b>A1 (K):</b> $\\varphi \\to (\\psi \\to \\varphi)$ — any true formula can be "weakened" by adding an antecedent\n• <b>A2 (S):</b> ($\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi)$) — distributes implication over implication\n• <b>A3:</b> ($\\lnot \\varphi \\to \\lnot \\psi) \\to (\\psi \\to \\varphi$) — contraposition: reversing a negated implication\n\nModus Ponens (MP) is the sole inference rule: from $\\varphi \\to \\psi$ and $\\varphi$, conclude $\\psi$. The central difficulty in Hilbert proofs lies in choosing the right axiom instances and chaining them with MP.',
 
       '<b>Strategy 1: Work Backward from the Goal</b>\nThe most effective strategy is <b>backward reasoning</b> (goal-directed search). Given a goal formula G, ask: "What MP application could produce G?" This means finding formulas A and A $\\to$ G such that both are provable. Often, A $\\to$ G can be an axiom instance, reducing the problem to proving A.\n\nFor example, to prove ($\\varphi \\to \\varphi) \\to (\\varphi \\to \\varphi$), observe that A1 gives $\\varphi$₁ $\\to (\\psi$₁ $\\to \\varphi$₁). Setting $\\varphi$₁ = ($\\varphi \\to \\varphi$) and $\\psi$₁ to anything yields the goal directly as an axiom instance.',
 
@@ -407,7 +407,7 @@ const guideHilbertProofMethod: ReferenceEntry = {
     ja: [
       "<b>Hilbert系の証明の難しさ</b>\nHilbert系では、証明の各ステップは公理のインスタンスか、2つの先行ステップへのModus Ponensの適用結果でなければなりません。自然演繹とは異なり、仮定を「仮定」してあとで放出することはできません — 証明の各論理式は無条件に導出される必要があります。この制約により証明は厳密になりますが、発見が難しくなります。本ガイドでは、その難しさを克服するための戦略を紹介します。",
 
-      "<b>構成要素：公理とModus Ponens</b>\nŁukasiewicz公理スキーマを確認しましょう：\n• <b>A1（K）：</b> $\\varphi \\to (\\psi \\to \\varphi)$ — 真な論理式に前件を追加して「弱化」できる\n• <b>A2（S）：</b> ($\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi)$) — 含意を含意の上に分配する\n• <b>A3：</b> ($\\lnot \\varphi \\to \\lnot \\psi) \\to (\\psi \\to \\varphi$) — 対偶：否定された含意を反転する\n\nModus Ponens（MP）が唯一の推論規則です：$\\varphi \\to \\psi$ と $\\varphi$ から $\\psi$ を導出します。Hilbert系の証明の技は、適切な公理インスタンスを選び、MPで連鎖させることにあります。",
+      "<b>構成要素：公理とModus Ponens</b>\nŁukasiewicz公理スキーマは以下の通りである：\n• <b>A1（K）：</b> $\\varphi \\to (\\psi \\to \\varphi)$ — 真な論理式に前件を追加して「弱化」できる\n• <b>A2（S）：</b> ($\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi)$) — 含意を含意の上に分配する\n• <b>A3：</b> ($\\lnot \\varphi \\to \\lnot \\psi) \\to (\\psi \\to \\varphi$) — 対偶：否定された含意を反転する\n\nModus Ponens（MP）が唯一の推論規則です：$\\varphi \\to \\psi$ と $\\varphi$ から $\\psi$ を導出します。Hilbert系の証明における中心的な課題は、適切な公理インスタンスを選択し、MPで連鎖させることにある。",
 
       "<b>戦略1：ゴールから逆向きに考える</b>\n最も効果的な戦略は<b>逆向き推論</b>（ゴール指向探索）です。ゴール論理式 G が与えられたとき、「どのMP適用が G を生み出せるか？」と考えます。つまり、A と A $\\to$ G の両方が証明可能な論理式を見つけます。A $\\to$ G が公理インスタンスであることも多く、その場合、問題は A の証明に帰着されます。\n\n例えば、($\\varphi \\to \\varphi) \\to (\\varphi \\to \\varphi$) を証明するには、A1が $\\varphi$₁ $\\to (\\psi$₁ $\\to \\varphi$₁) を与えることに注目します。$\\varphi$₁ = ($\\varphi \\to \\varphi$)、$\\psi$₁ を任意に設定すれば、ゴールが直接公理インスタンスとして得られます。",
 
@@ -419,7 +419,7 @@ const guideHilbertProofMethod: ReferenceEntry = {
 
       "<b>戦略5：公理スキーマのマッチング</b>\n重要なスキルは、論理式が公理スキーマのインスタンスであることを認識することです。対象の論理式に対して、メタ変数への代入を見つけて各公理スキーマとの<b>単一化</b>を試みます。\n\n例えば、対象が (p $\\to q) \\to ((r \\to s) \\to (p \\to$ q)) の場合：\n• A1と比較：$\\varphi \\to (\\psi \\to \\varphi)$\n• $\\varphi$ = (p $\\to$ q)、$\\psi$ = (r $\\to$ s) と設定\n• 一致 — これはA1のインスタンスです。\n\nこのアプリケーションは自動的な公理識別をサポートしています：論理式を入力すると、システムが公理スキーマと一致するかを確認し、それに応じて注釈を付けます。",
 
-      "<b>よくある落とし穴</b>\nHilbert系の証明の初心者は、以下の問題に遭遇しがちです：\n• <b>MPの方向を忘れる：</b> MPは正確に $\\varphi \\to \\psi$ と $\\varphi$ から $\\psi$ を導出します。$\\psi \\to \\varphi$ と $\\varphi$ にMPを適用することはできません。\n• <b>括弧の誤り：</b> 矢印 $\\to$ は右結合なので、$\\varphi \\to \\psi \\to \\chi$ は $\\varphi \\to (\\psi \\to \\chi)$ であって $(\\varphi \\to \\psi) \\to \\chi$ ではありません。この読み違いは誤った公理インスタンス化につながります。\n• <b>証明の過度な複雑化：</b> 論理式が直接公理インスタンスであれば、導出する必要はありません。常に公理マッチングを最初に確認しましょう。\n• <b>A3の無視：</b> 否定を含む証明はほぼ常にA3（対偶）を必要とします。ゴールに $\\lnot$ が含まれる場合、どのような対偶形が役立つか考えましょう。",
+      "<b>よくある落とし穴</b>\nHilbert系の証明において、以下の誤りが頻出する：\n• <b>MPの方向の混同：</b> MPは $\\varphi \\to \\psi$ と $\\varphi$ から $\\psi$ を導出する規則である。$\\psi \\to \\varphi$ と $\\varphi$ にMPを適用することはできない。\n• <b>括弧の誤り：</b> $\\to$ は右結合であるため、$\\varphi \\to \\psi \\to \\chi$ は $\\varphi \\to (\\psi \\to \\chi)$ を意味し、$(\\varphi \\to \\psi) \\to \\chi$ ではない。この読み違いは誤った公理インスタンス化の原因となる。\n• <b>証明の過度な複雑化：</b> 論理式が直接公理インスタンスであれば、導出は不要である。公理マッチングを最初に確認すべきである。\n• <b>A3の見落とし：</b> 否定を含む証明はほぼ常にA3（対偶）を必要とする。ゴールに $\\lnot$ が含まれる場合、対偶形の利用を検討する必要がある。",
 
       "<b>実践における証明探索プロセス</b>\n証明を見つけるための体系的なアプローチ：\n1. <b>公理マッチの確認：</b> ゴールは直接公理インスタンスか？もしそうなら完了。\n2. <b>MPで分解：</b> ゴールを $\\psi$ と書く。$\\varphi \\to \\psi$ と $\\varphi$ の両方がより証明しやすい論理式 $\\varphi$ を探す。\n3. <b>演繹定理を頭の中で適用：</b> ゴールが α $\\to$ β ならば、α を仮定して β を導出する方法を考え、翻訳する。\n4. <b>既知の補題を使う：</b> HS、対偶、その他の既証明結果で証明を短縮できないか？\n5. <b>両端から攻める：</b> 利用可能な公理から順方向に帰結を導きつつ、ゴールから逆方向にも推論し、合流点を探すと有効なことがあります。",
 
@@ -6283,7 +6283,7 @@ const guideIntroTableau: ReferenceEntry = {
       "A tableau proof is <b>complete</b> when every branch is closed. If the tableau started from F($\\varphi$), this means every attempt to make $\\varphi$ false leads to contradiction, so $\\varphi$ is valid.",
       "For predicate logic, two additional rule types handle quantifiers: <b>$\\gamma$ rules</b> for universal-like formulas (can be applied multiple times with different terms) and <b>$\\delta$ rules</b> for existential-like formulas (introduce a fresh eigenvariable).",
       "The tableau method is closely related to sequent calculus. In fact, a variant called <b>TAB</b> (tableau-style sequent calculus) uses one-sided sequents $\\Gamma \\Rightarrow$ and is equivalent to LK with cut. Each TAB rule corresponds directly to a tableau decomposition rule.",
-      "In this application, you can build tableau proofs interactively. Start from the goal formula, apply decomposition rules step by step, and close branches by finding contradictions. The system supports both signed notation and abbreviated notation.",
+      "This application supports interactive construction of tableau proofs. Starting from the goal formula, decomposition rules are applied step by step, and branches are closed by identifying contradictions. Both signed notation and abbreviated notation are supported.",
       "The tableau method is often the most intuitive proof system for beginners: the strategy is always the same — assume the conclusion is wrong, break things down, and look for contradictions. It naturally combines proof search with counterexample generation.",
     ],
     ja: [
@@ -6295,7 +6295,7 @@ const guideIntroTableau: ReferenceEntry = {
       "タブロー証明はすべての枝が閉じたとき<b>完成</b>です。F($\\varphi$)から開始した場合、$\\varphi$を偽にするすべての試みが矛盾に至るので、$\\varphi$は妥当です。",
       "述語論理では、量化子を扱う2つの追加規則タイプがあります：<b>$\\gamma$規則</b>は全称的論理式用（異なる項で複数回適用可能）、<b>$\\delta$規則</b>は存在的論理式用（新しい固有変数を導入）です。",
       "タブロー法はシーケント計算と密接に関連しています。実際、<b>TAB</b>（タブロー式シーケント計算）と呼ばれる変種は片側シーケント$\\Gamma \\Rightarrow$を使い、カット付きLKと等価です。各TAB規則はタブロー分解規則に直接対応します。",
-      "本アプリケーションでは、タブロー証明を対話的に構築できます。目標論理式から出発し、分解規則をステップごとに適用し、矛盾を見つけて枝を閉じます。署名付き記法と簡略化記法の両方をサポートしています。",
+      "本アプリケーションではタブロー証明の対話的構築が可能である。目標論理式から出発し、分解規則をステップごとに適用し、矛盾の同定により枝を閉じる。署名付き記法と簡略化記法の双方に対応している。",
       "タブロー法は初心者にとって最も直観的な証明体系であることが多いです：戦略は常に同じ——結論が誤りだと仮定し、分解し、矛盾を探す。証明探索と反例生成を自然に組み合わせます。",
     ],
   },
@@ -6892,25 +6892,25 @@ const guideProofStrategy: ReferenceEntry = {
       "Constructing formal proofs is a skill that improves with practice. While there is no universal algorithm for finding proofs (in general, the problem is undecidable for predicate logic), several <b>strategies</b> consistently help.",
       "<b>Backward reasoning</b> (goal-directed search) is the most fundamental strategy. Instead of starting from axioms and working forward, start from the <b>goal</b> and ask: what rule or axiom could produce this conclusion? This narrows the search space dramatically. In sequent calculus, this is the natural direction — proofs are built bottom-up.",
       "<b>Pattern recognition</b> comes from familiarity with common proof shapes. Many proofs follow recurring patterns: the identity proof ($\\varphi \\to \\varphi$) uses A1 + A2 + MP in Hilbert systems; the deduction theorem pattern uses $\\to$I in natural deduction; contraposition uses $\\lnot$I and $\\lnot$E. Recognizing these patterns lets you assemble complex proofs from known building blocks.",
-      "<b>Using lemmas</b> (or the cut rule in sequent calculus) breaks complex proofs into manageable parts. If your goal is $\\Gamma \\vdash \\varphi$, you might first prove $\\Gamma \\vdash \\psi$ and then $\\psi \\vdash \\varphi$ for some intermediate $\\psi$. The art is choosing a good $\\psi$. Transitivity of implication (hypothetical syllogism) is one of the most common lemma patterns.",
+      "<b>Using lemmas</b> (or the cut rule in sequent calculus) breaks complex proofs into manageable parts. If your goal is $\\Gamma \\vdash \\varphi$, you might first prove $\\Gamma \\vdash \\psi$ and then $\\psi \\vdash \\varphi$ for some intermediate $\\psi$. The central difficulty is selecting an appropriate $\\psi$. Transitivity of implication (hypothetical syllogism) is one of the most common lemma patterns.",
       "<b>Working with the deduction theorem</b> (in Hilbert systems) is essential. To prove $\\vdash \\varphi \\to \\psi$, it is often easier to prove $\\varphi \\vdash \\psi$ (assume $\\varphi$ and derive $\\psi$) and then apply the deduction theorem. This converts a conditional proof into an unconditional one at the cost of a longer proof.",
       "<b>Connective-specific strategies</b>: To prove a conjunction $\\varphi \\land \\psi$, prove each conjunct separately. To prove a disjunction $\\varphi \\lor \\psi$, prove one disjunct. To prove a negation $\\lnot\\varphi$, assume $\\varphi$ and derive $\\bot$. To prove a universal $\\forall x.\\,\\varphi(x)$, prove $\\varphi(a)$ for an arbitrary $a$.",
       "<b>Case analysis</b>: When you have $\\varphi \\lor \\psi$ available, use $\\lor$E to split into two cases. This is particularly powerful in classical logic where LEM gives you $\\varphi \\lor \\lnot\\varphi$ for free.",
       "<b>Proof by contradiction</b> (in classical logic): To prove $\\varphi$, assume $\\lnot\\varphi$ and derive $\\bot$. Then apply DNE or RAA. This strategy is not available in intuitionistic or minimal logic.",
       "<b>Tableau strategy</b>: In the tableau method, the strategy is always the same — assume the conclusion is false and decompose. Apply $\\alpha$ rules first (they are deterministic), then $\\beta$ rules (they create branches). For predicate logic, use $\\delta$ rules before $\\gamma$ rules (to introduce eigenvariables before choosing instantiation terms).",
-      "In this application, you can practice these strategies interactively. Start with simpler quests (prop-01 through prop-05) to learn the basic patterns, then tackle more complex ones. The model answers for completed quests demonstrate how these strategies are applied in practice.",
+      "These strategies can be practiced interactively through the quest system. The simpler quests (prop-01 through prop-05) introduce the basic patterns, while more advanced quests require combining multiple strategies. The model answers for completed quests illustrate how these techniques are applied in practice.",
     ],
     ja: [
       "形式的証明の構築は練習で向上するスキルです。証明を見つける万能のアルゴリズムは存在しませんが（一般に述語論理の問題は決定不能）、いくつかの<b>戦略</b>が一貫して役立ちます。",
       "<b>逆方向思考</b>（目標指向探索）は最も基本的な戦略です。公理から出発して前進するのではなく、<b>目標</b>から出発して「どの規則や公理がこの結論を生成できるか」を問います。探索空間を劇的に狭めます。シーケント計算ではこれが自然な方向です——証明はボトムアップに構築されます。",
       "<b>パターン認識</b>は一般的な証明の形への習熟から来ます。多くの証明は繰り返し現れるパターンに従います：恒等証明（$\\varphi \\to \\varphi$）はHilbert系でA1 + A2 + MPを使います。演繹定理パターンは自然演繹で$\\to$Iを使います。対偶は$\\lnot$Iと$\\lnot$Eを使います。これらのパターンを認識すると、既知の構成要素から複雑な証明を組み立てられます。",
-      "<b>補題の使用</b>（シーケント計算ではカット規則）は複雑な証明を管理可能な部分に分割します。目標が$\\Gamma \\vdash \\varphi$なら、まず$\\Gamma \\vdash \\psi$を証明し、次に$\\psi \\vdash \\varphi$を証明できます。技は良い中間の$\\psi$を選ぶことです。含意の推移律（仮言三段論法）は最も一般的な補題パターンの1つです。",
+      "<b>補題の使用</b>（シーケント計算ではカット規則）は複雑な証明を管理可能な部分に分割します。目標が$\\Gamma \\vdash \\varphi$なら、まず$\\Gamma \\vdash \\psi$を証明し、次に$\\psi \\vdash \\varphi$を証明できます。重要なのは適切な中間の$\\psi$を選択することである。含意の推移律（仮言三段論法）は最も一般的な補題パターンの1つです。",
       "<b>演繹定理の活用</b>（Hilbert系で）は不可欠です。$\\vdash \\varphi \\to \\psi$を証明するには、$\\varphi \\vdash \\psi$（$\\varphi$を仮定して$\\psi$を導出）を証明してから演繹定理を適用する方が容易なことが多いです。条件付き証明をより長い無条件証明に変換します。",
       "<b>結合子別の戦略</b>：連言$\\varphi \\land \\psi$を証明するには各連言肢を別々に証明。選言$\\varphi \\lor \\psi$を証明するには一方の選言肢を証明。否定$\\lnot\\varphi$を証明するには$\\varphi$を仮定して$\\bot$を導出。全称$\\forall x.\\,\\varphi(x)$を証明するには任意の$a$について$\\varphi(a)$を証明。",
       "<b>場合分け</b>：$\\varphi \\lor \\psi$が利用可能なとき、$\\lor$Eで2つの場合に分割。古典論理ではLEMが$\\varphi \\lor \\lnot\\varphi$を無条件に与えるため特に強力です。",
       "<b>背理法</b>（古典論理で）：$\\varphi$を証明するには$\\lnot\\varphi$を仮定して$\\bot$を導出。次にDNEまたはRAAを適用。この戦略は直観主義論理や最小論理では使えません。",
       "<b>タブロー法の戦略</b>：タブロー法では戦略は常に同じ——結論が偽と仮定して分解する。$\\alpha$規則を先に適用（決定的）、次に$\\beta$規則（分岐を作る）。述語論理では$\\delta$規則を$\\gamma$規則の前に使います（インスタンス化項を選ぶ前に固有変数を導入）。",
-      "本アプリケーションではこれらの戦略を対話的に練習できます。基本パターンを学ぶにはより単純なクエスト（prop-01からprop-05）から始め、次により複雑なものに挑戦してください。完了したクエストの模範解答は、これらの戦略が実際にどう適用されるかを示しています。",
+      "これらの戦略はクエストシステムを通じて対話的に練習できる。基本的なクエスト（prop-01からprop-05）が基本パターンを導入し、より高度なクエストでは複数の戦略の組み合わせが求められる。完了したクエストの模範解答が、これらの技法の実際の適用を例示している。",
     ],
   },
   relatedEntryIds: [
@@ -6954,7 +6954,7 @@ const guideSchemaProofPractice: ReferenceEntry = {
   id: "guide-schema-proof-practice",
   category: "guide",
   title: {
-    en: "Proving with Formula Schemas: The Art",
+    en: "Proving with Formula Schemas",
     ja: "論理式スキーマで証明する技法",
   },
   summary: {
@@ -6963,38 +6963,38 @@ const guideSchemaProofPractice: ReferenceEntry = {
   },
   body: {
     en: [
-      "<b>A unique feature of this site.</b> Most introductory logic textbooks present proofs using concrete propositional variables like P, Q, and R. This site takes a different approach: you work entirely with <b>formula schemas</b> — patterns built from metavariables like $\\varphi$, $\\psi$, and $\\chi$. This is not merely a cosmetic difference; it fundamentally changes what your proofs mean and how you think about them.",
+      "<b>A distinctive methodological choice.</b> Most introductory logic textbooks present proofs using concrete propositional variables like P, Q, and R. This application takes a different approach: all proofs are constructed with <b>formula schemas</b> — patterns built from metavariables like $\\varphi$, $\\psi$, and $\\chi$. This is not merely a notational difference; it fundamentally changes the meaning of the resulting proofs and the mode of reasoning required.",
 
-      "<b>Every proof is a proof of a law.</b> When you prove $\\varphi \\to (\\psi \\to \\varphi)$ on this site, you are not proving a statement about two particular propositions. You are proving a <b>logical law</b> — a principle that holds for all propositions simultaneously. The proof itself is a recipe: given <i>any</i> formulas for $\\varphi$ and $\\psi$, this recipe produces a valid proof. In standard terminology, you are proving a <b>metatheorem</b> about the deductive system, not just one theorem within it.",
+      "<b>Every proof establishes a logical law.</b> When $\\varphi \\to (\\psi \\to \\varphi)$ is proved in this system, the result is not a statement about two particular propositions, but a <b>logical law</b> — a principle that holds for all propositions simultaneously. The proof itself constitutes a recipe: given <i>any</i> formulas for $\\varphi$ and $\\psi$, the recipe produces a valid proof. In standard terminology, this amounts to proving a <b>metatheorem</b> about the deductive system, not merely one theorem within it.",
 
-      "<b>The elegance of schema-level reasoning.</b> Working at the schema level reveals patterns that are invisible when you work with concrete formulas. Consider the identity proof $\\varphi \\to \\varphi$. At the schema level, you see clearly that this proof depends only on A1, A2, and MP — and nothing about $\\varphi$ matters. The same three-step pattern works whether $\\varphi$ is a simple variable, a complex nested formula, or even a quantified predicate logic expression. The schema-level view strips away irrelevant detail and exposes the logical skeleton.",
+      "<b>Structural transparency of schema-level reasoning.</b> Working at the schema level reveals patterns that remain invisible when working with concrete formulas. Consider the identity proof $\\varphi \\to \\varphi$. At the schema level, it becomes apparent that this proof depends only on A1, A2, and MP — the specific content of $\\varphi$ is entirely irrelevant. The same three-step pattern applies whether $\\varphi$ is a simple variable, a complex nested formula, or a quantified predicate logic expression. The schema-level perspective removes irrelevant detail and exposes the logical skeleton.",
 
-      "<b>The challenge.</b> Schema-level proofs require more abstract thinking. With concrete formulas, you can often guide your intuition by thinking about specific truth values or meanings. With schemas, you must reason purely from the <b>structure</b> of formulas and the <b>rules</b> of the system. This is harder initially, but it builds a much deeper understanding of logic. You learn to see the <i>shape</i> of proofs rather than their content.",
+      "<b>Increased abstraction.</b> Schema-level proofs require more abstract thinking than proofs with concrete formulas. With concrete formulas, intuition can be guided by considering specific truth values or meanings. With schemas, reasoning must proceed purely from the <b>structure</b> of formulas and the <b>rules</b> of the system. While initially more demanding, this approach develops a deeper understanding of logic — one learns to perceive the <i>form</i> of proofs rather than their content.",
 
       "<b>Schemas and axiom identification.</b> This site automatically identifies whether a formula you write matches an axiom schema. When you write $(\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi))$, the system recognizes it as an instance of axiom schema A2. This identification works by <b>pattern matching</b>: the system unifies your formula against each axiom schema to find a valid substitution for the metavariables. This mechanism is itself a schema-level operation — it checks whether your formula is <i>any</i> instance of the schema, not a specific one.",
 
-      "<b>Schemas in Hilbert-style proofs.</b> In Hilbert systems, the interplay between axiom schemas and Modus Ponens is the engine of deduction. Each axiom schema provides infinitely many starting points. MP connects them. The art lies in choosing the right <b>instantiation</b> of each schema — which concrete (or schema-level) formulas to plug in for the metavariables. This choice is where human creativity enters formal proof. For example, proving $\\varphi \\to \\varphi$ requires instantiating A2 with $\\psi := \\varphi \\to \\varphi$ — a non-obvious substitution that beginners rarely guess.",
+      "<b>Schemas in Hilbert-style proofs.</b> In Hilbert systems, the interplay between axiom schemas and Modus Ponens is the engine of deduction. Each axiom schema provides infinitely many starting points. MP connects them. The central difficulty is choosing the right <b>instantiation</b> of each schema — which concrete (or schema-level) formulas to substitute for the metavariables. This choice is where human judgment enters formal proof construction. For example, proving $\\varphi \\to \\varphi$ requires instantiating A2 with $\\psi := \\varphi \\to \\varphi$ — a non-obvious substitution that beginners rarely guess.",
 
-      "<b>Schemas in natural deduction and sequent calculus.</b> The schema perspective extends beyond Hilbert systems. In natural deduction, rules like $\\to$I and $\\to$E operate on schema-level judgments: $\\Gamma, \\varphi \\vdash \\psi$ becomes $\\Gamma \\vdash \\varphi \\to \\psi$. In sequent calculus, structural and logical rules manipulate sequent schemas $\\Gamma \\Rightarrow \\Delta$. The beauty is the same: a single proof derivation establishes a result for all possible formula instantiations.",
+      "<b>Schemas in natural deduction and sequent calculus.</b> The schema perspective extends beyond Hilbert systems. In natural deduction, rules like $\\to$I and $\\to$E operate on schema-level judgments: $\\Gamma, \\varphi \\vdash \\psi$ becomes $\\Gamma \\vdash \\varphi \\to \\psi$. In sequent calculus, structural and logical rules manipulate sequent schemas $\\Gamma \\Rightarrow \\Delta$. The principle is the same: a single proof derivation establishes a result for all possible formula instantiations.",
 
       '<b>Practical tips for schema-level proofs.</b>\n• <b>Think structurally:</b> Focus on the connectives ($\\to$, $\\lnot$, $\\land$, $\\lor$, $\\forall$, $\\exists$) and how they interact with the rules, not on what the metavariables "mean."\n• <b>Name your metavariables clearly:</b> Use $\\varphi$ for the formula you want to prove, $\\psi$ for hypotheses, and $\\chi$ for intermediate results.\n• <b>Work backward from the goal:</b> Determine which rule could produce the goal formula, then figure out what premises you need.\n• <b>Study model answers:</b> After completing a quest, examine the model answer. Pay attention to which axiom instantiations were chosen and why.',
 
       "<b>From schemas to metatheorems.</b> Once you are comfortable proving at the schema level, you are ready for metatheoretic reasoning — proving results <i>about</i> the proof system itself. The deduction theorem, cut elimination, and completeness are all proved at this level. In a sense, every schema-level proof you construct on this site is a tiny metatheorem. This is the deepest insight the schema approach offers: formal proof is not just about individual truths, but about the structure of truth itself.",
     ],
     ja: [
-      "<b>このサイトの独自の特徴。</b> 多くの入門論理学の教科書では、P, Q, Rのような具体的な命題変数を使って証明を提示します。このサイトは異なるアプローチを取ります：すべての作業を<b>論理式スキーマ</b> — $\\varphi$, $\\psi$, $\\chi$のようなメタ変数から構成されるパターン — で行います。これは単なる見た目の違いではなく、証明の意味と思考方法を根本的に変えるものです。",
+      "<b>方法論上の特徴的な選択。</b> 多くの入門論理学の教科書では、P, Q, Rのような具体的な命題変数を使って証明を提示する。本アプリケーションは異なるアプローチを採用する：すべての証明を<b>論理式スキーマ</b> — $\\varphi$, $\\psi$, $\\chi$のようなメタ変数から構成されるパターン — を用いて構築する。これは単なる記法上の違いではなく、得られる証明の意味と、求められる推論の様式を根本的に変えるものである。",
 
-      "<b>すべての証明は法則の証明です。</b> このサイトで $\\varphi \\to (\\psi \\to \\varphi)$ を証明するとき、2つの特定の命題についての主張を証明しているのではありません。<b>論理法則</b> — すべての命題に対して同時に成り立つ原理 — を証明しているのです。証明そのものが一つのレシピです：$\\varphi$ と $\\psi$ に<i>任意の</i>論理式を与えれば、このレシピが妥当な証明を生成します。標準的な用語では、演繹体系内の一つの定理ではなく、演繹体系<b>についての</b>メタ定理を証明しているのです。",
+      "<b>すべての証明は論理法則の証明である。</b> 本システムで $\\varphi \\to (\\psi \\to \\varphi)$ を証明するとき、2つの特定の命題についての主張ではなく、<b>論理法則</b> — すべての命題に対して同時に成り立つ原理 — を証明していることになる。証明そのものが一つのレシピを構成する：$\\varphi$ と $\\psi$ に<i>任意の</i>論理式を代入すれば、このレシピが妥当な証明を生成する。標準的な用語では、演繹体系内の一つの定理ではなく、演繹体系<b>についての</b>メタ定理を証明していることに相当する。",
 
-      "<b>スキーマレベル推論の優雅さ。</b> スキーマレベルで作業すると、具体的な論理式で作業しているときには見えないパターンが現れます。恒等証明 $\\varphi \\to \\varphi$ を考えましょう。スキーマレベルでは、この証明がA1, A2, MPのみに依存し、$\\varphi$の中身は一切関係ないことが明確に見えます。同じ3ステップのパターンが、$\\varphi$が単純な変数であろうと、複雑にネストされた論理式であろうと、量化された述語論理の式であろうと機能します。スキーマレベルの視点は無関係な詳細を取り除き、論理的骨格を露出させます。",
+      "<b>スキーマレベル推論の構造的透明性。</b> スキーマレベルで作業すると、具体的な論理式では見えないパターンが顕在化する。恒等証明 $\\varphi \\to \\varphi$ を例にとると、スキーマレベルでは、この証明がA1, A2, MPのみに依存し、$\\varphi$の具体的内容は完全に無関係であることが明確になる。$\\varphi$が単純な変数であろうと、複雑にネストされた論理式であろうと、量化された述語論理の式であろうと、同一の3ステップのパターンが適用される。スキーマレベルの視点は無関係な詳細を除去し、論理的骨格を露出させる。",
 
-      "<b>挑戦。</b> スキーマレベルの証明にはより抽象的な思考が必要です。具体的な論理式では、特定の真理値や意味について考えることで直観を導くことができます。スキーマでは、論理式の<b>構造</b>と体系の<b>規則</b>から純粋に推論しなければなりません。最初は難しいですが、論理のはるかに深い理解を構築します。証明の内容ではなく、証明の<i>形</i>を見ることを学ぶのです。",
+      "<b>抽象度の向上。</b> スキーマレベルの証明は、具体的な論理式を用いる場合よりも高度な抽象的思考を要求する。具体的な論理式であれば、特定の真理値や意味を考慮して直観を導くことが可能である。スキーマの場合、論理式の<b>構造</b>と体系の<b>規則</b>のみから推論しなければならない。初期にはより困難であるが、このアプローチは論理のより深い理解を涵養する — 証明の内容ではなく、証明の<i>形式</i>を知覚することを学ぶのである。",
 
       "<b>スキーマと公理の自動識別。</b> このサイトは、あなたが書いた論理式が公理スキーマに一致するかどうかを自動的に識別します。$(\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi))$と書けば、システムはそれを公理スキーマA2のインスタンスとして認識します。この識別は<b>パターンマッチング</b>で機能します：システムはあなたの論理式を各公理スキーマに対して単一化し、メタ変数の妥当な代入を見つけます。この機構自体がスキーマレベルの操作です — 特定のインスタンスではなく、スキーマの<i>いずれかの</i>インスタンスであるかを検査します。",
 
-      "<b>Hilbertスタイル証明におけるスキーマ。</b> Hilbert系では、公理スキーマとModus Ponensの相互作用が演繹のエンジンです。各公理スキーマが無限個の出発点を提供し、MPがそれらを接続します。技は各スキーマの正しい<b>インスタンス化</b> — メタ変数にどの具体的な（またはスキーマレベルの）論理式を代入するか — を選ぶことにあります。この選択こそが、形式証明に人間の創造性が入り込む場所です。例えば、$\\varphi \\to \\varphi$の証明にはA2を$\\psi := \\varphi \\to \\varphi$でインスタンス化する必要があります — 初学者がほとんど思いつかない非自明な代入です。",
+      "<b>Hilbertスタイル証明におけるスキーマ。</b> Hilbert系では、公理スキーマとModus Ponensの相互作用が演繹のエンジンです。各公理スキーマが無限個の出発点を提供し、MPがそれらを接続します。中心的な課題は各スキーマの正しい<b>インスタンス化</b> — メタ変数にどの具体的な（またはスキーマレベルの）論理式を代入するか — を選択することにある。この選択こそが、形式証明の構築において人間の判断が介入する箇所である。例えば、$\\varphi \\to \\varphi$の証明にはA2を$\\psi := \\varphi \\to \\varphi$でインスタンス化する必要があります — 初学者がほとんど思いつかない非自明な代入です。",
 
-      "<b>自然演繹とシーケント計算におけるスキーマ。</b> スキーマの視点はHilbert系を超えて拡張されます。自然演繹では、$\\to$Iや$\\to$Eのような規則がスキーマレベルの判断に作用します：$\\Gamma, \\varphi \\vdash \\psi$ が $\\Gamma \\vdash \\varphi \\to \\psi$ になります。シーケント計算では、構造規則と論理規則がシーケントスキーマ $\\Gamma \\Rightarrow \\Delta$ を操作します。美しさは同じです：一つの証明導出が、すべての可能な論理式インスタンス化に対する結果を確立します。",
+      "<b>自然演繹とシーケント計算におけるスキーマ。</b> スキーマの視点はHilbert系を超えて拡張されます。自然演繹では、$\\to$Iや$\\to$Eのような規則がスキーマレベルの判断に作用します：$\\Gamma, \\varphi \\vdash \\psi$ が $\\Gamma \\vdash \\varphi \\to \\psi$ になります。シーケント計算では、構造規則と論理規則がシーケントスキーマ $\\Gamma \\Rightarrow \\Delta$ を操作します。原理は同一である：一つの証明導出が、すべての可能な論理式インスタンス化に対する結果を確立する。",
 
       "<b>スキーマレベル証明の実践的ヒント。</b>\n• <b>構造的に考える：</b>メタ変数が「何を意味するか」ではなく、結合子（$\\to$, $\\lnot$, $\\land$, $\\lor$, $\\forall$, $\\exists$）が規則とどう相互作用するかに集中する。\n• <b>メタ変数に明確な名前を付ける：</b>証明したい論理式に$\\varphi$、仮説に$\\psi$、中間結果に$\\chi$を使う。\n• <b>ゴールから逆方向に作業する：</b>どの規則がゴールの論理式を生成できるかを判断し、必要な前提を特定する。\n• <b>模範解答を研究する：</b>クエスト完了後、模範解答を確認する。どの公理のインスタンス化が選ばれたか、そしてなぜかに注目する。",
 
@@ -7459,7 +7459,7 @@ const notationQuantifiers: ReferenceEntry = {
       "<b>量化子</b>は変数を束縛し、論理式が成り立つ範囲を指定します。述語論理（一階論理）において不可欠です。",
       "<b>$\\forall$（全称量化子）：</b> $\\forall x. \\varphi$はxのすべての値に対して$\\varphi$が成り立つことを主張します。ASCII入力では <code>all x.</code> または <code>forall x.</code> と書きます。ドット（<code>.</code>）が束縛変数と論理式のスコープを分離します。LaTeX: <code>\\forall</code>。",
       "<b>$\\exists$（存在量化子）：</b> $\\exists x. \\varphi$は$\\varphi$が成り立つようなxの値が少なくとも1つ存在することを主張します。ASCII入力では <code>ex x.</code> または <code>exists x.</code> と書きます。LaTeX: <code>\\exists</code>。",
-      "量化子はすべての結合子よりも強く束縛します：$\\forall x. \\varphi \\to \\psi$は$(\\forall x. \\varphi) \\to \\psi$と解析され、$\\forall x.(\\varphi \\to \\psi)$ではありません。グルーピングを変更するには括弧を使用してください。",
+      "量化子はすべての結合子よりも強く束縛します：$\\forall x. \\varphi \\to \\psi$は$(\\forall x. \\varphi) \\to \\psi$と解析され、$\\forall x.(\\varphi \\to \\psi)$ではありません。グルーピングを変更するには括弧を使用する。",
     ],
   },
   formalNotation: "\\forall x.\\varphi, \\quad \\exists x.\\varphi",
