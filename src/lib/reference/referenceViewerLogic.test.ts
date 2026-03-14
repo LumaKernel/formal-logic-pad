@@ -4,6 +4,8 @@ import {
   buildReferenceViewerUrl,
   buildBreadcrumbs,
   buildViewerPageData,
+  buildCategoryNavigation,
+  buildGlobalNavigation,
   resolveEntryById,
 } from "./referenceViewerLogic";
 
@@ -208,5 +210,187 @@ describe("resolveEntryById", () => {
   it("存在しないIDはundefined", () => {
     const entry = resolveEntryById(allEntries, "nonexistent");
     expect(entry).toBeUndefined();
+  });
+});
+
+// --- ナビゲーション用追加データ ---
+
+const axiomA3: ReferenceEntry = {
+  id: "axiom-a3",
+  category: "axiom",
+  title: { en: "Axiom A3", ja: "公理A3" },
+  summary: { en: "Contraposition axiom.", ja: "対偶の公理。" },
+  body: { en: [], ja: [] },
+  relatedEntryIds: [],
+  externalLinks: [],
+  keywords: [],
+  order: 3,
+};
+
+const guideIntro: ReferenceEntry = {
+  id: "guide-intro",
+  category: "guide",
+  title: { en: "Introduction", ja: "はじめに" },
+  summary: { en: "Getting started.", ja: "はじめに。" },
+  body: { en: [], ja: [] },
+  relatedEntryIds: [],
+  externalLinks: [],
+  keywords: [],
+  order: 1,
+};
+
+const navEntries: readonly ReferenceEntry[] = [
+  guideIntro,
+  sampleEntry, // axiom-a1, order:1
+  relatedEntry1, // axiom-a2, order:2
+  axiomA3, // axiom-a3, order:3
+  relatedEntry2, // rule-mp, order:10
+];
+
+// --- buildCategoryNavigation ---
+
+describe("buildCategoryNavigation", () => {
+  it("中間エントリにはprevとnextがある", () => {
+    const nav = buildCategoryNavigation(relatedEntry1, navEntries, "en");
+    expect(nav.previous).toEqual({
+      id: "axiom-a1",
+      title: "Axiom A1",
+      href: "/reference/axiom-a1",
+    });
+    expect(nav.next).toEqual({
+      id: "axiom-a3",
+      title: "Axiom A3",
+      href: "/reference/axiom-a3",
+    });
+  });
+
+  it("先頭エントリにはpreviousがない", () => {
+    const nav = buildCategoryNavigation(sampleEntry, navEntries, "en");
+    expect(nav.previous).toBeUndefined();
+    expect(nav.next).toEqual({
+      id: "axiom-a2",
+      title: "Axiom A2",
+      href: "/reference/axiom-a2",
+    });
+  });
+
+  it("末尾エントリにはnextがない", () => {
+    const nav = buildCategoryNavigation(axiomA3, navEntries, "en");
+    expect(nav.previous).toEqual({
+      id: "axiom-a2",
+      title: "Axiom A2",
+      href: "/reference/axiom-a2",
+    });
+    expect(nav.next).toBeUndefined();
+  });
+
+  it("カテゴリに1つしかないエントリにはprev/nextがない", () => {
+    const nav = buildCategoryNavigation(relatedEntry2, navEntries, "en");
+    expect(nav.previous).toBeUndefined();
+    expect(nav.next).toBeUndefined();
+  });
+
+  it("日本語のタイトルを返す", () => {
+    const nav = buildCategoryNavigation(relatedEntry1, navEntries, "ja");
+    expect(nav.previous?.title).toBe("公理A1");
+    expect(nav.next?.title).toBe("公理A3");
+  });
+});
+
+// --- buildGlobalNavigation ---
+
+describe("buildGlobalNavigation", () => {
+  const categoryOrder = [
+    "guide",
+    "axiom",
+    "inference-rule",
+    "logic-system",
+    "notation",
+    "concept",
+    "theory",
+  ] as const;
+
+  it("カテゴリ内の中間エントリにはprevとnextがある", () => {
+    const nav = buildGlobalNavigation(
+      relatedEntry1,
+      navEntries,
+      categoryOrder,
+      "en",
+    );
+    expect(nav.previous).toEqual({
+      id: "axiom-a1",
+      title: "Axiom A1",
+      href: "/reference/axiom-a1",
+    });
+    expect(nav.next).toEqual({
+      id: "axiom-a3",
+      title: "Axiom A3",
+      href: "/reference/axiom-a3",
+    });
+  });
+
+  it("カテゴリ境界を跨いでナビゲーションする", () => {
+    // guide-intro (guide) → axiom-a1 (axiom)
+    const nav = buildGlobalNavigation(
+      guideIntro,
+      navEntries,
+      categoryOrder,
+      "en",
+    );
+    expect(nav.previous).toBeUndefined();
+    expect(nav.next).toEqual({
+      id: "axiom-a1",
+      title: "Axiom A1",
+      href: "/reference/axiom-a1",
+    });
+  });
+
+  it("先頭カテゴリの先頭エントリにはpreviousがない", () => {
+    const nav = buildGlobalNavigation(
+      guideIntro,
+      navEntries,
+      categoryOrder,
+      "en",
+    );
+    expect(nav.previous).toBeUndefined();
+  });
+
+  it("末尾カテゴリの末尾エントリにはnextがない", () => {
+    const nav = buildGlobalNavigation(
+      relatedEntry2,
+      navEntries,
+      categoryOrder,
+      "en",
+    );
+    expect(nav.next).toBeUndefined();
+    expect(nav.previous).toEqual({
+      id: "axiom-a3",
+      title: "Axiom A3",
+      href: "/reference/axiom-a3",
+    });
+  });
+
+  it("カテゴリ末尾からnextで次のカテゴリ先頭に遷移する", () => {
+    const nav = buildGlobalNavigation(
+      axiomA3,
+      navEntries,
+      categoryOrder,
+      "en",
+    );
+    expect(nav.next).toEqual({
+      id: "rule-mp",
+      title: "Modus Ponens",
+      href: "/reference/rule-mp",
+    });
+  });
+
+  it("日本語のタイトルを返す", () => {
+    const nav = buildGlobalNavigation(
+      guideIntro,
+      navEntries,
+      categoryOrder,
+      "ja",
+    );
+    expect(nav.next?.title).toBe("公理A1");
   });
 });

@@ -14,7 +14,9 @@ import type { Locale, ReferenceEntry } from "./referenceEntry";
 import { InlineMarkdown } from "./InlineMarkdown";
 import {
   buildViewerPageData,
+  buildCategoryNavigation,
   buildReferenceViewerUrl,
+  type NavigationData,
   type ViewerPageData,
 } from "./referenceViewerLogic";
 
@@ -221,10 +223,118 @@ const questButtonStyle: CSSProperties = {
   transition: "background-color 0.1s ease, border-color 0.1s ease",
 };
 
+const navContainerStyle: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "stretch",
+  marginTop: "48px",
+  paddingTop: "24px",
+  borderTop: "1px solid var(--color-border, #e2e8f0)",
+  gap: "16px",
+};
+
+const navLinkStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "4px",
+  padding: "12px 16px",
+  borderRadius: "8px",
+  border: "1px solid var(--color-border, #e2e8f0)",
+  textDecoration: "none",
+  cursor: "pointer",
+  transition: "background-color 0.1s ease, border-color 0.1s ease",
+  background: "var(--color-surface, #fff)",
+  maxWidth: "45%",
+};
+
+const navLabelStyle: CSSProperties = {
+  fontSize: "var(--font-size-xs, 11px)",
+  color: "var(--color-text-secondary, #999)",
+  textTransform: "uppercase",
+  letterSpacing: "0.05em",
+};
+
+const navTitleStyle: CSSProperties = {
+  fontSize: "var(--font-size-sm, 13px)",
+  color: "var(--color-node-axiom, #5b8bd9)",
+  fontFamily: "var(--font-ui)",
+};
+
 // --- Components ---
+
+function NavigationBar({
+  navigation,
+  locale,
+  onNavigate,
+  testId,
+}: {
+  readonly navigation: NavigationData;
+  readonly locale: Locale;
+  readonly onNavigate?: (entryId: string) => void;
+  readonly testId?: string;
+}) {
+  const { previous, next } = navigation;
+  return (
+    <nav style={navContainerStyle} aria-label="entry navigation">
+      {previous !== undefined ? (
+        <a
+          href={previous.href}
+          style={{ ...navLinkStyle, alignItems: "flex-start" }}
+          onClick={(e) => {
+            if (onNavigate !== undefined) {
+              e.preventDefault();
+              onNavigate(previous.id);
+            }
+          }}
+          data-testid={
+            testId !== undefined
+              ? `${testId satisfies string}-nav-prev`
+              : undefined
+          }
+        >
+          <span style={navLabelStyle}>
+            {locale === "ja" ? "← 前" : "← Previous"}
+          </span>
+          <span style={navTitleStyle}>{previous.title}</span>
+        </a>
+      ) : (
+        <div />
+      )}
+      {next !== undefined ? (
+        <a
+          href={next.href}
+          style={{
+            ...navLinkStyle,
+            alignItems: "flex-end",
+            marginLeft: "auto",
+          }}
+          onClick={(e) => {
+            if (onNavigate !== undefined) {
+              e.preventDefault();
+              onNavigate(next.id);
+            }
+          }}
+          data-testid={
+            testId !== undefined
+              ? `${testId satisfies string}-nav-next`
+              : undefined
+          }
+        >
+          <span style={navLabelStyle}>
+            {locale === "ja" ? "次 →" : "Next →"}
+          </span>
+          <span style={navTitleStyle}>{next.title}</span>
+        </a>
+      ) : (
+        <div />
+      )}
+    </nav>
+  );
+}
 
 function ViewerContent({
   data,
+  navigation,
   locale,
   onNavigate,
   relatedQuests,
@@ -232,6 +342,7 @@ function ViewerContent({
   testId,
 }: {
   readonly data: ViewerPageData;
+  readonly navigation: NavigationData;
   readonly locale: Locale;
   readonly onNavigate?: (entryId: string) => void;
   readonly relatedQuests?: readonly RelatedQuestInfo[];
@@ -383,6 +494,17 @@ function ViewerContent({
           </div>
         </div>
       )}
+
+      {/* 前後ナビゲーション */}
+      {(navigation.previous !== undefined ||
+        navigation.next !== undefined) && (
+        <NavigationBar
+          navigation={navigation}
+          locale={locale}
+          onNavigate={onNavigate}
+          testId={testId}
+        />
+      )}
     </div>
   );
 }
@@ -398,6 +520,11 @@ export function ReferenceViewerPageView({
 }: ReferenceViewerPageViewProps) {
   const data = useMemo(
     () => buildViewerPageData(entry, allEntries, locale),
+    [entry, allEntries, locale],
+  );
+
+  const navigation = useMemo(
+    () => buildCategoryNavigation(entry, allEntries, locale),
     [entry, allEntries, locale],
   );
 
@@ -432,6 +559,7 @@ export function ReferenceViewerPageView({
       {/* コンテンツ */}
       <ViewerContent
         data={data}
+        navigation={navigation}
         locale={locale}
         onNavigate={onNavigate}
         relatedQuests={relatedQuests}

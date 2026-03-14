@@ -7,12 +7,14 @@
  * 変更時は referenceViewerLogic.test.ts も同期すること。
  */
 
-import type { Locale, ReferenceEntry } from "./referenceEntry";
+import type { Locale, ReferenceCategory, ReferenceEntry } from "./referenceEntry";
 import {
+  filterByCategory,
   findCategoryMeta,
   findEntryById,
   getLocalizedParagraphs,
   getLocalizedText,
+  sortByOrder,
 } from "./referenceEntry";
 
 // --- URL生成 ---
@@ -124,4 +126,101 @@ export function resolveEntryById(
   id: string,
 ): ReferenceEntry | undefined {
   return findEntryById(allEntries, id);
+}
+
+// --- カテゴリ内ナビゲーション ---
+
+/** ナビゲーションリンク情報 */
+export type NavigationLink = {
+  readonly id: string;
+  readonly title: string;
+  readonly href: string;
+};
+
+/** prev/next ナビゲーションデータ */
+export type NavigationData = {
+  readonly previous: NavigationLink | undefined;
+  readonly next: NavigationLink | undefined;
+};
+
+/**
+ * 同一カテゴリ内での前後ナビゲーションデータを生成する。
+ *
+ * order順でソートし、現在エントリの前後を返す。
+ */
+export function buildCategoryNavigation(
+  currentEntry: ReferenceEntry,
+  allEntries: readonly ReferenceEntry[],
+  locale: Locale,
+): NavigationData {
+  const sameCategory = sortByOrder(
+    filterByCategory(allEntries, currentEntry.category),
+  );
+  const currentIndex = sameCategory.findIndex(
+    (e) => e.id === currentEntry.id,
+  );
+
+  /* v8 ignore start -- defensive: currentEntry should always be found in allEntries */
+  if (currentIndex === -1) {
+    return { previous: undefined, next: undefined };
+  }
+  /* v8 ignore stop */
+
+  const toLink = (entry: ReferenceEntry): NavigationLink => ({
+    id: entry.id,
+    title: getLocalizedText(entry.title, locale),
+    href: buildReferenceViewerUrl(entry.id),
+  });
+
+  const previous =
+    currentIndex > 0 ? toLink(sameCategory[currentIndex - 1]) : undefined;
+  const next =
+    currentIndex < sameCategory.length - 1
+      ? toLink(sameCategory[currentIndex + 1])
+      : undefined;
+
+  return { previous, next };
+}
+
+/**
+ * 全カテゴリを跨いだ前後ナビゲーションデータを生成する。
+ *
+ * allCategories の順序でカテゴリを並べ、各カテゴリ内は order 順。
+ * カテゴリ境界を跨ぐナビゲーションも提供する。
+ */
+export function buildGlobalNavigation(
+  currentEntry: ReferenceEntry,
+  allEntries: readonly ReferenceEntry[],
+  categoryOrder: readonly ReferenceCategory[],
+  locale: Locale,
+): NavigationData {
+  // カテゴリ順 + 各カテゴリ内 order 順でフラット化
+  const orderedEntries: readonly ReferenceEntry[] = categoryOrder.flatMap(
+    (cat) => sortByOrder(filterByCategory(allEntries, cat)),
+  );
+
+  const currentIndex = orderedEntries.findIndex(
+    (e) => e.id === currentEntry.id,
+  );
+
+  /* v8 ignore start -- defensive: currentEntry should always be found in allEntries */
+  if (currentIndex === -1) {
+    return { previous: undefined, next: undefined };
+  }
+  /* v8 ignore stop */
+
+  const toLink = (entry: ReferenceEntry): NavigationLink => ({
+    id: entry.id,
+    title: getLocalizedText(entry.title, locale),
+    href: buildReferenceViewerUrl(entry.id),
+  });
+
+  const previous =
+    currentIndex > 0 ? toLink(orderedEntries[currentIndex - 1]) : undefined;
+  const next =
+    currentIndex < orderedEntries.length - 1
+      ? toLink(orderedEntries[currentIndex + 1])
+      : undefined;
+
+  return { previous, next };
 }

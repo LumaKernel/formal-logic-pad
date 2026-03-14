@@ -285,6 +285,140 @@ describe("ReferenceViewerPageView", () => {
   });
 });
 
+// --- ナビゲーションテスト用データ ---
+
+const makeNextEntry = (): ReferenceEntry =>
+  makeEntry({
+    id: "test-entry-next",
+    title: { en: "Next Axiom", ja: "次の公理" },
+    relatedEntryIds: [],
+    externalLinks: [],
+    order: 2,
+  });
+
+const makePrevEntry = (): ReferenceEntry =>
+  makeEntry({
+    id: "test-entry-prev",
+    title: { en: "Previous Axiom", ja: "前の公理" },
+    relatedEntryIds: [],
+    externalLinks: [],
+    order: 0,
+  });
+
+describe("ReferenceViewerPageView ナビゲーション", () => {
+  it("次のエントリへのリンクが表示される", () => {
+    const entry = makeEntry({ relatedEntryIds: [], externalLinks: [] });
+    const allEntries = [entry, makeNextEntry()];
+    render(
+      <ReferenceViewerPageView
+        entry={entry}
+        allEntries={allEntries}
+        locale="en"
+        testId="ref-viewer"
+      />,
+    );
+    const nextLink = screen.getByTestId("ref-viewer-nav-next");
+    expect(nextLink.textContent).toContain("Next Axiom");
+    expect(nextLink.getAttribute("href")).toBe("/reference/test-entry-next");
+  });
+
+  it("前のエントリへのリンクが表示される", () => {
+    const entry = makeEntry({ relatedEntryIds: [], externalLinks: [] });
+    const allEntries = [makePrevEntry(), entry];
+    render(
+      <ReferenceViewerPageView
+        entry={entry}
+        allEntries={allEntries}
+        locale="en"
+        testId="ref-viewer"
+      />,
+    );
+    const prevLink = screen.getByTestId("ref-viewer-nav-prev");
+    expect(prevLink.textContent).toContain("Previous Axiom");
+    expect(prevLink.getAttribute("href")).toBe("/reference/test-entry-prev");
+  });
+
+  it("前後両方のリンクが表示される", () => {
+    const entry = makeEntry({ relatedEntryIds: [], externalLinks: [] });
+    const allEntries = [makePrevEntry(), entry, makeNextEntry()];
+    render(
+      <ReferenceViewerPageView
+        entry={entry}
+        allEntries={allEntries}
+        locale="en"
+        testId="ref-viewer"
+      />,
+    );
+    expect(screen.getByTestId("ref-viewer-nav-prev")).toBeDefined();
+    expect(screen.getByTestId("ref-viewer-nav-next")).toBeDefined();
+  });
+
+  it("カテゴリ内に1つしかない場合はナビゲーションが非表示", () => {
+    const entry = makeEntry({ relatedEntryIds: [], externalLinks: [] });
+    render(
+      <ReferenceViewerPageView
+        entry={entry}
+        allEntries={[entry]}
+        locale="en"
+        testId="ref-viewer"
+      />,
+    );
+    expect(screen.queryByTestId("ref-viewer-nav-prev")).toBeNull();
+    expect(screen.queryByTestId("ref-viewer-nav-next")).toBeNull();
+  });
+
+  it("次のリンククリックでonNavigateが呼ばれる", () => {
+    const onNavigate = vi.fn();
+    const entry = makeEntry({ relatedEntryIds: [], externalLinks: [] });
+    const allEntries = [entry, makeNextEntry()];
+    render(
+      <ReferenceViewerPageView
+        entry={entry}
+        allEntries={allEntries}
+        locale="en"
+        onNavigate={onNavigate}
+        testId="ref-viewer"
+      />,
+    );
+    fireEvent.click(screen.getByTestId("ref-viewer-nav-next"));
+    expect(onNavigate).toHaveBeenCalledWith("test-entry-next");
+  });
+
+  it("前のリンククリックでonNavigateが呼ばれる", () => {
+    const onNavigate = vi.fn();
+    const entry = makeEntry({ relatedEntryIds: [], externalLinks: [] });
+    const allEntries = [makePrevEntry(), entry];
+    render(
+      <ReferenceViewerPageView
+        entry={entry}
+        allEntries={allEntries}
+        locale="en"
+        onNavigate={onNavigate}
+        testId="ref-viewer"
+      />,
+    );
+    fireEvent.click(screen.getByTestId("ref-viewer-nav-prev"));
+    expect(onNavigate).toHaveBeenCalledWith("test-entry-prev");
+  });
+
+  it("日本語のナビゲーションラベルが表示される", () => {
+    const entry = makeEntry({ relatedEntryIds: [], externalLinks: [] });
+    const allEntries = [makePrevEntry(), entry, makeNextEntry()];
+    render(
+      <ReferenceViewerPageView
+        entry={entry}
+        allEntries={allEntries}
+        locale="ja"
+        testId="ref-viewer"
+      />,
+    );
+    const prevLink = screen.getByTestId("ref-viewer-nav-prev");
+    expect(prevLink.textContent).toContain("← 前");
+    const nextLink = screen.getByTestId("ref-viewer-nav-next");
+    expect(nextLink.textContent).toContain("次 →");
+  });
+});
+
 describe("ReferenceViewerNotFound", () => {
   it("英語のNotFoundが表示される", () => {
     render(<ReferenceViewerNotFound locale="en" testId="ref-not-found" />);

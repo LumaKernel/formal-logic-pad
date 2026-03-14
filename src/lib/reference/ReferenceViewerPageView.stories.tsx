@@ -107,6 +107,10 @@ export const Default: Story = {
     await expect(breadcrumb0).toHaveTextContent("Home");
     const breadcrumb1 = canvas.getByTestId("ref-viewer-breadcrumb-1");
     await expect(breadcrumb1).toHaveTextContent("Reference");
+    // カテゴリ内ナビゲーション: 先頭なのでprevなし、nextあり
+    await expect(canvas.queryByTestId("ref-viewer-nav-prev")).toBeNull();
+    const nextLink = canvas.getByTestId("ref-viewer-nav-next");
+    await expect(nextLink).toHaveTextContent("Axiom A2 (S)");
   },
 };
 
@@ -184,6 +188,45 @@ export const WithRelatedQuestsJapanese: Story = {
     await expect(
       canvas.getByTestId("ref-viewer-quest-prop-02"),
     ).toBeInTheDocument();
+  },
+};
+
+export const WithNavigation: Story = {
+  args: {
+    entry: {
+      ...relatedEntries[0],
+      relatedEntryIds: [],
+      externalLinks: [],
+    },
+    allEntries: [
+      sampleEntry,
+      relatedEntries[0],
+      {
+        id: "axiom-a3",
+        category: "axiom",
+        title: { en: "Axiom A3 (N)", ja: "公理 A3 (N)" },
+        summary: {
+          en: "Contraposition axiom.",
+          ja: "対偶の公理。",
+        },
+        body: { en: [], ja: [] },
+        relatedEntryIds: [],
+        externalLinks: [],
+        keywords: [],
+        order: 3,
+      },
+    ],
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // 中間エントリなので前後のリンクがある
+    const prevLink = canvas.getByTestId("ref-viewer-nav-prev");
+    await expect(prevLink).toHaveTextContent("Axiom A1 (K)");
+    const nextLink = canvas.getByTestId("ref-viewer-nav-next");
+    await expect(nextLink).toHaveTextContent("Axiom A3 (N)");
+    // nextクリックでonNavigateが呼ばれる
+    await userEvent.click(nextLink);
+    await expect(args.onNavigate).toHaveBeenCalledWith("axiom-a3");
   },
 };
 
