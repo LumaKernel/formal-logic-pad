@@ -14187,3 +14187,15 @@
   - セクション6（シーケント計算）に着手。guide + 4 ref エントリ
   - 連続するrefエントリは同じパターン（概念エントリ、conceptAbelianGroupの前に挿入、配列に追加、テスト数更新）で効率的に追加可能
 ---
+
+## 2026-03-14 12:05 - セクション6・7完了（シーケント計算・タブロー法）
+- セクション6: guide-intro-sequent-calculus(10), concept-lk-lj-difference(33), concept-sc-cut-rule(34), concept-sc-logical-rules-detail(35), concept-sc-structural-rules-detail(36)
+- セクション7: guide-intro-tableau(11), concept-tab-sequent-rules(37), concept-analytic-tableau-rules(38), concept-tableau-closure(39), concept-tab-sc-correspondence(40)
+- エントリ総数: 88→98 (+10)
+- 変更ファイル: referenceContent.ts, referenceContent.test.ts
+- セクション6・7をアーカイブ済み
+- CI prettier修正あり（引用符スタイル変更）
+- **今後のイテレーションへの学び:**
+  - prettierは文字列内の引用符を自動変換する（\"→"で囲みを変更）。初回コミット前にprettier --writeを忘れずに
+  - セクション8（メタ定理）、セクション9（高度なトピック）が残り
+---

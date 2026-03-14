@@ -36,3 +36,19 @@
 - [x] `[ref]` 仮定の管理 — concept-assumption-management, order:30, 7段落
 - [x] `[ref]` 自然演繹の否定規則 — concept-nd-negation-rules, order:31, 7段落
 - [x] `[ref]` 自然演繹の量化子規則 — concept-nd-quantifier-rules, order:32, 7段落
+
+## 6. シーケント計算 (Sequent Calculus)
+
+- [x] `[guide]` シーケント計算入門 — guide-intro-sequent-calculus, order:10, 10段落
+- [x] `[ref]` LK/LJ の違い — concept-lk-lj-difference, order:33, 6段落
+- [x] `[ref]` カット規則とカット除去 — concept-sc-cut-rule, order:34, 6段落
+- [x] `[ref]` SC各論理規則の詳細 — concept-sc-logical-rules-detail, order:35, 7段落
+- [x] `[ref]` 構造規則詳細 — concept-sc-structural-rules-detail, order:36, 6段落
+
+## 7. タブロー法 (Tableau) / 分析的タブロー (Analytic Tableau)
+
+- [x] `[guide]` タブロー法入門 — guide-intro-tableau, order:11, 10段落
+- [x] `[ref]` TAB規則一覧 — concept-tab-sequent-rules, order:37, 6段落
+- [x] `[ref]` 分析的タブロー規則一覧 — concept-analytic-tableau-rules, order:38, 6段落
+- [x] `[ref]` タブローの閉包条件 — concept-tableau-closure, order:39, 6段落
+- [x] `[ref]` タブロー法とSCの対応 — concept-tab-sc-correspondence, order:40, 6段落
