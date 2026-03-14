@@ -23,6 +23,27 @@ vi.mock("md-editor-rt", () => ({
 }));
 vi.mock("md-editor-rt/lib/style.css", () => ({}));
 vi.mock("md-editor-rt/lib/preview.css", () => ({}));
+
+// ScriptEditorComponent は Monaco Editor に依存するため jsdom 環境ではモック化
+vi.mock("../../components/ScriptEditor/ScriptEditorComponent", () => ({
+  ScriptEditorComponent: ({
+    initialCode,
+    onCodeChange,
+  }: {
+    readonly initialCode?: string;
+    readonly onCodeChange?: (code: string) => void;
+  }) =>
+    createElement(
+      "div",
+      { "data-testid": "script-editor-mock" },
+      createElement("textarea", {
+        value: initialCode ?? "",
+        onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+          onCodeChange?.(e.target.value),
+        "data-testid": "script-editor-mock-textarea",
+      }),
+    ),
+}));
 import {
   lukasiewiczSystem,
   predicateLogicSystem,
@@ -55,6 +76,7 @@ import {
   applySubstitutionAndConnect,
   duplicateNode,
   applyScRuleAndConnect,
+  addScriptNode,
 } from "./workspaceState";
 import type { ClipboardData } from "./copyPasteLogic";
 
@@ -6041,6 +6063,109 @@ describe("ProofWorkspace", () => {
       // ノートノード用のメニュー項目は表示されない
       expect(
         screen.queryByTestId("workspace-edit-note"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("script node context menu shows 'Run Script' item", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addScriptNode(
+        ws,
+        "Test Script",
+        { x: 100, y: 100 },
+        "console.log('hello');",
+      );
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // スクリプトノードを右クリック
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      // スクリプトノード専用メニューが表示される
+      expect(screen.getByTestId("workspace-run-script")).toBeInTheDocument();
+      expect(
+        screen.getByTestId("workspace-duplicate-node"),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId("workspace-delete-node")).toBeInTheDocument();
+
+      // 通常ノード用のメニュー項目は表示されない
+      expect(
+        screen.queryByTestId("workspace-select-subtree"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("workspace-edit-formula"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("workspace-edit-note"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("script node 'Run Script' opens script editor panel", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addScriptNode(
+        ws,
+        "Test Script",
+        { x: 100, y: 100 },
+        "console.log('hello');",
+      );
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // スクリプトノードを右クリック
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+
+      // 「スクリプトを実行」をクリック
+      await user.click(screen.getByTestId("workspace-run-script"));
+
+      // メニューが閉じる
+      expect(
+        screen.queryByTestId("workspace-node-context-menu"),
+      ).not.toBeInTheDocument();
+
+      // スクリプトエディタパネルが開く
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-script-editor-panel"),
+        ).toBeInTheDocument();
+      });
+
+      // モックエディタが表示される
+      expect(screen.getByTestId("script-editor-mock")).toBeInTheDocument();
+    });
+
+    it("script editor panel can be closed", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addScriptNode(
+        ws,
+        "Test Script",
+        { x: 100, y: 100 },
+        "console.log('hello');",
+      );
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // スクリプトノードを右クリック→スクリプトを実行
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+      await user.click(screen.getByTestId("workspace-run-script"));
+
+      // パネルが開いていることを確認
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-script-editor-panel"),
+        ).toBeInTheDocument();
+      });
+
+      // 閉じるボタンをクリック
+      await user.click(screen.getByTestId("workspace-script-editor-close"));
+
+      // パネルが閉じる
+      expect(
+        screen.queryByTestId("workspace-script-editor-panel"),
       ).not.toBeInTheDocument();
     });
   });

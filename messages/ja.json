@@ -218,6 +218,7 @@
     "addNote": "メモを追加",
     "editNote": "メモを編集",
     "noteEditorTitle": "メモの編集",
+    "runScript": "スクリプトを実行",
     "nodeLabelAxiom": "公理",
     "nodeLabelAssumption": "仮定",
     "nodeLabelSequent": "シーケント",

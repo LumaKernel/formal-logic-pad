@@ -230,6 +230,9 @@ function useProofMessagesFromIntl(): ProofMessages {
       editNote: t("editNote"),
       noteEditorTitle: t("noteEditorTitle"),
 
+      // Script
+      runScript: t("runScript"),
+
       // Node creation labels
       nodeLabelAxiom: t("nodeLabelAxiom"),
       nodeLabelAssumption: t("nodeLabelAssumption"),

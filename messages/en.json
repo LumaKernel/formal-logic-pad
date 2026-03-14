@@ -218,6 +218,7 @@
     "addNote": "Add Note",
     "editNote": "Edit Note",
     "noteEditorTitle": "Edit Note",
+    "runScript": "Run Script",
     "nodeLabelAxiom": "Axiom",
     "nodeLabelAssumption": "Assumption",
     "nodeLabelSequent": "Sequent",

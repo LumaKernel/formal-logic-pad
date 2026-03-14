@@ -32,6 +32,7 @@ import {
   addNode,
   addConnection,
   addGoal,
+  addScriptNode,
   applyMPAndConnect,
   applySubstitutionAndConnect,
   copySelectedNodes,
@@ -2073,5 +2074,71 @@ export const UndoRedoNoOp: Story = {
     await userEvent.keyboard("{Control>}y{/Control}");
     await new Promise((resolve) => setTimeout(resolve, 100));
     expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+  },
+};
+
+// --- スクリプトノード付きワークスペース ---
+
+function WorkspaceWithScriptNode() {
+  const initial = (() => {
+    let ws = createEmptyWorkspace(lukasiewiczSystem);
+    ws = addNode(ws, "axiom", "Axiom", { x: 50, y: 50 }, "phi -> phi");
+    ws = addScriptNode(
+      ws,
+      "Script",
+      { x: 350, y: 50 },
+      '// Sample script\nworkspace.addNode("axiom", "phi -> (psi -> phi)");\n',
+    );
+    return ws;
+  })();
+
+  const [workspace, setWorkspace] = useState<WorkspaceState>(initial);
+  const handleChange = useCallback((ws: WorkspaceState) => {
+    setWorkspace(ws);
+  }, []);
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ProofWorkspace
+        system={lukasiewiczSystem}
+        workspace={workspace}
+        onWorkspaceChange={handleChange}
+        testId="workspace"
+      />
+    </div>
+  );
+}
+
+/**
+ * スクリプトノードを含むワークスペース。
+ * 右クリックでコンテキストメニューに「スクリプトを実行」が表示される。
+ */
+export const WithScriptNode: StoryObj<typeof meta> = {
+  render: () => <WorkspaceWithScriptNode />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => {
+      expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+    });
+
+    // スクリプトノードが表示されている
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+
+    // スクリプトノードを右クリック
+    const scriptNode = canvas.getByTestId("proof-node-node-2");
+    await userEvent.pointer({ keys: "[MouseRight]", target: scriptNode });
+
+    // コンテキストメニューに「スクリプトを実行」が表示される
+    await waitFor(() => {
+      expect(
+        canvas.getByText(
+          (content) =>
+            content.includes("Run Script") ||
+            content.includes("スクリプトを実行"),
+        ),
+      ).toBeInTheDocument();
+    });
   },
 };

@@ -245,6 +245,9 @@ export type ProofMessages = {
   readonly editNote: string;
   readonly noteEditorTitle: string;
 
+  // --- スクリプト ---
+  readonly runScript: string;
+
   // --- ノード作成ラベル ---
   readonly nodeLabelAxiom: string;
   readonly nodeLabelAssumption: string;
@@ -480,6 +483,9 @@ export const defaultProofMessages: ProofMessages = {
   addNote: "Add Note",
   editNote: "Edit Note",
   noteEditorTitle: "Edit Note",
+
+  // Script
+  runScript: "Run Script",
 
   // Node creation labels
   nodeLabelAxiom: "Axiom",

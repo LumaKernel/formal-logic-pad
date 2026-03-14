@@ -153,6 +153,8 @@ import {
   applyAtRuleAndConnect,
   applyScRuleAndConnect,
   importProofFromCollection,
+  addGoal,
+  updateNodeRole,
 } from "./workspaceState";
 import {
   findMergeableGroups,
@@ -228,6 +230,9 @@ import {
   computeZoomOutViewport,
 } from "../infinite-canvas/zoomControls";
 import { useHistory } from "../history/useHistory";
+import { getScriptCode } from "./scriptNode";
+import { ScriptEditorComponent } from "../../components/ScriptEditor/ScriptEditorComponent";
+import type { WorkspaceCommandHandler } from "../script-runner";
 
 // --- ノート編集用ツールバー定数 ---
 const NOTE_EDITOR_TOOLBARS: (
@@ -781,6 +786,10 @@ export function ProofWorkspace({
   // 下位互換: setWorkspace は pushWorkspace のエイリアス
   const setWorkspace = pushWorkspace;
 
+  // スクリプト実行中に最新workspaceを参照するためのref
+  const workspaceRef = useRef(workspace);
+  workspaceRef.current = workspace;
+
   // ビューポート状態
   const [viewport, setViewport] = useState<ViewportState>({
     offsetX: 0,
@@ -849,6 +858,13 @@ export function ProofWorkspace({
   const [cutElimRawSteps, setCutElimRawSteps] = useState<
     readonly CutEliminationStep[]
   >([]);
+
+  // スクリプトエディタ状態
+  const [scriptEditorOpen, setScriptEditorOpen] = useState(false);
+  const [scriptEditorNodeId, setScriptEditorNodeId] = useState<string | null>(
+    null,
+  );
+  const [scriptEditorInitialCode, setScriptEditorInitialCode] = useState("");
 
   // Gen変数名入力
   const [genVariableInput, setGenVariableInput] = useState("");
@@ -3092,6 +3108,15 @@ export function ProofWorkspace({
     return node.kind === "note";
   }, [nodeMenuState, workspace]);
 
+  const menuNodeIsScript = useMemo(() => {
+    if (!nodeMenuState.open) return false;
+    const node = findNode(workspace, nodeMenuState.nodeId);
+    /* v8 ignore start -- 防御的: メニューが開いているノードは存在する */
+    if (!node) return false;
+    /* v8 ignore stop */
+    return node.kind === "script";
+  }, [nodeMenuState, workspace]);
+
   // コンテキストメニューから「ノートを編集する」（ノートノード専用）
   const handleEditNoteFromMenu = useCallback(() => {
     /* v8 ignore start -- 防御的: メニューが開いている時のみ呼ばれる */
@@ -3101,7 +3126,110 @@ export function ProofWorkspace({
     setNodeMenuState(closeNodeMenu());
   }, [nodeMenuState, handleEditNote]);
 
-  // コンテキストメニューから「ノードを削除する」
+  // コンテキストメニューから「スクリプトを実行」（スクリプトノード専用）
+  const handleRunScriptFromMenu = useCallback(() => {
+    /* v8 ignore start -- 防御的: メニューが開いている時のみ呼ばれる */
+    if (!nodeMenuState.open) return;
+    /* v8 ignore stop */
+    const node = findNode(workspace, nodeMenuState.nodeId);
+    /* v8 ignore start -- 防御的: メニューが開いているノードは存在する */
+    if (!node) return;
+    /* v8 ignore stop */
+    const code = getScriptCode(node.formulaText);
+    setScriptEditorNodeId(nodeMenuState.nodeId);
+    setScriptEditorInitialCode(code);
+    setScriptEditorOpen(true);
+    setNodeMenuState(closeNodeMenu());
+  }, [nodeMenuState, workspace]);
+
+  const handleScriptEditorClose = useCallback(() => {
+    setScriptEditorOpen(false);
+    setScriptEditorNodeId(null);
+    setScriptEditorInitialCode("");
+  }, []);
+
+  const handleScriptCodeChange = useCallback(
+    (code: string) => {
+      if (scriptEditorNodeId === null) return;
+      const node = findNode(workspace, scriptEditorNodeId);
+      /* v8 ignore start -- 防御的: スクリプトノードが削除されていた場合 */
+      if (!node) return;
+      /* v8 ignore stop */
+      setWorkspace(updateNodeFormulaText(workspace, scriptEditorNodeId, code));
+    },
+    [scriptEditorNodeId, workspace, setWorkspace],
+  );
+
+  // スクリプト実行用 WorkspaceCommandHandler
+  const nextScriptYRef = useRef(50);
+  const scriptCommandHandler = useMemo((): WorkspaceCommandHandler | undefined => {
+    if (!scriptEditorOpen) return undefined;
+    return {
+      addNode: (formulaText: string) => {
+        let ws = workspaceRef.current;
+        const y = nextScriptYRef.current;
+        nextScriptYRef.current += 80;
+        ws = addNode(ws, "axiom", "Node", { x: 200, y }, formulaText);
+        const newNodeId = `node-${String(ws.nextNodeId - 1) satisfies string}`;
+        setWorkspace(ws);
+        return newNodeId;
+      },
+      setNodeFormula: (nodeId: string, formulaText: string) => {
+        const ws = updateNodeFormulaText(
+          workspaceRef.current,
+          nodeId,
+          formulaText,
+        );
+        setWorkspace(ws);
+      },
+      getNodes: () =>
+        workspaceRef.current.nodes.map((n) => ({
+          id: n.id,
+          formulaText: n.formulaText,
+          label: n.label,
+          x: n.position.x,
+          y: n.position.y,
+        })),
+      connectMP: (antecedentId: string, conditionalId: string) => {
+        const y = nextScriptYRef.current;
+        nextScriptYRef.current += 80;
+        const result = applyMPAndConnect(
+          workspaceRef.current,
+          antecedentId,
+          conditionalId,
+          { x: 200, y },
+        );
+        if (Either.isLeft(result.validation)) {
+          const tag = result.validation.left._tag satisfies string;
+          throw new Error(`Modus Ponens failed: ${tag satisfies string}`);
+        }
+        setWorkspace(result.workspace);
+        return result.mpNodeId;
+      },
+      addGoal: (formulaText: string) => {
+        const ws = addGoal(workspaceRef.current, formulaText);
+        setWorkspace(ws);
+      },
+      removeNode: (nodeId: string) => {
+        const ws = removeNode(workspaceRef.current, nodeId);
+        setWorkspace(ws);
+      },
+      setNodeRoleAxiom: (nodeId: string) => {
+        const ws = updateNodeRole(workspaceRef.current, nodeId, "axiom");
+        setWorkspace(ws);
+      },
+      applyLayout: () => {
+        const ws = applyTreeLayout(workspaceRef.current, "bottom-to-top");
+        setWorkspace(ws);
+      },
+      clearWorkspace: () => {
+        setWorkspace(createEmptyWorkspace(workspace.system));
+        nextScriptYRef.current = 50;
+      },
+    };
+  }, [scriptEditorOpen, workspace.system, setWorkspace]);
+
+  // コンテキストメニューから「ノードを複製する」
   const handleDuplicateNode = useCallback(() => {
     /* v8 ignore start -- 防御的: メニューが開いている時のみ呼ばれる */
     if (!nodeMenuState.open) return;
@@ -5087,6 +5215,83 @@ export function ProofWorkspace({
         }
       />
 
+      {/* スクリプトエディタパネル */}
+      {scriptEditorOpen ? (
+        <div
+          style={{
+            position: "absolute",
+            right: 12,
+            top: 12,
+            bottom: 12,
+            width: 480,
+            zIndex: 11,
+            display: "flex",
+            flexDirection: "column",
+            background: "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
+            border:
+              "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.2))",
+            borderRadius: 8,
+            boxShadow:
+              "0 4px 16px var(--color-panel-shadow, rgba(120, 100, 70, 0.1))",
+            overflow: "hidden",
+          }}
+          data-testid={
+            /* v8 ignore start -- V8集約アーティファクト */
+            testId
+              ? `${testId satisfies string}-script-editor-panel`
+              : "script-editor-panel"
+            /* v8 ignore stop */
+          }
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "6px 10px",
+              borderBottom:
+                "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.2))",
+              fontFamily: "var(--font-ui)",
+              fontSize: 13,
+              fontWeight: 600,
+            }}
+          >
+            <span>{msg.runScript}</span>
+            <button
+              type="button"
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontSize: 16,
+                color: "var(--color-text-secondary, #666)",
+                padding: "0 4px",
+              }}
+              onClick={handleScriptEditorClose}
+              data-testid={
+                /* v8 ignore start -- V8集約アーティファクト */
+                testId
+                  ? `${testId satisfies string}-script-editor-close`
+                  : "script-editor-close"
+                /* v8 ignore stop */
+              }
+            >
+              ×
+            </button>
+          </div>
+          <div style={{ flex: 1, overflow: "hidden" }}>
+            <ScriptEditorComponent
+              initialCode={scriptEditorInitialCode}
+              height="100%"
+              onCodeChange={handleScriptCodeChange}
+              workspaceCommandHandler={scriptCommandHandler}
+            />
+          </div>
+        </div>
+      ) : null}
+
       {/* カット除去ステッパー */}
       {cutElimStepperData !== null ? (
         <>
@@ -5200,6 +5405,51 @@ export function ProofWorkspace({
                 testId={
                   /* v8 ignore start -- V8集約アーティファクト */
                   testId ? `${testId satisfies string}-edit-note` : "edit-note"
+                  /* v8 ignore stop */
+                }
+              />
+              <div
+                style={{
+                  height: 1,
+                  background:
+                    "var(--color-panel-border, rgba(180, 160, 130, 0.2))",
+                  margin: "4px 0",
+                }}
+              />
+              <WorkspaceMenuItem
+                label={msg.duplicateNode}
+                onClick={handleDuplicateNode}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-duplicate-node`
+                    : "duplicate-node"
+                  /* v8 ignore stop */
+                }
+              />
+              <WorkspaceMenuItem
+                label={msg.deleteNode}
+                onClick={handleDeleteNode}
+                disabled={menuNodeIsProtected}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-delete-node`
+                    : "delete-node"
+                  /* v8 ignore stop */
+                }
+              />
+            </>
+          ) : menuNodeIsScript ? (
+            <>
+              <WorkspaceMenuItem
+                label={msg.runScript}
+                onClick={handleRunScriptFromMenu}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-run-script`
+                    : "run-script"
                   /* v8 ignore stop */
                 }
               />

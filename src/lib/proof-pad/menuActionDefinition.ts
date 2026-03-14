@@ -184,6 +184,13 @@ export const allMenuActions: readonly MenuActionDefinition[] = [
     note: "Note nodes only",
   },
   {
+    id: "run-script",
+    label: { en: "Run Script", ja: "スクリプトを実行" },
+    contexts: ["node-context-menu"],
+    group: "node-edit",
+    note: "Script nodes only",
+  },
+  {
     id: "merge-with-node",
     label: {
       en: "Merge Equivalent Schema\u2026",
