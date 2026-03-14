@@ -14294,3 +14294,17 @@
   - conceptFormulaSchema（概念）とguideSchemaProofPractice（ガイド）は同じトピックだが視点が異なる。概念=理論的定義、ガイド=実践的体験
   - prd-docs-improve.md の残タスク: 基礎編充実（ドキュメントベース学習、アカデミック論調）
 ---
+
+## 2026-03-14 - [Docs] ガイドセクション学習パス改善
+- ガイドカードに関連リファレンス記事数のバッジを追加（referenceBrowserLogic.ts: buildGuideCards に relatedEntryCount フィールド追加）
+- ReferenceBrowserComponent に relatedTopicsLabel prop と関連トピック数バッジUI追加
+- ガイドセクションタイトルを「Learning Path」に変更、説明文をアカデミックな論調に統一
+- i18n: hubMessages.ts に referenceRelatedTopics キー追加、en.json/ja.json 更新
+- テスト: referenceBrowserLogic.test.ts に2テスト、ReferenceBrowserComponent.test.tsx に2テスト追加
+- カバレッジ: 維持（referenceBrowserLogic.ts 100% statements）
+- 変更ファイル: referenceBrowserLogic.ts, ReferenceBrowserComponent.tsx, hubMessages.ts, HubContent.tsx, HubPageView.tsx, messages/en.json, messages/ja.json, + テスト2ファイル
+- スクリーンショット: .screenshots/reference-tab-viewport.png
+- **今後のイテレーションへの学び:**
+  - GuideCardData に新フィールド追加時は buildGuideCards と対応テストの両方を更新
+  - hubMessages.ts にキー追加時は HubContent.tsx の useHubMessagesFromIntl、HubPageView.tsx のコンポーネント props、en.json/ja.json すべて同期が必要
+---
