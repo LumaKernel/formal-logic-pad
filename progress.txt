@@ -14417,3 +14417,21 @@
   - menuActionDefinitionのcontextsでnode-context-menuとcanvas-context-menuの両方に配置可能
   - ProofWorkspace.tsxのノードコンテキストメニューは3箇所（note/script/通常ノード）に分かれている
 ---
+
+## 2026-03-14 - [Script] Hubページにスクリプト管理タブを追加
+- HubPageViewにScriptsタブを追加（タブナビゲーション、一覧表示、空状態）
+- 純粋ロジック: scriptListPanelLogic.ts（相対時間フォーマット、ソート済みリスト変換）
+- UIコンポーネント: ScriptListPanel.tsx（一覧、インラインリネーム、削除、エクスポート）
+- HubContent.tsx: localStorage連携、スクリプトのCRUD操作
+- Next.jsルート: src/app/scripts/page.tsx
+- i18n: en.json/ja.json に6キー追加、hubMessages.ts型定義同期
+- Storybook: ScriptsTab, ScriptsTabEmpty, ScriptsTabDelete の3ストーリー追加（play関数付き）
+- テスト: scriptListPanelLogic.test.ts(11件), ScriptListPanel.test.tsx(11件) 全パス
+- カバレッジ: ScriptListPanel.tsx 100%, scriptListPanelLogic.ts 100%
+- 変更ファイル: hubMessages.ts, HubPageView.tsx, HubContent.tsx, HubPageView.stories.tsx, messages/en.json, messages/ja.json, src/app/scripts/page.tsx, ScriptListPanel.tsx, scriptListPanelLogic.ts + テスト2ファイル
+- スクリーンショット: .screenshots/scripts-tab-full.png, .screenshots/scripts-tab-empty.png
+- **今後のイテレーションへの学び:**
+  - HubMessages型に新キーを追加する際: 型定義→defaultHubMessages→hubMessageKeys配列→en.json→ja.json→HubContent.tsx(useHubMessagesFromIntl)の6箇所を同期
+  - HubTab union型にタブを追加する際: tabToPath, HubPageViewのナビゲーション、stories、page.tsxルートも追加
+  - ScriptEditor関連ファイルは src/components/ScriptEditor/ に配置
+---
