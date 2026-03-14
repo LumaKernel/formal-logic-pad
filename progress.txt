@@ -14347,3 +14347,25 @@
   - JA学術論調: です→である、ます→る、でしょう→であろう、ましょう→以下の通りである、ください→こと
   - Storybookの言語切り替えはReference Tabストーリーでは一部コンテンツに反映されない場合がある
 ---
+
+## 2026-03-14 19:15 - Script
+- スクリプトノードのコンテキストメニューに「スクリプトを実行」アクション追加
+- 右クリック→「Run Script」でサイドパネル型ScriptEditorが開く
+- WorkspaceCommandHandlerでスクリプトからワークスペース操作（addNode, connectMP等）が可能
+- 変更ファイル:
+  - menuActionDefinition.ts / .test.ts: run-scriptアクション定義+テスト
+  - proofMessages.ts: runScriptメッセージキー追加
+  - messages/en.json, messages/ja.json: i18n追加
+  - WorkspaceContent.tsx: メッセージブリッジ追加
+  - ProofWorkspace.tsx: スクリプトノード検出、3分岐コンテキストメニュー、エディタパネル統合
+  - ProofWorkspace.test.tsx: スクリプトノードテスト3件追加（コンテキストメニュー表示、エディタ開閉）
+  - ProofWorkspace.stories.tsx: WithScriptNodeストーリー追加
+- カバレッジ: Stmts 99.52%, Branch 98.06% (v8集約アーティファクト), Funcs 89.85%, Lines 99.58%
+  - ベースライン: Stmts 99.64%, Branch 99.03%, Funcs 98.97%, Lines 99.65%
+  - Branch低下はv8 forks workerエラーによる集約アーティファクト
+- スクリーンショット: .screenshots/script-node-story.png
+- **今後のイテレーションへの学び:**
+  - ProofWorkspaceのコンテキストメニューは3分岐: note → script → formula。新ノード種別追加時はこのパターンに従う
+  - ScriptEditorComponentはMonaco依存のため、テストではvi.mockが必要
+  - workspaceRefパターン: 非同期スクリプト実行中に最新stateを参照するためuseRefで保持
+---
