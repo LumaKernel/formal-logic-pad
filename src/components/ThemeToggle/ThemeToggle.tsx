@@ -1,13 +1,13 @@
 /**
  * ThemeToggle — A segmented control for switching between light/dark/system themes.
  *
- * Uses lucide-react icons (Sun/Moon/Monitor). Keyboard accessible via Tab/Enter/Space.
+ * Uses @ant-design/icons (Sun/Moon/Monitor). Keyboard accessible via Tab/Enter/Space.
  * Requires ThemeProvider in the component tree.
  * Styled with inline styles + CSS variables defined in globals.css.
  */
 
 import { type CSSProperties, type ReactNode, useCallback } from "react";
-import { Sun, Moon, Monitor } from "lucide-react";
+import { SunOutlined, MoonOutlined, DesktopOutlined } from "@ant-design/icons";
 import { THEME_MODES, type ThemeMode } from "../../lib/theme";
 import { useThemeContext } from "../../lib/theme/ThemeProvider";
 import {
@@ -24,10 +24,12 @@ const iconStyle: Readonly<CSSProperties> = {
 };
 
 function ThemeIcon({ iconId }: { readonly iconId: ThemeIconId }): ReactNode {
-  if (iconId === "sun") return <Sun style={iconStyle} aria-hidden="true" />;
-  if (iconId === "moon") return <Moon style={iconStyle} aria-hidden="true" />;
+  if (iconId === "sun")
+    return <SunOutlined style={iconStyle} aria-hidden="true" />;
+  if (iconId === "moon")
+    return <MoonOutlined style={iconStyle} aria-hidden="true" />;
   // fall-through: TypeScript narrows to "monitor"
-  return <Monitor style={iconStyle} aria-hidden="true" />;
+  return <DesktopOutlined style={iconStyle} aria-hidden="true" />;
 }
 
 /**
