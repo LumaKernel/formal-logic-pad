@@ -5687,6 +5687,70 @@ const conceptNdVariants: ReferenceEntry = {
   order: 29,
 };
 
+const conceptAssumptionManagement: ReferenceEntry = {
+  id: "concept-assumption-management",
+  category: "concept",
+  title: {
+    en: "Assumption Management in Natural Deduction",
+    ja: "自然演繹における仮定の管理",
+  },
+  summary: {
+    en: "How assumptions are introduced, discharged, and tracked in natural deduction proofs.",
+    ja: "自然演繹の証明における仮定の導入・放出・依存関係の追跡。",
+  },
+  body: {
+    en: [
+      "In natural deduction, <b>assumptions</b> (or hypotheses) are formulas that are temporarily accepted as true without proof. They serve as starting points for subderivations and are later <b>discharged</b> (cancelled) by certain rules.",
+      "An assumption is <b>introduced</b> by writing a formula at a leaf of the proof tree. It may be used freely in the subderivation below it. The set of <b>open (undischarged) assumptions</b> of a derivation determines what the proof depends on.",
+      "An assumption is <b>discharged</b> when a rule cancels its dependency. For example, $\\to$I (implication introduction) discharges all occurrences of $\\varphi$ to conclude $\\varphi \\to \\psi$. After discharge, the proof no longer depends on $\\varphi$.",
+      "Not all rules discharge assumptions. Rules like $\\land$I, $\\land$E, $\\to$E (modus ponens) simply propagate the union of open assumptions from their premises. Only $\\to$I, $\\lor$E, $\\lnot$I, and RAA (in NK) discharge assumptions.",
+      "Each assumption occurrence is labeled with a <b>discharge marker</b> (a number or letter) that links it to the rule that discharges it. Multiple occurrences of the same formula may be discharged simultaneously by the same rule application.",
+      "<b>Vacuous discharge</b> is permitted: $\\to$I may discharge $\\varphi$ even if $\\varphi$ was not actually used in deriving $\\psi$. The result is a proof of $\\varphi \\to \\psi$ that does not depend on $\\varphi$ — the implication holds trivially.",
+      "A derivation is a <b>proof</b> (closed derivation) when all assumptions have been discharged. If some assumptions remain open, it is an <b>open derivation</b> — a conditional proof showing that the conclusion follows from those assumptions.",
+    ],
+    ja: [
+      "自然演繹において、<b>仮定</b>（hypothesis）とは証明なしに一時的に真と認められる論理式です。部分導出の出発点として機能し、後に特定の規則によって<b>放出</b>（discharge、キャンセル）されます。",
+      "仮定は証明木の葉に論理式を書くことで<b>導入</b>されます。その下の部分導出で自由に使用できます。導出の<b>未放出仮定</b>（open assumptions）の集合が、その証明が何に依存するかを決定します。",
+      "仮定は規則がその依存を取り消すとき<b>放出</b>されます。例えば、$\\to$I（含意導入）は$\\varphi$のすべての出現を放出して$\\varphi \\to \\psi$を結論します。放出後、証明は$\\varphi$に依存しなくなります。",
+      "すべての規則が仮定を放出するわけではありません。$\\land$I、$\\land$E、$\\to$E（モーダスポネンス）などは、前提の未放出仮定の和集合をそのまま引き継ぎます。$\\to$I、$\\lor$E、$\\lnot$I、RAA（NK）のみが仮定を放出します。",
+      "各仮定の出現には、放出する規則と結びつける<b>放出マーカー</b>（番号や文字）がラベル付けされます。同じ論理式の複数の出現が同じ規則適用で同時に放出されることがあります。",
+      "<b>空放出</b>（vacuous discharge）が許されます：$\\to$Iは$\\psi$の導出で$\\varphi$が実際に使われていなくても$\\varphi$を放出できます。結果は$\\varphi$に依存しない$\\varphi \\to \\psi$の証明です — 含意が自明に成り立ちます。",
+      "すべての仮定が放出された導出は<b>証明</b>（閉じた導出）です。未放出の仮定が残る場合は<b>開いた導出</b>（open derivation）であり、それらの仮定から結論が導かれることを示す条件付き証明です。",
+    ],
+  },
+  relatedEntryIds: [
+    "rule-nd-overview",
+    "rule-nd-implication",
+    "rule-nd-conjunction",
+    "rule-nd-disjunction",
+    "concept-nd-variants",
+    "guide-intro-natural-deduction",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Natural_deduction#Hypothetical_derivations",
+      label: {
+        en: "Hypothetical derivations (Wikipedia)",
+        ja: "仮説的導出 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "assumption",
+    "hypothesis",
+    "discharge",
+    "open assumption",
+    "vacuous discharge",
+    "仮定",
+    "放出",
+    "開いた仮定",
+    "空放出",
+  ],
+  order: 30,
+};
+
 const conceptAbelianGroup: ReferenceEntry = {
   id: "concept-abelian-group",
   category: "concept",
@@ -6594,6 +6658,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptPredicateAxiomSystem,
   conceptRobinsonArithmetic,
   conceptNdVariants,
+  conceptAssumptionManagement,
   conceptAbelianGroup,
   // Theories
   theoryPeanoArithmetic,
