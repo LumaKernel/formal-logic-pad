@@ -1731,6 +1731,86 @@ const axiomPA6: ReferenceEntry = {
 };
 
 // ============================================================
+// 群論の公理 (Group Theory Axioms)
+// ============================================================
+
+const axiomG1: ReferenceEntry = {
+  id: "axiom-g1",
+  category: "axiom",
+  title: { en: "Axiom G1 (Associativity)", ja: "公理 G1 (結合律)" },
+  summary: {
+    en: "$(x \\cdot y) \\cdot z = x \\cdot (y \\cdot z)$ — The group operation is associative.",
+    ja: "$(x \\cdot y) \\cdot z = x \\cdot (y \\cdot z)$ — 群の演算は結合的である。",
+  },
+  body: {
+    en: [
+      "<b>G1 (Associativity)</b> states that the order of applying the group operation does not matter, as long as the sequence of elements is preserved. Parenthesization is irrelevant.",
+      "This is the most fundamental group axiom. It allows us to write $x \\cdot y \\cdot z$ without ambiguity, and enables reasoning about products of arbitrary length.",
+    ],
+    ja: [
+      "<b>G1（結合律）</b>は、要素の順序が保たれる限り、群の演算を適用する順序は関係ないことを述べます。括弧の付け方は問いません。",
+      "これは最も基本的な群の公理です。$x \\cdot y \\cdot z$を曖昧さなく書くことを可能にし、任意の長さの積についての推論を可能にします。",
+    ],
+  },
+  formalNotation:
+    "\\forall x. \\forall y. \\forall z.\\ (x \\cdot y) \\cdot z = x \\cdot (y \\cdot z)",
+  relatedEntryIds: ["axiom-g2", "axiom-g3", "theory-group"],
+  externalLinks: [],
+  keywords: ["G1", "associativity", "group", "結合律", "群"],
+  order: 20,
+};
+
+const axiomG2: ReferenceEntry = {
+  id: "axiom-g2",
+  category: "axiom",
+  title: { en: "Axiom G2 (Identity Element)", ja: "公理 G2 (単位元)" },
+  summary: {
+    en: "$e \\cdot x = x \\land x \\cdot e = x$ — The identity element leaves every element unchanged.",
+    ja: "$e \\cdot x = x \\land x \\cdot e = x$ — 単位元はすべての元を不変に保つ。",
+  },
+  body: {
+    en: [
+      "<b>G2 (Identity)</b> asserts the existence of a distinguished element $e$ (the identity) such that multiplying by $e$ on either side leaves any element unchanged.",
+      "In this application, the identity is formalized as a constant symbol $e$ in the theory's signature, with the axiom $\\forall x.\\ e \\cdot x = x \\land x \\cdot e = x$.",
+    ],
+    ja: [
+      "<b>G2（単位元）</b>は、特別な元$e$（単位元）が存在し、$e$をどちらの側から掛けても任意の元を不変に保つことを主張します。",
+      "本アプリケーションでは、単位元は理論のシグネチャ中の定数記号$e$として形式化され、公理$\\forall x.\\ e \\cdot x = x \\land x \\cdot e = x$が与えられます。",
+    ],
+  },
+  formalNotation: "\\forall x.\\ e \\cdot x = x \\land x \\cdot e = x",
+  relatedEntryIds: ["axiom-g1", "axiom-g3", "theory-group"],
+  externalLinks: [],
+  keywords: ["G2", "identity", "neutral element", "group", "単位元", "群"],
+  order: 21,
+};
+
+const axiomG3: ReferenceEntry = {
+  id: "axiom-g3",
+  category: "axiom",
+  title: { en: "Axiom G3 (Inverse)", ja: "公理 G3 (逆元)" },
+  summary: {
+    en: "$i(x) \\cdot x = e \\land x \\cdot i(x) = e$ — Every element has an inverse.",
+    ja: "$i(x) \\cdot x = e \\land x \\cdot i(x) = e$ — すべての元は逆元を持つ。",
+  },
+  body: {
+    en: [
+      "<b>G3 (Inverse)</b> asserts that every element $x$ has an inverse $i(x)$ such that their product (in either order) is the identity element $e$.",
+      "In this application, the inverse is formalized as a unary function symbol $i$ in the theory's signature. The cancellation laws (e.g., $x \\cdot y = x \\cdot z \\to y = z$) are derivable from G1–G3.",
+    ],
+    ja: [
+      "<b>G3（逆元）</b>は、すべての元$x$に対して逆元$i(x)$が存在し、その積（どちらの順序でも）が単位元$e$になることを主張します。",
+      "本アプリケーションでは、逆元は理論のシグネチャ中の単項関数記号$i$として形式化されます。消去律（例: $x \\cdot y = x \\cdot z \\to y = z$）はG1–G3から導出可能です。",
+    ],
+  },
+  formalNotation: "\\forall x.\\ i(x) \\cdot x = e \\land x \\cdot i(x) = e",
+  relatedEntryIds: ["axiom-g1", "axiom-g2", "theory-group"],
+  externalLinks: [],
+  keywords: ["G3", "inverse", "group", "逆元", "群"],
+  order: 22,
+};
+
+// ============================================================
 // 推論規則 (Inference Rules)
 // ============================================================
 
@@ -5371,6 +5451,66 @@ const conceptPredicateAxiomSystem: ReferenceEntry = {
   order: 26,
 };
 
+const conceptAbelianGroup: ReferenceEntry = {
+  id: "concept-abelian-group",
+  category: "concept",
+  title: {
+    en: "Abelian Group (Commutative Group)",
+    ja: "アーベル群（可換群）",
+  },
+  summary: {
+    en: "A group in which the operation is commutative: $x \\cdot y = y \\cdot x$.",
+    ja: "演算が可換な群：$x \\cdot y = y \\cdot x$。",
+  },
+  body: {
+    en: [
+      "An <b>abelian group</b> (or commutative group) is a group satisfying an additional axiom G4: $\\forall x. \\forall y.\\ x \\cdot y = y \\cdot x$. It is named after Niels Henrik Abel.",
+      "Abelian groups are obtained by adding the commutativity axiom to the standard group axioms G1–G3. Examples include the integers under addition $(\\mathbb{Z}, +)$, the rational numbers under addition, and any cyclic group.",
+      "In the first-order formalization, the abelian group theory extends group theory with a single axiom: $\\forall x. \\forall y.\\ x \\cdot y = y \\cdot x$. This additional axiom dramatically simplifies many proofs — for instance, the proof that $(x \\cdot y)^n = x^n \\cdot y^n$ becomes straightforward.",
+      "Not all groups are abelian. The symmetric group $S_n$ for $n \\geq 3$ is the standard counterexample. In formal proofs within this application, distinguishing between group theory (G1–G3) and abelian group theory (G1–G4) is important: commutativity must not be used unless the abelian axiom is available.",
+    ],
+    ja: [
+      "<b>アーベル群</b>（可換群）は、追加の公理G4: $\\forall x. \\forall y.\\ x \\cdot y = y \\cdot x$ を満たす群です。Niels Henrik Abelにちなんで名付けられました。",
+      "アーベル群は標準的な群の公理G1–G3に可換律の公理を追加することで得られます。例として、加法に関する整数$(\\mathbb{Z}, +)$、加法に関する有理数、任意の巡回群などがあります。",
+      "一階の形式化では、アーベル群理論は群論を単一の公理$\\forall x. \\forall y.\\ x \\cdot y = y \\cdot x$で拡張します。この追加公理は多くの証明を劇的に簡略化します — たとえば $(x \\cdot y)^n = x^n \\cdot y^n$ の証明が直接的になります。",
+      "すべての群がアーベル群であるわけではありません。$n \\geq 3$の対称群$S_n$が標準的な反例です。本アプリケーションでの形式証明では、群論（G1–G3）とアーベル群論（G1–G4）を区別することが重要です：アーベル公理が利用可能でない限り、交換律を使ってはいけません。",
+    ],
+  },
+  formalNotation: "\\forall x. \\forall y.\\ x \\cdot y = y \\cdot x",
+  relatedEntryIds: ["axiom-g1", "axiom-g2", "axiom-g3", "theory-group"],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Abelian_group",
+      label: {
+        en: "Abelian group (Wikipedia)",
+        ja: "アーベル群 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%A2%E3%83%BC%E3%83%99%E3%83%AB%E7%BE%A4",
+      label: {
+        en: "Abelian group (Wikipedia JA)",
+        ja: "アーベル群 (Wikipedia)",
+      },
+      documentLanguage: "ja",
+    },
+  ],
+  keywords: [
+    "abelian",
+    "commutative",
+    "Abel",
+    "G4",
+    "commutativity",
+    "アーベル群",
+    "可換群",
+    "交換律",
+  ],
+  order: 28,
+};
+
 const conceptRobinsonArithmetic: ReferenceEntry = {
   id: "concept-robinson-arithmetic",
   category: "concept",
@@ -5546,7 +5686,15 @@ const theoryGroupTheory: ReferenceEntry = {
       "本アプリケーションでは、群論は述語論理と等号公理の上に構築され、群公理が理論固有の非論理的公理として追加されます。",
     ],
   },
-  relatedEntryIds: ["theory-peano", "axiom-e1"],
+  relatedEntryIds: [
+    "theory-peano",
+    "axiom-e1",
+    "axiom-g1",
+    "axiom-g2",
+    "axiom-g3",
+    "concept-abelian-group",
+    "guide-equality-axiom-system",
+  ],
   relatedQuestIds: ["grp-01", "grp-02", "grp-03"],
   externalLinks: [
     {
@@ -6151,6 +6299,9 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   axiomPA4,
   axiomPA5,
   axiomPA6,
+  axiomG1,
+  axiomG2,
+  axiomG3,
   // Inference Rules
   ruleMP,
   ruleGen,
@@ -6204,6 +6355,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptTautology,
   conceptPredicateAxiomSystem,
   conceptRobinsonArithmetic,
+  conceptAbelianGroup,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
