@@ -14141,3 +14141,14 @@
 - referenceContent.test.ts のエントリ数を70→71に更新（ガイド7に）
 - 変更ファイル: referenceContent.ts, referenceContent.test.ts, tasks/prd-docs-contents.md
 ---
+
+## 2026-03-14 11:33 - Reference: Peano算術の公理PA1-PA6
+- axiom-pa1〜pa6 の6つのリファレンスエントリを追加（order: 14-19, axiom カテゴリ）
+- PA1: 0は後者ではない, PA2: 後者は単射, PA3: 加法基底, PA4: 加法再帰, PA5: 乗法基底, PA6: 帰納法スキーマ
+- theory-peano の relatedEntryIds と body を更新（PA番号体系を整合）
+- referenceContent.test.ts のエントリ数を71→77に更新（公理20に）
+- 変更ファイル: referenceContent.ts, referenceContent.test.ts, tasks/prd-docs-contents.md
+- **今後のイテレーションへの学び:**
+  - ReferenceEntry には externalLinks が必須（空配列でもOK）。省略するとTS2741エラー
+  - PA公理の番号体系: このアプリでは6公理方式（PA6が帰納法）を採用
+---
