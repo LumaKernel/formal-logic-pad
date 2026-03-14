@@ -14381,3 +14381,25 @@
   - scriptEditorNodeId === null が独立モードの判定条件。handleScriptCodeChangeはnullの場合early return
   - ブラウザテスト: Storybook onboarding overlayがポインタイベントを妨げる場合、JS直接実行で回避
 ---
+
+## 2026-03-14 21:10 - [Script] 変数ウォッチパネル
+- 実装した内容: ステップ実行中に変数ウォッチパネルを表示する機能
+  - scriptRunner.ts: getScope()メソッド追加（グローバルスコープのユーザー定義変数を取得、ビルトイン+ブリッジを除外）
+  - scriptEditorLogic.ts: variables フィールド追加、recordStep/setRunResultで変数更新、formatVariableValue ユーティリティ
+  - ScriptEditorComponent.tsx: 変数パネルUI（ダークテーマ、変数名=値の表示）
+  - jsInterpreterTypes.ts: globalObject.properties 型追加
+- 変更したファイル:
+  - src/lib/script-runner/scriptRunner.ts (+75行: ScopeVariable型, JS_INTERPRETER_BUILTINS定数, getScope実装)
+  - src/lib/script-runner/scriptRunner.test.ts (+83行: getScope 6テスト)
+  - src/lib/script-runner/jsInterpreterTypes.ts (+4行: globalObject型)
+  - src/lib/script-runner/index.ts (+1行: ScopeVariable export)
+  - src/components/ScriptEditor/scriptEditorLogic.ts (+35行: variables state, formatVariableValue)
+  - src/components/ScriptEditor/scriptEditorLogic.test.ts (+127行: variables 7テスト, formatVariableValue 9テスト)
+  - src/components/ScriptEditor/ScriptEditorComponent.tsx (+58行: 変数パネルUI, handleStep/executeOneStep更新)
+- カバレッジ: Stmts 99.64%→99.94%, Branch 99.03%→99.21%, Lines 99.65%→99.93% (改善)
+- **今後のイテレーションへの学び:**
+  - JS-InterpreterのglobalObject.propertiesは`var`宣言をパース時にhoistingで登録する。実行前でも変数がundefined値で存在する
+  - JS-Interpreterのビルトイン（NaN, Infinity, Object, Array等39個）はハードコードしたSetで除外する方式が確実
+  - Storybook 10のiframe内でReactの`useInsertionEffect`同期エラーが発生し、インタラクティブなStep実行が動作しない問題あり（play関数経由は正常）
+  - `as unknown as` は ESLint `no-as-unknown-as` に引っかかる。型定義側で適切な型を付けて回避する
+---
