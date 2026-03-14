@@ -15,7 +15,7 @@ import {
   resolveFormulaSubstitution,
   normalizeFormula,
 } from "./substitution";
-import { equalFormula, equalTerm } from "./equality";
+import { equalFormula, equalTerm, equivalentFormula } from "./equality";
 import {
   metaVariable,
   negation,
@@ -1486,5 +1486,130 @@ describe("normalizeFormula", () => {
     expect(
       equalFormula(result, universal(yPrime, predicate("P", [y, yPrime]))),
     ).toBe(true);
+  });
+
+  // --- MetaVariable ベースの置換チェーン正規化 ---
+
+  test("MetaVariable上の置換は保持される: φ[a/x] → φ[a/x]", () => {
+    const phi = metaVariable("φ");
+    const f = formulaSubstitution(phi, a, x);
+    const result = normalizeFormula(f);
+    expect(result._tag).toBe("FormulaSubstitution");
+    expect(equalFormula(result, f)).toBe(true);
+  });
+
+  test("MetaVariable上の独立した置換の交換律: φ[a/x][b/y] ≡ φ[b/y][a/x]", () => {
+    const phi = metaVariable("φ");
+    const lhs = formulaSubstitution(formulaSubstitution(phi, a, x), b, y);
+    const rhs = formulaSubstitution(formulaSubstitution(phi, b, y), a, x);
+    // 正規化後が同じ形になることを確認
+    const normalizedLhs = normalizeFormula(lhs);
+    const normalizedRhs = normalizeFormula(rhs);
+    expect(equalFormula(normalizedLhs, normalizedRhs)).toBe(true);
+    // equivalentFormula でも等価
+    expect(equivalentFormula(lhs, rhs)).toBe(true);
+  });
+
+  test("MetaVariable上の置換チェーンは変数名でソートされる", () => {
+    const phi = metaVariable("φ");
+    // φ[b/y][a/x] → φ[a/x][b/y] （x < y なのでソート）
+    const f = formulaSubstitution(formulaSubstitution(phi, b, y), a, x);
+    const result = normalizeFormula(f);
+    // 外側は [b/y]、内側は φ[a/x] のはず
+    expect(result._tag).toBe("FormulaSubstitution");
+    if (result._tag === "FormulaSubstitution") {
+      expect(result.variable.name).toBe("y");
+      expect(result.formula._tag).toBe("FormulaSubstitution");
+      if (result.formula._tag === "FormulaSubstitution") {
+        expect(result.formula.variable.name).toBe("x");
+        expect(result.formula.formula._tag).toBe("MetaVariable");
+      }
+    }
+  });
+
+  test("MetaVariable上のFreeVariableAbsenceは後続の同変数置換で除去: (φ[/y])[a/x][b/y] ≡ φ[a/x][b/y]", () => {
+    const phi = metaVariable("φ");
+    const lhs = formulaSubstitution(
+      formulaSubstitution(freeVariableAbsence(phi, y), a, x),
+      b,
+      y,
+    );
+    const rhs = formulaSubstitution(formulaSubstitution(phi, a, x), b, y);
+    expect(equivalentFormula(lhs, rhs)).toBe(true);
+  });
+
+  test("MetaVariable上のFreeVariableAbsenceは後続置換がなければ保持: φ[/x]", () => {
+    const phi = metaVariable("φ");
+    const f = freeVariableAbsence(phi, x);
+    const result = normalizeFormula(f);
+    expect(result._tag).toBe("FreeVariableAbsence");
+  });
+
+  test("MetaVariable上のFreeVariableAbsenceと置換の混合ソート", () => {
+    const phi = metaVariable("φ");
+    // φ[/z][a/x] → φ[a/x][/z] (ソート: x < z)
+    const f = formulaSubstitution(freeVariableAbsence(phi, z), a, x);
+    const result = normalizeFormula(f);
+    expect(result._tag).toBe("FreeVariableAbsence");
+    if (result._tag === "FreeVariableAbsence") {
+      expect(result.variable.name).toBe("z");
+      expect(result.formula._tag).toBe("FormulaSubstitution");
+    }
+  });
+
+  test("MetaVariable上の同一変数複数置換マージ: φ[a/x][b/x] → φ[a[b/x]/x]", () => {
+    const phi = metaVariable("φ");
+    // a は定数なので a[b/x] = a（x は a に出現しない）
+    const f = formulaSubstitution(formulaSubstitution(phi, a, x), b, x);
+    const result = normalizeFormula(f);
+    // a[b/x] = a なので結果は φ[a/x]
+    expect(result._tag).toBe("FormulaSubstitution");
+    if (result._tag === "FormulaSubstitution") {
+      expect(result.variable.name).toBe("x");
+      expect(equalTerm(result.term, a)).toBe(true);
+    }
+  });
+
+  test("MetaVariable上の依存置換: φ[y/x][b/y] → 伝搬して φ[b/x][b/y]", () => {
+    const phi = metaVariable("φ");
+    // φ[y/x][b/y]: y/x の項 y に [b/y] を適用すると b になる
+    const f = formulaSubstitution(formulaSubstitution(phi, y, x), b, y);
+    const result = normalizeFormula(f);
+    // 同時代入: x↦y[b/y]=b, y↦b → φ[b/x][b/y] (x < y でソート)
+    expect(result._tag).toBe("FormulaSubstitution");
+    if (result._tag === "FormulaSubstitution") {
+      expect(result.variable.name).toBe("y");
+      expect(equalTerm(result.term, b)).toBe(true);
+      if (result.formula._tag === "FormulaSubstitution") {
+        expect(result.formula.variable.name).toBe("x");
+        expect(equalTerm(result.formula.term, b)).toBe(true);
+      }
+    }
+  });
+
+  test("FreeVariableAbsenceが置換より後にある場合は保持: φ[a/x][/x]", () => {
+    const phi = metaVariable("φ");
+    // φ[a/x][/x]: [a/x] の後に [/x] — [/x] は冗長ではない（先行する subst なので除去しない）
+    const f = freeVariableAbsence(formulaSubstitution(phi, a, x), x);
+    const result = normalizeFormula(f);
+    // 正規化後も [a/x] と [/x] の両方が保持される
+    expect(result._tag).toBe("FreeVariableAbsence");
+    if (result._tag === "FreeVariableAbsence") {
+      expect(result.variable.name).toBe("x");
+      expect(result.formula._tag).toBe("FormulaSubstitution");
+    }
+  });
+
+  test("同変数のsubstとabsenceがソートで隣接: φ[a/x][/x] ソート", () => {
+    const phi = metaVariable("φ");
+    // φ[a/x][/x] — 同変数の subst が先、absence が後
+    const f = freeVariableAbsence(formulaSubstitution(phi, a, x), x);
+    const result = normalizeFormula(f);
+    // ソート順: subst(x) < absence(x)
+    // 外側: absence(x), 内側: subst(x)
+    expect(result._tag).toBe("FreeVariableAbsence");
+    if (result._tag === "FreeVariableAbsence") {
+      expect(result.variable.name).toBe("x");
+    }
   });
 });

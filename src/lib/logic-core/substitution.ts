@@ -831,15 +831,204 @@ export const substituteTermVariableChecked = (
  * 論理式を正規化する。
  *
  * 以下の簡約を再帰的に適用:
- * 1. FormulaSubstitution φ[τ/x] → 実際に置換を実行した結果に展開
+ * 1. FormulaSubstitution φ[τ/x] → 具体的な式なら実際に置換を実行、
+ *    MetaVariable ベースなら置換チェーンを正規化（順序正規化含む）
  * 2. FreeVariableAbsence φ[/x] → x が φ で自由でない場合は φ に簡約（自由な場合はそのまま保持）
  *
- * これにより、`P(x)[a/x]` と `P(a)` のような構文的に異なるが意味的に等価な式を
- * 同じ正規形に変換でき、等価性判定の基盤となる。
+ * 置換チェーンの正規化により:
+ * - `P(x)[a/x]` ≡ `P(a)` （具体的な式の置換解決）
+ * - `φ[a/x][b/y]` ≡ `φ[b/y][a/x]` （独立した置換の交換律）
+ * - `(φ[/y])[a/x][b/y]` ≡ `φ[a/x][b/y]` （後続置換がある FreeVariableAbsence の除去）
  */
 export const normalizeFormula = (formula: Formula): Formula => {
   return normalizeFormulaRec(formula);
 };
+
+// ── 置換チェーン正規化ヘルパー ──────────────────────────────
+
+/**
+ * 論理式のベースが MetaVariable かどうかを判定する。
+ * FormulaSubstitution や FreeVariableAbsence を辿ってベースを確認。
+ */
+const hasMetaVariableBase = (f: Formula): boolean => {
+  if (f._tag === "MetaVariable") return true;
+  if (f._tag === "FormulaSubstitution") return hasMetaVariableBase(f.formula);
+  if (f._tag === "FreeVariableAbsence") return hasMetaVariableBase(f.formula);
+  return false;
+};
+
+/**
+ * 置換チェーンの各操作を表す型。
+ */
+type SubstitutionOp =
+  | {
+      readonly kind: "subst";
+      readonly variable: TermVariable;
+      readonly term: Term;
+    }
+  | {
+      readonly kind: "absence";
+      readonly variable: TermVariable;
+    };
+
+/**
+ * 置換チェーンを収集する。
+ * FormulaSubstitution / FreeVariableAbsence のチェーンを外側から辿り、
+ * ベースの式と操作リスト（内側から外側の順）を返す。
+ */
+const collectSubstitutionChain = (
+  f: Formula,
+): { readonly base: Formula; readonly ops: readonly SubstitutionOp[] } => {
+  const ops: SubstitutionOp[] = [];
+  let current: Formula = f;
+  while (
+    current._tag === "FormulaSubstitution" ||
+    current._tag === "FreeVariableAbsence"
+  ) {
+    if (current._tag === "FormulaSubstitution") {
+      ops.push({ kind: "subst", variable: current.variable, term: current.term });
+    } else {
+      ops.push({ kind: "absence", variable: current.variable });
+    }
+    current = current.formula;
+  }
+  // ops は外側→内側の順で追加されたので、反転して内側→外側にする
+  ops.reverse();
+  return { base: current, ops };
+};
+
+/**
+ * 置換チェーンを正規化する。
+ *
+ * 1. 後続に同変数の FormulaSubstitution がある FreeVariableAbsence を除去
+ * 2. 同時代入形式に変換（後の置換を先の項に伝搬）
+ * 3. 同一変数の複数置換をマージ
+ * 4. 変数名でソート
+ * 5. 再構築
+ */
+const canonicalizeSubstitutionChain = (
+  base: Formula,
+  ops: readonly SubstitutionOp[],
+): Formula => {
+  // Step 1: 後続に同変数の FormulaSubstitution がある FreeVariableAbsence を除去
+  const filteredOps = removeRedundantAbsences(ops);
+
+  // Step 2: FormulaSubstitution を同時代入形式に変換
+  const simultaneous = toSimultaneousForm(filteredOps);
+
+  // Step 3: 変数名でソートし再構築
+  const sorted = [...simultaneous].sort((a, b) => {
+    // kind の優先度: subst < absence
+    if (a.variable.name !== b.variable.name) {
+      return a.variable.name < b.variable.name ? -1 : 1;
+    }
+    if (a.kind !== b.kind) {
+      return a.kind === "subst" ? -1 : 1;
+    }
+    /* v8 ignore start -- 防御的: toSimultaneousForm で同変数・同種の重複は排除済み */
+    return 0;
+    /* v8 ignore stop */
+  });
+
+  // 再構築
+  let result: Formula = base;
+  for (const op of sorted) {
+    if (op.kind === "subst") {
+      result = new FormulaSubstitution({
+        formula: result,
+        term: op.term,
+        variable: op.variable,
+      });
+    } else {
+      result = new FreeVariableAbsence({
+        formula: result,
+        variable: op.variable,
+      });
+    }
+  }
+  return result;
+};
+
+/**
+ * 後続に同変数の FormulaSubstitution がある FreeVariableAbsence を除去する。
+ * φ[/y]...[b/y] → φ...[b/y] （[/y] は [b/y] で冗長）
+ *
+ * "後続" = より外側 = ops配列のより高いインデックス
+ */
+const removeRedundantAbsences = (
+  ops: readonly SubstitutionOp[],
+): readonly SubstitutionOp[] => {
+  return ops.filter((op, idx) => {
+    if (op.kind !== "absence") return true;
+    // この absence より後に同変数の subst があれば冗長
+    for (let j = idx + 1; j < ops.length; j++) {
+      const laterOp = ops[j];
+      if (laterOp.kind === "subst" && laterOp.variable.name === op.variable.name) {
+        return false;
+      }
+    }
+    return true;
+  });
+};
+
+/**
+ * 逐次代入を同時代入形式に変換する。
+ *
+ * 逐次: φ[t₁/x₁][t₂/x₂]...[tₙ/xₙ]
+ * 同時: φ{x₁↦t₁[t₂/x₂]...[tₙ/xₙ], x₂↦t₂[t₃/x₃]...[tₙ/xₙ], ..., xₙ↦tₙ}
+ *
+ * 後の置換を先の項に伝搬させることで、操作の順序非依存な形にする。
+ * FreeVariableAbsence はそのまま保持。
+ *
+ * 同一変数への複数 FormulaSubstitution はマージ:
+ * φ[a/x][b/x] → φ[a[b/x]/x] （後の置換を先の項に伝搬して統合）
+ */
+const toSimultaneousForm = (
+  ops: readonly SubstitutionOp[],
+): readonly SubstitutionOp[] => {
+  // FormulaSubstitution のみを伝搬対象とする
+  // 各 subst op の term に、後続の subst を適用
+  const result: SubstitutionOp[] = [];
+
+  for (let i = 0; i < ops.length; i++) {
+    const op = ops[i];
+    if (op.kind === "absence") {
+      result.push(op);
+      continue;
+    }
+
+    // この subst の term に、後続の全 subst を適用
+    let propagatedTerm: Term = op.term;
+    for (let j = i + 1; j < ops.length; j++) {
+      const laterOp = ops[j];
+      if (laterOp.kind === "subst") {
+        propagatedTerm = substituteTermVariableInTerm(
+          propagatedTerm,
+          laterOp.variable,
+          laterOp.term,
+        );
+      }
+    }
+
+    // 同一変数の既存エントリがある場合は、先の（内側の）エントリを保持。
+    // 後の置換の効果は伝搬により既に先の項に反映されているため、後のエントリは不要。
+    // φ[a/x][b/x] → a に [b/x] を伝搬した a[b/x] が先のエントリに反映済み。
+    const existingIdx = result.findIndex(
+      (r) => r.kind === "subst" && r.variable.name === op.variable.name,
+    );
+    if (existingIdx < 0) {
+      result.push({
+        kind: "subst",
+        variable: op.variable,
+        term: propagatedTerm,
+      });
+    }
+  }
+
+  return result;
+};
+
+// ── 正規化本体 ──────────────────────────────────────────────
 
 const normalizeFormulaRec = (f: Formula): Formula => {
   switch (f._tag) {
@@ -882,18 +1071,41 @@ const normalizeFormulaRec = (f: Formula): Formula => {
         formula: normalizeFormulaRec(f.formula),
       });
     case "FormulaSubstitution": {
-      // まず内側を正規化してから、置換を実行
+      // まず内側を正規化
       const resolvedInner = normalizeFormulaRec(f.formula);
+
+      // MetaVariable ベースの場合: 置換を解決できないためチェーン正規化
+      if (hasMetaVariableBase(resolvedInner)) {
+        const { base, ops: existingOps } = collectSubstitutionChain(resolvedInner);
+        const allOps: readonly SubstitutionOp[] = [
+          ...existingOps,
+          { kind: "subst" as const, variable: f.variable, term: f.term },
+        ];
+        return canonicalizeSubstitutionChain(base, allOps);
+      }
+
+      // 具体的な式: 置換を実行して解決
       return substituteTermVariableInFormula(resolvedInner, f.variable, f.term);
     }
     case "FreeVariableAbsence": {
       // まず内側を正規化
       const normalizedInner = normalizeFormulaRec(f.formula);
-      // x が内側の正規化後の式で自由でなければ、アサーションは自明なので除去
+
+      // MetaVariable ベースの場合: FreeVariableAbsence を保持してチェーン正規化
+      if (hasMetaVariableBase(normalizedInner)) {
+        const { base, ops: existingOps } = collectSubstitutionChain(normalizedInner);
+        const allOps: readonly SubstitutionOp[] = [
+          ...existingOps,
+          { kind: "absence" as const, variable: f.variable },
+        ];
+        return canonicalizeSubstitutionChain(base, allOps);
+      }
+
+      // 具体的な式: x が自由でなければアサーションを除去
       if (!freeVariablesInFormula(normalizedInner).has(f.variable.name)) {
         return normalizedInner;
       }
-      // x が自由な場合は簡約できない（例: P(x)[/x] — x は自由なので保持）
+      // x が自由な場合は簡約できない
       return new FreeVariableAbsence({
         formula: normalizedInner,
         variable: f.variable,
