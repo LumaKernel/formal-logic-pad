@@ -613,6 +613,8 @@ export function HubPageView({
                 locale={referenceLocale}
                 searchPlaceholder={m.referenceSearchPlaceholder}
                 emptyMessage={m.referenceEmpty}
+                guideSectionTitle={m.referenceGuideTitle}
+                guideSectionDescription={m.referenceGuideDescription}
                 resolveQuestTitle={resolveQuestTitle}
                 onStartQuest={onStartQuest}
                 testId="reference-browser"

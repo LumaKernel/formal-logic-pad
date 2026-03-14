@@ -115,6 +115,33 @@ export function resetFilters(): ReferenceBrowserState {
   return initialBrowserState;
 }
 
+/** ガイドエントリ（guideカテゴリ）をorder順で抽出する */
+export type GuideCardData = {
+  readonly id: string;
+  readonly title: string;
+  readonly summary: string;
+  readonly order: number;
+};
+
+export function buildGuideCards(
+  entries: readonly ReferenceEntry[],
+  locale: Locale,
+): readonly GuideCardData[] {
+  return sortByOrder(filterByCategory(entries, "guide")).map(
+    (entry): GuideCardData => ({
+      id: entry.id,
+      title: getLocalizedText(entry.title, locale),
+      summary: getLocalizedText(entry.summary, locale),
+      order: entry.order,
+    }),
+  );
+}
+
+/** 検索・フィルタが初期状態かどうかを判定する */
+export function isInitialState(state: ReferenceBrowserState): boolean {
+  return state.searchQuery === "" && state.selectedCategory === null;
+}
+
 /** エントリリスト表示用のサマリーデータ */
 export type EntryListItemData = {
   readonly id: string;

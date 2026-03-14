@@ -32,6 +32,8 @@
     "tabReference": "Reference",
     "referenceSearchPlaceholder": "Search reference…",
     "referenceEmpty": "No matching entries found.",
+    "referenceGuideTitle": "Getting Started",
+    "referenceGuideDescription": "New to formal logic? Follow these guides in order.",
     "collectionEmpty": "No saved proofs yet. Save proofs from your workspace to manage them here.",
     "collectionEntryCount": "{count} proofs",
     "collectionDelete": "Delete",

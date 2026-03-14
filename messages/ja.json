@@ -32,6 +32,8 @@
     "tabReference": "リファレンス",
     "referenceSearchPlaceholder": "リファレンスを検索…",
     "referenceEmpty": "該当するエントリが見つかりませんでした。",
+    "referenceGuideTitle": "はじめに",
+    "referenceGuideDescription": "形式論理が初めての方は、以下のガイドを順番にお読みください。",
     "collectionEmpty": "保存済みの証明はまだありません。ワークスペースから証明を保存して、ここで管理できます。",
     "collectionEntryCount": "{count} 件の証明",
     "collectionDelete": "削除",

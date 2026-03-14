@@ -42,6 +42,8 @@ export type HubMessages = {
   readonly tabReference: string;
   readonly referenceSearchPlaceholder: string;
   readonly referenceEmpty: string;
+  readonly referenceGuideTitle: string;
+  readonly referenceGuideDescription: string;
   // --- Collection ---
   readonly collectionEmpty: string;
   readonly collectionEntryCount: string;
@@ -90,6 +92,9 @@ export const defaultHubMessages: HubMessages = {
   tabReference: "Reference",
   referenceSearchPlaceholder: "Search reference…",
   referenceEmpty: "No matching entries found.",
+  referenceGuideTitle: "Getting Started",
+  referenceGuideDescription:
+    "New to formal logic? Follow these guides in order.",
   // Collection
   collectionEmpty:
     "No saved proofs yet. Save proofs from your workspace to manage them here.",
@@ -132,6 +137,8 @@ export const hubMessageKeys: readonly (keyof HubMessages)[] = [
   "tabReference",
   "referenceSearchPlaceholder",
   "referenceEmpty",
+  "referenceGuideTitle",
+  "referenceGuideDescription",
   "collectionEmpty",
   "collectionEntryCount",
   "collectionDelete",

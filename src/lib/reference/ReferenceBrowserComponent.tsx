@@ -14,6 +14,8 @@ import {
   filterEntries,
   buildCategoryBadges,
   buildEntryListItems,
+  buildGuideCards,
+  isInitialState,
   setSearchQuery,
   toggleCategory,
   initialBrowserState,
@@ -32,6 +34,10 @@ export type ReferenceBrowserProps = {
   readonly searchPlaceholder?: string;
   /** 結果なしメッセージ */
   readonly emptyMessage?: string;
+  /** ガイドセクションのタイトル */
+  readonly guideSectionTitle?: string;
+  /** ガイドセクションの説明文 */
+  readonly guideSectionDescription?: string;
   /** クエストIDからタイトルを解決する関数（undefinedなら非表示） */
   readonly resolveQuestTitle?: (questId: string) => string | undefined;
   /** クエスト開始コールバック */
@@ -47,6 +53,8 @@ export function ReferenceBrowserComponent({
   locale,
   searchPlaceholder = "Search reference…",
   emptyMessage = "No matching entries found.",
+  guideSectionTitle = "Getting Started",
+  guideSectionDescription = "New to formal logic? Start here.",
   resolveQuestTitle,
   onStartQuest,
   testId,
@@ -96,6 +104,13 @@ export function ReferenceBrowserComponent({
     [filteredEntries, locale],
   );
 
+  const guideCards = useMemo(
+    () => buildGuideCards(entries, locale),
+    [entries, locale],
+  );
+
+  const showGuideSection = isInitialState(state) && guideCards.length > 0;
+
   const detailEntry = useMemo(
     () =>
       detailEntryId !== null
@@ -124,6 +139,54 @@ export function ReferenceBrowserComponent({
 
   return (
     <div className="flex flex-col gap-4" data-testid={testId}>
+      {/* Guide section */}
+      {showGuideSection && (
+        <div
+          className="rounded-xl border border-ui-border bg-card p-4"
+          data-testid={
+            testId !== undefined
+              ? `${testId satisfies string}-guide-section`
+              : undefined
+          }
+        >
+          <div className="text-sm font-bold text-foreground mb-0.5">
+            {guideSectionTitle}
+          </div>
+          <div className="text-xs text-muted-foreground mb-3">
+            {guideSectionDescription}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {guideCards.map((card, i) => (
+              <button
+                key={card.id}
+                type="button"
+                className="flex items-start gap-3 px-3 py-2.5 rounded-lg cursor-pointer border border-ui-border bg-background transition-colors duration-100 text-left w-full hover:bg-muted"
+                onClick={() => {
+                  handleEntryClick(card.id);
+                }}
+                data-testid={
+                  testId !== undefined
+                    ? `${testId satisfies string}-guide-${card.id satisfies string}`
+                    : undefined
+                }
+              >
+                <span className="inline-flex items-center justify-center size-6 rounded-full bg-primary text-primary-foreground text-xs font-bold shrink-0 mt-0.5">
+                  {i + 1}
+                </span>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-foreground">
+                    {card.title}
+                  </div>
+                  <div className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                    <InlineMarkdown text={card.summary} />
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Search bar */}
       <div className="flex gap-2 items-center">
         <input

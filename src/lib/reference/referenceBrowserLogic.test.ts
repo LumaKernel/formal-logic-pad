@@ -4,6 +4,8 @@ import {
   filterEntries,
   computeCategoryCounts,
   buildCategoryBadges,
+  buildGuideCards,
+  isInitialState,
   setSearchQuery,
   toggleCategory,
   resetFilters,
@@ -255,5 +257,70 @@ describe("buildEntryListItems", () => {
     expect(first?.title).toBe("タイトル axiom-a1");
     expect(first?.summary).toBe("要約 axiom-a1");
     expect(first?.categoryLabel).toBe("公理");
+  });
+});
+
+// --- buildGuideCards ---
+
+describe("buildGuideCards", () => {
+  const entriesWithGuides: readonly ReferenceEntry[] = [
+    ...sampleEntries,
+    makeEntry({
+      id: "guide-intro",
+      category: "guide",
+      order: 2,
+      title: { en: "Intro Guide", ja: "入門ガイド" },
+      summary: { en: "Intro summary", ja: "入門要約" },
+    }),
+    makeEntry({
+      id: "guide-first",
+      category: "guide",
+      order: 1,
+      title: { en: "First Guide", ja: "最初のガイド" },
+      summary: { en: "First summary", ja: "最初の要約" },
+    }),
+  ];
+
+  it("guideカテゴリのエントリのみ抽出する", () => {
+    const cards = buildGuideCards(entriesWithGuides, "en");
+    expect(cards).toHaveLength(2);
+    expect(cards.every((c) => c.id.startsWith("guide-"))).toBe(true);
+  });
+
+  it("order順にソートされる", () => {
+    const cards = buildGuideCards(entriesWithGuides, "en");
+    expect(cards[0]?.id).toBe("guide-first");
+    expect(cards[1]?.id).toBe("guide-intro");
+  });
+
+  it("ローカライズされたタイトル・サマリーを返す", () => {
+    const cards = buildGuideCards(entriesWithGuides, "ja");
+    expect(cards[0]?.title).toBe("最初のガイド");
+    expect(cards[0]?.summary).toBe("最初の要約");
+  });
+
+  it("guideエントリがなければ空配列を返す", () => {
+    const cards = buildGuideCards(sampleEntries, "en");
+    expect(cards).toHaveLength(0);
+  });
+});
+
+// --- isInitialState ---
+
+describe("isInitialState", () => {
+  it("初期状態でtrue", () => {
+    expect(isInitialState(initialBrowserState)).toBe(true);
+  });
+
+  it("検索クエリがあるとfalse", () => {
+    expect(
+      isInitialState({ searchQuery: "test", selectedCategory: null }),
+    ).toBe(false);
+  });
+
+  it("カテゴリが選択されているとfalse", () => {
+    expect(isInitialState({ searchQuery: "", selectedCategory: "axiom" })).toBe(
+      false,
+    );
   });
 });

@@ -766,6 +766,10 @@ export const ReferenceTab: Story = {
     await expect(canvas.getByText("Reference")).toBeInTheDocument();
     // ブラウザが表示されている
     await expect(canvas.getByTestId("reference-browser")).toBeInTheDocument();
+    // ガイドセクションが表示されている（初期状態では表示）
+    await expect(
+      canvas.getByTestId("reference-browser-guide-section"),
+    ).toBeInTheDocument();
     // 検索バーが表示
     await expect(
       canvas.getByTestId("reference-browser-search"),

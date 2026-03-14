@@ -254,6 +254,89 @@ describe("ReferenceBrowserComponent", () => {
     expect(onStartQuest).toHaveBeenCalledWith("prop-01");
   });
 
+  // --- Guide section ---
+
+  it("guideエントリがあるとガイドセクションが表示される", () => {
+    const entriesWithGuides: readonly ReferenceEntry[] = [
+      ...testEntries,
+      makeEntry({
+        id: "guide-first",
+        category: "guide",
+        order: 1,
+        title: { en: "First Guide", ja: "最初のガイド" },
+        summary: { en: "Start here.", ja: "ここから始めよう。" },
+      }),
+      makeEntry({
+        id: "guide-second",
+        category: "guide",
+        order: 2,
+        title: { en: "Second Guide", ja: "次のガイド" },
+        summary: { en: "Then read this.", ja: "次にこちらを読もう。" },
+      }),
+    ];
+    render(
+      <ReferenceBrowserComponent
+        entries={entriesWithGuides}
+        locale="en"
+        testId="ref"
+      />,
+    );
+    expect(screen.getByTestId("ref-guide-section")).toBeInTheDocument();
+    expect(screen.getByTestId("ref-guide-guide-first")).toBeInTheDocument();
+    expect(screen.getByTestId("ref-guide-guide-second")).toBeInTheDocument();
+  });
+
+  it("guideエントリがないとガイドセクションは表示されない", () => {
+    render(
+      <ReferenceBrowserComponent
+        entries={testEntries}
+        locale="en"
+        testId="ref"
+      />,
+    );
+    expect(screen.queryByTestId("ref-guide-section")).not.toBeInTheDocument();
+  });
+
+  it("検索中はガイドセクションが非表示になる", async () => {
+    const user = userEvent.setup();
+    const entriesWithGuides: readonly ReferenceEntry[] = [
+      ...testEntries,
+      makeEntry({ id: "guide-first", category: "guide", order: 1 }),
+    ];
+    render(
+      <ReferenceBrowserComponent
+        entries={entriesWithGuides}
+        locale="en"
+        testId="ref"
+      />,
+    );
+    expect(screen.getByTestId("ref-guide-section")).toBeInTheDocument();
+    await user.type(screen.getByTestId("ref-search"), "axiom");
+    expect(screen.queryByTestId("ref-guide-section")).not.toBeInTheDocument();
+  });
+
+  it("ガイドカードクリックでモーダルが開く", async () => {
+    const user = userEvent.setup();
+    const entriesWithGuides: readonly ReferenceEntry[] = [
+      ...testEntries,
+      makeEntry({
+        id: "guide-first",
+        category: "guide",
+        order: 1,
+        title: { en: "First Guide", ja: "最初のガイド" },
+      }),
+    ];
+    render(
+      <ReferenceBrowserComponent
+        entries={entriesWithGuides}
+        locale="en"
+        testId="ref"
+      />,
+    );
+    await user.click(screen.getByTestId("ref-guide-guide-first"));
+    expect(screen.getByTestId("ref-modal")).toBeInTheDocument();
+  });
+
   it("resolveQuestTitleがない場合はクエストセクションを表示しない", async () => {
     const user = userEvent.setup();
     const entryWithQuests = makeEntry({
