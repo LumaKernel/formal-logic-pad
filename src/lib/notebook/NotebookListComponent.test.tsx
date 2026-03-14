@@ -377,7 +377,7 @@ describe("NotebookList", () => {
   });
 
   describe("ホバーインタラクション", () => {
-    it("カードにホバー用のTailwindクラスが適用されている", () => {
+    it("カードにホバー用のCSSクラスが適用されている", () => {
       render(
         <NotebookList
           items={[makeItem("nb-1", "テスト")]}
@@ -385,9 +385,8 @@ describe("NotebookList", () => {
         />,
       );
       const item = screen.getByTestId("notebook-item-nb-1");
-      // Tailwind hover:-translate-y-px クラスが適用されていること
-      expect(item.className).toContain("hover:-translate-y-px");
-      expect(item.className).toContain("hover:bg-muted");
+      // notebook-card CSSクラスが適用されていること（hover効果はCSS側で定義）
+      expect(item.className).toContain("notebook-card");
     });
 
     it("三点メニューボタンのホバーでスタイルが切り替わる", () => {

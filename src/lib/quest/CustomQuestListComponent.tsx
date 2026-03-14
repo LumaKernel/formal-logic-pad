@@ -64,14 +64,14 @@ export type CustomQuestListProps = {
 
 // --- Styles ---
 
-const sectionStyle: CSSProperties = {
+const sectionStyle: Readonly<CSSProperties> = {
   display: "flex",
   flexDirection: "column",
   gap: 0,
   marginTop: 24,
 };
 
-const sectionHeaderStyle: CSSProperties = {
+const sectionHeaderStyle: Readonly<CSSProperties> = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
@@ -84,20 +84,20 @@ const sectionHeaderStyle: CSSProperties = {
   borderBottom: "2px solid var(--color-quest-chapter-rule)",
 };
 
-const sectionTitleStyle: CSSProperties = {
+const sectionTitleStyle: Readonly<CSSProperties> = {
   fontSize: 15,
   fontWeight: 700,
   color: "var(--color-text-primary, #333)",
 };
 
-const sectionProgressStyle: CSSProperties = {
+const sectionProgressStyle: Readonly<CSSProperties> = {
   fontSize: 12,
   color: "var(--color-text-secondary, #666)",
   fontWeight: 600,
   whiteSpace: "nowrap",
 };
 
-const questListStyle: CSSProperties = {
+const questListStyle: Readonly<CSSProperties> = {
   display: "flex",
   flexDirection: "column",
   gap: 0,
@@ -108,7 +108,7 @@ const questListStyle: CSSProperties = {
   overflow: "hidden",
 };
 
-const questItemStyle: CSSProperties = {
+const questItemStyle: Readonly<CSSProperties> = {
   display: "flex",
   alignItems: "center",
   padding: "10px 14px",
@@ -119,24 +119,24 @@ const questItemStyle: CSSProperties = {
   borderBottom: "1px solid var(--color-quest-card-border)",
 };
 
-const questItemHoverStyle: CSSProperties = {
+const questItemHoverStyle: Readonly<CSSProperties> = {
   ...questItemStyle,
   background: "var(--color-quest-card-hover-bg)",
   boxShadow: "inset 3px 0 0 var(--color-quest-filter-active-bg)",
 };
 
-const questInfoStyle: CSSProperties = {
+const questInfoStyle: Readonly<CSSProperties> = {
   flex: 1,
   minWidth: 0,
 };
 
-const questTitleStyle: CSSProperties = {
+const questTitleStyle: Readonly<CSSProperties> = {
   fontSize: 13,
   fontWeight: 600,
   color: "var(--color-text-primary, #333)",
 };
 
-const questDescStyle: CSSProperties = {
+const questDescStyle: Readonly<CSSProperties> = {
   fontSize: 11,
   color: "var(--color-text-secondary, #888)",
   marginTop: 2,
@@ -145,14 +145,14 @@ const questDescStyle: CSSProperties = {
   whiteSpace: "nowrap",
 };
 
-const questMetaStyle: CSSProperties = {
+const questMetaStyle: Readonly<CSSProperties> = {
   display: "flex",
   gap: 8,
   alignItems: "center",
   marginTop: 4,
 };
 
-const difficultyBadgeStyle: CSSProperties = {
+const difficultyBadgeStyle: Readonly<CSSProperties> = {
   display: "inline-flex",
   alignItems: "center",
   gap: 3,
@@ -164,17 +164,17 @@ const difficultyBadgeStyle: CSSProperties = {
   color: "var(--color-quest-difficulty-text)",
 };
 
-const starStyle: CSSProperties = {
+const starStyle: Readonly<CSSProperties> = {
   fontSize: 9,
   lineHeight: 1,
 };
 
-const stepTextStyle: CSSProperties = {
+const stepTextStyle: Readonly<CSSProperties> = {
   fontSize: 10,
   color: "var(--color-text-secondary, #999)",
 };
 
-const ratingBadgeBaseStyle: CSSProperties = {
+const ratingBadgeBaseStyle: Readonly<CSSProperties> = {
   fontSize: 10,
   fontWeight: 700,
   padding: "2px 8px",
@@ -182,48 +182,173 @@ const ratingBadgeBaseStyle: CSSProperties = {
   whiteSpace: "nowrap",
 };
 
-const startButtonClassName =
-  "py-1.5 px-3 text-[11px] font-semibold rounded-md border-none bg-[var(--color-quest-start-bg)] text-white cursor-pointer shrink-0 transition-colors";
+const startButtonStyle: Readonly<CSSProperties> = {
+  padding: "6px 12px",
+  fontSize: "11px",
+  fontWeight: 600,
+  borderRadius: "6px",
+  border: "none",
+  background: "var(--color-quest-start-bg)",
+  color: "white",
+  cursor: "pointer",
+  flexShrink: 0,
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+};
 
-const actionButtonClassName =
-  "py-1 px-2 text-[10px] font-semibold rounded border border-ui-border bg-transparent text-muted-foreground cursor-pointer shrink-0 transition-colors hover:bg-muted";
+const actionButtonStyle: Readonly<CSSProperties> = {
+  padding: "4px 8px",
+  fontSize: "10px",
+  fontWeight: 600,
+  borderRadius: "4px",
+  border: "1px solid var(--ui-border)",
+  background: "transparent",
+  color: "var(--ui-muted-foreground)",
+  cursor: "pointer",
+  flexShrink: 0,
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+};
 
-const deleteButtonClassName =
-  "py-1 px-2 text-[10px] font-semibold rounded border border-destructive/60 bg-transparent text-destructive cursor-pointer shrink-0 transition-colors hover:bg-destructive/5";
+const deleteButtonStyle: Readonly<CSSProperties> = {
+  padding: "4px 8px",
+  fontSize: "10px",
+  fontWeight: 600,
+  borderRadius: "4px",
+  border:
+    "1px solid color-mix(in srgb, var(--ui-destructive) 60%, transparent)",
+  background: "transparent",
+  color: "var(--ui-destructive)",
+  cursor: "pointer",
+  flexShrink: 0,
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+};
 
-const deleteConfirmOverlayClassName =
-  "absolute inset-0 flex items-center justify-center gap-2 bg-[var(--color-quest-card-bg,rgba(255,253,248,0.97))] z-[1] px-4.5";
+const deleteConfirmOverlayStyle: Readonly<CSSProperties> = {
+  position: "absolute",
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "8px",
+  background: "var(--color-quest-card-bg, rgba(255,253,248,0.97))",
+  zIndex: 1,
+  padding: "0 18px",
+};
 
-const deleteConfirmTextClassName =
-  "text-[13px] text-destructive font-semibold flex-1 text-center";
+const deleteConfirmTextStyle: Readonly<CSSProperties> = {
+  fontSize: "13px",
+  color: "var(--ui-destructive)",
+  fontWeight: 600,
+  flex: 1,
+  textAlign: "center",
+};
 
-const deleteConfirmBtnClassName =
-  "py-1.5 px-3.5 text-xs rounded-md border border-destructive/40 bg-destructive text-destructive-foreground cursor-pointer font-semibold";
+const deleteConfirmBtnStyle: Readonly<CSSProperties> = {
+  padding: "6px 14px",
+  fontSize: "0.75rem",
+  borderRadius: "6px",
+  border:
+    "1px solid color-mix(in srgb, var(--ui-destructive) 40%, transparent)",
+  background: "var(--ui-destructive)",
+  color: "var(--ui-destructive-foreground)",
+  cursor: "pointer",
+  fontWeight: 600,
+};
 
-const deleteCancelBtnClassName =
-  "py-1.5 px-3.5 text-xs rounded-md border border-ui-border bg-card text-foreground cursor-pointer";
+const deleteCancelBtnStyle: Readonly<CSSProperties> = {
+  padding: "6px 14px",
+  fontSize: "0.75rem",
+  borderRadius: "6px",
+  border: "1px solid var(--ui-border)",
+  background: "var(--ui-card)",
+  color: "var(--ui-foreground)",
+  cursor: "pointer",
+};
 
-const sharePanelOverlayClassName =
-  "absolute inset-0 flex items-center justify-center gap-2 bg-[var(--color-quest-card-bg,rgba(255,253,248,0.97))] z-[1] px-4.5";
+const sharePanelOverlayStyle: Readonly<CSSProperties> = {
+  position: "absolute",
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "8px",
+  background: "var(--color-quest-card-bg, rgba(255,253,248,0.97))",
+  zIndex: 1,
+  padding: "0 18px",
+};
 
-const sharePanelTitleClassName =
-  "text-xs font-semibold text-foreground shrink-0";
+const sharePanelTitleStyle: Readonly<CSSProperties> = {
+  fontSize: "0.75rem",
+  fontWeight: 600,
+  color: "var(--ui-foreground)",
+  flexShrink: 0,
+};
 
-const sharePanelBtnClassName =
-  "py-1.5 px-3.5 text-xs rounded-md border border-ui-border bg-card text-foreground cursor-pointer font-semibold transition-colors";
+const sharePanelBtnStyle: Readonly<CSSProperties> = {
+  padding: "6px 14px",
+  fontSize: "0.75rem",
+  borderRadius: "6px",
+  border: "1px solid var(--ui-border)",
+  background: "var(--ui-card)",
+  color: "var(--ui-foreground)",
+  cursor: "pointer",
+  fontWeight: 600,
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+};
 
-const sharePanelCopiedBtnClassName =
-  "py-1.5 px-3.5 text-xs rounded-md border border-[var(--color-quest-start-bg,#4caf50)] bg-[var(--color-quest-start-bg,#4caf50)] text-white cursor-pointer font-semibold transition-colors";
+const sharePanelCopiedBtnStyle: Readonly<CSSProperties> = {
+  padding: "6px 14px",
+  fontSize: "0.75rem",
+  borderRadius: "6px",
+  border: "1px solid var(--color-quest-start-bg, #4caf50)",
+  background: "var(--color-quest-start-bg, #4caf50)",
+  color: "white",
+  cursor: "pointer",
+  fontWeight: 600,
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+};
 
-const sharePanelCloseBtnClassName =
-  "py-1.5 px-2.5 text-xs rounded-md border border-ui-border bg-transparent text-muted-foreground cursor-pointer";
+const sharePanelCloseBtnStyle: Readonly<CSSProperties> = {
+  padding: "6px 10px",
+  fontSize: "0.75rem",
+  borderRadius: "6px",
+  border: "1px solid var(--ui-border)",
+  background: "transparent",
+  color: "var(--ui-muted-foreground)",
+  cursor: "pointer",
+};
 
-const actionGroupClassName = "flex gap-1 items-center";
+const actionGroupStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  gap: "4px",
+  alignItems: "center",
+};
 
-const createButtonClassName =
-  "py-1.5 px-3.5 text-[11px] font-semibold rounded border-none bg-[var(--color-quest-start-bg)] text-white cursor-pointer shrink-0 transition-colors";
+const createButtonStyle: Readonly<CSSProperties> = {
+  padding: "6px 14px",
+  fontSize: "11px",
+  fontWeight: 600,
+  borderRadius: "4px",
+  border: "none",
+  background: "var(--color-quest-start-bg)",
+  color: "white",
+  cursor: "pointer",
+  flexShrink: 0,
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+};
 
-const emptyStyle: CSSProperties = {
+const emptyStyle: Readonly<CSSProperties> = {
   textAlign: "center",
   padding: 32,
   color: "var(--color-text-secondary, #999)",
@@ -237,38 +362,112 @@ const emptyStyle: CSSProperties = {
 
 // --- Edit form styles ---
 
-const editFormOverlayClassName =
-  "py-4 px-3.5 bg-card border-b border-[var(--color-quest-card-border)]";
+const editFormOverlayStyle: Readonly<CSSProperties> = {
+  padding: "16px 14px",
+  background: "var(--ui-card)",
+  borderBottom: "1px solid var(--color-quest-card-border)",
+};
 
-const editFormClassName = "flex flex-col gap-2.5";
+const editFormStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "10px",
+};
 
-const editFieldGroupClassName = "flex flex-col gap-0.5";
+const editFieldGroupStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "2px",
+};
 
-const editLabelClassName = "text-[11px] font-semibold text-muted-foreground";
+const editLabelStyle: Readonly<CSSProperties> = {
+  fontSize: "11px",
+  fontWeight: 600,
+  color: "var(--ui-muted-foreground)",
+};
 
-const editInputClassName =
-  "text-xs py-1.5 px-2.5 border border-ui-border rounded outline-none bg-card text-foreground";
+const editInputStyle: Readonly<CSSProperties> = {
+  fontSize: "0.75rem",
+  padding: "6px 10px",
+  border: "1px solid var(--ui-border)",
+  borderRadius: "4px",
+  outline: "none",
+  background: "var(--ui-card)",
+  color: "var(--ui-foreground)",
+};
 
-const editInputErrorClassName =
-  "text-xs py-1.5 px-2.5 border border-destructive rounded outline-none bg-card text-foreground";
+const editInputErrorStyle: Readonly<CSSProperties> = {
+  fontSize: "0.75rem",
+  padding: "6px 10px",
+  border: "1px solid var(--ui-destructive)",
+  borderRadius: "4px",
+  outline: "none",
+  background: "var(--ui-card)",
+  color: "var(--ui-foreground)",
+};
 
-const editTextareaClassName =
-  "text-xs py-1.5 px-2.5 border border-ui-border rounded outline-none bg-card text-foreground resize-y min-h-[60px] font-[inherit]";
+const editTextareaStyle: Readonly<CSSProperties> = {
+  fontSize: "0.75rem",
+  padding: "6px 10px",
+  border: "1px solid var(--ui-border)",
+  borderRadius: "4px",
+  outline: "none",
+  background: "var(--ui-card)",
+  color: "var(--ui-foreground)",
+  resize: "vertical",
+  minHeight: "60px",
+  fontFamily: "inherit",
+};
 
-const editSelectClassName =
-  "text-xs py-1.5 px-2.5 border border-ui-border rounded outline-none bg-card text-foreground cursor-pointer";
+const editSelectStyle: Readonly<CSSProperties> = {
+  fontSize: "0.75rem",
+  padding: "6px 10px",
+  border: "1px solid var(--ui-border)",
+  borderRadius: "4px",
+  outline: "none",
+  background: "var(--ui-card)",
+  color: "var(--ui-foreground)",
+  cursor: "pointer",
+};
 
-const editErrorTextClassName = "text-[10px] text-destructive";
+const editErrorTextStyle: Readonly<CSSProperties> = {
+  fontSize: "10px",
+  color: "var(--ui-destructive)",
+};
 
-const editRowClassName = "flex gap-2";
+const editRowStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  gap: "8px",
+};
 
-const editActionsClassName = "flex gap-1.5 justify-end mt-1";
+const editActionsStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  gap: "6px",
+  justifyContent: "flex-end",
+  marginTop: "4px",
+};
 
-const editSaveButtonClassName =
-  "py-1.5 px-3.5 text-[11px] font-semibold rounded border-none bg-[var(--color-quest-start-bg)] text-white cursor-pointer";
+const editSaveButtonStyle: Readonly<CSSProperties> = {
+  padding: "6px 14px",
+  fontSize: "11px",
+  fontWeight: 600,
+  borderRadius: "4px",
+  border: "none",
+  background: "var(--color-quest-start-bg)",
+  color: "white",
+  cursor: "pointer",
+};
 
-const editCancelButtonClassName =
-  "py-1.5 px-3.5 text-[11px] font-semibold rounded border border-ui-border bg-transparent text-muted-foreground cursor-pointer";
+const editCancelButtonStyle: Readonly<CSSProperties> = {
+  padding: "6px 14px",
+  fontSize: "11px",
+  fontWeight: 600,
+  borderRadius: "4px",
+  border: "1px solid var(--ui-border)",
+  background: "transparent",
+  color: "var(--ui-muted-foreground)",
+  cursor: "pointer",
+};
 
 // --- Sub-components ---
 
@@ -382,42 +581,37 @@ function CustomQuestEditForm({
 
   return (
     <div
-      className={editFormOverlayClassName}
+      style={editFormOverlayStyle}
       data-testid={`custom-quest-edit-form-${quest.id satisfies string}`}
       onClick={(e) => e.stopPropagation()}
     >
-      <form className={editFormClassName} onSubmit={handleSubmit}>
+      <form style={editFormStyle} onSubmit={handleSubmit}>
         {/* タイトル */}
-        <div className={editFieldGroupClassName}>
-          <label className={editLabelClassName}>タイトル</label>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>タイトル</label>
           <input
             ref={titleRef}
             data-testid="edit-title-input"
-            className={
-              titleError !== undefined
-                ? editInputErrorClassName
-                : editInputClassName
+            style={
+              titleError !== undefined ? editInputErrorStyle : editInputStyle
             }
             value={values.title}
             onChange={(e) => setValues({ ...values, title: e.target.value })}
             onBlur={() => setTitleTouched(true)}
           />
           {titleError !== undefined && (
-            <span
-              className={editErrorTextClassName}
-              data-testid="edit-title-error"
-            >
+            <span style={editErrorTextStyle} data-testid="edit-title-error">
               {titleError}
             </span>
           )}
         </div>
 
         {/* 説明 */}
-        <div className={editFieldGroupClassName}>
-          <label className={editLabelClassName}>説明</label>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>説明</label>
           <textarea
             data-testid="edit-description-input"
-            className={editTextareaClassName}
+            style={editTextareaStyle}
             value={values.description}
             onChange={(e) =>
               setValues({ ...values, description: e.target.value })
@@ -427,11 +621,11 @@ function CustomQuestEditForm({
         </div>
 
         {/* 難易度 */}
-        <div className={editFieldGroupClassName}>
-          <label className={editLabelClassName}>難易度</label>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>難易度</label>
           <select
             data-testid="edit-difficulty-select"
-            className={editSelectClassName}
+            style={editSelectStyle}
             value={values.difficulty}
             onChange={(e) =>
               setValues({
@@ -449,11 +643,11 @@ function CustomQuestEditForm({
         </div>
 
         {/* 体系 */}
-        <div className={editFieldGroupClassName}>
-          <label className={editLabelClassName}>体系</label>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>体系</label>
           <select
             data-testid="edit-system-select"
-            className={editSelectClassName}
+            style={editSelectStyle}
             value={values.systemPresetId}
             onChange={(e) =>
               setValues({
@@ -471,8 +665,8 @@ function CustomQuestEditForm({
         </div>
 
         {/* ゴール式 */}
-        <div className={editFieldGroupClassName}>
-          <label className={editLabelClassName}>ゴール式</label>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>ゴール式</label>
           <FormulaListEditor
             formulas={values.goalFormulas}
             onChange={(goalFormulas) => setValues({ ...values, goalFormulas })}
@@ -482,11 +676,11 @@ function CustomQuestEditForm({
         </div>
 
         {/* ヒント */}
-        <div className={editFieldGroupClassName}>
-          <label className={editLabelClassName}>ヒント（1行に1つ、任意）</label>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>ヒント（1行に1つ、任意）</label>
           <textarea
             data-testid="edit-hints-input"
-            className={editTextareaClassName}
+            style={editTextareaStyle}
             value={values.hints}
             onChange={(e) => setValues({ ...values, hints: e.target.value })}
             rows={2}
@@ -494,18 +688,16 @@ function CustomQuestEditForm({
         </div>
 
         {/* 推定ステップ数・学習ポイント */}
-        <div className={editRowClassName}>
+        <div style={editRowStyle}>
           <div
-            className={`${editFieldGroupClassName satisfies string} flex-none min-w-[120px]`}
+            style={{ ...editFieldGroupStyle, flexShrink: 0, minWidth: "120px" }}
           >
-            <label className={editLabelClassName}>推定ステップ数（任意）</label>
+            <label style={editLabelStyle}>推定ステップ数（任意）</label>
             <input
               ref={stepsRef}
               data-testid="edit-steps-input"
-              className={
-                stepsError !== undefined
-                  ? editInputErrorClassName
-                  : editInputClassName
+              style={
+                stepsError !== undefined ? editInputErrorStyle : editInputStyle
               }
               type="number"
               min="1"
@@ -517,19 +709,16 @@ function CustomQuestEditForm({
               onBlur={() => setStepsTouched(true)}
             />
             {stepsError !== undefined && (
-              <span
-                className={editErrorTextClassName}
-                data-testid="edit-steps-error"
-              >
+              <span style={editErrorTextStyle} data-testid="edit-steps-error">
                 {stepsError}
               </span>
             )}
           </div>
-          <div className={`${editFieldGroupClassName satisfies string} flex-1`}>
-            <label className={editLabelClassName}>学習ポイント</label>
+          <div style={{ ...editFieldGroupStyle, flex: 1 }}>
+            <label style={editLabelStyle}>学習ポイント</label>
             <input
               data-testid="edit-learning-point-input"
-              className={editInputClassName}
+              style={editInputStyle}
               value={values.learningPoint}
               onChange={(e) =>
                 setValues({ ...values, learningPoint: e.target.value })
@@ -539,11 +728,11 @@ function CustomQuestEditForm({
         </div>
 
         {/* ボタン */}
-        <div className={editActionsClassName}>
+        <div style={editActionsStyle}>
           <button
             type="button"
             data-testid="edit-cancel-btn"
-            className={editCancelButtonClassName}
+            style={editCancelButtonStyle}
             onClick={(e) => {
               e.stopPropagation();
               onCancel();
@@ -554,7 +743,7 @@ function CustomQuestEditForm({
           <button
             type="submit"
             data-testid="edit-save-btn"
-            className={editSaveButtonClassName}
+            style={editSaveButtonStyle}
           >
             保存
           </button>
@@ -631,42 +820,37 @@ function CustomQuestCreateForm({
 
   return (
     <div
-      className={editFormOverlayClassName}
+      style={editFormOverlayStyle}
       data-testid="custom-quest-create-form"
       onClick={(e) => e.stopPropagation()}
     >
-      <form className={editFormClassName} onSubmit={handleSubmit}>
+      <form style={editFormStyle} onSubmit={handleSubmit}>
         {/* タイトル */}
-        <div className={editFieldGroupClassName}>
-          <label className={editLabelClassName}>タイトル</label>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>タイトル</label>
           <input
             ref={titleRef}
             data-testid="create-title-input"
-            className={
-              titleError !== undefined
-                ? editInputErrorClassName
-                : editInputClassName
+            style={
+              titleError !== undefined ? editInputErrorStyle : editInputStyle
             }
             value={values.title}
             onChange={(e) => setValues({ ...values, title: e.target.value })}
             onBlur={() => setTitleTouched(true)}
           />
           {titleError !== undefined && (
-            <span
-              className={editErrorTextClassName}
-              data-testid="create-title-error"
-            >
+            <span style={editErrorTextStyle} data-testid="create-title-error">
               {titleError}
             </span>
           )}
         </div>
 
         {/* 説明 */}
-        <div className={editFieldGroupClassName}>
-          <label className={editLabelClassName}>説明</label>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>説明</label>
           <textarea
             data-testid="create-description-input"
-            className={editTextareaClassName}
+            style={editTextareaStyle}
             value={values.description}
             onChange={(e) =>
               setValues({ ...values, description: e.target.value })
@@ -676,11 +860,11 @@ function CustomQuestCreateForm({
         </div>
 
         {/* 難易度 */}
-        <div className={editFieldGroupClassName}>
-          <label className={editLabelClassName}>難易度</label>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>難易度</label>
           <select
             data-testid="create-difficulty-select"
-            className={editSelectClassName}
+            style={editSelectStyle}
             value={values.difficulty}
             onChange={(e) =>
               setValues({
@@ -698,11 +882,11 @@ function CustomQuestCreateForm({
         </div>
 
         {/* 体系 */}
-        <div className={editFieldGroupClassName}>
-          <label className={editLabelClassName}>体系</label>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>体系</label>
           <select
             data-testid="create-system-select"
-            className={editSelectClassName}
+            style={editSelectStyle}
             value={values.systemPresetId}
             onChange={(e) =>
               setValues({
@@ -720,8 +904,8 @@ function CustomQuestCreateForm({
         </div>
 
         {/* ゴール式 */}
-        <div className={editFieldGroupClassName}>
-          <label className={editLabelClassName}>ゴール式</label>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>ゴール式</label>
           <FormulaListEditor
             formulas={values.goalFormulas}
             onChange={(goalFormulas) => setValues({ ...values, goalFormulas })}
@@ -731,11 +915,11 @@ function CustomQuestCreateForm({
         </div>
 
         {/* ヒント */}
-        <div className={editFieldGroupClassName}>
-          <label className={editLabelClassName}>ヒント（1行に1つ、任意）</label>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>ヒント（1行に1つ、任意）</label>
           <textarea
             data-testid="create-hints-input"
-            className={editTextareaClassName}
+            style={editTextareaStyle}
             value={values.hints}
             onChange={(e) => setValues({ ...values, hints: e.target.value })}
             rows={2}
@@ -743,18 +927,16 @@ function CustomQuestCreateForm({
         </div>
 
         {/* 推定ステップ数・学習ポイント */}
-        <div className={editRowClassName}>
+        <div style={editRowStyle}>
           <div
-            className={`${editFieldGroupClassName satisfies string} flex-none min-w-[120px]`}
+            style={{ ...editFieldGroupStyle, flexShrink: 0, minWidth: "120px" }}
           >
-            <label className={editLabelClassName}>推定ステップ数（任意）</label>
+            <label style={editLabelStyle}>推定ステップ数（任意）</label>
             <input
               ref={stepsRef}
               data-testid="create-steps-input"
-              className={
-                stepsError !== undefined
-                  ? editInputErrorClassName
-                  : editInputClassName
+              style={
+                stepsError !== undefined ? editInputErrorStyle : editInputStyle
               }
               type="number"
               min="1"
@@ -766,19 +948,16 @@ function CustomQuestCreateForm({
               onBlur={() => setStepsTouched(true)}
             />
             {stepsError !== undefined && (
-              <span
-                className={editErrorTextClassName}
-                data-testid="create-steps-error"
-              >
+              <span style={editErrorTextStyle} data-testid="create-steps-error">
                 {stepsError}
               </span>
             )}
           </div>
-          <div className={`${editFieldGroupClassName satisfies string} flex-1`}>
-            <label className={editLabelClassName}>学習ポイント</label>
+          <div style={{ ...editFieldGroupStyle, flex: 1 }}>
+            <label style={editLabelStyle}>学習ポイント</label>
             <input
               data-testid="create-learning-point-input"
-              className={editInputClassName}
+              style={editInputStyle}
               value={values.learningPoint}
               onChange={(e) =>
                 setValues({ ...values, learningPoint: e.target.value })
@@ -788,11 +967,11 @@ function CustomQuestCreateForm({
         </div>
 
         {/* ボタン */}
-        <div className={editActionsClassName}>
+        <div style={editActionsStyle}>
           <button
             type="button"
             data-testid="create-cancel-btn"
-            className={editCancelButtonClassName}
+            style={editCancelButtonStyle}
             onClick={(e) => {
               e.stopPropagation();
               onCancel();
@@ -803,7 +982,7 @@ function CustomQuestCreateForm({
           <button
             type="submit"
             data-testid="create-save-btn"
-            className={editSaveButtonClassName}
+            style={editSaveButtonStyle}
           >
             作成
           </button>
@@ -910,7 +1089,7 @@ function CustomQuestItem({
         data-testid={`custom-quest-item-${item.quest.id satisfies string}`}
         style={{
           ...(isHovered ? questItemHoverStyle : questItemStyle),
-          position: "relative" as const,
+          position: "relative",
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -934,10 +1113,10 @@ function CustomQuestItem({
           </div>
         </div>
         <RatingBadge rating={item.rating} />
-        <div className={actionGroupClassName}>
+        <div style={actionGroupStyle}>
           <button
             data-testid={`custom-quest-start-btn-${item.quest.id satisfies string}`}
-            className={startButtonClassName}
+            style={startButtonStyle}
             onClick={(e) => {
               e.stopPropagation();
               onStart(item.quest.id);
@@ -949,7 +1128,8 @@ function CustomQuestItem({
           {onEdit !== undefined && (
             <button
               data-testid={`custom-quest-edit-btn-${item.quest.id satisfies string}`}
-              className={actionButtonClassName}
+              className="custom-quest-action-btn"
+              style={actionButtonStyle}
               onClick={(e) => {
                 e.stopPropagation();
                 onToggleEdit(item.quest.id);
@@ -962,7 +1142,8 @@ function CustomQuestItem({
           {hasShareActions && (
             <button
               data-testid={`custom-quest-share-btn-${item.quest.id satisfies string}`}
-              className={actionButtonClassName}
+              className="custom-quest-action-btn"
+              style={actionButtonStyle}
               onClick={(e) => {
                 e.stopPropagation();
                 handleShareOpen();
@@ -975,7 +1156,8 @@ function CustomQuestItem({
           {onDuplicate !== undefined && (
             <button
               data-testid={`custom-quest-duplicate-btn-${item.quest.id satisfies string}`}
-              className={actionButtonClassName}
+              className="custom-quest-action-btn"
+              style={actionButtonStyle}
               onClick={(e) => {
                 e.stopPropagation();
                 onDuplicate(item.quest.id);
@@ -988,7 +1170,8 @@ function CustomQuestItem({
           {onDelete !== undefined && (
             <button
               data-testid={`custom-quest-delete-btn-${item.quest.id satisfies string}`}
-              className={deleteButtonClassName}
+              className="custom-quest-delete-btn"
+              style={deleteButtonStyle}
               onClick={(e) => {
                 e.stopPropagation();
                 handleDeleteStart();
@@ -1002,14 +1185,14 @@ function CustomQuestItem({
         {isShareOpen && (
           <div
             data-testid={`custom-quest-share-panel-${item.quest.id satisfies string}`}
-            className={sharePanelOverlayClassName}
+            style={sharePanelOverlayStyle}
             onClick={(e) => e.stopPropagation()}
           >
-            <span className={sharePanelTitleClassName}>共有</span>
+            <span style={sharePanelTitleStyle}>共有</span>
             {onExport !== undefined && (
               <button
                 data-testid={`custom-quest-share-export-btn-${item.quest.id satisfies string}`}
-                className={sharePanelBtnClassName}
+                style={sharePanelBtnStyle}
                 onClick={handleShareExport}
               >
                 JSONエクスポート
@@ -1018,10 +1201,8 @@ function CustomQuestItem({
             {onShareUrl !== undefined && (
               <button
                 data-testid={`custom-quest-share-url-btn-${item.quest.id satisfies string}`}
-                className={
-                  urlCopied
-                    ? sharePanelCopiedBtnClassName
-                    : sharePanelBtnClassName
+                style={
+                  urlCopied ? sharePanelCopiedBtnStyle : sharePanelBtnStyle
                 }
                 onClick={handleShareUrl}
               >
@@ -1030,7 +1211,7 @@ function CustomQuestItem({
             )}
             <button
               data-testid={`custom-quest-share-close-btn-${item.quest.id satisfies string}`}
-              className={sharePanelCloseBtnClassName}
+              style={sharePanelCloseBtnStyle}
               onClick={handleShareClose}
             >
               閉じる
@@ -1040,22 +1221,20 @@ function CustomQuestItem({
         {isDeleteConfirming && (
           <div
             data-testid={`custom-quest-delete-confirm-${item.quest.id satisfies string}`}
-            className={deleteConfirmOverlayClassName}
+            style={deleteConfirmOverlayStyle}
             onClick={(e) => e.stopPropagation()}
           >
-            <span className={deleteConfirmTextClassName}>
-              本当に削除しますか？
-            </span>
+            <span style={deleteConfirmTextStyle}>本当に削除しますか？</span>
             <button
               data-testid={`custom-quest-delete-cancel-btn-${item.quest.id satisfies string}`}
-              className={deleteCancelBtnClassName}
+              style={deleteCancelBtnStyle}
               onClick={handleDeleteCancel}
             >
               キャンセル
             </button>
             <button
               data-testid={`custom-quest-delete-confirm-btn-${item.quest.id satisfies string}`}
-              className={deleteConfirmBtnClassName}
+              style={deleteConfirmBtnStyle}
               onClick={handleDeleteConfirm}
             >
               削除する
@@ -1081,10 +1260,17 @@ function CustomQuestItem({
 
 // --- Import form ---
 
-const importFormOverlayClassName =
-  "py-4 px-3.5 bg-card border-b border-[var(--color-quest-card-border)]";
+const importFormOverlayStyle: Readonly<CSSProperties> = {
+  padding: "16px 14px",
+  background: "var(--ui-card)",
+  borderBottom: "1px solid var(--color-quest-card-border)",
+};
 
-const importFormClassName = "flex flex-col gap-2.5";
+const importFormStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "10px",
+};
 
 function CustomQuestImportForm({
   onImport,
@@ -1119,38 +1305,38 @@ function CustomQuestImportForm({
 
   return (
     <div
-      className={importFormOverlayClassName}
+      style={importFormOverlayStyle}
       data-testid="custom-quest-import-form"
       onClick={(e) => e.stopPropagation()}
     >
-      <form className={importFormClassName} onSubmit={handleSubmit}>
-        <div className={editFieldGroupClassName}>
-          <label className={editLabelClassName}>JSONファイルを選択</label>
+      <form style={importFormStyle} onSubmit={handleSubmit}>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>JSONファイルを選択</label>
           <input
             ref={fileInputRef}
             data-testid="import-file-input"
             type="file"
             accept=".json"
             onChange={handleFileChange}
-            className="text-xs"
+            style={{ fontSize: "0.75rem" }}
           />
         </div>
-        <div className={editFieldGroupClassName}>
-          <label className={editLabelClassName}>またはJSONを貼り付け</label>
+        <div style={editFieldGroupStyle}>
+          <label style={editLabelStyle}>またはJSONを貼り付け</label>
           <textarea
             data-testid="import-json-input"
-            className={editTextareaClassName}
+            style={editTextareaStyle}
             value={jsonText}
             onChange={(e) => setJsonText(e.target.value)}
             rows={5}
             placeholder={'{\n  "_format": "intro-formal-proof-quest",\n  ...'}
           />
         </div>
-        <div className={editActionsClassName}>
+        <div style={editActionsStyle}>
           <button
             type="button"
             data-testid="import-cancel-btn"
-            className={editCancelButtonClassName}
+            style={editCancelButtonStyle}
             onClick={(e) => {
               e.stopPropagation();
               onCancel();
@@ -1161,7 +1347,7 @@ function CustomQuestImportForm({
           <button
             type="submit"
             data-testid="import-submit-btn"
-            className={editSaveButtonClassName}
+            style={editSaveButtonStyle}
             disabled={jsonText.trim() === ""}
           >
             インポート
@@ -1231,7 +1417,8 @@ export function CustomQuestList({
             <button
               type="button"
               data-testid="custom-quest-import-btn"
-              className={actionButtonClassName}
+              className="custom-quest-action-btn"
+              style={actionButtonStyle}
               onClick={handleToggleImport}
             >
               {isImporting ? "閉じる" : "インポート"}
@@ -1241,7 +1428,7 @@ export function CustomQuestList({
             <button
               type="button"
               data-testid="custom-quest-create-btn"
-              className={createButtonClassName}
+              style={createButtonStyle}
               onClick={handleToggleCreate}
             >
               {isCreating ? "閉じる" : "新規作成"}

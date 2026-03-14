@@ -8,7 +8,7 @@
  * 変更時は HubContent.tsx, HubPageView.stories.tsx も同期すること。
  */
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, type CSSProperties } from "react";
 import {
   NotebookList,
   NotebookCreateForm,
@@ -142,43 +142,401 @@ export type HubPageViewProps = {
   readonly onShowReference?: (questId: string) => void;
 };
 
-// --- Style class names ---
+// --- Inline styles ---
 
-const pageClassName = "min-h-screen bg-background text-foreground";
+const pageStyle: Readonly<CSSProperties> = {
+  minHeight: "100vh",
+  backgroundColor: "var(--ui-background)",
+  color: "var(--ui-foreground)",
+};
 
-const headerClassName =
-  "flex items-center justify-between px-6 py-4 border-b border-ui-border bg-card";
+const headerStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingLeft: "24px",
+  paddingRight: "24px",
+  paddingTop: "16px",
+  paddingBottom: "16px",
+  borderBottom: "1px solid var(--ui-border)",
+  backgroundColor: "var(--ui-card)",
+};
 
-const brandClassName =
-  "inline-flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground select-none";
+const brandStyle: Readonly<CSSProperties> = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "8px",
+  fontSize: "1.125rem",
+  fontWeight: 600,
+  letterSpacing: "-0.025em",
+  color: "var(--ui-foreground)",
+  userSelect: "none",
+};
 
-const brandIconClassName = "size-5 text-primary";
+const brandIconStyle: Readonly<CSSProperties> = {
+  width: "1.25rem",
+  height: "1.25rem",
+  color: "var(--ui-primary)",
+};
 
-const headerActionsClassName = "flex items-center gap-2";
+const headerActionsStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+};
 
-const githubLinkClassName =
-  "inline-flex items-center justify-center size-7 rounded-md text-muted-foreground opacity-60 transition-opacity duration-150 hover:opacity-100";
+const githubLinkStyle: Readonly<CSSProperties> = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "1.75rem",
+  height: "1.75rem",
+  borderRadius: "6px",
+  color: "var(--ui-muted-foreground)",
+  opacity: 0.6,
+  transitionProperty: "opacity",
+  transitionDuration: "150ms",
+};
 
-const tabBarClassName = "flex border-b border-ui-border px-6 bg-card";
+const tabBarStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  borderBottom: "1px solid var(--ui-border)",
+  paddingLeft: "24px",
+  paddingRight: "24px",
+  backgroundColor: "var(--ui-card)",
+};
 
-const tabClassName =
-  "px-5 py-3 text-sm font-semibold cursor-pointer border-b-2 border-transparent bg-transparent text-muted-foreground transition-colors duration-150";
+const tabBaseStyle: Readonly<CSSProperties> = {
+  paddingLeft: "20px",
+  paddingRight: "20px",
+  paddingTop: "12px",
+  paddingBottom: "12px",
+  fontSize: "0.875rem",
+  fontWeight: 600,
+  cursor: "pointer",
+  borderBottom: "2px solid transparent",
+  backgroundColor: "transparent",
+  color: "var(--ui-muted-foreground)",
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+};
 
-const tabActiveClassName =
-  "px-5 py-3 text-sm font-semibold cursor-pointer border-b-2 border-primary text-primary bg-transparent transition-colors duration-150";
+const tabActiveStyle: Readonly<CSSProperties> = {
+  ...tabBaseStyle,
+  borderBottom: "2px solid var(--ui-primary)",
+  color: "var(--ui-primary)",
+};
 
-const contentClassName = "max-w-[800px] mx-auto py-6 px-4";
+const contentStyle: Readonly<CSSProperties> = {
+  maxWidth: "800px",
+  marginLeft: "auto",
+  marginRight: "auto",
+  paddingTop: "24px",
+  paddingBottom: "24px",
+  paddingLeft: "16px",
+  paddingRight: "16px",
+};
 
-const actionBarClassName = "flex justify-end gap-2 mb-4";
+const actionBarStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  justifyContent: "flex-end",
+  gap: "8px",
+  marginBottom: "16px",
+};
 
-const createButtonClassName =
-  "py-2 px-5 text-sm font-semibold border-none rounded-lg cursor-pointer bg-primary text-primary-foreground transition-opacity hover:opacity-90";
+const createButtonStyle: Readonly<CSSProperties> = {
+  paddingTop: "8px",
+  paddingBottom: "8px",
+  paddingLeft: "20px",
+  paddingRight: "20px",
+  fontSize: "0.875rem",
+  fontWeight: 600,
+  border: "none",
+  borderRadius: "8px",
+  cursor: "pointer",
+  backgroundColor: "var(--ui-primary)",
+  color: "var(--ui-primary-foreground)",
+  transitionProperty: "opacity",
+  transitionDuration: "150ms",
+};
 
-const importButtonClassName =
-  "py-2 px-5 text-sm font-semibold rounded-lg cursor-pointer border border-ui-border bg-transparent text-muted-foreground hover:bg-muted";
+const importButtonStyle: Readonly<CSSProperties> = {
+  paddingTop: "8px",
+  paddingBottom: "8px",
+  paddingLeft: "20px",
+  paddingRight: "20px",
+  fontSize: "0.875rem",
+  fontWeight: 600,
+  borderRadius: "8px",
+  cursor: "pointer",
+  border: "1px solid var(--ui-border)",
+  backgroundColor: "transparent",
+  color: "var(--ui-muted-foreground)",
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+};
 
-const clearFilterButtonClassName =
-  "py-0.5 px-2.5 text-[11px] font-semibold rounded-md border border-current bg-transparent text-inherit cursor-pointer ml-auto";
+const clearFilterButtonStyle: Readonly<CSSProperties> = {
+  paddingTop: "2px",
+  paddingBottom: "2px",
+  paddingLeft: "10px",
+  paddingRight: "10px",
+  fontSize: "11px",
+  fontWeight: 600,
+  borderRadius: "6px",
+  border: "1px solid currentColor",
+  backgroundColor: "transparent",
+  color: "inherit",
+  cursor: "pointer",
+  marginLeft: "auto",
+};
+
+const landingContainerStyle: Readonly<CSSProperties> = {
+  maxWidth: "640px",
+  marginLeft: "auto",
+  marginRight: "auto",
+  paddingTop: "80px",
+  paddingBottom: "60px",
+  paddingLeft: "24px",
+  paddingRight: "24px",
+  textAlign: "center",
+};
+
+const landingTitleStyle: Readonly<CSSProperties> = {
+  fontSize: "32px",
+  fontWeight: 800,
+  letterSpacing: "-0.025em",
+  marginBottom: "8px",
+  color: "var(--ui-foreground)",
+};
+
+const landingSubtitleStyle: Readonly<CSSProperties> = {
+  fontSize: "1rem",
+  fontWeight: 500,
+  color: "var(--ui-primary)",
+  marginBottom: "20px",
+};
+
+const landingDescriptionStyle: Readonly<CSSProperties> = {
+  fontSize: "15px",
+  lineHeight: 1.625,
+  color: "var(--ui-muted-foreground)",
+  marginBottom: "36px",
+};
+
+const landingButtonsStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  gap: "12px",
+  justifyContent: "center",
+  marginBottom: "40px",
+};
+
+const landingStartFreeStyle: Readonly<CSSProperties> = {
+  paddingTop: "12px",
+  paddingBottom: "12px",
+  paddingLeft: "28px",
+  paddingRight: "28px",
+  fontSize: "15px",
+  fontWeight: 700,
+  border: "none",
+  borderRadius: "10px",
+  cursor: "pointer",
+  backgroundColor: "var(--ui-primary)",
+  color: "var(--ui-primary-foreground)",
+  transitionProperty: "opacity",
+  transitionDuration: "150ms",
+};
+
+const landingExploreQuestsStyle: Readonly<CSSProperties> = {
+  paddingTop: "12px",
+  paddingBottom: "12px",
+  paddingLeft: "28px",
+  paddingRight: "28px",
+  fontSize: "15px",
+  fontWeight: 700,
+  borderRadius: "10px",
+  cursor: "pointer",
+  border: "2px solid var(--ui-primary)",
+  backgroundColor: "transparent",
+  color: "var(--ui-primary)",
+  transitionProperty: "opacity",
+  transitionDuration: "150ms",
+};
+
+const landingRecommendedLabelStyle: Readonly<CSSProperties> = {
+  fontSize: "13px",
+  fontWeight: 600,
+  color: "var(--ui-muted-foreground)",
+  textTransform: "uppercase",
+  letterSpacing: "0.1em",
+  marginBottom: "12px",
+};
+
+const landingRecommendedListStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  gap: "10px",
+  justifyContent: "center",
+  flexWrap: "wrap",
+};
+
+const landingQuestButtonStyle: Readonly<CSSProperties> = {
+  paddingTop: "8px",
+  paddingBottom: "8px",
+  paddingLeft: "18px",
+  paddingRight: "18px",
+  fontSize: "13px",
+  fontWeight: 600,
+  borderRadius: "8px",
+  cursor: "pointer",
+  border: "1px solid var(--ui-border)",
+  backgroundColor: "var(--ui-card)",
+  color: "var(--ui-foreground)",
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+};
+
+const questFilterBannerStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  paddingTop: "8px",
+  paddingBottom: "8px",
+  paddingLeft: "14px",
+  paddingRight: "14px",
+  marginBottom: "12px",
+  borderRadius: "8px",
+  backgroundColor: "var(--color-quest-notebook-badge-bg, #e8eaf6)",
+  color: "var(--color-quest-notebook-badge-text, #3949ab)",
+  fontSize: "13px",
+  fontWeight: 600,
+};
+
+const emptyStateStyle: Readonly<CSSProperties> = {
+  textAlign: "center",
+  paddingTop: "60px",
+  paddingBottom: "60px",
+  paddingLeft: "20px",
+  paddingRight: "20px",
+  color: "var(--ui-muted-foreground)",
+};
+
+const emptyTitleBaseStyle: Readonly<CSSProperties> = {
+  fontWeight: 700,
+  marginBottom: "8px",
+  color: "var(--ui-foreground)",
+};
+
+const emptyTitleFilterStyle: Readonly<CSSProperties> = {
+  ...emptyTitleBaseStyle,
+  fontSize: "1rem",
+};
+
+const emptyTitleNoFilterStyle: Readonly<CSSProperties> = {
+  ...emptyTitleBaseStyle,
+  fontSize: "1.5rem",
+};
+
+const emptyDescriptionStyle: Readonly<CSSProperties> = {
+  fontSize: "15px",
+  marginBottom: "24px",
+  lineHeight: 1.625,
+};
+
+const dialogOverlayStyle: Readonly<CSSProperties> = {
+  position: "fixed",
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0,
+  backgroundColor: "rgba(0,0,0,0.5)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  zIndex: 1000,
+};
+
+const dialogCardStyle: Readonly<CSSProperties> = {
+  backgroundColor: "var(--ui-card)",
+  borderRadius: "12px",
+  padding: "24px",
+  maxWidth: "480px",
+  width: "90%",
+  boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
+};
+
+const dialogTitleStyle: Readonly<CSSProperties> = {
+  fontSize: "1.125rem",
+  fontWeight: 700,
+  marginBottom: "8px",
+  color: "var(--ui-foreground)",
+};
+
+const dialogDescriptionStyle: Readonly<CSSProperties> = {
+  fontSize: "0.875rem",
+  color: "var(--ui-muted-foreground)",
+  marginBottom: "12px",
+  lineHeight: "normal",
+};
+
+const dialogMetaStyle: Readonly<CSSProperties> = {
+  fontSize: "0.75rem",
+  color: "var(--ui-muted-foreground)",
+  marginBottom: "20px",
+  paddingTop: "8px",
+  paddingBottom: "8px",
+  paddingLeft: "12px",
+  paddingRight: "12px",
+  backgroundColor: "var(--ui-muted)",
+  borderRadius: "6px",
+};
+
+const dialogActionsStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  gap: "8px",
+  justifyContent: "flex-end",
+};
+
+const dialogStartButtonStyle: Readonly<CSSProperties> = {
+  paddingTop: "8px",
+  paddingBottom: "8px",
+  paddingLeft: "16px",
+  paddingRight: "16px",
+  fontSize: "13px",
+  fontWeight: 600,
+  border: "none",
+  borderRadius: "6px",
+  cursor: "pointer",
+  backgroundColor: "var(--ui-primary)",
+  color: "var(--ui-primary-foreground)",
+};
+
+const dialogAddButtonStyle: Readonly<CSSProperties> = {
+  paddingTop: "8px",
+  paddingBottom: "8px",
+  paddingLeft: "16px",
+  paddingRight: "16px",
+  fontSize: "13px",
+  fontWeight: 600,
+  borderRadius: "6px",
+  cursor: "pointer",
+  border: "1px solid var(--ui-primary)",
+  backgroundColor: "transparent",
+  color: "var(--ui-primary)",
+};
+
+const dialogDismissButtonStyle: Readonly<CSSProperties> = {
+  paddingTop: "8px",
+  paddingBottom: "8px",
+  paddingLeft: "16px",
+  paddingRight: "16px",
+  fontSize: "13px",
+  fontWeight: 600,
+  borderRadius: "6px",
+  cursor: "pointer",
+  border: "1px solid var(--ui-border)",
+  backgroundColor: "transparent",
+  color: "var(--ui-muted-foreground)",
+};
 
 export function HubPageView({
   listItems,
@@ -267,12 +625,12 @@ export function HubPageView({
   );
 
   return (
-    <div className={pageClassName} data-testid="hub-page">
+    <div style={pageStyle} data-testid="hub-page">
       {/* Header */}
-      <header className={headerClassName}>
-        <span className={brandClassName}>
+      <header style={headerStyle}>
+        <span style={brandStyle}>
           <svg
-            className={brandIconClassName}
+            style={brandIconStyle}
             viewBox="0 0 32 32"
             fill="none"
             aria-hidden="true"
@@ -300,7 +658,7 @@ export function HubPageView({
           </svg>
           Formal Logic Pad
         </span>
-        <div className={headerActionsClassName}>
+        <div style={headerActionsStyle}>
           {languageToggle ? (
             <LanguageToggle
               locale={languageToggle.locale}
@@ -313,7 +671,8 @@ export function HubPageView({
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub"
-            className={githubLinkClassName}
+            className="hub-github-link"
+            style={githubLinkStyle}
             data-testid="github-link"
           >
             <svg
@@ -331,23 +690,15 @@ export function HubPageView({
 
       {/* Landing Page */}
       {showLanding === true ? (
-        <div
-          className="max-w-[640px] mx-auto pt-20 pb-15 px-6 text-center"
-          data-testid="landing-page"
-        >
-          <h1 className="text-[32px] font-extrabold -tracking-wide mb-2 text-foreground">
-            {m.landingTitle}
-          </h1>
-          <p className="text-base font-medium text-primary mb-5">
-            {m.landingSubtitle}
-          </p>
-          <p className="text-[15px] leading-relaxed text-muted-foreground mb-9">
-            {m.landingDescription}
-          </p>
-          <div className="flex gap-3 justify-center mb-10">
+        <div style={landingContainerStyle} data-testid="landing-page">
+          <h1 style={landingTitleStyle}>{m.landingTitle}</h1>
+          <p style={landingSubtitleStyle}>{m.landingSubtitle}</p>
+          <p style={landingDescriptionStyle}>{m.landingDescription}</p>
+          <div style={landingButtonsStyle}>
             <button
               type="button"
-              className="py-3 px-7 text-[15px] font-bold border-none rounded-[10px] cursor-pointer bg-primary text-primary-foreground transition-opacity hover:opacity-90"
+              className="hub-hover-opacity-90"
+              style={landingStartFreeStyle}
               data-testid="landing-start-free"
               onClick={() => setView("create")}
             >
@@ -355,7 +706,8 @@ export function HubPageView({
             </button>
             <button
               type="button"
-              className="py-3 px-7 text-[15px] font-bold rounded-[10px] cursor-pointer border-2 border-primary bg-transparent text-primary transition-opacity hover:opacity-90"
+              className="hub-hover-opacity-90"
+              style={landingExploreQuestsStyle}
               data-testid="landing-explore-quests"
               onClick={() => onTabChange("quests")}
             >
@@ -363,16 +715,17 @@ export function HubPageView({
             </button>
           </div>
           {recommendedQuests !== undefined && recommendedQuests.length > 0 && (
-            <div className="text-center">
-              <div className="text-[13px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+            <div style={{ textAlign: "center" }}>
+              <div style={landingRecommendedLabelStyle}>
                 {m.landingRecommendedQuests}
               </div>
-              <div className="flex gap-2.5 justify-center flex-wrap">
+              <div style={landingRecommendedListStyle}>
                 {recommendedQuests.map((q) => (
                   <button
                     key={q.id}
                     type="button"
-                    className="py-2 px-4.5 text-[13px] font-semibold rounded-lg cursor-pointer border border-ui-border bg-card text-foreground transition-colors hover:bg-muted"
+                    className="hub-hover-bg-muted"
+                    style={landingQuestButtonStyle}
                     data-testid={`landing-quest-${q.id satisfies string}`}
                     onClick={() => onStartQuest(q.id)}
                   >
@@ -396,12 +749,10 @@ export function HubPageView({
       ) : (
         <>
           {/* Tab Bar */}
-          <nav className={tabBarClassName}>
+          <nav style={tabBarStyle}>
             <button
               type="button"
-              className={
-                tab === "notebooks" ? tabActiveClassName : tabClassName
-              }
+              style={tab === "notebooks" ? tabActiveStyle : tabBaseStyle}
               onClick={() => {
                 onTabChange("notebooks");
                 setView("list");
@@ -412,7 +763,7 @@ export function HubPageView({
             </button>
             <button
               type="button"
-              className={tab === "quests" ? tabActiveClassName : tabClassName}
+              style={tab === "quests" ? tabActiveStyle : tabBaseStyle}
               onClick={() => {
                 onTabChange("quests");
                 setView("list");
@@ -422,9 +773,7 @@ export function HubPageView({
             </button>
             <button
               type="button"
-              className={
-                tab === "custom-quests" ? tabActiveClassName : tabClassName
-              }
+              style={tab === "custom-quests" ? tabActiveStyle : tabBaseStyle}
               onClick={() => {
                 onTabChange("custom-quests");
                 setView("list");
@@ -434,9 +783,7 @@ export function HubPageView({
             </button>
             <button
               type="button"
-              className={
-                tab === "collection" ? tabActiveClassName : tabClassName
-              }
+              style={tab === "collection" ? tabActiveStyle : tabBaseStyle}
               onClick={() => {
                 onTabChange("collection");
                 setView("list");
@@ -446,9 +793,7 @@ export function HubPageView({
             </button>
             <button
               type="button"
-              className={
-                tab === "reference" ? tabActiveClassName : tabClassName
-              }
+              style={tab === "reference" ? tabActiveStyle : tabBaseStyle}
               onClick={() => {
                 onTabChange("reference");
                 setView("list");
@@ -459,13 +804,14 @@ export function HubPageView({
           </nav>
 
           {/* Content */}
-          <div className={contentClassName}>
+          <div style={contentStyle}>
             {tab === "notebooks" && view === "list" && (
               <>
-                <div className={actionBarClassName}>
+                <div style={actionBarStyle}>
                   <button
                     type="button"
-                    className={createButtonClassName}
+                    className="hub-hover-opacity-90"
+                    style={createButtonStyle}
                     onClick={() => setView("create")}
                   >
                     {m.newNotebook}
@@ -474,7 +820,8 @@ export function HubPageView({
                     <>
                       <button
                         type="button"
-                        className={importButtonClassName}
+                        className="hub-hover-bg-muted"
+                        style={importButtonStyle}
                         data-testid="import-notebook-btn"
                         onClick={() => importFileRef.current?.click()}
                       >
@@ -493,7 +840,7 @@ export function HubPageView({
                 </div>
                 {questFilter !== null && (
                   <div
-                    className="flex items-center gap-2 py-2 px-3.5 mb-3 rounded-lg bg-[var(--color-quest-notebook-badge-bg,#e8eaf6)] text-[var(--color-quest-notebook-badge-text,#3949ab)] text-[13px] font-semibold"
+                    style={questFilterBannerStyle}
                     data-testid="quest-filter-banner"
                   >
                     <span>
@@ -504,7 +851,7 @@ export function HubPageView({
                     </span>
                     <button
                       type="button"
-                      className={clearFilterButtonClassName}
+                      style={clearFilterButtonStyle}
                       data-testid="clear-quest-filter"
                       onClick={() => setQuestFilter(null)}
                     >
@@ -514,29 +861,26 @@ export function HubPageView({
                 )}
                 {displayedItems.length === 0 ? (
                   questFilter !== null ? (
-                    <div className="text-center py-15 px-5 text-muted-foreground">
-                      <div className="text-base font-bold mb-2 text-foreground">
+                    <div style={emptyStateStyle}>
+                      <div style={emptyTitleFilterStyle}>
                         {m.questFilterEmpty}
                       </div>
                       <button
                         type="button"
-                        className={clearFilterButtonClassName}
+                        style={clearFilterButtonStyle}
                         onClick={() => setQuestFilter(null)}
                       >
                         {m.questFilterClear}
                       </button>
                     </div>
                   ) : (
-                    <div className="text-center py-15 px-5 text-muted-foreground">
-                      <div className="text-2xl font-bold mb-2 text-foreground">
-                        {m.emptyTitle}
-                      </div>
-                      <p className="text-[15px] mb-6 leading-relaxed">
-                        {m.emptyDescription}
-                      </p>
+                    <div style={emptyStateStyle}>
+                      <div style={emptyTitleNoFilterStyle}>{m.emptyTitle}</div>
+                      <p style={emptyDescriptionStyle}>{m.emptyDescription}</p>
                       <button
                         type="button"
-                        className={createButtonClassName}
+                        className="hub-hover-opacity-90"
+                        style={createButtonStyle}
                         onClick={() => setView("create")}
                       >
                         {m.newNotebook}
@@ -627,7 +971,7 @@ export function HubPageView({
             sharedQuest !== null &&
             onSharedQuestDismiss !== undefined && (
               <div
-                className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]"
+                style={dialogOverlayStyle}
                 data-testid="shared-quest-dialog"
                 onClick={(e) => {
                   if (e.target === e.currentTarget) {
@@ -635,14 +979,12 @@ export function HubPageView({
                   }
                 }}
               >
-                <div className="bg-card rounded-xl p-6 max-w-[480px] w-[90%] shadow-2xl">
-                  <h3 className="text-lg font-bold mb-2 text-foreground">
-                    {sharedQuest.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-3 leading-normal">
+                <div style={dialogCardStyle}>
+                  <h3 style={dialogTitleStyle}>{sharedQuest.title}</h3>
+                  <p style={dialogDescriptionStyle}>
                     {sharedQuest.description}
                   </p>
-                  <div className="text-xs text-muted-foreground mb-5 py-2 px-3 bg-muted rounded-md">
+                  <div style={dialogMetaStyle}>
                     <span>
                       {m.sharedQuestMeta
                         .replace("{systemPresetId}", sharedQuest.systemPresetId)
@@ -658,11 +1000,11 @@ export function HubPageView({
                         )}
                     </span>
                   </div>
-                  <div className="flex gap-2 justify-end">
+                  <div style={dialogActionsStyle}>
                     {onSharedQuestStart !== undefined && (
                       <button
                         type="button"
-                        className="py-2 px-4 text-[13px] font-semibold border-none rounded-md cursor-pointer bg-primary text-primary-foreground"
+                        style={dialogStartButtonStyle}
                         data-testid="shared-quest-start-btn"
                         onClick={onSharedQuestStart}
                       >
@@ -672,7 +1014,7 @@ export function HubPageView({
                     {onSharedQuestAddToCollection !== undefined && (
                       <button
                         type="button"
-                        className="py-2 px-4 text-[13px] font-semibold rounded-md cursor-pointer border border-primary bg-transparent text-primary"
+                        style={dialogAddButtonStyle}
                         data-testid="shared-quest-add-btn"
                         onClick={onSharedQuestAddToCollection}
                       >
@@ -681,7 +1023,7 @@ export function HubPageView({
                     )}
                     <button
                       type="button"
-                      className="py-2 px-4 text-[13px] font-semibold rounded-md cursor-pointer border border-ui-border bg-transparent text-muted-foreground"
+                      style={dialogDismissButtonStyle}
                       data-testid="shared-quest-dismiss-btn"
                       onClick={onSharedQuestDismiss}
                     >

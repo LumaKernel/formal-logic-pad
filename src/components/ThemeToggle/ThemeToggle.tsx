@@ -3,10 +3,10 @@
  *
  * Uses lucide-react icons (Sun/Moon/Monitor). Keyboard accessible via Tab/Enter/Space.
  * Requires ThemeProvider in the component tree.
- * Styled with Tailwind utility classes + shadcn CSS variables.
+ * Styled with inline styles + CSS variables defined in globals.css.
  */
 
-import { type ReactNode, useCallback } from "react";
+import { type CSSProperties, type ReactNode, useCallback } from "react";
 import { Sun, Moon, Monitor } from "lucide-react";
 import { THEME_MODES, type ThemeMode } from "../../lib/theme";
 import { useThemeContext } from "../../lib/theme/ThemeProvider";
@@ -16,15 +16,18 @@ import {
   getThemeLabel,
   type ThemeIconId,
 } from "./themeToggleLogic";
-import { cn } from "../../lib/utils";
+
+const iconStyle: Readonly<CSSProperties> = {
+  width: "1rem",
+  height: "1rem",
+  flexShrink: 0,
+};
 
 function ThemeIcon({ iconId }: { readonly iconId: ThemeIconId }): ReactNode {
-  const iconClass = "size-4 shrink-0";
-  if (iconId === "sun") return <Sun className={iconClass} aria-hidden="true" />;
-  if (iconId === "moon")
-    return <Moon className={iconClass} aria-hidden="true" />;
+  if (iconId === "sun") return <Sun style={iconStyle} aria-hidden="true" />;
+  if (iconId === "moon") return <Moon style={iconStyle} aria-hidden="true" />;
   // fall-through: TypeScript narrows to "monitor"
-  return <Monitor className={iconClass} aria-hidden="true" />;
+  return <Monitor style={iconStyle} aria-hidden="true" />;
 }
 
 /**
@@ -69,6 +72,46 @@ export interface ThemeToggleProps {
   readonly labels?: ThemeToggleLabels;
 }
 
+const containerStyle: Readonly<CSSProperties> = {
+  display: "inline-flex",
+  gap: "2px",
+  borderRadius: "0.5rem",
+  border: "1px solid var(--ui-border)",
+  backgroundColor: "var(--ui-muted)",
+  padding: "2px",
+};
+
+const buttonBaseStyle: Readonly<CSSProperties> = {
+  display: "inline-flex",
+  cursor: "pointer",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "0.25rem",
+  borderRadius: "0.375rem",
+  border: "none",
+  paddingLeft: "0.625rem",
+  paddingRight: "0.625rem",
+  paddingTop: "0.375rem",
+  paddingBottom: "0.375rem",
+  fontSize: "0.875rem",
+  lineHeight: "1",
+  transitionProperty: "color, background-color",
+  transitionDuration: "150ms",
+  color: "var(--ui-muted-foreground)",
+  backgroundColor: "transparent",
+};
+
+const buttonActiveExtraStyle: Readonly<CSSProperties> = {
+  backgroundColor: "var(--ui-background)",
+  color: "var(--ui-foreground)",
+  boxShadow:
+    "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)",
+};
+
+const labelStyle: Readonly<CSSProperties> = {
+  fontWeight: 500,
+};
+
 export function ThemeToggle({
   showLabels = true,
   labels,
@@ -84,7 +127,7 @@ export function ThemeToggle({
 
   return (
     <div
-      className="inline-flex gap-0.5 rounded-lg border border-ui-border bg-muted p-0.5"
+      style={containerStyle}
       role="radiogroup"
       aria-label={labels?.ariaLabel ?? "Theme selection"}
       data-testid="theme-toggle"
@@ -93,6 +136,9 @@ export function ThemeToggle({
         const isActive = mode === m;
         const iconId = getThemeIconId(m);
         const label = resolveThemeLabel(labels, m);
+        const mergedStyle: Readonly<CSSProperties> = isActive
+          ? { ...buttonBaseStyle, ...buttonActiveExtraStyle }
+          : buttonBaseStyle;
         return (
           <button
             key={m}
@@ -100,18 +146,17 @@ export function ThemeToggle({
             role="radio"
             aria-checked={isActive}
             aria-label={resolveThemeAriaLabel(labels, m)}
-            className={cn(
-              "inline-flex cursor-pointer items-center justify-center gap-1 rounded-md border-none px-2.5 py-1.5 text-sm leading-none transition-colors duration-150",
-              "text-muted-foreground hover:bg-ui-accent hover:text-foreground",
-              "focus-visible:outline-2 focus-visible:outline-ring focus-visible:-outline-offset-2",
-              isActive &&
-                "bg-background text-foreground shadow-sm hover:bg-background",
-            )}
+            className={
+              isActive
+                ? "theme-toggle-btn theme-toggle-btn--active"
+                : "theme-toggle-btn"
+            }
+            style={mergedStyle}
             data-testid={`theme-toggle-${m satisfies string}`}
             onClick={() => handleClick(m)}
           >
             <ThemeIcon iconId={iconId} />
-            {showLabels ? <span className="font-medium">{label}</span> : null}
+            {showLabels ? <span style={labelStyle}>{label}</span> : null}
           </button>
         );
       })}

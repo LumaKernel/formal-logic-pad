@@ -2,12 +2,20 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, within, userEvent } from "storybook/test";
 import { ThemeProvider } from "../../lib/theme/ThemeProvider";
 import { ThemeToggle } from "./ThemeToggle";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
+
+const storyContainerStyle: Readonly<CSSProperties> = {
+  minHeight: "100px",
+  backgroundColor: "var(--ui-background)",
+  padding: "2rem",
+  fontFamily: "var(--font-ui)",
+  color: "var(--ui-foreground)",
+};
 
 function ThemeToggleWithProvider(): ReactNode {
   return (
     <ThemeProvider>
-      <div className="min-h-[100px] bg-background p-8 font-[var(--font-ui)] text-foreground">
+      <div style={storyContainerStyle}>
         <ThemeToggle />
       </div>
     </ThemeProvider>
@@ -57,7 +65,7 @@ export const Default: Story = {
 function ThemeToggleIconsOnly(): ReactNode {
   return (
     <ThemeProvider>
-      <div className="min-h-[100px] bg-background p-8 font-[var(--font-ui)] text-foreground">
+      <div style={storyContainerStyle}>
         <ThemeToggle showLabels={false} />
       </div>
     </ThemeProvider>

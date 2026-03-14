@@ -10,6 +10,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import Editor from "@monaco-editor/react";
 import type { OnMount, BeforeMount } from "@monaco-editor/react";
 import {
@@ -59,21 +60,67 @@ import {
   STORAGE_KEY,
 } from "./savedScriptsLogic";
 import type { SavedScriptsState } from "./savedScriptsLogic";
-import { cn } from "@/lib/utils";
 
-// ── Tailwind class constants ──────────────────────────────────
+// ── Inline style constants ──────────────────────────────────
 
-const barBg =
-  "bg-[var(--color-badge-bg,#e8eaf0)] border-t border-[var(--color-border,#e2e8f0)]";
+const barBgStyle: Readonly<CSSProperties> = {
+  backgroundColor: "var(--color-badge-bg,#e8eaf0)",
+  borderTop: "1px solid var(--color-border,#e2e8f0)",
+};
 
-const templateBtnCls =
-  "inline-flex items-center px-2.5 py-1 border border-[var(--color-border,#e2e8f0)] rounded bg-[var(--color-surface,#ffffff)] text-[var(--color-text-primary,#171717)] cursor-pointer text-[length:var(--font-size-xs,11px)] font-medium leading-none whitespace-nowrap transition-[background-color,border-color] duration-150 hover:bg-[var(--color-surface-hover,#f0f0f0)] hover:border-[var(--color-accent,#555ab9)] focus-visible:outline-2 focus-visible:outline-[var(--color-accent,#555ab9)] focus-visible:outline-offset-[-2px]";
+const templateBtnStyle: Readonly<CSSProperties> = {
+  display: "inline-flex",
+  alignItems: "center",
+  paddingLeft: "10px",
+  paddingRight: "10px",
+  paddingTop: "4px",
+  paddingBottom: "4px",
+  border: "1px solid var(--color-border,#e2e8f0)",
+  borderRadius: "4px",
+  backgroundColor: "var(--color-surface,#ffffff)",
+  color: "var(--color-text-primary,#171717)",
+  cursor: "pointer",
+  fontSize: "var(--font-size-xs,11px)",
+  fontWeight: 500,
+  lineHeight: 1,
+  whiteSpace: "nowrap",
+  transitionProperty: "background-color, border-color",
+  transitionDuration: "150ms",
+};
 
-const toolbarBtnCls =
-  "inline-flex items-center gap-1 px-3 py-1.5 border border-[var(--color-border,#e2e8f0)] rounded-md bg-[var(--color-surface,#ffffff)] text-[var(--color-text-primary,#171717)] cursor-pointer text-[length:var(--font-size-sm,13px)] font-medium leading-none transition-[background-color,border-color] duration-150 hover:bg-[var(--color-surface-hover,#f0f0f0)] focus-visible:outline-2 focus-visible:outline-[var(--color-accent,#555ab9)] focus-visible:outline-offset-[-2px] disabled:opacity-50 disabled:cursor-not-allowed";
+const toolbarBtnStyle: Readonly<CSSProperties> = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "4px",
+  paddingLeft: "12px",
+  paddingRight: "12px",
+  paddingTop: "6px",
+  paddingBottom: "6px",
+  border: "1px solid var(--color-border,#e2e8f0)",
+  borderRadius: "6px",
+  backgroundColor: "var(--color-surface,#ffffff)",
+  color: "var(--color-text-primary,#171717)",
+  cursor: "pointer",
+  fontSize: "var(--font-size-sm,13px)",
+  fontWeight: 500,
+  lineHeight: 1,
+  transitionProperty: "background-color, border-color",
+  transitionDuration: "150ms",
+};
 
-const statusBadgeBase =
-  "inline-flex items-center px-2 py-1 rounded text-[length:var(--font-size-xs,11px)] font-medium bg-[var(--color-badge-bg,#e8eaf0)] text-[var(--color-text-secondary,#666666)]";
+const statusBadgeBaseStyle: Readonly<CSSProperties> = {
+  display: "inline-flex",
+  alignItems: "center",
+  paddingLeft: "8px",
+  paddingRight: "8px",
+  paddingTop: "4px",
+  paddingBottom: "4px",
+  borderRadius: "4px",
+  fontSize: "var(--font-size-xs,11px)",
+  fontWeight: 500,
+  backgroundColor: "var(--color-badge-bg,#e8eaf0)",
+  color: "var(--color-text-secondary,#666666)",
+};
 
 // ── Props ─────────────────────────────────────────────────────
 
@@ -568,32 +615,35 @@ declare var console: {
     [handleReset, onCodeChange],
   );
 
-  // ── ステータスの CSS クラス ─────────────────────────────────────
+  // ── ステータスのインラインスタイル ─────────────────────────────
 
-  const statusClassName = (() => {
+  const statusStyle: Readonly<CSSProperties> = (() => {
     switch (state.executionStatus) {
       case "done":
-        return cn(
-          statusBadgeBase,
-          "bg-[var(--color-success-bg,#d4edda)] text-[var(--color-success-text,#155724)]",
-        );
+        return {
+          ...statusBadgeBaseStyle,
+          backgroundColor: "var(--color-success-bg,#d4edda)",
+          color: "var(--color-success-text,#155724)",
+        };
       case "error":
-        return cn(
-          statusBadgeBase,
-          "bg-[var(--color-error-bg,#f8d7da)] text-[var(--color-error-text,#721c24)]",
-        );
+        return {
+          ...statusBadgeBaseStyle,
+          backgroundColor: "var(--color-error-bg,#f8d7da)",
+          color: "var(--color-error-text,#721c24)",
+        };
       case "running":
       case "stepping":
-        return cn(
-          statusBadgeBase,
-          "bg-[var(--color-info-bg,#cce5ff)] text-[var(--color-info-text,#004085)]",
-        );
+        return {
+          ...statusBadgeBaseStyle,
+          backgroundColor: "var(--color-info-bg,#cce5ff)",
+          color: "var(--color-info-text,#004085)",
+        };
       case "idle":
-        return statusBadgeBase;
+        return statusBadgeBaseStyle;
       default: {
         /* v8 ignore start */
         const _exhaustive: never = state.executionStatus;
-        return String(_exhaustive);
+        return { ...statusBadgeBaseStyle, display: String(_exhaustive) };
         /* v8 ignore stop */
       }
     }
@@ -604,10 +654,18 @@ declare var console: {
 
   return (
     <div
-      className="flex flex-col h-full border border-[var(--color-border,#e2e8f0)] rounded-lg overflow-hidden bg-[var(--color-surface,#ffffff)]"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        border: "1px solid var(--color-border,#e2e8f0)",
+        borderRadius: "8px",
+        overflow: "hidden",
+        backgroundColor: "var(--color-surface,#ffffff)",
+      }}
       data-testid="script-editor"
     >
-      <div className="flex-1 min-h-[200px]" style={{ height }}>
+      <div style={{ flex: 1, minHeight: "200px", height }}>
         <Editor
           height="100%"
           defaultLanguage="javascript"
@@ -621,20 +679,35 @@ declare var console: {
       </div>
 
       <div
-        className={cn(
-          "flex items-center gap-1.5 px-3 py-1.5 overflow-x-auto",
-          barBg,
-        )}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+          paddingLeft: "12px",
+          paddingRight: "12px",
+          paddingTop: "6px",
+          paddingBottom: "6px",
+          overflowX: "auto",
+          ...barBgStyle,
+        }}
         data-testid="template-bar"
       >
-        <span className="text-[length:var(--font-size-xs,11px)] font-semibold text-[var(--color-text-secondary,#666666)] whitespace-nowrap">
+        <span
+          style={{
+            fontSize: "var(--font-size-xs,11px)",
+            fontWeight: 600,
+            color: "var(--color-text-secondary,#666666)",
+            whiteSpace: "nowrap",
+          }}
+        >
           Templates:
         </span>
         {BUILTIN_TEMPLATES.map((tmpl) => (
           <button
             key={tmpl.id}
             type="button"
-            className={templateBtnCls}
+            className="se-template-btn"
+            style={templateBtnStyle}
             onClick={() => handleLoadTemplate(tmpl)}
             title={tmpl.description}
             data-testid={`template-${tmpl.id satisfies string}`}
@@ -642,10 +715,38 @@ declare var console: {
             {tmpl.title}
           </button>
         ))}
-        <span className="inline-block w-px h-4 bg-[var(--color-border,#e2e8f0)] mx-0.5" />
+        <span
+          style={{
+            display: "inline-block",
+            width: "1px",
+            height: "16px",
+            backgroundColor: "var(--color-border,#e2e8f0)",
+            marginLeft: "2px",
+            marginRight: "2px",
+          }}
+        />
         <button
           type="button"
-          className="inline-flex items-center px-2.5 py-1 border border-[var(--color-accent,#555ab9)] rounded bg-[var(--color-accent,#555ab9)] text-white cursor-pointer text-[length:var(--font-size-xs,11px)] font-semibold leading-none whitespace-nowrap transition-[background-color,border-color] duration-150 hover:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-accent,#555ab9)] focus-visible:outline-offset-2"
+          className="se-save-btn"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            paddingLeft: "10px",
+            paddingRight: "10px",
+            paddingTop: "4px",
+            paddingBottom: "4px",
+            border: "1px solid var(--color-accent,#555ab9)",
+            borderRadius: "4px",
+            backgroundColor: "var(--color-accent,#555ab9)",
+            color: "white",
+            cursor: "pointer",
+            fontSize: "var(--font-size-xs,11px)",
+            fontWeight: 600,
+            lineHeight: 1,
+            whiteSpace: "nowrap",
+            transitionProperty: "background-color, border-color",
+            transitionDuration: "150ms",
+          }}
           onClick={handleOpenSaveDialog}
           data-testid="save-script-button"
           title="現在のスクリプトを保存"
@@ -654,18 +755,34 @@ declare var console: {
         </button>
         {savedScripts.scripts.length > 0 && (
           <>
-            <span className="text-[length:var(--font-size-xs,11px)] font-semibold text-[var(--color-text-secondary,#666666)] whitespace-nowrap">
+            <span
+              style={{
+                fontSize: "var(--font-size-xs,11px)",
+                fontWeight: 600,
+                color: "var(--color-text-secondary,#666666)",
+                whiteSpace: "nowrap",
+              }}
+            >
               My Scripts:
             </span>
             {savedScripts.scripts.map((script) => (
               <span
                 key={script.id}
-                className="inline-flex items-center gap-0"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0px",
+                }}
                 data-testid={`saved-script-${script.id satisfies string}`}
               >
                 <button
                   type="button"
-                  className={cn(templateBtnCls, "rounded-r-none")}
+                  className="se-template-btn"
+                  style={{
+                    ...templateBtnStyle,
+                    borderTopRightRadius: 0,
+                    borderBottomRightRadius: 0,
+                  }}
                   onClick={() => handleLoadSavedScript(script.code)}
                   title={script.title}
                   data-testid={`load-saved-${script.id satisfies string}`}
@@ -674,7 +791,25 @@ declare var console: {
                 </button>
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center w-5 h-5 p-0 border border-[var(--color-border,#e2e8f0)] border-l-0 rounded-r bg-[var(--color-surface,#ffffff)] text-[var(--color-text-secondary,#666666)] cursor-pointer text-xs leading-none transition-[background-color,color] duration-150 hover:bg-[var(--color-error-bg,#f8d7da)] hover:text-[var(--color-error-text,#721c24)] focus-visible:outline-2 focus-visible:outline-[var(--color-accent,#555ab9)] focus-visible:outline-offset-[-2px]"
+                  className="se-delete-btn"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "20px",
+                    height: "20px",
+                    padding: 0,
+                    border: "1px solid var(--color-border,#e2e8f0)",
+                    borderLeft: "0",
+                    borderRadius: "0 4px 4px 0",
+                    backgroundColor: "var(--color-surface,#ffffff)",
+                    color: "var(--color-text-secondary,#666666)",
+                    cursor: "pointer",
+                    fontSize: "0.75rem",
+                    lineHeight: 1,
+                    transitionProperty: "background-color, color",
+                    transitionDuration: "150ms",
+                  }}
                   onClick={() => handleDeleteSavedScript(script.id)}
                   data-testid={`delete-saved-${script.id satisfies string}`}
                   title="削除"
@@ -689,13 +824,35 @@ declare var console: {
 
       {saveDialogOpen && (
         <div
-          className={cn("flex items-center gap-1.5 px-3 py-1.5", barBg)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            paddingLeft: "12px",
+            paddingRight: "12px",
+            paddingTop: "6px",
+            paddingBottom: "6px",
+            ...barBgStyle,
+          }}
           data-testid="save-dialog"
         >
           <input
             ref={saveTitleInputRef}
             type="text"
-            className="flex-1 px-2 py-1 border border-[var(--color-border,#e2e8f0)] rounded text-[length:var(--font-size-xs,11px)] bg-[var(--color-surface,#ffffff)] text-[var(--color-text-primary,#171717)] min-w-[120px] focus:outline-2 focus:outline-[var(--color-accent,#555ab9)] focus:outline-offset-[-2px]"
+            className="se-save-input"
+            style={{
+              flex: 1,
+              paddingLeft: "8px",
+              paddingRight: "8px",
+              paddingTop: "4px",
+              paddingBottom: "4px",
+              border: "1px solid var(--color-border,#e2e8f0)",
+              borderRadius: "4px",
+              fontSize: "var(--font-size-xs,11px)",
+              backgroundColor: "var(--color-surface,#ffffff)",
+              color: "var(--color-text-primary,#171717)",
+              minWidth: "120px",
+            }}
             placeholder="スクリプト名を入力..."
             value={saveTitle}
             onChange={(e) => setSaveTitle(e.target.value)}
@@ -707,7 +864,8 @@ declare var console: {
           />
           <button
             type="button"
-            className={toolbarBtnCls}
+            className="se-toolbar-btn"
+            style={toolbarBtnStyle}
             onClick={handleSaveScript}
             disabled={saveTitle.trim() === ""}
             data-testid="save-confirm-button"
@@ -716,7 +874,8 @@ declare var console: {
           </button>
           <button
             type="button"
-            className={toolbarBtnCls}
+            className="se-toolbar-btn"
+            style={toolbarBtnStyle}
             onClick={handleCloseSaveDialog}
             data-testid="save-cancel-button"
           >
@@ -726,12 +885,22 @@ declare var console: {
       )}
 
       <div
-        className={cn("flex items-center gap-2 px-3 py-2", barBg)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          paddingLeft: "12px",
+          paddingRight: "12px",
+          paddingTop: "8px",
+          paddingBottom: "8px",
+          ...barBgStyle,
+        }}
         data-testid="script-editor-toolbar"
       >
         <button
           type="button"
-          className={toolbarBtnCls}
+          className="se-toolbar-btn"
+          style={toolbarBtnStyle}
           onClick={handleRun}
           disabled={isExecuting}
           data-testid="run-button"
@@ -740,7 +909,8 @@ declare var console: {
         </button>
         <button
           type="button"
-          className={toolbarBtnCls}
+          className="se-toolbar-btn"
+          style={toolbarBtnStyle}
           onClick={handleStep}
           disabled={state.executionStatus === "running" || isAutoPlaying}
           data-testid="step-button"
@@ -750,7 +920,8 @@ declare var console: {
         {isAutoPlaying ? (
           <button
             type="button"
-            className={toolbarBtnCls}
+            className="se-toolbar-btn"
+            style={toolbarBtnStyle}
             onClick={handlePause}
             data-testid="pause-button"
           >
@@ -759,7 +930,8 @@ declare var console: {
         ) : (
           <button
             type="button"
-            className={toolbarBtnCls}
+            className="se-toolbar-btn"
+            style={toolbarBtnStyle}
             onClick={handlePlay}
             disabled={state.executionStatus === "running"}
             data-testid="play-button"
@@ -769,33 +941,49 @@ declare var console: {
         )}
         <button
           type="button"
-          className={toolbarBtnCls}
+          className="se-toolbar-btn"
+          style={toolbarBtnStyle}
           onClick={handleReset}
           disabled={state.executionStatus === "idle"}
           data-testid="reset-button"
         >
           Reset
         </button>
-        <span className={statusClassName} data-testid="execution-status">
+        <span style={statusStyle} data-testid="execution-status">
           {executionStatusLabel(state.executionStatus)}
         </span>
         {state.currentStep > 0 && (
           <span
-            className="text-[length:var(--font-size-xs,11px)] text-[var(--color-text-secondary,#666666)] ml-auto"
+            style={{
+              fontSize: "var(--font-size-xs,11px)",
+              color: "var(--color-text-secondary,#666666)",
+              marginLeft: "auto",
+            }}
             data-testid="step-count"
           >{`${String(state.currentStep) satisfies string} steps`}</span>
         )}
       </div>
 
       <div
-        className={cn(
-          "flex items-center gap-2 px-3 py-1 text-[length:var(--font-size-xs,11px)]",
-          barBg,
-        )}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          paddingLeft: "12px",
+          paddingRight: "12px",
+          paddingTop: "4px",
+          paddingBottom: "4px",
+          fontSize: "var(--font-size-xs,11px)",
+          ...barBgStyle,
+        }}
         data-testid="speed-bar"
       >
         <label
-          className="text-[var(--color-text-secondary,#666666)] font-medium whitespace-nowrap"
+          style={{
+            color: "var(--color-text-secondary,#666666)",
+            fontWeight: 500,
+            whiteSpace: "nowrap",
+          }}
           htmlFor="speed-slider"
         >
           Speed
@@ -807,16 +995,38 @@ declare var console: {
           max={100}
           value={intervalMsToSlider(state.autoPlayIntervalMs)}
           onChange={handleSpeedChange}
-          className="flex-1 min-w-[80px] cursor-pointer"
+          style={{
+            flex: 1,
+            minWidth: "80px",
+            cursor: "pointer",
+          }}
           data-testid="speed-slider"
         />
         <span
-          className="text-[var(--color-text-secondary,#666666)] min-w-[50px] text-right whitespace-nowrap"
+          style={{
+            color: "var(--color-text-secondary,#666666)",
+            minWidth: "50px",
+            textAlign: "right",
+            whiteSpace: "nowrap",
+          }}
           data-testid="speed-value"
         >{`${String(effectiveIntervalMs) satisfies string}ms`}</span>
         {effectiveIntervalMs > state.autoPlayIntervalMs && (
           <span
-            className="inline-flex items-center px-1.5 py-0.5 rounded-[3px] text-[length:var(--font-size-xs,11px)] font-medium bg-[var(--color-warn-bg,#fff3cd)] text-[var(--color-warn-text,#856404)] whitespace-nowrap"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              paddingLeft: "6px",
+              paddingRight: "6px",
+              paddingTop: "2px",
+              paddingBottom: "2px",
+              borderRadius: "3px",
+              fontSize: "var(--font-size-xs,11px)",
+              fontWeight: 500,
+              backgroundColor: "var(--color-warn-bg,#fff3cd)",
+              color: "var(--color-warn-text,#856404)",
+              whiteSpace: "nowrap",
+            }}
             data-testid="slowdown-badge"
           >
             {`Slowdown x${String(Math.round(effectiveIntervalMs / state.autoPlayIntervalMs)) satisfies string}`}
@@ -826,7 +1036,17 @@ declare var console: {
 
       {state.errorMessage !== null && (
         <div
-          className="px-3 py-1.5 bg-[var(--color-error-bg,#f8d7da)] text-[var(--color-error-text,#721c24)] text-[length:var(--font-size-xs,11px)] font-mono border-t border-[var(--color-border,#e2e8f0)]"
+          style={{
+            paddingLeft: "12px",
+            paddingRight: "12px",
+            paddingTop: "6px",
+            paddingBottom: "6px",
+            backgroundColor: "var(--color-error-bg,#f8d7da)",
+            color: "var(--color-error-text,#721c24)",
+            fontSize: "var(--font-size-xs,11px)",
+            fontFamily: "monospace",
+            borderTop: "1px solid var(--color-border,#e2e8f0)",
+          }}
           data-testid="error-bar"
         >
           {state.errorMessage}
@@ -835,17 +1055,32 @@ declare var console: {
 
       {state.consoleOutput.length > 0 && (
         <div
-          className="max-h-[150px] overflow-y-auto px-3 py-2 border-t border-[var(--color-border,#e2e8f0)] bg-[var(--color-code-bg,#1e1e1e)] text-[var(--color-code-text,#d4d4d4)] font-mono text-[length:var(--font-size-xs,11px)] leading-relaxed"
+          style={{
+            maxHeight: "150px",
+            overflowY: "auto",
+            paddingLeft: "12px",
+            paddingRight: "12px",
+            paddingTop: "8px",
+            paddingBottom: "8px",
+            borderTop: "1px solid var(--color-border,#e2e8f0)",
+            backgroundColor: "var(--color-code-bg,#1e1e1e)",
+            color: "var(--color-code-text,#d4d4d4)",
+            fontFamily: "monospace",
+            fontSize: "var(--font-size-xs,11px)",
+            lineHeight: 1.625,
+          }}
           data-testid="console-output"
         >
           {state.consoleOutput.map((entry, i) => (
             <div
               key={i}
-              className={cn(
-                "whitespace-pre-wrap break-all",
-                entry.type === "error" && "text-[#f44747]",
-                entry.type === "warn" && "text-[#cca700]",
-              )}
+              style={{
+                whiteSpace: "pre-wrap",
+                overflowWrap: "break-word",
+                wordBreak: "break-all",
+                ...(entry.type === "error" ? { color: "#f44747" } : {}),
+                ...(entry.type === "warn" ? { color: "#cca700" } : {}),
+              }}
             >
               {entry.message}
             </div>

@@ -8,6 +8,7 @@
  */
 
 import { useState, useCallback, useMemo } from "react";
+import type { CSSProperties } from "react";
 import type { ReferenceEntry, Locale } from "./referenceEntry";
 import { ReferenceModal, type RelatedQuestInfo } from "./ReferenceModal";
 import {
@@ -22,6 +23,222 @@ import {
   type ReferenceBrowserState,
 } from "./referenceBrowserLogic";
 import { InlineMarkdown } from "./InlineMarkdown";
+
+// --- Styles ---
+
+const rootStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "16px",
+};
+
+const guideSectionStyle: Readonly<CSSProperties> = {
+  borderRadius: "12px",
+  border: "1px solid var(--ui-border)",
+  backgroundColor: "var(--ui-card)",
+  padding: "16px",
+};
+
+const guideTitleStyle: Readonly<CSSProperties> = {
+  fontSize: "13px",
+  fontWeight: 700,
+  color: "var(--ui-foreground)",
+  marginBottom: "2px",
+};
+
+const guideDescStyle: Readonly<CSSProperties> = {
+  fontSize: "11px",
+  color: "var(--ui-muted-foreground)",
+  marginBottom: "12px",
+};
+
+const guideListStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "6px",
+};
+
+const guideCardButtonStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: "12px",
+  paddingLeft: "12px",
+  paddingRight: "12px",
+  paddingTop: "10px",
+  paddingBottom: "10px",
+  borderRadius: "8px",
+  cursor: "pointer",
+  border: "1px solid var(--ui-border)",
+  backgroundColor: "var(--ui-background)",
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "100ms",
+  textAlign: "left",
+  width: "100%",
+};
+
+const guideNumberStyle: Readonly<CSSProperties> = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "24px",
+  height: "24px",
+  borderRadius: "9999px",
+  backgroundColor: "var(--ui-primary)",
+  color: "var(--ui-primary-foreground)",
+  fontSize: "11px",
+  fontWeight: 700,
+  flexShrink: 0,
+  marginTop: "2px",
+};
+
+const guideCardContentStyle: Readonly<CSSProperties> = {
+  minWidth: 0,
+};
+
+const guideCardTitleStyle: Readonly<CSSProperties> = {
+  fontSize: "13px",
+  fontWeight: 600,
+  color: "var(--ui-foreground)",
+};
+
+const guideCardSummaryStyle: Readonly<CSSProperties> = {
+  fontSize: "11px",
+  color: "var(--ui-muted-foreground)",
+  lineHeight: 1.625,
+  display: "-webkit-box",
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
+};
+
+const searchBarStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  gap: "8px",
+  alignItems: "center",
+};
+
+const searchInputStyle: Readonly<CSSProperties> = {
+  flex: 1,
+  paddingLeft: "14px",
+  paddingRight: "14px",
+  paddingTop: "10px",
+  paddingBottom: "10px",
+  fontSize: "13px",
+  border: "1px solid var(--ui-border)",
+  borderRadius: "8px",
+  backgroundColor: "var(--ui-card)",
+  color: "var(--ui-foreground)",
+  outline: "none",
+};
+
+const categoryWrapStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  gap: "6px",
+  flexWrap: "wrap",
+};
+
+const categoryBadgeBaseStyle: Readonly<CSSProperties> = {
+  paddingLeft: "12px",
+  paddingRight: "12px",
+  paddingTop: "4px",
+  paddingBottom: "4px",
+  fontSize: "11px",
+  fontWeight: 600,
+  borderRadius: "9999px",
+  cursor: "pointer",
+  transitionProperty: "all",
+  transitionDuration: "150ms",
+};
+
+const categoryBadgeSelectedStyle: Readonly<CSSProperties> = {
+  ...categoryBadgeBaseStyle,
+  border: "1px solid var(--ui-primary)",
+  backgroundColor: "var(--ui-primary)",
+  color: "var(--ui-primary-foreground)",
+};
+
+const categoryBadgeUnselectedStyle: Readonly<CSSProperties> = {
+  ...categoryBadgeBaseStyle,
+  border: "1px solid var(--ui-border)",
+  backgroundColor: "var(--ui-card)",
+  color: "var(--ui-muted-foreground)",
+};
+
+const badgeCountStyle: Readonly<CSSProperties> = {
+  display: "inline-block",
+  marginLeft: "4px",
+  fontSize: "10px",
+  opacity: 0.7,
+};
+
+const resultCountStyle: Readonly<CSSProperties> = {
+  fontSize: "11px",
+  color: "var(--ui-muted-foreground)",
+  marginBottom: "4px",
+};
+
+const emptyStyle: Readonly<CSSProperties> = {
+  textAlign: "center",
+  paddingTop: "40px",
+  paddingBottom: "40px",
+  paddingLeft: "20px",
+  paddingRight: "20px",
+  color: "var(--ui-muted-foreground)",
+  fontSize: "13px",
+};
+
+const entryListStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "2px",
+};
+
+const entryButtonStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: "12px",
+  paddingLeft: "14px",
+  paddingRight: "14px",
+  paddingTop: "12px",
+  paddingBottom: "12px",
+  borderRadius: "8px",
+  cursor: "pointer",
+  border: "1px solid var(--ui-border)",
+  backgroundColor: "var(--ui-card)",
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "100ms",
+  textAlign: "left",
+  width: "100%",
+};
+
+const entryCategoryBadgeStyle: Readonly<CSSProperties> = {
+  display: "inline-block",
+  fontSize: "10px",
+  fontWeight: 600,
+  color: "var(--ui-muted-foreground)",
+  backgroundColor: "var(--ui-muted)",
+  borderRadius: "4px",
+  paddingLeft: "6px",
+  paddingRight: "6px",
+  paddingTop: "2px",
+  paddingBottom: "2px",
+  whiteSpace: "nowrap",
+  flexShrink: 0,
+  marginTop: "2px",
+};
+
+const entryTitleStyle: Readonly<CSSProperties> = {
+  fontSize: "13px",
+  fontWeight: 600,
+  color: "var(--ui-foreground)",
+  marginBottom: "2px",
+};
+
+const entrySummaryStyle: Readonly<CSSProperties> = {
+  fontSize: "11px",
+  color: "var(--ui-muted-foreground)",
+  lineHeight: 1.625,
+};
 
 // --- Props ---
 
@@ -138,29 +355,26 @@ export function ReferenceBrowserComponent({
   }, [detailEntry, resolveQuestTitle, onStartQuest]);
 
   return (
-    <div className="flex flex-col gap-4" data-testid={testId}>
+    <div style={rootStyle} data-testid={testId}>
       {/* Guide section */}
       {showGuideSection && (
         <div
-          className="rounded-xl border border-ui-border bg-card p-4"
+          style={guideSectionStyle}
           data-testid={
             testId !== undefined
               ? `${testId satisfies string}-guide-section`
               : undefined
           }
         >
-          <div className="text-sm font-bold text-foreground mb-0.5">
-            {guideSectionTitle}
-          </div>
-          <div className="text-xs text-muted-foreground mb-3">
-            {guideSectionDescription}
-          </div>
-          <div className="flex flex-col gap-1.5">
+          <div style={guideTitleStyle}>{guideSectionTitle}</div>
+          <div style={guideDescStyle}>{guideSectionDescription}</div>
+          <div style={guideListStyle}>
             {guideCards.map((card, i) => (
               <button
                 key={card.id}
                 type="button"
-                className="flex items-start gap-3 px-3 py-2.5 rounded-lg cursor-pointer border border-ui-border bg-background transition-colors duration-100 text-left w-full hover:bg-muted"
+                className="ref-browser-guide-card"
+                style={guideCardButtonStyle}
                 onClick={() => {
                   handleEntryClick(card.id);
                 }}
@@ -170,14 +384,10 @@ export function ReferenceBrowserComponent({
                     : undefined
                 }
               >
-                <span className="inline-flex items-center justify-center size-6 rounded-full bg-primary text-primary-foreground text-xs font-bold shrink-0 mt-0.5">
-                  {i + 1}
-                </span>
-                <div className="min-w-0">
-                  <div className="text-sm font-semibold text-foreground">
-                    {card.title}
-                  </div>
-                  <div className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                <span style={guideNumberStyle}>{i + 1}</span>
+                <div style={guideCardContentStyle}>
+                  <div style={guideCardTitleStyle}>{card.title}</div>
+                  <div style={guideCardSummaryStyle}>
                     <InlineMarkdown text={card.summary} />
                   </div>
                 </div>
@@ -188,13 +398,14 @@ export function ReferenceBrowserComponent({
       )}
 
       {/* Search bar */}
-      <div className="flex gap-2 items-center">
+      <div style={searchBarStyle}>
         <input
           type="text"
           value={state.searchQuery}
           onChange={handleSearchChange}
           placeholder={searchPlaceholder}
-          className="flex-1 px-3.5 py-2.5 text-sm border border-ui-border rounded-lg bg-card text-foreground outline-none focus:ring-2 focus:ring-ring"
+          className="ref-browser-search-input"
+          style={searchInputStyle}
           data-testid={
             testId !== undefined
               ? `${testId satisfies string}-search`
@@ -204,15 +415,18 @@ export function ReferenceBrowserComponent({
       </div>
 
       {/* Category filter badges */}
-      <div className="flex gap-1.5 flex-wrap">
+      <div style={categoryWrapStyle}>
         {categoryBadges.map((badge) => (
           <button
             key={badge.id}
             type="button"
             className={
+              badge.isSelected ? undefined : "ref-browser-category-badge"
+            }
+            style={
               badge.isSelected
-                ? "px-3 py-1 text-xs font-semibold rounded-full cursor-pointer border border-primary bg-primary text-primary-foreground transition-all duration-150"
-                : "px-3 py-1 text-xs font-semibold rounded-full cursor-pointer border border-ui-border bg-card text-muted-foreground transition-all duration-150 hover:bg-muted"
+                ? categoryBadgeSelectedStyle
+                : categoryBadgeUnselectedStyle
             }
             onClick={() => {
               handleCategoryClick(badge.id);
@@ -224,16 +438,14 @@ export function ReferenceBrowserComponent({
             }
           >
             {badge.label}
-            <span className="inline-block ml-1 text-[10px] opacity-70">
-              ({badge.count})
-            </span>
+            <span style={badgeCountStyle}>({badge.count})</span>
           </button>
         ))}
       </div>
 
       {/* Result count */}
       <div
-        className="text-xs text-muted-foreground mb-1"
+        style={resultCountStyle}
         data-testid={
           testId !== undefined ? `${testId satisfies string}-count` : undefined
         }
@@ -244,7 +456,7 @@ export function ReferenceBrowserComponent({
       {/* Entry list */}
       {entryItems.length === 0 ? (
         <div
-          className="text-center py-10 px-5 text-muted-foreground text-sm"
+          style={emptyStyle}
           data-testid={
             testId !== undefined
               ? `${testId satisfies string}-empty`
@@ -254,12 +466,13 @@ export function ReferenceBrowserComponent({
           {emptyMessage}
         </div>
       ) : (
-        <div className="flex flex-col gap-0.5">
+        <div style={entryListStyle}>
           {entryItems.map((item) => (
             <button
               key={item.id}
               type="button"
-              className="flex items-start gap-3 px-3.5 py-3 rounded-lg cursor-pointer border border-ui-border bg-card transition-colors duration-100 text-left w-full hover:bg-muted"
+              className="ref-browser-entry-card"
+              style={entryButtonStyle}
               onClick={() => {
                 handleEntryClick(item.id);
               }}
@@ -269,14 +482,10 @@ export function ReferenceBrowserComponent({
                   : undefined
               }
             >
-              <span className="inline-block text-[10px] font-semibold text-muted-foreground bg-muted rounded px-1.5 py-0.5 whitespace-nowrap shrink-0 mt-0.5">
-                {item.categoryLabel}
-              </span>
+              <span style={entryCategoryBadgeStyle}>{item.categoryLabel}</span>
               <div>
-                <div className="text-sm font-semibold text-foreground mb-0.5">
-                  {item.title}
-                </div>
-                <div className="text-xs text-muted-foreground leading-relaxed">
+                <div style={entryTitleStyle}>{item.title}</div>
+                <div style={entrySummaryStyle}>
                   <InlineMarkdown text={item.summary} />
                 </div>
               </div>

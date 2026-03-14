@@ -527,6 +527,185 @@ a {
 }
 
 /* ============================================
+ * ThemeToggle — hover/focus-visible styles
+ * (cannot be expressed via inline styles)
+ * ============================================ */
+
+.theme-toggle-btn:hover {
+  background-color: var(--ui-accent);
+  color: var(--ui-foreground);
+}
+
+.theme-toggle-btn--active:hover {
+  background-color: var(--ui-background);
+}
+
+.theme-toggle-btn:focus-visible {
+  outline: 2px solid var(--ui-ring);
+  outline-offset: -2px;
+}
+
+/* ============================================
+ * ReferenceBrowserComponent — hover/focus styles
+ * (pseudo-classes cannot be expressed via inline styles)
+ * ============================================ */
+
+.ref-browser-guide-card:hover {
+  background-color: var(--ui-muted);
+}
+
+.ref-browser-search-input:focus {
+  box-shadow: 0 0 0 2px var(--ui-ring);
+}
+
+.ref-browser-category-badge:hover {
+  background-color: var(--ui-muted);
+}
+
+.ref-browser-entry-card:hover {
+  background-color: var(--ui-muted);
+}
+
+/* ============================================
+ * HubPageView — hover/focus pseudo-class styles
+ * (cannot be expressed via inline styles)
+ * ============================================ */
+
+.hub-github-link:hover {
+  opacity: 1;
+}
+
+.hub-hover-opacity-90:hover {
+  opacity: 0.9;
+}
+
+.hub-hover-bg-muted:hover {
+  background-color: var(--ui-muted);
+}
+
+/* ============================================
+ * ScriptEditor — hover/focus/disabled pseudo-class styles
+ * (cannot be expressed via inline styles)
+ * ============================================ */
+
+.se-template-btn:hover {
+  background-color: var(--color-surface-hover, #f0f0f0);
+  border-color: var(--color-accent, #555ab9);
+}
+
+.se-template-btn:focus-visible {
+  outline: 2px solid var(--color-accent, #555ab9);
+  outline-offset: -2px;
+}
+
+.se-toolbar-btn:hover:not(:disabled) {
+  background-color: var(--color-surface-hover, #f0f0f0);
+}
+
+.se-toolbar-btn:focus-visible {
+  outline: 2px solid var(--color-accent, #555ab9);
+  outline-offset: -2px;
+}
+
+.se-toolbar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.se-save-btn:hover {
+  opacity: 0.85;
+}
+
+.se-save-btn:focus-visible {
+  outline: 2px solid var(--color-accent, #555ab9);
+  outline-offset: 2px;
+}
+
+.se-delete-btn:hover {
+  background-color: var(--color-error-bg, #f8d7da);
+  color: var(--color-error-text, #721c24);
+}
+
+.se-delete-btn:focus-visible {
+  outline: 2px solid var(--color-accent, #555ab9);
+  outline-offset: -2px;
+}
+
+.se-save-input:focus {
+  outline: 2px solid var(--color-accent, #555ab9);
+  outline-offset: -2px;
+}
+
+/* ============================================
+ * WorkspacePageView — hover/focus styles
+ * (pseudo-classes cannot be expressed via inline styles)
+ * ============================================ */
+
+.workspace-back-button:hover {
+  background-color: var(--ui-muted);
+}
+
+.workspace-github-link:hover {
+  opacity: 1;
+}
+
+.workspace-more-menu-button:hover {
+  background-color: var(--ui-muted);
+}
+
+.workspace-more-menu-item:hover {
+  background-color: var(--ui-muted);
+}
+
+/* ============================================
+ * NotebookList — hover/focus styles
+ * ============================================ */
+
+.notebook-card:hover {
+  background-color: var(--ui-muted);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.notebook-more-btn:hover {
+  background-color: var(--ui-muted);
+}
+
+.notebook-menu-item:hover {
+  background-color: var(--ui-muted);
+}
+
+.notebook-menu-item-danger:hover {
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+/* ============================================
+ * CustomQuestList — hover styles
+ * ============================================ */
+
+.custom-quest-action-btn:hover {
+  background-color: var(--ui-muted);
+}
+
+.custom-quest-delete-btn:hover {
+  background-color: color-mix(in srgb, var(--ui-destructive) 5%, transparent);
+}
+
+/* ============================================
+ * QuestCatalog — hover styles
+ * ============================================ */
+
+.quest-more-btn:hover {
+  background-color: var(--ui-muted);
+}
+
+.quest-more-menu-item:hover {
+  background-color: var(--ui-muted);
+}
+
+/* ============================================
  * Monaco Editor — Step execution line highlight
  * These class names are referenced by Monaco decoration options
  * (not Tailwind-controllable).

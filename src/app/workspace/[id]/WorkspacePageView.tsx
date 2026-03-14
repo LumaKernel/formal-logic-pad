@@ -8,7 +8,13 @@
  * 変更時は WorkspaceContent.tsx, WorkspacePageView.stories.tsx も同期すること。
  */
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  type CSSProperties,
+} from "react";
 import { ProofWorkspace } from "../../../lib/proof-pad";
 import type { GoalAchievedInfo } from "../../../lib/proof-pad";
 import { ProofMessagesProvider } from "../../../lib/proof-pad";
@@ -108,42 +114,195 @@ export type WorkspacePageViewProps = {
     }
 );
 
-// --- Style class names ---
+// --- Style objects ---
 
-const pageClassName = "flex flex-col h-screen bg-background text-foreground";
+const pageStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  flexDirection: "column",
+  height: "100vh",
+  backgroundColor: "var(--ui-background)",
+  color: "var(--ui-foreground)",
+};
 
-const headerClassName =
-  "flex items-center justify-between px-4 py-2 border-b border-ui-border bg-card shrink-0";
+const headerStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingLeft: "1rem",
+  paddingRight: "1rem",
+  paddingTop: "0.5rem",
+  paddingBottom: "0.5rem",
+  borderBottom: "1px solid var(--ui-border)",
+  backgroundColor: "var(--ui-card)",
+  flexShrink: 0,
+};
 
-const backButtonClassName =
-  "py-1.5 px-3.5 text-[13px] font-semibold border border-ui-border rounded-md cursor-pointer bg-transparent text-foreground transition-colors hover:bg-muted";
+const backButtonStyle: Readonly<CSSProperties> = {
+  paddingTop: "0.375rem",
+  paddingBottom: "0.375rem",
+  paddingLeft: "0.875rem",
+  paddingRight: "0.875rem",
+  fontSize: "13px",
+  fontWeight: 600,
+  border: "1px solid var(--ui-border)",
+  borderRadius: "0.375rem",
+  cursor: "pointer",
+  backgroundColor: "transparent",
+  color: "var(--ui-foreground)",
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+};
 
-const notebookNameClassName =
-  "text-base font-semibold flex-1 text-center overflow-hidden text-ellipsis whitespace-nowrap px-3 cursor-pointer rounded";
+const notebookNameStyle: Readonly<CSSProperties> = {
+  fontSize: "1rem",
+  fontWeight: 600,
+  flex: 1,
+  textAlign: "center",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  paddingLeft: "0.75rem",
+  paddingRight: "0.75rem",
+  cursor: "pointer",
+  borderRadius: "0.25rem",
+};
 
-const notebookNameEditClassName =
-  "text-base font-semibold flex-1 text-center py-0.5 px-3 border border-primary rounded outline-none bg-background text-foreground font-[inherit]";
+const notebookNameEditStyle: Readonly<CSSProperties> = {
+  fontSize: "1rem",
+  fontWeight: 600,
+  flex: 1,
+  textAlign: "center",
+  paddingTop: "0.125rem",
+  paddingBottom: "0.125rem",
+  paddingLeft: "0.75rem",
+  paddingRight: "0.75rem",
+  border: "1px solid var(--ui-primary)",
+  borderRadius: "0.25rem",
+  outline: "none",
+  backgroundColor: "var(--ui-background)",
+  color: "var(--ui-foreground)",
+  fontFamily: "inherit",
+};
 
-const titleContainerClassName = "flex-1 relative flex items-center min-w-0";
+const titleContainerStyle: Readonly<CSSProperties> = {
+  flex: 1,
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+  minWidth: 0,
+};
 
-const headerActionsClassName = "flex items-center gap-2";
+const headerActionsStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  alignItems: "center",
+  gap: "0.5rem",
+};
 
-const githubLinkClassName =
-  "inline-flex items-center justify-center size-7 rounded-md text-muted-foreground opacity-60 transition-opacity duration-150 hover:opacity-100";
+const githubLinkStyle: Readonly<CSSProperties> = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "1.75rem",
+  height: "1.75rem",
+  borderRadius: "0.375rem",
+  color: "var(--ui-muted-foreground)",
+  opacity: 0.6,
+  transitionProperty: "opacity",
+  transitionDuration: "150ms",
+};
 
-const moreMenuButtonClassName =
-  "inline-flex items-center justify-center size-7 rounded-md border-none bg-transparent cursor-pointer text-muted-foreground text-lg leading-none p-0 hover:bg-muted";
+const moreMenuButtonStyle: Readonly<CSSProperties> = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "1.75rem",
+  height: "1.75rem",
+  borderRadius: "0.375rem",
+  border: "none",
+  backgroundColor: "transparent",
+  cursor: "pointer",
+  color: "var(--ui-muted-foreground)",
+  fontSize: "1.125rem",
+  lineHeight: 1,
+  padding: 0,
+};
 
-const moreMenuDropdownClassName =
-  "absolute top-full right-0 mt-1 bg-card border border-ui-border rounded-md shadow-lg z-[100] min-w-[180px] py-1";
+const moreMenuDropdownStyle: Readonly<CSSProperties> = {
+  position: "absolute",
+  top: "100%",
+  right: 0,
+  marginTop: "0.25rem",
+  backgroundColor: "var(--ui-card)",
+  border: "1px solid var(--ui-border)",
+  borderRadius: "0.375rem",
+  boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)",
+  zIndex: 100,
+  minWidth: "180px",
+  paddingTop: "0.25rem",
+  paddingBottom: "0.25rem",
+};
 
-const moreMenuItemClassName =
-  "block w-full py-2 px-4 text-[13px] text-left border-none bg-transparent cursor-pointer text-foreground whitespace-nowrap hover:bg-muted";
+const moreMenuItemStyle: Readonly<CSSProperties> = {
+  display: "block",
+  width: "100%",
+  paddingTop: "0.5rem",
+  paddingBottom: "0.5rem",
+  paddingLeft: "1rem",
+  paddingRight: "1rem",
+  fontSize: "13px",
+  textAlign: "left",
+  border: "none",
+  backgroundColor: "transparent",
+  cursor: "pointer",
+  color: "var(--ui-foreground)",
+  whiteSpace: "nowrap",
+};
 
-const workspaceContainerClassName = "flex-1 relative overflow-hidden";
+const workspaceContainerStyle: Readonly<CSSProperties> = {
+  flex: 1,
+  position: "relative",
+  overflow: "hidden",
+};
 
-const notFoundClassName =
-  "flex flex-col items-center justify-center h-screen gap-4 text-muted-foreground";
+const notFoundStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  height: "100vh",
+  gap: "1rem",
+  color: "var(--ui-muted-foreground)",
+};
+
+const titleErrorStyle: Readonly<CSSProperties> = {
+  position: "absolute",
+  top: "100%",
+  left: "50%",
+  transform: "translateX(-50%)",
+  fontSize: "11px",
+  color: "var(--ui-destructive)",
+  whiteSpace: "nowrap",
+  marginTop: "0.125rem",
+};
+
+const notFoundTitleStyle: Readonly<CSSProperties> = {
+  fontSize: "1.125rem",
+  fontWeight: 600,
+};
+
+const questVersionWarningStyle: Readonly<CSSProperties> = {
+  paddingTop: "0.375rem",
+  paddingBottom: "0.375rem",
+  paddingLeft: "1rem",
+  paddingRight: "1rem",
+  fontSize: "13px",
+  fontWeight: 500,
+  backgroundColor: "var(--color-warning-bg, rgba(255,215,0,0.15))",
+  color: "var(--color-warning, #b8860b)",
+  borderBottom: "1px solid var(--color-warning-border, rgba(255,215,0,0.4))",
+  textAlign: "center",
+  flexShrink: 0,
+};
 
 // --- Component ---
 
@@ -152,11 +311,12 @@ export function WorkspacePageView(props: WorkspacePageViewProps) {
 
   if (!props.found) {
     return (
-      <div className={notFoundClassName} data-testid="workspace-not-found">
-        <div className="text-lg font-semibold">{pm.notebookNotFound}</div>
+      <div style={notFoundStyle} data-testid="workspace-not-found">
+        <div style={notFoundTitleStyle}>{pm.notebookNotFound}</div>
         <button
           type="button"
-          className={backButtonClassName}
+          className="workspace-back-button"
+          style={backButtonStyle}
           onClick={props.onBack}
         >
           {pm.backToHub}
@@ -296,13 +456,18 @@ function WorkspacePageViewFound({
   const hasMoreMenuItems = onDuplicateToFree !== undefined;
 
   return (
-    <div className={pageClassName} data-testid="workspace-page">
+    <div style={pageStyle} data-testid="workspace-page">
       {/* Header */}
-      <header className={headerClassName}>
-        <button type="button" className={backButtonClassName} onClick={onBack}>
+      <header style={headerStyle}>
+        <button
+          type="button"
+          className="workspace-back-button"
+          style={backButtonStyle}
+          onClick={onBack}
+        >
           {pm.back}
         </button>
-        <div className={titleContainerClassName}>
+        <div style={titleContainerStyle}>
           {isEditingTitle ? (
             <>
               <input
@@ -315,13 +480,13 @@ function WorkspacePageViewFound({
                 }}
                 onKeyDown={handleTitleKeyDown}
                 onBlur={handleTitleBlur}
-                className={notebookNameEditClassName}
+                style={notebookNameEditStyle}
                 placeholder={pm.titleEditPlaceholder}
                 data-testid="notebook-title-input"
               />
               {titleError !== null ? (
                 <span
-                  className="absolute top-full left-1/2 -translate-x-1/2 text-[11px] text-destructive whitespace-nowrap mt-0.5"
+                  style={titleErrorStyle}
                   data-testid="notebook-title-error"
                 >
                   {titleError}
@@ -330,7 +495,7 @@ function WorkspacePageViewFound({
             </>
           ) : (
             <span
-              className={notebookNameClassName}
+              style={notebookNameStyle}
               onClick={handleTitleClick}
               data-testid="notebook-title"
               role={onNotebookRename !== undefined ? "button" : undefined}
@@ -350,12 +515,13 @@ function WorkspacePageViewFound({
             </span>
           )}
         </div>
-        <div className={headerActionsClassName}>
+        <div style={headerActionsStyle}>
           {hasMoreMenuItems ? (
-            <div className="relative" ref={moreMenuRef}>
+            <div style={{ position: "relative" }} ref={moreMenuRef}>
               <button
                 type="button"
-                className={moreMenuButtonClassName}
+                className="workspace-more-menu-button"
+                style={moreMenuButtonStyle}
                 onClick={handleMoreMenuToggle}
                 aria-label="More actions"
                 data-testid="workspace-more-menu-button"
@@ -364,13 +530,14 @@ function WorkspacePageViewFound({
               </button>
               {isMoreMenuOpen ? (
                 <div
-                  className={moreMenuDropdownClassName}
+                  style={moreMenuDropdownStyle}
                   data-testid="workspace-more-menu-dropdown"
                 >
                   {onDuplicateToFree !== undefined ? (
                     <button
                       type="button"
-                      className={moreMenuItemClassName}
+                      className="workspace-more-menu-item"
+                      style={moreMenuItemStyle}
                       onClick={handleDuplicateToFree}
                       data-testid="workspace-more-menu-duplicate-free"
                     >
@@ -393,7 +560,8 @@ function WorkspacePageViewFound({
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub"
-            className={githubLinkClassName}
+            className="workspace-github-link"
+            style={githubLinkStyle}
             data-testid="github-link"
           >
             <svg
@@ -412,7 +580,7 @@ function WorkspacePageViewFound({
       {/* Quest version warning */}
       {questVersionWarning !== undefined ? (
         <div
-          className="py-1.5 px-4 text-[13px] font-medium bg-[var(--color-warning-bg,rgba(255,215,0,0.15))] text-[var(--color-warning,#b8860b)] border-b border-[var(--color-warning-border,rgba(255,215,0,0.4))] text-center shrink-0"
+          style={questVersionWarningStyle}
           data-testid="quest-version-warning"
         >
           {questVersionWarning}
@@ -420,7 +588,7 @@ function WorkspacePageViewFound({
       ) : null}
 
       {/* Workspace */}
-      <div className={workspaceContainerClassName}>
+      <div style={workspaceContainerStyle}>
         <ProofMessagesProvider messages={messages}>
           <ProofWorkspace
             system={workspace.system}

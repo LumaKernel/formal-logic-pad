@@ -7,9 +7,214 @@
  * 変更時は NotebookListComponent.test.tsx, NotebookListComponent.stories.tsx も同期すること。
  */
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type CSSProperties } from "react";
 import type { NotebookListItem } from "./notebookListLogic";
 import { validateNotebookName, questProgressText } from "./notebookListLogic";
+
+// --- Style constants ---
+
+const menuItemBaseStyle: Readonly<CSSProperties> = {
+  display: "block",
+  width: "100%",
+  paddingTop: "0.625rem",
+  paddingBottom: "0.625rem",
+  paddingLeft: "1rem",
+  paddingRight: "1rem",
+  fontSize: "13px",
+  textAlign: "left",
+  border: "none",
+  backgroundColor: "transparent",
+  cursor: "pointer",
+  transitionProperty: "color, background-color",
+  transitionDuration: "150ms",
+};
+
+const menuItemDefaultStyle: Readonly<CSSProperties> = {
+  ...menuItemBaseStyle,
+  color: "var(--ui-foreground)",
+};
+
+const menuItemDangerStyle: Readonly<CSSProperties> = {
+  ...menuItemBaseStyle,
+  color: "var(--ui-destructive)",
+};
+
+const moreMenuContainerStyle: Readonly<CSSProperties> = {
+  position: "relative",
+  flexShrink: 0,
+};
+
+const moreButtonStyle: Readonly<CSSProperties> = {
+  paddingLeft: "0.5rem",
+  paddingRight: "0.5rem",
+  paddingTop: "0.25rem",
+  paddingBottom: "0.25rem",
+  fontSize: "1.125rem",
+  lineHeight: 1,
+  borderRadius: "0.375rem",
+  border: "1px solid var(--ui-border)",
+  backgroundColor: "var(--ui-card)",
+  color: "var(--ui-foreground)",
+  cursor: "pointer",
+  transitionProperty: "color, background-color",
+  transitionDuration: "150ms",
+  flexShrink: 0,
+};
+
+const dropdownStyle: Readonly<CSSProperties> = {
+  position: "absolute",
+  right: 0,
+  top: "100%",
+  marginTop: "0.25rem",
+  backgroundColor: "var(--ui-card)",
+  border: "1px solid var(--ui-border)",
+  borderRadius: "0.5rem",
+  boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)",
+  zIndex: 1000,
+  minWidth: "10rem",
+  overflow: "hidden",
+};
+
+const badgeBaseStyle: Readonly<CSSProperties> = {
+  display: "inline-block",
+  fontSize: "10px",
+  paddingLeft: "0.5rem",
+  paddingRight: "0.5rem",
+  paddingTop: "2px",
+  paddingBottom: "2px",
+  borderRadius: "9999px",
+  fontWeight: 600,
+  letterSpacing: "0.025em",
+};
+
+const listContainerStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.75rem",
+  padding: "1rem",
+};
+
+const emptyStyle: Readonly<CSSProperties> = {
+  textAlign: "center",
+  padding: "2.5rem",
+  color: "var(--ui-muted-foreground)",
+  fontSize: "0.875rem",
+  backgroundColor: "var(--ui-card)",
+  borderRadius: "0.5rem",
+  border: "1px solid var(--ui-border)",
+  boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
+};
+
+const itemStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  alignItems: "center",
+  paddingTop: "0.875rem",
+  paddingBottom: "0.875rem",
+  paddingLeft: "1.125rem",
+  paddingRight: "1.125rem",
+  borderRadius: "0.5rem",
+  border: "1px solid var(--ui-border)",
+  backgroundColor: "var(--ui-card)",
+  cursor: "pointer",
+  transitionProperty: "all",
+  transitionDuration: "150ms",
+  gap: "0.75rem",
+  boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
+  position: "relative",
+};
+
+const itemContentStyle: Readonly<CSSProperties> = {
+  flex: 1,
+  minWidth: 0,
+};
+
+const renameInputStyle: Readonly<CSSProperties> = {
+  fontSize: "15px",
+  fontWeight: 600,
+  paddingTop: "2px",
+  paddingBottom: "2px",
+  paddingLeft: "0.25rem",
+  paddingRight: "0.25rem",
+  border: "1px solid var(--ui-primary)",
+  borderRadius: "4px",
+  outline: "none",
+  width: "100%",
+  backgroundColor: "var(--ui-card)",
+  color: "var(--ui-foreground)",
+};
+
+const errorStyle: Readonly<CSSProperties> = {
+  fontSize: "11px",
+  color: "var(--color-error, #e06060)",
+  marginTop: "2px",
+};
+
+const nameStyle: Readonly<CSSProperties> = {
+  fontSize: "15px",
+  fontWeight: 600,
+  color: "var(--ui-foreground)",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
+const metaStyle: Readonly<CSSProperties> = {
+  fontSize: "0.75rem",
+  color: "var(--ui-muted-foreground)",
+  marginTop: "0.25rem",
+  display: "flex",
+  alignItems: "center",
+  gap: "0.5rem",
+};
+
+const deleteOverlayStyle: Readonly<CSSProperties> = {
+  position: "absolute",
+  inset: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "0.5rem",
+  backgroundColor: "color-mix(in srgb, var(--ui-card) 97%, transparent)",
+  borderRadius: "0.5rem",
+  zIndex: 1,
+  paddingLeft: "1.125rem",
+  paddingRight: "1.125rem",
+};
+
+const deleteMessageStyle: Readonly<CSSProperties> = {
+  fontSize: "13px",
+  color: "var(--ui-destructive)",
+  fontWeight: 600,
+  flex: 1,
+  textAlign: "center",
+};
+
+const cancelButtonStyle: Readonly<CSSProperties> = {
+  paddingTop: "0.375rem",
+  paddingBottom: "0.375rem",
+  paddingLeft: "0.875rem",
+  paddingRight: "0.875rem",
+  fontSize: "0.75rem",
+  borderRadius: "0.375rem",
+  border: "1px solid var(--ui-border)",
+  backgroundColor: "var(--ui-card)",
+  color: "var(--ui-foreground)",
+  cursor: "pointer",
+};
+
+const deleteConfirmButtonStyle: Readonly<CSSProperties> = {
+  paddingTop: "0.375rem",
+  paddingBottom: "0.375rem",
+  paddingLeft: "0.875rem",
+  paddingRight: "0.875rem",
+  fontSize: "0.75rem",
+  borderRadius: "0.375rem",
+  border: "1px solid rgba(239, 68, 68, 0.4)",
+  backgroundColor: "var(--ui-destructive)",
+  color: "var(--ui-destructive-foreground)",
+  cursor: "pointer",
+  fontWeight: 600,
+};
 
 // --- Props ---
 
@@ -36,16 +241,15 @@ function MenuItem({
   readonly "data-testid": string;
   readonly variant?: "default" | "danger";
 }) {
-  const base =
-    "block w-full py-2.5 px-4 text-[13px] text-left border-none bg-transparent cursor-pointer transition-colors";
-  const variantClass =
-    variant === "danger"
-      ? "text-destructive hover:bg-destructive/5"
-      : "text-foreground hover:bg-muted";
   return (
     <button
       data-testid={testId}
-      className={`${base satisfies string} ${variantClass satisfies string}`}
+      className={
+        variant === "danger"
+          ? "notebook-menu-item-danger"
+          : "notebook-menu-item"
+      }
+      style={variant === "danger" ? menuItemDangerStyle : menuItemDefaultStyle}
       onClick={onClick}
     >
       {children}
@@ -88,12 +292,13 @@ function MoreMenu({
   return (
     <div
       ref={menuRef}
-      className="relative shrink-0"
+      style={moreMenuContainerStyle}
       onClick={(e) => e.stopPropagation()}
     >
       <button
         data-testid={`more-btn-${itemId satisfies string}`}
-        className="px-2 py-1 text-lg leading-none rounded-md border border-ui-border bg-card text-foreground cursor-pointer transition-colors shrink-0 hover:bg-muted"
+        className="notebook-more-btn"
+        style={moreButtonStyle}
         onClick={() => updateOpen(!open)}
         title="その他の操作"
         aria-label="その他の操作"
@@ -104,7 +309,7 @@ function MoreMenu({
       {open && (
         <div
           data-testid={`more-menu-${itemId satisfies string}`}
-          className="absolute right-0 top-full mt-1 bg-card border border-ui-border rounded-lg shadow-lg z-[1000] min-w-40 overflow-hidden"
+          style={dropdownStyle}
           onClick={() => updateOpen(false)}
         >
           {children}
@@ -115,16 +320,18 @@ function MoreMenu({
 }
 
 function ModeBadge({ mode }: { readonly mode: "free" | "quest" }) {
-  const base =
-    "inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold tracking-wide";
-  const variantClass =
+  const variantStyle: Readonly<CSSProperties> =
     mode === "quest"
-      ? "bg-[var(--color-badge-quest-bg)] text-[var(--color-badge-quest-text)]"
-      : "bg-[var(--color-badge-free-bg)] text-[var(--color-badge-free-text)]";
+      ? {
+          backgroundColor: "var(--color-badge-quest-bg)",
+          color: "var(--color-badge-quest-text)",
+        }
+      : {
+          backgroundColor: "var(--color-badge-free-bg)",
+          color: "var(--color-badge-free-text)",
+        };
   return (
-    <span
-      className={`${base satisfies string} ${variantClass satisfies string}`}
-    >
+    <span style={{ ...badgeBaseStyle, ...variantStyle }}>
       {mode === "quest" ? "クエスト" : "自由帳"}
     </span>
   );
@@ -140,13 +347,19 @@ function QuestProgressBadge({
   }
   const text = questProgressText(progress);
   const isComplete = progress.achievedCount >= progress.totalCount;
-  const variantClass = isComplete
-    ? "bg-[var(--color-quest-progress-complete-bg,#e8f5e9)] text-[var(--color-quest-progress-complete-text,#2e7d32)]"
-    : "bg-[var(--color-quest-progress-partial-bg,#fff3e0)] text-[var(--color-quest-progress-partial-text,#e65100)]";
+  const variantStyle: Readonly<CSSProperties> = isComplete
+    ? {
+        backgroundColor: "var(--color-quest-progress-complete-bg, #e8f5e9)",
+        color: "var(--color-quest-progress-complete-text, #2e7d32)",
+      }
+    : {
+        backgroundColor: "var(--color-quest-progress-partial-bg, #fff3e0)",
+        color: "var(--color-quest-progress-partial-text, #e65100)",
+      };
   return (
     <span
       data-testid="quest-progress-badge"
-      className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold tracking-wide ${variantClass satisfies string}`}
+      style={{ ...badgeBaseStyle, ...variantStyle }}
     >
       {text}
     </span>
@@ -228,7 +441,11 @@ function NotebookItem({
   return (
     <div
       data-testid={`notebook-item-${item.id satisfies string}`}
-      className={`flex items-center py-3.5 px-4.5 rounded-lg border border-ui-border bg-card cursor-pointer transition-all gap-3 shadow-sm relative hover:bg-muted hover:shadow-md hover:-translate-y-px ${(isMenuOpen ? "z-[100]" : "") satisfies string}`}
+      className="notebook-card"
+      style={{
+        ...itemStyle,
+        ...(isMenuOpen ? { zIndex: 100 } : {}),
+      }}
       onClick={() => onOpen(item.id)}
       role="button"
       tabIndex={0}
@@ -238,12 +455,12 @@ function NotebookItem({
         }
       }}
     >
-      <div className="flex-1 min-w-0">
+      <div style={itemContentStyle}>
         {isEditing ? (
           <div onClick={(e) => e.stopPropagation()}>
             <input
               data-testid="rename-input"
-              className="text-[15px] font-semibold py-0.5 px-1 border border-primary rounded outline-none w-full bg-card text-foreground"
+              style={renameInputStyle}
               value={editName}
               onChange={(e) => {
                 setEditName(e.target.value);
@@ -253,18 +470,12 @@ function NotebookItem({
               onKeyDown={handleRenameKeyDown}
               autoFocus
             />
-            {editError !== null && (
-              <div className="text-[11px] text-[var(--color-error,#e06060)] mt-0.5">
-                {editError}
-              </div>
-            )}
+            {editError !== null && <div style={errorStyle}>{editError}</div>}
           </div>
         ) : (
           <>
-            <div className="text-[15px] font-semibold text-foreground overflow-hidden text-ellipsis whitespace-nowrap">
-              {item.name}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+            <div style={nameStyle}>{item.name}</div>
+            <div style={metaStyle}>
               <span>{item.systemName}</span>
               <ModeBadge mode={item.mode} />
               <QuestProgressBadge progress={item.questProgress} />
@@ -313,22 +524,20 @@ function NotebookItem({
       {isDeleteConfirming && (
         <div
           data-testid={`delete-confirm-${item.id satisfies string}`}
-          className="absolute inset-0 flex items-center justify-center gap-2 bg-card/97 rounded-lg z-[1] px-4.5"
+          style={deleteOverlayStyle}
           onClick={(e) => e.stopPropagation()}
         >
-          <span className="text-[13px] text-destructive font-semibold flex-1 text-center">
-            本当に削除しますか？
-          </span>
+          <span style={deleteMessageStyle}>本当に削除しますか？</span>
           <button
             data-testid={`delete-cancel-btn-${item.id satisfies string}`}
-            className="py-1.5 px-3.5 text-xs rounded-md border border-ui-border bg-card text-foreground cursor-pointer"
+            style={cancelButtonStyle}
             onClick={handleDeleteCancel}
           >
             キャンセル
           </button>
           <button
             data-testid={`delete-confirm-btn-${item.id satisfies string}`}
-            className="py-1.5 px-3.5 text-xs rounded-md border border-destructive/40 bg-destructive text-destructive-foreground cursor-pointer font-semibold"
+            style={deleteConfirmButtonStyle}
             onClick={handleDeleteConfirm}
           >
             削除する
@@ -352,11 +561,8 @@ export function NotebookList({
 }: NotebookListProps) {
   if (items.length === 0) {
     return (
-      <div className="flex flex-col gap-3 p-4">
-        <div
-          className="text-center p-10 text-muted-foreground text-sm bg-card rounded-lg border border-ui-border shadow-sm"
-          data-testid="notebook-list-empty"
-        >
+      <div style={listContainerStyle}>
+        <div style={emptyStyle} data-testid="notebook-list-empty">
           ノートがありません。新しいノートを作成してください。
         </div>
       </div>
@@ -364,7 +570,7 @@ export function NotebookList({
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4" data-testid="notebook-list">
+    <div style={listContainerStyle} data-testid="notebook-list">
       {items.map((item) => (
         <NotebookItem
           key={item.id}

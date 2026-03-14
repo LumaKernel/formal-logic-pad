@@ -197,11 +197,26 @@ const entryActionsStyle: CSSProperties = {
   marginTop: 2,
 };
 
-const deleteButtonClassName =
-  "text-[10px] text-destructive cursor-pointer bg-transparent border-none py-px px-1 rounded-sm";
+const deleteButtonStyle: Readonly<CSSProperties> = {
+  fontSize: 10,
+  color: "var(--ui-destructive)",
+  cursor: "pointer",
+  background: "transparent",
+  border: "none",
+  padding: "1px 4px",
+  borderRadius: 2,
+};
 
-const importButtonClassName =
-  "text-[10px] text-primary cursor-pointer bg-transparent border-none py-px px-1 rounded-sm font-semibold";
+const importButtonStyle: Readonly<CSSProperties> = {
+  fontSize: 10,
+  color: "var(--ui-primary)",
+  cursor: "pointer",
+  background: "transparent",
+  border: "none",
+  padding: "1px 4px",
+  borderRadius: 2,
+  fontWeight: 600,
+};
 
 const deductionStyleBadgeStyle: CSSProperties = {
   fontSize: 9,
@@ -236,14 +251,38 @@ const folderActionsStyle: CSSProperties = {
   marginLeft: "auto",
 };
 
-const folderActionButtonClassName =
-  "text-[9px] text-muted-foreground cursor-pointer bg-transparent border-none py-px px-1 rounded-sm";
+const folderActionButtonStyle: Readonly<CSSProperties> = {
+  fontSize: 9,
+  color: "var(--ui-muted-foreground)",
+  cursor: "pointer",
+  background: "transparent",
+  border: "none",
+  padding: "1px 4px",
+  borderRadius: 2,
+};
 
-const folderDeleteButtonClassName =
-  "text-[9px] text-destructive cursor-pointer bg-transparent border-none py-px px-1 rounded-sm";
+const folderDeleteButtonStyle: Readonly<CSSProperties> = {
+  fontSize: 9,
+  color: "var(--ui-destructive)",
+  cursor: "pointer",
+  background: "transparent",
+  border: "none",
+  padding: "1px 4px",
+  borderRadius: 2,
+};
 
-const createFolderButtonClassName =
-  "text-[10px] text-primary cursor-pointer bg-transparent border-none py-1 px-3 font-semibold block w-full text-left";
+const createFolderButtonStyle: Readonly<CSSProperties> = {
+  fontSize: 10,
+  color: "var(--ui-primary)",
+  cursor: "pointer",
+  background: "transparent",
+  border: "none",
+  padding: "4px 12px",
+  fontWeight: 600,
+  display: "block",
+  width: "100%",
+  textAlign: "left",
+};
 
 const moveSelectStyle: CSSProperties = {
   fontSize: 9,
@@ -512,7 +551,7 @@ function CollectionEntry({
         {onImport !== undefined && (
           <button
             type="button"
-            className={importButtonClassName}
+            style={importButtonStyle}
             onClick={() => onImport(entry)}
             data-testid={
               entryTestId !== undefined
@@ -525,7 +564,7 @@ function CollectionEntry({
         )}
         <button
           type="button"
-          className={deleteButtonClassName}
+          style={deleteButtonStyle}
           onClick={() => onRemove(entry.id)}
           data-testid={
             entryTestId !== undefined
@@ -648,7 +687,7 @@ function FolderHeader({
       <span style={folderActionsStyle}>
         <button
           type="button"
-          className={folderActionButtonClassName}
+          style={folderActionButtonStyle}
           onClick={(e) => {
             e.stopPropagation();
             onStartFolderEdit();
@@ -664,7 +703,7 @@ function FolderHeader({
         {onRemoveFolder !== undefined && (
           <button
             type="button"
-            className={folderDeleteButtonClassName}
+            style={folderDeleteButtonStyle}
             onClick={(e) => {
               e.stopPropagation();
               onRemoveFolder();
@@ -1011,7 +1050,7 @@ export function ProofCollectionPanel({
         panelState.creatingFolder === undefined && (
           <button
             type="button"
-            className={createFolderButtonClassName}
+            style={createFolderButtonStyle}
             onClick={handleStartCreateFolder}
             data-testid={
               testId !== undefined

@@ -8,7 +8,6 @@
  */
 
 import { type CSSProperties, useCallback, useMemo } from "react";
-// NOTE: CSSProperties is still needed for panelStyle, headerStyle (dynamically spread in useMemo)
 import type { AxiomPaletteItem } from "./axiomPaletteLogic";
 import { getAxiomReferenceEntryId } from "./axiomPaletteLogic";
 import type { ReferenceEntry, Locale } from "../reference/referenceEntry";
@@ -75,21 +74,44 @@ const headerStyle: CSSProperties = {
   marginBottom: 4,
 };
 
-const itemClassName =
-  `flex cursor-pointer flex-col gap-0.5 px-3 py-1.5 transition-[background,box-shadow] duration-150 border-b border-[var(--color-panel-rule-line,rgba(180,160,130,0.15))]` satisfies string;
+const itemStyleConst: Readonly<CSSProperties> = {
+  display: "flex",
+  cursor: "pointer",
+  flexDirection: "column",
+  gap: 2,
+  padding: "6px 12px",
+  transitionProperty: "background, box-shadow",
+  transitionDuration: "150ms",
+  borderBottom:
+    "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
+};
 
 const itemHoverBg =
   "var(--color-paper-button-hover-bg, rgba(245, 240, 230, 0.95))";
 
-const itemLabelClassName =
-  `text-xs font-semibold text-[var(--color-text-primary,#333)]` satisfies string;
+const itemLabelStyle: Readonly<CSSProperties> = {
+  fontSize: 12,
+  fontWeight: 600,
+  color: "var(--color-text-primary, #333)",
+};
 
-const itemFormulaClassName =
-  `font-[var(--font-formula)] italic text-[11px] text-[var(--color-text-secondary,#666)] whitespace-nowrap overflow-hidden text-ellipsis` satisfies string;
+const itemFormulaStyle: Readonly<CSSProperties> = {
+  fontFamily: "var(--font-formula)",
+  fontStyle: "italic",
+  fontSize: 11,
+  color: "var(--color-text-secondary, #666)",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+};
 
 // --- コンポーネント ---
 
-const itemLabelRowClassName = `flex items-center gap-1` satisfies string;
+const itemLabelRowStyle: Readonly<CSSProperties> = {
+  display: "flex",
+  alignItems: "center",
+  gap: 4,
+};
 
 function AxiomPaletteItemView({
   axiom,
@@ -117,7 +139,7 @@ function AxiomPaletteItemView({
   return (
     <div
       data-testid={testId}
-      className={itemClassName}
+      style={itemStyleConst}
       onClick={handleClick}
       onMouseEnter={(e) => {
         e.currentTarget.style.background = itemHoverBg;
@@ -136,8 +158,8 @@ function AxiomPaletteItemView({
       }}
       /* v8 ignore stop */
     >
-      <span className={itemLabelRowClassName}>
-        <span className={itemLabelClassName}>{axiom.displayName}</span>
+      <span style={itemLabelRowStyle}>
+        <span style={itemLabelStyle}>{axiom.displayName}</span>
         {referenceEntry !== undefined && locale !== undefined && (
           <span role="presentation" onClick={handlePopoverClick}>
             <ReferencePopover
@@ -153,7 +175,7 @@ function AxiomPaletteItemView({
           </span>
         )}
       </span>
-      <span className={itemFormulaClassName}>
+      <span style={itemFormulaStyle}>
         <FormulaDisplay formula={axiom.template} fontSize={11} />
       </span>
     </div>

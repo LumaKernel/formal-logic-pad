@@ -15,8 +15,6 @@ import {
   useCallback,
   type CSSProperties,
 } from "react";
-// NOTE: CSSProperties is still used for domain-specific quest styles with CSS variables.
-// Button/menu styles have been converted to Tailwind classes.
 import type { QuestCatalogItem, CategoryGroup } from "./questCatalog";
 import type { QuestId, DifficultyLevel } from "./questDefinition";
 import {
@@ -64,7 +62,7 @@ export type QuestCatalogProps = {
 
 // --- Styles ---
 
-const containerStyle: CSSProperties = {
+const containerStyle: Readonly<CSSProperties> = {
   display: "flex",
   flexDirection: "column",
   gap: 20,
@@ -72,7 +70,7 @@ const containerStyle: CSSProperties = {
   fontFamily: "var(--font-ui)",
 };
 
-const filterBarStyle: CSSProperties = {
+const filterBarStyle: Readonly<CSSProperties> = {
   display: "flex",
   gap: 6,
   flexWrap: "wrap",
@@ -83,27 +81,47 @@ const filterBarStyle: CSSProperties = {
   border: "1px solid var(--color-quest-chapter-border)",
 };
 
-const filterLabelStyle: CSSProperties = {
+const filterLabelStyle: Readonly<CSSProperties> = {
   fontSize: 11,
   color: "var(--color-text-secondary, #888)",
   fontWeight: 700,
   letterSpacing: "0.03em",
-  textTransform: "uppercase" as const,
+  textTransform: "uppercase",
 };
 
-const filterButtonClassName =
-  "py-1 px-2.5 text-[11px] rounded-full border border-[var(--color-quest-filter-border)] bg-[var(--color-quest-filter-bg)] text-foreground cursor-pointer transition-all font-medium";
+const filterButtonStyle: Readonly<CSSProperties> = {
+  padding: "4px 10px",
+  fontSize: "11px",
+  borderRadius: "9999px",
+  border: "1px solid var(--color-quest-filter-border)",
+  background: "var(--color-quest-filter-bg)",
+  color: "var(--ui-foreground)",
+  cursor: "pointer",
+  transitionProperty: "all",
+  transitionDuration: "150ms",
+  fontWeight: 500,
+};
 
-const filterButtonActiveClassName =
-  "py-1 px-2.5 text-[11px] rounded-full border border-[var(--color-quest-filter-active-border)] bg-[var(--color-quest-filter-active-bg)] text-white cursor-pointer transition-all font-semibold";
+const filterButtonActiveStyle: Readonly<CSSProperties> = {
+  padding: "4px 10px",
+  fontSize: "11px",
+  borderRadius: "9999px",
+  border: "1px solid var(--color-quest-filter-active-border)",
+  background: "var(--color-quest-filter-active-bg)",
+  color: "white",
+  cursor: "pointer",
+  transitionProperty: "all",
+  transitionDuration: "150ms",
+  fontWeight: 600,
+};
 
-const categoryContainerStyle: CSSProperties = {
+const categoryContainerStyle: Readonly<CSSProperties> = {
   display: "flex",
   flexDirection: "column",
   gap: 0,
 };
 
-const categoryHeaderStyle: CSSProperties = {
+const categoryHeaderStyle: Readonly<CSSProperties> = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
@@ -116,7 +134,7 @@ const categoryHeaderStyle: CSSProperties = {
   borderBottom: "2px solid var(--color-quest-chapter-rule)",
 };
 
-const chapterNumberStyle: CSSProperties = {
+const chapterNumberStyle: Readonly<CSSProperties> = {
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
@@ -131,19 +149,19 @@ const chapterNumberStyle: CSSProperties = {
   flexShrink: 0,
 };
 
-const categoryTitleStyle: CSSProperties = {
+const categoryTitleStyle: Readonly<CSSProperties> = {
   fontSize: 15,
   fontWeight: 700,
   color: "var(--color-text-primary, #333)",
 };
 
-const categoryDescStyle: CSSProperties = {
+const categoryDescStyle: Readonly<CSSProperties> = {
   fontSize: 11,
   color: "var(--color-text-secondary, #888)",
   marginTop: 2,
 };
 
-const progressContainerStyle: CSSProperties = {
+const progressContainerStyle: Readonly<CSSProperties> = {
   display: "flex",
   flexDirection: "column",
   alignItems: "flex-end",
@@ -151,14 +169,14 @@ const progressContainerStyle: CSSProperties = {
   flexShrink: 0,
 };
 
-const categoryProgressStyle: CSSProperties = {
+const categoryProgressStyle: Readonly<CSSProperties> = {
   fontSize: 12,
   color: "var(--color-text-secondary, #666)",
   fontWeight: 600,
   whiteSpace: "nowrap",
 };
 
-const progressBarOuterStyle: CSSProperties = {
+const progressBarOuterStyle: Readonly<CSSProperties> = {
   width: 60,
   height: 4,
   borderRadius: 2,
@@ -166,7 +184,7 @@ const progressBarOuterStyle: CSSProperties = {
   overflow: "hidden",
 };
 
-const questListStyle: CSSProperties = {
+const questListStyle: Readonly<CSSProperties> = {
   display: "flex",
   flexDirection: "column",
   gap: 0,
@@ -176,7 +194,7 @@ const questListStyle: CSSProperties = {
   borderRadius: "0 0 8px 8px",
 };
 
-const questItemStyle: CSSProperties = {
+const questItemStyle: Readonly<CSSProperties> = {
   display: "flex",
   alignItems: "center",
   padding: "10px 14px",
@@ -187,24 +205,24 @@ const questItemStyle: CSSProperties = {
   borderBottom: "1px solid var(--color-quest-card-border)",
 };
 
-const questItemHoverStyle: CSSProperties = {
+const questItemHoverStyle: Readonly<CSSProperties> = {
   ...questItemStyle,
   background: "var(--color-quest-card-hover-bg)",
   boxShadow: "inset 3px 0 0 var(--color-quest-filter-active-bg)",
 };
 
-const questInfoStyle: CSSProperties = {
+const questInfoStyle: Readonly<CSSProperties> = {
   flex: 1,
   minWidth: 0,
 };
 
-const questTitleStyle: CSSProperties = {
+const questTitleStyle: Readonly<CSSProperties> = {
   fontSize: 13,
   fontWeight: 600,
   color: "var(--color-text-primary, #333)",
 };
 
-const questDescStyle: CSSProperties = {
+const questDescStyle: Readonly<CSSProperties> = {
   fontSize: 11,
   color: "var(--color-text-secondary, #888)",
   marginTop: 2,
@@ -213,14 +231,14 @@ const questDescStyle: CSSProperties = {
   whiteSpace: "nowrap",
 };
 
-const questMetaStyle: CSSProperties = {
+const questMetaStyle: Readonly<CSSProperties> = {
   display: "flex",
   gap: 8,
   alignItems: "center",
   marginTop: 4,
 };
 
-const difficultyBadgeStyle: CSSProperties = {
+const difficultyBadgeStyle: Readonly<CSSProperties> = {
   display: "inline-flex",
   alignItems: "center",
   gap: 3,
@@ -232,17 +250,17 @@ const difficultyBadgeStyle: CSSProperties = {
   color: "var(--color-quest-difficulty-text)",
 };
 
-const starStyle: CSSProperties = {
+const starStyle: Readonly<CSSProperties> = {
   fontSize: 9,
   lineHeight: 1,
 };
 
-const stepTextStyle: CSSProperties = {
+const stepTextStyle: Readonly<CSSProperties> = {
   fontSize: 10,
   color: "var(--color-text-secondary, #999)",
 };
 
-const ratingBadgeBaseStyle: CSSProperties = {
+const ratingBadgeBaseStyle: Readonly<CSSProperties> = {
   fontSize: 10,
   fontWeight: 700,
   padding: "2px 8px",
@@ -250,22 +268,85 @@ const ratingBadgeBaseStyle: CSSProperties = {
   whiteSpace: "nowrap",
 };
 
-const notebookCountBadgeClassName =
-  "inline-flex items-center gap-0.5 text-[10px] font-semibold py-0.5 px-2 rounded-full bg-[var(--color-quest-notebook-badge-bg,#e8eaf6)] text-[var(--color-quest-notebook-badge-text,#3949ab)] cursor-pointer whitespace-nowrap transition-colors border-none";
+const notebookCountBadgeStyle: Readonly<CSSProperties> = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "2px",
+  fontSize: "10px",
+  fontWeight: 600,
+  padding: "2px 8px",
+  borderRadius: "9999px",
+  background: "var(--color-quest-notebook-badge-bg, #e8eaf6)",
+  color: "var(--color-quest-notebook-badge-text, #3949ab)",
+  cursor: "pointer",
+  whiteSpace: "nowrap",
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+  border: "none",
+};
 
-const startButtonClassName =
-  "py-1.5 px-3 text-[11px] font-semibold rounded-md border-none bg-[var(--color-quest-start-bg)] text-white cursor-pointer shrink-0 transition-colors";
+const startButtonStyle: Readonly<CSSProperties> = {
+  padding: "6px 12px",
+  fontSize: "11px",
+  fontWeight: 600,
+  borderRadius: "6px",
+  border: "none",
+  background: "var(--color-quest-start-bg)",
+  color: "white",
+  cursor: "pointer",
+  flexShrink: 0,
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+};
 
-const moreButtonClassName =
-  "inline-flex items-center justify-center size-7 rounded-full border-none bg-transparent text-muted-foreground cursor-pointer shrink-0 text-base leading-none transition-colors hover:bg-muted";
+const moreButtonStyle: Readonly<CSSProperties> = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "28px",
+  height: "28px",
+  borderRadius: "9999px",
+  border: "none",
+  background: "transparent",
+  color: "var(--ui-muted-foreground)",
+  cursor: "pointer",
+  flexShrink: 0,
+  fontSize: "1rem",
+  lineHeight: 1,
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+};
 
-const moreMenuClassName =
-  "absolute right-0 top-full z-[1000] min-w-[140px] bg-card border border-ui-border rounded-md shadow-lg py-1";
+const moreMenuStyle: Readonly<CSSProperties> = {
+  position: "absolute",
+  right: 0,
+  top: "100%",
+  zIndex: 1000,
+  minWidth: "140px",
+  background: "var(--ui-card)",
+  border: "1px solid var(--ui-border)",
+  borderRadius: "6px",
+  boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)",
+  padding: "4px 0",
+};
 
-const moreMenuItemClassName =
-  "block w-full py-1.5 px-3.5 text-xs font-medium border-none bg-transparent text-foreground cursor-pointer text-left transition-colors whitespace-nowrap hover:bg-muted";
+const moreMenuItemStyle: Readonly<CSSProperties> = {
+  display: "block",
+  width: "100%",
+  padding: "6px 14px",
+  fontSize: "0.75rem",
+  fontWeight: 500,
+  border: "none",
+  background: "transparent",
+  color: "var(--ui-foreground)",
+  cursor: "pointer",
+  textAlign: "left",
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+  whiteSpace: "nowrap",
+};
 
-const emptyStyle: CSSProperties = {
+const emptyStyle: Readonly<CSSProperties> = {
   textAlign: "center",
   padding: 32,
   color: "var(--color-text-secondary, #999)",
@@ -273,6 +354,23 @@ const emptyStyle: CSSProperties = {
   background: "var(--color-quest-empty-bg)",
   borderRadius: 8,
   border: "1px solid var(--color-quest-chapter-border)",
+};
+
+const referenceDocBadgeStyle: Readonly<CSSProperties> = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "2px",
+  fontSize: "10px",
+  fontWeight: 600,
+  padding: "2px 8px",
+  borderRadius: "9999px",
+  background: "var(--color-quest-reference-badge-bg, #e8f5e9)",
+  color: "var(--color-quest-reference-badge-text, #2e7d32)",
+  cursor: "pointer",
+  whiteSpace: "nowrap",
+  transitionProperty: "color, background-color, border-color",
+  transitionDuration: "150ms",
+  border: "none",
 };
 
 // --- Sub-components ---
@@ -360,7 +458,7 @@ function NotebookCountBadge({
   return (
     <button
       data-testid={`notebook-count-${questId satisfies string}`}
-      className={notebookCountBadgeClassName}
+      style={notebookCountBadgeStyle}
       onClick={(e) => {
         e.stopPropagation();
         onShow?.(questId);
@@ -371,9 +469,6 @@ function NotebookCountBadge({
     </button>
   );
 }
-
-const referenceDocBadgeClassName =
-  "inline-flex items-center gap-0.5 text-[10px] font-semibold py-0.5 px-2 rounded-full bg-[var(--color-quest-reference-badge-bg,#e8f5e9)] text-[var(--color-quest-reference-badge-text,#2e7d32)] cursor-pointer whitespace-nowrap transition-colors border-none";
 
 function ReferenceDocBadge({
   count,
@@ -390,7 +485,7 @@ function ReferenceDocBadge({
   return (
     <button
       data-testid={`reference-doc-${questId satisfies string}`}
-      className={referenceDocBadgeClassName}
+      style={referenceDocBadgeStyle}
       onClick={(e) => {
         e.stopPropagation();
         onShow?.(questId);
@@ -443,12 +538,13 @@ function QuestItemMoreMenu({
   return (
     <div
       ref={menuRef}
-      className="relative shrink-0"
+      style={{ position: "relative", flexShrink: 0 }}
       data-testid={`quest-more-menu-${questId satisfies string}`}
     >
       <button
         data-testid={`quest-more-btn-${questId satisfies string}`}
-        className={moreButtonClassName}
+        className="quest-more-btn"
+        style={moreButtonStyle}
         onClick={handleToggle}
         title="その他のアクション"
         aria-label="その他のアクション"
@@ -457,13 +553,14 @@ function QuestItemMoreMenu({
       </button>
       {open && (
         <div
-          className={moreMenuClassName}
+          style={moreMenuStyle}
           data-testid={`quest-more-dropdown-${questId satisfies string}`}
         >
           {onShowModelAnswer !== undefined && (
             <button
               data-testid={`show-model-answer-btn-${questId satisfies string}`}
-              className={moreMenuItemClassName}
+              className="quest-more-menu-item"
+              style={moreMenuItemStyle}
               onClick={(e) => {
                 e.stopPropagation();
                 onShowModelAnswer(questId);
@@ -476,7 +573,8 @@ function QuestItemMoreMenu({
           {onDuplicateToCustom !== undefined && (
             <button
               data-testid={`duplicate-to-custom-btn-${questId satisfies string}`}
-              className={moreMenuItemClassName}
+              className="quest-more-menu-item"
+              style={moreMenuItemStyle}
               onClick={(e) => {
                 e.stopPropagation();
                 onDuplicateToCustom(questId);
@@ -562,7 +660,7 @@ function QuestItem({
       />
       <button
         data-testid={`start-btn-${item.quest.id satisfies string}`}
-        className={startButtonClassName}
+        style={startButtonStyle}
         onClick={(e) => {
           e.stopPropagation();
           onStart(item.quest.id);
@@ -685,10 +783,10 @@ export function QuestCatalog({
           <button
             key={String(opt.value)}
             data-testid={`difficulty-filter-${String(opt.value) satisfies string}`}
-            className={
+            style={
               filter.difficulty === opt.value
-                ? filterButtonActiveClassName
-                : filterButtonClassName
+                ? filterButtonActiveStyle
+                : filterButtonStyle
             }
             onClick={() => handleDifficultyChange(opt.value)}
           >
@@ -700,10 +798,10 @@ export function QuestCatalog({
           <button
             key={opt.value}
             data-testid={`completion-filter-${opt.value satisfies string}`}
-            className={
+            style={
               filter.completion === opt.value
-                ? filterButtonActiveClassName
-                : filterButtonClassName
+                ? filterButtonActiveStyle
+                : filterButtonStyle
             }
             onClick={() => handleCompletionChange(opt.value)}
           >

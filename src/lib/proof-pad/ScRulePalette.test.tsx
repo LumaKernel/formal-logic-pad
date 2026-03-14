@@ -223,9 +223,9 @@ describe("ScRulePalette", () => {
       />,
     );
     const selectedEl = screen.getByTestId("palette-rule-identity");
-    expect(selectedEl.className).toContain("font-semibold");
+    expect(selectedEl.style.fontWeight).toBe("600");
     const nonSelectedEl = screen.getByTestId("palette-rule-cut");
-    expect(nonSelectedEl.className).not.toContain("font-semibold");
+    expect(nonSelectedEl.style.fontWeight).not.toBe("600");
   });
 
   it("onRuleClickなしでも規則はレンダリングされる", () => {
