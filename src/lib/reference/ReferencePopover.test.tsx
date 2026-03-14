@@ -228,4 +228,17 @@ describe("ReferencePopover", () => {
     expect(link.getAttribute("href")).toBe("/reference/test-entry");
     expect(link.getAttribute("target")).toBe("_blank");
   });
+
+  it("複数の形式表記が表示される", () => {
+    render(
+      <ReferencePopover
+        entry={makeEntry({ formalNotation: ["\\alpha", "\\beta"] })}
+        locale="en"
+        testId="ref-pop"
+      />,
+    );
+    fireEvent.click(screen.getByTestId("ref-pop-trigger"));
+    expect(screen.getByTestId("ref-pop-formula-0")).toBeDefined();
+    expect(screen.getByTestId("ref-pop-formula-1")).toBeDefined();
+  });
 });

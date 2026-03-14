@@ -434,3 +434,55 @@ describe("ReferenceViewerNotFound", () => {
     expect(el.textContent).toContain("リファレンス一覧に戻る");
   });
 });
+
+describe("ReferenceViewerPageView 追加カバレッジ", () => {
+  it("複数の形式表記が表示される", () => {
+    render(
+      <ReferenceViewerPageView
+        entry={makeEntry({ formalNotation: ["\\alpha", "\\beta"] })}
+        allEntries={[makeEntry()]}
+        locale="en"
+        testId="ref-viewer"
+      />,
+    );
+    expect(screen.getByTestId("ref-viewer-formula-0")).toBeDefined();
+    expect(screen.getByTestId("ref-viewer-formula-1")).toBeDefined();
+  });
+
+  it("testIdなしでも全セクション付きでレンダリングされる", () => {
+    const allEntries = [makeEntry(), makeRelatedEntry()];
+    render(
+      <ReferenceViewerPageView
+        entry={allEntries[0]!}
+        allEntries={allEntries}
+        locale="en"
+        onNavigate={vi.fn()}
+        relatedQuests={[{ id: "q1", title: "Quest 1" }]}
+        onStartQuest={vi.fn()}
+      />,
+    );
+    const nav = screen.getByLabelText("breadcrumb");
+    expect(nav).toBeDefined();
+    expect(nav.textContent).toContain("Home");
+    expect(nav.textContent).toContain("Reference");
+  });
+
+  it("日本語で全セクションのラベルが表示される", () => {
+    const allEntries = [makeEntry(), makeRelatedEntry()];
+    render(
+      <ReferenceViewerPageView
+        entry={allEntries[0]!}
+        allEntries={allEntries}
+        locale="ja"
+        onNavigate={vi.fn()}
+        relatedQuests={[{ id: "q1", title: "クエスト1" }]}
+        onStartQuest={vi.fn()}
+        testId="ref-viewer"
+      />,
+    );
+    const viewer = screen.getByTestId("ref-viewer");
+    expect(viewer.textContent).toContain("関連項目");
+    expect(viewer.textContent).toContain("関連クエスト");
+    expect(viewer.textContent).toContain("外部リソース");
+  });
+});

@@ -265,4 +265,86 @@ describe("ReferenceFloatingWindow", () => {
     const win = screen.getByTestId("ref-win");
     expect(win.getAttribute("role")).toBe("dialog");
   });
+
+  it("testIdなしでもレンダリングされる", () => {
+    const allEntries = [makeEntry(), makeRelatedEntry()];
+    render(
+      <ReferenceFloatingWindow
+        entry={allEntries[0]!}
+        allEntries={allEntries}
+        locale="en"
+        onClose={vi.fn()}
+        onNavigate={vi.fn()}
+        relatedQuests={[{ id: "q1", title: "Quest 1" }]}
+        onStartQuest={vi.fn()}
+      />,
+    );
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toBeDefined();
+    expect(dialog.textContent).toContain("Test Axiom");
+  });
+
+  it("複数の形式表記が表示される", () => {
+    render(
+      <ReferenceFloatingWindow
+        entry={makeEntry({ formalNotation: ["\\alpha", "\\beta"] })}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        testId="ref-win"
+      />,
+    );
+    expect(screen.getByTestId("ref-win-formula-0")).toBeDefined();
+    expect(screen.getByTestId("ref-win-formula-1")).toBeDefined();
+  });
+
+  it("関連エントリがない場合は関連セクションを表示しない", () => {
+    render(
+      <ReferenceFloatingWindow
+        entry={makeEntry({ relatedEntryIds: [] })}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        testId="ref-win"
+      />,
+    );
+    const win = screen.getByTestId("ref-win");
+    expect(win.textContent).not.toContain("Related");
+  });
+
+  it("外部リンクがない場合は外部リンクセクションを表示しない", () => {
+    render(
+      <ReferenceFloatingWindow
+        entry={makeEntry({ externalLinks: [] })}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        testId="ref-win"
+      />,
+    );
+    const win = screen.getByTestId("ref-win");
+    expect(win.textContent).not.toContain("External Resources");
+  });
+
+  it("日本語で全セクションが表示される", () => {
+    const allEntries = [makeEntry(), makeRelatedEntry()];
+    render(
+      <ReferenceFloatingWindow
+        entry={allEntries[0]!}
+        allEntries={allEntries}
+        locale="ja"
+        onClose={vi.fn()}
+        onNavigate={vi.fn()}
+        relatedQuests={[{ id: "q1", title: "クエスト1" }]}
+        onStartQuest={vi.fn()}
+        testId="ref-win"
+      />,
+    );
+    const win = screen.getByTestId("ref-win");
+    expect(win.textContent).toContain("関連項目");
+    expect(win.textContent).toContain("関連クエスト");
+    expect(win.textContent).toContain("外部リソース");
+    const closeBtn = screen.getByTestId("ref-win-close");
+    expect(closeBtn.getAttribute("aria-label")).toBe("閉じる");
+  });
 });

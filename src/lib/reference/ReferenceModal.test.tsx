@@ -508,4 +508,37 @@ describe("ReferenceModal", () => {
     const modal = screen.getByTestId("ref-modal");
     expect(modal.textContent).toContain("関連クエスト");
   });
+
+  it("複数の形式表記が表示される", () => {
+    render(
+      <ReferenceModal
+        entry={makeEntry({ formalNotation: ["\\alpha", "\\beta"] })}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        testId="ref-modal"
+      />,
+    );
+    expect(screen.getByTestId("ref-modal-formula-0")).toBeDefined();
+    expect(screen.getByTestId("ref-modal-formula-1")).toBeDefined();
+  });
+
+  it("日本語で全セクションのラベルが表示される", () => {
+    const allEntries = [makeEntry(), makeRelatedEntry()];
+    render(
+      <ReferenceModal
+        entry={allEntries[0]!}
+        allEntries={allEntries}
+        locale="ja"
+        onClose={vi.fn()}
+        onNavigate={vi.fn()}
+        testId="ref-modal"
+      />,
+    );
+    const modal = screen.getByTestId("ref-modal");
+    expect(modal.textContent).toContain("関連項目");
+    expect(modal.textContent).toContain("外部リソース");
+    const closeBtn = screen.getByTestId("ref-modal-close");
+    expect(closeBtn.getAttribute("aria-label")).toBe("閉じる");
+  });
 });

@@ -62,9 +62,9 @@ export function computeCategoryCounts(
   }
   for (const entry of entries) {
     const current =
-      counts.get(
-        entry.category,
-      ) /* v8 ignore next -- Mapは全カテゴリで初期化済み */ ?? 0;
+      /* v8 ignore start -- Mapは全カテゴリで初期化済み */
+      counts.get(entry.category) ?? 0;
+    /* v8 ignore stop */
     counts.set(entry.category, current + 1);
   }
   return counts;
@@ -89,9 +89,9 @@ export function buildCategoryBadges(
       id: meta.id,
       label: getLocalizedText(meta.label, locale),
       count:
-        counts.get(
-          meta.id,
-        ) /* v8 ignore next -- Mapは全カテゴリで初期化済み */ ?? 0,
+        /* v8 ignore start -- Mapは全カテゴリで初期化済み */
+        counts.get(meta.id) ?? 0,
+      /* v8 ignore stop */
       isSelected: meta.id === selectedCategory,
     }),
   );
