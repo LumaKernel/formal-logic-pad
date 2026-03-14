@@ -16,74 +16,9 @@
 - [x] HubContent, WorkspaceContent, ReferenceViewerContent に統合
 - [x] Storybook decorator に AntThemeWrapper 追加（light/dark/side-by-side対応）
 
-## Phase 2: Tailwind ユーティリティクラスの置き換え（41 ファイル・409 箇所）
+## Phase 2: Tailwind ユーティリティクラスの置き換え ✅ 完了
 
-Tailwind ユーティリティクラス（`flex`, `gap-*`, `text-sm`, `rounded-*` 等）を CSS-in-JS / plain CSS / Ant Design の Flex・Typography 等に置き換える。
-
-### Hub・レイアウト (3 ファイル)
-
-- [ ] `src/app/HubPageView.tsx` (45 className) — タブ・カード・レイアウト
-- [ ] `src/app/workspace/[id]/WorkspacePageView.tsx` (18 className) — ワークスペースレイアウト
-- [ ] `src/app/layout.tsx` (1 className) — ルートレイアウト
-
-### Proof Pad (10 ファイル)
-
-- [ ] `src/lib/proof-pad/GoalPanel.tsx` (38 className) — ゴールパネル
-- [ ] `src/lib/proof-pad/CutEliminationStepper.tsx` (19 className) — カット除去ステッパー
-- [ ] `src/lib/proof-pad/EditableProofNode.tsx` (15 className) — 証明ノード
-- [ ] `src/lib/proof-pad/AtRulePalette.tsx` (9 className) — AT ルールパレット
-- [ ] `src/lib/proof-pad/EdgeParameterPopover.tsx` (7 className) — エッジパラメータ
-- [ ] `src/lib/proof-pad/TabRulePalette.tsx` (6 className) — TAB ルールパレット
-- [ ] `src/lib/proof-pad/ScRulePalette.tsx` (6 className) — SC ルールパレット
-- [ ] `src/lib/proof-pad/NdRulePalette.tsx` (5 className) — ND ルールパレット
-- [ ] `src/lib/proof-pad/AxiomPalette.tsx` (4 className) — 公理パレット
-
-### Quest・Notebook (4 ファイル)
-
-- [ ] `src/lib/quest/CustomQuestListComponent.tsx` (90 className) — カスタムクエストリスト
-- [ ] `src/lib/notebook/NotebookCreateFormComponent.tsx` (21 className) — ノートブック作成フォーム
-- [ ] `src/lib/notebook/NotebookListComponent.tsx` (19 className) — ノートブックリスト
-- [ ] `src/lib/quest/QuestCatalogComponent.tsx` (10 className) — クエストカタログ
-
-### Reference (1 ファイル)
-
-- [ ] `src/lib/reference/ReferenceBrowserComponent.tsx` (22 className) — リファレンスブラウザ
-
-### Components (3 ファイル)
-
-- [ ] `src/components/ScriptEditor/ScriptEditorComponent.tsx` (31 className) — スクリプトエディタ
-- [ ] `src/components/ThemeToggle/ThemeToggle.tsx` (6 className) — テーマ切替（lucide-react → @ant-design/icons も検討）
-- [ ] `src/components/LanguageToggle/LanguageToggle.tsx` (2 className) — 言語切替
-
-### Formula Input (10 ファイル)
-
-- [ ] `src/lib/formula-input/FormulaDisplay.tsx` (1 className)
-- [ ] `src/lib/formula-input/FormulaEditor.tsx` (1 className)
-- [ ] `src/lib/formula-input/FormulaInput.tsx` (1 className)
-- [ ] `src/lib/formula-input/FormulaKaTeX.tsx` (1 className)
-- [ ] `src/lib/formula-input/TermDisplay.tsx` (1 className)
-- [ ] `src/lib/formula-input/TermEditor.tsx` (1 className)
-- [ ] `src/lib/formula-input/TermInput.tsx` (1 className)
-- [ ] `src/lib/formula-input/TermKaTeX.tsx` (1 className)
-- [ ] `src/lib/truth-table/TruthTableComponent.tsx` (7 className)
-- [ ] `src/lib/proof-collection/ProofCollectionPanel.tsx` (5 className)
-
-### テストファイル内の className (5 ファイル)
-
-- [ ] `src/lib/formula-input/FormulaDisplay.test.tsx` (1)
-- [ ] `src/lib/formula-input/FormulaInput.test.tsx` (1)
-- [ ] `src/lib/formula-input/FormulaKaTeX.test.tsx` (1)
-- [ ] `src/lib/formula-input/TermDisplay.test.tsx` (1)
-- [ ] `src/lib/formula-input/TermInput.test.tsx` (1)
-- [ ] `src/lib/formula-input/TermKaTeX.test.tsx` (1)
-
-### Storybook デモファイル (3 ファイル)
-
-- [ ] `src/stories/Page.tsx` (3 className)
-- [ ] `src/stories/Header.tsx` (2 className)
-- [ ] `src/stories/Button.tsx` (1 className)
-- [ ] `src/stories/button.css`, `src/stories/page.css`, `src/stories/header.css` — Tailwind 依存があれば修正
-- [ ] `src/components/ThemeToggle/ThemeToggle.stories.tsx` (2 className)
+全コンポーネント（28ファイル）のTailwindユーティリティクラスをReact CSSPropertiesインラインスタイルに変換。hover/focus擬似クラスはglobals.cssのCSS定義に移行。テストも更新済み。layout.tsx・Storybook・テストファイル内のclassNameはTailwindではなくCSS独自クラスのため変更不要。
 
 ## Phase 3: shadcn カラートークンの CSS 変数化
 
