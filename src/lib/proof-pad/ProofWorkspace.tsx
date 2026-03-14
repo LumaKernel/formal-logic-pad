@@ -3162,7 +3162,9 @@ export function ProofWorkspace({
 
   // スクリプト実行用 WorkspaceCommandHandler
   const nextScriptYRef = useRef(50);
-  const scriptCommandHandler = useMemo((): WorkspaceCommandHandler | undefined => {
+  const scriptCommandHandler = useMemo(():
+    | WorkspaceCommandHandler
+    | undefined => {
     if (!scriptEditorOpen) return undefined;
     return {
       addNode: (formulaText: string) => {
@@ -3432,6 +3434,13 @@ export function ProofWorkspace({
     showPasteError,
     msg.pasteIncompatibleStyle,
   ]);
+
+  const handleCanvasMenuOpenScriptEditor = useCallback(() => {
+    setScriptEditorNodeId(null);
+    setScriptEditorInitialCode("");
+    setScriptEditorOpen(true);
+    setCanvasMenuState((prev) => ({ ...prev, open: false }));
+  }, []);
   /* v8 ignore stop */
 
   /* v8 ignore start -- キャンバスコンテキストメニュー外クリック: ref.contains使用でJSDOMではテスト不安定 */
@@ -5258,7 +5267,11 @@ export function ProofWorkspace({
               fontWeight: 600,
             }}
           >
-            <span>{msg.runScript}</span>
+            <span>
+              {scriptEditorNodeId !== null
+                ? msg.runScript
+                : msg.openScriptEditor}
+            </span>
             <button
               type="button"
               style={{
@@ -5783,6 +5796,25 @@ export function ProofWorkspace({
               /* v8 ignore start -- testId未指定パス: V8集約アーティファクト */
               testId
                 ? `${testId satisfies string}-canvas-menu-tree-layout-bt`
+                : undefined
+              /* v8 ignore stop */
+            }
+          />
+          {/* 区切り線 */}
+          <div
+            style={{
+              borderTop:
+                "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
+              margin: "4px 0",
+            }}
+          />
+          <WorkspaceMenuItem
+            label={msg.openScriptEditor}
+            onClick={handleCanvasMenuOpenScriptEditor}
+            testId={
+              /* v8 ignore start -- testId未指定パス: V8集約アーティファクト */
+              testId
+                ? `${testId satisfies string}-canvas-menu-open-script-editor`
                 : undefined
               /* v8 ignore stop */
             }

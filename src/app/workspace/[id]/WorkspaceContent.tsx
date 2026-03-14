@@ -232,6 +232,7 @@ function useProofMessagesFromIntl(): ProofMessages {
 
       // Script
       runScript: t("runScript"),
+      openScriptEditor: t("openScriptEditor"),
 
       // Node creation labels
       nodeLabelAxiom: t("nodeLabelAxiom"),

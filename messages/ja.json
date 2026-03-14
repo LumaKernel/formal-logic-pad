@@ -219,6 +219,7 @@
     "editNote": "メモを編集",
     "noteEditorTitle": "メモの編集",
     "runScript": "スクリプトを実行",
+    "openScriptEditor": "スクリプトエディタを開く",
     "nodeLabelAxiom": "公理",
     "nodeLabelAssumption": "仮定",
     "nodeLabelSequent": "シーケント",
