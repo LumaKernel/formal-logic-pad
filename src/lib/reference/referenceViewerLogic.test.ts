@@ -371,12 +371,7 @@ describe("buildGlobalNavigation", () => {
   });
 
   it("カテゴリ末尾からnextで次のカテゴリ先頭に遷移する", () => {
-    const nav = buildGlobalNavigation(
-      axiomA3,
-      navEntries,
-      categoryOrder,
-      "en",
-    );
+    const nav = buildGlobalNavigation(axiomA3, navEntries, categoryOrder, "en");
     expect(nav.next).toEqual({
       id: "rule-mp",
       title: "Modus Ponens",
