@@ -5825,6 +5825,79 @@ const conceptNdNegationRules: ReferenceEntry = {
   order: 31,
 };
 
+const conceptNdQuantifierRules: ReferenceEntry = {
+  id: "concept-nd-quantifier-rules",
+  category: "concept",
+  title: {
+    en: "Quantifier Rules in Natural Deduction",
+    ja: "自然演繹の量化子規則",
+  },
+  summary: {
+    en: "∀I, ∀E, ∃I, ∃E rules and the eigenvariable condition.",
+    ja: "∀I、∀E、∃I、∃E 規則と固有変数条件。",
+  },
+  body: {
+    en: [
+      "Natural deduction for predicate logic extends propositional natural deduction with four rules for the universal ($\\forall$) and existential ($\\exists$) quantifiers. Each quantifier has an introduction rule and an elimination rule.",
+      "<b>$\\forall$I (Universal Introduction)</b>: If $\\varphi(a)$ is derivable where $a$ is a variable not occurring free in any open assumption, then $\\forall x.\\, \\varphi(x)$ can be concluded. The variable $a$ is called an <i>eigenvariable</i> (or <i>proper variable</i>). The condition ensures that the proof works for an \"arbitrary\" individual.",
+      "<b>$\\forall$E (Universal Elimination)</b>: From $\\forall x.\\, \\varphi(x)$, conclude $\\varphi(t)$ for any term $t$. This is also called <i>universal instantiation</i>. There are no side conditions — any term may be substituted.",
+      "<b>$\\exists$I (Existential Introduction)</b>: From $\\varphi(t)$ for some term $t$, conclude $\\exists x.\\, \\varphi(x)$. This asserts that there exists at least one individual satisfying $\\varphi$. No side conditions apply.",
+      "<b>$\\exists$E (Existential Elimination)</b>: If $\\exists x.\\, \\varphi(x)$ is given, and from the assumption $\\varphi(a)$ (with eigenvariable $a$) one derives $\\psi$ where $a$ does not occur free in $\\psi$ or in any open assumption other than $\\varphi(a)$, then $\\psi$ can be concluded and the assumption $\\varphi(a)$ is discharged.",
+      "The <b>eigenvariable condition</b> (固有変数条件) is the critical restriction that ensures soundness. In $\\forall$I, the eigenvariable must not occur free in any open assumption. In $\\exists$E, the eigenvariable must not occur free in the conclusion $\\psi$ or in any open assumption other than $\\varphi(a)$. Violating this condition leads to unsound proofs.",
+      "Intuitively, the eigenvariable represents a \"generic\" or \"arbitrary\" individual. In $\\forall$I, we prove a statement for an arbitrary individual to conclude it holds for all. In $\\exists$E, we temporarily name the witness to reason about it, then forget the name to obtain a conclusion that does not depend on the specific witness.",
+    ],
+    ja: [
+      "述語論理の自然演繹は、命題論理の自然演繹を全称量化子（$\\forall$）と存在量化子（$\\exists$）に対する4つの規則で拡張します。各量化子に導入規則と除去規則があります。",
+      "<b>$\\forall$I（全称導入）</b>：$\\varphi(a)$が導出可能で、$a$がいかなる未放出仮定にも自由に現れない変数であるとき、$\\forall x.\\, \\varphi(x)$を結論できます。変数$a$は<i>固有変数</i>（eigenvariable）と呼ばれます。この条件は、証明が「任意の」個体に対して機能することを保証します。",
+      "<b>$\\forall$E（全称除去）</b>：$\\forall x.\\, \\varphi(x)$から、任意の項$t$について$\\varphi(t)$を結論します。<i>全称例化</i>（universal instantiation）とも呼ばれます。副条件はなく、任意の項を代入できます。",
+      "<b>$\\exists$I（存在導入）</b>：ある項$t$について$\\varphi(t)$から、$\\exists x.\\, \\varphi(x)$を結論します。$\\varphi$を満たす個体が少なくとも1つ存在することを主張します。副条件はありません。",
+      "<b>$\\exists$E（存在除去）</b>：$\\exists x.\\, \\varphi(x)$が与えられ、仮定$\\varphi(a)$（固有変数$a$）から$\\psi$を導出でき、$a$が$\\psi$にも$\\varphi(a)$以外の未放出仮定にも自由に現れないとき、$\\psi$を結論でき、仮定$\\varphi(a)$は放出されます。",
+      "<b>固有変数条件</b>（eigenvariable condition）は健全性を保証する決定的な制約です。$\\forall$Iでは固有変数がいかなる未放出仮定にも自由に現れてはなりません。$\\exists$Eでは固有変数が結論$\\psi$にも$\\varphi(a)$以外の未放出仮定にも自由に現れてはなりません。この条件に違反すると不健全な証明が生じます。",
+      "直観的には、固有変数は「一般的な」あるいは「任意の」個体を表します。$\\forall$Iでは任意の個体に対して命題を証明してすべてに成り立つと結論します。$\\exists$Eでは証人に一時的に名前を付けて推論した後、特定の証人に依存しない結論を得るために名前を忘れます。",
+    ],
+  },
+  formalNotation: [
+    "\\forall\\text{I}: \\dfrac{\\varphi(a)}{\\forall x.\\, \\varphi(x)}\\ (a \\text{ eigenvariable})",
+    "\\forall\\text{E}: \\dfrac{\\forall x.\\, \\varphi(x)}{\\varphi(t)}",
+    "\\exists\\text{I}: \\dfrac{\\varphi(t)}{\\exists x.\\, \\varphi(x)}",
+    "\\exists\\text{E}: \\dfrac{\\exists x.\\, \\varphi(x) \\quad [\\varphi(a)] \\vdots \\psi}{\\psi}\\ (a \\text{ eigenvariable})",
+  ],
+  relatedEntryIds: [
+    "rule-nd-overview",
+    "concept-nd-variants",
+    "concept-assumption-management",
+    "concept-nd-negation-rules",
+    "guide-intro-natural-deduction",
+    "guide-intro-predicate-logic",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Natural_deduction#First-order_logic",
+      label: {
+        en: "Natural deduction — First-order logic (Wikipedia)",
+        ja: "自然演繹の一階論理 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "universal introduction",
+    "universal elimination",
+    "existential introduction",
+    "existential elimination",
+    "eigenvariable",
+    "proper variable",
+    "全称導入",
+    "全称除去",
+    "存在導入",
+    "存在除去",
+    "固有変数",
+    "固有変数条件",
+  ],
+  order: 32,
+};
+
 const conceptAbelianGroup: ReferenceEntry = {
   id: "concept-abelian-group",
   category: "concept",
@@ -6734,6 +6807,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptNdVariants,
   conceptAssumptionManagement,
   conceptNdNegationRules,
+  conceptNdQuantifierRules,
   conceptAbelianGroup,
   // Theories
   theoryPeanoArithmetic,
