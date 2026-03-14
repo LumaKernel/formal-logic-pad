@@ -46,7 +46,13 @@
     "collectionMoveToFolder": "移動先…",
     "collectionMoveToRoot": "（ルート）",
     "collectionRootEntries": "未分類",
-    "collectionFolderEntryCount": "{count}"
+    "collectionFolderEntryCount": "{count}",
+    "tabScripts": "スクリプト",
+    "scriptsEmpty": "保存済みのスクリプトはまだありません",
+    "scriptsEmptyDescription": "ワークスペースのスクリプトエディタからスクリプトを保存して、ここで管理できます。",
+    "scriptsDelete": "削除",
+    "scriptsRename": "名前変更",
+    "scriptsExport": "エクスポート"
   },
   "Workspace": {
     "back": "戻る",

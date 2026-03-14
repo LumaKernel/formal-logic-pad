@@ -60,6 +60,17 @@ import {
   recommendedQuestIds,
 } from "./landingPageLogic";
 import { useProofCollection } from "../lib/proof-collection";
+import {
+  deserializeSavedScripts,
+  serializeSavedScripts,
+  removeScript,
+  renameScript,
+  findScript,
+  initialSavedScriptsState,
+  STORAGE_KEY as SCRIPT_STORAGE_KEY,
+  type SavedScriptsState,
+} from "../components/ScriptEditor/savedScriptsLogic";
+import { toScriptListItems } from "../components/ScriptEditor/scriptListPanelLogic";
 
 /** タブ名からパスへのマッピング */
 const tabToPath: Record<HubTab, string> = {
@@ -68,6 +79,7 @@ const tabToPath: Record<HubTab, string> = {
   "custom-quests": "/custom-quests",
   collection: "/collection",
   reference: "/reference",
+  scripts: "/scripts",
 };
 
 export type HubContentProps = {
@@ -125,6 +137,13 @@ function useHubMessagesFromIntl(): HubMessages {
       referenceGuideTitle: String(t.raw("referenceGuideTitle")),
       referenceGuideDescription: String(t.raw("referenceGuideDescription")),
       referenceRelatedTopics: String(t.raw("referenceRelatedTopics")),
+      // Scripts
+      tabScripts: String(t.raw("tabScripts")),
+      scriptsEmpty: String(t.raw("scriptsEmpty")),
+      scriptsEmptyDescription: String(t.raw("scriptsEmptyDescription")),
+      scriptsDelete: String(t.raw("scriptsDelete")),
+      scriptsRename: String(t.raw("scriptsRename")),
+      scriptsExport: String(t.raw("scriptsExport")),
       // Collection
       collectionEmpty: String(t.raw("collectionEmpty")),
       collectionEntryCount: String(t.raw("collectionEntryCount")),
@@ -151,6 +170,61 @@ function HubInner({ initialTab }: HubContentProps) {
   const questProgress = useQuestProgress();
   const customQuestCollection = useCustomQuestCollection();
   const proofCollection = useProofCollection();
+
+  // Saved scripts state (localStorage-backed)
+  const [savedScripts, setSavedScripts] = useState<SavedScriptsState>(() => {
+    try {
+      const json = localStorage.getItem(SCRIPT_STORAGE_KEY);
+      if (json === null) return initialSavedScriptsState;
+      return deserializeSavedScripts(json);
+    } catch {
+      return initialSavedScriptsState;
+    }
+  });
+
+  const persistScripts = useCallback((next: SavedScriptsState) => {
+    setSavedScripts(next);
+    try {
+      localStorage.setItem(SCRIPT_STORAGE_KEY, serializeSavedScripts(next));
+    } catch {
+      // localStorage full — silently ignore
+    }
+  }, []);
+
+  const handleDeleteScript = useCallback(
+    (id: string) => {
+      persistScripts(removeScript(savedScripts, id));
+    },
+    [savedScripts, persistScripts],
+  );
+
+  const handleRenameScript = useCallback(
+    (id: string, newTitle: string) => {
+      persistScripts(renameScript(savedScripts, id, newTitle));
+    },
+    [savedScripts, persistScripts],
+  );
+
+  const handleExportScript = useCallback(
+    (id: string) => {
+      const script = findScript(savedScripts, id);
+      if (script === undefined) return;
+      const blob = new Blob([script.code], { type: "text/javascript" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${script.title.replace(/[^a-zA-Z0-9\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF_-]/g, "-") satisfies string}.js`;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+    [savedScripts],
+  );
+
+  const scriptItems = useMemo(
+    () => toScriptListItems(savedScripts.scripts, getNow()),
+    [savedScripts.scripts],
+  );
+
   const hubMessages = useHubMessagesFromIntl();
   const themeLabels = useThemeLabelsFromIntl();
   const rawLocale = useLocale();
@@ -592,6 +666,10 @@ function HubInner({ initialTab }: HubContentProps) {
         referenceLocale={refLocale}
         questReferenceMap={questReferenceMap}
         onShowReference={handleShowReference}
+        scriptItems={scriptItems}
+        onDeleteScript={handleDeleteScript}
+        onRenameScript={handleRenameScript}
+        onExportScript={handleExportScript}
         collectionProps={{
           entries: proofCollection.entries,
           folders: proofCollection.folders,

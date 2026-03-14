@@ -41,6 +41,8 @@ import {
 import type { ReferenceEntry, Locale } from "../lib/reference/referenceEntry";
 import { ReferenceBrowserComponent } from "../lib/reference/ReferenceBrowserComponent";
 import type { QuestReferenceMap } from "../lib/quest/questReferenceMappingLogic";
+import { ScriptListPanel } from "../components/ScriptEditor/ScriptListPanel";
+import type { ScriptListItem } from "../components/ScriptEditor/scriptListPanelLogic";
 import { useHubMessages } from "./HubMessagesContext";
 
 // --- Types ---
@@ -50,7 +52,8 @@ export type HubTab =
   | "quests"
   | "custom-quests"
   | "collection"
-  | "reference";
+  | "reference"
+  | "scripts";
 type HubViewState = "list" | "create";
 
 /** ランディングページに表示するおすすめクエスト */
@@ -140,6 +143,14 @@ export type HubPageViewProps = {
   readonly questReferenceMap?: QuestReferenceMap;
   /** クエストのドキュメントバッジクリック時のコールバック */
   readonly onShowReference?: (questId: string) => void;
+  /** スクリプト一覧（scriptsタブ用） */
+  readonly scriptItems?: readonly ScriptListItem[];
+  /** スクリプト削除 */
+  readonly onDeleteScript?: (id: string) => void;
+  /** スクリプトリネーム */
+  readonly onRenameScript?: (id: string, newTitle: string) => void;
+  /** スクリプトエクスポート */
+  readonly onExportScript?: (id: string) => void;
 };
 
 // --- Inline styles ---
@@ -576,6 +587,10 @@ export function HubPageView({
   referenceLocale = "en",
   questReferenceMap,
   onShowReference,
+  scriptItems,
+  onDeleteScript,
+  onRenameScript,
+  onExportScript,
 }: HubPageViewProps) {
   const m = useHubMessages();
   const [view, setView] = useState<HubViewState>("list");
@@ -801,6 +816,16 @@ export function HubPageView({
             >
               {m.tabReference}
             </button>
+            <button
+              type="button"
+              style={tab === "scripts" ? tabActiveStyle : tabBaseStyle}
+              onClick={() => {
+                onTabChange("scripts");
+                setView("list");
+              }}
+            >
+              {m.tabScripts}
+            </button>
           </nav>
 
           {/* Content */}
@@ -963,6 +988,23 @@ export function HubPageView({
                 resolveQuestTitle={resolveQuestTitle}
                 onStartQuest={onStartQuest}
                 testId="reference-browser"
+              />
+            )}
+
+            {tab === "scripts" && scriptItems !== undefined && (
+              <ScriptListPanel
+                items={scriptItems}
+                messages={{
+                  emptyTitle: m.scriptsEmpty,
+                  emptyDescription: m.scriptsEmptyDescription,
+                  deleteButton: m.scriptsDelete,
+                  renameButton: m.scriptsRename,
+                  exportButton: m.scriptsExport,
+                }}
+                onDelete={onDeleteScript}
+                onRename={onRenameScript}
+                onExport={onExportScript}
+                testId="script-list-panel"
               />
             )}
           </div>

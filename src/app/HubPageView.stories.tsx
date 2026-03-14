@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn, expect, within, userEvent } from "storybook/test";
 import { allReferenceEntries } from "../lib/reference/referenceContent";
 import { HubPageView, type HubTab, type RecommendedQuest } from "./HubPageView";
+import type { ScriptListItem } from "../components/ScriptEditor/scriptListPanelLogic";
 import type { NotebookListItem } from "../lib/notebook";
 import type {
   CategoryGroup,
@@ -49,6 +50,12 @@ const sampleNotebookCounts: QuestNotebookCounts = new Map([
   ["prop-01", 1],
   ["prop-02", 2],
 ]);
+
+const sampleScriptItems: readonly ScriptListItem[] = [
+  { id: "s1", title: "Cut Elimination Helper", savedAtLabel: "2h ago" },
+  { id: "s2", title: "Auto Proof Builder", savedAtLabel: "1d ago" },
+  { id: "s3", title: "Substitution Checker", savedAtLabel: "3d ago" },
+];
 
 const sampleRecommendedQuests: readonly RecommendedQuest[] = [
   { id: "prop-01", title: "φ → φ を証明しよう" },
@@ -160,6 +167,9 @@ const meta: Meta<typeof HubPageView> = {
     onImportCustomQuest: fn(),
     onShareQuestUrl: fn(),
     onShowModelAnswer: fn(),
+    onDeleteScript: fn(),
+    onRenameScript: fn(),
+    onExportScript: fn(),
     languageToggle: { locale: "en", onLocaleChange: fn() },
   },
 };
@@ -807,5 +817,61 @@ export const ReferenceTab: Story = {
     await expect(countAfterFilter.textContent).toContain(
       `/ ${totalCount satisfies string}`,
     );
+  },
+};
+
+/** スクリプトタブ: スクリプト一覧表示 */
+export const ScriptsTab: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+    tab: "scripts",
+    scriptItems: sampleScriptItems,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Scriptsタブが表示される
+    await expect(canvas.getByText("Scripts")).toBeInTheDocument();
+    // スクリプト一覧が表示される
+    await expect(canvas.getByTestId("script-list-panel")).toBeInTheDocument();
+    await expect(
+      canvas.getByText("Cut Elimination Helper"),
+    ).toBeInTheDocument();
+    await expect(canvas.getByText("Auto Proof Builder")).toBeInTheDocument();
+    await expect(canvas.getByText("Substitution Checker")).toBeInTheDocument();
+    // 時間ラベルが表示される
+    await expect(canvas.getByText("2h ago")).toBeInTheDocument();
+  },
+};
+
+/** スクリプトタブ: 空状態 */
+export const ScriptsTabEmpty: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+    tab: "scripts",
+    scriptItems: [],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByTestId("script-list-panel-empty"),
+    ).toBeInTheDocument();
+    await expect(canvas.getByText("No saved scripts yet")).toBeInTheDocument();
+  },
+};
+
+/** スクリプトタブ: 削除操作 */
+export const ScriptsTabDelete: Story = {
+  args: {
+    listItems: sampleNotebooks,
+    groups: sampleGroups,
+    tab: "scripts",
+    scriptItems: sampleScriptItems,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId("script-delete-btn-s1"));
+    await expect(args.onDeleteScript).toHaveBeenCalledWith("s1");
   },
 };

@@ -46,7 +46,13 @@
     "collectionMoveToFolder": "Move to…",
     "collectionMoveToRoot": "(Root)",
     "collectionRootEntries": "Uncategorized",
-    "collectionFolderEntryCount": "{count}"
+    "collectionFolderEntryCount": "{count}",
+    "tabScripts": "Scripts",
+    "scriptsEmpty": "No saved scripts yet",
+    "scriptsEmptyDescription": "Save scripts from the workspace script editor to manage them here.",
+    "scriptsDelete": "Delete",
+    "scriptsRename": "Rename",
+    "scriptsExport": "Export"
   },
   "Workspace": {
     "back": "Back",

@@ -45,6 +45,13 @@ export type HubMessages = {
   readonly referenceGuideTitle: string;
   readonly referenceGuideDescription: string;
   readonly referenceRelatedTopics: string;
+  // --- Scripts ---
+  readonly tabScripts: string;
+  readonly scriptsEmpty: string;
+  readonly scriptsEmptyDescription: string;
+  readonly scriptsDelete: string;
+  readonly scriptsRename: string;
+  readonly scriptsExport: string;
   // --- Collection ---
   readonly collectionEmpty: string;
   readonly collectionEntryCount: string;
@@ -97,6 +104,14 @@ export const defaultHubMessages: HubMessages = {
   referenceGuideDescription:
     "A structured introduction to formal logic. Follow these guides sequentially, exploring related reference articles along the way.",
   referenceRelatedTopics: "related topics",
+  // Scripts
+  tabScripts: "Scripts",
+  scriptsEmpty: "No saved scripts yet",
+  scriptsEmptyDescription:
+    "Save scripts from the workspace script editor to manage them here.",
+  scriptsDelete: "Delete",
+  scriptsRename: "Rename",
+  scriptsExport: "Export",
   // Collection
   collectionEmpty:
     "No saved proofs yet. Save proofs from your workspace to manage them here.",
@@ -142,6 +157,12 @@ export const hubMessageKeys: readonly (keyof HubMessages)[] = [
   "referenceGuideTitle",
   "referenceGuideDescription",
   "referenceRelatedTopics",
+  "tabScripts",
+  "scriptsEmpty",
+  "scriptsEmptyDescription",
+  "scriptsDelete",
+  "scriptsRename",
+  "scriptsExport",
   "collectionEmpty",
   "collectionEntryCount",
   "collectionDelete",
