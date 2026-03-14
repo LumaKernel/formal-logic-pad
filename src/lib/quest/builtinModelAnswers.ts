@@ -18405,6 +18405,103 @@ const sc34LjUniversalImplDistrib: ModelAnswer = {
 // シーケント計算カット除去 (SC-CE) — sc-cut-elimination
 // ============================================================
 
+/**
+ * カット除去体験スクリプト: 含意のカットを構築して除去する。
+ * sc-ce クエストの模範解答にスクリプトノードとして組み込む。
+ */
+const CUT_ELIMINATION_DEMO_SCRIPT = `// カット除去定理の実演: 含意のカット
+//
+// 証明:
+//   φ ⇒ φ (ID)
+//   ────────────── (WR: φ→ψ を追加)
+//   φ ⇒ φ, φ→ψ
+//                        φ ⇒ φ (ID)    ψ ⇒ ψ (ID)
+//                        ──────────────────────── (→L)
+//                        φ→ψ, φ ⇒ ψ
+//   ────────────────────────────────────────────── (Cut: φ→ψ)
+//               φ, φ ⇒ ψ
+
+var phi = { _tag: "MetaVariable", name: "φ" };
+var psi = { _tag: "MetaVariable", name: "ψ" };
+var phiImplPsi = { _tag: "Implication", left: phi, right: psi };
+
+var idPhi = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+
+var idPsi = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [psi], succedents: [psi] }
+};
+
+var leftPremise = {
+  _tag: "ScWeakeningRight",
+  conclusion: { antecedents: [phi], succedents: [phi, phiImplPsi] },
+  premise: idPhi,
+  weakenedFormula: phiImplPsi
+};
+
+var rightPremise = {
+  _tag: "ScImplicationLeft",
+  conclusion: { antecedents: [phiImplPsi, phi], succedents: [psi] },
+  left: idPhi,
+  right: idPsi
+};
+
+var proof = {
+  _tag: "ScCut",
+  conclusion: { antecedents: [phi, phi], succedents: [psi] },
+  left: leftPremise,
+  right: rightPremise,
+  cutFormula: phiImplPsi
+};
+
+var conclusionSeq = getScConclusion(proof);
+console.log("=== カット除去定理の実演 ===");
+console.log("結論: " + formatSequent(conclusionSeq));
+console.log("カット数: " + countCuts(proof));
+console.log("カットフリー? " + isCutFree(proof));
+console.log("");
+
+console.log("--- 初期証明をキャンバスに表示 ---");
+displayScProof(proof);
+
+console.log("");
+console.log("--- カット除去開始 ---");
+var result = eliminateCutsWithSteps(proof);
+
+for (var i = 0; i < result.steps.length; i++) {
+  var step = result.steps[i];
+  console.log("ステップ " + (i + 1) + ": " + step.description);
+  console.log("  depth=" + step.depth + ", rank=" + step.rank);
+  var stepConc = getScConclusion(step.proof);
+  console.log("  結論: " + formatSequent(stepConc));
+  displayScProof(step.proof);
+}
+
+console.log("");
+console.log("--- 結果 ---");
+console.log("状態: " + result.result._tag);
+if (result.result._tag === "Success") {
+  var finalConc = getScConclusion(result.result.proof);
+  console.log("最終結論: " + formatSequent(finalConc));
+  console.log("カットフリー? " + isCutFree(result.result.proof));
+  displayScProof(result.result.proof);
+}
+`;
+
+/** sc-ce クエストのスクリプトステップ */
+const cutEliminationScriptStep: {
+  readonly _tag: "script";
+  readonly title: string;
+  readonly code: string;
+} = {
+  _tag: "script",
+  title: "カット除去を体験",
+  code: CUT_ELIMINATION_DEMO_SCRIPT,
+};
+
 const sc_ce01Transitivity: ModelAnswer = {
   questId: "sc-ce-01",
   steps: [
@@ -18477,6 +18574,7 @@ const sc_ce01Transitivity: ModelAnswer = {
       ruleId: "identity",
       principalPosition: 0,
     },
+    cutEliminationScriptStep,
   ],
 };
 
@@ -18528,6 +18626,7 @@ const sc_ce02ModusPonens: ModelAnswer = {
       ruleId: "identity",
       principalPosition: 0,
     },
+    cutEliminationScriptStep,
   ],
 };
 
@@ -18580,6 +18679,7 @@ const sc_ce03ConjCommute: ModelAnswer = {
       ruleId: "identity",
       principalPosition: 0,
     },
+    cutEliminationScriptStep,
   ],
 };
 
@@ -18694,12 +18794,16 @@ const sc_ce04CutChain: ModelAnswer = {
       ruleId: "identity",
       principalPosition: 0,
     },
+    cutEliminationScriptStep,
   ],
 };
 
 const sc_ce05NegationCut: ModelAnswer = {
   questId: "sc-ce-05",
-  steps: [{ _tag: "axiom", formulaText: "~~phi -> phi" }],
+  steps: [
+    { _tag: "axiom", formulaText: "~~phi -> phi" },
+    cutEliminationScriptStep,
+  ],
 };
 
 // ((φ ∧ ψ) → χ) → (φ → (ψ → χ)) — カリー化
@@ -18786,17 +18890,24 @@ const sc_ce06DontEliminateCut: ModelAnswer = {
       ruleId: "identity",
       principalPosition: 0,
     },
+    cutEliminationScriptStep,
   ],
 };
 
 const sc_ce07DisjCommute: ModelAnswer = {
   questId: "sc-ce-07",
-  steps: [{ _tag: "axiom", formulaText: "(phi \\/ psi) -> (psi \\/ phi)" }],
+  steps: [
+    { _tag: "axiom", formulaText: "(phi \\/ psi) -> (psi \\/ phi)" },
+    cutEliminationScriptStep,
+  ],
 };
 
 const sc_ce08Contraposition: ModelAnswer = {
   questId: "sc-ce-08",
-  steps: [{ _tag: "axiom", formulaText: "(phi -> psi) -> (~psi -> ~phi)" }],
+  steps: [
+    { _tag: "axiom", formulaText: "(phi -> psi) -> (~psi -> ~phi)" },
+    cutEliminationScriptStep,
+  ],
 };
 
 const sc_ce09DisjElimination: ModelAnswer = {
@@ -18806,6 +18917,7 @@ const sc_ce09DisjElimination: ModelAnswer = {
       _tag: "axiom",
       formulaText: "(phi -> chi) -> ((psi -> chi) -> ((phi \\/ psi) -> chi))",
     },
+    cutEliminationScriptStep,
   ],
 };
 
@@ -18817,6 +18929,7 @@ const sc_ce10Distribution: ModelAnswer = {
       formulaText:
         "(phi /\\ (psi \\/ chi)) -> ((phi /\\ psi) \\/ (phi /\\ chi))",
     },
+    cutEliminationScriptStep,
   ],
 };
 
@@ -18828,6 +18941,7 @@ const sc_ce11UniversalImplDistrib: ModelAnswer = {
       formulaText:
         "(all x. (P(x) -> Q(x))) -> ((all x. P(x)) -> (all x. Q(x)))",
     },
+    cutEliminationScriptStep,
   ],
 };
 
@@ -18839,6 +18953,7 @@ const sc_ce12ExistentialTransitivity: ModelAnswer = {
       formulaText:
         "(all x. (P(x) -> Q(x))) -> ((exists x. P(x)) -> (exists x. Q(x)))",
     },
+    cutEliminationScriptStep,
   ],
 };
 
@@ -18849,6 +18964,7 @@ const sc_ce13QuantifierDeMorgan: ModelAnswer = {
       _tag: "axiom",
       formulaText: "(all x. ~P(x)) -> ~(exists x. P(x))",
     },
+    cutEliminationScriptStep,
   ],
 };
 
@@ -18859,6 +18975,7 @@ const sc_ce14QuantifierShift: ModelAnswer = {
       _tag: "axiom",
       formulaText: "(all x. (P(x) -> Q)) -> ((exists x. P(x)) -> Q)",
     },
+    cutEliminationScriptStep,
   ],
 };
 

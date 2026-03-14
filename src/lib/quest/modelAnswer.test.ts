@@ -958,3 +958,104 @@ describe("validateModelAnswer", () => {
     ).toBe(true);
   });
 });
+
+describe("buildModelAnswerWorkspace - script step", () => {
+  it("スクリプトステップでスクリプトノードが作成される", () => {
+    const answer: ModelAnswer = {
+      questId: "test-01",
+      steps: [
+        {
+          _tag: "axiom",
+          formulaText:
+            "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
+        },
+        { _tag: "axiom", formulaText: "phi -> ((phi -> phi) -> phi)" },
+        { _tag: "mp", leftIndex: 1, rightIndex: 0 },
+        { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
+        { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+        {
+          _tag: "script",
+          title: "カット除去デモ",
+          code: "console.log('hello');",
+        },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(testQuest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+
+    // スクリプトノードが存在する
+    const scriptNodes = result.workspace.nodes.filter(
+      (n) => n.kind === "script",
+    );
+    expect(scriptNodes.length).toBe(1);
+    expect(scriptNodes[0]?.formulaText).toBe("console.log('hello');");
+
+    // ゴールは達成される（スクリプトはゴールチェックに影響しない）
+    expect(
+      result.goalCheck._tag === "AllAchieved" ||
+        result.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+  });
+
+  it("スクリプトステップのインデックスがstepNodeIdsに正しく反映される", () => {
+    const answer: ModelAnswer = {
+      questId: "test-01",
+      steps: [
+        {
+          _tag: "script",
+          title: "前置スクリプト",
+          code: "// setup",
+        },
+        {
+          _tag: "axiom",
+          formulaText:
+            "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
+        },
+        { _tag: "axiom", formulaText: "phi -> ((phi -> phi) -> phi)" },
+        { _tag: "mp", leftIndex: 2, rightIndex: 1 },
+        { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
+        { _tag: "mp", leftIndex: 4, rightIndex: 3 },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(testQuest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+
+    // スクリプトノード1つ + 公理3つ + MP結論2つ + ゴール1つ = 7ノード
+    const scriptNodes = result.workspace.nodes.filter(
+      (n) => n.kind === "script",
+    );
+    expect(scriptNodes.length).toBe(1);
+
+    // ゴールが達成される（スクリプトをスキップしてインデックスが正しく参照される）
+    expect(
+      result.goalCheck._tag === "AllAchieved" ||
+        result.goalCheck._tag === "AllAchievedButAxiomViolation",
+    ).toBe(true);
+  });
+
+  it("スクリプト付き模範解答のバリデーションがValidを返す", () => {
+    const answer: ModelAnswer = {
+      questId: "test-01",
+      steps: [
+        {
+          _tag: "axiom",
+          formulaText:
+            "(phi -> ((phi -> phi) -> phi)) -> ((phi -> (phi -> phi)) -> (phi -> phi))",
+        },
+        { _tag: "axiom", formulaText: "phi -> ((phi -> phi) -> phi)" },
+        { _tag: "mp", leftIndex: 1, rightIndex: 0 },
+        { _tag: "axiom", formulaText: "phi -> (phi -> phi)" },
+        { _tag: "mp", leftIndex: 3, rightIndex: 2 },
+        {
+          _tag: "script",
+          title: "カット除去を体験",
+          code: "var proof = {}; eliminateCutsWithSteps(proof);",
+        },
+      ],
+    };
+    const result = validateModelAnswer(testQuest, answer);
+    expect(result._tag).toBe("Valid");
+  });
+});

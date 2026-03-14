@@ -19,6 +19,7 @@ import {
   type WorkspaceState,
   createQuestWorkspace,
   addNode,
+  addScriptNode,
   applyMPAndConnect,
   applyGenAndConnect,
   applyTreeLayout,
@@ -74,6 +75,9 @@ import type { ScRuleApplicationParams } from "../proof-pad/scApplicationLogic";
  * SC（シーケント計算）:
  * - sc-root: ルートノード（結論のシーケント）を配置
  * - sc-rule: SC規則を前ステップに適用（ruleId + principalPosition 等で指定）
+ *
+ * スクリプト:
+ * - script: 実行可能なスクリプトノードを配置（カット除去体験等）
  *
  * メタデータ:
  * - note: 解説ノートを配置（証明DAGの一部ではない、表示専用）
@@ -267,6 +271,14 @@ export type ModelAnswerStep =
       readonly componentIndex?: 1 | 2;
       /** カット式テキスト（cut規則用） */
       readonly cutFormulaText?: string;
+    }
+  // スクリプトステップ
+  | {
+      readonly _tag: "script";
+      /** スクリプトノードのタイトル */
+      readonly title: string;
+      /** スクリプトコード */
+      readonly code: string;
     }
   // メタデータステップ
   | {
@@ -1236,6 +1248,13 @@ export function buildModelAnswerWorkspace(
           stepNodeIds.push(leftId);
           stepNodeIds.push(rightId);
         }
+        break;
+      }
+      // --- スクリプトステップ ---
+      case "script": {
+        const nodeId = `node-${String(ws.nextNodeId) satisfies string}`;
+        ws = addScriptNode(ws, step.title, { x: 0, y: 0 }, step.code);
+        stepNodeIds.push(nodeId);
         break;
       }
       // --- メタデータステップ ---
