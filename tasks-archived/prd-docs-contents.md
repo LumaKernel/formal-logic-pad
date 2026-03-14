@@ -52,3 +52,18 @@
 - [x] `[ref]` 分析的タブロー規則一覧 — concept-analytic-tableau-rules, order:38, 6段落
 - [x] `[ref]` タブローの閉包条件 — concept-tableau-closure, order:39, 6段落
 - [x] `[ref]` タブロー法とSCの対応 — concept-tab-sc-correspondence, order:40, 6段落
+
+## 8. 体系間の関係とメタ定理
+
+- [x] `[guide]` メタ定理の世界 — guide-meta-theorems, order:12, 10段落
+- [x] `[ref]` 証明体系間の翻訳 — concept-proof-system-translation, order:41, 6段落
+- [x] `[ref]` 正規化と証明の簡約 — concept-normalization-reduction, order:42, 6段落
+- [x] `[ref]` 古典/直観主義の関係 — concept-classical-intuitionistic-relation, order:43, 7段落
+
+## 9. このサイト固有の概念と高度なトピック
+
+- [x] `[ref]` 論理式スキーマ vs 論理式 — 既存で十分詳細
+- [x] `[ref]` コンテキスト独立性 — 既存で十分詳細
+- [x] `[ref]` 許容規則と導出規則 — 既存で十分詳細
+- [x] `[guide]` 証明の戦略 — guide-proof-strategy, order:13, 10段落
+- [x] `[ref]` 証明のスピードアップ定理 — 既存で十分
