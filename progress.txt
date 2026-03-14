@@ -14257,3 +14257,25 @@
   - Phase 2パターン: モジュールレベルの`Readonly<CSSProperties>`定数で静的スタイル、CSSクラスはhover/focus擬似クラスのみ
   - Ant Design icons: `@ant-design/icons`はSVGベースでstyle propを受け付ける。lucide-reactからの移行は直接的
 ---
+
+## 2026-03-14 - [Docs] リファレンスビューアにカテゴリ内前後ナビゲーション追加
+- 実装した内容:
+  - `referenceViewerLogic.ts` に `buildCategoryNavigation` / `buildGlobalNavigation` 純粋関数を追加
+  - `NavigationLink` / `NavigationData` 型を定義
+  - `ReferenceViewerPageView.tsx` に `NavigationBar` コンポーネントを追加（prev/nextリンク表示）
+  - カテゴリ内のエントリをorder順に並べ、前後のエントリへのリンクを表示
+- 変更したファイル:
+  - `src/lib/reference/referenceViewerLogic.ts` (+101行)
+  - `src/lib/reference/referenceViewerLogic.test.ts` (+184行, 11テスト追加)
+  - `src/lib/reference/ReferenceViewerPageView.tsx` (+128行)
+  - `src/lib/reference/ReferenceViewerPageView.test.tsx` (+134行, 7テスト追加)
+  - `src/lib/reference/ReferenceViewerPageView.stories.tsx` (+43行, WithNavigationストーリー追加)
+  - `tasks/prd-docs-improve.md` (タスク完了マーク)
+- カバレッジ: ReferenceViewerPageView.tsx 100%維持
+- テスト: 10969 passed (272 test files)
+- スクリーンショット: `.screenshots/reference-viewer-navigation-final.png`
+- **今後のイテレーションへの学び:**
+  - NavigationBar を別コンポーネントに分離することで、TypeScriptのundefined narrowingがクロージャ内でも正しく機能する（`!` 不要）
+  - `buildGlobalNavigation` はカテゴリ横断ナビゲーション用に用意したが、現時点ではUIは `buildCategoryNavigation` のみ使用
+  - prev linkのonClickテストを忘れるとcoverage dropする。prev/next両方のクリックテストを書くこと
+---
