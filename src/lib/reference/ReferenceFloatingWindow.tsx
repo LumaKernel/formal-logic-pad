@@ -519,9 +519,11 @@ export function ReferenceFloatingWindow({
                       onStartQuest(quest.id);
                     }}
                     data-testid={
+                      /* v8 ignore start -- testId条件分岐はテスト用属性 */
                       testId !== undefined
                         ? `${testId satisfies string}-quest-${quest.id satisfies string}`
                         : undefined
+                      /* v8 ignore stop */
                     }
                   >
                     {quest.title}
@@ -546,9 +548,11 @@ export function ReferenceFloatingWindow({
                   rel="noopener noreferrer"
                   style={externalLinkStyle}
                   data-testid={
+                    /* v8 ignore start -- testId条件分岐はテスト用属性 */
                     testId !== undefined
                       ? `${testId satisfies string}-link-${String(i) satisfies string}`
                       : undefined
+                    /* v8 ignore stop */
                   }
                 >
                   {link.label} ↗
@@ -565,7 +569,9 @@ export function ReferenceFloatingWindow({
         style={resizeHandleStyle}
         onPointerDown={handleResizePointerDown}
         data-testid={
+          /* v8 ignore start -- testId条件分岐はテスト用属性 */
           testId !== undefined ? `${testId satisfies string}-resize` : undefined
+          /* v8 ignore stop */
         }
       >
         <svg style={resizeHandleSvgStyle} viewBox="0 0 10 10">

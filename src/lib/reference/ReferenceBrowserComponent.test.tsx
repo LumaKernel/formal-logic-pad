@@ -383,6 +383,37 @@ describe("ReferenceBrowserComponent", () => {
     expect(screen.queryByText(/related topics/)).not.toBeInTheDocument();
   });
 
+  it("モーダル内の関連エントリクリックでナビゲートする", async () => {
+    const user = userEvent.setup();
+    const entryWithRelated = makeEntry({
+      id: "axiom-a1",
+      category: "axiom",
+      order: 1,
+      relatedEntryIds: ["rule-mp"],
+    });
+    render(
+      <ReferenceBrowserComponent
+        entries={[
+          entryWithRelated,
+          makeEntry({
+            id: "rule-mp",
+            category: "inference-rule",
+            order: 1,
+            title: { en: "Modus Ponens", ja: "モーダスポネンス" },
+          }),
+        ]}
+        locale="en"
+        testId="ref"
+      />,
+    );
+    await user.click(screen.getByTestId("ref-entry-axiom-a1"));
+    expect(screen.getByTestId("ref-modal")).toBeInTheDocument();
+    // 関連エントリのリンクをクリック → handleNavigateが発火
+    await user.click(screen.getByTestId("ref-modal-related-rule-mp"));
+    // ナビゲーション後もモーダルが表示されている（別エントリに切り替わる）
+    expect(screen.getByTestId("ref-modal")).toBeInTheDocument();
+  });
+
   it("resolveQuestTitleがない場合はクエストセクションを表示しない", async () => {
     const user = userEvent.setup();
     const entryWithQuests = makeEntry({

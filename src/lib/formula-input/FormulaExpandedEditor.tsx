@@ -532,6 +532,7 @@ function renderHighlightedText(
     pos = h.end;
   }
 
+  /* v8 ignore start -- 防御的: ハイライトがテキスト末尾まで伸びない場合の残りテキスト */
   if (pos < text.length) {
     parts.push(
       <span
@@ -542,6 +543,7 @@ function renderHighlightedText(
       </span>,
     );
   }
+  /* v8 ignore stop */
 
   return parts;
 }

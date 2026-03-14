@@ -46,6 +46,7 @@ import {
   applyTabRuleAndConnect,
   applyScRuleAndConnect,
   importProofFromCollection,
+  addScriptNode,
 } from "./workspaceState";
 import {
   hilbertDeduction,
@@ -172,6 +173,31 @@ describe("proofWorkspace", () => {
       addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
       expect(ws.nodes).toHaveLength(0);
       expect(ws.nextNodeId).toBe(1);
+    });
+  });
+
+  describe("addScriptNode", () => {
+    it("adds a script node with default code", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const result = addScriptNode(ws, "Script", { x: 100, y: 200 });
+      expect(result.nodes).toHaveLength(1);
+      expect(result.nodes[0]!.kind).toBe("script");
+      expect(result.nodes[0]!.label).toBe("Script");
+      expect(result.nodes[0]!.formulaText).toBe("// スクリプトコード\n");
+      expect(result.nodes[0]!.position).toEqual({ x: 100, y: 200 });
+    });
+
+    it("adds a script node with custom code", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const result = addScriptNode(
+        ws,
+        "Custom",
+        { x: 0, y: 0 },
+        "workspace.addAxiom('A1');",
+      );
+      expect(result.nodes[0]!.formulaText).toBe(
+        "workspace.addAxiom('A1');",
+      );
     });
   });
 

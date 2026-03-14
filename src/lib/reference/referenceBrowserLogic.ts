@@ -61,7 +61,7 @@ export function computeCategoryCounts(
     counts.set(category, 0);
   }
   for (const entry of entries) {
-    const current = counts.get(entry.category) ?? 0;
+    const current = counts.get(entry.category) /* v8 ignore next -- Mapは全カテゴリで初期化済み */ ?? 0;
     counts.set(entry.category, current + 1);
   }
   return counts;
@@ -85,7 +85,7 @@ export function buildCategoryBadges(
     (meta): CategoryBadgeData => ({
       id: meta.id,
       label: getLocalizedText(meta.label, locale),
-      count: counts.get(meta.id) ?? 0,
+      count: counts.get(meta.id) /* v8 ignore next -- Mapは全カテゴリで初期化済み */ ?? 0,
       isSelected: meta.id === selectedCategory,
     }),
   );
@@ -169,9 +169,11 @@ export function buildEntryListItems(
       id: entry.id,
       title: getLocalizedText(entry.title, locale),
       summary: getLocalizedText(entry.summary, locale),
+      /* v8 ignore start -- categoryMetaは全エントリで必ず見つかる */
       categoryLabel: categoryMeta
         ? getLocalizedText(categoryMeta.label, locale)
         : entry.category,
+      /* v8 ignore stop */
       category: entry.category,
       hasFormalNotation: entry.formalNotation !== undefined,
     };
