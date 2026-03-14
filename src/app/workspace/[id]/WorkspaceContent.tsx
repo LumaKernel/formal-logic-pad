@@ -22,6 +22,7 @@ import { findEntryById } from "../../../lib/reference/referenceEntry";
 import { ReferenceFloatingWindow } from "../../../lib/reference/ReferenceFloatingWindow";
 import type { Locale as ReferenceLocale } from "../../../lib/reference/referenceEntry";
 import { ThemeProvider } from "../../../lib/theme/ThemeProvider";
+import { AntDesignThemeProvider } from "../../../lib/theme/AntDesignThemeProvider";
 import { isLocale } from "../../../components/LanguageToggle/languageToggleLogic";
 import {
   useLocaleSwitch,
@@ -454,7 +455,9 @@ function WorkspaceInner() {
 export default function WorkspaceContent() {
   return (
     <ThemeProvider>
-      <WorkspaceInner />
+      <AntDesignThemeProvider>
+        <WorkspaceInner />
+      </AntDesignThemeProvider>
     </ThemeProvider>
   );
 }

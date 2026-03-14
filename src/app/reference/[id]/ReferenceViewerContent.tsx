@@ -10,6 +10,7 @@ import {
   ReferenceViewerNotFound,
 } from "../../../lib/reference/ReferenceViewerPageView";
 import { ThemeProvider } from "../../../lib/theme/ThemeProvider";
+import { AntDesignThemeProvider } from "../../../lib/theme/AntDesignThemeProvider";
 import { isLocale } from "../../../components/LanguageToggle/languageToggleLogic";
 import type { Locale } from "../../../lib/reference/referenceEntry";
 
@@ -39,20 +40,22 @@ export default function ReferenceViewerContent() {
 
   return (
     <ThemeProvider>
-      {entry !== undefined ? (
-        <ReferenceViewerPageView
-          entry={entry}
-          allEntries={allReferenceEntries}
-          locale={refLocale}
-          onNavigate={handleNavigate}
-          testId="reference-viewer"
-        />
-      ) : (
-        <ReferenceViewerNotFound
-          locale={refLocale}
-          testId="reference-not-found"
-        />
-      )}
+      <AntDesignThemeProvider>
+        {entry !== undefined ? (
+          <ReferenceViewerPageView
+            entry={entry}
+            allEntries={allReferenceEntries}
+            locale={refLocale}
+            onNavigate={handleNavigate}
+            testId="reference-viewer"
+          />
+        ) : (
+          <ReferenceViewerNotFound
+            locale={refLocale}
+            testId="reference-not-found"
+          />
+        )}
+      </AntDesignThemeProvider>
     </ThemeProvider>
   );
 }
