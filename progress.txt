@@ -14161,3 +14161,11 @@
 - referenceContent.test.ts のエントリ数を77→82に更新
 - 変更ファイル: referenceContent.ts, referenceContent.test.ts, tasks/prd-docs-contents.md
 ---
+
+## 2026-03-14 11:40 - Reference: 具体的理論での証明ガイド・セクション4完了
+- guide-proving-in-theories を追加（order: 8, guide カテゴリ、10段落）
+- PA・群論での証明の実例、帰納法・消去律・等号公理の活用法
+- referenceContent.test.ts のエントリ数を82→83に更新（ガイド8に）
+- セクション2, 3, 4 の完了済み項目をすべて tasks-archived/ に移動
+- 変更ファイル: referenceContent.ts, referenceContent.test.ts, tasks/prd-docs-contents.md, tasks-archived/prd-docs-contents.md
+---

@@ -19,3 +19,12 @@
 - [x] `[guide]` 述語論理入門 — 命題論理からの拡張、項・述語・量化子の概念（guide-intro-predicate-logic、10段落、pred-01〜06関連）
 - [x] `[ref]` 述語論理の公理体系の構造 — A1-A5 + MP + Gen の全体像、公理スキーマの一覧（concept-predicate-axiom-system、7段落、formalNotation配列付き）
 - [x] `[ref]` 存在量化子の定義 (∃x.φ ↔ ¬∀x.¬φ) — axiom-ex-def を拡充。意味論的正当化・直観主義との違い・関連エントリ追加
+
+## 4. 等号と理論
+
+- [x] `[guide]` 等号の公理体系 — E1-E5 の各公理が何を保証するか（guide-equality-axiom-system、10段落、学習パスorder:7）
+- [x] `[ref]` Peano 算術の公理 PA1-PA6 — 6個の個別公理エントリ追加（axiom-pa1〜pa6, order:14-19）
+- [x] `[ref]` Robinson 算術 (Q) — concept-robinson-arithmetic として追加
+- [x] `[ref]` 群論の公理 G1-G3 — axiom-g1〜g3 (order:20-22)
+- [x] `[ref]` Abel群（可換群）— concept-abelian-group (order:28)
+- [x] `[guide]` 具体的な理論で証明する — guide-proving-in-theories（10段落）
