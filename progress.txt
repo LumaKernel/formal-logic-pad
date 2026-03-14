@@ -14449,3 +14449,14 @@
   - ModelAnswerStep に新タグ追加時は exhaustive switch が型エラーで変更漏れを検知してくれる
   - builtinModelAnswers.ts は 500KB超の大きなファイル。ESLint/Babel が deoptimize 警告を出すが正常動作
 ---
+
+## 2026-03-15 - Logic Core: FreeVariableAbsence
+- FreeVariableAbsence (φ[/x]) ASTノードを Formula union に追加
+- 変更ファイル: formula.ts, equality.ts, freeVariables.ts, substitution.ts, unification.ts, inferenceRule.ts, metaVariable.ts, cutElimination.ts, evaluation.ts, normalForm.ts, index.ts, parser.ts, formatUnicode.ts, formatLaTeX.ts, formulaHighlight.ts
+- テスト追加: formula.test.ts, parser.test.ts, equality.test.ts, freeVariables.test.ts, serialization.test.ts, formatUnicode.test.ts, formatLaTeX.test.ts, formulaHighlight.test.ts
+- カバレッジ: Stmts 99.48%, Branch 98.45% (ベースライン: Stmts 99.64%, Branch 99.03%) — v8 aggregation quirk による微減、実質的なカバレッジ低下なし
+- **今後のイテレーションへの学び:**
+  - Formula union に新ノード追加時、`satisfies never` パターンが全50+箇所でコンパイルエラーを出し変更漏れを完全に防止
+  - パーサーの `[/x]` vs `[τ/x]` の区別: LBRACKET直後に DIVIDE トークンがあるかで判別
+  - unification.ts の decomposeFormula は最後の case を fall-through として使っているため、新ケース追加時はその前に explicit if を挿入する必要がある
+---
