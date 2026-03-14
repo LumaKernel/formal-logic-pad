@@ -14526,3 +14526,26 @@
   - ∧⇒ と ⇒∨ は成分選択型だが可逆性により両成分同時展開+構造規則（exchange+contraction）で対処
   - SC規則は主論理式の位置に制約あり（左規則: pos 0、右規則: 末尾）。exchange規則で調整が必要
 ---
+
+## 2026-03-15 - Script Runner / Quest
+
+- 実装した内容:
+  - `proveSequentLK` ブリッジをスクリプトサンドボックスに公開（proofBridge.ts）
+  - 自動証明探索テンプレート「auto-prove-lk」を追加（templates.ts）
+  - `sc-auto-proof` カテゴリを新設（questDefinition.ts）
+  - 3つの自動証明探索クエスト追加: sc-ap-01（恒等律）, sc-ap-02（対偶）, sc-ap-03（ド・モルガン）
+  - proveSequentLKブリッジの10テスト追加（成功・エラー・バリデーション）
+  - テンプレート実行テスト追加
+- 変更したファイル:
+  - src/lib/script-runner/proofBridge.ts, proofBridge.test.ts
+  - src/lib/script-runner/templates.ts, templates.test.ts
+  - src/lib/quest/builtinQuests.ts, builtinQuests.test.ts
+  - src/lib/quest/questDefinition.ts, questDefinition.test.ts
+  - src/lib/logic-core/proofSearch.ts, proofSearch.test.ts（prettier修正のみ）
+- テスト結果: 276ファイル、11189テスト全パス
+- **今後のイテレーションへの学び:**
+  - proveSequentLK ブリッジは encodeScProofNode（cutEliminationBridge.ts）を再利用してJSON化。新しいエンコーダ不要
+  - 自動証明クエストは estimatedSteps を undefined に設定（スクリプトベースなので固定ステップ数がない）
+  - builtinQuests.test.ts の estimatedSteps テストは undefined 許容に修正済み
+  - HubPageView.stories.tsx は builtinQuests.slice(0, 20) を使用しているため、258クエスト目以降はストーリーに表示されない（メモリ記載通り）
+---
