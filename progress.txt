@@ -14067,3 +14067,16 @@
   - ImageMagick (magick) でSVG→ICO/PNG変換が可能。`magick icon.svg -define icon:auto-resize=48,32,16 favicon.ico`
   - ブランドアイコンはlucide-reactの既存アイコンよりカスタムSVGの方がテーマの一貫性を保てる
 ---
+
+## 2026-03-14 - リファレンスガイドセクション
+- ReferenceBrowserComponentにガイドセクション追加（guideカテゴリのエントリを番号付きカードで表示）
+- 検索・フィルタ未使用の初期状態でのみ表示、操作時に自動非表示
+- 純粋ロジック: buildGuideCards(), isInitialState() をreferenceBrowserLogic.tsに追加
+- i18n: referenceGuideTitle, referenceGuideDescription キーを追加
+- 変更ファイル: referenceBrowserLogic.ts, ReferenceBrowserComponent.tsx, hubMessages.ts, HubPageView.tsx, HubContent.tsx, messages/en.json, messages/ja.json, HubPageView.stories.tsx
+- テスト: referenceBrowserLogic.test.ts (+6), ReferenceBrowserComponent.test.tsx (+4)
+- カバレッジ: 変化なし
+- **今後のイテレーションへの学び:**
+  - ReferenceBrowserComponentはpropsベースのi18n（hubMessages経由）。新テキストはhubMessages.ts型→defaultHubMessages→hubMessageKeys→HubContent.tsx→messages/*.jsonの5箇所更新
+  - Storybook play関数が高速に実行されるため、初期状態のスクリーンショットを撮るのは難しい。テストでの確認が確実
+---
