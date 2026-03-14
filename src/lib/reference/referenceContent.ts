@@ -6876,6 +6876,80 @@ const conceptClassicalIntuitionisticRelation: ReferenceEntry = {
   order: 43,
 };
 
+const guideProofStrategy: ReferenceEntry = {
+  id: "guide-proof-strategy",
+  category: "guide",
+  title: {
+    en: "Proof Strategies",
+    ja: "証明の戦略",
+  },
+  summary: {
+    en: "Backward reasoning, lemma usage, and pattern recognition for constructing proofs.",
+    ja: "逆方向思考、補題の活用、パターン認識による証明の構築。",
+  },
+  body: {
+    en: [
+      "Constructing formal proofs is a skill that improves with practice. While there is no universal algorithm for finding proofs (in general, the problem is undecidable for predicate logic), several <b>strategies</b> consistently help.",
+      "<b>Backward reasoning</b> (goal-directed search) is the most fundamental strategy. Instead of starting from axioms and working forward, start from the <b>goal</b> and ask: what rule or axiom could produce this conclusion? This narrows the search space dramatically. In sequent calculus, this is the natural direction — proofs are built bottom-up.",
+      "<b>Pattern recognition</b> comes from familiarity with common proof shapes. Many proofs follow recurring patterns: the identity proof ($\\varphi \\to \\varphi$) uses A1 + A2 + MP in Hilbert systems; the deduction theorem pattern uses $\\to$I in natural deduction; contraposition uses $\\lnot$I and $\\lnot$E. Recognizing these patterns lets you assemble complex proofs from known building blocks.",
+      "<b>Using lemmas</b> (or the cut rule in sequent calculus) breaks complex proofs into manageable parts. If your goal is $\\Gamma \\vdash \\varphi$, you might first prove $\\Gamma \\vdash \\psi$ and then $\\psi \\vdash \\varphi$ for some intermediate $\\psi$. The art is choosing a good $\\psi$. Transitivity of implication (hypothetical syllogism) is one of the most common lemma patterns.",
+      "<b>Working with the deduction theorem</b> (in Hilbert systems) is essential. To prove $\\vdash \\varphi \\to \\psi$, it is often easier to prove $\\varphi \\vdash \\psi$ (assume $\\varphi$ and derive $\\psi$) and then apply the deduction theorem. This converts a conditional proof into an unconditional one at the cost of a longer proof.",
+      "<b>Connective-specific strategies</b>: To prove a conjunction $\\varphi \\land \\psi$, prove each conjunct separately. To prove a disjunction $\\varphi \\lor \\psi$, prove one disjunct. To prove a negation $\\lnot\\varphi$, assume $\\varphi$ and derive $\\bot$. To prove a universal $\\forall x.\\,\\varphi(x)$, prove $\\varphi(a)$ for an arbitrary $a$.",
+      "<b>Case analysis</b>: When you have $\\varphi \\lor \\psi$ available, use $\\lor$E to split into two cases. This is particularly powerful in classical logic where LEM gives you $\\varphi \\lor \\lnot\\varphi$ for free.",
+      "<b>Proof by contradiction</b> (in classical logic): To prove $\\varphi$, assume $\\lnot\\varphi$ and derive $\\bot$. Then apply DNE or RAA. This strategy is not available in intuitionistic or minimal logic.",
+      "<b>Tableau strategy</b>: In the tableau method, the strategy is always the same — assume the conclusion is false and decompose. Apply $\\alpha$ rules first (they are deterministic), then $\\beta$ rules (they create branches). For predicate logic, use $\\delta$ rules before $\\gamma$ rules (to introduce eigenvariables before choosing instantiation terms).",
+      "In this application, you can practice these strategies interactively. Start with simpler quests (prop-01 through prop-05) to learn the basic patterns, then tackle more complex ones. The model answers for completed quests demonstrate how these strategies are applied in practice.",
+    ],
+    ja: [
+      "形式的証明の構築は練習で向上するスキルです。証明を見つける万能のアルゴリズムは存在しませんが（一般に述語論理の問題は決定不能）、いくつかの<b>戦略</b>が一貫して役立ちます。",
+      "<b>逆方向思考</b>（目標指向探索）は最も基本的な戦略です。公理から出発して前進するのではなく、<b>目標</b>から出発して「どの規則や公理がこの結論を生成できるか」を問います。探索空間を劇的に狭めます。シーケント計算ではこれが自然な方向です——証明はボトムアップに構築されます。",
+      "<b>パターン認識</b>は一般的な証明の形への習熟から来ます。多くの証明は繰り返し現れるパターンに従います：恒等証明（$\\varphi \\to \\varphi$）はHilbert系でA1 + A2 + MPを使います。演繹定理パターンは自然演繹で$\\to$Iを使います。対偶は$\\lnot$Iと$\\lnot$Eを使います。これらのパターンを認識すると、既知の構成要素から複雑な証明を組み立てられます。",
+      "<b>補題の使用</b>（シーケント計算ではカット規則）は複雑な証明を管理可能な部分に分割します。目標が$\\Gamma \\vdash \\varphi$なら、まず$\\Gamma \\vdash \\psi$を証明し、次に$\\psi \\vdash \\varphi$を証明できます。技は良い中間の$\\psi$を選ぶことです。含意の推移律（仮言三段論法）は最も一般的な補題パターンの1つです。",
+      "<b>演繹定理の活用</b>（Hilbert系で）は不可欠です。$\\vdash \\varphi \\to \\psi$を証明するには、$\\varphi \\vdash \\psi$（$\\varphi$を仮定して$\\psi$を導出）を証明してから演繹定理を適用する方が容易なことが多いです。条件付き証明をより長い無条件証明に変換します。",
+      "<b>結合子別の戦略</b>：連言$\\varphi \\land \\psi$を証明するには各連言肢を別々に証明。選言$\\varphi \\lor \\psi$を証明するには一方の選言肢を証明。否定$\\lnot\\varphi$を証明するには$\\varphi$を仮定して$\\bot$を導出。全称$\\forall x.\\,\\varphi(x)$を証明するには任意の$a$について$\\varphi(a)$を証明。",
+      "<b>場合分け</b>：$\\varphi \\lor \\psi$が利用可能なとき、$\\lor$Eで2つの場合に分割。古典論理ではLEMが$\\varphi \\lor \\lnot\\varphi$を無条件に与えるため特に強力です。",
+      "<b>背理法</b>（古典論理で）：$\\varphi$を証明するには$\\lnot\\varphi$を仮定して$\\bot$を導出。次にDNEまたはRAAを適用。この戦略は直観主義論理や最小論理では使えません。",
+      "<b>タブロー法の戦略</b>：タブロー法では戦略は常に同じ——結論が偽と仮定して分解する。$\\alpha$規則を先に適用（決定的）、次に$\\beta$規則（分岐を作る）。述語論理では$\\delta$規則を$\\gamma$規則の前に使います（インスタンス化項を選ぶ前に固有変数を導入）。",
+      "本アプリケーションではこれらの戦略を対話的に練習できます。基本パターンを学ぶにはより単純なクエスト（prop-01からprop-05）から始め、次により複雑なものに挑戦してください。完了したクエストの模範解答は、これらの戦略が実際にどう適用されるかを示しています。",
+    ],
+  },
+  relatedEntryIds: [
+    "concept-deduction-theorem",
+    "concept-proof-system-translation",
+    "rule-nd-overview",
+    "rule-sc-overview",
+    "concept-analytic-tableau",
+    "guide-hilbert-proof-method",
+    "guide-meta-theorems",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Proof_theory",
+      label: {
+        en: "Proof theory (Wikipedia)",
+        ja: "証明論 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "strategy",
+    "backward reasoning",
+    "pattern recognition",
+    "lemma",
+    "case analysis",
+    "proof by contradiction",
+    "戦略",
+    "逆方向思考",
+    "パターン認識",
+    "補題",
+    "場合分け",
+    "背理法",
+  ],
+  order: 13,
+};
+
 const conceptAbelianGroup: ReferenceEntry = {
   id: "concept-abelian-group",
   category: "concept",
@@ -7708,6 +7782,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   guideIntroSequentCalculus,
   guideIntroTableau,
   guideMetaTheorems,
+  guideProofStrategy,
   // Axioms
   axiomA1,
   axiomA2,
