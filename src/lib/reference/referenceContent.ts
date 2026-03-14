@@ -5981,6 +5981,287 @@ const guideIntroSequentCalculus: ReferenceEntry = {
   order: 10,
 };
 
+const conceptLkLjDifference: ReferenceEntry = {
+  id: "concept-lk-lj-difference",
+  category: "concept",
+  title: {
+    en: "LK vs LJ — Classical and Intuitionistic Sequent Calculi",
+    ja: "LK と LJ — 古典・直観主義シーケント計算の違い",
+  },
+  summary: {
+    en: "The succedent cardinality restriction distinguishes classical (LK) from intuitionistic (LJ) sequent calculus.",
+    ja: "後件の個数制限が古典（LK）と直観主義（LJ）のシーケント計算を区別する。",
+  },
+  body: {
+    en: [
+      "Gentzen's sequent calculi <b>LK</b> (Logischer Kalkül, classical) and <b>LJ</b> (Logischer Johansson/Intuitionistischer, intuitionistic) differ in a single structural constraint: the number of formulas allowed on the <b>right side</b> (succedent) of a sequent.",
+      "In <b>LK</b>, a sequent $\\Gamma \\Rightarrow \\Delta$ allows $\\Delta$ to be any finite multiset of formulas. The reading is: if all formulas in $\\Gamma$ hold, then at least one formula in $\\Delta$ holds. This corresponds to classical reasoning where the law of excluded middle holds.",
+      "In <b>LJ</b>, the succedent $\\Delta$ is restricted to <b>at most one formula</b>. Sequents have the form $\\Gamma \\Rightarrow \\varphi$ or $\\Gamma \\Rightarrow$ (empty succedent, representing falsum). This restriction forces intuitionistic reasoning: you must commit to proving a specific conclusion.",
+      'The restriction has profound consequences. In LK, the right weakening rule can add formulas to $\\Delta$, and the right contraction rule can merge them — enabling implicit disjunctive reasoning. In LJ, you cannot "defer" choosing which disjunct to prove.',
+      "A third variant, <b>LM</b> (minimal logic), restricts the succedent to <b>exactly one formula</b> — the empty succedent is not allowed. This means $\\bot$ cannot appear alone on the right, so the explosion principle (EFQ) is not derivable.",
+      "In this application, the variant is selected via system presets. LK has no succedent restriction (<code>maxSuccedentLength: undefined</code>), LJ has <code>maxSuccedentLength: 1</code>, and LM requires exactly one formula in the succedent.",
+    ],
+    ja: [
+      "Gentzenのシーケント計算<b>LK</b>（Logischer Kalkül、古典）と<b>LJ</b>（Logischer Johansson/Intuitionistischer、直観主義）は、シーケントの<b>右辺</b>（後件, succedent）に許される論理式の数という単一の構造的制約によって区別されます。",
+      "<b>LK</b>では、シーケント$\\Gamma \\Rightarrow \\Delta$の$\\Delta$は任意の有限多重集合です。読みは「$\\Gamma$のすべてが成り立つなら、$\\Delta$の少なくとも1つが成り立つ」です。排中律が成り立つ古典的推論に対応します。",
+      "<b>LJ</b>では、後件$\\Delta$は<b>高々1つの論理式</b>に制限されます。シーケントは$\\Gamma \\Rightarrow \\varphi$または$\\Gamma \\Rightarrow$（空の後件、矛盾を表す）の形です。この制限は直観主義的推論を強制します：特定の結論を証明することにコミットしなければなりません。",
+      "この制限は深遠な帰結をもたらします。LKでは右弱化規則が$\\Delta$に論理式を追加でき、右縮約規則がそれらを統合できます——暗黙的な選言的推論が可能になります。LJでは「どの選言肢を証明するかを先送りする」ことができません。",
+      "第3の変種<b>LM</b>（最小論理）は後件を<b>ちょうど1つの論理式</b>に制限します——空の後件は許されません。これにより$\\bot$が右辺に単独で現れることができず、爆発律（EFQ）が導出不能になります。",
+      "本アプリケーションでは、体系プリセットによって変種を選択します。LKは後件制限なし（<code>maxSuccedentLength: undefined</code>）、LJは<code>maxSuccedentLength: 1</code>、LMは後件にちょうど1つの論理式を要求します。",
+    ],
+  },
+  relatedEntryIds: [
+    "rule-sc-overview",
+    "rule-sc-structural",
+    "rule-sc-logical",
+    "system-classical",
+    "system-intuitionistic",
+    "system-minimal",
+    "guide-intro-sequent-calculus",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Sequent_calculus#Variants",
+      label: {
+        en: "Sequent calculus variants (Wikipedia)",
+        ja: "シーケント計算の変種 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "LK",
+    "LJ",
+    "LM",
+    "succedent",
+    "classical",
+    "intuitionistic",
+    "minimal",
+    "後件",
+    "サクシーデント",
+  ],
+  order: 33,
+};
+
+const conceptScCutRule: ReferenceEntry = {
+  id: "concept-sc-cut-rule",
+  category: "concept",
+  title: {
+    en: "Cut Rule and Cut Elimination in Sequent Calculus",
+    ja: "シーケント計算のカット規則とカット除去",
+  },
+  summary: {
+    en: "The cut rule allows using lemmas; cut elimination shows they are always eliminable.",
+    ja: "カット規則は補題の使用を可能にし、カット除去はそれが常に除去可能であることを示す。",
+  },
+  body: {
+    en: [
+      "The <b>cut rule</b> in sequent calculus allows combining two derivations through a shared formula (the <i>cut formula</i>): from $\\Gamma \\Rightarrow \\Delta, \\varphi$ and $\\varphi, \\Sigma \\Rightarrow \\Pi$, conclude $\\Gamma, \\Sigma \\Rightarrow \\Delta, \\Pi$.",
+      'The cut rule corresponds to using a <b>lemma</b>: first prove $\\varphi$ (from $\\Gamma$), then use $\\varphi$ (in $\\Sigma$) to derive the final conclusion. Without cut, every formula in a proof must be a subformula of the conclusion — no "creative" intermediate steps are possible.',
+      "Gentzen's <b>Hauptsatz</b> (cut elimination theorem, 1935) states that any proof using the cut rule can be transformed into a cut-free proof. The transformation may increase the proof size dramatically (non-elementary blowup), but it always terminates.",
+      "Cut elimination has profound consequences: (1) The <b>subformula property</b> — every formula in a cut-free proof is a subformula of the endsequent. (2) <b>Consistency</b> — if $\\bot$ is not a subformula of the goal, it cannot appear, so $\\bot$ is not derivable from no assumptions. (3) <b>Interpolation</b> and <b>decidability</b> results follow from the subformula property.",
+      "In practice, proofs with cut are much shorter and more natural. The cut rule captures the mathematician's ability to prove and use intermediate results. Cut-free proofs, while theoretically important, can be impractically long.",
+      "In this application, the cut rule is available as an explicit proof step. Users can introduce a cut formula to split a proof goal into two subgoals. The concept of cut elimination is covered in the dedicated reference entry.",
+    ],
+    ja: [
+      "シーケント計算の<b>カット規則</b>は、共有する論理式（<i>カット式</i>）を通じて2つの導出を結合します：$\\Gamma \\Rightarrow \\Delta, \\varphi$ と $\\varphi, \\Sigma \\Rightarrow \\Pi$ から $\\Gamma, \\Sigma \\Rightarrow \\Delta, \\Pi$ を結論します。",
+      "カット規則は<b>補題</b>の使用に対応します：まず$\\varphi$を証明し（$\\Gamma$から）、次に$\\varphi$を使って（$\\Sigma$の中で）最終的な結論を導きます。カットなしでは、証明のすべての論理式は結論の部分式でなければなりません——「創造的な」中間ステップは不可能です。",
+      "Gentzenの<b>基本定理</b>（カット除去定理、1935年）は、カット規則を使うすべての証明がカットなし証明に変換可能であることを述べます。変換は証明のサイズを劇的に増大させる（非初等的爆発）可能性がありますが、常に停止します。",
+      "カット除去には深遠な帰結があります：(1) <b>部分式性質</b>——カットなし証明のすべての論理式は最終シーケントの部分式です。(2) <b>無矛盾性</b>——$\\bot$が目標の部分式でなければ現れないので、仮定なしから$\\bot$は導出不能です。(3) 部分式性質から<b>内挿</b>や<b>決定可能性</b>の結果が得られます。",
+      "実践的には、カットを使う証明ははるかに短く自然です。カット規則は数学者の「中間結果を証明して使う」能力を捉えます。カットなし証明は理論的に重要ですが、実用的には非常に長くなりえます。",
+      "本アプリケーションでは、カット規則は明示的な証明ステップとして利用可能です。ユーザはカット式を導入して証明目標を2つの副目標に分割できます。カット除去の概念は専用のリファレンスエントリで解説されています。",
+    ],
+  },
+  formalNotation:
+    "\\text{Cut}: \\dfrac{\\Gamma \\Rightarrow \\Delta, \\varphi \\qquad \\varphi, \\Sigma \\Rightarrow \\Pi}{\\Gamma, \\Sigma \\Rightarrow \\Delta, \\Pi}",
+  relatedEntryIds: [
+    "rule-sc-overview",
+    "concept-cut-elimination",
+    "rule-sc-logical",
+    "rule-sc-structural",
+    "guide-intro-sequent-calculus",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Cut-elimination_theorem",
+      label: {
+        en: "Cut-elimination theorem (Wikipedia)",
+        ja: "カット除去定理 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%83%E3%83%88%E9%99%A4%E5%8E%BB%E5%AE%9A%E7%90%86",
+      label: {
+        en: "Cut-elimination theorem (Wikipedia JA)",
+        ja: "カット除去定理 (Wikipedia)",
+      },
+      documentLanguage: "ja",
+    },
+  ],
+  keywords: [
+    "cut rule",
+    "cut elimination",
+    "Hauptsatz",
+    "subformula property",
+    "lemma",
+    "カット規則",
+    "カット除去",
+    "基本定理",
+    "部分式性質",
+    "補題",
+  ],
+  order: 34,
+};
+
+const conceptScLogicalRulesDetail: ReferenceEntry = {
+  id: "concept-sc-logical-rules-detail",
+  category: "concept",
+  title: {
+    en: "Logical Rules of Sequent Calculus (Detail)",
+    ja: "シーケント計算の各論理規則の詳細",
+  },
+  summary: {
+    en: "Detailed treatment of →L/R, ∧L/R, ∨L/R, ¬L/R, ∀L/R, ∃L/R.",
+    ja: "→左/右、∧左/右、∨左/右、¬左/右、∀左/右、∃左/右の詳細。",
+  },
+  body: {
+    en: [
+      "Each logical connective in sequent calculus has a <b>left rule</b> (decomposing the connective in the antecedent) and a <b>right rule</b> (decomposing it in the succedent). The rules are designed so that cut elimination holds.",
+      "<b>$\\to$R (Implication Right)</b>: From $\\Gamma, \\varphi \\Rightarrow \\Delta, \\psi$, conclude $\\Gamma \\Rightarrow \\Delta, \\varphi \\to \\psi$. The antecedent of the implication moves to the left side. <b>$\\to$L</b>: From $\\Gamma \\Rightarrow \\Delta, \\varphi$ and $\\psi, \\Sigma \\Rightarrow \\Pi$, conclude $\\varphi \\to \\psi, \\Gamma, \\Sigma \\Rightarrow \\Delta, \\Pi$.",
+      "<b>$\\land$R (Conjunction Right)</b>: From $\\Gamma \\Rightarrow \\Delta, \\varphi$ and $\\Gamma \\Rightarrow \\Delta, \\psi$, conclude $\\Gamma \\Rightarrow \\Delta, \\varphi \\land \\psi$. Both conjuncts must be proved. <b>$\\land$L</b>: From $\\varphi, \\psi, \\Gamma \\Rightarrow \\Delta$, conclude $\\varphi \\land \\psi, \\Gamma \\Rightarrow \\Delta$ (both conjuncts become available).",
+      "<b>$\\lor$R (Disjunction Right)</b>: From $\\Gamma \\Rightarrow \\Delta, \\varphi, \\psi$, conclude $\\Gamma \\Rightarrow \\Delta, \\varphi \\lor \\psi$. In LJ (single succedent), two separate rules exist: $\\lor$R1 and $\\lor$R2. <b>$\\lor$L</b>: From $\\varphi, \\Gamma \\Rightarrow \\Delta$ and $\\psi, \\Sigma \\Rightarrow \\Pi$, conclude $\\varphi \\lor \\psi, \\Gamma, \\Sigma \\Rightarrow \\Delta, \\Pi$.",
+      "<b>$\\lnot$R (Negation Right)</b>: From $\\varphi, \\Gamma \\Rightarrow \\Delta$, conclude $\\Gamma \\Rightarrow \\Delta, \\lnot\\varphi$. The negated formula moves to the left. <b>$\\lnot$L</b>: From $\\Gamma \\Rightarrow \\Delta, \\varphi$, conclude $\\lnot\\varphi, \\Gamma \\Rightarrow \\Delta$. The negated formula moves to the right.",
+      "<b>$\\forall$R (Universal Right)</b>: From $\\Gamma \\Rightarrow \\Delta, \\varphi(a)$ where $a$ is an eigenvariable not in $\\Gamma, \\Delta$, conclude $\\Gamma \\Rightarrow \\Delta, \\forall x.\\,\\varphi(x)$. <b>$\\forall$L</b>: From $\\varphi(t), \\Gamma \\Rightarrow \\Delta$, conclude $\\forall x.\\,\\varphi(x), \\Gamma \\Rightarrow \\Delta$ for any term $t$.",
+      "<b>$\\exists$R (Existential Right)</b>: From $\\Gamma \\Rightarrow \\Delta, \\varphi(t)$, conclude $\\Gamma \\Rightarrow \\Delta, \\exists x.\\,\\varphi(x)$ for any term $t$. <b>$\\exists$L</b>: From $\\varphi(a), \\Gamma \\Rightarrow \\Delta$ where $a$ is an eigenvariable not in $\\Gamma, \\Delta, \\exists x.\\,\\varphi(x)$, conclude $\\exists x.\\,\\varphi(x), \\Gamma \\Rightarrow \\Delta$.",
+    ],
+    ja: [
+      "シーケント計算の各論理結合子には<b>左規則</b>（前件の結合子を分解）と<b>右規則</b>（後件の結合子を分解）があります。規則はカット除去が成り立つように設計されています。",
+      "<b>$\\to$R（含意右）</b>：$\\Gamma, \\varphi \\Rightarrow \\Delta, \\psi$ から $\\Gamma \\Rightarrow \\Delta, \\varphi \\to \\psi$ を結論します。含意の前件が左辺に移動します。<b>$\\to$L</b>：$\\Gamma \\Rightarrow \\Delta, \\varphi$ と $\\psi, \\Sigma \\Rightarrow \\Pi$ から $\\varphi \\to \\psi, \\Gamma, \\Sigma \\Rightarrow \\Delta, \\Pi$ を結論します。",
+      "<b>$\\land$R（連言右）</b>：$\\Gamma \\Rightarrow \\Delta, \\varphi$ と $\\Gamma \\Rightarrow \\Delta, \\psi$ から $\\Gamma \\Rightarrow \\Delta, \\varphi \\land \\psi$ を結論します。両方の連言肢を証明する必要があります。<b>$\\land$L</b>：$\\varphi, \\psi, \\Gamma \\Rightarrow \\Delta$ から $\\varphi \\land \\psi, \\Gamma \\Rightarrow \\Delta$ を結論します。",
+      "<b>$\\lor$R（選言右）</b>：$\\Gamma \\Rightarrow \\Delta, \\varphi, \\psi$ から $\\Gamma \\Rightarrow \\Delta, \\varphi \\lor \\psi$ を結論します。LJ（単一後件）では$\\lor$R1と$\\lor$R2の2つの別個の規則があります。<b>$\\lor$L</b>：$\\varphi, \\Gamma \\Rightarrow \\Delta$ と $\\psi, \\Sigma \\Rightarrow \\Pi$ から $\\varphi \\lor \\psi, \\Gamma, \\Sigma \\Rightarrow \\Delta, \\Pi$ を結論します。",
+      "<b>$\\lnot$R（否定右）</b>：$\\varphi, \\Gamma \\Rightarrow \\Delta$ から $\\Gamma \\Rightarrow \\Delta, \\lnot\\varphi$ を結論します。否定された論理式が左辺に移動します。<b>$\\lnot$L</b>：$\\Gamma \\Rightarrow \\Delta, \\varphi$ から $\\lnot\\varphi, \\Gamma \\Rightarrow \\Delta$ を結論します。否定された論理式が右辺に移動します。",
+      "<b>$\\forall$R（全称右）</b>：$\\Gamma \\Rightarrow \\Delta, \\varphi(a)$（$a$は$\\Gamma, \\Delta$に現れない固有変数）から $\\Gamma \\Rightarrow \\Delta, \\forall x.\\,\\varphi(x)$ を結論します。<b>$\\forall$L</b>：$\\varphi(t), \\Gamma \\Rightarrow \\Delta$ から任意の項$t$について $\\forall x.\\,\\varphi(x), \\Gamma \\Rightarrow \\Delta$ を結論します。",
+      "<b>$\\exists$R（存在右）</b>：$\\Gamma \\Rightarrow \\Delta, \\varphi(t)$ から任意の項$t$について $\\Gamma \\Rightarrow \\Delta, \\exists x.\\,\\varphi(x)$ を結論します。<b>$\\exists$L</b>：$\\varphi(a), \\Gamma \\Rightarrow \\Delta$（$a$は固有変数）から $\\exists x.\\,\\varphi(x), \\Gamma \\Rightarrow \\Delta$ を結論します。",
+    ],
+  },
+  formalNotation: [
+    "\\to\\text{R}: \\dfrac{\\Gamma, \\varphi \\Rightarrow \\Delta, \\psi}{\\Gamma \\Rightarrow \\Delta, \\varphi \\to \\psi}",
+    "\\land\\text{R}: \\dfrac{\\Gamma \\Rightarrow \\Delta, \\varphi \\quad \\Gamma \\Rightarrow \\Delta, \\psi}{\\Gamma \\Rightarrow \\Delta, \\varphi \\land \\psi}",
+    "\\lor\\text{L}: \\dfrac{\\varphi, \\Gamma \\Rightarrow \\Delta \\quad \\psi, \\Sigma \\Rightarrow \\Pi}{\\varphi \\lor \\psi, \\Gamma, \\Sigma \\Rightarrow \\Delta, \\Pi}",
+    "\\lnot\\text{R}: \\dfrac{\\varphi, \\Gamma \\Rightarrow \\Delta}{\\Gamma \\Rightarrow \\Delta, \\lnot\\varphi}",
+  ],
+  relatedEntryIds: [
+    "rule-sc-overview",
+    "rule-sc-logical",
+    "rule-sc-structural",
+    "concept-lk-lj-difference",
+    "guide-intro-sequent-calculus",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Sequent_calculus#Inference_rules",
+      label: {
+        en: "Sequent calculus inference rules (Wikipedia)",
+        ja: "シーケント計算の推論規則 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "logical rules",
+    "implication left",
+    "implication right",
+    "conjunction",
+    "disjunction",
+    "negation",
+    "universal",
+    "existential",
+    "論理規則",
+    "含意左",
+    "含意右",
+    "連言",
+    "選言",
+    "否定",
+    "全称",
+    "存在",
+  ],
+  order: 35,
+};
+
+const conceptScStructuralRulesDetail: ReferenceEntry = {
+  id: "concept-sc-structural-rules-detail",
+  category: "concept",
+  title: {
+    en: "Structural Rules of Sequent Calculus (Detail)",
+    ja: "シーケント計算の構造規則の詳細",
+  },
+  summary: {
+    en: "Weakening, contraction, and exchange — the rules that shape sequents.",
+    ja: "弱化、縮約、交換 — シーケントの形を制御する規則。",
+  },
+  body: {
+    en: [
+      '<b>Structural rules</b> in sequent calculus manipulate the multisets $\\Gamma$ and $\\Delta$ without involving logical connectives. They control the "shape" of proofs and are essential for connecting logical rules together.',
+      "<b>Weakening (W)</b> adds an unused formula to the antecedent or succedent. <b>W-left</b>: from $\\Gamma \\Rightarrow \\Delta$, conclude $\\varphi, \\Gamma \\Rightarrow \\Delta$. <b>W-right</b>: from $\\Gamma \\Rightarrow \\Delta$, conclude $\\Gamma \\Rightarrow \\Delta, \\varphi$. Weakening is sound because adding extra assumptions or conclusions does not invalidate a valid argument.",
+      "<b>Contraction (C)</b> merges two copies of a formula into one. <b>C-left</b>: from $\\varphi, \\varphi, \\Gamma \\Rightarrow \\Delta$, conclude $\\varphi, \\Gamma \\Rightarrow \\Delta$. <b>C-right</b>: from $\\Gamma \\Rightarrow \\Delta, \\varphi, \\varphi$, conclude $\\Gamma \\Rightarrow \\Delta, \\varphi$. Contraction reflects that using an assumption twice is the same as using it once.",
+      "<b>Exchange (X)</b> reorders formulas in the antecedent or succedent. Since sequents use multisets, exchange is sometimes treated as implicit. However, in implementations that use lists (as in this application), explicit exchange steps are needed to bring formulas to the required positions for rule application.",
+      "The availability of structural rules varies across proof systems. <b>Linear logic</b> drops weakening and contraction, forcing each formula to be used exactly once. <b>Affine logic</b> allows weakening but not contraction. These substructural logics have applications in resource-sensitive reasoning and programming language theory.",
+      "In this application, weakening, contraction, and exchange are available on both the left and right sides. Exchange is particularly important in practice: many logical rules require the principal formula to be in a specific position, so exchange steps are needed to rearrange the sequent before applying a logical rule.",
+    ],
+    ja: [
+      "シーケント計算の<b>構造規則</b>は、論理結合子を含まずに多重集合$\\Gamma$と$\\Delta$を操作します。証明の「形」を制御し、論理規則をつなぎ合わせるために不可欠です。",
+      "<b>弱化（W）</b>は前件または後件に未使用の論理式を追加します。<b>W-left</b>：$\\Gamma \\Rightarrow \\Delta$ から $\\varphi, \\Gamma \\Rightarrow \\Delta$ を結論します。<b>W-right</b>：$\\Gamma \\Rightarrow \\Delta$ から $\\Gamma \\Rightarrow \\Delta, \\varphi$ を結論します。弱化は健全です。追加の仮定や結論は妥当な議論を無効にしないためです。",
+      "<b>縮約（C）</b>は論理式の2つのコピーを1つに統合します。<b>C-left</b>：$\\varphi, \\varphi, \\Gamma \\Rightarrow \\Delta$ から $\\varphi, \\Gamma \\Rightarrow \\Delta$ を結論します。<b>C-right</b>：$\\Gamma \\Rightarrow \\Delta, \\varphi, \\varphi$ から $\\Gamma \\Rightarrow \\Delta, \\varphi$ を結論します。縮約は仮定を2回使うことと1回使うことが同じであることを反映します。",
+      "<b>交換（X）</b>は前件または後件の論理式を並べ替えます。シーケントは多重集合を使うため、交換は暗黙的に扱われることもあります。しかし、リストを使う実装（本アプリケーションなど）では、規則適用のために論理式を必要な位置に移動する明示的な交換ステップが必要です。",
+      "構造規則の利用可能性は証明体系によって異なります。<b>線形論理</b>は弱化と縮約を排除し、各論理式をちょうど1回使うことを強制します。<b>アフィン論理</b>は弱化を許しますが縮約は許しません。これらの部分構造論理は資源に敏感な推論やプログラミング言語理論に応用されます。",
+      "本アプリケーションでは、弱化・縮約・交換は左辺・右辺の両方で利用可能です。交換は実践的に特に重要です：多くの論理規則は主論理式が特定の位置にあることを要求するため、論理規則を適用する前にシーケントを並べ替える交換ステップが必要になります。",
+    ],
+  },
+  formalNotation: [
+    "\\text{W-left}: \\dfrac{\\Gamma \\Rightarrow \\Delta}{\\varphi, \\Gamma \\Rightarrow \\Delta}",
+    "\\text{C-left}: \\dfrac{\\varphi, \\varphi, \\Gamma \\Rightarrow \\Delta}{\\varphi, \\Gamma \\Rightarrow \\Delta}",
+    "\\text{X-left}: \\dfrac{\\Gamma, \\varphi, \\psi, \\Sigma \\Rightarrow \\Delta}{\\Gamma, \\psi, \\varphi, \\Sigma \\Rightarrow \\Delta}",
+  ],
+  relatedEntryIds: [
+    "rule-sc-overview",
+    "rule-sc-structural",
+    "rule-sc-logical",
+    "concept-lk-lj-difference",
+    "guide-intro-sequent-calculus",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Structural_rule",
+      label: {
+        en: "Structural rule (Wikipedia)",
+        ja: "構造規則 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "weakening",
+    "contraction",
+    "exchange",
+    "structural rule",
+    "linear logic",
+    "substructural",
+    "弱化",
+    "縮約",
+    "交換",
+    "構造規則",
+    "線形論理",
+    "部分構造",
+  ],
+  order: 36,
+};
+
 const conceptAbelianGroup: ReferenceEntry = {
   id: "concept-abelian-group",
   category: "concept",
@@ -6892,6 +7173,10 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptAssumptionManagement,
   conceptNdNegationRules,
   conceptNdQuantifierRules,
+  conceptLkLjDifference,
+  conceptScCutRule,
+  conceptScLogicalRulesDetail,
+  conceptScStructuralRulesDetail,
   conceptAbelianGroup,
   // Theories
   theoryPeanoArithmetic,
