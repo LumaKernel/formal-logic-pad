@@ -14279,3 +14279,18 @@
   - `buildGlobalNavigation` はカテゴリ横断ナビゲーション用に用意したが、現時点ではUIは `buildCategoryNavigation` のみ使用
   - prev linkのonClickテストを忘れるとcoverage dropする。prev/next両方のクリックテストを書くこと
 ---
+
+## 2026-03-14 - [Docs] 論理式スキーマで証明する技法ガイドエントリ追加
+- guideSchemaProofPractice エントリを referenceContent.ts に追加（9段落 en/ja）
+- 内容: スキーマレベル証明の特徴、実践的テクニック、メタ定理への橋渡し
+- テストのエントリ数を103→104に更新
+- カバレッジ: 変動なし（99.89% statements, 98.84% branches）
+- 変更ファイル:
+  - src/lib/reference/referenceContent.ts
+  - src/lib/reference/referenceContent.test.ts
+  - tasks/prd-docs-improve.md
+- スクリーンショット: .screenshots/reference-tab-schema-guide.png
+- **今後のイテレーションへの学び:**
+  - conceptFormulaSchema（概念）とguideSchemaProofPractice（ガイド）は同じトピックだが視点が異なる。概念=理論的定義、ガイド=実践的体験
+  - prd-docs-improve.md の残タスク: 基礎編充実（ドキュメントベース学習、アカデミック論調）
+---
