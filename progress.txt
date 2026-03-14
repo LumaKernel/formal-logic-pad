@@ -14403,3 +14403,17 @@
   - Storybook 10のiframe内でReactの`useInsertionEffect`同期エラーが発生し、インタラクティブなStep実行が動作しない問題あり（play関数経由は正常）
   - `as unknown as` は ESLint `no-as-unknown-as` に引っかかる。型定義側で適切な型を付けて回避する
 ---
+
+## 2026-03-14 - [Script] コンテキストメニューから「スクリプトを適用」
+- ノード右クリックメニューとキャンバス右クリックメニューに「Apply Script…」項目を追加
+- workspaceBridgeにgetSelectedNodeIds APIを追加（スクリプトから選択中ノードIDを取得可能に）
+- menuActionDefinitionにapply-scriptアクションを追加
+- proofMessagesにapplyScriptメッセージを追加（en/ja）
+- 変更ファイル: workspaceBridge.ts, workspaceBridge.test.ts, templates.test.ts, menuActionDefinition.ts, menuActionDefinition.test.ts, proofMessages.ts, ProofWorkspace.tsx, WorkspaceContent.tsx, ScriptEditorComponent.stories.tsx, messages/en.json, messages/ja.json
+- カバレッジ: 変化なし（新コードはテスト済み）
+- スクリーンショット: .screenshots/apply-script-context-menu-detail.png
+- **今後のイテレーションへの学び:**
+  - WorkspaceCommandHandlerに新APIを追加する場合、テスト(workspaceBridge.test.ts, templates.test.ts)とStory(ScriptEditorComponent.stories.tsx)のモックも同時に更新が必要
+  - menuActionDefinitionのcontextsでnode-context-menuとcanvas-context-menuの両方に配置可能
+  - ProofWorkspace.tsxのノードコンテキストメニューは3箇所（note/script/通常ノード）に分かれている
+---
