@@ -14496,3 +14496,21 @@
   - 同時代入変換: 後の置換を前の項に伝搬させることで順序非依存にする。同変数エントリは最初（最内）のものを採用（伝搬済みのため）
   - removeRedundantAbsences はインデックスベースで判定（より外側に同変数の subst があるときのみ除去）
 ---
+
+## 2026-03-15 - [Proof Pad] 論理式簡約（Normalize Formula）コンテキストメニューアクション
+- normalizeApplicationLogic.ts: 純粋バリデーションロジック（3エラー型: NormalizeParseError, NormalizeNoChange, NormalizeEmptyFormula）
+- workspaceState.ts: applyNormalize関数（updateNodeFormulaTextで既存ノードのformula置換 + syncInferenceEdges）
+- menuActionDefinition.ts: "normalize-formula" メニュー項目追加
+- ProofWorkspace.tsx: handleNormalizeFormula コールバック追加
+- proofMessages.ts: getNormalizeErrorMessageKey + 5メッセージキー追加
+- messages/en.json, ja.json: i18nメッセージ追加
+- index.ts: 公開API追加
+- WorkspaceContent.tsx: メッセージバインディング追加
+- テスト: normalizeApplicationLogic.test.ts(15テスト), workspaceState.test.ts(+5テスト), proofMessages.test.ts(+4テスト)
+- カバレッジ: 99.77% → 99.81% Stmts, 98.74% → 98.90% Branch（向上）
+- スクリーンショット: .screenshots/normalize-context-menu.png, .screenshots/normalize-after-click.png
+- **今後のイテレーションへの学び:**
+  - Normalize はMP/Gen/Substとは異なり、新規ノード+InferenceEdge作成ではなく、既存ノードのformulaText直接置換パターン
+  - 3層分離パターン（純粋ロジック→状態管理→UI）は簡約操作にもそのまま適用可能
+  - substitution.ts の normalizeFormula は Prettier でフォーマットが変わるため、新ファイル作成後にprettier --writeが必要
+---
