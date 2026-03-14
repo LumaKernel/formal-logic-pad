@@ -6262,6 +6262,340 @@ const conceptScStructuralRulesDetail: ReferenceEntry = {
   order: 36,
 };
 
+const guideIntroTableau: ReferenceEntry = {
+  id: "guide-intro-tableau",
+  category: "guide",
+  title: {
+    en: "Introduction to the Tableau Method",
+    ja: "タブロー法入門",
+  },
+  summary: {
+    en: "Proof by refutation, branch closure, and the intuition behind α/β rules.",
+    ja: "反駁による証明、枝の閉包、α/β規則の直観。",
+  },
+  body: {
+    en: [
+      "The <b>tableau method</b> (also called the semantic tableau or truth tree) is a proof procedure based on <b>refutation</b>: to prove a formula $\\varphi$, you assume it is false and systematically look for a contradiction. If every possible scenario leads to a contradiction, then $\\varphi$ must be true.",
+      'A tableau is a <b>tree</b> whose nodes are labeled with <b>signed formulas</b>: T($\\varphi$) means "$\\varphi$ is assumed true" and F($\\varphi$) means "$\\varphi$ is assumed false". To prove $\\varphi$, start with the single node F($\\varphi$) — the assumption that $\\varphi$ is false.',
+      "Decomposition rules break down complex formulas into simpler ones. There are two kinds: <b>$\\alpha$ rules</b> (non-branching) add formulas to the current branch, while <b>$\\beta$ rules</b> (branching) split the branch into two alternatives. This classification was introduced by Raymond Smullyan.",
+      "For example, T($\\varphi \\land \\psi$) is an $\\alpha$ formula: if a conjunction is true, both conjuncts must be true, so we add T($\\varphi$) and T($\\psi$) to the same branch. T($\\varphi \\lor \\psi$) is a $\\beta$ formula: if a disjunction is true, at least one disjunct is true, so we split into two branches.",
+      "A branch is <b>closed</b> when it contains both T($\\varphi$) and F($\\varphi$) for some formula — a contradiction. A branch that cannot be extended further without being closed is <b>open</b> and represents a potential counterexample.",
+      "A tableau proof is <b>complete</b> when every branch is closed. If the tableau started from F($\\varphi$), this means every attempt to make $\\varphi$ false leads to contradiction, so $\\varphi$ is valid.",
+      "For predicate logic, two additional rule types handle quantifiers: <b>$\\gamma$ rules</b> for universal-like formulas (can be applied multiple times with different terms) and <b>$\\delta$ rules</b> for existential-like formulas (introduce a fresh eigenvariable).",
+      "The tableau method is closely related to sequent calculus. In fact, a variant called <b>TAB</b> (tableau-style sequent calculus) uses one-sided sequents $\\Gamma \\Rightarrow$ and is equivalent to LK with cut. Each TAB rule corresponds directly to a tableau decomposition rule.",
+      "In this application, you can build tableau proofs interactively. Start from the goal formula, apply decomposition rules step by step, and close branches by finding contradictions. The system supports both signed notation and abbreviated notation.",
+      "The tableau method is often the most intuitive proof system for beginners: the strategy is always the same — assume the conclusion is wrong, break things down, and look for contradictions. It naturally combines proof search with counterexample generation.",
+    ],
+    ja: [
+      "<b>タブロー法</b>（意味論的タブロー、真理木とも呼ばれる）は<b>反駁</b>に基づく証明手続きです。論理式$\\varphi$を証明するには、それが偽であると仮定し、体系的に矛盾を探します。すべての可能なシナリオが矛盾に至れば、$\\varphi$は真でなければなりません。",
+      "タブローは<b>署名付き論理式</b>でラベル付けされたノードを持つ<b>木</b>です。T($\\varphi$)は「$\\varphi$は真と仮定」、F($\\varphi$)は「$\\varphi$は偽と仮定」を意味します。$\\varphi$を証明するには、F($\\varphi$)の単一ノードから開始します。",
+      "分解規則は複雑な論理式をより単純なものに分解します。2種類あります：<b>$\\alpha$規則</b>（非分岐）は現在の枝に論理式を追加し、<b>$\\beta$規則</b>（分岐）は枝を2つの選択肢に分割します。この分類はRaymond Smullyanが導入しました。",
+      "例えば、T($\\varphi \\land \\psi$)は$\\alpha$論理式です：連言が真なら両方の連言肢が真なので、T($\\varphi$)とT($\\psi$)を同じ枝に追加します。T($\\varphi \\lor \\psi$)は$\\beta$論理式です：選言が真なら少なくとも一方の選言肢が真なので、2つの枝に分割します。",
+      "枝はある論理式についてT($\\varphi$)とF($\\varphi$)の両方を含むとき<b>閉じます</b>——矛盾です。閉じることなくこれ以上拡張できない枝は<b>開いて</b>おり、反例の候補を表します。",
+      "タブロー証明はすべての枝が閉じたとき<b>完成</b>です。F($\\varphi$)から開始した場合、$\\varphi$を偽にするすべての試みが矛盾に至るので、$\\varphi$は妥当です。",
+      "述語論理では、量化子を扱う2つの追加規則タイプがあります：<b>$\\gamma$規則</b>は全称的論理式用（異なる項で複数回適用可能）、<b>$\\delta$規則</b>は存在的論理式用（新しい固有変数を導入）です。",
+      "タブロー法はシーケント計算と密接に関連しています。実際、<b>TAB</b>（タブロー式シーケント計算）と呼ばれる変種は片側シーケント$\\Gamma \\Rightarrow$を使い、カット付きLKと等価です。各TAB規則はタブロー分解規則に直接対応します。",
+      "本アプリケーションでは、タブロー証明を対話的に構築できます。目標論理式から出発し、分解規則をステップごとに適用し、矛盾を見つけて枝を閉じます。署名付き記法と簡略化記法の両方をサポートしています。",
+      "タブロー法は初心者にとって最も直観的な証明体系であることが多いです：戦略は常に同じ——結論が誤りだと仮定し、分解し、矛盾を探す。証明探索と反例生成を自然に組み合わせます。",
+    ],
+  },
+  relatedEntryIds: [
+    "concept-analytic-tableau",
+    "concept-tab-lk-equivalence",
+    "rule-sc-overview",
+    "guide-intro-sequent-calculus",
+    "guide-intro-natural-deduction",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Method_of_analytic_tableaux",
+      label: {
+        en: "Method of analytic tableaux (Wikipedia)",
+        ja: "分析的タブローの方法 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%BF%E3%83%96%E3%83%AD%E3%83%BC",
+      label: {
+        en: "Tableau (Wikipedia JA)",
+        ja: "タブロー (Wikipedia)",
+      },
+      documentLanguage: "ja",
+    },
+  ],
+  keywords: [
+    "tableau",
+    "semantic tableau",
+    "truth tree",
+    "refutation",
+    "signed formula",
+    "alpha rule",
+    "beta rule",
+    "branch closure",
+    "タブロー",
+    "意味論的タブロー",
+    "反駁",
+    "署名付き論理式",
+    "α規則",
+    "β規則",
+    "枝の閉包",
+  ],
+  order: 11,
+};
+
+const conceptTabSequentRules: ReferenceEntry = {
+  id: "concept-tab-sequent-rules",
+  category: "concept",
+  title: {
+    en: "TAB Rules — Tableau-style Sequent Calculus",
+    ja: "TAB規則 — タブロー式シーケント計算",
+  },
+  summary: {
+    en: "The rules of TAB, a one-sided sequent calculus equivalent to analytic tableaux.",
+    ja: "分析的タブローと等価な片側シーケント計算TABの規則。",
+  },
+  body: {
+    en: [
+      "<b>TAB</b> is a one-sided sequent calculus where sequents have the form $\\Gamma \\Rightarrow$ (empty succedent). Each formula in $\\Gamma$ corresponds to a signed formula on a tableau branch, using the abbreviated notation where $\\varphi$ stands for T($\\varphi$) and $\\lnot\\varphi$ for F($\\varphi$).",
+      "The <b>axiom</b> (BS) is: $\\lnot\\varphi, \\varphi, \\Gamma \\Rightarrow$. This corresponds to a closed tableau branch containing both T($\\varphi$) and F($\\varphi$).",
+      "The <b>$\\alpha$-type rules</b> (non-branching) in TAB add formulas to the antecedent: for example, from $\\varphi, \\psi, \\Gamma \\Rightarrow$ conclude $\\varphi \\land \\psi, \\Gamma \\Rightarrow$. The conjunction's components are already assumed.",
+      "The <b>$\\beta$-type rules</b> (branching) split into two premises: for example, from $\\varphi, \\Gamma \\Rightarrow$ and $\\psi, \\Sigma \\Rightarrow$ conclude $\\varphi \\lor \\psi, \\Gamma, \\Sigma \\Rightarrow$. Each disjunct is handled in a separate branch.",
+      "TAB is equivalent to LK with cut (LK-CUT): any proof in TAB can be transformed to a proof in LK-CUT, and vice versa. This equivalence is established through Theorems 12.13 and 12.15 in Bekki's textbook.",
+      "In this application, TAB-style proofs use one-sided sequents. The proof construction works bottom-up: start from the goal formula in the antecedent and apply rules to decompose it until all branches close with the axiom BS.",
+    ],
+    ja: [
+      "<b>TAB</b>はシーケントが$\\Gamma \\Rightarrow$（空の後件）の形を取る片側シーケント計算です。$\\Gamma$内の各論理式はタブロー枝上の署名付き論理式に対応し、簡略化記法では$\\varphi$がT($\\varphi$)、$\\lnot\\varphi$がF($\\varphi$)を表します。",
+      "<b>公理</b>（BS）は：$\\lnot\\varphi, \\varphi, \\Gamma \\Rightarrow$。T($\\varphi$)とF($\\varphi$)の両方を含む閉じたタブロー枝に対応します。",
+      "<b>$\\alpha$型規則</b>（非分岐）はTABで前件に論理式を追加します：例えば、$\\varphi, \\psi, \\Gamma \\Rightarrow$ から $\\varphi \\land \\psi, \\Gamma \\Rightarrow$ を結論します。連言の各成分は既に仮定されています。",
+      "<b>$\\beta$型規則</b>（分岐）は2つの前提に分割します：例えば、$\\varphi, \\Gamma \\Rightarrow$ と $\\psi, \\Sigma \\Rightarrow$ から $\\varphi \\lor \\psi, \\Gamma, \\Sigma \\Rightarrow$ を結論します。各選言肢は別の枝で処理されます。",
+      "TABはカット付きLK（LK-CUT）と等価です：TABのすべての証明はLK-CUTの証明に変換でき、逆も同様です。この等価性は戸次のテキストの定理12.13と12.15で確立されています。",
+      "本アプリケーションでは、TABスタイルの証明は片側シーケントを使用します。証明構築はボトムアップで行います：前件内の目標論理式から出発し、規則を適用して分解し、すべての枝が公理BSで閉じるまで続けます。",
+    ],
+  },
+  relatedEntryIds: [
+    "concept-analytic-tableau",
+    "concept-tab-lk-equivalence",
+    "rule-sc-overview",
+    "guide-intro-tableau",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Method_of_analytic_tableaux",
+      label: {
+        en: "Method of analytic tableaux (Wikipedia)",
+        ja: "分析的タブローの方法 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "TAB",
+    "one-sided sequent",
+    "BS axiom",
+    "LK-CUT",
+    "片側シーケント",
+    "タブロー式シーケント計算",
+  ],
+  order: 37,
+};
+
+const conceptAnalyticTableauRules: ReferenceEntry = {
+  id: "concept-analytic-tableau-rules",
+  category: "concept",
+  title: {
+    en: "Analytic Tableau Rules — α/β/γ/δ Classification",
+    ja: "分析的タブローの規則一覧 — α/β/γ/δ分類",
+  },
+  summary: {
+    en: "Complete list of signed formula decomposition rules classified as α, β, γ, δ.",
+    ja: "署名付き論理式の分解規則一覧（α・β・γ・δ分類）。",
+  },
+  body: {
+    en: [
+      "Analytic tableau rules decompose <b>signed formulas</b> (T/F-prefixed). The Smullyan classification organizes them into four types based on their branching behavior and quantifier handling.",
+      "<b>$\\alpha$ rules</b> (conjunctive, non-branching): T($\\varphi \\land \\psi$) $\\to$ T($\\varphi$), T($\\psi$). F($\\varphi \\lor \\psi$) $\\to$ F($\\varphi$), F($\\psi$). F($\\varphi \\to \\psi$) $\\to$ T($\\varphi$), F($\\psi$). T($\\lnot\\varphi$) $\\to$ F($\\varphi$). F($\\lnot\\varphi$) $\\to$ T($\\varphi$). T($\\lnot\\lnot\\varphi$) $\\to$ T($\\varphi$). F($\\lnot\\lnot\\varphi$) $\\to$ F($\\varphi$).",
+      "<b>$\\beta$ rules</b> (disjunctive, branching): F($\\varphi \\land \\psi$) $\\to$ F($\\varphi$) | F($\\psi$). T($\\varphi \\lor \\psi$) $\\to$ T($\\varphi$) | T($\\psi$). T($\\varphi \\to \\psi$) $\\to$ F($\\varphi$) | T($\\psi$).",
+      "<b>$\\gamma$ rules</b> (universal, non-branching, reusable): T($\\forall x.\\,\\varphi$) $\\to$ T($\\varphi[t/x]$) for any term $t$. F($\\exists x.\\,\\varphi$) $\\to$ F($\\varphi[t/x]$) for any term $t$. These rules may be applied multiple times with different terms.",
+      "<b>$\\delta$ rules</b> (existential, non-branching, eigenvariable): T($\\exists x.\\,\\varphi$) $\\to$ T($\\varphi[c/x]$) where $c$ is a fresh eigenvariable. F($\\forall x.\\,\\varphi$) $\\to$ F($\\varphi[c/x]$) where $c$ is fresh. Each $\\delta$ application introduces a new variable.",
+      "The <b>closure condition</b> for branches is: a branch closes when it contains both T($\\varphi$) and F($\\varphi$) for some formula $\\varphi$. In the abbreviated notation, this means the branch contains both $\\varphi$ and $\\lnot\\varphi$.",
+    ],
+    ja: [
+      "分析的タブローの規則は<b>署名付き論理式</b>（T/F接頭辞付き）を分解します。Smullyan分類はそれらを分岐の振る舞いと量化子の扱いに基づいて4つのタイプに整理します。",
+      "<b>$\\alpha$規則</b>（連言的、非分岐）：T($\\varphi \\land \\psi$) $\\to$ T($\\varphi$), T($\\psi$)。F($\\varphi \\lor \\psi$) $\\to$ F($\\varphi$), F($\\psi$)。F($\\varphi \\to \\psi$) $\\to$ T($\\varphi$), F($\\psi$)。T($\\lnot\\varphi$) $\\to$ F($\\varphi$)。F($\\lnot\\varphi$) $\\to$ T($\\varphi$)。T($\\lnot\\lnot\\varphi$) $\\to$ T($\\varphi$)。F($\\lnot\\lnot\\varphi$) $\\to$ F($\\varphi$)。",
+      "<b>$\\beta$規則</b>（選言的、分岐）：F($\\varphi \\land \\psi$) $\\to$ F($\\varphi$) | F($\\psi$)。T($\\varphi \\lor \\psi$) $\\to$ T($\\varphi$) | T($\\psi$)。T($\\varphi \\to \\psi$) $\\to$ F($\\varphi$) | T($\\psi$)。",
+      "<b>$\\gamma$規則</b>（全称的、非分岐、再利用可能）：T($\\forall x.\\,\\varphi$) $\\to$ T($\\varphi[t/x]$)（任意の項$t$）。F($\\exists x.\\,\\varphi$) $\\to$ F($\\varphi[t/x]$)（任意の項$t$）。これらの規則は異なる項で複数回適用できます。",
+      "<b>$\\delta$規則</b>（存在的、非分岐、固有変数）：T($\\exists x.\\,\\varphi$) $\\to$ T($\\varphi[c/x]$)（$c$は新しい固有変数）。F($\\forall x.\\,\\varphi$) $\\to$ F($\\varphi[c/x]$)（$c$は新鮮）。各$\\delta$適用は新しい変数を導入します。",
+      "<b>閉包条件</b>：枝はある論理式$\\varphi$についてT($\\varphi$)とF($\\varphi$)の両方を含むとき閉じます。簡略化記法では、枝が$\\varphi$と$\\lnot\\varphi$の両方を含むことを意味します。",
+    ],
+  },
+  formalNotation: [
+    "\\alpha: \\text{T}(\\varphi \\land \\psi) \\to \\text{T}(\\varphi),\\, \\text{T}(\\psi)",
+    "\\beta: \\text{T}(\\varphi \\lor \\psi) \\to \\text{T}(\\varphi) \\mid \\text{T}(\\psi)",
+    "\\gamma: \\text{T}(\\forall x.\\,\\varphi) \\to \\text{T}(\\varphi[t/x])",
+    "\\delta: \\text{T}(\\exists x.\\,\\varphi) \\to \\text{T}(\\varphi[c/x])",
+  ],
+  relatedEntryIds: [
+    "concept-analytic-tableau",
+    "concept-tab-sequent-rules",
+    "concept-tab-lk-equivalence",
+    "guide-intro-tableau",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Method_of_analytic_tableaux#Propositional_logic",
+      label: {
+        en: "Analytic tableau rules (Wikipedia)",
+        ja: "分析的タブローの規則 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "alpha rule",
+    "beta rule",
+    "gamma rule",
+    "delta rule",
+    "Smullyan",
+    "signed formula",
+    "α規則",
+    "β規則",
+    "γ規則",
+    "δ規則",
+    "署名付き論理式",
+  ],
+  order: 38,
+};
+
+const conceptTableauClosure: ReferenceEntry = {
+  id: "concept-tableau-closure",
+  category: "concept",
+  title: {
+    en: "Tableau Closure and Branch Management",
+    ja: "タブローの閉包条件と分岐管理",
+  },
+  summary: {
+    en: "How contradictions are detected and branches are managed in tableau proofs.",
+    ja: "タブロー証明における矛盾の検出と分岐の管理。",
+  },
+  body: {
+    en: [
+      "A tableau branch is <b>closed</b> when it contains a <b>complementary pair</b>: T($\\varphi$) and F($\\varphi$) for some formula $\\varphi$ (or equivalently, $\\varphi$ and $\\lnot\\varphi$ in abbreviated notation). This represents a direct contradiction — the same formula cannot be both true and false.",
+      "A tableau proof is <b>complete</b> when every branch is closed. If the proof started from F($\\varphi$), this means the assumption that $\\varphi$ is false leads to contradiction in every possible case, proving that $\\varphi$ is valid (a tautology in propositional logic, or logically valid in predicate logic).",
+      "An <b>open branch</b> — one that cannot be closed after exhausting all applicable rules — represents a <b>countermodel</b>. The truth values of atomic formulas on the branch define an interpretation under which the original formula is false. This is why the tableau method simultaneously proves validity and searches for counterexamples.",
+      "When a $\\beta$ rule (branching rule) is applied, the tableau splits into two branches that must <b>both</b> be closed independently. Managing multiple open branches and choosing which to extend next is the main strategic challenge in tableau proofs.",
+      "In predicate logic, $\\gamma$ rules (universal formulas) may need to be applied multiple times with different terms to find the right instantiation that closes a branch. This is the primary source of non-termination in predicate tableau proofs — in general, there is no algorithm that always finds the optimal instantiation.",
+      "In this application, branch management is handled through the interactive proof interface. Each open branch is displayed as a subgoal, and users select which branch to work on and which rules to apply. Closed branches are marked and no longer require attention.",
+    ],
+    ja: [
+      "タブローの枝はある論理式$\\varphi$についてT($\\varphi$)とF($\\varphi$)の<b>相補対</b>（complementary pair）を含むとき<b>閉じます</b>（簡略化記法では$\\varphi$と$\\lnot\\varphi$）。同じ論理式が真かつ偽であることはできないという直接の矛盾です。",
+      "タブロー証明はすべての枝が閉じたとき<b>完成</b>です。F($\\varphi$)から開始した場合、$\\varphi$が偽であるという仮定がすべての可能なケースで矛盾に至るので、$\\varphi$が妥当であること（命題論理ではトートロジー、述語論理では論理的妥当性）が証明されます。",
+      "<b>開いた枝</b>——適用可能なすべての規則を尽くしても閉じることができない枝——は<b>反モデル</b>（countermodel）を表します。枝上の原子論理式の真理値が、元の論理式が偽となる解釈を定義します。タブロー法が妥当性の証明と反例の探索を同時に行う理由です。",
+      "$\\beta$規則（分岐規則）が適用されると、タブローは2つの枝に分割され、<b>両方</b>が独立に閉じなければなりません。複数の開いた枝を管理し、次にどの枝を拡張するか選ぶことがタブロー証明の主な戦略的課題です。",
+      "述語論理では、$\\gamma$規則（全称的論理式）は枝を閉じる正しいインスタンスを見つけるために異なる項で複数回適用する必要がある場合があります。述語タブロー証明の非停止性の主な原因です——一般に、最適なインスタンスを常に見つけるアルゴリズムは存在しません。",
+      "本アプリケーションでは、分岐管理は対話的な証明インタフェースで扱われます。各開いた枝は副目標として表示され、ユーザはどの枝に取り組みどの規則を適用するか選択します。閉じた枝はマークされ、これ以上の注意は不要です。",
+    ],
+  },
+  relatedEntryIds: [
+    "concept-analytic-tableau",
+    "concept-analytic-tableau-rules",
+    "concept-tab-sequent-rules",
+    "guide-intro-tableau",
+    "concept-soundness",
+    "concept-completeness",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Method_of_analytic_tableaux#Closure",
+      label: {
+        en: "Tableau closure (Wikipedia)",
+        ja: "タブローの閉包 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "closure",
+    "complementary pair",
+    "open branch",
+    "countermodel",
+    "branch management",
+    "閉包",
+    "相補対",
+    "開いた枝",
+    "反モデル",
+    "分岐管理",
+  ],
+  order: 39,
+};
+
+const conceptTabScCorrespondence: ReferenceEntry = {
+  id: "concept-tab-sc-correspondence",
+  category: "concept",
+  title: {
+    en: "Correspondence between Tableau and Sequent Calculus",
+    ja: "タブロー法とシーケント計算の対応",
+  },
+  summary: {
+    en: "How analytic tableaux, TAB, and LK-CUT are formally related.",
+    ja: "分析的タブロー、TAB、LK-CUTの形式的関係。",
+  },
+  body: {
+    en: [
+      "The analytic tableau, TAB (tableau-style sequent calculus), and LK-CUT (classical sequent calculus with cut) are three presentations of essentially the same proof system. Understanding their correspondence reveals deep connections between proof methods.",
+      "<b>Tableau $\\leftrightarrow$ TAB.</b> Every signed formula on a tableau branch corresponds to a formula in the antecedent of a one-sided sequent $\\Gamma \\Rightarrow$. T($\\varphi$) becomes $\\varphi$ and F($\\varphi$) becomes $\\lnot\\varphi$. A closed branch (containing T($\\varphi$) and F($\\varphi$)) becomes an axiom sequent $\\lnot\\varphi, \\varphi, \\Gamma \\Rightarrow$. Each $\\alpha$/$\\beta$ tableau rule corresponds exactly to a TAB rule.",
+      "<b>TAB $\\subseteq$ LK-CUT.</b> Every TAB proof can be translated into an LK proof using cut. The key insight is that a one-sided sequent $\\Gamma \\Rightarrow$ can be viewed as a two-sided sequent $\\Gamma \\Rightarrow$ with an empty succedent. Negation-right and weakening rules bridge the gap.",
+      "<b>LK-CUT $\\subseteq$ TAB.</b> Conversely, every LK proof with cut can be translated into a TAB proof. The succedent formulas $\\Delta$ in $\\Gamma \\Rightarrow \\Delta$ are moved to the antecedent as negated formulas: $\\Gamma, \\lnot\\Delta \\Rightarrow$. Two-sided rules become one-sided rules applied to negated formulas.",
+      "These translations preserve the proof structure: branches in the tableau correspond to branches in the sequent proof tree. The number of proof steps may change by a constant factor, but the overall complexity is the same.",
+      "The equivalence TAB $\\equiv$ LK-CUT means that cut elimination results for LK transfer to the tableau: every tableau proof can be normalized (though the normalized proof may be much larger). This connection is established in Bekki Theorems 12.13 and 12.15.",
+    ],
+    ja: [
+      "分析的タブロー、TAB（タブロー式シーケント計算）、LK-CUT（カット付き古典シーケント計算）は本質的に同じ証明体系の3つの表現です。それらの対応を理解することで、証明法間の深い関連が明らかになります。",
+      "<b>タブロー $\\leftrightarrow$ TAB。</b> タブロー枝上の各署名付き論理式は片側シーケント$\\Gamma \\Rightarrow$の前件の論理式に対応します。T($\\varphi$)は$\\varphi$に、F($\\varphi$)は$\\lnot\\varphi$になります。閉じた枝（T($\\varphi$)とF($\\varphi$)を含む）は公理シーケント$\\lnot\\varphi, \\varphi, \\Gamma \\Rightarrow$になります。各$\\alpha$/$\\beta$タブロー規則はTAB規則と正確に対応します。",
+      "<b>TAB $\\subseteq$ LK-CUT。</b> すべてのTAB証明はカットを使うLK証明に翻訳できます。要点は、片側シーケント$\\Gamma \\Rightarrow$が空の後件を持つ両側シーケント$\\Gamma \\Rightarrow$と見なせることです。否定右規則と弱化規則が橋渡しをします。",
+      "<b>LK-CUT $\\subseteq$ TAB。</b> 逆に、カット付きのすべてのLK証明はTAB証明に翻訳できます。$\\Gamma \\Rightarrow \\Delta$の後件論理式$\\Delta$は否定された論理式として前件に移動されます：$\\Gamma, \\lnot\\Delta \\Rightarrow$。両側規則は否定された論理式に適用される片側規則になります。",
+      "これらの翻訳は証明構造を保存します：タブローの枝はシーケント証明木の枝に対応します。証明ステップ数は定数倍変化しますが、全体的な複雑さは同じです。",
+      "TAB $\\equiv$ LK-CUTの等価性は、LKのカット除去結果がタブローにも適用されることを意味します：すべてのタブロー証明は正規化可能です（ただし正規化された証明はかなり大きくなる場合があります）。この関連は戸次の定理12.13と12.15で確立されています。",
+    ],
+  },
+  relatedEntryIds: [
+    "concept-analytic-tableau",
+    "concept-tab-lk-equivalence",
+    "concept-tab-sequent-rules",
+    "concept-sc-cut-rule",
+    "concept-system-equivalence",
+    "guide-intro-tableau",
+    "guide-intro-sequent-calculus",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Method_of_analytic_tableaux",
+      label: {
+        en: "Method of analytic tableaux (Wikipedia)",
+        ja: "分析的タブロー (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "TAB",
+    "LK-CUT",
+    "equivalence",
+    "translation",
+    "one-sided sequent",
+    "等価性",
+    "翻訳",
+    "片側シーケント",
+  ],
+  order: 40,
+};
+
 const conceptAbelianGroup: ReferenceEntry = {
   id: "concept-abelian-group",
   category: "concept",
@@ -7092,6 +7426,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   guideProvingInTheories,
   guideIntroNaturalDeduction,
   guideIntroSequentCalculus,
+  guideIntroTableau,
   // Axioms
   axiomA1,
   axiomA2,
@@ -7177,6 +7512,10 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptScCutRule,
   conceptScLogicalRulesDetail,
   conceptScStructuralRulesDetail,
+  conceptTabSequentRules,
+  conceptAnalyticTableauRules,
+  conceptTableauClosure,
+  conceptTabScCorrespondence,
   conceptAbelianGroup,
   // Theories
   theoryPeanoArithmetic,
