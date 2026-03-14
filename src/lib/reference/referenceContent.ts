@@ -5751,6 +5751,80 @@ const conceptAssumptionManagement: ReferenceEntry = {
   order: 30,
 };
 
+const conceptNdNegationRules: ReferenceEntry = {
+  id: "concept-nd-negation-rules",
+  category: "concept",
+  title: {
+    en: "Negation Rules in Natural Deduction",
+    ja: "自然演繹の否定規則",
+  },
+  summary: {
+    en: "Detailed treatment of ¬I, ¬E, EFQ, and DNE in natural deduction.",
+    ja: "自然演繹における ¬I、¬E、EFQ、DNE の詳細。",
+  },
+  body: {
+    en: [
+      "Negation in natural deduction involves four key rules that interact with $\\bot$ (falsum) and the negation connective $\\lnot$. Their availability determines whether the system is NM, NJ, or NK.",
+      "<b>$\\lnot$I (Negation Introduction)</b>: If assuming $\\varphi$ leads to $\\bot$, then conclude $\\lnot\\varphi$ and discharge the assumption $\\varphi$. Formally: from a derivation of $\\bot$ depending on $[\\varphi]$, infer $\\lnot\\varphi$. This rule is present in all three variants (NM, NJ, NK).",
+      "<b>$\\lnot$E (Negation Elimination)</b>: From $\\varphi$ and $\\lnot\\varphi$, conclude $\\bot$. This is the standard way to derive falsum. Combined with $\\lnot$I, it captures the idea that negation means \"leads to contradiction\". This rule is present in all three variants.",
+      "<b>EFQ (Ex Falso Quodlibet)</b>: From $\\bot$, conclude any formula $\\varphi$. Also called the <i>explosion principle</i> or <i>$\\bot$-elimination</i>. This rule is what distinguishes NJ from NM. In NM, $\\bot$ is just another atomic proposition with no special power.",
+      "<b>DNE (Double Negation Elimination)</b>: From $\\lnot\\lnot\\varphi$, conclude $\\varphi$. Equivalently formulated as <b>RAA</b> (reductio ad absurdum): if assuming $\\lnot\\varphi$ leads to $\\bot$, conclude $\\varphi$ (discharging $\\lnot\\varphi$). This rule is what distinguishes NK from NJ.",
+      "The rules form a hierarchy: $\\lnot$I and $\\lnot$E are shared by all variants. Adding EFQ yields intuitionistic logic (NJ). Adding DNE (or equivalently RAA) on top yields classical logic (NK). In NK, $\\lnot$I becomes a special case of RAA.",
+      "In this application, $\\lnot\\varphi$ is defined as $\\varphi \\to \\bot$, so $\\lnot$I is a special case of $\\to$I, and $\\lnot$E is a special case of $\\to$E. EFQ and DNE are provided as additional axioms or rules depending on the chosen system preset.",
+    ],
+    ja: [
+      "自然演繹の否定は、$\\bot$（矛盾）と否定結合子$\\lnot$に関わる4つの重要な規則を含みます。どの規則が利用可能かによって、体系がNM、NJ、NKのいずれであるかが決まります。",
+      "<b>$\\lnot$I（否定導入）</b>：$\\varphi$を仮定して$\\bot$が導かれるなら、$\\lnot\\varphi$を結論し、仮定$\\varphi$を放出します。形式的には：$[\\varphi]$に依存する$\\bot$の導出から、$\\lnot\\varphi$を推論します。この規則は3つの変種すべて（NM, NJ, NK）に存在します。",
+      "<b>$\\lnot$E（否定除去）</b>：$\\varphi$と$\\lnot\\varphi$から$\\bot$を結論します。矛盾を導出する標準的な方法です。$\\lnot$Iと組み合わせることで、否定が「矛盾を導く」ことを意味するという考えを捉えます。3つの変種すべてに存在します。",
+      "<b>EFQ（爆発律）</b>：$\\bot$から任意の論理式$\\varphi$を結論します。<i>爆発原理</i>または<i>$\\bot$除去</i>とも呼ばれます。NJとNMを区別する規則です。NMでは$\\bot$は特別な力を持たない単なる原子命題です。",
+      "<b>DNE（二重否定除去）</b>：$\\lnot\\lnot\\varphi$から$\\varphi$を結論します。<b>RAA</b>（帰謬法）として同値に定式化できます：$\\lnot\\varphi$を仮定して$\\bot$が導かれるなら、$\\varphi$を結論します（$\\lnot\\varphi$を放出）。NKとNJを区別する規則です。",
+      "規則は階層を成します：$\\lnot$Iと$\\lnot$Eはすべての変種で共有されます。EFQを加えると直観主義論理（NJ）になります。さらにDNE（またはRAA）を加えると古典論理（NK）になります。NKでは$\\lnot$IはRAAの特殊なケースとなります。",
+      "本アプリケーションでは$\\lnot\\varphi$は$\\varphi \\to \\bot$と定義されるため、$\\lnot$Iは$\\to$Iの特殊なケースであり、$\\lnot$Eは$\\to$Eの特殊なケースです。EFQとDNEは選択した体系プリセットに応じて追加の公理または規則として提供されます。",
+    ],
+  },
+  formalNotation: [
+    "\\lnot\\text{I}: \\dfrac{[\\varphi] \\vdots \\bot}{\\lnot\\varphi}",
+    "\\lnot\\text{E}: \\dfrac{\\varphi \\quad \\lnot\\varphi}{\\bot}",
+    "\\text{EFQ}: \\dfrac{\\bot}{\\varphi}",
+    "\\text{DNE}: \\dfrac{\\lnot\\lnot\\varphi}{\\varphi}",
+  ],
+  relatedEntryIds: [
+    "rule-nd-overview",
+    "rule-nd-implication",
+    "axiom-efq",
+    "axiom-dne",
+    "concept-nd-variants",
+    "concept-assumption-management",
+    "guide-intro-natural-deduction",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Natural_deduction#Negation",
+      label: {
+        en: "Natural deduction — Negation (Wikipedia)",
+        ja: "自然演繹の否定 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "negation introduction",
+    "negation elimination",
+    "EFQ",
+    "DNE",
+    "RAA",
+    "reductio",
+    "falsum",
+    "否定導入",
+    "否定除去",
+    "爆発律",
+    "二重否定除去",
+    "帰謬法",
+  ],
+  order: 31,
+};
+
 const conceptAbelianGroup: ReferenceEntry = {
   id: "concept-abelian-group",
   category: "concept",
@@ -6659,6 +6733,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptRobinsonArithmetic,
   conceptNdVariants,
   conceptAssumptionManagement,
+  conceptNdNegationRules,
   conceptAbelianGroup,
   // Theories
   theoryPeanoArithmetic,
