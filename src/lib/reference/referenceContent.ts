@@ -5898,6 +5898,89 @@ const conceptNdQuantifierRules: ReferenceEntry = {
   order: 32,
 };
 
+const guideIntroSequentCalculus: ReferenceEntry = {
+  id: "guide-intro-sequent-calculus",
+  category: "guide",
+  title: {
+    en: "Introduction to Sequent Calculus",
+    ja: "シーケント計算入門",
+  },
+  summary: {
+    en: "What sequents are, left/right contexts, and the meaning of ⇒.",
+    ja: "シーケントとは何か、左右のコンテキスト、⇒の意味。",
+  },
+  body: {
+    en: [
+      "Sequent calculus is a proof system introduced by Gerhard Gentzen in 1935, alongside natural deduction. While natural deduction models how mathematicians reason, sequent calculus models <b>proof search</b> — the systematic process of finding a proof.",
+      "The central object is the <b>sequent</b>, written $\\Gamma \\Rightarrow \\Delta$. Here $\\Gamma$ (the <i>antecedent</i>) is a multiset of formulas representing assumptions, and $\\Delta$ (the <i>succedent</i>) is a multiset of formulas representing conclusions. The sequent asserts: \"if all formulas in $\\Gamma$ hold, then at least one formula in $\\Delta$ holds.\"",
+      "A key difference from natural deduction is that both the <b>left</b> and <b>right</b> sides of the sequent are explicit. Natural deduction hides the assumptions in the tree structure; sequent calculus writes them down explicitly, making the flow of logical information symmetric and visible.",
+      "Each logical connective has two rules: a <b>left rule</b> (how the connective behaves when it appears among the assumptions) and a <b>right rule</b> (how it behaves among the conclusions). For example, $\\to$-right introduces an implication on the right by moving a formula from $\\Delta$ to $\\Gamma$.",
+      "<b>Structural rules</b> manipulate the shape of sequents without involving logical connectives. <b>Weakening</b> adds an unused formula. <b>Contraction</b> merges duplicate formulas. <b>Exchange</b> reorders formulas. These rules are essential for managing the multisets $\\Gamma$ and $\\Delta$.",
+      "The system comes in three variants: <b>LK</b> (classical logic) allows multiple formulas on the right ($\\Delta$ is a multiset). <b>LJ</b> (intuitionistic logic) restricts $\\Delta$ to at most one formula. <b>LM</b> (minimal logic) restricts $\\Delta$ to exactly one formula.",
+      "Proofs in sequent calculus are built <b>bottom-up</b>: start from the goal sequent and work upward by applying rules to reduce it to <b>axiom sequents</b> ($\\varphi \\Rightarrow \\varphi$). This contrasts with natural deduction's top-down style.",
+      "The <b>cut rule</b> allows using a lemma: if $\\Gamma \\Rightarrow \\Delta, \\varphi$ and $\\varphi, \\Sigma \\Rightarrow \\Pi$, then $\\Gamma, \\Sigma \\Rightarrow \\Delta, \\Pi$. Gentzen's Hauptsatz (cut elimination theorem) proves that any proof using cut can be transformed into one without it.",
+      "In this application, you build sequent calculus proofs by starting with the goal sequent and interactively applying rules. Each rule application produces subgoals until all branches reach axiom sequents. The system supports LK, LJ, and LM presets.",
+      "Sequent calculus is not merely an alternative to natural deduction — it reveals deep structural properties of logic. Cut elimination implies the subformula property (every formula in a cut-free proof is a subformula of the goal), which underpins consistency proofs and decidability results.",
+    ],
+    ja: [
+      "シーケント計算は1935年にGerhard Gentzenが自然演繹とともに導入した証明体系です。自然演繹が数学者の推論を模倣するのに対し、シーケント計算は<b>証明探索</b>——証明を体系的に見つける過程——を模倣します。",
+      "中心的な対象は<b>シーケント</b>で、$\\Gamma \\Rightarrow \\Delta$と書きます。$\\Gamma$（<i>前件</i>、antecedent）は仮定を表す論理式の多重集合、$\\Delta$（<i>後件</i>、succedent）は結論を表す論理式の多重集合です。シーケントは「$\\Gamma$のすべての論理式が成り立つなら、$\\Delta$の少なくとも1つが成り立つ」と主張します。",
+      "自然演繹との主要な違いは、シーケントの<b>左辺</b>と<b>右辺</b>の両方が明示的であることです。自然演繹は仮定を木構造の中に隠しますが、シーケント計算はそれを明示的に書き出すことで、論理情報の流れを対称的かつ可視的にします。",
+      "各論理結合子には2つの規則があります：<b>左規則</b>（結合子が仮定の中に現れるときの振る舞い）と<b>右規則</b>（結論の中に現れるときの振る舞い）。例えば$\\to$-rightは、論理式を$\\Delta$から$\\Gamma$に移すことで右辺に含意を導入します。",
+      "<b>構造規則</b>は論理結合子を含まずにシーケントの形を操作します。<b>弱化</b>（weakening）は未使用の論理式を追加します。<b>縮約</b>（contraction）は重複した論理式を統合します。<b>交換</b>（exchange）は論理式を並べ替えます。これらの規則は多重集合$\\Gamma$と$\\Delta$の管理に不可欠です。",
+      "体系には3つの変種があります：<b>LK</b>（古典論理）は右辺に複数の論理式を許します（$\\Delta$は多重集合）。<b>LJ</b>（直観主義論理）は$\\Delta$を高々1つの論理式に制限します。<b>LM</b>（最小論理）は$\\Delta$をちょうど1つの論理式に制限します。",
+      "シーケント計算の証明は<b>ボトムアップ</b>に構築されます：目標シーケントから出発し、規則を適用して<b>公理シーケント</b>（$\\varphi \\Rightarrow \\varphi$）に到達するまで還元します。自然演繹のトップダウンなスタイルとは対照的です。",
+      "<b>カット規則</b>は補題の使用を可能にします：$\\Gamma \\Rightarrow \\Delta, \\varphi$ と $\\varphi, \\Sigma \\Rightarrow \\Pi$ から $\\Gamma, \\Sigma \\Rightarrow \\Delta, \\Pi$ を結論します。Gentzenの基本定理（カット除去定理）は、カットを使うすべての証明がカットなしに変換できることを証明します。",
+      "本アプリケーションでは、目標シーケントから出発して対話的に規則を適用することでシーケント計算の証明を構築します。各規則の適用は副目標を生成し、すべての分岐が公理シーケントに達するまで続きます。LK、LJ、LMのプリセットをサポートしています。",
+      "シーケント計算は単なる自然演繹の代替ではなく、論理の深い構造的性質を明らかにします。カット除去は部分式性質（カットなし証明のすべての論理式が目標の部分式である）を含意し、これは無矛盾性証明や決定可能性の結果の基盤となります。",
+    ],
+  },
+  relatedEntryIds: [
+    "rule-sc-overview",
+    "rule-sc-structural",
+    "rule-sc-logical",
+    "rule-nd-overview",
+    "concept-cut-elimination",
+    "guide-intro-natural-deduction",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Sequent_calculus",
+      label: {
+        en: "Sequent calculus (Wikipedia)",
+        ja: "シーケント計算 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%82%B7%E3%83%BC%E3%82%B1%E3%83%B3%E3%83%88%E8%A8%88%E7%AE%97",
+      label: {
+        en: "Sequent calculus (Wikipedia JA)",
+        ja: "シーケント計算 (Wikipedia)",
+      },
+      documentLanguage: "ja",
+    },
+  ],
+  keywords: [
+    "sequent calculus",
+    "sequent",
+    "antecedent",
+    "succedent",
+    "LK",
+    "LJ",
+    "LM",
+    "cut elimination",
+    "シーケント計算",
+    "シーケント",
+    "前件",
+    "後件",
+    "カット除去",
+  ],
+  order: 10,
+};
+
 const conceptAbelianGroup: ReferenceEntry = {
   id: "concept-abelian-group",
   category: "concept",
@@ -6727,6 +6810,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   guideEqualityAxiomSystem,
   guideProvingInTheories,
   guideIntroNaturalDeduction,
+  guideIntroSequentCalculus,
   // Axioms
   axiomA1,
   axiomA2,
