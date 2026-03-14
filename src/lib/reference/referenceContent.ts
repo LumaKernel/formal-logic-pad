@@ -4955,6 +4955,113 @@ const conceptTautology: ReferenceEntry = {
   order: 25,
 };
 
+const conceptPredicateAxiomSystem: ReferenceEntry = {
+  id: "concept-predicate-axiom-system",
+  category: "concept",
+  title: {
+    en: "Structure of the Predicate Logic Axiom System",
+    ja: "述語論理の公理体系の構造",
+  },
+  summary: {
+    en: "The complete first-order axiom system: propositional axioms A1–A3, quantifier axioms A4–A5, Modus Ponens, and Generalization.",
+    ja: "完全な一階述語論理の公理体系：命題論理公理A1–A3、量化子公理A4–A5、Modus Ponens、一般化規則の全体像。",
+  },
+  formalNotation: [
+    "\\text{A1}: \\varphi \\to (\\psi \\to \\varphi)",
+    "\\text{A2}: (\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi))",
+    "\\text{A3}: (\\lnot \\psi \\to \\lnot \\varphi) \\to (\\varphi \\to \\psi)",
+    "\\text{A4}: \\forall x.\\, \\varphi \\to \\varphi[\\tau/x]",
+    "\\text{A5}: \\forall x.\\, (\\varphi \\to \\psi) \\to (\\varphi \\to \\forall x.\\, \\psi) \\quad (x \\notin \\text{FV}(\\varphi))",
+    "\\text{MP}: \\varphi,\\; \\varphi \\to \\psi \\;\\vdash\\; \\psi",
+    "\\text{Gen}: \\varphi \\;\\vdash\\; \\forall x.\\, \\varphi",
+  ],
+  body: {
+    en: [
+      "<b>Overview</b>\nThe first-order predicate logic used in this application is built on seven components: five axiom schemas and two inference rules. Together they are <b>sound</b> (every provable formula is valid) and <b>complete</b> (every valid formula is provable) for classical first-order logic — this is Gödel's completeness theorem (1930).",
+
+      "<b>Propositional Layer: A1–A3 + MP</b>\nThe first three axioms handle pure propositional reasoning, needing no quantifiers:\n• <b>A1</b> (K / weakening): $\\varphi \\to (\\psi \\to \\varphi)$ — known facts remain true under extra assumptions.\n• <b>A2</b> (S / distribution): $(\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi))$ — distributes implication over implication.\n• <b>A3</b> (contraposition): $(\\lnot \\psi \\to \\lnot \\varphi) \\to (\\varphi \\to \\psi)$ — establishes classical reasoning through double negation.\n<b>Modus Ponens</b> (MP): from $\\varphi$ and $\\varphi \\to \\psi$, infer $\\psi$. This is the only propositional inference rule.\nThese four components alone are complete for propositional logic (the Łukasiewicz system).",
+
+      "<b>Quantifier Layer: A4 + A5 + Gen</b>\nThe remaining components introduce reasoning about quantified formulas:\n• <b>A4</b> (universal instantiation): $\\forall x.\\, \\varphi \\to \\varphi[\\tau/x]$ — a universal statement implies each of its instances, provided $\\tau$ is free for $x$ in $\\varphi$.\n• <b>A5</b> (universal distribution): $\\forall x.\\, (\\varphi \\to \\psi) \\to (\\varphi \\to \\forall x.\\, \\psi)$, where $x$ does not occur free in $\\varphi$ — if $\\psi$ follows from $\\varphi$ for arbitrary $x$, then $\\forall x.\\, \\psi$ follows from $\\varphi$.\n• <b>Generalization</b> (Gen): from $\\varphi$, infer $\\forall x.\\, \\varphi$ — if $\\varphi$ is a theorem, so is its universal closure.",
+
+      "<b>Side Conditions</b>\nThe quantifier axioms carry important <b>side conditions</b> that prevent unsound reasoning:\n• In A4, the term $\\tau$ must be <b>free for $x$</b> in $\\varphi$: no variable in $\\tau$ becomes bound after substitution. This prevents variable capture.\n• In A5, the variable $x$ must <b>not occur free</b> in $\\varphi$. Without this condition, we could incorrectly universalize a formula that depends on $x$.\n• Gen requires that $\\varphi$ be a <b>theorem</b> (provable without assumptions involving $x$). Applying Gen to an assumption would be unsound.",
+
+      "<b>The Existential Quantifier</b>\nThe system as stated only has $\\forall$ as a primitive quantifier. The existential quantifier $\\exists$ is defined:\n$\\exists x.\\, \\varphi \\;\\equiv\\; \\lnot \\forall x.\\, \\lnot \\varphi$\nThis definition, formalized as <b>Axiom Ex-Def</b>, is an additional axiom schema that allows reasoning about existence. All properties of $\\exists$ can be derived from this definition plus A1–A5, MP, and Gen.",
+
+      "<b>Additional Connectives</b>\nSimilarly, conjunction ($\\land$) and disjunction ($\\lor$) are defined in terms of $\\to$ and $\\lnot$:\n$\\varphi \\land \\psi \\;\\equiv\\; \\lnot(\\varphi \\to \\lnot \\psi)$\n$\\varphi \\lor \\psi \\;\\equiv\\; \\lnot \\varphi \\to \\psi$\nThese definitions let us express all standard logical connectives while keeping the core axiom system minimal.",
+
+      "<b>Relationship to Other Systems</b>\nThis axiom system (sometimes called the Łukasiewicz or Hilbert–Frege system with the Mendelson quantifier axioms) is one of several equivalent formalizations of classical first-order logic. Other approaches include:\n• <b>Natural Deduction</b> (Gentzen, 1934) — uses introduction and elimination rules for each connective.\n• <b>Sequent Calculus</b> (Gentzen, 1934) — uses sequents $\\Gamma \\Rightarrow \\Delta$ and structural rules.\n• <b>Analytic Tableau</b> — uses refutation and branch closure.\nAll these systems prove exactly the same set of theorems. The Hilbert system has the fewest inference rules (just MP and Gen) but requires longer proofs, whereas natural deduction has more rules but shorter, more intuitive proofs.",
+    ],
+    ja: [
+      "<b>概要</b>\nこのアプリケーションで使用する一階述語論理は、5つの公理スキーマと2つの推論規則から構成されています。これらは合わせて古典一階述語論理に対して<b>健全</b>（証明可能な論理式はすべて妥当）かつ<b>完全</b>（妥当な論理式はすべて証明可能）です — これはGödelの完全性定理（1930年）です。",
+
+      "<b>命題論理層: A1–A3 + MP</b>\n最初の3つの公理は純粋な命題推論を扱い、量化子を必要としません：\n• <b>A1</b>（K / 弱化）：$\\varphi \\to (\\psi \\to \\varphi)$ — 既知の事実は追加の仮定のもとでも成り立つ。\n• <b>A2</b>（S / 分配）：$(\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi))$ — 含意を含意に対して分配する。\n• <b>A3</b>（対偶）：$(\\lnot \\psi \\to \\lnot \\varphi) \\to (\\varphi \\to \\psi)$ — 二重否定を通じて古典的推論を確立する。\n<b>Modus Ponens</b>（MP）：$\\varphi$ と $\\varphi \\to \\psi$ から $\\psi$ を推論する。これが唯一の命題推論規則です。\nこの4つの構成要素だけで命題論理は完全です（Łukasiewicz体系）。",
+
+      "<b>量化子層: A4 + A5 + Gen</b>\n残りの構成要素は量化された論理式についての推論を導入します：\n• <b>A4</b>（全称インスタンス化）：$\\forall x.\\, \\varphi \\to \\varphi[\\tau/x]$ — 全称命題はその各インスタンスを含意する（$\\tau$ が $\\varphi$ 中で $x$ に対して自由に代入可能である場合）。\n• <b>A5</b>（全称分配）：$\\forall x.\\, (\\varphi \\to \\psi) \\to (\\varphi \\to \\forall x.\\, \\psi)$（$x$ が $\\varphi$ に自由に出現しない場合）— 任意の $x$ について $\\varphi$ から $\\psi$ が従うなら、$\\varphi$ から $\\forall x.\\, \\psi$ が従う。\n• <b>一般化</b>（Gen）：$\\varphi$ から $\\forall x.\\, \\varphi$ を推論する — $\\varphi$ が定理なら、その全称閉包も定理である。",
+
+      "<b>副条件</b>\n量化子公理には、不健全な推論を防ぐ重要な<b>副条件</b>があります：\n• A4では、項 $\\tau$ が $\\varphi$ 中で $x$ に対して<b>自由に代入可能</b>でなければなりません。つまり代入後に $\\tau$ 中の変数が束縛されてはなりません。これは変数捕獲を防ぎます。\n• A5では、変数 $x$ が $\\varphi$ に<b>自由に出現してはなりません</b>。この条件がなければ、$x$ に依存する論理式を誤って全称化できてしまいます。\n• Genは $\\varphi$ が<b>定理</b>（$x$ を含む仮定なしに証明可能）であることを要求します。仮定にGenを適用することは不健全です。",
+
+      "<b>存在量化子</b>\nこの体系では $\\forall$ のみが原始的な量化子です。存在量化子 $\\exists$ は以下で定義されます：\n$\\exists x.\\, \\varphi \\;\\equiv\\; \\lnot \\forall x.\\, \\lnot \\varphi$\nこの定義は<b>公理 Ex-Def</b>として形式化されており、存在に関する推論を可能にします。$\\exists$ のすべての性質はこの定義とA1–A5、MP、Genから導出できます。",
+
+      "<b>追加の結合子</b>\n同様に、連言（$\\land$）と選言（$\\lor$）は $\\to$ と $\\lnot$ で定義されます：\n$\\varphi \\land \\psi \\;\\equiv\\; \\lnot(\\varphi \\to \\lnot \\psi)$\n$\\varphi \\lor \\psi \\;\\equiv\\; \\lnot \\varphi \\to \\psi$\nこれらの定義により、核となる公理体系を最小に保ちながら、すべての標準的な論理結合子を表現できます。",
+
+      "<b>他の体系との関係</b>\nこの公理体系（Łukasiewicz体系またはMendelsonの量化子公理を持つHilbert–Frege体系とも呼ばれる）は、古典一階述語論理のいくつかの同値な形式化のひとつです。他のアプローチには以下があります：\n• <b>自然演繹</b>（Gentzen, 1934）— 各結合子に対する導入規則と除去規則を使用。\n• <b>シーケント計算</b>（Gentzen, 1934）— シーケント $\\Gamma \\Rightarrow \\Delta$ と構造規則を使用。\n• <b>分析的タブロー</b> — 反駁と枝の閉包を使用。\nこれらの体系はすべてまったく同じ定理の集合を証明します。Hilbert系は推論規則が最少（MPとGenのみ）ですが、より長い証明を必要とします。一方、自然演繹はより多くの規則を持ちますが、より短く直観的な証明が可能です。",
+    ],
+  },
+  relatedEntryIds: [
+    "axiom-a1",
+    "axiom-a2",
+    "axiom-a3",
+    "axiom-a4",
+    "axiom-a5",
+    "axiom-ex-def",
+    "rule-mp",
+    "rule-gen",
+    "system-lukasiewicz",
+    "concept-soundness",
+    "concept-completeness",
+    "guide-intro-predicate-logic",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Hilbert_system",
+      label: {
+        en: "Hilbert System (Wikipedia)",
+        ja: "Hilbert系（Wikipedia英語版）",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E3%83%92%E3%83%AB%E3%83%99%E3%83%AB%E3%83%88%E6%B5%81%E8%AB%96%E7%90%86%E4%BD%93%E7%B3%BB",
+      label: {
+        en: "Hilbert-style Deduction System (Wikipedia JA)",
+        ja: "ヒルベルト流論理体系（Wikipedia日本語版）",
+      },
+      documentLanguage: "ja",
+    },
+  ],
+  keywords: [
+    "predicate logic axiom system",
+    "first-order logic axioms",
+    "Hilbert system",
+    "axiom schema",
+    "Modus Ponens",
+    "Generalization",
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "述語論理公理体系",
+    "一階述語論理公理",
+    "Hilbert系",
+    "公理スキーマ",
+    "一般化規則",
+  ],
+  order: 26,
+};
+
 // ============================================================
 // 理論 (Theories)
 // ============================================================
@@ -5700,6 +5807,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   conceptSpeedUpTheorem,
   conceptFormulaSchema,
   conceptTautology,
+  conceptPredicateAxiomSystem,
   // Theories
   theoryPeanoArithmetic,
   theoryGroupTheory,
