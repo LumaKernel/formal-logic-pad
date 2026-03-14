@@ -13,6 +13,7 @@ import {
   buildTermMetaSubstitutionMap,
   freshVariableName,
   resolveFormulaSubstitution,
+  normalizeFormula,
 } from "./substitution";
 import { equalFormula, equalTerm } from "./equality";
 import {
@@ -27,6 +28,7 @@ import {
   predicate,
   equality,
   formulaSubstitution,
+  freeVariableAbsence,
 } from "./formula";
 import {
   termVariable,
@@ -1312,6 +1314,177 @@ describe("integration: combined meta + term substitution", () => {
         result,
         conjunction(predicate("P", [a]), predicate("Q", [a])),
       ),
+    ).toBe(true);
+  });
+});
+
+// ── 10. normalizeFormula ────────────────────────────────────────
+
+describe("normalizeFormula", () => {
+  const x = termVariable("x");
+  const y = termVariable("y");
+  const z = termVariable("z");
+  const a = constant("a");
+  const b = constant("b");
+
+  // --- FormulaSubstitution の解決 ---
+
+  test("FormulaSubstitutionがない論理式はそのまま返る", () => {
+    const f = implication(predicate("P", [x]), predicate("Q", [y]));
+    const result = normalizeFormula(f);
+    expect(equalFormula(result, f)).toBe(true);
+  });
+
+  test("基本的な置換: P(x)[a/x] → P(a)", () => {
+    const f = formulaSubstitution(predicate("P", [x]), a, x);
+    const result = normalizeFormula(f);
+    expect(equalFormula(result, predicate("P", [a]))).toBe(true);
+  });
+
+  test("連鎖置換: P(x,y)[a/x][b/y] → P(a,b)", () => {
+    const inner = formulaSubstitution(predicate("P", [x, y]), a, x);
+    const f = formulaSubstitution(inner, b, y);
+    const result = normalizeFormula(f);
+    expect(equalFormula(result, predicate("P", [a, b]))).toBe(true);
+  });
+
+  // --- FreeVariableAbsence の簡約 ---
+
+  test("FreeVariableAbsence: 変数が自由でない場合は除去 — P(y)[/x] → P(y)", () => {
+    const f = freeVariableAbsence(predicate("P", [y]), x);
+    const result = normalizeFormula(f);
+    expect(equalFormula(result, predicate("P", [y]))).toBe(true);
+  });
+
+  test("FreeVariableAbsence: 変数が自由な場合は保持 — P(x)[/x]", () => {
+    const f = freeVariableAbsence(predicate("P", [x]), x);
+    const result = normalizeFormula(f);
+    expect(result._tag).toBe("FreeVariableAbsence");
+    expect(equalFormula(result, f)).toBe(true);
+  });
+
+  test("FreeVariableAbsence: 束縛変数と同じ場合は除去 — (∀x.P(x))[/x] → ∀x.P(x)", () => {
+    const f = freeVariableAbsence(universal(x, predicate("P", [x])), x);
+    const result = normalizeFormula(f);
+    expect(equalFormula(result, universal(x, predicate("P", [x])))).toBe(true);
+    expect(result._tag).toBe("Universal");
+  });
+
+  test("FreeVariableAbsence: 置換解決後に簡約 — P(x)[a/x][/x] → P(a)", () => {
+    const inner = formulaSubstitution(predicate("P", [x]), a, x);
+    const f = freeVariableAbsence(inner, x);
+    const result = normalizeFormula(f);
+    expect(equalFormula(result, predicate("P", [a]))).toBe(true);
+  });
+
+  test("FreeVariableAbsence: 複数変数で一方のみ自由 — P(x,y)[/x]", () => {
+    const f = freeVariableAbsence(predicate("P", [x, y]), x);
+    const result = normalizeFormula(f);
+    expect(result._tag).toBe("FreeVariableAbsence");
+  });
+
+  // --- 複合ケース ---
+
+  test("否定内のFreeVariableAbsence: ¬(P(y)[/x]) → ¬P(y)", () => {
+    const f = negation(freeVariableAbsence(predicate("P", [y]), x));
+    const result = normalizeFormula(f);
+    expect(equalFormula(result, negation(predicate("P", [y])))).toBe(true);
+  });
+
+  test("含意内の正規化: P(y)[/x] → Q(x)[a/x] → P(y) → Q(a)", () => {
+    const f = implication(
+      freeVariableAbsence(predicate("P", [y]), x),
+      formulaSubstitution(predicate("Q", [x]), a, x),
+    );
+    const result = normalizeFormula(f);
+    expect(
+      equalFormula(
+        result,
+        implication(predicate("P", [y]), predicate("Q", [a])),
+      ),
+    ).toBe(true);
+  });
+
+  test("連言内の正規化", () => {
+    const f = conjunction(
+      freeVariableAbsence(predicate("P", [y]), x),
+      predicate("Q", [z]),
+    );
+    const result = normalizeFormula(f);
+    expect(
+      equalFormula(
+        result,
+        conjunction(predicate("P", [y]), predicate("Q", [z])),
+      ),
+    ).toBe(true);
+  });
+
+  test("選言内の正規化", () => {
+    const f = disjunction(
+      predicate("P", [y]),
+      freeVariableAbsence(predicate("Q", [z]), x),
+    );
+    const result = normalizeFormula(f);
+    expect(
+      equalFormula(
+        result,
+        disjunction(predicate("P", [y]), predicate("Q", [z])),
+      ),
+    ).toBe(true);
+  });
+
+  test("双条件内の正規化", () => {
+    const f = biconditional(
+      freeVariableAbsence(predicate("P", [y]), x),
+      freeVariableAbsence(predicate("Q", [z]), x),
+    );
+    const result = normalizeFormula(f);
+    expect(
+      equalFormula(
+        result,
+        biconditional(predicate("P", [y]), predicate("Q", [z])),
+      ),
+    ).toBe(true);
+  });
+
+  test("全称量化内の正規化", () => {
+    const f = universal(y, freeVariableAbsence(predicate("P", [y]), x));
+    const result = normalizeFormula(f);
+    expect(equalFormula(result, universal(y, predicate("P", [y])))).toBe(true);
+  });
+
+  test("存在量化内の正規化", () => {
+    const f = existential(y, freeVariableAbsence(predicate("P", [y]), x));
+    const result = normalizeFormula(f);
+    expect(equalFormula(result, existential(y, predicate("P", [y])))).toBe(
+      true,
+    );
+  });
+
+  test("等号はそのまま", () => {
+    const f = equality(x, a);
+    const result = normalizeFormula(f);
+    expect(equalFormula(result, f)).toBe(true);
+  });
+
+  test("メタ変数はそのまま", () => {
+    const phi = metaVariable("φ");
+    const result = normalizeFormula(phi);
+    expect(equalFormula(result, phi)).toBe(true);
+  });
+
+  test("述語(引数なし)はそのまま", () => {
+    const f = predicate("P", []);
+    const result = normalizeFormula(f);
+    expect(equalFormula(result, f)).toBe(true);
+  });
+
+  test("α変換を伴う正規化: (∀y.P(x,y))[y/x] → ∀y'.P(y,y')", () => {
+    const f = formulaSubstitution(universal(y, predicate("P", [x, y])), y, x);
+    const result = normalizeFormula(f);
+    const yPrime = termVariable("y'");
+    expect(
+      equalFormula(result, universal(yPrime, predicate("P", [y, yPrime]))),
     ).toBe(true);
   });
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { equalTerm, equalFormula } from "./equality";
+import { equalTerm, equalFormula, equivalentFormula } from "./equality";
 import {
   termVariable,
   termMetaVariable,
@@ -374,5 +374,64 @@ describe("equalFormula", () => {
       termVariable("x"),
     );
     expect(equalFormula(a, b)).toBe(false);
+  });
+});
+
+// ── equivalentFormula ───────────────────────────────────────
+
+describe("equivalentFormula", () => {
+  const x = termVariable("x");
+  const y = termVariable("y");
+  const a = constant("a");
+
+  it("構造的に等しい式は等価", () => {
+    const f = predicate("P", [x]);
+    expect(equivalentFormula(f, f)).toBe(true);
+  });
+
+  it("P(x)[a/x] ≡ P(a) — 置換の解決", () => {
+    const withSubst = formulaSubstitution(predicate("P", [x]), a, x);
+    const resolved = predicate("P", [a]);
+    expect(equivalentFormula(withSubst, resolved)).toBe(true);
+  });
+
+  it("P(y)[/x] ≡ P(y) — 自明なFreeVariableAbsenceの除去", () => {
+    const withAbsence = freeVariableAbsence(predicate("P", [y]), x);
+    const plain = predicate("P", [y]);
+    expect(equivalentFormula(withAbsence, plain)).toBe(true);
+  });
+
+  it("P(x)[/x] ≢ P(x) — 自由な変数のFreeVariableAbsenceは除去されない", () => {
+    const withAbsence = freeVariableAbsence(predicate("P", [x]), x);
+    const plain = predicate("P", [x]);
+    expect(equivalentFormula(withAbsence, plain)).toBe(false);
+  });
+
+  it("P(x)[a/x][/x] ≡ P(a) — 置換解決後にFreeVariableAbsence除去", () => {
+    const inner = formulaSubstitution(predicate("P", [x]), a, x);
+    const withAbsence = freeVariableAbsence(inner, x);
+    const resolved = predicate("P", [a]);
+    expect(equivalentFormula(withAbsence, resolved)).toBe(true);
+  });
+
+  it("両辺に置換がある場合: P(x)[a/x] ≡ Q(x)[a/x] は P(a)≡Q(a) と同じ", () => {
+    const left = formulaSubstitution(predicate("P", [x]), a, x);
+    const right = formulaSubstitution(predicate("Q", [x]), a, x);
+    expect(equivalentFormula(left, right)).toBe(false);
+  });
+
+  it("対称性: a ≡ b ⟺ b ≡ a", () => {
+    const withSubst = formulaSubstitution(predicate("P", [x]), a, x);
+    const resolved = predicate("P", [a]);
+    expect(equivalentFormula(resolved, withSubst)).toBe(true);
+  });
+
+  it("含意内の等価性: (P(x)[a/x] → Q(y)) ≡ (P(a) → Q(y))", () => {
+    const left = implication(
+      formulaSubstitution(predicate("P", [x]), a, x),
+      predicate("Q", [y]),
+    );
+    const right = implication(predicate("P", [a]), predicate("Q", [y]));
+    expect(equivalentFormula(left, right)).toBe(true);
   });
 });

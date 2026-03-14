@@ -824,3 +824,84 @@ export const substituteTermVariableChecked = (
   }
   return ok(substituteTermVariableInFormula(formula, variable, replacement));
 };
+
+// ── 8. 論理式の正規化 ──────────────────────────────────────
+
+/**
+ * 論理式を正規化する。
+ *
+ * 以下の簡約を再帰的に適用:
+ * 1. FormulaSubstitution φ[τ/x] → 実際に置換を実行した結果に展開
+ * 2. FreeVariableAbsence φ[/x] → x が φ で自由でない場合は φ に簡約（自由な場合はそのまま保持）
+ *
+ * これにより、`P(x)[a/x]` と `P(a)` のような構文的に異なるが意味的に等価な式を
+ * 同じ正規形に変換でき、等価性判定の基盤となる。
+ */
+export const normalizeFormula = (formula: Formula): Formula => {
+  return normalizeFormulaRec(formula);
+};
+
+const normalizeFormulaRec = (f: Formula): Formula => {
+  switch (f._tag) {
+    case "MetaVariable":
+    case "Predicate":
+    case "Equality":
+      return f;
+    case "Negation":
+      return new Negation({
+        formula: normalizeFormulaRec(f.formula),
+      });
+    case "Implication":
+      return new Implication({
+        left: normalizeFormulaRec(f.left),
+        right: normalizeFormulaRec(f.right),
+      });
+    case "Conjunction":
+      return new Conjunction({
+        left: normalizeFormulaRec(f.left),
+        right: normalizeFormulaRec(f.right),
+      });
+    case "Disjunction":
+      return new Disjunction({
+        left: normalizeFormulaRec(f.left),
+        right: normalizeFormulaRec(f.right),
+      });
+    case "Biconditional":
+      return new Biconditional({
+        left: normalizeFormulaRec(f.left),
+        right: normalizeFormulaRec(f.right),
+      });
+    case "Universal":
+      return new Universal({
+        variable: f.variable,
+        formula: normalizeFormulaRec(f.formula),
+      });
+    case "Existential":
+      return new Existential({
+        variable: f.variable,
+        formula: normalizeFormulaRec(f.formula),
+      });
+    case "FormulaSubstitution": {
+      // まず内側を正規化してから、置換を実行
+      const resolvedInner = normalizeFormulaRec(f.formula);
+      return substituteTermVariableInFormula(resolvedInner, f.variable, f.term);
+    }
+    case "FreeVariableAbsence": {
+      // まず内側を正規化
+      const normalizedInner = normalizeFormulaRec(f.formula);
+      // x が内側の正規化後の式で自由でなければ、アサーションは自明なので除去
+      if (!freeVariablesInFormula(normalizedInner).has(f.variable.name)) {
+        return normalizedInner;
+      }
+      // x が自由な場合は簡約できない（例: P(x)[/x] — x は自由なので保持）
+      return new FreeVariableAbsence({
+        formula: normalizedInner,
+        variable: f.variable,
+      });
+    }
+  }
+  /* v8 ignore start */
+  f satisfies never;
+  return f;
+  /* v8 ignore stop */
+};

@@ -1,5 +1,6 @@
 import type { Formula } from "./formula";
 import type { Term } from "./term";
+import { normalizeFormula } from "./substitution";
 
 /**
  * 2つの項（Term）が構造的に等しいかを判定する。
@@ -103,4 +104,16 @@ export const equalFormula = (a: Formula, b: Formula): boolean => {
   a satisfies never;
   return false;
   /* v8 ignore stop */
+};
+
+/**
+ * 2つの論理式が置換等価であるかを判定する。
+ *
+ * 両辺を正規化（FormulaSubstitution の解決 + FreeVariableAbsence の簡約）してから
+ * 構造的等価性を比較する。これにより:
+ * - `P(x)[a/x]` ≡ `P(a)` （置換の解決）
+ * - `P(y)[/x]` ≡ `P(y)` （自明な FreeVariableAbsence の除去）
+ */
+export const equivalentFormula = (a: Formula, b: Formula): boolean => {
+  return equalFormula(normalizeFormula(a), normalizeFormula(b));
 };

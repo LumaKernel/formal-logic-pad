@@ -60,8 +60,8 @@ export {
 } from "./formula";
 export type { Formula as FormulaType } from "./formula";
 
-// ── Equality (structural) ───────────────────────────────
-export { equalTerm, equalFormula } from "./equality";
+// ── Equality (structural + semantic) ────────────────────
+export { equalTerm, equalFormula, equivalentFormula } from "./equality";
 
 // ── MetaVariable utilities ──────────────────────────────
 export {
@@ -98,6 +98,7 @@ export {
   substituteTermVariableInFormula,
   substituteTermVariableChecked,
   resolveFormulaSubstitution,
+  normalizeFormula,
   isFreeFor,
   composeFormulaSubstitution,
   composeTermMetaSubstitution,
