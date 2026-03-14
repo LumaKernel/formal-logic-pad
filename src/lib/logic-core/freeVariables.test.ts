@@ -25,6 +25,7 @@ import {
   predicate,
   equality,
   formulaSubstitution,
+  freeVariableAbsence,
 } from "./formula";
 
 describe("freeVariablesInTerm", () => {
@@ -208,6 +209,30 @@ describe("freeVariablesInFormula", () => {
     const f = formulaSubstitution(phi, termVariable("y"), termVariable("x"));
     expect(freeVariablesInFormula(f)).toEqual(new Set());
   });
+
+  test("FreeVariableAbsence: removes x from free variables", () => {
+    // P(x, y)[/x] → FV = FV(P(x,y)) \ {x} = {y}
+    const phi = predicate("P", [termVariable("x"), termVariable("y")]);
+    const f = freeVariableAbsence(phi, termVariable("x"));
+    expect(freeVariablesInFormula(f)).toEqual(new Set(["y"]));
+  });
+
+  test("FreeVariableAbsence: removing non-free variable is no-op", () => {
+    // P(y)[/x] → FV = {y} (x is already not free)
+    const phi = predicate("P", [termVariable("y")]);
+    const f = freeVariableAbsence(phi, termVariable("x"));
+    expect(freeVariablesInFormula(f)).toEqual(new Set(["y"]));
+  });
+
+  test("FreeVariableAbsence: chained removal", () => {
+    // P(x, y)[/x][/y] → FV = {}
+    const phi = predicate("P", [termVariable("x"), termVariable("y")]);
+    const f = freeVariableAbsence(
+      freeVariableAbsence(phi, termVariable("x")),
+      termVariable("y"),
+    );
+    expect(freeVariablesInFormula(f)).toEqual(new Set());
+  });
 });
 
 describe("isFreeInFormula", () => {
@@ -336,6 +361,13 @@ describe("allVariableNamesInFormula", () => {
     // P(x, y)[0/x] → allVars = {x, y} (variable from binding, formula vars)
     const phi = predicate("P", [termVariable("x"), termVariable("y")]);
     const f = formulaSubstitution(phi, constant("0"), termVariable("x"));
+    expect(allVariableNamesInFormula(f)).toEqual(new Set(["x", "y"]));
+  });
+
+  test("FreeVariableAbsence collects from formula and variable", () => {
+    // P(y)[/x] → allVars = {y} ∪ {x} = {x, y}
+    const phi = predicate("P", [termVariable("y")]);
+    const f = freeVariableAbsence(phi, termVariable("x"));
     expect(allVariableNamesInFormula(f)).toEqual(new Set(["x", "y"]));
   });
 });

@@ -78,6 +78,7 @@ export const evaluateFormula = (
     case "Predicate":
     case "Equality":
     case "FormulaSubstitution":
+    case "FreeVariableAbsence":
       throw new Error(
         `Cannot evaluate non-propositional formula node: ${formula._tag satisfies string}. Only propositional logic formulas are supported.`,
       );
@@ -125,6 +126,7 @@ const collectVarsRecursive = (formula: Formula, result: Set<string>): void => {
     case "Predicate":
     case "Equality":
     case "FormulaSubstitution":
+    case "FreeVariableAbsence":
       throw new Error(
         `Cannot collect propositional variables from non-propositional formula node: ${formula._tag satisfies string}. Only propositional logic formulas are supported.`,
       );

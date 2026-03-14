@@ -58,6 +58,7 @@ export const toNNF = (formula: Formula): Formula => {
     case "Predicate":
     case "Equality":
     case "FormulaSubstitution":
+    case "FreeVariableAbsence":
       throw new Error(
         `Cannot convert non-propositional formula node to NNF: ${formula._tag satisfies string}. Only propositional logic formulas are supported.`,
       );
@@ -108,6 +109,7 @@ const pushNegation = (formula: Formula): Formula => {
     case "Predicate":
     case "Equality":
     case "FormulaSubstitution":
+    case "FreeVariableAbsence":
       throw new Error(
         `Cannot convert non-propositional formula node to NNF: ${formula._tag satisfies string}. Only propositional logic formulas are supported.`,
       );
@@ -160,7 +162,8 @@ const distributeCNF = (formula: Formula): Formula => {
       | { readonly _tag: "Existential" }
       | { readonly _tag: "Predicate" }
       | { readonly _tag: "Equality" }
-      | { readonly _tag: "FormulaSubstitution" };
+      | { readonly _tag: "FormulaSubstitution" }
+      | { readonly _tag: "FreeVariableAbsence" };
     throw new Error(
       `Unexpected formula node in CNF distribution: ${formula._tag satisfies string}. Input must be in NNF.`,
     );
@@ -236,7 +239,8 @@ const distributeDNF = (formula: Formula): Formula => {
       | { readonly _tag: "Existential" }
       | { readonly _tag: "Predicate" }
       | { readonly _tag: "Equality" }
-      | { readonly _tag: "FormulaSubstitution" };
+      | { readonly _tag: "FormulaSubstitution" }
+      | { readonly _tag: "FreeVariableAbsence" };
     throw new Error(
       `Unexpected formula node in DNF distribution: ${formula._tag satisfies string}. Input must be in NNF.`,
     );
@@ -300,6 +304,7 @@ export const isNNF = (formula: Formula): boolean => {
     case "Predicate":
     case "Equality":
     case "FormulaSubstitution":
+    case "FreeVariableAbsence":
       throw new Error(
         `Cannot check NNF for non-propositional formula node: ${formula._tag satisfies string}. Only propositional logic formulas are supported.`,
       );
@@ -431,6 +436,7 @@ export const toPredicateNNF = (formula: Formula): Formula => {
     case "Existential":
       return existential(formula.variable, toPredicateNNF(formula.formula));
     case "FormulaSubstitution":
+    case "FreeVariableAbsence":
       throw new Error(
         `Cannot convert FormulaSubstitution node to predicate NNF: ${formula._tag satisfies string}. Resolve substitutions first.`,
       );
@@ -494,6 +500,7 @@ const pushPredicateNegation = (formula: Formula): Formula => {
         pushPredicateNegation(formula.formula),
       );
     case "FormulaSubstitution":
+    case "FreeVariableAbsence":
       throw new Error(
         `Cannot convert FormulaSubstitution node to predicate NNF: ${formula._tag satisfies string}. Resolve substitutions first.`,
       );
@@ -556,7 +563,8 @@ const pullQuantifiers = (formula: Formula): Formula => {
     formula satisfies
       | { readonly _tag: "Implication" }
       | { readonly _tag: "Biconditional" }
-      | { readonly _tag: "FormulaSubstitution" };
+      | { readonly _tag: "FormulaSubstitution" }
+      | { readonly _tag: "FreeVariableAbsence" };
     throw new Error(
       `Unexpected formula node in PNF quantifier lifting: ${formula._tag satisfies string}. Input must be in predicate NNF.`,
     );
@@ -694,6 +702,7 @@ const isQuantifierFree = (formula: Formula): boolean => {
     case "Existential":
       return false;
     case "FormulaSubstitution":
+    case "FreeVariableAbsence":
       throw new Error(
         `Cannot check PNF for FormulaSubstitution node: ${formula._tag satisfies string}. Resolve substitutions first.`,
       );

@@ -95,6 +95,8 @@ export const collectFormulaMetaVariables = (
     case "FormulaSubstitution":
       // formula 部分にメタ変数が含まれうる（term 部分は Term なので Formula メタ変数なし）
       return collectFormulaMetaVariables(f.formula);
+    case "FreeVariableAbsence":
+      return collectFormulaMetaVariables(f.formula);
   }
   /* v8 ignore start */
   f satisfies never;
@@ -162,6 +164,8 @@ export const collectTermMetaVariablesInFormula = (
         ...collectTermMetaVariablesInFormula(f.formula),
         ...collectTermMetaVariables(f.term),
       ];
+    case "FreeVariableAbsence":
+      return collectTermMetaVariablesInFormula(f.formula);
   }
   /* v8 ignore start */
   f satisfies never;

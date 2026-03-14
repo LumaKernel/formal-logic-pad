@@ -5,6 +5,7 @@ import {
   disjunction,
   equality,
   existential,
+  freeVariableAbsence,
   formulaSubstitution,
   implication,
   metaVariable,
@@ -107,6 +108,17 @@ describe("formulaHighlight", () => {
           implication(metaVariable("φ"), metaVariable("ψ")),
           termVariable("τ"),
           termVariable("x"),
+        ),
+      ],
+      [
+        "自由変数不在 φ[/x]",
+        freeVariableAbsence(metaVariable("φ"), termVariable("x")),
+      ],
+      [
+        "チェイン自由変数不在 φ[/x][/y]",
+        freeVariableAbsence(
+          freeVariableAbsence(metaVariable("φ"), termVariable("x")),
+          termVariable("y"),
         ),
       ],
     ] as const)("%s: tokensToText === formatFormula", (_name, formula) => {
@@ -283,6 +295,14 @@ describe("formulaHighlight", () => {
       );
       // (φ → ψ)[τ/x] → punctuation"(" + ... + punctuation")" + substitution"[" + ...
       expect(tokens[0]).toEqual({ text: "(", kind: "punctuation" });
+    });
+
+    it("自由変数不在は substitution 種別のブラケットを含む", () => {
+      const tokens = tokenizeFormula(
+        freeVariableAbsence(metaVariable("φ"), termVariable("x")),
+      );
+      const subTokens = tokens.filter((t) => t.kind === "substitution");
+      expect(subTokens.map((t) => t.text)).toEqual(["[", "/", "]"]);
     });
 
     it("否定の代入 (¬φ)[τ/x] では否定部分が括弧で囲まれる", () => {

@@ -15,6 +15,7 @@ import {
   predicate,
   equality,
   formulaSubstitution,
+  freeVariableAbsence,
 } from "../logic-core/formula";
 import {
   termVariable,
@@ -745,6 +746,52 @@ describe("Parser", () => {
         formulaSubstitution(φ, termMetaVariable("τ"), termVariable("ζ")),
       );
     });
+
+    it("free variable absence φ[/x]", () => {
+      const φ = metaVariable("φ");
+      assertFormula("φ[/x]", freeVariableAbsence(φ, termVariable("x")));
+    });
+
+    it("free variable absence on predicate P(x)[/y]", () => {
+      assertFormula(
+        "P(x)[/y]",
+        freeVariableAbsence(
+          predicate("P", [termVariable("x")]),
+          termVariable("y"),
+        ),
+      );
+    });
+
+    it("chained free variable absence φ[/x][/y]", () => {
+      const φ = metaVariable("φ");
+      assertFormula(
+        "φ[/x][/y]",
+        freeVariableAbsence(
+          freeVariableAbsence(φ, termVariable("x")),
+          termVariable("y"),
+        ),
+      );
+    });
+
+    it("mixed substitution and free variable absence φ[τ/x][/y]", () => {
+      const φ = metaVariable("φ");
+      assertFormula(
+        "φ[τ/x][/y]",
+        freeVariableAbsence(
+          formulaSubstitution(φ, termMetaVariable("τ"), termVariable("x")),
+          termVariable("y"),
+        ),
+      );
+    });
+
+    it("free variable absence binds tighter than →", () => {
+      const φ = metaVariable("φ");
+      const ψ = metaVariable("ψ");
+      assertFormula(
+        "φ[/x] → ψ",
+        implication(freeVariableAbsence(φ, termVariable("x")), ψ),
+      );
+    });
   });
 
   // --- エラーケース ---
@@ -898,9 +945,9 @@ describe("Parser", () => {
       expect(errors.length).toBeGreaterThanOrEqual(1);
     });
 
-    it("substitution with invalid term (line 256)", () => {
-      // "φ[/x]" → 置換項が / の前にないのでtermパース失敗
-      const errors = parseErr("φ[/x]");
+    it("substitution with invalid term (empty brackets)", () => {
+      // "φ[]" → 置換項が空でtermパース失敗
+      const errors = parseErr("φ[]");
       expect(errors.length).toBeGreaterThanOrEqual(1);
     });
 

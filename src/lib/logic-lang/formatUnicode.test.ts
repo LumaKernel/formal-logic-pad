@@ -19,6 +19,7 @@ import {
   predicate,
   equality,
   formulaSubstitution,
+  freeVariableAbsence,
 } from "../logic-core/formula";
 import {
   termVariable,
@@ -410,6 +411,53 @@ describe("formatFormula", () => {
     });
   });
 
+  describe("自由変数不在アサーション", () => {
+    it("単純な φ[/x]", () => {
+      expect(
+        formatFormula(
+          freeVariableAbsence(metaVariable("φ"), termVariable("x")),
+        ),
+      ).toBe("φ[/x]");
+    });
+
+    it("複合式への適用 (φ → ψ)[/x]", () => {
+      expect(
+        formatFormula(
+          freeVariableAbsence(
+            implication(metaVariable("φ"), metaVariable("ψ")),
+            termVariable("x"),
+          ),
+        ),
+      ).toBe("(φ → ψ)[/x]");
+    });
+
+    it("チェイン φ[/x][/y]", () => {
+      expect(
+        formatFormula(
+          freeVariableAbsence(
+            freeVariableAbsence(metaVariable("φ"), termVariable("x")),
+            termVariable("y"),
+          ),
+        ),
+      ).toBe("φ[/x][/y]");
+    });
+
+    it("置換と混合 φ[τ/x][/y]", () => {
+      expect(
+        formatFormula(
+          freeVariableAbsence(
+            formulaSubstitution(
+              metaVariable("φ"),
+              termMetaVariable("τ"),
+              termVariable("x"),
+            ),
+            termVariable("y"),
+          ),
+        ),
+      ).toBe("φ[τ/x][/y]");
+    });
+  });
+
   describe("複合式", () => {
     it("S公理: (φ → ψ → χ) → (φ → ψ) → (φ → χ)", () => {
       const s = implication(
@@ -686,6 +734,18 @@ describe("ラウンドトリップ (parse → format → parse)", () => {
 
   it("φ[τ/x] → ψ", () => {
     roundTrip("φ[τ/x] → ψ", "φ[τ/x] → ψ");
+  });
+
+  it("φ[/x]", () => {
+    roundTrip("φ[/x]", "φ[/x]");
+  });
+
+  it("φ[/x][/y]", () => {
+    roundTrip("φ[/x][/y]", "φ[/x][/y]");
+  });
+
+  it("φ[τ/x][/y]", () => {
+    roundTrip("φ[τ/x][/y]", "φ[τ/x][/y]");
   });
 
   it("format → parse ラウンドトリップ", () => {

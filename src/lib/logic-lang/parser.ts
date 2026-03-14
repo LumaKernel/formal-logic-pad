@@ -23,6 +23,7 @@ import {
   predicate,
   equality,
   formulaSubstitution,
+  freeVariableAbsence,
 } from "../logic-core/formula";
 import type { Formula } from "../logic-core/formula";
 import {
@@ -251,6 +252,35 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
     while (peek().kind === "LBRACKET") {
       advance(); // LBRACKET を消費
 
+      // [/x] パターン: LBRACKET の直後に DIVIDE → FreeVariableAbsence
+      if (peek().kind === "DIVIDE") {
+        advance(); // DIVIDE を消費
+
+        // 変数をパース（LOWER_IDENT または META_VARIABLE）
+        const varToken = peek();
+        let varName: string;
+        if (varToken.kind === "LOWER_IDENT") {
+          advance();
+          varName = varToken.value!;
+        } else if (varToken.kind === "META_VARIABLE") {
+          advance();
+          varName = varToken.value!;
+        } else {
+          addError(
+            `Expected variable after '/' in free variable absence at ${posStr(varToken.span.start) satisfies string}`,
+            varToken.span,
+          );
+          return result;
+        }
+
+        // `]` を期待
+        if (expect("RBRACKET") === undefined) return result;
+
+        result = freeVariableAbsence(result, termVariable(varName));
+        continue;
+      }
+
+      // [τ/x] パターン: 通常の置換
       // 置換項をパース（DIVIDE を項の二項演算子として消費しない）
       const term = parseTerm(0, STOP_AT_DIVIDE);
       if (term === undefined) return result;

@@ -43,6 +43,7 @@ export {
   Predicate,
   Equality,
   FormulaSubstitution,
+  FreeVariableAbsence,
   Formula,
   metaVariable,
   negation,
@@ -55,6 +56,7 @@ export {
   predicate,
   equality,
   formulaSubstitution,
+  freeVariableAbsence,
 } from "./formula";
 export type { Formula as FormulaType } from "./formula";
 

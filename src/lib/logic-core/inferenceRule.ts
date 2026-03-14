@@ -1053,6 +1053,13 @@ export const matchFormulaPattern = (
           matchTerm(t.variable, cSub.variable)
         );
       }
+      case "FreeVariableAbsence": {
+        const cAbs = c as typeof t;
+        return (
+          matchFormula(t.formula, cAbs.formula) &&
+          matchTerm(t.variable, cAbs.variable)
+        );
+      }
     }
     /* v8 ignore start */
     t satisfies never;
@@ -1742,6 +1749,13 @@ const inferTermReplacement = (
           matchFormula(b.formula, tSub.formula) &&
           matchTerm(b.term, tSub.term) &&
           matchTerm(b.variable, tSub.variable)
+        );
+      }
+      case "FreeVariableAbsence": {
+        const tAbs = t as typeof b;
+        return (
+          matchFormula(b.formula, tAbs.formula) &&
+          matchTerm(b.variable, tAbs.variable)
         );
       }
     }

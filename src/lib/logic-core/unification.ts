@@ -121,6 +121,7 @@ const occursInFormula = (mvKey: string, f: Formula): boolean => {
     case "Equality":
       return false;
     case "FormulaSubstitution":
+    case "FreeVariableAbsence":
       return occursInFormula(mvKey, f.formula);
   }
   /* v8 ignore start */
@@ -245,12 +246,19 @@ const decomposeFormula = (
     const bEq = b as typeof a;
     return [termEquation(a.left, bEq.left), termEquation(a.right, bEq.right)];
   }
-  // FormulaSubstitution — fall-through for exhaustive narrowing
-  const bSub = b as typeof a;
+  if (a._tag === "FormulaSubstitution") {
+    const bSub = b as typeof a;
+    return [
+      formulaEquation(a.formula, bSub.formula),
+      termEquation(a.term, bSub.term),
+      termEquation(a.variable, bSub.variable),
+    ];
+  }
+  // FreeVariableAbsence — fall-through for exhaustive narrowing
+  const bAbs = b as typeof a;
   return [
-    formulaEquation(a.formula, bSub.formula),
-    termEquation(a.term, bSub.term),
-    termEquation(a.variable, bSub.variable),
+    formulaEquation(a.formula, bAbs.formula),
+    termEquation(a.variable, bAbs.variable),
   ];
 };
 

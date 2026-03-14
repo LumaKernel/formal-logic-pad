@@ -129,6 +129,7 @@ const formulaChildBP = (
     case "Predicate":
     case "Equality":
     case "FormulaSubstitution":
+    case "FreeVariableAbsence":
       return { leftBP: 100, rightBP: 100 };
     case "Universal":
     case "Existential":
@@ -371,6 +372,27 @@ const tokenizeFormulaInner = (
       );
       tokens.push({ text: "[", kind: "substitution" });
       tokens.push(...tokenizeTermInner(f.term));
+      tokens.push({ text: "/", kind: "substitution" });
+      tokens.push({ text: f.variable.name, kind: "variable" });
+      tokens.push({ text: "]", kind: "substitution" });
+      return tokens;
+    }
+
+    case "FreeVariableAbsence": {
+      const innerNeedsParens =
+        f.formula._tag === "Implication" ||
+        f.formula._tag === "Biconditional" ||
+        f.formula._tag === "Conjunction" ||
+        f.formula._tag === "Disjunction" ||
+        f.formula._tag === "Universal" ||
+        f.formula._tag === "Existential" ||
+        f.formula._tag === "Negation";
+      const formulaTokens = tokenizeFormulaInner(f.formula, 0);
+      const tokens: FormulaToken[] = [];
+      tokens.push(
+        ...(innerNeedsParens ? wrapParens(formulaTokens) : formulaTokens),
+      );
+      tokens.push({ text: "[", kind: "substitution" });
       tokens.push({ text: "/", kind: "substitution" });
       tokens.push({ text: f.variable.name, kind: "variable" });
       tokens.push({ text: "]", kind: "substitution" });

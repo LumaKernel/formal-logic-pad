@@ -99,6 +99,13 @@ export const freeVariablesInFormula = (f: Formula): ReadonlySet<string> => {
       }
       return result;
     }
+    case "FreeVariableAbsence": {
+      // φ[/x] の自由変数 = φの自由変数 \ {x}（xが自由でないことをアサートしているため）
+      const innerFree = freeVariablesInFormula(f.formula);
+      const result = new Set(innerFree);
+      result.delete(f.variable.name);
+      return result;
+    }
   }
   /* v8 ignore start */
   f satisfies never;
@@ -174,6 +181,14 @@ export const allVariableNamesInFormula = (f: Formula): ReadonlySet<string> => {
         result.add(v);
       }
       for (const v of allVariableNamesInTerm(f.term)) {
+        result.add(v);
+      }
+      return result;
+    }
+    case "FreeVariableAbsence": {
+      const result = new Set<string>();
+      result.add(f.variable.name);
+      for (const v of allVariableNamesInFormula(f.formula)) {
         result.add(v);
       }
       return result;

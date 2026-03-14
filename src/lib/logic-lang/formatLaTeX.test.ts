@@ -19,6 +19,7 @@ import {
   predicate,
   equality,
   formulaSubstitution,
+  freeVariableAbsence,
 } from "../logic-core/formula";
 import {
   termVariable,
@@ -385,6 +386,38 @@ describe("formatFormulaLaTeX", () => {
           ),
         ),
       ).toBe("\\varphi[\\tau/x][\\sigma/y]");
+    });
+  });
+
+  describe("自由変数不在アサーション", () => {
+    it("単純な φ[/x]", () => {
+      expect(
+        formatFormulaLaTeX(
+          freeVariableAbsence(metaVariable("φ"), termVariable("x")),
+        ),
+      ).toBe("\\varphi[/x]");
+    });
+
+    it("複合式への適用 (φ → ψ)[/x]", () => {
+      expect(
+        formatFormulaLaTeX(
+          freeVariableAbsence(
+            implication(metaVariable("φ"), metaVariable("ψ")),
+            termVariable("x"),
+          ),
+        ),
+      ).toBe("\\left(\\varphi \\to \\psi\\right)[/x]");
+    });
+
+    it("チェイン φ[/x][/y]", () => {
+      expect(
+        formatFormulaLaTeX(
+          freeVariableAbsence(
+            freeVariableAbsence(metaVariable("φ"), termVariable("x")),
+            termVariable("y"),
+          ),
+        ),
+      ).toBe("\\varphi[/x][/y]");
     });
   });
 

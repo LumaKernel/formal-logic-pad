@@ -91,6 +91,13 @@ export const equalFormula = (a: Formula, b: Formula): boolean => {
         equalTerm(a.variable, bSub.variable)
       );
     }
+    case "FreeVariableAbsence": {
+      const bAbs = b as typeof a;
+      return (
+        equalFormula(a.formula, bAbs.formula) &&
+        equalTerm(a.variable, bAbs.variable)
+      );
+    }
   }
   /* v8 ignore start */
   a satisfies never;

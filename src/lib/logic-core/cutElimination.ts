@@ -70,6 +70,7 @@ export const formulaDepth = (f: Formula): number => {
     case "Existential":
       return 1 + formulaDepth(f.formula);
     case "FormulaSubstitution":
+    case "FreeVariableAbsence":
       return 1 + formulaDepth(f.formula);
   }
   /* v8 ignore start */

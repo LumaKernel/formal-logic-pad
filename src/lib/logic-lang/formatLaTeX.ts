@@ -95,6 +95,7 @@ const formulaChildBP = (
     case "Predicate":
     case "Equality":
     case "FormulaSubstitution":
+    case "FreeVariableAbsence":
       return { leftBP: 100, rightBP: 100 };
     case "Universal":
     case "Existential":
@@ -256,6 +257,24 @@ const formatFormulaInner = (f: Formula, parentBP: number): string => {
         ? `\\left(${formulaStr satisfies string}\\right)`
         : formulaStr;
       return `${wrappedFormula satisfies string}[${termStr satisfies string}/${varStr satisfies string}]`;
+    }
+
+    case "FreeVariableAbsence": {
+      const formulaStr = formatFormulaInner(f.formula, 0);
+      const varStr = f.variable.name;
+      // φ が複合式なら括弧で囲む
+      const needsParens =
+        f.formula._tag === "Implication" ||
+        f.formula._tag === "Biconditional" ||
+        f.formula._tag === "Conjunction" ||
+        f.formula._tag === "Disjunction" ||
+        f.formula._tag === "Universal" ||
+        f.formula._tag === "Existential" ||
+        f.formula._tag === "Negation";
+      const wrappedFormula = needsParens
+        ? `\\left(${formulaStr satisfies string}\\right)`
+        : formulaStr;
+      return `${wrappedFormula satisfies string}[/${varStr satisfies string}]`;
     }
 
     /* v8 ignore next 5 */

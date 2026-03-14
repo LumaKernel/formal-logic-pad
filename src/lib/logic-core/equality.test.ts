@@ -18,6 +18,8 @@ import {
   existential,
   predicate,
   equality,
+  formulaSubstitution,
+  freeVariableAbsence,
 } from "./formula";
 
 describe("equalTerm", () => {
@@ -316,5 +318,61 @@ describe("equalFormula", () => {
     const a = universal(termVariable("x"), predicate("P", [termVariable("x")]));
     const b = universal(termVariable("x"), predicate("P", [termVariable("x")]));
     expect(equalFormula(a, b)).toBe(true);
+  });
+
+  it("returns true for identical FormulaSubstitution", () => {
+    const a = formulaSubstitution(
+      metaVariable("φ"),
+      termVariable("y"),
+      termVariable("x"),
+    );
+    const b = formulaSubstitution(
+      metaVariable("φ"),
+      termVariable("y"),
+      termVariable("x"),
+    );
+    expect(equalFormula(a, b)).toBe(true);
+  });
+
+  it("returns false for FormulaSubstitution with different variable", () => {
+    const a = formulaSubstitution(
+      metaVariable("φ"),
+      termVariable("y"),
+      termVariable("x"),
+    );
+    const b = formulaSubstitution(
+      metaVariable("φ"),
+      termVariable("y"),
+      termVariable("z"),
+    );
+    expect(equalFormula(a, b)).toBe(false);
+  });
+
+  it("returns true for identical FreeVariableAbsence", () => {
+    const a = freeVariableAbsence(metaVariable("φ"), termVariable("x"));
+    const b = freeVariableAbsence(metaVariable("φ"), termVariable("x"));
+    expect(equalFormula(a, b)).toBe(true);
+  });
+
+  it("returns false for FreeVariableAbsence with different formula", () => {
+    const a = freeVariableAbsence(metaVariable("φ"), termVariable("x"));
+    const b = freeVariableAbsence(metaVariable("ψ"), termVariable("x"));
+    expect(equalFormula(a, b)).toBe(false);
+  });
+
+  it("returns false for FreeVariableAbsence with different variable", () => {
+    const a = freeVariableAbsence(metaVariable("φ"), termVariable("x"));
+    const b = freeVariableAbsence(metaVariable("φ"), termVariable("y"));
+    expect(equalFormula(a, b)).toBe(false);
+  });
+
+  it("returns false for FreeVariableAbsence vs FormulaSubstitution", () => {
+    const a = freeVariableAbsence(metaVariable("φ"), termVariable("x"));
+    const b = formulaSubstitution(
+      metaVariable("φ"),
+      termVariable("y"),
+      termVariable("x"),
+    );
+    expect(equalFormula(a, b)).toBe(false);
   });
 });

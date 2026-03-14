@@ -122,6 +122,26 @@ export class FormulaSubstitution extends Schema.TaggedClass<FormulaSubstitution>
 ) {}
 /* v8 ignore stop */
 
+/**
+ * 自由変数不在アサーション φ[/x]
+ * 「論理式 formula 中に変数 variable が自由変数として出現しない」ことを表す構文ノード。
+ * これはメタレベルの制約（サイドコンディション）を対象言語内で明示的に表現するためのもの。
+ *
+ * 例: 公理 A4 の適用条件「τ が x に対して φ 内で自由」の補助的な表現
+ *     φ[/x] — φ の中に x が自由変数として出現しない
+ *
+ * x[/x] は構文的に正当だが、簡約（削除）はできない。
+ */
+/* v8 ignore start — V8 coverage aggregation artifact: Schema.suspend lambda */
+export class FreeVariableAbsence extends Schema.TaggedClass<FreeVariableAbsence>()(
+  "FreeVariableAbsence",
+  {
+    formula: Schema.suspend((): Schema.Schema<Formula> => Formula),
+    variable: TermVariable,
+  },
+) {}
+/* v8 ignore stop */
+
 // ── Formula Union ────────────────────────────────────────
 
 /**
@@ -139,7 +159,8 @@ export type Formula =
   | Existential
   | Predicate
   | Equality
-  | FormulaSubstitution;
+  | FormulaSubstitution
+  | FreeVariableAbsence;
 
 export const Formula = Schema.Union(
   MetaVariable,
@@ -153,6 +174,7 @@ export const Formula = Schema.Union(
   Predicate,
   Equality,
   FormulaSubstitution,
+  FreeVariableAbsence,
 );
 
 // ── ファクトリ関数 ───────────────────────────────────────
@@ -199,3 +221,8 @@ export const formulaSubstitution = (
   term: Term,
   variable: TermVariable,
 ): FormulaSubstitution => new FormulaSubstitution({ formula, term, variable });
+
+export const freeVariableAbsence = (
+  formula: Formula,
+  variable: TermVariable,
+): FreeVariableAbsence => new FreeVariableAbsence({ formula, variable });

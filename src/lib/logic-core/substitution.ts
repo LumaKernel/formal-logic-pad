@@ -24,6 +24,7 @@ import {
   Predicate,
   Equality,
   FormulaSubstitution,
+  FreeVariableAbsence,
 } from "./formula";
 import {
   type Term,
@@ -147,6 +148,11 @@ const substituteFormulaMetaVariablesRec = (
       return new FormulaSubstitution({
         formula: substituteFormulaMetaVariablesRec(f.formula, subst),
         term: f.term,
+        variable: f.variable,
+      });
+    case "FreeVariableAbsence":
+      return new FreeVariableAbsence({
+        formula: substituteFormulaMetaVariablesRec(f.formula, subst),
         variable: f.variable,
       });
   }
@@ -276,6 +282,11 @@ const substituteTermMetaVariablesInFormulaRec = (
         term: substituteTermMetaVariablesInTermRec(f.term, subst),
         variable: f.variable,
       });
+    case "FreeVariableAbsence":
+      return new FreeVariableAbsence({
+        formula: substituteTermMetaVariablesInFormulaRec(f.formula, subst),
+        variable: f.variable,
+      });
   }
   /* v8 ignore start */
   f satisfies never;
@@ -342,6 +353,9 @@ const isFreeForRec = (t: Term, x: TermVariable, f: Formula): boolean => {
       }
       return isFreeForRec(t, x, f.formula);
     }
+    case "FreeVariableAbsence":
+      // φ[/y]: y は φ で自由でないことを表す。x への代入可能性は φ 部分で判定
+      return isFreeForRec(t, x, f.formula);
   }
   /* v8 ignore start */
   f satisfies never;
@@ -601,6 +615,13 @@ const substituteTermVariableInFormulaRec = (
         variable: f.variable,
       });
     }
+    case "FreeVariableAbsence":
+      // φ[/y]: y は φ で自由でないことを表すアサーション
+      // x → s 代入は formula 部分にのみ再帰
+      return new FreeVariableAbsence({
+        formula: substituteTermVariableInFormulaRec(f.formula, x, s),
+        variable: f.variable,
+      });
   }
   /* v8 ignore start */
   f satisfies never;
@@ -767,6 +788,12 @@ const resolveFormulaSubstitutionRec = (f: Formula): Formula => {
       const resolvedInner = resolveFormulaSubstitutionRec(f.formula);
       return substituteTermVariableInFormula(resolvedInner, f.variable, f.term);
     }
+    case "FreeVariableAbsence":
+      // φ[/x]: アサーションは解決時にそのまま内側を再帰処理（削除はしない）
+      return new FreeVariableAbsence({
+        formula: resolveFormulaSubstitutionRec(f.formula),
+        variable: f.variable,
+      });
   }
   /* v8 ignore start */
   f satisfies never;

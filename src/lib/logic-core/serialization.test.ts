@@ -12,6 +12,7 @@ import {
   predicate,
   equality,
   formulaSubstitution,
+  freeVariableAbsence,
   termVariable,
   termMetaVariable,
   constant,
@@ -280,6 +281,32 @@ describe("Formula serialization", () => {
         formulaSubstitution(
           metaVariable("φ"),
           functionApplication("f", [termVariable("x")]),
+          termVariable("y"),
+        ),
+      );
+    });
+  });
+
+  describe("FreeVariableAbsence", () => {
+    it("ラウンドトリップ", () => {
+      formulaRoundTrip(
+        freeVariableAbsence(metaVariable("φ"), termVariable("x")),
+      );
+    });
+
+    it("ラウンドトリップ: ネストした式", () => {
+      formulaRoundTrip(
+        freeVariableAbsence(
+          predicate("P", [termVariable("x"), termVariable("y")]),
+          termVariable("x"),
+        ),
+      );
+    });
+
+    it("ラウンドトリップ: チェイン", () => {
+      formulaRoundTrip(
+        freeVariableAbsence(
+          freeVariableAbsence(metaVariable("φ"), termVariable("x")),
           termVariable("y"),
         ),
       );

@@ -16,6 +16,7 @@ import {
   predicate,
   equality,
   formulaSubstitution,
+  freeVariableAbsence,
 } from "./formula";
 import type { Formula } from "./formula";
 import {
@@ -221,6 +222,7 @@ describe("Formula union type", () => {
         termVariable("y"),
         termVariable("x"),
       ),
+      freeVariableAbsence(metaVariable("φ"), termVariable("x")),
     ];
 
     const tags = formulas.map((f) => f._tag);
@@ -236,6 +238,7 @@ describe("Formula union type", () => {
       "Predicate",
       "Equality",
       "FormulaSubstitution",
+      "FreeVariableAbsence",
     ]);
   });
 
@@ -264,6 +267,8 @@ describe("Formula union type", () => {
           return "eq";
         case "FormulaSubstitution":
           return "subst";
+        case "FreeVariableAbsence":
+          return "fva";
       }
       f satisfies never;
     };
@@ -280,6 +285,9 @@ describe("Formula union type", () => {
         ),
       ),
     ).toBe("subst");
+    expect(
+      classify(freeVariableAbsence(metaVariable("φ"), termVariable("x"))),
+    ).toBe("fva");
   });
 });
 
