@@ -48,6 +48,7 @@ import {
   adjustStepLocationLine,
   defaultEditorOptions,
   computeSlowdownInterval,
+  formatVariableValue,
 } from "./scriptEditorLogic";
 import type { ScriptEditorState } from "./scriptEditorLogic";
 import {
@@ -400,8 +401,9 @@ declare var console: {
     const runner = runnerRef.current;
     if (runner) {
       const stepStatus = runner.step();
+      const variables = runner.getScope();
       setState((prev) => {
-        const next = recordStep(prev, stepStatus);
+        const next = recordStep(prev, stepStatus, variables);
         if (stepStatus._tag === "Done" || stepStatus._tag === "Error") {
           runnerRef.current = null;
         }
@@ -419,8 +421,9 @@ declare var console: {
       return;
     }
     const stepStatus = runner.step();
+    const variables = runner.getScope();
     setState((prev) => {
-      const next = recordStep(prev, stepStatus);
+      const next = recordStep(prev, stepStatus, variables);
       if (stepStatus._tag === "Done" || stepStatus._tag === "Error") {
         runnerRef.current = null;
         setIsAutoPlaying(false);
@@ -1050,6 +1053,57 @@ declare var console: {
           data-testid="error-bar"
         >
           {state.errorMessage}
+        </div>
+      )}
+
+      {state.variables.length > 0 && (
+        <div
+          style={{
+            maxHeight: "200px",
+            overflowY: "auto",
+            paddingLeft: "12px",
+            paddingRight: "12px",
+            paddingTop: "6px",
+            paddingBottom: "6px",
+            borderTop: "1px solid var(--color-border,#e2e8f0)",
+            backgroundColor: "var(--color-code-bg,#1e1e1e)",
+            color: "var(--color-code-text,#d4d4d4)",
+            fontFamily: "monospace",
+            fontSize: "var(--font-size-xs,11px)",
+            lineHeight: 1.625,
+          }}
+          data-testid="variables-panel"
+        >
+          <div
+            style={{
+              fontSize: "var(--font-size-xs,11px)",
+              fontWeight: 600,
+              color: "var(--color-text-secondary,#999999)",
+              marginBottom: "4px",
+            }}
+          >
+            Variables
+          </div>
+          {state.variables.map((v) => (
+            <div
+              key={v.name}
+              style={{
+                display: "flex",
+                gap: "8px",
+                whiteSpace: "pre-wrap",
+                overflowWrap: "break-word",
+                wordBreak: "break-all",
+              }}
+            >
+              <span
+                style={{ color: "#9cdcfe", fontWeight: 500 }}
+              >{`${v.name satisfies string}`}</span>
+              <span style={{ color: "#666666" }}>=</span>
+              <span style={{ color: "#ce9178" }}>
+                {formatVariableValue(v.value)}
+              </span>
+            </div>
+          ))}
         </div>
       )}
 

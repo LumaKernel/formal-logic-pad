@@ -23,6 +23,7 @@ export {
   type ScriptRunnerInstance,
   type RunAsyncAbortSignal,
   type RunAsyncCallbacks,
+  type ScopeVariable,
 } from "./scriptRunner";
 export {
   createProofBridges,

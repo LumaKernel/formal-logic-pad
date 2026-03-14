@@ -16,6 +16,7 @@ import {
   extractErrorLocation,
   adjustStepLocationLine,
   computeSlowdownInterval,
+  formatVariableValue,
   DEFAULT_AUTO_PLAY_INTERVAL_MS,
   DEFAULT_SLOWDOWN_THRESHOLDS,
   MIN_AUTO_PLAY_INTERVAL_MS,
@@ -492,6 +493,132 @@ describe("scriptEditorLogic", () => {
           expect(cur.multiplier).toBeGreaterThan(prev.multiplier);
         }
       }
+    });
+  });
+
+  describe("variables", () => {
+    it("初期状態のvariablesは空配列", () => {
+      expect(initialScriptEditorState.variables).toEqual([]);
+    });
+
+    it("startExecution でvariablesがクリアされる", () => {
+      const state: ScriptEditorState = {
+        ...initialScriptEditorState,
+        variables: [{ name: "x", value: 42 }],
+      };
+      const next = startExecution(state);
+      expect(next.variables).toEqual([]);
+    });
+
+    it("startStepping でvariablesがクリアされる", () => {
+      const state: ScriptEditorState = {
+        ...initialScriptEditorState,
+        variables: [{ name: "x", value: 42 }],
+      };
+      const next = startStepping(state);
+      expect(next.variables).toEqual([]);
+    });
+
+    it("recordStep にvariablesを渡すと状態に反映される", () => {
+      const vars = [
+        { name: "x", value: 42 },
+        { name: "y", value: "hello" },
+      ];
+      const next = recordStep(
+        initialScriptEditorState,
+        { _tag: "Running", steps: 5, location: { line: 1, column: 0 } },
+        vars,
+      );
+      expect(next.variables).toEqual(vars);
+    });
+
+    it("recordStep でvariables省略時は前の状態を保持する", () => {
+      const state: ScriptEditorState = {
+        ...initialScriptEditorState,
+        variables: [{ name: "x", value: 42 }],
+      };
+      const next = recordStep(state, {
+        _tag: "Running",
+        steps: 5,
+        location: { line: 1, column: 0 },
+      });
+      expect(next.variables).toEqual([{ name: "x", value: 42 }]);
+    });
+
+    it("recordStep Done時もvariablesを保持する", () => {
+      const vars = [{ name: "result", value: 100 }];
+      const next = recordStep(
+        initialScriptEditorState,
+        { _tag: "Done", value: 100, steps: 10 },
+        vars,
+      );
+      expect(next.variables).toEqual(vars);
+      expect(next.executionStatus).toBe("done");
+    });
+
+    it("setRunResult にvariablesを渡すと状態に反映される", () => {
+      const vars = [{ name: "x", value: 42 }];
+      const result: ScriptRunResult = {
+        _tag: "Ok",
+        value: 42,
+        steps: 10,
+        elapsedMs: 100,
+      };
+      const next = setRunResult(initialScriptEditorState, result, vars);
+      expect(next.variables).toEqual(vars);
+    });
+
+    it("resetExecution でvariablesがクリアされる", () => {
+      const state: ScriptEditorState = {
+        ...initialScriptEditorState,
+        variables: [{ name: "x", value: 42 }],
+      };
+      const next = resetExecution(state);
+      expect(next.variables).toEqual([]);
+    });
+  });
+
+  describe("formatVariableValue", () => {
+    it("数値をフォーマットする", () => {
+      expect(formatVariableValue(42)).toBe("42");
+    });
+
+    it("文字列をJSONフォーマットする", () => {
+      expect(formatVariableValue("hello")).toBe('"hello"');
+    });
+
+    it("オブジェクトをJSONフォーマットする", () => {
+      expect(formatVariableValue({ a: 1 })).toBe('{"a":1}');
+    });
+
+    it("配列をJSONフォーマットする", () => {
+      expect(formatVariableValue([1, 2, 3])).toBe("[1,2,3]");
+    });
+
+    it("nullをフォーマットする", () => {
+      expect(formatVariableValue(null)).toBe("null");
+    });
+
+    it("undefinedをフォーマットする", () => {
+      expect(formatVariableValue(undefined)).toBe("undefined");
+    });
+
+    it("長い値を切り詰める", () => {
+      const longStr = "a".repeat(300);
+      const result = formatVariableValue(longStr);
+      expect(result.length).toBeLessThanOrEqual(203); // 200 + "..."
+      expect(result).toContain("...");
+    });
+
+    it("maxLengthを指定できる", () => {
+      const longStr = "a".repeat(100);
+      const result = formatVariableValue(longStr, 50);
+      expect(result.length).toBeLessThanOrEqual(53); // 50 + "..."
+    });
+
+    it("booleanをフォーマットする", () => {
+      expect(formatVariableValue(true)).toBe("true");
+      expect(formatVariableValue(false)).toBe("false");
     });
   });
 });

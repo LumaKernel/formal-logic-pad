@@ -97,6 +97,12 @@ export interface RunAsyncCallbacks {
   readonly onProgress?: (steps: number) => void;
 }
 
+/** スコープ変数のエントリ */
+export interface ScopeVariable {
+  readonly name: string;
+  readonly value: unknown;
+}
+
 /** ScriptRunner インスタンス */
 export interface ScriptRunnerInstance {
   /** 1ステップ実行して状態を返す */
@@ -120,12 +126,57 @@ export interface ScriptRunnerInstance {
   ) => Promise<ScriptRunResult>;
   /** 現在のステップ数を取得 */
   readonly getSteps: () => number;
+  /** グローバルスコープのユーザー定義変数を取得（ビルトインとブリッジ関数を除外） */
+  readonly getScope: () => readonly ScopeVariable[];
 }
 
 // --- デフォルト値 ---
 
 const DEFAULT_MAX_STEPS = 10_000;
 const DEFAULT_MAX_TIME_MS = 5_000;
+
+/** JS-Interpreter のビルトイングローバルプロパティ名（getScope で除外対象） */
+const JS_INTERPRETER_BUILTINS = new Set<string>([
+  "NaN",
+  "Infinity",
+  "undefined",
+  "window",
+  "this",
+  "self",
+  "Function",
+  "Object",
+  "constructor",
+  "Array",
+  "String",
+  "Boolean",
+  "Number",
+  "Date",
+  "RegExp",
+  "Error",
+  "EvalError",
+  "RangeError",
+  "ReferenceError",
+  "SyntaxError",
+  "TypeError",
+  "URIError",
+  "Math",
+  "JSON",
+  "eval",
+  "parseInt",
+  "parseFloat",
+  "isNaN",
+  "isFinite",
+  "escape",
+  "unescape",
+  "decodeURI",
+  "decodeURIComponent",
+  "encodeURI",
+  "encodeURIComponent",
+  "setTimeout",
+  "setInterval",
+  "clearTimeout",
+  "clearInterval",
+]);
 
 // --- JS-Interpreter の動的ロード ---
 
@@ -208,6 +259,9 @@ export const createScriptRunner = (
       elapsedMs: 0,
     };
   }
+
+  // ブリッジ関数名を記録（getScope でビルトイン + ブリッジを除外するため）
+  const bridgeNames = new Set<string>(bridges.map((b) => b.name));
 
   let steps = 0;
   const startTime = getNow();
@@ -346,11 +400,32 @@ export const createScriptRunner = (
     }
   };
 
+  const getScope = (): readonly ScopeVariable[] => {
+    const props = interpreter.globalObject.properties;
+    if (props === undefined) return [];
+    const result: ScopeVariable[] = [];
+    for (const name of Object.getOwnPropertyNames(props)) {
+      if (JS_INTERPRETER_BUILTINS.has(name) || bridgeNames.has(name)) continue;
+      try {
+        const rawValue = props[name];
+        const value =
+          rawValue === undefined
+            ? undefined
+            : interpreter.pseudoToNative(rawValue);
+        result.push({ name, value });
+      } catch {
+        result.push({ name, value: "[unreadable]" });
+      }
+    }
+    return result;
+  };
+
   return {
     step: stepOnce,
     run: runAll,
     runAsync,
     getSteps: () => steps,
+    getScope,
   };
 };
 
