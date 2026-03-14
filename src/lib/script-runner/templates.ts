@@ -4,8 +4,14 @@
  * ScriptEditor で選択・ロードできるビルトインスクリプトを提供する。
  * 各テンプレートはタイトル・説明・コード本体を含む。
  *
+ * テンプレートは `compatibleStyles` で対応する演繹体系を指定する。
+ * ScriptEditor は現在のワークスペースの演繹スタイルに基づいて
+ * テンプレートをフィルタリングして表示する。
+ *
  * 変更時は templates.test.ts, index.ts も同期すること。
  */
+
+import type { DeductionStyle } from "@/lib/logic-core/deductionSystem";
 
 /**
  * テンプレートスクリプトの定義。
@@ -15,6 +21,11 @@ export type ScriptTemplate = {
   readonly title: string;
   readonly description: string;
   readonly code: string;
+  /**
+   * このテンプレートが対応する演繹スタイル。
+   * undefined の場合は全スタイルで表示される（汎用テンプレート）。
+   */
+  readonly compatibleStyles?: readonly DeductionStyle[];
 };
 
 /**
@@ -38,6 +49,7 @@ const cutEliminationImplication: ScriptTemplate = {
   title: "カット除去: 含意の例",
   description:
     "φ→ψ をカット式とする証明からカットを除去する。含意のカット除去の典型例。",
+  compatibleStyles: ["sequent-calculus"],
   code: `// カット除去定理の実演: 含意のカット
 //
 // 証明:
@@ -147,6 +159,7 @@ const cutEliminationSimple: ScriptTemplate = {
   title: "カット除去: 単純な例",
   description:
     "φ ⇒ φ の公理同士をカットした証明からカットを除去する。最も単純なカット除去の例。",
+  compatibleStyles: ["sequent-calculus"],
   code: `// カット除去: 最も単純な例
 //
 // φ ⇒ φ (ID)    φ ⇒ φ (ID)
@@ -200,6 +213,7 @@ const buildIdentityProof: ScriptTemplate = {
   title: "φ→φ の証明構築",
   description:
     "parseFormula と applyMP を使って φ→φ の Hilbert スタイル証明を組み立てる。",
+  compatibleStyles: ["hilbert"],
   code: `// φ→φ の証明構築
 // Hilbert公理系で φ→φ を導出する。
 //
@@ -254,6 +268,7 @@ const autoProveTemplate: ScriptTemplate = {
   title: "自動証明探索 (LK)",
   description:
     "proveSequentLK を使って命題論理の定理を自動的に証明し、証明木をキャンバスに表示する。",
+  compatibleStyles: ["sequent-calculus"],
   code: `// 自動証明探索 (LK) の実演
 //
 // proveSequentLK を使って、命題論理の定理を自動的に証明します。
@@ -288,3 +303,23 @@ export const BUILTIN_TEMPLATES: readonly ScriptTemplate[] = [
   buildIdentityProof,
   autoProveTemplate,
 ];
+
+/**
+ * 演繹スタイルに基づいてテンプレートをフィルタリングする。
+ *
+ * - style が undefined の場合は全テンプレートを返す（スタンドアロンモード）。
+ * - style が指定された場合、compatibleStyles が undefined（汎用）または
+ *   指定スタイルを含むテンプレートのみを返す。
+ */
+export function filterTemplatesByStyle(
+  templates: readonly ScriptTemplate[],
+  style: DeductionStyle | undefined,
+): readonly ScriptTemplate[] {
+  if (style === undefined) {
+    return templates;
+  }
+  return templates.filter(
+    (t) =>
+      t.compatibleStyles === undefined || t.compatibleStyles.includes(style),
+  );
+}

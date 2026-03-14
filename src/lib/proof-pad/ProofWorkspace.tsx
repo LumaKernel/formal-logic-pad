@@ -5329,6 +5329,7 @@ export function ProofWorkspace({
               height="100%"
               onCodeChange={handleScriptCodeChange}
               workspaceCommandHandler={scriptCommandHandler}
+              deductionStyle={workspace.deductionSystem.style}
             />
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { BUILTIN_TEMPLATES } from "./templates";
+import { BUILTIN_TEMPLATES, filterTemplatesByStyle } from "./templates";
 import type { ScriptTemplate } from "./templates";
 import { createScriptRunner } from "./scriptRunner";
 import { createProofBridges } from "./proofBridge";
@@ -19,6 +19,14 @@ describe("BUILTIN_TEMPLATES", () => {
       expect(tmpl.title).toBeTruthy();
       expect(tmpl.description).toBeTruthy();
       expect(tmpl.code).toBeTruthy();
+    }
+  });
+
+  it("各テンプレートがcompatibleStylesを持つ", () => {
+    for (const tmpl of BUILTIN_TEMPLATES) {
+      // 全ビルトインテンプレートは特定の演繹スタイルに紐づく
+      expect(tmpl.compatibleStyles).toBeDefined();
+      expect(tmpl.compatibleStyles!.length).toBeGreaterThan(0);
     }
   });
 
@@ -165,5 +173,102 @@ describe("テンプレート実行テスト", () => {
     expect(result._tag).toBe("Ok");
     expect(consoleLogs.some((l) => l.includes("自動証明探索"))).toBe(true);
     expect(consoleLogs.some((l) => l.includes("Q.E.D."))).toBe(true);
+  });
+});
+
+describe("filterTemplatesByStyle", () => {
+  const universalTemplate: ScriptTemplate = {
+    id: "universal",
+    title: "Universal",
+    description: "Universal template",
+    code: "// universal",
+  };
+
+  const hilbertTemplate: ScriptTemplate = {
+    id: "hilbert-only",
+    title: "Hilbert Only",
+    description: "Hilbert only",
+    code: "// hilbert",
+    compatibleStyles: ["hilbert"],
+  };
+
+  const scTemplate: ScriptTemplate = {
+    id: "sc-only",
+    title: "SC Only",
+    description: "SC only",
+    code: "// sc",
+    compatibleStyles: ["sequent-calculus"],
+  };
+
+  const multiTemplate: ScriptTemplate = {
+    id: "multi",
+    title: "Multi",
+    description: "Multi",
+    code: "// multi",
+    compatibleStyles: ["hilbert", "natural-deduction"],
+  };
+
+  const allTemplates = [
+    universalTemplate,
+    hilbertTemplate,
+    scTemplate,
+    multiTemplate,
+  ];
+
+  it("style未指定時は全テンプレートを返す", () => {
+    const result = filterTemplatesByStyle(allTemplates, undefined);
+    expect(result).toHaveLength(4);
+  });
+
+  it("hilbert指定時はhilbert互換テンプレートのみ返す", () => {
+    const result = filterTemplatesByStyle(allTemplates, "hilbert");
+    expect(result.map((t) => t.id)).toEqual([
+      "universal",
+      "hilbert-only",
+      "multi",
+    ]);
+  });
+
+  it("sequent-calculus指定時はSC互換テンプレートのみ返す", () => {
+    const result = filterTemplatesByStyle(allTemplates, "sequent-calculus");
+    expect(result.map((t) => t.id)).toEqual(["universal", "sc-only"]);
+  });
+
+  it("natural-deduction指定時はND互換テンプレートのみ返す", () => {
+    const result = filterTemplatesByStyle(allTemplates, "natural-deduction");
+    expect(result.map((t) => t.id)).toEqual(["universal", "multi"]);
+  });
+
+  it("tableau-calculus指定時は汎用テンプレートのみ返す", () => {
+    const result = filterTemplatesByStyle(allTemplates, "tableau-calculus");
+    expect(result.map((t) => t.id)).toEqual(["universal"]);
+  });
+
+  it("analytic-tableau指定時は汎用テンプレートのみ返す", () => {
+    const result = filterTemplatesByStyle(allTemplates, "analytic-tableau");
+    expect(result.map((t) => t.id)).toEqual(["universal"]);
+  });
+
+  it("BUILTIN_TEMPLATESでhilbertフィルタ", () => {
+    const result = filterTemplatesByStyle(BUILTIN_TEMPLATES, "hilbert");
+    expect(result.every((t) => t.id === "build-identity-proof")).toBe(true);
+    expect(result).toHaveLength(1);
+  });
+
+  it("BUILTIN_TEMPLATESでsequent-calculusフィルタ", () => {
+    const result = filterTemplatesByStyle(
+      BUILTIN_TEMPLATES,
+      "sequent-calculus",
+    );
+    const ids = result.map((t) => t.id);
+    expect(ids).toContain("cut-elimination-simple");
+    expect(ids).toContain("cut-elimination-implication");
+    expect(ids).toContain("auto-prove-lk");
+    expect(result).toHaveLength(3);
+  });
+
+  it("空配列に対してフィルタしても空配列を返す", () => {
+    const result = filterTemplatesByStyle([], "hilbert");
+    expect(result).toHaveLength(0);
   });
 });

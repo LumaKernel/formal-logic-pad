@@ -23,8 +23,12 @@ import {
   createCutEliminationBridges,
   generateCutEliminationBridgeTypeDefs,
 } from "@/lib/script-runner";
-import { BUILTIN_TEMPLATES } from "@/lib/script-runner/templates";
+import {
+  BUILTIN_TEMPLATES,
+  filterTemplatesByStyle,
+} from "@/lib/script-runner/templates";
 import type { ScriptTemplate } from "@/lib/script-runner/templates";
+import type { DeductionStyle } from "@/lib/logic-core/deductionSystem";
 import type {
   NativeFunctionBridge,
   ScriptRunnerInstance,
@@ -136,6 +140,8 @@ export interface ScriptEditorComponentProps {
   readonly onRunComplete?: (result: ScriptEditorState) => void;
   /** ワークスペース操作ハンドラー（証明図リアルタイム反映用） */
   readonly workspaceCommandHandler?: WorkspaceCommandHandler;
+  /** 現在の演繹スタイル（テンプレートフィルタリング用） */
+  readonly deductionStyle?: DeductionStyle;
   /** 現在時刻取得関数（DI用。デフォルト: Date.now） */
   readonly getNow?: () => number;
 }
@@ -148,6 +154,7 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
   onCodeChange,
   onRunComplete,
   workspaceCommandHandler,
+  deductionStyle,
   getNow = Date.now,
 }) => {
   const [state, setState] = useState<ScriptEditorState>(() =>
@@ -705,19 +712,21 @@ declare var console: {
         >
           Templates:
         </span>
-        {BUILTIN_TEMPLATES.map((tmpl) => (
-          <button
-            key={tmpl.id}
-            type="button"
-            className="se-template-btn"
-            style={templateBtnStyle}
-            onClick={() => handleLoadTemplate(tmpl)}
-            title={tmpl.description}
-            data-testid={`template-${tmpl.id satisfies string}`}
-          >
-            {tmpl.title}
-          </button>
-        ))}
+        {filterTemplatesByStyle(BUILTIN_TEMPLATES, deductionStyle).map(
+          (tmpl) => (
+            <button
+              key={tmpl.id}
+              type="button"
+              className="se-template-btn"
+              style={templateBtnStyle}
+              onClick={() => handleLoadTemplate(tmpl)}
+              title={tmpl.description}
+              data-testid={`template-${tmpl.id satisfies string}`}
+            >
+              {tmpl.title}
+            </button>
+          ),
+        )}
         <span
           style={{
             display: "inline-block",
