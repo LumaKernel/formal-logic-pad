@@ -1,18 +1,26 @@
 # 現在のタスク
 
-**ソース:** tasks/prd-inserted-tasks.md — shadcn-ui → Ant Design 移行
+**ソース:** tasks/prd-replace-with-ant.md — Phase 0: パッケージ削除・インフラ整理
 
 ## タスク
 
-- [ ] shadcn-ui を完全に削除し、Ant Design に置き換える
-  - [ ] package.json から shadcn-ui 関連パッケージを削除（tailwind等も含む）
-  - [x] prd-replace-with-ant.md の置き換えタスクリストを作成
-  - [ ] ダークモード・カラーシステムの乗り換え
+- [ ] Phase 0: shadcn-ui 関連パッケージ削除・インフラ整理
+  - [ ] shadcn-ui 関連パッケージを package.json から削除
+  - [ ] `components.json` 削除
+  - [ ] `src/components/ui/button.tsx` 削除
+  - [ ] `src/lib/utils.ts` の cn() を clsx のみに変更
+  - [ ] `postcss.config.mjs` から Tailwind 除去
+  - [ ] `.storybook/main.ts` から Tailwind 除去
+  - [ ] `globals.css` から Tailwind directives 除去
+  - [ ] `npm install` でクリーンアップ
+  - [ ] typecheck・lint・test 通過確認
 
 ## テスト計画
 
-- まずタスクリスト作成フェーズ。実際のUI変更は prd-replace-with-ant.md のタスクとして管理
+- cn() を使っているファイル (LanguageToggle, ScriptEditor, TruthTable) のテストが通ること
+- Storybook ビルドが通ること
+- 既存テスト全パス
 
 ## ストーリー計画
 
-- 大規模UIライブラリ移行。段階的に実施
+- Tailwind/shadcn インフラ除去。UI の見た目変更は最小限に抑える
