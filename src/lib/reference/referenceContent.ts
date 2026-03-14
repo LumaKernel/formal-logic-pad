@@ -505,6 +505,135 @@ const guideHilbertProofMethod: ReferenceEntry = {
   order: 5,
 };
 
+const guideIntroPredicateLogic: ReferenceEntry = {
+  id: "guide-intro-predicate-logic",
+  category: "guide",
+  title: {
+    en: "Introduction to Predicate Logic",
+    ja: "述語論理入門",
+  },
+  summary: {
+    en: "Extending propositional logic with terms, predicates, and quantifiers to reason about individuals and their properties.",
+    ja: "項・述語・量化子を導入し、個体とその性質について推論するための命題論理の拡張。",
+  },
+  body: {
+    en: [
+      '<b>From Propositions to Predicates</b>\nIn propositional logic, we work with abstract propositions $\\varphi$, $\\psi$, $\\chi$ and logical connectives ($\\to$, $\\lnot$, $\\land$, $\\lor$). This is powerful enough to capture many patterns of reasoning, but it cannot express statements like "every natural number has a successor" or "there exists a prime number greater than 100." For this, we need <b>predicate logic</b> (also called <b>first-order logic</b>).',
+
+      "<b>Terms: The Objects of Discourse</b>\nPredicate logic introduces a <b>domain of discourse</b> — a collection of individuals we reason about. <b>Terms</b> denote individuals in this domain. A term is either:\n• A <b>variable</b>: $x$, $y$, $z$ — standing for an unspecified individual\n• A <b>constant</b>: $0$, $a$, $e$ — naming a specific individual\n• A <b>function application</b>: $f(t_1, \\ldots, t_n)$ — producing an individual from other terms\nFor example, in arithmetic, $0$ is a constant, $x$ is a variable, and $S(x)$ (the successor of $x$) is a function application.",
+
+      '<b>Predicates: Properties and Relations</b>\nA <b>predicate</b> $P(t_1, \\ldots, t_n)$ asserts a property of or relation among terms. Applying a predicate to terms yields a <b>formula</b> (an atomic formula). For instance:\n• $\\text{Prime}(x)$ — "$x$ is prime" (unary predicate)\n• $x = y$ — "$x$ equals $y$" (binary predicate, often written infix)\n• $x < y$ — "$x$ is less than $y$" (binary predicate)\nPropositional connectives ($\\to$, $\\lnot$, $\\land$, $\\lor$) still apply to these atomic formulas, so $\\text{Prime}(x) \\land x > 2 \\to \\text{Odd}(x)$ is a well-formed formula.',
+
+      '<b>The Universal Quantifier $\\forall$</b>\nThe symbol $\\forall x. \\varphi$ means "for all $x$, $\\varphi$ holds." It binds the variable $x$ within the scope of $\\varphi$. For example:\n• $\\forall x. (x = x)$ — "every individual equals itself" (reflexivity of equality)\n• $\\forall x. (P(x) \\to Q(x))$ — "every $P$ is a $Q$"\nIn the Hilbert system used here, the key axiom for $\\forall$ is <b>A4</b>: $\\forall x. \\varphi \\to \\varphi[\\tau/x]$, which says that a universally quantified statement implies each of its instances obtained by substituting a term $\\tau$ for $x$.',
+
+      '<b>The Existential Quantifier $\\exists$</b>\nThe symbol $\\exists x. \\varphi$ means "there exists an $x$ such that $\\varphi$." In classical logic, it is defined in terms of $\\forall$ and $\\lnot$:\n$\\exists x. \\varphi \\;\\equiv\\; \\lnot \\forall x. \\lnot \\varphi$\nThis says: "it is not the case that for all $x$, $\\varphi$ fails." In the axiom system, <b>Axiom Ex-Def</b> formalizes this equivalence.',
+
+      "<b>Free and Bound Variables</b>\nA variable $x$ is <b>bound</b> in a formula if it occurs within the scope of a quantifier $\\forall x$ or $\\exists x$. Otherwise it is <b>free</b>. A formula with no free variables is called a <b>sentence</b> — it has a definite truth value in a given interpretation.\n• In $\\forall x. P(x) \\to Q(y)$, $x$ is bound and $y$ is free.\n• In $P(x) \\land \\forall x. Q(x)$, the first occurrence of $x$ is free, while the occurrences within $\\forall x. Q(x)$ are bound.\nUnderstanding this distinction is essential for correctly applying quantifier rules.",
+
+      "<b>Substitution and Its Subtleties</b>\nA central operation in predicate logic is <b>substitution</b> — replacing a free variable with a term. We write $\\varphi[\\tau/x]$ for the result of replacing every free occurrence of $x$ in $\\varphi$ by the term $\\tau$.\nHowever, this is only valid when $\\tau$ is <b>free for $x$</b> in $\\varphi$: no variable in $\\tau$ may become bound after substitution. For instance, substituting $y$ for $x$ in $\\forall y. P(x, y)$ would give $\\forall y. P(y, y)$, which incorrectly captures $y$. Such substitution must be avoided (or the bound variable renamed first).",
+
+      "<b>Axiom A5 and the Generalization Rule</b>\nBesides A4, the other key ingredient for predicate logic in the Hilbert system is:\n• <b>Axiom A5:</b> $\\forall x. (\\varphi \\to \\psi) \\to (\\varphi \\to \\forall x. \\psi)$, provided $x$ does not occur free in $\\varphi$. This says: if we can prove $\\psi$ from $\\varphi$ for an arbitrary $x$ (one that $\\varphi$ does not depend on), then we can conclude $\\forall x. \\psi$ from $\\varphi$.\n• <b>Generalization (Gen):</b> From $\\varphi$, infer $\\forall x. \\varphi$. If $\\varphi$ has been proved (with no open assumptions involving $x$), it holds for all $x$.\nTogether with the propositional axioms A1–A3 and Modus Ponens, these form the complete axiom system for first-order logic.",
+
+      "<b>From Propositional to Predicate Quests</b>\nIn the quests labeled <code>pred-01</code> through <code>pred-06</code>, you will apply these tools to construct proofs in predicate logic. The patterns you learned in propositional logic — using the deduction theorem, hypothetical syllogism, and contraposition — still apply. The new challenge is handling quantifiers and substitution correctly.\nA typical proof begins by instantiating a universally quantified axiom (via A4), then manipulating the result with propositional reasoning and MP, and finally generalizing (via Gen and A5) when the goal involves $\\forall$.",
+
+      "<b>A Glimpse Ahead</b>\nPredicate logic is the standard language of modern mathematics. Every mathematical theory — arithmetic, group theory, set theory — is formulated as a set of axioms in first-order predicate logic. Mastering the Hilbert-style axiom system for predicate logic gives you the foundation for understanding <b>Gödel's completeness theorem</b> (every valid formula is provable), the <b>compactness theorem</b>, and other fundamental results in mathematical logic.",
+    ],
+    ja: [
+      "<b>命題から述語へ</b>\n命題論理では、抽象的な命題 $\\varphi$、$\\psi$、$\\chi$ と論理結合子（$\\to$、$\\lnot$、$\\land$、$\\lor$）を扱います。これは推論の多くのパターンを捉えるのに十分強力ですが、「すべての自然数には後者がある」や「100より大きい素数が存在する」といった文は表現できません。これらを扱うためには<b>述語論理</b>（<b>一階述語論理</b>とも呼ばれる）が必要です。",
+
+      "<b>項：議論の対象</b>\n述語論理は<b>議論領域</b>（推論の対象となる個体の集まり）を導入します。<b>項</b>はこの領域の個体を表します。項は以下のいずれかです：\n• <b>変数</b>：$x$、$y$、$z$ — 不特定の個体を表す\n• <b>定数</b>：$0$、$a$、$e$ — 特定の個体に名前を付ける\n• <b>関数適用</b>：$f(t_1, \\ldots, t_n)$ — 他の項から個体を生成する\n例えば算術では、$0$ は定数、$x$ は変数、$S(x)$（$x$ の後者）は関数適用です。",
+
+      "<b>述語：性質と関係</b>\n<b>述語</b> $P(t_1, \\ldots, t_n)$ は項の性質や項間の関係を主張します。述語を項に適用すると<b>論理式</b>（原子論理式）が得られます。例えば：\n• $\\text{Prime}(x)$ — 「$x$ は素数である」（単項述語）\n• $x = y$ — 「$x$ は $y$ に等しい」（二項述語、中置記法で書かれることが多い）\n• $x < y$ — 「$x$ は $y$ より小さい」（二項述語）\n命題結合子（$\\to$、$\\lnot$、$\\land$、$\\lor$）はこれらの原子論理式にも適用されます。したがって $\\text{Prime}(x) \\land x > 2 \\to \\text{Odd}(x)$ は整形式です。",
+
+      "<b>全称量化子 $\\forall$</b>\n記号 $\\forall x. \\varphi$ は「すべての $x$ について $\\varphi$ が成り立つ」を意味します。$\\varphi$ のスコープ内で変数 $x$ を束縛します。例えば：\n• $\\forall x. (x = x)$ — 「すべての個体は自分自身に等しい」（等号の反射律）\n• $\\forall x. (P(x) \\to Q(x))$ — 「すべての $P$ は $Q$ である」\nここで使用するHilbert系では、$\\forall$ の重要な公理は <b>A4</b>：$\\forall x. \\varphi \\to \\varphi[\\tau/x]$ で、全称量化された文は、$x$ に項 $\\tau$ を代入して得られる各インスタンスを含意することを述べています。",
+
+      "<b>存在量化子 $\\exists$</b>\n記号 $\\exists x. \\varphi$ は「$\\varphi$ を満たす $x$ が存在する」を意味します。古典論理では $\\forall$ と $\\lnot$ を用いて定義されます：\n$\\exists x. \\varphi \\;\\equiv\\; \\lnot \\forall x. \\lnot \\varphi$\nこれは「すべての $x$ について $\\varphi$ が成り立たないということはない」を意味します。公理体系では<b>公理 Ex-Def</b> がこの同値性を形式化しています。",
+
+      "<b>自由変数と束縛変数</b>\n論理式中の変数 $x$ が量化子 $\\forall x$ または $\\exists x$ のスコープ内にあるとき、$x$ は<b>束縛</b>されています。そうでなければ<b>自由</b>です。自由変数を持たない論理式は<b>文</b>と呼ばれ、与えられた解釈の下で確定した真理値を持ちます。\n• $\\forall x. P(x) \\to Q(y)$ では、$x$ は束縛、$y$ は自由\n• $P(x) \\land \\forall x. Q(x)$ では、最初の $x$ の出現は自由、$\\forall x. Q(x)$ 内の出現は束縛\nこの区別を理解することは量化子規則を正しく適用するために不可欠です。",
+
+      "<b>代入とその微妙さ</b>\n述語論理の中心的な操作が<b>代入</b>です — 自由変数を項で置き換える操作です。$\\varphi$ 中の $x$ の自由な出現すべてを項 $\\tau$ で置き換えた結果を $\\varphi[\\tau/x]$ と書きます。\nただし、これは $\\tau$ が $\\varphi$ 中で $x$ に対して<b>自由に代入可能</b>である場合にのみ有効です。つまり、代入後に $\\tau$ 中の変数が束縛されてはなりません。例えば、$\\forall y. P(x, y)$ の $x$ に $y$ を代入すると $\\forall y. P(y, y)$ となり、$y$ が誤って捕獲されます。このような代入は避けなければなりません（あるいは先に束縛変数を改名する必要があります）。",
+
+      "<b>公理A5と一般化規則</b>\nA4に加えて、Hilbert系の述語論理のもうひとつの重要な要素は：\n• <b>公理A5：</b> $\\forall x. (\\varphi \\to \\psi) \\to (\\varphi \\to \\forall x. \\psi)$（ただし $x$ が $\\varphi$ に自由に出現しない場合）。これは、任意の $x$（$\\varphi$ が依存しないもの）について $\\varphi$ から $\\psi$ を証明できるなら、$\\varphi$ から $\\forall x. \\psi$ を結論できることを述べます。\n• <b>一般化（Gen）：</b> $\\varphi$ から $\\forall x. \\varphi$ を推論する。$\\varphi$ が（$x$ を含む開いた仮定なしに）証明されたなら、すべての $x$ について成り立ちます。\nこれらは命題論理の公理A1–A3とModus Ponensと合わせて、一階述語論理の完全な公理体系を構成します。",
+
+      "<b>命題論理から述語論理のクエストへ</b>\nラベル <code>pred-01</code> から <code>pred-06</code> のクエストでは、これらのツールを使って述語論理の証明を構築します。命題論理で学んだパターン — 演繹定理、仮言三段論法、対偶の利用 — は引き続き適用されます。新たな挑戦は量化子と代入を正しく扱うことです。\n典型的な証明は、全称量化された公理をインスタンス化し（A4経由）、その結果を命題推論とMPで操作し、最後にゴールが $\\forall$ を含む場合に一般化（GenとA5経由）するところから始まります。",
+
+      "<b>先の展望</b>\n述語論理は現代数学の標準言語です。あらゆる数学理論 — 算術、群論、集合論 — は一階述語論理の公理の集合として定式化されます。述語論理のHilbert系公理体系を習得することは、<b>Gödelの完全性定理</b>（妥当な論理式はすべて証明可能）、<b>コンパクト性定理</b>、および数理論理学の他の基本的な結果を理解するための基礎となります。",
+    ],
+  },
+  relatedEntryIds: [
+    "guide-hilbert-proof-method",
+    "axiom-a4",
+    "axiom-a5",
+    "axiom-ex-def",
+    "rule-gen",
+    "concept-substitution",
+    "concept-free-variable",
+    "notation-quantifiers",
+  ],
+  relatedQuestIds: [
+    "pred-01",
+    "pred-02",
+    "pred-03",
+    "pred-04",
+    "pred-05",
+    "pred-06",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/First-order_logic",
+      label: {
+        en: "First-order Logic (Wikipedia)",
+        ja: "一階述語論理（Wikipedia英語版）",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E4%B8%80%E9%9A%8E%E8%BF%B0%E8%AA%9E%E8%AB%96%E7%90%86",
+      label: {
+        en: "First-order Logic (Wikipedia JA)",
+        ja: "一階述語論理（Wikipedia日本語版）",
+      },
+      documentLanguage: "ja",
+    },
+    {
+      type: "nlab",
+      url: "https://ncatlab.org/nlab/show/first-order+logic",
+      label: {
+        en: "First-order Logic (nLab)",
+        ja: "一階述語論理（nLab）",
+      },
+      documentLanguage: "en",
+    },
+  ],
+  keywords: [
+    "predicate logic",
+    "first-order logic",
+    "quantifier",
+    "universal quantifier",
+    "existential quantifier",
+    "term",
+    "predicate",
+    "variable",
+    "substitution",
+    "free variable",
+    "bound variable",
+    "述語論理",
+    "一階述語論理",
+    "量化子",
+    "全称量化子",
+    "存在量化子",
+    "項",
+    "述語",
+    "変数",
+    "代入",
+    "自由変数",
+    "束縛変数",
+  ],
+  order: 6,
+};
+
 // ============================================================
 // 公理 (Axioms)
 // ============================================================
@@ -5504,6 +5633,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   guideFirstQuestWalkthrough,
   guideIntroToPropositionalLogic,
   guideHilbertProofMethod,
+  guideIntroPredicateLogic,
   // Axioms
   axiomA1,
   axiomA2,
