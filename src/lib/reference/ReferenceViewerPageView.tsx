@@ -496,8 +496,7 @@ function ViewerContent({
       )}
 
       {/* 前後ナビゲーション */}
-      {(navigation.previous !== undefined ||
-        navigation.next !== undefined) && (
+      {(navigation.previous !== undefined || navigation.next !== undefined) && (
         <NavigationBar
           navigation={navigation}
           locale={locale}

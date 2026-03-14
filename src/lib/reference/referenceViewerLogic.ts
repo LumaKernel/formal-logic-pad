@@ -7,7 +7,11 @@
  * 変更時は referenceViewerLogic.test.ts も同期すること。
  */
 
-import type { Locale, ReferenceCategory, ReferenceEntry } from "./referenceEntry";
+import type {
+  Locale,
+  ReferenceCategory,
+  ReferenceEntry,
+} from "./referenceEntry";
 import {
   filterByCategory,
   findCategoryMeta,
@@ -156,9 +160,7 @@ export function buildCategoryNavigation(
   const sameCategory = sortByOrder(
     filterByCategory(allEntries, currentEntry.category),
   );
-  const currentIndex = sameCategory.findIndex(
-    (e) => e.id === currentEntry.id,
-  );
+  const currentIndex = sameCategory.findIndex((e) => e.id === currentEntry.id);
 
   /* v8 ignore start -- defensive: currentEntry should always be found in allEntries */
   if (currentIndex === -1) {
