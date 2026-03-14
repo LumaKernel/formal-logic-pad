@@ -14125,3 +14125,12 @@
   - iframe直アクセス (`/iframe.html?id=...`) でStorybook UIのレイアウト問題を回避可能
   - dev server (localhost:13000) のCSS解析エラーは既知の問題（globals.css:846:27）
 ---
+
+## 2026-03-14 11:25 - Reference: 存在量化子の定義拡充
+- axiom-ex-def エントリに3段落追加（なぜ自然か、意味論的正当化、直観主義との違い）
+- relatedEntryIds に concept-predicate-axiom-system, guide-intro-predicate-logic を追加
+- 変更ファイル: referenceContent.ts, tasks/prd-docs-contents.md
+- **今後のイテレーションへの学び:**
+  - 既存エントリの拡充はエントリ数テスト更新不要
+  - body配列にen/jaを同数で追加する規約に従う
+---

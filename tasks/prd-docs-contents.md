@@ -34,7 +34,7 @@ Hilbert系命題論理（Łukasiewicz体系ベース）の理解。
 - [ref✓] 代入 — 既存
 - [x] `[guide]` 述語論理入門 — 命題論理からの拡張、項・述語・量化子の概念（guide-intro-predicate-logic、10段落、pred-01〜06関連）
 - [x] `[ref]` 述語論理の公理体系の構造 — A1-A5 + MP + Gen の全体像、公理スキーマの一覧（concept-predicate-axiom-system、7段落、formalNotation配列付き）
-- [-] `[ref]` 存在量化子の定義 (∃x.φ ↔ ¬∀x.¬φ) — axiom-ex-def は既存だが、なぜこの定義が自然か、直観主義との違い
+- [x] `[ref]` 存在量化子の定義 (∃x.φ ↔ ¬∀x.¬φ) — axiom-ex-def を拡充。意味論的正当化・直観主義との違い・関連エントリ追加
 
 ## 4. 等号と理論
 
