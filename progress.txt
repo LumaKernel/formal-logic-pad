@@ -108,6 +108,30 @@
 
 ---
 
+## 2026-03-15 - [Script Runner] スクリプトテンプレートの演繹スタイル別フィルタリング
+- ベースライン: Stmts 99.81%, Branch 98.91%, Funcs 90.33%, Lines 99.8% (11189テスト)
+- **結果: 全テストパス (11199テスト, +10)**
+- 実装内容:
+  - `ScriptTemplate` に `compatibleStyles` フィールドを追加（`DeductionStyle[]` 型）
+  - `filterTemplatesByStyle()` 純粋フィルタリング関数を追加
+  - 既存4テンプレートにスタイル分類を付与:
+    - `cut-elimination-simple`, `cut-elimination-implication`, `auto-prove-lk` → sequent-calculus
+    - `build-identity-proof` → hilbert
+  - `ScriptEditorComponent` に `deductionStyle` プロパティを追加
+  - `ProofWorkspace` から `workspace.deductionSystem.style` を渡す
+  - `prd-completeness.md` をアーカイブ（全タスク完了）
+  - `prd-scripted-proof.md` をアーカイブ（全タスク完了）
+- 変更ファイル:
+  - src/lib/script-runner/templates.ts（compatibleStyles, filterTemplatesByStyle追加）
+  - src/lib/script-runner/templates.test.ts（+10テスト）
+  - src/components/ScriptEditor/ScriptEditorComponent.tsx（deductionStyle prop追加）
+  - src/lib/proof-pad/ProofWorkspace.tsx（deductionStyle渡し）
+- **今後のイテレーションへの学び:**
+  - ScriptTemplate型に新フィールド追加時はtemplates.test.tsの「必須フィールド」テストも更新
+  - ProofWorkspace.tsxは非常に大きいファイル（5300行超）、Read前にgrep/sedで特定行を確認すると効率的
+  - filterTemplatesByStyleは `compatibleStyles === undefined` を汎用テンプレートとして扱う設計。スタイル未指定時は全テンプレートを返す
+---
+
 ## 2026-03-15 - [Logic Core] 論理式の正規化と置換等価性判定
 - ベースライン: カバレッジ変化なし（equality.ts 100%, substitution.ts 97.65% — 既存の防御的コード未カバー分）
 - **結果: 全テストパス (203テスト: equality 59 + substitution 144)**
