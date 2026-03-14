@@ -43,7 +43,7 @@ Hilbert系命題論理（Łukasiewicz体系ベース）の理解。
 - [ref✓] 等号公理 E1-E5 — 既存
 - [ref✓] Peano 算術 — 既存（theory-peano）
 - [ref✓] 群論 — 既存（theory-group）
-- [-] `[guide]` 等号の公理体系 — E1-E5 の各公理が何を保証するか（反射律、代入律など）
+- [x] `[guide]` 等号の公理体系 — E1-E5 の各公理が何を保証するか（guide-equality-axiom-system、10段落、学習パスorder:7）
 - [ ] `[ref]` Peano 算術の公理 PA1-PA6 — 個別の公理エントリ（帰納法は PA6）
 - [ ] `[ref]` Robinson 算術 (Q) — 帰納法なしの算術、Peano との関係
 - [ ] `[ref]` 群論の公理 G1-G3 — 結合律、単位元、逆元の個別エントリ
