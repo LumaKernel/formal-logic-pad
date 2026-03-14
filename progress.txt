@@ -14177,3 +14177,13 @@
 - **今後のイテレーションへの学び:**
   - セクション5残り: NM/NJ/NK、仮定管理、否定規則、量化子規則の4エントリ
 ---
+
+## 2026-03-14 11:53 - セクション5完了（自然演繹）
+- 5エントリ追加: guide-intro-natural-deduction(order:9), concept-nd-variants(29), concept-assumption-management(30), concept-nd-negation-rules(31), concept-nd-quantifier-rules(32)
+- エントリ総数: 83→88
+- 変更ファイル: referenceContent.ts, referenceContent.test.ts
+- セクション5をアーカイブ済み
+- **今後のイテレーションへの学び:**
+  - セクション6（シーケント計算）に着手。guide + 4 ref エントリ
+  - 連続するrefエントリは同じパターン（概念エントリ、conceptAbelianGroupの前に挿入、配列に追加、テスト数更新）で効率的に追加可能
+---

@@ -28,3 +28,11 @@
 - [x] `[ref]` 群論の公理 G1-G3 — axiom-g1〜g3 (order:20-22)
 - [x] `[ref]` Abel群（可換群）— concept-abelian-group (order:28)
 - [x] `[guide]` 具体的な理論で証明する — guide-proving-in-theories（10段落）
+
+## 5. 自然演繹 (Natural Deduction)
+
+- [x] `[guide]` 自然演繹入門 — guide-intro-natural-deduction, order:9, 10段落
+- [x] `[ref]` NM/NJ/NK の違い — concept-nd-variants, order:29, 6段落
+- [x] `[ref]` 仮定の管理 — concept-assumption-management, order:30, 7段落
+- [x] `[ref]` 自然演繹の否定規則 — concept-nd-negation-rules, order:31, 7段落
+- [x] `[ref]` 自然演繹の量化子規則 — concept-nd-quantifier-rules, order:32, 7段落

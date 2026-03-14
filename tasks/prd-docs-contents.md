@@ -11,18 +11,6 @@
 
 ---
 
-## 5. 自然演繹 (Natural Deduction)
-
-- [ref✓] 自然演繹概要 — 既存
-- [ref✓] 含意の導入・除去 — 既存
-- [ref✓] 連言の導入・除去 — 既存
-- [ref✓] 選言の導入・除去 — 既存
-- [x] `[guide]` 自然演繹入門 — Hilbert系との違い、仮定の導入と放出の概念 → guide-intro-natural-deduction, order:9, 10段落
-- [ ] `[ref]` NM (minimal), NJ (intuitionistic), NK (classical) の違い — EFQ と DNE の有無による分類
-- [ ] `[ref]` 仮定の管理 — 仮定の導入、放出、依存関係の追跡
-- [ ] `[ref]` 自然演繹の否定規則 — ¬導入、¬除去、EFQ、DNE の詳細
-- [ ] `[ref]` 自然演繹の量化子規則 — ∀導入/除去、∃導入/除去、固有変数条件
-
 ## 6. シーケント計算 (Sequent Calculus)
 
 - [ref✓] シーケント計算概要 — 既存
