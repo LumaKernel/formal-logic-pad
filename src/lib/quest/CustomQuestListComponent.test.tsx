@@ -964,6 +964,33 @@ describe("CustomQuestListComponent", () => {
       ).not.toBeInTheDocument();
     });
 
+    it("URLコピーを2回呼ぶと前回のタイマーがクリアされる", () => {
+      vi.useFakeTimers();
+      const onShareQuestUrl = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onExportQuest={vi.fn()}
+          onShareQuestUrl={onShareQuestUrl}
+        />,
+      );
+
+      // 共有パネルを開く
+      fireEvent.click(screen.getByTestId("custom-quest-share-btn-custom-1001"));
+
+      // URL共有を2回クリック（タイマークリアパスを通す）
+      fireEvent.click(
+        screen.getByTestId("custom-quest-share-url-btn-custom-1001"),
+      );
+      fireEvent.click(
+        screen.getByTestId("custom-quest-share-url-btn-custom-1001"),
+      );
+
+      expect(onShareQuestUrl).toHaveBeenCalledTimes(2);
+      vi.useRealTimers();
+    });
+
     it("削除ボタンクリックで共有パネルが閉じる", () => {
       render(
         <CustomQuestList
@@ -991,6 +1018,267 @@ describe("CustomQuestListComponent", () => {
       expect(
         screen.getByTestId("custom-quest-delete-confirm-custom-1001"),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe("クエストアイテム操作", () => {
+    it("クエストアイテム行クリックでonStartQuestが呼ばれる", () => {
+      const onStartQuest = vi.fn();
+      render(
+        <CustomQuestList items={sampleItems} onStartQuest={onStartQuest} />,
+      );
+
+      fireEvent.click(screen.getByTestId("custom-quest-item-custom-1001"));
+      expect(onStartQuest).toHaveBeenCalledWith("custom-1001");
+    });
+
+    it("開始ボタンクリックでonStartQuestが呼ばれstopPropagationされる", () => {
+      const onStartQuest = vi.fn();
+      render(
+        <CustomQuestList items={sampleItems} onStartQuest={onStartQuest} />,
+      );
+
+      fireEvent.click(screen.getByTestId("custom-quest-start-btn-custom-1001"));
+      expect(onStartQuest).toHaveBeenCalledWith("custom-1001");
+    });
+
+    it("複製ボタンクリックでonDuplicateQuestが呼ばれる", () => {
+      const onDuplicateQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onDuplicateQuest={onDuplicateQuest}
+        />,
+      );
+
+      fireEvent.click(
+        screen.getByTestId("custom-quest-duplicate-btn-custom-1001"),
+      );
+      expect(onDuplicateQuest).toHaveBeenCalledWith("custom-1001");
+    });
+  });
+
+  describe("編集フォーム保存・キャンセル", () => {
+    it("有効なデータでsubmitするとonEditQuestが呼ばれる", () => {
+      const onEditQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onEditQuest={onEditQuest}
+        />,
+      );
+
+      // 編集フォームを開く（既存クエストはtitle/goals/stepsが設定済み）
+      fireEvent.click(screen.getByTestId("custom-quest-edit-btn-custom-1001"));
+
+      // submit（既存クエストデータはバリデーション通過済み）
+      const form = screen.getByTestId("edit-save-btn").closest("form")!;
+      fireEvent.submit(form);
+
+      expect(onEditQuest).toHaveBeenCalled();
+      // 保存後は編集フォームが閉じる
+      expect(screen.queryByTestId("edit-title-input")).not.toBeInTheDocument();
+    });
+
+    it("編集フォームのタイトルblurでtouchedが設定される", () => {
+      const onEditQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onEditQuest={onEditQuest}
+        />,
+      );
+
+      fireEvent.click(screen.getByTestId("custom-quest-edit-btn-custom-1001"));
+
+      // タイトルを空にしてblur
+      const titleInput = screen.getByTestId("edit-title-input");
+      fireEvent.change(titleInput, { target: { value: "" } });
+      fireEvent.blur(titleInput);
+
+      expect(screen.getByTestId("edit-title-error")).toBeInTheDocument();
+    });
+
+    it("編集フォームのキャンセルボタンクリックでフォームが閉じる", () => {
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onEditQuest={vi.fn()}
+        />,
+      );
+
+      fireEvent.click(screen.getByTestId("custom-quest-edit-btn-custom-1001"));
+      expect(screen.getByTestId("edit-title-input")).toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId("edit-cancel-btn"));
+      expect(screen.queryByTestId("edit-title-input")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("作成フォーム保存・キャンセル（コンテナ統合）", () => {
+    it("有効なデータでsubmitするとonCreateQuestが呼ばれフォームが閉じる", async () => {
+      const onCreateQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onCreateQuest={onCreateQuest}
+        />,
+      );
+
+      // 作成フォームを開く
+      fireEvent.click(screen.getByTestId("custom-quest-create-btn"));
+
+      // タイトルを入力
+      const titleInput = screen.getByTestId("create-title-input");
+      fireEvent.change(titleInput, { target: { value: "テスト新規クエスト" } });
+
+      // ゴール式を追加
+      fireEvent.click(screen.getByTestId("create-goals-add"));
+
+      // FormulaEditorのdisplay要素をクリックして編集モードにする
+      const editorDisplay = screen.getByTestId("create-goals-editor-0-display");
+      fireEvent.click(editorDisplay);
+
+      // 編集モードのinput要素を見つけて値を入力
+      await waitFor(() => {
+        const formulaInput = screen.getByTestId(
+          "create-goals-editor-0-input-input",
+        );
+        fireEvent.change(formulaInput, { target: { value: "p -> p" } });
+      });
+
+      // 推定ステップ数を入力
+      const stepsInput = screen.getByTestId("create-steps-input");
+      fireEvent.change(stepsInput, { target: { value: "5" } });
+
+      // submit
+      const form = screen.getByTestId("create-save-btn").closest("form")!;
+      fireEvent.submit(form);
+
+      expect(onCreateQuest).toHaveBeenCalled();
+      // フォームが閉じることを確認
+      expect(
+        screen.queryByTestId("create-title-input"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("作成フォームのタイトルblurでtouchedが設定される", () => {
+      const onCreateQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onCreateQuest={onCreateQuest}
+        />,
+      );
+
+      fireEvent.click(screen.getByTestId("custom-quest-create-btn"));
+
+      const titleInput = screen.getByTestId("create-title-input");
+      fireEvent.change(titleInput, { target: { value: "" } });
+      fireEvent.blur(titleInput);
+
+      // タイトルが空なのでエラーが表示される
+      expect(screen.getByTestId("create-title-error")).toBeInTheDocument();
+    });
+
+    it("作成フォームのキャンセルボタンクリックでフォームが閉じる", () => {
+      const onCreateQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onCreateQuest={onCreateQuest}
+        />,
+      );
+
+      fireEvent.click(screen.getByTestId("custom-quest-create-btn"));
+      expect(screen.getByTestId("create-title-input")).toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId("create-cancel-btn"));
+      expect(
+        screen.queryByTestId("create-title-input"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("インポートフォーム保存・キャンセル（コンテナ統合）", () => {
+    it("JSONテキスト入力でテキストエリアが更新される", () => {
+      const onImportQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onImportQuest={onImportQuest}
+        />,
+      );
+
+      fireEvent.click(screen.getByTestId("custom-quest-import-btn"));
+
+      const textarea = screen.getByTestId(
+        "import-json-input",
+      ) as HTMLTextAreaElement;
+      fireEvent.change(textarea, {
+        target: { value: '{"test": true}' },
+      });
+      expect(textarea.value).toBe('{"test": true}');
+    });
+
+    it("非空JSONテキストでsubmitするとonImportQuestが呼ばれフォームが閉じる", () => {
+      const onImportQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onImportQuest={onImportQuest}
+        />,
+      );
+
+      fireEvent.click(screen.getByTestId("custom-quest-import-btn"));
+
+      // JSONテキストを入力
+      const textarea = screen.getByTestId("import-json-input");
+      fireEvent.change(textarea, {
+        target: { value: '{"_format":"intro-formal-proof-quest"}' },
+      });
+
+      // submit
+      const form = screen.getByTestId("import-submit-btn").closest("form")!;
+      fireEvent.submit(form);
+
+      expect(onImportQuest).toHaveBeenCalledWith(
+        '{"_format":"intro-formal-proof-quest"}',
+      );
+      // インポートフォームが閉じることを確認
+      expect(
+        screen.queryByTestId("custom-quest-import-form"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("インポートフォームのキャンセルボタンクリックでフォームが閉じる", () => {
+      const onImportQuest = vi.fn();
+      render(
+        <CustomQuestList
+          items={sampleItems}
+          onStartQuest={vi.fn()}
+          onImportQuest={onImportQuest}
+        />,
+      );
+
+      fireEvent.click(screen.getByTestId("custom-quest-import-btn"));
+      expect(
+        screen.getByTestId("custom-quest-import-form"),
+      ).toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId("import-cancel-btn"));
+      expect(
+        screen.queryByTestId("custom-quest-import-form"),
+      ).not.toBeInTheDocument();
     });
   });
 });
