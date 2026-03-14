@@ -108,6 +108,25 @@
 
 ---
 
+## 2026-03-15 - [Quest] CustomQuestListComponentのテストカバレッジ改善
+- ベースライン: Stmts 99.5%, Branch 98.76% (CustomQuestListComponent.tsx: 88.05%)
+- **結果: CustomQuestListComponent.tsx 100% (全指標)、+13テスト追加**
+- 実装内容:
+  - 27箇所の未カバー行を13個の新テストでカバー
+  - クエストアイテム操作テスト: 行クリック、開始ボタン、複製ボタン
+  - 編集フォーム保存・キャンセルテスト: 有効データsubmit、titleBlur、キャンセルボタン
+  - 作成フォーム保存・キャンセルテスト: 有効データsubmit（FormulaEditor操作含む）、titleBlur、キャンセルボタン
+  - インポートフォームテスト: JSON入力、非空submit、キャンセルボタン
+  - URL共有タイマークリアテスト: 2回連続URLコピーでclearTimeout実行
+  - NotebookCreateFormComponent.tsx (98.91%) は単体テストでは100%、V8集計quirkによる差異のみ
+- 変更ファイル:
+  - src/lib/quest/CustomQuestListComponent.test.tsx (+288行、52→65テスト)
+- **今後のイテレーションへの学び:**
+  - FormulaEditorの編集モードに入るには display 要素をクリック (testId: `<prefix>-display`)、その後 input 要素 (testId: `<prefix>-input-input`) にアクセス
+  - FormulaListEditorの追加ボタンは空文字列を追加するだけ。extractNonEmptyFormulasで空文字列はフィルタされるため、テストではFormulaEditorで実際に値を入力する必要がある
+  - vi.useFakeTimers() はテスト終了時に vi.useRealTimers() で戻す必要あり
+---
+
 ## 2026-03-15 - [Script Runner] スクリプトテンプレートの演繹スタイル別フィルタリング
 - ベースライン: Stmts 99.81%, Branch 98.91%, Funcs 90.33%, Lines 99.8% (11189テスト)
 - **結果: 全テストパス (11199テスト, +10)**
