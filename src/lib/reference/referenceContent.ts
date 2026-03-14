@@ -6950,6 +6950,105 @@ const guideProofStrategy: ReferenceEntry = {
   order: 13,
 };
 
+const guideSchemaProofPractice: ReferenceEntry = {
+  id: "guide-schema-proof-practice",
+  category: "guide",
+  title: {
+    en: "Proving with Formula Schemas: The Art",
+    ja: "論理式スキーマで証明する技法",
+  },
+  summary: {
+    en: "Why this site uses schemas instead of concrete formulas, and how this changes the proof experience.",
+    ja: "このサイトがなぜ具体的な論理式ではなくスキーマを使うのか、それが証明体験をどう変えるか。",
+  },
+  body: {
+    en: [
+      "<b>A unique feature of this site.</b> Most introductory logic textbooks present proofs using concrete propositional variables like P, Q, and R. This site takes a different approach: you work entirely with <b>formula schemas</b> — patterns built from metavariables like $\\varphi$, $\\psi$, and $\\chi$. This is not merely a cosmetic difference; it fundamentally changes what your proofs mean and how you think about them.",
+
+      "<b>Every proof is a proof of a law.</b> When you prove $\\varphi \\to (\\psi \\to \\varphi)$ on this site, you are not proving a statement about two particular propositions. You are proving a <b>logical law</b> — a principle that holds for all propositions simultaneously. The proof itself is a recipe: given <i>any</i> formulas for $\\varphi$ and $\\psi$, this recipe produces a valid proof. In standard terminology, you are proving a <b>metatheorem</b> about the deductive system, not just one theorem within it.",
+
+      "<b>The elegance of schema-level reasoning.</b> Working at the schema level reveals patterns that are invisible when you work with concrete formulas. Consider the identity proof $\\varphi \\to \\varphi$. At the schema level, you see clearly that this proof depends only on A1, A2, and MP — and nothing about $\\varphi$ matters. The same three-step pattern works whether $\\varphi$ is a simple variable, a complex nested formula, or even a quantified predicate logic expression. The schema-level view strips away irrelevant detail and exposes the logical skeleton.",
+
+      "<b>The challenge.</b> Schema-level proofs require more abstract thinking. With concrete formulas, you can often guide your intuition by thinking about specific truth values or meanings. With schemas, you must reason purely from the <b>structure</b> of formulas and the <b>rules</b> of the system. This is harder initially, but it builds a much deeper understanding of logic. You learn to see the <i>shape</i> of proofs rather than their content.",
+
+      "<b>Schemas and axiom identification.</b> This site automatically identifies whether a formula you write matches an axiom schema. When you write $(\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi))$, the system recognizes it as an instance of axiom schema A2. This identification works by <b>pattern matching</b>: the system unifies your formula against each axiom schema to find a valid substitution for the metavariables. This mechanism is itself a schema-level operation — it checks whether your formula is <i>any</i> instance of the schema, not a specific one.",
+
+      "<b>Schemas in Hilbert-style proofs.</b> In Hilbert systems, the interplay between axiom schemas and Modus Ponens is the engine of deduction. Each axiom schema provides infinitely many starting points. MP connects them. The art lies in choosing the right <b>instantiation</b> of each schema — which concrete (or schema-level) formulas to plug in for the metavariables. This choice is where human creativity enters formal proof. For example, proving $\\varphi \\to \\varphi$ requires instantiating A2 with $\\psi := \\varphi \\to \\varphi$ — a non-obvious substitution that beginners rarely guess.",
+
+      "<b>Schemas in natural deduction and sequent calculus.</b> The schema perspective extends beyond Hilbert systems. In natural deduction, rules like $\\to$I and $\\to$E operate on schema-level judgments: $\\Gamma, \\varphi \\vdash \\psi$ becomes $\\Gamma \\vdash \\varphi \\to \\psi$. In sequent calculus, structural and logical rules manipulate sequent schemas $\\Gamma \\Rightarrow \\Delta$. The beauty is the same: a single proof derivation establishes a result for all possible formula instantiations.",
+
+      "<b>Practical tips for schema-level proofs.</b>\n• <b>Think structurally:</b> Focus on the connectives ($\\to$, $\\lnot$, $\\land$, $\\lor$, $\\forall$, $\\exists$) and how they interact with the rules, not on what the metavariables \"mean.\"\n• <b>Name your metavariables clearly:</b> Use $\\varphi$ for the formula you want to prove, $\\psi$ for hypotheses, and $\\chi$ for intermediate results.\n• <b>Work backward from the goal:</b> Determine which rule could produce the goal formula, then figure out what premises you need.\n• <b>Study model answers:</b> After completing a quest, examine the model answer. Pay attention to which axiom instantiations were chosen and why.",
+
+      "<b>From schemas to metatheorems.</b> Once you are comfortable proving at the schema level, you are ready for metatheoretic reasoning — proving results <i>about</i> the proof system itself. The deduction theorem, cut elimination, and completeness are all proved at this level. In a sense, every schema-level proof you construct on this site is a tiny metatheorem. This is the deepest insight the schema approach offers: formal proof is not just about individual truths, but about the structure of truth itself.",
+    ],
+    ja: [
+      "<b>このサイトの独自の特徴。</b> 多くの入門論理学の教科書では、P, Q, Rのような具体的な命題変数を使って証明を提示します。このサイトは異なるアプローチを取ります：すべての作業を<b>論理式スキーマ</b> — $\\varphi$, $\\psi$, $\\chi$のようなメタ変数から構成されるパターン — で行います。これは単なる見た目の違いではなく、証明の意味と思考方法を根本的に変えるものです。",
+
+      "<b>すべての証明は法則の証明です。</b> このサイトで $\\varphi \\to (\\psi \\to \\varphi)$ を証明するとき、2つの特定の命題についての主張を証明しているのではありません。<b>論理法則</b> — すべての命題に対して同時に成り立つ原理 — を証明しているのです。証明そのものが一つのレシピです：$\\varphi$ と $\\psi$ に<i>任意の</i>論理式を与えれば、このレシピが妥当な証明を生成します。標準的な用語では、演繹体系内の一つの定理ではなく、演繹体系<b>についての</b>メタ定理を証明しているのです。",
+
+      "<b>スキーマレベル推論の優雅さ。</b> スキーマレベルで作業すると、具体的な論理式で作業しているときには見えないパターンが現れます。恒等証明 $\\varphi \\to \\varphi$ を考えましょう。スキーマレベルでは、この証明がA1, A2, MPのみに依存し、$\\varphi$の中身は一切関係ないことが明確に見えます。同じ3ステップのパターンが、$\\varphi$が単純な変数であろうと、複雑にネストされた論理式であろうと、量化された述語論理の式であろうと機能します。スキーマレベルの視点は無関係な詳細を取り除き、論理的骨格を露出させます。",
+
+      "<b>挑戦。</b> スキーマレベルの証明にはより抽象的な思考が必要です。具体的な論理式では、特定の真理値や意味について考えることで直観を導くことができます。スキーマでは、論理式の<b>構造</b>と体系の<b>規則</b>から純粋に推論しなければなりません。最初は難しいですが、論理のはるかに深い理解を構築します。証明の内容ではなく、証明の<i>形</i>を見ることを学ぶのです。",
+
+      "<b>スキーマと公理の自動識別。</b> このサイトは、あなたが書いた論理式が公理スキーマに一致するかどうかを自動的に識別します。$(\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi))$と書けば、システムはそれを公理スキーマA2のインスタンスとして認識します。この識別は<b>パターンマッチング</b>で機能します：システムはあなたの論理式を各公理スキーマに対して単一化し、メタ変数の妥当な代入を見つけます。この機構自体がスキーマレベルの操作です — 特定のインスタンスではなく、スキーマの<i>いずれかの</i>インスタンスであるかを検査します。",
+
+      "<b>Hilbertスタイル証明におけるスキーマ。</b> Hilbert系では、公理スキーマとModus Ponensの相互作用が演繹のエンジンです。各公理スキーマが無限個の出発点を提供し、MPがそれらを接続します。技は各スキーマの正しい<b>インスタンス化</b> — メタ変数にどの具体的な（またはスキーマレベルの）論理式を代入するか — を選ぶことにあります。この選択こそが、形式証明に人間の創造性が入り込む場所です。例えば、$\\varphi \\to \\varphi$の証明にはA2を$\\psi := \\varphi \\to \\varphi$でインスタンス化する必要があります — 初学者がほとんど思いつかない非自明な代入です。",
+
+      "<b>自然演繹とシーケント計算におけるスキーマ。</b> スキーマの視点はHilbert系を超えて拡張されます。自然演繹では、$\\to$Iや$\\to$Eのような規則がスキーマレベルの判断に作用します：$\\Gamma, \\varphi \\vdash \\psi$ が $\\Gamma \\vdash \\varphi \\to \\psi$ になります。シーケント計算では、構造規則と論理規則がシーケントスキーマ $\\Gamma \\Rightarrow \\Delta$ を操作します。美しさは同じです：一つの証明導出が、すべての可能な論理式インスタンス化に対する結果を確立します。",
+
+      "<b>スキーマレベル証明の実践的ヒント。</b>\n• <b>構造的に考える：</b>メタ変数が「何を意味するか」ではなく、結合子（$\\to$, $\\lnot$, $\\land$, $\\lor$, $\\forall$, $\\exists$）が規則とどう相互作用するかに集中する。\n• <b>メタ変数に明確な名前を付ける：</b>証明したい論理式に$\\varphi$、仮説に$\\psi$、中間結果に$\\chi$を使う。\n• <b>ゴールから逆方向に作業する：</b>どの規則がゴールの論理式を生成できるかを判断し、必要な前提を特定する。\n• <b>模範解答を研究する：</b>クエスト完了後、模範解答を確認する。どの公理のインスタンス化が選ばれたか、そしてなぜかに注目する。",
+
+      "<b>スキーマからメタ定理へ。</b> スキーマレベルでの証明に慣れれば、メタ理論的推論 — 証明体系<i>自体について</i>の結果を証明すること — への準備ができます。演繹定理、カット除去定理、完全性はすべてこのレベルで証明されます。ある意味で、このサイトで構築するスキーマレベルの証明はすべて小さなメタ定理です。これがスキーマアプローチの最も深い洞察です：形式証明は個々の真理についてだけでなく、真理の構造そのものについてのものなのです。",
+    ],
+  },
+  relatedEntryIds: [
+    "concept-formula-schema",
+    "guide-what-is-formal-proof",
+    "guide-hilbert-proof-method",
+    "guide-proof-strategy",
+    "notation-metavariables",
+    "axiom-a1",
+    "axiom-a2",
+    "rule-mp",
+  ],
+  relatedQuestIds: ["prop-01", "prop-02", "prop-03", "prop-04"],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Axiom_schema",
+      label: {
+        en: "Axiom schema (Wikipedia)",
+        ja: "公理スキーマ (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E5%85%AC%E7%90%86%E5%9E%8B",
+      label: {
+        en: "Axiom schema (Wikipedia, ja)",
+        ja: "公理型 (Wikipedia)",
+      },
+      documentLanguage: "ja",
+    },
+  ],
+  keywords: [
+    "formula schema",
+    "metavariable",
+    "schema-level proof",
+    "axiom schema",
+    "proof practice",
+    "abstract reasoning",
+    "論理式スキーマ",
+    "メタ変数",
+    "スキーマレベル証明",
+    "公理スキーマ",
+    "証明の実践",
+    "抽象的推論",
+  ],
+  order: 14,
+};
+
 const conceptAbelianGroup: ReferenceEntry = {
   id: "concept-abelian-group",
   category: "concept",
@@ -7783,6 +7882,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   guideIntroTableau,
   guideMetaTheorems,
   guideProofStrategy,
+  guideSchemaProofPractice,
   // Axioms
   axiomA1,
   axiomA2,
