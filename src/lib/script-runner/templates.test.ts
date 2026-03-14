@@ -85,6 +85,7 @@ describe("テンプレート実行テスト", () => {
     setNodeRoleAxiom: vi.fn(),
     applyLayout: vi.fn(),
     clearWorkspace: vi.fn(),
+    getSelectedNodeIds: vi.fn().mockReturnValue([]),
   });
 
   const runTemplate = (tmpl: ScriptTemplate) => {

@@ -220,6 +220,7 @@
     "noteEditorTitle": "メモの編集",
     "runScript": "スクリプトを実行",
     "openScriptEditor": "スクリプトエディタを開く",
+    "applyScript": "スクリプトを適用\u2026",
     "nodeLabelAxiom": "公理",
     "nodeLabelAssumption": "仮定",
     "nodeLabelSequent": "シーケント",

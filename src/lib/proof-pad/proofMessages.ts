@@ -248,6 +248,7 @@ export type ProofMessages = {
   // --- スクリプト ---
   readonly runScript: string;
   readonly openScriptEditor: string;
+  readonly applyScript: string;
 
   // --- ノード作成ラベル ---
   readonly nodeLabelAxiom: string;
@@ -488,6 +489,7 @@ export const defaultProofMessages: ProofMessages = {
   // Script
   runScript: "Run Script",
   openScriptEditor: "Open Script Editor",
+  applyScript: "Apply Script\u2026",
 
   // Node creation labels
   nodeLabelAxiom: "Axiom",

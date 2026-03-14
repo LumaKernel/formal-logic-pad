@@ -24,6 +24,7 @@ const createMockHandler = (): WorkspaceCommandHandler => ({
   setNodeRoleAxiom: vi.fn(),
   applyLayout: vi.fn(),
   clearWorkspace: vi.fn(),
+  getSelectedNodeIds: vi.fn().mockReturnValue(["node-1"]),
 });
 
 const getRunner = (
@@ -75,7 +76,7 @@ describe("createWorkspaceBridges", () => {
   it("ブリッジ関数一覧を返す", () => {
     const handler = createMockHandler();
     const bridges = createWorkspaceBridges(handler);
-    expect(bridges.length).toBe(10);
+    expect(bridges.length).toBe(11);
     const names = bridges.map((b) => b.name);
     expect(names).toContain("addNode");
     expect(names).toContain("setNodeFormula");
@@ -87,6 +88,7 @@ describe("createWorkspaceBridges", () => {
     expect(names).toContain("applyLayout");
     expect(names).toContain("clearWorkspace");
     expect(names).toContain("displayScProof");
+    expect(names).toContain("getSelectedNodeIds");
   });
 });
 
@@ -575,6 +577,24 @@ describe("WORKSPACE_BRIDGE_API_DEFS", () => {
   });
 });
 
+describe("getSelectedNodeIds ブリッジ", () => {
+  it("選択中のノードID一覧を返す", () => {
+    const handler = createMockHandler();
+    const result = runCode(`getSelectedNodeIds()`, handler);
+    expect(result).toEqual(["node-1"]);
+    expect(handler.getSelectedNodeIds).toHaveBeenCalled();
+  });
+
+  it("選択なしの場合は空配列を返す", () => {
+    const handler = createMockHandler();
+    (handler.getSelectedNodeIds as ReturnType<typeof vi.fn>).mockReturnValue(
+      [],
+    );
+    const result = runCode(`getSelectedNodeIds()`, handler);
+    expect(result).toEqual([]);
+  });
+});
+
 describe("generateWorkspaceBridgeTypeDefs", () => {
   it("TypeScript型定義テキストを生成する", () => {
     const typeDefs = generateWorkspaceBridgeTypeDefs();
@@ -583,5 +603,6 @@ describe("generateWorkspaceBridgeTypeDefs", () => {
     expect(typeDefs).toContain("declare function applyLayout");
     expect(typeDefs).toContain("declare function clearWorkspace");
     expect(typeDefs).toContain("declare function displayScProof");
+    expect(typeDefs).toContain("declare function getSelectedNodeIds");
   });
 });

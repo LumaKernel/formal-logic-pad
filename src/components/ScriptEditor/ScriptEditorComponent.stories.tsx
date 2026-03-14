@@ -279,6 +279,7 @@ function ScriptEditorWithWorkspace() {
         setWorkspace(createEmptyWorkspace(lukasiewiczSystem));
         nextYRef.current = 50;
       },
+      getSelectedNodeIds: () => [],
     }),
     [],
   )();

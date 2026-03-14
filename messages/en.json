@@ -220,6 +220,7 @@
     "noteEditorTitle": "Edit Note",
     "runScript": "Run Script",
     "openScriptEditor": "Open Script Editor",
+    "applyScript": "Apply Script\u2026",
     "nodeLabelAxiom": "Axiom",
     "nodeLabelAssumption": "Assumption",
     "nodeLabelSequent": "Sequent",

@@ -3228,8 +3228,9 @@ export function ProofWorkspace({
         setWorkspace(createEmptyWorkspace(workspace.system));
         nextScriptYRef.current = 50;
       },
+      getSelectedNodeIds: () => [...selectedNodeIds],
     };
-  }, [scriptEditorOpen, workspace.system, setWorkspace]);
+  }, [scriptEditorOpen, workspace.system, setWorkspace, selectedNodeIds]);
 
   // コンテキストメニューから「ノードを複製する」
   const handleDuplicateNode = useCallback(() => {
@@ -3436,6 +3437,22 @@ export function ProofWorkspace({
   ]);
 
   const handleCanvasMenuOpenScriptEditor = useCallback(() => {
+    setScriptEditorNodeId(null);
+    setScriptEditorInitialCode("");
+    setScriptEditorOpen(true);
+    setCanvasMenuState((prev) => ({ ...prev, open: false }));
+  }, []);
+
+  // ノードコンテキストメニューから「スクリプトを適用」
+  const handleApplyScriptFromNodeMenu = useCallback(() => {
+    setScriptEditorNodeId(null);
+    setScriptEditorInitialCode("");
+    setScriptEditorOpen(true);
+    setNodeMenuState(closeNodeMenu());
+  }, []);
+
+  // キャンバスコンテキストメニューから「スクリプトを適用」
+  const handleApplyScriptFromCanvasMenu = useCallback(() => {
     setScriptEditorNodeId(null);
     setScriptEditorInitialCode("");
     setScriptEditorOpen(true);
@@ -5421,6 +5438,17 @@ export function ProofWorkspace({
                   /* v8 ignore stop */
                 }
               />
+              <WorkspaceMenuItem
+                label={msg.applyScript}
+                onClick={handleApplyScriptFromNodeMenu}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-apply-script`
+                    : "apply-script"
+                  /* v8 ignore stop */
+                }
+              />
               <div
                 style={{
                   height: 1,
@@ -5463,6 +5491,17 @@ export function ProofWorkspace({
                   testId
                     ? `${testId satisfies string}-run-script`
                     : "run-script"
+                  /* v8 ignore stop */
+                }
+              />
+              <WorkspaceMenuItem
+                label={msg.applyScript}
+                onClick={handleApplyScriptFromNodeMenu}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-apply-script`
+                    : "apply-script"
                   /* v8 ignore stop */
                 }
               />
@@ -5615,6 +5654,17 @@ export function ProofWorkspace({
                   testId
                     ? `${testId satisfies string}-merge-with-node`
                     : "merge-with-node"
+                  /* v8 ignore stop */
+                }
+              />
+              <WorkspaceMenuItem
+                label={msg.applyScript}
+                onClick={handleApplyScriptFromNodeMenu}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-apply-script`
+                    : "apply-script"
                   /* v8 ignore stop */
                 }
               />
@@ -5815,6 +5865,17 @@ export function ProofWorkspace({
               /* v8 ignore start -- testId未指定パス: V8集約アーティファクト */
               testId
                 ? `${testId satisfies string}-canvas-menu-open-script-editor`
+                : undefined
+              /* v8 ignore stop */
+            }
+          />
+          <WorkspaceMenuItem
+            label={msg.applyScript}
+            onClick={handleApplyScriptFromCanvasMenu}
+            testId={
+              /* v8 ignore start -- testId未指定パス: V8集約アーティファクト */
+              testId
+                ? `${testId satisfies string}-canvas-menu-apply-script`
                 : undefined
               /* v8 ignore stop */
             }

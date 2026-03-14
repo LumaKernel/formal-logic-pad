@@ -44,6 +44,8 @@ export interface WorkspaceCommandHandler {
   readonly applyLayout: () => void;
   /** ワークスペース上の全ノードを削除する */
   readonly clearWorkspace: () => void;
+  /** 現在選択中のノードID一覧を返す */
+  readonly getSelectedNodeIds: () => readonly string[];
 }
 
 // ── ブリッジ関数の実装 ────────────────────────────────────────
@@ -146,6 +148,11 @@ const createClearWorkspaceFn =
   (handler: WorkspaceCommandHandler) => (): unknown => {
     handler.clearWorkspace();
     return undefined;
+  };
+
+const createGetSelectedNodeIdsFn =
+  (handler: WorkspaceCommandHandler) => (): unknown => {
+    return handler.getSelectedNodeIds();
   };
 
 // ── SC証明木のフラット展開 ──────────────────────────────────
@@ -299,6 +306,7 @@ const createDisplayScProofFn =
  * - removeNode(nodeId)
  * - setNodeRoleAxiom(nodeId)
  * - applyLayout()
+ * - getSelectedNodeIds() → string[]
  */
 export const createWorkspaceBridges = (
   handler: WorkspaceCommandHandler,
@@ -313,6 +321,7 @@ export const createWorkspaceBridges = (
   { name: "applyLayout", fn: createApplyLayoutFn(handler) },
   { name: "clearWorkspace", fn: createClearWorkspaceFn(handler) },
   { name: "displayScProof", fn: createDisplayScProofFn(handler) },
+  { name: "getSelectedNodeIds", fn: createGetSelectedNodeIdsFn(handler) },
 ];
 
 // ── API 定義（Monaco Editor 補完用）──────────────────────────
@@ -371,6 +380,11 @@ export const WORKSPACE_BRIDGE_API_DEFS: readonly ProofBridgeApiDef[] = [
     signature: "(proof: ScProofNodeJson) => void",
     description:
       "SC証明木をワークスペースに表示する。既存ノードをクリアし、証明木の各ノードをシーケントテキストとして配置する。",
+  },
+  {
+    name: "getSelectedNodeIds",
+    signature: "() => string[]",
+    description: "現在選択中のノードID一覧を返す。",
   },
 ];
 

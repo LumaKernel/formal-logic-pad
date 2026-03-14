@@ -252,6 +252,14 @@ describe("menuActionDefinition", () => {
       expect(action!.group).toBe("node-edit");
     });
 
+    it("apply-script がノードコンテキストメニューとキャンバスメニューにある", () => {
+      const action = allMenuActions.find((a) => a.id === "apply-script");
+      expect(action).toBeDefined();
+      expect(action!.contexts).toContain("node-context-menu");
+      expect(action!.contexts).toContain("canvas-context-menu");
+      expect(action!.group).toBe("node-edit");
+    });
+
     it("export 系がワークスペースメニューにある", () => {
       const exportIds = ["export-json", "export-svg", "export-png"];
       for (const id of exportIds) {
