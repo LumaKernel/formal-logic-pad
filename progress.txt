@@ -14114,3 +14114,14 @@
   - 既存ガイド: order 1-5（形式証明とは何か〜Hilbert系証明法）、述語論理入門はorder 6
   - dev serverのCSSパースエラーは既知の問題（globals.css:846）
 ---
+
+## 2026-03-14 11:25 - Reference: 述語論理の公理体系の構造
+- concept-predicate-axiom-system エントリを追加（order: 26, concept カテゴリ）
+- 7段落の日英バイリンガルbody + formalNotation配列（A1-A5, MP, Gen）
+- referenceContent.test.ts のエントリ数を69→70に更新
+- 変更ファイル: referenceContent.ts, referenceContent.test.ts, tasks/prd-docs-contents.md
+- **今後のイテレーションへの学び:**
+  - Storybook story IDはファイルパスから自動生成: `src/lib/reference/Foo.stories.tsx` → `lib-reference-foo--default`
+  - iframe直アクセス (`/iframe.html?id=...`) でStorybook UIのレイアウト問題を回避可能
+  - dev server (localhost:13000) のCSS解析エラーは既知の問題（globals.css:846:27）
+---
