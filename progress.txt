@@ -14080,3 +14080,24 @@
   - ReferenceBrowserComponentはpropsベースのi18n（hubMessages経由）。新テキストはhubMessages.ts型→defaultHubMessages→hubMessageKeys→HubContent.tsx→messages/*.jsonの5箇所更新
   - Storybook play関数が高速に実行されるため、初期状態のスクリーンショットを撮るのは難しい。テストでの確認が確実
 ---
+
+## 2026-03-14 - [Reference] Unicode数学記号→TeX統一
+- InlineMarkdownコンポーネントにKaTeX $...$ インライン数式レンダリング機能を追加
+  - parseInlineMarkdownに `math` 型を追加（正規表現で $...$ を1stパスで検出）
+  - renderContentWithMathヘルパーでbold/italic/text内のネスト数式にも対応
+- referenceContent.tsの全Unicode数学記号をTeX記法に変換（~1500箇所）
+  - φ→$\varphi$, →→$\to$, ¬→$\lnot$, ∧→$\land$, ∨→$\lor$ 等
+  - 自動変換スクリプト作成（scripts/convert-unicode-to-tex.local.ts）
+- dev/配下24ファイルのマークダウンも同様にTeX変換
+- InlineMarkdown.test.tsx新規作成（12テスト、100%カバレッジ）
+- referenceContent.test.ts, referenceUILogic.test.ts のアサーション更新
+- 変更ファイル: 31ファイル (+2195, -1952)
+- テスト: 10495件全パス、typecheck・lint通過
+- スクリーンショット: .screenshots/reference-viewer-tex-rendering.png
+- **今後のイテレーションへの学び:**
+  - TSソース内のTeX文字列は二重エスケープ必要: `\\varphi` → runtime `\varphi` → KaTeX解釈
+  - マークダウンファイル内は単一エスケープ: `\varphi`
+  - `$...$` で分割する正規表現: `/(\$[^$]+\$)/g` （キャプチャグループで区切り文字保持）
+  - bold/italic内のネスト数式は2段階処理: parseInlineMarkdown(1stパス) → renderContentWithMath(2ndパス、React component内)
+  - 括弧の吸収はバランス考慮が必要: `$(\\varphi$ and $\\psi)$` のように誤って吸収しないよう注意
+---
