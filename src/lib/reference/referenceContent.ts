@@ -1522,6 +1522,215 @@ const axiomE5: ReferenceEntry = {
 };
 
 // ============================================================
+// Peano算術の公理 (Peano Arithmetic Axioms)
+// ============================================================
+
+const axiomPA1: ReferenceEntry = {
+  id: "axiom-pa1",
+  category: "axiom",
+  title: {
+    en: "Axiom PA1 (Zero is not a successor)",
+    ja: "公理 PA1 (0は後者ではない)",
+  },
+  summary: {
+    en: "$\\lnot(S(x) = 0)$ — Zero is not the successor of any number.",
+    ja: "$\\lnot(S(x) = 0)$ — 0はいかなる数の後者でもない。",
+  },
+  body: {
+    en: [
+      "<b>PA1</b> asserts that 0 is not in the range of the successor function. This axiom prevents the natural numbers from 'wrapping around' — there is no number whose successor is 0.",
+      "Together with PA2 (injectivity of successor), PA1 ensures that the natural numbers form an infinite, non-circular sequence: 0, S(0), S(S(0)), ...",
+    ],
+    ja: [
+      "<b>PA1</b>は0が後者関数の値域に含まれないことを主張します。この公理は自然数が「巡回」するのを防ぎます — 後者が0になるような数は存在しません。",
+      "PA2（後者関数の単射性）と合わせて、PA1は自然数が無限で非巡回的な列 0, S(0), S(S(0)), ... を形成することを保証します。",
+    ],
+  },
+  formalNotation: "\\forall x.\\ \\lnot(S(x) = 0)",
+  relatedEntryIds: ["axiom-pa2", "axiom-pa6", "theory-peano"],
+  externalLinks: [],
+  keywords: ["PA1", "zero", "successor", "ペアノ", "0", "後者"],
+  order: 14,
+};
+
+const axiomPA2: ReferenceEntry = {
+  id: "axiom-pa2",
+  category: "axiom",
+  title: {
+    en: "Axiom PA2 (Successor is injective)",
+    ja: "公理 PA2 (後者関数の単射性)",
+  },
+  summary: {
+    en: "$S(x) = S(y) \\to x = y$ — The successor function is one-to-one.",
+    ja: "$S(x) = S(y) \\to x = y$ — 後者関数は単射である。",
+  },
+  body: {
+    en: [
+      "<b>PA2</b> states that the successor function is injective: distinct numbers have distinct successors. If $S(x) = S(y)$, then $x = y$.",
+      "This axiom prevents 'collapsing' — no two different natural numbers can share the same successor. Combined with PA1, it ensures an infinite linear sequence.",
+    ],
+    ja: [
+      "<b>PA2</b>は後者関数が単射であることを述べます：異なる数は異なる後者を持ちます。$S(x) = S(y)$ならば$x = y$です。",
+      "この公理は「潰れ」を防ぎます — 2つの異なる自然数が同じ後者を共有することはありません。PA1と合わせて、無限の線形列を保証します。",
+    ],
+  },
+  formalNotation: "\\forall x. \\forall y.\\ S(x) = S(y) \\to x = y",
+  relatedEntryIds: ["axiom-pa1", "axiom-pa6", "theory-peano"],
+  externalLinks: [],
+  keywords: ["PA2", "injective", "successor", "単射", "後者"],
+  order: 15,
+};
+
+const axiomPA3: ReferenceEntry = {
+  id: "axiom-pa3",
+  category: "axiom",
+  title: { en: "Axiom PA3 (Addition base case)", ja: "公理 PA3 (加法の基底)" },
+  summary: {
+    en: "$x + 0 = x$ — Adding zero is the identity.",
+    ja: "$x + 0 = x$ — 0の加法は恒等写像。",
+  },
+  body: {
+    en: [
+      "<b>PA3</b> defines the base case of addition: adding zero to any number yields that number itself.",
+      "Together with PA4 (the recursive step), PA3 gives a complete recursive definition of addition on the natural numbers.",
+    ],
+    ja: [
+      "<b>PA3</b>は加法の基底ケースを定義します：任意の数に0を加えるとその数自身になります。",
+      "PA4（再帰ステップ）と合わせて、PA3は自然数上の加法の完全な再帰的定義を与えます。",
+    ],
+  },
+  formalNotation: "\\forall x.\\ x + 0 = x",
+  relatedEntryIds: ["axiom-pa4", "axiom-pa5", "theory-peano"],
+  externalLinks: [],
+  keywords: ["PA3", "addition", "zero", "加法", "0"],
+  order: 16,
+};
+
+const axiomPA4: ReferenceEntry = {
+  id: "axiom-pa4",
+  category: "axiom",
+  title: {
+    en: "Axiom PA4 (Addition recursive step)",
+    ja: "公理 PA4 (加法の再帰)",
+  },
+  summary: {
+    en: "$x + S(y) = S(x + y)$ — Addition recurses on the successor.",
+    ja: "$x + S(y) = S(x + y)$ — 加法は後者に対して再帰する。",
+  },
+  body: {
+    en: [
+      "<b>PA4</b> defines the recursive step of addition: adding $S(y)$ to $x$ is the successor of adding $y$ to $x$.",
+      "For example, $2 + 3 = 2 + S(2) = S(2 + 2) = S(S(2 + 1)) = S(S(S(2 + 0))) = S(S(S(2))) = 5$. Each step peels off one successor from the right operand.",
+    ],
+    ja: [
+      "<b>PA4</b>は加法の再帰ステップを定義します：$x$に$S(y)$を加えることは、$x$に$y$を加えた結果の後者です。",
+      "たとえば $2 + 3 = 2 + S(2) = S(2 + 2) = S(S(2 + 1)) = S(S(S(2 + 0))) = S(S(S(2))) = 5$ です。各ステップで右オペランドから後者を1つ剥がします。",
+    ],
+  },
+  formalNotation: "\\forall x. \\forall y.\\ x + S(y) = S(x + y)",
+  relatedEntryIds: ["axiom-pa3", "axiom-pa5", "axiom-pa6", "theory-peano"],
+  externalLinks: [],
+  keywords: ["PA4", "addition", "recursive", "加法", "再帰"],
+  order: 17,
+};
+
+const axiomPA5: ReferenceEntry = {
+  id: "axiom-pa5",
+  category: "axiom",
+  title: {
+    en: "Axiom PA5 (Multiplication base case)",
+    ja: "公理 PA5 (乗法の基底)",
+  },
+  summary: {
+    en: "$x \\times 0 = 0$ — Multiplying by zero yields zero.",
+    ja: "$x \\times 0 = 0$ — 0との乗法は0。",
+  },
+  body: {
+    en: [
+      "<b>PA5</b> defines the base case of multiplication: any number times zero is zero.",
+      "Together with PA6 (the recursive step for multiplication in some numberings) or the multiplication recursion axiom, PA5 gives a complete recursive definition of multiplication.",
+    ],
+    ja: [
+      "<b>PA5</b>は乗法の基底ケースを定義します：任意の数に0を掛けると0になります。",
+      "乗法の再帰ステップの公理と合わせて、PA5は乗法の完全な再帰的定義を与えます。",
+    ],
+  },
+  formalNotation: "\\forall x.\\ x \\times 0 = 0",
+  relatedEntryIds: ["axiom-pa3", "axiom-pa4", "theory-peano"],
+  externalLinks: [],
+  keywords: ["PA5", "multiplication", "zero", "乗法", "0"],
+  order: 18,
+};
+
+const axiomPA6: ReferenceEntry = {
+  id: "axiom-pa6",
+  category: "axiom",
+  title: {
+    en: "Axiom PA6 (Induction Schema)",
+    ja: "公理 PA6 (帰納法スキーマ)",
+  },
+  summary: {
+    en: "$(\\varphi[0/x] \\land \\forall x.(\\varphi \\to \\varphi[S(x)/x])) \\to \\forall x. \\varphi$ — Mathematical induction.",
+    ja: "$(\\varphi[0/x] \\land \\forall x.(\\varphi \\to \\varphi[S(x)/x])) \\to \\forall x. \\varphi$ — 数学的帰納法。",
+  },
+  body: {
+    en: [
+      "<b>PA6</b> is the <b>induction schema</b> — the most powerful axiom of Peano arithmetic. It states: if a property $\\varphi$ holds for 0 (base case), and whenever $\\varphi$ holds for $x$ it also holds for $S(x)$ (inductive step), then $\\varphi$ holds for all natural numbers.",
+      "PA6 is an axiom <i>schema</i>, not a single axiom: there is one instance for every formula $\\varphi$ in the language of arithmetic. This makes PA a non-finitely-axiomatizable theory.",
+      "The induction schema is what distinguishes Peano arithmetic from weaker theories like Robinson arithmetic (Q), which has the same axioms PA1–PA5 but lacks induction. Without induction, many basic properties of arithmetic (commutativity of addition, etc.) become unprovable.",
+      "In second-order logic, the induction schema can be replaced by a single axiom quantifying over all predicates. The first-order induction schema is weaker — it cannot characterize the natural numbers up to isomorphism (by the compactness theorem, non-standard models exist).",
+    ],
+    ja: [
+      "<b>PA6</b>は<b>帰納法スキーマ</b> — ペアノ算術で最も強力な公理です。性質$\\varphi$が0で成り立ち（基底ケース）、$\\varphi$が$x$で成り立つときに$S(x)$でも成り立つ（帰納ステップ）ならば、$\\varphi$はすべての自然数で成り立つことを主張します。",
+      "PA6は単一の公理ではなく公理<i>スキーマ</i>です：算術の言語の各論理式$\\varphi$に対して1つのインスタンスがあります。これによりPAは有限公理化不可能な理論となります。",
+      "帰納法スキーマはペアノ算術をRobinson算術(Q)のような弱い理論と区別するものです。Qは同じPA1–PA5の公理を持ちますが帰納法を欠きます。帰納法なしでは、加法の交換律などの基本的な算術の性質が証明不可能になります。",
+      "二階論理では、帰納法スキーマをすべての述語に量化する単一の公理に置き換えられます。一階の帰納法スキーマはそれより弱く — コンパクト性定理により、自然数を同型を除いて特徴づけることはできません（非標準モデルが存在します）。",
+    ],
+  },
+  formalNotation:
+    "(\\varphi[0/x] \\land \\forall x.(\\varphi \\to \\varphi[S(x)/x])) \\to \\forall x.\\varphi",
+  relatedEntryIds: [
+    "axiom-pa1",
+    "axiom-pa2",
+    "axiom-pa3",
+    "axiom-pa4",
+    "axiom-pa5",
+    "theory-peano",
+    "guide-equality-axiom-system",
+  ],
+  relatedQuestIds: ["pa-01", "pa-02", "pa-03"],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/Mathematical_induction",
+      label: {
+        en: "Mathematical induction (Wikipedia)",
+        ja: "数学的帰納法 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E6%95%B0%E5%AD%A6%E7%9A%84%E5%B8%B0%E7%B4%8D%E6%B3%95",
+      label: {
+        en: "Mathematical induction (Wikipedia JA)",
+        ja: "数学的帰納法 (Wikipedia)",
+      },
+      documentLanguage: "ja",
+    },
+  ],
+  keywords: [
+    "PA6",
+    "induction",
+    "induction schema",
+    "帰納法",
+    "帰納法スキーマ",
+    "ペアノ",
+  ],
+  order: 19,
+};
+
+// ============================================================
 // 推論規則 (Inference Rules)
 // ============================================================
 
@@ -5177,16 +5386,27 @@ const theoryPeanoArithmetic: ReferenceEntry = {
   body: {
     en: [
       "<b>Peano Arithmetic</b> (PA) is a first-order theory that axiomatizes the natural numbers.",
-      "Non-logical axioms include: PA1 (0 is not a successor), PA2 (successor is injective), PA3-PA6 (recursion for + and ×), and the induction schema PA7.",
+      "Non-logical axioms include: PA1 (0 is not a successor), PA2 (successor is injective), PA3–PA4 (recursion for +), PA5 (multiplication base case), and the induction schema PA6.",
       "In this application, PA is built on top of the predicate logic axioms (A1-A5) and equality axioms (E1-E3).",
     ],
     ja: [
       "<b>ペアノ算術</b> (PA) は自然数を公理化する一階理論です。",
-      "非論理的公理として、PA1（0は後者ではない）、PA2（後者関数は単射）、PA3-PA6（+と×の再帰的定義）、帰納法スキーマPA7を含みます。",
+      "非論理的公理として、PA1（0は後者ではない）、PA2（後者関数は単射）、PA3–PA4（+の再帰的定義）、PA5（乗法の基底）、帰納法スキーマPA6を含みます。",
       "本アプリケーションでは、PAは述語論理公理(A1-A5)と等号公理(E1-E3)の上に構築されます。",
     ],
   },
-  relatedEntryIds: ["theory-group", "axiom-e1", "axiom-a4"],
+  relatedEntryIds: [
+    "theory-group",
+    "axiom-e1",
+    "axiom-a4",
+    "axiom-pa1",
+    "axiom-pa2",
+    "axiom-pa3",
+    "axiom-pa4",
+    "axiom-pa5",
+    "axiom-pa6",
+    "guide-equality-axiom-system",
+  ],
   relatedQuestIds: ["pa-01", "pa-02", "pa-03"],
   externalLinks: [
     {
@@ -5857,6 +6077,12 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   axiomE3,
   axiomE4,
   axiomE5,
+  axiomPA1,
+  axiomPA2,
+  axiomPA3,
+  axiomPA4,
+  axiomPA5,
+  axiomPA6,
   // Inference Rules
   ruleMP,
   ruleGen,
