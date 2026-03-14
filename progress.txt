@@ -14592,3 +14592,17 @@
   - builtinQuests.test.ts の estimatedSteps テストは undefined 許容に修正済み
   - HubPageView.stories.tsx は builtinQuests.slice(0, 20) を使用しているため、258クエスト目以降はストーリーに表示されない（メモリ記載通り）
 ---
+
+## 2026-03-15 - Reference ブランチカバレッジ改善
+- lib/reference/ のブランチカバレッジ改善（87.06% → 93.99%）
+- referenceBrowserLogic.ts: v8 ignore を unreliable な next 形式から block 形式に修正
+- ReferenceFloatingWindow.test.tsx: testIdなし・複数形式表記・関連セクション非表示・日本語全セクション等6テスト追加
+- ReferenceModal.test.tsx: 複数形式表記・日本語全セクションラベル等2テスト追加
+- ReferencePopover.test.tsx: 複数形式表記テスト追加
+- ReferenceViewerPageView.test.tsx: 複数形式表記・testIdなし全セクション・日本語全セクションラベル等3テスト追加
+- 全体カバレッジ: Stmts 99.7%, Branch 98.84%+ (維持/向上)
+- **今後のイテレーションへの学び:**
+  - testIdなしテストは1テストで多数のtestIdブランチをカバーできる効率的な手法
+  - 日本語ロケールテストで全セクション表示を検証すると、複数のlocaleブランチを同時にカバーできる
+  - ReferenceFloatingWindowの閉じるボタンはaria-labelで「閉じる」を持つ（textContentには含まれない）
+---
