@@ -14101,3 +14101,16 @@
   - bold/italic内のネスト数式は2段階処理: parseInlineMarkdown(1stパス) → renderContentWithMath(2ndパス、React component内)
   - 括弧の吸収はバランス考慮が必要: `$(\\varphi$ and $\\psi)$` のように誤って吸収しないよう注意
 ---
+
+## 2026-03-14 - [Reference] 述語論理入門ガイド追加
+- guide-intro-predicate-logic エントリを referenceContent.ts に追加（order: 6）
+- 10段落の日英バイリンガルコンテンツ：項、述語、量化子、自由/束縛変数、代入、A4/A5/Gen、存在量化子定義、クエストへの導入、先の展望
+- 関連エントリ: axiom-a4, axiom-a5, axiom-ex-def, rule-gen, concept-substitution, concept-free-variable, notation-quantifiers
+- 関連クエスト: pred-01〜06
+- テスト: 10508件全パス、referenceContent.test.tsのエントリ数を68→69に更新
+- 変更ファイル: referenceContent.ts, referenceContent.test.ts, prd-docs-contents.md
+- **今後のイテレーションへの学び:**
+  - ガイドエントリのパターン: category: "guide", order番号で順序、relatedQuestIdsで関連クエスト紐付け、formalNotationは不要
+  - 既存ガイド: order 1-5（形式証明とは何か〜Hilbert系証明法）、述語論理入門はorder 6
+  - dev serverのCSSパースエラーは既知の問題（globals.css:846）
+---
