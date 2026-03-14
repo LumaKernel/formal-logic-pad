@@ -634,6 +634,94 @@ const guideIntroPredicateLogic: ReferenceEntry = {
   order: 6,
 };
 
+const guideEqualityAxiomSystem: ReferenceEntry = {
+  id: "guide-equality-axiom-system",
+  category: "guide",
+  title: {
+    en: "The Equality Axiom System (E1–E5)",
+    ja: "等号の公理体系 (E1–E5)",
+  },
+  summary: {
+    en: "What each equality axiom guarantees: reflexivity, symmetry, transitivity, function congruence, and predicate congruence.",
+    ja: "等号の各公理が何を保証するか：反射律、対称律、推移律、関数の合同律、述語の合同律。",
+  },
+  body: {
+    en: [
+      "When we extend first-order logic with an equality symbol =, we need axioms that capture its intended meaning. The axioms E1–E5 form a standard package that is added to any first-order theory with equality.",
+      "<b>E1 (Reflexivity):</b> $\\forall x.\\ x = x$. Every object is equal to itself. This is the foundation on which all equality reasoning rests — without it, we could not even establish 0 = 0.",
+      "<b>E2 (Symmetry):</b> $\\forall x. \\forall y.\\ x = y \\to y = x$. If $x$ equals $y$, then $y$ equals $x$. The direction of an equality does not matter.",
+      "<b>E3 (Transitivity):</b> $\\forall x. \\forall y. \\forall z.\\ x = y \\to (y = z \\to x = z)$. Equalities can be chained: if $a = b$ and $b = c$, then $a = c$.",
+      "Together, E1–E3 make = an <b>equivalence relation</b>. But mere equivalence is not enough: we also need equality to be compatible with the operations and predicates of the theory.",
+      "<b>E4 (Function Congruence):</b> For each function symbol $f$, equal arguments produce equal results. For instance, if $x = y$ then $f(x) = f(y)$, and similarly for multi-argument functions. This is an axiom <i>schema family</i> — one instance per function symbol in the signature.",
+      "<b>E5 (Predicate Congruence):</b> For each predicate symbol $P$, equal arguments preserve truth. If $x = y$ and $P(x)$ holds, then $P(y)$ holds. Together with E2, this gives full substitutivity. E5 is closely related to the <b>Leibniz principle</b>: equals can be substituted for equals in any context.",
+      "E4 and E5 together ensure that = is a <b>congruence relation</b> — an equivalence relation that is respected by all function and predicate symbols of the language.",
+      "In concrete theories (Peano arithmetic, group theory, etc.), E1–E5 interact with the theory's specific axioms. For example, in Peano arithmetic the successor function S must respect equality (E4), and the ordering predicate must respect equality (E5).",
+      "An alternative approach is to adopt a single <b>Leibniz substitution axiom</b>: $t_1 = t_2 \\to (\\varphi[t_1/x] \\to \\varphi[t_2/x])$, which subsumes both E4 and E5 (and, with reflexivity, also E2 and E3). The five-axiom formulation used here is more explicit and pedagogically transparent.",
+    ],
+    ja: [
+      "一階述語論理に等号記号 = を導入するとき、その意図された意味を捉える公理が必要です。公理E1–E5は、等号付きの一階理論に追加される標準的なパッケージを構成します。",
+      "<b>E1（反射律）:</b> $\\forall x.\\ x = x$。すべての対象は自分自身と等しい。これは等号推論の土台です — これなしでは 0 = 0 すら確立できません。",
+      "<b>E2（対称律）:</b> $\\forall x. \\forall y.\\ x = y \\to y = x$。$x$が$y$と等しければ、$y$も$x$と等しい。等号の向きは関係ありません。",
+      "<b>E3（推移律）:</b> $\\forall x. \\forall y. \\forall z.\\ x = y \\to (y = z \\to x = z)$。等式を連鎖できます：$a = b$ かつ $b = c$ ならば $a = c$。",
+      "E1–E3をまとめると、= は<b>同値関係</b>になります。しかし単なる同値関係では不十分で、等号が理論の演算や述語と整合する必要もあります。",
+      "<b>E4（関数の合同律）:</b> 各関数記号 $f$ に対して、等しい引数は等しい結果を生みます。たとえば $x = y$ ならば $f(x) = f(y)$ です。多引数関数についても同様です。これは公理<i>スキーマ族</i>で、シグネチャ中の各関数記号に対して1つのインスタンスが生成されます。",
+      "<b>E5（述語の合同律）:</b> 各述語記号 $P$ に対して、等しい引数は真偽を保存します。$x = y$ かつ $P(x)$ が成り立つならば、$P(y)$ も成り立ちます。E2と合わせて完全な代入可能性が得られます。E5は<b>ライプニッツ原理</b>と密接に関連します：等しいものは任意の文脈で置き換えることができるという原理です。",
+      "E4とE5をまとめると、= は<b>合同関係</b> — すなわち言語のすべての関数記号と述語記号に尊重される同値関係 — になります。",
+      "具体的な理論（Peano算術、群論など）では、E1–E5がその理論の固有の公理と相互作用します。たとえばPeano算術では後者関数Sが等号を尊重し（E4）、順序述語も等号を尊重する（E5）必要があります。",
+      "別のアプローチとして、単一の<b>ライプニッツ代入公理</b>を採用する方法があります：$t_1 = t_2 \\to (\\varphi[t_1/x] \\to \\varphi[t_2/x])$。これはE4とE5の両方を包含し、反射律と合わせるとE2とE3も導出できます。ここで使用する5公理の定式化はより明示的で教育的に透明です。",
+    ],
+  },
+  relatedEntryIds: [
+    "axiom-e1",
+    "axiom-e2",
+    "axiom-e3",
+    "axiom-e4",
+    "axiom-e5",
+    "theory-peano",
+    "theory-group",
+    "guide-intro-predicate-logic",
+  ],
+  externalLinks: [
+    {
+      type: "wikipedia-en",
+      url: "https://en.wikipedia.org/wiki/First-order_logic#Equality_and_its_axioms",
+      label: {
+        en: "First-order logic — Equality axioms (Wikipedia)",
+        ja: "一階述語論理 — 等号公理 (Wikipedia)",
+      },
+      documentLanguage: "en",
+    },
+    {
+      type: "wikipedia-ja",
+      url: "https://ja.wikipedia.org/wiki/%E4%B8%80%E9%9A%8E%E8%BF%B0%E8%AA%9E%E8%AB%96%E7%90%86",
+      label: {
+        en: "First-order logic (Wikipedia JA)",
+        ja: "一階述語論理 (Wikipedia)",
+      },
+      documentLanguage: "ja",
+    },
+  ],
+  keywords: [
+    "equality axioms",
+    "E1",
+    "E2",
+    "E3",
+    "E4",
+    "E5",
+    "reflexivity",
+    "symmetry",
+    "transitivity",
+    "congruence",
+    "Leibniz",
+    "等号公理",
+    "反射律",
+    "対称律",
+    "推移律",
+    "合同律",
+  ],
+  order: 7,
+};
+
 // ============================================================
 // 公理 (Axioms)
 // ============================================================
@@ -5753,6 +5841,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   guideIntroToPropositionalLogic,
   guideHilbertProofMethod,
   guideIntroPredicateLogic,
+  guideEqualityAxiomSystem,
   // Axioms
   axiomA1,
   axiomA2,
