@@ -124,6 +124,7 @@ function useHubMessagesFromIntl(): HubMessages {
       referenceEmpty: String(t.raw("referenceEmpty")),
       referenceGuideTitle: String(t.raw("referenceGuideTitle")),
       referenceGuideDescription: String(t.raw("referenceGuideDescription")),
+      referenceRelatedTopics: String(t.raw("referenceRelatedTopics")),
       // Collection
       collectionEmpty: String(t.raw("collectionEmpty")),
       collectionEntryCount: String(t.raw("collectionEntryCount")),

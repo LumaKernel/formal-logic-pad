@@ -337,6 +337,52 @@ describe("ReferenceBrowserComponent", () => {
     expect(screen.getByTestId("ref-modal")).toBeInTheDocument();
   });
 
+  it("ガイドカードに関連トピック数が表示される", () => {
+    const entriesWithGuides: readonly ReferenceEntry[] = [
+      ...testEntries,
+      makeEntry({
+        id: "guide-with-related",
+        category: "guide",
+        order: 1,
+        title: { en: "Guide With Related", ja: "関連付きガイド" },
+        summary: { en: "Has related.", ja: "関連あり。" },
+        relatedEntryIds: ["axiom-a1", "concept-sub"],
+      }),
+    ];
+    render(
+      <ReferenceBrowserComponent
+        entries={entriesWithGuides}
+        locale="en"
+        testId="ref"
+        relatedTopicsLabel="related topics"
+      />,
+    );
+    expect(screen.getByText("+ 2 related topics")).toBeInTheDocument();
+  });
+
+  it("関連トピックがないガイドカードにはバッジが表示されない", () => {
+    const entriesWithGuides: readonly ReferenceEntry[] = [
+      ...testEntries,
+      makeEntry({
+        id: "guide-no-related",
+        category: "guide",
+        order: 1,
+        title: { en: "Guide No Related", ja: "関連なしガイド" },
+        summary: { en: "No related.", ja: "関連なし。" },
+        relatedEntryIds: [],
+      }),
+    ];
+    render(
+      <ReferenceBrowserComponent
+        entries={entriesWithGuides}
+        locale="en"
+        testId="ref"
+        relatedTopicsLabel="related topics"
+      />,
+    );
+    expect(screen.queryByText(/related topics/)).not.toBeInTheDocument();
+  });
+
   it("resolveQuestTitleがない場合はクエストセクションを表示しない", async () => {
     const user = userEvent.setup();
     const entryWithQuests = makeEntry({

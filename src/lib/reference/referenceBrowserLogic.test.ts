@@ -271,6 +271,7 @@ describe("buildGuideCards", () => {
       order: 2,
       title: { en: "Intro Guide", ja: "入門ガイド" },
       summary: { en: "Intro summary", ja: "入門要約" },
+      relatedEntryIds: ["axiom-a1", "rule-mp", "nonexistent-id"],
     }),
     makeEntry({
       id: "guide-first",
@@ -278,6 +279,7 @@ describe("buildGuideCards", () => {
       order: 1,
       title: { en: "First Guide", ja: "最初のガイド" },
       summary: { en: "First summary", ja: "最初の要約" },
+      relatedEntryIds: ["axiom-a1"],
     }),
   ];
 
@@ -302,6 +304,27 @@ describe("buildGuideCards", () => {
   it("guideエントリがなければ空配列を返す", () => {
     const cards = buildGuideCards(sampleEntries, "en");
     expect(cards).toHaveLength(0);
+  });
+
+  it("関連エントリ数を返す（存在するエントリのみカウント）", () => {
+    const cards = buildGuideCards(entriesWithGuides, "en");
+    // guide-first: relatedEntryIds=["axiom-a1"] → 1
+    expect(cards[0]?.relatedEntryCount).toBe(1);
+    // guide-intro: relatedEntryIds=["axiom-a1","rule-mp","nonexistent-id"] → 2 (nonexistent除外)
+    expect(cards[1]?.relatedEntryCount).toBe(2);
+  });
+
+  it("関連エントリがないガイドは0を返す", () => {
+    const entriesNoRelated: readonly ReferenceEntry[] = [
+      makeEntry({
+        id: "guide-empty",
+        category: "guide",
+        order: 1,
+        relatedEntryIds: [],
+      }),
+    ];
+    const cards = buildGuideCards(entriesNoRelated, "en");
+    expect(cards[0]?.relatedEntryCount).toBe(0);
   });
 });
 
