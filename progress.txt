@@ -14606,3 +14606,21 @@
   - 日本語ロケールテストで全セクション表示を検証すると、複数のlocaleブランチを同時にカバーできる
   - ReferenceFloatingWindowの閉じるボタンはaria-labelで「閉じる」を持つ（textContentには含まれない）
 ---
+
+## 2026-03-15 - Coverage改善（FreeVariableAbsence）
+- FreeVariableAbsenceノード型の未カバーブランチを中心に7テストファイルにテスト追加
+- scriptRunner.tsの防御的catchブロックにv8 ignore追加
+- 変更ファイル:
+  - metaVariable.test.ts: 97.22→100% (Stmts)
+  - substitution.test.ts: 98.35→99.67% (Stmts)
+  - inferenceRule.test.ts: 99.11→100% (Stmts)
+  - unification.test.ts: 98.72→100% (Stmts)
+  - cutElimination.test.ts: 99.78→100% (Stmts)
+  - parser.test.ts: 98.49→99.78% (Stmts)
+  - formulaHighlight.test.ts: branch改善
+  - scriptRunner.ts: v8 ignore追加
+- 全体カバレッジ: Stmts 99.82→99.94%, Branch 99.18→99.43%, Lines 99.80→99.95%
+- **今後のイテレーションへの学び:**
+  - FreeVariableAbsenceは新しいAST型で、全ファイルで一貫して未カバーだった。新AST型追加時は全ファイルのテストを横断的に確認すべき
+  - scriptRunner.tsのpseudoToNative catchは防御的コードで再現困難→v8 ignoreが適切
+---
