@@ -229,6 +229,61 @@ describe("ReferencePopover", () => {
     expect(link.getAttribute("target")).toBe("_blank");
   });
 
+  it("ポップオーバー内クリックでは閉じない", () => {
+    render(
+      <ReferencePopover
+        entry={makeEntry()}
+        locale="en"
+        onOpenDetail={vi.fn()}
+        testId="ref-pop"
+      />,
+    );
+    fireEvent.click(screen.getByTestId("ref-pop-trigger"));
+    const popover = screen.getByTestId("ref-pop-popover");
+    // ポップオーバー内をクリック（閉じてはいけない）
+    fireEvent.mouseDown(popover);
+    expect(screen.getByTestId("ref-pop-popover")).toBeDefined();
+  });
+
+  it("日本語で詳しく見るボタンが表示される", () => {
+    const onOpenDetail = vi.fn();
+    render(
+      <ReferencePopover
+        entry={makeEntry()}
+        locale="ja"
+        onOpenDetail={onOpenDetail}
+        testId="ref-pop"
+      />,
+    );
+    fireEvent.click(screen.getByTestId("ref-pop-trigger"));
+    const detailBtn = screen.getByTestId("ref-pop-detail-btn");
+    expect(detailBtn.textContent).toContain("詳しく見る");
+  });
+
+  it("トリガーが右端にある場合、ポップオーバーが左側に配置される", () => {
+    render(
+      <ReferencePopover entry={makeEntry()} locale="en" testId="ref-pop" />,
+    );
+    const trigger = screen.getByTestId("ref-pop-trigger");
+    // トリガーを右端付近に配置（right=1020, popoverWidth=320, margin=8 → 1020+8+320=1348 > 1024）
+    vi.spyOn(trigger, "getBoundingClientRect").mockReturnValue({
+      top: 100,
+      bottom: 120,
+      left: 980,
+      right: 1020,
+      width: 40,
+      height: 20,
+      x: 980,
+      y: 100,
+      toJSON: () => ({}),
+    });
+    fireEvent.click(trigger);
+    const popover = screen.getByTestId("ref-pop-popover");
+    // left = triggerRect.left - popoverWidth - margin = 980 - 320 - 8 = 652
+    const style = popover.style;
+    expect(style.left).toBe("652px");
+  });
+
   it("複数の形式表記が表示される", () => {
     render(
       <ReferencePopover

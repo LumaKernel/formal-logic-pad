@@ -414,6 +414,76 @@ describe("ReferenceBrowserComponent", () => {
     expect(screen.getByTestId("ref-modal")).toBeInTheDocument();
   });
 
+  it("resolveQuestTitleが一部undefinedを返す場合は解決できたクエストのみ表示する", async () => {
+    const user = userEvent.setup();
+    const entryWithQuests = makeEntry({
+      id: "axiom-a1",
+      category: "axiom",
+      order: 1,
+      relatedQuestIds: ["prop-01", "unknown-quest"],
+    });
+    render(
+      <ReferenceBrowserComponent
+        entries={[entryWithQuests]}
+        locale="en"
+        testId="ref"
+        resolveQuestTitle={(qid: string) =>
+          qid === "prop-01" ? "Quest 1" : undefined
+        }
+        onStartQuest={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("ref-entry-axiom-a1"));
+    expect(screen.getByTestId("ref-modal-quest-prop-01")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("ref-modal-quest-unknown-quest"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("resolveQuestTitleが全てundefinedを返す場合はクエストセクションを表示しない", async () => {
+    const user = userEvent.setup();
+    const entryWithQuests = makeEntry({
+      id: "axiom-a1",
+      category: "axiom",
+      order: 1,
+      relatedQuestIds: ["unknown-1", "unknown-2"],
+    });
+    render(
+      <ReferenceBrowserComponent
+        entries={[entryWithQuests]}
+        locale="en"
+        testId="ref"
+        resolveQuestTitle={() => undefined}
+        onStartQuest={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("ref-entry-axiom-a1"));
+    const modal = screen.getByTestId("ref-modal");
+    expect(modal.textContent).not.toContain("Related Quests");
+  });
+
+  it("relatedQuestIdsがないエントリではクエストセクションを表示しない", async () => {
+    const user = userEvent.setup();
+    // relatedQuestIds を指定しない（undefined）
+    const entryWithoutQuests = makeEntry({
+      id: "axiom-a1",
+      category: "axiom",
+      order: 1,
+    });
+    render(
+      <ReferenceBrowserComponent
+        entries={[entryWithoutQuests]}
+        locale="en"
+        testId="ref"
+        resolveQuestTitle={() => "Quest"}
+        onStartQuest={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByTestId("ref-entry-axiom-a1"));
+    const modal = screen.getByTestId("ref-modal");
+    expect(modal.textContent).not.toContain("Related Quests");
+  });
+
   it("resolveQuestTitleがない場合はクエストセクションを表示しない", async () => {
     const user = userEvent.setup();
     const entryWithQuests = makeEntry({
