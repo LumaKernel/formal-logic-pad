@@ -14624,3 +14624,22 @@
   - FreeVariableAbsenceは新しいAST型で、全ファイルで一貫して未カバーだった。新AST型追加時は全ファイルのテストを横断的に確認すべき
   - scriptRunner.tsのpseudoToNative catchは防御的コードで再現困難→v8 ignoreが適切
 ---
+
+## 2026-03-15 - [Coverage] SC否定規則テスト・scriptRunner v8 ignore・FreeVariableAbsenceテスト追加
+- ベースライン: Stmts 99.5%, Branch 98.76% (前回イテレーション終了時)
+- **結果: 全テストパス (211ファイル、10874テスト)**
+- script-runner モジュール: 全指標100%達成
+- 実装内容:
+  - cutEliminationBridge.test.ts: ScNegationLeft/Right のラウンドトリップテスト追加 (+2テスト)
+  - workspaceBridge.test.ts: ScNegationLeft/Right の表示ラベルテスト追加 (+1テスト)
+  - scriptRunner.ts: 行405の防御的コード (globalObject.properties undefined チェック) に v8 ignore 追加
+  - substitution.test.ts: FreeVariableAbsence の substituteTermMetaVariablesInFormula テスト追加 (+1テスト)
+- 変更ファイル:
+  - src/lib/script-runner/cutEliminationBridge.test.ts
+  - src/lib/script-runner/workspaceBridge.test.ts
+  - src/lib/script-runner/scriptRunner.ts
+  - src/lib/logic-core/substitution.test.ts
+- **今後のイテレーションへの学び:**
+  - dependencyLogic.ts の getInstanceRootNodeIds/hasInstanceRoots 未カバーブランチはV8 fork worker quirk（テスト自体は存在する）
+  - SC規則テスト追加時はcutEliminationBridge.test.ts (decode) と workspaceBridge.test.ts (display label) の2箇所をセットで確認
+---
