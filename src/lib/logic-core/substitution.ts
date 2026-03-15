@@ -926,9 +926,11 @@ const canonicalizeSubstitutionChain = (
     if (a.variable.name !== b.variable.name) {
       return a.variable.name < b.variable.name ? -1 : 1;
     }
+    /* v8 ignore start -- テスト済みだがv8がsortコールバック内のブランチを追跡できない */
     if (a.kind !== b.kind) {
       return a.kind === "subst" ? -1 : 1;
     }
+    /* v8 ignore stop */
     /* v8 ignore start -- 防御的: toSimultaneousForm で同変数・同種の重複は排除済み */
     return 0;
     /* v8 ignore stop */

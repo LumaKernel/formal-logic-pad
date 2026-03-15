@@ -1113,7 +1113,7 @@ describe("matchExDef", () => {
       expectMatchErr(matchExDef(predicate("P", [x])));
     });
 
-    it("量化変数が異なるとマッチしない", () => {
+    it("正方向: 量化変数が異なるとマッチしない", () => {
       const f = implication(
         existential(x, predicate("P", [x])),
         negation(universal(y, negation(predicate("P", [y])))),
@@ -1121,10 +1121,26 @@ describe("matchExDef", () => {
       expectMatchErr(matchExDef(f));
     });
 
-    it("本体が異なるとマッチしない", () => {
+    it("正方向: 本体が異なるとマッチしない", () => {
       const f = implication(
         existential(x, predicate("P", [x])),
         negation(universal(x, negation(predicate("Q", [x])))),
+      );
+      expectMatchErr(matchExDef(f));
+    });
+
+    it("逆方向: 量化変数が異なるとマッチしない", () => {
+      const f = implication(
+        negation(universal(x, negation(predicate("P", [x])))),
+        existential(y, predicate("P", [y])),
+      );
+      expectMatchErr(matchExDef(f));
+    });
+
+    it("逆方向: 本体が異なるとマッチしない", () => {
+      const f = implication(
+        negation(universal(x, negation(predicate("P", [x])))),
+        existential(x, predicate("Q", [x])),
       );
       expectMatchErr(matchExDef(f));
     });
@@ -1467,6 +1483,28 @@ describe("identifyAxiom", () => {
   it("should not identify E1 when equality logic disabled", () => {
     const result = identifyAxiom(axiomE1Template, predicateLogicSystem);
     expect(result._tag).toBe("Error");
+  });
+
+  it("should identify E4 instance (function congruence) when equality logic enabled", () => {
+    // ∀x.∀y. x = y → S(x) = S(y)
+    const e4Instance = universal(
+      x,
+      universal(
+        y,
+        implication(
+          equality(x, y),
+          equality(
+            functionApplication("S", [x]),
+            functionApplication("S", [y]),
+          ),
+        ),
+      ),
+    );
+    const result = identifyAxiom(e4Instance, equalityLogicSystem);
+    expect(result._tag).toBe("Ok");
+    if (result._tag === "Ok") {
+      expect(result.axiomId).toBe("E4");
+    }
   });
 
   it("should return Error for non-axiom formula", () => {

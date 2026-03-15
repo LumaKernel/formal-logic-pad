@@ -1165,12 +1165,14 @@ const getPropositionalAxiomTemplates = (
   if (axiomId === "DNE") return [axiomDNETemplate];
   if (axiomId === "CONJ-DEF")
     return [axiomConjDefForwardTemplate, axiomConjDefBackwardTemplate];
-  if (axiomId === "DISJ-DEF")
-    return [axiomDisjDefForwardTemplate, axiomDisjDefBackwardTemplate];
-  /* v8 ignore start */
-  axiomId satisfies never;
-  return [axiomA1Template];
+  // DISJ-DEF: if-chain の最後のケースを fall-through にして v8 ブランチ追跡問題を回避
+  /* v8 ignore start -- 防御的: 上の if-chain で他の全 axiomId を処理済み */
+  if (axiomId !== "DISJ-DEF") {
+    axiomId satisfies never;
+    return [axiomA1Template];
+  }
   /* v8 ignore stop */
+  return [axiomDisjDefForwardTemplate, axiomDisjDefBackwardTemplate];
 };
 
 /**

@@ -1107,6 +1107,18 @@ describe("dependencyLogic", () => {
       expect(result).toEqual(new Set());
     });
 
+    it("共通前提ノードへの複数パスで重複訪問をスキップする", () => {
+      // axiom-1 → [subst] → s1
+      // axiom-1, s1 → [mp] → mp-1
+      // axiom-1 は mp-1 から直接参照 + s1 経由の2パスで到達可能
+      const edges: readonly InferenceEdge[] = [
+        makeSubstEdge("s1", "axiom-1"),
+        makeMPEdge("mp-1", "axiom-1", "s1"),
+      ];
+      const result = getNodeInferenceRuleIds("mp-1", edges);
+      expect(result).toEqual(new Set(["mp", "substitution"]));
+    });
+
     it("深いチェーンで全規則を収集する", () => {
       // axiom-1 → [subst] → s1
       // s1, axiom-2 → [mp] → mp-1
