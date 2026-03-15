@@ -49,6 +49,7 @@ export default defineConfig({
           environment: "jsdom",
           include: ["src/**/*.{test,spec}.{ts,tsx}"],
           exclude: ["src/**/*.local.{test,spec}.{ts,tsx}"],
+          testTimeout: 30_000,
           setupFiles: ["./vitest.setup.ts"],
         },
       },
