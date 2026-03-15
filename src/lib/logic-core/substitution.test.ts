@@ -419,6 +419,21 @@ describe("substituteTermMetaVariablesInFormula", () => {
       equalFormula(result, formulaSubstitution(phi, fx0, termVariable("y"))),
     ).toBe(true);
   });
+
+  test("FreeVariableAbsence: recurses into body, variable unchanged", () => {
+    // P(τ)[/x] with {τ ↦ f(x,0)} → P(f(x,0))[/x]
+    const fva = freeVariableAbsence(
+      predicate("P", [tau]),
+      termVariable("x"),
+    );
+    const result = substituteTermMetaVariablesInFormula(fva, subst);
+    expect(
+      equalFormula(
+        result,
+        freeVariableAbsence(predicate("P", [fx0]), termVariable("x")),
+      ),
+    ).toBe(true);
+  });
 });
 
 // ── 3. 代入可能性チェック (isFreeFor) ──────────────────────────
