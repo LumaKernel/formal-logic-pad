@@ -121,6 +121,17 @@ describe("formulaHighlight", () => {
           termVariable("y"),
         ),
       ],
+      [
+        "自由変数不在(括弧あり) (¬φ)[/x]",
+        freeVariableAbsence(negation(metaVariable("φ")), termVariable("x")),
+      ],
+      [
+        "自由変数不在(含意括弧あり) (φ → ψ)[/x]",
+        freeVariableAbsence(
+          implication(metaVariable("φ"), metaVariable("ψ")),
+          termVariable("x"),
+        ),
+      ],
     ] as const)("%s: tokensToText === formatFormula", (_name, formula) => {
       const tokens = tokenizeFormula(formula);
       expect(tokensToText(tokens)).toBe(formatFormula(formula));

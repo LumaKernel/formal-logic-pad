@@ -607,6 +607,27 @@ describe("isFreeFor", () => {
     );
     expect(isFreeFor(termVariable("y"), termVariable("x"), fs)).toBe(true);
   });
+
+  test("FreeVariableAbsence: delegates to inner formula", () => {
+    // P(x)[/y] with [a/x] → isFreeFor checks the inner P(x)
+    const fva = freeVariableAbsence(
+      predicate("P", [termVariable("x")]),
+      termVariable("y"),
+    );
+    expect(isFreeFor(termVariable("a"), termVariable("x"), fva)).toBe(true);
+  });
+
+  test("FreeVariableAbsence: bound variable in inner formula blocks substitution", () => {
+    // (∀y.P(x,y))[/z] with [y/x] → y is captured by ∀y in inner formula
+    const fva = freeVariableAbsence(
+      universal(
+        termVariable("y"),
+        predicate("P", [termVariable("x"), termVariable("y")]),
+      ),
+      termVariable("z"),
+    );
+    expect(isFreeFor(termVariable("y"), termVariable("x"), fva)).toBe(false);
+  });
 });
 
 // ── 4. 項変数代入（項内） ──────────────────────────────────────
@@ -869,6 +890,17 @@ describe("substituteTermVariableInFormula", () => {
         ),
       ),
     ).toBe(true);
+  });
+
+  test("FreeVariableAbsence: substitutes in inner formula, preserves wrapper", () => {
+    // P(x)[/y] with [z/x] → P(z)[/y]
+    const fva = freeVariableAbsence(predicate("P", [x]), y);
+    const result = substituteTermVariableInFormula(fva, x, z);
+    expect(result._tag).toBe("FreeVariableAbsence");
+    if (result._tag === "FreeVariableAbsence") {
+      expect(equalFormula(result.formula, predicate("P", [z]))).toBe(true);
+      expect(result.variable.name).toBe("y");
+    }
   });
 
   test("FormulaSubstitution: y != x, capture → α-conversion", () => {
@@ -1288,6 +1320,20 @@ describe("resolveFormulaSubstitution", () => {
     const f = formulaSubstitution(phi, a, x);
     const result = resolveFormulaSubstitution(f);
     expect(equalFormula(result, phi)).toBe(true);
+  });
+
+  test("FreeVariableAbsence: 内部のFormulaSubstitutionを解決しつつラッパーを保持", () => {
+    // (P(x)[a/x])[/y] → P(a)[/y]
+    const fva = freeVariableAbsence(
+      formulaSubstitution(predicate("P", [x]), a, x),
+      y,
+    );
+    const result = resolveFormulaSubstitution(fva);
+    expect(result._tag).toBe("FreeVariableAbsence");
+    if (result._tag === "FreeVariableAbsence") {
+      expect(equalFormula(result.formula, predicate("P", [a]))).toBe(true);
+      expect(result.variable.name).toBe("y");
+    }
   });
 });
 

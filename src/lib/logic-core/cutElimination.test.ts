@@ -49,6 +49,8 @@ import {
   scUniversalLeft,
   scExistentialRight,
   scBottomLeft,
+  scNegationLeft,
+  scNegationRight,
   getScConclusion,
 } from "./sequentCalculus";
 
@@ -279,6 +281,12 @@ describe("getScChildren", () => {
     ).toHaveLength(1);
     expect(
       getScChildren(scWeakeningRight(premise, psi, sequent([phi], [phi, psi]))),
+    ).toHaveLength(1);
+    expect(
+      getScChildren(scNegationLeft(premise, sequent([notPhi], [phi]))),
+    ).toHaveLength(1);
+    expect(
+      getScChildren(scNegationRight(premise, sequent([phi], [notPhi]))),
     ).toHaveLength(1);
   });
 

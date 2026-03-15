@@ -414,7 +414,9 @@ export const createScriptRunner = (
             : interpreter.pseudoToNative(rawValue);
         result.push({ name, value });
       } catch {
+        /* v8 ignore start -- 防御的: pseudoToNative が例外を投げるケース（循環参照等）は再現困難 */
         result.push({ name, value: "[unreadable]" });
+        /* v8 ignore stop */
       }
     }
     return result;

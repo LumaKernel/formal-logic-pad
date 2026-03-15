@@ -12,6 +12,7 @@ import {
   predicate,
   equality,
   formulaSubstitution,
+  freeVariableAbsence,
   termVariable,
   termMetaVariable,
   constant,
@@ -841,6 +842,28 @@ describe("unifyTerms", () => {
       const mv = metaVariable("φ");
       const source = mv;
       const target = formulaSubstitution(mv, termMetaVariable("τ"), x);
+      const result = unifyFormulas(source, target);
+      expectError(result);
+    });
+  });
+
+  describe("FreeVariableAbsence", () => {
+    it("同一構造のFreeVariableAbsenceをユニファイできる", () => {
+      const x = termVariable("x");
+      const source = freeVariableAbsence(metaVariable("φ"), x);
+      const target = freeVariableAbsence(
+        predicate("P", [termVariable("y")]),
+        x,
+      );
+      const result = unifyFormulas(source, target);
+      verifyFormulaUnification(result, source, target);
+    });
+
+    it("異なる変数のFreeVariableAbsenceはユニファイ失敗", () => {
+      const x = termVariable("x");
+      const y = termVariable("y");
+      const source = freeVariableAbsence(metaVariable("φ"), x);
+      const target = freeVariableAbsence(metaVariable("ψ"), y);
       const result = unifyFormulas(source, target);
       expectError(result);
     });

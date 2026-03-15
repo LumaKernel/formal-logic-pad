@@ -77,6 +77,7 @@ import {
   predicate,
   equality,
   formulaSubstitution,
+  freeVariableAbsence,
 } from "./formula";
 import {
   termVariable,
@@ -560,6 +561,20 @@ describe("matchAxiomA4", () => {
     const tauSub = ok.termSubstitution.get(termMetaVariableKey(tauTmv));
     expect(tauSub).toBeDefined();
     expect(tauSub?._tag).toBe("TermVariable");
+  });
+
+  it("should match A4 with FreeVariableAbsence in body: ∀x.(P(x)[/y]) → P(a)[/y]", () => {
+    // Body: P(x)[/y], Conclusion: P(a)[/y]
+    // inferTermReplacement traverses FreeVariableAbsence to match x→a
+    const instance = implication(
+      universal(
+        x,
+        freeVariableAbsence(predicate("P", [x]), y),
+      ),
+      freeVariableAbsence(predicate("P", [a]), y),
+    );
+    const result = matchAxiomA4(instance);
+    expectMatchOk(result);
   });
 });
 
@@ -2101,6 +2116,22 @@ describe("matchFormulaPattern", () => {
       const candidate = formulaSubstitution(psi, tau, y);
       const result = matchFormulaPattern(template, candidate);
       // variable x ≠ y
+      expect(result).toBeUndefined();
+    });
+
+    it("should match FreeVariableAbsence with same structure", () => {
+      // Template: φ[/x], Candidate: P(y)[/x]
+      const template = freeVariableAbsence(phi, x);
+      const candidate = freeVariableAbsence(predicate("P", [y]), x);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).toBeDefined();
+    });
+
+    it("should reject FreeVariableAbsence with different variable", () => {
+      // Template: φ[/x], Candidate: P(y)[/y]
+      const template = freeVariableAbsence(phi, x);
+      const candidate = freeVariableAbsence(predicate("P", [y]), y);
+      const result = matchFormulaPattern(template, candidate);
       expect(result).toBeUndefined();
     });
   });

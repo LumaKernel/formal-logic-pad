@@ -792,6 +792,14 @@ describe("Parser", () => {
         implication(freeVariableAbsence(φ, termVariable("x")), ψ),
       );
     });
+
+    it("free variable absence with meta-variable as variable name", () => {
+      const φ = metaVariable("φ");
+      assertFormula(
+        "φ[/τ]",
+        freeVariableAbsence(φ, termVariable("τ")),
+      );
+    });
   });
 
   // --- エラーケース ---
@@ -882,6 +890,13 @@ describe("Parser", () => {
     it("substitution missing variable after slash", () => {
       const errors = parseErr("φ[τ/]");
       expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("free variable absence with invalid token after slash", () => {
+      // φ[/→] → variable expected after '/'
+      const errors = parseErr("φ[/→]");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors[0]!.message).toContain("variable");
     });
 
     it("substitution missing slash", () => {

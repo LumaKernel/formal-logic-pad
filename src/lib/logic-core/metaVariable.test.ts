@@ -27,6 +27,7 @@ import {
   predicate,
   equality,
   formulaSubstitution,
+  freeVariableAbsence,
 } from "./formula";
 import {
   termVariable,
@@ -327,6 +328,23 @@ describe("collectFormulaMetaVariables", () => {
     expect(result[1].name).toBe("ψ");
   });
 
+  it("collects from FreeVariableAbsence", () => {
+    // φ[/x] → collects φ from the formula part
+    const fva = freeVariableAbsence(metaVariable("φ"), termVariable("x"));
+    const result = collectFormulaMetaVariables(fva);
+    expect(result).toHaveLength(1);
+    expect(result[0].name).toBe("φ");
+  });
+
+  it("returns empty for FreeVariableAbsence with no MetaVariables", () => {
+    const fva = freeVariableAbsence(
+      predicate("P", [termVariable("x")]),
+      termVariable("x"),
+    );
+    const result = collectFormulaMetaVariables(fva);
+    expect(result).toHaveLength(0);
+  });
+
   it("returns empty for FormulaSubstitution with no MetaVariables in formula", () => {
     // P(x)[y/x] → no MetaVariables
     const fs = formulaSubstitution(
@@ -476,6 +494,26 @@ describe("collectTermMetaVariablesInFormula", () => {
       termVariable("x"),
     );
     const result = collectTermMetaVariablesInFormula(fs);
+    expect(result).toHaveLength(0);
+  });
+
+  it("collects from FreeVariableAbsence (formula part only)", () => {
+    // P(τ)[/x] → collects τ from the formula part
+    const fva = freeVariableAbsence(
+      predicate("P", [termMetaVariable("τ")]),
+      termVariable("x"),
+    );
+    const result = collectTermMetaVariablesInFormula(fva);
+    expect(result).toHaveLength(1);
+    expect(result[0].name).toBe("τ");
+  });
+
+  it("returns empty for FreeVariableAbsence with no TermMetaVariables", () => {
+    const fva = freeVariableAbsence(
+      predicate("P", [termVariable("x")]),
+      termVariable("x"),
+    );
+    const result = collectTermMetaVariablesInFormula(fva);
     expect(result).toHaveLength(0);
   });
 
