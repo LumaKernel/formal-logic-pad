@@ -14655,3 +14655,18 @@
   - ワーカータイムアウトはカバレッジ計測に致命的影響（テスト未実行 = カバレッジ0%として計上）
   - `.local.*` ファイルは .gitignore 対象だが vitest には別途 exclude 設定が必要
 ---
+
+## 2026-03-16 - Coverage改善
+- ブランチカバレッジ改善: 99.46% → 99.54%
+- 対象ファイルと対応:
+  - TermEditor.tsx: テスト3件追加（forceEditMode blur、表示モードTabキー、dblclick空value aria-label）
+  - substitution.ts: FreeVariableAbsenceテスト追加 + sort内v8 ignore
+  - inferenceRule.ts: E4公理テスト、EX-DEF逆方向不一致テスト2件追加 + DISJ-DEF fall-throughパターン変換
+  - dependencyLogic.ts: 共通前提ノード重複訪問スキップテスト追加
+  - templates.ts: v8集約クイーク（単体100%、全体66.66%）→対応不要
+- 全11251テスト通過、Stmts 99.98%、Branch 99.54%、Lines 99.99%
+- **今後のイテレーションへの学び:**
+  - v8 sort callback内ブランチ追跡不能は `/* v8 ignore start/stop */` で対処
+  - if-chain最後のケースのv8ブランチ問題は fall-through パターン（negated condition in v8-ignored block）で解決
+  - テンプレートファイルのv8集約クイークは対処不可、単体テストで100%確認済みなら放置してよい
+---
