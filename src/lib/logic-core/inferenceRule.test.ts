@@ -567,10 +567,7 @@ describe("matchAxiomA4", () => {
     // Body: P(x)[/y], Conclusion: P(a)[/y]
     // inferTermReplacement traverses FreeVariableAbsence to match x→a
     const instance = implication(
-      universal(
-        x,
-        freeVariableAbsence(predicate("P", [x]), y),
-      ),
+      universal(x, freeVariableAbsence(predicate("P", [x]), y)),
       freeVariableAbsence(predicate("P", [a]), y),
     );
     const result = matchAxiomA4(instance);

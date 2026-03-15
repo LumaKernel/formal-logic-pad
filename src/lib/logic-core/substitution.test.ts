@@ -422,10 +422,7 @@ describe("substituteTermMetaVariablesInFormula", () => {
 
   test("FreeVariableAbsence: recurses into body, variable unchanged", () => {
     // P(τ)[/x] with {τ ↦ f(x,0)} → P(f(x,0))[/x]
-    const fva = freeVariableAbsence(
-      predicate("P", [tau]),
-      termVariable("x"),
-    );
+    const fva = freeVariableAbsence(predicate("P", [tau]), termVariable("x"));
     const result = substituteTermMetaVariablesInFormula(fva, subst);
     expect(
       equalFormula(

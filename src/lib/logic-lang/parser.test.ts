@@ -795,10 +795,7 @@ describe("Parser", () => {
 
     it("free variable absence with meta-variable as variable name", () => {
       const φ = metaVariable("φ");
-      assertFormula(
-        "φ[/τ]",
-        freeVariableAbsence(φ, termVariable("τ")),
-      );
+      assertFormula("φ[/τ]", freeVariableAbsence(φ, termVariable("τ")));
     });
   });
 
