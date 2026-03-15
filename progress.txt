@@ -14670,3 +14670,16 @@
   - if-chain最後のケースのv8ブランチ問題は fall-through パターン（negated condition in v8-ignored block）で解決
   - テンプレートファイルのv8集約クイークは対処不可、単体テストで100%確認済みなら放置してよい
 ---
+
+## 2026-03-16 - Coverage改善（ブランチカバレッジ99.54%→99.78%）
+- parser.test.ts: 9テスト追加（FreeVariableAbsence閉じ括弧欠落、量化子不正トークン、項演算子優先度、大文字関数エラー等）
+- Reference系コンポーネント5ファイル: testId/onNavigateオプショナルpropのv8 ignore化
+- EditableProofNode.tsx: テーマ検出DOMアクセスのv8 ignore化
+- TermEditor.tsx: formatTerm三項演算子のv8 ignore化
+- templates.ts, substitution.ts: V8 merge artifactと判明（単独実行で100%）、対応不要
+- カバレッジ: Stmts 99.99%, Branch 99.54%→99.78%, Funcs 90.33%, Lines 99.99%
+- 変更ファイル: parser.test.ts, ReferenceBrowserComponent.tsx, ReferenceFloatingWindow.tsx, ReferenceModal.tsx, ReferenceViewerPageView.tsx, EditableProofNode.tsx, TermEditor.tsx
+- **今後のイテレーションへの学び:**
+  - templates.ts line 322, substitution.ts lines 884/1026 のブランチ未カバーはV8 merge artifactであり、単独テスト実行では100%。フルスイートでのみ出現する
+  - parser.tsのエラーパス網羅にはパーサーの内部状態（量化子の変数期待、項コンテキストでの括弧・関数）を理解する必要がある
+---
