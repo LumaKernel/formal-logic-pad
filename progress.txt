@@ -14700,3 +14700,15 @@
   - templates.ts line 322, substitution.ts lines 884/1026 のブランチ未カバーはV8 merge artifactであり、単独テスト実行では100%。フルスイートでのみ出現する
   - parser.tsのエラーパス網羅にはパーサーの内部状態（量化子の変数期待、項コンテキストでの括弧・関数）を理解する必要がある
 ---
+
+## 2026-03-16 - Coverage ブランチカバレッジ100%達成
+- V8カバレッジマージquirkによるphantom uncoveredブランチに v8 ignore を適用
+  - substitution.ts lines 884, 1026
+  - dependencyLogic.ts line 411
+  - templates.ts line 322
+- カバレッジ: Stmts 100%, Branch 99.89% → 100%, Funcs 90.31%, Lines 100%
+- 全275テストファイル、11268テスト通過
+- **今後のイテレーションへの学び:**
+  - V8カバレッジマージquirkは3ファイルに残っていた。すべて単独実行で100%を確認後にv8 ignoreで対処
+  - OR条件(`||`)の短絡評価やfindIndexコールバック内の`&&`がマージquirkの対象になりやすい
+---
