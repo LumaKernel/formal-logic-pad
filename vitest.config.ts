@@ -39,6 +39,8 @@ export default defineConfig({
       ],
       reporter: ["text", "html", "lcov"],
     },
+    pool: "forks",
+    maxWorkers: 2,
     projects: [
       {
         extends: true,
@@ -46,6 +48,7 @@ export default defineConfig({
           name: "unit",
           environment: "jsdom",
           include: ["src/**/*.{test,spec}.{ts,tsx}"],
+          exclude: ["src/**/*.local.{test,spec}.{ts,tsx}"],
           setupFiles: ["./vitest.setup.ts"],
         },
       },
