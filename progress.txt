@@ -14643,3 +14643,15 @@
   - dependencyLogic.ts の getInstanceRootNodeIds/hasInstanceRoots 未カバーブランチはV8 fork worker quirk（テスト自体は存在する）
   - SC規則テスト追加時はcutEliminationBridge.test.ts (decode) と workspaceBridge.test.ts (display label) の2箇所をセットで確認
 ---
+
+## 2026-03-16 - Vitest 4 pool設定修正
+- vitest.config.ts の `poolOptions`（Vitest 4 で非推奨）を `maxWorkers` に移行
+- `.local.` テストファイルを unit テストから除外
+- **結果:** 14件のワーカータイムアウトが解消。テスト 262 → 275 passed, 9337 → 11243 tests
+- **カバレッジ:** Stmts 98.6% → 99.98%, Branch 96.65% → 99.46%, Lines 98.43% → 99.99%
+- 変更ファイル: vitest.config.ts
+- **今後のイテレーションへの学び:**
+  - Vitest 4 では `poolOptions.forks.maxForks` → `maxWorkers`（トップレベル）に移行が必要
+  - ワーカータイムアウトはカバレッジ計測に致命的影響（テスト未実行 = カバレッジ0%として計上）
+  - `.local.*` ファイルは .gitignore 対象だが vitest には別途 exclude 設定が必要
+---
