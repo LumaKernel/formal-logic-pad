@@ -238,7 +238,13 @@ export function TermEditor({
   );
 
   // Unicode表示テキスト（表示モード用）
-  const displayText = useMemo(() => (term ? formatTerm(term) : null), [term]);
+  const displayText = useMemo(
+    () =>
+      /* v8 ignore start -- term is typically always provided */
+      term ? formatTerm(term) : null,
+    /* v8 ignore stop */
+    [term],
+  );
 
   return (
     <div

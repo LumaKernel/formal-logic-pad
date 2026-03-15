@@ -957,6 +957,55 @@ describe("Parser", () => {
       expect(errors.length).toBeGreaterThanOrEqual(1);
     });
 
+    it("free variable absence missing closing bracket", () => {
+      // "φ[/x" → [/x の後に ] がない
+      const errors = parseErr("φ[/x");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors[0]!.message).toContain("]");
+    });
+
+    it("upper-ident function with invalid args in term context", () => {
+      // "S(→) = x" → S( の後に → は項としてパース不可 (term-only parser)
+      const errors = parseErr("S(→) = x");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("upper-ident function missing RPAREN in term context", () => {
+      // "S(x = y" → S( の後に項リスト [x] 成功するがRPAREN前に = が来る (term-only parser)
+      const errors = parseErr("S(x = y");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("quantifier with non-variable token (forall)", () => {
+      const errors = parseErr("∀→.P(x)");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors[0]!.message).toContain("∀");
+    });
+
+    it("quantifier with non-variable token (exists)", () => {
+      const errors = parseErr("∃→.P(x)");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors[0]!.message).toContain("∃");
+    });
+
+    it("nested quantifier with same variable restores bound state", () => {
+      // "∀x.∀x.P(x)" → 内側の ∀x で wasBound=true のため復元不要
+      const result = parseString("∀x.∀x.P(x)");
+      expect(Either.isRight(result)).toBe(true);
+    });
+
+    it("term binary operator with invalid RHS in formula context", () => {
+      // "x + → y = z" → x + の後に → は項パース不可 (formula-context term parser)
+      const errors = parseErr("x + → y = z");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("parenthesized term with invalid inner in formula context", () => {
+      // "(→) = x" → 括弧内に → は項パース不可 (formula-context term parser)
+      const errors = parseErr("(→) = x");
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+    });
+
     it("substitution with invalid term (empty brackets)", () => {
       // "φ[]" → 置換項が空でtermパース失敗
       const errors = parseErr("φ[]");
@@ -1119,6 +1168,18 @@ describe("parseTermString", () => {
       );
     });
 
+    it("低優先度演算子で上位再帰を終了する", () => {
+      // x * y + z → (x * y) + z — parseTerm(4) が + (leftBP=1 < 4) で break
+      assertTermParses(
+        "x * y + z",
+        binaryOperation(
+          "+",
+          binaryOperation("*", termVariable("x"), termVariable("y")),
+          termVariable("z"),
+        ),
+      );
+    });
+
     it("括弧で優先順位を変更する", () => {
       // (x + y) * z
       assertTermParses(
@@ -1235,6 +1296,22 @@ describe("parseTermString", () => {
       expect(Either.isRight(result)).toBe(true);
       if (Either.isRight(result)) {
         expect(equalTerm(result.right, constant("N"))).toBe(true);
+      }
+    });
+
+    it("大文字関数の引数が不正なトークンだとエラーを返す", () => {
+      const result = parseTermString("S(→)");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left.length).toBeGreaterThan(0);
+      }
+    });
+
+    it("大文字関数の閉じ括弧なしでエラーを返す", () => {
+      const result = parseTermString("S(x");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left.length).toBeGreaterThan(0);
       }
     });
 

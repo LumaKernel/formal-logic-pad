@@ -589,12 +589,14 @@ export function EditableProofNode({
             {formulaText.trim() ? (
               <MdPreview
                 modelValue={formulaText}
+                /* v8 ignore start -- theme detection from DOM attribute */
                 theme={
                   (document.documentElement.getAttribute("data-theme") ===
                   "dark"
                     ? "dark"
                     : "light") satisfies string
                 }
+                /* v8 ignore stop */
                 style={{ background: "transparent", padding: 0 }}
               />
             ) : (

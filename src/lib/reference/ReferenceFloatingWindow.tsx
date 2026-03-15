@@ -255,8 +255,10 @@ export function ReferenceFloatingWindow({
 }: ReferenceFloatingWindowProps) {
   const [rect, setRect] = useState<WindowRect>(() =>
     computeInitialRect({
+      /* v8 ignore start -- SSR safety: window is always defined in test/browser */
       width: typeof window !== "undefined" ? window.innerWidth : 1024,
       height: typeof window !== "undefined" ? window.innerHeight : 768,
+      /* v8 ignore stop */
     }),
   );
   const dragRef = useRef<DragStartInfo | null>(null);
