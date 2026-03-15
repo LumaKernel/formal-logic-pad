@@ -402,7 +402,9 @@ export const createScriptRunner = (
 
   const getScope = (): readonly ScopeVariable[] => {
     const props = interpreter.globalObject.properties;
+    /* v8 ignore start -- 防御的: JS-Interpreterは常にpropertiesを持つ */
     if (props === undefined) return [];
+    /* v8 ignore stop */
     const result: ScopeVariable[] = [];
     for (const name of Object.getOwnPropertyNames(props)) {
       if (JS_INTERPRETER_BUILTINS.has(name) || bridgeNames.has(name)) continue;

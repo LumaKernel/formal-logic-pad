@@ -26,6 +26,8 @@ import {
   scUniversalRight,
   scExistentialLeft,
   scExistentialRight,
+  scNegationLeft,
+  scNegationRight,
   scBottomLeft,
 } from "../logic-core/sequentCalculus";
 import type { ScProofNode } from "../logic-core/sequentCalculus";
@@ -165,6 +167,16 @@ describe("encodeScProofNode / decodeScProofNode", () => {
   it("ScExistentialRight のラウンドトリップ", () => {
     const premise = scIdentity(sequent([phi], [phi]));
     roundTrip(scExistentialRight(premise, sequent([phi], [phi])));
+  });
+
+  it("ScNegationLeft のラウンドトリップ", () => {
+    const premise = scIdentity(sequent([phi], [phi]));
+    roundTrip(scNegationLeft(premise, sequent([phi], [phi])));
+  });
+
+  it("ScNegationRight のラウンドトリップ", () => {
+    const premise = scIdentity(sequent([phi], [phi]));
+    roundTrip(scNegationRight(premise, sequent([phi], [phi])));
   });
 });
 

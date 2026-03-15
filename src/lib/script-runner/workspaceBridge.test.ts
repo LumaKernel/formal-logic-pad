@@ -549,6 +549,33 @@ displayScProof(exR);
     expect(calls[2][0]).toContain("[∃R]");
   });
 
+  it("ScNegationLeft/Right 表示", () => {
+    const handler = createMockHandler();
+    const code = `
+var phi = { _tag: "MetaVariable", name: "φ" };
+var idPhi = {
+  _tag: "ScIdentity",
+  conclusion: { antecedents: [phi], succedents: [phi] }
+};
+var negL = {
+  _tag: "ScNegationLeft",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  premise: idPhi
+};
+var negR = {
+  _tag: "ScNegationRight",
+  conclusion: { antecedents: [phi], succedents: [phi] },
+  premise: negL
+};
+displayScProof(negR);
+`;
+    runCode(code, handler);
+    const calls = (handler.addNode as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls[0][0]).toContain("[ID]");
+    expect(calls[1][0]).toContain("[¬L]");
+    expect(calls[2][0]).toContain("[¬R]");
+  });
+
   it("不正な証明JSONでエラー", () => {
     const handler = createMockHandler();
     const msg = runCodeError(`displayScProof({ _tag: "Invalid" })`, handler);
