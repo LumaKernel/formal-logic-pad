@@ -490,3 +490,53 @@ describe("TermEditor - testIdなし", () => {
     expect(document.querySelector("input")).toBeInTheDocument();
   });
 });
+
+// --- forceEditMode中の編集モード維持 ---
+
+describe("TermEditor - forceEditMode中のexit防止", () => {
+  it("forceEditModeがtrue時にblurしても編集モードに留まる", async () => {
+    render(
+      <EditorWrapper initialValue="x" forceEditMode={true} testId="editor" />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    });
+
+    const input = screen.getByTestId("editor-input-input");
+    fireEvent.blur(input);
+
+    // forceEditMode のため編集モードに留まる
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+    });
+  });
+});
+
+// --- 非Enter/Spaceキーの表示モードkeyDown ---
+
+describe("TermEditor - 表示モードの無関係キー", () => {
+  it("Tabキーで編集モードに入らない", () => {
+    render(<EditorWrapper initialValue="x" />);
+
+    const display = screen.getByTestId("editor-display");
+    fireEvent.keyDown(display, { key: "Tab" });
+
+    expect(screen.getByTestId("editor-display")).toBeInTheDocument();
+  });
+});
+
+// --- dblclick + 空value の aria-label ---
+
+describe("TermEditor - dblclick空valueのaria-label", () => {
+  it('editTrigger="dblclick"+空valueでaria-labelが「ダブルクリックして項を入力」', () => {
+    render(
+      <EditorWrapper initialValue="" editTrigger="dblclick" testId="editor" />,
+    );
+
+    const display = screen.getByTestId("editor-display");
+    expect(display.getAttribute("aria-label")).toContain(
+      "ダブルクリックして項を入力",
+    );
+  });
+});

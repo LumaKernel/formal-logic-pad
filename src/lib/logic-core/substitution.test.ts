@@ -228,6 +228,19 @@ describe("substituteFormulaMetaVariables", () => {
       equalFormula(result, formulaSubstitution(psi, tau1, termVariable("x"))),
     ).toBe(true);
   });
+
+  test("FreeVariableAbsence: substitutes in inner formula, preserves absence wrapper", () => {
+    // φ[/x] with {φ ↦ P(x)} → P(x)[/x]
+    const x = termVariable("x");
+    const fa = freeVariableAbsence(phi, x);
+    const subst = buildFormulaSubstitutionMap([[phi, px]]);
+    const result = substituteFormulaMetaVariables(fa, subst);
+    expect(result._tag).toBe("FreeVariableAbsence");
+    if (result._tag === "FreeVariableAbsence") {
+      expect(equalFormula(result.formula, px)).toBe(true);
+      expect(equalTerm(result.variable, x)).toBe(true);
+    }
+  });
 });
 
 // ── 2. 項メタ変数代入 ──────────────────────────────────────────
