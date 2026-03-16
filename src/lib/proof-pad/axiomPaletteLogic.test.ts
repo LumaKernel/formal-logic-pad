@@ -180,7 +180,7 @@ describe("axiomPalette", () => {
     it("A4 shows schematic unicode display", () => {
       const items = getAvailableAxioms(predicateLogicSystem);
       const a4 = items.find((i) => i.id === "A4");
-      expect(a4?.unicodeDisplay).toBe("(∀x.φ) → φ");
+      expect(a4?.unicodeDisplay).toBe("(∀x.φ) → φ[τ/x]");
     });
 
     it("A5 shows schematic unicode display", () => {

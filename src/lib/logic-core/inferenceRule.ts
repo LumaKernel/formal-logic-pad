@@ -21,6 +21,7 @@ import {
   conjunction,
   disjunction,
   equality,
+  formulaSubstitution,
 } from "./formula";
 import {
   type Term,
@@ -214,11 +215,15 @@ export const axiomE3Template: Formula = universal(
 );
 
 /**
- * A4: 全称例化 (∀x.φ) → φ
- * 実際のA4は (∀x.φ) → φ[t/x] だが、テンプレートは代入前のスキーマ形式。
- * 具体化（φ[t/x]の生成）は代入操作ノードで行う。
+ * A4: 全称例化 (∀x.φ) → φ[τ/x]
+ * テンプレートに FormulaSubstitution を含み、項メタ変数 τ で具体化する。
+ * 代入操作ノードで φ, τ の両方を指定して具体的なインスタンスを生成する。
  */
-export const axiomA4Template: Formula = implication(universal(xVar, phi), phi);
+const tauVar = termMetaVariable("τ");
+export const axiomA4Template: Formula = implication(
+  universal(xVar, phi),
+  formulaSubstitution(phi, tauVar, xVar),
+);
 
 /**
  * A5: 全称分配 (∀x.(φ → ψ)) → (φ → ∀x.ψ)

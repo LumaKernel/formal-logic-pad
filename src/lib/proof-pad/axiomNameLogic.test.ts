@@ -475,13 +475,22 @@ describe("axiomNameLogic", () => {
     });
 
     describe("述語論理公理", () => {
-      it("A4スキーマ ∀x.φ → φ は Identified", () => {
+      it("A4スキーマ ∀x.φ → φ（xが自由でない場合）は Identified", () => {
+        // テンプレート表示は (∀x.φ) → φ[τ/x] だが、matchAxiomA4 は解決済みの形を受け取る。
+        // φ にはxが自由出現しないため φ[τ/x] = φ であり、(∀x.φ) → φ は A4 インスタンスとして認識される。
         const formula = parseFormula("(all x. phi) -> phi");
         const result = identifyAxiomName(formula, equalityLogicSystem);
         expect(result._tag).toBe("Identified");
         if (result._tag === "Identified") {
           expect(result.axiomId).toBe("A4");
         }
+      });
+
+      it("A4テンプレート形式 ∀x.φ → φ[τ/x]（未解決FormulaSubstitution）は NotIdentified", () => {
+        // FormulaSubstitution ノードが未解決のままの形式は matchAxiomA4 では識別されない
+        const formula = parseFormula("(all x. phi) -> phi[tau/x]");
+        const result = identifyAxiomName(formula, equalityLogicSystem);
+        expect(result._tag).toBe("NotIdentified");
       });
 
       it("A5スキーマ (∀x.(φ→ψ)) → (φ→∀x.ψ) は Identified", () => {
