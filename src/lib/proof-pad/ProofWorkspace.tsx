@@ -11,7 +11,15 @@
 
 import { Either } from "effect";
 import type { CSSProperties } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { MdEditor } from "md-editor-rt";
 import "md-editor-rt/lib/style.css";
 import type { LogicSystem } from "../logic-core/inferenceRule";
@@ -288,6 +296,14 @@ export type GoalAchievedInfo = {
   readonly stepCount: number;
 };
 
+/** ProofWorkspace の命令的ハンドル（export/import操作を親に公開） */
+export interface ProofWorkspaceRef {
+  readonly exportJSON: () => void;
+  readonly exportSVG: () => void;
+  readonly exportPNG: () => void;
+  readonly importJSON: () => void;
+}
+
 export interface ProofWorkspaceProps {
   /** 論理体系 */
   readonly system: LogicSystem;
@@ -311,8 +327,6 @@ export interface ProofWorkspaceProps {
   readonly onOpenSyntaxHelp?: () => void;
   /** クエスト情報（ゴールパネルの詳細表示に使用） */
   readonly questInfo?: GoalQuestInfo;
-  /** 自由帳として複製するコールバック（指定時にクエストモードで複製ボタンを表示） */
-  readonly onDuplicateToFree?: () => void;
   /** 証明をコレクションに保存するコールバック（指定時にコンテキストメニューに「コレクションに保存」を表示） */
   readonly onSaveProofToCollection?: (params: ProofSaveParams) => void;
   /** コレクションエントリ一覧（指定時にコレクションパネルを有効化） */
@@ -613,25 +627,6 @@ const questModeBadgeStyle = {
   border: "1px solid var(--color-warning-border, rgba(255,215,0,0.5))",
 };
 
-const paperButtonStyle = {
-  padding: "3px 8px",
-  background: "var(--color-paper-button-bg, rgba(255, 253, 248, 0.9))",
-  color: "var(--color-text-primary, #171717)",
-  border:
-    "1px solid var(--color-paper-button-border, rgba(180, 160, 130, 0.3))",
-  borderRadius: 6,
-  cursor: "pointer",
-  fontSize: 11,
-  fontFamily: "var(--font-ui)",
-  boxShadow:
-    "0 1px 2px var(--color-paper-button-shadow, rgba(120, 100, 70, 0.08))",
-};
-
-const convertToFreeButtonStyle = {
-  ...paperButtonStyle,
-  padding: "4px 10px",
-};
-
 const selectionBannerStyle = {
   ...mpSelectionBannerStyle,
   background: "var(--color-selection-banner, rgba(59,130,246,0.95))",
@@ -703,32 +698,37 @@ function WorkspaceMenuItem({
 
 // --- コンポーネント ---
 
-export function ProofWorkspace({
-  system,
-  workspace: externalWorkspace,
-  onWorkspaceChange,
-  onFormulaParsed,
-  onGoalAchieved,
-  referenceEntries,
-  locale,
-  onOpenReferenceDetail,
-  showDependencies,
-  onOpenSyntaxHelp,
-  questInfo,
-  onDuplicateToFree,
-  onSaveProofToCollection,
-  collectionEntries,
-  onRenameCollectionEntry,
-  onUpdateCollectionMemo,
-  onRemoveCollectionEntry,
-  collectionFolders,
-  onMoveCollectionEntry,
-  onCreateCollectionFolder,
-  onRemoveCollectionFolder,
-  onRenameCollectionFolder,
-  initialClipboardData,
-  testId,
-}: ProofWorkspaceProps) {
+export const ProofWorkspace = forwardRef<
+  ProofWorkspaceRef,
+  ProofWorkspaceProps
+>(function ProofWorkspace(
+  {
+    system,
+    workspace: externalWorkspace,
+    onWorkspaceChange,
+    onFormulaParsed,
+    onGoalAchieved,
+    referenceEntries,
+    locale,
+    onOpenReferenceDetail,
+    showDependencies,
+    onOpenSyntaxHelp,
+    questInfo,
+    onSaveProofToCollection,
+    collectionEntries,
+    onRenameCollectionEntry,
+    onUpdateCollectionMemo,
+    onRemoveCollectionEntry,
+    collectionFolders,
+    onMoveCollectionEntry,
+    onCreateCollectionFolder,
+    onRemoveCollectionFolder,
+    onRenameCollectionFolder,
+    initialClipboardData,
+    testId,
+  }: ProofWorkspaceProps,
+  ref,
+) {
   // i18nメッセージ
   const msg = useProofMessages();
 
@@ -922,11 +922,6 @@ export function ProofWorkspace({
 
   // ファイルインポート用の隠しinput
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // ワークスペース操作メニュー（Export/Import）
-  const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
-  const workspaceMenuRef = useRef<HTMLDivElement>(null);
-  const workspaceMenuButtonRef = useRef<HTMLButtonElement>(null);
 
   // キャンバス空白部分コンテキストメニュー
   const [canvasMenuState, setCanvasMenuState] = useState<{
@@ -2518,10 +2513,6 @@ export function ProofWorkspace({
   );
   /* v8 ignore stop */
 
-  const handleDuplicateToFree = useCallback(() => {
-    onDuplicateToFree?.();
-  }, [onDuplicateToFree]);
-
   // --- ノード選択ハンドラ ---
 
   const handleNodeSelect = useCallback(
@@ -2662,6 +2653,18 @@ export function ProofWorkspace({
     [setWorkspace],
   );
   /* v8 ignore stop */
+
+  // --- 命令的ハンドル（export/import操作を親に公開） ---
+  useImperativeHandle(
+    ref,
+    () => ({
+      exportJSON: handleExportJSON,
+      exportSVG: handleExportSVG,
+      exportPNG: handleExportPNG,
+      importJSON: handleImportJSON,
+    }),
+    [handleExportJSON, handleExportSVG, handleExportPNG, handleImportJSON],
+  );
 
   const handleCanvasClick = useCallback(() => {
     // マーキー選択直後のclickイベントはスキップ
@@ -3317,25 +3320,6 @@ export function ProofWorkspace({
     };
   }, [lineMenuState.open]);
   /* v8 ignore stop */
-
-  // ワークスペース操作メニュー外クリックで閉じる
-  useEffect(() => {
-    if (!workspaceMenuOpen) return;
-    const handleClickOutside = (e: PointerEvent) => {
-      if (
-        workspaceMenuRef.current !== null &&
-        !workspaceMenuRef.current.contains(e.target as Node) &&
-        workspaceMenuButtonRef.current !== null &&
-        !workspaceMenuButtonRef.current.contains(e.target as Node)
-      ) {
-        setWorkspaceMenuOpen(false);
-      }
-    };
-    document.addEventListener("pointerdown", handleClickOutside);
-    return () => {
-      document.removeEventListener("pointerdown", handleClickOutside);
-    };
-  }, [workspaceMenuOpen]);
 
   // --- キャンバス空白部分コンテキストメニュー ---
 
@@ -4348,22 +4332,6 @@ export function ProofWorkspace({
             >
               {msg.questBadge}
             </span>
-            {onDuplicateToFree !== undefined ? (
-              <button
-                type="button"
-                style={convertToFreeButtonStyle}
-                onClick={handleDuplicateToFree}
-                data-testid={
-                  /* v8 ignore start -- V8集約アーティファクト */
-                  testId
-                    ? `${testId satisfies string}-convert-free-button`
-                    : undefined
-                  /* v8 ignore stop */
-                }
-              >
-                {msg.duplicateToFree}
-              </button>
-            ) : null}
           </>
         ) : null}
         {isHilbertStyle ? (
@@ -4465,135 +4433,19 @@ export function ProofWorkspace({
             )}
           </>
         ) : null}
-        {/* ワークスペース操作メニュー（Export/Import） */}
-        <span
-          style={{
-            borderLeft:
-              "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
-            paddingLeft: 8,
-            marginLeft: 4,
-            display: "inline-flex",
-            alignItems: "center",
-            position: "relative",
-          }}
-        >
-          <button
-            ref={workspaceMenuButtonRef}
-            type="button"
-            style={paperButtonStyle}
-            onClick={() => setWorkspaceMenuOpen((prev) => !prev)}
-            data-testid={
-              /* v8 ignore start -- V8集約アーティファクト */
-              testId
-                ? `${testId satisfies string}-workspace-menu-button`
-                : undefined
-              /* v8 ignore stop */
-            }
-            aria-label={msg.workspaceMenuAriaLabel}
-            aria-expanded={workspaceMenuOpen}
-          >
-            ⋯
-          </button>
-          {workspaceMenuOpen ? (
-            <div
-              ref={workspaceMenuRef}
-              data-testid={
-                /* v8 ignore start -- V8集約アーティファクト */
-                testId ? `${testId satisfies string}-workspace-menu` : undefined
-                /* v8 ignore stop */
-              }
-              style={{
-                position: "absolute",
-                top: "100%",
-                right: 0,
-                marginTop: 4,
-                zIndex: 2000,
-                minWidth: 150,
-                background: "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
-                border:
-                  "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.2))",
-                borderRadius: 8,
-                boxShadow:
-                  "0 4px 16px var(--color-panel-shadow, rgba(120, 100, 70, 0.1))",
-                padding: "4px 0",
-                fontFamily: "var(--font-ui)",
-                fontSize: 13,
-                userSelect: "none",
-              }}
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <WorkspaceMenuItem
-                label={msg.exportJSON}
-                onClick={() => {
-                  handleExportJSON();
-                  setWorkspaceMenuOpen(false);
-                }}
-                testId={
-                  /* v8 ignore start -- V8集約アーティファクト */
-                  testId
-                    ? `${testId satisfies string}-export-json-button`
-                    : undefined
-                  /* v8 ignore stop */
-                }
-              />
-              <WorkspaceMenuItem
-                label={msg.exportSVG}
-                onClick={() => {
-                  handleExportSVG();
-                  setWorkspaceMenuOpen(false);
-                }}
-                testId={
-                  /* v8 ignore start -- V8集約アーティファクト */
-                  testId
-                    ? `${testId satisfies string}-export-svg-button`
-                    : undefined
-                  /* v8 ignore stop */
-                }
-              />
-              <WorkspaceMenuItem
-                label={msg.exportPNG}
-                onClick={() => {
-                  handleExportPNG();
-                  setWorkspaceMenuOpen(false);
-                }}
-                testId={
-                  /* v8 ignore start -- V8集約アーティファクト */
-                  testId
-                    ? `${testId satisfies string}-export-png-button`
-                    : undefined
-                  /* v8 ignore stop */
-                }
-              />
-              <WorkspaceMenuItem
-                label={msg.importJSON}
-                onClick={() => {
-                  handleImportJSON();
-                  setWorkspaceMenuOpen(false);
-                }}
-                testId={
-                  /* v8 ignore start -- V8集約アーティファクト */
-                  testId
-                    ? `${testId satisfies string}-import-json-button`
-                    : undefined
-                  /* v8 ignore stop */
-                }
-              />
-            </div>
-          ) : null}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-            data-testid={
-              /* v8 ignore start -- V8集約アーティファクト */
-              testId ? `${testId satisfies string}-file-input` : undefined
-              /* v8 ignore stop */
-            }
-          />
-        </span>
+        {/* ファイルインポート用の隠しinput（refからimportJSON()で利用） */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          style={{ display: "none" }}
+          onChange={handleFileChange}
+          data-testid={
+            /* v8 ignore start -- V8集約アーティファクト */
+            testId ? `${testId satisfies string}-file-input` : undefined
+            /* v8 ignore stop */
+          }
+        />
       </div>
 
       {/* MP選択バナー */}
@@ -6148,4 +6000,4 @@ export function ProofWorkspace({
       ) : null}
     </div>
   );
-}
+});

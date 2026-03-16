@@ -16,7 +16,10 @@ import {
   type CSSProperties,
 } from "react";
 import { ProofWorkspace } from "../../../lib/proof-pad";
-import type { GoalAchievedInfo } from "../../../lib/proof-pad";
+import type {
+  GoalAchievedInfo,
+  ProofWorkspaceRef,
+} from "../../../lib/proof-pad";
 import { ProofMessagesProvider } from "../../../lib/proof-pad";
 import type { ProofMessages } from "../../../lib/proof-pad";
 import type { WorkspaceState } from "../../../lib/proof-pad/workspaceState";
@@ -374,6 +377,7 @@ function WorkspacePageViewFound({
   // --- More menu state ---
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
+  const proofWorkspaceRef = useRef<ProofWorkspaceRef>(null);
 
   const handleTitleClick = useCallback(() => {
     if (onNotebookRename === undefined) return;
@@ -436,6 +440,26 @@ function WorkspacePageViewFound({
     setIsMoreMenuOpen(false);
   }, [onDuplicateToFree]);
 
+  const handleExportJSON = useCallback(() => {
+    proofWorkspaceRef.current?.exportJSON();
+    setIsMoreMenuOpen(false);
+  }, []);
+
+  const handleExportSVG = useCallback(() => {
+    proofWorkspaceRef.current?.exportSVG();
+    setIsMoreMenuOpen(false);
+  }, []);
+
+  const handleExportPNG = useCallback(() => {
+    proofWorkspaceRef.current?.exportPNG();
+    setIsMoreMenuOpen(false);
+  }, []);
+
+  const handleImportJSON = useCallback(() => {
+    proofWorkspaceRef.current?.importJSON();
+    setIsMoreMenuOpen(false);
+  }, []);
+
   // Close more menu on outside click
   useEffect(() => {
     if (!isMoreMenuOpen) return;
@@ -453,7 +477,8 @@ function WorkspacePageViewFound({
     };
   }, [isMoreMenuOpen]);
 
-  const hasMoreMenuItems = onDuplicateToFree !== undefined;
+  // Export/Import は常に利用可能なので、メニューは常に表示
+  const hasMoreMenuItems = true;
 
   return (
     <div style={pageStyle} data-testid="workspace-page">
@@ -544,6 +569,51 @@ function WorkspacePageViewFound({
                       {pm.duplicateToFree}
                     </button>
                   ) : null}
+                  {onDuplicateToFree !== undefined ? (
+                    <div
+                      style={{
+                        height: 1,
+                        backgroundColor: "var(--ui-border)",
+                        margin: "4px 8px",
+                      }}
+                    />
+                  ) : null}
+                  <button
+                    type="button"
+                    className="workspace-more-menu-item"
+                    style={moreMenuItemStyle}
+                    onClick={handleExportJSON}
+                    data-testid="workspace-more-menu-export-json"
+                  >
+                    {pm.exportJSON}
+                  </button>
+                  <button
+                    type="button"
+                    className="workspace-more-menu-item"
+                    style={moreMenuItemStyle}
+                    onClick={handleExportSVG}
+                    data-testid="workspace-more-menu-export-svg"
+                  >
+                    {pm.exportSVG}
+                  </button>
+                  <button
+                    type="button"
+                    className="workspace-more-menu-item"
+                    style={moreMenuItemStyle}
+                    onClick={handleExportPNG}
+                    data-testid="workspace-more-menu-export-png"
+                  >
+                    {pm.exportPNG}
+                  </button>
+                  <button
+                    type="button"
+                    className="workspace-more-menu-item"
+                    style={moreMenuItemStyle}
+                    onClick={handleImportJSON}
+                    data-testid="workspace-more-menu-import-json"
+                  >
+                    {pm.importJSON}
+                  </button>
                 </div>
               ) : null}
             </div>
@@ -591,6 +661,7 @@ function WorkspacePageViewFound({
       <div style={workspaceContainerStyle}>
         <ProofMessagesProvider messages={messages}>
           <ProofWorkspace
+            ref={proofWorkspaceRef}
             system={workspace.system}
             workspace={workspace}
             onWorkspaceChange={onWorkspaceChange}
@@ -598,7 +669,6 @@ function WorkspacePageViewFound({
             onOpenSyntaxHelp={onOpenSyntaxHelp}
             testId={workspaceTestId}
             questInfo={questInfo}
-            onDuplicateToFree={onDuplicateToFree}
             onSaveProofToCollection={onSaveProofToCollection}
             collectionEntries={collectionEntries}
             onRenameCollectionEntry={onRenameCollectionEntry}

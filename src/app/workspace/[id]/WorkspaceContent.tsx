@@ -40,6 +40,10 @@ function useWorkspacePageMessagesFromIntl(): WorkspacePageMessages {
       notebookNotFound: t("notebookNotFound"),
       duplicateToFree: t("duplicateToFree"),
       titleEditPlaceholder: t("titleEditPlaceholder"),
+      exportJSON: t("exportJSON"),
+      exportSVG: t("exportSVG"),
+      exportPNG: t("exportPNG"),
+      importJSON: t("importJSON"),
     }),
     [t],
   );

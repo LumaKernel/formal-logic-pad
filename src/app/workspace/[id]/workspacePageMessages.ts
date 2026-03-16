@@ -18,6 +18,10 @@ export type WorkspacePageMessages = {
   readonly notebookNotFound: string;
   readonly duplicateToFree: string;
   readonly titleEditPlaceholder: string;
+  readonly exportJSON: string;
+  readonly exportSVG: string;
+  readonly exportPNG: string;
+  readonly importJSON: string;
 };
 
 /**
@@ -30,4 +34,8 @@ export const defaultWorkspacePageMessages: WorkspacePageMessages = {
   notebookNotFound: "Notebook not found",
   duplicateToFree: "Duplicate as Free",
   titleEditPlaceholder: "Notebook name",
+  exportJSON: "Export JSON",
+  exportSVG: "Export SVG",
+  exportPNG: "Export PNG",
+  importJSON: "Import JSON",
 };

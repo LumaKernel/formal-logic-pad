@@ -429,7 +429,6 @@ function QuestModeWorkspace() {
         system={lukasiewiczSystem}
         workspace={workspace}
         onWorkspaceChange={handleChange}
-        onDuplicateToFree={() => {}}
         testId="workspace"
       />
     </div>
@@ -445,10 +444,6 @@ export const QuestMode: Story = {
     // Quest badge in header
     await expect(
       canvas.getByTestId("workspace-quest-badge"),
-    ).toBeInTheDocument();
-    // Duplicate as Free button
-    await expect(
-      canvas.getByTestId("workspace-convert-free-button"),
     ).toBeInTheDocument();
     // ゴールはノードとしてキャンバスに配置されないため、
     // proof-node は存在しない（キャンバスは空）

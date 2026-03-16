@@ -31,7 +31,11 @@ export type {
 export { getInferenceRuleReferenceEntryId } from "./inferenceRuleReferenceLogic";
 export { getDeductionSystemReferenceEntryId } from "./deductionSystemReferenceLogic";
 export { ProofWorkspace } from "./ProofWorkspace";
-export type { ProofWorkspaceProps, GoalAchievedInfo } from "./ProofWorkspace";
+export type {
+  ProofWorkspaceProps,
+  ProofWorkspaceRef,
+  GoalAchievedInfo,
+} from "./ProofWorkspace";
 export {
   createEmptyWorkspace,
   createQuestWorkspace,
