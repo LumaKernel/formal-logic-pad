@@ -14940,3 +14940,17 @@
   - `template`(Formula AST)と`dslText`(文字列)は異なる用途: templateはunicodeDisplay生成用、dslTextはノード作成・identifyAxiom互換用。変更時は両方の影響を考慮
   - `matchAxiomA4`は解決済みインスタンス(∀x.P(x)→P(a))にマッチし、未解決FormulaSubstitutionノードは扱えない（設計上の意図）
 ---
+
+## 2026-03-17 - DarkMode ダークモードボタン視認性修正
+- AntDesignThemeProvider: `colorTextLightSolid: "#141414"` をダークモード時に追加
+  - 原因: `colorPrimary: "#fafafa"` + `darkAlgorithm` が primary ボタンに白文字/薄灰色背景を生成（コントラスト不足）
+  - 修正: `colorTextLightSolid` で primary ボタンのテキストを暗色に指定
+- globals.css: `--color-quest-notebook-badge-bg/text` と `--color-quest-reference-badge-bg/text` をライト・ダーク両テーマに追加
+  - 原因: CSS変数が未定義で、ライトモード用フォールバック色のみが適用されていた
+- カバレッジ: Stmts 99.99%, Branch 99.89%, Funcs 90.39%, Lines 100% (変化なし)
+- 変更ファイル: AntDesignThemeProvider.tsx, globals.css
+- **今後のイテレーションへの学び:**
+  - Ant Design の `darkAlgorithm` + 極端な `colorPrimary`（#fafafa 等）は、派生色のコントラストが破綻する。`colorTextLightSolid` で primary ボタンのテキスト色を明示制御する
+  - CSS変数の参照先が存在するか確認する。インラインスタイルで `var(--name, fallback)` を使うと、変数未定義でもフォールバック値で動作するため、ダークモードでのみ問題が顕在化する
+  - 実アプリ(localhost:13000)での確認が最も確実。Storybook はデコレータ構成が異なる場合がある
+---
