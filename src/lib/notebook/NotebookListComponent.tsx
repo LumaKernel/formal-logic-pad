@@ -7,57 +7,17 @@
  * 変更時は NotebookListComponent.test.tsx, NotebookListComponent.stories.tsx も同期すること。
  */
 
-import { useState, useRef, useEffect, type CSSProperties } from "react";
+import { useState, useRef, useEffect, useMemo, type CSSProperties } from "react";
+import { Button, Menu } from "antd";
+import { EllipsisOutlined } from "@ant-design/icons";
+import type { MenuProps } from "antd";
 import type { NotebookListItem } from "./notebookListLogic";
 import { validateNotebookName, questProgressText } from "./notebookListLogic";
 
 // --- Style constants ---
 
-const menuItemBaseStyle: Readonly<CSSProperties> = {
-  display: "block",
-  width: "100%",
-  paddingTop: "0.625rem",
-  paddingBottom: "0.625rem",
-  paddingLeft: "1rem",
-  paddingRight: "1rem",
-  fontSize: "13px",
-  textAlign: "left",
-  border: "none",
-  backgroundColor: "transparent",
-  cursor: "pointer",
-  transitionProperty: "color, background-color",
-  transitionDuration: "150ms",
-};
-
-const menuItemDefaultStyle: Readonly<CSSProperties> = {
-  ...menuItemBaseStyle,
-  color: "var(--ui-foreground)",
-};
-
-const menuItemDangerStyle: Readonly<CSSProperties> = {
-  ...menuItemBaseStyle,
-  color: "var(--ui-destructive)",
-};
-
 const moreMenuContainerStyle: Readonly<CSSProperties> = {
   position: "relative",
-  flexShrink: 0,
-};
-
-const moreButtonStyle: Readonly<CSSProperties> = {
-  paddingLeft: "0.5rem",
-  paddingRight: "0.5rem",
-  paddingTop: "0.25rem",
-  paddingBottom: "0.25rem",
-  fontSize: "1.125rem",
-  lineHeight: 1,
-  borderRadius: "0.375rem",
-  border: "1px solid var(--ui-border)",
-  backgroundColor: "var(--ui-card)",
-  color: "var(--ui-foreground)",
-  cursor: "pointer",
-  transitionProperty: "color, background-color",
-  transitionDuration: "150ms",
   flexShrink: 0,
 };
 
@@ -189,32 +149,6 @@ const deleteMessageStyle: Readonly<CSSProperties> = {
   textAlign: "center",
 };
 
-const cancelButtonStyle: Readonly<CSSProperties> = {
-  paddingTop: "0.375rem",
-  paddingBottom: "0.375rem",
-  paddingLeft: "0.875rem",
-  paddingRight: "0.875rem",
-  fontSize: "0.75rem",
-  borderRadius: "0.375rem",
-  border: "1px solid var(--ui-border)",
-  backgroundColor: "var(--ui-card)",
-  color: "var(--ui-foreground)",
-  cursor: "pointer",
-};
-
-const deleteConfirmButtonStyle: Readonly<CSSProperties> = {
-  paddingTop: "0.375rem",
-  paddingBottom: "0.375rem",
-  paddingLeft: "0.875rem",
-  paddingRight: "0.875rem",
-  fontSize: "0.75rem",
-  borderRadius: "0.375rem",
-  border: "1px solid rgba(239, 68, 68, 0.4)",
-  backgroundColor: "var(--ui-destructive)",
-  color: "var(--ui-destructive-foreground)",
-  cursor: "pointer",
-  fontWeight: 600,
-};
 
 // --- Props ---
 
@@ -230,40 +164,13 @@ export type NotebookListProps = {
 
 // --- Sub-components ---
 
-function MenuItem({
-  children,
-  onClick,
-  "data-testid": testId,
-  variant = "default",
-}: {
-  readonly children: React.ReactNode;
-  readonly onClick: (e: React.MouseEvent) => void;
-  readonly "data-testid": string;
-  readonly variant?: "default" | "danger";
-}) {
-  return (
-    <button
-      data-testid={testId}
-      className={
-        variant === "danger"
-          ? "notebook-menu-item-danger"
-          : "notebook-menu-item"
-      }
-      style={variant === "danger" ? menuItemDangerStyle : menuItemDefaultStyle}
-      onClick={onClick}
-    >
-      {children}
-    </button>
-  );
-}
-
 function MoreMenu({
   itemId,
-  children,
+  menuItems,
   onOpenChange,
 }: {
   readonly itemId: string;
-  readonly children: React.ReactNode;
+  readonly menuItems: MenuProps["items"];
   readonly onOpenChange?: (open: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -295,24 +202,27 @@ function MoreMenu({
       style={moreMenuContainerStyle}
       onClick={(e) => e.stopPropagation()}
     >
-      <button
+      <Button
         data-testid={`more-btn-${itemId satisfies string}`}
-        className="notebook-more-btn"
-        style={moreButtonStyle}
+        icon={<EllipsisOutlined />}
+        type="text"
+        size="small"
         onClick={() => updateOpen(!open)}
-        title="その他の操作"
         aria-label="その他の操作"
         aria-expanded={open}
-      >
-        ⋯
-      </button>
+        style={{ flexShrink: 0 }}
+      />
       {open && (
         <div
           data-testid={`more-menu-${itemId satisfies string}`}
           style={dropdownStyle}
           onClick={() => updateOpen(false)}
         >
-          {children}
+          <Menu
+            items={menuItems}
+            selectable={false}
+            style={{ border: "none", boxShadow: "none", borderRadius: "0.5rem" }}
+          />
         </div>
       )}
     </div>
@@ -438,6 +348,43 @@ function NotebookItem({
     onExport?.(item.id);
   };
 
+  const menuItems: MenuProps["items"] = useMemo(() => {
+    const items: NonNullable<MenuProps["items"]> = [
+      {
+        key: "rename",
+        label: <span data-testid={`rename-btn-${item.id satisfies string}`}>名前変更</span>,
+        onClick: handleRenameStart,
+      },
+      {
+        key: "duplicate",
+        label: <span data-testid={`duplicate-btn-${item.id satisfies string}`}>複製</span>,
+        onClick: handleDuplicate,
+      },
+    ];
+    if (onExport !== undefined) {
+      items.push({
+        key: "export",
+        label: <span data-testid={`export-btn-${item.id satisfies string}`}>エクスポート</span>,
+        onClick: handleExport,
+      });
+    }
+    if (item.mode === "quest" && onConvertToFree !== undefined) {
+      items.push({
+        key: "convert",
+        label: <span data-testid={`convert-btn-${item.id satisfies string}`}>自由帳として複製</span>,
+        onClick: handleConvertToFree,
+      });
+    }
+    items.push({
+      key: "delete",
+      label: <span data-testid={`delete-btn-${item.id satisfies string}`}>削除</span>,
+      danger: true,
+      onClick: handleDeleteStart,
+    });
+    return items;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.id, item.mode, onExport, onConvertToFree]);
+
   return (
     <div
       data-testid={`notebook-item-${item.id satisfies string}`}
@@ -484,43 +431,7 @@ function NotebookItem({
           </>
         )}
       </div>
-      <MoreMenu itemId={item.id} onOpenChange={setIsMenuOpen}>
-        <MenuItem
-          data-testid={`rename-btn-${item.id satisfies string}`}
-          onClick={handleRenameStart}
-        >
-          名前変更
-        </MenuItem>
-        <MenuItem
-          data-testid={`duplicate-btn-${item.id satisfies string}`}
-          onClick={handleDuplicate}
-        >
-          複製
-        </MenuItem>
-        {onExport !== undefined && (
-          <MenuItem
-            data-testid={`export-btn-${item.id satisfies string}`}
-            onClick={handleExport}
-          >
-            エクスポート
-          </MenuItem>
-        )}
-        {item.mode === "quest" && onConvertToFree !== undefined && (
-          <MenuItem
-            data-testid={`convert-btn-${item.id satisfies string}`}
-            onClick={handleConvertToFree}
-          >
-            自由帳として複製
-          </MenuItem>
-        )}
-        <MenuItem
-          data-testid={`delete-btn-${item.id satisfies string}`}
-          onClick={handleDeleteStart}
-          variant="danger"
-        >
-          削除
-        </MenuItem>
-      </MoreMenu>
+      <MoreMenu itemId={item.id} menuItems={menuItems} onOpenChange={setIsMenuOpen} />
       {isDeleteConfirming && (
         <div
           data-testid={`delete-confirm-${item.id satisfies string}`}
@@ -528,20 +439,22 @@ function NotebookItem({
           onClick={(e) => e.stopPropagation()}
         >
           <span style={deleteMessageStyle}>本当に削除しますか？</span>
-          <button
+          <Button
             data-testid={`delete-cancel-btn-${item.id satisfies string}`}
-            style={cancelButtonStyle}
+            size="small"
             onClick={handleDeleteCancel}
           >
             キャンセル
-          </button>
-          <button
+          </Button>
+          <Button
             data-testid={`delete-confirm-btn-${item.id satisfies string}`}
-            style={deleteConfirmButtonStyle}
+            size="small"
+            danger
+            type="primary"
             onClick={handleDeleteConfirm}
           >
             削除する
-          </button>
+          </Button>
         </div>
       )}
     </div>

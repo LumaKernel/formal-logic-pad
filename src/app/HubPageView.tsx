@@ -9,7 +9,7 @@
  */
 
 import { useState, useRef, useCallback, useMemo, type CSSProperties } from "react";
-import { Tabs } from "antd";
+import { Tabs, Button } from "antd";
 import {
   NotebookList,
   NotebookCreateForm,
@@ -228,37 +228,6 @@ const actionBarStyle: Readonly<CSSProperties> = {
   marginBottom: "16px",
 };
 
-const createButtonStyle: Readonly<CSSProperties> = {
-  paddingTop: "8px",
-  paddingBottom: "8px",
-  paddingLeft: "20px",
-  paddingRight: "20px",
-  fontSize: "0.875rem",
-  fontWeight: 600,
-  border: "none",
-  borderRadius: "8px",
-  cursor: "pointer",
-  backgroundColor: "var(--ui-primary)",
-  color: "var(--ui-primary-foreground)",
-  transitionProperty: "opacity",
-  transitionDuration: "150ms",
-};
-
-const importButtonStyle: Readonly<CSSProperties> = {
-  paddingTop: "8px",
-  paddingBottom: "8px",
-  paddingLeft: "20px",
-  paddingRight: "20px",
-  fontSize: "0.875rem",
-  fontWeight: 600,
-  borderRadius: "8px",
-  cursor: "pointer",
-  border: "1px solid var(--ui-border)",
-  backgroundColor: "transparent",
-  color: "var(--ui-muted-foreground)",
-  transitionProperty: "color, background-color, border-color",
-  transitionDuration: "150ms",
-};
 
 const clearFilterButtonStyle: Readonly<CSSProperties> = {
   paddingTop: "2px",
@@ -773,25 +742,20 @@ export function HubPageView({
             {tab === "notebooks" && view === "list" && (
               <>
                 <div style={actionBarStyle}>
-                  <button
-                    type="button"
-                    className="hub-hover-opacity-90"
-                    style={createButtonStyle}
+                  <Button
+                    type="primary"
                     onClick={() => setView("create")}
                   >
                     {m.newNotebook}
-                  </button>
+                  </Button>
                   {onImportNotebook !== undefined && (
                     <>
-                      <button
-                        type="button"
-                        className="hub-hover-bg-muted"
-                        style={importButtonStyle}
+                      <Button
                         data-testid="import-notebook-btn"
                         onClick={() => importFileRef.current?.click()}
                       >
                         {m.importNotebook}
-                      </button>
+                      </Button>
                       <input
                         ref={importFileRef}
                         type="file"
@@ -842,14 +806,12 @@ export function HubPageView({
                     <div style={emptyStateStyle}>
                       <div style={emptyTitleNoFilterStyle}>{m.emptyTitle}</div>
                       <p style={emptyDescriptionStyle}>{m.emptyDescription}</p>
-                      <button
-                        type="button"
-                        className="hub-hover-opacity-90"
-                        style={createButtonStyle}
+                      <Button
+                        type="primary"
                         onClick={() => setView("create")}
                       >
                         {m.newNotebook}
-                      </button>
+                      </Button>
                     </div>
                   )
                 ) : (
