@@ -1,7 +1,14 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { ConfigProvider } from "antd";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ReferenceEntry } from "./referenceEntry";
 import { ReferenceModal } from "./ReferenceModal";
+
+function renderWithAntd(ui: React.ReactElement) {
+  return render(
+    <ConfigProvider button={{ autoInsertSpace: false }}>{ui}</ConfigProvider>,
+  );
+}
 
 afterEach(cleanup);
 
@@ -45,7 +52,7 @@ const makeRelatedEntry = (): ReferenceEntry =>
 describe("ReferenceModal", () => {
   it("モーダルが表示される", () => {
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={allEntries[0]!}
         allEntries={allEntries}
@@ -59,7 +66,7 @@ describe("ReferenceModal", () => {
   });
 
   it("タイトルとカテゴリが表示される", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -74,7 +81,7 @@ describe("ReferenceModal", () => {
   });
 
   it("日本語で表示される", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -90,7 +97,7 @@ describe("ReferenceModal", () => {
   });
 
   it("形式表記がKaTeXでレンダリングされる", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -105,7 +112,7 @@ describe("ReferenceModal", () => {
   });
 
   it("形式表記がない場合は数式欄を表示しない", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry({ formalNotation: undefined })}
         allEntries={[makeEntry()]}
@@ -118,7 +125,7 @@ describe("ReferenceModal", () => {
   });
 
   it("本文パラグラフが表示される", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -133,7 +140,7 @@ describe("ReferenceModal", () => {
   });
 
   it("太字マークダウンがstrongタグとしてレンダリングされる", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -155,7 +162,7 @@ describe("ReferenceModal", () => {
         ja: ["<i>分離規則</i>とも呼ばれる。"],
       },
     });
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={entry}
         allEntries={[entry]}
@@ -172,7 +179,7 @@ describe("ReferenceModal", () => {
 
   it("関連エントリがボタンとして表示される", () => {
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={allEntries[0]!}
         allEntries={allEntries}
@@ -190,7 +197,7 @@ describe("ReferenceModal", () => {
   it("関連エントリクリックでonNavigateが呼ばれる", () => {
     const onNavigate = vi.fn();
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={allEntries[0]!}
         allEntries={allEntries}
@@ -205,7 +212,7 @@ describe("ReferenceModal", () => {
   });
 
   it("外部リンクが表示される", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -223,7 +230,7 @@ describe("ReferenceModal", () => {
   });
 
   it("外部リンクにドキュメント言語タグが表示される", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -247,7 +254,7 @@ describe("ReferenceModal", () => {
         },
       ],
     });
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={entry}
         allEntries={[entry]}
@@ -262,7 +269,7 @@ describe("ReferenceModal", () => {
 
   it("閉じるボタンでonCloseが呼ばれる", () => {
     const onClose = vi.fn();
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -277,7 +284,7 @@ describe("ReferenceModal", () => {
 
   it("Escapeキーでoncloseが呼ばれる", () => {
     const onClose = vi.fn();
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -292,7 +299,7 @@ describe("ReferenceModal", () => {
 
   it("オーバーレイクリックでonCloseが呼ばれる", () => {
     const onClose = vi.fn();
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -308,7 +315,7 @@ describe("ReferenceModal", () => {
 
   it("モーダル内クリックではonCloseが呼ばれない", () => {
     const onClose = vi.fn();
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -322,7 +329,7 @@ describe("ReferenceModal", () => {
   });
 
   it("関連エントリがない場合は関連セクションを表示しない", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry({ relatedEntryIds: [] })}
         allEntries={[makeEntry()]}
@@ -336,7 +343,7 @@ describe("ReferenceModal", () => {
   });
 
   it("外部リンクがない場合は外部リンクセクションを表示しない", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry({ externalLinks: [] })}
         allEntries={[makeEntry()]}
@@ -350,7 +357,7 @@ describe("ReferenceModal", () => {
   });
 
   it("testIdなしでもレンダリングされる", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry(), makeRelatedEntry()]}
@@ -365,7 +372,7 @@ describe("ReferenceModal", () => {
   });
 
   it("dialog roleが設定される", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -379,7 +386,7 @@ describe("ReferenceModal", () => {
   });
 
   it("aria-labelがタイトルに設定される", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -393,7 +400,7 @@ describe("ReferenceModal", () => {
   });
 
   it("新しいタブで開くリンクが表示される", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -410,7 +417,7 @@ describe("ReferenceModal", () => {
   });
 
   it("日本語で新しいタブで開くリンクのaria-labelが設定される", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -428,7 +435,7 @@ describe("ReferenceModal", () => {
       { id: "prop-01", title: "Quest 1" },
       { id: "prop-02", title: "Quest 2" },
     ];
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -448,7 +455,7 @@ describe("ReferenceModal", () => {
 
   it("関連クエストクリックでonStartQuestが呼ばれる", () => {
     const onStartQuest = vi.fn();
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -464,7 +471,7 @@ describe("ReferenceModal", () => {
   });
 
   it("関連クエストがない場合はクエストセクションを表示しない", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -479,7 +486,7 @@ describe("ReferenceModal", () => {
   });
 
   it("onStartQuestがない場合はクエストセクションを表示しない", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -494,7 +501,7 @@ describe("ReferenceModal", () => {
   });
 
   it("日本語で関連クエストセクションが表示される", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -510,7 +517,7 @@ describe("ReferenceModal", () => {
   });
 
   it("複数の形式表記が表示される", () => {
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={makeEntry({ formalNotation: ["\\alpha", "\\beta"] })}
         allEntries={[makeEntry()]}
@@ -525,7 +532,7 @@ describe("ReferenceModal", () => {
 
   it("日本語で全セクションのラベルが表示される", () => {
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    render(
+    renderWithAntd(
       <ReferenceModal
         entry={allEntries[0]!}
         allEntries={allEntries}

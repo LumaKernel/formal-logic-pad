@@ -9,6 +9,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import type { CSSProperties } from "react";
+import { Button } from "antd";
 import type { ReferenceEntry, Locale } from "./referenceEntry";
 import { ReferenceModal, type RelatedQuestInfo } from "./ReferenceModal";
 import {
@@ -144,33 +145,6 @@ const categoryWrapStyle: Readonly<CSSProperties> = {
   display: "flex",
   gap: "6px",
   flexWrap: "wrap",
-};
-
-const categoryBadgeBaseStyle: Readonly<CSSProperties> = {
-  paddingLeft: "12px",
-  paddingRight: "12px",
-  paddingTop: "4px",
-  paddingBottom: "4px",
-  fontSize: "11px",
-  fontWeight: 600,
-  borderRadius: "9999px",
-  cursor: "pointer",
-  transitionProperty: "all",
-  transitionDuration: "150ms",
-};
-
-const categoryBadgeSelectedStyle: Readonly<CSSProperties> = {
-  ...categoryBadgeBaseStyle,
-  border: "1px solid var(--ui-primary)",
-  backgroundColor: "var(--ui-primary)",
-  color: "var(--ui-primary-foreground)",
-};
-
-const categoryBadgeUnselectedStyle: Readonly<CSSProperties> = {
-  ...categoryBadgeBaseStyle,
-  border: "1px solid var(--ui-border)",
-  backgroundColor: "var(--ui-card)",
-  color: "var(--ui-muted-foreground)",
 };
 
 const badgeCountStyle: Readonly<CSSProperties> = {
@@ -442,17 +416,11 @@ export function ReferenceBrowserComponent({
       {/* Category filter badges */}
       <div style={categoryWrapStyle}>
         {categoryBadges.map((badge) => (
-          <button
+          <Button
             key={badge.id}
-            type="button"
-            className={
-              badge.isSelected ? undefined : "ref-browser-category-badge"
-            }
-            style={
-              badge.isSelected
-                ? categoryBadgeSelectedStyle
-                : categoryBadgeUnselectedStyle
-            }
+            type={badge.isSelected ? "primary" : "default"}
+            shape="round"
+            size="small"
             onClick={() => {
               handleCategoryClick(badge.id);
             }}
@@ -466,7 +434,7 @@ export function ReferenceBrowserComponent({
           >
             {badge.label}
             <span style={badgeCountStyle}>({badge.count})</span>
-          </button>
+          </Button>
         ))}
       </div>
 

@@ -9,6 +9,7 @@
 
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { Button } from "antd";
 import katex from "katex";
 import type { Locale, ReferenceEntry } from "./referenceEntry";
 import { buildModalData } from "./referenceUILogic";
@@ -85,34 +86,6 @@ const headerButtonsStyle: CSSProperties = {
   gap: "4px",
 };
 
-const closeButtonStyle: CSSProperties = {
-  background: "none",
-  border: "none",
-  fontSize: "var(--font-size-xl, 20px)",
-  color: "var(--color-text-secondary, #666666)",
-  cursor: "pointer",
-  padding: "4px 8px",
-  borderRadius: "4px",
-  lineHeight: 1,
-  fontFamily: "var(--font-ui)",
-};
-
-const openInNewTabStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "none",
-  border: "none",
-  fontSize: "var(--font-size-sm, 13px)",
-  color: "var(--color-text-secondary, #666666)",
-  cursor: "pointer",
-  padding: "4px 6px",
-  borderRadius: "4px",
-  lineHeight: 1,
-  textDecoration: "none",
-  transition: "color 0.1s ease",
-};
-
 const categoryBadgeStyle: CSSProperties = {
   display: "inline-block",
   fontSize: "var(--font-size-xs, 11px)",
@@ -165,18 +138,9 @@ const sectionTitleStyle: CSSProperties = {
   marginBottom: "8px",
 };
 
-const relatedItemStyle: CSSProperties = {
-  display: "inline-block",
-  fontSize: "var(--font-size-sm, 13px)",
-  color: "var(--color-node-axiom, #5b8bd9)",
-  background: "none",
-  border: "1px solid var(--color-border, #e2e8f0)",
-  borderRadius: "4px",
-  padding: "4px 8px",
+const relatedItemWrapperStyle: CSSProperties = {
   margin: "0 6px 6px 0",
-  cursor: "pointer",
-  fontFamily: "var(--font-ui)",
-  transition: "background-color 0.1s ease",
+  display: "inline-block",
 };
 
 const externalLinkStyle: CSSProperties = {
@@ -199,20 +163,9 @@ const languageTagStyle: CSSProperties = {
   lineHeight: "1.4",
 };
 
-const questButtonStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: "6px",
-  fontSize: "var(--font-size-sm, 13px)",
-  color: "var(--color-accent, #555ab9)",
-  background: "none",
-  border: "1px solid var(--color-accent, #555ab9)",
-  borderRadius: "4px",
-  padding: "4px 10px",
+const questItemWrapperStyle: CSSProperties = {
   margin: "0 6px 6px 0",
-  cursor: "pointer",
-  fontFamily: "var(--font-ui)",
-  transition: "background-color 0.1s ease",
+  display: "inline-block",
 };
 
 // --- コンポーネント ---
@@ -307,7 +260,6 @@ export function ReferenceModal({
               href={buildReferenceViewerUrl(entry.id)}
               target="_blank"
               rel="noopener noreferrer"
-              style={openInNewTabStyle}
               aria-label={
                 locale === "ja" ? "新しいタブで開く" : "Open in new tab"
               }
@@ -317,11 +269,13 @@ export function ReferenceModal({
                   : undefined
               }
             >
-              ↗
+              <Button type="text" size="small">
+                ↗
+              </Button>
             </a>
-            <button
-              type="button"
-              style={closeButtonStyle}
+            <Button
+              type="text"
+              size="small"
               onClick={onClose}
               aria-label={locale === "ja" ? "閉じる" : "Close"}
               data-testid={
@@ -331,7 +285,7 @@ export function ReferenceModal({
               }
             >
               ✕
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -372,21 +326,21 @@ export function ReferenceModal({
               </div>
               <div>
                 {data.relatedEntries.map((related) => (
-                  <button
-                    key={related.id}
-                    type="button"
-                    style={relatedItemStyle}
-                    onClick={() => {
-                      handleRelatedClick(related.id);
-                    }}
-                    data-testid={
-                      testId !== undefined
-                        ? `${testId satisfies string}-related-${related.id satisfies string}`
-                        : undefined
-                    }
-                  >
-                    {related.title}
-                  </button>
+                  <span key={related.id} style={relatedItemWrapperStyle}>
+                    <Button
+                      size="small"
+                      onClick={() => {
+                        handleRelatedClick(related.id);
+                      }}
+                      data-testid={
+                        testId !== undefined
+                          ? `${testId satisfies string}-related-${related.id satisfies string}`
+                          : undefined
+                      }
+                    >
+                      {related.title}
+                    </Button>
+                  </span>
                 ))}
               </div>
             </div>
@@ -402,23 +356,24 @@ export function ReferenceModal({
                 </div>
                 <div>
                   {relatedQuests.map((quest) => (
-                    <button
-                      key={quest.id}
-                      type="button"
-                      style={questButtonStyle}
-                      onClick={() => {
-                        onStartQuest(quest.id);
-                      }}
-                      /* v8 ignore start -- optional testId prop */
-                      data-testid={
-                        testId !== undefined
-                          ? `${testId satisfies string}-quest-${quest.id satisfies string}`
-                          : undefined
-                      }
-                      /* v8 ignore stop */
-                    >
-                      {quest.title}
-                    </button>
+                    <span key={quest.id} style={questItemWrapperStyle}>
+                      <Button
+                        size="small"
+                        type="primary"
+                        onClick={() => {
+                          onStartQuest(quest.id);
+                        }}
+                        /* v8 ignore start -- optional testId prop */
+                        data-testid={
+                          testId !== undefined
+                            ? `${testId satisfies string}-quest-${quest.id satisfies string}`
+                            : undefined
+                        }
+                        /* v8 ignore stop */
+                      >
+                        {quest.title}
+                      </Button>
+                    </span>
                   ))}
                 </div>
               </div>

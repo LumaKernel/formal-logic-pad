@@ -9,6 +9,7 @@
  */
 
 import { useMemo, type CSSProperties } from "react";
+import { Button } from "antd";
 import katex from "katex";
 import type { Locale, ReferenceEntry } from "./referenceEntry";
 import { InlineMarkdown } from "./InlineMarkdown";
@@ -149,19 +150,9 @@ const sectionTitleStyle: CSSProperties = {
   borderBottom: "1px solid var(--color-border, #e2e8f0)",
 };
 
-const relatedItemStyle: CSSProperties = {
-  display: "inline-block",
-  fontSize: "var(--font-size-sm, 13px)",
-  color: "var(--color-node-axiom, #5b8bd9)",
-  background: "none",
-  border: "1px solid var(--color-border, #e2e8f0)",
-  borderRadius: "6px",
-  padding: "6px 12px",
+const relatedItemWrapperStyle: CSSProperties = {
   margin: "0 8px 8px 0",
-  cursor: "pointer",
-  fontFamily: "var(--font-ui)",
-  textDecoration: "none",
-  transition: "background-color 0.1s ease, border-color 0.1s ease",
+  display: "inline-block",
 };
 
 const externalLinkStyle: CSSProperties = {
@@ -207,20 +198,9 @@ const backLinkStyle: CSSProperties = {
   textDecoration: "none",
 };
 
-const questButtonStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: "6px",
-  fontSize: "var(--font-size-sm, 13px)",
-  color: "var(--color-accent, #555ab9)",
-  background: "none",
-  border: "1px solid var(--color-accent, #555ab9)",
-  borderRadius: "6px",
-  padding: "6px 12px",
+const questItemWrapperStyle: CSSProperties = {
   margin: "0 8px 8px 0",
-  cursor: "pointer",
-  fontFamily: "var(--font-ui)",
-  transition: "background-color 0.1s ease, border-color 0.1s ease",
+  display: "inline-block",
 };
 
 const navContainerStyle: CSSProperties = {
@@ -422,28 +402,29 @@ function ViewerContent({
           </div>
           <div>
             {data.relatedEntries.map((related) => (
-              <a
-                key={related.id}
-                href={related.href}
-                style={relatedItemStyle}
-                onClick={(e) => {
-                  /* v8 ignore start -- onNavigate optional callback */
-                  if (onNavigate !== undefined) {
-                    e.preventDefault();
-                    onNavigate(related.id);
+              <span key={related.id} style={relatedItemWrapperStyle}>
+                <a
+                  href={related.href}
+                  onClick={(e) => {
+                    /* v8 ignore start -- onNavigate optional callback */
+                    if (onNavigate !== undefined) {
+                      e.preventDefault();
+                      onNavigate(related.id);
+                    }
+                    /* v8 ignore stop */
+                  }}
+                  data-testid={
+                    /* v8 ignore start -- testId条件分岐はテスト用属性 */
+                    testId !== undefined
+                      ? `${testId satisfies string}-related-${related.id satisfies string}`
+                      : undefined
+                    /* v8 ignore stop */
                   }
-                  /* v8 ignore stop */
-                }}
-                data-testid={
-                  /* v8 ignore start -- testId条件分岐はテスト用属性 */
-                  testId !== undefined
-                    ? `${testId satisfies string}-related-${related.id satisfies string}`
-                    : undefined
-                  /* v8 ignore stop */
-                }
-              >
-                {related.title}
-              </a>
+                  style={{ textDecoration: "none" }}
+                >
+                  <Button size="small">{related.title}</Button>
+                </a>
+              </span>
             ))}
           </div>
         </div>
@@ -459,23 +440,24 @@ function ViewerContent({
             </div>
             <div>
               {relatedQuests.map((quest) => (
-                <button
-                  key={quest.id}
-                  type="button"
-                  style={questButtonStyle}
-                  onClick={() => {
-                    onStartQuest(quest.id);
-                  }}
-                  data-testid={
-                    /* v8 ignore start -- testId条件分岐はテスト用属性 */
-                    testId !== undefined
-                      ? `${testId satisfies string}-quest-${quest.id satisfies string}`
-                      : undefined
-                    /* v8 ignore stop */
-                  }
-                >
-                  {quest.title}
-                </button>
+                <span key={quest.id} style={questItemWrapperStyle}>
+                  <Button
+                    size="small"
+                    type="primary"
+                    onClick={() => {
+                      onStartQuest(quest.id);
+                    }}
+                    data-testid={
+                      /* v8 ignore start -- testId条件分岐はテスト用属性 */
+                      testId !== undefined
+                        ? `${testId satisfies string}-quest-${quest.id satisfies string}`
+                        : undefined
+                      /* v8 ignore stop */
+                    }
+                  >
+                    {quest.title}
+                  </Button>
+                </span>
               ))}
             </div>
           </div>

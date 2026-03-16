@@ -7,7 +7,7 @@ ant活用してほしい
 - [x] クエスト一覧タブの三点リーダーボタンと、その中のメニュー、開始ボタン、難易度や状態フィルタのチップボタンみたいなやつ — antd Button/Menu/MoreOutlined に置き換え完了
 - [x] 自作クエストタブの同様に各種ボタン、同様 — antd Button に置き換え完了（11個のスタイル定数削除）
 - [x] コレクションタブの各種ボタン、同様 — antd Button に置き換え完了（Panel + PageView、8個のスタイル定数削除）
-- [ ] リファレンスタブの各種ボタン、同様
+- [x] リファレンスタブの各種ボタン、同様 — antd Button に置き換え完了（Browser/Modal/FloatingWindow/ViewerPageView）
 - [ ] スクリプトタブの各種ボタン、同様
 - [ ] ヘッダーの各要素
 
