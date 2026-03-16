@@ -150,24 +150,9 @@ while [[ $ITERATION -lt $MAX_ITERATIONS ]]; do
   echo "  Commits so far: $COMMIT_BEFORE"
   echo "==============================================================="
 
-  # Capture coverage baseline and feed it to the agent as context
-  echo "Running coverage baseline..."
-  COVERAGE_REPORT=$(capture_coverage)
-  echo "$COVERAGE_REPORT"
-
-  # Build the prompt: CLAUDE.md instructions + live coverage data
+  # Build the prompt: CLAUDE.md instructions
   if [[ "$TOOL" == "claude" ]]; then
-    PROMPT="$(cat "CLAUDE.md")
-
----
-## 現在のカバレッジ（ベースライン）
-
-以下はこのイテレーション開始時点のテスト結果とカバレッジレポートです。
-カバレッジが100%でないファイルがあれば、ストーリー実装の前にまずカバレッジ改善を優先してください。
-
-\`\`\`
-$COVERAGE_REPORT
-\`\`\`"
+    PROMPT="$(cat "CLAUDE.md")"
   fi
 
   # Run the agent
