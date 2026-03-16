@@ -42,6 +42,7 @@ import {
   modelAnswerRegistry,
   buildModelAnswerWorkspace,
 } from "../../../lib/quest";
+import type { ModelAnswer } from "../../../lib/quest";
 import type { GoalQuestInfo } from "../../../lib/proof-pad";
 import { WorkspacePageView } from "./WorkspacePageView";
 
@@ -748,8 +749,125 @@ function buildCompletedQuestWorkspace(questId: string): {
   };
 }
 
-/** prop-01: Hilbert体系 φ→φ 完了（模範解答の公理ステップは自動展開されProved!表示） */
+/**
+ * prop-01: Hilbert体系 φ→φ 完全インタラクション。
+ * 公理スキーマ→SubstitutionEdge→インスタンス構造の初期状態から、
+ * MP適用→ゴール達成までのユーザー操作を完全に再現する。
+ *
+ * 初期状態（buildModelAnswerWorkspace で axiom-only ステップから構築）:
+ *   node-1(schema) → node-2(instance): A2 (φ→((φ→φ)→φ))→((φ→(φ→φ))→(φ→φ))
+ *   node-3(schema) → node-4(instance): A1₁ φ→((φ→φ)→φ)
+ *   node-5(schema) → node-6(instance): A1₂ φ→(φ→φ)
+ *
+ * ユーザー操作:
+ *   MP₁: node-4(antecedent) + node-2(conditional) → node-7
+ *   MP₂: node-6(antecedent) + node-7(conditional) → node-8 = φ→φ ✓
+ */
 export const QuestCompleteProp01: Story = {
+  render: () => {
+    const quest = findQuestById(builtinQuests, "prop-01");
+    if (quest === undefined) {
+      throw new Error("Quest not found: prop-01");
+    }
+    const answer = modelAnswerRegistry.get("prop-01");
+    if (answer === undefined) {
+      throw new Error("Model answer not found: prop-01");
+    }
+    // 公理ステップのみ抽出（MP/noteを除外）→ スキーマ→SubstitutionEdge→インスタンス構造で配置
+    const axiomOnlyAnswer: ModelAnswer = {
+      questId: answer.questId,
+      steps: answer.steps.filter((step) => step._tag === "axiom"),
+    };
+    const result = buildModelAnswerWorkspace(quest, axiomOnlyAnswer);
+    if (result._tag !== "Ok") {
+      throw new Error(
+        `Failed to build axiom-only workspace: ${result._tag satisfies string}`,
+      );
+    }
+    const questInfo: GoalQuestInfo = {
+      description: quest.description,
+      hints: quest.hints,
+      learningPoint: quest.learningPoint,
+    };
+    return (
+      <StatefulWorkspace
+        initialWorkspace={result.workspace}
+        initialNotebookName={quest.title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // --- 初期状態: 公理インスタンスが配置済み、ゴール未達成 ---
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("0 / 1");
+
+    // 公理パレットとMPボタンが表示される（Hilbert体系のUI確認）
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette"),
+    ).toBeInTheDocument();
+    const mpButton = canvas.getByTestId("workspace-mp-button");
+    await expect(mpButton).toBeInTheDocument();
+
+    // 6ノード: 3スキーマ + 3インスタンス（buildModelAnswerWorkspace で生成）
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-6")).toBeInTheDocument();
+
+    // --- MP₁: A1₁インスタンス(antecedent) + A2インスタンス(conditional) ---
+    // node-2: A2インスタンス (φ→((φ→φ)→φ))→((φ→(φ→φ))→(φ→φ))
+    // node-4: A1₁インスタンス φ→((φ→φ)→φ)
+    // 結論: (φ→(φ→φ))→(φ→φ)
+    await userEvent.click(mpButton);
+    await waitFor(() => {
+      expect(mpButton).toHaveTextContent("Cancel");
+    });
+    // left=antecedent(node-4), right=conditional(node-2)
+    await userEvent.click(canvas.getByTestId("proof-node-node-4"));
+    await userEvent.click(canvas.getByTestId("proof-node-node-2"));
+
+    // MP₁結果ノード(node-7)が生成される
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-7")).toBeInTheDocument();
+    });
+
+    // --- MP₂: A1₂インスタンス(antecedent) + MP₁結果(conditional) → φ→φ ---
+    // node-6: A1₂インスタンス φ→(φ→φ)
+    // node-7: MP₁結果 (φ→(φ→φ))→(φ→φ)
+    // 結論: φ→φ (ゴール!)
+    await userEvent.click(mpButton);
+    await waitFor(() => {
+      expect(mpButton).toHaveTextContent("Cancel");
+    });
+    // left=antecedent(node-6), right=conditional(node-7)
+    await userEvent.click(canvas.getByTestId("proof-node-node-6"));
+    await userEvent.click(canvas.getByTestId("proof-node-node-7"));
+
+    // MP₂結果ノード(node-8)が生成される = φ→φ
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-8")).toBeInTheDocument();
+    });
+
+    // --- 最終確認: ゴール達成 ---
+    await waitFor(() => {
+      expect(
+        canvas.getByTestId("workspace-goal-panel"),
+      ).toHaveTextContent("1 / 1");
+    });
+    await expect(
+      canvas.getByTestId("workspace-goal-panel"),
+    ).toHaveTextContent("Proved!");
+  },
+};
+
+/** prop-01: 模範解答ベースの完了状態（静的確認用） */
+export const QuestCompleteProp01ModelAnswer: Story = {
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("prop-01");
@@ -766,12 +884,9 @@ export const QuestCompleteProp01: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // ワークスペースが表示される
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    // ゴールパネルが表示される
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toBeInTheDocument();
-    // 模範解答の公理ステップは自動展開されるため Proved! になる
     await expect(goalPanel).toHaveTextContent("1 / 1");
     await expect(goalPanel).toHaveTextContent("Proved!");
   },
