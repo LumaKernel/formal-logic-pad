@@ -14728,3 +14728,15 @@
   - ProofWorkspace は巨大ファイル（~6000行）。内部の export/import ハンドラは `workspace`, `nodeSizes`, `setWorkspace` 等の内部状態に依存するため、外部に移動不可
   - `hasMoreMenuItems` をハードコード `true` にした（export/import は常に利用可能なので）
 ---
+
+## 2026-03-16 - [UI] antd Tabs導入
+- HubPageView.tsxのカスタムタブバー（button要素6個 + inline styles）をantd Tabsコンポーネントに置き換え
+- 変更ファイル: src/app/HubPageView.tsx
+- 削除: tabBarStyle, tabBaseStyle, tabActiveStyle の3つのスタイル定数
+- 追加: handleAntTabChange (useCallback), tabItems (useMemo), Tabs import
+- 全27 Storybookテスト通過（TabSwitch含む）、typecheck/lint clean
+- **今後のイテレーションへの学び:**
+  - antd Tabsのlabel textはgetByTextで取得可能 — 既存テストの変更不要
+  - .storybook/preview.tsにAntThemeWrapperが既に設定済みのため、ストーリーでantdコンポーネントが直接動作する
+  - browser MCP (browsermcp, chrome-devtools)が接続できない場合、Storybook chromiumテストでUI検証を代替可能
+---
