@@ -1,6 +1,6 @@
 import { useState, useCallback, createElement } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 // MdEditor / MdPreview は jsdom 環境では動作しないため、テスト用にモック化
@@ -5979,6 +5979,92 @@ describe("ProofWorkspace", () => {
       expect(
         screen.queryByTestId("workspace-script-editor-panel"),
       ).not.toBeInTheDocument();
+    });
+
+    it("script editor panel can be resized by dragging the left handle", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addScriptNode(
+        ws,
+        "Test Script",
+        { x: 100, y: 100 },
+        "console.log('hello');",
+      );
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // スクリプトノードを右クリック→スクリプトを実行
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+      await user.click(screen.getByTestId("workspace-run-script"));
+
+      // パネルが開いていることを確認
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-script-editor-panel"),
+        ).toBeInTheDocument();
+      });
+
+      const panel = screen.getByTestId("workspace-script-editor-panel");
+      const handle = screen.getByTestId("script-editor-resize-handle");
+
+      // 初期幅は480px
+      expect(panel.style.width).toBe("480px");
+
+      // リサイズハンドルが存在する
+      expect(handle).toBeInTheDocument();
+
+      // ポインターイベントでリサイズ（左にドラッグ → 幅が広がる）
+      // setPointerCapture はjsdomで未サポートなのでモック
+      handle.setPointerCapture = vi.fn();
+      fireEvent.pointerDown(handle, { clientX: 500, pointerId: 1 });
+      fireEvent.pointerMove(handle, { clientX: 400 }); // 100px左へ
+      fireEvent.pointerUp(handle);
+
+      // 幅が広がる（480 + 100 = 580）
+      expect(panel.style.width).toBe("580px");
+    });
+
+    it("script editor resize respects min/max width bounds", async () => {
+      const user = userEvent.setup();
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addScriptNode(
+        ws,
+        "Test Script",
+        { x: 100, y: 100 },
+        "console.log('hello');",
+      );
+
+      render(<StatefulWorkspace initialWorkspace={ws} testId="workspace" />);
+
+      // スクリプトノードを右クリック→スクリプトを実行
+      const node = screen.getByTestId("proof-node-node-1");
+      await user.pointer({ keys: "[MouseRight]", target: node });
+      await user.click(screen.getByTestId("workspace-run-script"));
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("workspace-script-editor-panel"),
+        ).toBeInTheDocument();
+      });
+
+      const panel = screen.getByTestId("workspace-script-editor-panel");
+      const handle = screen.getByTestId("script-editor-resize-handle");
+      handle.setPointerCapture = vi.fn();
+
+      // 最大幅(960)を超えるドラッグ
+      fireEvent.pointerDown(handle, { clientX: 500, pointerId: 1 });
+      fireEvent.pointerMove(handle, { clientX: -100 }); // 600px左へ → 480+600=1080 → clamped to 960
+      fireEvent.pointerUp(handle);
+
+      expect(panel.style.width).toBe("960px");
+
+      // 最小幅(320)を下回るドラッグ
+      fireEvent.pointerDown(handle, { clientX: 500, pointerId: 1 });
+      fireEvent.pointerMove(handle, { clientX: 1200 }); // 700px右へ → 960-700=260 → clamped to 320
+      fireEvent.pointerUp(handle);
+
+      expect(panel.style.width).toBe("320px");
     });
   });
 });

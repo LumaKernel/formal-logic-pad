@@ -920,6 +920,11 @@ export const ProofWorkspace = forwardRef<
     null,
   );
   const [scriptEditorInitialCode, setScriptEditorInitialCode] = useState("");
+  const [scriptEditorWidth, setScriptEditorWidth] = useState(480);
+  const scriptEditorResizeRef = useRef<{
+    readonly startX: number;
+    readonly startWidth: number;
+  } | null>(null);
 
   // Gen変数名入力
   const [genVariableInput, setGenVariableInput] = useState("");
@@ -3268,6 +3273,38 @@ export const ProofWorkspace = forwardRef<
     setScriptEditorInitialCode("");
   }, []);
 
+  const SCRIPT_EDITOR_MIN_WIDTH = 320;
+  const SCRIPT_EDITOR_MAX_WIDTH = 960;
+
+  const handleScriptEditorResizeStart = useCallback(
+    (e: React.PointerEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      scriptEditorResizeRef.current = {
+        startX: e.clientX,
+        startWidth: scriptEditorWidth,
+      };
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    },
+    [scriptEditorWidth],
+  );
+
+  const handleScriptEditorResizeMove = useCallback((e: React.PointerEvent) => {
+    const ref = scriptEditorResizeRef.current;
+    if (ref === null) return;
+    // パネルは右寄せなので、左にドラッグ = 幅が広がる
+    const delta = ref.startX - e.clientX;
+    const newWidth = Math.max(
+      SCRIPT_EDITOR_MIN_WIDTH,
+      Math.min(SCRIPT_EDITOR_MAX_WIDTH, ref.startWidth + delta),
+    );
+    setScriptEditorWidth(newWidth);
+  }, []);
+
+  const handleScriptEditorResizeEnd = useCallback(() => {
+    scriptEditorResizeRef.current = null;
+  }, []);
+
   const handleScriptCodeChange = useCallback(
     (code: string) => {
       if (scriptEditorNodeId === null) return;
@@ -5304,7 +5341,7 @@ export const ProofWorkspace = forwardRef<
             right: 12,
             top: 12,
             bottom: 12,
-            width: 480,
+            width: scriptEditorWidth,
             zIndex: 11,
             display: "flex",
             flexDirection: "column",
@@ -5326,6 +5363,36 @@ export const ProofWorkspace = forwardRef<
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* リサイズハンドル（左端） */}
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: 6,
+              cursor: "col-resize",
+              zIndex: 1,
+            }}
+            onPointerDown={handleScriptEditorResizeStart}
+            onPointerMove={handleScriptEditorResizeMove}
+            onPointerUp={handleScriptEditorResizeEnd}
+            data-testid="script-editor-resize-handle"
+          >
+            <div
+              style={{
+                position: "absolute",
+                left: 2,
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: 2,
+                height: 32,
+                borderRadius: 1,
+                background:
+                  "var(--color-panel-border, rgba(180, 160, 130, 0.3))",
+              }}
+            />
+          </div>
           <div
             style={{
               display: "flex",
