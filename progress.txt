@@ -14900,3 +14900,14 @@
   - NDのワークスペースは平坦なグラフ（ノード＋InferenceEdges）なので、SC（ネストされたツリー構造）とは異なる変換ロジックが必要
   - 循環参照検出のテストを忘れるとカバレッジが低下する — visitedセットのガード分岐をテストで必ずカバーする
 ---
+
+## 2026-03-17 - FormulaInput エラー文字色修正
+- FormulaInput/TermInput のエラーハイライトオーバーレイで、テキストが color: transparent だったためエラー時に入力テキストが見えない問題を修正
+- エラー箇所は `--color-error` 色、非エラー箇所は `--color-text-primary` 色で表示するよう変更
+- 変更ファイル: FormulaInput.tsx, TermInput.tsx
+- カバレッジ変化なし: Stmts 99.99%, Branch 99.89%, Funcs 90.41%, Lines 100%
+- スクリーンショット: .screenshots/formula-editor-error-text-color-fix.png, .screenshots/formula-editor-error-text-color-dark.png
+- **今後のイテレーションへの学び:**
+  - FormulaInput のオーバーレイパターン: シンタックスハイライト時はトークンに色が付くが、エラーハイライト時は highlightMarkStyle と transparentTextStyle が両方 transparent だった。新しいオーバーレイ種別を追加する場合はテキスト可視性を必ず確認すること
+  - TermInput も FormulaInput と同じハイライトパターンを持つため、片方を修正したらもう片方も同様に確認すること
+---

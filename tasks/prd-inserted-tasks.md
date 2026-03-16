@@ -4,8 +4,6 @@
   - [ ] term入力のコンポーネントのストーリー(FormulaDisplay)に phi[tau/x] などがあるべきだろう
     - 入力、render, ...
   - [ ] UIの公理は (all x. phi) -> phi ではなく (all x. phi) -> phi[τ/x] にする！！
-- [-] http://localhost:13006/?path=/story/formulainput-formulaeditor--error-stays-in-edit-mode
-  - [-] エラー時の文字色が背景色と同じで見えない。 pw mcpでも分かる
 - [ ] 現在、論理式などはただのJSON構造体だが、それだと自由度が高すぎてscriptで利用するときにも使いづらい
   - [ ] Effect.ts と Tagged Class (schema) へ完全に移行し、コンストラクタによる作成のみ許容され、scriptに提供する関数はすべてunknown前提でのクラスの検証(パース)を行う
     - [ ] 構造体の形、つくりかたを知っていないと書けないような箇所は排除される
