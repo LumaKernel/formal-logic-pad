@@ -8,25 +8,25 @@
 
 ## 現状（check-model-answers.local.ts で確認済み）
 
-| カテゴリ | プリセット | 合計 | AllAchieved | 失敗 | 原因 |
-|---|---|---|---|---|---|
-| propositional-basics | lukasiewicz | 15 | 1 | 14 | INSTANCE_ROOTS |
-| propositional-intermediate | lukasiewicz | 13 | 2 | 11 | INSTANCE_ROOTS |
-| propositional-negation | lukasiewicz | 12 | 1 | 11 | INSTANCE_ROOTS |
-| propositional-advanced | lukasiewicz | 10 | 0 | 10 | INSTANCE_ROOTS |
-| equality-basics | equality | 10 | 3 | 7 | INSTANCE_ROOTS |
-| peano-basics | peano | 10 | 10 | 0 | — |
-| peano-arithmetic | peano | 10 | 1 | 9 | INSTANCE_ROOTS |
-| group-basics | group-full | 10 | 7 | 3 | INSTANCE_ROOTS |
-| group-proofs | group-full | 13 | 0 | 13 | INSTANCE_ROOTS |
-| predicate-basics | predicate | 10 | 0 | 10 | INSTANCE_ROOTS |
-| predicate-advanced | predicate | 14 | 1 | 13 | INSTANCE_ROOTS |
-| nd-basics | nd-nm | 35 | 35 | 0 | — |
-| tab-basics | tab-prop | 26 | 26 | 0 | — |
-| at-basics | at-prop | 19 | 19 | 0 | — |
-| sc-basics | sc-lk | 34 | 34 | 0 | — |
-| sc-cut-elimination | sc-lk | 14 | 14 | 0 | — |
-| sc-auto-proof | sc-lk | 3 | — | — | 模範解答なし |
+| カテゴリ                   | プリセット  | 合計 | AllAchieved | 失敗 | 原因           |
+| -------------------------- | ----------- | ---- | ----------- | ---- | -------------- |
+| propositional-basics       | lukasiewicz | 15   | 1           | 14   | INSTANCE_ROOTS |
+| propositional-intermediate | lukasiewicz | 13   | 2           | 11   | INSTANCE_ROOTS |
+| propositional-negation     | lukasiewicz | 12   | 1           | 11   | INSTANCE_ROOTS |
+| propositional-advanced     | lukasiewicz | 10   | 0           | 10   | INSTANCE_ROOTS |
+| equality-basics            | equality    | 10   | 3           | 7    | INSTANCE_ROOTS |
+| peano-basics               | peano       | 10   | 10          | 0    | —              |
+| peano-arithmetic           | peano       | 10   | 1           | 9    | INSTANCE_ROOTS |
+| group-basics               | group-full  | 10   | 7           | 3    | INSTANCE_ROOTS |
+| group-proofs               | group-full  | 13   | 0           | 13   | INSTANCE_ROOTS |
+| predicate-basics           | predicate   | 10   | 0           | 10   | INSTANCE_ROOTS |
+| predicate-advanced         | predicate   | 14   | 1           | 13   | INSTANCE_ROOTS |
+| nd-basics                  | nd-nm       | 35   | 35          | 0    | —              |
+| tab-basics                 | tab-prop    | 26   | 26          | 0    | —              |
+| at-basics                  | at-prop     | 19   | 19          | 0    | —              |
+| sc-basics                  | sc-lk       | 34   | 34          | 0    | —              |
+| sc-cut-elimination         | sc-lk       | 14   | 14          | 0    | —              |
+| sc-auto-proof              | sc-lk       | 3    | —           | —    | 模範解答なし   |
 
 **合計: 101/127 Hilbert系が INSTANCE_ROOTS で失敗**
 

@@ -15,7 +15,7 @@ ant活用してほしい
 - [x] 各クエストで模範解答を開いても、まだまったく、公理制約違反だったり、証明されていなかったりする
   - [x] 各論理体系ごとに何が必要？ — 調査完了。ND/TAB/AT/SCは全てAllAchieved。Hilbert系101/127がINSTANCE_ROOTSで失敗。根本原因: axiomステップが代入済みインスタンスを直接配置
   - [x] buildModelAnswerWorkspaceのaxiomステップ自動展開を実装。expandAxiomStepIfNeededで公理インスタンスをスキーマ+SubstitutionEdge+インスタンスに自動展開。全1149テストパス
-  - [ ] pw mcpでしっかり確認しながらできないか
+  - [x] pw mcpでしっかり確認 — Storybook上でprop-01がPROOF COMPLETE!表示を確認。スクリーンショット保存済み (.screenshots/quest-complete-prop-01-storybook.png)
   - [x] しっかり達成しつつ、網羅的に完遂するためのタスクリストを prd-quest-ans.md にまず作っていこう — 作成済み
 - [ ] http://localhost:13006/?path=/story/pages-workspace--quest-complete-prop-01
   - 前に指示したやつだが、クエストを開いて開始するところから作るべき。

@@ -494,7 +494,13 @@ function expandAxiomStepIfNeeded(
   // Hilbert系以外は単一ノード
   if (deductionSystem.style !== "hilbert") {
     const nodeId = `node-${String(ws.nextNodeId) satisfies string}`;
-    const workspace = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, formulaText);
+    const workspace = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 0, y: 0 },
+      formulaText,
+    );
     return { workspace, nodeId };
   }
 
@@ -518,7 +524,13 @@ function expandAxiomStepIfNeeded(
   if (identification._tag === "Error") {
     // 同定できない場合は単一ノード（理論公理のexact matchなど）
     const nodeId = `node-${String(ws.nextNodeId) satisfies string}`;
-    const workspace = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, formulaText);
+    const workspace = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 0, y: 0 },
+      formulaText,
+    );
     return { workspace, nodeId };
   }
 
@@ -530,7 +542,13 @@ function expandAxiomStepIfNeeded(
     )
   ) {
     const nodeId = `node-${String(ws.nextNodeId) satisfies string}`;
-    const workspace = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, formulaText);
+    const workspace = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 0, y: 0 },
+      formulaText,
+    );
     return { workspace, nodeId };
   }
 
@@ -551,7 +569,13 @@ function expandAxiomStepIfNeeded(
   if (schemaDslText === undefined) {
     /* v8 ignore start — defensive: all known axioms have dslText */
     const nodeId = `node-${String(ws.nextNodeId) satisfies string}`;
-    const workspace = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, formulaText);
+    const workspace = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 0, y: 0 },
+      formulaText,
+    );
     return { workspace, nodeId };
     /* v8 ignore stop */
   }
@@ -561,7 +585,13 @@ function expandAxiomStepIfNeeded(
   if (Either.isLeft(schemaParseResult)) {
     /* v8 ignore start — defensive: axiom schema dsl texts are always valid */
     const nodeId = `node-${String(ws.nextNodeId) satisfies string}`;
-    const workspace = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, formulaText);
+    const workspace = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 0, y: 0 },
+      formulaText,
+    );
     return { workspace, nodeId };
     /* v8 ignore stop */
   }
@@ -569,13 +599,7 @@ function expandAxiomStepIfNeeded(
 
   // スキーマノードを作成
   const schemaNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
-  let currentWs = addNode(
-    ws,
-    "axiom",
-    "Axiom",
-    { x: 0, y: 0 },
-    schemaDslText,
-  );
+  let currentWs = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, schemaDslText);
 
   // SubstitutionEntriesを構築
   const entries = buildSubstitutionEntriesFromMaps(
