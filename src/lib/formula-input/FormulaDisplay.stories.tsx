@@ -6,6 +6,8 @@ import {
   disjunction,
   equality,
   existential,
+  formulaSubstitution,
+  freeVariableAbsence,
   implication,
   metaVariable,
   negation,
@@ -454,6 +456,175 @@ export const SyntaxHighlight: Story = {
     ).toHaveTextContent("∀x.S(x) = x + 1");
     // 子span（ハイライトトークン）が存在すること
     const el = canvas.getByTestId("highlight-メタ変数+結合子");
+    await expect(el.children.length).toBeGreaterThan(0);
+  },
+};
+
+/**
+ * 項代入 φ[τ/x] と自由変数不在 φ[/x] の表示。
+ */
+export const SubstitutionDisplay: Story = {
+  args: { formula: phi },
+  render: () => {
+    const formulas: readonly {
+      readonly label: string;
+      readonly formula: Formula;
+    }[] = [
+      {
+        label: "基本代入",
+        formula: formulaSubstitution(phi, termVariable("y"), termVariable("x")),
+      },
+      {
+        label: "関数項代入",
+        formula: formulaSubstitution(
+          predicate("P", [termVariable("x")]),
+          functionApplication("f", [termVariable("y")]),
+          termVariable("x"),
+        ),
+      },
+      {
+        label: "複合式代入",
+        formula: formulaSubstitution(
+          implication(phi, psi),
+          termVariable("y"),
+          termVariable("x"),
+        ),
+      },
+      {
+        label: "自由変数不在",
+        formula: freeVariableAbsence(phi, termVariable("x")),
+      },
+      {
+        label: "複合式自由変数不在",
+        formula: freeVariableAbsence(
+          universal(
+            termVariable("y"),
+            predicate("P", [termVariable("x"), termVariable("y")]),
+          ),
+          termVariable("x"),
+        ),
+      },
+      {
+        label: "A4右辺",
+        formula: formulaSubstitution(phi, termVariable("τ"), termVariable("x")),
+      },
+    ];
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {formulas.map(({ label, formula }) => (
+          <div
+            key={label}
+            style={{ display: "flex", alignItems: "center", gap: 16 }}
+          >
+            <span
+              style={{
+                fontFamily: "var(--font-ui)",
+                fontSize: 12,
+                color: "#888",
+                minWidth: 140,
+              }}
+            >
+              {label}
+            </span>
+            <FormulaDisplay
+              formula={formula}
+              fontSize={18}
+              testId={`formula-${label satisfies string}`}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("formula-基本代入")).toHaveTextContent(
+      "φ[y/x]",
+    );
+    await expect(canvas.getByTestId("formula-関数項代入")).toHaveTextContent(
+      "P(x)[f(y)/x]",
+    );
+    await expect(canvas.getByTestId("formula-複合式代入")).toHaveTextContent(
+      "(φ → ψ)[y/x]",
+    );
+    await expect(canvas.getByTestId("formula-自由変数不在")).toHaveTextContent(
+      "φ[/x]",
+    );
+    await expect(
+      canvas.getByTestId("formula-複合式自由変数不在"),
+    ).toHaveTextContent("(∀y.P(x, y))[/x]");
+    await expect(canvas.getByTestId("formula-A4右辺")).toHaveTextContent(
+      "φ[τ/x]",
+    );
+  },
+};
+
+/**
+ * 代入表示のシンタックスハイライト。
+ */
+export const SubstitutionHighlight: Story = {
+  args: { formula: phi },
+  render: () => {
+    const formulas: readonly {
+      readonly label: string;
+      readonly formula: Formula;
+    }[] = [
+      {
+        label: "代入ハイライト",
+        formula: formulaSubstitution(phi, termVariable("τ"), termVariable("x")),
+      },
+      {
+        label: "不在ハイライト",
+        formula: freeVariableAbsence(phi, termVariable("x")),
+      },
+      {
+        label: "A4公理全体",
+        formula: implication(
+          universal(termVariable("x"), phi),
+          formulaSubstitution(phi, termVariable("τ"), termVariable("x")),
+        ),
+      },
+    ];
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {formulas.map(({ label, formula }) => (
+          <div key={label}>
+            <div
+              style={{
+                fontFamily: "var(--font-ui)",
+                fontSize: 11,
+                color: "#888",
+                marginBottom: 4,
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
+              {label}
+            </div>
+            <FormulaDisplay
+              formula={formula}
+              fontSize={20}
+              highlight
+              testId={`highlight-${label satisfies string}`}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByTestId("highlight-代入ハイライト"),
+    ).toHaveTextContent("φ[τ/x]");
+    await expect(
+      canvas.getByTestId("highlight-不在ハイライト"),
+    ).toHaveTextContent("φ[/x]");
+    await expect(canvas.getByTestId("highlight-A4公理全体")).toHaveTextContent(
+      "(∀x.φ) → φ[τ/x]",
+    );
+    // ハイライトトークンが存在すること
+    const el = canvas.getByTestId("highlight-代入ハイライト");
     await expect(el.children.length).toBeGreaterThan(0);
   },
 };
