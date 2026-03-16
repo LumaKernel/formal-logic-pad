@@ -9,7 +9,7 @@ ant活用してほしい
 - [x] コレクションタブの各種ボタン、同様 — antd Button に置き換え完了（Panel + PageView、8個のスタイル定数削除）
 - [x] リファレンスタブの各種ボタン、同様 — antd Button に置き換え完了（Browser/Modal/FloatingWindow/ViewerPageView）
 - [x] スクリプトタブの各種ボタン、同様 — antd Button に置き換え完了（rename/export/deleteボタン）
-- [ ] ヘッダーの各要素
+- [x] ヘッダーの各要素 — ThemeToggle/LanguageToggleはrole="radio"+aria-checked付きのカスタムsegmentedでantd Segmentedでは代替不可。GitHubリンクは`<a>`タグ。ヘッダーに標準ボタンなし
 
 - [ ] EN/JAの切り替えってリロード必要なの？ (必要ならいい)
 - [ ] 各クエストで模範解答を開いても、まだまったく、公理制約違反だったり、証明されていなかったりする
