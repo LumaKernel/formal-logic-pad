@@ -18,7 +18,7 @@
     === 引用終了 ===
   - [x] 当時なにを思っていまのでよいとしたのか整理せよ
     - AxiomPaletteはFormulaDisplay（読み取り専用テンプレート表示で適切）、GoalPanelもFormulaDisplay（読み取り専用ゴール表示で適切）、EdgeParameterPopoverはFormulaEditor利用済み。問題は拡張編集がonOpenExpanded提供時のみだった点
-  - [ ] 基本はrenderedが表示され、クリックで編集開始できるやつ (Nodeに使われてるダブルクリックのクリック版) を利用せよ。
+  - [-] 基本はrenderedが表示され、クリックで編集開始できるやつ (Nodeに使われてるダブルクリックのクリック版) を利用せよ。
         http://localhost:13006/?path=/story/formulainput-formulaeditor--with-parsed-callback を指している。
   - [x] 拡張編集にも対応。(改行が入ってれば拡張がすぐに開くのみ)
     - FormulaEditorに内蔵拡大モーダルを実装。onOpenExpanded未指定でも⤢ボタン常時表示、複数行テキストはクリックで直接内蔵モーダルが開く

@@ -26,9 +26,9 @@ import type { LogicSystem } from "../logic-core/inferenceRule";
 import { getDeductionSystemName } from "../logic-core/deductionSystem";
 import type { Formula } from "../logic-core/formula";
 import type { EditorMode } from "../formula-input/editorLogic";
-import { FormulaInput } from "../formula-input/FormulaInput";
+import { FormulaEditor } from "../formula-input/FormulaEditor";
 import { FormulaExpandedEditor } from "../formula-input/FormulaExpandedEditor";
-import { TermInput } from "../formula-input/TermInput";
+import { TermEditor } from "../formula-input/TermEditor";
 import { InfiniteCanvas } from "../infinite-canvas/InfiniteCanvas";
 import { CanvasItem } from "../infinite-canvas/CanvasItem";
 import { PortConnection } from "../infinite-canvas/PortConnection";
@@ -4900,15 +4900,15 @@ export const ProofWorkspace = forwardRef<
               </span>
               <span style={{ color: "var(--color-node-text, #fff)" }}>:=</span>
               {entry.kind === "formula" ? (
-                <FormulaInput
+                <FormulaEditor
                   value={entry.value}
                   onChange={(value) => {
                     handleSubstEntryValueChange(i, value);
                   }}
                   placeholder="alpha -> beta"
                   fontSize={12}
-                  showPreview={false}
                   style={{ flex: 1, minWidth: 0, width: 120 }}
+                  onOpenSyntaxHelp={onOpenSyntaxHelp}
                   testId={
                     /* v8 ignore start -- V8集約アーティファクト */
                     testId
@@ -4918,7 +4918,7 @@ export const ProofWorkspace = forwardRef<
                   }
                 />
               ) : (
-                <TermInput
+                <TermEditor
                   value={entry.value}
                   onChange={
                     /* v8 ignore start -- 項モード代入: 述語論理固有パスでテストコスト高 */
@@ -4929,8 +4929,8 @@ export const ProofWorkspace = forwardRef<
                   }
                   placeholder="S(0)"
                   fontSize={12}
-                  showPreview={false}
                   style={{ flex: 1, minWidth: 0, width: 120 }}
+                  onOpenSyntaxHelp={onOpenSyntaxHelp}
                   testId={
                     /* v8 ignore start -- V8集約アーティファクト */
                     testId

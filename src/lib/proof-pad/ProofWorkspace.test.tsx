@@ -3623,11 +3623,17 @@ describe("ProofWorkspace", () => {
       // No Add/Remove buttons exist
       expect(screen.queryByTestId("workspace-subst-add-entry")).toBeNull();
 
-      // Fill in values for the pre-populated entries (FormulaInput places input at ${testId}-input)
-      const valueInput0 = screen.getByTestId("workspace-subst-value-0-input");
-      const valueInput1 = screen.getByTestId("workspace-subst-value-1-input");
-      await user.type(valueInput0, "alpha");
-      await user.type(valueInput1, "beta");
+      // Click display to enter edit mode, then type (FormulaEditor: click-to-edit)
+      await user.click(screen.getByTestId("workspace-subst-value-0-display"));
+      await user.type(
+        screen.getByTestId("workspace-subst-value-0-input-input"),
+        "alpha",
+      );
+      await user.click(screen.getByTestId("workspace-subst-value-1-display"));
+      await user.type(
+        screen.getByTestId("workspace-subst-value-1-input-input"),
+        "beta",
+      );
 
       // Confirm substitution
       await user.click(screen.getByTestId("workspace-subst-prompt-confirm"));
@@ -3663,9 +3669,8 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("workspace-subst-prompt-banner"),
       ).toBeInTheDocument();
 
-      // Press Escape in the value input (FormulaInput places input at ${testId}-input)
-      const valueInput = screen.getByTestId("workspace-subst-value-0-input");
-      await user.click(valueInput);
+      // Click display to enter edit mode, then press Escape (FormulaEditor: click-to-edit)
+      await user.click(screen.getByTestId("workspace-subst-value-0-display"));
       await user.keyboard("{Escape}");
 
       // Banner should disappear
@@ -3750,11 +3755,15 @@ describe("ProofWorkspace", () => {
       expect(metaVarLabel1).toHaveTextContent("τ");
 
       // Verify placeholders: formula uses "alpha -> beta", term uses "S(0)"
-      // FormulaInput/TermInput places the actual input at ${testId}-input
-      const valueInput0 = screen.getByTestId("workspace-subst-value-0-input");
-      expect(valueInput0).toHaveAttribute("placeholder", "alpha -> beta");
-      const valueInput1 = screen.getByTestId("workspace-subst-value-1-input");
-      expect(valueInput1).toHaveAttribute("placeholder", "S(0)");
+      // FormulaEditor/TermEditor display mode shows placeholder text
+      const placeholder0 = screen.getByTestId(
+        "workspace-subst-value-0-placeholder",
+      );
+      expect(placeholder0).toHaveTextContent("alpha -> beta");
+      const placeholder1 = screen.getByTestId(
+        "workspace-subst-value-1-placeholder",
+      );
+      expect(placeholder1).toHaveTextContent("S(0)");
     });
   });
 
