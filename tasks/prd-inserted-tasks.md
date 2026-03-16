@@ -1,8 +1,8 @@
 # 差し込みタスク
 
 - [ ] ../tasks-archived/prd-replace.md が達成されていない
-  - [-] term入力のコンポーネントのストーリー(FormulaDisplay)に phi[tau/x] などがあるべきだろう
-    - 入力、render, ...
+  - [x] term入力のコンポーネントのストーリー(FormulaDisplay)に phi[tau/x] などがあるべきだろう
+    - SubstitutionDisplay（6パターン）とSubstitutionHighlight（3パターン、A4公理全体含む）をplay関数付きで追加
   - [ ] UIの公理は (all x. phi) -> phi ではなく (all x. phi) -> phi[τ/x] にする！！
 - [ ] ダークモードでの(クエスト)「開始」とか「再挑戦」とか、選択済みの「全難易度」とかが背景色と一緒になってみえにくい。
   - [ ] 過去の遺産で余計なことをしてしまってないか？ シンプルにAntのダークモードの方法にのっかるような方針にできないか

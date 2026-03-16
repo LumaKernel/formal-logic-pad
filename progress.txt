@@ -108,6 +108,23 @@
 
 ---
 
+## 2026-03-17 - [FormulaDisplay] 項代入・自由変数不在のストーリー追加
+- ベースライン: Stmts 99.99%, Branch 99.89%, Lines 100%
+- **結果: カバレッジ変化なし（99.99% / 99.89% / 100%）**
+- 実装内容:
+  - FormulaDisplay.stories.tsx に SubstitutionDisplay ストーリー追加（6パターン: 基本代入、関数項代入、複合式代入、自由変数不在、複合式自由変数不在、A4右辺）
+  - FormulaDisplay.stories.tsx に SubstitutionHighlight ストーリー追加（3パターン: 代入ハイライト、不在ハイライト、A4公理全体）
+  - すべてplay関数でテキスト内容・ハイライトトークンの存在を検証
+- 変更ファイル:
+  - src/lib/formula-input/FormulaDisplay.stories.tsx (+171行)
+  - tasks/prd-inserted-tasks.md（タスク完了マーク）
+- スクリーンショット: .screenshots/formula-display-substitution.png, .screenshots/formula-display-substitution-highlight.png
+- **今後のイテレーションへの学び:**
+  - FormulaSubstitution/FreeVariableAbsenceはformulaファクトリ関数 `formulaSubstitution()` / `freeVariableAbsence()` で簡単にAST構築可能
+  - 複合式（Implication等）の代入表示では自動的に括弧が付く（formatUnicode.ts の needsParens ロジック）
+  - tasks/prd-inserted-tasks.md は prettier CI でよく引っかかる。編集後は必ず `npx prettier --write` を実行
+---
+
 ## 2026-03-16 - [Coverage] ブランチカバレッジ改善 - ReferencePopover・ReferenceBrowser
 - ベースライン: Stmts 99.99%, Branch 99.78% (ReferencePopover.tsx: 93.61%, ReferenceBrowserComponent.tsx: 82.5%)
 - **結果: 両ファイル100%達成、全体Branch 99.89%、+6テスト（11262→11268）**
