@@ -721,7 +721,7 @@ export function getInferenceEdgeLabel(edge: InferenceEdge): string {
         : "Subst";
     // ND
     case "nd-implication-intro":
-      return "→I";
+      return `→I [${String(edge.dischargedAssumptionId) satisfies string}]`;
     case "nd-implication-elim":
       return "→E";
     case "nd-conjunction-intro":
@@ -735,7 +735,7 @@ export function getInferenceEdgeLabel(edge: InferenceEdge): string {
     case "nd-disjunction-intro-right":
       return "∨I_R";
     case "nd-disjunction-elim":
-      return "∨E";
+      return `∨E [${String(edge.leftDischargedAssumptionId) satisfies string},${String(edge.rightDischargedAssumptionId) satisfies string}]`;
     case "nd-weakening":
       return "w";
     case "nd-efq":
@@ -755,7 +755,7 @@ export function getInferenceEdgeLabel(edge: InferenceEdge): string {
         ? `∃I(${edge.variableName satisfies string})`
         : "∃I";
     case "nd-existential-elim":
-      return "∃E";
+      return `∃E [${String(edge.dischargedAssumptionId) satisfies string}]`;
     // TAB
     case "tab-single":
       return getTabRuleDisplayName(edge.ruleId);

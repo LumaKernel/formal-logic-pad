@@ -161,7 +161,7 @@ describe("inferenceEdgeLabelLogic", () => {
         conclusionText: "A → B",
       };
       const result = computeInferenceEdgeLabelData(edge);
-      expect(result.label).toBe("→I");
+      expect(result.label).toBe("→I [1]");
       expect(result.tag).toBe("nd-implication-intro");
     });
   });
@@ -419,9 +419,9 @@ describe("inferenceEdgeLabelLogic", () => {
         rightDischargedAssumptionId: 2,
         conclusionText: "",
       };
-      expect(getInferenceEdgeLabelForConnection(edge, "d")).toBe("∨E:∨");
-      expect(getInferenceEdgeLabelForConnection(edge, "l")).toBe("∨E:L");
-      expect(getInferenceEdgeLabelForConnection(edge, "r")).toBe("∨E:R");
+      expect(getInferenceEdgeLabelForConnection(edge, "d")).toBe("∨E [1,2]:∨");
+      expect(getInferenceEdgeLabelForConnection(edge, "l")).toBe("∨E [1,2]:L");
+      expect(getInferenceEdgeLabelForConnection(edge, "r")).toBe("∨E [1,2]:R");
     });
 
     it("returns '∃E:∃' and '∃E:φ' for ND ∃E", () => {
@@ -434,8 +434,8 @@ describe("inferenceEdgeLabelLogic", () => {
         dischargedFormulaText: "A",
         conclusionText: "",
       };
-      expect(getInferenceEdgeLabelForConnection(edge, "e")).toBe("∃E:∃");
-      expect(getInferenceEdgeLabelForConnection(edge, "p")).toBe("∃E:φ");
+      expect(getInferenceEdgeLabelForConnection(edge, "e")).toBe("∃E [1]:∃");
+      expect(getInferenceEdgeLabelForConnection(edge, "p")).toBe("∃E [1]:φ");
     });
 
     it("returns base label for 1-premise Gen edge", () => {

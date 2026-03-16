@@ -633,21 +633,21 @@ describe("inferenceEdge", () => {
 
   describe("getInferenceEdgeLabel (ND)", () => {
     it.each([
-      { edge: ndImplicationIntro, expected: "→I" },
+      { edge: ndImplicationIntro, expected: "→I [1]" },
       { edge: ndImplicationElim, expected: "→E" },
       { edge: ndConjunctionIntro, expected: "∧I" },
       { edge: ndConjunctionElimLeft, expected: "∧E_L" },
       { edge: ndConjunctionElimRight, expected: "∧E_R" },
       { edge: ndDisjunctionIntroLeft, expected: "∨I_L" },
       { edge: ndDisjunctionIntroRight, expected: "∨I_R" },
-      { edge: ndDisjunctionElim, expected: "∨E" },
+      { edge: ndDisjunctionElim, expected: "∨E [2,3]" },
       { edge: ndWeakening, expected: "w" },
       { edge: ndEfq, expected: "EFQ" },
       { edge: ndDne, expected: "DNE" },
       { edge: ndUniversalIntro, expected: "∀I(x)" },
       { edge: ndUniversalElim, expected: "∀E(y)" },
       { edge: ndExistentialIntro, expected: "∃I(x)" },
-      { edge: ndExistentialElim, expected: "∃E" },
+      { edge: ndExistentialElim, expected: "∃E [4]" },
     ] as const)("returns '$expected' for $edge._tag", ({ edge, expected }) => {
       expect(getInferenceEdgeLabel(edge)).toBe(expected);
     });
