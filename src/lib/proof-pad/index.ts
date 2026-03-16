@@ -348,6 +348,18 @@ export type {
 } from "./cutEliminationStepperLogic";
 export { CutEliminationStepper } from "./CutEliminationStepper";
 export type { CutEliminationStepperProps } from "./CutEliminationStepper";
+export {
+  getScRuleLabel,
+  convertScProofTreeToDisplay,
+  computeProofTreeStats,
+} from "./scProofTreeRendererLogic";
+export type {
+  ProofTreeDisplayNode,
+  ProofTreeDisplayData,
+  ProofTreeStats,
+} from "./scProofTreeRendererLogic";
+export { ScProofTreePanel } from "./ScProofTreePanel";
+export type { ScProofTreePanelProps } from "./ScProofTreePanel";
 export { parseGoalFormula, checkGoal } from "./goalCheckLogic";
 export type {
   GoalNotSet,

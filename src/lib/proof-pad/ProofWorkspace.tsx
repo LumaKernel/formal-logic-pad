@@ -218,6 +218,7 @@ import { EdgeParameterPopover } from "./EdgeParameterPopover";
 import type { EdgeBadgeEditState } from "./edgeBadgeEditLogic";
 import { createEditStateFromEdge } from "./edgeBadgeEditLogic";
 import { CutEliminationStepper } from "./CutEliminationStepper";
+import { ScProofTreePanel } from "./ScProofTreePanel";
 import type { CutEliminationStepperData } from "./cutEliminationStepperLogic";
 import {
   computeCutEliminationStepperData,
@@ -5226,6 +5227,14 @@ export const ProofWorkspace = forwardRef<
           >
             {msg.cutEliminationClose}
           </button>
+          <ScProofTreePanel
+            proof={cutElimStepperData.currentProof}
+            testId={
+              /* v8 ignore start -- V8集約アーティファクト */
+              testId ? `${testId satisfies string}-sc-proof-tree` : undefined
+              /* v8 ignore stop */
+            }
+          />
         </>
       ) : null}
 
