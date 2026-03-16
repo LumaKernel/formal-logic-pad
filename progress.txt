@@ -14928,3 +14928,15 @@
   - FormulaInput のオーバーレイパターン: シンタックスハイライト時はトークンに色が付くが、エラーハイライト時は highlightMarkStyle と transparentTextStyle が両方 transparent だった。新しいオーバーレイ種別を追加する場合はテキスト可視性を必ず確認すること
   - TermInput も FormulaInput と同じハイライトパターンを持つため、片方を修正したらもう片方も同様に確認すること
 ---
+
+## 2026-03-17 - AxiomPalette A4公理表示修正
+- A4公理のパレット表示を `(∀x.φ) → φ` から `(∀x.φ) → φ[τ/x]` に修正
+- `axiomA4Template` に `FormulaSubstitution(phi, tauVar, xVar)` を追加
+- `dslText` は `identifyAxiom`/`matchAxiomA4` 互換性のため旧形式 `(all x. phi) -> phi` を維持
+- テスト: `axiomPaletteLogic.test.ts` unicodeDisplay期待値更新、`axiomNameLogic.test.ts` に未解決FormulaSubstitution形式のNotIdentifiedテスト追加
+- カバレッジ: Stmts 99.99%, Branch 99.89%, Funcs 90.39%, Lines 100% (変化なし)
+- 変更ファイル: inferenceRule.ts, axiomPaletteLogic.test.ts, axiomNameLogic.test.ts
+- **今後のイテレーションへの学び:**
+  - `template`(Formula AST)と`dslText`(文字列)は異なる用途: templateはunicodeDisplay生成用、dslTextはノード作成・identifyAxiom互換用。変更時は両方の影響を考慮
+  - `matchAxiomA4`は解決済みインスタンス(∀x.P(x)→P(a))にマッチし、未解決FormulaSubstitutionノードは扱えない（設計上の意図）
+---
