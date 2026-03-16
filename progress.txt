@@ -14821,3 +14821,14 @@
   - 理論公理は matchMode:"exact" のため非自明代入にならず、自動展開の対象外
   - `applySubstitutionAndConnect` はバリデーション失敗でもノード・エッジ・接続は作成されるため、後からformulaTextを上書き可能
 ---
+
+## 2026-03-16 - Quest Complete Prop-01 インタラクションストーリー
+- QuestCompleteProp01 ストーリーを完全なユーザーインタラクションに書き換え
+- 変更ファイル: src/app/workspace/[id]/WorkspacePageView.stories.tsx
+- アプローチ: modelAnswerRegistryからaxiom-onlyステップを抽出→buildModelAnswerWorkspaceでスキーマ→SubstitutionEdge→インスタンス構造を構築→play関数でMP2回適用→ゴール達成
+- 旧静的確認ストーリーはQuestCompleteProp01ModelAnswerとして分離
+- カバレッジ: 維持（11259テスト全パス）
+- **今後のイテレーションへの学び:**
+  - addNodeで直接公理インスタンスを配置するとhasInstanceRootNodesチェックに引っかかる。クエストモードではbuildModelAnswerWorkspaceでスキーマ→SubstitutionEdge→インスタンスの正しい構造を作る必要がある
+  - Storybook dev serverのplay関数はvitest chromiumテストと結果が異なることがある（timing/HMR）。vitestが権威的
+---
