@@ -14752,3 +14752,15 @@
   - antd Dropdown はポータルレンダリングのため `within(canvasElement)` でテスト要素が見つからない問題がある。カスタムポジショニング + antd Menu の組み合わせが互換性を保つ
   - antd Button の `danger` + `type="primary"` で赤い確定ボタン、`size="small"` でコンパクトなインライン削除確認UI
 ---
+
+## 2026-03-16 - [UI] クエスト一覧タブ antd 置き換え
+- QuestCatalogComponent.tsx: フィルタボタン→antd Button(round/primary)、開始ボタン→antd Button(primary)、三点メニュー→antd Button+Menu+MoreOutlined
+- ConfigProvider: `button: { autoInsertSpace: false }` 追加（CJK文字間スペース挿入防止）
+- テスト: textContent.toBe→toHaveTextContent、renderWithAntd wrapper追加
+- 変更したファイル: QuestCatalogComponent.tsx, QuestCatalogComponent.test.tsx, AntDesignThemeProvider.tsx, .storybook/preview.ts
+- テスト: QuestCatalog 61 unit + 10 storybook すべてパス
+- **今後のイテレーションへの学び:**
+  - antd Button はCJK文字間にスペースを自動挿入する。`ConfigProvider` の `button: { autoInsertSpace: false }` で無効化必須（旧API `autoInsertSpaceInButton` は非推奨）
+  - 単体テストでantdコンポーネントを使う場合、ConfigProvider wrapping が必要。`renderWithAntd` ヘルパーパターンを利用
+  - `.textContent.toBe()` は antd のDOM構造変更に弱い。`toHaveTextContent()` を推奨
+---
