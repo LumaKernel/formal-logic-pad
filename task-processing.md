@@ -7,6 +7,7 @@
 ## 対象箇所
 
 ProofWorkspace.tsx の代入プロンプトバナー（line 4903付近）:
+
 - `FormulaInput` → `FormulaEditor` に置換（クリックで編集開始、離れたらrendered表示）
 - `TermInput` → `TermEditor` に同様に置換
 
