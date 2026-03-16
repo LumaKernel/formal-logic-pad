@@ -360,6 +360,14 @@ export type {
 } from "./scProofTreeRendererLogic";
 export { ScProofTreePanel } from "./ScProofTreePanel";
 export type { ScProofTreePanelProps } from "./ScProofTreePanel";
+export {
+  getNdRuleLabel,
+  convertNdWorkspaceToProofTree,
+  convertNdWorkspaceToProofTreeAuto,
+  findNdProofTreeRoots,
+} from "./ndProofTreeRendererLogic";
+export { NdProofTreePanel } from "./NdProofTreePanel";
+export type { NdProofTreePanelProps } from "./NdProofTreePanel";
 export { parseGoalFormula, checkGoal } from "./goalCheckLogic";
 export type {
   GoalNotSet,

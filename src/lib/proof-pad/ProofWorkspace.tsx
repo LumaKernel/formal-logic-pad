@@ -219,6 +219,7 @@ import type { EdgeBadgeEditState } from "./edgeBadgeEditLogic";
 import { createEditStateFromEdge } from "./edgeBadgeEditLogic";
 import { CutEliminationStepper } from "./CutEliminationStepper";
 import { ScProofTreePanel } from "./ScProofTreePanel";
+import { NdProofTreePanel } from "./NdProofTreePanel";
 import type { CutEliminationStepperData } from "./cutEliminationStepperLogic";
 import {
   computeCutEliminationStepperData,
@@ -5236,6 +5237,19 @@ export const ProofWorkspace = forwardRef<
             }
           />
         </>
+      ) : null}
+
+      {/* ND証明木パネル（ND体系時に常駐表示） */}
+      {workspace.deductionSystem.style === "natural-deduction" ? (
+        <NdProofTreePanel
+          nodes={workspace.nodes}
+          inferenceEdges={workspace.inferenceEdges}
+          testId={
+            /* v8 ignore start -- V8集約アーティファクト */
+            testId ? `${testId satisfies string}-nd-proof-tree` : undefined
+            /* v8 ignore stop */
+          }
+        />
       ) : null}
 
       {/* コレクション管理パネル（常駐表示） */}
