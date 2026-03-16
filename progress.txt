@@ -108,6 +108,24 @@
 
 ---
 
+## 2026-03-17 - [proof-pad] 代入プロンプトのFormulaEditor/TermEditor化
+- ベースライン: Stmts 99.99%, Branch 99.89%, Funcs 90.37%, Lines 100%
+- **結果: Funcs微増（90.37%→90.41%）、他変化なし**
+- 実装内容:
+  - ProofWorkspace代入プロンプトバナーのFormulaInput→FormulaEditor、TermInput→TermEditorに置換
+  - クリックで編集開始、離れたらrendered表示に統一（タスク要件: click-to-edit）
+  - 構文ヘルプボタン(onOpenSyntaxHelp)も統合
+- 変更ファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx（FormulaInput/TermInput → FormulaEditor/TermEditor）
+  - src/lib/proof-pad/ProofWorkspace.test.tsx（testIdチェーン更新: display click→input-input）
+  - src/lib/proof-pad/ProofWorkspace.stories.tsx（SubstitutionContextMenuストーリーのplay関数更新）
+- スクリーンショット: .screenshots/subst-prompt-formula-editor.png, .screenshots/subst-prompt-interactions-pass.png
+- **今後のイテレーションへの学び:**
+  - FormulaEditorのtestIdチェーン: FormulaEditor(testId=X) → display(X-display) / FormulaInput(X-input) → input(X-input-input)
+  - 代入プロンプトのように初期値が空の場合、FormulaEditorはプレースホルダー表示→クリック→編集の流れになる
+
+---
+
 ## 2026-03-17 - [FormulaEditor] 拡張編集モーダルの内蔵化
 - ベースライン: Stmts 99.99%, Branch 99.89%, Funcs 90.39%, Lines 100%
 - **結果: カバレッジ変化なし（99.99% / 99.89% / 90.39% / 100%）**
