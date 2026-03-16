@@ -54,16 +54,16 @@
 
 ## タスクリスト
 
-### Phase 1: axiom ステップの自動展開
+### Phase 1: axiom ステップの自動展開 [x]
 
-- [ ] `identifyAxiomSchema` 等の公理パターンマッチ関数の調査
-  - どの公理スキーマのインスタンスか特定するAPI
-  - 代入エントリ（SubstitutionEntries）の逆算
-- [ ] `buildModelAnswerWorkspace` の `axiom` ケースを改修
+- [x] `identifyAxiom` + `isTrivialAxiomSubstitution` で公理インスタンスを特定
+- [x] `buildModelAnswerWorkspace` の `axiom` ケースを改修: `expandAxiomStepIfNeeded` ヘルパーで自動展開
   - スキーマ完全一致: 現状通り（1ノード）
-  - インスタンス: スキーマノード + SubstitutionEdge + インスタンスノード
-- [ ] 理論公理（equality, peano, group）のインスタンスも対応
-- [ ] テスト: 改修後に全101クエストが AllAchieved に変わることを確認
+  - インスタンス: スキーマノード + SubstitutionEdge + インスタンスノード（formulaText強制上書き）
+  - 述語公理（A4等）: SubstitutionEntriesが不完全でもInferenceEdgeの存在でルート判定をパス
+- [x] 理論公理: matchMode:"exact"のため非自明代入にならず、自動的に対応済み
+- [x] テスト: 全1149テスト（builtinModelAnswers.test.ts含む）がパス
+- [x] Storybook: WorkspacePageView QuestCompleteProp01 のアサーションを更新（Proved!に変更）
 
 ### Phase 2: sc-auto-proof の模範解答（後続）
 

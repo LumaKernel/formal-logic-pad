@@ -14805,3 +14805,19 @@
   - check-model-answers.local.ts スクリプトで全模範解答の状態を一覧確認できる
   - ProofWorkspace.tsx のコンテキストメニュー項目追加時は、どの演繹体系で表示すべきかを必ず確認すること
 ---
+
+## 2026-03-16 - Quest模範解答 INSTANCE_ROOTS修正
+- modelAnswer.ts に `expandAxiomStepIfNeeded` ヘルパー関数を追加
+  - Hilbert系の公理インスタンス（非自明代入）を自動展開: スキーマノード + SubstitutionEdge + インスタンスノード
+  - `identifyAxiom` + `isTrivialAxiomSubstitution` で公理同定
+  - `propositionalAxiomDslTexts` マップで公理スキーマDSLテキストをルックアップ
+  - `buildSubstitutionEntriesFromMaps` でSubstitutionEntries構築
+  - 述語公理(A4等): SubstitutionEntriesが不完全でも `updateNodeFormulaText` で強制上書き
+- WorkspacePageView.stories.tsx: QuestCompleteProp01 のアサーションを Proved! に更新
+- 変更ファイル: modelAnswer.ts, WorkspacePageView.stories.tsx
+- 全1149テスト（builtinModelAnswers.test.ts含む）パス。101の INSTANCE_ROOTS 違反が全て解消
+- **今後のイテレーションへの学び:**
+  - A4/A5等の述語公理は TermMetaVariable ではなく TermVariable を使うため、SubstitutionEntries の項メタ変数エントリが作れない。formulaText強制上書きパターンで回避
+  - 理論公理は matchMode:"exact" のため非自明代入にならず、自動展開の対象外
+  - `applySubstitutionAndConnect` はバリデーション失敗でもノード・エッジ・接続は作成されるため、後からformulaTextを上書き可能
+---

@@ -12,8 +12,9 @@ ant活用してほしい
 - [x] ヘッダーの各要素 — ThemeToggle/LanguageToggleはrole="radio"+aria-checked付きのカスタムsegmentedでantd Segmentedでは代替不可。GitHubリンクは`<a>`タグ。ヘッダーに標準ボタンなし
 
 - [x] EN/JAの切り替えってリロード必要なの？ (必要ならいい) — リロード必要。next-intl がサーバーサイドでcookieからロケール解決するため意図的な設計。useLocaleSwitch.ts でcookie設定後 reload() 呼び出し。テストでも検証済み
-- [-] 各クエストで模範解答を開いても、まだまったく、公理制約違反だったり、証明されていなかったりする
+- [x] 各クエストで模範解答を開いても、まだまったく、公理制約違反だったり、証明されていなかったりする
   - [x] 各論理体系ごとに何が必要？ — 調査完了。ND/TAB/AT/SCは全てAllAchieved。Hilbert系101/127がINSTANCE_ROOTSで失敗。根本原因: axiomステップが代入済みインスタンスを直接配置
+  - [x] buildModelAnswerWorkspaceのaxiomステップ自動展開を実装。expandAxiomStepIfNeededで公理インスタンスをスキーマ+SubstitutionEdge+インスタンスに自動展開。全1149テストパス
   - [ ] pw mcpでしっかり確認しながらできないか
   - [x] しっかり達成しつつ、網羅的に完遂するためのタスクリストを prd-quest-ans.md にまず作っていこう — 作成済み
 - [ ] http://localhost:13006/?path=/story/pages-workspace--quest-complete-prop-01
