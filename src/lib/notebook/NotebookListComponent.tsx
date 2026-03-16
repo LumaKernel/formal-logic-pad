@@ -7,7 +7,13 @@
  * 変更時は NotebookListComponent.test.tsx, NotebookListComponent.stories.tsx も同期すること。
  */
 
-import { useState, useRef, useEffect, useMemo, type CSSProperties } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  type CSSProperties,
+} from "react";
 import { Button, Menu } from "antd";
 import { EllipsisOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
@@ -149,7 +155,6 @@ const deleteMessageStyle: Readonly<CSSProperties> = {
   textAlign: "center",
 };
 
-
 // --- Props ---
 
 export type NotebookListProps = {
@@ -221,7 +226,11 @@ function MoreMenu({
           <Menu
             items={menuItems}
             selectable={false}
-            style={{ border: "none", boxShadow: "none", borderRadius: "0.5rem" }}
+            style={{
+              border: "none",
+              boxShadow: "none",
+              borderRadius: "0.5rem",
+            }}
           />
         </div>
       )}
@@ -352,32 +361,50 @@ function NotebookItem({
     const items: NonNullable<MenuProps["items"]> = [
       {
         key: "rename",
-        label: <span data-testid={`rename-btn-${item.id satisfies string}`}>名前変更</span>,
+        label: (
+          <span data-testid={`rename-btn-${item.id satisfies string}`}>
+            名前変更
+          </span>
+        ),
         onClick: handleRenameStart,
       },
       {
         key: "duplicate",
-        label: <span data-testid={`duplicate-btn-${item.id satisfies string}`}>複製</span>,
+        label: (
+          <span data-testid={`duplicate-btn-${item.id satisfies string}`}>
+            複製
+          </span>
+        ),
         onClick: handleDuplicate,
       },
     ];
     if (onExport !== undefined) {
       items.push({
         key: "export",
-        label: <span data-testid={`export-btn-${item.id satisfies string}`}>エクスポート</span>,
+        label: (
+          <span data-testid={`export-btn-${item.id satisfies string}`}>
+            エクスポート
+          </span>
+        ),
         onClick: handleExport,
       });
     }
     if (item.mode === "quest" && onConvertToFree !== undefined) {
       items.push({
         key: "convert",
-        label: <span data-testid={`convert-btn-${item.id satisfies string}`}>自由帳として複製</span>,
+        label: (
+          <span data-testid={`convert-btn-${item.id satisfies string}`}>
+            自由帳として複製
+          </span>
+        ),
         onClick: handleConvertToFree,
       });
     }
     items.push({
       key: "delete",
-      label: <span data-testid={`delete-btn-${item.id satisfies string}`}>削除</span>,
+      label: (
+        <span data-testid={`delete-btn-${item.id satisfies string}`}>削除</span>
+      ),
       danger: true,
       onClick: handleDeleteStart,
     });
@@ -431,7 +458,11 @@ function NotebookItem({
           </>
         )}
       </div>
-      <MoreMenu itemId={item.id} menuItems={menuItems} onOpenChange={setIsMenuOpen} />
+      <MoreMenu
+        itemId={item.id}
+        menuItems={menuItems}
+        onOpenChange={setIsMenuOpen}
+      />
       {isDeleteConfirming && (
         <div
           data-testid={`delete-confirm-${item.id satisfies string}`}

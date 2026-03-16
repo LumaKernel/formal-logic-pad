@@ -93,7 +93,6 @@ const filterLabelStyle: Readonly<CSSProperties> = {
   textTransform: "uppercase",
 };
 
-
 const categoryContainerStyle: Readonly<CSSProperties> = {
   display: "flex",
   flexDirection: "column",
@@ -469,7 +468,13 @@ function QuestItemMoreMenu({
     if (onShowModelAnswer !== undefined) {
       items.push({
         key: "model-answer",
-        label: <span data-testid={`show-model-answer-btn-${questId satisfies string}`}>模範解答を表示</span>,
+        label: (
+          <span
+            data-testid={`show-model-answer-btn-${questId satisfies string}`}
+          >
+            模範解答を表示
+          </span>
+        ),
         onClick: ({ domEvent }) => {
           domEvent.stopPropagation();
           onShowModelAnswer(questId);
@@ -480,7 +485,13 @@ function QuestItemMoreMenu({
     if (onDuplicateToCustom !== undefined) {
       items.push({
         key: "duplicate",
-        label: <span data-testid={`duplicate-to-custom-btn-${questId satisfies string}`}>自作に複製</span>,
+        label: (
+          <span
+            data-testid={`duplicate-to-custom-btn-${questId satisfies string}`}
+          >
+            自作に複製
+          </span>
+        ),
         onClick: ({ domEvent }) => {
           domEvent.stopPropagation();
           onDuplicateToCustom(questId);

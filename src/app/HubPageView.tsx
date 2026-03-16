@@ -8,7 +8,13 @@
  * 変更時は HubContent.tsx, HubPageView.stories.tsx も同期すること。
  */
 
-import { useState, useRef, useCallback, useMemo, type CSSProperties } from "react";
+import {
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+  type CSSProperties,
+} from "react";
 import { Tabs, Button } from "antd";
 import {
   NotebookList,
@@ -210,7 +216,6 @@ const githubLinkStyle: Readonly<CSSProperties> = {
   transitionDuration: "150ms",
 };
 
-
 const contentStyle: Readonly<CSSProperties> = {
   maxWidth: "800px",
   marginLeft: "auto",
@@ -227,7 +232,6 @@ const actionBarStyle: Readonly<CSSProperties> = {
   gap: "8px",
   marginBottom: "16px",
 };
-
 
 const clearFilterButtonStyle: Readonly<CSSProperties> = {
   paddingTop: "2px",
@@ -742,10 +746,7 @@ export function HubPageView({
             {tab === "notebooks" && view === "list" && (
               <>
                 <div style={actionBarStyle}>
-                  <Button
-                    type="primary"
-                    onClick={() => setView("create")}
-                  >
+                  <Button type="primary" onClick={() => setView("create")}>
                     {m.newNotebook}
                   </Button>
                   {onImportNotebook !== undefined && (
@@ -806,10 +807,7 @@ export function HubPageView({
                     <div style={emptyStateStyle}>
                       <div style={emptyTitleNoFilterStyle}>{m.emptyTitle}</div>
                       <p style={emptyDescriptionStyle}>{m.emptyDescription}</p>
-                      <Button
-                        type="primary"
-                        onClick={() => setView("create")}
-                      >
+                      <Button type="primary" onClick={() => setView("create")}>
                         {m.newNotebook}
                       </Button>
                     </div>

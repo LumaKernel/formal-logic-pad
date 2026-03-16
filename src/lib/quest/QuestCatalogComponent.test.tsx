@@ -80,33 +80,45 @@ function makeGroup(overrides: Partial<CategoryGroup> = {}): CategoryGroup {
 
 describe("基本表示", () => {
   it("カタログコンテナが表示される", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.getByTestId("quest-catalog")).toBeTruthy();
   });
 
   it("カテゴリセクションが表示される", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.getByTestId("category-propositional-basics")).toBeTruthy();
   });
 
   it("カテゴリラベルが表示される", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.getByText("命題論理の基礎")).toBeTruthy();
   });
 
   it("カテゴリの進捗テキストが表示される", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.getByText("1 / 2")).toBeTruthy();
   });
 
   it("クエストアイテムが表示される", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.getByTestId("quest-item-q1")).toBeTruthy();
     expect(screen.getByTestId("quest-item-q2")).toBeTruthy();
   });
 
   it("クエストタイトルが表示される", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.getByText("問題1")).toBeTruthy();
     expect(screen.getByText("問題2")).toBeTruthy();
   });
@@ -142,7 +154,9 @@ describe("基本表示", () => {
 
 describe("チャプター番号", () => {
   it("最初のカテゴリにチャプター番号1が表示される", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.getByTestId("chapter-number-1")).toBeTruthy();
     expect(screen.getByTestId("chapter-number-1").textContent).toBe("1");
   });
@@ -177,7 +191,9 @@ describe("チャプター番号", () => {
 
 describe("プログレスバー", () => {
   it("プログレスバーが表示される", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.getByTestId("progress-bar")).toBeTruthy();
   });
 
@@ -200,13 +216,17 @@ describe("プログレスバー", () => {
 
 describe("難易度星", () => {
   it("難易度1のクエストに星が表示される", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     const stars = screen.getAllByTestId("difficulty-stars");
     expect(stars.length).toBeGreaterThan(0);
   });
 
   it("難易度バッジにLv.表記がある", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     const item = screen.getByTestId("quest-item-q1");
     expect(within(item).getByText("Lv.1")).toBeTruthy();
   });
@@ -251,19 +271,25 @@ describe("評価バッジ", () => {
 
 describe("開始ボタン", () => {
   it("未完了は「開始」と表示される", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.getByTestId("start-btn-q1")).toHaveTextContent("開始");
   });
 
   it("完了済みは「再挑戦」と表示される", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.getByTestId("start-btn-q2")).toHaveTextContent("再挑戦");
   });
 
   it("ボタンクリックでonStartQuestが呼ばれる", async () => {
     const user = userEvent.setup();
     const onStartQuest = vi.fn();
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={onStartQuest} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={onStartQuest} />,
+    );
     await user.click(screen.getByTestId("start-btn-q1"));
     expect(onStartQuest).toHaveBeenCalledWith("q1");
   });
@@ -271,7 +297,9 @@ describe("開始ボタン", () => {
   it("アイテムクリックでもonStartQuestが呼ばれる", async () => {
     const user = userEvent.setup();
     const onStartQuest = vi.fn();
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={onStartQuest} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={onStartQuest} />,
+    );
     await user.click(screen.getByTestId("quest-item-q2"));
     expect(onStartQuest).toHaveBeenCalledWith("q2");
   });
@@ -281,12 +309,16 @@ describe("開始ボタン", () => {
 
 describe("フィルタ", () => {
   it("フィルタバーが表示される", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.getByTestId("filter-bar")).toBeTruthy();
   });
 
   it("難易度フィルタボタンが6つ表示される", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     // null, 1, 2, 3, 4, 5
     expect(screen.getByTestId("difficulty-filter-null")).toBeTruthy();
     expect(screen.getByTestId("difficulty-filter-1")).toBeTruthy();
@@ -297,7 +329,9 @@ describe("フィルタ", () => {
   });
 
   it("完了状態フィルタボタンが3つ表示される", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.getByTestId("completion-filter-all")).toBeTruthy();
     expect(screen.getByTestId("completion-filter-completed")).toBeTruthy();
     expect(screen.getByTestId("completion-filter-incomplete")).toBeTruthy();
@@ -305,7 +339,9 @@ describe("フィルタ", () => {
 
   it("難易度フィルタをクリックすると絞り込まれる", async () => {
     const user = userEvent.setup();
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     // difficulty: 1 に絞る → q1だけ
     await user.click(screen.getByTestId("difficulty-filter-1"));
     expect(screen.getByTestId("quest-item-q1")).toBeTruthy();
@@ -314,7 +350,9 @@ describe("フィルタ", () => {
 
   it("完了状態フィルタで未完了のみに絞る", async () => {
     const user = userEvent.setup();
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     await user.click(screen.getByTestId("completion-filter-incomplete"));
     expect(screen.getByTestId("quest-item-q1")).toBeTruthy();
     expect(screen.queryByTestId("quest-item-q2")).toBeNull();
@@ -322,7 +360,9 @@ describe("フィルタ", () => {
 
   it("完了状態フィルタでクリア済みのみに絞る", async () => {
     const user = userEvent.setup();
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     await user.click(screen.getByTestId("completion-filter-completed"));
     expect(screen.queryByTestId("quest-item-q1")).toBeNull();
     expect(screen.getByTestId("quest-item-q2")).toBeTruthy();
@@ -348,7 +388,9 @@ describe("フィルタ", () => {
 
   it("難易度を解除して全表示に戻る", async () => {
     const user = userEvent.setup();
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     await user.click(screen.getByTestId("difficulty-filter-1"));
     expect(screen.queryByTestId("quest-item-q2")).toBeNull();
     await user.click(screen.getByTestId("difficulty-filter-null"));
@@ -408,7 +450,9 @@ describe("キーボード操作", () => {
   it("Enterキーでクエスト開始", async () => {
     const user = userEvent.setup();
     const onStartQuest = vi.fn();
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={onStartQuest} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={onStartQuest} />,
+    );
     const item = screen.getByTestId("quest-item-q1");
     item.focus();
     await user.keyboard("{Enter}");
@@ -418,7 +462,9 @@ describe("キーボード操作", () => {
   it("Spaceキーでクエスト開始", async () => {
     const user = userEvent.setup();
     const onStartQuest = vi.fn();
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={onStartQuest} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={onStartQuest} />,
+    );
     const item = screen.getByTestId("quest-item-q1");
     item.focus();
     await user.keyboard(" ");
@@ -428,7 +474,9 @@ describe("キーボード操作", () => {
   it("他のキーではクエスト開始されない", async () => {
     const user = userEvent.setup();
     const onStartQuest = vi.fn();
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={onStartQuest} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={onStartQuest} />,
+    );
     const item = screen.getByTestId("quest-item-q1");
     item.focus();
     await user.keyboard("{Tab}");
@@ -441,7 +489,9 @@ describe("キーボード操作", () => {
 describe("ホバー", () => {
   it("マウスエンター・リーブでスタイルが切り替わる", async () => {
     const user = userEvent.setup();
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     const item = screen.getByTestId("quest-item-q1");
     await user.hover(item);
     await user.unhover(item);
@@ -453,7 +503,9 @@ describe("ホバー", () => {
 
 describe("ノートブック数バッジ", () => {
   it("notebookCountsが未指定のときバッジが表示されない", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.queryByTestId("notebook-count-q1")).toBeNull();
     expect(screen.queryByTestId("notebook-count-q2")).toBeNull();
   });
@@ -538,7 +590,9 @@ describe("ノートブック数バッジ", () => {
 
 describe("三点リーダーメニュー", () => {
   it("アクションが未指定のときメニューボタンが表示されない", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.queryByTestId("quest-more-btn-q1")).toBeNull();
   });
 
@@ -770,7 +824,9 @@ describe("模範解答を表示（メニュー内）", () => {
 
 describe("ドキュメントバッジ", () => {
   it("questReferenceMapが未指定のときバッジが表示されない", () => {
-    renderWithAntd(<QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />);
+    renderWithAntd(
+      <QuestCatalog groups={[makeGroup()]} onStartQuest={vi.fn()} />,
+    );
     expect(screen.queryByTestId("reference-doc-q1")).toBeNull();
     expect(screen.queryByTestId("reference-doc-q2")).toBeNull();
   });

@@ -9,6 +9,7 @@
  */
 
 import { useState, useRef, useEffect, type CSSProperties } from "react";
+import { Button } from "antd";
 import { FormulaListEditor } from "../formula-input/FormulaListEditor";
 import type { QuestCatalogItem } from "./questCatalog";
 import type {
@@ -182,49 +183,6 @@ const ratingBadgeBaseStyle: Readonly<CSSProperties> = {
   whiteSpace: "nowrap",
 };
 
-const startButtonStyle: Readonly<CSSProperties> = {
-  padding: "6px 12px",
-  fontSize: "11px",
-  fontWeight: 600,
-  borderRadius: "6px",
-  border: "none",
-  background: "var(--color-quest-start-bg)",
-  color: "white",
-  cursor: "pointer",
-  flexShrink: 0,
-  transitionProperty: "color, background-color, border-color",
-  transitionDuration: "150ms",
-};
-
-const actionButtonStyle: Readonly<CSSProperties> = {
-  padding: "4px 8px",
-  fontSize: "10px",
-  fontWeight: 600,
-  borderRadius: "4px",
-  border: "1px solid var(--ui-border)",
-  background: "transparent",
-  color: "var(--ui-muted-foreground)",
-  cursor: "pointer",
-  flexShrink: 0,
-  transitionProperty: "color, background-color, border-color",
-  transitionDuration: "150ms",
-};
-
-const deleteButtonStyle: Readonly<CSSProperties> = {
-  padding: "4px 8px",
-  fontSize: "10px",
-  fontWeight: 600,
-  borderRadius: "4px",
-  border:
-    "1px solid color-mix(in srgb, var(--ui-destructive) 60%, transparent)",
-  background: "transparent",
-  color: "var(--ui-destructive)",
-  cursor: "pointer",
-  flexShrink: 0,
-  transitionProperty: "color, background-color, border-color",
-  transitionDuration: "150ms",
-};
-
 const deleteConfirmOverlayStyle: Readonly<CSSProperties> = {
   position: "absolute",
   top: 0,
@@ -246,28 +204,6 @@ const deleteConfirmTextStyle: Readonly<CSSProperties> = {
   fontWeight: 600,
   flex: 1,
   textAlign: "center",
-};
-
-const deleteConfirmBtnStyle: Readonly<CSSProperties> = {
-  padding: "6px 14px",
-  fontSize: "0.75rem",
-  borderRadius: "6px",
-  border:
-    "1px solid color-mix(in srgb, var(--ui-destructive) 40%, transparent)",
-  background: "var(--ui-destructive)",
-  color: "var(--ui-destructive-foreground)",
-  cursor: "pointer",
-  fontWeight: 600,
-};
-
-const deleteCancelBtnStyle: Readonly<CSSProperties> = {
-  padding: "6px 14px",
-  fontSize: "0.75rem",
-  borderRadius: "6px",
-  border: "1px solid var(--ui-border)",
-  background: "var(--ui-card)",
-  color: "var(--ui-foreground)",
-  cursor: "pointer",
 };
 
 const sharePanelOverlayStyle: Readonly<CSSProperties> = {
@@ -292,60 +228,10 @@ const sharePanelTitleStyle: Readonly<CSSProperties> = {
   flexShrink: 0,
 };
 
-const sharePanelBtnStyle: Readonly<CSSProperties> = {
-  padding: "6px 14px",
-  fontSize: "0.75rem",
-  borderRadius: "6px",
-  border: "1px solid var(--ui-border)",
-  background: "var(--ui-card)",
-  color: "var(--ui-foreground)",
-  cursor: "pointer",
-  fontWeight: 600,
-  transitionProperty: "color, background-color, border-color",
-  transitionDuration: "150ms",
-};
-
-const sharePanelCopiedBtnStyle: Readonly<CSSProperties> = {
-  padding: "6px 14px",
-  fontSize: "0.75rem",
-  borderRadius: "6px",
-  border: "1px solid var(--color-quest-start-bg, #4caf50)",
-  background: "var(--color-quest-start-bg, #4caf50)",
-  color: "white",
-  cursor: "pointer",
-  fontWeight: 600,
-  transitionProperty: "color, background-color, border-color",
-  transitionDuration: "150ms",
-};
-
-const sharePanelCloseBtnStyle: Readonly<CSSProperties> = {
-  padding: "6px 10px",
-  fontSize: "0.75rem",
-  borderRadius: "6px",
-  border: "1px solid var(--ui-border)",
-  background: "transparent",
-  color: "var(--ui-muted-foreground)",
-  cursor: "pointer",
-};
-
 const actionGroupStyle: Readonly<CSSProperties> = {
   display: "flex",
   gap: "4px",
   alignItems: "center",
-};
-
-const createButtonStyle: Readonly<CSSProperties> = {
-  padding: "6px 14px",
-  fontSize: "11px",
-  fontWeight: 600,
-  borderRadius: "4px",
-  border: "none",
-  background: "var(--color-quest-start-bg)",
-  color: "white",
-  cursor: "pointer",
-  flexShrink: 0,
-  transitionProperty: "color, background-color, border-color",
-  transitionDuration: "150ms",
 };
 
 const emptyStyle: Readonly<CSSProperties> = {
@@ -445,28 +331,6 @@ const editActionsStyle: Readonly<CSSProperties> = {
   gap: "6px",
   justifyContent: "flex-end",
   marginTop: "4px",
-};
-
-const editSaveButtonStyle: Readonly<CSSProperties> = {
-  padding: "6px 14px",
-  fontSize: "11px",
-  fontWeight: 600,
-  borderRadius: "4px",
-  border: "none",
-  background: "var(--color-quest-start-bg)",
-  color: "white",
-  cursor: "pointer",
-};
-
-const editCancelButtonStyle: Readonly<CSSProperties> = {
-  padding: "6px 14px",
-  fontSize: "11px",
-  fontWeight: 600,
-  borderRadius: "4px",
-  border: "1px solid var(--ui-border)",
-  background: "transparent",
-  color: "var(--ui-muted-foreground)",
-  cursor: "pointer",
 };
 
 // --- Sub-components ---
@@ -729,24 +593,24 @@ function CustomQuestEditForm({
 
         {/* ボタン */}
         <div style={editActionsStyle}>
-          <button
-            type="button"
+          <Button
             data-testid="edit-cancel-btn"
-            style={editCancelButtonStyle}
+            size="small"
             onClick={(e) => {
               e.stopPropagation();
               onCancel();
             }}
           >
             キャンセル
-          </button>
-          <button
-            type="submit"
+          </Button>
+          <Button
+            htmlType="submit"
             data-testid="edit-save-btn"
-            style={editSaveButtonStyle}
+            type="primary"
+            size="small"
           >
             保存
-          </button>
+          </Button>
         </div>
       </form>
     </div>
@@ -968,24 +832,24 @@ function CustomQuestCreateForm({
 
         {/* ボタン */}
         <div style={editActionsStyle}>
-          <button
-            type="button"
+          <Button
             data-testid="create-cancel-btn"
-            style={editCancelButtonStyle}
+            size="small"
             onClick={(e) => {
               e.stopPropagation();
               onCancel();
             }}
           >
             キャンセル
-          </button>
-          <button
-            type="submit"
+          </Button>
+          <Button
+            htmlType="submit"
             data-testid="create-save-btn"
-            style={editSaveButtonStyle}
+            type="primary"
+            size="small"
           >
             作成
-          </button>
+          </Button>
         </div>
       </form>
     </div>
@@ -1114,22 +978,23 @@ function CustomQuestItem({
         </div>
         <RatingBadge rating={item.rating} />
         <div style={actionGroupStyle}>
-          <button
+          <Button
             data-testid={`custom-quest-start-btn-${item.quest.id satisfies string}`}
-            style={startButtonStyle}
+            type="primary"
+            size="small"
             onClick={(e) => {
               e.stopPropagation();
               onStart(item.quest.id);
             }}
             title={item.completed ? "再挑戦" : "開始"}
+            style={{ flexShrink: 0 }}
           >
             {item.completed ? "再挑戦" : "開始"}
-          </button>
+          </Button>
           {onEdit !== undefined && (
-            <button
+            <Button
               data-testid={`custom-quest-edit-btn-${item.quest.id satisfies string}`}
-              className="custom-quest-action-btn"
-              style={actionButtonStyle}
+              size="small"
               onClick={(e) => {
                 e.stopPropagation();
                 onToggleEdit(item.quest.id);
@@ -1137,13 +1002,12 @@ function CustomQuestItem({
               title="編集"
             >
               編集
-            </button>
+            </Button>
           )}
           {hasShareActions && (
-            <button
+            <Button
               data-testid={`custom-quest-share-btn-${item.quest.id satisfies string}`}
-              className="custom-quest-action-btn"
-              style={actionButtonStyle}
+              size="small"
               onClick={(e) => {
                 e.stopPropagation();
                 handleShareOpen();
@@ -1151,13 +1015,12 @@ function CustomQuestItem({
               title="共有"
             >
               共有
-            </button>
+            </Button>
           )}
           {onDuplicate !== undefined && (
-            <button
+            <Button
               data-testid={`custom-quest-duplicate-btn-${item.quest.id satisfies string}`}
-              className="custom-quest-action-btn"
-              style={actionButtonStyle}
+              size="small"
               onClick={(e) => {
                 e.stopPropagation();
                 onDuplicate(item.quest.id);
@@ -1165,13 +1028,13 @@ function CustomQuestItem({
               title="複製"
             >
               複製
-            </button>
+            </Button>
           )}
           {onDelete !== undefined && (
-            <button
+            <Button
               data-testid={`custom-quest-delete-btn-${item.quest.id satisfies string}`}
-              className="custom-quest-delete-btn"
-              style={deleteButtonStyle}
+              size="small"
+              danger
               onClick={(e) => {
                 e.stopPropagation();
                 handleDeleteStart();
@@ -1179,7 +1042,7 @@ function CustomQuestItem({
               title="削除"
             >
               削除
-            </button>
+            </Button>
           )}
         </div>
         {isShareOpen && (
@@ -1190,32 +1053,32 @@ function CustomQuestItem({
           >
             <span style={sharePanelTitleStyle}>共有</span>
             {onExport !== undefined && (
-              <button
+              <Button
                 data-testid={`custom-quest-share-export-btn-${item.quest.id satisfies string}`}
-                style={sharePanelBtnStyle}
+                size="small"
                 onClick={handleShareExport}
               >
                 JSONエクスポート
-              </button>
+              </Button>
             )}
             {onShareUrl !== undefined && (
-              <button
+              <Button
                 data-testid={`custom-quest-share-url-btn-${item.quest.id satisfies string}`}
-                style={
-                  urlCopied ? sharePanelCopiedBtnStyle : sharePanelBtnStyle
-                }
+                size="small"
+                type={urlCopied ? "primary" : "default"}
                 onClick={handleShareUrl}
               >
                 {urlCopied ? "コピーしました!" : "URLをコピー"}
-              </button>
+              </Button>
             )}
-            <button
+            <Button
               data-testid={`custom-quest-share-close-btn-${item.quest.id satisfies string}`}
-              style={sharePanelCloseBtnStyle}
+              size="small"
+              type="text"
               onClick={handleShareClose}
             >
               閉じる
-            </button>
+            </Button>
           </div>
         )}
         {isDeleteConfirming && (
@@ -1225,20 +1088,22 @@ function CustomQuestItem({
             onClick={(e) => e.stopPropagation()}
           >
             <span style={deleteConfirmTextStyle}>本当に削除しますか？</span>
-            <button
+            <Button
               data-testid={`custom-quest-delete-cancel-btn-${item.quest.id satisfies string}`}
-              style={deleteCancelBtnStyle}
+              size="small"
               onClick={handleDeleteCancel}
             >
               キャンセル
-            </button>
-            <button
+            </Button>
+            <Button
               data-testid={`custom-quest-delete-confirm-btn-${item.quest.id satisfies string}`}
-              style={deleteConfirmBtnStyle}
+              size="small"
+              danger
+              type="primary"
               onClick={handleDeleteConfirm}
             >
               削除する
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -1333,25 +1198,25 @@ function CustomQuestImportForm({
           />
         </div>
         <div style={editActionsStyle}>
-          <button
-            type="button"
+          <Button
             data-testid="import-cancel-btn"
-            style={editCancelButtonStyle}
+            size="small"
             onClick={(e) => {
               e.stopPropagation();
               onCancel();
             }}
           >
             キャンセル
-          </button>
-          <button
-            type="submit"
+          </Button>
+          <Button
+            htmlType="submit"
             data-testid="import-submit-btn"
-            style={editSaveButtonStyle}
+            type="primary"
+            size="small"
             disabled={jsonText.trim() === ""}
           >
             インポート
-          </button>
+          </Button>
         </div>
       </form>
     </div>
@@ -1414,25 +1279,23 @@ export function CustomQuestList({
             {customQuestProgressText(completedCount, totalCount)}
           </div>
           {onImportQuest !== undefined && (
-            <button
-              type="button"
+            <Button
               data-testid="custom-quest-import-btn"
-              className="custom-quest-action-btn"
-              style={actionButtonStyle}
+              size="small"
               onClick={handleToggleImport}
             >
               {isImporting ? "閉じる" : "インポート"}
-            </button>
+            </Button>
           )}
           {onCreateQuest !== undefined && (
-            <button
-              type="button"
+            <Button
               data-testid="custom-quest-create-btn"
-              style={createButtonStyle}
+              type="primary"
+              size="small"
               onClick={handleToggleCreate}
             >
               {isCreating ? "閉じる" : "新規作成"}
-            </button>
+            </Button>
           )}
         </div>
       </div>
