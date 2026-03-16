@@ -382,3 +382,6 @@ Infinity Canvasについて。
     - FormulaEditorに内蔵拡大モーダルを実装。onOpenExpanded未指定でも⤢ボタン常時表示、複数行テキストはクリックで直接内蔵モーダルが開く
   - [x] http://localhost:13006/?path=/story/formulainput-formulaeditor--with-parsed-callback ← そもそも拡張編集がついてないこれはなに？拡張編集があるかないかをコンポーネントごとに分けられるようになってる？統一が足りてなさそう。
     - 解決: FormulaEditorは常に拡大ボタンを表示。onOpenExpanded指定時は外部ハンドラ、未指定時は内蔵FormulaExpandedEditorモーダルを使用
+
+- [x] スクリプトエディタは最低幅はありつつ、ウィンドウ幅をひっぱって調整できるようにしてほしい
+  - 左端にリサイズハンドル追加、ポインターキャプチャでドラッグ、320px〜960px範囲

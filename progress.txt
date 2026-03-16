@@ -15005,3 +15005,15 @@
   - メニュー移動時は testId パターンも変わるため、stories の play 関数のセレクタ更新を忘れずに
   - prettier --check をローカルで実行してからコミットする（globals.css のような非TS/TSXファイルも対象）
 ---
+
+## 2026-03-17 - スクリプトエディタリサイズ
+- スクリプトエディタパネル（ProofWorkspace.tsx）にリサイズ機能を追加
+- 左端にドラッグハンドル追加、ポインターキャプチャでスムーズなリサイズ
+- 幅は320px〜960px、初期値480px
+- 変更ファイル: ProofWorkspace.tsx, ProofWorkspace.test.tsx
+- テスト2件追加（リサイズ動作、min/max制約）
+- カバレッジ: Stmts 99.99%, Branch 99.89%, Funcs 90.41%, Lines 100%（変化なし）
+- **今後のイテレーションへの学び:**
+  - ポインターキャプチャを使うリサイズは、jsdomではsetPointerCaptureをモック化する必要がある
+  - fireEventでpointerDown/pointerMove/pointerUpを使ってリサイズをテストできる
+---
