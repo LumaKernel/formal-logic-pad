@@ -14856,3 +14856,18 @@
   - ND体系のplay関数でポート接続（ドラッグ操作）のシミュレーションは困難。仮定追加+式入力の部分的インタラクションが現実的
   - createQuestWorkspaceとresolveSystemPresetを組み合わせて空のクエストワークスペースを作成できる
 ---
+
+## 2026-03-16 21:45 - ND仮定打ち消しID表示
+- 実装した内容: getInferenceEdgeLabelで→I/∨E/∃EのラベルにdischargedAssumptionIdを付与
+  - →I → →I [1], ∨E → ∨E [2,3], ∃E → ∃E [4] 形式
+- 変更したファイル:
+  - src/lib/proof-pad/inferenceEdge.ts（getInferenceEdgeLabel修正）
+  - src/lib/proof-pad/inferenceEdge.test.ts（期待値更新）
+  - src/lib/proof-pad/inferenceEdgeLabelLogic.test.ts（期待値更新）
+- カバレッジ: ベースライン Stmts 99.99%, Branch 99.93%, Lines 100% → 変化なし
+- テスト: 11272 passed / 275 files
+- **今後のイテレーションへの学び:**
+  - getInferenceEdgeLabelの変更はinferenceEdgeLabelLogic経由でconnectionラベルにも自動伝播する
+  - ノード上の仮定ID表示にはWorkspaceNodeにassumptionIdフィールドの追加が必要（別タスク）
+  - Storybook DOM snapshotではInferenceEdgeBadge（connection上の描画要素）はaccessibility treeに出ない場合がある
+---
