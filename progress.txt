@@ -15217,3 +15217,19 @@
   - InferenceEdge追加時の更新箇所: inferenceEdge.ts(型+ユーティリティ), labelLogic(色+ロール), badgeEdit, workspaceExport(Schema), workspaceState(revalidate+connect), ProofWorkspace.tsx(選択モード)
   - Prettierフォーマット: CI失敗の主因。sed/pythonで挿入したコードは必ず `prettier --write` すること
 ---
+
+## 2026-03-18 - A4公理dslText置換表記統一
+
+- A4公理のdslTextを `(all x. phi) -> phi` から `(all x. phi) -> phi[tau/x]` に変更
+- パレット表示・ノード作成・模範解答すべてで置換表記 `φ[τ/x]` が統一された
+- 変更ファイル:
+  - `src/lib/proof-pad/axiomPaletteLogic.ts`: dslText変更
+  - `src/lib/logic-core/inferenceRule.ts`: `matchAxiomTemplateByEquality` 追加（公理テンプレート構造的等価性チェック）
+  - `src/lib/proof-pad/dependencyLogic.ts`: validateRootNodes にフォールバック追加
+  - `src/lib/quest/modelAnswer.ts`: propositionalAxiomDslTexts同期、v8 ignore除去
+  - テスト: axiomPaletteLogic.test.ts, ProofWorkspace.test.tsx
+- **今後のイテレーションへの学び:**
+  - `identifyAxiom` は解決済み（代入適用後）の形しか識別できない。FormulaSubstitution ノードを含むテンプレート形式は `matchAxiomTemplateByEquality` でフォールバック
+  - 公理dslText変更時は `propositionalAxiomDslTexts`（modelAnswer.ts）も同期が必要
+  - builtinModelAnswers.test.ts の hasUnknownRootNodes チェックは公理識別に依存するため、公理表現変更時に影響を受ける
+---
