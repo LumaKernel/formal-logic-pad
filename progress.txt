@@ -108,6 +108,23 @@
 
 ---
 
+## 2026-03-17 - [proof-pad] AT-01完全フローストーリー
+- ベースライン: Stmts 99.95%, Branch 99.77%, Funcs 90.43%, Lines 99.95%
+- **結果: カバレッジ変化なし（99.95% / 99.77% / 90.43% / 99.95%）**
+- 実装内容:
+  - `QuestCompleteAt01FullFlow` ストーリーを追加: 空のATワークスペースから式追加→phi \/ ~phi入力でゴール達成する完全フロー
+  - SC-01/TAB-01と同パターン（パレットの式追加→式入力→ゴール達成）
+  - AT-01完了により、全5体系（prop-01, nd-01, sc-01, tab-01, at-01）のフルフローストーリーが揃った
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx（+77行: QuestCompleteAt01FullFlow ストーリー）
+- ブラウザ確認: Storybook a11yスナップショットで "Proved!" "1 / 1" 確認済み
+- **今後のイテレーションへの学び:**
+  - AT体系のゴールチェックは他体系と同じ（parseNodeFormula）。署名付き式(F:φ)ではなく、素の論理式(φ)を入力すればゴール一致する
+  - Storybook URL: `pages-workspace--quest-complete-at-01-full-flow`（`workspace-workspacepageview--`ではない）
+  - AT palette testId: `workspace-at-rule-palette`, `workspace-at-rule-palette-add-formula`
+
+---
+
 ## 2026-03-17 - [quest] prop-01クエスト完遂フルフローストーリー
 - ベースライン: Stmts 99.99%, Branch 99.89%, Funcs 90.39%, Lines 100%
 - **結果: Funcs微増（90.39%→90.41%）、他変化なし**
