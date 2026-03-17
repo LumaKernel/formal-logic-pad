@@ -4492,7 +4492,7 @@ export const ProofWorkspace = forwardRef<
                     ? "2px solid var(--color-accent, #3b82f6)"
                     : isSelectionActive && selectionColor
                       ? `2px dashed ${selectionColor satisfies string}`
-                  : undefined;
+                      : undefined;
 
       return (
         <CanvasItem

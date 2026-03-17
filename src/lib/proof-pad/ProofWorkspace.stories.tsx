@@ -2151,28 +2151,10 @@ export const SimplificationContextMenu: Story = {
   render: () => {
     const [workspace, setWorkspace] = useState<WorkspaceState>(() => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(
-        ws,
-        "axiom",
-        "Axiom",
-        { x: 100, y: 50 },
-        "all x. P(x)",
-      );
-      ws = addNode(
-        ws,
-        "axiom",
-        "Axiom",
-        { x: 400, y: 50 },
-        "all y. P(y)",
-      );
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 50 }, "all x. P(x)");
+      ws = addNode(ws, "axiom", "Axiom", { x: 400, y: 50 }, "all y. P(y)");
       // 非互換ノード（接続不可）
-      ws = addNode(
-        ws,
-        "axiom",
-        "Axiom",
-        { x: 250, y: 200 },
-        "phi -> psi",
-      );
+      ws = addNode(ws, "axiom", "Axiom", { x: 250, y: 200 }, "phi -> psi");
       return ws;
     });
     const handleChange = useCallback((ws: WorkspaceState) => {
@@ -2208,9 +2190,7 @@ export const SimplificationContextMenu: Story = {
     await userEvent.click(menuItem);
 
     // 整理選択バナーが表示される
-    const banner = await canvas.findByTestId(
-      "workspace-simplification-banner",
-    );
+    const banner = await canvas.findByTestId("workspace-simplification-banner");
     await expect(banner).toBeInTheDocument();
 
     // node-2 (all y. P(y)) をクリックして接続
