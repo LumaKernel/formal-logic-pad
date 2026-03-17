@@ -15180,3 +15180,21 @@
   - 整理エッジは結論テキスト自動計算しない特殊ケース（TAB/AT/SC同様にreturn node）
   - 次はコンテキストメニューUI統合（整理した先を繋ぐアクション）
 ---
+
+## 2026-03-17 - [proof-pad] 整理エッジのコンテキストメニュー接続機能
+- 実装した内容: ノード右クリック→「整理として接続…」→選択モード（バナー+互換ハイライト+非互換半透明）→クリックで整理エッジ接続
+- 変更したファイル:
+  - `workspaceState.ts`: connectSimplification関数（既存2ノードを整理エッジで接続）
+  - `ProofWorkspace.tsx`: SimplificationSelectionState型+選択モードUI+コンテキストメニュー項目+ハイライト/半透明ロジック+Escキャンセル
+  - `proofMessages.ts`: 5つの新メッセージキー（connectSimplification, simplificationBannerSelectTarget, simplificationCancel, simplificationConnected, simplificationNoTargets）
+  - `messages/en.json`, `messages/ja.json`: 翻訳追加
+  - `WorkspaceContent.tsx`: メッセージマッピング追加
+  - `index.ts`: connectSimplification + ConnectSimplificationResult エクスポート
+  - `workspaceState.test.ts`: 3テスト追加（α等価接続, 非等価失敗, ネスト量化子）
+  - `ProofWorkspace.stories.tsx`: SimplificationContextMenu ストーリー（play関数付き）
+- カバレッジ: Stmts 99.91%, Branch 99.45%, Funcs 90.40%, Lines 99.94%（変化なし）
+- **今後のイテレーションへの学び:**
+  - 選択モードパターン: idle→selecting-target状態機械、computeCompatibleNodeIds純粋関数でハイライト対象計算、他モード開始時にリセット
+  - コンテキストメニュー項目追加時: proofMessages.ts(型+デフォルト) → en.json/ja.json → WorkspaceContent.tsx(tマッピング) の3箇所同期
+  - Prettierフォーマット忘れに注意: コミット前に必ずprettier --write実行
+---

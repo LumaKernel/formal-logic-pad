@@ -34,19 +34,19 @@
   - [ ] UIは真に(all x. phi) -> phi[τ/x]が、ノードとして呼び出したときに表れるべきである
   - [-] 整理する、という関係を繋ぐこともできるようにする (MPやsubstなどと同様に)
     - [x] 構文的に置換等の処理や束縛変数の違いを除いて同値であれば繋ぐことができる — SimplificationEdge + validateSimplificationApplication + computeSimplificationCompatibleNodeIds
-    - [ ] 整理した先を繋ぐ、というようなコンテキストメニューも追加しよう
-      - [ ] phi→phiからpsi→psiは繋げない(置換が必要)
-      - [ ] ∀x.phiから∀y.phiは繋げる
-      - [ ] ∀x.P(x)から∀y.P(y)は繋げる
-      - [ ] ∀x.P(x)から∀y.P(x)は繋げない
-      - [ ] ∀x.∀y....のようなネストしたパターンやシャドーイングがある場合のコーナーケースも各種網羅
-      - [ ] y[/x]はyに繋げられる
-      - [ ] x[/x]はxに繋げられない
-      - [ ] x[y/x]はyに繋げられる
-      - [ ] (x+x)[y/x]は(x[y/x]+x[y/x])に繋げられる
-      - [ ] (x+x)[y/x]は(y+x[y/x])に繋げられる
-      - [ ] (x+x)[y/x]は(y+y)に繋げられる
-      - [ ] 整理を繋ぐのは、常に逆方向にも繋げられる
+    - [x] 整理した先を繋ぐ、というようなコンテキストメニューも追加しよう — コンテキストメニュー「整理として接続…」→選択モード（バナー表示、互換ハイライト、非互換半透明）→クリックで接続。workspaceState.connectSimplification + ProofWorkspace UI + play関数付きStory
+      - [x] phi→phiからpsi→psiは繋げない(置換が必要) — workspaceState.test.tsで検証済み
+      - [x] ∀x.phiから∀y.phiは繋げる — α等価性判定で対応済み
+      - [x] ∀x.P(x)から∀y.P(y)は繋げる — workspaceState.test.tsで検証済み
+      - [x] ∀x.P(x)から∀y.P(x)は繋げない — simplificationApplicationLogic.test.tsで検証済み
+      - [x] ∀x.∀y....のようなネストしたパターンやシャドーイングがある場合のコーナーケースも各種網羅 — workspaceState.test.tsでネスト量化子テスト追加
+      - [ ] y[/x]はyに繋げられる — 置換正規化はパーサー制約のため未テスト（置換構文パース非対応）
+      - [ ] x[/x]はxに繋げられない — 同上
+      - [ ] x[y/x]はyに繋げられる — 同上
+      - [ ] (x+x)[y/x]は(x[y/x]+x[y/x])に繋げられる — 同上
+      - [ ] (x+x)[y/x]は(y+x[y/x])に繋げられる — 同上
+      - [ ] (x+x)[y/x]は(y+y)に繋げられる — 同上
+      - [x] 整理を繋ぐのは、常に逆方向にも繋げられる — areSimplificationEquivalent は対称的
         - [x] ふたつの論理式をとり、それらが整理しあう関係にあるか、ということが判定できるようにしておく (純粋関数として) — `areSimplificationEquivalent` in `alphaEquivalence.ts`
   - [ ] identifyAxiomみたいなのも要らない。メタ変数の差を除いて、親切に判別する必要はない
 - [ ] 置換した先として繋ぐ、というコンテキストメニューのアクションを用意しよう。
