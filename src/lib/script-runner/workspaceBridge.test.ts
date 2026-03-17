@@ -25,6 +25,12 @@ const createMockHandler = (): WorkspaceCommandHandler => ({
   applyLayout: vi.fn(),
   clearWorkspace: vi.fn(),
   getSelectedNodeIds: vi.fn().mockReturnValue(["node-1"]),
+  getDeductionSystemInfo: vi.fn().mockReturnValue({
+    style: "hilbert",
+    systemName: "Classical Propositional Logic",
+    isHilbertStyle: true,
+    rules: [],
+  }),
 });
 
 const getRunner = (
@@ -76,7 +82,7 @@ describe("createWorkspaceBridges", () => {
   it("ブリッジ関数一覧を返す", () => {
     const handler = createMockHandler();
     const bridges = createWorkspaceBridges(handler);
-    expect(bridges.length).toBe(11);
+    expect(bridges.length).toBe(12);
     const names = bridges.map((b) => b.name);
     expect(names).toContain("addNode");
     expect(names).toContain("setNodeFormula");
@@ -89,6 +95,7 @@ describe("createWorkspaceBridges", () => {
     expect(names).toContain("clearWorkspace");
     expect(names).toContain("displayScProof");
     expect(names).toContain("getSelectedNodeIds");
+    expect(names).toContain("getDeductionSystemInfo");
   });
 });
 
@@ -622,6 +629,92 @@ describe("getSelectedNodeIds ブリッジ", () => {
   });
 });
 
+describe("getDeductionSystemInfo ブリッジ", () => {
+  it("Hilbert体系の情報を返す", () => {
+    const handler = createMockHandler();
+    const result = runCode(`getDeductionSystemInfo()`, handler);
+    expect(result).toEqual({
+      style: "hilbert",
+      systemName: "Classical Propositional Logic",
+      isHilbertStyle: true,
+      rules: [],
+    });
+    expect(handler.getDeductionSystemInfo).toHaveBeenCalled();
+  });
+
+  it("ND体系の情報を返す", () => {
+    const handler = createMockHandler();
+    (
+      handler.getDeductionSystemInfo as ReturnType<typeof vi.fn>
+    ).mockReturnValue({
+      style: "natural-deduction",
+      systemName: "NJ",
+      isHilbertStyle: false,
+      rules: ["implication-intro", "implication-elim", "efq"],
+    });
+    const result = runCode(`getDeductionSystemInfo()`, handler);
+    expect(result).toEqual({
+      style: "natural-deduction",
+      systemName: "NJ",
+      isHilbertStyle: false,
+      rules: ["implication-intro", "implication-elim", "efq"],
+    });
+  });
+
+  it("SC体系の情報を返す", () => {
+    const handler = createMockHandler();
+    (
+      handler.getDeductionSystemInfo as ReturnType<typeof vi.fn>
+    ).mockReturnValue({
+      style: "sequent-calculus",
+      systemName: "LK",
+      isHilbertStyle: false,
+      rules: ["identity", "cut", "weakening-left"],
+    });
+    const result = runCode(`getDeductionSystemInfo()`, handler);
+    expect(result).toEqual({
+      style: "sequent-calculus",
+      systemName: "LK",
+      isHilbertStyle: false,
+      rules: ["identity", "cut", "weakening-left"],
+    });
+  });
+
+  it("スクリプト内でisHilbertStyleで分岐できる", () => {
+    const handler = createMockHandler();
+    const code = `
+var info = getDeductionSystemInfo();
+if (!info.isHilbertStyle) {
+  throw new Error("Not a Hilbert system: " + info.style);
+}
+info.systemName;
+`;
+    const result = runCode(code, handler);
+    expect(result).toBe("Classical Propositional Logic");
+  });
+
+  it("非Hilbert体系でスクリプトがガードできる", () => {
+    const handler = createMockHandler();
+    (
+      handler.getDeductionSystemInfo as ReturnType<typeof vi.fn>
+    ).mockReturnValue({
+      style: "natural-deduction",
+      systemName: "NJ",
+      isHilbertStyle: false,
+      rules: [],
+    });
+    const code = `
+var info = getDeductionSystemInfo();
+if (!info.isHilbertStyle) {
+  throw new Error("Not a Hilbert system: " + info.style);
+}
+`;
+    const msg = runCodeError(code, handler);
+    expect(msg).toContain("Not a Hilbert system");
+    expect(msg).toContain("natural-deduction");
+  });
+});
+
 describe("generateWorkspaceBridgeTypeDefs", () => {
   it("TypeScript型定義テキストを生成する", () => {
     const typeDefs = generateWorkspaceBridgeTypeDefs();
@@ -631,5 +724,6 @@ describe("generateWorkspaceBridgeTypeDefs", () => {
     expect(typeDefs).toContain("declare function clearWorkspace");
     expect(typeDefs).toContain("declare function displayScProof");
     expect(typeDefs).toContain("declare function getSelectedNodeIds");
+    expect(typeDefs).toContain("declare function getDeductionSystemInfo");
   });
 });

@@ -46,6 +46,13 @@ export interface WorkspaceCommandHandler {
   readonly clearWorkspace: () => void;
   /** 現在選択中のノードID一覧を返す */
   readonly getSelectedNodeIds: () => readonly string[];
+  /** 現在の演繹体系情報を返す */
+  readonly getDeductionSystemInfo: () => {
+    readonly style: string;
+    readonly systemName: string;
+    readonly isHilbertStyle: boolean;
+    readonly rules: readonly string[];
+  };
 }
 
 // ── ブリッジ関数の実装 ────────────────────────────────────────
@@ -153,6 +160,11 @@ const createClearWorkspaceFn =
 const createGetSelectedNodeIdsFn =
   (handler: WorkspaceCommandHandler) => (): unknown => {
     return handler.getSelectedNodeIds();
+  };
+
+const createGetDeductionSystemInfoFn =
+  (handler: WorkspaceCommandHandler) => (): unknown => {
+    return handler.getDeductionSystemInfo();
   };
 
 // ── SC証明木のフラット展開 ──────────────────────────────────
@@ -307,6 +319,7 @@ const createDisplayScProofFn =
  * - setNodeRoleAxiom(nodeId)
  * - applyLayout()
  * - getSelectedNodeIds() → string[]
+ * - getDeductionSystemInfo() → { style, systemName, isHilbertStyle, rules }
  */
 export const createWorkspaceBridges = (
   handler: WorkspaceCommandHandler,
@@ -322,6 +335,10 @@ export const createWorkspaceBridges = (
   { name: "clearWorkspace", fn: createClearWorkspaceFn(handler) },
   { name: "displayScProof", fn: createDisplayScProofFn(handler) },
   { name: "getSelectedNodeIds", fn: createGetSelectedNodeIdsFn(handler) },
+  {
+    name: "getDeductionSystemInfo",
+    fn: createGetDeductionSystemInfoFn(handler),
+  },
 ];
 
 // ── API 定義（Monaco Editor 補完用）──────────────────────────
@@ -385,6 +402,13 @@ export const WORKSPACE_BRIDGE_API_DEFS: readonly ProofBridgeApiDef[] = [
     name: "getSelectedNodeIds",
     signature: "() => string[]",
     description: "現在選択中のノードID一覧を返す。",
+  },
+  {
+    name: "getDeductionSystemInfo",
+    signature:
+      "() => { style: string; systemName: string; isHilbertStyle: boolean; rules: string[] }",
+    description:
+      "現在の演繹体系の情報を返す。style（証明スタイル）、systemName（体系名）、isHilbertStyle（Hilbert流かどうか）、rules（有効な推論規則一覧）を含む。",
   },
 ];
 

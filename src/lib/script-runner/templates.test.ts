@@ -94,6 +94,12 @@ describe("テンプレート実行テスト", () => {
     applyLayout: vi.fn(),
     clearWorkspace: vi.fn(),
     getSelectedNodeIds: vi.fn().mockReturnValue([]),
+    getDeductionSystemInfo: vi.fn().mockReturnValue({
+      style: "hilbert",
+      systemName: "Classical Propositional Logic",
+      isHilbertStyle: true,
+      rules: [],
+    }),
   });
 
   const runTemplate = (tmpl: ScriptTemplate) => {

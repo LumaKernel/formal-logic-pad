@@ -284,6 +284,12 @@ function ScriptEditorWithWorkspace() {
         nextYRef.current = 50;
       },
       getSelectedNodeIds: () => [],
+      getDeductionSystemInfo: () => ({
+        style: "hilbert",
+        systemName: lukasiewiczSystem.name,
+        isHilbertStyle: true,
+        rules: [],
+      }),
     }),
     [],
   )();

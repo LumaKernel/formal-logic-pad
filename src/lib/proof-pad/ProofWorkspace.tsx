@@ -3465,6 +3465,17 @@ export const ProofWorkspace = forwardRef<
         nextScriptYRef.current = 50;
       },
       getSelectedNodeIds: () => [...selectedNodeIds],
+      getDeductionSystemInfo: () => {
+        const ds = workspaceRef.current.deductionSystem;
+        const rules: readonly string[] =
+          ds.style === "hilbert" ? [] : Array.from(ds.system.rules);
+        return {
+          style: ds.style,
+          systemName: ds.system.name,
+          isHilbertStyle: ds.style === "hilbert",
+          rules,
+        };
+      },
     };
   }, [scriptEditorOpen, workspace.system, setWorkspace, selectedNodeIds]);
 
