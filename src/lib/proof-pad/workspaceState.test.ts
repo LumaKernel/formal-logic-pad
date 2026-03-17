@@ -2190,13 +2190,7 @@ describe("proofWorkspace", () => {
 
     it("connectSimplification connects (all x. P(x))[a/x] to all x. P(x) (bound var unaffected)", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(
-        ws,
-        "axiom",
-        "Axiom",
-        { x: 0, y: 0 },
-        "(all x. P(x))[a/x]",
-      );
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "(all x. P(x))[a/x]");
       ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "all x. P(x)");
       const result = connectSimplification(ws, "node-1", "node-2");
       expect(Either.isRight(result.validation)).toBe(true);
@@ -2212,13 +2206,7 @@ describe("proofWorkspace", () => {
 
     it("connectSimplification connects chained substitution P(x, y)[a/x][b/y] to P(a, b)", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(
-        ws,
-        "axiom",
-        "Axiom",
-        { x: 0, y: 0 },
-        "P(x, y)[a/x][b/y]",
-      );
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "P(x, y)[a/x][b/y]");
       ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "P(a, b)");
       const result = connectSimplification(ws, "node-1", "node-2");
       expect(Either.isRight(result.validation)).toBe(true);
