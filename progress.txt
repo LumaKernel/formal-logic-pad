@@ -108,6 +108,25 @@
 
 ---
 
+## 2026-03-17 - [quest] prop-01クエスト完遂フルフローストーリー
+- ベースライン: Stmts 99.99%, Branch 99.89%, Funcs 90.39%, Lines 100%
+- **結果: Funcs微増（90.39%→90.41%）、他変化なし**
+- 実装内容:
+  - `QuestCompleteProp01FullFlow` ストーリーを追加: 空のクエストワークスペースから公理パレット・代入・MP操作のみでφ→φの証明を完遂する完全なインタラクションテスト（72ステップ）
+  - 再利用可能なヘルパー関数3つ: `fitToContent`, `applySubstitutionViaContextMenu`, `applyMPViaSelection`
+  - ドラッグ操作一切不要 — クリックとコンテキストメニューのみで完結
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx（+231行: ヘルパー関数 + QuestCompleteProp01FullFlow ストーリー）
+- スクリーンショット: .screenshots/quest-complete-prop01-full-flow.png
+- **今後のイテレーションへの学び:**
+  - `computeNewNodePosition` はビューポート依存で、代入(y+150)→MP(maxY+150)と累積してノードがビューポート外にカリングされる。`fitToContent`（zoom-fit-buttonクリック）でフィットさせてから操作する必要がある
+  - 代入プロンプトの自動テンプレート: A1はφ,ψ（2エントリ）、A2はφ,ψ,χ（3エントリ）。インデックス順にDSLテキストを入力
+  - FormulaEditorへの入力チェーン: display(testId-display) → click → input(testId-input-input) → type
+  - MPの2段階クリック選択: MPボタン → left(antecedent φ) → right(conditional φ→ψ) → 自動でMP適用。ドラッグ不要のためストーリーで再現可能
+  - 非Hilbert体系(ND/SC/TAB/AT)ではポート接続ドラッグが必要で、クリック/コンテキストメニュー代替が未実装。次のタスクで対応必要
+
+---
+
 ## 2026-03-17 - [proof-pad] 代入プロンプトのFormulaEditor/TermEditor化
 - ベースライン: Stmts 99.99%, Branch 99.89%, Funcs 90.37%, Lines 100%
 - **結果: Funcs微増（90.37%→90.41%）、他変化なし**
