@@ -233,7 +233,7 @@ export function getAvailableAxioms(
       displayName: "A4 (UI)",
       template: axiomA4Template,
       unicodeDisplay: formatFormula(axiomA4Template),
-      dslText: "(all x. phi) -> phi",
+      dslText: "(all x. phi) -> phi[tau/x]",
     });
     items.push({
       id: "A5",

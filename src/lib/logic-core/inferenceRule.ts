@@ -1688,6 +1688,62 @@ export const identifyAxiom = (
   return { _tag: "Error" };
 };
 
+// ── 公理テンプレートの構造的一致 ─────────────────────────────
+
+/**
+ * 論理式が既知の公理テンプレートと構造的に等しいかをチェックする。
+ *
+ * identifyAxiom は解決済み（代入適用後）の形を期待するため、
+ * FormulaSubstitution ノードを含むテンプレート形式（例: (∀x.φ) → φ[τ/x]）は
+ * 識別できない。この関数は equalFormula で直接比較することで補完する。
+ *
+ * @returns 一致した場合は公理ID、一致しない場合は undefined
+ */
+/**
+ * 全公理テンプレートのリスト（ID → テンプレート論理式）。
+ *
+ * identifyAxiom のフォールバック用。
+ * 公理追加時はここにも追加すること。
+ */
+const allAxiomTemplates: readonly (readonly [AxiomId, Formula])[] = [
+  ["A1", axiomA1Template],
+  ["A2", axiomA2Template],
+  ["A3", axiomA3Template],
+  ["M3", axiomM3Template],
+  ["EFQ", axiomEFQTemplate],
+  ["DNE", axiomDNETemplate],
+  ["CONJ-DEF", axiomConjDefForwardTemplate],
+  ["DISJ-DEF", axiomDisjDefForwardTemplate],
+  ["A4", axiomA4Template],
+  ["A5", axiomA5Template],
+  ["EX-DEF", axiomExDefForwardTemplate],
+  ["E1", axiomE1Template],
+  ["E2", axiomE2Template],
+  ["E3", axiomE3Template],
+];
+
+export const matchAxiomTemplateByEquality = (
+  formula: Formula,
+  system: LogicSystem,
+): AxiomId | undefined => {
+  for (const [id, template] of allAxiomTemplates) {
+    // 体系に含まれる公理のみチェック
+    const isPredicate = id === "A4" || id === "A5" || id === "EX-DEF";
+    const isEquality =
+      id === "E1" || id === "E2" || id === "E3" || id === "E4" || id === "E5";
+
+    if (isPredicate && !system.predicateLogic) continue;
+    if (isEquality && !system.equalityLogic) continue;
+    if (!isPredicate && !isEquality && !system.propositionalAxioms.has(id))
+      continue;
+
+    if (equalFormula(formula, template)) {
+      return id;
+    }
+  }
+  return undefined;
+};
+
 // ── ヘルパー: 項変数代入の推論 ─────────────────────────────
 
 /**

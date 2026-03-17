@@ -419,7 +419,7 @@ const propositionalAxiomDslTexts: Readonly<Record<string, string>> = {
   DNE: "~~phi -> phi",
   "CONJ-DEF": "(phi /\\ psi) -> ~(phi -> ~psi)",
   "DISJ-DEF": "(phi \\/ psi) -> (~phi -> psi)",
-  A4: "(all x. phi) -> phi",
+  A4: "(all x. phi) -> phi[tau/x]",
   A5: "(all x. (phi -> psi)) -> (phi -> all x. psi)",
   "EX-DEF": "(ex x. phi) -> ~(all x. ~phi)",
   E1: "all x. x = x",
@@ -456,8 +456,7 @@ function buildSubstitutionEntriesFromMaps(
     }
   }
 
-  // 項メタ変数（現在の公理スキーマにはTermMetaVariableが含まれないが、将来の拡張に備える）
-  /* v8 ignore start — 現在の公理スキーマにTermMetaVariableは含まれない */
+  // 項メタ変数（A4スキーマのτなど）
   const termMVs = collectUniqueTermMetaVariablesInFormula(schemaFormula);
   for (const tmv of termMVs) {
     const key = termMetaVariableKey(tmv);
@@ -471,7 +470,6 @@ function buildSubstitutionEntriesFromMaps(
       });
     }
   }
-  /* v8 ignore stop */
 
   return entries;
 }
@@ -610,8 +608,6 @@ function expandAxiomStepIfNeeded(
 
   // 代入適用でインスタンスノードを生成
   // entries が空の場合でもノード・エッジは作成される。
-  // 述語論理公理（A4等）では項メタ変数がスキーマASTに含まれず entries が不完全になりうるが、
-  // formulaText を強制上書きするため問題ない。
   const substResult = applySubstitutionAndConnect(
     currentWs,
     schemaNodeId,

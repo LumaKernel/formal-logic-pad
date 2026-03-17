@@ -30,8 +30,8 @@
       - SubstitutionDisplay（6パターン）とSubstitutionHighlight（3パターン、A4公理全体含む）をplay関数付きで追加
     - [x] UIの公理は (all x. phi) -> phi ではなく (all x. phi) -> phi[τ/x] にする！！- axiomA4Template に FormulaSubstitution を追加。dslText は identifyAxiom 互換性のため旧形式維持
           ===
-  - [ ] UIは真に(all x. phi) -> phi[τ/x]のみであるべきで、この形とメタ変数の差を除いて認識しなくていい
-  - [ ] UIは真に(all x. phi) -> phi[τ/x]が、ノードとして呼び出したときに表れるべきである
+  - [x] UIは真に(all x. phi) -> phi[τ/x]のみであるべきで、この形とメタ変数の差を除いて認識しなくていい — A4のdslTextを`(all x. phi) -> phi[tau/x]`に変更。パレット・ノード・模範解答すべて置換表記付きに統一
+  - [x] UIは真に(all x. phi) -> phi[τ/x]が、ノードとして呼び出したときに表れるべきである — 上記と同時対応。matchAxiomTemplateByEqualityフォールバックで公理識別も維持
   - [-] 整理する、という関係を繋ぐこともできるようにする (MPやsubstなどと同様に)
     - [x] 構文的に置換等の処理や束縛変数の違いを除いて同値であれば繋ぐことができる — SimplificationEdge + validateSimplificationApplication + computeSimplificationCompatibleNodeIds
     - [x] 整理した先を繋ぐ、というようなコンテキストメニューも追加しよう — コンテキストメニュー「整理として接続…」→選択モード（バナー表示、互換ハイライト、非互換半透明）→クリックで接続。workspaceState.connectSimplification + ProofWorkspace UI + play関数付きStory

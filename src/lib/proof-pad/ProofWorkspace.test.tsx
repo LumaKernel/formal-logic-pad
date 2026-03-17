@@ -323,7 +323,7 @@ describe("ProofWorkspace", () => {
       const updatedWs = lastCall?.[0] as WorkspaceState;
       expect(updatedWs.nodes.length).toBeGreaterThan(0);
       const addedNode = updatedWs.nodes[updatedWs.nodes.length - 1];
-      expect(addedNode?.formulaText).toBe("(all x. phi) -> phi");
+      expect(addedNode?.formulaText).toBe("(all x. phi) -> phi[tau/x]");
     });
 
     it("adds A5 axiom schema directly when A5 palette item is clicked", async () => {

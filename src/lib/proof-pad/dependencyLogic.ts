@@ -11,6 +11,7 @@
 import { Either } from "effect";
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
 import { identifyAxiom } from "../logic-core/inferenceRule";
+import { matchAxiomTemplateByEquality } from "../logic-core/inferenceRule";
 import { parseString } from "../logic-lang/parser";
 import type { DependencyInfo } from "./EditableProofNode";
 import type { WorkspaceNode } from "./workspaceState";
@@ -391,9 +392,25 @@ export function validateRootNodes(
         }
         break;
       }
-      case "Error":
-        results.push({ _tag: "unknown", nodeId: rootId });
+      case "Error": {
+        // identifyAxiom は解決済みの形を期待するため、
+        // FormulaSubstitution を含むテンプレート形式（例: A4 の φ[τ/x]）は識別できない。
+        // フォールバックとしてテンプレートとの構造的等価性をチェックする。
+        const templateMatch = matchAxiomTemplateByEquality(
+          parsed.right,
+          system,
+        );
+        if (templateMatch !== undefined) {
+          results.push({
+            _tag: "schema",
+            nodeId: rootId,
+            axiomId: templateMatch,
+          });
+        } else {
+          results.push({ _tag: "unknown", nodeId: rootId });
+        }
         break;
+      }
     }
   }
 

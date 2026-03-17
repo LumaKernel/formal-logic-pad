@@ -173,7 +173,7 @@ describe("axiomPalette", () => {
       const items = getAvailableAxioms(predicateLogicSystem);
       const a4 = items.find((i) => i.id === "A4");
       const a5 = items.find((i) => i.id === "A5");
-      expect(a4?.dslText).toBe("(all x. phi) -> phi");
+      expect(a4?.dslText).toBe("(all x. phi) -> phi[tau/x]");
       expect(a5?.dslText).toBe("(all x. (phi -> psi)) -> (phi -> all x. psi)");
     });
 
