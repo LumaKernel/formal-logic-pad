@@ -15164,3 +15164,19 @@
   - `normalizeFormula` が FormulaSubstitution / FreeVariableAbsence を解決するので、整理等価性は normalize → α等価比較の2段階で実現できる
   - de Bruijn レベルベースの束縛変数比較パターンは他の再帰的論理式走査にも応用可能
 ---
+
+## 2026-03-17T21:30 - proof-pad (整理エッジ)
+- `simplificationApplicationLogic.ts`: 整理等価性の適用ロジック（バリデーション、互換ノード判定、エラーメッセージ）
+- `simplificationApplicationLogic.test.ts`: 17テスト（等価/非等価/パースエラー/対称性/互換ノード）
+- `inferenceEdge.ts`: SimplificationEdge型追加、Hilbert union型・判別ヘルパー・ラベル・前提ID・remapすべて更新
+- `inferenceEdgeLabelLogic.ts`: バッジ色(黄色系)、getPremiseRole追加
+- `edgeBadgeEditLogic.ts`: パラメータ編集不可（undefined返却）
+- `workspaceExport.ts`: Schema + ALL_INFERENCE_RULE_IDS追加
+- `workspaceState.ts`: revalidateInferenceConclusionsに整理エッジ対応（結論テキスト自動計算しない）
+- 既存テスト（inferenceEdge, inferenceEdgeLabelLogic, edgeBadgeEditLogic, workspaceState）にsimplificationケース追加
+- カバレッジ: Stmts 99.91%, Branch 99.45%, Funcs 90.40%, Lines 99.94%
+- **今後のイテレーションへの学び:**
+  - InferenceEdge union型追加時のチェックリスト: inferenceEdge.ts(型+4関数), inferenceEdgeLabelLogic.ts(色+ロール), edgeBadgeEditLogic.ts, workspaceExport.ts(Schema+IDs), workspaceState.ts(revalidate)
+  - 整理エッジは結論テキスト自動計算しない特殊ケース（TAB/AT/SC同様にreturn node）
+  - 次はコンテキストメニューUI統合（整理した先を繋ぐアクション）
+---

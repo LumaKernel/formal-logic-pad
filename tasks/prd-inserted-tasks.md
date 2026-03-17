@@ -33,7 +33,7 @@
   - [ ] UIは真に(all x. phi) -> phi[τ/x]のみであるべきで、この形とメタ変数の差を除いて認識しなくていい
   - [ ] UIは真に(all x. phi) -> phi[τ/x]が、ノードとして呼び出したときに表れるべきである
   - [-] 整理する、という関係を繋ぐこともできるようにする (MPやsubstなどと同様に)
-    - [-] 構文的に置換等の処理や束縛変数の違いを除いて同値であれば繋ぐことができる
+    - [x] 構文的に置換等の処理や束縛変数の違いを除いて同値であれば繋ぐことができる — SimplificationEdge + validateSimplificationApplication + computeSimplificationCompatibleNodeIds
     - [ ] 整理した先を繋ぐ、というようなコンテキストメニューも追加しよう
       - [ ] phi→phiからpsi→psiは繋げない(置換が必要)
       - [ ] ∀x.phiから∀y.phiは繋げる
