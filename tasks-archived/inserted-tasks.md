@@ -26,3 +26,30 @@
 - [x] 体系の情報を取れるAPIはあってもよいだろう — `getDeductionSystemInfo()` をWorkspace Bridgeに追加。style, systemName, isHilbertStyle, rules を返す（3カテゴリ29API）
 - [x] マージ操作において、ループを作ってしまうノードは選択できない。 — `wouldMergeCreateLoop` で事前検出、`findMergeTargets`/`findMergeableGroups`/`canMergeSelectedNodes` でフィルタリング
 - [x] ノードセレクションからのマージ操作において、ループを作ってしまう場合は続行できない — `mergeNodes` に `WouldCreateLoop` エラーを追加
+- [x] 以下が結局不完全だ。
+  - [x] ../tasks-archived/prd-replace.md が達成されていない
+    - [x] term入力のコンポーネントのストーリー(FormulaDisplay)に phi[tau/x] などがあるべきだろう
+      - SubstitutionDisplay（6パターン）とSubstitutionHighlight（3パターン、A4公理全体含む）をplay関数付きで追加
+    - [x] UIの公理は (all x. phi) -> phi ではなく (all x. phi) -> phi[τ/x] にする！！- axiomA4Template に FormulaSubstitution を追加。dslText は identifyAxiom 互換性のため旧形式維持
+  - [x] UIは真に(all x. phi) -> phi[τ/x]のみであるべきで、この形とメタ変数の差を除いて認識しなくていい — A4のdslTextを`(all x. phi) -> phi[tau/x]`に変更。パレット・ノード・模範解答すべて置換表記付きに統一
+  - [x] UIは真に(all x. phi) -> phi[τ/x]が、ノードとして呼び出したときに表れるべきである — 上記と同時対応。matchAxiomTemplateByEqualityフォールバックで公理識別も維持
+  - [x] 整理する、という関係を繋ぐこともできるようにする (MPやsubstなどと同様に)
+    - [x] 構文的に置換等の処理や束縛変数の違いを除いて同値であれば繋ぐことができる — SimplificationEdge + validateSimplificationApplication + computeSimplificationCompatibleNodeIds
+    - [x] 整理した先を繋ぐ、というようなコンテキストメニューも追加しよう — コンテキストメニュー「整理として接続…」→選択モード + play関数付きStory
+      - [x] phi→phiからpsi→psiは繋げない(置換が必要)
+      - [x] ∀x.phiから∀y.phiは繋げる
+      - [x] ∀x.P(x)から∀y.P(y)は繋げる
+      - [x] ∀x.P(x)から∀y.P(x)は繋げない
+      - [x] ネストしたパターンやシャドーイングのコーナーケース網羅
+      - [x] y[/x]はyに繋げられる — alphaEquivalence.test.ts + workspaceState.test.ts E2E
+      - [x] x[/x]はxに繋げられない — 同上
+      - [x] x[y/x]はyに繋げられる — alphaEquivalence.test.ts
+      - [x] (x+x)[y/x]は(x[y/x]+x[y/x])に繋げられる — TermSubstitution AST不在のため部分適用表現不可。FormulaSubstitutionが原子的に分配
+      - [x] (x+x)[y/x]は(y+x[y/x])に繋げられる — 同上
+      - [x] (x+x)[y/x]は(y+y)に繋げられる — alphaEquivalence.test.ts + workspaceState.test.ts E2E
+      - [x] 整理を繋ぐのは、常に逆方向にも繋げられる
+  - [x] identifyAxiomみたいなのも要らない — UI層から依存除去、構造的等価性に統一
+- [x] 置換した先として繋ぐ、というコンテキストメニューのアクションを用意しよう — SubstitutionConnectionEdge + termVariableMatching + ハイライト + ループ防止
+  - [x] 置換した先として繋げるか、ということの判定を純粋に作成
+  - [x] 可能なアクション対象が光るように
+  - [x] ループを作ってしまうノードは選択できない

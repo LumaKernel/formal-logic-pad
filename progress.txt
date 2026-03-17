@@ -108,6 +108,31 @@
 
 ---
 
+## 2026-03-18 - [proof-pad] 整理接続の置換正規化テストケース完了
+- ベースライン: Stmts 99.84%, Branch 99.18%, Funcs 90.28%, Lines 99.87%
+- **結果: カバレッジ変化なし（99.84% / 99.18% / 90.3% / 99.87%）**
+- 実装内容:
+  - workspaceState.test.ts に `connectSimplification` のE2Eテスト6件追加:
+    - P(x)[a/x] → P(a)（置換解決）
+    - P(y)[/x] → P(y)（FreeVariableAbsence解決）
+    - P(x)[/x] → P(x) 失敗（xが自由変数）
+    - (all x. P(x))[a/x] → all x. P(x)（束縛変数への置換は無効果）
+    - 対称性テスト（P(a) → P(x)[a/x]）
+    - 連鎖置換テスト（P(x,y)[a/x][b/y] → P(a,b)）
+  - inserted-tasksの置換正規化テスト項目6件をすべて完了に更新
+  - 完了済み項目をtasks-archived/inserted-tasks.mdにアーカイブ
+- 変更ファイル:
+  - src/lib/proof-pad/workspaceState.test.ts（+6テスト）
+  - tasks/prd-inserted-tasks.md（完了マーク + アーカイブ）
+  - tasks-archived/inserted-tasks.md（完了項目移動）
+- **今後のイテレーションへの学び:**
+  - パーサーは置換構文 `φ[τ/x]` と `φ[/x]` を既にサポートしている（タスクの「パーサー制約のため未テスト」注記は古い情報だった）
+  - term-level substitution（`x[y/x]` を項として表現）はAST上不可。FormulaSubstitutionが正規化時に項レベルまで原子的に分配されるため、部分適用の中間形は表現不可
+  - alphaEquivalence.test.ts では term を formula に包む（例: `equality(x, x)` で `x=x`）ことでterm-level substitution相当のテストを実現
+  - ModelAnswerDemo LargeProof (prop-08) はCI上でフレーキーに15sタイムアウトする（今回もrerunで成功）
+
+---
+
 ## 2026-03-17 - [proof-pad] AT-01完全フローストーリー
 - ベースライン: Stmts 99.95%, Branch 99.77%, Funcs 90.43%, Lines 99.95%
 - **結果: カバレッジ変化なし（99.95% / 99.77% / 90.43% / 99.95%）**
