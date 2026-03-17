@@ -2470,8 +2470,7 @@ export const ProofWorkspace = forwardRef<
   // --- 置換接続互換ノードIDセット（ハイライト用） ---
 
   const subConnCompatibleNodeIds: ReadonlySet<string> = useMemo(() => {
-    if (subConnSelection.phase !== "selecting-target")
-      return new Set<string>();
+    if (subConnSelection.phase !== "selecting-target") return new Set<string>();
     return computeSubstitutionConnectionCompatibleNodeIds(
       workspace.nodes,
       subConnSelection.sourceNodeId,
@@ -5071,9 +5070,7 @@ export const ProofWorkspace = forwardRef<
           style={substitutionConnectionSelectionBannerStyle}
           data-testid={
             /* v8 ignore start -- V8集約アーティファクト */
-            testId
-              ? `${testId satisfies string}-subconn-banner`
-              : undefined
+            testId ? `${testId satisfies string}-subconn-banner` : undefined
             /* v8 ignore stop */
           }
         >

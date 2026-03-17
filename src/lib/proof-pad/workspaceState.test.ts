@@ -2196,20 +2196,8 @@ describe("proofWorkspace", () => {
 
     it("connectSubstitutionConnection connects complex substitution", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(
-        ws,
-        "axiom",
-        "Axiom",
-        { x: 0, y: 0 },
-        "P(a) -> P(a)",
-      );
-      ws = addNode(
-        ws,
-        "axiom",
-        "Axiom",
-        { x: 100, y: 0 },
-        "P(b) -> P(b)",
-      );
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "P(a) -> P(a)");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "P(b) -> P(b)");
       const result = connectSubstitutionConnection(ws, "node-1", "node-2");
       expect(Either.isRight(result.validation)).toBe(true);
     });

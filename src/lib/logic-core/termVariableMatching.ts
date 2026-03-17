@@ -195,14 +195,7 @@ const matchFormulaImpl = (
       // 正規化後に残る場合（MetaVariableベース）: 構造的マッチ
       const tSub = t as typeof s;
       return (
-        matchFormulaImpl(
-          s.formula,
-          tSub.formula,
-          envS,
-          envT,
-          depth,
-          termSub,
-        ) &&
+        matchFormulaImpl(s.formula, tSub.formula, envS, envT, depth, termSub) &&
         matchTermImpl(s.term, tSub.term, envS, envT, termSub) &&
         matchTermImpl(s.variable, tSub.variable, envS, envT, termSub)
       );
@@ -210,14 +203,7 @@ const matchFormulaImpl = (
     case "FreeVariableAbsence": {
       const tAbs = t as typeof s;
       return (
-        matchFormulaImpl(
-          s.formula,
-          tAbs.formula,
-          envS,
-          envT,
-          depth,
-          termSub,
-        ) &&
+        matchFormulaImpl(s.formula, tAbs.formula, envS, envT, depth, termSub) &&
         matchTermImpl(s.variable, tAbs.variable, envS, envT, termSub)
       );
     }
@@ -297,12 +283,8 @@ export const isNonTrivialSubstitutionResult = (
  * source→target または target→source の少なくとも一方で
  * 非自明な項変数代入が存在する場合にtrue。
  */
-export const areSubstitutionConnectable = (
-  a: Formula,
-  b: Formula,
-): boolean => {
+export const areSubstitutionConnectable = (a: Formula, b: Formula): boolean => {
   return (
-    isNonTrivialSubstitutionResult(a, b) ||
-    isNonTrivialSubstitutionResult(b, a)
+    isNonTrivialSubstitutionResult(a, b) || isNonTrivialSubstitutionResult(b, a)
   );
 };

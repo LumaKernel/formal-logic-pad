@@ -69,7 +69,6 @@ export {
   areSimplificationEquivalent,
 } from "./alphaEquivalence";
 
-
 // ── Term Variable Matching ──────────────────────────────
 export {
   findTermVariableSubstitution,

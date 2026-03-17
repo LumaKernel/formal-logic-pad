@@ -3,6 +3,7 @@
 **出典:** `tasks/prd-inserted-tasks.md` L52-56
 
 > 置換した先として繋ぐ、というコンテキストメニューのアクションを用意しよう。
+>
 > - 置換した先として繋げるか、ということの判定を純粋に作成
 > - 可能なアクション対象が光るように
 > - ループを作ってしまうノードは選択できない
@@ -24,6 +25,7 @@
 ### 実装方針
 
 SimplificationEdge のパターンに完全に倣う:
+
 1. `substitutionConnectionLogic.ts` — 純粋判定ロジック（validateSubstitutionConnection, computeSubstitutionCompatibleNodeIds）
 2. `workspaceState.ts` — connectSubstitutionResult 関数追加
 3. `ProofWorkspace.tsx` — コンテキストメニュー + 選択モードUI
