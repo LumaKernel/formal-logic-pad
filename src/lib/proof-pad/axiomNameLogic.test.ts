@@ -430,10 +430,7 @@ describe("axiomNameLogic", () => {
           ],
         };
         // テンプレートと完全一致 (φ→φ) → TheoryAxiomIdentified
-        const exactFormula = implication(
-          metaVariable("φ"),
-          metaVariable("φ"),
-        );
+        const exactFormula = implication(metaVariable("φ"), metaVariable("φ"));
         const exactResult = identifyAxiomName(exactFormula, theoryAxiomSystem);
         expect(exactResult._tag).toBe("TheoryAxiomIdentified");
 
@@ -528,4 +525,3 @@ describe("axiomNameLogic", () => {
     });
   });
 });
-
