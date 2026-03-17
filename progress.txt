@@ -15141,3 +15141,16 @@
   - WorkspaceCommandHandler インターフェースを変更すると、workspaceBridge.test.ts, templates.test.ts, ScriptEditorComponent.stories.tsx, ProofWorkspace.tsx の4箇所のモック/実装を更新する必要がある
   - API追加時は WORKSPACE_BRIDGE_API_DEFS も更新することで API Reference パネルに自動反映される
 ---
+
+## 2026-03-17 - マージ操作のループ防止
+- `wouldMergeCreateLoop` 関数を `mergeNodesLogic.ts` に追加（マージ後のエッジをシミュレーションしBFSでサイクル検出）
+- `mergeNodes` に `WouldCreateLoop` エラーを追加
+- `findMergeTargets`, `findMergeableGroups`, `canMergeSelectedNodes` に `allInferenceEdges` パラメータを追加しループを作るマージを事前除外
+- `ProofWorkspace.tsx` の呼び出し箇所を更新
+- テスト: 69テスト（+38新規: wouldMergeCreateLoop 10, mergeNodes loop 2, findMergeTargets loop 2, canMergeSelectedNodes loop 1, 既存のパラメータ更新23）
+- 変更ファイル: mergeNodesLogic.ts, mergeNodesLogic.test.ts, ProofWorkspace.tsx, index.ts, CLAUDE.md
+- **今後のイテレーションへの学び:**
+  - マージのloop検出はリーダーノードのみチェックすれば十分（元がDAGなら新規サイクルは必ずリーダーを通る）
+  - `findMergeTargets`等のシグネチャ変更はProofWorkspace.tsx(3箇所)に波及する
+  - `wouldMergeCreateLoop`は純粋関数でノード情報不要（エッジのみで判定可能）
+---
