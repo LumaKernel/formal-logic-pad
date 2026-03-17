@@ -2090,6 +2090,28 @@ describe("proofWorkspace", () => {
       expect(findNode(ws, "node-2")?.formulaText).toBe("");
     });
 
+    it("handles Simplification edge revalidation (does not change conclusion)", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "all x. P(x)");
+      ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "all y. P(y)");
+      // Add simplification edge from node-1 to node-2
+      ws = {
+        ...ws,
+        inferenceEdges: [
+          ...ws.inferenceEdges,
+          {
+            _tag: "simplification" as const,
+            conclusionNodeId: "node-2",
+            premiseNodeId: "node-1",
+            conclusionText: "all y. P(y)",
+          },
+        ],
+      };
+      // Revalidation should not change the conclusion text
+      const result = revalidateInferenceConclusions(ws);
+      expect(findNode(result, "node-2")?.formulaText).toBe("all y. P(y)");
+    });
+
     it("restores chain when intermediate node is corrected", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
       // Build chain: A1(phi) + A2(phi->psi) → MP1(psi) + A3(psi->chi) → MP2(chi)
