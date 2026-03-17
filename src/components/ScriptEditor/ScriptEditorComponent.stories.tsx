@@ -64,6 +64,10 @@ export const Default: Story = {
 
     const speedValue = canvas.getByTestId("speed-value");
     await expect(speedValue.textContent).toContain("ms");
+
+    // API Ref ボタンが存在する
+    const apiRefBtn = canvas.getByTestId("api-reference-toggle");
+    await expect(apiRefBtn).toBeDefined();
   },
 };
 
@@ -337,6 +341,50 @@ for (var i = 0; i < nodes.length; i++) {
     </div>
   );
 }
+
+export const ApiReference: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // API Ref ボタンが存在する
+    const toggleBtn = canvas.getByTestId("api-reference-toggle");
+    await expect(toggleBtn).toBeDefined();
+    await expect(toggleBtn.textContent).toBe("API Ref");
+
+    // 初期状態ではパネルは閉じている
+    expect(canvas.queryByTestId("api-reference-panel")).toBeNull();
+
+    // ボタンクリックでパネルを開く
+    await userEvent.click(toggleBtn);
+    const panel = canvas.getByTestId("api-reference-panel");
+    await expect(panel).toBeDefined();
+
+    // 検索入力とカテゴリが表示される
+    const searchInput = canvas.getByTestId("api-reference-search");
+    await expect(searchInput).toBeDefined();
+    const content = canvas.getByTestId("api-reference-content");
+    await expect(content).toBeDefined();
+
+    // 3カテゴリが表示される
+    await expect(canvas.getByTestId("api-category-proof")).toBeDefined();
+    await expect(canvas.getByTestId("api-category-workspace")).toBeDefined();
+    await expect(
+      canvas.getByTestId("api-category-cutElimination"),
+    ).toBeDefined();
+
+    // 検索でフィルタリングできる
+    await userEvent.type(searchInput, "parseFormula");
+    await expect(canvas.getByTestId("api-item-parseFormula")).toBeDefined();
+
+    // 検索をクリアする
+    await userEvent.clear(searchInput);
+
+    // 閉じるボタンでパネルを閉じる
+    const closeBtn = canvas.getByTestId("api-reference-close");
+    await userEvent.click(closeBtn);
+    expect(canvas.queryByTestId("api-reference-panel")).toBeNull();
+  },
+};
 
 export const WorkspaceIntegration: Story = {
   args: {
