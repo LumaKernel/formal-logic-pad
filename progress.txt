@@ -15110,3 +15110,18 @@
   - GenSelectionState の `phase` discriminated union はシンプルに保つのが良い（variableNameはphase内に含めない）
   - prettier check は CI で実行されるため、ローカルでも `prettier --check` を実行してからコミットすべき
 ---
+
+## 2026-03-17 - スクリプトAPIリファレンスパネル
+- スクリプトエディタにAPIリファレンスパネルを追加
+- ツールバーに「API Ref」トグルボタンを追加、エディタの右横にパネルが開く
+- 3カテゴリ（Proof API 12関数、Workspace API 11関数、Cut Elimination API 5関数 = 計28関数）
+- テキスト検索でフィルタリング可能（名前・シグネチャ・説明の部分一致）
+- カテゴリは折りたたみ可能、検索時は自動展開
+- 新規ファイル: scriptApiReferenceLogic.ts（純粋ロジック）, ScriptApiReferencePanel.tsx（UIコンポーネント）, scriptApiReferenceLogic.test.ts（ユニットテスト）
+- 変更ファイル: ScriptEditorComponent.tsx, index.ts, ScriptEditorComponent.stories.tsx
+- カバレッジ: Stmts 99.92%, Branch 99.70%, Funcs 90.42%, Lines 99.94% (微減、UIコンポーネント分)
+- **今後のイテレーションへの学び:**
+  - `*_BRIDGE_API_DEFS` 定数に全APIのメタデータ（name, signature, description）が定義済み
+  - メモリ圧迫時はvitestのfork workerがtimeoutする（60秒）。Storybookや多数のnodeプロセスが走っている場合に発生
+  - ScriptEditorComponentのレイアウトはflexbox横並びで、エディタとリファレンスパネルを分割表示
+---
