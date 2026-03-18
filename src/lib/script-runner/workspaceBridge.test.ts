@@ -38,6 +38,10 @@ const createMockHandler = (): WorkspaceCommandHandler => ({
       succedents: [{ _tag: "MetaVariable", name: "φ" }],
     },
   }),
+  extractHilbertProof: vi.fn().mockReturnValue({
+    _tag: "AxiomNode",
+    formula: { _tag: "MetaVariable", name: "φ" },
+  }),
 });
 
 const getRunner = (
@@ -89,7 +93,7 @@ describe("createWorkspaceBridges", () => {
   it("ブリッジ関数一覧を返す", () => {
     const handler = createMockHandler();
     const bridges = createWorkspaceBridges(handler);
-    expect(bridges.length).toBe(13);
+    expect(bridges.length).toBe(14);
     const names = bridges.map((b) => b.name);
     expect(names).toContain("addNode");
     expect(names).toContain("setNodeFormula");
@@ -104,6 +108,7 @@ describe("createWorkspaceBridges", () => {
     expect(names).toContain("getSelectedNodeIds");
     expect(names).toContain("getDeductionSystemInfo");
     expect(names).toContain("extractScProof");
+    expect(names).toContain("extractHilbertProof");
   });
 });
 
@@ -762,6 +767,42 @@ describe("extractScProof ブリッジ", () => {
   });
 });
 
+describe("extractHilbertProof ブリッジ", () => {
+  it("引数なしでHilbert証明木を返す", () => {
+    const handler = createMockHandler();
+    const result = runCode(`extractHilbertProof()`, handler);
+    expect(handler.extractHilbertProof).toHaveBeenCalledWith(undefined);
+    expect(result).toEqual({
+      _tag: "AxiomNode",
+      formula: { _tag: "MetaVariable", name: "φ" },
+    });
+  });
+
+  it("rootNodeIdを指定できる", () => {
+    const handler = createMockHandler();
+    runCode(`extractHilbertProof("root-1")`, handler);
+    expect(handler.extractHilbertProof).toHaveBeenCalledWith("root-1");
+  });
+
+  it("不正な引数型でエラー", () => {
+    const handler = createMockHandler();
+    const msg = runCodeError(`extractHilbertProof(123)`, handler);
+    expect(msg).toContain("extractHilbertProof");
+    expect(msg).toContain("string");
+  });
+
+  it("ハンドラーのエラーが伝播する", () => {
+    const handler = createMockHandler();
+    (handler.extractHilbertProof as ReturnType<typeof vi.fn>).mockImplementation(
+      () => {
+        throw new Error("Hilbert系でのみ使用可能です");
+      },
+    );
+    const msg = runCodeError(`extractHilbertProof()`, handler);
+    expect(msg).toContain("Hilbert系でのみ使用可能です");
+  });
+});
+
 describe("generateWorkspaceBridgeTypeDefs", () => {
   it("TypeScript型定義テキストを生成する", () => {
     const typeDefs = generateWorkspaceBridgeTypeDefs();
@@ -773,5 +814,6 @@ describe("generateWorkspaceBridgeTypeDefs", () => {
     expect(typeDefs).toContain("declare function getSelectedNodeIds");
     expect(typeDefs).toContain("declare function getDeductionSystemInfo");
     expect(typeDefs).toContain("declare function extractScProof");
+    expect(typeDefs).toContain("declare function extractHilbertProof");
   });
 });

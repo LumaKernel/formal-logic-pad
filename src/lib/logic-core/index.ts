@@ -447,6 +447,13 @@ export {
 } from "./proofSearch";
 export type { ProofSearchError } from "./proofSearch";
 
+// ── Deduction Theorem (演繹定理) ──────────────────────────────
+export {
+  applyDeductionTheorem,
+  DeductionTheoremFreeVariableError,
+} from "./deductionTheorem";
+export type { DeductionTheoremError } from "./deductionTheorem";
+
 // ── Serialization (Schema decode/encode) ─────────────────────
 export {
   decodeFormula,

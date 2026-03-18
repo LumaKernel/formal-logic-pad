@@ -22,6 +22,9 @@ import {
   generateWorkspaceBridgeTypeDefs,
   createCutEliminationBridges,
   generateCutEliminationBridgeTypeDefs,
+  createHilbertProofBridges,
+  HILBERT_PROOF_BRIDGE_API_DEFS,
+  generateHilbertProofBridgeTypeDefs,
 } from "@/lib/script-runner";
 import {
   BUILTIN_TEMPLATES,
@@ -277,6 +280,7 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
     ];
     if (workspaceCommandHandler) {
       all.push(...createWorkspaceBridges(workspaceCommandHandler));
+      all.push(...createHilbertProofBridges(workspaceCommandHandler));
     }
     return all;
   }, [createConsoleBridges, workspaceCommandHandler]);
@@ -316,8 +320,13 @@ declare var console: {
   warn(...args: unknown[]): void;
 };
 `;
+    const hilbertProofTypeDefs = generateHilbertProofBridgeTypeDefs();
     monaco.languages.typescript.javascriptDefaults.addExtraLib(
-      typeDefs + workspaceTypeDefs + cutEliminationTypeDefs + consoleTypeDefs,
+      typeDefs +
+        workspaceTypeDefs +
+        cutEliminationTypeDefs +
+        hilbertProofTypeDefs +
+        consoleTypeDefs,
       "file:///proof-bridge.d.ts",
     );
   }, []);

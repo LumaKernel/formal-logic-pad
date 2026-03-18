@@ -453,6 +453,80 @@ if (isCutFree(proof)) {
 };
 
 /**
+ * ワークスペースの証明に対して演繹定理を適用するテンプレート。
+ *
+ * ワークスペースからHilbert証明木を自動抽出し、
+ * 選択中のノードの論理式を仮定として演繹定理を適用する。
+ * 結果は元の証明木を消さず、横に配置される。
+ * Hilbert体系でない場合はエラーで停止する。
+ */
+const deductionTheoremWorkspace: ScriptTemplate = {
+  id: "deduction-theorem-workspace",
+  title: "演繹定理の適用",
+  description:
+    "ワークスペース上のHilbert証明木を抽出し、選択ノードの論理式を仮定として演繹定理を適用する。結果は横に配置される。",
+  compatibleStyles: ["hilbert"],
+  code: `// 演繹定理の適用
+//
+// ワークスペース上に構築されたHilbert証明木を自動抽出し、
+// 選択中ノードの論理式を仮定として演繹定理を適用します。
+// Γ ∪ {A} ⊢ B を Γ ⊢ A → B に変換します。
+// 元の証明木はそのまま残り、変換後の証明木が横に配置されます。
+
+// 体系チェック: ヒルベルト流以外ではエラー
+var sysInfo = getDeductionSystemInfo();
+if (!sysInfo.isHilbertStyle) {
+  throw new Error("このスクリプトはヒルベルト流の体系でのみ実行できます。現在の体系: " + sysInfo.style);
+}
+
+console.log("=== 演繹定理の適用 ===");
+console.log("体系: " + sysInfo.systemName);
+console.log("");
+
+// 選択中ノードの論理式を仮定として使用
+var selectedIds = getSelectedNodeIds();
+if (selectedIds.length === 0) {
+  throw new Error("仮定とする論理式のノードを1つ選択してください。");
+}
+if (selectedIds.length > 1) {
+  throw new Error("仮定として使用するノードは1つだけ選択してください。（選択数: " + selectedIds.length + "）");
+}
+
+// 選択ノードの情報を取得
+var allNodes = getNodes();
+var selectedNode = null;
+for (var i = 0; i < allNodes.length; i++) {
+  if (allNodes[i].id === selectedIds[0]) {
+    selectedNode = allNodes[i];
+  }
+}
+if (!selectedNode) {
+  throw new Error("選択されたノードが見つかりません。");
+}
+
+var hypothesisText = selectedNode.formulaText;
+console.log("仮定: " + hypothesisText);
+console.log("");
+
+// ワークスペースからHilbert証明木を抽出
+console.log("--- 証明木を抽出中 ---");
+var proof = extractHilbertProof();
+
+// 演繹定理を適用
+console.log("--- 演繹定理を適用中 ---");
+var transformed = applyDeductionTheorem(proof, hypothesisText);
+
+// 変換後の証明木をワークスペースに表示（横に配置）
+console.log("--- 変換後の証明木を配置中 ---");
+displayHilbertProof(transformed);
+
+console.log("");
+console.log("演繹定理の適用が完了しました。");
+console.log("Γ ∪ {" + hypothesisText + "} ⊢ B → Γ ⊢ " + hypothesisText + " → B");
+`,
+};
+
+/**
  * ビルトインテンプレート一覧。
  */
 export const BUILTIN_TEMPLATES: readonly ScriptTemplate[] = [
@@ -462,6 +536,7 @@ export const BUILTIN_TEMPLATES: readonly ScriptTemplate[] = [
   buildIdentityProof,
   buildIdentityProofTree,
   autoProveTemplate,
+  deductionTheoremWorkspace,
 ];
 
 /**

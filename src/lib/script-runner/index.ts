@@ -45,3 +45,10 @@ export {
   encodeScProofNode,
   decodeScProofNode,
 } from "./cutEliminationBridge";
+export {
+  createHilbertProofBridges,
+  HILBERT_PROOF_BRIDGE_API_DEFS,
+  generateHilbertProofBridgeTypeDefs,
+  encodeProofNode,
+  decodeProofNode,
+} from "./hilbertProofBridge";

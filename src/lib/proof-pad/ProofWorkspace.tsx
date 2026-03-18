@@ -259,7 +259,12 @@ import { ScriptEditorComponent } from "../../components/ScriptEditor/ScriptEdito
 import {
   type WorkspaceCommandHandler,
   encodeScProofNode,
+  encodeProofNode,
 } from "../script-runner";
+import {
+  findHilbertRootNodeIds,
+  buildHilbertProofTree,
+} from "./hilbertTreeBuildLogic";
 
 // --- ノート編集用ツールバー定数 ---
 const NOTE_EDITOR_TOOLBARS: (
@@ -3682,6 +3687,49 @@ export const ProofWorkspace = forwardRef<
           );
         }
         return encodeScProofNode(treeResult.right);
+      },
+      extractHilbertProof: (rootNodeId?: string) => {
+        const ws = workspaceRef.current;
+        if (ws.deductionSystem.style !== "hilbert") {
+          throw new Error(
+            `extractHilbertProof: Hilbert系でのみ使用可能です。現在の体系: ${ws.deductionSystem.style satisfies string}`,
+          );
+        }
+        let targetRootId = rootNodeId;
+        if (targetRootId === undefined) {
+          const rootIds = findHilbertRootNodeIds(
+            ws.nodes,
+            ws.inferenceEdges,
+          );
+          if (rootIds.length === 0) {
+            throw new Error(
+              "extractHilbertProof: ワークスペースにHilbert証明木が見つかりません。",
+            );
+          }
+          if (rootIds.length > 1) {
+            throw new Error(
+              `extractHilbertProof: 複数のルートノードが見つかりました（${String(rootIds.length) satisfies string}個）。rootNodeIdを指定してください。`,
+            );
+          }
+          targetRootId = rootIds[0];
+        }
+        if (targetRootId === undefined) {
+          throw new Error(
+            "extractHilbertProof: ルートノードが見つかりません。",
+          );
+        }
+        const treeResult = buildHilbertProofTree(
+          targetRootId,
+          ws.nodes,
+          ws.inferenceEdges,
+        );
+        if (Either.isLeft(treeResult)) {
+          const tag = treeResult.left._tag satisfies string;
+          throw new Error(
+            `extractHilbertProof: 証明木構築に失敗しました: ${tag satisfies string}`,
+          );
+        }
+        return encodeProofNode(treeResult.right);
       },
     };
   }, [scriptEditorOpen, workspace.system, setWorkspace, selectedNodeIds]);

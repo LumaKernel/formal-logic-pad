@@ -526,6 +526,20 @@ export {
 } from "./ProofMessagesContext";
 export type { ProofMessagesProviderProps } from "./ProofMessagesContext";
 export {
+  findHilbertRootNodeIds,
+  buildHilbertProofTree,
+  HilbertTreeNodeNotFound,
+  HilbertTreeFormulaParseError,
+  HilbertTreeIncompleteProof,
+  HilbertTreeCycleDetected,
+} from "./hilbertTreeBuildLogic";
+export type { HilbertTreeBuildError } from "./hilbertTreeBuildLogic";
+export {
+  findScRootNodeIds,
+  buildScProofTree,
+} from "./scTreeBuildLogic";
+export type { ScTreeBuildError } from "./scTreeBuildLogic";
+export {
   findInferenceEdgesForNode,
   findInferenceEdgeForConclusionNode,
   getInferenceEdgeConclusionNodeId,

@@ -5,12 +5,13 @@ import { createScriptRunner } from "./scriptRunner";
 import { createProofBridges } from "./proofBridge";
 import { createCutEliminationBridges } from "./cutEliminationBridge";
 import { createWorkspaceBridges } from "./workspaceBridge";
+import { createHilbertProofBridges } from "./hilbertProofBridge";
 import type { WorkspaceCommandHandler } from "./workspaceBridge";
 import type { NativeFunctionBridge } from "./scriptRunner";
 
 describe("BUILTIN_TEMPLATES", () => {
-  it("6つのテンプレートを含む", () => {
-    expect(BUILTIN_TEMPLATES).toHaveLength(6);
+  it("7つのテンプレートを含む", () => {
+    expect(BUILTIN_TEMPLATES).toHaveLength(7);
   });
 
   it("各テンプレートが必須フィールドを持つ", () => {
@@ -101,6 +102,7 @@ describe("テンプレート実行テスト", () => {
       rules: [],
     }),
     extractScProof: vi.fn(),
+    extractHilbertProof: vi.fn(),
   });
 
   const runTemplate = (tmpl: ScriptTemplate) => {
@@ -110,6 +112,7 @@ describe("テンプレート実行テスト", () => {
       ...createProofBridges(),
       ...createCutEliminationBridges(),
       ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
       ...consoleBridges,
     ];
     const code = consoleShim + tmpl.code;
@@ -191,6 +194,7 @@ describe("テンプレート実行テスト", () => {
       ...createProofBridges(),
       ...createCutEliminationBridges(),
       ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
       ...consoleBridges,
     ];
     const code = consoleShim + tmpl.code;
@@ -243,6 +247,7 @@ describe("テンプレート実行テスト", () => {
       ...createProofBridges(),
       ...createCutEliminationBridges(),
       ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
       ...consoleBridges,
     ];
     const code = consoleShim + tmpl.code;
@@ -304,6 +309,7 @@ describe("テンプレート実行テスト", () => {
       ...createProofBridges(),
       ...createCutEliminationBridges(),
       ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
       ...consoleBridges,
     ];
     const code = consoleShim + tmpl.code;
@@ -351,6 +357,7 @@ describe("テンプレート実行テスト", () => {
       ...createProofBridges(),
       ...createCutEliminationBridges(),
       ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
       ...consoleBridges,
     ];
     const code = consoleShim + tmpl.code;
@@ -370,6 +377,113 @@ describe("テンプレート実行テスト", () => {
     expect(handler.clearWorkspace).not.toHaveBeenCalled();
   });
 
+  it("deduction-theorem-workspace: 正常に実行される", () => {
+    const tmpl = BUILTIN_TEMPLATES.find(
+      (t) => t.id === "deduction-theorem-workspace",
+    )!;
+    consoleLogs.length = 0;
+    const handler = createMockHandler();
+    // 選択ノードが1つある
+    (handler.getSelectedNodeIds as ReturnType<typeof vi.fn>).mockReturnValue([
+      "node-A",
+    ]);
+    // ノード一覧に選択ノードを含める
+    (handler.getNodes as ReturnType<typeof vi.fn>).mockReturnValue([
+      { id: "node-A", formulaText: "φ" },
+    ]);
+    // extractHilbertProofがAxiomNode(φ)を返す
+    (handler.extractHilbertProof as ReturnType<typeof vi.fn>).mockReturnValue({
+      _tag: "AxiomNode",
+      formula: { _tag: "MetaVariable", name: "φ" },
+    });
+    const bridges = [
+      ...createProofBridges(),
+      ...createCutEliminationBridges(),
+      ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
+      ...consoleBridges,
+    ];
+    const code = consoleShim + tmpl.code;
+    const runner = createScriptRunner(code, {
+      bridges,
+      maxSteps: 100000,
+    });
+    const result = "run" in runner ? runner.run() : runner;
+    if (result._tag === "Error") {
+      throw new Error(
+        `Template failed: ${JSON.stringify(result.error) satisfies string}`,
+      );
+    }
+    expect(result._tag).toBe("Ok");
+    expect(handler.extractHilbertProof).toHaveBeenCalled();
+    expect(
+      consoleLogs.some((l) => l.includes("演繹定理の適用")),
+    ).toBe(true);
+    expect(
+      consoleLogs.some((l) => l.includes("演繹定理の適用が完了")),
+    ).toBe(true);
+    // 元のワークスペースはクリアされない
+    expect(handler.clearWorkspace).not.toHaveBeenCalled();
+  });
+
+  it("deduction-theorem-workspace: ノード未選択でエラー", () => {
+    const tmpl = BUILTIN_TEMPLATES.find(
+      (t) => t.id === "deduction-theorem-workspace",
+    )!;
+    consoleLogs.length = 0;
+    const handler = createMockHandler();
+    // 選択ノードなし
+    (handler.getSelectedNodeIds as ReturnType<typeof vi.fn>).mockReturnValue(
+      [],
+    );
+    const bridges = [
+      ...createProofBridges(),
+      ...createCutEliminationBridges(),
+      ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
+      ...consoleBridges,
+    ];
+    const code = consoleShim + tmpl.code;
+    const runner = createScriptRunner(code, {
+      bridges,
+      maxSteps: 50000,
+    });
+    const result = "run" in runner ? runner.run() : runner;
+    expect(result._tag).toBe("Error");
+    expect(handler.extractHilbertProof).not.toHaveBeenCalled();
+  });
+
+  it("deduction-theorem-workspace: ヒルベルト流以外ではエラー", () => {
+    const tmpl = BUILTIN_TEMPLATES.find(
+      (t) => t.id === "deduction-theorem-workspace",
+    )!;
+    consoleLogs.length = 0;
+    const handler = createMockHandler();
+    (
+      handler.getDeductionSystemInfo as ReturnType<typeof vi.fn>
+    ).mockReturnValue({
+      style: "natural-deduction",
+      systemName: "Natural Deduction",
+      isHilbertStyle: false,
+      rules: [],
+    });
+    const bridges = [
+      ...createProofBridges(),
+      ...createCutEliminationBridges(),
+      ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
+      ...consoleBridges,
+    ];
+    const code = consoleShim + tmpl.code;
+    const runner = createScriptRunner(code, {
+      bridges,
+      maxSteps: 50000,
+    });
+    const result = "run" in runner ? runner.run() : runner;
+    expect(result._tag).toBe("Error");
+    expect(handler.extractHilbertProof).not.toHaveBeenCalled();
+  });
+
   it("cut-elimination-workspace: SC体系以外ではエラー", () => {
     const tmpl = BUILTIN_TEMPLATES.find(
       (t) => t.id === "cut-elimination-workspace",
@@ -381,6 +495,7 @@ describe("テンプレート実行テスト", () => {
       ...createProofBridges(),
       ...createCutEliminationBridges(),
       ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
       ...consoleBridges,
     ];
     const code = consoleShim + tmpl.code;
@@ -472,7 +587,8 @@ describe("filterTemplatesByStyle", () => {
     const ids = result.map((t) => t.id);
     expect(ids).toContain("build-identity-proof");
     expect(ids).toContain("build-identity-proof-tree");
-    expect(result).toHaveLength(2);
+    expect(ids).toContain("deduction-theorem-workspace");
+    expect(result).toHaveLength(3);
   });
 
   it("BUILTIN_TEMPLATESでsequent-calculusフィルタ", () => {

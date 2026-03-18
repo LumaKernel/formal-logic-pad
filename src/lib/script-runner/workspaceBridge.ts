@@ -60,6 +60,13 @@ export interface WorkspaceCommandHandler {
    * 返却値はencodeScProofNode済みのJSON互換オブジェクト。
    */
   readonly extractScProof: (rootNodeId?: string) => unknown;
+  /**
+   * ワークスペースからHilbert証明木を抽出する。
+   * rootNodeIdを指定しない場合はルートを自動検出する。
+   * Hilbert系でない場合、証明木構築に失敗した場合はthrow。
+   * 返却値はencodeProofNode済みのJSON互換オブジェクト。
+   */
+  readonly extractHilbertProof: (rootNodeId?: string) => unknown;
 }
 
 // ── ブリッジ関数の実装 ────────────────────────────────────────
@@ -184,6 +191,20 @@ const createExtractScProofFn =
       );
     }
     return handler.extractScProof(
+      typeof rootNodeId === "string" ? rootNodeId : undefined,
+    );
+  };
+
+const createExtractHilbertProofFn =
+  (handler: WorkspaceCommandHandler) =>
+  (rootNodeId?: unknown): unknown => {
+    if (rootNodeId !== undefined && typeof rootNodeId !== "string") {
+      const t = typeof rootNodeId satisfies string;
+      throw new Error(
+        `extractHilbertProof: rootNodeId must be string or undefined, got ${t satisfies string}`,
+      );
+    }
+    return handler.extractHilbertProof(
       typeof rootNodeId === "string" ? rootNodeId : undefined,
     );
   };
@@ -362,6 +383,10 @@ export const createWorkspaceBridges = (
     fn: createGetDeductionSystemInfoFn(handler),
   },
   { name: "extractScProof", fn: createExtractScProofFn(handler) },
+  {
+    name: "extractHilbertProof",
+    fn: createExtractHilbertProofFn(handler),
+  },
 ];
 
 // ── API 定義（Monaco Editor 補完用）──────────────────────────
@@ -438,6 +463,12 @@ export const WORKSPACE_BRIDGE_API_DEFS: readonly ProofBridgeApiDef[] = [
     signature: "(rootNodeId?: string) => ScProofNodeJson",
     description:
       "ワークスペースからSC証明木を抽出する。rootNodeIdを省略するとルートを自動検出する。SC体系でない場合や証明木構築に失敗した場合はエラーをthrowする。",
+  },
+  {
+    name: "extractHilbertProof",
+    signature: "(rootNodeId?: string) => ProofNodeJson",
+    description:
+      "ワークスペースからHilbert証明木を抽出する。rootNodeIdを省略するとルートを自動検出する。Hilbert系でない場合や証明木構築に失敗した場合はエラーをthrowする。",
   },
 ];
 
