@@ -15722,3 +15722,22 @@
   - 注意点: sequent の antecedents/succedents は配列で渡す。parseFormula で論理式文字列からパース
   - 残タスク: parseFormula等のany返却問題、テンプレート強化
 ---
+
+## 2026-03-19 - [script-runner] スクリプトAPI型定義追加
+- 実装した内容:
+  - scriptBridgeTypes.ts 新規作成: FormulaJson, TermJson, SequentJson, ScProofNodeJson, ProofNodeJson, LogicSystemJson, UnificationResult, TermUnificationResult, AxiomIdentificationResult, CutEliminationResultJson, CutEliminationStepJson のブランド型宣言
+  - ScriptEditorComponent.tsx: addExtraLibの先頭にsharedTypeDefsを挿入
+  - index.ts: generateScriptBridgeTypeDefsをエクスポート
+  - scriptBridgeTypes.test.ts: 11テスト追加
+- 変更したファイル:
+  - src/lib/script-runner/scriptBridgeTypes.ts (新規)
+  - src/lib/script-runner/scriptBridgeTypes.test.ts (新規)
+  - src/lib/script-runner/index.ts (エクスポート追加)
+  - src/components/ScriptEditor/ScriptEditorComponent.tsx (addExtraLib更新)
+- カバレッジ: Stmts 99.65%, Branch 98.24%, Funcs 89.97%, Lines 99.69% (維持)
+- タスク「parseFormulaとかも、any返す形で提供されてるのはやめたい」完了
+- **今後のイテレーションへの学び:**
+  - Monaco Editor の addExtraLib: 宣言されていない型名は暗黙的に any になる。ブランド型 `{ readonly __brand: "TypeName" }` で opaque type を宣言
+  - sharedTypeDefs は全ブリッジAPIのsignatureで参照される型を一元管理。新しい型を使う場合はここに追加
+  - SequentJson は構造的型（antecedents/succedents）を公開し、ユーザーが直接フィールドにアクセス可能
+---
