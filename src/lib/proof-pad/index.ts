@@ -391,6 +391,18 @@ export type {
 } from "./scProofTreeRendererLogic";
 export { ScProofTreePanel } from "./ScProofTreePanel";
 export type { ScProofTreePanelProps } from "./ScProofTreePanel";
+export { SequentDisplay } from "./SequentDisplay";
+export type { SequentDisplayProps } from "./SequentDisplay";
+export {
+  textToFormulaSlot,
+  parseSequentDisplayData,
+  sequentToDisplayData,
+  isSequentText,
+} from "./sequentDisplayLogic";
+export type {
+  FormulaSlot,
+  SequentDisplayData,
+} from "./sequentDisplayLogic";
 export {
   getNdRuleLabel,
   convertNdWorkspaceToProofTree,

@@ -34,6 +34,8 @@ import type {
 import { useProofMessages } from "./ProofMessagesContext";
 import type { ProofMessages } from "./proofMessages";
 import { formatMessage } from "./proofMessages";
+import { isSequentText } from "./sequentDisplayLogic";
+import { SequentDisplay } from "./SequentDisplay";
 
 // --- Props ---
 
@@ -483,6 +485,12 @@ export function EditableProofNode({
     return parsed.status === "success" ? parsed.formula : null;
   }, [effectiveEditable, formulaText]);
 
+  /** read-only表示用: シーケントテキストかどうかを判定 */
+  const isSequent = useMemo(
+    () => !effectiveEditable && readonlyFormula === null && isSequentText(formulaText),
+    [effectiveEditable, readonlyFormula, formulaText],
+  );
+
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true);
   }, []);
@@ -634,6 +642,8 @@ export function EditableProofNode({
           >
             {readonlyFormula ? (
               <FormulaDisplay formula={readonlyFormula} fontSize={13} />
+            ) : isSequent ? (
+              <SequentDisplay text={formulaText} fontSize={13} />
             ) : (
               formulaText
             )}

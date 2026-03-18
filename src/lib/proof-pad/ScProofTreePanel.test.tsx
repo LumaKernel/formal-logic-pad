@@ -43,12 +43,12 @@ describe("ScProofTreePanel", () => {
     expect(ruleEl.textContent).toBe("Id");
   });
 
-  it("結論テキストにturnstile記号が含まれる", () => {
+  it("結論テキストにturnstile記号（⇒）が含まれる", () => {
     const proof = scIdentity(sequent([phi], [phi]));
     render(<ScProofTreePanel proof={proof} testId="tree" />);
 
     const conclEl = screen.getByTestId("tree-concl-sctree-0");
-    expect(conclEl.textContent).toContain("⊢");
+    expect(conclEl.textContent).toContain("⇒");
   });
 
   it("単項規則で前提と結論を表示する", () => {

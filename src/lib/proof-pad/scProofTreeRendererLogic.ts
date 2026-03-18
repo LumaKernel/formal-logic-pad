@@ -6,6 +6,7 @@
  * 変更時は scProofTreeRendererLogic.test.ts, ScProofTreePanel.tsx, index.ts も同期すること。
  */
 
+import type { Sequent } from "../logic-core/sequentCalculus";
 import type { ScProofNode } from "../logic-core/sequentCalculus";
 import { getScConclusion } from "../logic-core/sequentCalculus";
 import { formatSequentText } from "./cutEliminationStepperLogic";
@@ -48,6 +49,8 @@ export type ProofTreeDisplayNode = {
   readonly id: string;
   /** 結論シーケントのフォーマット済みテキスト */
   readonly conclusionText: string;
+  /** 結論シーケントのSequentオブジェクト（SC証明木のSequentDisplay用、NDでは未設定） */
+  readonly conclusionSequent?: Sequent;
   /** 規則ラベル（例: "→R", "Id"） */
   readonly ruleLabel: string;
   /** 前提ノードのID配列（0=公理, 1=単項規則, 2=二項規則） */
@@ -95,9 +98,11 @@ export function convertScProofTreeToDisplay(
     const premises = getPremises(node);
     const premiseIds = premises.map((p) => traverse(p, depth + 1));
 
+    const conclusionSequent = getScConclusion(node);
     nodes.set(id, {
       id,
-      conclusionText: formatSequentText(getScConclusion(node)),
+      conclusionText: formatSequentText(conclusionSequent),
+      conclusionSequent,
       ruleLabel: getScRuleLabel(node._tag),
       premiseIds,
       depth,

@@ -17,6 +17,7 @@ import {
   convertScProofTreeToDisplay,
   computeProofTreeStats,
 } from "./scProofTreeRendererLogic";
+import { SequentDisplay } from "./SequentDisplay";
 
 // --- Props ---
 
@@ -178,7 +179,14 @@ function ProofTreeNode({
             : undefined
         }
       >
-        {node.conclusionText}
+        {node.conclusionSequent !== undefined ? (
+          <SequentDisplay
+            sequent={node.conclusionSequent}
+            fontSize={11}
+          />
+        ) : (
+          node.conclusionText
+        )}
       </div>
     </div>
   );
