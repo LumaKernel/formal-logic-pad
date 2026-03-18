@@ -15274,3 +15274,14 @@
   - matchAxiomTemplateByEquality は体系設定（propositionalAxioms, predicateLogic, equalityLogic）を尊重して公理をフィルタする
   - RootNodeValidation の instance/theory-instance バリアント除去で、テスト期待値の大幅な変更が必要になった
 ---
+
+## 2026-03-18T10:50 - proof-pad (ND証明木パネル Storybookストーリー) + テストタイムアウト修正
+- CI修正: pred-adv-12テストのタイムアウトを10s→30sに拡大（CIでは262ステップが10秒以上かかる）
+- NdProofTreePanel.stories.tsx 新規作成: 6ストーリー（Empty, ImplicationIntro, ImplicationElim, DeepChain, MultiRoot, ConjunctionIntro）すべてplay関数付き
+- スクリーンショット: .screenshots/nd-proof-tree-panel-implication-intro.png, .screenshots/nd-proof-tree-panel-multi-root.png
+- カバレッジ: Stmts 99.84% | Branch 99.21% | Funcs 90.28% | Lines 99.87%（ベースライン同等）
+- **今後のイテレーションへの学び:**
+  - ND証明木パネルは実装済みだったがストーリーがなかった。SC版(ScProofTreePanel.stories.tsx)を参考にパターンを踏襲
+  - NdProofTreePanelはnodesとinferenceEdgesをpropsとして受け取る（SC版はScProofNode木構造を直接受け取る）
+  - pred-adv系のテストはCIで3-5倍遅くなるため30sタイムアウトが必要
+---
