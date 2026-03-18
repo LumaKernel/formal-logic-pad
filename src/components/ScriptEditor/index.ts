@@ -53,3 +53,26 @@ export {
   getTotalApiCount,
 } from "./scriptApiReferenceLogic";
 export type { ApiCategory, ApiCategoryInfo } from "./scriptApiReferenceLogic";
+export {
+  initialWorkspaceState,
+  generateTabId,
+  createUnnamedTab,
+  openLibraryTab,
+  openSavedTab,
+  setActiveTab,
+  closeTab,
+  updateTabCode,
+  updateTabTitle,
+  getActiveTab,
+  isTabModified,
+  hasModifiedTabs,
+  findTabBySourceId,
+  duplicateAsUnnamed,
+  markTabAsSaved,
+  markTabSynced,
+} from "./scriptWorkspaceState";
+export type {
+  TabSource,
+  WorkspaceTab,
+  WorkspaceState,
+} from "./scriptWorkspaceState";
