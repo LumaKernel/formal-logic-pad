@@ -15654,3 +15654,36 @@
   - ScriptEditorComponentのonKeyDownはコンテナdivに配置。Monaco Editorはiframe内なので、Monaco外のUI操作時にのみ発火する点に注意
   - 上書き保存はsavedScriptsLogic.updateScriptCode + scriptWorkspaceState.markTabSyncedの2ステップ
 ---
+
+## 2026-03-19 01:30 - [script-editor] VSCode Explorer風ファイルエクスプローラー
+- 実装した内容:
+  - `scriptFileExplorerLogic.ts`: ファイルエクスプローラーの純粋ロジック
+    - FileExplorerState: renamingId, renameValue, confirmDeleteId
+    - startRename, updateRenameValue, cancelRename, confirmRename
+    - startDeleteConfirm, cancelDeleteConfirm
+    - computeFileExplorerItems: savedAt降順ソート + 表示フラグ計算
+    - formatSavedAt: タイムスタンプ → YYYY/MM/DD HH:MM
+  - `scriptFileExplorerLogic.test.ts`: 17テスト（全パス）
+  - `ScriptFileExplorer.tsx`: VSCode Explorer風UIコンポーネント
+    - ダブルクリックで開く、ホバーでリネーム/削除ボタン表示
+    - インラインリネーム入力、削除確認バー
+    - CSS変数ベースのスタイリング
+  - `ScriptFileExplorer.stories.tsx`: 6ストーリー（全play関数付き）
+    - Default, EmptyState, OpenFile, RenameFlow, DeleteFlow, DeleteCancel
+  - `ScriptEditorComponent.tsx`: Filesトグルボタン + 左サイドバー統合
+  - `index.ts`: エクスポート追加
+- 変更したファイル:
+  - src/components/ScriptEditor/scriptFileExplorerLogic.ts (新規)
+  - src/components/ScriptEditor/scriptFileExplorerLogic.test.ts (新規)
+  - src/components/ScriptEditor/ScriptFileExplorer.tsx (新規)
+  - src/components/ScriptEditor/ScriptFileExplorer.stories.tsx (新規)
+  - src/components/ScriptEditor/ScriptEditorComponent.tsx (統合)
+  - src/components/ScriptEditor/index.ts (エクスポート追加)
+- カバレッジ: Stmts 99.65%, Branch 98.24%, Funcs 90.28%, Lines 99.69%
+- ワークスペース親タスク完了（全4サブタスク完了） → アーカイブ済み
+- **今後のイテレーションへの学び:**
+  - ファイルエクスプローラーも3層パターン: 純粋ロジック(scriptFileExplorerLogic) → UIコンポーネント(ScriptFileExplorer) → 統合(ScriptEditorComponent)
+  - ESLint no-date: formatSavedAtのようにDate使用が不可避な場合は `eslint-disable-next-line` で個別無効化
+  - raw timestamp: テスト・ストーリーでは `new Date()` を使わず数値リテラルを直接使用（no-dateルール遵守）
+  - formatSavedAtテスト: タイムゾーン依存を避けるため正規表現パターンマッチで検証
+---
