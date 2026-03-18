@@ -231,6 +231,7 @@ import { createEditStateFromEdge } from "./edgeBadgeEditLogic";
 import { CutEliminationStepper } from "./CutEliminationStepper";
 import { ScProofTreePanel } from "./ScProofTreePanel";
 import { NdProofTreePanel } from "./NdProofTreePanel";
+import { TabProofTreePanel } from "./TabProofTreePanel";
 import type { CutEliminationStepperData } from "./cutEliminationStepperLogic";
 import {
   computeCutEliminationStepperData,
@@ -5917,6 +5918,19 @@ export const ProofWorkspace = forwardRef<
           testId={
             /* v8 ignore start -- V8集約アーティファクト */
             testId ? `${testId satisfies string}-nd-proof-tree` : undefined
+            /* v8 ignore stop */
+          }
+        />
+      ) : null}
+
+      {/* TABタブロー証明木パネル（TAB体系時に常駐表示） */}
+      {workspace.deductionSystem.style === "tableau-calculus" ? (
+        <TabProofTreePanel
+          nodes={workspace.nodes}
+          inferenceEdges={workspace.inferenceEdges}
+          testId={
+            /* v8 ignore start -- V8集約アーティファクト */
+            testId ? `${testId satisfies string}-tab-proof-tree` : undefined
             /* v8 ignore stop */
           }
         />

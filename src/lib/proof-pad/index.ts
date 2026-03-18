@@ -408,6 +408,20 @@ export {
 } from "./ndProofTreeRendererLogic";
 export { NdProofTreePanel } from "./NdProofTreePanel";
 export type { NdProofTreePanelProps } from "./NdProofTreePanel";
+export {
+  convertTabWorkspaceToTreeDisplay,
+  convertTabWorkspaceToTreeDisplayAuto,
+  findTabTreeRoots,
+  computeTabTreeStats,
+} from "./tabProofTreeRendererLogic";
+export type {
+  TabBranchStatus,
+  TabTreeDisplayNode,
+  TabTreeDisplayData,
+  TabTreeStats,
+} from "./tabProofTreeRendererLogic";
+export { TabProofTreePanel } from "./TabProofTreePanel";
+export type { TabProofTreePanelProps } from "./TabProofTreePanel";
 export { parseGoalFormula, checkGoal } from "./goalCheckLogic";
 export type {
   GoalNotSet,
