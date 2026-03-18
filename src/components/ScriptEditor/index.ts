@@ -90,3 +90,9 @@ export {
 export type { TabDisplayInfo } from "./tabBarLogic";
 export { ScriptWorkspaceTabBar } from "./ScriptWorkspaceTabBar";
 export type { ScriptWorkspaceTabBarProps } from "./ScriptWorkspaceTabBar";
+export { classifyScriptEditorKeyDown } from "./scriptEditorKeyboardShortcuts";
+export type {
+  ScriptEditorKeyboardAction,
+  ScriptEditorKeyEventInput,
+  ActiveTabContext,
+} from "./scriptEditorKeyboardShortcuts";

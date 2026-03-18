@@ -60,6 +60,7 @@ import {
   initialSavedScriptsState,
   addScript,
   removeScript,
+  updateScriptCode,
   serializeSavedScripts,
   deserializeSavedScripts,
   generateScriptId,
@@ -75,6 +76,7 @@ import {
   closeTab,
   updateTabCode,
   getActiveTab,
+  markTabSynced,
 } from "./scriptWorkspaceState";
 import type { WorkspaceState } from "./scriptWorkspaceState";
 import {
@@ -83,6 +85,7 @@ import {
   deserializeWorkspace,
 } from "./scriptWorkspacePersistence";
 import { ScriptWorkspaceTabBar } from "./ScriptWorkspaceTabBar";
+import { classifyScriptEditorKeyDown } from "./scriptEditorKeyboardShortcuts";
 
 // ── Inline style constants ──────────────────────────────────
 
@@ -302,6 +305,40 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
   const handleNewTab = useCallback(() => {
     setWorkspace((prev) => createUnnamedTab(prev, getNow()));
   }, [getNow]);
+
+  // ── Ctrl/Cmd+S キーボードショートカット ──────────────────────────
+
+  const handleContainerKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const action = classifyScriptEditorKeyDown(
+        {
+          key: e.key,
+          ctrlKey: e.ctrlKey,
+          metaKey: e.metaKey,
+          shiftKey: e.shiftKey,
+        },
+        activeTab
+          ? { source: activeTab.source, readonly: activeTab.readonly }
+          : undefined,
+      );
+      if (action.type === "save-new") {
+        e.preventDefault();
+        setSaveTitle("");
+        setSaveDialogOpen(true);
+      } else if (action.type === "save-overwrite") {
+        e.preventDefault();
+        const sourceId = activeTab?.sourceId;
+        if (activeTab && sourceId) {
+          const now = getNow();
+          setSavedScripts((prev) =>
+            updateScriptCode(prev, sourceId, state.code, now),
+          );
+          setWorkspace((prev) => markTabSynced(prev, activeTab.id));
+        }
+      }
+    },
+    [activeTab, state.code, getNow],
+  );
 
   // ダイアログ開いたときにフォーカス
   useEffect(() => {
@@ -790,6 +827,7 @@ declare var console: {
         position: "relative",
       }}
       data-testid="script-editor"
+      onKeyDown={handleContainerKeyDown}
     >
       <ScriptWorkspaceTabBar
         tabs={workspace.tabs}
