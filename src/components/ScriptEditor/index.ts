@@ -76,3 +76,8 @@ export type {
   WorkspaceTab,
   WorkspaceState,
 } from "./scriptWorkspaceState";
+export {
+  WORKSPACE_STORAGE_KEY,
+  serializeWorkspace,
+  deserializeWorkspace,
+} from "./scriptWorkspacePersistence";
