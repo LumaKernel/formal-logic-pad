@@ -15451,3 +15451,20 @@
   - SubstitutionEdge/SimplificationEdge/SubstitutionConnectionEdge の結論は公理スキーマの適用結果として扱い、ProofNodeではAxiomNodeに変換
   - hilbertTreeBuildLogic はscTreeBuildLogicと同じ3層パターン: ルート検出→再帰構築→Either公開API
 ---
+
+## 2026-03-18T10:20 - 逆演繹定理スクリプト
+- 実装した内容: 逆演繹定理（Γ ⊢ A → B → Γ ∪ {A} ⊢ B）の純粋ロジック・ブリッジ・テンプレート
+- 変更したファイル:
+  - src/lib/logic-core/deductionTheorem.ts — reverseDeductionTheorem追加
+  - src/lib/logic-core/deductionTheorem.test.ts — 5テスト追加
+  - src/lib/logic-core/index.ts — エクスポート追加
+  - src/lib/script-runner/hilbertProofBridge.ts — applyReverseDeductionTheoremブリッジ追加（3→ブリッジ数）
+  - src/lib/script-runner/hilbertProofBridge.test.ts — 3テスト追加
+  - src/lib/script-runner/templates.ts — reverse-deduction-theorem-workspaceテンプレート追加（8テンプレート）
+  - src/lib/script-runner/templates.test.ts — 3テスト追加
+- カバレッジ: Stmts 99.70%, Branch 98.38%, Funcs 90.23%, Lines 99.75%（ベースラインと同等）
+- **今後のイテレーションへの学び:**
+  - 逆演繹定理はMPで自明なので実装が非常にシンプル。演繹定理の正方向と対照的
+  - ブリッジ数・API定義数の変更はテストにハードコードされているので更新を忘れずに
+  - task-processing.mdの改行のみファイルはPrettierでCI失敗する。`truncate -s 0`か`: >`で0バイトにすること
+---
