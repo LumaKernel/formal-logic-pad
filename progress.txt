@@ -15582,3 +15582,30 @@
   - `@luma-dev/luma-ts/no-explicit-return-is` により型ガード関数に `is` を使えない。boolean返してasでキャストする
   - prettier --checkをcommit前に必ず通す。CI lintステップはprettier含む
 ---
+
+## 2026-03-19 00:12 - script-editor ワークスペースタブバー
+- 実装した内容:
+  - `tabBarLogic.ts`: タブ表示の純粋ロジック
+    - TabDisplayInfo型、ソースアイコン（📝/📚/💾）、修正マーカー（●）
+    - computeTabDisplay, computeAllTabDisplays, formatTabLabel
+  - `tabBarLogic.test.ts`: 13テスト（全パス）
+  - `ScriptWorkspaceTabBar.tsx`: タブバーUIコンポーネント
+    - VSCode風のタブ表示（アクティブ/非アクティブ状態、RO バッジ、閉じるボタン）
+    - インラインスタイル + CSS変数パターン
+    - role="tablist"/role="tab" でアクセシビリティ対応
+  - `ScriptWorkspaceTabBar.stories.tsx`: 7ストーリー + play関数
+    - Default, TabClick, CloseTab, NewTab, ModifiedIndicator, ReadonlyBadge, EmptyTabs
+  - `index.ts`: エクスポート追加
+- 変更したファイル:
+  - src/components/ScriptEditor/tabBarLogic.ts (新規)
+  - src/components/ScriptEditor/tabBarLogic.test.ts (新規)
+  - src/components/ScriptEditor/ScriptWorkspaceTabBar.tsx (新規)
+  - src/components/ScriptEditor/ScriptWorkspaceTabBar.stories.tsx (新規)
+  - src/components/ScriptEditor/index.ts (エクスポート追加)
+- カバレッジ: Stmts 99.7%, Branch 98.3%, Funcs 90.27%, Lines 99.75%
+- スクリーンショット: .screenshots/workspace-tab-bar-default.png
+- **今後のイテレーションへの学び:**
+  - タブバーはScriptEditorComponentとは独立したコンポーネントとして作成。次のステップで統合する
+  - emoji をソースアイコンとして使用（📝=unnamed, 📚=library, 💾=saved）。CSSアイコンよりシンプル
+  - TabItem内でstopPropagationしてcloseボタンクリックがタブ選択にならないようにする
+---
