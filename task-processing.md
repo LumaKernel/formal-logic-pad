@@ -29,6 +29,7 @@
 ### 実装方針
 
 TabProofTreePanelパターンに従い:
+
 1. `atProofTreeRendererLogic.ts` — TAB版を基に、AT固有のエッジ構造に対応
    - α規則: resultNodeId + secondResultNodeId（同一枝上の1-2子ノード）
    - β規則: leftResultNodeId + rightResultNodeId（分岐）

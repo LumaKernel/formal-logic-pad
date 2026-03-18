@@ -10,12 +10,7 @@ import {
 
 // --- ヘルパー ---
 
-function mkNode(
-  id: string,
-  formulaText: string,
-  x = 0,
-  y = 0,
-): WorkspaceNode {
+function mkNode(id: string, formulaText: string, x = 0, y = 0): WorkspaceNode {
   return {
     id,
     kind: "axiom",
@@ -143,10 +138,7 @@ describe("convertAtWorkspaceToTreeDisplay", () => {
   });
 
   it("should handle gamma rule (universal quantifier)", () => {
-    const nodes = [
-      mkNode("n1", "T:(all x. P(x))"),
-      mkNode("n2", "T:P(a)"),
-    ];
+    const nodes = [mkNode("n1", "T:(all x. P(x))"), mkNode("n2", "T:P(a)")];
     const edges: readonly InferenceEdge[] = [
       {
         _tag: "at-gamma",
@@ -167,10 +159,7 @@ describe("convertAtWorkspaceToTreeDisplay", () => {
   });
 
   it("should handle delta rule (existential quantifier)", () => {
-    const nodes = [
-      mkNode("n1", "T:(ex x. P(x))"),
-      mkNode("n2", "T:P(c)"),
-    ];
+    const nodes = [mkNode("n1", "T:(ex x. P(x))"), mkNode("n2", "T:P(c)")];
     const edges: readonly InferenceEdge[] = [
       {
         _tag: "at-delta",
