@@ -302,6 +302,15 @@ function ScriptEditorWithWorkspace() {
         isHilbertStyle: true,
         rules: [],
       }),
+      getLogicSystem: () => ({
+        name: lukasiewiczSystem.name,
+        propositionalAxioms: Array.from(
+          lukasiewiczSystem.propositionalAxioms,
+        ),
+        predicateLogic: lukasiewiczSystem.predicateLogic,
+        equalityLogic: lukasiewiczSystem.equalityLogic,
+        generalization: lukasiewiczSystem.generalization,
+      }),
       extractScProof: () => {
         throw new Error("extractScProof: SC体系でのみ使用可能です。");
       },

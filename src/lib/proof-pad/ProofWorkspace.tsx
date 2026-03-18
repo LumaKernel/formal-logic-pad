@@ -3650,6 +3650,25 @@ export const ProofWorkspace = forwardRef<
           rules,
         };
       },
+      getLogicSystem: () => {
+        const ds = workspaceRef.current.deductionSystem;
+        if (ds.style !== "hilbert") {
+          throw new Error(
+            `getLogicSystem: Hilbert体系でのみ使用可能です。現在の体系: ${ds.style satisfies string}`,
+          );
+        }
+        const sys = ds.system;
+        return {
+          name: sys.name,
+          propositionalAxioms: Array.from(sys.propositionalAxioms),
+          predicateLogic: sys.predicateLogic,
+          equalityLogic: sys.equalityLogic,
+          generalization: sys.generalization,
+          ...(sys.theoryAxioms
+            ? { theoryAxioms: sys.theoryAxioms }
+            : {}),
+        };
+      },
       extractScProof: (rootNodeId?: string) => {
         const ws = workspaceRef.current;
         if (ws.deductionSystem.style !== "sequent-calculus") {

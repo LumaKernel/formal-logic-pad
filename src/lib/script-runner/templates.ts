@@ -333,19 +333,40 @@ const autoProveTemplate: ScriptTemplate = {
 // proveSequentLK を使って、命題論理の定理を自動的に証明します。
 // 証明木は displayScProof でキャンバスに表示されます。
 
-// 証明したいシーケント: ⇒ φ → φ
-var goal = sequent([], [parseFormula("phi -> phi")]);
-
 console.log("=== 自動証明探索 (LK) ===");
-console.log("ゴール: ⇒ φ → φ");
 console.log("");
 
-// 証明探索を実行
-var proof = proveSequentLK(goal);
+// ── 1. 基本: 恒真式 φ → φ ──
+var goal1 = sequent([], [parseFormula("phi -> phi")]);
+console.log("1. ⇒ φ → φ");
+var proof1 = proveSequentLK(goal1);
+console.log("   証明ノード数: " + countCuts(proof1) + " カット");
+displayScProof(proof1);
 
-// 証明木をキャンバスに表示
-console.log("証明が見つかりました！");
-displayScProof(proof);
+// ── 2. 対偶: (φ → ψ) → (¬ψ → ¬φ) ──
+var goal2 = sequent([], [parseFormula("(phi -> psi) -> (~psi -> ~phi)")]);
+console.log("");
+console.log("2. ⇒ (φ → ψ) → (¬ψ → ¬φ)  [対偶]");
+var proof2 = proveSequentLK(goal2);
+console.log("   カットフリー? " + isCutFree(proof2));
+displayScProof(proof2);
+
+// ── 3. 排中律: φ ∨ ¬φ ──
+var goal3 = sequent([], [parseFormula("phi \\\\/ ~phi")]);
+console.log("");
+console.log("3. ⇒ φ ∨ ¬φ  [排中律]");
+var proof3 = proveSequentLK(goal3);
+displayScProof(proof3);
+
+// ── 4. ド・モルガン: ¬(φ ∧ ψ) → (¬φ ∨ ¬ψ) ──
+var goal4 = sequent([], [parseFormula("~(phi /\\\\ psi) -> (~phi \\\\/ ~psi)")]);
+console.log("");
+console.log("4. ⇒ ¬(φ ∧ ψ) → (¬φ ∨ ¬ψ)  [ド・モルガン]");
+var proof4 = proveSequentLK(goal4);
+displayScProof(proof4);
+
+console.log("");
+console.log("全定理の自動証明が完了しました！");
 console.log("Q.E.D.");
 `,
 };
@@ -704,24 +725,14 @@ const axiomExplorer: ScriptTemplate = {
 //   { _tag: "TheoryAxiom" }                    → 理論公理のインスタンス
 //   { _tag: "Error", reason: "..." }           → 公理ではない
 
-// 現在の体系を取得
-var sysInfo = getDeductionSystemInfo();
-if (!sysInfo.isHilbertStyle) {
-  throw new Error("このスクリプトはヒルベルト流の体系でのみ実行できます。現在の体系: " + sysInfo.style);
-}
+// 現在の体系を取得（getLogicSystem は identifyAxiom にそのまま渡せる）
+var system = getLogicSystem();
 
 console.log("=== 公理スキーマの探索 ===");
-console.log("体系: " + sysInfo.systemName);
+console.log("体系: " + system.name);
+console.log("述語論理: " + system.predicateLogic);
+console.log("汎化規則: " + system.generalization);
 console.log("");
-
-// 体系情報をsystem JSONに変換
-var system = {
-  name: sysInfo.systemName,
-  propositionalAxioms: sysInfo.rules,
-  predicateLogic: false,
-  equalityLogic: false,
-  generalization: false
-};
 
 // A1公理のインスタンス: φ → (ψ → φ)
 var a1Instance = parseFormula("(chi -> chi) -> (psi -> (chi -> chi))");
@@ -754,6 +765,109 @@ if (r3._tag === "Error") {
 
 console.log("");
 console.log("探索完了！");
+`,
+};
+
+/**
+ * 述語論理の証明: 汎化規則 (Gen) と述語論理公理の使い方。
+ *
+ * 汎化規則 (Gen): φ から ∀x.φ を導出する。
+ * 述語論理公理:
+ *   A4: ∀x.φ(x) → φ(t)  (全称例化)
+ *   A5: φ → ∀x.φ  (x が φ の自由変数でない場合)
+ *
+ * 例: ∀x.(P(x) → Q(x)) → (P(a) → Q(a))
+ * を A4 と MP で導出する。
+ */
+const predicateLogicProof: ScriptTemplate = {
+  id: "predicate-logic-proof",
+  title: "述語論理: 汎化規則と全称例化",
+  description:
+    "applyGen で汎化 (φ → ∀x.φ) を実行し、述語論理公理 A4/A5 の使い方を学ぶ。getLogicSystem で体系情報を取得。",
+  compatibleStyles: ["hilbert"],
+  code: `// 述語論理: 汎化規則と全称例化
+//
+// getLogicSystem() で体系情報を取得し、
+// applyGen(formula, variableName, system) で汎化規則を適用する。
+//
+// 汎化規則 (Gen): φ ⊢ ∀x.φ
+// 述語論理公理:
+//   A4: ∀x.φ(x) → φ(t)  (全称例化: t を x に代入)
+//   A5: φ → ∀x.φ  (x が φ の自由変数でない場合)
+
+var system = getLogicSystem();
+
+console.log("=== 述語論理: 汎化規則と全称例化 ===");
+console.log("体系: " + system.name);
+console.log("述語論理: " + system.predicateLogic);
+console.log("汎化規則: " + system.generalization);
+console.log("");
+
+if (!system.generalization) {
+  throw new Error(
+    "この体系では汎化規則が無効です。述語論理を含む体系を選択してください。"
+  );
+}
+
+// ── 1. 汎化規則 (Gen) の実演 ──
+console.log("--- 1. 汎化規則 (Gen) ---");
+console.log("");
+
+// P(x) → P(x) を公理から導出（A1 + A2 + MP で構成）
+// ここでは単純に命題として扱う
+var px = parseFormula("P(x)");
+console.log("元の論理式: " + formatFormula(px));
+
+// applyGen で ∀x.P(x) を導出
+var forallPx = applyGen(px, "x", system);
+console.log("Gen 適用後: " + formatFormula(forallPx));
+console.log("  P(x) ⊢ ∀x.P(x)");
+console.log("");
+
+// もう一段: ∀x.P(x) に対して y で汎化
+var forallYForallPx = applyGen(forallPx, "y", system);
+console.log("二重汎化: " + formatFormula(forallYForallPx));
+console.log("  ∀x.P(x) ⊢ ∀y.∀x.P(x)");
+console.log("  （y は自由変数でないので、実質 A5 と同等）");
+console.log("");
+
+// ── 2. 述語論理公理の確認 ──
+console.log("--- 2. 述語論理公理 A4/A5 の確認 ---");
+console.log("");
+
+// A4: ∀x.P(x) → P(a)  (全称例化)
+var a4Instance = parseFormula("forall x. P(x) -> P(a)");
+console.log("候補: " + formatFormula(a4Instance));
+var r1 = identifyAxiom(a4Instance, system);
+console.log("結果: " + r1._tag);
+if (r1._tag === "Ok") {
+  console.log("  公理: " + r1.axiomName);
+}
+console.log("");
+
+// A5: P(a) → ∀x.P(a)  (x は P(a) の自由変数でない)
+var a5Instance = parseFormula("P(a) -> forall x. P(a)");
+console.log("候補: " + formatFormula(a5Instance));
+var r2 = identifyAxiom(a5Instance, system);
+console.log("結果: " + r2._tag);
+if (r2._tag === "Ok") {
+  console.log("  公理: " + r2.axiomName);
+}
+console.log("");
+
+// ── 3. 含意の汎化 ──
+console.log("--- 3. 含意の汎化 ---");
+console.log("");
+var pxImplQx = parseFormula("P(x) -> Q(x)");
+console.log("元: " + formatFormula(pxImplQx));
+var genResult = applyGen(pxImplQx, "x", system);
+console.log("Gen: " + formatFormula(genResult));
+console.log("  P(x) → Q(x) ⊢ ∀x.(P(x) → Q(x))");
+
+console.log("");
+console.log("探索完了！");
+console.log("述語論理の証明では Gen と A4/A5 を組み合わせて");
+console.log("量化子を含む定理を導出します。");
 `,
 };
 
@@ -1392,6 +1506,7 @@ export const BUILTIN_TEMPLATES: readonly ScriptTemplate[] = [
   buildIdentityProof,
   buildIdentityProofTree,
   axiomExplorer,
+  predicateLogicProof,
   syllogismProof,
   deductionTheoremWorkspace,
   reverseDeductionTheoremWorkspace,

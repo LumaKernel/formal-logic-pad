@@ -10,8 +10,8 @@ import type { WorkspaceCommandHandler } from "./workspaceBridge";
 import type { NativeFunctionBridge } from "./scriptRunner";
 
 describe("BUILTIN_TEMPLATES", () => {
-  it("18のテンプレートを含む", () => {
-    expect(BUILTIN_TEMPLATES).toHaveLength(18);
+  it("19のテンプレートを含む", () => {
+    expect(BUILTIN_TEMPLATES).toHaveLength(19);
   });
 
   it("各テンプレートが必須フィールドを持つ", () => {
@@ -109,6 +109,13 @@ describe("テンプレート実行テスト", () => {
       systemName: "Classical Propositional Logic",
       isHilbertStyle: true,
       rules: [],
+    }),
+    getLogicSystem: vi.fn().mockReturnValue({
+      name: "Łukasiewicz",
+      propositionalAxioms: ["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"],
+      predicateLogic: false,
+      equalityLogic: false,
+      generalization: false,
     }),
     extractScProof: vi.fn(),
     extractHilbertProof: vi.fn(),
@@ -658,18 +665,78 @@ describe("テンプレート実行テスト", () => {
     expect(consoleLogs.some((l) => l.includes("探索完了"))).toBe(true);
   });
 
-  it("axiom-explorer: ヒルベルト流以外ではエラー", () => {
+  it("axiom-explorer: Hilbert以外ではgetLogicSystemがエラー", () => {
     const tmpl = BUILTIN_TEMPLATES.find((t) => t.id === "axiom-explorer")!;
     consoleLogs.length = 0;
     const handler = createMockHandler();
-    (
-      handler.getDeductionSystemInfo as ReturnType<typeof vi.fn>
-    ).mockReturnValue({
-      style: "natural-deduction",
-      systemName: "Natural Deduction",
-      isHilbertStyle: false,
-      rules: [],
+    (handler.getLogicSystem as ReturnType<typeof vi.fn>).mockImplementation(
+      () => {
+        throw new Error("Hilbert体系でのみ使用可能です");
+      },
+    );
+    const bridges = [
+      ...createProofBridges(),
+      ...createCutEliminationBridges(),
+      ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
+      ...consoleBridges,
+    ];
+    const code = consoleShim + tmpl.code;
+    const runner = createScriptRunner(code, {
+      bridges,
+      maxSteps: 50000,
     });
+    const result = "run" in runner ? runner.run() : runner;
+    expect(result._tag).toBe("Error");
+  });
+
+  it("predicate-logic-proof: 述語論理体系で正常に実行される", () => {
+    const tmpl = BUILTIN_TEMPLATES.find(
+      (t) => t.id === "predicate-logic-proof",
+    )!;
+    consoleLogs.length = 0;
+    const handler = createMockHandler();
+    // 述語論理体系をモック
+    (handler.getLogicSystem as ReturnType<typeof vi.fn>).mockReturnValue({
+      name: "Predicate Logic",
+      propositionalAxioms: ["A1", "A2", "A3", "A4", "A5"],
+      predicateLogic: true,
+      equalityLogic: false,
+      generalization: true,
+    });
+    const bridges = [
+      ...createProofBridges(),
+      ...createCutEliminationBridges(),
+      ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
+      ...consoleBridges,
+    ];
+    const code = consoleShim + tmpl.code;
+    const runner = createScriptRunner(code, {
+      bridges,
+      maxSteps: 50000,
+    });
+    const result = "run" in runner ? runner.run() : runner;
+    if (result._tag === "Error") {
+      throw new Error(
+        `Template failed: ${JSON.stringify(result.error) satisfies string}`,
+      );
+    }
+    expect(result._tag).toBe("Ok");
+    expect(
+      consoleLogs.some((l) => l.includes("述語論理: 汎化規則と全称例化")),
+    ).toBe(true);
+    expect(consoleLogs.some((l) => l.includes("Gen 適用後"))).toBe(true);
+    expect(consoleLogs.some((l) => l.includes("探索完了"))).toBe(true);
+  });
+
+  it("predicate-logic-proof: 汎化無効な体系ではエラー", () => {
+    const tmpl = BUILTIN_TEMPLATES.find(
+      (t) => t.id === "predicate-logic-proof",
+    )!;
+    consoleLogs.length = 0;
+    const handler = createMockHandler();
+    // generalization: false の体系
     const bridges = [
       ...createProofBridges(),
       ...createCutEliminationBridges(),
@@ -898,10 +965,11 @@ describe("filterTemplatesByStyle", () => {
     expect(ids).toContain("build-identity-proof");
     expect(ids).toContain("build-identity-proof-tree");
     expect(ids).toContain("axiom-explorer");
+    expect(ids).toContain("predicate-logic-proof");
     expect(ids).toContain("syllogism-proof");
     expect(ids).toContain("deduction-theorem-workspace");
     expect(ids).toContain("reverse-deduction-theorem-workspace");
-    expect(result).toHaveLength(8);
+    expect(result).toHaveLength(9);
   });
 
   it("BUILTIN_TEMPLATESでsequent-calculusフィルタ", () => {

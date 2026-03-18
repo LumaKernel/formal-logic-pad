@@ -31,6 +31,13 @@ const createMockHandler = (): WorkspaceCommandHandler => ({
     isHilbertStyle: true,
     rules: [],
   }),
+  getLogicSystem: vi.fn().mockReturnValue({
+    name: "Łukasiewicz",
+    propositionalAxioms: ["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"],
+    predicateLogic: false,
+    equalityLogic: false,
+    generalization: false,
+  }),
   extractScProof: vi.fn().mockReturnValue({
     _tag: "ScIdentity",
     conclusion: {
@@ -93,7 +100,7 @@ describe("createWorkspaceBridges", () => {
   it("ブリッジ関数一覧を返す", () => {
     const handler = createMockHandler();
     const bridges = createWorkspaceBridges(handler);
-    expect(bridges.length).toBe(14);
+    expect(bridges.length).toBe(15);
     const names = bridges.map((b) => b.name);
     expect(names).toContain("addNode");
     expect(names).toContain("setNodeFormula");
@@ -109,6 +116,7 @@ describe("createWorkspaceBridges", () => {
     expect(names).toContain("getDeductionSystemInfo");
     expect(names).toContain("extractScProof");
     expect(names).toContain("extractHilbertProof");
+    expect(names).toContain("getLogicSystem");
   });
 });
 
@@ -728,6 +736,61 @@ if (!info.isHilbertStyle) {
   });
 });
 
+describe("getLogicSystem ブリッジ", () => {
+  it("Hilbert体系のLogicSystem JSONを返す", () => {
+    const handler = createMockHandler();
+    const result = runCode(`getLogicSystem()`, handler);
+    expect(result).toEqual({
+      name: "Łukasiewicz",
+      propositionalAxioms: ["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"],
+      predicateLogic: false,
+      equalityLogic: false,
+      generalization: false,
+    });
+    expect(handler.getLogicSystem).toHaveBeenCalled();
+  });
+
+  it("述語論理体系の情報を返す", () => {
+    const handler = createMockHandler();
+    (handler.getLogicSystem as ReturnType<typeof vi.fn>).mockReturnValue({
+      name: "Predicate Logic",
+      propositionalAxioms: ["A1", "A2", "A3", "A4", "A5"],
+      predicateLogic: true,
+      equalityLogic: false,
+      generalization: true,
+    });
+    const result = runCode(`getLogicSystem()`, handler);
+    expect(result).toEqual({
+      name: "Predicate Logic",
+      propositionalAxioms: ["A1", "A2", "A3", "A4", "A5"],
+      predicateLogic: true,
+      equalityLogic: false,
+      generalization: true,
+    });
+  });
+
+  it("スクリプト内でプロパティにアクセスできる", () => {
+    const handler = createMockHandler();
+    const code = `
+var sys = getLogicSystem();
+sys.name + "," + sys.generalization;
+`;
+    const result = runCode(code, handler);
+    expect(result).toBe("Łukasiewicz,false");
+  });
+
+  it("ハンドラーのエラーが伝播する", () => {
+    const handler = createMockHandler();
+    (handler.getLogicSystem as ReturnType<typeof vi.fn>).mockImplementation(
+      () => {
+        throw new Error("Hilbert体系でのみ使用可能です");
+      },
+    );
+    const msg = runCodeError(`getLogicSystem()`, handler);
+    expect(msg).toContain("Hilbert体系でのみ使用可能です");
+  });
+});
+
 describe("extractScProof ブリッジ", () => {
   it("引数なしでSC証明木を返す", () => {
     const handler = createMockHandler();
@@ -813,6 +876,7 @@ describe("generateWorkspaceBridgeTypeDefs", () => {
     expect(typeDefs).toContain("declare function displayScProof");
     expect(typeDefs).toContain("declare function getSelectedNodeIds");
     expect(typeDefs).toContain("declare function getDeductionSystemInfo");
+    expect(typeDefs).toContain("declare function getLogicSystem");
     expect(typeDefs).toContain("declare function extractScProof");
     expect(typeDefs).toContain("declare function extractHilbertProof");
   });

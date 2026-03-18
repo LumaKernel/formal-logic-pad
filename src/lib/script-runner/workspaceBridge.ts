@@ -54,6 +54,19 @@ export interface WorkspaceCommandHandler {
     readonly rules: readonly string[];
   };
   /**
+   * 現在の Hilbert 体系の LogicSystem JSON を返す。
+   * identifyAxiom / applyGen にそのまま渡せる形式。
+   * Hilbert 体系でない場合は throw。
+   */
+  readonly getLogicSystem: () => {
+    readonly name: string;
+    readonly propositionalAxioms: readonly string[];
+    readonly predicateLogic: boolean;
+    readonly equalityLogic: boolean;
+    readonly generalization: boolean;
+    readonly theoryAxioms?: readonly unknown[];
+  };
+  /**
    * ワークスペースからSC証明木を抽出する。
    * rootNodeIdを指定しない場合はルートを自動検出する。
    * SC体系でない場合、証明木構築に失敗した場合はthrow。
@@ -179,6 +192,11 @@ const createGetSelectedNodeIdsFn =
 const createGetDeductionSystemInfoFn =
   (handler: WorkspaceCommandHandler) => (): unknown => {
     return handler.getDeductionSystemInfo();
+  };
+
+const createGetLogicSystemFn =
+  (handler: WorkspaceCommandHandler) => (): unknown => {
+    return handler.getLogicSystem();
   };
 
 const createExtractScProofFn =
@@ -362,6 +380,7 @@ const createDisplayScProofFn =
  * - applyLayout()
  * - getSelectedNodeIds() → string[]
  * - getDeductionSystemInfo() → { style, systemName, isHilbertStyle, rules }
+ * - getLogicSystem() → LogicSystemJson
  * - extractScProof(rootNodeId?) → ScProofNodeJson
  */
 export const createWorkspaceBridges = (
@@ -382,6 +401,7 @@ export const createWorkspaceBridges = (
     name: "getDeductionSystemInfo",
     fn: createGetDeductionSystemInfoFn(handler),
   },
+  { name: "getLogicSystem", fn: createGetLogicSystemFn(handler) },
   { name: "extractScProof", fn: createExtractScProofFn(handler) },
   {
     name: "extractHilbertProof",
@@ -457,6 +477,12 @@ export const WORKSPACE_BRIDGE_API_DEFS: readonly ProofBridgeApiDef[] = [
       "() => { style: string; systemName: string; isHilbertStyle: boolean; rules: string[] }",
     description:
       "現在の演繹体系の情報を返す。style（証明スタイル）、systemName（体系名）、isHilbertStyle（Hilbert流かどうか）、rules（有効な推論規則一覧）を含む。",
+  },
+  {
+    name: "getLogicSystem",
+    signature: "() => LogicSystemJson",
+    description:
+      "現在のHilbert体系のLogicSystem JSONを返す。identifyAxiom / applyGen にそのまま渡せる。Hilbert体系でない場合はエラーをthrowする。",
   },
   {
     name: "extractScProof",

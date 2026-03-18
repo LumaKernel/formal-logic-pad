@@ -132,6 +132,13 @@ describe("createHilbertProofBridges", () => {
       isHilbertStyle: true,
       rules: [],
     }),
+    getLogicSystem: vi.fn().mockReturnValue({
+      name: "Test",
+      propositionalAxioms: [],
+      predicateLogic: false,
+      equalityLogic: false,
+      generalization: false,
+    }),
     extractScProof: vi.fn(),
     extractHilbertProof: vi.fn(),
   });
