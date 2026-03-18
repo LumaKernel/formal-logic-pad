@@ -15741,3 +15741,16 @@
   - sharedTypeDefs は全ブリッジAPIのsignatureで参照される型を一元管理。新しい型を使う場合はここに追加
   - SequentJson は構造的型（antecedents/succedents）を公開し、ユーザーが直接フィールドにアクセス可能
 ---
+
+## 2026-03-19 - [script-runner] getLogicSystem API追加・テンプレート強化
+- getLogicSystem() APIをworkspaceBridgeに追加。LogicSystemJsonを返し、identifyAxiom/applyGenにそのまま渡せる
+- 述語論理テンプレート（predicateLogicProof）を新規追加。applyGen、A4/A5公理、generalizationフラグ確認を示す
+- 自動証明テンプレートを4定理に拡充（φ→φ、対偶、排中律、De Morgan）
+- 公理探索テンプレートをgetLogicSystem()利用に更新（手動JSONオブジェクト構築を廃止）
+- 変更ファイル: workspaceBridge.ts, templates.ts, ProofWorkspace.tsx, ScriptEditorComponent.stories.tsx, テスト3ファイル
+- カバレッジ変化なし: Stmts 99.65%, Branch 98.24%, Funcs 89.96%, Lines 99.69%
+- **今後のイテレーションへの学び:**
+  - WorkspaceCommandHandler interfaceにAPI追加時: bridge関数定義 + handler実装(ProofWorkspace.tsx) + Storybook mock + テストmock の4箇所を同期する
+  - LogicSystem.theoryAxiomsはTheoryAxiom型のオブジェクト配列（string[]ではない）。bridgeでは`unknown[]`として透過的に渡す
+  - テンプレートでのシステム情報取得はgetLogicSystem()を使う（getDeductionSystemInfo()はUIメタ情報のみ）
+---
