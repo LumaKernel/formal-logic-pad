@@ -400,6 +400,14 @@ export {
   isSequentText,
 } from "./sequentDisplayLogic";
 export type { FormulaSlot, SequentDisplayData } from "./sequentDisplayLogic";
+export { SignedFormulaDisplay } from "./SignedFormulaDisplay";
+export type { SignedFormulaDisplayProps } from "./SignedFormulaDisplay";
+export {
+  isSignedFormulaText,
+  parseSignedFormulaDisplayData,
+  signedFormulaToDisplayData,
+} from "./signedFormulaDisplayLogic";
+export type { SignedFormulaDisplayData } from "./signedFormulaDisplayLogic";
 export {
   getNdRuleLabel,
   convertNdWorkspaceToProofTree,

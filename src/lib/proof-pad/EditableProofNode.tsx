@@ -36,6 +36,8 @@ import type { ProofMessages } from "./proofMessages";
 import { formatMessage } from "./proofMessages";
 import { isSequentText } from "./sequentDisplayLogic";
 import { SequentDisplay } from "./SequentDisplay";
+import { isSignedFormulaText } from "./signedFormulaDisplayLogic";
+import { SignedFormulaDisplay } from "./SignedFormulaDisplay";
 
 // --- Props ---
 
@@ -494,6 +496,16 @@ export function EditableProofNode({
     [effectiveEditable, readonlyFormula, formulaText],
   );
 
+  /** read-only表示用: 署名付き論理式テキストかどうかを判定 */
+  const isSignedFormula = useMemo(
+    () =>
+      !effectiveEditable &&
+      readonlyFormula === null &&
+      !isSequent &&
+      isSignedFormulaText(formulaText),
+    [effectiveEditable, readonlyFormula, isSequent, formulaText],
+  );
+
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true);
   }, []);
@@ -647,6 +659,8 @@ export function EditableProofNode({
               <FormulaDisplay formula={readonlyFormula} fontSize={13} />
             ) : isSequent ? (
               <SequentDisplay text={formulaText} fontSize={13} />
+            ) : isSignedFormula ? (
+              <SignedFormulaDisplay text={formulaText} fontSize={13} />
             ) : (
               formulaText
             )}
