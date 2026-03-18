@@ -392,3 +392,4 @@ Infinity Canvasについて。
 - [x] ヒルベルトスタイルのphi->phiの証明を実際に証明ツリーとして出すもの — `build-identity-proof-tree` テンプレート追加。ワークスペースに3公理ノード+2MP接続+ゴール+レイアウトを自動構築
   - [x] ヒルベルト流以外でやろうとしたら、スクリプトの提供API側のガードで失敗する想定(非対応として) — `getDeductionSystemInfo().isHilbertStyle` チェックでthrow
   - [x] 体系の情報を取れるAPIはあってもよいだろう — `getDeductionSystemInfo()` をWorkspace Bridgeに追加。style, systemName, isHilbertStyle, rules を返す
+- [x] カット除去を部分的に実装しているものを、5-7段階ぐらいでそれぞれ用意 — 6段階テンプレート（カット判定→ID公理→ランク0→ランク削減→深さ削減→全体統合）をtemplates.tsに追加
