@@ -10,8 +10,8 @@ import type { WorkspaceCommandHandler } from "./workspaceBridge";
 import type { NativeFunctionBridge } from "./scriptRunner";
 
 describe("BUILTIN_TEMPLATES", () => {
-  it("8つのテンプレートを含む", () => {
-    expect(BUILTIN_TEMPLATES).toHaveLength(8);
+  it("14のテンプレートを含む", () => {
+    expect(BUILTIN_TEMPLATES).toHaveLength(14);
   });
 
   it("各テンプレートが必須フィールドを持つ", () => {
@@ -583,6 +583,25 @@ describe("テンプレート実行テスト", () => {
     expect(result._tag).toBe("Error");
   });
 
+  it.each([
+    { id: "cut-elimination-step1", keyword: "段階1 完了" },
+    { id: "cut-elimination-step2", keyword: "段階2 完了" },
+    { id: "cut-elimination-step3", keyword: "段階3 完了" },
+    { id: "cut-elimination-step4", keyword: "段階4 完了" },
+    { id: "cut-elimination-step5", keyword: "段階5 完了" },
+    { id: "cut-elimination-step6", keyword: "全6段階 完了" },
+  ])("$id: 正常に実行される", ({ id, keyword }) => {
+    const tmpl = BUILTIN_TEMPLATES.find((t) => t.id === id)!;
+    const result = runTemplate(tmpl);
+    if (result._tag === "Error") {
+      throw new Error(
+        `Template failed: ${JSON.stringify(result.error) satisfies string}`,
+      );
+    }
+    expect(result._tag).toBe("Ok");
+    expect(consoleLogs.some((l) => l.includes(keyword))).toBe(true);
+  });
+
   it("cut-elimination-workspace: SC体系以外ではエラー", () => {
     const tmpl = BUILTIN_TEMPLATES.find(
       (t) => t.id === "cut-elimination-workspace",
@@ -701,7 +720,14 @@ describe("filterTemplatesByStyle", () => {
     expect(ids).toContain("cut-elimination-implication");
     expect(ids).toContain("cut-elimination-workspace");
     expect(ids).toContain("auto-prove-lk");
-    expect(result).toHaveLength(4);
+    // 段階的テンプレート (6段階)
+    expect(ids).toContain("cut-elimination-step1");
+    expect(ids).toContain("cut-elimination-step2");
+    expect(ids).toContain("cut-elimination-step3");
+    expect(ids).toContain("cut-elimination-step4");
+    expect(ids).toContain("cut-elimination-step5");
+    expect(ids).toContain("cut-elimination-step6");
+    expect(result).toHaveLength(10);
   });
 
   it("空配列に対してフィルタしても空配列を返す", () => {
