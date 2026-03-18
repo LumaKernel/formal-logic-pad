@@ -62,47 +62,32 @@ const cutEliminationImplication: ScriptTemplate = {
 //   ────────────────────────────────────────────── (Cut: φ→ψ)
 //               φ, φ ⇒ ψ
 
-// 論理式の定義
-var phi = { _tag: "MetaVariable", name: "φ" };
-var psi = { _tag: "MetaVariable", name: "ψ" };
-var phiImplPsi = { _tag: "Implication", left: phi, right: psi };
+// 論理式の定義（parseFormula でパース）
+var phi = parseFormula("φ");
+var psi = parseFormula("ψ");
+var phiImplPsi = parseFormula("φ → ψ");
 
 // ID 公理: φ ⇒ φ
-var idPhi = {
-  _tag: "ScIdentity",
-  conclusion: { antecedents: [phi], succedents: [phi] }
-};
+var idPhi = scIdentity(sequent([phi], [phi]));
 
 // ID 公理: ψ ⇒ ψ
-var idPsi = {
-  _tag: "ScIdentity",
-  conclusion: { antecedents: [psi], succedents: [psi] }
-};
+var idPsi = scIdentity(sequent([psi], [psi]));
 
 // 左前提: φ ⇒ φ に WR で φ→ψ を追加 → φ ⇒ φ, φ→ψ
-var leftPremise = {
-  _tag: "ScWeakeningRight",
-  conclusion: { antecedents: [phi], succedents: [phi, phiImplPsi] },
-  premise: idPhi,
-  weakenedFormula: phiImplPsi
-};
+var leftPremise = scWeakeningRight(
+  idPhi, phiImplPsi, sequent([phi], [phi, phiImplPsi])
+);
 
 // 右前提: →L で φ ⇒ φ, ψ ⇒ ψ から φ→ψ, φ ⇒ ψ を導出
-var rightPremise = {
-  _tag: "ScImplicationLeft",
-  conclusion: { antecedents: [phiImplPsi, phi], succedents: [psi] },
-  left: idPhi,
-  right: idPsi
-};
+var rightPremise = scImplicationLeft(
+  idPhi, idPsi, sequent([phiImplPsi, phi], [psi])
+);
 
 // カット: φ→ψ を主式として Cut
-var proof = {
-  _tag: "ScCut",
-  conclusion: { antecedents: [phi, phi], succedents: [psi] },
-  left: leftPremise,
-  right: rightPremise,
-  cutFormula: phiImplPsi
-};
+var proof = scCut(
+  leftPremise, rightPremise, phiImplPsi,
+  sequent([phi, phi], [psi])
+);
 
 // カット除去前の情報
 var conclusionSeq = getScConclusion(proof);
@@ -166,20 +151,12 @@ const cutEliminationSimple: ScriptTemplate = {
 // ──────────────────────── (Cut: φ)
 //          φ ⇒ φ
 
-var phi = { _tag: "MetaVariable", name: "φ" };
+// parseFormula でパースし、sequent / scIdentity / scCut で証明ノードを構築
+var phi = parseFormula("φ");
+var seq = sequent([phi], [phi]);
 
-var idPhi = {
-  _tag: "ScIdentity",
-  conclusion: { antecedents: [phi], succedents: [phi] }
-};
-
-var proof = {
-  _tag: "ScCut",
-  conclusion: { antecedents: [phi], succedents: [phi] },
-  left: idPhi,
-  right: idPhi,
-  cutFormula: phi
-};
+var idPhi = scIdentity(seq);
+var proof = scCut(idPhi, idPhi, phi, seq);
 
 console.log("=== 単純なカット除去 ===");
 console.log("カット数: " + countCuts(proof));

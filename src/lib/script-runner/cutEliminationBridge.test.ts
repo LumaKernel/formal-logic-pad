@@ -38,6 +38,7 @@ import {
   disjunction,
 } from "../logic-core/formula";
 import { createScriptRunner } from "./scriptRunner";
+import { createProofBridges } from "./proofBridge";
 
 // ── テスト用ヘルパー ────────────────────────────────────────
 
@@ -280,14 +281,36 @@ describe("decodeScProofNode position フォールバック", () => {
 describe("createCutEliminationBridges", () => {
   const bridges = createCutEliminationBridges();
 
-  it("5つのブリッジ関数を返す", () => {
-    expect(bridges).toHaveLength(5);
+  it("27のブリッジ関数を返す（5操作 + 22コンストラクタ）", () => {
+    expect(bridges).toHaveLength(27);
     expect(bridges.map((b) => b.name)).toEqual([
       "isCutFree",
       "countCuts",
       "formatSequent",
       "eliminateCutsWithSteps",
       "getScConclusion",
+      "sequent",
+      "scIdentity",
+      "scBottomLeft",
+      "scCut",
+      "scWeakeningLeft",
+      "scWeakeningRight",
+      "scContractionLeft",
+      "scContractionRight",
+      "scExchangeLeft",
+      "scExchangeRight",
+      "scImplicationLeft",
+      "scImplicationRight",
+      "scConjunctionLeft",
+      "scConjunctionRight",
+      "scDisjunctionLeft",
+      "scDisjunctionRight",
+      "scNegationLeft",
+      "scNegationRight",
+      "scUniversalLeft",
+      "scUniversalRight",
+      "scExistentialLeft",
+      "scExistentialRight",
     ]);
   });
 
@@ -415,8 +438,8 @@ describe("createCutEliminationBridges", () => {
 // ── API 定義 ──────────────────────────────────────────────────
 
 describe("CUT_ELIMINATION_BRIDGE_API_DEFS", () => {
-  it("5つの定義を含む", () => {
-    expect(CUT_ELIMINATION_BRIDGE_API_DEFS).toHaveLength(5);
+  it("27の定義を含む", () => {
+    expect(CUT_ELIMINATION_BRIDGE_API_DEFS).toHaveLength(27);
   });
 });
 
@@ -428,26 +451,229 @@ describe("generateCutEliminationBridgeTypeDefs", () => {
     expect(defs).toContain("declare function formatSequent");
     expect(defs).toContain("declare function countCuts");
     expect(defs).toContain("declare function getScConclusion");
+    // SC証明ノードコンストラクタ
+    expect(defs).toContain("declare function sequent");
+    expect(defs).toContain("declare function scIdentity");
+    expect(defs).toContain("declare function scCut");
+    expect(defs).toContain("declare function scWeakeningLeft");
+    expect(defs).toContain("declare function scImplicationLeft");
+  });
+});
+
+// ── SC証明ノードコンストラクタのテスト ────────────────────────
+
+describe("SC証明ノードコンストラクタ ブリッジ", () => {
+  const bridges = createCutEliminationBridges();
+  const findFn = (name: string) => bridges.find((b) => b.name === name)!.fn;
+
+  const phiJson = encodeScProofNode(
+    scIdentity(sequent([phi], [phi])),
+  ) as Record<string, unknown>;
+  // phiJson.conclusion を sequent JSON として使用
+  const phiSeqJson = phiJson["conclusion"];
+  // formula JSON
+  const phiFormulaJson = (phiSeqJson as Record<string, unknown>)[
+    "antecedents"
+  ] as readonly unknown[];
+
+  describe("sequent", () => {
+    const fn = findFn("sequent");
+
+    it("シーケントを構築する", () => {
+      const result = fn(phiFormulaJson, phiFormulaJson) as Record<
+        string,
+        unknown
+      >;
+      expect(result).toHaveProperty("antecedents");
+      expect(result).toHaveProperty("succedents");
+    });
+
+    it("antecedents が配列でなければエラー", () => {
+      expect(() => fn("invalid", [])).toThrow("antecedents must be an array");
+    });
+
+    it("succedents が配列でなければエラー", () => {
+      expect(() => fn([], "invalid")).toThrow("succedents must be an array");
+    });
+  });
+
+  describe("scIdentity", () => {
+    const fn = findFn("scIdentity");
+
+    it("ID公理ノードを構築する", () => {
+      const seqFn = findFn("sequent");
+      const seq = seqFn(phiFormulaJson, phiFormulaJson);
+      const result = fn(seq) as Record<string, unknown>;
+      expect(result["_tag"]).toBe("ScIdentity");
+      expect(result).toHaveProperty("conclusion");
+    });
+  });
+
+  describe("scCut", () => {
+    const fn = findFn("scCut");
+
+    it("カットノードを構築する", () => {
+      const seqFn = findFn("sequent");
+      const idFn = findFn("scIdentity");
+      const seq = seqFn(phiFormulaJson, phiFormulaJson);
+      const left = idFn(seq);
+      const right = idFn(seq);
+      const result = fn(left, right, phiFormulaJson[0], seq) as Record<
+        string,
+        unknown
+      >;
+      expect(result["_tag"]).toBe("ScCut");
+    });
+  });
+
+  describe("scWeakeningLeft / scWeakeningRight", () => {
+    const wlFn = findFn("scWeakeningLeft");
+    const wrFn = findFn("scWeakeningRight");
+
+    it("左弱化ノードを構築する", () => {
+      const seqFn = findFn("sequent");
+      const idFn = findFn("scIdentity");
+      const seq = seqFn(phiFormulaJson, phiFormulaJson);
+      const premise = idFn(seq);
+      const concl = seqFn(
+        [...phiFormulaJson, ...phiFormulaJson],
+        phiFormulaJson,
+      );
+      const result = wlFn(premise, phiFormulaJson[0], concl) as Record<
+        string,
+        unknown
+      >;
+      expect(result["_tag"]).toBe("ScWeakeningLeft");
+    });
+
+    it("右弱化ノードを構築する", () => {
+      const seqFn = findFn("sequent");
+      const idFn = findFn("scIdentity");
+      const seq = seqFn(phiFormulaJson, phiFormulaJson);
+      const premise = idFn(seq);
+      const concl = seqFn(phiFormulaJson, [
+        ...phiFormulaJson,
+        ...phiFormulaJson,
+      ]);
+      const result = wrFn(premise, phiFormulaJson[0], concl) as Record<
+        string,
+        unknown
+      >;
+      expect(result["_tag"]).toBe("ScWeakeningRight");
+    });
+  });
+
+  describe("scImplicationLeft / scImplicationRight", () => {
+    const ilFn = findFn("scImplicationLeft");
+    const irFn = findFn("scImplicationRight");
+
+    it("含意左規則ノードを構築する", () => {
+      const seqFn = findFn("sequent");
+      const idFn = findFn("scIdentity");
+      const seqL = seqFn(phiFormulaJson, phiFormulaJson);
+      const seqR = seqFn(phiFormulaJson, phiFormulaJson);
+      const left = idFn(seqL);
+      const right = idFn(seqR);
+      const concl = seqFn(phiFormulaJson, phiFormulaJson);
+      const result = ilFn(left, right, concl) as Record<string, unknown>;
+      expect(result["_tag"]).toBe("ScImplicationLeft");
+    });
+
+    it("含意右規則ノードを構築する", () => {
+      const seqFn = findFn("sequent");
+      const idFn = findFn("scIdentity");
+      const seq = seqFn(phiFormulaJson, phiFormulaJson);
+      const premise = idFn(seq);
+      const concl = seqFn([], phiFormulaJson);
+      const result = irFn(premise, concl) as Record<string, unknown>;
+      expect(result["_tag"]).toBe("ScImplicationRight");
+    });
+  });
+
+  describe("scExchangeLeft / scExchangeRight バリデーション", () => {
+    it("position が数値でなければエラー", () => {
+      const seqFn = findFn("sequent");
+      const idFn = findFn("scIdentity");
+      const elFn = findFn("scExchangeLeft");
+      const seq = seqFn(phiFormulaJson, phiFormulaJson);
+      const premise = idFn(seq);
+      expect(() => elFn(premise, "invalid", seq)).toThrow(
+        "position must be a number",
+      );
+    });
+
+    it("scExchangeRight: position が数値でなければエラー", () => {
+      const seqFn = findFn("sequent");
+      const idFn = findFn("scIdentity");
+      const erFn = findFn("scExchangeRight");
+      const seq = seqFn(phiFormulaJson, phiFormulaJson);
+      const premise = idFn(seq);
+      expect(() => erFn(premise, null, seq)).toThrow(
+        "position must be a number",
+      );
+    });
+  });
+
+  describe("scConjunctionLeft / scDisjunctionRight バリデーション", () => {
+    it("componentIndex が 1 でも 2 でもなければエラー", () => {
+      const seqFn = findFn("sequent");
+      const idFn = findFn("scIdentity");
+      const clFn = findFn("scConjunctionLeft");
+      const seq = seqFn(phiFormulaJson, phiFormulaJson);
+      const premise = idFn(seq);
+      expect(() => clFn(premise, 3, seq)).toThrow(
+        "componentIndex must be 1 or 2",
+      );
+    });
+
+    it("scDisjunctionRight: componentIndex が不正ならエラー", () => {
+      const seqFn = findFn("sequent");
+      const idFn = findFn("scIdentity");
+      const drFn = findFn("scDisjunctionRight");
+      const seq = seqFn(phiFormulaJson, phiFormulaJson);
+      const premise = idFn(seq);
+      expect(() => drFn(premise, 0, seq)).toThrow(
+        "componentIndex must be 1 or 2",
+      );
+    });
+  });
+
+  describe("全コンストラクタの出力が isCutFree で検証可能", () => {
+    it("コンストラクタで作った証明が isCutFree/countCuts で使える", () => {
+      const seqFn = findFn("sequent");
+      const idFn = findFn("scIdentity");
+      const cutFn = findFn("scCut");
+      const isCutFreeFn2 = findFn("isCutFree");
+      const countCutsFn2 = findFn("countCuts");
+
+      const seq = seqFn(phiFormulaJson, phiFormulaJson);
+      const id = idFn(seq);
+      expect(isCutFreeFn2(id)).toBe(true);
+      expect(countCutsFn2(id)).toBe(0);
+
+      const cut = cutFn(id, id, phiFormulaJson[0], seq);
+      expect(isCutFreeFn2(cut)).toBe(false);
+      expect(countCutsFn2(cut)).toBe(1);
+    });
   });
 });
 
 // ── スクリプトランナーとの統合テスト ────────────────────────
 
 describe("カット除去ブリッジ スクリプト統合", () => {
-  it("スクリプトからカット除去APIを呼べる", () => {
-    const b = [...createCutEliminationBridges()];
+  it("スクリプトからコンストラクタ関数でSC証明を構築できる", () => {
+    const allBridges = [
+      ...createCutEliminationBridges(),
+      ...createProofBridges(),
+    ];
     const code = `
-      var proof = {
-        _tag: "ScIdentity",
-        conclusion: {
-          antecedents: [{ _tag: "MetaVariable", name: "φ" }],
-          succedents: [{ _tag: "MetaVariable", name: "φ" }]
-        }
-      };
+      var phi = parseFormula("phi");
+      var seq = sequent([phi], [phi]);
+      var proof = scIdentity(seq);
       var result = isCutFree(proof);
       result;
     `;
-    const runner = createScriptRunner(code, { bridges: b });
+    const runner = createScriptRunner(code, { bridges: allBridges });
     if ("run" in runner) {
       const result = runner.run();
       if (result._tag === "Error") {
@@ -462,30 +688,20 @@ describe("カット除去ブリッジ スクリプト統合", () => {
     }
   });
 
-  it("スクリプトからカット除去を実行できる", () => {
-    const b = [...createCutEliminationBridges()];
+  it("スクリプトからコンストラクタでカット除去を実行できる", () => {
+    const allBridges = [
+      ...createCutEliminationBridges(),
+      ...createProofBridges(),
+    ];
     const code = `
-      var idProof = {
-        _tag: "ScIdentity",
-        conclusion: {
-          antecedents: [{ _tag: "MetaVariable", name: "φ" }],
-          succedents: [{ _tag: "MetaVariable", name: "φ" }]
-        }
-      };
-      var cutProof = {
-        _tag: "ScCut",
-        conclusion: {
-          antecedents: [{ _tag: "MetaVariable", name: "φ" }],
-          succedents: [{ _tag: "MetaVariable", name: "φ" }]
-        },
-        left: idProof,
-        right: idProof,
-        cutFormula: { _tag: "MetaVariable", name: "φ" }
-      };
+      var phi = parseFormula("phi");
+      var seq = sequent([phi], [phi]);
+      var idProof = scIdentity(seq);
+      var cutProof = scCut(idProof, idProof, phi, seq);
       var out = eliminateCutsWithSteps(cutProof);
       out.result._tag;
     `;
-    const runner = createScriptRunner(code, { bridges: b });
+    const runner = createScriptRunner(code, { bridges: allBridges });
     if ("run" in runner) {
       const result = runner.run();
       if (result._tag === "Error") {
