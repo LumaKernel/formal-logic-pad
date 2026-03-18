@@ -108,6 +108,32 @@
 
 ---
 
+## 2026-03-18 - [script-editor] スクリプトライブラリパネル
+- ベースライン: Stmts 99.7%, Branch 98.38%, Funcs 90.23%, Lines 99.75%
+- **結果: Stmts 99.7% (±0), Branch 98.36% (-0.02), Funcs 90.27% (+0.04), Lines 99.75% (±0)**
+  - Branch微減はV8カバレッジマージの揺らぎ（ScriptLibraryPanel自体は100%テスト済み）
+- 実装内容:
+  - scriptLibraryLogic.ts: テンプレート検索・フィルタリングの純粋ロジック（buildLibraryItems, searchLibraryItems, filterByKind）
+  - scriptLibraryLogic.test.ts: 19テスト
+  - ScriptLibraryPanel.tsx: 検索ボックス+種類フィルタ+アイテム一覧のモーダルパネルUI
+  - ScriptLibraryPanel.stories.tsx: 6ストーリー（Default, WithSearch, FilteredByKind, FilteredByStyle, Empty, DeleteSavedScript）+play関数
+  - ScriptEditorComponent.tsx: テンプレートバー（横並びボタン）を「Library」ボタン+パネルに置換
+  - ScriptEditorComponent.stories.tsx: SaveAndLoadストーリーをライブラリ経由確認に更新
+- 変更ファイル:
+  - src/components/ScriptEditor/scriptLibraryLogic.ts（新規）
+  - src/components/ScriptEditor/scriptLibraryLogic.test.ts（新規）
+  - src/components/ScriptEditor/ScriptLibraryPanel.tsx（新規）
+  - src/components/ScriptEditor/ScriptLibraryPanel.stories.tsx（新規）
+  - src/components/ScriptEditor/ScriptEditorComponent.tsx（テンプレートバー→ライブラリ）
+  - src/components/ScriptEditor/ScriptEditorComponent.stories.tsx（ストーリー更新）
+  - src/components/ScriptEditor/index.ts（エクスポート追加）
+- **今後のイテレーションへの学び:**
+  - ScriptEditorComponentのテンプレートバーを変更する際、SaveAndLoadストーリーが保存済みスクリプト表示を検証していることに注意
+  - ライブラリパネルはposition:absoluteで親のrelativeコンテナ内に表示。ScriptEditorのルートdivにposition:relativeが必要
+  - スクリーンショット: .screenshots/script-library-default.png, .screenshots/script-library-filtered-by-style.png
+
+---
+
 ## 2026-03-18 - [proof-pad] TABタブロー証明木の視覚的フロー表示
 - ベースライン: Stmts 99.82%, Branch 99.09%, Funcs 90.34%, Lines 99.86%
 - **結果: Stmts 99.79% (-0.03), Branch 98.90% (-0.19), Funcs 90.32% (-0.02), Lines 99.83% (-0.03)**
