@@ -15707,3 +15707,18 @@
   - テンプレートは raw JSON 構築ではなくコンストラクタ関数で書く方が短く明瞭
   - 残りテンプレート (step1-step6, auto-prove, workspace) もコンストラクタAPI移行が必要
 ---
+
+## 2026-03-19 - [script-runner] 残りSCテンプレートのコンストラクタAPI移行
+- 実装した内容:
+  - cutEliminationStep1-6 の全raw JSON構築をコンストラクタ関数（parseFormula, sequent, scIdentity, scCut, scWeakeningLeft/Right, scImplicationLeft/Right, scContractionLeft/Right等）に移行
+  - autoProveTemplate の raw sequent オブジェクトを sequent() に移行
+  - テンプレートコード量: -89行（183行削除 → 94行追加）、より簡潔で可読性が向上
+- 変更したファイル:
+  - src/lib/script-runner/templates.ts (7テンプレート移行)
+- カバレッジ: Stmts 99.65%, Branch 98.24%, Funcs 89.97%, Lines 99.69% (ベースライン維持)
+- タスク「構造体の形、つくりかたを知っていないと書けないような箇所は排除される」完了
+- **今後のイテレーションへの学び:**
+  - テンプレート移行は機械的作業: raw JSON `{ _tag: "ScXxx", conclusion: {...}, ... }` → `scXxx(premise, ...)` への1対1変換
+  - 注意点: sequent の antecedents/succedents は配列で渡す。parseFormula で論理式文字列からパース
+  - 残タスク: parseFormula等のany返却問題、テンプレート強化
+---
