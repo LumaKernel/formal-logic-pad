@@ -97,7 +97,13 @@ describe("scriptWorkspaceState", () => {
         1000,
       );
       const otherState = createUnnamedTab(state1, 2000);
-      const state2 = openLibraryTab(otherState, "tpl-1", "Template", "code", 3000);
+      const state2 = openLibraryTab(
+        otherState,
+        "tpl-1",
+        "Template",
+        "code",
+        3000,
+      );
       expect(state2.tabs).toHaveLength(2); // library + unnamed
       expect(state2.activeTabId).toBe(state1.tabs[0]?.id);
     });
@@ -110,7 +116,13 @@ describe("scriptWorkspaceState", () => {
         "code1",
         1000,
       );
-      const state2 = openLibraryTab(state1, "tpl-2", "Template 2", "code2", 2000);
+      const state2 = openLibraryTab(
+        state1,
+        "tpl-2",
+        "Template 2",
+        "code2",
+        2000,
+      );
       expect(state2.tabs).toHaveLength(2);
     });
   });
@@ -141,7 +153,13 @@ describe("scriptWorkspaceState", () => {
         1000,
       );
       const otherState = createUnnamedTab(state1, 2000);
-      const state2 = openSavedTab(otherState, "script-1", "Script", "code", 3000);
+      const state2 = openSavedTab(
+        otherState,
+        "script-1",
+        "Script",
+        "code",
+        3000,
+      );
       expect(state2.tabs).toHaveLength(2);
       expect(state2.activeTabId).toBe(state1.tabs[0]?.id);
     });
@@ -270,7 +288,11 @@ describe("scriptWorkspaceState", () => {
 
     it("Unnamedタブはコードがあれば変更済み", () => {
       const state = createUnnamedTab(initialWorkspaceState, 1000);
-      const updated = updateTabCode(state, state.tabs[0]?.id ?? "", "some code");
+      const updated = updateTabCode(
+        state,
+        state.tabs[0]?.id ?? "",
+        "some code",
+      );
       expect(isTabModified(updated.tabs[0]!)).toBe(true);
     });
 
@@ -344,7 +366,11 @@ describe("scriptWorkspaceState", () => {
     });
 
     it("存在しないソースIDではundefinedを返す", () => {
-      const found = findTabBySourceId(initialWorkspaceState, "library", "tpl-1");
+      const found = findTabBySourceId(
+        initialWorkspaceState,
+        "library",
+        "tpl-1",
+      );
       expect(found).toBeUndefined();
     });
   });

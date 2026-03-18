@@ -247,9 +247,7 @@ export const updateTabTitle = (
   newTitle: string,
 ): WorkspaceState => ({
   ...state,
-  tabs: state.tabs.map((t) =>
-    t.id === tabId ? { ...t, title: newTitle } : t,
-  ),
+  tabs: state.tabs.map((t) => (t.id === tabId ? { ...t, title: newTitle } : t)),
 });
 
 // ── 状態クエリ ──────────────────────────────────────────────────
@@ -257,9 +255,7 @@ export const updateTabTitle = (
 /**
  * アクティブタブを取得する。
  */
-export const getActiveTab = (
-  state: WorkspaceState,
-): WorkspaceTab | undefined =>
+export const getActiveTab = (state: WorkspaceState): WorkspaceTab | undefined =>
   state.tabs.find((t) => t.id === state.activeTabId);
 
 /**
