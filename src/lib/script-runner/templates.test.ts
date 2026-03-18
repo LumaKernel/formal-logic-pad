@@ -416,12 +416,10 @@ describe("テンプレート実行テスト", () => {
     }
     expect(result._tag).toBe("Ok");
     expect(handler.extractHilbertProof).toHaveBeenCalled();
-    expect(
-      consoleLogs.some((l) => l.includes("演繹定理の適用")),
-    ).toBe(true);
-    expect(
-      consoleLogs.some((l) => l.includes("演繹定理の適用が完了")),
-    ).toBe(true);
+    expect(consoleLogs.some((l) => l.includes("演繹定理の適用"))).toBe(true);
+    expect(consoleLogs.some((l) => l.includes("演繹定理の適用が完了"))).toBe(
+      true,
+    );
     // 元のワークスペースはクリアされない
     expect(handler.clearWorkspace).not.toHaveBeenCalled();
   });

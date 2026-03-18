@@ -534,10 +534,7 @@ export {
   HilbertTreeCycleDetected,
 } from "./hilbertTreeBuildLogic";
 export type { HilbertTreeBuildError } from "./hilbertTreeBuildLogic";
-export {
-  findScRootNodeIds,
-  buildScProofTree,
-} from "./scTreeBuildLogic";
+export { findScRootNodeIds, buildScProofTree } from "./scTreeBuildLogic";
 export type { ScTreeBuildError } from "./scTreeBuildLogic";
 export {
   findInferenceEdgesForNode,

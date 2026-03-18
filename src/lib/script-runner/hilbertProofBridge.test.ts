@@ -94,16 +94,16 @@ describe("encodeProofNode / decodeProofNode", () => {
 
   it("decodeProofNode: GeneralizationNode variable.nameなしでエラー", () => {
     const encoded = encodeProofNode(genNode) as Record<string, unknown>;
-    expect(() =>
-      decodeProofNode({ ...encoded, variable: {} }),
-    ).toThrow("variable.name must be a string");
+    expect(() => decodeProofNode({ ...encoded, variable: {} })).toThrow(
+      "variable.name must be a string",
+    );
   });
 
   it("decodeProofNode: GeneralizationNode variableなしでエラー", () => {
     const encoded = encodeProofNode(genNode) as Record<string, unknown>;
-    expect(() =>
-      decodeProofNode({ ...encoded, variable: undefined }),
-    ).toThrow("variable.name must be a string");
+    expect(() => decodeProofNode({ ...encoded, variable: undefined })).toThrow(
+      "variable.name must be a string",
+    );
   });
 
   it("decodeProofNode: 非オブジェクト入力でエラー", () => {
@@ -150,9 +150,7 @@ describe("createHilbertProofBridges", () => {
     it("正常に演繹定理を適用する", () => {
       const handler = createMockHandler();
       const bridges = createHilbertProofBridges(handler);
-      const applyDT = bridges.find(
-        (b) => b.name === "applyDeductionTheorem",
-      )!;
+      const applyDT = bridges.find((b) => b.name === "applyDeductionTheorem")!;
       const proofJson = encodeProofNode(axiomNode(phi));
       const result = applyDT.fn(proofJson, "φ");
       expect(result).toBeTruthy();
@@ -164,9 +162,7 @@ describe("createHilbertProofBridges", () => {
     it("hypothesisTextが文字列でない場合エラー", () => {
       const handler = createMockHandler();
       const bridges = createHilbertProofBridges(handler);
-      const applyDT = bridges.find(
-        (b) => b.name === "applyDeductionTheorem",
-      )!;
+      const applyDT = bridges.find((b) => b.name === "applyDeductionTheorem")!;
       const proofJson = encodeProofNode(axiomNode(phi));
       expect(() => applyDT.fn(proofJson, 123)).toThrow(
         "hypothesisText must be string",
@@ -176,9 +172,7 @@ describe("createHilbertProofBridges", () => {
     it("仮定のパースに失敗した場合エラー", () => {
       const handler = createMockHandler();
       const bridges = createHilbertProofBridges(handler);
-      const applyDT = bridges.find(
-        (b) => b.name === "applyDeductionTheorem",
-      )!;
+      const applyDT = bridges.find((b) => b.name === "applyDeductionTheorem")!;
       const proofJson = encodeProofNode(axiomNode(phi));
       expect(() => applyDT.fn(proofJson, "!!!invalid!!!")).toThrow(
         "仮定の論理式をパースできません",
@@ -188,12 +182,18 @@ describe("createHilbertProofBridges", () => {
     it("演繹定理の適用に失敗した場合エラー", () => {
       const handler = createMockHandler();
       const bridges = createHilbertProofBridges(handler);
-      const applyDT = bridges.find(
-        (b) => b.name === "applyDeductionTheorem",
-      )!;
+      const applyDT = bridges.find((b) => b.name === "applyDeductionTheorem")!;
       // P(x) を仮定として ∀x.P(x) のGen証明に演繹定理を適用 → 自由変数エラー
-      const px = { _tag: "Predicate", name: "P", args: [{ _tag: "TermVariable", name: "x" }] };
-      const forallXPx = { _tag: "Universal", variable: { _tag: "TermVariable", name: "x" }, formula: px };
+      const px = {
+        _tag: "Predicate",
+        name: "P",
+        args: [{ _tag: "TermVariable", name: "x" }],
+      };
+      const forallXPx = {
+        _tag: "Universal",
+        variable: { _tag: "TermVariable", name: "x" },
+        formula: px,
+      };
       const genProofJson = {
         _tag: "GeneralizationNode",
         formula: forallXPx,
@@ -208,9 +208,7 @@ describe("createHilbertProofBridges", () => {
     it("proofJsonが不正な場合エラー", () => {
       const handler = createMockHandler();
       const bridges = createHilbertProofBridges(handler);
-      const applyDT = bridges.find(
-        (b) => b.name === "applyDeductionTheorem",
-      )!;
+      const applyDT = bridges.find((b) => b.name === "applyDeductionTheorem")!;
       expect(() => applyDT.fn("invalid", "φ")).toThrow(
         "input must be an object",
       );
@@ -221,9 +219,7 @@ describe("createHilbertProofBridges", () => {
     it("AxiomNodeをワークスペースに配置する", () => {
       const handler = createMockHandler();
       const bridges = createHilbertProofBridges(handler);
-      const displayFn = bridges.find(
-        (b) => b.name === "displayHilbertProof",
-      )!;
+      const displayFn = bridges.find((b) => b.name === "displayHilbertProof")!;
       const proofJson = encodeProofNode(axiomNode(phi));
       displayFn.fn(proofJson);
       expect(handler.addNode).toHaveBeenCalledTimes(1);
@@ -234,9 +230,7 @@ describe("createHilbertProofBridges", () => {
     it("ModusPonensNodeをワークスペースに配置する", () => {
       const handler = createMockHandler();
       const bridges = createHilbertProofBridges(handler);
-      const displayFn = bridges.find(
-        (b) => b.name === "displayHilbertProof",
-      )!;
+      const displayFn = bridges.find((b) => b.name === "displayHilbertProof")!;
       const proofJson = encodeProofNode(mpNode);
       displayFn.fn(proofJson);
       // 2 axiom nodes + 1 MP connection
@@ -249,9 +243,7 @@ describe("createHilbertProofBridges", () => {
     it("GeneralizationNodeをワークスペースに配置する", () => {
       const handler = createMockHandler();
       const bridges = createHilbertProofBridges(handler);
-      const displayFn = bridges.find(
-        (b) => b.name === "displayHilbertProof",
-      )!;
+      const displayFn = bridges.find((b) => b.name === "displayHilbertProof")!;
       const proofJson = encodeProofNode(genNode);
       displayFn.fn(proofJson);
       // premise axiom + gen conclusion node
@@ -263,12 +255,8 @@ describe("createHilbertProofBridges", () => {
     it("不正な入力でエラー", () => {
       const handler = createMockHandler();
       const bridges = createHilbertProofBridges(handler);
-      const displayFn = bridges.find(
-        (b) => b.name === "displayHilbertProof",
-      )!;
-      expect(() => displayFn.fn("invalid")).toThrow(
-        "input must be an object",
-      );
+      const displayFn = bridges.find((b) => b.name === "displayHilbertProof")!;
+      expect(() => displayFn.fn("invalid")).toThrow("input must be an object");
     });
   });
 });

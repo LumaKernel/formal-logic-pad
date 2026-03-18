@@ -94,10 +94,7 @@ export const decodeProofNode = (input: unknown): ProofNode => {
         );
       }
       const variable = obj["variable"] as Record<string, unknown> | undefined;
-      if (
-        variable === undefined ||
-        typeof variable["name"] !== "string"
-      ) {
+      if (variable === undefined || typeof variable["name"] !== "string") {
         throw new Error(
           "decodeProofNode: GeneralizationNode variable.name must be a string",
         );
@@ -110,9 +107,7 @@ export const decodeProofNode = (input: unknown): ProofNode => {
       };
     }
     default:
-      throw new Error(
-        `decodeProofNode: unknown _tag: ${tag satisfies string}`,
-      );
+      throw new Error(`decodeProofNode: unknown _tag: ${tag satisfies string}`);
   }
 };
 

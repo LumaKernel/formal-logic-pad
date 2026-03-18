@@ -92,11 +92,7 @@ describe("buildHilbertProofTree", () => {
   });
 
   it("MPエッジからModusPonensNodeを構築する", () => {
-    const nodes = [
-      mkNode("n1", "φ"),
-      mkNode("n2", "φ → ψ"),
-      mkNode("n3", "ψ"),
-    ];
+    const nodes = [mkNode("n1", "φ"), mkNode("n2", "φ → ψ"), mkNode("n3", "ψ")];
     const edges: readonly InferenceEdge[] = [
       {
         _tag: "mp",

@@ -244,6 +244,4 @@ export const applyDeductionTheorem = (
   proof: ProofNode,
   hypothesis: Formula,
 ): Either.Either<ProofNode, DeductionTheoremError> =>
-  Effect.runSync(
-    Effect.either(applyDeductionTheoremEffect(proof, hypothesis)),
-  );
+  Effect.runSync(Effect.either(applyDeductionTheoremEffect(proof, hypothesis)));

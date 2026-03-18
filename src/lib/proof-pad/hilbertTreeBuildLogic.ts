@@ -10,7 +10,11 @@
 import { Data, Either, Effect } from "effect";
 import type { Formula } from "../logic-core/formula";
 import type { ProofNode } from "../logic-core/proofTree";
-import { axiomNode, modusPonensNode, generalizationNode } from "../logic-core/proofTree";
+import {
+  axiomNode,
+  modusPonensNode,
+  generalizationNode,
+} from "../logic-core/proofTree";
 import { termVariable } from "../logic-core/term";
 import type { InferenceEdge, HilbertInferenceEdge } from "./inferenceEdge";
 import { isHilbertInferenceEdge } from "./inferenceEdge";
@@ -192,9 +196,7 @@ const buildNodeEffect = (
         edge.leftPremiseNodeId === undefined ||
         edge.rightPremiseNodeId === undefined
       ) {
-        return yield* Effect.fail(
-          new HilbertTreeIncompleteProof({ nodeId }),
-        );
+        return yield* Effect.fail(new HilbertTreeIncompleteProof({ nodeId }));
       }
       const antecedent = yield* buildNodeEffect(
         edge.leftPremiseNodeId,
@@ -213,9 +215,7 @@ const buildNodeEffect = (
 
     if (edge._tag === "gen") {
       if (edge.premiseNodeId === undefined) {
-        return yield* Effect.fail(
-          new HilbertTreeIncompleteProof({ nodeId }),
-        );
+        return yield* Effect.fail(new HilbertTreeIncompleteProof({ nodeId }));
       }
       const premise = yield* buildNodeEffect(
         edge.premiseNodeId,

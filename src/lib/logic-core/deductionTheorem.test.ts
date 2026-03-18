@@ -9,12 +9,7 @@ import {
   countNodes,
 } from "./proofTree";
 import type { ProofNode } from "./proofTree";
-import {
-  implication,
-  metaVariable,
-  universal,
-  predicate,
-} from "./formula";
+import { implication, metaVariable, universal, predicate } from "./formula";
 import { termVariable } from "./term";
 import { equalFormula } from "./equality";
 import { lukasiewiczSystem } from "./inferenceRule";
@@ -27,12 +22,18 @@ const chi = metaVariable("χ");
 const xVar = termVariable("x");
 
 /** 結論が期待される論理式と一致するか検証 */
-const expectConclusion = (proof: ProofNode, expected: ReturnType<typeof implication>): void => {
+const expectConclusion = (
+  proof: ProofNode,
+  expected: ReturnType<typeof implication>,
+): void => {
   expect(equalFormula(proof.formula, expected)).toBe(true);
 };
 
 /** 証明木が有効か検証 */
-const expectValid = (proof: ProofNode, system: typeof lukasiewiczSystem): void => {
+const expectValid = (
+  proof: ProofNode,
+  system: typeof lukasiewiczSystem,
+): void => {
   const result = validateProof(proof, system);
   expect(result._tag).toBe("Valid");
 };
@@ -63,10 +64,7 @@ describe("deductionTheorem", () => {
       if (!Either.isRight(result)) return;
 
       const transformed = result.right;
-      expectConclusion(
-        transformed,
-        implication(hypothesis, hypothesis),
-      );
+      expectConclusion(transformed, implication(hypothesis, hypothesis));
       expectValid(transformed, lukasiewiczSystem);
     });
   });
@@ -84,10 +82,7 @@ describe("deductionTheorem", () => {
 
       const transformed = result.right;
       // 結論: φ → (ψ → (χ → ψ))
-      expectConclusion(
-        transformed,
-        implication(hypothesis, axiomFormula),
-      );
+      expectConclusion(transformed, implication(hypothesis, axiomFormula));
       expectValid(transformed, lukasiewiczSystem);
     });
   });
@@ -200,7 +195,10 @@ describe("deductionTheorem", () => {
           implication(phi, phi),
         ),
       );
-      const a1Formula1 = implication(phi, implication(implication(psi, phi), phi));
+      const a1Formula1 = implication(
+        phi,
+        implication(implication(psi, phi), phi),
+      );
       const a1Formula2 = implication(phi, implication(psi, phi));
 
       const step1 = axiomNode(a2Formula);

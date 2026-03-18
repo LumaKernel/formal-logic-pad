@@ -3697,10 +3697,7 @@ export const ProofWorkspace = forwardRef<
         }
         let targetRootId = rootNodeId;
         if (targetRootId === undefined) {
-          const rootIds = findHilbertRootNodeIds(
-            ws.nodes,
-            ws.inferenceEdges,
-          );
+          const rootIds = findHilbertRootNodeIds(ws.nodes, ws.inferenceEdges);
           if (rootIds.length === 0) {
             throw new Error(
               "extractHilbertProof: ワークスペースにHilbert証明木が見つかりません。",

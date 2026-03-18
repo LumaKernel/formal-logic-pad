@@ -793,11 +793,11 @@ describe("extractHilbertProof ブリッジ", () => {
 
   it("ハンドラーのエラーが伝播する", () => {
     const handler = createMockHandler();
-    (handler.extractHilbertProof as ReturnType<typeof vi.fn>).mockImplementation(
-      () => {
-        throw new Error("Hilbert系でのみ使用可能です");
-      },
-    );
+    (
+      handler.extractHilbertProof as ReturnType<typeof vi.fn>
+    ).mockImplementation(() => {
+      throw new Error("Hilbert系でのみ使用可能です");
+    });
     const msg = runCodeError(`extractHilbertProof()`, handler);
     expect(msg).toContain("Hilbert系でのみ使用可能です");
   });
