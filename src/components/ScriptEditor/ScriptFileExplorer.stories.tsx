@@ -8,19 +8,19 @@ const sampleScripts: readonly SavedScript[] = [
     id: "s1",
     title: "Hello World",
     code: 'console.log("hello")',
-    savedAt: new Date(2024, 5, 15, 10, 30).getTime(),
+    savedAt: 1718_441_400_000, // 2024-06-15 10:30 UTC
   },
   {
     id: "s2",
     title: "Proof Demo",
     code: 'parseFormula("phi -> psi")',
-    savedAt: new Date(2024, 5, 16, 14, 0).getTime(),
+    savedAt: 1718_540_400_000, // 2024-06-16 14:00 UTC
   },
   {
     id: "s3",
     title: "Cut Elimination Test",
     code: "// cut elimination test",
-    savedAt: new Date(2024, 5, 14, 9, 0).getTime(),
+    savedAt: 1718_348_400_000, // 2024-06-14 09:00 UTC
   },
 ];
 
