@@ -24,6 +24,7 @@ import {
   generateCutEliminationBridgeTypeDefs,
   createHilbertProofBridges,
   generateHilbertProofBridgeTypeDefs,
+  generateScriptBridgeTypeDefs,
 } from "@/lib/script-runner";
 import { BUILTIN_TEMPLATES } from "@/lib/script-runner/templates";
 import type { DeductionStyle } from "@/lib/logic-core/deductionSystem";
@@ -451,6 +452,7 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
       noSyntaxValidation: false,
     });
 
+    const sharedTypeDefs = generateScriptBridgeTypeDefs();
     const typeDefs = generateProofBridgeTypeDefs();
     const workspaceTypeDefs = generateWorkspaceBridgeTypeDefs();
     const cutEliminationTypeDefs = generateCutEliminationBridgeTypeDefs();
@@ -463,7 +465,8 @@ declare var console: {
 `;
     const hilbertProofTypeDefs = generateHilbertProofBridgeTypeDefs();
     monaco.languages.typescript.javascriptDefaults.addExtraLib(
-      typeDefs +
+      sharedTypeDefs +
+        typeDefs +
         workspaceTypeDefs +
         cutEliminationTypeDefs +
         hilbertProofTypeDefs +

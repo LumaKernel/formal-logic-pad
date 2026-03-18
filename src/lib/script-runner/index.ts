@@ -52,3 +52,4 @@ export {
   encodeProofNode,
   decodeProofNode,
 } from "./hilbertProofBridge";
+export { generateScriptBridgeTypeDefs } from "./scriptBridgeTypes";
