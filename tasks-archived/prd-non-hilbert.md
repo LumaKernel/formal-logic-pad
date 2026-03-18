@@ -1,33 +1,17 @@
-- [x] hilbert以外は実際に動くものになっているだろうか。
-  - [x] axiomsがないのにウィンドウはaxiomがある場所をよけたりする (調査の結果問題なし: 全体系に左側パレットがあり同位置。回避は正しい動作)
-  - [x] ストーリーでしっかり、ルート、ページの実際のストーリーを作って保証、確認 (WorkspacePageViewにND/SC/TAB/ATの4ストーリー追加。play関数で体系バッジ・パレット・MPボタン非表示を検証)
-  - [x] 対応することが多ければ、専用のタスクファイルとタスクリストを作って計画を立てて対応 (3イテレーションで対応完了。専用タスクファイル不要)
-  - [x] MP適用などがすべて出てくるが、これも正しいのか？上部メニューやコンテキストメニューはノートの体系によって変わるべきではないか
-  - [x] そもそも全部、体系が Empty (non-Hilbert) になるが、正しいのか (notebookListLogic.tsのsystemName修正。ProofWorkspaceは既にgetDeductionSystemName使用で正しい)
+# PRD: 非Hilbert体系のUI/UX完全性
 
-### 自然演繹 (ND)
-
-- [x] 証明木表示パネル（ND用）の検討 — ndProofTreeRendererLogic.ts + NdProofTreePanel.tsx + Storybookストーリー6種（play関数付き）
-  - Gentzenスタイルの証明木表示
-
-### 共通
-
-- [x] Substitutionコンテキストメニュー項目を `isHilbertStyle` ガードで囲む — Fragment内に移動済み
-- [x] 上記のテスト追加 — ND体系でSubstitution非表示を検証するテスト追加
-
-- [x] 仮定のスコープ（discharge）の視覚的フィードバック改善
-  - エッジラベルに仮定ID `[n]` を付与（→I [1], ∨E [2,3], ∃E [4] 形式）
-  - ノード上の仮定ID表示は別タスクに持ち越し（モデル上の紐づけが必要）
+## 残タスク
 
 ### シーケント計算 (SC)
 
-- [x] 証明木表示パネル（SC用）
-  - scProofTreeRendererLogic.ts（純粋ロジック）+ ScProofTreePanel.tsx（UI）で実装
-  - ProofWorkspaceのカット除去ステッパー内に統合（右下配置）
-  - 全21規則ラベル対応、Gentzenスタイル表示
+- [x] シーケントの視覚的分解表示の改善 — SequentDisplay コンポーネント追加。FormulaDisplay でハイライト、⇒ セパレータ強調、ScProofTreePanel/EditableProofNode に統合
 
-### Storybook play関数の改善
+### タブロー法 (TAB)
 
-- [x] Quest完了ストーリー（prop-01等）で、クエスト開始→証明操作→達成の完全なインタラクションを作成
-  - prop-01: QuestCompleteProp01 で MP操作→ゴール達成の完全フロー実装済み
-  - nd-01: QuestCompleteNd01Interactive で仮定追加→式入力のND固有操作フロー実装（ポート接続はplay関数では困難なため部分的）
+- [x] 証明木/反駁木の視覚的フロー表示 — TabProofTreePanel コンポーネント追加。タブロースタイル上→下表示、分岐、閉枝×/開枝○マーカー、ProofWorkspace統合
+- [x] 閉鎖枝の視覚的フィードバック — 上記で同時実装。BS/⊥公理で×マーカー（赤）、未閉鎖枝は○マーカー（緑）
+
+### 分析的タブロー (AT)
+
+- [x] 符号付き式の視覚的表示改善 — SignedFormulaDisplayコンポーネント追加。T=緑バッジ/F=赤バッジ + FormulaDisplayハイライト。EditableProofNode統合
+- [x] 証明木/反駁木の視覚的フロー表示 — AtProofTreePanelコンポーネント追加。タブロースタイル上→下表示、α/β/γ/δ規則対応、β分岐、閉枝×/開枝○マーカー、SignedFormulaDisplay統合、ProofWorkspace統合

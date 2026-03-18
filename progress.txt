@@ -15347,3 +15347,22 @@
   - AT署名付き式の形式: "T:φ" / "F:φ"（コロン区切り）。parseSignedFormulaText（atApplicationLogic）とは独立した表示専用ロジック
   - CSS変数 --color-at-sign-true-*/--color-at-sign-false-* でダークモード対応可能
 ---
+
+## 2026-03-18T13:45 - proof-pad (AT分析的タブロー証明木の視覚的フロー表示)
+- 実装した内容:
+  - atProofTreeRendererLogic.ts 新規作成: 純粋ロジック（convertAtWorkspaceToTreeDisplay, convertAtWorkspaceToTreeDisplayAuto, findAtTreeRoots, computeAtTreeStats）
+  - AtProofTreePanel.tsx 新規作成: タブロースタイル上→下表示、α/β/γ/δ規則ラベル、β分岐、閉枝×(赤)/開枝○(緑)マーカー、SignedFormulaDisplay統合
+  - atProofTreeRendererLogic.test.ts 新規作成: 16テスト（単ノード、closure、α1結果、α2結果、β分岐、γ、δ、完全証明、非ATエッジ無視、循環参照、自動ルート検出、ルート検索、統計計算）
+  - AtProofTreePanel.stories.tsx 新規作成: 5ストーリー（ClosureOnly, AlphaChain, BetaBranching, CompleteProof, Empty）すべてplay関数付き
+  - ProofWorkspace.tsx 修正: analytic-tableau体系でAtProofTreePanel表示
+  - index.ts 修正: AT証明木関連のexport追加
+- カバレッジベースライン: Stmts 99.79% | Branch 98.80% | Funcs 90.32% | Lines 99.83%
+- カバレッジ結果: Stmts 99.77% | Branch 98.59% | Funcs 90.32% | Lines 99.82%（Branch -0.21% はProofWorkspace.tsxの新分岐。SC/ND/TAB統合時と同パターン）
+- スクリーンショット: .screenshots/at-proof-tree-panel-complete-proof.png, .screenshots/at-proof-tree-panel-complete-proof-full.png
+- **今後のイテレーションへの学び:**
+  - TABProofTreePanelパターン（純粋レンダラーロジック + Reactコンポーネント + ProofWorkspace統合）はATにもそのまま適用可能
+  - ATの5エッジタイプ（alpha/beta/gamma/delta/closed）のうち、βのみが分岐。α規則は1-2個の子を同一枝上に追加
+  - SignedFormulaDisplayはisSignedFormulaTextでチェックしてから使用（非署名付き式はフォールバック）
+  - Storybook URLパスは `proof-pad-atprooftreepanel` 形式（ハイフン小文字区切り）
+  - prd-non-hilbert.md の全タスク完了 — SC, TAB, AT すべてのUI/UX完全性タスク達成
+---
