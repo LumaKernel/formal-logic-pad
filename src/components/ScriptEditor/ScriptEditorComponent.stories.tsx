@@ -172,9 +172,21 @@ console.log("hello world");`,
     const dialogAfterSave = canvas.queryByTestId("save-dialog");
     await expect(dialogAfterSave).toBeNull();
 
-    // 保存されたスクリプトが表示される
+    // ライブラリを開いて保存されたスクリプトを確認
+    const libraryButton = canvas.getByTestId("open-library-button");
+    await userEvent.click(libraryButton);
+
+    // Savedフィルタで絞り込み
+    const savedFilter = canvas.getByTestId("script-library-filter-saved");
+    await userEvent.click(savedFilter);
+
+    // 保存されたスクリプトがライブラリに表示される
     const savedItem = canvas.getByText("My Test Script");
     await expect(savedItem).toBeDefined();
+
+    // ライブラリを閉じる
+    const closeBtn = canvas.getByTestId("script-library-close");
+    await userEvent.click(closeBtn);
   },
 };
 

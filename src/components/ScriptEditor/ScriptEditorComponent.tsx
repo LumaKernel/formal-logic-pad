@@ -25,12 +25,10 @@ import {
   createHilbertProofBridges,
   generateHilbertProofBridgeTypeDefs,
 } from "@/lib/script-runner";
-import {
-  BUILTIN_TEMPLATES,
-  filterTemplatesByStyle,
-} from "@/lib/script-runner/templates";
-import type { ScriptTemplate } from "@/lib/script-runner/templates";
+import { BUILTIN_TEMPLATES } from "@/lib/script-runner/templates";
 import type { DeductionStyle } from "@/lib/logic-core/deductionSystem";
+import { ScriptLibraryPanel } from "./ScriptLibraryPanel";
+import type { LibraryItem } from "./scriptLibraryLogic";
 import type {
   NativeFunctionBridge,
   ScriptRunnerInstance,
@@ -185,6 +183,15 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
   }, []);
   const handleCloseApiReference = useCallback(() => {
     setApiReferenceOpen(false);
+  }, []);
+
+  // ── スクリプトライブラリパネル ──────────────────────────────────
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const handleOpenLibrary = useCallback(() => {
+    setLibraryOpen(true);
+  }, []);
+  const handleCloseLibrary = useCallback(() => {
+    setLibraryOpen(false);
   }, []);
 
   // ── 保存スクリプト管理 ────────────────────────────────────────
@@ -539,17 +546,6 @@ declare var console: {
     setState((prev) => resetExecution(prev));
   }, []);
 
-  // ── 保存スクリプトのロード ─────────────────────────────────────
-
-  const handleLoadSavedScript = useCallback(
-    (code: string) => {
-      handleReset();
-      setState((prev) => updateCode(prev, code));
-      onCodeChange?.(code);
-    },
-    [handleReset, onCodeChange],
-  );
-
   // ── エラーマーカーの更新 ──────────────────────────────────────
 
   useEffect(() => {
@@ -635,13 +631,14 @@ declare var console: {
     }
   }, [state.currentLocation, consoleShimLineCount]);
 
-  // ── テンプレートロード ─────────────────────────────────────────
+  // ── ライブラリからロード ─────────────────────────────────────────
 
-  const handleLoadTemplate = useCallback(
-    (template: ScriptTemplate) => {
+  const handleSelectLibraryItem = useCallback(
+    (item: LibraryItem) => {
       handleReset();
-      setState((prev) => updateCode(prev, template.code));
-      onCodeChange?.(template.code);
+      setState((prev) => updateCode(prev, item.code));
+      onCodeChange?.(item.code);
+      setLibraryOpen(false);
     },
     [handleReset, onCodeChange],
   );
@@ -693,6 +690,7 @@ declare var console: {
         borderRadius: "8px",
         overflow: "hidden",
         backgroundColor: "var(--color-surface,#ffffff)",
+        position: "relative",
       }}
       data-testid="script-editor"
     >
@@ -744,31 +742,16 @@ declare var console: {
         }}
         data-testid="template-bar"
       >
-        <span
-          style={{
-            fontSize: "var(--font-size-xs,11px)",
-            fontWeight: 600,
-            color: "var(--color-text-secondary,#666666)",
-            whiteSpace: "nowrap",
-          }}
+        <button
+          type="button"
+          className="se-template-btn"
+          style={templateBtnStyle}
+          onClick={handleOpenLibrary}
+          data-testid="open-library-button"
+          title="Open Script Library"
         >
-          Templates:
-        </span>
-        {filterTemplatesByStyle(BUILTIN_TEMPLATES, deductionStyle).map(
-          (tmpl) => (
-            <button
-              key={tmpl.id}
-              type="button"
-              className="se-template-btn"
-              style={templateBtnStyle}
-              onClick={() => handleLoadTemplate(tmpl)}
-              title={tmpl.description}
-              data-testid={`template-${tmpl.id satisfies string}`}
-            >
-              {tmpl.title}
-            </button>
-          ),
-        )}
+          Library
+        </button>
         <span
           style={{
             display: "inline-block",
@@ -807,74 +790,18 @@ declare var console: {
         >
           Save
         </button>
-        {savedScripts.scripts.length > 0 && (
-          <>
-            <span
-              style={{
-                fontSize: "var(--font-size-xs,11px)",
-                fontWeight: 600,
-                color: "var(--color-text-secondary,#666666)",
-                whiteSpace: "nowrap",
-              }}
-            >
-              My Scripts:
-            </span>
-            {savedScripts.scripts.map((script) => (
-              <span
-                key={script.id}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0px",
-                }}
-                data-testid={`saved-script-${script.id satisfies string}`}
-              >
-                <button
-                  type="button"
-                  className="se-template-btn"
-                  style={{
-                    ...templateBtnStyle,
-                    borderTopRightRadius: 0,
-                    borderBottomRightRadius: 0,
-                  }}
-                  onClick={() => handleLoadSavedScript(script.code)}
-                  title={script.title}
-                  data-testid={`load-saved-${script.id satisfies string}`}
-                >
-                  {script.title}
-                </button>
-                <button
-                  type="button"
-                  className="se-delete-btn"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: "20px",
-                    height: "20px",
-                    padding: 0,
-                    border: "1px solid var(--color-border,#e2e8f0)",
-                    borderLeft: "0",
-                    borderRadius: "0 4px 4px 0",
-                    backgroundColor: "var(--color-surface,#ffffff)",
-                    color: "var(--color-text-secondary,#666666)",
-                    cursor: "pointer",
-                    fontSize: "0.75rem",
-                    lineHeight: 1,
-                    transitionProperty: "background-color, color",
-                    transitionDuration: "150ms",
-                  }}
-                  onClick={() => handleDeleteSavedScript(script.id)}
-                  data-testid={`delete-saved-${script.id satisfies string}`}
-                  title="削除"
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-          </>
-        )}
       </div>
+
+      {libraryOpen && (
+        <ScriptLibraryPanel
+          templates={BUILTIN_TEMPLATES}
+          savedScripts={savedScripts.scripts}
+          deductionStyle={deductionStyle}
+          onSelect={handleSelectLibraryItem}
+          onClose={handleCloseLibrary}
+          onDeleteSaved={handleDeleteSavedScript}
+        />
+      )}
 
       {saveDialogOpen && (
         <div

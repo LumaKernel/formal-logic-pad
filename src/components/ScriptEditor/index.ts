@@ -28,6 +28,24 @@ export type {
 } from "./scriptEditorLogic";
 export { ScriptApiReferencePanel } from "./ScriptApiReferencePanel";
 export type { ScriptApiReferencePanelProps } from "./ScriptApiReferencePanel";
+export { ScriptLibraryPanel } from "./ScriptLibraryPanel";
+export type { ScriptLibraryPanelProps } from "./ScriptLibraryPanel";
+export {
+  buildLibraryItems,
+  searchLibraryItems,
+  filterLibraryItems,
+  filterByKind,
+  templateToLibraryItem,
+  savedScriptToLibraryItem,
+  initialScriptLibraryState,
+  updateSearchQuery,
+  updateFilterKind,
+} from "./scriptLibraryLogic";
+export type {
+  LibraryItem,
+  LibraryItemKind,
+  ScriptLibraryState,
+} from "./scriptLibraryLogic";
 export {
   API_CATEGORIES,
   filterApis,
