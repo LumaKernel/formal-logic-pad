@@ -87,8 +87,10 @@ describe("convertTabWorkspaceToTreeDisplay", () => {
     expect(root?.depth).toBe(0);
 
     // 子ノード
-    const childId = root?.childIds[0]!;
-    const child = result.nodes.get(childId);
+    expect(root).toBeDefined();
+    const childId = root!.childIds[0];
+    expect(childId).toBeDefined();
+    const child = result.nodes.get(childId!);
     expect(child?.sequentText).toBe("P, Q, P ∧ Q");
     expect(child?.ruleLabel).toBe("∧"); // getTabRuleDisplayName("conjunction")
     expect(child?.branchStatus).toBe("open"); // まだ閉じていない
@@ -123,13 +125,18 @@ describe("convertTabWorkspaceToTreeDisplay", () => {
     expect(root?.branchStatus).toBeUndefined();
 
     // 左枝
-    const leftChild = result.nodes.get(root?.childIds[0]!);
+    expect(root).toBeDefined();
+    const leftChildId = root!.childIds[0];
+    expect(leftChildId).toBeDefined();
+    const leftChild = result.nodes.get(leftChildId!);
     expect(leftChild?.sequentText).toBe("P, P ∨ Q");
     expect(leftChild?.ruleLabel).toBe("∨");
     expect(leftChild?.branchStatus).toBe("open");
 
     // 右枝
-    const rightChild = result.nodes.get(root?.childIds[1]!);
+    const rightChildId = root!.childIds[1];
+    expect(rightChildId).toBeDefined();
+    const rightChild = result.nodes.get(rightChildId!);
     expect(rightChild?.sequentText).toBe("Q, P ∨ Q");
     expect(rightChild?.ruleLabel).toBe("∨");
     expect(rightChild?.branchStatus).toBe("open");
@@ -167,7 +174,10 @@ describe("convertTabWorkspaceToTreeDisplay", () => {
     expect(root?.childIds).toHaveLength(1);
     expect(root?.branchStatus).toBeUndefined();
 
-    const child = result.nodes.get(root?.childIds[0]!);
+    expect(root).toBeDefined();
+    const childId2 = root!.childIds[0];
+    expect(childId2).toBeDefined();
+    const child = result.nodes.get(childId2!);
     expect(child?.branchStatus).toBe("closed");
     expect(child?.ruleLabel).toBe("¬∨");
   });
@@ -221,11 +231,17 @@ describe("convertTabWorkspaceToTreeDisplay", () => {
     const root = result.nodes.get(result.rootId);
     expect(root?.depth).toBe(0);
 
-    const mid = result.nodes.get(root?.childIds[0]!);
+    expect(root).toBeDefined();
+    const midId = root!.childIds[0];
+    expect(midId).toBeDefined();
+    const mid = result.nodes.get(midId!);
     expect(mid?.depth).toBe(1);
     expect(mid?.ruleLabel).toBe("¬¬");
 
-    const leaf = result.nodes.get(mid?.childIds[0]!);
+    expect(mid).toBeDefined();
+    const leafId = mid!.childIds[0];
+    expect(leafId).toBeDefined();
+    const leaf = result.nodes.get(leafId!);
     expect(leaf?.depth).toBe(2);
     expect(leaf?.branchStatus).toBe("open");
   });
