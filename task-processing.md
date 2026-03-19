@@ -4,7 +4,7 @@
 
 ### 背景
 
-現在のQuestComplete*FullFlowストーリーは、直接StatefulWorkspaceをrenderしている。
+現在のQuestComplete\*FullFlowストーリーは、直接StatefulWorkspaceをrenderしている。
 実際のユーザーフローでは、クエスト一覧（HubPage）からクエストを選択してワークスペースに遷移する。
 このフルフローをストーリーで再現する。
 
