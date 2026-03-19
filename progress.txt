@@ -15969,3 +15969,17 @@
   - Storybookの体系名検証パターン: `await expect(canvas.getByTestId("workspace-system")).toHaveTextContent("体系名")`
   - クエスト→体系名マッピング: prop→Łukasiewicz, nd→Natural Deduction NM, tab→Tableau Calculus TAB (Propositional), sc→Sequent Calculus LK, at→Analytic Tableau
 ---
+
+## 2026-03-19 20:04 - クエスト一覧→ワークスペース フルフローストーリー
+- QuestCompleteNd01FromHubストーリーを追加
+  - HubPageView（クエストカタログ）→ nd-01開始ボタンクリック → WorkspacePageView遷移 → ND φ→φ証明完遂
+  - `buildCatalogByCategory([quest], createEmptyProgress())` で最小限のグループ生成
+  - useState<"hub" | "workspace">で表示切り替え管理
+  - play関数: quest-catalog確認 → start-btn-nd-01クリック → workspace-page遷移 → workspace-system体系バッジ確認 → ND証明フロー → Proved!
+- 変更ファイル: src/app/workspace/[id]/WorkspacePageView.stories.tsx
+- スクリーンショット: .screenshots/quest-complete-nd01-from-hub.png
+- **今後のイテレーションへの学び:**
+  - Storybook render関数はnullを返せない（JSX.Element必須）→ `<div>Loading...</div>` で代替
+  - HubPageViewはprops-onlyの純粋コンポーネント。onStartQuestコールバックで遷移ロジックを外部注入
+  - buildCatalogByCategory + createEmptyProgress でCIタイムアウトを避けつつ必要なクエストだけ表示可能
+---
