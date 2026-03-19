@@ -15902,3 +15902,20 @@
   - 翻訳データの整合性テスト（全クエストに翻訳存在、hints数一致、空文字チェック）が重要
   - Storybook の HubPageView ストーリーはハードコードデータを使うため、ローカライズの確認にはライブアプリが必要
 ---
+
+## 2026-03-19T17:13 - formula-input: SC用シーケントエディタ
+- 実装した内容:
+  - sequentEditorLogic.ts: シーケントテキスト⇔論理式リスト変換の純粋ロジック（17テスト）
+  - SequentExpandedEditor.tsx: 前件(Γ)・後件(Δ)をFormulaListEditorで個別編集するモーダル
+  - SequentPreview.tsx: リアルタイムプレビューコンポーネント
+  - editorLogic.ts: allowSequentTextオプション追加（⇒含有テキストでの編集モード離脱許可）
+  - FormulaEditor.tsx: allowSequentText propの追加
+  - EditableProofNode.tsx: useSequentEditor propの追加
+  - ProofWorkspace.tsx: SC体系時にSequentExpandedEditorを自動使用
+  - SequentExpandedEditor.stories.tsx: 4ストーリー（play関数付き）
+- 変更したファイル: 13ファイル（新規5、変更8）
+- **今後のイテレーションへの学び:**
+  - SequentExpandedEditorでonChangeをuseEffectの依存に入れると無限ループ。useRef+useEffectでref同期が必要（React Compiler制約でrender中のref更新不可）
+  - Storybook Meta<typeof Component>で必須propsがある場合、argsが必要。WrapperコンポーネントをcomponentにすればargsなしでOK
+  - InfiniteCanvas内のボタンはdivによるpointer events interceptがあるため、Playwright MCPでは`evaluate('(el) => el.click()')`でクリックする必要がある
+---
