@@ -660,7 +660,13 @@ export const ReadonlyParseError: Story = {
     <div style={{ padding: 40, background: "var(--color-canvas-bg, #f8f6f0)" }}>
       <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
         <div>
-          <div style={{ marginBottom: 8, fontSize: 12, fontFamily: "var(--font-ui)" }}>
+          <div
+            style={{
+              marginBottom: 8,
+              fontSize: 12,
+              fontFamily: "var(--font-ui)",
+            }}
+          >
             Parse Error (readonly)
           </div>
           <EditableProofNode
@@ -671,7 +677,13 @@ export const ReadonlyParseError: Story = {
           />
         </div>
         <div>
-          <div style={{ marginBottom: 8, fontSize: 12, fontFamily: "var(--font-ui)" }}>
+          <div
+            style={{
+              marginBottom: 8,
+              fontSize: 12,
+              fontFamily: "var(--font-ui)",
+            }}
+          >
             Valid (readonly)
           </div>
           <EditableProofNode
@@ -682,7 +694,13 @@ export const ReadonlyParseError: Story = {
           />
         </div>
         <div>
-          <div style={{ marginBottom: 8, fontSize: 12, fontFamily: "var(--font-ui)" }}>
+          <div
+            style={{
+              marginBottom: 8,
+              fontSize: 12,
+              fontFamily: "var(--font-ui)",
+            }}
+          >
             Empty (readonly)
           </div>
           <EditableProofNode
@@ -700,7 +718,9 @@ export const ReadonlyParseError: Story = {
 
     // パースエラーノードにエラー属性がある
     const errorFormula = canvas.getByTestId("error-node-formula");
-    await expect(errorFormula.getAttribute("data-has-parse-error")).toBe("true");
+    await expect(errorFormula.getAttribute("data-has-parse-error")).toBe(
+      "true",
+    );
 
     // 正常ノードにはエラー属性がない
     const validFormula = canvas.getByTestId("valid-node-formula");

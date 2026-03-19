@@ -524,7 +524,13 @@ export function EditableProofNode({
       !isSequent &&
       !isSignedFormula &&
       formulaText.trim() !== "",
-    [effectiveEditable, readonlyFormula, isSequent, isSignedFormula, formulaText],
+    [
+      effectiveEditable,
+      readonlyFormula,
+      isSequent,
+      isSignedFormula,
+      formulaText,
+    ],
   );
 
   const handleMouseEnter = useCallback(() => {
