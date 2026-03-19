@@ -86,3 +86,7 @@
   - [x] エラーになってる状態の論理式ノードがあるなら、フルストーリーは失敗すべきだ — ModelAnswerDemo/ProofFlowDemoのplay関数にassertNoParseErrors検証を追加
   - [x] Γ⇒Δのそれぞれの論理式列を、論理式列入力コンポーネントで入れる形にしよう — SequentExpandedEditor, allowSequentText, SC体系判定で自動切替
   - [x] FormulaEditor displayモードでsequentテキストをSequentDisplay経由で表示 — displayFallbackプロップ追加、EditableProofNodeからuseSequentEditor時にSequentDisplayを渡す
+- [x] 自然演繹の基礎 → 恒等律 (→I) のクエストを開いても、
+  - [x] すべてのセクションの証明を完全にするフローを作ったはずだが、そこに、体系が正しいことのチェックも入れる — 全12件のQuestComplete\*ストーリーにworkspace-system testIdによる体系名検証を追加
+    - [x] また、ノートを開いてからではなく、クエスト一覧から開くところからストーリーを開始する — QuestCompleteNd01FromHubストーリーを追加（HubPageView→WorkspacePageView遷移+ND証明完遂）
+  - [x] 他のセクションのクエストもほとんど同様である — sc-01, tab-01, at-01のFromHubストーリーを追加（全5体系のHub→Workspace→証明完遂フルフローが揃った）
