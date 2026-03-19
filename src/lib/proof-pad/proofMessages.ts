@@ -286,6 +286,15 @@ export type ProofMessages = {
   /** `{sourceStyle}` と `{targetStyle}` プレースホルダーを含む */
   readonly pasteIncompatibleStyle: string;
 
+  // --- ズームコントロール ---
+  readonly zoomOut: string;
+  readonly zoomIn: string;
+  readonly zoomCurrentZoom: string;
+  readonly zoomSelectPreset: string;
+  readonly zoomResetTo100: string;
+  readonly zoomFitToContent: string;
+  readonly zoomToSelection: string;
+
   // --- アクセシビリティ ---
   readonly workspaceMenuAriaLabel: string;
 
@@ -552,6 +561,15 @@ export const defaultProofMessages: ProofMessages = {
   // Paste compatibility
   pasteIncompatibleStyle:
     "Cannot paste: source ({sourceStyle}) is incompatible with target ({targetStyle})",
+
+  // Zoom controls
+  zoomOut: "Zoom out",
+  zoomIn: "Zoom in",
+  zoomCurrentZoom: "Current zoom",
+  zoomSelectPreset: "Select zoom preset",
+  zoomResetTo100: "Reset zoom to 100%",
+  zoomFitToContent: "Fit to content",
+  zoomToSelection: "Zoom to selection (Shift+2)",
 
   // Accessibility
   workspaceMenuAriaLabel: "Workspace menu",

@@ -14,6 +14,28 @@ import {
 } from "./zoomControls";
 import type { ZoomControlsPosition } from "./zoomControls";
 
+/** Translatable labels for ZoomControlsComponent.
+ *  All fields are optional — English defaults are used when not provided. */
+export type ZoomControlsLabels = {
+  readonly zoomOut?: string;
+  readonly zoomIn?: string;
+  readonly currentZoom?: string;
+  readonly selectZoomPreset?: string;
+  readonly resetZoom?: string;
+  readonly fitToContent?: string;
+  readonly zoomToSelection?: string;
+};
+
+const defaultLabels: Required<ZoomControlsLabels> = {
+  zoomOut: "Zoom out",
+  zoomIn: "Zoom in",
+  currentZoom: "Current zoom",
+  selectZoomPreset: "Select zoom preset",
+  resetZoom: "Reset zoom to 100%",
+  fitToContent: "Fit to content",
+  zoomToSelection: "Zoom to selection (Shift+2)",
+};
+
 export interface ZoomControlsProps {
   /** Current viewport state */
   readonly viewport: ViewportState;
@@ -41,6 +63,8 @@ export interface ZoomControlsProps {
   readonly selectedItems?: readonly ZoomItemBounds[];
   /** Callback when zoom-to-selection is triggered */
   readonly onZoomToSelection?: () => void;
+  /** Translatable labels (optional, English defaults used when omitted) */
+  readonly labels?: ZoomControlsLabels;
 }
 
 const NOOP = () => {};
@@ -123,7 +147,12 @@ export function ZoomControlsComponent({
   showPresets = true,
   selectedItems,
   onZoomToSelection,
+  labels: labelsInput,
 }: ZoomControlsProps) {
+  const labels = useMemo(
+    () => ({ ...defaultLabels, ...labelsInput }),
+    [labelsInput],
+  );
   const [isPresetOpen, setIsPresetOpen] = useState(false);
   const presetRef = useRef<HTMLDivElement>(null);
 
@@ -250,8 +279,8 @@ export function ZoomControlsComponent({
         }}
         disabled={zoomOutDisabled}
         onClick={handleZoomOut}
-        aria-label="Zoom out"
-        title="Zoom out"
+        aria-label={labels.zoomOut}
+        title={labels.zoomOut}
       >
         <svg
           width="16"
@@ -287,11 +316,11 @@ export function ZoomControlsComponent({
             fontVariantNumeric: "tabular-nums",
           }}
           onClick={showPresets ? togglePresets : undefined}
-          aria-label={`Current zoom: ${zoomLabel satisfies string}`}
+          aria-label={`${labels.currentZoom satisfies string}: ${zoomLabel satisfies string}`}
           title={
             showPresets
-              ? "Select zoom preset"
-              : `Zoom: ${zoomLabel satisfies string}`
+              ? labels.selectZoomPreset
+              : `${labels.currentZoom satisfies string}: ${zoomLabel satisfies string}`
           }
         >
           {zoomLabel}
@@ -345,8 +374,8 @@ export function ZoomControlsComponent({
         }}
         disabled={zoomInDisabled}
         onClick={handleZoomIn}
-        aria-label="Zoom in"
-        title="Zoom in"
+        aria-label={labels.zoomIn}
+        title={labels.zoomIn}
       >
         <svg
           width="16"
@@ -373,8 +402,8 @@ export function ZoomControlsComponent({
             type="button"
             style={buttonBaseStyle}
             onClick={handleReset}
-            aria-label="Reset zoom to 100%"
-            title="Reset zoom to 100%"
+            aria-label={labels.resetZoom}
+            title={labels.resetZoom}
           >
             <svg
               width="16"
@@ -410,8 +439,8 @@ export function ZoomControlsComponent({
             type="button"
             style={buttonBaseStyle}
             onClick={handleFit}
-            aria-label="Fit to content"
-            title="Fit to content"
+            aria-label={labels.fitToContent}
+            title={labels.fitToContent}
           >
             <svg
               width="16"
@@ -443,8 +472,8 @@ export function ZoomControlsComponent({
               type="button"
               style={buttonBaseStyle}
               onClick={onZoomToSelection}
-              aria-label="Zoom to selection (Shift+2)"
-              title="Zoom to selection (Shift+2)"
+              aria-label={labels.zoomToSelection}
+              title={labels.zoomToSelection}
             >
               <svg
                 width="16"

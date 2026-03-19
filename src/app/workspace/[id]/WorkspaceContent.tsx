@@ -263,6 +263,15 @@ function useProofMessagesFromIntl(): ProofMessages {
       // Paste compatibility
       pasteIncompatibleStyle: String(t.raw("pasteIncompatibleStyle")),
 
+      // Zoom controls
+      zoomOut: t("zoomOut"),
+      zoomIn: t("zoomIn"),
+      zoomCurrentZoom: t("zoomCurrentZoom"),
+      zoomSelectPreset: t("zoomSelectPreset"),
+      zoomResetTo100: t("zoomResetTo100"),
+      zoomFitToContent: t("zoomFitToContent"),
+      zoomToSelection: t("zoomToSelection"),
+
       // Accessibility
       workspaceMenuAriaLabel: t("workspaceMenuAriaLabel"),
 

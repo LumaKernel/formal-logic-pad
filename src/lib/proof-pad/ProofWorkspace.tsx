@@ -248,6 +248,7 @@ import { useMarquee } from "../infinite-canvas/useMarquee";
 import { MinimapComponent } from "../infinite-canvas/MinimapComponent";
 import type { MinimapItem } from "../infinite-canvas/minimap";
 import { ZoomControlsComponent } from "../infinite-canvas/ZoomControlsComponent";
+import type { ZoomControlsLabels } from "../infinite-canvas/ZoomControlsComponent";
 import type { ZoomItemBounds } from "../infinite-canvas/zoom";
 import {
   computeZoomInViewport,
@@ -839,6 +840,27 @@ export const ProofWorkspace = forwardRef<
 ) {
   // i18nメッセージ
   const msg = useProofMessages();
+
+  const zoomLabels: ZoomControlsLabels = useMemo(
+    () => ({
+      zoomOut: msg.zoomOut,
+      zoomIn: msg.zoomIn,
+      currentZoom: msg.zoomCurrentZoom,
+      selectZoomPreset: msg.zoomSelectPreset,
+      resetZoom: msg.zoomResetTo100,
+      fitToContent: msg.zoomFitToContent,
+      zoomToSelection: msg.zoomToSelection,
+    }),
+    [
+      msg.zoomOut,
+      msg.zoomIn,
+      msg.zoomCurrentZoom,
+      msg.zoomSelectPreset,
+      msg.zoomResetTo100,
+      msg.zoomFitToContent,
+      msg.zoomToSelection,
+    ],
+  );
 
   // undo/redo 履歴管理
   const initialWorkspace = useMemo(
@@ -6693,6 +6715,7 @@ export const ProofWorkspace = forwardRef<
             selectedZoomItems.length > 0 ? selectedZoomItems : undefined
           }
           position="bottom-left"
+          labels={zoomLabels}
         />
         <MinimapComponent
           viewport={viewport}

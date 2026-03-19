@@ -118,7 +118,10 @@ export {
 } from "./zoom";
 export type { WheelAction, WheelEventInput, ZoomItemBounds } from "./zoom";
 export { ZoomControlsComponent } from "./ZoomControlsComponent";
-export type { ZoomControlsProps } from "./ZoomControlsComponent";
+export type {
+  ZoomControlsLabels,
+  ZoomControlsProps,
+} from "./ZoomControlsComponent";
 export {
   computeFitViewport,
   computePresetLabels,
