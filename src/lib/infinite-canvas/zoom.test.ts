@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  FIT_MAX_SCALE,
   MAX_SCALE,
   MIN_SCALE,
   ZOOM_PRESETS,
@@ -240,7 +241,7 @@ describe("computeFitToContentViewport", () => {
     expect(screenCenterY).toBeCloseTo(centerScreenY, 5);
   });
 
-  it("fits multiple items with appropriate scale", () => {
+  it("fits multiple items clamped to FIT_MAX_SCALE when computed scale exceeds 1", () => {
     const items = [
       { x: 0, y: 0, width: 100, height: 100 },
       { x: 500, y: 400, width: 100, height: 100 },
@@ -250,14 +251,24 @@ describe("computeFitToContentViewport", () => {
     // Content bounds: (0,0) to (600,500)
     // Available: (720, 520) after padding
     // scaleX = 720/600 = 1.2, scaleY = 520/500 = 1.04
-    // scale = min(1.2, 1.04) = 1.04
-    expect(result.scale).toBeCloseTo(1.04, 2);
+    // min(1.2, 1.04) = 1.04, clamped to FIT_MAX_SCALE (1)
+    expect(result.scale).toBe(FIT_MAX_SCALE);
   });
 
-  it("clamps scale to max when content is very small", () => {
+  it("fits large content below 100% without clamping", () => {
+    const items = [{ x: 0, y: 0, width: 1600, height: 1200 }];
+    const result = computeFitToContentViewport(items, containerSize);
+
+    // Available: (720, 520) after padding
+    // scaleX = 720/1600 = 0.45, scaleY = 520/1200 ≈ 0.433
+    // min = 0.433, below FIT_MAX_SCALE so not clamped
+    expect(result.scale).toBeCloseTo(0.433, 2);
+  });
+
+  it("clamps scale to FIT_MAX_SCALE when content is very small", () => {
     const items = [{ x: 0, y: 0, width: 1, height: 1 }];
     const result = computeFitToContentViewport(items, containerSize);
-    expect(result.scale).toBe(MAX_SCALE);
+    expect(result.scale).toBe(FIT_MAX_SCALE);
   });
 
   it("clamps scale to min when content is very large", () => {
@@ -267,7 +278,8 @@ describe("computeFitToContentViewport", () => {
   });
 
   it("respects custom padding", () => {
-    const items = [{ x: 0, y: 0, width: 600, height: 400 }];
+    // Use large content so both scales are below FIT_MAX_SCALE (1)
+    const items = [{ x: 0, y: 0, width: 1600, height: 1200 }];
     const noPadding = computeFitToContentViewport(items, containerSize, 0);
     const withPadding = computeFitToContentViewport(items, containerSize, 100);
     // With more padding, scale should be smaller

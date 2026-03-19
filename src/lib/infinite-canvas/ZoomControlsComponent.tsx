@@ -187,15 +187,9 @@ export function ZoomControlsComponent({
   }, [onViewportChange]);
 
   const handleFit = useCallback(() => {
-    const next = computeFitViewport(
-      items,
-      containerSize,
-      undefined,
-      minScale,
-      maxScale,
-    );
+    const next = computeFitViewport(items, containerSize);
     onViewportChange(next);
-  }, [items, containerSize, minScale, maxScale, onViewportChange]);
+  }, [items, containerSize, onViewportChange]);
 
   const handlePresetSelect = useCallback(
     (presetScale: number) => {

@@ -112,6 +112,7 @@ export {
   nextPresetUp,
   MIN_SCALE,
   MAX_SCALE,
+  FIT_MAX_SCALE,
   ZOOM_PRESETS,
   ZOOM_STEP_FACTOR,
 } from "./zoom";

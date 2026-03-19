@@ -115,15 +115,19 @@ export type ZoomItemBounds = {
   readonly height: number;
 };
 
+/** Default maximum zoom scale for fit-to-content (100% = no zoom beyond actual size) */
+export const FIT_MAX_SCALE = 1;
+
 /** Compute a viewport that fits all items within the container.
  *  Adds padding around the content. Returns a reset viewport if no items.
+ *  maxScale defaults to FIT_MAX_SCALE (1) so content is never zoomed beyond 100%.
  *  Pure function. */
 export function computeFitToContentViewport(
   items: readonly ZoomItemBounds[],
   containerSize: Size,
   padding: number = 40,
   minScale: number = MIN_SCALE,
-  maxScale: number = MAX_SCALE,
+  maxScale: number = FIT_MAX_SCALE,
 ): ViewportState {
   if (items.length === 0) {
     return computeResetViewport();

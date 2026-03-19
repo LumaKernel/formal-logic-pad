@@ -431,10 +431,9 @@ export const ZoomToSelection: Story = {
     // Click zoom-to-selection
     await user.click(canvas.getByTestId("zoom-to-selection-button"));
 
-    // Zoom percentage should have changed (fitted to the selected node)
+    // Zoom percentage should be exactly 100% (FIT_MAX_SCALE caps at 1)
     const percentText = canvas.getByTestId("zoom-percentage").textContent ?? "";
     const num = parseInt(percentText, 10);
-    // Should zoom in significantly since we fit to a single small node
-    await expect(num).toBeGreaterThan(100);
+    await expect(num).toBe(100);
   },
 };
