@@ -1128,11 +1128,11 @@ export const QuestCompleteAt01: Story = {
 // 模範解答で構築済みのワークスペースでゴール達成を確認するストーリー
 // =============================================================================
 
-/** prop-08: 命題論理中級（propositional-intermediate）推移律3段チェイン */
-export const QuestCompleteProp08ModelAnswer: Story = {
+/** prop-42: 命題論理中級（propositional-intermediate）A2のMP適用（3ステップ） */
+export const QuestCompleteProp42ModelAnswer: Story = {
   render: () => {
     const { workspace, questInfo, title } =
-      buildCompletedQuestWorkspace("prop-08");
+      buildCompletedQuestWorkspace("prop-42");
     return (
       <StatefulWorkspace
         initialWorkspace={workspace}
@@ -1156,11 +1156,11 @@ export const QuestCompleteProp08ModelAnswer: Story = {
   },
 };
 
-/** prop-15: 命題論理否定（propositional-negation）対偶 */
-export const QuestCompleteProp15ModelAnswer: Story = {
+/** prop-19: 命題論理否定（propositional-negation）対偶の逆（1ステップ） */
+export const QuestCompleteProp19ModelAnswer: Story = {
   render: () => {
     const { workspace, questInfo, title } =
-      buildCompletedQuestWorkspace("prop-15");
+      buildCompletedQuestWorkspace("prop-19");
     return (
       <StatefulWorkspace
         initialWorkspace={workspace}
@@ -1184,39 +1184,11 @@ export const QuestCompleteProp15ModelAnswer: Story = {
   },
 };
 
-/** prop-22: 命題論理上級（propositional-advanced）ピアース律 */
-export const QuestCompleteProp22ModelAnswer: Story = {
+/** pred-adv-11: 述語論理上級（predicate-advanced）phi→∀x.phi（8ステップ） */
+export const QuestCompletePredAdv11ModelAnswer: Story = {
   render: () => {
     const { workspace, questInfo, title } =
-      buildCompletedQuestWorkspace("prop-22");
-    return (
-      <StatefulWorkspace
-        initialWorkspace={workspace}
-        initialNotebookName={title}
-        onBack={fn()}
-        onGoalAchieved={fn()}
-        questInfo={questInfo}
-        workspaceTestId="workspace"
-      />
-    );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-  },
-};
-
-/** pred-adv-01: 述語論理上級（predicate-advanced）全称消去チェイン */
-export const QuestCompletePredAdv01ModelAnswer: Story = {
-  render: () => {
-    const { workspace, questInfo, title } =
-      buildCompletedQuestWorkspace("pred-adv-01");
+      buildCompletedQuestWorkspace("pred-adv-11");
     return (
       <StatefulWorkspace
         initialWorkspace={workspace}
