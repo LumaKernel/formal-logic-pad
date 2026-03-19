@@ -82,7 +82,6 @@ describe("computeItemsBoundingBox", () => {
   });
 });
 
-
 describe("computeMinimapTransform", () => {
   it("fits bounding box into minimap area", () => {
     const box = { minX: 0, minY: 0, maxX: 1000, maxY: 1000 };

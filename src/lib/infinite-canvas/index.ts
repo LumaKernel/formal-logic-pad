@@ -149,7 +149,6 @@ export {
   computeMinimapPlacementStyle,
   computeMinimapTransform,
   computeViewportRect,
-
   minimapClickToViewportOffset,
   worldToMinimap,
 } from "./minimap";
