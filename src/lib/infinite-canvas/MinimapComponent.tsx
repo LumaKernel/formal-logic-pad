@@ -4,7 +4,6 @@ import {
   computeMinimapPlacementStyle,
   computeMinimapTransform,
   computeViewportRect,
-  expandBoundingBoxWithViewport,
   minimapClickToViewportOffset,
   worldToMinimap,
 } from "./minimap";
@@ -62,8 +61,23 @@ export function MinimapComponent({
   const minimapSize: Size = useMemo(() => ({ width, height }), [width, height]);
 
   const boundingBox = useMemo(() => {
+    // Fixed bounding box from items only (no viewport expansion).
+    // When user pans far away, minimap stays stable showing all nodes.
     const itemsBox = computeItemsBoundingBox(items);
-    return expandBoundingBoxWithViewport(itemsBox, viewport, containerSize);
+    // Fallback: if no items, show the current viewport area
+    if (itemsBox === null) {
+      const worldLeft = -viewport.offsetX / viewport.scale;
+      const worldTop = -viewport.offsetY / viewport.scale;
+      const worldRight = worldLeft + containerSize.width / viewport.scale;
+      const worldBottom = worldTop + containerSize.height / viewport.scale;
+      return {
+        minX: worldLeft,
+        minY: worldTop,
+        maxX: worldRight,
+        maxY: worldBottom,
+      };
+    }
+    return itemsBox;
   }, [items, viewport, containerSize]);
 
   const minimapTransform = useMemo(

@@ -4,7 +4,6 @@ import {
   computeMinimapPlacementStyle,
   computeMinimapTransform,
   computeViewportRect,
-  expandBoundingBoxWithViewport,
   minimapClickToViewportOffset,
   worldToMinimap,
 } from "./minimap";
@@ -83,59 +82,6 @@ describe("computeItemsBoundingBox", () => {
   });
 });
 
-describe("expandBoundingBoxWithViewport", () => {
-  it("creates bounding box from viewport when no items", () => {
-    const viewport = { offsetX: 0, offsetY: 0, scale: 1 };
-    const containerSize = { width: 800, height: 600 };
-    const result = expandBoundingBoxWithViewport(null, viewport, containerSize);
-    expect(result.minX).toBeCloseTo(0);
-    expect(result.minY).toBeCloseTo(0);
-    expect(result.maxX).toBeCloseTo(800);
-    expect(result.maxY).toBeCloseTo(600);
-  });
-
-  it("expands bounding box when viewport extends beyond items", () => {
-    const box = { minX: 0, minY: 0, maxX: 100, maxY: 100 };
-    const viewport = { offsetX: -500, offsetY: -500, scale: 1 };
-    const containerSize = { width: 800, height: 600 };
-    const result = expandBoundingBoxWithViewport(box, viewport, containerSize);
-    expect(result.minX).toBe(0);
-    expect(result.minY).toBe(0);
-    expect(result.maxX).toBe(1300);
-    expect(result.maxY).toBe(1100);
-  });
-
-  it("keeps bounding box when viewport is inside items area", () => {
-    const box = { minX: -1000, minY: -1000, maxX: 1000, maxY: 1000 };
-    const viewport = { offsetX: 0, offsetY: 0, scale: 1 };
-    const containerSize = { width: 800, height: 600 };
-    const result = expandBoundingBoxWithViewport(box, viewport, containerSize);
-    expect(result).toEqual(box);
-  });
-
-  it("handles zoomed viewport correctly", () => {
-    const viewport = { offsetX: 0, offsetY: 0, scale: 2 };
-    const containerSize = { width: 800, height: 600 };
-    const result = expandBoundingBoxWithViewport(null, viewport, containerSize);
-    // worldLeft = -0/2 = 0, worldRight = 0 + 800/2 = 400
-    expect(result.minX).toBeCloseTo(0);
-    expect(result.minY).toBeCloseTo(0);
-    expect(result.maxX).toBeCloseTo(400);
-    expect(result.maxY).toBeCloseTo(300);
-  });
-
-  it("handles panned viewport correctly", () => {
-    const viewport = { offsetX: 200, offsetY: 100, scale: 1 };
-    const containerSize = { width: 800, height: 600 };
-    const result = expandBoundingBoxWithViewport(null, viewport, containerSize);
-    expect(result).toEqual({
-      minX: -200,
-      minY: -100,
-      maxX: 600,
-      maxY: 500,
-    });
-  });
-});
 
 describe("computeMinimapTransform", () => {
   it("fits bounding box into minimap area", () => {

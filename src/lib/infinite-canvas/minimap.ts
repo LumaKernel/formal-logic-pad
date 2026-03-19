@@ -69,35 +69,6 @@ export function computeItemsBoundingBox(
   return { minX, minY, maxX, maxY };
 }
 
-/** Expand bounding box to include a viewport area (visible area in world space). */
-export function expandBoundingBoxWithViewport(
-  box: BoundingBox | null,
-  viewport: ViewportState,
-  containerSize: Size,
-): BoundingBox {
-  // Calculate visible world area from viewport
-  const worldLeft = -viewport.offsetX / viewport.scale;
-  const worldTop = -viewport.offsetY / viewport.scale;
-  const worldRight = worldLeft + containerSize.width / viewport.scale;
-  const worldBottom = worldTop + containerSize.height / viewport.scale;
-
-  if (box === null) {
-    return {
-      minX: worldLeft,
-      minY: worldTop,
-      maxX: worldRight,
-      maxY: worldBottom,
-    };
-  }
-
-  return {
-    minX: Math.min(box.minX, worldLeft),
-    minY: Math.min(box.minY, worldTop),
-    maxX: Math.max(box.maxX, worldRight),
-    maxY: Math.max(box.maxY, worldBottom),
-  };
-}
-
 /** Compute the transform from world space to minimap pixel space.
  *  Fits the bounding box (with margin) into the minimap area. */
 export function computeMinimapTransform(
