@@ -75,3 +75,4 @@
 - [x] 体系が Empty non-Hilbert のままだ — notebookSerialization.ts で DeductionSystem の style を保存・復元するよう修正
 - [x] pw cli で http://localhost:13000 に対しての確認もせよ — 確認済み、修正後は正しく Natural Deduction NM が表示される
 - [x] MISSING_MESSAGE: Could not resolve `ProofWorkspace.ndBannerSelectNode` in messages for locale `ja`. — en.json/ja.json に ndBannerSelectNode, ndCancel, ndDischargedFormulaPrompt を追加。t() → t.raw() に修正
+- [x] Fit to content は最大の拡大度が100%になるようにしよう — FIT_MAX_SCALE=1 定数追加、computeFitToContentViewportのデフォルトmaxScaleを1に変更

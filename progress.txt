@@ -15803,3 +15803,17 @@
   - next-intl の `t()` はプレースホルダー `{xxx}` を自動解決しようとするため、テンプレートとして渡す場合は `t.raw()` を使う
   - 旧フォーマットとの後方互換性テストは手動JSON構築で行う（既存コードは新フォーマットしか生成しないため）
 ---
+
+## 2026-03-19 - Fit to content 100%制限
+- Fit to contentの最大拡大度を100%に制限（FIT_MAX_SCALE=1定数追加）
+- 変更ファイル:
+  - src/lib/infinite-canvas/zoom.ts: FIT_MAX_SCALE定数追加、computeFitToContentViewportのデフォルトmaxScaleを1に変更
+  - src/lib/infinite-canvas/ZoomControlsComponent.tsx: handleFitからmaxScale引数を削除（デフォルト1を使用）
+  - src/lib/infinite-canvas/zoom.test.ts: テスト更新（MAX_SCALE→FIT_MAX_SCALE、大きいコンテンツのテスト追加）
+  - src/lib/infinite-canvas/ZoomControlsDemo.stories.tsx: zoom-to-selectionテストのexpect更新
+  - src/lib/infinite-canvas/index.ts: FIT_MAX_SCALEエクスポート追加
+- カバレッジ: Stmts 99.72%, Branch 98.46%（変化なし）
+- **今後のイテレーションへの学び:**
+  - computeFitToContentViewportはnodeSearch.tsのcomputeFocusViewportでも使われている。ノードフォーカスも100%上限が適用される
+  - ZoomControlsComponentのhandleFitはminScale/maxScaleをpropsから受け取っていたが、fit-to-contentのmaxScaleは一般的なzoom maxScaleとは別概念
+---
