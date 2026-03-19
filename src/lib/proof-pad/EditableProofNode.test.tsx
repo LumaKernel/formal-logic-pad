@@ -275,6 +275,30 @@ describe("EditableProofNode", () => {
     });
   });
 
+  describe("シーケントテキスト表示（editable + useSequentEditor）", () => {
+    it("useSequentEditor有効時にsequentテキストをdisplayFallbackとして表示する", () => {
+      renderNode({
+        editable: true,
+        useSequentEditor: true,
+        formulaText: "⇒ phi -> psi",
+      });
+      // FormulaEditor display modeのfallbackとしてSequentDisplayが表示される
+      const fallback = screen.getByTestId("test-node-editor-fallback");
+      expect(fallback).toBeInTheDocument();
+    });
+
+    it("useSequentEditor無効時はsequentテキストでもfallbackが表示されない", () => {
+      renderNode({
+        editable: true,
+        useSequentEditor: false,
+        formulaText: "⇒ phi -> psi",
+      });
+      // displayFallbackが渡されないので、プレースホルダーが表示される
+      const placeholder = screen.getByTestId("test-node-editor-placeholder");
+      expect(placeholder).toBeInTheDocument();
+    });
+  });
+
   describe("各ノード種別", () => {
     it("derivedノードが正しくレンダリングされる", () => {
       renderNode({

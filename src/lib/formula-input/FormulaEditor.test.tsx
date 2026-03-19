@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import type { Formula } from "../logic-core/formula";
@@ -21,6 +21,8 @@ function EditorWrapper({
   onOpenSyntaxHelp,
   onOpenExpanded,
   forceEditMode,
+  allowSequentText,
+  displayFallback,
 }: {
   readonly initialValue?: string;
   readonly onParsed?: (formula: Formula) => void;
@@ -33,6 +35,8 @@ function EditorWrapper({
   readonly onOpenSyntaxHelp?: () => void;
   readonly onOpenExpanded?: () => void;
   readonly forceEditMode?: boolean;
+  readonly allowSequentText?: boolean;
+  readonly displayFallback?: ReactNode;
 }) {
   const [value, setValue] = useState(initialValue);
   return (
@@ -49,6 +53,8 @@ function EditorWrapper({
       onOpenSyntaxHelp={onOpenSyntaxHelp}
       onOpenExpanded={onOpenExpanded}
       forceEditMode={forceEditMode}
+      allowSequentText={allowSequentText}
+      displayFallback={displayFallback}
     />
   );
 }
@@ -105,6 +111,54 @@ describe("FormulaEditor - 表示モード", () => {
 
     const display = screen.getByTestId("editor-display");
     expect(display).toHaveAttribute("aria-label", "φ → ψ - クリックして編集");
+  });
+});
+
+// --- displayFallback のテスト ---
+
+describe("FormulaEditor - displayFallback", () => {
+  it("パース失敗時にdisplayFallbackを表示する", () => {
+    render(
+      <EditorWrapper
+        initialValue="⇒ phi"
+        displayFallback={<span data-testid="custom-fallback">Custom</span>}
+      />,
+    );
+    expect(screen.getByTestId("editor-fallback")).toBeInTheDocument();
+    expect(screen.getByTestId("custom-fallback")).toHaveTextContent("Custom");
+  });
+
+  it("パース成功時はdisplayFallbackではなく通常表示", () => {
+    render(
+      <EditorWrapper
+        initialValue="phi -> psi"
+        displayFallback={<span data-testid="custom-fallback">Custom</span>}
+      />,
+    );
+    expect(screen.getByTestId("editor-unicode")).toBeInTheDocument();
+    expect(screen.queryByTestId("custom-fallback")).not.toBeInTheDocument();
+  });
+
+  it("空テキスト時はdisplayFallbackではなくプレースホルダーを表示する", () => {
+    render(
+      <EditorWrapper
+        initialValue=""
+        displayFallback={<span data-testid="custom-fallback">Custom</span>}
+      />,
+    );
+    expect(screen.getByTestId("editor-placeholder")).toBeInTheDocument();
+    expect(screen.queryByTestId("custom-fallback")).not.toBeInTheDocument();
+  });
+
+  it("空白のみテキスト時はdisplayFallbackではなくプレースホルダーを表示する", () => {
+    render(
+      <EditorWrapper
+        initialValue="   "
+        displayFallback={<span data-testid="custom-fallback">Custom</span>}
+      />,
+    );
+    expect(screen.getByTestId("editor-placeholder")).toBeInTheDocument();
+    expect(screen.queryByTestId("custom-fallback")).not.toBeInTheDocument();
   });
 });
 

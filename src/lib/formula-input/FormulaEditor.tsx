@@ -7,6 +7,7 @@
  * 変更時は FormulaEditor.test.tsx, FormulaEditor.stories.tsx, formulaEditor.ts, index.ts も同期すること。
  */
 
+import type React from "react";
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Formula } from "../logic-core/formula";
@@ -54,6 +55,8 @@ export interface FormulaEditorProps {
   readonly forceEditMode?: boolean;
   /** パースエラーでもシーケントテキスト（⇒含む）なら編集モードを離脱できるようにする */
   readonly allowSequentText?: boolean;
+  /** パース失敗時に表示モードで使うフォールバック表示（未指定時はプレースホルダー表示） */
+  readonly displayFallback?: React.ReactNode;
   /** data-testid */
   readonly testId?: string;
 }
@@ -152,6 +155,7 @@ export function FormulaEditor({
   onOpenExpanded,
   forceEditMode,
   allowSequentText,
+  displayFallback,
   testId,
 }: FormulaEditorProps) {
   const [mode, setModeInternal] = useState<EditorMode>("display");
@@ -365,6 +369,14 @@ export function FormulaEditor({
                 }
               />
             )
+          ) : displayFallback !== undefined && value.trim() !== "" ? (
+            <span
+              data-testid={
+                testId ? `${testId satisfies string}-fallback` : undefined
+              }
+            >
+              {displayFallback}
+            </span>
           ) : (
             <span
               style={placeholderStyle}

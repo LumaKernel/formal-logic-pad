@@ -668,6 +668,11 @@ export function EditableProofNode({
             editTrigger={editTrigger}
             forceEditMode={forceEditMode}
             allowSequentText={useSequentEditor}
+            displayFallback={
+              useSequentEditor && isSequentText(formulaText) ? (
+                <SequentDisplay text={formulaText} fontSize={13} />
+              ) : undefined
+            }
             onOpenSyntaxHelp={onOpenSyntaxHelp}
             onOpenExpanded={handleOpenExpanded}
             testId={testId ? `${testId satisfies string}-editor` : undefined}
