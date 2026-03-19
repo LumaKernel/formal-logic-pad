@@ -1703,6 +1703,89 @@ export const QuestCompleteAt01FullFlow: Story = {
   },
 };
 
+/**
+ * pred-01完全フロー: 空のワークスペースから (∀x.P(x)) → P(x) の証明完了まで
+ *
+ * 証明手順（Hilbert述語論理 A4）:
+ *   1. A4パレットクリック → node-1 (A4スキーマ)
+ *   2. node-1に代入 [φ:=P(x), τ:=x] → node-2 ((∀x.P(x)) → P(x), ゴール達成)
+ */
+export const QuestCompletePred01FullFlow: Story = {
+  render: () => {
+    const quest = findQuestById(builtinQuests, "pred-01");
+    if (quest === undefined) {
+      throw new Error("Quest not found: pred-01");
+    }
+    const preset = resolveSystemPreset(quest.systemPresetId);
+    if (preset === undefined) {
+      throw new Error("System preset not found");
+    }
+    const initialWorkspace = createQuestWorkspace(preset.deductionSystem, [
+      { formulaText: quest.goals[0]!.formulaText },
+    ]);
+    const questInfo: GoalQuestInfo = {
+      description: quest.description,
+      hints: quest.hints,
+      learningPoint: quest.learningPoint,
+    };
+    return (
+      <StatefulWorkspace
+        initialWorkspace={initialWorkspace}
+        initialNotebookName={quest.title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // --- 初期状態: 空の述語論理ワークスペース ---
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    // 体系バッジに正しい体系名が表示される
+    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
+      "Predicate Logic",
+    );
+    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
+      "0 / 1",
+    );
+
+    // 公理パレットにA4が表示される（述語論理体系）
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette-item-A4"),
+    ).toBeInTheDocument();
+
+    // --- Step 1: A4スキーマをパレットから追加 → node-1 ---
+    await userEvent.click(
+      canvas.getByTestId("workspace-axiom-palette-item-A4"),
+    );
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    });
+
+    // --- Step 2: node-1に代入 [φ:=P(x), τ:=x] → node-2 ---
+    await applySubstitutionViaContextMenu(canvas, "proof-node-node-1", [
+      "P(x)",
+      "x",
+    ]);
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+
+    // --- 最終確認: ゴール達成 ---
+    await waitFor(() => {
+      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
+        "1 / 1",
+      );
+    });
+    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
+      "Proved!",
+    );
+  },
+};
+
 // =============================================================================
 // Quest From Hub Full Flow Stories
 // クエスト一覧（HubPageView）から開始し、ワークスペースで証明を完遂するフルフロー
