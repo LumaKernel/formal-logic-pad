@@ -12,7 +12,6 @@
   - [ ] エラーになってる状態の論理式ノードがあるなら、フルストーリーは失敗すべきだ
   - [ ] Γ⇒Δのそれぞれの論理式列を、論理式列入力コンポーネントで入れる形にしよう (既存の列を入れるやつを使って、うまく共通化)
 - [ ] 論理式入力のカーソルが、シンタックスエラー状態のとき、実際の文字の位置とズレている
-- [ ] コンテキストメニューは画面下側で見切れそうなら、上に調整されて出るべき
 - [ ] 代入モーダルについて。
       `<div style="visibility: hidden; position: relative; font-family: var(--font-mono); font-size: inherit; white-space: pre; padding: 6px 8px; pointer-events: none; overflow: hidden; line-height: normal;">alpha</div>`
       これが論理式編集中の文字入力の下に隠れてるだけで存在してるせいでレイアウトが崩れてる

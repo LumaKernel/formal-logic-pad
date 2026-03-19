@@ -15833,3 +15833,17 @@
   - ProofMessages → ZoomControlsLabels のマッピングはProofWorkspace内のuseMemoで構築。キー名の衝突を避けるためProofMessages側は"zoom"プレフィックス付き
   - NodeSearchComponent, CommandPaletteComponentにも同様のハードコード英語文字列が残っている（別タスク）
 ---
+
+## 2026-03-19 - コンテキストメニュー画面端クランプ
+- コンテキストメニューが画面下部・右端で見切れる問題を修正
+- 変更ファイル:
+  - src/lib/infinite-canvas/useClampedMenuPosition.ts: 新規作成。clampMenuPositionを適用する再利用可能フック
+  - src/lib/infinite-canvas/ContextMenuComponent.tsx: インラインuseEffectをuseClampedMenuPositionフックに置換
+  - src/lib/infinite-canvas/index.ts: useClampedMenuPositionエクスポート追加
+  - src/lib/proof-pad/ProofWorkspace.tsx: 3つのコンテキストメニュー(node/line/canvas)にuseClampedMenuPosition適用
+- カバレッジ: Stmts 99.72%, Branch 98.46%（変化なし）
+- **今後のイテレーションへの学び:**
+  - ContextMenuComponentは既にclampMenuPositionを使っていたが、ProofWorkspace内の独自メニュー(node, line, canvas)は未適用だった
+  - useClampedMenuPositionフックでパターンを統一。discriminated union型のメニュー状態(open: false時にscreenPositionなし)はzeroPointフォールバックで対応
+  - フックの依存配列にscreenPositionを含めるため、閉じた状態ではuseMemoで安定したゼロ点を渡す
+---
