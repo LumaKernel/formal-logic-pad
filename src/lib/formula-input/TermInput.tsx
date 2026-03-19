@@ -136,6 +136,9 @@ const highlightContainerStyle: CSSProperties = {
   pointerEvents: "none",
   overflow: "hidden",
   lineHeight: "normal",
+  border: "1px solid transparent",
+  boxSizing: "border-box",
+  width: "100%",
 };
 
 const highlightMarkStyle: CSSProperties = {
