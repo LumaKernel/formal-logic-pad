@@ -945,6 +945,247 @@ describe("notebookSerialization", () => {
       expect(result.notebooks.length).toBe(0);
     });
 
+    it("SC体系で不正な規則IDがある場合は除外される", () => {
+      const json = JSON.stringify({
+        notebooks: [
+          {
+            meta: {
+              id: "notebook-1",
+              name: "bad-sc-rule",
+              createdAt: 1000,
+              updatedAt: 1000,
+            },
+            workspace: {
+              deductionSystem: {
+                style: "sequent-calculus",
+                system: {
+                  name: "Sequent Calculus LM",
+                  rules: ["identity", "INVALID-RULE"],
+                },
+              },
+              nodes: [],
+              connections: [],
+              nextNodeId: 1,
+              mode: "free",
+              inferenceEdges: [],
+              goals: [],
+            },
+          },
+        ],
+        nextId: 2,
+      });
+      const result = deserializeCollection(json);
+      expect(result.notebooks.length).toBe(0);
+    });
+
+    it("TAB体系で不正な規則IDがある場合は除外される", () => {
+      const json = JSON.stringify({
+        notebooks: [
+          {
+            meta: {
+              id: "notebook-1",
+              name: "bad-tab-rule",
+              createdAt: 1000,
+              updatedAt: 1000,
+            },
+            workspace: {
+              deductionSystem: {
+                style: "tableau-calculus",
+                system: {
+                  name: "Tableau Calculus TAB",
+                  rules: ["bs", "INVALID-RULE"],
+                },
+              },
+              nodes: [],
+              connections: [],
+              nextNodeId: 1,
+              mode: "free",
+              inferenceEdges: [],
+              goals: [],
+            },
+          },
+        ],
+        nextId: 2,
+      });
+      const result = deserializeCollection(json);
+      expect(result.notebooks.length).toBe(0);
+    });
+
+    it("AT体系で不正な規則IDがある場合は除外される", () => {
+      const json = JSON.stringify({
+        notebooks: [
+          {
+            meta: {
+              id: "notebook-1",
+              name: "bad-at-rule",
+              createdAt: 1000,
+              updatedAt: 1000,
+            },
+            workspace: {
+              deductionSystem: {
+                style: "analytic-tableau",
+                system: {
+                  name: "Analytic Tableau",
+                  rules: ["alpha-conj", "INVALID-RULE"],
+                },
+              },
+              nodes: [],
+              connections: [],
+              nextNodeId: 1,
+              mode: "free",
+              inferenceEdges: [],
+              goals: [],
+            },
+          },
+        ],
+        nextId: 2,
+      });
+      const result = deserializeCollection(json);
+      expect(result.notebooks.length).toBe(0);
+    });
+
+    it("deductionSystem内のstyleがstringでない場合はfallbackする", () => {
+      const json = JSON.stringify({
+        notebooks: [
+          {
+            meta: {
+              id: "notebook-1",
+              name: "no-style",
+              createdAt: 1000,
+              updatedAt: 1000,
+            },
+            workspace: {
+              deductionSystem: { style: 42, system: { name: "test" } },
+              system: {
+                name: "test",
+                propositionalAxioms: ["A1"],
+                predicateLogic: false,
+                equalityLogic: false,
+                generalization: false,
+              },
+              nodes: [],
+              connections: [],
+              nextNodeId: 1,
+              mode: "free",
+              inferenceEdges: [],
+              goals: [],
+            },
+          },
+        ],
+        nextId: 2,
+      });
+      // fallback to legacy system field → hilbert
+      const result = deserializeCollection(json);
+      expect(result.notebooks.length).toBe(1);
+      expect(result.notebooks[0]?.workspace.deductionSystem.style).toBe(
+        "hilbert",
+      );
+    });
+
+    it("deductionSystem内のsystem.nameがstringでない場合はfallbackする", () => {
+      const json = JSON.stringify({
+        notebooks: [
+          {
+            meta: {
+              id: "notebook-1",
+              name: "no-name",
+              createdAt: 1000,
+              updatedAt: 1000,
+            },
+            workspace: {
+              deductionSystem: {
+                style: "natural-deduction",
+                system: { name: 42, rules: [] },
+              },
+              system: {
+                name: "test",
+                propositionalAxioms: ["A1"],
+                predicateLogic: false,
+                equalityLogic: false,
+                generalization: false,
+              },
+              nodes: [],
+              connections: [],
+              nextNodeId: 1,
+              mode: "free",
+              inferenceEdges: [],
+              goals: [],
+            },
+          },
+        ],
+        nextId: 2,
+      });
+      // fallback to legacy system field → hilbert
+      const result = deserializeCollection(json);
+      expect(result.notebooks.length).toBe(1);
+    });
+
+    it("ND体系でrulesがArrayでない場合は除外される", () => {
+      const json = JSON.stringify({
+        notebooks: [
+          {
+            meta: {
+              id: "notebook-1",
+              name: "bad-rules-type",
+              createdAt: 1000,
+              updatedAt: 1000,
+            },
+            workspace: {
+              deductionSystem: {
+                style: "natural-deduction",
+                system: {
+                  name: "Natural Deduction NM",
+                  rules: "not-array",
+                },
+              },
+              nodes: [],
+              connections: [],
+              nextNodeId: 1,
+              mode: "free",
+              inferenceEdges: [],
+              goals: [],
+            },
+          },
+        ],
+        nextId: 2,
+      });
+      const result = deserializeCollection(json);
+      expect(result.notebooks.length).toBe(0);
+    });
+
+    it("Hilbert体系のdeductionSystemで不正なsystemの場合は除外される", () => {
+      const json = JSON.stringify({
+        notebooks: [
+          {
+            meta: {
+              id: "notebook-1",
+              name: "bad-hilbert-ds",
+              createdAt: 1000,
+              updatedAt: 1000,
+            },
+            workspace: {
+              deductionSystem: {
+                style: "hilbert",
+                system: {
+                  name: "test",
+                  propositionalAxioms: "not-array",
+                },
+              },
+              nodes: [],
+              connections: [],
+              nextNodeId: 1,
+              mode: "free",
+              inferenceEdges: [],
+              goals: [],
+            },
+          },
+        ],
+        nextId: 2,
+      });
+      const result = deserializeCollection(json);
+      expect(result.notebooks.length).toBe(0);
+    });
+
     it("公理IDにnon-string値がある場合は除外される", () => {
       const json = JSON.stringify({
         notebooks: [
