@@ -218,7 +218,7 @@ function useProofMessagesFromIntl(): ProofMessages {
       ndPaletteHeader: t("ndPaletteHeader"),
       ndAddAssumption: t("ndAddAssumption"),
       ndRulesSection: t("ndRulesSection"),
-      ndBannerSelectNode: t("ndBannerSelectNode"),
+      ndBannerSelectNode: String(t.raw("ndBannerSelectNode")),
       ndCancel: t("ndCancel"),
       ndDischargedFormulaPrompt: t("ndDischargedFormulaPrompt"),
       tabPaletteHeader: t("tabPaletteHeader"),

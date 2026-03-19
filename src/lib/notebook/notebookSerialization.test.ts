@@ -15,6 +15,22 @@ import {
   mendelsonSystem,
   classicalLogicSystem,
 } from "../logic-core/inferenceRule";
+import {
+  naturalDeduction,
+  sequentCalculusDeduction,
+  tableauCalculusDeduction,
+  analyticTableauDeduction,
+  nmSystem,
+  njSystem,
+  nkSystem,
+  lmSystem,
+  ljSystem,
+  lkSystem,
+  tabSystem,
+  tabPropSystem,
+  atSystem,
+  atPropSystem,
+} from "../logic-core/deductionSystem";
 
 describe("notebookSerialization", () => {
   describe("serializeCollection / deserializeCollection ラウンドトリップ", () => {
@@ -238,6 +254,212 @@ describe("notebookSerialization", () => {
 
       expect(restored.notebooks.length).toBe(1);
       expect(restored.notebooks[0]?.questVersion).toBe(3);
+    });
+
+    it("自然演繹NM体系のノートブックをラウンドトリップできる", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "自然演繹NMノート",
+        system: naturalDeduction(nmSystem),
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      expect(restored.notebooks.length).toBe(1);
+      const ws = restored.notebooks[0]?.workspace;
+      expect(ws?.deductionSystem.style).toBe("natural-deduction");
+      if (ws?.deductionSystem.style === "natural-deduction") {
+        expect(ws.deductionSystem.system.name).toBe("Natural Deduction NM");
+        expect(ws.deductionSystem.system.rules.has("implication-intro")).toBe(
+          true,
+        );
+        expect(ws.deductionSystem.system.rules.has("efq")).toBe(false);
+        expect(ws.deductionSystem.system.rules.has("dne")).toBe(false);
+      }
+    });
+
+    it("自然演繹NJ体系のノートブックをラウンドトリップできる", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "自然演繹NJノート",
+        system: naturalDeduction(njSystem),
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      const ws = restored.notebooks[0]?.workspace;
+      expect(ws?.deductionSystem.style).toBe("natural-deduction");
+      if (ws?.deductionSystem.style === "natural-deduction") {
+        expect(ws.deductionSystem.system.name).toBe("Natural Deduction NJ");
+        expect(ws.deductionSystem.system.rules.has("efq")).toBe(true);
+        expect(ws.deductionSystem.system.rules.has("dne")).toBe(false);
+      }
+    });
+
+    it("自然演繹NK体系のノートブックをラウンドトリップできる", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "自然演繹NKノート",
+        system: naturalDeduction(nkSystem),
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      const ws = restored.notebooks[0]?.workspace;
+      expect(ws?.deductionSystem.style).toBe("natural-deduction");
+      if (ws?.deductionSystem.style === "natural-deduction") {
+        expect(ws.deductionSystem.system.name).toBe("Natural Deduction NK");
+        expect(ws.deductionSystem.system.rules.has("dne")).toBe(true);
+      }
+    });
+
+    it("シーケント計算LM体系のノートブックをラウンドトリップできる", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "シーケント計算LMノート",
+        system: sequentCalculusDeduction(lmSystem),
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      const ws = restored.notebooks[0]?.workspace;
+      expect(ws?.deductionSystem.style).toBe("sequent-calculus");
+      if (ws?.deductionSystem.style === "sequent-calculus") {
+        expect(ws.deductionSystem.system.name).toBe("Sequent Calculus LM");
+        expect(ws.deductionSystem.system.maxSuccedentLength).toBe(1);
+        expect(ws.deductionSystem.system.rules.has("identity")).toBe(true);
+      }
+    });
+
+    it("シーケント計算LJ体系のノートブックをラウンドトリップできる", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "シーケント計算LJノート",
+        system: sequentCalculusDeduction(ljSystem),
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      const ws = restored.notebooks[0]?.workspace;
+      expect(ws?.deductionSystem.style).toBe("sequent-calculus");
+      if (ws?.deductionSystem.style === "sequent-calculus") {
+        expect(ws.deductionSystem.system.name).toBe("Sequent Calculus LJ");
+        expect(ws.deductionSystem.system.maxSuccedentLength).toBe(1);
+        expect(ws.deductionSystem.system.rules.has("bottom-left")).toBe(true);
+        expect(ws.deductionSystem.system.rules.has("weakening-right")).toBe(
+          true,
+        );
+      }
+    });
+
+    it("シーケント計算LK体系のノートブックをラウンドトリップできる", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "シーケント計算LKノート",
+        system: sequentCalculusDeduction(lkSystem),
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      const ws = restored.notebooks[0]?.workspace;
+      expect(ws?.deductionSystem.style).toBe("sequent-calculus");
+      if (ws?.deductionSystem.style === "sequent-calculus") {
+        expect(ws.deductionSystem.system.name).toBe("Sequent Calculus LK");
+        expect(ws.deductionSystem.system.maxSuccedentLength).toBeUndefined();
+      }
+    });
+
+    it("タブロー式シーケント計算TAB体系のノートブックをラウンドトリップできる", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "タブローTABノート",
+        system: tableauCalculusDeduction(tabSystem),
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      const ws = restored.notebooks[0]?.workspace;
+      expect(ws?.deductionSystem.style).toBe("tableau-calculus");
+      if (ws?.deductionSystem.style === "tableau-calculus") {
+        expect(ws.deductionSystem.system.name).toBe("Tableau Calculus TAB");
+        expect(ws.deductionSystem.system.rules.has("bs")).toBe(true);
+        expect(ws.deductionSystem.system.rules.has("universal")).toBe(true);
+      }
+    });
+
+    it("TAB命題論理体系のノートブックをラウンドトリップできる", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "TAB命題ノート",
+        system: tableauCalculusDeduction(tabPropSystem),
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      const ws = restored.notebooks[0]?.workspace;
+      expect(ws?.deductionSystem.style).toBe("tableau-calculus");
+      if (ws?.deductionSystem.style === "tableau-calculus") {
+        expect(ws.deductionSystem.system.name).toBe(
+          "Tableau Calculus TAB (Propositional)",
+        );
+        expect(ws.deductionSystem.system.rules.has("universal")).toBe(false);
+      }
+    });
+
+    it("分析的タブローAT体系のノートブックをラウンドトリップできる", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "分析的タブローATノート",
+        system: analyticTableauDeduction(atSystem),
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      const ws = restored.notebooks[0]?.workspace;
+      expect(ws?.deductionSystem.style).toBe("analytic-tableau");
+      if (ws?.deductionSystem.style === "analytic-tableau") {
+        expect(ws.deductionSystem.system.name).toBe("Analytic Tableau");
+        expect(ws.deductionSystem.system.rules.has("alpha-conj")).toBe(true);
+        expect(ws.deductionSystem.system.rules.has("closure")).toBe(true);
+      }
+    });
+
+    it("AT命題論理体系のノートブックをラウンドトリップできる", () => {
+      const col = createNotebook(createEmptyCollection(), {
+        name: "AT命題ノート",
+        system: analyticTableauDeduction(atPropSystem),
+        now: 1000,
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      const ws = restored.notebooks[0]?.workspace;
+      expect(ws?.deductionSystem.style).toBe("analytic-tableau");
+      if (ws?.deductionSystem.style === "analytic-tableau") {
+        expect(ws.deductionSystem.system.name).toBe(
+          "Analytic Tableau (Propositional)",
+        );
+        expect(ws.deductionSystem.system.rules.has("gamma-univ")).toBe(false);
+      }
+    });
+
+    it("ND体系のクエストノートブックをラウンドトリップできる", () => {
+      const col = createQuestNotebook(createEmptyCollection(), {
+        name: "NDクエスト",
+        system: naturalDeduction(nmSystem),
+        goals: [{ formulaText: "phi -> phi" }],
+        now: 1000,
+        questId: "nd-01",
+      });
+      const json = serializeCollection(col);
+      const restored = deserializeCollection(json);
+
+      expect(restored.notebooks.length).toBe(1);
+      expect(restored.notebooks[0]?.questId).toBe("nd-01");
+      expect(restored.notebooks[0]?.workspace.mode).toBe("quest");
+      expect(restored.notebooks[0]?.workspace.deductionSystem.style).toBe(
+        "natural-deduction",
+      );
     });
 
     it("questVersionがないノートブックではquestVersionがundefinedのまま", () => {
@@ -621,6 +843,99 @@ describe("notebookSerialization", () => {
               connections: [],
               nextNodeId: 1,
               mode: "free",
+            },
+          },
+        ],
+        nextId: 2,
+      });
+      const result = deserializeCollection(json);
+      expect(result.notebooks.length).toBe(0);
+    });
+
+    it("不正なdeductionSystem styleのノートブックは除外される", () => {
+      const json = JSON.stringify({
+        notebooks: [
+          {
+            meta: {
+              id: "notebook-1",
+              name: "bad-style",
+              createdAt: 1000,
+              updatedAt: 1000,
+            },
+            workspace: {
+              deductionSystem: {
+                style: "unknown-style",
+                system: { name: "test", rules: [] },
+              },
+              nodes: [],
+              connections: [],
+              nextNodeId: 1,
+              mode: "free",
+              inferenceEdges: [],
+              goals: [],
+            },
+          },
+        ],
+        nextId: 2,
+      });
+      const result = deserializeCollection(json);
+      expect(result.notebooks.length).toBe(0);
+    });
+
+    it("deductionSystem内のsystemがnullの場合は除外される", () => {
+      const json = JSON.stringify({
+        notebooks: [
+          {
+            meta: {
+              id: "notebook-1",
+              name: "null-ds-system",
+              createdAt: 1000,
+              updatedAt: 1000,
+            },
+            workspace: {
+              deductionSystem: {
+                style: "natural-deduction",
+                system: null,
+              },
+              nodes: [],
+              connections: [],
+              nextNodeId: 1,
+              mode: "free",
+              inferenceEdges: [],
+              goals: [],
+            },
+          },
+        ],
+        nextId: 2,
+      });
+      const result = deserializeCollection(json);
+      expect(result.notebooks.length).toBe(0);
+    });
+
+    it("ND体系で不正な規則IDがある場合は除外される", () => {
+      const json = JSON.stringify({
+        notebooks: [
+          {
+            meta: {
+              id: "notebook-1",
+              name: "bad-nd-rule",
+              createdAt: 1000,
+              updatedAt: 1000,
+            },
+            workspace: {
+              deductionSystem: {
+                style: "natural-deduction",
+                system: {
+                  name: "Natural Deduction NM",
+                  rules: ["implication-intro", "INVALID-RULE"],
+                },
+              },
+              nodes: [],
+              connections: [],
+              nextNodeId: 1,
+              mode: "free",
+              inferenceEdges: [],
+              goals: [],
             },
           },
         ],
