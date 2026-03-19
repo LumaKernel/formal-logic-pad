@@ -45,7 +45,6 @@ import {
   appendConsole,
   setRunResult,
   resetExecution,
-  executionStatusLabel,
   updateAutoPlayInterval,
   sliderToIntervalMs,
   intervalMsToSlider,
@@ -55,6 +54,11 @@ import {
   computeSlowdownInterval,
   formatVariableValue,
 } from "./scriptEditorLogic";
+import {
+  type ScriptEditorMessages,
+  defaultScriptEditorMessages,
+  getStatusMessage,
+} from "./scriptEditorMessages";
 import type { ScriptEditorState } from "./scriptEditorLogic";
 import { ScriptApiReferencePanel } from "./ScriptApiReferencePanel";
 import {
@@ -168,6 +172,8 @@ export interface ScriptEditorComponentProps {
   readonly deductionStyle?: DeductionStyle;
   /** 現在時刻取得関数（DI用。デフォルト: Date.now） */
   readonly getNow?: () => number;
+  /** i18nメッセージ（省略時は英語デフォルト） */
+  readonly messages?: ScriptEditorMessages;
 }
 
 // ── Component ─────────────────────────────────────────────────
@@ -180,6 +186,7 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
   workspaceCommandHandler,
   deductionStyle,
   getNow = Date.now,
+  messages: msg = defaultScriptEditorMessages,
 }) => {
   const [state, setState] = useState<ScriptEditorState>(() =>
     initialCode
@@ -918,7 +925,10 @@ declare var console: {
               borderLeft: "1px solid var(--color-border,#333333)",
             }}
           >
-            <ScriptApiReferencePanel onClose={handleCloseApiReference} />
+            <ScriptApiReferencePanel
+              onClose={handleCloseApiReference}
+              messages={msg}
+            />
           </div>
         )}
       </div>
@@ -952,9 +962,9 @@ declare var console: {
           }}
           onClick={handleToggleFileExplorer}
           data-testid="toggle-file-explorer-button"
-          title="Toggle File Explorer"
+          title={msg.toggleFileExplorer}
         >
-          Files
+          {msg.files}
         </button>
         <button
           type="button"
@@ -962,9 +972,9 @@ declare var console: {
           style={templateBtnStyle}
           onClick={handleOpenLibrary}
           data-testid="open-library-button"
-          title="Open Script Library"
+          title={msg.openScriptLibrary}
         >
-          Library
+          {msg.library}
         </button>
         <span
           style={{
@@ -1000,9 +1010,9 @@ declare var console: {
           }}
           onClick={handleOpenSaveDialog}
           data-testid="save-script-button"
-          title="現在のスクリプトを保存"
+          title={msg.saveCurrentScript}
         >
-          Save
+          {msg.save}
         </button>
       </div>
 
@@ -1014,6 +1024,7 @@ declare var console: {
           onSelect={handleSelectLibraryItem}
           onClose={handleCloseLibrary}
           onDeleteSaved={handleDeleteSavedScript}
+          messages={msg}
         />
       )}
 
@@ -1048,7 +1059,7 @@ declare var console: {
               color: "var(--color-text-primary,#171717)",
               minWidth: "120px",
             }}
-            placeholder="スクリプト名を入力..."
+            placeholder={msg.savePlaceholder}
             value={saveTitle}
             onChange={(e) => setSaveTitle(e.target.value)}
             onKeyDown={(e) => {
@@ -1065,7 +1076,7 @@ declare var console: {
             disabled={saveTitle.trim() === ""}
             data-testid="save-confirm-button"
           >
-            Save
+            {msg.save}
           </button>
           <button
             type="button"
@@ -1074,7 +1085,7 @@ declare var console: {
             onClick={handleCloseSaveDialog}
             data-testid="save-cancel-button"
           >
-            Cancel
+            {msg.cancel}
           </button>
         </div>
       )}
@@ -1100,7 +1111,7 @@ declare var console: {
           disabled={isExecuting}
           data-testid="run-button"
         >
-          Run
+          {msg.run}
         </button>
         <button
           type="button"
@@ -1110,7 +1121,7 @@ declare var console: {
           disabled={state.executionStatus === "running" || isAutoPlaying}
           data-testid="step-button"
         >
-          Step
+          {msg.step}
         </button>
         {isAutoPlaying ? (
           <button
@@ -1120,7 +1131,7 @@ declare var console: {
             onClick={handlePause}
             data-testid="pause-button"
           >
-            Pause
+            {msg.pause}
           </button>
         ) : (
           <button
@@ -1131,7 +1142,7 @@ declare var console: {
             disabled={state.executionStatus === "running"}
             data-testid="play-button"
           >
-            Play
+            {msg.play}
           </button>
         )}
         <button
@@ -1142,10 +1153,10 @@ declare var console: {
           disabled={state.executionStatus === "idle"}
           data-testid="reset-button"
         >
-          Reset
+          {msg.reset}
         </button>
         <span style={statusStyle} data-testid="execution-status">
-          {executionStatusLabel(state.executionStatus)}
+          {getStatusMessage(msg, state.executionStatus)}
         </span>
         {state.currentStep > 0 && (
           <span
@@ -1155,7 +1166,9 @@ declare var console: {
               marginLeft: "auto",
             }}
             data-testid="step-count"
-          >{`${String(state.currentStep) satisfies string} steps`}</span>
+          >
+            {msg.stepsCount(state.currentStep)}
+          </span>
         )}
         <button
           type="button"
@@ -1173,9 +1186,9 @@ declare var console: {
           }}
           onClick={handleToggleApiReference}
           data-testid="api-reference-toggle"
-          title="Toggle API Reference"
+          title={msg.toggleApiReference}
         >
-          API Ref
+          {msg.apiRef}
         </button>
       </div>
 
@@ -1201,7 +1214,7 @@ declare var console: {
           }}
           htmlFor="speed-slider"
         >
-          Speed
+          {msg.speed}
         </label>
         <input
           id="speed-slider"
@@ -1244,7 +1257,9 @@ declare var console: {
             }}
             data-testid="slowdown-badge"
           >
-            {`Slowdown x${String(Math.round(effectiveIntervalMs / state.autoPlayIntervalMs)) satisfies string}`}
+            {msg.slowdown(
+              Math.round(effectiveIntervalMs / state.autoPlayIntervalMs),
+            )}
           </span>
         )}
       </div>

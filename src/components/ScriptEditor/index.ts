@@ -10,7 +10,6 @@ export {
   setRunResult,
   resetExecution,
   formatRunError,
-  executionStatusLabel,
   updateAutoPlayInterval,
   sliderToIntervalMs,
   intervalMsToSlider,
@@ -107,6 +106,11 @@ export type {
   FileExplorerState,
   FileExplorerItem,
 } from "./scriptFileExplorerLogic";
+export {
+  defaultScriptEditorMessages,
+  getStatusMessage,
+} from "./scriptEditorMessages";
+export type { ScriptEditorMessages } from "./scriptEditorMessages";
 export { classifyScriptEditorKeyDown } from "./scriptEditorKeyboardShortcuts";
 export type {
   ScriptEditorKeyboardAction,

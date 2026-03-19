@@ -190,17 +190,6 @@ export const resetExecution = (
   variables: [],
 });
 
-// ── 実行ステータスの表示文字列 ──────────────────────────────
-
-export const executionStatusLabel = (status: ExecutionStatus): string => {
-  if (status === "idle") return "Ready";
-  if (status === "running") return "Running...";
-  if (status === "stepping") return "Stepping...";
-  if (status === "done") return "Done";
-  // fall-through: TypeScript narrows to "error"
-  return "Error";
-};
-
 // ── 自動再生速度 ────────────────────────────────────────────
 
 export const updateAutoPlayInterval = (

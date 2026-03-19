@@ -17,6 +17,10 @@ import {
   getTotalApiCount,
 } from "./scriptApiReferenceLogic";
 import type { ApiCategoryInfo } from "./scriptApiReferenceLogic";
+import {
+  type ScriptEditorMessages,
+  defaultScriptEditorMessages,
+} from "./scriptEditorMessages";
 
 // ── Styles ─────────────────────────────────────────────────────
 
@@ -136,13 +140,15 @@ function CategorySection({
 export interface ScriptApiReferencePanelProps {
   /** パネルを閉じるコールバック */
   readonly onClose?: () => void;
+  /** i18nメッセージ（省略時は英語デフォルト） */
+  readonly messages?: ScriptEditorMessages;
 }
 
 // ── Main Component ─────────────────────────────────────────────
 
 export const ScriptApiReferencePanel: React.FC<
   ScriptApiReferencePanelProps
-> = ({ onClose }) => {
+> = ({ onClose, messages: msg = defaultScriptEditorMessages }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredCategories = useMemo(
@@ -175,7 +181,7 @@ export const ScriptApiReferencePanel: React.FC<
         <input
           type="text"
           style={searchInputStyle}
-          placeholder="Search APIs..."
+          placeholder={msg.searchApis}
           value={searchQuery}
           onChange={handleSearchChange}
           data-testid="api-reference-search"

@@ -8,6 +8,7 @@ import type { ThemeToggleLabels } from "../../../components/ThemeToggle/ThemeTog
 import { useNotebookCollection, findNotebook } from "../../../lib/notebook";
 import type { GoalAchievedInfo } from "../../../lib/proof-pad";
 import type { ProofMessages } from "../../../lib/proof-pad";
+import type { ScriptEditorMessages } from "../../../components/ScriptEditor";
 import type { WorkspaceState } from "../../../lib/proof-pad/workspaceState";
 import type { ProofSaveParams } from "../../../lib/proof-collection";
 import { useProofCollection } from "../../../lib/proof-collection";
@@ -307,6 +308,42 @@ function useProofMessagesFromIntl(): ProofMessages {
   );
 }
 
+/** next-intl の翻訳から ScriptEditorMessages オブジェクトを構築するフック */
+function useScriptEditorMessagesFromIntl(): ScriptEditorMessages {
+  const t = useTranslations("ScriptEditor");
+  return useMemo(
+    (): ScriptEditorMessages => ({
+      files: t("files"),
+      library: t("library"),
+      save: t("save"),
+      run: t("run"),
+      step: t("step"),
+      pause: t("pause"),
+      play: t("play"),
+      reset: t("reset"),
+      apiRef: t("apiRef"),
+      cancel: t("cancel"),
+      speed: t("speed"),
+      statusReady: t("statusReady"),
+      statusRunning: t("statusRunning"),
+      statusStepping: t("statusStepping"),
+      statusDone: t("statusDone"),
+      statusError: t("statusError"),
+      stepsCount: (count) => t("stepsCount", { count }),
+      slowdown: (factor) => t("slowdown", { factor }),
+      savePlaceholder: t("savePlaceholder"),
+      scriptLibraryTitle: t("scriptLibraryTitle"),
+      searchScripts: t("searchScripts"),
+      searchApis: t("searchApis"),
+      toggleFileExplorer: t("toggleFileExplorer"),
+      openScriptLibrary: t("openScriptLibrary"),
+      saveCurrentScript: t("saveCurrentScript"),
+      toggleApiReference: t("toggleApiReference"),
+    }),
+    [t],
+  );
+}
+
 function WorkspaceInner() {
   const params = useParams();
   const router = useRouter();
@@ -314,6 +351,7 @@ function WorkspaceInner() {
   const proofCollection = useProofCollection();
   const questProgress = useQuestProgress();
   const proofMessages = useProofMessagesFromIntl();
+  const scriptEditorMessages = useScriptEditorMessagesFromIntl();
   const pageMessages = useWorkspacePageMessagesFromIntl();
   const themeLabels = useThemeLabelsFromIntl();
   const rawLocale = useLocale();
@@ -481,6 +519,7 @@ function WorkspaceInner() {
         languageToggle={languageToggle}
         pageMessages={pageMessages}
         themeLabels={themeLabels}
+        scriptEditorMessages={scriptEditorMessages}
       />
       {referenceDetailEntry !== undefined ? (
         <ReferenceFloatingWindow

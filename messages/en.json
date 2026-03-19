@@ -281,5 +281,33 @@
     "collectionFolderEntryCount": "{count}",
     "collectionAxiomWarning": "Missing axiom(s): {axiomIds}",
     "collectionStyleMismatch": "Style mismatch: {sourceStyle} → {targetStyle}"
+  },
+  "ScriptEditor": {
+    "files": "Files",
+    "library": "Library",
+    "save": "Save",
+    "run": "Run",
+    "step": "Step",
+    "pause": "Pause",
+    "play": "Play",
+    "reset": "Reset",
+    "apiRef": "API Ref",
+    "cancel": "Cancel",
+    "speed": "Speed",
+    "statusReady": "Ready",
+    "statusRunning": "Running...",
+    "statusStepping": "Stepping...",
+    "statusDone": "Done",
+    "statusError": "Error",
+    "stepsCount": "{count} steps",
+    "slowdown": "Slowdown x{factor}",
+    "savePlaceholder": "Enter script name...",
+    "scriptLibraryTitle": "Script Library",
+    "searchScripts": "Search scripts...",
+    "searchApis": "Search APIs...",
+    "toggleFileExplorer": "Toggle File Explorer",
+    "openScriptLibrary": "Open Script Library",
+    "saveCurrentScript": "Save current script",
+    "toggleApiReference": "Toggle API Reference"
   }
 }

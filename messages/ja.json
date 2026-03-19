@@ -281,5 +281,33 @@
     "collectionFolderEntryCount": "{count}",
     "collectionAxiomWarning": "不足する公理: {axiomIds}",
     "collectionStyleMismatch": "スタイル不一致: {sourceStyle} → {targetStyle}"
+  },
+  "ScriptEditor": {
+    "files": "ファイル",
+    "library": "ライブラリ",
+    "save": "保存",
+    "run": "実行",
+    "step": "ステップ",
+    "pause": "一時停止",
+    "play": "再生",
+    "reset": "リセット",
+    "apiRef": "API参照",
+    "cancel": "キャンセル",
+    "speed": "速度",
+    "statusReady": "準備完了",
+    "statusRunning": "実行中...",
+    "statusStepping": "ステップ実行中...",
+    "statusDone": "完了",
+    "statusError": "エラー",
+    "stepsCount": "{count} ステップ",
+    "slowdown": "減速 x{factor}",
+    "savePlaceholder": "スクリプト名を入力...",
+    "scriptLibraryTitle": "スクリプトライブラリ",
+    "searchScripts": "スクリプトを検索...",
+    "searchApis": "APIを検索...",
+    "toggleFileExplorer": "ファイルエクスプローラー切替",
+    "openScriptLibrary": "スクリプトライブラリを開く",
+    "saveCurrentScript": "現在のスクリプトを保存",
+    "toggleApiReference": "APIリファレンス切替"
   }
 }

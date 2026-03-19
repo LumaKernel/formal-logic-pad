@@ -259,6 +259,7 @@ import {
 import { useHistory } from "../history/useHistory";
 import { getScriptCode } from "./scriptNode";
 import { ScriptEditorComponent } from "../../components/ScriptEditor/ScriptEditorComponent";
+import type { ScriptEditorMessages } from "../../components/ScriptEditor/scriptEditorMessages";
 import {
   type WorkspaceCommandHandler,
   encodeScProofNode,
@@ -382,6 +383,8 @@ export interface ProofWorkspaceProps {
   readonly initialClipboardData?: ClipboardData;
   /** data-testid */
   readonly testId?: string;
+  /** スクリプトエディタのi18nメッセージ */
+  readonly scriptEditorMessages?: ScriptEditorMessages;
 }
 
 // --- MP選択モードの状態 ---
@@ -837,6 +840,7 @@ export const ProofWorkspace = forwardRef<
     onDuplicateToFree,
     initialClipboardData,
     testId,
+    scriptEditorMessages,
   }: ProofWorkspaceProps,
   ref,
 ) {
@@ -6002,6 +6006,7 @@ export const ProofWorkspace = forwardRef<
               onCodeChange={handleScriptCodeChange}
               workspaceCommandHandler={scriptCommandHandler}
               deductionStyle={workspace.deductionSystem.style}
+              messages={scriptEditorMessages}
             />
           </div>
         </div>

@@ -23,6 +23,10 @@ import type {
 import type { ScriptTemplate } from "@/lib/script-runner/templates";
 import type { DeductionStyle } from "@/lib/logic-core/deductionSystem";
 import type { SavedScript } from "./savedScriptsLogic";
+import {
+  type ScriptEditorMessages,
+  defaultScriptEditorMessages,
+} from "./scriptEditorMessages";
 
 // ── Props ─────────────────────────────────────────────────────
 
@@ -33,6 +37,8 @@ export type ScriptLibraryPanelProps = {
   readonly onSelect: (item: LibraryItem) => void;
   readonly onClose: () => void;
   readonly onDeleteSaved?: (id: string) => void;
+  /** i18nメッセージ（省略時は英語デフォルト） */
+  readonly messages?: ScriptEditorMessages;
 };
 
 // ── Styles ────────────────────────────────────────────────────
@@ -230,6 +236,7 @@ export function ScriptLibraryPanel({
   onSelect,
   onClose,
   onDeleteSaved,
+  messages: msg = defaultScriptEditorMessages,
 }: ScriptLibraryPanelProps) {
   const [state, setState] = useState<ScriptLibraryState>(
     initialScriptLibraryState,
@@ -261,7 +268,7 @@ export function ScriptLibraryPanel({
       <div style={panelStyle} data-testid="script-library-panel">
         {/* Header */}
         <div style={headerStyle}>
-          <span style={headerTitleStyle}>Script Library</span>
+          <span style={headerTitleStyle}>{msg.scriptLibraryTitle}</span>
           <button
             type="button"
             style={closeBtnStyle}
@@ -277,7 +284,7 @@ export function ScriptLibraryPanel({
           <input
             type="text"
             style={searchInputStyle}
-            placeholder="Search scripts..."
+            placeholder={msg.searchScripts}
             value={state.searchQuery}
             onChange={handleSearchChange}
             data-testid="script-library-search"

@@ -1,7 +1,8 @@
 # 差し込みタスク
 
-- [ ] JAで日本語になってない
+- [x] JAで日本語になってない
   - Script Library, Find, Library, Save, Run, Stop, Play, Reset, Ready, API Ref
+  - scriptEditorMessages.ts作成、コンポーネントprops化、messages/ja.json追加、WorkspaceContent→WorkspacePageView→ProofWorkspace→ScriptEditorComponent伝搬パイプライン構築
 - [ ] スクリプトエディタって半透明にできる？
 - [ ] 各種ウィンドウが「証明完了」より上にくるようにして
 - [ ] ノードのドラッグをするとき、おそらくエッジの曲線の計算を毎度再計算するせいか、描画が重い。ドラッグ中だけ簡易的なエッジ表示にして、ちょっと他のノードの手前に出てくるようにする、などとするとどうか。

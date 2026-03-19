@@ -9,7 +9,6 @@ import {
   setRunResult,
   resetExecution,
   formatRunError,
-  executionStatusLabel,
   updateAutoPlayInterval,
   sliderToIntervalMs,
   intervalMsToSlider,
@@ -23,11 +22,7 @@ import {
   MAX_AUTO_PLAY_INTERVAL_MS,
   defaultEditorOptions,
 } from "./scriptEditorLogic";
-import type {
-  ScriptEditorState,
-  ConsoleEntry,
-  ExecutionStatus,
-} from "./scriptEditorLogic";
+import type { ScriptEditorState, ConsoleEntry } from "./scriptEditorLogic";
 import type { ScriptRunResult } from "@/lib/script-runner";
 
 describe("scriptEditorLogic", () => {
@@ -284,20 +279,6 @@ describe("scriptEditorLogic", () => {
         elapsedMs: 5000,
       };
       expect(formatRunError(result)).toBe("Time limit exceeded (5000ms)");
-    });
-  });
-
-  describe("executionStatusLabel", () => {
-    const cases: readonly (readonly [ExecutionStatus, string])[] = [
-      ["idle", "Ready"],
-      ["running", "Running..."],
-      ["stepping", "Stepping..."],
-      ["done", "Done"],
-      ["error", "Error"],
-    ];
-
-    it.each(cases)("%s → %s", (status, expected) => {
-      expect(executionStatusLabel(status)).toBe(expected);
     });
   });
 

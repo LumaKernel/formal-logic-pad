@@ -16,6 +16,7 @@ import {
   type CSSProperties,
 } from "react";
 import { ProofWorkspace } from "../../../lib/proof-pad";
+import type { ScriptEditorMessages } from "../../../components/ScriptEditor/scriptEditorMessages";
 import type { GoalAchievedInfo } from "../../../lib/proof-pad";
 import { ProofMessagesProvider } from "../../../lib/proof-pad";
 import type { ProofMessages } from "../../../lib/proof-pad";
@@ -105,6 +106,8 @@ export type WorkspacePageViewProps = {
       readonly onOpenReferenceDetail?: (entryId: string) => void;
       /** ロケール（リファレンス表示言語） */
       readonly locale?: Locale;
+      /** スクリプトエディタのi18nメッセージ */
+      readonly scriptEditorMessages?: ScriptEditorMessages;
     }
   | {
       /** ノートブックが見つからない場合 */
@@ -316,6 +319,7 @@ function WorkspacePageViewFound({
     languageToggle,
     themeLabels,
     workspaceTestId,
+    scriptEditorMessages,
   } = props;
 
   // --- Title editing state ---
@@ -500,6 +504,7 @@ function WorkspacePageViewFound({
             referenceEntries={referenceEntries}
             onOpenReferenceDetail={onOpenReferenceDetail}
             locale={locale}
+            scriptEditorMessages={scriptEditorMessages}
           />
         </ProofMessagesProvider>
       </div>
