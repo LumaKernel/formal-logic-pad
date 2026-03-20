@@ -27,6 +27,7 @@ import {
   constant,
   functionApplication,
   binaryOperation,
+  termSubstitution,
 } from "../logic-core/term";
 import { Either } from "effect";
 import { formatFormula, formatTerm } from "./formatUnicode";
@@ -654,6 +655,60 @@ describe("formatTerm", () => {
         ),
       ).toBe("f(x, g(y))");
     });
+  });
+});
+
+describe("formatTerm — TermSubstitution", () => {
+  it("P(x[y/z]) と述語引数内の置換", () => {
+    expect(
+      formatFormula(
+        predicate("P", [
+          termSubstitution(
+            termVariable("x"),
+            termVariable("y"),
+            termVariable("z"),
+          ),
+        ]),
+      ),
+    ).toBe("P(x[y/z])");
+  });
+
+  it("P((a + b)[c/x]) と二項演算への置換（括弧あり）", () => {
+    expect(
+      formatFormula(
+        predicate("P", [
+          termSubstitution(
+            binaryOperation("+", termVariable("a"), termVariable("b")),
+            termVariable("c"),
+            termVariable("x"),
+          ),
+        ]),
+      ),
+    ).toBe("P((a + b)[c/x])");
+  });
+
+  it("formatTerm: x[y/z]", () => {
+    expect(
+      formatTerm(
+        termSubstitution(
+          termVariable("x"),
+          termVariable("y"),
+          termVariable("z"),
+        ),
+      ),
+    ).toBe("x[y/z]");
+  });
+
+  it("formatTerm: f(x)[g(y)/z]", () => {
+    expect(
+      formatTerm(
+        termSubstitution(
+          functionApplication("f", [termVariable("x")]),
+          functionApplication("g", [termVariable("y")]),
+          termVariable("z"),
+        ),
+      ),
+    ).toBe("f(x)[g(y)/z]");
   });
 });
 

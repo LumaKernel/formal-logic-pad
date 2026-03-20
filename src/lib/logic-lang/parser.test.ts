@@ -23,6 +23,7 @@ import {
   constant,
   functionApplication,
   binaryOperation,
+  termSubstitution,
 } from "../logic-core/term";
 
 import type { Term } from "../logic-core/term";
@@ -1190,6 +1191,50 @@ describe("parseTermString", () => {
           termVariable("z"),
         ),
       );
+    });
+  });
+
+  describe("TermSubstitution", () => {
+    it("x[y/z] をパースする", () => {
+      assertTermParses(
+        "x[y/z]",
+        termSubstitution(
+          termVariable("x"),
+          termVariable("y"),
+          termVariable("z"),
+        ),
+      );
+    });
+
+    it("f(x)[g(y)/z] をパースする", () => {
+      assertTermParses(
+        "f(x)[g(y)/z]",
+        termSubstitution(
+          functionApplication("f", [termVariable("x")]),
+          functionApplication("g", [termVariable("y")]),
+          termVariable("z"),
+        ),
+      );
+    });
+
+    it("t[a/x][b/y] チェーン置換をパースする", () => {
+      assertTermParses(
+        "t[a/x][b/y]",
+        termSubstitution(
+          termSubstitution(
+            termVariable("t"),
+            termVariable("a"),
+            termVariable("x"),
+          ),
+          termVariable("b"),
+          termVariable("y"),
+        ),
+      );
+    });
+
+    it("x[/y] は項としてエラーを返す（FreeVariableAbsence は式専用）", () => {
+      const result = parseTermString("x[/y]");
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 

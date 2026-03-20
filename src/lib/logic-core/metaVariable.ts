@@ -123,6 +123,11 @@ export const collectTermMetaVariables = (
         ...collectTermMetaVariables(t.left),
         ...collectTermMetaVariables(t.right),
       ];
+    case "TermSubstitution":
+      return [
+        ...collectTermMetaVariables(t.term),
+        ...collectTermMetaVariables(t.replacement),
+      ];
   }
   /* v8 ignore start */
   t satisfies never;

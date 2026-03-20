@@ -32,6 +32,7 @@ import {
   TermVariable,
   FunctionApplication,
   BinaryOperation,
+  TermSubstitution,
 } from "./term";
 import { metaVariableKey, termMetaVariableKey } from "./metaVariable";
 import {
@@ -203,6 +204,12 @@ const substituteTermMetaVariablesInTermRec = (
         operator: t.operator,
         left: substituteTermMetaVariablesInTermRec(t.left, subst),
         right: substituteTermMetaVariablesInTermRec(t.right, subst),
+      });
+    case "TermSubstitution":
+      return new TermSubstitution({
+        term: substituteTermMetaVariablesInTermRec(t.term, subst),
+        replacement: substituteTermMetaVariablesInTermRec(t.replacement, subst),
+        variable: t.variable,
       });
   }
   /* v8 ignore start */
@@ -431,6 +438,12 @@ const substituteTermVariableInTermRec = (
         operator: t.operator,
         left: substituteTermVariableInTermRec(t.left, x, s),
         right: substituteTermVariableInTermRec(t.right, x, s),
+      });
+    case "TermSubstitution":
+      return new TermSubstitution({
+        term: substituteTermVariableInTermRec(t.term, x, s),
+        replacement: substituteTermVariableInTermRec(t.replacement, x, s),
+        variable: t.variable,
       });
   }
   /* v8 ignore start */
@@ -798,6 +811,51 @@ const resolveFormulaSubstitutionRec = (f: Formula): Formula => {
   /* v8 ignore start */
   f satisfies never;
   return f;
+  /* v8 ignore stop */
+};
+
+// ── 6.5 項置換の解決 ──────────────────────────────────────────
+
+/**
+ * 項の TermSubstitution ノードを再帰的に解決する。
+ *
+ * `t[s/x]` → `substituteTermVariableInTerm(resolved_t, x, resolved_s)` に変換。
+ * TermMetaVariable を含む場合はそのまま保持する。
+ */
+export const resolveTermSubstitution = (term: Term): Term => {
+  return resolveTermSubstitutionRec(term);
+};
+
+const resolveTermSubstitutionRec = (t: Term): Term => {
+  switch (t._tag) {
+    case "TermVariable":
+    case "TermMetaVariable":
+    case "Constant":
+      return t;
+    case "FunctionApplication":
+      return new FunctionApplication({
+        name: t.name,
+        args: t.args.map((arg) => resolveTermSubstitutionRec(arg)),
+      });
+    case "BinaryOperation":
+      return new BinaryOperation({
+        operator: t.operator,
+        left: resolveTermSubstitutionRec(t.left),
+        right: resolveTermSubstitutionRec(t.right),
+      });
+    case "TermSubstitution": {
+      const resolvedTerm = resolveTermSubstitutionRec(t.term);
+      const resolvedReplacement = resolveTermSubstitutionRec(t.replacement);
+      return substituteTermVariableInTerm(
+        resolvedTerm,
+        t.variable,
+        resolvedReplacement,
+      );
+    }
+  }
+  /* v8 ignore start */
+  t satisfies never;
+  return t;
   /* v8 ignore stop */
 };
 

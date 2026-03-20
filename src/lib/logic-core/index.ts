@@ -16,6 +16,7 @@ export {
   Constant,
   FunctionApplication,
   BinaryOperation,
+  TermSubstitution,
   BinaryOperator,
   binaryOperators,
   Term,
@@ -24,6 +25,7 @@ export {
   constant,
   functionApplication,
   binaryOperation,
+  termSubstitution,
 } from "./term";
 export type {
   Term as TermType,
@@ -110,6 +112,7 @@ export {
   substituteTermVariableInFormula,
   substituteTermVariableChecked,
   resolveFormulaSubstitution,
+  resolveTermSubstitution,
   normalizeFormula,
   isFreeFor,
   composeFormulaSubstitution,

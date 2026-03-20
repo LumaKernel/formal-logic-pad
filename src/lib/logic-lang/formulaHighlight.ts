@@ -164,6 +164,7 @@ const termChildBP = (
     case "TermMetaVariable":
     case "Constant":
     case "FunctionApplication":
+    case "TermSubstitution":
       return { leftBP: 100, rightBP: 100 };
     /* v8 ignore next 5 */
     default: {
@@ -240,6 +241,24 @@ const tokenizeTermInner = (t: Term): readonly FormulaToken[] => {
       tokens.push(punc(" "));
       tokens.push(...(rightParens ? wrapParens(rightTokens) : rightTokens));
       return tokens;
+    }
+
+    case "TermSubstitution": {
+      const termTokens = tokenizeTermInner(t.term);
+      const replacementTokens = tokenizeTermInner(t.replacement);
+      // t が二項演算なら括弧で囲む
+      const needsParens = t.term._tag === "BinaryOperation";
+      const wrappedTermTokens = needsParens
+        ? wrapParens(termTokens)
+        : termTokens;
+      return [
+        ...wrappedTermTokens,
+        punc("["),
+        ...replacementTokens,
+        punc("/"),
+        { text: t.variable.name, kind: "variable" as const },
+        punc("]"),
+      ];
     }
 
     /* v8 ignore next 5 */

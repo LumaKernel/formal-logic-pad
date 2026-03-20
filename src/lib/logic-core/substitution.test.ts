@@ -14,6 +14,7 @@ import {
   freshVariableName,
   resolveFormulaSubstitution,
   normalizeFormula,
+  resolveTermSubstitution,
 } from "./substitution";
 import { equalFormula, equalTerm, equivalentFormula } from "./equality";
 import {
@@ -36,6 +37,7 @@ import {
   constant,
   functionApplication,
   binaryOperation,
+  termSubstitution,
 } from "./term";
 
 // ── freshVariableName ────────────────────────────────────────
@@ -1736,6 +1738,42 @@ describe("normalizeFormula", () => {
     const result = normalizeFormula(f);
     // メタ変数を含むので x が自由かどうか不明 → 保持
     expect(result._tag).toBe("FreeVariableAbsence");
+  });
+
+  test("resolveTermSubstitution: x[y/x] → y", () => {
+    const t = termSubstitution(
+      termVariable("x"),
+      termVariable("y"),
+      termVariable("x"),
+    );
+    const result = resolveTermSubstitution(t);
+    expect(equalTerm(result, termVariable("y"))).toBe(true);
+  });
+
+  test("resolveTermSubstitution: f(x, z)[a/x] → f(a, z)", () => {
+    const t = termSubstitution(
+      functionApplication("f", [termVariable("x"), termVariable("z")]),
+      termVariable("a"),
+      termVariable("x"),
+    );
+    const result = resolveTermSubstitution(t);
+    expect(
+      equalTerm(
+        result,
+        functionApplication("f", [termVariable("a"), termVariable("z")]),
+      ),
+    ).toBe(true);
+  });
+
+  test("resolveTermSubstitution: x[y/x][z/y] → z (nested)", () => {
+    const inner = termSubstitution(
+      termVariable("x"),
+      termVariable("y"),
+      termVariable("x"),
+    );
+    const outer = termSubstitution(inner, termVariable("z"), termVariable("y"));
+    const result = resolveTermSubstitution(outer);
+    expect(equalTerm(result, termVariable("z"))).toBe(true);
   });
 
   test("公理A5のインスタンス化: (∀x.φ)→φ[τ/x] で φ:=φ→φ", () => {

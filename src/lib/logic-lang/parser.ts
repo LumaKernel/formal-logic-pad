@@ -32,6 +32,7 @@ import {
   constant,
   functionApplication,
   binaryOperation,
+  termSubstitution,
 } from "../logic-core/term";
 import type { BinaryOperator, Term } from "../logic-core/term";
 import type { Token, TokenKind, Span, Position } from "./token";
@@ -609,6 +610,10 @@ export const parse = (tokens: readonly Token[]): ParseResult => {
       lhs = binaryOperation(op, lhs, rhs);
     }
 
+    // 注: 論理式パーサー内の項パースでは TermSubstitution postfix ([s/x]) を消費しない。
+    // 論理式レベルの `[` は FormulaSubstitution / FreeVariableAbsence に使われるため。
+    // TermSubstitution は standalone term parser (parseTermString) でのみサポート。
+
     return lhs;
   };
 
@@ -794,6 +799,13 @@ export const parseTokensAsTerm = (
         return ".";
       case "COMMA":
         return ",";
+      case "RBRACKET":
+        return "]";
+      /* v8 ignore next 2 */
+      case "LBRACKET":
+        return "[";
+      case "DIVIDE":
+        return "/";
       case "EOF":
         return "end of input";
       default:
@@ -803,12 +815,16 @@ export const parseTokensAsTerm = (
 
   // --- 項パース (Pratt parser) ---
 
-  const parseTerm = (minBP: number): Term | undefined => {
+  const parseTerm = (
+    minBP: number,
+    stopBefore?: ReadonlySet<TokenKind>,
+  ): Term | undefined => {
     let lhs = parseTermAtom();
     if (lhs === undefined) return undefined;
 
     while (true) {
       const token = peek();
+      if (stopBefore !== undefined && stopBefore.has(token.kind)) break;
       const bp = termInfixBP(token.kind);
       if (bp === undefined) break;
       if (bp.leftBP < minBP) break;
@@ -816,13 +832,59 @@ export const parseTokensAsTerm = (
       advance();
       const op = tokenToBinaryOperator(token.kind)!;
 
-      const rhs = parseTerm(bp.rightBP);
+      const rhs = parseTerm(bp.rightBP, stopBefore);
       if (rhs === undefined) return undefined;
 
       lhs = binaryOperation(op, lhs, rhs);
     }
 
+    // 項置換の postfix: t[s/x] チェーン
+    if (stopBefore === undefined || !stopBefore.has("LBRACKET")) {
+      lhs = parseTermSubstitutionPostfix(lhs);
+    }
+
     return lhs;
+  };
+
+  // --- 項置換の postfix パース ---
+
+  const STOP_AT_DIVIDE: ReadonlySet<TokenKind> = new Set(["DIVIDE"]);
+
+  const parseTermSubstitutionPostfix = (term: Term): Term => {
+    let result = term;
+    while (peek().kind === "LBRACKET") {
+      advance(); // LBRACKET を消費
+
+      // 置換項をパース（DIVIDE を項の二項演算子として消費しない）
+      const replacement = parseTerm(0, STOP_AT_DIVIDE);
+      if (replacement === undefined) return result;
+
+      // `/` (DIVIDE) を期待
+      if (expect("DIVIDE") === undefined) return result;
+
+      // 置換変数をパース（LOWER_IDENT または META_VARIABLE）
+      const varToken = peek();
+      let varName: string;
+      if (varToken.kind === "LOWER_IDENT") {
+        advance();
+        varName = varToken.value!;
+      } else if (varToken.kind === "META_VARIABLE") {
+        advance();
+        varName = varToken.value!;
+      } else {
+        addError(
+          `Expected variable after '/' in term substitution at ${posStr(varToken.span.start) satisfies string}`,
+          varToken.span,
+        );
+        return result;
+      }
+
+      // `]` を期待
+      if (expect("RBRACKET") === undefined) return result;
+
+      result = termSubstitution(result, replacement, termVariable(varName));
+    }
+    return result;
   };
 
   // --- 項のアトム ---

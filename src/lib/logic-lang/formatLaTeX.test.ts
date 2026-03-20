@@ -27,6 +27,7 @@ import {
   constant,
   functionApplication,
   binaryOperation,
+  termSubstitution,
 } from "../logic-core/term";
 import { formatFormulaLaTeX, formatTermLaTeX } from "./formatLaTeX";
 
@@ -644,6 +645,44 @@ describe("formatTermLaTeX", () => {
           ),
         ),
       ).toBe("\\left(x + y\\right)^{2}");
+    });
+  });
+
+  describe("TermSubstitution", () => {
+    it("x[y/z]", () => {
+      expect(
+        formatTermLaTeX(
+          termSubstitution(
+            termVariable("x"),
+            termVariable("y"),
+            termVariable("z"),
+          ),
+        ),
+      ).toBe("x[y/z]");
+    });
+
+    it("f(x)[g(y)/z]", () => {
+      expect(
+        formatTermLaTeX(
+          termSubstitution(
+            functionApplication("f", [termVariable("x")]),
+            functionApplication("g", [termVariable("y")]),
+            termVariable("z"),
+          ),
+        ),
+      ).toBe("f\\left(x\\right)[g\\left(y\\right)/z]");
+    });
+
+    it("(a + b)[c/x] — 二項演算は括弧で囲む", () => {
+      expect(
+        formatTermLaTeX(
+          termSubstitution(
+            binaryOperation("+", termVariable("a"), termVariable("b")),
+            termVariable("c"),
+            termVariable("x"),
+          ),
+        ),
+      ).toBe("\\left(a + b\\right)[c/x]");
     });
   });
 });

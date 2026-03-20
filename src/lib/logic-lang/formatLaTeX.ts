@@ -130,6 +130,7 @@ const termChildBP = (
     case "TermMetaVariable":
     case "Constant":
     case "FunctionApplication":
+    case "TermSubstitution":
       return { leftBP: 100, rightBP: 100 };
     /* v8 ignore next 5 */
     default: {
@@ -327,6 +328,16 @@ const formatTermInner = (t: Term): string => {
         ? wrapParens(formatTermInner(t.right))
         : formatTermInner(t.right);
       return `${leftStr satisfies string} ${opStr satisfies string} ${rightStr satisfies string}`;
+    }
+
+    case "TermSubstitution": {
+      const termStr = formatTermInner(t.term);
+      const replacementStr = formatTermInner(t.replacement);
+      const varStr = t.variable.name;
+      // t が二項演算なら括弧で囲む
+      const needsParens = t.term._tag === "BinaryOperation";
+      const wrappedTerm = needsParens ? wrapParens(termStr) : termStr;
+      return `${wrappedTerm satisfies string}[${replacementStr satisfies string}/${varStr satisfies string}]`;
     }
 
     /* v8 ignore next 5 */

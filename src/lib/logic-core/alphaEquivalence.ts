@@ -69,6 +69,14 @@ const alphaEqualTerm = (
         alphaEqualTerm(a.right, bBin.right, envA, envB)
       );
     }
+    case "TermSubstitution": {
+      const bSub = b as typeof a;
+      return (
+        a.variable.name === bSub.variable.name &&
+        alphaEqualTerm(a.term, bSub.term, envA, envB) &&
+        alphaEqualTerm(a.replacement, bSub.replacement, envA, envB)
+      );
+    }
   }
   /* v8 ignore start */
   a satisfies never;

@@ -10,6 +10,7 @@ import {
   functionApplication,
   binaryOperation,
   binaryOperators,
+  termSubstitution,
 } from "./term";
 import type { Term } from "./term";
 
@@ -214,6 +215,8 @@ describe("Term union type", () => {
           return "func";
         case "BinaryOperation":
           return "binop";
+        case "TermSubstitution":
+          return "subst";
       }
       t satisfies never;
     };
@@ -224,6 +227,52 @@ describe("Term union type", () => {
     expect(
       classify(binaryOperation("+", termVariable("x"), termVariable("y"))),
     ).toBe("binop");
+    expect(
+      classify(
+        termSubstitution(
+          termVariable("x"),
+          termVariable("y"),
+          termVariable("z"),
+        ),
+      ),
+    ).toBe("subst");
+  });
+});
+
+describe("TermSubstitution", () => {
+  it("creates a term substitution with correct fields", () => {
+    const x = termVariable("x");
+    const y = termVariable("y");
+    const z = termVariable("z");
+    const subst = termSubstitution(x, y, z);
+    expect(subst._tag).toBe("TermSubstitution");
+    expect(subst.term._tag).toBe("TermVariable");
+    expect(subst.replacement._tag).toBe("TermVariable");
+    expect(subst.variable._tag).toBe("TermVariable");
+    expect(subst.variable.name).toBe("z");
+  });
+
+  it("creates f(x)[g(y)/x] substitution", () => {
+    const x = termVariable("x");
+    const y = termVariable("y");
+    const fx = functionApplication("f", [x]);
+    const gy = functionApplication("g", [y]);
+    const subst = termSubstitution(fx, gy, x);
+    expect(subst._tag).toBe("TermSubstitution");
+    expect(subst.term._tag).toBe("FunctionApplication");
+    expect(subst.replacement._tag).toBe("FunctionApplication");
+    expect(subst.variable.name).toBe("x");
+  });
+
+  it("supports chained substitution x[y/x][z/y]", () => {
+    const x = termVariable("x");
+    const y = termVariable("y");
+    const z = termVariable("z");
+    const inner = termSubstitution(x, y, x);
+    const outer = termSubstitution(inner, z, y);
+    expect(outer._tag).toBe("TermSubstitution");
+    expect(outer.term._tag).toBe("TermSubstitution");
+    expect(outer.variable.name).toBe("y");
   });
 });
 

@@ -12,6 +12,7 @@ import {
   constant,
   functionApplication,
   binaryOperation,
+  termSubstitution,
 } from "./term";
 import {
   metaVariable,
@@ -66,6 +67,36 @@ describe("freeVariablesInTerm", () => {
   test("empty FunctionApplication", () => {
     const t = functionApplication("f", []);
     expect(freeVariablesInTerm(t)).toEqual(new Set());
+  });
+
+  test("TermSubstitution: x[y/x] → FV = {y} (x substituted by y)", () => {
+    // FV(x[y/x]) = (FV(x) - {x}) ∪ FV(y) = {} ∪ {y} = {y}
+    const t = termSubstitution(
+      termVariable("x"),
+      termVariable("y"),
+      termVariable("x"),
+    );
+    expect(freeVariablesInTerm(t)).toEqual(new Set(["y"]));
+  });
+
+  test("TermSubstitution: x[y/z] → FV = {x} (z not free in x)", () => {
+    // FV(x[y/z]) = (FV(x) - {z}) ∪ (z ∈ FV(x) ? FV(y) : ∅) = {x} ∪ ∅ = {x}
+    const t = termSubstitution(
+      termVariable("x"),
+      termVariable("y"),
+      termVariable("z"),
+    );
+    expect(freeVariablesInTerm(t)).toEqual(new Set(["x"]));
+  });
+
+  test("TermSubstitution: f(x, z)[a/x] → FV = {z, a}", () => {
+    // FV(f(x,z)[a/x]) = ({x,z} - {x}) ∪ FV(a) = {z} ∪ {a} = {z, a}
+    const t = termSubstitution(
+      functionApplication("f", [termVariable("x"), termVariable("z")]),
+      termVariable("a"),
+      termVariable("x"),
+    );
+    expect(freeVariablesInTerm(t)).toEqual(new Set(["z", "a"]));
   });
 });
 

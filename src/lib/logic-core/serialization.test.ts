@@ -18,6 +18,7 @@ import {
   constant,
   functionApplication,
   binaryOperation,
+  termSubstitution,
   equalFormula,
   equalTerm,
 } from "./index";
@@ -133,6 +134,42 @@ describe("Term serialization", () => {
         binaryOperation(
           "+",
           binaryOperation("*", termVariable("x"), constant("2")),
+          termVariable("y"),
+        ),
+      );
+    });
+  });
+
+  describe("TermSubstitution", () => {
+    it("ラウンドトリップ: x[y/z]", () => {
+      termRoundTrip(
+        termSubstitution(
+          termVariable("x"),
+          termVariable("y"),
+          termVariable("z"),
+        ),
+      );
+    });
+
+    it("ラウンドトリップ: f(x)[g(y)/z]", () => {
+      termRoundTrip(
+        termSubstitution(
+          functionApplication("f", [termVariable("x")]),
+          functionApplication("g", [termVariable("y")]),
+          termVariable("z"),
+        ),
+      );
+    });
+
+    it("ラウンドトリップ: チェーン置換 x[y/x][z/y]", () => {
+      termRoundTrip(
+        termSubstitution(
+          termSubstitution(
+            termVariable("x"),
+            termVariable("y"),
+            termVariable("x"),
+          ),
+          termVariable("z"),
           termVariable("y"),
         ),
       );

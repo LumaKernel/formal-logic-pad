@@ -1102,6 +1102,14 @@ export const matchFormulaPattern = (
         if (t.operator !== cBin.operator) return false;
         return matchTerm(t.left, cBin.left) && matchTerm(t.right, cBin.right);
       }
+      case "TermSubstitution": {
+        const cSub = c as typeof t;
+        return (
+          t.variable.name === cSub.variable.name &&
+          matchTerm(t.term, cSub.term) &&
+          matchTerm(t.replacement, cSub.replacement)
+        );
+      }
     }
     /* v8 ignore start */
     t satisfies never;
@@ -1877,6 +1885,13 @@ const inferTermReplacement = (
         if (t._tag !== "BinaryOperation") return false;
         if (b.operator !== t.operator) return false;
         return matchTerm(b.left, t.left) && matchTerm(b.right, t.right);
+      }
+      case "TermSubstitution": {
+        if (t._tag !== "TermSubstitution") return false;
+        if (b.variable.name !== t.variable.name) return false;
+        return (
+          matchTerm(b.term, t.term) && matchTerm(b.replacement, t.replacement)
+        );
       }
     }
     /* v8 ignore start */

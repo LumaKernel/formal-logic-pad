@@ -31,6 +31,20 @@ export const freeVariablesInTerm = (t: Term): ReadonlySet<string> => {
       }
       return result;
     }
+    case "TermSubstitution": {
+      // t[s/x] の自由変数 = (t の自由変数 - {x}) ∪ (x ∈ FV(t) ? FV(s) : ∅)
+      const termFV = freeVariablesInTerm(t.term);
+      const result = new Set<string>();
+      for (const v of termFV) {
+        if (v !== t.variable.name) result.add(v);
+      }
+      if (termFV.has(t.variable.name)) {
+        for (const v of freeVariablesInTerm(t.replacement)) {
+          result.add(v);
+        }
+      }
+      return result;
+    }
   }
   /* v8 ignore start */
   t satisfies never;
@@ -227,6 +241,17 @@ export const allVariableNamesInTerm = (t: Term): ReadonlySet<string> => {
       for (const v of allVariableNamesInTerm(t.right)) {
         result.add(v);
       }
+      return result;
+    }
+    case "TermSubstitution": {
+      const result = new Set<string>();
+      for (const v of allVariableNamesInTerm(t.term)) {
+        result.add(v);
+      }
+      for (const v of allVariableNamesInTerm(t.replacement)) {
+        result.add(v);
+      }
+      result.add(t.variable.name);
       return result;
     }
   }

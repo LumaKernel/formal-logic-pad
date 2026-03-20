@@ -144,6 +144,10 @@ const occursInTerm = (tmvKey: string, t: Term): boolean => {
       return t.args.some((arg) => occursInTerm(tmvKey, arg));
     case "BinaryOperation":
       return occursInTerm(tmvKey, t.left) || occursInTerm(tmvKey, t.right);
+    case "TermSubstitution":
+      return (
+        occursInTerm(tmvKey, t.term) || occursInTerm(tmvKey, t.replacement)
+      );
   }
   /* v8 ignore start */
   t satisfies never;
@@ -288,10 +292,18 @@ const decomposeTerm = (a: Term, b: Term): readonly Equation[] | null => {
     }
     return a.args.map((arg, i) => termEquation(arg, bFunc.args[i]));
   }
-  // BinaryOperation — fall-through for exhaustive narrowing
-  const bBin = b as typeof a;
-  if (a.operator !== bBin.operator) return null;
-  return [termEquation(a.left, bBin.left), termEquation(a.right, bBin.right)];
+  if (a._tag === "BinaryOperation") {
+    const bBin = b as typeof a;
+    if (a.operator !== bBin.operator) return null;
+    return [termEquation(a.left, bBin.left), termEquation(a.right, bBin.right)];
+  }
+  // TermSubstitution — fall-through for exhaustive narrowing
+  const bSub = b as typeof a;
+  if (a.variable.name !== bSub.variable.name) return null;
+  return [
+    termEquation(a.term, bSub.term),
+    termEquation(a.replacement, bSub.replacement),
+  ];
 };
 
 // ── Effect ベースの内部処理関数 ──────────────────────────────

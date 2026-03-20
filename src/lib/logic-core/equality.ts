@@ -34,6 +34,14 @@ export const equalTerm = (a: Term, b: Term): boolean => {
         equalTerm(a.right, bBin.right)
       );
     }
+    case "TermSubstitution": {
+      const bSub = b as typeof a;
+      return (
+        a.variable.name === bSub.variable.name &&
+        equalTerm(a.term, bSub.term) &&
+        equalTerm(a.replacement, bSub.replacement)
+      );
+    }
   }
   /* v8 ignore start */
   a satisfies never;

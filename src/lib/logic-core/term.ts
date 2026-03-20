@@ -67,18 +67,42 @@ export class BinaryOperation extends Schema.TaggedClass<BinaryOperation>()(
   },
 ) {}
 
+/**
+ * 項内の変数置換 τ₀[τ₁/x]
+ * 「項 term 中の自由変数 variable を項 replacement で置き換える」を表す構文ノード。
+ * FormulaSubstitution の項版。チェーン可能: τ[a/x][b/y]
+ *
+ * 例: f(x)[g(y)/x] — f(x) の中の x を g(y) に置き換え
+ */
+/* v8 ignore start — V8 coverage aggregation artifact: Schema.suspend lambda */
+export class TermSubstitution extends Schema.TaggedClass<TermSubstitution>()(
+  "TermSubstitution",
+  {
+    term: Schema.suspend((): Schema.Schema<Term> => Term),
+    replacement: Schema.suspend((): Schema.Schema<Term> => Term),
+    variable: TermVariable,
+  },
+) {}
+/* v8 ignore stop */
+
 // ── Term Union ───────────────────────────────────────────
 
 /**
  * 項（Term）の discriminated union。
  * _tag でパターンマッチ可能。
+ *
+ * TermSubstitution 追加時は以下のファイルの exhaustive switch を更新すること:
+ * - substitution.ts (2箇所), termVariableMatching.ts (2箇所), unification.ts (1箇所)
+ * - freeVariables.ts (2箇所), metaVariable.ts (1箇所), inferenceRule.ts (1箇所)
+ * - formulaHighlight.ts (2箇所), formatUnicode.ts (2箇所), formatLaTeX.ts (2箇所)
  */
 export type Term =
   | TermVariable
   | TermMetaVariable
   | Constant
   | FunctionApplication
-  | BinaryOperation;
+  | BinaryOperation
+  | TermSubstitution;
 
 export const Term = Schema.Union(
   TermVariable,
@@ -86,6 +110,7 @@ export const Term = Schema.Union(
   Constant,
   FunctionApplication,
   BinaryOperation,
+  TermSubstitution,
 );
 
 // ── ファクトリ関数 ───────────────────────────────────────
@@ -114,3 +139,9 @@ export const binaryOperation = (
   left: Term,
   right: Term,
 ): BinaryOperation => new BinaryOperation({ operator, left, right });
+
+export const termSubstitution = (
+  term: Term,
+  replacement: Term,
+  variable: TermVariable,
+): TermSubstitution => new TermSubstitution({ term, replacement, variable });

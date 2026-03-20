@@ -38,6 +38,11 @@ const termContainsBoundVariable = (
         termContainsBoundVariable(t.left, envT) ||
         termContainsBoundVariable(t.right, envT)
       );
+    case "TermSubstitution":
+      return (
+        termContainsBoundVariable(t.term, envT) ||
+        termContainsBoundVariable(t.replacement, envT)
+      );
   }
   /* v8 ignore start */
   t satisfies never;
@@ -106,6 +111,14 @@ const matchTermImpl = (
         s.operator === tBin.operator &&
         matchTermImpl(s.left, tBin.left, envS, envT, termSub) &&
         matchTermImpl(s.right, tBin.right, envS, envT, termSub)
+      );
+    }
+    case "TermSubstitution": {
+      const tSub = t as typeof s;
+      return (
+        matchTermImpl(s.term, tSub.term, envS, envT, termSub) &&
+        matchTermImpl(s.replacement, tSub.replacement, envS, envT, termSub) &&
+        s.variable.name === tSub.variable.name
       );
     }
   }
