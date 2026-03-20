@@ -28,6 +28,20 @@ const deductionSystemNameToReferenceEntryId: ReadonlyMap<
   ["Intuitionistic Logic", "system-intuitionistic"],
   ["Classical Logic (HK)", "system-classical"],
   ["Predicate Logic", "system-predicate"],
+  // 自然演繹
+  ["Natural Deduction NM", "guide-intro-natural-deduction"],
+  ["Natural Deduction NJ", "guide-intro-natural-deduction"],
+  ["Natural Deduction NK", "guide-intro-natural-deduction"],
+  // シーケント計算
+  ["Sequent Calculus LM", "guide-intro-sequent-calculus"],
+  ["Sequent Calculus LJ", "guide-intro-sequent-calculus"],
+  ["Sequent Calculus LK", "guide-intro-sequent-calculus"],
+  // タブロー
+  ["Tableau Calculus TAB", "guide-intro-tableau"],
+  ["Tableau Calculus TAB (Propositional)", "guide-intro-tableau"],
+  // 分析タブロー
+  ["Analytic Tableau", "concept-analytic-tableau"],
+  ["Analytic Tableau (Propositional)", "concept-analytic-tableau"],
   // 理論体系
   ["Peano Arithmetic", "theory-peano"],
   ["Peano Arithmetic (HK)", "theory-peano"],
