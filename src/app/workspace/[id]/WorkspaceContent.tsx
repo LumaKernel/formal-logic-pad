@@ -300,6 +300,7 @@ function useProofMessagesFromIntl(): ProofMessages {
 
       // Proof collection panel
       openCollection: t("openCollection"),
+      showCollectionPanel: t("showCollectionPanel"),
       collectionPanelTitle: t("collectionPanelTitle"),
       collectionEmpty: t("collectionEmpty"),
       collectionEntryDelete: t("collectionEntryDelete"),

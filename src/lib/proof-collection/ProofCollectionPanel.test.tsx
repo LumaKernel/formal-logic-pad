@@ -451,6 +451,70 @@ describe("ProofCollectionPanel", () => {
     });
   });
 
+  describe("非表示ボタン", () => {
+    it("onHide指定時に×ボタン(非表示)が表示される", () => {
+      const onHide = vi.fn();
+      renderWithAntd(
+        <ProofCollectionPanel
+          entries={[createTestEntry({ id: "e1" })]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onHide={onHide}
+          testId="panel"
+        />,
+      );
+      expect(screen.getByTestId("panel-hide")).toBeInTheDocument();
+    });
+
+    it("onHide未指定時は×ボタン(非表示)が表示されない", () => {
+      renderWithAntd(
+        <ProofCollectionPanel
+          entries={[createTestEntry({ id: "e1" })]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          testId="panel"
+        />,
+      );
+      expect(screen.queryByTestId("panel-hide")).toBeNull();
+    });
+
+    it("×ボタンクリックでonHideが呼ばれる", () => {
+      const onHide = vi.fn();
+      renderWithAntd(
+        <ProofCollectionPanel
+          entries={[createTestEntry({ id: "e1" })]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onHide={onHide}
+          testId="panel"
+        />,
+      );
+      fireEvent.click(screen.getByTestId("panel-hide"));
+      expect(onHide).toHaveBeenCalledTimes(1);
+    });
+
+    it("×ボタンでEnterキーを押すとonHideが呼ばれる", () => {
+      const onHide = vi.fn();
+      renderWithAntd(
+        <ProofCollectionPanel
+          entries={[createTestEntry({ id: "e1" })]}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          onHide={onHide}
+          testId="panel"
+        />,
+      );
+      fireEvent.keyDown(screen.getByTestId("panel-hide"), {
+        key: "Enter",
+      });
+      expect(onHide).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe("ヘッダー", () => {
     it("エントリ数を表示する", () => {
       const entries = [

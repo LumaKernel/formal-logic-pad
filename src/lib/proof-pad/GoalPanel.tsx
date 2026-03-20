@@ -831,7 +831,7 @@ export function GoalPanel({
             /* v8 ignore stop */
           }
         >
-          ×
+          −
         </span>
       </div>
       {data.items.map((item, i) => (

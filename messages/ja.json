@@ -278,6 +278,7 @@
     "zoomToSelection": "選択範囲にズーム (Shift+2)",
     "workspaceMenuAriaLabel": "ワークスペースメニュー",
     "openCollection": "マイコレクション",
+    "showCollectionPanel": "コレクションを表示",
     "collectionPanelTitle": "マイコレクション",
     "collectionEmpty": "保存された証明はまだありません",
     "collectionEntryDelete": "削除",

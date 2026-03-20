@@ -393,6 +393,8 @@ export interface ProofWorkspaceProps {
   readonly onDuplicateToFree?: () => void;
   /** 初期クリップボードデータ（テスト・ストーリー用） */
   readonly initialClipboardData?: ClipboardData;
+  /** コレクションパネルの初期表示状態（デフォルト: false = 非表示） */
+  readonly initialCollectionPanelVisible?: boolean;
   /** data-testid */
   readonly testId?: string;
   /** スクリプトエディタのi18nメッセージ */
@@ -1010,6 +1012,7 @@ export const ProofWorkspace = forwardRef<
     onRenameCollectionFolder,
     onDuplicateToFree,
     initialClipboardData,
+    initialCollectionPanelVisible = false,
     testId,
     scriptEditorMessages,
   }: ProofWorkspaceProps,
@@ -1256,6 +1259,11 @@ export const ProofWorkspace = forwardRef<
   // ⋮ メニュー（エクスポート/インポート/複製）
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  // コレクションパネル非表示状態（デフォルト: 非表示）
+  const [collectionPanelHidden, setCollectionPanelHidden] = useState(
+    !initialCollectionPanelVisible,
+  );
 
   // キャンバス空白部分コンテキストメニュー
   const [canvasMenuState, setCanvasMenuState] = useState<{
@@ -4286,6 +4294,15 @@ export const ProofWorkspace = forwardRef<
     msg.pasteIncompatibleStyle,
   ]);
 
+  const handleHideCollectionPanel = useCallback(() => {
+    setCollectionPanelHidden(true);
+  }, []);
+
+  const handleShowCollectionPanel = useCallback(() => {
+    setCollectionPanelHidden(false);
+    setCanvasMenuState((prev) => ({ ...prev, open: false }));
+  }, []);
+
   const handleCanvasMenuOpenScriptEditor = useCallback(() => {
     setScriptEditorNodeId(null);
     setScriptEditorInitialCode("");
@@ -6621,11 +6638,12 @@ export const ProofWorkspace = forwardRef<
           }
         />
       ) : null}
-      {/* コレクション管理パネル（常駐表示） */}
+      {/* コレクション管理パネル（非表示でなければ表示） */}
       {collectionEntries !== undefined &&
       onRenameCollectionEntry !== undefined &&
       onUpdateCollectionMemo !== undefined &&
-      onRemoveCollectionEntry !== undefined ? (
+      onRemoveCollectionEntry !== undefined &&
+      !collectionPanelHidden ? (
         <ProofCollectionPanel
           entries={collectionEntries}
           folders={collectionFolders ?? []}
@@ -6645,6 +6663,7 @@ export const ProofWorkspace = forwardRef<
             collectionPanelDrag.handleProps.onPointerDown
           }
           wasDraggedRef={collectionPanelDrag.wasDraggedRef}
+          onHide={handleHideCollectionPanel}
           testId={
             /* v8 ignore start -- V8集約アーティファクト */
             testId ? `${testId satisfies string}-collection-panel` : undefined
@@ -7214,6 +7233,30 @@ export const ProofWorkspace = forwardRef<
               /* v8 ignore stop */
             }
           />
+          {/* コレクション表示（非表示時のみ表示） */}
+          {collectionEntries !== undefined && collectionPanelHidden ? (
+            <>
+              {/* 区切り線 */}
+              <div
+                style={{
+                  borderTop:
+                    "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
+                  margin: "4px 0",
+                }}
+              />
+              <WorkspaceMenuItem
+                label={msg.showCollectionPanel}
+                onClick={handleShowCollectionPanel}
+                testId={
+                  /* v8 ignore start -- testId未指定パス: V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-canvas-menu-show-collection`
+                    : undefined
+                  /* v8 ignore stop */
+                }
+              />
+            </>
+          ) : null}
         </div>
       ) : null}
 

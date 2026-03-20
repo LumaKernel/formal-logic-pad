@@ -278,6 +278,7 @@
     "zoomToSelection": "Zoom to selection (Shift+2)",
     "workspaceMenuAriaLabel": "Workspace menu",
     "openCollection": "My Collection",
+    "showCollectionPanel": "Show Collection",
     "collectionPanelTitle": "My Collection",
     "collectionEmpty": "No saved proofs yet",
     "collectionEntryDelete": "Delete",

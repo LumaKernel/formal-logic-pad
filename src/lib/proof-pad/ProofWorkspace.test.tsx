@@ -5383,7 +5383,29 @@ describe("ProofWorkspace", () => {
         },
       ];
 
-    it("collectionEntries指定時にコレクションパネルが常駐表示される", () => {
+    it("collectionEntries指定時・initialCollectionPanelVisible=trueでコレクションパネルが表示される", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+
+      render(
+        <ProofWorkspace
+          system={lukasiewiczSystem}
+          workspace={ws}
+          collectionEntries={dummyCollectionEntries}
+          onRenameCollectionEntry={vi.fn()}
+          onUpdateCollectionMemo={vi.fn()}
+          onRemoveCollectionEntry={vi.fn()}
+          initialCollectionPanelVisible={true}
+          testId="workspace"
+        />,
+      );
+
+      // コレクションパネルが表示される
+      expect(
+        screen.getByTestId("workspace-collection-panel"),
+      ).toBeInTheDocument();
+    });
+
+    it("collectionEntries指定時・デフォルトではコレクションパネルが非表示", () => {
       const ws = createEmptyWorkspace(lukasiewiczSystem);
 
       render(
@@ -5398,10 +5420,10 @@ describe("ProofWorkspace", () => {
         />,
       );
 
-      // コレクションパネルが常駐表示される
+      // デフォルトではコレクションパネルが非表示
       expect(
-        screen.getByTestId("workspace-collection-panel"),
-      ).toBeInTheDocument();
+        screen.queryByTestId("workspace-collection-panel"),
+      ).not.toBeInTheDocument();
     });
 
     it("collectionEntries未指定時にコレクションパネルが表示されない", () => {
@@ -5427,6 +5449,7 @@ describe("ProofWorkspace", () => {
           onRenameCollectionEntry={vi.fn()}
           onUpdateCollectionMemo={vi.fn()}
           onRemoveCollectionEntry={vi.fn()}
+          initialCollectionPanelVisible={true}
           testId="workspace"
         />,
       );
@@ -5436,7 +5459,7 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("workspace-collection-panel"),
       ).toBeInTheDocument();
 
-      // ×ボタンで折り畳む
+      // −ボタンで折り畳む
       await user.click(
         screen.getByTestId("workspace-collection-panel-collapse"),
       );
@@ -5498,6 +5521,7 @@ describe("ProofWorkspace", () => {
             onRenameCollectionEntry={vi.fn()}
             onUpdateCollectionMemo={vi.fn()}
             onRemoveCollectionEntry={vi.fn()}
+            initialCollectionPanelVisible={true}
             testId="workspace"
           />
         );

@@ -90,6 +90,8 @@ export interface ProofCollectionPanelProps {
   readonly wasDraggedRef?: React.RefObject<boolean>;
   /** パネルDOM要素へのcallback ref（サイズ計測用） */
   readonly panelRef?: (node: HTMLElement | null) => void;
+  /** パネルを非表示にするコールバック（×ボタン用） */
+  readonly onHide?: () => void;
   /** data-testid */
   readonly testId?: string;
 }
@@ -742,6 +744,7 @@ export function ProofCollectionPanel({
   onDragHandlePointerDown,
   wasDraggedRef,
   panelRef,
+  onHide,
   testId,
 }: ProofCollectionPanelProps) {
   const [collapsed, setCollapsed] = useState(false);
@@ -752,6 +755,10 @@ export function ProofCollectionPanel({
   const handleToggle = useCallback(() => {
     setCollapsed((prev) => !prev);
   }, []);
+
+  const handleHide = useCallback(() => {
+    onHide?.();
+  }, [onHide]);
 
   const handleCollapsedClick = useCallback(() => {
     if (wasDraggedRef?.current !== true) {
@@ -973,24 +980,49 @@ export function ProofCollectionPanel({
             count: String(entries.length),
           })}
         </span>
-        <span
-          role="button"
-          tabIndex={0}
-          style={{ cursor: "pointer", fontSize: 14 }}
-          onClick={handleToggle}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              handleToggle();
+        <span style={{ display: "flex", gap: 4, alignItems: "center" }}>
+          {/* 最小化ボタン（折り畳み） */}
+          <span
+            role="button"
+            tabIndex={0}
+            style={{ cursor: "pointer", fontSize: 14, lineHeight: 1 }}
+            onClick={handleToggle}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleToggle();
+              }
+            }}
+            data-testid={
+              testId !== undefined
+                ? `${testId satisfies string}-collapse`
+                : undefined
             }
-          }}
-          data-testid={
-            testId !== undefined
-              ? `${testId satisfies string}-collapse`
-              : undefined
-          }
-        >
-          ×
+          >
+            −
+          </span>
+          {/* 非表示ボタン（ウィンドウを閉じる） */}
+          {onHide !== undefined ? (
+            <span
+              role="button"
+              tabIndex={0}
+              style={{ cursor: "pointer", fontSize: 14, lineHeight: 1 }}
+              onClick={handleHide}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleHide();
+                }
+              }}
+              data-testid={
+                testId !== undefined
+                  ? `${testId satisfies string}-hide`
+                  : undefined
+              }
+            >
+              ×
+            </span>
+          ) : null}
         </span>
       </div>
 

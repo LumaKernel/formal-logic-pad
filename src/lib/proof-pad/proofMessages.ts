@@ -330,6 +330,7 @@ export type ProofMessages = {
 
   // --- 証明コレクションパネル ---
   readonly openCollection: string;
+  readonly showCollectionPanel: string;
   readonly collectionPanelTitle: string;
   readonly collectionEmpty: string;
   readonly collectionEntryDelete: string;
@@ -623,6 +624,7 @@ export const defaultProofMessages: ProofMessages = {
 
   // Proof collection panel
   openCollection: "My Collection",
+  showCollectionPanel: "Show Collection",
   collectionPanelTitle: "My Collection",
   collectionEmpty: "No saved proofs yet",
   collectionEntryDelete: "Delete",
