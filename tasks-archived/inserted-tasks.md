@@ -96,3 +96,6 @@
   - CI 15秒制限対応: prop-08→prop-42, prop-15→prop-19, pred-adv-01→pred-adv-11に差替え。prop-22(propositional-advanced)は同一体系冗長のため削除
   - 追加修正: ModelAnswerDemo LargeProof prop-08→prop-07差替え、PropositionalDemo/PredicateDemo/EqualityDemo/ScAutoProofDemo新規追加
 - [x] minimapはそんなに遠くにはいけなくていいので、端によったときにグーっと広がる機能は必要ない。ノード全体が見える固定の視点+マージンというだけでいい — expandBoundingBoxWithViewport を削除、ノードのみのbounding box + 固定マージンに変更
+- [x] JAで日本語になってない
+  - Script Library, Find, Library, Save, Run, Stop, Play, Reset, Ready, API Ref
+  - scriptEditorMessages.ts作成、コンポーネントprops化、messages/ja.json追加、WorkspaceContent→WorkspacePageView→ProofWorkspace→ScriptEditorComponent伝搬パイプライン構築

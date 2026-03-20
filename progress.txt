@@ -16075,3 +16075,17 @@
   - prop-19は否定カテゴリ最小（4ステップ）、pred-adv-11は述語上級最小（26ステップ）
   - デモストーリーのModelAnswerWorkspaceパターンは buildModelAnswerForQuest + useState で簡潔に書ける
 ---
+
+## 2026-03-20 - i18n: スクリプトエディタUI文字列の日本語対応
+- `scriptEditorMessages.ts` 新規作成: ScriptEditorMessages型 + defaultScriptEditorMessages(英語) + getStatusMessage()
+- ScriptEditorComponent/ScriptLibraryPanel/ScriptApiReferencePanel: ハードコード文字列をmessages props経由に変更
+- messages/en.json, messages/ja.json: ScriptEditorセクション追加（28キー）
+- i18n伝搬パイプライン構築: WorkspaceContent(useScriptEditorMessagesFromIntl) → WorkspacePageView → ProofWorkspace → ScriptEditorComponent
+- `executionStatusLabel` を `getStatusMessage` にリファクタリング（メッセージオブジェクト受け取り方式）
+- scriptEditorMessages.test.ts 追加（9テスト）
+- 変更ファイル: scriptEditorMessages.ts(新), scriptEditorMessages.test.ts(新), ScriptEditorComponent.tsx, ScriptLibraryPanel.tsx, ScriptApiReferencePanel.tsx, scriptEditorLogic.ts, scriptEditorLogic.test.ts, index.ts, ProofWorkspace.tsx, WorkspacePageView.tsx, WorkspaceContent.tsx, en.json, ja.json
+- **今後のイテレーションへの学び:**
+  - ScriptEditorはProofMessages(Context)とは異なりpropsベースのi18nパターンを使用（1箇所でしか使われないため）
+  - i18nパイプラインは WorkspaceContent(hooks) → WorkspacePageView(props) → ProofWorkspace(props) → ScriptEditorComponent(props) の4段
+  - getStatusMessage は executionStatusLabel のメッセージ対応版で、exhaustive if-chain パターン
+---
