@@ -39,6 +39,7 @@ import {
   applyScRuleAndConnect,
 } from "./workspaceState";
 import type { WorkspaceState } from "./workspaceState";
+import type { GoalQuestInfo } from "./goalPanelLogic";
 
 // --- ステートフルラッパー ---
 
@@ -406,7 +407,11 @@ export const GoalNotAchieved: Story = {
 
 // --- クエストモードデモ ---
 
-function QuestModeWorkspace() {
+function QuestModeWorkspace({
+  questInfo,
+}: {
+  readonly questInfo?: GoalQuestInfo;
+}) {
   const initial = createQuestWorkspace(lukasiewiczSystem, [
     {
       formulaText: "phi -> (psi -> phi)",
@@ -430,6 +435,7 @@ function QuestModeWorkspace() {
         workspace={workspace}
         onWorkspaceChange={handleChange}
         testId="workspace"
+        questInfo={questInfo}
       />
     </div>
   );
@@ -450,6 +456,55 @@ export const QuestMode: Story = {
     await expect(
       canvas.queryByTestId("proof-node-node-1"),
     ).not.toBeInTheDocument();
+  },
+};
+
+const sampleQuestInfo: GoalQuestInfo = {
+  description:
+    "この問題では、公理A1とMPのみを使ってK公理を証明します。MPの適用方法を学びましょう。",
+  hints: ["A1公理を2回使います", "φ→(ψ→φ) の形に注目してみましょう"],
+  learningPoint:
+    "**K combinator** は最も基本的な公理の一つです。A1公理そのものがK公理の形をしています。",
+};
+
+/** クエストモード+クエスト詳細: バッジクリックで詳細ポップオーバーが表示される */
+export const QuestDetailPopover: Story = {
+  render: () => <QuestModeWorkspace questInfo={sampleQuestInfo} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // クエストバッジが表示される
+    const badge = canvas.getByTestId("workspace-quest-badge");
+    await expect(badge).toBeInTheDocument();
+
+    // バッジはボタンとしてレンダリングされる（questInfo がある場合）
+    await expect(badge.tagName).toBe("BUTTON");
+
+    // 初期状態ではポップオーバーは非表示
+    await expect(
+      canvas.queryByTestId("workspace-quest-detail"),
+    ).not.toBeInTheDocument();
+
+    // バッジをクリック → ポップオーバーが表示される
+    await userEvent.click(badge);
+    await waitFor(() => {
+      expect(canvas.getByTestId("workspace-quest-detail")).toBeInTheDocument();
+    });
+
+    // ポップオーバーにクエスト情報が表示される
+    const detail = canvas.getByTestId("workspace-quest-detail");
+    await expect(detail.textContent).toContain("K公理");
+    await expect(detail.textContent).toContain("K combinator");
+    await expect(detail.textContent).toContain("2");
+
+    // もう一度バッジをクリック → ポップオーバーが閉じる
+    await userEvent.click(badge);
+    await waitFor(() => {
+      expect(
+        canvas.queryByTestId("workspace-quest-detail"),
+      ).not.toBeInTheDocument();
+    });
   },
 };
 

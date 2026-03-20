@@ -121,6 +121,7 @@
     "cancel": "キャンセル",
     "logicSystemLabel": "論理体系:",
     "questBadge": "クエスト",
+    "questDetailHintsCount": "ヒント{count}件",
     "convertToFree": "自由帳に変換",
     "duplicateToFree": "自由帳として複製",
     "treeLayoutTopToBottom": "ツリー整列（上→下）",

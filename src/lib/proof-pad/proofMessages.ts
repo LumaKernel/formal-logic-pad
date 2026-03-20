@@ -93,6 +93,8 @@ export type ProofMessages = {
   // --- ヘッダー ---
   readonly logicSystemLabel: string;
   readonly questBadge: string;
+  /** クエスト詳細ポップオーバーのヒント数テキスト */
+  readonly questDetailHintsCount: string;
   readonly convertToFree: string;
   readonly duplicateToFree: string;
   readonly treeLayoutTopToBottom: string;
@@ -405,6 +407,7 @@ export const defaultProofMessages: ProofMessages = {
   // Header
   logicSystemLabel: "Logic System:",
   questBadge: "Quest",
+  questDetailHintsCount: "{count} hint(s) available",
   convertToFree: "Convert to Free",
   duplicateToFree: "Duplicate as Free",
   treeLayoutTopToBottom: "Tree Layout (Top\u2192Bottom)",

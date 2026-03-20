@@ -121,6 +121,7 @@
     "cancel": "Cancel",
     "logicSystemLabel": "Logic System:",
     "questBadge": "Quest",
+    "questDetailHintsCount": "{count} hint(s) available",
     "convertToFree": "Convert to Free",
     "duplicateToFree": "Duplicate as Free",
     "treeLayoutTopToBottom": "Tree Layout (Top\u2192Bottom)",

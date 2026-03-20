@@ -111,6 +111,7 @@ import {
   type GoalQuestInfo,
 } from "./goalPanelLogic";
 import { GoalPanel } from "./GoalPanel";
+import { InlineMarkdown } from "../reference/InlineMarkdown";
 import type { PanelPosition, PanelRect } from "./panelPositionLogic";
 import { usePanelDrag } from "./usePanelDrag";
 import { usePanelSize } from "./usePanelSize";
@@ -743,14 +744,58 @@ const proofCompleteBannerStyle: CSSProperties = {
   animation: "stamp-appear 0.4s cubic-bezier(0.22, 1, 0.36, 1) both",
 };
 
-const questModeBadgeStyle = {
+const questModeBadgeStyle: Readonly<CSSProperties> = {
   padding: "2px 8px",
   background: "var(--color-warning-bg, rgba(255,215,0,0.3))",
   borderRadius: 4,
-  fontWeight: 600 as const,
+  fontWeight: 600,
   fontSize: 12,
   color: "var(--color-warning, #b8860b)",
   border: "1px solid var(--color-warning-border, rgba(255,215,0,0.5))",
+};
+
+const questBadgeClickableStyle: Readonly<CSSProperties> = {
+  ...questModeBadgeStyle,
+  cursor: "pointer",
+  transition: "background-color 0.15s ease",
+};
+
+const questDetailPopoverStyle: Readonly<CSSProperties> = {
+  position: "absolute",
+  top: "100%",
+  left: 0,
+  marginTop: 4,
+  zIndex: 1600,
+  width: 280,
+  maxWidth: "90vw",
+  backgroundColor: "var(--color-surface, #ffffff)",
+  border: "1px solid var(--color-border, #e2e8f0)",
+  borderRadius: 8,
+  boxShadow: "0 4px 16px rgba(0, 0, 0, 0.12)",
+  padding: "12px 16px",
+  fontFamily: "var(--font-ui)",
+  fontSize: 13,
+  color: "var(--color-text-primary, #171717)",
+  fontWeight: 400,
+};
+
+const questDetailSectionStyle: Readonly<CSSProperties> = {
+  marginBottom: 8,
+};
+
+const questDetailSectionHeaderStyle: Readonly<CSSProperties> = {
+  fontWeight: 700,
+  fontSize: 10,
+  textTransform: "uppercase",
+  letterSpacing: 0.5,
+  color: "var(--color-text-secondary, #888)",
+  marginBottom: 4,
+};
+
+const questDetailTextStyle: Readonly<CSSProperties> = {
+  fontSize: 12,
+  lineHeight: "1.4",
+  color: "var(--color-text-primary, #333)",
 };
 
 const selectionBannerStyle = {
@@ -1181,6 +1226,11 @@ export const ProofWorkspace = forwardRef<
   });
   const canvasMenuRef = useRef<HTMLDivElement>(null);
 
+  // クエスト詳細ポップオーバー
+  const [questDetailOpen, setQuestDetailOpen] = useState(false);
+  const questDetailRef = useRef<HTMLDivElement>(null);
+  const questBadgeRef = useRef<HTMLButtonElement>(null);
+
   // コンテキストメニューの画面端クランプ
   const zeroPoint: Point = useMemo(() => ({ x: 0, y: 0 }), []);
   useClampedMenuPosition(
@@ -1195,6 +1245,32 @@ export const ProofWorkspace = forwardRef<
     canvasMenuRef,
     canvasMenuState.open ? canvasMenuState.screenPosition : zeroPoint,
   );
+
+  // クエスト詳細ポップオーバーの外側クリック・Escape で閉じる
+  useEffect(() => {
+    if (!questDetailOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        questDetailRef.current !== null &&
+        !questDetailRef.current.contains(e.target as Node) &&
+        questBadgeRef.current !== null &&
+        !questBadgeRef.current.contains(e.target as Node)
+      ) {
+        setQuestDetailOpen(false);
+      }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setQuestDetailOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [questDetailOpen]);
 
   // コンテナサイズ（Viewport Culling用）
   const [containerSize, setContainerSize] = useState<Size>({
@@ -5122,7 +5198,73 @@ export const ProofWorkspace = forwardRef<
           </span>
         )}
         {workspace.mode === "quest" ? (
-          <>
+          questInfo !== undefined ? (
+            <span style={{ position: "relative" }}>
+              <button
+                ref={questBadgeRef}
+                type="button"
+                style={questBadgeClickableStyle}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setQuestDetailOpen((prev) => !prev);
+                }}
+                data-testid={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId ? `${testId satisfies string}-quest-badge` : undefined
+                  /* v8 ignore stop */
+                }
+              >
+                {msg.questBadge}
+              </button>
+              {questDetailOpen ? (
+                <div
+                  ref={questDetailRef}
+                  style={questDetailPopoverStyle}
+                  data-testid={
+                    /* v8 ignore start -- V8集約アーティファクト */
+                    testId
+                      ? `${testId satisfies string}-quest-detail`
+                      : undefined
+                    /* v8 ignore stop */
+                  }
+                  onClick={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
+                >
+                  {/* 解説 */}
+                  <div style={questDetailSectionStyle}>
+                    <div style={questDetailSectionHeaderStyle}>
+                      {msg.goalDetailDescription}
+                    </div>
+                    <div style={questDetailTextStyle}>
+                      <InlineMarkdown text={questInfo.description} />
+                    </div>
+                  </div>
+                  {/* ヒント */}
+                  {questInfo.hints.length > 0 ? (
+                    <div style={questDetailSectionStyle}>
+                      <div style={questDetailSectionHeaderStyle}>
+                        {msg.goalDetailHints}
+                      </div>
+                      <div style={questDetailTextStyle}>
+                        {formatMessage(msg.questDetailHintsCount, {
+                          count: String(questInfo.hints.length),
+                        })}
+                      </div>
+                    </div>
+                  ) : null}
+                  {/* 学習ポイント */}
+                  <div style={{ ...questDetailSectionStyle, marginBottom: 0 }}>
+                    <div style={questDetailSectionHeaderStyle}>
+                      {msg.goalDetailLearningPoint}
+                    </div>
+                    <div style={questDetailTextStyle}>
+                      <InlineMarkdown text={questInfo.learningPoint} />
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </span>
+          ) : (
             <span
               style={questModeBadgeStyle}
               data-testid={
@@ -5133,7 +5275,7 @@ export const ProofWorkspace = forwardRef<
             >
               {msg.questBadge}
             </span>
-          </>
+          )
         ) : null}
         {isHilbertStyle ? (
           <>

@@ -119,6 +119,7 @@ function useProofMessagesFromIntl(): ProofMessages {
       cancel: t("cancel"),
       logicSystemLabel: t("logicSystemLabel"),
       questBadge: t("questBadge"),
+      questDetailHintsCount: t("questDetailHintsCount"),
       convertToFree: t("convertToFree"),
       duplicateToFree: t("duplicateToFree"),
       treeLayoutTopToBottom: t("treeLayoutTopToBottom"),
