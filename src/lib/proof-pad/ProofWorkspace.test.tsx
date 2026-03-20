@@ -3635,13 +3635,11 @@ describe("ProofWorkspace", () => {
       // No Add/Remove buttons exist
       expect(screen.queryByTestId("workspace-subst-add-entry")).toBeNull();
 
-      // Click display to enter edit mode, then type (FormulaEditor: click-to-edit)
-      await user.click(screen.getByTestId("workspace-subst-value-0-display"));
+      // forceEditMode: 入力欄は最初から編集モード（クリック不要）
       await user.type(
         screen.getByTestId("workspace-subst-value-0-input-input"),
         "alpha",
       );
-      await user.click(screen.getByTestId("workspace-subst-value-1-display"));
       await user.type(
         screen.getByTestId("workspace-subst-value-1-input-input"),
         "beta",
@@ -3681,8 +3679,7 @@ describe("ProofWorkspace", () => {
         screen.getByTestId("workspace-subst-prompt-banner"),
       ).toBeInTheDocument();
 
-      // Click display to enter edit mode, then press Escape (FormulaEditor: click-to-edit)
-      await user.click(screen.getByTestId("workspace-subst-value-0-display"));
+      // forceEditMode: 入力欄は最初から編集モード（Escapeでバナーが閉じる）
       await user.keyboard("{Escape}");
 
       // Banner should disappear
@@ -3766,16 +3763,15 @@ describe("ProofWorkspace", () => {
       const metaVarLabel1 = screen.getByTestId("workspace-subst-metavar-1");
       expect(metaVarLabel1).toHaveTextContent("τ");
 
-      // Verify placeholders: formula uses default message, term uses default message
-      // FormulaEditor/TermEditor display mode shows placeholder text
-      const placeholder0 = screen.getByTestId(
-        "workspace-subst-value-0-placeholder",
+      // forceEditMode: 入力欄は最初から編集モード。placeholderはinput要素のattributeで確認
+      const input0 = screen.getByTestId(
+        "workspace-subst-value-0-input-input",
       );
-      expect(placeholder0).toHaveTextContent("Enter formula");
-      const placeholder1 = screen.getByTestId(
-        "workspace-subst-value-1-placeholder",
+      expect(input0).toHaveAttribute("placeholder", "Enter formula");
+      const input1 = screen.getByTestId(
+        "workspace-subst-value-1-input-input",
       );
-      expect(placeholder1).toHaveTextContent("Enter term");
+      expect(input1).toHaveAttribute("placeholder", "Enter term");
     });
   });
 

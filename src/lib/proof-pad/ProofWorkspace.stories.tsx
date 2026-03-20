@@ -1329,10 +1329,7 @@ export const SubstitutionContextMenu: Story = {
     const metaVarLabel = canvas.getByTestId("workspace-subst-metavar-0");
     await expect(metaVarLabel).toHaveTextContent("φ");
 
-    // FormulaEditor: click display to enter edit mode, then type
-    await userEvent.click(
-      canvas.getByTestId("workspace-subst-value-0-display"),
-    );
+    // forceEditMode: 入力欄は最初から編集モード（click display不要）
     await userEvent.type(
       canvas.getByTestId("workspace-subst-value-0-input-input"),
       "alpha",

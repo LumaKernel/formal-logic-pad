@@ -711,6 +711,13 @@ const substKindLabelStyle = {
   color: "rgba(255,255,255,0.7)",
 };
 
+/** 代入入力欄の入力要素スタイル: 白背景+黒点線でクリック可能性を常にアピール（EdgeParameterPopoverと統一） */
+const substInputStyle: Readonly<CSSProperties> = {
+  backgroundColor: "#ffffff",
+  borderStyle: "dotted",
+  borderColor: "#333333",
+};
+
 // --- ゴール関連スタイル ---
 
 const proofCompleteBannerStyle: CSSProperties = {
@@ -5670,7 +5677,10 @@ export const ProofWorkspace = forwardRef<
                   placeholder={msg.substFormulaPlaceholder}
                   fontSize={12}
                   style={{ flex: 1, minWidth: 0, width: 120 }}
+                  inputStyle={substInputStyle}
                   onOpenSyntaxHelp={onOpenSyntaxHelp}
+                  editTrigger="none"
+                  forceEditMode={true}
                   testId={
                     /* v8 ignore start -- V8集約アーティファクト */
                     testId
@@ -5692,7 +5702,10 @@ export const ProofWorkspace = forwardRef<
                   placeholder={msg.substTermPlaceholder}
                   fontSize={12}
                   style={{ flex: 1, minWidth: 0, width: 120 }}
+                  inputStyle={substInputStyle}
                   onOpenSyntaxHelp={onOpenSyntaxHelp}
+                  editTrigger="none"
+                  forceEditMode={true}
                   testId={
                     /* v8 ignore start -- V8集約アーティファクト */
                     testId

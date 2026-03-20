@@ -1359,16 +1359,14 @@ export const QuestCompletePeano07ModelAnswer: Story = {
 
 /**
  * 代入プロンプトで FormulaEditor にDSLテキストを入力するヘルパー。
- * click display → type into input → (FormulaEditorの値が更新される)
+ * forceEditMode: 入力欄は最初から編集モード（click display不要）
  */
 async function typeSubstitutionValue(
   canvas: ReturnType<typeof within>,
   index: number,
   dslText: string,
 ) {
-  const displayTestId = `workspace-subst-value-${String(index) satisfies string}-display`;
   const inputTestId = `workspace-subst-value-${String(index) satisfies string}-input-input`;
-  await userEvent.click(canvas.getByTestId(displayTestId));
   await userEvent.type(canvas.getByTestId(inputTestId), dslText);
 }
 
