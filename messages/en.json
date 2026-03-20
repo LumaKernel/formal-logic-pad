@@ -93,7 +93,7 @@
     "genErrorVariableEmpty": "Enter a variable name",
     "genErrorNotEnabled": "Gen is not enabled in this logic system",
     "genErrorGeneric": "Generalization failed",
-    "genBannerSelectPremise": "Click the premise (\u03C6) to generalize over {variableName}",
+    "genBannerSelectPremise": "Click the premise (φ) to apply Gen",
     "goalLabel": "Goal:",
     "goalPlaceholder": "e.g. phi -> phi",
     "goalProved": "Proved!",

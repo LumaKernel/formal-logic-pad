@@ -91,7 +91,7 @@ function useProofMessagesFromIntl(): ProofMessages {
       genErrorVariableEmpty: t("genErrorVariableEmpty"),
       genErrorNotEnabled: t("genErrorNotEnabled"),
       genErrorGeneric: t("genErrorGeneric"),
-      genBannerSelectPremise: String(t.raw("genBannerSelectPremise")),
+      genBannerSelectPremise: t("genBannerSelectPremise"),
       goalLabel: t("goalLabel"),
       goalPlaceholder: t("goalPlaceholder"),
       goalProved: t("goalProved"),

@@ -93,7 +93,7 @@
     "genErrorVariableEmpty": "変数名を入力してください",
     "genErrorNotEnabled": "この論理体系では Gen は有効ではありません",
     "genErrorGeneric": "汎化に失敗しました",
-    "genBannerSelectPremise": "前提 (\u03C6) をクリックして {variableName} で汎化します",
+    "genBannerSelectPremise": "前提 (φ) をクリックして汎化します",
     "goalLabel": "ゴール:",
     "goalPlaceholder": "例: phi -> phi",
     "goalProved": "証明済み！",
