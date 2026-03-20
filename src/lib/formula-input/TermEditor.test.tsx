@@ -18,6 +18,7 @@ function EditorWrapper({
   fontSize,
   editTrigger,
   onOpenSyntaxHelp,
+  onOpenExpanded,
   forceEditMode,
 }: {
   readonly initialValue?: string;
@@ -29,6 +30,7 @@ function EditorWrapper({
   readonly fontSize?: number | string;
   readonly editTrigger?: EditTrigger;
   readonly onOpenSyntaxHelp?: () => void;
+  readonly onOpenExpanded?: () => void;
   readonly forceEditMode?: boolean;
 }) {
   const [value, setValue] = useState(initialValue);
@@ -44,6 +46,7 @@ function EditorWrapper({
       fontSize={fontSize}
       editTrigger={editTrigger}
       onOpenSyntaxHelp={onOpenSyntaxHelp}
+      onOpenExpanded={onOpenExpanded}
       forceEditMode={forceEditMode}
     />
   );
@@ -538,5 +541,109 @@ describe("TermEditor - dblclick空valueのaria-label", () => {
     expect(display.getAttribute("aria-label")).toContain(
       "ダブルクリックして項を入力",
     );
+  });
+});
+
+// --- 拡大ボタンのテスト ---
+
+describe("TermEditor - 拡大ボタン", () => {
+  it("編集モードで拡大ボタンが表示される", async () => {
+    render(<EditorWrapper initialValue="f(x)" />);
+
+    // 表示モードでは拡大ボタンは非表示
+    expect(screen.queryByTestId("editor-expand")).not.toBeInTheDocument();
+
+    // 編集モードに切替
+    fireEvent.click(screen.getByTestId("editor-display"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-expand")).toBeInTheDocument();
+    });
+    expect(screen.getByTestId("editor-expand")).toHaveAttribute(
+      "aria-label",
+      "拡大編集",
+    );
+  });
+
+  it("拡大ボタンクリックでonOpenExpandedが呼ばれる", async () => {
+    const handleExpand = vi.fn();
+    render(<EditorWrapper initialValue="f(x)" onOpenExpanded={handleExpand} />);
+
+    fireEvent.click(screen.getByTestId("editor-display"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-expand")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("editor-expand"));
+    expect(handleExpand).toHaveBeenCalledOnce();
+  });
+
+  it("onOpenExpanded未指定時、拡大ボタンクリックで内蔵モーダルが開く", async () => {
+    render(<EditorWrapper initialValue="f(x)" />);
+
+    fireEvent.click(screen.getByTestId("editor-display"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-expand")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("editor-expand"));
+    expect(screen.getByTestId("editor-expanded")).toBeInTheDocument();
+  });
+
+  it("内蔵モーダルを閉じることができる", async () => {
+    render(<EditorWrapper initialValue="f(x)" />);
+
+    fireEvent.click(screen.getByTestId("editor-display"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-expand")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("editor-expand"));
+    expect(screen.getByTestId("editor-expanded")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("editor-expanded-close"));
+    expect(screen.queryByTestId("editor-expanded")).not.toBeInTheDocument();
+  });
+
+  it("複数行テキストでクリックするとonOpenExpandedが自動で呼ばれる", () => {
+    const handleExpand = vi.fn();
+    render(
+      <EditorWrapper
+        initialValue={"f(x)\ng(y)"}
+        onOpenExpanded={handleExpand}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("editor-display"));
+    expect(handleExpand).toHaveBeenCalledOnce();
+  });
+
+  it("複数行テキストでonOpenExpanded未指定なら内蔵拡大モーダルが開く", () => {
+    render(<EditorWrapper initialValue={"f(x)\ng(y)"} />);
+
+    fireEvent.click(screen.getByTestId("editor-display"));
+    expect(screen.getByTestId("editor-expanded")).toBeInTheDocument();
+  });
+
+  it("複数行テキストでforceEditModeでもonOpenExpandedが自動で呼ばれる", async () => {
+    const handleExpand = vi.fn();
+    const { rerender } = render(
+      <EditorWrapper
+        initialValue={"f(x)\ng(y)"}
+        onOpenExpanded={handleExpand}
+      />,
+    );
+
+    rerender(
+      <EditorWrapper
+        initialValue={"f(x)\ng(y)"}
+        onOpenExpanded={handleExpand}
+        forceEditMode
+      />,
+    );
+
+    await waitFor(() => {
+      expect(handleExpand).toHaveBeenCalledOnce();
+    });
   });
 });

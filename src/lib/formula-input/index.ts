@@ -16,6 +16,8 @@ export { TermEditor } from "./TermEditor";
 export type { TermEditorProps } from "./TermEditor";
 export { FormulaExpandedEditor } from "./FormulaExpandedEditor";
 export type { FormulaExpandedEditorProps } from "./FormulaExpandedEditor";
+export { TermExpandedEditor } from "./TermExpandedEditor";
+export type { TermExpandedEditorProps } from "./TermExpandedEditor";
 export { canExitEditMode, computeExitAction } from "./editorLogic";
 export type {
   DisplayRenderer,

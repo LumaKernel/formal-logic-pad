@@ -13,6 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Term } from "../logic-core/term";
 import { formatTerm } from "../logic-lang/formatUnicode";
 import { TermDisplay } from "./TermDisplay";
+import { TermExpandedEditor } from "./TermExpandedEditor";
 import { computeTermParseState, TermInput } from "./TermInput";
 import { TermKaTeX } from "./TermKaTeX";
 import type { DisplayRenderer, EditTrigger, EditorMode } from "./editorLogic";
@@ -43,6 +44,8 @@ export interface TermEditorProps {
   readonly editTrigger?: EditTrigger;
   /** 構文ヘルプを開くコールバック（指定時に編集モードで?ボタンを表示） */
   readonly onOpenSyntaxHelp?: () => void;
+  /** 拡大エディタを開くコールバック（指定時は外部ハンドラを使用、未指定時は内蔵モーダルを表示） */
+  readonly onOpenExpanded?: () => void;
   /** 外部から編集モードを強制的に開始するフラグ */
   readonly forceEditMode?: boolean;
   /** 入力要素に追加適用するスタイル（背景色・ボーダーなどの上書き用） */
@@ -91,6 +94,24 @@ const editContainerStyle: CSSProperties = {
   transition: "opacity 0.15s ease-in-out",
 };
 
+const expandButtonStyle: CSSProperties = {
+  flexShrink: 0,
+  width: 18,
+  height: 18,
+  borderRadius: 4,
+  border: "1px solid currentColor",
+  backgroundColor: "transparent",
+  color: "inherit",
+  fontSize: 11,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 0,
+  opacity: 0.6,
+  marginTop: 6,
+};
+
 const syntaxHelpButtonStyle: CSSProperties = {
   flexShrink: 0,
   width: 18,
@@ -124,11 +145,13 @@ export function TermEditor({
   style,
   editTrigger = "click",
   onOpenSyntaxHelp,
+  onOpenExpanded,
   forceEditMode,
   inputStyle,
   testId,
 }: TermEditorProps) {
   const [mode, setModeInternal] = useState<EditorMode>("display");
+  const [isBuiltinExpandedOpen, setIsBuiltinExpandedOpen] = useState(false);
 
   const setMode = useCallback(
     (nextMode: EditorMode) => {
@@ -150,8 +173,18 @@ export function TermEditor({
   // --- イベントハンドラ ---
 
   const enterEditMode = useCallback(() => {
+    // 複数行テキストは一行インライン編集に適さないため、
+    // 拡大エディタに遷移する（外部ハンドラ or 内蔵モーダル）
+    if (value.includes("\n")) {
+      if (onOpenExpanded !== undefined) {
+        onOpenExpanded();
+      } else {
+        setIsBuiltinExpandedOpen(true);
+      }
+      return;
+    }
     setMode("editing");
-  }, [setMode]);
+  }, [setMode, value, onOpenExpanded]);
 
   // 外部から編集モードを強制開始
   useEffect(() => {
@@ -193,6 +226,30 @@ export function TermEditor({
     },
     [mode],
   );
+
+  /* v8 ignore start -- mouseDown handler prevents blur; not triggerable in JSDOM */
+  const handleExpandMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+  /* v8 ignore stop */
+
+  const handleExpandClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (onOpenExpanded !== undefined) {
+        onOpenExpanded();
+      } else {
+        setIsBuiltinExpandedOpen(true);
+      }
+    },
+    [onOpenExpanded],
+  );
+
+  const handleBuiltinExpandedClose = useCallback(() => {
+    setIsBuiltinExpandedOpen(false);
+  }, []);
 
   const handleSyntaxHelpMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -324,6 +381,18 @@ export function TermEditor({
               showPreview={false}
             />
           </div>
+          <button
+            type="button"
+            style={expandButtonStyle}
+            onMouseDown={handleExpandMouseDown}
+            onClick={handleExpandClick}
+            aria-label="拡大編集"
+            data-testid={
+              testId ? `${testId satisfies string}-expand` : undefined
+            }
+          >
+            ⤢
+          </button>
           {onOpenSyntaxHelp !== undefined && (
             <button
               type="button"
@@ -339,6 +408,17 @@ export function TermEditor({
             </button>
           )}
         </div>
+      )}
+      {isBuiltinExpandedOpen && (
+        <TermExpandedEditor
+          value={value}
+          onChange={onChange}
+          onParsed={onParsed}
+          onClose={handleBuiltinExpandedClose}
+          onOpenSyntaxHelp={onOpenSyntaxHelp}
+          placeholder={placeholder}
+          testId={testId ? `${testId satisfies string}-expanded` : undefined}
+        />
       )}
     </div>
   );
