@@ -221,7 +221,10 @@ import { findEntryById } from "../reference/referenceEntry";
 import { ReferencePopover } from "../reference/ReferencePopover";
 import { getInferenceRuleReferenceEntryId } from "./inferenceRuleReferenceLogic";
 import { getDeductionSystemReferenceEntryId } from "./deductionSystemReferenceLogic";
-import { findInferenceEdgeForConclusionNode } from "./inferenceEdge";
+import {
+  findInferenceEdgeForConclusionNode,
+  isTabInferenceEdge,
+} from "./inferenceEdge";
 import type { ProofSaveParams } from "../proof-collection/proofCollectionState";
 import type { ProofEntry } from "../proof-collection/proofCollectionState";
 import { prepareProofSaveParams } from "../proof-collection/proofCollectionState";
@@ -236,6 +239,8 @@ import { EdgeParameterPopover } from "./EdgeParameterPopover";
 import { RulePromptModal } from "./RulePromptModal";
 import type { EdgeBadgeEditState } from "./edgeBadgeEditLogic";
 import { createEditStateFromEdge } from "./edgeBadgeEditLogic";
+import type { TabEdgeDetailData } from "./tabEdgeDetailLogic";
+import { createTabEdgeDetailData } from "./tabEdgeDetailLogic";
 import { CutEliminationStepper } from "./CutEliminationStepper";
 import { ScProofTreePanel } from "./ScProofTreePanel";
 import { NdProofTreePanel } from "./NdProofTreePanel";
@@ -796,6 +801,44 @@ const questDetailTextStyle: Readonly<CSSProperties> = {
   fontSize: 12,
   lineHeight: "1.4",
   color: "var(--color-text-primary, #333)",
+};
+
+const tabDetailPopoverStyle: Readonly<CSSProperties> = {
+  backgroundColor: "var(--color-surface, #ffffff)",
+  border: "1px solid var(--color-border, #e2e8f0)",
+  borderRadius: 8,
+  boxShadow: "0 4px 16px rgba(0, 0, 0, 0.12)",
+  padding: "12px 16px",
+  fontFamily: "var(--font-ui)",
+  fontSize: 13,
+  color: "var(--color-text-primary, #171717)",
+  fontWeight: 400,
+  minWidth: 200,
+  maxWidth: 320,
+};
+
+const tabDetailHeaderStyle: Readonly<CSSProperties> = {
+  fontWeight: 700,
+  fontSize: 14,
+  marginBottom: 8,
+  color: "var(--color-text-primary, #171717)",
+};
+
+const tabDetailEntryLabelStyle: Readonly<CSSProperties> = {
+  fontWeight: 700,
+  fontSize: 10,
+  textTransform: "uppercase",
+  letterSpacing: 0.5,
+  color: "var(--color-text-secondary, #888)",
+  marginBottom: 2,
+};
+
+const tabDetailEntryValueStyle: Readonly<CSSProperties> = {
+  fontSize: 12,
+  lineHeight: "1.4",
+  color: "var(--color-text-primary, #333)",
+  fontFamily: "var(--font-mono, monospace)",
+  marginBottom: 6,
 };
 
 const selectionBannerStyle = {
@@ -3637,6 +3680,40 @@ export const ProofWorkspace = forwardRef<
   const [edgeBadgeEditState, setEdgeBadgeEditState] =
     useState<EdgeBadgeEditState | null>(null);
 
+  // --- TABエッジ詳細ポップオーバー ---
+  const [tabEdgeDetail, setTabEdgeDetail] = useState<TabEdgeDetailData | null>(
+    null,
+  );
+  const tabEdgeDetailRef = useRef<HTMLDivElement>(null);
+
+  const handleTabEdgeDetailClose = useCallback(() => {
+    setTabEdgeDetail(null);
+  }, []);
+
+  // TABエッジ詳細: 外部クリック + Escape で閉じる
+  useEffect(() => {
+    if (tabEdgeDetail === null) return;
+    const handleMouseDown = (e: MouseEvent) => {
+      if (
+        tabEdgeDetailRef.current &&
+        !tabEdgeDetailRef.current.contains(e.target as Node)
+      ) {
+        setTabEdgeDetail(null);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setTabEdgeDetail(null);
+      }
+    };
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [tabEdgeDetail]);
+
   const handleEdgeBadgeClick = useCallback(
     (conclusionNodeId: string) => {
       const edge = workspace.inferenceEdges.find(
@@ -3644,6 +3721,13 @@ export const ProofWorkspace = forwardRef<
       );
       /* v8 ignore start -- 防御的: バッジクリックはエッジが存在するノード上でのみ発生 */
       if (!edge) return;
+      /* v8 ignore stop */
+      /* v8 ignore start -- エッジバッジクリック: SVGバッジ操作はブラウザテストで検証 */
+      // TABエッジの場合は詳細ポップオーバーを表示
+      if (isTabInferenceEdge(edge)) {
+        setTabEdgeDetail(createTabEdgeDetailData(edge));
+        return;
+      }
       /* v8 ignore stop */
       /* v8 ignore start -- エッジバッジクリック: SVGバッジ操作はブラウザテストで検証。createEditStateFromEdgeは単体テスト済み */
       // Substitutionエッジの場合、前提ノードの論理式テキストを取得してメタ変数自動抽出に使用
@@ -4783,10 +4867,17 @@ export const ProofWorkspace = forwardRef<
           : getNodeClassificationEdgeColor(fromClassification);
 
         // 推論エッジラベル: derivedノードへの接続にInferenceEdgeバッジを表示
-        const inferenceEdge = findInferenceEdgeForConclusionNode(
-          workspace.inferenceEdges,
-          conn.toNodeId,
-        );
+        // Hilbert/ND: conclusionNodeId = toNode (結論=導出先)
+        // TAB: conclusionNodeId = fromNode (結論=分解元の親ノード)
+        const inferenceEdge =
+          findInferenceEdgeForConclusionNode(
+            workspace.inferenceEdges,
+            conn.toNodeId,
+          ) ??
+          findInferenceEdgeForConclusionNode(
+            workspace.inferenceEdges,
+            conn.fromNodeId,
+          );
         const edgeBadgeConclusionNodeId = inferenceEdge?.conclusionNodeId;
         const edgeLabel =
           inferenceEdge !== undefined ? (
@@ -4808,7 +4899,8 @@ export const ProofWorkspace = forwardRef<
                   ? (screenX, screenY) => {
                       if (
                         inferenceEdge._tag === "gen" ||
-                        inferenceEdge._tag === "substitution"
+                        inferenceEdge._tag === "substitution" ||
+                        isTabInferenceEdge(inferenceEdge)
                       ) {
                         handleEdgeBadgeClick(edgeBadgeConclusionNodeId);
                       } else {
@@ -5949,6 +6041,62 @@ export const ProofWorkspace = forwardRef<
               /* v8 ignore stop */
             }
           />
+        </div>
+      ) : null}
+
+      {/* TABエッジ詳細ポップオーバー */}
+      {tabEdgeDetail !== null ? (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 1000,
+          }}
+          data-testid={
+            /* v8 ignore start -- V8集約アーティファクト */
+            testId
+              ? `${testId satisfies string}-tab-edge-detail`
+              : "tab-edge-detail"
+            /* v8 ignore stop */
+          }
+        >
+          <div
+            ref={tabEdgeDetailRef}
+            style={tabDetailPopoverStyle}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <div style={tabDetailHeaderStyle}>
+              {formatMessage(msg.tabDetailRuleHeader, {
+                ruleName: tabEdgeDetail.ruleName,
+              })}
+            </div>
+            {tabEdgeDetail.entries.map((entry, i) => (
+              <div key={i}>
+                <div style={tabDetailEntryLabelStyle}>
+                  {msg[entry.labelKey as keyof typeof msg] ?? entry.labelKey}
+                </div>
+                <div style={tabDetailEntryValueStyle}>{entry.value}</div>
+              </div>
+            ))}
+            <button
+              type="button"
+              style={{
+                marginTop: 4,
+                padding: "4px 12px",
+                border: "1px solid var(--color-border, #ccc)",
+                borderRadius: 4,
+                background: "var(--color-surface, #fff)",
+                cursor: "pointer",
+                fontSize: 12,
+              }}
+              onClick={handleTabEdgeDetailClose}
+            >
+              {msg.cancel}
+            </button>
+          </div>
         </div>
       ) : null}
 

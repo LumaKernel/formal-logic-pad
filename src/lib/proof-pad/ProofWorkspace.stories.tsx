@@ -37,6 +37,7 @@ import {
   applySubstitutionAndConnect,
   copySelectedNodes,
   applyScRuleAndConnect,
+  applyTabRuleAndConnect,
 } from "./workspaceState";
 import type { WorkspaceState } from "./workspaceState";
 import type { GoalQuestInfo } from "./goalPanelLogic";
@@ -2318,5 +2319,67 @@ export const SubstitutionConnectionContextMenu: Story = {
         canvas.queryByTestId("workspace-subconn-banner"),
       ).not.toBeInTheDocument();
     });
+  },
+};
+
+// --- TABエッジ詳細ポップオーバー ---
+
+/**
+ * TABエッジバッジをクリックすると詳細ポップオーバーが表示される。
+ * エッジバッジはSVG foreignObject内にあるためJSDOMではクリックテスト不可。
+ * ブラウザ実機で確認すること。
+ */
+export const TabEdgeDetailPopover: Story = {
+  render: () => {
+    const [workspace, setWorkspace] = useState<WorkspaceState>(() => {
+      const system = tableauCalculusDeduction(tabSystem);
+      let ws = createEmptyWorkspace(system);
+      // P ∧ Q のシーケントノードを追加
+      ws = addNode(ws, "axiom", "Node", { x: 200, y: 100 }, "P ∧ Q");
+      // conjunction(∧)規則を適用
+      const result = applyTabRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "conjunction",
+          sequentText: "P ∧ Q",
+          principalPosition: 0,
+        },
+        [{ x: 200, y: 250 }],
+      );
+      return result.workspace;
+    });
+    const handleChange = useCallback((ws: WorkspaceState) => {
+      setWorkspace(ws);
+    }, []);
+
+    return (
+      <div style={{ width: "100vw", height: "100vh" }}>
+        <ProofWorkspace
+          system={workspace.system}
+          workspace={workspace}
+          onWorkspaceChange={handleChange}
+          testId="workspace"
+        />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace")).toBeInTheDocument();
+
+    // TABワークスペースにノードが2つ存在する（元ノード + conjunction適用結果）
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+
+    // TABパレットが表示される
+    await expect(
+      canvas.getByTestId("workspace-tab-rule-palette"),
+    ).toBeInTheDocument();
+
+    // 初期状態: TAB詳細ポップオーバーは非表示
+    await expect(
+      canvas.queryByTestId("workspace-tab-edge-detail"),
+    ).not.toBeInTheDocument();
   },
 };

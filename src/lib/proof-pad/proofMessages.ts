@@ -176,6 +176,20 @@ export type ProofMessages = {
   readonly tabTermPrompt: string;
   /** 固有変数プロンプト */
   readonly tabEigenVariablePrompt: string;
+  /** TABエッジ詳細ポップオーバー: 規則名ヘッダー（{ruleName}プレースホルダー） */
+  readonly tabDetailRuleHeader: string;
+  /** TABエッジ詳細: 結論 */
+  readonly tabDetailConclusion: string;
+  /** TABエッジ詳細: 固有変数 */
+  readonly tabDetailEigenVariable: string;
+  /** TABエッジ詳細: 項 */
+  readonly tabDetailTerm: string;
+  /** TABエッジ詳細: 交換位置 */
+  readonly tabDetailExchangePosition: string;
+  /** TABエッジ詳細: 左前提 */
+  readonly tabDetailLeftPremise: string;
+  /** TABエッジ詳細: 右前提 */
+  readonly tabDetailRightPremise: string;
 
   // --- AT (分析的タブロー) ---
   /** `{ruleName}` プレースホルダーを含む */
@@ -486,6 +500,13 @@ export const defaultProofMessages: ProofMessages = {
   tabExchangePositionPrompt: "Exchange position (0-based):",
   tabTermPrompt: "Substitution term:",
   tabEigenVariablePrompt: "Eigen variable name:",
+  tabDetailRuleHeader: "TAB Rule: {ruleName}",
+  tabDetailConclusion: "Conclusion",
+  tabDetailEigenVariable: "Eigen Variable",
+  tabDetailTerm: "Term",
+  tabDetailExchangePosition: "Exchange Position",
+  tabDetailLeftPremise: "Left Premise",
+  tabDetailRightPremise: "Right Premise",
 
   // AT (Analytic Tableau)
   atBannerSelectNode: "Click a node to apply {ruleName}",
