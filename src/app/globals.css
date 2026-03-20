@@ -87,8 +87,12 @@
   /* Semantic: Success / Error / Warning */
   --color-success: #2ecc71;
   --color-success-bg: rgba(60, 255, 60, 0.25);
+  --color-success-text: #155724;
   --color-error: #e06060;
   --color-error-bg: rgba(255, 60, 60, 0.25);
+  --color-error-text: #991b1b;
+  --color-info-bg: #cce5ff;
+  --color-info-text: #004085;
   --color-warning: #d9944a;
   --color-warning-hover: #b5752e;
   --color-warning-bg: rgba(255, 215, 0, 0.3);
@@ -298,8 +302,12 @@
   /* Semantic: Success / Error / Warning */
   --color-success: #4ad97a;
   --color-success-bg: rgba(60, 255, 60, 0.15);
+  --color-success-text: #a7f3d0;
   --color-error: #ff6b6b;
   --color-error-bg: rgba(255, 60, 60, 0.15);
+  --color-error-text: #fca5a5;
+  --color-info-bg: rgba(60, 130, 255, 0.15);
+  --color-info-text: #93c5fd;
   --color-warning: #e0a05a;
   --color-warning-hover: #c88a42;
   --color-warning-bg: rgba(255, 215, 0, 0.15);
