@@ -127,3 +127,7 @@
 
 - [x] ノードのラベル(MP/Gen/Substなど)はノードとエッジの関係からのみをもとにcomputedであるべきだ
   - computeNodeLabelFromEdges純粋関数で実現。addNode時は"Node"に統一、UI/exportでcomputed label使用
+- [x] 項ASTへのSubstitutionノード追加（tau_0[tau_1/x]の表現、tau_0[/x][tau_1/x]の簡約）
+  - TermSubstitutionクラス/ファクトリ追加、15ファイルのexhaustive switch更新
+  - standalone term parserで[τ/x]postfix対応、Unicode/LaTeX/Highlightフォーマット
+  - resolveTermSubstitution追加、8テストファイルに27テスト追加

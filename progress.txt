@@ -16278,3 +16278,21 @@
   - `SubstitutionEntry` には `_tag: "FormulaSubstitution"` が必須。テストデータ作成時に注意
   - `NdImplicationIntroEdge` には `dischargedFormulaText` フィールドが必須。`dischargedAssumptionId` は `AssumptionId` (number型)
 ---
+
+## 2026-03-20 - logic-core: TermSubstitution AST ノード追加
+- 実装した内容:
+  - term.ts に TermSubstitution クラス（Schema.TaggedClass）とファクトリ関数追加
+  - 15ファイル（logic-core 10 + logic-lang 6）のexhaustive switch更新
+  - standalone term parser で [τ/x] postfix パース対応
+  - Unicode/LaTeX/formulaHighlight フォーマッター対応
+  - resolveTermSubstitution（項置換の解決）追加
+  - 8テストファイルに27テスト追加
+- 変更したファイル:
+  - src/lib/logic-core/: term.ts, substitution.ts, freeVariables.ts, equality.ts, alphaEquivalence.ts, metaVariable.ts, termVariableMatching.ts, unification.ts, inferenceRule.ts, index.ts + テスト4ファイル
+  - src/lib/logic-lang/: formatUnicode.ts, formatLaTeX.ts, formulaHighlight.ts, parser.ts + テスト4ファイル
+- カバレッジ: 99.37% Stmts / 97.64% Branch / 90.1% Funcs / 99.48% Lines（前回: 99.6/98.11/90.14/99.7 — 微減はパーサーの新エラーパスによるもの）
+- **今後のイテレーションへの学び:**
+  - 論理式パーサー内の parseTerm で `[` を TermSubstitution postfix として消費すると FormulaSubstitution の `[τ/x]` と衝突する。論理式レベルの `[` は常に FormulaSubstitution 用なので、TermSubstitution は standalone term parser でのみサポート
+  - Term union に新しいバリアントを追加する際、既存の as + fall-through パターン（例: unification.ts の BinaryOperation）が型縮小を壊す。明示的な if ガードが必要
+  - Schema.TaggedClass で新しい Term バリアントを追加すれば Schema.Union が自動対応するため、serialization の変更は不要
+---
