@@ -16222,3 +16222,18 @@
   - resolveFormulaSubstitutionはメタ変数含有チェックなしで実行するため、メタ変数がある論理式に対しては使用しないこと
   - 項ASTにはまだSubstitutionノードがなく、tau[tau'/x]の表現ができない（残タスク）
 ---
+
+## 2026-03-20 19:10 - script-runner スクリプトハンドラstale-state修正
+- 実装した内容:
+  - ProofWorkspace.tsx の scriptCommandHandler 全ハンドラで setWorkspace() 後に workspaceRef.current を同期更新
+  - 原因: スクリプトは同期実行されるが、React の setWorkspace は非同期のため、後続ハンドラが古い workspaceRef.current を参照していた
+  - ステートフル統合テスト2件追加（build-identity-proof-tree, build-identity-proof）
+- 変更したファイル:
+  - `src/lib/proof-pad/ProofWorkspace.tsx`: 全8ハンドラに workspaceRef.current 同期更新追加
+  - `src/lib/script-runner/templates.test.ts`: ステートフル統合テスト追加
+- カバレッジ: 99.6% Stmts, 98.11% Branch, 90.16% Functions, 99.7% Lines（低下なし）
+- **今後のイテレーションへの学び:**
+  - スクリプトハンドラは同期実行されるため、React state setter（非同期）だけでなく ref も同期更新が必要
+  - モックハンドラではstale-stateバグを検出できない。ステートフルハンドラ（実際のワークスペース操作）を使った統合テストが重要
+  - 残: 他のHilbertテンプレート（syllogism-proof等）のステートフル統合テスト拡充
+---

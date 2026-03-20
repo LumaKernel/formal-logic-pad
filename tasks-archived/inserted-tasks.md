@@ -121,3 +121,5 @@
   - [x] このあたりの整理とテストのより厳密、充実さを追求 → 7つの回帰テスト追加
   - [x] 整理で繋ぐこともできてはいけない。 → containsMetaVariable判定で保持
   - [x] 代入はシンプルなことしかせず、簡約は別にしてよい。 → normalizeFormula内で分岐
+- [x] φ→φの証明ツリー構築、のスクリプトは RuntimeError: Modus Ponens failed: LeftParseError というエラーが出て動かない。 → workspaceRef.current同期漏れが原因。全ハンドラに同期更新を追加
+  - [x] テストでライブラリのスクリプトすべてについて動くことは保証しておいて。 → ステートフル統合テスト2件追加
