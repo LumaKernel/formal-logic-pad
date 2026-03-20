@@ -16255,3 +16255,26 @@
   - WorkspaceCommandHandlerのプロパティはreadonly。テストで上書きするにはコンストラクタオプションを使う
   - displayHilbertProof/displayScProofはhandlerのaddNode/connectMPを呼ぶため、ステートフルハンドラで自動的にテストされる
 ---
+
+## 2026-03-20 21:05 - proof-pad ノードラベルのcomputed化
+- 実装した内容:
+  - `computeNodeLabelFromEdges` 純粋関数を `inferenceEdgeLabelLogic.ts` に追加（InferenceEdge→ラベル計算）
+  - 10テスト追加: エッジなし→undefined、MP→"MP"、Gen→"Gen(x)"/"Gen"、Subst→"Subst(2)"、Simp→"Simp"、ND→"→I [1]"、複数エッジ
+  - `ProofWorkspace.tsx`: `node.label` → `computeNodeLabelFromEdges(node.id, edges) ?? node.label`
+  - `workspaceImageExport.ts`: SVGエクスポートでもcomputed label使用
+  - `workspaceState.ts`: `applyMPAndConnect`/`applyGenAndConnect`/`applySubstitutionAndConnect`/`applyNdImplicationIntroAndConnect` のaddNode時ラベルを"Node"に統一
+  - テスト修正: workspaceState.test.ts (4箇所), ProofWorkspace.test.tsx (Gen badge test: `getAllByText` + testIdで特定)
+- 変更したファイル:
+  - `src/lib/proof-pad/inferenceEdgeLabelLogic.ts`: `computeNodeLabelFromEdges` 追加
+  - `src/lib/proof-pad/inferenceEdgeLabelLogic.test.ts`: 10テスト追加
+  - `src/lib/proof-pad/ProofWorkspace.tsx`: computed label使用
+  - `src/lib/proof-pad/ProofWorkspace.test.tsx`: Gen badge テスト修正（duplicate text対策）
+  - `src/lib/proof-pad/workspaceImageExport.ts`: computed label使用
+  - `src/lib/proof-pad/workspaceState.ts`: derived nodeラベルを"Node"に統一
+  - `src/lib/proof-pad/workspaceState.test.ts`: ラベル期待値修正
+- カバレッジ: 99.6% Stmts, 98.11% Branch, 90.14% Functions, 99.7% Lines（低下なし）
+- **今後のイテレーションへの学び:**
+  - ノードラベルをcomputed化すると、同じテキストがnode labelとedge badgeの両方に表示される。テストでは `getByText` が重複エラーになるため `getAllByText` + testId指定が必要
+  - `SubstitutionEntry` には `_tag: "FormulaSubstitution"` が必須。テストデータ作成時に注意
+  - `NdImplicationIntroEdge` には `dischargedFormulaText` フィールドが必須。`dischargedAssumptionId` は `AssumptionId` (number型)
+---

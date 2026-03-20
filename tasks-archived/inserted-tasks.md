@@ -124,3 +124,6 @@
 - [x] φ→φの証明ツリー構築、のスクリプトは RuntimeError: Modus Ponens failed: LeftParseError というエラーが出て動かない。 → workspaceRef.current同期漏れが原因。全ハンドラに同期更新を追加
   - [x] テストでライブラリのスクリプトすべてについて動くことは保証しておいて。 → ステートフル統合テスト2件追加
   - [x] 他のスクリプトもすべて同様に対象。 → syllogism-proof, hilbert-theorem-gallery, auto-prove-lk, cut-elimination-simple, cut-elimination-implication の5テンプレート追加。extractHilbertProof実装含む
+
+- [x] ノードのラベル(MP/Gen/Substなど)はノードとエッジの関係からのみをもとにcomputedであるべきだ
+  - computeNodeLabelFromEdges純粋関数で実現。addNode時は"Node"に統一、UI/exportでcomputed label使用
