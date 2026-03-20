@@ -20,17 +20,29 @@ import { termVariable } from "../src/lib/logic-core/term";
 
 function isImplication(
   f: Formula,
-): f is Formula & { readonly _tag: "Implication"; readonly left: Formula; readonly right: Formula } {
+): f is Formula & {
+  readonly _tag: "Implication";
+  readonly left: Formula;
+  readonly right: Formula;
+} {
   return f._tag === "Implication";
 }
 function isConjunction(
   f: Formula,
-): f is Formula & { readonly _tag: "Conjunction"; readonly left: Formula; readonly right: Formula } {
+): f is Formula & {
+  readonly _tag: "Conjunction";
+  readonly left: Formula;
+  readonly right: Formula;
+} {
   return f._tag === "Conjunction";
 }
 function isDisjunction(
   f: Formula,
-): f is Formula & { readonly _tag: "Disjunction"; readonly left: Formula; readonly right: Formula } {
+): f is Formula & {
+  readonly _tag: "Disjunction";
+  readonly left: Formula;
+  readonly right: Formula;
+} {
   return f._tag === "Disjunction";
 }
 function isNegation(
@@ -38,18 +50,14 @@ function isNegation(
 ): f is Formula & { readonly _tag: "Negation"; readonly formula: Formula } {
   return f._tag === "Negation";
 }
-function isUniversal(
-  f: Formula,
-): f is Formula & {
+function isUniversal(f: Formula): f is Formula & {
   readonly _tag: "Universal";
   readonly variable: { readonly name: string };
   readonly formula: Formula;
 } {
   return f._tag === "Universal";
 }
-function isExistential(
-  f: Formula,
-): f is Formula & {
+function isExistential(f: Formula): f is Formula & {
   readonly _tag: "Existential";
   readonly variable: { readonly name: string };
   readonly formula: Formula;
@@ -57,7 +65,9 @@ function isExistential(
   return f._tag === "Existential";
 }
 function isBottom(f: Formula): boolean {
-  return f._tag === "Predicate" && (f as { readonly name: string }).name === "⊥";
+  return (
+    f._tag === "Predicate" && (f as { readonly name: string }).name === "⊥"
+  );
 }
 
 // --- Types ---
@@ -166,9 +176,17 @@ function candidateTerms(seq: Sequent, boundVarName: string): readonly string[] {
 
 // --- Helper: substitute bound variable with term in formula body ---
 
-function substituteBody(body: Formula, boundVarName: string, termName: string): Formula {
+function substituteBody(
+  body: Formula,
+  boundVarName: string,
+  termName: string,
+): Formula {
   if (boundVarName === termName) return body;
-  return substituteTermVariableInFormula(body, termVariable(boundVarName), termVariable(termName));
+  return substituteTermVariableInFormula(
+    body,
+    termVariable(boundVarName),
+    termVariable(termName),
+  );
 }
 
 // --- Helper: fresh eigen variable ---
@@ -186,7 +204,11 @@ function freshEigenVar(seq: Sequent, preferred: string): string {
 
 // --- Helper: move element in array ---
 
-function moveElement<T>(arr: readonly T[], from: number, to: number): readonly T[] {
+function moveElement<T>(
+  arr: readonly T[],
+  from: number,
+  to: number,
+): readonly T[] {
   const result = [...arr];
   const element = result.splice(from, 1)[0]!;
   result.splice(to, 0, element);
@@ -213,12 +235,18 @@ function buildExchangeImplicationLeft(
   // Build intermediate sequents by applying exchanges
   const intermediateSeqs: Sequent[] = [];
   let currentAntecedents = [...seq.antecedents];
-  intermediateSeqs.push({ antecedents: [...currentAntecedents], succedents: seq.succedents });
+  intermediateSeqs.push({
+    antecedents: [...currentAntecedents],
+    succedents: seq.succedents,
+  });
   for (const pos of exchangePositions) {
     const tmp = currentAntecedents[pos]!;
     currentAntecedents[pos] = currentAntecedents[pos + 1]!;
     currentAntecedents[pos + 1] = tmp;
-    intermediateSeqs.push({ antecedents: [...currentAntecedents], succedents: seq.succedents });
+    intermediateSeqs.push({
+      antecedents: [...currentAntecedents],
+      succedents: seq.succedents,
+    });
   }
 
   // Innermost: the →⇒ branching at the final position
@@ -355,9 +383,19 @@ function searchProof(
         antecedents: [f.right, ...rest],
         succedents: seq.succedents,
       };
-      const leftChild = searchProof(leftPremise, isLJ, depth + 1, contractionBudget);
+      const leftChild = searchProof(
+        leftPremise,
+        isLJ,
+        depth + 1,
+        contractionBudget,
+      );
       if (!leftChild) continue;
-      const rightChild = searchProof(rightPremise, isLJ, depth + 1, contractionBudget);
+      const rightChild = searchProof(
+        rightPremise,
+        isLJ,
+        depth + 1,
+        contractionBudget,
+      );
       if (!rightChild) continue;
       return {
         type: "branching",
@@ -450,9 +488,19 @@ function searchProof(
         antecedents: seq.antecedents,
         succedents: [...rest, f.right],
       };
-      const leftChild = searchProof(leftPremise, isLJ, depth + 1, contractionBudget);
+      const leftChild = searchProof(
+        leftPremise,
+        isLJ,
+        depth + 1,
+        contractionBudget,
+      );
       if (!leftChild) continue;
-      const rightChild = searchProof(rightPremise, isLJ, depth + 1, contractionBudget);
+      const rightChild = searchProof(
+        rightPremise,
+        isLJ,
+        depth + 1,
+        contractionBudget,
+      );
       if (!rightChild) continue;
       return {
         type: "branching",
@@ -564,9 +612,19 @@ function searchProof(
         succedents: seq.succedents,
       };
 
-      const leftChild = searchProof(leftPremise, isLJ, depth + 1, contractionBudget);
+      const leftChild = searchProof(
+        leftPremise,
+        isLJ,
+        depth + 1,
+        contractionBudget,
+      );
       if (!leftChild) continue;
-      const rightChild = searchProof(rightPremise, isLJ, depth + 1, contractionBudget);
+      const rightChild = searchProof(
+        rightPremise,
+        isLJ,
+        depth + 1,
+        contractionBudget,
+      );
       if (!rightChild) continue;
 
       // Build exchange chain + →⇒
@@ -578,7 +636,13 @@ function searchProof(
   if (contractionBudget > 0) {
     for (let i = 0; i < seq.antecedents.length; i++) {
       const f = seq.antecedents[i]!;
-      if (isImplication(f) || isUniversal(f) || isNegation(f) || isConjunction(f) || isDisjunction(f)) {
+      if (
+        isImplication(f) ||
+        isUniversal(f) ||
+        isNegation(f) ||
+        isConjunction(f) ||
+        isDisjunction(f)
+      ) {
         const contracted: Sequent = {
           antecedents: [
             ...seq.antecedents.slice(0, i),
@@ -588,7 +652,12 @@ function searchProof(
           ],
           succedents: seq.succedents,
         };
-        const child = searchProof(contracted, isLJ, depth + 1, contractionBudget - 1);
+        const child = searchProof(
+          contracted,
+          isLJ,
+          depth + 1,
+          contractionBudget - 1,
+        );
         if (child) {
           return {
             type: "single",
@@ -613,7 +682,12 @@ function searchProof(
             ...seq.succedents.slice(i + 1),
           ],
         };
-        const child = searchProof(contracted, isLJ, depth + 1, contractionBudget - 1);
+        const child = searchProof(
+          contracted,
+          isLJ,
+          depth + 1,
+          contractionBudget - 1,
+        );
         if (child) {
           return {
             type: "single",
@@ -808,45 +882,185 @@ interface QuestDef {
 const quests: readonly QuestDef[] = [
   // LK体系 (sc-01 to sc-10)
   { id: "sc-01", varName: "sc01Identity", formula: "phi -> phi", isLJ: false },
-  { id: "sc-02", varName: "sc02WeakeningLeft", formula: "phi -> (psi -> phi)", isLJ: false },
-  { id: "sc-03", varName: "sc03ContractionLeft", formula: "(phi -> (phi -> psi)) -> (phi -> psi)", isLJ: false },
-  { id: "sc-04", varName: "sc04Exchange", formula: "(phi -> (psi -> chi)) -> (psi -> (phi -> chi))", isLJ: false },
-  { id: "sc-05", varName: "sc05ConjIntro", formula: "phi -> (psi -> (phi /\\ psi))", isLJ: false },
-  { id: "sc-06", varName: "sc06DisjElim", formula: "(phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))", isLJ: false },
-  { id: "sc-07", varName: "sc07ExcludedMiddle", formula: "phi \\/ ~phi", isLJ: false },
-  { id: "sc-08", varName: "sc08DoubleNegation", formula: "~~phi -> phi", isLJ: false },
-  { id: "sc-09", varName: "sc09Contraposition", formula: "(phi -> psi) -> (~psi -> ~phi)", isLJ: false },
-  { id: "sc-10", varName: "sc10DeMorgan", formula: "~(phi /\\ psi) -> (~phi \\/ ~psi)", isLJ: false },
+  {
+    id: "sc-02",
+    varName: "sc02WeakeningLeft",
+    formula: "phi -> (psi -> phi)",
+    isLJ: false,
+  },
+  {
+    id: "sc-03",
+    varName: "sc03ContractionLeft",
+    formula: "(phi -> (phi -> psi)) -> (phi -> psi)",
+    isLJ: false,
+  },
+  {
+    id: "sc-04",
+    varName: "sc04Exchange",
+    formula: "(phi -> (psi -> chi)) -> (psi -> (phi -> chi))",
+    isLJ: false,
+  },
+  {
+    id: "sc-05",
+    varName: "sc05ConjIntro",
+    formula: "phi -> (psi -> (phi /\\ psi))",
+    isLJ: false,
+  },
+  {
+    id: "sc-06",
+    varName: "sc06DisjElim",
+    formula: "(phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))",
+    isLJ: false,
+  },
+  {
+    id: "sc-07",
+    varName: "sc07ExcludedMiddle",
+    formula: "phi \\/ ~phi",
+    isLJ: false,
+  },
+  {
+    id: "sc-08",
+    varName: "sc08DoubleNegation",
+    formula: "~~phi -> phi",
+    isLJ: false,
+  },
+  {
+    id: "sc-09",
+    varName: "sc09Contraposition",
+    formula: "(phi -> psi) -> (~psi -> ~phi)",
+    isLJ: false,
+  },
+  {
+    id: "sc-10",
+    varName: "sc10DeMorgan",
+    formula: "~(phi /\\ psi) -> (~phi \\/ ~psi)",
+    isLJ: false,
+  },
   // LJ体系 (sc-11 to sc-22)
   { id: "sc-11", varName: "sc11LjIdentity", formula: "phi -> phi", isLJ: true },
   { id: "sc-12", varName: "sc12LjExFalso", formula: "⊥ -> phi", isLJ: true },
-  { id: "sc-13", varName: "sc13LjContraposition", formula: "(phi -> psi) -> (~psi -> ~phi)", isLJ: true },
-  { id: "sc-14", varName: "sc14LjDisjElim", formula: "(phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))", isLJ: true },
-  { id: "sc-15", varName: "sc15LjConjElim", formula: "(phi /\\ psi) -> phi", isLJ: true },
-  { id: "sc-16", varName: "sc16LjConjCommute", formula: "(phi /\\ psi) -> (psi /\\ phi)", isLJ: true },
-  { id: "sc-17", varName: "sc17LjImplicationTransitivity", formula: "(phi -> psi) -> ((psi -> chi) -> (phi -> chi))", isLJ: true },
-  { id: "sc-18", varName: "sc18LjBottomNegation", formula: "(phi -> ⊥) -> (phi -> psi)", isLJ: true },
-  { id: "sc-19", varName: "sc19LjDisjIntro", formula: "phi -> (phi \\/ psi)", isLJ: true },
-  { id: "sc-20", varName: "sc20LjCurry", formula: "((phi /\\ psi) -> chi) -> (phi -> (psi -> chi))", isLJ: true },
-  { id: "sc-21", varName: "sc21LjUncurry", formula: "(phi -> (psi -> chi)) -> ((phi /\\ psi) -> chi)", isLJ: true },
-  { id: "sc-22", varName: "sc22LjImplicationConjDistrib", formula: "(phi -> (psi /\\ chi)) -> ((phi -> psi) /\\ (phi -> chi))", isLJ: true },
+  {
+    id: "sc-13",
+    varName: "sc13LjContraposition",
+    formula: "(phi -> psi) -> (~psi -> ~phi)",
+    isLJ: true,
+  },
+  {
+    id: "sc-14",
+    varName: "sc14LjDisjElim",
+    formula: "(phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))",
+    isLJ: true,
+  },
+  {
+    id: "sc-15",
+    varName: "sc15LjConjElim",
+    formula: "(phi /\\ psi) -> phi",
+    isLJ: true,
+  },
+  {
+    id: "sc-16",
+    varName: "sc16LjConjCommute",
+    formula: "(phi /\\ psi) -> (psi /\\ phi)",
+    isLJ: true,
+  },
+  {
+    id: "sc-17",
+    varName: "sc17LjImplicationTransitivity",
+    formula: "(phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
+    isLJ: true,
+  },
+  {
+    id: "sc-18",
+    varName: "sc18LjBottomNegation",
+    formula: "(phi -> ⊥) -> (phi -> psi)",
+    isLJ: true,
+  },
+  {
+    id: "sc-19",
+    varName: "sc19LjDisjIntro",
+    formula: "phi -> (phi \\/ psi)",
+    isLJ: true,
+  },
+  {
+    id: "sc-20",
+    varName: "sc20LjCurry",
+    formula: "((phi /\\ psi) -> chi) -> (phi -> (psi -> chi))",
+    isLJ: true,
+  },
+  {
+    id: "sc-21",
+    varName: "sc21LjUncurry",
+    formula: "(phi -> (psi -> chi)) -> ((phi /\\ psi) -> chi)",
+    isLJ: true,
+  },
+  {
+    id: "sc-22",
+    varName: "sc22LjImplicationConjDistrib",
+    formula: "(phi -> (psi /\\ chi)) -> ((phi -> psi) /\\ (phi -> chi))",
+    isLJ: true,
+  },
   // LK固有クエスト (sc-23 to sc-26)
-  { id: "sc-23", varName: "sc23LkPeirceLaw", formula: "((phi -> psi) -> phi) -> phi", isLJ: false },
-  { id: "sc-24", varName: "sc24LkConverseContraposition", formula: "(~psi -> ~phi) -> (phi -> psi)", isLJ: false },
-  { id: "sc-25", varName: "sc25LkImplicationAsDisjunction", formula: "(phi -> psi) -> (~phi \\/ psi)", isLJ: false },
-  { id: "sc-26", varName: "sc26LkWeakExcludedMiddle", formula: "~phi \\/ ~~phi", isLJ: false },
+  {
+    id: "sc-23",
+    varName: "sc23LkPeirceLaw",
+    formula: "((phi -> psi) -> phi) -> phi",
+    isLJ: false,
+  },
+  {
+    id: "sc-24",
+    varName: "sc24LkConverseContraposition",
+    formula: "(~psi -> ~phi) -> (phi -> psi)",
+    isLJ: false,
+  },
+  {
+    id: "sc-25",
+    varName: "sc25LkImplicationAsDisjunction",
+    formula: "(phi -> psi) -> (~phi \\/ psi)",
+    isLJ: false,
+  },
+  {
+    id: "sc-26",
+    varName: "sc26LkWeakExcludedMiddle",
+    formula: "~phi \\/ ~~phi",
+    isLJ: false,
+  },
   // LJ述語論理 (sc-27 to sc-34)
   // NOTE: formulas must match builtinQuests.ts goal formulaText exactly (modulo parser equivalence)
   // sc-27: "all x. P(x) -> P(a)" parses as ∀x.(P(x)→P(a)) (Universal at top) — NOT valid.
   //   Intended formula is (∀x.P(x))→P(a) but parser binds quantifier over everything. Quest formula bug.
   // { id: "sc-27", varName: "sc27LjUniversalElim", formula: "all x. P(x) -> P(a)", isLJ: true },
-  { id: "sc-28", varName: "sc28LjExistentialIntro", formula: "P(a) -> ex x. P(x)", isLJ: true },
-  { id: "sc-29", varName: "sc29LjUniversalToExistential", formula: "all x. P(x) -> ex x. P(x)", isLJ: true },
+  {
+    id: "sc-28",
+    varName: "sc28LjExistentialIntro",
+    formula: "P(a) -> ex x. P(x)",
+    isLJ: true,
+  },
+  {
+    id: "sc-29",
+    varName: "sc29LjUniversalToExistential",
+    formula: "all x. P(x) -> ex x. P(x)",
+    isLJ: true,
+  },
   // sc-30: P(x,y) breaks splitSequentTextParts comma split — skip (keep axiom placeholder)
   // { id: "sc-30", varName: "sc30LjUniversalSwap", formula: "all x. all y. P(x, y) -> all y. all x. P(x, y)", isLJ: true },
-  { id: "sc-31", varName: "sc31LjExistentialElim", formula: "ex x. (P(x) /\\ Q(x)) -> ex x. P(x)", isLJ: true },
-  { id: "sc-32", varName: "sc32LjExistentialDistrib", formula: "ex x. (P(x) \\/ Q(x)) -> ex x. P(x) \\/ ex x. Q(x)", isLJ: true },
-  { id: "sc-33", varName: "sc33LkNegUniversalToExistNeg", formula: "~(all x. P(x)) -> ex x. ~P(x)", isLJ: false },
+  {
+    id: "sc-31",
+    varName: "sc31LjExistentialElim",
+    formula: "ex x. (P(x) /\\ Q(x)) -> ex x. P(x)",
+    isLJ: true,
+  },
+  {
+    id: "sc-32",
+    varName: "sc32LjExistentialDistrib",
+    formula: "ex x. (P(x) \\/ Q(x)) -> ex x. P(x) \\/ ex x. Q(x)",
+    isLJ: true,
+  },
+  {
+    id: "sc-33",
+    varName: "sc33LkNegUniversalToExistNeg",
+    formula: "~(all x. P(x)) -> ex x. ~P(x)",
+    isLJ: false,
+  },
   // sc-34: "all x. (P(x) -> Q(x)) -> ..." parses as ∀x.((P(x)→Q(x))→...) — NOT valid.
   //   Intended formula is (∀x.(P(x)→Q(x)))→(∀x.P(x)→∀x.Q(x)) but parser binds quantifier over everything. Quest formula bug.
   // { id: "sc-34", varName: "sc34LjUniversalImplDistrib", formula: "all x. (P(x) -> Q(x)) -> (all x. P(x) -> all x. Q(x))", isLJ: true },
@@ -884,7 +1098,9 @@ function main(): void {
     console.log(`  steps: [`);
     for (const step of steps) {
       if (step._tag === "sc-root") {
-        console.log(`    { _tag: "sc-root", sequentText: "${step.sequentText}" },`);
+        console.log(
+          `    { _tag: "sc-root", sequentText: "${step.sequentText}" },`,
+        );
       } else {
         const parts = [
           `_tag: "sc-rule"`,
@@ -907,7 +1123,9 @@ function main(): void {
     console.log(`};`);
   }
 
-  console.log(`\n// === Results: ${String(successCount)} success, ${String(failCount)} failed ===`);
+  console.log(
+    `\n// === Results: ${String(successCount)} success, ${String(failCount)} failed ===`,
+  );
 }
 
 main();
