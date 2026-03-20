@@ -57,6 +57,8 @@ export interface FormulaEditorProps {
   readonly allowSequentText?: boolean;
   /** パース失敗時に表示モードで使うフォールバック表示（未指定時はプレースホルダー表示） */
   readonly displayFallback?: React.ReactNode;
+  /** 入力要素に追加適用するスタイル（背景色・ボーダーなどの上書き用） */
+  readonly inputStyle?: CSSProperties;
   /** data-testid */
   readonly testId?: string;
 }
@@ -156,6 +158,7 @@ export function FormulaEditor({
   forceEditMode,
   allowSequentText,
   displayFallback,
+  inputStyle,
   testId,
 }: FormulaEditorProps) {
   const [mode, setModeInternal] = useState<EditorMode>("display");
@@ -400,6 +403,7 @@ export function FormulaEditor({
               onParsed={onParsed}
               placeholder={placeholder}
               fontSize={fontSize}
+              inputStyle={inputStyle}
               testId={testId ? `${testId satisfies string}-input` : undefined}
               onBlur={tryExitEditMode}
               showPreview={false}

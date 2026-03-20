@@ -110,6 +110,13 @@ const substConfirmButtonStyle: Readonly<CSSProperties> = {
   borderColor: "transparent",
 };
 
+/** 代入入力欄の入力要素スタイル: 白背景+黒点線でクリック可能性を常にアピール */
+const substInputStyle: Readonly<CSSProperties> = {
+  backgroundColor: "#ffffff",
+  borderStyle: "dotted",
+  borderColor: "#333333",
+};
+
 // --- Gen Popover ---
 
 function GenPopover({
@@ -334,6 +341,7 @@ function SubstitutionPopover({
               placeholder={msg.substFormulaPlaceholder}
               fontSize={12}
               style={{ flex: 1, minWidth: 0 }}
+              inputStyle={substInputStyle}
               onOpenSyntaxHelp={onOpenSyntaxHelp}
               editTrigger="none"
               forceEditMode={true}
@@ -354,6 +362,7 @@ function SubstitutionPopover({
               placeholder={msg.substTermPlaceholder}
               fontSize={12}
               style={{ flex: 1, minWidth: 0 }}
+              inputStyle={substInputStyle}
               onOpenSyntaxHelp={onOpenSyntaxHelp}
               editTrigger="none"
               forceEditMode={true}

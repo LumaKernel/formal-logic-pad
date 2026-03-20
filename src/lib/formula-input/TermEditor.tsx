@@ -45,6 +45,8 @@ export interface TermEditorProps {
   readonly onOpenSyntaxHelp?: () => void;
   /** 外部から編集モードを強制的に開始するフラグ */
   readonly forceEditMode?: boolean;
+  /** 入力要素に追加適用するスタイル（背景色・ボーダーなどの上書き用） */
+  readonly inputStyle?: CSSProperties;
   /** data-testid */
   readonly testId?: string;
 }
@@ -123,6 +125,7 @@ export function TermEditor({
   editTrigger = "click",
   onOpenSyntaxHelp,
   forceEditMode,
+  inputStyle,
   testId,
 }: TermEditorProps) {
   const [mode, setModeInternal] = useState<EditorMode>("display");
@@ -315,6 +318,7 @@ export function TermEditor({
               onParsed={onParsed}
               placeholder={placeholder}
               fontSize={fontSize}
+              inputStyle={inputStyle}
               testId={testId ? `${testId satisfies string}-input` : undefined}
               onBlur={tryExitEditMode}
               showPreview={false}

@@ -62,6 +62,8 @@ export interface TermInputProps {
   readonly showPreview?: boolean;
   /** blur時のコールバック */
   readonly onBlur?: () => void;
+  /** 入力要素に追加適用するスタイル（背景色・ボーダーなどの上書き用） */
+  readonly inputStyle?: CSSProperties;
 }
 
 // --- 純粋関数: パース ---
@@ -206,6 +208,7 @@ export function TermInput({
   testId,
   showPreview = true,
   onBlur,
+  inputStyle: inputStyleOverride,
 }: TermInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -268,8 +271,13 @@ export function TermInput({
     [style, fontSize],
   );
 
-  const currentInputStyle =
-    parseState.status === "error" ? inputErrorStyle : inputBaseStyle;
+  const currentInputStyle = useMemo(
+    () => ({
+      ...(parseState.status === "error" ? inputErrorStyle : inputBaseStyle),
+      ...inputStyleOverride,
+    }),
+    [parseState.status, inputStyleOverride],
+  );
 
   const errorHighlights: readonly ErrorHighlight[] = useMemo(
     () =>
@@ -311,7 +319,18 @@ export function TermInput({
     >
       {/* 入力欄 + エラーハイライトオーバーレイ + 補完ポップアップ + ?ボタン */}
       <div style={{ display: "flex", alignItems: "flex-start", gap: 4 }}>
-        <div style={{ position: "relative", flex: 1 }}>
+        <div
+          style={{
+            position: "relative",
+            flex: 1,
+            ...(hasOverlay && inputStyleOverride?.backgroundColor !== undefined
+              ? {
+                  backgroundColor: inputStyleOverride.backgroundColor,
+                  borderRadius: currentInputStyle.borderRadius,
+                }
+              : {}),
+          }}
+        >
           {/* エラーハイライト（入力欄の背後） */}
           {errorHighlights.length > 0 && (
             <div

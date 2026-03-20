@@ -58,6 +58,8 @@ export interface FormulaInputProps {
   readonly onBlur?: () => void;
   /** プレビュー（パース成功時のFormulaDisplay）を表示するか（デフォルト: true） */
   readonly showPreview?: boolean;
+  /** 入力要素に追加適用するスタイル（背景色・ボーダーなどの上書き用） */
+  readonly inputStyle?: CSSProperties;
 }
 
 // --- 純粋関数: パース ---
@@ -236,6 +238,7 @@ export function FormulaInput({
   testId,
   onBlur,
   showPreview = true,
+  inputStyle: inputStyleOverride,
 }: FormulaInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -297,8 +300,13 @@ export function FormulaInput({
     [style, fontSize],
   );
 
-  const currentInputStyle =
-    parseState.status === "error" ? inputErrorStyle : inputBaseStyle;
+  const currentInputStyle = useMemo(
+    () => ({
+      ...(parseState.status === "error" ? inputErrorStyle : inputBaseStyle),
+      ...inputStyleOverride,
+    }),
+    [parseState.status, inputStyleOverride],
+  );
 
   const errorHighlights = useMemo(
     () =>
@@ -325,7 +333,17 @@ export function FormulaInput({
       data-testid={testId}
     >
       {/* 入力欄 + ハイライトオーバーレイ + 補完ポップアップ */}
-      <div style={{ position: "relative" }}>
+      <div
+        style={{
+          position: "relative",
+          ...(hasOverlay && inputStyleOverride?.backgroundColor !== undefined
+            ? {
+                backgroundColor: inputStyleOverride.backgroundColor,
+                borderRadius: currentInputStyle.borderRadius,
+              }
+            : {}),
+        }}
+      >
         {/* エラーハイライト（入力欄の背後） */}
         {errorHighlights.length > 0 && (
           <div
