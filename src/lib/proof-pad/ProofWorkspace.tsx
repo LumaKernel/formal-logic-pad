@@ -713,7 +713,7 @@ const proofCompleteBannerStyle: CSSProperties = {
   bottom: 40,
   left: "50%",
   transform: "translateX(-50%) rotate(-3deg)",
-  zIndex: 30,
+  zIndex: 5,
   padding: "10px 32px",
   background: "var(--color-proof-complete-bg, rgba(255,253,248,0.95))",
   color: "var(--color-proof-complete-text, #1a7a3a)",
