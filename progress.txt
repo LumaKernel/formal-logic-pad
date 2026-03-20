@@ -16131,3 +16131,19 @@
   - `identifyAxiomName` が "Identified" / "TheoryAxiomIdentified" を返さないノードが「未知公理」
   - `deduplicateDependencyInfos` は displayName ベースの重複排除なので、displayName を正しく設定すれば自然に正しく動作する
 ---
+
+## 2026-03-20 16:41 - proof-pad 論理式コピー機能追加
+- 実装した内容: ノード右クリックメニューに「Copy Formula ▸」サブメニュー追加（Unicode/ASCII(DSL)/LaTeX）
+- 変更したファイル:
+  - `src/lib/proof-pad/formulaCopyLogic.ts` (新規): 純粋ロジック — parse → format 変換
+  - `src/lib/proof-pad/formulaCopyLogic.test.ts` (新規): 15テスト
+  - `src/lib/proof-pad/ProofWorkspace.tsx`: WorkspaceMenuSubmenu コンポーネント + handleCopyFormula ハンドラ
+  - `src/lib/proof-pad/proofMessages.ts`: copyFormula/copyFormulaUnicode/copyFormulaAscii/copyFormulaLatex/formulaCopied メッセージ
+  - `messages/en.json`, `messages/ja.json`: i18n メッセージ追加
+  - `src/app/workspace/[id]/WorkspaceContent.tsx`: i18n → ProofMessages マッピング追加
+  - `src/lib/proof-pad/index.ts`: エクスポート追加
+- **今後のイテレーションへの学び:**
+  - `formatFormula` (Unicode) は logic-lang/formatUnicode.ts、`formatFormulaLaTeX` は logic-lang/formatLaTeX.ts にある
+  - ProofMessages に新フィールドを追加するときは proofMessages.ts + messages/en.json + messages/ja.json + WorkspaceContent.tsx の4箇所を同期する必要がある
+  - コンテキストメニューにサブメニューを追加するパターン: WorkspaceMenuSubmenu コンポーネント（ホバー展開）が再利用可能
+---

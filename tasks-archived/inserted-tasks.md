@@ -105,3 +105,5 @@
 - [x] ノードのドラッグ中エッジ描画を簡易化 — draggingNodeIdsRefでドラッグ中ノード追跡、computeStraightPortConnectionPathで直線パス描画、ドラッグ終了時にベジェ曲線に復帰
 - [x] 未知(namedではない)の公理に依存しているときは、依存として "Axiom" と出すのではなく、その論理式そのものを出して。いまだと、関係ないものも、 Axiom として統合されており、これも問題。構文同値のもの以外はまとめないで
   - displayNameフォールバックを `depNode?.label` → `depNode?.formulaText` に変更。deduplicateは同一formulaTextで正しく動作
+- [x] ノードのメニューに論理式をコピー、論理式をコピー (ASCII)、論理式をコピー (LaTeX) など欲しい (ネストメニューで)
+  - formulaCopyLogic.ts (純粋ロジック) + WorkspaceMenuSubmenu (ホバー展開サブメニュー) で実装。Unicode/ASCII(DSL)/LaTeX の3形式

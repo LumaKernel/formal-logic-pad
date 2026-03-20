@@ -1,7 +1,5 @@
 # 差し込みタスク
 
-- [x] ノードのメニューに論理式をコピー、論理式をコピー (ASCII)、論理式をコピー (LaTeX) など欲しい (ネストメニューで)
-  - formulaCopyLogic.ts (純粋ロジック) + WorkspaceMenuSubmenu (ホバー展開サブメニュー) で実装。Unicode/ASCII(DSL)/LaTeX の3形式
 - [ ] (all x. phi) -> phi[tau/x] への代入で phi := phi -> phi でも [tau/x] が消えるのはおかしい。簡約の域ではない。(phi -> phi)[tau/x]になるべきだ。 x[tau/x]でtauになるのは、確定なのでわかるが。
   - [ ] tau_0[tau_1/x] も簡約はできない。
   - [ ] tau_0[/x][tau_1/x] は tau_0[/x] に簡約できる。 tau_0には簡約できない

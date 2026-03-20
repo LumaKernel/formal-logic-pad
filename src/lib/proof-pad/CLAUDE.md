@@ -58,6 +58,14 @@ logic-core, logic-lang, formula-input, infinite-canvas を統合する層。
 - `mergeNodesLogic.test.ts`: マージ純粋ロジックテスト（31テスト）
 - `workspaceState.test.ts`: 統合テスト（マージ含む）
 - `ProofWorkspace.stories.tsx`: Storybook ストーリー
+- `formulaCopyLogic.test.ts`: 論理式コピー変換テスト（Unicode/ASCII/LaTeX）
+
+## コンテキストメニュー
+
+- `WorkspaceMenuItem`: 単一メニュー項目（クリック＋ホバーハイライト）
+- `WorkspaceMenuSubmenu`: ホバーで展開するサブメニュー（子に `WorkspaceMenuItem` を配置）
+- `formulaCopyLogic.ts`: 論理式コピー変換ロジック（formulaText → Unicode/ASCII/LaTeX）
+- ProofMessages に新フィールド追加時: `proofMessages.ts` + `messages/en.json` + `messages/ja.json` + `WorkspaceContent.tsx` の4箇所を同期
 
 ## WorkspaceState
 
