@@ -145,3 +145,5 @@
   - [x] 29/34クエストをリッチな証明木に変換済み。残り5件は別問題（sc-23,24は→⇒簡略化、sc-27,34はクエスト式バグ、sc-30はカンマ分割問題）。
 - [x] 代入エントリをあとから編集する場合は、同じ論理式編集コンポーネントになっていない。
   - substPromptBannerのFormulaEditor/TermEditorにeditTrigger="none", forceEditMode={true}, inputStyle={substInputStyle}を追加し、EdgeParameterPopoverと統一
+- [x] いくらかネイティブの prompt(confirm?) が使われていそうだが、それらはすべて、カスタムのモーダルにする — RulePromptModalコンポーネントで全13箇所置換完了（ND:1, TAB:4, AT:2, SC:6）
+  - [x] たとえば、ヒルベルト以外の規則適用でも使われているが、代入適用と同じように、専用のモーダルが出るべきだ

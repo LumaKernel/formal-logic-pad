@@ -16373,3 +16373,40 @@
   - sc-27, sc-34 のクエスト式は論理的に妥当でない（パーサーの量化子優先度問題）。将来的に式を修正する必要あり
   - splitSequentTextParts の text.split(",") は P(x,y) のような多引数述語で壊れる（sc-30が証明不可の原因）
 ---
+
+## 2026-03-21 - 代入プロンプトバナーのFormulaEditor統一
+- 実装した内容: substPromptBannerのFormulaEditor/TermEditorにeditTrigger="none", forceEditMode={true}, inputStyle={substInputStyle}を追加し、EdgeParameterPopoverと同じ体験に統一
+- 変更したファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx (substInputStyleを追加、FormulaEditor/TermEditorのprops統一)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (forceEditModeに合わせてテスト更新)
+  - src/lib/proof-pad/ProofWorkspace.stories.tsx (play関数のclick display不要化)
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx (typeSubstitutionValueヘルパー更新)
+- **今後のイテレーションへの学び:**
+  - FormulaEditor/TermEditorのeditTrigger, forceEditMode, inputStyleは代入入力の標準設定として統一されている
+  - テスト・ストーリーのplay関数でFormulaEditorの操作方法が変わる場合（click display → 直接type）、3箇所(test, stories, WorkspacePageView stories)すべて更新が必要
+---
+
+---
+
+## 2026-03-20 - [proof-pad] globalThis.promptをカスタムモーダルRulePromptModalに全面置換
+- ベースライン: Stmts 99.37%, Branch 97.64%, Funcs 90.14%, Lines 99.48%
+- **結果: Stmts 99.37% (±0), Branch 97.63% (-0.01%), Funcs 90.17% (+0.03%), Lines 99.48% (±0)**
+- 実装内容:
+  - RulePromptModal.tsx: 汎用規則パラメータ入力モーダル（overlay + input + OK/Cancel + Enter/Escape）
+  - RulePromptModal.test.tsx: 8テスト（表示・確定・キャンセル・キー操作・オーバーレイクリック）
+  - ProofWorkspace.tsx: Promise-based showRulePrompt + useState/useRef パターンで非同期モーダル制御。全13箇所のglobalThis.prompt()を置換（ND:1, TAB:4, AT:2, SC:6）
+  - ProofWorkspace.test.tsx: 30箇所のvi.spyOn(globalThis, "prompt")をconfirmRulePrompt/cancelRulePromptヘルパーに置換
+  - WorkspacePageView.stories.tsx: 2箇所のglobalThis.promptモックをモーダルUI操作に置換
+- 変更ファイル:
+  - src/lib/proof-pad/RulePromptModal.tsx（新規）
+  - src/lib/proof-pad/RulePromptModal.test.tsx（新規）
+  - src/lib/proof-pad/ProofWorkspace.tsx（showRulePrompt統合、JSX追加）
+  - src/lib/proof-pad/ProofWorkspace.test.tsx（30テストのモック→モーダルUI操作に変更）
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx（2ストーリーのpromptモック→モーダル操作）
+- **今後のイテレーションへの学び:**
+  - Promise-based モーダルパターン: useRef<resolve>でPromise resolveを保持し、useState<config|null>でモーダル表示制御。非同期ハンドラからawaitで利用
+  - useCallbackの宣言順序に注意: showRulePromptを参照するハンドラより前に宣言する必要がある（TS2454）
+  - テストでのモーダル操作: screen.findByTestId（async）でモーダル出現を待ち、userEvent.clear→type→clickで値入力・確定
+  - globalThis.alert はまだ残存（別タスクで対応検討）
+
+---
