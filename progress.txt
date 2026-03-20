@@ -16121,3 +16121,13 @@
   - connectionElements内でrefを読んでも依存配列に入れる必要はない（workspaceの変更で十分）
   - PortConnectionのsimplified propはhandDrawnも無効化する（SVGフィルタも省略）
 ---
+
+## 2026-03-20 16:06 - proof-pad 未知公理の依存表示改善
+- 実装した内容: 未知（named でない）公理の依存表示で "Axiom" ではなく論理式テキストを表示するように修正
+- 変更したファイル: `src/lib/proof-pad/ProofWorkspace.tsx`
+- 修正内容: `getNodeDependencyInfos` の displayName フォールバックを `depNode?.label` → `depNode?.formulaText` に変更
+- これにより構文同値でない公理は別々に表示され、同一式のものだけが `deduplicateDependencyInfos` でまとめられる
+- **今後のイテレーションへの学び:**
+  - `identifyAxiomName` が "Identified" / "TheoryAxiomIdentified" を返さないノードが「未知公理」
+  - `deduplicateDependencyInfos` は displayName ベースの重複排除なので、displayName を正しく設定すれば自然に正しく動作する
+---

@@ -1,7 +1,5 @@
 # 差し込みタスク
 
-- [x] 未知(namedではない)の公理に依存しているときは、依存として "Axiom" と出すのではなく、その論理式そのものを出して。いまだと、関係ないものも、 Axiom として統合されており、これも問題。構文同値のもの以外はまとめないで
-  - displayNameフォールバックを `depNode?.label` → `depNode?.formulaText` に変更。deduplicateは同一formulaTextで正しく動作
 - [ ] ノードのメニューに論理式をコピー、論理式をコピー (ASCII)、論理式をコピー (LaTeX) など欲しい (ネストメニューで)
 - [ ] (all x. phi) -> phi[tau/x] への代入で phi := phi -> phi でも [tau/x] が消えるのはおかしい。簡約の域ではない。(phi -> phi)[tau/x]になるべきだ。 x[tau/x]でtauになるのは、確定なのでわかるが。
   - [ ] tau_0[tau_1/x] も簡約はできない。
