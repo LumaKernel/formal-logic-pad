@@ -858,6 +858,39 @@ const hasMetaVariableBase = (f: Formula): boolean => {
 };
 
 /**
+ * 論理式にメタ変数が含まれるかどうかを再帰的に判定する。
+ * hasMetaVariableBase とは異なり、複合式（Implication, Negation等）の
+ * 内部に含まれるメタ変数も検出する。
+ */
+const containsMetaVariable = (f: Formula): boolean => {
+  switch (f._tag) {
+    case "MetaVariable":
+      return true;
+    case "Predicate":
+    case "Equality":
+      return false;
+    case "Negation":
+      return containsMetaVariable(f.formula);
+    case "Implication":
+    case "Conjunction":
+    case "Disjunction":
+    case "Biconditional":
+      return containsMetaVariable(f.left) || containsMetaVariable(f.right);
+    case "Universal":
+    case "Existential":
+      return containsMetaVariable(f.formula);
+    case "FormulaSubstitution":
+      return containsMetaVariable(f.formula);
+    case "FreeVariableAbsence":
+      return containsMetaVariable(f.formula);
+  }
+  /* v8 ignore start */
+  f satisfies never;
+  return false;
+  /* v8 ignore stop */
+};
+
+/**
  * 置換チェーンの各操作を表す型。
  */
 type SubstitutionOp =
@@ -1098,6 +1131,15 @@ const normalizeFormulaRec = (f: Formula): Formula => {
         return canonicalizeSubstitutionChain(base, allOps);
       }
 
+      // メタ変数を含む複合式: 置換を解決できないため保持
+      if (containsMetaVariable(resolvedInner)) {
+        return new FormulaSubstitution({
+          formula: resolvedInner,
+          term: f.term,
+          variable: f.variable,
+        });
+      }
+
       // 具体的な式: 置換を実行して解決
       return substituteTermVariableInFormula(resolvedInner, f.variable, f.term);
     }
@@ -1114,6 +1156,14 @@ const normalizeFormulaRec = (f: Formula): Formula => {
           { kind: "absence" as const, variable: f.variable },
         ];
         return canonicalizeSubstitutionChain(base, allOps);
+      }
+
+      // メタ変数を含む複合式: 変数の自由/束縛が判定できないため保持
+      if (containsMetaVariable(normalizedInner)) {
+        return new FreeVariableAbsence({
+          formula: normalizedInner,
+          variable: f.variable,
+        });
       }
 
       // 具体的な式: x が自由でなければアサーションを除去

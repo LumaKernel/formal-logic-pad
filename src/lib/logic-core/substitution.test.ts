@@ -1683,4 +1683,83 @@ describe("normalizeFormula", () => {
       expect(result.variable.name).toBe("x");
     }
   });
+
+  // --- メタ変数を含む複合式への置換保持 ---
+
+  test("複合式内のメタ変数: (φ→φ)[τ/x] は保持される（簡約されない）", () => {
+    const phi = metaVariable("φ");
+    const tau = termVariable("τ");
+    // (φ → φ)[τ/x]
+    const f = formulaSubstitution(implication(phi, phi), tau, x);
+    const result = normalizeFormula(f);
+    // FormulaSubstitution が保持されるべき
+    expect(result._tag).toBe("FormulaSubstitution");
+    if (result._tag === "FormulaSubstitution") {
+      expect(result.formula._tag).toBe("Implication");
+      expect(result.variable.name).toBe("x");
+    }
+  });
+
+  test("複合式内のメタ変数: ¬φ[a/x] は保持される", () => {
+    const phi = metaVariable("φ");
+    const f = formulaSubstitution(negation(phi), a, x);
+    const result = normalizeFormula(f);
+    expect(result._tag).toBe("FormulaSubstitution");
+  });
+
+  test("複合式内のメタ変数: (φ∧ψ)[a/x] は保持される", () => {
+    const phi = metaVariable("φ");
+    const psi = metaVariable("ψ");
+    const f = formulaSubstitution(conjunction(phi, psi), a, x);
+    const result = normalizeFormula(f);
+    expect(result._tag).toBe("FormulaSubstitution");
+  });
+
+  test("複合式内のメタ変数: (φ∨ψ)[a/x] は保持される", () => {
+    const phi = metaVariable("φ");
+    const psi = metaVariable("ψ");
+    const f = formulaSubstitution(disjunction(phi, psi), a, x);
+    const result = normalizeFormula(f);
+    expect(result._tag).toBe("FormulaSubstitution");
+  });
+
+  test("複合式内のメタ変数: (∀y.φ)[a/x] は保持される", () => {
+    const phi = metaVariable("φ");
+    const f = formulaSubstitution(universal(y, phi), a, x);
+    const result = normalizeFormula(f);
+    expect(result._tag).toBe("FormulaSubstitution");
+  });
+
+  test("複合式内のメタ変数: FreeVariableAbsence (φ→φ)[/x] は保持される", () => {
+    const phi = metaVariable("φ");
+    const f = freeVariableAbsence(implication(phi, phi), x);
+    const result = normalizeFormula(f);
+    // メタ変数を含むので x が自由かどうか不明 → 保持
+    expect(result._tag).toBe("FreeVariableAbsence");
+  });
+
+  test("公理A5のインスタンス化: (∀x.φ)→φ[τ/x] で φ:=φ→φ", () => {
+    const phi = metaVariable("φ");
+    const tau = termVariable("τ");
+    // 公理スキーマ: (∀x. φ) → φ[τ/x]
+    const axiomSchema = implication(
+      universal(x, phi),
+      formulaSubstitution(phi, tau, x),
+    );
+    // φ := φ→φ で代入
+    const subst = buildFormulaSubstitutionMap([
+      [phi, implication(phi, phi)],
+    ]);
+    const instantiated = substituteFormulaMetaVariables(axiomSchema, subst);
+    const normalized = normalizeFormula(instantiated);
+
+    // 正規化後: (∀x.(φ→φ)) → (φ→φ)[τ/x]
+    // [τ/x] が消えてはいけない
+    expect(normalized._tag).toBe("Implication");
+    if (normalized._tag === "Implication") {
+      expect(normalized.left._tag).toBe("Universal");
+      // 右辺は FormulaSubstitution が保持されるべき
+      expect(normalized.right._tag).toBe("FormulaSubstitution");
+    }
+  });
 });
