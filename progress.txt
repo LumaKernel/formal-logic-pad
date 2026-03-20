@@ -16452,3 +16452,27 @@
   - ICOファイルフォーマット: header(6B) + dir entries(16B each) + PNG data。sharpで各サイズPNGを生成してICOに組み立て
 
 ---
+
+## 2026-03-21 - [proof-pad] クエストバッジクリックでクエスト詳細ポップオーバーを表示
+- ベースライン: Stmts 99.37%, Branch 97.63%, Funcs 90.17%, Lines 99.48%
+- 実装内容:
+  - ProofWorkspace.tsx: クエストバッジを静的<span>からクリック可能な<button>に変更
+  - クリックでポップオーバー表示（説明・ヒント数・学習ポイント）
+  - InlineMarkdown対応でマークダウンテキストをリッチ表示
+  - 外部クリック+Escapeで閉じる
+  - proofMessages.ts: questDetailHintsCount メッセージキー追加
+  - WorkspaceContent.tsx: i18nマッピング追加
+  - messages/en.json, messages/ja.json: 翻訳追加
+  - ProofWorkspace.stories.tsx: QuestDetailPopoverストーリー追加（play関数でクリック/表示/閉じる検証、13ステップ）
+- 変更ファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx
+  - src/lib/proof-pad/proofMessages.ts
+  - src/lib/proof-pad/ProofWorkspace.stories.tsx
+  - src/app/workspace/[id]/WorkspaceContent.tsx
+  - messages/en.json, messages/ja.json
+- スクリーンショット: .screenshots/quest-detail-popover-tests-pass.png
+- **今後のイテレーションへの学び:**
+  - ProofWorkspaceのツールバーバッジは L5100付近。questInfo propでクエスト詳細を受け取る
+  - ポップオーバーパターン: useRef + useEffect(mousedown+keydown) + position:absolute + zIndex:1600
+
+---
