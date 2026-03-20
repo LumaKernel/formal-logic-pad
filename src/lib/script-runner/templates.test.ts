@@ -22,6 +22,11 @@ import {
   removeNode,
 } from "../proof-pad/workspaceState";
 import type { WorkspaceState } from "../proof-pad/workspaceState";
+import {
+  findHilbertRootNodeIds,
+  buildHilbertProofTree,
+} from "../proof-pad/hilbertTreeBuildLogic";
+import { encodeProofNode } from "./hilbertProofBridge";
 
 describe("BUILTIN_TEMPLATES", () => {
   it("20のテンプレートを含む", () => {
@@ -1157,7 +1162,14 @@ describe("テンプレート統合テスト（ステートフルハンドラ）"
    * 実際のワークスペース状態を使用するステートフルハンドラ。
    * ProofWorkspace.tsx の scriptCommandHandler と同じ動作を再現。
    */
-  const createStatefulHandler = (): {
+  const createStatefulHandler = (options?: {
+    readonly deductionSystemInfoOverride?: {
+      readonly style: string;
+      readonly systemName: string;
+      readonly isHilbertStyle: boolean;
+      readonly rules: readonly string[];
+    };
+  }): {
     readonly handler: WorkspaceCommandHandler;
     readonly getWorkspace: () => WorkspaceState;
   } => {
@@ -1214,12 +1226,13 @@ describe("テンプレート統合テスト（ステートフルハンドラ）"
         nextY = 50;
       },
       getSelectedNodeIds: () => [],
-      getDeductionSystemInfo: () => ({
-        style: ds.style as string,
-        systemName: ds.system.name,
-        isHilbertStyle: ds.style === "hilbert",
-        rules: [],
-      }),
+      getDeductionSystemInfo: () =>
+        options?.deductionSystemInfoOverride ?? {
+          style: ds.style satisfies string,
+          systemName: ds.system.name,
+          isHilbertStyle: ds.style === "hilbert",
+          rules: [],
+        },
       getLogicSystem: () => {
         if (ds.style !== "hilbert") {
           throw new Error("getLogicSystem: Hilbert体系でのみ使用可能");
@@ -1237,7 +1250,55 @@ describe("テンプレート統合テスト（ステートフルハンドラ）"
         throw new Error("Not implemented in stateful test handler");
       },
       extractHilbertProof: () => {
-        throw new Error("Not implemented in stateful test handler");
+        let rootIds = findHilbertRootNodeIds(ws.nodes, ws.inferenceEdges);
+
+        // エッジなし（単一公理ノード等）の場合: ゴール式に一致するノードをルートとする
+        if (rootIds.length === 0) {
+          if (ws.nodes.length === 0) {
+            throw new Error(
+              "extractHilbertProof: ワークスペースにノードがありません。",
+            );
+          }
+          // ゴールがあればゴール式に一致するノードを探す
+          if (ws.goals.length > 0) {
+            const goalText = ws.goals[0]?.formulaText;
+            const goalNode = ws.nodes.find((n) => n.formulaText === goalText);
+            if (goalNode !== undefined) {
+              rootIds = [goalNode.id];
+            }
+          }
+          // ゴールなし or 一致なし: 最後のノードをルートとする
+          if (rootIds.length === 0) {
+            const lastNode = ws.nodes[ws.nodes.length - 1];
+            if (lastNode !== undefined) {
+              rootIds = [lastNode.id];
+            }
+          }
+        }
+
+        if (rootIds.length > 1) {
+          throw new Error(
+            `extractHilbertProof: 複数のルートノードが見つかりました（${String(rootIds.length) satisfies string}個）。`,
+          );
+        }
+        const targetRootId = rootIds[0];
+        if (targetRootId === undefined) {
+          throw new Error(
+            "extractHilbertProof: ルートノードが見つかりません。",
+          );
+        }
+        const treeResult = buildHilbertProofTree(
+          targetRootId,
+          ws.nodes,
+          ws.inferenceEdges,
+        );
+        if (Either.isLeft(treeResult)) {
+          const tag = treeResult.left._tag satisfies string;
+          throw new Error(
+            `extractHilbertProof: 証明木構築に失敗: ${tag satisfies string}`,
+          );
+        }
+        return encodeProofNode(treeResult.right);
       },
     };
 
@@ -1307,5 +1368,176 @@ describe("テンプレート統合テスト（ステートフルハンドラ）"
     }
     expect(result._tag).toBe("Ok");
     expect(consoleLogs.some((l) => l.includes("Q.E.D."))).toBe(true);
+  });
+
+  it("syllogism-proof: ステートフルハンドラで正常に実行される", () => {
+    consoleLogs.length = 0;
+    const tmpl = BUILTIN_TEMPLATES.find((t) => t.id === "syllogism-proof")!;
+    const { handler, getWorkspace } = createStatefulHandler();
+    const bridges = [
+      ...createProofBridges(),
+      ...createCutEliminationBridges(),
+      ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
+      ...consoleBridges,
+    ];
+    const code = consoleShim + tmpl.code;
+    const runner = createScriptRunner(code, {
+      bridges,
+      maxSteps: 500000,
+    });
+    const result = "run" in runner ? runner.run() : runner;
+    if (result._tag === "Error") {
+      throw new Error(
+        `Template failed: ${JSON.stringify(result.error) satisfies string}`,
+      );
+    }
+    expect(result._tag).toBe("Ok");
+
+    // 演繹定理が3回適用され、最終結果がワークスペースに表示されること
+    const ws = getWorkspace();
+    expect(ws.nodes.length).toBeGreaterThan(0);
+
+    // コンソール出力確認
+    expect(consoleLogs.some((l) => l.includes("三段論法"))).toBe(true);
+    expect(consoleLogs.some((l) => l.includes("Q.E.D."))).toBe(true);
+  });
+
+  it("hilbert-theorem-gallery: ステートフルハンドラで正常に実行される", () => {
+    consoleLogs.length = 0;
+    const tmpl = BUILTIN_TEMPLATES.find(
+      (t) => t.id === "hilbert-theorem-gallery",
+    )!;
+    const { handler, getWorkspace } = createStatefulHandler();
+    const bridges = [
+      ...createProofBridges(),
+      ...createCutEliminationBridges(),
+      ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
+      ...consoleBridges,
+    ];
+    const code = consoleShim + tmpl.code;
+    const runner = createScriptRunner(code, {
+      bridges,
+      maxSteps: 500000,
+    });
+    const result = "run" in runner ? runner.run() : runner;
+    if (result._tag === "Error") {
+      throw new Error(
+        `Template failed: ${JSON.stringify(result.error) satisfies string}`,
+      );
+    }
+    expect(result._tag).toBe("Ok");
+
+    // 最終ラウンドの証明がワークスペースに表示されていること
+    const ws = getWorkspace();
+    expect(ws.nodes.length).toBeGreaterThan(0);
+
+    // コンソール出力確認
+    expect(consoleLogs.some((l) => l.includes("定理1"))).toBe(true);
+    expect(consoleLogs.some((l) => l.includes("定理2"))).toBe(true);
+    expect(consoleLogs.some((l) => l.includes("ギャラリー完了"))).toBe(true);
+  });
+
+  // SC系テンプレート: displayScProof がワークスペース操作を行う
+  it("auto-prove-lk: ステートフルハンドラで正常に実行される", () => {
+    consoleLogs.length = 0;
+    const tmpl = BUILTIN_TEMPLATES.find((t) => t.id === "auto-prove-lk")!;
+    const { handler, getWorkspace } = createStatefulHandler({
+      deductionSystemInfoOverride: {
+        style: "sequent-calculus",
+        systemName: "LK",
+        isHilbertStyle: false,
+        rules: [],
+      },
+    });
+    const bridges = [
+      ...createProofBridges(),
+      ...createCutEliminationBridges(),
+      ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
+      ...consoleBridges,
+    ];
+    const code = consoleShim + tmpl.code;
+    const runner = createScriptRunner(code, {
+      bridges,
+      maxSteps: 50000,
+    });
+    const result = "run" in runner ? runner.run() : runner;
+    if (result._tag === "Error") {
+      throw new Error(
+        `Template failed: ${JSON.stringify(result.error) satisfies string}`,
+      );
+    }
+    expect(result._tag).toBe("Ok");
+
+    // displayScProof でノードが配置されていること
+    const ws = getWorkspace();
+    expect(ws.nodes.length).toBeGreaterThan(0);
+
+    expect(consoleLogs.some((l) => l.includes("自動証明探索"))).toBe(true);
+    expect(consoleLogs.some((l) => l.includes("Q.E.D."))).toBe(true);
+  });
+
+  it("cut-elimination-simple: ステートフルハンドラで正常に実行される", () => {
+    consoleLogs.length = 0;
+    const tmpl = BUILTIN_TEMPLATES.find(
+      (t) => t.id === "cut-elimination-simple",
+    )!;
+    const { handler, getWorkspace } = createStatefulHandler();
+    const bridges = [
+      ...createProofBridges(),
+      ...createCutEliminationBridges(),
+      ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
+      ...consoleBridges,
+    ];
+    const code = consoleShim + tmpl.code;
+    const runner = createScriptRunner(code, {
+      bridges,
+      maxSteps: 50000,
+    });
+    const result = "run" in runner ? runner.run() : runner;
+    if (result._tag === "Error") {
+      throw new Error(
+        `Template failed: ${JSON.stringify(result.error) satisfies string}`,
+      );
+    }
+    expect(result._tag).toBe("Ok");
+
+    // displayScProof でノードが配置されていること
+    const ws = getWorkspace();
+    expect(ws.nodes.length).toBeGreaterThan(0);
+  });
+
+  it("cut-elimination-implication: ステートフルハンドラで正常に実行される", () => {
+    consoleLogs.length = 0;
+    const tmpl = BUILTIN_TEMPLATES.find(
+      (t) => t.id === "cut-elimination-implication",
+    )!;
+    const { handler, getWorkspace } = createStatefulHandler();
+    const bridges = [
+      ...createProofBridges(),
+      ...createCutEliminationBridges(),
+      ...createWorkspaceBridges(handler),
+      ...createHilbertProofBridges(handler),
+      ...consoleBridges,
+    ];
+    const code = consoleShim + tmpl.code;
+    const runner = createScriptRunner(code, {
+      bridges,
+      maxSteps: 50000,
+    });
+    const result = "run" in runner ? runner.run() : runner;
+    if (result._tag === "Error") {
+      throw new Error(
+        `Template failed: ${JSON.stringify(result.error) satisfies string}`,
+      );
+    }
+    expect(result._tag).toBe("Ok");
+
+    // displayScProof でノードが配置されていること
+    const ws = getWorkspace();
+    expect(ws.nodes.length).toBeGreaterThan(0);
   });
 });
