@@ -16099,3 +16099,10 @@
   - `--color-panel-bg` は全パネル共通で使われているため、個別パネルの半透明化は別のCSS変数 `--color-panel-translucent-bg` を追加する
   - WebKit系ブラウザでは `-webkit-backdrop-filter` も必要（React では `WebkitBackdropFilter` プロパティ名）
 ---
+
+## 2026-03-20 15:10 - UI z-index修正
+- 証明完了バナーのz-indexを30→5に下げ、各種パネル(z-index:10)が上に表示されるように修正
+- 変更ファイル: src/lib/proof-pad/ProofWorkspace.tsx (1行変更)
+- **今後のイテレーションへの学び:**
+  - z-indexレイヤリング: パネル群=10, 証明完了バナー=5, ズームコントロール=20, コンテキストメニュー=2000, モーダル=3000
+---
