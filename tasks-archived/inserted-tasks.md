@@ -99,3 +99,5 @@
 - [x] JAで日本語になってない
   - Script Library, Find, Library, Save, Run, Stop, Play, Reset, Ready, API Ref
   - scriptEditorMessages.ts作成、コンポーネントprops化、messages/ja.json追加、WorkspaceContent→WorkspacePageView→ProofWorkspace→ScriptEditorComponent伝搬パイプライン構築
+- [x] スクリプトエディタって半透明にできる？
+  - backdrop-filter: blur(12px) + rgba alpha 0.82 でグラスモーフィズム効果を適用

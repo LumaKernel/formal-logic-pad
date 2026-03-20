@@ -16089,3 +16089,13 @@
   - i18nパイプラインは WorkspaceContent(hooks) → WorkspacePageView(props) → ProofWorkspace(props) → ScriptEditorComponent(props) の4段
   - getStatusMessage は executionStatusLabel のメッセージ対応版で、exhaustive if-chain パターン
 ---
+
+## 2026-03-20 - UI: スクリプトエディタパネル半透明化
+- ProofWorkspace.tsx: スクリプトエディタコンテナに `backdropFilter: "blur(12px)"` + `WebkitBackdropFilter` 追加
+- globals.css: `--color-panel-translucent-bg` / `--color-panel-translucent-shadow` CSS変数を追加（ライト/ダークモード両対応）
+- 背景色alpha: 0.96 → 0.82 に変更、キャンバスのノードが透けて見えるグラスモーフィズム効果
+- 変更ファイル: ProofWorkspace.tsx, globals.css
+- **今後のイテレーションへの学び:**
+  - `--color-panel-bg` は全パネル共通で使われているため、個別パネルの半透明化は別のCSS変数 `--color-panel-translucent-bg` を追加する
+  - WebKit系ブラウザでは `-webkit-backdrop-filter` も必要（React では `WebkitBackdropFilter` プロパティ名）
+---
