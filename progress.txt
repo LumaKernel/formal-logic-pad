@@ -16512,3 +16512,27 @@
   - ReferencePopover追加パターン: 純粋マッピングロジック(*ReferenceLogic.ts) + findEntryById + ReferencePopoverコンポーネント + e.stopPropagation()でボタンクリックの伝搬防止
 
 ---
+
+## 2026-03-21 - マイコレクション最小化・非表示ボタン、ゴール一覧ボタン見た目変更
+- 実装した内容:
+  - ProofCollectionPanel: −ボタン(最小化/折り畳み)と×ボタン(非表示/hidden)の2段階UIを追加
+  - ProofWorkspace: collectionPanelHidden状態管理、デフォルト非表示(initialCollectionPanelVisible prop)
+  - キャンバスコンテキストメニューに「コレクションを表示」項目追加（非表示時のみ表示）
+  - GoalPanel: ×→−(最小化)の見た目に変更
+  - テスト追加: ProofCollectionPanel非表示ボタン4件、ProofWorkspaceデフォルト非表示確認1件
+- 変更したファイル:
+  - src/lib/proof-collection/ProofCollectionPanel.tsx (onHide prop追加、−/×ボタン分離)
+  - src/lib/proof-collection/ProofCollectionPanel.test.tsx (非表示ボタンテスト4件追加)
+  - src/lib/proof-pad/GoalPanel.tsx (×→−変更)
+  - src/lib/proof-pad/ProofWorkspace.tsx (collectionPanelHidden状態、コンテキストメニュー項目)
+  - src/lib/proof-pad/ProofWorkspace.test.tsx (デフォルト非表示テスト追加、既存テスト修正)
+  - src/lib/proof-pad/proofMessages.ts (showCollectionPanel追加)
+  - src/app/workspace/[id]/WorkspaceContent.tsx (showCollectionPanel伝搬)
+  - messages/en.json, messages/ja.json (showCollectionPanel翻訳)
+- スクリーンショット: .screenshots/collection-panel-minimize-button.png
+- カバレッジ: CI結果待ち
+- **今後のイテレーションへの学び:**
+  - パネルの表示/非表示状態をローカルstate→親コンポーネントに持ち上げる際、テストのデフォルト挙動が変わる。initialXxxVisible propパターンでテストの後方互換を維持
+  - onHideはオプショナルpropにし、未指定時は×ボタン自体を非表示にすることで、ストーリー等の単体表示では従来通り動作
+
+---
