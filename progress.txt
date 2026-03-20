@@ -16320,3 +16320,13 @@
   - コンテキストメニューの項目生成は純粋ロジック（tabContextMenuLogic.ts）に分離し、テスタブルに保つ
   - `handleTabContextMenuAction` はswitch文でアクションを分岐。新アクション追加時はTabContextMenuAction union型に追加すればexhaustive checkが効く
 ---
+
+## 2026-03-21 - スクリプトエディタ ホバーウィジェット見切れ修正
+- `scriptEditorLogic.ts` の `defaultEditorOptions` に `fixedOverflowWidgets: true` を追加
+- Monaco editorのホバーウィジェットが親コンテナの `overflow: hidden` でクリップされる問題を解決
+- 変更ファイル: `src/components/ScriptEditor/scriptEditorLogic.ts`
+- カバレッジ: 変更なし（オプションオブジェクトへのプロパティ追加のみ）
+- **今後のイテレーションへの学び:**
+  - Monaco editorの `fixedOverflowWidgets: true` は、エディタが `overflow: hidden` なコンテナ内にある場合に必須
+  - ProofWorkspace → ScriptEditorComponent のネスト構造で3段の `overflow: hidden` がある
+---
