@@ -492,9 +492,7 @@ export function ReferenceFloatingWindow({
                 ? "一致するエントリがありません。"
                 : "No matching entries found."
             }
-            guideSectionTitle={
-              locale === "ja" ? "はじめに" : "Getting Started"
-            }
+            guideSectionTitle={locale === "ja" ? "はじめに" : "Getting Started"}
             guideSectionDescription={
               locale === "ja"
                 ? "形式論理は初めてですか？ここから始めましょう。"
