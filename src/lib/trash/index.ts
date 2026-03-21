@@ -4,7 +4,7 @@
  * ノート・自作クエスト・スクリプト・コレクションエントリの
  * ソフトデリート（ゴミ箱移動）と復元・完全削除・期限切れ管理を提供する。
  *
- * 変更時は trashState.ts, trashState.test.ts も同期すること。
+ * 変更時は trashState.ts, useTrash.ts, *.test.ts も同期すること。
  */
 
 export {
@@ -27,3 +27,12 @@ export {
   serializeTrashState,
   deserializeTrashState,
 } from "./trashState";
+export {
+  useTrash,
+  loadTrashState,
+  saveTrashState,
+  TRASH_STORAGE_KEY,
+  type UseTrashResult,
+  type UseTrashOptions,
+  type GetNow,
+} from "./useTrash";

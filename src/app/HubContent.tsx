@@ -63,7 +63,8 @@ import {
   updateHasEverHadNotebooks,
   recommendedQuestIds,
 } from "./landingPageLogic";
-import { useProofCollection } from "../lib/proof-collection";
+import { useProofCollection, findProofEntry } from "../lib/proof-collection";
+import { useTrash } from "../lib/trash";
 import {
   deserializeSavedScripts,
   serializeSavedScripts,
@@ -174,6 +175,7 @@ function HubInner({ initialTab }: HubContentProps) {
   const questProgress = useQuestProgress();
   const customQuestCollection = useCustomQuestCollection();
   const proofCollection = useProofCollection();
+  const trash = useTrash();
 
   // Saved scripts state (localStorage-backed)
   const [savedScripts, setSavedScripts] = useState<SavedScriptsState>(() => {
@@ -197,9 +199,13 @@ function HubInner({ initialTab }: HubContentProps) {
 
   const handleDeleteScript = useCallback(
     (id: string) => {
+      const script = findScript(savedScripts, id);
+      if (script !== undefined) {
+        trash.moveToTrash("script", id, script.title, JSON.stringify(script));
+      }
       persistScripts(removeScript(savedScripts, id));
     },
-    [savedScripts, persistScripts],
+    [savedScripts, persistScripts, trash],
   );
 
   const handleRenameScript = useCallback(
@@ -439,18 +445,6 @@ function HubInner({ initialTab }: HubContentProps) {
     [allQuests, customQuestCollection],
   );
 
-  // Delete custom quest
-  const handleDeleteCustomQuest = useCallback(
-    (questId: string) => {
-      const updated = removeCustomQuest(
-        customQuestCollection.collection,
-        questId,
-      );
-      customQuestCollection.setCollection(updated);
-    },
-    [customQuestCollection],
-  );
-
   // Create custom quest
   const handleCreateCustomQuest = useCallback(
     (params: CreateCustomQuestParams) => {
@@ -646,6 +640,63 @@ function HubInner({ initialTab }: HubContentProps) {
     [notebookCollection],
   );
 
+  // --- ゴミ箱統合: 削除 → ゴミ箱移動 ---
+
+  const handleDeleteNotebook = useCallback(
+    (id: string) => {
+      const notebook = findNotebook(notebookCollection.collection, id);
+      if (notebook !== undefined) {
+        trash.moveToTrash(
+          "notebook",
+          id,
+          notebook.meta.name,
+          exportNotebookAsJson(notebook),
+        );
+      }
+      notebookCollection.remove(id);
+    },
+    [notebookCollection, trash],
+  );
+
+  const handleDeleteCustomQuestToTrash = useCallback(
+    (questId: string) => {
+      const quest = findCustomQuestById(
+        customQuestCollection.collection,
+        questId,
+      );
+      if (quest !== undefined) {
+        trash.moveToTrash(
+          "custom-quest",
+          questId,
+          quest.title,
+          exportCustomQuestAsJson(quest),
+        );
+      }
+      const updated = removeCustomQuest(
+        customQuestCollection.collection,
+        questId,
+      );
+      customQuestCollection.setCollection(updated);
+    },
+    [customQuestCollection, trash],
+  );
+
+  const handleRemoveProofEntry = useCallback(
+    (entryId: string) => {
+      const entry = findProofEntry(proofCollection.collection, entryId);
+      if (entry !== undefined) {
+        trash.moveToTrash(
+          "proof-entry",
+          entryId,
+          entry.name,
+          JSON.stringify(entry),
+        );
+      }
+      proofCollection.removeEntry(entryId);
+    },
+    [proofCollection, trash],
+  );
+
   return (
     <HubMessagesProvider messages={hubMessages}>
       <HubPageView
@@ -654,7 +705,7 @@ function HubInner({ initialTab }: HubContentProps) {
         listItems={listItems}
         groups={groups}
         onOpenNotebook={handleOpenNotebook}
-        onDeleteNotebook={notebookCollection.remove}
+        onDeleteNotebook={handleDeleteNotebook}
         onDuplicateNotebook={notebookCollection.duplicate}
         onRenameNotebook={notebookCollection.rename}
         onConvertToFree={handleConvertToFree}
@@ -664,7 +715,7 @@ function HubInner({ initialTab }: HubContentProps) {
         onCreateNotebook={handleCreateNotebook}
         customQuestItems={customQuestItems}
         onDuplicateCustomQuest={handleDuplicateCustomQuest}
-        onDeleteCustomQuest={handleDeleteCustomQuest}
+        onDeleteCustomQuest={handleDeleteCustomQuestToTrash}
         onEditCustomQuest={handleEditCustomQuest}
         onCreateCustomQuest={handleCreateCustomQuest}
         onDuplicateBuiltinToCustom={handleDuplicateBuiltinToCustom}
@@ -694,7 +745,7 @@ function HubInner({ initialTab }: HubContentProps) {
           folders: proofCollection.folders,
           onRenameEntry: proofCollection.renameEntry,
           onUpdateMemo: proofCollection.updateMemo,
-          onRemoveEntry: proofCollection.removeEntry,
+          onRemoveEntry: handleRemoveProofEntry,
           onMoveEntry: proofCollection.moveEntry,
           onCreateFolder: proofCollection.createFolder,
           onRemoveFolder: proofCollection.removeFolder,
