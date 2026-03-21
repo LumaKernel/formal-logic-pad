@@ -181,3 +181,6 @@
 
 - [x] タブローにおけるノードは、論理式単体ではなく、その列(集合)なのであるから、論理式列(または専用にさらに集合管理を作る)によって、内部的にも列で管理されるべきで、カンマ区切りで管理されるべきではない
   - 完了: formulaTexts をソースオブトゥルースとして移行完了。addNode でTAB自動初期化、TabTreeDisplayNode に伝搬、バリデーション・シリアライゼーション・コピペ全対応。splitByTopLevelComma はプロデューサー側（入力→配列変換）とSCシステムのみに限定。UI(.tsx)での消費側呼び出しはゼロ
+- [x] 順番関係があるドキュメント(ガイド)は、前後の移動をするための専用の構造管理とUIを提供しよう
+  - buildCategoryNavigationを活用し、ReferenceFloatingWindowとReferenceModalにprev/nextナビゲーションを追加
+  - ReferenceBrowserComponentのモーダルとWorkspaceContentのフローティングウィンドウに統合

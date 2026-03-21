@@ -16756,3 +16756,30 @@
   - nodeFormulaTexts のフォールバック: formulaTexts がないレガシーノードは `node.formulaText === "" ? [] : [node.formulaText]` で単一要素配列化
   - 存在しないノードID指定時は nodeTexts にもエントリがないため、sequentText のフォールバックを nodeId にする必要がある
 ---
+
+## 2026-03-21 - [reference] ドキュメントprev/nextナビゲーション追加
+- ベースライン: Stmts 99.34%, Branch 97.49%, Funcs 89.84%, Lines 99.45%
+- **結果: Stmts 99.34% (±0), Branch 97.39% (-0.10%), Funcs 89.86% (+0.02%), Lines 99.45% (±0)**
+  - Branch微減はv8カバレッジマージの揺らぎ（変更ファイル自体は全テスト通過）
+- 実装内容:
+  - ReferenceFloatingWindowにprev/nextナビゲーションフッターを追加
+  - ReferenceModalにprev/nextナビゲーションを本体末尾に追加
+  - ReferenceBrowserComponentのモーダルにbuildCategoryNavigationでnavigationDataを提供
+  - WorkspaceContentのフローティングウィンドウにbuildCategoryNavigationでnavigationDataを提供
+  - 既存のbuildCategoryNavigation純粋ロジックを再利用（新規ロジック不要）
+- 変更ファイル:
+  - src/lib/reference/ReferenceFloatingWindow.tsx（navigationData prop + ナビUI追加）
+  - src/lib/reference/ReferenceModal.tsx（同上）
+  - src/lib/reference/ReferenceBrowserComponent.tsx（modalNavigationData計算追加）
+  - src/app/workspace/[id]/WorkspaceContent.tsx（referenceNavigation計算追加）
+  - src/lib/reference/ReferenceFloatingWindow.test.tsx（+6テスト）
+  - src/lib/reference/ReferenceModal.test.tsx（+6テスト）
+  - src/lib/reference/ReferenceFloatingWindow.stories.tsx（WithNavigation, WithNavigationNextOnly追加）
+  - src/lib/reference/ReferenceModal.stories.tsx（WithNavigation追加）
+- スクリーンショット: .screenshots/floating-window-nav-fullscreen.png, .screenshots/modal-navigation.png
+- **今後のイテレーションへの学び:**
+  - navigationData propはoptionalにし、呼び出し元でbuildCategoryNavigationを使って提供するパターンが良い
+  - フローティングウィンドウはフッター配置（bodyの下・リサイズハンドルの上）、モーダルはbody末尾配置が自然
+  - 既存のbuildCategoryNavigation/buildGlobalNavigationは十分汎用的で新規ロジック不要
+
+---
