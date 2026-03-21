@@ -8357,6 +8357,79 @@ const ruleTabNegExistential: ReferenceEntry = {
  * 新しいエントリを追加する場合はここに追加し、
  * referenceContent.test.ts にもテストを追加すること。
  */
+const guideIntroScripting: ReferenceEntry = {
+  id: "guide-intro-scripting",
+  category: "guide",
+  title: {
+    en: "Automating Proofs with Scripts",
+    ja: "スクリプトで証明を自動化する",
+  },
+  summary: {
+    en: "How to use the built-in script editor to automate proof construction, explore formulas, and extend the workspace.",
+    ja: "組み込みスクリプトエディタを使って、証明構築の自動化、論理式の探索、ワークスペースの拡張を行う方法。",
+  },
+  body: {
+    en: [
+      "<b>What is the script editor?</b> The workspace includes a JavaScript-based script editor that lets you programmatically interact with the proof canvas. You can parse and manipulate formulas, add and connect proof nodes, apply inference rules, and even run automatic proof searches — all through code. The editor appears as a floating panel in the workspace and can be toggled from the toolbar.",
+
+      "<b>Getting started.</b> Open the script editor from the workspace toolbar. You will see a code editor with syntax highlighting and autocompletion. The editor comes with a library of built-in templates — click the <b>Library</b> button to browse them. Each template demonstrates a specific use case: formula exploration, proof tree construction, cut elimination, and more. Select a template to load its code, then click <b>Run</b> to execute it.",
+
+      "<b>Built-in templates.</b> Templates are organized by proof system compatibility:\n• <b>Generic</b> (all systems): <i>Formula Explorer</i> — parse, format, and compare formulas; <i>Unification Demo</i> — explore how formula matching works.\n• <b>Hilbert style</b>: <i>Identity Proof</i> — build the classic φ→φ proof step by step; <i>Proof Tree Builder</i> — construct proofs directly on the canvas with auto-layout; <i>Axiom Explorer</i> — identify axiom instances; <i>Predicate Logic Proof</i> — work with quantifiers; <i>Theorem Gallery</i> — multiple theorems with the deduction theorem; <i>Deduction Theorem</i> — apply and reverse the deduction theorem on existing proofs.\n• <b>Sequent calculus</b>: <i>Cut Elimination</i> — step-by-step tutorials (6 parts) and workspace integration; <i>Auto Prove</i> — automatic proof search for LK.",
+
+      "<b>The API at a glance.</b> Scripts have access to several API categories:\n• <b>Proof API</b>: <code>parseFormula(text)</code>, <code>formatFormula(formula)</code>, <code>applyModusPonens(major, minor)</code>, <code>applyGeneralization(formula, variable)</code>, <code>identifyAxiom(formula)</code>, <code>unify(a, b)</code>, and more.\n• <b>Workspace API</b>: <code>addNode(formulaText)</code>, <code>connectMP(conclusionId, majorId, minorId)</code>, <code>getNodes()</code>, <code>getDeductionSystemInfo()</code>, <code>autoLayout()</code> — manipulate the proof canvas directly.\n• <b>Cut Elimination API</b> (sequent calculus only): <code>buildSequentProofTree(rootId)</code>, <code>performCutElimination(tree)</code>, <code>applyCutEliminationToWorkspace(rootId)</code>.\n• <b>Either API</b>: <code>isRight(result)</code>, <code>getOrThrow(result)</code> — handle results from operations that can fail.\nClick <b>API Ref</b> in the editor toolbar to see the full reference with type signatures.",
+
+      "<b>Writing your first script.</b> Here is a minimal example that adds a formula node to the canvas:\n<code>const node = addNode(\"phi -> phi\");\nlog(\"Created node: \" + node.id);</code>\nThe <code>log()</code> function prints to the script output panel. Use it to inspect intermediate values. The <code>addNode()</code> function returns an object with the node's <code>id</code>, which you can use in subsequent operations like <code>connectMP()</code>.",
+
+      "<b>Building proofs programmatically.</b> A typical Hilbert proof script follows this pattern:\n1. Add axiom nodes with <code>addNode()</code>.\n2. Connect them with <code>connectMP(conclusionId, majorId, minorId)</code> where <i>major</i> is the implication and <i>minor</i> is its antecedent.\n3. Call <code>autoLayout()</code> to arrange the proof tree neatly.\nThe <i>Identity Proof Tree</i> template demonstrates this complete workflow. For sequent calculus, use <code>applyCutEliminationToWorkspace(rootId)</code> to transform an existing proof.",
+
+      "<b>Saving and managing scripts.</b> Press <b>Cmd+S</b> (or <b>Ctrl+S</b>) to save your script. Saved scripts appear in the <b>Scripts</b> tab on the hub page. You can also rename, export, and delete scripts from there. Unnamed scripts are auto-saved to your workspace — you will not lose work even if you close the browser.",
+
+      "<b>Tips for effective scripting.</b>\n• Start from a template and modify it — don't write from scratch.\n• Use <code>log()</code> liberally to debug.\n• Check results with <code>isRight()</code> before proceeding — many API functions return Either values.\n• Use <code>getDeductionSystemInfo()</code> to adapt your script to the current proof system.\n• The API reference panel (API Ref button) shows all available functions with type signatures.",
+    ],
+    ja: [
+      "<b>スクリプトエディタとは？</b> ワークスペースには、JavaScriptベースのスクリプトエディタが内蔵されており、証明キャンバスをプログラム的に操作できます。論理式のパースや操作、証明ノードの追加と接続、推論規則の適用、さらには自動証明探索まで、すべてコードで行えます。エディタはワークスペース内のフローティングパネルとして表示され、ツールバーから切り替えられます。",
+
+      "<b>はじめに。</b> ワークスペースのツールバーからスクリプトエディタを開きます。構文ハイライトと自動補完機能付きのコードエディタが表示されます。エディタには組み込みテンプレートのライブラリが用意されています — <b>Library</b>ボタンをクリックして一覧を表示できます。各テンプレートは特定のユースケースを実演します：論理式の探索、証明木の構築、カット除去など。テンプレートを選択してコードを読み込み、<b>Run</b>をクリックして実行します。",
+
+      "<b>組み込みテンプレート。</b> テンプレートは証明体系の互換性に基づいて整理されています：\n• <b>汎用</b>（全体系対応）：<i>Formula Explorer</i> — 論理式のパース、フォーマット、比較；<i>Unification Demo</i> — 論理式マッチングの仕組みを探索。\n• <b>Hilbertスタイル</b>：<i>Identity Proof</i> — 古典的なφ→φの証明をステップバイステップで構築；<i>Proof Tree Builder</i> — 自動レイアウト付きでキャンバス上に直接証明を構築；<i>Axiom Explorer</i> — 公理インスタンスの識別；<i>Predicate Logic Proof</i> — 量化子を扱う；<i>Theorem Gallery</i> — 演繹定理を使った複数の定理；<i>Deduction Theorem</i> — 既存の証明に演繹定理を適用・逆適用。\n• <b>シーケント計算</b>：<i>Cut Elimination</i> — ステップバイステップのチュートリアル（6部構成）とワークスペース統合；<i>Auto Prove</i> — LKの自動証明探索。",
+
+      "<b>APIの概要。</b> スクリプトからはいくつかのAPIカテゴリにアクセスできます：\n• <b>Proof API</b>：<code>parseFormula(text)</code>、<code>formatFormula(formula)</code>、<code>applyModusPonens(major, minor)</code>、<code>applyGeneralization(formula, variable)</code>、<code>identifyAxiom(formula)</code>、<code>unify(a, b)</code> など。\n• <b>Workspace API</b>：<code>addNode(formulaText)</code>、<code>connectMP(conclusionId, majorId, minorId)</code>、<code>getNodes()</code>、<code>getDeductionSystemInfo()</code>、<code>autoLayout()</code> — 証明キャンバスを直接操作。\n• <b>Cut Elimination API</b>（シーケント計算のみ）：<code>buildSequentProofTree(rootId)</code>、<code>performCutElimination(tree)</code>、<code>applyCutEliminationToWorkspace(rootId)</code>。\n• <b>Either API</b>：<code>isRight(result)</code>、<code>getOrThrow(result)</code> — 失敗する可能性のある操作の結果を処理。\nエディタツールバーの<b>API Ref</b>をクリックすると、型シグネチャ付きの完全なリファレンスが表示されます。",
+
+      "<b>最初のスクリプトを書く。</b> キャンバスに論理式ノードを追加する最小限の例：\n<code>const node = addNode(\"phi -> phi\");\nlog(\"Created node: \" + node.id);</code>\n<code>log()</code>関数はスクリプト出力パネルに出力します。中間値の確認に使いましょう。<code>addNode()</code>関数はノードの<code>id</code>を含むオブジェクトを返し、<code>connectMP()</code>などの後続操作で使えます。",
+
+      "<b>プログラムで証明を構築する。</b> 典型的なHilbert証明スクリプトは以下のパターンに従います：\n1. <code>addNode()</code>で公理ノードを追加。\n2. <code>connectMP(conclusionId, majorId, minorId)</code>で接続（<i>major</i>は含意式、<i>minor</i>はその前件）。\n3. <code>autoLayout()</code>を呼んで証明木を整列。\n<i>Identity Proof Tree</i>テンプレートがこの完全なワークフローを実演しています。シーケント計算では、<code>applyCutEliminationToWorkspace(rootId)</code>で既存の証明を変換できます。",
+
+      "<b>スクリプトの保存と管理。</b> <b>Cmd+S</b>（または<b>Ctrl+S</b>）を押してスクリプトを保存します。保存されたスクリプトはハブページの<b>Scripts</b>タブに表示されます。そこからスクリプトの名前変更、エクスポート、削除もできます。名前のないスクリプトはワークスペースに自動保存されるため、ブラウザを閉じても作業が失われることはありません。",
+
+      "<b>効果的なスクリプトのヒント。</b>\n• テンプレートから始めて修正する — ゼロから書かない。\n• <code>log()</code>を積極的に使ってデバッグする。\n• 先に進む前に<code>isRight()</code>で結果を確認する — 多くのAPI関数はEither値を返します。\n• <code>getDeductionSystemInfo()</code>で現在の証明体系に合わせてスクリプトを調整する。\n• APIリファレンスパネル（API Refボタン）に利用可能な全関数と型シグネチャが表示されます。",
+    ],
+  },
+  relatedEntryIds: [
+    "guide-basic-operations",
+    "guide-hilbert-proof-method",
+    "guide-intro-sequent-calculus",
+    "guide-meta-theorems",
+  ],
+  externalLinks: [],
+  keywords: [
+    "script",
+    "scripting",
+    "automation",
+    "API",
+    "template",
+    "addNode",
+    "connectMP",
+    "cut elimination",
+    "auto prove",
+    "スクリプト",
+    "自動化",
+    "テンプレート",
+    "カット除去",
+    "自動証明",
+  ],
+  order: 15,
+};
+
 export const allReferenceEntries: readonly ReferenceEntry[] = [
   // Guides
   guideWhatIsFormalProof,
@@ -8373,6 +8446,7 @@ export const allReferenceEntries: readonly ReferenceEntry[] = [
   guideMetaTheorems,
   guideProofStrategy,
   guideSchemaProofPractice,
+  guideIntroScripting,
   // Axioms
   axiomA1,
   axiomA2,
