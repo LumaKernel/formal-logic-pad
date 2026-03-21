@@ -7,14 +7,17 @@ from: tasks/inserted-tasks.md (line 5-6)
 ## 計画
 
 ### テスト計画
+
 - ScriptListPanel.test.tsx: 空状態でドキュメントリンクが表示されることを確認するテスト追加
 - ScriptListPanel.test.tsx: アイテムがある場合もinfo bannerが表示されることを確認するテスト追加
 
 ### ストーリー計画
+
 - HubPageView.stories.tsx の ScriptsTabEmpty ストーリーのplay関数を更新（ドキュメントリンクの確認追加）
 - HubPageView.stories.tsx の ScriptsTab ストーリーのplay関数を更新（info bannerの確認追加）
 
 ### 実装方針
+
 1. ScriptListPanelMessages に docsLinkText を追加
 2. ScriptListPanel に onShowDocs コールバックを追加
 3. 空状態: emptyDescription の下にドキュメントリンクボタン表示
