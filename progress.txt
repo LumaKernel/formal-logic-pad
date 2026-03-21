@@ -16609,3 +16609,18 @@
   - TABノードの内部モデル完全移行（formulaText:string → formulaTexts:string[]）は別イテレーションの大きなリファクタリング
   - SC の splitSequentTextParts も同じ問題を持っていたので同時修正した
 ---
+
+## 2026-03-21 - ゴミ箱純粋ロジック層
+- 実装した内容: ゴミ箱の純粋ロジック層を新規作成
+  - `src/lib/trash/trashState.ts` — データモデル（TrashItem, TrashState）、CRUD（追加・取得・復元・完全削除・全削除）、30日期限切れ管理（purgeExpiredItems, isExpired, getRemainingDays）、Effect.ts Schemaによるシリアライゼーション
+  - `src/lib/trash/trashState.test.ts` — 26件のテスト（全CRUD操作、期限切れ管理、シリアライゼーション往復、エッジケース）
+  - `src/lib/trash/index.ts` — パブリックAPIエクスポート
+- 変更したファイル: src/lib/trash/trashState.ts (新規), src/lib/trash/trashState.test.ts (新規), src/lib/trash/index.ts (新規), tasks/inserted-tasks.md
+- カバレッジ: Stmts 99.35%, Branch 97.51%, Funcs 89.97%, Lines 99.46%（Funcs微増、低下なし）
+- trashState.ts 単体: 100% 全メトリクス
+- **今後のイテレーションへの学び:**
+  - ゴミ箱UI統合はuseTrashフック→各削除ハンドラ統合→トップページタブの順で進める
+  - TrashItemKindは "notebook" | "custom-quest" | "script" | "proof-entry" の4種。新しいアイテム種別追加時はこのunionに追加
+  - serializedDataフィールドに元データのJSONを保持するため、復元時にデシリアライズが必要
+  - Effect.ts Schema でイミュータブルな配列は `Schema.Array(ItemSchema)` + readonly型で定義
+---
