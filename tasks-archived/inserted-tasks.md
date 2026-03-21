@@ -184,3 +184,6 @@
 - [x] 順番関係があるドキュメント(ガイド)は、前後の移動をするための専用の構造管理とUIを提供しよう
   - buildCategoryNavigationを活用し、ReferenceFloatingWindowとReferenceModalにprev/nextナビゲーションを追加
   - ReferenceBrowserComponentのモーダルとWorkspaceContentのフローティングウィンドウに統合
+- [x] ドキュメントトップページ、みたいなのも用意して、どのページからもそこへ移動できるようにする
+  - [x] ドキュメントタブのように一覧から検索、フィルタして探せる
+  - ReferenceBrowserComponent を onSelectEntry コールバック付きでフローティングウィンドウ内に埋め込み。entry=undefined でブラウズモード、ホームボタンで戻る
