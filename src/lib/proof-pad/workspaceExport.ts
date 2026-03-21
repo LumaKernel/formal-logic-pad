@@ -188,6 +188,7 @@ const WorkspaceNodeSchema = Schema.transform(
     position: PointSchema,
     genVariableName: Schema.optional(Schema.String),
     role: Schema.optional(Schema.Union(NodeRoleSchema, Schema.String)),
+    formulaTexts: Schema.optional(Schema.Array(Schema.String)),
     // レガシーフィールドは無視（protection等）
   }),
   Schema.typeSchema(
@@ -198,6 +199,7 @@ const WorkspaceNodeSchema = Schema.transform(
       formulaText: Schema.String,
       position: PointSchema,
       role: Schema.optional(NodeRoleSchema),
+      formulaTexts: Schema.optional(Schema.Array(Schema.String)),
     }),
   ),
   {
@@ -210,6 +212,9 @@ const WorkspaceNodeSchema = Schema.transform(
         label: raw.label,
         formulaText: raw.formulaText,
         position: raw.position,
+        ...(raw.formulaTexts !== undefined
+          ? { formulaTexts: raw.formulaTexts }
+          : {}),
       };
       // レガシー互換: "axiom"のみ有効、それ以外は無視
       const withRole: WorkspaceNode =
@@ -225,6 +230,9 @@ const WorkspaceNodeSchema = Schema.transform(
       formulaText: node.formulaText,
       position: node.position,
       ...(node.role !== undefined ? { role: node.role } : {}),
+      ...(node.formulaTexts !== undefined
+        ? { formulaTexts: [...node.formulaTexts] }
+        : {}),
     }),
   },
 );

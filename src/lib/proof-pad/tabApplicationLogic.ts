@@ -165,6 +165,8 @@ export type TabApplicationError =
 export type TabSinglePremiseResult = {
   readonly _tag: "tab-single-result";
   readonly premiseText: string;
+  /** 前提シーケントの論理式リスト（内部モデル） */
+  readonly premiseTexts: readonly string[];
 };
 
 /** 分岐（2前提）規則の適用結果 */
@@ -172,6 +174,10 @@ export type TabBranchingResult = {
   readonly _tag: "tab-branching-result";
   readonly leftPremiseText: string;
   readonly rightPremiseText: string;
+  /** 左前提シーケントの論理式リスト（内部モデル） */
+  readonly leftPremiseTexts: readonly string[];
+  /** 右前提シーケントの論理式リスト（内部モデル） */
+  readonly rightPremiseTexts: readonly string[];
 };
 
 /** 公理（0前提）の適用結果 */
@@ -202,15 +208,26 @@ function removeAtIndex(
 }
 
 /**
- * 論理式リストの先頭に新しい論理式を追加してシーケントテキストを生成する。
+ * 論理式リストの先頭に新しい論理式を追加して、論理式配列を生成する。
  * TABでは副論理式は前件の先頭に追加される（主論理式は元の位置に残る）。
  */
-function prependAndFormat(
+function prependFormulas(
   added: readonly Formula[],
   principal: Formula,
   rest: readonly Formula[],
-): string {
-  return formatSequentText([...added, principal, ...rest]);
+): readonly Formula[] {
+  return [...added, principal, ...rest];
+}
+
+/**
+ * 論理式配列をシーケントテキストと個別テキスト配列の両方に変換する。
+ */
+function formatPremise(formulas: readonly Formula[]): {
+  readonly text: string;
+  readonly texts: readonly string[];
+} {
+  const texts = formulas.map((f) => formatFormula(f));
+  return { text: texts.join(", "), texts };
 }
 
 // --- 各規則のバリデーション ---
@@ -279,9 +296,11 @@ const validateExchangeEffect = (
     const tmp = result[exchangePosition]!;
     result[exchangePosition] = result[exchangePosition + 1]!;
     result[exchangePosition + 1] = tmp;
+    const premise = formatPremise(result);
     return {
       _tag: "tab-single-result",
-      premiseText: formatSequentText(result),
+      premiseText: premise.text,
+      premiseTexts: premise.texts,
     };
   });
 
@@ -308,9 +327,11 @@ const validateDoubleNegationEffect = (
     }
     const inner = principal.formula.formula;
     const rest = removeAtIndex(formulas, position);
+    const premise = formatPremise(prependFormulas([inner], principal, rest));
     return {
       _tag: "tab-single-result",
-      premiseText: prependAndFormat([inner], principal, rest),
+      premiseText: premise.text,
+      premiseTexts: premise.texts,
     };
   });
 
@@ -333,13 +354,13 @@ const validateConjunctionEffect = (
       );
     }
     const rest = removeAtIndex(formulas, position);
+    const premise = formatPremise(
+      prependFormulas([principal.left, principal.right], principal, rest),
+    );
     return {
       _tag: "tab-single-result",
-      premiseText: prependAndFormat(
-        [principal.left, principal.right],
-        principal,
-        rest,
-      ),
+      premiseText: premise.text,
+      premiseTexts: premise.texts,
     };
   });
 
@@ -367,10 +388,18 @@ const validateNegConjunctionEffect = (
     const rest = removeAtIndex(formulas, position);
     const negLeft = negation(principal.formula.left);
     const negRight = negation(principal.formula.right);
+    const leftPremise = formatPremise(
+      prependFormulas([negLeft], principal, rest),
+    );
+    const rightPremise = formatPremise(
+      prependFormulas([negRight], principal, rest),
+    );
     return {
       _tag: "tab-branching-result",
-      leftPremiseText: prependAndFormat([negLeft], principal, rest),
-      rightPremiseText: prependAndFormat([negRight], principal, rest),
+      leftPremiseText: leftPremise.text,
+      rightPremiseText: rightPremise.text,
+      leftPremiseTexts: leftPremise.texts,
+      rightPremiseTexts: rightPremise.texts,
     };
   });
 
@@ -393,10 +422,18 @@ const validateDisjunctionEffect = (
       );
     }
     const rest = removeAtIndex(formulas, position);
+    const leftPremise = formatPremise(
+      prependFormulas([principal.left], principal, rest),
+    );
+    const rightPremise = formatPremise(
+      prependFormulas([principal.right], principal, rest),
+    );
     return {
       _tag: "tab-branching-result",
-      leftPremiseText: prependAndFormat([principal.left], principal, rest),
-      rightPremiseText: prependAndFormat([principal.right], principal, rest),
+      leftPremiseText: leftPremise.text,
+      rightPremiseText: rightPremise.text,
+      leftPremiseTexts: leftPremise.texts,
+      rightPremiseTexts: rightPremise.texts,
     };
   });
 
@@ -424,9 +461,13 @@ const validateNegDisjunctionEffect = (
     const rest = removeAtIndex(formulas, position);
     const negLeft = negation(principal.formula.left);
     const negRight = negation(principal.formula.right);
+    const premise = formatPremise(
+      prependFormulas([negLeft, negRight], principal, rest),
+    );
     return {
       _tag: "tab-single-result",
-      premiseText: prependAndFormat([negLeft, negRight], principal, rest),
+      premiseText: premise.text,
+      premiseTexts: premise.texts,
     };
   });
 
@@ -450,10 +491,18 @@ const validateImplicationEffect = (
     }
     const rest = removeAtIndex(formulas, position);
     const negLeft = negation(principal.left);
+    const leftPremise = formatPremise(
+      prependFormulas([negLeft], principal, rest),
+    );
+    const rightPremise = formatPremise(
+      prependFormulas([principal.right], principal, rest),
+    );
     return {
       _tag: "tab-branching-result",
-      leftPremiseText: prependAndFormat([negLeft], principal, rest),
-      rightPremiseText: prependAndFormat([principal.right], principal, rest),
+      leftPremiseText: leftPremise.text,
+      rightPremiseText: rightPremise.text,
+      leftPremiseTexts: leftPremise.texts,
+      rightPremiseTexts: rightPremise.texts,
     };
   });
 
@@ -481,9 +530,13 @@ const validateNegImplicationEffect = (
     const rest = removeAtIndex(formulas, position);
     const phi = principal.formula.left;
     const negPsi = negation(principal.formula.right);
+    const premise = formatPremise(
+      prependFormulas([phi, negPsi], principal, rest),
+    );
     return {
       _tag: "tab-single-result",
-      premiseText: prependAndFormat([phi, negPsi], principal, rest),
+      premiseText: premise.text,
+      premiseTexts: premise.texts,
     };
   });
 
@@ -531,9 +584,13 @@ const validateUniversalEffect = (
     }
     const substituted = substituteTermVariableInFormula(body, xi, tau);
     const rest = removeAtIndex(formulas, position);
+    const premise = formatPremise(
+      prependFormulas([substituted], principal, rest),
+    );
     return {
       _tag: "tab-single-result",
-      premiseText: prependAndFormat([substituted], principal, rest),
+      premiseText: premise.text,
+      premiseTexts: premise.texts,
     };
   });
 
@@ -590,9 +647,13 @@ const validateNegUniversalEffect = (
     const substituted = substituteTermVariableInFormula(body, xi, zetaVar);
     const negSubstituted = negation(substituted);
     const rest = removeAtIndex(formulas, position);
+    const premise = formatPremise(
+      prependFormulas([negSubstituted], principal, rest),
+    );
     return {
       _tag: "tab-single-result",
-      premiseText: prependAndFormat([negSubstituted], principal, rest),
+      premiseText: premise.text,
+      premiseTexts: premise.texts,
     };
   });
 
@@ -645,9 +706,13 @@ const validateExistentialEffect = (
     const zetaVar = termVariable(zeta);
     const substituted = substituteTermVariableInFormula(body, xi, zetaVar);
     const rest = removeAtIndex(formulas, position);
+    const premise = formatPremise(
+      prependFormulas([substituted], principal, rest),
+    );
     return {
       _tag: "tab-single-result",
-      premiseText: prependAndFormat([substituted], principal, rest),
+      premiseText: premise.text,
+      premiseTexts: premise.texts,
     };
   });
 
@@ -699,9 +764,13 @@ const validateNegExistentialEffect = (
     const substituted = substituteTermVariableInFormula(body, xi, tau);
     const negSubstituted = negation(substituted);
     const rest = removeAtIndex(formulas, position);
+    const premise = formatPremise(
+      prependFormulas([negSubstituted], principal, rest),
+    );
     return {
       _tag: "tab-single-result",
-      premiseText: prependAndFormat([negSubstituted], principal, rest),
+      premiseText: premise.text,
+      premiseTexts: premise.texts,
     };
   });
 
@@ -711,8 +780,10 @@ const validateNegExistentialEffect = (
 export type TabRuleApplicationParams = {
   /** 適用する規則 */
   readonly ruleId: TabRuleId;
-  /** シーケントのテキスト（カンマ区切りの前件） */
+  /** シーケントのテキスト（カンマ区切りの前件）。formulaTexts が指定されていない場合に使用。 */
   readonly sequentText: string;
+  /** 論理式テキストの配列（内部モデル）。指定時はsequentTextより優先。 */
+  readonly formulaTexts?: readonly string[];
   /** 主論理式の位置（0-based）。公理の場合は0。 */
   readonly principalPosition: number;
   /** 固有変数名（¬∀, ∃規則用） */
@@ -724,13 +795,33 @@ export type TabRuleApplicationParams = {
 };
 
 /**
+ * 論理式テキスト配列を論理式配列にパースする。
+ * パース失敗時はundefinedを返す。
+ */
+export function parseFormulaTextsArray(
+  texts: readonly string[],
+): readonly Formula[] | undefined {
+  const formulas: Formula[] = [];
+  for (const text of texts) {
+    const result = parseString(text.trim());
+    if (Either.isLeft(result)) return undefined;
+    formulas.push(result.right);
+  }
+  return formulas;
+}
+
+/**
  * TAB規則適用のバリデーション（Effect版）。
  */
 export const validateTabApplicationEffect = (
   params: TabRuleApplicationParams,
 ): Effect.Effect<TabApplicationSuccess, TabApplicationError> =>
   Effect.gen(function* () {
-    const formulas = parseSequentFormulas(params.sequentText);
+    // formulaTexts が指定されている場合は配列から直接パース、なければ sequentText から分割
+    const formulas =
+      params.formulaTexts !== undefined
+        ? parseFormulaTextsArray(params.formulaTexts)
+        : parseSequentFormulas(params.sequentText);
     if (formulas === undefined) {
       return yield* Effect.fail(
         new TabSequentParseError({ nodeId: "conclusion" }),

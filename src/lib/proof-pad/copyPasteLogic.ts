@@ -36,6 +36,8 @@ export type CopiedNode = {
   /** コピー元ノード群の中心からの相対位置 */
   readonly relativePosition: Point;
   readonly role?: WorkspaceNode["role"];
+  /** 論理式テキスト配列（TAB用内部モデル） */
+  readonly formulaTexts?: readonly string[];
   // protection は意図的に含めない（コピーしたものは保護されない）
 };
 
@@ -133,6 +135,7 @@ export function buildClipboardData(
       y: n.position.y - centroid.y,
     },
     ...(n.role !== undefined ? { role: n.role } : {}),
+    ...(n.formulaTexts !== undefined ? { formulaTexts: n.formulaTexts } : {}),
   }));
 
   return {
@@ -229,6 +232,9 @@ export function pasteClipboardData(
         y: targetCenter.y + copiedNode.relativePosition.y,
       },
       ...(copiedNode.role !== undefined ? { role: copiedNode.role } : {}),
+      ...(copiedNode.formulaTexts !== undefined
+        ? { formulaTexts: copiedNode.formulaTexts }
+        : {}),
       // protection は意図的に含めない
     };
   });

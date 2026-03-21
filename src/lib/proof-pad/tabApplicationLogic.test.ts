@@ -5,6 +5,7 @@ import {
   splitSequentText,
   formatSequentText,
   parseSequentFormulas,
+  parseFormulaTextsArray,
   validateTabApplication,
   createTabEdgeFromResult,
   isTabAxiomRule,
@@ -150,6 +151,30 @@ describe("tabApplicationLogic", () => {
     it("パース失敗時にundefinedを返す", () => {
       const result = parseSequentFormulas("φ, ∧∧∧");
       expect(result).toBeUndefined();
+    });
+  });
+
+  describe("parseFormulaTextsArray", () => {
+    it("個別のテキスト配列を論理式配列にパースする", () => {
+      const result = parseFormulaTextsArray(["φ", "ψ → φ"]);
+      expect(result).toHaveLength(2);
+      expect(result![0]!._tag).toBe("MetaVariable");
+      expect(result![1]!._tag).toBe("Implication");
+    });
+
+    it("空配列を空配列にパースする", () => {
+      const result = parseFormulaTextsArray([]);
+      expect(result).toEqual([]);
+    });
+
+    it("パース失敗時にundefinedを返す", () => {
+      const result = parseFormulaTextsArray(["φ", "∧∧∧"]);
+      expect(result).toBeUndefined();
+    });
+
+    it("前後の空白をトリムする", () => {
+      const result = parseFormulaTextsArray(["  φ  ", "  ψ  "]);
+      expect(result).toHaveLength(2);
     });
   });
 
@@ -933,7 +958,11 @@ describe("tabApplicationLogic", () => {
       });
       const edge = createTabEdgeFromResult(
         params,
-        { _tag: "tab-single-result", premiseText: "φ, ¬¬φ" },
+        {
+          _tag: "tab-single-result",
+          premiseText: "φ, ¬¬φ",
+          premiseTexts: ["φ", "¬¬φ"],
+        },
         "node-1",
       );
       expect(edge._tag).toBe("tab-single");
@@ -954,6 +983,8 @@ describe("tabApplicationLogic", () => {
           _tag: "tab-branching-result",
           leftPremiseText: "¬φ, ¬(φ ∧ ψ)",
           rightPremiseText: "¬ψ, ¬(φ ∧ ψ)",
+          leftPremiseTexts: ["¬φ", "¬(φ ∧ ψ)"],
+          rightPremiseTexts: ["¬ψ", "¬(φ ∧ ψ)"],
         },
         "node-1",
       );
@@ -1220,6 +1251,200 @@ describe("tabApplicationLogic", () => {
           expect(result.right.premiseText).toBe("φ, ψ, φ ∧ ψ, ¬φ");
         }
       }
+    });
+  });
+
+  // --- premiseTexts 配列の検証 ---
+
+  describe("premiseTexts 配列", () => {
+    it("1前提規則で premiseTexts が個別論理式の配列として返される", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "double-negation",
+          sequentText: "¬¬φ, ψ",
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result) && result.right._tag === "tab-single-result") {
+        expect(result.right.premiseTexts).toEqual(["φ", "¬¬φ", "ψ"]);
+      }
+    });
+
+    it("分岐規則で左右の premiseTexts が返される", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "neg-conjunction",
+          sequentText: "¬(φ ∧ ψ), χ",
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (
+        Either.isRight(result) &&
+        result.right._tag === "tab-branching-result"
+      ) {
+        expect(result.right.leftPremiseTexts).toEqual(["¬φ", "¬(φ ∧ ψ)", "χ"]);
+        expect(result.right.rightPremiseTexts).toEqual(["¬ψ", "¬(φ ∧ ψ)", "χ"]);
+      }
+    });
+
+    it("交換規則で premiseTexts が正しく入れ替わる", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "exchange",
+          sequentText: "φ, ψ, χ",
+          exchangePosition: 0,
+        }),
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result) && result.right._tag === "tab-single-result") {
+        expect(result.right.premiseTexts).toEqual(["ψ", "φ", "χ"]);
+      }
+    });
+  });
+
+  // --- formulaTexts パラメータ経由の入力 ---
+
+  describe("formulaTexts パラメータ", () => {
+    it("formulaTexts が指定されている場合、sequentText より優先される", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "double-negation",
+          sequentText: "invalid ∧∧∧", // パース不可能だが formulaTexts が優先
+          formulaTexts: ["¬¬φ", "ψ"],
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result) && result.right._tag === "tab-single-result") {
+        expect(result.right.premiseTexts).toEqual(["φ", "¬¬φ", "ψ"]);
+      }
+    });
+
+    it("formulaTexts のパースが失敗した場合はエラー", () => {
+      const result = validateTabApplication(
+        makeParams({
+          ruleId: "double-negation",
+          sequentText: "¬¬φ",
+          formulaTexts: ["∧∧∧"], // パース不可能
+          principalPosition: 0,
+        }),
+      );
+      expect(Either.isLeft(result)).toBe(true);
+    });
+  });
+
+  // --- applyTabRuleAndConnect で formulaTexts がノードに設定される ---
+
+  describe("applyTabRuleAndConnect formulaTexts", () => {
+    it("1前提規則で生成されたノードに formulaTexts が設定される", () => {
+      let ws = createEmptyWorkspace(tabDeduction);
+      ws = {
+        ...ws,
+        nodes: [
+          ...ws.nodes,
+          {
+            id: "node-1",
+            kind: "axiom" as const,
+            label: "",
+            formulaText: "¬¬φ",
+            formulaTexts: ["¬¬φ"],
+            position: { x: 0, y: 0 },
+          },
+        ],
+        nextNodeId: 2,
+      };
+
+      const result = applyTabRuleAndConnect(
+        ws,
+        "node-1",
+        makeParams({
+          ruleId: "double-negation",
+          sequentText: "¬¬φ",
+          principalPosition: 0,
+        }),
+        [{ x: 0, y: 100 }],
+      );
+
+      expect(Either.isRight(result.validation)).toBe(true);
+      const premiseNode = result.workspace.nodes.find((n) => n.id === "node-2");
+      expect(premiseNode).toBeDefined();
+      expect(premiseNode!.formulaTexts).toEqual(["φ", "¬¬φ"]);
+      expect(premiseNode!.formulaText).toBe("φ, ¬¬φ");
+    });
+
+    it("分岐規則で生成されたノードに formulaTexts が設定される", () => {
+      let ws = createEmptyWorkspace(tabDeduction);
+      ws = {
+        ...ws,
+        nodes: [
+          ...ws.nodes,
+          {
+            id: "node-1",
+            kind: "axiom" as const,
+            label: "",
+            formulaText: "¬(φ ∧ ψ)",
+            formulaTexts: ["¬(φ ∧ ψ)"],
+            position: { x: 0, y: 0 },
+          },
+        ],
+        nextNodeId: 2,
+      };
+
+      const result = applyTabRuleAndConnect(
+        ws,
+        "node-1",
+        makeParams({
+          ruleId: "neg-conjunction",
+          sequentText: "¬(φ ∧ ψ)",
+          principalPosition: 0,
+        }),
+        [
+          { x: -100, y: 100 },
+          { x: 100, y: 100 },
+        ],
+      );
+
+      expect(Either.isRight(result.validation)).toBe(true);
+      const leftNode = result.workspace.nodes.find((n) => n.id === "node-2");
+      const rightNode = result.workspace.nodes.find((n) => n.id === "node-3");
+      expect(leftNode!.formulaTexts).toEqual(["¬φ", "¬(φ ∧ ψ)"]);
+      expect(rightNode!.formulaTexts).toEqual(["¬ψ", "¬(φ ∧ ψ)"]);
+    });
+
+    it("結論ノードの formulaTexts がパラメータに渡される", () => {
+      let ws = createEmptyWorkspace(tabDeduction);
+      ws = {
+        ...ws,
+        nodes: [
+          ...ws.nodes,
+          {
+            id: "node-1",
+            kind: "axiom" as const,
+            label: "",
+            formulaText: "¬¬φ, ψ",
+            formulaTexts: ["¬¬φ", "ψ"],
+            position: { x: 0, y: 0 },
+          },
+        ],
+        nextNodeId: 2,
+      };
+
+      const result = applyTabRuleAndConnect(
+        ws,
+        "node-1",
+        makeParams({
+          ruleId: "double-negation",
+          sequentText: "¬¬φ, ψ",
+          principalPosition: 0,
+        }),
+        [{ x: 0, y: 100 }],
+      );
+
+      expect(Either.isRight(result.validation)).toBe(true);
+      const premiseNode = result.workspace.nodes.find((n) => n.id === "node-2");
+      expect(premiseNode!.formulaTexts).toEqual(["φ", "¬¬φ", "ψ"]);
     });
   });
 });

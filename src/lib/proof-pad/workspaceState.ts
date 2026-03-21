@@ -52,6 +52,7 @@ import {
 import {
   validateTabApplication,
   createTabEdgeFromResult,
+  splitByTopLevelComma,
   type TabRuleApplicationParams,
   type TabApplicationResult,
 } from "./tabApplicationLogic";
@@ -161,6 +162,14 @@ export type WorkspaceNode = {
   readonly position: Point;
   /** ユーザーが明示的に設定した役割（"axiom" | undefined） */
   readonly role?: NodeRole;
+  /**
+   * 論理式テキストの配列（TAB/SC/AT用の内部モデル）。
+   * TABノードでは formulaText はこの配列の join(", ") として導出される。
+   * Hilbert/ND ノードでは undefined。
+   *
+   * 変更時は workspaceExport.ts のシリアライゼーションも同期すること。
+   */
+  readonly formulaTexts?: readonly string[];
 };
 
 /** ワークスペース上の接続（ポートベース） */
@@ -457,6 +466,7 @@ export function addNode(
   label: string,
   position: Point,
   formulaText?: string,
+  formulaTexts?: readonly string[],
 ): WorkspaceState {
   const id = `node-${String(state.nextNodeId) satisfies string}`;
   const newNode: WorkspaceNode = {
@@ -465,6 +475,7 @@ export function addNode(
     label,
     formulaText: formulaText ?? "",
     position,
+    ...(formulaTexts !== undefined ? { formulaTexts } : {}),
   };
   return syncInferenceEdges({
     ...state,
@@ -519,6 +530,14 @@ export function updateMultipleNodePositions(
   };
 }
 
+/**
+ * ワークスペースがTABシステムかどうかを返す。
+ * TABシステムではノードの formulaTexts を配列として管理する。
+ */
+export function isTabSystem(state: WorkspaceState): boolean {
+  return state.deductionSystem.style === "tableau-calculus";
+}
+
 /** ノードの論理式テキストを更新する（保護ノードは更新不可） */
 export function updateNodeFormulaText(
   state: WorkspaceState,
@@ -528,10 +547,20 @@ export function updateNodeFormulaText(
   /* v8 ignore start -- isNodeProtected always returns false (design: goals separated from nodes) */
   if (isNodeProtected(state, nodeId)) return state;
   /* v8 ignore stop */
+  // TABシステムの場合は formulaTexts も同期
+  const formulaTexts = isTabSystem(state)
+    ? splitByTopLevelComma(formulaText)
+    : undefined;
   return syncInferenceEdges({
     ...state,
     nodes: state.nodes.map((node) =>
-      node.id === nodeId ? { ...node, formulaText } : node,
+      node.id === nodeId
+        ? {
+            ...node,
+            formulaText,
+            ...(formulaTexts !== undefined ? { formulaTexts } : {}),
+          }
+        : node,
     ),
   });
 }
@@ -1147,8 +1176,15 @@ export function applyTabRuleAndConnect(
   premisePositions: readonly Point[],
 ): ApplyTabRuleResult {
   /* v8 ignore stop */
+  // 結論ノードの formulaTexts があればパラメータに渡す
+  const conclusionNode = state.nodes.find((n) => n.id === conclusionNodeId);
+  const effectiveParams: TabRuleApplicationParams =
+    conclusionNode?.formulaTexts !== undefined
+      ? { ...params, formulaTexts: conclusionNode.formulaTexts }
+      : params;
+
   // バリデーション実行
-  const validation = validateTabApplication(params);
+  const validation = validateTabApplication(effectiveParams);
 
   if (Either.isLeft(validation)) {
     return {
@@ -1178,7 +1214,14 @@ export function applyTabRuleAndConnect(
       const pos = premisePositions[0] ?? { x: 0, y: 0 };
       /* v8 ignore stop */
       const premiseId = `node-${String(ws.nextNodeId) satisfies string}`;
-      ws = addNode(ws, "axiom", "", pos, result.premiseText);
+      ws = addNode(
+        ws,
+        "axiom",
+        "",
+        pos,
+        result.premiseText,
+        result.premiseTexts,
+      );
       premiseNodeIds.push(premiseId);
 
       // エッジの premiseNodeId を設定
@@ -1197,11 +1240,25 @@ export function applyTabRuleAndConnect(
       /* v8 ignore stop */
 
       const leftId = `node-${String(ws.nextNodeId) satisfies string}`;
-      ws = addNode(ws, "axiom", "", leftPos, result.leftPremiseText);
+      ws = addNode(
+        ws,
+        "axiom",
+        "",
+        leftPos,
+        result.leftPremiseText,
+        result.leftPremiseTexts,
+      );
       premiseNodeIds.push(leftId);
 
       const rightId = `node-${String(ws.nextNodeId) satisfies string}`;
-      ws = addNode(ws, "axiom", "", rightPos, result.rightPremiseText);
+      ws = addNode(
+        ws,
+        "axiom",
+        "",
+        rightPos,
+        result.rightPremiseText,
+        result.rightPremiseTexts,
+      );
       premiseNodeIds.push(rightId);
 
       // エッジの前提ノードIDを設定

@@ -2271,3 +2271,54 @@ describe("ImportResult型チェック", () => {
     expect(result._tag).toBe("InvalidFormat");
   });
 });
+
+describe("formulaTexts シリアライゼーション", () => {
+  it("formulaTexts ありのノードがラウンドトリップで保持される", () => {
+    const state: WorkspaceState = {
+      ...createSampleWorkspace(),
+      nodes: [
+        {
+          id: "node-1",
+          kind: "axiom",
+          label: "",
+          formulaText: "¬φ, ψ",
+          position: { x: 0, y: 0 },
+          formulaTexts: ["¬φ", "ψ"],
+        },
+      ],
+    };
+    const json = exportWorkspaceToJSON(state);
+    const parsed = JSON.parse(json);
+    expect(parsed.workspace.nodes[0].formulaTexts).toEqual(["¬φ", "ψ"]);
+
+    const imported = importWorkspaceFromJSON(json);
+    expect(imported._tag).toBe("Success");
+    if (imported._tag === "Success") {
+      expect(imported.workspace.nodes[0]!.formulaTexts).toEqual(["¬φ", "ψ"]);
+    }
+  });
+
+  it("formulaTexts なしのノード（レガシー）はそのままインポートされる", () => {
+    const state: WorkspaceState = {
+      ...createSampleWorkspace(),
+      nodes: [
+        {
+          id: "node-1",
+          kind: "axiom",
+          label: "",
+          formulaText: "phi -> psi",
+          position: { x: 0, y: 0 },
+        },
+      ],
+    };
+    const json = exportWorkspaceToJSON(state);
+    const parsed = JSON.parse(json);
+    expect(parsed.workspace.nodes[0].formulaTexts).toBeUndefined();
+
+    const imported = importWorkspaceFromJSON(json);
+    expect(imported._tag).toBe("Success");
+    if (imported._tag === "Success") {
+      expect(imported.workspace.nodes[0]!.formulaTexts).toBeUndefined();
+    }
+  });
+});

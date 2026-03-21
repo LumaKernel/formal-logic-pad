@@ -16,6 +16,7 @@ import {
   updateNodePosition,
   updateMultipleNodePositions,
   updateNodeFormulaText,
+  isTabSystem,
   updateNodeRole,
   findNode,
   removeNode,
@@ -58,7 +59,11 @@ import {
   nmSystem,
   sequentCalculusDeduction,
   lkSystem,
+  tableauCalculusDeduction,
+  tabSystem,
 } from "../logic-core/deductionSystem";
+
+const tabDeduction = tableauCalculusDeduction(tabSystem);
 import type { ClipboardData } from "./copyPasteLogic";
 import type { SubstitutionEntries } from "./substitutionApplicationLogic";
 import type { ProofEntry } from "../proof-collection/proofCollectionState";
@@ -291,6 +296,30 @@ describe("proofWorkspace", () => {
       ws = addNode(ws, "axiom", "Axiom", { x: 100, y: 0 }, "beta");
       const result = updateNodeFormulaText(ws, "node-1", "phi -> psi");
       expect(result.nodes[1]!.formulaText).toBe("beta");
+    });
+
+    it("Hilbert系では formulaTexts を設定しない", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 });
+      expect(isTabSystem(ws)).toBe(false);
+      const result = updateNodeFormulaText(ws, "node-1", "phi -> psi");
+      expect(result.nodes[0]!.formulaTexts).toBeUndefined();
+    });
+
+    it("TAB系では formulaTexts をカンマ分割で同期する", () => {
+      let ws = createEmptyWorkspace(tabDeduction);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 });
+      expect(isTabSystem(ws)).toBe(true);
+      const result = updateNodeFormulaText(ws, "node-1", "¬φ, φ ∧ ψ");
+      expect(result.nodes[0]!.formulaText).toBe("¬φ, φ ∧ ψ");
+      expect(result.nodes[0]!.formulaTexts).toEqual(["¬φ", "φ ∧ ψ"]);
+    });
+
+    it("TAB系で括弧内のカンマを分割しない", () => {
+      let ws = createEmptyWorkspace(tabDeduction);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 });
+      const result = updateNodeFormulaText(ws, "node-1", "P(x,y), Q(z)");
+      expect(result.nodes[0]!.formulaTexts).toEqual(["P(x,y)", "Q(z)"]);
     });
   });
 
