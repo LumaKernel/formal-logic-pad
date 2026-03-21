@@ -1,7 +1,7 @@
 # 差し込みタスク
 
 - [-] タブローにおけるノードは、論理式単体ではなく、その列(集合)なのであるから、論理式列(または専用にさらに集合管理を作る)によって、内部的にも列で管理されるべきで、カンマ区切りで管理されるべきではない
-  - 進捗: `WorkspaceNode.formulaTexts?: readonly string[]` を追加。TAB ルール適用（tabApplicationLogic）・状態管理（workspaceState）・シリアライゼーション（workspaceExport）・コピペ（copyPasteLogic）すべて formulaTexts 対応済み。テスト17件追加。残り: formulaTexts を唯一のソースオブトゥルースとし、消費側で splitByTopLevelComma を不要にする完全移行
+  - 進捗: formulaTexts をソースオブトゥルースとする移行を実施。addNode でTABシステムの場合は formulaTexts を必ず初期化。TabTreeDisplayNode に formulaTexts フィールドを追加し証明木表示にも伝搬。テスト計24件。残り: UI側で formulaTexts を活用した個別論理式レンダリング（表示上のリッチ化）、splitByTopLevelComma の呼び出しを入力エントリーポイントのみに限定するリファクタリング
 - [ ] 順番関係があるドキュメント(ガイド)は、前後の移動をするための専用の構造管理とUIを提供しよう
 - [ ] ノート操作のときのドキュメントウィンドウを強化する
   - [ ] ドキュメントトップページ、みたいなのも用意して、どのページからもそこへ移動できるようにする

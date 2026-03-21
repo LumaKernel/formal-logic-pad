@@ -16737,3 +16737,22 @@
   - 次のステップ: formulaTexts を唯一のソースオブトゥルースとし、消費側で splitByTopLevelComma を不要にする
   - prependFormulas + formatPremise パターンで配列操作→表示文字列生成を分離
 ---
+
+## 2026-03-21 - [proof-pad] TAB formulaTexts ソースオブトゥルース移行
+- 実装した内容:
+  - addNode でTABシステムの場合は formulaTexts を必ず初期化（空ノード → `[]`、formulaText 指定時は splitByTopLevelComma で導出）
+  - TabTreeDisplayNode に `formulaTexts: readonly string[]` フィールドを追加
+  - tabProofTreeRendererLogic.ts: analyzeTabGraph で nodeFormulaTexts マップを構築し、ツリー全体に formulaTexts を伝搬
+  - テスト7件追加（renderer伝搬4件、ノード初期化3件）
+- 変更したファイル:
+  - src/lib/proof-pad/workspaceState.ts（addNode の TAB初期化）
+  - src/lib/proof-pad/tabProofTreeRendererLogic.ts（TabTreeDisplayNode + analyzeTabGraph + buildTabTreeFromNode）
+  - src/lib/proof-pad/workspaceState.test.ts（3テスト追加）
+  - src/lib/proof-pad/tabProofTreeRendererLogic.test.ts（4テスト追加）
+- カバレッジ: Stmts 99.34 / Branch 97.49 / Funcs 89.86 / Lines 99.45（Branch微増、低下なし）
+- スクリーンショット: .screenshots/tab-tree-panel-axiom-only.png, .screenshots/tab-tree-panel-branching.png
+- **今後のイテレーションへの学び:**
+  - TabTreeDisplayNode に新フィールド追加時は buildTabTreeFromNode の4箇所（循環参照、葉、公理、通常）すべてに追加が必要
+  - nodeFormulaTexts のフォールバック: formulaTexts がないレガシーノードは `node.formulaText === "" ? [] : [node.formulaText]` で単一要素配列化
+  - 存在しないノードID指定時は nodeTexts にもエントリがないため、sequentText のフォールバックを nodeId にする必要がある
+---
