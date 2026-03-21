@@ -16661,3 +16661,17 @@
   - TrashManagementPanel は純粋プレゼンテーション。messages prop で i18n、callbacks で操作。HubContent が統合層
   - `opt.kind ?? "all"` のような式をテンプレートリテラル内で使う場合、`satisfies string` は式全体を `()` で囲む必要がある
 ---
+
+## 2026-03-21 - ゴミ箱定期パージ
+- useTrash フックに定期パージ機能を追加
+  - setInterval (デフォルト1時間間隔) で自動パージ
+  - visibilitychange イベントでタブ復帰時にパージ
+  - moveToTrash 呼び出し時にも期限切れアイテムをパージ
+  - purgeIntervalMs オプションでテスト時にDI可能
+- テスト追加: setInterval自動パージ、moveToTrash時パージ (vi.useFakeTimers使用)
+- TrashManagementPanel.stories.tsx の Meta/StoryObj import を `@storybook/nextjs-vite` に修正
+- 変更ファイル: useTrash.ts, useTrash.test.ts, index.ts, TrashManagementPanel.stories.tsx
+- **今後のイテレーションへの学び:**
+  - Storybook 10 の Meta/StoryObj は `@storybook/nextjs-vite` からインポート。`storybook/internal/types` は型エラーになる
+  - vi.useFakeTimers + vi.advanceTimersByTime でsetIntervalのテストが可能
+---
