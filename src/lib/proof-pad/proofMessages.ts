@@ -328,6 +328,9 @@ export type ProofMessages = {
   // --- アクセシビリティ ---
   readonly workspaceMenuAriaLabel: string;
 
+  // --- リファレンスウィンドウ ---
+  readonly openReferenceWindow: string;
+
   // --- 証明コレクションパネル ---
   readonly openCollection: string;
   readonly showCollectionPanel: string;
@@ -621,6 +624,9 @@ export const defaultProofMessages: ProofMessages = {
 
   // Accessibility
   workspaceMenuAriaLabel: "Workspace menu",
+
+  // Reference window
+  openReferenceWindow: "Open Reference",
 
   // Proof collection panel
   openCollection: "My Collection",

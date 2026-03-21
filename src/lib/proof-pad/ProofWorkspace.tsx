@@ -360,6 +360,8 @@ export interface ProofWorkspaceProps {
   readonly locale?: Locale;
   /** リファレンス詳細モーダルを開くコールバック */
   readonly onOpenReferenceDetail?: (entryId: string) => void;
+  /** リファレンスウィンドウを直接開くコールバック（コンテキストメニューから） */
+  readonly onOpenReferenceWindow?: () => void;
   /** ノード内の依存情報(Depends on)表示を制御する（undefined = DetailLevelの自動判定に従う） */
   readonly showDependencies?: boolean;
   /** 構文ヘルプを開くコールバック（指定時に数式編集モードで?ボタンを表示） */
@@ -997,6 +999,7 @@ export const ProofWorkspace = forwardRef<
     referenceEntries,
     locale,
     onOpenReferenceDetail,
+    onOpenReferenceWindow,
     showDependencies,
     onOpenSyntaxHelp,
     questInfo,
@@ -4303,6 +4306,11 @@ export const ProofWorkspace = forwardRef<
     setCanvasMenuState((prev) => ({ ...prev, open: false }));
   }, []);
 
+  const handleCanvasMenuOpenReference = useCallback(() => {
+    onOpenReferenceWindow?.();
+    setCanvasMenuState((prev) => ({ ...prev, open: false }));
+  }, [onOpenReferenceWindow]);
+
   const handleCanvasMenuOpenScriptEditor = useCallback(() => {
     setScriptEditorNodeId(null);
     setScriptEditorInitialCode("");
@@ -7251,6 +7259,32 @@ export const ProofWorkspace = forwardRef<
                   /* v8 ignore start -- testId未指定パス: V8集約アーティファクト */
                   testId
                     ? `${testId satisfies string}-canvas-menu-show-collection`
+                    : undefined
+                  /* v8 ignore stop */
+                }
+              />
+            </>
+          ) : null}
+          {/* リファレンスウィンドウを開く */}
+          {onOpenReferenceWindow !== undefined ? (
+            <>
+              {/* 区切り線（コレクション項目がなかった場合） */}
+              {!(collectionEntries !== undefined && collectionPanelHidden) ? (
+                <div
+                  style={{
+                    borderTop:
+                      "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
+                    margin: "4px 0",
+                  }}
+                />
+              ) : null}
+              <WorkspaceMenuItem
+                label={msg.openReferenceWindow}
+                onClick={handleCanvasMenuOpenReference}
+                testId={
+                  /* v8 ignore start -- testId未指定パス: V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-canvas-menu-open-reference`
                     : undefined
                   /* v8 ignore stop */
                 }

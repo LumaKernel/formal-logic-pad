@@ -298,6 +298,7 @@
     "zoomFitToContent": "Fit to content",
     "zoomToSelection": "Zoom to selection (Shift+2)",
     "workspaceMenuAriaLabel": "Workspace menu",
+    "openReferenceWindow": "Open Reference",
     "openCollection": "My Collection",
     "showCollectionPanel": "Show Collection",
     "collectionPanelTitle": "My Collection",

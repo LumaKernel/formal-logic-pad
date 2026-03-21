@@ -299,6 +299,8 @@ function useProofMessagesFromIntl(): ProofMessages {
       // Accessibility
       workspaceMenuAriaLabel: t("workspaceMenuAriaLabel"),
 
+      // Reference window
+      openReferenceWindow: t("openReferenceWindow"),
       // Proof collection panel
       openCollection: t("openCollection"),
       showCollectionPanel: t("showCollectionPanel"),
@@ -466,6 +468,11 @@ function WorkspaceInner() {
     setReferenceDetailId(null);
   }, []);
 
+  const handleOpenReferenceWindow = useCallback(() => {
+    // 前回のreferenceDetailIdが残っていればそのまま、なければブラウズモード
+    setReferenceWindowOpen(true);
+  }, []);
+
   const referenceDetailEntry = useMemo(
     () =>
       referenceDetailId !== null
@@ -552,6 +559,7 @@ function WorkspaceInner() {
         questInfo={questInfo}
         referenceEntries={allReferenceEntries}
         onOpenReferenceDetail={handleOpenReferenceDetail}
+        onOpenReferenceWindow={handleOpenReferenceWindow}
         locale={referenceLocale}
         languageToggle={languageToggle}
         pageMessages={pageMessages}

@@ -104,6 +104,8 @@ export type WorkspacePageViewProps = {
       readonly referenceEntries?: readonly ReferenceEntry[];
       /** リファレンス詳細を開くコールバック */
       readonly onOpenReferenceDetail?: (entryId: string) => void;
+      /** リファレンスウィンドウを直接開くコールバック */
+      readonly onOpenReferenceWindow?: () => void;
       /** ロケール（リファレンス表示言語） */
       readonly locale?: Locale;
       /** スクリプトエディタのi18nメッセージ */
@@ -315,6 +317,7 @@ function WorkspacePageViewFound({
     questInfo,
     referenceEntries,
     onOpenReferenceDetail,
+    onOpenReferenceWindow,
     locale,
     languageToggle,
     themeLabels,
@@ -503,6 +506,7 @@ function WorkspacePageViewFound({
             onRenameCollectionFolder={onRenameCollectionFolder}
             referenceEntries={referenceEntries}
             onOpenReferenceDetail={onOpenReferenceDetail}
+            onOpenReferenceWindow={onOpenReferenceWindow}
             locale={locale}
             scriptEditorMessages={scriptEditorMessages}
           />

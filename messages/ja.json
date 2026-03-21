@@ -298,6 +298,7 @@
     "zoomFitToContent": "コンテンツに合わせる",
     "zoomToSelection": "選択範囲にズーム (Shift+2)",
     "workspaceMenuAriaLabel": "ワークスペースメニュー",
+    "openReferenceWindow": "リファレンスを開く",
     "openCollection": "マイコレクション",
     "showCollectionPanel": "コレクションを表示",
     "collectionPanelTitle": "マイコレクション",
