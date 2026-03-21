@@ -16710,3 +16710,15 @@
   - i18n 5箇所同期パターン: hubMessages.ts (type + defaults + keys) → HubContent.tsx (useHubMessagesFromIntl) → messages/en.json + ja.json
   - task-processing.md は prettier チェック対象。内容書き込み後 prettier --write が必要
 ---
+
+## 2026-03-21 - [reference] スクリプト入門ガイド追加
+- referenceContent.ts に guide-intro-scripting エントリを追加（8パラグラフ、日英対応）
+  - スクリプトエディタ概要、使い方、テンプレート一覧、API概要、最初のスクリプト例、証明構築パターン、保存管理、Tips
+  - 関連エントリ: guide-basic-operations, guide-hilbert-proof-method, guide-intro-sequent-calculus, guide-meta-theorems
+- referenceContent.test.ts のエントリ数を118→119に更新
+- カバレッジ: Stmts 99.34 / Branch 97.46 / Funcs 89.86 / Lines 99.44（変化なし）
+- **今後のイテレーションへの学び:**
+  - referenceContent のテキスト内では markdown記法禁止。バッククォート→`<code>`、`*italic*`→`<i>`、`**bold**`→`<b>`（テストで強制）
+  - referenceContent.ts は500KB超でprettier対象。CI前にローカルでprettier --writeしておくこと
+  - Storybook story path: title "Pages/Hub" → `pages-hub--reference-tab`（非HubPageView）
+---
