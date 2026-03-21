@@ -16722,3 +16722,18 @@
   - referenceContent.ts は500KB超でprettier対象。CI前にローカルでprettier --writeしておくこと
   - Storybook story path: title "Pages/Hub" → `pages-hub--reference-tab`（非HubPageView）
 ---
+
+## 2026-03-21 - [proof-pad] TABノード formulaTexts 内部モデル追加
+- WorkspaceNode に `formulaTexts?: readonly string[]` を追加（TABシステム用）
+- tabApplicationLogic.ts: 結果型に premiseTexts/leftPremiseTexts/rightPremiseTexts を追加、入力に formulaTexts パラメータ追加、parseFormulaTextsArray 公開関数追加
+- workspaceState.ts: addNode に formulaTexts 対応、updateNodeFormulaText で TAB時は splitByTopLevelComma で formulaTexts 同期、applyTabRuleAndConnect で formulaTexts 伝搬、isTabSystem ヘルパー追加
+- workspaceExport.ts: Schema に formulaTexts optional フィールド追加（後方互換）
+- copyPasteLogic.ts: CopiedNode に formulaTexts 追加
+- テスト17件追加（tabApplicationLogic: 12, workspaceState: 3, workspaceExport: 2）
+- カバレッジ: Stmts 99.34 / Branch 97.45 / Funcs 89.84 / Lines 99.45（実質変化なし、V8マージング誤差）
+- **今後のイテレーションへの学び:**
+  - formulaTexts は optional で後方互換。TAB以外のシステムでは undefined のまま
+  - isTabSystem で deductionSystem.style === "tableau-calculus" を判定
+  - 次のステップ: formulaTexts を唯一のソースオブトゥルースとし、消費側で splitByTopLevelComma を不要にする
+  - prependFormulas + formatPremise パターンで配列操作→表示文字列生成を分離
+---
