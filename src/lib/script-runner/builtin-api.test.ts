@@ -12,6 +12,7 @@ import { PROOF_BRIDGE_API_DEFS } from "./proofBridge";
 import { WORKSPACE_BRIDGE_API_DEFS } from "./workspaceBridge";
 import { CUT_ELIMINATION_BRIDGE_API_DEFS } from "./cutEliminationBridge";
 import { HILBERT_PROOF_BRIDGE_API_DEFS } from "./hilbertProofBridge";
+import { EITHER_BRIDGE_API_DEFS } from "./eitherBridge";
 
 const builtinApiPath = resolve(__dirname, "builtin-api.d.ts");
 const builtinApiContent = readFileSync(builtinApiPath, "utf-8");
@@ -140,5 +141,33 @@ describe("builtin-api.d.ts", () => {
         );
       });
     }
+  });
+
+  describe("EITHER_BRIDGE_API_DEFS の全関数が宣言されている", () => {
+    for (const def of EITHER_BRIDGE_API_DEFS) {
+      it(`declare function ${def.name satisfies string}`, () => {
+        expect(builtinApiContent).toContain(
+          `declare function ${def.name satisfies string}`,
+        );
+      });
+    }
+  });
+
+  // ── Either 型の存在確認 ──────────────────────────────────
+
+  it("EitherRightJson 型を宣言する", () => {
+    expect(builtinApiContent).toContain("declare type EitherRightJson");
+    expect(builtinApiContent).toContain('"Right"');
+  });
+
+  it("EitherLeftJson 型を宣言する", () => {
+    expect(builtinApiContent).toContain("declare type EitherLeftJson");
+    expect(builtinApiContent).toContain('"Left"');
+  });
+
+  it("EitherJson 型を宣言する（union of Right | Left）", () => {
+    expect(builtinApiContent).toContain("declare type EitherJson");
+    expect(builtinApiContent).toContain("EitherRightJson");
+    expect(builtinApiContent).toContain("EitherLeftJson");
   });
 });

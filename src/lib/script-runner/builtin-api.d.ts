@@ -77,6 +77,47 @@ declare type CutEliminationStepJson = {
   readonly rank: number;
 };
 
+// ── Either ユーティリティ型 ───────────────────────────────
+
+/** Either の Right（成功）側。_tag: "Right" と right プロパティを持つ。 */
+declare type EitherRightJson<T> = { readonly _tag: "Right"; readonly right: T };
+
+/** Either の Left（失敗）側。_tag: "Left" と left プロパティを持つ。 */
+declare type EitherLeftJson<E> = { readonly _tag: "Left"; readonly left: E };
+
+/**
+ * Either 型の JSON 表現。Effect.ts の Either パターンに対応する。
+ * Right = 成功、Left = 失敗。
+ */
+declare type EitherJson<T, E> = EitherRightJson<T> | EitherLeftJson<E>;
+
+// ── Either ユーティリティ API (eitherBridge) ──────────────
+
+/** 成功値を Right に包む。 */
+declare function createRight<T>(value: T): EitherRightJson<T>;
+
+/** エラー値を Left に包む。 */
+declare function createLeft<E>(error: E): EitherLeftJson<E>;
+
+/** Either が Right かどうか判定する。型ガードとして機能する。 */
+declare function isRight<T, E>(
+  either: EitherJson<T, E>,
+): either is EitherRightJson<T>;
+
+/** Either が Left かどうか判定する。型ガードとして機能する。 */
+declare function isLeft<T, E>(
+  either: EitherJson<T, E>,
+): either is EitherLeftJson<E>;
+
+/** Right の値を取り出す。Left の場合は例外をスロー。 */
+declare function getOrThrow<T, E>(either: EitherJson<T, E>): T;
+
+/** Left の値を取り出す。Right の場合は例外をスロー。 */
+declare function getLeftOrThrow<T, E>(either: EitherJson<T, E>): E;
+
+/** Right の値を取り出す。Left の場合はデフォルト値を返す。 */
+declare function getOrElse<T, E>(either: EitherJson<T, E>, defaultValue: T): T;
+
 // ── 証明操作 API (proofBridge) ────────────────────────────
 
 /** 論理式テキストをパースして Formula JSON を返す。パース失敗時は例外をスロー。 */

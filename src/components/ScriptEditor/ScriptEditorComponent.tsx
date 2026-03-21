@@ -20,6 +20,7 @@ import {
   createWorkspaceBridges,
   createCutEliminationBridges,
   createHilbertProofBridges,
+  createEitherBridges,
 } from "@/lib/script-runner";
 import builtinApiTypeDefs from "@/lib/script-runner/builtin-api.d.ts?raw";
 import { BUILTIN_TEMPLATES } from "@/lib/script-runner/templates";
@@ -486,6 +487,7 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
     const all: NativeFunctionBridge[] = [
       ...createProofBridges(),
       ...createCutEliminationBridges(),
+      ...createEitherBridges(),
       ...createConsoleBridges(),
     ];
     if (workspaceCommandHandler) {
