@@ -42,12 +42,43 @@ import type {
 // --- シーケントテキストのパース ---
 
 /**
+ * 括弧の深さを考慮してカンマで文字列を分割する。
+ * `(` と `)` のネストを追跡し、トップレベルのカンマのみで分割する。
+ * これにより P(x,y) のような多引数述語内のカンマは分割されない。
+ */
+export function splitByTopLevelComma(text: string): readonly string[] {
+  if (text.trim() === "") return [];
+  const parts: string[] = [];
+  let depth = 0;
+  let current = "";
+  for (const ch of text) {
+    if (ch === "(") {
+      depth += 1;
+      current += ch;
+    } else if (ch === ")") {
+      depth = Math.max(0, depth - 1);
+      current += ch;
+    } else if (ch === "," && depth === 0) {
+      parts.push(current.trim());
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+  const last = current.trim();
+  if (last !== "") {
+    parts.push(last);
+  }
+  return parts;
+}
+
+/**
  * カンマ区切りのシーケントテキストを個別の論理式テキストに分割する。
+ * 括弧内のカンマは分割しない（P(x,y) のような多引数述語に対応）。
  * 空文字列の場合は空配列を返す。
  */
 export function splitSequentText(text: string): readonly string[] {
-  if (text.trim() === "") return [];
-  return text.split(",").map((s) => s.trim());
+  return splitByTopLevelComma(text);
 }
 
 /**

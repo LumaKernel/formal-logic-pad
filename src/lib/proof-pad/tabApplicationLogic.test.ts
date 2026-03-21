@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Either } from "effect";
 import {
+  splitByTopLevelComma,
   splitSequentText,
   formatSequentText,
   parseSequentFormulas,
@@ -62,6 +63,52 @@ describe("tabApplicationLogic", () => {
 
     it("空白を除去する", () => {
       expect(splitSequentText("  φ ,  ψ  ")).toEqual(["φ", "ψ"]);
+    });
+
+    it("括弧内のカンマでは分割しない（多引数述語対応）", () => {
+      expect(splitSequentText("P(x,y), Q(z)")).toEqual(["P(x,y)", "Q(z)"]);
+    });
+
+    it("ネストされた括弧内のカンマを保持する", () => {
+      expect(splitSequentText("P(f(x,y),z), Q(a)")).toEqual([
+        "P(f(x,y),z)",
+        "Q(a)",
+      ]);
+    });
+
+    it("量化子を含む単一の論理式を正しく扱う", () => {
+      expect(splitSequentText("∀x(P(x,y) → Q(x,z))")).toEqual([
+        "∀x(P(x,y) → Q(x,z))",
+      ]);
+    });
+  });
+
+  describe("splitByTopLevelComma", () => {
+    it("空文字列を空配列に返す", () => {
+      expect(splitByTopLevelComma("")).toEqual([]);
+    });
+
+    it("トップレベルのカンマで分割する", () => {
+      expect(splitByTopLevelComma("a, b, c")).toEqual(["a", "b", "c"]);
+    });
+
+    it("括弧内のカンマを無視する", () => {
+      expect(splitByTopLevelComma("P(x,y), Q(z)")).toEqual(["P(x,y)", "Q(z)"]);
+    });
+
+    it("深くネストされた括弧を扱う", () => {
+      expect(splitByTopLevelComma("f(g(a,b),h(c,d)), e")).toEqual([
+        "f(g(a,b),h(c,d))",
+        "e",
+      ]);
+    });
+
+    it("括弧なしの通常のカンマ区切りに後方互換", () => {
+      expect(splitByTopLevelComma("φ, ψ, ¬φ")).toEqual(["φ", "ψ", "¬φ"]);
+    });
+
+    it("空白のみを空配列に返す", () => {
+      expect(splitByTopLevelComma("   ")).toEqual([]);
     });
   });
 

@@ -98,6 +98,22 @@ describe("scApplicationLogic", () => {
         succedentTexts: [],
       });
     });
+
+    it("括弧内のカンマでは分割しない（多引数述語対応）", () => {
+      const result = splitSequentTextParts("P(x,y), Q(z) ⇒ R(a,b)");
+      expect(result).toEqual({
+        antecedentTexts: ["P(x,y)", "Q(z)"],
+        succedentTexts: ["R(a,b)"],
+      });
+    });
+
+    it("⇒ なしで括弧内カンマを保持する", () => {
+      const result = splitSequentTextParts("P(x,y), Q(z)");
+      expect(result).toEqual({
+        antecedentTexts: ["P(x,y)", "Q(z)"],
+        succedentTexts: [],
+      });
+    });
   });
 
   describe("parseSequentText", () => {

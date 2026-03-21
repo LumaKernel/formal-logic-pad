@@ -37,6 +37,7 @@ import type {
   ScBranchingEdge,
   ScAxiomEdge,
 } from "./inferenceEdge";
+import { splitByTopLevelComma } from "./tabApplicationLogic";
 
 // --- シーケントテキストのパース ---
 
@@ -58,16 +59,13 @@ export function splitSequentTextParts(text: string): SequentTextParts {
   const arrowIndex = text.indexOf("⇒");
   if (arrowIndex === -1) {
     // ⇒ なし: 互換性のために全体を左辺として扱う（TABとの互換）
-    const parts =
-      text.trim() === "" ? [] : text.split(",").map((s) => s.trim());
-    return { antecedentTexts: parts, succedentTexts: [] };
+    const parts = splitByTopLevelComma(text);
+    return { antecedentTexts: [...parts], succedentTexts: [] };
   }
   const leftStr = text.slice(0, arrowIndex).trim();
   const rightStr = text.slice(arrowIndex + 1).trim();
-  const antecedentTexts =
-    leftStr === "" ? [] : leftStr.split(",").map((s) => s.trim());
-  const succedentTexts =
-    rightStr === "" ? [] : rightStr.split(",").map((s) => s.trim());
+  const antecedentTexts = [...splitByTopLevelComma(leftStr)];
+  const succedentTexts = [...splitByTopLevelComma(rightStr)];
   return { antecedentTexts, succedentTexts };
 }
 

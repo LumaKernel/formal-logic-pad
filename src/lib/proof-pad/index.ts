@@ -246,6 +246,7 @@ export type {
   NdApplicationResult,
 } from "./ndApplicationLogic";
 export {
+  splitByTopLevelComma,
   splitSequentText,
   formatSequentText,
   parseSequentFormulas,
