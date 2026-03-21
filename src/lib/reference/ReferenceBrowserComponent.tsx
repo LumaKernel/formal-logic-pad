@@ -245,6 +245,11 @@ export type ReferenceBrowserProps = {
   readonly resolveQuestTitle?: (questId: string) => string | undefined;
   /** クエスト開始コールバック */
   readonly onStartQuest?: (questId: string) => void;
+  /**
+   * エントリ選択コールバック。指定時はモーダルを開かず、このコールバックを呼ぶ。
+   * フローティングウィンドウ内に埋め込む場合などに使用。
+   */
+  readonly onSelectEntry?: (entryId: string) => void;
   /** data-testid */
   readonly testId?: string;
 };
@@ -261,6 +266,7 @@ export function ReferenceBrowserComponent({
   relatedTopicsLabel = "related topics",
   resolveQuestTitle,
   onStartQuest,
+  onSelectEntry,
   testId,
 }: ReferenceBrowserProps) {
   const [state, setState] =
@@ -280,17 +286,31 @@ export function ReferenceBrowserComponent({
     );
   }, []);
 
-  const handleEntryClick = useCallback((entryId: string) => {
-    setDetailEntryId(entryId);
-  }, []);
+  const handleEntryClick = useCallback(
+    (entryId: string) => {
+      if (onSelectEntry !== undefined) {
+        onSelectEntry(entryId);
+      } else {
+        setDetailEntryId(entryId);
+      }
+    },
+    [onSelectEntry],
+  );
 
   const handleCloseModal = useCallback(() => {
     setDetailEntryId(null);
   }, []);
 
-  const handleNavigate = useCallback((entryId: string) => {
-    setDetailEntryId(entryId);
-  }, []);
+  const handleNavigate = useCallback(
+    (entryId: string) => {
+      if (onSelectEntry !== undefined) {
+        onSelectEntry(entryId);
+      } else {
+        setDetailEntryId(entryId);
+      }
+    },
+    [onSelectEntry],
+  );
 
   // Computed data
   const filteredEntries = useMemo(
@@ -504,8 +524,8 @@ export function ReferenceBrowserComponent({
         </div>
       )}
 
-      {/* Detail modal */}
-      {detailEntry !== undefined && (
+      {/* Detail modal (onSelectEntry未指定時のみ内部モーダル表示) */}
+      {onSelectEntry === undefined && detailEntry !== undefined && (
         <ReferenceModal
           entry={detailEntry}
           allEntries={entries}

@@ -511,4 +511,23 @@ describe("ReferenceBrowserComponent", () => {
     const modal = screen.getByTestId("ref-modal");
     expect(modal.textContent).not.toContain("Related Quests");
   });
+
+  // --- onSelectEntry ---
+
+  it("onSelectEntry指定時はエントリクリックでコールバックが呼ばれモーダルは開かない", async () => {
+    const user = userEvent.setup();
+    const handleSelect = vi.fn();
+    renderWithAntd(
+      <ReferenceBrowserComponent
+        entries={testEntries}
+        locale="en"
+        testId="ref"
+        onSelectEntry={handleSelect}
+      />,
+    );
+    await user.click(screen.getByTestId("ref-entry-axiom-a1"));
+    expect(handleSelect).toHaveBeenCalledWith("axiom-a1");
+    // モーダルは表示されない
+    expect(screen.queryByTestId("ref-modal")).toBeNull();
+  });
 });

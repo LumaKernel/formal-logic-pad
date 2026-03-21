@@ -214,6 +214,55 @@ export const WithNavigation: Story = {
   },
 };
 
+export const BrowseMode: Story = {
+  args: {
+    entry: undefined,
+    onNavigate: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement.ownerDocument.body);
+    const win = canvas.getByTestId("ref-win");
+    await expect(win).toBeInTheDocument();
+    // タイトルが "Reference" になる
+    const titlebar = canvas.getByTestId("ref-win-titlebar");
+    await expect(titlebar).toHaveTextContent("Reference");
+    // ブラウザコンポーネントが表示される
+    const browser = canvas.getByTestId("ref-win-browser");
+    await expect(browser).toBeInTheDocument();
+    // 新規タブリンクが表示されない
+    await expect(
+      canvas.queryByTestId("ref-win-open-new-tab"),
+    ).not.toBeInTheDocument();
+  },
+};
+
+export const BrowseModeJapanese: Story = {
+  args: {
+    entry: undefined,
+    locale: "ja",
+    onNavigate: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement.ownerDocument.body);
+    const titlebar = canvas.getByTestId("ref-win-titlebar");
+    await expect(titlebar).toHaveTextContent("リファレンス");
+  },
+};
+
+export const DetailWithHomeButton: Story = {
+  args: {
+    onNavigateHome: fn(),
+    onNavigate: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement.ownerDocument.body);
+    const homeBtn = canvas.getByTestId("ref-win-home");
+    await expect(homeBtn).toBeInTheDocument();
+    await userEvent.click(homeBtn);
+    await expect(args.onNavigateHome).toHaveBeenCalled();
+  },
+};
+
 export const WithNavigationNextOnly: Story = {
   args: {
     onNavigate: fn(),

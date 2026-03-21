@@ -31,20 +31,23 @@ import {
   constrainToViewport,
 } from "./floatingWindowLogic";
 import type { RelatedQuestInfo } from "./ReferenceModal";
+import { ReferenceBrowserComponent } from "./ReferenceBrowserComponent";
 
 // --- Props ---
 
 export interface ReferenceFloatingWindowProps {
-  /** 表示するリファレンスエントリ */
-  readonly entry: ReferenceEntry;
-  /** 全エントリ（関連エントリ解決用） */
+  /** 表示するリファレンスエントリ（undefinedの場合ブラウズモード） */
+  readonly entry?: ReferenceEntry;
+  /** 全エントリ（関連エントリ解決用・ブラウズモード用） */
   readonly allEntries: readonly ReferenceEntry[];
   /** ロケール */
   readonly locale: Locale;
   /** 閉じるコールバック */
   readonly onClose: () => void;
-  /** 関連エントリへのナビゲーション */
+  /** 関連エントリへのナビゲーション / ブラウズモードでのエントリ選択 */
   readonly onNavigate?: (entryId: string) => void;
+  /** ブラウズモードへ戻るコールバック */
+  readonly onNavigateHome?: () => void;
   /** 関連クエスト（IDとタイトルの解決済みリスト） */
   readonly relatedQuests?: readonly RelatedQuestInfo[];
   /** クエスト開始コールバック */
@@ -249,6 +252,7 @@ export function ReferenceFloatingWindow({
   onNavigate,
   relatedQuests,
   onStartQuest,
+  onNavigateHome,
   navigationData,
   testId,
 }: ReferenceFloatingWindowProps) {
@@ -268,12 +272,16 @@ export function ReferenceFloatingWindow({
   }, [rect]);
 
   const data = useMemo(
-    () => buildModalData(entry, allEntries, locale),
+    () =>
+      entry !== undefined
+        ? buildModalData(entry, allEntries, locale)
+        : undefined,
     [entry, allEntries, locale],
   );
 
   const formulaHtmlItems = useMemo(() => {
-    if (data.formalNotation === undefined) return undefined;
+    if (data === undefined || data.formalNotation === undefined)
+      return undefined;
     const notations =
       typeof data.formalNotation === "string"
         ? [data.formalNotation]
@@ -285,7 +293,7 @@ export function ReferenceFloatingWindow({
         output: "htmlAndMathml",
       }),
     );
-  }, [data.formalNotation]);
+  }, [data]);
 
   const handleRelatedClick = useCallback(
     (entryId: string) => {
@@ -387,10 +395,17 @@ export function ReferenceFloatingWindow({
   }, []);
   /* v8 ignore stop */
 
+  const browseMode = entry === undefined;
+  const windowTitle = browseMode
+    ? locale === "ja"
+      ? "リファレンス"
+      : "Reference"
+    : data!.title;
+
   const windowContent = (
     <div
       role="dialog"
-      aria-label={data.title}
+      aria-label={windowTitle}
       style={{
         ...windowStyle,
         left: rect.x,
@@ -410,25 +425,42 @@ export function ReferenceFloatingWindow({
             : undefined
         }
       >
-        <div style={titleBarTitleStyle}>{data.title}</div>
-        <div style={titleBarButtonsStyle}>
-          <a
-            href={buildReferenceViewerUrl(entry.id)}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={
-              locale === "ja" ? "新しいタブで開く" : "Open in new tab"
-            }
+        {!browseMode && onNavigateHome !== undefined && (
+          <Button
+            type="text"
+            size="small"
+            onClick={onNavigateHome}
+            aria-label={locale === "ja" ? "一覧に戻る" : "Back to list"}
             data-testid={
               testId !== undefined
-                ? `${testId satisfies string}-open-new-tab`
+                ? `${testId satisfies string}-home`
                 : undefined
             }
           >
-            <Button type="text" size="small">
-              ↗
-            </Button>
-          </a>
+            ←
+          </Button>
+        )}
+        <div style={titleBarTitleStyle}>{windowTitle}</div>
+        <div style={titleBarButtonsStyle}>
+          {!browseMode && entry !== undefined && (
+            <a
+              href={buildReferenceViewerUrl(entry.id)}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={
+                locale === "ja" ? "新しいタブで開く" : "Open in new tab"
+              }
+              data-testid={
+                testId !== undefined
+                  ? `${testId satisfies string}-open-new-tab`
+                  : undefined
+              }
+            >
+              <Button type="text" size="small">
+                ↗
+              </Button>
+            </a>
+          )}
           <Button
             type="text"
             size="small"
@@ -446,89 +478,89 @@ export function ReferenceFloatingWindow({
       </div>
 
       {/* 本体 */}
-      <div style={bodyStyle}>
-        <div style={categoryBadgeStyle}>{data.categoryLabel}</div>
-        {/* 要約 */}
-        <div style={summaryStyle}>
-          <InlineMarkdown text={data.summary} />
+      {browseMode ? (
+        <div style={bodyStyle}>
+          <ReferenceBrowserComponent
+            entries={allEntries}
+            locale={locale}
+            onSelectEntry={onNavigate}
+            searchPlaceholder={
+              locale === "ja" ? "リファレンスを検索…" : "Search reference…"
+            }
+            emptyMessage={
+              locale === "ja"
+                ? "一致するエントリがありません。"
+                : "No matching entries found."
+            }
+            guideSectionTitle={
+              locale === "ja" ? "はじめに" : "Getting Started"
+            }
+            guideSectionDescription={
+              locale === "ja"
+                ? "形式論理は初めてですか？ここから始めましょう。"
+                : "New to formal logic? Start here."
+            }
+            relatedTopicsLabel={
+              locale === "ja" ? "関連トピック" : "related topics"
+            }
+            testId={
+              testId !== undefined
+                ? `${testId satisfies string}-browser`
+                : undefined
+            }
+          />
         </div>
+      ) : data !== undefined ? (
+        <div style={bodyStyle}>
+          <div style={categoryBadgeStyle}>{data.categoryLabel}</div>
+          {/* 要約 */}
+          <div style={summaryStyle}>
+            <InlineMarkdown text={data.summary} />
+          </div>
 
-        {/* 形式表記 */}
-        {formulaHtmlItems !== undefined &&
-          formulaHtmlItems.map((html, i) => (
-            <div
-              key={`formula-${String(i) satisfies string}`}
-              style={formulaStyle}
-              dangerouslySetInnerHTML={{ __html: html }}
-              data-testid={
-                testId !== undefined
-                  ? `${testId satisfies string}-formula${(formulaHtmlItems.length > 1 ? `-${String(i) satisfies string}` : "") satisfies string}`
-                  : undefined
-              }
-            />
+          {/* 形式表記 */}
+          {formulaHtmlItems !== undefined &&
+            formulaHtmlItems.map((html, i) => (
+              <div
+                key={`formula-${String(i) satisfies string}`}
+                style={formulaStyle}
+                dangerouslySetInnerHTML={{ __html: html }}
+                data-testid={
+                  testId !== undefined
+                    ? `${testId satisfies string}-formula${(formulaHtmlItems.length > 1 ? `-${String(i) satisfies string}` : "") satisfies string}`
+                    : undefined
+                }
+              />
+            ))}
+
+          {/* 本文パラグラフ */}
+          {data.bodyParagraphs.map((paragraph, i) => (
+            <p key={`p-${String(i) satisfies string}`} style={paragraphStyle}>
+              <InlineMarkdown text={paragraph} />
+            </p>
           ))}
 
-        {/* 本文パラグラフ */}
-        {data.bodyParagraphs.map((paragraph, i) => (
-          <p key={`p-${String(i) satisfies string}`} style={paragraphStyle}>
-            <InlineMarkdown text={paragraph} />
-          </p>
-        ))}
-
-        {/* 関連エントリ */}
-        {data.relatedEntries.length > 0 && (
-          <div>
-            <div style={sectionTitleStyle}>
-              {locale === "ja" ? "関連項目" : "Related"}
-            </div>
-            <div>
-              {data.relatedEntries.map((related) => (
-                <span key={related.id} style={relatedItemWrapperStyle}>
-                  <Button
-                    size="small"
-                    onClick={() => {
-                      handleRelatedClick(related.id);
-                    }}
-                    data-testid={
-                      testId !== undefined
-                        ? `${testId satisfies string}-related-${related.id satisfies string}`
-                        : undefined
-                    }
-                  >
-                    {related.title}
-                  </Button>
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 関連クエスト */}
-        {relatedQuests !== undefined &&
-          relatedQuests.length > 0 &&
-          onStartQuest !== undefined && (
+          {/* 関連エントリ */}
+          {data.relatedEntries.length > 0 && (
             <div>
               <div style={sectionTitleStyle}>
-                {locale === "ja" ? "関連クエスト" : "Related Quests"}
+                {locale === "ja" ? "関連項目" : "Related"}
               </div>
               <div>
-                {relatedQuests.map((quest) => (
-                  <span key={quest.id} style={questItemWrapperStyle}>
+                {data.relatedEntries.map((related) => (
+                  <span key={related.id} style={relatedItemWrapperStyle}>
                     <Button
                       size="small"
-                      type="primary"
                       onClick={() => {
-                        onStartQuest(quest.id);
+                        handleRelatedClick(related.id);
                       }}
                       data-testid={
-                        /* v8 ignore start -- testId条件分岐はテスト用属性 */
                         testId !== undefined
-                          ? `${testId satisfies string}-quest-${quest.id satisfies string}`
+                          ? `${testId satisfies string}-related-${related.id satisfies string}`
                           : undefined
-                        /* v8 ignore stop */
                       }
                     >
-                      {quest.title}
+                      {related.title}
                     </Button>
                   </span>
                 ))}
@@ -536,36 +568,72 @@ export function ReferenceFloatingWindow({
             </div>
           )}
 
-        {/* 外部リンク */}
-        {data.externalLinks.length > 0 && (
-          <div>
-            <div style={sectionTitleStyle}>
-              {locale === "ja" ? "外部リソース" : "External Resources"}
-            </div>
+          {/* 関連クエスト */}
+          {relatedQuests !== undefined &&
+            relatedQuests.length > 0 &&
+            onStartQuest !== undefined && (
+              <div>
+                <div style={sectionTitleStyle}>
+                  {locale === "ja" ? "関連クエスト" : "Related Quests"}
+                </div>
+                <div>
+                  {relatedQuests.map((quest) => (
+                    <span key={quest.id} style={questItemWrapperStyle}>
+                      <Button
+                        size="small"
+                        type="primary"
+                        onClick={() => {
+                          onStartQuest(quest.id);
+                        }}
+                        data-testid={
+                          /* v8 ignore start -- testId条件分岐はテスト用属性 */
+                          testId !== undefined
+                            ? `${testId satisfies string}-quest-${quest.id satisfies string}`
+                            : undefined
+                          /* v8 ignore stop */
+                        }
+                      >
+                        {quest.title}
+                      </Button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          {/* 外部リンク */}
+          {data.externalLinks.length > 0 && (
             <div>
-              {data.externalLinks.map((link, i) => (
-                <a
-                  key={`link-${String(i) satisfies string}`}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={externalLinkStyle}
-                  data-testid={
-                    /* v8 ignore start -- testId条件分岐はテスト用属性 */
-                    testId !== undefined
-                      ? `${testId satisfies string}-link-${String(i) satisfies string}`
-                      : undefined
-                    /* v8 ignore stop */
-                  }
-                >
-                  {link.label} ↗
-                  <span style={languageTagStyle}>{link.documentLanguage}</span>
-                </a>
-              ))}
+              <div style={sectionTitleStyle}>
+                {locale === "ja" ? "外部リソース" : "External Resources"}
+              </div>
+              <div>
+                {data.externalLinks.map((link, i) => (
+                  <a
+                    key={`link-${String(i) satisfies string}`}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={externalLinkStyle}
+                    data-testid={
+                      /* v8 ignore start -- testId条件分岐はテスト用属性 */
+                      testId !== undefined
+                        ? `${testId satisfies string}-link-${String(i) satisfies string}`
+                        : undefined
+                      /* v8 ignore stop */
+                    }
+                  >
+                    {link.label} ↗
+                    <span style={languageTagStyle}>
+                      {link.documentLanguage}
+                    </span>
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      ) : null}
 
       {/* ナビゲーションフッター */}
       {navigationData !== undefined &&

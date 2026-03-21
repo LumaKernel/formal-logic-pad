@@ -378,6 +378,7 @@ function WorkspaceInner() {
   const [referenceDetailId, setReferenceDetailId] = useState<string | null>(
     null,
   );
+  const [referenceWindowOpen, setReferenceWindowOpen] = useState(false);
   const referenceLocale: ReferenceLocale = locale;
 
   const notebookId =
@@ -448,13 +449,20 @@ function WorkspaceInner() {
 
   const handleOpenReferenceDetail = useCallback((entryId: string) => {
     setReferenceDetailId(entryId);
+    setReferenceWindowOpen(true);
   }, []);
 
   const handleOpenSyntaxHelp = useCallback(() => {
     setReferenceDetailId("notation-input-methods");
+    setReferenceWindowOpen(true);
   }, []);
 
   const handleCloseReferenceDetail = useCallback(() => {
+    setReferenceDetailId(null);
+    setReferenceWindowOpen(false);
+  }, []);
+
+  const handleNavigateReferenceHome = useCallback(() => {
     setReferenceDetailId(null);
   }, []);
 
@@ -550,13 +558,14 @@ function WorkspaceInner() {
         themeLabels={themeLabels}
         scriptEditorMessages={scriptEditorMessages}
       />
-      {referenceDetailEntry !== undefined ? (
+      {referenceWindowOpen ? (
         <ReferenceFloatingWindow
           entry={referenceDetailEntry}
           allEntries={allReferenceEntries}
           locale={referenceLocale}
           onClose={handleCloseReferenceDetail}
           onNavigate={handleOpenReferenceDetail}
+          onNavigateHome={handleNavigateReferenceHome}
           navigationData={referenceNavigation}
         />
       ) : null}

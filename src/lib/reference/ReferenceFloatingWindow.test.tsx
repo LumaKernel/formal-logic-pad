@@ -488,4 +488,94 @@ describe("ReferenceFloatingWindow", () => {
     const closeBtn = screen.getByTestId("ref-win-close");
     expect(closeBtn.getAttribute("aria-label")).toBe("閉じる");
   });
+
+  // --- ブラウズモード ---
+
+  it("entry未指定でブラウズモードが表示される", () => {
+    const allEntries = [makeEntry(), makeRelatedEntry()];
+    renderWithAntd(
+      <ReferenceFloatingWindow
+        allEntries={allEntries}
+        locale="en"
+        onClose={vi.fn()}
+        testId="ref-win"
+      />,
+    );
+    const win = screen.getByTestId("ref-win");
+    expect(win).toBeDefined();
+    // ブラウズモードではタイトルが "Reference"
+    const titlebar = screen.getByTestId("ref-win-titlebar");
+    expect(titlebar.textContent).toContain("Reference");
+    // ブラウザコンポーネントが表示される
+    expect(screen.getByTestId("ref-win-browser")).toBeDefined();
+  });
+
+  it("ブラウズモードで日本語タイトルが表示される", () => {
+    renderWithAntd(
+      <ReferenceFloatingWindow
+        allEntries={[makeEntry()]}
+        locale="ja"
+        onClose={vi.fn()}
+        testId="ref-win"
+      />,
+    );
+    const titlebar = screen.getByTestId("ref-win-titlebar");
+    expect(titlebar.textContent).toContain("リファレンス");
+  });
+
+  it("ブラウズモードでは新規タブリンクが表示されない", () => {
+    renderWithAntd(
+      <ReferenceFloatingWindow
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        testId="ref-win"
+      />,
+    );
+    expect(screen.queryByTestId("ref-win-open-new-tab")).toBeNull();
+  });
+
+  it("詳細モードでonNavigateHomeがあるとホームボタンが表示される", () => {
+    const handleHome = vi.fn();
+    renderWithAntd(
+      <ReferenceFloatingWindow
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        onNavigateHome={handleHome}
+        testId="ref-win"
+      />,
+    );
+    const homeBtn = screen.getByTestId("ref-win-home");
+    expect(homeBtn).toBeDefined();
+    fireEvent.click(homeBtn);
+    expect(handleHome).toHaveBeenCalled();
+  });
+
+  it("詳細モードでonNavigateHomeがないとホームボタンが表示されない", () => {
+    renderWithAntd(
+      <ReferenceFloatingWindow
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        testId="ref-win"
+      />,
+    );
+    expect(screen.queryByTestId("ref-win-home")).toBeNull();
+  });
+
+  it("ブラウズモードではホームボタンが表示されない", () => {
+    renderWithAntd(
+      <ReferenceFloatingWindow
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        onNavigateHome={vi.fn()}
+        testId="ref-win"
+      />,
+    );
+    expect(screen.queryByTestId("ref-win-home")).toBeNull();
+  });
 });
