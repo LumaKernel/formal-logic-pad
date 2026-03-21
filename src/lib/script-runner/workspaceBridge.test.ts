@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from "vitest";
 import {
   createWorkspaceBridges,
   WORKSPACE_BRIDGE_API_DEFS,
-  generateWorkspaceBridgeTypeDefs,
 } from "./workspaceBridge";
 import type { WorkspaceCommandHandler } from "./workspaceBridge";
 import { createScriptRunner, isScriptRunResult } from "./scriptRunner";
@@ -866,24 +865,3 @@ describe("extractHilbertProof ブリッジ", () => {
   });
 });
 
-describe("generateWorkspaceBridgeTypeDefs", () => {
-  it("TypeScript型定義テキストを生成する", () => {
-    const typeDefs = generateWorkspaceBridgeTypeDefs();
-    expect(typeDefs).toContain("declare function addNode");
-    expect(typeDefs).toContain("declare function connectMP");
-    expect(typeDefs).toContain("declare function applyLayout");
-    expect(typeDefs).toContain("declare function clearWorkspace");
-    expect(typeDefs).toContain("declare function displayScProof");
-    expect(typeDefs).toContain("declare function getSelectedNodeIds");
-    expect(typeDefs).toContain("declare function getDeductionSystemInfo");
-    expect(typeDefs).toContain("declare function getLogicSystem");
-    expect(typeDefs).toContain("declare function extractScProof");
-    expect(typeDefs).toContain("declare function extractHilbertProof");
-  });
-
-  it("declare function の戻り値は : 構文を使う（=> は不正）", () => {
-    const typeDefs = generateWorkspaceBridgeTypeDefs();
-    expect(typeDefs).not.toMatch(/declare function \w+\([^)]*\)\s*=>/);
-    expect(typeDefs).toMatch(/declare function \w+\([^)]*\):/);
-  });
-});

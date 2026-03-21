@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  createProofBridges,
-  PROOF_BRIDGE_API_DEFS,
-  generateProofBridgeTypeDefs,
-} from "./proofBridge";
+import { createProofBridges, PROOF_BRIDGE_API_DEFS } from "./proofBridge";
 import { createScriptRunner, isScriptRunResult } from "./scriptRunner";
 import type { ScriptRunnerInstance, ScriptRunResult } from "./scriptRunner";
 
@@ -548,20 +544,3 @@ describe("PROOF_BRIDGE_API_DEFS", () => {
   });
 });
 
-describe("generateProofBridgeTypeDefs", () => {
-  it("TypeScript型定義テキストを生成する", () => {
-    const typeDefs = generateProofBridgeTypeDefs();
-    expect(typeDefs).toContain("declare function parseFormula");
-    expect(typeDefs).toContain("declare function applyMP");
-    expect(typeDefs).toContain("declare function identifyAxiom");
-    expect(typeDefs).toContain("declare function proveSequentLK");
-  });
-
-  it("declare function の戻り値は : 構文を使う（=> は不正）", () => {
-    const typeDefs = generateProofBridgeTypeDefs();
-    // "declare function name(...) => " は不正な TS 構文で戻り値が any になる
-    expect(typeDefs).not.toMatch(/declare function \w+\([^)]*\)\s*=>/);
-    // 正しい ": " 構文が使われていることを確認
-    expect(typeDefs).toMatch(/declare function \w+\([^)]*\):/);
-  });
-});

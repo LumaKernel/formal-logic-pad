@@ -4,7 +4,6 @@ import {
   decodeProofNode,
   createHilbertProofBridges,
   HILBERT_PROOF_BRIDGE_API_DEFS,
-  generateHilbertProofBridgeTypeDefs,
 } from "./hilbertProofBridge";
 import type { ProofNode } from "../logic-core/proofTree";
 import {
@@ -322,17 +321,3 @@ describe("HILBERT_PROOF_BRIDGE_API_DEFS", () => {
   });
 });
 
-describe("generateHilbertProofBridgeTypeDefs", () => {
-  it("型定義テキストを生成する", () => {
-    const defs = generateHilbertProofBridgeTypeDefs();
-    expect(defs).toContain("declare function applyDeductionTheorem");
-    expect(defs).toContain("declare function applyReverseDeductionTheorem");
-    expect(defs).toContain("declare function displayHilbertProof");
-  });
-
-  it("declare function の戻り値は : 構文を使う（=> は不正）", () => {
-    const defs = generateHilbertProofBridgeTypeDefs();
-    expect(defs).not.toMatch(/declare function \w+\([^)]*\)\s*=>/);
-    expect(defs).toMatch(/declare function \w+\([^)]*\):/);
-  });
-});

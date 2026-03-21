@@ -255,21 +255,6 @@ export const createHilbertProofBridges = (
 
 // ── API 定義（Monaco Editor 補完用）─────────────────────────
 
-/**
- * Hilbert証明木ブリッジ API の TypeScript 型定義テキストを生成する。
- */
-export const generateHilbertProofBridgeTypeDefs = (): string => {
-  const lines = HILBERT_PROOF_BRIDGE_API_DEFS.map((def) => {
-    const desc = def.description satisfies string;
-    const name = def.name satisfies string;
-    // "(params) => ReturnType" → "(params): ReturnType" に変換
-    // declare function では => ではなく : を使う
-    const sig = def.signature.replace(") =>", "):") satisfies string;
-    return `/** ${desc satisfies string} */\ndeclare function ${name satisfies string}${sig satisfies string};\n`;
-  });
-  return lines.join("\n");
-};
-
 export const HILBERT_PROOF_BRIDGE_API_DEFS: readonly ProofBridgeApiDef[] = [
   {
     name: "applyDeductionTheorem",

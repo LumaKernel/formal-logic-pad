@@ -498,18 +498,3 @@ export const WORKSPACE_BRIDGE_API_DEFS: readonly ProofBridgeApiDef[] = [
   },
 ];
 
-/**
- * ワークスペースブリッジ API の TypeScript 型定義テキストを生成する。
- * Monaco Editor の addExtraLib に渡す。
- */
-export const generateWorkspaceBridgeTypeDefs = (): string => {
-  const lines = WORKSPACE_BRIDGE_API_DEFS.map((def) => {
-    const desc = def.description satisfies string;
-    const name = def.name satisfies string;
-    // "(params) => ReturnType" → "(params): ReturnType" に変換
-    // declare function では => ではなく : を使う
-    const sig = def.signature.replace(") =>", "):") satisfies string;
-    return `/** ${desc satisfies string} */\ndeclare function ${name satisfies string}${sig satisfies string};\n`;
-  });
-  return lines.join("\n");
-};

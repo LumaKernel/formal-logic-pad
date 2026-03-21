@@ -6,6 +6,8 @@
  * 実行制限（ステップ数・時間）を提供する。
  * 証明操作 API ブリッジも提供する。
  *
+ * 型定義は builtin-api.d.ts に統合済み（?raw インポートで使用）。
+ *
  * 変更時は scriptRunner.ts, proofBridge.ts, *.test.ts も同期すること。
  */
 
@@ -28,28 +30,23 @@ export {
 export {
   createProofBridges,
   PROOF_BRIDGE_API_DEFS,
-  generateProofBridgeTypeDefs,
   type ProofBridgeApiDef,
 } from "./proofBridge";
 export {
   createWorkspaceBridges,
   WORKSPACE_BRIDGE_API_DEFS,
-  generateWorkspaceBridgeTypeDefs,
   type WorkspaceCommandHandler,
   type WorkspaceNodeInfo,
 } from "./workspaceBridge";
 export {
   createCutEliminationBridges,
   CUT_ELIMINATION_BRIDGE_API_DEFS,
-  generateCutEliminationBridgeTypeDefs,
   encodeScProofNode,
   decodeScProofNode,
 } from "./cutEliminationBridge";
 export {
   createHilbertProofBridges,
   HILBERT_PROOF_BRIDGE_API_DEFS,
-  generateHilbertProofBridgeTypeDefs,
   encodeProofNode,
   decodeProofNode,
 } from "./hilbertProofBridge";
-export { generateScriptBridgeTypeDefs } from "./scriptBridgeTypes";

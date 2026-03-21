@@ -4,7 +4,6 @@ import {
   decodeScProofNode,
   createCutEliminationBridges,
   CUT_ELIMINATION_BRIDGE_API_DEFS,
-  generateCutEliminationBridgeTypeDefs,
 } from "./cutEliminationBridge";
 import {
   sequent,
@@ -440,29 +439,6 @@ describe("createCutEliminationBridges", () => {
 describe("CUT_ELIMINATION_BRIDGE_API_DEFS", () => {
   it("27の定義を含む", () => {
     expect(CUT_ELIMINATION_BRIDGE_API_DEFS).toHaveLength(27);
-  });
-});
-
-describe("generateCutEliminationBridgeTypeDefs", () => {
-  it("型定義テキストを生成する", () => {
-    const defs = generateCutEliminationBridgeTypeDefs();
-    expect(defs).toContain("declare function isCutFree");
-    expect(defs).toContain("declare function eliminateCutsWithSteps");
-    expect(defs).toContain("declare function formatSequent");
-    expect(defs).toContain("declare function countCuts");
-    expect(defs).toContain("declare function getScConclusion");
-    // SC証明ノードコンストラクタ
-    expect(defs).toContain("declare function sequent");
-    expect(defs).toContain("declare function scIdentity");
-    expect(defs).toContain("declare function scCut");
-    expect(defs).toContain("declare function scWeakeningLeft");
-    expect(defs).toContain("declare function scImplicationLeft");
-  });
-
-  it("declare function の戻り値は : 構文を使う（=> は不正）", () => {
-    const defs = generateCutEliminationBridgeTypeDefs();
-    expect(defs).not.toMatch(/declare function \w+\([^)]*\)\s*=>/);
-    expect(defs).toMatch(/declare function \w+\([^)]*\):/);
   });
 });
 

@@ -16,16 +16,12 @@ import type { OnMount, BeforeMount } from "@monaco-editor/react";
 import {
   createScriptRunner,
   createProofBridges,
-  generateProofBridgeTypeDefs,
   isScriptRunResult,
   createWorkspaceBridges,
-  generateWorkspaceBridgeTypeDefs,
   createCutEliminationBridges,
-  generateCutEliminationBridgeTypeDefs,
   createHilbertProofBridges,
-  generateHilbertProofBridgeTypeDefs,
-  generateScriptBridgeTypeDefs,
 } from "@/lib/script-runner";
+import builtinApiTypeDefs from "@/lib/script-runner/builtin-api.d.ts?raw";
 import { BUILTIN_TEMPLATES } from "@/lib/script-runner/templates";
 import type { DeductionStyle } from "@/lib/logic-core/deductionSystem";
 import { ScriptLibraryPanel } from "./ScriptLibraryPanel";
@@ -524,26 +520,12 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
       noSyntaxValidation: false,
     });
 
-    const sharedTypeDefs = generateScriptBridgeTypeDefs();
-    const typeDefs = generateProofBridgeTypeDefs();
-    const workspaceTypeDefs = generateWorkspaceBridgeTypeDefs();
-    const cutEliminationTypeDefs = generateCutEliminationBridgeTypeDefs();
-    const consoleTypeDefs = `
-declare var console: {
-  log(...args: unknown[]): void;
-  error(...args: unknown[]): void;
-  warn(...args: unknown[]): void;
-};
-`;
-    const hilbertProofTypeDefs = generateHilbertProofBridgeTypeDefs();
+    // builtin-api.d.ts を ?raw でインポートした文字列をそのまま渡す。
+    // 型定義は実ファイルとして存在するため TSC が検証し、
+    // Go to Definition もこの仮想ファイル内で動作する。
     monaco.languages.typescript.javascriptDefaults.addExtraLib(
-      sharedTypeDefs +
-        typeDefs +
-        workspaceTypeDefs +
-        cutEliminationTypeDefs +
-        hilbertProofTypeDefs +
-        consoleTypeDefs,
-      "file:///proof-bridge.d.ts",
+      builtinApiTypeDefs,
+      "file:///builtin-api.d.ts",
     );
   }, []);
 
