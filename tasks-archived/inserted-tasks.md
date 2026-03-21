@@ -159,3 +159,6 @@
   - [x] ゴール一覧のバツボタンも最小化ボタンの見た目にしよう。ゴール一覧ウィンドウにはバツ機能自体は必要ない。
 
 - [x] getDeductionSystemInfo などは結局戻り値がanyだ。anyはすべてAPIから排除されるべきだ（原因: `declare function name() => ReturnType` という不正構文。`=>` を `:` に修正）
+
+- [x] スクリプトエディタの組み込みAPIは、readonlyなビルトイン.d.tsを持つ、みたいな形では実現できないのか？そのほうがgo to definitionもできてよいだろう。
+  - builtin-api.d.ts に統合、?raw importでMonacoに登録。generateXxxBridgeTypeDefs関数群を廃止

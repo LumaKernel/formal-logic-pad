@@ -16563,3 +16563,20 @@
   - onHideはオプショナルpropにし、未指定時は×ボタン自体を非表示にすることで、ストーリー等の単体表示では従来通り動作
 
 ---
+
+## 2026-03-21 - script-runner: 組み込みAPI型定義を.d.tsファイルに統合
+- generateXxxBridgeTypeDefs関数群（5関数）を廃止し、単一の builtin-api.d.ts ファイルに型定義を集約
+- Vite の ?raw import で文字列として読み込み、Monaco addExtraLib に登録
+- Next.js webpack に asset/source ルール追加（?raw resourceQuery 対応）
+- src/raw-import.d.ts で ?raw import の TypeScript 型宣言
+- builtin-api.test.ts: 型宣言の存在確認、構文健全性チェック、API_DEFS 配列との同期テスト（71テスト）
+- scriptBridgeTypes.ts / scriptBridgeTypes.test.ts を廃止（.trashed化）
+- 変更ファイル: next.config.ts, src/raw-import.d.ts, builtin-api.d.ts, builtin-api.test.ts, ScriptEditorComponent.tsx, 4 bridge modules + tests, index.ts
+- カバレッジ: Stmts 99.35%, Branch 97.51%, Funcs 90.02%, Lines 99.46%（ベースラインから実質変化なし）
+- **今後のイテレーションへの学び:**
+  - ?raw import は Vite では標準対応だが、Next.js (webpack) では webpack rule 追加が必要
+  - Storybook (@storybook/nextjs-vite) は Vite ベースなので ?raw は追加設定なしで動作
+  - declare var は ESLint no-var ルールに引っかかる → declare const を使う
+  - .d.ts ファイルの declare function 構文: 戻り値型は `:` で書く（`=>` は不正で any になる）
+  - Prettier は関数削除後の空行整理も厳格にチェックする
+---
