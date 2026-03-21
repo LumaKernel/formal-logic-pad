@@ -16694,3 +16694,19 @@
   - HubMessages にキーを追加すると、hubMessages.ts の型・デフォルト値・キー配列、HubContent.tsx の useHubMessagesFromIntl、messages/en.json、messages/ja.json の5箇所を同期する必要がある
   - ストーリーのfullPage screenshotが小さいviewportだと下部が見えないことがある。browser_resizeで確認するか、snapshotでDOM構造を確認する
 ---
+
+## 2026-03-21 - スクリプトパネルドキュメントガイド追加
+- ScriptListPanel に docsLinkText / onShowDocs を追加
+  - 空状態: ボタンスタイルでドキュメントリンク表示
+  - リスト状態: info bannerでドキュメントリンク表示
+- hubMessages.ts に scriptsDocsLink キー追加、messages/en.json・ja.json 同期
+- HubPageView.tsx に onShowScriptDocs prop追加、HubContent.tsx で handleShowReference に接続
+- ScriptListPanel.test.tsx: 4テスト追加（空状態docs表示/非表示、リスト状態docs表示/非表示）
+- HubPageView.stories.tsx: ScriptsTab・ScriptsTabEmpty ストーリーのplay関数更新
+- カバレッジ: Stmts 99.34 / Branch 97.46 / Funcs 89.86 / Lines 99.44（変化なし）
+- スクリーンショット: .screenshots/scripts-empty-docs-link.png, .screenshots/scripts-list-docs-banner.png
+- **今後のイテレーションへの学び:**
+  - ScriptListPanelMessages に新プロパティ追加時は defaultMessages（テスト内）も必ず更新
+  - i18n 5箇所同期パターン: hubMessages.ts (type + defaults + keys) → HubContent.tsx (useHubMessagesFromIntl) → messages/en.json + ja.json
+  - task-processing.md は prettier チェック対象。内容書き込み後 prettier --write が必要
+---
