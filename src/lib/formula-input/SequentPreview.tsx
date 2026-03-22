@@ -71,7 +71,9 @@ interface FormulaSlot {
 
 function parseFormulaSlot(text: string): FormulaSlot {
   const trimmed = text.trim();
+  /* v8 ignore start */ // 呼び出し元で空文字列はフィルタ済みだが防御的チェック
   if (trimmed === "") return { text: trimmed, formula: null };
+  /* v8 ignore stop */
   const result = parseString(trimmed);
   if (Either.isRight(result)) {
     return { text: trimmed, formula: result.right };
