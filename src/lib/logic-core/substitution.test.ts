@@ -698,6 +698,18 @@ describe("substituteTermVariableInTerm", () => {
     const result = substituteTermVariableInTerm(t, x, s);
     expect(equalTerm(result, binaryOperation("+", s, y))).toBe(true);
   });
+
+  test("TermSubstitution: recursive substitution in term and replacement", () => {
+    // (x[y/z])[s/x] → s[y/z]
+    const t = termSubstitution(x, y, z);
+    const result = substituteTermVariableInTerm(t, x, s);
+    expect(result._tag).toBe("TermSubstitution");
+    if (result._tag === "TermSubstitution") {
+      expect(equalTerm(result.term, s)).toBe(true);
+      expect(equalTerm(result.replacement, y)).toBe(true);
+      expect(result.variable.name).toBe("z");
+    }
+  });
 });
 
 // ── 5. 項変数代入（論理式内） ──────────────────────────────────
@@ -1774,6 +1786,74 @@ describe("normalizeFormula", () => {
     const outer = termSubstitution(inner, termVariable("z"), termVariable("y"));
     const result = resolveTermSubstitution(outer);
     expect(equalTerm(result, termVariable("z"))).toBe(true);
+  });
+
+  test("resolveTermSubstitution: (x + y)[a/x] → a + y (BinaryOperation)", () => {
+    const t = termSubstitution(
+      binaryOperation("+", termVariable("x"), termVariable("y")),
+      termVariable("a"),
+      termVariable("x"),
+    );
+    const result = resolveTermSubstitution(t);
+    expect(
+      equalTerm(
+        result,
+        binaryOperation("+", termVariable("a"), termVariable("y")),
+      ),
+    ).toBe(true);
+  });
+
+  test("resolveTermSubstitution: BinaryOperation without substitution passes through", () => {
+    const t = binaryOperation("+", termVariable("x"), termVariable("y"));
+    const result = resolveTermSubstitution(t);
+    expect(equalTerm(result, t)).toBe(true);
+  });
+
+  test("containsMetaVariable経由: FormulaSubstitution内のメタ変数を検出して置換を保持", () => {
+    // (φ[a/x] → P(y))[b/y]
+    // 内側を正規化すると φ[a/x] → P(y) (Implication)
+    // hasMetaVariableBase → false (Implication)
+    // containsMetaVariable → true (左辺のFormulaSubstitution内にφ)
+    // → 置換を保持
+    const phi = metaVariable("φ");
+    const inner = implication(
+      formulaSubstitution(phi, constant("a"), termVariable("x")),
+      predicate("P", [termVariable("y")]),
+    );
+    const f = formulaSubstitution(inner, constant("b"), termVariable("y"));
+    const result = normalizeFormula(f);
+    // メタ変数を含むため置換が保持される
+    expect(result._tag).toBe("FormulaSubstitution");
+  });
+
+  test("containsMetaVariable経由: FreeVariableAbsence内のメタ変数を検出して置換を保持", () => {
+    // (FVA(φ, x) → P(y))[b/y]
+    // 内側を正規化すると FVA(φ, x) → P(y) (Implication)
+    // hasMetaVariableBase → false (Implication)
+    // containsMetaVariable → true (左辺のFreeVariableAbsence内にφ)
+    // → 置換を保持
+    const phi = metaVariable("φ");
+    const inner = implication(
+      freeVariableAbsence(phi, termVariable("x")),
+      predicate("P", [termVariable("y")]),
+    );
+    const f = formulaSubstitution(inner, constant("b"), termVariable("y"));
+    const result = normalizeFormula(f);
+    expect(result._tag).toBe("FormulaSubstitution");
+  });
+
+  test("containsMetaVariable経由: FreeVariableAbsence内のメタ変数でFVAも保持", () => {
+    // FVA(FVA(φ, x) → P(y), y)
+    // hasMetaVariableBase → false (Implication)
+    // containsMetaVariable → true (FreeVariableAbsence内にφ)
+    const phi = metaVariable("φ");
+    const inner = implication(
+      freeVariableAbsence(phi, termVariable("x")),
+      predicate("P", [termVariable("y")]),
+    );
+    const f = freeVariableAbsence(inner, termVariable("y"));
+    const result = normalizeFormula(f);
+    expect(result._tag).toBe("FreeVariableAbsence");
   });
 
   test("公理A5のインスタンス化: (∀x.φ)→φ[τ/x] で φ:=φ→φ", () => {

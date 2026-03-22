@@ -34,6 +34,16 @@ describe("edgeBadgeEditLogic", () => {
       expect(createEditStateFromEdge(simpEdge)).toBeUndefined();
     });
 
+    it("returns undefined for substitution-connection edge", () => {
+      const subConnEdge: InferenceEdge = {
+        _tag: "substitution-connection",
+        conclusionNodeId: "n1",
+        premiseNodeId: "n2",
+        conclusionText: "φ[τ/x]",
+      };
+      expect(createEditStateFromEdge(subConnEdge)).toBeUndefined();
+    });
+
     it("returns gen edit state for Gen edge", () => {
       const genEdge: InferenceEdge = {
         _tag: "gen",

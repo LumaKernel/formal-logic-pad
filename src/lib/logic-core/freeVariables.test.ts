@@ -300,6 +300,26 @@ describe("allVariableNamesInTerm", () => {
   test("TermMetaVariable has no variable names", () => {
     expect(allVariableNamesInTerm(termMetaVariable("τ"))).toEqual(new Set());
   });
+
+  test("TermSubstitution collects all variable names from term, replacement, and variable", () => {
+    // x[y/z] → allVars = {x, y, z}
+    const t = termSubstitution(
+      termVariable("x"),
+      termVariable("y"),
+      termVariable("z"),
+    );
+    expect(allVariableNamesInTerm(t)).toEqual(new Set(["x", "y", "z"]));
+  });
+
+  test("TermSubstitution with nested terms", () => {
+    // f(a, b)[g(c)/d] → allVars = {a, b, c, d}
+    const t = termSubstitution(
+      functionApplication("f", [termVariable("a"), termVariable("b")]),
+      functionApplication("g", [termVariable("c")]),
+      termVariable("d"),
+    );
+    expect(allVariableNamesInTerm(t)).toEqual(new Set(["a", "b", "c", "d"]));
+  });
 });
 
 describe("allVariableNamesInFormula", () => {

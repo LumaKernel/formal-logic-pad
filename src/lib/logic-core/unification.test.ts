@@ -18,6 +18,7 @@ import {
   constant,
   functionApplication,
   binaryOperation,
+  termSubstitution,
 } from "./index";
 import { metaVariableKey, termMetaVariableKey } from "./metaVariable";
 import { equalFormula, equalTerm } from "./equality";
@@ -865,6 +866,43 @@ describe("unifyTerms", () => {
       const source = freeVariableAbsence(metaVariable("φ"), x);
       const target = freeVariableAbsence(metaVariable("ψ"), y);
       const result = unifyFormulas(source, target);
+      expectError(result);
+    });
+  });
+
+  describe("TermSubstitution", () => {
+    it("同じTermSubstitutionをユニファイできる", () => {
+      const x = termVariable("x");
+      const y = termVariable("y");
+      // P(t1[y/x]) と P(t2[y/x]) where t1,t2 are meta
+      const source = predicate("P", [
+        termSubstitution(termMetaVariable("τ"), y, x),
+      ]);
+      const target = predicate("P", [termSubstitution(constant("a"), y, x)]);
+      const result = unifyFormulas(source, target);
+      verifyFormulaUnification(result, source, target);
+    });
+
+    it("TermSubstitutionの変数名が異なるとユニファイ失敗", () => {
+      const x = termVariable("x");
+      const y = termVariable("y");
+      const source = predicate("P", [
+        termSubstitution(termMetaVariable("τ"), constant("a"), x),
+      ]);
+      const target = predicate("P", [
+        termSubstitution(termMetaVariable("σ"), constant("a"), y),
+      ]);
+      const result = unifyFormulas(source, target);
+      expectError(result);
+    });
+
+    it("TermSubstitution内のoccurs checkが機能する", () => {
+      const x = termVariable("x");
+      // τ = a[τ/x] — occurs check: τ appears inside TermSubstitution replacement
+      const result = unifyTerms(
+        termMetaVariable("τ"),
+        termSubstitution(constant("a"), termMetaVariable("τ"), x),
+      );
       expectError(result);
     });
   });
