@@ -31,7 +31,7 @@
 
 - ~~`EmbeddedEditor.tsx`~~ (存在しない古い情報)
 - ~~`ApiReferencePanel.tsx`~~ → Storybook ストーリー作成済み（6ストーリー、play関数付き）
-- `ScriptFileExplorer.tsx` (81.48% Funcs, 86.56% Stmts) — 既存ストーリーはあるがエッジケース追加の余地あり
+- ~~`ScriptFileExplorer.tsx`~~ → Escape キャンセル、blur 確定、ホバー解除のストーリー追加済み（計8ストーリー）
 - これらはUIコンポーネントのためStorybook play関数での改善が適切
 
 ### ドキュメント・学習体験の改善
