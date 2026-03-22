@@ -1059,3 +1059,38 @@ describe("buildModelAnswerWorkspace - script step", () => {
     expect(result._tag).toBe("Valid");
   });
 });
+
+describe("buildModelAnswerWorkspace - A4 axiom (term meta variable)", () => {
+  const predicateQuest: QuestDefinition = {
+    id: "test-pred",
+    category: "predicate-basics",
+    title: "Test: predicate A4",
+    description: "述語論理A4公理テスト",
+    difficulty: 1,
+    systemPresetId: "predicate",
+    goals: [{ formulaText: "(∀x. P(x)) -> P(a)", label: "Goal" }],
+    hints: [],
+    estimatedSteps: 1,
+    learningPoint: "test",
+    order: 1,
+    version: 1,
+  };
+
+  it("A4公理インスタンスでterm meta variable代入が構築される", () => {
+    const answer: ModelAnswer = {
+      questId: "test-pred",
+      steps: [
+        {
+          _tag: "axiom",
+          formulaText: "(∀x. P(x)) -> P(a)",
+        },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(predicateQuest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    // A4は非自明代入（τ=a）なので schema + SubstitutionEdge → instance チェーン
+    // buildSubstitutionEntriesFromMaps で termSub が処理される
+    expect(result.workspace.nodes.length).toBeGreaterThanOrEqual(2);
+  });
+});

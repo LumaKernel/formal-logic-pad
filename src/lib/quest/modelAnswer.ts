@@ -546,15 +546,15 @@ function expandAxiomStepIfNeeded(
 
   // 論理式をパース
   const parseResult = parseString(formulaText);
+  /* v8 ignore start — defensive: correct model answers always have valid formula text */
   if (Either.isLeft(parseResult)) {
-    /* v8 ignore start — defensive: correct model answers always have valid formula text */
     return {
       _tag: "StepError",
       stepIndex,
       reason: `axiom formula parse error: ${formulaText satisfies string}`,
     };
-    /* v8 ignore stop */
   }
+  /* v8 ignore stop */
   const formula = parseResult.right;
 
   // 公理同定
@@ -595,9 +595,8 @@ function expandAxiomStepIfNeeded(
   let schemaDslText: string | undefined;
   if (identification._tag === "Ok") {
     schemaDslText = propositionalAxiomDslTexts[identification.axiomId];
-  }
+  } else if (identification._tag === "TheoryAxiom") {
   /* v8 ignore start — 理論公理は matchMode:"exact" のため非自明代入にならず到達しない */
-  if (identification._tag === "TheoryAxiom") {
     const theoryAxiom = system.theoryAxioms?.find(
       (a) => a.id === identification.theoryAxiomId,
     );
@@ -605,8 +604,8 @@ function expandAxiomStepIfNeeded(
   }
   /* v8 ignore stop */
 
+  /* v8 ignore start — defensive: all known axioms have dslText */
   if (schemaDslText === undefined) {
-    /* v8 ignore start — defensive: all known axioms have dslText */
     const nodeId = `node-${String(ws.nextNodeId) satisfies string}`;
     const workspace = addNode(
       ws,
@@ -616,13 +615,13 @@ function expandAxiomStepIfNeeded(
       formulaText,
     );
     return { workspace, nodeId };
-    /* v8 ignore stop */
   }
+  /* v8 ignore stop */
 
   // スキーマのASTをパース（SubstitutionEntries構築用）
   const schemaParseResult = parseString(schemaDslText);
+  /* v8 ignore start — defensive: axiom schema dsl texts are always valid */
   if (Either.isLeft(schemaParseResult)) {
-    /* v8 ignore start — defensive: axiom schema dsl texts are always valid */
     const nodeId = `node-${String(ws.nextNodeId) satisfies string}`;
     const workspace = addNode(
       ws,
@@ -632,8 +631,8 @@ function expandAxiomStepIfNeeded(
       formulaText,
     );
     return { workspace, nodeId };
-    /* v8 ignore stop */
   }
+  /* v8 ignore stop */
   const schemaFormula = schemaParseResult.right;
 
   // スキーマノードを作成
