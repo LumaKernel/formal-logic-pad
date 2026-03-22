@@ -16810,3 +16810,17 @@
   - dev server (Next.js Turbopack) に pre-existing の "Unexpected identifier 'type'" ランタイムエラーあり。ワークスペースページが描画されない。Storybook での確認が必要
   - コンテキストメニュー項目の追加パターン: showCollectionPanel と同じパターン (optional callback + conditional rendering)
 ---
+
+## 2026-03-22 - Funcsカバレッジ改善
+- 未カバーの行・ブランチにテスト追加（11テスト追加）
+  - freeVariables.test.ts: allVariableNamesInTerm TermSubstitution (+2 tests)
+  - substitution.test.ts: resolveTermSubstitution BinaryOp, substituteTermVariableInTerm TermSubstitution, normalizeFormula containsMetaVariable FormulaSubstitution/FreeVariableAbsence (+6 tests)
+  - unification.test.ts: TermSubstitution unification/decompose/occurs check (+3 tests)
+  - edgeBadgeEditLogic.test.ts: substitution-connection edge (+1 test)
+- カバレッジ変化: Stmts 99.34→99.44, Branch 97.34→97.48, Funcs 89.88→89.84(V8クイーク), Lines 99.44→99.55
+- 個別テスト実行では全ファイル Funcs 100%
+- **今後のイテレーションへの学び:**
+  - V8カバレッジの Funcs 指標はフルスイート実行時に aggregation quirk で低く出る。個別テスト実行では100%でもフルスイートでは70-77%になることがある。これは V8 のカバレッジマージの制限であり、テスト追加では解決できない
+  - Funcs改善よりも Stmts/Branch/Lines の改善に注力した方が効果的
+  - TermSubstitution はテスト漏れになりやすいAST型。新機能追加時に TermSubstitution ケースのテストを忘れないこと
+---
