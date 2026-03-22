@@ -2,7 +2,10 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AtRulePalette } from "./AtRulePalette";
-import { getAvailableAtRules, type AtRulePaletteItem } from "./axiomPaletteLogic";
+import {
+  getAvailableAtRules,
+  type AtRulePaletteItem,
+} from "./axiomPaletteLogic";
 import { atSystem, atPropSystem } from "../logic-core/deductionSystem";
 
 const atRules = getAvailableAtRules(atSystem);
