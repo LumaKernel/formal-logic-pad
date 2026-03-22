@@ -108,6 +108,26 @@
 
 ---
 
+## 2026-03-23 - [カバレッジ改善] scriptEditorKeyboardShortcuts/formulaHighlight/ScriptLibraryPanel
+- ベースライン: Stmts 99.80%, Branch 98.79%, Funcs 90.05%, Lines 99.85%
+- **結果: Stmts 99.83% (+0.03%), Branch 98.84% (+0.05%), Funcs 90.05% (±0.00%), Lines 99.89% (+0.04%)**
+- 実装内容:
+  - scriptEditorKeyboardShortcuts.test.ts: `library` タブ (readonly: false) での Ctrl/Cmd+S テスト2件追加（line 62 カバー）
+  - formulaHighlight.test.ts: TermSubstitution のトークナイズテスト2件追加（lines 247-251 カバー）
+  - ScriptLibraryPanel.stories.tsx: OverlayClickToClose ストーリー追加（line 258 カバー）
+- 変更ファイル:
+  - src/components/ScriptEditor/scriptEditorKeyboardShortcuts.test.ts
+  - src/lib/logic-lang/formulaHighlight.test.ts
+  - src/components/ScriptEditor/ScriptLibraryPanel.stories.tsx
+- スクリーンショット: .screenshots/script-library-panel-overlay-click.png
+- **今後のイテレーションへの学び:**
+  - Funcs 90% の壁は v8 の内部 arrow function カウント問題。全 exported functions はテスト済みだが、コンポーネント内のインラインコールバックが未カバーとしてカウントされる
+  - TabSource は "unnamed" | "library" | "saved" の3値。テストで "library" + readonly: false のケースを見落としやすい
+  - TermSubstitution は formulaHighlight.ts の tokenizeTerm で未テストだった唯一の Term ノード型
+  - ScriptLibraryPanel の overlay click-to-close は e.target === e.currentTarget のパターン。storybook で overlay の testid を直接クリックしてテスト可能
+
+---
+
 ## 2026-03-22 - [termVariableMatching] カバレッジ改善ユニットテスト追加
 - ベースライン: Stmts 99.52%, Branch 97.74%, Funcs 90.02%, Lines 99.63%
 - **結果: Stmts 99.58% (+0.06%), Branch 97.94% (+0.20%), Funcs 90.03% (+0.01%), Lines 99.68% (+0.05%)**
