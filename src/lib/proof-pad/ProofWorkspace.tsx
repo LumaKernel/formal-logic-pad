@@ -274,9 +274,24 @@ import { ScriptEditorComponent } from "../../components/ScriptEditor/ScriptEdito
 import type { ScriptEditorMessages } from "../../components/ScriptEditor/scriptEditorMessages";
 import {
   type WorkspaceCommandHandler,
+  type VisualizationCommandHandler,
   encodeScProofNode,
   encodeProofNode,
 } from "../script-runner";
+import {
+  type VisualizationState,
+  emptyVisualizationState,
+  addHighlight,
+  removeHighlight,
+  clearHighlights as clearHighlightsState,
+  addAnnotation as addAnnotationState,
+  removeAnnotation as removeAnnotationState,
+  clearAnnotations as clearAnnotationsState,
+  addLog as addLogState,
+  clearAll as clearAllState,
+} from "./visualizationState";
+import type { HighlightColor } from "./visualizationState";
+import { getHighlightStyle } from "./visualizationHighlightLogic";
 import {
   findHilbertRootNodeIds,
   buildHilbertProofTree,
@@ -1189,6 +1204,12 @@ export const ProofWorkspace = forwardRef<
   const [cutElimRawSteps, setCutElimRawSteps] = useState<
     readonly CutEliminationStep[]
   >([]);
+
+  // 可視化状態（スクリプトからのハイライト・アノテーション等）
+  const [vizState, setVizState] = useState<VisualizationState>(
+    emptyVisualizationState,
+  );
+  const vizStateRef = useRef<VisualizationState>(emptyVisualizationState);
 
   // スクリプトエディタ状態
   const [scriptEditorOpen, setScriptEditorOpen] = useState(false);
@@ -4096,6 +4117,64 @@ export const ProofWorkspace = forwardRef<
     };
   }, [scriptEditorOpen, workspace.system, setWorkspace, selectedNodeIds]);
 
+  // スクリプト実行用 VisualizationCommandHandler
+  const nextAnnotationIdRef = useRef(0);
+  const vizCommandHandler = useMemo(():
+    | VisualizationCommandHandler
+    | undefined => {
+    if (!scriptEditorOpen) return undefined;
+    return {
+      highlightNode: (nodeId: string, color: HighlightColor, label?: string) => {
+        const next = addHighlight(vizStateRef.current, { nodeId, color, label });
+        vizStateRef.current = next;
+        setVizState(next);
+      },
+      unhighlightNode: (nodeId: string) => {
+        const next = removeHighlight(vizStateRef.current, nodeId);
+        vizStateRef.current = next;
+        setVizState(next);
+      },
+      clearHighlights: () => {
+        const next = clearHighlightsState(vizStateRef.current);
+        vizStateRef.current = next;
+        setVizState(next);
+      },
+      addAnnotation: (nodeId: string, text: string) => {
+        const id = `viz-ann-${String(nextAnnotationIdRef.current) satisfies string}`;
+        nextAnnotationIdRef.current += 1;
+        const next = addAnnotationState(vizStateRef.current, { id, nodeId, text });
+        vizStateRef.current = next;
+        setVizState(next);
+        return id;
+      },
+      removeAnnotation: (annotationId: string) => {
+        const next = removeAnnotationState(vizStateRef.current, annotationId);
+        vizStateRef.current = next;
+        setVizState(next);
+      },
+      clearAnnotations: () => {
+        const next = clearAnnotationsState(vizStateRef.current);
+        vizStateRef.current = next;
+        setVizState(next);
+      },
+      addLog: (message: string, level: "info" | "warn" | "error") => {
+        const next = addLogState(vizStateRef.current, {
+          message,
+          level,
+          // eslint-disable-next-line @luma-dev/luma-ts/no-date -- 不純なUI層でのみ使用
+          timestamp: Date.now(),
+        });
+        vizStateRef.current = next;
+        setVizState(next);
+      },
+      clearVisualization: () => {
+        const next = clearAllState();
+        vizStateRef.current = next;
+        setVizState(next);
+      },
+    };
+  }, [scriptEditorOpen]);
+
   // コンテキストメニューから「ノードを複製する」
   const handleDuplicateNode = useCallback(() => {
     /* v8 ignore start -- 防御的: メニューが開いている時のみ呼ばれる */
@@ -5125,7 +5204,9 @@ export const ProofWorkspace = forwardRef<
                         ? "2px solid var(--color-accent, #3b82f6)"
                         : isSelectionActive && selectionColor
                           ? `2px dashed ${selectionColor satisfies string}`
-                          : undefined;
+                          : vizState.highlights.has(node.id)
+                            ? getHighlightStyle(vizState.highlights.get(node.id)!.color).outline
+                            : undefined;
 
       return (
         <CanvasItem
@@ -5157,6 +5238,9 @@ export const ProofWorkspace = forwardRef<
               outline: outlineStyle,
               outlineOffset: 2,
               borderRadius: 10,
+              boxShadow: vizState.highlights.has(node.id)
+                ? getHighlightStyle(vizState.highlights.get(node.id)!.color).boxShadow
+                : undefined,
               opacity:
                 isMPIncompatible ||
                 isMergeIncompatible ||
@@ -5164,7 +5248,7 @@ export const ProofWorkspace = forwardRef<
                 isSubConnIncompatible
                   ? 0.35
                   : undefined,
-              transition: "opacity 0.15s ease",
+              transition: "opacity 0.15s ease, box-shadow 0.2s ease, outline 0.2s ease",
             }}
           >
             <EditableProofNode
@@ -5256,6 +5340,7 @@ export const ProofWorkspace = forwardRef<
       editRequestNodeId,
       handleEditNote,
       isSequentCalculusStyle,
+      vizState,
     ],
   );
 
@@ -6551,6 +6636,7 @@ export const ProofWorkspace = forwardRef<
               height="100%"
               onCodeChange={handleScriptCodeChange}
               workspaceCommandHandler={scriptCommandHandler}
+              visualizationCommandHandler={vizCommandHandler}
               deductionStyle={workspace.deductionSystem.style}
               messages={scriptEditorMessages}
             />

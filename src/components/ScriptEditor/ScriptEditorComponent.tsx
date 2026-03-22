@@ -21,6 +21,7 @@ import {
   createCutEliminationBridges,
   createHilbertProofBridges,
   createEitherBridges,
+  createVisualizationBridges,
 } from "@/lib/script-runner";
 import builtinApiTypeDefs from "@/lib/script-runner/builtin-api.d.ts?raw";
 import { BUILTIN_TEMPLATES } from "@/lib/script-runner/templates";
@@ -31,6 +32,7 @@ import type {
   NativeFunctionBridge,
   ScriptRunnerInstance,
   WorkspaceCommandHandler,
+  VisualizationCommandHandler,
   RunAsyncAbortSignal,
 } from "@/lib/script-runner";
 import {
@@ -170,6 +172,8 @@ export interface ScriptEditorComponentProps {
   readonly onRunComplete?: (result: ScriptEditorState) => void;
   /** ワークスペース操作ハンドラー（証明図リアルタイム反映用） */
   readonly workspaceCommandHandler?: WorkspaceCommandHandler;
+  /** 可視化操作ハンドラー（ノードハイライト・アノテーション等） */
+  readonly visualizationCommandHandler?: VisualizationCommandHandler;
   /** 現在の演繹スタイル（テンプレートフィルタリング用） */
   readonly deductionStyle?: DeductionStyle;
   /** 現在時刻取得関数（DI用。デフォルト: Date.now） */
@@ -186,6 +190,7 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
   onCodeChange,
   onRunComplete,
   workspaceCommandHandler,
+  visualizationCommandHandler,
   deductionStyle,
   getNow = Date.now,
   messages: msg = defaultScriptEditorMessages,
@@ -494,8 +499,15 @@ export const ScriptEditorComponent: React.FC<ScriptEditorComponentProps> = ({
       all.push(...createWorkspaceBridges(workspaceCommandHandler));
       all.push(...createHilbertProofBridges(workspaceCommandHandler));
     }
+    if (visualizationCommandHandler) {
+      all.push(...createVisualizationBridges(visualizationCommandHandler));
+    }
     return all;
-  }, [createConsoleBridges, workspaceCommandHandler]);
+  }, [
+    createConsoleBridges,
+    workspaceCommandHandler,
+    visualizationCommandHandler,
+  ]);
 
   // ── コンソール初期化コード ────────────────────────────────
 
