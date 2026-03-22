@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, within } from "storybook/test";
+import { expect, userEvent, within } from "storybook/test";
 import { AtProofTreePanel } from "./AtProofTreePanel";
 import type { InferenceEdge } from "./inferenceEdge";
 import type { WorkspaceNode } from "./workspaceState";
@@ -254,6 +254,84 @@ export const CompleteProof: Story = {
       '[data-testid^="at-tree-open-"]',
     );
     expect(openMarkers.length).toBe(0);
+  },
+};
+
+/** 複数ルート: 2つの独立した証明木 */
+function makeMultipleRootsData(): {
+  readonly nodes: readonly WorkspaceNode[];
+  readonly inferenceEdges: readonly InferenceEdge[];
+} {
+  return {
+    nodes: [mkNode("r1", "T:phi"), mkNode("r2", "F:psi")],
+    inferenceEdges: [
+      {
+        _tag: "at-closed",
+        ruleId: "closure",
+        conclusionNodeId: "r1",
+        contradictionNodeId: "r3",
+        conclusionText: "T:phi",
+      },
+      {
+        _tag: "at-closed",
+        ruleId: "closure",
+        conclusionNodeId: "r2",
+        contradictionNodeId: "r4",
+        conclusionText: "F:psi",
+      },
+    ],
+  };
+}
+
+export const MultipleRoots: Story = {
+  args: {
+    ...makeMultipleRootsData(),
+    testId: "at-tree",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByTestId("at-tree")).toBeInTheDocument();
+    // ルート切替ボタンが表示される（roots.length > 1）
+    const cycleBtn = canvas.getByTestId("at-tree-cycle-root");
+    expect(cycleBtn).toBeInTheDocument();
+    expect(cycleBtn.textContent).toBe("1/2");
+    // クリックでルートが切り替わる
+    await userEvent.click(cycleBtn);
+    expect(cycleBtn.textContent).toBe("2/2");
+  },
+};
+
+/** 署名なし論理式: T:/F: 接頭辞なしのノード */
+function makeNonSignedData(): {
+  readonly nodes: readonly WorkspaceNode[];
+  readonly inferenceEdges: readonly InferenceEdge[];
+} {
+  return {
+    nodes: [mkNode("n1", "phi → psi")],
+    inferenceEdges: [
+      {
+        _tag: "at-closed",
+        ruleId: "closure",
+        conclusionNodeId: "n1",
+        contradictionNodeId: "n2",
+        conclusionText: "phi → psi",
+      },
+    ],
+  };
+}
+
+export const NonSignedFormula: Story = {
+  args: {
+    ...makeNonSignedData(),
+    testId: "at-tree",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByTestId("at-tree")).toBeInTheDocument();
+    // 署名なしのためプレーンテキスト表示（SignedFormulaDisplay ではない）
+    // ツリーレンダラーは独自ID（attree-N）を生成する
+    const seqEl = canvas.getByTestId("at-tree-seq-attree-0");
+    expect(seqEl.textContent).toBe("phi → psi");
   },
 };
 

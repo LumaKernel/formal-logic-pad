@@ -203,6 +203,27 @@ export const HoverAndLeave: Story = {
   },
 };
 
+export const RenameDoubleClick: Story = {
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // ホバーしてリネームボタンを表示
+    const item = canvas.getByTestId("file-explorer-item-s1");
+    await userEvent.hover(item);
+
+    // リネームボタンをクリック
+    const renameBtn = canvas.getByTestId("file-explorer-rename-btn-s1");
+    await userEvent.click(renameBtn);
+
+    // リネーム入力をダブルクリック（onDoubleClick stopPropagation がカバーされる）
+    const input = canvas.getByTestId("file-explorer-rename-input-s1");
+    await userEvent.dblClick(input);
+
+    // onOpen は呼ばれない（stopPropagation で伝播が防止される）
+    await expect(args.onOpen).not.toHaveBeenCalled();
+  },
+};
+
 export const DeleteCancel: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);

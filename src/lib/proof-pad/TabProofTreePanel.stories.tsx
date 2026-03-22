@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, within } from "storybook/test";
+import { expect, userEvent, within } from "storybook/test";
 import { TabProofTreePanel } from "./TabProofTreePanel";
 import type { InferenceEdge } from "./inferenceEdge";
 import type { WorkspaceNode } from "./workspaceState";
@@ -245,6 +245,48 @@ export const CompleteProof: Story = {
       '[data-testid^="tab-tree-open-"]',
     );
     expect(openMarkers.length).toBe(0);
+  },
+};
+
+/** 複数ルート: 2つの独立した証明木 */
+function makeMultipleRootsData(): {
+  readonly nodes: readonly WorkspaceNode[];
+  readonly inferenceEdges: readonly InferenceEdge[];
+} {
+  return {
+    nodes: [mkNode("r1", "¬P, P"), mkNode("r2", "¬Q, Q")],
+    inferenceEdges: [
+      {
+        _tag: "tab-axiom",
+        ruleId: "bs",
+        conclusionNodeId: "r1",
+        conclusionText: "¬P, P",
+      },
+      {
+        _tag: "tab-axiom",
+        ruleId: "bs",
+        conclusionNodeId: "r2",
+        conclusionText: "¬Q, Q",
+      },
+    ],
+  };
+}
+
+export const MultipleRoots: Story = {
+  args: {
+    ...makeMultipleRootsData(),
+    testId: "tab-tree",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByTestId("tab-tree")).toBeInTheDocument();
+    // ルート切替ボタンが表示される（roots.length > 1）
+    const cycleBtn = canvas.getByTestId("tab-tree-cycle-root");
+    expect(cycleBtn).toBeInTheDocument();
+    expect(cycleBtn.textContent).toBe("1/2");
+    // クリックでルートが切り替わる
+    await userEvent.click(cycleBtn);
+    expect(cycleBtn.textContent).toBe("2/2");
   },
 };
 

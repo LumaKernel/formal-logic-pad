@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { TabRulePalette } from "./TabRulePalette";
 import { getAvailableTabRules } from "./axiomPaletteLogic";
 import { tabSystem, tabPropSystem } from "../logic-core/deductionSystem";
+import type { ReferenceEntry } from "../reference/referenceEntry";
 
 const tabRules = getAvailableTabRules(tabSystem);
 const tabPropRules = getAvailableTabRules(tabPropSystem);
@@ -279,5 +280,46 @@ describe("TabRulePalette", () => {
     expect(selectedEl.style.background).toBe(bgBefore);
     await user.unhover(selectedEl);
     expect(selectedEl.style.background).toBe(bgBefore);
+  });
+
+  it("referenceEntries と locale が渡されるとリファレンスポップオーバーが表示される", () => {
+    const sampleEntry: ReferenceEntry = {
+      id: "rule-tab-conjunction",
+      category: "inference-rule",
+      title: { en: "Conjunction", ja: "連言" },
+      summary: { en: "Conjunction rule", ja: "連言規則" },
+      body: { en: ["Body"], ja: ["本文"] },
+      relatedEntryIds: [],
+      externalLinks: [],
+      keywords: ["conjunction"],
+      order: 1,
+    };
+    render(
+      <TabRulePalette
+        rules={tabRules}
+        onAddSequent={() => {}}
+        referenceEntries={[sampleEntry]}
+        locale="en"
+        testId="palette"
+      />,
+    );
+    // conjunction 規則にリファレンスポップオーバーが表示される
+    expect(
+      screen.getByTestId("palette-rule-conjunction-ref"),
+    ).toBeInTheDocument();
+  });
+
+  it("referenceEntries なしではリファレンスポップオーバーが表示されない", () => {
+    render(
+      <TabRulePalette
+        rules={tabRules}
+        onAddSequent={() => {}}
+        locale="en"
+        testId="palette"
+      />,
+    );
+    expect(
+      screen.queryByTestId("palette-rule-conjunction-ref"),
+    ).not.toBeInTheDocument();
   });
 });
