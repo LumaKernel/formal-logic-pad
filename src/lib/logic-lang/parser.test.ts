@@ -1236,6 +1236,32 @@ describe("parseTermString", () => {
       const result = parseTermString("x[/y]");
       expect(Either.isLeft(result)).toBe(true);
     });
+
+    it("x[y/τ] メタ変数を置換変数として使える", () => {
+      assertTermParses(
+        "x[y/τ]",
+        termSubstitution(
+          termVariable("x"),
+          termVariable("y"),
+          termVariable("τ"),
+        ),
+      );
+    });
+
+    it("x[y/)] 不正な置換変数でエラーを返す", () => {
+      const result = parseTermString("x[y/)]");
+      expect(Either.isLeft(result)).toBe(true);
+    });
+
+    it("x[y/z 閉じ括弧なしでエラーを返す", () => {
+      const result = parseTermString("x[y/z");
+      expect(Either.isLeft(result)).toBe(true);
+    });
+
+    it("x[y] スラッシュなしでエラーを返す", () => {
+      const result = parseTermString("x[y]");
+      expect(Either.isLeft(result)).toBe(true);
+    });
   });
 
   describe("エラーケース", () => {

@@ -35,6 +35,7 @@ import {
   constant,
   functionApplication,
   binaryOperation,
+  termSubstitution,
 } from "./term";
 import { greekLetters } from "./greekLetters";
 
@@ -394,6 +395,17 @@ describe("collectTermMetaVariables", () => {
     ]);
     const result = collectTermMetaVariables(nested);
     expect(result).toHaveLength(3);
+  });
+
+  it("collects from TermSubstitution", () => {
+    const ts = termSubstitution(
+      termMetaVariable("τ"),
+      functionApplication("f", [termMetaVariable("σ")]),
+      termVariable("x"),
+    );
+    const result = collectTermMetaVariables(ts);
+    expect(result).toHaveLength(2);
+    expect(result.map((r) => r.name).sort()).toEqual(["σ", "τ"]);
   });
 });
 

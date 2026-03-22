@@ -161,6 +161,32 @@ describe("buildClipboardData", () => {
     expect(result.nodes[0]?.role).toBeUndefined();
   });
 
+  it("formulaTextsがあるノードではformulaTextsが保持される", () => {
+    const nodeWithFormulaTexts: WorkspaceNode = {
+      id: "node-ft",
+      kind: "axiom",
+      label: "Sequent",
+      formulaText: "P, Q ⇒ R",
+      position: { x: 0, y: 0 },
+      formulaTexts: ["P", "Q", "R"],
+    };
+    const result = buildClipboardData(
+      new Set(["node-ft"]),
+      [nodeWithFormulaTexts],
+      [],
+    );
+    expect(result.nodes[0]?.formulaTexts).toEqual(["P", "Q", "R"]);
+  });
+
+  it("formulaTextsがないノードではformulaTextsが含まれない", () => {
+    const result = buildClipboardData(
+      new Set(["node-2"]),
+      allNodes,
+      allConnections,
+    );
+    expect(result.nodes[0]?.formulaTexts).toBeUndefined();
+  });
+
   it("相対位置が中心基準で計算される", () => {
     const result = buildClipboardData(
       new Set(["node-1", "node-2"]),
@@ -329,6 +355,45 @@ describe("pasteClipboardData", () => {
     );
     const result = pasteClipboardData(clipboard, { x: 0, y: 0 }, 1);
     expect(result.newNodes[0]?.role).toBe("axiom");
+  });
+
+  it("formulaTextsが保持される", () => {
+    const clipboard: ClipboardData = {
+      _tag: "ProofPadClipboard",
+      version: 1,
+      nodes: [
+        {
+          originalId: "node-1",
+          kind: "axiom",
+          label: "Sequent",
+          formulaText: "P, Q ⇒ R",
+          relativePosition: { x: 0, y: 0 },
+          formulaTexts: ["P", "Q", "R"],
+        },
+      ],
+      connections: [],
+    };
+    const result = pasteClipboardData(clipboard, { x: 0, y: 0 }, 1);
+    expect(result.newNodes[0]?.formulaTexts).toEqual(["P", "Q", "R"]);
+  });
+
+  it("formulaTextsがないノードではペースト後もformulaTextsが含まれない", () => {
+    const clipboard: ClipboardData = {
+      _tag: "ProofPadClipboard",
+      version: 1,
+      nodes: [
+        {
+          originalId: "node-1",
+          kind: "axiom",
+          label: "Axiom",
+          formulaText: "P",
+          relativePosition: { x: 0, y: 0 },
+        },
+      ],
+      connections: [],
+    };
+    const result = pasteClipboardData(clipboard, { x: 0, y: 0 }, 1);
+    expect(result.newNodes[0]?.formulaTexts).toBeUndefined();
   });
 
   it("接続が存在しないノードIDを参照する場合はスキップされる", () => {

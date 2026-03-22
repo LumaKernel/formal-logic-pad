@@ -839,6 +839,7 @@ export const parseTokensAsTerm = (
     }
 
     // 項置換の postfix: t[s/x] チェーン
+    // 現在 stopBefore は undefined または STOP_AT_DIVIDE のみ。LBRACKET を含むケースは防御的
     if (stopBefore === undefined || !stopBefore.has("LBRACKET")) {
       lhs = parseTermSubstitutionPostfix(lhs);
     }
