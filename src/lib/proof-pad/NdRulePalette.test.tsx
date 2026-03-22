@@ -200,6 +200,41 @@ describe("NdRulePalette", () => {
     expect(btn.style.background).toBe("");
   });
 
+  it("規則アイテムのhover/unhoverでスタイルが変わる（非選択時）", async () => {
+    const user = userEvent.setup();
+    render(
+      <NdRulePalette
+        rules={nmRules}
+        onAddAssumption={() => {}}
+        onSelectRule={() => {}}
+        testId="palette"
+      />,
+    );
+    const ruleEl = screen.getByTestId("palette-rule-implication-intro");
+    await user.hover(ruleEl);
+    expect(ruleEl.style.background).not.toBe("");
+    await user.unhover(ruleEl);
+    expect(ruleEl.style.background).toBe("");
+  });
+
+  it("選択中の規則アイテムのhover/unhoverでスタイルが変わらない", async () => {
+    const user = userEvent.setup();
+    render(
+      <NdRulePalette
+        rules={nmRules}
+        onAddAssumption={() => {}}
+        selectedRuleId="implication-intro"
+        testId="palette"
+      />,
+    );
+    const selectedEl = screen.getByTestId("palette-rule-implication-intro");
+    const bgBefore = selectedEl.style.background;
+    await user.hover(selectedEl);
+    expect(selectedEl.style.background).toBe(bgBefore);
+    await user.unhover(selectedEl);
+    expect(selectedEl.style.background).toBe(bgBefore);
+  });
+
   it("testIdなしでも正常にレンダリングされる", () => {
     const { container } = render(
       <NdRulePalette rules={nmRules} onAddAssumption={() => {}} />,

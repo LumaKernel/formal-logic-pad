@@ -190,6 +190,18 @@ describe("AxiomPalette", () => {
       expect(handleAdd).not.toHaveBeenCalled();
     });
 
+    it("referenceEntries指定だがlocale未指定時は(?)ボタンが非表示", () => {
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={() => {}}
+          referenceEntries={allReferenceEntries}
+          testId="palette"
+        />,
+      );
+      expect(screen.queryByTestId("palette-item-A1-ref-trigger")).toBeNull();
+    });
+
     it("referenceEntries未指定時は(?)ボタンが非表示", () => {
       render(
         <AxiomPalette
