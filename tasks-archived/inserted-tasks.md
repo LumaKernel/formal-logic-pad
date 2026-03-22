@@ -194,3 +194,4 @@
   - [x] ドキュメントウィンドウを直接開くことを、コンテキストメニューから可能にする (前回開いていたところ、またはトップページが表示される)
     - キャンバスコンテキストメニューに「リファレンスを開く」項目追加。ProofWorkspace→WorkspacePageView→WorkspaceContent のプロップチェーンで接続
 - [x] **Funcsカバレッジ改善** - V8カバレッジ集約クイークが原因と判明。未カバーの行・ブランチは全てテスト追加済み（Stmts +0.10, Branch +0.14, Lines +0.11）。個別テスト実行では全ファイル Funcs 100%
+- [x] `<proj>/possible-next-tasks.md` にタスク候補をまとめていく。アルゴリズム可視化API、script-runner TODO、V8 Funcs対策、UIカバレッジ改善、ドキュメント改善を候補として整理
