@@ -17207,3 +17207,16 @@
   - NdRulePaletteの規則アイテムhoverは add-assumption ボタンとは独立。テストでは onSelectRule を渡してクリック可能にする
   - AxiomPaletteItemView の referenceEntry/locale 条件は&&で結合されているため、片方だけ提供するケースが必要だが、v8フルスイート集約では効果が薄い場合がある
 ---
+
+## 2026-03-23 - カバレッジ改善（ReferenceFloatingWindow/ReferenceModal ブランチカバレッジ）
+- ReferenceFloatingWindow.test.tsx: onNavigate未指定時のprev/nextクリックテスト2件追加
+  - `onNavigate !== undefined` の false ブランチをカバー
+- ReferenceModal.test.tsx: onNavigate未指定時のprev/nextクリックテスト2件追加
+  - 同上
+- 変更ファイル:
+  - src/lib/reference/ReferenceFloatingWindow.test.tsx（2テスト追加）
+  - src/lib/reference/ReferenceModal.test.tsx（2テスト追加）
+- **今後のイテレーションへの学び:**
+  - ReferenceFloatingWindow/ReferenceModal のナビゲーション click handler は onNavigate の有無でガードしている
+  - jsdom では `<a>` のnavigationは "Not implemented" 警告が出るが正常動作する
+---
