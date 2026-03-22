@@ -108,6 +108,23 @@
 
 ---
 
+## 2026-03-22 - [ScriptFileExplorer] カバレッジ改善ストーリー追加
+- ベースライン: Stmts 99.46%, Branch 97.55%, Funcs 89.91%, Lines 99.56%
+- **結果: Stmts 99.50% (+0.04%), Branch 97.57% (+0.02%), Funcs 89.98% (+0.07%), Lines 99.61% (+0.05%)**
+- 実装内容:
+  - ScriptFileExplorer.tsx の未カバーエッジケース3件のStorybookストーリーを追加
+  - RenameCancelEscape: Escapeキーでリネームキャンセル（handleRenameKeyDown Escape分岐）
+  - RenameBlurConfirm: blur（Tab）でリネーム確定（handleRenameBlur）
+  - HoverAndLeave: マウスリーブでアクションボタン非表示（onMouseLeave → setHoveredId(null)）
+- 変更ファイル:
+  - src/components/ScriptEditor/ScriptFileExplorer.stories.tsx
+- スクリーンショット: .screenshots/script-file-explorer-hover-and-leave.png
+- **今後のイテレーションへの学び:**
+  - ScriptFileExplorerの全ストーリーは計8個（Default, EmptyState, OpenFile, RenameFlow, DeleteFlow, RenameCancelEscape, RenameBlurConfirm, HoverAndLeave, DeleteCancel = 9個）
+  - Storybook play関数での`userEvent.tab()`はblurイベントを発火させ、onBlurハンドラのテストに使える
+
+---
+
 ## 2026-03-21 - [script-runner] declare function型定義の戻り値構文修正
 - ベースライン: Stmts 99.35%, Branch 97.51%, Funcs 90.1%, Lines 99.46%
 - **結果: Stmts 99.35% (±0), Branch 97.48% (-0.03%), Funcs 90.05% (-0.05%), Lines 99.46% (±0)**
