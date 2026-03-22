@@ -17095,3 +17095,14 @@
   - .map()のternary分岐: 複数要素が必要。単一要素では片方の分岐のみカバーされる
   - AxiomMatchResult は Either<Success, Error> 型。_tag は "Right"/"Left" であり "Ok"/"Error" ではない
 ---
+
+## 2026-03-23 - カバレッジ改善（modelAnswer）
+- modelAnswer.ts: Branch 80.55% → 81.25%（A4公理テスト追加、v8 ignore配置修正）
+- 変更ファイル:
+  - src/lib/quest/modelAnswer.ts（v8 ignore 配置修正: if内部→if自体をラップ）
+  - src/lib/quest/modelAnswer.test.ts（A4公理term meta variable テスト追加）
+- CI: Stmts 99.71%, Branch 98.64%, Funcs 90.05%, Lines 99.77%
+- **今後のイテレーションへの学び:**
+  - v8 ignore配置修正は効果があるが、`else if`文の分岐点自体は依然カウントされる
+  - modelAnswer.ts の残りの未カバーは理論公理の TheoryAxiom パス（実行時到達不能）
+---
