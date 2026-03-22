@@ -128,6 +128,16 @@ describe("scriptWorkspaceState", () => {
       );
       expect(state2.tabs).toHaveLength(2);
     });
+
+    it("非libraryタブを飛ばして同じテンプレートを見つける", () => {
+      // unnamed → library の順で配置し、再度開く
+      // .find() が unnamed を先に評価し source !== "library" で短絡する
+      const s1 = createUnnamedTab(initialWorkspaceState, 1000);
+      const s2 = openLibraryTab(s1, "tpl-1", "Template", "code", 2000);
+      const s3 = openLibraryTab(s2, "tpl-1", "Template", "code", 3000);
+      expect(s3.tabs).toHaveLength(2);
+      expect(s3.activeTabId).toBe(s2.tabs[1]?.id);
+    });
   });
 
   describe("openSavedTab", () => {
@@ -165,6 +175,22 @@ describe("scriptWorkspaceState", () => {
       );
       expect(state2.tabs).toHaveLength(2);
       expect(state2.activeTabId).toBe(state1.tabs[0]?.id);
+    });
+
+    it("非savedタブを飛ばして同じスクリプトを見つける", () => {
+      // library → saved の順で配置し、再度開く
+      // .find() が library を先に評価し source !== "saved" で短絡する
+      const s1 = openLibraryTab(
+        initialWorkspaceState,
+        "tpl-1",
+        "Template",
+        "tpl-code",
+        1000,
+      );
+      const s2 = openSavedTab(s1, "script-1", "Script", "code", 2000);
+      const s3 = openSavedTab(s2, "script-1", "Script", "code", 3000);
+      expect(s3.tabs).toHaveLength(2);
+      expect(s3.activeTabId).toBe(s2.tabs[1]?.id);
     });
   });
 
@@ -362,6 +388,15 @@ describe("scriptWorkspaceState", () => {
       const result = updateTabTitle(state, tabId, "My Script");
       expect(result.tabs[0]?.title).toBe("My Script");
     });
+
+    it("対象タブのみタイトルが更新され他のタブは変わらない", () => {
+      const s1 = createUnnamedTab(initialWorkspaceState, 1000);
+      const s2 = createUnnamedTab(s1, 2000);
+      const targetId = s2.tabs[1]?.id ?? "";
+      const result = updateTabTitle(s2, targetId, "New Title");
+      expect(result.tabs[1]?.title).toBe("New Title");
+      expect(result.tabs[0]?.title).toBe("Unnamed-1");
+    });
   });
 
   describe("getActiveTab", () => {
@@ -471,6 +506,16 @@ describe("scriptWorkspaceState", () => {
         "tpl-1",
       );
       expect(found).toBeUndefined();
+    });
+
+    it("混在タブから正しいソース種別とIDで検索する", () => {
+      // unnamed, library, saved の混在タブで saved を検索
+      // .find() が unnamed, library を先に評価し source !== "saved" で短絡する
+      const s1 = createUnnamedTab(initialWorkspaceState, 1000);
+      const s2 = openLibraryTab(s1, "tpl-1", "Template", "code", 2000);
+      const s3 = openSavedTab(s2, "script-1", "Script", "saved-code", 3000);
+      const found = findTabBySourceId(s3, "saved", "script-1");
+      expect(found?.sourceId).toBe("script-1");
     });
   });
 

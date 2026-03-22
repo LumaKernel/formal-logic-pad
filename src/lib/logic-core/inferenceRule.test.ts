@@ -87,6 +87,7 @@ import {
   constant,
   functionApplication,
   binaryOperation,
+  termSubstitution,
 } from "./term";
 import { buildFormulaSubstitutionMap } from "./substitution";
 import { metaVariableKey, termMetaVariableKey } from "./metaVariable";
@@ -1996,6 +1997,43 @@ describe("edge cases", () => {
     const result = matchAxiomA4(instance);
     expectMatchOk(result);
   });
+
+  it("A4 with TermSubstitution in body (covers inferTermReplacement TermSubstitution)", () => {
+    // body = P(x[x/w])、conclusion = P(a[a/w])
+    // ∀x. body → conclusion で x → a の代入を推論
+    const w = termVariable("w");
+    const tsBody = termSubstitution(x, x, w);
+    const tsConc = termSubstitution(a, a, w);
+    const body = predicate("P", [tsBody]);
+    const conclusion = predicate("P", [tsConc]);
+    const instance = implication(universal(x, body), conclusion);
+    const result = matchAxiomA4(instance);
+    expectMatchOk(result);
+  });
+
+  it("A4 with TermSubstitution variable mismatch in inferTermReplacement", () => {
+    // body = P(x[x/w])、conclusion = P(a[a/v]) — variable w ≠ v
+    const w = termVariable("w");
+    const v = termVariable("v");
+    const tsBody = termSubstitution(x, x, w);
+    const tsConc = termSubstitution(a, a, v);
+    const body = predicate("P", [tsBody]);
+    const conclusion = predicate("P", [tsConc]);
+    const instance = implication(universal(x, body), conclusion);
+    const result = matchAxiomA4(instance);
+    expect(Either.isLeft(result)).toBe(true);
+  });
+
+  it("A4 with TermSubstitution tag mismatch in inferTermReplacement", () => {
+    // body = P(x[x/w])、conclusion = P(a) — TermSubstitution vs TermVariable
+    const w = termVariable("w");
+    const tsBody = termSubstitution(x, x, w);
+    const body = predicate("P", [tsBody]);
+    const conclusion = predicate("P", [a]);
+    const instance = implication(universal(x, body), conclusion);
+    const result = matchAxiomA4(instance);
+    expect(Either.isLeft(result)).toBe(true);
+  });
 });
 
 // ── matchFormulaPattern (直接テスト) ─────────────────────────
@@ -2168,6 +2206,38 @@ describe("matchFormulaPattern", () => {
       // Template: φ[/x], Candidate: P(y)[/y]
       const template = freeVariableAbsence(phi, x);
       const candidate = freeVariableAbsence(predicate("P", [y]), y);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe("TermSubstitution in template term", () => {
+    it("should match identical TermSubstitution", () => {
+      // Template: P(x[a/x]), Candidate: P(x[a/x])
+      const ts = termSubstitution(x, a, x);
+      const template = predicate("P", [ts]);
+      const candidate = predicate("P", [ts]);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).not.toBeUndefined();
+    });
+
+    it("should reject TermSubstitution with different variable", () => {
+      // Template: P(x[a/x]), Candidate: P(y[a/y])
+      const tsX = termSubstitution(x, a, x);
+      const tsY = termSubstitution(y, a, y);
+      const template = predicate("P", [tsX]);
+      const candidate = predicate("P", [tsY]);
+      const result = matchFormulaPattern(template, candidate);
+      expect(result).toBeUndefined();
+    });
+
+    it("should reject TermSubstitution with different replacement", () => {
+      // Template: P(x[a/x]), Candidate: P(x[b/x])
+      const b = constant("b");
+      const tsA = termSubstitution(x, a, x);
+      const tsB = termSubstitution(x, b, x);
+      const template = predicate("P", [tsA]);
+      const candidate = predicate("P", [tsB]);
       const result = matchFormulaPattern(template, candidate);
       expect(result).toBeUndefined();
     });
