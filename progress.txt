@@ -17082,3 +17082,16 @@
   - `Map.get(key) ?? default` で直前にhas(key)でフィルタ済みの場合、??は到達不能 → v8 ignore適切
   - `text.trim()` で先行trimした後の空チェックは、isXxx()で長さチェック済みだと到達不能
 ---
+
+## 2026-03-23 - カバレッジ改善（scriptWorkspaceState, inferenceRule）
+- scriptWorkspaceState.ts: Branch 86% → 100%（&&短絡・ternary分岐テスト追加）
+- inferenceRule.ts: TermSubstitution 関連テスト追加（matchFormulaPattern + inferTermReplacement）
+- 変更ファイル:
+  - src/components/ScriptEditor/scriptWorkspaceState.test.ts（4テスト追加）
+  - src/lib/logic-core/inferenceRule.test.ts（6テスト追加）
+- ベースライン: Stmts 99.68%, Branch 98.50%, Funcs 90.05%, Lines 99.75%
+- **今後のイテレーションへの学び:**
+  - .find()のコールバック分岐カバレッジ: 配列要素の順序が重要。マッチする要素が先頭にあると後続要素の分岐が評価されない
+  - .map()のternary分岐: 複数要素が必要。単一要素では片方の分岐のみカバーされる
+  - AxiomMatchResult は Either<Success, Error> 型。_tag は "Right"/"Left" であり "Ok"/"Error" ではない
+---
