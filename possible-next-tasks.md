@@ -10,7 +10,7 @@
   - [x] VisualizationState 純粋ロジック + VisualizationBridge（基盤）
   - [x] UI統合: ハイライト描画（ProofWorkspace + ScriptEditorComponent接続）
   - [x] UI統合: 吹き出しアノテーション描画（オーバーレイ + dispose UI）
-  - [ ] ノードIDを指定して内部ステート表示
+  - [x] ノードIDを指定して内部ステート表示（getNodeState API）
   - ログシステムは console.log で既に実現済み
 
 ## 優先度: 中

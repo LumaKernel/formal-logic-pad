@@ -16902,3 +16902,26 @@
   - groupAnnotationsByNodeId で ReadonlyMap<annotationId, NodeAnnotation> → ReadonlyMap<nodeId, NodeAnnotation[]> に変換
   - visualizationAnnotationLogic は visualizationHighlightLogic と同じパターン（純粋ロジック→CSSスタイルMap）
 ---
+
+## 2026-03-22 - アルゴリズム可視化API サブタスク4: getNodeState API追加
+- **カバレッジ: Stmts 99.44% (±0), Branch 97.49% (±0), Funcs 89.86% (-0.01%), Lines 99.55% (±0)**
+- 実装内容:
+  - `workspaceBridge.ts`: WorkspaceNodeState型定義、WorkspaceCommandHandlerにgetNodeState追加、ブリッジ関数+API定義追加
+  - `builtin-api.d.ts`: getNodeState関数の型定義追加
+  - `ProofWorkspace.tsx`: getNodeState実装（ノード情報+分類+接続+推論エッジ）
+  - テスト: workspaceBridge.test.ts +3テスト、bridge数15→16
+  - 他ファイルのWorkspaceCommandHandlerモック更新（4ファイル）
+- **アルゴリズム可視化API 全サブタスク完了。inserted-tasks.mdアーカイブ済み**
+- 変更ファイル:
+  - src/lib/script-runner/workspaceBridge.ts
+  - src/lib/script-runner/builtin-api.d.ts
+  - src/lib/proof-pad/ProofWorkspace.tsx
+  - src/lib/script-runner/workspaceBridge.test.ts
+  - src/lib/script-runner/hilbertProofBridge.test.ts
+  - src/lib/script-runner/templates.test.ts
+  - src/components/ScriptEditor/ScriptEditorComponent.stories.tsx
+- **今後のイテレーションへの学び:**
+  - WorkspaceCommandHandlerに新メソッド追加時、モック更新が必要な箇所: workspaceBridge.test.ts, hilbertProofBridge.test.ts, templates.test.ts(2箇所), ScriptEditorComponent.stories.tsx
+  - `as const` はリテラル型にしか使えない。三項演算子の結果には使えないので `const role: "a" | "b" = cond ? "a" : "b"` パターンで型注釈する
+  - getInferenceEdgePremiseNodeIds + conclusionNodeId でエッジの関与ノード判定が可能
+---
