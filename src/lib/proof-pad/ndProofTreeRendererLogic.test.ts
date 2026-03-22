@@ -429,6 +429,59 @@ describe("convertNdWorkspaceToProofTree", () => {
     expect(circularNode).toBeDefined();
   });
 
+  it("ワークスペースにないノードIDが推論エッジで参照される場合フォールバック", () => {
+    // ノードはワークスペースにないが、NDエッジが参照している
+    const nodes: readonly WorkspaceNode[] = [];
+    const edges: readonly InferenceEdge[] = [
+      {
+        _tag: "nd-implication-intro",
+        conclusionNodeId: "ghost-conclusion",
+        premiseNodeId: "ghost-premise",
+        dischargedFormulaText: "φ",
+        dischargedAssumptionId: 1,
+        conclusionText: "φ → φ",
+      },
+    ];
+    const result = convertNdWorkspaceToProofTree(
+      nodes,
+      edges,
+      "ghost-conclusion",
+    );
+
+    const root = result.nodes.get(result.rootId);
+    expect(root).toBeDefined();
+    // nodeTextsにないのでnodeIdがフォールバック
+    expect(root!.conclusionText).toBe("ghost-conclusion");
+    expect(root!.ruleLabel).toBe("→I [1]");
+  });
+
+  it("循環参照 + ワークスペースにないノードでフォールバック", () => {
+    const edges: readonly InferenceEdge[] = [
+      {
+        _tag: "nd-implication-intro",
+        conclusionNodeId: "g1",
+        premiseNodeId: "g2",
+        dischargedFormulaText: "φ",
+        dischargedAssumptionId: 1,
+        conclusionText: "φ → φ",
+      },
+      {
+        _tag: "nd-implication-elim",
+        conclusionNodeId: "g2",
+        leftPremiseNodeId: "g1",
+        rightPremiseNodeId: undefined,
+        conclusionText: "φ",
+      },
+    ];
+    const result = convertNdWorkspaceToProofTree([], edges, "g1");
+    // 循環停止ノードもフォールバックtext
+    const circularNode = [...result.nodes.values()].find(
+      (n) => n.ruleLabel === "…",
+    );
+    expect(circularNode).toBeDefined();
+    expect(circularNode!.conclusionText).toBe("g1");
+  });
+
   it("非NDエッジは無視される", () => {
     const nodes = [mkNode("n1", "φ"), mkNode("n2", "ψ")];
     const edges: readonly InferenceEdge[] = [
