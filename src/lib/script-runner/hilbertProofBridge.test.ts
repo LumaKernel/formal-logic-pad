@@ -140,6 +140,7 @@ describe("createHilbertProofBridges", () => {
     }),
     extractScProof: vi.fn(),
     extractHilbertProof: vi.fn(),
+    getNodeState: vi.fn(),
   });
 
   it("3つのブリッジを返す", () => {

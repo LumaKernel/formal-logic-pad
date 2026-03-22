@@ -48,6 +48,18 @@ const createMockHandler = (): WorkspaceCommandHandler => ({
     _tag: "AxiomNode",
     formula: { _tag: "MetaVariable", name: "φ" },
   }),
+  getNodeState: vi.fn().mockReturnValue({
+    id: "node-1",
+    kind: "axiom",
+    formulaText: "phi",
+    label: "Axiom",
+    x: 0,
+    y: 0,
+    classification: "root-axiom",
+    incomingConnections: [],
+    outgoingConnections: [],
+    inferenceEdges: [],
+  }),
 });
 
 const getRunner = (
@@ -99,7 +111,7 @@ describe("createWorkspaceBridges", () => {
   it("ブリッジ関数一覧を返す", () => {
     const handler = createMockHandler();
     const bridges = createWorkspaceBridges(handler);
-    expect(bridges.length).toBe(15);
+    expect(bridges.length).toBe(16);
     const names = bridges.map((b) => b.name);
     expect(names).toContain("addNode");
     expect(names).toContain("setNodeFormula");
@@ -116,6 +128,7 @@ describe("createWorkspaceBridges", () => {
     expect(names).toContain("extractScProof");
     expect(names).toContain("extractHilbertProof");
     expect(names).toContain("getLogicSystem");
+    expect(names).toContain("getNodeState");
   });
 });
 
@@ -862,5 +875,43 @@ describe("extractHilbertProof ブリッジ", () => {
     });
     const msg = runCodeError(`extractHilbertProof()`, handler);
     expect(msg).toContain("Hilbert系でのみ使用可能です");
+  });
+});
+
+describe("getNodeState ブリッジ", () => {
+  it("ノードIDを指定して状態を返す", () => {
+    const handler = createMockHandler();
+    const result = runCode(`getNodeState("node-1")`, handler);
+    expect(handler.getNodeState).toHaveBeenCalledWith("node-1");
+    expect(result).toEqual({
+      id: "node-1",
+      kind: "axiom",
+      formulaText: "phi",
+      label: "Axiom",
+      x: 0,
+      y: 0,
+      classification: "root-axiom",
+      incomingConnections: [],
+      outgoingConnections: [],
+      inferenceEdges: [],
+    });
+  });
+
+  it("不正な引数型でエラー", () => {
+    const handler = createMockHandler();
+    const msg = runCodeError(`getNodeState(123)`, handler);
+    expect(msg).toContain("getNodeState");
+    expect(msg).toContain("string");
+  });
+
+  it("存在しないノードのエラーを伝搬する", () => {
+    const handler = createMockHandler();
+    (handler.getNodeState as ReturnType<typeof vi.fn>).mockImplementation(
+      () => {
+        throw new Error('ノードID "missing" が見つかりません');
+      },
+    );
+    const msg = runCodeError(`getNodeState("missing")`, handler);
+    expect(msg).toContain("見つかりません");
   });
 });

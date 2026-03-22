@@ -138,6 +138,7 @@ describe("テンプレート実行テスト", () => {
     }),
     extractScProof: vi.fn(),
     extractHilbertProof: vi.fn(),
+    getNodeState: vi.fn(),
   });
 
   const runTemplate = (tmpl: ScriptTemplate) => {
@@ -1299,6 +1300,9 @@ describe("テンプレート統合テスト（ステートフルハンドラ）"
           );
         }
         return encodeProofNode(treeResult.right);
+      },
+      getNodeState: () => {
+        throw new Error("Not implemented in stateful test handler");
       },
     };
 

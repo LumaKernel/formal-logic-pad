@@ -315,6 +315,9 @@ function ScriptEditorWithWorkspace() {
       extractHilbertProof: () => {
         throw new Error("extractHilbertProof: Hilbert系でのみ使用可能です。");
       },
+      getNodeState: () => {
+        throw new Error("getNodeState: Not implemented in story.");
+      },
     }),
     [],
   )();

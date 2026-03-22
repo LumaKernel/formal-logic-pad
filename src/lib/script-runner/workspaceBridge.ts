@@ -24,6 +24,35 @@ export interface WorkspaceNodeInfo {
   readonly y: number;
 }
 
+/** ノード詳細状態（getNodeState の返却用） */
+export interface WorkspaceNodeState {
+  readonly id: string;
+  readonly kind: string;
+  readonly formulaText: string;
+  readonly label: string;
+  readonly x: number;
+  readonly y: number;
+  /** ノード分類: "root-axiom" | "root-goal" | "root-unmarked" | "derived" */
+  readonly classification: string;
+  /** このノードへの接続 */
+  readonly incomingConnections: readonly {
+    readonly fromNodeId: string;
+    readonly fromPortId: string;
+    readonly toPortId: string;
+  }[];
+  /** このノードからの接続 */
+  readonly outgoingConnections: readonly {
+    readonly toNodeId: string;
+    readonly fromPortId: string;
+    readonly toPortId: string;
+  }[];
+  /** このノードに関連する推論エッジ */
+  readonly inferenceEdges: readonly {
+    readonly tag: string;
+    readonly role: "conclusion" | "premise";
+  }[];
+}
+
 /** ワークスペース操作ハンドラー。各操作の実装を外部から注入する。 */
 export interface WorkspaceCommandHandler {
   /** ノードを追加して ID を返す */
@@ -80,6 +109,8 @@ export interface WorkspaceCommandHandler {
    * 返却値はencodeProofNode済みのJSON互換オブジェクト。
    */
   readonly extractHilbertProof: (rootNodeId?: string) => unknown;
+  /** 指定ノードの詳細な内部状態を返す。存在しない場合は throw */
+  readonly getNodeState: (nodeId: string) => WorkspaceNodeState;
 }
 
 // ── ブリッジ関数の実装 ────────────────────────────────────────
@@ -225,6 +256,18 @@ const createExtractHilbertProofFn =
     return handler.extractHilbertProof(
       typeof rootNodeId === "string" ? rootNodeId : undefined,
     );
+  };
+
+const createGetNodeStateFn =
+  (handler: WorkspaceCommandHandler) =>
+  (nodeId: unknown): unknown => {
+    if (typeof nodeId !== "string") {
+      const t = typeof nodeId satisfies string;
+      throw new Error(
+        `getNodeState: nodeId must be string, got ${t satisfies string}`,
+      );
+    }
+    return handler.getNodeState(nodeId);
   };
 
 // ── SC証明木のフラット展開 ──────────────────────────────────
@@ -407,6 +450,7 @@ export const createWorkspaceBridges = (
     name: "extractHilbertProof",
     fn: createExtractHilbertProofFn(handler),
   },
+  { name: "getNodeState", fn: createGetNodeStateFn(handler) },
 ];
 
 // ── API 定義（Monaco Editor 補完用）──────────────────────────
@@ -495,5 +539,12 @@ export const WORKSPACE_BRIDGE_API_DEFS: readonly ProofBridgeApiDef[] = [
     signature: "(rootNodeId?: string) => ProofNodeJson",
     description:
       "ワークスペースからHilbert証明木を抽出する。rootNodeIdを省略するとルートを自動検出する。Hilbert系でない場合や証明木構築に失敗した場合はエラーをthrowする。",
+  },
+  {
+    name: "getNodeState",
+    signature:
+      "(nodeId: string) => { id: string; kind: string; formulaText: string; label: string; x: number; y: number; classification: string; incomingConnections: Array<{ fromNodeId: string; fromPortId: string; toPortId: string }>; outgoingConnections: Array<{ toNodeId: string; fromPortId: string; toPortId: string }>; inferenceEdges: Array<{ tag: string; role: 'conclusion' | 'premise' }> }",
+    description:
+      "指定ノードの詳細な内部状態を返す。分類（root-axiom/root-goal/root-unmarked/derived）、接続、推論エッジを含む。存在しないノードIDを指定するとエラーをthrowする。",
   },
 ];

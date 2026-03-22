@@ -236,6 +236,31 @@ declare function extractScProof(rootNodeId?: string): ScProofNodeJson;
 /** ワークスペースからHilbert証明木を抽出する。rootNodeIdを省略するとルートを自動検出する。Hilbert系でない場合や証明木構築に失敗した場合はエラーをthrowする。 */
 declare function extractHilbertProof(rootNodeId?: string): ProofNodeJson;
 
+/** 指定ノードの詳細な内部状態を返す。分類、接続、推論エッジを含む。存在しないノードIDを指定するとエラーをthrowする。 */
+declare function getNodeState(nodeId: string): {
+  readonly id: string;
+  readonly kind: string;
+  readonly formulaText: string;
+  readonly label: string;
+  readonly x: number;
+  readonly y: number;
+  readonly classification: string;
+  readonly incomingConnections: ReadonlyArray<{
+    readonly fromNodeId: string;
+    readonly fromPortId: string;
+    readonly toPortId: string;
+  }>;
+  readonly outgoingConnections: ReadonlyArray<{
+    readonly toNodeId: string;
+    readonly fromPortId: string;
+    readonly toPortId: string;
+  }>;
+  readonly inferenceEdges: ReadonlyArray<{
+    readonly tag: string;
+    readonly role: "conclusion" | "premise";
+  }>;
+};
+
 // ── カット除去 API (cutEliminationBridge) ─────────────────
 
 /** SC証明がカットフリーかどうか判定する。 */

@@ -119,7 +119,7 @@ import {
   computeStepCount,
   checkQuestGoalsWithAxioms,
 } from "../quest/questCompletionLogic";
-import { classifyAllNodes } from "./nodeRoleLogic";
+import { classifyAllNodes, classifyNode } from "./nodeRoleLogic";
 import { identifyAxiomName } from "./axiomNameLogic";
 import { parseNodeFormula } from "./mpApplicationLogic";
 import {
@@ -224,6 +224,7 @@ import { getDeductionSystemReferenceEntryId } from "./deductionSystemReferenceLo
 import {
   findInferenceEdgeForConclusionNode,
   isTabInferenceEdge,
+  getInferenceEdgePremiseNodeIds,
 } from "./inferenceEdge";
 import type { ProofSaveParams } from "../proof-collection/proofCollectionState";
 import type { ProofEntry } from "../proof-collection/proofCollectionState";
@@ -4118,6 +4119,52 @@ export const ProofWorkspace = forwardRef<
           );
         }
         return encodeProofNode(treeResult.right);
+      },
+      getNodeState: (nodeId: string) => {
+        const ws = workspaceRef.current;
+        const node = ws.nodes.find((n) => n.id === nodeId);
+        if (!node) {
+          throw new Error(
+            `getNodeState: ノードID "${nodeId satisfies string}" が見つかりません。`,
+          );
+        }
+        const classification = classifyNode(node, ws.connections);
+        const incomingConnections = ws.connections
+          .filter((c) => c.toNodeId === nodeId)
+          .map((c) => ({
+            fromNodeId: c.fromNodeId,
+            fromPortId: c.fromPortId,
+            toPortId: c.toPortId,
+          }));
+        const outgoingConnections = ws.connections
+          .filter((c) => c.fromNodeId === nodeId)
+          .map((c) => ({
+            toNodeId: c.toNodeId,
+            fromPortId: c.fromPortId,
+            toPortId: c.toPortId,
+          }));
+        const inferenceEdges = ws.inferenceEdges
+          .filter((e) => {
+            const premiseIds = getInferenceEdgePremiseNodeIds(e);
+            return e.conclusionNodeId === nodeId || premiseIds.includes(nodeId);
+          })
+          .map((e) => {
+            const role: "conclusion" | "premise" =
+              e.conclusionNodeId === nodeId ? "conclusion" : "premise";
+            return { tag: e._tag, role };
+          });
+        return {
+          id: node.id,
+          kind: node.kind,
+          formulaText: node.formulaText,
+          label: node.label,
+          x: node.position.x,
+          y: node.position.y,
+          classification,
+          incomingConnections,
+          outgoingConnections,
+          inferenceEdges,
+        };
       },
     };
   }, [scriptEditorOpen, workspace.system, setWorkspace, selectedNodeIds]);
