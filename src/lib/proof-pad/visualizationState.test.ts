@@ -228,10 +228,7 @@ describe("visualizationState", () => {
         level: "info",
         timestamp: 0,
       };
-      addLog(
-        addAnnotation(addHighlight(emptyVisualizationState, h), ann),
-        log,
-      );
+      addLog(addAnnotation(addHighlight(emptyVisualizationState, h), ann), log);
       const next = clearAll();
       expect(next.highlights.size).toBe(0);
       expect(next.annotations.size).toBe(0);

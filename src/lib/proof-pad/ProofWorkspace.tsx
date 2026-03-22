@@ -4124,8 +4124,16 @@ export const ProofWorkspace = forwardRef<
     | undefined => {
     if (!scriptEditorOpen) return undefined;
     return {
-      highlightNode: (nodeId: string, color: HighlightColor, label?: string) => {
-        const next = addHighlight(vizStateRef.current, { nodeId, color, label });
+      highlightNode: (
+        nodeId: string,
+        color: HighlightColor,
+        label?: string,
+      ) => {
+        const next = addHighlight(vizStateRef.current, {
+          nodeId,
+          color,
+          label,
+        });
         vizStateRef.current = next;
         setVizState(next);
       },
@@ -4142,7 +4150,11 @@ export const ProofWorkspace = forwardRef<
       addAnnotation: (nodeId: string, text: string) => {
         const id = `viz-ann-${String(nextAnnotationIdRef.current) satisfies string}`;
         nextAnnotationIdRef.current += 1;
-        const next = addAnnotationState(vizStateRef.current, { id, nodeId, text });
+        const next = addAnnotationState(vizStateRef.current, {
+          id,
+          nodeId,
+          text,
+        });
         vizStateRef.current = next;
         setVizState(next);
         return id;
@@ -5205,7 +5217,9 @@ export const ProofWorkspace = forwardRef<
                         : isSelectionActive && selectionColor
                           ? `2px dashed ${selectionColor satisfies string}`
                           : vizState.highlights.has(node.id)
-                            ? getHighlightStyle(vizState.highlights.get(node.id)!.color).outline
+                            ? getHighlightStyle(
+                                vizState.highlights.get(node.id)!.color,
+                              ).outline
                             : undefined;
 
       return (
@@ -5239,7 +5253,8 @@ export const ProofWorkspace = forwardRef<
               outlineOffset: 2,
               borderRadius: 10,
               boxShadow: vizState.highlights.has(node.id)
-                ? getHighlightStyle(vizState.highlights.get(node.id)!.color).boxShadow
+                ? getHighlightStyle(vizState.highlights.get(node.id)!.color)
+                    .boxShadow
                 : undefined,
               opacity:
                 isMPIncompatible ||
@@ -5248,7 +5263,8 @@ export const ProofWorkspace = forwardRef<
                 isSubConnIncompatible
                   ? 0.35
                   : undefined,
-              transition: "opacity 0.15s ease, box-shadow 0.2s ease, outline 0.2s ease",
+              transition:
+                "opacity 0.15s ease, box-shadow 0.2s ease, outline 0.2s ease",
             }}
           >
             <EditableProofNode
