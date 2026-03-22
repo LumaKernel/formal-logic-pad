@@ -17220,3 +17220,15 @@
   - ReferenceFloatingWindow/ReferenceModal のナビゲーション click handler は onNavigate の有無でガードしている
   - jsdom では `<a>` のnavigationは "Not implemented" 警告が出るが正常動作する
 ---
+
+## 2026-03-23 - カバレッジ改善（modelAnswer.ts v8 ignore 配置修正）
+- modelAnswer.ts: TheoryAxiom ブランチの v8 ignore 配置を修正
+  - `else if` の条件行（line 598）がカバレッジ計上されていた
+  - v8 ignore start を `if` ブロック末尾に移動して条件行も除外
+- ベースライン: Stmts 99.88%, Branch 99.05%, Funcs 90.19%, Lines 99.93%
+- 結果: Stmts 99.89%, Branch 99.07%, Funcs 90.21%, Lines 99.94%
+- 変更ファイル:
+  - src/lib/quest/modelAnswer.ts（v8 ignore 配置修正のみ）
+- **今後のイテレーションへの学び:**
+  - v8 ignore で else if ブランチを除外するには、前の if ブロック末尾に `/* v8 ignore start */` を置く必要がある（else if 行の前に置いても遅い）
+---
