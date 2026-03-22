@@ -16860,3 +16860,23 @@
   - プロジェクトの主要な未完了タスクはアルゴリズム可視化APIのみ
   - script-runner/templates.ts に4箇所のTODOがある（カット除去証明テンプレート）
 ---
+
+## 2026-03-22 - アルゴリズム可視化API サブタスク2: ハイライト描画UI統合
+- **カバレッジ: Stmts 99.44% (±0), Branch 97.49% (±0), Funcs 89.88% (-0.01%), Lines 99.55% (±0)**
+- Funcs微減はProofWorkspace.tsx内のvizCommandHandlerコールバック追加による（UI層、テスト対象外）
+- 実装内容:
+  - `visualizationHighlightLogic.ts`: HighlightColor→CSSスタイルマッピング純粋関数（outline + boxShadow）
+  - `visualizationHighlightLogic.test.ts`: 14テスト（色マッピング網羅）
+  - `ScriptEditorComponent.tsx`: `visualizationCommandHandler` prop追加、`createVisualizationBridges`接続
+  - `ProofWorkspace.tsx`: vizState/vizStateRef管理、vizCommandHandler作成、renderNodeハイライト描画（outline + boxShadow + transition）
+- 変更ファイル:
+  - src/lib/proof-pad/visualizationHighlightLogic.ts (新規)
+  - src/lib/proof-pad/visualizationHighlightLogic.test.ts (新規)
+  - src/components/ScriptEditor/ScriptEditorComponent.tsx (更新)
+  - src/lib/proof-pad/ProofWorkspace.tsx (更新)
+- **今後のイテレーションへの学び:**
+  - Storybook環境ではjs-interpreterモジュールがロードできず、スクリプト実行ができない（pre-existing issue）。ブラウザ検証は実アプリで行う必要がある
+  - ProofWorkspace.txでは`vizStateRef.current`パターン（workspaceRef.currentと同じ）でコールバック内から最新stateにアクセス
+  - renderNodeの既存outlineスタイルチェーンに可視化ハイライトを追加する際、選択・MP・マージ等の優先度より低く設定
+  - CIのprettier checkは`npm run lint`に含まれる。ローカルでeslintだけ通しても不十分
+---

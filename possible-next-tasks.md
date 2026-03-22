@@ -8,7 +8,7 @@
 - カット除去等のアルゴリズム実行時にデバッグ・学習用の可視化機能を提供
 - サブタスク:
   - [x] VisualizationState 純粋ロジック + VisualizationBridge（基盤）
-  - [ ] UI統合: ハイライト描画（ProofWorkspace + ScriptEditorComponent接続）
+  - [x] UI統合: ハイライト描画（ProofWorkspace + ScriptEditorComponent接続）
   - [ ] UI統合: 吹き出しアノテーション描画（オーバーレイ + dispose UI）
   - [ ] ノードIDを指定して内部ステート表示
   - ログシステムは console.log で既に実現済み
