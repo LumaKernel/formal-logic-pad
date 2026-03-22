@@ -16925,3 +16925,19 @@
   - `as const` はリテラル型にしか使えない。三項演算子の結果には使えないので `const role: "a" | "b" = cond ? "a" : "b"` パターンで型注釈する
   - getInferenceEdgePremiseNodeIds + conclusionNodeId でエッジの関与ノード判定が可能
 ---
+
+## 2026-03-22 - UIコンポーネントカバレッジ改善（ScriptApiReferencePanel）
+- ScriptApiReferencePanel.stories.tsx を新規作成（6ストーリー、play関数付き）
+  - Default: パネル表示、検索フィールド、3カテゴリ表示確認
+  - WithClose: onClose コールバック動作確認
+  - WithSearch: テキスト検索フィルタリング（parseFormula → 1/55）
+  - NoResults: 該当なし表示
+  - CategoryToggle: カテゴリ展開/折りたたみ
+  - KeyboardToggle: Enter/Space キーボード操作
+- カバレッジ: Stmts 99.46%, Branch 97.55%, Funcs 89.91%, Lines 99.56%（微増）
+- 変更ファイル: src/components/ScriptEditor/ScriptApiReferencePanel.stories.tsx
+- **今後のイテレーションへの学び:**
+  - Storybook 10はCLIに`test`コマンドがない。play関数のテストはブラウザUIの「Interactions」タブで確認
+  - ScriptApiReferencePanelは55 API（Proof 12, Workspace 16, Cut Elimination 27）を表示
+  - WorkspacePageView QuestCompleteProp01FromHub ストーリーはCI上で15sタイムアウトのflaky test
+---

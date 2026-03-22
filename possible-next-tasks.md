@@ -29,9 +29,9 @@
 
 ### UIコンポーネントのカバレッジ改善
 
-- `EmbeddedEditor.tsx` (71.42% Funcs, 76.36% Stmts)
-- `ApiReferencePanel.tsx` (75% Funcs, 86.2% Stmts)
-- `ScriptFileExplorer.tsx` (81.48% Funcs, 86.56% Stmts)
+- ~~`EmbeddedEditor.tsx`~~ (存在しない古い情報)
+- ~~`ApiReferencePanel.tsx`~~ → Storybook ストーリー作成済み（6ストーリー、play関数付き）
+- `ScriptFileExplorer.tsx` (81.48% Funcs, 86.56% Stmts) — 既存ストーリーはあるがエッジケース追加の余地あり
 - これらはUIコンポーネントのためStorybook play関数での改善が適切
 
 ### ドキュメント・学習体験の改善
