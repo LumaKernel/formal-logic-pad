@@ -682,4 +682,50 @@ describe("ReferenceModal", () => {
     const closeBtn = screen.getByTestId("ref-modal-close");
     expect(closeBtn.getAttribute("aria-label")).toBe("閉じる");
   });
+
+  it("onNavigate未指定時にprevクリックしてもエラーにならない", () => {
+    renderWithAntd(
+      <ReferenceModal
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        navigationData={{
+          previous: {
+            id: "prev-entry",
+            title: "Previous Entry",
+            href: "/reference/prev-entry",
+          },
+          next: undefined,
+        }}
+        testId="ref-modal"
+      />,
+    );
+    const prev = screen.getByTestId("ref-modal-nav-prev");
+    fireEvent.click(prev);
+    expect(prev).toBeInTheDocument();
+  });
+
+  it("onNavigate未指定時にnextクリックしてもエラーにならない", () => {
+    renderWithAntd(
+      <ReferenceModal
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        navigationData={{
+          previous: undefined,
+          next: {
+            id: "next-entry",
+            title: "Next Entry",
+            href: "/reference/next-entry",
+          },
+        }}
+        testId="ref-modal"
+      />,
+    );
+    const next = screen.getByTestId("ref-modal-nav-next");
+    fireEvent.click(next);
+    expect(next).toBeInTheDocument();
+  });
 });

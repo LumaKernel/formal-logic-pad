@@ -578,4 +578,51 @@ describe("ReferenceFloatingWindow", () => {
     );
     expect(screen.queryByTestId("ref-win-home")).toBeNull();
   });
+
+  it("onNavigate未指定時にprevクリックしてもエラーにならない", () => {
+    renderWithAntd(
+      <ReferenceFloatingWindow
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        navigationData={{
+          previous: {
+            id: "prev-entry",
+            title: "Previous Entry",
+            href: "/reference/prev-entry",
+          },
+          next: undefined,
+        }}
+        testId="ref-win"
+      />,
+    );
+    const prev = screen.getByTestId("ref-win-nav-prev");
+    fireEvent.click(prev);
+    // onNavigate未指定なので何も起きないが、エラーにもならない
+    expect(prev).toBeInTheDocument();
+  });
+
+  it("onNavigate未指定時にnextクリックしてもエラーにならない", () => {
+    renderWithAntd(
+      <ReferenceFloatingWindow
+        entry={makeEntry()}
+        allEntries={[makeEntry()]}
+        locale="en"
+        onClose={vi.fn()}
+        navigationData={{
+          previous: undefined,
+          next: {
+            id: "next-entry",
+            title: "Next Entry",
+            href: "/reference/next-entry",
+          },
+        }}
+        testId="ref-win"
+      />,
+    );
+    const next = screen.getByTestId("ref-win-nav-next");
+    fireEvent.click(next);
+    expect(next).toBeInTheDocument();
+  });
 });
