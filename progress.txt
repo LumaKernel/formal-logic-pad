@@ -16825,6 +16825,31 @@
   - TermSubstitution はテスト漏れになりやすいAST型。新機能追加時に TermSubstitution ケースのテストを忘れないこと
 ---
 
+## 2026-03-22 - [script-runner] アルゴリズム可視化API基盤（VisualizationState + VisualizationBridge）
+- ベースライン: Stmts 99.44%, Branch 97.48%, Funcs 89.86%, Lines 99.55%
+- **結果: Stmts 99.44% (±0), Branch 97.49% (+0.01%), Funcs 89.89% (+0.03%), Lines 99.55% (±0)**
+- 実装内容:
+  - `visualizationState.ts`: ノードハイライト・アノテーション・ログの純粋状態管理（HighlightColor 6色、NodeHighlight/NodeAnnotation/VisualizationLogEntry 型）
+  - `visualizationBridge.ts`: スクリプトサンドボックスから呼ぶブリッジ8関数（highlightNode, unhighlightNode, clearHighlights, addAnnotation, removeAnnotation, clearAnnotations, vizLog, clearVisualization）
+  - `VisualizationCommandHandler` DIインターフェース（workspaceBridgeのWorkspaceCommandHandlerと同パターン）
+  - `builtin-api.d.ts` に可視化API型定義追加
+  - `builtin-api.test.ts` にVISUALIZATION_BRIDGE_API_DEFS同期テスト追加
+  - タスク分解: 全体を4サブタスクに分解、今回はサブタスク1（基盤）完了
+- 変更ファイル:
+  - src/lib/proof-pad/visualizationState.ts (新規)
+  - src/lib/proof-pad/visualizationState.test.ts (新規)
+  - src/lib/script-runner/visualizationBridge.ts (新規)
+  - src/lib/script-runner/visualizationBridge.test.ts (新規)
+  - src/lib/script-runner/builtin-api.d.ts (更新)
+  - src/lib/script-runner/builtin-api.test.ts (更新)
+  - src/lib/script-runner/index.ts (更新)
+  - possible-next-tasks.md (更新)
+- **今後のイテレーションへの学び:**
+  - `isHighlightColor` のような型ガードは TS 5.5 auto-inference で `value is HighlightColor` まで絞れない（`string` まで）。`toHighlightColor` のような変換関数で回避
+  - ブリッジ追加パターン: 新Bridge作成 → index.ts export → builtin-api.d.ts 型定義 → builtin-api.test.ts 同期テスト → ScriptEditorComponent接続（UI統合時）
+  - VisualizationCommandHandler は WorkspaceCommandHandler と別インターフェースとして独立させた（可視化 ≠ ワークスペース操作）
+---
+
 ## 2026-03-22 - possible-next-tasks.md 作成
 - `possible-next-tasks.md` を新規作成。タスク候補を整理
   - 高: アルゴリズム可視化API
