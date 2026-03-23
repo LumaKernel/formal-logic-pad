@@ -61,6 +61,8 @@ logic-core, logic-lang, formula-input, infinite-canvas を統合する層。
 - `formulaCopyLogic.test.ts`: 論理式コピー変換テスト（Unicode/ASCII/LaTeX）
 - `SequentDisplay.test.tsx`: シーケント表示UIテスト（データソース分岐、スタイルprops、FormulaSlot parsed/text）
 - `SignedFormulaDisplay.test.tsx`: 署名付き論理式表示UIテスト（T/F符号、パース失敗フォールバック、スタイルprops）
+- `AtProofTreePanel.test.tsx`: AT証明木パネルUIテスト（α/β規則、closed/open枝、プレーンテキスト、複数ルート）
+- `TabProofTreePanel.test.tsx`: TAB証明木パネルUIテスト（単一/分岐規則、closed/open枝、複数ルート）
 
 ## コンテキストメニュー
 

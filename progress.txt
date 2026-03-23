@@ -109,6 +109,34 @@
 
 ---
 
+## 2026-03-24 - [カバレッジ改善] ProofTreePanel系4ファイルのブランチカバレッジ100%達成
+
+- ベースライン: Stmts 99.98%, Branch 99.43%, Funcs 90.42%, Lines 99.99%
+- **結果: Stmts 99.98% (±0.00%), Branch 99.59% (+0.16%), Funcs 90.4% (±0.00%), Lines 99.99% (±0.00%)**
+- 実装内容:
+  - AtProofTreePanel.test.tsx 新規作成（11テスト）: α/β規則、closed/open枝、署名なしプレーンテキスト、複数ルート、testId未指定
+  - TabProofTreePanel.test.tsx 新規作成（10テスト）: 単一/分岐規則、closed/open枝、複数ルート、testId未指定
+  - NdProofTreePanel.test.tsx: 複数ルート＋testId未指定テスト追加
+  - ScProofTreePanel.tsx: conclusionSequent防御的ブランチにv8 ignore追加
+- ブランチ100%になったファイル:
+  - ScProofTreePanel.tsx: 85.71% → 100%
+  - AtProofTreePanel.tsx: 88.88% → 100%
+  - TabProofTreePanel.tsx: 89.65% → 100%
+  - NdProofTreePanel.tsx: 96.87% → 100%
+- 変更ファイル:
+  - src/lib/proof-pad/AtProofTreePanel.test.tsx（新規）
+  - src/lib/proof-pad/TabProofTreePanel.test.tsx（新規）
+  - src/lib/proof-pad/NdProofTreePanel.test.tsx
+  - src/lib/proof-pad/ScProofTreePanel.tsx
+- **今後のイテレーションへの学び:**
+  - ProofTreePanel系の未カバーブランチは主に: (1) testId未指定時のdata-testid ternary、(2) branchStatus open/closed マーカー、(3) 複数ルートのcycle-rootボタン
+  - AtRuleIdは`"alpha-conj"`, `"beta-neg-conj"`等の形式（`"alpha-and-true"`ではない）
+  - TabRuleIdは`"implication"`, `"disjunction"`等の形式（`"tab-"`プレフィックスなし）
+  - tab-axiomエッジのruleIdはTabRuleId型（`"bs"`等を使用）
+  - SCの`conclusionSequent`は変換で常に設定されるため、undefinedブランチは防御的コード
+
+---
+
 ## 2026-03-24 - [カバレッジ改善] modelAnswer.ts ブランチカバレッジ向上（89.65%→100%）
 
 - ベースライン: Stmts 99.98%, Branch 99.40%, Funcs 90.4%, Lines 99.99%
