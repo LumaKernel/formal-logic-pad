@@ -73,6 +73,8 @@ const isTrivialAxiomSubstitution = (
   const usedFormulaTargets = new Set<string>();
   for (const [, value] of formulaSub) {
     if (value._tag !== "MetaVariable") return false;
+    /* v8 ignore start — パーサーは MetaVariable ノードを生成しないため、value._tag === "MetaVariable" が
+       true になるのは programmatic に構築した Formula を渡した場合のみ。模範解答は常にパース済みテキストから構築される */
     const subscriptSuffix =
       value.subscript !== undefined
         ? `_${value.subscript satisfies string}`
@@ -80,6 +82,7 @@ const isTrivialAxiomSubstitution = (
     const targetKey = `${value.name satisfies string}${subscriptSuffix satisfies string}`;
     if (usedFormulaTargets.has(targetKey)) return false;
     usedFormulaTargets.add(targetKey);
+    /* v8 ignore stop */
   }
   // TermMetaSubstitutionMap: すべての値が TermMetaVariable かつ単射
   // 模範解答では命題論理公理のみが自明代入を持ち、termSub は常に空
@@ -482,6 +485,10 @@ function buildSubstitutionEntriesFromMaps(
   )[] = [];
 
   // 論理式メタ変数
+  // NOTE: スキーマDSLテキストをパーサーで解析するため、phi/psi は PropositionalVariable として解析される。
+  // MetaVariable ノードは生成されないため、このループは空になる。
+  // 将来スキーマ専用パーサーが MetaVariable を返すようになった場合に機能する。
+  /* v8 ignore start — パーサーがスキーマDSLを MetaVariable として解析しないため到達しない */
   const formulaMVs = collectUniqueFormulaMetaVariables(schemaFormula);
   for (const mv of formulaMVs) {
     const key = metaVariableKey(mv);
@@ -497,6 +504,7 @@ function buildSubstitutionEntriesFromMaps(
   }
 
   // 項メタ変数（A4スキーマのτなど）
+  // 同上: tau は Variable として解析され TermMetaVariable にはならない
   const termMVs = collectUniqueTermMetaVariablesInFormula(schemaFormula);
   for (const tmv of termMVs) {
     const key = termMetaVariableKey(tmv);
@@ -510,6 +518,7 @@ function buildSubstitutionEntriesFromMaps(
       });
     }
   }
+  /* v8 ignore stop */
 
   return entries;
 }
