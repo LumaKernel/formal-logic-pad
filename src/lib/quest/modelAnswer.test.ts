@@ -644,9 +644,7 @@ describe("buildModelAnswerWorkspace - non-Hilbert axiom step", () => {
     if (result._tag !== "Ok") return;
     // Hilbert系と違い、公理展開（スキーマ+代入エッジ）は行われず、単一ノードになる
     // axiomノード + goalノード = 2ノード
-    const axiomNodes = result.workspace.nodes.filter(
-      (n) => n.kind === "axiom",
-    );
+    const axiomNodes = result.workspace.nodes.filter((n) => n.kind === "axiom");
     expect(axiomNodes.length).toBe(1);
     expect(axiomNodes[0]?.formulaText).toBe("phi -> phi");
   });
