@@ -1330,6 +1330,7 @@ export const ProofWorkspace = forwardRef<
   // クエスト詳細ポップオーバーの外側クリック・Escape で閉じる
   useEffect(() => {
     if (!questDetailOpen) return;
+    /* v8 ignore start — document イベントリスナー: Storybook で検証 */
     const handleClickOutside = (e: MouseEvent) => {
       if (
         questDetailRef.current !== null &&
@@ -1345,6 +1346,7 @@ export const ProofWorkspace = forwardRef<
         setQuestDetailOpen(false);
       }
     };
+    /* v8 ignore stop */
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleEscape);
     return () => {
