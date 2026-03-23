@@ -8,7 +8,7 @@
  */
 
 import { useState, type CSSProperties } from "react";
-import { Button } from "antd";
+import { UiButton } from "../ui";
 import type { ScriptListItem } from "./scriptListPanelLogic";
 
 // ── Types ──────────────────────────────────────────────────────
@@ -261,32 +261,32 @@ export function ScriptListPanel({
           </div>
           <div style={actionsStyle}>
             {onRename && renamingId !== item.id && (
-              <Button
+              <UiButton
                 size="small"
                 data-testid={`script-rename-btn-${item.id satisfies string}`}
                 onClick={() => handleStartRename(item.id, item.title)}
               >
                 {messages.renameButton}
-              </Button>
+              </UiButton>
             )}
             {onExport && (
-              <Button
+              <UiButton
                 size="small"
                 data-testid={`script-export-btn-${item.id satisfies string}`}
                 onClick={() => onExport(item.id)}
               >
                 {messages.exportButton}
-              </Button>
+              </UiButton>
             )}
             {onDelete && (
-              <Button
+              <UiButton
                 size="small"
                 danger
                 data-testid={`script-delete-btn-${item.id satisfies string}`}
                 onClick={() => onDelete(item.id)}
               >
                 {messages.deleteButton}
-              </Button>
+              </UiButton>
             )}
           </div>
         </div>

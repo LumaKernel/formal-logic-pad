@@ -7,7 +7,11 @@
  */
 
 import { type CSSProperties, type ReactNode, useCallback } from "react";
-import { SunOutlined, MoonOutlined, DesktopOutlined } from "@ant-design/icons";
+import {
+  SunOutlined,
+  MoonOutlined,
+  DesktopOutlined,
+} from "../ui/UiIcons";
 import { THEME_MODES, type ThemeMode } from "../../lib/theme";
 import { useThemeContext } from "../../lib/theme/ThemeProvider";
 import {

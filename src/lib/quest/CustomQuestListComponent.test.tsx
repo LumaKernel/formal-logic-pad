@@ -7,18 +7,9 @@ import {
   act,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createElement, type ReactElement } from "react";
-import { ConfigProvider } from "antd";
 import { CustomQuestList } from "./CustomQuestListComponent";
 import type { QuestCatalogItem } from "./questCatalog";
 import type { QuestDefinition } from "./questDefinition";
-
-/** antd ConfigProvider wrapper for tests (disables CJK space insertion) */
-function renderWithAntd(ui: ReactElement) {
-  return render(
-    createElement(ConfigProvider, { button: { autoInsertSpace: false } }, ui),
-  );
-}
 
 // --- テストヘルパー ---
 
@@ -83,7 +74,7 @@ describe("CustomQuestListComponent", () => {
   describe("キーボードナビゲーション", () => {
     it("Enterキーでクエスト開始が呼ばれる", async () => {
       const onStartQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList items={sampleItems} onStartQuest={onStartQuest} />,
       );
 
@@ -96,7 +87,7 @@ describe("CustomQuestListComponent", () => {
 
     it("Spaceキーでクエスト開始が呼ばれる", async () => {
       const onStartQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList items={sampleItems} onStartQuest={onStartQuest} />,
       );
 
@@ -109,7 +100,7 @@ describe("CustomQuestListComponent", () => {
 
     it("Tabキーではクエスト開始が呼ばれない", async () => {
       const onStartQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList items={sampleItems} onStartQuest={onStartQuest} />,
       );
 
@@ -124,7 +115,7 @@ describe("CustomQuestListComponent", () => {
   describe("ファイルインポート", () => {
     it("ファイル選択でJSONテキストがテキストエリアに反映される", async () => {
       const onImportQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -160,7 +151,7 @@ describe("CustomQuestListComponent", () => {
 
     it("ファイルが選択されていない場合は何もしない", () => {
       const onImportQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -183,7 +174,7 @@ describe("CustomQuestListComponent", () => {
     });
 
     it("空のJSONテキストではインポートボタンが無効", async () => {
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -199,7 +190,7 @@ describe("CustomQuestListComponent", () => {
 
     it("空のJSONテキストでsubmitしてもonImportQuestが呼ばれない", () => {
       const onImportQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -220,7 +211,7 @@ describe("CustomQuestListComponent", () => {
   describe("編集フォーム フィールド入力", () => {
     function renderWithEditForm() {
       const onEditQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -319,7 +310,7 @@ describe("CustomQuestListComponent", () => {
   describe("編集フォーム バリデーションエラー時のフォーカス", () => {
     it("タイトル空でsubmitするとタイトルにフォーカスが移動する", () => {
       const onEditQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -342,7 +333,7 @@ describe("CustomQuestListComponent", () => {
 
     it("ゴール空でsubmitするとエラーが表示される", () => {
       const onEditQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -364,7 +355,7 @@ describe("CustomQuestListComponent", () => {
 
     it("ステップ数不正でsubmitするとステップ数にフォーカスが移動する", () => {
       const onEditQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -389,7 +380,7 @@ describe("CustomQuestListComponent", () => {
   describe("作成フォーム フィールド入力", () => {
     function renderWithCreateForm() {
       const onCreateQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -476,7 +467,7 @@ describe("CustomQuestListComponent", () => {
   describe("作成フォーム バリデーションエラー時のフォーカス", () => {
     it("タイトル空でsubmitするとタイトルにフォーカスが移動する", () => {
       const onCreateQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -496,7 +487,7 @@ describe("CustomQuestListComponent", () => {
 
     it("ゴール空でsubmitするとエラーが表示される", () => {
       const onCreateQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -518,7 +509,7 @@ describe("CustomQuestListComponent", () => {
 
     it("ステップ数不正でsubmitするとステップ数にフォーカスが移動する", () => {
       const onCreateQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -552,7 +543,7 @@ describe("CustomQuestListComponent", () => {
 
   describe("ホバー状態", () => {
     it("mouseLeaveでホバー状態が解除される", () => {
-      renderWithAntd(
+      render(
         <CustomQuestList items={sampleItems} onStartQuest={vi.fn()} />,
       );
 
@@ -573,14 +564,14 @@ describe("CustomQuestListComponent", () => {
 
   describe("空状態表示", () => {
     it("アイテムが空で作成・インポート中でなければ空メッセージが表示される", () => {
-      renderWithAntd(<CustomQuestList items={[]} onStartQuest={vi.fn()} />);
+      render(<CustomQuestList items={[]} onStartQuest={vi.fn()} />);
 
       expect(screen.getByTestId("custom-quest-list-empty")).toBeInTheDocument();
     });
 
     it("アイテムが空でも作成中なら空メッセージは表示されない", () => {
       const onCreateQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={[]}
           onStartQuest={vi.fn()}
@@ -599,7 +590,7 @@ describe("CustomQuestListComponent", () => {
 
     it("アイテムが空でもインポート中なら空メッセージは表示されない", () => {
       const onImportQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={[]}
           onStartQuest={vi.fn()}
@@ -619,7 +610,7 @@ describe("CustomQuestListComponent", () => {
 
   describe("削除確認", () => {
     it("削除ボタンクリックで確認オーバーレイが表示される", () => {
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -639,7 +630,7 @@ describe("CustomQuestListComponent", () => {
 
     it("確認ボタンクリックでonDeleteQuestが呼ばれる", () => {
       const onDeleteQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -661,7 +652,7 @@ describe("CustomQuestListComponent", () => {
     });
 
     it("キャンセルボタンクリックでオーバーレイが閉じる", () => {
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -688,7 +679,7 @@ describe("CustomQuestListComponent", () => {
 
     it("確認前にonDeleteQuestが呼ばれない", () => {
       const onDeleteQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -706,7 +697,7 @@ describe("CustomQuestListComponent", () => {
 
     it("確認後にオーバーレイが閉じる", () => {
       const onDeleteQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -729,7 +720,7 @@ describe("CustomQuestListComponent", () => {
 
     it("確認オーバーレイクリックでonStartQuestが呼ばれない（stopPropagation）", () => {
       const onStartQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={onStartQuest}
@@ -756,7 +747,7 @@ describe("CustomQuestListComponent", () => {
     });
 
     it("共有ボタンクリックで共有パネルが表示される", () => {
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -778,7 +769,7 @@ describe("CustomQuestListComponent", () => {
     });
 
     it("共有ボタンのテキストが「共有」である", () => {
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -793,7 +784,7 @@ describe("CustomQuestListComponent", () => {
 
     it("JSONエクスポートボタンクリックでonExportQuestが呼ばれる", () => {
       const onExportQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -815,7 +806,7 @@ describe("CustomQuestListComponent", () => {
 
     it("URLコピーボタンクリックでonShareQuestUrlが呼ばれる", () => {
       const onShareQuestUrl = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -836,7 +827,7 @@ describe("CustomQuestListComponent", () => {
     });
 
     it("URLコピー後に「コピーしました!」フィードバックが表示される", () => {
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -861,7 +852,7 @@ describe("CustomQuestListComponent", () => {
 
     it("URLコピーのフィードバックが2秒後に消える", () => {
       vi.useFakeTimers();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -893,7 +884,7 @@ describe("CustomQuestListComponent", () => {
     });
 
     it("閉じるボタンクリックでパネルが閉じる", () => {
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -919,7 +910,7 @@ describe("CustomQuestListComponent", () => {
 
     it("共有パネルクリックでonStartQuestが呼ばれない（stopPropagation）", () => {
       const onStartQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={onStartQuest}
@@ -940,7 +931,7 @@ describe("CustomQuestListComponent", () => {
     });
 
     it("onExportQuestのみの場合でも共有ボタンが表示される", () => {
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -954,7 +945,7 @@ describe("CustomQuestListComponent", () => {
     });
 
     it("onShareQuestUrlのみの場合でも共有ボタンが表示される", () => {
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -968,7 +959,7 @@ describe("CustomQuestListComponent", () => {
     });
 
     it("両方ない場合は共有ボタンが表示されない", () => {
-      renderWithAntd(
+      render(
         <CustomQuestList items={sampleItems} onStartQuest={vi.fn()} />,
       );
 
@@ -980,7 +971,7 @@ describe("CustomQuestListComponent", () => {
     it("URLコピーを2回呼ぶと前回のタイマーがクリアされる", () => {
       vi.useFakeTimers();
       const onShareQuestUrl = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -1005,7 +996,7 @@ describe("CustomQuestListComponent", () => {
     });
 
     it("削除ボタンクリックで共有パネルが閉じる", () => {
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -1037,7 +1028,7 @@ describe("CustomQuestListComponent", () => {
   describe("クエストアイテム操作", () => {
     it("クエストアイテム行クリックでonStartQuestが呼ばれる", () => {
       const onStartQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList items={sampleItems} onStartQuest={onStartQuest} />,
       );
 
@@ -1047,7 +1038,7 @@ describe("CustomQuestListComponent", () => {
 
     it("開始ボタンクリックでonStartQuestが呼ばれstopPropagationされる", () => {
       const onStartQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList items={sampleItems} onStartQuest={onStartQuest} />,
       );
 
@@ -1057,7 +1048,7 @@ describe("CustomQuestListComponent", () => {
 
     it("複製ボタンクリックでonDuplicateQuestが呼ばれる", () => {
       const onDuplicateQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -1075,7 +1066,7 @@ describe("CustomQuestListComponent", () => {
   describe("編集フォーム保存・キャンセル", () => {
     it("有効なデータでsubmitするとonEditQuestが呼ばれる", () => {
       const onEditQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -1097,7 +1088,7 @@ describe("CustomQuestListComponent", () => {
 
     it("編集フォームのタイトルblurでtouchedが設定される", () => {
       const onEditQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -1116,7 +1107,7 @@ describe("CustomQuestListComponent", () => {
     });
 
     it("編集フォームのキャンセルボタンクリックでフォームが閉じる", () => {
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -1135,7 +1126,7 @@ describe("CustomQuestListComponent", () => {
   describe("作成フォーム保存・キャンセル（コンテナ統合）", () => {
     it("有効なデータでsubmitするとonCreateQuestが呼ばれフォームが閉じる", async () => {
       const onCreateQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -1182,7 +1173,7 @@ describe("CustomQuestListComponent", () => {
 
     it("作成フォームのタイトルblurでtouchedが設定される", () => {
       const onCreateQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -1202,7 +1193,7 @@ describe("CustomQuestListComponent", () => {
 
     it("作成フォームのキャンセルボタンクリックでフォームが閉じる", () => {
       const onCreateQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -1223,7 +1214,7 @@ describe("CustomQuestListComponent", () => {
   describe("インポートフォーム保存・キャンセル（コンテナ統合）", () => {
     it("JSONテキスト入力でテキストエリアが更新される", () => {
       const onImportQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -1244,7 +1235,7 @@ describe("CustomQuestListComponent", () => {
 
     it("非空JSONテキストでsubmitするとonImportQuestが呼ばれフォームが閉じる", () => {
       const onImportQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}
@@ -1275,7 +1266,7 @@ describe("CustomQuestListComponent", () => {
 
     it("インポートフォームのキャンセルボタンクリックでフォームが閉じる", () => {
       const onImportQuest = vi.fn();
-      renderWithAntd(
+      render(
         <CustomQuestList
           items={sampleItems}
           onStartQuest={vi.fn()}

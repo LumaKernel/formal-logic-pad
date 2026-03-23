@@ -1,15 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { ConfigProvider } from "antd";
 import userEvent from "@testing-library/user-event";
 import type { ReferenceEntry } from "./referenceEntry";
 import { ReferenceBrowserComponent } from "./ReferenceBrowserComponent";
-
-function renderWithAntd(ui: React.ReactElement) {
-  return render(
-    <ConfigProvider button={{ autoInsertSpace: false }}>{ui}</ConfigProvider>,
-  );
-}
 
 // --- Test Data ---
 
@@ -50,7 +43,7 @@ const testEntries: readonly ReferenceEntry[] = [
 
 describe("ReferenceBrowserComponent", () => {
   it("エントリ一覧を表示する", () => {
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={testEntries}
         locale="en"
@@ -65,7 +58,7 @@ describe("ReferenceBrowserComponent", () => {
   });
 
   it("カテゴリバッジが表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={testEntries}
         locale="en"
@@ -81,7 +74,7 @@ describe("ReferenceBrowserComponent", () => {
 
   it("テキスト検索でフィルタできる", async () => {
     const user = userEvent.setup();
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={testEntries}
         locale="en"
@@ -98,7 +91,7 @@ describe("ReferenceBrowserComponent", () => {
 
   it("カテゴリフィルタで絞り込める", async () => {
     const user = userEvent.setup();
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={testEntries}
         locale="en"
@@ -115,7 +108,7 @@ describe("ReferenceBrowserComponent", () => {
 
   it("カテゴリフィルタのトグル（再クリックで解除）", async () => {
     const user = userEvent.setup();
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={testEntries}
         locale="en"
@@ -136,7 +129,7 @@ describe("ReferenceBrowserComponent", () => {
 
   it("該当なしで空メッセージが表示される", async () => {
     const user = userEvent.setup();
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={testEntries}
         locale="en"
@@ -150,7 +143,7 @@ describe("ReferenceBrowserComponent", () => {
 
   it("エントリクリックでモーダルが開く", async () => {
     const user = userEvent.setup();
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={testEntries}
         locale="en"
@@ -167,7 +160,7 @@ describe("ReferenceBrowserComponent", () => {
 
   it("モーダルを閉じる", async () => {
     const user = userEvent.setup();
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={testEntries}
         locale="en"
@@ -182,7 +175,7 @@ describe("ReferenceBrowserComponent", () => {
   });
 
   it("日本語ロケールで表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={testEntries}
         locale="ja"
@@ -195,7 +188,7 @@ describe("ReferenceBrowserComponent", () => {
   // suppress console.error for intentional modal render
   it("searchPlaceholderのカスタム値が適用される", () => {
     vi.stubGlobal("console", { ...console, error: vi.fn() });
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={testEntries}
         locale="en"
@@ -223,7 +216,7 @@ describe("ReferenceBrowserComponent", () => {
         : questId === "prop-02"
           ? "Quest 2"
           : undefined;
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={[entryWithQuests]}
         locale="en"
@@ -247,7 +240,7 @@ describe("ReferenceBrowserComponent", () => {
       order: 1,
       relatedQuestIds: ["prop-01"],
     });
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={[entryWithQuests]}
         locale="en"
@@ -281,7 +274,7 @@ describe("ReferenceBrowserComponent", () => {
         summary: { en: "Then read this.", ja: "次にこちらを読もう。" },
       }),
     ];
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={entriesWithGuides}
         locale="en"
@@ -294,7 +287,7 @@ describe("ReferenceBrowserComponent", () => {
   });
 
   it("guideエントリがないとガイドセクションは表示されない", () => {
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={testEntries}
         locale="en"
@@ -310,7 +303,7 @@ describe("ReferenceBrowserComponent", () => {
       ...testEntries,
       makeEntry({ id: "guide-first", category: "guide", order: 1 }),
     ];
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={entriesWithGuides}
         locale="en"
@@ -333,7 +326,7 @@ describe("ReferenceBrowserComponent", () => {
         title: { en: "First Guide", ja: "最初のガイド" },
       }),
     ];
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={entriesWithGuides}
         locale="en"
@@ -356,7 +349,7 @@ describe("ReferenceBrowserComponent", () => {
         relatedEntryIds: ["axiom-a1", "concept-sub"],
       }),
     ];
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={entriesWithGuides}
         locale="en"
@@ -379,7 +372,7 @@ describe("ReferenceBrowserComponent", () => {
         relatedEntryIds: [],
       }),
     ];
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={entriesWithGuides}
         locale="en"
@@ -398,7 +391,7 @@ describe("ReferenceBrowserComponent", () => {
       order: 1,
       relatedEntryIds: ["rule-mp"],
     });
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={[
           entryWithRelated,
@@ -429,7 +422,7 @@ describe("ReferenceBrowserComponent", () => {
       order: 1,
       relatedQuestIds: ["prop-01", "unknown-quest"],
     });
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={[entryWithQuests]}
         locale="en"
@@ -455,7 +448,7 @@ describe("ReferenceBrowserComponent", () => {
       order: 1,
       relatedQuestIds: ["unknown-1", "unknown-2"],
     });
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={[entryWithQuests]}
         locale="en"
@@ -477,7 +470,7 @@ describe("ReferenceBrowserComponent", () => {
       category: "axiom",
       order: 1,
     });
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={[entryWithoutQuests]}
         locale="en"
@@ -499,7 +492,7 @@ describe("ReferenceBrowserComponent", () => {
       order: 1,
       relatedQuestIds: ["prop-01"],
     });
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={[entryWithQuests]}
         locale="en"
@@ -517,7 +510,7 @@ describe("ReferenceBrowserComponent", () => {
   it("onSelectEntry指定時はエントリクリックでコールバックが呼ばれモーダルは開かない", async () => {
     const user = userEvent.setup();
     const handleSelect = vi.fn();
-    renderWithAntd(
+    render(
       <ReferenceBrowserComponent
         entries={testEntries}
         locale="en"

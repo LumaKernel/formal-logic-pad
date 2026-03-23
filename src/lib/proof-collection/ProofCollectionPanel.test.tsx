@@ -1,13 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { ConfigProvider } from "antd";
 import { ProofCollectionPanel } from "./ProofCollectionPanel";
-
-function renderWithAntd(ui: React.ReactElement) {
-  return render(
-    <ConfigProvider button={{ autoInsertSpace: false }}>{ui}</ConfigProvider>,
-  );
-}
 import type { ProofEntry, ProofFolder } from "./proofCollectionState";
 import type { CompatibilityResult } from "./proofCollectionCompatibility";
 import { defaultProofMessages } from "../proof-pad/proofMessages";
@@ -47,7 +40,7 @@ const defaultCallbacks = {
 describe("ProofCollectionPanel", () => {
   describe("空状態", () => {
     it("エントリがない場合は空メッセージを表示", () => {
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={[]}
@@ -65,7 +58,7 @@ describe("ProofCollectionPanel", () => {
   describe("エントリ表示", () => {
     it("エントリ名を表示する", () => {
       const entries = [createTestEntry({ id: "e1", name: "My Proof" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -82,7 +75,7 @@ describe("ProofCollectionPanel", () => {
         createTestEntry({ id: "e1", name: "Proof A" }),
         createTestEntry({ id: "e2", name: "Proof B" }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -99,7 +92,7 @@ describe("ProofCollectionPanel", () => {
       const entries = [
         createTestEntry({ id: "e1", name: "Proof", memo: "Important note" }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -113,7 +106,7 @@ describe("ProofCollectionPanel", () => {
 
     it("メモが空の場合はプレースホルダーを表示する", () => {
       const entries = [createTestEntry({ id: "e1", memo: "" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -129,7 +122,7 @@ describe("ProofCollectionPanel", () => {
 
     it("deductionStyleバッジを表示する", () => {
       const entries = [createTestEntry({ id: "e1" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -146,7 +139,7 @@ describe("ProofCollectionPanel", () => {
     it("名前クリックで編集モードに入り、Enter確定でonRenameEntry呼び出し", () => {
       const onRenameEntry = vi.fn();
       const entries = [createTestEntry({ id: "e1", name: "Old Name" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -167,7 +160,7 @@ describe("ProofCollectionPanel", () => {
     it("空の名前では確定しない", () => {
       const onRenameEntry = vi.fn();
       const entries = [createTestEntry({ id: "e1", name: "Name" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -187,7 +180,7 @@ describe("ProofCollectionPanel", () => {
     it("Escapeでキャンセルできる", () => {
       const onRenameEntry = vi.fn();
       const entries = [createTestEntry({ id: "e1", name: "Name" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -209,7 +202,7 @@ describe("ProofCollectionPanel", () => {
   describe("キーボードアクセシビリティ（エントリ名・メモ）", () => {
     it("名前表示でEnterキーを押すと編集モードに入る", () => {
       const entries = [createTestEntry({ id: "e1", name: "Proof Name" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -225,7 +218,7 @@ describe("ProofCollectionPanel", () => {
 
     it("名前表示でSpaceキーを押すと編集モードに入る", () => {
       const entries = [createTestEntry({ id: "e1", name: "Proof Name" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -244,7 +237,7 @@ describe("ProofCollectionPanel", () => {
     it("メモクリックで編集モードに入り、Enter確定でonUpdateMemo呼び出し", () => {
       const onUpdateMemo = vi.fn();
       const entries = [createTestEntry({ id: "e1", memo: "Old memo" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -264,7 +257,7 @@ describe("ProofCollectionPanel", () => {
     it("空のメモでも確定できる（メモは空でもOK）", () => {
       const onUpdateMemo = vi.fn();
       const entries = [createTestEntry({ id: "e1", memo: "Some memo" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -286,7 +279,7 @@ describe("ProofCollectionPanel", () => {
     it("削除ボタンクリックでonRemoveEntry呼び出し", () => {
       const onRemoveEntry = vi.fn();
       const entries = [createTestEntry({ id: "e1" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -303,7 +296,7 @@ describe("ProofCollectionPanel", () => {
 
   describe("折り畳み", () => {
     it("×ボタンクリックで折り畳まれる", () => {
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[createTestEntry({ id: "e1" })]}
           folders={[]}
@@ -321,7 +314,7 @@ describe("ProofCollectionPanel", () => {
     });
 
     it("折り畳みトグルクリックで展開される", () => {
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[createTestEntry({ id: "e1" })]}
           folders={[]}
@@ -340,7 +333,7 @@ describe("ProofCollectionPanel", () => {
 
     it("折り畳み状態でpointerdownイベントがonDragHandlePointerDownに伝播する", () => {
       const onDragHandlePointerDown = vi.fn();
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[createTestEntry({ id: "e1" })]}
           folders={[]}
@@ -359,7 +352,7 @@ describe("ProofCollectionPanel", () => {
 
     it("wasDraggedRef.current=falseの場合はクリックでトグルされる", () => {
       const wasDraggedRef = { current: false };
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[createTestEntry({ id: "e1" })]}
           folders={[]}
@@ -380,7 +373,7 @@ describe("ProofCollectionPanel", () => {
 
     it("wasDraggedRef.current=trueの場合はクリックでトグルされない", () => {
       const wasDraggedRef = { current: true };
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[createTestEntry({ id: "e1" })]}
           folders={[]}
@@ -404,7 +397,7 @@ describe("ProofCollectionPanel", () => {
         createTestEntry({ id: "e1" }),
         createTestEntry({ id: "e2" }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -419,7 +412,7 @@ describe("ProofCollectionPanel", () => {
     });
 
     it("×ボタンでEnterキーを押すと折り畳まれる", () => {
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[createTestEntry({ id: "e1" })]}
           folders={[]}
@@ -435,7 +428,7 @@ describe("ProofCollectionPanel", () => {
     });
 
     it("×ボタンで他のキーを押しても折り畳まれない", () => {
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[createTestEntry({ id: "e1" })]}
           folders={[]}
@@ -454,7 +447,7 @@ describe("ProofCollectionPanel", () => {
   describe("非表示ボタン", () => {
     it("onHide指定時に×ボタン(非表示)が表示される", () => {
       const onHide = vi.fn();
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[createTestEntry({ id: "e1" })]}
           folders={[]}
@@ -468,7 +461,7 @@ describe("ProofCollectionPanel", () => {
     });
 
     it("onHide未指定時は×ボタン(非表示)が表示されない", () => {
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[createTestEntry({ id: "e1" })]}
           folders={[]}
@@ -482,7 +475,7 @@ describe("ProofCollectionPanel", () => {
 
     it("×ボタンクリックでonHideが呼ばれる", () => {
       const onHide = vi.fn();
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[createTestEntry({ id: "e1" })]}
           folders={[]}
@@ -498,7 +491,7 @@ describe("ProofCollectionPanel", () => {
 
     it("×ボタンでEnterキーを押すとonHideが呼ばれる", () => {
       const onHide = vi.fn();
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[createTestEntry({ id: "e1" })]}
           folders={[]}
@@ -521,7 +514,7 @@ describe("ProofCollectionPanel", () => {
         createTestEntry({ id: "e1" }),
         createTestEntry({ id: "e2" }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -537,7 +530,7 @@ describe("ProofCollectionPanel", () => {
   describe("インポート", () => {
     it("onImportEntry指定時にインポートボタンを表示する", () => {
       const entries = [createTestEntry({ id: "e1" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -556,7 +549,7 @@ describe("ProofCollectionPanel", () => {
     it("インポートボタンクリックでonImportEntryが呼ばれる", () => {
       const onImportEntry = vi.fn();
       const entry = createTestEntry({ id: "e1", name: "My Proof" });
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[entry]}
           folders={[]}
@@ -572,7 +565,7 @@ describe("ProofCollectionPanel", () => {
 
     it("onImportEntry未指定時にはインポートボタンを表示しない", () => {
       const entries = [createTestEntry({ id: "e1" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -588,7 +581,7 @@ describe("ProofCollectionPanel", () => {
   describe("フォルダ表示", () => {
     it("フォルダがある場合はフォルダヘッダーを表示する", () => {
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={folders}
@@ -610,7 +603,7 @@ describe("ProofCollectionPanel", () => {
           folderId: "f1",
         }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={folders}
@@ -635,7 +628,7 @@ describe("ProofCollectionPanel", () => {
           folderId: "f1",
         }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={folders}
@@ -659,7 +652,7 @@ describe("ProofCollectionPanel", () => {
           folderId: "f1",
         }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={folders}
@@ -683,7 +676,7 @@ describe("ProofCollectionPanel", () => {
           folderId: "f1",
         }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={folders}
@@ -706,7 +699,7 @@ describe("ProofCollectionPanel", () => {
         createTestEntry({ id: "e1", folderId: "f1" }),
         createTestEntry({ id: "e2", folderId: "f1" }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={folders}
@@ -728,7 +721,7 @@ describe("ProofCollectionPanel", () => {
           folderId: "f1",
         }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={folders}
@@ -744,7 +737,7 @@ describe("ProofCollectionPanel", () => {
 
   describe("フォルダ作成", () => {
     it("onCreateFolder指定時にフォルダ作成ボタンを表示する", () => {
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={[]}
@@ -758,7 +751,7 @@ describe("ProofCollectionPanel", () => {
     });
 
     it("フォルダ作成ボタンクリックで入力フォームが表示される", () => {
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={[]}
@@ -774,7 +767,7 @@ describe("ProofCollectionPanel", () => {
 
     it("フォルダ名入力してEnterでonCreateFolderが呼ばれる", () => {
       const onCreateFolder = vi.fn();
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={[]}
@@ -792,7 +785,7 @@ describe("ProofCollectionPanel", () => {
     });
 
     it("フォルダ作成入力でEscapeキーを押すと入力フォームが閉じる", () => {
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={[]}
@@ -809,7 +802,7 @@ describe("ProofCollectionPanel", () => {
     });
 
     it("フォルダ作成入力でBlurすると入力フォームが閉じる", () => {
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={[]}
@@ -827,7 +820,7 @@ describe("ProofCollectionPanel", () => {
 
     it("空のフォルダ名でEnterを押してもonCreateFolderは呼ばれない", () => {
       const onCreateFolder = vi.fn();
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={[]}
@@ -848,7 +841,7 @@ describe("ProofCollectionPanel", () => {
   describe("フォルダ削除", () => {
     it("onRemoveFolder指定時にフォルダ削除ボタンを表示する", () => {
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={folders}
@@ -864,7 +857,7 @@ describe("ProofCollectionPanel", () => {
     it("フォルダ削除ボタンクリックでonRemoveFolderが呼ばれる", () => {
       const onRemoveFolder = vi.fn();
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={folders}
@@ -882,7 +875,7 @@ describe("ProofCollectionPanel", () => {
   describe("フォルダ名変更", () => {
     it("フォルダ名変更ボタンクリックで編集モードに入る", () => {
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={folders}
@@ -899,7 +892,7 @@ describe("ProofCollectionPanel", () => {
     it("フォルダ名編集してEnterでonRenameFolderが呼ばれる", () => {
       const onRenameFolder = vi.fn();
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={folders}
@@ -925,7 +918,7 @@ describe("ProofCollectionPanel", () => {
           folderId: "f1",
         }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={folders}
@@ -949,7 +942,7 @@ describe("ProofCollectionPanel", () => {
     it("フォルダ名編集中にEscapeで編集キャンセルできる", () => {
       const onRenameFolder = vi.fn();
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={folders}
@@ -971,7 +964,7 @@ describe("ProofCollectionPanel", () => {
     it("フォルダ名編集中にBlurで確定する", () => {
       const onRenameFolder = vi.fn();
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={folders}
@@ -991,7 +984,7 @@ describe("ProofCollectionPanel", () => {
     it("フォルダ名が空でEnterを押してもonRenameFolderは呼ばれない", () => {
       const onRenameFolder = vi.fn();
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[]}
           folders={folders}
@@ -1013,7 +1006,7 @@ describe("ProofCollectionPanel", () => {
     it("onMoveEntry指定時にフォルダ選択UIを表示する", () => {
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
       const entries = [createTestEntry({ id: "e1" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={folders}
@@ -1030,7 +1023,7 @@ describe("ProofCollectionPanel", () => {
       const onMoveEntry = vi.fn();
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
       const entries = [createTestEntry({ id: "e1" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={folders}
@@ -1050,7 +1043,7 @@ describe("ProofCollectionPanel", () => {
       const onMoveEntry = vi.fn();
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
       const entries = [createTestEntry({ id: "e1", folderId: "f1" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={folders}
@@ -1111,7 +1104,7 @@ describe("ProofCollectionPanel", () => {
       const getCompatibility = vi.fn(
         (): CompatibilityResult => ({ _tag: "FullyCompatible" }),
       );
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={folders}
@@ -1136,7 +1129,7 @@ describe("ProofCollectionPanel", () => {
       const getCompatibility = vi.fn(
         (): CompatibilityResult => ({ _tag: "FullyCompatible" }),
       );
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -1162,7 +1155,7 @@ describe("ProofCollectionPanel", () => {
           missingAxiomIds: ["A2", "DNE"],
         }),
       );
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -1195,7 +1188,7 @@ describe("ProofCollectionPanel", () => {
           targetStyle: "hilbert",
         }),
       );
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -1218,7 +1211,7 @@ describe("ProofCollectionPanel", () => {
 
     it("getCompatibility未指定時はバッジを表示しない", () => {
       const entries = [createTestEntry({ id: "e1" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={entries}
           folders={[]}
@@ -1240,7 +1233,7 @@ describe("ProofCollectionPanel", () => {
           missingAxiomIds: ["A3"],
         }),
       );
-      renderWithAntd(
+      render(
         <ProofCollectionPanel
           entries={[entry]}
           folders={[]}

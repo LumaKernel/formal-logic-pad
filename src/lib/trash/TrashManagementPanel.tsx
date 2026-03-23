@@ -8,7 +8,7 @@
  */
 
 import { useState, useMemo, useCallback, type CSSProperties } from "react";
-import { Button } from "antd";
+import { UiButton } from "../../components/ui";
 import type { TrashItem, TrashItemKind } from "./trashState";
 import type { TrashKindLabels } from "./trashPanelLogic";
 import {
@@ -266,14 +266,14 @@ export function TrashManagementPanel({
           ))}
         </div>
         {onEmptyTrash !== undefined && (
-          <Button
+          <UiButton
             danger
             size="small"
             data-testid="trash-empty-btn"
             onClick={() => setConfirmEmpty(true)}
           >
             {messages.emptyTrashButton}
-          </Button>
+          </UiButton>
         )}
       </div>
 
@@ -299,23 +299,23 @@ export function TrashManagementPanel({
             </div>
             <div style={itemActionsStyle}>
               {onRestore !== undefined && (
-                <Button
+                <UiButton
                   size="small"
                   data-testid={`trash-restore-${item.trashId satisfies string}`}
                   onClick={() => onRestore(item.trashId)}
                 >
                   {messages.restoreButton}
-                </Button>
+                </UiButton>
               )}
               {onDeletePermanently !== undefined && (
-                <Button
+                <UiButton
                   danger
                   size="small"
                   data-testid={`trash-delete-${item.trashId satisfies string}`}
                   onClick={() => onDeletePermanently(item.trashId)}
                 >
                   {messages.deleteButton}
-                </Button>
+                </UiButton>
               )}
             </div>
           </div>
@@ -341,19 +341,19 @@ export function TrashManagementPanel({
               {messages.confirmEmptyDescription}
             </p>
             <div style={confirmActionsStyle}>
-              <Button
+              <UiButton
                 danger
                 data-testid="trash-confirm-empty-ok"
                 onClick={handleEmptyTrash}
               >
                 {messages.confirmEmptyOk}
-              </Button>
-              <Button
+              </UiButton>
+              <UiButton
                 data-testid="trash-confirm-empty-cancel"
                 onClick={() => setConfirmEmpty(false)}
               >
                 {messages.confirmEmptyCancel}
-              </Button>
+              </UiButton>
             </div>
           </div>
         </div>

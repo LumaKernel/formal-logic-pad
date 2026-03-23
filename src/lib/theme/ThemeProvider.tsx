@@ -37,9 +37,20 @@ export function useThemeContext(): UseThemeResult {
 
 /**
  * Convenience hook: returns only the resolved theme ("light" | "dark").
+ * Requires ThemeProvider in the tree.
  */
 export function useResolvedTheme(): ResolvedTheme {
   return useThemeContext().resolved;
+}
+
+/**
+ * Safe variant: returns resolved theme if ThemeProvider is available,
+ * otherwise defaults to "light". Useful for UI components that may
+ * render outside ThemeProvider (e.g. in tests/Storybook).
+ */
+export function useResolvedThemeSafe(): ResolvedTheme {
+  const context = useContext(ThemeContext);
+  return context?.resolved ?? "light";
 }
 
 /**

@@ -16,7 +16,7 @@ import {
   useRef,
   useEffect,
 } from "react";
-import { Button } from "antd";
+import { UiButton } from "../../components/ui";
 import type {
   ProofEntry,
   ProofEntryId,
@@ -498,7 +498,7 @@ function CollectionEntry({
           />
         )}
         {onImport !== undefined && (
-          <Button
+          <UiButton
             size="small"
             type="link"
             onClick={() => onImport(entry)}
@@ -509,9 +509,9 @@ function CollectionEntry({
             }
           >
             {messages.collectionEntryImport}
-          </Button>
+          </UiButton>
         )}
-        <Button
+        <UiButton
           size="small"
           danger
           type="text"
@@ -523,7 +523,7 @@ function CollectionEntry({
           }
         >
           {messages.collectionEntryDelete}
-        </Button>
+        </UiButton>
       </div>
     </div>
   );
@@ -635,7 +635,7 @@ function FolderHeader({
         )}
       </span>
       <span style={folderActionsStyle}>
-        <Button
+        <UiButton
           size="small"
           type="text"
           onClick={(e) => {
@@ -649,9 +649,9 @@ function FolderHeader({
           }
         >
           {messages.collectionFolderRename}
-        </Button>
+        </UiButton>
         {onRemoveFolder !== undefined && (
-          <Button
+          <UiButton
             size="small"
             type="text"
             danger
@@ -668,7 +668,7 @@ function FolderHeader({
             /* v8 ignore stop */
           >
             {messages.collectionFolderDelete}
-          </Button>
+          </UiButton>
         )}
       </span>
     </div>
@@ -1029,7 +1029,7 @@ export function ProofCollectionPanel({
       {/* フォルダ作成ボタン */}
       {onCreateFolder !== undefined &&
         panelState.creatingFolder === undefined && (
-          <Button
+          <UiButton
             size="small"
             type="text"
             onClick={handleStartCreateFolder}
@@ -1040,7 +1040,7 @@ export function ProofCollectionPanel({
             }
           >
             + {messages.collectionCreateFolder}
-          </Button>
+          </UiButton>
         )}
 
       {/* フォルダ作成入力 */}

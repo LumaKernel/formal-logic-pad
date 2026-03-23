@@ -16,9 +16,8 @@ import {
   useMemo,
   type CSSProperties,
 } from "react";
-import { Button, Menu } from "antd";
-import { MoreOutlined } from "@ant-design/icons";
-import type { MenuProps } from "antd";
+import { UiButton, UiMenu, type UiMenuItem } from "../../components/ui";
+import { MoreOutlined } from "../../components/ui/UiIcons";
 import type { QuestCatalogItem, CategoryGroup } from "./questCatalog";
 import type { QuestId, DifficultyLevel } from "./questDefinition";
 import {
@@ -463,8 +462,8 @@ function QuestItemMoreMenu({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
-  const menuItems: MenuProps["items"] = useMemo(() => {
-    const items: NonNullable<MenuProps["items"]> = [];
+  const menuItems: readonly UiMenuItem[] = useMemo(() => {
+    const items: UiMenuItem[] = [];
     if (onShowModelAnswer !== undefined) {
       items.push({
         key: "model-answer",
@@ -510,7 +509,7 @@ function QuestItemMoreMenu({
       style={{ position: "relative", flexShrink: 0 }}
       data-testid={`quest-more-menu-${questId satisfies string}`}
     >
-      <Button
+      <UiButton
         data-testid={`quest-more-btn-${questId satisfies string}`}
         icon={<MoreOutlined />}
         type="text"
@@ -525,7 +524,7 @@ function QuestItemMoreMenu({
           data-testid={`quest-more-dropdown-${questId satisfies string}`}
           onClick={() => setOpen(false)}
         >
-          <Menu
+          <UiMenu
             items={menuItems}
             selectable={false}
             style={{ border: "none", boxShadow: "none", borderRadius: "6px" }}
@@ -604,7 +603,7 @@ function QuestItem({
         onDuplicateToCustom={onDuplicateToCustom}
         onShowModelAnswer={onShowModelAnswer}
       />
-      <Button
+      <UiButton
         data-testid={`start-btn-${item.quest.id satisfies string}`}
         type="primary"
         size="small"
@@ -616,7 +615,7 @@ function QuestItem({
         style={{ flexShrink: 0 }}
       >
         {item.completed ? "再挑戦" : "開始"}
-      </Button>
+      </UiButton>
     </div>
   );
 }
@@ -728,7 +727,7 @@ export function QuestCatalog({
       <div style={filterBarStyle} data-testid="filter-bar">
         <span style={filterLabelStyle}>難易度:</span>
         {difficultyFilterOptions.map((opt) => (
-          <Button
+          <UiButton
             key={String(opt.value)}
             data-testid={`difficulty-filter-${String(opt.value) satisfies string}`}
             type={filter.difficulty === opt.value ? "primary" : "default"}
@@ -737,11 +736,11 @@ export function QuestCatalog({
             onClick={() => handleDifficultyChange(opt.value)}
           >
             {opt.label}
-          </Button>
+          </UiButton>
         ))}
         <span style={{ ...filterLabelStyle, marginLeft: 12 }}>状態:</span>
         {completionFilterOptions.map((opt) => (
-          <Button
+          <UiButton
             key={opt.value}
             data-testid={`completion-filter-${opt.value satisfies string}`}
             type={filter.completion === opt.value ? "primary" : "default"}
@@ -750,7 +749,7 @@ export function QuestCatalog({
             onClick={() => handleCompletionChange(opt.value)}
           >
             {opt.label}
-          </Button>
+          </UiButton>
         ))}
       </div>
 

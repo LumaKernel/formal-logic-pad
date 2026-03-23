@@ -9,7 +9,7 @@
 
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "antd";
+import { UiButton } from "../../components/ui";
 import { createPortal } from "react-dom";
 import katex from "katex";
 import type { Locale, ReferenceEntry } from "./referenceEntry";
@@ -426,7 +426,7 @@ export function ReferenceFloatingWindow({
         }
       >
         {!browseMode && onNavigateHome !== undefined && (
-          <Button
+          <UiButton
             type="text"
             size="small"
             onClick={onNavigateHome}
@@ -438,7 +438,7 @@ export function ReferenceFloatingWindow({
             }
           >
             ←
-          </Button>
+          </UiButton>
         )}
         <div style={titleBarTitleStyle}>{windowTitle}</div>
         <div style={titleBarButtonsStyle}>
@@ -456,12 +456,12 @@ export function ReferenceFloatingWindow({
                   : undefined
               }
             >
-              <Button type="text" size="small">
+              <UiButton type="text" size="small">
                 ↗
-              </Button>
+              </UiButton>
             </a>
           )}
-          <Button
+          <UiButton
             type="text"
             size="small"
             onClick={onClose}
@@ -473,7 +473,7 @@ export function ReferenceFloatingWindow({
             }
           >
             ✕
-          </Button>
+          </UiButton>
         </div>
       </div>
 
@@ -547,7 +547,7 @@ export function ReferenceFloatingWindow({
               <div>
                 {data.relatedEntries.map((related) => (
                   <span key={related.id} style={relatedItemWrapperStyle}>
-                    <Button
+                    <UiButton
                       size="small"
                       onClick={() => {
                         handleRelatedClick(related.id);
@@ -559,7 +559,7 @@ export function ReferenceFloatingWindow({
                       }
                     >
                       {related.title}
-                    </Button>
+                    </UiButton>
                   </span>
                 ))}
               </div>
@@ -577,7 +577,7 @@ export function ReferenceFloatingWindow({
                 <div>
                   {relatedQuests.map((quest) => (
                     <span key={quest.id} style={questItemWrapperStyle}>
-                      <Button
+                      <UiButton
                         size="small"
                         type="primary"
                         onClick={() => {
@@ -592,7 +592,7 @@ export function ReferenceFloatingWindow({
                         }
                       >
                         {quest.title}
-                      </Button>
+                      </UiButton>
                     </span>
                   ))}
                 </div>

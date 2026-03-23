@@ -1,17 +1,10 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { ConfigProvider } from "antd";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ReferenceEntry } from "./referenceEntry";
 import {
   ReferenceViewerPageView,
   ReferenceViewerNotFound,
 } from "./ReferenceViewerPageView";
-
-function renderWithAntd(ui: React.ReactElement) {
-  return render(
-    <ConfigProvider button={{ autoInsertSpace: false }}>{ui}</ConfigProvider>,
-  );
-}
 
 afterEach(cleanup);
 
@@ -55,7 +48,7 @@ const makeRelatedEntry = (): ReferenceEntry =>
 describe("ReferenceViewerPageView", () => {
   it("ページが表示される", () => {
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={allEntries[0]!}
         allEntries={allEntries}
@@ -67,7 +60,7 @@ describe("ReferenceViewerPageView", () => {
   });
 
   it("タイトルが表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -80,7 +73,7 @@ describe("ReferenceViewerPageView", () => {
   });
 
   it("日本語で表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -93,7 +86,7 @@ describe("ReferenceViewerPageView", () => {
   });
 
   it("形式表記がKaTeXでレンダリングされる", () => {
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -106,7 +99,7 @@ describe("ReferenceViewerPageView", () => {
   });
 
   it("形式表記がない場合は数式欄を表示しない", () => {
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={makeEntry({ formalNotation: undefined })}
         allEntries={[makeEntry()]}
@@ -118,7 +111,7 @@ describe("ReferenceViewerPageView", () => {
   });
 
   it("パンくずが表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -136,7 +129,7 @@ describe("ReferenceViewerPageView", () => {
 
   it("関連エントリがリンクとして表示される", () => {
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={allEntries[0]!}
         allEntries={allEntries}
@@ -153,7 +146,7 @@ describe("ReferenceViewerPageView", () => {
   it("関連エントリクリックでonNavigateが呼ばれ、デフォルト動作が阻止される", () => {
     const onNavigate = vi.fn();
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={allEntries[0]!}
         allEntries={allEntries}
@@ -170,7 +163,7 @@ describe("ReferenceViewerPageView", () => {
   });
 
   it("外部リンクが表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -185,7 +178,7 @@ describe("ReferenceViewerPageView", () => {
   });
 
   it("関連エントリがない場合は関連セクションを表示しない", () => {
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={makeEntry({ relatedEntryIds: [] })}
         allEntries={[makeEntry()]}
@@ -198,7 +191,7 @@ describe("ReferenceViewerPageView", () => {
   });
 
   it("外部リンクがない場合は外部リンクセクションを表示しない", () => {
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={makeEntry({ externalLinks: [] })}
         allEntries={[makeEntry()]}
@@ -211,7 +204,7 @@ describe("ReferenceViewerPageView", () => {
   });
 
   it("本文パラグラフが表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -229,7 +222,7 @@ describe("ReferenceViewerPageView", () => {
       { id: "prop-01", title: "Quest 1" },
       { id: "prop-02", title: "Quest 2" },
     ];
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -248,7 +241,7 @@ describe("ReferenceViewerPageView", () => {
 
   it("関連クエストクリックでonStartQuestが呼ばれる", () => {
     const onStartQuest = vi.fn();
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -263,7 +256,7 @@ describe("ReferenceViewerPageView", () => {
   });
 
   it("関連クエストがない場合はクエストセクションを表示しない", () => {
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -277,7 +270,7 @@ describe("ReferenceViewerPageView", () => {
   });
 
   it("日本語で関連クエストセクションが表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -316,7 +309,7 @@ describe("ReferenceViewerPageView ナビゲーション", () => {
   it("次のエントリへのリンクが表示される", () => {
     const entry = makeEntry({ relatedEntryIds: [], externalLinks: [] });
     const allEntries = [entry, makeNextEntry()];
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={entry}
         allEntries={allEntries}
@@ -332,7 +325,7 @@ describe("ReferenceViewerPageView ナビゲーション", () => {
   it("前のエントリへのリンクが表示される", () => {
     const entry = makeEntry({ relatedEntryIds: [], externalLinks: [] });
     const allEntries = [makePrevEntry(), entry];
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={entry}
         allEntries={allEntries}
@@ -348,7 +341,7 @@ describe("ReferenceViewerPageView ナビゲーション", () => {
   it("前後両方のリンクが表示される", () => {
     const entry = makeEntry({ relatedEntryIds: [], externalLinks: [] });
     const allEntries = [makePrevEntry(), entry, makeNextEntry()];
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={entry}
         allEntries={allEntries}
@@ -362,7 +355,7 @@ describe("ReferenceViewerPageView ナビゲーション", () => {
 
   it("カテゴリ内に1つしかない場合はナビゲーションが非表示", () => {
     const entry = makeEntry({ relatedEntryIds: [], externalLinks: [] });
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={entry}
         allEntries={[entry]}
@@ -378,7 +371,7 @@ describe("ReferenceViewerPageView ナビゲーション", () => {
     const onNavigate = vi.fn();
     const entry = makeEntry({ relatedEntryIds: [], externalLinks: [] });
     const allEntries = [entry, makeNextEntry()];
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={entry}
         allEntries={allEntries}
@@ -395,7 +388,7 @@ describe("ReferenceViewerPageView ナビゲーション", () => {
     const onNavigate = vi.fn();
     const entry = makeEntry({ relatedEntryIds: [], externalLinks: [] });
     const allEntries = [makePrevEntry(), entry];
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={entry}
         allEntries={allEntries}
@@ -411,7 +404,7 @@ describe("ReferenceViewerPageView ナビゲーション", () => {
   it("日本語のナビゲーションラベルが表示される", () => {
     const entry = makeEntry({ relatedEntryIds: [], externalLinks: [] });
     const allEntries = [makePrevEntry(), entry, makeNextEntry()];
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={entry}
         allEntries={allEntries}
@@ -444,7 +437,7 @@ describe("ReferenceViewerNotFound", () => {
 
 describe("ReferenceViewerPageView 追加カバレッジ", () => {
   it("複数の形式表記が表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={makeEntry({ formalNotation: ["\\alpha", "\\beta"] })}
         allEntries={[makeEntry()]}
@@ -458,7 +451,7 @@ describe("ReferenceViewerPageView 追加カバレッジ", () => {
 
   it("testIdなしでも全セクション付きでレンダリングされる", () => {
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={allEntries[0]!}
         allEntries={allEntries}
@@ -476,7 +469,7 @@ describe("ReferenceViewerPageView 追加カバレッジ", () => {
 
   it("日本語で全セクションのラベルが表示される", () => {
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    renderWithAntd(
+    render(
       <ReferenceViewerPageView
         entry={allEntries[0]!}
         allEntries={allEntries}

@@ -1,13 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { ConfigProvider } from "antd";
 import { ProofCollectionPageView } from "./ProofCollectionPageView";
-
-function renderWithAntd(ui: React.ReactElement) {
-  return render(
-    <ConfigProvider button={{ autoInsertSpace: false }}>{ui}</ConfigProvider>,
-  );
-}
 import type { CollectionMessages } from "./ProofCollectionPageView";
 import type { ProofEntry, ProofFolder } from "./proofCollectionState";
 
@@ -61,7 +54,7 @@ const defaultCallbacks = {
 describe("ProofCollectionPageView", () => {
   describe("空状態", () => {
     it("エントリがない場合は空メッセージを表示", () => {
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={[]}
           folders={[]}
@@ -74,7 +67,7 @@ describe("ProofCollectionPageView", () => {
     });
 
     it("空状態のdata-testidが設定される", () => {
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={[]}
           folders={[]}
@@ -90,7 +83,7 @@ describe("ProofCollectionPageView", () => {
   describe("エントリ表示", () => {
     it("エントリ名を表示する", () => {
       const entries = [createTestEntry({ id: "e1", name: "My Proof" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={[]}
@@ -107,7 +100,7 @@ describe("ProofCollectionPageView", () => {
         createTestEntry({ id: "e1", name: "Proof A" }),
         createTestEntry({ id: "e2", name: "Proof B" }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={[]}
@@ -125,7 +118,7 @@ describe("ProofCollectionPageView", () => {
         createTestEntry({ id: "e1", name: "Proof A" }),
         createTestEntry({ id: "e2", name: "Proof B" }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={[]}
@@ -141,7 +134,7 @@ describe("ProofCollectionPageView", () => {
       const entries = [
         createTestEntry({ id: "e1", deductionStyle: "hilbert" }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={[]}
@@ -158,7 +151,7 @@ describe("ProofCollectionPageView", () => {
     it("名前クリックで編集モードに入り、Enter確定でonRenameEntryが呼ばれる", () => {
       const onRename = vi.fn();
       const entries = [createTestEntry({ id: "e1", name: "Old Name" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={[]}
@@ -180,7 +173,7 @@ describe("ProofCollectionPageView", () => {
     it("空の名前では確定しない", () => {
       const onRename = vi.fn();
       const entries = [createTestEntry({ id: "e1", name: "Old Name" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={[]}
@@ -203,7 +196,7 @@ describe("ProofCollectionPageView", () => {
     it("メモクリックで編集モードに入り、blur確定でonUpdateMemoが呼ばれる", () => {
       const onUpdateMemo = vi.fn();
       const entries = [createTestEntry({ id: "e1", memo: "" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={[]}
@@ -226,7 +219,7 @@ describe("ProofCollectionPageView", () => {
     it("削除ボタンでonRemoveEntryが呼ばれる", () => {
       const onRemove = vi.fn();
       const entries = [createTestEntry({ id: "e1" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={[]}
@@ -244,7 +237,7 @@ describe("ProofCollectionPageView", () => {
 
   describe("フォルダ管理", () => {
     it("フォルダ作成ボタンを表示する", () => {
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={[]}
           folders={[]}
@@ -258,7 +251,7 @@ describe("ProofCollectionPageView", () => {
     });
 
     it("フォルダ作成ボタンクリックで入力フィールドが表示される", () => {
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={[]}
           folders={[]}
@@ -274,7 +267,7 @@ describe("ProofCollectionPageView", () => {
 
     it("フォルダ作成入力でEnter確定するとonCreateFolderが呼ばれる", () => {
       const onCreateFolder = vi.fn();
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={[]}
           folders={[]}
@@ -293,7 +286,7 @@ describe("ProofCollectionPageView", () => {
 
     it("フォルダ作成入力で空文字名をEnter確定してもonCreateFolderが呼ばれない", () => {
       const onCreateFolder = vi.fn();
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={[]}
           folders={[]}
@@ -314,7 +307,7 @@ describe("ProofCollectionPageView", () => {
       const onMoveEntry = vi.fn();
       const folders = [createTestFolder({ id: "f1", name: "Folder" })];
       const entries = [createTestEntry({ id: "e1", folderId: "f1" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={folders}
@@ -336,7 +329,7 @@ describe("ProofCollectionPageView", () => {
       const entries = [
         createTestEntry({ id: "e1", folderId: "f1", name: "In Folder" }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={folders}
@@ -353,7 +346,7 @@ describe("ProofCollectionPageView", () => {
       const entries = [
         createTestEntry({ id: "e1", folderId: "f1", name: "In Folder" }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={folders}
@@ -375,7 +368,7 @@ describe("ProofCollectionPageView", () => {
     it("フォルダ名前変更ボタンで編集モードに入る", () => {
       const onRenameFolder = vi.fn();
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={[]}
           folders={folders}
@@ -396,7 +389,7 @@ describe("ProofCollectionPageView", () => {
     it("フォルダ削除ボタンでonRemoveFolderが呼ばれる", () => {
       const onRemoveFolder = vi.fn();
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={[]}
           folders={folders}
@@ -416,7 +409,7 @@ describe("ProofCollectionPageView", () => {
         createTestEntry({ id: "e1", folderId: "f1", name: "In Folder" }),
         createTestEntry({ id: "e2", folderId: undefined, name: "Root Entry" }),
       ];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={folders}
@@ -436,7 +429,7 @@ describe("ProofCollectionPageView", () => {
       const onMoveEntry = vi.fn();
       const folders = [createTestFolder({ id: "f1", name: "Folder" })];
       const entries = [createTestEntry({ id: "e1", folderId: undefined })];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={folders}
@@ -455,7 +448,7 @@ describe("ProofCollectionPageView", () => {
       const onMoveEntry = vi.fn();
       const folders = [createTestFolder({ id: "f1", name: "Folder" })];
       const entries = [createTestEntry({ id: "e1", folderId: undefined })];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={folders}
@@ -475,7 +468,7 @@ describe("ProofCollectionPageView", () => {
     it("名前編集中にEscapeで元の値に戻る", () => {
       const onRename = vi.fn();
       const entries = [createTestEntry({ id: "e1", name: "Old Name" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={entries}
           folders={[]}
@@ -498,7 +491,7 @@ describe("ProofCollectionPageView", () => {
     it("フォルダ名編集中にblurで空文字の場合はonRenameFolderが呼ばれない", () => {
       const onRenameFolder = vi.fn();
       const folders = [createTestFolder({ id: "f1", name: "My Folder" })];
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={[]}
           folders={folders}
@@ -517,7 +510,7 @@ describe("ProofCollectionPageView", () => {
 
     it("フォルダ作成入力でblurするとキャンセルされる", () => {
       const onCreateFolder = vi.fn();
-      renderWithAntd(
+      render(
         <ProofCollectionPageView
           entries={[]}
           folders={[]}

@@ -1,8 +1,8 @@
 import "katex/dist/katex.min.css";
 import "../src/app/globals.css";
 import type { Decorator, Preview } from "@storybook/nextjs-vite";
-import React, { useEffect, useRef, useMemo } from "react";
-import { ConfigProvider, theme as antTheme } from "antd";
+import React, { useEffect, useRef } from "react";
+import { ThemeProvider } from "../src/lib/theme/ThemeProvider";
 
 const THEME_TOOLBAR_ITEMS = [
   { value: "light", icon: "sun", title: "Light" },
@@ -72,48 +72,6 @@ function TestIdStripper({ children }: { readonly children: React.ReactNode }) {
 }
 
 /**
- * Ant Design theme wrapper for Storybook.
- * Provides ConfigProvider with appropriate algorithm based on resolved theme.
- */
-function AntThemeWrapper({
-  resolvedTheme,
-  children,
-}: {
-  readonly resolvedTheme: "light" | "dark";
-  readonly children: React.ReactNode;
-}) {
-  const themeConfig = useMemo(
-    () => ({
-      algorithm:
-        resolvedTheme === "dark"
-          ? antTheme.darkAlgorithm
-          : antTheme.defaultAlgorithm,
-      token: {
-        colorPrimary: resolvedTheme === "dark" ? "#fafafa" : "#171717",
-        colorBgContainer: resolvedTheme === "dark" ? "#0a0a0a" : "#ffffff",
-        colorText: resolvedTheme === "dark" ? "#e0e0e0" : "#171717",
-        colorTextSecondary: resolvedTheme === "dark" ? "#999999" : "#666666",
-        colorBorder: resolvedTheme === "dark" ? "#262626" : "#e5e5e5",
-        colorBgElevated: resolvedTheme === "dark" ? "#1e1e2e" : "#ffffff",
-        colorError: resolvedTheme === "dark" ? "#ff6b6b" : "#e06060",
-        colorSuccess: resolvedTheme === "dark" ? "#4ad97a" : "#2ecc71",
-        colorWarning: resolvedTheme === "dark" ? "#e0a05a" : "#d9944a",
-        borderRadius: 8,
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      },
-    }),
-    [resolvedTheme],
-  );
-
-  return React.createElement(
-    ConfigProvider,
-    { theme: themeConfig, button: { autoInsertSpace: false } },
-    children,
-  );
-}
-
-/**
  * Theme decorator that sets data-theme attribute on a wrapper div.
  * For "side-by-side" mode, renders the story twice (light + dark) in a flex container.
  * The dark pane's data-testid attributes are stripped to prevent duplicate testid conflicts
@@ -171,11 +129,7 @@ const withTheme: Decorator = (Story, context) => {
             },
             "Light",
           ),
-        React.createElement(
-          AntThemeWrapper,
-          { resolvedTheme: "light" },
-          React.createElement(Story),
-        ),
+        React.createElement(ThemeProvider, null, React.createElement(Story)),
       ),
       React.createElement(
         "div",
@@ -197,16 +151,13 @@ const withTheme: Decorator = (Story, context) => {
             "Dark",
           ),
         React.createElement(
-          AntThemeWrapper,
-          { resolvedTheme: "dark" },
+          ThemeProvider,
+          null,
           React.createElement(TestIdStripper, null, React.createElement(Story)),
         ),
       ),
     );
   }
-
-  const resolvedTheme =
-    theme === "dark" ? ("dark" as const) : ("light" as const);
 
   return React.createElement(
     "div",
@@ -225,11 +176,7 @@ const withTheme: Decorator = (Story, context) => {
             padding: "16px",
           },
     },
-    React.createElement(
-      AntThemeWrapper,
-      { resolvedTheme },
-      React.createElement(Story),
-    ),
+    React.createElement(ThemeProvider, null, React.createElement(Story)),
   );
 };
 

@@ -9,7 +9,7 @@
 
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { Button } from "antd";
+import { UiButton } from "../../components/ui";
 import katex from "katex";
 import type { Locale, ReferenceEntry } from "./referenceEntry";
 import { buildModalData } from "./referenceUILogic";
@@ -311,11 +311,11 @@ export function ReferenceModal({
                   : undefined
               }
             >
-              <Button type="text" size="small">
+              <UiButton type="text" size="small">
                 ↗
-              </Button>
+              </UiButton>
             </a>
-            <Button
+            <UiButton
               type="text"
               size="small"
               onClick={onClose}
@@ -327,7 +327,7 @@ export function ReferenceModal({
               }
             >
               ✕
-            </Button>
+            </UiButton>
           </div>
         </div>
 
@@ -369,7 +369,7 @@ export function ReferenceModal({
               <div>
                 {data.relatedEntries.map((related) => (
                   <span key={related.id} style={relatedItemWrapperStyle}>
-                    <Button
+                    <UiButton
                       size="small"
                       onClick={() => {
                         handleRelatedClick(related.id);
@@ -381,7 +381,7 @@ export function ReferenceModal({
                       }
                     >
                       {related.title}
-                    </Button>
+                    </UiButton>
                   </span>
                 ))}
               </div>
@@ -399,7 +399,7 @@ export function ReferenceModal({
                 <div>
                   {relatedQuests.map((quest) => (
                     <span key={quest.id} style={questItemWrapperStyle}>
-                      <Button
+                      <UiButton
                         size="small"
                         type="primary"
                         onClick={() => {
@@ -414,7 +414,7 @@ export function ReferenceModal({
                         /* v8 ignore stop */
                       >
                         {quest.title}
-                      </Button>
+                      </UiButton>
                     </span>
                   ))}
                 </div>

@@ -9,7 +9,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import type { CSSProperties } from "react";
-import { Button } from "antd";
+import { UiButton } from "../../components/ui";
 import type { ReferenceEntry, Locale } from "./referenceEntry";
 import { ReferenceModal, type RelatedQuestInfo } from "./ReferenceModal";
 import {
@@ -445,7 +445,7 @@ export function ReferenceBrowserComponent({
       {/* Category filter badges */}
       <div style={categoryWrapStyle}>
         {categoryBadges.map((badge) => (
-          <Button
+          <UiButton
             key={badge.id}
             type={badge.isSelected ? "primary" : "default"}
             shape="round"
@@ -463,7 +463,7 @@ export function ReferenceBrowserComponent({
           >
             {badge.label}
             <span style={badgeCountStyle}>({badge.count})</span>
-          </Button>
+          </UiButton>
         ))}
       </div>
 

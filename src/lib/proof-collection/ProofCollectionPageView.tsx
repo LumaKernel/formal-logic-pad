@@ -19,7 +19,7 @@ import {
   useRef,
   useEffect,
 } from "react";
-import { Button } from "antd";
+import { UiButton } from "../../components/ui";
 import type {
   ProofEntry,
   ProofEntryId,
@@ -446,7 +446,7 @@ function CollectionEntryCard({
             ))}
           </select>
         )}
-        <Button
+        <UiButton
           size="small"
           danger
           onClick={() => onRemove(entry.id)}
@@ -459,7 +459,7 @@ function CollectionEntryCard({
           }
         >
           {messages.collectionDelete}
-        </Button>
+        </UiButton>
       </div>
     </div>
   );
@@ -605,7 +605,7 @@ function FolderSection({
           )}
         </span>
         <span style={folderActionsStyle}>
-          <Button
+          <UiButton
             size="small"
             type="text"
             onClick={(e) => {
@@ -621,9 +621,9 @@ function FolderSection({
             }
           >
             {messages.collectionFolderRename}
-          </Button>
+          </UiButton>
           {onRemoveFolder !== undefined && (
-            <Button
+            <UiButton
               size="small"
               type="text"
               danger
@@ -640,7 +640,7 @@ function FolderSection({
               }
             >
               {messages.collectionFolderDelete}
-            </Button>
+            </UiButton>
           )}
         </span>
       </div>
@@ -861,7 +861,7 @@ export function ProofCollectionPageView({
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {onCreateFolder !== undefined &&
             panelState.creatingFolder === undefined && (
-              <Button
+              <UiButton
                 size="small"
                 onClick={handleStartCreateFolder}
                 data-testid={
@@ -873,7 +873,7 @@ export function ProofCollectionPageView({
                 }
               >
                 {messages.collectionCreateFolder}
-              </Button>
+              </UiButton>
             )}
         </div>
       </div>

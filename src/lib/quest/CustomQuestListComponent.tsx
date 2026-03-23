@@ -9,7 +9,7 @@
  */
 
 import { useState, useRef, useEffect, type CSSProperties } from "react";
-import { Button } from "antd";
+import { UiButton } from "../../components/ui";
 import { FormulaListEditor } from "../formula-input/FormulaListEditor";
 import type { QuestCatalogItem } from "./questCatalog";
 import type {
@@ -593,7 +593,7 @@ function CustomQuestEditForm({
 
         {/* ボタン */}
         <div style={editActionsStyle}>
-          <Button
+          <UiButton
             data-testid="edit-cancel-btn"
             size="small"
             onClick={(e) => {
@@ -602,15 +602,15 @@ function CustomQuestEditForm({
             }}
           >
             キャンセル
-          </Button>
-          <Button
+          </UiButton>
+          <UiButton
             htmlType="submit"
             data-testid="edit-save-btn"
             type="primary"
             size="small"
           >
             保存
-          </Button>
+          </UiButton>
         </div>
       </form>
     </div>
@@ -832,7 +832,7 @@ function CustomQuestCreateForm({
 
         {/* ボタン */}
         <div style={editActionsStyle}>
-          <Button
+          <UiButton
             data-testid="create-cancel-btn"
             size="small"
             onClick={(e) => {
@@ -841,15 +841,15 @@ function CustomQuestCreateForm({
             }}
           >
             キャンセル
-          </Button>
-          <Button
+          </UiButton>
+          <UiButton
             htmlType="submit"
             data-testid="create-save-btn"
             type="primary"
             size="small"
           >
             作成
-          </Button>
+          </UiButton>
         </div>
       </form>
     </div>
@@ -978,7 +978,7 @@ function CustomQuestItem({
         </div>
         <RatingBadge rating={item.rating} />
         <div style={actionGroupStyle}>
-          <Button
+          <UiButton
             data-testid={`custom-quest-start-btn-${item.quest.id satisfies string}`}
             type="primary"
             size="small"
@@ -990,9 +990,9 @@ function CustomQuestItem({
             style={{ flexShrink: 0 }}
           >
             {item.completed ? "再挑戦" : "開始"}
-          </Button>
+          </UiButton>
           {onEdit !== undefined && (
-            <Button
+            <UiButton
               data-testid={`custom-quest-edit-btn-${item.quest.id satisfies string}`}
               size="small"
               onClick={(e) => {
@@ -1002,10 +1002,10 @@ function CustomQuestItem({
               title="編集"
             >
               編集
-            </Button>
+            </UiButton>
           )}
           {hasShareActions && (
-            <Button
+            <UiButton
               data-testid={`custom-quest-share-btn-${item.quest.id satisfies string}`}
               size="small"
               onClick={(e) => {
@@ -1015,10 +1015,10 @@ function CustomQuestItem({
               title="共有"
             >
               共有
-            </Button>
+            </UiButton>
           )}
           {onDuplicate !== undefined && (
-            <Button
+            <UiButton
               data-testid={`custom-quest-duplicate-btn-${item.quest.id satisfies string}`}
               size="small"
               onClick={(e) => {
@@ -1028,10 +1028,10 @@ function CustomQuestItem({
               title="複製"
             >
               複製
-            </Button>
+            </UiButton>
           )}
           {onDelete !== undefined && (
-            <Button
+            <UiButton
               data-testid={`custom-quest-delete-btn-${item.quest.id satisfies string}`}
               size="small"
               danger
@@ -1042,7 +1042,7 @@ function CustomQuestItem({
               title="削除"
             >
               削除
-            </Button>
+            </UiButton>
           )}
         </div>
         {isShareOpen && (
@@ -1053,32 +1053,32 @@ function CustomQuestItem({
           >
             <span style={sharePanelTitleStyle}>共有</span>
             {onExport !== undefined && (
-              <Button
+              <UiButton
                 data-testid={`custom-quest-share-export-btn-${item.quest.id satisfies string}`}
                 size="small"
                 onClick={handleShareExport}
               >
                 JSONエクスポート
-              </Button>
+              </UiButton>
             )}
             {onShareUrl !== undefined && (
-              <Button
+              <UiButton
                 data-testid={`custom-quest-share-url-btn-${item.quest.id satisfies string}`}
                 size="small"
                 type={urlCopied ? "primary" : "default"}
                 onClick={handleShareUrl}
               >
                 {urlCopied ? "コピーしました!" : "URLをコピー"}
-              </Button>
+              </UiButton>
             )}
-            <Button
+            <UiButton
               data-testid={`custom-quest-share-close-btn-${item.quest.id satisfies string}`}
               size="small"
               type="text"
               onClick={handleShareClose}
             >
               閉じる
-            </Button>
+            </UiButton>
           </div>
         )}
         {isDeleteConfirming && (
@@ -1088,14 +1088,14 @@ function CustomQuestItem({
             onClick={(e) => e.stopPropagation()}
           >
             <span style={deleteConfirmTextStyle}>本当に削除しますか？</span>
-            <Button
+            <UiButton
               data-testid={`custom-quest-delete-cancel-btn-${item.quest.id satisfies string}`}
               size="small"
               onClick={handleDeleteCancel}
             >
               キャンセル
-            </Button>
-            <Button
+            </UiButton>
+            <UiButton
               data-testid={`custom-quest-delete-confirm-btn-${item.quest.id satisfies string}`}
               size="small"
               danger
@@ -1103,7 +1103,7 @@ function CustomQuestItem({
               onClick={handleDeleteConfirm}
             >
               削除する
-            </Button>
+            </UiButton>
           </div>
         )}
       </div>
@@ -1198,7 +1198,7 @@ function CustomQuestImportForm({
           />
         </div>
         <div style={editActionsStyle}>
-          <Button
+          <UiButton
             data-testid="import-cancel-btn"
             size="small"
             onClick={(e) => {
@@ -1207,8 +1207,8 @@ function CustomQuestImportForm({
             }}
           >
             キャンセル
-          </Button>
-          <Button
+          </UiButton>
+          <UiButton
             htmlType="submit"
             data-testid="import-submit-btn"
             type="primary"
@@ -1216,7 +1216,7 @@ function CustomQuestImportForm({
             disabled={jsonText.trim() === ""}
           >
             インポート
-          </Button>
+          </UiButton>
         </div>
       </form>
     </div>
@@ -1279,23 +1279,23 @@ export function CustomQuestList({
             {customQuestProgressText(completedCount, totalCount)}
           </div>
           {onImportQuest !== undefined && (
-            <Button
+            <UiButton
               data-testid="custom-quest-import-btn"
               size="small"
               onClick={handleToggleImport}
             >
               {isImporting ? "閉じる" : "インポート"}
-            </Button>
+            </UiButton>
           )}
           {onCreateQuest !== undefined && (
-            <Button
+            <UiButton
               data-testid="custom-quest-create-btn"
               type="primary"
               size="small"
               onClick={handleToggleCreate}
             >
               {isCreating ? "閉じる" : "新規作成"}
-            </Button>
+            </UiButton>
           )}
         </div>
       </div>

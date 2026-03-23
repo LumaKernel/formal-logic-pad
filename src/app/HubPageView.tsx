@@ -15,7 +15,7 @@ import {
   useMemo,
   type CSSProperties,
 } from "react";
-import { Tabs, Button } from "antd";
+import { UiTabs, UiButton } from "../components/ui";
 import {
   NotebookList,
   NotebookCreateForm,
@@ -819,7 +819,7 @@ export function HubPageView({
       ) : (
         <>
           {/* Tab Bar */}
-          <Tabs
+          <UiTabs
             activeKey={tab}
             onChange={handleAntTabChange}
             items={tabItems}
@@ -831,17 +831,17 @@ export function HubPageView({
             {tab === "notebooks" && view === "list" && (
               <>
                 <div style={actionBarStyle}>
-                  <Button type="primary" onClick={() => setView("create")}>
+                  <UiButton type="primary" onClick={() => setView("create")}>
                     {m.newNotebook}
-                  </Button>
+                  </UiButton>
                   {onImportNotebook !== undefined && (
                     <>
-                      <Button
+                      <UiButton
                         data-testid="import-notebook-btn"
                         onClick={() => importFileRef.current?.click()}
                       >
                         {m.importNotebook}
-                      </Button>
+                      </UiButton>
                       <input
                         ref={importFileRef}
                         type="file"
@@ -892,9 +892,12 @@ export function HubPageView({
                     <div style={emptyStateStyle}>
                       <div style={emptyTitleNoFilterStyle}>{m.emptyTitle}</div>
                       <p style={emptyDescriptionStyle}>{m.emptyDescription}</p>
-                      <Button type="primary" onClick={() => setView("create")}>
+                      <UiButton
+                        type="primary"
+                        onClick={() => setView("create")}
+                      >
                         {m.newNotebook}
-                      </Button>
+                      </UiButton>
                     </div>
                   )
                 ) : (

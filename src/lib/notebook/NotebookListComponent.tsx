@@ -14,9 +14,8 @@ import {
   useMemo,
   type CSSProperties,
 } from "react";
-import { Button, Menu } from "antd";
-import { EllipsisOutlined } from "@ant-design/icons";
-import type { MenuProps } from "antd";
+import { UiButton, UiMenu, type UiMenuItem } from "../../components/ui";
+import { EllipsisOutlined } from "../../components/ui/UiIcons";
 import type { NotebookListItem } from "./notebookListLogic";
 import { validateNotebookName, questProgressText } from "./notebookListLogic";
 
@@ -175,7 +174,7 @@ function MoreMenu({
   onOpenChange,
 }: {
   readonly itemId: string;
-  readonly menuItems: MenuProps["items"];
+  readonly menuItems: readonly UiMenuItem[];
   readonly onOpenChange?: (open: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -207,7 +206,7 @@ function MoreMenu({
       style={moreMenuContainerStyle}
       onClick={(e) => e.stopPropagation()}
     >
-      <Button
+      <UiButton
         data-testid={`more-btn-${itemId satisfies string}`}
         icon={<EllipsisOutlined />}
         type="text"
@@ -223,7 +222,7 @@ function MoreMenu({
           style={dropdownStyle}
           onClick={() => updateOpen(false)}
         >
-          <Menu
+          <UiMenu
             items={menuItems}
             selectable={false}
             style={{
@@ -357,8 +356,8 @@ function NotebookItem({
     onExport?.(item.id);
   };
 
-  const menuItems: MenuProps["items"] = useMemo(() => {
-    const items: NonNullable<MenuProps["items"]> = [
+  const menuItems: readonly UiMenuItem[] = useMemo(() => {
+    const items: UiMenuItem[] = [
       {
         key: "rename",
         label: (
@@ -470,14 +469,14 @@ function NotebookItem({
           onClick={(e) => e.stopPropagation()}
         >
           <span style={deleteMessageStyle}>本当に削除しますか？</span>
-          <Button
+          <UiButton
             data-testid={`delete-cancel-btn-${item.id satisfies string}`}
             size="small"
             onClick={handleDeleteCancel}
           >
             キャンセル
-          </Button>
-          <Button
+          </UiButton>
+          <UiButton
             data-testid={`delete-confirm-btn-${item.id satisfies string}`}
             size="small"
             danger
@@ -485,7 +484,7 @@ function NotebookItem({
             onClick={handleDeleteConfirm}
           >
             削除する
-          </Button>
+          </UiButton>
         </div>
       )}
     </div>

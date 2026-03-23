@@ -9,7 +9,7 @@
  */
 
 import { useMemo, type CSSProperties } from "react";
-import { Button } from "antd";
+import { UiButton } from "../../components/ui";
 import katex from "katex";
 import type { Locale, ReferenceEntry } from "./referenceEntry";
 import { InlineMarkdown } from "./InlineMarkdown";
@@ -422,7 +422,7 @@ function ViewerContent({
                   }
                   style={{ textDecoration: "none" }}
                 >
-                  <Button size="small">{related.title}</Button>
+                  <UiButton size="small">{related.title}</UiButton>
                 </a>
               </span>
             ))}
@@ -441,7 +441,7 @@ function ViewerContent({
             <div>
               {relatedQuests.map((quest) => (
                 <span key={quest.id} style={questItemWrapperStyle}>
-                  <Button
+                  <UiButton
                     size="small"
                     type="primary"
                     onClick={() => {
@@ -456,7 +456,7 @@ function ViewerContent({
                     }
                   >
                     {quest.title}
-                  </Button>
+                  </UiButton>
                 </span>
               ))}
             </div>

@@ -1,14 +1,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { ConfigProvider } from "antd";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ReferenceEntry } from "./referenceEntry";
 import { ReferenceFloatingWindow } from "./ReferenceFloatingWindow";
-
-function renderWithAntd(ui: React.ReactElement) {
-  return render(
-    <ConfigProvider button={{ autoInsertSpace: false }}>{ui}</ConfigProvider>,
-  );
-}
 
 afterEach(cleanup);
 
@@ -52,7 +45,7 @@ const makeRelatedEntry = (): ReferenceEntry =>
 describe("ReferenceFloatingWindow", () => {
   it("ウィンドウが表示される", () => {
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={allEntries[0]!}
         allEntries={allEntries}
@@ -66,7 +59,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("タイトルバーにタイトルが表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -80,7 +73,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("カテゴリバッジが表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -94,7 +87,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("日本語で表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -109,7 +102,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("形式表記が表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -123,7 +116,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("形式表記がない場合は表示されない", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry({ formalNotation: undefined })}
         allEntries={[makeEntry()]}
@@ -137,7 +130,7 @@ describe("ReferenceFloatingWindow", () => {
 
   it("閉じるボタンでonCloseが呼ばれる", () => {
     const handleClose = vi.fn();
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -151,7 +144,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("新規タブで開くリンクが正しいhrefを持つ", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -167,7 +160,7 @@ describe("ReferenceFloatingWindow", () => {
 
   it("関連エントリがボタンとして表示される", () => {
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={allEntries[0]!}
         allEntries={allEntries}
@@ -184,7 +177,7 @@ describe("ReferenceFloatingWindow", () => {
   it("関連エントリクリックでonNavigateが呼ばれる", () => {
     const handleNavigate = vi.fn();
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={allEntries[0]!}
         allEntries={allEntries}
@@ -199,7 +192,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("外部リンクが表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -214,7 +207,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("関連クエストが表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -231,7 +224,7 @@ describe("ReferenceFloatingWindow", () => {
 
   it("関連クエストクリックでonStartQuestが呼ばれる", () => {
     const handleStartQuest = vi.fn();
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -247,7 +240,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("リサイズハンドルが存在する", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -260,7 +253,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("role=dialogが設定されている", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -275,7 +268,7 @@ describe("ReferenceFloatingWindow", () => {
 
   it("testIdなしでもレンダリングされる", () => {
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={allEntries[0]!}
         allEntries={allEntries}
@@ -292,7 +285,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("複数の形式表記が表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry({ formalNotation: ["\\alpha", "\\beta"] })}
         allEntries={[makeEntry()]}
@@ -306,7 +299,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("関連エントリがない場合は関連セクションを表示しない", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry({ relatedEntryIds: [] })}
         allEntries={[makeEntry()]}
@@ -320,7 +313,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("外部リンクがない場合は外部リンクセクションを表示しない", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry({ externalLinks: [] })}
         allEntries={[makeEntry()]}
@@ -334,7 +327,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("ナビゲーションデータがあるとprev/nextが表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -366,7 +359,7 @@ describe("ReferenceFloatingWindow", () => {
 
   it("ナビゲーションのprevクリックでonNavigateが呼ばれる", () => {
     const handleNavigate = vi.fn();
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -390,7 +383,7 @@ describe("ReferenceFloatingWindow", () => {
 
   it("ナビゲーションのnextクリックでonNavigateが呼ばれる", () => {
     const handleNavigate = vi.fn();
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -413,7 +406,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("ナビゲーションデータがundefinedならナビが非表示", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -426,7 +419,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("prev/next両方undefinedならナビが非表示", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -440,7 +433,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("日本語ナビゲーションラベルが表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -469,7 +462,7 @@ describe("ReferenceFloatingWindow", () => {
 
   it("日本語で全セクションが表示される", () => {
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={allEntries[0]!}
         allEntries={allEntries}
@@ -493,7 +486,7 @@ describe("ReferenceFloatingWindow", () => {
 
   it("entry未指定でブラウズモードが表示される", () => {
     const allEntries = [makeEntry(), makeRelatedEntry()];
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         allEntries={allEntries}
         locale="en"
@@ -511,7 +504,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("ブラウズモードで日本語タイトルが表示される", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         allEntries={[makeEntry()]}
         locale="ja"
@@ -524,7 +517,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("ブラウズモードでは新規タブリンクが表示されない", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         allEntries={[makeEntry()]}
         locale="en"
@@ -537,7 +530,7 @@ describe("ReferenceFloatingWindow", () => {
 
   it("詳細モードでonNavigateHomeがあるとホームボタンが表示される", () => {
     const handleHome = vi.fn();
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -554,7 +547,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("詳細モードでonNavigateHomeがないとホームボタンが表示されない", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -567,7 +560,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("ブラウズモードではホームボタンが表示されない", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         allEntries={[makeEntry()]}
         locale="en"
@@ -580,7 +573,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("onNavigate未指定時にprevクリックしてもエラーにならない", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
@@ -604,7 +597,7 @@ describe("ReferenceFloatingWindow", () => {
   });
 
   it("onNavigate未指定時にnextクリックしてもエラーにならない", () => {
-    renderWithAntd(
+    render(
       <ReferenceFloatingWindow
         entry={makeEntry()}
         allEntries={[makeEntry()]}
