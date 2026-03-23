@@ -17243,3 +17243,11 @@
 - **今後のイテレーションへの学び:**
   - document.addEventListenerで登録するハンドラ内のロジック（click outside, Escape閉じ）はunit testで到達困難。Storybookで検証しv8 ignoreで除外するのが適切
 ---
+
+## 2026-03-23 - カバレッジ改善（TrashManagementPanel backdrop click v8 ignore）
+- TrashManagementPanel.tsx: 確認ダイアログのbackdrop click（e.target === e.currentTarget）にv8 ignore追加
+- ベースライン: Stmts 99.90%, Branch 99.11%, Funcs 90.20%, Lines 99.96%
+- 結果: Stmts 99.91%, Branch 99.12%, Funcs 90.20%, Lines 99.97%
+- 変更ファイル:
+  - src/lib/trash/TrashManagementPanel.tsx（v8 ignore 追加のみ）
+---
