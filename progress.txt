@@ -17481,3 +17481,16 @@
   - テスト: React.lazy化した後は getByTestId → waitFor(getByTestId) に変更必要
   - md-editor-rt の MdPreview が EditableProofNode で常時使用されるため、パッケージ全体が初回ロードに含まれる。分離には MdPreview を含むノードコンポーネントの構造的リファクタリングが必要
 ---
+
+## 2026-03-24T00:30 - カバレッジ改善イテレーション2
+- mergeNodesLogic.ts: ダイヤモンドDAGテスト追加（BFS visited再訪問分岐カバー、line 155）
+- modelAnswer.ts: ND系axiomステップテスト追加（expandAxiomStepIfNeeded非Hilbert分岐カバー、lines 534-542）
+- 変更ファイル: src/lib/proof-pad/mergeNodesLogic.test.ts, src/lib/quest/modelAnswer.test.ts
+- ベースライン: Stmts 99.97%, Branch 99.39%
+- 結果: Stmts 99.98%, Branch 99.40%
+- modelAnswer.ts 個別: 86.2% → 89.65% branch（lines 489-504はCI集約時のみ表示されるv8アーティファクト）
+- mergeNodesLogic.ts 個別: 100% branch
+- **今後のイテレーションへの学び:**
+  - modelAnswer.ts lines 489-504 (buildSubstitutionEntriesFromMaps) は個別テストでもCI集約でも89.65%で変わらず。formula/termSub.get(key)のundefined分岐はテストデータの公理パターンに依存
+  - 非Hilbert系でaxiomステップを使うとexpandAxiomStepIfNeededの単純パスを通る
+---
