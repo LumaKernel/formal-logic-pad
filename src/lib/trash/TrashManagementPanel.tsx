@@ -328,9 +328,11 @@ export function TrashManagementPanel({
           style={confirmOverlayStyle}
           data-testid="trash-confirm-empty-dialog"
           onClick={(e) => {
+            /* v8 ignore start — backdrop click: Storybook で検証 */
             if (e.target === e.currentTarget) {
               setConfirmEmpty(false);
             }
+            /* v8 ignore stop */
           }}
         >
           <div style={confirmCardStyle}>
