@@ -17284,3 +17284,20 @@
 - 変更ファイル:
   - src/lib/trash/TrashManagementPanel.tsx（v8 ignore 追加のみ）
 ---
+
+## 2026-03-23 - 演繹定理ドキュメント＋明示的実装テンプレート
+- dev/logic-reference/08-deduction-theorem.md: 演繹定理の構成的証明アルゴリズム解説ドキュメント作成
+  - 4ケース（仮定一致→恒等証明、公理→A1+MP、MP→A2+MP×2、Gen→Gen+A5+MP）
+  - 具体例（三段論法の変換）、計算量分析、逆演繹定理
+  - スクリプトAPIを使った完全な実装コード付き
+- src/lib/script-runner/templates.ts: deduction-theorem-explicit テンプレート追加
+  - 組込み applyDeductionTheorem を使わず A1/A2/MP で手動構築
+  - 各ケースのログ出力で変換過程を可視化
+- テスト更新: templates.test.ts のテンプレート数カウント更新（20→21, 10→11）
+- ベースライン: Stmts 99.91%, Branch 99.17%, Funcs 90.2%, Lines 99.97%
+- 追加APIは不要だった（既存のparseFormula/substituteFormula/equalFormula + ProofNodeJson手動構築で完結）
+- **今後のイテレーションへの学び:**
+  - substituteFormula のキーは metaVariableKey 形式の Unicode 文字（φ, ψ, χ）
+  - ProofNodeJson は opaque branded type だが、sandbox では plain JSON object として構築・アクセス可能
+  - テンプレート文字列内で Unicode エスケープ `\u03c6` を使う場合、バッククォート内では `\\u03c6` と書く（TypeScript が先に解釈するため）
+---
