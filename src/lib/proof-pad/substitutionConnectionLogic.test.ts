@@ -277,6 +277,59 @@ describe("substitutionConnectionLogic", () => {
       // 双方向にパスがあるので、どちらの向きでもサイクル → 除外
       expect(compatible.has("node-2")).toBe(false);
     });
+
+    it("ダイヤモンドDAGでBFS visited分岐を通過", () => {
+      // node-1: P(a) → P(a)（ソース）
+      // node-2: P(b) → P(b)（ターゲット候補 — node-1と項変数代入関係あり）
+      // node-3, node-4: 中間ノード
+      // node-5: 合流ノード
+      // エッジ: node-2→node-3, node-2→node-4, node-3→node-5, node-4→node-5（ダイヤモンド）
+      // BFSでnode-5に2つのパスから到達 → visited.has(node-5) → continue を通過
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "P(a) -> P(a)");
+      ws = addNode(ws, "axiom", "", { x: 100, y: 0 }, "P(b) -> P(b)");
+      ws = addNode(ws, "axiom", "", { x: 200, y: 0 }, "P(c) -> P(c)");
+      ws = addNode(ws, "axiom", "", { x: 300, y: 0 }, "P(d) -> P(d)");
+      ws = addNode(ws, "axiom", "", { x: 400, y: 0 }, "P(e) -> P(e)");
+      // ダイヤモンド: node-2→node-3, node-2→node-4, node-3→node-5, node-4→node-5
+      const diamondEdges: readonly InferenceEdge[] = [
+        {
+          _tag: "substitution-connection",
+          premiseNodeId: "node-2",
+          conclusionNodeId: "node-3",
+          conclusionText: "P(c) -> P(c)",
+        },
+        {
+          _tag: "substitution-connection",
+          premiseNodeId: "node-2",
+          conclusionNodeId: "node-4",
+          conclusionText: "P(d) -> P(d)",
+        },
+        {
+          _tag: "substitution-connection",
+          premiseNodeId: "node-3",
+          conclusionNodeId: "node-5",
+          conclusionText: "P(e) -> P(e)",
+        },
+        {
+          _tag: "substitution-connection",
+          premiseNodeId: "node-4",
+          conclusionNodeId: "node-5",
+          conclusionText: "P(e) -> P(e)",
+        },
+      ];
+      const wsWithEdges = {
+        ...ws,
+        inferenceEdges: [...ws.inferenceEdges, ...diamondEdges],
+      };
+      const compatible = computeSubstitutionConnectionCompatibleNodeIds(
+        wsWithEdges.nodes,
+        "node-1",
+        wsWithEdges.inferenceEdges,
+      );
+      // node-1→node-2方向でサイクルなし（node-2のBFSからnode-1に到達しない）
+      expect(compatible.has("node-2")).toBe(true);
+    });
   });
 
   describe("getSubstitutionConnectionErrorMessage", () => {
