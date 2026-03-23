@@ -17301,3 +17301,18 @@
   - ProofNodeJson は opaque branded type だが、sandbox では plain JSON object として構築・アクセス可能
   - テンプレート文字列内で Unicode エスケープ `\u03c6` を使う場合、バッククォート内では `\\u03c6` と書く（TypeScript が先に解釈するため）
 ---
+
+## 2026-03-23 - 逆演繹定理ドキュメント拡充＋明示的実装テンプレート
+- dev/logic-reference/08-deduction-theorem.md セクション6拡充
+  - 逆演繹定理の意義・アルゴリズム・証明図・具体例・計算量分析
+  - 演繹定理（O(2^n)）との対比で逆方向（O(1)）のシンプルさを強調
+  - 完全なスクリプトコード付き
+- src/lib/script-runner/templates.ts: reverse-deduction-theorem-explicit テンプレート追加
+  - 含意構造の分解とMP適用の各ステップをログ出力
+- テスト更新: templates.test.ts のカウント更新（21→22, 11→12）
+- inserted-tasks.md の演繹定理タスク全完了
+- **今後のイテレーションへの学び:**
+  - 逆演繹定理は定数時間（AxiomNode + ModusPonensNode の2ノード追加のみ）
+  - ProofNodeJson の formula._tag で含意判定可能（Implication チェック）
+  - inserted-tasks.md 全完了 → tasks-archived/ へのアーカイブ対象
+---

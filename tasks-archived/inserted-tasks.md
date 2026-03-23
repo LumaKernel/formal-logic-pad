@@ -201,3 +201,11 @@
   - 吹き出しアノテーション描画UI統合
   - getNodeState API（ノード内部ステート取得）
   - ログシステムは console.log で実現済み
+- [x] 演繹定理、その逆について、組込みでやらずに明示的にやるパターンのスクリプトも用意する
+  - 追加APIは不要（既存APIで完結）
+  - [x] 演繹定理の証明と、それをどう実装する場合対応するか、というのを丁寧に解説するドキュメントを用意
+    - dev/logic-reference/08-deduction-theorem.md に作成
+    - 明示的実装スクリプトテンプレート deduction-theorem-explicit も追加
+  - [x] 逆も同様
+    - 08-deduction-theorem.md セクション 6 に詳細解説追加
+    - reverse-deduction-theorem-explicit テンプレート追加
