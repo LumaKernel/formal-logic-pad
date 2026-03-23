@@ -1,5 +1,5 @@
 {
-  "name": "Formal Logic Pad",
+  "name": "Formal Proof Pad",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
@@ -30,8 +30,8 @@
   ],
   "postCreateCommand": "curl -fsSL https://claude.ai/install.sh | bash && bash -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)\" --unattended && npm ci",
   "mounts": [
-    "source=formal-logic-pad-claude-config,target=/home/vscode/.claude,type=volume",
-    "source=formal-logic-pad-claude-json,target=/home/vscode/.claude.json,type=volume"
+    "source=formal-proof-pad-claude-config,target=/home/vscode/.claude,type=volume",
+    "source=formal-proof-pad-claude-json,target=/home/vscode/.claude.json,type=volume"
   ],
   "forwardPorts": [13006],
   "portsAttributes": {

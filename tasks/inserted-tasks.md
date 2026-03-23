@@ -5,4 +5,4 @@
   - [ ] スクリプトに関連する要素(コンポーネントやライブラリ)の遅延ロード
   - [ ] ドキュメントの遅延ロード、Suspense利用?
   - などなど。他にも候補があればまずはタスクリスト化する
-- [ ] formal logic padからformal proof padに名前をもろもろ変更する
+- [-] formal logic padからformal proof padに名前をもろもろ変更する

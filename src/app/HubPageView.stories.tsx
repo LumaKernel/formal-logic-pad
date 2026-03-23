@@ -190,7 +190,7 @@ export const EmptyNotebooks: Story = {
     const canvas = within(canvasElement);
     // ヒーローメッセージの確認
     await expect(canvas.getByText("No notebooks yet")).toBeInTheDocument();
-    await expect(canvas.getByText("Formal Logic Pad")).toBeInTheDocument();
+    await expect(canvas.getByText("Formal Proof Pad")).toBeInTheDocument();
     // タブが表示されている
     await expect(canvas.getByText("Notebooks")).toBeInTheDocument();
     await expect(canvas.getByText("Quests")).toBeInTheDocument();
@@ -687,7 +687,7 @@ export const Landing: Story = {
     // ランディングページが表示される
     await expect(canvas.getByTestId("landing-page")).toBeInTheDocument();
     // タイトルが表示される（ヘッダーとランディングの両方に存在）
-    const titles = canvas.getAllByText("Formal Logic Pad");
+    const titles = canvas.getAllByText("Formal Proof Pad");
     await expect(titles.length).toBeGreaterThanOrEqual(2);
     // クイッククエストセクションが目立つ位置に表示される
     await expect(

@@ -696,7 +696,7 @@ export function HubPageView({
             />
             <circle cx="23" cy="16" r="1.5" fill="currentColor" opacity="0.5" />
           </svg>
-          Formal Logic Pad
+          Formal Proof Pad
         </span>
         <div style={headerActionsStyle}>
           {languageToggle ? (
@@ -707,7 +707,7 @@ export function HubPageView({
           ) : null}
           <ThemeToggle labels={themeLabels} />
           <a
-            href="https://github.com/LumaKernel/formal-logic-pad"
+            href="https://github.com/LumaKernel/formal-proof-pad"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub"

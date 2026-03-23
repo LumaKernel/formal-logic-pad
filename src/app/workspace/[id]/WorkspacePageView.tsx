@@ -451,7 +451,7 @@ function WorkspacePageViewFound({
           ) : null}
           <ThemeToggle labels={themeLabels} />
           <a
-            href="https://github.com/LumaKernel/formal-logic-pad"
+            href="https://github.com/LumaKernel/formal-proof-pad"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub"

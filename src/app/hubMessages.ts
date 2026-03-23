@@ -111,7 +111,7 @@ export const defaultHubMessages: HubMessages = {
   sharedQuestCancel: "Cancel",
   sharedQuestMeta:
     "{systemPresetId} | {goalCount} goal(s) | est. {estimatedSteps} steps",
-  landingTitle: "Formal Logic Pad",
+  landingTitle: "Formal Proof Pad",
   landingSubtitle: "Interactive Proof Assistant for Formal Logic",
   landingDescription:
     "Explore formal proof systems interactively. Build proofs in Hilbert-style, natural deduction, sequent calculus, and more.",

@@ -1,6 +1,6 @@
-# Formal Logic Pad
+# Formal Proof Pad
 
-[![codecov](https://codecov.io/gh/LumaKernel/formal-logic-pad/graph/badge.svg)](https://codecov.io/gh/LumaKernel/formal-logic-pad)
+[![codecov](https://codecov.io/gh/LumaKernel/formal-proof-pad/graph/badge.svg)](https://codecov.io/gh/LumaKernel/formal-proof-pad)
 
 [日本語版 README はこちら](./README-ja.md)
 
