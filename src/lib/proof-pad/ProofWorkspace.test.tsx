@@ -5902,8 +5902,10 @@ describe("ProofWorkspace", () => {
         ).toBeInTheDocument();
       });
 
-      // モックエディタが表示される
-      expect(screen.getByTestId("script-editor-mock")).toBeInTheDocument();
+      // モックエディタが表示される（React.lazy による非同期ロード）
+      await waitFor(() => {
+        expect(screen.getByTestId("script-editor-mock")).toBeInTheDocument();
+      });
     });
 
     it("script editor panel can be closed", async () => {

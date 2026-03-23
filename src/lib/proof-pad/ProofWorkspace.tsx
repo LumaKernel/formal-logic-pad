@@ -13,6 +13,8 @@ import { Either } from "effect";
 import type { CSSProperties } from "react";
 import {
   forwardRef,
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -271,8 +273,13 @@ import {
 } from "../infinite-canvas/zoomControls";
 import { useHistory } from "../history/useHistory";
 import { getScriptCode } from "./scriptNode";
-import { ScriptEditorComponent } from "../../components/ScriptEditor/ScriptEditorComponent";
 import type { ScriptEditorMessages } from "../../components/ScriptEditor/scriptEditorMessages";
+
+const LazyScriptEditorComponent = lazy(() =>
+  import("../../components/ScriptEditor/ScriptEditorComponent").then((m) => ({
+    default: m.ScriptEditorComponent,
+  })),
+);
 import {
   type WorkspaceCommandHandler,
   type VisualizationCommandHandler,
@@ -6727,15 +6734,17 @@ export const ProofWorkspace = forwardRef<
             </button>
           </div>
           <div style={{ flex: 1, overflow: "hidden" }}>
-            <ScriptEditorComponent
-              initialCode={scriptEditorInitialCode}
-              height="100%"
-              onCodeChange={handleScriptCodeChange}
-              workspaceCommandHandler={scriptCommandHandler}
-              visualizationCommandHandler={vizCommandHandler}
-              deductionStyle={workspace.deductionSystem.style}
-              messages={scriptEditorMessages}
-            />
+            <Suspense fallback={null}>
+              <LazyScriptEditorComponent
+                initialCode={scriptEditorInitialCode}
+                height="100%"
+                onCodeChange={handleScriptCodeChange}
+                workspaceCommandHandler={scriptCommandHandler}
+                visualizationCommandHandler={vizCommandHandler}
+                deductionStyle={workspace.deductionSystem.style}
+                messages={scriptEditorMessages}
+              />
+            </Suspense>
           </div>
         </div>
       ) : null}
