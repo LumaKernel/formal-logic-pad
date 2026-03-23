@@ -1027,6 +1027,43 @@ describe("wouldMergeCreateLoop", () => {
     // Now: A←B←C←A → cycle!
     expect(wouldMergeCreateLoop("A", ["D"], edges)).toBe(true);
   });
+
+  it("ダイヤモンドDAG: BFS visited 再訪問分岐をカバー", () => {
+    // A→B, A→C, B→D, C→D のダイヤモンドDAG
+    // BFSでDが2回キューに入り、2回目で visited.has(D) → continue
+    const edges: readonly InferenceEdge[] = [
+      {
+        _tag: "gen",
+        conclusionNodeId: "B",
+        premiseNodeId: "A",
+        variableName: "x",
+        conclusionText: "phi",
+      },
+      {
+        _tag: "gen",
+        conclusionNodeId: "C",
+        premiseNodeId: "A",
+        variableName: "y",
+        conclusionText: "psi",
+      },
+      {
+        _tag: "gen",
+        conclusionNodeId: "D",
+        premiseNodeId: "B",
+        variableName: "z",
+        conclusionText: "chi",
+      },
+      {
+        _tag: "gen",
+        conclusionNodeId: "D",
+        premiseNodeId: "C",
+        variableName: "w",
+        conclusionText: "chi",
+      },
+    ];
+    // ループなし（ダイヤモンドだがAに戻らない）
+    expect(wouldMergeCreateLoop("A", [], edges)).toBe(false);
+  });
 });
 
 // --- mergeNodes with loop detection ---

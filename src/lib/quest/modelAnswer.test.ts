@@ -626,6 +626,32 @@ describe("buildModelAnswerWorkspace - ND steps", () => {
   });
 });
 
+describe("buildModelAnswerWorkspace - non-Hilbert axiom step", () => {
+  it("ND系でaxiomステップを使うと単一ノードが生成される（expandAxiomStepIfNeeded非Hilbert分岐）", () => {
+    const quest: QuestDefinition = {
+      ...ndQuest,
+      goals: [{ formulaText: "phi -> phi", label: "Goal" }],
+    };
+    const answer: ModelAnswer = {
+      questId: "nd-test-01",
+      steps: [
+        // ND系でaxiomステップ: non-Hilbert branch (lines 533-542) をカバー
+        { _tag: "axiom", formulaText: "phi -> phi" },
+      ],
+    };
+    const result = buildModelAnswerWorkspace(quest, answer);
+    expect(result._tag).toBe("Ok");
+    if (result._tag !== "Ok") return;
+    // Hilbert系と違い、公理展開（スキーマ+代入エッジ）は行われず、単一ノードになる
+    // axiomノード + goalノード = 2ノード
+    const axiomNodes = result.workspace.nodes.filter(
+      (n) => n.kind === "axiom",
+    );
+    expect(axiomNodes.length).toBe(1);
+    expect(axiomNodes[0]?.formulaText).toBe("phi -> phi");
+  });
+});
+
 describe("buildModelAnswerWorkspace - note step", () => {
   it("ノートステップでノートノードが作成される", () => {
     const answer: ModelAnswer = {
