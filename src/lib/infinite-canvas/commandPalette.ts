@@ -8,6 +8,8 @@
  * 変更時は commandPalette.test.ts, useCommandPalette.ts, CommandPaletteComponent.tsx も同期すること。
  */
 
+import { unsafeAssertDefined } from "../_unsafe/unsafeLookup";
+
 // --- Types ---
 
 /** コマンドパレットに表示するアイテム */
@@ -112,7 +114,8 @@ export function getSelectedItem(
   ) {
     return null;
   }
-  /* v8 ignore start -- defensive: selectedIndex is validated in bounds above */
-  return state.filteredItems[state.selectedIndex] ?? null;
-  /* v8 ignore stop */
+  return unsafeAssertDefined(
+    state.filteredItems[state.selectedIndex],
+    "selectedIndex is validated in bounds above",
+  );
 }
