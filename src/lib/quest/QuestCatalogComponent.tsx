@@ -18,6 +18,7 @@ import {
 } from "react";
 import { UiButton, UiMenu, type UiMenuItem } from "../../components/ui";
 import { MoreOutlined } from "../../components/ui/UiIcons";
+import type { Locale } from "../../i18n/config";
 import type { QuestCatalogItem, CategoryGroup } from "./questCatalog";
 import type { QuestId, DifficultyLevel } from "./questDefinition";
 import {
@@ -30,6 +31,9 @@ import {
   stepCountText,
   completionFilterOptions,
   difficultyFilterOptions,
+  difficultyFilterLabel,
+  completionFilterLabel,
+  startButtonLabel,
   difficultyStars,
   type CatalogFilterState,
   type CompletionFilter,
@@ -48,6 +52,7 @@ import {
 
 export type QuestCatalogProps = {
   readonly groups: readonly CategoryGroup[];
+  readonly locale?: Locale;
   readonly onStartQuest: (questId: QuestId) => void;
   /** クエストIDごとのノートブック数（指定するとノートブック数バッジを表示） */
   readonly notebookCounts?: QuestNotebookCounts;
@@ -330,8 +335,10 @@ function DifficultyStars({ level }: { readonly level: DifficultyLevel }) {
 
 function RatingBadge({
   rating,
+  locale,
 }: {
   readonly rating: QuestCatalogItem["rating"];
+  readonly locale: Locale;
 }) {
   const vars = ratingCssVars(rating);
   const style: CSSProperties = {
@@ -341,7 +348,7 @@ function RatingBadge({
   };
   return (
     <span data-testid="rating-badge" style={style}>
-      {ratingLabel(rating)}
+      {ratingLabel(rating, locale)}
     </span>
   );
 }
@@ -537,6 +544,7 @@ function QuestItemMoreMenu({
 
 function QuestItem({
   item,
+  locale,
   onStart,
   notebookCount,
   onShowNotebooks,
@@ -547,6 +555,7 @@ function QuestItem({
   isLast,
 }: {
   readonly item: QuestCatalogItem;
+  readonly locale: Locale;
   readonly onStart: (questId: QuestId) => void;
   readonly notebookCount: number;
   readonly onShowNotebooks?: (questId: QuestId) => void;
@@ -583,7 +592,11 @@ function QuestItem({
         <div style={questMetaStyle}>
           <DifficultyStars level={item.quest.difficulty} />
           <span style={stepTextStyle}>
-            {stepCountText(item.bestStepCount, item.quest.estimatedSteps)}
+            {stepCountText(
+              item.bestStepCount,
+              item.quest.estimatedSteps,
+              locale,
+            )}
           </span>
           <NotebookCountBadge
             count={notebookCount}
@@ -597,7 +610,7 @@ function QuestItem({
           />
         </div>
       </div>
-      <RatingBadge rating={item.rating} />
+      <RatingBadge rating={item.rating} locale={locale} />
       <QuestItemMoreMenu
         questId={item.quest.id}
         onDuplicateToCustom={onDuplicateToCustom}
@@ -611,10 +624,10 @@ function QuestItem({
           e.stopPropagation();
           onStart(item.quest.id);
         }}
-        title={item.completed ? "再挑戦" : "開始"}
+        title={startButtonLabel(item.completed, locale)}
         style={{ flexShrink: 0 }}
       >
-        {item.completed ? "再挑戦" : "開始"}
+        {startButtonLabel(item.completed, locale)}
       </UiButton>
     </div>
   );
@@ -623,6 +636,7 @@ function QuestItem({
 function CategorySection({
   group,
   chapterNumber,
+  locale,
   onStart,
   notebookCounts,
   onShowNotebooks,
@@ -633,6 +647,7 @@ function CategorySection({
 }: {
   readonly group: CategoryGroup;
   readonly chapterNumber: number;
+  readonly locale: Locale;
   readonly onStart: (questId: QuestId) => void;
   readonly notebookCounts?: QuestNotebookCounts;
   readonly onShowNotebooks?: (questId: QuestId) => void;
@@ -674,6 +689,7 @@ function CategorySection({
           <QuestItem
             key={item.quest.id}
             item={item}
+            locale={locale}
             onStart={onStart}
             notebookCount={
               notebookCounts
@@ -701,6 +717,7 @@ function CategorySection({
 
 export function QuestCatalog({
   groups,
+  locale = "ja",
   onStartQuest,
   notebookCounts,
   onShowQuestNotebooks,
@@ -725,8 +742,8 @@ export function QuestCatalog({
     <div style={containerStyle} data-testid="quest-catalog">
       {/* フィルタバー */}
       <div style={filterBarStyle} data-testid="filter-bar">
-        <span style={filterLabelStyle}>難易度:</span>
-        {difficultyFilterOptions.map((opt) => (
+        <span style={filterLabelStyle}>{difficultyFilterLabel(locale)}</span>
+        {difficultyFilterOptions(locale).map((opt) => (
           <UiButton
             key={String(opt.value)}
             data-testid={`difficulty-filter-${String(opt.value) satisfies string}`}
@@ -738,8 +755,10 @@ export function QuestCatalog({
             {opt.label}
           </UiButton>
         ))}
-        <span style={{ ...filterLabelStyle, marginLeft: 12 }}>状態:</span>
-        {completionFilterOptions.map((opt) => (
+        <span style={{ ...filterLabelStyle, marginLeft: 12 }}>
+          {completionFilterLabel(locale)}
+        </span>
+        {completionFilterOptions(locale).map((opt) => (
           <UiButton
             key={opt.value}
             data-testid={`completion-filter-${opt.value satisfies string}`}
@@ -756,7 +775,9 @@ export function QuestCatalog({
       {/* カテゴリ別クエスト一覧 */}
       {filteredGroups.length === 0 ? (
         <div style={emptyStyle} data-testid="quest-catalog-empty">
-          条件に合うクエストがありません。
+          {locale === "ja"
+            ? "条件に合うクエストがありません。"
+            : "No quests match the current filters."}
         </div>
       ) : (
         filteredGroups.map((group, index) => (
@@ -764,6 +785,7 @@ export function QuestCatalog({
             key={group.category.id}
             group={group}
             chapterNumber={index + 1}
+            locale={locale}
             onStart={onStartQuest}
             notebookCounts={notebookCounts}
             onShowNotebooks={onShowQuestNotebooks}

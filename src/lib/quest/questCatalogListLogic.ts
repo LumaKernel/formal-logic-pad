@@ -7,6 +7,7 @@
  * 変更時は questCatalogListLogic.test.ts も同期すること。
  */
 
+import type { Locale } from "../../i18n/config";
 import type { DifficultyLevel } from "./questDefinition";
 import type {
   QuestCatalogItem,
@@ -97,12 +98,12 @@ export function difficultyShortLabel(level: DifficultyLevel): string {
 }
 
 /** 評価の表示ラベル */
-export function ratingLabel(rating: QuestRating): string {
+export function ratingLabel(rating: QuestRating, locale: Locale): string {
   if (rating === "perfect") return "Perfect!";
   if (rating === "good") return "Good";
-  if (rating === "completed") return "Clear";
+  if (rating === "completed") return locale === "ja" ? "クリア" : "Clear";
   // rating: "not-completed" (TypeScript narrowing)
-  return "未クリア";
+  return locale === "ja" ? "未クリア" : "Not Cleared";
 }
 
 /** 評価のアクセントカラー */
@@ -159,40 +160,82 @@ export function categoryProgressText(
 export function stepCountText(
   bestStepCount: number | undefined,
   estimatedSteps: number | undefined,
+  locale: Locale,
 ): string {
   if (bestStepCount === undefined && estimatedSteps === undefined) {
     return "";
   }
+  const est = locale === "ja" ? "目安" : "Est.";
+  const best = locale === "ja" ? "ベスト" : "Best";
+  const steps = locale === "ja" ? "ステップ" : " steps";
   if (bestStepCount === undefined) {
-    return `目安: ${String(estimatedSteps) satisfies string}ステップ`;
+    return `${est satisfies string}: ${String(estimatedSteps) satisfies string}${steps satisfies string}`;
   }
   if (estimatedSteps === undefined) {
-    return `ベスト: ${String(bestStepCount) satisfies string}ステップ`;
+    return `${best satisfies string}: ${String(bestStepCount) satisfies string}${steps satisfies string}`;
   }
-  return `ベスト: ${String(bestStepCount) satisfies string} / 目安: ${String(estimatedSteps) satisfies string}`;
+  return `${best satisfies string}: ${String(bestStepCount) satisfies string} / ${est satisfies string}: ${String(estimatedSteps) satisfies string}`;
+}
+
+// --- UIラベル ---
+
+/** 難易度フィルタのラベル */
+export function difficultyFilterLabel(locale: Locale): string {
+  return locale === "ja" ? "難易度:" : "Difficulty:";
+}
+
+/** 完了状態フィルタのラベル */
+export function completionFilterLabel(locale: Locale): string {
+  return locale === "ja" ? "状態:" : "Status:";
+}
+
+/** クエスト開始ボタンのラベル */
+export function startButtonLabel(completed: boolean, locale: Locale): string {
+  if (completed) return locale === "ja" ? "再挑戦" : "Retry";
+  return locale === "ja" ? "開始" : "Start";
 }
 
 // --- 完了状態フィルタの選択肢 ---
 
-/** 完了状態フィルタの選択肢 */
-export const completionFilterOptions: readonly {
+/** 完了状態フィルタの選択肢型 */
+export type CompletionFilterOption = {
   readonly value: CompletionFilter;
   readonly label: string;
-}[] = [
-  { value: "all", label: "すべて" },
-  { value: "completed", label: "クリア済み" },
-  { value: "incomplete", label: "未クリア" },
-];
+};
 
-/** 難易度フィルタの選択肢（nullで全表示） */
-export const difficultyFilterOptions: readonly {
+/** 完了状態フィルタの選択肢 */
+export function completionFilterOptions(
+  locale: Locale,
+): readonly CompletionFilterOption[] {
+  return [
+    { value: "all", label: locale === "ja" ? "すべて" : "All" },
+    { value: "completed", label: locale === "ja" ? "クリア済み" : "Cleared" },
+    {
+      value: "incomplete",
+      label: locale === "ja" ? "未クリア" : "Not Cleared",
+    },
+  ];
+}
+
+/** 難易度フィルタの選択肢型 */
+export type DifficultyFilterOption = {
   readonly value: DifficultyLevel | null;
   readonly label: string;
-}[] = [
-  { value: null, label: "全難易度" },
-  { value: 1, label: "★" },
-  { value: 2, label: "★★" },
-  { value: 3, label: "★★★" },
-  { value: 4, label: "★★★★" },
-  { value: 5, label: "★★★★★" },
-];
+};
+
+/** 難易度フィルタの選択肢（nullで全表示） */
+export function difficultyFilterOptions(
+  locale: Locale,
+): readonly DifficultyFilterOption[] {
+  return [
+    {
+      value: null,
+      label: locale === "ja" ? "全難易度" : "All Levels",
+    },
+    { value: 1, label: "★" },
+    { value: 2, label: "★★" },
+    { value: 3, label: "★★★" },
+    { value: 4, label: "★★★★" },
+    { value: 5, label: "★★★★★" },
+  ];
+}

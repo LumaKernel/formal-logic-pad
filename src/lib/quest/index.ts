@@ -77,6 +77,9 @@ export {
   stepCountText,
   completionFilterOptions,
   difficultyFilterOptions,
+  difficultyFilterLabel,
+  completionFilterLabel,
+  startButtonLabel,
 } from "./questCatalogListLogic";
 
 export {

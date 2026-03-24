@@ -11,6 +11,7 @@
 import { useState, useRef, useEffect, type CSSProperties } from "react";
 import { UiButton } from "../../components/ui";
 import { FormulaListEditor } from "../formula-input/FormulaListEditor";
+import type { Locale } from "../../i18n/config";
 import type { QuestCatalogItem } from "./questCatalog";
 import type {
   QuestId,
@@ -23,6 +24,7 @@ import {
   ratingLabel,
   ratingCssVars,
   stepCountText,
+  startButtonLabel,
   difficultyStars,
 } from "./questCatalogListLogic";
 import {
@@ -53,6 +55,7 @@ export type CustomQuestEditParams = {
 
 export type CustomQuestListProps = {
   readonly items: readonly QuestCatalogItem[];
+  readonly locale?: Locale;
   readonly onStartQuest: (questId: QuestId) => void;
   readonly onDuplicateQuest?: (questId: QuestId) => void;
   readonly onDeleteQuest?: (questId: QuestId) => void;
@@ -361,8 +364,10 @@ function DifficultyStars({ level }: { readonly level: DifficultyLevel }) {
 
 function RatingBadge({
   rating,
+  locale,
 }: {
   readonly rating: QuestCatalogItem["rating"];
+  readonly locale: Locale;
 }) {
   const vars = ratingCssVars(rating);
   const style: CSSProperties = {
@@ -370,7 +375,7 @@ function RatingBadge({
     color: vars.text,
     background: vars.bg,
   };
-  return <span style={style}>{ratingLabel(rating)}</span>;
+  return <span style={style}>{ratingLabel(rating, locale)}</span>;
 }
 
 // --- Edit form ---
@@ -860,6 +865,7 @@ function CustomQuestCreateForm({
 
 function CustomQuestItem({
   item,
+  locale,
   onStart,
   onDuplicate,
   onDelete,
@@ -870,6 +876,7 @@ function CustomQuestItem({
   onToggleEdit,
 }: {
   readonly item: QuestCatalogItem;
+  readonly locale: Locale;
   readonly onStart: (questId: QuestId) => void;
   readonly onDuplicate?: (questId: QuestId) => void;
   readonly onDelete?: (questId: QuestId) => void;
@@ -972,11 +979,15 @@ function CustomQuestItem({
           <div style={questMetaStyle}>
             <DifficultyStars level={item.quest.difficulty} />
             <span style={stepTextStyle}>
-              {stepCountText(item.bestStepCount, item.quest.estimatedSteps)}
+              {stepCountText(
+                item.bestStepCount,
+                item.quest.estimatedSteps,
+                locale,
+              )}
             </span>
           </div>
         </div>
-        <RatingBadge rating={item.rating} />
+        <RatingBadge rating={item.rating} locale={locale} />
         <div style={actionGroupStyle}>
           <UiButton
             data-testid={`custom-quest-start-btn-${item.quest.id satisfies string}`}
@@ -986,10 +997,10 @@ function CustomQuestItem({
               e.stopPropagation();
               onStart(item.quest.id);
             }}
-            title={item.completed ? "再挑戦" : "開始"}
+            title={startButtonLabel(item.completed, locale)}
             style={{ flexShrink: 0 }}
           >
-            {item.completed ? "再挑戦" : "開始"}
+            {startButtonLabel(item.completed, locale)}
           </UiButton>
           {onEdit !== undefined && (
             <UiButton
@@ -1227,6 +1238,7 @@ function CustomQuestImportForm({
 
 export function CustomQuestList({
   items,
+  locale = "ja",
   onStartQuest,
   onDuplicateQuest,
   onDeleteQuest,
@@ -1325,6 +1337,7 @@ export function CustomQuestList({
               <CustomQuestItem
                 key={item.quest.id}
                 item={item}
+                locale={locale}
                 onStart={onStartQuest}
                 onDuplicate={onDuplicateQuest}
                 onDelete={onDeleteQuest}

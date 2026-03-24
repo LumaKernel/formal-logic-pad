@@ -924,6 +924,7 @@ export function HubPageView({
             {tab === "quests" && (
               <QuestCatalog
                 groups={groups}
+                locale={referenceLocale}
                 onStartQuest={onStartQuest}
                 notebookCounts={notebookCounts}
                 onShowQuestNotebooks={handleShowQuestNotebooks}
@@ -937,6 +938,7 @@ export function HubPageView({
             {tab === "custom-quests" && customQuestItems !== undefined && (
               <CustomQuestList
                 items={customQuestItems}
+                locale={referenceLocale}
                 onStartQuest={onStartQuest}
                 onDuplicateQuest={onDuplicateCustomQuest}
                 onDeleteQuest={onDeleteCustomQuest}

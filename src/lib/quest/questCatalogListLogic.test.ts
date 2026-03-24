@@ -255,11 +255,18 @@ describe("difficultyShortLabel", () => {
 });
 
 describe("ratingLabel", () => {
-  it("各評価にラベルが対応する", () => {
-    expect(ratingLabel("perfect")).toBe("Perfect!");
-    expect(ratingLabel("good")).toBe("Good");
-    expect(ratingLabel("completed")).toBe("Clear");
-    expect(ratingLabel("not-completed")).toBe("未クリア");
+  it("各評価にラベルが対応する（日本語）", () => {
+    expect(ratingLabel("perfect", "ja")).toBe("Perfect!");
+    expect(ratingLabel("good", "ja")).toBe("Good");
+    expect(ratingLabel("completed", "ja")).toBe("クリア");
+    expect(ratingLabel("not-completed", "ja")).toBe("未クリア");
+  });
+
+  it("各評価にラベルが対応する（英語）", () => {
+    expect(ratingLabel("perfect", "en")).toBe("Perfect!");
+    expect(ratingLabel("good", "en")).toBe("Good");
+    expect(ratingLabel("completed", "en")).toBe("Clear");
+    expect(ratingLabel("not-completed", "en")).toBe("Not Cleared");
   });
 });
 
@@ -292,20 +299,27 @@ describe("categoryProgressText", () => {
 });
 
 describe("stepCountText", () => {
-  it("未完了の場合は目安のみ表示", () => {
-    expect(stepCountText(undefined, 5)).toBe("目安: 5ステップ");
+  it("未完了の場合は目安のみ表示（日本語）", () => {
+    expect(stepCountText(undefined, 5, "ja")).toBe("目安: 5ステップ");
   });
 
-  it("完了の場合はベストと目安を表示", () => {
-    expect(stepCountText(3, 5)).toBe("ベスト: 3 / 目安: 5");
+  it("完了の場合はベストと目安を表示（日本語）", () => {
+    expect(stepCountText(3, 5, "ja")).toBe("ベスト: 3 / 目安: 5");
   });
 
   it("目安未指定・未完了の場合は空文字列", () => {
-    expect(stepCountText(undefined, undefined)).toBe("");
+    expect(stepCountText(undefined, undefined, "ja")).toBe("");
   });
 
-  it("目安未指定・完了の場合はベストのみ表示", () => {
-    expect(stepCountText(3, undefined)).toBe("ベスト: 3ステップ");
+  it("目安未指定・完了の場合はベストのみ表示（日本語）", () => {
+    expect(stepCountText(3, undefined, "ja")).toBe("ベスト: 3ステップ");
+  });
+
+  it("英語の場合はEst./Best/stepsを使う", () => {
+    expect(stepCountText(undefined, 5, "en")).toBe("Est.: 5 steps");
+    expect(stepCountText(3, 5, "en")).toBe("Best: 3 / Est.: 5");
+    expect(stepCountText(3, undefined, "en")).toBe("Best: 3 steps");
+    expect(stepCountText(undefined, undefined, "en")).toBe("");
   });
 });
 
@@ -313,22 +327,40 @@ describe("stepCountText", () => {
 
 describe("completionFilterOptions", () => {
   it("3つの選択肢がある", () => {
-    expect(completionFilterOptions).toHaveLength(3);
+    expect(completionFilterOptions("ja")).toHaveLength(3);
   });
 
   it("all, completed, incompleteの値を持つ", () => {
-    const values = completionFilterOptions.map((o) => o.value);
+    const values = completionFilterOptions("ja").map((o) => o.value);
     expect(values).toEqual(["all", "completed", "incomplete"]);
+  });
+
+  it("英語のラベルを返す", () => {
+    const labels = completionFilterOptions("en").map((o) => o.label);
+    expect(labels).toEqual(["All", "Cleared", "Not Cleared"]);
+  });
+
+  it("日本語のラベルを返す", () => {
+    const labels = completionFilterOptions("ja").map((o) => o.label);
+    expect(labels).toEqual(["すべて", "クリア済み", "未クリア"]);
   });
 });
 
 describe("difficultyFilterOptions", () => {
   it("6つの選択肢がある (null + 1-5)", () => {
-    expect(difficultyFilterOptions).toHaveLength(6);
+    expect(difficultyFilterOptions("ja")).toHaveLength(6);
   });
 
   it("最初はnull（全難易度）", () => {
-    expect(difficultyFilterOptions[0]?.value).toBeNull();
+    expect(difficultyFilterOptions("ja")[0]?.value).toBeNull();
+  });
+
+  it("英語では All Levels", () => {
+    expect(difficultyFilterOptions("en")[0]?.label).toBe("All Levels");
+  });
+
+  it("日本語では 全難易度", () => {
+    expect(difficultyFilterOptions("ja")[0]?.label).toBe("全難易度");
   });
 });
 
