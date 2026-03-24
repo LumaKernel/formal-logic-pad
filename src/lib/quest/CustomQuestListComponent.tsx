@@ -32,6 +32,37 @@ import {
   getCustomQuestCompletedCount,
   customQuestProgressText,
 } from "./customQuestCatalogLogic";
+import {
+  sectionTitleLabel,
+  createButtonLabel,
+  importToggleLabel,
+  emptyStateLabel,
+  editButtonLabel,
+  shareButtonLabel,
+  duplicateButtonLabel,
+  deleteButtonLabel,
+  deleteConfirmLabel,
+  cancelLabel,
+  deleteConfirmActionLabel,
+  sharePanelTitleLabel,
+  jsonExportLabel,
+  urlCopyLabel,
+  closeLabel,
+  titleFieldLabel,
+  descriptionFieldLabel,
+  difficultyFieldLabel,
+  systemFieldLabel,
+  goalFormulasFieldLabel,
+  hintsFieldLabel,
+  estimatedStepsFieldLabel,
+  learningPointFieldLabel,
+  stepsPlaceholder,
+  saveButtonLabel,
+  createSubmitLabel,
+  importFileLabel,
+  importPasteLabel,
+  importSubmitLabel,
+} from "./customQuestListLabels";
 import { systemPresets } from "../notebook/notebookCreateLogic";
 import {
   createEmptyEditFormValues,
@@ -382,10 +413,12 @@ function RatingBadge({
 
 function CustomQuestEditForm({
   quest,
+  locale,
   onSave,
   onCancel,
 }: {
   readonly quest: QuestDefinition;
+  readonly locale: Locale;
   readonly onSave: (edit: CustomQuestEditParams) => void;
   readonly onCancel: () => void;
 }) {
@@ -457,7 +490,7 @@ function CustomQuestEditForm({
       <form style={editFormStyle} onSubmit={handleSubmit}>
         {/* タイトル */}
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>タイトル</label>
+          <label style={editLabelStyle}>{titleFieldLabel(locale)}</label>
           <input
             ref={titleRef}
             data-testid="edit-title-input"
@@ -477,7 +510,7 @@ function CustomQuestEditForm({
 
         {/* 説明 */}
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>説明</label>
+          <label style={editLabelStyle}>{descriptionFieldLabel(locale)}</label>
           <textarea
             data-testid="edit-description-input"
             style={editTextareaStyle}
@@ -491,7 +524,7 @@ function CustomQuestEditForm({
 
         {/* 難易度 */}
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>難易度</label>
+          <label style={editLabelStyle}>{difficultyFieldLabel(locale)}</label>
           <select
             data-testid="edit-difficulty-select"
             style={editSelectStyle}
@@ -513,7 +546,7 @@ function CustomQuestEditForm({
 
         {/* 体系 */}
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>体系</label>
+          <label style={editLabelStyle}>{systemFieldLabel(locale)}</label>
           <select
             data-testid="edit-system-select"
             style={editSelectStyle}
@@ -535,7 +568,7 @@ function CustomQuestEditForm({
 
         {/* ゴール式 */}
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>ゴール式</label>
+          <label style={editLabelStyle}>{goalFormulasFieldLabel(locale)}</label>
           <FormulaListEditor
             formulas={values.goalFormulas}
             onChange={(goalFormulas) => setValues({ ...values, goalFormulas })}
@@ -546,7 +579,7 @@ function CustomQuestEditForm({
 
         {/* ヒント */}
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>ヒント（1行に1つ、任意）</label>
+          <label style={editLabelStyle}>{hintsFieldLabel(locale)}</label>
           <textarea
             data-testid="edit-hints-input"
             style={editTextareaStyle}
@@ -561,7 +594,7 @@ function CustomQuestEditForm({
           <div
             style={{ ...editFieldGroupStyle, flexShrink: 0, minWidth: "120px" }}
           >
-            <label style={editLabelStyle}>推定ステップ数（任意）</label>
+            <label style={editLabelStyle}>{estimatedStepsFieldLabel(locale)}</label>
             <input
               ref={stepsRef}
               data-testid="edit-steps-input"
@@ -570,7 +603,7 @@ function CustomQuestEditForm({
               }
               type="number"
               min="1"
-              placeholder="未指定"
+              placeholder={stepsPlaceholder(locale)}
               value={values.estimatedSteps}
               onChange={(e) =>
                 setValues({ ...values, estimatedSteps: e.target.value })
@@ -584,7 +617,7 @@ function CustomQuestEditForm({
             )}
           </div>
           <div style={{ ...editFieldGroupStyle, flex: 1 }}>
-            <label style={editLabelStyle}>学習ポイント</label>
+            <label style={editLabelStyle}>{learningPointFieldLabel(locale)}</label>
             <input
               data-testid="edit-learning-point-input"
               style={editInputStyle}
@@ -606,7 +639,7 @@ function CustomQuestEditForm({
               onCancel();
             }}
           >
-            キャンセル
+            {cancelLabel(locale)}
           </UiButton>
           <UiButton
             htmlType="submit"
@@ -614,7 +647,7 @@ function CustomQuestEditForm({
             type="primary"
             size="small"
           >
-            保存
+            {saveButtonLabel(locale)}
           </UiButton>
         </div>
       </form>
@@ -625,9 +658,11 @@ function CustomQuestEditForm({
 // --- Create form ---
 
 function CustomQuestCreateForm({
+  locale,
   onSave,
   onCancel,
 }: {
+  readonly locale: Locale;
   readonly onSave: (params: CreateCustomQuestParams) => void;
   readonly onCancel: () => void;
 }) {
@@ -696,7 +731,7 @@ function CustomQuestCreateForm({
       <form style={editFormStyle} onSubmit={handleSubmit}>
         {/* タイトル */}
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>タイトル</label>
+          <label style={editLabelStyle}>{titleFieldLabel(locale)}</label>
           <input
             ref={titleRef}
             data-testid="create-title-input"
@@ -716,7 +751,7 @@ function CustomQuestCreateForm({
 
         {/* 説明 */}
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>説明</label>
+          <label style={editLabelStyle}>{descriptionFieldLabel(locale)}</label>
           <textarea
             data-testid="create-description-input"
             style={editTextareaStyle}
@@ -730,7 +765,7 @@ function CustomQuestCreateForm({
 
         {/* 難易度 */}
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>難易度</label>
+          <label style={editLabelStyle}>{difficultyFieldLabel(locale)}</label>
           <select
             data-testid="create-difficulty-select"
             style={editSelectStyle}
@@ -752,7 +787,7 @@ function CustomQuestCreateForm({
 
         {/* 体系 */}
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>体系</label>
+          <label style={editLabelStyle}>{systemFieldLabel(locale)}</label>
           <select
             data-testid="create-system-select"
             style={editSelectStyle}
@@ -774,7 +809,7 @@ function CustomQuestCreateForm({
 
         {/* ゴール式 */}
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>ゴール式</label>
+          <label style={editLabelStyle}>{goalFormulasFieldLabel(locale)}</label>
           <FormulaListEditor
             formulas={values.goalFormulas}
             onChange={(goalFormulas) => setValues({ ...values, goalFormulas })}
@@ -785,7 +820,7 @@ function CustomQuestCreateForm({
 
         {/* ヒント */}
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>ヒント（1行に1つ、任意）</label>
+          <label style={editLabelStyle}>{hintsFieldLabel(locale)}</label>
           <textarea
             data-testid="create-hints-input"
             style={editTextareaStyle}
@@ -800,7 +835,7 @@ function CustomQuestCreateForm({
           <div
             style={{ ...editFieldGroupStyle, flexShrink: 0, minWidth: "120px" }}
           >
-            <label style={editLabelStyle}>推定ステップ数（任意）</label>
+            <label style={editLabelStyle}>{estimatedStepsFieldLabel(locale)}</label>
             <input
               ref={stepsRef}
               data-testid="create-steps-input"
@@ -809,7 +844,7 @@ function CustomQuestCreateForm({
               }
               type="number"
               min="1"
-              placeholder="未指定"
+              placeholder={stepsPlaceholder(locale)}
               value={values.estimatedSteps}
               onChange={(e) =>
                 setValues({ ...values, estimatedSteps: e.target.value })
@@ -823,7 +858,7 @@ function CustomQuestCreateForm({
             )}
           </div>
           <div style={{ ...editFieldGroupStyle, flex: 1 }}>
-            <label style={editLabelStyle}>学習ポイント</label>
+            <label style={editLabelStyle}>{learningPointFieldLabel(locale)}</label>
             <input
               data-testid="create-learning-point-input"
               style={editInputStyle}
@@ -845,7 +880,7 @@ function CustomQuestCreateForm({
               onCancel();
             }}
           >
-            キャンセル
+            {cancelLabel(locale)}
           </UiButton>
           <UiButton
             htmlType="submit"
@@ -853,7 +888,7 @@ function CustomQuestCreateForm({
             type="primary"
             size="small"
           >
-            作成
+            {createSubmitLabel(locale)}
           </UiButton>
         </div>
       </form>
@@ -1010,9 +1045,9 @@ function CustomQuestItem({
                 e.stopPropagation();
                 onToggleEdit(item.quest.id);
               }}
-              title="編集"
+              title={editButtonLabel(locale)}
             >
-              編集
+              {editButtonLabel(locale)}
             </UiButton>
           )}
           {hasShareActions && (
@@ -1023,9 +1058,9 @@ function CustomQuestItem({
                 e.stopPropagation();
                 handleShareOpen();
               }}
-              title="共有"
+              title={shareButtonLabel(locale)}
             >
-              共有
+              {shareButtonLabel(locale)}
             </UiButton>
           )}
           {onDuplicate !== undefined && (
@@ -1036,9 +1071,9 @@ function CustomQuestItem({
                 e.stopPropagation();
                 onDuplicate(item.quest.id);
               }}
-              title="複製"
+              title={duplicateButtonLabel(locale)}
             >
-              複製
+              {duplicateButtonLabel(locale)}
             </UiButton>
           )}
           {onDelete !== undefined && (
@@ -1050,9 +1085,9 @@ function CustomQuestItem({
                 e.stopPropagation();
                 handleDeleteStart();
               }}
-              title="削除"
+              title={deleteButtonLabel(locale)}
             >
-              削除
+              {deleteButtonLabel(locale)}
             </UiButton>
           )}
         </div>
@@ -1062,14 +1097,14 @@ function CustomQuestItem({
             style={sharePanelOverlayStyle}
             onClick={(e) => e.stopPropagation()}
           >
-            <span style={sharePanelTitleStyle}>共有</span>
+            <span style={sharePanelTitleStyle}>{sharePanelTitleLabel(locale)}</span>
             {onExport !== undefined && (
               <UiButton
                 data-testid={`custom-quest-share-export-btn-${item.quest.id satisfies string}`}
                 size="small"
                 onClick={handleShareExport}
               >
-                JSONエクスポート
+                {jsonExportLabel(locale)}
               </UiButton>
             )}
             {onShareUrl !== undefined && (
@@ -1079,7 +1114,7 @@ function CustomQuestItem({
                 type={urlCopied ? "primary" : "default"}
                 onClick={handleShareUrl}
               >
-                {urlCopied ? "コピーしました!" : "URLをコピー"}
+                {urlCopyLabel(urlCopied, locale)}
               </UiButton>
             )}
             <UiButton
@@ -1088,7 +1123,7 @@ function CustomQuestItem({
               type="text"
               onClick={handleShareClose}
             >
-              閉じる
+              {closeLabel(locale)}
             </UiButton>
           </div>
         )}
@@ -1098,13 +1133,13 @@ function CustomQuestItem({
             style={deleteConfirmOverlayStyle}
             onClick={(e) => e.stopPropagation()}
           >
-            <span style={deleteConfirmTextStyle}>本当に削除しますか？</span>
+            <span style={deleteConfirmTextStyle}>{deleteConfirmLabel(locale)}</span>
             <UiButton
               data-testid={`custom-quest-delete-cancel-btn-${item.quest.id satisfies string}`}
               size="small"
               onClick={handleDeleteCancel}
             >
-              キャンセル
+              {cancelLabel(locale)}
             </UiButton>
             <UiButton
               data-testid={`custom-quest-delete-confirm-btn-${item.quest.id satisfies string}`}
@@ -1113,7 +1148,7 @@ function CustomQuestItem({
               type="primary"
               onClick={handleDeleteConfirm}
             >
-              削除する
+              {deleteConfirmActionLabel(locale)}
             </UiButton>
           </div>
         )}
@@ -1121,6 +1156,7 @@ function CustomQuestItem({
       {isEditing && onEdit !== undefined && (
         <CustomQuestEditForm
           quest={item.quest}
+          locale={locale}
           onSave={(edit) => {
             onEdit(edit);
             onToggleEdit(item.quest.id);
@@ -1149,9 +1185,11 @@ const importFormStyle: Readonly<CSSProperties> = {
 };
 
 function CustomQuestImportForm({
+  locale,
   onImport,
   onCancel,
 }: {
+  readonly locale: Locale;
   readonly onImport: (jsonString: string) => void;
   readonly onCancel: () => void;
 }) {
@@ -1187,7 +1225,7 @@ function CustomQuestImportForm({
     >
       <form style={importFormStyle} onSubmit={handleSubmit}>
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>JSONファイルを選択</label>
+          <label style={editLabelStyle}>{importFileLabel(locale)}</label>
           <input
             ref={fileInputRef}
             data-testid="import-file-input"
@@ -1198,7 +1236,7 @@ function CustomQuestImportForm({
           />
         </div>
         <div style={editFieldGroupStyle}>
-          <label style={editLabelStyle}>またはJSONを貼り付け</label>
+          <label style={editLabelStyle}>{importPasteLabel(locale)}</label>
           <textarea
             data-testid="import-json-input"
             style={editTextareaStyle}
@@ -1217,7 +1255,7 @@ function CustomQuestImportForm({
               onCancel();
             }}
           >
-            キャンセル
+            {cancelLabel(locale)}
           </UiButton>
           <UiButton
             htmlType="submit"
@@ -1226,7 +1264,7 @@ function CustomQuestImportForm({
             size="small"
             disabled={jsonText.trim() === ""}
           >
-            インポート
+            {importSubmitLabel(locale)}
           </UiButton>
         </div>
       </form>
@@ -1285,7 +1323,7 @@ export function CustomQuestList({
   return (
     <div style={sectionStyle} data-testid="custom-quest-list">
       <div style={sectionHeaderStyle}>
-        <div style={sectionTitleStyle}>自作クエスト</div>
+        <div style={sectionTitleStyle}>{sectionTitleLabel(locale)}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={sectionProgressStyle}>
             {customQuestProgressText(completedCount, totalCount)}
@@ -1296,7 +1334,7 @@ export function CustomQuestList({
               size="small"
               onClick={handleToggleImport}
             >
-              {isImporting ? "閉じる" : "インポート"}
+              {importToggleLabel(isImporting, locale)}
             </UiButton>
           )}
           {onCreateQuest !== undefined && (
@@ -1306,19 +1344,21 @@ export function CustomQuestList({
               size="small"
               onClick={handleToggleCreate}
             >
-              {isCreating ? "閉じる" : "新規作成"}
+              {createButtonLabel(isCreating, locale)}
             </UiButton>
           )}
         </div>
       </div>
       {isImporting && onImportQuest !== undefined && (
         <CustomQuestImportForm
+          locale={locale}
           onImport={handleImport}
           onCancel={() => setIsImporting(false)}
         />
       )}
       {isCreating && onCreateQuest !== undefined && (
         <CustomQuestCreateForm
+          locale={locale}
           onSave={(params) => {
             onCreateQuest(params);
             setIsCreating(false);
@@ -1328,7 +1368,7 @@ export function CustomQuestList({
       )}
       {items.length === 0 && !isCreating && !isImporting ? (
         <div style={emptyStyle} data-testid="custom-quest-list-empty">
-          自作クエストはまだありません。
+          {emptyStateLabel(locale)}
         </div>
       ) : (
         items.length > 0 && (
