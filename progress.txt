@@ -17697,3 +17697,16 @@
   - 「集約」は_unsafeフォルダよりもカスタムフック抽出やrender時計算への移行が適切
   - ProofWorkspace.tsx(11箇所)とinfinite-canvas(18箇所)が最大密度
 ---
+
+## 2026-03-24 - useEffect集約（onParsedコールバック）
+- useNotifyOnParsedカスタムフック作成（src/lib/formula-input/useNotifyOnParsed.ts）
+- FormulaInput, TermInput, FormulaExpandedEditor, TermExpandedEditor の4箇所のonParsed useEffectを集約
+- FormulaInput/TermInputからuseEffect import自体が不要に
+- テスト5件追加（useNotifyOnParsed.test.ts）
+- v8 ignore, eslint-disable, useEffect の3つの集約タスクすべて完了。完了済みをアーカイブ
+- カバレッジ: Stmts 99.97%, Branch 99.62%, Funcs 90.42%, Lines 99.98%（前回比維持）
+- **今後のイテレーションへの学び:**
+  - useEffectは_unsafeフォルダパターンに適合しない。カスタムフックでの集約が適切
+  - onParsedパターン: 「パース成功時にコールバック」は4箇所で同一実装だった。共通化の典型例
+  - formula-inputモジュール内のhookは外部exportせず内部利用のみで十分
+---

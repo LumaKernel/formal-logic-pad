@@ -230,3 +230,16 @@
   - [x] antd → 軽量UIコンポーネント自前実装に置換（バンドル9.4MB→8.7MB、antd+@ant-design/icons削除）
   - [x] スクリプトに関連する要素の遅延ロード（ScriptEditorComponent を React.lazy 化、Monaco+js-interpreter 236KBチャンク分離）
   - [x] ドキュメントの遅延ロード調査 → md-editor-rt は EditableProofNode が MdPreview を常時使用するため遅延不可
+- [x] v8 ignoreすべきところは、ひとつの場所に集約されているべきだと考える。
+  - [x] まずは現在の v8 ignore を分析、分類。（851箇所/107ファイル。12カテゴリに分類。task-processing.mdに詳細記録）
+  - [x] map系は、 https://github.com/LumaKernel/const-map-ts の makeConstMap を利用できるところは利用する（workspaceBridge.ts scTagToRuleName をmakeConstMap化。referenceEntry.ts/questDefinition.ts はmodule-level Map化。makeConstMapWithReturnTypeは未使用）
+    - 一旦、makeConstMapWithReturnTypeはバグってるので利用しない。
+  - [x] `.../_unsafe` のようなフォルダに v8 ignore をすべき対象を集約する。（src/lib/\_unsafe/ にunsafeMapGet, unsafeAssertDefined作成。coverage除外。referenceViewerLogic, goalPanelLogic, commandPaletteに適用。v8 ignore 4箇所削除）
+    - このフォルダ自体はその近い関心の場所にローカルに作ってよい。が、なるべく数が少なくなるように、そして、ignoreしてしかるべきところがはっきりするように切り分ける。
+    - [x] modelAnswer.ts への\_unsafe適用（resolveNodeId→string直接返却、applyNdStep→throw型化、配列/find/premiseNodeIds等にunsafeAssertDefined適用。v8 ignore 30ブロック削除、残17ブロックはEither.isLeft/parser/exhaustive等）
+- [x] eslint-disable すべきところは、ひとつの場所に集約されているべきだと考える。
+  - [x] まずは現在の eslint-disable を分析、分類。（19箇所/12ファイル/6カテゴリ。no-date 8箇所が最大、集約可能。exhaustive-deps 3箇所は設計見直し。その他8箇所はコンテキスト固有で集約困難。task-processing.mdに詳細記録）
+  - [x] `.../_unsafe` のようなフォルダに eslint-disable をすべき対象を集約する。（unsafeDate.tsにgetCurrentTimestamp/getCurrentUtcDateComponents/timestampToLocalDateComponents作成。no-date 8箇所→1箇所。残り11箇所はコンテキスト固有で集約困難）
+- [x] useEffect すべきところは、ひとつの場所に集約されているべきだと考える。
+  - [x] まずは現在の useEffect を分析、分類。 you may not need useEffect も分析。（84箇所/42ファイル/6カテゴリ。外部系同期35箇所は正当。onParsedコールバック8箇所は排除可能。focusリセット18箇所はkey/autoFocusで改善可能。ref同期12箇所はrAF最適化で現状維持。localStorage5箇所+初期化6箇所は現状妥当。task-processing.mdに詳細記録）
+  - [x] `.../_unsafe` のようなフォルダに useEffect をすべき対象を集約する。（\_unsafeパターンは不適合。代わりにuseNotifyOnParsedフックでonParsedコールバック4箇所を集約。残り80箇所は正当なuseEffect）
