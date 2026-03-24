@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { getCurrentTimestamp } from "@/lib/_unsafe/unsafeDate";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -91,8 +92,7 @@ export type HubContentProps = {
   readonly initialTab: HubTab;
 };
 
-// eslint-disable-next-line @luma-dev/luma-ts/no-date
-const getNow = (): number => Date.now();
+const getNow = (): number => getCurrentTimestamp();
 
 /** next-intl の翻訳から ThemeToggleLabels を構築するフック */
 function useThemeLabelsFromIntl(): ThemeToggleLabels {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { getCurrentTimestamp } from "@/lib/_unsafe/unsafeDate";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import type { WorkspacePageMessages } from "./workspacePageMessages";
@@ -413,8 +414,7 @@ function WorkspaceInner() {
     (info: GoalAchievedInfo) => {
       if (questId !== undefined) {
         questRecord(questId, {
-          // eslint-disable-next-line @luma-dev/luma-ts/no-date
-          completedAt: Date.now(),
+          completedAt: getCurrentTimestamp(),
           stepCount: info.stepCount,
         });
       }

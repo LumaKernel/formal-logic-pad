@@ -8,6 +8,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { getCurrentTimestamp } from "../_unsafe/unsafeDate";
 import type { TrashItem, TrashItemKind, TrashState } from "./trashState";
 import {
   createEmptyTrash,
@@ -79,8 +80,7 @@ export type UseTrashOptions = {
 
 /* v8 ignore start */
 function defaultGetNow(): number {
-  // eslint-disable-next-line @luma-dev/luma-ts/no-date
-  return Date.now();
+  return getCurrentTimestamp();
 }
 /* v8 ignore stop */
 

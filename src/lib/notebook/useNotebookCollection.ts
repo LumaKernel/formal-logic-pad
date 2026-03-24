@@ -8,6 +8,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { getCurrentTimestamp } from "../_unsafe/unsafeDate";
 import type { LogicSystem } from "../logic-core/inferenceRule";
 import type { DeductionSystem } from "../logic-core/deductionSystem";
 import type { WorkspaceState } from "../proof-pad/workspaceState";
@@ -92,8 +93,7 @@ export interface UseNotebookCollectionOptions {
 
 /* v8 ignore start */
 function defaultGetNow(): number {
-  // eslint-disable-next-line @luma-dev/luma-ts/no-date
-  return Date.now();
+  return getCurrentTimestamp();
 }
 /* v8 ignore stop */
 

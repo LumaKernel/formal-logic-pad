@@ -8,6 +8,7 @@
  */
 
 import type { SavedScript } from "./savedScriptsLogic";
+import { timestampToLocalDateComponents } from "../../lib/_unsafe/unsafeDate";
 
 // ── 型定義 ─────────────────────────────────────────────────────
 
@@ -125,12 +126,12 @@ export const computeFileExplorerItems = (
 
 /** 保存日時をフォーマットする */
 export const formatSavedAt = (timestamp: number): string => {
-  // eslint-disable-next-line @luma-dev/luma-ts/no-date -- timestamp→文字列変換のためDateを使用
-  const date = new Date(timestamp);
-  const y = String(date.getFullYear());
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  const h = String(date.getHours()).padStart(2, "0");
-  const min = String(date.getMinutes()).padStart(2, "0");
+  const { year, month, day, hour, minute } =
+    timestampToLocalDateComponents(timestamp);
+  const y = String(year);
+  const m = String(month).padStart(2, "0");
+  const d = String(day).padStart(2, "0");
+  const h = String(hour).padStart(2, "0");
+  const min = String(minute).padStart(2, "0");
   return `${y satisfies string}/${m satisfies string}/${d satisfies string} ${h satisfies string}:${min satisfies string}`;
 };

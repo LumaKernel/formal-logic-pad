@@ -309,6 +309,10 @@ import {
   findHilbertRootNodeIds,
   buildHilbertProofTree,
 } from "./hilbertTreeBuildLogic";
+import {
+  getCurrentTimestamp,
+  getCurrentUtcDateComponents,
+} from "../_unsafe/unsafeDate";
 
 // --- ノート編集用ツールバー定数 ---
 const NOTE_EDITOR_TOOLBARS: (
@@ -3152,17 +3156,10 @@ export const ProofWorkspace = forwardRef<
   /* v8 ignore start -- ブラウザAPI(Blob, URL.createObjectURL, FileReader, Date)のためJSDOMでは検証不可 */
   const handleExportJSON = useCallback(() => {
     const json = exportWorkspaceToJSON(workspace);
-    // eslint-disable-next-line @luma-dev/luma-ts/no-date -- 不純なUI層でのみ使用
-    const d = new Date();
+    const dateComponents = getCurrentUtcDateComponents();
     const fileName = generateExportFileName(
       getDeductionSystemName(workspace.deductionSystem),
-      {
-        year: d.getUTCFullYear(),
-        month: d.getUTCMonth() + 1,
-        day: d.getUTCDate(),
-        hour: d.getUTCHours(),
-        minute: d.getUTCMinutes(),
-      },
+      dateComponents,
     );
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -3175,17 +3172,10 @@ export const ProofWorkspace = forwardRef<
 
   const handleExportSVG = useCallback(() => {
     const svgStr = generateExportSVG(workspace, { nodeSizes });
-    // eslint-disable-next-line @luma-dev/luma-ts/no-date -- 不純なUI層でのみ使用
-    const d = new Date();
+    const dateComponents = getCurrentUtcDateComponents();
     const fileName = generateImageExportFileName(
       getDeductionSystemName(workspace.deductionSystem),
-      {
-        year: d.getUTCFullYear(),
-        month: d.getUTCMonth() + 1,
-        day: d.getUTCDate(),
-        hour: d.getUTCHours(),
-        minute: d.getUTCMinutes(),
-      },
+      dateComponents,
       "svg",
     );
     const blob = new Blob([svgStr], { type: "image/svg+xml" });
@@ -3217,17 +3207,10 @@ export const ProofWorkspace = forwardRef<
 
       canvas.toBlob((pngBlob) => {
         if (pngBlob === null) return;
-        // eslint-disable-next-line @luma-dev/luma-ts/no-date -- 不純なUI層でのみ使用
-        const d = new Date();
+        const dateComponents = getCurrentUtcDateComponents();
         const fileName = generateImageExportFileName(
           getDeductionSystemName(workspace.deductionSystem),
-          {
-            year: d.getUTCFullYear(),
-            month: d.getUTCMonth() + 1,
-            day: d.getUTCDate(),
-            hour: d.getUTCHours(),
-            minute: d.getUTCMinutes(),
-          },
+          dateComponents,
           "png",
         );
         const url = URL.createObjectURL(pngBlob);
@@ -4234,8 +4217,7 @@ export const ProofWorkspace = forwardRef<
         const next = addLogState(vizStateRef.current, {
           message,
           level,
-          // eslint-disable-next-line @luma-dev/luma-ts/no-date -- 不純なUI層でのみ使用
-          timestamp: Date.now(),
+          timestamp: getCurrentTimestamp(),
         });
         vizStateRef.current = next;
         setVizState(next);
