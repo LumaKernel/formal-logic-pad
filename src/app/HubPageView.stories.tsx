@@ -437,8 +437,9 @@ export const WithCustomQuests: Story = {
     const canvas = within(canvasElement);
     // 自作クエストセクションが表示される
     await expect(canvas.getByTestId("custom-quest-list")).toBeInTheDocument();
-    await expect(canvas.getByText("自作クエスト")).toBeInTheDocument();
-    await expect(canvas.getByText("1 / 2")).toBeInTheDocument();
+    const questList = within(canvas.getByTestId("custom-quest-list"));
+    await expect(questList.getByText("Custom Quests")).toBeInTheDocument();
+    await expect(questList.getByText("1 / 2")).toBeInTheDocument();
     // 自作クエストのアイテムが表示される
     await expect(canvas.getByText("恒等律の練習（自作）")).toBeInTheDocument();
     await expect(
@@ -506,9 +507,7 @@ export const WithEmptyCustomQuests: Story = {
     await expect(
       canvas.getByTestId("custom-quest-list-empty"),
     ).toBeInTheDocument();
-    await expect(
-      canvas.getByText("自作クエストはまだありません。"),
-    ).toBeInTheDocument();
+    await expect(canvas.getByText("No custom quests yet.")).toBeInTheDocument();
   },
 };
 
