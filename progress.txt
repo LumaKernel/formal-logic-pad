@@ -109,6 +109,33 @@
 
 ---
 
+## 2026-03-24 - [_unsafe] 防御的コード集約モジュール作成＋初期適用
+
+- ベースライン: Stmts 99.98%, Branch 99.64%, Funcs 90.44%, Lines 99.99%
+- **結果: Stmts 99.98% (±0), Branch 99.64% (±0), Funcs 90.44% (±0), Lines 99.99% (±0)**
+- 実装内容:
+  - src/lib/_unsafe/unsafeLookup.ts 新規: unsafeMapGet, unsafeAssertDefined ユーティリティ
+  - src/lib/_unsafe/unsafeLookup.test.ts 新規: 7テスト
+  - vitest.config.ts: src/lib/_unsafe/** をcoverage除外に追加
+  - referenceViewerLogic.ts: getCategoryMeta使用でv8 ignore 2箇所削除
+  - goalPanelLogic.ts: unsafeMapGet使用でv8 ignore 1箇所削除
+  - src/lib/_unsafe/CLAUDE.md 新規: モジュールドキュメント
+- v8 ignore純減: 3箇所削除
+- 変更ファイル:
+  - src/lib/_unsafe/unsafeLookup.ts（新規）
+  - src/lib/_unsafe/unsafeLookup.test.ts（新規）
+  - src/lib/_unsafe/CLAUDE.md（新規）
+  - vitest.config.ts
+  - src/lib/reference/referenceViewerLogic.ts
+  - src/lib/proof-pad/goalPanelLogic.ts
+- **今後のイテレーションへの学び:**
+  - `_unsafe`フォルダはcoverage除外対象。v8 ignoreが集約される
+  - unsafeMapGet: Map.get + v8 ignoreの「全キー存在保証」パターンを置き換え可能
+  - 防御的early return（findIndex === -1 → return空結果）はunsafe化不適。throwとgraceful fallbackは異なるセマンティクス
+  - defensive v8 ignoreは82箇所/19ファイル存在。modelAnswer.tsが57箇所で最大
+
+---
+
 ## 2026-03-24 - [map系] makeConstMap導入＋module-level Map最適化
 
 - ベースライン: Stmts 99.98%, Branch 99.64%, Funcs 90.41%, Lines 99.99%
