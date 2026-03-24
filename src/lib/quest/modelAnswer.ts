@@ -44,6 +44,7 @@ import type { ScRuleApplicationParams } from "../proof-pad/scApplicationLogic";
 import { parseString } from "../logic-lang/parser";
 import { formatFormula } from "../logic-lang/formatUnicode";
 import { formatTerm } from "../logic-lang/formatUnicode";
+import { unsafeAssertDefined } from "../_unsafe/unsafeLookup";
 import { identifyAxiom } from "../logic-core/inferenceRule";
 import {
   collectUniqueFormulaMetaVariables,
@@ -379,28 +380,17 @@ export type BuildModelAnswerResult =
 
 // --- NDステップのヘルパー ---
 
-/** ステップインデックスからノードIDを取得。undefinedなら StepError を返す */
+/** ステップインデックスからノードIDを取得。undefinedなら throw する */
 function resolveNodeId(
   stepNodeIds: readonly string[],
   index: number,
   label: string,
   stepIndex: number,
-): { readonly nodeId: string } | BuildModelAnswerResult {
-  const nodeId = stepNodeIds[index];
-  if (nodeId === undefined) {
-    /* v8 ignore start — defensive: invalid model answer data */
-    return {
-      _tag: "StepError",
-      stepIndex,
-      reason: `invalid ${label satisfies string} index: ${String(index) satisfies string}`,
-    };
-    /* v8 ignore stop */
-  }
-  return { nodeId };
-}
-
-function isError(result: { readonly nodeId: string } | BuildModelAnswerResult) {
-  return "stepIndex" in result || "_tag" in result;
+): string {
+  return unsafeAssertDefined(
+    stepNodeIds[index],
+    `resolveNodeId: invalid ${label satisfies string} index ${String(index) satisfies string} at step ${String(stepIndex) satisfies string}`,
+  );
 }
 
 /**
@@ -411,20 +401,16 @@ function applyNdStep(
   ws: WorkspaceState,
   edge: NdInferenceEdge,
   stepIndex: number,
-):
-  | { readonly workspace: WorkspaceState; readonly nodeId: string }
-  | BuildModelAnswerResult {
+): { readonly workspace: WorkspaceState; readonly nodeId: string } {
   const nodeId = edge.conclusionNodeId;
 
   // バリデーション
   const validationResult = validateNdApplication(ws, edge);
   /* v8 ignore start — defensive: correct model answers never fail ND validation */
   if (Either.isLeft(validationResult)) {
-    return {
-      _tag: "StepError",
-      stepIndex,
-      reason: `ND ${edge._tag satisfies string} validation failed: ${validationResult.left._tag satisfies string}`,
-    };
+    throw new Error(
+      `applyNdStep: ND ${edge._tag satisfies string} validation failed at step ${String(stepIndex) satisfies string}: ${validationResult.left._tag satisfies string}`,
+    );
   }
   /* v8 ignore stop */
 
@@ -710,12 +696,10 @@ export function buildModelAnswerWorkspace(
   const stepNodeIds: string[] = [];
 
   for (let i = 0; i < answer.steps.length; i++) {
-    const step = answer.steps[i];
-    /* v8 ignore start — 防御的ガード: 正常な配列アクセスでは到達しない */
-    if (step === undefined) {
-      return { _tag: "StepError", stepIndex: i, reason: "undefined step" };
-    }
-    /* v8 ignore stop */
+    const step = unsafeAssertDefined(
+      answer.steps[i],
+      `undefined step at index ${String(i) satisfies string}`,
+    );
 
     /* v8 ignore start — switch artifact: v8 creates branch per case at switch line */
     switch (step._tag) {
@@ -737,17 +721,14 @@ export function buildModelAnswerWorkspace(
         break;
       }
       case "mp": {
-        const leftNodeId = stepNodeIds[step.leftIndex];
-        const rightNodeId = stepNodeIds[step.rightIndex];
-        /* v8 ignore start — defensive: invalid model answer data */
-        if (leftNodeId === undefined || rightNodeId === undefined) {
-          return {
-            _tag: "StepError",
-            stepIndex: i,
-            reason: `invalid index: left=${String(step.leftIndex) satisfies string}, right=${String(step.rightIndex) satisfies string}`,
-          };
-        }
-        /* v8 ignore stop */
+        const leftNodeId = unsafeAssertDefined(
+          stepNodeIds[step.leftIndex],
+          `mp: invalid left index ${String(step.leftIndex) satisfies string} at step ${String(i) satisfies string}`,
+        );
+        const rightNodeId = unsafeAssertDefined(
+          stepNodeIds[step.rightIndex],
+          `mp: invalid right index ${String(step.rightIndex) satisfies string} at step ${String(i) satisfies string}`,
+        );
         const result = applyMPAndConnect(ws, leftNodeId, rightNodeId, {
           x: 0,
           y: 0,
@@ -766,16 +747,10 @@ export function buildModelAnswerWorkspace(
         break;
       }
       case "gen": {
-        const premiseNodeId = stepNodeIds[step.premiseIndex];
-        /* v8 ignore start — defensive: invalid model answer data */
-        if (premiseNodeId === undefined) {
-          return {
-            _tag: "StepError",
-            stepIndex: i,
-            reason: `invalid index: premise=${String(step.premiseIndex) satisfies string}`,
-          };
-        }
-        /* v8 ignore stop */
+        const premiseNodeId = unsafeAssertDefined(
+          stepNodeIds[step.premiseIndex],
+          `gen: invalid premise index ${String(step.premiseIndex) satisfies string} at step ${String(i) satisfies string}`,
+        );
         const genResult = applyGenAndConnect(
           ws,
           premiseNodeId,
@@ -809,36 +784,24 @@ export function buildModelAnswerWorkspace(
         break;
       }
       case "nd-implication-intro": {
-        const premiseRes = resolveNodeId(
+        const premiseNodeId = resolveNodeId(
           stepNodeIds,
           step.premiseIndex,
           "premise",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(premiseRes)) return premiseRes;
-        /* v8 ignore stop */
-        const dischRes = resolveNodeId(
+        const dischNodeId = resolveNodeId(
           stepNodeIds,
           step.dischargedIndex,
           "discharged",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(dischRes)) return dischRes;
-        /* v8 ignore stop */
 
         // 打ち消す仮定のformulaTextを取得
-        const dischNode = ws.nodes.find((n) => n.id === dischRes.nodeId);
-        /* v8 ignore start — defensive: node always exists for valid model answer */
-        if (!dischNode) {
-          return {
-            _tag: "StepError",
-            stepIndex: i,
-            reason: "discharged node not found",
-          };
-        }
-        /* v8 ignore stop */
+        const dischNode = unsafeAssertDefined(
+          ws.nodes.find((n) => n.id === dischNodeId),
+          `nd-implication-intro: discharged node not found at step ${String(i) satisfies string}`,
+        );
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "→I", { x: 0, y: 0 }, "");
@@ -847,7 +810,7 @@ export function buildModelAnswerWorkspace(
         const edge: NdInferenceEdge = {
           _tag: "nd-implication-intro",
           conclusionNodeId,
-          premiseNodeId: premiseRes.nodeId,
+          premiseNodeId,
           dischargedFormulaText: dischNode.formulaText,
           dischargedAssumptionId: assumptionId,
           conclusionText: "",
@@ -855,27 +818,23 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       case "nd-implication-elim": {
-        const leftRes = resolveNodeId(stepNodeIds, step.leftIndex, "left", i);
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(leftRes)) return leftRes;
-        /* v8 ignore stop */
-        const rightRes = resolveNodeId(
+        const leftNodeId = resolveNodeId(
+          stepNodeIds,
+          step.leftIndex,
+          "left",
+          i,
+        );
+        const rightNodeId = resolveNodeId(
           stepNodeIds,
           step.rightIndex,
           "right",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(rightRes)) return rightRes;
-        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "→E", { x: 0, y: 0 }, "");
@@ -883,34 +842,30 @@ export function buildModelAnswerWorkspace(
         const edge: NdInferenceEdge = {
           _tag: "nd-implication-elim",
           conclusionNodeId,
-          leftPremiseNodeId: leftRes.nodeId,
-          rightPremiseNodeId: rightRes.nodeId,
+          leftPremiseNodeId: leftNodeId,
+          rightPremiseNodeId: rightNodeId,
           conclusionText: "",
         };
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       case "nd-conjunction-intro": {
-        const leftRes = resolveNodeId(stepNodeIds, step.leftIndex, "left", i);
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(leftRes)) return leftRes;
-        /* v8 ignore stop */
-        const rightRes = resolveNodeId(
+        const leftNodeId = resolveNodeId(
+          stepNodeIds,
+          step.leftIndex,
+          "left",
+          i,
+        );
+        const rightNodeId = resolveNodeId(
           stepNodeIds,
           step.rightIndex,
           "right",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(rightRes)) return rightRes;
-        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∧I", { x: 0, y: 0 }, "");
@@ -918,30 +873,24 @@ export function buildModelAnswerWorkspace(
         const edge: NdInferenceEdge = {
           _tag: "nd-conjunction-intro",
           conclusionNodeId,
-          leftPremiseNodeId: leftRes.nodeId,
-          rightPremiseNodeId: rightRes.nodeId,
+          leftPremiseNodeId: leftNodeId,
+          rightPremiseNodeId: rightNodeId,
           conclusionText: "",
         };
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       case "nd-conjunction-elim-left": {
-        const premiseRes = resolveNodeId(
+        const premiseNodeId = resolveNodeId(
           stepNodeIds,
           step.premiseIndex,
           "premise",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(premiseRes)) return premiseRes;
-        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∧E_L", { x: 0, y: 0 }, "");
@@ -949,29 +898,23 @@ export function buildModelAnswerWorkspace(
         const edge: NdInferenceEdge = {
           _tag: "nd-conjunction-elim-left",
           conclusionNodeId,
-          premiseNodeId: premiseRes.nodeId,
+          premiseNodeId,
           conclusionText: "",
         };
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       case "nd-conjunction-elim-right": {
-        const premiseRes = resolveNodeId(
+        const premiseNodeId = resolveNodeId(
           stepNodeIds,
           step.premiseIndex,
           "premise",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(premiseRes)) return premiseRes;
-        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∧E_R", { x: 0, y: 0 }, "");
@@ -979,29 +922,23 @@ export function buildModelAnswerWorkspace(
         const edge: NdInferenceEdge = {
           _tag: "nd-conjunction-elim-right",
           conclusionNodeId,
-          premiseNodeId: premiseRes.nodeId,
+          premiseNodeId,
           conclusionText: "",
         };
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       case "nd-disjunction-intro-left": {
-        const premiseRes = resolveNodeId(
+        const premiseNodeId = resolveNodeId(
           stepNodeIds,
           step.premiseIndex,
           "premise",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(premiseRes)) return premiseRes;
-        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∨I_L", { x: 0, y: 0 }, "");
@@ -1009,30 +946,24 @@ export function buildModelAnswerWorkspace(
         const edge: NdInferenceEdge = {
           _tag: "nd-disjunction-intro-left",
           conclusionNodeId,
-          premiseNodeId: premiseRes.nodeId,
+          premiseNodeId,
           addedRightText: step.addedRightText,
           conclusionText: "",
         };
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       case "nd-disjunction-intro-right": {
-        const premiseRes = resolveNodeId(
+        const premiseNodeId = resolveNodeId(
           stepNodeIds,
           step.premiseIndex,
           "premise",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(premiseRes)) return premiseRes;
-        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∨I_R", { x: 0, y: 0 }, "");
@@ -1040,48 +971,36 @@ export function buildModelAnswerWorkspace(
         const edge: NdInferenceEdge = {
           _tag: "nd-disjunction-intro-right",
           conclusionNodeId,
-          premiseNodeId: premiseRes.nodeId,
+          premiseNodeId,
           addedLeftText: step.addedLeftText,
           conclusionText: "",
         };
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       case "nd-disjunction-elim": {
-        const disjRes = resolveNodeId(
+        const disjNodeId = resolveNodeId(
           stepNodeIds,
           step.disjunctionIndex,
           "disjunction",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(disjRes)) return disjRes;
-        /* v8 ignore stop */
-        const leftCaseRes = resolveNodeId(
+        const leftCaseNodeId = resolveNodeId(
           stepNodeIds,
           step.leftCaseIndex,
           "leftCase",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(leftCaseRes)) return leftCaseRes;
-        /* v8 ignore stop */
-        const rightCaseRes = resolveNodeId(
+        const rightCaseNodeId = resolveNodeId(
           stepNodeIds,
           step.rightCaseIndex,
           "rightCase",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(rightCaseRes)) return rightCaseRes;
-        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∨E", { x: 0, y: 0 }, "");
@@ -1089,38 +1008,34 @@ export function buildModelAnswerWorkspace(
         const edge: NdInferenceEdge = {
           _tag: "nd-disjunction-elim",
           conclusionNodeId,
-          disjunctionPremiseNodeId: disjRes.nodeId,
-          leftCasePremiseNodeId: leftCaseRes.nodeId,
+          disjunctionPremiseNodeId: disjNodeId,
+          leftCasePremiseNodeId: leftCaseNodeId,
           leftDischargedAssumptionId: step.leftDischargedIndex + 1,
-          rightCasePremiseNodeId: rightCaseRes.nodeId,
+          rightCasePremiseNodeId: rightCaseNodeId,
           rightDischargedAssumptionId: step.rightDischargedIndex + 1,
           conclusionText: "",
         };
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       /* v8 ignore start — unused until model answers for these ND step types are added */
       case "nd-weakening": {
-        const keptRes = resolveNodeId(stepNodeIds, step.keptIndex, "kept", i);
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(keptRes)) return keptRes;
-        /* v8 ignore stop */
-        const discardedRes = resolveNodeId(
+        const keptNodeId = resolveNodeId(
+          stepNodeIds,
+          step.keptIndex,
+          "kept",
+          i,
+        );
+        const discardedNodeId = resolveNodeId(
           stepNodeIds,
           step.discardedIndex,
           "discarded",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(discardedRes)) return discardedRes;
-        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "w", { x: 0, y: 0 }, "");
@@ -1128,31 +1043,25 @@ export function buildModelAnswerWorkspace(
         const edge: NdInferenceEdge = {
           _tag: "nd-weakening",
           conclusionNodeId,
-          keptPremiseNodeId: keptRes.nodeId,
-          discardedPremiseNodeId: discardedRes.nodeId,
+          keptPremiseNodeId: keptNodeId,
+          discardedPremiseNodeId: discardedNodeId,
           conclusionText: "",
         };
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       /* v8 ignore stop */
       case "nd-efq": {
-        const premiseRes = resolveNodeId(
+        const premiseNodeId = resolveNodeId(
           stepNodeIds,
           step.premiseIndex,
           "premise",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(premiseRes)) return premiseRes;
-        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "EFQ", { x: 0, y: 0 }, step.conclusionText);
@@ -1160,29 +1069,23 @@ export function buildModelAnswerWorkspace(
         const edge: NdInferenceEdge = {
           _tag: "nd-efq",
           conclusionNodeId,
-          premiseNodeId: premiseRes.nodeId,
+          premiseNodeId,
           conclusionText: step.conclusionText,
         };
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       case "nd-dne": {
-        const premiseRes = resolveNodeId(
+        const premiseNodeId = resolveNodeId(
           stepNodeIds,
           step.premiseIndex,
           "premise",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(premiseRes)) return premiseRes;
-        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "DNE", { x: 0, y: 0 }, "");
@@ -1190,29 +1093,23 @@ export function buildModelAnswerWorkspace(
         const edge: NdInferenceEdge = {
           _tag: "nd-dne",
           conclusionNodeId,
-          premiseNodeId: premiseRes.nodeId,
+          premiseNodeId,
           conclusionText: "",
         };
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       case "nd-universal-intro": {
-        const premiseRes = resolveNodeId(
+        const premiseNodeId = resolveNodeId(
           stepNodeIds,
           step.premiseIndex,
           "premise",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(premiseRes)) return premiseRes;
-        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∀I", { x: 0, y: 0 }, "");
@@ -1220,30 +1117,24 @@ export function buildModelAnswerWorkspace(
         const edge: NdInferenceEdge = {
           _tag: "nd-universal-intro",
           conclusionNodeId,
-          premiseNodeId: premiseRes.nodeId,
+          premiseNodeId,
           variableName: step.variableName,
           conclusionText: "",
         };
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       case "nd-universal-elim": {
-        const premiseRes = resolveNodeId(
+        const premiseNodeId = resolveNodeId(
           stepNodeIds,
           step.premiseIndex,
           "premise",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(premiseRes)) return premiseRes;
-        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∀E", { x: 0, y: 0 }, "");
@@ -1251,30 +1142,24 @@ export function buildModelAnswerWorkspace(
         const edge: NdInferenceEdge = {
           _tag: "nd-universal-elim",
           conclusionNodeId,
-          premiseNodeId: premiseRes.nodeId,
+          premiseNodeId,
           termText: step.termText,
           conclusionText: "",
         };
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       case "nd-existential-intro": {
-        const premiseRes = resolveNodeId(
+        const premiseNodeId = resolveNodeId(
           stepNodeIds,
           step.premiseIndex,
           "premise",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(premiseRes)) return premiseRes;
-        /* v8 ignore stop */
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∃I", { x: 0, y: 0 }, "");
@@ -1282,7 +1167,7 @@ export function buildModelAnswerWorkspace(
         const edge: NdInferenceEdge = {
           _tag: "nd-existential-intro",
           conclusionNodeId,
-          premiseNodeId: premiseRes.nodeId,
+          premiseNodeId,
           variableName: step.variableName,
           termText: step.termText,
           conclusionText: "",
@@ -1290,53 +1175,43 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
       }
       case "nd-existential-elim": {
-        const existRes = resolveNodeId(
+        const existNodeId = resolveNodeId(
           stepNodeIds,
           step.existentialIndex,
           "existential",
           i,
         );
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(existRes)) return existRes;
-        /* v8 ignore stop */
-        const caseRes = resolveNodeId(stepNodeIds, step.caseIndex, "case", i);
-        /* v8 ignore start — defensive: valid model answer never fails resolveNodeId */
-        if (isError(caseRes)) return caseRes;
-        /* v8 ignore stop */
+        const caseNodeId = resolveNodeId(
+          stepNodeIds,
+          step.caseIndex,
+          "case",
+          i,
+        );
 
         const conclusionNodeId = `node-${String(ws.nextNodeId) satisfies string}`;
         ws = addNode(ws, "axiom", "∃E", { x: 0, y: 0 }, "");
 
         // 打ち消す仮定のformulaTextを取得
-        const dischNodeId = stepNodeIds[step.dischargedIndex];
-        /* v8 ignore start — defensive: correct model answers always have valid discharged node */
-        const dischNode =
-          dischNodeId !== undefined
-            ? ws.nodes.find((n) => n.id === dischNodeId)
-            : undefined;
-        if (!dischNode) {
-          return {
-            _tag: "StepError",
-            stepIndex: i,
-            reason: "discharged node not found",
-          };
-        }
-        /* v8 ignore stop */
+        const dischNodeId = unsafeAssertDefined(
+          stepNodeIds[step.dischargedIndex],
+          `existential-elim: invalid discharged index at step ${String(i) satisfies string}`,
+        );
+        const dischNode = unsafeAssertDefined(
+          ws.nodes.find((n) => n.id === dischNodeId),
+          `existential-elim: discharged node not found at step ${String(i) satisfies string}`,
+        );
 
         const assumptionId = step.dischargedIndex + 1;
         const edge: NdInferenceEdge = {
           _tag: "nd-existential-elim",
           conclusionNodeId,
-          existentialPremiseNodeId: existRes.nodeId,
-          casePremiseNodeId: caseRes.nodeId,
+          existentialPremiseNodeId: existNodeId,
+          casePremiseNodeId: caseNodeId,
           dischargedAssumptionId: assumptionId,
           dischargedFormulaText: dischNode.formulaText,
           conclusionText: "",
@@ -1344,9 +1219,6 @@ export function buildModelAnswerWorkspace(
         ws = { ...ws, inferenceEdges: [...ws.inferenceEdges, edge] };
 
         const ndResult = applyNdStep(ws, edge, i);
-        /* v8 ignore start — defensive: valid model answer never fails applyNdStep */
-        if ("_tag" in ndResult) return ndResult;
-        /* v8 ignore stop */
         ws = ndResult.workspace;
         stepNodeIds.push(conclusionNodeId);
         break;
@@ -1359,27 +1231,18 @@ export function buildModelAnswerWorkspace(
         break;
       }
       case "tab-rule": {
-        const conclusionRes = resolveNodeId(
+        const conclusionNodeId = resolveNodeId(
           stepNodeIds,
           step.conclusionIndex,
           "conclusion",
           i,
         );
-        if (isError(conclusionRes)) return conclusionRes;
 
         // 結論ノードのシーケントテキストを取得
-        const conclusionNode = ws.nodes.find(
-          (n) => n.id === conclusionRes.nodeId,
+        const conclusionNode = unsafeAssertDefined(
+          ws.nodes.find((n) => n.id === conclusionNodeId),
+          `tab-rule: conclusion node not found at step ${String(i) satisfies string}`,
         );
-        /* v8 ignore start — defensive: node always exists for valid model answer */
-        if (!conclusionNode) {
-          return {
-            _tag: "StepError",
-            stepIndex: i,
-            reason: "conclusion node not found",
-          };
-        }
-        /* v8 ignore stop */
 
         const tabParams: TabRuleApplicationParams = {
           ruleId: step.ruleId,
@@ -1392,7 +1255,7 @@ export function buildModelAnswerWorkspace(
 
         const tabResult = applyTabRuleAndConnect(
           ws,
-          conclusionRes.nodeId,
+          conclusionNodeId,
           tabParams,
           [
             { x: 0, y: 0 },
@@ -1418,32 +1281,23 @@ export function buildModelAnswerWorkspace(
         // 2前提（分岐）: 左前提ノードIDを登録し、右前提ノードIDも別途登録
         if (tabResult.premiseNodeIds.length === 0) {
           // 公理（BS, ⊥）: ステップとしては結論ノードを参照
-          stepNodeIds.push(conclusionRes.nodeId);
+          stepNodeIds.push(conclusionNodeId);
         } else if (tabResult.premiseNodeIds.length === 1) {
-          const premiseId = tabResult.premiseNodeIds[0];
-          /* v8 ignore start — defensive: premiseNodeIds[0] exists when length === 1 */
-          if (premiseId === undefined) {
-            return {
-              _tag: "StepError",
-              stepIndex: i,
-              reason: "TAB single premise node ID is undefined",
-            };
-          }
-          /* v8 ignore stop */
+          const premiseId = unsafeAssertDefined(
+            tabResult.premiseNodeIds[0],
+            `tab-rule: single premise node ID is undefined at step ${String(i) satisfies string}`,
+          );
           stepNodeIds.push(premiseId);
         } else {
           // 分岐: 左右のノードIDを連続して登録
-          const leftId = tabResult.premiseNodeIds[0];
-          const rightId = tabResult.premiseNodeIds[1];
-          /* v8 ignore start — defensive: premiseNodeIds[0/1] exist when length >= 2 */
-          if (leftId === undefined || rightId === undefined) {
-            return {
-              _tag: "StepError",
-              stepIndex: i,
-              reason: "TAB branching premise node IDs are undefined",
-            };
-          }
-          /* v8 ignore stop */
+          const leftId = unsafeAssertDefined(
+            tabResult.premiseNodeIds[0],
+            `tab-rule: left premise node ID is undefined at step ${String(i) satisfies string}`,
+          );
+          const rightId = unsafeAssertDefined(
+            tabResult.premiseNodeIds[1],
+            `tab-rule: right premise node ID is undefined at step ${String(i) satisfies string}`,
+          );
           // 分岐規則は2つのノードを生成するので、2つのステップIDを消費する
           // 左を現在のステップ、右を次のステップとして登録
           stepNodeIds.push(leftId);
@@ -1459,27 +1313,18 @@ export function buildModelAnswerWorkspace(
         break;
       }
       case "sc-rule": {
-        const conclusionRes = resolveNodeId(
+        const conclusionNodeId = resolveNodeId(
           stepNodeIds,
           step.conclusionIndex,
           "conclusion",
           i,
         );
-        if (isError(conclusionRes)) return conclusionRes;
 
         // 結論ノードのシーケントテキストを取得
-        const conclusionNode = ws.nodes.find(
-          (n) => n.id === conclusionRes.nodeId,
+        const conclusionNode = unsafeAssertDefined(
+          ws.nodes.find((n) => n.id === conclusionNodeId),
+          `sc-rule: conclusion node not found at step ${String(i) satisfies string}`,
         );
-        /* v8 ignore start — defensive: node always exists for valid model answer */
-        if (!conclusionNode) {
-          return {
-            _tag: "StepError",
-            stepIndex: i,
-            reason: "SC conclusion node not found",
-          };
-        }
-        /* v8 ignore stop */
 
         const scParams: ScRuleApplicationParams = {
           ruleId: step.ruleId,
@@ -1492,15 +1337,10 @@ export function buildModelAnswerWorkspace(
           cutFormulaText: step.cutFormulaText,
         };
 
-        const scResult = applyScRuleAndConnect(
-          ws,
-          conclusionRes.nodeId,
-          scParams,
-          [
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-          ],
-        );
+        const scResult = applyScRuleAndConnect(ws, conclusionNodeId, scParams, [
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+        ]);
 
         /* v8 ignore start — defensive: correct model answers never fail SC validation */
         if (Either.isLeft(scResult.validation)) {
@@ -1519,31 +1359,22 @@ export function buildModelAnswerWorkspace(
         // 1前提: 前提ノードID を登録
         // 2前提（分岐）: 左前提ノードIDを登録し、右前提ノードIDも別途登録
         if (scResult.premiseNodeIds.length === 0) {
-          stepNodeIds.push(conclusionRes.nodeId);
+          stepNodeIds.push(conclusionNodeId);
         } else if (scResult.premiseNodeIds.length === 1) {
-          const premiseId = scResult.premiseNodeIds[0];
-          /* v8 ignore start — defensive: premiseNodeIds[0] exists when length === 1 */
-          if (premiseId === undefined) {
-            return {
-              _tag: "StepError",
-              stepIndex: i,
-              reason: "SC single premise node ID is undefined",
-            };
-          }
-          /* v8 ignore stop */
+          const premiseId = unsafeAssertDefined(
+            scResult.premiseNodeIds[0],
+            `sc-rule: single premise node ID is undefined at step ${String(i) satisfies string}`,
+          );
           stepNodeIds.push(premiseId);
         } else {
-          const leftId = scResult.premiseNodeIds[0];
-          const rightId = scResult.premiseNodeIds[1];
-          /* v8 ignore start — defensive: premiseNodeIds[0/1] exist when length >= 2 */
-          if (leftId === undefined || rightId === undefined) {
-            return {
-              _tag: "StepError",
-              stepIndex: i,
-              reason: "SC branching premise node IDs are undefined",
-            };
-          }
-          /* v8 ignore stop */
+          const leftId = unsafeAssertDefined(
+            scResult.premiseNodeIds[0],
+            `sc-rule: left premise node ID is undefined at step ${String(i) satisfies string}`,
+          );
+          const rightId = unsafeAssertDefined(
+            scResult.premiseNodeIds[1],
+            `sc-rule: right premise node ID is undefined at step ${String(i) satisfies string}`,
+          );
           stepNodeIds.push(leftId);
           stepNodeIds.push(rightId);
         }

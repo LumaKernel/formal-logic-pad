@@ -62,7 +62,7 @@ describe("buildModelAnswerWorkspace", () => {
     expect(result._tag).toBe("PresetNotFound");
   });
 
-  it("不正なMPインデックスでStepErrorを返す", () => {
+  it("不正なMPインデックスでthrowする", () => {
     const answer: ModelAnswer = {
       questId: "test-01",
       steps: [
@@ -70,10 +70,9 @@ describe("buildModelAnswerWorkspace", () => {
         { _tag: "mp", leftIndex: 0, rightIndex: 5 },
       ],
     };
-    const result = buildModelAnswerWorkspace(testQuest, answer);
-    expect(result._tag).toBe("StepError");
-    if (result._tag !== "StepError") return;
-    expect(result.stepIndex).toBe(1);
+    expect(() => buildModelAnswerWorkspace(testQuest, answer)).toThrow(
+      /unsafeAssertDefined/,
+    );
   });
 
   it("MPの検証失敗でStepErrorを返す", () => {
@@ -182,7 +181,7 @@ describe("buildModelAnswerWorkspace - TAB steps", () => {
     expect(result.goalCheck._tag).toBe("AllAchieved");
   });
 
-  it("不正なconclusionIndexでStepErrorを返す", () => {
+  it("不正なconclusionIndexでthrowする", () => {
     const answer: ModelAnswer = {
       questId: "tab-test-01",
       steps: [
@@ -195,10 +194,9 @@ describe("buildModelAnswerWorkspace - TAB steps", () => {
         },
       ],
     };
-    const result = buildModelAnswerWorkspace(tabQuest, answer);
-    expect(result._tag).toBe("StepError");
-    if (result._tag !== "StepError") return;
-    expect(result.stepIndex).toBe(1);
+    expect(() => buildModelAnswerWorkspace(tabQuest, answer)).toThrow(
+      /unsafeAssertDefined/,
+    );
   });
 });
 
@@ -305,7 +303,7 @@ describe("buildModelAnswerWorkspace - SC steps", () => {
     ).toBe(true);
   });
 
-  it("不正なconclusionIndexでStepErrorを返す", () => {
+  it("不正なconclusionIndexでthrowする", () => {
     const answer: ModelAnswer = {
       questId: "sc-test-01",
       steps: [
@@ -318,10 +316,9 @@ describe("buildModelAnswerWorkspace - SC steps", () => {
         },
       ],
     };
-    const result = buildModelAnswerWorkspace(scQuest, answer);
-    expect(result._tag).toBe("StepError");
-    if (result._tag !== "StepError") return;
-    expect(result.stepIndex).toBe(1);
+    expect(() => buildModelAnswerWorkspace(scQuest, answer)).toThrow(
+      /unsafeAssertDefined/,
+    );
   });
 
   it("SC規則検証失敗でStepErrorを返す", () => {
@@ -781,7 +778,7 @@ describe("buildModelAnswerWorkspace - Gen step", () => {
     ).toBe(true);
   });
 
-  it("不正なGenインデックスでStepErrorを返す", () => {
+  it("不正なGenインデックスでthrowする", () => {
     const answer: ModelAnswer = {
       questId: "gen-test-01",
       steps: [
@@ -789,8 +786,9 @@ describe("buildModelAnswerWorkspace - Gen step", () => {
         { _tag: "gen", premiseIndex: 99, variableName: "x" },
       ],
     };
-    const result = buildModelAnswerWorkspace(genQuest, answer);
-    expect(result._tag).toBe("StepError");
+    expect(() => buildModelAnswerWorkspace(genQuest, answer)).toThrow(
+      /unsafeAssertDefined/,
+    );
   });
 });
 
@@ -814,13 +812,14 @@ describe("validateModelAnswer", () => {
     expect(result._tag).toBe("Valid");
   });
 
-  it("ビルドエラーの場合BuildErrorを返す", () => {
+  it("ビルドエラーの場合throwする", () => {
     const answer: ModelAnswer = {
       questId: "test-01",
       steps: [{ _tag: "mp", leftIndex: 0, rightIndex: 1 }],
     };
-    const result = validateModelAnswer(testQuest, answer);
-    expect(result._tag).toBe("BuildError");
+    expect(() => validateModelAnswer(testQuest, answer)).toThrow(
+      /unsafeAssertDefined/,
+    );
   });
 
   it("ゴール未達成の場合GoalNotAchievedを返す", () => {
