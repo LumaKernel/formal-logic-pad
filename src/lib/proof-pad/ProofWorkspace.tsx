@@ -4708,12 +4708,18 @@ export const ProofWorkspace = forwardRef<
         e.preventDefault();
         handleRedo();
       } else if (isModifier && e.key === "c") {
+        // テキスト選択がある場合はブラウザネイティブのコピーを許可
+        const selection = window.getSelection();
+        if (selection && selection.toString().length > 0) return;
         e.preventDefault();
         handleCopy();
       } else if (isModifier && e.key === "v") {
         e.preventDefault();
         handlePaste();
       } else if (isModifier && e.key === "x") {
+        // テキスト選択がある場合はブラウザネイティブのカットを許可
+        const selX = window.getSelection();
+        if (selX && selX.toString().length > 0) return;
         e.preventDefault();
         handleCut();
       } else if (isModifier && e.key === "d") {
