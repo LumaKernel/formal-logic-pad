@@ -17638,3 +17638,18 @@
   - _unsafeユーティリティは防御的throw用のみ。graceful degradation（findIndex===-1→空返却）には不適
   - unsafeLookup.tsのテンプレートリテラルでは`satisfies string`が必要（ESLintルール）
 ---
+
+## 2026-03-24T11:15 - v8 ignore集約: modelAnswer.ts _unsafe適用
+- modelAnswer.ts: unsafeAssertDefined適用、v8 ignore 30ブロック削除（47→17ブロック）
+  - resolveNodeId: union返却→string直接返却（unsafeAssertDefined使用）。22箇所のisErrorチェック削除
+  - applyNdStep: union返却→throw型化。15箇所の"_tag" inチェック削除
+  - 直接配列アクセス（mp/gen/step/premiseNodeIds）: unsafeAssertDefined化
+  - ws.nodes.find(): unsafeAssertDefined化
+  - 残り17ブロックはEither.isLeft/parser/exhaustive/switch artifact/feature gate
+- modelAnswer.test.ts: 不正データテスト5件をtoThrow期待に更新
+- カバレッジ: Stmts 99.97%, Branch 99.62%, Funcs 90.43%, Lines 99.98%（Branch微減はv8集約アーティファクト範囲）
+- **今後のイテレーションへの学び:**
+  - resolveNodeIdのような内部ヘルパーの返却型変更は、大量のcaller-site v8 ignoreを一括削除できる効果的パターン
+  - throw型化すると既存のエラーパステストがtoThrowに変わる。テスト更新を忘れずに
+  - Either.isLeft系のv8 ignoreは別のユーティリティが必要（unsafeAssertDefinedでは対応不可）
+---
