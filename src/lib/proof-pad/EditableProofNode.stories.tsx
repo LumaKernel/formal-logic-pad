@@ -741,9 +741,7 @@ export const Highlighted: Story = {
     return (
       <div style={{ display: "flex", gap: 32, padding: 32 }}>
         <div>
-          <div
-            style={{ fontSize: 11, marginBottom: 8, color: "#888" }}
-          >
+          <div style={{ fontSize: 11, marginBottom: 8, color: "#888" }}>
             highlighted=true
           </div>
           <EditableProofNode
@@ -757,9 +755,7 @@ export const Highlighted: Story = {
           />
         </div>
         <div>
-          <div
-            style={{ fontSize: 11, marginBottom: 8, color: "#888" }}
-          >
+          <div style={{ fontSize: 11, marginBottom: 8, color: "#888" }}>
             highlighted=false (通常)
           </div>
           <EditableProofNode

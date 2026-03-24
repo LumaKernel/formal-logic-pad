@@ -5386,9 +5386,7 @@ export const ProofWorkspace = forwardRef<
               forceEditMode={editRequestNodeId === node.id}
               useSequentEditor={isSequentCalculusStyle}
               onEditNote={handleEditNote}
-              highlighted={
-                edgeBadgeEditState?.conclusionNodeId === node.id
-              }
+              highlighted={edgeBadgeEditState?.conclusionNodeId === node.id}
               testId={`proof-node-${node.id satisfies string}`}
             />
             {/* 可視化アノテーション吹き出し */}
