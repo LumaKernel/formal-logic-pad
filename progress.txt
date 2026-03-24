@@ -17741,3 +17741,16 @@
   - `buildBreadcrumbs`のlocale分岐パターンは`locale === "ja" ? "日本語" : "English"`で統一
   - ブラウザでlocale切り替えはcookie `locale=ja`で設定（next-intlのgetRequestConfig経由）
 ---
+
+## 2026-03-25 - クエスト一覧i18n対応
+- EN設定でクエスト一覧に日本語が表示される問題を修正
+- questCatalogListLogic.ts: ratingLabel, stepCountText, completionFilterOptions, difficultyFilterOptions にlocale引数追加。difficultyFilterLabel, completionFilterLabel, startButtonLabel を新規追加
+- QuestCatalogComponent.tsx: locale prop追加、全UIラベルをi18n化
+- CustomQuestListComponent.tsx: locale prop追加、ratingLabel/stepCountText/startButtonLabel呼び出しのlocale引数対応
+- HubPageView.tsx: referenceLocaleをQuestCatalog/CustomQuestListに渡すように
+- カバレッジ: 99.97% stmts / 99.61% branch / 90.44% funcs / 99.98% lines（変化なし）
+- **今後のイテレーションへの学び:**
+  - questCatalogListLogic.tsの表示テキスト関数は元々locale引数がなかった。UIテキストを純粋関数に持つ場合はlocale引数を最初から含めるべき
+  - CustomQuestListComponent.tsxの編集フォームラベル（難易度、体系、ゴール式等）と確認ダイアログのi18n化が未完了
+  - HubPageView内のreferenceLocaleがアプリ全体のlocaleとして使われている
+---
