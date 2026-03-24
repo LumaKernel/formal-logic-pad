@@ -48,7 +48,7 @@ export function buildBreadcrumbs(
   const title = getLocalizedText(entry.title, locale);
 
   return [
-    { label: "Home", href: "/" },
+    { label: locale === "ja" ? "ホーム" : "Home", href: "/" },
     {
       label: locale === "ja" ? "リファレンス" : "Reference",
       href: "/reference",

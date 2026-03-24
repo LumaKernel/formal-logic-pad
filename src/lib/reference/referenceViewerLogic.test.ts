@@ -101,7 +101,7 @@ describe("buildBreadcrumbs", () => {
   it("日本語のパンくずを生成する", () => {
     const breadcrumbs = buildBreadcrumbs(sampleEntry, "ja");
     expect(breadcrumbs).toEqual([
-      { label: "Home", href: "/" },
+      { label: "ホーム", href: "/" },
       { label: "リファレンス", href: "/reference" },
       { label: "公理", href: undefined },
       { label: "公理A1", href: undefined },
