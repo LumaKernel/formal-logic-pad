@@ -17682,3 +17682,18 @@
   - unsafeDate.tsはvitest coverage除外対象（_unsafe/**）
   - tasks/inserted-tasks.mdのprettier修正を忘れずに
 ---
+
+## 2026-03-24T12:00 - useEffect分析
+- useEffect 分析完了: 84箇所/42ファイル/6カテゴリ
+  - 外部系同期35箇所: イベントリスナー、DOM observer、localStorage。正当な使用
+  - onParsedコールバック8箇所: formula-input系のrender時導出で排除可能。最優先改善対象
+  - focusリセット18箇所: prop変更時のフォーカス。key/autoFocusで改善可能
+  - ref同期12箇所: rAF/イベントループ最適化。現状維持が妥当
+  - localStorage永続化5箇所: useState初期化+永続化パターン。正しい構造
+  - 初期化6箇所: マウント時フォーカス。autoFocusで簡素化可能
+- コード変更なし
+- **今後のイテレーションへの学び:**
+  - formula-input系のonParsedパターンが8箇所で同一。共通フック化で一括解消可能
+  - 「集約」は_unsafeフォルダよりもカスタムフック抽出やrender時計算への移行が適切
+  - ProofWorkspace.tsx(11箇所)とinfinite-canvas(18箇所)が最大密度
+---

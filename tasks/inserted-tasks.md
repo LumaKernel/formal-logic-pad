@@ -13,7 +13,7 @@
   - [x] `.../_unsafe` のようなフォルダに eslint-disable をすべき対象を集約する。（unsafeDate.tsにgetCurrentTimestamp/getCurrentUtcDateComponents/timestampToLocalDateComponents作成。no-date 8箇所→1箇所。残り11箇所はコンテキスト固有で集約困難）
 
 - [ ] useEffect すべきところは、ひとつの場所に集約されているべきだと考える。
-  - [ ] まずは現在の useEffect を分析、分類。 you may not need useEffect も分析。
+  - [x] まずは現在の useEffect を分析、分類。 you may not need useEffect も分析。（84箇所/42ファイル/6カテゴリ。外部系同期35箇所は正当。onParsedコールバック8箇所は排除可能。focusリセット18箇所はkey/autoFocusで改善可能。ref同期12箇所はrAF最適化で現状維持。localStorage5箇所+初期化6箇所は現状妥当。task-processing.mdに詳細記録）
   - [ ] `.../_unsafe` のようなフォルダに useEffect をすべき対象を集約する。
 
 - [ ] ドキュメント内の用語でもすぐ飛べるような仕組みを用意
