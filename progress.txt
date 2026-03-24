@@ -17732,3 +17732,12 @@
   - getNodeAxiomIds はエッジグラフを辿って公理を追跡する。エッジなし孤立ノードの公理は追跡できない
   - 孤立ノード判定: 結論ノードだけでなく前提ノードとしての参加もチェックする（SC/TABルートノードは前提として参加）
 ---
+
+## 2026-03-25 - リファレンスパンくずi18n修正
+- JA設定でbreadcrumbsの最初が「Home」のままだったのを「ホーム」に修正
+- 変更ファイル: referenceViewerLogic.ts, referenceViewerLogic.test.ts
+- カバレッジ: 99.97% stmts / 99.62% branch / 90.41% funcs / 99.98% lines（変化なし）
+- **今後のイテレーションへの学び:**
+  - `buildBreadcrumbs`のlocale分岐パターンは`locale === "ja" ? "日本語" : "English"`で統一
+  - ブラウザでlocale切り替えはcookie `locale=ja`で設定（next-intlのgetRequestConfig経由）
+---
