@@ -7,6 +7,8 @@ import {
 } from "./goalCheckLogic";
 import type { WorkspaceNode } from "./workspaceState";
 import type { WorkspaceGoal } from "./workspaceState";
+import type { LogicSystem } from "../logic-core/inferenceRule";
+import type { InferenceEdge } from "./inferenceEdge";
 
 // --- ヘルパー ---
 
@@ -323,6 +325,95 @@ describe("goalCheckLogic", () => {
       if (result._tag === "GoalAllAchieved") {
         expect(result.achievedGoals[0]!.matchingNodeId).toBe("node-1");
       }
+    });
+  });
+
+  describe("checkGoal - root validation (circular proof prevention)", () => {
+    const lukasiewiczSystem: LogicSystem = {
+      name: "Łukasiewicz",
+      propositionalAxioms: new Set(["A1", "A2", "A3"]),
+      predicateLogic: false,
+      equalityLogic: false,
+      generalization: false,
+    };
+
+    it("rejects standalone node that does not match axiom template", () => {
+      // ゴールと同じ式をノードとして置くだけでは証明にならない
+      const goals = [makeGoal("goal-1", "phi -> phi")];
+      const nodes = [makeNode("node-1", "phi -> phi")];
+      const result = checkGoal(goals, nodes, [], lukasiewiczSystem);
+      expect(result._tag).toBe("GoalPartiallyAchieved");
+      if (result._tag === "GoalPartiallyAchieved") {
+        expect(result.achievedCount).toBe(0);
+      }
+    });
+
+    it("accepts standalone node that matches axiom template", () => {
+      // A1: phi -> (psi -> phi) は正当な公理テンプレート
+      const goals = [makeGoal("goal-1", "phi -> (psi -> phi)")];
+      const nodes = [makeNode("node-1", "phi -> (psi -> phi)")];
+      const result = checkGoal(goals, nodes, [], lukasiewiczSystem);
+      expect(result._tag).toBe("GoalAllAchieved");
+    });
+
+    it("accepts node derived via valid proof chain", () => {
+      // A1 + A2 → [MP] → result
+      const a1Node = makeNode("a1", "phi -> (psi -> phi)");
+      const a2Node = makeNode(
+        "a2",
+        "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
+      );
+      const mpResult = makeNode("mp-1", "psi -> phi");
+      const nodes = [a1Node, a2Node, mpResult];
+      const edges: readonly InferenceEdge[] = [
+        {
+          _tag: "mp",
+          conclusionNodeId: "mp-1",
+          leftPremiseNodeId: "a2",
+          rightPremiseNodeId: "a1",
+          conclusionText: "psi -> phi",
+        },
+      ];
+      const goals = [makeGoal("goal-1", "psi -> phi")];
+      // MP結果のルートノードは a1, a2 → 両方公理テンプレートに一致
+      const result = checkGoal(goals, nodes, edges, lukasiewiczSystem);
+      expect(result._tag).toBe("GoalAllAchieved");
+    });
+
+    it("skips node with unknown roots and finds valid alternative", () => {
+      // node-bad: ゴール式だが公理テンプレートに一致しない（unknownルート）
+      // node-good: A1テンプレートから代入で導出された正当なノード
+      // ゴール式: phi -> phi（公理テンプレートではない）
+      // node-good は代入エッジで A1 テンプレートから導出
+      const goals = [makeGoal("goal-1", "phi -> phi")];
+      const a1Node = makeNode("a1-schema", "phi -> (psi -> phi)");
+      const nodes = [
+        makeNode("node-bad", "phi -> phi"),
+        a1Node,
+        makeNode("node-good", "phi -> phi"),
+      ];
+      const edges: readonly InferenceEdge[] = [
+        {
+          _tag: "substitution",
+          conclusionNodeId: "node-good",
+          premiseNodeId: "a1-schema",
+          entries: [],
+          conclusionText: "phi -> phi",
+        },
+      ];
+      const result = checkGoal(goals, nodes, edges, lukasiewiczSystem);
+      expect(result._tag).toBe("GoalAllAchieved");
+      if (result._tag === "GoalAllAchieved") {
+        expect(result.achievedGoals[0]!.matchingNodeId).toBe("node-good");
+      }
+    });
+
+    it("without inferenceEdges/system, skips root validation (backward compat)", () => {
+      // inferenceEdges/system を渡さない場合、ルート検証はスキップ
+      const goals = [makeGoal("goal-1", "phi -> phi")];
+      const nodes = [makeNode("node-1", "phi -> phi")];
+      const result = checkGoal(goals, nodes);
+      expect(result._tag).toBe("GoalAllAchieved");
     });
   });
 });

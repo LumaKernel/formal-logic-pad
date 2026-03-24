@@ -942,8 +942,8 @@ describe("validateModelAnswer", () => {
     expect(result._tag).toBe("RuleConstraintViolation");
   });
 
-  it("公理パターンに一致しないルートノードがある場合hasUnknownRootNodesがtrueになる", () => {
-    // "phi /\\ psi" は公理パターンに一致しない
+  it("公理パターンに一致しない孤立ノードはゴール未達成", () => {
+    // "phi /\\ psi" は公理パターンに一致しない孤立ノード → ゴール未達成
     const unknownQuest: QuestDefinition = {
       id: "test-unknown",
       category: "propositional-basics",
@@ -962,23 +962,11 @@ describe("validateModelAnswer", () => {
       questId: "test-unknown",
       steps: [{ _tag: "axiom", formulaText: "phi /\\ psi" }],
     };
-    // validateModelAnswer は UnknownRootNodes を返さない（非Hilbert系対応のため）
-    // 代わりに buildModelAnswerWorkspace の goalResults で直接チェック
     const buildResult = buildModelAnswerWorkspace(unknownQuest, answer);
     expect(buildResult._tag).toBe("Ok");
     if (buildResult._tag !== "Ok") return;
-    expect(
-      buildResult.goalCheck._tag === "AllAchieved" ||
-        buildResult.goalCheck._tag === "AllAchievedButAxiomViolation",
-    ).toBe(true);
-    if (
-      buildResult.goalCheck._tag !== "AllAchieved" &&
-      buildResult.goalCheck._tag !== "AllAchievedButAxiomViolation"
-    )
-      return;
-    expect(
-      buildResult.goalCheck.goalResults.some((r) => r.hasUnknownRootNodes),
-    ).toBe(true);
+    // 孤立ノード（エッジなし + 公理テンプレート不一致）はゴール未達成
+    expect(buildResult.goalCheck._tag).toBe("NotAllAchieved");
   });
 });
 

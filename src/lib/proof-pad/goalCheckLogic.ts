@@ -9,8 +9,12 @@
 
 import { Either } from "effect";
 import { equalFormula } from "../logic-core/equality";
+import type { LogicSystem } from "../logic-core/inferenceRule";
+import { identifyAxiom } from "../logic-core/inferenceRule";
 import { parseString } from "../logic-lang/parser";
 import type { Formula } from "../logic-core/formula";
+import type { InferenceEdge } from "./inferenceEdge";
+import { getInferenceEdgePremiseNodeIds } from "./inferenceEdge";
 import type { WorkspaceNode, WorkspaceGoal } from "./workspaceState";
 import { splitSequentTextParts } from "./scApplicationLogic";
 
@@ -109,6 +113,18 @@ export function parseNodeFormula(formulaText: string): Formula | undefined {
   return undefined;
 }
 
+// --- 公理テンプレート一致判定 ---
+
+/**
+ * 論理式が体系の公理インスタンス（代入込み）であるかを判定する。
+ * identifyAxiom は代入マッチングを行うため、テンプレートそのものだけでなく
+ * 具体的なインスタンス（例: A3[phi:=psi, psi:=phi]）も認識する。
+ */
+function isRecognizedAxiom(formula: Formula, system: LogicSystem): boolean {
+  const result = identifyAxiom(formula, system);
+  return result._tag === "Ok" || result._tag === "TheoryAxiom";
+}
+
 // --- ゴール達成チェック ---
 
 /**
@@ -122,11 +138,15 @@ export function parseNodeFormula(formulaText: string): Formula | undefined {
  *
  * @param goals ワークスペースのゴール一覧
  * @param nodes ワークスペース上のノード一覧
+ * @param inferenceEdges 推論エッジ一覧（指定時はルートノードの公理検証を行う）
+ * @param system 論理体系設定（inferenceEdges と併せて指定）
  * @returns ゴールチェック結果
  */
 export function checkGoal(
   goals: readonly WorkspaceGoal[],
   nodes: readonly WorkspaceNode[],
+  inferenceEdges?: readonly InferenceEdge[],
+  system?: LogicSystem,
 ): GoalCheckResult {
   if (goals.length === 0) {
     return { _tag: "GoalNotSet" };
@@ -148,12 +168,36 @@ export function checkGoal(
     }
 
     // キャンバス上のどこかのノードの式がゴール式と一致するか
+    // inferenceEdges/system が指定されていて、かつ体系に公理がある場合のみ
+    // スタンドアロンノードの公理検証を行う。
+    // 非Hilbert系（emptyLogicSystem）では公理がないため検証をスキップする。
+    const hasAxiomSystem =
+      system !== undefined &&
+      (system.propositionalAxioms.size > 0 ||
+        system.predicateLogic ||
+        (system.theoryAxioms?.length ?? 0) > 0);
+    const doStandaloneCheck =
+      inferenceEdges !== undefined && hasAxiomSystem;
     let matchingNodeId: string | undefined;
     for (const node of nodes) {
       if (node.formulaText.trim() === "") continue;
       const nodeFormula = parseNodeFormula(node.formulaText);
       if (nodeFormula === undefined) continue;
       if (equalFormula(goalFormula, nodeFormula)) {
+        // 孤立ノード検証: どの推論エッジにも参加していないノード（結論でも前提でもない）は
+        // 公理テンプレートに一致しない限り「未証明」としてスキップ。
+        // これにより「ゴール式を手動入力しただけ」のケースを排除しつつ、
+        // SC/TABのルートノード（前提として参加）やMP結論（結論として参加）は許可する。
+        if (doStandaloneCheck) {
+          const isConnected = inferenceEdges.some(
+            (e) =>
+              e.conclusionNodeId === node.id ||
+              getInferenceEdgePremiseNodeIds(e).includes(node.id),
+          );
+          if (!isConnected && !isRecognizedAxiom(nodeFormula, system)) {
+            continue;
+          }
+        }
         matchingNodeId = node.id;
         break;
       }

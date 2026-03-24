@@ -16,8 +16,10 @@ import type {
   InferenceEdge,
   InferenceRuleId,
 } from "../proof-pad/inferenceEdge";
+import { getInferenceEdgePremiseNodeIds } from "../proof-pad/inferenceEdge";
 import type { ProofNodeKind } from "../proof-pad/proofNodeUI";
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
+import { identifyAxiom } from "../logic-core/inferenceRule";
 import { equalFormula } from "../logic-core/equality";
 import { parseString } from "../logic-lang/parser";
 import {
@@ -56,18 +58,48 @@ export function computeStepCount(nodes: readonly WorkspaceNode[]): number {
  *
  * SC（シーケント計算）のノードは " ⇒ φ" 形式のformulaTextを持つため、
  * parseNodeFormula でシーケントからの論理式抽出も試みる。
+ *
+ * inferenceEdges/system が指定されている場合、孤立ノード（推論エッジに
+ * 全く参加していないノード）で公理テンプレートに一致しないものはスキップする。
  */
 function findMatchingNode(
   goal: WorkspaceGoal,
   nodes: readonly WorkspaceNode[],
+  inferenceEdges?: readonly InferenceEdge[],
+  system?: LogicSystem,
 ): WorkspaceNode | undefined {
   const goalParsed = parseString(goal.formulaText.trim());
   if (Either.isLeft(goalParsed)) return undefined;
+
+  // 非Hilbert系（emptyLogicSystem）では公理がないため検証をスキップする。
+  const hasAxiomSystem =
+    system !== undefined &&
+    (system.propositionalAxioms.size > 0 ||
+      system.predicateLogic ||
+      (system.theoryAxioms?.length ?? 0) > 0);
+  const doStandaloneCheck =
+    inferenceEdges !== undefined && hasAxiomSystem;
 
   for (const work of nodes) {
     const nodeFormula = parseNodeFormula(work.formulaText);
     if (nodeFormula === undefined) continue;
     if (equalFormula(goalParsed.right, nodeFormula)) {
+      // 孤立ノード検証
+      if (doStandaloneCheck) {
+        const isConnected = inferenceEdges.some(
+          (e) =>
+            e.conclusionNodeId === work.id ||
+            getInferenceEdgePremiseNodeIds(e).includes(work.id),
+        );
+        const axiomResult = identifyAxiom(nodeFormula, system);
+        if (
+          !isConnected &&
+          axiomResult._tag !== "Ok" &&
+          axiomResult._tag !== "TheoryAxiom"
+        ) {
+          continue;
+        }
+      }
       return work;
     }
   }
@@ -210,7 +242,7 @@ const checkSingleGoalWithAxioms = (
 ): Effect.Effect<GoalAxiomCheckResult> =>
   Effect.gen(function* () {
     const matchingNode = yield* Effect.sync(() =>
-      findMatchingNode(goal, nodes),
+      findMatchingNode(goal, nodes, inferenceEdges, system),
     );
 
     if (matchingNode === undefined) {

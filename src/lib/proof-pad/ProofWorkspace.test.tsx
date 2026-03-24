@@ -1269,8 +1269,15 @@ describe("ProofWorkspace", () => {
   describe("goal setting and completion", () => {
     it("shows proof complete banner when goal is achieved", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addGoal(ws, "phi");
+      // A1テンプレート: phi -> (psi -> phi) は正当な公理
+      ws = addNode(
+        ws,
+        "axiom",
+        "A1",
+        { x: 0, y: 0 },
+        "phi -> (psi -> phi)",
+      );
+      ws = addGoal(ws, "phi -> (psi -> phi)");
 
       render(
         <ProofWorkspace
@@ -1338,8 +1345,15 @@ describe("ProofWorkspace", () => {
     it("calls onGoalAchieved when goal is achieved (external state)", () => {
       const onGoalAchieved = vi.fn();
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "phi");
-      ws = addGoal(ws, "phi");
+      // A1テンプレート: 正当な公理
+      ws = addNode(
+        ws,
+        "axiom",
+        "A1",
+        { x: 0, y: 0 },
+        "phi -> (psi -> phi)",
+      );
+      ws = addGoal(ws, "phi -> (psi -> phi)");
 
       render(
         <ProofWorkspace
@@ -1747,8 +1761,9 @@ describe("ProofWorkspace", () => {
 
     it("testIdなしでゴール達成バナーが表示される", () => {
       let ws = createEmptyWorkspace(lukasiewiczSystem);
-      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "φ → φ");
-      ws = addGoal(ws, "φ → φ");
+      // A1テンプレート（Unicode形式）: 正当な公理
+      ws = addNode(ws, "axiom", "A1", { x: 0, y: 0 }, "φ → (ψ → φ)");
+      ws = addGoal(ws, "φ → (ψ → φ)");
       const { container } = render(
         <ProofWorkspace system={lukasiewiczSystem} workspace={ws} />,
       );
@@ -1813,9 +1828,9 @@ describe("ProofWorkspace", () => {
       ).not.toBeInTheDocument();
     });
 
-    it("shows complete banner when instance is placed directly (no instance root check)", () => {
+    it("shows complete banner when axiom instance is placed directly", () => {
       // A1 の代入インスタンスをルートノードに直接配置
-      // 構造的一致では公理として認識しないが、公理制約違反にもならない
+      // identifyAxiom で公理インスタンスとして認識されるため、正当な証明として完了
       let ws = createQuestWorkspace(lukasiewiczSystem, [
         {
           formulaText: "(phi -> psi) -> (chi -> (phi -> psi))",
@@ -1839,8 +1854,7 @@ describe("ProofWorkspace", () => {
         />,
       );
 
-      // 公理インスタンスの直接配置は公理制約違反として扱わないため、
-      // ゴール達成とみなされバナーが表示される
+      // 公理インスタンスは identifyAxiom で認識されるため、ゴール達成
       expect(
         screen.queryByTestId("workspace-proof-complete-banner"),
       ).toBeInTheDocument();

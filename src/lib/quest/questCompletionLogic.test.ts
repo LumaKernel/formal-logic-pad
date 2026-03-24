@@ -474,9 +474,10 @@ describe("checkQuestGoalsWithAxioms", () => {
     }
   });
 
-  test("公理インスタンスが直接ルートに配置されている場合はAxiomViolationを返す", () => {
+  test("公理インスタンスが直接ルートに配置されている場合はAllAchievedを返す", () => {
     // ゴール: phi -> ((phi -> phi) -> phi)
     // ワークノード: A1インスタンスを直接配置（スキーマではなく代入済み）
+    // identifyAxiom はインスタンスも認識するため、公理インスタンスの配置は正当な証明
     const goals = [
       makeGoal({ id: "g1", formulaText: "phi -> ((phi -> phi) -> phi)" }),
     ];
@@ -493,9 +494,7 @@ describe("checkQuestGoalsWithAxioms", () => {
       [],
       lukasiewiczSystem,
     );
-    // 公理インスタンスが直接配置されている場合でも、
-    // matchAxiomTemplateByEquality による構造的一致のみをチェックするため
-    // インスタンスは "unknown" ルートとなり、公理違反としては報告されない
+    // 公理インスタンスは identifyAxiom で認識されるため、正当なゴール達成
     expect(result._tag).toBe("AllAchieved");
   });
 
@@ -585,8 +584,8 @@ describe("checkQuestGoalsWithAxioms", () => {
     }
   });
 
-  test("公理パターンに一致しないルートノードでhasUnknownRootNodesがtrue", () => {
-    // "phi /\\ psi" は公理パターンに一致しない
+  test("公理パターンに一致しない孤立ノードはゴール未達成", () => {
+    // "phi /\\ psi" は公理パターンに一致しない孤立ノード → ゴール未達成
     const goals = [makeGoal({ id: "g1", formulaText: "phi /\\ psi" })];
     const nodes = [
       makeNode({
@@ -601,11 +600,7 @@ describe("checkQuestGoalsWithAxioms", () => {
       [],
       lukasiewiczSystem,
     );
-    // hasUnknownRootNodes はデータとして保持するが、_tag には影響しない
-    expect(result._tag).toBe("AllAchieved");
-    if (result._tag === "AllAchieved") {
-      expect(result.goalResults[0]?.hasUnknownRootNodes).toBe(true);
-    }
+    expect(result._tag).toBe("NotAllAchieved");
   });
 
   test("正しい公理ルートノードではhasUnknownRootNodesがfalse", () => {
@@ -987,8 +982,8 @@ describe("checkQuestGoalsWithAxioms (rule restriction)", () => {
       [],
       lukasiewiczSystem,
     );
-    // 公理インスタンスが直接配置されている場合、構造的一致では公理として認識されず
-    // "unknown" ルートとなるため公理違反は報告されない（AllAchieved）
+    // 公理インスタンスは identifyAxiom で認識されるため、孤立ノードでも正当。
+    // エッジがないため getNodeAxiomIds は公理を追跡できず、違反は検出されない。
     expect(result._tag).toBe("AllAchieved");
   });
 

@@ -2941,8 +2941,19 @@ export const ProofWorkspace = forwardRef<
   // --- ゴールチェック（workspace.goalsベース） ---
 
   const goalCheckResult = useMemo(
-    () => checkGoal(workspace.goals, workspace.nodes),
-    [workspace.goals, workspace.nodes],
+    () =>
+      checkGoal(
+        workspace.goals,
+        workspace.nodes,
+        workspace.inferenceEdges,
+        workspace.system,
+      ),
+    [
+      workspace.goals,
+      workspace.nodes,
+      workspace.inferenceEdges,
+      workspace.system,
+    ],
   );
 
   // --- クエストゴールチェック（クエストモード: 保護ノードベース、公理制限付き） ---
