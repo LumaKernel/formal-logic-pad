@@ -17,10 +17,7 @@ export function sectionTitleLabel(locale: Locale): string {
 }
 
 /** 新規作成ボタン */
-export function createButtonLabel(
-  isCreating: boolean,
-  locale: Locale,
-): string {
+export function createButtonLabel(isCreating: boolean, locale: Locale): string {
   if (isCreating) return locale === "ja" ? "閉じる" : "Close";
   return locale === "ja" ? "新規作成" : "Create New";
 }
@@ -67,7 +64,9 @@ export function deleteButtonLabel(locale: Locale): string {
 
 /** 削除確認メッセージ */
 export function deleteConfirmLabel(locale: Locale): string {
-  return locale === "ja" ? "本当に削除しますか？" : "Are you sure you want to delete?";
+  return locale === "ja"
+    ? "本当に削除しますか？"
+    : "Are you sure you want to delete?";
 }
 
 /** 削除確認キャンセル */
@@ -132,7 +131,9 @@ export function goalFormulasFieldLabel(locale: Locale): string {
 
 /** ヒントラベル */
 export function hintsFieldLabel(locale: Locale): string {
-  return locale === "ja" ? "ヒント（1行に1つ、任意）" : "Hints (one per line, optional)";
+  return locale === "ja"
+    ? "ヒント（1行に1つ、任意）"
+    : "Hints (one per line, optional)";
 }
 
 /** 推定ステップ数ラベル */

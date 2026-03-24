@@ -64,8 +64,7 @@ describe("customQuestListLabels", () => {
   describe("emptyStateLabel", () => {
     it("JA", () =>
       expect(emptyStateLabel("ja")).toBe("自作クエストはまだありません。"));
-    it("EN", () =>
-      expect(emptyStateLabel("en")).toBe("No custom quests yet."));
+    it("EN", () => expect(emptyStateLabel("en")).toBe("No custom quests yet."));
   });
 
   // --- アイテムボタン ---
@@ -162,8 +161,7 @@ describe("customQuestListLabels", () => {
 
   describe("goalFormulasFieldLabel", () => {
     it("JA", () => expect(goalFormulasFieldLabel("ja")).toBe("ゴール式"));
-    it("EN", () =>
-      expect(goalFormulasFieldLabel("en")).toBe("Goal Formulas"));
+    it("EN", () => expect(goalFormulasFieldLabel("en")).toBe("Goal Formulas"));
   });
 
   describe("hintsFieldLabel", () => {
@@ -204,14 +202,12 @@ describe("customQuestListLabels", () => {
   // --- インポートフォーム ---
 
   describe("importFileLabel", () => {
-    it("JA", () =>
-      expect(importFileLabel("ja")).toBe("JSONファイルを選択"));
+    it("JA", () => expect(importFileLabel("ja")).toBe("JSONファイルを選択"));
     it("EN", () => expect(importFileLabel("en")).toBe("Select JSON file"));
   });
 
   describe("importPasteLabel", () => {
-    it("JA", () =>
-      expect(importPasteLabel("ja")).toBe("またはJSONを貼り付け"));
+    it("JA", () => expect(importPasteLabel("ja")).toBe("またはJSONを貼り付け"));
     it("EN", () => expect(importPasteLabel("en")).toBe("Or paste JSON"));
   });
 

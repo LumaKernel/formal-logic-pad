@@ -594,7 +594,9 @@ function CustomQuestEditForm({
           <div
             style={{ ...editFieldGroupStyle, flexShrink: 0, minWidth: "120px" }}
           >
-            <label style={editLabelStyle}>{estimatedStepsFieldLabel(locale)}</label>
+            <label style={editLabelStyle}>
+              {estimatedStepsFieldLabel(locale)}
+            </label>
             <input
               ref={stepsRef}
               data-testid="edit-steps-input"
@@ -617,7 +619,9 @@ function CustomQuestEditForm({
             )}
           </div>
           <div style={{ ...editFieldGroupStyle, flex: 1 }}>
-            <label style={editLabelStyle}>{learningPointFieldLabel(locale)}</label>
+            <label style={editLabelStyle}>
+              {learningPointFieldLabel(locale)}
+            </label>
             <input
               data-testid="edit-learning-point-input"
               style={editInputStyle}
@@ -835,7 +839,9 @@ function CustomQuestCreateForm({
           <div
             style={{ ...editFieldGroupStyle, flexShrink: 0, minWidth: "120px" }}
           >
-            <label style={editLabelStyle}>{estimatedStepsFieldLabel(locale)}</label>
+            <label style={editLabelStyle}>
+              {estimatedStepsFieldLabel(locale)}
+            </label>
             <input
               ref={stepsRef}
               data-testid="create-steps-input"
@@ -858,7 +864,9 @@ function CustomQuestCreateForm({
             )}
           </div>
           <div style={{ ...editFieldGroupStyle, flex: 1 }}>
-            <label style={editLabelStyle}>{learningPointFieldLabel(locale)}</label>
+            <label style={editLabelStyle}>
+              {learningPointFieldLabel(locale)}
+            </label>
             <input
               data-testid="create-learning-point-input"
               style={editInputStyle}
@@ -1097,7 +1105,9 @@ function CustomQuestItem({
             style={sharePanelOverlayStyle}
             onClick={(e) => e.stopPropagation()}
           >
-            <span style={sharePanelTitleStyle}>{sharePanelTitleLabel(locale)}</span>
+            <span style={sharePanelTitleStyle}>
+              {sharePanelTitleLabel(locale)}
+            </span>
             {onExport !== undefined && (
               <UiButton
                 data-testid={`custom-quest-share-export-btn-${item.quest.id satisfies string}`}
@@ -1133,7 +1143,9 @@ function CustomQuestItem({
             style={deleteConfirmOverlayStyle}
             onClick={(e) => e.stopPropagation()}
           >
-            <span style={deleteConfirmTextStyle}>{deleteConfirmLabel(locale)}</span>
+            <span style={deleteConfirmTextStyle}>
+              {deleteConfirmLabel(locale)}
+            </span>
             <UiButton
               data-testid={`custom-quest-delete-cancel-btn-${item.quest.id satisfies string}`}
               size="small"
