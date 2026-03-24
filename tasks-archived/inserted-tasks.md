@@ -254,3 +254,5 @@
   - window.getSelection() でテキスト選択を検出し、選択時はネイティブコピーを許可。Cmd+Xも同様に修正。
 - [x] ドラッグ中限定のはずのエッジがまっすぐになるやつが、ドラッグ終わっても残ることがとてもある
   - isDraggingAny stateを追加し、ドラッグ終了時に再レンダーをトリガーしてsimplified接続線をベジェ曲線に復帰させる
+- [x] 代入モーダル系は論理式が不正なのにそのまま進めるようにはしないで (disabledに)
+  - canConfirmSubstEditにparseString/parseTermStringによる構文検証を追加。全non-emptyエントリが構文的に正しい場合のみApply可能

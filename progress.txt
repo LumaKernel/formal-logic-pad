@@ -17784,3 +17784,12 @@
   - useRefの値変更は再レンダーをトリガーしない。refの値変更がUIに影響するべき場合は、対応するstateを用意して再レンダーを保証する必要がある
   - useMemoの依存配列に「値は直接使わないがトリガー目的で入れたい」場合は、値をuseMemo内で実際に参照する形に書き換えると、ESLint react-hooks/exhaustive-deps警告を回避できる
 ---
+
+## 2026-03-25 - 代入ポップオーバー構文検証
+- 実装した内容: canConfirmSubstEditにparseString/parseTermStringによる構文検証を追加。不正な論理式/項が入力されているときApplyボタンがdisabledになる
+- 変更したファイル: src/lib/proof-pad/edgeBadgeEditLogic.ts, src/lib/proof-pad/edgeBadgeEditLogic.test.ts
+- カバレッジ: 99.97%/99.61%/90.50%/99.98%（99.62%→99.61%はV8集約クイーク範囲内）
+- **今後のイテレーションへの学び:**
+  - canConfirmSubstEdit のような「確定可能か」判定には、単なる空チェックだけでなく構文検証も含めるべき。UIのdisabled状態が既に純粋関数に依存している場合、ロジック側の変更だけでUI反映される
+  - edgeBadgeEditLogic.tsは logic-lang/parser.ts に依存する形になった。代入系の構文検証パイプライン: UI入力 → canConfirmSubstEdit(parse検証) → fromSubstEditEntries → validateSubstitutionApplication(二重検証)
+---
