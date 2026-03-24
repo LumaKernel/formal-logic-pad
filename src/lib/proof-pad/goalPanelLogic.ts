@@ -12,6 +12,7 @@ import type { WorkspaceGoal } from "./workspaceState";
 import { parseGoalFormula } from "./goalCheckLogic";
 import type { Formula } from "../logic-core/formula";
 import type { AxiomPaletteItem } from "./axiomPaletteLogic";
+import { unsafeMapGet } from "../_unsafe/unsafeLookup";
 
 // --- ゴールパネル表示データ ---
 
@@ -208,10 +209,11 @@ export function computeGoalPanelData(
         return {
           id: goal.id,
           formulaText: goal.formulaText,
-          /* v8 ignore start -- defensive: GoalAllAchieved guarantees all goals are in achievedMap */
-          formula:
-            achievedMap.get(goal.id) ?? parseGoalFormula(goal.formulaText),
-          /* v8 ignore stop */
+          formula: unsafeMapGet(
+            achievedMap,
+            goal.id,
+            "GoalAllAchieved guarantees all goals are in achievedMap",
+          ),
           label: goal.label,
           allowedAxiomIds: goal.allowedAxiomIds,
           allowedAxiomDetails: resolveAllowedAxiomDetails(

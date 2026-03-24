@@ -34,6 +34,8 @@ export default defineConfig({
         "src/i18n/**",
         // Monaco Editor ラッパー（外部ライブラリ統合UI、ロジックは scriptEditorLogic.ts に分離）
         "src/components/ScriptEditor/ScriptEditorComponent.tsx",
+        // _unsafe: 防御的コード集約（v8 ignore対象を一箇所に集約）
+        "src/lib/_unsafe/**",
         // Ant Design統合ラッパー（外部ライブラリ統合、ロジックは themeLogic.ts に分離）
         "src/lib/theme/AntDesignThemeProvider.tsx",
       ],

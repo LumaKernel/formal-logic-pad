@@ -14,8 +14,8 @@ import type {
 } from "./referenceEntry";
 import {
   filterByCategory,
-  findCategoryMeta,
   findEntryById,
+  getCategoryMeta,
   getLocalizedParagraphs,
   getLocalizedText,
   sortByOrder,
@@ -41,12 +41,10 @@ export function buildBreadcrumbs(
   entry: ReferenceEntry,
   locale: Locale,
 ): readonly BreadcrumbItem[] {
-  const categoryMeta = findCategoryMeta(entry.category);
-  /* v8 ignore start -- defensive fallback for unknown category; all known categories have meta */
-  const categoryLabel = categoryMeta
-    ? getLocalizedText(categoryMeta.label, locale)
-    : entry.category;
-  /* v8 ignore stop */
+  const categoryLabel = getLocalizedText(
+    getCategoryMeta(entry.category).label,
+    locale,
+  );
   const title = getLocalizedText(entry.title, locale);
 
   return [
@@ -89,7 +87,6 @@ export function buildViewerPageData(
   allEntries: readonly ReferenceEntry[],
   locale: Locale,
 ): ViewerPageData {
-  const categoryMeta = findCategoryMeta(entry.category);
   const relatedIds = new Set(entry.relatedEntryIds);
   const relatedEntries = allEntries
     .filter((e) => relatedIds.has(e.id))
@@ -105,11 +102,10 @@ export function buildViewerPageData(
     documentLanguage: link.documentLanguage,
   }));
 
-  /* v8 ignore start -- defensive fallback for unknown category; all known categories have meta */
-  const categoryLabel = categoryMeta
-    ? getLocalizedText(categoryMeta.label, locale)
-    : entry.category;
-  /* v8 ignore stop */
+  const categoryLabel = getLocalizedText(
+    getCategoryMeta(entry.category).label,
+    locale,
+  );
 
   return {
     title: getLocalizedText(entry.title, locale),
