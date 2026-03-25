@@ -109,6 +109,31 @@
 
 ---
 
+## 2026-03-26 - [hub] タブ切り替えの瞬時遷移（HubContent再マウント防止）
+
+- ベースライン: Stmts 99.94%, Branch 99.49%, Funcs 90.49%, Lines 99.96%
+- **結果: Stmts 99.94% (±0), Branch 99.49% (±0), Funcs 90.50% (+0.01%), Lines 99.96% (±0)**
+- 実装内容:
+  - Next.js `(hub)` route group を導入し、HubContent を共有レイアウトに配置
+  - タブ切り替え時に HubContent がアンマウント→再マウントされなくなった
+  - `hubRouting.ts` に `resolveTabFromPath` / `resolvePathFromTab` 純粋関数を作成
+  - HubContent は `usePathname()` から tab を導出（`initialTab` prop 廃止）
+  - 各 page.tsx は `return null` のみに簡素化
+- 変更ファイル:
+  - src/app/(hub)/layout.tsx（新規）
+  - src/app/(hub)/{page,quests,custom-quests,collection,reference,scripts,trash}/page.tsx（移動+簡素化）
+  - src/app/hubRouting.ts（新規）
+  - src/app/hubRouting.test.ts（新規）
+  - src/app/HubContent.tsx
+- **今後のイテレーションへの学び:**
+  - Next.js route group `(groupName)` はURLパスに影響しないが、共通レイアウトを共有できる
+  - HubContent を layout に配置すれば、タブ間遷移でコンポーネントが再マウントされない
+  - `.next/types/` はルート構造変更後にstaleになる。削除(mv)して再生成が必要
+  - `dynamic(() => import(...), { ssr: false })` の import先がデフォルトエクスポートを持たないと "Lazy element type must resolve to a class or function" エラー
+  - ノート・模範解答を開く操作は `/workspace/[id]` への遷移で別課題
+
+---
+
 ## 2026-03-25 - [landing-page] タブ遷移後はLP非表示にする
 
 - ベースライン: Stmts 99.96%, Branch 99.58%, Funcs 90.48%, Lines 99.98%
