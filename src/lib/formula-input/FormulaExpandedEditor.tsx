@@ -206,7 +206,7 @@ const highlightMarkStyle: CSSProperties = {
   textDecoration: "underline",
   textDecorationColor: "var(--color-error, #e53e3e)",
   textDecorationStyle: "wavy",
-  color: "var(--color-error, #e53e3e)",
+  color: "var(--color-error-text, #991b1b)",
 };
 
 const transparentTextStyle: CSSProperties = {
