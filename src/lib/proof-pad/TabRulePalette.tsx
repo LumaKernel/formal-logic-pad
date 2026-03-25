@@ -129,7 +129,7 @@ const branchingBadgeStyle: Readonly<CSSProperties> = {
   padding: "1px 4px",
   borderRadius: 2,
   background: "var(--color-badge-branching-bg, rgba(200, 160, 60, 0.15))",
-  color: "var(--color-badge-branching-text, #8a6d20)",
+  color: "var(--color-badge-branching-text, #755a16)",
   fontWeight: 600,
 };
 
