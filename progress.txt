@@ -18141,3 +18141,24 @@
   - task-processing.mdのprettier問題は毎回CI前にチェックすべき
   - AxiomPalette.stories.tsxは今回初めて作成。useProofMessagesはProviderなしでdefaultProofMessagesを返す
 ---
+
+## 2026-03-26 - [navigation] ページ遷移スケルトン
+
+- loading.tsx を3箇所に追加: workspace/[id], reference/[id], (hub)
+- dynamic() の loading prop も追加し、クライアントサイドローディング中もスケルトン表示
+- globals.css に skeleton-pulse アニメーション追加
+- カバレッジ: Stmts 99.94%, Branch 99.49%, Funcs 90.49%, Lines 99.96%（変化なし）
+- 変更ファイル:
+  - src/app/workspace/[id]/loading.tsx (新規)
+  - src/app/reference/[id]/loading.tsx (新規)
+  - src/app/(hub)/loading.tsx (新規)
+  - src/app/workspace/[id]/page.tsx
+  - src/app/reference/[id]/page.tsx
+  - src/app/(hub)/layout.tsx
+  - src/app/globals.css
+- スクリーンショット: .screenshots/workspace-loaded.png, .screenshots/hub-after-back.png, .screenshots/workspace-from-notebook.png
+- **今後のイテレーションへの学び:**
+  - Next.js App Router の loading.tsx は route-level Suspense boundary として機能。dynamic() の loading prop はクライアントサイドの動的インポート時のfallback
+  - loading.tsx は Server Component なので CSS変数は使えるが React hookは使えない
+  - ローカルのvitest実行はStorybook browserテストを含むと非常に長い。CIに委ねるのが現実的
+---
