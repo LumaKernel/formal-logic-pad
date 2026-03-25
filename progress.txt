@@ -17879,3 +17879,23 @@
   - FormulaExpandedEditor/TermExpandedEditor のストーリーは既にこのパターンを使用していた（先行実装）
   - SequentExpandedEditor は後から追加されたためこのパターンが適用されていなかった
 ---
+
+## 2026-03-25 - [proof-pad] 代入モーダルのclick-to-edit化
+- 実装した内容:
+  - EdgeParameterPopover.tsx: FormulaEditor/TermEditorからeditTrigger="none"とforceEditMode={true}を削除
+  - ProofWorkspace.tsx: substPromptBanner内の同様の入力も同様に修正
+  - テスト修正: EdgeParameterPopover.test.tsx (8テスト), ProofWorkspace.test.tsx (3テスト)
+  - ストーリー修正: ProofWorkspace.stories.tsx, WorkspacePageView.stories.tsx
+- 変更したファイル:
+  - src/lib/proof-pad/EdgeParameterPopover.tsx
+  - src/lib/proof-pad/EdgeParameterPopover.test.tsx
+  - src/lib/proof-pad/ProofWorkspace.tsx
+  - src/lib/proof-pad/ProofWorkspace.test.tsx
+  - src/lib/proof-pad/ProofWorkspace.stories.tsx
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx
+- カバレッジ: Stmts 99.96%, Branch 99.58%, Funcs 90.49%, Lines 99.98% (V8集約誤差範囲)
+- **今後のイテレーションへの学び:**
+  - FormulaEditor/TermEditorのデフォルトeditTrigger="click"が有効で、forceEditModeを外すだけでclick-to-edit動作になる
+  - click-to-editテストパターン: displayモードのtestId(-display)をクリック→editモードのtestId(-edit)を確認→input(-input-input)を操作
+  - fireEvent.keyDown(banner, { key: "Escape" })はバナー自体のonKeyDownハンドラをテストする正しい方法
+---
