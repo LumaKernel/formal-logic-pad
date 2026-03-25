@@ -18042,3 +18042,26 @@
   - NDの否定はnegation-intro/elimではなくimplication+⊥で処理。EFQ/DNEが追加規則
   - エクスポート機能: JSON, SVG, PNG（⋮メニューから）。共有リンク機能は未実装
 ---
+
+## 2026-03-25 - [reference] アカデミックな参考文献システム
+- 実装した内容:
+  - BibliographyEntry型とbibliographyRegistry（9文献: Bekki, Gentzen, Prawitz, Troelstra-Schwichtenberg, Gödel, Mendelson, Howard, Glivenko, Kuroda）を定義
+  - [[cite:key|text]]構文をparseInlineMarkdownに追加。InlineMarkdownコンポーネントで上付き参考文献リンクとして描画
+  - ReferenceViewerPageViewに参考文献リストセクション（<ol>形式、↩戻りリンク付き）を追加
+  - 全119エントリの既存インライン文献参照（"bekki Ch.10"、"Gentzen (1935)"等）を[[cite:key|...]]形式に変換
+  - 23エントリにbibliographyKeysを付与
+  - テスト: cite-linkパース5件、bibliography builders 7件、コンポーネント4件、コンテンツ整合性4件 追加
+  - Storybookストーリー: WithBibliography追加（play関数付き）
+- 変更したファイル:
+  - src/lib/reference/referenceEntry.ts (BibliographyEntry型、bibliographyKeysフィールド)
+  - src/lib/reference/referenceContent.ts (bibliographyRegistry、全エントリの[[cite:...]]変換)
+  - src/lib/reference/referenceUILogic.ts (cite-linkパーサー、ModalData.bibliography)
+  - src/lib/reference/referenceViewerLogic.ts (ViewerPageData.bibliography)
+  - src/lib/reference/InlineMarkdown.tsx (onCiteClick、citeLinkStyle)
+  - src/lib/reference/ReferenceViewerPageView.tsx (参考文献リストUI)
+  - テスト・ストーリー6ファイル
+- **今後のイテレーションへの学び:**
+  - [[cite:key|text]]構文はparseInlineMarkdownの正規表現に統合（ref-linkと同列）
+  - bibliographyRegistryはreferenceContent.tsで一元管理。エントリのbibliographyKeysで参照
+  - ESLintルール no-explicit-return-is: .filter()のtype predicateも省略必須（TS 5.5で自動推論）
+---
