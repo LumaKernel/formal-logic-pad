@@ -18025,3 +18025,20 @@
   - 同一概念でも en/ja 両方の body を更新する必要がある。片方だけ変更しないこと
   - リンクは過剰に入れすぎない。同一段落内での2回目以降の同じ用語へのリンクは不要
 ---
+
+## 2026-03-25 18:46 JST - ドキュメント精査（referenceContent.ts）
+- 実装した内容: referenceContent.ts のドキュメント記述を現在のアプリ仕様に合わせて修正
+  - 公理パレット位置: "bottom" → "left side"（en/ja両方）
+  - 未実装機能の記述削除: 共有リンク機能、?キーショートカット一覧
+  - 保存セクション: エクスポート形式をJSON/SVG/PNGに具体化、⋮メニューボタンの言及
+  - ヒントセクション: 実在するショートカット(Ctrl+Z, Ctrl+Shift+L)に置換
+  - guide-first-quest-walkthrough: Łukasiewicz体系の定義公理(∧-Def/∨-Def)の存在を言及
+  - guide-intro-natural-deduction: ND否定規則の記述を実装(含意+⊥方式)に合わせて修正
+- 変更したファイル: src/lib/reference/referenceContent.ts
+- **今後のイテレーションへの学び:**
+  - AxiomPaletteはtop:48,left:12で左上配置。GoalPanelは右上
+  - ワークスペースには?キーショートカット一覧機能は未実装
+  - Łukasiewicz体系にはA1,A2,A3に加えてCONJ-DEF,DISJ-DEFも含まれる
+  - NDの否定はnegation-intro/elimではなくimplication+⊥で処理。EFQ/DNEが追加規則
+  - エクスポート機能: JSON, SVG, PNG（⋮メニューから）。共有リンク機能は未実装
+---
