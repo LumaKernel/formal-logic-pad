@@ -772,3 +772,24 @@ a {
   width: 4px !important;
   margin-left: 3px;
 }
+
+/* ============================================
+ * Skeleton loading animation
+ * Used by loading.tsx files for instant page transitions
+ * ============================================ */
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.skeleton-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  background-color: var(--ui-muted);
+  border-radius: 0.25rem;
+}

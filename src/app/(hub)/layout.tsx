@@ -1,8 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import HubLoading from "./loading";
 
-const HubContent = dynamic(() => import("../HubContent"), { ssr: false });
+const HubContent = dynamic(() => import("../HubContent"), {
+  ssr: false,
+  loading: () => <HubLoading />,
+});
 
 interface Props {
   readonly children: React.ReactNode;
