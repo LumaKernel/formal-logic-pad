@@ -17999,3 +17999,18 @@
   - a11y違反の大半はコントラスト比不足。ボタン上の白文字など構造的な問題も多い
   - `a11y.test: "error"` 有効化には残り約285テストの違反解消が必要
 ---
+
+## 2026-03-25 - [reference] インラインリンク機能
+- `[[ref:id]]` / `[[ref:id|text]]` 構文をインラインマークダウンパーサーに追加
+- InlineMarkdown に onNavigate prop を追加、ref-link を <a> タグでレンダリング
+- ReferenceModal, ReferenceViewerPageView, ReferenceFloatingWindow に onNavigate を伝播
+- guide-what-is-formal-proof, guide-hilbert-proof-method, axiom-a1 のドキュメントにリンクを適用
+- テスト: referenceUILogic.test.ts +7, InlineMarkdown.test.tsx +5
+- カバレッジ: Stmts 99.96% / Branch 99.56% (-0.02%) / Funcs 90.49% (+0.01%) / Lines 99.98% — Branch微減はv8集計quirk
+- スクリーンショット: .screenshots/ref-link-axiom-a1-storybook.png, ref-viewer-axiom-a1-default.png, ref-link-axiom-a1-dev.png, ref-link-navigation-result.png
+- **今後のイテレーションへの学び:**
+  - `parseInlineMarkdown` の regex は順序が重要。ref-link (`\[\[ref:...]]`) は HTML タグより先にマッチさせる
+  - `tagTypeMap` の value 型を `InlineElement["type"]` のまま放置すると、新しい type 追加時に TypeScript エラーになる。サブタイプ `HtmlTagElementType` で型を絞ると安全
+  - InlineMarkdown の onNavigate は Optional prop。未指定でも `onNavigate?.(id)` でエラーにならない
+  - ReferenceFloatingWindow と ReferenceBrowserComponent は別物。FloatingWindow はフルコンテンツ表示、BrowserComponent はカードリスト
+---
