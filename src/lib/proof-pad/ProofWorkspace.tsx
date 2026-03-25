@@ -6601,6 +6601,7 @@ export const ProofWorkspace = forwardRef<
           onOpenReferenceDetail={onOpenReferenceDetail}
           position={axiomPalettePos}
           onDragHandlePointerDown={axiomPaletteDrag.handleProps.onPointerDown}
+          wasDraggedRef={axiomPaletteDrag.wasDraggedRef}
           panelRef={axiomPaletteSize.ref}
           testId={
             /* v8 ignore start -- V8集約アーティファクト */

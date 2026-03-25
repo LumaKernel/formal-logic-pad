@@ -131,6 +131,130 @@ describe("AxiomPalette", () => {
     expect(container.textContent).toContain("A1 (K)");
   });
 
+  describe("畳む/展開（collapse/expand）", () => {
+    it("畳むボタンクリックでパネルが畳まれる", async () => {
+      const user = userEvent.setup();
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={() => {}}
+          testId="palette"
+        />,
+      );
+      expect(screen.getByTestId("palette-item-A1")).toBeInTheDocument();
+      await user.click(screen.getByTestId("palette-collapse"));
+      expect(screen.getByTestId("palette-toggle")).toBeInTheDocument();
+      expect(screen.queryByTestId("palette-item-A1")).not.toBeInTheDocument();
+    });
+
+    it("畳まれた状態でクリックすると展開される", async () => {
+      const user = userEvent.setup();
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={() => {}}
+          testId="palette"
+        />,
+      );
+      await user.click(screen.getByTestId("palette-collapse"));
+      expect(screen.getByTestId("palette-toggle")).toBeInTheDocument();
+      await user.click(screen.getByTestId("palette-toggle"));
+      expect(screen.getByTestId("palette-item-A1")).toBeInTheDocument();
+      expect(screen.queryByTestId("palette-toggle")).not.toBeInTheDocument();
+    });
+
+    it("畳まれた状態で公理数が表示される", async () => {
+      const user = userEvent.setup();
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={() => {}}
+          testId="palette"
+        />,
+      );
+      await user.click(screen.getByTestId("palette-collapse"));
+      const toggle = screen.getByTestId("palette-toggle");
+      expect(toggle.textContent).toContain(
+        `(${String(defaultAxioms.length) satisfies string})`,
+      );
+    });
+
+    it("ドラッグ後のクリックではトグルしない", async () => {
+      const user = userEvent.setup();
+      const wasDraggedRef = { current: true };
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={() => {}}
+          wasDraggedRef={wasDraggedRef}
+          testId="palette"
+        />,
+      );
+      await user.click(screen.getByTestId("palette-collapse"));
+      await user.click(screen.getByTestId("palette-toggle"));
+      expect(screen.getByTestId("palette-toggle")).toBeInTheDocument();
+    });
+
+    it("畳まれた状態でキーボード（Enter）で展開できる", async () => {
+      const user = userEvent.setup();
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={() => {}}
+          testId="palette"
+        />,
+      );
+      await user.click(screen.getByTestId("palette-collapse"));
+      const toggle = screen.getByTestId("palette-toggle");
+      toggle.focus();
+      await user.keyboard("{Enter}");
+      expect(screen.getByTestId("palette-item-A1")).toBeInTheDocument();
+    });
+
+    it("畳まれた状態でキーボード（Space）で展開できる", async () => {
+      const user = userEvent.setup();
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={() => {}}
+          testId="palette"
+        />,
+      );
+      await user.click(screen.getByTestId("palette-collapse"));
+      const toggle = screen.getByTestId("palette-toggle");
+      toggle.focus();
+      await user.keyboard(" ");
+      expect(screen.getByTestId("palette-item-A1")).toBeInTheDocument();
+    });
+
+    it("畳むボタンにaria-label=Collapseがある", () => {
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={() => {}}
+          testId="palette"
+        />,
+      );
+      const collapseBtn = screen.getByTestId("palette-collapse");
+      expect(collapseBtn).toHaveAttribute("aria-label", "Collapse");
+    });
+
+    it("畳まれた状態でrole=buttonとtabIndex=0がある", async () => {
+      const user = userEvent.setup();
+      render(
+        <AxiomPalette
+          axioms={defaultAxioms}
+          onAddAxiom={() => {}}
+          testId="palette"
+        />,
+      );
+      await user.click(screen.getByTestId("palette-collapse"));
+      const toggle = screen.getByTestId("palette-toggle");
+      expect(toggle).toHaveAttribute("role", "button");
+      expect(toggle).toHaveAttribute("tabindex", "0");
+    });
+  });
+
   describe("リファレンスポップオーバー統合", () => {
     it("referenceEntries指定時に(?)ボタンが表示される", () => {
       render(

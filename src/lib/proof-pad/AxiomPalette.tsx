@@ -7,7 +7,7 @@
  * 変更時は AxiomPalette.test.tsx, AxiomPalette.stories.tsx, ProofWorkspace.tsx, index.ts も同期すること。
  */
 
-import { type CSSProperties, useCallback, useMemo } from "react";
+import { type CSSProperties, useCallback, useMemo, useState } from "react";
 import type { AxiomPaletteItem } from "./axiomPaletteLogic";
 import { getAxiomReferenceEntryId } from "./axiomPaletteLogic";
 import type { ReferenceEntry, Locale } from "../reference/referenceEntry";
@@ -36,6 +36,8 @@ export interface AxiomPaletteProps {
   readonly onDragHandlePointerDown?: (
     e: React.PointerEvent<HTMLElement>,
   ) => void;
+  /** ドラッグされたかの参照（ドラッグ後のクリックでトグルしないため） */
+  readonly wasDraggedRef?: React.RefObject<boolean>;
   /** パネルDOM要素へのcallback ref（サイズ計測用） */
   readonly panelRef?: (node: HTMLElement | null) => void;
   /** data-testid */
@@ -63,6 +65,9 @@ const panelStyle: CSSProperties = {
 };
 
 const headerStyle: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
   padding: "4px 12px 8px",
   fontWeight: 700,
   fontSize: 11,
@@ -72,6 +77,16 @@ const headerStyle: CSSProperties = {
   borderBottom:
     "1px solid var(--color-panel-rule-line, rgba(180, 160, 130, 0.15))",
   marginBottom: 4,
+};
+
+const collapseButtonStyle: CSSProperties = {
+  background: "none",
+  border: "none",
+  cursor: "pointer",
+  fontSize: 10,
+  color: "var(--color-text-secondary, #666)",
+  padding: "0 2px",
+  lineHeight: 1,
 };
 
 const itemStyleConst: Readonly<CSSProperties> = {
@@ -103,6 +118,26 @@ const itemFormulaStyle: Readonly<CSSProperties> = {
   whiteSpace: "nowrap",
   overflow: "hidden",
   textOverflow: "ellipsis",
+};
+
+const toggleButtonStyle: CSSProperties = {
+  position: "absolute",
+  top: 48,
+  left: 12,
+  zIndex: 10,
+  background: "var(--color-panel-bg, rgba(252, 249, 243, 0.96))",
+  borderRadius: 8,
+  border: "1px solid var(--color-panel-border, rgba(180, 160, 130, 0.2))",
+  boxShadow: "0 2px 12px var(--color-panel-shadow, rgba(120, 100, 70, 0.1))",
+  padding: "6px 12px",
+  fontFamily: "var(--font-ui)",
+  fontSize: 11,
+  fontWeight: 700,
+  cursor: "pointer",
+  color: "var(--color-text-secondary, #666)",
+  textTransform: "uppercase",
+  letterSpacing: 1,
+  pointerEvents: "auto" as const,
 };
 
 // --- コンポーネント ---
@@ -190,10 +225,22 @@ export function AxiomPalette({
   onOpenReferenceDetail,
   position,
   onDragHandlePointerDown,
+  wasDraggedRef,
   panelRef,
   testId,
 }: AxiomPaletteProps) {
   const msg = useProofMessages();
+  const [collapsed, setCollapsed] = useState(false);
+
+  const handleToggle = useCallback(() => {
+    setCollapsed((prev) => !prev);
+  }, []);
+
+  const handleCollapsedClick = useCallback(() => {
+    if (wasDraggedRef?.current !== true) {
+      handleToggle();
+    }
+  }, [wasDraggedRef, handleToggle]);
   const items = useMemo(
     () =>
       axioms.map((axiom) => {
@@ -236,6 +283,26 @@ export function AxiomPalette({
     [position],
   );
 
+  const resolvedToggleStyle = useMemo(
+    (): CSSProperties =>
+      position !== undefined
+        ? {
+            ...toggleButtonStyle,
+            left: position.x,
+            top: position.y,
+            /* v8 ignore start -- onDragHandlePointerDown always provided in tests */
+            cursor: onDragHandlePointerDown !== undefined ? "grab" : "pointer",
+            /* v8 ignore stop */
+          }
+        : {
+            ...toggleButtonStyle,
+            /* v8 ignore start -- onDragHandlePointerDown always provided in tests */
+            cursor: onDragHandlePointerDown !== undefined ? "grab" : "pointer",
+            /* v8 ignore stop */
+          },
+    [position, onDragHandlePointerDown],
+  );
+
   const dragHeaderStyle = useMemo(
     (): CSSProperties => ({
       ...headerStyle,
@@ -249,10 +316,49 @@ export function AxiomPalette({
     return null;
   }
 
+  if (collapsed) {
+    return (
+      <div
+        ref={panelRef}
+        style={resolvedToggleStyle}
+        role="button"
+        tabIndex={0}
+        onPointerDown={onDragHandlePointerDown}
+        onClick={handleCollapsedClick}
+        /* v8 ignore start -- キーボード操作: role="button"のアクセシビリティ対応 */
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleToggle();
+          }
+        }}
+        /* v8 ignore stop */
+        data-testid={
+          testId !== undefined ? `${testId satisfies string}-toggle` : undefined
+        }
+      >
+        {msg.axiomPaletteHeader} ({axioms.length})
+      </div>
+    );
+  }
+
   return (
     <div ref={panelRef} data-testid={testId} style={resolvedPanelStyle}>
       <div style={dragHeaderStyle} onPointerDown={onDragHandlePointerDown}>
-        {msg.axiomPaletteHeader}
+        <span>{msg.axiomPaletteHeader}</span>
+        <button
+          type="button"
+          style={collapseButtonStyle}
+          onClick={handleToggle}
+          aria-label="Collapse"
+          data-testid={
+            testId !== undefined
+              ? `${testId satisfies string}-collapse`
+              : undefined
+          }
+        >
+          ▲
+        </button>
       </div>
       {items}
     </div>
