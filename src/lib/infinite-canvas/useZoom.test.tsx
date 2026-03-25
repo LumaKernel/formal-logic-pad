@@ -47,6 +47,14 @@ function ZoomTestHarness({
 }
 
 describe("useZoom - wheel zoom (ctrlKey=true, trackpad pinch)", () => {
+  beforeEach(() => {
+    // Make rAF synchronous so viewport updates fire immediately in tests
+    vi.spyOn(globalThis, "requestAnimationFrame").mockImplementation((cb) => {
+      cb(16);
+      return 0;
+    });
+  });
+
   it("zooms on wheel event with ctrlKey (trackpad pinch)", () => {
     const onViewportChange = vi.fn();
     render(
@@ -106,6 +114,14 @@ describe("useZoom - wheel zoom (ctrlKey=true, trackpad pinch)", () => {
 });
 
 describe("useZoom - wheel pan (ctrlKey=false, trackpad two-finger scroll)", () => {
+  beforeEach(() => {
+    // Make rAF synchronous so viewport updates fire immediately in tests
+    vi.spyOn(globalThis, "requestAnimationFrame").mockImplementation((cb) => {
+      cb(16);
+      return 0;
+    });
+  });
+
   it("pans on wheel event without ctrlKey (trackpad scroll)", () => {
     const onViewportChange = vi.fn();
     render(

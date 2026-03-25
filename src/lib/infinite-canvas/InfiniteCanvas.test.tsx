@@ -218,6 +218,11 @@ describe("InfiniteCanvas panning", () => {
     // jsdom does not implement pointer capture methods
     Element.prototype.setPointerCapture = vi.fn();
     Element.prototype.releasePointerCapture = vi.fn();
+    // Make rAF synchronous so viewport updates fire immediately in tests
+    vi.spyOn(globalThis, "requestAnimationFrame").mockImplementation((cb) => {
+      cb(16);
+      return 0;
+    });
   });
 
   it("shows grab cursor by default", () => {
@@ -402,6 +407,11 @@ describe("InfiniteCanvas zooming (ctrlKey=true, trackpad pinch)", () => {
   beforeEach(() => {
     Element.prototype.setPointerCapture = vi.fn();
     Element.prototype.releasePointerCapture = vi.fn();
+    // Make rAF synchronous so viewport updates fire immediately in tests
+    vi.spyOn(globalThis, "requestAnimationFrame").mockImplementation((cb) => {
+      cb(16);
+      return 0;
+    });
   });
 
   it("zooms on wheel with ctrlKey (trackpad pinch)", () => {
@@ -593,6 +603,11 @@ describe("InfiniteCanvas trackpad two-finger scroll (pan)", () => {
   beforeEach(() => {
     Element.prototype.setPointerCapture = vi.fn();
     Element.prototype.releasePointerCapture = vi.fn();
+    // Make rAF synchronous so viewport updates fire immediately in tests
+    vi.spyOn(globalThis, "requestAnimationFrame").mockImplementation((cb) => {
+      cb(16);
+      return 0;
+    });
   });
 
   it("pans on wheel without ctrlKey (two-finger scroll)", () => {
@@ -648,6 +663,11 @@ describe("InfiniteCanvas panEnabled prop", () => {
   beforeEach(() => {
     Element.prototype.setPointerCapture = vi.fn();
     Element.prototype.releasePointerCapture = vi.fn();
+    // Make rAF synchronous so viewport updates fire immediately in tests
+    vi.spyOn(globalThis, "requestAnimationFrame").mockImplementation((cb) => {
+      cb(16);
+      return 0;
+    });
   });
 
   it("disables panning when panEnabled is false", () => {

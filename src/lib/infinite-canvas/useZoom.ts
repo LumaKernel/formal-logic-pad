@@ -42,6 +42,8 @@ function getMidpoint(
 
 /** Hook that provides zoom behavior for InfiniteCanvas.
  *  Handles mouse wheel zoom and pinch-to-zoom gestures.
+ *  Wheel events are batched via requestAnimationFrame to avoid
+ *  excessive re-renders during continuous scrolling.
  *
  *  @param viewport   Current viewport state
  *  @param onViewportChange  Callback when viewport changes due to zooming
@@ -66,6 +68,10 @@ export function useZoom(
     stateRef.current = { viewport, onViewportChange, minScale, maxScale };
   });
 
+  // rAF throttle for wheel events: accumulate viewport changes, flush once per frame
+  const wheelPendingRef = useRef(false);
+  const pendingWheelViewportRef = useRef<ViewportState | null>(null);
+
   // Register wheel listener with { passive: false } to allow preventDefault().
   // React's onWheel is passive in Chrome, which prevents preventDefault().
   useEffect(() => {
@@ -81,26 +87,38 @@ export function useZoom(
         minScale: minS,
         maxScale: maxS,
       } = stateRef.current;
+
+      // Use pending viewport if available (accumulated from previous wheel events in same frame)
+      const currentVp = pendingWheelViewportRef.current ?? vp;
       const action = classifyWheelEvent(e);
 
+      let nextViewport: ViewportState;
       if (action === "pan") {
         const delta = { x: -e.deltaX, y: -e.deltaY };
-        const nextViewport = applyPanDelta(vp, delta);
-        onChange(nextViewport);
-        return;
+        nextViewport = applyPanDelta(currentVp, delta);
+      } else {
+        const rect = el.getBoundingClientRect();
+        const center = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        };
+        const newScale = computeScaleFromWheel(currentVp.scale, e.deltaY);
+        nextViewport = applyZoom(currentVp, center, newScale, minS, maxS);
+        if (nextViewport === currentVp) return;
       }
 
-      const rect = el.getBoundingClientRect();
-      const center = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
+      pendingWheelViewportRef.current = nextViewport;
 
-      const newScale = computeScaleFromWheel(vp.scale, e.deltaY);
-      const nextViewport = applyZoom(vp, center, newScale, minS, maxS);
-
-      if (nextViewport !== vp) {
-        onChange(nextViewport);
+      if (!wheelPendingRef.current) {
+        wheelPendingRef.current = true;
+        requestAnimationFrame(() => {
+          wheelPendingRef.current = false;
+          const pending = pendingWheelViewportRef.current;
+          pendingWheelViewportRef.current = null;
+          if (pending !== null) {
+            onChange(pending);
+          }
+        });
       }
     };
 
