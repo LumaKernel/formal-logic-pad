@@ -135,7 +135,7 @@ function SubstitutionPanel({
           <span style={{ color: "#4a90d9", fontStyle: "italic" }}>
             {sub.variable}
           </span>
-          <span style={{ color: "#888" }}>:=</span>
+          <span style={{ color: "#666" }}>:=</span>
           <input
             data-testid={`subst-input-${connection.id satisfies string}-${String(i) satisfies string}`}
             type="text"

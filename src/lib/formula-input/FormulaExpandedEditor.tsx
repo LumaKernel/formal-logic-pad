@@ -183,7 +183,7 @@ const previewSectionStyle: CSSProperties = {
 
 const previewLabelStyle: CSSProperties = {
   fontSize: "var(--font-size-xs, 11px)",
-  color: "var(--color-text-tertiary, #999999)",
+  color: "var(--color-text-tertiary, #767676)",
   marginBottom: 6,
   textTransform: "uppercase",
   letterSpacing: "0.05em",
@@ -196,7 +196,7 @@ const errorContainerStyle: CSSProperties = {
 };
 
 const errorMessageStyle: CSSProperties = {
-  color: "var(--color-error, #e53e3e)",
+  color: "var(--color-error-text, #991b1b)",
   fontSize: "0.85em",
   fontFamily: "var(--font-mono)",
 };
@@ -434,7 +434,7 @@ export function FormulaExpandedEditor({
             ) : parseState.status === "empty" ? (
               <span
                 style={{
-                  color: "var(--color-text-tertiary, #999999)",
+                  color: "var(--color-text-tertiary, #767676)",
                   fontStyle: "italic",
                 }}
               >

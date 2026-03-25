@@ -134,7 +134,7 @@ const rootSelectorStyle: Readonly<CSSProperties> = {
 };
 
 const emptyMessageStyle: Readonly<CSSProperties> = {
-  color: "var(--color-text-secondary, #999)",
+  color: "var(--color-text-secondary, #666)",
   fontSize: 11,
   fontStyle: "italic",
   textAlign: "center",

@@ -52,7 +52,7 @@ export const BasicTerms: Story = {
               style={{
                 fontFamily: "var(--font-ui)",
                 fontSize: 12,
-                color: "#888",
+                color: "#666",
                 minWidth: 140,
               }}
             >
@@ -119,7 +119,7 @@ export const FunctionApplications: Story = {
               style={{
                 fontFamily: "var(--font-ui)",
                 fontSize: 12,
-                color: "#888",
+                color: "#666",
                 minWidth: 100,
               }}
             >
@@ -193,7 +193,7 @@ export const BinaryOperations: Story = {
               style={{
                 fontFamily: "var(--font-ui)",
                 fontSize: 12,
-                color: "#888",
+                color: "#666",
                 minWidth: 80,
               }}
             >
@@ -273,7 +273,7 @@ export const ComplexTerms: Story = {
               style={{
                 fontFamily: "var(--font-ui)",
                 fontSize: 11,
-                color: "#888",
+                color: "#666",
                 marginBottom: 4,
                 textTransform: "uppercase",
                 letterSpacing: 1,

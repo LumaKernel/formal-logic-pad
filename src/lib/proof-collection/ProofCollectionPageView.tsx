@@ -106,7 +106,7 @@ const headerBarStyle: CSSProperties = {
 
 const entryCountStyle: CSSProperties = {
   fontSize: 13,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   fontWeight: 500,
 };
 
@@ -143,7 +143,7 @@ const entryNameStyle: CSSProperties = {
 
 const entryMemoStyle: CSSProperties = {
   fontSize: 12,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   cursor: "pointer",
   fontStyle: "italic",
   overflow: "hidden",
@@ -227,7 +227,7 @@ const sectionLabelStyle: CSSProperties = {
   padding: "8px 0 4px",
   fontSize: 12,
   fontWeight: 600,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   textTransform: "uppercase",
   letterSpacing: 0.5,
 };

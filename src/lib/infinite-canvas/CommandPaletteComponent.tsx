@@ -104,7 +104,7 @@ const labelStyle: React.CSSProperties = {
 
 const descriptionStyle: React.CSSProperties = {
   fontSize: "12px",
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   whiteSpace: "nowrap",
   overflow: "hidden",
   textOverflow: "ellipsis",
@@ -113,7 +113,7 @@ const descriptionStyle: React.CSSProperties = {
 
 const categoryBadgeStyle: React.CSSProperties = {
   fontSize: "10px",
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   backgroundColor: "var(--color-badge-bg, rgba(0, 0, 0, 0.06))",
   borderRadius: "3px",
   padding: "1px 5px",
@@ -127,7 +127,7 @@ const emptyStyle: React.CSSProperties = {
   padding: "16px",
   textAlign: "center",
   fontSize: "13px",
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   transition: "color var(--theme-transition-duration, 0s) ease",
 };
 

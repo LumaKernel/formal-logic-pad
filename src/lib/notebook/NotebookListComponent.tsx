@@ -110,7 +110,7 @@ const renameInputStyle: Readonly<CSSProperties> = {
 
 const errorStyle: Readonly<CSSProperties> = {
   fontSize: "11px",
-  color: "var(--color-error, #e06060)",
+  color: "var(--color-error-text, #991b1b)",
   marginTop: "2px",
 };
 

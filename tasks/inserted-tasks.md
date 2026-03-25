@@ -41,12 +41,12 @@
   - [ ] Simplify Formula操作も用意してあげよう。 (Simplifyで繋がったノードが作られる)
 
 - [ ] コントラストなどのa11y要因の検査を自動テストに組込もう (Storybook)
-
+  以下参考に。
   ## Storybook × アクセシビリティチェック
 
   Storybookは**公式アドオンが充実していて、むしろPlaywrightより設定が楽**です。
 
-  ***
+  ---
 
   ## ✅ `@storybook/addon-a11y`（まず入れる）
 
@@ -56,12 +56,12 @@
 
   ```javascript
   // .storybook/main.ts
-  addons: ["@storybook/addon-a11y"];
+  addons: ['@storybook/addon-a11y']
   ```
 
   これだけでStorybook UI上にA11yパネルが出て、各Storyのコントラスト違反がその場で見えます。ただしこれはGUI確認用なので、**Claude Codeに渡すにはCLI実行が必要**です。
 
-  ***
+  ---
 
   ## ✅ `@storybook/test-runner` + axe でCLI化
 
@@ -71,22 +71,22 @@
 
   ```typescript
   // .storybook/test-runner.ts
-  import type { TestRunnerConfig } from "@storybook/test-runner";
-  import { checkA11y, injectAxe } from "axe-playwright";
+  import type { TestRunnerConfig } from '@storybook/test-runner';
+  import { checkA11y, injectAxe } from 'axe-playwright';
 
   const config: TestRunnerConfig = {
     async preVisit(page) {
       await injectAxe(page);
     },
     async postVisit(page) {
-      await checkA11y(page, "#storybook-root", {
+      await checkA11y(page, '#storybook-root', {
         axeOptions: {
           runOnly: {
-            type: "tag",
-            values: ["wcag2aa"], // WCAG AA指定
+            type: 'tag',
+            values: ['wcag2aa'],   // WCAG AA指定
           },
         },
-        verbose: true, // コントラスト比など詳細を出力
+        verbose: true,             // コントラスト比など詳細を出力
       });
     },
   };
@@ -101,7 +101,7 @@
   }
   ```
 
-  ***
+  ---
 
   ## 出力例（Claude Codeが読める）
 
@@ -114,19 +114,19 @@
       Fix: 背景色 #4a90e2 に対してテキスト色を #ffffff から #000000 へ変更
   ```
 
-  ***
+  ---
 
   ## Playwright版と比べた優位点
 
-  |                              | @axe-core/playwright | Storybook test-runner |
-  | ---------------------------- | -------------------- | --------------------- |
-  | コンポーネント単位でチェック | △ページ単位          | ✅ Story単位          |
-  | 設定の手軽さ                 | 普通                 | ◎                     |
-  | Next.jsとの統合              | ✅                   | ✅                    |
-  | デザイナーも確認できる       | ❌                   | ✅ GUIで見える        |
-  | 認証が必要なページ           | ✅                   | △                     |
+  | | @axe-core/playwright | Storybook test-runner |
+  |---|---|---|
+  | コンポーネント単位でチェック | △ページ単位 | ✅ Story単位 |
+  | 設定の手軽さ | 普通 | ◎ |
+  | Next.jsとの統合 | ✅ | ✅ |
+  | デザイナーも確認できる | ❌ | ✅ GUIで見える |
+  | 認証が必要なページ | ✅ | △ |
 
-  ***
+  ---
 
   ## どちらを選ぶか
 
@@ -141,3 +141,4 @@
   ```
 
   Next.jsでStorybookを使っているなら、**まずStorybook test-runnerだけで始めて、ページ単位のチェックが必要になったらPlaywrightを追加**、というのが無理のない進め方です。
+  

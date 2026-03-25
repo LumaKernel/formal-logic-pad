@@ -141,7 +141,7 @@ const previewSectionStyle: CSSProperties = {
 
 const previewLabelStyle: CSSProperties = {
   fontSize: "var(--font-size-xs, 11px)",
-  color: "var(--color-text-tertiary, #999999)",
+  color: "var(--color-text-tertiary, #767676)",
   marginBottom: 6,
   textTransform: "uppercase",
   letterSpacing: "0.05em",

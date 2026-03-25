@@ -141,7 +141,7 @@ const countStyle: CSSProperties = {
 const emptyStyle: CSSProperties = {
   padding: "16px 12px",
   textAlign: "center",
-  color: "var(--color-text-secondary, #999)",
+  color: "var(--color-text-secondary, #666)",
   fontStyle: "italic",
   fontSize: 11,
 };
@@ -167,7 +167,7 @@ const entryNameStyle: CSSProperties = {
 
 const entryMemoStyle: CSSProperties = {
   fontSize: 10,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   cursor: "pointer",
   fontStyle: "italic",
   overflow: "hidden",
@@ -248,7 +248,7 @@ const sectionLabelStyle: CSSProperties = {
   padding: "6px 12px 4px",
   fontSize: 10,
   fontWeight: 600,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   textTransform: "uppercase",
   letterSpacing: 0.5,
 };

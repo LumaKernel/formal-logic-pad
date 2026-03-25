@@ -55,6 +55,8 @@ export interface FormulaInputProps {
   readonly showPreview?: boolean;
   /** 入力要素に追加適用するスタイル（背景色・ボーダーなどの上書き用） */
   readonly inputStyle?: CSSProperties;
+  /** aria-label（アクセシビリティ用。省略時はplaceholderをフォールバックに使用） */
+  readonly ariaLabel?: string;
 }
 
 // --- 純粋関数: パース ---
@@ -169,7 +171,7 @@ const errorContainerStyle: CSSProperties = {
 };
 
 const errorMessageStyle: CSSProperties = {
-  color: "var(--color-error, #e53e3e)",
+  color: "var(--color-error-text, #991b1b)",
   fontSize: "0.85em",
   fontFamily: "var(--font-mono)",
 };
@@ -234,6 +236,7 @@ export function FormulaInput({
   onBlur,
   showPreview = true,
   inputStyle: inputStyleOverride,
+  ariaLabel,
 }: FormulaInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -386,6 +389,7 @@ export function FormulaInput({
               : {}),
           }}
           data-testid={testId ? `${testId satisfies string}-input` : undefined}
+          aria-label={ariaLabel ?? placeholder}
           aria-invalid={parseState.status === "error"}
           aria-describedby={
             parseState.status === "error" && testId

@@ -127,7 +127,7 @@ const formulaContainerReadonlyErrorStyle: Readonly<CSSProperties> = {
   ...formulaContainerReadonlyStyle,
   textDecoration: "underline wavy var(--color-error, #e06060)",
   textUnderlineOffset: 3,
-  color: "var(--color-error, #e06060)",
+  color: "var(--color-error-text, #991b1b)",
 };
 
 const noteTextStyle: Readonly<CSSProperties> = {
@@ -160,19 +160,19 @@ const statusBaseStyle: Readonly<CSSProperties> = {
 const statusErrorStyle: Readonly<CSSProperties> = {
   ...statusBaseStyle,
   background: "var(--color-error-bg, rgba(255, 60, 60, 0.25))",
-  color: "var(--color-error, #e06060)",
+  color: "var(--color-error-text, #991b1b)",
 };
 
 const statusWarningStyle: Readonly<CSSProperties> = {
   ...statusBaseStyle,
   background: "var(--color-warning-bg, rgba(255, 215, 0, 0.3))",
-  color: "var(--color-warning, #d9944a)",
+  color: "var(--color-warning-text, #7b5800)",
 };
 
 const statusSuccessStyle: Readonly<CSSProperties> = {
   ...statusBaseStyle,
   background: "var(--color-success-bg, rgba(60, 255, 60, 0.25))",
-  color: "var(--color-success, #2ecc71)",
+  color: "var(--color-success-text, #155724)",
 };
 
 const roleBadgeBaseStyle: CSSProperties = {
@@ -203,7 +203,7 @@ const protectedBadgeStyle: Readonly<CSSProperties> = {
   userSelect: "none",
   letterSpacing: 0.5,
   background: "var(--color-warning-bg, rgba(255, 215, 0, 0.3))",
-  color: "var(--color-warning, #d9944a)",
+  color: "var(--color-warning-text, #7b5800)",
   border: "1px solid var(--color-warning-border, rgba(255, 215, 0, 0.5))",
 };
 
@@ -216,7 +216,7 @@ const axiomNameBadgeStyle: Readonly<CSSProperties> = {
   userSelect: "none",
   letterSpacing: 0.5,
   background: "var(--color-badge-bg, #e8eaf0)",
-  color: "var(--color-badge-text, #718096)",
+  color: "var(--color-badge-text, #4a5568)",
   border: "1px solid var(--color-node-card-border, rgba(0, 0, 0, 0.08))",
 };
 
@@ -237,7 +237,7 @@ const dependencyContainerStyle: Readonly<CSSProperties> = {
   padding: "3px 6px",
   background: "var(--color-badge-bg, #e8eaf0)",
   borderRadius: 4,
-  color: "var(--color-badge-text, #718096)",
+  color: "var(--color-badge-text, #4a5568)",
   textAlign: "left",
 };
 
@@ -245,7 +245,6 @@ const dependencyLabelStyle: Readonly<CSSProperties> = {
   fontWeight: 600,
   marginBottom: 2,
   letterSpacing: 0.5,
-  opacity: 0.7,
 };
 
 const dependencyItemStyle: Readonly<CSSProperties> = {
@@ -265,7 +264,7 @@ const substEntriesContainerStyle: Readonly<CSSProperties> = {
   padding: "3px 6px",
   background: "var(--color-badge-bg, #e8eaf0)",
   borderRadius: 4,
-  color: "var(--color-badge-text, #718096)",
+  color: "var(--color-badge-text, #4a5568)",
   textAlign: "left",
 };
 
@@ -338,7 +337,7 @@ function getRoleBadgeStyle(classification: NodeClassification): CSSProperties {
     return {
       ...roleBadgeBaseStyle,
       background: "var(--color-badge-bg, #e8eaf0)",
-      color: "var(--color-badge-text, #718096)",
+      color: "var(--color-badge-text, #4a5568)",
     };
   }
   /* v8 ignore start — root-unmarked はUI側でフィルタされ到達不能 */
@@ -346,7 +345,7 @@ function getRoleBadgeStyle(classification: NodeClassification): CSSProperties {
     return {
       ...roleBadgeBaseStyle,
       background: "transparent",
-      color: "var(--color-badge-text, #718096)",
+      color: "var(--color-badge-text, #4a5568)",
       border: "1px dashed var(--color-node-card-border, rgba(0,0,0,0.08))",
     };
   }
@@ -355,14 +354,14 @@ function getRoleBadgeStyle(classification: NodeClassification): CSSProperties {
     return {
       ...roleBadgeBaseStyle,
       background: "var(--color-badge-bg, #e8eaf0)",
-      color: "var(--color-badge-text, #718096)",
+      color: "var(--color-badge-text, #4a5568)",
     };
   }
   // note — fall-through (TypeScript narrowing ensures exhaustive)
   return {
     ...roleBadgeBaseStyle,
     background: "var(--color-badge-bg, #e8eaf0)",
-    color: "var(--color-badge-text, #718096)",
+    color: "var(--color-badge-text, #4a5568)",
   };
 }
 

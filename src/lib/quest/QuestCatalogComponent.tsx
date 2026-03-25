@@ -91,7 +91,7 @@ const filterBarStyle: Readonly<CSSProperties> = {
 
 const filterLabelStyle: Readonly<CSSProperties> = {
   fontSize: 11,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   fontWeight: 700,
   letterSpacing: "0.03em",
   textTransform: "uppercase",
@@ -139,7 +139,7 @@ const categoryTitleStyle: Readonly<CSSProperties> = {
 
 const categoryDescStyle: Readonly<CSSProperties> = {
   fontSize: 11,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   marginTop: 2,
 };
 
@@ -206,7 +206,7 @@ const questTitleStyle: Readonly<CSSProperties> = {
 
 const questDescStyle: Readonly<CSSProperties> = {
   fontSize: 11,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   marginTop: 2,
   overflow: "hidden",
   textOverflow: "ellipsis",
@@ -239,7 +239,7 @@ const starStyle: Readonly<CSSProperties> = {
 
 const stepTextStyle: Readonly<CSSProperties> = {
   fontSize: 10,
-  color: "var(--color-text-secondary, #999)",
+  color: "var(--color-text-secondary, #666)",
 };
 
 const ratingBadgeBaseStyle: Readonly<CSSProperties> = {
@@ -283,7 +283,7 @@ const moreMenuDropdownStyle: Readonly<CSSProperties> = {
 const emptyStyle: Readonly<CSSProperties> = {
   textAlign: "center",
   padding: 32,
-  color: "var(--color-text-secondary, #999)",
+  color: "var(--color-text-secondary, #666)",
   fontSize: 13,
   background: "var(--color-quest-empty-bg)",
   borderRadius: 8,

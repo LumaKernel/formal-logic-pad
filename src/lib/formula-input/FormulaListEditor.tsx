@@ -72,7 +72,7 @@ const actionButtonDisabledStyle: CSSProperties = {
 
 const removeButtonStyle: CSSProperties = {
   ...actionButtonStyle,
-  color: "var(--color-error, #d32f2f)",
+  color: "var(--color-error-text, #991b1b)",
   borderColor: "var(--color-error, #d32f2f)",
 };
 
@@ -89,7 +89,7 @@ const addButtonStyle: CSSProperties = {
 
 const errorTextStyle: CSSProperties = {
   fontSize: 10,
-  color: "var(--color-error, #d32f2f)",
+  color: "var(--color-error-text, #991b1b)",
 };
 
 const emptyTextStyle: CSSProperties = {

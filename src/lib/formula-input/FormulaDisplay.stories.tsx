@@ -102,7 +102,7 @@ export const PropositionalConnectives: Story = {
               style={{
                 fontFamily: "var(--font-ui)",
                 fontSize: 12,
-                color: "#888",
+                color: "#666",
                 minWidth: 80,
               }}
             >
@@ -179,7 +179,7 @@ export const Quantifiers: Story = {
               style={{
                 fontFamily: "var(--font-ui)",
                 fontSize: 12,
-                color: "#888",
+                color: "#666",
                 minWidth: 80,
               }}
             >
@@ -253,7 +253,7 @@ export const PredicatesAndEquality: Story = {
               style={{
                 fontFamily: "var(--font-ui)",
                 fontSize: 12,
-                color: "#888",
+                color: "#666",
                 minWidth: 120,
               }}
             >
@@ -336,7 +336,7 @@ export const ComplexFormulas: Story = {
               style={{
                 fontFamily: "var(--font-ui)",
                 fontSize: 11,
-                color: "#888",
+                color: "#666",
                 marginBottom: 4,
                 textTransform: "uppercase",
                 letterSpacing: 1,
@@ -423,7 +423,7 @@ export const SyntaxHighlight: Story = {
               style={{
                 fontFamily: "var(--font-ui)",
                 fontSize: 11,
-                color: "#888",
+                color: "#666",
                 marginBottom: 4,
                 textTransform: "uppercase",
                 letterSpacing: 1,
@@ -520,7 +520,7 @@ export const SubstitutionDisplay: Story = {
               style={{
                 fontFamily: "var(--font-ui)",
                 fontSize: 12,
-                color: "#888",
+                color: "#666",
                 minWidth: 140,
               }}
             >
@@ -593,7 +593,7 @@ export const SubstitutionHighlight: Story = {
               style={{
                 fontFamily: "var(--font-ui)",
                 fontSize: 11,
-                color: "#888",
+                color: "#666",
                 marginBottom: 4,
                 textTransform: "uppercase",
                 letterSpacing: 1,

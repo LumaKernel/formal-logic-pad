@@ -71,7 +71,7 @@ const tabCloseStyle: Readonly<CSSProperties> = {
   borderRadius: "3px",
   border: "none",
   backgroundColor: "transparent",
-  color: "var(--color-text-tertiary, #999999)",
+  color: "var(--color-text-tertiary, #767676)",
   cursor: "pointer",
   fontSize: "12px",
   lineHeight: 1,
@@ -88,7 +88,7 @@ const newTabBtnStyle: Readonly<CSSProperties> = {
   minWidth: "28px",
   border: "none",
   backgroundColor: "transparent",
-  color: "var(--color-text-tertiary, #999999)",
+  color: "var(--color-text-tertiary, #767676)",
   cursor: "pointer",
   fontSize: "16px",
   lineHeight: 1,
@@ -99,7 +99,7 @@ const newTabBtnStyle: Readonly<CSSProperties> = {
 
 const readonlyBadgeStyle: Readonly<CSSProperties> = {
   fontSize: "9px",
-  color: "var(--color-text-tertiary, #999999)",
+  color: "var(--color-text-tertiary, #767676)",
   marginLeft: "-2px",
 };
 

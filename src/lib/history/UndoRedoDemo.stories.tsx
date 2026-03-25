@@ -98,7 +98,7 @@ function UndoRedoDemoComponent() {
           <li
             style={{
               padding: "8px 12px",
-              color: "#999",
+              color: "#666",
               fontStyle: "italic",
               fontSize: 14,
             }}

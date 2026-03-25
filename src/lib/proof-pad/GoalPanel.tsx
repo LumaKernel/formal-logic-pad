@@ -139,27 +139,27 @@ const statusNotAchievedStyle: Readonly<CSSProperties> = {
 };
 
 const statusParseErrorStyle: Readonly<CSSProperties> = {
-  color: "var(--color-error, #c53030)",
+  color: "var(--color-error-text, #991b1b)",
   fontWeight: 400,
   fontSize: 10,
 };
 
 const statusViolationStyle: Readonly<CSSProperties> = {
-  color: "var(--color-warning, #b7791f)",
+  color: "var(--color-warning-text, #7b5800)",
   fontWeight: 700,
   fontSize: 10,
 };
 
 const allowedAxiomsHeaderStyle: Readonly<CSSProperties> = {
   fontSize: 10,
-  color: "var(--color-text-secondary, #999)",
+  color: "var(--color-text-secondary, #666)",
   fontStyle: "italic",
   marginTop: 2,
 };
 
 const allowedAxiomItemStyle: Readonly<CSSProperties> = {
   fontSize: 10,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   display: "flex",
   alignItems: "center",
   gap: 4,
@@ -169,7 +169,7 @@ const allowedAxiomItemStyle: Readonly<CSSProperties> = {
 const allowedAxiomNameStyle: Readonly<CSSProperties> = {
   fontWeight: 600,
   fontSize: 10,
-  color: "var(--color-text-secondary, #777)",
+  color: "var(--color-text-secondary, #666)",
   flexShrink: 0,
 };
 
@@ -178,13 +178,13 @@ const violatingAxiomSectionHeaderStyle: Readonly<CSSProperties> = {
   fontSize: 10,
   textTransform: "uppercase",
   letterSpacing: 0.5,
-  color: "var(--color-warning, #b7791f)",
+  color: "var(--color-warning-text, #7b5800)",
   marginBottom: 4,
 };
 
 const violatingAxiomItemStyle: Readonly<CSSProperties> = {
   fontSize: 10,
-  color: "var(--color-warning, #b7791f)",
+  color: "var(--color-warning-text, #7b5800)",
   display: "flex",
   alignItems: "center",
   gap: 4,
@@ -194,7 +194,7 @@ const violatingAxiomItemStyle: Readonly<CSSProperties> = {
 const violatingAxiomNameStyle: Readonly<CSSProperties> = {
   fontWeight: 700,
   fontSize: 10,
-  color: "var(--color-warning, #b7791f)",
+  color: "var(--color-warning-text, #7b5800)",
   flexShrink: 0,
 };
 
@@ -231,7 +231,7 @@ const detailSectionHeaderStyle: Readonly<CSSProperties> = {
   fontSize: 10,
   textTransform: "uppercase",
   letterSpacing: 0.5,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   marginBottom: 4,
 };
 
@@ -251,7 +251,7 @@ const hintToggleStyle: Readonly<CSSProperties> = {
 
 const hintToggleRevealedStyle: Readonly<CSSProperties> = {
   ...hintToggleStyle,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
 };
 
 const hintTextStyle: Readonly<CSSProperties> = {
@@ -267,7 +267,7 @@ const hintTextStyle: Readonly<CSSProperties> = {
 
 const expandIndicatorStyle: Readonly<CSSProperties> = {
   fontSize: 10,
-  color: "var(--color-text-secondary, #999)",
+  color: "var(--color-text-secondary, #666)",
   marginLeft: "auto",
 };
 

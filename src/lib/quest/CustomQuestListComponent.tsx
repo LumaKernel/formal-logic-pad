@@ -173,7 +173,7 @@ const questTitleStyle: Readonly<CSSProperties> = {
 
 const questDescStyle: Readonly<CSSProperties> = {
   fontSize: 11,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   marginTop: 2,
   overflow: "hidden",
   textOverflow: "ellipsis",
@@ -206,7 +206,7 @@ const starStyle: Readonly<CSSProperties> = {
 
 const stepTextStyle: Readonly<CSSProperties> = {
   fontSize: 10,
-  color: "var(--color-text-secondary, #999)",
+  color: "var(--color-text-secondary, #666)",
 };
 
 const ratingBadgeBaseStyle: Readonly<CSSProperties> = {
@@ -271,7 +271,7 @@ const actionGroupStyle: Readonly<CSSProperties> = {
 const emptyStyle: Readonly<CSSProperties> = {
   textAlign: "center",
   padding: 32,
-  color: "var(--color-text-secondary, #999)",
+  color: "var(--color-text-secondary, #666)",
   fontSize: 13,
   background: "var(--color-quest-empty-bg)",
   borderRadius: "0 0 8px 8px",

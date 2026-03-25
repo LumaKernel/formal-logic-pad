@@ -61,7 +61,7 @@ const badgeStyles: Readonly<Record<FormulaClassification, CSSProperties>> = {
   contradiction: {
     ...badgeBaseStyle,
     backgroundColor: "var(--color-error-bg,#fee2e2)",
-    color: "var(--color-error,#dc2626)",
+    color: "var(--color-error-text,#991b1b)",
   },
 };
 
@@ -149,8 +149,8 @@ export function TruthTableComponent({
                   style={{
                     ...cellBaseStyle,
                     color: v
-                      ? "var(--color-success,#16a34a)"
-                      : "var(--color-error,#dc2626)",
+                      ? "var(--color-success-text,#155724)"
+                      : "var(--color-error-text,#991b1b)",
                   }}
                 >
                   {formatTruthValue(v)}
@@ -160,8 +160,8 @@ export function TruthTableComponent({
                 style={{
                   ...tdResultBaseStyle,
                   color: row.result
-                    ? "var(--color-success,#16a34a)"
-                    : "var(--color-error,#dc2626)",
+                    ? "var(--color-success-text,#155724)"
+                    : "var(--color-error-text,#991b1b)",
                 }}
               >
                 {formatTruthValue(row.result)}

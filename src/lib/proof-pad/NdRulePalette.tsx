@@ -89,7 +89,7 @@ const sectionHeaderStyle: Readonly<CSSProperties> = {
   fontSize: 10,
   textTransform: "uppercase",
   letterSpacing: 0.8,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
 };
 
 const ruleItemStyle: Readonly<CSSProperties> = {

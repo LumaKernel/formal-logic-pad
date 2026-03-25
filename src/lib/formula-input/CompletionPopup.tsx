@@ -69,7 +69,7 @@ const categoryBadgeStyle: CSSProperties = {
   padding: "1px 4px",
   borderRadius: 3,
   backgroundColor: "var(--color-bg-secondary, #edf2f7)",
-  color: "var(--color-text-secondary, #718096)",
+  color: "var(--color-text-secondary, #4a5568)",
 };
 
 // --- コンポーネント ---

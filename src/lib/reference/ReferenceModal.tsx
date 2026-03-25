@@ -94,7 +94,7 @@ const headerButtonsStyle: CSSProperties = {
 const categoryBadgeStyle: CSSProperties = {
   display: "inline-block",
   fontSize: "var(--font-size-xs, 11px)",
-  color: "var(--color-badge-text, #718096)",
+  color: "var(--color-badge-text, #4a5568)",
   backgroundColor: "var(--color-badge-bg, #e8eaf0)",
   borderRadius: "4px",
   padding: "2px 6px",
@@ -198,7 +198,7 @@ const modalNavLinkStyle: CSSProperties = {
 
 const modalNavLabelStyle: CSSProperties = {
   fontSize: "var(--font-size-xs, 11px)",
-  color: "var(--color-text-secondary, #999)",
+  color: "var(--color-text-secondary, #666)",
 };
 
 const modalNavTitleStyle: CSSProperties = {

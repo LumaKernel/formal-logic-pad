@@ -114,7 +114,7 @@ const bodyStyle: CSSProperties = {
 const categoryBadgeStyle: CSSProperties = {
   display: "inline-block",
   fontSize: "var(--font-size-xs, 11px)",
-  color: "var(--color-badge-text, #718096)",
+  color: "var(--color-badge-text, #4a5568)",
   backgroundColor: "var(--color-badge-bg, #e8eaf0)",
   borderRadius: "4px",
   padding: "2px 6px",
@@ -211,7 +211,7 @@ const navButtonStyle: CSSProperties = {
 };
 
 const navButtonLabelStyle: CSSProperties = {
-  color: "var(--color-text-secondary, #999)",
+  color: "var(--color-text-secondary, #666)",
   fontSize: "10px",
 };
 

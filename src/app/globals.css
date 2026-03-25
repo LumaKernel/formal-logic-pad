@@ -46,7 +46,7 @@
   --ui-secondary: #f5f5f5;
   --ui-secondary-foreground: #171717;
   --ui-muted: #f5f5f5;
-  --ui-muted-foreground: #737373;
+  --ui-muted-foreground: #6e6e6e;
   --ui-accent: #f5f5f5;
   --ui-accent-foreground: #171717;
   --ui-destructive: #ef4444;
@@ -62,6 +62,7 @@
   /* Text */
   --color-text-primary: #171717;
   --color-text-secondary: #666666;
+  --color-text-tertiary: #767676;
 
   /* Border */
   --color-border: #e2e8f0;
@@ -95,6 +96,7 @@
   --color-info-text: #004085;
   --color-warning: #d9944a;
   --color-warning-hover: #b5752e;
+  --color-warning-text: #7b5800;
   --color-warning-bg: rgba(255, 215, 0, 0.3);
   --color-warning-border: rgba(255, 215, 0, 0.5);
 
@@ -106,7 +108,7 @@
 
   /* Badge */
   --color-badge-bg: #e8eaf0;
-  --color-badge-text: #718096;
+  --color-badge-text: #4a5568;
 
   /* Minimap */
   --color-minimap-bg: rgba(255, 255, 255, 0.9);
@@ -240,7 +242,7 @@
   --color-syntax-predicate: #6b5b00;
   --color-syntax-function: #5b4080;
   --color-syntax-constant: #b5500a;
-  --color-syntax-subscript: #888888;
+  --color-syntax-subscript: #666666;
   --color-syntax-equality: #7b3fa0;
   --color-syntax-punctuation: #555555;
   --color-syntax-negation: #c03030;
@@ -278,6 +280,7 @@
   /* Text — WCAG AA: #e0e0e0 on #0a0a0a = 15.3:1 */
   --color-text-primary: #e0e0e0;
   --color-text-secondary: #999999;
+  --color-text-tertiary: #8a8a8a;
 
   /* Border */
   --color-border: #2d3748;
@@ -311,6 +314,7 @@
   --color-info-text: #93c5fd;
   --color-warning: #e0a05a;
   --color-warning-hover: #c88a42;
+  --color-warning-text: #fbbf24;
   --color-warning-bg: rgba(255, 215, 0, 0.15);
   --color-warning-border: rgba(255, 215, 0, 0.3);
 
@@ -437,7 +441,7 @@
   --color-quest-rating-clear-bg: rgba(107, 146, 184, 0.15);
   --color-quest-rating-clear-text: #6b92b8;
   --color-quest-rating-none-bg: rgba(100, 90, 75, 0.15);
-  --color-quest-rating-none-text: #888;
+  --color-quest-rating-none-text: #666;
   --color-quest-start-bg: #6b92b8;
   --color-quest-start-hover-bg: #5a7d9e;
   --color-quest-difficulty-bg: rgba(100, 90, 75, 0.15);

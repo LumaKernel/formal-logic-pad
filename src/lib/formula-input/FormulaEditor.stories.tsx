@@ -51,7 +51,7 @@ function FormulaEditorWrapper({
           style={{
             marginTop: 8,
             fontSize: 12,
-            color: "var(--color-text-secondary, #888)",
+            color: "var(--color-text-secondary, #666)",
             fontFamily: "var(--font-mono)",
           }}
         >
@@ -358,7 +358,7 @@ export const EditTriggerComparison: Story = {
               style={{
                 fontFamily: "var(--font-mono)",
                 fontSize: 11,
-                color: "var(--color-text-secondary, #888)",
+                color: "var(--color-text-secondary, #666)",
                 marginBottom: 12,
               }}
             >
@@ -427,7 +427,7 @@ function MultilineAutoExpandWrapper() {
         style={{
           marginTop: 8,
           fontSize: 12,
-          color: "var(--color-text-secondary, #888)",
+          color: "var(--color-text-secondary, #666)",
         }}
       >
         {expandedOpen ? "拡大エディタ: 開いている" : "拡大エディタ: 閉じている"}

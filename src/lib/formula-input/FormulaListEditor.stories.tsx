@@ -29,7 +29,7 @@ function FormulaListEditorWrapper({
         style={{
           marginTop: 12,
           fontSize: 11,
-          color: "var(--color-text-secondary, #888)",
+          color: "var(--color-text-secondary, #666)",
         }}
       >
         {`${String(formulas.length) satisfies string} 件`}

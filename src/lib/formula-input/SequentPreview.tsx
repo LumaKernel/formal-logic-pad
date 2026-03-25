@@ -46,18 +46,18 @@ const turnstileStyle: CSSProperties = {
 
 const commaStyle: CSSProperties = {
   fontStyle: "normal",
-  color: "var(--color-text-tertiary, #999999)",
+  color: "var(--color-text-tertiary, #767676)",
 };
 
 const errorTextStyle: CSSProperties = {
-  color: "var(--color-error, #e53e3e)",
+  color: "var(--color-error-text, #991b1b)",
   fontFamily: "var(--font-mono)",
   fontStyle: "normal",
   fontSize: 12,
 };
 
 const emptyPlaceholderStyle: CSSProperties = {
-  color: "var(--color-text-tertiary, #999999)",
+  color: "var(--color-text-tertiary, #767676)",
   fontStyle: "italic",
   fontSize: 12,
 };

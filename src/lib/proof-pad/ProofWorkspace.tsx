@@ -545,7 +545,7 @@ const headerStyle = {
 const systemBadgeStyle: CSSProperties = {
   padding: "2px 8px",
   background: "var(--color-paper-button-bg, rgba(255, 253, 248, 0.9))",
-  color: "var(--color-badge-text, #718096)",
+  color: "var(--color-badge-text, #4a5568)",
   borderRadius: 6,
   fontWeight: 600,
   fontSize: 12,
@@ -828,7 +828,7 @@ const questDetailSectionHeaderStyle: Readonly<CSSProperties> = {
   fontSize: 10,
   textTransform: "uppercase",
   letterSpacing: 0.5,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   marginBottom: 4,
 };
 
@@ -864,7 +864,7 @@ const tabDetailEntryLabelStyle: Readonly<CSSProperties> = {
   fontSize: 10,
   textTransform: "uppercase",
   letterSpacing: 0.5,
-  color: "var(--color-text-secondary, #888)",
+  color: "var(--color-text-secondary, #666)",
   marginBottom: 2,
 };
 
@@ -5037,7 +5037,7 @@ export const ProofWorkspace = forwardRef<
         /* v8 ignore stop */
         const color = nodeValidation
           ? nodeValidation.type === "error"
-            ? "var(--color-error, #e06060)"
+            ? "var(--color-error-text, #991b1b)"
             : "var(--color-success, #60c060)"
           : getNodeClassificationEdgeColor(fromClassification);
 

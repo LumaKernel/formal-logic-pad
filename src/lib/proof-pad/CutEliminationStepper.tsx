@@ -122,7 +122,7 @@ const successStyle: Readonly<CSSProperties> = {
 };
 
 const failureStyle: Readonly<CSSProperties> = {
-  color: "var(--color-error, #c53030)",
+  color: "var(--color-error-text, #991b1b)",
   fontWeight: 700,
   fontSize: 10,
 };
