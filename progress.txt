@@ -109,6 +109,24 @@
 
 ---
 
+## 2026-03-25 - [landing-page] タブ遷移後はLP非表示にする
+
+- ベースライン: Stmts 99.96%, Branch 99.58%, Funcs 90.48%, Lines 99.98%
+- **結果: カバレッジ変化なし（条件変更のみ）**
+- 実装内容:
+  - `shouldShowLandingPage` に `hasNavigatedInSession` パラメータ追加
+  - sessionStorage でタブ遷移済みフラグを管理（リロードでリセット）
+  - notebooks以外のタブ訪問時 or handleTabChange呼び出し時にフラグセット
+- 変更ファイル:
+  - src/app/landingPageLogic.ts
+  - src/app/landingPageLogic.test.ts
+  - src/app/HubContent.tsx
+- **今後のイテレーションへの学び:**
+  - sessionStorage はルート遷移でも保持されるが、リロードでクリアされる（セッションスコープ）
+  - Next.js のルートベースタブは遷移時にコンポーネントが再マウントされるため、React state だけでは不十分
+
+---
+
 ## 2026-03-25 - [formula-input] エラーハイライト文字色のコントラスト改善
 
 - ベースライン: Stmts 99.96%, Branch 99.58%, Funcs 90.50%, Lines 99.98%

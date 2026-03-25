@@ -281,3 +281,6 @@
   - `@storybook/addon-a11y` + `a11yAddonAnnotations` は設定済み
   - WCAG AAコントラスト比改善: globals.css変数改善、46ファイルの色修正
   - `preview.ts` の `a11y.test: "todo"` → まだ285テストがa11y違反。`"error"` 有効化は残違反解消後
+
+- [x] 一度タブ画面に移動していたら、ノートが一個もないときのLP画面は出さないようにしよう。(リロードなどしない限り)
+  - sessionStorageでタブ遷移済みフラグを管理。リロードでリセット
