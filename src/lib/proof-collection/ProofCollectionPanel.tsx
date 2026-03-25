@@ -92,6 +92,8 @@ export interface ProofCollectionPanelProps {
   readonly panelRef?: (node: HTMLElement | null) => void;
   /** パネルを非表示にするコールバック（×ボタン用） */
   readonly onHide?: () => void;
+  /** ハイライト対象のエントリID（保存直後に一時的にハイライト表示する） */
+  readonly highlightedEntryId?: ProofEntryId;
   /** data-testid */
   readonly testId?: string;
 }
@@ -400,6 +402,7 @@ function CollectionEntry({
   onImport,
   onMoveEntry,
   compatibilityBadge,
+  highlighted,
   testId,
 }: {
   readonly entry: ProofEntry;
@@ -420,6 +423,7 @@ function CollectionEntry({
     | ((id: ProofEntryId, folderId: ProofFolderId | undefined) => void)
     | undefined;
   readonly compatibilityBadge: CompatibilityBadge | undefined;
+  readonly highlighted: boolean;
   readonly testId: string | undefined;
 }) {
   const entryTestId =
@@ -427,8 +431,36 @@ function CollectionEntry({
       ? `${testId satisfies string}-entry-${entry.id satisfies string}`
       : undefined;
 
+  const entryRef = useRef<HTMLDivElement>(null);
+
+  // ハイライト対象の場合、スクロールして表示する
+  useEffect(() => {
+    if (highlighted && entryRef.current !== null) {
+      entryRef.current.scrollIntoView?.({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [highlighted]);
+
+  const resolvedEntryStyle = useMemo(
+    (): CSSProperties =>
+      highlighted
+        ? {
+            ...entryStyle,
+            backgroundColor:
+              "var(--color-highlight-bg, rgba(59, 130, 246, 0.1))",
+            outline:
+              "2px solid var(--color-highlight-border, rgba(59, 130, 246, 0.4))",
+            outlineOffset: -2,
+            borderRadius: 4,
+          }
+        : entryStyle,
+    [highlighted],
+  );
+
   return (
-    <div style={entryStyle} data-testid={entryTestId}>
+    <div ref={entryRef} style={resolvedEntryStyle} data-testid={entryTestId}>
       <EditableField
         value={entry.name}
         isCurrentlyEditing={isEditing(panelState, entry.id, "name")}
@@ -747,6 +779,7 @@ export function ProofCollectionPanel({
   wasDraggedRef,
   panelRef,
   onHide,
+  highlightedEntryId,
   testId,
 }: ProofCollectionPanelProps) {
   const [collapsed, setCollapsed] = useState(false);
@@ -931,6 +964,7 @@ export function ProofCollectionPanel({
           ? getCompatibilityBadge(getCompatibility(entry))
           : undefined
       }
+      highlighted={highlightedEntryId === entry.id}
       testId={testId}
     />
   );

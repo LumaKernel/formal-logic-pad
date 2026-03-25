@@ -227,8 +227,11 @@ import {
   isTabInferenceEdge,
   getInferenceEdgePremiseNodeIds,
 } from "./inferenceEdge";
-import type { ProofSaveParams } from "../proof-collection/proofCollectionState";
-import type { ProofEntry } from "../proof-collection/proofCollectionState";
+import type {
+  ProofSaveParams,
+  ProofEntry,
+  ProofEntryId,
+} from "../proof-collection/proofCollectionState";
 import { prepareProofSaveParams } from "../proof-collection/proofCollectionState";
 import { ProofCollectionPanel } from "../proof-collection/ProofCollectionPanel";
 import { checkProofCompatibility } from "../proof-collection/proofCollectionCompatibility";
@@ -399,8 +402,10 @@ export interface ProofWorkspaceProps {
   readonly onOpenSyntaxHelp?: () => void;
   /** クエスト情報（ゴールパネルの詳細表示に使用） */
   readonly questInfo?: GoalQuestInfo;
-  /** 証明をコレクションに保存するコールバック（指定時にコンテキストメニューに「コレクションに保存」を表示） */
-  readonly onSaveProofToCollection?: (params: ProofSaveParams) => void;
+  /** 証明をコレクションに保存するコールバック（指定時にコンテキストメニューに「コレクションに保存」を表示）。保存されたエントリIDを返す */
+  readonly onSaveProofToCollection?: (
+    params: ProofSaveParams,
+  ) => ProofEntryId | undefined;
   /** コレクションエントリ一覧（指定時にコレクションパネルを有効化） */
   readonly collectionEntries?: readonly ProofEntry[];
   /** コレクションエントリ名変更 */
@@ -1305,6 +1310,13 @@ export const ProofWorkspace = forwardRef<
   // コレクションパネル非表示状態（デフォルト: 非表示）
   const [collectionPanelHidden, setCollectionPanelHidden] = useState(
     !initialCollectionPanelVisible,
+  );
+
+  // コレクション保存後のハイライト対象エントリID（一定時間後に自動消去）
+  const [highlightedCollectionEntryId, setHighlightedCollectionEntryId] =
+    useState<ProofEntryId | undefined>(undefined);
+  const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
   );
 
   // キャンバス空白部分コンテキストメニュー
@@ -3403,7 +3415,19 @@ export const ProofWorkspace = forwardRef<
     );
     /* v8 ignore start -- コレクション保存のロジックはprepareProofSaveParams単体テストで検証 */
     if (params !== undefined) {
-      onSaveProofToCollection(params);
+      const savedId = onSaveProofToCollection(params);
+      if (savedId !== undefined) {
+        // 保存後: コレクションパネルを開いてハイライト
+        setCollectionPanelHidden(false);
+        setHighlightedCollectionEntryId(savedId);
+        if (highlightTimerRef.current !== undefined) {
+          clearTimeout(highlightTimerRef.current);
+        }
+        highlightTimerRef.current = setTimeout(() => {
+          setHighlightedCollectionEntryId(undefined);
+          highlightTimerRef.current = undefined;
+        }, 3000);
+      }
     }
     /* v8 ignore stop */
     setNodeMenuState(closeNodeMenu());
@@ -6863,6 +6887,7 @@ export const ProofWorkspace = forwardRef<
           }
           wasDraggedRef={collectionPanelDrag.wasDraggedRef}
           onHide={handleHideCollectionPanel}
+          highlightedEntryId={highlightedCollectionEntryId}
           testId={
             /* v8 ignore start -- V8集約アーティファクト */
             testId ? `${testId satisfies string}-collection-panel` : undefined

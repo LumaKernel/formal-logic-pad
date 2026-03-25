@@ -1320,4 +1320,42 @@ describe("ProofCollectionPanel", () => {
       expect(onImportEntry).toHaveBeenCalledWith(entry);
     });
   });
+
+  describe("ハイライト表示", () => {
+    it("highlightedEntryId指定時に対象エントリにoutlineスタイルが適用される", () => {
+      const entries = [
+        createTestEntry({ id: "e1", name: "Highlighted" }),
+        createTestEntry({ id: "e2", name: "Normal" }),
+      ];
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          highlightedEntryId="e1"
+          testId="panel"
+        />,
+      );
+      const highlighted = screen.getByTestId("panel-entry-e1");
+      const normal = screen.getByTestId("panel-entry-e2");
+      expect(highlighted.style.outline).toContain("solid");
+      expect(normal.style.outline).toBe("");
+    });
+
+    it("highlightedEntryId未指定時はハイライトなし", () => {
+      const entries = [createTestEntry({ id: "e1", name: "Entry" })];
+      render(
+        <ProofCollectionPanel
+          entries={entries}
+          folders={[]}
+          messages={defaultProofMessages}
+          {...defaultCallbacks}
+          testId="panel"
+        />,
+      );
+      const entry = screen.getByTestId("panel-entry-e1");
+      expect(entry.style.outline).toBe("");
+    });
+  });
 });

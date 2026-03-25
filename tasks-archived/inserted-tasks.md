@@ -308,3 +308,7 @@
   - ドラッグ移動は既に実装済み。畳む（collapse）機能を追加。GoalPanelのパターンを踏襲。
   - AxiomPaletteにcollapsed状態、toggleButtonStyle、collapseButton、wasDraggedRef連携を追加
   - テスト8件追加、ストーリー2件（Default + CollapseAndExpand）を新規作成
+
+- [x] ページは基本的に移動した状態のスケルトン的な状態で待機するようにしよう (体験的に)。まずは瞬時に移動がしっかり起こるように。
+  - [x] タブ切り替え: (hub) route group + usePathname() でHubContent再マウント防止
+  - [x] ノートを開く、模範解答を開く、など — loading.tsx + dynamic() loading prop でスケルトン表示

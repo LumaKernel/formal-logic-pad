@@ -442,9 +442,7 @@ function WorkspaceInner() {
 
   const addProofEntry = proofCollection.addEntry;
   const handleSaveToCollection = useCallback(
-    (params: ProofSaveParams) => {
-      addProofEntry(params);
-    },
+    (params: ProofSaveParams) => addProofEntry(params),
     [addProofEntry],
   );
 

@@ -25,6 +25,7 @@ import type { GoalQuestInfo } from "../../../lib/proof-pad";
 import type {
   ProofSaveParams,
   ProofEntry,
+  ProofEntryId,
 } from "../../../lib/proof-collection";
 import type { ReferenceEntry } from "../../../lib/reference/referenceEntry";
 import type { Locale } from "../../../lib/reference/referenceEntry";
@@ -74,7 +75,9 @@ export type WorkspacePageViewProps = {
       /** 自由帳として複製するコールバック（ProofWorkspaceに転送） */
       readonly onDuplicateToFree?: () => void;
       /** 証明をコレクションに保存するコールバック */
-      readonly onSaveProofToCollection?: (params: ProofSaveParams) => void;
+      readonly onSaveProofToCollection?: (
+        params: ProofSaveParams,
+      ) => ProofEntryId | undefined;
       /** コレクションエントリ一覧 */
       readonly collectionEntries?: readonly ProofEntry[];
       /** コレクションエントリ名変更 */
