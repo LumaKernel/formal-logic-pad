@@ -7,7 +7,12 @@
  * 変更時は referenceUILogic.test.ts も同期すること。
  */
 
-import type { ExternalLink, Locale, ReferenceEntry } from "./referenceEntry";
+import type {
+  BibliographyEntry,
+  ExternalLink,
+  Locale,
+  ReferenceEntry,
+} from "./referenceEntry";
 import {
   findCategoryMeta,
   getLocalizedParagraphs,
@@ -31,6 +36,11 @@ export type InlineElement =
   | {
       readonly type: "ref-link";
       readonly refId: string;
+      readonly content: string;
+    }
+  | {
+      readonly type: "cite-link";
+      readonly citeKey: string;
       readonly content: string;
     };
 
@@ -82,16 +92,34 @@ function parseSubscriptsInText(content: string): readonly InlineElement[] {
  */
 export function parseInlineMarkdown(text: string): readonly InlineElement[] {
   const rawElements: InlineElement[] = [];
-  // HTMLタグ、$...$、[[ref:id]] / [[ref:id|text]] にマッチする正規表現
+  // HTMLタグ、$...$、[[ref:id]] / [[ref:id|text]]、[[cite:key]] / [[cite:key|text]] にマッチする正規表現
   // $...$ は非貪欲マッチで、$ の直後が空白でないものにマッチ
   // [[ref:id]] は id のみ（タイトルは呼び出し側で解決）
   // [[ref:id|text]] は表示テキスト指定あり
+  // [[cite:key]] は参考文献リンク（key のみ or 表示テキスト指定）
   const tokenRegex =
-    /<(b|i|code)>|\$([^$]+?)\$|\[\[ref:([a-z0-9-]+)(?:\|([^\]]+))?\]\]/g;
+    /<(b|i|code)>|\$([^$]+?)\$|\[\[ref:([a-z0-9-]+)(?:\|([^\]]+))?\]\]|\[\[cite:([a-z0-9-]+)(?:\|([^\]]+))?\]\]/g;
   let lastIndex = 0;
 
   let match: RegExpExecArray | null;
   while ((match = tokenRegex.exec(text)) !== null) {
+    // [[cite:key]] or [[cite:key|text]] 参考文献リンクマッチ
+    if (match[5] !== undefined) {
+      if (match.index > lastIndex) {
+        rawElements.push({
+          type: "text",
+          content: text.slice(lastIndex, match.index),
+        });
+      }
+      rawElements.push({
+        type: "cite-link",
+        citeKey: match[5],
+        content: match[6] ?? match[5],
+      });
+      lastIndex = match.index + match[0].length;
+      continue;
+    }
+
     // [[ref:id]] or [[ref:id|text]] リファレンスリンクマッチ
     if (match[3] !== undefined) {
       if (match.index > lastIndex) {
@@ -220,6 +248,8 @@ export type ModalData = {
     readonly label: string;
     readonly documentLanguage: Locale;
   }[];
+  /** 参考文献リスト（エントリに紐づく文献、表示順） */
+  readonly bibliography: readonly BibliographyEntry[];
 };
 
 /** エントリからモーダル表示用データを生成する */
@@ -227,6 +257,7 @@ export function buildModalData(
   entry: ReferenceEntry,
   allEntries: readonly ReferenceEntry[],
   locale: Locale,
+  bibliographyRegistry?: ReadonlyMap<string, BibliographyEntry>,
 ): ModalData {
   const categoryMeta = findCategoryMeta(entry.category);
   const relatedIds = new Set(entry.relatedEntryIds);
@@ -247,6 +278,13 @@ export function buildModalData(
     documentLanguage: link.documentLanguage,
   }));
 
+  const bibliography: readonly BibliographyEntry[] =
+    entry.bibliographyKeys !== undefined && bibliographyRegistry !== undefined
+      ? entry.bibliographyKeys
+          .map((key) => bibliographyRegistry.get(key))
+          .filter((b) => b !== undefined)
+      : [];
+
   return {
     title: getLocalizedText(entry.title, locale),
     categoryLabel: categoryMeta
@@ -258,5 +296,6 @@ export function buildModalData(
     relatedEntries,
     relatedQuestIds: entry.relatedQuestIds ?? [],
     externalLinks,
+    bibliography,
   };
 }

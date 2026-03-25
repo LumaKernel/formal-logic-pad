@@ -16,6 +16,8 @@ export interface InlineMarkdownProps {
   readonly text: string;
   /** リファレンスリンククリック時のコールバック */
   readonly onNavigate?: (entryId: string) => void;
+  /** 参考文献リンククリック時のコールバック */
+  readonly onCiteClick?: (citeKey: string) => void;
 }
 
 /** KaTeX でインライン数式をHTMLに変換する（純粋関数） */
@@ -67,7 +69,21 @@ const refLinkStyle: React.CSSProperties = {
   textUnderlineOffset: "2px",
 };
 
-export function InlineMarkdown({ text, onNavigate }: InlineMarkdownProps) {
+/** 参考文献リンク（上付き）のスタイル */
+const citeLinkStyle: React.CSSProperties = {
+  color: "var(--color-link, #0066cc)",
+  cursor: "pointer",
+  textDecoration: "none",
+  fontSize: "0.75em",
+  verticalAlign: "super",
+  lineHeight: 1,
+};
+
+export function InlineMarkdown({
+  text,
+  onNavigate,
+  onCiteClick,
+}: InlineMarkdownProps) {
   const elements = useMemo(() => parseInlineMarkdown(text), [text]);
 
   return (
@@ -116,6 +132,30 @@ export function InlineMarkdown({ text, onNavigate }: InlineMarkdownProps) {
               }}
             >
               {el.content}
+            </a>
+          );
+        }
+        if (el.type === "cite-link") {
+          return (
+            <a
+              key={key}
+              role="button"
+              tabIndex={0}
+              style={citeLinkStyle}
+              data-cite-key={el.citeKey}
+              id={`cite-ref-${el.citeKey satisfies string}`}
+              onClick={(e) => {
+                e.preventDefault();
+                onCiteClick?.(el.citeKey);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onCiteClick?.(el.citeKey);
+                }
+              }}
+            >
+              [{el.content}]
             </a>
           );
         }

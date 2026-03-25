@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ReferenceEntry } from "./referenceEntry";
+import type { BibliographyEntry, ReferenceEntry } from "./referenceEntry";
 import {
   buildModalData,
   buildPopoverData,
@@ -394,6 +394,65 @@ describe("parseInlineMarkdown", () => {
       { type: "text", content: "を適用する" },
     ]);
   });
+
+  // --- 参考文献リンク ([[cite:key]]) ---
+
+  it("参考文献リンク([[cite:key]])をパースする", () => {
+    const result = parseInlineMarkdown("see [[cite:bekki2012]] for details");
+    expect(result).toEqual([
+      { type: "text", content: "see " },
+      { type: "cite-link", citeKey: "bekki2012", content: "bekki2012" },
+      { type: "text", content: " for details" },
+    ]);
+  });
+
+  it("表示テキスト付き参考文献リンク([[cite:key|text]])をパースする", () => {
+    const result = parseInlineMarkdown(
+      "follows [[cite:bekki2012|Bekki, Ch. 8]].",
+    );
+    expect(result).toEqual([
+      { type: "text", content: "follows " },
+      {
+        type: "cite-link",
+        citeKey: "bekki2012",
+        content: "Bekki, Ch. 8",
+      },
+      { type: "text", content: "." },
+    ]);
+  });
+
+  it("複数の参考文献リンクをパースする", () => {
+    const result = parseInlineMarkdown(
+      "[[cite:bekki2012|Bekki]] and [[cite:gentzen1935|Gentzen, 1935]]",
+    );
+    expect(result).toEqual([
+      { type: "cite-link", citeKey: "bekki2012", content: "Bekki" },
+      { type: "text", content: " and " },
+      {
+        type: "cite-link",
+        citeKey: "gentzen1935",
+        content: "Gentzen, 1935",
+      },
+    ]);
+  });
+
+  it("参考文献リンクとリファレンスリンクの混在をパースする", () => {
+    const result = parseInlineMarkdown(
+      "[[ref:rule-mp|MP]] in [[cite:bekki2012|Bekki]]",
+    );
+    expect(result).toEqual([
+      { type: "ref-link", refId: "rule-mp", content: "MP" },
+      { type: "text", content: " in " },
+      { type: "cite-link", citeKey: "bekki2012", content: "Bekki" },
+    ]);
+  });
+
+  it("参考文献リンクのみの文字列をパースする", () => {
+    const result = parseInlineMarkdown("[[cite:godel1930]]");
+    expect(result).toEqual([
+      { type: "cite-link", citeKey: "godel1930", content: "godel1930" },
+    ]);
+  });
 });
 
 // --- buildPopoverData ---
@@ -590,5 +649,49 @@ describe("buildModalData", () => {
     const result = buildModalData(entry, [entry], "en");
 
     expect(result.relatedQuestIds).toEqual([]);
+  });
+
+  // --- bibliography ---
+
+  it("bibliographyRegistryなしではbibliographyは空配列", () => {
+    const entry = makeEntry({ bibliographyKeys: ["bekki2012"] });
+    const result = buildModalData(entry, [entry], "en");
+
+    expect(result.bibliography).toEqual([]);
+  });
+
+  it("bibliographyKeysなしではbibliographyは空配列", () => {
+    const registry = new Map<string, BibliographyEntry>();
+    const entry = makeEntry();
+    const result = buildModalData(entry, [entry], "en", registry);
+
+    expect(result.bibliography).toEqual([]);
+  });
+
+  it("bibliographyKeysとregistryが一致する場合は参考文献を返す", () => {
+    const bibEntry: BibliographyEntry = {
+      key: "bekki2012",
+      authors: "Daisuke Bekki",
+      title: "数理論理学",
+      year: 2012,
+      publisher: "東京大学出版会",
+    };
+    const registry = new Map<string, BibliographyEntry>([
+      ["bekki2012", bibEntry],
+    ]);
+    const entry = makeEntry({ bibliographyKeys: ["bekki2012"] });
+    const result = buildModalData(entry, [entry], "en", registry);
+
+    expect(result.bibliography).toEqual([bibEntry]);
+  });
+
+  it("存在しないbibliographyKeyは無視される", () => {
+    const registry = new Map<string, BibliographyEntry>();
+    const entry = makeEntry({
+      bibliographyKeys: ["nonexistent"],
+    });
+    const result = buildModalData(entry, [entry], "en", registry);
+
+    expect(result.bibliography).toEqual([]);
   });
 });

@@ -8,10 +8,14 @@
  * 変更時は ReferenceViewerPageView.test.tsx, ReferenceViewerPageView.stories.tsx も同期すること。
  */
 
-import { useMemo, type CSSProperties } from "react";
+import { useCallback, useMemo, type CSSProperties } from "react";
 import { UiButton } from "../../components/ui";
 import katex from "katex";
-import type { Locale, ReferenceEntry } from "./referenceEntry";
+import type {
+  BibliographyEntry,
+  Locale,
+  ReferenceEntry,
+} from "./referenceEntry";
 import { InlineMarkdown } from "./InlineMarkdown";
 import {
   buildViewerPageData,
@@ -20,6 +24,7 @@ import {
   type NavigationData,
   type ViewerPageData,
 } from "./referenceViewerLogic";
+import { bibliographyRegistry } from "./referenceContent";
 
 // --- Props ---
 
@@ -201,6 +206,29 @@ const backLinkStyle: CSSProperties = {
 const questItemWrapperStyle: CSSProperties = {
   margin: "0 8px 8px 0",
   display: "inline-block",
+};
+
+const bibItemStyle: CSSProperties = {
+  fontSize: "var(--font-size-sm, 13px)",
+  lineHeight: 1.7,
+  color: "var(--color-text-primary, #171717)",
+  padding: "6px 0",
+};
+
+const bibAuthorsStyle: CSSProperties = {
+  fontWeight: 600,
+};
+
+const bibTitleStyle: CSSProperties = {
+  fontStyle: "italic",
+};
+
+const bibBackLinkStyle: CSSProperties = {
+  color: "var(--color-link, #0066cc)",
+  cursor: "pointer",
+  textDecoration: "none",
+  fontSize: "0.85em",
+  marginLeft: "4px",
 };
 
 const navContainerStyle: CSSProperties = {
@@ -390,7 +418,16 @@ function ViewerContent({
       {/* 本文パラグラフ */}
       {data.bodyParagraphs.map((paragraph, i) => (
         <p key={`p-${String(i) satisfies string}`} style={paragraphStyle}>
-          <InlineMarkdown text={paragraph} onNavigate={onNavigate} />
+          <InlineMarkdown
+            text={paragraph}
+            onNavigate={onNavigate}
+            onCiteClick={(citeKey) => {
+              const el = document.getElementById(
+                `cite-${citeKey satisfies string}`,
+              );
+              el?.scrollIntoView({ behavior: "smooth", block: "center" });
+            }}
+          />
         </p>
       ))}
 
@@ -463,6 +500,73 @@ function ViewerContent({
           </div>
         )}
 
+      {/* 参考文献 */}
+      {data.bibliography.length > 0 && (
+        <div>
+          <div style={sectionTitleStyle}>
+            {locale === "ja" ? "参考文献" : "References"}
+          </div>
+          <ol style={{ paddingLeft: "20px", margin: 0 }}>
+            {data.bibliography.map((bib: BibliographyEntry) => (
+              <li
+                key={bib.key}
+                id={`cite-${bib.key satisfies string}`}
+                style={bibItemStyle}
+              >
+                <span style={bibAuthorsStyle}>{bib.authors}</span>
+                {" ("}
+                {String(bib.year)}
+                {"): "}
+                <span style={bibTitleStyle}>{bib.title}</span>
+                {bib.publisher !== undefined && (
+                  <>
+                    {". "}
+                    {bib.publisher}
+                  </>
+                )}
+                {bib.edition !== undefined && (
+                  <>
+                    {", "}
+                    {bib.edition}
+                  </>
+                )}
+                {"."}
+                {bib.url !== undefined && (
+                  <>
+                    {" "}
+                    <a
+                      href={bib.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "var(--color-link, #0066cc)" }}
+                    >
+                      [Link]
+                    </a>
+                  </>
+                )}
+                <a
+                  href={`#cite-ref-${bib.key satisfies string}`}
+                  style={bibBackLinkStyle}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const refEl = document.getElementById(
+                      `cite-ref-${bib.key satisfies string}`,
+                    );
+                    refEl?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "center",
+                    });
+                  }}
+                  aria-label={locale === "ja" ? "本文に戻る" : "Back to text"}
+                >
+                  ↩
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
       {/* 外部リンク */}
       {data.externalLinks.length > 0 && (
         <div>
@@ -516,7 +620,7 @@ export function ReferenceViewerPageView({
   testId,
 }: ReferenceViewerPageViewProps) {
   const data = useMemo(
-    () => buildViewerPageData(entry, allEntries, locale),
+    () => buildViewerPageData(entry, allEntries, locale, bibliographyRegistry),
     [entry, allEntries, locale],
   );
 

@@ -230,6 +230,37 @@ export const WithNavigation: Story = {
   },
 };
 
+// --- 参考文献ストーリー ---
+
+export const WithBibliography: Story = {
+  args: {
+    entry: {
+      ...sampleEntry,
+      body: {
+        en: [
+          "This follows [[cite:bekki2012|Bekki, Ch. 8]]. See also [[cite:gentzen1935|Gentzen, 1935]].",
+        ],
+        ja: [
+          "これは[[cite:bekki2012|Bekki, 第8章]]に基づいています。[[cite:gentzen1935|Gentzen, 1935]]も参照。",
+        ],
+      },
+      bibliographyKeys: ["bekki2012", "gentzen1935"],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // 参考文献セクションが表示される
+    const viewer = canvas.getByTestId("ref-viewer");
+    await expect(viewer).toHaveTextContent("References");
+    // cite リンクが上付きで表示される
+    await expect(viewer).toHaveTextContent("[Bekki, Ch. 8]");
+    await expect(viewer).toHaveTextContent("[Gentzen, 1935]");
+    // 参考文献リストが表示される
+    await expect(viewer).toHaveTextContent("戸次大介");
+    await expect(viewer).toHaveTextContent("Gerhard Gentzen");
+  },
+};
+
 // --- NotFound ストーリー ---
 
 export const NotFound: Story = {

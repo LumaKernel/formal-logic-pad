@@ -154,6 +154,31 @@ export type ExternalLink = {
   readonly documentLanguage: Locale;
 };
 
+// --- 参考文献 ---
+
+/**
+ * 参考文献エントリ。
+ * アカデミックな引用形式で文献情報を保持する。
+ */
+export type BibliographyEntry = {
+  /** 一意のキー（例: "bekki2012", "gentzen1935"） */
+  readonly key: string;
+  /** 著者名（複数の場合はカンマ区切り） */
+  readonly authors: string;
+  /** タイトル */
+  readonly title: string;
+  /** 出版年 */
+  readonly year: number;
+  /** 出版社・ジャーナル名 */
+  readonly publisher?: string;
+  /** 版 */
+  readonly edition?: string;
+  /** URL（オンラインリソースの場合） */
+  readonly url?: string;
+  /** 備考 */
+  readonly note?: string;
+};
+
 // --- リファレンスエントリ ---
 
 /** リファレンスエントリの一意識別子 */
@@ -186,6 +211,8 @@ export type ReferenceEntry = {
   readonly externalLinks: readonly ExternalLink[];
   /** 検索用キーワード（ロケール非依存） */
   readonly keywords: readonly string[];
+  /** 参考文献キー（bibliographyRegistryのキー） */
+  readonly bibliographyKeys?: readonly string[];
   /** 表示順 */
   readonly order: number;
 };

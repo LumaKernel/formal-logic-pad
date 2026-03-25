@@ -160,4 +160,53 @@ describe("InlineMarkdown", () => {
     fireEvent.keyDown(link!, { key: "Enter" });
     expect(onNavigate).toHaveBeenCalledWith("axiom-a1");
   });
+
+  // --- 参考文献リンク ---
+
+  it("[[cite:key|text]]を上付きリンクとして表示する", () => {
+    const { container } = render(
+      <InlineMarkdown text="follows [[cite:bekki2012|Bekki, Ch. 8]]." />,
+    );
+    const link = container.querySelector("a[data-cite-key='bekki2012']");
+    expect(link).not.toBeNull();
+    expect(link?.textContent).toBe("[Bekki, Ch. 8]");
+    expect(link?.id).toBe("cite-ref-bekki2012");
+  });
+
+  it("参考文献リンクのクリックでonCiteClickが呼ばれる", () => {
+    const onCiteClick = vi.fn();
+    const { container } = render(
+      <InlineMarkdown
+        text="[[cite:bekki2012|Bekki]]"
+        onCiteClick={onCiteClick}
+      />,
+    );
+    const link = container.querySelector("a[data-cite-key='bekki2012']");
+    expect(link).not.toBeNull();
+    fireEvent.click(link!);
+    expect(onCiteClick).toHaveBeenCalledWith("bekki2012");
+  });
+
+  it("参考文献リンクのキーボード操作でonCiteClickが呼ばれる", () => {
+    const onCiteClick = vi.fn();
+    const { container } = render(
+      <InlineMarkdown
+        text="[[cite:godel1930|Gödel]]"
+        onCiteClick={onCiteClick}
+      />,
+    );
+    const link = container.querySelector("a[data-cite-key='godel1930']");
+    expect(link).not.toBeNull();
+    fireEvent.keyDown(link!, { key: "Enter" });
+    expect(onCiteClick).toHaveBeenCalledWith("godel1930");
+  });
+
+  it("onCiteClickが未指定でもクリックしてもエラーにならない", () => {
+    const { container } = render(
+      <InlineMarkdown text="[[cite:bekki2012|Bekki]]" />,
+    );
+    const link = container.querySelector("a[data-cite-key='bekki2012']");
+    expect(link).not.toBeNull();
+    fireEvent.click(link!);
+  });
 });

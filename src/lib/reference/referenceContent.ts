@@ -9,7 +9,87 @@
  * 変更時は referenceContent.test.ts, referenceEntry.ts も同期すること。
  */
 
-import type { ReferenceEntry } from "./referenceEntry";
+import type { BibliographyEntry, ReferenceEntry } from "./referenceEntry";
+
+// ============================================================
+// 参考文献レジストリ (Bibliography Registry)
+// ============================================================
+
+/** 参考文献の定義 */
+const bibliographyEntries: readonly BibliographyEntry[] = [
+  {
+    key: "bekki2012",
+    authors: "戸次大介 (Daisuke Bekki)",
+    title: "数理論理学",
+    year: 2012,
+    publisher: "東京大学出版会",
+  },
+  {
+    key: "gentzen1935",
+    authors: "Gerhard Gentzen",
+    title: "Untersuchungen über das logische Schließen I, II",
+    year: 1935,
+    publisher: "Mathematische Zeitschrift, 39(1), 176–210, 405–431",
+  },
+  {
+    key: "prawitz1965",
+    authors: "Dag Prawitz",
+    title: "Natural Deduction: A Proof-Theoretical Study",
+    year: 1965,
+    publisher: "Almqvist & Wiksell",
+  },
+  {
+    key: "troelstra-schwichtenberg2000",
+    authors: "Anne S. Troelstra, Helmut Schwichtenberg",
+    title: "Basic Proof Theory",
+    year: 2000,
+    publisher: "Cambridge University Press",
+    edition: "2nd edition",
+  },
+  {
+    key: "godel1930",
+    authors: "Kurt Gödel",
+    title: "Die Vollständigkeit der Axiome des logischen Funktionenkalküls",
+    year: 1930,
+    publisher: "Monatshefte für Mathematik und Physik, 37(1), 349–360",
+  },
+  {
+    key: "mendelson2015",
+    authors: "Elliott Mendelson",
+    title: "Introduction to Mathematical Logic",
+    year: 2015,
+    publisher: "CRC Press",
+    edition: "6th edition",
+  },
+  {
+    key: "curry-howard",
+    authors: "William A. Howard",
+    title: "The Formulae-as-Types Notion of Construction",
+    year: 1980,
+    publisher:
+      "In: To H.B. Curry: Essays on Combinatory Logic, Lambda Calculus and Formalism. Academic Press, 479–490",
+    note: "Originally circulated 1969",
+  },
+  {
+    key: "glivenko1929",
+    authors: "Valery Glivenko",
+    title: "Sur quelques points de la logique de M. Brouwer",
+    year: 1929,
+    publisher:
+      "Bulletins de la classe des sciences, Académie Royale de Belgique, 15, 183–188",
+  },
+  {
+    key: "kuroda1951",
+    authors: "Sigekatu Kuroda",
+    title: "Intuitionistische Untersuchungen der formalistischen Logik",
+    year: 1951,
+    publisher: "Nagoya Mathematical Journal, 2, 35–47",
+  },
+];
+
+/** 参考文献レジストリ（キー → エントリ） */
+export const bibliographyRegistry: ReadonlyMap<string, BibliographyEntry> =
+  new Map(bibliographyEntries.map((e) => [e.key, e]));
 
 // ============================================================
 // ガイド (Guides)
@@ -1954,16 +2034,16 @@ const ruleNdOverview: ReferenceEntry = {
   },
   body: {
     en: [
-      "<b>Natural deduction</b> (ND) is a proof system introduced by Gentzen (1935) where each logical connective has <i>introduction</i> rules (how to prove it) and <i>elimination</i> rules (how to use it).",
+      "<b>Natural deduction</b> (ND) is a proof system introduced by [[cite:gentzen1935|Gentzen, 1935]] where each logical connective has <i>introduction</i> rules (how to prove it) and <i>elimination</i> rules (how to use it).",
       "Three variants are supported: <b>NM</b> ([[ref:system-minimal|minimal logic]], no explosion or DNE), <b>NJ</b> ([[ref:system-intuitionistic|intuitionistic logic]], adds EFQ), and <b>NK</b> ([[ref:system-classical|classical logic]], adds DNE). NM ⊂ NJ ⊂ NK in terms of provable theorems.",
       "Unlike Hilbert systems (which use only [[ref:rule-mp|MP]]), natural deduction allows <i>assuming</i> a hypothesis and later <i>discharging</i> it — e.g., to prove $\\varphi \\to \\psi$, assume $\\varphi$ and derive $\\psi$.",
-      "This application's implementation follows Bekki (戸次大介)『数理論理学』Chapter 8.",
+      "This application's implementation follows [[cite:bekki2012|Bekki, Ch. 8]].",
     ],
     ja: [
-      "<b>自然演繹</b> (ND) はGentzen (1935) が導入した証明体系で、各論理結合子に<i>導入規則</i>（どう証明するか）と<i>除去規則</i>（どう使うか）があります。",
+      "<b>自然演繹</b> (ND) は[[cite:gentzen1935|Gentzen, 1935]]が導入した証明体系で、各論理結合子に<i>導入規則</i>（どう証明するか）と<i>除去規則</i>（どう使うか）があります。",
       "3つの変種をサポートします: <b>NM</b>（[[ref:system-minimal|最小論理]]、爆発律もDNEもなし）、<b>NJ</b>（[[ref:system-intuitionistic|直観主義論理]]、EFQを追加）、<b>NK</b>（[[ref:system-classical|古典論理]]、DNEを追加）。証明可能な定理の範囲は NM ⊂ NJ ⊂ NK です。",
       "Hilbert系（[[ref:rule-mp|MP]]のみ使用）と異なり、自然演繹では仮定を<i>仮定</i>して後で<i>解除</i>することができます — 例えば、$\\varphi \\to \\psi$ を証明するには、$\\varphi$を仮定して$\\psi$を導出します。",
-      "本アプリケーションの実装は戸次大介『数理論理学』第8章に基づいています。",
+      "本アプリケーションの実装は[[cite:bekki2012|Bekki, 第8章]]に基づいています。",
     ],
   },
   relatedEntryIds: [
@@ -1974,6 +2054,7 @@ const ruleNdOverview: ReferenceEntry = {
     "rule-sc-overview",
   ],
   relatedQuestIds: ["nd-01", "nd-02", "nd-03"],
+  bibliographyKeys: ["bekki2012", "gentzen1935"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -2229,13 +2310,13 @@ const ruleScOverview: ReferenceEntry = {
   },
   body: {
     en: [
-      "<b>Sequent calculus</b> (SC) is a proof system introduced by Gentzen (1935) alongside [[ref:rule-nd-overview|natural deduction]]. Proofs manipulate <i>sequents</i> of the form Γ ⇒ Δ, meaning 'from the multiset of assumptions Γ, at least one formula in Δ holds.'",
+      "<b>Sequent calculus</b> (SC) is a proof system introduced by [[cite:gentzen1935|Gentzen, 1935]] alongside [[ref:rule-nd-overview|natural deduction]]. Proofs manipulate <i>sequents</i> of the form Γ ⇒ Δ, meaning 'from the multiset of assumptions Γ, at least one formula in Δ holds.'",
       "Each logical connective has a <b>left rule</b> (how it behaves as an assumption) and a <b>right rule</b> (how it behaves as a conclusion). [[ref:rule-sc-structural|Structural rules]] (weakening, contraction, exchange) control the shape of sequents.",
       "Three variants are supported: <b>LM</b> ([[ref:system-minimal|minimal logic]], right side exactly 1 formula), <b>LJ</b> ([[ref:system-intuitionistic|intuitionistic logic]], right side at most 1 formula), and <b>LK</b> ([[ref:system-classical|classical logic]], unrestricted right side).",
       "The <b>[[ref:concept-cut-elimination|cut elimination theorem]]</b> (Gentzen's Hauptsatz) proves that the cut rule can always be eliminated, yielding proofs in a canonical form — a fundamental result in proof theory.",
     ],
     ja: [
-      "<b>シーケント計算</b> (SC) はGentzen (1935) が[[ref:rule-nd-overview|自然演繹]]とともに導入した証明体系です。<i>シーケント</i> Γ ⇒ Δ を操作します。意味は「仮定の多重集合Γから、Δの論理式の少なくとも1つが成り立つ」です。",
+      "<b>シーケント計算</b> (SC) は[[cite:gentzen1935|Gentzen, 1935]]が[[ref:rule-nd-overview|自然演繹]]とともに導入した証明体系です。<i>シーケント</i> Γ ⇒ Δ を操作します。意味は「仮定の多重集合Γから、Δの論理式の少なくとも1つが成り立つ」です。",
       "各論理結合子に<b>左規則</b>（仮定としてどう振る舞うか）と<b>右規則</b>（結論としてどう振る舞うか）があります。[[ref:rule-sc-structural|構造規則]]（弱化、縮約、交換）がシーケントの形を制御します。",
       "3つの変種をサポートします: <b>LM</b>（[[ref:system-minimal|最小論理]]、右辺はちょうど1つの論理式）、<b>LJ</b>（[[ref:system-intuitionistic|直観主義論理]]、右辺は高々1つ）、<b>LK</b>（[[ref:system-classical|古典論理]]、右辺の制約なし）。",
       "<b>[[ref:concept-cut-elimination|カット除去定理]]</b> (Gentzenの基本定理, Hauptsatz) は、カット規則が常に除去可能であることを証明し、正規形の証明が得られます — 証明論における基本的な結果です。",
@@ -2248,6 +2329,7 @@ const ruleScOverview: ReferenceEntry = {
     "rule-mp",
   ],
   relatedQuestIds: ["sc-01", "sc-02", "sc-03"],
+  bibliographyKeys: ["gentzen1935"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -2314,7 +2396,7 @@ const ruleScStructural: ReferenceEntry = {
   },
   body: {
     en: [
-      "Structural rules manipulate the shape of sequents without referring to any logical connective. In Gentzen-style sequent calculus, each structural rule has a left variant (operating on the antecedent) and a right variant (operating on the succedent). The availability of right-side variants is the key distinction between LK (classical), LJ (intuitionistic), and LM (minimal) (Bekki, Definitions 10.3, 10.23, 10.36).",
+      "Structural rules manipulate the shape of sequents without referring to any logical connective. In Gentzen-style sequent calculus, each structural rule has a left variant (operating on the antecedent) and a right variant (operating on the succedent). The availability of right-side variants is the key distinction between LK (classical), LJ (intuitionistic), and LM (minimal) ([[cite:bekki2012|Bekki, Def. 10.3, 10.23, 10.36]]).",
       "<b>Identity (ID)</b>: $\\varphi$ ⇒ $\\varphi$ — the axiom of sequent calculus. Every formula implies itself. Present in all three systems (LK, LJ, LM).",
       "<b>Cut</b>: From Γ ⇒ Π,$\\varphi$ and $\\varphi$,Σ ⇒ Δ, derive Γ,Σ ⇒ Π,Δ. Corresponds to lemma usage — proving an intermediate result and then using it. The cut elimination theorem (Theorem 11.2) shows that cut is <i>admissible</i>: any sequent provable with cut can also be proved without it, though the proof may be much larger.",
       "<b>Weakening (w)</b>: Left weakening (w⇒) adds an unused formula to the antecedent: from Γ ⇒ Δ derive $\\varphi$,Γ ⇒ Δ. Right weakening (⇒w) adds to the succedent: from Γ ⇒ Δ derive Γ ⇒ Δ,$\\varphi$. In <b>LK</b>, both variants are primitive rules. In <b>LJ</b>, only left weakening (w⇒) and a restricted right weakening (⇒w, only when succedent is empty) are available, because the succedent has at most one formula. In <b>LM</b>, right weakening is effectively unavailable (Remark 10.35): the succedent is never empty in a subproof, so ⇒w cannot be applied. In tableau-style sequent calculus (TAB), weakening is not a primitive rule but is <i>admissible</i> (Theorem 12.9).",
@@ -2324,7 +2406,7 @@ const ruleScStructural: ReferenceEntry = {
       "<b>Admissibility and cut elimination</b>: The cut elimination theorem (Theorem 11.2) holds for all three systems: LK, LJ, and LM. After cut elimination, the resulting proof uses only the identity axiom, structural rules other than cut, and logical rules. In TAB (tableau-style sequent calculus), weakening and contraction are <i>admissible</i> rather than primitive (Theorems 12.9, 12.11), meaning they can always be eliminated from proofs without loss of provability.",
     ],
     ja: [
-      "構造規則は、論理結合子に言及することなくシーケントの形を操作する規則です。ゲンツェン流シーケント計算では、各構造規則に前件（左辺）に作用する左規則と後件（右辺）に作用する右規則があります。右側の規則の利用可否が、LK（古典）、LJ（直観主義）、LM（最小）の体系間の核心的な違いです（戸次, 定義10.3, 10.23, 10.36）。",
+      "構造規則は、論理結合子に言及することなくシーケントの形を操作する規則です。ゲンツェン流シーケント計算では、各構造規則に前件（左辺）に作用する左規則と後件（右辺）に作用する右規則があります。右側の規則の利用可否が、LK（古典）、LJ（直観主義）、LM（最小）の体系間の核心的な違いです（[[cite:bekki2012|Bekki, 定義10.3, 10.23, 10.36]]）。",
       "<b>同一律 (ID)</b>: $\\varphi$ ⇒ $\\varphi$ — シーケント計算の公理。すべての論理式は自分自身を含意します。LK, LJ, LM のすべてで利用できます。",
       "<b>カット (Cut)</b>: Γ ⇒ Π,$\\varphi$ と $\\varphi$,Σ ⇒ Δ から Γ,Σ ⇒ Π,Δ を導出します。中間結果を証明してそれを使うという補題の使用に対応します。カット除去定理（定理11.2）により、カットは<i>許容的</i>です：カットを使って証明可能なシーケントは、カットなしでも証明できます（ただし証明はずっと大きくなりうります）。",
       "<b>弱化 (w)</b>: 左弱化(w⇒)は前件に未使用の論理式を追加します：Γ ⇒ Δ から $\\varphi$,Γ ⇒ Δ。右弱化(⇒w)は後件に追加します：Γ ⇒ Δ から Γ ⇒ Δ,$\\varphi$。<b>LK</b>では両方が基本規則です。<b>LJ</b>では左弱化(w⇒)と制限付き右弱化（後件が空のときのみ⇒w）のみ利用可能です（後件は高々1個の論理式のため）。<b>LM</b>では右弱化は実質的に利用不可能です（解説10.35）：部分証明中に後件が空になることがないため、⇒wを適用できません。タブロー式シーケント計算(TAB)では、弱化は基本規則ではなく<i>許容規則</i>です（定理12.9）。",
@@ -2347,6 +2429,7 @@ const ruleScStructural: ReferenceEntry = {
     "concept-cut-elimination",
     "concept-admissible-derivable",
   ],
+  bibliographyKeys: ["bekki2012"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -2512,7 +2595,7 @@ const systemLukasiewicz: ReferenceEntry = {
       "The system is <b>sound and complete</b> for classical propositional logic: every provable formula is a tautology (soundness), and every tautology is provable (completeness).",
       "In this application, the Łukasiewicz system serves as the default classical propositional base. It can be extended with predicate logic axioms (A4, A5 + Gen) for first-order logic, equality axioms (E1–E5) for equality logic, and theory-specific axioms (e.g., Peano Arithmetic, Group Theory) for mathematical theories.",
       "<b>Hierarchy in this application</b>: Minimal Logic (A1+A2) ⊂ Intuitionistic (A1+A2+EFQ) ⊂ Łukasiewicz/Classical (A1+A2+A3). The Łukasiewicz and Mendelson systems prove exactly the same theorems but use different formulations of the classical negation axiom.",
-      '<b>Standard references</b>: This axiom system appears in many logic textbooks. The contraposition formulation (A3) is associated with the Polish school of logic. For Japanese readers, Daisuke Bekki\'s "数理論理学" covers Hilbert-style axiom systems in the Polish tradition.',
+      "<b>Standard references</b>: This axiom system appears in many logic textbooks. The contraposition formulation (A3) is associated with the Polish school of logic. For Japanese readers, [[cite:bekki2012|Bekki]] covers Hilbert-style axiom systems in the Polish tradition.",
     ],
     ja: [
       "<b>ウカシェヴィチ体系</b>は、ポーランドの論理学者ヤン・ウカシェヴィチ (1878–1956) の名にちなむ古典命題論理のHilbert系公理体系です。含意($\\to$)と否定($\\lnot$)を原始結合子とします。",
@@ -2521,7 +2604,7 @@ const systemLukasiewicz: ReferenceEntry = {
       "この体系は古典命題論理に対して<b>健全かつ完全</b>です: 証明可能な論理式はすべてトートロジーであり（健全性）、すべてのトートロジーは証明可能です（完全性）。",
       "本アプリケーションでは、ウカシェヴィチ体系がデフォルトの古典命題論理基盤です。述語論理公理(A4, A5 + Gen)で一階論理へ、等号公理(E1–E5)で等号論理へ、理論公理（ペアノ算術、群論など）で数学理論へと拡張できます。",
       "<b>本アプリケーションでの階層</b>: 最小論理(A1+A2) ⊂ 直観主義(A1+A2+EFQ) ⊂ ウカシェヴィチ/古典(A1+A2+A3)。ウカシェヴィチ体系とメンデルソン体系はまったく同じ定理を証明しますが、古典的否定公理の定式化が異なります。",
-      "<b>参考文献</b>: この公理系は多くの論理学教科書に登場します。対偶形式(A3)はポーランド学派の論理学に関連します。日本語では、戸次大介『数理論理学』がポーランド流のHilbert系公理体系を扱っています。",
+      "<b>参考文献</b>: この公理系は多くの論理学教科書に登場します。対偶形式(A3)はポーランド学派の論理学に関連します。日本語では、[[cite:bekki2012|戸次]]がポーランド流のHilbert系公理体系を扱っています。",
     ],
   },
   relatedEntryIds: [
@@ -2534,6 +2617,7 @@ const systemLukasiewicz: ReferenceEntry = {
     "system-minimal",
   ],
   relatedQuestIds: ["prop-01", "prop-02", "prop-03", "prop-04"],
+  bibliographyKeys: ["bekki2012"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -2599,18 +2683,18 @@ const systemMendelson: ReferenceEntry = {
     en: [
       "The <b>Mendelson system</b> is a Hilbert-style axiom system for classical propositional logic, named after the American logician Elliott Mendelson (1931–2020). It replaces the Łukasiewicz contraposition axiom A3 with M3 (reductio ad absurdum): ($\\lnot \\varphi \\to \\lnot \\psi) \\to ((\\lnot \\varphi \\to \\psi) \\to \\varphi$).",
       "A1 and A2 remain the same as in the Łukasiewicz system. M3 and A3 are <b>interderivable</b> in the presence of A1, A2, and MP, so both systems prove exactly the same set of theorems.",
-      'The Mendelson system is widely used in logic textbooks, most notably in Mendelson\'s own "Introduction to Mathematical Logic" (1964, multiple editions). The reductio formulation M3 is sometimes considered more intuitive for beginners because it directly encodes proof by contradiction.',
+      'The Mendelson system is widely used in logic textbooks, most notably in [[cite:mendelson2015|Mendelson]]\'s own "Introduction to Mathematical Logic" (1964, multiple editions). The reductio formulation M3 is sometimes considered more intuitive for beginners because it directly encodes proof by contradiction.',
       "In this application, the Mendelson system is available as an alternative classical propositional base. Like the Łukasiewicz system, it can be extended with predicate logic axioms (A4, A5 + Gen), equality axioms (E1–E5), and theory-specific axioms (Peano Arithmetic, Group Theory, etc.).",
       "<b>Comparison with Łukasiewicz</b>: While the two systems are equivalent in deductive power, they differ in proof style. A3 (contraposition) is concise but requires more intermediate steps; M3 (reductio) often leads to shorter proofs when reasoning by contradiction. The choice between them is largely a matter of taste and pedagogical preference.",
-      '<b>Standard references</b>: Elliott Mendelson, "Introduction to Mathematical Logic" (1964, 6th ed. 2015) is the definitive textbook for this system. Herbert Enderton\'s "A Mathematical Introduction to Logic" (2001) uses a similar axiomatization.',
+      '<b>Standard references</b>: [[cite:mendelson2015|Mendelson, "Introduction to Mathematical Logic"]] (1964, 6th ed. 2015) is the definitive textbook for this system. Herbert Enderton\'s "A Mathematical Introduction to Logic" (2001) uses a similar axiomatization.',
     ],
     ja: [
       "<b>メンデルソン体系</b>は、アメリカの論理学者エリオット・メンデルソン (1931–2020) の名にちなむ古典命題論理のHilbert系公理体系です。ウカシェヴィチ体系の対偶公理A3をM3（背理法）($\\lnot \\varphi \\to \\lnot \\psi) \\to ((\\lnot \\varphi \\to \\psi) \\to \\varphi$) に置き換えます。",
       "A1とA2はウカシェヴィチ体系と同じです。M3とA3はA1, A2, MPの存在下で<b>相互導出可能</b>なので、両体系はまったく同じ定理集合を証明します。",
-      "メンデルソン体系は論理学の教科書で広く使われています。特にMendelsonの「Introduction to Mathematical Logic」(1964年、複数版)で有名です。背理法の定式化M3は矛盾による証明を直接符号化するため、初学者にはより直観的と考えられることもあります。",
+      "メンデルソン体系は論理学の教科書で広く使われています。特に[[cite:mendelson2015|Mendelson]]の「Introduction to Mathematical Logic」(1964年、複数版)で有名です。背理法の定式化M3は矛盾による証明を直接符号化するため、初学者にはより直観的と考えられることもあります。",
       "本アプリケーションでは、メンデルソン体系は古典命題論理の代替基盤として利用可能です。ウカシェヴィチ体系と同様に、述語論理公理(A4, A5 + Gen)、等号公理(E1–E5)、理論公理（ペアノ算術、群論など）で拡張できます。",
       "<b>ウカシェヴィチ体系との比較</b>: 2つの体系は演繹力では同等ですが、証明のスタイルが異なります。A3（対偶）は簡潔ですが中間ステップが多くなりがちで、M3（背理法）は矛盾による推論で短い証明になることが多いです。選択は主に好みと教育的配慮の問題です。",
-      "<b>参考文献</b>: Elliott Mendelson『Introduction to Mathematical Logic』(1964年、第6版2015年)がこの体系の標準的教科書です。Herbert Endertonの『A Mathematical Introduction to Logic』(2001年)も同様の公理化を使用しています。",
+      "<b>参考文献</b>: [[cite:mendelson2015|Mendelson『Introduction to Mathematical Logic』]](1964年、第6版2015年)がこの体系の標準的教科書です。Herbert Endertonの『A Mathematical Introduction to Logic』(2001年)も同様の公理化を使用しています。",
     ],
   },
   relatedEntryIds: [
@@ -2621,6 +2705,7 @@ const systemMendelson: ReferenceEntry = {
     "system-lukasiewicz",
     "system-classical",
   ],
+  bibliographyKeys: ["mendelson2015"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -2871,7 +2956,7 @@ const systemClassical: ReferenceEntry = {
       "The key semantic property is <b>bivalence</b>: every proposition is either true or false, with no middle ground. This enables proof techniques like proof by contradiction and case analysis on $\\varphi \\lor \\lnot \\varphi$, which are not available in intuitionistic logic.",
       "In this application, classical logic can be realized in multiple equivalent ways: the <b>Łukasiewicz system</b> (A1+A2+A3), the <b>Mendelson system</b> (A1+A2+M3), or the <b>HK system</b> (A1+A2+DNE). All three prove exactly the same theorems.",
       "In natural deduction, classical logic corresponds to <b>NK</b> (NM + DNE). In sequent calculus, it corresponds to <b>LK</b> (unrestricted right side of sequents). The key difference from LJ (intuitionistic) is that LK allows multiple formulas on the right side, enabling classical reasoning.",
-      "<b>Completeness theorems</b>: Classical propositional logic is decidable (truth tables). Classical first-order predicate logic is complete (Gödel's completeness theorem, 1930): every valid formula is provable. However, it is undecidable (Church-Turing theorem, 1936).",
+      "<b>Completeness theorems</b>: Classical propositional logic is decidable (truth tables). Classical first-order predicate logic is complete ([[cite:godel1930|Gödel, 1930]]): every valid formula is provable. However, it is undecidable (Church-Turing theorem, 1936).",
       "<b>Hierarchy</b>: Minimal Logic (A1+A2) ⊂ Intuitionistic (A1+A2+EFQ) ⊂ Classical (A1+A2+A3/M3/DNE). Classical logic proves strictly more theorems than intuitionistic logic, which in turn proves strictly more than minimal logic.",
     ],
     ja: [
@@ -2879,7 +2964,7 @@ const systemClassical: ReferenceEntry = {
       "重要な意味論的性質は<b>二値性</b>です: すべての命題は真か偽のいずれかであり、中間はありません。これにより背理法や$\\varphi \\lor \\lnot \\varphi$に基づく場合分けなど、直観主義論理では使えない証明技法が可能になります。",
       "本アプリケーションでは、古典論理は複数の同値な方法で実現できます: <b>ウカシェヴィチ体系</b> (A1+A2+A3)、<b>メンデルソン体系</b> (A1+A2+M3)、<b>HK体系</b> (A1+A2+DNE)。3つとも完全に同じ定理を証明します。",
       "自然演繹では古典論理はシステム<b>NK</b> (NM + DNE)に対応します。シーケント計算では<b>LK</b>（シーケントの右辺に制約なし）に対応します。LJ（直観主義）との主要な違いは、LKが右辺に複数の論理式を許すことで、古典的推論を可能にする点です。",
-      "<b>完全性定理</b>: 古典命題論理は決定可能です（真理値表）。古典一階述語論理は完全です（ゲーデルの完全性定理, 1930年）: 妥当なすべての論理式は証明可能です。ただし決定不能です（Church-Turingの定理, 1936年）。",
+      "<b>完全性定理</b>: 古典命題論理は決定可能です（真理値表）。古典一階述語論理は完全です（[[cite:godel1930|Gödel, 1930]]）: 妥当なすべての論理式は証明可能です。ただし決定不能です（Church-Turingの定理, 1936年）。",
       "<b>階層</b>: 最小論理(A1+A2) ⊂ 直観主義(A1+A2+EFQ) ⊂ 古典(A1+A2+A3/M3/DNE)。古典論理は直観主義論理より真に多くの定理を証明し、直観主義論理は最小論理より真に多くの定理を証明します。",
     ],
   },
@@ -2894,6 +2979,7 @@ const systemClassical: ReferenceEntry = {
     "rule-nd-overview",
     "rule-sc-overview",
   ],
+  bibliographyKeys: ["godel1930"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -3332,14 +3418,14 @@ const conceptGlivenko: ReferenceEntry = {
   },
   body: {
     en: [
-      "<b>Glivenko's Theorem</b> (1929) establishes a precise relationship between classical and intuitionistic propositional logic. It states that a propositional formula $\\varphi$ is provable in classical logic (LK) if and only if its double negation $\\lnot \\lnot \\varphi$ is provable in intuitionistic logic (LJ). This holds even when hypotheses Γ are present: Γ $\\vdash$_LK $\\varphi \\iff$ Γ $\\vdash$_LJ $\\lnot \\lnot \\varphi$.",
+      "<b>Glivenko's Theorem</b> ([[cite:glivenko1929|Glivenko, 1929]]) establishes a precise relationship between classical and intuitionistic propositional logic. It states that a propositional formula $\\varphi$ is provable in classical logic (LK) if and only if its double negation $\\lnot \\lnot \\varphi$ is provable in intuitionistic logic (LJ). This holds even when hypotheses Γ are present: Γ $\\vdash$_LK $\\varphi \\iff$ Γ $\\vdash$_LJ $\\lnot \\lnot \\varphi$.",
       '<b>Proof outline:</b> The right-to-left direction (⟸) follows from the fact that intuitionistic logic is a subsystem of classical logic, and DNE ($\\lnot \\lnot \\varphi \\to \\varphi$) holds classically. For the left-to-right direction (⟹), one shows that for every classical axiom and inference rule, the double-negation translation preserves derivability in intuitionistic logic. The key insight is that $\\lnot \\lnot$ acts as a "modality" that absorbs classical reasoning.',
       '<b>Significance:</b> Glivenko\'s theorem shows that classical and intuitionistic logic are "not so far apart" for propositional logic — every classical theorem has an intuitionistic counterpart under double negation. This is a foundational result in the study of the relationship between constructive and classical mathematics.',
       "<b>Limitation to propositional logic:</b> Glivenko's theorem in its original form applies only to propositional logic. For predicate logic, a more refined translation is needed. [[ref:concept-kuroda-translation|Kuroda's negative translation]] (inserting $\\lnot \\lnot$ after each $\\forall$) provides the predicate-logic generalization.",
       '<b>Connection to other results:</b> Glivenko\'s theorem is closely related to the [[ref:concept-kuroda-translation|Kuroda translation]] and the Gödel-Gentzen negative translation. These translations systematically embed classical logic into intuitionistic logic, demonstrating that classical reasoning can always be "interpreted" constructively via double negation.',
     ],
     ja: [
-      "<b>グリヴェンコの定理</b> (1929) は、古典命題論理と直観主義命題論理の間の正確な関係を確立するものです。命題論理式 $\\varphi$ が古典論理 (LK) で証明可能であることと、その二重否定 $\\lnot \\lnot \\varphi$ が直観主義論理 (LJ) で証明可能であることは同値です。仮説 Γ がある場合にも成立します: Γ $\\vdash$_LK $\\varphi \\iff$ Γ $\\vdash$_LJ $\\lnot \\lnot \\varphi$。",
+      "<b>グリヴェンコの定理</b> ([[cite:glivenko1929|Glivenko, 1929]]) は、古典命題論理と直観主義命題論理の間の正確な関係を確立するものです。命題論理式 $\\varphi$ が古典論理 (LK) で証明可能であることと、その二重否定 $\\lnot \\lnot \\varphi$ が直観主義論理 (LJ) で証明可能であることは同値です。仮説 Γ がある場合にも成立します: Γ $\\vdash$_LK $\\varphi \\iff$ Γ $\\vdash$_LJ $\\lnot \\lnot \\varphi$。",
       "<b>証明の概略:</b> 右から左の方向 (⟸) は、直観主義論理が古典論理の部分体系であり、古典論理では DNE ($\\lnot \\lnot \\varphi \\to \\varphi$) が成り立つことから従います。左から右の方向 (⟹) では、古典論理の各公理と推論規則について、二重否定翻訳が直観主義論理での導出可能性を保存することを示します。鍵となる洞察は、$\\lnot \\lnot$ が古典的推論を吸収する「モダリティ」として機能することです。",
       "<b>意義:</b> グリヴェンコの定理は、命題論理に関しては古典論理と直観主義論理が「それほど離れていない」ことを示します — すべての古典的定理は、二重否定の下で直観主義的な対応物を持ちます。これは、構成的数学と古典的数学の関係の研究における基礎的な結果です。",
       "<b>命題論理への限定:</b> グリヴェンコの定理は、元の形では命題論理にのみ適用されます。述語論理に対しては、より精緻な翻訳が必要です。[[ref:concept-kuroda-translation|黒田の否定翻訳]]（各 $\\forall$ の直後に $\\lnot \\lnot$ を挿入する）が、述語論理への一般化を提供します。",
@@ -3356,6 +3442,7 @@ const conceptGlivenko: ReferenceEntry = {
     "concept-kuroda-translation",
     "concept-axiom-independence",
   ],
+  bibliographyKeys: ["glivenko1929"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -3413,7 +3500,7 @@ const conceptKurodaTranslation: ReferenceEntry = {
   },
   body: {
     en: [
-      "<b>Kuroda's negative translation</b> (1951) extends [[ref:concept-glivenko|Glivenko's theorem]] from propositional logic to first-order predicate logic. While Glivenko showed that $\\vdash$_LK $\\varphi \\iff \\vdash$_LJ $\\lnot \\lnot \\varphi$ for propositional formulas, simply prefixing $\\lnot \\lnot$ does not work for predicate logic. Kuroda's key insight is that inserting $\\lnot \\lnot$ immediately after each universal quantifier ($\\forall$) is sufficient to bridge the gap.",
+      "<b>Kuroda's negative translation</b> ([[cite:kuroda1951|Kuroda, 1951]]) extends [[ref:concept-glivenko|Glivenko's theorem]] from propositional logic to first-order predicate logic. While Glivenko showed that $\\vdash$_LK $\\varphi \\iff \\vdash$_LJ $\\lnot \\lnot \\varphi$ for propositional formulas, simply prefixing $\\lnot \\lnot$ does not work for predicate logic. Kuroda's key insight is that inserting $\\lnot \\lnot$ immediately after each universal quantifier ($\\forall$) is sufficient to bridge the gap.",
       "<b>Definition:</b> The Kuroda transform $\\varphi$<i> of a formula $\\varphi$ is defined recursively: (1) Atomic formulas are unchanged: P(t₁,...,tₙ)</i> = P(t₁,...,tₙ). (2) Propositional connectives distribute to subformulas: ($\\lnot \\varphi$)<i> = $\\lnot (\\varphi$</i>), ($\\varphi \\to \\psi$)<i> = $\\varphi$</i> $\\to \\psi$<i>, ($\\varphi \\land \\psi$)</i> = $\\varphi$<i> $\\land \\psi$</i>, ($\\varphi \\lor \\psi$)<i> = $\\varphi$</i> $\\lor \\psi$<i>. (3) The universal quantifier gets a $\\lnot \\lnot$ insertion: ($\\forall x. \\varphi$)</i> = $\\forall x. \\lnot \\lnot (\\varphi$<i>). (4) The existential quantifier just recurses: ($\\exists x. \\varphi$)</i> = $\\exists x.(\\varphi$*).",
       "<b>Main theorem:</b> For any first-order formula $\\varphi , \\vdash$_LK $\\varphi$ if and only if $\\vdash$_LJ $\\lnot \\lnot \\varphi$*. This extends Glivenko's result to the full first-order predicate logic, using the Kuroda transform to handle the universal quantifier.",
       "<b>Why simple $\\lnot \\lnot$ prefix fails for predicate logic:</b> The formula $\\forall$x(F(x) $\\lor \\lnot$F(x)) is provable in classical logic (LK), but $\\lnot \\lnot \\forall$x(F(x) $\\lor \\lnot$F(x)) is not provable in intuitionistic logic (LJ). The universal quantifier interacts non-trivially with excluded middle, and Kuroda's insertion of $\\lnot \\lnot$ after each $\\forall$ precisely neutralizes this interaction.",
@@ -3421,7 +3508,7 @@ const conceptKurodaTranslation: ReferenceEntry = {
       "<b>Significance:</b> Kuroda's translation reveals that the gap between classical and intuitionistic predicate logic resides specifically in the universal quantifier. Classical reasoning about \"for all x\" implicitly uses excluded middle at each instance, and Kuroda's $\\lnot \\lnot$ after $\\forall$ neutralizes precisely this. The result is foundational for proof theory, establishing that classical systems (LK, NK, HK) are equivalent to their minimal logic counterparts plus the DNE rule.",
     ],
     ja: [
-      "<b>黒田の否定翻訳</b> (1951) は、[[ref:concept-glivenko|グリヴェンコの定理]]を命題論理から一階述語論理に拡張するものです。グリヴェンコは命題論理式について $\\vdash$_LK $\\varphi \\iff \\vdash$_LJ $\\lnot \\lnot \\varphi$ を示しましたが、述語論理では単に $\\lnot \\lnot$ を前置するだけでは不十分です。黒田の鍵となる洞察は、各全称量化子 ($\\forall$) の直後に $\\lnot \\lnot$ を挿入するだけで十分であるということです。",
+      "<b>黒田の否定翻訳</b> ([[cite:kuroda1951|Kuroda, 1951]]) は、[[ref:concept-glivenko|グリヴェンコの定理]]を命題論理から一階述語論理に拡張するものです。グリヴェンコは命題論理式について $\\vdash$_LK $\\varphi \\iff \\vdash$_LJ $\\lnot \\lnot \\varphi$ を示しましたが、述語論理では単に $\\lnot \\lnot$ を前置するだけでは不十分です。黒田の鍵となる洞察は、各全称量化子 ($\\forall$) の直後に $\\lnot \\lnot$ を挿入するだけで十分であるということです。",
       "<b>定義:</b> 論理式 $\\varphi$ の黒田変換 $\\varphi$<i> は再帰的に定義されます: (1) 原子論理式は変更なし: P(t₁,...,tₙ)</i> = P(t₁,...,tₙ)。(2) 命題結合子は部分論理式に分配: ($\\lnot \\varphi$)<i> = $\\lnot (\\varphi$</i>)、($\\varphi \\to \\psi$)<i> = $\\varphi$</i> $\\to \\psi$<i>、($\\varphi \\land \\psi$)</i> = $\\varphi$<i> $\\land \\psi$</i>、($\\varphi \\lor \\psi$)<i> = $\\varphi$</i> $\\lor \\psi$<i>。(3) 全称量化子に $\\lnot \\lnot$ を挿入: ($\\forall x. \\varphi$)</i> = $\\forall x. \\lnot \\lnot (\\varphi$<i>)。(4) 存在量化子は再帰のみ: ($\\exists x. \\varphi$)</i> = $\\exists x.(\\varphi$*)。",
       "<b>主定理:</b> 任意の一階論理式 $\\varphi$ について、$\\vdash$_LK $\\varphi$ であることと $\\vdash$_LJ $\\lnot \\lnot \\varphi$* であることは同値です。これは黒田変換を用いて全称量化子を処理することで、グリヴェンコの結果を一階述語論理全体に拡張するものです。",
       "<b>述語論理で単純な $\\lnot \\lnot$ 前置が失敗する理由:</b> 論理式 $\\forall$x(F(x) $\\lor \\lnot$F(x)) は古典論理 (LK) で証明可能ですが、$\\lnot \\lnot \\forall$x(F(x) $\\lor \\lnot$F(x)) は直観主義論理 (LJ) では証明できません。全称量化子は排中律と非自明に相互作用し、黒田の各 $\\forall$ の直後への $\\lnot \\lnot$ 挿入がまさにこの相互作用を中和します。",
@@ -3438,6 +3525,7 @@ const conceptKurodaTranslation: ReferenceEntry = {
     "system-intuitionistic",
     "axiom-a4",
   ],
+  bibliographyKeys: ["kuroda1951"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -3504,8 +3592,8 @@ const conceptSystemEquivalence: ReferenceEntry = {
       "<b>Three styles, one logic.</b> For each level of logical strength — minimal (M), intuitionistic (J), and classical (K) — there exist three distinct proof systems: the Hilbert-style system (H), natural deduction (N), and sequent calculus (L). Despite their vastly different structure, each triple proves exactly the same set of formulas. Formally, for any formula $\\varphi$: $\\vdash$_HX $\\varphi \\iff \\vdash$_NX $\\varphi \\iff \\vdash$_LX $\\varphi$, where X ∈ {M, J, K}.",
       '<b>What "equivalence" means precisely.</b> Two proof systems are equivalent if they have the same set of theorems — that is, a formula $\\varphi$ is provable in one system if and only if it is provable in the other. This does not mean the proofs look the same: a Hilbert-style proof is a linear sequence of formulas, a natural deduction proof is a tree of hypothetical derivations with discharge, and a sequent calculus proof operates on sequents Γ ⇒ Δ. The equivalence is purely about provability, not about proof structure.',
       "<b>H ⊆ N (Hilbert to Natural Deduction).</b> Every Hilbert-style axiom can be derived in natural deduction without hypotheses. For instance, A1 ($\\varphi \\to (\\psi \\to \\varphi)$) is derivable by: assume $\\varphi$, then assume $\\psi$, weaken to get $\\varphi$, apply $\\to$I twice. Similarly, A2 is derivable using $\\to$I and $\\to$E. Modus Ponens corresponds directly to $\\to$E. Thus every Hilbert proof can be simulated step-by-step in natural deduction.",
-      "<b>N ⊆ L (Natural Deduction to Sequent Calculus).</b> The key insight is that each natural deduction rule has a sequent calculus counterpart. The discharge mechanism of natural deduction corresponds to having formulas on the left side of the sequent (antecedent). The $\\to$I rule corresponds to ($\\to$⇒), and $\\to$E corresponds to combining (⇒$\\to$) with Cut. The translation preserves provability (bekki Ch.10, Theorem 10.41).",
-      "<b>L ⊆ H (Sequent Calculus to Hilbert).</b> Each sequent rule can be simulated using Hilbert axioms and MP. The structural rules (exchange, contraction, weakening) correspond to propositional tautologies derivable in the Hilbert system. Logical rules translate to combinations of axiom instances and MP applications. The translation is typically by induction on the derivation height (bekki Ch.9, Theorem 9.24).",
+      "<b>N ⊆ L (Natural Deduction to Sequent Calculus).</b> The key insight is that each natural deduction rule has a sequent calculus counterpart. The discharge mechanism of natural deduction corresponds to having formulas on the left side of the sequent (antecedent). The $\\to$I rule corresponds to ($\\to$⇒), and $\\to$E corresponds to combining (⇒$\\to$) with Cut. The translation preserves provability ([[cite:bekki2012|Bekki, Ch. 10, Thm. 10.41]]).",
+      "<b>L ⊆ H (Sequent Calculus to Hilbert).</b> Each sequent rule can be simulated using Hilbert axioms and MP. The structural rules (exchange, contraction, weakening) correspond to propositional tautologies derivable in the Hilbert system. Logical rules translate to combinations of axiom instances and MP applications. The translation is typically by induction on the derivation height ([[cite:bekki2012|Bekki, Ch. 9, Thm. 9.24]]).",
       "<b>The three levels.</b> (1) <b>Minimal logic (M):</b> HM uses axioms A1, A2, A3 + MP. NM has $\\to$I/E, $\\land$I/E, $\\lor$I/E, and weakening. LM is LJ without ($\\bot$⇒). All three prove exactly the same formulas. (2) <b>Intuitionistic logic (J):</b> HJ adds the absurdity axiom ($\\bot \\to \\varphi$). NJ adds EFQ (ex falso quodlibet). LJ adds ($\\bot$⇒). (3) <b>Classical logic (K):</b> HK adds DNE ($\\lnot \\lnot \\varphi \\to \\varphi$) or Peirce's law. NK adds the DNE rule. LK allows multiple formulas on the right side of sequents.",
       '<b>Significance.</b> The equivalence theorems have deep consequences: (1) Any metatheorem proved about one system immediately transfers to the others. For example, cut elimination in LK implies the subformula property for HK and NK proofs. (2) Each system has distinct practical advantages — Hilbert systems are minimal and elegant, natural deduction mirrors informal mathematical reasoning, and sequent calculus is ideal for proof search and metatheory. (3) The equivalence shows that the notion of "provability" is robust and independent of the particular formalization chosen.',
     ],
@@ -3513,8 +3601,8 @@ const conceptSystemEquivalence: ReferenceEntry = {
       "<b>3つの流儀、1つの論理。</b> 論理的強さの各レベル — 最小論理 (M)、直観主義論理 (J)、古典論理 (K) — に対して、3つの異なる証明体系が存在します: ヒルベルト系 (H)、自然演繹 (N)、シーケント計算 (L)。その構造は大きく異なりますが、各三つ組はまったく同じ論理式の集合を証明します。形式的に、任意の論理式 $\\varphi$ について: $\\vdash$_HX $\\varphi \\iff \\vdash$_NX $\\varphi \\iff \\vdash$_LX $\\varphi$、ただし X ∈ {M, J, K}。",
       "<b>「等価性」の正確な意味。</b> 2つの証明体系が等価であるとは、同じ定理の集合を持つことです — すなわち、論理式 $\\varphi$ が一方の体系で証明可能であることと他方の体系で証明可能であることが同値です。これは証明が同じ見た目であることを意味しません: ヒルベルト系の証明は論理式の線形列、自然演繹の証明は仮定の打ち消しを伴う仮説的導出の木、シーケント計算の証明はシーケント Γ ⇒ Δ 上で操作します。等価性は純粋に証明可能性に関するものであり、証明の構造に関するものではありません。",
       "<b>H ⊆ N（ヒルベルト系から自然演繹へ）。</b> ヒルベルト系のすべての公理は、自然演繹で仮定なしに導出できます。例えば A1 ($\\varphi \\to (\\psi \\to \\varphi)$) は: $\\varphi$ を仮定し、$\\psi$ を仮定し、弱化で $\\varphi$ を得て、$\\to$I を2回適用することで導出できます。同様に A2 も $\\to$I と $\\to$E で導出可能です。モーダスポネンスは直接 $\\to$E に対応します。したがって、すべてのヒルベルト証明は自然演繹でステップごとにシミュレートできます。",
-      "<b>N ⊆ L（自然演繹からシーケント計算へ）。</b> 鍵となる洞察は、各自然演繹規則にシーケント計算の対応物があることです。自然演繹の打ち消し機構は、シーケントの左辺（前件）に論理式を持つことに対応します。$\\to$I 規則は ($\\to$⇒) に対応し、$\\to$E は (⇒$\\to$) とカットの組み合わせに対応します。この翻訳は証明可能性を保存します（戸次 Ch.10, 定理10.41）。",
-      "<b>L ⊆ H（シーケント計算からヒルベルト系へ）。</b> 各シーケント規則はヒルベルト公理と MP を用いてシミュレートできます。構造規則（交換、縮約、弱化）はヒルベルト系で導出可能な命題論理のトートロジーに対応します。論理規則は公理インスタンスと MP 適用の組み合わせに翻訳されます。翻訳は通常、導出の高さに関する帰納法で行います（戸次 Ch.9, 定理9.24）。",
+      "<b>N ⊆ L（自然演繹からシーケント計算へ）。</b> 鍵となる洞察は、各自然演繹規則にシーケント計算の対応物があることです。自然演繹の打ち消し機構は、シーケントの左辺（前件）に論理式を持つことに対応します。$\\to$I 規則は ($\\to$⇒) に対応し、$\\to$E は (⇒$\\to$) とカットの組み合わせに対応します。この翻訳は証明可能性を保存します（[[cite:bekki2012|Bekki, 第10章, 定理10.41]]）。",
+      "<b>L ⊆ H（シーケント計算からヒルベルト系へ）。</b> 各シーケント規則はヒルベルト公理と MP を用いてシミュレートできます。構造規則（交換、縮約、弱化）はヒルベルト系で導出可能な命題論理のトートロジーに対応します。論理規則は公理インスタンスと MP 適用の組み合わせに翻訳されます。翻訳は通常、導出の高さに関する帰納法で行います（[[cite:bekki2012|Bekki, 第9章, 定理9.24]]）。",
       "<b>3つのレベル。</b> (1) <b>最小論理 (M):</b> HM は公理 A1, A2, A3 + MP を使用。NM は $\\to$I/E, $\\land$I/E, $\\lor$I/E と弱化を持ちます。LM は LJ から ($\\bot$⇒) を除いた体系です。3つすべてがまったく同じ論理式を証明します。(2) <b>直観主義論理 (J):</b> HJ は矛盾公理 ($\\bot \\to \\varphi$) を追加。NJ は EFQ（矛盾からの爆発）を追加。LJ は ($\\bot$⇒) を追加。(3) <b>古典論理 (K):</b> HK は DNE ($\\lnot \\lnot \\varphi \\to \\varphi$) またはパースの法則を追加。NK は DNE 規則を追加。LK はシーケント右辺に複数の論理式を許可します。",
       "<b>意義。</b> 等価性定理は深い帰結を持ちます: (1) 1つの体系について証明されたメタ定理は直ちに他の体系に転用できます。例えば、LK のカット除去は HK と NK の証明に対する部分論理式性を含意します。(2) 各体系には異なる実用上の利点があります — ヒルベルト系は最小限でエレガント、自然演繹は非形式的な数学的推論を反映、シーケント計算は証明探索とメタ理論に最適です。(3) 等価性は「証明可能性」の概念が頑健であり、選択した特定の形式化に依存しないことを示しています。",
     ],
@@ -3532,6 +3620,7 @@ const conceptSystemEquivalence: ReferenceEntry = {
     "concept-tab-lk-equivalence",
     "concept-consistency-from-cut-elimination",
   ],
+  bibliographyKeys: ["bekki2012"],
   externalLinks: [
     {
       type: "wikipedia-en",
@@ -3614,18 +3703,18 @@ const conceptSoundness: ReferenceEntry = {
   body: {
     en: [
       `<b>What soundness means.</b> The soundness theorem states that if a formula (or sequent) is provable in a proof system K, then it is semantically valid — that is, true under every interpretation. Formally: if Γ $\\vdash$_K Δ, then Γ $\\models$ Δ. In other words, the proof system never "lies": it cannot prove something that is false. This is a fundamental requirement for any proof system to be trustworthy.`,
-      `<b>Semantic validity ($\\models$).</b> To say Γ $\\models$ Δ means that for every interpretation (M, g), if (M, g) satisfies all formulas in Γ, then (M, g) satisfies at least one formula in Δ. Equivalently, the set $\\lnot$Δ, Γ is unsatisfiable — there is no interpretation making all of Γ true while making all of Δ false. For propositional logic, an interpretation is a truth-value assignment; for predicate logic, it is a structure with a domain and interpretation function (bekki Ch.5, Definition 5.66).`,
-      `<b>Proof strategy: preserving satisfiability.</b> The standard proof of soundness proceeds by induction on the derivation. For tableau-style sequent calculus (TAB), the key lemma (bekki Lemma 13.7) shows that each inference rule preserves satisfiability upward: if the conclusion sequent Γ ⇒ has a satisfying interpretation, then at least one premise also has a satisfying interpretation. Since axioms (basic sequents) $\\lnot \\varphi , \\varphi$, Γ ⇒ are clearly unsatisfiable, any completed derivation starting from provable sequents reaches only unsatisfiable leaves, guaranteeing the root is valid.`,
+      `<b>Semantic validity ($\\models$).</b> To say Γ $\\models$ Δ means that for every interpretation (M, g), if (M, g) satisfies all formulas in Γ, then (M, g) satisfies at least one formula in Δ. Equivalently, the set $\\lnot$Δ, Γ is unsatisfiable — there is no interpretation making all of Γ true while making all of Δ false. For propositional logic, an interpretation is a truth-value assignment; for predicate logic, it is a structure with a domain and interpretation function ([[cite:bekki2012|Bekki, Ch. 5, Def. 5.66]]).`,
+      `<b>Proof strategy: preserving satisfiability.</b> The standard proof of soundness proceeds by induction on the derivation. For tableau-style sequent calculus (TAB), the key lemma ([[cite:bekki2012|Bekki, Lem. 13.7]]) shows that each inference rule preserves satisfiability upward: if the conclusion sequent Γ ⇒ has a satisfying interpretation, then at least one premise also has a satisfying interpretation. Since axioms (basic sequents) $\\lnot \\varphi , \\varphi$, Γ ⇒ are clearly unsatisfiable, any completed derivation starting from provable sequents reaches only unsatisfiable leaves, guaranteeing the root is valid.`,
       `<b>Soundness for specific systems.</b> (1) <b>TAB</b> (Theorem 13.10): Γ $\\vdash$_TAB Δ ⟹ Γ $\\models$ Δ. Proved by contraposition — if Γ ⊭ Δ, then $\\lnot$Δ, Γ is satisfiable, and the satisfiability lemma shows Γ ⊬_TAB Δ. (2) <b>LK</b> (Theorem 13.24): Γ $\\vdash$_LK Δ ⟹ Γ $\\models$ Δ. Proved similarly via a soundness lemma for LK rules (Lemma 13.25). By the equivalence of proof systems (HK = NK = LK = TAB), soundness extends to all classical proof systems.`,
-      `<b>Consequences of soundness.</b> Soundness has important corollaries: (1) <b>Consistency:</b> If a system is sound, it cannot prove a contradiction ($\\bot$), since $\\bot$ has no satisfying interpretation. (2) <b>Semantic cut elimination:</b> From LK soundness, for any LK derivation of S, there exists an LK-CUT derivation of S. This gives a completely different proof of cut elimination via semantics rather than syntactic transformation (bekki Section 13.6). (3) <b>Trustworthiness:</b> Soundness justifies using the proof system as a reliable tool for establishing truths about mathematical structures.`,
+      `<b>Consequences of soundness.</b> Soundness has important corollaries: (1) <b>Consistency:</b> If a system is sound, it cannot prove a contradiction ($\\bot$), since $\\bot$ has no satisfying interpretation. (2) <b>Semantic cut elimination:</b> From LK soundness, for any LK derivation of S, there exists an LK-CUT derivation of S. This gives a completely different proof of cut elimination via semantics rather than syntactic transformation ([[cite:bekki2012|Bekki, Sec. 13.6]]). (3) <b>Trustworthiness:</b> Soundness justifies using the proof system as a reliable tool for establishing truths about mathematical structures.`,
       `<b>Soundness vs. completeness.</b> Soundness ($\\vdash$ ⟹ $\\models$) and [[ref:concept-completeness|completeness]] ($\\models$ ⟹ $\\vdash$) are dual properties. Together they establish that provability and semantic validity coincide: $\\vdash \\iff \\models$. While soundness is generally straightforward to prove (induction on derivations), completeness is significantly harder and historically deeper — Gödel's completeness theorem (1930) established it for first-order logic. Soundness says the system is safe; completeness says the system is sufficient.`,
     ],
     ja: [
       `<b>健全性の意味。</b> 健全性定理は、証明体系 K で証明可能な論理式（またはシーケント）が意味論的に妥当であること — すなわち、すべての解釈のもとで真であること — を述べます。形式的に: Γ $\\vdash$_K Δ ならば Γ $\\models$ Δ。言い換えれば、証明体系は決して「嘘をつかない」: 偽であるものを証明することはできません。これは、証明体系が信頼できるための基本的な要件です。`,
-      `<b>意味論的妥当性（$\\models$）。</b> Γ $\\models$ Δ とは、任意の解釈 (M, g) について、(M, g) が Γ のすべての論理式を充足するならば、(M, g) が Δ の少なくとも1つの論理式を充足することを意味します。同値的に、集合 $\\lnot$Δ, Γ が充足不能 — Γ のすべてを真にしつつ Δ のすべてを偽にする解釈が存在しない — ということです。命題論理では解釈は真理値割当であり、述語論理では解釈は領域と解釈関数を持つ構造です（戸次 Ch.5, 定義5.66）。`,
-      `<b>証明戦略: 充足可能性の保存。</b> 健全性の標準的な証明は、導出に関する帰納法で進みます。タブロー式シーケント計算 (TAB) では、鍵となる補題（戸次 補題13.7）が、各推論規則が充足可能性を上方に保存することを示します: 結論のシーケント Γ ⇒ に充足する解釈があるならば、少なくとも1つの前提にも充足する解釈があります。公理（基本式）$\\lnot \\varphi , \\varphi$, Γ ⇒ は明らかに充足不能なので、証明可能なシーケントから始まる完成した導出は充足不能な葉のみに到達し、根が妥当であることが保証されます。`,
+      `<b>意味論的妥当性（$\\models$）。</b> Γ $\\models$ Δ とは、任意の解釈 (M, g) について、(M, g) が Γ のすべての論理式を充足するならば、(M, g) が Δ の少なくとも1つの論理式を充足することを意味します。同値的に、集合 $\\lnot$Δ, Γ が充足不能 — Γ のすべてを真にしつつ Δ のすべてを偽にする解釈が存在しない — ということです。命題論理では解釈は真理値割当であり、述語論理では解釈は領域と解釈関数を持つ構造です（[[cite:bekki2012|Bekki, 第5章, 定義5.66]]）。`,
+      `<b>証明戦略: 充足可能性の保存。</b> 健全性の標準的な証明は、導出に関する帰納法で進みます。タブロー式シーケント計算 (TAB) では、鍵となる補題（[[cite:bekki2012|Bekki, 補題13.7]]）が、各推論規則が充足可能性を上方に保存することを示します: 結論のシーケント Γ ⇒ に充足する解釈があるならば、少なくとも1つの前提にも充足する解釈があります。公理（基本式）$\\lnot \\varphi , \\varphi$, Γ ⇒ は明らかに充足不能なので、証明可能なシーケントから始まる完成した導出は充足不能な葉のみに到達し、根が妥当であることが保証されます。`,
       `<b>各体系の健全性。</b> (1) <b>TAB</b>（定理13.10）: Γ $\\vdash$_TAB Δ ⟹ Γ $\\models$ Δ。対偶による証明 — Γ ⊭ Δ ならば $\\lnot$Δ, Γ は充足可能であり、充足可能性補題により Γ ⊬_TAB Δ。(2) <b>LK</b>（定理13.24）: Γ $\\vdash$_LK Δ ⟹ Γ $\\models$ Δ。LK 規則に対する健全性補題（補題13.25）を用いて同様に証明されます。証明体系の等価性（HK = NK = LK = TAB）により、健全性はすべての古典論理の証明体系に拡張されます。`,
-      `<b>健全性の帰結。</b> 健全性には重要な系があります: (1) <b>無矛盾性:</b> 体系が健全であれば、矛盾（$\\bot$）を証明できません。$\\bot$ には充足する解釈が存在しないからです。(2) <b>意味論的カット除去:</b> LK の健全性から、任意の LK 導出のシーケント S に対して LK-CUT の導出が存在します。これは構文的変換ではなく意味論を介したカット除去の全く異なる証明を与えます（戸次 13.6節）。(3) <b>信頼性:</b> 健全性は、証明体系を数学的構造に関する真理を確立するための信頼できるツールとして使うことを正当化します。`,
+      `<b>健全性の帰結。</b> 健全性には重要な系があります: (1) <b>無矛盾性:</b> 体系が健全であれば、矛盾（$\\bot$）を証明できません。$\\bot$ には充足する解釈が存在しないからです。(2) <b>意味論的カット除去:</b> LK の健全性から、任意の LK 導出のシーケント S に対して LK-CUT の導出が存在します。これは構文的変換ではなく意味論を介したカット除去の全く異なる証明を与えます（[[cite:bekki2012|Bekki, 13.6節]]）。(3) <b>信頼性:</b> 健全性は、証明体系を数学的構造に関する真理を確立するための信頼できるツールとして使うことを正当化します。`,
       `<b>健全性と完全性。</b> 健全性（$\\vdash$ ⟹ $\\models$）と[[ref:concept-completeness|完全性]]（$\\models$ ⟹ $\\vdash$）は双対的な性質です。これらを合わせると、証明可能性と意味論的妥当性が一致することが確立されます: $\\vdash \\iff \\models$。健全性の証明は一般に比較的容易（導出に関する帰納法）ですが、完全性の証明はかなり困難で歴史的にも深い結果です — ゲーデルの完全性定理（1930年）が一階論理に対してこれを確立しました。健全性は体系が安全であることを、完全性は体系が十分であることを述べます。`,
     ],
   },
@@ -3684,6 +3773,7 @@ const conceptSoundness: ReferenceEntry = {
     "trustworthy",
     "信頼性",
   ],
+  bibliographyKeys: ["bekki2012"],
   order: 8,
 };
 
@@ -3700,19 +3790,19 @@ const conceptCompleteness: ReferenceEntry = {
   },
   body: {
     en: [
-      `<b>What completeness means.</b> The completeness theorem states that if a formula (or sequent) is semantically valid, then it is provable in the proof system K. Formally: if Γ $\\models$ Δ, then Γ $\\vdash$_K Δ (bekki Definition 13.2). In other words, the proof system has no "gaps": every semantic truth can be captured by a formal derivation. Together with [[ref:concept-soundness|soundness]] ($\\vdash$ ⟹ $\\models$), completeness establishes the equivalence $\\vdash \\iff \\models$, meaning the syntactic notion of provability perfectly matches the semantic notion of validity.`,
+      `<b>What completeness means.</b> The completeness theorem states that if a formula (or sequent) is semantically valid, then it is provable in the proof system K. Formally: if Γ $\\models$ Δ, then Γ $\\vdash$_K Δ ([[cite:bekki2012|Bekki, Def. 13.2]]). In other words, the proof system has no "gaps": every semantic truth can be captured by a formal derivation. Together with [[ref:concept-soundness|soundness]] ($\\vdash$ ⟹ $\\models$), completeness establishes the equivalence $\\vdash \\iff \\models$, meaning the syntactic notion of provability perfectly matches the semantic notion of validity.`,
       `<b>Two forms of completeness.</b> Completeness comes in two variants: (1) <b>(Weak) completeness</b> (Theorem 13.13): $\\models \\varphi$ ⟹ $\\vdash$_TAB $\\varphi$ — if a sentence is valid (true in all interpretations), it is provable. (2) <b>Strong completeness</b> (Theorem 13.14): Γ $\\models$ Δ ⟹ Γ $\\vdash$_TAB Δ — if Δ is a semantic consequence of Γ, then Δ is derivable from Γ. Strong completeness subsumes weak completeness (take Γ = ∅). Both forms hold for classical first-order logic.`,
       `<b>Henkin's theorem: the key ingredient.</b> The proof of completeness relies on Henkin's theorem (Theorem 13.12): if Γ ⊬_TAB, then Γ is satisfiable in a countable domain. The contrapositive gives completeness. The proof constructs a <i>full</i> (充満) sequence (Definition 13.17) — a maximally expanded sequence of formulas where every TAB rule's requirements are met — and then extracts an <i>induced Herbrand interpretation</i> (Definition 13.19) from this full sequence, which serves as a countable model.`,
       `<b>Full sequences and induced interpretations.</b> A full sequence Γ̂ (Definition 13.17) satisfies the condition that for every formula that is a principal formula of a TAB rule, the corresponding requirements of that rule are met within Γ̂. Given an unprovable Γ, Lemma 13.18 constructs such a full Γ̂ ⊇ Γ with Γ̂ ⊬_TAB by systematically enumerating all formulas and extending Γ step by step. The induced interpretation F_M from this full sequence (Definition 13.19) assigns truth values based on membership in the sequence, and Lemma 13.20 shows this interpretation satisfies every formula in Γ̂.`,
-      `<b>Gödel's completeness theorem.</b> The completeness of first-order logic was first proved by Kurt Gödel in 1930 (his doctoral dissertation). From Theorem 13.13 and TAB soundness, one obtains $\\models \\varphi \\iff \\vdash$_TAB $\\varphi$ — this is Gödel's completeness theorem (bekki p.285, footnote). By the equivalence of proof systems (HK = NK = LK = TAB), completeness extends to all formulations of classical first-order logic.`,
+      `<b>Gödel's completeness theorem.</b> The completeness of first-order logic was first proved by [[cite:godel1930|Kurt Gödel in 1930]] (his doctoral dissertation). From Theorem 13.13 and TAB soundness, one obtains $\\models \\varphi \\iff \\vdash$_TAB $\\varphi$ — this is Gödel's completeness theorem ([[cite:bekki2012|Bekki, p. 285]]). By the equivalence of proof systems (HK = NK = LK = TAB), completeness extends to all formulations of classical first-order logic.`,
       `<b>Significance and related results.</b> Completeness has profound consequences: (1) It guarantees that the proof system is <i>sufficient</i> — no valid inference escapes it. (2) Combined with soundness, it shows the proof system is equivalent to the semantics (Chapter 5). (3) It underlies the [[ref:concept-lowenheim-skolem|Löwenheim–Skolem theorem]] (every satisfiable set has a countable model) and the [[ref:concept-compactness|compactness theorem]] (a set is satisfiable iff every finite subset is). Note: Gödel's completeness theorem should not be confused with Gödel's <i>incompleteness</i> theorems, which concern the limitations of formal systems for arithmetic.`,
     ],
     ja: [
-      `<b>完全性の意味。</b> 完全性定理は、意味論的に妥当な論理式（またはシーケント）が証明体系 K で証明可能であることを述べます。形式的に: Γ $\\models$ Δ ならば Γ $\\vdash$_K Δ（戸次 定義13.2）。言い換えれば、証明体系に「漏れ」はない: すべての意味論的真理は形式的な導出で捉えることができます。[[ref:concept-soundness|健全性]]（$\\vdash$ ⟹ $\\models$）と合わせて、完全性は $\\vdash \\iff \\models$ という等価性を確立し、証明可能性という構文的概念と妥当性という意味論的概念が完全に一致することを意味します。`,
+      `<b>完全性の意味。</b> 完全性定理は、意味論的に妥当な論理式（またはシーケント）が証明体系 K で証明可能であることを述べます。形式的に: Γ $\\models$ Δ ならば Γ $\\vdash$_K Δ（[[cite:bekki2012|Bekki, 定義13.2]]）。言い換えれば、証明体系に「漏れ」はない: すべての意味論的真理は形式的な導出で捉えることができます。[[ref:concept-soundness|健全性]]（$\\vdash$ ⟹ $\\models$）と合わせて、完全性は $\\vdash \\iff \\models$ という等価性を確立し、証明可能性という構文的概念と妥当性という意味論的概念が完全に一致することを意味します。`,
       `<b>完全性の二つの形式。</b> 完全性には二つのバリエーションがあります: (1) <b>（弱い）完全性定理</b>（定理13.13）: $\\models \\varphi$ ⟹ $\\vdash$_TAB $\\varphi$ — 恒真な文（すべての解釈で真）は証明可能である。(2) <b>強い完全性定理</b>（定理13.14）: Γ $\\models$ Δ ⟹ Γ $\\vdash$_TAB Δ — Δ が Γ の意味論的帰結ならば、Δ は Γ から導出可能である。強い完全性は弱い完全性を包含します（Γ = ∅ とすればよい）。両形式とも古典一階論理で成立します。`,
       `<b>ヘンキンの定理: 鍵となる成分。</b> 完全性の証明はヘンキンの定理（定理13.12）に依拠します: Γ ⊬_TAB ならば、Γ は可算領域で充足可能です。この対偶が完全性を与えます。証明は <i>充満</i> した列（定義13.17）— TAB の各規則の要請がすべて満たされた、極大的に拡張された論理式の列 — を構成し、この充満した列から <i>導出された解釈</i>（エルブラン解釈）（定義13.19）を取り出します。これが可算モデルとして機能します。`,
       `<b>充満した列と導出された解釈。</b> 充満した列 Γ̂（定義13.17）は、TAB 規則の主論理式であるすべての論理式について、その規則の対応する要請が Γ̂ 内で満たされるという条件を満足します。証明不能な Γ が与えられたとき、補題13.18 はすべての論理式を体系的に列挙し、Γ を段階的に拡張することで、Γ̂ ⊇ Γ かつ Γ̂ ⊬_TAB である充満した列を構成します。この充満した列からの導出された解釈 F_M（定義13.19）は列への所属に基づいて真理値を割り当て、補題13.20 はこの解釈が Γ̂ 内のすべての論理式を充足することを示します。`,
-      `<b>ゲーデルの完全性定理。</b> 一階論理の完全性は、1930年にクルト・ゲーデルによって初めて証明されました（博士論文）。定理13.13 と TAB の健全性から、$\\models \\varphi \\iff \\vdash$_TAB $\\varphi$ が得られます — これがゲーデルの完全性定理です（戸次 p.285, 脚注）。証明体系の等価性（HK = NK = LK = TAB）により、完全性は古典一階論理のすべての定式化に拡張されます。`,
+      `<b>ゲーデルの完全性定理。</b> 一階論理の完全性は、[[cite:godel1930|1930年にクルト・ゲーデル]]によって初めて証明されました（博士論文）。定理13.13 と TAB の健全性から、$\\models \\varphi \\iff \\vdash$_TAB $\\varphi$ が得られます — これがゲーデルの完全性定理です（[[cite:bekki2012|Bekki, p. 285]]）。証明体系の等価性（HK = NK = LK = TAB）により、完全性は古典一階論理のすべての定式化に拡張されます。`,
       `<b>意義と関連する結果。</b> 完全性には深い帰結があります: (1) 証明体系が <i>十分</i> であること — 妥当な推論は一つも漏れない — を保証します。(2) 健全性と合わせて、証明体系が意味論（第5章）と等価であることを示します。(3) [[ref:concept-lowenheim-skolem|レーヴェンハイム・スコーレムの定理]]（充足可能な集合は可算モデルを持つ）や[[ref:concept-compactness|コンパクト性定理]]（集合が充足可能 $\\iff$ すべての有限部分集合が充足可能）の基礎となります。注意: ゲーデルの完全性定理はゲーデルの <i>不完全性</i> 定理と混同してはなりません。後者は算術の形式体系の限界に関するものです。`,
     ],
   },
@@ -3772,6 +3862,7 @@ const conceptCompleteness: ReferenceEntry = {
     "full sequence",
     "充満",
   ],
+  bibliographyKeys: ["bekki2012", "godel1930"],
   order: 9,
 };
 
@@ -3788,17 +3879,17 @@ const conceptLowenheimSkolem: ReferenceEntry = {
   },
   body: {
     en: [
-      `<b>Statement of the theorem.</b> The (downward) Löwenheim–Skolem theorem (bekki Theorem 13.23) states: if a set Γ of first-order formulas is satisfiable, then Γ is satisfiable in a countable domain. Formally: if there exists any interpretation (M, g) satisfying Γ, then there exists a countable interpretation (M', g') also satisfying Γ. This means that no first-order theory can force its models to be uncountable — even theories that "talk about" uncountable sets always have countable models.`,
+      `<b>Statement of the theorem.</b> The (downward) Löwenheim–Skolem theorem ([[cite:bekki2012|Bekki, Thm. 13.23]]) states: if a set Γ of first-order formulas is satisfiable, then Γ is satisfiable in a countable domain. Formally: if there exists any interpretation (M, g) satisfying Γ, then there exists a countable interpretation (M', g') also satisfying Γ. This means that no first-order theory can force its models to be uncountable — even theories that "talk about" uncountable sets always have countable models.`,
       `<b>Proof from Henkin's theorem.</b> The proof is remarkably short. Henkin's theorem (Theorem 13.12) shows that if Γ is unprovable (Γ ⊬_TAB), then Γ is satisfiable in a countable domain. Combined with Lemma 13.9 (if Γ is satisfiable, then Γ ⊬_TAB), the Löwenheim–Skolem theorem follows immediately. The key insight is that the Henkin construction always builds a countable model, since it uses only countably many terms as domain elements.`,
       `<b>Skolem's paradox.</b> The theorem leads to the famous Skolem's paradox: set theory (ZFC) proves the existence of uncountable sets, yet by the Löwenheim–Skolem theorem, ZFC itself has a countable model. How can a countable model contain an "uncountable" set? The resolution is that "uncountable" is defined <i>within</i> the model — the model lacks a bijection between its version of ℕ and its version of the reals, even though from outside both are countable. This reveals a fundamental limitation of first-order expressiveness.`,
-      `<b>Upward variant.</b> While bekki presents only the downward direction, there is also an upward Löwenheim–Skolem theorem: any first-order theory with an infinite model has models of every infinite cardinality. Together, the downward and upward versions show that first-order logic cannot characterize infinite structures up to isomorphism — it cannot distinguish between different infinite cardinalities.`,
+      `<b>Upward variant.</b> While [[cite:bekki2012|Bekki]] presents only the downward direction, there is also an upward Löwenheim–Skolem theorem: any first-order theory with an infinite model has models of every infinite cardinality. Together, the downward and upward versions show that first-order logic cannot characterize infinite structures up to isomorphism — it cannot distinguish between different infinite cardinalities.`,
       `<b>Significance for model theory.</b> The Löwenheim–Skolem theorem is a cornerstone of model theory and has far-reaching consequences: (1) It establishes that first-order logic has limited expressive power regarding cardinality. (2) It is closely related to the compactness theorem (Theorem 5.109) — both follow from the completeness theorem. (3) It motivates the study of stronger logics (second-order, infinitary) that can distinguish cardinalities.`,
     ],
     ja: [
-      `<b>定理の記述。</b> （下方）レーヴェンハイム・スコーレムの定理（戸次 定理13.23）は次のように述べます: 一階論理式の集合 Γ が充足可能ならば、Γ は可算領域で充足可能である。形式的に: Γ を充足する解釈 (M, g) が存在するならば、Γ を充足する可算な解釈 (M', g') も存在する。これは、いかなる一階理論もモデルを非可算に強制することはできないことを意味します — 非可算集合を「語る」理論であっても常に可算モデルを持ちます。`,
+      `<b>定理の記述。</b> （下方）レーヴェンハイム・スコーレムの定理（[[cite:bekki2012|Bekki, 定理13.23]]）は次のように述べます: 一階論理式の集合 Γ が充足可能ならば、Γ は可算領域で充足可能である。形式的に: Γ を充足する解釈 (M, g) が存在するならば、Γ を充足する可算な解釈 (M', g') も存在する。これは、いかなる一階理論もモデルを非可算に強制することはできないことを意味します — 非可算集合を「語る」理論であっても常に可算モデルを持ちます。`,
       `<b>ヘンキンの定理からの証明。</b> 証明は驚くほど短いです。ヘンキンの定理（定理13.12）は、Γ が証明不能（Γ ⊬_TAB）ならば、Γ が可算領域で充足可能であることを示します。補題13.9（Γ が充足可能ならば Γ ⊬_TAB）と組み合わせることで、レーヴェンハイム・スコーレムの定理が直ちに従います。鍵となる洞察は、ヘンキンの構成が常に可算モデルを構築するということです。領域の要素として可算個の項のみを使用するからです。`,
       `<b>スコーレムのパラドックス。</b> この定理は有名なスコーレムのパラドックスを導きます: 集合論 (ZFC) は非可算集合の存在を証明しますが、レーヴェンハイム・スコーレムの定理により ZFC 自体が可算モデルを持ちます。可算モデルがどのようにして「非可算」集合を含むことができるのでしょうか？ 解決は、「非可算」がモデル <i>内部</i> で定義されるということにあります — モデルには ℕ の版と実数の版の間の全単射が欠けていますが、外部から見ればどちらも可算です。これは一階論理の表現力の根本的な限界を露呈します。`,
-      `<b>上方バリアント。</b> 戸次では下方向のみが提示されていますが、上方レーヴェンハイム・スコーレムの定理もあります: 無限モデルを持つ一階理論は、あらゆる無限基数のモデルを持ちます。下方と上方を合わせると、一階論理は無限構造を同型を除いて特徴づけることができない — 異なる無限基数を区別できない — ことが示されます。`,
+      `<b>上方バリアント。</b> [[cite:bekki2012|Bekki]]では下方向のみが提示されていますが、上方レーヴェンハイム・スコーレムの定理もあります: 無限モデルを持つ一階理論は、あらゆる無限基数のモデルを持ちます。下方と上方を合わせると、一階論理は無限構造を同型を除いて特徴づけることができない — 異なる無限基数を区別できない — ことが示されます。`,
       `<b>モデル理論への意義。</b> レーヴェンハイム・スコーレムの定理はモデル理論の礎石であり、広範な帰結を持ちます: (1) 一階論理が基数に関して限定的な表現力を持つことを確立します。(2) コンパクト性定理（定理5.109）と密接に関連します — どちらも完全性定理から従います。(3) 基数を区別できるより強力な論理（二階論理、無限長論理）の研究を動機づけます。`,
     ],
   },
@@ -3855,6 +3946,7 @@ const conceptLowenheimSkolem: ReferenceEntry = {
     "cardinality",
     "基数",
   ],
+  bibliographyKeys: ["bekki2012"],
   order: 10,
 };
 
@@ -3871,15 +3963,15 @@ const conceptCompactness: ReferenceEntry = {
   },
   body: {
     en: [
-      `<b>Statement of the theorem.</b> The compactness theorem (bekki Theorem 5.109, restated in Section 13.5) states: a set Γ of first-order formulas is satisfiable if and only if every finite subset Γ' ⊆ Γ is satisfiable. The "if" direction is the non-trivial part — the "only if" direction is immediate (any interpretation satisfying Γ also satisfies all its subsets). This theorem captures a remarkable property of first-order logic: infinite unsatisfiability always has a finite "witness."`,
-      `<b>Proof from Henkin's theorem.</b> In bekki's presentation, compactness follows immediately from Henkin's theorem and the completeness theorem. If every finite subset of Γ is satisfiable, then by soundness, no finite subset is refutable. Since proofs are finite objects, Γ itself is not refutable (any proof of $\\bot$ from Γ would use only finitely many premises). By completeness, Γ is therefore satisfiable. The proof was originally given in Section 5.5.3, where it was used in proving Herbrand's theorem (Theorem 5.110).`,
+      `<b>Statement of the theorem.</b> The compactness theorem ([[cite:bekki2012|Bekki, Thm. 5.109]], restated in Section 13.5) states: a set Γ of first-order formulas is satisfiable if and only if every finite subset Γ' ⊆ Γ is satisfiable. The "if" direction is the non-trivial part — the "only if" direction is immediate (any interpretation satisfying Γ also satisfies all its subsets). This theorem captures a remarkable property of first-order logic: infinite unsatisfiability always has a finite "witness."`,
+      `<b>Proof from Henkin's theorem.</b> In [[cite:bekki2012|Bekki]]'s presentation, compactness follows immediately from Henkin's theorem and the completeness theorem. If every finite subset of Γ is satisfiable, then by soundness, no finite subset is refutable. Since proofs are finite objects, Γ itself is not refutable (any proof of $\\bot$ from Γ would use only finitely many premises). By completeness, Γ is therefore satisfiable. The proof was originally given in Section 5.5.3, where it was used in proving Herbrand's theorem (Theorem 5.110).`,
       `<b>Why "compactness"?</b> The name comes from topology. Consider the space of all truth-value assignments (interpretations) with the product topology. The set of models of each formula is a closed set, and satisfiability of Γ means the intersection of these closed sets is non-empty. By the topological compactness of the product space (Tychonoff's theorem), if every finite sub-intersection is non-empty (every finite subset is satisfiable), then the full intersection is non-empty.`,
       `<b>Applications.</b> Compactness is one of the most powerful tools in model theory: (1) <b>Non-standard models:</b> It can show that if a theory has arbitrarily large finite models, it has an infinite model (adding axioms saying "there exist at least n distinct elements" for each n). (2) <b>Transfer principles:</b> Properties true in all finite structures that can be expressed in first-order logic must also hold in some infinite structures. (3) <b>Constructing models:</b> It enables the construction of models with specific properties by adding axiom schemas.`,
       `<b>Failure in stronger logics.</b> Compactness is specific to first-order logic and fails in most stronger logics. For example, in second-order logic, the set {"there exist at least n elements" | n ∈ ℕ} ∪ {"the domain is finite"} has every finite subset satisfiable, but the whole set is not. This failure is intimately related to the failure of completeness in second-order logic. Together with the Löwenheim–Skolem theorem, compactness characterizes first-order logic (Lindström's theorem).`,
     ],
     ja: [
-      `<b>定理の記述。</b> コンパクト性定理（戸次 定理5.109、13.5節に再掲）は次のように述べます: 一階論理式の集合 Γ が充足可能であるのは、すべての有限部分集合 Γ' ⊆ Γ が充足可能であるときに限る。「ときに限る」の「ならば」方向が自明でない部分です — 「であるならば」方向は自明です（Γ を充足する解釈はそのすべての部分集合も充足します）。この定理は一階論理の驚くべき性質を捉えています: 無限の充足不能性には常に有限の「証拠」があります。`,
-      `<b>ヘンキンの定理からの証明。</b> 戸次の提示では、コンパクト性はヘンキンの定理と完全性定理から直ちに従います。Γ のすべての有限部分集合が充足可能ならば、健全性により、有限部分集合は反駁不能です。証明は有限のオブジェクトなので、Γ 自体も反駁不能です（Γ からの $\\bot$ の証明は有限個の前提のみを使うため）。完全性により、Γ は充足可能です。証明は元々5.5.3節で与えられ、エルブランの定理（定理5.110）の証明に使われました。`,
+      `<b>定理の記述。</b> コンパクト性定理（[[cite:bekki2012|Bekki, 定理5.109]]、13.5節に再掲）は次のように述べます: 一階論理式の集合 Γ が充足可能であるのは、すべての有限部分集合 Γ' ⊆ Γ が充足可能であるときに限る。「ときに限る」の「ならば」方向が自明でない部分です — 「であるならば」方向は自明です（Γ を充足する解釈はそのすべての部分集合も充足します）。この定理は一階論理の驚くべき性質を捉えています: 無限の充足不能性には常に有限の「証拠」があります。`,
+      `<b>ヘンキンの定理からの証明。</b> [[cite:bekki2012|Bekki]]の提示では、コンパクト性はヘンキンの定理と完全性定理から直ちに従います。Γ のすべての有限部分集合が充足可能ならば、健全性により、有限部分集合は反駁不能です。証明は有限のオブジェクトなので、Γ 自体も反駁不能です（Γ からの $\\bot$ の証明は有限個の前提のみを使うため）。完全性により、Γ は充足可能です。証明は元々5.5.3節で与えられ、エルブランの定理（定理5.110）の証明に使われました。`,
       `<b>なぜ「コンパクト性」か？</b> 名前は位相幾何学に由来します。すべての真理値割当（解釈）の空間を直積位相で考えます。各論理式のモデルの集合は閉集合であり、Γ の充足可能性はこれらの閉集合の共通部分が空でないことを意味します。直積空間の位相的コンパクト性（チコノフの定理）により、すべての有限部分共通が空でなければ（すべての有限部分集合が充足可能ならば）、全体の共通部分も空でありません。`,
       `<b>応用。</b> コンパクト性はモデル理論における最も強力なツールの一つです: (1) <b>超準モデル:</b> ある理論が任意に大きな有限モデルを持つならば、無限モデルも持つことを示せます（「少なくとも n 個の異なる要素が存在する」という公理を各 n について追加）。(2) <b>転移原理:</b> すべての有限構造で成り立つ一階論理で表現可能な性質は、ある無限構造でも成立しなければなりません。(3) <b>モデルの構成:</b> 公理スキーマを追加することで特定の性質を持つモデルの構成が可能になります。`,
       `<b>より強い論理での不成立。</b> コンパクト性は一階論理に特有であり、ほとんどのより強い論理では成立しません。例えば、二階論理では {「少なくとも n 個の要素が存在する」 | n ∈ ℕ} ∪ {「領域は有限である」} はすべての有限部分集合が充足可能ですが、全体は充足不能です。この不成立は二階論理での完全性の不成立と密接に関連しています。レーヴェンハイム・スコーレムの定理とともに、コンパクト性は一階論理を特徴づけます（リンドストレームの定理）。`,
@@ -3937,6 +4029,7 @@ const conceptCompactness: ReferenceEntry = {
     "Lindström",
     "リンドストレーム",
   ],
+  bibliographyKeys: ["bekki2012"],
   order: 11,
 };
 
@@ -3954,17 +4047,17 @@ const conceptProofTheoreticSemantics: ReferenceEntry = {
   body: {
     en: [
       `<b>From soundness and completeness to meaning.</b> The soundness and completeness theorems for first-order logic establish that Γ $\\vdash$ Δ if and only if Γ $\\models$ Δ. This means that any formula provable in a proof system (Hilbert, natural deduction, sequent calculus, or tableau — all equivalent by the results of Chapters 9–10) is indeed semantically valid. In the standard view, this gives proof systems their "legitimacy": they are justified because they agree with model-theoretic truth.`,
-      `<b>Two perspectives on legitimacy.</b> However, one can also adopt a different viewpoint (bekki Section 13.7). Instead of asking whether a proof system faithfully captures semantic truth, one can ask whether every individual proof system is legitimate in its own right. Under this view, soundness and completeness theorems are needed to certify that a proof system is a "genuine proof system." But another perspective — proof-theoretic semantics — proposes that proof systems can define the meaning of logical connectives independently.`,
-      `<b>Meaning through proof rules.</b> In proof-theoretic semantics, the meaning of a connective like $\\land$ (conjunction) is not given by "$\\land$ is true when both conjuncts are true" (the model-theoretic account). Instead, it is determined by the inference rules that govern it. In model-theoretic semantics, |$\\land$| is expressed as a truth table; in proof-theoretic semantics, the meaning of $\\land$ is determined by the two rules ($\\land$) and ($\\lnot \\land$) in the tableau system — or equivalently by the introduction and elimination rules $\\land$I and $\\land$E in natural deduction (bekki Section 13.7).`,
-      `<b>Circularity concern and its resolution.</b> A natural worry arises: when we transfer from one proof system to another (say, from Hilbert to natural deduction), is the validity ultimately preserved? Could the transfer chain produce a circularity, where no system is grounded in absolute correctness? In proof-theoretic semantics, the definition of validity is internal to each system: a proof system's rules themselves constitute the meaning of the connectives. There is no need to appeal to an external notion of truth. However, the equivalence between proof systems and their inclusion relationships guarantee that validity is maintained relatively — each system is justified by its relationship to other systems (bekki Section 13.7).`,
-      `<b>Significance: meaning without truth.</b> The key insight from soundness and completeness is that the meaning of a formula need not be defined via truth values. Model-theoretic semantics defines meaning through truth functions and interpretations, but proof-theoretic semantics shows that an entirely different — yet equally valid — notion of "meaning" can be given through the behavior of formulas in proofs. This observation, discussed in bekki's concluding remarks on Chapter 2, challenges the common intuition that truth is the fundamental concept. Multiple "meaning" frameworks can coexist, each revealing different aspects of logic.`,
+      `<b>Two perspectives on legitimacy.</b> However, one can also adopt a different viewpoint ([[cite:bekki2012|Bekki, Sec. 13.7]]). Instead of asking whether a proof system faithfully captures semantic truth, one can ask whether every individual proof system is legitimate in its own right. Under this view, soundness and completeness theorems are needed to certify that a proof system is a "genuine proof system." But another perspective — proof-theoretic semantics — proposes that proof systems can define the meaning of logical connectives independently.`,
+      `<b>Meaning through proof rules.</b> In proof-theoretic semantics, the meaning of a connective like $\\land$ (conjunction) is not given by "$\\land$ is true when both conjuncts are true" (the model-theoretic account). Instead, it is determined by the inference rules that govern it. In model-theoretic semantics, |$\\land$| is expressed as a truth table; in proof-theoretic semantics, the meaning of $\\land$ is determined by the two rules ($\\land$) and ($\\lnot \\land$) in the tableau system — or equivalently by the introduction and elimination rules $\\land$I and $\\land$E in natural deduction ([[cite:bekki2012|Bekki, Sec. 13.7]]).`,
+      `<b>Circularity concern and its resolution.</b> A natural worry arises: when we transfer from one proof system to another (say, from Hilbert to natural deduction), is the validity ultimately preserved? Could the transfer chain produce a circularity, where no system is grounded in absolute correctness? In proof-theoretic semantics, the definition of validity is internal to each system: a proof system's rules themselves constitute the meaning of the connectives. There is no need to appeal to an external notion of truth. However, the equivalence between proof systems and their inclusion relationships guarantee that validity is maintained relatively — each system is justified by its relationship to other systems ([[cite:bekki2012|Bekki, Sec. 13.7]]).`,
+      `<b>Significance: meaning without truth.</b> The key insight from soundness and completeness is that the meaning of a formula need not be defined via truth values. Model-theoretic semantics defines meaning through truth functions and interpretations, but proof-theoretic semantics shows that an entirely different — yet equally valid — notion of "meaning" can be given through the behavior of formulas in proofs. This observation, discussed in [[cite:bekki2012|Bekki]]'s concluding remarks on Chapter 2, challenges the common intuition that truth is the fundamental concept. Multiple "meaning" frameworks can coexist, each revealing different aspects of logic.`,
     ],
     ja: [
       `<b>健全性と完全性から意味へ。</b> 一階論理の健全性定理と完全性定理は Γ $\\vdash$ Δ と Γ $\\models$ Δ が同値であることを確立します。つまり、証明体系（ヒルベルト流、自然演繹、シーケント計算、タブロー — 9–10章の結果によりすべて等価）で証明可能な論理式は、意味論的に妥当です。標準的な見方では、これが証明体系に「正当性」を与えます: モデル論的な真理と一致するがゆえに正当化されるのです。`,
-      `<b>正当性に関する二つの視点。</b> しかし、別の見方も可能です（戸次 13.7節）。証明体系が意味論的真理を忠実に捉えているかを問う代わりに、個々の証明体系がそれ自体として正当であるかを問うこともできます。この見方では、証明体系が「まともな証明体系」であることを保証するために健全性・完全性定理が必要です。しかし別の視点 — 証明論的意味論 — は、証明体系が論理結合子の意味を独立に定義できると提案します。`,
-      `<b>証明規則による意味。</b> 証明論的意味論では、$\\land$（連言）のような結合子の意味は「両方の連言肢が真のとき $\\land$ は真」（モデル論的説明）としてではなく、それを支配する推論規則によって定められます。モデル論の意味論では |$\\land$| は真理値表として表されますが、証明論的意味論では $\\land$ の意味はタブロー体系における ($\\land$) と ($\\lnot \\land$) の二つの規則によって — あるいは同等に自然演繹の導入規則 $\\land$I と除去規則 $\\land$E によって — 決定されます（戸次 13.7節）。`,
-      `<b>循環の懸念とその解消。</b> 自然な疑問が生じます: ある証明体系から別の体系へ（たとえばヒルベルト流から自然演繹へ）移行するとき、妥当性は最終的に保存されるのでしょうか？ 移行の連鎖が循環を生み、どの体系も絶対的な正しさに基盤を持たないということにならないでしょうか？ 証明論的意味論では、妥当性の定義は各体系の内部にあります: 証明体系の規則自体が結合子の意味を構成するのです。外部的な真理概念に訴える必要はありません。ただし、証明体系間の等価性や包含関係により、妥当性は相対的に保証されます — 各体系は他の体系との関係によって正当化されます（戸次 13.7節）。`,
-      `<b>意義: 真理なしの意味。</b> 健全性と完全性からの重要な洞察は、論理式の意味が真理値によって定義される必要がないということです。モデル論の意味論は真理関数と解釈を通じて意味を定義しますが、証明論的意味論は、証明における論理式の振る舞いを通じて、まったく異なりながらも同様に妥当な「意味」の概念を与えられることを示します。戸次の第2章に関する結びの考察で述べられたこの観察は、真理が根本概念であるという一般的直観に挑戦するものです。複数の「意味」の枠組みが共存でき、それぞれが論理の異なる側面を明らかにするのです。`,
+      `<b>正当性に関する二つの視点。</b> しかし、別の見方も可能です（[[cite:bekki2012|Bekki, 13.7節]]）。証明体系が意味論的真理を忠実に捉えているかを問う代わりに、個々の証明体系がそれ自体として正当であるかを問うこともできます。この見方では、証明体系が「まともな証明体系」であることを保証するために健全性・完全性定理が必要です。しかし別の視点 — 証明論的意味論 — は、証明体系が論理結合子の意味を独立に定義できると提案します。`,
+      `<b>証明規則による意味。</b> 証明論的意味論では、$\\land$（連言）のような結合子の意味は「両方の連言肢が真のとき $\\land$ は真」（モデル論的説明）としてではなく、それを支配する推論規則によって定められます。モデル論の意味論では |$\\land$| は真理値表として表されますが、証明論的意味論では $\\land$ の意味はタブロー体系における ($\\land$) と ($\\lnot \\land$) の二つの規則によって — あるいは同等に自然演繹の導入規則 $\\land$I と除去規則 $\\land$E によって — 決定されます（[[cite:bekki2012|Bekki, 13.7節]]）。`,
+      `<b>循環の懸念とその解消。</b> 自然な疑問が生じます: ある証明体系から別の体系へ（たとえばヒルベルト流から自然演繹へ）移行するとき、妥当性は最終的に保存されるのでしょうか？ 移行の連鎖が循環を生み、どの体系も絶対的な正しさに基盤を持たないということにならないでしょうか？ 証明論的意味論では、妥当性の定義は各体系の内部にあります: 証明体系の規則自体が結合子の意味を構成するのです。外部的な真理概念に訴える必要はありません。ただし、証明体系間の等価性や包含関係により、妥当性は相対的に保証されます — 各体系は他の体系との関係によって正当化されます（[[cite:bekki2012|Bekki, 13.7節]]）。`,
+      `<b>意義: 真理なしの意味。</b> 健全性と完全性からの重要な洞察は、論理式の意味が真理値によって定義される必要がないということです。モデル論の意味論は真理関数と解釈を通じて意味を定義しますが、証明論的意味論は、証明における論理式の振る舞いを通じて、まったく異なりながらも同様に妥当な「意味」の概念を与えられることを示します。[[cite:bekki2012|Bekki]]の第2章に関する結びの考察で述べられたこの観察は、真理が根本概念であるという一般的直観に挑戦するものです。複数の「意味」の枠組みが共存でき、それぞれが論理の異なる側面を明らかにするのです。`,
     ],
   },
   relatedEntryIds: [
@@ -4020,6 +4113,7 @@ const conceptProofTheoreticSemantics: ReferenceEntry = {
     "harmony",
     "調和",
   ],
+  bibliographyKeys: ["bekki2012"],
   order: 12,
 };
 
@@ -4036,18 +4130,18 @@ const conceptCutElimination: ReferenceEntry = {
   },
   body: {
     en: [
-      `<b>Statement and significance.</b> The cut elimination theorem (Hauptsatz) states that for any sequent S, if S is provable in the sequent calculus K (= K-CUT + CUT), then S is provable in K-CUT (i.e., without the CUT rule). This holds for all three sequent calculi: LM (minimal logic), LJ (intuitionistic logic), and LK (classical logic) (bekki Theorem 11.2). Since K = K-CUT + CUT by definition, this means the CUT rule is an <b>admissible rule</b> — adding it does not increase the set of provable sequents. This fundamental result, discovered by Gerhard Gentzen in 1934, is one of the most important theorems in proof theory.`,
-      `<b>The MIX rule and proof strategy.</b> The proof uses a variant of CUT called the <b>MIX rule</b>, which replaces <i>all</i> occurrences of the cut formula rather than just one. On LM-CUT and LJ-CUT, CUT and MIX are equivalent (bekki Lemma 11.13), so proving that MIX is admissible suffices. MIX has better structural properties for the induction argument. The proof proceeds by <b>double induction</b> on the pair (depth d, rank r): the depth d measures the syntactic complexity of the principal (cut) formula, and the rank r counts the consecutive occurrences of the principal formula along paths in the proof tree (bekki Definitions 11.16–11.18).`,
-      `<b>Double induction structure.</b> The elimination is decomposed into three lemmas: (1) Cut(1,1) — the base case for depth 1 and rank 1 (bekki Lemma 11.23); (2) Cut(d,r) follows from Cut(d,1)…Cut(d,r−1) for r ≥ 2 — reducing rank while keeping depth fixed (bekki Lemma 11.24); (3) Cut(d,1) follows from Cut(1,r)…Cut(d−1,r) for all r, for d ≥ 2 — reducing depth at the cost of possibly increasing rank (bekki Lemma 11.26). This lexicographic induction on (d,r) terminates because each step strictly decreases the pair (bekki Remark 11.28).`,
-      `<b>Consistency as a corollary.</b> A profound consequence of cut elimination is the <b>consistency</b> (inconsistency-freeness) of the proof systems: $\\bot$ is not provable in LK or LJ (bekki Theorem 11.5). The proof is elegant: if $\\bot$ were provable, there would be a CUT-free proof of the sequent ⇒ $\\bot$. But no CUT-free inference rule can produce a sequent with an empty antecedent and $\\bot$ as the sole succedent, yielding a contradiction. This extends to all equivalent systems (NK, NJ, HK, HJ).`,
-      `<b>Independence of classical axioms.</b> Another corollary is the <b>independence of DNE from intuitionistic logic</b>: the law of double negation elimination ($\\lnot \\lnot \\varphi \\to \\varphi$) is not provable in LJ (bekki Theorem 11.9). The proof uses the fact that LEM ($\\varphi \\lor \\lnot \\varphi$) is not LJ-provable (bekki Theorem 11.8), which follows from a structural analysis of LJ-CUT proofs showing that CUT-free proofs in LJ must have non-empty antecedents with compound formulas (bekki Lemma 11.6). The LK proof uses a different, elegant approach: via Glivenko's theorem, LK cut elimination is reduced to LJ cut elimination (bekki p.266–267).`,
+      `<b>Statement and significance.</b> The cut elimination theorem (Hauptsatz) states that for any sequent S, if S is provable in the sequent calculus K (= K-CUT + CUT), then S is provable in K-CUT (i.e., without the CUT rule). This holds for all three sequent calculi: LM (minimal logic), LJ (intuitionistic logic), and LK (classical logic) ([[cite:bekki2012|Bekki, Thm. 11.2]]). Since K = K-CUT + CUT by definition, this means the CUT rule is an <b>admissible rule</b> — adding it does not increase the set of provable sequents. This fundamental result, discovered by Gerhard Gentzen in 1934, is one of the most important theorems in proof theory.`,
+      `<b>The MIX rule and proof strategy.</b> The proof uses a variant of CUT called the <b>MIX rule</b>, which replaces <i>all</i> occurrences of the cut formula rather than just one. On LM-CUT and LJ-CUT, CUT and MIX are equivalent ([[cite:bekki2012|Bekki, Lem. 11.13]]), so proving that MIX is admissible suffices. MIX has better structural properties for the induction argument. The proof proceeds by <b>double induction</b> on the pair (depth d, rank r): the depth d measures the syntactic complexity of the principal (cut) formula, and the rank r counts the consecutive occurrences of the principal formula along paths in the proof tree ([[cite:bekki2012|Bekki, Defs. 11.16–11.18]]).`,
+      `<b>Double induction structure.</b> The elimination is decomposed into three lemmas: (1) Cut(1,1) — the base case for depth 1 and rank 1 ([[cite:bekki2012|Bekki, Lem. 11.23]]); (2) Cut(d,r) follows from Cut(d,1)…Cut(d,r−1) for r ≥ 2 — reducing rank while keeping depth fixed ([[cite:bekki2012|Bekki, Lem. 11.24]]); (3) Cut(d,1) follows from Cut(1,r)…Cut(d−1,r) for all r, for d ≥ 2 — reducing depth at the cost of possibly increasing rank ([[cite:bekki2012|Bekki, Lem. 11.26]]). This lexicographic induction on (d,r) terminates because each step strictly decreases the pair ([[cite:bekki2012|Bekki, Rem. 11.28]]).`,
+      `<b>Consistency as a corollary.</b> A profound consequence of cut elimination is the <b>consistency</b> (inconsistency-freeness) of the proof systems: $\\bot$ is not provable in LK or LJ ([[cite:bekki2012|Bekki, Thm. 11.5]]). The proof is elegant: if $\\bot$ were provable, there would be a CUT-free proof of the sequent ⇒ $\\bot$. But no CUT-free inference rule can produce a sequent with an empty antecedent and $\\bot$ as the sole succedent, yielding a contradiction. This extends to all equivalent systems (NK, NJ, HK, HJ).`,
+      `<b>Independence of classical axioms.</b> Another corollary is the <b>independence of DNE from intuitionistic logic</b>: the law of double negation elimination ($\\lnot \\lnot \\varphi \\to \\varphi$) is not provable in LJ ([[cite:bekki2012|Bekki, Thm. 11.9]]). The proof uses the fact that LEM ($\\varphi \\lor \\lnot \\varphi$) is not LJ-provable ([[cite:bekki2012|Bekki, Thm. 11.8]]), which follows from a structural analysis of LJ-CUT proofs showing that CUT-free proofs in LJ must have non-empty antecedents with compound formulas ([[cite:bekki2012|Bekki, Lem. 11.6]]). The LK proof uses a different, elegant approach: via Glivenko's theorem, LK cut elimination is reduced to LJ cut elimination ([[cite:bekki2012|Bekki, pp. 266–267]]).`,
     ],
     ja: [
-      `<b>定理の主張と意義。</b> カット除去定理（基本定理, Hauptsatz）は、シーケント S が体系 K（= K-CUT + CUT）で証明可能ならば、K-CUT（カット規則なし）でも証明可能であることを述べます。これはすべてのシーケント計算 — LM（最小論理）、LJ（直観主義論理）、LK（古典論理）— で成り立ちます（戸次 定理11.2）。K = K-CUT + CUT なので、これはカット規則が<b>許容規則</b>であることを意味します — カット規則を追加しても証明可能なシーケントの集合は増えません。ゲルハルト・ゲンツェンが1934年に発見したこの基本的な結果は、証明論において最も重要な定理の一つです。`,
-      `<b>ミックス規則と証明戦略。</b> 証明にはカットの変種である<b>ミックス規則 (MIX)</b> が使われます。MIX はカット論理式のすべての出現を一度に置き換える規則で、LM-CUT および LJ-CUT 上でカットと同値です（戸次 補題11.13）。そのため、MIX の許容性を示せば十分です。MIX は帰納法の議論により適した構造的性質を持ちます。証明は対 (深さ d, 階数 r) に対する<b>二重帰納法</b>で進みます。深さ d は主論理式（カット論理式）の構文的複雑さ、階数 r は証明図の経路に沿った主論理式の連続出現回数を測ります（戸次 定義11.16–11.18）。`,
-      `<b>二重帰納法の構造。</b> 除去は3つの補題に分解されます: (1) Cut(1,1) — 深さ1・階数1の基本ケース（戸次 補題11.23）、(2) r ≥ 2 のとき Cut(d,1)…Cut(d,r−1) から Cut(d,r) が従う — 深さを固定して階数を減少（戸次 補題11.24）、(3) d ≥ 2 のとき任意の r に対して Cut(1,r)…Cut(d−1,r) から Cut(d,1) が従う — 階数が増える可能性があるが深さが減少（戸次 補題11.26）。(d,r) の辞書式帰納法は各ステップで対を真に減少させるため停止します（戸次 解説11.28）。`,
-      `<b>系としての無矛盾性。</b> カット除去の深い帰結として、証明体系の<b>無矛盾性</b>（矛盾の導出不可能性）があります: LK でも LJ でも $\\bot$ は証明不能です（戸次 定理11.5）。証明は簡明です: もし $\\bot$ が証明可能なら、シーケント ⇒ $\\bot$ のカットなし証明が存在しますが、前件が空で $\\bot$ のみを後件に持つシーケントを結論とするカットなし推論規則は存在しないため矛盾します。これは等価な体系（NK, NJ, HK, HJ）にも拡張されます。`,
-      `<b>古典論理固有の公理の独立性。</b> もう一つの系として、<b>直観主義論理からの DNE の独立性</b>があります: 二重否定除去（$\\lnot \\lnot \\varphi \\to \\varphi$）は LJ では証明不能です（戸次 定理11.9）。証明には、排中律（$\\varphi \\lor \\lnot \\varphi$）が LJ で証明不能であること（戸次 定理11.8）を利用します。これは LJ-CUT の証明の構造分析 — カットなし証明では前件が非空で複合論理式を含む必要がある（戸次 補題11.6）— から従います。LK の証明は異なる巧妙なアプローチを取ります: グリベンコの定理を経由して、LK のカット除去を LJ のカット除去に帰着させます（戸次 p.266–267）。`,
+      `<b>定理の主張と意義。</b> カット除去定理（基本定理, Hauptsatz）は、シーケント S が体系 K（= K-CUT + CUT）で証明可能ならば、K-CUT（カット規則なし）でも証明可能であることを述べます。これはすべてのシーケント計算 — LM（最小論理）、LJ（直観主義論理）、LK（古典論理）— で成り立ちます（[[cite:bekki2012|Bekki, 定理11.2]]）。K = K-CUT + CUT なので、これはカット規則が<b>許容規則</b>であることを意味します — カット規則を追加しても証明可能なシーケントの集合は増えません。ゲルハルト・ゲンツェンが1934年に発見したこの基本的な結果は、証明論において最も重要な定理の一つです。`,
+      `<b>ミックス規則と証明戦略。</b> 証明にはカットの変種である<b>ミックス規則 (MIX)</b> が使われます。MIX はカット論理式のすべての出現を一度に置き換える規則で、LM-CUT および LJ-CUT 上でカットと同値です（[[cite:bekki2012|Bekki, 補題11.13]]）。そのため、MIX の許容性を示せば十分です。MIX は帰納法の議論により適した構造的性質を持ちます。証明は対 (深さ d, 階数 r) に対する<b>二重帰納法</b>で進みます。深さ d は主論理式（カット論理式）の構文的複雑さ、階数 r は証明図の経路に沿った主論理式の連続出現回数を測ります（[[cite:bekki2012|Bekki, 定義11.16–11.18]]）。`,
+      `<b>二重帰納法の構造。</b> 除去は3つの補題に分解されます: (1) Cut(1,1) — 深さ1・階数1の基本ケース（[[cite:bekki2012|Bekki, 補題11.23]]）、(2) r ≥ 2 のとき Cut(d,1)…Cut(d,r−1) から Cut(d,r) が従う — 深さを固定して階数を減少（[[cite:bekki2012|Bekki, 補題11.24]]）、(3) d ≥ 2 のとき任意の r に対して Cut(1,r)…Cut(d−1,r) から Cut(d,1) が従う — 階数が増える可能性があるが深さが減少（[[cite:bekki2012|Bekki, 補題11.26]]）。(d,r) の辞書式帰納法は各ステップで対を真に減少させるため停止します（[[cite:bekki2012|Bekki, 解説11.28]]）。`,
+      `<b>系としての無矛盾性。</b> カット除去の深い帰結として、証明体系の<b>無矛盾性</b>（矛盾の導出不可能性）があります: LK でも LJ でも $\\bot$ は証明不能です（[[cite:bekki2012|Bekki, 定理11.5]]）。証明は簡明です: もし $\\bot$ が証明可能なら、シーケント ⇒ $\\bot$ のカットなし証明が存在しますが、前件が空で $\\bot$ のみを後件に持つシーケントを結論とするカットなし推論規則は存在しないため矛盾します。これは等価な体系（NK, NJ, HK, HJ）にも拡張されます。`,
+      `<b>古典論理固有の公理の独立性。</b> もう一つの系として、<b>直観主義論理からの DNE の独立性</b>があります: 二重否定除去（$\\lnot \\lnot \\varphi \\to \\varphi$）は LJ では証明不能です（[[cite:bekki2012|Bekki, 定理11.9]]）。証明には、排中律（$\\varphi \\lor \\lnot \\varphi$）が LJ で証明不能であること（[[cite:bekki2012|Bekki, 定理11.8]]）を利用します。これは LJ-CUT の証明の構造分析 — カットなし証明では前件が非空で複合論理式を含む必要がある（[[cite:bekki2012|Bekki, 補題11.6]]）— から従います。LK の証明は異なる巧妙なアプローチを取ります: グリベンコの定理を経由して、LK のカット除去を LJ のカット除去に帰着させます（[[cite:bekki2012|Bekki, pp. 266–267]]）。`,
     ],
   },
   formalNotation:
@@ -4115,6 +4209,7 @@ const conceptCutElimination: ReferenceEntry = {
     "rank",
     "階数",
   ],
+  bibliographyKeys: ["bekki2012"],
   order: 13,
 };
 
@@ -4133,14 +4228,14 @@ const conceptCurryHoward: ReferenceEntry = {
     en: [
       `<b>Proofs as programs, propositions as types.</b> The Curry-Howard correspondence (also called the Curry-Howard isomorphism or proofs-as-programs interpretation) reveals a profound structural identity between formal proof systems and type systems in programming languages. Under this correspondence, <b>propositions correspond to types</b> and <b>proofs correspond to programs</b> (lambda terms). For example, a proof of the implication $\\varphi \\to \\psi$ corresponds to a function of type $\\varphi \\to \\psi$ — a program that takes an input of type $\\varphi$ and produces an output of type $\\psi$. This insight, discovered independently by Haskell Curry (1958) and William Howard (1969), fundamentally connects logic and computation.`,
       `<b>The correspondence table.</b> The key correspondences are: implication ($\\to$) corresponds to function types, conjunction ($\\land$) to product types (pairs), disjunction ($\\lor$) to sum types (tagged unions), universal quantification ($\\forall$) to dependent function types, and existential quantification ($\\exists$) to dependent pair types. On the proof side, the introduction and elimination rules of natural deduction correspond precisely to the construction and destruction operations of typed lambda calculus: $\\to$-introduction is lambda abstraction, $\\to$-elimination is function application, $\\land$-introduction is pair construction, and so on.`,
-      `<b>Cut elimination and normalization.</b> One of the most striking aspects of the correspondence is the connection between <b>cut elimination</b> in sequent calculus and <b>normalization</b> (β-reduction) in lambda calculus. A cut in a proof corresponds to a β-redex in a lambda term — the composition of an introduction rule immediately followed by an elimination rule. Cut elimination transforms a proof into cut-free (normal) form, just as β-reduction normalizes a lambda term. The strong normalization theorem for typed lambda calculus is thus the computational counterpart of the cut elimination theorem (bekki Afterword p.298). Key references include Prawitz (1965), Zucker (1974), Pottinger (1977), and Barendregt and Ghilezan (2000).`,
+      `<b>Cut elimination and normalization.</b> One of the most striking aspects of the correspondence is the connection between <b>cut elimination</b> in sequent calculus and <b>normalization</b> (β-reduction) in lambda calculus. A cut in a proof corresponds to a β-redex in a lambda term — the composition of an introduction rule immediately followed by an elimination rule. Cut elimination transforms a proof into cut-free (normal) form, just as β-reduction normalizes a lambda term. The strong normalization theorem for typed lambda calculus is thus the computational counterpart of the cut elimination theorem ([[cite:bekki2012|Bekki, p. 298]]). Key references include Prawitz (1965), Zucker (1974), Pottinger (1977), and Barendregt and Ghilezan (2000).`,
       `<b>Logical systems and type systems.</b> Different logical systems correspond to different type systems: minimal logic (NM) corresponds to the simply typed lambda calculus, intuitionistic logic (NJ) to the simply typed lambda calculus with an empty type ($\\bot$), and classical logic (NK) to extensions with control operators (such as call/cc or continuations). The correspondence extends beyond propositional logic — Martin-Löf's intuitionistic type theory extends it to predicate logic with dependent types, forming the foundation of proof assistants such as Coq, Agda, and Lean.`,
       `<b>Significance and applications.</b> The Curry-Howard correspondence bridges the gap between mathematics and computer science, enabling: (1) proof assistants that verify mathematical proofs as type-checked programs, (2) program extraction from constructive proofs, and (3) a unified framework for understanding both proof theory and programming language theory. The correspondence has inspired the development of modern programming language features including pattern matching (corresponding to case analysis on disjunctions), dependent types (corresponding to quantifiers), and effects/continuations (corresponding to classical reasoning principles).`,
     ],
     ja: [
       `<b>証明はプログラム、命題は型。</b> カリー・ハワード対応（カリー・ハワード同型とも呼ばれる）は、形式的な証明体系とプログラミング言語の型システムの間に存在する深い構造的同一性を明らかにします。この対応のもとで、<b>命題は型に対応</b>し、<b>証明はプログラム</b>（ラムダ項）に対応します。たとえば、含意 $\\varphi \\to \\psi$ の証明は型 $\\varphi \\to \\psi$ を持つ関数 — 型 $\\varphi$ の入力を受け取り型 $\\psi$ の出力を返すプログラム — に対応します。この洞察はハスケル・カリー（1958年）とウィリアム・ハワード（1969年）によって独立に発見され、論理学と計算を根本的に結びつけるものです。`,
       `<b>対応表。</b> 主要な対応は次のとおりです: 含意（$\\to$）は関数型に、連言（$\\land$）は直積型（ペア）に、選言（$\\lor$）は直和型（タグ付き共用体）に、全称量化（$\\forall$）は依存関数型に、存在量化（$\\exists$）は依存ペア型に対応します。証明の側では、自然演繹の導入規則と除去規則が型付きラムダ計算の構成操作と分解操作に正確に対応します: $\\to$導入はラムダ抽象、$\\to$除去は関数適用、$\\land$導入はペア構成、などとなります。`,
-      `<b>カット除去と正規化。</b> この対応の最も顕著な側面の一つが、シーケント計算における<b>カット除去</b>とラムダ計算における<b>正規化</b>（β簡約）の間の結びつきです。証明のカットはラムダ項のβ簡約基（β-redex）— 導入規則の直後に除去規則が続く合成 — に対応します。カット除去は証明をカットなし（正規）の形に変換しますが、これはちょうどβ簡約がラムダ項を正規化するのと同じです。型付きラムダ計算の強正規化定理はカット除去定理の計算的対応物です（戸次 おわりに p.298）。主要な参考文献として Prawitz (1965)、Zucker (1974)、Pottinger (1977)、Barendregt and Ghilezan (2000) があります。`,
+      `<b>カット除去と正規化。</b> この対応の最も顕著な側面の一つが、シーケント計算における<b>カット除去</b>とラムダ計算における<b>正規化</b>（β簡約）の間の結びつきです。証明のカットはラムダ項のβ簡約基（β-redex）— 導入規則の直後に除去規則が続く合成 — に対応します。カット除去は証明をカットなし（正規）の形に変換しますが、これはちょうどβ簡約がラムダ項を正規化するのと同じです。型付きラムダ計算の強正規化定理はカット除去定理の計算的対応物です（[[cite:bekki2012|Bekki, p. 298]]）。主要な参考文献として Prawitz (1965)、Zucker (1974)、Pottinger (1977)、Barendregt and Ghilezan (2000) があります。`,
       `<b>論理体系と型システム。</b> 異なる論理体系は異なる型システムに対応します: 最小論理（NM）は単純型付きラムダ計算に、直観主義論理（NJ）は空型（$\\bot$）を持つ単純型付きラムダ計算に、古典論理（NK）は制御演算子（call/ccや継続など）を持つ拡張に対応します。この対応は命題論理を超えて拡張され — マルティン＝レーフの直観主義型理論は依存型による述語論理への拡張であり、Coq, Agda, Lean などの証明支援系の基盤となっています。`,
       `<b>意義と応用。</b> カリー・ハワード対応は数学と計算機科学を橋渡しし、以下を可能にします: (1) 数学的証明を型検査されたプログラムとして検証する証明支援系、(2) 構成的証明からのプログラム抽出、(3) 証明論とプログラミング言語理論の両方を理解するための統一的な枠組み。この対応は現代のプログラミング言語機能の発展にも影響を与えており、パターンマッチング（選言に対するケース分析に対応）、依存型（量化子に対応）、エフェクト・継続（古典的推論原理に対応）などがあります。`,
     ],
@@ -4202,6 +4297,7 @@ const conceptCurryHoward: ReferenceEntry = {
     "proof assistant",
     "証明支援系",
   ],
+  bibliographyKeys: ["bekki2012", "curry-howard"],
   order: 14,
 };
 
@@ -4218,17 +4314,17 @@ const conceptAdmissibleDerivable: ReferenceEntry = {
   },
   body: {
     en: [
-      `<b>Derivable and admissible rules.</b> In formal proof systems, particularly sequent calculus, the distinction between <b>derivable</b> (derivable) and <b>admissible</b> (admissible) rules is fundamental. Consider a rule R of the form "from premises S₁, ..., Sₙ conclude S." Rule R is <b>derivable</b> in a proof system K if there exists a proof tree in K from S₁, ..., Sₙ to S — that is, the rule can be justified entirely within the system. Rule R is <b>admissible</b> in K if whenever S₁, ..., Sₙ are all provable in K, then S is also provable in K — that is, adding the rule does not increase the set of theorems (bekki Definition 9.24).`,
-      `<b>Every derivable rule is admissible.</b> If a rule can be justified within the system (derivable), then it certainly preserves provability (admissible). The converse does not hold in general: there are rules that preserve provability without being justifiable within the system. This asymmetry is precisely what makes the distinction important (bekki Remark 9.25).`,
-      `<b>The cut rule as a key example.</b> The most prominent example of this distinction is the <b>cut rule</b> in sequent calculus. The cut rule is derivable in systems that include it (such as LK, LJ, LM with cut), but the <b>cut elimination theorem</b> shows that the cut rule is admissible in the cut-free systems — any sequent provable with cut is also provable without it. This means removing the cut rule does not reduce the proving power of the system, even though the cut rule cannot be derived from the remaining rules alone (bekki Theorem 9.28).`,
-      `<b>Characterization theorem.</b> Bekki's Theorem 9.28 provides five equivalent conditions for a rule R to be admissible in K: (1) K = K+R (adding the rule does not change the system), (2) anything provable in K+R is already provable in K, (3) any K+R proof can be transformed into a K proof, (4) any K+R proof where R is used only at the bottom can be transformed into a K proof, and (5) the premises being provable in K implies the conclusion is provable in K. Furthermore, two rules R and R' are equivalent over K if and only if each is admissible in the system extended by the other (bekki Theorem 9.30).`,
+      `<b>Derivable and admissible rules.</b> In formal proof systems, particularly sequent calculus, the distinction between <b>derivable</b> (derivable) and <b>admissible</b> (admissible) rules is fundamental. Consider a rule R of the form "from premises S₁, ..., Sₙ conclude S." Rule R is <b>derivable</b> in a proof system K if there exists a proof tree in K from S₁, ..., Sₙ to S — that is, the rule can be justified entirely within the system. Rule R is <b>admissible</b> in K if whenever S₁, ..., Sₙ are all provable in K, then S is also provable in K — that is, adding the rule does not increase the set of theorems ([[cite:bekki2012|Bekki, Def. 9.24]]).`,
+      `<b>Every derivable rule is admissible.</b> If a rule can be justified within the system (derivable), then it certainly preserves provability (admissible). The converse does not hold in general: there are rules that preserve provability without being justifiable within the system. This asymmetry is precisely what makes the distinction important ([[cite:bekki2012|Bekki, Rem. 9.25]]).`,
+      `<b>The cut rule as a key example.</b> The most prominent example of this distinction is the <b>cut rule</b> in sequent calculus. The cut rule is derivable in systems that include it (such as LK, LJ, LM with cut), but the <b>cut elimination theorem</b> shows that the cut rule is admissible in the cut-free systems — any sequent provable with cut is also provable without it. This means removing the cut rule does not reduce the proving power of the system, even though the cut rule cannot be derived from the remaining rules alone ([[cite:bekki2012|Bekki, Thm. 9.28]]).`,
+      `<b>Characterization theorem.</b> Bekki's Theorem 9.28 provides five equivalent conditions for a rule R to be admissible in K: (1) K = K+R (adding the rule does not change the system), (2) anything provable in K+R is already provable in K, (3) any K+R proof can be transformed into a K proof, (4) any K+R proof where R is used only at the bottom can be transformed into a K proof, and (5) the premises being provable in K implies the conclusion is provable in K. Furthermore, two rules R and R' are equivalent over K if and only if each is admissible in the system extended by the other ([[cite:bekki2012|Bekki, Thm. 9.30]]).`,
       `<b>Significance in proof theory.</b> The admissible/derivable distinction is central to understanding the structure of proof systems. When designing or analyzing a logic, one must determine whether certain rules (weakening, contraction, cut) are built into the system (derivable) or merely preserve theorems (admissible). This distinction also affects the computational content of proofs under the Curry-Howard correspondence: derivable rules correspond to definable functions, while admissible rules may require global transformations that have no direct computational counterpart.`,
     ],
     ja: [
-      `<b>派生規則と許容規則。</b> 形式的な証明体系、特にシーケント計算において、<b>派生可能</b>（derivable）と<b>許容的</b>（admissible）の区別は基本的に重要です。「前提 S₁, ..., Sₙ から結論 S を得る」形式の規則 R を考えます。規則 R が証明体系 K において<b>派生規則</b>であるとは、S₁, ..., Sₙ から S への K の証明図が存在すること — すなわち、その規則が体系内で完全に正当化できることを意味します。規則 R が K において<b>許容規則</b>であるとは、S₁, ..., Sₙ がすべて K で証明可能であるならば S もまた K で証明可能であること — すなわち、その規則を加えても定理の集合が増えないことを意味します（戸次 定義9.24）。`,
-      `<b>すべての派生規則は許容規則である。</b> 規則が体系内で正当化できる（派生可能な）場合、それは確実に証明可能性を保存します（許容的です）。逆は一般には成り立ちません: 証明可能性を保存するが体系内では正当化できない規則が存在します。この非対称性こそが、この区別を重要にしている点です（戸次 解説9.25）。`,
-      `<b>カット規則 — 鍵となる例。</b> この区別の最も顕著な例は、シーケント計算における<b>カット規則</b>です。カット規則はそれを含む体系（カット付きの LK, LJ, LM など）では派生規則ですが、<b>カット除去定理</b>はカットなし体系においてカット規則が許容規則であることを示しています — カットを使って証明できるシーケントはカットなしでも証明可能です。これは、カット規則を除いても体系の証明力が減らないことを意味しますが、残りの規則だけからカット規則を導出することはできません（戸次 定理9.28）。`,
-      `<b>特徴付け定理。</b> 戸次の定理9.28は、規則 R が K において許容規則であるための5つの同値条件を与えます: (1) K = K+R（規則を加えても体系が変わらない）、(2) K+R で証明可能なものはすでに K で証明可能、(3) K+R の証明図は K の証明図に変換できる、(4) R が最下段のみで使われている K+R の証明図は K の証明図に変換できる、(5) 前提が K で証明可能ならば結論も K で証明可能。さらに、2つの規則 R と R' が K 上で等価であるための必要十分条件は、それぞれが他方を加えた体系の許容規則であることです（戸次 定理9.30）。`,
+      `<b>派生規則と許容規則。</b> 形式的な証明体系、特にシーケント計算において、<b>派生可能</b>（derivable）と<b>許容的</b>（admissible）の区別は基本的に重要です。「前提 S₁, ..., Sₙ から結論 S を得る」形式の規則 R を考えます。規則 R が証明体系 K において<b>派生規則</b>であるとは、S₁, ..., Sₙ から S への K の証明図が存在すること — すなわち、その規則が体系内で完全に正当化できることを意味します。規則 R が K において<b>許容規則</b>であるとは、S₁, ..., Sₙ がすべて K で証明可能であるならば S もまた K で証明可能であること — すなわち、その規則を加えても定理の集合が増えないことを意味します（[[cite:bekki2012|Bekki, 定義9.24]]）。`,
+      `<b>すべての派生規則は許容規則である。</b> 規則が体系内で正当化できる（派生可能な）場合、それは確実に証明可能性を保存します（許容的です）。逆は一般には成り立ちません: 証明可能性を保存するが体系内では正当化できない規則が存在します。この非対称性こそが、この区別を重要にしている点です（[[cite:bekki2012|Bekki, 解説9.25]]）。`,
+      `<b>カット規則 — 鍵となる例。</b> この区別の最も顕著な例は、シーケント計算における<b>カット規則</b>です。カット規則はそれを含む体系（カット付きの LK, LJ, LM など）では派生規則ですが、<b>カット除去定理</b>はカットなし体系においてカット規則が許容規則であることを示しています — カットを使って証明できるシーケントはカットなしでも証明可能です。これは、カット規則を除いても体系の証明力が減らないことを意味しますが、残りの規則だけからカット規則を導出することはできません（[[cite:bekki2012|Bekki, 定理9.28]]）。`,
+      `<b>特徴付け定理。</b> 戸次の定理9.28は、規則 R が K において許容規則であるための5つの同値条件を与えます: (1) K = K+R（規則を加えても体系が変わらない）、(2) K+R で証明可能なものはすでに K で証明可能、(3) K+R の証明図は K の証明図に変換できる、(4) R が最下段のみで使われている K+R の証明図は K の証明図に変換できる、(5) 前提が K で証明可能ならば結論も K で証明可能。さらに、2つの規則 R と R' が K 上で等価であるための必要十分条件は、それぞれが他方を加えた体系の許容規則であることです（[[cite:bekki2012|Bekki, 定理9.30]]）。`,
       `<b>証明論における意義。</b> 許容規則と派生規則の区別は、証明体系の構造を理解するうえで中心的です。論理を設計・分析する際には、ある規則（弱化、縮約、カット）が体系に組み込まれている（派生可能）のか、単に定理を保存する（許容的）だけなのかを判定する必要があります。この区別はカリー・ハワード対応のもとでの証明の計算的内容にも影響します: 派生規則は定義可能な関数に対応しますが、許容規則は直接的な計算的対応物を持たない大域的変換を要求する場合があります。`,
     ],
   },
@@ -4290,6 +4386,7 @@ const conceptAdmissibleDerivable: ReferenceEntry = {
     "structural rule",
     "構造規則",
   ],
+  bibliographyKeys: ["bekki2012"],
   order: 15,
 };
 
@@ -4306,21 +4403,21 @@ const conceptContextSharingIndependence: ReferenceEntry = {
   },
   body: {
     en: [
-      `<b>Two formulations of inference rules.</b> In sequent calculus, two-premise rules like ($\\to$⇒) can be formulated in two different ways. In the <b>context-sharing</b> form (Gentzen's original), both premises share the same side formulas Γ and Δ. In the <b>context-independent</b> form (used in this application, following bekki), each premise has its own independent context. For ($\\to$⇒), these look like:`,
-      `<b>Context-sharing ($\\to$⇒):</b> From Γ ⇒ Δ, $\\varphi$ and $\\psi$, Γ ⇒ Δ, conclude $\\varphi \\to \\psi$, Γ ⇒ Δ. Here the context Γ, Δ is shared between both premises and the conclusion. This is Gentzen's original 1935 formulation.`,
+      `<b>Two formulations of inference rules.</b> In sequent calculus, two-premise rules like ($\\to$⇒) can be formulated in two different ways. In the <b>context-sharing</b> form (Gentzen's original), both premises share the same side formulas Γ and Δ. In the <b>context-independent</b> form (used in this application, following [[cite:bekki2012|Bekki]]), each premise has its own independent context. For ($\\to$⇒), these look like:`,
+      `<b>Context-sharing ($\\to$⇒):</b> From Γ ⇒ Δ, $\\varphi$ and $\\psi$, Γ ⇒ Δ, conclude $\\varphi \\to \\psi$, Γ ⇒ Δ. Here the context Γ, Δ is shared between both premises and the conclusion. This is [[cite:gentzen1935|Gentzen]]'s original 1935 formulation.`,
       `<b>Context-independent ($\\to$⇒):</b> From Γ ⇒ Δ, $\\varphi$ and $\\psi$, Γ' ⇒ Δ', conclude $\\varphi \\to \\psi$, Γ, Γ' ⇒ Δ, Δ'. Here each premise has its own context (Γ,Δ and Γ',Δ' respectively), and the conclusion combines them.`,
-      `<b>Why this application uses the context-independent form.</b> The context-independent form is adopted here for a specific reason related to the relationship between LK (classical) and LJ (intuitionistic). When LJ is defined by restricting LK's right side to at most one formula, the context-sharing ($\\to$⇒) forces Δ to be empty (since both Δ,$\\varphi$ and Δ must have length ≤ 1). This means the LJ version of ($\\to$⇒) becomes a special case with a different form. Troelstra and Schwichtenberg (2000) address this in their systems G1i and G1m by using a modified rule: from Γ ⇒ $\\varphi$ and $\\psi$, Γ ⇒ $\\chi$, conclude $\\varphi \\to \\psi$, Γ ⇒ $\\chi$ (bekki pp.296–297).`,
+      `<b>Why this application uses the context-independent form.</b> The context-independent form is adopted here for a specific reason related to the relationship between LK (classical) and LJ (intuitionistic). When LJ is defined by restricting LK's right side to at most one formula, the context-sharing ($\\to$⇒) forces Δ to be empty (since both Δ,$\\varphi$ and Δ must have length ≤ 1). This means the LJ version of ($\\to$⇒) becomes a special case with a different form. [[cite:troelstra-schwichtenberg2000|Troelstra & Schwichtenberg]] address this in their systems G1i and G1m by using a modified rule: from Γ ⇒ $\\varphi$ and $\\psi$, Γ ⇒ $\\chi$, conclude $\\varphi \\to \\psi$, Γ ⇒ $\\chi$ ([[cite:bekki2012|Bekki, pp. 296–297]]).`,
       `<b>The problem with the modified rule.</b> While this modified ($\\to$⇒) is a derivable rule in LK, it is not the same as LK's ($\\to$⇒) restricted to single-conclusion sequents. Consequently, a proof in G1i is not automatically a proof in G1c (the classical system), making the relationship between intuitionistic and classical provability less transparent.`,
-      `<b>Trade-off.</b> The context-independent form avoids these issues: the LJ version of ($\\to$⇒) is simply the LK version with single-formula right sides, so any LJ proof is automatically an LK proof. However, it introduces an asymmetry — while all other logical rules in this application's LK use the context-sharing form, ($\\to$⇒) alone uses the context-independent form (bekki p.297). The choice reflects a deliberate design decision prioritizing the clean subsystem relationship LM ⊂ LJ ⊂ LK.`,
+      `<b>Trade-off.</b> The context-independent form avoids these issues: the LJ version of ($\\to$⇒) is simply the LK version with single-formula right sides, so any LJ proof is automatically an LK proof. However, it introduces an asymmetry — while all other logical rules in this application's LK use the context-sharing form, ($\\to$⇒) alone uses the context-independent form ([[cite:bekki2012|Bekki, p. 297]]). The choice reflects a deliberate design decision prioritizing the clean subsystem relationship LM ⊂ LJ ⊂ LK.`,
       `<b>Connection to weakening and contraction.</b> The context-sharing and context-independent forms are interderivable in the presence of weakening and contraction. Context-sharing can simulate context-independence by weakening both premises to have a common context; conversely, context-independence can simulate context-sharing by using the same context Γ in both premises (setting Γ' = Γ and Δ' = Δ). This means the two formulations yield the same set of provable sequents.`,
     ],
     ja: [
       `<b>推論規則の2つの定式化。</b> シーケント計算において、($\\to$⇒) のような2前提規則には2通りの定式化があります。<b>構造共有形</b>（Gentzenのオリジナル）では両前提が同一の副論理式列 Γ, Δ を共有します。<b>構造独立形</b>（本アプリケーションが戸次に従い採用する形式）では各前提が独立したコンテキストを持ちます。($\\to$⇒) の場合、以下のようになります:`,
-      `<b>構造共有形 ($\\to$⇒):</b> Γ ⇒ Δ, $\\varphi$ と $\\psi$, Γ ⇒ Δ から $\\varphi \\to \\psi$, Γ ⇒ Δ を得る。ここでコンテキスト Γ, Δ は両前提と結論で共有されます。これが Gentzen (1935) のオリジナルの定式化です。`,
+      `<b>構造共有形 ($\\to$⇒):</b> Γ ⇒ Δ, $\\varphi$ と $\\psi$, Γ ⇒ Δ から $\\varphi \\to \\psi$, Γ ⇒ Δ を得る。ここでコンテキスト Γ, Δ は両前提と結論で共有されます。これが [[cite:gentzen1935|Gentzen, 1935]] のオリジナルの定式化です。`,
       `<b>構造独立形 ($\\to$⇒):</b> Γ ⇒ Δ, $\\varphi$ と $\\psi$, Γ' ⇒ Δ' から $\\varphi \\to \\psi$, Γ, Γ' ⇒ Δ, Δ' を得る。ここで各前提はそれぞれ独立したコンテキスト (Γ,Δ と Γ',Δ') を持ち、結論でそれらが結合されます。`,
-      `<b>本アプリケーションが構造独立形を採用する理由。</b> 構造独立形の採用にはLK（古典論理）とLJ（直観主義論理）の関係に関する具体的な理由があります。LJをLKの右辺を高々1つの論理式に制限して定義する場合、構造共有形の($\\to$⇒)ではΔが空列に限定されます（Δ,$\\varphi$ と Δ の両方が長さ1以下でなければならないため）。このためLJ版の($\\to$⇒)は異なる形式の特殊なものになります。Troelstra and Schwichtenberg (2000) はG1i・G1m体系で修正された規則を使っています: Γ ⇒ $\\varphi$ と $\\psi$, Γ ⇒ $\\chi$ から $\\varphi \\to \\psi$, Γ ⇒ $\\chi$ を導く形式です（戸次 pp.296–297）。`,
+      `<b>本アプリケーションが構造独立形を採用する理由。</b> 構造独立形の採用にはLK（古典論理）とLJ（直観主義論理）の関係に関する具体的な理由があります。LJをLKの右辺を高々1つの論理式に制限して定義する場合、構造共有形の($\\to$⇒)ではΔが空列に限定されます（Δ,$\\varphi$ と Δ の両方が長さ1以下でなければならないため）。このためLJ版の($\\to$⇒)は異なる形式の特殊なものになります。[[cite:troelstra-schwichtenberg2000|Troelstra & Schwichtenberg]] はG1i・G1m体系で修正された規則を使っています: Γ ⇒ $\\varphi$ と $\\psi$, Γ ⇒ $\\chi$ から $\\varphi \\to \\psi$, Γ ⇒ $\\chi$ を導く形式です（[[cite:bekki2012|Bekki, pp. 296–297]]）。`,
       `<b>修正規則の問題点。</b> この修正された ($\\to$⇒) はLKの派生規則ではありますが、単結論シーケントに制限したLKの ($\\to$⇒) とは同一ではありません。その結果、G1i の証明が自動的に G1c（古典体系）の証明にはならず、直観主義と古典論理の証明可能性の関係が不透明になります。`,
-      `<b>トレードオフ。</b> 構造独立形はこれらの問題を回避します: LJ版の($\\to$⇒)は単にLK版を右辺1論理式に制限したものになるため、あらゆるLJ証明が自動的にLK証明となります。ただし、非対称性が生じます — 本アプリケーションのLKにおいて、他のすべての論理規則は構造共有形なのに対し、($\\to$⇒) だけが構造独立形です（戸次 p.297）。この選択は、LM ⊂ LJ ⊂ LK という明確な部分体系関係を優先する意図的な設計判断を反映しています。`,
+      `<b>トレードオフ。</b> 構造独立形はこれらの問題を回避します: LJ版の($\\to$⇒)は単にLK版を右辺1論理式に制限したものになるため、あらゆるLJ証明が自動的にLK証明となります。ただし、非対称性が生じます — 本アプリケーションのLKにおいて、他のすべての論理規則は構造共有形なのに対し、($\\to$⇒) だけが構造独立形です（[[cite:bekki2012|Bekki, p. 297]]）。この選択は、LM ⊂ LJ ⊂ LK という明確な部分体系関係を優先する意図的な設計判断を反映しています。`,
       `<b>弱化・縮約との関係。</b> 構造共有形と構造独立形は、弱化と縮約がある体系では相互に導出可能です。構造共有形は、両前提を弱化して共通のコンテキストを持たせることで構造独立形を模倣でき、逆に構造独立形は同一のコンテキストΓを両前提に使う（Γ' = Γ, Δ' = Δ とする）ことで構造共有形を模倣できます。つまり、2つの定式化は同じ証明可能シーケントの集合を与えます。`,
     ],
   },
@@ -4391,6 +4488,11 @@ const conceptContextSharingIndependence: ReferenceEntry = {
     "Troelstra",
     "Schwichtenberg",
   ],
+  bibliographyKeys: [
+    "bekki2012",
+    "gentzen1935",
+    "troelstra-schwichtenberg2000",
+  ],
   order: 16,
 };
 
@@ -4407,22 +4509,22 @@ const conceptPredicateSemantics: ReferenceEntry = {
   },
   body: {
     en: [
-      `<b>From propositional to predicate semantics.</b> In propositional logic, a truth-value assignment to propositional variables suffices to determine the truth value of any formula. In predicate logic, the situation is richer: formulas speak about objects in a domain, and their truth depends on which objects the domain contains and how names, functions, and predicates are interpreted. The semantic framework requires two components: a <b>structure</b> M providing the "world" being described, and a variable <b>assignment</b> g specifying which objects the variables denote (bekki Ch.5, Section 5.3).`,
-      `<b>Structure: domain and interpretation.</b> A structure M = (D_M, F_M) consists of a non-empty set D_M called the <b>domain</b> (or universe) and an <b>interpretation function</b> F_M (bekki Definition 5.43). The domain D_M is the collection of <b>entities</b> that the formulas talk about — for example, the natural numbers N, the real numbers R, or any non-empty set. The interpretation function F_M maps each non-logical symbol to a mathematical object: each name (constant) α maps to an element F_M(α) ∈ D_M; each n-ary function symbol o maps to a function F_M(o): D_M^n $\\to$ D_M; and each n-ary predicate symbol θ maps to a truth-function F_M(θ): D_M^n $\\to$ D_t (where D_t = {0, 1}).`,
-      `<b>Variable assignment.</b> An assignment g is a function from the set of variables to D_M (bekki Section 5.3.4). Given a structure M and assignment g, the pair (M, g) is called an <b>interpretation</b>. Since predicate logic formulas may contain free variables, the assignment is needed to specify what those variables denote. For a variable ξ, g(ξ) ∈ D_M. An important operation is the <b>ξ-variant</b> g[ξ ↦ a] that agrees with g on all variables except ξ, which it maps to a ∈ D_M (bekki Definition 5.49).`,
-      `<b>Denotation of terms.</b> Given an interpretation (M, g), every term τ receives a value ⟦τ⟧_{M,g} ∈ D_M, called its <b>denotation</b> (bekki Definition 5.45). For a name α: ⟦α⟧_{M,g} = F_M(α). For a variable ξ: ⟦ξ⟧_{M,g} = g(ξ). For a function application o(τ₁, …, τₙ): ⟦o(τ₁, …, τₙ)⟧_{M,g} = F_M(o)(⟦τ₁⟧_{M,g}, …, ⟦τₙ⟧_{M,g}). This recursive definition ensures that every term denotes a unique element of D_M.`,
-      `<b>Satisfaction of formulas.</b> The truth value ⟦$\\varphi$⟧_{M,g} ∈ {0, 1} of a formula $\\varphi$ under interpretation (M, g) is defined recursively (bekki Definitions 5.46–5.51). For atomic formulas: ⟦θ(τ₁, …, τₙ)⟧_{M,g} = F_M(θ)(⟦τ₁⟧_{M,g}, …, ⟦τₙ⟧_{M,g}). For propositional connectives ($\\lnot , \\land , \\lor , \\to , \\leftrightarrow$), the truth functions are the standard ones from propositional logic (bekki Definition 5.47). The key new cases are the quantifiers: ⟦$\\forall$ξ$\\varphi$⟧_{M,g} = 1 if and only if for every a ∈ D_M, ⟦$\\varphi$⟧_{M,g[ξ↦a]} = 1; and ⟦$\\exists$ξ$\\varphi$⟧_{M,g} = 1 if and only if there exists an a ∈ D_M such that ⟦$\\varphi$⟧_{M,g[ξ↦a]} = 1 (bekki Definition 5.51).`,
-      `<b>Examples.</b> Consider a structure where D_M = {mammals}, F(x) means "x is a mammal" and G(x) means "x lays eggs". The formula $\\exists$x(F(x) $\\land$ G(x)) asserts "there exists an egg-laying mammal." Under an assignment mapping x to a platypus, both F(x) and G(x) are true, so the formula is satisfied. In contrast, under D_M = N (natural numbers) with the standard interpretation, $\\forall$x(F(x) $\\to \\exists$xF(x)) is always true regardless of the predicate F, since if F(a) holds for some a, then $\\exists$xF(x) follows (bekki Examples 5.52–5.53).`,
-      `<b>Semantic entailment.</b> An interpretation (M, g) <b>satisfies</b> a formula $\\varphi$ (written (M, g) $\\models \\varphi$) if ⟦$\\varphi$⟧_{M,g} = 1. A set Γ <b>semantically entails</b> Δ (written Γ $\\models$ Δ) if every interpretation satisfying all formulas in Γ also satisfies at least one formula in Δ (bekki Definition 5.66). A formula $\\varphi$ is a <b>tautology</b> (or logically valid) if $\\models \\varphi$, meaning it is true under every interpretation. These semantic notions are the predicate-logic analogues of propositional tautology and entailment, and they are connected to the proof-theoretic notions ($\\vdash$) by the soundness and completeness theorems.`,
+      `<b>From propositional to predicate semantics.</b> In propositional logic, a truth-value assignment to propositional variables suffices to determine the truth value of any formula. In predicate logic, the situation is richer: formulas speak about objects in a domain, and their truth depends on which objects the domain contains and how names, functions, and predicates are interpreted. The semantic framework requires two components: a <b>structure</b> M providing the "world" being described, and a variable <b>assignment</b> g specifying which objects the variables denote ([[cite:bekki2012|Bekki, Ch. 5, Sec. 5.3]]).`,
+      `<b>Structure: domain and interpretation.</b> A structure M = (D_M, F_M) consists of a non-empty set D_M called the <b>domain</b> (or universe) and an <b>interpretation function</b> F_M ([[cite:bekki2012|Bekki, Def. 5.43]]). The domain D_M is the collection of <b>entities</b> that the formulas talk about — for example, the natural numbers N, the real numbers R, or any non-empty set. The interpretation function F_M maps each non-logical symbol to a mathematical object: each name (constant) α maps to an element F_M(α) ∈ D_M; each n-ary function symbol o maps to a function F_M(o): D_M^n $\\to$ D_M; and each n-ary predicate symbol θ maps to a truth-function F_M(θ): D_M^n $\\to$ D_t (where D_t = {0, 1}).`,
+      `<b>Variable assignment.</b> An assignment g is a function from the set of variables to D_M ([[cite:bekki2012|Bekki, Sec. 5.3.4]]). Given a structure M and assignment g, the pair (M, g) is called an <b>interpretation</b>. Since predicate logic formulas may contain free variables, the assignment is needed to specify what those variables denote. For a variable ξ, g(ξ) ∈ D_M. An important operation is the <b>ξ-variant</b> g[ξ ↦ a] that agrees with g on all variables except ξ, which it maps to a ∈ D_M ([[cite:bekki2012|Bekki, Def. 5.49]]).`,
+      `<b>Denotation of terms.</b> Given an interpretation (M, g), every term τ receives a value ⟦τ⟧_{M,g} ∈ D_M, called its <b>denotation</b> ([[cite:bekki2012|Bekki, Def. 5.45]]). For a name α: ⟦α⟧_{M,g} = F_M(α). For a variable ξ: ⟦ξ⟧_{M,g} = g(ξ). For a function application o(τ₁, …, τₙ): ⟦o(τ₁, …, τₙ)⟧_{M,g} = F_M(o)(⟦τ₁⟧_{M,g}, …, ⟦τₙ⟧_{M,g}). This recursive definition ensures that every term denotes a unique element of D_M.`,
+      `<b>Satisfaction of formulas.</b> The truth value ⟦$\\varphi$⟧_{M,g} ∈ {0, 1} of a formula $\\varphi$ under interpretation (M, g) is defined recursively ([[cite:bekki2012|Bekki, Def. 5.46–5.51]]). For atomic formulas: ⟦θ(τ₁, …, τₙ)⟧_{M,g} = F_M(θ)(⟦τ₁⟧_{M,g}, …, ⟦τₙ⟧_{M,g}). For propositional connectives ($\\lnot , \\land , \\lor , \\to , \\leftrightarrow$), the truth functions are the standard ones from propositional logic ([[cite:bekki2012|Bekki, Def. 5.47]]). The key new cases are the quantifiers: ⟦$\\forall$ξ$\\varphi$⟧_{M,g} = 1 if and only if for every a ∈ D_M, ⟦$\\varphi$⟧_{M,g[ξ↦a]} = 1; and ⟦$\\exists$ξ$\\varphi$⟧_{M,g} = 1 if and only if there exists an a ∈ D_M such that ⟦$\\varphi$⟧_{M,g[ξ↦a]} = 1 ([[cite:bekki2012|Bekki, Def. 5.51]]).`,
+      `<b>Examples.</b> Consider a structure where D_M = {mammals}, F(x) means "x is a mammal" and G(x) means "x lays eggs". The formula $\\exists$x(F(x) $\\land$ G(x)) asserts "there exists an egg-laying mammal." Under an assignment mapping x to a platypus, both F(x) and G(x) are true, so the formula is satisfied. In contrast, under D_M = N (natural numbers) with the standard interpretation, $\\forall$x(F(x) $\\to \\exists$xF(x)) is always true regardless of the predicate F, since if F(a) holds for some a, then $\\exists$xF(x) follows ([[cite:bekki2012|Bekki, Ex. 5.52–5.53]]).`,
+      `<b>Semantic entailment.</b> An interpretation (M, g) <b>satisfies</b> a formula $\\varphi$ (written (M, g) $\\models \\varphi$) if ⟦$\\varphi$⟧_{M,g} = 1. A set Γ <b>semantically entails</b> Δ (written Γ $\\models$ Δ) if every interpretation satisfying all formulas in Γ also satisfies at least one formula in Δ ([[cite:bekki2012|Bekki, Def. 5.66]]). A formula $\\varphi$ is a <b>tautology</b> (or logically valid) if $\\models \\varphi$, meaning it is true under every interpretation. These semantic notions are the predicate-logic analogues of propositional tautology and entailment, and they are connected to the proof-theoretic notions ($\\vdash$) by the soundness and completeness theorems.`,
     ],
     ja: [
-      `<b>命題論理から述語論理の意味論へ。</b> 命題論理では、命題変数への真理値割当だけで任意の論理式の真理値が決まります。述語論理では状況がより豊かです: 論理式は領域内の対象について述べ、その真理値は領域がどのような対象を含み、名前・関数・述語がどう解釈されるかに依存します。意味論的枠組みには2つの要素が必要です: 記述される「世界」を提供する<b>構造</b> M と、変数がどの対象を指示するかを指定する変数<b>割り当て</b> g です（戸次 Ch.5, 5.3節）。`,
-      `<b>構造: 領域と対応付け。</b> 構造 M = (D_M, F_M) は、<b>領域</b>（または存在物の集合）と呼ばれる空でない集合 D_M と<b>対応付け</b> F_M からなります（戸次 定義5.43）。領域 D_M は論理式が語る<b>存在物</b>の集まりです — 例えば、自然数 N、実数 R、または任意の空でない集合です。対応付け F_M は各非論理記号を数学的対象に写します: 各名前（定数）α は要素 F_M(α) ∈ D_M に、各 n 項演算子 o は関数 F_M(o): D_M^n $\\to$ D_M に、各 n 項述語 θ は真理関数 F_M(θ): D_M^n $\\to$ D_t（ただし D_t = {0, 1}）に写されます。`,
-      `<b>変数の割り当て。</b> 割り当て g は変数の集合から D_M への関数です（戸次 5.3.4節）。構造 M と割り当て g の対 (M, g) を<b>解釈</b>と呼びます。述語論理の論理式は自由変数を含みうるため、それらの変数が何を指示するかを指定する割り当てが必要です。変数 ξ に対して g(ξ) ∈ D_M です。重要な操作として、ξ 以外のすべての変数で g と一致し、ξ を a ∈ D_M に写す<b>ξ変異</b> g[ξ ↦ a] があります（戸次 定義5.49）。`,
-      `<b>項の指示対象。</b> 解釈 (M, g) のもとで、すべての項 τ は値 ⟦τ⟧_{M,g} ∈ D_M を受け取ります。これを<b>指示対象</b>（denotation）と呼びます（戸次 定義5.45）。名前 α の場合: ⟦α⟧_{M,g} = F_M(α)。変数 ξ の場合: ⟦ξ⟧_{M,g} = g(ξ)。関数適用 o(τ₁, …, τₙ) の場合: ⟦o(τ₁, …, τₙ)⟧_{M,g} = F_M(o)(⟦τ₁⟧_{M,g}, …, ⟦τₙ⟧_{M,g})。この再帰的定義により、すべての項は D_M の一意な要素を指示します。`,
-      `<b>論理式の充足。</b> 解釈 (M, g) のもとでの論理式 $\\varphi$ の真理値 ⟦$\\varphi$⟧_{M,g} ∈ {0, 1} は再帰的に定義されます（戸次 定義5.46–5.51）。基本述語式: ⟦θ(τ₁, …, τₙ)⟧_{M,g} = F_M(θ)(⟦τ₁⟧_{M,g}, …, ⟦τₙ⟧_{M,g})。命題結合子（$\\lnot , \\land , \\lor , \\to , \\leftrightarrow$）の真理関数は命題論理の標準的なものです（戸次 定義5.47）。鍵となる新しい場合は量化子です: ⟦$\\forall$ξ$\\varphi$⟧_{M,g} = 1 $\\iff$ すべての a ∈ D_M について ⟦$\\varphi$⟧_{M,g[ξ↦a]} = 1 であり、⟦$\\exists$ξ$\\varphi$⟧_{M,g} = 1 $\\iff$ ⟦$\\varphi$⟧_{M,g[ξ↦a]} = 1 となる a ∈ D_M が存在する（戸次 定義5.51）。`,
-      `<b>例。</b> D_M = {哺乳類}、F(x) が「xは哺乳類である」、G(x) が「xは卵生である」という構造を考えます。論理式 $\\exists$x(F(x) $\\land$ G(x)) は「卵を産む哺乳類が存在する」と主張します。x にカモノハシを割り当てると F(x) も G(x) も真になるので、この論理式は充足されます。一方、D_M = N（自然数）で標準的な解釈のもとでは、$\\forall$x(F(x) $\\to \\exists$xF(x)) は述語 F によらず常に真です。ある a に対して F(a) が成り立てば $\\exists$xF(x) が従うからです（戸次 例5.52–5.53）。`,
-      `<b>意味論的含意。</b> 解釈 (M, g) が論理式 $\\varphi$ を<b>充足する</b>（(M, g) $\\models \\varphi$ と書く）とは ⟦$\\varphi$⟧_{M,g} = 1 のことです。集合 Γ が Δ を<b>意味論的に含意する</b>（Γ $\\models$ Δ と書く）とは、Γ のすべての論理式を充足するすべての解釈が Δ の少なくとも1つの論理式も充足することです（戸次 定義5.66）。論理式 $\\varphi$ が<b>恒真</b>（論理的に妥当）であるとは $\\models \\varphi$ のこと、すなわちすべての解釈のもとで真であることです。これらの意味論的概念は命題論理のトートロジーや含意の述語論理版であり、健全性定理と完全性定理によって証明論的概念（$\\vdash$）と結びつけられます。`,
+      `<b>命題論理から述語論理の意味論へ。</b> 命題論理では、命題変数への真理値割当だけで任意の論理式の真理値が決まります。述語論理では状況がより豊かです: 論理式は領域内の対象について述べ、その真理値は領域がどのような対象を含み、名前・関数・述語がどう解釈されるかに依存します。意味論的枠組みには2つの要素が必要です: 記述される「世界」を提供する<b>構造</b> M と、変数がどの対象を指示するかを指定する変数<b>割り当て</b> g です（[[cite:bekki2012|Bekki, 第5章, 5.3節]]）。`,
+      `<b>構造: 領域と対応付け。</b> 構造 M = (D_M, F_M) は、<b>領域</b>（または存在物の集合）と呼ばれる空でない集合 D_M と<b>対応付け</b> F_M からなります（[[cite:bekki2012|Bekki, 定義5.43]]）。領域 D_M は論理式が語る<b>存在物</b>の集まりです — 例えば、自然数 N、実数 R、または任意の空でない集合です。対応付け F_M は各非論理記号を数学的対象に写します: 各名前（定数）α は要素 F_M(α) ∈ D_M に、各 n 項演算子 o は関数 F_M(o): D_M^n $\\to$ D_M に、各 n 項述語 θ は真理関数 F_M(θ): D_M^n $\\to$ D_t（ただし D_t = {0, 1}）に写されます。`,
+      `<b>変数の割り当て。</b> 割り当て g は変数の集合から D_M への関数です（[[cite:bekki2012|Bekki, 5.3.4節]]）。構造 M と割り当て g の対 (M, g) を<b>解釈</b>と呼びます。述語論理の論理式は自由変数を含みうるため、それらの変数が何を指示するかを指定する割り当てが必要です。変数 ξ に対して g(ξ) ∈ D_M です。重要な操作として、ξ 以外のすべての変数で g と一致し、ξ を a ∈ D_M に写す<b>ξ変異</b> g[ξ ↦ a] があります（[[cite:bekki2012|Bekki, 定義5.49]]）。`,
+      `<b>項の指示対象。</b> 解釈 (M, g) のもとで、すべての項 τ は値 ⟦τ⟧_{M,g} ∈ D_M を受け取ります。これを<b>指示対象</b>（denotation）と呼びます（[[cite:bekki2012|Bekki, 定義5.45]]）。名前 α の場合: ⟦α⟧_{M,g} = F_M(α)。変数 ξ の場合: ⟦ξ⟧_{M,g} = g(ξ)。関数適用 o(τ₁, …, τₙ) の場合: ⟦o(τ₁, …, τₙ)⟧_{M,g} = F_M(o)(⟦τ₁⟧_{M,g}, …, ⟦τₙ⟧_{M,g})。この再帰的定義により、すべての項は D_M の一意な要素を指示します。`,
+      `<b>論理式の充足。</b> 解釈 (M, g) のもとでの論理式 $\\varphi$ の真理値 ⟦$\\varphi$⟧_{M,g} ∈ {0, 1} は再帰的に定義されます（[[cite:bekki2012|Bekki, 定義5.46–5.51]]）。基本述語式: ⟦θ(τ₁, …, τₙ)⟧_{M,g} = F_M(θ)(⟦τ₁⟧_{M,g}, …, ⟦τₙ⟧_{M,g})。命題結合子（$\\lnot , \\land , \\lor , \\to , \\leftrightarrow$）の真理関数は命題論理の標準的なものです（[[cite:bekki2012|Bekki, 定義5.47]]）。鍵となる新しい場合は量化子です: ⟦$\\forall$ξ$\\varphi$⟧_{M,g} = 1 $\\iff$ すべての a ∈ D_M について ⟦$\\varphi$⟧_{M,g[ξ↦a]} = 1 であり、⟦$\\exists$ξ$\\varphi$⟧_{M,g} = 1 $\\iff$ ⟦$\\varphi$⟧_{M,g[ξ↦a]} = 1 となる a ∈ D_M が存在する（[[cite:bekki2012|Bekki, 定義5.51]]）。`,
+      `<b>例。</b> D_M = {哺乳類}、F(x) が「xは哺乳類である」、G(x) が「xは卵生である」という構造を考えます。論理式 $\\exists$x(F(x) $\\land$ G(x)) は「卵を産む哺乳類が存在する」と主張します。x にカモノハシを割り当てると F(x) も G(x) も真になるので、この論理式は充足されます。一方、D_M = N（自然数）で標準的な解釈のもとでは、$\\forall$x(F(x) $\\to \\exists$xF(x)) は述語 F によらず常に真です。ある a に対して F(a) が成り立てば $\\exists$xF(x) が従うからです（[[cite:bekki2012|Bekki, 例5.52–5.53]]）。`,
+      `<b>意味論的含意。</b> 解釈 (M, g) が論理式 $\\varphi$ を<b>充足する</b>（(M, g) $\\models \\varphi$ と書く）とは ⟦$\\varphi$⟧_{M,g} = 1 のことです。集合 Γ が Δ を<b>意味論的に含意する</b>（Γ $\\models$ Δ と書く）とは、Γ のすべての論理式を充足するすべての解釈が Δ の少なくとも1つの論理式も充足することです（[[cite:bekki2012|Bekki, 定義5.66]]）。論理式 $\\varphi$ が<b>恒真</b>（論理的に妥当）であるとは $\\models \\varphi$ のこと、すなわちすべての解釈のもとで真であることです。これらの意味論的概念は命題論理のトートロジーや含意の述語論理版であり、健全性定理と完全性定理によって証明論的概念（$\\vdash$）と結びつけられます。`,
     ],
   },
   formalNotation: [
@@ -4505,6 +4607,7 @@ const conceptPredicateSemantics: ReferenceEntry = {
     "semantic entailment",
     "意味論的含意",
   ],
+  bibliographyKeys: ["bekki2012"],
   order: 17,
 };
 
@@ -4523,7 +4626,7 @@ const conceptSemanticValidity: ReferenceEntry = {
     en: [
       `<b>Three fundamental semantic properties.</b> Every formula $\\varphi$ falls into exactly one of three mutually exclusive categories based on its behavior across all possible interpretations: (1) <b>Valid</b> (tautology): $\\varphi$ is true under every interpretation — written $\\models \\varphi$. (2) <b>Satisfiable but not valid</b> (contingent): $\\varphi$ is true under some interpretations and false under others. (3) <b>Unsatisfiable</b> (contradiction): $\\varphi$ is false under every interpretation. A formula is <b>satisfiable</b> if it is true under at least one interpretation, i.e., either valid or contingent. These three categories partition the set of all formulas and provide the semantic classification used throughout mathematical logic (bekki Ch.5, Definition 5.66–5.67).`,
       `<b>Formal definitions.</b> Let (M, g) denote an interpretation (a structure M paired with a variable assignment g). A formula $\\varphi$ is <b>satisfied</b> by (M, g) — written (M, g) $\\models \\varphi$ — if ⟦$\\varphi$⟧_{M,g} = 1. A formula is <b>valid</b> (written $\\models \\varphi$) if for all interpretations (M, g), (M, g) $\\models \\varphi$. A formula is <b>satisfiable</b> if there exists an interpretation (M, g) such that (M, g) $\\models \\varphi$. A formula is <b>unsatisfiable</b> (a contradiction) if no interpretation satisfies it. For propositional logic, interpretations are truth-value assignments; for predicate logic, they include a domain D_M and interpretation function F_M (bekki Definitions 3.48, 5.66).`,
-      `<b>Semantic entailment.</b> Beyond classifying individual formulas, the semantic turnstile $\\models$ also captures entailment between sets of formulas: Γ $\\models$ Δ means that every interpretation satisfying all formulas in Γ also satisfies at least one formula in Δ. Important special cases: Γ $\\models \\varphi$ (a single conclusion) means $\\varphi$ is a semantic consequence of Γ — i.e., $\\varphi$ is true whenever all formulas in Γ are true. When Γ = ∅, this reduces to $\\models \\varphi$ (validity). The relationship Γ $\\models$ Δ is purely semantic: it makes no reference to any proof system (bekki Definition 5.66).`,
+      `<b>Semantic entailment.</b> Beyond classifying individual formulas, the semantic turnstile $\\models$ also captures entailment between sets of formulas: Γ $\\models$ Δ means that every interpretation satisfying all formulas in Γ also satisfies at least one formula in Δ. Important special cases: Γ $\\models \\varphi$ (a single conclusion) means $\\varphi$ is a semantic consequence of Γ — i.e., $\\varphi$ is true whenever all formulas in Γ are true. When Γ = ∅, this reduces to $\\models \\varphi$ (validity). The relationship Γ $\\models$ Δ is purely semantic: it makes no reference to any proof system ([[cite:bekki2012|Bekki, Def. 5.66]]).`,
       `<b>Duality between validity and unsatisfiability.</b> A formula $\\varphi$ is valid ($\\models \\varphi$) if and only if $\\lnot \\varphi$ is unsatisfiable. Equivalently, $\\varphi$ is satisfiable if and only if $\\lnot \\varphi$ is not valid. This duality is fundamental: to show that a formula is valid, it suffices to show that its negation leads to a contradiction (refutation). Tableau methods and resolution exploit this duality directly by attempting to construct a satisfying interpretation for $\\lnot \\varphi$; if no such interpretation exists, $\\varphi$ must be valid.`,
       `<b>Proof-theoretic derivability ($\\vdash$) vs. semantic validity ($\\models$).</b> The syntactic turnstile $\\vdash$ denotes derivability within a formal proof system: Γ $\\vdash$_K $\\varphi$ means "$\\varphi$ is derivable from Γ in system K" using only the axioms and inference rules of K. This is a purely mechanical, finitary notion — a derivation is a finite sequence of rule applications. In contrast, the semantic turnstile $\\models$ quantifies over all (potentially uncountably many) interpretations. The key difference: $\\vdash$ depends on the choice of proof system K; $\\models$ depends only on the logical connectives' meaning. The soundness theorem ($\\vdash$ ⟹ $\\models$) guarantees that provable formulas are valid, and the completeness theorem ($\\models$ ⟹ $\\vdash$) guarantees that valid formulas are provable. Together: Γ $\\vdash$_K Δ $\\iff$ Γ $\\models$ Δ for classical first-order logic (bekki Theorems 13.10, 13.13).`,
       `<b>Propositional vs. predicate logic.</b> In propositional logic, validity is decidable: one can check all 2^n truth-value assignments for n variables. The truth table method provides a complete decision procedure. In predicate logic, however, validity is only semi-decidable (by Church's theorem, 1936): if $\\varphi$ is valid, a proof can eventually be found, but if $\\varphi$ is not valid, no algorithm can always detect this in finite time. This asymmetry makes the completeness theorem all the more remarkable — despite the undecidability of the general validity problem, every valid formula has a finite proof.`,
@@ -4531,7 +4634,7 @@ const conceptSemanticValidity: ReferenceEntry = {
     ja: [
       `<b>3つの基本的な意味論的性質。</b> すべての論理式 $\\varphi$ は、可能なすべての解釈に対する振る舞いに基づいて、相互に排他的な3つのカテゴリのちょうど1つに分類されます: (1) <b>妥当</b>（恒真式）: $\\varphi$ がすべての解釈のもとで真 — $\\models \\varphi$ と書きます。(2) <b>充足可能だが妥当でない</b>（偶然的）: $\\varphi$ がある解釈では真、別の解釈では偽。(3) <b>充足不能</b>（矛盾）: $\\varphi$ がすべての解釈のもとで偽。論理式が<b>充足可能</b>であるとは、少なくとも1つの解釈のもとで真であること、すなわち妥当か偶然的かのどちらかです。これら3つのカテゴリはすべての論理式の集合を分割し、数理論理学全体で使用される意味論的分類を提供します（戸次 Ch.5, 定義5.66–5.67）。`,
       `<b>形式的定義。</b> (M, g) を解釈（構造 M と変数割り当て g の対）とします。論理式 $\\varphi$ が (M, g) に<b>充足される</b> — (M, g) $\\models \\varphi$ と書く — とは ⟦$\\varphi$⟧_{M,g} = 1 のことです。論理式が<b>妥当</b>（$\\models \\varphi$ と書く）であるとは、すべての解釈 (M, g) について (M, g) $\\models \\varphi$ が成り立つことです。論理式が<b>充足可能</b>であるとは、(M, g) $\\models \\varphi$ となる解釈 (M, g) が存在することです。論理式が<b>充足不能</b>（矛盾）であるとは、それを充足する解釈が存在しないことです。命題論理では解釈は真理値割当であり、述語論理では領域 D_M と解釈関数 F_M を含みます（戸次 定義3.48, 5.66）。`,
-      `<b>意味論的含意。</b> 個々の論理式の分類を超えて、意味論的ターンスタイル $\\models$ は論理式集合間の含意も捉えます: Γ $\\models$ Δ とは、Γ のすべての論理式を充足するすべての解釈が Δ の少なくとも1つの論理式も充足することです。重要な特殊ケース: Γ $\\models \\varphi$（結論が1つ）は $\\varphi$ が Γ の意味論的帰結であること — すなわち Γ のすべての論理式が真であるときは常に $\\varphi$ も真 — を意味します。Γ = ∅ のとき、これは $\\models \\varphi$（妥当性）に帰着します。関係 Γ $\\models$ Δ は純粋に意味論的であり、いかなる証明体系にも言及しません（戸次 定義5.66）。`,
+      `<b>意味論的含意。</b> 個々の論理式の分類を超えて、意味論的ターンスタイル $\\models$ は論理式集合間の含意も捉えます: Γ $\\models$ Δ とは、Γ のすべての論理式を充足するすべての解釈が Δ の少なくとも1つの論理式も充足することです。重要な特殊ケース: Γ $\\models \\varphi$（結論が1つ）は $\\varphi$ が Γ の意味論的帰結であること — すなわち Γ のすべての論理式が真であるときは常に $\\varphi$ も真 — を意味します。Γ = ∅ のとき、これは $\\models \\varphi$（妥当性）に帰着します。関係 Γ $\\models$ Δ は純粋に意味論的であり、いかなる証明体系にも言及しません（[[cite:bekki2012|Bekki, 定義5.66]]）。`,
       `<b>妥当性と充足不能性の双対性。</b> 論理式 $\\varphi$ が妥当（$\\models \\varphi$）であることと $\\lnot \\varphi$ が充足不能であることは同値です。同値的に、$\\varphi$ が充足可能であることと $\\lnot \\varphi$ が妥当でないことは同値です。この双対性は基本的です: 論理式が妥当であることを示すには、その否定が矛盾に導くこと（反駁）を示せば十分です。タブロー法や導出原理はこの双対性を直接利用し、$\\lnot \\varphi$ を充足する解釈の構成を試みます; そのような解釈が存在しなければ、$\\varphi$ は妥当でなければなりません。`,
       `<b>証明論的導出可能性（$\\vdash$）と意味論的妥当性（$\\models$）。</b> 構文的ターンスタイル $\\vdash$ は形式的証明体系内での導出可能性を表します: Γ $\\vdash$_K $\\varphi$ は「K の公理と推論規則のみを用いて $\\varphi$ が Γ から導出可能」を意味します。これは純粋に機械的で有限的な概念です — 導出は規則適用の有限列です。対照的に、意味論的ターンスタイル $\\models$ は（潜在的に非可算無限個の）すべての解釈にわたる量化です。主要な違い: $\\vdash$ は証明体系 K の選択に依存し、$\\models$ は論理結合子の意味のみに依存します。健全性定理（$\\vdash$ ⟹ $\\models$）は証明可能な論理式が妥当であることを保証し、完全性定理（$\\models$ ⟹ $\\vdash$）は妥当な論理式が証明可能であることを保証します。合わせると: 古典一階論理では Γ $\\vdash$_K Δ $\\iff$ Γ $\\models$ Δ です（戸次 定理13.10, 13.13）。`,
       `<b>命題論理と述語論理。</b> 命題論理では、妥当性は決定可能です: n 個の変数に対する 2^n 通りの真理値割当をすべて検査できます。真理値表法が完全な決定手続きを提供します。しかし述語論理では、妥当性は半決定可能にすぎません（チャーチの定理, 1936年）: $\\varphi$ が妥当であれば証明はいずれ見つかりますが、$\\varphi$ が妥当でない場合、有限時間でそれを常に検出するアルゴリズムは存在しません。この非対称性は完全性定理をいっそう注目すべきものにします — 一般的な妥当性問題の決定不能性にもかかわらず、すべての妥当な論理式は有限の証明を持つのです。`,
@@ -4636,6 +4739,7 @@ const conceptSemanticValidity: ReferenceEntry = {
     "refutation",
     "反駁",
   ],
+  bibliographyKeys: ["bekki2012"],
   order: 18,
 };
 
@@ -4652,20 +4756,20 @@ const conceptTabLkEquivalence: ReferenceEntry = {
   },
   body: {
     en: [
-      `<b>What TAB is.</b> TAB (tableau-style sequent calculus) is a proof system derived from the analytic tableau method, reformulated in the language of sequent calculus. In TAB, sequents have the form Γ ⇒ (with an empty right-hand side), and the basic sequent (axiom) is (BS): $\\lnot \\varphi , \\varphi$, Γ ⇒ — a branch closes when it contains both a formula and its negation. The only structural rule is exchange (e). Logical rules decompose formulas on the left side of the sequent, corresponding to the tableau rules of Chapter 6 (bekki Ch.12.1–12.2, Definitions 12.1–12.3). Unlike Gentzen-style LK, TAB operates purely on the left (antecedent) side.`,
-      `<b>Principal and side formulas.</b> Each TAB rule has a <b>principal formula</b> (the formula being decomposed) and zero or more <b>side formulas</b> (the components produced). For example, ($\\land$) decomposes $\\varphi \\land \\psi$ into $\\varphi$ and $\\psi$; ($\\lnot \\land$) decomposes $\\lnot (\\varphi \\land \\psi)$ into two branches with $\\lnot \\varphi$ and $\\lnot \\psi$. The ($\\lnot \\lnot$) rule decomposes $\\lnot \\lnot \\varphi$ into $\\varphi$ (double negation elimination). Rules for quantifiers include ($\\forall$) and ($\\exists$) for positive occurrences, and ($\\lnot \\forall$) and ($\\lnot \\exists$) for negated quantifiers, with appropriate variable conditions (bekki Definition 12.3).`,
-      `<b>TAB ⊆ LK-CUT (Theorem 12.13).</b> Every TAB proof can be converted to an LK-CUT proof. The proof works by showing that each TAB rule is <b>admissible</b> in LK-CUT — that is, each TAB rule can be simulated by a combination of LK-CUT rules. For example, the basic sequent (BS): $\\lnot \\varphi , \\varphi$, Γ ⇒ is derivable in LK-CUT using the identity axiom (ID) and structural rules. The TAB rule ($\\land$) corresponds to (⇒$\\land$) combined with cut. The key insight is that TAB's left-side-only decomposition can be faithfully embedded in LK-CUT's richer framework (bekki Ch.12.4, p.278–279).`,
-      `<b>LK-CUT ⊆ TAB (Theorem 12.15).</b> Conversely, every LK-CUT proof can be converted to a TAB proof. This direction requires the notion of <b>generalized sequents</b>: Γ ⇒ Δ is defined as $\\lnot$Δ, Γ ⇒ in TAB (where $\\lnot$Δ denotes the negation of each formula in Δ). Each LK-CUT rule — including the identity axiom (ID), structural rules (exchange, weakening, contraction), logical rules, and the cut rule itself — is shown to be admissible in TAB under this translation. The admissibility of weakening (Theorem 12.9) and contraction (Theorem 12.11) in TAB are essential prerequisites (bekki Ch.12.3–12.4, p.280).`,
-      `<b>Weakening and contraction in TAB.</b> TAB does not include weakening or contraction as primitive rules, but both are <b>admissible</b> — they can be derived without adding them as rules. Weakening (Theorem 12.9) is shown by induction on proof depth: every TAB+w proof can be transformed into a pure TAB proof by "absorbing" the weakened formula into the proof tree. Contraction (Theorem 12.11) is similarly admissible: duplicate formulas can be eliminated. The substitution lemma (Theorem 12.7) — the TAB analogue of the substitution lemma for LK — is a key ingredient (bekki Ch.12.3).`,
-      `<b>Significance: the four-way equivalence.</b> Combined with the equivalence of H (Hilbert systems), N (natural deduction), and L (Gentzen-style sequent calculus) established in earlier chapters, the TAB equivalence gives the full picture: Γ $\\vdash$_LK $\\varphi \\iff$ Γ $\\vdash$_{LK-CUT} $\\varphi \\iff$ Γ $\\vdash$_TAB $\\varphi$. This means that the tableau method — which is the basis for many automated theorem provers — has exactly the same proving power as Hilbert systems, natural deduction, and Gentzen-style sequent calculus. The equivalence is purely about provability; the proof structures are quite different. TAB's advantage lies in its systematic, branching proof search strategy (bekki Ch.13, p.281).`,
+      `<b>What TAB is.</b> TAB (tableau-style sequent calculus) is a proof system derived from the analytic tableau method, reformulated in the language of sequent calculus. In TAB, sequents have the form Γ ⇒ (with an empty right-hand side), and the basic sequent (axiom) is (BS): $\\lnot \\varphi , \\varphi$, Γ ⇒ — a branch closes when it contains both a formula and its negation. The only structural rule is exchange (e). Logical rules decompose formulas on the left side of the sequent, corresponding to the tableau rules of Chapter 6 ([[cite:bekki2012|Bekki, Ch. 12, Def. 12.1–12.3]]). Unlike Gentzen-style LK, TAB operates purely on the left (antecedent) side.`,
+      `<b>Principal and side formulas.</b> Each TAB rule has a <b>principal formula</b> (the formula being decomposed) and zero or more <b>side formulas</b> (the components produced). For example, ($\\land$) decomposes $\\varphi \\land \\psi$ into $\\varphi$ and $\\psi$; ($\\lnot \\land$) decomposes $\\lnot (\\varphi \\land \\psi)$ into two branches with $\\lnot \\varphi$ and $\\lnot \\psi$. The ($\\lnot \\lnot$) rule decomposes $\\lnot \\lnot \\varphi$ into $\\varphi$ (double negation elimination). Rules for quantifiers include ($\\forall$) and ($\\exists$) for positive occurrences, and ($\\lnot \\forall$) and ($\\lnot \\exists$) for negated quantifiers, with appropriate variable conditions ([[cite:bekki2012|Bekki, Def. 12.3]]).`,
+      `<b>TAB ⊆ LK-CUT (Theorem 12.13).</b> Every TAB proof can be converted to an LK-CUT proof. The proof works by showing that each TAB rule is <b>admissible</b> in LK-CUT — that is, each TAB rule can be simulated by a combination of LK-CUT rules. For example, the basic sequent (BS): $\\lnot \\varphi , \\varphi$, Γ ⇒ is derivable in LK-CUT using the identity axiom (ID) and structural rules. The TAB rule ($\\land$) corresponds to (⇒$\\land$) combined with cut. The key insight is that TAB's left-side-only decomposition can be faithfully embedded in LK-CUT's richer framework ([[cite:bekki2012|Bekki, Ch. 12, pp. 278–279]]).`,
+      `<b>LK-CUT ⊆ TAB (Theorem 12.15).</b> Conversely, every LK-CUT proof can be converted to a TAB proof. This direction requires the notion of <b>generalized sequents</b>: Γ ⇒ Δ is defined as $\\lnot$Δ, Γ ⇒ in TAB (where $\\lnot$Δ denotes the negation of each formula in Δ). Each LK-CUT rule — including the identity axiom (ID), structural rules (exchange, weakening, contraction), logical rules, and the cut rule itself — is shown to be admissible in TAB under this translation. The admissibility of weakening (Theorem 12.9) and contraction (Theorem 12.11) in TAB are essential prerequisites ([[cite:bekki2012|Bekki, Ch. 12, p. 280]]).`,
+      `<b>Weakening and contraction in TAB.</b> TAB does not include weakening or contraction as primitive rules, but both are <b>admissible</b> — they can be derived without adding them as rules. Weakening (Theorem 12.9) is shown by induction on proof depth: every TAB+w proof can be transformed into a pure TAB proof by "absorbing" the weakened formula into the proof tree. Contraction (Theorem 12.11) is similarly admissible: duplicate formulas can be eliminated. The substitution lemma (Theorem 12.7) — the TAB analogue of the substitution lemma for LK — is a key ingredient ([[cite:bekki2012|Bekki, Ch. 12.3]]).`,
+      `<b>Significance: the four-way equivalence.</b> Combined with the equivalence of H (Hilbert systems), N (natural deduction), and L (Gentzen-style sequent calculus) established in earlier chapters, the TAB equivalence gives the full picture: Γ $\\vdash$_LK $\\varphi \\iff$ Γ $\\vdash$_{LK-CUT} $\\varphi \\iff$ Γ $\\vdash$_TAB $\\varphi$. This means that the tableau method — which is the basis for many automated theorem provers — has exactly the same proving power as Hilbert systems, natural deduction, and Gentzen-style sequent calculus. The equivalence is purely about provability; the proof structures are quite different. TAB's advantage lies in its systematic, branching proof search strategy ([[cite:bekki2012|Bekki, Ch. 13, p. 281]]).`,
     ],
     ja: [
-      `<b>TAB とは。</b> TAB（タブロー式シーケント計算）は、分析的タブロー法をシーケント計算の言語で再定式化した証明体系です。TAB ではシーケントは Γ ⇒（右辺が空）の形をとり、基本シーケント（公理）は (BS): $\\lnot \\varphi , \\varphi$, Γ ⇒ — 枝は論理式とその否定の両方を含むときに閉じます。唯一の構造規則は交換 (e) です。論理規則はシーケントの左辺の論理式を分解し、第6章のタブロー規則に対応します（戸次 Ch.12.1–12.2, 定義12.1–12.3）。ゲンツェン流 LK と異なり、TAB は純粋に左辺（前件）側のみで操作します。`,
-      `<b>主論理式と副論理式。</b> 各 TAB 規則には<b>主論理式</b>（分解される論理式）と0個以上の<b>副論理式</b>（生成される構成要素）があります。たとえば ($\\land$) は $\\varphi \\land \\psi$ を $\\varphi$ と $\\psi$ に分解し、($\\lnot \\land$) は $\\lnot (\\varphi \\land \\psi)$ を $\\lnot \\varphi$ と $\\lnot \\psi$ の2つの枝に分解します。($\\lnot \\lnot$) 規則は $\\lnot \\lnot \\varphi$ を $\\varphi$ に分解します（二重否定除去）。量化子に対する規則として ($\\forall$) と ($\\exists$)（肯定出現）、($\\lnot \\forall$) と ($\\lnot \\exists$)（否定された量化子）があり、適切な変項条件が付きます（戸次 定義12.3）。`,
-      `<b>TAB ⊆ LK-CUT（定理12.13）。</b> すべての TAB の証明は LK-CUT の証明に変換できます。証明は各 TAB 規則が LK-CUT において<b>許容的</b>であること — つまり各 TAB 規則が LK-CUT の規則の組み合わせでシミュレートできること — を示します。たとえば、基本シーケント (BS): $\\lnot \\varphi , \\varphi$, Γ ⇒ は LK-CUT で恒等公理 (ID) と構造規則を用いて導出可能です。TAB 規則 ($\\land$) は (⇒$\\land$) とカットの組み合わせに対応します。鍵となる洞察は、TAB の左辺のみの分解が LK-CUT のより豊かな枠組みに忠実に埋め込めることです（戸次 Ch.12.4, p.278–279）。`,
-      `<b>LK-CUT ⊆ TAB（定理12.15）。</b> 逆に、すべての LK-CUT の証明は TAB の証明に変換できます。この方向には<b>一般化シーケント</b>の概念が必要です: Γ ⇒ Δ は TAB では $\\lnot$Δ, Γ ⇒ として定義されます（$\\lnot$Δ は Δ 内の各論理式の否定を表します）。各 LK-CUT 規則 — 恒等公理 (ID)、構造規則（交換、弱化、縮約）、論理規則、カット規則自体 — がこの翻訳のもとで TAB において許容的であることが示されます。TAB における弱化（定理12.9）と縮約（定理12.11）の許容性が本質的な前提条件です（戸次 Ch.12.3–12.4, p.280）。`,
-      `<b>TAB における弱化と縮約。</b> TAB は弱化や縮約を原始規則として含みませんが、両方とも<b>許容的</b>です — 規則として追加せずとも導出できます。弱化（定理12.9）は証明の深さに関する帰納法で示されます: すべての TAB+w 証明は、弱化された論理式を証明木に「吸収」することで純粋な TAB 証明に変換できます。縮約（定理12.11）も同様に許容的です: 重複する論理式を除去できます。代入補題（定理12.7）— LK の代入補題の TAB 版 — が重要な道具です（戸次 Ch.12.3）。`,
-      `<b>意義: 4体系の等価性。</b> 前章で確立された H（ヒルベルト系）、N（自然演繹）、L（ゲンツェン流シーケント計算）の等価性と合わせると、TAB の等価性により全体像が得られます: Γ $\\vdash$_LK $\\varphi \\iff$ Γ $\\vdash$_{LK-CUT} $\\varphi \\iff$ Γ $\\vdash$_TAB $\\varphi$。これは、多くの自動定理証明器の基礎であるタブロー法が、ヒルベルト系、自然演繹、ゲンツェン流シーケント計算とまったく同じ証明力を持つことを意味します。等価性は純粋に証明可能性に関するものであり、証明の構造はまったく異なります。TAB の利点は体系的な分岐型証明探索戦略にあります（戸次 Ch.13, p.281）。`,
+      `<b>TAB とは。</b> TAB（タブロー式シーケント計算）は、分析的タブロー法をシーケント計算の言語で再定式化した証明体系です。TAB ではシーケントは Γ ⇒（右辺が空）の形をとり、基本シーケント（公理）は (BS): $\\lnot \\varphi , \\varphi$, Γ ⇒ — 枝は論理式とその否定の両方を含むときに閉じます。唯一の構造規則は交換 (e) です。論理規則はシーケントの左辺の論理式を分解し、第6章のタブロー規則に対応します（[[cite:bekki2012|Bekki, 第12章, 定義12.1–12.3]]）。ゲンツェン流 LK と異なり、TAB は純粋に左辺（前件）側のみで操作します。`,
+      `<b>主論理式と副論理式。</b> 各 TAB 規則には<b>主論理式</b>（分解される論理式）と0個以上の<b>副論理式</b>（生成される構成要素）があります。たとえば ($\\land$) は $\\varphi \\land \\psi$ を $\\varphi$ と $\\psi$ に分解し、($\\lnot \\land$) は $\\lnot (\\varphi \\land \\psi)$ を $\\lnot \\varphi$ と $\\lnot \\psi$ の2つの枝に分解します。($\\lnot \\lnot$) 規則は $\\lnot \\lnot \\varphi$ を $\\varphi$ に分解します（二重否定除去）。量化子に対する規則として ($\\forall$) と ($\\exists$)（肯定出現）、($\\lnot \\forall$) と ($\\lnot \\exists$)（否定された量化子）があり、適切な変項条件が付きます（[[cite:bekki2012|Bekki, 定義12.3]]）。`,
+      `<b>TAB ⊆ LK-CUT（定理12.13）。</b> すべての TAB の証明は LK-CUT の証明に変換できます。証明は各 TAB 規則が LK-CUT において<b>許容的</b>であること — つまり各 TAB 規則が LK-CUT の規則の組み合わせでシミュレートできること — を示します。たとえば、基本シーケント (BS): $\\lnot \\varphi , \\varphi$, Γ ⇒ は LK-CUT で恒等公理 (ID) と構造規則を用いて導出可能です。TAB 規則 ($\\land$) は (⇒$\\land$) とカットの組み合わせに対応します。鍵となる洞察は、TAB の左辺のみの分解が LK-CUT のより豊かな枠組みに忠実に埋め込めることです（[[cite:bekki2012|Bekki, 第12章, pp. 278–279]]）。`,
+      `<b>LK-CUT ⊆ TAB（定理12.15）。</b> 逆に、すべての LK-CUT の証明は TAB の証明に変換できます。この方向には<b>一般化シーケント</b>の概念が必要です: Γ ⇒ Δ は TAB では $\\lnot$Δ, Γ ⇒ として定義されます（$\\lnot$Δ は Δ 内の各論理式の否定を表します）。各 LK-CUT 規則 — 恒等公理 (ID)、構造規則（交換、弱化、縮約）、論理規則、カット規則自体 — がこの翻訳のもとで TAB において許容的であることが示されます。TAB における弱化（定理12.9）と縮約（定理12.11）の許容性が本質的な前提条件です（[[cite:bekki2012|Bekki, 第12章, p. 280]]）。`,
+      `<b>TAB における弱化と縮約。</b> TAB は弱化や縮約を原始規則として含みませんが、両方とも<b>許容的</b>です — 規則として追加せずとも導出できます。弱化（定理12.9）は証明の深さに関する帰納法で示されます: すべての TAB+w 証明は、弱化された論理式を証明木に「吸収」することで純粋な TAB 証明に変換できます。縮約（定理12.11）も同様に許容的です: 重複する論理式を除去できます。代入補題（定理12.7）— LK の代入補題の TAB 版 — が重要な道具です（[[cite:bekki2012|Bekki, 第12.3節]]）。`,
+      `<b>意義: 4体系の等価性。</b> 前章で確立された H（ヒルベルト系）、N（自然演繹）、L（ゲンツェン流シーケント計算）の等価性と合わせると、TAB の等価性により全体像が得られます: Γ $\\vdash$_LK $\\varphi \\iff$ Γ $\\vdash$_{LK-CUT} $\\varphi \\iff$ Γ $\\vdash$_TAB $\\varphi$。これは、多くの自動定理証明器の基礎であるタブロー法が、ヒルベルト系、自然演繹、ゲンツェン流シーケント計算とまったく同じ証明力を持つことを意味します。等価性は純粋に証明可能性に関するものであり、証明の構造はまったく異なります。TAB の利点は体系的な分岐型証明探索戦略にあります（[[cite:bekki2012|Bekki, 第13章, p. 281]]）。`,
     ],
   },
   formalNotation:
@@ -4731,6 +4835,7 @@ const conceptTabLkEquivalence: ReferenceEntry = {
     "定理12.13",
     "定理12.15",
   ],
+  bibliographyKeys: ["bekki2012"],
   order: 19,
 };
 
@@ -4747,18 +4852,18 @@ const conceptConsistencyFromCutElimination: ReferenceEntry = {
   },
   body: {
     en: [
-      `<b>The consistency theorem.</b> One of the most profound corollaries of the cut elimination theorem is the <b>consistency</b> (inconsistency-freeness) of the sequent calculi: the sequent ⇒ $\\bot$ is not provable in LK, LJ, or LM (bekki Theorem 11.5). Consistency means that there is no proof of $\\bot$ from the empty set of assumptions — the system cannot derive a contradiction. This result, first established by Gentzen, provided the first purely syntactic proof of the consistency of classical and intuitionistic logic, without relying on any semantic (model-theoretic) argument.`,
-      `<b>The proof argument.</b> The proof is remarkably elegant and proceeds by contradiction. Suppose $\\bot$ were provable, i.e., the sequent ⇒ $\\bot$ had a proof in K (= K-CUT + CUT). By the cut elimination theorem, there would then exist a CUT-free proof of ⇒ $\\bot$. Now examine the last rule applied in this CUT-free proof. The sequent ⇒ $\\bot$ has an empty antecedent and $\\bot$ as the sole succedent. However, <b>no CUT-free inference rule in the sequent calculus can produce such a sequent as its conclusion</b>: structural rules require the principal formula to already appear, and logical rules introduce compound formulas (not $\\bot$) in the succedent. Since no rule can derive ⇒ $\\bot$ without CUT, we reach a contradiction, and therefore $\\bot$ is not provable. The same argument works for LJ (where the succedent has at most one formula) by the same structural analysis (bekki Theorem 11.5).`,
+      `<b>The consistency theorem.</b> One of the most profound corollaries of the cut elimination theorem is the <b>consistency</b> (inconsistency-freeness) of the sequent calculi: the sequent ⇒ $\\bot$ is not provable in LK, LJ, or LM ([[cite:bekki2012|Bekki, Thm. 11.5]]). Consistency means that there is no proof of $\\bot$ from the empty set of assumptions — the system cannot derive a contradiction. This result, first established by Gentzen, provided the first purely syntactic proof of the consistency of classical and intuitionistic logic, without relying on any semantic (model-theoretic) argument.`,
+      `<b>The proof argument.</b> The proof is remarkably elegant and proceeds by contradiction. Suppose $\\bot$ were provable, i.e., the sequent ⇒ $\\bot$ had a proof in K (= K-CUT + CUT). By the cut elimination theorem, there would then exist a CUT-free proof of ⇒ $\\bot$. Now examine the last rule applied in this CUT-free proof. The sequent ⇒ $\\bot$ has an empty antecedent and $\\bot$ as the sole succedent. However, <b>no CUT-free inference rule in the sequent calculus can produce such a sequent as its conclusion</b>: structural rules require the principal formula to already appear, and logical rules introduce compound formulas (not $\\bot$) in the succedent. Since no rule can derive ⇒ $\\bot$ without CUT, we reach a contradiction, and therefore $\\bot$ is not provable. The same argument works for LJ (where the succedent has at most one formula) by the same structural analysis ([[cite:bekki2012|Bekki, Thm. 11.5]]).`,
       `<b>Extension to equivalent systems.</b> Since LK, LJ, and LM are equivalent to the corresponding Hilbert systems (HK, HJ, HM) and natural deduction systems (NK, NJ, NM) — as established by the system equivalence theorems (bekki Chapter 9, Chapter 10) — the consistency result extends to all these systems. That is, ⊬_HK $\\bot$, ⊬_NK $\\bot$, ⊬_HJ $\\bot$, ⊬_NJ $\\bot$, ⊬_HM $\\bot$, and ⊬_NM $\\bot$. The argument proceeds: if $\\bot$ were provable in any of these systems, by equivalence it would be provable in the corresponding sequent calculus, contradicting the consistency of the sequent calculus. Thus, all the formal proof systems introduced for propositional and predicate logic are consistent.`,
-      `<b>Why this matters.</b> The consistency proof via cut elimination is significant for several reasons. First, it is a <b>purely syntactic (proof-theoretic) argument</b> — it does not rely on constructing a model or appeal to set-theoretic semantics. This makes it constructive and finitistic in nature, aligning with Hilbert's program for foundational mathematics. Second, it demonstrates the power of cut elimination as a meta-theorem: by analyzing the structure of CUT-free proofs, we can derive strong consequences about what can and cannot be proved. Third, it provides the foundation for further independence results, such as showing that DNE (double negation elimination) is not provable in intuitionistic logic (bekki Theorem 11.9).`,
+      `<b>Why this matters.</b> The consistency proof via cut elimination is significant for several reasons. First, it is a <b>purely syntactic (proof-theoretic) argument</b> — it does not rely on constructing a model or appeal to set-theoretic semantics. This makes it constructive and finitistic in nature, aligning with Hilbert's program for foundational mathematics. Second, it demonstrates the power of cut elimination as a meta-theorem: by analyzing the structure of CUT-free proofs, we can derive strong consequences about what can and cannot be proved. Third, it provides the foundation for further independence results, such as showing that DNE (double negation elimination) is not provable in intuitionistic logic ([[cite:bekki2012|Bekki, Thm. 11.9]]).`,
       `<b>The sub-formula property.</b> The key insight that makes the consistency proof work is the <b>sub-formula property</b> of CUT-free proofs: in a CUT-free proof, every formula appearing in the proof is a sub-formula of some formula in the end-sequent. Since $\\bot$ is atomic and the end-sequent is ⇒ $\\bot$, the only formulas that can appear in the proof are $\\bot$ itself. This severely constrains the structure of any hypothetical CUT-free proof of ⇒ $\\bot$, ultimately leading to the contradiction. The sub-formula property is what distinguishes CUT-free proofs from proofs with CUT, where the cut formula can be arbitrarily complex (a "lemma" that gets eliminated).`,
       `<b>Historical context.</b> Gentzen's original motivation for developing the sequent calculus and proving the cut elimination theorem was precisely to establish consistency results. His 1934 paper "Untersuchungen über das logische Schließen" (Investigations into Logical Reasoning) introduced both the natural deduction and sequent calculus systems, with the Hauptsatz (cut elimination) as the central technical achievement. Gentzen later extended these ideas to prove the consistency of Peano Arithmetic using transfinite induction up to ε₀, a landmark result in proof theory that demonstrated both the power and the limits of Hilbert's program.`,
     ],
     ja: [
-      `<b>無矛盾性定理。</b> カット除去定理の最も深い系の一つが、シーケント計算の<b>無矛盾性</b>（矛盾の導出不可能性）です。すなわち、シーケント ⇒ $\\bot$ は LK・LJ・LM のいずれでも証明不能です（戸次 定理11.5）。無矛盾性とは、空の仮定集合から $\\bot$ の証明が存在しないこと — つまり体系が矛盾を導出できないことを意味します。ゲンツェンによって最初に確立されたこの結果は、意味論的（モデル論的）な議論に頼ることなく、古典論理と直観主義論理の無矛盾性を純粋に構文論的に証明した初めてのものです。`,
-      `<b>証明の議論。</b> 証明は驚くほど簡明で、背理法によって進みます。$\\bot$ が証明可能だと仮定すると、シーケント ⇒ $\\bot$ の証明が K（= K-CUT + CUT）に存在します。カット除去定理により、⇒ $\\bot$ のカットなし証明が存在するはずです。このカットなし証明の最後に適用される規則を調べます。⇒ $\\bot$ は前件が空で、$\\bot$ のみを後件に持ちます。しかし、<b>シーケント計算のカットなし推論規則でこのようなシーケントを結論として導けるものは存在しません</b>: 構造規則は主論理式が既に出現していることを要求し、論理規則は後件に（$\\bot$ではなく）複合論理式を導入します。カットなしで ⇒ $\\bot$ を導出する規則がないため矛盾に到達し、したがって $\\bot$ は証明不能です。LJ（後件が高々1つの論理式）についても同様の構造分析で同じ議論が成り立ちます（戸次 定理11.5）。`,
+      `<b>無矛盾性定理。</b> カット除去定理の最も深い系の一つが、シーケント計算の<b>無矛盾性</b>（矛盾の導出不可能性）です。すなわち、シーケント ⇒ $\\bot$ は LK・LJ・LM のいずれでも証明不能です（[[cite:bekki2012|Bekki, 定理11.5]]）。無矛盾性とは、空の仮定集合から $\\bot$ の証明が存在しないこと — つまり体系が矛盾を導出できないことを意味します。ゲンツェンによって最初に確立されたこの結果は、意味論的（モデル論的）な議論に頼ることなく、古典論理と直観主義論理の無矛盾性を純粋に構文論的に証明した初めてのものです。`,
+      `<b>証明の議論。</b> 証明は驚くほど簡明で、背理法によって進みます。$\\bot$ が証明可能だと仮定すると、シーケント ⇒ $\\bot$ の証明が K（= K-CUT + CUT）に存在します。カット除去定理により、⇒ $\\bot$ のカットなし証明が存在するはずです。このカットなし証明の最後に適用される規則を調べます。⇒ $\\bot$ は前件が空で、$\\bot$ のみを後件に持ちます。しかし、<b>シーケント計算のカットなし推論規則でこのようなシーケントを結論として導けるものは存在しません</b>: 構造規則は主論理式が既に出現していることを要求し、論理規則は後件に（$\\bot$ではなく）複合論理式を導入します。カットなしで ⇒ $\\bot$ を導出する規則がないため矛盾に到達し、したがって $\\bot$ は証明不能です。LJ（後件が高々1つの論理式）についても同様の構造分析で同じ議論が成り立ちます（[[cite:bekki2012|Bekki, 定理11.5]]）。`,
       `<b>等価体系への拡張。</b> LK・LJ・LM は対応するヒルベルト体系（HK・HJ・HM）および自然演繹体系（NK・NJ・NM）と等価であるため — 体系等価性定理（戸次 第9章・第10章）で確立 — 無矛盾性の結果はこれらすべての体系に拡張されます。すなわち、⊬_HK $\\bot$, ⊬_NK $\\bot$, ⊬_HJ $\\bot$, ⊬_NJ $\\bot$, ⊬_HM $\\bot$, ⊬_NM $\\bot$ です。議論は次の通りです: もしこれらの体系のいずれかで $\\bot$ が証明可能なら、等価性により対応するシーケント計算でも証明可能となり、シーケント計算の無矛盾性に矛盾します。このようにして、命題論理・述語論理に導入されたすべての形式証明体系が無矛盾であることが示されます。`,
-      `<b>なぜこれが重要か。</b> カット除去による無矛盾性証明は、いくつかの理由で重要です。第一に、これは<b>純粋に構文論的（証明論的）な議論</b>であり、モデルの構成や集合論的意味論に訴えません。これは構成的かつ有限主義的な性格を持ち、ヒルベルトの数学基礎付けプログラムと合致します。第二に、メタ定理としてのカット除去の威力を示します: カットなし証明の構造を分析することで、何が証明できて何が証明できないかについて強い帰結を導けます。第三に、さらなる独立性の結果 — たとえば DNE（二重否定除去）が直観主義論理で証明不能であること（戸次 定理11.9）— の基礎を提供します。`,
+      `<b>なぜこれが重要か。</b> カット除去による無矛盾性証明は、いくつかの理由で重要です。第一に、これは<b>純粋に構文論的（証明論的）な議論</b>であり、モデルの構成や集合論的意味論に訴えません。これは構成的かつ有限主義的な性格を持ち、ヒルベルトの数学基礎付けプログラムと合致します。第二に、メタ定理としてのカット除去の威力を示します: カットなし証明の構造を分析することで、何が証明できて何が証明できないかについて強い帰結を導けます。第三に、さらなる独立性の結果 — たとえば DNE（二重否定除去）が直観主義論理で証明不能であること（[[cite:bekki2012|Bekki, 定理11.9]]）— の基礎を提供します。`,
       `<b>部分論理式性。</b> 無矛盾性証明が成功する鍵は、カットなし証明の<b>部分論理式性</b>にあります: カットなし証明において、証明に出現するすべての論理式は終シーケントのいずれかの論理式の部分論理式です。$\\bot$ は原子論理式であり終シーケントは ⇒ $\\bot$ なので、証明に出現しうる論理式は $\\bot$ 自身のみです。これはシーケント ⇒ $\\bot$ の仮想的なカットなし証明の構造を厳しく制約し、最終的に矛盾に導きます。部分論理式性こそが、カットなし証明とカットを含む証明を区別するものです — カット論理式は任意に複雑な（除去される「補題」としての）論理式でありえます。`,
       `<b>歴史的文脈。</b> ゲンツェンがシーケント計算を開発しカット除去定理を証明した本来の動機は、まさに無矛盾性の結果を確立することでした。1934年の論文「論理的推論の探究 (Untersuchungen über das logische Schließen)」で自然演繹とシーケント計算の両体系を導入し、基本定理（カット除去）を中心的な技術的成果としました。ゲンツェンはのちにこれらの考えを拡張して、ε₀ までの超限帰納法を用いたペアノ算術の無矛盾性を証明しました。これは証明論における画期的な成果であり、ヒルベルトのプログラムの力と限界の両方を示すものでした。`,
     ],
@@ -4834,6 +4939,7 @@ const conceptConsistencyFromCutElimination: ReferenceEntry = {
     "Hilbert's program",
     "ヒルベルトのプログラム",
   ],
+  bibliographyKeys: ["bekki2012"],
   order: 20,
 };
 
@@ -4850,18 +4956,18 @@ const conceptAxiomIndependence: ReferenceEntry = {
   },
   body: {
     en: [
-      `<b>The independence results.</b> One of the most important applications of the cut elimination theorem is the proof that <b>DNE (double negation elimination: $\\lnot \\lnot \\varphi \\to \\varphi$)</b> and <b>LEM (law of excluded middle: $\\varphi \\lor \\lnot \\varphi$)</b> are independent from intuitionistic logic. Specifically, $\\lnot \\lnot \\varphi$ is not provable from $\\varphi$ in LJ (bekki Theorem 11.9), and $\\varphi \\lor \\lnot \\varphi$ is not provable in LJ (bekki Theorem 11.8). Since LJ ⊂ LK (intuitionistic logic is a subsystem of classical logic), these results demonstrate that the inclusion is strict: there are classically valid formulas that are not intuitionistically provable. This separation is fundamental to the philosophy and practice of constructive mathematics.`,
-      `<b>Structural analysis of LJ-CUT proofs.</b> The key lemma underlying the independence proofs is a structural characterization of LJ-CUT provable sequents (bekki Lemma 11.6): every sequent S provable in LJ satisfies at least one of: (1) both sides of S are non-empty, or (2) at least one side contains a compound formula or a quantified formula. This follows from the cut elimination theorem: if S is LJ-provable, then by cut elimination there is an LJ-CUT proof, and one can verify that every LJ axiom and every LJ inference rule (without CUT) preserves this structural property. In particular, the initial sequent $\\varphi$ ⇒ $\\varphi$ has non-empty sides, and every logical rule introduces a compound formula.`,
-      `<b>Unprovability of LEM.</b> From the structural lemma, it follows that the sequents ⇒ $\\varphi$ and $\\varphi$ ⇒ are not provable in LJ for any propositional variable $\\varphi$ (bekki Corollary 11.7). In particular, the sequent ⇒ $\\varphi \\lor \\lnot \\varphi$, when instantiated with a propositional variable, has an empty antecedent and a single compound formula in the succedent. If $\\varphi \\lor \\lnot \\varphi$ were LJ-provable, then ⇒ $\\varphi \\lor \\lnot \\varphi$ would have a CUT-free proof 𝒟. By the structural lemma, 𝒟 must satisfy condition (2), meaning one side must contain a compound formula. But tracing the proof backward, one reaches sequents that violate both conditions (1) and (2), yielding a contradiction (bekki Theorem 11.8).`,
-      `<b>Unprovability of DNE.</b> The independence of DNE from LJ (bekki Theorem 11.9) follows from the independence of LEM. LEM ($\\varphi \\lor \\lnot \\varphi$) is a theorem of LK, and LJ+DNE = LK (since adding double negation elimination to intuitionistic logic yields classical logic, bekki Theorem 10.52). If DNE were provable in LJ, then LJ would equal LK, and LEM would be an LJ theorem — contradicting the result that LEM is independent from LJ. Therefore DNE is not an LJ theorem: $\\lnot \\lnot \\varphi$ ⊬_LJ $\\varphi$.`,
+      `<b>The independence results.</b> One of the most important applications of the cut elimination theorem is the proof that <b>DNE (double negation elimination: $\\lnot \\lnot \\varphi \\to \\varphi$)</b> and <b>LEM (law of excluded middle: $\\varphi \\lor \\lnot \\varphi$)</b> are independent from intuitionistic logic. Specifically, $\\lnot \\lnot \\varphi$ is not provable from $\\varphi$ in LJ ([[cite:bekki2012|Bekki, Thm. 11.9]]), and $\\varphi \\lor \\lnot \\varphi$ is not provable in LJ ([[cite:bekki2012|Bekki, Thm. 11.8]]). Since LJ ⊂ LK (intuitionistic logic is a subsystem of classical logic), these results demonstrate that the inclusion is strict: there are classically valid formulas that are not intuitionistically provable. This separation is fundamental to the philosophy and practice of constructive mathematics.`,
+      `<b>Structural analysis of LJ-CUT proofs.</b> The key lemma underlying the independence proofs is a structural characterization of LJ-CUT provable sequents ([[cite:bekki2012|Bekki, Lem. 11.6]]): every sequent S provable in LJ satisfies at least one of: (1) both sides of S are non-empty, or (2) at least one side contains a compound formula or a quantified formula. This follows from the cut elimination theorem: if S is LJ-provable, then by cut elimination there is an LJ-CUT proof, and one can verify that every LJ axiom and every LJ inference rule (without CUT) preserves this structural property. In particular, the initial sequent $\\varphi$ ⇒ $\\varphi$ has non-empty sides, and every logical rule introduces a compound formula.`,
+      `<b>Unprovability of LEM.</b> From the structural lemma, it follows that the sequents ⇒ $\\varphi$ and $\\varphi$ ⇒ are not provable in LJ for any propositional variable $\\varphi$ (bekki Corollary 11.7). In particular, the sequent ⇒ $\\varphi \\lor \\lnot \\varphi$, when instantiated with a propositional variable, has an empty antecedent and a single compound formula in the succedent. If $\\varphi \\lor \\lnot \\varphi$ were LJ-provable, then ⇒ $\\varphi \\lor \\lnot \\varphi$ would have a CUT-free proof 𝒟. By the structural lemma, 𝒟 must satisfy condition (2), meaning one side must contain a compound formula. But tracing the proof backward, one reaches sequents that violate both conditions (1) and (2), yielding a contradiction ([[cite:bekki2012|Bekki, Thm. 11.8]]).`,
+      `<b>Unprovability of DNE.</b> The independence of DNE from LJ ([[cite:bekki2012|Bekki, Thm. 11.9]]) follows from the independence of LEM. LEM ($\\varphi \\lor \\lnot \\varphi$) is a theorem of LK, and LJ+DNE = LK (since adding double negation elimination to intuitionistic logic yields classical logic, bekki Theorem 10.52). If DNE were provable in LJ, then LJ would equal LK, and LEM would be an LJ theorem — contradicting the result that LEM is independent from LJ. Therefore DNE is not an LJ theorem: $\\lnot \\lnot \\varphi$ ⊬_LJ $\\varphi$.`,
       `<b>Significance for constructive mathematics.</b> The separation between classical and intuitionistic logic has profound implications for the foundations of mathematics. In constructive mathematics (following Brouwer, Heyting, and Bishop), proofs must provide explicit constructions or witnesses — mere non-existence of a counterexample ($\\lnot \\lnot \\varphi$) does not suffice to establish existence ($\\varphi$). The unprovability of DNE in LJ formalizes this philosophical stance: intuitionistic logic does not permit the inference from "it is impossible that $\\varphi$ is false" to "$\\varphi$ is true." Similarly, LEM's independence means that every intuitionistic proof of a disjunction $\\varphi \\lor \\psi$ must effectively determine which disjunct holds — a property known as the <b>disjunction property</b>.`,
       `<b>The method: sub-formula property.</b> The proofs of these independence results all rely on the <b>sub-formula property</b> of CUT-free proofs: in a CUT-free proof, every formula is a sub-formula of some formula in the end-sequent. This property constrains what CUT-free proofs can look like, enabling the structural analysis that yields the independence results. Without cut elimination, such fine structural arguments would not be possible — proofs with CUT can contain arbitrary formulas as "lemmas," making structural analysis intractable. This illustrates why the cut elimination theorem is such a powerful tool in proof theory.`,
     ],
     ja: [
-      `<b>独立性の結果。</b> カット除去定理の最も重要な応用の一つが、<b>DNE（二重否定除去: $\\lnot \\lnot \\varphi \\to \\varphi$）</b>と<b>LEM（排中律: $\\varphi \\lor \\lnot \\varphi$）</b>が直観主義論理から独立であることの証明です。具体的には、$\\lnot \\lnot \\varphi$ から $\\varphi$ は LJ で証明不能であり（戸次 定理11.9）、$\\varphi \\lor \\lnot \\varphi$ は LJ で証明不能です（戸次 定理11.8）。LJ ⊂ LK（直観主義論理は古典論理の部分体系）であるため、これらの結果は包含が真であることを示します: 古典論理で妥当な論理式のうち、直観主義的に証明不能なものが存在します。この分離は構成的数学の哲学と実践にとって根本的です。`,
-      `<b>LJ-CUT 証明の構造分析。</b> 独立性証明の鍵となる補題は、LJ-CUT で証明可能なシーケントの構造的特徴付けです（戸次 補題11.6）: LJ で証明可能なすべてのシーケント S は、次の少なくとも一方を満たします: (1) S の両辺がいずれも空ではない、(2) 右辺か左辺の少なくとも一方に複合論理式または量化論理式を含む。これはカット除去定理から従います: S が LJ で証明可能なら、カット除去により LJ-CUT 証明が存在し、LJ の公理と（カットなしの）LJ の推論規則がすべてこの構造的性質を保つことが検証できます。特に、初期シーケント $\\varphi$ ⇒ $\\varphi$ は両辺が非空であり、すべての論理規則は複合論理式を導入します。`,
-      `<b>LEM の証明不能性。</b> 構造補題から、任意の命題変数 $\\varphi$ について、シーケント ⇒ $\\varphi$ と $\\varphi$ ⇒ は LJ で証明不能であることが従います（戸次 系11.7）。特に、命題変数を代入したシーケント ⇒ $\\varphi \\lor \\lnot \\varphi$ は前件が空で後件に単一の複合論理式を持ちます。もし $\\varphi \\lor \\lnot \\varphi$ が LJ で証明可能なら、⇒ $\\varphi \\lor \\lnot \\varphi$ のカットなし証明 𝒟 が存在するはずです。構造補題により、𝒟 は条件 (2) を満たす必要があり、一方の辺に複合論理式を含むはずです。しかし証明を遡ると、条件 (1) と (2) の両方に違反するシーケントに到達し、矛盾が生じます（戸次 定理11.8）。`,
-      `<b>DNE の証明不能性。</b> LJ からの DNE の独立性（戸次 定理11.9）は、LEM の独立性から従います。LEM（$\\varphi \\lor \\lnot \\varphi$）は LK の定理であり、LJ+DNE = LK です（直観主義論理に二重否定除去を追加すると古典論理が得られる、戸次 定理10.52）。もし DNE が LJ で証明可能なら、LJ = LK となり、LEM は LJ の定理になります — しかしこれは LEM が LJ から独立であるという結果と矛盾します。したがって DNE は LJ の定理ではありません: $\\lnot \\lnot \\varphi$ ⊬_LJ $\\varphi$。`,
+      `<b>独立性の結果。</b> カット除去定理の最も重要な応用の一つが、<b>DNE（二重否定除去: $\\lnot \\lnot \\varphi \\to \\varphi$）</b>と<b>LEM（排中律: $\\varphi \\lor \\lnot \\varphi$）</b>が直観主義論理から独立であることの証明です。具体的には、$\\lnot \\lnot \\varphi$ から $\\varphi$ は LJ で証明不能であり（[[cite:bekki2012|Bekki, 定理11.9]]）、$\\varphi \\lor \\lnot \\varphi$ は LJ で証明不能です（[[cite:bekki2012|Bekki, 定理11.8]]）。LJ ⊂ LK（直観主義論理は古典論理の部分体系）であるため、これらの結果は包含が真であることを示します: 古典論理で妥当な論理式のうち、直観主義的に証明不能なものが存在します。この分離は構成的数学の哲学と実践にとって根本的です。`,
+      `<b>LJ-CUT 証明の構造分析。</b> 独立性証明の鍵となる補題は、LJ-CUT で証明可能なシーケントの構造的特徴付けです（[[cite:bekki2012|Bekki, 補題11.6]]）: LJ で証明可能なすべてのシーケント S は、次の少なくとも一方を満たします: (1) S の両辺がいずれも空ではない、(2) 右辺か左辺の少なくとも一方に複合論理式または量化論理式を含む。これはカット除去定理から従います: S が LJ で証明可能なら、カット除去により LJ-CUT 証明が存在し、LJ の公理と（カットなしの）LJ の推論規則がすべてこの構造的性質を保つことが検証できます。特に、初期シーケント $\\varphi$ ⇒ $\\varphi$ は両辺が非空であり、すべての論理規則は複合論理式を導入します。`,
+      `<b>LEM の証明不能性。</b> 構造補題から、任意の命題変数 $\\varphi$ について、シーケント ⇒ $\\varphi$ と $\\varphi$ ⇒ は LJ で証明不能であることが従います（戸次 系11.7）。特に、命題変数を代入したシーケント ⇒ $\\varphi \\lor \\lnot \\varphi$ は前件が空で後件に単一の複合論理式を持ちます。もし $\\varphi \\lor \\lnot \\varphi$ が LJ で証明可能なら、⇒ $\\varphi \\lor \\lnot \\varphi$ のカットなし証明 𝒟 が存在するはずです。構造補題により、𝒟 は条件 (2) を満たす必要があり、一方の辺に複合論理式を含むはずです。しかし証明を遡ると、条件 (1) と (2) の両方に違反するシーケントに到達し、矛盾が生じます（[[cite:bekki2012|Bekki, 定理11.8]]）。`,
+      `<b>DNE の証明不能性。</b> LJ からの DNE の独立性（[[cite:bekki2012|Bekki, 定理11.9]]）は、LEM の独立性から従います。LEM（$\\varphi \\lor \\lnot \\varphi$）は LK の定理であり、LJ+DNE = LK です（直観主義論理に二重否定除去を追加すると古典論理が得られる、戸次 定理10.52）。もし DNE が LJ で証明可能なら、LJ = LK となり、LEM は LJ の定理になります — しかしこれは LEM が LJ から独立であるという結果と矛盾します。したがって DNE は LJ の定理ではありません: $\\lnot \\lnot \\varphi$ ⊬_LJ $\\varphi$。`,
       `<b>構成的数学にとっての意義。</b> 古典論理と直観主義論理の分離は、数学の基礎に深い含意を持ちます。構成的数学（ブラウワー、ハイティング、ビショップに従い）では、証明は明示的な構成や証拠を提供しなければなりません — 反例の非存在（$\\lnot \\lnot \\varphi$）だけでは存在（$\\varphi$）を確立するには不十分です。LJ における DNE の証明不能性はこの哲学的立場を形式化します: 直観主義論理では「$\\varphi$ が偽であることは不可能」から「$\\varphi$ は真」への推論を許しません。同様に、LEM の独立性は、選言 $\\varphi \\lor \\psi$ の直観主義的証明はどちらの選言肢が成り立つかを実効的に決定しなければならないことを意味します — これは<b>選言性 (disjunction property)</b> として知られる性質です。`,
       `<b>方法: 部分論理式性。</b> これらの独立性の結果の証明はすべて、カットなし証明の<b>部分論理式性</b>に依拠しています: カットなし証明において、すべての論理式は終シーケントのいずれかの論理式の部分論理式です。この性質はカットなし証明の形を制約し、独立性の結果をもたらす構造分析を可能にします。カット除去なしでは、このような精密な構造的議論は不可能です — カットを含む証明は「補題」として任意の論理式を含みうるため、構造分析が困難になります。これは、カット除去定理がなぜ証明論においてかくも強力な道具であるかを示しています。`,
     ],
@@ -4953,6 +5059,7 @@ const conceptAxiomIndependence: ReferenceEntry = {
     "Lemma 11.6",
     "補題11.6",
   ],
+  bibliographyKeys: ["bekki2012"],
   order: 21,
 };
 
@@ -5060,6 +5167,7 @@ const conceptAnalyticTableau: ReferenceEntry = {
     "Definition 6.24",
     "定義6.24",
   ],
+  bibliographyKeys: ["bekki2012"],
   order: 22,
 };
 
@@ -5257,7 +5365,7 @@ const conceptTautology: ReferenceEntry = {
 
       `<b>Tautological implication and equivalence.</b> A formula $\\varphi$ <b>tautologically implies</b> $\\psi$ (written $\\varphi \\models \\psi$) if every assignment making $\\varphi$ true also makes $\\psi$ true. Two formulas $\\varphi$ and $\\psi$ are <b>tautologically equivalent</b> (written $\\varphi \\models \\models \\psi$ or $\\varphi \\equiv \\psi$) if they have the same truth value under every assignment, i.e., $\\varphi \\models \\psi$ and $\\psi \\models \\varphi$. Tautological equivalence preserves intersubstitutability in any context: replacing a subformula by a tautologically equivalent one yields a tautologically equivalent result.`,
 
-      `<b>Soundness and completeness.</b> The relationship between tautologies (semantic notion) and provable formulas (syntactic notion) is governed by two fundamental metatheorems. <b>Soundness</b>: if $\\vdash \\varphi (\\varphi$ is provable in the proof system), then $\\models \\varphi (\\varphi$ is a tautology). This ensures the proof system never proves a non-tautology. <b>Completeness</b> (Gödel, 1930 for first-order logic; straightforward for propositional logic): if $\\models \\varphi$, then $\\vdash \\varphi$. This ensures every tautology has a proof. For the Łukasiewicz system used in this application, both properties hold: the set of provable formulas coincides exactly with the set of tautologies.`,
+      `<b>Soundness and completeness.</b> The relationship between tautologies (semantic notion) and provable formulas (syntactic notion) is governed by two fundamental metatheorems. <b>Soundness</b>: if $\\vdash \\varphi (\\varphi$ is provable in the proof system), then $\\models \\varphi (\\varphi$ is a tautology). This ensures the proof system never proves a non-tautology. <b>Completeness</b> ([[cite:godel1930|Gödel, 1930]] for first-order logic; straightforward for propositional logic): if $\\models \\varphi$, then $\\vdash \\varphi$. This ensures every tautology has a proof. For the Łukasiewicz system used in this application, both properties hold: the set of provable formulas coincides exactly with the set of tautologies.`,
 
       `<b>Tautology in predicate logic.</b> The concept of tautology extends to predicate logic in two ways. (1) A <b>propositional tautology instance</b> is a first-order formula obtained from a propositional tautology by uniformly substituting first-order formulas for propositional variables — such a formula is valid in predicate logic as well. (2) A first-order formula is <b>valid</b> ($\\models \\varphi$) if it is true in every interpretation (every domain with every interpretation of predicates, functions, and constants). Unlike propositional tautologies, first-order validity is not decidable (Church's theorem, 1936) but is semi-decidable by completeness.`,
     ],
@@ -5270,7 +5378,7 @@ const conceptTautology: ReferenceEntry = {
 
       `<b>恒真含意と恒真同値。</b> 論理式 $\\varphi$ が $\\psi$ を<b>恒真含意</b>する（$\\varphi \\models \\psi$ と書く）とは、$\\varphi$ を真にするすべての割当が $\\psi$ も真にすることです。2つの論理式 $\\varphi$ と $\\psi$ が<b>恒真同値</b>（$\\varphi \\models \\models \\psi$ または $\\varphi \\equiv \\psi$ と書く）であるとは、すべての割当のもとで同じ真理値を持つこと、すなわち $\\varphi \\models \\psi$ かつ $\\psi \\models \\varphi$ です。恒真同値は任意の文脈での置換可能性を保存します: 部分式を恒真同値なものに置き換えると、恒真同値な結果が得られます。`,
 
-      `<b>健全性と完全性。</b> トートロジー（意味論的概念）と証明可能な論理式（構文論的概念）の関係は、2つの基本的なメタ定理によって支配されます。<b>健全性</b>: $\\vdash \\varphi$（$\\varphi$ が証明体系で証明可能）ならば $\\models \\varphi$（$\\varphi$ はトートロジー）。これは証明体系がトートロジーでないものを証明しないことを保証します。<b>完全性</b>（一階述語論理ではゲーデル, 1930年; 命題論理では直接的）: $\\models \\varphi$ ならば $\\vdash \\varphi$。これはすべてのトートロジーが証明を持つことを保証します。本アプリケーションで使用するŁukasiewicz体系について、両方の性質が成立します: 証明可能な論理式の集合とトートロジーの集合は完全に一致します。`,
+      `<b>健全性と完全性。</b> トートロジー（意味論的概念）と証明可能な論理式（構文論的概念）の関係は、2つの基本的なメタ定理によって支配されます。<b>健全性</b>: $\\vdash \\varphi$（$\\varphi$ が証明体系で証明可能）ならば $\\models \\varphi$（$\\varphi$ はトートロジー）。これは証明体系がトートロジーでないものを証明しないことを保証します。<b>完全性</b>（一階述語論理では[[cite:godel1930|ゲーデル, 1930年]]; 命題論理では直接的）: $\\models \\varphi$ ならば $\\vdash \\varphi$。これはすべてのトートロジーが証明を持つことを保証します。本アプリケーションで使用するŁukasiewicz体系について、両方の性質が成立します: 証明可能な論理式の集合とトートロジーの集合は完全に一致します。`,
 
       `<b>述語論理におけるトートロジー。</b> トートロジーの概念は述語論理に2つの方法で拡張されます。(1) <b>命題論理的トートロジーのインスタンス</b>は、命題論理のトートロジーの命題変数を一階論理式で一様に代入して得られる一階論理式で、述語論理でも妥当です。(2) 一階論理式が<b>妥当</b>（$\\models \\varphi$）であるとは、すべての解釈（述語・関数・定数のすべての解釈を持つすべての領域）で真であることです。命題論理のトートロジーとは異なり、一階論理の妥当性は決定可能ではなく（チャーチの定理, 1936年）、完全性により半決定可能にとどまります。`,
     ],
@@ -5341,6 +5449,7 @@ const conceptTautology: ReferenceEntry = {
     "contradiction",
     "矛盾",
   ],
+  bibliographyKeys: ["godel1930"],
   order: 25,
 };
 
@@ -5366,7 +5475,7 @@ const conceptPredicateAxiomSystem: ReferenceEntry = {
   ],
   body: {
     en: [
-      "<b>Overview</b>\nThe first-order predicate logic used in this application is built on seven components: five axiom schemas and two inference rules. Together they are <b>sound</b> (every provable formula is valid) and <b>complete</b> (every valid formula is provable) for classical first-order logic — this is Gödel's completeness theorem (1930).",
+      "<b>Overview</b>\nThe first-order predicate logic used in this application is built on seven components: five axiom schemas and two inference rules. Together they are <b>sound</b> (every provable formula is valid) and <b>complete</b> (every valid formula is provable) for classical first-order logic — this is Gödel's completeness theorem ([[cite:godel1930|1930]]).",
 
       "<b>Propositional Layer: A1–A3 + MP</b>\nThe first three axioms handle pure propositional reasoning, needing no quantifiers:\n• <b>A1</b> (K / weakening): $\\varphi \\to (\\psi \\to \\varphi)$ — known facts remain true under extra assumptions.\n• <b>A2</b> (S / distribution): $(\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi))$ — distributes implication over implication.\n• <b>A3</b> (contraposition): $(\\lnot \\psi \\to \\lnot \\varphi) \\to (\\varphi \\to \\psi)$ — establishes classical reasoning through double negation.\n<b>Modus Ponens</b> (MP): from $\\varphi$ and $\\varphi \\to \\psi$, infer $\\psi$. This is the only propositional inference rule.\nThese four components alone are complete for propositional logic (the Łukasiewicz system).",
 
@@ -5381,7 +5490,7 @@ const conceptPredicateAxiomSystem: ReferenceEntry = {
       "<b>Relationship to Other Systems</b>\nThis axiom system (sometimes called the Łukasiewicz or Hilbert–Frege system with the Mendelson quantifier axioms) is one of several equivalent formalizations of classical first-order logic. Other approaches include:\n• <b>Natural Deduction</b> (Gentzen, 1934) — uses introduction and elimination rules for each connective.\n• <b>Sequent Calculus</b> (Gentzen, 1934) — uses sequents $\\Gamma \\Rightarrow \\Delta$ and structural rules.\n• <b>Analytic Tableau</b> — uses refutation and branch closure.\nAll these systems prove exactly the same set of theorems. The Hilbert system has the fewest inference rules (just MP and Gen) but requires longer proofs, whereas natural deduction has more rules but shorter, more intuitive proofs.",
     ],
     ja: [
-      "<b>概要</b>\nこのアプリケーションで使用する一階述語論理は、5つの公理スキーマと2つの推論規則から構成されています。これらは合わせて古典一階述語論理に対して<b>健全</b>（証明可能な論理式はすべて妥当）かつ<b>完全</b>（妥当な論理式はすべて証明可能）です — これはGödelの完全性定理（1930年）です。",
+      "<b>概要</b>\nこのアプリケーションで使用する一階述語論理は、5つの公理スキーマと2つの推論規則から構成されています。これらは合わせて古典一階述語論理に対して<b>健全</b>（証明可能な論理式はすべて妥当）かつ<b>完全</b>（妥当な論理式はすべて証明可能）です — これはGödelの完全性定理（[[cite:godel1930|1930年]]）です。",
 
       "<b>命題論理層: A1–A3 + MP</b>\n最初の3つの公理は純粋な命題推論を扱い、量化子を必要としません：\n• <b>A1</b>（K / 弱化）：$\\varphi \\to (\\psi \\to \\varphi)$ — 既知の事実は追加の仮定のもとでも成り立つ。\n• <b>A2</b>（S / 分配）：$(\\varphi \\to (\\psi \\to \\chi)) \\to ((\\varphi \\to \\psi) \\to (\\varphi \\to \\chi))$ — 含意を含意に対して分配する。\n• <b>A3</b>（対偶）：$(\\lnot \\psi \\to \\lnot \\varphi) \\to (\\varphi \\to \\psi)$ — 二重否定を通じて古典的推論を確立する。\n<b>Modus Ponens</b>（MP）：$\\varphi$ と $\\varphi \\to \\psi$ から $\\psi$ を推論する。これが唯一の命題推論規則です。\nこの4つの構成要素だけで命題論理は完全です（Łukasiewicz体系）。",
 
@@ -5448,6 +5557,7 @@ const conceptPredicateAxiomSystem: ReferenceEntry = {
     "公理スキーマ",
     "一般化規則",
   ],
+  bibliographyKeys: ["godel1930"],
   order: 26,
 };
 
@@ -5911,7 +6021,7 @@ const guideIntroSequentCalculus: ReferenceEntry = {
   },
   body: {
     en: [
-      "Sequent calculus is a proof system introduced by Gerhard Gentzen in 1935, alongside natural deduction. While natural deduction models how mathematicians reason, sequent calculus models <b>proof search</b> — the systematic process of finding a proof.",
+      "Sequent calculus is a proof system introduced by [[cite:gentzen1935|Gerhard Gentzen in 1935]], alongside natural deduction. While natural deduction models how mathematicians reason, sequent calculus models <b>proof search</b> — the systematic process of finding a proof.",
       'The central object is the <b>sequent</b>, written $\\Gamma \\Rightarrow \\Delta$. Here $\\Gamma$ (the <i>antecedent</i>) is a multiset of formulas representing assumptions, and $\\Delta$ (the <i>succedent</i>) is a multiset of formulas representing conclusions. The sequent asserts: "if all formulas in $\\Gamma$ hold, then at least one formula in $\\Delta$ holds."',
       "A key difference from natural deduction is that both the <b>left</b> and <b>right</b> sides of the sequent are explicit. Natural deduction hides the assumptions in the tree structure; sequent calculus writes them down explicitly, making the flow of logical information symmetric and visible.",
       "Each logical connective has two rules: a <b>left rule</b> (how the connective behaves when it appears among the assumptions) and a <b>right rule</b> (how it behaves among the conclusions). For example, $\\to$-right introduces an implication on the right by moving a formula from $\\Delta$ to $\\Gamma$.",
@@ -5923,7 +6033,7 @@ const guideIntroSequentCalculus: ReferenceEntry = {
       "Sequent calculus is not merely an alternative to natural deduction — it reveals deep structural properties of logic. Cut elimination implies the subformula property (every formula in a cut-free proof is a subformula of the goal), which underpins consistency proofs and decidability results.",
     ],
     ja: [
-      "シーケント計算は1935年にGerhard Gentzenが自然演繹とともに導入した証明体系です。自然演繹が数学者の推論を模倣するのに対し、シーケント計算は<b>証明探索</b>——証明を体系的に見つける過程——を模倣します。",
+      "シーケント計算は[[cite:gentzen1935|1935年にGerhard Gentzen]]が自然演繹とともに導入した証明体系です。自然演繹が数学者の推論を模倣するのに対し、シーケント計算は<b>証明探索</b>——証明を体系的に見つける過程——を模倣します。",
       "中心的な対象は<b>シーケント</b>で、$\\Gamma \\Rightarrow \\Delta$と書きます。$\\Gamma$（<i>前件</i>、antecedent）は仮定を表す論理式の多重集合、$\\Delta$（<i>後件</i>、succedent）は結論を表す論理式の多重集合です。シーケントは「$\\Gamma$のすべての論理式が成り立つなら、$\\Delta$の少なくとも1つが成り立つ」と主張します。",
       "自然演繹との主要な違いは、シーケントの<b>左辺</b>と<b>右辺</b>の両方が明示的であることです。自然演繹は仮定を木構造の中に隠しますが、シーケント計算はそれを明示的に書き出すことで、論理情報の流れを対称的かつ可視的にします。",
       "各論理結合子には2つの規則があります：<b>左規則</b>（結合子が仮定の中に現れるときの振る舞い）と<b>右規則</b>（結論の中に現れるときの振る舞い）。例えば$\\to$-rightは、論理式を$\\Delta$から$\\Gamma$に移すことで右辺に含意を導入します。",
@@ -5978,6 +6088,7 @@ const guideIntroSequentCalculus: ReferenceEntry = {
     "後件",
     "カット除去",
   ],
+  bibliographyKeys: ["gentzen1935"],
   order: 10,
 };
 
@@ -6059,7 +6170,7 @@ const conceptScCutRule: ReferenceEntry = {
     en: [
       "The <b>cut rule</b> in sequent calculus allows combining two derivations through a shared formula (the <i>cut formula</i>): from $\\Gamma \\Rightarrow \\Delta, \\varphi$ and $\\varphi, \\Sigma \\Rightarrow \\Pi$, conclude $\\Gamma, \\Sigma \\Rightarrow \\Delta, \\Pi$.",
       'The cut rule corresponds to using a <b>lemma</b>: first prove $\\varphi$ (from $\\Gamma$), then use $\\varphi$ (in $\\Sigma$) to derive the final conclusion. Without cut, every formula in a proof must be a subformula of the conclusion — no "creative" intermediate steps are possible.',
-      "Gentzen's <b>Hauptsatz</b> (cut elimination theorem, 1935) states that any proof using the cut rule can be transformed into a cut-free proof. The transformation may increase the proof size dramatically (non-elementary blowup), but it always terminates.",
+      "[[cite:gentzen1935|Gentzen]]'s <b>Hauptsatz</b> (cut elimination theorem, 1935) states that any proof using the cut rule can be transformed into a cut-free proof. The transformation may increase the proof size dramatically (non-elementary blowup), but it always terminates.",
       "Cut elimination has profound consequences: (1) The <b>subformula property</b> — every formula in a cut-free proof is a subformula of the endsequent. (2) <b>Consistency</b> — if $\\bot$ is not a subformula of the goal, it cannot appear, so $\\bot$ is not derivable from no assumptions. (3) <b>Interpolation</b> and <b>decidability</b> results follow from the subformula property.",
       "In practice, proofs with cut are much shorter and more natural. The cut rule captures the mathematician's ability to prove and use intermediate results. Cut-free proofs, while theoretically important, can be impractically long.",
       "In this application, the cut rule is available as an explicit proof step. Users can introduce a cut formula to split a proof goal into two subgoals. The concept of cut elimination is covered in the dedicated reference entry.",
@@ -6067,7 +6178,7 @@ const conceptScCutRule: ReferenceEntry = {
     ja: [
       "シーケント計算の<b>カット規則</b>は、共有する論理式（<i>カット式</i>）を通じて2つの導出を結合します：$\\Gamma \\Rightarrow \\Delta, \\varphi$ と $\\varphi, \\Sigma \\Rightarrow \\Pi$ から $\\Gamma, \\Sigma \\Rightarrow \\Delta, \\Pi$ を結論します。",
       "カット規則は<b>補題</b>の使用に対応します：まず$\\varphi$を証明し（$\\Gamma$から）、次に$\\varphi$を使って（$\\Sigma$の中で）最終的な結論を導きます。カットなしでは、証明のすべての論理式は結論の部分式でなければなりません——「創造的な」中間ステップは不可能です。",
-      "Gentzenの<b>基本定理</b>（カット除去定理、1935年）は、カット規則を使うすべての証明がカットなし証明に変換可能であることを述べます。変換は証明のサイズを劇的に増大させる（非初等的爆発）可能性がありますが、常に停止します。",
+      "[[cite:gentzen1935|Gentzen]]の<b>基本定理</b>（カット除去定理、1935年）は、カット規則を使うすべての証明がカットなし証明に変換可能であることを述べます。変換は証明のサイズを劇的に増大させる（非初等的爆発）可能性がありますが、常に停止します。",
       "カット除去には深遠な帰結があります：(1) <b>部分式性質</b>——カットなし証明のすべての論理式は最終シーケントの部分式です。(2) <b>無矛盾性</b>——$\\bot$が目標の部分式でなければ現れないので、仮定なしから$\\bot$は導出不能です。(3) 部分式性質から<b>内挿</b>や<b>決定可能性</b>の結果が得られます。",
       "実践的には、カットを使う証明ははるかに短く自然です。カット規則は数学者の「中間結果を証明して使う」能力を捉えます。カットなし証明は理論的に重要ですが、実用的には非常に長くなりえます。",
       "本アプリケーションでは、カット規則は明示的な証明ステップとして利用可能です。ユーザはカット式を導入して証明目標を2つの副目標に分割できます。カット除去の概念は専用のリファレンスエントリで解説されています。",
@@ -6114,6 +6225,7 @@ const conceptScCutRule: ReferenceEntry = {
     "部分式性質",
     "補題",
   ],
+  bibliographyKeys: ["gentzen1935"],
   order: 34,
 };
 
@@ -6363,7 +6475,7 @@ const conceptTabSequentRules: ReferenceEntry = {
       "The <b>axiom</b> (BS) is: $\\lnot\\varphi, \\varphi, \\Gamma \\Rightarrow$. This corresponds to a closed tableau branch containing both T($\\varphi$) and F($\\varphi$).",
       "The <b>$\\alpha$-type rules</b> (non-branching) in TAB add formulas to the antecedent: for example, from $\\varphi, \\psi, \\Gamma \\Rightarrow$ conclude $\\varphi \\land \\psi, \\Gamma \\Rightarrow$. The conjunction's components are already assumed.",
       "The <b>$\\beta$-type rules</b> (branching) split into two premises: for example, from $\\varphi, \\Gamma \\Rightarrow$ and $\\psi, \\Sigma \\Rightarrow$ conclude $\\varphi \\lor \\psi, \\Gamma, \\Sigma \\Rightarrow$. Each disjunct is handled in a separate branch.",
-      "TAB is equivalent to LK with cut (LK-CUT): any proof in TAB can be transformed to a proof in LK-CUT, and vice versa. This equivalence is established through Theorems 12.13 and 12.15 in Bekki's textbook.",
+      "TAB is equivalent to LK with cut (LK-CUT): any proof in TAB can be transformed to a proof in LK-CUT, and vice versa. This equivalence is established through [[cite:bekki2012|Bekki, Thms. 12.13 & 12.15]].",
       "In this application, TAB-style proofs use one-sided sequents. The proof construction works bottom-up: start from the goal formula in the antecedent and apply rules to decompose it until all branches close with the axiom BS.",
     ],
     ja: [
@@ -6371,7 +6483,7 @@ const conceptTabSequentRules: ReferenceEntry = {
       "<b>公理</b>（BS）は：$\\lnot\\varphi, \\varphi, \\Gamma \\Rightarrow$。T($\\varphi$)とF($\\varphi$)の両方を含む閉じたタブロー枝に対応します。",
       "<b>$\\alpha$型規則</b>（非分岐）はTABで前件に論理式を追加します：例えば、$\\varphi, \\psi, \\Gamma \\Rightarrow$ から $\\varphi \\land \\psi, \\Gamma \\Rightarrow$ を結論します。連言の各成分は既に仮定されています。",
       "<b>$\\beta$型規則</b>（分岐）は2つの前提に分割します：例えば、$\\varphi, \\Gamma \\Rightarrow$ と $\\psi, \\Sigma \\Rightarrow$ から $\\varphi \\lor \\psi, \\Gamma, \\Sigma \\Rightarrow$ を結論します。各選言肢は別の枝で処理されます。",
-      "TABはカット付きLK（LK-CUT）と等価です：TABのすべての証明はLK-CUTの証明に変換でき、逆も同様です。この等価性は戸次のテキストの定理12.13と12.15で確立されています。",
+      "TABはカット付きLK（LK-CUT）と等価です：TABのすべての証明はLK-CUTの証明に変換でき、逆も同様です。この等価性は[[cite:bekki2012|Bekki, 定理12.13 & 12.15]]で確立されています。",
       "本アプリケーションでは、TABスタイルの証明は片側シーケントを使用します。証明構築はボトムアップで行います：前件内の目標論理式から出発し、規則を適用して分解し、すべての枝が公理BSで閉じるまで続けます。",
     ],
   },
@@ -6400,6 +6512,7 @@ const conceptTabSequentRules: ReferenceEntry = {
     "片側シーケント",
     "タブロー式シーケント計算",
   ],
+  bibliographyKeys: ["bekki2012"],
   order: 37,
 };
 
@@ -6552,7 +6665,7 @@ const conceptTabScCorrespondence: ReferenceEntry = {
       "<b>TAB $\\subseteq$ LK-CUT.</b> Every TAB proof can be translated into an LK proof using cut. The key insight is that a one-sided sequent $\\Gamma \\Rightarrow$ can be viewed as a two-sided sequent $\\Gamma \\Rightarrow$ with an empty succedent. Negation-right and weakening rules bridge the gap.",
       "<b>LK-CUT $\\subseteq$ TAB.</b> Conversely, every LK proof with cut can be translated into a TAB proof. The succedent formulas $\\Delta$ in $\\Gamma \\Rightarrow \\Delta$ are moved to the antecedent as negated formulas: $\\Gamma, \\lnot\\Delta \\Rightarrow$. Two-sided rules become one-sided rules applied to negated formulas.",
       "These translations preserve the proof structure: branches in the tableau correspond to branches in the sequent proof tree. The number of proof steps may change by a constant factor, but the overall complexity is the same.",
-      "The equivalence TAB $\\equiv$ LK-CUT means that cut elimination results for LK transfer to the tableau: every tableau proof can be normalized (though the normalized proof may be much larger). This connection is established in Bekki Theorems 12.13 and 12.15.",
+      "The equivalence TAB $\\equiv$ LK-CUT means that cut elimination results for LK transfer to the tableau: every tableau proof can be normalized (though the normalized proof may be much larger). This connection is established in [[cite:bekki2012|Bekki, Thms. 12.13 & 12.15]].",
     ],
     ja: [
       "分析的タブロー、TAB（タブロー式シーケント計算）、LK-CUT（カット付き古典シーケント計算）は本質的に同じ証明体系の3つの表現です。それらの対応を理解することで、証明法間の深い関連が明らかになります。",
@@ -6560,7 +6673,7 @@ const conceptTabScCorrespondence: ReferenceEntry = {
       "<b>TAB $\\subseteq$ LK-CUT。</b> すべてのTAB証明はカットを使うLK証明に翻訳できます。要点は、片側シーケント$\\Gamma \\Rightarrow$が空の後件を持つ両側シーケント$\\Gamma \\Rightarrow$と見なせることです。否定右規則と弱化規則が橋渡しをします。",
       "<b>LK-CUT $\\subseteq$ TAB。</b> 逆に、カット付きのすべてのLK証明はTAB証明に翻訳できます。$\\Gamma \\Rightarrow \\Delta$の後件論理式$\\Delta$は否定された論理式として前件に移動されます：$\\Gamma, \\lnot\\Delta \\Rightarrow$。両側規則は否定された論理式に適用される片側規則になります。",
       "これらの翻訳は証明構造を保存します：タブローの枝はシーケント証明木の枝に対応します。証明ステップ数は定数倍変化しますが、全体的な複雑さは同じです。",
-      "TAB $\\equiv$ LK-CUTの等価性は、LKのカット除去結果がタブローにも適用されることを意味します：すべてのタブロー証明は正規化可能です（ただし正規化された証明はかなり大きくなる場合があります）。この関連は戸次の定理12.13と12.15で確立されています。",
+      "TAB $\\equiv$ LK-CUTの等価性は、LKのカット除去結果がタブローにも適用されることを意味します：すべてのタブロー証明は正規化可能です（ただし正規化された証明はかなり大きくなる場合があります）。この関連は[[cite:bekki2012|Bekki, 定理12.13 & 12.15]]で確立されています。",
     ],
   },
   relatedEntryIds: [
@@ -6593,6 +6706,7 @@ const conceptTabScCorrespondence: ReferenceEntry = {
     "翻訳",
     "片側シーケント",
   ],
+  bibliographyKeys: ["bekki2012"],
   order: 40,
 };
 
@@ -6611,7 +6725,7 @@ const guideMetaTheorems: ReferenceEntry = {
     en: [
       "<b>Meta-theorems</b> are theorems <i>about</i> logical systems rather than theorems <i>within</i> them. They tell us what a proof system can and cannot do, and how different systems relate to each other. Understanding meta-theorems is essential for appreciating why formal proof systems are designed the way they are.",
       "<b>Soundness</b> says: if a formula is provable in the system, then it is semantically valid (true in all models). Soundness ensures that the proof system does not prove anything false. Every well-designed proof system must be sound — an unsound system is useless.",
-      "<b>Completeness</b> says: if a formula is semantically valid, then it is provable. Completeness ensures that the proof system is powerful enough to prove every valid formula. Godel's completeness theorem (1930) establishes this for first-order logic with respect to standard semantics.",
+      "<b>Completeness</b> says: if a formula is semantically valid, then it is provable. Completeness ensures that the proof system is powerful enough to prove every valid formula. Gödel's completeness theorem ([[cite:godel1930|1930]]) establishes this for first-order logic with respect to standard semantics.",
       "Together, soundness and completeness give a <b>correspondence</b>: provability $\\Leftrightarrow$ validity. This means we can use syntactic proof methods to settle semantic questions, and vice versa. This correspondence is the foundation of mathematical logic.",
       "<b>Cut elimination</b> (Gentzen's Hauptsatz) is specific to sequent calculus. It says that the cut rule — which allows using lemmas — can always be removed. The resulting cut-free proofs have the <b>subformula property</b>: every formula in the proof is a subformula of the conclusion. This property is the key to many decidability and interpolation results.",
       "<b>Compactness</b> says: if every finite subset of a set of formulas is satisfiable, then the whole set is satisfiable. Equivalently, if a set of formulas entails $\\varphi$, then some finite subset already entails $\\varphi$. Compactness follows from completeness and is a powerful tool in model theory.",
@@ -6623,7 +6737,7 @@ const guideMetaTheorems: ReferenceEntry = {
     ja: [
       "<b>メタ定理</b>は論理体系<i>の中の</i>定理ではなく、論理体系<i>についての</i>定理です。証明体系が何をできて何ができないか、異なる体系がどう関係するかを教えてくれます。形式的証明体系がなぜそのように設計されているかを理解するにはメタ定理の理解が不可欠です。",
       "<b>健全性</b>は：体系で証明可能な論理式は意味論的に妥当（すべてのモデルで真）であると述べます。健全性は証明体系が偽の命題を証明しないことを保証します。適切に設計された証明体系はすべて健全でなければなりません。",
-      "<b>完全性</b>は：意味論的に妥当な論理式は証明可能であると述べます。完全性は証明体系がすべての妥当な論理式を証明するのに十分な力を持つことを保証します。ゲーデルの完全性定理（1930）は標準的な意味論に関して一階論理でこれを確立します。",
+      "<b>完全性</b>は：意味論的に妥当な論理式は証明可能であると述べます。完全性は証明体系がすべての妥当な論理式を証明するのに十分な力を持つことを保証します。ゲーデルの完全性定理（[[cite:godel1930|1930]]）は標準的な意味論に関して一階論理でこれを確立します。",
       "健全性と完全性を合わせると<b>対応</b>が得られます：証明可能性 $\\Leftrightarrow$ 妥当性。これは構文的な証明法で意味論的な問題を解決でき、逆もまた然りであることを意味します。この対応は数理論理学の基盤です。",
       "<b>カット除去</b>（Gentzenの基本定理）はシーケント計算に特有です。補題の使用を可能にするカット規則が常に除去可能であることを述べます。結果として得られるカットなし証明は<b>部分式性質</b>を持ちます：証明のすべての論理式は結論の部分式です。この性質は多くの決定可能性や内挿の結果の鍵です。",
       "<b>コンパクト性</b>は：論理式の集合のすべての有限部分集合が充足可能なら、全体の集合も充足可能であると述べます。同値に、論理式の集合が$\\varphi$を含意するなら、ある有限部分集合がすでに$\\varphi$を含意します。コンパクト性は完全性から従い、モデル論の強力なツールです。",
@@ -6667,6 +6781,7 @@ const guideMetaTheorems: ReferenceEntry = {
     "コンパクト性",
     "部分式性質",
   ],
+  bibliographyKeys: ["godel1930"],
   order: 12,
 };
 
@@ -6746,17 +6861,17 @@ const conceptNormalizationReduction: ReferenceEntry = {
   body: {
     en: [
       "In natural deduction, a <b>detour</b> occurs when an introduction rule is immediately followed by the corresponding elimination rule — for example, introducing $\\varphi \\land \\psi$ with $\\land$I and then immediately extracting $\\varphi$ with $\\land$E. Such detours can always be simplified away.",
-      "A proof in <b>normal form</b> is one with no detours. The <b>normalization theorem</b> (Prawitz, 1965) states that every natural deduction proof can be transformed into a normal form. The transformation process — called <b>proof reduction</b> — eliminates introduction-elimination pairs.",
+      "A proof in <b>normal form</b> is one with no detours. The <b>normalization theorem</b> ([[cite:prawitz1965|Prawitz, 1965]]) states that every natural deduction proof can be transformed into a normal form. The transformation process — called <b>proof reduction</b> — eliminates introduction-elimination pairs.",
       "The reduction rules correspond to $\\beta$-reduction in the typed lambda calculus via the [[ref:concept-curry-howard|Curry-Howard correspondence]]. $\\to$I followed by $\\to$E reduces like $(\\lambda x. M)\\, N \\to M[N/x]$. $\\land$I followed by $\\land$E reduces like $\\pi_1(M, N) \\to M$.",
-      "Normalization in ND corresponds to <b>cut elimination</b> in SC. A cut in SC is analogous to a detour in ND: both introduce a formula only to immediately use and discard it. Gentzen's cut elimination and Prawitz's normalization are two views of the same phenomenon.",
+      "Normalization in ND corresponds to <b>cut elimination</b> in SC. A cut in SC is analogous to a detour in ND: both introduce a formula only to immediately use and discard it. [[cite:gentzen1935|Gentzen]]'s cut elimination and [[cite:prawitz1965|Prawitz]]'s normalization are two views of the same phenomenon.",
       "Normal proofs have the <b>subformula property</b>: every formula in the proof is a subformula of the conclusion or of an open assumption. This parallels the subformula property of cut-free sequent proofs.",
       "In practice, normalization can dramatically increase proof size — the blowup can be non-elementary (a tower of exponentials). This is why mathematicians naturally use non-normal proofs (with lemmas/detours) and why the cut rule is practically useful despite being theoretically eliminable.",
     ],
     ja: [
       "自然演繹では、導入規則の直後に対応する除去規則が続くとき<b>迂回</b>（detour）が発生します——例えば$\\land$Iで$\\varphi \\land \\psi$を導入し、直後に$\\land$Eで$\\varphi$を取り出す場合。このような迂回は常に簡約で除去できます。",
-      "<b>正規形</b>の証明は迂回のない証明です。<b>正規化定理</b>（Prawitz, 1965）は、すべての自然演繹の証明が正規形に変換可能であることを述べます。変換過程は<b>証明簡約</b>と呼ばれ、導入-除去の対を除去します。",
+      "<b>正規形</b>の証明は迂回のない証明です。<b>正規化定理</b>（[[cite:prawitz1965|Prawitz, 1965]]）は、すべての自然演繹の証明が正規形に変換可能であることを述べます。変換過程は<b>証明簡約</b>と呼ばれ、導入-除去の対を除去します。",
       "簡約規則は[[ref:concept-curry-howard|Curry-Howard対応]]を通じて型付きラムダ計算の$\\beta$簡約に対応します。$\\to$Iの後に$\\to$Eは$(\\lambda x. M)\\, N \\to M[N/x]$のように簡約されます。$\\land$Iの後に$\\land$Eは$\\pi_1(M, N) \\to M$のように簡約されます。",
-      "NDの正規化はSCの<b>カット除去</b>に対応します。SCのカットはNDの迂回に類似します：どちらも論理式を導入し直ちに使用して破棄します。Gentzenのカット除去とPrawitzの正規化は同じ現象の2つの見方です。",
+      "NDの正規化はSCの<b>カット除去</b>に対応します。SCのカットはNDの迂回に類似します：どちらも論理式を導入し直ちに使用して破棄します。[[cite:gentzen1935|Gentzen]]のカット除去と[[cite:prawitz1965|Prawitz]]の正規化は同じ現象の2つの見方です。",
       "正規形の証明は<b>部分式性質</b>を持ちます：証明のすべての論理式は結論または未放出仮定の部分式です。カットなしシーケント証明の部分式性質と並行します。",
       "実際には、正規化は証明サイズを劇的に増大させえます——非初等的な（指数の塔のような）爆発が起こりえます。数学者が自然に非正規形の証明（補題/迂回付き）を使い、カット規則が理論的に除去可能であるにもかかわらず実践的に有用である理由です。",
     ],
@@ -6791,6 +6906,7 @@ const conceptNormalizationReduction: ReferenceEntry = {
     "迂回",
     "証明簡約",
   ],
+  bibliographyKeys: ["prawitz1965", "gentzen1935"],
   order: 42,
 };
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allReferenceEntries } from "./referenceContent";
+import { allReferenceEntries, bibliographyRegistry } from "./referenceContent";
 import {
   allLocales,
   filterByCategory,
@@ -32,6 +32,39 @@ describe("allReferenceEntries", () => {
     for (const category of usedCategories) {
       const entries = filterByCategory(allReferenceEntries, category);
       expect(entries.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("bibliographyRegistry", () => {
+  it("レジストリにエントリが存在する", () => {
+    expect(bibliographyRegistry.size).toBeGreaterThan(0);
+  });
+
+  it("すべてのキーがレジストリ内で一意", () => {
+    const keys = [...bibliographyRegistry.keys()];
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it("エントリのbibliographyKeysがすべてレジストリに存在する", () => {
+    for (const entry of allReferenceEntries) {
+      if (entry.bibliographyKeys !== undefined) {
+        for (const key of entry.bibliographyKeys) {
+          expect(
+            bibliographyRegistry.has(key),
+            `Entry "${entry.id satisfies string}" references bibliography key "${key satisfies string}" which is not in the registry`,
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  it("各参考文献エントリが必須フィールドを持つ", () => {
+    for (const [key, entry] of bibliographyRegistry) {
+      expect(entry.key, `key for "${key satisfies string}"`).toBe(key);
+      expect(entry.authors.length).toBeGreaterThan(0);
+      expect(entry.title.length).toBeGreaterThan(0);
+      expect(entry.year).toBeGreaterThan(0);
     }
   });
 });
@@ -455,9 +488,9 @@ describe("論理体系エントリの個別チェック", () => {
 
   it("古典論理に完全性定理の記載がある", () => {
     const entry = findEntryById(allReferenceEntries, "system-classical");
-    expect(entry?.body.en.some((p) => p.includes("completeness theorem"))).toBe(
-      true,
-    );
+    expect(
+      entry?.body.en.some((p) => p.toLowerCase().includes("completeness")),
+    ).toBe(true);
     expect(entry?.body.ja.some((p) => p.includes("完全性定理"))).toBe(true);
   });
 

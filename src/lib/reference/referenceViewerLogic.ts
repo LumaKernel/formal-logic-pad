@@ -8,6 +8,7 @@
  */
 
 import type {
+  BibliographyEntry,
   Locale,
   ReferenceCategory,
   ReferenceEntry,
@@ -79,6 +80,8 @@ export type ViewerPageData = {
     readonly documentLanguage: Locale;
   }[];
   readonly breadcrumbs: readonly BreadcrumbItem[];
+  /** 参考文献リスト */
+  readonly bibliography: readonly BibliographyEntry[];
 };
 
 /** エントリからビューアーページデータを生成する */
@@ -86,6 +89,7 @@ export function buildViewerPageData(
   entry: ReferenceEntry,
   allEntries: readonly ReferenceEntry[],
   locale: Locale,
+  bibliographyRegistry?: ReadonlyMap<string, BibliographyEntry>,
 ): ViewerPageData {
   const relatedIds = new Set(entry.relatedEntryIds);
   const relatedEntries = allEntries
@@ -107,6 +111,13 @@ export function buildViewerPageData(
     locale,
   );
 
+  const bibliography: readonly BibliographyEntry[] =
+    entry.bibliographyKeys !== undefined && bibliographyRegistry !== undefined
+      ? entry.bibliographyKeys
+          .map((key) => bibliographyRegistry.get(key))
+          .filter((b) => b !== undefined)
+      : [];
+
   return {
     title: getLocalizedText(entry.title, locale),
     categoryLabel,
@@ -117,6 +128,7 @@ export function buildViewerPageData(
     relatedQuestIds: entry.relatedQuestIds ?? [],
     externalLinks,
     breadcrumbs: buildBreadcrumbs(entry, locale),
+    bibliography,
   };
 }
 

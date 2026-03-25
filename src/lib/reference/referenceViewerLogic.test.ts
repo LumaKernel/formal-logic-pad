@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { ReferenceEntry } from "./referenceEntry";
+import type { BibliographyEntry, ReferenceEntry } from "./referenceEntry";
 import {
   buildReferenceViewerUrl,
   buildBreadcrumbs,
@@ -196,6 +196,45 @@ describe("buildViewerPageData", () => {
   it("relatedQuestIdsがない場合は空配列を返す", () => {
     const data = buildViewerPageData(sampleEntry, allEntries, "en");
     expect(data.relatedQuestIds).toEqual([]);
+  });
+
+  // --- bibliography ---
+
+  it("bibliographyRegistryなしではbibliographyは空配列", () => {
+    const entryWithBib: ReferenceEntry = {
+      ...sampleEntry,
+      bibliographyKeys: ["bekki2012"],
+    };
+    const data = buildViewerPageData(entryWithBib, allEntries, "en");
+    expect(data.bibliography).toEqual([]);
+  });
+
+  it("bibliographyKeysとregistryが一致する場合は参考文献を返す", () => {
+    const bibEntry: BibliographyEntry = {
+      key: "bekki2012",
+      authors: "Daisuke Bekki",
+      title: "数理論理学",
+      year: 2012,
+    };
+    const registry = new Map<string, BibliographyEntry>([
+      ["bekki2012", bibEntry],
+    ]);
+    const entryWithBib: ReferenceEntry = {
+      ...sampleEntry,
+      bibliographyKeys: ["bekki2012"],
+    };
+    const data = buildViewerPageData(entryWithBib, allEntries, "en", registry);
+    expect(data.bibliography).toEqual([bibEntry]);
+  });
+
+  it("存在しないbibliographyKeyは無視される", () => {
+    const registry = new Map<string, BibliographyEntry>();
+    const entryWithBib: ReferenceEntry = {
+      ...sampleEntry,
+      bibliographyKeys: ["nonexistent"],
+    };
+    const data = buildViewerPageData(entryWithBib, allEntries, "en", registry);
+    expect(data.bibliography).toEqual([]);
   });
 });
 
