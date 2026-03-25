@@ -343,8 +343,6 @@ function SubstitutionPopover({
               style={{ flex: 1, minWidth: 0 }}
               inputStyle={substInputStyle}
               onOpenSyntaxHelp={onOpenSyntaxHelp}
-              editTrigger="none"
-              forceEditMode={true}
               /* v8 ignore start -- testId分岐: テスト用属性の有無 */
               testId={
                 testId
@@ -364,8 +362,6 @@ function SubstitutionPopover({
               style={{ flex: 1, minWidth: 0 }}
               inputStyle={substInputStyle}
               onOpenSyntaxHelp={onOpenSyntaxHelp}
-              editTrigger="none"
-              forceEditMode={true}
               /* v8 ignore start -- testId分岐: テスト用属性の有無 */
               testId={
                 testId

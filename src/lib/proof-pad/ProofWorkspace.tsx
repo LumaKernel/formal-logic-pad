@@ -6166,8 +6166,6 @@ export const ProofWorkspace = forwardRef<
                   style={{ flex: 1, minWidth: 0, width: 120 }}
                   inputStyle={substInputStyle}
                   onOpenSyntaxHelp={onOpenSyntaxHelp}
-                  editTrigger="none"
-                  forceEditMode={true}
                   testId={
                     /* v8 ignore start -- V8集約アーティファクト */
                     testId
@@ -6191,8 +6189,6 @@ export const ProofWorkspace = forwardRef<
                   style={{ flex: 1, minWidth: 0, width: 120 }}
                   inputStyle={substInputStyle}
                   onOpenSyntaxHelp={onOpenSyntaxHelp}
-                  editTrigger="none"
-                  forceEditMode={true}
                   testId={
                     /* v8 ignore start -- V8集約アーティファクト */
                     testId

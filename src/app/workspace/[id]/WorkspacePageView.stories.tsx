@@ -1366,6 +1366,9 @@ async function typeSubstitutionValue(
   index: number,
   dslText: string,
 ) {
+  // click-to-edit: 表示モードをクリックして編集モードに入る
+  const displayTestId = `workspace-subst-value-${String(index) satisfies string}-display`;
+  await userEvent.click(canvas.getByTestId(displayTestId));
   const inputTestId = `workspace-subst-value-${String(index) satisfies string}-input-input`;
   await userEvent.type(canvas.getByTestId(inputTestId), dslText);
 }

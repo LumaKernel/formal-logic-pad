@@ -121,13 +121,27 @@ describe("EdgeParameterPopover", () => {
 
     /**
      * ヘルパー: FormulaEditor/TermEditor内の<input>要素を取得する。
-     * forceEditMode=true なので常に edit モードで開始される。
+     * click-to-edit なので先に表示モードをクリックしてeditモードに入る。
      * testId チェーン: popover-value-N → -input (FormulaInput) → -input (<input>)
      */
     const getValueInput = (valueTestId: string) =>
       screen.getByTestId(`${valueTestId satisfies string}-input-input`);
 
-    it("renders with current entries in edit mode (read-only metaVar and kind)", async () => {
+    /** ヘルパー: 表示モードのFormulaEditor/TermEditorをクリックしてeditモードにする */
+    const clickToEdit = async (valueTestId: string) => {
+      const user = userEvent.setup();
+      const display = screen.getByTestId(
+        `${valueTestId satisfies string}-display`,
+      );
+      await user.click(display);
+      await waitFor(() => {
+        expect(
+          screen.getByTestId(`${valueTestId satisfies string}-edit`),
+        ).toBeInTheDocument();
+      });
+    };
+
+    it("renders with current entries in display mode, click to edit (read-only metaVar and kind)", async () => {
       render(
         <EdgeParameterPopover
           editState={substEditState}
@@ -141,10 +155,10 @@ describe("EdgeParameterPopover", () => {
       // kind is displayed as read-only text
       const kindLabel = screen.getByTestId("popover-kind-0");
       expect(kindLabel).toHaveTextContent("Formula");
-      // FormulaEditor with forceEditMode=true: always in edit mode
-      await waitFor(() => {
-        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
-      });
+      // Initially in display mode (click-to-edit)
+      expect(screen.getByTestId("popover-value-0-display")).toBeInTheDocument();
+      // Click to enter edit mode
+      await clickToEdit("popover-value-0");
       expect(getValueInput("popover-value-0")).toHaveValue("alpha");
     });
 
@@ -159,9 +173,7 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      await waitFor(() => {
-        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
-      });
+      await clickToEdit("popover-value-0");
       const valueInput = getValueInput("popover-value-0");
       await user.clear(valueInput);
       await user.type(valueInput, "beta");
@@ -210,14 +222,13 @@ describe("EdgeParameterPopover", () => {
       // Two entries should be rendered (φ and ψ)
       expect(screen.getByTestId("popover-metavar-0")).toHaveTextContent("φ");
       expect(screen.getByTestId("popover-metavar-1")).toHaveTextContent("ψ");
-      // Both entries in edit mode (forceEditMode=true)
-      await waitFor(() => {
-        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
-        expect(screen.getByTestId("popover-value-1-edit")).toBeInTheDocument();
-      });
-      // φ entry should have existing value merged
+      // Both entries start in display mode (click-to-edit)
+      expect(screen.getByTestId("popover-value-0-display")).toBeInTheDocument();
+      expect(screen.getByTestId("popover-value-1-display")).toBeInTheDocument();
+      // Click to enter edit mode and verify values
+      await clickToEdit("popover-value-0");
       expect(getValueInput("popover-value-0")).toHaveValue("alpha");
-      // ψ entry should have default value (Latin name of Greek letter)
+      await clickToEdit("popover-value-1");
       expect(getValueInput("popover-value-1")).toHaveValue("psi");
     });
 
@@ -277,9 +288,7 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      await waitFor(() => {
-        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
-      });
+      await clickToEdit("popover-value-0");
       const helpButton = screen.getByTestId("popover-value-0-syntax-help");
       expect(helpButton).toBeInTheDocument();
     });
@@ -292,9 +301,7 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      await waitFor(() => {
-        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
-      });
+      await clickToEdit("popover-value-0");
       expect(
         screen.queryByTestId("popover-value-0-syntax-help"),
       ).not.toBeInTheDocument();
@@ -310,15 +317,13 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      await waitFor(() => {
-        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
-      });
+      await clickToEdit("popover-value-0");
       const helpButton = screen.getByTestId("popover-value-0-syntax-help");
       fireEvent.click(helpButton);
       expect(onOpenSyntaxHelp).toHaveBeenCalledOnce();
     });
 
-    it("renders term entry kind label correctly in edit mode", async () => {
+    it("renders term entry kind label correctly, click to edit", async () => {
       const termSubstState: EdgeBadgeEditState = {
         _tag: "substitution",
         conclusionNodeId: "node-2",
@@ -340,9 +345,10 @@ describe("EdgeParameterPopover", () => {
       );
       const kindLabel = screen.getByTestId("popover-kind-0");
       expect(kindLabel).toHaveTextContent("Term");
-      await waitFor(() => {
-        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
-      });
+      // Starts in display mode
+      expect(screen.getByTestId("popover-value-0-display")).toBeInTheDocument();
+      // Click to edit
+      await clickToEdit("popover-value-0");
       expect(getValueInput("popover-value-0")).toHaveValue("S(0)");
     });
 
@@ -369,9 +375,7 @@ describe("EdgeParameterPopover", () => {
           testId="popover"
         />,
       );
-      await waitFor(() => {
-        expect(screen.getByTestId("popover-value-0-edit")).toBeInTheDocument();
-      });
+      await clickToEdit("popover-value-0");
       const input = getValueInput("popover-value-0");
       await user.clear(input);
       await user.type(input, "S(S(0))");
