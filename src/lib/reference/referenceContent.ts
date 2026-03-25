@@ -96,6 +96,7 @@ export const bibliographyRegistry: ReadonlyMap<string, BibliographyEntry> =
 // ============================================================
 
 const guideWhatIsFormalProof: ReferenceEntry = {
+  // TODO: ul/ol markup — bullet lists (•) and numbered lists (<b>1.</b>) should use proper <ul>/<ol>/<li> tags
   id: "guide-what-is-formal-proof",
   category: "guide",
   title: {
@@ -152,6 +153,7 @@ const guideWhatIsFormalProof: ReferenceEntry = {
 };
 
 const guideBasicOperations: ReferenceEntry = {
+  // TODO: ul/ol markup — bold-numbered headings (<b>1.</b>...<b>8.</b>) and bullet lists (•) should use proper <ol>/<ul>/<li> tags
   id: "guide-basic-operations",
   category: "guide",
   title: {
@@ -227,6 +229,7 @@ const guideBasicOperations: ReferenceEntry = {
 };
 
 const guideFirstQuestWalkthrough: ReferenceEntry = {
+  // TODO: ul/ol markup — bullet lists (•) and step headings (<b>Step N</b>) should use proper <ul>/<ol>/<li> tags
   id: "guide-first-quest-walkthrough",
   category: "guide",
   title: {
@@ -317,6 +320,7 @@ const guideFirstQuestWalkthrough: ReferenceEntry = {
 };
 
 const guideIntroToPropositionalLogic: ReferenceEntry = {
+  // TODO: ul/ol markup — bullet lists (•) should use proper <ul>/<li> tags
   id: "guide-intro-propositional-logic",
   category: "guide",
   title: {
@@ -452,6 +456,7 @@ const guideIntroToPropositionalLogic: ReferenceEntry = {
 };
 
 const guideHilbertProofMethod: ReferenceEntry = {
+  // TODO: ul/ol markup — bullet lists (•) and numbered lists should use proper <ul>/<ol>/<li> tags
   id: "guide-hilbert-proof-method",
   category: "guide",
   title: {
@@ -586,6 +591,7 @@ const guideHilbertProofMethod: ReferenceEntry = {
 };
 
 const guideIntroPredicateLogic: ReferenceEntry = {
+  // TODO: ul/ol markup — bullet lists (•) should use proper <ul>/<li> tags
   id: "guide-intro-predicate-logic",
   category: "guide",
   title: {
@@ -5245,6 +5251,7 @@ const conceptSpeedUpTheorem: ReferenceEntry = {
 };
 
 const conceptFormulaSchema: ReferenceEntry = {
+  // TODO: ul/ol markup — bullet lists (•) should use proper <ul>/<li> tags
   id: "concept-formula-schema",
   category: "concept",
   title: {
@@ -5454,6 +5461,7 @@ const conceptTautology: ReferenceEntry = {
 };
 
 const conceptPredicateAxiomSystem: ReferenceEntry = {
+  // TODO: ul/ol markup — bullet lists (•) should use proper <ul>/<li> tags
   id: "concept-predicate-axiom-system",
   category: "concept",
   title: {
@@ -7067,6 +7075,7 @@ const guideProofStrategy: ReferenceEntry = {
 };
 
 const guideSchemaProofPractice: ReferenceEntry = {
+  // TODO: ul/ol markup — bullet lists (•) should use proper <ul>/<li> tags
   id: "guide-schema-proof-practice",
   category: "guide",
   title: {
@@ -8474,6 +8483,7 @@ const ruleTabNegExistential: ReferenceEntry = {
  * referenceContent.test.ts にもテストを追加すること。
  */
 const guideIntroScripting: ReferenceEntry = {
+  // TODO: ul/ol markup — bullet lists (•) should use proper <ul>/<li> tags
   id: "guide-intro-scripting",
   category: "guide",
   title: {
