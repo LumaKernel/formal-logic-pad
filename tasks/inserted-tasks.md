@@ -43,4 +43,3 @@
   - [ ] Simplify Formula操作も用意してあげよう。 (Simplifyで繋がったノードが作られる)
 
 - [ ] addGoalとかいうAPIは必要ない。
-- [ ] applyLayout() はノードツリーの配置を上下逆にしてしまっていそう。

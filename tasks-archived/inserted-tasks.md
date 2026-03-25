@@ -270,3 +270,5 @@
 - [x] 代入モーダル系の各論理式入力は、クリックで開始するタイプにして。クリックするまでは論理式レンダーになるやつ。共通化でやってないの？
   - FormulaEditor/TermEditorのデフォルトeditTrigger="click"を利用。forceEditModeを削除
   - EdgeParameterPopover, ProofWorkspace substPromptBanner 両方で対応
+
+- [x] applyLayout() はノードツリーの配置を上下逆にしてしまっていそう。 → スクリプトAPI applyLayout() が "bottom-to-top" をハードコードしていた。"top-to-bottom" に修正

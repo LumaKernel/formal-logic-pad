@@ -109,6 +109,24 @@
 
 ---
 
+## 2026-03-25 - [proof-pad] スクリプトAPI applyLayout()の証明木配置方向を修正
+
+- ベースライン: Stmts 99.96%, Branch 99.58%, Funcs 90.49%, Lines 99.98%
+- **結果: Stmts 99.96% (±0), Branch 99.58% (±0), Funcs 90.49% (±0), Lines 99.98% (±0)**
+- 実装内容:
+  - `ProofWorkspace.tsx` スクリプトAPI `applyLayout()` のハードコード `"bottom-to-top"` を `"top-to-bottom"` に修正
+  - `ScriptEditorComponent.stories.tsx` 同様の修正
+  - `templates.test.ts` 同様の修正
+- 変更ファイル:
+  - src/lib/proof-pad/ProofWorkspace.tsx
+  - src/components/ScriptEditor/ScriptEditorComponent.stories.tsx
+  - src/lib/script-runner/templates.test.ts
+- **今後のイテレーションへの学び:**
+  - スクリプトAPIの `applyLayout()` はキーボードショートカット (Cmd+Shift+L) と同じ方向にすべき
+  - エッジ方向: fromNodeId=前提(axiom) → toNodeId=結論(derived)。レイアウトの "top-to-bottom" で公理が上、結論が下（Gentzen style）
+
+---
+
 ## 2026-03-25 - [proof-pad] 代入ポップオーバー表示時に対象ノードをpulseハイライト
 
 - ベースライン: Stmts 99.97%, Branch 99.6%, Funcs 90.49%, Lines 99.98%
