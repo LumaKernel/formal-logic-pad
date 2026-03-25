@@ -314,3 +314,6 @@
   - [x] ノートを開く、模範解答を開く、など — loading.tsx + dynamic() loading prop でスケルトン表示
 - [x] コレクションに保存、をしたら、コレクションウィンドウが開いて、対象の保存したばかりのものが詳細表示されている状態にせよ。
   - onSaveProofToCollection戻り値をProofEntryIdに変更、保存後にパネル自動表示＋3秒ハイライト＋scrollIntoView
+- [x] キャンバスのスクロール操作 (ドラッグ操作) が重たい。
+  - usePan: viewportRef + rAFスロットルでコールバック安定化＋フレームあたり最大1回のstate更新に制限
+  - useZoom: wheel/trackpadスクロールも同様にrAFバッチ化

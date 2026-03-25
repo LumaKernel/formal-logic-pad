@@ -18181,3 +18181,26 @@
   - highlight系UIは3秒タイムアウト+useRefでtimer管理がシンプルなパターン
   - コールバックの戻り値型変更は型を辿ることで全体への影響を安全に伝搬できる
 ---
+
+## 2026-03-26 - [infinite-canvas] キャンバスドラッグ性能改善
+
+- usePan: viewportRef + rAFスロットルでコールバック安定化
+  - onPointerMove の依存配列から viewport を除去（ref経由でアクセス）
+  - requestAnimationFrame で1フレームに最大1回のonViewportChange呼び出しに制限
+  - pointerUp時にpendingなrAFを即座にフラッシュ
+- useZoom: wheel/trackpadスクロールも同様にrAFバッチ化
+  - pendingWheelViewportRefで同一フレーム内の複数wheelイベントを蓄積
+- テスト: rAFの同期モック（vi.spyOn + synchronous callback）で既存テスト互換
+- カバレッジ: Stmts 99.93%, Branch 99.44%, Funcs 90.51%, Lines 99.95%（V8集約quirk、実質変化なし）
+- 変更ファイル:
+  - src/lib/infinite-canvas/usePan.ts（viewportRef + rAFスロットル）
+  - src/lib/infinite-canvas/useZoom.ts（wheel rAFバッチ化）
+  - src/lib/infinite-canvas/InfiniteCanvas.test.tsx（rAFモック追加）
+  - src/lib/infinite-canvas/useZoom.test.tsx（rAFモック追加）
+- スクリーンショット: .screenshots/canvas-perf-before-test.png, .screenshots/canvas-perf-chrome.png
+- **今後のイテレーションへの学び:**
+  - usePanのonPointerMove依存配列に viewport があると、毎フレームコールバックが再生成され、InfiniteCanvas全体のコールバックチェーンが無効化される
+  - viewportRefパターン（useDragItemで先行実装済み）をusePanにも適用すると、コールバックが完全に安定する
+  - rAFスロットルではboolean flagパターン（rafPendingRef）を使うと、同期モックでもテストが正しく動作する
+  - useEffectでref更新する必要あり（ESLint react-hooks/refsルール）
+---
