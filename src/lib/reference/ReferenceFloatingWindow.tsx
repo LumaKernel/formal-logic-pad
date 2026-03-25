@@ -513,7 +513,7 @@ export function ReferenceFloatingWindow({
           <div style={categoryBadgeStyle}>{data.categoryLabel}</div>
           {/* 要約 */}
           <div style={summaryStyle}>
-            <InlineMarkdown text={data.summary} />
+            <InlineMarkdown text={data.summary} onNavigate={onNavigate} />
           </div>
 
           {/* 形式表記 */}
@@ -534,7 +534,7 @@ export function ReferenceFloatingWindow({
           {/* 本文パラグラフ */}
           {data.bodyParagraphs.map((paragraph, i) => (
             <p key={`p-${String(i) satisfies string}`} style={paragraphStyle}>
-              <InlineMarkdown text={paragraph} />
+              <InlineMarkdown text={paragraph} onNavigate={onNavigate} />
             </p>
           ))}
 

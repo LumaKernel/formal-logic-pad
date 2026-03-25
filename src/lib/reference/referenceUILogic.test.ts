@@ -318,6 +318,82 @@ describe("parseInlineMarkdown", () => {
     const result = parseInlineMarkdown("text $$ more");
     expect(result).toEqual([{ type: "text", content: "text $$ more" }]);
   });
+
+  // --- リファレンスリンク ([[ref:id]]) ---
+
+  it("リファレンスリンク([[ref:id]])をパースする", () => {
+    const result = parseInlineMarkdown("see [[ref:rule-mp]] for details");
+    expect(result).toEqual([
+      { type: "text", content: "see " },
+      { type: "ref-link", refId: "rule-mp", content: "rule-mp" },
+      { type: "text", content: " for details" },
+    ]);
+  });
+
+  it("表示テキスト付きリファレンスリンク([[ref:id|text]])をパースする", () => {
+    const result = parseInlineMarkdown(
+      "see [[ref:rule-mp|Modus Ponens]] for details",
+    );
+    expect(result).toEqual([
+      { type: "text", content: "see " },
+      { type: "ref-link", refId: "rule-mp", content: "Modus Ponens" },
+      { type: "text", content: " for details" },
+    ]);
+  });
+
+  it("複数のリファレンスリンクをパースする", () => {
+    const result = parseInlineMarkdown(
+      "[[ref:axiom-a1|A1]] and [[ref:axiom-a2|A2]]",
+    );
+    expect(result).toEqual([
+      { type: "ref-link", refId: "axiom-a1", content: "A1" },
+      { type: "text", content: " and " },
+      { type: "ref-link", refId: "axiom-a2", content: "A2" },
+    ]);
+  });
+
+  it("リファレンスリンクとHTMLタグの混在をパースする", () => {
+    const result = parseInlineMarkdown(
+      "<b>Important:</b> see [[ref:rule-mp|MP]]",
+    );
+    expect(result).toEqual([
+      { type: "bold", content: "Important:" },
+      { type: "text", content: " see " },
+      { type: "ref-link", refId: "rule-mp", content: "MP" },
+    ]);
+  });
+
+  it("リファレンスリンクと数式の混在をパースする", () => {
+    const result = parseInlineMarkdown(
+      "$\\varphi$ is used in [[ref:axiom-a1]]",
+    );
+    expect(result).toEqual([
+      { type: "math", content: "\\varphi" },
+      { type: "text", content: " is used in " },
+      { type: "ref-link", refId: "axiom-a1", content: "axiom-a1" },
+    ]);
+  });
+
+  it("リファレンスリンクのみの文字列をパースする", () => {
+    const result = parseInlineMarkdown("[[ref:guide-what-is-formal-proof]]");
+    expect(result).toEqual([
+      {
+        type: "ref-link",
+        refId: "guide-what-is-formal-proof",
+        content: "guide-what-is-formal-proof",
+      },
+    ]);
+  });
+
+  it("日本語表示テキスト付きリファレンスリンクをパースする", () => {
+    const result = parseInlineMarkdown(
+      "[[ref:rule-mp|モーダスポネンス]]を適用する",
+    );
+    expect(result).toEqual([
+      { type: "ref-link", refId: "rule-mp", content: "モーダスポネンス" },
+      { type: "text", content: "を適用する" },
+    ]);
+  });
 });
 
 // --- buildPopoverData ---

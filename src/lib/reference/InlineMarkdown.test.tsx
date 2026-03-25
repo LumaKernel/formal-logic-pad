@@ -1,5 +1,5 @@
-import { cleanup, render } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { InlineMarkdown } from "./InlineMarkdown";
 
 afterEach(cleanup);
@@ -109,5 +109,63 @@ describe("InlineMarkdown", () => {
     expect(strong).not.toBeNull();
     const katexInStrong = strong?.querySelector(".katex");
     expect(katexInStrong).not.toBeNull();
+  });
+
+  // --- リファレンスリンク ---
+
+  it("[[ref:id]]をリンクとして表示する", () => {
+    const { container } = render(
+      <InlineMarkdown text="see [[ref:rule-mp]] here" />,
+    );
+    const link = container.querySelector("a[data-ref-id='rule-mp']");
+    expect(link).not.toBeNull();
+    expect(link?.textContent).toBe("rule-mp");
+  });
+
+  it("[[ref:id|text]]をカスタムテキストのリンクとして表示する", () => {
+    const { container } = render(
+      <InlineMarkdown text="see [[ref:rule-mp|Modus Ponens]] here" />,
+    );
+    const link = container.querySelector("a[data-ref-id='rule-mp']");
+    expect(link).not.toBeNull();
+    expect(link?.textContent).toBe("Modus Ponens");
+  });
+
+  it("リファレンスリンクのクリックでonNavigateが呼ばれる", () => {
+    const onNavigate = vi.fn();
+    const { container } = render(
+      <InlineMarkdown
+        text="see [[ref:rule-mp|MP]]"
+        onNavigate={onNavigate}
+      />,
+    );
+    const link = container.querySelector("a[data-ref-id='rule-mp']");
+    expect(link).not.toBeNull();
+    fireEvent.click(link!);
+    expect(onNavigate).toHaveBeenCalledWith("rule-mp");
+  });
+
+  it("onNavigateが未指定でもリンクをクリックしてもエラーにならない", () => {
+    const { container } = render(
+      <InlineMarkdown text="[[ref:rule-mp|MP]]" />,
+    );
+    const link = container.querySelector("a[data-ref-id='rule-mp']");
+    expect(link).not.toBeNull();
+    // onNavigateなしでクリックしてもエラーにならない
+    fireEvent.click(link!);
+  });
+
+  it("リファレンスリンクのキーボード操作でonNavigateが呼ばれる", () => {
+    const onNavigate = vi.fn();
+    const { container } = render(
+      <InlineMarkdown
+        text="[[ref:axiom-a1|A1]]"
+        onNavigate={onNavigate}
+      />,
+    );
+    const link = container.querySelector("a[data-ref-id='axiom-a1']");
+    expect(link).not.toBeNull();
+    fireEvent.keyDown(link!, { key: "Enter" });
+    expect(onNavigate).toHaveBeenCalledWith("axiom-a1");
   });
 });

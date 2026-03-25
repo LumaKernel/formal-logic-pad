@@ -14,6 +14,8 @@ import { parseInlineMarkdown } from "./referenceUILogic";
 export interface InlineMarkdownProps {
   /** レンダリングするテキスト */
   readonly text: string;
+  /** リファレンスリンククリック時のコールバック */
+  readonly onNavigate?: (entryId: string) => void;
 }
 
 /** KaTeX でインライン数式をHTMLに変換する（純粋関数） */
@@ -56,7 +58,16 @@ function renderContentWithMath(
   });
 }
 
-export function InlineMarkdown({ text }: InlineMarkdownProps) {
+/** リファレンスリンクのスタイル */
+const refLinkStyle: React.CSSProperties = {
+  color: "var(--color-link, #0066cc)",
+  cursor: "pointer",
+  textDecoration: "underline",
+  textDecorationStyle: "dotted",
+  textUnderlineOffset: "2px",
+};
+
+export function InlineMarkdown({ text, onNavigate }: InlineMarkdownProps) {
   const elements = useMemo(() => parseInlineMarkdown(text), [text]);
 
   return (
@@ -83,6 +94,29 @@ export function InlineMarkdown({ text }: InlineMarkdownProps) {
               key={key}
               dangerouslySetInnerHTML={{ __html: renderMathToHtml(el.content) }}
             />
+          );
+        }
+        if (el.type === "ref-link") {
+          return (
+            <a
+              key={key}
+              role="button"
+              tabIndex={0}
+              style={refLinkStyle}
+              data-ref-id={el.refId}
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate?.(el.refId);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onNavigate?.(el.refId);
+                }
+              }}
+            >
+              {el.content}
+            </a>
           );
         }
         return <span key={key}>{renderContentWithMath(el.content, key)}</span>;

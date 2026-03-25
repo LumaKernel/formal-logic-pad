@@ -27,10 +27,16 @@ export type InlineElement =
   | { readonly type: "italic"; readonly content: string }
   | { readonly type: "code"; readonly content: string }
   | { readonly type: "subscript"; readonly content: string }
-  | { readonly type: "math"; readonly content: string };
+  | { readonly type: "math"; readonly content: string }
+  | {
+      readonly type: "ref-link";
+      readonly refId: string;
+      readonly content: string;
+    };
 
-/** サポートするHTMLタグとInlineElement typeの対応 */
-const tagTypeMap: ReadonlyMap<string, InlineElement["type"]> = new Map([
+/** サポートするHTMLタグとInlineElement typeの対応（ref-linkは別構文のため含まない） */
+type HtmlTagElementType = "bold" | "italic" | "code";
+const tagTypeMap: ReadonlyMap<string, HtmlTagElementType> = new Map([
   ["b", "bold"],
   ["i", "italic"],
   ["code", "code"],
@@ -76,13 +82,33 @@ function parseSubscriptsInText(content: string): readonly InlineElement[] {
  */
 export function parseInlineMarkdown(text: string): readonly InlineElement[] {
   const rawElements: InlineElement[] = [];
-  // HTMLタグまたは $...$ にマッチする正規表現
+  // HTMLタグ、$...$、[[ref:id]] / [[ref:id|text]] にマッチする正規表現
   // $...$ は非貪欲マッチで、$ の直後が空白でないものにマッチ
-  const tokenRegex = /<(b|i|code)>|\$([^$]+?)\$/g;
+  // [[ref:id]] は id のみ（タイトルは呼び出し側で解決）
+  // [[ref:id|text]] は表示テキスト指定あり
+  const tokenRegex =
+    /<(b|i|code)>|\$([^$]+?)\$|\[\[ref:([a-z0-9-]+)(?:\|([^\]]+))?\]\]/g;
   let lastIndex = 0;
 
   let match: RegExpExecArray | null;
   while ((match = tokenRegex.exec(text)) !== null) {
+    // [[ref:id]] or [[ref:id|text]] リファレンスリンクマッチ
+    if (match[3] !== undefined) {
+      if (match.index > lastIndex) {
+        rawElements.push({
+          type: "text",
+          content: text.slice(lastIndex, match.index),
+        });
+      }
+      rawElements.push({
+        type: "ref-link",
+        refId: match[3],
+        content: match[4] ?? match[3],
+      });
+      lastIndex = match.index + match[0].length;
+      continue;
+    }
+
     // $...$ 数式マッチ
     if (match[2] !== undefined) {
       // $の前のテキスト
