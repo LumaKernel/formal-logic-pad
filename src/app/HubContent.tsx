@@ -2,8 +2,9 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { getCurrentTimestamp } from "@/lib/_unsafe/unsafeDate";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { resolveTabFromPath, resolvePathFromTab } from "./hubRouting";
 import {
   useNotebookCollection,
   toNotebookListItems,
@@ -76,21 +77,6 @@ import {
   type SavedScriptsState,
 } from "../components/ScriptEditor/savedScriptsLogic";
 import { toScriptListItems } from "../components/ScriptEditor/scriptListPanelLogic";
-
-/** タブ名からパスへのマッピング */
-const tabToPath: Record<HubTab, string> = {
-  notebooks: "/",
-  quests: "/quests",
-  "custom-quests": "/custom-quests",
-  collection: "/collection",
-  reference: "/reference",
-  scripts: "/scripts",
-  trash: "/trash",
-};
-
-export type HubContentProps = {
-  readonly initialTab: HubTab;
-};
 
 const getNow = (): number => getCurrentTimestamp();
 
@@ -200,8 +186,9 @@ function useHubMessagesFromIntl(): HubMessages {
   );
 }
 
-function HubInner({ initialTab }: HubContentProps) {
+function HubInner() {
   const router = useRouter();
+  const pathname = usePathname();
   const notebookCollection = useNotebookCollection();
   const questProgress = useQuestProgress();
   const customQuestCollection = useCustomQuestCollection();
@@ -274,8 +261,8 @@ function HubInner({ initialTab }: HubContentProps) {
   const localeSwitchDeps = useMemo(() => getBrowserLocaleSwitchDeps(), []);
   const { switchLocale } = useLocaleSwitch(localeSwitchDeps);
 
-  // Route-based tab state
-  const tab = initialTab;
+  // Route-based tab state (derived from pathname)
+  const tab = resolveTabFromPath(pathname) ?? "notebooks";
 
   const handleTabChange = useCallback(
     (newTab: HubTab) => {
@@ -284,8 +271,7 @@ function HubInner({ initialTab }: HubContentProps) {
       } catch {
         // sessionStorage unavailable — silently ignore
       }
-      const path = tabToPath[newTab];
-      router.push(path);
+      router.push(resolvePathFromTab(newTab));
     },
     [router],
   );
@@ -342,9 +328,10 @@ function HubInner({ initialTab }: HubContentProps) {
 
   // セッション中にタブ遷移したかを sessionStorage で追跡
   // （リロードでリセットされる。notebooks以外のタブに来た＝遷移済み）
+  // NOTE: pathname は初回マウント時のみ評価される（useState初期化関数）
   const [hasNavigatedInSession] = useState(() => {
     try {
-      if (initialTab !== "notebooks") {
+      if (resolveTabFromPath(pathname) !== "notebooks") {
         sessionStorage.setItem(SESSION_NAV_KEY, "1");
         return true;
       }
@@ -854,10 +841,10 @@ function HubInner({ initialTab }: HubContentProps) {
   );
 }
 
-export default function HubContent({ initialTab }: HubContentProps) {
+export default function HubContent() {
   return (
     <ThemeProvider>
-      <HubInner initialTab={initialTab} />
+      <HubInner />
     </ThemeProvider>
   );
 }
