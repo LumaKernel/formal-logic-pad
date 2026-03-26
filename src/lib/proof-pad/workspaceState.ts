@@ -327,6 +327,24 @@ export function createEmptyWorkspace(
   };
 }
 
+// --- クエスト初期状態 ---
+
+/**
+ * クエストの初期ワークスペース状態。
+ * カット除去クエストなど、事前に証明が配置された状態から開始するクエスト用。
+ *
+ * 変更時は workspaceState.test.ts, questDefinition.ts, questStartLogic.ts,
+ * notebookState.ts, index.ts も同期すること。
+ */
+export type QuestInitialState = {
+  /** 事前配置するノード */
+  readonly nodes: readonly WorkspaceNode[];
+  /** 事前配置する接続 */
+  readonly connections: readonly WorkspaceConnection[];
+  /** 事前配置する推論エッジ */
+  readonly inferenceEdges: readonly InferenceEdge[];
+};
+
 /** クエスト用ゴールの定義 */
 export type QuestGoalDefinition = {
   /** ゴール式のDSLテキスト */
@@ -348,10 +366,14 @@ export type QuestGoalDefinition = {
 /**
  * クエストモードのワークスペースを作成する。
  * ゴール定義からWorkspaceGoalを生成する（ノードとしてキャンバスには配置しない）。
+ *
+ * initialState が指定された場合、ノード・接続・推論エッジを事前配置する。
+ * nextNodeId は事前配置ノードのIDから自動算出される。
  */
 export function createQuestWorkspace(
   systemOrDeduction: LogicSystem | DeductionSystem,
   goals: readonly QuestGoalDefinition[],
+  initialState?: QuestInitialState,
 ): WorkspaceState {
   const deductionSystem: DeductionSystem =
     "style" in systemOrDeduction
@@ -366,14 +388,35 @@ export function createQuestWorkspace(
     allowedRuleIds: goal.allowedRuleIds,
   }));
 
+  if (initialState === undefined) {
+    return {
+      system,
+      deductionSystem,
+      nodes: [],
+      connections: [],
+      nextNodeId: 1,
+      mode: "quest",
+      inferenceEdges: [],
+      goals: workspaceGoals,
+    };
+  }
+
+  // initialState のノードIDから nextNodeId を算出
+  const maxNodeNum = initialState.nodes.reduce((max, node) => {
+    const match = /^node-(\d+)$/.exec(node.id);
+    if (match === null) return max;
+    const num = Number(match[1]);
+    return num > max ? num : max;
+  }, 0);
+
   return {
     system,
     deductionSystem,
-    nodes: [],
-    connections: [],
-    nextNodeId: 1,
+    nodes: initialState.nodes,
+    connections: initialState.connections,
+    nextNodeId: maxNodeNum + 1,
     mode: "quest",
-    inferenceEdges: [],
+    inferenceEdges: initialState.inferenceEdges,
     goals: workspaceGoals,
   };
 }

@@ -8,7 +8,10 @@
  */
 
 import type { AxiomId } from "../logic-core/inferenceRule";
-import type { QuestGoalDefinition } from "../proof-pad/workspaceState";
+import type {
+  QuestGoalDefinition,
+  QuestInitialState,
+} from "../proof-pad/workspaceState";
 
 // --- クエストID ---
 
@@ -253,6 +256,12 @@ export type QuestDefinition = {
    * ゴール個別の allowedAxiomIds が設定されている場合はそちらが優先される。
    */
   readonly allowedAxiomIds?: readonly AxiomId[];
+  /**
+   * クエストの初期ワークスペース状態。
+   * カット除去クエストなど、事前に証明が配置された状態から開始するクエスト用。
+   * undefined の場合は空のワークスペースで開始する。
+   */
+  readonly initialState?: QuestInitialState;
   /**
    * クエスト定義のバージョン番号（正の整数）。
    * クエスト内容（ゴール、公理系、ヒント等）を変更した場合にインクリメントする。

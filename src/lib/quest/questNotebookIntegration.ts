@@ -64,7 +64,7 @@ export function startQuestAndCreateNotebook(
   }
 
   const quest = quests.find((q) => q.id === questId);
-  const { name, deductionSystem, goals } = result.params;
+  const { name, deductionSystem, goals, initialState } = result.params;
   const newCollection = createQuestNotebook(collection, {
     name,
     system: deductionSystem,
@@ -72,6 +72,7 @@ export function startQuestAndCreateNotebook(
     now,
     questId,
     questVersion: quest?.version,
+    initialState,
   });
 
   // 新しく追加されたノートブックのIDを取得

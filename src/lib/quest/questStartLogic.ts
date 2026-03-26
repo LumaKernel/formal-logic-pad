@@ -8,7 +8,10 @@
  */
 
 import type { DeductionSystem } from "../logic-core/deductionSystem";
-import type { QuestGoalDefinition } from "../proof-pad/workspaceState";
+import type {
+  QuestGoalDefinition,
+  QuestInitialState,
+} from "../proof-pad/workspaceState";
 import type { SystemPreset } from "../notebook/notebookCreateLogic";
 import { systemPresets } from "../notebook/notebookCreateLogic";
 import type { QuestDefinition, SystemPresetId } from "./questDefinition";
@@ -32,6 +35,7 @@ export type QuestStartParams = {
   readonly name: string;
   readonly deductionSystem: DeductionSystem;
   readonly goals: readonly QuestGoalDefinition[];
+  readonly initialState?: QuestInitialState;
 };
 
 /**
@@ -60,6 +64,7 @@ export function buildQuestStartParams(
     name: `${quest.title satisfies string}`,
     deductionSystem: preset.deductionSystem,
     goals,
+    initialState: quest.initialState,
   };
 }
 

@@ -15,6 +15,7 @@ import {
   convertToFreeMode,
   type WorkspaceState,
   type QuestGoalDefinition,
+  type QuestInitialState,
 } from "../proof-pad/workspaceState";
 
 // --- ノートブックの型定義 ---
@@ -118,6 +119,8 @@ export type CreateQuestNotebookParams = {
   readonly questId?: string;
   /** クエスト定義のバージョン番号 */
   readonly questVersion?: number;
+  /** クエストの初期ワークスペース状態 */
+  readonly initialState?: QuestInitialState;
 };
 
 /** クエストモードのノートブックを作成してコレクションに追加する */
@@ -132,7 +135,11 @@ export function createQuestNotebook(
     createdAt: params.now,
     updatedAt: params.now,
   };
-  const workspace = createQuestWorkspace(params.system, params.goals);
+  const workspace = createQuestWorkspace(
+    params.system,
+    params.goals,
+    params.initialState,
+  );
   const notebook: Notebook =
     params.questId !== undefined
       ? {

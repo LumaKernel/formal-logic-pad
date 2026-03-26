@@ -87,6 +87,7 @@ export type {
   WorkspaceConnection,
   WorkspaceState,
   QuestGoalDefinition,
+  QuestInitialState,
   ApplyMPResult,
   ApplyGenResult,
   ApplySubstitutionResult,

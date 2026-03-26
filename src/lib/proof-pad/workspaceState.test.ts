@@ -42,6 +42,7 @@ import {
   removeGoal,
   updateGoalFormulaText,
   type QuestGoalDefinition,
+  type QuestInitialState,
   mergeSelectedNodes,
   applyAtRuleAndConnect,
   applyTabRuleAndConnect,
@@ -1232,6 +1233,157 @@ describe("proofWorkspace", () => {
       expect(ws.mode).toBe("quest");
       expect(ws.deductionSystem).toBe(ds);
       expect(ws.goals).toHaveLength(1);
+    });
+
+    it("creates workspace with initialState nodes", () => {
+      const initialState: QuestInitialState = {
+        nodes: [
+          {
+            id: "node-1",
+            kind: "axiom",
+            label: "Axiom",
+            formulaText: "phi -> phi",
+            position: { x: 100, y: 200 },
+          },
+          {
+            id: "node-2",
+            kind: "axiom",
+            label: "Axiom",
+            formulaText: "psi",
+            position: { x: 300, y: 200 },
+          },
+        ],
+        connections: [],
+        inferenceEdges: [],
+      };
+      const ws = createQuestWorkspace(
+        lukasiewiczSystem,
+        [{ formulaText: "phi -> phi" }],
+        initialState,
+      );
+      expect(ws.nodes).toHaveLength(2);
+      expect(ws.nodes[0]!.formulaText).toBe("phi -> phi");
+      expect(ws.nodes[1]!.formulaText).toBe("psi");
+      expect(ws.goals).toHaveLength(1);
+      expect(ws.mode).toBe("quest");
+    });
+
+    it("computes nextNodeId from initialState nodes", () => {
+      const initialState: QuestInitialState = {
+        nodes: [
+          {
+            id: "node-3",
+            kind: "axiom",
+            label: "A",
+            formulaText: "phi",
+            position: { x: 0, y: 0 },
+          },
+          {
+            id: "node-5",
+            kind: "axiom",
+            label: "B",
+            formulaText: "psi",
+            position: { x: 100, y: 0 },
+          },
+        ],
+        connections: [],
+        inferenceEdges: [],
+      };
+      const ws = createQuestWorkspace(lukasiewiczSystem, [], initialState);
+      expect(ws.nextNodeId).toBe(6);
+    });
+
+    it("creates workspace with initialState inferenceEdges", () => {
+      const initialState: QuestInitialState = {
+        nodes: [
+          {
+            id: "node-1",
+            kind: "axiom",
+            label: "A",
+            formulaText: "phi",
+            position: { x: 0, y: 0 },
+          },
+          {
+            id: "node-2",
+            kind: "axiom",
+            label: "B",
+            formulaText: "phi -> psi",
+            position: { x: 200, y: 0 },
+          },
+          {
+            id: "node-3",
+            kind: "axiom",
+            label: "C",
+            formulaText: "psi",
+            position: { x: 100, y: 200 },
+          },
+        ],
+        connections: [],
+        inferenceEdges: [
+          {
+            _tag: "mp",
+            conclusionNodeId: "node-3",
+            leftPremiseNodeId: "node-1",
+            rightPremiseNodeId: "node-2",
+            conclusionText: "psi",
+          },
+        ],
+      };
+      const ws = createQuestWorkspace(lukasiewiczSystem, [], initialState);
+      expect(ws.inferenceEdges).toHaveLength(1);
+      expect(ws.inferenceEdges[0]!._tag).toBe("mp");
+    });
+
+    it("creates workspace with initialState connections", () => {
+      const initialState: QuestInitialState = {
+        nodes: [
+          {
+            id: "node-1",
+            kind: "axiom",
+            label: "A",
+            formulaText: "phi",
+            position: { x: 0, y: 0 },
+          },
+          {
+            id: "node-2",
+            kind: "axiom",
+            label: "B",
+            formulaText: "psi",
+            position: { x: 200, y: 0 },
+          },
+        ],
+        connections: [
+          {
+            id: "conn-1",
+            fromNodeId: "node-1",
+            fromPortId: "bottom",
+            toNodeId: "node-2",
+            toPortId: "top",
+          },
+        ],
+        inferenceEdges: [],
+      };
+      const ws = createQuestWorkspace(lukasiewiczSystem, [], initialState);
+      expect(ws.connections).toHaveLength(1);
+      expect(ws.connections[0]!.fromNodeId).toBe("node-1");
+    });
+
+    it("nextNodeId defaults to 1 when no node-N pattern IDs", () => {
+      const initialState: QuestInitialState = {
+        nodes: [
+          {
+            id: "custom-id",
+            kind: "axiom",
+            label: "A",
+            formulaText: "phi",
+            position: { x: 0, y: 0 },
+          },
+        ],
+        connections: [],
+        inferenceEdges: [],
+      };
+      const ws = createQuestWorkspace(lukasiewiczSystem, [], initialState);
+      expect(ws.nextNodeId).toBe(1);
     });
   });
 
