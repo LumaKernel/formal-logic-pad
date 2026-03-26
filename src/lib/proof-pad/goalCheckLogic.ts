@@ -8,7 +8,7 @@
  */
 
 import { Either } from "effect";
-import { equalFormula } from "../logic-core/equality";
+import { equivalentFormula } from "../logic-core/equality";
 import type { LogicSystem } from "../logic-core/inferenceRule";
 import { identifyAxiom } from "../logic-core/inferenceRule";
 import { parseString } from "../logic-lang/parser";
@@ -182,7 +182,7 @@ export function checkGoal(
       if (node.formulaText.trim() === "") continue;
       const nodeFormula = parseNodeFormula(node.formulaText);
       if (nodeFormula === undefined) continue;
-      if (equalFormula(goalFormula, nodeFormula)) {
+      if (equivalentFormula(goalFormula, nodeFormula)) {
         // 孤立ノード検証: どの推論エッジにも参加していないノード（結論でも前提でもない）は
         // 公理テンプレートに一致しない限り「未証明」としてスキップ。
         // これにより「ゴール式を手動入力しただけ」のケースを排除しつつ、

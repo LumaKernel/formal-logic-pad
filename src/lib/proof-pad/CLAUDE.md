@@ -27,7 +27,7 @@ logic-core, logic-lang, formula-input, infinite-canvas を統合する層。
 - **エラー→メッセージ変換**: `proofMessages.ts` の `getErrorMessageKey()` 関数で `_tag` → メッセージキーに変換
 - **UI層の統一処理**: `processValidationResult()` で `Either` → `ValidationDisplay` に変換。UI層は `Either` を直接参照しない
 - 新しい推論規則を追加する場合: `*ApplicationLogic.ts` + テスト → `proofMessages.ts` にキー追加 → `workspaceState.ts` に統合 → `ProofWorkspace.tsx` でUI
-- **代入適用後の FormulaSubstitution 解決**: `validateSubstitutionApplicationEffect` は代入適用後に `resolveFormulaSubstitution` を呼ぶ。A4等の述語論理公理で `φ[τ/x]` ノードが残ると、ゴール式との `equalFormula` 比較が失敗する
+- **FormulaSubstitution の保持**: `validateSubstitutionApplicationEffect` は代入適用後に `resolveFormulaSubstitution` を呼ばない。`φ[τ/x]` 表記はユーザーが明示的に Simplify 操作を行うまで保持される。ゴール判定は `equivalentFormula`（`normalizeFormula` 経由）で正規化比較するため、`P(x)[a/x]` と `P(a)` は一致する
 
 ## ファイル命名規則
 

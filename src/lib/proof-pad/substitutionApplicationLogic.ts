@@ -14,7 +14,6 @@ import type { GreekLetter } from "../logic-core/greekLetters";
 import {
   substituteFormulaMetaVariables,
   substituteTermMetaVariablesInFormula,
-  resolveFormulaSubstitution,
   type FormulaSubstitutionMap,
   type TermMetaSubstitutionMap,
 } from "../logic-core/substitution";
@@ -307,8 +306,8 @@ export const validateSubstitutionApplicationEffect = (
       result = substituteTermMetaVariablesInFormula(result, termMapResult.map);
     }
 
-    // FormulaSubstitution ノードを解決（例: P(x)[x/x] → P(x)）
-    result = resolveFormulaSubstitution(result);
+    // FormulaSubstitution ノード（φ[τ/x] 表記）は自動解決しない。
+    // ユーザーが明示的に Simplify 操作を実行するまで保持する。
 
     return {
       conclusion: result,

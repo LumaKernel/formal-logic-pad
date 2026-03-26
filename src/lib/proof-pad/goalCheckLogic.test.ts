@@ -218,6 +218,15 @@ describe("goalCheckLogic", () => {
       }
     });
 
+    it("matches FormulaSubstitution node to resolved goal (P(x)[a/x] ≡ P(a))", () => {
+      // FormulaSubstitution ノードが残っていても、equivalentFormula で
+      // 正規化後に一致すればゴール達成と判定される
+      const goals = [makeGoal("goal-1", "P(a)")];
+      const nodes = [makeNode("node-1", "P(x)[a/x]")];
+      const result = checkGoal(goals, nodes);
+      expect(result._tag).toBe("GoalAllAchieved");
+    });
+
     it("does not match structurally different formulas", () => {
       const goals = [makeGoal("goal-1", "phi -> psi")];
       const nodes = [makeNode("node-1", "psi -> phi")];

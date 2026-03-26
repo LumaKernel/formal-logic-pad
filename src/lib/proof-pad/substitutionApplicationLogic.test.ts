@@ -458,6 +458,71 @@ describe("validateSubstitutionApplication", () => {
     }
   });
 
+  it("preserves FormulaSubstitution notation after substitution (A4: φ:=φ→φ)", () => {
+    // リグレッションテスト: A4 (∀x.φ)→φ[τ/x] で φ:=φ→φ とした場合、
+    // (φ→φ)[τ/x] の [τ/x] 表記が消えてはいけない
+    let ws = createEmptyWorkspace(predicateLogicSystem);
+    ws = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 0, y: 0 },
+      "forall x. phi -> phi[tau / x]",
+    );
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
+    ws = addConnection(ws, "node-1", "out", "node-2", "premise");
+    ws = addSubstitutionEdge(ws, "node-2", "node-1");
+
+    const entries: SubstitutionEntries = [
+      {
+        _tag: "FormulaSubstitution",
+        metaVariableName: "φ",
+        formulaText: "phi -> phi",
+      },
+    ];
+    const result = validateSubstitutionApplication(ws, "node-2", entries);
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
+      // φ[τ/x] の表記が残ること（自動解決しない）
+      expect(result.right.conclusionText).toContain("[τ/x]");
+    }
+  });
+
+  it("preserves FormulaSubstitution with concrete term substitution (A4: φ:=P(x), τ:=a)", () => {
+    // A4 (∀x.φ)→φ[τ/x] で φ:=P(x), τ:=a とした場合、
+    // 結果は P(x)[a/x] であり、P(a) に自動解決されない
+    let ws = createEmptyWorkspace(predicateLogicSystem);
+    ws = addNode(
+      ws,
+      "axiom",
+      "Axiom",
+      { x: 0, y: 0 },
+      "forall x. phi -> phi[tau / x]",
+    );
+    ws = addNode(ws, "axiom", "Subst", { x: 0, y: 100 });
+    ws = addConnection(ws, "node-1", "out", "node-2", "premise");
+    ws = addSubstitutionEdge(ws, "node-2", "node-1");
+
+    const entries: SubstitutionEntries = [
+      {
+        _tag: "FormulaSubstitution",
+        metaVariableName: "φ",
+        formulaText: "P(x)",
+      },
+      {
+        _tag: "TermSubstitution",
+        metaVariableName: "τ",
+        termText: "a",
+      },
+    ];
+    const result = validateSubstitutionApplication(ws, "node-2", entries);
+    expect(Either.isRight(result)).toBe(true);
+    if (Either.isRight(result)) {
+      // P(x)[a/x] の表記が残ること（P(a) に自動解決されない）
+      expect(result.right.conclusionText).toContain("[a/x]");
+    }
+  });
+
   it("handles only formula entries when no term entries present", () => {
     let ws = createEmptyWorkspace(lukasiewiczSystem);
     ws = addNode(
