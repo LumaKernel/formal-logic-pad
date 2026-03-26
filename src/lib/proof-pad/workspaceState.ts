@@ -99,6 +99,10 @@ import {
   validateSubstitutionConnectionApplication,
   type SubstitutionConnectionApplicationResult,
 } from "./substitutionConnectionLogic";
+import {
+  validateSimplifyFormula,
+  type SimplifyFormulaResult,
+} from "./simplifyFormulaLogic";
 
 // --- ノードの明示的な役割マーク ---
 
@@ -984,6 +988,82 @@ export function applyNormalize(
   }
 
   return { workspace: state, validation };
+}
+
+// --- 論理式簡約ノード作成（Simplify Formula）---
+
+/** 簡約ノード作成の結果 */
+export type ApplySimplifyFormulaResult = {
+  readonly workspace: WorkspaceState;
+  readonly simplifiedNodeId: string;
+  readonly validation: SimplifyFormulaResult;
+};
+
+/**
+ * ノードの論理式を簡約し、新しいノードを作成してSimplificationEdgeで接続する。
+ * normalizeFormula で FormulaSubstitution 解決等を行い、簡約後の式を持つ新ノードを追加。
+ *
+ * @param state 現在のワークスペース状態
+ * @param sourceNodeId 簡約元のノードID
+ * @returns 新しいワークスペース状態、新ノードID、検証結果
+ */
+export function applySimplifyFormula(
+  state: WorkspaceState,
+  sourceNodeId: string,
+): ApplySimplifyFormulaResult {
+  const node = state.nodes.find((n) => n.id === sourceNodeId);
+
+  /* v8 ignore start -- 防御的コード: ノードが存在しない場合（通常UIから到達不能） */
+  if (!node) {
+    return {
+      workspace: state,
+      simplifiedNodeId: "",
+      validation: validateSimplifyFormula(""),
+    };
+  }
+  /* v8 ignore stop */
+
+  const validation = validateSimplifyFormula(node.formulaText);
+
+  if (Either.isRight(validation)) {
+    // 新ノードをソースノードの右下に配置
+    const newPosition: Point = {
+      x: node.position.x + 200,
+      y: node.position.y + 100,
+    };
+    let ws = addNode(
+      state,
+      "axiom",
+      "",
+      newPosition,
+      validation.right.simplifiedText,
+    );
+    const newNodeId = `node-${String(ws.nextNodeId - 1) satisfies string}`;
+
+    // SimplificationEdge を追加（source → new）
+    const simpEdge: InferenceEdge = {
+      _tag: "simplification",
+      conclusionNodeId: newNodeId,
+      premiseNodeId: sourceNodeId,
+      conclusionText: "",
+    };
+    ws = addInferenceEdge(ws, simpEdge);
+
+    // レガシー接続も追加
+    ws = addConnection(ws, sourceNodeId, "out", newNodeId, "premise");
+
+    return {
+      workspace: ws,
+      simplifiedNodeId: newNodeId,
+      validation,
+    };
+  }
+
+  return {
+    workspace: state,
+    simplifiedNodeId: "",
+    validation,
+  };
 }
 
 // --- 整理（Simplification）接続（既存ノード間をSimplificationEdgeで接続） ---

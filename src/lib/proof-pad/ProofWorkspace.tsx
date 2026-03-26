@@ -165,6 +165,7 @@ import {
   cutSelectedNodes,
   applySubstitutionAndConnect,
   applyNormalize,
+  applySimplifyFormula,
   connectSimplification,
   connectSubstitutionConnection,
   applyTreeLayout,
@@ -3744,6 +3745,17 @@ export const ProofWorkspace = forwardRef<
     setNodeMenuState(closeNodeMenu());
   }, [nodeMenuState, workspace, setWorkspace]);
 
+  // --- 論理式簡約ノード作成（Simplify Formula） ---
+  const handleSimplifyFormula = useCallback(() => {
+    /* v8 ignore start -- 防御的: メニューが開いている時のみ呼ばれる */
+    if (!nodeMenuState.open) return;
+    /* v8 ignore stop */
+    const nodeId = nodeMenuState.nodeId;
+    const result = applySimplifyFormula(workspace, nodeId);
+    setWorkspace(result.workspace);
+    setNodeMenuState(closeNodeMenu());
+  }, [nodeMenuState, workspace, setWorkspace]);
+
   // --- エッジバッジ編集（ポップオーバー） ---
   const [edgeBadgeEditState, setEdgeBadgeEditState] =
     useState<EdgeBadgeEditState | null>(null);
@@ -7197,6 +7209,17 @@ export const ProofWorkspace = forwardRef<
                   testId
                     ? `${testId satisfies string}-normalize-formula`
                     : "normalize-formula"
+                  /* v8 ignore stop */
+                }
+              />
+              <WorkspaceMenuItem
+                label={msg.simplifyFormula}
+                onClick={handleSimplifyFormula}
+                testId={
+                  /* v8 ignore start -- V8集約アーティファクト */
+                  testId
+                    ? `${testId satisfies string}-simplify-formula`
+                    : "simplify-formula"
                   /* v8 ignore stop */
                 }
               />

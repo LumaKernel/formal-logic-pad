@@ -140,6 +140,13 @@ export const allMenuActions: readonly MenuActionDefinition[] = [
     group: "node-edit",
     note: "Resolves substitution chains and simplifies FreeVariableAbsence",
   },
+  {
+    id: "simplify-formula",
+    label: { en: "Simplify Formula", ja: "論理式を簡約（新ノード）" },
+    contexts: ["node-context-menu"],
+    group: "inference-rules",
+    note: "Creates a new simplified node connected via SimplificationEdge",
+  },
 
   // --- キャンバスメニュー ---
   {

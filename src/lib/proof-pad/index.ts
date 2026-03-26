@@ -59,6 +59,7 @@ export {
   applyGenAndConnect,
   applySubstitutionAndConnect,
   applyNormalize,
+  applySimplifyFormula,
   connectSimplification,
   connectSubstitutionConnection,
   applyNdImplicationIntroAndConnect,
@@ -90,6 +91,7 @@ export type {
   ApplyGenResult,
   ApplySubstitutionResult,
   ApplyNormalizeResult,
+  ApplySimplifyFormulaResult,
   ConnectSimplificationResult,
   ConnectSubstitutionConnectionResult,
   ApplyTabRuleResult,
@@ -227,6 +229,19 @@ export type {
   NormalizeApplicationError,
   NormalizeApplicationResult,
 } from "./normalizeApplicationLogic";
+export {
+  validateSimplifyFormulaEffect,
+  validateSimplifyFormula,
+  getSimplifyFormulaErrorMessage,
+  SimplifyFormulaParseError,
+  SimplifyFormulaNoChange,
+  SimplifyFormulaEmpty,
+} from "./simplifyFormulaLogic";
+export type {
+  SimplifyFormulaSuccess,
+  SimplifyFormulaError,
+  SimplifyFormulaResult,
+} from "./simplifyFormulaLogic";
 export {
   validateNdApplicationEffect,
   validateNdApplication,

@@ -49,6 +49,7 @@ import {
   importProofFromCollection,
   addScriptNode,
   applyNormalize,
+  applySimplifyFormula,
   connectSimplification,
   connectSubstitutionConnection,
   applyNdImplicationIntroAndConnect,
@@ -889,6 +890,61 @@ describe("proofWorkspace", () => {
       // 正常に更新される（syncInferenceEdgesが走っても問題ない）
       expect(Either.isRight(result.validation)).toBe(true);
       expect(result.workspace.nodes[0]?.formulaText).toBe("P(a)");
+    });
+  });
+
+  describe("applySimplifyFormula", () => {
+    it("creates a new node with simplified formula and SimplificationEdge", () => {
+      let ws = createEmptyWorkspace(predicateLogicSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "P(x)[a/x]");
+      const result = applySimplifyFormula(ws, "node-1");
+      expect(Either.isRight(result.validation)).toBe(true);
+
+      // 新ノードが作成されている
+      const newNode = result.workspace.nodes.find(
+        (n) => n.id === result.simplifiedNodeId,
+      );
+      expect(newNode).toBeDefined();
+      expect(newNode?.formulaText).toBe("P(a)");
+
+      // SimplificationEdge が作成されている
+      const simpEdge = result.workspace.inferenceEdges.find(
+        (e) =>
+          e._tag === "simplification" &&
+          e.conclusionNodeId === result.simplifiedNodeId,
+      );
+      expect(simpEdge).toBeDefined();
+      if (simpEdge && simpEdge._tag === "simplification") {
+        expect(simpEdge.premiseNodeId).toBe("node-1");
+      }
+
+      // 元ノードは変更されていない
+      const originalNode = result.workspace.nodes.find(
+        (n) => n.id === "node-1",
+      );
+      expect(originalNode?.formulaText).toBe("P(x)[a/x]");
+    });
+
+    it("returns NoChange for already simplified formula", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "phi -> psi");
+      const result = applySimplifyFormula(ws, "node-1");
+      expect(Either.isLeft(result.validation)).toBe(true);
+      if (Either.isLeft(result.validation)) {
+        expect(result.validation.left._tag).toBe("SimplifyFormulaNoChange");
+      }
+      // ワークスペースは変更されない
+      expect(result.workspace).toBe(ws);
+    });
+
+    it("returns Empty for empty formula", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "Axiom", { x: 0, y: 0 }, "");
+      const result = applySimplifyFormula(ws, "node-1");
+      expect(Either.isLeft(result.validation)).toBe(true);
+      if (Either.isLeft(result.validation)) {
+        expect(result.validation.left._tag).toBe("SimplifyFormulaEmpty");
+      }
     });
   });
 

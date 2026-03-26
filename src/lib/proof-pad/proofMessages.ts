@@ -15,6 +15,7 @@ import type { MPApplicationError } from "./mpApplicationLogic";
 import type { GenApplicationError } from "./genApplicationLogic";
 import type { SubstitutionApplicationError } from "./substitutionApplicationLogic";
 import type { NormalizeApplicationError } from "./normalizeApplicationLogic";
+import type { SimplifyFormulaError } from "./simplifyFormulaLogic";
 
 // --- メッセージキー定義 ---
 
@@ -140,6 +141,13 @@ export type ProofMessages = {
   readonly savedToCollection: string;
   /** `{variableName}` プレースホルダーを含む */
   readonly genVariablePrompt: string;
+
+  // --- Simplify Formula（簡約ノード作成） ---
+  readonly simplifyFormula: string;
+  readonly simplifyFormulaApplied: string;
+  readonly simplifyFormulaNoChange: string;
+  readonly simplifyFormulaParseError: string;
+  readonly simplifyFormulaEmpty: string;
 
   // --- 整理（Simplification）接続 ---
   readonly connectSimplification: string;
@@ -454,6 +462,13 @@ export const defaultProofMessages: ProofMessages = {
   normalizeParseError: "Cannot normalize: invalid formula",
   normalizeEmptyFormula: "Cannot normalize: empty formula",
 
+  // Simplify Formula
+  simplifyFormula: "Simplify Formula",
+  simplifyFormulaApplied: "Formula simplified",
+  simplifyFormulaNoChange: "Formula is already simplified",
+  simplifyFormulaParseError: "Cannot simplify: invalid formula",
+  simplifyFormulaEmpty: "Cannot simplify: empty formula",
+
   // Context menu
   selectSubtree: "Select Subtree",
   selectProof: "Select Proof",
@@ -738,6 +753,22 @@ export function getNormalizeErrorMessageKey(
       return "normalizeNoChange";
     case "NormalizeEmptyFormula":
       return "normalizeEmptyFormula";
+  }
+}
+
+/**
+ * Simplify Formula適用エラーに対応するメッセージキーを返す。
+ */
+export function getSimplifyFormulaErrorMessageKey(
+  error: SimplifyFormulaError,
+): keyof ProofMessages {
+  switch (error._tag) {
+    case "SimplifyFormulaParseError":
+      return "simplifyFormulaParseError";
+    case "SimplifyFormulaNoChange":
+      return "simplifyFormulaNoChange";
+    case "SimplifyFormulaEmpty":
+      return "simplifyFormulaEmpty";
   }
 }
 
