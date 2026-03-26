@@ -6750,6 +6750,207 @@ const qScCe14QuantifierShift: QuestDefinition = {
   version: 1,
 };
 
+// --- カット除去実践クエスト（カット付き証明から再証明） ---
+
+/**
+ * カット付き証明の初期状態: (φ → ψ) → ((ψ → χ) → (φ → χ))
+ *
+ * 証明木（上から下）:
+ *   φ ⇒ φ (id)   ψ ⇒ ψ (id)        ψ ⇒ ψ (id)   χ ⇒ χ (id)
+ *        └─ →⇒ ─┘                         └─ →⇒ ─┘
+ *    φ → ψ, φ ⇒ ψ                     ψ → χ, ψ ⇒ χ
+ *              └──────── CUT(ψ) ────────┘
+ *           φ → ψ, ψ → χ, φ ⇒ χ
+ *                    │ ⇒→
+ *           φ → ψ, ψ → χ ⇒ φ → χ
+ *                    │ ⇒→
+ *           φ → ψ ⇒ (ψ → χ) → (φ → χ)
+ *                    │ ⇒→
+ *           ⇒ (φ → ψ) → ((ψ → χ) → (φ → χ))
+ */
+const scCerTransitivityInitialState: QuestDefinition["initialState"] = {
+  nodes: [
+    {
+      id: "node-1",
+      kind: "axiom",
+      label: "Identity",
+      formulaText: "phi ⇒ phi",
+      position: { x: 50, y: 50 },
+    },
+    {
+      id: "node-2",
+      kind: "axiom",
+      label: "Identity",
+      formulaText: "psi ⇒ psi",
+      position: { x: 300, y: 50 },
+    },
+    {
+      id: "node-3",
+      kind: "axiom",
+      label: "→⇒",
+      formulaText: "phi -> psi, phi ⇒ psi",
+      position: { x: 175, y: 200 },
+    },
+    {
+      id: "node-4",
+      kind: "axiom",
+      label: "Identity",
+      formulaText: "psi ⇒ psi",
+      position: { x: 550, y: 50 },
+    },
+    {
+      id: "node-5",
+      kind: "axiom",
+      label: "Identity",
+      formulaText: "chi ⇒ chi",
+      position: { x: 800, y: 50 },
+    },
+    {
+      id: "node-6",
+      kind: "axiom",
+      label: "→⇒",
+      formulaText: "psi -> chi, psi ⇒ chi",
+      position: { x: 675, y: 200 },
+    },
+    {
+      id: "node-7",
+      kind: "axiom",
+      label: "CUT(ψ)",
+      formulaText: "phi -> psi, psi -> chi, phi ⇒ chi",
+      position: { x: 425, y: 350 },
+    },
+    {
+      id: "node-8",
+      kind: "axiom",
+      label: "⇒→",
+      formulaText: "phi -> psi, psi -> chi ⇒ phi -> chi",
+      position: { x: 425, y: 500 },
+    },
+    {
+      id: "node-9",
+      kind: "axiom",
+      label: "⇒→",
+      formulaText: "phi -> psi ⇒ (psi -> chi) -> (phi -> chi)",
+      position: { x: 425, y: 650 },
+    },
+    {
+      id: "node-10",
+      kind: "axiom",
+      label: "⇒→",
+      formulaText: " ⇒ (phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
+      position: { x: 425, y: 800 },
+    },
+  ],
+  connections: [],
+  inferenceEdges: [
+    {
+      _tag: "sc-axiom",
+      ruleId: "identity",
+      conclusionNodeId: "node-1",
+      conclusionText: "phi ⇒ phi",
+    },
+    {
+      _tag: "sc-axiom",
+      ruleId: "identity",
+      conclusionNodeId: "node-2",
+      conclusionText: "psi ⇒ psi",
+    },
+    {
+      _tag: "sc-branching",
+      ruleId: "implication-left",
+      conclusionNodeId: "node-3",
+      leftPremiseNodeId: "node-1",
+      rightPremiseNodeId: "node-2",
+      leftConclusionText: "phi ⇒ phi",
+      rightConclusionText: "psi ⇒ psi",
+      conclusionText: "phi -> psi, phi ⇒ psi",
+    },
+    {
+      _tag: "sc-axiom",
+      ruleId: "identity",
+      conclusionNodeId: "node-4",
+      conclusionText: "psi ⇒ psi",
+    },
+    {
+      _tag: "sc-axiom",
+      ruleId: "identity",
+      conclusionNodeId: "node-5",
+      conclusionText: "chi ⇒ chi",
+    },
+    {
+      _tag: "sc-branching",
+      ruleId: "implication-left",
+      conclusionNodeId: "node-6",
+      leftPremiseNodeId: "node-4",
+      rightPremiseNodeId: "node-5",
+      leftConclusionText: "psi ⇒ psi",
+      rightConclusionText: "chi ⇒ chi",
+      conclusionText: "psi -> chi, psi ⇒ chi",
+    },
+    {
+      _tag: "sc-branching",
+      ruleId: "cut",
+      conclusionNodeId: "node-7",
+      leftPremiseNodeId: "node-3",
+      rightPremiseNodeId: "node-6",
+      leftConclusionText: "phi -> psi, phi ⇒ psi",
+      rightConclusionText: "psi -> chi, psi ⇒ chi",
+      conclusionText: "phi -> psi, psi -> chi, phi ⇒ chi",
+    },
+    {
+      _tag: "sc-single",
+      ruleId: "implication-right",
+      conclusionNodeId: "node-8",
+      premiseNodeId: "node-7",
+      conclusionText: "phi -> psi, psi -> chi ⇒ phi -> chi",
+    },
+    {
+      _tag: "sc-single",
+      ruleId: "implication-right",
+      conclusionNodeId: "node-9",
+      premiseNodeId: "node-8",
+      conclusionText: "phi -> psi ⇒ (psi -> chi) -> (phi -> chi)",
+    },
+    {
+      _tag: "sc-single",
+      ruleId: "implication-right",
+      conclusionNodeId: "node-10",
+      premiseNodeId: "node-9",
+      conclusionText: " ⇒ (phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
+    },
+  ],
+};
+
+const qScCer01Transitivity: QuestDefinition = {
+  id: "sc-cer-01",
+  category: "sc-cut-elimination",
+  title: "カット除去実践: 推移律",
+  description:
+    "カット規則を使った (φ → ψ) → ((ψ → χ) → (φ → χ)) の証明が事前に配置されています。この証明を参考に、カット規則を使わずに同じ定理を証明し直してください。",
+  difficulty: 3,
+  systemPresetId: "sc-lk",
+  goals: [
+    {
+      formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
+      label: "Goal: (φ → ψ) → ((ψ → χ) → (φ → χ))（カットなし）",
+      disallowedScRuleIds: ["cut"],
+    },
+  ],
+  hints: [
+    "事前配置された証明木を観察し、カットがどこで使われているか確認しましょう。",
+    "⇒→ を3回使い、φ → ψ, ψ → χ, φ ⇒ χ に帰着します。",
+    "→⇒ で φ → ψ を分解: φ ⇒ φ（Identity）と ψ, ψ → χ, ... ⇒ χ に分岐。",
+    "ψ 側で再び →⇒ で ψ → χ を分解: ψ ⇒ ψ（Identity）と χ ⇒ χ（Identity）。",
+    "カットなしの証明は →⇒ のネストで直接構成できます。カット付き証明ではψを中間式として2つの補題を合成していた部分を、→⇒の入れ子で表現します。",
+  ],
+  estimatedSteps: 12,
+  learningPoint:
+    "カット除去定理の実践: カットで「補題の合成」として表現されていた部分を、→⇒ の直接的な分解に書き換える体験。カットなしの証明は大きくなりがちだが、原理的に可能であることを確認する。",
+  order: 15,
+  initialState: scCerTransitivityInitialState,
+  version: 1,
+};
+
 // --- 自動証明探索クエスト ---
 
 const qScAp01AutoIdentity: QuestDefinition = {
@@ -7091,6 +7292,7 @@ export const builtinQuests: readonly QuestDefinition[] = [
   qScCe12ExistentialTransitivity,
   qScCe13QuantifierDeMorgan,
   qScCe14QuantifierShift,
+  qScCer01Transitivity,
   qScAp01AutoIdentity,
   qScAp02AutoContraposition,
   qScAp03AutoDeMorgan,

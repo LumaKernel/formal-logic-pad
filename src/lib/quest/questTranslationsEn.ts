@@ -3125,6 +3125,20 @@ export const questTranslationsEn: Readonly<
     learningPoint:
       "Quantifier shift is the reasoning: 'if P(x)->Q for all x, and some x satisfies P, then Q holds.' The key requirement is that x is not free in Q. Cut bridges forall and exists. This is a typical pattern of cut elimination in first-order predicate logic, where the quantifier shifts across implication.",
   },
+  "sc-cer-01": {
+    title: "Cut Elimination Practice: Transitivity",
+    description:
+      "A proof of (phi -> psi) -> ((psi -> chi) -> (phi -> chi)) using the Cut rule is pre-placed in the workspace. Study this proof and re-prove the same theorem without using the Cut rule.",
+    hints: [
+      "Observe the pre-placed proof tree and identify where Cut is used.",
+      "Apply =>-> three times to reduce to phi -> psi, psi -> chi, phi => chi.",
+      "Apply ->=> to decompose phi -> psi: branches into phi => phi (Identity) and psi, psi -> chi, ... => chi.",
+      "On the psi branch, apply ->=> again to decompose psi -> chi: psi => psi (Identity) and chi => chi (Identity).",
+      "The cut-free proof uses nested ->=> instead of Cut to compose the two implications directly.",
+    ],
+    learningPoint:
+      "Cut elimination in practice: rewrite a proof that used Cut for 'lemma composition' into a direct decomposition using ->=>. Cut-free proofs tend to be larger but are always possible — this is the content of the cut elimination theorem.",
+  },
   "sc-ap-01": {
     title: "Auto Proof: Identity",
     description:
