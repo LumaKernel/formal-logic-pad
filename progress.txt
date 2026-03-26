@@ -18285,3 +18285,29 @@
   - allowedRuleIds は WorkspaceGoal に既に実装済みだったため、新規の型追加は不要だった
   - パラメータ貫通パターン: QuestDefinition → QuestStartParams → CreateQuestNotebookParams → createQuestWorkspace
 ---
+
+## 2026-03-26 - disallowedScRuleIds インフラ追加
+- 実装した内容:
+  - SC固有ルール（cut等）を個別に禁止できる `disallowedScRuleIds` フィールドを追加
+  - `getNodeScRuleIds`: 証明チェーンからSC固有ruleIdを収集する純粋関数
+  - `computeViolatingScRuleIds`: 禁止SCルールとの突き合わせで違反を検出
+  - `GoalAxiomCheckResult` に `usedScRuleIds`, `disallowedScRuleIds`, `violatingScRuleIds` を追加
+  - `checkSingleGoalWithAxioms` でSCルール違反チェックを統合
+  - ProofWorkspace.tsx の `hasRuleViolation` にSCルール違反を追加
+  - `addGoal` に `allowedRuleIds` と `disallowedScRuleIds` オプションを追加
+  - テスト: getNodeScRuleIds 8件、computeViolatingScRuleIds 6件、SC制限付きゴールチェック 5件、workspaceState 2件
+- 変更したファイル:
+  - src/lib/proof-pad/dependencyLogic.ts（getNodeScRuleIds追加）
+  - src/lib/proof-pad/dependencyLogic.test.ts（テスト追加）
+  - src/lib/proof-pad/workspaceState.ts（型拡張+addGoalオプション拡張）
+  - src/lib/proof-pad/workspaceState.test.ts（テスト追加）
+  - src/lib/proof-pad/index.ts（エクスポート追加）
+  - src/lib/proof-pad/ProofWorkspace.tsx（UI更新）
+  - src/lib/quest/questCompletionLogic.ts（computeViolatingScRuleIds+統合）
+  - src/lib/quest/questCompletionLogic.test.ts（テスト追加）
+  - src/lib/quest/index.ts（エクスポート追加）
+- **今後のイテレーションへの学び:**
+  - `allowedRuleIds` は InferenceEdge の `_tag` ベースで粗い粒度。SC固有ルールは `ruleId` で細かい粒度
+  - 禁止リスト（disallowed）は許可リスト（allowed）とは逆のセマンティクス。undefined=制限なし は同じ
+  - `isScInferenceEdge` でSCエッジを型ガードしてから `edge.ruleId` にアクセス
+---
