@@ -36,6 +36,7 @@ import {
   conjunction,
   disjunction,
 } from "../logic-core/formula";
+import { encodeFormula } from "../logic-core/serialization";
 import { createScriptRunner } from "./scriptRunner";
 import { createProofBridges } from "./proofBridge";
 
@@ -280,14 +281,23 @@ describe("decodeScProofNode position フォールバック", () => {
 describe("createCutEliminationBridges", () => {
   const bridges = createCutEliminationBridges();
 
-  it("27のブリッジ関数を返す（5操作 + 22コンストラクタ）", () => {
-    expect(bridges).toHaveLength(27);
+  it("36のブリッジ関数を返す（5操作 + 9ヘルパー + 22コンストラクタ）", () => {
+    expect(bridges).toHaveLength(36);
     expect(bridges.map((b) => b.name)).toEqual([
       "isCutFree",
       "countCuts",
       "formatSequent",
       "eliminateCutsWithSteps",
       "getScConclusion",
+      "formulaDepth",
+      "rightRank",
+      "leftRank",
+      "mixRank",
+      "removeAllOccurrences",
+      "removeFirstOccurrence",
+      "containsFormula",
+      "countOccurrences",
+      "getScChildren",
       "sequent",
       "scIdentity",
       "scBottomLeft",
@@ -434,11 +444,136 @@ describe("createCutEliminationBridges", () => {
   });
 });
 
+// ── カット除去ヘルパー関数 ────────────────────────────────────
+
+describe("カット除去ヘルパー関数ブリッジ", () => {
+  const bridges = createCutEliminationBridges();
+  const findFn = (name: string) => bridges.find((b) => b.name === name)!.fn;
+
+  describe("formulaDepth", () => {
+    const fn = findFn("formulaDepth");
+    it("原子式は深さ1", () => {
+      expect(fn(encodeFormula(phi))).toBe(1);
+    });
+    it("含意は深さ2", () => {
+      expect(fn(encodeFormula(implication(phi, psi)))).toBe(2);
+    });
+  });
+
+  describe("rightRank", () => {
+    const fn = findFn("rightRank");
+    it("ID公理の右ランクは1", () => {
+      const proof = scIdentity(sequent([phi], [phi]));
+      expect(fn(encodeScProofNode(proof), encodeFormula(phi))).toBe(1);
+    });
+    it("右辺にカット式がないノードは0", () => {
+      const proof = scIdentity(sequent([phi], [phi]));
+      expect(fn(encodeScProofNode(proof), encodeFormula(psi))).toBe(0);
+    });
+  });
+
+  describe("leftRank", () => {
+    const fn = findFn("leftRank");
+    it("ID公理の左ランクは1", () => {
+      const proof = scIdentity(sequent([phi], [phi]));
+      expect(fn(encodeScProofNode(proof), encodeFormula(phi))).toBe(1);
+    });
+  });
+
+  describe("mixRank", () => {
+    const fn = findFn("mixRank");
+    it("ID公理同士のカットはランク1", () => {
+      const cut = scCut(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      expect(fn(encodeScProofNode(cut))).toBe(1);
+    });
+    it("ScCut以外はエラー", () => {
+      const proof = scIdentity(sequent([phi], [phi]));
+      expect(() => fn(encodeScProofNode(proof))).toThrow(
+        "mixRank: argument must be a ScCut node",
+      );
+    });
+  });
+
+  describe("removeAllOccurrences", () => {
+    const fn = findFn("removeAllOccurrences");
+    it("全出現を除去", () => {
+      const result = fn(
+        [encodeFormula(phi), encodeFormula(psi), encodeFormula(phi)],
+        encodeFormula(phi),
+      );
+      expect(result).toHaveLength(1);
+    });
+    it("配列でない入力はエラー", () => {
+      expect(() => fn("not-array", encodeFormula(phi))).toThrow(
+        "first argument must be an array",
+      );
+    });
+  });
+
+  describe("removeFirstOccurrence", () => {
+    const fn = findFn("removeFirstOccurrence");
+    it("最初の出現だけ除去", () => {
+      const result = fn(
+        [encodeFormula(phi), encodeFormula(psi), encodeFormula(phi)],
+        encodeFormula(phi),
+      );
+      expect(result).toHaveLength(2);
+    });
+  });
+
+  describe("containsFormula", () => {
+    const fn = findFn("containsFormula");
+    it("含まれる場合true", () => {
+      expect(
+        fn([encodeFormula(phi), encodeFormula(psi)], encodeFormula(phi)),
+      ).toBe(true);
+    });
+    it("含まれない場合false", () => {
+      expect(fn([encodeFormula(psi)], encodeFormula(phi))).toBe(false);
+    });
+  });
+
+  describe("countOccurrences", () => {
+    const fn = findFn("countOccurrences");
+    it("出現回数を返す", () => {
+      expect(
+        fn(
+          [encodeFormula(phi), encodeFormula(psi), encodeFormula(phi)],
+          encodeFormula(phi),
+        ),
+      ).toBe(2);
+    });
+  });
+
+  describe("getScChildren", () => {
+    const fn = findFn("getScChildren");
+    it("葉ノードは空配列", () => {
+      const proof = scIdentity(sequent([phi], [phi]));
+      expect(fn(encodeScProofNode(proof))).toEqual([]);
+    });
+    it("カットノードは2つの子を返す", () => {
+      const cut = scCut(
+        scIdentity(sequent([phi], [phi])),
+        scIdentity(sequent([phi], [phi])),
+        phi,
+        sequent([phi], [phi]),
+      );
+      const children = fn(encodeScProofNode(cut)) as readonly unknown[];
+      expect(children).toHaveLength(2);
+    });
+  });
+});
+
 // ── API 定義 ──────────────────────────────────────────────────
 
 describe("CUT_ELIMINATION_BRIDGE_API_DEFS", () => {
-  it("27の定義を含む", () => {
-    expect(CUT_ELIMINATION_BRIDGE_API_DEFS).toHaveLength(27);
+  it("36の定義を含む（5操作 + 9ヘルパー + 22コンストラクタ）", () => {
+    expect(CUT_ELIMINATION_BRIDGE_API_DEFS).toHaveLength(36);
   });
 });
 

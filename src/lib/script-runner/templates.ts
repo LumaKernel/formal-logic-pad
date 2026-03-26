@@ -1518,10 +1518,7 @@ const cutEliminationStep3: ScriptTemplate = {
 // 実は右辺のφはWRで追加しただけなので、カットなしで
 // ψ ⇒ ψ に弱化を適用すれば同じ結論が得られる。
 //
-// ただし結論 ψ ⇒ ψ, φ のうち φ はカットの右前提の
-// 右辺から来ているので、弱化で追加する。
-//
-// 目標: 弱化のみでカットと同じ結論を導出する。
+// 目標: ヘルパー関数でランクを確認し、弱化でカットを除去する。
 
 var phi = parseFormula("φ");
 var psi = parseFormula("ψ");
@@ -1545,15 +1542,33 @@ console.log("--- カット付き証明 ---");
 displayScProof(proofWithCut);
 console.log("カット数: " + countCuts(proofWithCut));
 
-// ── TODO: 弱化のみでカット除去した証明を構築 ──
-// ヒント: 左前提 ψ ⇒ ψ の右辺にはφがない（左ランク=0）。
-// 右前提の右辺から来るφを弱化で追加すればよい。
-//
-// 手順:
-// 1. 左前提 ψ ⇒ ψ (ID) からスタート
-// 2. 右前提の右辺 [φ] を右弱化(WR)で追加
-//    → ψ ⇒ ψ, φ (これが最終結論)
+// ── ヘルパー関数でランクを分析 ──
+console.log("");
+console.log("--- ランク分析 ---");
+var rr = rightRank(wrPsi, phi);
+var lr = leftRank(idPhi, phi);
+var rank = mixRank(proofWithCut);
+console.log("左前提の右ランク (rightRank): " + rr);
+console.log("右前提の左ランク (leftRank): " + lr);
+console.log("MIXランク: " + rank);
+console.log("");
 
+// ランクが0（左前提の右辺にφが1回しかない→WRで追加した分）
+// → 弱化で除去できる！
+
+// ── 弱化のみでカット除去した証明を構築 ──
+var conc = getScConclusion(proofWithCut);
+console.log("目標結論: " + formatSequent(conc));
+console.log("");
+
+// 右前提の右辺の論理式を確認
+var rightConc = getScConclusion(idPhi);
+console.log("右前提の右辺: ");
+for (var i = 0; i < rightConc.succedents.length; i++) {
+  console.log("  " + formatFormula(rightConc.succedents[i]));
+}
+
+// 左前提 ψ ⇒ ψ からスタートし、右弱化でφを追加
 var manualResult = scWeakeningRight(
   idPsi, phi, sequent([psi], [psi, phi])
 );
@@ -1563,19 +1578,9 @@ console.log("--- 手動でカット除去した結果 ---");
 displayScProof(manualResult);
 console.log("カットフリー? " + isCutFree(manualResult));
 
-// ── 自動カット除去との比較 ──
-console.log("");
-console.log("--- 自動カット除去 ---");
-var auto = eliminateCutsWithSteps(proofWithCut);
-for (var i = 0; i < auto.steps.length; i++) {
-  console.log("  " + auto.steps[i].description);
-}
-if (auto.result._tag === "Success") {
-  displayScProof(auto.result.proof);
-}
-
 console.log("");
 console.log("段階3 完了！");
+console.log("ランク0のカットは弱化だけで除去できます。");
 `,
 };
 
@@ -1604,16 +1609,7 @@ const cutEliminationStep4: ScriptTemplate = {
 //   ────────────────────────── (Cut: φ, rank=2)
 //            φ ⇒ φ, φ
 //
-// ランク削減のアイデア:
-//   弱化で追加されたφは「余分な」出現。
-//   弱化の前の証明 (φ ⇒ φ) に対してカットを適用すれば
-//   ランクが1つ下がる。結果に弱化を再適用する。
-//
-//   φ ⇒ φ (ID)    φ ⇒ φ (ID)
-//   ──────────────────── (Cut: φ, rank=1)
-//          φ ⇒ φ
-//   ──────────── (WR: φ を追加)
-//      φ ⇒ φ, φ
+// 目標: ヘルパー関数でランクを確認し、ランクを下げる変換を理解する。
 
 var phi = parseFormula("φ");
 
@@ -1635,15 +1631,30 @@ console.log("--- カット付き証明 ---");
 displayScProof(proofWithCut);
 console.log("カット数: " + countCuts(proofWithCut));
 
-// ── TODO: ランク削減した証明を構築 ──
-// ヒント:
-// 1. 弱化の前の証明(φ ⇒ φ)と右前提(φ ⇒ φ)でCutする
-//    → φ ⇒ φ (rank=1 のカット、これはさらに段階2の方法で除去)
-// 2. その結果に弱化を再適用
-//
-// ここでは最終結果（完全にカットフリー）を構築:
-// φ ⇒ φ に WR でφを追加 → φ ⇒ φ, φ
+// ── ヘルパー関数でランクを分析 ──
+console.log("");
+console.log("--- ランク分析 ---");
+var rank = mixRank(proofWithCut);
+console.log("MIXランク: " + rank);
+console.log("カット式 φ の深さ: " + formulaDepth(phi));
 
+// 左前提の子ノード（弱化の前の証明）を確認
+var leftChildren = getScChildren(wrNode);
+console.log("左前提の子ノード数: " + leftChildren.length);
+if (leftChildren.length > 0) {
+  var childConc = getScConclusion(leftChildren[0]);
+  console.log("左前提の前提: " + formatSequent(childConc));
+  // 弱化前の証明でのφの右ランクを確認
+  var childRR = rightRank(leftChildren[0], phi);
+  console.log("弱化前の右ランク: " + childRR);
+}
+
+// ── ランク削減した証明を構築 ──
+// 弱化前の証明(φ ⇒ φ)と右前提(φ ⇒ φ)でまずCut
+// → φ ⇒ φ (rank=1)
+// その結果に弱化を再適用 → φ ⇒ φ, φ
+//
+// 最終結果（完全にカットフリー）:
 var manualResult = scWeakeningRight(
   idPhi, phi, sequent([phi], [phi, phi])
 );
@@ -1653,21 +1664,10 @@ console.log("--- 手動でカット除去した結果 ---");
 displayScProof(manualResult);
 console.log("カットフリー? " + isCutFree(manualResult));
 
-// ── 自動カット除去で中間ステップを確認 ──
-console.log("");
-console.log("--- 自動カット除去 ---");
-var auto = eliminateCutsWithSteps(proofWithCut);
-for (var i = 0; i < auto.steps.length; i++) {
-  var step = auto.steps[i];
-  console.log("ステップ " + (i + 1) + ": " + step.description);
-  console.log("  depth=" + step.depth + ", rank=" + step.rank);
-}
-if (auto.result._tag === "Success") {
-  displayScProof(auto.result.proof);
-}
-
 console.log("");
 console.log("段階4 完了！");
+console.log("ランク≥2のカットは、構造規則を通り抜けて");
+console.log("ランクを1つずつ下げることで除去できます。");
 `,
 };
 
@@ -1688,30 +1688,16 @@ const cutEliminationStep5: ScriptTemplate = {
 // 論理結合子を「分解」して、部分式に対するカットにする。
 //
 // 含意 (α → β) のカット:
+//   左前提: ⇒→ で α→β を導入
+//   右前提: →⇒ で α→β を分解
+//   → 部分式 α, β に対するカットに帰着
 //
-//   α, Γ ⇒ Δ, β              Σ ⇒ Π, α    β, Σ' ⇒ Δ'
-//   ───────────── (⇒→)       ─────────────────────── (→⇒)
-//   Γ ⇒ Δ, α→β               α→β, Σ, Σ' ⇒ Π, Δ'
-//   ────────────────────────────────────────────────
-//              Γ, Σ, Σ' ⇒ Δ, Π, Δ'          Cut(α→β)
-//
-// 分解: α と β に対する2つのカットに変換
-//
-//              Σ ⇒ Π, α   α, Γ ⇒ Δ, β
-//              ────────────────────────  Cut(α)
-//  β, Σ'⇒Δ'       Γ, Σ ⇒ Δ, Π, β
-//  ───────────────────────────────── Cut(β)
-//         Γ, Σ, Σ' ⇒ Δ, Π, Δ'
-//
-// 目標: 含意のカットを分解するプロセスを理解する。
+// 目標: ヘルパー関数で深さ・ランクを確認し、分解の仕組みを理解する。
 
 var phi = parseFormula("φ");
 var psi = parseFormula("ψ");
 var phiImplPsi = parseFormula("φ → ψ");
 
-// 左前提の前提: φ, ⇒ φ → 簡略化して φ ⇒ ψ として (⇒→)
-// 左: φ ⇒ ψ を (⇒→) で Γ=∅, Δ=∅ として構築
-//   φ ⇒ ψ / ⇒ φ→ψ
 var idPhi = scIdentity(sequent([phi], [phi]));
 var idPsi = scIdentity(sequent([psi], [psi]));
 
@@ -1721,7 +1707,6 @@ var wrPhiPsi = scWeakeningRight(
 );
 
 // (⇒→): φ ⇒ φ, ψ → ⇒ φ→ψ, φ
-// ※ ⇒→ は前件の先頭の α を除いて右辺に α→β を追加
 var implRight = scImplicationRight(
   wrPhiPsi, sequent([], [phiImplPsi, phi])
 );
@@ -1732,8 +1717,7 @@ var implLeft = scImplicationLeft(
   idPhi, idPsi, sequent([phiImplPsi, phi], [psi])
 );
 
-// Cut(φ→ψ): ⇒ φ→ψ, φ  +  φ→ψ, φ ⇒ ψ  → φ ⇒ ψ
-// ※ 実際にはΓ=∅, Σ=∅, Σ'=φ
+// Cut(φ→ψ)
 var proofWithCut = scCut(
   implRight, implLeft, phiImplPsi,
   sequent([phi], [psi, phi])
@@ -1741,31 +1725,42 @@ var proofWithCut = scCut(
 
 console.log("=== カット除去 段階5: 深さ削減 ===");
 console.log("");
-console.log("--- カット式: φ → ψ (depth=2) ---");
 console.log("--- カット付き証明 ---");
 displayScProof(proofWithCut);
 console.log("カット数: " + countCuts(proofWithCut));
 
-// ── 自動カット除去でステップを確認 ──
+// ── ヘルパー関数で深さ・ランクを分析 ──
 console.log("");
-console.log("--- 自動カット除去のステップ ---");
-var auto = eliminateCutsWithSteps(proofWithCut);
-for (var i = 0; i < auto.steps.length; i++) {
-  var step = auto.steps[i];
-  console.log("ステップ " + (i + 1) + ": " + step.description);
-  console.log("  depth=" + step.depth + ", rank=" + step.rank);
-  var stepConc = getScConclusion(step.proof);
-  console.log("  結論: " + formatSequent(stepConc));
-}
+console.log("--- 深さ・ランク分析 ---");
+var depth = formulaDepth(phiImplPsi);
+var rank = mixRank(proofWithCut);
+console.log("カット式 φ → ψ の深さ: " + depth);
+console.log("MIXランク: " + rank);
+console.log("部分式の深さ: φ=" + formulaDepth(phi) + ", ψ=" + formulaDepth(psi));
+console.log("");
 
+// 左前提・右前提の構造を確認
+var leftChildren = getScChildren(implRight);
+var rightChildren = getScChildren(implLeft);
+console.log("左前提 (⇒→) の子: " + leftChildren.length + "ノード");
+console.log("右前提 (→⇒) の子: " + rightChildren.length + "ノード");
+
+// カット式の結論での出現を確認
+var leftConc = getScConclusion(implRight);
+var rightConc = getScConclusion(implLeft);
 console.log("");
-console.log("--- 最終結果 ---");
-if (auto.result._tag === "Success") {
-  var finalConc = getScConclusion(auto.result.proof);
-  console.log("結論: " + formatSequent(finalConc));
-  console.log("カットフリー? " + isCutFree(auto.result.proof));
-  displayScProof(auto.result.proof);
-}
+console.log("左前提の結論: " + formatSequent(leftConc));
+console.log("  右辺に φ→ψ 含む? " + containsFormula(leftConc.succedents, phiImplPsi));
+console.log("右前提の結論: " + formatSequent(rightConc));
+console.log("  左辺に φ→ψ 含む? " + containsFormula(rightConc.antecedents, phiImplPsi));
+
+// ── 深さ削減: φ→ψ のカットを φ と ψ のカットに分解 ──
+// 分解後は depth=1 のカット（段階2の方法で除去可能）
+console.log("");
+console.log("--- 分解の原理 ---");
+console.log("depth=" + depth + " のカット(φ→ψ)を");
+console.log("depth=1 のカット(φ), depth=1 のカット(ψ)に分解。");
+console.log("二重帰納法: (depth, rank) が辞書式に減少。");
 
 console.log("");
 console.log("段階5 完了！");
@@ -1791,27 +1786,18 @@ const cutEliminationStep6: ScriptTemplate = {
 // これまでの段階を振り返り:
 //   段階1: カット判定 (isCutFree, countCuts)
 //   段階2: ID公理のカット (d=1, r=1)
-//   段階3: ランク0 (弱化で除去)
-//   段階4: ランク削減 (r≥2 → r-1)
-//   段階5: 深さ削減 (d≥2 → 部分式カット)
+//   段階3: ランク0 (弱化で除去) — rightRank, leftRank で判定
+//   段階4: ランク削減 (r≥2 → r-1) — mixRank で確認
+//   段階5: 深さ削減 (d≥2 → 部分式カット) — formulaDepth で確認
 //
-// カット除去アルゴリズムは (depth, rank) の辞書式二重帰納法:
-// 1. ボトムアップでサブ証明からカットを除去
-// 2. トップレベルのカットに対して:
-//    - ランク0 → 弱化で除去（段階3）
-//    - ランク≥2 → ランク削減（段階4）
-//    - ランク1, 深さ≥2 → 深さ削減（段階5）
-//    - ランク1, 深さ1 → 基底ケース（段階2）
-//
-// 目標: 複数カットを含む証明で全体の動作を確認する。
+// 目標: ヘルパー関数で各カットを分析し、
+//       どの段階が適用されるかを自分で判定する。
 
 var phi = parseFormula("φ");
 var psi = parseFormula("ψ");
-var chi = parseFormula("χ");
 
 var idPhi = scIdentity(sequent([phi], [phi]));
 var idPsi = scIdentity(sequent([psi], [psi]));
-var idChi = scIdentity(sequent([chi], [chi]));
 
 // 証明1: φ ⇒ φ + φ ⇒ φ を Cut(φ) → φ ⇒ φ
 var cut1 = scCut(idPhi, idPhi, phi, sequent([phi], [phi]));
@@ -1833,13 +1819,38 @@ console.log("証明の結論: " + formatSequent(conc));
 console.log("カット数: " + countCuts(cut2));
 console.log("");
 
-// 初期証明をキャンバスに表示
+// ── 各カットをヘルパー関数で分析 ──
+console.log("--- カット分析 ---");
+
+// 内側のカット (cut1: φ ⇒ φ のID同士)
+console.log("内側カット (Cut φ):");
+console.log("  MIXランク: " + mixRank(cut1));
+console.log("  カット式の深さ: " + formulaDepth(phi));
+console.log("  → 段階2 (r=1, d=1: ID公理のカット)");
+
+// 外側のカット (cut2: ψ でカット)
+console.log("外側カット (Cut ψ):");
+console.log("  MIXランク: " + mixRank(cut2));
+console.log("  カット式の深さ: " + formulaDepth(psi));
+
+// 左前提の子ノードを確認
+var cut2Children = getScChildren(cut2);
+console.log("  左前提の _tag: " + cut2Children[0]._tag);
+console.log("  右前提の _tag: " + cut2Children[1]._tag);
+
+// 右辺でψの出現を確認
+var leftConc = getScConclusion(wr1);
+var occ = countOccurrences(leftConc.succedents, psi);
+console.log("  左前提の右辺でのψ出現数: " + occ);
+console.log("");
+
+// ── 初期証明 ---
 console.log("--- 初期証明（2つのカットを含む）---");
 displayScProof(cut2);
 
-// 自動カット除去の全ステップを表示
+// ── 自動カット除去で各ステップのrank/depthを確認 ──
 console.log("");
-console.log("--- カット除去の全ステップ ---");
+console.log("--- 自動カット除去ステップ ---");
 var result = eliminateCutsWithSteps(cut2);
 
 for (var i = 0; i < result.steps.length; i++) {

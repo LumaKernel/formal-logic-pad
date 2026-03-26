@@ -281,6 +281,57 @@ declare function eliminateCutsWithSteps(
 /** SC証明の結論シーケントを取得する。 */
 declare function getScConclusion(proof: ScProofNodeJson): SequentJson;
 
+// ── カット除去ヘルパー関数 ──
+
+/** 論理式の構造的深さを返す。原子式は1、結合子で+1。 */
+declare function formulaDepth(formula: FormulaJson): number;
+
+/** 証明ノードの右ランク（右辺でのカット式出現パスの最大長）を返す。 */
+declare function rightRank(
+  proof: ScProofNodeJson,
+  mixFormula: FormulaJson,
+): number;
+
+/** 証明ノードの左ランク（左辺でのカット式出現パスの最大長）を返す。 */
+declare function leftRank(
+  proof: ScProofNodeJson,
+  mixFormula: FormulaJson,
+): number;
+
+/** カットノードのMIXランク（= max(左ランク, 右ランク)）を返す。ScCutノードのみ。 */
+declare function mixRank(cutNode: ScProofNodeJson): number;
+
+/** 論理式列から特定の論理式の全出現を除去する。 */
+declare function removeAllOccurrences(
+  formulas: FormulaJson[],
+  target: FormulaJson,
+): FormulaJson[];
+
+/** 論理式列から特定の論理式の最初の出現だけを除去する。 */
+declare function removeFirstOccurrence(
+  formulas: FormulaJson[],
+  target: FormulaJson,
+): FormulaJson[];
+
+/** 論理式列に特定の論理式が含まれるか判定する。 */
+declare function containsFormula(
+  formulas: FormulaJson[],
+  target: FormulaJson,
+): boolean;
+
+/** 論理式列中の特定の論理式の出現回数を返す。 */
+declare function countOccurrences(
+  formulas: FormulaJson[],
+  target: FormulaJson,
+): number;
+
+/** 証明ノードの直接の子ノード（前提）を配列で返す。葉ノードは空配列。 */
+declare function getScChildren(
+  proof: ScProofNodeJson,
+): ScProofNodeJson[];
+
+// ── SC証明ノードコンストラクタ ──
+
 /** シーケント（前件と後件の組）を構築する。 */
 declare function sequent(
   antecedents: FormulaJson[],

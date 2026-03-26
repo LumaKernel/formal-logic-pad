@@ -9,7 +9,11 @@
 
 import { Either } from "effect";
 import type { Formula } from "../logic-core/formula";
-import type { Sequent, ScProofNode } from "../logic-core/sequentCalculus";
+import type {
+  Sequent,
+  ScProofNode,
+  ScCut,
+} from "../logic-core/sequentCalculus";
 import {
   sequent,
   scIdentity,
@@ -38,6 +42,15 @@ import {
   eliminateCutsWithSteps,
   isCutFree,
   countCuts,
+  formulaDepth,
+  rightRank,
+  leftRank,
+  mixRank,
+  removeAllOccurrences,
+  removeFirstOccurrence,
+  containsFormula,
+  countOccurrences,
+  getScChildren,
 } from "../logic-core/cutElimination";
 import type { CutEliminationStep } from "../logic-core/cutElimination";
 import { encodeFormula, decodeFormula } from "../logic-core/serialization";
@@ -466,6 +479,123 @@ const getScConclusionFn = (proofJson: unknown): unknown => {
   return encodeSequent(proof.conclusion);
 };
 
+// ── カット除去ヘルパー関数 ─────────────────────────────────────
+//
+// 学習者がカット除去アルゴリズムの各段階を手動で実行できるようにする。
+
+/**
+ * 論理式の構造的深さを返す。
+ */
+const formulaDepthFn = (formulaJson: unknown): unknown => {
+  const formula = decodeFormulaOrThrow(formulaJson);
+  return formulaDepth(formula);
+};
+
+/**
+ * カットノードの右ランク（左前提の右辺におけるカット式の追跡深さ）を返す。
+ */
+const rightRankFn = (proofJson: unknown, formulaJson: unknown): unknown => {
+  const proof = decodeScProofNode(proofJson);
+  const formula = decodeFormulaOrThrow(formulaJson);
+  return rightRank(proof, formula);
+};
+
+/**
+ * カットノードの左ランク（右前提の左辺におけるカット式の追跡深さ）を返す。
+ */
+const leftRankFn = (proofJson: unknown, formulaJson: unknown): unknown => {
+  const proof = decodeScProofNode(proofJson);
+  const formula = decodeFormulaOrThrow(formulaJson);
+  return leftRank(proof, formula);
+};
+
+/**
+ * カットノードのMIXランクを返す。
+ */
+const mixRankFn = (cutNodeJson: unknown): unknown => {
+  const node = decodeScProofNode(cutNodeJson);
+  if (node._tag !== "ScCut") {
+    throw new Error("mixRank: argument must be a ScCut node");
+  }
+  return mixRank(node as ScCut);
+};
+
+/**
+ * 論理式列から特定の論理式の全出現を除去する。
+ */
+const removeAllOccurrencesFn = (
+  formulasJson: unknown,
+  targetJson: unknown,
+): unknown => {
+  if (!Array.isArray(formulasJson)) {
+    throw new Error("removeAllOccurrences: first argument must be an array");
+  }
+  const formulas = (formulasJson as readonly unknown[]).map(
+    decodeFormulaOrThrow,
+  );
+  const target = decodeFormulaOrThrow(targetJson);
+  return removeAllOccurrences(formulas, target).map(encodeFormula);
+};
+
+/**
+ * 論理式列から特定の論理式の最初の出現だけを除去する。
+ */
+const removeFirstOccurrenceFn = (
+  formulasJson: unknown,
+  targetJson: unknown,
+): unknown => {
+  if (!Array.isArray(formulasJson)) {
+    throw new Error("removeFirstOccurrence: first argument must be an array");
+  }
+  const formulas = (formulasJson as readonly unknown[]).map(
+    decodeFormulaOrThrow,
+  );
+  const target = decodeFormulaOrThrow(targetJson);
+  return removeFirstOccurrence(formulas, target).map(encodeFormula);
+};
+
+/**
+ * 論理式列に特定の論理式が含まれるか。
+ */
+const containsFormulaFn = (
+  formulasJson: unknown,
+  targetJson: unknown,
+): unknown => {
+  if (!Array.isArray(formulasJson)) {
+    throw new Error("containsFormula: first argument must be an array");
+  }
+  const formulas = (formulasJson as readonly unknown[]).map(
+    decodeFormulaOrThrow,
+  );
+  const target = decodeFormulaOrThrow(targetJson);
+  return containsFormula(formulas, target);
+};
+
+/**
+ * 論理式列中の特定の論理式の出現回数を返す。
+ */
+const countOccurrencesFn = (
+  formulasJson: unknown,
+  targetJson: unknown,
+): unknown => {
+  if (!Array.isArray(formulasJson)) {
+    throw new Error("countOccurrences: first argument must be an array");
+  }
+  const formulas = (formulasJson as readonly unknown[]).map(
+    decodeFormulaOrThrow,
+  );
+  const target = decodeFormulaOrThrow(targetJson);
+  return countOccurrences(formulas, target);
+};
+
+/**
+ * 証明ノードの直接の子ノードを返す。
+ */
+const getScChildrenFn = (proofJson: unknown): unknown => {
+  const proof = decodeScProofNode(proofJson);
+  return getScChildren(proof).map(encodeScProofNode);
+};
+
 // ── SC証明ノードコンストラクタ ─────────────────────────────────
 //
 // スクリプトユーザーが raw JSON を手書きする代わりに
@@ -740,6 +870,16 @@ export const createCutEliminationBridges =
     { name: "formatSequent", fn: formatSequentFn },
     { name: "eliminateCutsWithSteps", fn: eliminateCutsWithStepsFn },
     { name: "getScConclusion", fn: getScConclusionFn },
+    // カット除去ヘルパー関数
+    { name: "formulaDepth", fn: formulaDepthFn },
+    { name: "rightRank", fn: rightRankFn },
+    { name: "leftRank", fn: leftRankFn },
+    { name: "mixRank", fn: mixRankFn },
+    { name: "removeAllOccurrences", fn: removeAllOccurrencesFn },
+    { name: "removeFirstOccurrence", fn: removeFirstOccurrenceFn },
+    { name: "containsFormula", fn: containsFormulaFn },
+    { name: "countOccurrences", fn: countOccurrencesFn },
+    { name: "getScChildren", fn: getScChildrenFn },
     // SC証明ノードコンストラクタ
     { name: "sequent", fn: sequentFn },
     { name: "scIdentity", fn: scIdentityFn },
@@ -795,6 +935,61 @@ export const CUT_ELIMINATION_BRIDGE_API_DEFS: readonly ProofBridgeApiDef[] = [
     name: "getScConclusion",
     signature: "(proof: ScProofNodeJson) => SequentJson",
     description: "SC証明の結論シーケントを取得する。",
+  },
+  // カット除去ヘルパー関数
+  {
+    name: "formulaDepth",
+    signature: "(formula: FormulaJson) => number",
+    description:
+      "論理式の構造的深さを返す。原子式は1、結合子で+1。カット除去の深さ帰納法で使用。",
+  },
+  {
+    name: "rightRank",
+    signature:
+      "(proof: ScProofNodeJson, mixFormula: FormulaJson) => number",
+    description:
+      "証明ノードの右ランク（右辺でのカット式出現パスの最大長）を返す。",
+  },
+  {
+    name: "leftRank",
+    signature:
+      "(proof: ScProofNodeJson, mixFormula: FormulaJson) => number",
+    description:
+      "証明ノードの左ランク（左辺でのカット式出現パスの最大長）を返す。",
+  },
+  {
+    name: "mixRank",
+    signature: "(cutNode: ScProofNodeJson) => number",
+    description:
+      "カットノードのMIXランク（= max(左ランク, 右ランク)）を返す。ScCutノードのみ受付。",
+  },
+  {
+    name: "removeAllOccurrences",
+    signature:
+      "(formulas: FormulaJson[], target: FormulaJson) => FormulaJson[]",
+    description: "論理式列から特定の論理式の全出現を除去する。",
+  },
+  {
+    name: "removeFirstOccurrence",
+    signature:
+      "(formulas: FormulaJson[], target: FormulaJson) => FormulaJson[]",
+    description: "論理式列から特定の論理式の最初の出現だけを除去する。",
+  },
+  {
+    name: "containsFormula",
+    signature: "(formulas: FormulaJson[], target: FormulaJson) => boolean",
+    description: "論理式列に特定の論理式が含まれるか判定する。",
+  },
+  {
+    name: "countOccurrences",
+    signature: "(formulas: FormulaJson[], target: FormulaJson) => number",
+    description: "論理式列中の特定の論理式の出現回数を返す。",
+  },
+  {
+    name: "getScChildren",
+    signature: "(proof: ScProofNodeJson) => ScProofNodeJson[]",
+    description:
+      "証明ノードの直接の子ノード（前提）を配列で返す。葉ノードは空配列。",
   },
   // SC証明ノードコンストラクタ
   {
