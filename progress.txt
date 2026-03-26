@@ -18240,3 +18240,13 @@
   - Monaco editorや::placeholder色はaxeで誤検出されやすい。per-story disableが現実的
   - axe計算: rgba alpha blendの結果はブラウザ計算と一致しないことがある。明示的に計算して確認すべき
 ---
+
+## 2026-03-26 - simplify
+- Simplify Formula操作を実装（ノードの論理式を簡約し、新ノードを作成してSimplificationEdgeで接続）
+- 変更ファイル: simplifyFormulaLogic.ts(新規), simplifyFormulaLogic.test.ts(新規), workspaceState.ts, workspaceState.test.ts, ProofWorkspace.tsx, proofMessages.ts, menuActionDefinition.ts, index.ts, messages/en.json, messages/ja.json, WorkspaceContent.tsx
+- カバレッジ: simplifyFormulaLogic.ts 100%/100%/100%/100%
+- **今後のイテレーションへの学び:**
+  - Simplify Formulaは3層分離パターン: simplifyFormulaLogic.ts(純粋バリデーション) → workspaceState.ts(applySimplifyFormula) → ProofWorkspace.tsx(handleSimplifyFormula)
+  - normalizeFormula（in-place）とapplySimplifyFormula（新ノード作成）は役割が異なる。前者はノード自体のテキストを書き換え、後者は元ノードを保持して新ノードを追加
+  - ProofMessages に新フィールド追加時: proofMessages.ts + messages/en.json + messages/ja.json + WorkspaceContent.tsx の4箇所を同期
+---

@@ -322,3 +322,7 @@
   - 構造的a11y違反（nested-interactive等7ルール）は個別disable。Monaco/dark code panelは per-story disable
   - 選択バナーボタンのコントラスト修正（`rgba(255,255,255,0.2)` → `rgba(0,0,0,0.2)`）
   - 分岐バッジのコントラスト修正（`#8a6d20` → `#755a16`）
+- [x] 前にもあったタスクだが、UI公理へのsubstで`phi:=phi->phi`としたとき、[τ/x]は消えてはいけない。
+  - [x] 置換が消えていいときの話を以前したはずなので、それをまずは確認すべきだ。→ `resolveFormulaSubstitution` が自動解決していた
+  - [x] そして、置換は常に消えなくていい。ユーザーが自分で整理操作をすることで消す(消せるときは)というふうにすればよい → `resolveFormulaSubstitution` 呼び出しを削除、ゴール判定は `equivalentFormula` に変更
+  - [x] Simplify Formula操作も用意してあげよう。 (Simplifyで繋がったノードが作られる) → simplifyFormulaLogic.ts + workspaceState.ts + ProofWorkspace.tsx に実装。コンテキストメニューから実行可能
