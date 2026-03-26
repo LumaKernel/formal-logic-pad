@@ -18,7 +18,11 @@ import { parseString } from "../logic-lang/parser";
 import type { DependencyInfo } from "./EditableProofNode";
 import type { WorkspaceNode } from "./workspaceState";
 import type { InferenceEdge, InferenceRuleId } from "./inferenceEdge";
-import { getInferenceEdgePremiseNodeIds } from "./inferenceEdge";
+import {
+  getInferenceEdgePremiseNodeIds,
+  isScInferenceEdge,
+} from "./inferenceEdge";
+import type { ScRuleId } from "../logic-core/deductionSystem";
 
 /**
  * あるノードが依存するルートノード（公理）のID集合を返す。
@@ -265,6 +269,49 @@ export function getNodeInferenceRuleIds(
     result.add(edge._tag);
 
     // 前提ノードを再帰的に辿る
+    const premiseIds = getInferenceEdgePremiseNodeIds(edge);
+    for (const premiseId of premiseIds) {
+      traverse(premiseId);
+    }
+  }
+
+  traverse(nodeId);
+  return result;
+}
+
+/**
+ * あるノードの証明チェーンで使用されているSC固有ルールIDの集合を返す。
+ *
+ * InferenceEdgeを逆方向に辿り、SCエッジ（sc-single, sc-branching, sc-axiom）の
+ * ruleId を収集する。カット除去クエストでの「cut禁止」判定に使用する。
+ *
+ * @param nodeId 対象ノードのID
+ * @param inferenceEdges ワークスペースの全推論エッジ
+ * @returns 使用されているSCルールIDの集合
+ */
+export function getNodeScRuleIds(
+  nodeId: string,
+  inferenceEdges: readonly InferenceEdge[],
+): ReadonlySet<ScRuleId> {
+  const result = new Set<ScRuleId>();
+  const visited = new Set<string>();
+
+  const edgeByConclusionId = new Map<string, InferenceEdge>();
+  for (const edge of inferenceEdges) {
+    edgeByConclusionId.set(edge.conclusionNodeId, edge);
+  }
+
+  function traverse(currentId: string): void {
+    if (visited.has(currentId)) return;
+    visited.add(currentId);
+
+    const edge = edgeByConclusionId.get(currentId);
+    if (edge === undefined) return;
+
+    if (isScInferenceEdge(edge)) {
+      result.add(edge.ruleId);
+    }
+
     const premiseIds = getInferenceEdgePremiseNodeIds(edge);
     for (const premiseId of premiseIds) {
       traverse(premiseId);

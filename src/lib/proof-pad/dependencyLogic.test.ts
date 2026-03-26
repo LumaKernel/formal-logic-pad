@@ -6,6 +6,7 @@ import {
   getProofNodeIds,
   getNodeAxiomIds,
   getNodeInferenceRuleIds,
+  getNodeScRuleIds,
   validateRootNodes,
   hasUnknownRoots,
   deduplicateDependencyInfos,
@@ -1055,6 +1056,148 @@ describe("dependencyLogic", () => {
       ];
       const result = getNodeInferenceRuleIds("gen-1", edges);
       expect(result).toEqual(new Set(["substitution", "mp", "gen"]));
+    });
+  });
+
+  describe("getNodeScRuleIds", () => {
+    function makeScAxiomEdge(
+      conclusionNodeId: string,
+      ruleId: "identity" | "bottom-left",
+    ): InferenceEdge {
+      return {
+        _tag: "sc-axiom",
+        ruleId,
+        conclusionNodeId,
+        conclusionText: "",
+      };
+    }
+
+    function makeScSingleEdge(
+      conclusionNodeId: string,
+      premiseNodeId: string,
+      ruleId:
+        | "weakening-left"
+        | "weakening-right"
+        | "implication-right"
+        | "negation-left"
+        | "negation-right",
+    ): InferenceEdge {
+      return {
+        _tag: "sc-single",
+        ruleId,
+        conclusionNodeId,
+        premiseNodeId,
+        conclusionText: "",
+      };
+    }
+
+    function makeScBranchingEdge(
+      conclusionNodeId: string,
+      leftPremiseNodeId: string,
+      rightPremiseNodeId: string,
+      ruleId:
+        | "cut"
+        | "implication-left"
+        | "conjunction-right"
+        | "disjunction-left",
+    ): InferenceEdge {
+      return {
+        _tag: "sc-branching",
+        ruleId,
+        conclusionNodeId,
+        leftPremiseNodeId,
+        rightPremiseNodeId,
+        leftConclusionText: "",
+        rightConclusionText: "",
+        conclusionText: "",
+      };
+    }
+
+    it("エッジなしのノードは空集合を返す", () => {
+      const result = getNodeScRuleIds("node-1", []);
+      expect(result).toEqual(new Set());
+    });
+
+    it("SC公理エッジのruleIdを収集する", () => {
+      const edges: readonly InferenceEdge[] = [
+        makeScAxiomEdge("node-1", "identity"),
+      ];
+      const result = getNodeScRuleIds("node-1", edges);
+      expect(result).toEqual(new Set(["identity"]));
+    });
+
+    it("SC単一前提エッジのruleIdを収集する", () => {
+      // node-1 (identity) → [weakening-left] → node-2
+      const edges: readonly InferenceEdge[] = [
+        makeScAxiomEdge("node-1", "identity"),
+        makeScSingleEdge("node-2", "node-1", "weakening-left"),
+      ];
+      const result = getNodeScRuleIds("node-2", edges);
+      expect(result).toEqual(new Set(["identity", "weakening-left"]));
+    });
+
+    it("SC分岐エッジのruleIdを収集する（cut）", () => {
+      // node-1 (identity), node-2 (identity) → [cut] → node-3
+      const edges: readonly InferenceEdge[] = [
+        makeScAxiomEdge("node-1", "identity"),
+        makeScAxiomEdge("node-2", "identity"),
+        makeScBranchingEdge("node-3", "node-1", "node-2", "cut"),
+      ];
+      const result = getNodeScRuleIds("node-3", edges);
+      expect(result).toEqual(new Set(["identity", "cut"]));
+    });
+
+    it("深い証明チェーンで全SCルールを収集する", () => {
+      // node-1 (identity) → [weakening-left] → node-2
+      // node-3 (bottom-left)
+      // node-2, node-3 → [cut] → node-4
+      // node-4 → [implication-right] → node-5
+      const edges: readonly InferenceEdge[] = [
+        makeScAxiomEdge("node-1", "identity"),
+        makeScSingleEdge("node-2", "node-1", "weakening-left"),
+        makeScAxiomEdge("node-3", "bottom-left"),
+        makeScBranchingEdge("node-4", "node-2", "node-3", "cut"),
+        makeScSingleEdge("node-5", "node-4", "implication-right"),
+      ];
+      const result = getNodeScRuleIds("node-5", edges);
+      expect(result).toEqual(
+        new Set([
+          "identity",
+          "weakening-left",
+          "bottom-left",
+          "cut",
+          "implication-right",
+        ]),
+      );
+    });
+
+    it("非SCエッジは無視する", () => {
+      // Hilbert系のMPエッジとSCエッジが混在
+      const edges: readonly InferenceEdge[] = [
+        makeMPEdge("node-2", "node-1", "node-3"),
+        makeScAxiomEdge("node-4", "identity"),
+      ];
+      // MPエッジでnode-2に到達するが、SCルールIDは収集されない
+      const result = getNodeScRuleIds("node-2", edges);
+      expect(result).toEqual(new Set());
+    });
+
+    it("SC公理エッジのみ（前提なし）で正しく収集する", () => {
+      const edges: readonly InferenceEdge[] = [
+        makeScAxiomEdge("node-1", "bottom-left"),
+      ];
+      const result = getNodeScRuleIds("node-1", edges);
+      expect(result).toEqual(new Set(["bottom-left"]));
+    });
+
+    it("循環参照があっても無限ループしない", () => {
+      // node-1 → [weakening-left] → node-2 → [weakening-right] → node-1 (循環)
+      const edges: readonly InferenceEdge[] = [
+        makeScSingleEdge("node-2", "node-1", "weakening-left"),
+        makeScSingleEdge("node-1", "node-2", "weakening-right"),
+      ];
+      const result = getNodeScRuleIds("node-1", edges);
+      expect(result).toEqual(new Set(["weakening-right", "weakening-left"]));
     });
   });
 });

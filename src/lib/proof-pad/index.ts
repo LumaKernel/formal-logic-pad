@@ -482,6 +482,7 @@ export {
   getProofNodeIds,
   getNodeAxiomIds,
   getNodeInferenceRuleIds,
+  getNodeScRuleIds,
   validateRootNodes,
   hasUnknownRoots,
   deduplicateDependencyInfos,

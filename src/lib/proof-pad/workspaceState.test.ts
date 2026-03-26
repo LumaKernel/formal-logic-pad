@@ -1368,6 +1368,14 @@ describe("proofWorkspace", () => {
       expect(ws.connections[0]!.fromNodeId).toBe("node-1");
     });
 
+    it("creates workspace with disallowedScRuleIds in goals", () => {
+      const ws = createQuestWorkspace(lukasiewiczSystem, [
+        { formulaText: "phi -> phi", disallowedScRuleIds: ["cut"] },
+      ]);
+      expect(ws.goals).toHaveLength(1);
+      expect(ws.goals[0]!.disallowedScRuleIds).toEqual(["cut"]);
+    });
+
     it("nextNodeId defaults to 1 when no node-N pattern IDs", () => {
       const initialState: QuestInitialState = {
         nodes: [
@@ -1404,6 +1412,14 @@ describe("proofWorkspace", () => {
       });
       expect(result.goals[0]!.label).toBe("Test Goal");
       expect(result.goals[0]!.allowedAxiomIds).toEqual(["A1"]);
+    });
+
+    it("adds a goal with disallowedScRuleIds", () => {
+      const ws = createEmptyWorkspace(lukasiewiczSystem);
+      const result = addGoal(ws, "phi", {
+        disallowedScRuleIds: ["cut"],
+      });
+      expect(result.goals[0]!.disallowedScRuleIds).toEqual(["cut"]);
     });
 
     it("adds multiple goals with incrementing IDs", () => {

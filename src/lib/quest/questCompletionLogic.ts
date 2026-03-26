@@ -25,9 +25,11 @@ import { parseString } from "../logic-lang/parser";
 import {
   getNodeAxiomIds,
   getNodeInferenceRuleIds,
+  getNodeScRuleIds,
   validateRootNodes,
   hasUnknownRoots,
 } from "../proof-pad/dependencyLogic";
+import type { ScRuleId } from "../logic-core/deductionSystem";
 import { parseNodeFormula } from "../proof-pad/goalCheckLogic";
 
 // --- ステップ数計算 ---
@@ -202,6 +204,12 @@ export type GoalAxiomCheckResult = {
   readonly allowedRuleIds: readonly InferenceRuleId[] | undefined;
   /** 制限違反の推論規則ID（制限なしまたは制限内の場合は空） */
   readonly violatingRuleIds: ReadonlySet<InferenceRuleId>;
+  /** 使用されたSC固有ルールIDの集合 */
+  readonly usedScRuleIds: ReadonlySet<ScRuleId>;
+  /** このゴールで禁止されたSCルールID（undefinedは制限なし） */
+  readonly disallowedScRuleIds: readonly ScRuleId[] | undefined;
+  /** 禁止SC規則の違反（禁止されているが使用されたSCルール） */
+  readonly violatingScRuleIds: ReadonlySet<ScRuleId>;
 };
 
 /** 公理・規則制限付きゴールチェック結果 */
@@ -255,6 +263,9 @@ const checkSingleGoalWithAxioms = (
         usedRuleIds: new Set<InferenceRuleId>(),
         allowedRuleIds: goal.allowedRuleIds,
         violatingRuleIds: new Set<InferenceRuleId>(),
+        usedScRuleIds: new Set<ScRuleId>(),
+        disallowedScRuleIds: goal.disallowedScRuleIds,
+        violatingScRuleIds: new Set<ScRuleId>(),
       };
     }
 
@@ -284,6 +295,14 @@ const checkSingleGoalWithAxioms = (
       computeViolatingRuleIds(usedRuleIds, goal.allowedRuleIds),
     );
 
+    // SC固有ルールの収集と違反チェック
+    const usedScRuleIds = yield* Effect.sync(() =>
+      getNodeScRuleIds(matchingNode.id, inferenceEdges),
+    );
+    const violatingScRuleIds = yield* Effect.sync(() =>
+      computeViolatingScRuleIds(usedScRuleIds, goal.disallowedScRuleIds),
+    );
+
     return {
       goalId: goal.id,
       matchingNodeId: matchingNode.id,
@@ -294,6 +313,9 @@ const checkSingleGoalWithAxioms = (
       usedRuleIds,
       allowedRuleIds: goal.allowedRuleIds,
       violatingRuleIds,
+      usedScRuleIds,
+      disallowedScRuleIds: goal.disallowedScRuleIds,
+      violatingScRuleIds,
     };
   });
 
@@ -339,7 +361,7 @@ export const checkQuestGoalsWithAxiomsEffect = (
     );
 
     const hasRuleViolation = goalResults.some(
-      (r) => r.violatingRuleIds.size > 0,
+      (r) => r.violatingRuleIds.size > 0 || r.violatingScRuleIds.size > 0,
     );
 
     if (achievedCount < goals.length) {
@@ -419,6 +441,30 @@ export function computeViolatingAxiomIds(
  * @param allowedRuleIds 許可された推論規則IDのリスト（undefinedは制限なし）
  * @returns 制限違反の推論規則IDの集合
  */
+/**
+ * 使用されたSCルールIDのうち、禁止されているものを返す。
+ *
+ * @param usedScRuleIds 使用されたSCルールIDの集合
+ * @param disallowedScRuleIds 禁止されたSCルールIDのリスト（undefinedは制限なし）
+ * @returns 禁止違反のSCルールIDの集合
+ */
+export function computeViolatingScRuleIds(
+  usedScRuleIds: ReadonlySet<ScRuleId>,
+  disallowedScRuleIds: readonly ScRuleId[] | undefined,
+): ReadonlySet<ScRuleId> {
+  if (disallowedScRuleIds === undefined) {
+    return new Set();
+  }
+  const disallowedSet = new Set(disallowedScRuleIds);
+  const violations = new Set<ScRuleId>();
+  for (const ruleId of usedScRuleIds) {
+    if (disallowedSet.has(ruleId)) {
+      violations.add(ruleId);
+    }
+  }
+  return violations;
+}
+
 export function computeViolatingRuleIds(
   usedRuleIds: ReadonlySet<InferenceRuleId>,
   allowedRuleIds: readonly InferenceRuleId[] | undefined,

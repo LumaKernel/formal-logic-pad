@@ -8,6 +8,7 @@ import {
   checkQuestGoalsWithAxiomsEffect,
   computeViolatingAxiomIds,
   computeViolatingRuleIds,
+  computeViolatingScRuleIds,
 } from "./questCompletionLogic";
 import type { WorkspaceNode, WorkspaceGoal } from "../proof-pad/workspaceState";
 import type {
@@ -15,6 +16,7 @@ import type {
   InferenceRuleId,
 } from "../proof-pad/inferenceEdge";
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
+import type { ScRuleId } from "../logic-core/deductionSystem";
 
 // --- ヘルパー ---
 
@@ -1073,6 +1075,205 @@ describe("checkQuestGoalsWithAxioms (rule restriction)", () => {
       expect(result.goalResults[0]?.usedRuleIds).toEqual(new Set());
       expect(result.goalResults[0]?.violatingRuleIds).toEqual(new Set());
       expect(result.goalResults[0]?.allowedRuleIds).toEqual(["mp"]);
+    }
+  });
+});
+
+// --- computeViolatingScRuleIds ---
+
+describe("computeViolatingScRuleIds", () => {
+  test("disallowedがundefinedなら空集合を返す", () => {
+    const used: ReadonlySet<ScRuleId> = new Set(["cut", "identity"]);
+    const result = computeViolatingScRuleIds(used, undefined);
+    expect(result).toEqual(new Set());
+  });
+
+  test("禁止リストに含まれるルールが使用されていれば違反を返す", () => {
+    const used: ReadonlySet<ScRuleId> = new Set([
+      "cut",
+      "identity",
+      "weakening-left",
+    ]);
+    const result = computeViolatingScRuleIds(used, ["cut"]);
+    expect(result).toEqual(new Set(["cut"]));
+  });
+
+  test("禁止リストに含まれないルールのみ使用なら空集合を返す", () => {
+    const used: ReadonlySet<ScRuleId> = new Set(["identity", "weakening-left"]);
+    const result = computeViolatingScRuleIds(used, ["cut"]);
+    expect(result).toEqual(new Set());
+  });
+
+  test("使用ルールが空なら空集合を返す", () => {
+    const used: ReadonlySet<ScRuleId> = new Set();
+    const result = computeViolatingScRuleIds(used, ["cut"]);
+    expect(result).toEqual(new Set());
+  });
+
+  test("禁止リストが空なら空集合を返す", () => {
+    const used: ReadonlySet<ScRuleId> = new Set(["cut", "identity"]);
+    const result = computeViolatingScRuleIds(used, []);
+    expect(result).toEqual(new Set());
+  });
+
+  test("複数の禁止ルールが使用されていればすべて違反を返す", () => {
+    const used: ReadonlySet<ScRuleId> = new Set([
+      "cut",
+      "weakening-left",
+      "weakening-right",
+    ]);
+    const result = computeViolatingScRuleIds(used, ["cut", "weakening-left"]);
+    expect(result).toEqual(new Set(["cut", "weakening-left"]));
+  });
+});
+
+// --- SC規則制限付きゴール達成チェック ---
+
+describe("checkQuestGoalsWithAxioms (SC rule restriction)", () => {
+  // SC系ではemptyLogicSystemを使用（公理なし）
+  const emptySystem: LogicSystem = {
+    name: "empty",
+    propositionalAxioms: new Set(),
+    predicateLogic: false,
+    equalityLogic: false,
+    generalization: false,
+  };
+
+  function makeScAxiomEdge(
+    conclusionNodeId: string,
+    ruleId: ScRuleId,
+  ): InferenceEdge {
+    return {
+      _tag: "sc-axiom",
+      ruleId,
+      conclusionNodeId,
+      conclusionText: "",
+    };
+  }
+
+  function makeScBranchingEdge(
+    conclusionNodeId: string,
+    leftPremiseNodeId: string,
+    rightPremiseNodeId: string,
+    ruleId: ScRuleId,
+  ): InferenceEdge {
+    return {
+      _tag: "sc-branching",
+      ruleId,
+      conclusionNodeId,
+      leftPremiseNodeId,
+      rightPremiseNodeId,
+      leftConclusionText: "",
+      rightConclusionText: "",
+      conclusionText: "",
+    };
+  }
+
+  function makeScSingleEdge(
+    conclusionNodeId: string,
+    premiseNodeId: string,
+    ruleId: ScRuleId,
+  ): InferenceEdge {
+    return {
+      _tag: "sc-single",
+      ruleId,
+      conclusionNodeId,
+      premiseNodeId,
+      conclusionText: "",
+    };
+  }
+
+  test("SC規則制限なしでAllAchievedを返す", () => {
+    // ⇒ P のゴール。identity公理でP ⇒ Pを作り、cutで ⇒ Pを導出
+    const goals = [makeGoal({ id: "g1", formulaText: "P" })];
+    const nodes = [makeNode({ id: "n1", kind: "axiom", formulaText: "P" })];
+    const edges: readonly InferenceEdge[] = [makeScAxiomEdge("n1", "identity")];
+    const result = checkQuestGoalsWithAxioms(goals, nodes, edges, emptySystem);
+    expect(result._tag).toBe("AllAchieved");
+    if (result._tag === "AllAchieved") {
+      expect(result.goalResults[0]?.usedScRuleIds).toEqual(
+        new Set(["identity"]),
+      );
+      expect(result.goalResults[0]?.violatingScRuleIds).toEqual(new Set());
+    }
+  });
+
+  test("SC規則禁止なし（disallowedScRuleIds undefined）でAllAchievedを返す", () => {
+    const goals = [makeGoal({ id: "g1", formulaText: "P" })];
+    const nodes = [makeNode({ id: "n1", kind: "axiom", formulaText: "P" })];
+    const edges: readonly InferenceEdge[] = [
+      makeScAxiomEdge("n1", "identity"),
+      makeScBranchingEdge("n1-cut", "n1", "n1", "cut"),
+    ];
+    // n1-cutはゴールに一致しないので無関係
+    const result = checkQuestGoalsWithAxioms(goals, nodes, edges, emptySystem);
+    expect(result._tag).toBe("AllAchieved");
+  });
+
+  test("cutを禁止し、cutが使用されていればAllAchievedButRuleViolationを返す", () => {
+    const goals = [
+      makeGoal({ id: "g1", formulaText: "P", disallowedScRuleIds: ["cut"] }),
+    ];
+    const nodes = [
+      makeNode({ id: "n1", kind: "axiom", formulaText: "P ⇒ P" }),
+      makeNode({ id: "n2", kind: "axiom", formulaText: "P ⇒ P" }),
+      makeNode({ id: "n3", kind: "axiom", formulaText: "P" }),
+    ];
+    const edges: readonly InferenceEdge[] = [
+      makeScAxiomEdge("n1", "identity"),
+      makeScAxiomEdge("n2", "identity"),
+      makeScBranchingEdge("n3", "n1", "n2", "cut"),
+    ];
+    const result = checkQuestGoalsWithAxioms(goals, nodes, edges, emptySystem);
+    expect(result._tag).toBe("AllAchievedButRuleViolation");
+    if (result._tag === "AllAchievedButRuleViolation") {
+      expect(result.goalResults[0]?.usedScRuleIds).toEqual(
+        new Set(["identity", "cut"]),
+      );
+      expect(result.goalResults[0]?.violatingScRuleIds).toEqual(
+        new Set(["cut"]),
+      );
+      expect(result.goalResults[0]?.disallowedScRuleIds).toEqual(["cut"]);
+    }
+  });
+
+  test("cutを禁止し、cutが使用されていなければAllAchievedを返す", () => {
+    const goals = [
+      makeGoal({ id: "g1", formulaText: "P", disallowedScRuleIds: ["cut"] }),
+    ];
+    const nodes = [
+      makeNode({ id: "n1", kind: "axiom", formulaText: "P ⇒ P" }),
+      makeNode({ id: "n2", kind: "axiom", formulaText: "P" }),
+    ];
+    const edges: readonly InferenceEdge[] = [
+      makeScAxiomEdge("n1", "identity"),
+      makeScSingleEdge("n2", "n1", "weakening-left"),
+    ];
+    const result = checkQuestGoalsWithAxioms(goals, nodes, edges, emptySystem);
+    expect(result._tag).toBe("AllAchieved");
+    if (result._tag === "AllAchieved") {
+      expect(result.goalResults[0]?.usedScRuleIds).toEqual(
+        new Set(["identity", "weakening-left"]),
+      );
+      expect(result.goalResults[0]?.violatingScRuleIds).toEqual(new Set());
+    }
+  });
+
+  test("未達成ゴールでもusedScRuleIdsとviolatingScRuleIdsが空集合で返る", () => {
+    const goals = [
+      makeGoal({
+        id: "g1",
+        formulaText: "Q",
+        disallowedScRuleIds: ["cut"],
+      }),
+    ];
+    const nodes: readonly WorkspaceNode[] = [];
+    const result = checkQuestGoalsWithAxioms(goals, nodes, [], emptySystem);
+    expect(result._tag).toBe("NotAllAchieved");
+    if (result._tag === "NotAllAchieved") {
+      expect(result.goalResults[0]?.usedScRuleIds).toEqual(new Set());
+      expect(result.goalResults[0]?.violatingScRuleIds).toEqual(new Set());
+      expect(result.goalResults[0]?.disallowedScRuleIds).toEqual(["cut"]);
     }
   });
 });

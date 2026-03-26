@@ -11,6 +11,7 @@
 import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
 import {
   type DeductionSystem,
+  type ScRuleId,
   hilbertDeduction,
 } from "../logic-core/deductionSystem";
 import type { Point } from "../infinite-canvas/types";
@@ -139,6 +140,12 @@ export type WorkspaceGoal = {
    * undefined の場合はすべての推論規則を許可する。
    */
   readonly allowedRuleIds?: readonly InferenceRuleId[];
+  /**
+   * このゴールで禁止するSC固有ルールIDのリスト。
+   * カット除去クエスト等で「cut禁止」を表現するために使用する。
+   * undefined の場合はSCルールの制限なし。
+   */
+  readonly disallowedScRuleIds?: readonly ScRuleId[];
 };
 
 // --- ワークスペースモード ---
@@ -361,6 +368,12 @@ export type QuestGoalDefinition = {
    * undefined の場合はすべての推論規則を許可する。
    */
   readonly allowedRuleIds?: readonly InferenceRuleId[];
+  /**
+   * このゴールで禁止するSC固有ルールIDのリスト。
+   * カット除去クエスト等で「cut禁止」を表現するために使用する。
+   * undefined の場合はSCルールの制限なし。
+   */
+  readonly disallowedScRuleIds?: readonly ScRuleId[];
 };
 
 /**
@@ -386,6 +399,7 @@ export function createQuestWorkspace(
     label: goal.label,
     allowedAxiomIds: goal.allowedAxiomIds,
     allowedRuleIds: goal.allowedRuleIds,
+    disallowedScRuleIds: goal.disallowedScRuleIds,
   }));
 
   if (initialState === undefined) {
@@ -459,6 +473,8 @@ export function addGoal(
   options?: {
     readonly label?: string;
     readonly allowedAxiomIds?: readonly AxiomId[];
+    readonly allowedRuleIds?: readonly InferenceRuleId[];
+    readonly disallowedScRuleIds?: readonly ScRuleId[];
   },
 ): WorkspaceState {
   const nextId = state.goals.length + 1;
@@ -468,6 +484,8 @@ export function addGoal(
     formulaText,
     label: options?.label,
     allowedAxiomIds: options?.allowedAxiomIds,
+    allowedRuleIds: options?.allowedRuleIds,
+    disallowedScRuleIds: options?.disallowedScRuleIds,
   };
   return {
     ...state,
