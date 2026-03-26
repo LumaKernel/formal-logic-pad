@@ -18250,3 +18250,15 @@
   - normalizeFormula（in-place）とapplySimplifyFormula（新ノード作成）は役割が異なる。前者はノード自体のテキストを書き換え、後者は元ノードを保持して新ノードを追加
   - ProofMessages に新フィールド追加時: proofMessages.ts + messages/en.json + messages/ja.json + WorkspaceContent.tsx の4箇所を同期
 ---
+
+## 2026-03-26 - script (カット除去ヘルパー露出)
+- カット除去の内部ヘルパー関数9個をスクリプトサンドボックスに露出
+  - formulaDepth, rightRank, leftRank, mixRank, removeAllOccurrences, removeFirstOccurrence, containsFormula, countOccurrences, getScChildren
+- 段階3-6のテンプレートを個別API利用に書き換え（eliminateCutsWithSteps依存を最小化）
+- 変更ファイル: cutEliminationBridge.ts, cutEliminationBridge.test.ts, templates.ts, builtin-api-typedefs.txt
+- テスト: 90件pass（15件新規追加）
+- **今後のイテレーションへの学び:**
+  - ブリッジ関数追加時は配列長テスト（toHaveLength）とAPI_DEFS長テストの両方を更新する必要がある
+  - ブリッジ関数追加後は必ず `npx prettier --write` を実行（CIのLintステップでprettierチェックが走る）
+  - cutElimination.tsの関数はほぼすべてexport済みなので、ブリッジ層はラッパー追加のみで済む
+---
