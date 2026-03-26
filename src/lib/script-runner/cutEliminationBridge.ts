@@ -945,15 +945,13 @@ export const CUT_ELIMINATION_BRIDGE_API_DEFS: readonly ProofBridgeApiDef[] = [
   },
   {
     name: "rightRank",
-    signature:
-      "(proof: ScProofNodeJson, mixFormula: FormulaJson) => number",
+    signature: "(proof: ScProofNodeJson, mixFormula: FormulaJson) => number",
     description:
       "証明ノードの右ランク（右辺でのカット式出現パスの最大長）を返す。",
   },
   {
     name: "leftRank",
-    signature:
-      "(proof: ScProofNodeJson, mixFormula: FormulaJson) => number",
+    signature: "(proof: ScProofNodeJson, mixFormula: FormulaJson) => number",
     description:
       "証明ノードの左ランク（左辺でのカット式出現パスの最大長）を返す。",
   },
