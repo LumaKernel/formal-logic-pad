@@ -1093,7 +1093,12 @@ export const QuestCompleteSc01: Story = {
   },
 };
 
-/** at-01: 分析的タブロー φ∨¬φ 完了 */
+/**
+ * at-01: 分析的タブロー φ∨¬φ（模範解答プレースホルダー）
+ * AT模範解答はまだaxiomステップのみ（推論エッジなし）のため、
+ * スタンドアロンチェックによりゴール未達成になる。
+ * AT模範解答がリッチ化されたら期待値を "Proved!" に更新する。
+ */
 export const QuestCompleteAt01: Story = {
   render: () => {
     const { workspace, questInfo, title } =
@@ -1112,14 +1117,13 @@ export const QuestCompleteAt01: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    // 体系バッジに正しい体系名が表示される
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Analytic Tableau",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toBeInTheDocument();
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
+    // AT模範解答はプレースホルダー（axiomステップ＝スタンドアロンノード）のため未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
   },
 };
 
@@ -1692,11 +1696,12 @@ export const QuestCompleteNd01FullFlow: Story = {
 };
 
 /**
- * sc-01完全フロー: 空のワークスペースから φ→φ の証明完了まで
+ * sc-01: スタンドアロンノードではゴール達成しないことを確認
  *
- * 証明手順（SC Identity）:
+ * SC系では推論規則を適用せず式を入力しただけでは証明にならない。
+ * 検証手順:
  *   1. 「シーケントを追加」→ node-1（空シーケントノード）
- *   2. node-1の式を phi -> phi に編集 → ゴール達成
+ *   2. node-1の式を phi -> phi に編集 → ゴール未達成のまま
  */
 export const QuestCompleteSc01FullFlow: Story = {
   render: () => {
@@ -1732,7 +1737,6 @@ export const QuestCompleteSc01FullFlow: Story = {
 
     // --- 初期状態: 空のSCワークスペース ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    // 体系バッジに正しい体系名が表示される
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Sequent Calculus LK",
     );
@@ -1760,24 +1764,22 @@ export const QuestCompleteSc01FullFlow: Story = {
     await userEvent.type(input, "phi -> phi");
     await userEvent.tab();
 
-    // --- 最終確認: ゴール達成 ---
-    await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
-    });
+    // --- 最終確認: スタンドアロンノードではゴール未達成 ---
+    // 少し待ってもゴールが達成されないことを確認
+    await new Promise((resolve) => setTimeout(resolve, 500));
     await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
+      "0 / 1",
     );
   },
 };
 
 /**
- * tab-01完全フロー: 空のワークスペースから ¬(φ→φ) の反駁完了まで
+ * tab-01: スタンドアロンノードではゴール達成しないことを確認
  *
- * 証明手順（TAB 反駁）:
+ * TAB系では推論規則を適用せず式を入力しただけでは証明にならない。
+ * 検証手順:
  *   1. 「シーケントを追加」→ node-1（空シーケントノード）
- *   2. node-1の式を ~(phi -> phi) に編集 → ゴール達成
+ *   2. node-1の式を ~(phi -> phi) に編集 → ゴール未達成のまま
  */
 export const QuestCompleteTab01FullFlow: Story = {
   render: () => {
@@ -1813,7 +1815,6 @@ export const QuestCompleteTab01FullFlow: Story = {
 
     // --- 初期状態: 空のTABワークスペース ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    // 体系バッジに正しい体系名が表示される
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Tableau Calculus TAB (Propositional)",
     );
@@ -1841,24 +1842,21 @@ export const QuestCompleteTab01FullFlow: Story = {
     await userEvent.type(input, "~(phi -> phi)");
     await userEvent.tab();
 
-    // --- 最終確認: ゴール達成 ---
-    await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
-    });
+    // --- 最終確認: スタンドアロンノードではゴール未達成 ---
+    await new Promise((resolve) => setTimeout(resolve, 500));
     await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
+      "0 / 1",
     );
   },
 };
 
 /**
- * at-01完全フロー: 空のワークスペースから φ∨¬φ の証明完了まで
+ * at-01: スタンドアロンノードではゴール達成しないことを確認
  *
- * 証明手順（AT 排中律）:
+ * AT系では推論規則を適用せず式を入力しただけでは証明にならない。
+ * 検証手順:
  *   1. 「式を追加」→ node-1（空の署名付き論理式ノード）
- *   2. node-1の式を phi \/ ~phi に編集 → ゴール達成
+ *   2. node-1の式を phi \/ ~phi に編集 → ゴール未達成のまま
  */
 export const QuestCompleteAt01FullFlow: Story = {
   render: () => {
@@ -1894,7 +1892,6 @@ export const QuestCompleteAt01FullFlow: Story = {
 
     // --- 初期状態: 空のATワークスペース ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    // 体系バッジに正しい体系名が表示される
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Analytic Tableau",
     );
@@ -1922,14 +1919,10 @@ export const QuestCompleteAt01FullFlow: Story = {
     await userEvent.type(input, "phi \\/ ~phi");
     await userEvent.tab();
 
-    // --- 最終確認: ゴール達成 ---
-    await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
-    });
+    // --- 最終確認: スタンドアロンノードではゴール未達成 ---
+    await new Promise((resolve) => setTimeout(resolve, 500));
     await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
+      "0 / 1",
     );
   },
 };
@@ -2372,7 +2365,7 @@ export const QuestCompleteProp01FromHub: Story = {
  *   1. HubPageViewのクエストタブが表示される
  *   2. sc-01の開始ボタンをクリック
  *   3. ワークスペースに遷移（Sequent Calculus LK体系）
- *   4. シーケント追加 → phi -> phi 入力 → 証明完了
+ *   4. シーケント追加 → phi -> phi 入力 → スタンドアロンノードではゴール未達成
  */
 export const QuestCompleteSc01FromHub: Story = {
   render: () => {
@@ -2467,7 +2460,7 @@ export const QuestCompleteSc01FromHub: Story = {
       "0 / 1",
     );
 
-    // --- Phase 3: SC φ→φ 証明フロー ---
+    // --- Phase 3: SC φ→φ - スタンドアロンノードではゴール未達成 ---
     // Step 1: 「シーケントを追加」→ node-1
     await userEvent.click(
       canvas.getByTestId("workspace-sc-rule-palette-add-sequent"),
@@ -2483,14 +2476,10 @@ export const QuestCompleteSc01FromHub: Story = {
     await userEvent.type(input, "phi -> phi");
     await userEvent.tab();
 
-    // --- 最終確認: ゴール達成 ---
-    await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
-    });
+    // --- 最終確認: スタンドアロンノードではゴール未達成 ---
+    await new Promise((resolve) => setTimeout(resolve, 500));
     await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
+      "0 / 1",
     );
   },
 };
@@ -2502,7 +2491,7 @@ export const QuestCompleteSc01FromHub: Story = {
  *   1. HubPageViewのクエストタブが表示される
  *   2. tab-01の開始ボタンをクリック
  *   3. ワークスペースに遷移（Tableau Calculus TAB体系）
- *   4. シーケント追加 → ~(phi -> phi) 入力 → 反駁完了
+ *   4. シーケント追加 → ~(phi -> phi) 入力 → スタンドアロンノードではゴール未達成
  */
 export const QuestCompleteTab01FromHub: Story = {
   render: () => {
@@ -2597,7 +2586,7 @@ export const QuestCompleteTab01FromHub: Story = {
       "0 / 1",
     );
 
-    // --- Phase 3: TAB ¬(φ→φ) 反駁フロー ---
+    // --- Phase 3: TAB ¬(φ→φ) - スタンドアロンノードではゴール未達成 ---
     // Step 1: 「シーケントを追加」→ node-1
     await userEvent.click(
       canvas.getByTestId("workspace-tab-rule-palette-add-sequent"),
@@ -2613,22 +2602,18 @@ export const QuestCompleteTab01FromHub: Story = {
     await userEvent.type(input, "~(phi -> phi)");
     await userEvent.tab();
 
-    // --- 最終確認: ゴール達成 ---
-    await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
-    });
+    // --- 最終確認: スタンドアロンノードではゴール未達成 ---
+    await new Promise((resolve) => setTimeout(resolve, 500));
     await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
+      "0 / 1",
     );
   },
 };
 
 /**
- * at-01: クエスト一覧 → ワークスペース → φ∨¬φ 証明完了の完全フロー（AT体系）
+ * at-01: クエスト一覧 → ワークスペース → スタンドアロンノードでゴール未達成を確認（AT体系）
  *
- * 実際のユーザーフローを再現:
+ * ユーザーフロー:
  *   1. HubPageViewのクエストタブが表示される
  *   2. at-01の開始ボタンをクリック
  *   3. ワークスペースに遷移（Analytic Tableau体系）
@@ -2727,7 +2712,7 @@ export const QuestCompleteAt01FromHub: Story = {
       "0 / 1",
     );
 
-    // --- Phase 3: AT φ∨¬φ 証明フロー ---
+    // --- Phase 3: AT φ∨¬φ - スタンドアロンノードではゴール未達成 ---
     // Step 1: 「式を追加」→ node-1
     await userEvent.click(
       canvas.getByTestId("workspace-at-rule-palette-add-formula"),
@@ -2743,14 +2728,10 @@ export const QuestCompleteAt01FromHub: Story = {
     await userEvent.type(input, "phi \\/ ~phi");
     await userEvent.tab();
 
-    // --- 最終確認: ゴール達成 ---
-    await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
-    });
+    // --- 最終確認: スタンドアロンノードではゴール未達成 ---
+    await new Promise((resolve) => setTimeout(resolve, 500));
     await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
+      "0 / 1",
     );
   },
 };
