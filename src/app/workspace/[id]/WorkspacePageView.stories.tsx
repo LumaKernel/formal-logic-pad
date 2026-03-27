@@ -1912,12 +1912,14 @@ export const QuestCompleteTab01FullFlow: Story = {
 };
 
 /**
- * at-01: スタンドアロンノードではゴール達成しないことを確認
+ * at-01: AT推論規則適用→証明完成→ゴール達成のフルフロー
  *
- * AT系では推論規則を適用せず式を入力しただけでは証明にならない。
- * 検証手順:
+ * 排中律 φ ∨ ¬φ をATで証明する完全フロー:
  *   1. 「式を追加」→ node-1（空の署名付き論理式ノード）
- *   2. node-1の式を phi \/ ~phi に編集 → ゴール未達成のまま
+ *   2. node-1の式を F:phi \/ ~phi に編集
+ *   3. α規則(F∨/alpha-neg-disj)適用 → node-2(F:φ), node-3(F:¬φ)
+ *   4. α規則(F¬/alpha-neg-f)適用 → node-4(T:φ)
+ *   5. closure規則適用 → T:φとF:φで枝閉じ → ゴール達成
  */
 export const QuestCompleteAt01FullFlow: Story = {
   render: () => {
@@ -1973,17 +1975,60 @@ export const QuestCompleteAt01FullFlow: Story = {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
 
-    // --- Step 2: node-1の式を phi \/ ~phi に編集 ---
-    const display = canvas.getByTestId("proof-node-node-1-editor-display");
-    await userEvent.dblClick(display);
-    const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
-    await userEvent.type(input, "phi \\/ ~phi");
+    // --- Step 2: node-1の式を F:phi \/ ~phi に編集 ---
+    const display1 = canvas.getByTestId("proof-node-node-1-editor-display");
+    await userEvent.dblClick(display1);
+    const input1 = canvas.getByTestId("proof-node-node-1-editor-input-input");
+    await userEvent.type(input1, "F:phi \\/ ~phi");
     await userEvent.tab();
 
-    // --- 最終確認: スタンドアロンノードではゴール未達成 ---
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // スタンドアロンノードではゴール未達成
+    await new Promise((resolve) => setTimeout(resolve, 300));
     await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
       "0 / 1",
+    );
+
+    // --- Step 3: α規則(F∨/alpha-neg-disj)を適用 ---
+    await userEvent.click(
+      canvas.getByTestId("workspace-at-rule-palette-rule-alpha-neg-disj"),
+    );
+    // node-1 をクリックして適用
+    await userEvent.click(canvas.getByTestId("proof-node-node-1"));
+    // 前提ノード（node-2: F:φ, node-3: F:¬φ）が生成される
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    });
+
+    // --- Step 4: α規則(F¬/alpha-neg-f)を node-3(F:¬φ) に適用 ---
+    await userEvent.click(
+      canvas.getByTestId("workspace-at-rule-palette-rule-alpha-neg-f"),
+    );
+    await userEvent.click(canvas.getByTestId("proof-node-node-3"));
+    // 結果ノード（node-4: T:φ）が生成される
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+    });
+
+    // --- Step 5: closure規則を適用（T:φ と F:φ で枝閉じ） ---
+    await userEvent.click(
+      canvas.getByTestId("workspace-at-rule-palette-rule-closure"),
+    );
+    // 主ノード（node-4: T:φ）をクリック
+    await userEvent.click(canvas.getByTestId("proof-node-node-4"));
+    // 矛盾ノード（node-2: F:φ）をクリック
+    await userEvent.click(canvas.getByTestId("proof-node-node-2"));
+
+    // --- 最終確認: ゴール達成 ---
+    await waitFor(() => {
+      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
+        "1 / 1",
+      );
+    });
+    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
+      "Proved!",
     );
   },
 };
@@ -2729,13 +2774,13 @@ export const QuestCompleteTab01FromHub: Story = {
 };
 
 /**
- * at-01: クエスト一覧 → ワークスペース → スタンドアロンノードでゴール未達成を確認（AT体系）
+ * at-01: クエスト一覧 → ワークスペース → AT推論規則適用→証明完成→ゴール達成（AT体系）
  *
  * ユーザーフロー:
  *   1. HubPageViewのクエストタブが表示される
  *   2. at-01の開始ボタンをクリック
  *   3. ワークスペースに遷移（Analytic Tableau体系）
- *   4. 式追加 → phi \/ ~phi 入力 → 証明完了
+ *   4. F:phi \/ ~phi 入力 → α規則(F∨) → α規則(F¬) → closure → ゴール達成
  */
 export const QuestCompleteAt01FromHub: Story = {
   render: () => {
@@ -2830,7 +2875,7 @@ export const QuestCompleteAt01FromHub: Story = {
       "0 / 1",
     );
 
-    // --- Phase 3: AT φ∨¬φ - スタンドアロンノードではゴール未達成 ---
+    // --- Phase 3: AT φ∨¬φ の証明完成フロー ---
     // Step 1: 「式を追加」→ node-1
     await userEvent.click(
       canvas.getByTestId("workspace-at-rule-palette-add-formula"),
@@ -2839,17 +2884,55 @@ export const QuestCompleteAt01FromHub: Story = {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
 
-    // Step 2: node-1の式を phi \/ ~phi に編集
-    const display = canvas.getByTestId("proof-node-node-1-editor-display");
-    await userEvent.dblClick(display);
-    const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
-    await userEvent.type(input, "phi \\/ ~phi");
+    // Step 2: node-1の式を F:phi \/ ~phi に編集
+    const display1 = canvas.getByTestId("proof-node-node-1-editor-display");
+    await userEvent.dblClick(display1);
+    const input1 = canvas.getByTestId("proof-node-node-1-editor-input-input");
+    await userEvent.type(input1, "F:phi \\/ ~phi");
     await userEvent.tab();
 
-    // --- 最終確認: スタンドアロンノードではゴール未達成 ---
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // スタンドアロンノードではゴール未達成
+    await new Promise((resolve) => setTimeout(resolve, 300));
     await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
       "0 / 1",
+    );
+
+    // Step 3: α規則(F∨/alpha-neg-disj)を適用
+    await userEvent.click(
+      canvas.getByTestId("workspace-at-rule-palette-rule-alpha-neg-disj"),
+    );
+    await userEvent.click(canvas.getByTestId("proof-node-node-1"));
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    });
+
+    // Step 4: α規則(F¬/alpha-neg-f)を node-3(F:¬φ) に適用
+    await userEvent.click(
+      canvas.getByTestId("workspace-at-rule-palette-rule-alpha-neg-f"),
+    );
+    await userEvent.click(canvas.getByTestId("proof-node-node-3"));
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+    });
+
+    // Step 5: closure規則を適用（T:φ と F:φ で枝閉じ）
+    await userEvent.click(
+      canvas.getByTestId("workspace-at-rule-palette-rule-closure"),
+    );
+    await userEvent.click(canvas.getByTestId("proof-node-node-4"));
+    await userEvent.click(canvas.getByTestId("proof-node-node-2"));
+
+    // --- 最終確認: ゴール達成 ---
+    await waitFor(() => {
+      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
+        "1 / 1",
+      );
+    });
+    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
+      "Proved!",
     );
   },
 };
