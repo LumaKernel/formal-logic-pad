@@ -152,6 +152,7 @@ export const EmptyLukasiewicz: Story = {
       initialNotebookName="My First Proof"
       onBack={fn()}
       onGoalAchieved={fn()}
+      workspaceTestId="workspace"
     />
   ),
   play: async ({ canvasElement }) => {
@@ -162,6 +163,24 @@ export const EmptyLukasiewicz: Story = {
     await expect(canvas.getByText("Back")).toBeInTheDocument();
     // testid の確認
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+
+    // 公理パレットが表示される
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette"),
+    ).toBeInTheDocument();
+
+    // --- 公理パレットからA1をクリック→ノード追加 ---
+    await userEvent.click(
+      canvas.getByTestId("workspace-axiom-palette-item-A1"),
+    );
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    });
+
+    // 追加されたノードにA1の式が含まれることを確認
+    await expect(canvas.getByTestId("proof-node-node-1")).toHaveTextContent(
+      "φ → (ψ → φ)",
+    );
   },
 };
 
