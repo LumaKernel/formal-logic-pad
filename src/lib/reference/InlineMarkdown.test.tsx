@@ -378,9 +378,7 @@ describe("InlineMarkdown", () => {
   });
 
   it("onQuestNavigateが未指定でもクリックしてもエラーにならない", () => {
-    const { container } = render(
-      <InlineMarkdown text="<quest:prop-01 />" />,
-    );
+    const { container } = render(<InlineMarkdown text="<quest:prop-01 />" />);
     const link = container.querySelector("a[data-quest-id='prop-01']");
     expect(link).not.toBeNull();
     fireEvent.click(link!);
