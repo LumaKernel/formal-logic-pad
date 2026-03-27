@@ -333,13 +333,39 @@ export const WithGoal: Story = {
         initialNotebookName="Proof with Goal"
         onBack={fn()}
         onGoalAchieved={fn()}
+        workspaceTestId="workspace"
       />
     );
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    // ヘッダー確認
     await expect(canvas.getByText("Proof with Goal")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+
+    // ゴールパネルが表示される
+    await expect(
+      canvas.getByTestId("workspace-goal-panel"),
+    ).toBeInTheDocument();
+
+    // ゴール「Identity」が未達成状態で表示される
+    await expect(canvas.getByText("Identity")).toBeInTheDocument();
+    await expect(canvas.getByText("Not yet")).toBeInTheDocument();
+    await expect(canvas.getByText("0 / 1")).toBeInTheDocument();
+
+    // 既存のA1ノードが表示される
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-1")).toHaveTextContent(
+      "φ → ψ → φ",
+    );
+
+    // --- 公理パレットからA2をクリック→ノード追加 ---
+    await userEvent.click(
+      canvas.getByTestId("workspace-axiom-palette-item-A2"),
+    );
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
   },
 };
 
