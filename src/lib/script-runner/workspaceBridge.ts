@@ -7,7 +7,7 @@
  * 変更時は workspaceBridge.test.ts, index.ts, proofBridge.ts も同期すること。
  */
 
-import { makeConstMap } from "@luma/const-map";
+import { makeConstMapWithReturnType } from "@luma/const-map";
 import type { NativeFunctionBridge } from "./scriptRunner";
 import type { ProofBridgeApiDef } from "./proofBridge";
 import { decodeScProofNode } from "./cutEliminationBridge";
@@ -262,10 +262,10 @@ const createGetNodeStateFn =
 
 /**
  * SC証明ノードの推論規則名を取得する。
- * makeConstMapにより、既知のSCタグ以外が渡された場合はエラーとなる。
+ * makeConstMapWithReturnTypeにより、既知のSCタグ以外が渡された場合はエラーとなる。
  * 新しいSCルール追加時はこのマップも更新すること。
  */
-const scTagToRuleName = makeConstMap([
+const scTagToRuleName = makeConstMapWithReturnType<string>()([
   ["ScIdentity", "ID"],
   ["ScBottomLeft", "⊥L"],
   ["ScCut", "Cut"],
