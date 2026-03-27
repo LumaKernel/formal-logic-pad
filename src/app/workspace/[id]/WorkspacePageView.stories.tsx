@@ -202,6 +202,7 @@ export const WithAxiomNodes: Story = {
         initialNotebookName="Proof with Axioms"
         onBack={fn()}
         onGoalAchieved={fn()}
+        workspaceTestId="workspace"
       />
     );
   },
@@ -211,6 +212,39 @@ export const WithAxiomNodes: Story = {
     await expect(canvas.getByText("Proof with Axioms")).toBeInTheDocument();
     // ワークスペースが表示される
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+
+    // --- ノードの初期状態確認 ---
+    const node1 = canvas.getByTestId("proof-node-node-1");
+    await expect(node1).toBeInTheDocument();
+    // A1式: 右結合最小括弧化 φ → ψ → φ
+    await expect(node1).toHaveTextContent("φ → ψ → φ");
+
+    // --- ダブルクリックで編集モードに入る ---
+    const display = canvas.getByTestId("proof-node-node-1-editor-display");
+    await userEvent.dblClick(display);
+    await waitFor(() => {
+      expect(
+        canvas.getByTestId("proof-node-node-1-editor-edit"),
+      ).toBeInTheDocument();
+    });
+
+    // --- 式を変更 ---
+    const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
+    await userEvent.clear(input);
+    await userEvent.type(input, "ψ → φ");
+
+    // --- Tabで編集モード終了 ---
+    await userEvent.tab();
+
+    // --- 更新後の式が反映されることを確認 ---
+    await waitFor(() => {
+      expect(
+        canvas.getByTestId("proof-node-node-1-editor-display"),
+      ).toBeInTheDocument();
+    });
+    await expect(
+      canvas.getByTestId("proof-node-node-1-editor-unicode"),
+    ).toHaveTextContent("ψ → φ");
   },
 };
 
