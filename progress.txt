@@ -18523,3 +18523,23 @@
   - `makeConstMapWithReturnType<R>()` は v1.2.0 でバグ修正済み。値の型を明示指定でき、IDEの補完が効く
   - 現在 const-map の使用箇所は workspaceBridge.ts の1箇所のみ。新たな exhaustive map lookup が必要になった場合に活用可能
 ---
+
+## 2026-03-27 - [proof-pad] SC sc-01 FullFlow/FromHub ストーリー証明完成フロー
+
+- ベースライン: Stmts 99.82%, Branch 99.17%, Funcs 90.47%, Lines 99.81%
+- **結果: Stmts 99.82%, Branch 99.17%, Funcs 90.5%, Lines 99.81%**（変動なし）
+- 実装内容:
+  - `QuestCompleteSc01FullFlow` と `QuestCompleteSc01FromHub` のplay関数を証明完成フローに拡張
+  - SC sc-01 証明手順: シーケント追加 → `⇒ phi -> phi` 入力 → implication-right(位置0) → identity(公理)
+  - PLAY-WS-19 完了、PLAY-WS-22 SC部分完了
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx
+  - tasks/play-function-enhancement.md
+  - task-processing.md
+- **今後のイテレーションへの学び:**
+  - SC規則適用フロー: パレットで規則クリック → ノードクリック → (非公理のみ)RulePromptModal → 適用。identity/bottom-leftは公理でプロンプトなし
+  - SC sequent入力: `⇒ phi -> phi` のように `⇒` を含める。`⇒` なしだと全体がantecedentとして扱われる
+  - `parseNodeFormula`: 直接パース失敗時にシーケントテキストとして解析。前件空+後件1つなら後件をゴール式として抽出
+  - `allowSequentText=true` でFormulaEditorが `⇒` 含むテキストのparse error時も離脱を許可
+  - `userEvent.type` はUnicode文字 `⇒` を問題なく入力できる
+---
