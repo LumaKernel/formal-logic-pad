@@ -1859,9 +1859,7 @@ export const QuestCompleteTab01FullFlow: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("workspace-rule-prompt")).toBeInTheDocument();
     });
-    await userEvent.click(
-      canvas.getByTestId("workspace-rule-prompt-confirm"),
-    );
+    await userEvent.click(canvas.getByTestId("workspace-rule-prompt-confirm"));
     // 前提ノード（node-2）が生成される
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
@@ -2656,9 +2654,7 @@ export const QuestCompleteTab01FromHub: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("workspace-rule-prompt")).toBeInTheDocument();
     });
-    await userEvent.click(
-      canvas.getByTestId("workspace-rule-prompt-confirm"),
-    );
+    await userEvent.click(canvas.getByTestId("workspace-rule-prompt-confirm"));
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
     });
