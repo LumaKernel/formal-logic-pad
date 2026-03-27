@@ -110,6 +110,22 @@
 
 ---
 
+## 2026-03-28 - [storybook] PLAY-WS-06 GroupTheoryWorkspaceのplay関数強化
+
+- ベースライン: Stmts 99.82%, Branch 99.16%, Funcs 90.58%, Lines 99.81%
+- **結果: Stmts 99.82%, Branch 99.16%, Funcs 90.57%, Lines 99.81%**（変動なし）
+- 実装内容:
+  - `GroupTheoryWorkspace` ストーリーに `workspaceTestId="workspace"` を追加
+  - play関数を強化: 公理パレット確認→既存G1/G2ノード確認→G3L(左逆元)クリック→ノード追加確認
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx
+  - tasks/play-function-enhancement.md（PLAY-WS-06完了マーク）
+- **今後のイテレーションへの学び:**
+  - 群論公理パレットアイテムのtestIdは `workspace-axiom-palette-item-G1`, `workspace-axiom-palette-item-G3L` 等
+  - groupTheoryLeftSystemは等号論理+述語論理を含むため、パレットにE1/E2/E3/A4/A5/EX-DEFも表示される
+
+---
+
 ## 2026-03-28 - [storybook] PLAY-WS-05 WithProofTreeのplay関数強化
 
 - ベースライン: Stmts 99.82%, Branch 99.16%, Funcs 90.57%, Lines 99.81%
