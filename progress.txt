@@ -110,6 +110,22 @@
 
 ---
 
+## 2026-03-28 - [storybook] PLAY-WS-07 EmptyNaturalDeductionのplay関数強化
+
+- ベースライン: Stmts 99.82%, Branch 99.16%, Funcs 90.57%, Lines 99.81%
+- **結果: Stmts 99.82%, Branch 99.16%, Funcs 90.58%, Lines 99.81%**（Funcs微増）
+- 実装内容:
+  - `EmptyNaturalDeduction` ストーリーのplay関数に「+ Add Assumption」クリック→ノード追加→テキスト確認を追加
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx
+  - tasks/play-function-enhancement.md（PLAY-WS-07完了マーク）
+- **今後のイテレーションへの学び:**
+  - NDの仮定ノードラベルは "Assumption"（先頭大文字）であり "ASSUMPTION"（全大文字）ではない
+  - ND追加ボタンtestId: `workspace-nd-rule-palette-add-assumption`
+  - SC追加: `workspace-sc-rule-palette-add-sequent`, TAB追加: `workspace-tab-rule-palette-add-sequent`, AT追加: `workspace-at-rule-palette-add-formula`
+
+---
+
 ## 2026-03-28 - [storybook] PLAY-WS-06 GroupTheoryWorkspaceのplay関数強化
 
 - ベースライン: Stmts 99.82%, Branch 99.16%, Funcs 90.58%, Lines 99.81%
