@@ -1873,12 +1873,7 @@ export const QuestCompleteTab01FullFlow: Story = {
     );
     // node-2（φ, ¬φ が含まれるノード）をクリック
     await userEvent.click(canvas.getByTestId("proof-node-node-2"));
-    // BS は公理規則 → RulePromptModal なし、即座に適用
-
-    // node-3 が生成される（閉じたタブロー）
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
-    });
+    // BS は公理規則 → RulePromptModal なし、前提ノード生成なし、エッジのみ追加
 
     // --- 最終確認: ゴール達成 ---
     await waitFor(() => {
@@ -2668,14 +2663,11 @@ export const QuestCompleteTab01FromHub: Story = {
       expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
     });
 
-    // Step 4: BS規則で枝を閉じる
+    // Step 4: BS規則で枝を閉じる（公理規則 → 前提ノード生成なし、エッジのみ）
     await userEvent.click(
       canvas.getByTestId("workspace-tab-rule-palette-rule-bs"),
     );
     await userEvent.click(canvas.getByTestId("proof-node-node-2"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
-    });
 
     // --- 最終確認: ゴール達成 ---
     await waitFor(() => {
