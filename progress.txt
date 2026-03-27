@@ -104,8 +104,38 @@
 - `src/lib/script-runner/` はサンドボックスJS実行環境。`createScriptRunner` ファクトリでインスタンスを作り、`run()`/`step()` で実行。`NativeFunctionBridge` でホスト関数をサンドボックスに公開
 - InfiniteCanvasコンテナに `userSelect: "none"` を設定すれば、子要素のブラウザネイティブテキスト選択を防止できる。FormulaEditorの編集モードでは個別に `userSelect: "text"` で上書き済み
 - Storybook + Tailwind v4: `.storybook/main.ts`のviteFinalで`@tailwindcss/postcss`を明示設定が必要。postcss.config.mjsの自動検出は動作しない
+- インラインタグ追加チェックリスト: referenceUILogic.ts(InlineElement型+regex+parser) → InlineMarkdown.tsx(style+props+render+renderContentWithInline) → BodyContent.tsx(props透過) → 各consumer(コールバック接続) → テスト2ファイル
 - shadcn-uiカラートークン: `bg-card`, `border-ui-border`, `text-muted-foreground`, `text-foreground`, `bg-muted`, `bg-background`, `bg-ui-accent`
 - shadcn-ui変換パターン: 選択バッジは`bg-primary text-primary-foreground border-primary`、非選択は`bg-card text-muted-foreground border-ui-border hover:bg-muted`
+
+---
+
+## 2026-03-27 - [reference] クエスト言及コンポーネント `<quest:id>` タグ追加
+
+- ベースライン: Stmts 99.87%, Branch 99.29%, Funcs 90.48%, Lines 99.87%
+- **結果: Stmts 99.82%, Branch 99.17%, Funcs 90.45%, Lines 99.81%**（変更ファイルは全て100%、全体の微減はv8カバレッジマージの既知クセ）
+- 実装内容:
+  - `referenceUILogic.ts`: `InlineElement` に `quest-link` 型追加。`parseInlineMarkdown` で `<quest:id />` (self-closing) と `<quest:id>text</quest>` (tag-pair) をパース
+  - `InlineMarkdown.tsx`: `onQuestNavigate` コールバック追加。quest-link のレンダリング（monospace、solid underline スタイル）。`renderContentWithInline` でもネスト対応
+  - `BodyContent.tsx`: `onQuestNavigate` 透過
+  - `ReferenceModal.tsx`, `ReferenceViewerPageView.tsx`, `ReferenceFloatingWindow.tsx`: `onStartQuest` を `onQuestNavigate` として本文内のクエストリンクに接続
+  - `referenceContent.ts`: `<code>pred-01</code>` → `<quest:pred-01>pred-01</quest>`、平文 `prop-01` → `<quest:prop-01 />` に変換（4箇所）
+  - テスト: parseInlineMarkdown に6件、InlineMarkdown に7件追加
+- 変更ファイル:
+  - src/lib/reference/referenceUILogic.ts
+  - src/lib/reference/referenceUILogic.test.ts
+  - src/lib/reference/InlineMarkdown.tsx
+  - src/lib/reference/InlineMarkdown.test.tsx
+  - src/lib/reference/BodyContent.tsx
+  - src/lib/reference/ReferenceModal.tsx
+  - src/lib/reference/ReferenceViewerPageView.tsx
+  - src/lib/reference/ReferenceFloatingWindow.tsx
+  - src/lib/reference/referenceContent.ts
+- **今後のイテレーションへの学び:**
+  - `<quest:id>` タグは `<ref:id>` / `<cite:key>` と完全に同パターンで追加可能。regex の capture group 追加 + parser 分岐 + renderer 追加の3ステップ
+  - `renderContentWithInline` も regex に追加が必要（bold/italic 内のネスト処理）
+  - 新しいインラインタグを追加するときのチェックリスト: referenceUILogic.ts(InlineElement型+regex+parser) → InlineMarkdown.tsx(style+props+render+renderContentWithInline) → BodyContent.tsx(props透過) → 各consumer(コールバック接続) → テスト2ファイル
+  - Storybook URL パターンは `lib-reference-...` で、`reference-...` ではない
 
 ---
 
