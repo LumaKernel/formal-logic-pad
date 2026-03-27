@@ -110,6 +110,24 @@
 
 ---
 
+## 2026-03-27 - [storybook] TAB tab-01 FullFlow/FromHub ストーリーを証明完成フローに拡張
+
+- ベースライン: Stmts 99.82%, Branch 99.17%, Funcs 90.45%, Lines 99.81%
+- **結果: Stmts 99.82%, Branch 99.17%, Funcs 90.48%, Lines 99.81%**（変動なし）
+- 実装内容:
+  - `QuestCompleteTab01FullFlow`: スタンドアロン未達成確認のみ → ¬→規則+BS規則適用→ゴール達成の完全証明フローに拡張
+  - `QuestCompleteTab01FromHub`: 同様にHub→ワークスペース→証明完成フローに拡張
+  - TAB規則適用UIの導線を確認: パレットクリック→ノードクリック→RulePromptModal→完結（クリックベースで完結）
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx
+  - tasks/play-function-enhancement.md（PLAY-WS-20完了マーク）
+  - tasks/inserted-tasks.md（実行中マーク）
+- **今後のイテレーションへの学び:**
+  - TAB BS規則はaxiom規則のため、適用しても前提ノードは生成されない（エッジのみ追加）。`applyTabRuleAndConnect` の `tab-axiom-result` ケース
+  - TAB規則適用フロー: パレットで規則選択→ノードクリック→（非axiom規則は）RulePromptModalでposition入力→確認。axiom規則（bs/bottom）はRulePromptModalなし
+
+---
+
 ## 2026-03-27 - [storybook] play関数強化タスクの列挙・分解
 
 - ベースライン: Stmts 99.82%, Branch 99.17%, Funcs 90.45%, Lines 99.81%
