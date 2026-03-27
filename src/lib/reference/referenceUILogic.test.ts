@@ -456,6 +456,30 @@ describe("parseInlineMarkdown", () => {
       { type: "cite-link", citeKey: "godel1930", content: "godel1930" },
     ]);
   });
+
+  // --- 閉じタグなしのエッジケース ---
+
+  it("閉じタグなしの<ref:id>はテキストとして扱う", () => {
+    const result = parseInlineMarkdown("see <ref:rule-mp>broken text");
+    // 閉じタグがないため、<ref:rule-mp> 以降はパースされずテキストとして残る
+    expect(result).toEqual([
+      { type: "text", content: "see <ref:rule-mp>broken text" },
+    ]);
+  });
+
+  it("閉じタグなしの<cite:key>はテキストとして扱う", () => {
+    const result = parseInlineMarkdown("see <cite:bekki2012>broken text");
+    expect(result).toEqual([
+      { type: "text", content: "see <cite:bekki2012>broken text" },
+    ]);
+  });
+
+  it("<ref:id>の空コンテンツはidをフォールバックとする", () => {
+    const result = parseInlineMarkdown("<ref:axiom-a1></ref>");
+    expect(result).toEqual([
+      { type: "ref-link", refId: "axiom-a1", content: "axiom-a1" },
+    ]);
+  });
 });
 
 // --- parseBlockContent ---
