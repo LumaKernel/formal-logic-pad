@@ -18376,3 +18376,20 @@
   - CUT規則は genuineに2つの補題を合成する場合にのみ有用。単純な証明ではcutを自然に使うケースが少ない
   - 推移律（transitivity）はカットの最も典型的な使用例（中間式ψで2つの含意を合成）
 ---
+
+## 2026-03-27T02:35Z - [reference] bold/italic内の[[ref:...]]生表示バグ修正
+- 実装した内容:
+  - `renderContentWithMath` を `renderContentWithInline` に拡張し、bold/italic内で `[[ref:...]]` と `[[cite:...]]` も正しくレンダリング
+  - `<b>[[ref:axiom-a1|A1]] (K):</b>` のようなネスト構造が正しくリンク表示されるように
+  - テスト8件追加（bold内ref-link、italic内ref-link、bold内cite-link、キーボード操作等）
+  - ストーリー `WithNestedRefInBold` 追加
+- 変更したファイル:
+  - src/lib/reference/InlineMarkdown.tsx（renderContentWithInline拡張）
+  - src/lib/reference/InlineMarkdown.test.tsx（テスト追加）
+  - src/lib/reference/ReferenceViewerPageView.stories.tsx（ストーリー追加）
+- カバレッジ: Stmts 99.9%, Branch 99.34%, Funcs 90.53%, Lines 99.9%（Branch -0.03%はV8集約クイーク）
+- **今後のイテレーションへの学び:**
+  - `parseInlineMarkdown`は「ネストはサポートしない」設計。bold/italic内のインライン要素はレンダリング層（renderContentWithInline）で再パース
+  - bold/italic内で新しいインライン構文を追加する場合は `renderContentWithInline` の正規表現にもパターン追加が必要
+  - `[[ref:...]]`と`[[cite:...]]`は`referenceContent.ts`のbody内で広く使用されている。特にbold内のref-linkパターンはguide系エントリで頻出
+---
