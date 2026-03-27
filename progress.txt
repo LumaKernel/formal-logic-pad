@@ -110,6 +110,22 @@
 
 ---
 
+## 2026-03-27 - [storybook] PLAY-WS-02 WithAxiomNodesのplay関数強化
+
+- ベースライン: Stmts 99.82%, Branch 99.16%, Funcs 90.58%, Lines 99.81%
+- **結果: Stmts 99.82%, Branch 99.16%, Funcs 90.57%, Lines 99.81%**（変動なし）
+- 実装内容:
+  - `WithAxiomNodes` ストーリーに `workspaceTestId="workspace"` を追加
+  - play関数を強化: 初期ノード確認→ダブルクリック→編集モード→式変更→Tab→更新確認のフルフロー
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx
+  - tasks/play-function-enhancement.md（PLAY-WS-02完了マーク）
+- **今後のイテレーションへの学び:**
+  - `editTrigger="dblclick"` のFormulaEditorには `userEvent.dblClick` を使う（`click` ではない）
+  - 編集→Tab→display復帰の一連のフローは `waitFor` でdisplay要素の再出現を待つのが安定
+
+---
+
 ## 2026-03-27 - [storybook] PLAY-WS-01 EmptyLukasiewiczのplay関数強化
 
 - ベースライン: Stmts 99.82%, Branch 99.16%, Funcs 90.57%, Lines 99.81%
