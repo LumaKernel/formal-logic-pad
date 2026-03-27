@@ -30,30 +30,99 @@ function renderMathToHtml(tex: string): string {
 }
 
 /**
- * テキスト中の $...$ をKaTeX数式として描画し、残りをテキストとして返す。
- * bold/italic/text要素の内部で $...$ を使えるようにするためのヘルパー。
+ * テキスト中の $...$, [[ref:...]], [[cite:...]] をReact要素に変換する。
+ * bold/italic/text要素の内部でインライン要素を使えるようにするためのヘルパー。
+ *
+ * 変更時は InlineMarkdown.test.tsx も同期すること。
  */
-function renderContentWithMath(
+function renderContentWithInline(
   content: string,
   keyPrefix: string,
+  onNavigate?: (entryId: string) => void,
+  onCiteClick?: (citeKey: string) => void,
 ): React.ReactNode {
-  // $...$ を含まない場合はテキストそのまま
-  if (!content.includes("$")) {
+  // $...$, [[ref:...]], [[cite:...]] のいずれも含まない場合はテキストそのまま
+  if (
+    !content.includes("$") &&
+    !content.includes("[[ref:") &&
+    !content.includes("[[cite:")
+  ) {
     return content;
   }
-  // $...$ で分割（キャプチャグループで区切り文字も保持）
-  const parts = content.split(/(\$[^$]+\$)/g);
+  // $...$, [[ref:id|text]], [[cite:key|text]] で分割（キャプチャグループで区切り文字も保持）
+  const inlineTokenRegex =
+    /(\$[^$]+?\$|\[\[ref:[a-z0-9-]+(?:\|[^\]]+)?\]\]|\[\[cite:[a-z0-9-]+(?:\|[^\]]+)?\]\])/g;
+  const parts = content.split(inlineTokenRegex);
   if (parts.length === 1) {
     return content;
   }
+  const refLinkRegex = /^\[\[ref:([a-z0-9-]+)(?:\|([^\]]+))?\]\]$/;
+  const citeLinkRegex = /^\[\[cite:([a-z0-9-]+)(?:\|([^\]]+))?\]\]$/;
   return parts.map((part, j) => {
+    const pk = `${keyPrefix satisfies string}-i${String(j) satisfies string}`;
+    // $...$ 数式
     if (part.startsWith("$") && part.endsWith("$") && part.length > 2) {
       const tex = part.slice(1, -1);
       return (
         <span
-          key={`${keyPrefix satisfies string}-m${String(j) satisfies string}`}
+          key={pk}
           dangerouslySetInnerHTML={{ __html: renderMathToHtml(tex) }}
         />
+      );
+    }
+    // [[ref:id]] or [[ref:id|text]]
+    const refMatch = refLinkRegex.exec(part);
+    if (refMatch !== null) {
+      const refId = refMatch[1];
+      const refContent = refMatch[2] ?? refId;
+      return (
+        <a
+          key={pk}
+          role="button"
+          tabIndex={0}
+          style={refLinkStyle}
+          data-ref-id={refId}
+          onClick={(e) => {
+            e.preventDefault();
+            onNavigate?.(refId);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onNavigate?.(refId);
+            }
+          }}
+        >
+          {refContent}
+        </a>
+      );
+    }
+    // [[cite:key]] or [[cite:key|text]]
+    const citeMatch = citeLinkRegex.exec(part);
+    if (citeMatch !== null) {
+      const citeKey = citeMatch[1];
+      const citeContent = citeMatch[2] ?? citeKey;
+      return (
+        <a
+          key={pk}
+          role="button"
+          tabIndex={0}
+          style={citeLinkStyle}
+          data-cite-key={citeKey}
+          id={`cite-ref-${citeKey satisfies string}`}
+          onClick={(e) => {
+            e.preventDefault();
+            onCiteClick?.(citeKey);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onCiteClick?.(citeKey);
+            }
+          }}
+        >
+          [{citeContent}]
+        </a>
       );
     }
     return part === "" ? null : part;
@@ -92,11 +161,27 @@ export function InlineMarkdown({
         const key = `${el.type satisfies string}-${String(i) satisfies string}`;
         if (el.type === "bold") {
           return (
-            <strong key={key}>{renderContentWithMath(el.content, key)}</strong>
+            <strong key={key}>
+              {renderContentWithInline(
+                el.content,
+                key,
+                onNavigate,
+                onCiteClick,
+              )}
+            </strong>
           );
         }
         if (el.type === "italic") {
-          return <em key={key}>{renderContentWithMath(el.content, key)}</em>;
+          return (
+            <em key={key}>
+              {renderContentWithInline(
+                el.content,
+                key,
+                onNavigate,
+                onCiteClick,
+              )}
+            </em>
+          );
         }
         if (el.type === "code") {
           return <code key={key}>{el.content}</code>;
@@ -159,7 +244,16 @@ export function InlineMarkdown({
             </a>
           );
         }
-        return <span key={key}>{renderContentWithMath(el.content, key)}</span>;
+        return (
+          <span key={key}>
+            {renderContentWithInline(
+              el.content,
+              key,
+              onNavigate,
+              onCiteClick,
+            )}
+          </span>
+        );
       })}
     </>
   );

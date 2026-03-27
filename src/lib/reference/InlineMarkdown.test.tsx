@@ -209,4 +209,122 @@ describe("InlineMarkdown", () => {
     expect(link).not.toBeNull();
     fireEvent.click(link!);
   });
+
+  // --- bold/italic内のネストされたインライン要素 ---
+
+  it("<b>内の[[ref:id|text]]をリンクとして表示する", () => {
+    const onNavigate = vi.fn();
+    const { container } = render(
+      <InlineMarkdown
+        text="<b>[[ref:axiom-a1|A1]] (K):</b> description"
+        onNavigate={onNavigate}
+      />,
+    );
+    const strong = container.querySelector("strong");
+    expect(strong).not.toBeNull();
+    const link = strong?.querySelector("a[data-ref-id='axiom-a1']");
+    expect(link).not.toBeNull();
+    expect(link?.textContent).toBe("A1");
+    // リンクの後にテキストが続く
+    expect(strong?.textContent).toContain("(K):");
+    // クリックでonNavigateが呼ばれる
+    fireEvent.click(link!);
+    expect(onNavigate).toHaveBeenCalledWith("axiom-a1");
+  });
+
+  it("<i>内の[[ref:id|text]]をリンクとして表示する", () => {
+    const onNavigate = vi.fn();
+    const { container } = render(
+      <InlineMarkdown
+        text="<i>see [[ref:rule-mp|Modus Ponens]]</i>"
+        onNavigate={onNavigate}
+      />,
+    );
+    const em = container.querySelector("em");
+    expect(em).not.toBeNull();
+    const link = em?.querySelector("a[data-ref-id='rule-mp']");
+    expect(link).not.toBeNull();
+    expect(link?.textContent).toBe("Modus Ponens");
+    fireEvent.click(link!);
+    expect(onNavigate).toHaveBeenCalledWith("rule-mp");
+  });
+
+  it("<b>内の[[cite:key|text]]を参考文献リンクとして表示する", () => {
+    const onCiteClick = vi.fn();
+    const { container } = render(
+      <InlineMarkdown
+        text="<b>Reference [[cite:bekki2012|Bekki, Ch. 8]]</b>"
+        onCiteClick={onCiteClick}
+      />,
+    );
+    const strong = container.querySelector("strong");
+    expect(strong).not.toBeNull();
+    const link = strong?.querySelector("a[data-cite-key='bekki2012']");
+    expect(link).not.toBeNull();
+    expect(link?.textContent).toBe("[Bekki, Ch. 8]");
+    fireEvent.click(link!);
+    expect(onCiteClick).toHaveBeenCalledWith("bekki2012");
+  });
+
+  it("<b>内の[[ref:id]]（テキスト省略）をidで表示する", () => {
+    const { container } = render(
+      <InlineMarkdown text="<b>see [[ref:axiom-a2]]</b>" />,
+    );
+    const strong = container.querySelector("strong");
+    expect(strong).not.toBeNull();
+    const link = strong?.querySelector("a[data-ref-id='axiom-a2']");
+    expect(link).not.toBeNull();
+    expect(link?.textContent).toBe("axiom-a2");
+  });
+
+  it("<b>内の[[ref:...]]と$...$が混在するケース", () => {
+    const onNavigate = vi.fn();
+    const { container } = render(
+      <InlineMarkdown
+        text="<b>[[ref:axiom-a1|A1]]:</b> $\\varphi \\to (\\psi \\to \\varphi)$"
+        onNavigate={onNavigate}
+      />,
+    );
+    const strong = container.querySelector("strong");
+    expect(strong).not.toBeNull();
+    // bold内にrefリンクがある
+    const refLink = strong?.querySelector("a[data-ref-id='axiom-a1']");
+    expect(refLink).not.toBeNull();
+    expect(refLink?.textContent).toBe("A1");
+    // bold外にKaTeX数式がある
+    const katex = container.querySelector(".katex");
+    expect(katex).not.toBeNull();
+  });
+
+  it("<b>内のキーボード操作で[[ref:...]]のonNavigateが呼ばれる", () => {
+    const onNavigate = vi.fn();
+    const { container } = render(
+      <InlineMarkdown
+        text="<b>[[ref:axiom-a1|A1]]</b>"
+        onNavigate={onNavigate}
+      />,
+    );
+    const link = container.querySelector(
+      "strong a[data-ref-id='axiom-a1']",
+    );
+    expect(link).not.toBeNull();
+    fireEvent.keyDown(link!, { key: " " });
+    expect(onNavigate).toHaveBeenCalledWith("axiom-a1");
+  });
+
+  it("<b>内のキーボード操作で[[cite:...]]のonCiteClickが呼ばれる", () => {
+    const onCiteClick = vi.fn();
+    const { container } = render(
+      <InlineMarkdown
+        text="<b>[[cite:bekki2012|Bekki]]</b>"
+        onCiteClick={onCiteClick}
+      />,
+    );
+    const link = container.querySelector(
+      "strong a[data-cite-key='bekki2012']",
+    );
+    expect(link).not.toBeNull();
+    fireEvent.keyDown(link!, { key: " " });
+    expect(onCiteClick).toHaveBeenCalledWith("bekki2012");
+  });
 });

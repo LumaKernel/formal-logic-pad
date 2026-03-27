@@ -303,6 +303,37 @@ export const WithListContent: Story = {
   },
 };
 
+/** bold内に[[ref:...]]を含むコンテンツのストーリー（ネストされたインライン要素） */
+export const WithNestedRefInBold: Story = {
+  args: {
+    entry: {
+      ...sampleEntry,
+      body: {
+        en: [
+          'Recall the axiom schemas:\n• <b>[[ref:axiom-a1|A1]] (K):</b> $\\varphi \\to (\\psi \\to \\varphi)$ — weakening axiom\n• <b>[[ref:axiom-a2|A2]] (S):</b> distribution axiom',
+        ],
+        ja: [
+          "公理スキーマ：\n• <b>[[ref:axiom-a1|A1]]（K）：</b> $\\varphi \\to (\\psi \\to \\varphi)$ — 弱化公理\n• <b>[[ref:axiom-a2|A2]]（S）：</b> 分配公理",
+        ],
+      },
+    },
+    allEntries,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const viewer = canvas.getByTestId("ref-viewer");
+    // bold内のref-linkが正しくレンダリングされている（生の[[ref:...]]が表示されていない）
+    expect(viewer.textContent).not.toContain("[[ref:");
+    // ref-linkがstrong内にある
+    const refA1 = viewer.querySelector("strong a[data-ref-id='axiom-a1']");
+    await expect(refA1).not.toBeNull();
+    await expect(refA1?.textContent).toBe("A1");
+    const refA2 = viewer.querySelector("strong a[data-ref-id='axiom-a2']");
+    await expect(refA2).not.toBeNull();
+    await expect(refA2?.textContent).toBe("A2");
+  },
+};
+
 // --- NotFound ストーリー ---
 
 export const NotFound: Story = {
