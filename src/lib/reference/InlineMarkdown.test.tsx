@@ -304,9 +304,7 @@ describe("InlineMarkdown", () => {
         onNavigate={onNavigate}
       />,
     );
-    const link = container.querySelector(
-      "strong a[data-ref-id='axiom-a1']",
-    );
+    const link = container.querySelector("strong a[data-ref-id='axiom-a1']");
     expect(link).not.toBeNull();
     fireEvent.keyDown(link!, { key: " " });
     expect(onNavigate).toHaveBeenCalledWith("axiom-a1");
@@ -320,9 +318,7 @@ describe("InlineMarkdown", () => {
         onCiteClick={onCiteClick}
       />,
     );
-    const link = container.querySelector(
-      "strong a[data-cite-key='bekki2012']",
-    );
+    const link = container.querySelector("strong a[data-cite-key='bekki2012']");
     expect(link).not.toBeNull();
     fireEvent.keyDown(link!, { key: " " });
     expect(onCiteClick).toHaveBeenCalledWith("bekki2012");

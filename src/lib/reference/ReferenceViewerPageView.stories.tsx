@@ -310,7 +310,7 @@ export const WithNestedRefInBold: Story = {
       ...sampleEntry,
       body: {
         en: [
-          'Recall the axiom schemas:\n• <b>[[ref:axiom-a1|A1]] (K):</b> $\\varphi \\to (\\psi \\to \\varphi)$ — weakening axiom\n• <b>[[ref:axiom-a2|A2]] (S):</b> distribution axiom',
+          "Recall the axiom schemas:\n• <b>[[ref:axiom-a1|A1]] (K):</b> $\\varphi \\to (\\psi \\to \\varphi)$ — weakening axiom\n• <b>[[ref:axiom-a2|A2]] (S):</b> distribution axiom",
         ],
         ja: [
           "公理スキーマ：\n• <b>[[ref:axiom-a1|A1]]（K）：</b> $\\varphi \\to (\\psi \\to \\varphi)$ — 弱化公理\n• <b>[[ref:axiom-a2|A2]]（S）：</b> 分配公理",

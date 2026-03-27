@@ -246,12 +246,7 @@ export function InlineMarkdown({
         }
         return (
           <span key={key}>
-            {renderContentWithInline(
-              el.content,
-              key,
-              onNavigate,
-              onCiteClick,
-            )}
+            {renderContentWithInline(el.content, key, onNavigate, onCiteClick)}
           </span>
         );
       })}
