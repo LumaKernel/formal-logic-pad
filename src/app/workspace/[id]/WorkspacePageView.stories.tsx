@@ -1774,12 +1774,13 @@ export const QuestCompleteSc01FullFlow: Story = {
 };
 
 /**
- * tab-01: スタンドアロンノードではゴール達成しないことを確認
+ * tab-01: TABワークスペースでの完全証明フロー（¬(φ→φ) の反駁タブロー）
  *
- * TAB系では推論規則を適用せず式を入力しただけでは証明にならない。
- * 検証手順:
- *   1. 「シーケントを追加」→ node-1（空シーケントノード）
- *   2. node-1の式を ~(phi -> phi) に編集 → ゴール未達成のまま
+ * 空の TAB ワークスペースから証明を完成させる。
+ * 証明手順:
+ *   1. 「シーケントを追加」→ node-1 → ~(phi -> phi) 入力
+ *   2. ¬→規則を適用 → φ, ¬φ が同一枝に（node-2）
+ *   3. BS規則で閉じる → ゴール達成
  */
 export const QuestCompleteTab01FullFlow: Story = {
   render: () => {
@@ -1836,16 +1837,57 @@ export const QuestCompleteTab01FullFlow: Story = {
     });
 
     // --- Step 2: node-1の式を ~(phi -> phi) に編集 ---
-    const display = canvas.getByTestId("proof-node-node-1-editor-display");
-    await userEvent.dblClick(display);
-    const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
-    await userEvent.type(input, "~(phi -> phi)");
+    const display1 = canvas.getByTestId("proof-node-node-1-editor-display");
+    await userEvent.dblClick(display1);
+    const input1 = canvas.getByTestId("proof-node-node-1-editor-input-input");
+    await userEvent.type(input1, "~(phi -> phi)");
     await userEvent.tab();
 
-    // --- 最終確認: スタンドアロンノードではゴール未達成 ---
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // スタンドアロンノードではゴール未達成
+    await new Promise((resolve) => setTimeout(resolve, 300));
     await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
       "0 / 1",
+    );
+
+    // --- Step 3: ¬→規則を適用 ---
+    await userEvent.click(
+      canvas.getByTestId("workspace-tab-rule-palette-rule-neg-implication"),
+    );
+    // node-1 をクリックして適用対象を選択
+    await userEvent.click(canvas.getByTestId("proof-node-node-1"));
+    // RulePromptModal: 主論理式の位置（デフォルト0）→ OK
+    await waitFor(() => {
+      expect(canvas.getByTestId("workspace-rule-prompt")).toBeInTheDocument();
+    });
+    await userEvent.click(
+      canvas.getByTestId("workspace-rule-prompt-confirm"),
+    );
+    // 前提ノード（node-2）が生成される
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+
+    // --- Step 4: BS規則で枝を閉じる ---
+    await userEvent.click(
+      canvas.getByTestId("workspace-tab-rule-palette-rule-bs"),
+    );
+    // node-2（φ, ¬φ が含まれるノード）をクリック
+    await userEvent.click(canvas.getByTestId("proof-node-node-2"));
+    // BS は公理規則 → RulePromptModal なし、即座に適用
+
+    // node-3 が生成される（閉じたタブロー）
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    });
+
+    // --- 最終確認: ゴール達成 ---
+    await waitFor(() => {
+      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
+        "1 / 1",
+      );
+    });
+    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
+      "Proved!",
     );
   },
 };
@@ -2485,13 +2527,15 @@ export const QuestCompleteSc01FromHub: Story = {
 };
 
 /**
- * tab-01: クエスト一覧 → ワークスペース → ¬(φ→φ) 反駁完了の完全フロー（TAB体系）
+ * tab-01: クエスト一覧 → ワークスペース → ¬(φ→φ) 反駁タブロー完成（TAB体系）
  *
  * 実際のユーザーフローを再現:
  *   1. HubPageViewのクエストタブが表示される
  *   2. tab-01の開始ボタンをクリック
  *   3. ワークスペースに遷移（Tableau Calculus TAB体系）
- *   4. シーケント追加 → ~(phi -> phi) 入力 → スタンドアロンノードではゴール未達成
+ *   4. シーケント追加 → ~(phi -> phi) 入力
+ *   5. ¬→規則を適用 → φ, ¬φ が同一枝に
+ *   6. BS規則で閉じる → ゴール達成
  */
 export const QuestCompleteTab01FromHub: Story = {
   render: () => {
@@ -2586,7 +2630,7 @@ export const QuestCompleteTab01FromHub: Story = {
       "0 / 1",
     );
 
-    // --- Phase 3: TAB ¬(φ→φ) - スタンドアロンノードではゴール未達成 ---
+    // --- Phase 3: TAB ¬(φ→φ) の反駁タブローを完成させる ---
     // Step 1: 「シーケントを追加」→ node-1
     await userEvent.click(
       canvas.getByTestId("workspace-tab-rule-palette-add-sequent"),
@@ -2596,16 +2640,51 @@ export const QuestCompleteTab01FromHub: Story = {
     });
 
     // Step 2: node-1の式を ~(phi -> phi) に編集
-    const display = canvas.getByTestId("proof-node-node-1-editor-display");
-    await userEvent.dblClick(display);
-    const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
-    await userEvent.type(input, "~(phi -> phi)");
+    const display1 = canvas.getByTestId("proof-node-node-1-editor-display");
+    await userEvent.dblClick(display1);
+    const input1 = canvas.getByTestId("proof-node-node-1-editor-input-input");
+    await userEvent.type(input1, "~(phi -> phi)");
     await userEvent.tab();
 
-    // --- 最終確認: スタンドアロンノードではゴール未達成 ---
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // スタンドアロンノードではゴール未達成
+    await new Promise((resolve) => setTimeout(resolve, 300));
     await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
       "0 / 1",
+    );
+
+    // Step 3: ¬→規則を適用
+    await userEvent.click(
+      canvas.getByTestId("workspace-tab-rule-palette-rule-neg-implication"),
+    );
+    await userEvent.click(canvas.getByTestId("proof-node-node-1"));
+    // RulePromptModal: 主論理式の位置（デフォルト0）→ OK
+    await waitFor(() => {
+      expect(canvas.getByTestId("workspace-rule-prompt")).toBeInTheDocument();
+    });
+    await userEvent.click(
+      canvas.getByTestId("workspace-rule-prompt-confirm"),
+    );
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+
+    // Step 4: BS規則で枝を閉じる
+    await userEvent.click(
+      canvas.getByTestId("workspace-tab-rule-palette-rule-bs"),
+    );
+    await userEvent.click(canvas.getByTestId("proof-node-node-2"));
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    });
+
+    // --- 最終確認: ゴール達成 ---
+    await waitFor(() => {
+      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
+        "1 / 1",
+      );
+    });
+    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
+      "Proved!",
     );
   },
 };
