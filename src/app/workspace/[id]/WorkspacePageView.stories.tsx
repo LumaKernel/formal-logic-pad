@@ -1640,12 +1640,34 @@ export const QuestCompleteGroup01ModelAnswer: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+
+    // --- 完了バナー確認 ---
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
+
+    // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Group Theory (Full Axioms)",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
     await expect(goalPanel).toHaveTextContent("Proved!");
+
+    // --- ノード確認（1ノード: G1 結合律） ---
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+
+    // --- エッジなし（1ノードのみの証明） ---
+
+    // --- 公理パレットから G2L (左単位元) を追加するインタラクション ---
+    const g2lButton = canvas.getByRole("button", { name: /G2L/ });
+    await expect(g2lButton).toBeInTheDocument();
+    await userEvent.click(g2lButton);
+
+    // 新しいノードが追加されたことを確認
+    await waitFor(() =>
+      expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument(),
+    );
   },
 };
 
