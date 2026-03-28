@@ -1093,14 +1093,85 @@ export const QuestCompleteProp01ModelAnswer: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+
+    // --- 完了バナー確認 ---
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
+
     // 体系バッジに正しい体系名が表示される
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Łukasiewicz",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toBeInTheDocument();
     await expect(goalPanel).toHaveTextContent("1 / 1");
     await expect(goalPanel).toHaveTextContent("Proved!");
+
+    // Fit to content で全ノードをビューポート内に収める（culling対策）
+    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
+
+    // --- ノード存在確認（fitToContent後のズームではrole-badge等は省略表示） ---
+    // 公理スキーマ: node-2(A2), node-4(A1), node-8(A1₂)
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-8")).toBeInTheDocument();
+    // 代入ノード: node-3(A2inst), node-5(A1inst), node-9(A1₂inst)
+    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-5")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-9")).toBeInTheDocument();
+    // MP結果: node-6(MP₁), node-10(MP₂=φ→φ ゴール)
+    await expect(canvas.getByTestId("proof-node-node-6")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-10")).toBeInTheDocument();
+
+    // --- 推論エッジバッジ確認 ---
+    // Substitution エッジ: A2→inst, A1→inst, A1₂→inst
+    await expect(
+      canvas.getByTestId(
+        "workspace-edge-badge-conn-node-2-out-node-3-premise",
+      ),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(
+        "workspace-edge-badge-conn-node-4-out-node-5-premise",
+      ),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(
+        "workspace-edge-badge-conn-node-8-out-node-9-premise",
+      ),
+    ).toBeInTheDocument();
+    // MP₁ エッジ: node-5(left) + node-3(right) → node-6
+    await expect(
+      canvas.getByTestId(
+        "workspace-edge-badge-conn-node-5-out-node-6-premise-left",
+      ),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(
+        "workspace-edge-badge-conn-node-3-out-node-6-premise-right",
+      ),
+    ).toBeInTheDocument();
+    // MP₂ エッジ: node-9(left) + node-6(right) → node-10
+    await expect(
+      canvas.getByTestId(
+        "workspace-edge-badge-conn-node-9-out-node-10-premise-left",
+      ),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(
+        "workspace-edge-badge-conn-node-6-out-node-10-premise-right",
+      ),
+    ).toBeInTheDocument();
+
+    // --- エッジバッジクリック → MPバッジのクリック確認 ---
+    // MPバッジをクリック（コンテキストメニュー表示確認）
+    await userEvent.click(
+      canvas.getByTestId(
+        "workspace-edge-badge-conn-node-5-out-node-6-premise-left",
+      ),
+    );
   },
 };
 
