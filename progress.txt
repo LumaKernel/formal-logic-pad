@@ -110,6 +110,22 @@
 
 ---
 
+## 2026-03-29 - [proof-pad] PLAY-PP-04 EqualityDemoのplay関数強化
+
+- ベースライン: Stmts 99.82%, Branch 99.16%, Funcs 90.57%, Lines 99.81%
+- **結果: Stmts 99.82%, Branch 99.16%, Funcs 90.57%, Lines 99.81%**（変動なし）
+- 実装内容:
+  - ReflexivityAxiom(eq-01): ゴールパネル「Proved!」確認＋公理パレット存在確認＋E2クリックインタラクション追加
+- 変更ファイル:
+  - src/lib/proof-pad/EqualityDemo.stories.tsx
+  - tasks/play-function-enhancement.md（PLAY-PP-04完了マーク）
+- スクリーンショット: .screenshots/play-pp-04-equality.png, .screenshots/play-pp-04-interactions.png
+- **今後のイテレーションへの学び:**
+  - EqualityDemoはPropositionalDemoと同じパターンで強化可能。等式体系の公理はE1-E5（E5は未実装）
+  - eq-01は1ステップの単純な証明なのでCIタイムアウトリスクなし
+
+---
+
 ## 2026-03-29 - [proof-pad] PLAY-PP-02 ModelAnswerDemoのplay関数強化
 
 - ベースライン: Stmts 99.82%, Branch 99.16%, Funcs 90.58%, Lines 99.81%
