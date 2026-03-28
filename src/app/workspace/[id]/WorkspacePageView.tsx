@@ -263,6 +263,22 @@ const questVersionWarningStyle: Readonly<CSSProperties> = {
   borderBottom: "1px solid var(--color-warning-border, rgba(255,215,0,0.4))",
   textAlign: "center",
   flexShrink: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "0.5rem",
+};
+
+const warningDismissButtonStyle: Readonly<CSSProperties> = {
+  background: "none",
+  border: "none",
+  color: "inherit",
+  cursor: "pointer",
+  padding: "0.125rem",
+  lineHeight: 1,
+  fontSize: "1rem",
+  opacity: 0.7,
+  flexShrink: 0,
 };
 
 // --- Component ---
@@ -327,6 +343,9 @@ function WorkspacePageViewFound({
     workspaceTestId,
     scriptEditorMessages,
   } = props;
+
+  // --- Quest version warning dismiss state ---
+  const [isWarningDismissed, setIsWarningDismissed] = useState(false);
 
   // --- Title editing state ---
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -476,12 +495,23 @@ function WorkspacePageViewFound({
       </header>
 
       {/* Quest version warning */}
-      {questVersionWarning !== undefined ? (
+      {questVersionWarning !== undefined && !isWarningDismissed ? (
         <div
           style={questVersionWarningStyle}
           data-testid="quest-version-warning"
         >
-          {questVersionWarning}
+          <span>{questVersionWarning}</span>
+          <button
+            type="button"
+            style={warningDismissButtonStyle}
+            onClick={() => {
+              setIsWarningDismissed(true);
+            }}
+            data-testid="quest-version-warning-dismiss"
+            aria-label="Dismiss warning"
+          >
+            ✕
+          </button>
         </div>
       ) : null}
 

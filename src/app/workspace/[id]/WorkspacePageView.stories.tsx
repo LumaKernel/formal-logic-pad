@@ -268,12 +268,28 @@ export const WithQuestVersionWarning: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+
+    // 警告バナーが表示される
     await expect(
       canvas.getByTestId("quest-version-warning"),
     ).toBeInTheDocument();
     await expect(canvas.getByText(/古いバージョン/)).toBeInTheDocument();
     await expect(canvas.getByText(/v1/)).toBeInTheDocument();
     await expect(canvas.getByText(/v3/)).toBeInTheDocument();
+
+    // 閉じるボタンが存在する
+    const dismissButton = canvas.getByTestId(
+      "quest-version-warning-dismiss",
+    );
+    await expect(dismissButton).toBeInTheDocument();
+
+    // 閉じるボタンをクリック→バナーが非表示になる
+    await userEvent.click(dismissButton);
+    await waitFor(() => {
+      expect(
+        canvas.queryByTestId("quest-version-warning"),
+      ).not.toBeInTheDocument();
+    });
   },
 };
 
