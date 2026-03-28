@@ -18764,3 +18764,15 @@
   - 1ノードのみ・エッジなしのモデルアンサーでは、公理パレットクリックによるノード追加がインタラクションテストとして有効
   - task-processing.mdはprettierチェック対象。空にするときは`truncate -s 0`を使う（改行1バイトもNG）
 ---
+
+## 2026-03-29 - PLAY-WS-17 群論モデルアンサーplay関数強化
+- 実装した内容: QuestCompleteGroup01ModelAnswer のplay関数を強化
+  - 完了バナー確認、体系バッジ（Group Theory (Full Axioms)）、ゴールパネル（1/1, Proved!）
+  - ノード存在確認（proof-node-node-1）
+  - 公理パレットからG2L (左単位元)クリック→node-2追加確認
+- 変更したファイル: WorkspacePageView.stories.tsx, tasks/play-function-enhancement.md
+- スクリーンショット: .screenshots/group01-model-answer-initial.png
+- カバレッジ: Stmts 99.82%, Branch 99.16%, Funcs 90.57%, Lines 99.81%（変化なし）
+- **今後のイテレーションへの学び:**
+  - 1ノード・エッジなしパターン（eq-01/group-01/peano-01）は同じテンプレートで対応可能：完了バナー＋ノード存在＋公理パレット追加
+---
