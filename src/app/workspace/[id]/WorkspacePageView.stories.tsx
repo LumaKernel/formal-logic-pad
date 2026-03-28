@@ -278,9 +278,7 @@ export const WithQuestVersionWarning: Story = {
     await expect(canvas.getByText(/v3/)).toBeInTheDocument();
 
     // 閉じるボタンが存在する
-    const dismissButton = canvas.getByTestId(
-      "quest-version-warning-dismiss",
-    );
+    const dismissButton = canvas.getByTestId("quest-version-warning-dismiss");
     await expect(dismissButton).toBeInTheDocument();
 
     // 閉じるボタンをクリック→バナーが非表示になる
