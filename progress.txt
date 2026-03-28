@@ -18834,3 +18834,13 @@
   - 警告バナーのようなシンプルなUIでも dismiss 機能を追加することで play 関数のインタラクションテストが可能になる
   - Prettier フォーマットエラーは CI で検出されるため、ローカルで `npx prettier --write` してからコミットすると効率的
 ---
+
+## 2026-03-29 - PLAY-PP-03 PropositionalDemo play関数強化
+- PropositionalDemo.stories.tsx の4ストーリー (Basics/Intermediate/Negation/Advanced) のplay関数を強化
+- 各ストーリーにゴールパネル「Proved!」確認 + 公理パレット存在確認 + 公理クリックインタラクション追加
+- 変更ファイル: src/lib/proof-pad/PropositionalDemo.stories.tsx, tasks/play-function-enhancement.md
+- カバレッジ: Stmts 99.82%, Branch 99.16%, Funcs 90.58%, Lines 99.81%（変化なし）
+- **今後のイテレーションへの学び:**
+  - PropositionalDemo の4ストーリーはすべて小規模（3-7ステップ）でCI 15秒タイムアウトの心配なし
+  - 確立パターン: 完了バナー + ゴールパネル + パレット存在 + パレットアイテムクリック
+---
