@@ -18860,3 +18860,16 @@
   - PropositionalDemo の4ストーリーはすべて小規模（3-7ステップ）でCI 15秒タイムアウトの心配なし
   - 確立パターン: 完了バナー + ゴールパネル + パレット存在 + パレットアイテムクリック
 ---
+
+## 2026-03-29 - [proof-pad] PLAY-PP-05 PredicateDemo play関数強化
+- PredicateDemo.stories.tsx の Basics/Advanced 両ストーリーの play 関数を強化
+  - ゴールパネル "Proved!" 確認追加
+  - 公理パレット存在確認追加
+  - 公理パレットからA4クリック（userEvent.click）追加
+- 変更ファイル: src/lib/proof-pad/PredicateDemo.stories.tsx
+- カバレッジ: 変化なし（Stmts 99.82%, Branch 99.16%, Funcs 90.57%, Lines 99.81%）
+- スクリーンショット: .screenshots/predicate-demo-basics-interactions.png, .screenshots/predicate-demo-advanced-interactions.png
+- **今後のイテレーションへの学び:**
+  - PredicateDemo のパターンは EqualityDemo/PropositionalDemo と同一（ゴールパネル+公理パレット+クリック）
+  - 述語論理体系の特有公理は A4/A5（全称消去/全称導入）
+---
