@@ -1128,19 +1128,13 @@ export const QuestCompleteProp01ModelAnswer: Story = {
     // --- 推論エッジバッジ確認 ---
     // Substitution エッジ: A2→inst, A1→inst, A1₂→inst
     await expect(
-      canvas.getByTestId(
-        "workspace-edge-badge-conn-node-2-out-node-3-premise",
-      ),
+      canvas.getByTestId("workspace-edge-badge-conn-node-2-out-node-3-premise"),
     ).toBeInTheDocument();
     await expect(
-      canvas.getByTestId(
-        "workspace-edge-badge-conn-node-4-out-node-5-premise",
-      ),
+      canvas.getByTestId("workspace-edge-badge-conn-node-4-out-node-5-premise"),
     ).toBeInTheDocument();
     await expect(
-      canvas.getByTestId(
-        "workspace-edge-badge-conn-node-8-out-node-9-premise",
-      ),
+      canvas.getByTestId("workspace-edge-badge-conn-node-8-out-node-9-premise"),
     ).toBeInTheDocument();
     // MP₁ エッジ: node-5(left) + node-3(right) → node-6
     await expect(
