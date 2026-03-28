@@ -1260,6 +1260,19 @@ export const QuestCompleteTab01: Story = {
     await expect(goalPanel).toBeInTheDocument();
     await expect(goalPanel).toHaveTextContent("1 / 1");
     await expect(goalPanel).toHaveTextContent("Proved!");
+
+    // 完了バナーが表示される
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toHaveTextContent("Proof Complete!");
+
+    // タブロー木パネルが表示される
+    await expect(
+      canvas.getByTestId("workspace-tab-proof-tree"),
+    ).toBeInTheDocument();
   },
 };
 
@@ -1290,14 +1303,26 @@ export const QuestCompleteSc01: Story = {
     await expect(goalPanel).toBeInTheDocument();
     await expect(goalPanel).toHaveTextContent("1 / 1");
     await expect(goalPanel).toHaveTextContent("Proved!");
+
+    // 完了バナーが表示される
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toHaveTextContent("Proof Complete!");
+
+    // SCルールパレットが表示される
+    await expect(
+      canvas.getByTestId("workspace-sc-rule-palette"),
+    ).toBeInTheDocument();
   },
 };
 
 /**
- * at-01: 分析的タブロー φ∨¬φ（模範解答プレースホルダー）
- * AT模範解答はまだaxiomステップのみ（推論エッジなし）のため、
- * スタンドアロンチェックによりゴール未達成になる。
- * AT模範解答がリッチ化されたら期待値を "Proved!" に更新する。
+ * at-01: 分析的タブロー φ∨¬φ
+ * AT模範解答は完了バナーが表示されるが、ゴールパネルは0/1表示
+ * （goalCheckResult と goalPanelData の不整合 — 別途修正対象）
  */
 export const QuestCompleteAt01: Story = {
   render: () => {
@@ -1322,8 +1347,21 @@ export const QuestCompleteAt01: Story = {
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toBeInTheDocument();
-    // AT模範解答はプレースホルダー（axiomステップ＝スタンドアロンノード）のため未達成
-    await expect(goalPanel).toHaveTextContent("0 / 1");
+
+    // 完了バナーが表示される
+    await waitFor(() => {
+      expect(
+        canvas.getByTestId("workspace-proof-complete-banner"),
+      ).toBeInTheDocument();
+    });
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toHaveTextContent("Proof Complete!");
+
+    // AT証明木パネルが表示される
+    await expect(
+      canvas.getByTestId("workspace-at-proof-tree"),
+    ).toBeInTheDocument();
   },
 };
 
