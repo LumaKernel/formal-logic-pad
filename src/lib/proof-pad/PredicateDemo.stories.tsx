@@ -8,7 +8,7 @@
 
 import { useState, useCallback } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, within } from "storybook/test";
+import { expect, within, userEvent } from "storybook/test";
 import { ProofWorkspace } from "./ProofWorkspace";
 import type { WorkspaceState } from "./workspaceState";
 import {
@@ -94,6 +94,19 @@ export const Basics: Story = {
     await expect(
       canvas.getByTestId("workspace-proof-complete-banner"),
     ).toBeInTheDocument();
+
+    // ゴールパネルが「Proved!」状態
+    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
+      "Proved!",
+    );
+
+    // 公理パレットからA4クリック→ノード追加
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette"),
+    ).toBeInTheDocument();
+    await userEvent.click(
+      canvas.getByTestId("workspace-axiom-palette-item-A4"),
+    );
   },
 };
 
@@ -107,5 +120,18 @@ export const Advanced: Story = {
     await expect(
       canvas.getByTestId("workspace-proof-complete-banner"),
     ).toBeInTheDocument();
+
+    // ゴールパネルが「Proved!」状態
+    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
+      "Proved!",
+    );
+
+    // 公理パレットからA4クリック→ノード追加
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette"),
+    ).toBeInTheDocument();
+    await userEvent.click(
+      canvas.getByTestId("workspace-axiom-palette-item-A4"),
+    );
   },
 };
