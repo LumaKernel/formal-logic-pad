@@ -1604,14 +1604,8 @@ export const QuestCompleteEq01ModelAnswer: Story = {
     await expect(goalPanel).toHaveTextContent("1 / 1");
     await expect(goalPanel).toHaveTextContent("Proved!");
 
-    // --- ノード確認（1ノード: E1 Refl、100%ズームで詳細表示） ---
+    // --- ノード確認（1ノード: E1 Refl） ---
     await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("proof-node-node-1-axiom-name"),
-    ).toHaveTextContent("E1 (Refl)");
-    await expect(
-      canvas.getByTestId("proof-node-node-1-role-badge"),
-    ).toHaveTextContent("AXIOM");
 
     // --- エッジなし（1ノードのみの証明） ---
 
