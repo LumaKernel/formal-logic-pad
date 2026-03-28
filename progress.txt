@@ -18749,3 +18749,18 @@
   - Storybook HMRで前のストーリーの状態がリークすることがある。テスト結果の確認はフルリロード後に行うこと
   - waitForを使えば非同期ゴールチェックの完了を待てる
 ---
+
+## 2026-03-29 - PLAY-WS-16 等式体系モデルアンサーplay関数強化
+- 実装した内容: QuestCompleteEq01ModelAnswer のplay関数を強化
+  - 完了バナー確認（workspace-proof-complete-banner）
+  - 体系バッジ（Predicate Logic with Equality）、ゴールパネル（1/1, Proved!）
+  - ノード存在確認（proof-node-node-1）
+  - 公理パレットからE2 (Sym)クリック→node-2追加確認（waitFor使用）
+- 変更したファイル: WorkspacePageView.stories.tsx, tasks/play-function-enhancement.md
+- スクリーンショット: .screenshots/eq01-model-answer-initial.png
+- カバレッジ: Stmts 99.82%, Branch 99.16%, Funcs 90.57%, Lines 99.81%（変化なし）
+- **今後のイテレーションへの学び:**
+  - CIのStorybook testでは、viewportサイズが異なりdetailLevelがcompact（scale < 0.5）になることがある。role-badge/axiom-nameはfullレベルのみ表示のため、CIでは見えない場合がある
+  - 1ノードのみ・エッジなしのモデルアンサーでは、公理パレットクリックによるノード追加がインタラクションテストとして有効
+  - task-processing.mdはprettierチェック対象。空にするときは`truncate -s 0`を使う（改行1バイトもNG）
+---
