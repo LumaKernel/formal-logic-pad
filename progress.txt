@@ -18776,3 +18776,15 @@
 - **今後のイテレーションへの学び:**
   - 1ノード・エッジなしパターン（eq-01/group-01/peano-01）は同じテンプレートで対応可能：完了バナー＋ノード存在＋公理パレット追加
 ---
+
+## 2026-03-29 - PLAY-WS-18 ペアノモデルアンサーplay関数強化
+- 実装した内容: QuestCompletePeano01ModelAnswer のplay関数を強化
+  - 完了バナー確認、体系バッジ（Peano Arithmetic）、ゴールパネル（1/1, Proved!）
+  - ノード存在確認（proof-node-node-1）
+  - 公理パレットからPA2 (Sの単射性)クリック→node-2追加確認
+- 変更したファイル: WorkspacePageView.stories.tsx, tasks/play-function-enhancement.md
+- スクリーンショット: .screenshots/peano01-model-answer-initial.png
+- カバレッジ: Stmts 99.82%, Branch 99.16%, Funcs 90.57%, Lines 99.81%（変化なし）
+- **今後のイテレーションへの学び:**
+  - WS-16/17/18は全て同パターン（1ノード・エッジなし）で効率的に完了。モデルアンサーストーリーWS-14〜18全完了
+---
