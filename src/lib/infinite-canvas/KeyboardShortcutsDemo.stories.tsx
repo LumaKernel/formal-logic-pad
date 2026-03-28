@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, within } from "storybook/test";
+import { expect, userEvent, within } from "storybook/test";
 import { useCallback, useRef, useState } from "react";
 import { CanvasItem } from "./CanvasItem";
 import { InfiniteCanvas } from "./InfiniteCanvas";
@@ -264,5 +264,26 @@ export const Default: Story = {
     await expect(info).toHaveTextContent("Selected: 0");
     await expect(info).toHaveTextContent("Zoom: 100%");
     await expect(info).toHaveTextContent("Space Pan: OFF");
+
+    // Click Item A to select it
+    await userEvent.click(canvas.getByTestId("item-1"));
+    await expect(info).toHaveTextContent("Selected: 1");
+
+    // Click Item B to add to selection
+    await userEvent.click(canvas.getByTestId("item-2"));
+    await expect(info).toHaveTextContent("Selected: 2");
+
+    // Escape to deselect all
+    await userEvent.keyboard("{Escape}");
+    await expect(info).toHaveTextContent("Selected: 0");
+
+    // Ctrl+A to select all items
+    await userEvent.keyboard("{Control>}a{/Control}");
+    await expect(info).toHaveTextContent("Selected: 4");
+
+    // Delete to remove selected items
+    await userEvent.keyboard("{Delete}");
+    await expect(info).toHaveTextContent("Items: 0");
+    await expect(info).toHaveTextContent("Selected: 0");
   },
 };

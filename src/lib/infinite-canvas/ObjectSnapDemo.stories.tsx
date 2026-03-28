@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, within } from "storybook/test";
+import { expect, userEvent, within } from "storybook/test";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlignmentGuidesComponent } from "./AlignmentGuidesComponent";
 import { CanvasItem } from "./CanvasItem";
@@ -340,5 +340,13 @@ export const Default: Story = {
     // Items have grab cursor
     const canvasItemA = itemA.closest("[data-testid='canvas-item']");
     await expect(canvasItemA).toHaveStyle({ cursor: "grab" });
+
+    // Toggle snap OFF
+    await userEvent.click(toggleBtn);
+    await expect(toggleBtn).toHaveTextContent("OFF");
+
+    // Toggle snap back ON
+    await userEvent.click(toggleBtn);
+    await expect(toggleBtn).toHaveTextContent("ON");
   },
 };

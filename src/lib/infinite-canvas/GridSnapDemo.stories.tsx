@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, within } from "storybook/test";
+import { expect, userEvent, within } from "storybook/test";
 import { useMemo, useState } from "react";
 import { CanvasItem } from "./CanvasItem";
 import { InfiniteCanvas } from "./InfiniteCanvas";
@@ -191,5 +191,15 @@ export const Default: Story = {
     // Items have grab cursor (draggable)
     const canvasItemSnap = snapItem.closest("[data-testid='canvas-item']");
     await expect(canvasItemSnap).toHaveStyle({ cursor: "grab" });
+
+    // Toggle snap OFF
+    await userEvent.click(toggleBtn);
+    await expect(toggleBtn).toHaveTextContent("OFF");
+    await expect(snapItem).toHaveTextContent("Snap to Grid (OFF)");
+
+    // Toggle snap back ON
+    await userEvent.click(toggleBtn);
+    await expect(toggleBtn).toHaveTextContent("ON");
+    await expect(snapItem).toHaveTextContent("Snap to Grid (ON)");
   },
 };

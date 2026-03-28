@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, within } from "storybook/test";
+import { expect, userEvent, within } from "storybook/test";
 import { useCallback, useRef, useState } from "react";
 import { CanvasItem } from "./CanvasItem";
 import { InfiniteCanvas } from "./InfiniteCanvas";
@@ -310,13 +310,34 @@ export const Default: Story = {
     await expect(canvas.getByTestId("item-3")).toBeInTheDocument();
     await expect(canvas.getByTestId("item-4")).toBeInTheDocument();
 
-    // Toggle button exists
+    // Toggle button exists and starts in Pan Mode
     const toggleBtn = canvas.getByTestId("toggle-mode");
-    await expect(toggleBtn).toBeInTheDocument();
     await expect(toggleBtn).toHaveTextContent("Pan Mode");
 
     // Selection info shows 0 selected
     const info = canvas.getByTestId("selection-info");
     await expect(info).toHaveTextContent("Selected: 0");
+
+    // Click Item A to select it
+    await userEvent.click(canvas.getByTestId("item-1"));
+    await expect(info).toHaveTextContent("Selected: 1");
+
+    // Click Item B to add to selection
+    await userEvent.click(canvas.getByTestId("item-2"));
+    await expect(info).toHaveTextContent("Selected: 2");
+
+    // Escape to deselect all
+    await userEvent.keyboard("{Escape}");
+    await expect(info).toHaveTextContent("Selected: 0");
+
+    // Toggle to Marquee Mode
+    await userEvent.click(toggleBtn);
+    await expect(toggleBtn).toHaveTextContent("Marquee Mode");
+    await expect(info).toHaveTextContent("Mode: Marquee");
+
+    // Toggle back to Pan Mode
+    await userEvent.click(toggleBtn);
+    await expect(toggleBtn).toHaveTextContent("Pan Mode");
+    await expect(info).toHaveTextContent("Mode: Pan");
   },
 };
