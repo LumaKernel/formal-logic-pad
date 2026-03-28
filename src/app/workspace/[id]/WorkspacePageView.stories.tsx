@@ -1454,12 +1454,64 @@ export const QuestCompleteProp42ModelAnswer: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+
+    // --- 完了バナー確認 ---
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
+
+    // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Łukasiewicz",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
     await expect(goalPanel).toHaveTextContent("Proved!");
+
+    // --- ノード確認（4ノード、100%ズームで全詳細表示） ---
+    // 公理: node-1(A2), node-2(A2)
+    await expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("proof-node-node-1-axiom-name"),
+    ).toHaveTextContent("A2 (S)");
+    await expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("proof-node-node-2-axiom-name"),
+    ).toHaveTextContent("A2 (S)");
+    // Subst結果: node-3 DERIVED
+    await expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("proof-node-node-3-role-badge"),
+    ).toHaveTextContent("DERIVED");
+    // MP結果: node-4 DERIVED（ゴール達成）
+    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("proof-node-node-4-role-badge"),
+    ).toHaveTextContent("DERIVED");
+
+    // --- 推論エッジバッジ確認（3つ） ---
+    // Substitution: A2(node-2)→Subst(node-3)
+    await expect(
+      canvas.getByTestId("workspace-edge-badge-conn-node-2-out-node-3-premise"),
+    ).toBeInTheDocument();
+    // MP: node-1(left)→node-4, node-3(right)→node-4
+    await expect(
+      canvas.getByTestId(
+        "workspace-edge-badge-conn-node-1-out-node-4-premise-left",
+      ),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByTestId(
+        "workspace-edge-badge-conn-node-3-out-node-4-premise-right",
+      ),
+    ).toBeInTheDocument();
+
+    // --- エッジバッジクリック → コンテキストメニュー表示確認 ---
+    await userEvent.click(
+      canvas.getByTestId(
+        "workspace-edge-badge-conn-node-1-out-node-4-premise-left",
+      ),
+    );
   },
 };
 
