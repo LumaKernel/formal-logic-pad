@@ -24,6 +24,7 @@ import {
   findTabTreeRoots,
   computeTabTreeStats,
 } from "./tabProofTreeRendererLogic";
+import { FormulaListDisplay } from "./FormulaListDisplay";
 
 // --- Props ---
 
@@ -215,7 +216,7 @@ function TabTreeNode({
         </div>
       ) : null}
 
-      {/* シーケントテキスト */}
+      {/* シーケントテキスト（FormulaListDisplayでシンタックスハイライト） */}
       <div
         style={sequentTextStyle}
         data-testid={
@@ -224,7 +225,11 @@ function TabTreeNode({
             : undefined
         }
       >
-        {node.sequentText}
+        <FormulaListDisplay
+          formulaTexts={node.formulaTexts}
+          text={node.sequentText}
+          fontSize={11}
+        />
       </div>
 
       {/* 枝の状態マーカー */}
