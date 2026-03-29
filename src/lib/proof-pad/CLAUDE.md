@@ -76,3 +76,4 @@ logic-core, logic-lang, formula-input, infinite-canvas を統合する層。
 - ゴールはノードではなく独立データ（`WorkspaceGoal`）として管理
 - ゴール達成判定: ゴール式と同じ式を持つノードが存在し、許可公理のみで導出されていれば達成
 - `isNodeProtected()` は常にfalseを返す（ゴールノード廃止のため）
+- SCノードの `sequentTexts` は `addNode`/`updateNodeFormulaText` で自動ポピュレート。消費者側（SequentDisplay, SequentExpandedEditor, goalCheckLogic, EditableProofNode）は `sequentTexts` を直接参照し、`formulaText` の再パースを避ける

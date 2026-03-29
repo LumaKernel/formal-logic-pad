@@ -18921,3 +18921,18 @@
   - SCノードの内部データはsequentTextsがsource of truth。消費者側（SequentExpandedEditor, scApplicationLogic, SequentDisplay）への移行は次のタスク「わざわざ一度テキスト形式を経由しているなら、それをやめる」で実施
   - splitSequentTextParts()はscApplicationLogic.tsに既存関数として存在。新たに実装する必要はなかった
 ---
+
+## 2026-03-29 - [proof-pad] SC消費者側をsequentTexts直接参照に移行
+- goalCheckLogic.parseNodeFormula: オプショナルsequentTextsパラメータ追加、checkGoalでnode.sequentTextsを渡す
+- SequentExpandedEditor: initialAntecedents/initialSuccedentsプロップ追加（splitSequentToListsスキップ）
+- SequentDisplay: sequentTextsプロップ追加（parseSequentDisplayDataスキップ）
+- sequentDisplayLogic: sequentTextsToDisplayData関数追加
+- EditableProofNode: sequentTextsプロップ追加、SequentDisplayに伝搬
+- ProofWorkspace.tsx: node.sequentTextsをSequentExpandedEditorとEditableProofNodeに渡す
+- テスト追加: goalCheckLogic.test.ts (3テスト), sequentDisplayLogic.test.ts (4テスト), SequentDisplay.test.tsx (2テスト)
+- 変更ファイル: goalCheckLogic.ts, goalCheckLogic.test.ts, sequentDisplayLogic.ts, sequentDisplayLogic.test.ts, SequentDisplay.tsx, SequentDisplay.test.tsx, EditableProofNode.tsx, SequentExpandedEditor.tsx, ProofWorkspace.tsx, index.ts
+- カバレッジ: Stmts 99.82%, Branch 99.13%, Funcs 90.55%, Lines 99.81%（V8マージの既知の揺れ範囲内）
+- **今後のイテレーションへの学び:**
+  - parserが返す単一変数のASTタグは`MetaVariable`（`PropositionalVariable`ではない）
+  - SC関連の全消費者がsequentTextsを参照可能になった。今後新しいSC消費者を追加する場合もsequentTextsを優先利用する
+---
