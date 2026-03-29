@@ -2454,9 +2454,8 @@ export const QuestCompleteAt01FullFlow: Story = {
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Analytic Tableau",
     );
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "0 / 1",
-    );
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // ATパレットが表示される
     await expect(
@@ -2470,15 +2469,15 @@ export const QuestCompleteAt01FullFlow: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
+    // 空ノード追加 — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Step 2: node-1の式を F:phi \/ ~phi に編集（拡大エディタ経由） ---
     await editNodeViaExpandedEditor(canvas, "node-1", "F:phi \\/ ~phi");
 
     // スタンドアロンノードではゴール未達成
     await new Promise((resolve) => setTimeout(resolve, 300));
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "0 / 1",
-    );
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Step 3: α規則(F∨/alpha-neg-disj)を適用 ---
     await userEvent.click(
@@ -2493,6 +2492,7 @@ export const QuestCompleteAt01FullFlow: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
     });
+    // Note: α規則適用後、F:φとF:¬φが生成され、ゴール判定で自動的に達成される場合がある
 
     // --- Step 4: α規則(F¬/alpha-neg-f)を node-3(F:¬φ) に適用 ---
     await userEvent.click(
@@ -2503,6 +2503,7 @@ export const QuestCompleteAt01FullFlow: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
     });
+    // Note: F¬適用後、T:φとF:φが同一枝に存在し、矛盾が自動検出される場合がある
 
     // --- Step 5: closure規則を適用（T:φ と F:φ で枝閉じ） ---
     await userEvent.click(
@@ -2515,13 +2516,9 @@ export const QuestCompleteAt01FullFlow: Story = {
 
     // --- 最終確認: ゴール達成 ---
     await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
+      expect(goalPanel).toHaveTextContent("1 / 1");
     });
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
-    );
+    await expect(goalPanel).toHaveTextContent("Proved!");
   },
 };
 
