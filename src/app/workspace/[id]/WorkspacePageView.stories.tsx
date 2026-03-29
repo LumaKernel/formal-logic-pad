@@ -1563,9 +1563,7 @@ export const QuestCompleteProp04: Story = {
     await expect(
       canvas.getByTestId("workspace-axiom-palette"),
     ).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-mp-button"),
-    ).toBeInTheDocument();
+    await expect(canvas.getByTestId("workspace-mp-button")).toBeInTheDocument();
 
     // ゴール達成確認
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
