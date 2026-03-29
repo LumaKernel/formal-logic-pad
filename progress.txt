@@ -113,6 +113,24 @@
 
 ---
 
+## 2026-03-30 - [quest] prop-03 QuestComplete ストーリー追加
+
+- ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
+- **結果: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%**（変動なし）
+- 実装内容:
+  - QuestCompleteProp03: axiomのみワークスペースで即ゴール達成（A1直接インスタンス、1ステップ）
+  - QuestCompleteProp03ModelAnswer: 模範解答ベースの完了状態（note + axiom）
+  - 両ストーリーのplay関数でインタラクションテスト Pass 確認
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx
+  - tasks/quest-stories.md
+- スクリーンショット: .screenshots/quest-complete-prop-03.png, .screenshots/quest-complete-prop-03-model-answer.png
+- **今後のイテレーションへの学び:**
+  - 1ステップクエスト（公理直接インスタンス）はMPなしで即ゴール達成。play関数はシンプルにfitToContent→ゴール確認のみ
+  - ModelAnswerストーリーのノードID: note-0=node-1, schema=node-2, inst=node-3
+
+---
+
 ## 2026-03-29 - [quest] 全ヒルベルト流クエストに allowedAxiomIds を設定
 
 - ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.65%, Lines 99.81%
