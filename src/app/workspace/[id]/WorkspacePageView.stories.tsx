@@ -3060,9 +3060,8 @@ export const QuestCompleteSc01FromHub: Story = {
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Sequent Calculus LK",
     );
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "0 / 1",
-    );
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Phase 3: SC φ→φ 証明フロー ---
     // Step 1: 「シーケントを追加」→ node-1
@@ -3072,6 +3071,8 @@ export const QuestCompleteSc01FromHub: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
+    // シーケント追加のみ — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // Step 2: node-1の式を ⇒ phi -> phi に編集（SequentExpandedEditor直接開く）
     const display1 = canvas.getByTestId("proof-node-node-1-editor-display");
@@ -3100,8 +3101,12 @@ export const QuestCompleteSc01FromHub: Story = {
         screen.queryByTestId("workspace-expanded-editor"),
       ).not.toBeInTheDocument();
     });
+    // 式編集のみ — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // Step 3: implication-right規則を適用
+    // Note: implication-right適用後、phi ⇒ phi はidentity公理として自動検出されるため
+    // step3後の "0 / 1" assert は除外
     await userEvent.click(
       canvas.getByTestId("workspace-sc-rule-palette-rule-implication-right"),
     );
@@ -3122,13 +3127,9 @@ export const QuestCompleteSc01FromHub: Story = {
 
     // --- 最終確認: ゴール達成 ---
     await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
+      expect(goalPanel).toHaveTextContent("1 / 1");
     });
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
-    );
+    await expect(goalPanel).toHaveTextContent("Proved!");
   },
 };
 
@@ -3232,9 +3233,8 @@ export const QuestCompleteTab01FromHub: Story = {
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Tableau Calculus TAB (Propositional)",
     );
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "0 / 1",
-    );
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Phase 3: TAB ¬(φ→φ) の反駁タブローを完成させる ---
     // Step 1: 「シーケントを追加」→ node-1
@@ -3244,17 +3244,19 @@ export const QuestCompleteTab01FromHub: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
+    // シーケント追加のみ — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // Step 2: node-1の式を ~(phi -> phi) に編集（拡大エディタ経由）
     await editNodeViaExpandedEditor(canvas, "node-1", "~(phi -> phi)");
 
     // スタンドアロンノードではゴール未達成
     await new Promise((resolve) => setTimeout(resolve, 300));
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "0 / 1",
-    );
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // Step 3: ¬→規則を適用
+    // Note: ¬→適用後、φと¬φが同一枝に存在し矛盾が自動検出されるため
+    // step3後の "0 / 1" assert は除外
     await userEvent.click(
       canvas.getByTestId("workspace-tab-rule-palette-rule-neg-implication"),
     );
@@ -3276,13 +3278,9 @@ export const QuestCompleteTab01FromHub: Story = {
 
     // --- 最終確認: ゴール達成 ---
     await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
+      expect(goalPanel).toHaveTextContent("1 / 1");
     });
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
-    );
+    await expect(goalPanel).toHaveTextContent("Proved!");
   },
 };
 
@@ -3384,9 +3382,8 @@ export const QuestCompleteAt01FromHub: Story = {
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Analytic Tableau",
     );
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "0 / 1",
-    );
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Phase 3: AT φ∨¬φ の証明完成フロー ---
     // Step 1: 「式を追加」→ node-1
@@ -3396,17 +3393,19 @@ export const QuestCompleteAt01FromHub: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
+    // 式追加のみ — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // Step 2: node-1の式を F:phi \/ ~phi に編集（拡大エディタ経由）
     await editNodeViaExpandedEditor(canvas, "node-1", "F:phi \\/ ~phi");
 
     // スタンドアロンノードではゴール未達成
     await new Promise((resolve) => setTimeout(resolve, 300));
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "0 / 1",
-    );
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // Step 3: α規則(F∨/alpha-neg-disj)を適用
+    // Note: α規則(F∨)適用後、F:φ と F:¬φ が生成され自動検出によりゴール達成する可能性があるため
+    // step3後の "0 / 1" assert は除外
     await userEvent.click(
       canvas.getByTestId("workspace-at-rule-palette-rule-alpha-neg-disj"),
     );
@@ -3436,12 +3435,8 @@ export const QuestCompleteAt01FromHub: Story = {
 
     // --- 最終確認: ゴール達成 ---
     await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
+      expect(goalPanel).toHaveTextContent("1 / 1");
     });
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
-    );
+    await expect(goalPanel).toHaveTextContent("Proved!");
   },
 };
