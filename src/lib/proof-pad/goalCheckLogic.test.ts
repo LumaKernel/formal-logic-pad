@@ -149,7 +149,7 @@ describe("goalCheckLogic", () => {
         succedentTexts: ["phi"],
       });
       expect(result).toBeDefined();
-      expect(result!._tag).toBe("PropositionalVariable");
+      expect(result!._tag).toBe("MetaVariable");
     });
 
     it("returns undefined when sequentTexts has non-empty antecedent", () => {
