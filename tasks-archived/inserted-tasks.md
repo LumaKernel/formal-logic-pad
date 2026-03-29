@@ -354,6 +354,10 @@
 - [x] これは `phi => phi` から `=> phi->phi` を作るんじゃないの？そもそも模範解答もすべて修正が必要なのではないか
   - 調査済み。模範解答は結論→前提方向で構築しており正しい。修正不要
 - [x] const-map を v1.2.0に更新する。バグは解消されているので、return with return typeが適合する場所は置き換える。 → workspaceBridge.ts の scTagToRuleName を makeConstMapWithReturnType<string> に変更
+- [x] http://localhost:13006/?path=/story/pages-workspace--quest-complete-pred-adv-11-model-answer
+  - 関係のない公理 (all x. (phi -> phi)) -> (phi -> (all x. phi)) が使われているがprovedになる。
+  - → 検証完了: `allowedAxiomIds: ["A1", "A2", "A5"]` 制約により、許可外の公理使用時は `AllAchievedButAxiomViolation` となりProvedにならない。該当式は正当なA5インスタンスであり模範解答で必要。単体テストでも制約動作を検証済み。
+  - [x] 全127ヒルベルト流クエストに `allowedAxiomIds` 設定済み。ND全35クエストに `allowedRuleIds` 設定。SC通常29クエストに `disallowedScRuleIds: ["cut"]` 設定。TAB/ATは将来タスク
 - [x] 以前、シーケント計算は ΓとΔのそれぞれの列を内部で持つと話した。
   - [x] いきなりシーケント編集モーダルが開いてよい。 — FormulaEditor.enterEditModeでallowSequentText時に直接onOpenExpanded()を呼ぶ実装済み。play関数はcreatePortal対応でscreen使用
   - [x] 内部的にテキストとして保持しているなら、それをやめる — WorkspaceNodeにsequentTexts(antecedentTexts/succedentTexts配列)を追加。addNode/updateNodeFormulaTextで自動ポピュレート。シリアライゼーション対応済み
@@ -362,3 +366,9 @@
 - [x] タブローもシーケント計算と同様に、論理式単体ではなく、論理式の列を持つのだから、それに合わせた内部構造の持ちかた、レンダリング、編集UIをそれぞれ提供するように変更すべき
   - [x] 消費者側がformulaTextsを直接参照するように移行 — tabProofTreeRendererLogic, ProofWorkspace(TAB規則適用・TabExpandedEditor)をformulaTexts優先に変更。フォールバックはsplitByTopLevelCommaで正確に分割
   - [x] TabProofTreePanel のレンダリングを FormulaListDisplay に移行 — プレーンテキスト表示をFormulaListDisplayコンポーネントに置換。各論理式が個別にシンタックスハイライト
+
+- [x] vercelでビルドするときに、Next.js publicとして、どこかのサブディレクトリに、パス /storybook 配下に、ストーリーブックのプロダクションビルドを含めて配布されるようにしよう
+  - Next.js側がプロダクションビルドされたとき(にビルドしてそのように構成される)のみでよい
+  - `scripts/build-with-storybook.mjs`: storybook build → public/storybook に移動 → next build → cleanup
+
+- [x] すべてのビルトインクエストについて、一個ずつ、以下のようなタスクリストを ./quest-stories.md に作る → `tasks/quest-stories.md` に全258クエスト分作成
