@@ -2118,9 +2118,8 @@ export const QuestCompleteNd01FullFlow: Story = {
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Natural Deduction NM",
     );
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "0 / 1",
-    );
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Step 1: 「仮定を追加」→ node-1 ---
     await userEvent.click(
@@ -2129,6 +2128,8 @@ export const QuestCompleteNd01FullFlow: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
+    // 空仮定ノード追加 — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Step 2: node-1の式をphiに編集 ---
     const display = canvas.getByTestId("proof-node-node-1-editor-display");
@@ -2136,6 +2137,8 @@ export const QuestCompleteNd01FullFlow: Story = {
     const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
     await userEvent.type(input, "phi");
     await userEvent.tab();
+    // φ仮定ノード編集 — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Step 3: →I規則をパレットからクリック → 選択モード ---
     await userEvent.click(
@@ -2145,6 +2148,8 @@ export const QuestCompleteNd01FullFlow: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("workspace-nd-banner")).toBeInTheDocument();
     });
+    // 選択モード中 — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Step 4: node-1をクリック → モーダルでφを入力 → φ→φ ---
     await fitToContent(canvas);
@@ -2166,13 +2171,9 @@ export const QuestCompleteNd01FullFlow: Story = {
 
     // --- 最終確認: ゴール達成 ---
     await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
+      expect(goalPanel).toHaveTextContent("1 / 1");
     });
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
-    );
+    await expect(goalPanel).toHaveTextContent("Proved!");
   },
 };
 
