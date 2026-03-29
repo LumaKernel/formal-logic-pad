@@ -7795,7 +7795,8 @@ export const ProofWorkspace = forwardRef<
         ) : isTableauStyle || isAnalyticTableauStyle ? (
           <TabExpandedEditor
             value={
-              workspace.nodes.find((n) => n.id === expandedEditorNodeId)
+              workspace.nodes
+                .find((n) => n.id === expandedEditorNodeId)
                 ?.formulaTexts?.join(", ") ?? ""
             }
             initialFormulas={
