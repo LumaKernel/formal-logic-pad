@@ -113,6 +113,24 @@
 
 ---
 
+## 2026-03-30 - [quest] prop-07 QuestComplete ストーリー追加
+
+- ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
+- **結果: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%**（変動なし）
+- 実装内容:
+  - QuestCompleteProp07: `buildCompletedQuestWorkspace` 使用、19ステップ証明の完了状態検証
+  - QuestCompleteProp07ModelAnswer: 模範解答ベースの完了状態（静的確認用）
+  - 両ストーリーのplay関数でインタラクションテスト Pass 確認
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx
+  - tasks/quest-stories.md
+- スクリーンショット: .screenshots/quest-complete-prop-07.png, .screenshots/quest-complete-prop-07-model-answer.png
+- **今後のイテレーションへの学び:**
+  - prop-07（19ステップ）はfitToContent+ノード存在確認付きplay関数だとCI 15sタイムアウト。安全限界は~15ステップ
+  - 19ステップ以上のストーリーではplay関数を軽量化（ゴール達成+完了バナー確認のみ、fitToContent/ノード確認を省略）
+
+---
+
 ## 2026-03-30 - [quest] prop-06 QuestComplete ストーリー追加
 
 - ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
