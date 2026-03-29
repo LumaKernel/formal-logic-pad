@@ -113,6 +113,24 @@
 
 ---
 
+## 2026-03-30 - [quest] prop-04 QuestComplete ストーリー追加
+
+- ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
+- **結果: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%**（変動なし）
+- 実装内容:
+  - QuestCompleteProp04: `buildCompletedQuestWorkspace` 使用、完了状態の検証（axiomパレット・MPボタン表示、ゴール達成、完了バナー確認）
+  - QuestCompleteProp04ModelAnswer: 模範解答ベースの完了状態（静的確認用）
+  - 両ストーリーのplay関数でインタラクションテスト Pass 確認
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx
+  - tasks/quest-stories.md
+- スクリーンショット: .screenshots/quest-complete-prop-04.png, .screenshots/quest-complete-prop-04-model-answer.png
+- **今後のイテレーションへの学び:**
+  - 7回以上のMP操作を含むインタラクティブストーリーはStorybook play関数でノードID不一致が起きやすい。axiom-only + 手動MP方式ではなく `buildCompletedQuestWorkspace` で完了状態を直接確認する方が安定
+  - prop-04は15ステップ（8 axiom + 7 MP）の複雑な証明だが、20ステップ制限内でCI安全
+
+---
+
 ## 2026-03-30 - [quest] prop-03 QuestComplete ストーリー追加
 
 - ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
