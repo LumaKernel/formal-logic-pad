@@ -2567,9 +2567,8 @@ export const QuestCompletePred01FullFlow: Story = {
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Predicate Logic",
     );
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "0 / 1",
-    );
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // 公理パレットにA4が表示される（述語論理体系）
     await expect(
@@ -2583,6 +2582,8 @@ export const QuestCompletePred01FullFlow: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
+    // A4スキーマ追加のみ — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Step 2: node-1に代入 [φ:=P(x), τ:=x] → node-2 ---
     await applySubstitutionViaContextMenu(canvas, "proof-node-node-1", [
@@ -2595,13 +2596,9 @@ export const QuestCompletePred01FullFlow: Story = {
 
     // --- 最終確認: ゴール達成 ---
     await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
+      expect(goalPanel).toHaveTextContent("1 / 1");
     });
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
-    );
+    await expect(goalPanel).toHaveTextContent("Proved!");
   },
 };
 
