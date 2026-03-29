@@ -111,6 +111,26 @@
 
 ---
 
+## 2026-03-29 - [quest] 全ヒルベルト流クエストに allowedAxiomIds を設定
+
+- ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.65%, Lines 99.81%
+- **結果: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%**（Funcs微増）
+- 実装内容:
+  - 全127ヒルベルト流クエスト定義に `allowedAxiomIds` を追加
+  - 模範解答の各axiomステップを `identifyAxiom` で分析し、使用公理のみを許可リストに設定
+  - `modelAnswer.ts` の v8 ignore コメント削除（allowedAxiomIds付きクエストが実在するようになった）
+  - 既存テスト「全模範解答の公理制約チェック」で整合性を自動検証
+- 変更ファイル:
+  - src/lib/quest/builtinQuests.ts（127箇所に allowedAxiomIds 追加）
+  - src/lib/quest/modelAnswer.ts（v8 ignore削除）
+  - tasks/inserted-tasks.md
+- **今後のイテレーションへの学び:**
+  - `QuestDefinition.allowedAxiomIds` はゴール個別の設定が優先される（questStartLogic.ts で引き継ぎ）
+  - `identifyAxiom` で公理テンプレートとのマッチングが可能。TheoryAxiom は AxiomId 型に含まれないため別管理
+  - ND/SC/TAB/AT の制約は `allowedRuleIds`/`disallowedScRuleIds` で対応可能だが未設定
+
+---
+
 ## 2026-03-29 - [proof-pad] TAB消費者側をformulaTexts直接参照に移行
 
 - ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.65%, Lines 99.81%

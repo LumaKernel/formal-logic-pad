@@ -2,11 +2,10 @@
 
 - [ ] http://localhost:13006/?path=/story/pages-workspace--quest-complete-pred-adv-11-model-answer
   - 関係のない公理 (all x. (phi -> phi)) -> (phi -> (all x. phi)) が使われているがprovedになる。
-  - [-] まず、ずっと書いているように、各ゴールは使っていい公理と共に定義される
-    - 構造として { goals: [{ formula: ..., allowedAxioms: [...] }, ..] } のように、ゴールごとに持つ。
-    - ヒルベルト流でしか自然と捉えられない構造なら、これは discriminated union で専用の表現ということにはなるだろう
-    - だが、いずれにしても各公理でなんらかのallowlistを持つべきだろう。
-    - [ ] 他の流派についても検討
+  - [x] まず、ずっと書いているように、各ゴールは使っていい公理と共に定義される — 全127ヒルベルト流クエストに `allowedAxiomIds` を設定済み。模範解答で使用する公理のみ許可。
+    - 構造は既存の `QuestDefinition.allowedAxiomIds` と `QuestGoalDefinition.allowedAxiomIds` をそのまま活用。
+    - ND/SC/TAB/ATは既存の `allowedRuleIds`/`disallowedScRuleIds` で同等の制御が可能。
+    - [ ] 他の流派についても検討（ND/SC/TAB/AT向けの制約設定）
 
 - [ ] http://localhost:13006/?path=/story/pages-workspace--quest-complete-sc-01-from-hub などは、
   - 各ステップで、クエストが完了すべきでないタイミングで完了してないこと(provedとなっていない)をassertもするべきだ
