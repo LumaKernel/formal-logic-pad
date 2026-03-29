@@ -19271,3 +19271,12 @@
 - スクリーンショット: .screenshots/quest-complete-prop-37-model-answer.png
 - カバレッジ変化なし（CI確認待ち）
 ---
+
+## 2026-03-30 - quest stories (prop-38)
+- prop-38（A2の自己変数適用）のQuestComplete + ModelAnswerストーリーを追加
+- 1ステップのA2直接インスタンス証明、prop-36/37と同パターン
+- 変更ファイル: WorkspacePageView.stories.tsx, tasks/quest-stories.md
+- ブラウザ検証: 両ストーリーPass（10, 8 interactions）
+- スクリーンショット: .screenshots/quest-complete-prop-38-model-answer.png
+- カバレッジ変化なし（CI確認待ち）
+---
