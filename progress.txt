@@ -110,6 +110,30 @@
 
 ---
 
+## 2026-03-29 - [infinite-canvas] PLAY-IC-01〜04 デモストーリーのplay関数強化
+
+- ベースライン: Stmts 99.82%, Branch 99.16%, Funcs 90.57%, Lines 99.81%
+- **結果: Stmts 99.82%, Branch 99.16%, Funcs 90.58%, Lines 99.81%**（Funcs微増）
+- 実装内容:
+  - IC-01 KeyboardShortcutsDemo: クリック選択→Escape解除→Ctrl+A全選択→Delete削除
+  - IC-02 MultiSelectionDemo: クリック選択→Escape解除→モード切り替えボタン
+  - IC-03 GridSnapDemo: スナップトグルOFF/ON
+  - IC-04 ObjectSnapDemo: スナップトグルOFF/ON
+  - IC-05〜11: 既存play関数が十分と判断（ドラッグ/パン/ズームは自動テスト困難）
+- 変更ファイル:
+  - src/lib/infinite-canvas/KeyboardShortcutsDemo.stories.tsx
+  - src/lib/infinite-canvas/MultiSelectionDemo.stories.tsx
+  - src/lib/infinite-canvas/GridSnapDemo.stories.tsx
+  - src/lib/infinite-canvas/ObjectSnapDemo.stories.tsx
+  - tasks/play-function-enhancement.md（カテゴリ3全完了）
+- スクリーンショット: .screenshots/play-ic-01-keyboard-shortcuts.png
+- **今後のイテレーションへの学び:**
+  - Storybook play関数でキーボードショートカットテスト: `userEvent.keyboard("{Control>}a{/Control}")` で修飾キー付きキー入力
+  - `userEvent.keyboard("{Delete}")` / `userEvent.keyboard("{Escape}")` で特殊キー送信
+  - play-function-enhancement.md残タスク: PLAY-WS-23のみ
+
+---
+
 ## 2026-03-29 - [proof-pad] PLAY-PP-04 EqualityDemoのplay関数強化
 
 - ベースライン: Stmts 99.82%, Branch 99.16%, Funcs 90.57%, Lines 99.81%
