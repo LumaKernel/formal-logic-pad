@@ -5,7 +5,7 @@
   - [x] まず、ずっと書いているように、各ゴールは使っていい公理と共に定義される — 全127ヒルベルト流クエストに `allowedAxiomIds` を設定済み。模範解答で使用する公理のみ許可。
     - 構造は既存の `QuestDefinition.allowedAxiomIds` と `QuestGoalDefinition.allowedAxiomIds` をそのまま活用。
     - ND/SC/TAB/ATは既存の `allowedRuleIds`/`disallowedScRuleIds` で同等の制御が可能。
-    - [ ] 他の流派についても検討（ND/SC/TAB/AT向けの制約設定）
+    - [-] 他の流派についても検討（ND/SC/TAB/AT向けの制約設定）
 
 - [ ] http://localhost:13006/?path=/story/pages-workspace--quest-complete-sc-01-from-hub などは、
   - 各ステップで、クエストが完了すべきでないタイミングで完了してないこと(provedとなっていない)をassertもするべきだ

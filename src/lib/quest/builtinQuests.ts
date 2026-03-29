@@ -3442,6 +3442,7 @@ const qNd01Identity: QuestDefinition = {
     {
       formulaText: "phi -> phi",
       label: "Goal: φ → φ",
+      allowedRuleIds: ["nd-implication-intro"],
     },
   ],
   hints: [
@@ -3467,6 +3468,7 @@ const qNd02KAxiom: QuestDefinition = {
     {
       formulaText: "phi -> (psi -> phi)",
       label: "Goal: φ → (ψ → φ)",
+      allowedRuleIds: ["nd-implication-intro"],
     },
   ],
   hints: [
@@ -3493,6 +3495,7 @@ const qNd03Contraposition: QuestDefinition = {
     {
       formulaText: "(phi -> psi) -> (~psi -> ~phi)",
       label: "Goal: (φ → ψ) → (¬ψ → ¬φ)",
+      allowedRuleIds: ["nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -3519,6 +3522,7 @@ const qNd04ConjunctionCommutativity: QuestDefinition = {
     {
       formulaText: "(phi /\\ psi) -> (psi /\\ phi)",
       label: "Goal: (φ ∧ ψ) → (ψ ∧ φ)",
+      allowedRuleIds: ["nd-conjunction-elim-left", "nd-conjunction-elim-right", "nd-conjunction-intro", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -3545,6 +3549,7 @@ const qNd05DisjunctionCommute: QuestDefinition = {
     {
       formulaText: "(phi \\/ psi) -> (psi \\/ phi)",
       label: "Goal: (φ ∨ ψ) → (ψ ∨ φ)",
+      allowedRuleIds: ["nd-disjunction-elim", "nd-disjunction-intro-left", "nd-disjunction-intro-right", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -3571,6 +3576,7 @@ const qNd06DoubleNegationIntro: QuestDefinition = {
     {
       formulaText: "phi -> ~~phi",
       label: "Goal: φ → ¬¬φ",
+      allowedRuleIds: ["nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -3596,6 +3602,7 @@ const qNd07ExFalsoNJ: QuestDefinition = {
     {
       formulaText: "~phi -> (phi -> psi)",
       label: "Goal: ¬φ → (φ → ψ)",
+      allowedRuleIds: ["nd-efq", "nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -3622,6 +3629,7 @@ const qNd08ClaviusLawNK: QuestDefinition = {
     {
       formulaText: "(~phi -> phi) -> phi",
       label: "Goal: (¬φ → φ) → φ",
+      allowedRuleIds: ["nd-dne", "nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -3647,6 +3655,7 @@ const qNd09ExcludedMiddleNK: QuestDefinition = {
     {
       formulaText: "phi \\/ ~phi",
       label: "Goal: φ ∨ ¬φ",
+      allowedRuleIds: ["nd-disjunction-intro-left", "nd-disjunction-intro-right", "nd-dne", "nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -3673,6 +3682,7 @@ const qNd10ConsequentiaMirabilisNK: QuestDefinition = {
     {
       formulaText: "(phi -> ~phi) -> ~phi",
       label: "Goal: (φ → ¬φ) → ¬φ",
+      allowedRuleIds: ["nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -3701,6 +3711,7 @@ const qNd11RaaMinimal: QuestDefinition = {
     {
       formulaText: "(phi -> psi) -> (phi -> ~psi) -> ~phi",
       label: "Goal: (φ → ψ) → (φ → ¬ψ) → ¬φ",
+      allowedRuleIds: ["nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -3727,6 +3738,7 @@ const qNd12RaaClassical: QuestDefinition = {
     {
       formulaText: "(~phi -> psi) -> (~phi -> ~psi) -> phi",
       label: "Goal: (¬φ → ψ) → (¬φ → ¬ψ) → φ",
+      allowedRuleIds: ["nd-dne", "nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -3753,6 +3765,7 @@ const qNd13Con1: QuestDefinition = {
     {
       formulaText: "psi -> ~psi -> ~phi",
       label: "Goal: ψ → ¬ψ → ¬φ",
+      allowedRuleIds: ["nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -3779,6 +3792,7 @@ const qNd14Con4: QuestDefinition = {
     {
       formulaText: "~psi -> psi -> phi",
       label: "Goal: ¬ψ → ψ → φ",
+      allowedRuleIds: ["nd-dne", "nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -3807,6 +3821,7 @@ const qNd15UniversalIntro: QuestDefinition = {
     {
       formulaText: "P(x) -> all x. P(x) -> P(x)",
       label: "Goal: P(x) → ∀x.(P(x) → P(x))",
+      allowedRuleIds: ["nd-implication-intro", "nd-universal-intro"],
     },
   ],
   hints: [
@@ -3834,6 +3849,7 @@ const qNd16UniversalElim: QuestDefinition = {
     {
       formulaText: "all x. P(x) -> P(x)",
       label: "Goal: ∀x.P(x) → P(x)",
+      allowedRuleIds: ["nd-implication-intro", "nd-universal-intro"],
     },
   ],
   hints: [
@@ -3860,6 +3876,7 @@ const qNd17ExistentialIntro: QuestDefinition = {
     {
       formulaText: "P(x) -> ex x. P(x)",
       label: "Goal: P(x) → ∃x.P(x)",
+      allowedRuleIds: ["nd-existential-intro", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -3886,6 +3903,7 @@ const qNd18UniversalSwap: QuestDefinition = {
     {
       formulaText: "all x. all y. P(x, y) -> all y. all x. P(x, y)",
       label: "Goal: ∀x.∀y.P(x,y) → ∀y.∀x.P(x,y)",
+      allowedRuleIds: ["nd-implication-intro", "nd-universal-intro"],
     },
   ],
   hints: [
@@ -3915,6 +3933,7 @@ const qNd19ExistentialElim: QuestDefinition = {
     {
       formulaText: "(all x. (P(x) -> phi)) -> (ex x. P(x)) -> phi",
       label: "Goal: (∀x.(P(x) → φ)) → (∃x.P(x)) → φ",
+      allowedRuleIds: ["nd-existential-elim", "nd-implication-elim", "nd-implication-intro", "nd-universal-elim"],
     },
   ],
   hints: [
@@ -3942,6 +3961,7 @@ const qNd20UniversalToExistential: QuestDefinition = {
     {
       formulaText: "all x. P(x) -> ex x. P(x)",
       label: "Goal: ∀x.P(x) → ∃x.P(x)",
+      allowedRuleIds: ["nd-existential-intro", "nd-implication-intro", "nd-universal-intro"],
     },
   ],
   hints: [
@@ -3968,6 +3988,7 @@ const qNd21ExistentialTransitivity: QuestDefinition = {
     {
       formulaText: "(ex x. P(x)) -> (all x. (P(x) -> Q(x))) -> ex x. Q(x)",
       label: "Goal: (∃x.P(x)) → (∀x.(P(x) → Q(x))) → ∃x.Q(x)",
+      allowedRuleIds: ["nd-existential-elim", "nd-existential-intro", "nd-implication-elim", "nd-implication-intro", "nd-universal-elim"],
     },
   ],
   hints: [
@@ -3995,6 +4016,7 @@ const qNd22ExistentialConjunctionDistribution: QuestDefinition = {
     {
       formulaText: "(ex x. (P(x) /\\ Q(x))) -> (ex x. P(x)) /\\ (ex x. Q(x))",
       label: "Goal: (∃x.(P(x) ∧ Q(x))) → (∃x.P(x)) ∧ (∃x.Q(x))",
+      allowedRuleIds: ["nd-conjunction-elim-left", "nd-conjunction-elim-right", "nd-conjunction-intro", "nd-existential-elim", "nd-existential-intro", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -4022,6 +4044,7 @@ const qNd23UniversalConjunction: QuestDefinition = {
     {
       formulaText: "(all x. P(x)) /\\ (all x. Q(x)) -> all x. (P(x) /\\ Q(x))",
       label: "Goal: (∀x.P(x)) ∧ (∀x.Q(x)) → ∀x.(P(x) ∧ Q(x))",
+      allowedRuleIds: ["nd-conjunction-elim-left", "nd-conjunction-elim-right", "nd-conjunction-intro", "nd-implication-intro", "nd-universal-elim", "nd-universal-intro"],
     },
   ],
   hints: [
@@ -4049,6 +4072,7 @@ const qNd24DeMorganDisjunction: QuestDefinition = {
     {
       formulaText: "~(phi \\/ psi) -> (~phi /\\ ~psi)",
       label: "Goal: ¬(φ ∨ ψ) → (¬φ ∧ ¬ψ)",
+      allowedRuleIds: ["nd-conjunction-intro", "nd-disjunction-intro-left", "nd-disjunction-intro-right", "nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -4076,6 +4100,7 @@ const qNd25DeMorganDisjunctionReverse: QuestDefinition = {
     {
       formulaText: "(~phi /\\ ~psi) -> ~(phi \\/ psi)",
       label: "Goal: (¬φ ∧ ¬ψ) → ¬(φ ∨ ψ)",
+      allowedRuleIds: ["nd-conjunction-elim-left", "nd-conjunction-elim-right", "nd-disjunction-elim", "nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -4103,6 +4128,7 @@ const qNd26DeMorganConjunction: QuestDefinition = {
     {
       formulaText: "~(phi /\\ psi) -> (~phi \\/ ~psi)",
       label: "Goal: ¬(φ ∧ ψ) → (¬φ ∨ ¬ψ)",
+      allowedRuleIds: ["nd-conjunction-intro", "nd-disjunction-intro-left", "nd-disjunction-intro-right", "nd-dne", "nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -4130,6 +4156,7 @@ const qNd27ConjunctionDisjunctionDistribution: QuestDefinition = {
     {
       formulaText: "phi /\\ (psi \\/ chi) -> (phi /\\ psi) \\/ (phi /\\ chi)",
       label: "Goal: φ ∧ (ψ ∨ χ) → (φ ∧ ψ) ∨ (φ ∧ χ)",
+      allowedRuleIds: ["nd-conjunction-elim-left", "nd-conjunction-elim-right", "nd-conjunction-intro", "nd-disjunction-elim", "nd-disjunction-intro-left", "nd-disjunction-intro-right", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -4157,6 +4184,7 @@ const qNd28DoubleNegationElim: QuestDefinition = {
     {
       formulaText: "~~phi -> phi",
       label: "Goal: ¬¬φ → φ",
+      allowedRuleIds: ["nd-dne", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -4183,6 +4211,7 @@ const qNd29ContrapositiveReverse: QuestDefinition = {
     {
       formulaText: "(~psi -> ~phi) -> (phi -> psi)",
       label: "Goal: (¬ψ → ¬φ) → (φ → ψ)",
+      allowedRuleIds: ["nd-dne", "nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -4210,6 +4239,7 @@ const qNd30PeirceLaw: QuestDefinition = {
     {
       formulaText: "((phi -> psi) -> phi) -> phi",
       label: "Goal: ((φ → ψ) → φ) → φ",
+      allowedRuleIds: ["nd-dne", "nd-efq", "nd-implication-elim", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -4237,6 +4267,7 @@ const qNd31DisjunctionConjunctionDistribution: QuestDefinition = {
     {
       formulaText: "(phi \\/ psi) /\\ (phi \\/ chi) -> phi \\/ (psi /\\ chi)",
       label: "Goal: (φ ∨ ψ) ∧ (φ ∨ χ) → φ ∨ (ψ ∧ χ)",
+      allowedRuleIds: ["nd-conjunction-elim-left", "nd-conjunction-elim-right", "nd-conjunction-intro", "nd-disjunction-elim", "nd-disjunction-intro-left", "nd-disjunction-intro-right", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -4265,6 +4296,7 @@ const qNd32UniversalConjunctionDistribution: QuestDefinition = {
       formulaText:
         "(all x. (P(x) /\\ Q(x))) -> (all x. P(x)) /\\ (all x. Q(x))",
       label: "Goal: (∀x.(P(x) ∧ Q(x))) → (∀x.P(x)) ∧ (∀x.Q(x))",
+      allowedRuleIds: ["nd-conjunction-elim-left", "nd-conjunction-elim-right", "nd-conjunction-intro", "nd-implication-intro", "nd-universal-elim", "nd-universal-intro"],
     },
   ],
   hints: [
@@ -4292,6 +4324,7 @@ const qNd33ExistentialDisjunctionCombine: QuestDefinition = {
     {
       formulaText: "(ex x. P(x)) \\/ (ex x. Q(x)) -> ex x. (P(x) \\/ Q(x))",
       label: "Goal: (∃x.P(x)) ∨ (∃x.Q(x)) → ∃x.(P(x) ∨ Q(x))",
+      allowedRuleIds: ["nd-disjunction-elim", "nd-disjunction-intro-left", "nd-disjunction-intro-right", "nd-existential-elim", "nd-existential-intro", "nd-implication-intro"],
     },
   ],
   hints: [
@@ -4319,6 +4352,7 @@ const qNd34NegExistentialToUniversalNeg: QuestDefinition = {
     {
       formulaText: "~(ex x. P(x)) -> all x. ~P(x)",
       label: "Goal: ¬∃x.P(x) → ∀x.¬P(x)",
+      allowedRuleIds: ["nd-existential-intro", "nd-implication-elim", "nd-implication-intro", "nd-universal-intro"],
     },
   ],
   hints: [
@@ -4346,6 +4380,7 @@ const qNd35UniversalNegToNegExistential: QuestDefinition = {
     {
       formulaText: "(all x. ~P(x)) -> ~(ex x. P(x))",
       label: "Goal: (∀x.¬P(x)) → ¬∃x.P(x)",
+      allowedRuleIds: ["nd-existential-elim", "nd-implication-elim", "nd-implication-intro", "nd-universal-elim"],
     },
   ],
   hints: [
@@ -5603,6 +5638,7 @@ const qSc01Identity: QuestDefinition = {
     {
       formulaText: "phi -> phi",
       label: "Goal: φ → φ",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5628,6 +5664,7 @@ const qSc02WeakeningLeft: QuestDefinition = {
     {
       formulaText: "phi -> (psi -> phi)",
       label: "Goal: φ → (ψ → φ)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5653,6 +5690,7 @@ const qSc03ContractionLeft: QuestDefinition = {
     {
       formulaText: "(phi -> (phi -> psi)) -> (phi -> psi)",
       label: "Goal: (φ → (φ → ψ)) → (φ → ψ)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5679,6 +5717,7 @@ const qSc04ExchangeLeft: QuestDefinition = {
     {
       formulaText: "(phi -> (psi -> chi)) -> (psi -> (phi -> chi))",
       label: "Goal: (φ → (ψ → χ)) → (ψ → (φ → χ))",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5705,6 +5744,7 @@ const qSc05ConjunctionRight: QuestDefinition = {
     {
       formulaText: "phi -> (psi -> (phi /\\ psi))",
       label: "Goal: φ → (ψ → (φ ∧ ψ))",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5731,6 +5771,7 @@ const qSc06DisjunctionLeft: QuestDefinition = {
     {
       formulaText: "(phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))",
       label: "Goal: (φ ∨ ψ) → ((φ → χ) → ((ψ → χ) → χ))",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5757,6 +5798,7 @@ const qSc07ExcludedMiddle: QuestDefinition = {
     {
       formulaText: "phi \\/ ~phi",
       label: "Goal: φ ∨ ¬φ",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5784,6 +5826,7 @@ const qSc08DoubleNegationElim: QuestDefinition = {
     {
       formulaText: "~~phi -> phi",
       label: "Goal: ¬¬φ → φ",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5810,6 +5853,7 @@ const qSc09Contraposition: QuestDefinition = {
     {
       formulaText: "(phi -> psi) -> (~psi -> ~phi)",
       label: "Goal: (φ → ψ) → (¬ψ → ¬φ)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5836,6 +5880,7 @@ const qSc10DeMorgan: QuestDefinition = {
     {
       formulaText: "~(phi /\\ psi) -> (~phi \\/ ~psi)",
       label: "Goal: ¬(φ ∧ ψ) → (¬φ ∨ ¬ψ)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5865,6 +5910,7 @@ const qSc11LjIdentity: QuestDefinition = {
     {
       formulaText: "phi -> phi",
       label: "Goal: φ → φ",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5890,6 +5936,7 @@ const qSc12LjExFalso: QuestDefinition = {
     {
       formulaText: "⊥ -> phi",
       label: "Goal: ⊥ → φ",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5915,6 +5962,7 @@ const qSc13LjContraposition: QuestDefinition = {
     {
       formulaText: "(phi -> psi) -> (~psi -> ~phi)",
       label: "Goal: (φ → ψ) → (¬ψ → ¬φ)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5941,6 +5989,7 @@ const qSc14LjDisjElim: QuestDefinition = {
     {
       formulaText: "(phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))",
       label: "Goal: (φ ∨ ψ) → ((φ → χ) → ((ψ → χ) → χ))",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5967,6 +6016,7 @@ const qSc15LjConjElim: QuestDefinition = {
     {
       formulaText: "(phi /\\ psi) -> phi",
       label: "Goal: (φ ∧ ψ) → φ",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -5993,6 +6043,7 @@ const qSc16LjConjCommute: QuestDefinition = {
     {
       formulaText: "(phi /\\ psi) -> (psi /\\ phi)",
       label: "Goal: (φ ∧ ψ) → (ψ ∧ φ)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -6019,6 +6070,7 @@ const qSc17LjImplicationTransitivity: QuestDefinition = {
     {
       formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
       label: "Goal: (φ → ψ) → ((ψ → χ) → (φ → χ))",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -6045,6 +6097,7 @@ const qSc18LjBottomNegation: QuestDefinition = {
     {
       formulaText: "(phi -> ⊥) -> (phi -> psi)",
       label: "Goal: (φ → ⊥) → (φ → ψ)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -6071,6 +6124,7 @@ const qSc19LjDisjIntro: QuestDefinition = {
     {
       formulaText: "phi -> (phi \\/ psi)",
       label: "Goal: φ → (φ ∨ ψ)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -6097,6 +6151,7 @@ const qSc20LjCurry: QuestDefinition = {
     {
       formulaText: "((phi /\\ psi) -> chi) -> (phi -> (psi -> chi))",
       label: "Goal: ((φ ∧ ψ) → χ) → (φ → (ψ → χ))",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -6123,6 +6178,7 @@ const qSc21LjUncurry: QuestDefinition = {
     {
       formulaText: "(phi -> (psi -> chi)) -> ((phi /\\ psi) -> chi)",
       label: "Goal: (φ → (ψ → χ)) → ((φ ∧ ψ) → χ)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -6149,6 +6205,7 @@ const qSc22LjImplicationConjDistrib: QuestDefinition = {
     {
       formulaText: "(phi -> (psi /\\ chi)) -> ((phi -> psi) /\\ (phi -> chi))",
       label: "Goal: (φ → (ψ ∧ χ)) → ((φ → ψ) ∧ (φ → χ))",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -6231,6 +6288,7 @@ const qSc25LkImplicationAsDisjunction: QuestDefinition = {
     {
       formulaText: "(phi -> psi) -> (~phi \\/ psi)",
       label: "Goal: (φ → ψ) → (¬φ ∨ ψ)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -6258,6 +6316,7 @@ const qSc26LkWeakExcludedMiddle: QuestDefinition = {
     {
       formulaText: "~phi \\/ ~~phi",
       label: "Goal: ¬φ ∨ ¬¬φ",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -6313,6 +6372,7 @@ const qSc28LjExistentialIntro: QuestDefinition = {
     {
       formulaText: "P(a) -> exists x. P(x)",
       label: "Goal: P(a) → ∃x.P(x)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -6339,6 +6399,7 @@ const qSc29LjUniversalToExistential: QuestDefinition = {
     {
       formulaText: "all x. P(x) -> exists x. P(x)",
       label: "Goal: ∀x.P(x) → ∃x.P(x)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -6391,6 +6452,7 @@ const qSc31LjExistentialElim: QuestDefinition = {
     {
       formulaText: "exists x. (P(x) and Q(x)) -> exists x. P(x)",
       label: "Goal: ∃x.(P(x) ∧ Q(x)) → ∃x.P(x)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -6418,6 +6480,7 @@ const qSc32LjExistentialDistrib: QuestDefinition = {
       formulaText:
         "exists x. (P(x) or Q(x)) -> exists x. P(x) or exists x. Q(x)",
       label: "Goal: ∃x.(P(x) ∨ Q(x)) → ∃x.P(x) ∨ ∃x.Q(x)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
@@ -6444,6 +6507,7 @@ const qSc33LkNegUniversalToExistNeg: QuestDefinition = {
     {
       formulaText: "not (all x. P(x)) -> exists x. not P(x)",
       label: "Goal: ¬(∀x.P(x)) → ∃x.¬P(x)",
+      disallowedScRuleIds: ["cut"],
     },
   ],
   hints: [
