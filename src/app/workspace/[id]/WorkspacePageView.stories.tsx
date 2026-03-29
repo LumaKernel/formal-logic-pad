@@ -1413,6 +1413,123 @@ export const QuestCompleteProp02ModelAnswer: Story = {
 };
 
 /**
+ * prop-03: 推移律の準備 — インタラクティブ完了。
+ * A1の直接インスタンスで1ステップ。公理を1つ配置するだけでゴール達成。
+ * ゴール: (φ → ψ) → ((ψ → χ) → (φ → ψ))
+ */
+export const QuestCompleteProp03: Story = {
+  render: () => {
+    const quest = findQuestById(builtinQuests, "prop-03");
+    if (quest === undefined) {
+      throw new Error("Quest not found: prop-03");
+    }
+    const answer = modelAnswerRegistry.get("prop-03");
+    if (answer === undefined) {
+      throw new Error("Model answer not found: prop-03");
+    }
+    // 公理ステップのみ抽出（noteを除外）
+    const axiomOnlyAnswer: ModelAnswer = {
+      questId: answer.questId,
+      steps: answer.steps.filter((step) => step._tag === "axiom"),
+    };
+    const result = buildModelAnswerWorkspace(quest, axiomOnlyAnswer);
+    if (result._tag !== "Ok") {
+      throw new Error(
+        `Failed to build axiom-only workspace: ${result._tag satisfies string}`,
+      );
+    }
+    const questInfo: GoalQuestInfo = {
+      description: quest.description,
+      hints: quest.hints,
+      learningPoint: quest.learningPoint,
+    };
+    return (
+      <StatefulWorkspace
+        initialWorkspace={result.workspace}
+        initialNotebookName={quest.title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // --- 初期状態: A1インスタンスが1つ配置済み、即ゴール達成 ---
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
+      "Łukasiewicz",
+    );
+
+    // 公理パレットが表示される
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette"),
+    ).toBeInTheDocument();
+
+    // Fit to content でノードをビューポート内に収める
+    await fitToContent(canvas);
+
+    // 2ノード: 1スキーマ + 1インスタンス
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+
+    // --- ゴール達成確認: A1インスタンスがそのままゴール ---
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await waitFor(() => {
+      expect(goalPanel).toHaveTextContent("1 / 1");
+    });
+    await expect(goalPanel).toHaveTextContent("Proved!");
+  },
+};
+
+/** prop-03: 模範解答ベースの完了状態（静的確認用） */
+export const QuestCompleteProp03ModelAnswer: Story = {
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("prop-03");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+
+    // --- 完了バナー確認 ---
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
+
+    // 体系バッジに正しい体系名が表示される
+    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
+      "Łukasiewicz",
+    );
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("1 / 1");
+    await expect(goalPanel).toHaveTextContent("Proved!");
+
+    // Fit to content で全ノードをビューポート内に収める（culling対策）
+    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
+
+    // --- ノード存在確認 ---
+    // note-0: node-1, A1: schema=node-2/inst=node-3
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    });
+  },
+};
+
+/**
  * nd-01: 自然演繹 NM φ→φ インタラクション。
  * ND体系のUI操作を完全に再現する:
  *
