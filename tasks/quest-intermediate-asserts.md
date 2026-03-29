@@ -26,8 +26,8 @@
 
 ## Interactive / 基本ストーリー
 
-- [ ] `QuestCompleteProp01` — 各ステップ後に `"0 / 1"` assert を追加
-- [ ] `QuestCompleteNd01Interactive` — 現在: 初期 + 1 中間チェックあり。全ステップに拡充
+- [ ] `QuestCompleteProp01` — 既存ストーリーがローカルで不安定（MP操作でnode-7未生成）。CIでの安定性確認後に対応
+- [x] `QuestCompleteNd01Interactive` — step1(仮定追加)後に `"0 / 1"` assert追加。step2(式編集後)は既存のassertをgoalPanelに統一
 
 ## ModelAnswer ストーリー（事前構築済み証明のロード）
 

@@ -1291,6 +1291,8 @@ export const QuestCompleteNd01Interactive: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
+    // 仮定追加のみ — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- 仮定ノードをダブルクリックして編集モードに入る ---
     const display = canvas.getByTestId("proof-node-node-1-editor-display");
@@ -1305,9 +1307,7 @@ export const QuestCompleteNd01Interactive: Story = {
 
     // --- 仮定ノードの式が正しく表示されることを確認 ---
     // ゴールパネルは依然 0/1（→I適用前）
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "0 / 1",
-    );
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // NDパレットの規則一覧が表示されている
     await expect(
