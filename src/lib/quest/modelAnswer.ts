@@ -680,7 +680,6 @@ export function buildModelAnswerWorkspace(
   }
 
   // ゴールのallowedAxiomIdsをクエスト定義から引き継ぐ
-  /* v8 ignore start — allowedAxiomIds付きクエストの模範解答は後続イテレーションで追加 */
   const goals =
     quest.allowedAxiomIds !== undefined
       ? quest.goals.map((g) => ({
@@ -688,7 +687,6 @@ export function buildModelAnswerWorkspace(
           allowedAxiomIds: g.allowedAxiomIds ?? quest.allowedAxiomIds,
         }))
       : quest.goals;
-  /* v8 ignore stop */
 
   let ws = createQuestWorkspace(preset.deductionSystem, goals);
 

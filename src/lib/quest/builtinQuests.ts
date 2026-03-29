@@ -18,6 +18,7 @@ const q01Identity: QuestDefinition = {
   description: "φ → φ を証明せよ。SKK = I の対応を体験する。",
   difficulty: 1,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "phi -> phi",
@@ -43,6 +44,7 @@ const q02ConstantComposition: QuestDefinition = {
   description: "ψ → (φ → φ) を証明せよ。A1で既知の定理を「持ち上げる」。",
   difficulty: 1,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "psi -> (phi -> phi)",
@@ -69,6 +71,7 @@ const q03TransitivityPrep: QuestDefinition = {
     "(φ → ψ) → ((ψ → χ) → (φ → ψ)) を証明せよ。A1の直接のインスタンス。",
   difficulty: 1,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1"] as const,
   goals: [
     {
       formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> psi))",
@@ -96,6 +99,7 @@ const q04HypotheticalSyllogism: QuestDefinition = {
     "(φ → ψ) → ((ψ → χ) → (φ → χ)) を証明せよ。Hilbert系で最も基本かつ頻出の補題。",
   difficulty: 2,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
@@ -121,6 +125,7 @@ const q05ImplicationWeakening: QuestDefinition = {
   description: "φ → (ψ → (χ → ψ)) を証明せよ。K公理の2重適用。",
   difficulty: 2,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1"] as const,
   goals: [
     {
       formulaText: "phi -> (psi -> (chi -> psi))",
@@ -146,6 +151,7 @@ const q06SSpecialCase: QuestDefinition = {
     "(φ → (φ → ψ)) → (φ → ψ) を証明せよ。「φが2回必要な含意」を1回に圧縮。",
   difficulty: 2,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "(phi -> (phi -> psi)) -> (phi -> psi)",
@@ -172,6 +178,7 @@ const q07Permutation: QuestDefinition = {
     "(φ → (ψ → χ)) → (ψ → (φ → χ)) を証明せよ。前提の順序を入れ替える。",
   difficulty: 2,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "(phi -> (psi -> chi)) -> (psi -> (phi -> chi))",
@@ -198,6 +205,7 @@ const q36SelfWeakening: QuestDefinition = {
     "φ → (φ → φ) を証明せよ。A1のメタ変数に同じ式を代入する最もシンプルな例。",
   difficulty: 1,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1"] as const,
   goals: [
     {
       formulaText: "phi -> (phi -> phi)",
@@ -223,6 +231,7 @@ const q37ImplicationWeakeningA1: QuestDefinition = {
     "(φ → ψ) → (χ → (φ → ψ)) を証明せよ。メタ変数に含意式を代入するA1の練習。",
   difficulty: 1,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1"] as const,
   goals: [
     {
       formulaText: "(phi -> psi) -> (chi -> (phi -> psi))",
@@ -248,6 +257,7 @@ const q38A2SelfSubstitution: QuestDefinition = {
     "(φ → (φ → ψ)) → ((φ → φ) → (φ → ψ)) を証明せよ。A2のメタ変数に同じ式を代入する。",
   difficulty: 1,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A2"] as const,
   goals: [
     {
       formulaText: "(phi -> (phi -> psi)) -> ((phi -> phi) -> (phi -> psi))",
@@ -273,6 +283,7 @@ const q39ConclusionWeakening: QuestDefinition = {
     "(φ → ψ) → (φ → (χ → ψ)) を証明せよ。「結論に不要な前提を追加する」操作。",
   difficulty: 2,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "(phi -> psi) -> (phi -> (chi -> psi))",
@@ -299,6 +310,7 @@ const q48A3AxiomInstance: QuestDefinition = {
     "(¬φ → ¬ψ) → (ψ → φ) を証明せよ。A3公理（対偶）のメタ変数をそのまま適用する練習。",
   difficulty: 1,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A3"] as const,
   goals: [
     {
       formulaText: "(~phi -> ~psi) -> (psi -> phi)",
@@ -324,6 +336,7 @@ const q49A3LiftedInstance: QuestDefinition = {
     "φ → ((¬ψ → ¬χ) → (χ → ψ)) を証明せよ。A3（対偶）をA1で前提の下に持ち上げる。",
   difficulty: 2,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A3"] as const,
   goals: [
     {
       formulaText: "phi -> ((~psi -> ~chi) -> (chi -> psi))",
@@ -349,6 +362,7 @@ const q50A2LiftedInstance: QuestDefinition = {
     "φ → ((ψ → (χ → θ)) → ((ψ → χ) → (ψ → θ))) を証明せよ。A2をA1で持ち上げる。",
   difficulty: 2,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText:
@@ -374,6 +388,7 @@ const q51A1ChainedLift: QuestDefinition = {
   description: "φ → (ψ → (χ → χ)) を証明せよ。恒等律をA1で2回持ち上げる。",
   difficulty: 2,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "phi -> (psi -> (chi -> chi))",
@@ -402,6 +417,7 @@ const q08TransitivityChain: QuestDefinition = {
     "(φ → ψ) → ((ψ → χ) → ((χ → θ) → (φ → θ))) を証明せよ。推移律を2回適用する。",
   difficulty: 2,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText:
@@ -428,6 +444,7 @@ const q10BComposition: QuestDefinition = {
     "(ψ → χ) → ((φ → ψ) → (φ → χ)) を証明せよ。推移律の前提を入れ替えたもの。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "(psi -> chi) -> ((phi -> psi) -> (phi -> chi))",
@@ -452,6 +469,7 @@ const q11PremiseConfluence: QuestDefinition = {
   description: "(φ → (ψ → χ)) → ((φ → ψ) → (φ → χ)) を証明せよ。A2そのもの。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A2"] as const,
   goals: [
     {
       formulaText: "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
@@ -474,6 +492,7 @@ const q12LeftAssociation: QuestDefinition = {
     "((φ → ψ) → (φ → χ)) → (φ → (ψ → χ)) を証明せよ。演繹定理の逆方向。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "((phi -> psi) -> (phi -> chi)) -> (phi -> (psi -> chi))",
@@ -500,6 +519,7 @@ const q13FregeTheorem: QuestDefinition = {
     "(φ → (ψ → χ)) → ((φ → ψ) → (φ → χ)) を証明せよ。歴史的に重要な法則。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A2"] as const,
   goals: [
     {
       formulaText: "(phi -> (psi -> chi)) -> ((phi -> psi) -> (phi -> chi))",
@@ -525,6 +545,7 @@ const q14DoubleImplicationDistribution: QuestDefinition = {
     "(φ → ψ) → ((φ → (ψ → χ)) → (φ → χ)) を証明せよ。前提の並び替え。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "(phi -> psi) -> ((phi -> (psi -> chi)) -> (phi -> chi))",
@@ -551,6 +572,7 @@ const q15DoubleNegationIntro: QuestDefinition = {
   description: "φ → ¬¬φ を証明せよ。否定公理 A3 を本格的に使う最初の問題。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3"] as const,
   goals: [
     {
       formulaText: "phi -> ~~phi",
@@ -576,6 +598,7 @@ const q16ModusTollens: QuestDefinition = {
   description: "(φ → ψ) → (¬ψ → ¬φ) を証明せよ。対偶（否定的推論）。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3"] as const,
   goals: [
     {
       formulaText: "(phi -> psi) -> (~psi -> ~phi)",
@@ -601,6 +624,7 @@ const q17DoubleNegationElim: QuestDefinition = {
   description: "¬¬φ → φ を証明せよ。古典論理と直観主義論理を分ける分水嶺。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3"] as const,
   goals: [
     {
       formulaText: "~~phi -> phi",
@@ -626,6 +650,7 @@ const q18ExFalso: QuestDefinition = {
   description: "¬φ → (φ → ψ) を証明せよ。矛盾からは何でも出る。",
   difficulty: 4,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3"] as const,
   goals: [
     {
       formulaText: "~phi -> (phi -> psi)",
@@ -651,6 +676,7 @@ const q19ConverseContraposition: QuestDefinition = {
   description: "(¬ψ → ¬φ) → (φ → ψ) を証明せよ。A3 そのもの。",
   difficulty: 4,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A3"] as const,
   goals: [
     {
       formulaText: "(~psi -> ~phi) -> (phi -> psi)",
@@ -678,6 +704,7 @@ const q20LawOfExcludedMiddle: QuestDefinition = {
     "¬φ ∨ φ を証明せよ。選言の定義 α ∨ β ≡ ¬α → β を使えば DNE と同値。",
   difficulty: 4,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3", "DISJ-DEF"] as const,
   goals: [
     {
       formulaText: "~phi \\/ phi",
@@ -704,6 +731,7 @@ const q21PeirceLaw: QuestDefinition = {
     "((φ → ψ) → φ) → φ を証明せよ。古典論理に特有の法則。排中律・DNE と等価。",
   difficulty: 4,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3"] as const,
   goals: [
     {
       formulaText: "((phi -> psi) -> phi) -> phi",
@@ -732,6 +760,7 @@ const q33ModusPonensImplication: QuestDefinition = {
     "φ → ((φ → ψ) → ψ) を証明せよ。Modus Ponensを含意の形で表現する。演繹定理的に「φを仮定し、φ→ψを仮定するとψが出る」ことの形式化。",
   difficulty: 2,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "phi -> ((phi -> psi) -> psi)",
@@ -758,6 +787,7 @@ const q34ImplicationWeakeningElim: QuestDefinition = {
     "((φ → ψ) → χ) → (ψ → χ) を証明せよ。「φ→ψの証明にはψで十分」。演繹定理の典型的応用パターン。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "((phi -> psi) -> chi) -> (psi -> chi)",
@@ -784,6 +814,7 @@ const q35MendelsonIdentity: QuestDefinition = {
     "φ → φ を Mendelson 体系 (A1, A2, M3) で証明せよ。Łukasiewicz体系と同じ証明が使える。体系が変わっても演繹定理の証明構造は共通。",
   difficulty: 2,
   systemPresetId: "mendelson",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "phi -> phi",
@@ -812,6 +843,7 @@ const q40TransitivityReverse: QuestDefinition = {
     "(φ → ψ) → ((ψ → χ) → (φ → χ)) を証明せよ。推移律 (Q-04) の前提を入れ替えた形。B combinator の変形。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "(phi -> psi) -> ((psi -> chi) -> (phi -> chi))",
@@ -838,6 +870,7 @@ const q41WCombinator: QuestDefinition = {
     "(φ → (φ → ψ)) → (φ → ψ) を証明せよ。同じ前提を2回使う「自己適用」。A2と恒等律の組合せ。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "(phi -> (phi -> psi)) -> (phi -> psi)",
@@ -864,6 +897,7 @@ const q42A2ForwardApplication: QuestDefinition = {
     "((φ → (ψ → χ)) → (φ → ψ)) → ((φ → (ψ → χ)) → (φ → χ)) を証明せよ。A2を仮定の下で適用する。",
   difficulty: 2,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A2"] as const,
   goals: [
     {
       formulaText:
@@ -891,6 +925,7 @@ const q43ForwardComposition: QuestDefinition = {
     "(φ → (ψ → χ)) → ((θ → φ) → (θ → (ψ → χ))) を証明せよ。B combinator の4変数版。前方の仮定を経由して合成する。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText:
@@ -920,6 +955,7 @@ const q22ConjunctionIntro: QuestDefinition = {
     "φ → (ψ → (φ ∧ ψ)) を証明せよ。連言 α ∧ β ≡ ¬(α → ¬β) の定義を使う。",
   difficulty: 5,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3", "CONJ-DEF"] as const,
   goals: [
     {
       formulaText: "phi -> (psi -> (phi /\\ psi))",
@@ -946,6 +982,7 @@ const q23ConjunctionElim: QuestDefinition = {
     "(φ ∧ ψ) → φ を証明せよ。連言 α ∧ β ≡ ¬(α → ¬β) の定義を展開し二重否定除去を使う。",
   difficulty: 5,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3", "CONJ-DEF"] as const,
   goals: [
     {
       formulaText: "(phi /\\ psi) -> phi",
@@ -972,6 +1009,7 @@ const q24DeMorgan: QuestDefinition = {
     "¬(φ ∨ ψ) → (¬φ ∧ ¬ψ) を証明せよ。選言と連言の定義を展開し否定の性質を使う。",
   difficulty: 5,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"] as const,
   goals: [
     {
       formulaText: "~(phi \\/ psi) -> (~phi /\\ ~psi)",
@@ -1000,6 +1038,7 @@ const q25TripleNegationElim: QuestDefinition = {
     "¬¬¬φ → ¬φ を証明せよ。三重否定を一重否定に還元する（戸次7.23）。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3"] as const,
   goals: [
     {
       formulaText: "~~~phi -> ~phi",
@@ -1026,6 +1065,7 @@ const q26ConsequentiaMirabilis: QuestDefinition = {
     "(φ → ¬φ) → ¬φ を証明せよ。自己矛盾する仮定から否定を導く（戸次7.24）。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3"] as const,
   goals: [
     {
       formulaText: "(phi -> ~phi) -> ~phi",
@@ -1052,6 +1092,7 @@ const q27Contraposition2: QuestDefinition = {
     "(φ → ¬ψ) → (ψ → ¬φ) を証明せよ。否定を含む対偶律の第2形態（戸次7.29）。",
   difficulty: 3,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3"] as const,
   goals: [
     {
       formulaText: "(phi -> ~psi) -> (psi -> ~phi)",
@@ -1078,6 +1119,7 @@ const q28ClaviusLaw: QuestDefinition = {
     "(¬φ → φ) → φ を証明せよ。CMの双対。古典論理の重要な定理（戸次7.55）。",
   difficulty: 4,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3"] as const,
   goals: [
     {
       formulaText: "(~phi -> phi) -> phi",
@@ -1104,6 +1146,7 @@ const q29TertiumNonDatur: QuestDefinition = {
     "(φ → ψ) → ((¬φ → ψ) → ψ) を証明せよ。場合分け推論の根幹（戸次7.81）。",
   difficulty: 4,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3"] as const,
   goals: [
     {
       formulaText: "(phi -> psi) -> ((~phi -> psi) -> psi)",
@@ -1132,6 +1175,7 @@ const q30LawOfNonContradiction: QuestDefinition = {
     "¬(φ ∧ ¬φ) を証明せよ。矛盾は起こり得ないという基本法則（戸次7.40）。",
   difficulty: 5,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3", "CONJ-DEF"] as const,
   goals: [
     {
       formulaText: "~(phi /\\ ~phi)",
@@ -1157,6 +1201,7 @@ const q31ConjunctionElimRight: QuestDefinition = {
   description: "(φ ∧ ψ) → ψ を証明せよ。連言の右射影（右側要素の取り出し）。",
   difficulty: 5,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3", "CONJ-DEF"] as const,
   goals: [
     {
       formulaText: "(phi /\\ psi) -> psi",
@@ -1183,6 +1228,7 @@ const q32DisjunctionElim: QuestDefinition = {
     "(φ ∨ ψ) → ((φ → χ) → ((ψ → χ) → χ)) を証明せよ。場合分け推論の形式化。",
   difficulty: 5,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3", "DISJ-DEF"] as const,
   goals: [
     {
       formulaText: "(phi \\/ psi) -> ((phi -> chi) -> ((psi -> chi) -> chi))",
@@ -1209,6 +1255,7 @@ const q44DisjunctionIntro: QuestDefinition = {
     "φ → (φ ∨ ψ) を証明せよ。選言の定義 φ ∨ ψ ≡ ¬φ → ψ を使い左への導入を示す。",
   difficulty: 5,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3", "DISJ-DEF"] as const,
   goals: [
     {
       formulaText: "phi -> (phi \\/ psi)",
@@ -1234,6 +1281,7 @@ const q45DisjunctionComm: QuestDefinition = {
   description: "(φ ∨ ψ) → (ψ ∨ φ) を証明せよ。選言の左右を入れ替える。",
   difficulty: 5,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3", "DISJ-DEF"] as const,
   goals: [
     {
       formulaText: "(phi \\/ psi) -> (psi \\/ phi)",
@@ -1259,6 +1307,7 @@ const q46ConjunctionComm: QuestDefinition = {
   description: "(φ ∧ ψ) → (ψ ∧ φ) を証明せよ。連言の左右を入れ替える。",
   difficulty: 5,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3", "CONJ-DEF"] as const,
   goals: [
     {
       formulaText: "(phi /\\ psi) -> (psi /\\ phi)",
@@ -1284,6 +1333,7 @@ const q47DeMorganConverse: QuestDefinition = {
   description: "(¬φ ∧ ¬ψ) → ¬(φ ∨ ψ) を証明せよ。ド・モルガンの法則の逆方向。",
   difficulty: 5,
   systemPresetId: "lukasiewicz",
+  allowedAxiomIds: ["A1", "A2", "A3", "CONJ-DEF", "DISJ-DEF"] as const,
   goals: [
     {
       formulaText: "(~phi /\\ ~psi) -> ~(phi \\/ psi)",
@@ -1311,6 +1361,7 @@ const qEq01Reflexivity: QuestDefinition = {
   description: "∀x. x = x を証明せよ。等号公理E1を配置する。",
   difficulty: 1,
   systemPresetId: "equality",
+  allowedAxiomIds: ["E1"] as const,
   goals: [
     {
       formulaText: "all x. x = x",
@@ -1335,6 +1386,7 @@ const qEq02Symmetry: QuestDefinition = {
   description: "∀x.∀y. x = y → y = x を証明せよ。等号公理E2を配置する。",
   difficulty: 1,
   systemPresetId: "equality",
+  allowedAxiomIds: ["E2"] as const,
   goals: [
     {
       formulaText: "all x. all y. x = y -> y = x",
@@ -1360,6 +1412,7 @@ const qEq03Transitivity: QuestDefinition = {
     "∀x.∀y.∀z. x = y → (y = z → x = z) を証明せよ。等号公理E3を配置する。",
   difficulty: 1,
   systemPresetId: "equality",
+  allowedAxiomIds: ["E3"] as const,
   goals: [
     {
       formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
@@ -1384,6 +1437,7 @@ const qEq04ConcreteReflexivity: QuestDefinition = {
   description: "a = a を証明せよ。E1（反射律）とA4（全称消去）を組み合わせる。",
   difficulty: 2,
   systemPresetId: "equality",
+  allowedAxiomIds: ["A4", "E1"] as const,
   goals: [
     {
       formulaText: "a = a",
@@ -1410,6 +1464,7 @@ const qEq05ConcreteSymmetry: QuestDefinition = {
     "a = b → b = a を証明せよ。E2にA4を2回適用してインスタンス化する。",
   difficulty: 2,
   systemPresetId: "equality",
+  allowedAxiomIds: ["A4", "E2"] as const,
   goals: [
     {
       formulaText: "a = b -> b = a",
@@ -1435,6 +1490,7 @@ const qEq06ConcreteTransitivity: QuestDefinition = {
   description: "a = b → (b = c → a = c) を証明せよ。E3にA4を3回適用する。",
   difficulty: 3,
   systemPresetId: "equality",
+  allowedAxiomIds: ["A4", "E3"] as const,
   goals: [
     {
       formulaText: "a = b -> (b = c -> a = c)",
@@ -1461,6 +1517,7 @@ const qEq07A1GenIntro: QuestDefinition = {
     "∀x. x = x → (x = x → x = x) を証明せよ。A1のインスタンスをGenで全称化する。",
   difficulty: 1,
   systemPresetId: "equality",
+  allowedAxiomIds: ["A1"] as const,
   goals: [
     {
       formulaText: "all x. x = x -> (x = x -> x = x)",
@@ -1485,6 +1542,7 @@ const qEq08IdentityEquality: QuestDefinition = {
   description: "a = b → a = b を証明せよ。恒等律 φ → φ の等号インスタンス。",
   difficulty: 2,
   systemPresetId: "equality",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "a = b -> a = b",
@@ -1511,6 +1569,7 @@ const qEq09IdentityComplex: QuestDefinition = {
     "(a = a → b = b) → (a = a → b = b) を証明せよ。含意で結合された等号式の恒等律。",
   difficulty: 2,
   systemPresetId: "equality",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "(a = a -> b = b) -> (a = a -> b = b)",
@@ -1535,6 +1594,7 @@ const qEq10UniversalIdentity: QuestDefinition = {
   description: "∀x.∀y. x = y → x = y を証明せよ。恒等律をGenで二重全称化する。",
   difficulty: 3,
   systemPresetId: "equality",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "all x. all y. x = y -> x = y",
@@ -1563,6 +1623,7 @@ const qPA01SuccessorNotZero: QuestDefinition = {
     "∀x. ¬(S(x) = 0) を証明せよ。ペアノ算術の最初の公理PA1を公理パレットから配置する。",
   difficulty: 1,
   systemPresetId: "peano",
+  allowedAxiomIds: [] as const,
   goals: [
     {
       formulaText: "all x. ~(S(x) = 0)",
@@ -1587,6 +1648,7 @@ const qPA02AdditionBase: QuestDefinition = {
   description: "∀x. x + 0 = x を証明せよ。加法の再帰定義の基底ケース。",
   difficulty: 1,
   systemPresetId: "peano",
+  allowedAxiomIds: [] as const,
   goals: [
     {
       formulaText: "all x. x + 0 = x",
@@ -1611,6 +1673,7 @@ const qPA03MultiplicationBase: QuestDefinition = {
   description: "∀x. x * 0 = 0 を証明せよ。乗法の再帰定義の基底ケース。",
   difficulty: 1,
   systemPresetId: "peano",
+  allowedAxiomIds: [] as const,
   goals: [
     {
       formulaText: "all x. x * 0 = 0",
@@ -1636,6 +1699,7 @@ const qPA04Reflexivity: QuestDefinition = {
     "∀x. x = x を証明せよ。等号公理E1を使い、全称量化と組み合わせる。",
   difficulty: 1,
   systemPresetId: "peano",
+  allowedAxiomIds: ["E1"] as const,
   goals: [
     {
       formulaText: "all x. x = x",
@@ -1661,6 +1725,7 @@ const qPA05SuccessorInjective: QuestDefinition = {
     "∀x.∀y. S(x) = S(y) → x = y を証明せよ。後者関数が単射であることを示す。",
   difficulty: 1,
   systemPresetId: "peano",
+  allowedAxiomIds: [] as const,
   goals: [
     {
       formulaText: "all x. all y. S(x) = S(y) -> x = y",
@@ -1686,6 +1751,7 @@ const qPA06AdditionRecursion: QuestDefinition = {
     "∀x.∀y. x + S(y) = S(x + y) を証明せよ。加法の再帰ステップの定義。",
   difficulty: 1,
   systemPresetId: "peano",
+  allowedAxiomIds: [] as const,
   goals: [
     {
       formulaText: "all x. all y. x + S(y) = S(x + y)",
@@ -1711,6 +1777,7 @@ const qPA17MultiplicationRecursion: QuestDefinition = {
     "∀x.∀y. x * S(y) = x * y + x を証明せよ。乗法の再帰定義。PA4（加法の再帰）と対を成す。",
   difficulty: 1,
   systemPresetId: "peano",
+  allowedAxiomIds: [] as const,
   goals: [
     {
       formulaText: "all x. all y. x * S(y) = x * y + x",
@@ -1736,6 +1803,7 @@ const qPA18EqualitySymmetry: QuestDefinition = {
     "∀x.∀y. x = y → y = x を証明せよ。等号の対称律は、等式の左右を入れ替えられることを保証する。",
   difficulty: 1,
   systemPresetId: "peano",
+  allowedAxiomIds: ["E2"] as const,
   goals: [
     {
       formulaText: "all x. all y. x = y -> y = x",
@@ -1761,6 +1829,7 @@ const qPA19EqualityTransitivity: QuestDefinition = {
     "∀x.∀y.∀z. x = y → (y = z → x = z) を証明せよ。等号の推移律は、等式を連鎖できることを保証する。",
   difficulty: 1,
   systemPresetId: "peano",
+  allowedAxiomIds: ["E3"] as const,
   goals: [
     {
       formulaText: "all x. all y. all z. x = y -> (y = z -> x = z)",
@@ -1786,6 +1855,7 @@ const qPA20SuccessorCongruence: QuestDefinition = {
     "∀x.∀y. x = y → S(x) = S(y) を証明せよ。等号の関数合同性E4のS関数バージョン。等しい数の後者も等しいことを示す。",
   difficulty: 2,
   systemPresetId: "peano",
+  allowedAxiomIds: ["E4"] as const,
   goals: [
     {
       formulaText: "all x. all y. x = y -> S(x) = S(y)",
@@ -1814,6 +1884,7 @@ const qPA07ZeroPlusZero: QuestDefinition = {
     "0 + 0 = 0 を証明せよ。PA3の全称量化をA5で除去し、具体的な計算結果を導く。",
   difficulty: 2,
   systemPresetId: "peano",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "0 + 0 = 0",
@@ -1839,6 +1910,7 @@ const qPA08OnePlusZero: QuestDefinition = {
   description: "S(0) + 0 = S(0) を証明せよ。PA3から1+0=1を導く。",
   difficulty: 2,
   systemPresetId: "peano",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "S(0) + 0 = S(0)",
@@ -1864,6 +1936,7 @@ const qPA09ZeroTimesZero: QuestDefinition = {
     "0 * 0 = 0 を証明せよ。PA5の全称量化を除去して具体的に計算する。",
   difficulty: 2,
   systemPresetId: "peano",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "0 * 0 = 0",
@@ -1888,6 +1961,7 @@ const qPA10SuccessorNotZeroInstance: QuestDefinition = {
   description: "¬(S(0) = 0) を証明せよ。PA1から「1≠0」を導く。",
   difficulty: 2,
   systemPresetId: "peano",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "~(S(0) = 0)",
@@ -1913,6 +1987,7 @@ const qPA11OnePlusOne: QuestDefinition = {
     "S(0) + S(0) = S(S(0)) を証明せよ。1+1=2の形式的証明。PA3とPA4を組み合わせる。",
   difficulty: 3,
   systemPresetId: "peano",
+  allowedAxiomIds: ["A4", "E3", "E4"] as const,
   goals: [
     {
       formulaText: "S(0) + S(0) = S(S(0))",
@@ -1938,6 +2013,7 @@ const qPA12RobinsonSurjectivity: QuestDefinition = {
   description: "∀x.(x = 0 ∨ ∃y.(x = S(y))) を証明せよ。Robinson算術Q7の公理。",
   difficulty: 1,
   systemPresetId: "robinson",
+  allowedAxiomIds: [] as const,
   goals: [
     {
       formulaText: "all x. x = 0 \\/ ex y. x = S(y)",
@@ -1963,6 +2039,7 @@ const qPA13ZeroPlusOne: QuestDefinition = {
     "0 + S(0) = S(0) を証明せよ。0+1=1の形式的証明。PA4とPA3を等号公理で連結する。",
   difficulty: 3,
   systemPresetId: "peano",
+  allowedAxiomIds: ["A4", "E3", "E4"] as const,
   goals: [
     {
       formulaText: "0 + S(0) = S(0)",
@@ -1990,6 +2067,7 @@ const qPA14ZeroTimesOne: QuestDefinition = {
     "0 × S(0) = 0 を証明せよ。0×1=0の形式的証明。PA6(乗法の再帰)を初めて使う。",
   difficulty: 3,
   systemPresetId: "peano",
+  allowedAxiomIds: ["A4", "E3"] as const,
   goals: [
     {
       formulaText: "0 * S(0) = 0",
@@ -2017,6 +2095,7 @@ const qPA15TwoPlusOne: QuestDefinition = {
     "S(S(0)) + S(0) = S(S(S(0))) を証明せよ。2+1=3の形式的証明。peano-11 (1+1=2) と同じ手法。",
   difficulty: 3,
   systemPresetId: "peano",
+  allowedAxiomIds: ["A4", "E3", "E4"] as const,
   goals: [
     {
       formulaText: "S(S(0)) + S(0) = S(S(S(0)))",
@@ -2044,6 +2123,7 @@ const qPA16TwoTimesZero: QuestDefinition = {
     "S(S(0)) × 0 = 0 を証明せよ。2×0=0の形式的証明。PA5の∀消去で導く。",
   difficulty: 2,
   systemPresetId: "peano",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "S(S(0)) * 0 = 0",
@@ -2071,6 +2151,7 @@ const qG01Associativity: QuestDefinition = {
     "∀x.∀y.∀z. (x * y) * z = x * (y * z) を証明せよ。群の最も基本的な公理。",
   difficulty: 1,
   systemPresetId: "group-full",
+  allowedAxiomIds: [] as const,
   goals: [
     {
       formulaText: "all x. all y. all z. (x * y) * z = x * (y * z)",
@@ -2095,6 +2176,7 @@ const qG02LeftIdentity: QuestDefinition = {
   description: "∀x. e * x = x を証明せよ。群の単位元の左からの性質。",
   difficulty: 1,
   systemPresetId: "group-full",
+  allowedAxiomIds: [] as const,
   goals: [
     {
       formulaText: "all x. e * x = x",
@@ -2120,6 +2202,7 @@ const qG03LeftInverse: QuestDefinition = {
     "∀x. i(x) * x = e を証明せよ。任意の元の左逆元が単位元を与える。",
   difficulty: 1,
   systemPresetId: "group-full",
+  allowedAxiomIds: [] as const,
   goals: [
     {
       formulaText: "all x. i(x) * x = e",
@@ -2144,6 +2227,7 @@ const qG04RightIdentity: QuestDefinition = {
   description: "∀x. x * e = x を証明せよ。群の単位元の右からの性質。",
   difficulty: 1,
   systemPresetId: "group-full",
+  allowedAxiomIds: [] as const,
   goals: [
     {
       formulaText: "all x. x * e = x",
@@ -2168,6 +2252,7 @@ const qG05RightInverse: QuestDefinition = {
   description: "∀x. x * i(x) = e を証明せよ。任意の元の右逆元。",
   difficulty: 1,
   systemPresetId: "group-full",
+  allowedAxiomIds: [] as const,
   goals: [
     {
       formulaText: "all x. x * i(x) = e",
@@ -2192,6 +2277,7 @@ const qG06Commutativity: QuestDefinition = {
   description: "∀x.∀y. x * y = y * x を証明せよ。アーベル群の追加公理。",
   difficulty: 1,
   systemPresetId: "abelian-group",
+  allowedAxiomIds: [] as const,
   goals: [
     {
       formulaText: "all x. all y. x * y = y * x",
@@ -2217,6 +2303,7 @@ const qG20InverseCongruence: QuestDefinition = {
     "∀x.∀y. x = y → i(x) = i(y) を証明せよ。等号の関数合同性E4の逆元関数バージョン。",
   difficulty: 2,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["E4"] as const,
   goals: [
     {
       formulaText: "all x. all y. x = y -> i(x) = i(y)",
@@ -2243,6 +2330,7 @@ const qG21LeftIdentityInstance: QuestDefinition = {
     "左単位元公理G2Lの具体的なインスタンスを導出せよ。∀消去(A4)で特定の元aに適用する。",
   difficulty: 2,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "e * a = a",
@@ -2269,6 +2357,7 @@ const qG22RightIdentityInstance: QuestDefinition = {
     "右単位元公理G2Rの具体的なインスタンスを導出せよ。∀消去(A4)で特定の元aに適用する。",
   difficulty: 2,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "a * e = a",
@@ -2295,6 +2384,7 @@ const qG23LeftInverseInstance: QuestDefinition = {
     "左逆元公理G3Lの具体的なインスタンスを導出せよ。∀消去(A4)で特定の元aに適用する。",
   difficulty: 2,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "i(a) * a = e",
@@ -2323,6 +2413,7 @@ const qG07IdentityTimesIdentity: QuestDefinition = {
     "単位元同士の積が単位元になることを証明せよ。G2Lの∀消去で導出する。",
   difficulty: 2,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "e * e = e",
@@ -2349,6 +2440,7 @@ const qG08InverseIdentity: QuestDefinition = {
     "単位元の逆元と単位元の積が単位元になることを証明せよ。G3Lの∀消去で導出。",
   difficulty: 2,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "i(e) * e = e",
@@ -2375,6 +2467,7 @@ const qG09AssociativityInstance: QuestDefinition = {
     "結合律G1の具体的なインスタンスを導出せよ。∀x.∀y.∀z形式の3変数全称量化子を段階的に消去する。",
   difficulty: 3,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "(a * b) * c = a * (b * c)",
@@ -2401,6 +2494,7 @@ const qG10RightInverseInstance: QuestDefinition = {
     "右逆元公理G3Rの具体的なインスタンスを導出せよ。∀消去で特定の元aに適用する。",
   difficulty: 2,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "a * i(a) = e",
@@ -2427,6 +2521,7 @@ const qG11CommutativityInstance: QuestDefinition = {
     "アーベル群の可換律G4の具体的なインスタンスを導出せよ。2変数の全称量化子を段階的に消去する。",
   difficulty: 2,
   systemPresetId: "abelian-group",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "a * b = b * a",
@@ -2453,6 +2548,7 @@ const qG12LeftIdentityCompound: QuestDefinition = {
     "複合項a·bに対して左単位元G2Lを適用せよ。∀消去で項変数を複合項に代入するパターンを学ぶ。",
   difficulty: 2,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "e * (a * b) = a * b",
@@ -2479,6 +2575,7 @@ const qG13RightIdentityCompound: QuestDefinition = {
     "複合項a·bに対して右単位元G2Rを適用せよ。∀消去で複合項を代入するパターン。",
   difficulty: 2,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "(a * b) * e = a * b",
@@ -2505,6 +2602,7 @@ const qG14LeftInverseCompound: QuestDefinition = {
     "複合項a·bの左逆元を適用せよ。逆元関数iも複合項に適用でき、i(a·b)·(a·b) = e が成り立つ。",
   difficulty: 2,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "i(a * b) * (a * b) = e",
@@ -2531,6 +2629,7 @@ const qG15RightInverseCompound: QuestDefinition = {
     "複合項a·bの右逆元を適用せよ。G3Rの∀消去で複合項に適用するパターン。",
   difficulty: 2,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "(a * b) * i(a * b) = e",
@@ -2559,6 +2658,7 @@ const qG16IdentityCommutes: QuestDefinition = {
     "右単位元と左単位元の結果をE2（対称律）とE3（推移律）で連鎖させ、単位元の交換律を導出せよ。",
   difficulty: 3,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4", "E2", "E3"] as const,
   goals: [
     {
       formulaText: "a * e = e * a",
@@ -2586,6 +2686,7 @@ const qG17InverseCommutes: QuestDefinition = {
     "左逆元と右逆元の結果をE2+E3で連鎖させ、逆元の交換律を導出せよ。group-16と同じパターン。",
   difficulty: 3,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4", "E2", "E3"] as const,
   goals: [
     {
       formulaText: "i(a) * a = a * i(a)",
@@ -2612,6 +2713,7 @@ const qG18DoubleRightIdentity: QuestDefinition = {
     "G2Rを2回異なるインスタンスで適用し、E3（推移律）で連鎖させる。推移律チェーンの基本。",
   difficulty: 3,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4", "E3"] as const,
   goals: [
     {
       formulaText: "(a * e) * e = a",
@@ -2638,6 +2740,7 @@ const qG19InverseOfIdentity: QuestDefinition = {
     "単位元の逆元が単位元自身であることを証明せよ。G3LとG2Rの結果をE2+E3で連鎖させる。",
   difficulty: 4,
   systemPresetId: "group-full",
+  allowedAxiomIds: ["A4", "E2", "E3"] as const,
   goals: [
     {
       formulaText: "i(e) = e",
@@ -2666,6 +2769,7 @@ const qPred01UniversalElim: QuestDefinition = {
     "(∀x.P(x)) → P(x) を証明せよ。A4（全称消去公理）の最も基本的なインスタンス。",
   difficulty: 1,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "(all x. P(x)) -> P(x)",
@@ -2692,6 +2796,7 @@ const qPred02IdentityQuantified: QuestDefinition = {
     "∀x.(P(x) → P(x)) を証明せよ。命題論理の恒等律に Gen を適用する。",
   difficulty: 2,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2"] as const,
   goals: [
     {
       formulaText: "all x. (P(x) -> P(x))",
@@ -2718,6 +2823,7 @@ const qPred03UniversalSwap: QuestDefinition = {
     "(∀x.∀y.P(x, y)) → (∀y.∀x.P(x, y)) を証明せよ。量化子の順序交換（例7.49）。",
   difficulty: 3,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A4", "A5"] as const,
   goals: [
     {
       formulaText: "(all x. all y. P(x, y)) -> all y. all x. P(x, y)",
@@ -2745,6 +2851,7 @@ const qPred04ExistentialIntro: QuestDefinition = {
     "P(x) → ∃x.P(x) を証明せよ。具体的な項から存在命題を導く基本操作。",
   difficulty: 1,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A3", "A4", "EX-DEF"] as const,
   goals: [
     {
       formulaText: "P(x) -> ex x. P(x)",
@@ -2769,6 +2876,7 @@ const qPred05ExistNegToNegUniv: QuestDefinition = {
     "「¬P(x) を満たすxが存在する」ならば「すべてのxがP(x) を満たすわけではない」ことを証明せよ。",
   difficulty: 3,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A3", "A4", "A5", "EX-DEF"] as const,
   goals: [
     {
       formulaText: "(ex x. ~P(x)) -> ~(all x. P(x))",
@@ -2796,6 +2904,7 @@ const qPred06UnivNegToNegExist: QuestDefinition = {
     "「すべてのxが¬P(x) を満たす」ならば「P(x) を満たすxは存在しない」ことを証明せよ。",
   difficulty: 3,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A3", "EX-DEF"] as const,
   goals: [
     {
       formulaText: "(all x. ~P(x)) -> ~(ex x. P(x))",
@@ -2823,6 +2932,7 @@ const qPred07UniversalElimImplication: QuestDefinition = {
     "(∀x.(P(x)→Q(x))) → (P(x)→Q(x)) を証明せよ。A4 の含意式へのインスタンス化。",
   difficulty: 1,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A4"] as const,
   goals: [
     {
       formulaText: "(all x. (P(x) -> Q(x))) -> (P(x) -> Q(x))",
@@ -2848,6 +2958,7 @@ const qPred08A1Quantified: QuestDefinition = {
     "∀x.(P(x) → (Q(x) → P(x))) を証明せよ。命題論理公理A1に Gen を適用する。",
   difficulty: 2,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1"] as const,
   goals: [
     {
       formulaText: "all x. (P(x) -> (Q(x) -> P(x)))",
@@ -2873,6 +2984,7 @@ const qPred09A1DoubleQuantified: QuestDefinition = {
     "∀x.∀y.(P(x) → (P(y) → P(x))) を証明せよ。A1に Gen を2回適用する。",
   difficulty: 2,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1"] as const,
   goals: [
     {
       formulaText: "all x. all y. (P(x) -> (P(y) -> P(x)))",
@@ -2899,6 +3011,7 @@ const qPred10QuantifierRenaming: QuestDefinition = {
     "(∀x.P(x)) → (∀y.P(y)) を証明せよ。束縛変数の名前を変更しても意味が変わらないことの形式的証明。",
   difficulty: 2,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A4", "A5"] as const,
   goals: [
     {
       formulaText: "(all x. P(x)) -> all y. P(y)",
@@ -2927,6 +3040,7 @@ const qPredAdv01UniversalImplicationDistribution: QuestDefinition = {
     "(∀x.(P(x)→Q(x))) → ((∀x.P(x)) → (∀x.Q(x))) を証明せよ。全称量化子と含意の基本的な相互作用。",
   difficulty: 4,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A4", "A5"] as const,
   goals: [
     {
       formulaText:
@@ -2955,6 +3069,7 @@ const qPredAdv02NegationOfExistence: QuestDefinition = {
     "¬(∃x.P(x)) → (∀x.¬P(x)) を証明せよ。存在量化子の否定が全称量化子の否定に帰着することを示す。",
   difficulty: 4,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A3", "EX-DEF"] as const,
   goals: [
     {
       formulaText: "~(ex x. P(x)) -> (all x. ~P(x))",
@@ -2982,6 +3097,7 @@ const qPredAdv03NegationOfUniversal: QuestDefinition = {
     "¬(∀x.P(x)) → (∃x.¬P(x)) を証明せよ。全称量化子の否定が存在量化子の否定に帰着することを示す。",
   difficulty: 4,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A3", "A4", "A5", "EX-DEF"] as const,
   goals: [
     {
       formulaText: "~(all x. P(x)) -> ex x. ~P(x)",
@@ -3009,6 +3125,7 @@ const qPredAdv04ExistentialImplicationDistribution: QuestDefinition = {
     "(∀x.(P(x)→Q(x))) → ((∃x.P(x)) → (∃x.Q(x))) を証明せよ。全称的な含意が存在量化子に対しても分配可能であることを示す。",
   difficulty: 5,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A3", "A4", "A5", "EX-DEF"] as const,
   goals: [
     {
       formulaText: "(all x. (P(x) -> Q(x))) -> ((ex x. P(x)) -> (ex x. Q(x)))",
@@ -3036,6 +3153,7 @@ const qPredAdv05QuantifierSwap: QuestDefinition = {
     "(∀x.∀y.P(x,y)) → (∀y.∀x.P(x,y)) を証明せよ。全称量化子の入れ替えが可能であることを示す。",
   difficulty: 4,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A4", "A5"] as const,
   goals: [
     {
       formulaText: "(all x. (all y. P(x, y))) -> (all y. (all x. P(x, y)))",
@@ -3063,6 +3181,7 @@ const qPredAdv06UniversalToExistential: QuestDefinition = {
     "(∀x.P(x)) → (∃x.P(x)) を証明せよ。全称命題から存在命題への含意を示す。",
   difficulty: 4,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A3", "A4", "EX-DEF"] as const,
   goals: [
     {
       formulaText: "(all x. P(x)) -> (ex x. P(x))",
@@ -3090,6 +3209,7 @@ const qPredAdv07UniversalImplicationChain: QuestDefinition = {
     "(∀x.(P(x)→Q(x))) → ((∀x.(Q(x)→R(x))) → (P(x)→R(x))) を証明せよ。全称量化子を2回除去し、HSで含意を連鎖させる。",
   difficulty: 4,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A4"] as const,
   goals: [
     {
       formulaText:
@@ -3118,6 +3238,7 @@ const qPredAdv08UniversalToNotExistNot: QuestDefinition = {
     "(∀x.P(x)) → ¬(∃x.¬P(x)) を証明せよ。全称命題から、その否定の存在命題を否定する。",
   difficulty: 3,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A3", "A4", "A5", "EX-DEF"] as const,
   goals: [
     {
       formulaText: "(all x. P(x)) -> ~(ex x. ~P(x))",
@@ -3145,6 +3266,7 @@ const qPredAdv09ExistToNotUniversalNot: QuestDefinition = {
     "(∃x.P(x)) → ¬(∀x.¬P(x)) を証明せよ。存在命題から全称否定の否定を導く。∃の定義そのもの。",
   difficulty: 2,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["EX-DEF"] as const,
   goals: [
     {
       formulaText: "(ex x. P(x)) -> ~(all x. ~P(x))",
@@ -3171,6 +3293,7 @@ const qPredAdv10UniversalImplicationTransitivity: QuestDefinition = {
     "(∀x.(P(x)→Q(x))) → ((∀x.(Q(x)→R(x))) → (∀x.(P(x)→R(x)))) を証明せよ。推移律を全称量化で包む。",
   difficulty: 5,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A4", "A5"] as const,
   goals: [
     {
       formulaText:
@@ -3201,6 +3324,7 @@ const qPredAdv11VacuousQuantification: QuestDefinition = {
     "φ → (∀x.φ) を証明せよ。自由変数を含まない式は全称量化しても同値であることを示す。",
   difficulty: 3,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A5"] as const,
   goals: [
     {
       formulaText: "phi -> (all x. phi)",
@@ -3228,6 +3352,7 @@ const qPredAdv12ExistentialSwap: QuestDefinition = {
     "(∃x.∃y.P(x,y)) → (∃y.∃x.P(x,y)) を証明せよ。存在量化子も入れ替え可能であることを示す。",
   difficulty: 4,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A3", "A4", "A5", "EX-DEF"] as const,
   goals: [
     {
       formulaText: "(ex x. (ex y. P(x, y))) -> (ex y. (ex x. P(x, y)))",
@@ -3255,6 +3380,7 @@ const qPredAdv13ContrapositiveUnderForall: QuestDefinition = {
     "(∀x.(P(x) → Q(x))) → (∀x.(¬Q(x) → ¬P(x))) を証明せよ。Modus Tollens を全称量化子で包む。",
   difficulty: 4,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A3", "A4", "A5"] as const,
   goals: [
     {
       formulaText: "(all x. (P(x) -> Q(x))) -> (all x. (~Q(x) -> ~P(x)))",
@@ -3282,6 +3408,7 @@ const qPredAdv14UniversalWeakening: QuestDefinition = {
     "(∀x.P(x)) → (∀x.(Q(x) → P(x))) を証明せよ。全称命題を弱化公理で包む。",
   difficulty: 3,
   systemPresetId: "predicate",
+  allowedAxiomIds: ["A1", "A2", "A4", "A5"] as const,
   goals: [
     {
       formulaText: "(all x. P(x)) -> (all x. (Q(x) -> P(x)))",
