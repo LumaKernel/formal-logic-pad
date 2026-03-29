@@ -19147,3 +19147,15 @@
   - buildModelAnswerWorkspaceで生成されるノードは画面外に配置される可能性がある。MP操作前にfitToContentを呼ぶことでculling問題を回避
   - FullFlow版ストーリーと基本ストーリーでfitToContent有無の差があった。新しいストーリーを書く際はFullFlow版を参照パターンとして使う
 ---
+
+## 2026-03-30 - quest-stories prop-01 確認
+- prop-01（恒等律）の全ストーリーを模範解答と比較確認
+  - QuestCompleteProp01: axiom-only初期状態→MP2回 ✓
+  - QuestCompleteProp01ModelAnswer: 静的完了状態 ✓
+  - QuestCompleteProp01FullFlow: 空ワークスペースから全8ステップ ✓
+  - QuestCompleteProp01FromHub: Hub遷移→全ステップ ✓
+- 修正不要。模範解答と完全一致
+- カバレッジ: Stmts 99.8%, Branch 99.06%, Funcs 90.67%, Lines 99.81%（変化なし）
+- **今後のイテレーションへの学び:**
+  - prop-01は4種のストーリーバリアント（Interactive, ModelAnswer, FullFlow, FromHub）が揃っている。他のクエストもこのパターンを参考にできる
+---
