@@ -39,6 +39,8 @@ import { SequentDisplay } from "./SequentDisplay";
 import type { SequentTextParts } from "./scApplicationLogic";
 import { isSignedFormulaText } from "./signedFormulaDisplayLogic";
 import { SignedFormulaDisplay } from "./SignedFormulaDisplay";
+import { isFormulaListText } from "./formulaListDisplayLogic";
+import { FormulaListDisplay } from "./FormulaListDisplay";
 
 // --- Props ---
 
@@ -101,6 +103,8 @@ export interface EditableProofNodeProps {
   readonly sequentTexts?: SequentTextParts;
   /** FormulaListEditorベースの拡大エディタを直接開くモード（TAB系で使用） */
   readonly useFormulaListEditor?: boolean;
+  /** TABノードの構造化論理式テキスト配列（FormulaListDisplay の再パースをスキップ） */
+  readonly formulaTexts?: readonly string[];
   /** ノートノードの編集開始コールバック（kind="note"のダブルクリック時） */
   readonly onEditNote?: (id: string) => void;
   /** ノードをハイライト表示するか（代入ポップオーバー等で対象ノードを示す） */
@@ -430,6 +434,7 @@ export function EditableProofNode({
   useSequentEditor,
   sequentTexts,
   useFormulaListEditor,
+  formulaTexts,
   onEditNote,
   highlighted = false,
   testId,
@@ -528,6 +533,25 @@ export function EditableProofNode({
     [effectiveEditable, readonlyFormula, isSequent, formulaText],
   );
 
+  /** read-only表示用: TAB用の論理式リストかどうかを判定 */
+  const isFormulaList = useMemo(
+    () =>
+      !effectiveEditable &&
+      readonlyFormula === null &&
+      !isSequent &&
+      !isSignedFormula &&
+      useFormulaListEditor === true &&
+      isFormulaListText(formulaText),
+    [
+      effectiveEditable,
+      readonlyFormula,
+      isSequent,
+      isSignedFormula,
+      useFormulaListEditor,
+      formulaText,
+    ],
+  );
+
   /** read-only表示用: パースエラー状態かどうかを判定 */
   const hasParseError = useMemo(
     () =>
@@ -535,12 +559,14 @@ export function EditableProofNode({
       readonlyFormula === null &&
       !isSequent &&
       !isSignedFormula &&
+      !isFormulaList &&
       formulaText.trim() !== "",
     [
       effectiveEditable,
       readonlyFormula,
       isSequent,
       isSignedFormula,
+      isFormulaList,
       formulaText,
     ],
   );
@@ -688,6 +714,12 @@ export function EditableProofNode({
                   sequentTexts={sequentTexts}
                   fontSize={13}
                 />
+              ) : useFormulaListEditor && isFormulaListText(formulaText) ? (
+                <FormulaListDisplay
+                  text={formulaText}
+                  formulaTexts={formulaTexts}
+                  fontSize={13}
+                />
               ) : undefined
             }
             onOpenSyntaxHelp={onOpenSyntaxHelp}
@@ -720,6 +752,12 @@ export function EditableProofNode({
               />
             ) : isSignedFormula ? (
               <SignedFormulaDisplay text={formulaText} fontSize={13} />
+            ) : isFormulaList ? (
+              <FormulaListDisplay
+                text={formulaText}
+                formulaTexts={formulaTexts}
+                fontSize={13}
+              />
             ) : (
               formulaText
             )}

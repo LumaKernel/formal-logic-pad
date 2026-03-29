@@ -5422,6 +5422,7 @@ export const ProofWorkspace = forwardRef<
               useSequentEditor={isSequentCalculusStyle}
               sequentTexts={node.sequentTexts}
               useFormulaListEditor={isTableauStyle || isAnalyticTableauStyle}
+              formulaTexts={node.formulaTexts}
               onEditNote={handleEditNote}
               highlighted={edgeBadgeEditState?.conclusionNodeId === node.id}
               testId={`proof-node-${node.id satisfies string}`}

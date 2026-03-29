@@ -414,6 +414,13 @@ export type {
 } from "./scProofTreeRendererLogic";
 export { ScProofTreePanel } from "./ScProofTreePanel";
 export type { ScProofTreePanelProps } from "./ScProofTreePanel";
+export { FormulaListDisplay } from "./FormulaListDisplay";
+export type { FormulaListDisplayProps } from "./FormulaListDisplay";
+export {
+  formulaTextsToDisplayData,
+  isFormulaListText,
+} from "./formulaListDisplayLogic";
+export type { FormulaListDisplayData } from "./formulaListDisplayLogic";
 export { SequentDisplay } from "./SequentDisplay";
 export type { SequentDisplayProps } from "./SequentDisplay";
 export {
