@@ -72,7 +72,7 @@ export type TabTreeStats = {
 type TabGraphAnalysis = {
   /** nodeId → そのノードを結論として持つTABエッジ（ノードから下向きに適用された規則） */
   readonly outgoingEdge: ReadonlyMap<string, TabInferenceEdge>;
-  /** nodeId → そのノードのformulaText（表示用） */
+  /** nodeId → 表示用テキスト（formulaTexts.join(", ") から導出） */
   readonly nodeTexts: ReadonlyMap<string, string>;
   /** nodeId → そのノードのformulaTexts（ソースオブトゥルース） */
   readonly nodeFormulaTexts: ReadonlyMap<string, readonly string[]>;
@@ -125,16 +125,14 @@ function analyzeTabWorkspaceGraph(
     outgoingEdge.set(edge.conclusionNodeId, edge);
   }
 
-  // nodeId → formulaText（表示用）
-  const nodeTexts = new Map<string, string>();
   // nodeId → formulaTexts（ソースオブトゥルース）
   const nodeFormulaTexts = new Map<string, readonly string[]>();
+  // nodeId → 表示用テキスト（formulaTexts から導出）
+  const nodeTexts = new Map<string, string>();
   for (const node of nodes) {
-    nodeTexts.set(node.id, node.formulaText);
-    nodeFormulaTexts.set(
-      node.id,
-      node.formulaTexts ?? (node.formulaText === "" ? [] : [node.formulaText]),
-    );
+    const texts = node.formulaTexts ?? [];
+    nodeFormulaTexts.set(node.id, texts);
+    nodeTexts.set(node.id, texts.join(", "));
   }
 
   // 前提として使われているノードIDの集合

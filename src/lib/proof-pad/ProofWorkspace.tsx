@@ -2344,7 +2344,8 @@ export const ProofWorkspace = forwardRef<
         nodeId,
         {
           ruleId,
-          sequentText: conclusionNode.formulaText,
+          sequentText: conclusionNode.formulaTexts?.join(", ") ?? "",
+          formulaTexts: conclusionNode.formulaTexts,
           principalPosition,
           eigenVariable,
           termText,
@@ -7795,7 +7796,7 @@ export const ProofWorkspace = forwardRef<
           <TabExpandedEditor
             value={
               workspace.nodes.find((n) => n.id === expandedEditorNodeId)
-                ?.formulaText ?? ""
+                ?.formulaTexts?.join(", ") ?? ""
             }
             initialFormulas={
               workspace.nodes.find((n) => n.id === expandedEditorNodeId)
