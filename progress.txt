@@ -19001,3 +19001,14 @@
   - FormulaSlotとtextToFormulaSlotはsequentDisplayLogic.tsから再利用できる。新しい表示コンポーネントで同じパターンを使う
   - TABノードの表示判定はuseFormulaListEditor && isFormulaListTextで制御。単一論理式（カンマなし）はFormulaDisplayにフォールバック
   - ModelAnswerDemo: prop-04(14ステップ)はCIの15秒タイムアウトに引っかかる場合がある。中規模ストーリーは7-10ステップに抑える
+
+## 2026-03-29 - [proof-pad] TabProofTreePanel FormulaListDisplay移行
+- TabProofTreePanel.tsx のプレーンテキスト表示をFormulaListDisplayコンポーネントに置換
+- 各論理式が個別に`<math>`要素としてシンタックスハイライトされるようになった
+- 変更ファイル: TabProofTreePanel.tsx
+- Storybook確認: Branching Tree, Complete Proof ストーリーで正常動作確認（スクリーンショット: .screenshots/tab-proof-tree-branching-full.png, .screenshots/tab-proof-tree-complete.png）
+- カバレッジ: Stmts 99.80%, Branch 99.06%, Funcs 90.65%, Lines 99.81%（変化なし）
+- **今後のイテレーションへの学び:**
+  - TabProofTreePanel のストーリーIDは `proof-pad-tabprooftreepanel--branching-tree` 形式（kebab-case、"branching-rule"ではなく"branching-tree"）
+  - task-processing.md のprettier問題: 空でないがprettier非準拠の内容があるとCI失敗。`truncate -s 0` か `: >` で空にするか、prettier --write で修正
+---
