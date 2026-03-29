@@ -117,9 +117,9 @@ export const SmallProof: Story = {
   },
 };
 
-/** prop-04: 推移律 (φ→ψ)→((ψ→χ)→(φ→χ))（14ステップ, 中規模） */
+/** prop-02: 定数関数の合成 (7ステップ, 中規模) */
 export const MediumProof: Story = {
-  render: () => <ModelAnswerWorkspace questId="prop-04" />,
+  render: () => <ModelAnswerWorkspace questId="prop-02" />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace")).toBeInTheDocument();

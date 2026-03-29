@@ -354,3 +354,7 @@
 - [x] これは `phi => phi` から `=> phi->phi` を作るんじゃないの？そもそも模範解答もすべて修正が必要なのではないか
   - 調査済み。模範解答は結論→前提方向で構築しており正しい。修正不要
 - [x] const-map を v1.2.0に更新する。バグは解消されているので、return with return typeが適合する場所は置き換える。 → workspaceBridge.ts の scTagToRuleName を makeConstMapWithReturnType<string> に変更
+- [x] 以前、シーケント計算は ΓとΔのそれぞれの列を内部で持つと話した。
+  - [x] いきなりシーケント編集モーダルが開いてよい。 — FormulaEditor.enterEditModeでallowSequentText時に直接onOpenExpanded()を呼ぶ実装済み。play関数はcreatePortal対応でscreen使用
+  - [x] 内部的にテキストとして保持しているなら、それをやめる — WorkspaceNodeにsequentTexts(antecedentTexts/succedentTexts配列)を追加。addNode/updateNodeFormulaTextで自動ポピュレート。シリアライゼーション対応済み
+  - [x] わざわざ一度テキスト形式を経由しているなら、それをやめる — goalCheckLogic/SequentDisplay/SequentExpandedEditor/EditableProofNodeがsequentTextsを直接参照。sequentTextsToDisplayData追加
