@@ -19032,3 +19032,20 @@
   - TabProofTreePanel のストーリーIDは `proof-pad-tabprooftreepanel--branching-tree` 形式（kebab-case、"branching-rule"ではなく"branching-tree"）
   - task-processing.md のprettier問題: 空でないがprettier非準拠の内容があるとCI失敗。`truncate -s 0` か `: >` で空にするか、prettier --write で修正
 ---
+
+## 2026-03-29 - [quest] ND/SC制約設定
+- 実装した内容:
+  - ND全35クエストに `allowedRuleIds` を設定（模範解答から使用ルールを自動抽出）
+  - SC通常29クエストに `disallowedScRuleIds: ["cut"]` を設定（プレースホルダ5件除外）
+  - TAB/ATは検討の結果見送り（InferenceRuleIdが粗い、依存追跡関数未実装）
+- 変更したファイル:
+  - src/lib/quest/builtinQuests.ts (ND 35クエスト + SC 29クエストの制約追加)
+  - scripts/set-nd-allowed-rules.local.ts (ND制約設定スクリプト、ローカル用)
+  - scripts/set-sc-disallowed-rules.local.ts (SC制約設定スクリプト、ローカル用)
+- カバレッジ: Stmts 99.8%, Branch 99.06%, Funcs 90.66%, Lines 99.81%（変化なし）
+- **今後のイテレーションへの学び:**
+  - NDのInferenceRuleIdは規則ごとに個別（nd-implication-intro等）で`allowedRuleIds`に直接使える
+  - SC/TAB/ATのInferenceRuleIdは汎用的（sc-single, tab-single等）で粗い。具体的なルール制約にはScRuleId/TabRuleId用の専用フィールドが必要
+  - TAB向け制約には `allowedTabRuleIds?: readonly TabRuleId[]` + `getNodeTabRuleIds()` の実装が必要
+  - Prettierフォーマットは必ずコミット前にローカルで実行（CI 2回分のロスを防ぐ）
+---
