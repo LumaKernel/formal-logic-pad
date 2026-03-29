@@ -18908,3 +18908,16 @@
   - BaseExpandedEditorはcreatePortal(document.body)で描画されるため、Storybook play関数で`within(canvasElement)`ではなく`screen`を使う必要がある
   - Codebase Patternsに追加: SC系のcreatePortalモーダルはstorybook play関数で`screen`からアクセスする
 ---
+
+## 2026-03-29 - [proof-pad] SCノードにsequentTexts構造化データを追加
+- WorkspaceNodeにsequentTexts?: SequentTextParts（antecedentTexts/succedentTexts配列）を追加
+- isScSystem()ヘルパー追加、addNode/updateNodeFormulaTextでSCシステム時に自動ポピュレート
+- workspaceExport.tsにSequentTextPartsSchemaを追加、シリアライゼーション対応
+- workspaceState.test.tsに6テスト追加（addNode/updateNodeFormulaText/applyScRuleAndConnect/Hilbert非ポピュレート）
+- workspaceExport.test.tsに2テスト追加（ラウンドトリップ/レガシー互換）
+- 変更ファイル: workspaceState.ts, workspaceExport.ts, workspaceState.test.ts, workspaceExport.test.ts, index.ts
+- カバレッジ: Stmts 99.82%, Branch 99.15%, Funcs 90.57%, Lines 99.81%（Branch 0.01%低下はV8マージの既知の揺れ）
+- **今後のイテレーションへの学び:**
+  - SCノードの内部データはsequentTextsがsource of truth。消費者側（SequentExpandedEditor, scApplicationLogic, SequentDisplay）への移行は次のタスク「わざわざ一度テキスト形式を経由しているなら、それをやめる」で実施
+  - splitSequentTextParts()はscApplicationLogic.tsに既存関数として存在。新たに実装する必要はなかった
+---
