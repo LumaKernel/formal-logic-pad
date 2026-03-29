@@ -19104,3 +19104,13 @@
   - Storybook play関数内で `goalPanel` を変数として保持し再利用するとコードが簡潔になる
   - 中間assert追加はコード変更量は少ないが、CI上でストーリーの実行時間に影響する可能性がある（80 interactions）
 ---
+
+## 2026-03-30 - クエスト中間assert: ND01, SC01 FullFlow
+- `QuestCompleteNd01FullFlow`: 全4ステップ中3ステップ後に `"0 / 1"` assert追加
+- `QuestCompleteSc01FullFlow`: step1,2後に `"0 / 1"` assert追加
+  - step3(implication-right)後は `phi ⇒ phi` がidentity公理として自動検出されゴール達成済みになるため、中間assertは不適切
+- カバレッジ: 変化なし（Stmts 99.8%, Branch 99.06%, Lines 99.81%）
+- **今後のイテレーションへの学び:**
+  - SC証明: implication-rightを適用して前提 `phi ⇒ phi` が生成されると、identity公理として自動検出されゴール達成になる。SC中間assertでは証明木構造の自動完成に注意
+  - TAB/AT FullFlowも同様の自動検出がある可能性がある（既存コメント「初期 + 1 中間チェックあり」）
+---
