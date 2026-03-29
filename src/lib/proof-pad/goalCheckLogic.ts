@@ -16,7 +16,10 @@ import type { Formula } from "../logic-core/formula";
 import type { InferenceEdge } from "./inferenceEdge";
 import { getInferenceEdgePremiseNodeIds } from "./inferenceEdge";
 import type { WorkspaceNode, WorkspaceGoal } from "./workspaceState";
-import { splitSequentTextParts } from "./scApplicationLogic";
+import {
+  splitSequentTextParts,
+  type SequentTextParts,
+} from "./scApplicationLogic";
 
 // --- ゴール達成チェックの結果型 ---
 
@@ -85,8 +88,13 @@ export function parseGoalFormula(goalText: string): Formula | undefined {
  *    符号を除去した論理式部分を返す（ATのゴール判定: ルートF:φの枝が全閉→φが定理）
  * 3. 失敗した場合、シーケントテキスト（"Γ ⇒ Δ" 形式）として解析し、
  *    前件が空で後件が1つの場合にその論理式を返す（SC/TABの定理表現）
+ *
+ * @param sequentTexts SCノードの構造化データ（指定時は splitSequentTextParts の再パースをスキップ）
  */
-export function parseNodeFormula(formulaText: string): Formula | undefined {
+export function parseNodeFormula(
+  formulaText: string,
+  sequentTexts?: SequentTextParts,
+): Formula | undefined {
   const trimmed = formulaText.trim();
   if (trimmed === "") return undefined;
 
@@ -106,9 +114,11 @@ export function parseNodeFormula(formulaText: string): Formula | undefined {
     }
   }
 
-  // シーケントテキストとして解析
-  if (trimmed.includes("⇒")) {
-    const parts = splitSequentTextParts(trimmed);
+  // シーケントテキストとして解析（sequentTexts があればそれを直接利用）
+  const parts =
+    sequentTexts ??
+    (trimmed.includes("⇒") ? splitSequentTextParts(trimmed) : undefined);
+  if (parts !== undefined) {
     // 前件が空で後件が1つの場合: " ⇒ φ" → φ が定理
     if (
       parts.antecedentTexts.length === 0 &&
@@ -194,7 +204,7 @@ export function checkGoal(
     let matchingNodeId: string | undefined;
     for (const node of nodes) {
       if (node.formulaText.trim() === "") continue;
-      const nodeFormula = parseNodeFormula(node.formulaText);
+      const nodeFormula = parseNodeFormula(node.formulaText, node.sequentTexts);
       if (nodeFormula === undefined) continue;
       if (equivalentFormula(goalFormula, nodeFormula)) {
         // 孤立ノード検証: どの推論エッジにも参加していないノード（結論でも前提でもない）は

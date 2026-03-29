@@ -14,8 +14,10 @@ import type { SequentDisplayData, FormulaSlot } from "./sequentDisplayLogic";
 import {
   parseSequentDisplayData,
   sequentToDisplayData,
+  sequentTextsToDisplayData,
 } from "./sequentDisplayLogic";
 import type { Sequent } from "../logic-core/sequentCalculus";
+import type { SequentTextParts } from "./scApplicationLogic";
 
 // --- Props ---
 
@@ -24,6 +26,8 @@ export type SequentDisplayProps = {
   readonly text?: string;
   /** Sequent型オブジェクト（textより優先） */
   readonly sequent?: Sequent;
+  /** 構造化された前件/後件テキスト配列（textの再パースをスキップ、sequentより低優先） */
+  readonly sequentTexts?: SequentTextParts;
   /** フォントサイズ */
   readonly fontSize?: CSSProperties["fontSize"];
   /** テキスト色 */
@@ -141,15 +145,18 @@ function FormulaList({
 export function SequentDisplay({
   text,
   sequent,
+  sequentTexts,
   fontSize,
   color,
   testId,
 }: SequentDisplayProps) {
   const displayData: SequentDisplayData = useMemo(() => {
     if (sequent !== undefined) return sequentToDisplayData(sequent);
+    if (sequentTexts !== undefined)
+      return sequentTextsToDisplayData(sequentTexts);
     if (text !== undefined) return parseSequentDisplayData(text);
     return { antecedents: [], succedents: [] };
-  }, [text, sequent]);
+  }, [text, sequent, sequentTexts]);
 
   const mergedContainerStyle: CSSProperties = useMemo(
     () => ({

@@ -9,6 +9,7 @@
 
 import type { Formula } from "../logic-core/formula";
 import type { Sequent } from "../logic-core/sequentCalculus";
+import type { SequentTextParts } from "./scApplicationLogic";
 import { parseString } from "../logic-lang/parser";
 import { Either } from "effect";
 
@@ -82,6 +83,24 @@ export function sequentToDisplayData(seq: Sequent): SequentDisplayData {
   return {
     antecedents: seq.antecedents.map(formulaToSlot),
     succedents: seq.succedents.map(formulaToSlot),
+  };
+}
+
+/**
+ * SequentTextParts（構造化された前件/後件テキスト配列）からSequentDisplayDataに変換する。
+ * 各テキストを個別にパースしてFormulaSlotにする。
+ * テキストの再分割（splitSequentTextParts）をスキップできる。
+ */
+export function sequentTextsToDisplayData(
+  parts: SequentTextParts,
+): SequentDisplayData {
+  return {
+    antecedents: parts.antecedentTexts
+      .filter((s) => s.trim() !== "")
+      .map((s) => textToFormulaSlot(s)),
+    succedents: parts.succedentTexts
+      .filter((s) => s.trim() !== "")
+      .map((s) => textToFormulaSlot(s)),
   };
 }
 

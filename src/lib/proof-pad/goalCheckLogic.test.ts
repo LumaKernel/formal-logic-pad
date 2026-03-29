@@ -130,6 +130,35 @@ describe("goalCheckLogic", () => {
       const result = parseNodeFormula("F:");
       expect(result).toBeUndefined();
     });
+
+    it("uses sequentTexts directly when provided (skips text re-parsing)", () => {
+      // sequentTexts with empty antecedent and single succedent → extracts formula
+      const result = parseNodeFormula("⇒ phi -> psi", {
+        antecedentTexts: [],
+        succedentTexts: ["phi -> psi"],
+      });
+      expect(result).toBeDefined();
+      expect(result!._tag).toBe("Implication");
+    });
+
+    it("uses sequentTexts even when formulaText has no ⇒", () => {
+      // sequentTexts provided but formulaText doesn't contain ⇒
+      // sequentTexts should still be used
+      const result = parseNodeFormula("invalid text", {
+        antecedentTexts: [],
+        succedentTexts: ["phi"],
+      });
+      expect(result).toBeDefined();
+      expect(result!._tag).toBe("PropositionalVariable");
+    });
+
+    it("returns undefined when sequentTexts has non-empty antecedent", () => {
+      const result = parseNodeFormula("phi ⇒ psi", {
+        antecedentTexts: ["phi"],
+        succedentTexts: ["psi"],
+      });
+      expect(result).toBeUndefined();
+    });
   });
 
   describe("checkGoal - AT signed formula matching", () => {

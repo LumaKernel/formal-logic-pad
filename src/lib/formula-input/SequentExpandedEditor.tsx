@@ -27,6 +27,16 @@ export interface SequentExpandedEditorProps {
   readonly onClose: () => void;
   /** 構文ヘルプを開くコールバック */
   readonly onOpenSyntaxHelp?: () => void;
+  /**
+   * 前件テキスト配列の初期値（指定時は value の再パースをスキップ）。
+   * WorkspaceNode.sequentTexts.antecedentTexts から渡す。
+   */
+  readonly initialAntecedents?: readonly string[];
+  /**
+   * ���件テキスト配列の初期値��指定時は value の再パースをスキップ）。
+   * WorkspaceNode.sequentTexts.succedentTexts から渡す���
+   */
+  readonly initialSuccedents?: readonly string[];
   /** data-testid */
   readonly testId?: string;
 }
@@ -64,6 +74,8 @@ export function SequentExpandedEditor({
   onChange,
   onClose,
   onOpenSyntaxHelp,
+  initialAntecedents,
+  initialSuccedents,
   testId,
 }: SequentExpandedEditorProps) {
   // onChange を ref で保持（useEffect の依存から外し無限ループ防止）
@@ -73,11 +85,18 @@ export function SequentExpandedEditor({
   }, [onChange]);
 
   // 初期化時にシーケントテキストを分割（初回のみ）
+  // initialAntecedents/initialSuccedents が指定されていればパースをスキップ
   const [antecedents, setAntecedents] = useState<readonly string[]>(() => {
+    if (initialAntecedents !== undefined) {
+      return initialAntecedents.length > 0 ? initialAntecedents : [""];
+    }
     const parts = splitSequentToLists(value);
     return parts.antecedents.length > 0 ? parts.antecedents : [""];
   });
   const [succedents, setSuccedents] = useState<readonly string[]>(() => {
+    if (initialSuccedents !== undefined) {
+      return initialSuccedents.length > 0 ? initialSuccedents : [""];
+    }
     const parts = splitSequentToLists(value);
     return parts.succedents.length > 0 ? parts.succedents : [""];
   });

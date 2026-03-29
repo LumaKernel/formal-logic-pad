@@ -5416,6 +5416,7 @@ export const ProofWorkspace = forwardRef<
               })()}
               forceEditMode={editRequestNodeId === node.id}
               useSequentEditor={isSequentCalculusStyle}
+              sequentTexts={node.sequentTexts}
               onEditNote={handleEditNote}
               highlighted={edgeBadgeEditState?.conclusionNodeId === node.id}
               testId={`proof-node-${node.id satisfies string}`}
@@ -7764,6 +7765,14 @@ export const ProofWorkspace = forwardRef<
             value={
               workspace.nodes.find((n) => n.id === expandedEditorNodeId)
                 ?.formulaText ?? ""
+            }
+            initialAntecedents={
+              workspace.nodes.find((n) => n.id === expandedEditorNodeId)
+                ?.sequentTexts?.antecedentTexts
+            }
+            initialSuccedents={
+              workspace.nodes.find((n) => n.id === expandedEditorNodeId)
+                ?.sequentTexts?.succedentTexts
             }
             onChange={handleExpandedChange}
             onClose={handleCloseExpanded}

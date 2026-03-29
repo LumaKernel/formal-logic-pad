@@ -128,4 +128,36 @@ describe("SequentDisplay", () => {
       expect(ant0.style.color).toBe("");
     });
   });
+
+  describe("sequentTexts prop", () => {
+    it("sequentTexts から表示データを生成する（text の再パースをスキップ）", () => {
+      render(
+        <SequentDisplay
+          text="φ, ψ ⇒ χ"
+          sequentTexts={{
+            antecedentTexts: ["φ", "ψ"],
+            succedentTexts: ["χ"],
+          }}
+          testId="seq"
+        />,
+      );
+      expect(screen.getByTestId("seq-ant-0")).toHaveTextContent("φ");
+      expect(screen.getByTestId("seq-ant-1")).toHaveTextContent("ψ");
+      expect(screen.getByTestId("seq-suc-0")).toHaveTextContent("χ");
+    });
+
+    it("sequentTexts のみ（text なし）で表示できる", () => {
+      render(
+        <SequentDisplay
+          sequentTexts={{
+            antecedentTexts: ["φ"],
+            succedentTexts: ["ψ"],
+          }}
+          testId="seq"
+        />,
+      );
+      expect(screen.getByTestId("seq-ant-0")).toHaveTextContent("φ");
+      expect(screen.getByTestId("seq-suc-0")).toHaveTextContent("ψ");
+    });
+  });
 });

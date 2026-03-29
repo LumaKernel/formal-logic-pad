@@ -420,6 +420,7 @@ export {
   textToFormulaSlot,
   parseSequentDisplayData,
   sequentToDisplayData,
+  sequentTextsToDisplayData,
   isSequentText,
 } from "./sequentDisplayLogic";
 export type { FormulaSlot, SequentDisplayData } from "./sequentDisplayLogic";

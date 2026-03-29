@@ -11,6 +11,7 @@ import {
   textToFormulaSlot,
   parseSequentDisplayData,
   sequentToDisplayData,
+  sequentTextsToDisplayData,
   isSequentText,
 } from "./sequentDisplayLogic";
 
@@ -154,5 +155,45 @@ describe("sequentToDisplayData", () => {
     if (data.antecedents[0]?._tag === "parsed") {
       expect(data.antecedents[0].formula._tag).toBe("Implication");
     }
+  });
+});
+
+describe("sequentTextsToDisplayData", () => {
+  it("構造化テキストからSequentDisplayDataを生成する", () => {
+    const data = sequentTextsToDisplayData({
+      antecedentTexts: ["phi", "psi"],
+      succedentTexts: ["chi"],
+    });
+    expect(data.antecedents).toHaveLength(2);
+    expect(data.succedents).toHaveLength(1);
+    expect(data.antecedents[0]?._tag).toBe("parsed");
+    expect(data.succedents[0]?._tag).toBe("parsed");
+  });
+
+  it("空配列の場合は空のDisplayDataを返す", () => {
+    const data = sequentTextsToDisplayData({
+      antecedentTexts: [],
+      succedentTexts: [],
+    });
+    expect(data.antecedents).toHaveLength(0);
+    expect(data.succedents).toHaveLength(0);
+  });
+
+  it("パース失敗のテキストはtextスロットになる", () => {
+    const data = sequentTextsToDisplayData({
+      antecedentTexts: ["-> ->"],
+      succedentTexts: ["phi"],
+    });
+    expect(data.antecedents[0]?._tag).toBe("text");
+    expect(data.succedents[0]?._tag).toBe("parsed");
+  });
+
+  it("空白のみのテキストはフィルタされる", () => {
+    const data = sequentTextsToDisplayData({
+      antecedentTexts: ["  ", "phi"],
+      succedentTexts: [""],
+    });
+    expect(data.antecedents).toHaveLength(1);
+    expect(data.succedents).toHaveLength(0);
   });
 });

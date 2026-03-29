@@ -36,6 +36,7 @@ import type { ProofMessages } from "./proofMessages";
 import { formatMessage } from "./proofMessages";
 import { isSequentText } from "./sequentDisplayLogic";
 import { SequentDisplay } from "./SequentDisplay";
+import type { SequentTextParts } from "./scApplicationLogic";
 import { isSignedFormulaText } from "./signedFormulaDisplayLogic";
 import { SignedFormulaDisplay } from "./SignedFormulaDisplay";
 
@@ -96,6 +97,8 @@ export interface EditableProofNodeProps {
   readonly forceEditMode?: boolean;
   /** シーケントエディタモード（SC系でのシーケント入力に使用） */
   readonly useSequentEditor?: boolean;
+  /** SCノードの構造化シーケントデータ（SequentDisplay の再パースをスキップ） */
+  readonly sequentTexts?: SequentTextParts;
   /** ノートノードの編集開始コールバック（kind="note"のダブルクリック時） */
   readonly onEditNote?: (id: string) => void;
   /** ノードをハイライト表示するか（代入ポップオーバー等で対象ノードを示す） */
@@ -423,6 +426,7 @@ export function EditableProofNode({
   substitutionEntries,
   forceEditMode,
   useSequentEditor,
+  sequentTexts,
   onEditNote,
   highlighted = false,
   testId,
@@ -675,7 +679,11 @@ export function EditableProofNode({
             allowSequentText={useSequentEditor}
             displayFallback={
               useSequentEditor && isSequentText(formulaText) ? (
-                <SequentDisplay text={formulaText} fontSize={13} />
+                <SequentDisplay
+                  text={formulaText}
+                  sequentTexts={sequentTexts}
+                  fontSize={13}
+                />
               ) : undefined
             }
             onOpenSyntaxHelp={onOpenSyntaxHelp}
@@ -701,7 +709,11 @@ export function EditableProofNode({
             {readonlyFormula ? (
               <FormulaDisplay formula={readonlyFormula} fontSize={13} />
             ) : isSequent ? (
-              <SequentDisplay text={formulaText} fontSize={13} />
+              <SequentDisplay
+                text={formulaText}
+                sequentTexts={sequentTexts}
+                fontSize={13}
+              />
             ) : isSignedFormula ? (
               <SignedFormulaDisplay text={formulaText} fontSize={13} />
             ) : (
