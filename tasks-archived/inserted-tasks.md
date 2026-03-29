@@ -359,3 +359,6 @@
   - [x] 内部的にテキストとして保持しているなら、それをやめる — WorkspaceNodeにsequentTexts(antecedentTexts/succedentTexts配列)を追加。addNode/updateNodeFormulaTextで自動ポピュレート。シリアライゼーション対応済み
   - [x] わざわざ一度テキスト形式を経由しているなら、それをやめる — goalCheckLogic/SequentDisplay/SequentExpandedEditor/EditableProofNodeがsequentTextsを直接参照。sequentTextsToDisplayData追加
   - [x] TAB用の表示コンポーネント（FormulaListDisplayなど）を追加し、レンダリングを改善 — FormulaListDisplay + formulaListDisplayLogic で実装。EditableProofNodeのdisplayFallback/read-only表示にTAB対応追加
+- [x] タブローもシーケント計算と同様に、論理式単体ではなく、論理式の列を持つのだから、それに合わせた内部構造の持ちかた、レンダリング、編集UIをそれぞれ提供するように変更すべき
+  - [x] 消費者側がformulaTextsを直接参照するように移行 — tabProofTreeRendererLogic, ProofWorkspace(TAB規則適用・TabExpandedEditor)をformulaTexts優先に変更。フォールバックはsplitByTopLevelCommaで正確に分割
+  - [x] TabProofTreePanel のレンダリングを FormulaListDisplay に移行 — プレーンテキスト表示をFormulaListDisplayコンポーネントに置換。各論理式が個別にシンタックスハイライト
