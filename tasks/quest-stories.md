@@ -21,10 +21,9 @@
 - [x] prop-05: 含意の弱化 — QuestComplete+ModelAnswerストーリー作成・確認済み（3ステップ証明）
   - [x] Quest Complete ストーリー作成（QuestCompleteProp05 + QuestCompleteProp05ModelAnswer）
   - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
-- [-] prop-06: S公理の特殊ケース
-  - [-] Quest Complete ストーリーが存在していなければ作成する
-  - [ ] 模範解答とクエスト攻略ストーリーをそれぞれ比べて、意図通りにそれぞれなっているか確認する
-    - 必要に応じてそれぞれを修正する
+- [x] prop-06: S公理の特殊ケース — QuestComplete+ModelAnswer作成・確認済み（12ステップ証明）
+  - [x] Quest Complete ストーリー作成（QuestCompleteProp06 + QuestCompleteProp06ModelAnswer）
+  - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
 - [ ] prop-07: 含意の交換 (C Combinator)
   - [ ] Quest Complete ストーリーが存在していなければ作成する
   - [ ] 模範解答とクエスト攻略ストーリーをそれぞれ比べて、意図通りにそれぞれなっているか確認する
