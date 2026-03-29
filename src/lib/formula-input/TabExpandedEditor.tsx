@@ -72,7 +72,10 @@ const previewFallbackStyle: CSSProperties = {
 
 function splitFormulaList(text: string): readonly string[] {
   if (text.trim() === "") return [];
-  return text.split(",").map((s) => s.trim()).filter((s) => s !== "");
+  return text
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s !== "");
 }
 
 function composeFormulaList(formulas: readonly string[]): string {
@@ -110,12 +113,9 @@ export function TabExpandedEditor({
     onChangeRef.current(composed);
   }, [formulas]);
 
-  const handleFormulasChange = useCallback(
-    (newFormulas: readonly string[]) => {
-      setFormulas(newFormulas);
-    },
-    [],
-  );
+  const handleFormulasChange = useCallback((newFormulas: readonly string[]) => {
+    setFormulas(newFormulas);
+  }, []);
 
   return (
     <BaseExpandedEditor
@@ -153,9 +153,7 @@ export function TabExpandedEditor({
         <div
           style={previewFormulaContainerStyle}
           data-testid={
-            testId
-              ? `${testId satisfies string}-preview-formulas`
-              : undefined
+            testId ? `${testId satisfies string}-preview-formulas` : undefined
           }
         >
           {formulas

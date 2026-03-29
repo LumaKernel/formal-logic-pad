@@ -1782,8 +1782,7 @@ export const ProofWorkspace = forwardRef<
   const isHilbertStyle = workspace.deductionSystem.style === "hilbert";
   const isSequentCalculusStyle =
     workspace.deductionSystem.style === "sequent-calculus";
-  const isTableauStyle =
-    workspace.deductionSystem.style === "tableau-calculus";
+  const isTableauStyle = workspace.deductionSystem.style === "tableau-calculus";
   const isAnalyticTableauStyle =
     workspace.deductionSystem.style === "analytic-tableau";
 

@@ -70,9 +70,7 @@ export const Empty: Story = {
       root.getByTestId("tab-editor-formulas-label"),
     ).toBeInTheDocument();
     // プレビューが表示されている
-    await expect(
-      root.getByTestId("tab-editor-preview"),
-    ).toBeInTheDocument();
+    await expect(root.getByTestId("tab-editor-preview")).toBeInTheDocument();
   },
 };
 
@@ -186,20 +184,13 @@ export const WithoutTestId: Story = {
   render: () => {
     const [value, setValue] = useState("");
     return (
-      <TabExpandedEditor
-        value={value}
-        onChange={setValue}
-        onClose={() => {}}
-      />
+      <TabExpandedEditor value={value} onChange={setValue} onClose={() => {}} />
     );
   },
   play: async ({ canvasElement }) => {
     const root = within(canvasElement.ownerDocument.body);
     const dialog = root.getByRole("dialog");
     await expect(dialog).toBeInTheDocument();
-    await expect(dialog).toHaveAttribute(
-      "aria-label",
-      "論理式リストエディタ",
-    );
+    await expect(dialog).toHaveAttribute("aria-label", "論理式リストエディタ");
   },
 };
