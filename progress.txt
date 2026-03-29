@@ -19093,3 +19093,14 @@
   - tasks/inserted-tasks.md (タスク完了)
 - カバレッジ: 変化なし
 ---
+
+## 2026-03-30 - クエスト中間assert + pred-adv-11バグ検証
+- pred-adv-11 模範解答バグ検証完了: `allowedAxiomIds: ["A1", "A2", "A5"]` 制約が正しく機能。該当式 `(all x. (phi -> phi)) -> (phi -> (all x. phi))` は正当なA5インスタンス。`AllAchievedButAxiomViolation` で許可外公理は拒否される。
+- `QuestCompleteProp01FullFlow` ストーリーに中間 not-proved assert を追加（全8ステップ中7ステップ後に `"0 / 1"` assert）
+- inserted-tasks.md の pred-adv-11 タスクをアーカイブ
+- 変更ファイル: WorkspacePageView.stories.tsx, tasks/inserted-tasks.md, tasks/quest-intermediate-asserts.md, tasks-archived/inserted-tasks.md
+- カバレッジ: Stmts 99.8%, Branch 99.06%, Funcs 90.66%, Lines 99.81%（変化なし）
+- **今後のイテレーションへの学び:**
+  - Storybook play関数内で `goalPanel` を変数として保持し再利用するとコードが簡潔になる
+  - 中間assert追加はコード変更量は少ないが、CI上でストーリーの実行時間に影響する可能性がある（80 interactions）
+---

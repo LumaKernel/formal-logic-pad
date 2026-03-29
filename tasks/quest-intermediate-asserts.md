@@ -9,7 +9,7 @@
 
 ## FullFlow ストーリー（証明を1ステップずつ構築）
 
-- [-] `QuestCompleteProp01FullFlow` — 現在: 初期 `"0 / 1"` のみ。各ステップ後に `"0 / 1"` assert を追加
+- [x] `QuestCompleteProp01FullFlow` — 全8ステップ中7ステップ後に `"0 / 1"` assert を追加（最終ステップのみ `"1 / 1"` + `"Proved!"`）
 - [ ] `QuestCompleteNd01FullFlow` — 現在: 初期 `"0 / 1"` のみ。各ステップ後に `"0 / 1"` assert を追加
 - [ ] `QuestCompleteSc01FullFlow` — 現在: 初期 `"0 / 1"` のみ。各ステップ後に `"0 / 1"` assert を追加
 - [ ] `QuestCompleteTab01FullFlow` — 現在: 初期 + 1 中間チェックあり。全ステップに拡充
