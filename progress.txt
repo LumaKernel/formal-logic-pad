@@ -28,6 +28,8 @@
 - Storybook: `render` を使うストーリーでも required props がある場合は `args` にダミー値が必要（TypeScript型チェック）
 - `src/lib/formula-input/` は FormulaInput コンポーネント群の配置先。logic-lang に依存、InfiniteCanvas とは独立
 - FormulaInput: 制御コンポーネント、`useDeferredValue`でデバウンス、純粋関数（computeParseState等）を分離してテスタブルに
+- Storybook play関数: MP操作やノードクリックの前に `fitToContent(canvas)` を呼ぶこと。buildModelAnswerWorkspaceで配置されたノードはビューポート外の可能性がある
+- SC/TAB/AT体系: 規則適用後に自動検出（identity/contradiction/closure）が発動しゴール達成になる場合がある。中間assertでは自動完成タイミングに注意
 - macOSのcase-insensitiveファイルシステムでは `FormulaEditor.tsx` と `formulaEditor.ts` が衝突する。異なるケースのファイル名は使わず、`editorLogic.ts` のように明確に異なる名前にする
 
 - UIコンポーネント（Button/Tabs/Menu/Icons）は `src/components/ui/` に配置。スタイルロジックは `uiStyleLogic.ts` に純粋関数として分離。テーマ対応は `useResolvedThemeSafe()` を使用（ThemeProvider外でもデフォルト "light" で動作）
@@ -19132,4 +19134,16 @@
   - SC/TAB/AT体系のFromHubストーリーでもFullFlowと同じ自動検出パターンが適用される
   - `QuestCompleteProp01` ストーリーはローカルで不安定。ビューポートサイズやノードのculling（仮想化による非表示）がMP操作に影響する可能性
   - 1イテレーションで複数ストーリーをまとめて対応すると効率的（パターンが同じため）
+---
+
+## 2026-03-30 - QuestCompleteProp01 修正＋中間assert追加
+- `QuestCompleteProp01` がローカルStorybookで不安定だった原因を特定: MP操作前にfitToContentがなく、ノードがビューポート外でcullingされていた
+- fitToContent呼び出しを3箇所追加（MP₁前、MP₁結果確認前、MP₂結果確認前）
+- MP₁結果後に `"0 / 1"` 中間assert追加
+- **quest-intermediate-asserts タスク全完了**: 全13ストーリーに中間assert追加完了
+- inserted-tasks.md 完了項目をアーカイブ、inserted-tasks.md は空に
+- 変更ファイル: WorkspacePageView.stories.tsx, tasks/inserted-tasks.md, tasks-archived/*
+- **今後のイテレーションへの学び:**
+  - buildModelAnswerWorkspaceで生成されるノードは画面外に配置される可能性がある。MP操作前にfitToContentを呼ぶことでculling問題を回避
+  - FullFlow版ストーリーと基本ストーリーでfitToContent有無の差があった。新しいストーリーを書く際はFullFlow版を参照パターンとして使う
 ---
