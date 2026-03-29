@@ -19159,3 +19159,15 @@
 - **今後のイテレーションへの学び:**
   - prop-01は4種のストーリーバリアント（Interactive, ModelAnswer, FullFlow, FromHub）が揃っている。他のクエストもこのパターンを参考にできる
 ---
+
+## 2026-03-30 - quest-stories prop-02
+- prop-02（定数関数の合成）の QuestComplete ストーリー2種を作成
+  - QuestCompleteProp02: 公理のみ初期配置 → MP3回でゴール達成（interactive）
+  - QuestCompleteProp02ModelAnswer: 模範解答完成済みワークスペース表示（static）
+- 変更ファイル: `src/app/workspace/[id]/WorkspacePageView.stories.tsx`
+- カバレッジ変化なし: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
+- **今後のイテレーションへの学び:**
+  - prop-01と同じパターンでストーリー作成可能。buildCompletedQuestWorkspace + buildModelAnswerWorkspace の使い分け
+  - InfiniteCanvasのノードカリング対策: play関数内でfitToContent必須（ビューポート外ノードはDOM除去される）
+  - ノードID計算: createQuestWorkspace は nextNodeId:1 開始、axiom は2ノード（schema+instance）、note/MP は1ノード
+---
