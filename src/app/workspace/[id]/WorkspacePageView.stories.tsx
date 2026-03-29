@@ -1836,6 +1836,109 @@ export const QuestCompleteProp06ModelAnswer: Story = {
 };
 
 /**
+ * prop-07: 含意の交換 (C Combinator) — 完了状態確認。
+ * (φ → (ψ → χ)) → (ψ → (φ → χ)) の証明。19ステップ。
+ * 前提の順序を入れ替える。A1とA2を組み合わせて構成。
+ */
+export const QuestCompleteProp07: Story = {
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("prop-07");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // --- 完了状態: 19ステップ証明が完成済み ---
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
+      "Łukasiewicz",
+    );
+
+    // 公理パレットとMPボタンが表示される
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette"),
+    ).toBeInTheDocument();
+    await expect(canvas.getByTestId("workspace-mp-button")).toBeInTheDocument();
+
+    // ゴール達成確認
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await waitFor(() => {
+      expect(goalPanel).toHaveTextContent("1 / 1");
+    });
+    await expect(goalPanel).toHaveTextContent("Proved!");
+
+    // 完了バナー確認
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
+
+    // Fit to content で全ノードをビューポート内に収める
+    await fitToContent(canvas);
+
+    // ノード存在確認（代表的なノード）
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * prop-07: 含意の交換 (C Combinator) — 模範解答ベースの完了状態。
+ * 静的確認用。
+ */
+export const QuestCompleteProp07ModelAnswer: Story = {
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("prop-07");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+
+    // 完了バナー確認
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
+
+    // 体系バッジに正しい体系名が表示される
+    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
+      "Łukasiewicz",
+    );
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("1 / 1");
+    await expect(goalPanel).toHaveTextContent("Proved!");
+
+    // Fit to content で全ノードをビューポート内に収める
+    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
+
+    // ノード存在確認
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    });
+  },
+};
+
+/**
  * nd-01: 自然演繹 NM φ→φ インタラクション。
  * ND体系のUI操作を完全に再現する:
  *
