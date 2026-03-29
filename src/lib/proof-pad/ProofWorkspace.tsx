@@ -5488,6 +5488,8 @@ export const ProofWorkspace = forwardRef<
       editRequestNodeId,
       handleEditNote,
       isSequentCalculusStyle,
+      isTableauStyle,
+      isAnalyticTableauStyle,
       vizState,
       annotationsByNodeId,
       edgeBadgeEditState?.conclusionNodeId,
