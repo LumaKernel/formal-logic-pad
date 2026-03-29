@@ -1083,6 +1083,7 @@ export const QuestCompleteProp01: Story = {
     // node-2: A2インスタンス (φ→((φ→φ)→φ))→((φ→(φ→φ))→(φ→φ))
     // node-4: A1₁インスタンス φ→((φ→φ)→φ)
     // 結論: (φ→(φ→φ))→(φ→φ)
+    await fitToContent(canvas);
     await userEvent.click(mpButton);
     await waitFor(() => {
       expect(mpButton).toHaveTextContent("Cancel");
@@ -1092,9 +1093,12 @@ export const QuestCompleteProp01: Story = {
     await userEvent.click(canvas.getByTestId("proof-node-node-2"));
 
     // MP₁結果ノード(node-7)が生成される
+    await fitToContent(canvas);
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-7")).toBeInTheDocument();
     });
+    // MP₁のみ — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- MP₂: A1₂インスタンス(antecedent) + MP₁結果(conditional) → φ→φ ---
     // node-6: A1₂インスタンス φ→(φ→φ)
@@ -1109,19 +1113,16 @@ export const QuestCompleteProp01: Story = {
     await userEvent.click(canvas.getByTestId("proof-node-node-7"));
 
     // MP₂結果ノード(node-8)が生成される = φ→φ
+    await fitToContent(canvas);
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-8")).toBeInTheDocument();
     });
 
     // --- 最終確認: ゴール達成 ---
     await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
+      expect(goalPanel).toHaveTextContent("1 / 1");
     });
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
-    );
+    await expect(goalPanel).toHaveTextContent("Proved!");
   },
 };
 

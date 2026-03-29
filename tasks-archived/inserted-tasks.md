@@ -372,3 +372,8 @@
   - `scripts/build-with-storybook.mjs`: storybook build → public/storybook に移動 → next build → cleanup
 
 - [x] すべてのビルトインクエストについて、一個ずつ、以下のようなタスクリストを ./quest-stories.md に作る → `tasks/quest-stories.md` に全258クエスト分作成
+
+- [x] http://localhost:13006/?path=/story/pages-workspace--quest-complete-sc-01-from-hub などは、
+  - 各ステップで、クエストが完了すべきでないタイミングで完了してないこと(provedとなっていない)をassertもするべきだ
+  - [x] まずはこれをするタスクリストを各クエストについて作る (1 by 1) → `tasks/quest-intermediate-asserts.md` に作成
+  - [x] 全13ストーリーに中間assert追加完了 → `tasks-archived/quest-intermediate-asserts.md`

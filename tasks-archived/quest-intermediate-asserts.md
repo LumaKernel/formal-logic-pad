@@ -17,6 +17,7 @@
 - [x] `QuestCompleteTab01FromHub` — step1後に `"0 / 1"` assert追加。step2は既存。step3(¬→)後は矛盾自動検出のため除外
 - [x] `QuestCompleteAt01FromHub` — step1後に `"0 / 1"` assert追加。step2は既存。step3(α F∨)後はゴール自動達成のため除外
 
-## Interactive / 基本ストーリー（部分完了）
+## Interactive / 基本ストーリー — 全完了
 
+- [x] `QuestCompleteProp01` — fitToContent追加でローカル不安定を修正。MP₁後に `"0 / 1"` assert追加
 - [x] `QuestCompleteNd01Interactive` — step1(仮定追加)後に `"0 / 1"` assert追加。step2(式編集後)は既存のassertをgoalPanelに統一
