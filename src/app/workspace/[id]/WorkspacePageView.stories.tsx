@@ -968,6 +968,43 @@ function buildCompletedQuestWorkspace(questId: string): {
 }
 
 /**
+ * TAB/ATノードを拡大エディタ経由で編集するヘルパー。
+ * directExpandedOpen により dblClick で TabExpandedEditor が開く。
+ */
+async function editNodeViaExpandedEditor(
+  canvas: ReturnType<typeof within>,
+  nodeId: string,
+  formulaText: string,
+): Promise<void> {
+  const display = canvas.getByTestId(
+    `proof-node-${nodeId satisfies string}-editor-display`,
+  );
+  await userEvent.dblClick(display);
+  // TabExpandedEditor は portal で body に描画される
+  await waitFor(() => {
+    expect(screen.getByTestId("workspace-expanded-editor")).toBeInTheDocument();
+  });
+  // FormulaListEditor の最初の入力欄をクリックして編集モードに入る
+  const editorDisplay = screen.getByTestId(
+    "workspace-expanded-editor-formulas-editor-0-display",
+  );
+  await userEvent.click(editorDisplay);
+  const editorInput = screen.getByTestId(
+    "workspace-expanded-editor-formulas-editor-0-input-input",
+  );
+  await userEvent.type(editorInput, formulaText);
+  // 入力を確定（FormulaEditor の編集モードを抜ける）
+  await userEvent.tab();
+  // 閉じるボタンをクリック
+  const closeBtn = screen.getByTestId("workspace-expanded-editor-close");
+  await userEvent.click(closeBtn);
+  // エディタが閉じたことを確認
+  await waitFor(() => {
+    expect(screen.queryByTestId("workspace-expanded-editor")).toBeNull();
+  });
+}
+
+/**
  * prop-01: Hilbert体系 φ→φ 完全インタラクション。
  * 公理スキーマ→SubstitutionEdge→インスタンス構造の初期状態から、
  * MP適用→ゴール達成までのユーザー操作を完全に再現する。
@@ -2318,12 +2355,8 @@ export const QuestCompleteTab01FullFlow: Story = {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
 
-    // --- Step 2: node-1の式を ~(phi -> phi) に編集 ---
-    const display1 = canvas.getByTestId("proof-node-node-1-editor-display");
-    await userEvent.dblClick(display1);
-    const input1 = canvas.getByTestId("proof-node-node-1-editor-input-input");
-    await userEvent.type(input1, "~(phi -> phi)");
-    await userEvent.tab();
+    // --- Step 2: node-1の式を ~(phi -> phi) に編集（拡大エディタ経由） ---
+    await editNodeViaExpandedEditor(canvas, "node-1", "~(phi -> phi)");
 
     // スタンドアロンノードではゴール未達成
     await new Promise((resolve) => setTimeout(resolve, 300));
@@ -2431,12 +2464,8 @@ export const QuestCompleteAt01FullFlow: Story = {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
 
-    // --- Step 2: node-1の式を F:phi \/ ~phi に編集 ---
-    const display1 = canvas.getByTestId("proof-node-node-1-editor-display");
-    await userEvent.dblClick(display1);
-    const input1 = canvas.getByTestId("proof-node-node-1-editor-input-input");
-    await userEvent.type(input1, "F:phi \\/ ~phi");
-    await userEvent.tab();
+    // --- Step 2: node-1の式を F:phi \/ ~phi に編集（拡大エディタ経由） ---
+    await editNodeViaExpandedEditor(canvas, "node-1", "F:phi \\/ ~phi");
 
     // スタンドアロンノードではゴール未達成
     await new Promise((resolve) => setTimeout(resolve, 300));
@@ -3205,12 +3234,8 @@ export const QuestCompleteTab01FromHub: Story = {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
 
-    // Step 2: node-1の式を ~(phi -> phi) に編集
-    const display1 = canvas.getByTestId("proof-node-node-1-editor-display");
-    await userEvent.dblClick(display1);
-    const input1 = canvas.getByTestId("proof-node-node-1-editor-input-input");
-    await userEvent.type(input1, "~(phi -> phi)");
-    await userEvent.tab();
+    // Step 2: node-1の式を ~(phi -> phi) に編集（拡大エディタ経由）
+    await editNodeViaExpandedEditor(canvas, "node-1", "~(phi -> phi)");
 
     // スタンドアロンノードではゴール未達成
     await new Promise((resolve) => setTimeout(resolve, 300));
@@ -3361,12 +3386,8 @@ export const QuestCompleteAt01FromHub: Story = {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
 
-    // Step 2: node-1の式を F:phi \/ ~phi に編集
-    const display1 = canvas.getByTestId("proof-node-node-1-editor-display");
-    await userEvent.dblClick(display1);
-    const input1 = canvas.getByTestId("proof-node-node-1-editor-input-input");
-    await userEvent.type(input1, "F:phi \\/ ~phi");
-    await userEvent.tab();
+    // Step 2: node-1の式を F:phi \/ ~phi に編集（拡大エディタ経由）
+    await editNodeViaExpandedEditor(canvas, "node-1", "F:phi \\/ ~phi");
 
     // スタンドアロンノードではゴール未達成
     await new Promise((resolve) => setTimeout(resolve, 300));
