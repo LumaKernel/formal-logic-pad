@@ -111,6 +111,27 @@
 
 ---
 
+## 2026-03-29 - [proof-pad] TAB消費者側をformulaTexts直接参照に移行
+
+- ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.65%, Lines 99.81%
+- **結果: Stmts 99.80%, Branch 99.06%, Funcs 90.65%, Lines 99.81%**（変動なし）
+- 実装内容:
+  - tabProofTreeRendererLogic.ts: formulaTexts をソースオブトゥルースとして使用、nodeTexts を formulaTexts.join(", ") から導出。フォールバックは splitByTopLevelComma で正確に分割
+  - ProofWorkspace.tsx: TAB規則適用時に formulaTexts をパラメータに直接渡す。TabExpandedEditor の value も formulaTexts から導出
+  - テスト更新: フォールバックテストを splitByTopLevelComma 方式に合わせて修正
+- 変更ファイル:
+  - src/lib/proof-pad/tabProofTreeRendererLogic.ts
+  - src/lib/proof-pad/tabProofTreeRendererLogic.test.ts
+  - src/lib/proof-pad/ProofWorkspace.tsx
+  - tasks/inserted-tasks.md
+- スクリーンショット: .screenshots/tab-formulatexts-migration.png
+- **今後のイテレーションへの学び:**
+  - TAB消費者のformulaTexts移行パターン: SC の sequentTexts と同様に formulaTexts をソースオブトゥルースとし、フォールバックは splitByTopLevelComma で分割
+  - テスト用 mkNode ヘルパーは formulaTexts を持たないため、フォールバックパスのテストとして機能する
+  - gh API rate limit に注意: gh run watch の連続呼び出しで 5000/h を消費しやすい
+
+---
+
 ## 2026-03-29 - [infinite-canvas] PLAY-IC-01〜04 デモストーリーのplay関数強化
 
 - ベースライン: Stmts 99.82%, Branch 99.16%, Funcs 90.57%, Lines 99.81%
