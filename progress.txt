@@ -18960,3 +18960,23 @@
   - useCallback依存配列にスタイル判定変数を追加し忘れやすい。新しい変数をrenderNodeで使う場合は依存配列も確認
   - Prettierフォーマットはコミット前にローカルで実行すること（CI 2回分のロスを防ぐ）
 ---
+---
+
+## 2026-03-29 04:25 - TAB用FormulaListDisplayコンポーネント
+- FormulaListDisplay.tsx + formulaListDisplayLogic.ts を新規作成
+  - SequentDisplay/SignedFormulaDisplayと同パターンのコンポーネント
+  - 論理式テキスト配列をFormulaSlot配列に変換し、カンマ区切りでシンタックスハイライト表示
+- EditableProofNode.tsx にTAB対応を追加
+  - formulaTextsプロップ追加
+  - displayFallbackとread-only表示でFormulaListDisplayを使用
+  - isFormulaList判定を追加（isSequent/isSignedFormulaの後に評価）
+- ProofWorkspace.tsx からnode.formulaTextsをEditableProofNodeに渡すように変更
+- テスト: formulaListDisplayLogic.test.ts (12テスト)
+- ストーリー: FormulaListDisplay.stories.tsx (6ストーリー、全てplay関数付き)
+- ModelAnswerDemo MediumProofをprop-04→prop-02に変更（CIタイムアウト対策）
+- tasks/inserted-tasks.md の文字化けを修正
+- カバレッジ: Stmts 99.8%, Branch 99.06%, Funcs 90.67%, Lines 99.81%
+- **今後のイテレーションへの学び:**
+  - FormulaSlotとtextToFormulaSlotはsequentDisplayLogic.tsから再利用できる。新しい表示コンポーネントで同じパターンを使う
+  - TABノードの表示判定はuseFormulaListEditor && isFormulaListTextで制御。単一論理式（カンマなし）はFormulaDisplayにフォールバック
+  - ModelAnswerDemo: prop-04(14ステップ)はCIの15秒タイムアウトに引っかかる場合がある。中規模ストーリーは7-10ステップに抑える
