@@ -5,6 +5,7 @@
 **タスク:** TabProofTreePanel のレンダリングを FormulaListDisplay に移行（シンタックスハイライト対応）
 
 **コンテキスト:**
+
 - ScProofTreePanel は SequentDisplay を使用
 - AtProofTreePanel は SignedFormulaDisplay を使用
 - TabProofTreePanel は現在プレーンテキスト（node.sequentText）で表示 ← ここを修正
