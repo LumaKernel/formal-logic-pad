@@ -19114,3 +19114,22 @@
   - SC証明: implication-rightを適用して前提 `phi ⇒ phi` が生成されると、identity公理として自動検出されゴール達成になる。SC中間assertでは証明木構造の自動完成に注意
   - TAB/AT FullFlowも同様の自動検出がある可能性がある（既存コメント「初期 + 1 中間チェックあり」）
 ---
+
+## 2026-03-30 - クエスト中間assert: FromHub + Interactive ストーリー一括対応
+- `QuestCompleteAt01FullFlow`: step1後assert追加、step3(α規則F∨)後は自動達成のため除外
+- `QuestCompletePred01FullFlow`: step1後assert追加、step2(代入)後はゴール自動達成のため除外
+- `QuestCompleteNd01FromHub`: step1,2,3後にassert追加
+- `QuestCompleteProp01FromHub`: 全8ステップ中7ステップ後にassert追加
+- `QuestCompleteSc01FromHub`: step1,2後にassert追加。step3(implication-right)後はidentity自動検出のため除外
+- `QuestCompleteTab01FromHub`: step1後にassert追加。step2は既存。step3(¬→)後は矛盾自動検出のため除外
+- `QuestCompleteAt01FromHub`: step1後にassert追加。step2は既存。step3(α F∨)後はゴール自動達成のため除外
+- `QuestCompleteNd01Interactive`: step1(仮定追加)後にassert追加。既存assertをgoalPanel変数に統一
+- `QuestCompleteProp01`: ローカルStorybookで既存ストーリーが不安定（MP操作でnode-7が生成されない）。stash前後で再現確認済み。私の変更起因ではない。CIで通る可能性あり。保留
+- FullFlowセクション全完了 + FromHubセクション全完了 + Interactive 1/2完了 → 完了項目をtasks-archivedに移動
+- 変更ファイル: WorkspacePageView.stories.tsx, tasks/quest-intermediate-asserts.md, tasks-archived/quest-intermediate-asserts.md
+- カバレッジ: Stmts 99.8%, Branch 99.06%, Funcs 90.64%, Lines 99.81%（変化なし）
+- **今後のイテレーションへの学び:**
+  - SC/TAB/AT体系のFromHubストーリーでもFullFlowと同じ自動検出パターンが適用される
+  - `QuestCompleteProp01` ストーリーはローカルで不安定。ビューポートサイズやノードのculling（仮想化による非表示）がMP操作に影響する可能性
+  - 1イテレーションで複数ストーリーをまとめて対応すると効率的（パターンが同じため）
+---
