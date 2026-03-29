@@ -1222,6 +1222,197 @@ export const QuestCompleteProp01ModelAnswer: Story = {
 };
 
 /**
+ * prop-02: Hilbert体系 ψ→(φ→φ) 完全インタラクション。
+ * prop-01 (φ→φ) を導出し、A1で「持ち上げ」てゴール達成する。
+ *
+ * 初期状態（buildModelAnswerWorkspace で axiom-only ステップから構築）:
+ *   node-1(schema) → node-2(instance): A2 (φ→((φ→φ)→φ))→((φ→(φ→φ))→(φ→φ))
+ *   node-3(schema) → node-4(instance): A1₁ φ→((φ→φ)→φ)
+ *   node-5(schema) → node-6(instance): A1₂ φ→(φ→φ)
+ *   node-7(schema) → node-8(instance): A1₃ (φ→φ)→(ψ→(φ→φ))
+ *
+ * ユーザー操作:
+ *   MP₁: node-4(antecedent) + node-2(conditional) → node-9
+ *   MP₂: node-6(antecedent) + node-9(conditional) → node-10 = φ→φ
+ *   MP₃: node-10(antecedent) + node-8(conditional) → node-11 = ψ→(φ→φ) ✓
+ */
+export const QuestCompleteProp02: Story = {
+  render: () => {
+    const quest = findQuestById(builtinQuests, "prop-02");
+    if (quest === undefined) {
+      throw new Error("Quest not found: prop-02");
+    }
+    const answer = modelAnswerRegistry.get("prop-02");
+    if (answer === undefined) {
+      throw new Error("Model answer not found: prop-02");
+    }
+    // 公理ステップのみ抽出（MP/noteを除外）→ スキーマ→SubstitutionEdge→インスタンス構造で配置
+    const axiomOnlyAnswer: ModelAnswer = {
+      questId: answer.questId,
+      steps: answer.steps.filter((step) => step._tag === "axiom"),
+    };
+    const result = buildModelAnswerWorkspace(quest, axiomOnlyAnswer);
+    if (result._tag !== "Ok") {
+      throw new Error(
+        `Failed to build axiom-only workspace: ${result._tag satisfies string}`,
+      );
+    }
+    const questInfo: GoalQuestInfo = {
+      description: quest.description,
+      hints: quest.hints,
+      learningPoint: quest.learningPoint,
+    };
+    return (
+      <StatefulWorkspace
+        initialWorkspace={result.workspace}
+        initialNotebookName={quest.title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // --- 初期状態: 4公理インスタンスが配置済み、ゴール未達成 ---
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
+      "Łukasiewicz",
+    );
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("0 / 1");
+
+    // 公理パレットとMPボタンが表示される
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette"),
+    ).toBeInTheDocument();
+    const mpButton = canvas.getByTestId("workspace-mp-button");
+    await expect(mpButton).toBeInTheDocument();
+
+    // 8ノード: 4スキーマ + 4インスタンス（fitToContent でビューポートに収める）
+    await fitToContent(canvas);
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
+    });
+    await expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-6")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-8")).toBeInTheDocument();
+
+    // --- MP₁: A1₁インスタンス(antecedent) + A2インスタンス(conditional) ---
+    // node-4: A1₁ φ→((φ→φ)→φ)
+    // node-2: A2 (φ→((φ→φ)→φ))→((φ→(φ→φ))→(φ→φ))
+    // 結論: (φ→(φ→φ))→(φ→φ)
+    await fitToContent(canvas);
+    await userEvent.click(mpButton);
+    await waitFor(() => {
+      expect(mpButton).toHaveTextContent("Cancel");
+    });
+    await userEvent.click(canvas.getByTestId("proof-node-node-4"));
+    await userEvent.click(canvas.getByTestId("proof-node-node-2"));
+
+    // MP₁結果ノード(node-9)が生成される
+    await fitToContent(canvas);
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-9")).toBeInTheDocument();
+    });
+    await expect(goalPanel).toHaveTextContent("0 / 1");
+
+    // --- MP₂: A1₂インスタンス(antecedent) + MP₁結果(conditional) → φ→φ ---
+    // node-6: A1₂ φ→(φ→φ)
+    // node-9: MP₁結果 (φ→(φ→φ))→(φ→φ)
+    // 結論: φ→φ
+    await userEvent.click(mpButton);
+    await waitFor(() => {
+      expect(mpButton).toHaveTextContent("Cancel");
+    });
+    await userEvent.click(canvas.getByTestId("proof-node-node-6"));
+    await userEvent.click(canvas.getByTestId("proof-node-node-9"));
+
+    // MP₂結果ノード(node-10)が生成される = φ→φ
+    await fitToContent(canvas);
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-10")).toBeInTheDocument();
+    });
+    // φ→φはゴールではない（ゴールは ψ→(φ→φ)）
+    await expect(goalPanel).toHaveTextContent("0 / 1");
+
+    // --- MP₃: φ→φ(antecedent) + A1₃インスタンス(conditional) → ψ→(φ→φ) ---
+    // node-10: MP₂結果 φ→φ
+    // node-8: A1₃ (φ→φ)→(ψ→(φ→φ))
+    // 結論: ψ→(φ→φ) (ゴール!)
+    await userEvent.click(mpButton);
+    await waitFor(() => {
+      expect(mpButton).toHaveTextContent("Cancel");
+    });
+    await userEvent.click(canvas.getByTestId("proof-node-node-10"));
+    await userEvent.click(canvas.getByTestId("proof-node-node-8"));
+
+    // MP₃結果ノード(node-11)が生成される = ψ→(φ→φ)
+    await fitToContent(canvas);
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-11")).toBeInTheDocument();
+    });
+
+    // --- 最終確認: ゴール達成 ---
+    await waitFor(() => {
+      expect(goalPanel).toHaveTextContent("1 / 1");
+    });
+    await expect(goalPanel).toHaveTextContent("Proved!");
+  },
+};
+
+/** prop-02: 模範解答ベースの完了状態（静的確認用） */
+export const QuestCompleteProp02ModelAnswer: Story = {
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("prop-02");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+
+    // --- 完了バナー確認 ---
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
+
+    // 体系バッジに正しい体系名が表示される
+    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
+      "Łukasiewicz",
+    );
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("1 / 1");
+    await expect(goalPanel).toHaveTextContent("Proved!");
+
+    // Fit to content で全ノードをビューポート内に収める（culling対策）
+    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
+
+    // --- ノード存在確認 ---
+    // note-0: node-1, A2: schema=node-2/inst=node-3, A1₁: schema=node-4/inst=node-5,
+    // MP₁: node-6, A1₂: schema=node-7/inst=node-8, MP₂: node-9,
+    // note-1: node-10, A1₃: schema=node-11/inst=node-12, MP₃(goal): node-13
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
+    });
+    await expect(canvas.getByTestId("proof-node-node-5")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-8")).toBeInTheDocument();
+    await expect(canvas.getByTestId("proof-node-node-12")).toBeInTheDocument();
+  },
+};
+
+/**
  * nd-01: 自然演繹 NM φ→φ インタラクション。
  * ND体系のUI操作を完全に再現する:
  *
