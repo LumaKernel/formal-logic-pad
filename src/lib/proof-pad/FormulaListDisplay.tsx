@@ -99,7 +99,8 @@ export function FormulaListDisplay({
   testId,
 }: FormulaListDisplayProps) {
   const displayData: FormulaListDisplayData = useMemo(() => {
-    if (formulaTexts !== undefined) return formulaTextsToDisplayData(formulaTexts);
+    if (formulaTexts !== undefined)
+      return formulaTextsToDisplayData(formulaTexts);
     if (text !== undefined)
       return formulaTextsToDisplayData(splitByTopLevelComma(text));
     return { formulas: [] };
