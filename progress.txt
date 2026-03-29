@@ -19081,3 +19081,15 @@
   - ビルド前に`public/storybook/`の残骸をクリーンアップ必須（前回ビルドの残りがstaticDirsに含まれる）
   - Storybookの静的ビルドは相対パスを使うため、サブパス配信時にbaseURL設定は不要
 ---
+
+## 2026-03-30 - [quest] 全ビルトインクエストのストーリータスクリスト作成
+- 実装した内容:
+  - `tasks/quest-stories.md` に全258クエスト分のストーリー確認タスクリストを自動生成
+  - スクリプト `scripts/gen-quest-stories-tasks.local.ts` で builtinQuests.ts からID/カテゴリ/タイトルを抽出
+  - カテゴリごとにグループ化して見やすく整理
+- 変更したファイル:
+  - tasks/quest-stories.md (新規、258クエスト分)
+  - scripts/gen-quest-stories-tasks.local.ts (新規、ローカル用)
+  - tasks/inserted-tasks.md (タスク完了)
+- カバレッジ: 変化なし
+---
