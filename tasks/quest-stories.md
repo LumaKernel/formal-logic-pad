@@ -15,7 +15,7 @@
 - [x] prop-03: 推移律の準備 — A1直接インスタンス1ステップ、即ゴール達成確認済み
   - [x] Quest Complete ストーリー作成（QuestCompleteProp03 + QuestCompleteProp03ModelAnswer）
   - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
-- [ ] prop-04: 推移律 (Hypothetical Syllogism)
+- [-] prop-04: 推移律 (Hypothetical Syllogism)
   - [ ] Quest Complete ストーリーが存在していなければ作成する
   - [ ] 模範解答とクエスト攻略ストーリーをそれぞれ比べて、意図通りにそれぞれなっているか確認する
     - 必要に応じてそれぞれを修正する
