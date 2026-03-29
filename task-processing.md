@@ -1,10 +1,10 @@
-## タスク: `QuestCompleteNd01FullFlow` に中間 not-proved assert 追加
+## タスク: `QuestCompleteSc01FullFlow` に中間 not-proved assert 追加
 
-**出典:** `tasks/quest-intermediate-asserts.md` > FullFlow ストーリー > 2番目
+**出典:** `tasks/quest-intermediate-asserts.md` > FullFlow ストーリー > 3番目
 
 ### 内容
 
-`QuestCompleteNd01FullFlow` ストーリーの play 関数で、証明の各ステップ後にクエストが**まだ完了していない**（`"0 / 1"`）ことを assert する。
+`QuestCompleteSc01FullFlow` ストーリーの play 関数で、証明の各ステップ後にクエストが**まだ完了していない**（`"0 / 1"`）ことを assert する。
 
 ### テスト計画
 
@@ -14,4 +14,4 @@
 
 ### ストーリー計画
 
-- 既存 `QuestCompleteNd01FullFlow` を更新（新規ストーリー追加なし）
+- 既存 `QuestCompleteSc01FullFlow` を更新（新規ストーリー追加なし）

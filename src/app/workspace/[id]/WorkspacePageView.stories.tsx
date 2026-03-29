@@ -2223,9 +2223,8 @@ export const QuestCompleteSc01FullFlow: Story = {
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Sequent Calculus LK",
     );
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "0 / 1",
-    );
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // SCパレットが表示される
     await expect(
@@ -2239,6 +2238,8 @@ export const QuestCompleteSc01FullFlow: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
+    // 空シーケントノード追加 — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Step 2: node-1の式を ⇒ phi -> phi に編集（SequentExpandedEditor直接開く） ---
     const display = canvas.getByTestId("proof-node-node-1-editor-display");
@@ -2267,6 +2268,8 @@ export const QuestCompleteSc01FullFlow: Story = {
         screen.queryByTestId("workspace-expanded-editor"),
       ).not.toBeInTheDocument();
     });
+    // ⇒ phi -> phi 入力完了 — まだゴール未達成（孤立ノード）
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Step 3: implication-right規則を適用 ---
     await userEvent.click(
@@ -2282,6 +2285,8 @@ export const QuestCompleteSc01FullFlow: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
     });
+    // Note: implication-right適用後、phi ⇒ phi はidentity公理として自動検出されるため
+    // この時点でゴール達成になる場合がある。明示的にidentityを適用して確認する。
 
     // --- Step 4: identity規則を適用（公理 → プロンプトなし） ---
     await userEvent.click(
@@ -2292,13 +2297,9 @@ export const QuestCompleteSc01FullFlow: Story = {
 
     // --- 最終確認: ゴール達成 ---
     await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
+      expect(goalPanel).toHaveTextContent("1 / 1");
     });
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
-    );
+    await expect(goalPanel).toHaveTextContent("Proved!");
   },
 };
 
