@@ -16,6 +16,7 @@ import type { TabInferenceEdge } from "./inferenceEdge";
 import { getInferenceEdgeLabel, isTabInferenceEdge } from "./inferenceEdge";
 import type { InferenceEdge } from "./inferenceEdge";
 import type { WorkspaceNode } from "./workspaceState";
+import { splitByTopLevelComma } from "./tabApplicationLogic";
 
 // --- タブロー証明木表示用データ構造 ---
 
@@ -125,12 +126,12 @@ function analyzeTabWorkspaceGraph(
     outgoingEdge.set(edge.conclusionNodeId, edge);
   }
 
-  // nodeId → formulaTexts（ソースオブトゥルース）
+  // nodeId → formulaTexts（ソースオブトゥルース。なければformulaTextからフォールバック分割）
   const nodeFormulaTexts = new Map<string, readonly string[]>();
   // nodeId → 表示用テキスト（formulaTexts から導出）
   const nodeTexts = new Map<string, string>();
   for (const node of nodes) {
-    const texts = node.formulaTexts ?? [];
+    const texts = node.formulaTexts ?? splitByTopLevelComma(node.formulaText);
     nodeFormulaTexts.set(node.id, texts);
     nodeTexts.set(node.id, texts.join(", "));
   }
