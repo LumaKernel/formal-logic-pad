@@ -12,7 +12,7 @@
 - [x] `QuestCompleteProp01FullFlow` — 全8ステップ中7ステップ後に `"0 / 1"` assert を追加（最終ステップのみ `"1 / 1"` + `"Proved!"`）
 - [x] `QuestCompleteNd01FullFlow` — 全4ステップ中3ステップ後に `"0 / 1"` assert を追加
 - [x] `QuestCompleteSc01FullFlow` — step1,2後に `"0 / 1"` assert追加。step3(implication-right)後はidentity自動検出でゴール達成するため除外
-- [ ] `QuestCompleteTab01FullFlow` — 現在: 初期 + 1 中間チェックあり。全ステップに拡充
+- [-] `QuestCompleteTab01FullFlow` — 現在: 初期 + 1 中間チェックあり。全ステップに拡充
 - [ ] `QuestCompleteAt01FullFlow` — 現在: 初期 + 1 中間チェックあり。全ステップに拡充
 - [ ] `QuestCompletePred01FullFlow` — 現在: 初期 `"0 / 1"` のみ。各ステップ後に `"0 / 1"` assert を追加
 

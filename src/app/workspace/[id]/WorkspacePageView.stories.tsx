@@ -2349,9 +2349,8 @@ export const QuestCompleteTab01FullFlow: Story = {
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Tableau Calculus TAB (Propositional)",
     );
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "0 / 1",
-    );
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // TABパレットが表示される
     await expect(
@@ -2365,15 +2364,15 @@ export const QuestCompleteTab01FullFlow: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
+    // 空ノード追加 — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Step 2: node-1の式を ~(phi -> phi) に編集（拡大エディタ経由） ---
     await editNodeViaExpandedEditor(canvas, "node-1", "~(phi -> phi)");
 
     // スタンドアロンノードではゴール未達成
     await new Promise((resolve) => setTimeout(resolve, 300));
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "0 / 1",
-    );
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Step 3: ¬→規則を適用 ---
     await userEvent.click(
@@ -2390,6 +2389,7 @@ export const QuestCompleteTab01FullFlow: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
     });
+    // Note: ¬→適用後、node-2にはφと¬φが含まれ、矛盾が自動検出される場合がある
 
     // --- Step 4: BS規則で枝を閉じる ---
     await userEvent.click(
@@ -2401,13 +2401,9 @@ export const QuestCompleteTab01FullFlow: Story = {
 
     // --- 最終確認: ゴール達成 ---
     await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
+      expect(goalPanel).toHaveTextContent("1 / 1");
     });
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
-    );
+    await expect(goalPanel).toHaveTextContent("Proved!");
   },
 };
 
