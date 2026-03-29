@@ -367,14 +367,15 @@ describe("convertTabWorkspaceToTreeDisplay", () => {
     expect(root?.sequentText).toBe("¬P, P");
   });
 
-  it("formulaTexts がないノードは formulaText からフォールバックする", () => {
+  it("formulaTexts がないノードは formulaText を splitByTopLevelComma でフォールバック分割する", () => {
     const nodes = [mkNode("n1", "¬P, P")];
     const edges: readonly InferenceEdge[] = [];
     const result = convertTabWorkspaceToTreeDisplay(nodes, edges, "n1");
 
     const root = result.nodes.get(result.rootId);
-    // formulaTexts がないので formulaText を単一要素配列として使う
-    expect(root?.formulaTexts).toEqual(["¬P, P"]);
+    // formulaTexts がないので formulaText を splitByTopLevelComma で分割
+    expect(root?.formulaTexts).toEqual(["¬P", "P"]);
+    expect(root?.sequentText).toBe("¬P, P");
   });
 
   it("空の formulaText を持つノードは空配列にフォールバックする", () => {
