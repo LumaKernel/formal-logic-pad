@@ -18936,3 +18936,27 @@
   - parserが返す単一変数のASTタグは`MetaVariable`（`PropositionalVariable`ではない）
   - SC関連の全消費者がsequentTextsを参照可能になった。今後新しいSC消費者を追加する場合もsequentTextsを優先利用する
 ---
+
+## 2026-03-29 - [proof-pad] TAB拡大エディタ
+- 実装した内容:
+  - TabExpandedEditorコンポーネント作成（BaseExpandedEditor + FormulaListEditor）
+  - FormulaEditor に directExpandedOpen prop 追加（インライン編集スキップ）
+  - EditableProofNode に useFormulaListEditor prop 追加
+  - ProofWorkspace に isTableauStyle/isAnalyticTableauStyle 判定追加、TAB/ATノードで TabExpandedEditor を表示
+  - TabExpandedEditor.stories.tsx 追加（8ストーリー、全play関数付き）
+  - WorkspacePageView のTAB/ATクエストストーリーを拡大エディタ経由のフローに更新
+- 変更したファイル:
+  - src/lib/formula-input/TabExpandedEditor.tsx (新規)
+  - src/lib/formula-input/TabExpandedEditor.stories.tsx (新規)
+  - src/lib/formula-input/FormulaEditor.tsx (directExpandedOpen prop)
+  - src/lib/formula-input/index.ts (エクスポート追加)
+  - src/lib/proof-pad/EditableProofNode.tsx (useFormulaListEditor prop)
+  - src/lib/proof-pad/ProofWorkspace.tsx (TABモーダル分岐、isTableauStyle)
+  - src/lib/proof-pad/CLAUDE.md (TAB拡大エディタのドキュメント追加)
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx (TAB/ATストーリー更新)
+- カバレッジ: Stmts 99.8%, Branch 99.1%, Funcs 90.62%, Lines 99.81% (ベースラインとほぼ同等)
+- **今後のイテレーションへの学び:**
+  - TAB/ATノードでdirectExpandedOpenを有効にすると、既存のインライン編集ストーリーが壊れる。事前にストーリーの影響範囲を確認すること
+  - useCallback依存配列にスタイル判定変数を追加し忘れやすい。新しい変数をrenderNodeで使う場合は依存配列も確認
+  - Prettierフォーマットはコミット前にローカルで実行すること（CI 2回分のロスを防ぐ）
+---
