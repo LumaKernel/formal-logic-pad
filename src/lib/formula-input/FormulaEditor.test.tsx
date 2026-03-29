@@ -1030,6 +1030,117 @@ describe("FormulaEditor - 複数行テキストの自動モーダル起動", () 
   });
 });
 
+// --- allowSequentText + onOpenExpanded の自動モーダル起動テスト ---
+
+describe("FormulaEditor - allowSequentText で直接拡大エディタ起動", () => {
+  it("allowSequentText=true + onOpenExpanded指定時、クリックで直接onOpenExpandedが呼ばれる", () => {
+    const handleExpand = vi.fn();
+    render(
+      <EditorWrapper
+        initialValue="⇒ phi"
+        allowSequentText={true}
+        onOpenExpanded={handleExpand}
+      />,
+    );
+
+    // 表示モードでクリック
+    fireEvent.click(screen.getByTestId("editor-display"));
+
+    // onOpenExpandedが直接呼ばれる
+    expect(handleExpand).toHaveBeenCalledOnce();
+    // 編集モードには遷移しない
+    expect(screen.getByTestId("editor-display")).toBeInTheDocument();
+    expect(screen.queryByTestId("editor-edit")).not.toBeInTheDocument();
+  });
+
+  it("allowSequentText=true + onOpenExpanded指定時、dblclickトリガーでも直接onOpenExpandedが呼ばれる", () => {
+    const handleExpand = vi.fn();
+    render(
+      <EditorWrapper
+        initialValue="⇒ phi"
+        allowSequentText={true}
+        onOpenExpanded={handleExpand}
+        editTrigger="dblclick"
+      />,
+    );
+
+    fireEvent.doubleClick(screen.getByTestId("editor-display"));
+
+    expect(handleExpand).toHaveBeenCalledOnce();
+    expect(screen.getByTestId("editor-display")).toBeInTheDocument();
+    expect(screen.queryByTestId("editor-edit")).not.toBeInTheDocument();
+  });
+
+  it("allowSequentText=true + onOpenExpanded指定時、Enterキーでも直接onOpenExpandedが呼ばれる", () => {
+    const handleExpand = vi.fn();
+    render(
+      <EditorWrapper
+        initialValue="⇒ phi"
+        allowSequentText={true}
+        onOpenExpanded={handleExpand}
+      />,
+    );
+
+    const display = screen.getByTestId("editor-display");
+    fireEvent.keyDown(display, { key: "Enter" });
+
+    expect(handleExpand).toHaveBeenCalledOnce();
+  });
+
+  it("allowSequentText=true + onOpenExpanded指定時、forceEditModeでも直接onOpenExpandedが呼ばれる", async () => {
+    const handleExpand = vi.fn();
+    const { rerender } = render(
+      <EditorWrapper
+        initialValue="⇒ phi"
+        allowSequentText={true}
+        onOpenExpanded={handleExpand}
+        forceEditMode={false}
+      />,
+    );
+
+    rerender(
+      <EditorWrapper
+        initialValue="⇒ phi"
+        allowSequentText={true}
+        onOpenExpanded={handleExpand}
+        forceEditMode={true}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(handleExpand).toHaveBeenCalledOnce();
+    });
+  });
+
+  it("allowSequentText=false では onOpenExpanded は自動で呼ばれない（通常の編集モード）", () => {
+    const handleExpand = vi.fn();
+    render(
+      <EditorWrapper
+        initialValue="⇒ phi"
+        allowSequentText={false}
+        onOpenExpanded={handleExpand}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("editor-display"));
+
+    // 編集モードに入る
+    expect(handleExpand).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+  });
+
+  it("allowSequentText=true + onOpenExpanded未指定では通常の編集モードに入る", () => {
+    render(
+      <EditorWrapper initialValue="⇒ phi" allowSequentText={true} />,
+    );
+
+    fireEvent.click(screen.getByTestId("editor-display"));
+
+    // onOpenExpandedがないので通常の編集モード
+    expect(screen.getByTestId("editor-edit")).toBeInTheDocument();
+  });
+});
+
 // --- 内蔵拡大モーダルのテスト ---
 
 describe("FormulaEditor - 内蔵拡大モーダル", () => {

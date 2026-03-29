@@ -184,6 +184,12 @@ export function FormulaEditor({
   // --- イベントハンドラ ---
 
   const enterEditMode = useCallback(() => {
+    // シーケント計算モードでは直接シーケント拡大エディタを開く
+    // （インラインテキスト編集を経由しない）
+    if (allowSequentText && onOpenExpanded !== undefined) {
+      onOpenExpanded();
+      return;
+    }
     // 複数行テキストは一行インライン編集に適さないため、
     // 拡大エディタに遷移する（外部ハンドラ or 内蔵モーダル）
     if (value.includes("\n")) {
@@ -195,7 +201,7 @@ export function FormulaEditor({
       return;
     }
     setMode("editing");
-  }, [setMode, value, onOpenExpanded]);
+  }, [setMode, value, onOpenExpanded, allowSequentText]);
 
   // 外部から編集モードを強制開始
   useEffect(() => {

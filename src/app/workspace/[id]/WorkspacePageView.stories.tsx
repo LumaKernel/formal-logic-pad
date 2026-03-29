@@ -7,7 +7,14 @@
 
 import { useState, useCallback } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { fn, expect, within, userEvent, waitFor } from "storybook/test";
+import {
+  fn,
+  expect,
+  within,
+  userEvent,
+  waitFor,
+  screen,
+} from "storybook/test";
 import { ThemeProvider } from "../../../lib/theme/ThemeProvider";
 import { defaultProofMessages } from "../../../lib/proof-pad";
 import {
@@ -2193,12 +2200,33 @@ export const QuestCompleteSc01FullFlow: Story = {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
 
-    // --- Step 2: node-1の式を ⇒ phi -> phi に編集 ---
+    // --- Step 2: node-1の式を ⇒ phi -> phi に編集（SequentExpandedEditor直接開く） ---
     const display = canvas.getByTestId("proof-node-node-1-editor-display");
     await userEvent.dblClick(display);
-    const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
-    await userEvent.type(input, "⇒ phi -> phi");
-    await userEvent.tab();
+    // SequentExpandedEditorが直接開く（createPortalでdocument.bodyに描画されるためscreenを使用）
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("workspace-expanded-editor"),
+      ).toBeInTheDocument();
+    });
+    // 後件エディタの最初の項目をクリックして "phi -> phi" を入力
+    const succedentDisplay = screen.getByTestId(
+      "workspace-expanded-editor-succedents-editor-0-display",
+    );
+    await userEvent.click(succedentDisplay);
+    const succedentInput = screen.getByTestId(
+      "workspace-expanded-editor-succedents-editor-0-input-input",
+    );
+    await userEvent.type(succedentInput, "phi -> phi");
+    // エディタを閉じる
+    await userEvent.click(
+      screen.getByTestId("workspace-expanded-editor-close"),
+    );
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("workspace-expanded-editor"),
+      ).not.toBeInTheDocument();
+    });
 
     // --- Step 3: implication-right規則を適用 ---
     await userEvent.click(
@@ -3012,12 +3040,33 @@ export const QuestCompleteSc01FromHub: Story = {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
 
-    // Step 2: node-1の式を ⇒ phi -> phi に編集
-    const display = canvas.getByTestId("proof-node-node-1-editor-display");
-    await userEvent.dblClick(display);
-    const input = canvas.getByTestId("proof-node-node-1-editor-input-input");
-    await userEvent.type(input, "⇒ phi -> phi");
-    await userEvent.tab();
+    // Step 2: node-1の式を ⇒ phi -> phi に編集（SequentExpandedEditor直接開く）
+    const display1 = canvas.getByTestId("proof-node-node-1-editor-display");
+    await userEvent.dblClick(display1);
+    // SequentExpandedEditorが直接開く（createPortalでdocument.bodyに描画されるためscreenを使用）
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("workspace-expanded-editor"),
+      ).toBeInTheDocument();
+    });
+    // 後件エディタに "phi -> phi" を入力
+    const succedentDisplay = screen.getByTestId(
+      "workspace-expanded-editor-succedents-editor-0-display",
+    );
+    await userEvent.click(succedentDisplay);
+    const succedentInput = screen.getByTestId(
+      "workspace-expanded-editor-succedents-editor-0-input-input",
+    );
+    await userEvent.type(succedentInput, "phi -> phi");
+    // エディタを閉じる
+    await userEvent.click(
+      screen.getByTestId("workspace-expanded-editor-close"),
+    );
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("workspace-expanded-editor"),
+      ).not.toBeInTheDocument();
+    });
 
     // Step 3: implication-right規則を適用
     await userEvent.click(
