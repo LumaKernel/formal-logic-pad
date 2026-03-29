@@ -55,6 +55,8 @@ export interface FormulaEditorProps {
   readonly forceEditMode?: boolean;
   /** パースエラーでもシーケントテキスト（⇒含む）なら編集モードを離脱できるようにする */
   readonly allowSequentText?: boolean;
+  /** ダブルクリック等で直接拡大エディタを開く（インライン編集をスキップ） */
+  readonly directExpandedOpen?: boolean;
   /** パース失敗時に表示モードで使うフォールバック表示（未指定時はプレースホルダー表示） */
   readonly displayFallback?: React.ReactNode;
   /** 入力要素に追加適用するスタイル（背景色・ボーダーなどの上書き用） */
@@ -157,6 +159,7 @@ export function FormulaEditor({
   onOpenExpanded,
   forceEditMode,
   allowSequentText,
+  directExpandedOpen,
   displayFallback,
   inputStyle,
   testId,
@@ -184,9 +187,12 @@ export function FormulaEditor({
   // --- イベントハンドラ ---
 
   const enterEditMode = useCallback(() => {
-    // シーケント計算モードでは直接シーケント拡大エディタを開く
+    // シーケント計算/タブローモードでは直接拡大エディタを開く
     // （インラインテキスト編集を経由しない）
-    if (allowSequentText && onOpenExpanded !== undefined) {
+    if (
+      (allowSequentText || directExpandedOpen) &&
+      onOpenExpanded !== undefined
+    ) {
       onOpenExpanded();
       return;
     }
@@ -201,7 +207,7 @@ export function FormulaEditor({
       return;
     }
     setMode("editing");
-  }, [setMode, value, onOpenExpanded, allowSequentText]);
+  }, [setMode, value, onOpenExpanded, allowSequentText, directExpandedOpen]);
 
   // 外部から編集モードを強制開始
   useEffect(() => {

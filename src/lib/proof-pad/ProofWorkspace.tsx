@@ -31,6 +31,7 @@ import type { EditorMode } from "../formula-input/editorLogic";
 import { FormulaEditor } from "../formula-input/FormulaEditor";
 import { FormulaExpandedEditor } from "../formula-input/FormulaExpandedEditor";
 import { SequentExpandedEditor } from "../formula-input/SequentExpandedEditor";
+import { TabExpandedEditor } from "../formula-input/TabExpandedEditor";
 import { TermEditor } from "../formula-input/TermEditor";
 import { InfiniteCanvas } from "../infinite-canvas/InfiniteCanvas";
 import { CanvasItem } from "../infinite-canvas/CanvasItem";
@@ -1781,6 +1782,10 @@ export const ProofWorkspace = forwardRef<
   const isHilbertStyle = workspace.deductionSystem.style === "hilbert";
   const isSequentCalculusStyle =
     workspace.deductionSystem.style === "sequent-calculus";
+  const isTableauStyle =
+    workspace.deductionSystem.style === "tableau-calculus";
+  const isAnalyticTableauStyle =
+    workspace.deductionSystem.style === "analytic-tableau";
 
   // --- 公理パレット ---
 
@@ -5417,6 +5422,7 @@ export const ProofWorkspace = forwardRef<
               forceEditMode={editRequestNodeId === node.id}
               useSequentEditor={isSequentCalculusStyle}
               sequentTexts={node.sequentTexts}
+              useFormulaListEditor={isTableauStyle || isAnalyticTableauStyle}
               onEditNote={handleEditNote}
               highlighted={edgeBadgeEditState?.conclusionNodeId === node.id}
               testId={`proof-node-${node.id satisfies string}`}
@@ -7773,6 +7779,25 @@ export const ProofWorkspace = forwardRef<
             initialSuccedents={
               workspace.nodes.find((n) => n.id === expandedEditorNodeId)
                 ?.sequentTexts?.succedentTexts
+            }
+            onChange={handleExpandedChange}
+            onClose={handleCloseExpanded}
+            onOpenSyntaxHelp={onOpenSyntaxHelp}
+            testId={
+              testId
+                ? `${testId satisfies string}-expanded-editor`
+                : "expanded-editor"
+            }
+          />
+        ) : isTableauStyle || isAnalyticTableauStyle ? (
+          <TabExpandedEditor
+            value={
+              workspace.nodes.find((n) => n.id === expandedEditorNodeId)
+                ?.formulaText ?? ""
+            }
+            initialFormulas={
+              workspace.nodes.find((n) => n.id === expandedEditorNodeId)
+                ?.formulaTexts
             }
             onChange={handleExpandedChange}
             onClose={handleCloseExpanded}

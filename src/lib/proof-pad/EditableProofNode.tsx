@@ -99,6 +99,8 @@ export interface EditableProofNodeProps {
   readonly useSequentEditor?: boolean;
   /** SCノードの構造化シーケントデータ（SequentDisplay の再パースをスキップ） */
   readonly sequentTexts?: SequentTextParts;
+  /** FormulaListEditorベースの拡大エディタを直接開くモード（TAB系で使用） */
+  readonly useFormulaListEditor?: boolean;
   /** ノートノードの編集開始コールバック（kind="note"のダブルクリック時） */
   readonly onEditNote?: (id: string) => void;
   /** ノードをハイライト表示するか（代入ポップオーバー等で対象ノードを示す） */
@@ -427,6 +429,7 @@ export function EditableProofNode({
   forceEditMode,
   useSequentEditor,
   sequentTexts,
+  useFormulaListEditor,
   onEditNote,
   highlighted = false,
   testId,
@@ -677,6 +680,7 @@ export function EditableProofNode({
             editTrigger={editTrigger}
             forceEditMode={forceEditMode}
             allowSequentText={useSequentEditor}
+            directExpandedOpen={useFormulaListEditor}
             displayFallback={
               useSequentEditor && isSequentText(formulaText) ? (
                 <SequentDisplay

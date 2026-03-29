@@ -36,6 +36,8 @@ export {
 export type { SequentParts } from "./sequentEditorLogic";
 export { SequentExpandedEditor } from "./SequentExpandedEditor";
 export type { SequentExpandedEditorProps } from "./SequentExpandedEditor";
+export { TabExpandedEditor } from "./TabExpandedEditor";
+export type { TabExpandedEditorProps } from "./TabExpandedEditor";
 export { SequentPreview } from "./SequentPreview";
 export type { SequentPreviewProps } from "./SequentPreview";
 export { FormulaListEditor } from "./FormulaListEditor";
