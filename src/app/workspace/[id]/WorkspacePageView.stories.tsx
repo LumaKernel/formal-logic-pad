@@ -7,14 +7,7 @@
 
 import { useState, useCallback } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import {
-  fn,
-  expect,
-  within,
-  userEvent,
-  waitFor,
-  screen,
-} from "storybook/test";
+import { fn, expect, within, userEvent, waitFor, screen } from "storybook/test";
 import { ThemeProvider } from "../../../lib/theme/ThemeProvider";
 import { defaultProofMessages } from "../../../lib/proof-pad";
 import {

@@ -1130,9 +1130,7 @@ describe("FormulaEditor - allowSequentText で直接拡大エディタ起動", (
   });
 
   it("allowSequentText=true + onOpenExpanded未指定では通常の編集モードに入る", () => {
-    render(
-      <EditorWrapper initialValue="⇒ phi" allowSequentText={true} />,
-    );
+    render(<EditorWrapper initialValue="⇒ phi" allowSequentText={true} />);
 
     fireEvent.click(screen.getByTestId("editor-display"));
 
