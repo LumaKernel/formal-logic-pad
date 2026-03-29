@@ -178,6 +178,12 @@ const ProofNodeKindSchema = Schema.transform(Schema.String, Schema.String, {
 /** NodeRoleのSchema（レガシー互換: 不明なroleはundefinedにフィルタ） */
 const NodeRoleSchema = Schema.Literal("axiom");
 
+/** SequentTextParts のシリアライゼーションSchema */
+const SequentTextPartsSchema = Schema.Struct({
+  antecedentTexts: Schema.Array(Schema.String),
+  succedentTexts: Schema.Array(Schema.String),
+});
+
 /** WorkspaceNodeのSchema */
 const WorkspaceNodeSchema = Schema.transform(
   Schema.Struct({
@@ -189,6 +195,7 @@ const WorkspaceNodeSchema = Schema.transform(
     genVariableName: Schema.optional(Schema.String),
     role: Schema.optional(Schema.Union(NodeRoleSchema, Schema.String)),
     formulaTexts: Schema.optional(Schema.Array(Schema.String)),
+    sequentTexts: Schema.optional(SequentTextPartsSchema),
     // レガシーフィールドは無視（protection等）
   }),
   Schema.typeSchema(
@@ -200,6 +207,7 @@ const WorkspaceNodeSchema = Schema.transform(
       position: PointSchema,
       role: Schema.optional(NodeRoleSchema),
       formulaTexts: Schema.optional(Schema.Array(Schema.String)),
+      sequentTexts: Schema.optional(SequentTextPartsSchema),
     }),
   ),
   {
@@ -214,6 +222,9 @@ const WorkspaceNodeSchema = Schema.transform(
         position: raw.position,
         ...(raw.formulaTexts !== undefined
           ? { formulaTexts: raw.formulaTexts }
+          : {}),
+        ...(raw.sequentTexts !== undefined
+          ? { sequentTexts: raw.sequentTexts }
           : {}),
       };
       // レガシー互換: "axiom"のみ有効、それ以外は無視
@@ -232,6 +243,14 @@ const WorkspaceNodeSchema = Schema.transform(
       ...(node.role !== undefined ? { role: node.role } : {}),
       ...(node.formulaTexts !== undefined
         ? { formulaTexts: [...node.formulaTexts] }
+        : {}),
+      ...(node.sequentTexts !== undefined
+        ? {
+            sequentTexts: {
+              antecedentTexts: [...node.sequentTexts.antecedentTexts],
+              succedentTexts: [...node.sequentTexts.succedentTexts],
+            },
+          }
         : {}),
     }),
   },

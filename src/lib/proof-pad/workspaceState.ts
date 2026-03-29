@@ -66,8 +66,10 @@ import {
 import {
   validateScApplication,
   createScEdgeFromResult,
+  splitSequentTextParts,
   type ScRuleApplicationParams,
   type ScApplicationResult,
+  type SequentTextParts,
 } from "./scApplicationLogic";
 import { Either } from "effect";
 import {
@@ -174,13 +176,21 @@ export type WorkspaceNode = {
   /** ユーザーが明示的に設定した役割（"axiom" | undefined） */
   readonly role?: NodeRole;
   /**
-   * 論理式テキストの配列（TAB/SC/AT用の内部モデル）。
+   * 論理式テキストの配列（TAB/AT用の内部モデル）。
    * TABノードでは formulaText はこの配列の join(", ") として導出される。
    * Hilbert/ND ノードでは undefined。
    *
    * 変更時は workspaceExport.ts のシリアライゼーションも同期すること。
    */
   readonly formulaTexts?: readonly string[];
+  /**
+   * シーケントの構造化データ（SC用の内部モデル）。
+   * SCノードでは formulaText の "φ, ψ ⇒ χ, δ" を antecedentTexts/succedentTexts に分解して保持する。
+   * formulaText は互換性のために維持し、sequentTexts が source of truth。
+   *
+   * 変更時は workspaceExport.ts のシリアライゼーションも同期すること。
+   */
+  readonly sequentTexts?: SequentTextParts;
 };
 
 /** ワークスペース上の接続（ポートベース） */
@@ -541,6 +551,10 @@ export function addNode(
       : isTabSystem(state)
         ? splitByTopLevelComma(formulaText ?? "")
         : undefined;
+  // SCシステムでは sequentTexts を必ず初期化（ソースオブトゥルース）
+  const effectiveSequentTexts = isScSystem(state)
+    ? splitSequentTextParts(formulaText ?? "")
+    : undefined;
   const newNode: WorkspaceNode = {
     id,
     kind,
@@ -549,6 +563,9 @@ export function addNode(
     position,
     ...(effectiveFormulaTexts !== undefined
       ? { formulaTexts: effectiveFormulaTexts }
+      : {}),
+    ...(effectiveSequentTexts !== undefined
+      ? { sequentTexts: effectiveSequentTexts }
       : {}),
   };
   return syncInferenceEdges({
@@ -612,6 +629,14 @@ export function isTabSystem(state: WorkspaceState): boolean {
   return state.deductionSystem.style === "tableau-calculus";
 }
 
+/**
+ * ワークスペースがSCシステムかどうかを返す。
+ * SCシステムではノードの sequentTexts を構造化データとして管理する。
+ */
+export function isScSystem(state: WorkspaceState): boolean {
+  return state.deductionSystem.style === "sequent-calculus";
+}
+
 /** ノードの論理式テキストを更新する（保護ノードは更新不可） */
 export function updateNodeFormulaText(
   state: WorkspaceState,
@@ -625,6 +650,10 @@ export function updateNodeFormulaText(
   const formulaTexts = isTabSystem(state)
     ? splitByTopLevelComma(formulaText)
     : undefined;
+  // SCシステムの場合は sequentTexts も同期
+  const sequentTexts = isScSystem(state)
+    ? splitSequentTextParts(formulaText)
+    : undefined;
   return syncInferenceEdges({
     ...state,
     nodes: state.nodes.map((node) =>
@@ -633,6 +662,7 @@ export function updateNodeFormulaText(
             ...node,
             formulaText,
             ...(formulaTexts !== undefined ? { formulaTexts } : {}),
+            ...(sequentTexts !== undefined ? { sequentTexts } : {}),
           }
         : node,
     ),

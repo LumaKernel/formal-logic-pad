@@ -49,6 +49,7 @@ export {
   updateMultipleNodePositions,
   updateNodeFormulaText,
   isTabSystem,
+  isScSystem,
   updateNodeRole,
   findNode,
   removeNode,

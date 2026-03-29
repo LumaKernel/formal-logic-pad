@@ -2322,3 +2322,63 @@ describe("formulaTexts シリアライゼーション", () => {
     }
   });
 });
+
+describe("sequentTexts シリアライゼーション", () => {
+  it("sequentTexts ありのノードがラウンドトリップで保持される", () => {
+    const state: WorkspaceState = {
+      ...createSampleWorkspace(),
+      nodes: [
+        {
+          id: "node-1",
+          kind: "axiom",
+          label: "",
+          formulaText: "φ, ψ ⇒ χ",
+          position: { x: 0, y: 0 },
+          sequentTexts: {
+            antecedentTexts: ["φ", "ψ"],
+            succedentTexts: ["χ"],
+          },
+        },
+      ],
+    };
+    const json = exportWorkspaceToJSON(state);
+    const parsed = JSON.parse(json);
+    expect(parsed.workspace.nodes[0].sequentTexts).toEqual({
+      antecedentTexts: ["φ", "ψ"],
+      succedentTexts: ["χ"],
+    });
+
+    const imported = importWorkspaceFromJSON(json);
+    expect(imported._tag).toBe("Success");
+    if (imported._tag === "Success") {
+      expect(imported.workspace.nodes[0]!.sequentTexts).toEqual({
+        antecedentTexts: ["φ", "ψ"],
+        succedentTexts: ["χ"],
+      });
+    }
+  });
+
+  it("sequentTexts なしのノード（レガシー）はそのままインポートされる", () => {
+    const state: WorkspaceState = {
+      ...createSampleWorkspace(),
+      nodes: [
+        {
+          id: "node-1",
+          kind: "axiom",
+          label: "",
+          formulaText: "φ → ψ",
+          position: { x: 0, y: 0 },
+        },
+      ],
+    };
+    const json = exportWorkspaceToJSON(state);
+    const parsed = JSON.parse(json);
+    expect(parsed.workspace.nodes[0].sequentTexts).toBeUndefined();
+
+    const imported = importWorkspaceFromJSON(json);
+    expect(imported._tag).toBe("Success");
+    if (imported._tag === "Success") {
+      expect(imported.workspace.nodes[0]!.sequentTexts).toBeUndefined();
+    }
+  });
+});

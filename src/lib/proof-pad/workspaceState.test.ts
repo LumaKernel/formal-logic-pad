@@ -4280,4 +4280,79 @@ describe("proofWorkspace", () => {
       expect(rightNode!.position).toEqual({ x: 0, y: 0 });
     });
   });
+
+  describe("SC sequentTexts population", () => {
+    const scDeduction = sequentCalculusDeduction(lkSystem);
+
+    it("addNode でSCノードに sequentTexts がポピュレートされる", () => {
+      let ws = createEmptyWorkspace(scDeduction);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "φ, ψ ⇒ χ");
+      const node = findNode(ws, "node-1");
+      expect(node?.sequentTexts).toEqual({
+        antecedentTexts: ["φ", "ψ"],
+        succedentTexts: ["χ"],
+      });
+    });
+
+    it("addNode で空のシーケントテキストでも sequentTexts がポピュレートされる", () => {
+      let ws = createEmptyWorkspace(scDeduction);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "");
+      const node = findNode(ws, "node-1");
+      expect(node?.sequentTexts).toEqual({
+        antecedentTexts: [],
+        succedentTexts: [],
+      });
+    });
+
+    it("addNode で前件のみのシーケントテキスト", () => {
+      let ws = createEmptyWorkspace(scDeduction);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "φ ⇒");
+      const node = findNode(ws, "node-1");
+      expect(node?.sequentTexts).toEqual({
+        antecedentTexts: ["φ"],
+        succedentTexts: [],
+      });
+    });
+
+    it("updateNodeFormulaText でSCノードの sequentTexts が同期される", () => {
+      let ws = createEmptyWorkspace(scDeduction);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "φ ⇒ ψ");
+      ws = updateNodeFormulaText(ws, "node-1", "α, β ⇒ γ, δ");
+      const node = findNode(ws, "node-1");
+      expect(node?.sequentTexts).toEqual({
+        antecedentTexts: ["α", "β"],
+        succedentTexts: ["γ", "δ"],
+      });
+    });
+
+    it("Hilbert体系のノードには sequentTexts がポピュレートされない", () => {
+      let ws = createEmptyWorkspace(lukasiewiczSystem);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "φ → ψ");
+      const node = findNode(ws, "node-1");
+      expect(node?.sequentTexts).toBeUndefined();
+    });
+
+    it("applyScRuleAndConnect で作成された前提ノードに sequentTexts がある", () => {
+      let ws = createEmptyWorkspace(scDeduction);
+      ws = addNode(ws, "axiom", "", { x: 0, y: 0 }, "φ, ψ ⇒ χ");
+      const result = applyScRuleAndConnect(
+        ws,
+        "node-1",
+        {
+          ruleId: "weakening-left",
+          sequentText: "φ, ψ ⇒ χ",
+          principalPosition: 0,
+        },
+        [{ x: 100, y: 100 }],
+      );
+      expect(Either.isRight(result.validation)).toBe(true);
+      const premiseNode = findNode(
+        result.workspace,
+        result.premiseNodeIds[0]!,
+      );
+      expect(premiseNode?.sequentTexts).toBeDefined();
+      expect(premiseNode?.sequentTexts?.antecedentTexts).toBeDefined();
+      expect(premiseNode?.sequentTexts?.succedentTexts).toBeDefined();
+    });
+  });
 });
