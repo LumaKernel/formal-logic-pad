@@ -14,8 +14,9 @@
   - 各ステップで、クエストが完了すべきでないタイミングで完了してないこと(provedとなっていない)をassertもするべきだ
   - [x] まずはこれをするタスクリストを各クエストについて作る (1 by 1) → `tasks/quest-intermediate-asserts.md` に作成
 
-- [-] vercelでビルドするときに、Next.js publicとして、どこかのサブディレクトリに、パス /storybook 配下に、ストーリーブックのプロダクションビルドを含めて配布されるようにしよう
+- [x] vercelでビルドするときに、Next.js publicとして、どこかのサブディレクトリに、パス /storybook 配下に、ストーリーブックのプロダクションビルドを含めて配布されるようにしよう
   - Next.js側がプロダクションビルドされたとき(にビルドしてそのように構成される)のみでよい
+  - `scripts/build-with-storybook.mjs`: storybook build → public/storybook に移動 → next build → cleanup
 
 - [ ] すべてのビルトインクエストについて、一個ずつ、以下のようなタスクリストを ./quest-stories.md に作る
   - すべてのタスクについて漏れなく入れる。また、1回のイテレーションで一個ずつ処理する。(一気にやるな、タスクリストにも明記しておけ)

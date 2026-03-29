@@ -19064,3 +19064,20 @@
   - QuestCompleteTab01FullFlowとQuestCompleteAt01FullFlowには既に中間チェックが一部ある
   - 中間assert追加時は、各ステップでwaitForを使って状態安定を待つ必要がある（非同期更新）
 ---
+
+## 2026-03-30 - [build] Storybook プロダクション配信
+- 実装した内容:
+  - `scripts/build-with-storybook.mjs` 新規作成: Storybook→public/storybook移動→Next.jsビルドの自動化
+  - `package.json` の `build` スクリプトを更新
+  - `.gitignore` に `public/storybook` 追加
+  - ローカルでdev server経由の `/storybook/index.html` 配信を確認（スクリーンショット: .screenshots/storybook-via-nextjs-loaded.png）
+- 変更したファイル:
+  - package.json (build スクリプト変更)
+  - scripts/build-with-storybook.mjs (新規)
+  - .gitignore (public/storybook 追加)
+- カバレッジ: Stmts 99.8%, Branch 99.06%, Funcs 90.66%, Lines 99.81%（変化なし）
+- **今後のイテレーションへの学び:**
+  - Storybookの`staticDirs: ["../public"]`設定があるため、`public/storybook/`に直接出力すると再帰コピーが発生する。必ずデフォルト出力先(storybook-static/)にビルドしてからmoveする
+  - ビルド前に`public/storybook/`の残骸をクリーンアップ必須（前回ビルドの残りがstaticDirsに含まれる）
+  - Storybookの静的ビルドは相対パスを使うため、サブパス配信時にbaseURL設定は不要
+---
