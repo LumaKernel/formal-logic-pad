@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 13000",
-    "build": "next build",
+    "build": "node scripts/build-with-storybook.mjs",
     "start": "next start",
     "_lint:eslint": "eslint .",
     "_lint:prettier": "prettier . --check",

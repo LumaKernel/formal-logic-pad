@@ -19049,3 +19049,18 @@
   - TAB向け制約には `allowedTabRuleIds?: readonly TabRuleId[]` + `getNodeTabRuleIds()` の実装が必要
   - Prettierフォーマットは必ずコミット前にローカルで実行（CI 2回分のロスを防ぐ）
 ---
+
+## 2026-03-30 - [quest] 中間ステップassertタスクリスト作成
+- 実装した内容:
+  - `tasks/quest-intermediate-asserts.md` を新規作成
+  - FullFlow 6件、FromHub 5件、Interactive 2件のストーリーに中間assert追加タスクを列挙
+  - ModelAnswer系13件は対象外として記載
+  - inserted-tasks.md のサブタスクを完了マーク
+- 変更したファイル:
+  - tasks/quest-intermediate-asserts.md (新規)
+  - tasks/inserted-tasks.md (サブタスク完了)
+- カバレッジ: 変更なし（データのみの変更）
+- **今後のイテレーションへの学び:**
+  - QuestCompleteTab01FullFlowとQuestCompleteAt01FullFlowには既に中間チェックが一部ある
+  - 中間assert追加時は、各ステップでwaitForを使って状態安定を待つ必要がある（非同期更新）
+---
