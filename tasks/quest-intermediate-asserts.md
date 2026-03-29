@@ -18,8 +18,8 @@
 
 ## FromHub ストーリー（Hubからの遷移 + 証明完了）
 
-- [-] `QuestCompleteNd01FromHub` — 各ステップ後に `"0 / 1"` assert を追加
-- [ ] `QuestCompleteProp01FromHub` — 各ステップ後に `"0 / 1"` assert を追加
+- [x] `QuestCompleteNd01FromHub` — step1(仮定追加),step2(式編集),step3(→I規則選択)後に `"0 / 1"` assert追加
+- [x] `QuestCompleteProp01FromHub` — 全8ステップ中7ステップ後に `"0 / 1"` assert追加
 - [ ] `QuestCompleteSc01FromHub` — 各ステップ後に `"0 / 1"` assert を追加
 - [ ] `QuestCompleteTab01FromHub` — 現在: 初期 + 1 中間チェックあり。全ステップに拡充
 - [ ] `QuestCompleteAt01FromHub` — 現在: 初期 + 1 中間チェックあり。全ステップに拡充

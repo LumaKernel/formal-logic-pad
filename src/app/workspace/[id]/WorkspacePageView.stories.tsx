@@ -2868,9 +2868,8 @@ export const QuestCompleteProp01FromHub: Story = {
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
       "Łukasiewicz",
     );
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "0 / 1",
-    );
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // --- Phase 3: Hilbert φ→φ 証明フロー ---
     // Step 1: A2スキーマをパレットから追加 → node-1
@@ -2880,6 +2879,8 @@ export const QuestCompleteProp01FromHub: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
     });
+    // A2スキーマ追加のみ — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // Step 2: node-1に代入 [φ:=phi, ψ:=phi->phi, χ:=phi] → node-2
     await applySubstitutionViaContextMenu(canvas, "proof-node-node-1", [
@@ -2890,6 +2891,8 @@ export const QuestCompleteProp01FromHub: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-2")).toBeInTheDocument();
     });
+    // 代入結果のみ — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // Step 3: A1スキーマをパレットから追加 → node-3
     await userEvent.click(
@@ -2898,6 +2901,8 @@ export const QuestCompleteProp01FromHub: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-3")).toBeInTheDocument();
     });
+    // A1スキーマ追加のみ — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // Step 4: node-3に代入 [φ:=phi, ψ:=phi->phi] → node-4
     await applySubstitutionViaContextMenu(canvas, "proof-node-node-3", [
@@ -2907,6 +2912,8 @@ export const QuestCompleteProp01FromHub: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-4")).toBeInTheDocument();
     });
+    // 代入結果のみ — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // Step 5: MP₁(left=node-4, right=node-2) → node-5
     await applyMPViaSelection(canvas, "proof-node-node-4", "proof-node-node-2");
@@ -2914,6 +2921,8 @@ export const QuestCompleteProp01FromHub: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-5")).toBeInTheDocument();
     });
+    // MP適用のみ — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // Step 6: A1スキーマをパレットから追加 → node-6
     await userEvent.click(
@@ -2922,6 +2931,8 @@ export const QuestCompleteProp01FromHub: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-6")).toBeInTheDocument();
     });
+    // A1スキーマ追加のみ — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // Step 7: node-6に代入 [φ:=phi, ψ:=phi] → node-7
     await applySubstitutionViaContextMenu(canvas, "proof-node-node-6", [
@@ -2931,6 +2942,8 @@ export const QuestCompleteProp01FromHub: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId("proof-node-node-7")).toBeInTheDocument();
     });
+    // 代入結果のみ — まだゴール未達成
+    await expect(goalPanel).toHaveTextContent("0 / 1");
 
     // Step 8: MP₂(left=node-7, right=node-5) → node-8 (φ→φ)
     await applyMPViaSelection(canvas, "proof-node-node-7", "proof-node-node-5");
@@ -2941,13 +2954,9 @@ export const QuestCompleteProp01FromHub: Story = {
 
     // --- 最終確認: ゴール達成 ---
     await waitFor(() => {
-      expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-        "1 / 1",
-      );
+      expect(goalPanel).toHaveTextContent("1 / 1");
     });
-    await expect(canvas.getByTestId("workspace-goal-panel")).toHaveTextContent(
-      "Proved!",
-    );
+    await expect(goalPanel).toHaveTextContent("Proved!");
   },
 };
 
