@@ -19253,3 +19253,12 @@
   - StorybookストーリーID形式は `pages-workspace--quest-complete-prop-XX`（`workspace-workspacepageview--` ではない）
   - ストーリーインデックスは `curl http://localhost:13006/index.json` で確認可能
 ---
+
+## 2026-03-30 - quest stories (prop-36)
+- prop-36（自己弱化）のQuestComplete + ModelAnswerストーリーを追加
+- 1ステップのA1直接インスタンス証明、fitToContent + node-1検証のフルplay関数
+- 変更ファイル: WorkspacePageView.stories.tsx, tasks/quest-stories.md
+- ブラウザ検証: 両ストーリーPass（10, 8 interactions）
+- スクリーンショット: .screenshots/quest-complete-prop-36.png, .screenshots/quest-complete-prop-36-model-answer.png
+- カバレッジ変化なし: Stmts 99.80%, Branch 99.06%, Funcs 90.64%, Lines 99.81%
+---
