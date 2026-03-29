@@ -4,6 +4,7 @@
 - SC規則追加チェックリスト: deductionSystem.ts, scApplicationLogic.ts, sequentCalculus.ts, cutElimination.ts(5箇所), cutEliminationBridge.ts(encode/decode/SC_TAGS), workspaceBridge.ts(2箇所), テスト4ファイル
 - Vitest + Testing Libraryでテスト。Storybookのplay関数はインタラクションテストとして機能
 - Storybook play関数のimportは `storybook/test` から（`@storybook/test` ではない）
+- BaseExpandedEditor (createPortal → document.body) のモーダルはStorybook play関数で `within(canvasElement)` ではなく `screen` を使ってアクセスする
 - ESLint: `@luma-dev/luma-ts/require-satisfies-in-tls` が有効
 - Storybook 10: fullscreenレイアウトでは html/body/\#storybook-root に height:100% が付かない。`.storybook/preview-head.html` で補完が必要
 - CI: Storybook browser テストに Playwright chromium が必要。`npx playwright install --with-deps chromium` をCI workflowに含める
@@ -18896,4 +18897,14 @@
 - **今後のイテレーションへの学び:**
   - PredicateDemo のパターンは EqualityDemo/PropositionalDemo と同一（ゴールパネル+公理パレット+クリック）
   - 述語論理体系の特有公理は A4/A5（全称消去/全称導入）
+---
+
+## 2026-03-29 - [formula-input] SCノード編集時のSequentExpandedEditor直接起動
+- FormulaEditor.enterEditModeでallowSequentText && onOpenExpanded時にインライン編集をスキップし、直接onOpenExpanded()を呼ぶ実装
+- FormulaEditor.test.tsxに7テスト追加（click/dblclick/Enter/forceEditMode、ネガティブケース含む）
+- QuestCompleteSc01FullFlow, QuestCompleteSc01FromHubのplay関数をSequentExpandedEditor経由のフローに更新
+- 変更ファイル: FormulaEditor.tsx, FormulaEditor.test.tsx, WorkspacePageView.stories.tsx
+- **今後のイテレーションへの学び:**
+  - BaseExpandedEditorはcreatePortal(document.body)で描画されるため、Storybook play関数で`within(canvasElement)`ではなく`screen`を使う必要がある
+  - Codebase Patternsに追加: SC系のcreatePortalモーダルはstorybook play関数で`screen`からアクセスする
 ---
