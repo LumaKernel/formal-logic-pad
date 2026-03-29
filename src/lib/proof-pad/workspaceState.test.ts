@@ -4346,10 +4346,7 @@ describe("proofWorkspace", () => {
         [{ x: 100, y: 100 }],
       );
       expect(Either.isRight(result.validation)).toBe(true);
-      const premiseNode = findNode(
-        result.workspace,
-        result.premiseNodeIds[0]!,
-      );
+      const premiseNode = findNode(result.workspace, result.premiseNodeIds[0]!);
       expect(premiseNode?.sequentTexts).toBeDefined();
       expect(premiseNode?.sequentTexts?.antecedentTexts).toBeDefined();
       expect(premiseNode?.sequentTexts?.succedentTexts).toBeDefined();
