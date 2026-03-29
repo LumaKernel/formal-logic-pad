@@ -19207,3 +19207,13 @@
   - InfiniteCanvasのノードカリング対策: play関数内でfitToContent必須（ビューポート外ノードはDOM除去される）
   - ノードID計算: createQuestWorkspace は nextNodeId:1 開始、axiom は2ノード（schema+instance）、note/MP は1ノード
 ---
+
+## 2026-03-30 - [quest] prop-05 QuestComplete ストーリー
+- prop-05「含意の弱化」のQuestComplete + ModelAnswerストーリーを追加
+- K公理の2重適用、3ステップ証明の完了状態を確認
+- 変更ファイル: src/app/workspace/[id]/WorkspacePageView.stories.tsx
+- ベースラインカバレッジ: Stmts 99.8%, Branch 99.06%, Funcs 90.66%, Lines 99.81%（変化なし）
+- **今後のイテレーションへの学び:**
+  - StorybookストーリーID形式は `pages-workspace--quest-complete-prop-XX`（`workspace-workspacepageview--` ではない）
+  - ストーリーインデックスは `curl http://localhost:13006/index.json` で確認可能
+---
