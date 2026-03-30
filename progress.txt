@@ -19316,3 +19316,12 @@
 - スクリーンショット: .screenshots/quest-complete-prop-50-model-answer.png
 - カバレッジ変化なし: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
 ---
+
+## 2026-03-30 - quest stories (prop-51)
+- prop-51（恒等律のA1二重持ち上げ）のQuestComplete + ModelAnswerストーリーを追加
+- 9ステップ証明、buildCompletedQuestWorkspaceで完了状態構築
+- 変更ファイル: WorkspacePageView.stories.tsx, tasks/quest-stories.md
+- ブラウザ検証: 両ストーリーPass（10, 8 interactions）
+- スクリーンショット: .screenshots/quest-complete-prop-51-model-answer.png
+- カバレッジ変化なし: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
+---

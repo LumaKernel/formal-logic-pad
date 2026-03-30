@@ -48,10 +48,9 @@
 - [x] prop-50: S公理のA1持ち上げ — QuestComplete+ModelAnswer作成・確認済み（3ステップ証明）
   - [x] Quest Complete ストーリー作成（QuestCompleteProp50 + QuestCompleteProp50ModelAnswer）
   - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
-- [ ] prop-51: 恒等律のA1二重持ち上げ
-  - [ ] Quest Complete ストーリーが存在していなければ作成する
-  - [ ] 模範解答とクエスト攻略ストーリーをそれぞれ比べて、意図通りにそれぞれなっているか確認する
-    - 必要に応じてそれぞれを修正する
+- [x] prop-51: 恒等律のA1二重持ち上げ — QuestComplete+ModelAnswer作成・確認済み（9ステップ証明）
+  - [x] Quest Complete ストーリー作成（QuestCompleteProp51 + QuestCompleteProp51ModelAnswer）
+  - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
 
 ## propositional-intermediate (13件)
 
