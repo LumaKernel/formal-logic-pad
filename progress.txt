@@ -19398,3 +19398,13 @@
 - スクリーンショット: .screenshots/quest-complete-prop-12.png, .screenshots/quest-complete-prop-12-model-answer.png
 - カバレッジ変化なし: Stmts 99.80%, Branch 99.06%, Funcs 90.67%, Lines 99.81%
 ---
+
+## 2026-03-30 - quest stories (prop-14)
+- prop-14（二重含意の分配）のQuestComplete + ModelAnswerストーリーを追加
+- 11ステップ証明、play関数で完了バナー・ゴール達成・ノード存在確認
+- QuestCompleteProp01FromHubのCIタイムアウト修正: tags:['!test']追加
+- 変更ファイル: WorkspacePageView.stories.tsx, tasks/quest-stories.md
+- ブラウザ検証: 両ストーリーPass（Proof Complete!、Łukasiewicz体系、ゴール1/1確認）
+- スクリーンショット: .screenshots/quest-complete-prop-14-iframe.png
+- カバレッジ変化なし: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
+---
