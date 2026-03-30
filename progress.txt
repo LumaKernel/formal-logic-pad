@@ -19325,3 +19325,14 @@
 - スクリーンショット: .screenshots/quest-complete-prop-51-model-answer.png
 - カバレッジ変化なし: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
 ---
+
+## 2026-03-30 - quest stories (prop-08)
+- prop-08（推移律の3段チェイン）のQuestComplete + ModelAnswerストーリーを追加
+- 43ステップ証明、CI 15sタイムアウト対策で軽量play関数（fitToContent/ノードチェック省略）
+- 変更ファイル: WorkspacePageView.stories.tsx, tasks/quest-stories.md
+- ブラウザ検証: 両ストーリーPass（6, 5 interactions）
+- スクリーンショット: .screenshots/quest-complete-prop-08-model-answer.png
+- カバレッジ変化なし: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
+- **今後のイテレーションへの学び:**
+  - propositional-basicsセクション全15件完了
+---
