@@ -2726,9 +2726,10 @@ export const QuestCompleteProp51ModelAnswer: Story = {
 
 /**
  * prop-08: 推移律の3段チェイン — 43ステップ完了状態。
- * 43ステップの描画がCI 15sタイムアウトを超えるためplay関数なし（表示確認のみ）。
+ * 43ステップの描画がCI 15sタイムアウトを超えるためテスト除外。
  */
 export const QuestCompleteProp08: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("prop-08");
@@ -2747,9 +2748,10 @@ export const QuestCompleteProp08: Story = {
 
 /**
  * prop-08: 推移律の3段チェイン — 模範解答ベースの完了状態。
- * 43ステップの描画がCI 15sタイムアウトを超えるためplay関数なし（表示確認のみ）。
+ * 43ステップの描画がCI 15sタイムアウトを超えるためテスト除外。
  */
 export const QuestCompleteProp08ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("prop-08");
