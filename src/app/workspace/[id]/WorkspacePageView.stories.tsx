@@ -2971,6 +2971,50 @@ export const QuestCompleteProp11ModelAnswer: Story = {
 };
 
 /**
+ * prop-12: 含意の左結合化 — 完了状態。
+ * 37ステップ証明。CI 15sタイムアウト境界のためテスト除外。
+ */
+export const QuestCompleteProp12: Story = {
+  tags: ["!test"],
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("prop-12");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+};
+
+/**
+ * prop-12: 含意の左結合化 — 模範解答ベースの完了状態。
+ * 37ステップの描画がCI 15sタイムアウト境界のためテスト除外。
+ */
+export const QuestCompleteProp12ModelAnswer: Story = {
+  tags: ["!test"],
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("prop-12");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+};
+
+/**
  * nd-01: 自然演繹 NM φ→φ インタラクション。
  * ND体系のUI操作を完全に再現する:
  *
