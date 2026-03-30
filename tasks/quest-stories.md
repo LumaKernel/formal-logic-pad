@@ -78,7 +78,7 @@
 - [x] prop-34: 含意の弱化除去 — QuestComplete+ModelAnswer作成・確認済み（13ステップ証明）
   - [x] Quest Complete ストーリー作成（QuestCompleteProp34 + QuestCompleteProp34ModelAnswer）
   - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
-- [ ] prop-35: Mendelson体系での恒等律
+- [-] prop-35: Mendelson体系での恒等律
   - [ ] Quest Complete ストーリーが存在していなければ作成する
   - [ ] 模範解答とクエスト攻略ストーリーをそれぞれ比べて、意図通りにそれぞれなっているか確認する
     - 必要に応じてそれぞれを修正する
