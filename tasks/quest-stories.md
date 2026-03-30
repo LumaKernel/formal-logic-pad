@@ -42,10 +42,9 @@
 - [x] prop-48: 対偶公理の確認 (A3) — QuestComplete+ModelAnswer作成・確認済み（1ステップA3直接インスタンス）
   - [x] Quest Complete ストーリー作成（QuestCompleteProp48 + QuestCompleteProp48ModelAnswer）
   - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
-- [-] prop-49: 対偶公理のA1持ち上げ
-  - [ ] Quest Complete ストーリーが存在していなければ作成する
-  - [ ] 模範解答とクエスト攻略ストーリーをそれぞれ比べて、意図通りにそれぞれなっているか確認する
-    - 必要に応じてそれぞれを修正する
+- [x] prop-49: 対偶公理のA1持ち上げ — QuestComplete+ModelAnswer作成・確認済み（3ステップ証明）
+  - [x] Quest Complete ストーリー作成（QuestCompleteProp49 + QuestCompleteProp49ModelAnswer）
+  - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
 - [ ] prop-50: S公理のA1持ち上げ
   - [ ] Quest Complete ストーリーが存在していなければ作成する
   - [ ] 模範解答とクエスト攻略ストーリーをそれぞれ比べて、意図通りにそれぞれなっているか確認する

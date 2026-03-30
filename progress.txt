@@ -19298,3 +19298,12 @@
 - スクリーンショット: .screenshots/quest-complete-prop-48-model-answer.png
 - カバレッジ変化確認中
 ---
+
+## 2026-03-30 - quest stories (prop-49)
+- prop-49（対偶公理のA1持ち上げ）のQuestComplete + ModelAnswerストーリーを追加
+- 3ステップ証明、buildCompletedQuestWorkspaceで完了状態構築
+- 変更ファイル: WorkspacePageView.stories.tsx, tasks/quest-stories.md
+- ブラウザ検証: 両ストーリーPass（10, 8 interactions）
+- スクリーンショット: .screenshots/quest-complete-prop-49-model-answer.png
+- カバレッジ変化確認中
+---
