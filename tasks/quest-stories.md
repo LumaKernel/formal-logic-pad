@@ -60,10 +60,9 @@
 - [x] prop-10: B combinator (合成) — QuestComplete+ModelAnswer作成・確認済み（7ステップ証明）
   - [x] Quest Complete ストーリー作成（QuestCompleteProp10 + QuestCompleteProp10ModelAnswer）
   - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
-- [ ] prop-11: 前提の合流
-  - [ ] Quest Complete ストーリーが存在していなければ作成する
-  - [ ] 模範解答とクエスト攻略ストーリーをそれぞれ比べて、意図通りにそれぞれなっているか確認する
-    - 必要に応じてそれぞれを修正する
+- [x] prop-11: 前提の合流 — QuestComplete+ModelAnswer作成・確認済み（1ステップA2直接インスタンス）
+  - [x] Quest Complete ストーリー作成（QuestCompleteProp11 + QuestCompleteProp11ModelAnswer）
+  - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
 - [ ] prop-12: 含意の左結合化
   - [ ] Quest Complete ストーリーが存在していなければ作成する
   - [ ] 模範解答とクエスト攻略ストーリーをそれぞれ比べて、意図通りにそれぞれなっているか確認する
