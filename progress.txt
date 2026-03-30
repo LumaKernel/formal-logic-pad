@@ -113,6 +113,24 @@
 
 ---
 
+## 2026-03-30 - [quest] prop-35 QuestComplete ストーリー追加
+
+- ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
+- **結果: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%**（変動なし）
+- 実装内容:
+  - QuestCompleteProp35: `buildCompletedQuestWorkspace` 使用、5ステップ証明（Mendelson体系、A1+A2のみ）の完了状態検証
+  - QuestCompleteProp35ModelAnswer: 模範解答ベースの完了状態（静的確認用）
+  - 両ストーリーのplay関数でインタラクションテスト CI Pass 確認
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx
+  - tasks/quest-stories.md
+- スクリーンショット: Storybook dev serverがストーリー未認識のため省略（CIで検証済み）
+- **今後のイテレーションへの学び:**
+  - prop-35はMendelson体系（systemPresetId: "mendelson"）。体系バッジは "Mendelson" を確認
+  - prop-01と同じ証明構造（A1+A2のみ使用）、5ステップでCI安全圏内
+
+---
+
 ## 2026-03-30 - [quest] prop-34 QuestComplete ストーリー追加
 
 - ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
