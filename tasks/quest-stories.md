@@ -75,7 +75,7 @@
 - [x] prop-33: MPの含意化 — QuestComplete+ModelAnswer作成・確認済み（13ステップ証明）
   - [x] Quest Complete ストーリー作成（QuestCompleteProp33 + QuestCompleteProp33ModelAnswer）
   - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
-- [ ] prop-34: 含意の弱化除去
+- [-] prop-34: 含意の弱化除去
   - [ ] Quest Complete ストーリーが存在していなければ作成する
   - [ ] 模範解答とクエスト攻略ストーリーをそれぞれ比べて、意図通りにそれぞれなっているか確認する
     - 必要に応じてそれぞれを修正する
