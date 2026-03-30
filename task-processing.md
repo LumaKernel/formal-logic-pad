@@ -1,21 +1,21 @@
 ## 現在のタスク
 
-**ソース:** `tasks/quest-stories.md` prop-48
+**ソース:** `tasks/quest-stories.md` prop-49
 
-- [ ] prop-48: 対偶公理の確認 (A3)
+- [ ] prop-49: 対偶公理のA1持ち上げ
   - [ ] Quest Complete ストーリー作成
   - [ ] 模範解答確認
 
 ### コンテキスト
 
-- prop-48 は1ステップの証明（A3直接インスタンス）。CI安全
-- `buildCompletedQuestWorkspace("prop-48")` で完了状態を構築
+- prop-49 は3ステップの証明。CI安全
+- `buildCompletedQuestWorkspace("prop-49")` で完了状態を構築
 
 ### テスト計画
 
-- WorkspacePageView.stories.tsx に `QuestCompleteProp48` と `QuestCompleteProp48ModelAnswer` を追加
+- WorkspacePageView.stories.tsx に `QuestCompleteProp49` と `QuestCompleteProp49ModelAnswer` を追加
 
 ### ストーリー計画
 
-- QuestCompleteProp48: 完了状態、play関数で検証
-- QuestCompleteProp48ModelAnswer: 模範解答ベース静的確認
+- QuestCompleteProp49: 完了状態、play関数で検証
+- QuestCompleteProp49ModelAnswer: 模範解答ベース静的確認

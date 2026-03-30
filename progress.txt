@@ -19289,3 +19289,12 @@
 - スクリーンショット: .screenshots/quest-complete-prop-39-model-answer.png
 - カバレッジ変化確認中
 ---
+
+## 2026-03-30 - quest stories (prop-48)
+- prop-48（対偶公理の確認）のQuestComplete + ModelAnswerストーリーを追加
+- 1ステップのA3直接インスタンス証明、prop-36/37/38と同パターン
+- 変更ファイル: WorkspacePageView.stories.tsx, tasks/quest-stories.md
+- ブラウザ検証: 両ストーリーPass（10, 8 interactions）
+- スクリーンショット: .screenshots/quest-complete-prop-48-model-answer.png
+- カバレッジ変化確認中
+---
