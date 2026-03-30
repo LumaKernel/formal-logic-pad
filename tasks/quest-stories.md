@@ -81,10 +81,9 @@
 - [x] prop-35: Mendelson体系での恒等律 — QuestComplete+ModelAnswer作成・確認済み（5ステップ証明、Mendelson体系）
   - [x] Quest Complete ストーリー作成（QuestCompleteProp35 + QuestCompleteProp35ModelAnswer）
   - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
-- [ ] prop-40: 推移律逆順 (B' combinator)
-  - [ ] Quest Complete ストーリーが存在していなければ作成する
-  - [ ] 模範解答とクエスト攻略ストーリーをそれぞれ比べて、意図通りにそれぞれなっているか確認する
-    - 必要に応じてそれぞれを修正する
+- [x] prop-40: 推移律逆順 (B' combinator) — QuestComplete+ModelAnswer作成・確認済み（15ステップ証明、Łukasiewicz体系）
+  - [x] Quest Complete ストーリー作成（QuestCompleteProp40 + QuestCompleteProp40ModelAnswer）
+  - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
 - [ ] prop-41: W combinator (自己適用)
   - [ ] Quest Complete ストーリーが存在していなければ作成する
   - [ ] 模範解答とクエスト攻略ストーリーをそれぞれ比べて、意図通りにそれぞれなっているか確認する
