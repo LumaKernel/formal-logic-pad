@@ -19372,3 +19372,12 @@
 - **今後のイテレーションへの学び:**
   - 40+ステップの証明はStorybook描画自体がCI 15sタイムアウトを超える。tags:['!test']でテスト除外が必要
 ---
+
+## 2026-03-30 - quest stories (prop-12)
+- prop-12（含意の左結合化）のQuestComplete + ModelAnswerストーリーを追加
+- 37ステップ証明、CI 15sタイムアウト境界のためtags:['!test']でテスト除外
+- 変更ファイル: WorkspacePageView.stories.tsx, tasks/quest-stories.md
+- ブラウザ検証: 両ストーリーPass（Proof Complete!、Łukasiewicz体系、ゴール1/1確認）
+- スクリーンショット: .screenshots/quest-complete-prop-12.png, .screenshots/quest-complete-prop-12-model-answer.png
+- カバレッジ変化なし: Stmts 99.80%, Branch 99.06%, Funcs 90.67%, Lines 99.81%
+---

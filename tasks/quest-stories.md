@@ -63,10 +63,9 @@
 - [x] prop-11: 前提の合流 — QuestComplete+ModelAnswer作成・確認済み（1ステップA2直接インスタンス）
   - [x] Quest Complete ストーリー作成（QuestCompleteProp11 + QuestCompleteProp11ModelAnswer）
   - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
-- [ ] prop-12: 含意の左結合化
-  - [ ] Quest Complete ストーリーが存在していなければ作成する
-  - [ ] 模範解答とクエスト攻略ストーリーをそれぞれ比べて、意図通りにそれぞれなっているか確認する
-    - 必要に応じてそれぞれを修正する
+- [x] prop-12: 含意の左結合化 — QuestComplete+ModelAnswer作成・確認済み（37ステップ、tags:['!test']でCI除外）
+  - [x] Quest Complete ストーリー作成（QuestCompleteProp12 + QuestCompleteProp12ModelAnswer）
+  - [x] 模範解答とクエスト攻略ストーリー確認済み、意図通り動作
 - [ ] prop-13: Frege の定理
   - [ ] Quest Complete ストーリーが存在していなければ作成する
   - [ ] 模範解答とクエスト攻略ストーリーをそれぞれ比べて、意図通りにそれぞれなっているか確認する
