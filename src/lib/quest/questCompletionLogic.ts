@@ -357,7 +357,9 @@ export const checkQuestGoalsWithAxiomsEffect = (
     ).length;
 
     const hasAxiomViolation = goalResults.some(
-      (r) => r.violatingAxiomIds.size > 0 || r.hasUnknownRootNodes,
+      (r) =>
+        r.violatingAxiomIds.size > 0 ||
+        (r.hasUnknownRootNodes && r.allowedAxiomIds !== undefined),
     );
 
     const hasRuleViolation = goalResults.some(
