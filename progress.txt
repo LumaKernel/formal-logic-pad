@@ -113,6 +113,23 @@
 
 ---
 
+## 2026-03-31 - [quest] prop-41 QuestComplete ストーリー追加
+
+- ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
+- **結果: Stmts 99.80%, Branch 99.06%, Funcs 90.68%, Lines 99.81%**（Funcs微増）
+- 実装内容:
+  - QuestCompleteProp41: `buildCompletedQuestWorkspace` 使用、11ステップ証明（Łukasiewicz体系、A1+A2）の完了状態検証
+  - QuestCompleteProp41ModelAnswer: 模範解答ベースの完了状態（静的確認用）
+  - 両ストーリーのplay関数でインタラクションテスト CI Pass 確認
+- 変更ファイル:
+  - src/app/workspace/[id]/WorkspacePageView.stories.tsx
+  - tasks/quest-stories.md
+- **今後のイテレーションへの学び:**
+  - prop-41は11ステップ証明でCI安全圏内
+  - prop-40と同じŁukasiewicz体系パターンで問題なし
+
+---
+
 ## 2026-03-31 - [landing] ランディングページのsessionStorage永続化をモジュール変数に変更
 
 - ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
