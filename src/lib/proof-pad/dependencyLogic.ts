@@ -13,6 +13,7 @@ import type { LogicSystem, AxiomId } from "../logic-core/inferenceRule";
 import {
   matchAxiomTemplateByEquality,
   matchTheoryAxiomTemplateByEquality,
+  identifyAxiom,
 } from "../logic-core/inferenceRule";
 import { parseString } from "../logic-lang/parser";
 import type { DependencyInfo } from "./EditableProofNode";
@@ -227,6 +228,13 @@ export function getNodeAxiomIds(
     const axiomId = matchAxiomTemplateByEquality(parsed.right, system);
     if (axiomId !== undefined) {
       result.add(axiomId);
+      continue;
+    }
+
+    // 公理インスタンス（テンプレートに代入を適用した形）
+    const axiomInstance = identifyAxiom(parsed.right, system);
+    if (axiomInstance._tag === "Ok") {
+      result.add(axiomInstance.axiomId);
     }
   }
 
@@ -338,6 +346,11 @@ export type RootNodeValidation =
       readonly axiomId: AxiomId;
     }
   | {
+      readonly _tag: "instance";
+      readonly nodeId: string;
+      readonly axiomId: AxiomId;
+    }
+  | {
       readonly _tag: "theory-schema";
       readonly nodeId: string;
       readonly theoryAxiomId: string;
@@ -402,6 +415,17 @@ export function validateRootNodes(
         _tag: "theory-schema",
         nodeId: rootId,
         theoryAxiomId: theoryMatch.theoryAxiomId,
+      });
+      continue;
+    }
+
+    // 公理インスタンス（テンプレートに代入を適用した形）との一致
+    const axiomInstance = identifyAxiom(parsed.right, system);
+    if (axiomInstance._tag === "Ok") {
+      results.push({
+        _tag: "instance",
+        nodeId: rootId,
+        axiomId: axiomInstance.axiomId,
       });
       continue;
     }
