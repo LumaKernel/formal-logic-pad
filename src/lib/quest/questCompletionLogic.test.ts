@@ -1060,9 +1060,7 @@ describe("checkQuestGoalsWithAxioms (rule restriction)", () => {
     // A1はallowedAxiomIds ["A2"] に含まれないため公理違反。
     expect(result._tag).toBe("AllAchievedButAxiomViolation");
     if (result._tag === "AllAchievedButAxiomViolation") {
-      expect(result.goalResults[0]?.violatingAxiomIds).toEqual(
-        new Set(["A1"]),
-      );
+      expect(result.goalResults[0]?.violatingAxiomIds).toEqual(new Set(["A1"]));
     }
   });
 
