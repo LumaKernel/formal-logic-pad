@@ -113,6 +113,23 @@
 
 ---
 
+## 2026-03-31 - [landing] ランディングページのsessionStorage永続化をモジュール変数に変更
+
+- ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
+- **結果: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%**（変動なし）
+- 実装内容:
+  - sessionStorage(`hasNavigatedInSession`)をモジュールレベル変数に変更
+  - リロード時にランディングページが再表示されるようになった
+  - 元コミット: 4919161 "feat: [landing-page] タブ遷移後はLP非表示にする"
+- 変更ファイル:
+  - src/app/HubContent.tsx
+  - src/app/landingPageLogic.ts（コメントのみ）
+- **今後のイテレーションへの学び:**
+  - sessionStorageはタブ内リロードでも永続化される。リロードでリセットしたい場合はモジュールレベル変数を使う
+  - HubContent.tsxはsrc/app/に配置（不純コード領域、カバレッジ除外対象）
+
+---
+
 ## 2026-03-31 - [quest] 未知の公理ルートノードによるクエスト不正クリアバグ修正
 
 - ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
