@@ -641,6 +641,78 @@ describe("checkQuestGoalsWithAxioms", () => {
       expect(result.goalResults[0]?.hasUnknownRootNodes).toBe(false);
     }
   });
+
+  test("未知の公理ルートノード(phiのみ)から置換でゴール達成してもAxiomViolationになる", () => {
+    // バグ再現: phiを公理として配置し、phi:=phi->phiで置換してphi->phiを導出
+    // phiは公理テンプレートに一致しないため、hasUnknownRootNodes=trueとなり
+    // AllAchievedButAxiomViolationを返すべき
+    const goals = [
+      makeGoal({
+        id: "g1",
+        formulaText: "phi -> phi",
+        allowedAxiomIds: ["A1", "A2"],
+      }),
+    ];
+    const nodes = [
+      makeNode({
+        id: "phi-node",
+        kind: "axiom",
+        formulaText: "phi",
+      }),
+      makeNode({
+        id: "derived-node",
+        kind: "axiom",
+        formulaText: "phi -> phi",
+      }),
+    ];
+    const inferenceEdges: readonly InferenceEdge[] = [
+      {
+        _tag: "substitution",
+        conclusionNodeId: "derived-node",
+        premiseNodeId: "phi-node",
+        entries: [{ variableName: "phi", replacementText: "phi -> phi" }],
+        conclusionText: "phi -> phi",
+      },
+    ];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      inferenceEdges,
+      lukasiewiczSystem,
+    );
+    // 未知のルートノード（phi）があるため公理違反
+    expect(result._tag).toBe("AllAchievedButAxiomViolation");
+    if (result._tag === "AllAchievedButAxiomViolation") {
+      expect(result.goalResults[0]?.hasUnknownRootNodes).toBe(true);
+    }
+  });
+
+  test("孤立ノードで公理テンプレートに一致しない場合はNotAllAchieved", () => {
+    // phi -> phiは公理テンプレートに一致しない孤立ノード
+    // findMatchingNodeが孤立+非公理をスキップするためNotAllAchieved
+    const goals = [
+      makeGoal({
+        id: "g1",
+        formulaText: "phi -> phi",
+        allowedAxiomIds: ["A1", "A2"],
+      }),
+    ];
+    const nodes = [
+      makeNode({
+        id: "n1",
+        kind: "axiom",
+        formulaText: "phi -> phi",
+      }),
+    ];
+    const result = checkQuestGoalsWithAxioms(
+      goals,
+      nodes,
+      [],
+      lukasiewiczSystem,
+    );
+    // 孤立ノードで公理でないためfindMatchingNodeがスキップ → 未達成
+    expect(result._tag).toBe("NotAllAchieved");
+  });
 });
 
 // --- checkQuestGoalsWithAxiomsEffect ---
