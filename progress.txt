@@ -113,6 +113,29 @@
 
 ---
 
+## 2026-03-31 - [quest] 未知の公理ルートノードによるクエスト不正クリアバグ修正
+
+- ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
+- **結果: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%**（変動なし）
+- 実装内容:
+  - バグ: phiを公理として配置→phi:=phi->phiで置換→phi->phiゴール達成可能だった
+  - 根本原因: hasUnknownRootNodes（公理テンプレートに一致しないルートノード）が最終判定に使われていなかった
+  - 修正1: checkQuestGoalsWithAxiomsEffectで、公理制限ありゴールにおいてhasUnknownRootNodesを公理違反として扱う
+  - 修正2: validateRootNodesにidentifyAxiom（公理インスタンス認識）を追加。新タグ "instance" で区別
+  - 修正3: getNodeAxiomIdsにもidentifyAxiomを追加。公理インスタンスのaxiomIdも正しく検出
+  - リグレッションテスト2件追加（substitutionパターン、孤立ノードパターン）
+- 変更ファイル:
+  - src/lib/quest/questCompletionLogic.ts
+  - src/lib/quest/questCompletionLogic.test.ts
+  - src/lib/proof-pad/dependencyLogic.ts
+  - src/lib/proof-pad/dependencyLogic.test.ts
+- **今後のイテレーションへの学び:**
+  - validateRootNodesのRootNodeValidationに"instance"タグが追加された。今後この型をswitch分岐する場合はexhaustive check必要
+  - identifyAxiomはインスタンス認識可、matchAxiomTemplateByEqualityはテンプレート完全一致のみ。公理検証にはidentifyAxiomを使う
+  - hasUnknownRootNodesは公理制限（allowedAxiomIds）があるゴールのみで違反判定。非Hilbert系（TAB/SC/ND）では全ルートがunknownになるため
+
+---
+
 ## 2026-03-30 - [quest] prop-40 QuestComplete ストーリー追加
 
 - ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
