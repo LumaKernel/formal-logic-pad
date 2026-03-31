@@ -377,3 +377,10 @@
   - 各ステップで、クエストが完了すべきでないタイミングで完了してないこと(provedとなっていない)をassertもするべきだ
   - [x] まずはこれをするタスクリストを各クエストについて作る (1 by 1) → `tasks/quest-intermediate-asserts.md` に作成
   - [x] 全13ストーリーに中間assert追加完了 → `tasks-archived/quest-intermediate-asserts.md`
+
+- [x] バグ: 最初の phi-phi (恒等律 (Identity)) のクエストにて、phiを公理として、phi:=phi->phiで置換すれば成功してしまう。
+  - [x] 問題を局所的に解決していないか？公理リストにない公理を使っていたらprovedになってはいけない、単純な話だが…？
+    - 修正: hasUnknownRootNodes(公理テンプレート/インスタンスに一致しないルートノード)を公理制限付きゴールで違反として扱う
+    - validateRootNodes/getNodeAxiomIdsでidentifyAxiomによるインスタンス認識も追加
+- [x] ./quest-stories.md の各問題について、それぞれすべてに、問題解決のために構造等を根本から見直す必要があれば、新規のタスクファイルとタスクリストとしての整理をする、という風に明記せよ
+  - 全未完了クエスト項目に「問題解決のために構造等を根本から見直す必要があれば、新規のタスクファイルとタスクリストとして整理する」サブタスクを追加

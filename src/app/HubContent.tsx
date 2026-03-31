@@ -80,8 +80,11 @@ import { toScriptListItems } from "../components/ScriptEditor/scriptListPanelLog
 
 const getNow = (): number => getCurrentTimestamp();
 
-/** sessionStorage key: セッション中にタブ遷移したか */
-const SESSION_NAV_KEY = "hasNavigatedInSession";
+/**
+ * モジュールレベル変数: セッション中にタブ遷移したか。
+ * リロードでリセットされる（sessionStorageと異なりリロード後に再表示される）。
+ */
+let moduleHasNavigatedInSession = false;
 
 /** next-intl の翻訳から ThemeToggleLabels を構築するフック */
 function useThemeLabelsFromIntl(): ThemeToggleLabels {
@@ -266,11 +269,7 @@ function HubInner() {
 
   const handleTabChange = useCallback(
     (newTab: HubTab) => {
-      try {
-        sessionStorage.setItem(SESSION_NAV_KEY, "1");
-      } catch {
-        // sessionStorage unavailable — silently ignore
-      }
+      moduleHasNavigatedInSession = true;
       router.push(resolvePathFromTab(newTab));
     },
     [router],
@@ -326,19 +325,15 @@ function HubInner() {
     setHasEverHadNotebooks(nextHasEver);
   }
 
-  // セッション中にタブ遷移したかを sessionStorage で追跡
+  // セッション中にタブ遷移したかをモジュール変数で追跡
   // （リロードでリセットされる。notebooks以外のタブに来た＝遷移済み）
   // NOTE: pathname は初回マウント時のみ評価される（useState初期化関数）
   const [hasNavigatedInSession] = useState(() => {
-    try {
-      if (resolveTabFromPath(pathname) !== "notebooks") {
-        sessionStorage.setItem(SESSION_NAV_KEY, "1");
-        return true;
-      }
-      return sessionStorage.getItem(SESSION_NAV_KEY) === "1";
-    } catch {
-      return false;
+    if (resolveTabFromPath(pathname) !== "notebooks") {
+      moduleHasNavigatedInSession = true;
+      return true;
     }
+    return moduleHasNavigatedInSession;
   });
 
   // ランディングページはnotebooksタブ（ルート/）でのみ表示
