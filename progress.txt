@@ -19536,3 +19536,10 @@
 - スクリーンショット: .screenshots/quest-complete-prop-14-iframe.png
 - カバレッジ変化なし: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
 ---
+
+## 2026-04-01 - quest stories (prop-42)
+- prop-42（A2の前方適用）のQuestCompleteストーリーを追加（ModelAnswerは既存）
+- 3ステップ証明（Łukasiewicz体系、A2のみ）、play関数で完了バナー・ゴール達成・ノード存在確認
+- 変更ファイル: WorkspacePageView.stories.tsx, tasks/quest-stories.md
+- カバレッジ: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%（変化なし）
+---
