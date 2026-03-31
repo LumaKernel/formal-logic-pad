@@ -1034,7 +1034,7 @@ describe("checkQuestGoalsWithAxioms (rule restriction)", () => {
   });
 
   test("公理制限違反と規則制限違反が両方ある場合は公理違反が優先される", () => {
-    // A1インスタンスを直接配置（公理制限違反）+ substitution使用（規則制限違反）
+    // A1インスタンスを直接配置（公理制限違反: A1はallowedにない）
     const goals = [
       makeGoal({
         id: "g1",
@@ -1056,9 +1056,14 @@ describe("checkQuestGoalsWithAxioms (rule restriction)", () => {
       [],
       lukasiewiczSystem,
     );
-    // 公理インスタンスは identifyAxiom で認識されるため、孤立ノードでも正当。
-    // エッジがないため getNodeAxiomIds は公理を追跡できず、違反は検出されない。
-    expect(result._tag).toBe("AllAchieved");
+    // 公理インスタンスは identifyAxiom で認識され、A1として検出される。
+    // A1はallowedAxiomIds ["A2"] に含まれないため公理違反。
+    expect(result._tag).toBe("AllAchievedButAxiomViolation");
+    if (result._tag === "AllAchievedButAxiomViolation") {
+      expect(result.goalResults[0]?.violatingAxiomIds).toEqual(
+        new Set(["A1"]),
+      );
+    }
   });
 
   test("MP導出で規則制限違反をチェックする", () => {

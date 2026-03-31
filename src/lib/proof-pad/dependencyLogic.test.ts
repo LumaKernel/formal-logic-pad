@@ -662,9 +662,9 @@ describe("dependencyLogic", () => {
       expect(result).toEqual([{ _tag: "schema", nodeId: "a1", axiomId: "A1" }]);
     });
 
-    it("公理インスタンス（代入済み）はunknownとして識別する（構造的一致のみ）", () => {
+    it("公理インスタンス（代入済み）はinstanceとして識別する", () => {
       // phi -> ((phi -> phi) -> phi) はA1に φ:=phi, ψ:=(phi→phi) を代入したインスタンス
-      // matchAxiomTemplateByEquality は完全一致のみ認めるため unknown
+      // identifyAxiom でインスタンスとして認識される
       const nodes = [
         makeAxiomNode("a1-instance", "phi -> ((phi -> phi) -> phi)"),
       ];
@@ -676,7 +676,9 @@ describe("dependencyLogic", () => {
         edges,
         lukasiewiczSystem,
       );
-      expect(result).toEqual([{ _tag: "unknown", nodeId: "a1-instance" }]);
+      expect(result).toEqual([
+        { _tag: "instance", nodeId: "a1-instance", axiomId: "A1" },
+      ]);
     });
 
     it("識別不能な論理式はunknownとして識別する", () => {
@@ -715,7 +717,7 @@ describe("dependencyLogic", () => {
 
     it("MP導出ノードの依存ルートノードを正しく分類する", () => {
       // a1-schema: A1スキーマそのもの
-      // a1-instance: A1の代入インスタンス（構造的一致ではunknown）
+      // a1-instance: A1の代入インスタンス（identifyAxiomでinstance認識）
       // → mp1 (derived)
       const nodes = [
         makeAxiomNode("a1-schema", "phi -> (psi -> phi)"),
@@ -732,8 +734,9 @@ describe("dependencyLogic", () => {
         axiomId: "A1",
       });
       expect(result).toContainEqual({
-        _tag: "unknown",
+        _tag: "instance",
         nodeId: "a1-instance",
+        axiomId: "A1",
       });
     });
 
