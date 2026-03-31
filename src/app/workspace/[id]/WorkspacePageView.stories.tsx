@@ -5994,3 +5994,104 @@ export const QuestCompleteProp41ModelAnswer: Story = {
     });
   },
 };
+
+/**
+ * prop-43: 含意の前方合成 — インタラクティブ完了状態。
+ * 7ステップ証明（Łukasiewicz体系、A1+A2）の完了状態を検証。
+ */
+export const QuestCompleteProp43: Story = {
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("prop-43");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // --- 完了状態: 7ステップ証明 ---
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
+      "Łukasiewicz",
+    );
+
+    // 公理パレットが表示される
+    await expect(
+      canvas.getByTestId("workspace-axiom-palette"),
+    ).toBeInTheDocument();
+
+    // ゴール達成確認
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await waitFor(() => {
+      expect(goalPanel).toHaveTextContent("1 / 1");
+    });
+    await expect(goalPanel).toHaveTextContent("Proved!");
+
+    // 完了バナー確認
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
+
+    // Fit to content で全ノードをビューポート内に収める
+    await fitToContent(canvas);
+
+    // ノード存在確認
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * prop-43: 含意の前方合成 — 模範解答ベースの完了状態。
+ * 静的確認用。
+ */
+export const QuestCompleteProp43ModelAnswer: Story = {
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("prop-43");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
+
+    // 完了バナー確認
+    await expect(
+      canvas.getByTestId("workspace-proof-complete-banner"),
+    ).toBeInTheDocument();
+
+    // 体系バッジ
+    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
+      "Łukasiewicz",
+    );
+    const goalPanel = canvas.getByTestId("workspace-goal-panel");
+    await expect(goalPanel).toHaveTextContent("1 / 1");
+    await expect(goalPanel).toHaveTextContent("Proved!");
+
+    // Fit to content で全ノードをビューポート内に収める
+    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
+
+    // ノード存在確認
+    await waitFor(() => {
+      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
+    });
+  },
+};
