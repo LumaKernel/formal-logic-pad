@@ -6095,3 +6095,47 @@ export const QuestCompleteProp43ModelAnswer: Story = {
     });
   },
 };
+
+/**
+ * prop-15: 二重否定導入 (DNI) φ→¬¬φ — 完了状態。
+ * 37ステップ証明。CI 15sタイムアウト境界のためテスト除外。
+ */
+export const QuestCompleteProp15: Story = {
+  tags: ["!test"],
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("prop-15");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+};
+
+/**
+ * prop-15: 二重否定導入 (DNI) — 模範解答ベースの完了状態。
+ * 37ステップの描画がCI 15sタイムアウト境界のためテスト除外。
+ */
+export const QuestCompleteProp15ModelAnswer: Story = {
+  tags: ["!test"],
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("prop-15");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+};
