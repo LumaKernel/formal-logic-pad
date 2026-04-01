@@ -19556,3 +19556,14 @@
   - 1ステップ模範解答（SC/AT/TABのaxiomノード）はbuildCompletedQuestWorkspaceで証明完了にならない。play関数で"Proved!"をassertすると失敗する
   - ストーリーファイルが500KB超のBabel deoptimisation警告が出るが、CI自体は通る
 ---
+
+## 2026-04-01 - quest-stories prop-30 確認
+- prop-30 矛盾律 (LNC) のストーリー確認完了
+- QuestCompleteProp30 / QuestCompleteProp30ModelAnswer 両方の表示を確認
+  - PROOF COMPLETE! バナー表示、ゴール ¬(φ ∧ ¬φ) Proved!、体系 Łukasiewicz、公理一覧正常
+- コード変更なし、タスクファイル更新のみ
+- カバレッジ: Stmts 99.80%, Branch 99.18%, Funcs 90.87%, Lines 99.81%（変化なし）
+- **今後のイテレーションへの学び:**
+  - 81ステップ以上の大規模証明は Playwright screenshot timeout (30s) に注意。15s wait + 60s timeout が必要
+  - Storybook story ID は `title` フィールドから: "Pages/Workspace" → `pages-workspace--<story-name>`
+---
