@@ -19567,3 +19567,20 @@
   - 81ステップ以上の大規模証明は Playwright screenshot timeout (30s) に注意。15s wait + 60s timeout が必要
   - Storybook story ID は `title` フィールドから: "Pages/Workspace" → `pages-workspace--<story-name>`
 ---
+
+## 2026-04-01 - quest stories (全残存セクション確認完了)
+- pred/pred-adv/nd セクション（59件）+ TAB/AT/SC/SC-CE/SC-AP セクション（96件）= 計155件のストーリー確認完了
+- Playwright自動検証スクリプトで全96件のTAB/AT/SC系ストーリーをバッチ確認
+- 結果:
+  - TAB 26件: 全て Proved! 確認済み
+  - AT 19件: 全て1ステップaxiom、既知制約（Not yet）確認
+  - SC 29件 Proved! + 5件 1ステップaxiom既知制約
+  - SC-CE 5件 Proved! + 9件 1ステップaxiom既知制約
+  - SC-AP 3件: 全て Proved! 確認済み
+- quest-stories.md 全タスク完了 → tasks-archived/ にアーカイブ
+- カバレッジ: コード変更なし（タスクファイル更新のみ）、変化なし
+- **今後のイテレーションへの学び:**
+  - Playwright バッチ検証は12s waitで十分（TAB/SC系は描画が軽い）
+  - TAB/SC系の「PROOF COMPLETE」バナーは表示されず、ゴールパネルの「Proved!」のみで判定する
+  - 1ステップaxiomの既知制約: AT全19件、SC 5件(sc-23,24,27,30,34)、SC-CE 9件(sc-ce-05,07-14)
+---
