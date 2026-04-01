@@ -11212,7 +11212,7 @@ export const QuestCompleteGroup06: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Group Theory (Full Axioms)",
+      "Abelian Group",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await waitFor(() => {
@@ -11254,7 +11254,7 @@ export const QuestCompleteGroup06ModelAnswer: Story = {
       canvas.getByTestId("workspace-proof-complete-banner"),
     ).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Group Theory (Full Axioms)",
+      "Abelian Group",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -11868,7 +11868,7 @@ export const QuestCompleteGroup11: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Group Theory (Full Axioms)",
+      "Abelian Group",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await waitFor(() => {
@@ -11910,7 +11910,7 @@ export const QuestCompleteGroup11ModelAnswer: Story = {
       canvas.getByTestId("workspace-proof-complete-banner"),
     ).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Group Theory (Full Axioms)",
+      "Abelian Group",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
