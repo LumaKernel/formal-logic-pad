@@ -12516,7 +12516,6 @@ export const QuestCompleteNd02ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-03: 対偶 (Modus Tollens) — 完了状態。
  * 8ステップ証明。
@@ -12593,7 +12592,6 @@ export const QuestCompleteNd03ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-04: 連言の交換律 — 完了状態。
@@ -12672,7 +12670,6 @@ export const QuestCompleteNd04ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-05: 選言の交換律 — 完了状態。
  * 7ステップ証明。
@@ -12749,7 +12746,6 @@ export const QuestCompleteNd05ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-06: 二重否定導入 (DNI) — 完了状態。
@@ -12828,7 +12824,6 @@ export const QuestCompleteNd06ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-07: 爆発律 (EFQ) — 完了状態。
  * 6ステップ証明。
@@ -12905,7 +12900,6 @@ export const QuestCompleteNd07ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-08: Clavius の法則 (CM*) — 完了状態。
@@ -12984,7 +12978,6 @@ export const QuestCompleteNd08ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-09: 排中律 (TND) — 完了状態。
  * 9ステップ証明。
@@ -13061,7 +13054,6 @@ export const QuestCompleteNd09ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-10: 驚嘆すべき帰結 (CM) — 完了状態。
@@ -13140,7 +13132,6 @@ export const QuestCompleteNd10ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-11: 背理法 RAA¬ (NM) — 完了状態。
  * 9ステップ証明。
@@ -13217,7 +13208,6 @@ export const QuestCompleteNd11ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-12: 古典的背理法 RAA*¬ (NK) — 完了状態。
@@ -13296,7 +13286,6 @@ export const QuestCompleteNd12ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-13: 矛盾からの推論 CON1 (NM) — 完了状態。
  * 7ステップ証明。
@@ -13373,7 +13362,6 @@ export const QuestCompleteNd13ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-14: 矛盾からの推論 CON4 (NK) — 完了状態。
@@ -13452,7 +13440,6 @@ export const QuestCompleteNd14ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-15: 全称導入 ∀I (NM) — 完了状態。
  * 5ステップ証明。
@@ -13529,7 +13516,6 @@ export const QuestCompleteNd15ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-16: 全称除去 ∀E (NM) — 完了状態。
@@ -13608,7 +13594,6 @@ export const QuestCompleteNd16ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-17: 存在導入 ∃I (NM) — 完了状態。
  * 3ステップ証明。
@@ -13685,7 +13670,6 @@ export const QuestCompleteNd17ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-18: 全称量化子の交換 (NM) — 完了状態。
@@ -13764,7 +13748,6 @@ export const QuestCompleteNd18ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-19: 存在除去 ∃E (NM) — 完了状態。
  * 8ステップ証明。
@@ -13841,7 +13824,6 @@ export const QuestCompleteNd19ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-20: 全称から存在 ∀→∃ (NM) — 完了状態。
@@ -13920,7 +13902,6 @@ export const QuestCompleteNd20ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-21: 存在の推移 (NM) — 完了状態。
  * 9ステップ証明。
@@ -13997,7 +13978,6 @@ export const QuestCompleteNd21ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-22: ∃の∧分配 (NM) — 完了状態。
@@ -14076,7 +14056,6 @@ export const QuestCompleteNd22ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-23: ∀の∧結合 (NM) — 完了状態。
  * 8ステップ証明。
@@ -14153,7 +14132,6 @@ export const QuestCompleteNd23ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-24: ド・モルガン ¬∨→∧¬ (NM) — 完了状態。
@@ -14232,7 +14210,6 @@ export const QuestCompleteNd24ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-25: ド・モルガン ∧¬→¬∨ (NM) — 完了状態。
  * 11ステップ証明。
@@ -14309,7 +14286,6 @@ export const QuestCompleteNd25ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-26: ド・モルガン ¬∧→∨¬ (NK) — 完了状態。
@@ -14388,7 +14364,6 @@ export const QuestCompleteNd26ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-27: ∧∨分配律 (NM) — 完了状態。
  * 11ステップ証明。
@@ -14465,7 +14440,6 @@ export const QuestCompleteNd27ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-28: 二重否定除去 (NK) — 完了状態。
@@ -14544,7 +14518,6 @@ export const QuestCompleteNd28ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-29: 対偶の逆 (NK) — 完了状態。
  * 9ステップ証明。
@@ -14621,7 +14594,6 @@ export const QuestCompleteNd29ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-30: ピアースの法則 (NK) — 完了状態。
@@ -14700,7 +14672,6 @@ export const QuestCompleteNd30ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-31: ∨∧分配律の逆 (NM) — 完了状態。
  * 14ステップ証明。
@@ -14777,7 +14748,6 @@ export const QuestCompleteNd31ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-32: ∀の∧分配 (NM) — 完了状態。
@@ -14856,7 +14826,6 @@ export const QuestCompleteNd32ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-33: ∃と∨の結合 (NM) — 完了状態。
  * 13ステップ証明。
@@ -14933,7 +14902,6 @@ export const QuestCompleteNd33ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * nd-34: 量化子のド・モルガン ¬∃→∀¬ (NM) — 完了状態。
@@ -15012,7 +14980,6 @@ export const QuestCompleteNd34ModelAnswer: Story = {
   },
 };
 
-
 /**
  * nd-35: 量化子のド・モルガン ∀¬→¬∃ (NM) — 完了状態。
  * 8ステップ証明。
@@ -15089,7 +15056,6 @@ export const QuestCompleteNd35ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-02: 左弱化 (Weakening Left) — 完了状態。
@@ -15168,7 +15134,6 @@ export const QuestCompleteSc02ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-03: 左縮約 (Contraction Left) — 完了状態。
  * 15ステップ証明。
@@ -15245,7 +15210,6 @@ export const QuestCompleteSc03ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-04: 交換 (Exchange) — 完了状態。
@@ -15324,7 +15288,6 @@ export const QuestCompleteSc04ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-05: 連言導入 (∧R) — 完了状態。
  * 8ステップ証明。
@@ -15401,7 +15364,6 @@ export const QuestCompleteSc05ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-06: 選言除去 (∨L) — 完了状態。
@@ -15480,7 +15442,6 @@ export const QuestCompleteSc06ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-07: 排中律 (LK) — 完了状態。
  * 6ステップ証明。
@@ -15557,7 +15518,6 @@ export const QuestCompleteSc07ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-08: 二重否定除去 (LK) — 完了状態。
@@ -15636,7 +15596,6 @@ export const QuestCompleteSc08ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-09: 対偶 (Contraposition) — 完了状態。
  * 8ステップ証明。
@@ -15713,7 +15672,6 @@ export const QuestCompleteSc09ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-10: ドモルガンの法則 — 完了状態。
@@ -15792,7 +15750,6 @@ export const QuestCompleteSc10ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-11: LJ: 恒等律 — 完了状態。
  * 3ステップ証明。
@@ -15869,7 +15826,6 @@ export const QuestCompleteSc11ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-12: LJ: 矛盾からの爆発 (Ex Falso) — 完了状態。
@@ -15948,7 +15904,6 @@ export const QuestCompleteSc12ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-13: LJ: 対偶 — 完了状態。
  * 8ステップ証明。
@@ -16025,7 +15980,6 @@ export const QuestCompleteSc13ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-14: LJ: 選言除去 — 完了状態。
@@ -16104,7 +16058,6 @@ export const QuestCompleteSc14ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-15: LJ: 連言除去 — 完了状態。
  * 4ステップ証明。
@@ -16181,7 +16134,6 @@ export const QuestCompleteSc15ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-16: LJ: 連言の可換性 — 完了状態。
@@ -16260,7 +16212,6 @@ export const QuestCompleteSc16ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-17: LJ: 含意の推移律 — 完了状態。
  * 10ステップ証明。
@@ -16337,7 +16288,6 @@ export const QuestCompleteSc17ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-18: LJ: 矛盾からの否定帰結 — 完了状態。
@@ -16416,7 +16366,6 @@ export const QuestCompleteSc18ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-19: LJ: 選言導入 — 完了状態。
  * 4ステップ証明。
@@ -16493,7 +16442,6 @@ export const QuestCompleteSc19ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-20: LJ: カリー化 — 完了状態。
@@ -16572,7 +16520,6 @@ export const QuestCompleteSc20ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-21: LJ: 逆カリー化 — 完了状態。
  * 13ステップ証明。
@@ -16649,7 +16596,6 @@ export const QuestCompleteSc21ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-22: LJ: 含意と連言の分配 — 完了状態。
@@ -16728,7 +16674,6 @@ export const QuestCompleteSc22ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-23: LK: パースの法則 — 完了状態。
  * 1ステップ証明。
@@ -16805,7 +16750,6 @@ export const QuestCompleteSc23ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-24: LK: 逆対偶 — 完了状態。
@@ -16884,7 +16828,6 @@ export const QuestCompleteSc24ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-25: LK: 含意の選言表現 — 完了状態。
  * 11ステップ証明。
@@ -16961,7 +16904,6 @@ export const QuestCompleteSc25ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-26: LK: 弱排中律 — 完了状態。
@@ -17040,7 +16982,6 @@ export const QuestCompleteSc26ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-27: LJ: 全称消去 (∀⇒) — 完了状態。
  * 1ステップ証明。
@@ -17117,7 +17058,6 @@ export const QuestCompleteSc27ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-28: LJ: 存在導入 (⇒∃) — 完了状態。
@@ -17196,7 +17136,6 @@ export const QuestCompleteSc28ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-29: LJ: 全称から存在 — 完了状態。
  * 5ステップ証明。
@@ -17273,7 +17212,6 @@ export const QuestCompleteSc29ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-30: LJ: 全称量化子の交換 — 完了状態。
@@ -17352,7 +17290,6 @@ export const QuestCompleteSc30ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-31: LJ: 存在除去 (∃⇒) — 完了状態。
  * 6ステップ証明。
@@ -17429,7 +17366,6 @@ export const QuestCompleteSc31ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-32: LJ: 存在量化子の分配 — 完了状態。
@@ -17508,7 +17444,6 @@ export const QuestCompleteSc32ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-33: LK: 否定全称から存在否定 — 完了状態。
  * 7ステップ証明。
@@ -17585,7 +17520,6 @@ export const QuestCompleteSc33ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-34: LJ: 全称と含意の分配 — 完了状態。
@@ -17664,7 +17598,6 @@ export const QuestCompleteSc34ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-ap-01: 自動証明: 恒等律 — 完了状態。
  * 3ステップ証明。
@@ -17741,7 +17674,6 @@ export const QuestCompleteScAp01ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-ap-02: 自動証明: 対偶律 — 完了状態。
@@ -17820,7 +17752,6 @@ export const QuestCompleteScAp02ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-ap-03: 自動証明: ド・モルガン律 — 完了状態。
  * 10ステップ証明。
@@ -17897,7 +17828,6 @@ export const QuestCompleteScAp03ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-ce-01: カットの基本: 推移律 — 完了状態。
@@ -17976,7 +17906,6 @@ export const QuestCompleteScCe01ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-ce-02: カットと Modus Ponens — 完了状態。
  * 7ステップ証明。
@@ -18053,7 +17982,6 @@ export const QuestCompleteScCe02ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-ce-03: カットで連言の可換性 — 完了状態。
@@ -18132,7 +18060,6 @@ export const QuestCompleteScCe03ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-ce-04: カット連鎖 — 完了状態。
  * 15ステップ証明。
@@ -18209,7 +18136,6 @@ export const QuestCompleteScCe04ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-ce-05: 否定とカット — 完了状態。
@@ -18288,7 +18214,6 @@ export const QuestCompleteScCe05ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-ce-06: Don't Eliminate Cut: 証明の膨張 — 完了状態。
  * 11ステップ証明。
@@ -18365,7 +18290,6 @@ export const QuestCompleteScCe06ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-ce-07: カットで選言の可換性 — 完了状態。
@@ -18444,7 +18368,6 @@ export const QuestCompleteScCe07ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-ce-08: カットで対偶 — 完了状態。
  * 1ステップ証明。
@@ -18521,7 +18444,6 @@ export const QuestCompleteScCe08ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-ce-09: カットで選言の消去 — 完了状態。
@@ -18600,7 +18522,6 @@ export const QuestCompleteScCe09ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-ce-10: カットで分配律 — 完了状態。
  * 1ステップ証明。
@@ -18677,7 +18598,6 @@ export const QuestCompleteScCe10ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-ce-11: カットで ∀ の含意分配 — 完了状態。
@@ -18756,7 +18676,6 @@ export const QuestCompleteScCe11ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-ce-12: カットで ∃ の推移律 — 完了状態。
  * 1ステップ証明。
@@ -18833,7 +18752,6 @@ export const QuestCompleteScCe12ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * sc-ce-13: カットで量化子のド・モルガン — 完了状態。
@@ -18912,7 +18830,6 @@ export const QuestCompleteScCe13ModelAnswer: Story = {
   },
 };
 
-
 /**
  * sc-ce-14: カットで量化子シフト — 完了状態。
  * 1ステップ証明。
@@ -18989,7 +18906,6 @@ export const QuestCompleteScCe14ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * tab-02: 二重否定除去の反駁 (¬¬) — 完了状態。
@@ -19068,7 +18984,6 @@ export const QuestCompleteTab02ModelAnswer: Story = {
   },
 };
 
-
 /**
  * tab-03: 排中律の反駁 (¬∨, →) — 完了状態。
  * 4ステップ証明。
@@ -19145,7 +19060,6 @@ export const QuestCompleteTab03ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * tab-04: 対偶の反駁 (→, ¬→) — 完了状態。
@@ -19224,7 +19138,6 @@ export const QuestCompleteTab04ModelAnswer: Story = {
   },
 };
 
-
 /**
  * tab-05: ド・モルガンの法則 1 (¬∧, ∨) — 完了状態。
  * 8ステップ証明。
@@ -19301,7 +19214,6 @@ export const QuestCompleteTab05ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * tab-06: ド・モルガンの法則 2 (¬∨, ∧) — 完了状態。
@@ -19380,7 +19292,6 @@ export const QuestCompleteTab06ModelAnswer: Story = {
   },
 };
 
-
 /**
  * tab-07: 連言の交換律 (∧, ¬∧) — 完了状態。
  * 6ステップ証明。
@@ -19457,7 +19368,6 @@ export const QuestCompleteTab07ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * tab-08: 選言の交換律 (∨, ¬∨) — 完了状態。
@@ -19536,7 +19446,6 @@ export const QuestCompleteTab08ModelAnswer: Story = {
   },
 };
 
-
 /**
  * tab-09: モーダストレンスの反駁 (→) — 完了状態。
  * 7ステップ証明。
@@ -19613,7 +19522,6 @@ export const QuestCompleteTab09ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * tab-10: 推移律の反駁 (→) — 完了状態。
@@ -19692,7 +19600,6 @@ export const QuestCompleteTab10ModelAnswer: Story = {
   },
 };
 
-
 /**
  * tab-11: 二重否定導入の反駁 (¬¬) — 完了状態。
  * 4ステップ証明。
@@ -19769,7 +19676,6 @@ export const QuestCompleteTab11ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * tab-12: 爆発律の反駁 (¬→, →) — 完了状態。
@@ -19848,7 +19754,6 @@ export const QuestCompleteTab12ModelAnswer: Story = {
   },
 };
 
-
 /**
  * tab-13: ド・モルガン逆方向 (¬∧, ∨) — 完了状態。
  * 7ステップ証明。
@@ -19925,7 +19830,6 @@ export const QuestCompleteTab13ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * tab-14: 含意と連言の分配 (¬∧, →) — 完了状態。
@@ -20004,7 +19908,6 @@ export const QuestCompleteTab14ModelAnswer: Story = {
   },
 };
 
-
 /**
  * tab-15: 連言の結合律 (∧, ¬∧) — 完了状態。
  * 9ステップ証明。
@@ -20081,7 +19984,6 @@ export const QuestCompleteTab15ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * tab-16: 選言の結合律 (∨, ¬∨) — 完了状態。
@@ -20160,7 +20062,6 @@ export const QuestCompleteTab16ModelAnswer: Story = {
   },
 };
 
-
 /**
  * tab-17: 吸収律 (→, ¬∧) — 完了状態。
  * 8ステップ証明。
@@ -20237,7 +20138,6 @@ export const QuestCompleteTab17ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * tab-18: 含意の選言表現 (¬∨, →) — 完了状態。
@@ -20316,7 +20216,6 @@ export const QuestCompleteTab18ModelAnswer: Story = {
   },
 };
 
-
 /**
  * tab-19: 全称除去 (∀規則) — 完了状態。
  * 4ステップ証明。
@@ -20393,7 +20292,6 @@ export const QuestCompleteTab19ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * tab-20: 存在→否定全称否定 (∃, ¬¬, ∀) — 完了状態。
@@ -20472,7 +20370,6 @@ export const QuestCompleteTab20ModelAnswer: Story = {
   },
 };
 
-
 /**
  * tab-21: 全称含意分配 (¬∀, ∀, →分岐) — 完了状態。
  * 9ステップ証明。
@@ -20549,7 +20446,6 @@ export const QuestCompleteTab21ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * tab-22: 全称連言分配 (¬∧分岐, ¬∀, ∀, ∧) — 完了状態。
@@ -20628,7 +20524,6 @@ export const QuestCompleteTab22ModelAnswer: Story = {
   },
 };
 
-
 /**
  * tab-23: 全称から存在 (∀, ¬∃) — 完了状態。
  * 5ステップ証明。
@@ -20705,7 +20600,6 @@ export const QuestCompleteTab23ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * tab-24: 存在連言分配 (∃, ∧, ¬∃) — 完了状態。
@@ -20784,7 +20678,6 @@ export const QuestCompleteTab24ModelAnswer: Story = {
   },
 };
 
-
 /**
  * tab-25: 否定全称から存在否定 (¬∀, ¬∃, ¬¬) — 完了状態。
  * 6ステップ証明。
@@ -20861,7 +20754,6 @@ export const QuestCompleteTab25ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * tab-26: 存在選言分配 (∨分岐, ∃, ¬∃, ¬∨) — 完了状態。
@@ -20940,7 +20832,6 @@ export const QuestCompleteTab26ModelAnswer: Story = {
   },
 };
 
-
 /**
  * at-02: 含意の基本 (α規則) — 完了状態。
  * 1ステップ証明。
@@ -21017,7 +20908,6 @@ export const QuestCompleteAt02ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * at-03: 二重否定除去 (α規則) — 完了状態。
@@ -21096,7 +20986,6 @@ export const QuestCompleteAt03ModelAnswer: Story = {
   },
 };
 
-
 /**
  * at-04: 対偶 (α/β規則) — 完了状態。
  * 1ステップ証明。
@@ -21173,7 +21062,6 @@ export const QuestCompleteAt04ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * at-05: ド・モルガン (α/β規則) — 完了状態。
@@ -21252,7 +21140,6 @@ export const QuestCompleteAt05ModelAnswer: Story = {
   },
 };
 
-
 /**
  * at-06: 分配律 (複合分岐) — 完了状態。
  * 1ステップ証明。
@@ -21329,7 +21216,6 @@ export const QuestCompleteAt06ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * at-07: 全称から存在 (γ/δ規則) — 完了状態。
@@ -21408,7 +21294,6 @@ export const QuestCompleteAt07ModelAnswer: Story = {
   },
 };
 
-
 /**
  * at-08: 連言の交換律 (α規則) — 完了状態。
  * 1ステップ証明。
@@ -21485,7 +21370,6 @@ export const QuestCompleteAt08ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * at-09: 選言の交換律 (β規則) — 完了状態。
@@ -21564,7 +21448,6 @@ export const QuestCompleteAt09ModelAnswer: Story = {
   },
 };
 
-
 /**
  * at-10: 推移律 (複数F→分解) — 完了状態。
  * 1ステップ証明。
@@ -21641,7 +21524,6 @@ export const QuestCompleteAt10ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * at-11: ド・モルガン 2 (α規則中心) — 完了状態。
@@ -21720,7 +21602,6 @@ export const QuestCompleteAt11ModelAnswer: Story = {
   },
 };
 
-
 /**
  * at-12: 含意のド・モルガン (α規則) — 完了状態。
  * 1ステップ証明。
@@ -21797,7 +21678,6 @@ export const QuestCompleteAt12ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * at-13: 二重否定導入 (α規則) — 完了状態。
@@ -21876,7 +21756,6 @@ export const QuestCompleteAt13ModelAnswer: Story = {
   },
 };
 
-
 /**
  * at-14: 含意と選言の変換 (β規則) — 完了状態。
  * 1ステップ証明。
@@ -21953,7 +21832,6 @@ export const QuestCompleteAt14ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * at-15: ピアースの法則 (複合β規則) — 完了状態。
@@ -22032,7 +21910,6 @@ export const QuestCompleteAt15ModelAnswer: Story = {
   },
 };
 
-
 /**
  * at-16: 存在から全称否定 (δ/γ規則) — 完了状態。
  * 1ステップ証明。
@@ -22109,7 +21986,6 @@ export const QuestCompleteAt16ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * at-17: 全称と含意の分配 (γ規則×2) — 完了状態。
@@ -22188,7 +22064,6 @@ export const QuestCompleteAt17ModelAnswer: Story = {
   },
 };
 
-
 /**
  * at-18: 全称と連言の分配 (γ規則+F∧) — 完了状態。
  * 1ステップ証明。
@@ -22265,7 +22140,6 @@ export const QuestCompleteAt18ModelAnswer: Story = {
     });
   },
 };
-
 
 /**
  * at-19: 存在と選言 (T∨β+δ規則) — 完了状態。
@@ -22344,7 +22218,6 @@ export const QuestCompleteAt19ModelAnswer: Story = {
   },
 };
 
-
 /**
  * peano-01: 0は後子ではない (PA1) — 完了状態。
  * 1ステップ証明。
@@ -22385,7 +22258,6 @@ export const QuestCompletePeano01: Story = {
   },
 };
 
-
 /**
  * peano-07: 0 + 0 = 0 — 完了状態。
  * 3ステップ証明。
@@ -22425,7 +22297,6 @@ export const QuestCompletePeano07: Story = {
     });
   },
 };
-
 
 /**
  * pred-adv-13: 全称下の対偶 — 完了状態。
@@ -22469,7 +22340,6 @@ export const QuestCompletePredAdv13ModelAnswer: Story = {
     );
   },
 };
-
 
 /**
  * pred-adv-14: 全称下の弱化 — 完了状態。
@@ -22547,4 +22417,3 @@ export const QuestCompletePredAdv14ModelAnswer: Story = {
     });
   },
 };
-
