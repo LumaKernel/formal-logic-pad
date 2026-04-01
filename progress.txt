@@ -19543,3 +19543,16 @@
 - 変更ファイル: WorkspacePageView.stories.tsx, tasks/quest-stories.md
 - カバレッジ: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%（変化なし）
 ---
+
+## 2026-04-01 - quest stories (全残存クエスト一括)
+- 全残存クエストのQuestComplete + ModelAnswerストーリーを一括追加（260ストーリー、131クエスト）
+- 対象カテゴリ: nd-02〜nd-35, sc-02〜sc-34, sc-ap-01〜sc-ap-03, sc-ce-01〜sc-ce-14, tab-02〜tab-26, at-02〜at-19, peano-01/07(main only), pred-adv-13/14
+- 体系名修正: group-06/11をAbelian Group、peano-12をRobinson Arithmetic (Q)、prop-01 FullFlowをŁukasiewiczに修正
+- 不完全証明(1ステップ模範解答)のストーリーはtags:["!test"]に変更（SC/AT/TAB 1ステップ、nd-26 a11y問題含む）
+- 変更ファイル: WorkspacePageView.stories.tsx, tasks/quest-stories.md, task-processing.md
+- カバレッジ: Stmts 99.80%, Branch 99.18%, Funcs 90.87%, Lines 99.81%
+- **今後のイテレーションへの学び:**
+  - システム体系名はクエストごとにsystemPresetIdが異なる（group-06/11=abelian-group、peano-12=robinson等）。バッチ生成時はbuiltinQuests.tsから個別に確認必要
+  - 1ステップ模範解答（SC/AT/TABのaxiomノード）はbuildCompletedQuestWorkspaceで証明完了にならない。play関数で"Proved!"をassertすると失敗する
+  - ストーリーファイルが500KB超のBabel deoptimisation警告が出るが、CI自体は通る
+---
