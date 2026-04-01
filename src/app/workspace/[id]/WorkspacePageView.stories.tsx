@@ -3964,7 +3964,7 @@ export const QuestCompleteProp01FullFlow: Story = {
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     // 体系バッジに正しい体系名が表示される
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Peano Arithmetic",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("0 / 1");
@@ -7157,7 +7157,7 @@ export const QuestCompleteEq01: Story = {
     // --- 完了状態: 1ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
 
     // ゴール達成確認
@@ -7207,7 +7207,7 @@ export const QuestCompleteEq02: Story = {
     // --- 完了状態: 1ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
 
     // ゴール達成確認
@@ -7262,7 +7262,7 @@ export const QuestCompleteEq02ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -7303,7 +7303,7 @@ export const QuestCompleteEq03: Story = {
     // --- 完了状態: 1ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
 
     // ゴール達成確認
@@ -7358,7 +7358,7 @@ export const QuestCompleteEq03ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -7399,7 +7399,7 @@ export const QuestCompleteEq04: Story = {
     // --- 完了状態: 3ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
 
     // ゴール達成確認
@@ -7454,7 +7454,7 @@ export const QuestCompleteEq04ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -7495,7 +7495,7 @@ export const QuestCompleteEq05: Story = {
     // --- 完了状態: 5ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
 
     // ゴール達成確認
@@ -7550,7 +7550,7 @@ export const QuestCompleteEq05ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -7591,7 +7591,7 @@ export const QuestCompleteEq06: Story = {
     // --- 完了状態: 7ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
 
     // ゴール達成確認
@@ -7646,7 +7646,7 @@ export const QuestCompleteEq06ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -7687,7 +7687,7 @@ export const QuestCompleteEq07: Story = {
     // --- 完了状態: 2ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
 
     // ゴール達成確認
@@ -7742,7 +7742,7 @@ export const QuestCompleteEq07ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -7783,7 +7783,7 @@ export const QuestCompleteEq08: Story = {
     // --- 完了状態: 5ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
 
     // ゴール達成確認
@@ -7838,7 +7838,7 @@ export const QuestCompleteEq08ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -7879,7 +7879,7 @@ export const QuestCompleteEq09: Story = {
     // --- 完了状態: 5ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
 
     // ゴール達成確認
@@ -7934,7 +7934,7 @@ export const QuestCompleteEq09ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -7975,7 +7975,7 @@ export const QuestCompleteEq10: Story = {
     // --- 完了状態: 7ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
 
     // ゴール達成確認
@@ -8030,7 +8030,7 @@ export const QuestCompleteEq10ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic with Equality",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -8071,7 +8071,7 @@ export const QuestCompletePred01: Story = {
     // --- 完了状態: 1ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
 
     // ゴール達成確認
@@ -8126,7 +8126,7 @@ export const QuestCompletePred01ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -8167,7 +8167,7 @@ export const QuestCompletePred02: Story = {
     // --- 完了状態: 6ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
 
     // ゴール達成確認
@@ -8222,7 +8222,7 @@ export const QuestCompletePred02ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -8263,7 +8263,7 @@ export const QuestCompletePred03: Story = {
     // --- 完了状態: 13ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
 
     // ゴール達成確認
@@ -8318,7 +8318,7 @@ export const QuestCompletePred03ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -8491,7 +8491,7 @@ export const QuestCompletePred07: Story = {
     // --- 完了状態: 1ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
 
     // ゴール達成確認
@@ -8546,7 +8546,7 @@ export const QuestCompletePred07ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -8587,7 +8587,7 @@ export const QuestCompletePred08: Story = {
     // --- 完了状態: 2ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
 
     // ゴール達成確認
@@ -8642,7 +8642,7 @@ export const QuestCompletePred08ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -8683,7 +8683,7 @@ export const QuestCompletePred09: Story = {
     // --- 完了状態: 3ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
 
     // ゴール達成確認
@@ -8738,7 +8738,7 @@ export const QuestCompletePred09ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -8779,7 +8779,7 @@ export const QuestCompletePred10: Story = {
     // --- 完了状態: 4ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
 
     // ゴール達成確認
@@ -8834,7 +8834,7 @@ export const QuestCompletePred10ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -9051,7 +9051,7 @@ export const QuestCompletePredAdv05: Story = {
     // --- 完了状態: 13ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
 
     // ゴール達成確認
@@ -9106,7 +9106,7 @@ export const QuestCompletePredAdv05ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -9279,7 +9279,7 @@ export const QuestCompletePredAdv09: Story = {
     // --- 完了状態: 1ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
 
     // ゴール達成確認
@@ -9334,7 +9334,7 @@ export const QuestCompletePredAdv09ModelAnswer: Story = {
 
     // 体系バッジ
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
     const goalPanel = canvas.getByTestId("workspace-goal-panel");
     await expect(goalPanel).toHaveTextContent("1 / 1");
@@ -9419,7 +9419,7 @@ export const QuestCompletePredAdv11: Story = {
     // --- 完了状態: 8ステップ証明 ---
     await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
     await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Łukasiewicz",
+      "Predicate Logic",
     );
 
     // ゴール達成確認
