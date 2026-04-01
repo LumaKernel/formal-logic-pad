@@ -6139,3 +6139,47 @@ export const QuestCompleteProp15ModelAnswer: Story = {
     );
   },
 };
+
+/**
+ * prop-16: Modus Tollens — 完了状態。
+ * 106ステップ証明。CI 15sタイムアウトを超えるためテスト除外。
+ */
+export const QuestCompleteProp16: Story = {
+  tags: ["!test"],
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("prop-16");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+};
+
+/**
+ * prop-16: Modus Tollens — 模範解答ベースの完了状態。
+ * 106ステップの描画がCI 15sタイムアウトを超えるためテスト除外。
+ */
+export const QuestCompleteProp16ModelAnswer: Story = {
+  tags: ["!test"],
+  render: () => {
+    const { workspace, questInfo, title } =
+      buildCompletedQuestWorkspace("prop-16");
+    return (
+      <StatefulWorkspace
+        initialWorkspace={workspace}
+        initialNotebookName={title}
+        onBack={fn()}
+        onGoalAchieved={fn()}
+        questInfo={questInfo}
+        workspaceTestId="workspace"
+      />
+    );
+  },
+};
