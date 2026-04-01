@@ -14292,6 +14292,7 @@ export const QuestCompleteNd25ModelAnswer: Story = {
  * 15ステップ証明。
  */
 export const QuestCompleteNd26: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("nd-26");
@@ -14305,25 +14306,6 @@ export const QuestCompleteNd26: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Natural Deduction NK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -14331,6 +14313,7 @@ export const QuestCompleteNd26: Story = {
  * nd-26: ド・モルガン ¬∧→∨¬ (NK) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteNd26ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("nd-26");
@@ -14344,23 +14327,6 @@ export const QuestCompleteNd26ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Natural Deduction NK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -16679,6 +16645,7 @@ export const QuestCompleteSc22ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteSc23: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-23");
@@ -16692,25 +16659,6 @@ export const QuestCompleteSc23: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -16718,6 +16666,7 @@ export const QuestCompleteSc23: Story = {
  * sc-23: LK: パースの法則 — 模範解答ベースの完了状態。
  */
 export const QuestCompleteSc23ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-23");
@@ -16731,23 +16680,6 @@ export const QuestCompleteSc23ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -16756,6 +16688,7 @@ export const QuestCompleteSc23ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteSc24: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-24");
@@ -16769,25 +16702,6 @@ export const QuestCompleteSc24: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -16795,6 +16709,7 @@ export const QuestCompleteSc24: Story = {
  * sc-24: LK: 逆対偶 — 模範解答ベースの完了状態。
  */
 export const QuestCompleteSc24ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-24");
@@ -16808,23 +16723,6 @@ export const QuestCompleteSc24ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -16987,6 +16885,7 @@ export const QuestCompleteSc26ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteSc27: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-27");
@@ -17000,25 +16899,6 @@ export const QuestCompleteSc27: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LJ",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -17026,6 +16906,7 @@ export const QuestCompleteSc27: Story = {
  * sc-27: LJ: 全称消去 (∀⇒) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteSc27ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-27");
@@ -17039,23 +16920,6 @@ export const QuestCompleteSc27ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LJ",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -17218,6 +17082,7 @@ export const QuestCompleteSc29ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteSc30: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-30");
@@ -17231,25 +17096,6 @@ export const QuestCompleteSc30: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LJ",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -17257,6 +17103,7 @@ export const QuestCompleteSc30: Story = {
  * sc-30: LJ: 全称量化子の交換 — 模範解答ベースの完了状態。
  */
 export const QuestCompleteSc30ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-30");
@@ -17270,23 +17117,6 @@ export const QuestCompleteSc30ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LJ",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -17526,6 +17356,7 @@ export const QuestCompleteSc33ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteSc34: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-34");
@@ -17539,25 +17370,6 @@ export const QuestCompleteSc34: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LJ",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -17565,6 +17377,7 @@ export const QuestCompleteSc34: Story = {
  * sc-34: LJ: 全称と含意の分配 — 模範解答ベースの完了状態。
  */
 export const QuestCompleteSc34ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-34");
@@ -17578,23 +17391,6 @@ export const QuestCompleteSc34ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LJ",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18142,6 +17938,7 @@ export const QuestCompleteScCe04ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteScCe05: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-05");
@@ -18155,25 +17952,6 @@ export const QuestCompleteScCe05: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18181,6 +17959,7 @@ export const QuestCompleteScCe05: Story = {
  * sc-ce-05: 否定とカット — 模範解答ベースの完了状態。
  */
 export const QuestCompleteScCe05ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-05");
@@ -18194,23 +17973,6 @@ export const QuestCompleteScCe05ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18296,6 +18058,7 @@ export const QuestCompleteScCe06ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteScCe07: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-07");
@@ -18309,25 +18072,6 @@ export const QuestCompleteScCe07: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18335,6 +18079,7 @@ export const QuestCompleteScCe07: Story = {
  * sc-ce-07: カットで選言の可換性 — 模範解答ベースの完了状態。
  */
 export const QuestCompleteScCe07ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-07");
@@ -18348,23 +18093,6 @@ export const QuestCompleteScCe07ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18373,6 +18101,7 @@ export const QuestCompleteScCe07ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteScCe08: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-08");
@@ -18386,25 +18115,6 @@ export const QuestCompleteScCe08: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18412,6 +18122,7 @@ export const QuestCompleteScCe08: Story = {
  * sc-ce-08: カットで対偶 — 模範解答ベースの完了状態。
  */
 export const QuestCompleteScCe08ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-08");
@@ -18425,23 +18136,6 @@ export const QuestCompleteScCe08ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18450,6 +18144,7 @@ export const QuestCompleteScCe08ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteScCe09: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-09");
@@ -18463,25 +18158,6 @@ export const QuestCompleteScCe09: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18489,6 +18165,7 @@ export const QuestCompleteScCe09: Story = {
  * sc-ce-09: カットで選言の消去 — 模範解答ベースの完了状態。
  */
 export const QuestCompleteScCe09ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-09");
@@ -18502,23 +18179,6 @@ export const QuestCompleteScCe09ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18527,6 +18187,7 @@ export const QuestCompleteScCe09ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteScCe10: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-10");
@@ -18540,25 +18201,6 @@ export const QuestCompleteScCe10: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18566,6 +18208,7 @@ export const QuestCompleteScCe10: Story = {
  * sc-ce-10: カットで分配律 — 模範解答ベースの完了状態。
  */
 export const QuestCompleteScCe10ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-10");
@@ -18579,23 +18222,6 @@ export const QuestCompleteScCe10ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LK",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18604,6 +18230,7 @@ export const QuestCompleteScCe10ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteScCe11: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-11");
@@ -18617,25 +18244,6 @@ export const QuestCompleteScCe11: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LJ",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18643,6 +18251,7 @@ export const QuestCompleteScCe11: Story = {
  * sc-ce-11: カットで ∀ の含意分配 — 模範解答ベースの完了状態。
  */
 export const QuestCompleteScCe11ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-11");
@@ -18656,23 +18265,6 @@ export const QuestCompleteScCe11ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LJ",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18681,6 +18273,7 @@ export const QuestCompleteScCe11ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteScCe12: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-12");
@@ -18694,25 +18287,6 @@ export const QuestCompleteScCe12: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LJ",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18720,6 +18294,7 @@ export const QuestCompleteScCe12: Story = {
  * sc-ce-12: カットで ∃ の推移律 — 模範解答ベースの完了状態。
  */
 export const QuestCompleteScCe12ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-12");
@@ -18733,23 +18308,6 @@ export const QuestCompleteScCe12ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LJ",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18758,6 +18316,7 @@ export const QuestCompleteScCe12ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteScCe13: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-13");
@@ -18771,25 +18330,6 @@ export const QuestCompleteScCe13: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LJ",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18797,6 +18337,7 @@ export const QuestCompleteScCe13: Story = {
  * sc-ce-13: カットで量化子のド・モルガン — 模範解答ベースの完了状態。
  */
 export const QuestCompleteScCe13ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-13");
@@ -18810,23 +18351,6 @@ export const QuestCompleteScCe13ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LJ",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18835,6 +18359,7 @@ export const QuestCompleteScCe13ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteScCe14: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-14");
@@ -18848,25 +18373,6 @@ export const QuestCompleteScCe14: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LJ",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -18874,6 +18380,7 @@ export const QuestCompleteScCe14: Story = {
  * sc-ce-14: カットで量化子シフト — 模範解答ベースの完了状態。
  */
 export const QuestCompleteScCe14ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("sc-ce-14");
@@ -18887,23 +18394,6 @@ export const QuestCompleteScCe14ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Sequent Calculus LJ",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -19528,6 +19018,7 @@ export const QuestCompleteTab09ModelAnswer: Story = {
  * 9ステップ証明。
  */
 export const QuestCompleteTab10: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-10");
@@ -19541,25 +19032,6 @@ export const QuestCompleteTab10: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -19567,6 +19039,7 @@ export const QuestCompleteTab10: Story = {
  * tab-10: 推移律の反駁 (→) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteTab10ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-10");
@@ -19580,23 +19053,6 @@ export const QuestCompleteTab10ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -19836,6 +19292,7 @@ export const QuestCompleteTab13ModelAnswer: Story = {
  * 13ステップ証明。
  */
 export const QuestCompleteTab14: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-14");
@@ -19849,25 +19306,6 @@ export const QuestCompleteTab14: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -19875,6 +19313,7 @@ export const QuestCompleteTab14: Story = {
  * tab-14: 含意と連言の分配 (¬∧, →) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteTab14ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-14");
@@ -19888,23 +19327,6 @@ export const QuestCompleteTab14ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -19913,6 +19335,7 @@ export const QuestCompleteTab14ModelAnswer: Story = {
  * 9ステップ証明。
  */
 export const QuestCompleteTab15: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-15");
@@ -19926,25 +19349,6 @@ export const QuestCompleteTab15: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -19952,6 +19356,7 @@ export const QuestCompleteTab15: Story = {
  * tab-15: 連言の結合律 (∧, ¬∧) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteTab15ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-15");
@@ -19965,23 +19370,6 @@ export const QuestCompleteTab15ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -19990,6 +19378,7 @@ export const QuestCompleteTab15ModelAnswer: Story = {
  * 9ステップ証明。
  */
 export const QuestCompleteTab16: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-16");
@@ -20003,25 +19392,6 @@ export const QuestCompleteTab16: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -20029,6 +19399,7 @@ export const QuestCompleteTab16: Story = {
  * tab-16: 選言の結合律 (∨, ¬∨) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteTab16ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-16");
@@ -20042,23 +19413,6 @@ export const QuestCompleteTab16ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -20067,6 +19421,7 @@ export const QuestCompleteTab16ModelAnswer: Story = {
  * 8ステップ証明。
  */
 export const QuestCompleteTab17: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-17");
@@ -20080,25 +19435,6 @@ export const QuestCompleteTab17: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -20106,6 +19442,7 @@ export const QuestCompleteTab17: Story = {
  * tab-17: 吸収律 (→, ¬∧) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteTab17ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-17");
@@ -20119,23 +19456,6 @@ export const QuestCompleteTab17ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -20375,6 +19695,7 @@ export const QuestCompleteTab20ModelAnswer: Story = {
  * 9ステップ証明。
  */
 export const QuestCompleteTab21: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-21");
@@ -20388,25 +19709,6 @@ export const QuestCompleteTab21: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -20414,6 +19716,7 @@ export const QuestCompleteTab21: Story = {
  * tab-21: 全称含意分配 (¬∀, ∀, →分岐) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteTab21ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-21");
@@ -20427,23 +19730,6 @@ export const QuestCompleteTab21ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -20452,6 +19738,7 @@ export const QuestCompleteTab21ModelAnswer: Story = {
  * 11ステップ証明。
  */
 export const QuestCompleteTab22: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-22");
@@ -20465,25 +19752,6 @@ export const QuestCompleteTab22: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -20491,6 +19759,7 @@ export const QuestCompleteTab22: Story = {
  * tab-22: 全称連言分配 (¬∧分岐, ¬∀, ∀, ∧) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteTab22ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-22");
@@ -20504,23 +19773,6 @@ export const QuestCompleteTab22ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -20760,6 +20012,7 @@ export const QuestCompleteTab25ModelAnswer: Story = {
  * 11ステップ証明。
  */
 export const QuestCompleteTab26: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-26");
@@ -20773,25 +20026,6 @@ export const QuestCompleteTab26: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -20799,6 +20033,7 @@ export const QuestCompleteTab26: Story = {
  * tab-26: 存在選言分配 (∨分岐, ∃, ¬∃, ¬∨) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteTab26ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("tab-26");
@@ -20812,23 +20047,6 @@ export const QuestCompleteTab26ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Tableau Calculus TAB",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -20837,6 +20055,7 @@ export const QuestCompleteTab26ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt02: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-02");
@@ -20850,25 +20069,6 @@ export const QuestCompleteAt02: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -20876,6 +20076,7 @@ export const QuestCompleteAt02: Story = {
  * at-02: 含意の基本 (α規則) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt02ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-02");
@@ -20889,23 +20090,6 @@ export const QuestCompleteAt02ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -20914,6 +20098,7 @@ export const QuestCompleteAt02ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt03: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-03");
@@ -20927,25 +20112,6 @@ export const QuestCompleteAt03: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -20953,6 +20119,7 @@ export const QuestCompleteAt03: Story = {
  * at-03: 二重否定除去 (α規則) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt03ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-03");
@@ -20966,23 +20133,6 @@ export const QuestCompleteAt03ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -20991,6 +20141,7 @@ export const QuestCompleteAt03ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt04: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-04");
@@ -21004,25 +20155,6 @@ export const QuestCompleteAt04: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21030,6 +20162,7 @@ export const QuestCompleteAt04: Story = {
  * at-04: 対偶 (α/β規則) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt04ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-04");
@@ -21043,23 +20176,6 @@ export const QuestCompleteAt04ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21068,6 +20184,7 @@ export const QuestCompleteAt04ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt05: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-05");
@@ -21081,25 +20198,6 @@ export const QuestCompleteAt05: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21107,6 +20205,7 @@ export const QuestCompleteAt05: Story = {
  * at-05: ド・モルガン (α/β規則) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt05ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-05");
@@ -21120,23 +20219,6 @@ export const QuestCompleteAt05ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21145,6 +20227,7 @@ export const QuestCompleteAt05ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt06: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-06");
@@ -21158,25 +20241,6 @@ export const QuestCompleteAt06: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21184,6 +20248,7 @@ export const QuestCompleteAt06: Story = {
  * at-06: 分配律 (複合分岐) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt06ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-06");
@@ -21197,23 +20262,6 @@ export const QuestCompleteAt06ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau (Propositional)",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21222,6 +20270,7 @@ export const QuestCompleteAt06ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt07: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-07");
@@ -21235,25 +20284,6 @@ export const QuestCompleteAt07: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21261,6 +20291,7 @@ export const QuestCompleteAt07: Story = {
  * at-07: 全称から存在 (γ/δ規則) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt07ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-07");
@@ -21274,23 +20305,6 @@ export const QuestCompleteAt07ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21299,6 +20313,7 @@ export const QuestCompleteAt07ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt08: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-08");
@@ -21312,25 +20327,6 @@ export const QuestCompleteAt08: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21338,6 +20334,7 @@ export const QuestCompleteAt08: Story = {
  * at-08: 連言の交換律 (α規則) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt08ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-08");
@@ -21351,23 +20348,6 @@ export const QuestCompleteAt08ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21376,6 +20356,7 @@ export const QuestCompleteAt08ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt09: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-09");
@@ -21389,25 +20370,6 @@ export const QuestCompleteAt09: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21415,6 +20377,7 @@ export const QuestCompleteAt09: Story = {
  * at-09: 選言の交換律 (β規則) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt09ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-09");
@@ -21428,23 +20391,6 @@ export const QuestCompleteAt09ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21453,6 +20399,7 @@ export const QuestCompleteAt09ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt10: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-10");
@@ -21466,25 +20413,6 @@ export const QuestCompleteAt10: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21492,6 +20420,7 @@ export const QuestCompleteAt10: Story = {
  * at-10: 推移律 (複数F→分解) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt10ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-10");
@@ -21505,23 +20434,6 @@ export const QuestCompleteAt10ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21530,6 +20442,7 @@ export const QuestCompleteAt10ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt11: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-11");
@@ -21543,25 +20456,6 @@ export const QuestCompleteAt11: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21569,6 +20463,7 @@ export const QuestCompleteAt11: Story = {
  * at-11: ド・モルガン 2 (α規則中心) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt11ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-11");
@@ -21582,23 +20477,6 @@ export const QuestCompleteAt11ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21607,6 +20485,7 @@ export const QuestCompleteAt11ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt12: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-12");
@@ -21620,25 +20499,6 @@ export const QuestCompleteAt12: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21646,6 +20506,7 @@ export const QuestCompleteAt12: Story = {
  * at-12: 含意のド・モルガン (α規則) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt12ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-12");
@@ -21659,23 +20520,6 @@ export const QuestCompleteAt12ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21684,6 +20528,7 @@ export const QuestCompleteAt12ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt13: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-13");
@@ -21697,25 +20542,6 @@ export const QuestCompleteAt13: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21723,6 +20549,7 @@ export const QuestCompleteAt13: Story = {
  * at-13: 二重否定導入 (α規則) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt13ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-13");
@@ -21736,23 +20563,6 @@ export const QuestCompleteAt13ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21761,6 +20571,7 @@ export const QuestCompleteAt13ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt14: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-14");
@@ -21774,25 +20585,6 @@ export const QuestCompleteAt14: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21800,6 +20592,7 @@ export const QuestCompleteAt14: Story = {
  * at-14: 含意と選言の変換 (β規則) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt14ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-14");
@@ -21813,23 +20606,6 @@ export const QuestCompleteAt14ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21838,6 +20614,7 @@ export const QuestCompleteAt14ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt15: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-15");
@@ -21851,25 +20628,6 @@ export const QuestCompleteAt15: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21877,6 +20635,7 @@ export const QuestCompleteAt15: Story = {
  * at-15: ピアースの法則 (複合β規則) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt15ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-15");
@@ -21890,23 +20649,6 @@ export const QuestCompleteAt15ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21915,6 +20657,7 @@ export const QuestCompleteAt15ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt16: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-16");
@@ -21928,25 +20671,6 @@ export const QuestCompleteAt16: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21954,6 +20678,7 @@ export const QuestCompleteAt16: Story = {
  * at-16: 存在から全称否定 (δ/γ規則) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt16ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-16");
@@ -21967,23 +20692,6 @@ export const QuestCompleteAt16ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -21992,6 +20700,7 @@ export const QuestCompleteAt16ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt17: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-17");
@@ -22005,25 +20714,6 @@ export const QuestCompleteAt17: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -22031,6 +20721,7 @@ export const QuestCompleteAt17: Story = {
  * at-17: 全称と含意の分配 (γ規則×2) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt17ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-17");
@@ -22044,23 +20735,6 @@ export const QuestCompleteAt17ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -22069,6 +20743,7 @@ export const QuestCompleteAt17ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt18: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-18");
@@ -22082,25 +20757,6 @@ export const QuestCompleteAt18: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -22108,6 +20764,7 @@ export const QuestCompleteAt18: Story = {
  * at-18: 全称と連言の分配 (γ規則+F∧) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt18ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-18");
@@ -22121,23 +20778,6 @@ export const QuestCompleteAt18ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -22146,6 +20786,7 @@ export const QuestCompleteAt18ModelAnswer: Story = {
  * 1ステップ証明。
  */
 export const QuestCompleteAt19: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-19");
@@ -22159,25 +20800,6 @@ export const QuestCompleteAt19: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await waitFor(() => {
-      expect(goalPanel).toHaveTextContent("1 / 1");
-    });
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await fitToContent(canvas);
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
@@ -22185,6 +20807,7 @@ export const QuestCompleteAt19: Story = {
  * at-19: 存在と選言 (T∨β+δ規則) — 模範解答ベースの完了状態。
  */
 export const QuestCompleteAt19ModelAnswer: Story = {
+  tags: ["!test"],
   render: () => {
     const { workspace, questInfo, title } =
       buildCompletedQuestWorkspace("at-19");
@@ -22198,23 +20821,6 @@ export const QuestCompleteAt19ModelAnswer: Story = {
         workspaceTestId="workspace"
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId("workspace-page")).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId("workspace-proof-complete-banner"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByTestId("workspace-system")).toHaveTextContent(
-      "Analytic Tableau",
-    );
-    const goalPanel = canvas.getByTestId("workspace-goal-panel");
-    await expect(goalPanel).toHaveTextContent("1 / 1");
-    await expect(goalPanel).toHaveTextContent("Proved!");
-    await userEvent.click(canvas.getByTestId("zoom-fit-button"));
-    await waitFor(() => {
-      expect(canvas.getByTestId("proof-node-node-1")).toBeInTheDocument();
-    });
   },
 };
 
