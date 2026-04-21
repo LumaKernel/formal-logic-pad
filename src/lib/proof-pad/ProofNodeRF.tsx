@@ -46,17 +46,17 @@ function ProofNodeRFInner({
   const callbacks = DEFAULT_CALLBACKS;
 
   const handleFormulaTextChange = useCallback(
-    (_id: string, text: string) => {
-      callbacks.onFormulaTextChange(id, text);
+    (nodeId: string, text: string) => {
+      callbacks.onFormulaTextChange(nodeId, text);
     },
-    [callbacks, id],
+    [callbacks],
   );
 
   const handleEditNote = useCallback(
-    (_id: string) => {
-      callbacks.onEditNote?.(id);
+    (nodeId: string) => {
+      callbacks.onEditNote?.(nodeId);
     },
-    [callbacks, id],
+    [callbacks],
   );
 
   return (
