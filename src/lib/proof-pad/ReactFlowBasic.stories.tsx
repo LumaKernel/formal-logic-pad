@@ -50,6 +50,7 @@ function ReactFlowBasicDemo(): React.JSX.Element {
           defaultNodes={[...initialNodes]}
           defaultEdges={[...initialEdges]}
           fitView
+          proOptions={{ hideAttribution: true }}
         >
           <Background />
           <Controls />
