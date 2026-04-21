@@ -652,6 +652,26 @@ export { usePanelDrag } from "./usePanelDrag";
 export type { UsePanelDragConfig, UsePanelDragResult } from "./usePanelDrag";
 export { usePanelSize } from "./usePanelSize";
 export type { UsePanelSizeResult } from "./usePanelSize";
+export { ProofNodeRF } from "./ProofNodeRF";
+export type { ProofNodeRFCallbacks } from "./ProofNodeRF";
+export {
+  edgeToPosition,
+  edgeToHandleType,
+  portPositionToStyle,
+  connectorPortToHandleProps,
+  connectorPortsToHandleProps,
+} from "./proofNodeRFLogic";
+export type { HandleProps } from "./proofNodeRFLogic";
+export {
+  workspaceNodeToRFNode,
+  workspaceNodesToRFNodes,
+  workspaceConnectionToRFEdge,
+  workspaceConnectionsToRFEdges,
+  applyRFNodePositions,
+  viewportStateToRFViewport,
+  rfViewportToViewportState,
+} from "./reactFlowAdapter";
+export type { ProofNodeData, ProofEdgeData } from "./reactFlowAdapter";
 export {
   ScriptNodeData,
   ScriptNodeDataSchema,

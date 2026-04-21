@@ -82,7 +82,7 @@
     - 逆変換（ドラッグ後の位置更新、選択状態変更）
     - 境界ケース（空ワークスペース、孤立ノード、自己参照エッジ）
 
-- [ ] **RF-003: カスタム ProofNode コンポーネント**
+- [-] **RF-003: カスタム ProofNode コンポーネント**
   - `src/lib/proof-pad/ProofNodeRF.tsx` を新規作成
   - React Flow の `NodeProps` を受け取り、`EditableProofNode` をラップ
   - `<Handle>` コンポーネントで現行の ConnectorPort 相当のポートを定義
