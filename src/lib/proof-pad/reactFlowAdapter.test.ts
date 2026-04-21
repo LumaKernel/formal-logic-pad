@@ -33,7 +33,8 @@ function makeConnection(
   id?: string,
 ): WorkspaceConnection {
   return {
-    id: id ?? `conn-${fromNodeId}-${toNodeId}`,
+    id:
+      id ?? `conn-${fromNodeId satisfies string}-${toNodeId satisfies string}`,
     fromNodeId,
     fromPortId: "out",
     toNodeId,
