@@ -5,29 +5,29 @@
 
 ## 機能マッピング
 
-| 現行 (infinite-canvas)             | React Flow 対応                                                   |
-| ---------------------------------- | ----------------------------------------------------------------- |
-| InfiniteCanvas + CanvasItem        | `<ReactFlow>` + custom node type                                  |
-| PortConnection / Connection        | custom edge type                                                  |
-| ConnectorPortComponent             | `<Handle>` コンポーネント                                         |
-| ConnectionPreviewLine              | 組込み connection line (`connectionLineComponent`)                 |
-| usePan / useZoom                   | 組込み (`panOnDrag`, `zoomOnScroll`, `zoomOnPinch`)               |
-| useMarquee (矩形選択)             | 組込み (`selectionOnDrag`, `SelectionMode`)                       |
-| MinimapComponent                   | `<MiniMap>`                                                       |
-| ZoomControlsComponent              | `<Controls>` またはカスタム                                       |
-| Background grid                    | `<Background>`                                                    |
-| Viewport culling                   | 組込み (React Flow が内部で仮想化)                                |
-| snap.ts / objectSnap.ts            | `snapToGrid` prop + カスタムロジック維持                          |
-| alignment.ts                       | 純粋ロジック維持、React Flow の `onNodeDrag` でガイド描画         |
-| connectionPath.ts                  | 純粋ロジック維持、custom edge 内で使用                            |
-| connectionLabel.ts                 | 純粋ロジック維持、custom edge 内で使用                            |
-| contextMenu / nodeMenu / lineMenu  | `onNodeContextMenu` / `onEdgeContextMenu` / `onPaneContextMenu`  |
-| commandPalette / nodeSearch        | 純粋ロジック維持、React Flow 外のオーバーレイUI                   |
-| keyboardShortcuts                  | 純粋ロジック維持、React Flow のキーボード props と統合            |
-| edgeScrollLogic                    | カスタム実装維持 (React Flow に該当機能なし)                      |
-| useDragItem / useDeferredSnap      | React Flow 組込みドラッグ + `onNodeDragStop` でスナップアニメ     |
-| coordinate.ts (worldToScreen 等)   | `useReactFlow()` の `screenToFlowPosition` / `flowToScreenPosition` |
-| workspaceImageExport.ts            | `toObject()` + カスタム SVG 生成                                  |
+| 現行 (infinite-canvas)            | React Flow 対応                                                     |
+| --------------------------------- | ------------------------------------------------------------------- |
+| InfiniteCanvas + CanvasItem       | `<ReactFlow>` + custom node type                                    |
+| PortConnection / Connection       | custom edge type                                                    |
+| ConnectorPortComponent            | `<Handle>` コンポーネント                                           |
+| ConnectionPreviewLine             | 組込み connection line (`connectionLineComponent`)                  |
+| usePan / useZoom                  | 組込み (`panOnDrag`, `zoomOnScroll`, `zoomOnPinch`)                 |
+| useMarquee (矩形選択)             | 組込み (`selectionOnDrag`, `SelectionMode`)                         |
+| MinimapComponent                  | `<MiniMap>`                                                         |
+| ZoomControlsComponent             | `<Controls>` またはカスタム                                         |
+| Background grid                   | `<Background>`                                                      |
+| Viewport culling                  | 組込み (React Flow が内部で仮想化)                                  |
+| snap.ts / objectSnap.ts           | `snapToGrid` prop + カスタムロジック維持                            |
+| alignment.ts                      | 純粋ロジック維持、React Flow の `onNodeDrag` でガイド描画           |
+| connectionPath.ts                 | 純粋ロジック維持、custom edge 内で使用                              |
+| connectionLabel.ts                | 純粋ロジック維持、custom edge 内で使用                              |
+| contextMenu / nodeMenu / lineMenu | `onNodeContextMenu` / `onEdgeContextMenu` / `onPaneContextMenu`     |
+| commandPalette / nodeSearch       | 純粋ロジック維持、React Flow 外のオーバーレイUI                     |
+| keyboardShortcuts                 | 純粋ロジック維持、React Flow のキーボード props と統合              |
+| edgeScrollLogic                   | カスタム実装維持 (React Flow に該当機能なし)                        |
+| useDragItem / useDeferredSnap     | React Flow 組込みドラッグ + `onNodeDragStop` でスナップアニメ       |
+| coordinate.ts (worldToScreen 等)  | `useReactFlow()` の `screenToFlowPosition` / `flowToScreenPosition` |
+| workspaceImageExport.ts           | `toObject()` + カスタム SVG 生成                                    |
 
 ## 保持する純粋ロジック (移行不要、参照先のみ変更)
 
