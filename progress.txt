@@ -114,6 +114,26 @@
 
 ---
 
+## 2026-04-22 - [reactflow] RF-002 workspaceState ↔ React Flow 変換アダプター
+
+- ベースライン: Stmts 99.80%, Branch 99.18%, Funcs 90.87%, Lines 99.81%
+- **結果: Stmts 99.80%, Branch 99.18%, Funcs 90.89%, Lines 99.81%**（Funcs 微増）
+- 実装内容:
+  - `reactFlowAdapter.ts`: WorkspaceState ↔ React Flow 変換の純粋関数群
+  - ノード変換: WorkspaceNode → RFNode<ProofNodeData>（分類・ポート情報付き）
+  - エッジ変換: WorkspaceConnection → RFEdge<ProofEdgeData>（色・InferenceEdge付き）
+  - 逆変換: applyRFNodePositions（位置更新、参照等価性維持）
+  - Viewport 変換: ViewportState ↔ RF Viewport（双方向）
+  - `reactFlowAdapter.test.ts`: 20テストケースで全変換パスを網羅
+- 変更ファイル:
+  - src/lib/proof-pad/reactFlowAdapter.ts（新規）
+  - src/lib/proof-pad/reactFlowAdapter.test.ts（新規）
+- **今後のイテレーションへの学び:**
+  - InferenceEdge は `conclusionNodeId` で検索。接続の `toNodeId` と一致する edge を探す
+  - テストのテンプレートリテラルにも `satisfies string` が必要（ESLint: `require-satisfies-in-tls`）
+
+---
+
 ## 2026-04-21 - [reactflow] RF-001 @xyflow/react インストール + 基本動作確認
 
 - ベースライン: Stmts 99.80%, Branch 99.18%, Funcs 90.87%, Lines 99.81%

@@ -71,7 +71,7 @@
 
 ### Phase 1: アダプター層の構築
 
-- [-] **RF-002: workspaceState ↔ React Flow 変換アダプター**
+- [x] **RF-002: workspaceState ↔ React Flow 変換アダプター** — reactFlowAdapter.ts + テスト20件
   - `src/lib/proof-pad/reactFlowAdapter.ts` を新規作成
   - `WorkspaceState` → React Flow `Node[]` / `Edge[]` 変換関数
   - React Flow `NodeChange[]` / `EdgeChange[]` → `WorkspaceState` 逆変換関数
