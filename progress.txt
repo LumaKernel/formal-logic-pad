@@ -110,6 +110,25 @@
 - インラインタグ追加チェックリスト: referenceUILogic.ts(InlineElement型+regex+parser) → InlineMarkdown.tsx(style+props+render+renderContentWithInline) → BodyContent.tsx(props透過) → 各consumer(コールバック接続) → テスト2ファイル
 - shadcn-uiカラートークン: `bg-card`, `border-ui-border`, `text-muted-foreground`, `text-foreground`, `bg-muted`, `bg-background`, `bg-ui-accent`
 - shadcn-ui変換パターン: 選択バッジは`bg-primary text-primary-foreground border-primary`、非選択は`bg-card text-muted-foreground border-ui-border hover:bg-muted`
+- React Flow: `@xyflow/react@12.10.2` 使用。`proOptions={{ hideAttribution: true }}` で a11y 対応必須。`ReactFlowProvider` で囲む
+
+---
+
+## 2026-04-21 - [reactflow] RF-001 @xyflow/react インストール + 基本動作確認
+
+- ベースライン: Stmts 99.80%, Branch 99.18%, Funcs 90.87%, Lines 99.81%
+- **結果: Stmts 99.80%, Branch 99.18%, Funcs 90.87%, Lines 99.81%**（変動なし）
+- 実装内容:
+  - `@xyflow/react@12.10.2` をインストール
+  - `ReactFlowBasic.stories.tsx` で基本動作確認（ノード3個、エッジ2本、Background、Controls、MiniMap）
+  - play 関数でレンダリング検証（ノード・エッジ・各コンポーネントの存在確認）
+- 変更ファイル:
+  - package.json, package-lock.json
+  - src/lib/proof-pad/ReactFlowBasic.stories.tsx（新規）
+- **今後のイテレーションへの学び:**
+  - React Flow の帰属リンクが a11y カラーコントラスト基準を満たしていない → `proOptions={{ hideAttribution: true }}` で非表示にする必要がある。今後 ReactFlow を使う全ストーリーで同様に設定すること
+  - `ReactFlowProvider` で囲む必要がある（`useReactFlow()` を内部で使うため）
+  - `defaultNodes`/`defaultEdges` に readonly 配列を渡すとエラー → スプレッドで mutable コピーを作成
 
 ---
 

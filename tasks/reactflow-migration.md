@@ -62,7 +62,7 @@
 
 ### Phase 0: セットアップ
 
-- [ ] **RF-001: @xyflow/react インストール + 基本動作確認**
+- [x] **RF-001: @xyflow/react インストール + 基本動作確認** — v12.10.2、`proOptions={{ hideAttribution: true }}` で a11y 対応
   - `@xyflow/react` をインストール
   - 最小限の ReactFlow ストーリー (`ReactFlowBasic.stories.tsx`) を作成
   - play 関数でノード・エッジのレンダリングを検証
