@@ -113,6 +113,26 @@
 
 ---
 
+## 2026-04-21 - [reactflow] React Flow 移行ロードマップ策定
+
+- ベースライン: Stmts 99.80%, Branch 99.18%, Funcs 90.87%, Lines 99.81%
+- **結果: Stmts 99.80%, Branch 99.18%, Funcs 90.89%, Lines 99.81%**（変動なし）
+- 実装内容:
+  - カスタム InfiniteCanvas (~29K LOC, ~55ファイル) → @xyflow/react 完全移行のロードマップ策定
+  - 17タスクに分解（Phase 0〜5: セットアップ → アダプター層 → 中核移行 → 機能パリティ → 周辺移行 → クリーンアップ）
+  - 機能マッピング表、保持する純粋ロジック一覧、削除対象一覧、リスクと注意点を整理
+- 変更ファイル:
+  - tasks/reactflow-migration.md（新規）
+  - tasks/inserted-tasks.md（完了・アーカイブ）
+- **今後のイテレーションへの学び:**
+  - React Flow は pan/zoom/selection/minimap/controls/background を組込み提供。カスタム実装の大半が不要になる
+  - 純粋ロジックファイル（connectionPath, alignment, snap, edgeScroll 等）はフレームワーク非依存なので移行不要
+  - 主な移行作業は React Hook → React Flow API の置換とカスタムノード/エッジの作成
+  - undo/redo と React Flow の状態同期が最大のリスク（制御コンポーネントとして使う方針）
+  - ScriptEditor が ContextMenu を infinite-canvas から使っているため、共有コンポーネントへの切り出しが必要
+
+---
+
 ## 2026-03-31 - [quest] prop-41 QuestComplete ストーリー追加
 
 - ベースライン: Stmts 99.80%, Branch 99.06%, Funcs 90.66%, Lines 99.81%
